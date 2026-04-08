@@ -19,11 +19,11 @@
 [ 15] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/system/libsystem_platform.tbd
 # Sections:
 # Address	Size    	Segment	Section
-0x000006E0	0x00000F04	__TEXT	__text
-0x000015E4	0x00000018	__TEXT	__stubs
-0x000015FC	0x00000008	__TEXT	__cstring
-0x00001604	0x0003AC30	__TEXT	__const
-0x0003C238	0x00000358	__TEXT	__eh_frame
+0x000006E0	0x00000F9C	__TEXT	__text
+0x0000167C	0x00000018	__TEXT	__stubs
+0x00001694	0x00000012	__TEXT	__cstring
+0x000016A8	0x0003AC30	__TEXT	__const
+0x0003C2D8	0x00000350	__TEXT	__eh_frame
 0x00040000	0x00000010	__DATA_CONST	__got
 0x00040010	0x000001C8	__DATA_CONST	__const
 0x00044000	0x00000008	__DATA	.data
@@ -36,56 +36,57 @@
 0x00000760	0x00000098	[  1] _play_tone.part.0
 0x000007F8	0x00000028	[  1] _draw_house_background.part.0
 0x00000820	0x0000011C	[  1] _try_transition
-0x0000093C	0x00000B0C	[  1] _plugin_start
-0x00001448	0x00000018	[  2] _cleanup_wrapper
-0x00001460	0x00000068	[  2] _plugin__start
-0x000014C8	0x00000020	[  2] _rb_atexit
-0x000014E8	0x00000024	[  2] _exit
-0x0000150C	0x00000014	[  2] __exit
-0x00001520	0x00000064	[  2] _exit_on_usb
-0x00001584	0x00000018	[  3] _memcpy
-0x0000159C	0x00000018	[  3] _memset
-0x000015B4	0x00000018	[  3] _memmove
-0x000015CC	0x00000018	[  3] _memcmp
-0x000015E4	0x0000000C	[ 15] _longjmp.stub
-0x000015F0	0x0000000C	[ 15] _setjmp.stub
-0x000015FC	0x00000005	[  1] literal string: LIFE
-0x00001601	0x00000003	[  1] literal string: %d
-0x00001604	0x000006F0	[  1] _room_defs
-0x00001CF4	0x00000024	[  1] _bgm_meadow
-0x00001D18	0x00000024	[  1] _bgm_entrance
-0x00001D3C	0x00000024	[  1] _bgm_bedroom
-0x00001D60	0x00000153	[  1] _south_hyrule_blocked_bits
-0x00001EB4	0x00000480	[  4] _minishcap_link_back
-0x00002334	0x00000480	[  5] _minishcap_link_front
-0x000027B4	0x00000480	[  6] _minishcap_link_front_step
-0x00002C34	0x00000480	[  7] _minishcap_link_left
-0x000030B4	0x00000480	[  8] _minishcap_link_left_step
-0x00003534	0x00000480	[  9] _minishcap_link_right
-0x000039B4	0x00000480	[ 10] _minishcap_link_right_step
-0x00003E34	0x00012C00	[ 11] _minishcap_room_links_house_bedroom
-0x00016A34	0x00012C00	[ 12] _minishcap_room_links_house_entrance
-0x00029634	0x00012C00	[ 13] _minishcap_room_links_house_smith
-0x0003C238	0x00000018	[  1] CFI
-0x0003C250	0x00000020	[  1] FDE for: _audio_callback
-0x0003C270	0x00000020	[  1] FDE for: _south_hyrule_pixel_blocked
-0x0003C290	0x00000020	[  1] FDE for: _set_fg
-0x0003C2B0	0x00000020	[  1] FDE for: _play_tone.part.0
-0x0003C2D0	0x00000020	[  1] FDE for: _draw_house_background.part.0
-0x0003C2F0	0x00000060	[  1] FDE for: _try_transition
-0x0003C350	0x00000078	[  1] FDE for: _plugin_start
-0x0003C3C8	0x00000018	[  2] CFI
-0x0003C3E0	0x00000020	[  2] FDE for: _cleanup_wrapper
-0x0003C400	0x00000040	[  2] FDE for: _plugin__start
-0x0003C440	0x00000020	[  2] FDE for: _rb_atexit
-0x0003C460	0x00000030	[  2] FDE for: _exit
-0x0003C490	0x00000030	[  2] FDE for: __exit
-0x0003C4C0	0x00000038	[  2] FDE for: _exit_on_usb
-0x0003C4F8	0x00000018	[  3] CFI
-0x0003C510	0x00000020	[  3] FDE for: _memcpy
-0x0003C530	0x00000020	[  3] FDE for: _memset
-0x0003C550	0x00000020	[  3] FDE for: _memmove
-0x0003C570	0x00000020	[  3] FDE for: _memcmp
+0x0000093C	0x00000BA4	[  1] _plugin_start
+0x000014E0	0x00000018	[  2] _cleanup_wrapper
+0x000014F8	0x00000068	[  2] _plugin__start
+0x00001560	0x00000020	[  2] _rb_atexit
+0x00001580	0x00000024	[  2] _exit
+0x000015A4	0x00000014	[  2] __exit
+0x000015B8	0x00000064	[  2] _exit_on_usb
+0x0000161C	0x00000018	[  3] _memcpy
+0x00001634	0x00000018	[  3] _memset
+0x0000164C	0x00000018	[  3] _memmove
+0x00001664	0x00000018	[  3] _memcmp
+0x0000167C	0x0000000C	[ 15] _longjmp.stub
+0x00001688	0x0000000C	[ 15] _setjmp.stub
+0x00001694	0x0000000A	[  1] literal string: MC-SIM r3
+0x0000169E	0x00000005	[  1] literal string: LIFE
+0x000016A3	0x00000003	[  1] literal string: %d
+0x000016A8	0x000006F0	[  1] _room_defs
+0x00001D98	0x00000024	[  1] _bgm_meadow
+0x00001DBC	0x00000024	[  1] _bgm_entrance
+0x00001DE0	0x00000024	[  1] _bgm_bedroom
+0x00001E04	0x00000153	[  1] _south_hyrule_blocked_bits
+0x00001F58	0x00000480	[  4] _minishcap_link_back
+0x000023D8	0x00000480	[  5] _minishcap_link_front
+0x00002858	0x00000480	[  6] _minishcap_link_front_step
+0x00002CD8	0x00000480	[  7] _minishcap_link_left
+0x00003158	0x00000480	[  8] _minishcap_link_left_step
+0x000035D8	0x00000480	[  9] _minishcap_link_right
+0x00003A58	0x00000480	[ 10] _minishcap_link_right_step
+0x00003ED8	0x00012C00	[ 11] _minishcap_room_links_house_bedroom
+0x00016AD8	0x00012C00	[ 12] _minishcap_room_links_house_entrance
+0x000296D8	0x00012C00	[ 13] _minishcap_room_links_house_smith
+0x0003C2D8	0x00000018	[  1] CFI
+0x0003C2F0	0x00000020	[  1] FDE for: _audio_callback
+0x0003C310	0x00000020	[  1] FDE for: _south_hyrule_pixel_blocked
+0x0003C330	0x00000020	[  1] FDE for: _set_fg
+0x0003C350	0x00000020	[  1] FDE for: _play_tone.part.0
+0x0003C370	0x00000020	[  1] FDE for: _draw_house_background.part.0
+0x0003C390	0x00000060	[  1] FDE for: _try_transition
+0x0003C3F0	0x00000070	[  1] FDE for: _plugin_start
+0x0003C460	0x00000018	[  2] CFI
+0x0003C478	0x00000020	[  2] FDE for: _cleanup_wrapper
+0x0003C498	0x00000040	[  2] FDE for: _plugin__start
+0x0003C4D8	0x00000020	[  2] FDE for: _rb_atexit
+0x0003C4F8	0x00000030	[  2] FDE for: _exit
+0x0003C528	0x00000030	[  2] FDE for: __exit
+0x0003C558	0x00000038	[  2] FDE for: _exit_on_usb
+0x0003C590	0x00000018	[  3] CFI
+0x0003C5A8	0x00000020	[  3] FDE for: _memcpy
+0x0003C5C8	0x00000020	[  3] FDE for: _memset
+0x0003C5E8	0x00000020	[  3] FDE for: _memmove
+0x0003C608	0x00000020	[  3] FDE for: _memcmp
 0x00040000	0x00000008	[ 15] _longjmp.got
 0x00040008	0x00000008	[ 15] _setjmp.got
 0x00040010	0x00000038	[  2] ___header

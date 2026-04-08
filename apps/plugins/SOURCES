@@ -200,6 +200,7 @@ rocklife.c
 #if LCD_DEPTH > 1                  /* non-mono bitmap targets */
 
 matrix.c
+minishcap.c
 speedread.c
 
 #if (LCD_WIDTH > 138)

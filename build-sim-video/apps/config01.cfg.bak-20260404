@@ -1,0 +1,247 @@
+# .cfg file created by rockbox 2a72f8d3f9-260329 - http://www.rockbox.org
+
+volume: -9
+pitch: 10000
+speed: 10000
+volume limit: 6
+balance: 0
+bass: 0
+treble: 0
+channels: stereo
+stereo_width: 110
+shuffle: off
+repeat: off
+playback frequency: auto
+album art: prefer image file
+backlight timeout: 10
+backlight timeout plugged: 60
+selector type: bar (color)
+statusbar: off
+scrollbar: off
+scrollbar width: 6
+list separator height: off
+list separator color: 525552
+volume display: graphic
+battery display: graphic
+time format: 12hour
+show icons: on
+idle poweroff: 30
+max files in playlist: 2000
+max files in dir: 5000
+volume adjustment mode: direct
+perceptual volume step count: 50
+battery capacity: 850
+car adapter mode: off
+delay before resume: 5
+serial bitrate: auto
+accessory power supply: on
+lineout: on
+force fm mono: off
+sync_rds_time: on
+backlight filters first keypress: off
+caption backlight: on
+No Backlight On Selected Actions: off
+Selective Backlight Actions: 0
+brightness: 17
+backlight fade in: 200
+backlight fade out: 10000
+scroll speed: 9
+scroll delay: 1000
+bidir limit: 50
+Screen Scrolls Out Of View: off
+Disable main menu scrolling: off
+scroll step: 6
+screen scroll step: 16
+scroll paginated: off
+list wraparound: on
+list order: ascending
+foreground color: ffffff
+background color: 000000
+line selector start color: 008eff
+line selector end color: 000000
+line selector text color: ffffff
+play selected: on
+single mode: off
+party mode: off
+volume fade: on
+scan min step: 1
+seek acceleration: normal
+antiskip: 5
+disk spindown: 5
+storage mode: auto
+start directory: /<HDD0>/Main Files/
+show files: supported
+sort case: off
+sort dirs: alpha
+sort files: alpha
+sort playlists: alpha
+sort interpret number: numbers
+show filename exts: view_all
+follow playlist: off
+playlist viewer icons: on
+playlist viewer indices: on
+playlist viewer track display: track name
+recursive directory insert: on
+autocreate bookmarks: off
+autoupdate bookmarks: off
+autoload bookmarks: off
+use most-recent-bookmarks: off
+peak meter clip hold: 60
+peak meter hold: 500
+peak meter release: 8
+peak meter dbfs: on
+peak meter min: 60
+peak meter max: 0
+peak meter clipcounter: off
+talk menu: on
+talk dir: off
+talk dir clip: off
+talk file: off
+talk file clip: off
+talk filetype: off
+Announce Battery Level: off
+talk mixer level: 100
+rec timesplit: off
+rec sizesplit: off
+rec channels: stereo
+rec mono mode: L+R
+rec split type: Split
+rec split method: Time
+rec source: line
+prerecording time: 0
+rec path: /Recordings
+cliplight: off
+rec mic gain: 16
+rec left gain: 0
+rec right gain: 0
+rec frequency: 44
+rec format: wave
+mp3_enc bitrate: 128
+trigger start threshold dB: -35
+trigger start threshold linear: 5
+trigger stop threshold dB: -45
+trigger stop threshold linear: 10
+trigger start duration: off
+trigger stop duration: off
+trigger min gap: 1
+trigger mode: off
+trigger type: stop
+folder navigation: off
+constrain next folder: off
+autoresume enable: off
+autoresume next track: never
+autoresume next track paths: /podcast:/podcasts
+gather runtime data: on
+database scan paths: /Main Files/Music
+database path: /.rockbox
+replaygain type: track
+replaygain noclip: on
+replaygain preamp: 0
+beep: off
+crossfade: shuffle
+crossfade fade in delay: 0
+crossfade fade out delay: 0
+crossfade fade in duration: 2
+crossfade fade out duration: 2
+crossfade fade out mode: crossfade
+crossfeed: custom
+crossfeed direct gain: -45
+crossfeed cross gain: -75
+crossfeed hf attenuation: -160
+crossfeed hf cutoff: 700
+eq enabled: off
+eq precut: 5
+eq low shelf filter: 100, 7, 10
+eq peak filter 1: 60, 10, -2
+eq peak filter 2: 250, 20, -3
+eq peak filter 3: 250, 10, 0
+eq peak filter 4: 2000, 20, 0
+eq peak filter 5: 4000, 20, 20
+eq peak filter 6: 8000, 10, 10
+eq peak filter 7: 4000, 10, 0
+eq peak filter 8: 8000, 10, 0
+eq high shelf filter: 16000, 7, 10
+dithering enabled: off
+surround enabled: off
+surround balance: 35
+surround_fx1: 3400
+surround_fx2: 320
+side only: off
+surround mix: 50
+afr enabled: off
+pbe: 0
+pbe precut: -25
+timestretch enabled: off
+compressor threshold: 0
+compressor makeup gain: auto
+compressor ratio: 4:1
+compressor knee: soft knee
+compressor attack time: 5
+compressor release time: 500
+bass cutoff: 1
+treble cutoff: 1
+dircache: on
+tagcache_ram: on
+tagcache_autoupdate: off
+default codepage: utf-8
+warn when erasing dynamic playlist: on
+keep current track when replacing playlist: on
+show shuffled adding options: on
+show queue options: off
+default browser: files
+backlight on button hold: normal
+lcd sleep after backlight off: 30
+hold_lr_for_scroll_in_list: on
+show path in browser: current directory
+pause on headphone unplug: off
+disable autoresume if phones not present: off
+rewind duration on pause: 0
+fm_region: eu
+fmr: -
+fms: /.rockbox/wps/adwaitapod_dark.fms
+font: /.rockbox/fonts/18-Inter-SemiBold.fnt
+glyphs: 250
+wps: /.rockbox/wps/adwaitapod_dark.wps
+sbs: /.rockbox/wps/adwaitapod_dark.sbs
+lang: -
+backdrop: -
+kbd: -
+usb charging: on
+cuesheet support: off
+skip length: track
+start in screen: root
+wps select action: default
+alarm wakeup screen: wps
+iconset: /.rockbox/icons/adwaitapod_dark.bmp
+viewers iconset: /.rockbox/icons/adwaitapod_dark_viewers.bmp
+filetype colours: -
+dynamic colors: off
+keyclick: off
+keyclick repeats: off
+hardware keyclick: on
+playlist catalog directory: /Playlists
+sleeptimer duration: 30
+sleeptimer on startup: off
+keypress restarts sleeptimer: off
+show shutdown message: on
+qs top: usb mode
+qs left: shuffle
+qs right: repeat
+qs bottom: hardware keyclick
+shortcuts instead of quickscreen: off
+prevent track skip: off
+rewind across tracks: off
+Semitone pitch change: off
+Timestretch mode: off
+usb hid: on
+usb keypad mode: multimedia
+usb-dac: never
+ui viewport: -
+morse input: off
+hotkey wps: view playlist
+hotkey tree: off
+resume rewind: 0
+root menu order: pictureflow, database, playlists, files, plugins, settings, shortcuts, 
+usb mode: charge
+clear settings on hold: on
+play log: off

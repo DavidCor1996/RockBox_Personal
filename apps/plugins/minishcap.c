@@ -35,6 +35,8 @@
 #define TMC_TO_PLAYER_Y(tmc_y) ((tmc_y) - 16 + 2)
 #define MEADOW_WORLD_X 470
 #define MEADOW_WORLD_Y 210
+#define MEADOW_ROOM_W 320
+#define MEADOW_ROOM_H 208
 
 #define SOUTH_HYRULE_TILE_W 63
 #define SOUTH_HYRULE_TILE_H 43
@@ -64,6 +66,7 @@ enum { NPCTYPE_NONE = 0, NPCTYPE_ZELDA, NPCTYPE_SMITH };
 #define COLOR_ROOM_WALL 0x2945
 #define COLOR_ROOM_OBJECT 0x31A0
 #define COLOR_MINIMAP_MARKER 0xFF00
+#define MINISHCAP_BUILD_TAG "MC-SIM r3"
 
 #include "pluginbitmaps/minishcap_link_back.h"
 #include "pluginbitmaps/minishcap_link_front.h"
@@ -271,25 +274,43 @@ static const struct room_def room_defs[ROOM_COUNT] = {
         THEME_HOUSE, 0, {{0,0}, {0,0}, {0,0}}, 0, {{0,0,0,0}, {0,0,0,0}},
         4, {{0, 0, 240, 8}, {0, 0, 8, 160}, {232, 0, 8, 160}, {0, 150, 240, 10}, {0,0,0,0}, {0,0,0,0}, {0,0,0,0}, {0,0,0,0}},
         false, {0,0,0,0}, false, {0,0,0,0}, BEDROOM_START_X, BEDROOM_START_Y,
-        {{-1,0,0}, {-1,0,0}, {-1,0,0}, {ROOM_LINKS_HOUSE_ENTRANCE, 12, 86}},
+        {{ROOM_LINKS_HOUSE_ENTRANCE, 12, 86}, {-1,0,0}, {-1,0,0}, {-1,0,0}},
     },
     {
         THEME_HOUSE, 0, {{0,0}, {0,0}, {0,0}}, 0, {{0,0,0,0}, {0,0,0,0}},
         4, {{0, 0, 240, 8}, {0, 0, 8, 160}, {232, 0, 8, 160}, {0, 152, 86, 8}, {154, 152, 86, 8}, {0,0,0,0}, {0,0,0,0}, {0,0,0,0}},
         false, {0,0,0,0}, false, {0,0,0,0}, 12, 86,
-        {{-1,0,0}, {-1,0,0}, {-1,0,0}, {ROOM_LINKS_HOUSE_SMITH, 154, 86}},
+        {{ROOM_MEADOW, HOUSE_EXIT_SAFE_X, HOUSE_EXIT_SAFE_Y}, {-1,0,0}, {ROOM_LINKS_HOUSE_BEDROOM, BEDROOM_START_X, BEDROOM_START_Y}, {ROOM_LINKS_HOUSE_SMITH, 154, 86}},
     },
     {
         THEME_HOUSE, 0, {{0,0}, {0,0}, {0,0}}, 0, {{0,0,0,0}, {0,0,0,0}},
         4, {{0, 0, 240, 8}, {0, 0, 8, 160}, {232, 0, 8, 160}, {0, 150, 240, 10}, {0,0,0,0}, {0,0,0,0}, {0,0,0,0}, {0,0,0,0}},
         false, {0,0,0,0}, false, {0,0,0,0}, 148, 110,
-        {{-1,0,0}, {-1,0,0}, {-1,0,0}, {ROOM_LINKS_HOUSE_ENTRANCE, 12, 86}},
+        {{-1,0,0}, {-1,0,0}, {ROOM_LINKS_HOUSE_ENTRANCE, 12, 86}, {-1,0,0}},
     },
 };
 
 static const struct room_def *current_room(const struct game_state *game) { return &room_defs[game->room_id]; }
 static bool room_uses_world_map(const struct game_state *game) { return game->room_id == ROOM_MEADOW; }
 static bool room_uses_local_coords(const struct game_state *game) { return game->room_id >= ROOM_LINKS_HOUSE_BEDROOM; }
+
+static void get_room_bounds(const struct game_state *game, int *left, int *top, int *right, int *bottom)
+{
+    if (room_uses_world_map(game))
+    {
+        *left = MEADOW_WORLD_X;
+        *top = MEADOW_WORLD_Y;
+        *right = MEADOW_WORLD_X + MEADOW_ROOM_W;
+        *bottom = MEADOW_WORLD_Y + MEADOW_ROOM_H;
+    }
+    else
+    {
+        *left = 0;
+        *top = 0;
+        *right = INTERIOR_ROOM_W;
+        *bottom = INTERIOR_ROOM_H;
+    }
+}
 
 static int world_to_screen_x(const struct game_state *game, int x)
 {
@@ -384,6 +405,7 @@ static void draw_hud(const struct game_state *game)
     rb->snprintf(line, sizeof(line), "%d", game->rupees);
     set_fg(COLOR_PANEL_TEXT);
     rb->lcd_putsxy(right_x + 26, 13, line);
+    rb->lcd_putsxy(8, LCD_HEIGHT - 10, MINISHCAP_BUILD_TAG);
 }
 
 static void draw_player(const struct game_state *game)
@@ -400,7 +422,7 @@ static void draw_player(const struct game_state *game)
         case FACE_RIGHT: sprite = (MINISHCAP_SWAP_LEFT_RIGHT) ? (step ? minishcap_link_left_step : minishcap_link_left) : (step ? minishcap_link_right_step : minishcap_link_right); break;
         default: sprite = (step ? minishcap_link_front_step : minishcap_link_front); break;
     }
-    rb->lcd_bitmap(sprite, draw_x, draw_y, sprite_w, sprite_h);
+    rb->lcd_bitmap_transparent(sprite, draw_x, draw_y, sprite_w, sprite_h);
     
     if (game->sword_equipped && game->sword_timer > 0)
     {
@@ -548,11 +570,19 @@ static void update_game(struct game_state *game, int cmd, int event)
     
     int next_x = game->x + dx;
     int next_y = game->y + dy;
+
+    int room_left, room_top, room_right, room_bottom;
+    get_room_bounds(game, &room_left, &room_top, &room_right, &room_bottom);
     
-    if (next_x < ROOM_LEFT && try_transition(game, FACE_LEFT)) return;
-    if (next_x + PLAYER_W > ROOM_RIGHT && try_transition(game, FACE_RIGHT)) return;
-    if (next_y < ROOM_TOP && try_transition(game, FACE_UP)) return;
-    if (next_y + PLAYER_H > ROOM_BOTTOM && try_transition(game, FACE_DOWN)) return;
+    if (next_x < room_left && try_transition(game, FACE_LEFT)) return;
+    if (next_x + PLAYER_W > room_right && try_transition(game, FACE_RIGHT)) return;
+    if (next_y < room_top && try_transition(game, FACE_UP)) return;
+    if (next_y + PLAYER_H > room_bottom && try_transition(game, FACE_DOWN)) return;
+
+    if (next_x < room_left) next_x = room_left;
+    if (next_x + PLAYER_W > room_right) next_x = room_right - PLAYER_W;
+    if (next_y < room_top) next_y = room_top;
+    if (next_y + PLAYER_H > room_bottom) next_y = room_bottom - PLAYER_H;
     
     // Interior collision: clamp movement against defined solids in the room
     if (game->room_id != ROOM_MEADOW) {
@@ -583,6 +613,7 @@ enum plugin_status plugin_start(const void *parameter)
     struct game_state game;
     enum plugin_status status = PLUGIN_OK;
     (void)parameter;
+    rb->splash(HZ, MINISHCAP_BUILD_TAG);
     rb->lcd_set_foreground(COLOR_BLACK);
     rb->lcd_fillrect(0, 0, LCD_WIDTH, LCD_HEIGHT);
     rb->lcd_update();
