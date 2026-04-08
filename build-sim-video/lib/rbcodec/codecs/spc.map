@@ -1,0 +1,124 @@
+# Path: /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/spc.elf
+# Arch: arm64
+# Object files:
+[  0] linker synthesized
+[  1] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/spc.o
+[  2] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/codec_crt0.o
+[  3] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libspc.a(spc_cpu.o)
+[  4] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libspc.a(spc_dsp.o)
+[  5] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libspc.a(spc_emu.o)
+[  6] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+[  7] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/libSystem.tbd
+# Sections:
+# Address	Size    	Segment	Section
+0x000006E0	0x00003678	__TEXT	__text
+0x00003D58	0x000000E2	__TEXT	__cstring
+0x00003E3A	0x00000340	__TEXT	__const
+0x00004180	0x000007C0	__TEXT	__eh_frame
+0x00008000	0x00000040	__DATA_CONST	__const
+0x0000C000	0x00000008	__DATA	.data
+0x0000C008	0x00000400	__DATA	__data
+0x0000C408	0x00002630	__DATA	__bss
+0x0000EA38	0x00010200	__DATA	__common
+# Symbols:
+# Address	Size    	File  Name
+0x000006E0	0x00000718	[  1] _codec_run
+0x00000DF8	0x00000078	[  1] _codec_main
+0x00000E70	0x00000008	[  2] __start
+0x00000E78	0x00000004	[  2] _codec_start
+0x00000E7C	0x00000038	[  3] _CPU_mem_bit
+0x00000EB4	0x00001AA8	[  3] _CPU_run
+0x0000295C	0x00000024	[  3] _CPU_Init
+0x00002980	0x00000048	[  4] _key_on
+0x000029C8	0x00000090	[  4] _DSP_write
+0x00002A58	0x0000091C	[  4] _DSP_run_
+0x00003374	0x00000094	[  4] _DSP_reset
+0x00003408	0x00000050	[  5] _Timer_run_
+0x00003458	0x00000048	[  5] _SPC_enable_rom
+0x000034A0	0x00000058	[  5] _SPC_run_dsp_
+0x000034F8	0x00000094	[  5] _SPC_Init
+0x0000358C	0x00000250	[  5] _SPC_load_spc
+0x000037DC	0x000000C0	[  5] _SPC_read
+0x0000389C	0x000001AC	[  5] _SPC_write
+0x00003A48	0x000000AC	[  5] _SPC_play
+0x00003AF4	0x00000040	[  6] _codec_init
+0x00003B34	0x00000048	[  6] _codec_set_replaygain
+0x00003B7C	0x00000048	[  6] _codec_malloc
+0x00003BC4	0x0000004C	[  6] _codec_calloc
+0x00003C10	0x00000004	[  6] _codec_free
+0x00003C14	0x00000054	[  6] _codec_realloc
+0x00003C68	0x00000018	[  6] _codec_strlen
+0x00003C80	0x00000018	[  6] _strcpy
+0x00003C98	0x00000018	[  6] _strcat
+0x00003CB0	0x00000018	[  6] _strcmp
+0x00003CC8	0x00000018	[  6] _memcpy
+0x00003CE0	0x00000018	[  6] _memset
+0x00003CF8	0x00000018	[  6] _memcmp
+0x00003D10	0x00000018	[  6] _memchr
+0x00003D28	0x00000018	[  6] _memmove
+0x00003D40	0x00000018	[  6] _qsort
+0x00003D58	0x00000011	[  1] literal string: SPC: next_track\n
+0x00003D69	0x00000011	[  1] literal string: SPC: after init\n
+0x00003D7A	0x0000001D	[  1] literal string: SPC: request initial buffer\n
+0x00003D97	0x00000018	[  1] literal string: SPC: read size = 0x%lx\n
+0x00003DAF	0x00000012	[  1] literal string: SPC load failure\n
+0x00003DC1	0x00000015	[  1] literal string: binary tag detected\n
+0x00003DD6	0x00000013	[  1] literal string: text tag detected\n
+0x00003DE9	0x0000001D	[  1] literal string: seek to %ld\ncurrently at %d\n
+0x00003E06	0x00000018	[  1] literal string: seek backwards = reset\n
+0x00003E1E	0x0000001C	[  5] literal string: SNES-SPC700 Sound File Data
+0x00003E3A	0x00000100	[  3] _cycle_table
+0x00003F3A	0x00000040	[  4] _env_rates
+0x00003F7A	0x00000100	[  6] _bs_clz_tab
+0x0000407A	0x00000100	[  6] _bs_log2_tab
+0x00004180	0x00000018	[  1] CFI
+0x00004198	0x00000070	[  1] FDE for: _codec_run
+0x00004208	0x00000040	[  1] FDE for: _codec_main
+0x00004248	0x00000018	[  2] CFI
+0x00004260	0x00000020	[  2] FDE for: __start
+0x00004280	0x00000020	[  2] FDE for: _codec_start
+0x000042A0	0x00000018	[  3] CFI
+0x000042B8	0x00000040	[  3] FDE for: _CPU_mem_bit
+0x000042F8	0x00000068	[  3] FDE for: _CPU_run
+0x00004360	0x00000020	[  3] FDE for: _CPU_Init
+0x00004380	0x00000018	[  4] CFI
+0x00004398	0x00000020	[  4] FDE for: _key_on
+0x000043B8	0x00000020	[  4] FDE for: _DSP_write
+0x000043D8	0x00000060	[  4] FDE for: _DSP_run_
+0x00004438	0x00000048	[  4] FDE for: _DSP_reset
+0x00004480	0x00000018	[  5] CFI
+0x00004498	0x00000020	[  5] FDE for: _Timer_run_
+0x000044B8	0x00000020	[  5] FDE for: _SPC_enable_rom
+0x000044D8	0x00000038	[  5] FDE for: _SPC_run_dsp_
+0x00004510	0x00000040	[  5] FDE for: _SPC_Init
+0x00004550	0x00000060	[  5] FDE for: _SPC_load_spc
+0x000045B0	0x00000050	[  5] FDE for: _SPC_read
+0x00004600	0x00000070	[  5] FDE for: _SPC_write
+0x00004670	0x00000048	[  5] FDE for: _SPC_play
+0x000046B8	0x00000018	[  6] CFI
+0x000046D0	0x00000038	[  6] FDE for: _codec_init
+0x00004708	0x00000038	[  6] FDE for: _codec_set_replaygain
+0x00004740	0x00000020	[  6] FDE for: _codec_malloc
+0x00004760	0x00000040	[  6] FDE for: _codec_calloc
+0x000047A0	0x00000020	[  6] FDE for: _codec_free
+0x000047C0	0x00000040	[  6] FDE for: _codec_realloc
+0x00004800	0x00000020	[  6] FDE for: _codec_strlen
+0x00004820	0x00000020	[  6] FDE for: _strcpy
+0x00004840	0x00000020	[  6] FDE for: _strcat
+0x00004860	0x00000020	[  6] FDE for: _strcmp
+0x00004880	0x00000020	[  6] FDE for: _memcpy
+0x000048A0	0x00000020	[  6] FDE for: _memset
+0x000048C0	0x00000020	[  6] FDE for: _memcmp
+0x000048E0	0x00000020	[  6] FDE for: _memchr
+0x00004900	0x00000020	[  6] FDE for: _memmove
+0x00004920	0x00000020	[  6] FDE for: _qsort
+0x00008000	0x00000040	[  1] ___header
+0x0000C000	0x00000008	[  2] _ci
+0x0000C008	0x00000400	[  4] _gauss_table
+0x0000C408	0x00002000	[  1] _wav_chunk
+0x0000E408	0x00000560	[  1] _spc_emu
+0x0000E968	0x000000B8	[  1] _ID666
+0x0000EA20	0x00000008	[  6] _mallocbuf
+0x0000EA28	0x00000008	[  6] _bufsize
+0x0000EA30	0x00000008	[  6] _mem_ptr
+0x0000EA38	0x00010200	[  5] _ram

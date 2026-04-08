@@ -1,0 +1,134 @@
+# Path: /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/minesweeper.elf
+# Arch: arm64
+# Object files:
+[  0] linker synthesized
+[  1] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/minesweeper.o
+[  2] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/plugin_crt0.o
+[  3] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(playback_control.o)
+[  4] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/bitmaps/libpluginbitmaps.a(minesweeper_tiles.16x16x24.o)
+[  5] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/libSystem.tbd
+[  6] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/system/libsystem_platform.tbd
+# Sections:
+# Address	Size    	Segment	Section
+0x00000780	0x000012A4	__TEXT	__text
+0x00001A24	0x00000018	__TEXT	__stubs
+0x00001A3C	0x000000E2	__TEXT	__cstring
+0x00001B20	0x00001EC0	__TEXT	__const
+0x000039E0	0x000004F8	__TEXT	__eh_frame
+0x00004000	0x00000010	__DATA_CONST	__got
+0x00004010	0x00000188	__DATA_CONST	__const
+0x00008000	0x00000078	__DATA	__data
+0x00008078	0x00000008	__DATA	.data
+0x00008080	0x00000208	__DATA	__bss
+0x00008288	0x00000008	__DATA	__common
+# Symbols:
+# Address	Size    	File  Name
+0x00000780	0x0000003C	[  1] _push
+0x000007BC	0x00000070	[  1] _unveil
+0x0000082C	0x00000150	[  1] _mine_show
+0x0000097C	0x00000050	[  1] _is_flagged
+0x000009CC	0x000002D0	[  1] _discover
+0x00000C9C	0x000009C8	[  1] _plugin_start
+0x00001664	0x00000018	[  2] _cleanup_wrapper
+0x0000167C	0x00000068	[  2] _plugin__start
+0x000016E4	0x00000020	[  2] _rb_atexit
+0x00001704	0x00000024	[  2] _exit
+0x00001728	0x00000014	[  2] __exit
+0x0000173C	0x00000064	[  2] _exit_on_usb
+0x000017A0	0x00000028	[  3] _prevtrack
+0x000017C8	0x00000088	[  3] _play
+0x00001850	0x00000028	[  3] _stop
+0x00001878	0x00000028	[  3] _nexttrack
+0x000018A0	0x00000050	[  3] _volume
+0x000018F0	0x00000054	[  3] _shuffle
+0x00001944	0x0000008C	[  3] _repeat_mode
+0x000019D0	0x0000000C	[  3] _playback_control_init
+0x000019DC	0x00000048	[  3] _playback_control
+0x00001A24	0x0000000C	[  6] _longjmp.stub
+0x00001A30	0x0000000C	[  6] _setjmp.stub
+0x00001A3C	0x00000002	[  1] literal string: %
+0x00001A3E	0x00000010	[  1] literal string: Mine Percentage
+0x00001A4E	0x00000001	[  1] literal string: 
+0x00001A4F	0x0000000F	[  1] literal string: Number of Rows
+0x00001A5E	0x00000012	[  1] literal string: Number of Columns
+0x00001A70	0x0000000A	[  1] literal string: You Lose!
+0x00001A7A	0x00000028	[  1] literal string: You marked 1 field. There are %d mines.
+0x00001AA2	0x0000002A	[  1] literal string: You marked %d fields. There are %d mines.
+0x00001ACC	0x00000009	[  1] literal string: You Win!
+0x00001AD5	0x00000011	[  1] literal string: Play Minesweeper
+0x00001AE6	0x00000011	[  1] literal string: Playback Control
+0x00001AF7	0x00000005	[  1] literal string: Quit
+0x00001AFC	0x0000000C	[  1] literal string: Minesweeper
+0x00001B08	0x00000007	[  3] literal string: Volume
+0x00001B0F	0x00000008	[  3] literal string: Shuffle
+0x00001B17	0x00000007	[  3] literal string: Repeat
+0x00001B20	0x00000018	[  3] _playback_control_menu__
+0x00001B38	0x00000018	[  3] _repeat_mode_item_
+0x00001B50	0x00000018	[  3] _shuffle_item_
+0x00001B68	0x00000018	[  3] _volume_item_
+0x00001B80	0x00000018	[  3] _nexttrack_item_
+0x00001B98	0x00000018	[  3] _stop_item_
+0x00001BB0	0x00000018	[  3] _playpause_item_
+0x00001BC8	0x00000018	[  3] _prevtrack_item_
+0x00001BE0	0x00001E00	[  4] _minesweeper_tiles
+0x000039E0	0x00000018	[  1] CFI
+0x000039F8	0x00000020	[  1] FDE for: _push
+0x00003A18	0x00000020	[  1] FDE for: _unveil
+0x00003A38	0x00000068	[  1] FDE for: _mine_show
+0x00003AA0	0x00000020	[  1] FDE for: _is_flagged
+0x00003AC0	0x00000058	[  1] FDE for: _discover
+0x00003B18	0x00000070	[  1] FDE for: _plugin_start
+0x00003B88	0x00000018	[  2] CFI
+0x00003BA0	0x00000020	[  2] FDE for: _cleanup_wrapper
+0x00003BC0	0x00000040	[  2] FDE for: _plugin__start
+0x00003C00	0x00000020	[  2] FDE for: _rb_atexit
+0x00003C20	0x00000030	[  2] FDE for: _exit
+0x00003C50	0x00000030	[  2] FDE for: __exit
+0x00003C80	0x00000038	[  2] FDE for: _exit_on_usb
+0x00003CB8	0x00000018	[  3] CFI
+0x00003CD0	0x00000038	[  3] FDE for: _prevtrack
+0x00003D08	0x00000048	[  3] FDE for: _play
+0x00003D50	0x00000038	[  3] FDE for: _stop
+0x00003D88	0x00000038	[  3] FDE for: _nexttrack
+0x00003DC0	0x00000040	[  3] FDE for: _volume
+0x00003E00	0x00000040	[  3] FDE for: _shuffle
+0x00003E40	0x00000040	[  3] FDE for: _repeat_mode
+0x00003E80	0x00000020	[  3] FDE for: _playback_control_init
+0x00003EA0	0x00000038	[  3] FDE for: _playback_control
+0x00004000	0x00000008	[  6] _longjmp.got
+0x00004008	0x00000008	[  6] _setjmp.got
+0x00004010	0x00000018	[  1] _menu__.1
+0x00004028	0x00000018	[  1] _menu.2
+0x00004040	0x00000038	[  2] ___header
+0x00004078	0x00000018	[  3] _playback_control_menu
+0x00004090	0x00000018	[  3] _repeat_mode_item
+0x000040A8	0x00000008	[  3] _repeat_mode_item__
+0x000040B0	0x00000018	[  3] _shuffle_item
+0x000040C8	0x00000008	[  3] _shuffle_item__
+0x000040D0	0x00000018	[  3] _volume_item
+0x000040E8	0x00000008	[  3] _volume_item__
+0x000040F0	0x00000018	[  3] _nexttrack_item
+0x00004108	0x00000008	[  3] _nexttrack_item__
+0x00004110	0x00000018	[  3] _stop_item
+0x00004128	0x00000008	[  3] _stop_item__
+0x00004130	0x00000018	[  3] _playpause_item
+0x00004148	0x00000008	[  3] _playpause_item__
+0x00004150	0x00000018	[  3] _prevtrack_item
+0x00004168	0x00000008	[  3] _prevtrack_item__
+0x00004170	0x00000028	[  4] _bm_minesweeper_tiles
+0x00008000	0x00000030	[  1] _menu_.0
+0x00008030	0x00000004	[  1] _no_mines
+0x00008034	0x00000004	[  1] _percent
+0x00008038	0x00000004	[  1] _width
+0x0000803C	0x00000004	[  1] _height
+0x00008040	0x00000038	[  3] _playback_control_menu_
+0x00008078	0x00000008	[  2] _rb
+0x00008080	0x00000004	[  1] _stack_pos
+0x00008084	0x00000004	[  1] _tiles_left
+0x00008088	0x00000004	[  1] _mine_num
+0x0000808C	0x0000012C	[  1] _minefield
+0x000081B8	0x00000004	[  1] _left
+0x000081BC	0x00000004	[  1] _top
+0x000081C0	0x00000008	[  2] _atexit_handler
+0x000081C8	0x000000C0	[  2] ___exit_env
+0x00008288	0x00000008	[  3] _parentvp

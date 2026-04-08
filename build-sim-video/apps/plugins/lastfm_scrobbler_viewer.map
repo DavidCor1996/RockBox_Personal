@@ -1,0 +1,187 @@
+# Path: /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/lastfm_scrobbler_viewer.elf
+# Arch: arm64
+# Object files:
+[  0] linker synthesized
+[  1] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/lastfm_scrobbler_viewer.o
+[  2] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/plugin_crt0.o
+[  3] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(gcc-support.o)
+[  4] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(configfile.o)
+[  5] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(printcell_helper.o)
+[  6] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/libSystem.tbd
+[  7] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/system/libsystem_c.tbd
+[  8] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/system/libsystem_platform.tbd
+# Sections:
+# Address	Size    	Segment	Section
+0x00000738	0x00003000	__TEXT	__text
+0x00003738	0x00000018	__TEXT	__stubs
+0x00003750	0x000002B6	__TEXT	__cstring
+0x00003A08	0x0000001C	__TEXT	__const
+0x00003A28	0x00000B70	__TEXT	__eh_frame
+0x00008000	0x00000018	__DATA_CONST	__got
+0x00008018	0x000000B0	__DATA_CONST	__const
+0x0000C000	0x000001E4	__DATA	__data
+0x0000C1E8	0x00000008	__DATA	.data
+0x0000C1F0	0x00000548	__DATA	__bss
+# Symbols:
+# Address	Size    	File  Name
+0x00000738	0x00000034	[  1] _config_set_defaults
+0x0000076C	0x0000006C	[  1] _file_open
+0x000007D8	0x00000028	[  1] _list_icon_cb
+0x00000800	0x00000300	[  1] _list_get_name_cb
+0x00000B00	0x000001D4	[  1] _file_load_entries
+0x00000CD4	0x00000040	[  1] _cleanup
+0x00000D14	0x000000B0	[  1] _count_max_columns
+0x00000DC4	0x00000194	[  1] _list_voice_cb
+0x00000F58	0x00000258	[  1] _synclist_set.constprop.0
+0x000011B0	0x0000007C	[  1] _browse_file.constprop.0
+0x0000122C	0x000008B4	[  1] _scrobbler_context_menu
+0x00001AE0	0x00000118	[  1] _menu_action_cb
+0x00001BF8	0x000003C0	[  1] _plugin_start
+0x00001FB8	0x00000018	[  2] _cleanup_wrapper
+0x00001FD0	0x00000068	[  2] _plugin__start
+0x00002038	0x00000020	[  2] _rb_atexit
+0x00002058	0x00000024	[  2] _exit
+0x0000207C	0x00000014	[  2] __exit
+0x00002090	0x00000064	[  2] _exit_on_usb
+0x000020F4	0x00000018	[  3] _memcpy
+0x0000210C	0x00000018	[  3] _memset
+0x00002124	0x00000018	[  3] _memmove
+0x0000213C	0x00000018	[  3] _memcmp
+0x00002154	0x000000E8	[  4] _get_cfg_filename.constprop.0
+0x0000223C	0x00000160	[  4] _configfile_save
+0x0000239C	0x00000228	[  4] _configfile_load
+0x000025C4	0x000000E0	[  4] _configfile_get_value
+0x000026A4	0x00000158	[  4] _configfile_update_entry
+0x000027FC	0x00000154	[  5] _draw_selector
+0x00002950	0x00000098	[  5] _parse_dsptext.constprop.0
+0x000029E8	0x000007D4	[  5] _printcell_listdraw_fn
+0x000031BC	0x00000080	[  5] _printcell_enable
+0x0000323C	0x000000AC	[  5] _printcell_increment_column
+0x000032E8	0x00000020	[  5] _printcell_get_column_selected
+0x00003308	0x0000002C	[  5] _printcell_get_column_visibility
+0x00003334	0x00000054	[  5] _printcell_set_column_visible
+0x00003388	0x00000264	[  5] _printcell_set_columns
+0x000035EC	0x00000074	[  5] _printcell_get_title_text
+0x00003660	0x000000D8	[  5] _printcell_get_column_text
+0x00003738	0x0000000C	[  8] _longjmp.stub
+0x00003744	0x0000000C	[  8] _setjmp.stub
+0x00003750	0x00000001	[  1] literal string: 
+0x00003751	0x00000015	[  1] literal string: $*%d$$*%d$$*%d$$*%d$
+0x00003766	0x00000007	[  1] literal string: $*512$
+0x0000376D	0x0000001C	[  1] literal string: Select a scrobbler log file
+0x00003789	0x00000002	[  1] literal string: /
+0x0000378B	0x00000005	[  1] literal string: Hide
+0x00003790	0x00000005	[  1] literal string: Show
+0x00003795	0x0000000E	[  1] literal string: Custom Filter
+0x000037A3	0x00000008	[  1] literal string: Include
+0x000037AB	0x00000008	[  1] literal string: Exclude
+0x000037B3	0x00000007	[  1] literal string: Reload
+0x000037BA	0x00000005	[  1] literal string: Open
+0x000037BF	0x00000009	[  1] literal string: Show All
+0x000037C8	0x00000009	[  1] literal string: Hide All
+0x000037D1	0x0000000E	[  1] literal string: Error Opening
+0x000037DF	0x0000000B	[  1] literal string: Cell Width
+0x000037EA	0x0000003D	[  1] literal string: $*%d$%s$*%d$%s$*%d$%s$Track#$Length$Rating$TimeStamp$TrackId
+0x00003827	0x0000001D	[  1] literal string: /lastfm_scrobbler_viewer.cfg
+0x00003844	0x0000000A	[  1] literal string: Find Type
+0x0000384E	0x00000029	[  1] literal string: /.rockbox/rocks/lscrobbler_viewer_%d.tmp
+0x00003877	0x0000000D	[  1] literal string: Filtering...
+0x00003884	0x00000002	[  1] literal string: \n
+0x00003886	0x00000017	[  1] literal string: Exclude Case Sensitive
+0x0000389D	0x0000000C	[  1] literal string: Exclude Any
+0x000038A9	0x00000017	[  1] literal string: Include Case Sensitive
+0x000038C0	0x0000000C	[  1] literal string: Include Any
+0x000038CC	0x0000002B	[  1] literal string: /.rockbox/rocks/apps/lastfm_scrobbler.rock
+0x000038F7	0x00000014	[  1] literal string: -scrobbler_view_pbl
+0x0000390B	0x00000017	[  1] literal string: /.rockbox/playback.log
+0x00003922	0x00000013	[  1] literal string: Viewer: NO log! %s
+0x00003935	0x00000008	[  1] literal string: -resume
+0x0000393D	0x00000011	[  1] literal string: No file Goodbye.
+0x0000394E	0x0000000F	[  1] literal string: Cell Separator
+0x0000395D	0x00000006	[  1] literal string: Voice
+0x00003963	0x0000000F	[  1] literal string: Hidden Columns
+0x00003972	0x0000000A	[  4] literal string: /.rockbox
+0x0000397C	0x00000004	[  4] literal string: /%s
+0x00003980	0x00000013	[  4] literal string: /.rockbox/rocks/%s
+0x00003993	0x00000014	[  4] literal string: file version: %10d\n
+0x000039A7	0x0000000A	[  4] literal string: %s: %10d\n
+0x000039B1	0x00000008	[  4] literal string: %s: %s\n
+0x000039B9	0x0000000D	[  4] literal string: file version
+0x000039C6	0x00000006	[  5] literal string: $1I$t
+0x000039CC	0x00000003	[  5] literal string: $t
+0x000039CF	0x0000000F	[  5] literal string: $*s$1I$i$1s$*t
+0x000039DE	0x0000000A	[  5] literal string: $*s$1I$*t
+0x000039E8	0x00000007	[  5] literal string: $*s$*t
+0x000039EF	0x00000015	[  5] literal string: $PRINTCELL NOT SETUP
+0x00003A04	0x00000002	[  5] literal string: W
+0x00003A08	0x00000018	[  1] _settings_menu__.4
+0x00003A20	0x00000004	[  1] _gCfg_sz
+0x00003A28	0x00000018	[  1] CFI
+0x00003A40	0x00000020	[  1] FDE for: _config_set_defaults
+0x00003A60	0x00000058	[  1] FDE for: _file_open
+0x00003AB8	0x00000020	[  1] FDE for: _list_icon_cb
+0x00003AD8	0x00000060	[  1] FDE for: _list_get_name_cb
+0x00003B38	0x00000060	[  1] FDE for: _file_load_entries
+0x00003B98	0x00000040	[  1] FDE for: _cleanup
+0x00003BD8	0x00000068	[  1] FDE for: _count_max_columns
+0x00003C40	0x00000060	[  1] FDE for: _list_voice_cb
+0x00003CA0	0x00000080	[  1] FDE for: _synclist_set.constprop.0
+0x00003D20	0x00000040	[  1] FDE for: _browse_file.constprop.0
+0x00003D60	0x00000080	[  1] FDE for: _scrobbler_context_menu
+0x00003DE0	0x00000060	[  1] FDE for: _menu_action_cb
+0x00003E40	0x00000088	[  1] FDE for: _plugin_start
+0x00003EC8	0x00000018	[  2] CFI
+0x00003EE0	0x00000020	[  2] FDE for: _cleanup_wrapper
+0x00003F00	0x00000040	[  2] FDE for: _plugin__start
+0x00003F40	0x00000020	[  2] FDE for: _rb_atexit
+0x00003F60	0x00000030	[  2] FDE for: _exit
+0x00003F90	0x00000030	[  2] FDE for: __exit
+0x00003FC0	0x00000038	[  2] FDE for: _exit_on_usb
+0x00003FF8	0x00000018	[  3] CFI
+0x00004010	0x00000020	[  3] FDE for: _memcpy
+0x00004030	0x00000020	[  3] FDE for: _memset
+0x00004050	0x00000020	[  3] FDE for: _memmove
+0x00004070	0x00000020	[  3] FDE for: _memcmp
+0x00004090	0x00000018	[  4] CFI
+0x000040A8	0x00000068	[  4] FDE for: _get_cfg_filename.constprop.0
+0x00004110	0x00000070	[  4] FDE for: _configfile_save
+0x00004180	0x00000068	[  4] FDE for: _configfile_load
+0x000041E8	0x00000058	[  4] FDE for: _configfile_get_value
+0x00004240	0x00000070	[  4] FDE for: _configfile_update_entry
+0x000042B0	0x00000018	[  5] CFI
+0x000042C8	0x00000078	[  5] FDE for: _draw_selector
+0x00004340	0x00000020	[  5] FDE for: _parse_dsptext.constprop.0
+0x00004360	0x00000068	[  5] FDE for: _printcell_listdraw_fn
+0x000043C8	0x00000020	[  5] FDE for: _printcell_enable
+0x000043E8	0x00000050	[  5] FDE for: _printcell_increment_column
+0x00004438	0x00000020	[  5] FDE for: _printcell_get_column_selected
+0x00004458	0x00000020	[  5] FDE for: _printcell_get_column_visibility
+0x00004478	0x00000020	[  5] FDE for: _printcell_set_column_visible
+0x00004498	0x00000070	[  5] FDE for: _printcell_set_columns
+0x00004508	0x00000038	[  5] FDE for: _printcell_get_title_text
+0x00004540	0x00000058	[  5] FDE for: _printcell_get_column_text
+0x00008000	0x00000008	[  7] __DefaultRuneLocale.got
+0x00008008	0x00000008	[  8] _longjmp.got
+0x00008010	0x00000008	[  8] _setjmp.got
+0x00008018	0x00000060	[  1] lC23
+0x00008078	0x00000018	[  1] _settings_menu.5
+0x00008090	0x00000038	[  2] ___header
+0x0000C000	0x00000108	[  1] _filename.1
+0x0000C108	0x00000038	[  1] _settings_menu_.3
+0x0000C140	0x000000A0	[  1] _config
+0x0000C1E0	0x00000004	[  5] _list_sep_color.2
+0x0000C1E8	0x00000008	[  2] _rb
+0x0000C1F0	0x00000140	[  1] _printcell_data.0
+0x0000C330	0x00000008	[  1] _tmp_num.2
+0x0000C338	0x00000008	[  1] _file_last_seek.6
+0x0000C340	0x00000008	[  1] _file_line_num.7
+0x0000C348	0x00000008	[  1] _buf_last_pos.8
+0x0000C350	0x00000004	[  1] _buf_line_num.9
+0x0000C354	0x00000004	[  1] _last_action.10
+0x0000C358	0x00000010	[  1] _gConfig
+0x0000C368	0x00000090	[  1] _lists
+0x0000C3F8	0x00000008	[  2] _atexit_handler
+0x0000C400	0x000000C0	[  2] ___exit_env
+0x0000C4C0	0x00000020	[  5] _sidx.0
+0x0000C4E0	0x00000108	[  5] _printcell_buffer.1
+0x0000C5E8	0x00000150	[  5] _printcell

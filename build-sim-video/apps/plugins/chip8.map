@@ -1,0 +1,133 @@
+# Path: /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/chip8.elf
+# Arch: arm64
+# Object files:
+[  0] linker synthesized
+[  1] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/chip8.o
+[  2] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/plugin_crt0.o
+[  3] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/libSystem.tbd
+[  4] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/system/libsystem_platform.tbd
+# Sections:
+# Address	Size    	Segment	Section
+0x000006D8	0x0000130C	__TEXT	__text
+0x000019E4	0x00000018	__TEXT	__stubs
+0x000019FC	0x000000CC	__TEXT	__cstring
+0x00001AC8	0x000000B4	__TEXT	__const
+0x00001B80	0x00000660	__TEXT	__eh_frame
+0x00004000	0x00000010	__DATA_CONST	__got
+0x00004010	0x00000138	__DATA_CONST	__const
+0x00008000	0x00000008	__DATA	.data
+0x00008008	0x00003128	__DATA	__bss
+# Symbols:
+# Address	Size    	File  Name
+0x000006D8	0x00000040	[  1] _op_call
+0x00000718	0x0000000C	[  1] _op_jmp
+0x00000724	0x00000014	[  1] _op_mov_const
+0x00000738	0x0000001C	[  1] _op_add_const
+0x00000754	0x0000000C	[  1] _op_mvi
+0x00000760	0x00000018	[  1] _op_jmi
+0x00000778	0x00000044	[  1] _op_rand
+0x000007BC	0x00000010	[  1] _math_or
+0x000007CC	0x00000008	[  1] _math_mov
+0x000007D4	0x00000004	[  1] _math_nop
+0x000007D8	0x00000010	[  1] _math_and
+0x000007E8	0x00000010	[  1] _math_xor
+0x000007F8	0x0000001C	[  1] _math_add
+0x00000814	0x00000020	[  1] _math_sub
+0x00000834	0x00000020	[  1] _math_shr
+0x00000854	0x00000020	[  1] _math_shl
+0x00000874	0x00000020	[  1] _math_rsb
+0x00000894	0x000001EC	[  1] _op_misc
+0x00000A80	0x00000268	[  1] _op_sprite
+0x00000CE8	0x00000030	[  1] _op_math
+0x00000D18	0x000000F8	[  1] _chip8_reset
+0x00000E10	0x0000025C	[  1] _op_system
+0x0000106C	0x000000D8	[  1] _chip8_update_display
+0x00001144	0x000001F4	[  1] _chip8_init
+0x00001338	0x00000018	[  1] _op_key.part.0
+0x00001350	0x00000050	[  1] _op_key
+0x000013A0	0x00000020	[  1] _op_skeq_const
+0x000013C0	0x00000020	[  1] _op_skne_const
+0x000013E0	0x00000028	[  1] _op_skeq_reg
+0x00001408	0x00000028	[  1] _op_skne_reg
+0x00001430	0x00000478	[  1] _plugin_start
+0x000018A8	0x00000018	[  2] _cleanup_wrapper
+0x000018C0	0x00000068	[  2] _plugin__start
+0x00001928	0x00000020	[  2] _rb_atexit
+0x00001948	0x00000024	[  2] _exit
+0x0000196C	0x00000014	[  2] __exit
+0x00001980	0x00000064	[  2] _exit_on_usb
+0x000019E4	0x0000000C	[  4] _longjmp.stub
+0x000019F0	0x0000000C	[  4] _setjmp.stub
+0x000019FC	0x0000000C	[  1] literal string: File Error.
+0x00001A08	0x0000000B	[  1] literal string: I/O Error.
+0x00001A13	0x00000010	[  1] literal string: File&Keymap OK.
+0x00001A23	0x00000009	[  1] literal string: File OK.
+0x00001A2C	0x00000012	[  1] literal string: Play a .ch8 file!
+0x00001A3E	0x00000010	[  1] literal string: SChip8 Emulator
+0x00001A4E	0x00000010	[  1] literal string:     (c) by     
+0x00001A5E	0x00000010	[  1] literal string: Marcel de Kogel
+0x00001A6E	0x00000010	[  1] literal string:     Rockbox:   
+0x00001A7E	0x00000010	[  1] literal string:   Blueloop/Fdy 
+0x00001A8E	0x00000010	[  1] literal string: ---------------
+0x00001A9E	0x0000002A	[  1] literal string: Error: Unsupported (S)CHIP-8 instruction.
+0x00001AC8	0x00000064	[  1] _schip_sprites.0
+0x00001B2C	0x00000050	[  1] _chip8_sprites.1
+0x00001B80	0x00000018	[  1] CFI
+0x00001B98	0x00000020	[  1] FDE for: _op_call
+0x00001BB8	0x00000020	[  1] FDE for: _op_jmp
+0x00001BD8	0x00000020	[  1] FDE for: _op_mov_const
+0x00001BF8	0x00000020	[  1] FDE for: _op_add_const
+0x00001C18	0x00000020	[  1] FDE for: _op_mvi
+0x00001C38	0x00000020	[  1] FDE for: _op_jmi
+0x00001C58	0x00000040	[  1] FDE for: _op_rand
+0x00001C98	0x00000020	[  1] FDE for: _math_or
+0x00001CB8	0x00000020	[  1] FDE for: _math_mov
+0x00001CD8	0x00000020	[  1] FDE for: _math_nop
+0x00001CF8	0x00000020	[  1] FDE for: _math_and
+0x00001D18	0x00000020	[  1] FDE for: _math_xor
+0x00001D38	0x00000020	[  1] FDE for: _math_add
+0x00001D58	0x00000020	[  1] FDE for: _math_sub
+0x00001D78	0x00000020	[  1] FDE for: _math_shr
+0x00001D98	0x00000020	[  1] FDE for: _math_shl
+0x00001DB8	0x00000020	[  1] FDE for: _math_rsb
+0x00001DD8	0x00000020	[  1] FDE for: _op_misc
+0x00001DF8	0x00000020	[  1] FDE for: _op_sprite
+0x00001E18	0x00000020	[  1] FDE for: _op_math
+0x00001E38	0x00000040	[  1] FDE for: _chip8_reset
+0x00001E78	0x00000060	[  1] FDE for: _op_system
+0x00001ED8	0x00000050	[  1] FDE for: _chip8_update_display
+0x00001F28	0x00000060	[  1] FDE for: _chip8_init
+0x00001F88	0x00000020	[  1] FDE for: _op_key.part.0
+0x00001FA8	0x00000020	[  1] FDE for: _op_key
+0x00001FC8	0x00000020	[  1] FDE for: _op_skeq_const
+0x00001FE8	0x00000020	[  1] FDE for: _op_skne_const
+0x00002008	0x00000020	[  1] FDE for: _op_skeq_reg
+0x00002028	0x00000020	[  1] FDE for: _op_skne_reg
+0x00002048	0x00000068	[  1] FDE for: _plugin_start
+0x000020B0	0x00000018	[  2] CFI
+0x000020C8	0x00000020	[  2] FDE for: _cleanup_wrapper
+0x000020E8	0x00000040	[  2] FDE for: _plugin__start
+0x00002128	0x00000020	[  2] FDE for: _rb_atexit
+0x00002148	0x00000030	[  2] FDE for: _exit
+0x00002178	0x00000030	[  2] FDE for: __exit
+0x000021A8	0x00000038	[  2] FDE for: _exit_on_usb
+0x00004000	0x00000008	[  4] _longjmp.got
+0x00004008	0x00000008	[  4] _setjmp.got
+0x00004010	0x00000080	[  1] _main_opcodes
+0x00004090	0x00000080	[  1] _math_opcodes
+0x00004110	0x00000038	[  2] ___header
+0x00008000	0x00000008	[  2] _rb
+0x00008008	0x00000008	[  1] _cycles
+0x00008010	0x00000008	[  1] _starttimer
+0x00008018	0x00000010	[  1] _chip8_keymap
+0x00008028	0x00000010	[  1] _chip8_virtual_keys
+0x00008038	0x00000001	[  1] _chip8_key_pressed
+0x00008039	0x00000001	[  1] _chip8_running
+0x0000803A	0x00001000	[  1] _chip8_mem
+0x0000903A	0x00002000	[  1] _chip8_display
+0x0000B03A	0x00000010	[  1] _chip8_keys
+0x0000B04A	0x00000001	[  1] _chip8_iperiod
+0x0000B04B	0x00000001	[  1] _chip8_super
+0x0000B04C	0x00000018	[  1] _chip8_regs
+0x0000B068	0x00000008	[  2] _atexit_handler
+0x0000B070	0x000000C0	[  2] ___exit_env

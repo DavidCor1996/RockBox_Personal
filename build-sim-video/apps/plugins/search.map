@@ -1,0 +1,72 @@
+# Path: /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/search.elf
+# Arch: arm64
+# Object files:
+[  0] linker synthesized
+[  1] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/search.o
+[  2] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/plugin_crt0.o
+[  3] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/libSystem.tbd
+[  4] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/system/libsystem_c.tbd
+[  5] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/system/libsystem_platform.tbd
+# Sections:
+# Address	Size    	Segment	Section
+0x000006D8	0x00000628	__TEXT	__text
+0x00000D00	0x00000024	__TEXT	__stubs
+0x00000D24	0x00000088	__TEXT	__cstring
+0x00000DB0	0x00000240	__TEXT	__eh_frame
+0x00004000	0x00000018	__DATA_CONST	__got
+0x00004018	0x00000038	__DATA_CONST	__const
+0x00008000	0x00000008	__DATA	.data
+0x00008008	0x00000208	__DATA	__common
+0x00008210	0x00004128	__DATA	__bss
+# Symbols:
+# Address	Size    	File  Name
+0x000006D8	0x0000001C	[  1] _clear_display
+0x000006F4	0x00000204	[  1] _fill_buffer
+0x000008F8	0x000002CC	[  1] _plugin_start
+0x00000BC4	0x00000018	[  2] _cleanup_wrapper
+0x00000BDC	0x00000068	[  2] _plugin__start
+0x00000C44	0x00000020	[  2] _rb_atexit
+0x00000C64	0x00000024	[  2] _exit
+0x00000C88	0x00000014	[  2] __exit
+0x00000C9C	0x00000064	[  2] _exit_on_usb
+0x00000D00	0x0000000C	[  4] ___tolower.stub
+0x00000D0C	0x0000000C	[  5] _longjmp.stub
+0x00000D18	0x0000000C	[  5] _setjmp.stub
+0x00000D24	0x00000016	[  1] literal string: \n-------------------\n
+0x00000D3A	0x00000009	[  1] literal string: %s - %s\n
+0x00000D43	0x00000019	[  1] literal string: Not a .m3u or .m3u8 file
+0x00000D5C	0x00000005	[  1] literal string: .m3u
+0x00000D61	0x00000006	[  1] literal string: .m3u8
+0x00000D67	0x00000015	[  1] literal string: %s/search_result.m3u
+0x00000D7C	0x0000000D	[  1] literal string: Searching...
+0x00000D89	0x0000001E	[  1] literal string: Failed to create result file!
+0x00000DA7	0x00000005	[  1] literal string: Done
+0x00000DB0	0x00000018	[  1] CFI
+0x00000DC8	0x00000020	[  1] FDE for: _clear_display
+0x00000DE8	0x00000078	[  1] FDE for: _fill_buffer
+0x00000E60	0x00000060	[  1] FDE for: _plugin_start
+0x00000EC0	0x00000018	[  2] CFI
+0x00000ED8	0x00000020	[  2] FDE for: _cleanup_wrapper
+0x00000EF8	0x00000040	[  2] FDE for: _plugin__start
+0x00000F38	0x00000020	[  2] FDE for: _rb_atexit
+0x00000F58	0x00000030	[  2] FDE for: _exit
+0x00000F88	0x00000030	[  2] FDE for: __exit
+0x00000FB8	0x00000038	[  2] FDE for: _exit_on_usb
+0x00004000	0x00000008	[  4] ___tolower.got
+0x00004008	0x00000008	[  5] _longjmp.got
+0x00004010	0x00000008	[  5] _setjmp.got
+0x00004018	0x00000038	[  2] ___header
+0x00008000	0x00000008	[  2] _rb
+0x00008008	0x00000104	[  1] _path
+0x0000810C	0x00000104	[  1] _resultfile
+0x00008210	0x00000004	[  1] _line_end
+0x00008214	0x00000004	[  1] _buffer_pos
+0x00008218	0x0000003C	[  1] _search_string
+0x00008254	0x00004004	[  1] _buffer
+0x0000C258	0x00000004	[  1] _results
+0x0000C25C	0x00000004	[  1] _bomsize
+0x0000C260	0x00000004	[  1] _file_size
+0x0000C264	0x00000004	[  1] _fdw
+0x0000C268	0x00000004	[  1] _fd
+0x0000C270	0x00000008	[  2] _atexit_handler
+0x0000C278	0x000000C0	[  2] ___exit_env

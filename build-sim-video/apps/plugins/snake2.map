@@ -1,0 +1,222 @@
+# Path: /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/snake2.elf
+# Arch: arm64
+# Object files:
+[  0] linker synthesized
+[  1] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/snake2.o
+[  2] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/plugin_crt0.o
+[  3] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(playback_control.o)
+[  4] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(highscore.o)
+[  5] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_header1.320x240x16.o)
+[  6] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_header2.320x240x16.o)
+[  7] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_left.320x240x16.o)
+[  8] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_right.320x240x16.o)
+[  9] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_bottom.320x240x16.o)
+[ 10] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/libSystem.tbd
+[ 11] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/system/libsystem_platform.tbd
+# Sections:
+# Address	Size    	Segment	Section
+0x00000778	0x00002530	__TEXT	__text
+0x00002CA8	0x00000018	__TEXT	__stubs
+0x00002CC0	0x0000017E	__TEXT	__cstring
+0x00002E40	0x0000F5C0	__TEXT	__const
+0x00012400	0x00000A60	__TEXT	__eh_frame
+0x00014000	0x00000010	__DATA_CONST	__got
+0x00014010	0x00000248	__DATA_CONST	__const
+0x00018000	0x00000080	__DATA	__data
+0x00018080	0x00000008	__DATA	.data
+0x00018088	0x00000921	__DATA	__bss
+0x000189B0	0x00000008	__DATA	__common
+# Symbols:
+# Address	Size    	File  Name
+0x00000778	0x00000030	[  1] _clear_board
+0x000007A8	0x000000C0	[  1] _draw_frame_bitmap
+0x00000868	0x0000006C	[  1] _draw_apple_bit
+0x000008D4	0x00000030	[  1] _draw_vertical_bit
+0x00000904	0x00000030	[  1] _draw_horizontal_bit
+0x00000934	0x0000006C	[  1] _draw_n_to_e_bit
+0x000009A0	0x0000006C	[  1] _draw_n_to_w_bit
+0x00000A0C	0x0000006C	[  1] _draw_s_to_e_bit
+0x00000A78	0x0000006C	[  1] _draw_e_to_n_bit
+0x00000AE4	0x00000030	[  1] _draw_head_bit
+0x00000B14	0x000001D8	[  1] _redraw
+0x00000CEC	0x0000018C	[  1] _draw_snake_bit
+0x00000E78	0x000002B4	[  1] _die
+0x0000112C	0x0000003C	[  1] _set_direction
+0x00001168	0x0000009C	[  1] _load_level.isra.0
+0x00001204	0x00000088	[  1] _new_level
+0x0000128C	0x00000FCC	[  1] _plugin_start
+0x00002258	0x00000018	[  2] _cleanup_wrapper
+0x00002270	0x00000068	[  2] _plugin__start
+0x000022D8	0x00000020	[  2] _rb_atexit
+0x000022F8	0x00000024	[  2] _exit
+0x0000231C	0x00000014	[  2] __exit
+0x00002330	0x00000064	[  2] _exit_on_usb
+0x00002394	0x00000028	[  3] _prevtrack
+0x000023BC	0x00000088	[  3] _play
+0x00002444	0x00000028	[  3] _stop
+0x0000246C	0x00000028	[  3] _nexttrack
+0x00002494	0x00000050	[  3] _volume
+0x000024E4	0x00000054	[  3] _shuffle
+0x00002538	0x0000008C	[  3] _repeat_mode
+0x000025C4	0x0000000C	[  3] _playback_control_init
+0x000025D0	0x00000048	[  3] _playback_control
+0x00002618	0x00000128	[  4] _highscore_save
+0x00002740	0x00000174	[  4] _highscore_load
+0x000028B4	0x0000002C	[  4] _highscore_would_update
+0x000028E0	0x000000D8	[  4] _highscore_update
+0x000029B8	0x000002F0	[  4] _highscore_show
+0x00002CA8	0x0000000C	[ 11] _longjmp.stub
+0x00002CB4	0x0000000C	[ 11] _setjmp.stub
+0x00002CC0	0x00000003	[  1] literal string: %d
+0x00002CC3	0x00000007	[  1] literal string: Type A
+0x00002CCA	0x00000007	[  1] literal string: Type B
+0x00002CD1	0x00000006	[  1] literal string: Oops!
+0x00002CD7	0x0000000A	[  1] literal string: You died!
+0x00002CE1	0x0000000F	[  1] literal string: Your score: %d
+0x00002CF0	0x00000010	[  1] literal string: New high score!
+0x00002D00	0x0000000F	[  1] literal string: High score: %d
+0x00002D0F	0x0000000C	[  1] literal string: Press %s...
+0x00002D1B	0x00000007	[  1] literal string: Select
+0x00002D22	0x00000002	[  1] literal string: A
+0x00002D24	0x00000002	[  1] literal string: B
+0x00002D26	0x00000024	[  1] literal string: /.rockbox/rocks/games/snake2.levels
+0x00002D4A	0x00000018	[  1] literal string: Too many levels in file
+0x00002D62	0x00000017	[  1] literal string: Failed loading levels!
+0x00002D79	0x00000023	[  1] literal string: /.rockbox/rocks/games/snake2.score
+0x00002D9C	0x0000000A	[  1] literal string: Game Type
+0x00002DA6	0x00000001	[  1] literal string: 
+0x00002DA7	0x00000006	[  1] literal string: Speed
+0x00002DAD	0x00000011	[  1] literal string: Level Completed!
+0x00002DBE	0x00000007	[  1] literal string: Paused
+0x00002DC5	0x0000000F	[  1] literal string: Start New Game
+0x00002DD4	0x0000000C	[  1] literal string: Select Maze
+0x00002DE0	0x0000000C	[  1] literal string: High Scores
+0x00002DEC	0x00000011	[  1] literal string: Playback Control
+0x00002DFD	0x00000005	[  1] literal string: Quit
+0x00002E02	0x00000008	[  1] literal string: Snake 2
+0x00002E0A	0x00000007	[  3] literal string: Volume
+0x00002E11	0x00000008	[  3] literal string: Shuffle
+0x00002E19	0x00000007	[  3] literal string: Repeat
+0x00002E20	0x0000000A	[  4] literal string: %d:%d:%s\n
+0x00002E2A	0x00000004	[  4] literal string: %s\n
+0x00002E2E	0x00000006	[  4] literal string: Score
+0x00002E34	0x00000006	[  4] literal string: Level
+0x00002E3A	0x00000004	[  4] literal string: %d)
+0x00002E40	0x00000018	[  3] _playback_control_menu__
+0x00002E58	0x00000018	[  3] _repeat_mode_item_
+0x00002E70	0x00000018	[  3] _shuffle_item_
+0x00002E88	0x00000018	[  3] _volume_item_
+0x00002EA0	0x00000018	[  3] _nexttrack_item_
+0x00002EB8	0x00000018	[  3] _stop_item_
+0x00002ED0	0x00000018	[  3] _playpause_item_
+0x00002EE8	0x00000018	[  3] _prevtrack_item_
+0x00002F00	0x00005F00	[  5] _snake2_header1
+0x00008E00	0x00005F00	[  6] _snake2_header2
+0x0000ED00	0x00000F00	[  7] _snake2_left
+0x0000FC00	0x00000F00	[  8] _snake2_right
+0x00010B00	0x00001900	[  9] _snake2_bottom
+0x00012400	0x00000018	[  1] CFI
+0x00012418	0x00000020	[  1] FDE for: _clear_board
+0x00012438	0x00000040	[  1] FDE for: _draw_frame_bitmap
+0x00012478	0x00000050	[  1] FDE for: _draw_apple_bit
+0x000124C8	0x00000020	[  1] FDE for: _draw_vertical_bit
+0x000124E8	0x00000020	[  1] FDE for: _draw_horizontal_bit
+0x00012508	0x00000048	[  1] FDE for: _draw_n_to_e_bit
+0x00012550	0x00000048	[  1] FDE for: _draw_n_to_w_bit
+0x00012598	0x00000048	[  1] FDE for: _draw_s_to_e_bit
+0x000125E0	0x00000048	[  1] FDE for: _draw_e_to_n_bit
+0x00012628	0x00000020	[  1] FDE for: _draw_head_bit
+0x00012648	0x00000068	[  1] FDE for: _redraw
+0x000126B0	0x000000D0	[  1] FDE for: _draw_snake_bit
+0x00012780	0x00000080	[  1] FDE for: _die
+0x00012800	0x00000020	[  1] FDE for: _set_direction
+0x00012820	0x00000040	[  1] FDE for: _load_level.isra.0
+0x00012860	0x00000038	[  1] FDE for: _new_level
+0x00012898	0x00000078	[  1] FDE for: _plugin_start
+0x00012910	0x00000018	[  2] CFI
+0x00012928	0x00000020	[  2] FDE for: _cleanup_wrapper
+0x00012948	0x00000040	[  2] FDE for: _plugin__start
+0x00012988	0x00000020	[  2] FDE for: _rb_atexit
+0x000129A8	0x00000030	[  2] FDE for: _exit
+0x000129D8	0x00000030	[  2] FDE for: __exit
+0x00012A08	0x00000038	[  2] FDE for: _exit_on_usb
+0x00012A40	0x00000018	[  3] CFI
+0x00012A58	0x00000038	[  3] FDE for: _prevtrack
+0x00012A90	0x00000048	[  3] FDE for: _play
+0x00012AD8	0x00000038	[  3] FDE for: _stop
+0x00012B10	0x00000038	[  3] FDE for: _nexttrack
+0x00012B48	0x00000040	[  3] FDE for: _volume
+0x00012B88	0x00000040	[  3] FDE for: _shuffle
+0x00012BC8	0x00000040	[  3] FDE for: _repeat_mode
+0x00012C08	0x00000020	[  3] FDE for: _playback_control_init
+0x00012C28	0x00000038	[  3] FDE for: _playback_control
+0x00012C60	0x00000018	[  4] CFI
+0x00012C78	0x00000070	[  4] FDE for: _highscore_save
+0x00012CE8	0x00000070	[  4] FDE for: _highscore_load
+0x00012D58	0x00000020	[  4] FDE for: _highscore_would_update
+0x00012D78	0x00000068	[  4] FDE for: _highscore_update
+0x00012DE0	0x00000080	[  4] FDE for: _highscore_show
+0x00014000	0x00000008	[ 11] _longjmp.got
+0x00014008	0x00000008	[ 11] _setjmp.got
+0x00014010	0x00000018	[  1] _menu__.1
+0x00014028	0x00000020	[  1] _type_options.2
+0x00014048	0x00000018	[  1] _menu.3
+0x00014060	0x00000038	[  2] ___header
+0x00014098	0x00000018	[  3] _playback_control_menu
+0x000140B0	0x00000018	[  3] _repeat_mode_item
+0x000140C8	0x00000008	[  3] _repeat_mode_item__
+0x000140D0	0x00000018	[  3] _shuffle_item
+0x000140E8	0x00000008	[  3] _shuffle_item__
+0x000140F0	0x00000018	[  3] _volume_item
+0x00014108	0x00000008	[  3] _volume_item__
+0x00014110	0x00000018	[  3] _nexttrack_item
+0x00014128	0x00000008	[  3] _nexttrack_item__
+0x00014130	0x00000018	[  3] _stop_item
+0x00014148	0x00000008	[  3] _stop_item__
+0x00014150	0x00000018	[  3] _playpause_item
+0x00014168	0x00000008	[  3] _playpause_item__
+0x00014170	0x00000018	[  3] _prevtrack_item
+0x00014188	0x00000008	[  3] _prevtrack_item__
+0x00014190	0x00000028	[  5] _bm_snake2_header1
+0x000141B8	0x00000028	[  6] _bm_snake2_header2
+0x000141E0	0x00000028	[  7] _bm_snake2_left
+0x00014208	0x00000028	[  8] _bm_snake2_right
+0x00014230	0x00000028	[  9] _bm_snake2_bottom
+0x00018000	0x00000038	[  1] _menu_.0
+0x00018038	0x00000004	[  1] _num_apples_to_get
+0x0001803C	0x00000004	[  1] _applecountdown
+0x00018040	0x00000004	[  1] _speed
+0x00018044	0x00000004	[  1] _level
+0x00018048	0x00000038	[  3] _playback_control_menu_
+0x00018080	0x00000008	[  2] _rb
+0x00018088	0x000000C8	[  1] _highscores
+0x00018150	0x00000020	[  1] _strbuf
+0x00018170	0x00000004	[  1] _strhgt
+0x00018174	0x00000004	[  1] _strwdt
+0x00018178	0x00000004	[  1] _applecount
+0x0001817C	0x00000004	[  1] _game_b_level
+0x00018180	0x00000004	[  1] _num_apples_to_got
+0x00018184	0x00000004	[  1] _game_type
+0x00018188	0x00000004	[  1] _taily
+0x0001818C	0x00000004	[  1] _tailx
+0x00018190	0x00000004	[  1] _heady
+0x00018194	0x00000004	[  1] _headx
+0x00018198	0x00000004	[  1] _level_from_file
+0x0001819C	0x00000004	[  1] _num_levels
+0x000181A0	0x00000004	[  1] _sillydir
+0x000181A4	0x00000004	[  1] _quit
+0x000181A8	0x00000004	[  1] _dead
+0x000181AC	0x00000004	[  1] _apple
+0x000181B0	0x00000004	[  1] _frames
+0x000181B4	0x00000004	[  1] _dir
+0x000181B8	0x00000004	[  1] _appley
+0x000181BC	0x00000004	[  1] _applex
+0x000181C0	0x00000004	[  1] _score
+0x000181C4	0x00000008	[  1] _ardirectionbuffer
+0x000181CC	0x00000704	[  1] _board
+0x000188D0	0x00000008	[  1] _level_cache
+0x000188D8	0x00000004	[  1] _max_levels
+0x000188E0	0x00000008	[  2] _atexit_handler
+0x000188E8	0x000000C0	[  2] ___exit_env
+0x000189A8	0x00000001	[  4] _highscore_updated
+0x000189B0	0x00000008	[  3] _parentvp

@@ -1,0 +1,99 @@
+# Path: /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/file_picker.elf
+# Arch: arm64
+# Object files:
+[  0] linker synthesized
+[  1] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/file_picker.o
+[  2] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/plugin_crt0.o
+[  3] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(arg_helper.o)
+[  4] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/libSystem.tbd
+[  5] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/system/libsystem_c.tbd
+[  6] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/system/libsystem_platform.tbd
+# Sections:
+# Address	Size    	Segment	Section
+0x000006E0	0x00000EC0	__TEXT	__text
+0x000015A0	0x00000030	__TEXT	__stubs
+0x000015D0	0x00000189	__TEXT	__cstring
+0x00001760	0x000004A0	__TEXT	__eh_frame
+0x00004000	0x00000028	__DATA_CONST	__got
+0x00004028	0x00000038	__DATA_CONST	__const
+0x00008000	0x00000004	__DATA	__data
+0x00008008	0x00000008	__DATA	.data
+0x00008010	0x00000358	__DATA	__bss
+# Symbols:
+# Address	Size    	File  Name
+0x000006E0	0x00000184	[  1] _cb_show_item
+0x00000864	0x000004A0	[  1] _arg_callback
+0x00000D04	0x00000134	[  1] _browse_file_dir.constprop.0
+0x00000E38	0x00000174	[  1] _plugin_start
+0x00000FAC	0x00000018	[  2] _cleanup_wrapper
+0x00000FC4	0x00000068	[  2] _plugin__start
+0x0000102C	0x00000020	[  2] _rb_atexit
+0x0000104C	0x00000024	[  2] _exit
+0x00001070	0x00000014	[  2] __exit
+0x00001084	0x00000064	[  2] _exit_on_usb
+0x000010E8	0x000000F4	[  3] _string_parse
+0x000011DC	0x0000003C	[  3] _char_parse
+0x00001218	0x000000F4	[  3] _bool_parse
+0x0000130C	0x00000150	[  3] _longnum_parse
+0x0000145C	0x0000003C	[  3] _num_parse
+0x00001498	0x00000108	[  3] _argparse
+0x000015A0	0x0000000C	[  5] ___maskrune.stub
+0x000015AC	0x0000000C	[  5] ___tolower.stub
+0x000015B8	0x0000000C	[  6] _longjmp.stub
+0x000015C4	0x0000000C	[  6] _setjmp.stub
+0x000015D0	0x0000000B	[  1] literal string: exiting %d
+0x000015DB	0x00000002	[  1] literal string: \n
+0x000015DD	0x0000000D	[  1] literal string: Excluded: %s
+0x000015EA	0x0000000D	[  1] literal string: Find no dirs
+0x000015F7	0x00000015	[  1] literal string: trying PLUGIN_DIR...
+0x0000160C	0x00000010	[  1] literal string: /.rockbox/rocks
+0x0000161C	0x00000007	[  1] literal string: Failed
+0x00001623	0x00000015	[  1] literal string: Ret plugin: Val: %s\n
+0x00001638	0x0000000E	[  1] literal string: ate %d chars\n
+0x00001646	0x00000010	[  1] literal string: Title: Val: %s\n
+0x00001656	0x00000002	[  1] literal string: /
+0x00001658	0x00000014	[  1] literal string: Start dir: Val: %s\n
+0x0000166C	0x0000002A	[  1] literal string: list extensions already active -f ignored
+0x00001696	0x00000014	[  1] literal string: Extension: Val: %s\n
+0x000016AA	0x00000024	[  1] literal string: extension already active -l ignored
+0x000016CE	0x00000019	[  1] literal string: Extension List: Val: %s\n
+0x000016E7	0x00000014	[  1] literal string: Attrib: Val: 0x%lx\n
+0x000016FB	0x00000014	[  1] literal string: Unknown switch '%c'
+0x0000170F	0x0000000B	[  1] literal string: Loading %s
+0x0000171A	0x00000011	[  1] literal string: Error opening %s
+0x0000172B	0x00000011	[  1] literal string: Error Opening %s
+0x0000173C	0x00000008	[  1] literal string: No Args
+0x00001744	0x00000008	[  1] literal string: %s (%s)
+0x0000174C	0x00000003	[  1] literal string: %s
+0x0000174F	0x00000003	[  3] literal string: '\"
+0x00001752	0x00000007	[  3] literal string: fn0ty1
+0x00001760	0x00000018	[  1] CFI
+0x00001778	0x00000058	[  1] FDE for: _cb_show_item
+0x000017D0	0x00000070	[  1] FDE for: _arg_callback
+0x00001840	0x00000058	[  1] FDE for: _browse_file_dir.constprop.0
+0x00001898	0x00000060	[  1] FDE for: _plugin_start
+0x000018F8	0x00000018	[  2] CFI
+0x00001910	0x00000020	[  2] FDE for: _cleanup_wrapper
+0x00001930	0x00000040	[  2] FDE for: _plugin__start
+0x00001970	0x00000020	[  2] FDE for: _rb_atexit
+0x00001990	0x00000030	[  2] FDE for: _exit
+0x000019C0	0x00000030	[  2] FDE for: __exit
+0x000019F0	0x00000038	[  2] FDE for: _exit_on_usb
+0x00001A28	0x00000018	[  3] CFI
+0x00001A40	0x00000058	[  3] FDE for: _string_parse
+0x00001A98	0x00000040	[  3] FDE for: _char_parse
+0x00001AD8	0x00000068	[  3] FDE for: _bool_parse
+0x00001B40	0x00000020	[  3] FDE for: _longnum_parse
+0x00001B60	0x00000038	[  3] FDE for: _num_parse
+0x00001B98	0x00000068	[  3] FDE for: _argparse
+0x00004000	0x00000008	[  5] __DefaultRuneLocale.got
+0x00004008	0x00000008	[  5] ___maskrune.got
+0x00004010	0x00000008	[  5] ___tolower.got
+0x00004018	0x00000008	[  6] _longjmp.got
+0x00004020	0x00000008	[  6] _setjmp.got
+0x00004028	0x00000038	[  2] ___header
+0x00008000	0x00000004	[  1] _dirlevel.0
+0x00008008	0x00000008	[  2] _rb
+0x00008010	0x00000290	[  1] _fpp
+0x000082A0	0x00000008	[  2] _atexit_handler
+0x000082A8	0x000000C0	[  2] ___exit_env

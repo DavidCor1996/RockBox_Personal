@@ -1,0 +1,188 @@
+# Path: /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/mp3_encoder.elf
+# Arch: arm64
+# Object files:
+[  0] linker synthesized
+[  1] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/mp3_encoder.o
+[  2] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/plugin_crt0.o
+[  3] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(gcc-support.o)
+[  4] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/libSystem.tbd
+[  5] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/system/libsystem_platform.tbd
+# Sections:
+# Address	Size    	Segment	Section
+0x00000780	0x000030D0	__TEXT	__text
+0x00003850	0x00000018	__TEXT	__stubs
+0x00003868	0x00000188	__TEXT	__cstring
+0x000039F0	0x00003D7A	__TEXT	__const
+0x00007770	0x00000618	__TEXT	__eh_frame
+0x00008000	0x00000010	__DATA_CONST	__got
+0x00008010	0x000000D8	__DATA_CONST	__const
+0x0000C000	0x00000180	__DATA	__data
+0x0000C180	0x00000008	__DATA	.data
+0x0000C188	0x00000054	__DATA	__common
+0x0000C1E0	0x00005458	__DATA	__bss
+# Symbols:
+# Address	Size    	File  Name
+0x00000780	0x00000060	[  1] _checkString
+0x000007E0	0x0000005C	[  1] _Read16BitsLowHigh
+0x0000083C	0x00000034	[  1] _Read32BitsLowHigh
+0x00000870	0x00000074	[  1] _putbits
+0x000008E4	0x000000A0	[  1] _find_best_3.constprop.0
+0x00000984	0x00000058	[  1] _find_best_2.constprop.0
+0x000009DC	0x00000274	[  1] _HuffmanCode.constprop.0
+0x00000C50	0x000000EC	[  1] _read_samples.constprop.0
+0x00000D3C	0x00000234	[  1] _choose_table.constprop.0
+0x00000F70	0x000002E8	[  1] _quantize_and_count_bits.constprop.0
+0x00001258	0x00000384	[  1] _window_subband1
+0x000015DC	0x00000658	[  1] _window_subband2
+0x00001C34	0x000002AC	[  1] _mdct_long
+0x00001EE0	0x000017D4	[  1] _plugin_start
+0x000036B4	0x00000018	[  2] _cleanup_wrapper
+0x000036CC	0x00000068	[  2] _plugin__start
+0x00003734	0x00000020	[  2] _rb_atexit
+0x00003754	0x00000024	[  2] _exit
+0x00003778	0x00000014	[  2] __exit
+0x0000378C	0x00000064	[  2] _exit_on_usb
+0x000037F0	0x00000018	[  3] _memcpy
+0x00003808	0x00000018	[  3] _memset
+0x00003820	0x00000018	[  3] _memmove
+0x00003838	0x00000018	[  3] _memcmp
+0x00003850	0x0000000C	[  5] _longjmp.stub
+0x0000385C	0x0000000C	[  5] _setjmp.stub
+0x00003868	0x00000015	[  1] literal string: -- Select Bitrate --
+0x0000387D	0x00000005	[  1] literal string: RIFF
+0x00003882	0x00000005	[  1] literal string: WAVE
+0x00003887	0x00000005	[  1] literal string: fmt 
+0x0000388C	0x00000005	[  1] literal string: data
+0x00003891	0x00000005	[  1] literal string: .mp3
+0x00003896	0x0000000E	[  1] literal string: Frame %d / %d
+0x000038A4	0x00000022	[  1] literal string: bad input %lu < or > array bounds
+0x000038C6	0x00000013	[  1] literal string: WaveOpen failed %d
+0x000038D9	0x00000003	[  1] literal string: %s
+0x000038DC	0x0000001D	[  1] literal string:   Conversion: %ld.%02lds    
+0x000038F9	0x0000001D	[  1] literal string:   WAV-Length: %ld.%02lds    
+0x00003916	0x00000003	[  1] literal string: 64
+0x00003919	0x00000003	[  1] literal string: 80
+0x0000391C	0x00000003	[  1] literal string: 96
+0x0000391F	0x00000004	[  1] literal string: 112
+0x00003923	0x00000004	[  1] literal string: 128
+0x00003927	0x00000004	[  1] literal string: 160
+0x0000392B	0x00000004	[  1] literal string: 192
+0x0000392F	0x00000004	[  1] literal string: 224
+0x00003933	0x00000004	[  1] literal string: 256
+0x00003937	0x00000004	[  1] literal string: 320
+0x0000393B	0x00000001	[  1] literal string: 
+0x0000393C	0x00000012	[  1] literal string: Cannot open file.
+0x0000394E	0x00000010	[  1] literal string: 'RIFF' missing.
+0x0000395E	0x00000010	[  1] literal string: 'WAVE' missing.
+0x0000396E	0x00000010	[  1] literal string: 'fmt ' missing.
+0x0000397E	0x00000015	[  1] literal string: Linear PCM required.
+0x00003993	0x0000001C	[  1] literal string: 16 bit per sample required.
+0x000039AF	0x00000017	[  1] literal string: <=2 channels required.
+0x000039C6	0x00000010	[  1] literal string: 'data' missing.
+0x000039D6	0x0000001A	[  1] literal string: Samplerate not supported.
+0x000039F0	0x00000028	[  1] _brate.0
+0x00003A18	0x0000002E	[  1] _num_bands
+0x00003A46	0x0000003C	[  1] _bitr_index
+0x00003A82	0x00000020	[  1] _order
+0x00003AA2	0x0000002E	[  1] _subdv_table
+0x00003AD0	0x00000040	[  1] _ht_big
+0x00003B10	0x00000100	[  1] _t24l
+0x00003C10	0x00000100	[  1] _t16l
+0x00003D10	0x00000100	[  1] _t15l
+0x00003E10	0x00000100	[  1] _t13l
+0x00003F10	0x00000040	[  1] _t12l
+0x00003F50	0x00000040	[  1] _t11l
+0x00003F90	0x00000040	[  1] _t10l
+0x00003FD0	0x00000024	[  1] _t9l
+0x00003FF4	0x00000024	[  1] _t8l
+0x00004018	0x00000024	[  1] _t7l
+0x0000403C	0x00000010	[  1] _t6l
+0x0000404C	0x00000010	[  1] _t5l
+0x0000405C	0x00000009	[  1] _t3l
+0x00004065	0x00000009	[  1] _t2l
+0x0000406E	0x00000008	[  1] _t1l
+0x00004076	0x00000200	[  1] _t24HB
+0x00004276	0x00000200	[  1] _t16HB
+0x00004476	0x00000100	[  1] _t15HB
+0x00004576	0x00000100	[  1] _t13HB
+0x00004676	0x00000040	[  1] _t12HB
+0x000046B6	0x00000040	[  1] _t11HB
+0x000046F6	0x00000040	[  1] _t10HB
+0x00004736	0x00000024	[  1] _t9HB
+0x0000475A	0x00000024	[  1] _t8HB
+0x0000477E	0x00000024	[  1] _t7HB
+0x000047A2	0x00000010	[  1] _t6HB
+0x000047B2	0x00000010	[  1] _t5HB
+0x000047C2	0x00000009	[  1] _t3HB
+0x000047CB	0x00000009	[  1] _t2HB
+0x000047D4	0x00000004	[  1] _t1HB
+0x000047D8	0x00000100	[  1] _tabABC
+0x000048D8	0x00000090	[  1] _tab789
+0x00004968	0x00000400	[  1] _tab1624
+0x00004D68	0x00000400	[  1] _tab1315
+0x00005168	0x00000040	[  1] _tab56
+0x000051A8	0x00000024	[  1] _tab23
+0x000051CC	0x00000040	[  1] _tab01
+0x0000520C	0x00000040	[  1] _ht_count
+0x0000524C	0x00002000	[  1] _int2idx
+0x0000724C	0x0000035A	[  1] _enwindow
+0x000075A6	0x00000090	[  1] _win
+0x00007636	0x00000010	[  1] _cs
+0x00007646	0x00000010	[  1] _ca
+0x00007656	0x00000114	[  1] _sfBand
+0x00007770	0x00000018	[  1] CFI
+0x00007788	0x00000048	[  1] FDE for: _checkString
+0x000077D0	0x00000040	[  1] FDE for: _Read16BitsLowHigh
+0x00007810	0x00000040	[  1] FDE for: _Read32BitsLowHigh
+0x00007850	0x00000020	[  1] FDE for: _putbits
+0x00007870	0x00000020	[  1] FDE for: _find_best_3.constprop.0
+0x00007890	0x00000020	[  1] FDE for: _find_best_2.constprop.0
+0x000078B0	0x00000068	[  1] FDE for: _HuffmanCode.constprop.0
+0x00007918	0x00000060	[  1] FDE for: _read_samples.constprop.0
+0x00007978	0x00000060	[  1] FDE for: _choose_table.constprop.0
+0x000079D8	0x00000050	[  1] FDE for: _quantize_and_count_bits.constprop.0
+0x00007A28	0x00000070	[  1] FDE for: _window_subband1
+0x00007A98	0x00000058	[  1] FDE for: _window_subband2
+0x00007AF0	0x00000040	[  1] FDE for: _mdct_long
+0x00007B30	0x00000090	[  1] FDE for: _plugin_start
+0x00007BC0	0x00000018	[  2] CFI
+0x00007BD8	0x00000020	[  2] FDE for: _cleanup_wrapper
+0x00007BF8	0x00000040	[  2] FDE for: _plugin__start
+0x00007C38	0x00000020	[  2] FDE for: _rb_atexit
+0x00007C58	0x00000030	[  2] FDE for: _exit
+0x00007C88	0x00000030	[  2] FDE for: __exit
+0x00007CB8	0x00000038	[  2] FDE for: _exit_on_usb
+0x00007CF0	0x00000018	[  3] CFI
+0x00007D08	0x00000020	[  3] FDE for: _memcpy
+0x00007D28	0x00000020	[  3] FDE for: _memset
+0x00007D48	0x00000020	[  3] FDE for: _memmove
+0x00007D68	0x00000020	[  3] FDE for: _memcmp
+0x00008000	0x00000008	[  5] _longjmp.got
+0x00008008	0x00000008	[  5] _setjmp.got
+0x00008010	0x00000050	[  1] _bstrg.1
+0x00008060	0x00000050	[  1] _mp3_enc_err
+0x000080B0	0x00000038	[  2] ___header
+0x0000C000	0x00000180	[  1] _ht
+0x0000C180	0x00000008	[  2] _rb
+0x0000C188	0x00000050	[  1] _mp3_name
+0x0000C1D8	0x00000004	[  1] _num_file
+0x0000C1E0	0x00000018	[  1] _band_scale_f
+0x0000C1F8	0x00000160	[  1] _cfg
+0x0000C358	0x00000004	[  1] _enc_size
+0x0000C35C	0x00000004	[  1] _enc_chunk
+0x0000C360	0x00000008	[  1] _enc_buffer_size
+0x0000C368	0x00000008	[  1] _enc_buffer
+0x0000C370	0x00000004	[  1] _frames
+0x0000C374	0x00000004	[  1] _wav_size
+0x0000C378	0x00000004	[  1] _wavfile
+0x0000C37C	0x00000004	[  1] _mp3file
+0x0000C380	0x00000008	[  1] _wav_filename
+0x0000C388	0x00000008	[  1] _scalefac
+0x0000C390	0x00000420	[  1] _CodedData
+0x0000C7B0	0x00000480	[  1] _enc_data
+0x0000CC30	0x00000240	[  1] _mdct_sign
+0x0000CE70	0x00000900	[  1] _mdct_freq
+0x0000D770	0x00002400	[  1] _sb_data
+0x0000FB70	0x00001A00	[  1] _mfbuf
+0x00011570	0x00000008	[  2] _atexit_handler
+0x00011578	0x000000C0	[  2] ___exit_env

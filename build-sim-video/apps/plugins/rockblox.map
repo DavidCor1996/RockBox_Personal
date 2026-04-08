@@ -1,0 +1,240 @@
+# Path: /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/rockblox.elf
+# Arch: arm64
+# Object files:
+[  0] linker synthesized
+[  1] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/rockblox.o
+[  2] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/plugin_crt0.o
+[  3] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(helper.o)
+[  4] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(playback_control.o)
+[  5] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(highscore.o)
+[  6] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(display_text.o)
+[  7] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/bitmaps/libpluginbitmaps.a(rockblox_background.320x240x16.o)
+[  8] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/libSystem.tbd
+[  9] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/system/libsystem_platform.tbd
+# Sections:
+# Address	Size    	Segment	Section
+0x00000780	0x000022D8	__TEXT	__text
+0x00002A58	0x00000018	__TEXT	__stubs
+0x00002A70	0x000001E2	__TEXT	__cstring
+0x00002C58	0x000258C8	__TEXT	__const
+0x00028520	0x00000BF8	__TEXT	__eh_frame
+0x0002C000	0x00000010	__DATA_CONST	__got
+0x0002C010	0x00000188	__DATA_CONST	__const
+0x00030000	0x00000248	__DATA	__data
+0x00030248	0x00000008	__DATA	.data
+0x00030250	0x00000138	__DATA	__common
+0x00030388	0x00000289	__DATA	__bss
+# Symbols:
+# Address	Size    	File  Name
+0x00000780	0x000000BC	[  1] _show_details
+0x0000083C	0x0000009C	[  1] _getRelativeX
+0x000008D8	0x0000009C	[  1] _getRelativeY
+0x00000974	0x00000090	[  1] _canMoveTo
+0x00000A04	0x000003D8	[  1] _refresh_board
+0x00000DDC	0x000001C0	[  1] _draw_next_block
+0x00000F9C	0x00000028	[  1] _rockblox_menu_cb
+0x00000FC4	0x00000048	[  1] _move_block
+0x0000100C	0x00000074	[  1] _new_block
+0x00001080	0x00000118	[  1] _init_rockblox
+0x00001198	0x000008D0	[  1] _plugin_start
+0x00001A68	0x00000018	[  2] _cleanup_wrapper
+0x00001A80	0x00000068	[  2] _plugin__start
+0x00001AE8	0x00000020	[  2] _rb_atexit
+0x00001B08	0x00000024	[  2] _exit
+0x00001B2C	0x00000014	[  2] __exit
+0x00001B40	0x00000064	[  2] _exit_on_usb
+0x00001BA4	0x00000020	[  3] _talk_val
+0x00001BC4	0x00000040	[  3] _backlight_force_on
+0x00001C04	0x0000006C	[  3] _backlight_ignore_timeout
+0x00001C70	0x00000048	[  3] _backlight_use_settings
+0x00001CB8	0x00000044	[  3] _sw_poweroff_disable
+0x00001CFC	0x00000020	[  3] _sw_poweroff_restore
+0x00001D1C	0x00000004	[  3] _remote_backlight_force_on
+0x00001D20	0x00000004	[  3] _remote_backlight_ignore_timeout
+0x00001D24	0x00000004	[  3] _remote_backlight_use_settings
+0x00001D28	0x00000004	[  3] _buttonlight_force_on
+0x00001D2C	0x00000004	[  3] _buttonlight_force_off
+0x00001D30	0x00000004	[  3] _buttonlight_ignore_timeout
+0x00001D34	0x00000004	[  3] _buttonlight_use_settings
+0x00001D38	0x00000018	[  3] _backlight_brightness_set
+0x00001D50	0x00000020	[  3] _backlight_brightness_use_setting
+0x00001D70	0x00000004	[  3] _buttonlight_brightness_set
+0x00001D74	0x00000004	[  3] _buttonlight_brightness_use_setting
+0x00001D78	0x00000028	[  4] _prevtrack
+0x00001DA0	0x00000088	[  4] _play
+0x00001E28	0x00000028	[  4] _stop
+0x00001E50	0x00000028	[  4] _nexttrack
+0x00001E78	0x00000050	[  4] _volume
+0x00001EC8	0x00000054	[  4] _shuffle
+0x00001F1C	0x0000008C	[  4] _repeat_mode
+0x00001FA8	0x0000000C	[  4] _playback_control_init
+0x00001FB4	0x00000048	[  4] _playback_control
+0x00001FFC	0x00000128	[  5] _highscore_save
+0x00002124	0x00000174	[  5] _highscore_load
+0x00002298	0x0000002C	[  5] _highscore_would_update
+0x000022C4	0x000000D8	[  5] _highscore_update
+0x0000239C	0x000002F0	[  5] _highscore_show
+0x0000268C	0x00000078	[  6] _wait_key_press
+0x00002704	0x00000354	[  6] _display_text
+0x00002A58	0x0000000C	[  9] _longjmp.stub
+0x00002A64	0x0000000C	[  9] _setjmp.stub
+0x00002A70	0x00000003	[  1] literal string: %d
+0x00002A73	0x0000001A	[  1] literal string: %04d%02d%02d %02d%02d%02d
+0x00002A8D	0x00000025	[  1] literal string: /.rockbox/rocks/games/rockblox.score
+0x00002AB2	0x00000026	[  1] literal string: /.rockbox/rocks/games/rockblox.resume
+0x00002AD8	0x0000000F	[  1] literal string: Loading failed
+0x00002AE7	0x00000013	[  1] literal string: New High Score: %d
+0x00002AFA	0x0000000A	[  1] literal string: Saving...
+0x00002B04	0x0000000E	[  1] literal string: Saving failed
+0x00002B12	0x00000007	[  1] literal string: Paused
+0x00002B19	0x0000000E	[  1] literal string: Restarting...
+0x00002B27	0x0000000B	[  1] literal string: Game over!
+0x00002B32	0x00000001	[  1] literal string: 
+0x00002B33	0x00000009	[  1] literal string: Rockblox
+0x00002B3C	0x00000004	[  1] literal string: Aim
+0x00002B40	0x00000005	[  1] literal string: Make
+0x00002B45	0x00000004	[  1] literal string: the
+0x00002B49	0x00000008	[  1] literal string: falling
+0x00002B51	0x00000007	[  1] literal string: blocks
+0x00002B58	0x00000003	[  1] literal string: of
+0x00002B5B	0x0000000A	[  1] literal string: different
+0x00002B65	0x00000007	[  1] literal string: shapes
+0x00002B6C	0x00000005	[  1] literal string: form
+0x00002B71	0x00000005	[  1] literal string: full
+0x00002B76	0x00000006	[  1] literal string: rows.
+0x00002B7C	0x00000009	[  1] literal string: Whenever
+0x00002B85	0x00000002	[  1] literal string: a
+0x00002B87	0x00000004	[  1] literal string: row
+0x00002B8B	0x00000003	[  1] literal string: is
+0x00002B8E	0x0000000B	[  1] literal string: completed,
+0x00002B99	0x00000003	[  1] literal string: it
+0x00002B9C	0x00000005	[  1] literal string: will
+0x00002BA1	0x00000003	[  1] literal string: be
+0x00002BA4	0x00000008	[  1] literal string: cleared
+0x00002BAC	0x00000005	[  1] literal string: away
+0x00002BB1	0x00000004	[  1] literal string: and
+0x00002BB5	0x00000004	[  1] literal string: you
+0x00002BB9	0x00000005	[  1] literal string: gain
+0x00002BBE	0x00000008	[  1] literal string: points.
+0x00002BC6	0x0000000C	[  1] literal string: Resume Game
+0x00002BD2	0x0000000F	[  1] literal string: Start New Game
+0x00002BE1	0x00000005	[  1] literal string: Help
+0x00002BE6	0x0000000C	[  1] literal string: High Scores
+0x00002BF2	0x00000011	[  1] literal string: Playback Control
+0x00002C03	0x00000014	[  1] literal string: Quit without Saving
+0x00002C17	0x00000005	[  1] literal string: Quit
+0x00002C1C	0x00000007	[  4] literal string: Volume
+0x00002C23	0x00000008	[  4] literal string: Shuffle
+0x00002C2B	0x00000007	[  4] literal string: Repeat
+0x00002C32	0x0000000A	[  5] literal string: %d:%d:%s\n
+0x00002C3C	0x00000004	[  5] literal string: %s\n
+0x00002C40	0x00000006	[  5] literal string: Score
+0x00002C46	0x00000006	[  5] literal string: Level
+0x00002C4C	0x00000004	[  5] literal string: %d)
+0x00002C50	0x00000002	[  6] literal string:  
+0x00002C58	0x00000008	[  1] _scoring
+0x00002C60	0x00000018	[  4] _playback_control_menu__
+0x00002C78	0x00000018	[  4] _repeat_mode_item_
+0x00002C90	0x00000018	[  4] _shuffle_item_
+0x00002CA8	0x00000018	[  4] _volume_item_
+0x00002CC0	0x00000018	[  4] _nexttrack_item_
+0x00002CD8	0x00000018	[  4] _stop_item_
+0x00002CF0	0x00000018	[  4] _playpause_item_
+0x00002D08	0x00000018	[  4] _prevtrack_item_
+0x00002D20	0x00025800	[  7] _rockblox_background
+0x00028520	0x00000018	[  1] CFI
+0x00028538	0x00000050	[  1] FDE for: _show_details
+0x00028588	0x00000020	[  1] FDE for: _getRelativeX
+0x000285A8	0x00000020	[  1] FDE for: _getRelativeY
+0x000285C8	0x00000040	[  1] FDE for: _canMoveTo
+0x00028608	0x00000068	[  1] FDE for: _refresh_board
+0x00028670	0x00000060	[  1] FDE for: _draw_next_block
+0x000286D0	0x00000020	[  1] FDE for: _rockblox_menu_cb
+0x000286F0	0x00000038	[  1] FDE for: _move_block
+0x00028728	0x00000040	[  1] FDE for: _new_block
+0x00028768	0x00000048	[  1] FDE for: _init_rockblox
+0x000287B0	0x00000078	[  1] FDE for: _plugin_start
+0x00028828	0x00000018	[  2] CFI
+0x00028840	0x00000020	[  2] FDE for: _cleanup_wrapper
+0x00028860	0x00000040	[  2] FDE for: _plugin__start
+0x000288A0	0x00000020	[  2] FDE for: _rb_atexit
+0x000288C0	0x00000030	[  2] FDE for: _exit
+0x000288F0	0x00000030	[  2] FDE for: __exit
+0x00028920	0x00000038	[  2] FDE for: _exit_on_usb
+0x00028958	0x00000018	[  3] CFI
+0x00028970	0x00000020	[  3] FDE for: _talk_val
+0x00028990	0x00000040	[  3] FDE for: _backlight_force_on
+0x000289D0	0x00000050	[  3] FDE for: _backlight_ignore_timeout
+0x00028A20	0x00000040	[  3] FDE for: _backlight_use_settings
+0x00028A60	0x00000040	[  3] FDE for: _sw_poweroff_disable
+0x00028AA0	0x00000020	[  3] FDE for: _sw_poweroff_restore
+0x00028AC0	0x00000020	[  3] FDE for: _remote_backlight_force_on
+0x00028AE0	0x00000020	[  3] FDE for: _remote_backlight_ignore_timeout
+0x00028B00	0x00000020	[  3] FDE for: _remote_backlight_use_settings
+0x00028B20	0x00000020	[  3] FDE for: _buttonlight_force_on
+0x00028B40	0x00000020	[  3] FDE for: _buttonlight_force_off
+0x00028B60	0x00000020	[  3] FDE for: _buttonlight_ignore_timeout
+0x00028B80	0x00000020	[  3] FDE for: _buttonlight_use_settings
+0x00028BA0	0x00000020	[  3] FDE for: _backlight_brightness_set
+0x00028BC0	0x00000020	[  3] FDE for: _backlight_brightness_use_setting
+0x00028BE0	0x00000020	[  3] FDE for: _buttonlight_brightness_set
+0x00028C00	0x00000020	[  3] FDE for: _buttonlight_brightness_use_setting
+0x00028C20	0x00000018	[  4] CFI
+0x00028C38	0x00000038	[  4] FDE for: _prevtrack
+0x00028C70	0x00000048	[  4] FDE for: _play
+0x00028CB8	0x00000038	[  4] FDE for: _stop
+0x00028CF0	0x00000038	[  4] FDE for: _nexttrack
+0x00028D28	0x00000040	[  4] FDE for: _volume
+0x00028D68	0x00000040	[  4] FDE for: _shuffle
+0x00028DA8	0x00000040	[  4] FDE for: _repeat_mode
+0x00028DE8	0x00000020	[  4] FDE for: _playback_control_init
+0x00028E08	0x00000038	[  4] FDE for: _playback_control
+0x00028E40	0x00000018	[  5] CFI
+0x00028E58	0x00000070	[  5] FDE for: _highscore_save
+0x00028EC8	0x00000070	[  5] FDE for: _highscore_load
+0x00028F38	0x00000020	[  5] FDE for: _highscore_would_update
+0x00028F58	0x00000068	[  5] FDE for: _highscore_update
+0x00028FC0	0x00000080	[  5] FDE for: _highscore_show
+0x00029040	0x00000018	[  6] CFI
+0x00029058	0x00000050	[  6] FDE for: _wait_key_press
+0x000290A8	0x00000070	[  6] FDE for: _display_text
+0x0002C000	0x00000008	[  9] _longjmp.got
+0x0002C008	0x00000008	[  9] _setjmp.got
+0x0002C010	0x00000018	[  1] _main_menu__.3
+0x0002C028	0x00000018	[  1] _main_menu.4
+0x0002C040	0x00000038	[  2] ___header
+0x0002C078	0x00000018	[  4] _playback_control_menu
+0x0002C090	0x00000018	[  4] _repeat_mode_item
+0x0002C0A8	0x00000008	[  4] _repeat_mode_item__
+0x0002C0B0	0x00000018	[  4] _shuffle_item
+0x0002C0C8	0x00000008	[  4] _shuffle_item__
+0x0002C0D0	0x00000018	[  4] _volume_item
+0x0002C0E8	0x00000008	[  4] _volume_item__
+0x0002C0F0	0x00000018	[  4] _nexttrack_item
+0x0002C108	0x00000008	[  4] _nexttrack_item__
+0x0002C110	0x00000018	[  4] _stop_item
+0x0002C128	0x00000008	[  4] _stop_item__
+0x0002C130	0x00000018	[  4] _playpause_item
+0x0002C148	0x00000008	[  4] _playpause_item__
+0x0002C150	0x00000018	[  4] _prevtrack_item
+0x0002C168	0x00000008	[  4] _prevtrack_item__
+0x0002C170	0x00000028	[  7] _bm_rockblox_background
+0x00030000	0x00000010	[  1] _formation.0
+0x00030010	0x000000E0	[  1] _help_text.1
+0x000300F0	0x00000038	[  1] _main_menu_.2
+0x00030128	0x000000E0	[  1] _figures
+0x00030208	0x00000001	[  3] _original_sw_poweroff_state
+0x00030210	0x00000038	[  4] _playback_control_menu_
+0x00030248	0x00000008	[  2] _rb
+0x00030250	0x000000C8	[  1] _highscores
+0x00030318	0x00000001	[  1] _resume_file
+0x00030319	0x00000003	[  1] _resume
+0x0003031C	0x00000054	[  1] _ghost_colors
+0x00030370	0x00000004	[  1] _wheel_enabled
+0x00030374	0x00000004	[  1] _last_wheel_event
+0x00030378	0x00000004	[  1] _wheel_events
+0x00030380	0x00000008	[  4] _parentvp
+0x00030388	0x000001BC	[  1] _rockblox_status
+0x00030548	0x00000008	[  2] _atexit_handler
+0x00030550	0x000000C0	[  2] ___exit_env
+0x00030610	0x00000001	[  5] _highscore_updated

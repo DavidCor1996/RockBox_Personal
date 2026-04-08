@@ -1,0 +1,409 @@
+# Path: /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/speex.elf
+# Arch: arm64
+# Object files:
+[  0] linker synthesized
+[  1] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/speex.o
+[  2] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/codec_crt0.o
+[  3] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libspeex.a(bits.o)
+[  4] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libspeex.a(cb_search.o)
+[  5] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libspeex.a(exc_10_16_table.o)
+[  6] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libspeex.a(exc_10_32_table.o)
+[  7] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libspeex.a(exc_20_32_table.o)
+[  8] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libspeex.a(exc_5_256_table.o)
+[  9] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libspeex.a(exc_5_64_table.o)
+[ 10] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libspeex.a(exc_8_128_table.o)
+[ 11] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libspeex.a(filters.o)
+[ 12] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libspeex.a(gain_table.o)
+[ 13] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libspeex.a(gain_table_lbr.o)
+[ 14] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libspeex.a(hexc_10_32_table.o)
+[ 15] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libspeex.a(hexc_table.o)
+[ 16] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libspeex.a(high_lsp_tables.o)
+[ 17] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libspeex.a(lsp.o)
+[ 18] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libspeex.a(lsp_tables_nb.o)
+[ 19] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libspeex.a(ltp.o)
+[ 20] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libspeex.a(modes.o)
+[ 21] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libspeex.a(modes_wb.o)
+[ 22] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libspeex.a(nb_celp.o)
+[ 23] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libspeex.a(quant_lsp.o)
+[ 24] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libspeex.a(sb_celp.o)
+[ 25] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libspeex.a(speex.o)
+[ 26] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libspeex.a(speex_callbacks.o)
+[ 27] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libspeex.a(oggframing.o)
+[ 28] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libspeex.a(stereo.o)
+[ 29] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libspeex.a(speex_header.o)
+[ 30] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+[ 31] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/libSystem.tbd
+[ 32] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/system/libsystem_c.tbd
+# Sections:
+# Address	Size    	Segment	Section
+0x000006E0	0x00006328	__TEXT	__text
+0x00006A08	0x0000000C	__TEXT	__stubs
+0x00006A14	0x00000369	__TEXT	__cstring
+0x00006D80	0x000029B8	__TEXT	__const
+0x00009738	0x00001A20	__TEXT	__eh_frame
+0x0000C000	0x00000008	__DATA_CONST	__got
+0x0000C008	0x00000888	__DATA_CONST	__const
+0x00010000	0x00000008	__DATA	.data
+0x00010008	0x00001700	__DATA	__bss
+# Symbols:
+# Address	Size    	File  Name
+0x000006E0	0x00000050	[  1] _get_more_data
+0x00000730	0x00000094	[  1] _get_next_page
+0x000007C4	0x000008B8	[  1] _codec_run
+0x0000107C	0x00000008	[  1] _codec_main
+0x00001084	0x00000008	[  2] __start
+0x0000108C	0x00000004	[  2] _codec_start
+0x00001090	0x00000038	[  3] _speex_warning
+0x000010C8	0x0000001C	[  3] _speex_bits_set_bit_buffer
+0x000010E4	0x00000014	[  3] _speex_bits_destroy
+0x000010F8	0x000000E0	[  3] _speex_bits_read_from
+0x000011D8	0x00000110	[  3] _speex_bits_read_whole_bytes
+0x000012E8	0x00000080	[  3] _speex_bits_unpack_unsigned
+0x00001368	0x0000004C	[  3] _speex_bits_peek
+0x000013B4	0x0000003C	[  3] _speex_bits_advance
+0x000013F0	0x00000024	[  3] _speex_bits_remaining
+0x00001414	0x0000012C	[  4] _split_cb_shape_sign_unquant
+0x00001540	0x00000048	[  4] _noise_codebook_unquant
+0x00001588	0x000000C4	[ 11] _spx_sqrt
+0x0000164C	0x000001CC	[ 11] _interp_pitch.constprop.0.isra.0
+0x00001818	0x0000003C	[ 11] _bw_lpc
+0x00001854	0x0000003C	[ 11] _sanitize_values32
+0x00001890	0x000000E4	[ 11] _highpass
+0x00001974	0x0000003C	[ 11] _signal_mul
+0x000019B0	0x0000016C	[ 11] _compute_rms16
+0x00001B1C	0x0000006C	[ 11] _normalize16
+0x00001B88	0x00000098	[ 11] _iir_mem16
+0x00001C20	0x0000031C	[ 11] _qmf_synth
+0x00001F3C	0x00000434	[ 11] _multicomb
+0x00002370	0x0000037C	[ 17] _lsp_to_lpc
+0x000026EC	0x0000008C	[ 17] _lsp_enforce_margin
+0x00002778	0x0000005C	[ 17] _lsp_interpolate
+0x000027D4	0x0000005C	[ 19] _inner_prod
+0x00002830	0x0000022C	[ 19] _pitch_unquant_3tap
+0x00002A5C	0x00000058	[ 19] _forced_pitch_unquant
+0x00002AB4	0x0000000C	[ 20] _speex_mode_query
+0x00002AC0	0x00000094	[ 21] _wb_mode_query
+0x00002B54	0x00000020	[ 21] _speex_lib_get_mode
+0x00002B74	0x00000034	[ 22] _speex_rand
+0x00002BA8	0x00000138	[ 22] _nb_decoder_init
+0x00002CE0	0x00000004	[ 22] _nb_decoder_destroy
+0x00002CE4	0x00001104	[ 22] _nb_decode
+0x00003DE8	0x0000030C	[ 22] _nb_decoder_ctl
+0x000040F4	0x00000188	[ 23] _lsp_unquant_nb
+0x0000427C	0x00000104	[ 23] _lsp_unquant_lbr
+0x00004380	0x000000D4	[ 23] _lsp_unquant_high
+0x00004454	0x00000134	[ 24] _sb_decode_lost
+0x00004588	0x000000F4	[ 24] _sb_decoder_init
+0x0000467C	0x00000008	[ 24] _sb_decoder_destroy
+0x00004684	0x000008E8	[ 24] _sb_decode
+0x00004F6C	0x00000300	[ 24] _sb_decoder_ctl
+0x0000526C	0x0000000C	[ 25] _speex_decoder_init
+0x00005278	0x00000010	[ 25] _speex_decoder_destroy
+0x00005288	0x00000010	[ 25] _speex_decode_int
+0x00005298	0x00000004	[ 25] _speex_decode_native
+0x0000529C	0x00000010	[ 25] _speex_decoder_ctl
+0x000052AC	0x00000090	[ 25] _nb_mode_query
+0x0000533C	0x000000A4	[ 25] _speex_lib_ctl
+0x000053E0	0x000000C0	[ 26] _speex_inband_handler
+0x000054A0	0x00000038	[ 26] _speex_default_user_handler
+0x000054D8	0x000000F0	[ 27] __packetout
+0x000055C8	0x00000044	[ 27] __os_body_expand
+0x0000560C	0x00000058	[ 27] __os_lacing_expand
+0x00005664	0x0000000C	[ 27] _spx_ogg_page_version
+0x00005670	0x00000010	[ 27] _spx_ogg_page_continued
+0x00005680	0x00000010	[ 27] _spx_ogg_page_bos
+0x00005690	0x00000010	[ 27] _spx_ogg_page_eos
+0x000056A0	0x0000000C	[ 27] _spx_ogg_page_granulepos
+0x000056AC	0x0000000C	[ 27] _spx_ogg_page_serialno
+0x000056B8	0x0000000C	[ 27] _spx_ogg_page_pageno
+0x000056C4	0x00000034	[ 27] _spx_ogg_page_packets
+0x000056F8	0x00000074	[ 27] _spx_ogg_stream_init
+0x0000576C	0x00000060	[ 27] _spx_ogg_stream_clear
+0x000057CC	0x00000038	[ 27] _spx_ogg_stream_destroy
+0x00005804	0x000000C0	[ 27] _spx_ogg_page_checksum_set
+0x000058C4	0x00000158	[ 27] _spx_ogg_stream_packetin
+0x00005A1C	0x00000210	[ 27] _spx_ogg_stream_flush
+0x00005C2C	0x00000044	[ 27] _spx_ogg_stream_pageout
+0x00005C70	0x00000008	[ 27] _spx_ogg_stream_eos
+0x00005C78	0x0000002C	[ 27] _spx_ogg_sync_init
+0x00005CA4	0x00000038	[ 27] _spx_ogg_sync_clear
+0x00005CDC	0x00000038	[ 27] _spx_ogg_sync_destroy
+0x00005D14	0x00000048	[ 27] _spx_ogg_alloc_buffer
+0x00005D5C	0x000000A0	[ 27] _spx_ogg_sync_buffer
+0x00005DFC	0x0000002C	[ 27] _spx_ogg_sync_wrote
+0x00005E28	0x000001A8	[ 27] _spx_ogg_sync_pageseek
+0x00005FD0	0x0000005C	[ 27] _spx_ogg_sync_pageout
+0x0000602C	0x000002F4	[ 27] _spx_ogg_stream_pagein
+0x00006320	0x00000010	[ 27] _spx_ogg_sync_reset
+0x00006330	0x00000028	[ 27] _spx_ogg_stream_reset
+0x00006358	0x00000024	[ 27] _spx_ogg_stream_reset_serialno
+0x0000637C	0x00000008	[ 27] _spx_ogg_stream_packetout
+0x00006384	0x00000008	[ 27] _spx_ogg_stream_packetpeek
+0x0000638C	0x00000030	[ 27] _spx_ogg_packet_clear
+0x000063BC	0x000000C4	[ 28] _spx_sqrt
+0x00006480	0x00000020	[ 28] _speex_stereo_state_reset
+0x000064A0	0x0000001C	[ 28] _speex_stereo_state_init
+0x000064BC	0x00000004	[ 28] _speex_stereo_state_destroy
+0x000064C0	0x000000D8	[ 28] _speex_decode_stereo_int
+0x00006598	0x00000110	[ 28] _speex_std_stereo_request_handler
+0x000066A8	0x00000038	[ 29] _speex_notify
+0x000066E0	0x000000C4	[ 29] _speex_packet_to_header
+0x000067A4	0x00000040	[ 30] _codec_init
+0x000067E4	0x00000048	[ 30] _codec_set_replaygain
+0x0000682C	0x00000048	[ 30] _codec_malloc
+0x00006874	0x0000004C	[ 30] _codec_calloc
+0x000068C0	0x00000004	[ 30] _codec_free
+0x000068C4	0x00000054	[ 30] _codec_realloc
+0x00006918	0x00000018	[ 30] _codec_strlen
+0x00006930	0x00000018	[ 30] _strcpy
+0x00006948	0x00000018	[ 30] _strcat
+0x00006960	0x00000018	[ 30] _strcmp
+0x00006978	0x00000018	[ 30] _memcpy
+0x00006990	0x00000018	[ 30] _memset
+0x000069A8	0x00000018	[ 30] _memcmp
+0x000069C0	0x00000018	[ 30] _memchr
+0x000069D8	0x00000018	[ 30] _memmove
+0x000069F0	0x00000018	[ 30] _qsort
+0x00006A08	0x0000000C	[ 32] _llabs.stub
+0x00006A14	0x00000014	[  1] literal string: Cannot read header\n
+0x00006A28	0x00000015	[  1] literal string: Mode does not exist\n
+0x00006A3D	0x00000017	[  1] literal string: Undecodeable bitstream
+0x00006A54	0x00000028	[  1] literal string: Undecodeable bitstream, newer bitstream
+0x00006A7C	0x00000012	[  1] literal string: Too old bitstream
+0x00006A8E	0x00000014	[  1] literal string: Decoder init failed
+0x00006AA2	0x0000000D	[  3] literal string: warning: %s\n
+0x00006AAF	0x0000000C	[  3] literal string: notice: %s\n
+0x00006ABB	0x00000027	[  3] literal string: Packet is larger than allocated buffer
+0x00006AE2	0x00000030	[  3] literal string: Could not resize input buffer: truncating input
+0x00006B12	0x00000033	[  3] literal string: Do not own input buffer: truncating oversize input
+0x00006B45	0x00000039	[  3] literal string: Could not resize input buffer: truncating oversize input
+0x00006B7E	0x0000000B	[ 20] literal string: narrowband
+0x00006B89	0x00000010	[ 21] literal string: warning: %s %d\n
+0x00006B99	0x00000020	[ 21] literal string: Unknown wb_mode_query request: 
+0x00006BB9	0x0000001F	[ 21] literal string: ultra-wideband (sub-band CELP)
+0x00006BD8	0x00000019	[ 21] literal string: wideband (sub-band CELP)
+0x00006BF1	0x0000003E	[ 22] literal string: More than two wideband layers found. The stream is corrupted.
+0x00006C2F	0x00000033	[ 22] literal string: Invalid mode encountered. The stream is corrupted.
+0x00006C62	0x00000011	[ 22] literal string: Fatal error: %s\n
+0x00006C73	0x00000027	[ 22] literal string: assertion failed: SUBMODE(ltp_unquant)
+0x00006C9A	0x0000002E	[ 22] literal string: assertion failed: SUBMODE(innovation_unquant)
+0x00006CC8	0x00000019	[ 22] literal string: Unknown nb_ctl request: 
+0x00006CE1	0x00000020	[ 25] literal string: Unknown nb_mode_query request: 
+0x00006D01	0x00000005	[ 25] literal string: -git
+0x00006D06	0x00000007	[ 25] literal string: 1.2rc1
+0x00006D0D	0x00000005	[ 27] literal string: OggS
+0x00006D12	0x00000009	[ 29] literal string: Speex   
+0x00006D1B	0x00000024	[ 29] literal string: This doesn't look like a Speex file
+0x00006D3F	0x00000017	[ 29] literal string: Speex header too small
+0x00006D56	0x00000027	[ 29] literal string: Invalid mode specified in Speex header
+0x00006D80	0x000000A0	[  5] _exc_10_16_table
+0x00006E20	0x00000140	[  6] _exc_10_32_table
+0x00006F60	0x00000280	[  7] _exc_20_32_table
+0x000071E0	0x00000500	[  8] _exc_5_256_table
+0x000076E0	0x00000140	[  9] _exc_5_64_table
+0x00007820	0x00000400	[ 10] _exc_8_128_table
+0x00007C20	0x0000001E	[ 11] _Zcoef.0
+0x00007C3E	0x0000001E	[ 11] _Pcoef.1
+0x00007C5C	0x0000002A	[ 11] _shift_filt
+0x00007C86	0x00000200	[ 12] _gain_cdbk_nb
+0x00007E86	0x00000080	[ 13] _gain_cdbk_lbr
+0x00007F06	0x00000140	[ 14] _hexc_10_32_table
+0x00008046	0x00000400	[ 15] _hexc_table
+0x00008446	0x00000200	[ 16] _high_lsp_cdbk2
+0x00008646	0x00000200	[ 16] _high_lsp_cdbk
+0x00008846	0x00000140	[ 18] _cdbk_nb_high2
+0x00008986	0x00000140	[ 18] _cdbk_nb_high1
+0x00008AC6	0x00000140	[ 18] _cdbk_nb_low2
+0x00008C06	0x00000140	[ 18] _cdbk_nb_low1
+0x00008D46	0x00000280	[ 18] _cdbk_nb
+0x00008FC8	0x00000010	[ 22] _wb_skip_table
+0x00008FD8	0x00000014	[ 22] _attenuation
+0x00008FEC	0x00000004	[ 22] _exc_gain_quant_scal1
+0x00008FF0	0x00000002	[ 22] _exc_gain_quant_scal1_bound
+0x00008FF2	0x00000010	[ 22] _exc_gain_quant_scal3
+0x00009002	0x0000000E	[ 22] _exc_gain_quant_scal3_bound
+0x00009010	0x00000080	[ 22] _ol_gain_table
+0x00009090	0x00000080	[ 24] _h0
+0x00009110	0x00000020	[ 24] _gc_quant_bound
+0x00009130	0x00000400	[ 27] _crc_lookup
+0x00009530	0x00000008	[ 28] _e_ratio_quant
+0x00009538	0x00000100	[ 30] _bs_clz_tab
+0x00009638	0x00000100	[ 30] _bs_log2_tab
+0x00009738	0x00000018	[  1] CFI
+0x00009750	0x00000040	[  1] FDE for: _get_more_data
+0x00009790	0x00000058	[  1] FDE for: _get_next_page
+0x000097E8	0x00000070	[  1] FDE for: _codec_run
+0x00009858	0x00000020	[  1] FDE for: _codec_main
+0x00009878	0x00000018	[  2] CFI
+0x00009890	0x00000020	[  2] FDE for: __start
+0x000098B0	0x00000020	[  2] FDE for: _codec_start
+0x000098D0	0x00000018	[  3] CFI
+0x000098E8	0x00000040	[  3] FDE for: _speex_warning
+0x00009928	0x00000020	[  3] FDE for: _speex_bits_set_bit_buffer
+0x00009948	0x00000020	[  3] FDE for: _speex_bits_destroy
+0x00009968	0x00000058	[  3] FDE for: _speex_bits_read_from
+0x000099C0	0x00000050	[  3] FDE for: _speex_bits_read_whole_bytes
+0x00009A10	0x00000020	[  3] FDE for: _speex_bits_unpack_unsigned
+0x00009A30	0x00000020	[  3] FDE for: _speex_bits_peek
+0x00009A50	0x00000020	[  3] FDE for: _speex_bits_advance
+0x00009A70	0x00000020	[  3] FDE for: _speex_bits_remaining
+0x00009A90	0x00000018	[  4] CFI
+0x00009AA8	0x00000078	[  4] FDE for: _split_cb_shape_sign_unquant
+0x00009B20	0x00000020	[  4] FDE for: _noise_codebook_unquant
+0x00009B40	0x00000018	[ 11] CFI
+0x00009B58	0x00000020	[ 11] FDE for: _spx_sqrt
+0x00009B78	0x00000060	[ 11] FDE for: _interp_pitch.constprop.0.isra.0
+0x00009BD8	0x00000020	[ 11] FDE for: _bw_lpc
+0x00009BF8	0x00000020	[ 11] FDE for: _sanitize_values32
+0x00009C18	0x00000020	[ 11] FDE for: _highpass
+0x00009C38	0x00000020	[ 11] FDE for: _signal_mul
+0x00009C58	0x00000040	[ 11] FDE for: _compute_rms16
+0x00009C98	0x00000020	[ 11] FDE for: _normalize16
+0x00009CB8	0x00000020	[ 11] FDE for: _iir_mem16
+0x00009CD8	0x00000068	[ 11] FDE for: _qmf_synth
+0x00009D40	0x00000078	[ 11] FDE for: _multicomb
+0x00009DB8	0x00000018	[ 17] CFI
+0x00009DD0	0x00000058	[ 17] FDE for: _lsp_to_lpc
+0x00009E28	0x00000020	[ 17] FDE for: _lsp_enforce_margin
+0x00009E48	0x00000020	[ 17] FDE for: _lsp_interpolate
+0x00009E68	0x00000018	[ 19] CFI
+0x00009E80	0x00000020	[ 19] FDE for: _inner_prod
+0x00009EA0	0x00000078	[ 19] FDE for: _pitch_unquant_3tap
+0x00009F18	0x00000020	[ 19] FDE for: _forced_pitch_unquant
+0x00009F38	0x00000018	[ 20] CFI
+0x00009F50	0x00000020	[ 20] FDE for: _speex_mode_query
+0x00009F70	0x00000018	[ 21] CFI
+0x00009F88	0x00000040	[ 21] FDE for: _wb_mode_query
+0x00009FC8	0x00000020	[ 21] FDE for: _speex_lib_get_mode
+0x00009FE8	0x00000018	[ 22] CFI
+0x0000A000	0x00000020	[ 22] FDE for: _speex_rand
+0x0000A020	0x00000050	[ 22] FDE for: _nb_decoder_init
+0x0000A070	0x00000020	[ 22] FDE for: _nb_decoder_destroy
+0x0000A090	0x00000070	[ 22] FDE for: _nb_decode
+0x0000A100	0x00000058	[ 22] FDE for: _nb_decoder_ctl
+0x0000A158	0x00000018	[ 23] CFI
+0x0000A170	0x00000050	[ 23] FDE for: _lsp_unquant_nb
+0x0000A1C0	0x00000048	[ 23] FDE for: _lsp_unquant_lbr
+0x0000A208	0x00000048	[ 23] FDE for: _lsp_unquant_high
+0x0000A250	0x00000018	[ 24] CFI
+0x0000A268	0x00000060	[ 24] FDE for: _sb_decode_lost
+0x0000A2C8	0x00000048	[ 24] FDE for: _sb_decoder_init
+0x0000A310	0x00000020	[ 24] FDE for: _sb_decoder_destroy
+0x0000A330	0x00000070	[ 24] FDE for: _sb_decode
+0x0000A3A0	0x00000050	[ 24] FDE for: _sb_decoder_ctl
+0x0000A3F0	0x00000018	[ 25] CFI
+0x0000A408	0x00000020	[ 25] FDE for: _speex_decoder_init
+0x0000A428	0x00000020	[ 25] FDE for: _speex_decoder_destroy
+0x0000A448	0x00000020	[ 25] FDE for: _speex_decode_int
+0x0000A468	0x00000020	[ 25] FDE for: _speex_decode_native
+0x0000A488	0x00000020	[ 25] FDE for: _speex_decoder_ctl
+0x0000A4A8	0x00000040	[ 25] FDE for: _nb_mode_query
+0x0000A4E8	0x00000040	[ 25] FDE for: _speex_lib_ctl
+0x0000A528	0x00000018	[ 26] CFI
+0x0000A540	0x00000068	[ 26] FDE for: _speex_inband_handler
+0x0000A5A8	0x00000040	[ 26] FDE for: _speex_default_user_handler
+0x0000A5E8	0x00000018	[ 27] CFI
+0x0000A600	0x00000020	[ 27] FDE for: __packetout
+0x0000A620	0x00000040	[ 27] FDE for: __os_body_expand
+0x0000A660	0x00000040	[ 27] FDE for: __os_lacing_expand
+0x0000A6A0	0x00000020	[ 27] FDE for: _spx_ogg_page_version
+0x0000A6C0	0x00000020	[ 27] FDE for: _spx_ogg_page_continued
+0x0000A6E0	0x00000020	[ 27] FDE for: _spx_ogg_page_bos
+0x0000A700	0x00000020	[ 27] FDE for: _spx_ogg_page_eos
+0x0000A720	0x00000020	[ 27] FDE for: _spx_ogg_page_granulepos
+0x0000A740	0x00000020	[ 27] FDE for: _spx_ogg_page_serialno
+0x0000A760	0x00000020	[ 27] FDE for: _spx_ogg_page_pageno
+0x0000A780	0x00000020	[ 27] FDE for: _spx_ogg_page_packets
+0x0000A7A0	0x00000040	[ 27] FDE for: _spx_ogg_stream_init
+0x0000A7E0	0x00000040	[ 27] FDE for: _spx_ogg_stream_clear
+0x0000A820	0x00000040	[ 27] FDE for: _spx_ogg_stream_destroy
+0x0000A860	0x00000020	[ 27] FDE for: _spx_ogg_page_checksum_set
+0x0000A880	0x00000058	[ 27] FDE for: _spx_ogg_stream_packetin
+0x0000A8D8	0x00000060	[ 27] FDE for: _spx_ogg_stream_flush
+0x0000A938	0x00000020	[ 27] FDE for: _spx_ogg_stream_pageout
+0x0000A958	0x00000020	[ 27] FDE for: _spx_ogg_stream_eos
+0x0000A978	0x00000038	[ 27] FDE for: _spx_ogg_sync_init
+0x0000A9B0	0x00000040	[ 27] FDE for: _spx_ogg_sync_clear
+0x0000A9F0	0x00000040	[ 27] FDE for: _spx_ogg_sync_destroy
+0x0000AA30	0x00000048	[ 27] FDE for: _spx_ogg_alloc_buffer
+0x0000AA78	0x00000050	[ 27] FDE for: _spx_ogg_sync_buffer
+0x0000AAC8	0x00000020	[ 27] FDE for: _spx_ogg_sync_wrote
+0x0000AAE8	0x00000060	[ 27] FDE for: _spx_ogg_sync_pageseek
+0x0000AB48	0x00000048	[ 27] FDE for: _spx_ogg_sync_pageout
+0x0000AB90	0x00000068	[ 27] FDE for: _spx_ogg_stream_pagein
+0x0000ABF8	0x00000020	[ 27] FDE for: _spx_ogg_sync_reset
+0x0000AC18	0x00000020	[ 27] FDE for: _spx_ogg_stream_reset
+0x0000AC38	0x00000038	[ 27] FDE for: _spx_ogg_stream_reset_serialno
+0x0000AC70	0x00000020	[ 27] FDE for: _spx_ogg_stream_packetout
+0x0000AC90	0x00000020	[ 27] FDE for: _spx_ogg_stream_packetpeek
+0x0000ACB0	0x00000040	[ 27] FDE for: _spx_ogg_packet_clear
+0x0000ACF0	0x00000018	[ 28] CFI
+0x0000AD08	0x00000020	[ 28] FDE for: _spx_sqrt
+0x0000AD28	0x00000020	[ 28] FDE for: _speex_stereo_state_reset
+0x0000AD48	0x00000038	[ 28] FDE for: _speex_stereo_state_init
+0x0000AD80	0x00000020	[ 28] FDE for: _speex_stereo_state_destroy
+0x0000ADA0	0x00000040	[ 28] FDE for: _speex_decode_stereo_int
+0x0000ADE0	0x00000050	[ 28] FDE for: _speex_std_stereo_request_handler
+0x0000AE30	0x00000018	[ 29] CFI
+0x0000AE48	0x00000040	[ 29] FDE for: _speex_notify
+0x0000AE88	0x00000048	[ 29] FDE for: _speex_packet_to_header
+0x0000AED0	0x00000018	[ 30] CFI
+0x0000AEE8	0x00000038	[ 30] FDE for: _codec_init
+0x0000AF20	0x00000038	[ 30] FDE for: _codec_set_replaygain
+0x0000AF58	0x00000020	[ 30] FDE for: _codec_malloc
+0x0000AF78	0x00000040	[ 30] FDE for: _codec_calloc
+0x0000AFB8	0x00000020	[ 30] FDE for: _codec_free
+0x0000AFD8	0x00000040	[ 30] FDE for: _codec_realloc
+0x0000B018	0x00000020	[ 30] FDE for: _codec_strlen
+0x0000B038	0x00000020	[ 30] FDE for: _strcpy
+0x0000B058	0x00000020	[ 30] FDE for: _strcat
+0x0000B078	0x00000020	[ 30] FDE for: _strcmp
+0x0000B098	0x00000020	[ 30] FDE for: _memcpy
+0x0000B0B8	0x00000020	[ 30] FDE for: _memset
+0x0000B0D8	0x00000020	[ 30] FDE for: _memcmp
+0x0000B0F8	0x00000020	[ 30] FDE for: _memchr
+0x0000B118	0x00000020	[ 30] FDE for: _memmove
+0x0000B138	0x00000020	[ 30] FDE for: _qsort
+0x0000C000	0x00000008	[ 32] _llabs.got
+0x0000C008	0x00000040	[  1] ___header
+0x0000C048	0x00000040	[ 20] _speex_nb_mode
+0x0000C088	0x000000D0	[ 20] _nb_mode
+0x0000C158	0x00000058	[ 20] _nb_submode7
+0x0000C1B0	0x00000058	[ 20] _nb_submode6
+0x0000C208	0x00000058	[ 20] _nb_submode5
+0x0000C260	0x00000058	[ 20] _nb_submode4
+0x0000C2B8	0x00000058	[ 20] _nb_submode3
+0x0000C310	0x00000058	[ 20] _nb_submode2
+0x0000C368	0x00000058	[ 20] _nb_submode8
+0x0000C3C0	0x00000058	[ 20] _nb_submode1
+0x0000C418	0x00000018	[ 20] _split_cb_sb
+0x0000C430	0x00000018	[ 20] _split_cb_nb_med
+0x0000C448	0x00000018	[ 20] _split_cb_nb
+0x0000C460	0x00000018	[ 20] _split_cb_nb_lbr
+0x0000C478	0x00000018	[ 20] _split_cb_nb_ulbr
+0x0000C490	0x00000018	[ 20] _split_cb_nb_vlbr
+0x0000C4A8	0x00000010	[ 20] _ltp_params_med
+0x0000C4B8	0x00000010	[ 20] _ltp_params_lbr
+0x0000C4C8	0x00000010	[ 20] _ltp_params_vlbr
+0x0000C4D8	0x00000010	[ 20] _ltp_params_nb
+0x0000C4E8	0x00000040	[ 21] _speex_uwb_mode
+0x0000C528	0x000000C0	[ 21] _sb_uwb_mode
+0x0000C5E8	0x00000040	[ 21] _speex_wb_mode
+0x0000C628	0x000000C0	[ 21] _sb_wb_mode
+0x0000C6E8	0x00000058	[ 21] _wb_submode4
+0x0000C740	0x00000058	[ 21] _wb_submode3
+0x0000C798	0x00000058	[ 21] _wb_submode2
+0x0000C7F0	0x00000058	[ 21] _wb_submode1
+0x0000C848	0x00000018	[ 21] _split_cb_high_lbr
+0x0000C860	0x00000018	[ 21] _split_cb_high
+0x0000C878	0x00000018	[ 21] _speex_mode_list
+0x00010000	0x00000008	[  2] _ci
+0x00010008	0x00000A00	[  1] _output
+0x00010A08	0x00000790	[ 22] _global_decstate
+0x00011198	0x00000278	[ 24] _global_decstate_uwb
+0x00011410	0x00000278	[ 24] _global_decstate_wb
+0x00011688	0x00000018	[ 28] _global_stereo_state
+0x000116A0	0x00000050	[ 29] _global_le_header
+0x000116F0	0x00000008	[ 30] _mallocbuf
+0x000116F8	0x00000008	[ 30] _bufsize
+0x00011700	0x00000008	[ 30] _mem_ptr

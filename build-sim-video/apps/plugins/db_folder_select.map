@@ -1,0 +1,93 @@
+# Path: /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/db_folder_select.elf
+# Arch: arm64
+# Object files:
+[  0] linker synthesized
+[  1] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/db_folder_select.o
+[  2] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/plugin_crt0.o
+[  3] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(gcc-support.o)
+[  4] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/libSystem.tbd
+[  5] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/system/libsystem_platform.tbd
+# Sections:
+# Address	Size    	Segment	Section
+0x00000738	0x00000E34	__TEXT	__text
+0x0000156C	0x00000018	__TEXT	__stubs
+0x00001584	0x0000000D	__TEXT	__cstring
+0x00001591	0x00000004	__TEXT	__const
+0x00001598	0x00000660	__TEXT	__eh_frame
+0x00004000	0x00000010	__DATA_CONST	__got
+0x00004010	0x00000038	__DATA_CONST	__const
+0x00008000	0x00000020	__DATA	__data
+0x00008020	0x00000008	__DATA	.data
+0x00008028	0x00000100	__DATA	__bss
+# Symbols:
+# Address	Size    	File  Name
+0x00000738	0x000000BC	[  1] _get_full_path
+0x000007F4	0x00000020	[  1] _compare
+0x00000814	0x00000070	[  1] _count_items
+0x00000884	0x000000A0	[  1] _find_index
+0x00000924	0x0000010C	[  1] _folder_get_name
+0x00000A30	0x00000044	[  1] _folder_get_icon
+0x00000A74	0x000001A4	[  1] _save_folders_r
+0x00000C18	0x000000A4	[  1] _save_folders
+0x00000CBC	0x00000244	[  1] _load_folder
+0x00000F00	0x00000054	[  1] _child_set_state_expand
+0x00000F54	0x0000014C	[  1] _folder_action_callback
+0x000010A0	0x00000028	[  1] _load_root
+0x000010C8	0x00000294	[  1] _folder_select
+0x0000135C	0x00000074	[  1] _plugin_start
+0x000013D0	0x00000018	[  2] _cleanup_wrapper
+0x000013E8	0x00000068	[  2] _plugin__start
+0x00001450	0x00000020	[  2] _rb_atexit
+0x00001470	0x00000024	[  2] _exit
+0x00001494	0x00000014	[  2] __exit
+0x000014A8	0x00000064	[  2] _exit_on_usb
+0x0000150C	0x00000018	[  3] _memcpy
+0x00001524	0x00000018	[  3] _memset
+0x0000153C	0x00000018	[  3] _memmove
+0x00001554	0x00000018	[  3] _memcmp
+0x0000156C	0x0000000C	[  5] _longjmp.stub
+0x00001578	0x0000000C	[  5] _setjmp.stub
+0x00001584	0x00000002	[  1] literal string: /
+0x00001586	0x00000004	[  1] literal string:  ( 
+0x0000158A	0x00000002	[  1] literal string: )
+0x0000158C	0x00000004	[  1] literal string: %s:
+0x00001590	0x00000001	[  1] literal string: 
+0x00001591	0x00000004	[  1] _CSWTCH.72
+0x00001598	0x00000018	[  1] CFI
+0x000015B0	0x00000060	[  1] FDE for: _get_full_path
+0x00001610	0x00000020	[  1] FDE for: _compare
+0x00001630	0x00000060	[  1] FDE for: _count_items
+0x00001690	0x00000060	[  1] FDE for: _find_index
+0x000016F0	0x00000058	[  1] FDE for: _folder_get_name
+0x00001748	0x00000040	[  1] FDE for: _folder_get_icon
+0x00001788	0x00000080	[  1] FDE for: _save_folders_r
+0x00001808	0x00000048	[  1] FDE for: _save_folders
+0x00001850	0x00000070	[  1] FDE for: _load_folder
+0x000018C0	0x00000048	[  1] FDE for: _child_set_state_expand
+0x00001908	0x00000050	[  1] FDE for: _folder_action_callback
+0x00001958	0x00000020	[  1] FDE for: _load_root
+0x00001978	0x00000070	[  1] FDE for: _folder_select
+0x000019E8	0x00000048	[  1] FDE for: _plugin_start
+0x00001A30	0x00000018	[  2] CFI
+0x00001A48	0x00000020	[  2] FDE for: _cleanup_wrapper
+0x00001A68	0x00000040	[  2] FDE for: _plugin__start
+0x00001AA8	0x00000020	[  2] FDE for: _rb_atexit
+0x00001AC8	0x00000030	[  2] FDE for: _exit
+0x00001AF8	0x00000030	[  2] FDE for: __exit
+0x00001B28	0x00000038	[  2] FDE for: _exit_on_usb
+0x00001B60	0x00000018	[  3] CFI
+0x00001B78	0x00000020	[  3] FDE for: _memcpy
+0x00001B98	0x00000020	[  3] FDE for: _memset
+0x00001BB8	0x00000020	[  3] FDE for: _memmove
+0x00001BD8	0x00000020	[  3] FDE for: _memcmp
+0x00004000	0x00000008	[  5] _longjmp.got
+0x00004008	0x00000008	[  5] _setjmp.got
+0x00004010	0x00000038	[  2] ___header
+0x00008000	0x00000020	[  1] _root.0
+0x00008020	0x00000008	[  2] _rb
+0x00008028	0x00000018	[  1] _root_child.1
+0x00008040	0x00000010	[  1] _hashed
+0x00008050	0x00000008	[  1] _buffer_end
+0x00008058	0x00000008	[  1] _buffer_front
+0x00008060	0x00000008	[  2] _atexit_handler
+0x00008068	0x000000C0	[  2] ___exit_env

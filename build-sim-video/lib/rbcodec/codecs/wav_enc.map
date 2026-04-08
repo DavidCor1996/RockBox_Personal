@@ -1,0 +1,36 @@
+# Path: /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/wav_enc.elf
+# Arch: arm64
+# Object files:
+[  0] linker synthesized
+[  1] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/wav_enc.o
+[  2] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/codec_crt0.o
+[  3] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/libSystem.tbd
+# Sections:
+# Address	Size    	Segment	Section
+0x000005F0	0x000002C4	__TEXT	__text
+0x000008B4	0x0000002C	__TEXT	__const
+0x000008E0	0x00000140	__TEXT	__eh_frame
+0x00004000	0x00000048	__DATA_CONST	__const
+0x00008000	0x00000008	__DATA	.data
+0x00008008	0x00000018	__DATA	__bss
+# Symbols:
+# Address	Size    	File  Name
+0x000005F0	0x000000CC	[  1] _codec_run
+0x000006BC	0x000001E4	[  1] _enc_callback
+0x000008A0	0x00000008	[  1] _codec_main
+0x000008A8	0x00000008	[  2] __start
+0x000008B0	0x00000004	[  2] _codec_start
+0x000008B4	0x0000002C	[  1] _riff_template_header
+0x000008E0	0x00000018	[  1] CFI
+0x000008F8	0x00000058	[  1] FDE for: _codec_run
+0x00000950	0x00000058	[  1] FDE for: _enc_callback
+0x000009A8	0x00000020	[  1] FDE for: _codec_main
+0x000009C8	0x00000018	[  2] CFI
+0x000009E0	0x00000020	[  2] FDE for: __start
+0x00000A00	0x00000020	[  2] FDE for: _codec_start
+0x00004000	0x00000048	[  1] ___header
+0x00008000	0x00000008	[  2] _ci
+0x00008008	0x00000008	[  1] _data_size
+0x00008010	0x00000008	[  1] _frame_size
+0x00008018	0x00000004	[  1] _sample_rate
+0x0000801C	0x00000004	[  1] _num_channels

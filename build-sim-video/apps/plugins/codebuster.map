@@ -1,0 +1,187 @@
+# Path: /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/codebuster.elf
+# Arch: arm64
+# Object files:
+[  0] linker synthesized
+[  1] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/codebuster.o
+[  2] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/plugin_crt0.o
+[  3] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(pluginlib_actions.o)
+[  4] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(configfile.o)
+[  5] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(playback_control.o)
+[  6] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/libSystem.tbd
+[  7] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/system/libsystem_platform.tbd
+# Sections:
+# Address	Size    	Segment	Section
+0x00000780	0x0000190C	__TEXT	__text
+0x0000208C	0x00000018	__TEXT	__stubs
+0x000020A4	0x00000151	__TEXT	__cstring
+0x000021F8	0x000001B8	__TEXT	__const
+0x000023B0	0x00000888	__TEXT	__eh_frame
+0x00004000	0x00000010	__DATA_CONST	__got
+0x00004010	0x00000190	__DATA_CONST	__const
+0x00008000	0x00000168	__DATA	__data
+0x00008168	0x00000008	__DATA	.data
+0x00008170	0x00000118	__DATA	__bss
+0x00008288	0x00000158	__DATA	__common
+# Symbols:
+# Address	Size    	File  Name
+0x00000780	0x00000034	[  1] _stop_game
+0x000007B4	0x00000064	[  1] _fill_color_rect
+0x00000818	0x000001A8	[  1] _draw_piece
+0x000009C0	0x000000D4	[  1] _draw_guess
+0x00000A94	0x00000238	[  1] _draw_board
+0x00000CCC	0x00000024	[  1] _menu_cb
+0x00000CF0	0x00000224	[  1] _main_menu
+0x00000F14	0x00000698	[  1] _plugin_start
+0x000015AC	0x00000018	[  2] _cleanup_wrapper
+0x000015C4	0x00000068	[  2] _plugin__start
+0x0000162C	0x00000020	[  2] _rb_atexit
+0x0000164C	0x00000024	[  2] _exit
+0x00001670	0x00000014	[  2] __exit
+0x00001684	0x00000064	[  2] _exit_on_usb
+0x000016E8	0x00000038	[  3] _get_context_map
+0x00001720	0x00000040	[  3] _pluginlib_getaction
+0x00001760	0x000000E8	[  4] _get_cfg_filename.constprop.0
+0x00001848	0x00000160	[  4] _configfile_save
+0x000019A8	0x00000228	[  4] _configfile_load
+0x00001BD0	0x000000E0	[  4] _configfile_get_value
+0x00001CB0	0x00000158	[  4] _configfile_update_entry
+0x00001E08	0x00000028	[  5] _prevtrack
+0x00001E30	0x00000088	[  5] _play
+0x00001EB8	0x00000028	[  5] _stop
+0x00001EE0	0x00000028	[  5] _nexttrack
+0x00001F08	0x00000050	[  5] _volume
+0x00001F58	0x00000054	[  5] _shuffle
+0x00001FAC	0x0000008C	[  5] _repeat_mode
+0x00002038	0x0000000C	[  5] _playback_control_init
+0x00002044	0x00000048	[  5] _playback_control
+0x0000208C	0x0000000C	[  7] _longjmp.stub
+0x00002098	0x0000000C	[  7] _setjmp.stub
+0x000020A4	0x00000003	[  1] literal string: %d
+0x000020A7	0x00000001	[  1] literal string: 
+0x000020A8	0x00000012	[  1] literal string: Number of colours
+0x000020BA	0x0000000F	[  1] literal string: Number of pegs
+0x000020C9	0x00000012	[  1] literal string: Number of guesses
+0x000020DB	0x0000000F	[  1] literal string: Display labels
+0x000020EA	0x0000000F	[  1] literal string: Display frames
+0x000020F9	0x0000000F	[  1] literal string: codebuster.cfg
+0x00002108	0x0000000D	[  1] literal string: Well done :)
+0x00002115	0x0000000A	[  1] literal string: Wooops :(
+0x0000211F	0x00000009	[  1] literal string: Settings
+0x00002128	0x0000000C	[  1] literal string: Resume Game
+0x00002134	0x0000000F	[  1] literal string: Start New Game
+0x00002143	0x00000011	[  1] literal string: Playback Control
+0x00002154	0x00000005	[  1] literal string: Quit
+0x00002159	0x0000000B	[  1] literal string: Codebuster
+0x00002164	0x00000007	[  1] literal string: pieces
+0x0000216B	0x00000007	[  1] literal string: colors
+0x00002172	0x00000008	[  1] literal string: guesses
+0x0000217A	0x00000009	[  1] literal string: labeling
+0x00002183	0x00000008	[  1] literal string: framing
+0x0000218B	0x0000000A	[  4] literal string: /.rockbox
+0x00002195	0x00000004	[  4] literal string: /%s
+0x00002199	0x00000013	[  4] literal string: /.rockbox/rocks/%s
+0x000021AC	0x00000014	[  4] literal string: file version: %10d\n
+0x000021C0	0x0000000A	[  4] literal string: %s: %10d\n
+0x000021CA	0x00000008	[  4] literal string: %s: %s\n
+0x000021D2	0x0000000D	[  4] literal string: file version
+0x000021DF	0x00000007	[  5] literal string: Volume
+0x000021E6	0x00000008	[  5] literal string: Shuffle
+0x000021EE	0x00000007	[  5] literal string: Repeat
+0x000021F8	0x00000020	[  1] _colors
+0x00002218	0x000000D8	[  3] _pla_main_ctx
+0x000022F0	0x00000018	[  5] _playback_control_menu__
+0x00002308	0x00000018	[  5] _repeat_mode_item_
+0x00002320	0x00000018	[  5] _shuffle_item_
+0x00002338	0x00000018	[  5] _volume_item_
+0x00002350	0x00000018	[  5] _nexttrack_item_
+0x00002368	0x00000018	[  5] _stop_item_
+0x00002380	0x00000018	[  5] _playpause_item_
+0x00002398	0x00000018	[  5] _prevtrack_item_
+0x000023B0	0x00000018	[  1] CFI
+0x000023C8	0x00000020	[  1] FDE for: _stop_game
+0x000023E8	0x00000040	[  1] FDE for: _fill_color_rect
+0x00002428	0x00000070	[  1] FDE for: _draw_piece
+0x00002498	0x00000070	[  1] FDE for: _draw_guess
+0x00002508	0x00000078	[  1] FDE for: _draw_board
+0x00002580	0x00000020	[  1] FDE for: _menu_cb
+0x000025A0	0x00000060	[  1] FDE for: _main_menu
+0x00002600	0x00000070	[  1] FDE for: _plugin_start
+0x00002670	0x00000018	[  2] CFI
+0x00002688	0x00000020	[  2] FDE for: _cleanup_wrapper
+0x000026A8	0x00000040	[  2] FDE for: _plugin__start
+0x000026E8	0x00000020	[  2] FDE for: _rb_atexit
+0x00002708	0x00000030	[  2] FDE for: _exit
+0x00002738	0x00000030	[  2] FDE for: __exit
+0x00002768	0x00000038	[  2] FDE for: _exit_on_usb
+0x000027A0	0x00000018	[  3] CFI
+0x000027B8	0x00000020	[  3] FDE for: _get_context_map
+0x000027D8	0x00000020	[  3] FDE for: _pluginlib_getaction
+0x000027F8	0x00000018	[  4] CFI
+0x00002810	0x00000068	[  4] FDE for: _get_cfg_filename.constprop.0
+0x00002878	0x00000070	[  4] FDE for: _configfile_save
+0x000028E8	0x00000068	[  4] FDE for: _configfile_load
+0x00002950	0x00000058	[  4] FDE for: _configfile_get_value
+0x000029A8	0x00000070	[  4] FDE for: _configfile_update_entry
+0x00002A18	0x00000018	[  5] CFI
+0x00002A30	0x00000038	[  5] FDE for: _prevtrack
+0x00002A68	0x00000048	[  5] FDE for: _play
+0x00002AB0	0x00000038	[  5] FDE for: _stop
+0x00002AE8	0x00000038	[  5] FDE for: _nexttrack
+0x00002B20	0x00000040	[  5] FDE for: _volume
+0x00002B60	0x00000040	[  5] FDE for: _shuffle
+0x00002BA0	0x00000040	[  5] FDE for: _repeat_mode
+0x00002BE0	0x00000020	[  5] FDE for: _playback_control_init
+0x00002C00	0x00000038	[  5] FDE for: _playback_control
+0x00004000	0x00000008	[  7] _longjmp.got
+0x00004008	0x00000008	[  7] _setjmp.got
+0x00004010	0x00000018	[  1] _settings_menu__.1
+0x00004028	0x00000018	[  1] _settings_menu.2
+0x00004040	0x00000018	[  1] _main_menu__.4
+0x00004058	0x00000018	[  1] _main_menu.5
+0x00004070	0x00000038	[  2] ___header
+0x000040A8	0x00000018	[  5] _playback_control_menu
+0x000040C0	0x00000018	[  5] _repeat_mode_item
+0x000040D8	0x00000008	[  5] _repeat_mode_item__
+0x000040E0	0x00000018	[  5] _shuffle_item
+0x000040F8	0x00000008	[  5] _shuffle_item__
+0x00004100	0x00000018	[  5] _volume_item
+0x00004118	0x00000008	[  5] _volume_item__
+0x00004120	0x00000018	[  5] _nexttrack_item
+0x00004138	0x00000008	[  5] _nexttrack_item__
+0x00004140	0x00000018	[  5] _stop_item
+0x00004158	0x00000008	[  5] _stop_item__
+0x00004160	0x00000018	[  5] _playpause_item
+0x00004178	0x00000008	[  5] _playpause_item__
+0x00004180	0x00000018	[  5] _prevtrack_item
+0x00004198	0x00000008	[  5] _prevtrack_item__
+0x00008000	0x00000028	[  1] _settings_menu_.0
+0x00008028	0x00000028	[  1] _main_menu_.3
+0x00008050	0x000000C8	[  1] _config
+0x00008118	0x00000010	[  1] _settings
+0x00008128	0x00000008	[  1] _plugin_contexts
+0x00008130	0x00000038	[  5] _playback_control_menu_
+0x00008168	0x00000008	[  2] _rb
+0x00008170	0x00000004	[  1] _resume
+0x00008174	0x00000004	[  1] _guess_w
+0x00008178	0x00000004	[  1] _true_guess_w
+0x0000817C	0x00000004	[  1] _tick_w
+0x00008180	0x00000004	[  1] _piece_w
+0x00008184	0x00000004	[  1] _line_h
+0x00008188	0x00000004	[  1] _guesses_count
+0x0000818C	0x00000004	[  1] _colors_count
+0x00008190	0x00000004	[  1] _pieces_count
+0x00008194	0x00000010	[  1] _old_settings
+0x000081A4	0x00000001	[  1] _game_ended
+0x000081A5	0x00000001	[  1] _found
+0x000081A6	0x00000001	[  1] _usb
+0x000081A7	0x00000001	[  1] _leave
+0x000081A8	0x00000001	[  1] _quit
+0x000081B0	0x00000008	[  2] _atexit_handler
+0x000081B8	0x000000C0	[  2] ___exit_env
+0x00008278	0x00000004	[  3] _last_context
+0x0000827C	0x00000004	[  3] _plugin_context_count
+0x00008280	0x00000008	[  3] _plugin_context_order
+0x00008288	0x00000118	[  1] _guesses
+0x000083A0	0x0000001C	[  1] _hidden
+0x000083BC	0x0000001C	[  1] _solution
+0x000083D8	0x00000008	[  5] _parentvp

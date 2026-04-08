@@ -1,0 +1,175 @@
+# Path: /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/theme_remove.elf
+# Arch: arm64
+# Object files:
+[  0] linker synthesized
+[  1] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/theme_remove.o
+[  2] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/plugin_crt0.o
+[  3] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(configfile.o)
+[  4] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/libSystem.tbd
+[  5] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/system/libsystem_platform.tbd
+# Sections:
+# Address	Size    	Segment	Section
+0x000006E0	0x0000178C	__TEXT	__text
+0x00001E6C	0x00000018	__TEXT	__stubs
+0x00001E84	0x0000040A	__TEXT	__cstring
+0x00002290	0x00000678	__TEXT	__eh_frame
+0x00004000	0x00000010	__DATA_CONST	__got
+0x00004010	0x000000F8	__DATA_CONST	__const
+0x00008000	0x00000A11	__DATA	__data
+0x00008A18	0x00000008	__DATA	.data
+0x00008A20	0x00000620	__DATA	__bss
+# Symbols:
+# Address	Size    	File  Name
+0x000006E0	0x0000012C	[  1] _set_file_name
+0x0000080C	0x000001B0	[  1] _check_whether_used_in_file
+0x000009BC	0x000001D0	[  1] _check_whether_used
+0x00000B8C	0x000000DC	[  1] _show_mess.isra.0
+0x00000C68	0x000001BC	[  1] _remove_dir.constprop.0
+0x00000E24	0x00000074	[  1] _remove_wps
+0x00000E98	0x000000B4	[  1] _remove_icons
+0x00000F4C	0x0000073C	[  1] _plugin_start
+0x00001688	0x00000018	[  2] _cleanup_wrapper
+0x000016A0	0x00000068	[  2] _plugin__start
+0x00001708	0x00000020	[  2] _rb_atexit
+0x00001728	0x00000024	[  2] _exit
+0x0000174C	0x00000014	[  2] __exit
+0x00001760	0x00000064	[  2] _exit_on_usb
+0x000017C4	0x000000E8	[  3] _get_cfg_filename.constprop.0
+0x000018AC	0x00000160	[  3] _configfile_save
+0x00001A0C	0x00000228	[  3] _configfile_load
+0x00001C34	0x000000E0	[  3] _configfile_get_value
+0x00001D14	0x00000158	[  3] _configfile_update_entry
+0x00001E6C	0x0000000C	[  5] _longjmp.stub
+0x00001E78	0x0000000C	[  5] _setjmp.stub
+0x00001E84	0x00000005	[  1] literal string: %s%s
+0x00001E89	0x00000002	[  1] literal string: -
+0x00001E8B	0x0000002D	[  1] literal string: /.rockbox/rocks/viewers/rockbox-fonts.config
+0x00001EB8	0x00000011	[  1] literal string: /.rockbox/themes
+0x00001EC9	0x00000005	[  1] literal string: .cfg
+0x00001ECE	0x00000006	[  1] literal string: %s/%s
+0x00001ED4	0x00000007	[  1] literal string: %s: %s
+0x00001EDB	0x00000003	[  1] literal string: %s
+0x00001EDE	0x00000004	[  1] literal string: %s\n
+0x00001EE2	0x00000004	[  1] literal string: /%s
+0x00001EE6	0x00000002	[  1] literal string: .
+0x00001EE8	0x00000003	[  1] literal string: ..
+0x00001EEB	0x00000009	[  1] literal string: Canceled
+0x00001EF4	0x00000008	[  1] literal string: Removed
+0x00001EFC	0x00000007	[  1] literal string: .icons
+0x00001F03	0x00000007	[  1] literal string: Failed
+0x00001F0A	0x00000016	[  1] literal string: Successfully removed!
+0x00001F20	0x0000000F	[  1] literal string: Remove failure
+0x00001F2F	0x0000000A	[  1] literal string: Remove %s
+0x00001F39	0x00000017	[  1] literal string: /.rockbox/fonts/%s.fnt
+0x00001F50	0x00000011	[  1] literal string: File open error!
+0x00001F61	0x00000011	[  1] literal string: theme_remove.cfg
+0x00001F72	0x00000016	[  1] literal string: /theme_remove_log.txt
+0x00001F88	0x0000000E	[  1] literal string: ---- %s ----\n
+0x00001F96	0x00000018	[  1] literal string: Couldn't open log file.
+0x00001FAE	0x0000000E	[  1] literal string: Doesn't exist
+0x00001FBC	0x00000008	[  1] literal string: Skipped
+0x00001FC4	0x00000005	[  1] literal string: Used
+0x00001FC9	0x00000008	[  1] literal string: Delete?
+0x00001FD1	0x00000012	[  1] literal string: /.rockbox/themes/
+0x00001FE3	0x00000012	[  1] literal string: ----------------\n
+0x00001FF5	0x00000006	[  1] literal string: %s %s
+0x00001FFB	0x00000017	[  1] literal string: Press any key to exit.
+0x00002012	0x00000010	[  1] literal string: Create Log File
+0x00002022	0x00000007	[  1] literal string: Denied
+0x00002029	0x00000022	[  1] literal string: /.rockbox/wps/rockbox_default.wps
+0x0000204B	0x00000023	[  1] literal string: /.rockbox/wps/rockbox_default.rwps
+0x0000206E	0x0000000E	[  1] literal string: Always Remove
+0x0000207C	0x0000000D	[  1] literal string: Never Remove
+0x00002089	0x00000013	[  1] literal string: Remove if not Used
+0x0000209C	0x00000010	[  1] literal string: Ask for Removal
+0x000020AC	0x0000000F	[  1] literal string: Remove Options
+0x000020BB	0x00000005	[  1] literal string: Font
+0x000020C0	0x00000004	[  1] literal string: WPS
+0x000020C4	0x0000000F	[  1] literal string: Statusbar Skin
+0x000020D3	0x00000009	[  1] literal string: Backdrop
+0x000020DC	0x00000008	[  1] literal string: Iconset
+0x000020E4	0x00000010	[  1] literal string: Viewers Iconset
+0x000020F4	0x00000011	[  1] literal string: Filetype Colours
+0x00002105	0x0000000D	[  1] literal string: Remove Theme
+0x00002112	0x00000005	[  1] literal string: Quit
+0x00002117	0x0000000C	[  1] literal string: remove font
+0x00002123	0x0000000B	[  1] literal string: remove wps
+0x0000212E	0x0000000B	[  1] literal string: remove sbs
+0x00002139	0x00000010	[  1] literal string: remove backdrop
+0x00002149	0x0000000F	[  1] literal string: remove iconset
+0x00002158	0x00000010	[  1] literal string: remove viconset
+0x00002168	0x0000000F	[  1] literal string: remove colours
+0x00002177	0x0000000B	[  1] literal string: create log
+0x00002182	0x00000007	[  1] literal string: always
+0x00002189	0x00000006	[  1] literal string: never
+0x0000218F	0x00000009	[  1] literal string: not used
+0x00002198	0x00000004	[  1] literal string: ask
+0x0000219C	0x00000005	[  1] literal string: font
+0x000021A1	0x00000011	[  1] literal string: /.rockbox/fonts/
+0x000021B2	0x00000005	[  1] literal string: .fnt
+0x000021B7	0x00000004	[  1] literal string: wps
+0x000021BB	0x0000000F	[  1] literal string: /.rockbox/wps/
+0x000021CA	0x00000005	[  1] literal string: .wps
+0x000021CF	0x00000004	[  1] literal string: sbs
+0x000021D3	0x00000005	[  1] literal string: .sbs
+0x000021D8	0x00000009	[  1] literal string: backdrop
+0x000021E1	0x00000015	[  1] literal string: /.rockbox/backdrops/
+0x000021F6	0x00000005	[  1] literal string: .bmp
+0x000021FB	0x00000008	[  1] literal string: iconset
+0x00002203	0x00000011	[  1] literal string: /.rockbox/icons/
+0x00002214	0x00000010	[  1] literal string: viewers iconset
+0x00002224	0x00000011	[  1] literal string: filetype colours
+0x00002235	0x00000009	[  1] literal string: .colours
+0x0000223E	0x0000000A	[  3] literal string: /.rockbox
+0x00002248	0x00000013	[  3] literal string: /.rockbox/rocks/%s
+0x0000225B	0x00000014	[  3] literal string: file version: %10d\n
+0x0000226F	0x0000000A	[  3] literal string: %s: %10d\n
+0x00002279	0x00000008	[  3] literal string: %s: %s\n
+0x00002281	0x0000000D	[  3] literal string: file version
+0x00002290	0x00000018	[  1] CFI
+0x000022A8	0x00000078	[  1] FDE for: _set_file_name
+0x00002320	0x00000068	[  1] FDE for: _check_whether_used_in_file
+0x00002388	0x00000070	[  1] FDE for: _check_whether_used
+0x000023F8	0x00000058	[  1] FDE for: _show_mess.isra.0
+0x00002450	0x00000070	[  1] FDE for: _remove_dir.constprop.0
+0x000024C0	0x00000048	[  1] FDE for: _remove_wps
+0x00002508	0x00000048	[  1] FDE for: _remove_icons
+0x00002550	0x00000068	[  1] FDE for: _plugin_start
+0x000025B8	0x00000018	[  2] CFI
+0x000025D0	0x00000020	[  2] FDE for: _cleanup_wrapper
+0x000025F0	0x00000040	[  2] FDE for: _plugin__start
+0x00002630	0x00000020	[  2] FDE for: _rb_atexit
+0x00002650	0x00000030	[  2] FDE for: _exit
+0x00002680	0x00000030	[  2] FDE for: __exit
+0x000026B0	0x00000038	[  2] FDE for: _exit_on_usb
+0x000026E8	0x00000018	[  3] CFI
+0x00002700	0x00000068	[  3] FDE for: _get_cfg_filename.constprop.0
+0x00002768	0x00000070	[  3] FDE for: _configfile_save
+0x000027D8	0x00000068	[  3] FDE for: _configfile_load
+0x00002840	0x00000058	[  3] FDE for: _configfile_get_value
+0x00002898	0x00000070	[  3] FDE for: _configfile_update_entry
+0x00004000	0x00000008	[  5] _longjmp.got
+0x00004008	0x00000008	[  5] _setjmp.got
+0x00004010	0x00000020	[  1] lC34
+0x00004030	0x00000040	[  1] lC42
+0x00004070	0x00000018	[  1] _option_menu__.0
+0x00004088	0x00000018	[  1] _option_menu.2
+0x000040A0	0x00000018	[  1] _menu__.6
+0x000040B8	0x00000018	[  1] _menu.7
+0x000040D0	0x00000038	[  2] ___header
+0x00008000	0x00000040	[  1] _option_menu_.1
+0x00008040	0x00000018	[  1] _menu_.5
+0x00008058	0x00000008	[  1] _log_fd
+0x00008060	0x00000140	[  1] _config
+0x000081A0	0x00000020	[  1] _option_names
+0x000081C0	0x00000850	[  1] _remove_list
+0x00008A10	0x00000001	[  1] _create_log
+0x00008A18	0x00000008	[  2] _rb
+0x00008A20	0x00000208	[  1] _buf.3
+0x00008C28	0x00000104	[  1] _line.4
+0x00008D2C	0x00000040	[  1] _title.8
+0x00008D6C	0x00000001	[  1] _option_changed
+0x00008D6D	0x00000104	[  1] _font_file
+0x00008E71	0x00000104	[  1] _themefile
+0x00008F78	0x00000008	[  2] _atexit_handler
+0x00008F80	0x000000C0	[  2] ___exit_env

@@ -1,0 +1,518 @@
+# Path: /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/chessbox/chessbox.elf
+# Arch: arm64
+# Object files:
+[  0] linker synthesized
+[  1] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/chessbox/chessbox.o
+[  2] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/chessbox/gnuchess.o
+[  3] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/chessbox/opening.o
+[  4] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/chessbox/chessbox_pgn.o
+[  5] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/plugin_crt0.o
+[  6] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(playback_control.o)
+[  7] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/bitmaps/libpluginbitmaps.a(chessbox_pieces.240x240x16.o)
+[  8] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/libSystem.tbd
+[  9] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/system/libsystem_c.tbd
+[ 10] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/system/libsystem_platform.tbd
+# Sections:
+# Address	Size    	Segment	Section
+0x000007A0	0x0000C0A4	__TEXT	__text
+0x0000C844	0x00000024	__TEXT	__stubs
+0x0000C868	0x000002D9	__TEXT	__cstring
+0x0000CB50	0x0000B848	__TEXT	__const
+0x00018398	0x00001C00	__TEXT	__eh_frame
+0x0001C000	0x00000018	__DATA_CONST	__got
+0x0001C018	0x000001B8	__DATA_CONST	__const
+0x00020000	0x00007280	__DATA	__data
+0x00027280	0x00000008	__DATA	.data
+0x00027288	0x00000108	__DATA	__bss
+0x00027390	0x0001B978	__DATA	__common
+# Symbols:
+# Address	Size    	File  Name
+0x000007A0	0x00000190	[  1] _cb_drawboard
+0x00000930	0x000000D0	[  1] _cb_wt_callback
+0x00000A00	0x00000444	[  1] _cb_saveposition
+0x00000E44	0x00000124	[  1] _talk_move
+0x00000F68	0x000007B8	[  1] _cb_start_viewer
+0x00001720	0x000000C0	[  1] _cb_setlevel
+0x000017E0	0x000004D0	[  1] _cb_restoreposition
+0x00001CB0	0x00000150	[  1] _cb_talk
+0x00001E00	0x000000A0	[  1] _cb_switch
+0x00001EA0	0x00000AB8	[  1] _plugin_start
+0x00002960	0x00000068	[  2] _UpdatePieceList.part.0
+0x000029C8	0x000001DC	[  2] _ScoreKPK
+0x00002BA4	0x0000014C	[  2] _ScoreKBNK
+0x00002CF0	0x000004BC	[  2] _KingScan
+0x000031AC	0x00000234	[  2] _BRscan
+0x000033E0	0x000002A0	[  2] _trapped
+0x00003680	0x00000BCC	[  2] _SqValue
+0x0000424C	0x000002C4	[  2] _UpdateWeights
+0x00004510	0x000001B0	[  2] _ScoreLoneKing
+0x000046C0	0x0000038C	[  2] _ScorePosition
+0x00004A4C	0x00000074	[  2] _distance
+0x00004AC0	0x00000060	[  2] _BlendBoard
+0x00004B20	0x00000020	[  2] _CopyBoard
+0x00004B40	0x000000C0	[  2] _ProbeTTable
+0x00004C00	0x0000006C	[  2] _PutInTTable
+0x00004C6C	0x00000040	[  2] _ZeroTTable
+0x00004CAC	0x000001E0	[  2] _LinkMove
+0x00004E8C	0x00000318	[  2] _GenMoves
+0x000051A4	0x0000036C	[  2] _CaptureList
+0x00005510	0x000000B0	[  2] _UpdateHashbd
+0x000055C0	0x00000044	[  2] _UpdatePieceList
+0x00005604	0x0000019C	[  2] _InitializeStats
+0x000057A0	0x00000044	[  2] _EnPassant
+0x000057E4	0x000000BC	[  2] _pick
+0x000058A0	0x000001C0	[  2] _OpeningBook
+0x00005A60	0x00000100	[  2] _repetition
+0x00005B60	0x000002EC	[  2] _SqAtakd
+0x00005E4C	0x00000214	[  2] _castle
+0x00006060	0x00000228	[  2] _MoveList
+0x00006288	0x000004F8	[  2] _MakeMove
+0x00006780	0x000003A4	[  2] _UnmakeMove
+0x00006B24	0x000001DC	[  2] _ataks
+0x00006D00	0x00000F2C	[  2] _ExaminePosition
+0x00007C2C	0x00000314	[  2] _evaluate
+0x00007F40	0x00000160	[  2] _ElapsedTime
+0x000080A0	0x00000C80	[  2] _search
+0x00008D20	0x00000080	[  2] _SetTimeControl
+0x00008DA0	0x000002E0	[  2] _NewGame
+0x00009080	0x00000060	[  2] _GNUChess_Initialize
+0x000090E0	0x000001D0	[  2] _algbr
+0x000092B0	0x00000C70	[  2] _SelectMove
+0x00009F20	0x00000338	[  2] _VerifyMove
+0x0000A260	0x000001A0	[  4] _process_tag
+0x0000A400	0x000000A0	[  4] _get_game_text
+0x0000A4A0	0x000000C0	[  4] _write_pgn_token
+0x0000A560	0x000000C0	[  4] _say_player
+0x0000A620	0x00000104	[  4] _speak_game_selection
+0x0000A724	0x000001DC	[  4] _pgn_list_games
+0x0000A900	0x00000190	[  4] _pgn_show_game_list
+0x0000AA90	0x00000D50	[  4] _pgn_parse_game
+0x0000B7E0	0x000001B0	[  4] _pgn_init_game
+0x0000B990	0x000000B0	[  4] _pgn_append_ply
+0x0000BA40	0x00000030	[  4] _pgn_set_result
+0x0000BA70	0x00000A14	[  4] _pgn_store_game
+0x0000C484	0x00000018	[  5] _cleanup_wrapper
+0x0000C49C	0x00000068	[  5] _plugin__start
+0x0000C504	0x00000020	[  5] _rb_atexit
+0x0000C524	0x00000024	[  5] _exit
+0x0000C548	0x00000014	[  5] __exit
+0x0000C55C	0x00000064	[  5] _exit_on_usb
+0x0000C5C0	0x00000028	[  6] _prevtrack
+0x0000C5E8	0x00000088	[  6] _play
+0x0000C670	0x00000028	[  6] _stop
+0x0000C698	0x00000028	[  6] _nexttrack
+0x0000C6C0	0x00000050	[  6] _volume
+0x0000C710	0x00000054	[  6] _shuffle
+0x0000C764	0x0000008C	[  6] _repeat_mode
+0x0000C7F0	0x0000000C	[  6] _playback_control_init
+0x0000C7FC	0x00000048	[  6] _playback_control
+0x0000C844	0x0000000C	[  9] _abs.stub
+0x0000C850	0x0000000C	[ 10] _longjmp.stub
+0x0000C85C	0x0000000C	[ 10] _setjmp.stub
+0x0000C868	0x00000024	[  1] literal string: /.rockbox/rocks/games/chessbox.save
+0x0000C88C	0x00000001	[  1] literal string: 
+0x0000C890	0x00000009	[  1] literal string: Chessbox
+0x0000C8A0	0x00000004	[  2] literal string: o-o
+0x0000C8A8	0x00000006	[  2] literal string: o-o-o
+0x0000C8B0	0x00000009	[  2] literal string: abcdefgh
+0x0000C8C0	0x00000009	[  2] literal string: 12345678
+0x0000C8D0	0x00000008	[  2] literal string:  pnbrqk
+0x0000C8D8	0x00000006	[  4] literal string: White
+0x0000C8E0	0x00000006	[  4] literal string: Black
+0x0000C8E8	0x00000007	[  4] literal string: Result
+0x0000C8F0	0x00000005	[  4] literal string: Date
+0x0000C8F8	0x0000000F	[  4] literal string: %s vs. %s (%s)
+0x0000C908	0x00000002	[  4] literal string: \n
+0x0000C910	0x00000004	[  4] literal string: %s 
+0x0000C918	0x00000007	[  4] literal string: player
+0x0000C920	0x00000009	[  4] literal string: gnuchess
+0x0000C930	0x00000023	[  4] literal string: /.rockbox/rocks/games/chessbox.log
+0x0000C958	0x00000003	[  4] literal string: %c
+0x0000C960	0x00000039	[  4] literal string: player: %u; pgn: %s; from: %u,%u; to: %u,%u; taken: %u.\n
+0x0000C9A0	0x00000007	[  4] literal string: Player
+0x0000C9A8	0x00000009	[  4] literal string: GnuChess
+0x0000C9B8	0x0000000B	[  4] literal string: ????.??.??
+0x0000C9C8	0x0000000C	[  4] literal string: %4u.%2u.%2u
+0x0000C9D8	0x00000002	[  4] literal string: *
+0x0000C9E0	0x00000004	[  4] literal string: O-O
+0x0000C9E8	0x00000006	[  4] literal string: O-O-O
+0x0000C9F0	0x00000007	[  4] literal string: Kx%c%c
+0x0000C9F8	0x00000006	[  4] literal string: K%c%c
+0x0000CA00	0x0000000A	[  4] literal string: %cx%c%c=D
+0x0000CA10	0x00000008	[  4] literal string: %cx%c%c
+0x0000CA18	0x00000007	[  4] literal string: %c%c=D
+0x0000CA20	0x00000005	[  4] literal string: %c%c
+0x0000CA28	0x00000007	[  4] literal string: %c%c%c
+0x0000CA30	0x0000000A	[  4] literal string: %c%cx%c%c
+0x0000CA40	0x00000009	[  4] literal string: %c%c%c%c
+0x0000CA50	0x00000004	[  4] literal string: 1-0
+0x0000CA58	0x00000004	[  4] literal string: 0-1
+0x0000CA60	0x00000008	[  4] literal string: 1/2-1/2
+0x0000CA68	0x00000017	[  4] literal string: [Event \"Casual Game\"]\n
+0x0000CA80	0x0000000C	[  4] literal string: [Site \"?\"]\n
+0x0000CA90	0x0000000D	[  4] literal string: [Date \"%s\"]\n
+0x0000CAA0	0x0000000D	[  4] literal string: [Round \"?\"]\n
+0x0000CAB0	0x0000000E	[  4] literal string: [White \"%s\"]\n
+0x0000CAC0	0x0000000E	[  4] literal string: [Black \"%s\"]\n
+0x0000CAD0	0x0000000F	[  4] literal string: [Result \"%s\"]\n
+0x0000CAE0	0x00000011	[  4] literal string: [PlyCount \"%u\"]\n
+0x0000CAF8	0x00000004	[  4] literal string: %u.
+0x0000CB00	0x00000003	[  4] literal string: \n\n
+0x0000CB08	0x00000023	[  4] literal string: /.rockbox/rocks/games/chessbox.pgn
+0x0000CB2B	0x00000007	[  6] literal string: Volume
+0x0000CB32	0x00000008	[  6] literal string: Shuffle
+0x0000CB3A	0x00000007	[  6] literal string: Repeat
+0x0000CB50	0x0000000C	[  1] lC0
+0x0000CB5C	0x00000014	[  1] _CSWTCH.290
+0x0000CB70	0x00000010	[  2] 16-byte-literal
+0x0000CB80	0x00000010	[  2] 16-byte-literal
+0x0000CB90	0x00000010	[  2] 16-byte-literal
+0x0000CBA0	0x00000010	[  2] 16-byte-literal
+0x0000CBB0	0x00000010	[  2] 16-byte-literal
+0x0000CBC0	0x00000006	[  4] _CSWTCH.129
+0x0000CBC6	0x00000022	[  4] _CSWTCH.127
+0x0000CBE8	0x00000008	[  4] lC12
+0x0000CBF0	0x00000008	[  4] lC13
+0x0000CBF8	0x00000008	[  4] lC14
+0x0000CC00	0x00000008	[  4] lC15
+0x0000CC08	0x00000018	[  6] _playback_control_menu__
+0x0000CC20	0x00000018	[  6] _repeat_mode_item_
+0x0000CC38	0x00000018	[  6] _shuffle_item_
+0x0000CC50	0x00000018	[  6] _volume_item_
+0x0000CC68	0x00000018	[  6] _nexttrack_item_
+0x0000CC80	0x00000018	[  6] _stop_item_
+0x0000CC98	0x00000018	[  6] _playpause_item_
+0x0000CCB0	0x00000018	[  6] _prevtrack_item_
+0x0000CCC8	0x0000B6D0	[  7] _chessbox_pieces
+0x00018398	0x00000018	[  1] CFI
+0x000183B0	0x00000070	[  1] FDE for: _cb_drawboard
+0x00018420	0x00000068	[  1] FDE for: _cb_wt_callback
+0x00018488	0x00000060	[  1] FDE for: _cb_saveposition
+0x000184E8	0x00000078	[  1] FDE for: _talk_move
+0x00018560	0x00000108	[  1] FDE for: _cb_start_viewer
+0x00018668	0x00000020	[  1] FDE for: _cb_setlevel
+0x00018688	0x000000A0	[  1] FDE for: _cb_restoreposition
+0x00018728	0x00000078	[  1] FDE for: _cb_talk
+0x000187A0	0x00000050	[  1] FDE for: _cb_switch
+0x000187F0	0x000000B0	[  1] FDE for: _plugin_start
+0x000188A0	0x00000018	[  2] CFI
+0x000188B8	0x00000020	[  2] FDE for: _UpdatePieceList.part.0
+0x000188D8	0x00000068	[  2] FDE for: _ScoreKPK
+0x00018940	0x00000068	[  2] FDE for: _ScoreKBNK
+0x000189A8	0x00000068	[  2] FDE for: _KingScan
+0x00018A10	0x00000060	[  2] FDE for: _BRscan
+0x00018A70	0x00000020	[  2] FDE for: _trapped
+0x00018A90	0x00000050	[  2] FDE for: _SqValue
+0x00018AE0	0x00000020	[  2] FDE for: _UpdateWeights
+0x00018B00	0x00000078	[  2] FDE for: _ScoreLoneKing
+0x00018B78	0x00000090	[  2] FDE for: _ScorePosition
+0x00018C08	0x00000048	[  2] FDE for: _distance
+0x00018C50	0x00000020	[  2] FDE for: _BlendBoard
+0x00018C70	0x00000020	[  2] FDE for: _CopyBoard
+0x00018C90	0x00000020	[  2] FDE for: _ProbeTTable
+0x00018CB0	0x00000020	[  2] FDE for: _PutInTTable
+0x00018CD0	0x00000020	[  2] FDE for: _ZeroTTable
+0x00018CF0	0x00000020	[  2] FDE for: _LinkMove
+0x00018D10	0x00000078	[  2] FDE for: _GenMoves
+0x00018D88	0x00000088	[  2] FDE for: _CaptureList
+0x00018E10	0x00000020	[  2] FDE for: _UpdateHashbd
+0x00018E30	0x00000020	[  2] FDE for: _UpdatePieceList
+0x00018E50	0x00000048	[  2] FDE for: _InitializeStats
+0x00018E98	0x00000020	[  2] FDE for: _EnPassant
+0x00018EB8	0x00000020	[  2] FDE for: _pick
+0x00018ED8	0x00000070	[  2] FDE for: _OpeningBook
+0x00018F48	0x00000028	[  2] FDE for: _repetition
+0x00018F70	0x00000108	[  2] FDE for: _SqAtakd
+0x00019078	0x00000050	[  2] FDE for: _castle
+0x000190C8	0x00000068	[  2] FDE for: _MoveList
+0x00019130	0x000000A8	[  2] FDE for: _MakeMove
+0x000191D8	0x00000088	[  2] FDE for: _UnmakeMove
+0x00019260	0x00000078	[  2] FDE for: _ataks
+0x000192D8	0x00000070	[  2] FDE for: _ExaminePosition
+0x00019348	0x00000088	[  2] FDE for: _evaluate
+0x000193D0	0x00000020	[  2] FDE for: _ElapsedTime
+0x000193F0	0x00000100	[  2] FDE for: _search
+0x000194F0	0x00000020	[  2] FDE for: _SetTimeControl
+0x00019510	0x00000060	[  2] FDE for: _NewGame
+0x00019570	0x00000038	[  2] FDE for: _GNUChess_Initialize
+0x000195A8	0x00000058	[  2] FDE for: _algbr
+0x00019600	0x000000A0	[  2] FDE for: _SelectMove
+0x000196A0	0x00000088	[  2] FDE for: _VerifyMove
+0x00019728	0x00000018	[  4] CFI
+0x00019740	0x00000058	[  4] FDE for: _process_tag
+0x00019798	0x00000048	[  4] FDE for: _get_game_text
+0x000197E0	0x00000060	[  4] FDE for: _write_pgn_token
+0x00019840	0x00000070	[  4] FDE for: _say_player
+0x000198B0	0x00000040	[  4] FDE for: _speak_game_selection
+0x000198F0	0x000000D8	[  4] FDE for: _pgn_list_games
+0x000199C8	0x00000068	[  4] FDE for: _pgn_show_game_list
+0x00019A30	0x00000078	[  4] FDE for: _pgn_parse_game
+0x00019AA8	0x00000070	[  4] FDE for: _pgn_init_game
+0x00019B18	0x00000020	[  4] FDE for: _pgn_append_ply
+0x00019B38	0x00000020	[  4] FDE for: _pgn_set_result
+0x00019B58	0x000000F0	[  4] FDE for: _pgn_store_game
+0x00019C48	0x00000018	[  5] CFI
+0x00019C60	0x00000020	[  5] FDE for: _cleanup_wrapper
+0x00019C80	0x00000040	[  5] FDE for: _plugin__start
+0x00019CC0	0x00000020	[  5] FDE for: _rb_atexit
+0x00019CE0	0x00000030	[  5] FDE for: _exit
+0x00019D10	0x00000030	[  5] FDE for: __exit
+0x00019D40	0x00000038	[  5] FDE for: _exit_on_usb
+0x00019D78	0x00000018	[  6] CFI
+0x00019D90	0x00000038	[  6] FDE for: _prevtrack
+0x00019DC8	0x00000048	[  6] FDE for: _play
+0x00019E10	0x00000038	[  6] FDE for: _stop
+0x00019E48	0x00000038	[  6] FDE for: _nexttrack
+0x00019E80	0x00000040	[  6] FDE for: _volume
+0x00019EC0	0x00000040	[  6] FDE for: _shuffle
+0x00019F00	0x00000040	[  6] FDE for: _repeat_mode
+0x00019F40	0x00000020	[  6] FDE for: _playback_control_init
+0x00019F60	0x00000038	[  6] FDE for: _playback_control
+0x0001C000	0x00000008	[  9] _abs.got
+0x0001C008	0x00000008	[ 10] _longjmp.got
+0x0001C010	0x00000008	[ 10] _setjmp.got
+0x0001C018	0x00000018	[  1] _menu__.1
+0x0001C030	0x00000018	[  1] _menu.2
+0x0001C048	0x00000018	[  1] _menu__.6
+0x0001C060	0x00000018	[  1] _menu.7
+0x0001C078	0x00000038	[  5] ___header
+0x0001C0B0	0x00000018	[  6] _playback_control_menu
+0x0001C0C8	0x00000018	[  6] _repeat_mode_item
+0x0001C0E0	0x00000008	[  6] _repeat_mode_item__
+0x0001C0E8	0x00000018	[  6] _shuffle_item
+0x0001C100	0x00000008	[  6] _shuffle_item__
+0x0001C108	0x00000018	[  6] _volume_item
+0x0001C120	0x00000008	[  6] _volume_item__
+0x0001C128	0x00000018	[  6] _nexttrack_item
+0x0001C140	0x00000008	[  6] _nexttrack_item__
+0x0001C148	0x00000018	[  6] _stop_item
+0x0001C160	0x00000008	[  6] _stop_item__
+0x0001C168	0x00000018	[  6] _playpause_item
+0x0001C180	0x00000008	[  6] _playpause_item__
+0x0001C188	0x00000018	[  6] _prevtrack_item
+0x0001C1A0	0x00000008	[  6] _prevtrack_item__
+0x0001C1A8	0x00000028	[  7] _bm_chessbox_pieces
+0x00020000	0x00000038	[  1] _menu_.0
+0x00020038	0x00000002	[  1] _y.3
+0x0002003A	0x00000006	[  1] _x.4
+0x00020040	0x00000028	[  1] _menu_.5
+0x00020068	0x00000038	[  1] _level_string
+0x000200A0	0x00000080	[  2] _PawnAdvance
+0x00020120	0x00000080	[  2] _pbishop
+0x000201A0	0x00000080	[  2] _pknight
+0x00020220	0x00000080	[  2] _KBNK
+0x000202A0	0x00000080	[  2] _KingEnding
+0x00020320	0x00000080	[  2] _KingOpening
+0x000203A0	0x00000020	[  2] _Kthreat
+0x000203C0	0x0000001C	[  2] _RMBLTY
+0x000203DC	0x0000001C	[  2] _BMBLTY
+0x000203F8	0x00000010	[  2] _BACKWARD
+0x00020408	0x00000010	[  2] _ISOLANI
+0x00020418	0x00000010	[  2] _PassedPawn3
+0x00020428	0x00000010	[  2] _PassedPawn2
+0x00020438	0x00000010	[  2] _PassedPawn1
+0x00020448	0x00000010	[  2] _PassedPawn0
+0x00020458	0x0000000E	[  2] _control
+0x00020466	0x0000000E	[  2] _value
+0x00020474	0x0000000E	[  2] _pbit
+0x00020482	0x00000044	[  2] _Pdir
+0x000204C6	0x00000020	[  2] _Dir
+0x000204E6	0x0000000E	[  2] _Dstop
+0x000204F4	0x0000000E	[  2] _Dstart
+0x00020502	0x00000006	[  2] _Dpwn
+0x00020508	0x00000018	[  2] _sweep
+0x00020520	0x00000080	[  2] _Stcolor
+0x000205A0	0x00000080	[  2] _Stboard
+0x00020620	0x000000F0	[  2] _Dcode
+0x00020710	0x000000F0	[  2] _unmap
+0x00020800	0x00000080	[  2] _map
+0x00020880	0x00000006	[  2] _rank7
+0x00020886	0x00000006	[  2] _otherside
+0x0002088C	0x00006970	[  3] _OBook
+0x00027200	0x00000010	[  4] _bp_offs
+0x00027210	0x00000010	[  4] _rk_offs
+0x00027220	0x00000020	[  4] _kn_offs
+0x00027240	0x00000008	[  4] _pgn_file
+0x00027248	0x00000038	[  6] _playback_control_menu_
+0x00027280	0x00000008	[  5] _rb
+0x00027288	0x00000002	[  1] _oldy
+0x0002728A	0x00000006	[  1] _oldx
+0x00027290	0x00000008	[  1] _cb_sysevent
+0x00027298	0x00000002	[  2] _pnt.0
+0x0002729A	0x00000002	[  2] _cnt.1
+0x0002729C	0x00000002	[  2] _tempst.2
+0x0002729E	0x00000002	[  2] _tempsf.3
+0x000272A0	0x00000002	[  2] _tempc.4
+0x000272A2	0x00000002	[  2] _tempb.5
+0x000272A4	0x0000000A	[  2] _xnode.6
+0x000272AE	0x00000002	[  2] _tempst.7
+0x000272B0	0x00000002	[  2] _tempsf.8
+0x000272B2	0x00000002	[  2] _tempc.9
+0x000272B4	0x00000002	[  2] _tempb.10
+0x000272B6	0x00000002	[  2] _rpt.11
+0x000272B8	0x00000002	[  2] _beta.12
+0x000272BA	0x00000002	[  2] _alpha.13
+0x000272BC	0x00000002	[  2] _i.14
+0x000272BE	0x00000002	[  2] _score.15
+0x000272C0	0x00000002	[  2] _xside.16
+0x000272C8	0x00000008	[  5] _atexit_handler
+0x000272D0	0x000000C0	[  5] ___exit_env
+0x00027390	0x00000004	[  1] _wt_command
+0x00027394	0x00000002	[  1] _plugin_mode
+0x000273A0	0x00000002	[  2] _RookBonus
+0x000273A2	0x00000002	[  2] _BishopBonus
+0x000273A4	0x00000002	[  2] _PawnBonus
+0x000273A6	0x00000002	[  2] _PawnStorm
+0x000273A8	0x00000004	[  2] _Developed
+0x000273AC	0x00000002	[  2] _Zbmtl
+0x000273AE	0x00000002	[  2] _Zwmtl
+0x000273B0	0x00000002	[  2] _stage2
+0x000273B2	0x00000002	[  2] _stage
+0x000273B4	0x00000002	[  2] _PINVAL
+0x000273B6	0x00000002	[  2] _XRAY
+0x000273B8	0x00000002	[  2] _KMOVD
+0x000273BA	0x00000002	[  2] _KCASTLD
+0x000273BC	0x00000002	[  2] _HUNGX
+0x000273BE	0x00000002	[  2] _HUNGP
+0x000273C0	0x00000002	[  2] _ATAKD
+0x000273C2	0x00000002	[  2] _KSFTY
+0x000273C4	0x00000002	[  2] _KHOPNX
+0x000273C6	0x00000002	[  2] _KHOPN
+0x000273C8	0x00000002	[  2] _RHOPNX
+0x000273CA	0x00000002	[  2] _RHOPN
+0x000273CC	0x00000002	[  2] _PBLOK
+0x000273CE	0x00000002	[  2] _PDOUBLED
+0x000273D0	0x00000002	[  2] _PAWNSHIELD
+0x000273D2	0x00000002	[  2] _PADVNCI
+0x000273D4	0x00000002	[  2] _PADVNCM
+0x000273D6	0x00000002	[  2] _PWEAKH
+0x000273D8	0x00000002	[  2] _PEDRNK2B
+0x000273DA	0x00000002	[  2] _KBNKsq
+0x000273DC	0x00000002	[  2] _KATAK
+0x000273DE	0x00000002	[  2] _BISHOPSTRONG
+0x000273E0	0x00000002	[  2] _KNIGHTSTRONG
+0x000273E2	0x00000002	[  2] _KNIGHTPOST
+0x000273E4	0x0000010C	[  2] _Kfield
+0x000274F0	0x00000100	[  2] _Mking
+0x000275F0	0x00000100	[  2] _Mbishop
+0x000276F0	0x00000100	[  2] _Mknight
+0x000277F0	0x00000080	[  2] _Mbpawn
+0x00027870	0x00000080	[  2] _Mwpawn
+0x000278F0	0x00002000	[  2] _history
+0x000298F0	0x00000010	[  2] _ptbl
+0x00029900	0x00010000	[  2] _ttable
+0x00039900	0x00003800	[  2] _hashcode
+0x0003D100	0x00000008	[  2] _hashbd
+0x0003D108	0x00000002	[  2] _hashkey
+0x0003D10A	0x00000002	[  2] _Swag4
+0x0003D10C	0x00000002	[  2] _Swag3
+0x0003D10E	0x00000002	[  2] _Swag2
+0x0003D110	0x00000002	[  2] _Swag1
+0x0003D112	0x00000002	[  2] _Swag0
+0x0003D114	0x00000002	[  2] _hint
+0x0003D116	0x0000000A	[  2] _PV
+0x0003D120	0x00000040	[  2] _PrVar
+0x0003D160	0x00000040	[  2] _killr3
+0x0003D1A0	0x00000040	[  2] _killr2
+0x0003D1E0	0x00000040	[  2] _killr1
+0x0003D220	0x0000003C	[  2] _killr0
+0x0003D25C	0x00000002	[  2] _OperatorTime
+0x0003D25E	0x00000002	[  2] _TCminutes
+0x0003D260	0x00000002	[  2] _TCmoves
+0x0003D262	0x0000000E	[  2] _TCflag
+0x0003D270	0x00000018	[  2] _TimeControl
+0x0003D288	0x00000002	[  2] _Xscore
+0x0003D28A	0x00000002	[  2] _MaxSearchDepth
+0x0003D28C	0x00000002	[  2] _contempt
+0x0003D28E	0x00000002	[  2] _rcptr
+0x0003D290	0x00000002	[  2] _lpost
+0x0003D292	0x00000002	[  2] _epsquare
+0x0003D294	0x00000002	[  2] _Game50
+0x0003D296	0x00000002	[  2] _GameCnt
+0x0003D298	0x00001800	[  2] _GameList
+0x0003EA98	0x0000003C	[  2] _Threat
+0x0003EAD4	0x0000003C	[  2] _Tscore
+0x0003EB10	0x0000003C	[  2] _Pscore
+0x0003EB4C	0x0000003C	[  2] _PawnThreat
+0x0003EB88	0x0000003C	[  2] _CptrFlag
+0x0003EBC4	0x0000003C	[  2] _ChkFlag
+0x0003EC00	0x00000004	[  2] _HasQueen
+0x0003EC04	0x00000004	[  2] _HasRook
+0x0003EC08	0x00000004	[  2] _HasBishop
+0x0003EC0C	0x00000004	[  2] _HasKnight
+0x0003EC10	0x00000004	[  2] _HasPawn
+0x0003EC14	0x00000002	[  2] _INCscore
+0x0003EC16	0x00000002	[  2] _slk
+0x0003EC18	0x00000002	[  2] _xwndw
+0x0003EC1A	0x00000002	[  2] _zwndw
+0x0003EC1C	0x00000002	[  2] _Zscore
+0x0003EC1E	0x00000002	[  2] _timeout
+0x0003EC20	0x00000002	[  2] _TOsquare
+0x0003EC22	0x00000002	[  2] _FROMsquare
+0x0003EC24	0x00000002	[  2] _bking
+0x0003EC26	0x00000002	[  2] _wking
+0x0003EC28	0x00000002	[  2] _beep
+0x0003EC2A	0x00000002	[  2] _easy
+0x0003EC2C	0x00000002	[  2] _force
+0x0003EC2E	0x00000002	[  2] _player
+0x0003EC30	0x00000002	[  2] _InChk
+0x0003EC32	0x00000002	[  2] _hashflag
+0x0003EC34	0x00000002	[  2] _bothsides
+0x0003EC36	0x00000002	[  2] _reverse
+0x0003EC38	0x00000008	[  2] _quit
+0x0003EC40	0x00000008	[  2] _HashCnt
+0x0003EC48	0x00000008	[  2] _EvalNodes
+0x0003EC50	0x00000008	[  2] _ETnodes
+0x0003EC58	0x00000008	[  2] _evrate
+0x0003EC60	0x00000008	[  2] _NodeCnt
+0x0003EC68	0x00000008	[  2] _ft
+0x0003EC70	0x00000008	[  2] _cputimer
+0x0003EC78	0x00000008	[  2] _time0
+0x0003EC80	0x00000008	[  2] _et0
+0x0003EC88	0x00000008	[  2] _et
+0x0003EC90	0x00000008	[  2] _Level
+0x0003EC98	0x00000008	[  2] _ExtraTime
+0x0003ECA0	0x00000008	[  2] _ResponseTime
+0x0003ECA8	0x00000002	[  2] _withbook
+0x0003ECAA	0x00000002	[  2] _dither
+0x0003ECAC	0x00000002	[  2] _Bwindow
+0x0003ECAE	0x00000002	[  2] _Awindow
+0x0003ECB0	0x00000002	[  2] _Sdepth
+0x0003ECB2	0x00000002	[  2] _computer
+0x0003ECB4	0x00000002	[  2] _opponent
+0x0003ECB6	0x00000002	[  2] _post
+0x0003ECB8	0x00000002	[  2] _mate
+0x0003ECBA	0x00000006	[  2] _EnemyKing
+0x0003ECC0	0x00000008	[  2] _PC2
+0x0003ECC8	0x00000008	[  2] _PC1
+0x0003ECD0	0x00000008	[  2] _atk2
+0x0003ECD8	0x00000008	[  2] _atk1
+0x0003ECE0	0x00000002	[  2] _c2
+0x0003ECE2	0x00000002	[  2] _c1
+0x0003ECE4	0x00000004	[  2] _hung
+0x0003ECE8	0x00000004	[  2] _emtl
+0x0003ECEC	0x00000004	[  2] _pmtl
+0x0003ECF0	0x00000004	[  2] _mtl
+0x0003ECF4	0x00000004	[  2] _kingmoved
+0x0003ECF8	0x00000008	[  2] _castld
+0x0003ED00	0x00000020	[  2] _PawnCnt
+0x0003ED20	0x00000100	[  2] _atak
+0x0003EE20	0x00000004	[  2] _PieceCnt
+0x0003EE24	0x00000040	[  2] _PieceList
+0x0003EE64	0x00000080	[  2] _svalue
+0x0003EEE4	0x0000008C	[  2] _Pindex
+0x0003EF70	0x00000080	[  2] _locn
+0x0003EFF0	0x00000080	[  2] _column
+0x0003F070	0x00000080	[  2] _row
+0x0003F0F0	0x00000080	[  2] _color
+0x0003F170	0x00000080	[  2] _board
+0x0003F1F0	0x00000040	[  2] _TrPnt
+0x0003F230	0x00000008	[  2] _root
+0x0003F238	0x00003A98	[  2] _Tree
+0x00042CD0	0x00000006	[  2] _mvstr3
+0x00042CD6	0x00000006	[  2] _mvstr2
+0x00042CDC	0x00000005	[  2] _mvstr1
+0x00042CE8	0x00000008	[  4] _bufleft
+0x00042CF0	0x00000008	[  4] _bufptr
+0x00042CF8	0x00000004	[  4] _loghandler
+0x00042D00	0x00000008	[  6] _parentvp

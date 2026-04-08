@@ -1,0 +1,147 @@
+# Path: /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/test_mem_jpeg.elf
+# Arch: arm64
+# Object files:
+[  0] linker synthesized
+[  1] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/test_mem_jpeg.o
+[  2] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/plugin_crt0.o
+[  3] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(gcc-support.o)
+[  4] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(pluginlib_jpeg_mem.o)
+[  5] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(pluginlib_resize.o)
+[  6] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(pluginlib_bmp.o)
+[  7] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/libSystem.tbd
+[  8] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/system/libsystem_platform.tbd
+# Sections:
+# Address	Size    	Segment	Section
+0x000006E0	0x0000403C	__TEXT	__text
+0x0000471C	0x00000018	__TEXT	__stubs
+0x00004738	0x00000788	__TEXT	__const
+0x00004EC0	0x00000161	__TEXT	__cstring
+0x00005028	0x00000BE8	__TEXT	__eh_frame
+0x00008000	0x00000010	__DATA_CONST	__got
+0x00008010	0x000000D0	__DATA_CONST	__const
+0x0000C000	0x00000008	__DATA	.data
+0x0000C008	0x00002548	__DATA	__bss
+# Symbols:
+# Address	Size    	File  Name
+0x000006E0	0x00000180	[  1] _plugin_start
+0x00000860	0x00000018	[  2] _cleanup_wrapper
+0x00000878	0x00000068	[  2] _plugin__start
+0x000008E0	0x00000020	[  2] _rb_atexit
+0x00000900	0x00000024	[  2] _exit
+0x00000924	0x00000014	[  2] __exit
+0x00000938	0x00000064	[  2] _exit_on_usb
+0x0000099C	0x00000018	[  3] _memcpy
+0x000009B4	0x00000018	[  3] _memset
+0x000009CC	0x00000018	[  3] _memmove
+0x000009E4	0x00000018	[  3] _memcmp
+0x000009FC	0x00000018	[  4] _range_limit
+0x00000A14	0x00000008	[  4] _scale_output
+0x00000A1C	0x00000044	[  4] _jpeg_idct1h
+0x00000A60	0x0000002C	[  4] _jpeg_idct2v
+0x00000A8C	0x00000060	[  4] _jpeg_idct2h
+0x00000AEC	0x0000007C	[  4] _jpeg_idct4v
+0x00000B68	0x000000B4	[  4] _jpeg_idct4h
+0x00000C1C	0x000001CC	[  4] _jpeg_idct8v
+0x00000DE8	0x00000200	[  4] _jpeg_idct8h
+0x00000FE8	0x000002BC	[  4] _jpeg_idct16v
+0x000012A4	0x000002E8	[  4] _jpeg_idct16h
+0x0000158C	0x000001C4	[  4] _fix_huff_tbl
+0x00001750	0x00000024	[  4] _get_bits
+0x00001774	0x00000020	[  4] _jpeg_getc
+0x00001794	0x000000D8	[  4] _check_bit_buffer
+0x0000186C	0x00000038	[  4] _skip_bytes.constprop.0
+0x000018A4	0x000005C4	[  4] _process_markers.constprop.0
+0x00001E68	0x0000077C	[  4] _store_row_jpeg
+0x000025E4	0x00000090	[  4] _get_jpeg_dim_mem
+0x00002674	0x00000780	[  4] _decode_jpeg_mem
+0x00002DF4	0x0000020C	[  5] _scale_h_area
+0x00003000	0x00000140	[  5] _output_row_32_native_fromyuv
+0x00003140	0x00000130	[  5] _output_row_32_native
+0x00003270	0x00000010	[  5] _get_size_native
+0x00003280	0x00000220	[  5] _scale_h_linear
+0x000034A0	0x00000090	[  5] _recalc_dimension
+0x00003530	0x000003D8	[  5] _resize_on_load
+0x00003908	0x00000318	[  6] _read_part_line
+0x00003C20	0x00000034	[  6] _store_part_bmp
+0x00003C54	0x00000128	[  6] _output_row_8_native
+0x00003D7C	0x000001D4	[  6] _save_bmp_file
+0x00003F50	0x00000090	[  6] _simple_resize_bitmap
+0x00003FE0	0x00000690	[  6] _read_bmp_fd
+0x00004670	0x000000AC	[  6] _read_bmp_file
+0x0000471C	0x0000000C	[  8] _longjmp.stub
+0x00004728	0x0000000C	[  8] _setjmp.stub
+0x00004738	0x00000008	[  4] _JPEG_DECODE_OVERHEAD
+0x00004740	0x00000040	[  4] _zig
+0x00004780	0x00000080	[  4] _zag
+0x00004800	0x00000338	[  4] _chroma_table
+0x00004B38	0x00000338	[  4] _luma_table
+0x00004E70	0x00000010	[  6] _dither_table
+0x00004E80	0x00000040	[  6] _bitfields
+0x00004EC0	0x0000003D	[  5] literal string: unable to allocate required buffer: %d needed, %d available\n
+0x00004EFD	0x00000043	[  6] literal string: read_part_line: error reading image, read returned %d expected %d\n
+0x00004F40	0x00000024	[  6] literal string: read_bmp_fd: can't read BMP header.
+0x00004F64	0x0000003E	[  6] literal string: read_bmp_fd: Bitmap too large for buffer: %d bytes (%d max).\n
+0x00004FA2	0x00000027	[  6] literal string: read_bmp_fd: Can't read color palette\n
+0x00004FC9	0x00000030	[  6] literal string: read_bmp_fd: Unsupported compression (type %d)\n
+0x00004FF9	0x00000028	[  6] literal string: read_bmp_file: can't open '%s', rc: %d\n
+0x00005028	0x00000018	[  1] CFI
+0x00005040	0x00000060	[  1] FDE for: _plugin_start
+0x000050A0	0x00000018	[  2] CFI
+0x000050B8	0x00000020	[  2] FDE for: _cleanup_wrapper
+0x000050D8	0x00000040	[  2] FDE for: _plugin__start
+0x00005118	0x00000020	[  2] FDE for: _rb_atexit
+0x00005138	0x00000030	[  2] FDE for: _exit
+0x00005168	0x00000030	[  2] FDE for: __exit
+0x00005198	0x00000038	[  2] FDE for: _exit_on_usb
+0x000051D0	0x00000018	[  3] CFI
+0x000051E8	0x00000020	[  3] FDE for: _memcpy
+0x00005208	0x00000020	[  3] FDE for: _memset
+0x00005228	0x00000020	[  3] FDE for: _memmove
+0x00005248	0x00000020	[  3] FDE for: _memcmp
+0x00005268	0x00000018	[  4] CFI
+0x00005280	0x00000020	[  4] FDE for: _range_limit
+0x000052A0	0x00000020	[  4] FDE for: _scale_output
+0x000052C0	0x00000038	[  4] FDE for: _jpeg_idct1h
+0x000052F8	0x00000020	[  4] FDE for: _jpeg_idct2v
+0x00005318	0x00000038	[  4] FDE for: _jpeg_idct2h
+0x00005350	0x00000020	[  4] FDE for: _jpeg_idct4v
+0x00005370	0x00000038	[  4] FDE for: _jpeg_idct4h
+0x000053A8	0x00000060	[  4] FDE for: _jpeg_idct8v
+0x00005408	0x00000078	[  4] FDE for: _jpeg_idct8h
+0x00005480	0x00000068	[  4] FDE for: _jpeg_idct16v
+0x000054E8	0x00000060	[  4] FDE for: _jpeg_idct16h
+0x00005548	0x00000050	[  4] FDE for: _fix_huff_tbl
+0x00005598	0x00000020	[  4] FDE for: _get_bits
+0x000055B8	0x00000020	[  4] FDE for: _jpeg_getc
+0x000055D8	0x00000048	[  4] FDE for: _check_bit_buffer
+0x00005620	0x00000020	[  4] FDE for: _skip_bytes.constprop.0
+0x00005640	0x00000040	[  4] FDE for: _process_markers.constprop.0
+0x00005680	0x00000068	[  4] FDE for: _store_row_jpeg
+0x000056E8	0x00000058	[  4] FDE for: _get_jpeg_dim_mem
+0x00005740	0x00000080	[  4] FDE for: _decode_jpeg_mem
+0x000057C0	0x00000018	[  5] CFI
+0x000057D8	0x00000068	[  5] FDE for: _scale_h_area
+0x00005840	0x00000040	[  5] FDE for: _output_row_32_native_fromyuv
+0x00005880	0x00000020	[  5] FDE for: _output_row_32_native
+0x000058A0	0x00000020	[  5] FDE for: _get_size_native
+0x000058C0	0x00000068	[  5] FDE for: _scale_h_linear
+0x00005928	0x00000020	[  5] FDE for: _recalc_dimension
+0x00005948	0x00000070	[  5] FDE for: _resize_on_load
+0x000059B8	0x00000018	[  6] CFI
+0x000059D0	0x00000078	[  6] FDE for: _read_part_line
+0x00005A48	0x00000040	[  6] FDE for: _store_part_bmp
+0x00005A88	0x00000020	[  6] FDE for: _output_row_8_native
+0x00005AA8	0x00000068	[  6] FDE for: _save_bmp_file
+0x00005B10	0x00000020	[  6] FDE for: _simple_resize_bitmap
+0x00005B30	0x00000088	[  6] FDE for: _read_bmp_fd
+0x00005BB8	0x00000058	[  6] FDE for: _read_bmp_file
+0x00008000	0x00000008	[  8] _longjmp.got
+0x00008008	0x00000008	[  8] _setjmp.got
+0x00008010	0x00000038	[  2] ___header
+0x00008048	0x00000078	[  4] _idct_tbl
+0x000080C0	0x00000020	[  5] _format_native
+0x0000C000	0x00000008	[  2] _rb
+0x0000C008	0x00000104	[  1] _filename.0
+0x0000C110	0x00000008	[  2] _atexit_handler
+0x0000C118	0x000000C0	[  2] ___exit_env
+0x0000C1D8	0x00002378	[  4] _jpeg

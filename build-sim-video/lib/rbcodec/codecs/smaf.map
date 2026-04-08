@@ -1,0 +1,161 @@
+# Path: /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/smaf.elf
+# Arch: arm64
+# Object files:
+[  0] linker synthesized
+[  1] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/smaf.o
+[  2] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/codec_crt0.o
+[  3] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libpcm.a(linear_pcm.o)
+[  4] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libpcm.a(adpcm_seek.o)
+[  5] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libpcm.a(yamaha_adpcm.o)
+[  6] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+[  7] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/libSystem.tbd
+# Sections:
+# Address	Size    	Segment	Section
+0x00000690	0x000016FC	__TEXT	__text
+0x00001D8C	0x00000358	__TEXT	__cstring
+0x000020E4	0x00000268	__TEXT	__const
+0x00002350	0x000007C8	__TEXT	__eh_frame
+0x00004000	0x00000088	__DATA_CONST	__const
+0x00008000	0x00000008	__DATA	.data
+0x00008008	0x00000018	__DATA	__data
+0x00008020	0x000067C0	__DATA	__bss
+# Symbols:
+# Address	Size    	File  Name
+0x00000690	0x0000000C	[  1] _get_be32
+0x0000069C	0x00000084	[  1] _read_buffer
+0x00000720	0x000000E8	[  1] _search_chunk
+0x00000808	0x00000064	[  1] _convert_smaf_audio_format
+0x0000086C	0x00000054	[  1] _convert_smaf_audio_basebit
+0x000008C0	0x000007C0	[  1] _codec_run
+0x00001080	0x0000003C	[  1] _codec_main
+0x000010BC	0x00000008	[  2] __start
+0x000010C4	0x00000004	[  2] _codec_start
+0x000010C8	0x000000BC	[  3] _set_format
+0x00001184	0x00000060	[  3] _get_seek_pos
+0x000011E4	0x00000390	[  3] _decode
+0x00001574	0x0000000C	[  3] _get_linear_pcm_codec
+0x00001580	0x00000058	[  4] _init_seek_table
+0x000015D8	0x00000098	[  4] _add_adpcm_data
+0x00001670	0x000000E8	[  4] _seek
+0x00001758	0x000000A4	[  5] _create_pcmdata
+0x000017FC	0x000000E8	[  5] _decode
+0x000018E4	0x00000060	[  5] _decode_for_seek
+0x00001944	0x000000B8	[  5] _get_seek_pos
+0x000019FC	0x0000010C	[  5] _set_format
+0x00001B08	0x00000020	[  5] _get_yamaha_adpcm_codec
+0x00001B28	0x00000040	[  6] _codec_init
+0x00001B68	0x00000048	[  6] _codec_set_replaygain
+0x00001BB0	0x00000048	[  6] _codec_malloc
+0x00001BF8	0x0000004C	[  6] _codec_calloc
+0x00001C44	0x00000004	[  6] _codec_free
+0x00001C48	0x00000054	[  6] _codec_realloc
+0x00001C9C	0x00000018	[  6] _codec_strlen
+0x00001CB4	0x00000018	[  6] _strcpy
+0x00001CCC	0x00000018	[  6] _strcat
+0x00001CE4	0x00000018	[  6] _strcmp
+0x00001CFC	0x00000018	[  6] _memcpy
+0x00001D14	0x00000018	[  6] _memset
+0x00001D2C	0x00000018	[  6] _memcmp
+0x00001D44	0x00000018	[  6] _memchr
+0x00001D5C	0x00000018	[  6] _memmove
+0x00001D74	0x00000018	[  6] _qsort
+0x00001D8C	0x00000021	[  1] literal string: CODEC_ERROR: missing '%s' chunk\n
+0x00001DAD	0x00000029	[  1] literal string: CODEC_ERROR: unsupport audio format: %d\n
+0x00001DD6	0x00000022	[  1] literal string: CODEC_ERROR: illegal basebit: %d\n
+0x00001DF8	0x00000020	[  1] literal string: CODEC_ERROR: smaf is too small\n
+0x00001E18	0x00000005	[  1] literal string: MMMD
+0x00001E1D	0x00000023	[  1] literal string: CODEC_ERROR: does not smaf format\n
+0x00001E40	0x00000005	[  1] literal string: CNTI
+0x00001E45	0x00000004	[  1] literal string: ATR
+0x00001E49	0x0000002C	[  1] literal string: CODEC_ERROR: missing PCM Audio Track Chunk\n
+0x00001E75	0x00000004	[  1] literal string: Awa
+0x00001E79	0x00000026	[  1] literal string: CODEC_ERROR: missing Wave Data Chunk\n
+0x00001E9F	0x00000005	[  1] literal string: OPDA
+0x00001EA4	0x0000002A	[  1] literal string: CODEC_ERROR: missing Optional Data Chunk\n
+0x00001ECE	0x00000004	[  1] literal string: MTR
+0x00001ED2	0x00000028	[  1] literal string: CODEC_ERROR: missing Score Track Chunk\n
+0x00001EFA	0x00000005	[  1] literal string: Mtsp
+0x00001EFF	0x00000037	[  1] literal string: CODEC_ERROR: missing Score Track Stream PCM Data Chunk
+0x00001F36	0x00000038	[  1] literal string: CODEC_ERROR: missing Score Track Stream PCM Data Chunk\n
+0x00001F6E	0x00000004	[  1] literal string: Mwa
+0x00001F72	0x00000039	[  1] literal string: CODEC_ERROR: missing Score Track Stream Wave Data Chunk\n
+0x00001FAB	0x0000002B	[  1] literal string: CODEC_ERROR: unsupport audio format: 0x%x\n
+0x00001FD6	0x0000001D	[  1] literal string: CODEC_ERROR: chunksize is 0\n
+0x00001FF3	0x0000002F	[  1] literal string: CODEC_ERROR: more than 2 channels unsupported\n
+0x00002022	0x0000000D	[  1] literal string: codec error\n
+0x0000202F	0x0000001C	[  3] literal string: CODEC_ERROR: channels is 0\n
+0x0000204B	0x00000021	[  3] literal string: CODEC_ERROR: bitspersample is 0\n
+0x0000206C	0x00000041	[  3] literal string: CODEC_ERROR: pcm with more than 32 bitspersample is unsupported\n
+0x000020AD	0x00000037	[  5] literal string: CODEC_ERROR: yamaha adpcm must be 4 bitspersample: %d\n
+0x000020E4	0x00000010	[  1] _basebits
+0x000020F4	0x00000018	[  1] _support_formats
+0x0000210C	0x00000040	[  5] _amplification_table
+0x0000214C	0x00000100	[  6] _bs_clz_tab
+0x0000224C	0x00000100	[  6] _bs_log2_tab
+0x00002350	0x00000018	[  1] CFI
+0x00002368	0x00000020	[  1] FDE for: _get_be32
+0x00002388	0x00000050	[  1] FDE for: _read_buffer
+0x000023D8	0x00000068	[  1] FDE for: _search_chunk
+0x00002440	0x00000040	[  1] FDE for: _convert_smaf_audio_format
+0x00002480	0x00000040	[  1] FDE for: _convert_smaf_audio_basebit
+0x000024C0	0x00000068	[  1] FDE for: _codec_run
+0x00002528	0x00000038	[  1] FDE for: _codec_main
+0x00002560	0x00000018	[  2] CFI
+0x00002578	0x00000020	[  2] FDE for: __start
+0x00002598	0x00000020	[  2] FDE for: _codec_start
+0x000025B8	0x00000018	[  3] CFI
+0x000025D0	0x00000040	[  3] FDE for: _set_format
+0x00002610	0x00000020	[  3] FDE for: _get_seek_pos
+0x00002630	0x00000020	[  3] FDE for: _decode
+0x00002650	0x00000020	[  3] FDE for: _get_linear_pcm_codec
+0x00002670	0x00000018	[  4] CFI
+0x00002688	0x00000020	[  4] FDE for: _init_seek_table
+0x000026A8	0x00000020	[  4] FDE for: _add_adpcm_data
+0x000026C8	0x00000060	[  4] FDE for: _seek
+0x00002728	0x00000018	[  5] CFI
+0x00002740	0x00000020	[  5] FDE for: _create_pcmdata
+0x00002760	0x00000040	[  5] FDE for: _decode
+0x000027A0	0x00000040	[  5] FDE for: _decode_for_seek
+0x000027E0	0x00000048	[  5] FDE for: _get_seek_pos
+0x00002828	0x00000048	[  5] FDE for: _set_format
+0x00002870	0x00000020	[  5] FDE for: _get_yamaha_adpcm_codec
+0x00002890	0x00000018	[  6] CFI
+0x000028A8	0x00000038	[  6] FDE for: _codec_init
+0x000028E0	0x00000038	[  6] FDE for: _codec_set_replaygain
+0x00002918	0x00000020	[  6] FDE for: _codec_malloc
+0x00002938	0x00000040	[  6] FDE for: _codec_calloc
+0x00002978	0x00000020	[  6] FDE for: _codec_free
+0x00002998	0x00000040	[  6] FDE for: _codec_realloc
+0x000029D8	0x00000020	[  6] FDE for: _codec_strlen
+0x000029F8	0x00000020	[  6] FDE for: _strcpy
+0x00002A18	0x00000020	[  6] FDE for: _strcat
+0x00002A38	0x00000020	[  6] FDE for: _strcmp
+0x00002A58	0x00000020	[  6] FDE for: _memcpy
+0x00002A78	0x00000020	[  6] FDE for: _memset
+0x00002A98	0x00000020	[  6] FDE for: _memcmp
+0x00002AB8	0x00000020	[  6] FDE for: _memchr
+0x00002AD8	0x00000020	[  6] FDE for: _memmove
+0x00002AF8	0x00000020	[  6] FDE for: _qsort
+0x00004000	0x00000030	[  1] _pcm_codecs
+0x00004030	0x00000040	[  1] ___header
+0x00004070	0x00000018	[  3] _codec
+0x00008000	0x00000008	[  2] _ci
+0x00008008	0x00000018	[  5] _codec
+0x00008020	0x00000008	[  1] _bytesdone
+0x00008028	0x00000050	[  1] _format
+0x00008078	0x00004000	[  1] _samples
+0x0000C078	0x00000008	[  3] _newpos.0
+0x0000C080	0x00000008	[  3] _fmt
+0x0000C088	0x00000004	[  4] _cur_ratio
+0x0000C08C	0x00000004	[  4] _max_ratio
+0x0000C090	0x00000004	[  4] _cur_count
+0x0000C094	0x00000004	[  4] _seek_count
+0x0000C098	0x00002710	[  4] _seek_table
+0x0000E7A8	0x00000008	[  5] _newpos.0
+0x0000E7B0	0x00000008	[  5] _fmt
+0x0000E7B8	0x00000004	[  5] _blocksperchunk
+0x0000E7BC	0x0000000A	[  5] _cur_data
+0x0000E7C6	0x00000001	[  5] _has_block_header
+0x0000E7C8	0x00000008	[  6] _mallocbuf
+0x0000E7D0	0x00000008	[  6] _bufsize
+0x0000E7D8	0x00000008	[  6] _mem_ptr

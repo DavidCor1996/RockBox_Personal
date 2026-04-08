@@ -1,0 +1,250 @@
+# Path: /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/imageviewer/gif/gif.elf
+# Arch: arm64
+# Object files:
+[  0] linker synthesized
+[  1] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/imageviewer/gif/dgif_lib.o
+[  2] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/imageviewer/gif/gifalloc.o
+[  3] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/imageviewer/gif/gif_decoder.o
+[  4] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/imageviewer/gif/gif.o
+[  5] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/imageviewer/gif/gif_err.o
+[  6] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/libtlsf.a(tlsf.o)
+[  7] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(gcc-support.o)
+[  8] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(pluginlib_resize.o)
+[  9] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(pluginlib_bmp.o)
+[ 10] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(bmp_smooth_scale.o)
+[ 11] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/libSystem.tbd
+# Sections:
+# Address	Size    	Segment	Section
+0x00000660	0x000063F8	__TEXT	__text
+0x00006A58	0x0000042C	__TEXT	__cstring
+0x00006E90	0x000004E0	__TEXT	__const
+0x00007370	0x00001978	__TEXT	__eh_frame
+0x0000C000	0x00000098	__DATA_CONST	__const
+0x00010000	0x00000010	__DATA	.data
+0x00010010	0x00000070	__DATA	__bss
+# Symbols:
+# Address	Size    	File  Name
+0x00000660	0x0000008C	[  1] _DGifGetWord
+0x000006EC	0x000001D8	[  1] _DGifDecompressInput
+0x000008C4	0x0000036C	[  1] _DGifDecompressLine
+0x00000C30	0x00000200	[  1] _DGifGetScreenDesc
+0x00000E30	0x000001A0	[  1] _DGifOpenFileHandle
+0x00000FD0	0x0000005C	[  1] _DGifOpenFileName
+0x0000102C	0x000001B4	[  1] _DGifOpen
+0x000011E0	0x000000E0	[  1] _DGifGetRecordType
+0x000012C0	0x000002F0	[  1] _DGifGetImageDesc
+0x000015B0	0x000000F4	[  1] _DGifGetExtensionNext
+0x000016A4	0x000000BC	[  1] _DGifGetExtension
+0x00001760	0x00000060	[  1] _DGifExtensionToGCB
+0x000017C0	0x000000C0	[  1] _DGifSavedExtensionToGCB
+0x00001880	0x000000E8	[  1] _DGifCloseFile
+0x00001968	0x000000FC	[  1] _DGifGetCodeNext
+0x00001A64	0x000000A8	[  1] _DGifGetLine
+0x00001B0C	0x000000B4	[  1] _DGifGetPixel
+0x00001BC0	0x00000030	[  1] _DGifGetCode
+0x00001BF0	0x000000D8	[  1] _DGifGetLZCodes
+0x00001CE0	0x000000A0	[  2] _GifBitSize
+0x00001D80	0x000001CC	[  2] _GifMakeMapObject
+0x00001F4C	0x00000034	[  2] _GifFreeMapObject
+0x00001F80	0x0000036C	[  2] _GifUnionColorMap
+0x000022EC	0x00000038	[  2] _GifApplyTranslation
+0x00002324	0x000000C8	[  2] _GifAddExtensionBlock
+0x000023EC	0x00000078	[  2] _GifFreeExtensions
+0x00002464	0x000000C4	[  2] _FreeLastSavedImage
+0x00002528	0x00000124	[  2] _GifMakeSavedImage
+0x0000264C	0x000000E4	[  2] _GifFreeSavedImages
+0x00002740	0x000000A0	[  3] _gif2pixels
+0x000027E0	0x00000060	[  3] _gif_decoder_init
+0x00002840	0x00000008	[  3] _gif_decoder_destroy_memory_pool
+0x00002848	0x0000003C	[  3] _gif_open
+0x00002884	0x000006C4	[  3] _gif_decode
+0x00002F60	0x00000080	[  4] _draw_image_rect
+0x00002FE0	0x00000020	[  4] _img_mem
+0x00003000	0x00000248	[  4] _get_image
+0x00003248	0x000002D0	[  4] _load_image
+0x00003520	0x000000F8	[  5] _GifErrorString
+0x00003618	0x00000050	[  6] _ls_bit
+0x00003668	0x00000048	[  6] _ms_bit
+0x000036B0	0x00000020	[  6] _set_bit
+0x000036D0	0x00000020	[  6] _clear_bit
+0x000036F0	0x0000008C	[  6] _FIND_SUITABLE_BLOCK
+0x0000377C	0x0000004C	[  6] _process_area
+0x000037C8	0x00000058	[  6] _MAPPING_INSERT
+0x00003820	0x00000004	[  6] _panicf
+0x00003824	0x00000008	[  6] _get_new_area
+0x0000382C	0x00000008	[  6] _get_used_size
+0x00003834	0x00000008	[  6] _get_max_size
+0x0000383C	0x00000008	[  6] _destroy_memory_pool
+0x00003844	0x00000248	[  6] _free_ex
+0x00003A8C	0x000000C4	[  6] _init_memory_pool
+0x00003B50	0x0000016C	[  6] _add_new_area
+0x00003CBC	0x000002CC	[  6] _malloc_ex
+0x00003F88	0x0000006C	[  6] _tlsf_malloc
+0x00003FF4	0x0000000C	[  6] _tlsf_free
+0x00004000	0x00000368	[  6] _realloc_ex
+0x00004368	0x00000018	[  6] _tlsf_realloc
+0x00004380	0x0000005C	[  6] _calloc_ex
+0x000043DC	0x0000000C	[  6] _tlsf_calloc
+0x000043E8	0x00000018	[  7] _memcpy
+0x00004400	0x00000018	[  7] _memset
+0x00004418	0x00000018	[  7] _memmove
+0x00004430	0x00000018	[  7] _memcmp
+0x00004448	0x0000020C	[  8] _scale_h_area
+0x00004654	0x00000140	[  8] _output_row_32_native_fromyuv
+0x00004794	0x00000130	[  8] _output_row_32_native
+0x000048C4	0x00000010	[  8] _get_size_native
+0x000048D4	0x00000220	[  8] _scale_h_linear
+0x00004AF4	0x00000090	[  8] _recalc_dimension
+0x00004B84	0x000003D8	[  8] _resize_on_load
+0x00004F5C	0x00000318	[  9] _read_part_line
+0x00005274	0x00000034	[  9] _store_part_bmp
+0x000052A8	0x00000128	[  9] _output_row_8_native
+0x000053D0	0x000001D4	[  9] _save_bmp_file
+0x000055A4	0x00000090	[  9] _simple_resize_bitmap
+0x00005634	0x00000690	[  9] _read_bmp_fd
+0x00005CC4	0x000000AC	[  9] _read_bmp_file
+0x00005D70	0x00000CE8	[ 10] _smooth_resize_bitmap
+0x00006A58	0x00000007	[  1] literal string: GIFVER
+0x00006A60	0x0000000F	[  4] literal string: resizing %d*%d
+0x00006A70	0x00000009	[  4] literal string: file: %s
+0x00006A7C	0x00000001	[  4] literal string: 
+0x00006A80	0x0000000C	[  4] literal string: size: %dx%d
+0x00006A90	0x00000010	[  4] literal string:  %ld.%02ld sec 
+0x00006AA0	0x00000003	[  4] literal string: %s
+0x00006AA8	0x0000001A	[  5] literal string: Failed to open given file
+0x00006AC8	0x0000001F	[  5] literal string: Failed to read from given file
+0x00006AE8	0x0000001A	[  5] literal string: Data is not in GIF format
+0x00006B08	0x0000001E	[  5] literal string: No screen descriptor detected
+0x00006B28	0x0000001D	[  5] literal string: No Image Descriptor detected
+0x00006B48	0x00000023	[  5] literal string: Neither global nor local color map
+0x00006B70	0x0000001B	[  5] literal string: Wrong record type detected
+0x00006B90	0x0000002C	[  5] literal string: Number of pixels bigger than width * height
+0x00006BC0	0x00000023	[  5] literal string: Failed to allocate required memory
+0x00006BE8	0x0000001B	[  5] literal string: Failed to close given file
+0x00006C08	0x00000023	[  5] literal string: Given file was not opened for read
+0x00006C30	0x00000025	[  5] literal string: Image is defective, decoding aborted
+0x00006C58	0x00000029	[  5] literal string: Image EOF detected before image complete
+0x00006C81	0x00000016	[  6] literal string: * Heap Corruption: %s
+0x00006C97	0x00000021	[  6] literal string: free_ex(): Freeing unused block\n
+0x00006CB8	0x0000001D	[  6] literal string: free_ex(): Mismatched flags\n
+0x00006CD5	0x0000001E	[  6] literal string: free_ex(): uncoalesced block\n
+0x00006CF3	0x00000030	[  6] literal string: malloc_ex(): Mismatched flags after allocation\n
+0x00006D23	0x0000003D	[  8] literal string: unable to allocate required buffer: %d needed, %d available\n
+0x00006D60	0x00000043	[  9] literal string: read_part_line: error reading image, read returned %d expected %d\n
+0x00006DA3	0x00000024	[  9] literal string: read_bmp_fd: can't read BMP header.
+0x00006DC7	0x0000003E	[  9] literal string: read_bmp_fd: Bitmap too large for buffer: %d bytes (%d max).\n
+0x00006E05	0x00000027	[  9] literal string: read_bmp_fd: Can't read color palette\n
+0x00006E2C	0x00000030	[  9] literal string: read_bmp_fd: Unsupported compression (type %d)\n
+0x00006E5C	0x00000028	[  9] literal string: read_bmp_file: can't open '%s', rc: %d\n
+0x00006E90	0x00000020	[  1] _CodeMasks.0
+0x00006EB0	0x00000008	[  1] lC1
+0x00006EC0	0x00000010	[  2] 16-byte-literal
+0x00006ED0	0x00000010	[  2] 16-byte-literal
+0x00006EE0	0x00000010	[  2] 16-byte-literal
+0x00006EF0	0x00000010	[  2] 16-byte-literal
+0x00006F00	0x00000010	[  2] 16-byte-literal
+0x00006F10	0x00000010	[  2] 16-byte-literal
+0x00006F20	0x00000400	[  6] _table
+0x00007320	0x00000010	[  9] _dither_table
+0x00007330	0x00000040	[  9] _bitfields
+0x00007370	0x00000018	[  1] CFI
+0x00007388	0x00000058	[  1] FDE for: _DGifGetWord
+0x000073E0	0x00000088	[  1] FDE for: _DGifDecompressInput
+0x00007468	0x000000E0	[  1] FDE for: _DGifDecompressLine
+0x00007548	0x00000090	[  1] FDE for: _DGifGetScreenDesc
+0x000075D8	0x00000070	[  1] FDE for: _DGifOpenFileHandle
+0x00007648	0x00000050	[  1] FDE for: _DGifOpenFileName
+0x00007698	0x00000070	[  1] FDE for: _DGifOpen
+0x00007708	0x00000060	[  1] FDE for: _DGifGetRecordType
+0x00007768	0x00000088	[  1] FDE for: _DGifGetImageDesc
+0x000077F0	0x00000068	[  1] FDE for: _DGifGetExtensionNext
+0x00007858	0x00000060	[  1] FDE for: _DGifGetExtension
+0x000078B8	0x00000020	[  1] FDE for: _DGifExtensionToGCB
+0x000078D8	0x00000020	[  1] FDE for: _DGifSavedExtensionToGCB
+0x000078F8	0x00000068	[  1] FDE for: _DGifCloseFile
+0x00007960	0x00000068	[  1] FDE for: _DGifGetCodeNext
+0x000079C8	0x00000048	[  1] FDE for: _DGifGetLine
+0x00007A10	0x00000048	[  1] FDE for: _DGifGetPixel
+0x00007A58	0x00000020	[  1] FDE for: _DGifGetCode
+0x00007A78	0x00000090	[  1] FDE for: _DGifGetLZCodes
+0x00007B08	0x00000018	[  2] CFI
+0x00007B20	0x00000020	[  2] FDE for: _GifBitSize
+0x00007B40	0x000000A8	[  2] FDE for: _GifMakeMapObject
+0x00007BE8	0x00000038	[  2] FDE for: _GifFreeMapObject
+0x00007C20	0x000000A0	[  2] FDE for: _GifUnionColorMap
+0x00007CC0	0x00000020	[  2] FDE for: _GifApplyTranslation
+0x00007CE0	0x00000070	[  2] FDE for: _GifAddExtensionBlock
+0x00007D50	0x00000068	[  2] FDE for: _GifFreeExtensions
+0x00007DB8	0x00000070	[  2] FDE for: _FreeLastSavedImage
+0x00007E28	0x00000058	[  2] FDE for: _GifMakeSavedImage
+0x00007E80	0x00000070	[  2] FDE for: _GifFreeSavedImages
+0x00007EF0	0x00000018	[  3] CFI
+0x00007F08	0x00000020	[  3] FDE for: _gif2pixels
+0x00007F28	0x00000048	[  3] FDE for: _gif_decoder_init
+0x00007F70	0x00000020	[  3] FDE for: _gif_decoder_destroy_memory_pool
+0x00007F90	0x00000040	[  3] FDE for: _gif_open
+0x00007FD0	0x00000138	[  3] FDE for: _gif_decode
+0x00008108	0x00000018	[  4] CFI
+0x00008120	0x00000020	[  4] FDE for: _draw_image_rect
+0x00008140	0x00000020	[  4] FDE for: _img_mem
+0x00008160	0x000000E0	[  4] FDE for: _get_image
+0x00008240	0x000000A8	[  4] FDE for: _load_image
+0x000082E8	0x00000018	[  5] CFI
+0x00008300	0x00000020	[  5] FDE for: _GifErrorString
+0x00008320	0x00000018	[  6] CFI
+0x00008338	0x00000020	[  6] FDE for: _ls_bit
+0x00008358	0x00000020	[  6] FDE for: _ms_bit
+0x00008378	0x00000020	[  6] FDE for: _set_bit
+0x00008398	0x00000020	[  6] FDE for: _clear_bit
+0x000083B8	0x00000040	[  6] FDE for: _FIND_SUITABLE_BLOCK
+0x000083F8	0x00000020	[  6] FDE for: _process_area
+0x00008418	0x00000038	[  6] FDE for: _MAPPING_INSERT
+0x00008450	0x00000020	[  6] FDE for: _panicf
+0x00008470	0x00000020	[  6] FDE for: _get_new_area
+0x00008490	0x00000020	[  6] FDE for: _get_used_size
+0x000084B0	0x00000020	[  6] FDE for: _get_max_size
+0x000084D0	0x00000020	[  6] FDE for: _destroy_memory_pool
+0x000084F0	0x00000040	[  6] FDE for: _free_ex
+0x00008530	0x00000050	[  6] FDE for: _init_memory_pool
+0x00008580	0x00000048	[  6] FDE for: _add_new_area
+0x000085C8	0x00000060	[  6] FDE for: _malloc_ex
+0x00008628	0x00000058	[  6] FDE for: _tlsf_malloc
+0x00008680	0x00000020	[  6] FDE for: _tlsf_free
+0x000086A0	0x00000068	[  6] FDE for: _realloc_ex
+0x00008708	0x00000020	[  6] FDE for: _tlsf_realloc
+0x00008728	0x00000048	[  6] FDE for: _calloc_ex
+0x00008770	0x00000020	[  6] FDE for: _tlsf_calloc
+0x00008790	0x00000018	[  7] CFI
+0x000087A8	0x00000020	[  7] FDE for: _memcpy
+0x000087C8	0x00000020	[  7] FDE for: _memset
+0x000087E8	0x00000020	[  7] FDE for: _memmove
+0x00008808	0x00000020	[  7] FDE for: _memcmp
+0x00008828	0x00000018	[  8] CFI
+0x00008840	0x00000068	[  8] FDE for: _scale_h_area
+0x000088A8	0x00000040	[  8] FDE for: _output_row_32_native_fromyuv
+0x000088E8	0x00000020	[  8] FDE for: _output_row_32_native
+0x00008908	0x00000020	[  8] FDE for: _get_size_native
+0x00008928	0x00000068	[  8] FDE for: _scale_h_linear
+0x00008990	0x00000020	[  8] FDE for: _recalc_dimension
+0x000089B0	0x00000070	[  8] FDE for: _resize_on_load
+0x00008A20	0x00000018	[  9] CFI
+0x00008A38	0x00000078	[  9] FDE for: _read_part_line
+0x00008AB0	0x00000040	[  9] FDE for: _store_part_bmp
+0x00008AF0	0x00000020	[  9] FDE for: _output_row_8_native
+0x00008B10	0x00000068	[  9] FDE for: _save_bmp_file
+0x00008B78	0x00000020	[  9] FDE for: _simple_resize_bitmap
+0x00008B98	0x00000088	[  9] FDE for: _read_bmp_fd
+0x00008C20	0x00000058	[  9] FDE for: _read_bmp_file
+0x00008C78	0x00000018	[ 10] CFI
+0x00008C90	0x00000058	[ 10] FDE for: _smooth_resize_bitmap
+0x0000C000	0x00000050	[  4] ___header
+0x0000C050	0x00000028	[  4] _image_decoder
+0x0000C078	0x00000020	[  8] _format_native
+0x00010000	0x00000008	[  4] _iv
+0x00010008	0x00000008	[  4] _rb
+0x00010010	0x00000008	[  3] _GifFile
+0x00010018	0x00000008	[  4] _disp_buf
+0x00010020	0x00000008	[  4] _disp
+0x00010028	0x00000020	[  4] _print
+0x00010048	0x00000030	[  4] _decoder
+0x00010078	0x00000008	[  6] _mp

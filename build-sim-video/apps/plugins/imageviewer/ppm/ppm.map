@@ -1,0 +1,72 @@
+# Path: /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/imageviewer/ppm/ppm.elf
+# Arch: arm64
+# Object files:
+[  0] linker synthesized
+[  1] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/imageviewer/ppm/ppm.o
+[  2] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/imageviewer/ppm/ppm_decoder.o
+[  3] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(gcc-support.o)
+[  4] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(bmp_smooth_scale.o)
+[  5] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/libSystem.tbd
+# Sections:
+# Address	Size    	Segment	Section
+0x000005F8	0x00001720	__TEXT	__text
+0x00001D18	0x00000241	__TEXT	__cstring
+0x00001F60	0x000003C8	__TEXT	__eh_frame
+0x00004000	0x00000078	__DATA_CONST	__const
+0x00008000	0x00000010	__DATA	.data
+0x00008010	0x00000098	__DATA	__bss
+# Symbols:
+# Address	Size    	File  Name
+0x000005F8	0x00000098	[  1] _draw_image_rect
+0x00000690	0x00000020	[  1] _img_mem
+0x000006B0	0x00000140	[  1] _get_image
+0x000007F0	0x0000028C	[  1] _load_image
+0x00000A7C	0x000000A4	[  2] _ppm_getc
+0x00000B20	0x000000F4	[  2] _ppm_getuint
+0x00000C14	0x00000098	[  2] _ppm_getrawsample
+0x00000CAC	0x00000324	[  2] _read_ppm
+0x00000FD0	0x00000018	[  3] _memcpy
+0x00000FE8	0x00000018	[  3] _memset
+0x00001000	0x00000018	[  3] _memmove
+0x00001018	0x00000018	[  3] _memcmp
+0x00001030	0x00000CE8	[  4] _smooth_resize_bitmap
+0x00001D18	0x0000000F	[  1] literal string: resizing %d*%d
+0x00001D27	0x00000013	[  1] literal string: err opening %s: %d
+0x00001D3A	0x00000013	[  1] literal string: reading file '%s'\n
+0x00001D4D	0x00000012	[  1] literal string: loading %zu bytes
+0x00001D5F	0x00000010	[  1] literal string:  %ld.%02ld sec 
+0x00001D6F	0x0000001F	[  2] literal string: EOF. Read error reading a byte
+0x00001D8E	0x0000002E	[  2] literal string: Junk (%c) in file where an integer should be.
+0x00001DBC	0x0000003C	[  2] literal string: ASCII decimal integer in file is too large to be processed.
+0x00001DF8	0x00000031	[  2] literal string: EOF. Read error while reading a one-byte sample.
+0x00001E29	0x0000002D	[  2] literal string: EOF. Read error while reading a long sample.
+0x00001E56	0x00000063	[  2] literal string: Error reading magic number from ppm image stream. Most often, this means your input file is empty.
+0x00001EB9	0x0000004F	[  2] literal string: maxval of input image (%u) is too large. The maximum allowed by the PPM is %u.
+0x00001F08	0x0000001F	[  2] literal string: maxval of input image is zero.
+0x00001F27	0x0000002B	[  2] literal string: Bad magic number - not a ppm or rppm file.
+0x00001F52	0x00000007	[  2] literal string: What?!
+0x00001F60	0x00000018	[  1] CFI
+0x00001F78	0x00000020	[  1] FDE for: _draw_image_rect
+0x00001F98	0x00000020	[  1] FDE for: _img_mem
+0x00001FB8	0x00000068	[  1] FDE for: _get_image
+0x00002020	0x00000080	[  1] FDE for: _load_image
+0x000020A0	0x00000018	[  2] CFI
+0x000020B8	0x00000050	[  2] FDE for: _ppm_getc
+0x00002108	0x00000058	[  2] FDE for: _ppm_getuint
+0x00002160	0x00000048	[  2] FDE for: _ppm_getrawsample
+0x000021A8	0x00000078	[  2] FDE for: _read_ppm
+0x00002220	0x00000018	[  3] CFI
+0x00002238	0x00000020	[  3] FDE for: _memcpy
+0x00002258	0x00000020	[  3] FDE for: _memset
+0x00002278	0x00000020	[  3] FDE for: _memmove
+0x00002298	0x00000020	[  3] FDE for: _memcmp
+0x000022B8	0x00000018	[  4] CFI
+0x000022D0	0x00000058	[  4] FDE for: _smooth_resize_bitmap
+0x00004000	0x00000050	[  1] ___header
+0x00004050	0x00000028	[  1] _image_decoder
+0x00008000	0x00000008	[  1] _iv
+0x00008008	0x00000008	[  1] _rb
+0x00008010	0x00000028	[  1] _ppm
+0x00008038	0x00000008	[  1] _disp_buf
+0x00008040	0x00000048	[  1] _disp
+0x00008088	0x00000020	[  1] _print

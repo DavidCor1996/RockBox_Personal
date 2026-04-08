@@ -1,0 +1,345 @@
+# Path: /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/fft/fft.elf
+# Arch: arm64
+# Object files:
+[  0] linker synthesized
+[  1] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/fft/const.o
+[  2] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/fft/kiss_fft.o
+[  3] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/fft/kiss_fftr.o
+[  4] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/fft/fft.o
+[  5] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/plugin_crt0.o
+[  6] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(gcc-support.o)
+[  7] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(pluginlib_actions.o)
+[  8] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(helper.o)
+[  9] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(configfile.o)
+[ 10] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(osd.o)
+[ 11] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(xlcd_core.o)
+[ 12] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(xlcd_scroll.o)
+[ 13] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/bitmaps/libpluginbitmaps.a(fft_colors.16.o)
+[ 14] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/libfixedpoint.a(fixedpoint.o)
+[ 15] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/libSystem.tbd
+[ 16] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/system/libsystem_c.tbd
+[ 17] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/system/libsystem_platform.tbd
+# Sections:
+# Address	Size    	Segment	Section
+0x00000740	0x00005C3C	__TEXT	__text
+0x0000637C	0x00000024	__TEXT	__stubs
+0x000063A0	0x0000FCE0	__TEXT	__const
+0x00016080	0x000002DF	__TEXT	__cstring
+0x00016360	0x000018A0	__TEXT	__eh_frame
+0x00018000	0x00000018	__DATA_CONST	__got
+0x00018018	0x000000D0	__DATA_CONST	__const
+0x0001C000	0x00000131	__DATA	__data
+0x0001C138	0x00000008	__DATA	.data
+0x0001C140	0x00007B50	__DATA	__bss
+# Symbols:
+# Address	Size    	File  Name
+0x00000740	0x00001E20	[  2] _kf_work
+0x00002560	0x0000024C	[  2] _kiss_fft_alloc
+0x000027AC	0x000000B4	[  2] _kiss_fft_stride
+0x00002860	0x000000A8	[  2] _kiss_fft
+0x00002908	0x00000024	[  2] _kiss_fft_cleanup
+0x0000292C	0x000000A4	[  2] _kiss_fft_next_fast_size
+0x000029E0	0x00000240	[  3] _kiss_fftr_alloc
+0x00002C20	0x000001C0	[  3] _kiss_fftr
+0x00002DE0	0x000001A8	[  3] _kiss_fftri
+0x00002FA0	0x000000E0	[  4] _fft_osd_draw_cb
+0x00003080	0x00000108	[  4] _draw_spectrogram_horizontal
+0x00003188	0x00000104	[  4] _draw_spectrogram_vertical
+0x0000328C	0x000000FC	[  4] _draw_lines_vertical
+0x00003388	0x000000F8	[  4] _draw_lines_horizontal
+0x00003480	0x000000E0	[  4] _draw_bars_vertical
+0x00003560	0x000000E0	[  4] _draw_bars_horizontal
+0x00003640	0x00000088	[  4] _fft_cleanup
+0x000036C8	0x00000E88	[  4] _plugin_start
+0x00004550	0x00000018	[  5] _cleanup_wrapper
+0x00004568	0x00000068	[  5] _plugin__start
+0x000045D0	0x00000020	[  5] _rb_atexit
+0x000045F0	0x00000024	[  5] _exit
+0x00004614	0x00000014	[  5] __exit
+0x00004628	0x00000064	[  5] _exit_on_usb
+0x0000468C	0x00000018	[  6] _memcpy
+0x000046A4	0x00000018	[  6] _memset
+0x000046BC	0x00000018	[  6] _memmove
+0x000046D4	0x00000018	[  6] _memcmp
+0x000046EC	0x00000038	[  7] _get_context_map
+0x00004724	0x00000040	[  7] _pluginlib_getaction
+0x00004764	0x00000020	[  8] _talk_val
+0x00004784	0x00000040	[  8] _backlight_force_on
+0x000047C4	0x0000006C	[  8] _backlight_ignore_timeout
+0x00004830	0x00000048	[  8] _backlight_use_settings
+0x00004878	0x00000044	[  8] _sw_poweroff_disable
+0x000048BC	0x00000020	[  8] _sw_poweroff_restore
+0x000048DC	0x00000004	[  8] _remote_backlight_force_on
+0x000048E0	0x00000004	[  8] _remote_backlight_ignore_timeout
+0x000048E4	0x00000004	[  8] _remote_backlight_use_settings
+0x000048E8	0x00000004	[  8] _buttonlight_force_on
+0x000048EC	0x00000004	[  8] _buttonlight_force_off
+0x000048F0	0x00000004	[  8] _buttonlight_ignore_timeout
+0x000048F4	0x00000004	[  8] _buttonlight_use_settings
+0x000048F8	0x00000018	[  8] _backlight_brightness_set
+0x00004910	0x00000020	[  8] _backlight_brightness_use_setting
+0x00004930	0x00000004	[  8] _buttonlight_brightness_set
+0x00004934	0x00000004	[  8] _buttonlight_brightness_use_setting
+0x00004938	0x000000E8	[  9] _get_cfg_filename.constprop.0
+0x00004A20	0x00000160	[  9] _configfile_save
+0x00004B80	0x00000228	[  9] _configfile_load
+0x00004DA8	0x000000E0	[  9] _configfile_get_value
+0x00004E88	0x00000158	[  9] _configfile_update_entry
+0x00004FE0	0x000000D0	[ 10] __osd_lcd_init_buffers
+0x000050B0	0x0000000C	[ 10] __osd_lcd_viewport_set_pos
+0x000050BC	0x0000007C	[ 10] __osd_lcd_viewport_set_buffer
+0x00005138	0x00000028	[ 10] __osd_erase_osd.constprop.0
+0x00005160	0x00000054	[ 10] __osd_update_back_buffer.constprop.0
+0x000051B4	0x00000018	[ 10] __osd_update_viewport.constprop.0
+0x000051CC	0x00000058	[ 10] __osd_draw_osd_rect.constprop.0
+0x00005224	0x00000018	[ 10] __osd_draw_osd.constprop.0
+0x0000523C	0x00000034	[ 10] __osd_update.constprop.0
+0x00005270	0x000000D0	[ 10] __osd_show.constprop.0
+0x00005340	0x00000050	[ 10] __osd_destroy.constprop.0
+0x00005390	0x0000004C	[ 10] __osd_monitor_timeout.constprop.0
+0x000053DC	0x000001DC	[ 10] _osd_init
+0x000055B8	0x00000004	[ 10] _osd_destroy
+0x000055BC	0x00000004	[ 10] _osd_show
+0x000055C0	0x00000004	[ 10] _osd_update
+0x000055C4	0x000000D0	[ 10] _osd_update_rect
+0x00005694	0x00000158	[ 10] _osd_update_pos
+0x000057EC	0x00000004	[ 10] _osd_monitor_timeout
+0x000057F0	0x0000001C	[ 10] _osd_set_timeout
+0x0000580C	0x0000000C	[ 10] _osd_get_viewport
+0x00005818	0x00000024	[ 10] _osd_get_max_dims
+0x0000583C	0x00000014	[ 10] _osd_enabled
+0x00005850	0x00000020	[ 10] _osd_lcd_update_prepare
+0x00005870	0x00000040	[ 10] _osd_lcd_update
+0x000058B0	0x00000050	[ 10] _osd_lcd_update_rect
+0x00005900	0x00000044	[ 11] _get_framebuffer
+0x00005944	0x000000F8	[ 12] _xlcd_scroll_left
+0x00005A3C	0x000000F4	[ 12] _xlcd_scroll_right
+0x00005B30	0x000000D8	[ 12] _xlcd_scroll_up
+0x00005C08	0x000000D0	[ 12] _xlcd_scroll_down
+0x00005CD8	0x000000B0	[ 14] _fp_sincos
+0x00005D88	0x000000B4	[ 14] _fp_sqrt
+0x00005E3C	0x0000003C	[ 14] _ipow
+0x00005E78	0x00000060	[ 14] _fp14_sin
+0x00005ED8	0x00000064	[ 14] _fp14_cos
+0x00005F3C	0x00000110	[ 14] _fp16_log
+0x0000604C	0x000000F8	[ 14] _fp16_exp
+0x00006144	0x00000154	[ 14] _fp_exp10
+0x00006298	0x000000AC	[ 14] _fp_log10
+0x00006344	0x00000024	[ 14] _fp_decibels
+0x00006368	0x00000014	[ 14] _fp_factor
+0x0000637C	0x0000000C	[ 16] _abs.stub
+0x00006388	0x0000000C	[ 17] _longjmp.stub
+0x00006394	0x0000000C	[ 17] _setjmp.stub
+0x000063A0	0x00000400	[  1] _hann_512
+0x000067A0	0x00000800	[  1] _hann_1024
+0x00006FA0	0x00001000	[  1] _hann_2048
+0x00007FA0	0x00002000	[  1] _hann_4096
+0x00009FA0	0x00004000	[  1] _hann_8192
+0x0000DFA0	0x00000400	[  1] _hamming_512
+0x0000E3A0	0x00000800	[  1] _hamming_1024
+0x0000EBA0	0x00001000	[  1] _hamming_2048
+0x0000FBA0	0x00002000	[  1] _hamming_4096
+0x00011BA0	0x00004000	[  1] _hamming_8192
+0x00015BA0	0x00000010	[  2] 16-byte-literal
+0x00015BB0	0x00000010	[  2] 16-byte-literal
+0x00015BC0	0x00000008	[  2] lC3
+0x00015BC8	0x00000008	[  2] lC4
+0x00015BD0	0x00000008	[  4] _cfg_filename
+0x00015BE0	0x00000010	[  4] 16-byte-literal
+0x00015BF0	0x000000D8	[  7] _pla_main_ctx
+0x00015CC8	0x00000200	[ 13] _fft_colors
+0x00015EC8	0x000000B8	[ 14] _sin_table
+0x00015F80	0x00000100	[ 14] _atan_table
+0x00016080	0x0000001A	[  2] literal string: CHECKBUF NOT IMPLEMENTED!
+0x000160A0	0x0000002A	[  2] literal string: This version of kiss fft can't use malloc
+0x000160D0	0x0000001D	[  2] literal string: Inverse FFT not implemented!
+0x000160F0	0x00000025	[  3] literal string: Real FFT optimization must be even.\n
+0x00016118	0x00000013	[  3] literal string: Cannot use malloc!
+0x00016130	0x00000026	[  3] literal string: kiss fft usage error: improper alloc\n
+0x00016158	0x00000001	[  4] literal string: 
+0x00016160	0x00000002	[  4] literal string: M
+0x00016168	0x00000010	[  4] literal string: needed data: %i
+0x00016178	0x0000000F	[  4] literal string: Hamming window
+0x00016188	0x0000000C	[  4] literal string: Hann window
+0x00016198	0x00000016	[  4] literal string: Logarithmic amplitude
+0x000161B0	0x00000011	[  4] literal string: Linear amplitude
+0x000161C8	0x00000016	[  4] literal string: Logarithmic frequency
+0x000161E0	0x00000011	[  4] literal string: Linear frequency
+0x000161F8	0x0000000C	[  4] literal string: Vertical %s
+0x00016208	0x0000000E	[  4] literal string: Horizontal %s
+0x00016218	0x0000000A	[  4] literal string: amplitude
+0x00016228	0x0000000A	[  4] literal string: frequency
+0x00016238	0x00000006	[  4] literal string: Lines
+0x00016240	0x00000005	[  4] literal string: Bars
+0x00016248	0x0000000C	[  4] literal string: Spectrogram
+0x00016258	0x0000000C	[  4] literal string: orientation
+0x00016268	0x00000009	[  4] literal string: drawmode
+0x00016278	0x0000000A	[  4] literal string: amp scale
+0x00016288	0x0000000B	[  4] literal string: freq scale
+0x00016298	0x00000010	[  4] literal string: window function
+0x000162A8	0x00000008	[  4] literal string: hamming
+0x000162B0	0x00000005	[  4] literal string: hann
+0x000162B8	0x0000000C	[  4] literal string: logarithmic
+0x000162C8	0x00000007	[  4] literal string: linear
+0x000162D0	0x00000006	[  4] literal string: lines
+0x000162D8	0x00000005	[  4] literal string: bars
+0x000162E0	0x0000000C	[  4] literal string: spectrogram
+0x000162F0	0x00000009	[  4] literal string: vertical
+0x00016300	0x0000000B	[  4] literal string: horizontal
+0x0001630B	0x0000000A	[  9] literal string: /.rockbox
+0x00016315	0x00000004	[  9] literal string: /%s
+0x00016319	0x00000013	[  9] literal string: /.rockbox/rocks/%s
+0x0001632C	0x00000014	[  9] literal string: file version: %10d\n
+0x00016340	0x0000000A	[  9] literal string: %s: %10d\n
+0x0001634A	0x00000008	[  9] literal string: %s: %s\n
+0x00016352	0x0000000D	[  9] literal string: file version
+0x00016360	0x00000018	[  2] CFI
+0x00016378	0x00000180	[  2] FDE for: _kf_work
+0x000164F8	0x00000098	[  2] FDE for: _kiss_fft_alloc
+0x00016590	0x00000040	[  2] FDE for: _kiss_fft_stride
+0x000165D0	0x00000040	[  2] FDE for: _kiss_fft
+0x00016610	0x00000020	[  2] FDE for: _kiss_fft_cleanup
+0x00016630	0x00000020	[  2] FDE for: _kiss_fft_next_fast_size
+0x00016650	0x00000018	[  3] CFI
+0x00016668	0x000000C8	[  3] FDE for: _kiss_fftr_alloc
+0x00016730	0x00000040	[  3] FDE for: _kiss_fftr
+0x00016770	0x00000068	[  3] FDE for: _kiss_fftri
+0x000167D8	0x00000018	[  4] CFI
+0x000167F0	0x00000048	[  4] FDE for: _fft_osd_draw_cb
+0x00016838	0x00000070	[  4] FDE for: _draw_spectrogram_horizontal
+0x000168A8	0x00000068	[  4] FDE for: _draw_spectrogram_vertical
+0x00016910	0x00000088	[  4] FDE for: _draw_lines_vertical
+0x00016998	0x00000070	[  4] FDE for: _draw_lines_horizontal
+0x00016A08	0x00000068	[  4] FDE for: _draw_bars_vertical
+0x00016A70	0x00000058	[  4] FDE for: _draw_bars_horizontal
+0x00016AC8	0x00000058	[  4] FDE for: _fft_cleanup
+0x00016B20	0x000000D8	[  4] FDE for: _plugin_start
+0x00016BF8	0x00000018	[  5] CFI
+0x00016C10	0x00000020	[  5] FDE for: _cleanup_wrapper
+0x00016C30	0x00000040	[  5] FDE for: _plugin__start
+0x00016C70	0x00000020	[  5] FDE for: _rb_atexit
+0x00016C90	0x00000030	[  5] FDE for: _exit
+0x00016CC0	0x00000030	[  5] FDE for: __exit
+0x00016CF0	0x00000038	[  5] FDE for: _exit_on_usb
+0x00016D28	0x00000018	[  6] CFI
+0x00016D40	0x00000020	[  6] FDE for: _memcpy
+0x00016D60	0x00000020	[  6] FDE for: _memset
+0x00016D80	0x00000020	[  6] FDE for: _memmove
+0x00016DA0	0x00000020	[  6] FDE for: _memcmp
+0x00016DC0	0x00000018	[  7] CFI
+0x00016DD8	0x00000020	[  7] FDE for: _get_context_map
+0x00016DF8	0x00000020	[  7] FDE for: _pluginlib_getaction
+0x00016E18	0x00000018	[  8] CFI
+0x00016E30	0x00000020	[  8] FDE for: _talk_val
+0x00016E50	0x00000040	[  8] FDE for: _backlight_force_on
+0x00016E90	0x00000050	[  8] FDE for: _backlight_ignore_timeout
+0x00016EE0	0x00000040	[  8] FDE for: _backlight_use_settings
+0x00016F20	0x00000040	[  8] FDE for: _sw_poweroff_disable
+0x00016F60	0x00000020	[  8] FDE for: _sw_poweroff_restore
+0x00016F80	0x00000020	[  8] FDE for: _remote_backlight_force_on
+0x00016FA0	0x00000020	[  8] FDE for: _remote_backlight_ignore_timeout
+0x00016FC0	0x00000020	[  8] FDE for: _remote_backlight_use_settings
+0x00016FE0	0x00000020	[  8] FDE for: _buttonlight_force_on
+0x00017000	0x00000020	[  8] FDE for: _buttonlight_force_off
+0x00017020	0x00000020	[  8] FDE for: _buttonlight_ignore_timeout
+0x00017040	0x00000020	[  8] FDE for: _buttonlight_use_settings
+0x00017060	0x00000020	[  8] FDE for: _backlight_brightness_set
+0x00017080	0x00000020	[  8] FDE for: _backlight_brightness_use_setting
+0x000170A0	0x00000020	[  8] FDE for: _buttonlight_brightness_set
+0x000170C0	0x00000020	[  8] FDE for: _buttonlight_brightness_use_setting
+0x000170E0	0x00000018	[  9] CFI
+0x000170F8	0x00000068	[  9] FDE for: _get_cfg_filename.constprop.0
+0x00017160	0x00000070	[  9] FDE for: _configfile_save
+0x000171D0	0x00000068	[  9] FDE for: _configfile_load
+0x00017238	0x00000058	[  9] FDE for: _configfile_get_value
+0x00017290	0x00000070	[  9] FDE for: _configfile_update_entry
+0x00017300	0x00000018	[ 10] CFI
+0x00017318	0x00000050	[ 10] FDE for: __osd_lcd_init_buffers
+0x00017368	0x00000020	[ 10] FDE for: __osd_lcd_viewport_set_pos
+0x00017388	0x00000020	[ 10] FDE for: __osd_lcd_viewport_set_buffer
+0x000173A8	0x00000020	[ 10] FDE for: __osd_erase_osd.constprop.0
+0x000173C8	0x00000040	[ 10] FDE for: __osd_update_back_buffer.constprop.0
+0x00017408	0x00000020	[ 10] FDE for: __osd_update_viewport.constprop.0
+0x00017428	0x00000040	[ 10] FDE for: __osd_draw_osd_rect.constprop.0
+0x00017468	0x00000020	[ 10] FDE for: __osd_draw_osd.constprop.0
+0x00017488	0x00000038	[ 10] FDE for: __osd_update.constprop.0
+0x000174C0	0x00000048	[ 10] FDE for: __osd_show.constprop.0
+0x00017508	0x00000040	[ 10] FDE for: __osd_destroy.constprop.0
+0x00017548	0x00000020	[ 10] FDE for: __osd_monitor_timeout.constprop.0
+0x00017568	0x00000068	[ 10] FDE for: _osd_init
+0x000175D0	0x00000020	[ 10] FDE for: _osd_destroy
+0x000175F0	0x00000020	[ 10] FDE for: _osd_show
+0x00017610	0x00000020	[ 10] FDE for: _osd_update
+0x00017630	0x00000058	[ 10] FDE for: _osd_update_rect
+0x00017688	0x00000068	[ 10] FDE for: _osd_update_pos
+0x000176F0	0x00000020	[ 10] FDE for: _osd_monitor_timeout
+0x00017710	0x00000020	[ 10] FDE for: _osd_set_timeout
+0x00017730	0x00000020	[ 10] FDE for: _osd_get_viewport
+0x00017750	0x00000020	[ 10] FDE for: _osd_get_max_dims
+0x00017770	0x00000020	[ 10] FDE for: _osd_enabled
+0x00017790	0x00000020	[ 10] FDE for: _osd_lcd_update_prepare
+0x000177B0	0x00000040	[ 10] FDE for: _osd_lcd_update
+0x000177F0	0x00000040	[ 10] FDE for: _osd_lcd_update_rect
+0x00017830	0x00000018	[ 11] CFI
+0x00017848	0x00000020	[ 11] FDE for: _get_framebuffer
+0x00017868	0x00000018	[ 12] CFI
+0x00017880	0x00000068	[ 12] FDE for: _xlcd_scroll_left
+0x000178E8	0x00000070	[ 12] FDE for: _xlcd_scroll_right
+0x00017958	0x00000070	[ 12] FDE for: _xlcd_scroll_up
+0x000179C8	0x00000060	[ 12] FDE for: _xlcd_scroll_down
+0x00017A28	0x00000018	[ 14] CFI
+0x00017A40	0x00000020	[ 14] FDE for: _fp_sincos
+0x00017A60	0x00000020	[ 14] FDE for: _fp_sqrt
+0x00017A80	0x00000020	[ 14] FDE for: _ipow
+0x00017AA0	0x00000020	[ 14] FDE for: _fp14_sin
+0x00017AC0	0x00000020	[ 14] FDE for: _fp14_cos
+0x00017AE0	0x00000020	[ 14] FDE for: _fp16_log
+0x00017B00	0x00000020	[ 14] FDE for: _fp16_exp
+0x00017B20	0x00000068	[ 14] FDE for: _fp_exp10
+0x00017B88	0x00000020	[ 14] FDE for: _fp_log10
+0x00017BA8	0x00000038	[ 14] FDE for: _fp_decibels
+0x00017BE0	0x00000020	[ 14] FDE for: _fp_factor
+0x00018000	0x00000008	[ 16] _abs.got
+0x00018008	0x00000008	[ 17] _longjmp.got
+0x00018010	0x00000008	[ 17] _setjmp.got
+0x00018018	0x00000018	[  4] lC19
+0x00018030	0x00000018	[  4] lC10
+0x00018048	0x00000030	[  4] _fft_drawfns.0
+0x00018078	0x00000010	[  4] _coefs.1
+0x00018088	0x00000038	[  5] ___header
+0x000180C0	0x00000028	[ 13] _bm_fft_colors
+0x0001C000	0x00000004	[  4] _fft_message_id
+0x0001C004	0x00000004	[  4] _fft_spectrogram_pos
+0x0001C008	0x000000C8	[  4] _disk_config
+0x0001C0D0	0x00000010	[  4] ___compound_literal.4
+0x0001C0E0	0x00000010	[  4] ___compound_literal.3
+0x0001C0F0	0x00000010	[  4] ___compound_literal.2
+0x0001C100	0x00000018	[  4] ___compound_literal.1
+0x0001C118	0x00000010	[  4] ___compound_literal.0
+0x0001C128	0x00000008	[  4] _plugin_contexts
+0x0001C130	0x00000001	[  8] _original_sw_poweroff_state
+0x0001C138	0x00000008	[  5] _rb
+0x0001C140	0x00000008	[  2] _ntmpbuf
+0x0001C148	0x00000008	[  2] _tmpbuf
+0x0001C150	0x00000008	[  2] _nscratchbuf
+0x0001C158	0x00000008	[  2] _scratchbuf
+0x0001C160	0x00000008	[  4] _fft_next_frame_tick
+0x0001C168	0x00000020	[  4] _fft_osd_message
+0x0001C188	0x00000008	[  4] _fft_graph_scale
+0x0001C190	0x00000008	[  4] _fft_drawfn
+0x0001C198	0x00000014	[  4] _fft
+0x0001C1AC	0x00000014	[  4] _fft_disk
+0x0001C1C0	0x00000800	[  4] _binlog
+0x0001C9C0	0x00000008	[  4] _plot
+0x0001C9C8	0x00000808	[  4] _logf_magnitudes
+0x0001D1D0	0x000007FC	[  4] _linf_magnitudes
+0x0001D9CC	0x0000210C	[  4] _fft_buffer
+0x0001FAD8	0x00000008	[  4] _fft_state
+0x0001FAE0	0x00002000	[  4] _output
+0x00021AE0	0x00002000	[  4] _input
+0x00023AE0	0x00000008	[  5] _atexit_handler
+0x00023AE8	0x000000C0	[  5] ___exit_env
+0x00023BA8	0x00000004	[  7] _last_context
+0x00023BAC	0x00000004	[  7] _plugin_context_count
+0x00023BB0	0x00000008	[  7] _plugin_context_order
+0x00023BB8	0x000000D8	[ 10] _native_osd

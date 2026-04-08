@@ -1,0 +1,719 @@
+# Path: /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/goban/goban.elf
+# Arch: arm64
+# Object files:
+[  0] linker synthesized
+[  1] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/goban/goban.o
+[  2] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/goban/board.o
+[  3] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/goban/display.o
+[  4] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/goban/game.o
+[  5] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/goban/sgf.o
+[  6] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/goban/sgf_output.o
+[  7] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/goban/sgf_parse.o
+[  8] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/goban/sgf_storage.o
+[  9] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/goban/util.o
+[ 10] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/plugin_crt0.o
+[ 11] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(gcc-support.o)
+[ 12] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(configfile.o)
+[ 13] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(playback_control.o)
+[ 14] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(xlcd_core.o)
+[ 15] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(xlcd_draw.o)
+[ 16] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/libSystem.tbd
+[ 17] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/system/libsystem_c.tbd
+[ 18] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/system/libsystem_platform.tbd
+# Sections:
+# Address	Size    	Segment	Section
+0x00000780	0x000094F0	__TEXT	__text
+0x00009C70	0x00000024	__TEXT	__stubs
+0x00009C94	0x00000FA5	__TEXT	__cstring
+0x0000AC40	0x000000C0	__TEXT	__const
+0x0000AD00	0x00002A30	__TEXT	__eh_frame
+0x00010000	0x00000018	__DATA_CONST	__got
+0x00010018	0x000001F0	__DATA_CONST	__const
+0x00014000	0x000004C8	__DATA	__data
+0x000144C8	0x00000008	__DATA	.data
+0x000144D0	0x00000D10	__DATA	__common
+0x000151E0	0x000000C8	__DATA	__bss
+# Symbols:
+# Address	Size    	File  Name
+0x00000780	0x00000010	[  1] _ruleset_formatter
+0x00000790	0x000001F4	[  1] _time_formatter
+0x00000984	0x00000024	[  1] _komi_formatter
+0x000009A8	0x00000038	[  1] _zoom_preview
+0x000009E0	0x0000008C	[  1] _do_comment_edit
+0x00000A6C	0x00000924	[  1] _do_main_menu
+0x00001390	0x00000074	[  1] _autosave_formatter
+0x00001404	0x00000540	[  1] _plugin_start
+0x00001944	0x000000A8	[  2] _clear_board
+0x000019EC	0x00000048	[  2] _set_size_board
+0x00001A34	0x00000010	[  2] _get_point_board
+0x00001A44	0x00000010	[  2] _set_point_board
+0x00001A54	0x00000048	[  2] _on_board
+0x00001A9C	0x00000088	[  2] _get_liberties_helper
+0x00001B24	0x00000060	[  2] _flood_fill_helper
+0x00001B84	0x00000180	[  2] _get_liberties_board
+0x00001D04	0x0000011C	[  2] _flood_fill_board
+0x00001E20	0x000001A8	[  2] _legal_move_board
+0x00001FC8	0x00000088	[  2] _WRAP
+0x00002050	0x000000A4	[  3] _vert_string_size
+0x000020F4	0x000000F4	[  3] _putsxy_vertical
+0x000021E8	0x00000038	[  3] _pixel_x
+0x00002220	0x00000030	[  3] _pixel_y
+0x00002250	0x00000054	[  3] _unzoomed_int_size
+0x000022A4	0x000001A8	[  3] _cursor_updated
+0x0000244C	0x00000174	[  3] _draw_hoshi
+0x000025C0	0x00000114	[  3] _draw_circle.constprop.0
+0x000026D4	0x0000003C	[  3] _clear_marks_display
+0x00002710	0x0000007C	[  3] _set_mark_display
+0x0000278C	0x0000000C	[  3] _set_comment_display
+0x00002798	0x00000D80	[  3] _draw_screen_display
+0x00003518	0x00000134	[  3] _move_display
+0x0000364C	0x00000028	[  3] _current_zoom_display
+0x00003674	0x00000024	[  3] _max_zoom_display
+0x00003698	0x00000008	[  3] _min_zoom_display
+0x000036A0	0x000000E4	[  3] _set_zoom_display
+0x00003784	0x00000080	[  3] _setup_display
+0x00003804	0x0000009C	[  4] _pre_game_setup
+0x000038A0	0x00000018	[  4] _set_game_modified
+0x000038B8	0x00000170	[  4] _load_game
+0x00003A28	0x00000134	[  4] _save_game
+0x00003B5C	0x00000090	[  4] _setup_game
+0x00003BEC	0x0000007C	[  5] _is_important_node
+0x00003C68	0x00000078	[  5] _goto_next_important_node
+0x00003CE0	0x00000090	[  5] _set_one_mark
+0x00003D70	0x00000078	[  5] _set_all_marks_sgf
+0x00003DE8	0x000001CC	[  5] _add_child_sgf
+0x00003FB4	0x00000164	[  5] _add_prop_sgf
+0x00004118	0x00000014	[  5] _setup_handicap_helper
+0x0000412C	0x000000C0	[  5] _get_prop_pos_sgf
+0x000041EC	0x00000094	[  5] _get_prop_sgf
+0x00004280	0x00000074	[  5] _add_or_set_prop_sgf
+0x000042F4	0x00000108	[  5] _delete_prop_handle_sgf
+0x000043FC	0x0000015C	[  5] _add_mark_sgf
+0x00004558	0x00000038	[  5] _delete_prop_sgf
+0x00004590	0x000001A0	[  5] _read_comment_sgf
+0x00004730	0x00000210	[  5] _write_comment_sgf
+0x00004940	0x00000054	[  5] _has_more_nodes_sgf
+0x00004994	0x00000028	[  5] _has_prev_nodes_sgf
+0x000049BC	0x0000008C	[  5] _get_move_sgf
+0x00004A48	0x00000280	[  5] _undo_node_helper
+0x00004CC8	0x0000007C	[  5] _num_variations_sgf
+0x00004D44	0x000000A0	[  5] _go_to_variation_sgf
+0x00004DE4	0x0000057C	[  5] _redo_node_sgf
+0x00005360	0x00000298	[  5] _add_stone_sgf
+0x000055F8	0x000000F4	[  5] _undo_node_sgf
+0x000056EC	0x000000C8	[  5] _mark_child_variations_sgf
+0x000057B4	0x0000019C	[  5] _get_matching_child_sgf
+0x00005950	0x000001D4	[  5] _play_move_sgf
+0x00005B24	0x0000010C	[  5] _next_variation_sgf
+0x00005C30	0x00000024	[  5] _is_handled_sgf
+0x00005C54	0x0000003C	[  5] _goto_handicap_start_sgf
+0x00005C90	0x000001D8	[  5] _setup_handicap_sgf
+0x00005E68	0x000000B4	[  5] _post_game_setup_sgf
+0x00005F1C	0x00000064	[  6] _stupid_num_variations
+0x00005F80	0x0000014C	[  6] _output_header_helper
+0x000060CC	0x00000064	[  6] _pos_to_sgf
+0x00006130	0x00000714	[  6] _output_sgf
+0x00006844	0x00000068	[  7] _sgf_to_pos
+0x000068AC	0x000000D8	[  7] _read_prop_value
+0x00006984	0x00000E44	[  7] _parse_sgf
+0x000077C8	0x0000008C	[  8] _clear_storage_buffer
+0x00007854	0x000000C0	[  8] _find_free
+0x00007914	0x00000160	[  8] _setup_storage_buffer.isra.0
+0x00007A74	0x0000000C	[  8] _audio_stolen_sgf
+0x00007A80	0x0000014C	[  8] _alloc_storage_sgf
+0x00007BCC	0x00000100	[  8] _free_storage_sgf
+0x00007CCC	0x0000015C	[  8] _setup_sgf
+0x00007E28	0x00000060	[  8] _clear_caches_sgf
+0x00007E88	0x00000070	[  8] _cleanup_sgf
+0x00007EF8	0x00000058	[  8] _get_node
+0x00007F50	0x000000C0	[  8] _free_tree_sgf
+0x00008010	0x00000058	[  8] _get_prop
+0x00008068	0x0000003C	[  9] _align_buffer
+0x000080A4	0x0000008C	[  9] _setup_stack
+0x00008130	0x00000074	[  9] _push_stack
+0x000081A4	0x00000050	[  9] _peek_stack
+0x000081F4	0x00000034	[  9] _pop_stack
+0x00008228	0x00000008	[  9] _empty_stack
+0x00008230	0x00000020	[  9] _push_pos_stack
+0x00008250	0x00000020	[  9] _push_int_stack
+0x00008270	0x00000020	[  9] _push_char_stack
+0x00008290	0x00000064	[  9] _create_or_open_file
+0x000082F4	0x00000094	[  9] _snprint_fixed
+0x00008388	0x00000258	[  9] _metadata_summary
+0x000085E0	0x00000068	[  9] _peek_char
+0x00008648	0x00000038	[  9] _read_char
+0x00008680	0x00000078	[  9] _write_file
+0x000086F8	0x00000028	[  9] _write_char
+0x00008720	0x0000007C	[  9] _read_file
+0x0000879C	0x00000040	[  9] _close_file
+0x000087DC	0x00000014	[  9] _is_whitespace
+0x000087F0	0x00000040	[  9] _peek_char_no_whitespace
+0x00008830	0x00000030	[  9] _read_char_no_whitespace
+0x00008860	0x00000018	[  9] _sanitize_string
+0x00008878	0x0000011C	[  9] _get_header_string_and_size
+0x00008994	0x00000018	[ 10] _cleanup_wrapper
+0x000089AC	0x00000068	[ 10] _plugin__start
+0x00008A14	0x00000020	[ 10] _rb_atexit
+0x00008A34	0x00000024	[ 10] _exit
+0x00008A58	0x00000014	[ 10] __exit
+0x00008A6C	0x00000064	[ 10] _exit_on_usb
+0x00008AD0	0x00000018	[ 11] _memcpy
+0x00008AE8	0x00000018	[ 11] _memset
+0x00008B00	0x00000018	[ 11] _memmove
+0x00008B18	0x00000018	[ 11] _memcmp
+0x00008B30	0x000000E8	[ 12] _get_cfg_filename.constprop.0
+0x00008C18	0x00000160	[ 12] _configfile_save
+0x00008D78	0x00000228	[ 12] _configfile_load
+0x00008FA0	0x000000E0	[ 12] _configfile_get_value
+0x00009080	0x00000158	[ 12] _configfile_update_entry
+0x000091D8	0x00000028	[ 13] _prevtrack
+0x00009200	0x00000088	[ 13] _play
+0x00009288	0x00000028	[ 13] _stop
+0x000092B0	0x00000028	[ 13] _nexttrack
+0x000092D8	0x00000050	[ 13] _volume
+0x00009328	0x00000054	[ 13] _shuffle
+0x0000937C	0x0000008C	[ 13] _repeat_mode
+0x00009408	0x0000000C	[ 13] _playback_control_init
+0x00009414	0x00000048	[ 13] _playback_control
+0x0000945C	0x00000044	[ 14] _get_framebuffer
+0x000094A0	0x00000368	[ 15] _xlcd_filltriangle_screen
+0x00009808	0x0000002C	[ 15] _xlcd_filltriangle
+0x00009834	0x00000164	[ 15] _xlcd_fillcircle_screen
+0x00009998	0x00000020	[ 15] _xlcd_fillcircle
+0x000099B8	0x0000010C	[ 15] _xlcd_drawcircle_screen
+0x00009AC4	0x00000020	[ 15] _xlcd_drawcircle
+0x00009AE4	0x00000170	[ 15] _xlcd_color_bitmap_part
+0x00009C54	0x0000001C	[ 15] _xlcd_color_bitmap
+0x00009C70	0x0000000C	[ 17] _abs.stub
+0x00009C7C	0x0000000C	[ 18] _longjmp.stub
+0x00009C88	0x0000000C	[ 18] _setjmp.stub
+0x00009C94	0x00000002	[  1] literal string: 0
+0x00009C96	0x00000003	[  1] literal string: %d
+0x00009C99	0x00000005	[  1] literal string: %02d
+0x00009C9E	0x00000004	[  1] literal string:  d 
+0x00009CA2	0x00000003	[  1] literal string:  h
+0x00009CA5	0x00000003	[  1] literal string:  m
+0x00009CA8	0x00000003	[  1] literal string:  s
+0x00009CAB	0x00000002	[  1] literal string: :
+0x00009CAD	0x00000008	[  1] literal string: Preview
+0x00009CB5	0x00000006	[  1] literal string: lines
+0x00009CBB	0x0000000B	[  1] literal string: board size
+0x00009CC6	0x00000007	[  1] literal string: stones
+0x00009CCD	0x00000009	[  1] literal string: handicap
+0x00009CD6	0x00000005	[  1] literal string: moku
+0x00009CDB	0x00000005	[  1] literal string: komi
+0x00009CE0	0x0000000D	[  1] literal string: Save Failed!
+0x00009CED	0x00000006	[  1] literal string: Saved
+0x00009CF3	0x0000001B	[  1] literal string: Couldn't get header string
+0x00009D0E	0x00000001	[  1] literal string: 
+0x00009D0F	0x0000000B	[  1] literal string: Time Limit
+0x00009D1A	0x0000002D	[  1] literal string: %d stones.  Start a new game to set handicap
+0x00009D47	0x00000005	[  1] literal string: Komi
+0x00009D4C	0x00000008	[  1] literal string: Ruleset
+0x00009D54	0x00000019	[  1] literal string: Audio has been disabled!
+0x00009D6D	0x00000009	[  1] literal string: Zoom Set
+0x00009D76	0x0000000A	[  1] literal string: Cancelled
+0x00009D80	0x00000011	[  1] literal string: Draw Variations?
+0x00009D91	0x00000017	[  1] literal string: Disable Idle Poweroff?
+0x00009DA8	0x00000008	[  1] literal string: minutes
+0x00009DB0	0x00000013	[  1] literal string: Idle Autosave Time
+0x00009DC3	0x00000014	[  1] literal string: Auto Show Comments?
+0x00009DD7	0x00000015	[  1] literal string: Error while passing!
+0x00009DEC	0x00000009	[  1] literal string: %d of %d
+0x00009DF5	0x0000001F	[  1] literal string: Error %d in next_variation_sgf
+0x00009E14	0x00000012	[  1] literal string: No next variation
+0x00009E26	0x00000018	[  1] literal string: Editing comment failed\n
+0x00009E3E	0x00000017	[  1] literal string: Read or write failed!\n
+0x00009E55	0x00000002	[  1] literal string: s
+0x00009E57	0x00000004	[  1] literal string: Off
+0x00009E5B	0x0000000C	[  1] literal string: %d minute%s
+0x00009E67	0x0000001C	[  1] literal string: /.rockbox/rocks/games/goban
+0x00009E83	0x0000000A	[  1] literal string: goban.cfg
+0x00009E8D	0x00000013	[  1] literal string: Loading %s failed.
+0x00009EA0	0x00000028	[  1] literal string: /.rockbox/rocks/games/goban/goban_d.sgf
+0x00009EC8	0x0000000C	[  1] literal string: redo failed
+0x00009ED4	0x0000000C	[  1] literal string: Undo Failed
+0x00009EE0	0x0000000D	[  1] literal string: Illegal Move
+0x00009EED	0x00000008	[  1] literal string: Illegal
+0x00009EF5	0x0000000E	[  1] literal string: Couldn't Mark
+0x00009F03	0x0000000F	[  1] literal string: Couldn't Label
+0x00009F12	0x00000015	[  1] literal string: mode not implemented
+0x00009F27	0x0000000C	[  1] literal string: autosaving\n
+0x00009F33	0x0000000E	[  1] literal string: Autosaving...
+0x00009F41	0x00000014	[  1] literal string: Play Mode (default)
+0x00009F55	0x0000000F	[  1] literal string: Add Black Mode
+0x00009F64	0x0000000F	[  1] literal string: Add White Mode
+0x00009F73	0x00000011	[  1] literal string: Erase Stone Mode
+0x00009F84	0x00000005	[  1] literal string: Pass
+0x00009F89	0x0000000F	[  1] literal string: Next Variation
+0x00009F98	0x00000010	[  1] literal string: Force Play Mode
+0x00009FA8	0x0000000A	[  1] literal string: Mark Mode
+0x00009FB2	0x0000000C	[  1] literal string: Circle Mode
+0x00009FBE	0x0000000C	[  1] literal string: Square Mode
+0x00009FCA	0x0000000E	[  1] literal string: Triangle Mode
+0x00009FD8	0x0000000B	[  1] literal string: Label Mode
+0x00009FE3	0x00000011	[  1] literal string: Add/Edit Comment
+0x00009FF4	0x00000005	[  1] literal string: Done
+0x00009FF9	0x0000000D	[  1] literal string: Perform Task
+0x0000A006	0x00000017	[  1] literal string: Show Child Variations?
+0x0000A01D	0x0000001D	[  1] literal string: Automatically Show Comments?
+0x0000A03A	0x00000008	[  1] literal string: Options
+0x0000A042	0x0000000B	[  1] literal string: Basic Info
+0x0000A04D	0x00000009	[  1] literal string: Overtime
+0x0000A056	0x00000007	[  1] literal string: Result
+0x0000A05D	0x00000009	[  1] literal string: Handicap
+0x0000A066	0x0000000D	[  1] literal string: Black Player
+0x0000A073	0x0000000B	[  1] literal string: Black Rank
+0x0000A07E	0x0000000B	[  1] literal string: Black Team
+0x0000A089	0x0000000D	[  1] literal string: White Player
+0x0000A096	0x0000000B	[  1] literal string: White Rank
+0x0000A0A1	0x0000000B	[  1] literal string: White Team
+0x0000A0AC	0x00000005	[  1] literal string: Date
+0x0000A0B1	0x00000006	[  1] literal string: Event
+0x0000A0B7	0x00000006	[  1] literal string: Place
+0x0000A0BD	0x00000006	[  1] literal string: Round
+0x0000A0C3	0x0000000A	[  1] literal string: Game Info
+0x0000A0CD	0x00000004	[  1] literal string: New
+0x0000A0D1	0x00000005	[  1] literal string: Save
+0x0000A0D6	0x00000008	[  1] literal string: Save As
+0x0000A0DE	0x00000011	[  1] literal string: Playback Control
+0x0000A0EF	0x0000000B	[  1] literal string: Zoom Level
+0x0000A0FA	0x00000005	[  1] literal string: Quit
+0x0000A0FF	0x00000006	[  1] literal string: Goban
+0x0000A105	0x0000000B	[  1] literal string: stone size
+0x0000A110	0x00000010	[  1] literal string: draw variations
+0x0000A120	0x00000013	[  1] literal string: auto show comments
+0x0000A133	0x00000011	[  1] literal string: disable shutdown
+0x0000A144	0x0000000E	[  1] literal string: autosave time
+0x0000A152	0x00000015	[  3] literal string: putting %s at %d %d\n
+0x0000A167	0x0000002A	[  3] literal string: screen is too small to mark current move\n
+0x0000A191	0x00000027	[  3] literal string: tried to display unknown mark '%c' %d\n
+0x0000A1B8	0x00000002	[  3] literal string: C
+0x0000A1BA	0x00000002	[  3] literal string: +
+0x0000A1BC	0x00000002	[  3] literal string: *
+0x0000A1BE	0x00000005	[  3] literal string: %d%s
+0x0000A1C3	0x00000014	[  4] literal string: file name too long\n
+0x0000A1D7	0x00000015	[  4] literal string: file doesn't exist!\n
+0x0000A1EC	0x0000000B	[  4] literal string: Loading...
+0x0000A1F7	0x0000002B	[  4] literal string: Unable to parse SGF file.  Will overwrite.
+0x0000A222	0x0000000A	[  4] literal string: Saving...
+0x0000A22C	0x0000001C	[  5] literal string: unhandled file is closed?!\n
+0x0000A248	0x0000001F	[  5] literal string: couldn't seek in unhandled_fd\n
+0x0000A267	0x0000003A	[  5] literal string: comment prop points to incorrect place in unhandled_fd!!\n
+0x0000A2A1	0x00000030	[  5] literal string: encountered end of file before end of comment!\n
+0x0000A2D1	0x00000021	[  5] literal string: non-comment while overwriting!!\n
+0x0000A2F2	0x0000002B	[  5] literal string: error seeking to end in write_comment_sgf\n
+0x0000A31D	0x00000018	[  5] literal string: not undoing start_node\n
+0x0000A335	0x00000006	[  5] literal string: Black
+0x0000A33B	0x00000006	[  5] literal string: White
+0x0000A341	0x0000001D	[  5] literal string: redo_node_sgf: wrong color!\n
+0x0000A35E	0x0000000A	[  5] literal string: %s Passes
+0x0000A368	0x0000000F	[  5] literal string: Out of memory!
+0x0000A377	0x00000037	[  5] literal string: couldn't undo to previous move in ko threat handling!\n
+0x0000A3AE	0x00000037	[  5] literal string: redoing to correct node failed on ko threat handling!\n
+0x0000A3E5	0x00000016	[  5] literal string: initial undo failed!\n
+0x0000A3FB	0x00000003	[  5] literal string: NZ
+0x0000A3FE	0x00000004	[  5] literal string: GOE
+0x0000A402	0x00000032	[  5] literal string: Out of memory led to invalid state.  Please exit.
+0x0000A434	0x00000034	[  5] literal string: Use the 'Add Black' tool to add %d handicap stones!
+0x0000A468	0x00000036	[  6] literal string: output_header_helper called with invalid prop type!!\n
+0x0000A49E	0x00000004	[  6] literal string: %s[
+0x0000A4A2	0x00000002	[  6] literal string: ]
+0x0000A4A4	0x0000001E	[  6] literal string: invalid pos converted to SGF\n
+0x0000A4C2	0x00000018	[  6] literal string: outputting to: %s (%d)\n
+0x0000A4DA	0x00000004	[  6] literal string: :%c
+0x0000A4DE	0x00000030	[  6] literal string: GM[1]FF[4]CA[UTF-8]AP[Rockbox Goban:1.0]ST[2]\n\n
+0x0000A50E	0x0000000A	[  6] literal string: %s[%d:%d]
+0x0000A518	0x00000007	[  6] literal string: %s[%d]
+0x0000A51F	0x0000001E	[  6] literal string: done outputting, file closed\n
+0x0000A53D	0x0000002C	[  7] literal string: end of file or error before we found a '('\n
+0x0000A569	0x00000027	[  7] literal string: start of gametree doesn't have a '('!\n
+0x0000A590	0x0000001D	[  7] literal string: Out of memory while parsing!
+0x0000A5AD	0x0000002F	[  7] literal string: invalid move position read in, of wrong size!\n
+0x0000A5DC	0x00000016	[  7] literal string: invalid range value!\n
+0x0000A5F2	0x00000022	[  7] literal string: adding %d %d for range (type %d)\n
+0x0000A614	0x00000030	[  7] literal string: invalid position or range read in. wrong size!\n
+0x0000A644	0x0000001C	[  7] literal string: invalid LaBel property '%s'
+0x0000A660	0x00000020	[  7] literal string: LaBel set on invalid position!\n
+0x0000A680	0x00000028	[  7] literal string: This isn't a Go SGF!!  Parsing stopped.
+0x0000A6A8	0x0000001D	[  7] literal string: incorrect game type loaded!\n
+0x0000A6C5	0x00000029	[  7] literal string: Wrong SGF file version! Parsing stopped.
+0x0000A6EE	0x0000001D	[  7] literal string: can't handle file format %c\n
+0x0000A70B	0x00000026	[  7] literal string: Invalid board size specified in file.
+0x0000A731	0x0000002D	[  7] literal string: Board too big/small! (%dx%d) Stopping parse.
+0x0000A75E	0x0000002D	[  7] literal string: invalid komi specification. setting to zero\n
+0x0000A78B	0x00000024	[  7] literal string: extra characters after komi value!\n
+0x0000A7AF	0x0000002B	[  7] literal string: Error getting header string.  Report this.
+0x0000A7DA	0x00000017	[  7] literal string: setting time: %d (%s)\n
+0x0000A7F1	0x00000016	[  7] literal string: setting handicap: %d\n
+0x0000A807	0x00000022	[  7] literal string: invalid HAndicap prop.  ignoring\n
+0x0000A829	0x0000002B	[  7] literal string: extraneous HAndicap prop present in file!\n
+0x0000A854	0x00000018	[  7] literal string: UNHANDLED PROP TYPE!!!\n
+0x0000A86C	0x00000033	[  7] literal string: A SGF prop was not dealt with.  Please report this
+0x0000A89F	0x0000002A	[  7] literal string: extra characters found while parsing: %c\n
+0x0000A8C9	0x00000021	[  8] literal string: Big problem on line %d in sgf.c\n
+0x0000A8EA	0x0000003B	[  8] literal string: Error in allocating storage buffer! Exit and report this!\n
+0x0000A925	0x0000002A	[  8] literal string: Stopping music playback to get more space
+0x0000A94F	0x0000001B	[  8] literal string: stealing audio buffer: %d\n
+0x0000A96A	0x00000014	[  8] literal string: after stealing: %d\n
+0x0000A97E	0x00000029	[  8] literal string: tried to free an out of bounds handle!!\n
+0x0000A9A7	0x00000021	[  8] literal string: storage_buffer_size < MIN!!: %d\n
+0x0000A9C8	0x00000027	[  8] literal string: Low memory.  Large files may not load.
+0x0000A9EF	0x00000023	[  8] literal string: storage_buffer_size < MIN!!!!: %d\n
+0x0000AA12	0x00000019	[  8] literal string: storage_buffer_size: %d\n
+0x0000AA2B	0x00000023	[  8] literal string: /.rockbox/rocks/games/gbn_misc.bin
+0x0000AA4E	0x00000037	[  8] literal string: Error allocating first node!  Please exit immediately.
+0x0000AA85	0x00000017	[  9] literal string: INVALID STACK SETUP!!\n
+0x0000AA9C	0x00000025	[  9] literal string: Buffer disappeared after alignment!\n
+0x0000AAC1	0x0000000E	[  9] literal string: stack full!!\n
+0x0000AACF	0x00000002	[  9] literal string: -
+0x0000AAD1	0x00000008	[  9] literal string: %s%d.%d
+0x0000AAD9	0x00000014	[  9] literal string: %s [%s] v. %s [%s] 
+0x0000AAED	0x0000000B	[  9] literal string: %d stones 
+0x0000AAF8	0x00000007	[  9] literal string:  komi 
+0x0000AAFF	0x00000005	[  9] literal string: (%s)
+0x0000AB04	0x00000004	[  9] literal string: AGA
+0x0000AB08	0x00000009	[  9] literal string: Japanese
+0x0000AB11	0x00000008	[  9] literal string: Chinese
+0x0000AB19	0x00000002	[  9] literal string: B
+0x0000AB1B	0x00000002	[  9] literal string: W
+0x0000AB1D	0x00000003	[  9] literal string: AB
+0x0000AB20	0x00000003	[  9] literal string: AW
+0x0000AB23	0x00000003	[  9] literal string: AE
+0x0000AB26	0x00000003	[  9] literal string: PL
+0x0000AB29	0x00000003	[  9] literal string: DM
+0x0000AB2C	0x00000003	[  9] literal string: GB
+0x0000AB2F	0x00000003	[  9] literal string: GW
+0x0000AB32	0x00000003	[  9] literal string: HO
+0x0000AB35	0x00000003	[  9] literal string: UC
+0x0000AB38	0x00000002	[  9] literal string: V
+0x0000AB3A	0x00000003	[  9] literal string: BM
+0x0000AB3D	0x00000003	[  9] literal string: DO
+0x0000AB40	0x00000003	[  9] literal string: IT
+0x0000AB43	0x00000003	[  9] literal string: TE
+0x0000AB46	0x00000003	[  9] literal string: CR
+0x0000AB49	0x00000003	[  9] literal string: SQ
+0x0000AB4C	0x00000003	[  9] literal string: TR
+0x0000AB4F	0x00000003	[  9] literal string: DD
+0x0000AB52	0x00000003	[  9] literal string: MA
+0x0000AB55	0x00000003	[  9] literal string: SL
+0x0000AB58	0x00000003	[  9] literal string: LB
+0x0000AB5B	0x00000002	[  9] literal string: N
+0x0000AB5D	0x00000003	[  9] literal string: AP
+0x0000AB60	0x00000003	[  9] literal string: CA
+0x0000AB63	0x00000003	[  9] literal string: FF
+0x0000AB66	0x00000003	[  9] literal string: GM
+0x0000AB69	0x00000003	[  9] literal string: ST
+0x0000AB6C	0x00000003	[  9] literal string: SZ
+0x0000AB6F	0x00000003	[  9] literal string: AN
+0x0000AB72	0x00000003	[  9] literal string: PB
+0x0000AB75	0x00000003	[  9] literal string: PW
+0x0000AB78	0x00000003	[  9] literal string: HA
+0x0000AB7B	0x00000003	[  9] literal string: KM
+0x0000AB7E	0x00000003	[  9] literal string: TB
+0x0000AB81	0x00000003	[  9] literal string: TW
+0x0000AB84	0x00000003	[  9] literal string: BR
+0x0000AB87	0x00000003	[  9] literal string: WR
+0x0000AB8A	0x00000003	[  9] literal string: BT
+0x0000AB8D	0x00000003	[  9] literal string: WT
+0x0000AB90	0x00000003	[  9] literal string: CP
+0x0000AB93	0x00000003	[  9] literal string: DT
+0x0000AB96	0x00000003	[  9] literal string: EV
+0x0000AB99	0x00000003	[  9] literal string: RO
+0x0000AB9C	0x00000003	[  9] literal string: GN
+0x0000AB9F	0x00000003	[  9] literal string: GC
+0x0000ABA2	0x00000003	[  9] literal string: ON
+0x0000ABA5	0x00000003	[  9] literal string: OT
+0x0000ABA8	0x00000003	[  9] literal string: PC
+0x0000ABAB	0x00000003	[  9] literal string: RE
+0x0000ABAE	0x00000003	[  9] literal string: RU
+0x0000ABB1	0x00000003	[  9] literal string: SO
+0x0000ABB4	0x00000003	[  9] literal string: TM
+0x0000ABB7	0x00000003	[  9] literal string: US
+0x0000ABBA	0x00000003	[  9] literal string: BL
+0x0000ABBD	0x00000003	[  9] literal string: WL
+0x0000ABC0	0x00000003	[  9] literal string: OB
+0x0000ABC3	0x00000003	[  9] literal string: OW
+0x0000ABC6	0x00000003	[  9] literal string: FG
+0x0000ABC9	0x00000003	[  9] literal string: PM
+0x0000ABCC	0x00000003	[  9] literal string: VW
+0x0000ABCF	0x0000000A	[ 12] literal string: /.rockbox
+0x0000ABD9	0x00000004	[ 12] literal string: /%s
+0x0000ABDD	0x00000013	[ 12] literal string: /.rockbox/rocks/%s
+0x0000ABF0	0x00000014	[ 12] literal string: file version: %10d\n
+0x0000AC04	0x0000000A	[ 12] literal string: %s: %10d\n
+0x0000AC0E	0x00000008	[ 12] literal string: %s: %s\n
+0x0000AC16	0x0000000D	[ 12] literal string: file version
+0x0000AC23	0x00000007	[ 13] literal string: Volume
+0x0000AC2A	0x00000008	[ 13] literal string: Shuffle
+0x0000AC32	0x00000007	[ 13] literal string: Repeat
+0x0000AC40	0x00000018	[ 13] _playback_control_menu__
+0x0000AC58	0x00000018	[ 13] _repeat_mode_item_
+0x0000AC70	0x00000018	[ 13] _shuffle_item_
+0x0000AC88	0x00000018	[ 13] _volume_item_
+0x0000ACA0	0x00000018	[ 13] _nexttrack_item_
+0x0000ACB8	0x00000018	[ 13] _stop_item_
+0x0000ACD0	0x00000018	[ 13] _playpause_item_
+0x0000ACE8	0x00000018	[ 13] _prevtrack_item_
+0x0000AD00	0x00000018	[  1] CFI
+0x0000AD18	0x00000020	[  1] FDE for: _ruleset_formatter
+0x0000AD38	0x00000078	[  1] FDE for: _time_formatter
+0x0000ADB0	0x00000040	[  1] FDE for: _komi_formatter
+0x0000ADF0	0x00000038	[  1] FDE for: _zoom_preview
+0x0000AE28	0x00000050	[  1] FDE for: _do_comment_edit
+0x0000AE78	0x00000068	[  1] FDE for: _do_main_menu
+0x0000AEE0	0x00000050	[  1] FDE for: _autosave_formatter
+0x0000AF30	0x00000080	[  1] FDE for: _plugin_start
+0x0000AFB0	0x00000018	[  2] CFI
+0x0000AFC8	0x00000040	[  2] FDE for: _clear_board
+0x0000B008	0x00000038	[  2] FDE for: _set_size_board
+0x0000B040	0x00000020	[  2] FDE for: _get_point_board
+0x0000B060	0x00000020	[  2] FDE for: _set_point_board
+0x0000B080	0x00000020	[  2] FDE for: _on_board
+0x0000B0A0	0x00000040	[  2] FDE for: _get_liberties_helper
+0x0000B0E0	0x00000040	[  2] FDE for: _flood_fill_helper
+0x0000B120	0x00000050	[  2] FDE for: _get_liberties_board
+0x0000B170	0x00000058	[  2] FDE for: _flood_fill_board
+0x0000B1C8	0x00000068	[  2] FDE for: _legal_move_board
+0x0000B230	0x00000040	[  2] FDE for: _WRAP
+0x0000B270	0x00000018	[  3] CFI
+0x0000B288	0x00000068	[  3] FDE for: _vert_string_size
+0x0000B2F0	0x00000080	[  3] FDE for: _putsxy_vertical
+0x0000B370	0x00000020	[  3] FDE for: _pixel_x
+0x0000B390	0x00000020	[  3] FDE for: _pixel_y
+0x0000B3B0	0x00000020	[  3] FDE for: _unzoomed_int_size
+0x0000B3D0	0x00000048	[  3] FDE for: _cursor_updated
+0x0000B418	0x00000070	[  3] FDE for: _draw_hoshi
+0x0000B488	0x00000060	[  3] FDE for: _draw_circle.constprop.0
+0x0000B4E8	0x00000038	[  3] FDE for: _clear_marks_display
+0x0000B520	0x00000040	[  3] FDE for: _set_mark_display
+0x0000B560	0x00000020	[  3] FDE for: _set_comment_display
+0x0000B580	0x00000078	[  3] FDE for: _draw_screen_display
+0x0000B5F8	0x00000058	[  3] FDE for: _move_display
+0x0000B650	0x00000038	[  3] FDE for: _current_zoom_display
+0x0000B688	0x00000038	[  3] FDE for: _max_zoom_display
+0x0000B6C0	0x00000020	[  3] FDE for: _min_zoom_display
+0x0000B6E0	0x00000040	[  3] FDE for: _set_zoom_display
+0x0000B720	0x00000038	[  3] FDE for: _setup_display
+0x0000B758	0x00000018	[  4] CFI
+0x0000B770	0x00000040	[  4] FDE for: _pre_game_setup
+0x0000B7B0	0x00000020	[  4] FDE for: _set_game_modified
+0x0000B7D0	0x00000060	[  4] FDE for: _load_game
+0x0000B830	0x00000060	[  4] FDE for: _save_game
+0x0000B890	0x00000058	[  4] FDE for: _setup_game
+0x0000B8E8	0x00000018	[  5] CFI
+0x0000B900	0x00000048	[  5] FDE for: _is_important_node
+0x0000B948	0x00000050	[  5] FDE for: _goto_next_important_node
+0x0000B998	0x00000020	[  5] FDE for: _set_one_mark
+0x0000B9B8	0x00000048	[  5] FDE for: _set_all_marks_sgf
+0x0000BA00	0x00000060	[  5] FDE for: _add_child_sgf
+0x0000BA60	0x00000050	[  5] FDE for: _add_prop_sgf
+0x0000BAB0	0x00000020	[  5] FDE for: _setup_handicap_helper
+0x0000BAD0	0x00000058	[  5] FDE for: _get_prop_pos_sgf
+0x0000BB28	0x00000050	[  5] FDE for: _get_prop_sgf
+0x0000BB78	0x00000068	[  5] FDE for: _add_or_set_prop_sgf
+0x0000BBE0	0x00000060	[  5] FDE for: _delete_prop_handle_sgf
+0x0000BC40	0x00000060	[  5] FDE for: _add_mark_sgf
+0x0000BCA0	0x00000040	[  5] FDE for: _delete_prop_sgf
+0x0000BCE0	0x00000068	[  5] FDE for: _read_comment_sgf
+0x0000BD48	0x00000070	[  5] FDE for: _write_comment_sgf
+0x0000BDB8	0x00000048	[  5] FDE for: _has_more_nodes_sgf
+0x0000BE00	0x00000020	[  5] FDE for: _has_prev_nodes_sgf
+0x0000BE20	0x00000050	[  5] FDE for: _get_move_sgf
+0x0000BE70	0x00000060	[  5] FDE for: _undo_node_helper
+0x0000BED0	0x00000048	[  5] FDE for: _num_variations_sgf
+0x0000BF18	0x00000050	[  5] FDE for: _go_to_variation_sgf
+0x0000BF68	0x00000070	[  5] FDE for: _redo_node_sgf
+0x0000BFD8	0x00000078	[  5] FDE for: _add_stone_sgf
+0x0000C050	0x00000050	[  5] FDE for: _undo_node_sgf
+0x0000C0A0	0x00000068	[  5] FDE for: _mark_child_variations_sgf
+0x0000C108	0x00000068	[  5] FDE for: _get_matching_child_sgf
+0x0000C170	0x00000070	[  5] FDE for: _play_move_sgf
+0x0000C1E0	0x00000058	[  5] FDE for: _next_variation_sgf
+0x0000C238	0x00000020	[  5] FDE for: _is_handled_sgf
+0x0000C258	0x00000038	[  5] FDE for: _goto_handicap_start_sgf
+0x0000C290	0x00000088	[  5] FDE for: _setup_handicap_sgf
+0x0000C318	0x00000050	[  5] FDE for: _post_game_setup_sgf
+0x0000C368	0x00000018	[  6] CFI
+0x0000C380	0x00000048	[  6] FDE for: _stupid_num_variations
+0x0000C3C8	0x00000068	[  6] FDE for: _output_header_helper
+0x0000C430	0x00000020	[  6] FDE for: _pos_to_sgf
+0x0000C450	0x00000078	[  6] FDE for: _output_sgf
+0x0000C4C8	0x00000018	[  7] CFI
+0x0000C4E0	0x00000020	[  7] FDE for: _sgf_to_pos
+0x0000C500	0x00000050	[  7] FDE for: _read_prop_value
+0x0000C550	0x00000078	[  7] FDE for: _parse_sgf
+0x0000C5C8	0x00000018	[  8] CFI
+0x0000C5E0	0x00000048	[  8] FDE for: _clear_storage_buffer
+0x0000C628	0x00000020	[  8] FDE for: _find_free
+0x0000C648	0x00000060	[  8] FDE for: _setup_storage_buffer.isra.0
+0x0000C6A8	0x00000020	[  8] FDE for: _audio_stolen_sgf
+0x0000C6C8	0x00000058	[  8] FDE for: _alloc_storage_sgf
+0x0000C720	0x00000070	[  8] FDE for: _free_storage_sgf
+0x0000C790	0x00000058	[  8] FDE for: _setup_sgf
+0x0000C7E8	0x00000040	[  8] FDE for: _clear_caches_sgf
+0x0000C828	0x00000040	[  8] FDE for: _cleanup_sgf
+0x0000C868	0x00000020	[  8] FDE for: _get_node
+0x0000C888	0x00000050	[  8] FDE for: _free_tree_sgf
+0x0000C8D8	0x00000020	[  8] FDE for: _get_prop
+0x0000C8F8	0x00000018	[  9] CFI
+0x0000C910	0x00000020	[  9] FDE for: _align_buffer
+0x0000C930	0x00000040	[  9] FDE for: _setup_stack
+0x0000C970	0x00000048	[  9] FDE for: _push_stack
+0x0000C9B8	0x00000038	[  9] FDE for: _peek_stack
+0x0000C9F0	0x00000040	[  9] FDE for: _pop_stack
+0x0000CA30	0x00000020	[  9] FDE for: _empty_stack
+0x0000CA50	0x00000038	[  9] FDE for: _push_pos_stack
+0x0000CA88	0x00000038	[  9] FDE for: _push_int_stack
+0x0000CAC0	0x00000038	[  9] FDE for: _push_char_stack
+0x0000CAF8	0x00000058	[  9] FDE for: _create_or_open_file
+0x0000CB50	0x00000058	[  9] FDE for: _snprint_fixed
+0x0000CBA8	0x00000068	[  9] FDE for: _metadata_summary
+0x0000CC10	0x00000048	[  9] FDE for: _peek_char
+0x0000CC58	0x00000038	[  9] FDE for: _read_char
+0x0000CC90	0x00000060	[  9] FDE for: _write_file
+0x0000CCF0	0x00000038	[  9] FDE for: _write_char
+0x0000CD28	0x00000060	[  9] FDE for: _read_file
+0x0000CD88	0x00000040	[  9] FDE for: _close_file
+0x0000CDC8	0x00000020	[  9] FDE for: _is_whitespace
+0x0000CDE8	0x00000048	[  9] FDE for: _peek_char_no_whitespace
+0x0000CE30	0x00000040	[  9] FDE for: _read_char_no_whitespace
+0x0000CE70	0x00000020	[  9] FDE for: _sanitize_string
+0x0000CE90	0x00000020	[  9] FDE for: _get_header_string_and_size
+0x0000CEB0	0x00000018	[ 10] CFI
+0x0000CEC8	0x00000020	[ 10] FDE for: _cleanup_wrapper
+0x0000CEE8	0x00000040	[ 10] FDE for: _plugin__start
+0x0000CF28	0x00000020	[ 10] FDE for: _rb_atexit
+0x0000CF48	0x00000030	[ 10] FDE for: _exit
+0x0000CF78	0x00000030	[ 10] FDE for: __exit
+0x0000CFA8	0x00000038	[ 10] FDE for: _exit_on_usb
+0x0000CFE0	0x00000018	[ 11] CFI
+0x0000CFF8	0x00000020	[ 11] FDE for: _memcpy
+0x0000D018	0x00000020	[ 11] FDE for: _memset
+0x0000D038	0x00000020	[ 11] FDE for: _memmove
+0x0000D058	0x00000020	[ 11] FDE for: _memcmp
+0x0000D078	0x00000018	[ 12] CFI
+0x0000D090	0x00000068	[ 12] FDE for: _get_cfg_filename.constprop.0
+0x0000D0F8	0x00000070	[ 12] FDE for: _configfile_save
+0x0000D168	0x00000068	[ 12] FDE for: _configfile_load
+0x0000D1D0	0x00000058	[ 12] FDE for: _configfile_get_value
+0x0000D228	0x00000070	[ 12] FDE for: _configfile_update_entry
+0x0000D298	0x00000018	[ 13] CFI
+0x0000D2B0	0x00000038	[ 13] FDE for: _prevtrack
+0x0000D2E8	0x00000048	[ 13] FDE for: _play
+0x0000D330	0x00000038	[ 13] FDE for: _stop
+0x0000D368	0x00000038	[ 13] FDE for: _nexttrack
+0x0000D3A0	0x00000040	[ 13] FDE for: _volume
+0x0000D3E0	0x00000040	[ 13] FDE for: _shuffle
+0x0000D420	0x00000040	[ 13] FDE for: _repeat_mode
+0x0000D460	0x00000020	[ 13] FDE for: _playback_control_init
+0x0000D480	0x00000038	[ 13] FDE for: _playback_control
+0x0000D4B8	0x00000018	[ 14] CFI
+0x0000D4D0	0x00000020	[ 14] FDE for: _get_framebuffer
+0x0000D4F0	0x00000018	[ 15] CFI
+0x0000D508	0x00000070	[ 15] FDE for: _xlcd_filltriangle_screen
+0x0000D578	0x00000020	[ 15] FDE for: _xlcd_filltriangle
+0x0000D598	0x00000060	[ 15] FDE for: _xlcd_fillcircle_screen
+0x0000D5F8	0x00000020	[ 15] FDE for: _xlcd_fillcircle
+0x0000D618	0x00000070	[ 15] FDE for: _xlcd_drawcircle_screen
+0x0000D688	0x00000020	[ 15] FDE for: _xlcd_drawcircle
+0x0000D6A8	0x00000068	[ 15] FDE for: _xlcd_color_bitmap_part
+0x0000D710	0x00000020	[ 15] FDE for: _xlcd_color_bitmap
+0x00010000	0x00000008	[ 17] _abs.got
+0x00010008	0x00000008	[ 18] _longjmp.got
+0x00010010	0x00000008	[ 18] _setjmp.got
+0x00010018	0x00000018	[  1] _context_menu__.1
+0x00010030	0x00000018	[  1] _context_menu.2
+0x00010048	0x00000018	[  1] _options_menu__.4
+0x00010060	0x00000018	[  1] _options_menu.5
+0x00010078	0x00000018	[  1] _gameinfo_menu__.7
+0x00010090	0x00000018	[  1] _gameinfo_menu.8
+0x000100A8	0x00000018	[  1] _menu__.10
+0x000100C0	0x00000018	[  1] _menu.11
+0x000100D8	0x00000038	[ 10] ___header
+0x00010110	0x00000018	[ 13] _playback_control_menu
+0x00010128	0x00000018	[ 13] _repeat_mode_item
+0x00010140	0x00000008	[ 13] _repeat_mode_item__
+0x00010148	0x00000018	[ 13] _shuffle_item
+0x00010160	0x00000008	[ 13] _shuffle_item__
+0x00010168	0x00000018	[ 13] _volume_item
+0x00010180	0x00000008	[ 13] _volume_item__
+0x00010188	0x00000018	[ 13] _nexttrack_item
+0x000101A0	0x00000008	[ 13] _nexttrack_item__
+0x000101A8	0x00000018	[ 13] _stop_item
+0x000101C0	0x00000008	[ 13] _stop_item__
+0x000101C8	0x00000018	[ 13] _playpause_item
+0x000101E0	0x00000008	[ 13] _playpause_item__
+0x000101E8	0x00000018	[ 13] _prevtrack_item
+0x00010200	0x00000008	[ 13] _prevtrack_item__
+0x00014000	0x00000070	[  1] _context_menu_.0
+0x00014070	0x00000020	[  1] _options_menu_.3
+0x00014090	0x00000090	[  1] _gameinfo_menu_.6
+0x00014120	0x00000048	[  1] _menu_.9
+0x00014168	0x000000C8	[  1] _config
+0x00014230	0x00000001	[  1] _auto_show_comments
+0x00014234	0x00000002	[  2] _ko_pos
+0x00014236	0x00000002	[  2] _current_mark
+0x00014238	0x00000004	[  2] _board_height
+0x0001423C	0x00000004	[  2] _board_width
+0x00014240	0x00000004	[  3] _draw_variations
+0x00014244	0x00000004	[  3] _last_int_size
+0x00014248	0x00000002	[  3] _last_cursor_pos
+0x0001424A	0x00000002	[  3] _cursor_pos
+0x0001424C	0x00000001	[  4] _current_player
+0x00014250	0x00000004	[  5] _start_node
+0x00014254	0x00000004	[  5] _current_node
+0x00014258	0x00000004	[  5] _tree_head
+0x0001425C	0x00000004	[  5] _unhandled_fd
+0x00014260	0x00000004	[  5] _sgf_fd
+0x00014264	0x00000004	[  6] _last_output_type
+0x00014268	0x00000001	[  6] _first_node_in_tree
+0x00014270	0x00000028	[  9] _ruleset_names
+0x00014298	0x000001F8	[  9] _prop_names
+0x00014490	0x00000038	[ 13] _playback_control_menu_
+0x000144C8	0x00000008	[ 10] _rb
+0x000144D0	0x00000004	[  1] _autosave_counter
+0x000144D4	0x00000004	[  1] _autosave_time
+0x000144D8	0x00000001	[  1] _disable_shutdown
+0x000144D9	0x000002D7	[  1] _parse_stack_buffer
+0x000147B0	0x00000018	[  1] _parse_stack
+0x000147C8	0x00000004	[  1] _play_mode
+0x000147CC	0x00000169	[  2] _board_changes
+0x00014935	0x000001BB	[  2] _board_marks
+0x00014AF0	0x00000004	[  2] _black_captures
+0x00014AF4	0x00000004	[  2] _white_captures
+0x00014AF8	0x000001B9	[  2] _board_data
+0x00014CB4	0x00000169	[  3] _display_marks
+0x00014E1D	0x00000003	[  3] _has_comment
+0x00014E20	0x00000004	[  3] _saved_circle_size
+0x00014E24	0x00000004	[  3] _extend_r
+0x00014E28	0x00000004	[  3] _extend_l
+0x00014E2C	0x00000004	[  3] _extend_b
+0x00014E30	0x00000004	[  3] _extend_t
+0x00014E34	0x00000004	[  3] _num_y_ints
+0x00014E38	0x00000004	[  3] _num_x_ints
+0x00014E3C	0x00000004	[  3] _min_y_int
+0x00014E40	0x00000004	[  3] _min_x_int
+0x00014E44	0x00000004	[  3] _board_pixel_height
+0x00014E48	0x00000004	[  3] _board_pixel_width
+0x00014E4C	0x00000004	[  3] _board_y
+0x00014E50	0x00000004	[  3] _board_x
+0x00014E54	0x00000004	[  3] _intersection_size
+0x00014E58	0x00000218	[  4] _header
+0x00015070	0x00000004	[  4] _move_num
+0x00015074	0x00000001	[  4] _autosave_dirty
+0x00015075	0x00000001	[  4] _game_dirty
+0x00015076	0x00000100	[  4] _save_file
+0x00015176	0x00000001	[  5] _header_marked
+0x00015178	0x00000004	[  7] _start_of_prop
+0x00015180	0x00000004	[  8] _next_free_handle
+0x00015184	0x00000004	[  8] _next_free_handle_buffer
+0x00015188	0x00000008	[  8] _total_storage_size
+0x00015190	0x00000008	[  8] _storage_initialized
+0x00015198	0x00000010	[  8] _storage_free_list_size
+0x000151A8	0x00000010	[  8] _storage_free_list
+0x000151B8	0x00000010	[  8] _storage_buffer_size
+0x000151C8	0x00000010	[  8] _storage_buffer
+0x000151D8	0x00000008	[ 13] _parentvp
+0x000151E0	0x00000008	[ 10] _atexit_handler
+0x000151E8	0x000000C0	[ 10] ___exit_env

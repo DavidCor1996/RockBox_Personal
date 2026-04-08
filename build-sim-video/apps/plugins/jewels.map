@@ -1,0 +1,215 @@
+# Path: /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/jewels.elf
+# Arch: arm64
+# Object files:
+[  0] linker synthesized
+[  1] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/jewels.o
+[  2] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/plugin_crt0.o
+[  3] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(playback_control.o)
+[  4] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(highscore.o)
+[  5] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(display_text.o)
+[  6] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/bitmaps/libpluginbitmaps.a(jewels.320x240x16.o)
+[  7] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/libSystem.tbd
+[  8] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/system/libsystem_platform.tbd
+# Sections:
+# Address	Size    	Segment	Section
+0x00000778	0x00002828	__TEXT	__text
+0x00002FA0	0x00000018	__TEXT	__stubs
+0x00002FB8	0x0000023F	__TEXT	__cstring
+0x000031F8	0x0000A288	__TEXT	__const
+0x0000D480	0x00000A38	__TEXT	__eh_frame
+0x00010000	0x00000010	__DATA_CONST	__got
+0x00010010	0x00000188	__DATA_CONST	__const
+0x00014000	0x000004B0	__DATA	__data
+0x000144B0	0x00000008	__DATA	.data
+0x000144B8	0x000000D1	__DATA	__bss
+0x00014590	0x000000D0	__DATA	__common
+# Symbols:
+# Address	Size    	File  Name
+0x00000778	0x00000040	[  1] _jewels_setcolors
+0x000007B8	0x00000338	[  1] _jewels_drawboard
+0x00000AF0	0x00000314	[  1] _jewels_putjewels
+0x00000E04	0x0000019C	[  1] _jewels_runboard
+0x00000FA0	0x000002FC	[  1] _jewels_swapjewels
+0x0000129C	0x000002C0	[  1] _jewels_movesavail
+0x0000155C	0x00000140	[  1] _jewels_initlevel
+0x0000169C	0x00000150	[  1] _jewels_nextlevel
+0x000017EC	0x00000028	[  1] _jewels_menu_cb
+0x00001814	0x000002F4	[  1] _jewels_game_menu
+0x00001B08	0x0000067C	[  1] _plugin_start
+0x00002184	0x00000018	[  2] _cleanup_wrapper
+0x0000219C	0x00000068	[  2] _plugin__start
+0x00002204	0x00000020	[  2] _rb_atexit
+0x00002224	0x00000024	[  2] _exit
+0x00002248	0x00000014	[  2] __exit
+0x0000225C	0x00000064	[  2] _exit_on_usb
+0x000022C0	0x00000028	[  3] _prevtrack
+0x000022E8	0x00000088	[  3] _play
+0x00002370	0x00000028	[  3] _stop
+0x00002398	0x00000028	[  3] _nexttrack
+0x000023C0	0x00000050	[  3] _volume
+0x00002410	0x00000054	[  3] _shuffle
+0x00002464	0x0000008C	[  3] _repeat_mode
+0x000024F0	0x0000000C	[  3] _playback_control_init
+0x000024FC	0x00000048	[  3] _playback_control
+0x00002544	0x00000128	[  4] _highscore_save
+0x0000266C	0x00000174	[  4] _highscore_load
+0x000027E0	0x0000002C	[  4] _highscore_would_update
+0x0000280C	0x000000D8	[  4] _highscore_update
+0x000028E4	0x000002F0	[  4] _highscore_show
+0x00002BD4	0x00000078	[  5] _wait_key_press
+0x00002C4C	0x00000354	[  5] _display_text
+0x00002FA0	0x0000000C	[  8] _longjmp.stub
+0x00002FAC	0x0000000C	[  8] _setjmp.stub
+0x00002FB8	0x00000006	[  1] literal string: Level
+0x00002FBE	0x00000003	[  1] literal string: %d
+0x00002FC1	0x00000009	[  1] literal string: Level %d
+0x00002FCA	0x00000022	[  1] literal string: /.rockbox/rocks/games/jewels.save
+0x00002FEC	0x00000005	[  1] literal string: Mode
+0x00002FF1	0x00000010	[  1] literal string: Saving game ...
+0x00003001	0x00000023	[  1] literal string: /.rockbox/rocks/games/jewels.score
+0x00003024	0x00000011	[  1] literal string: Congratulations!
+0x00003035	0x0000001C	[  1] literal string: You have finished the game!
+0x00003051	0x0000000B	[  1] literal string: Game Over!
+0x0000305C	0x00000001	[  1] literal string: 
+0x0000305D	0x0000000F	[  1] literal string: New High Score
+0x0000306C	0x0000000A	[  1] literal string: Game Over
+0x00003076	0x00000007	[  1] literal string: Jewels
+0x0000307D	0x00000004	[  1] literal string: Aim
+0x00003081	0x00000005	[  1] literal string: Swap
+0x00003086	0x00000006	[  1] literal string: pairs
+0x0000308C	0x00000003	[  1] literal string: of
+0x0000308F	0x00000007	[  1] literal string: jewels
+0x00003096	0x00000003	[  1] literal string: to
+0x00003099	0x00000005	[  1] literal string: form
+0x0000309E	0x0000000A	[  1] literal string: connected
+0x000030A8	0x00000009	[  1] literal string: segments
+0x000030B1	0x00000006	[  1] literal string: three
+0x000030B7	0x00000003	[  1] literal string: or
+0x000030BA	0x00000005	[  1] literal string: more
+0x000030BF	0x00000004	[  1] literal string: the
+0x000030C3	0x00000005	[  1] literal string: same
+0x000030C8	0x00000006	[  1] literal string: type.
+0x000030CE	0x00000004	[  1] literal string: The
+0x000030D2	0x00000005	[  1] literal string: goal
+0x000030D7	0x00000005	[  1] literal string: game
+0x000030DC	0x00000003	[  1] literal string: is
+0x000030DF	0x00000006	[  1] literal string: score
+0x000030E5	0x00000003	[  1] literal string: as
+0x000030E8	0x00000005	[  1] literal string: many
+0x000030ED	0x00000007	[  1] literal string: points
+0x000030F4	0x00000009	[  1] literal string: possible
+0x000030FD	0x00000007	[  1] literal string: before
+0x00003104	0x00000008	[  1] literal string: running
+0x0000310C	0x00000004	[  1] literal string: out
+0x00003110	0x0000000A	[  1] literal string: available
+0x0000311A	0x00000007	[  1] literal string: moves.
+0x00003121	0x00000009	[  1] literal string: Controls
+0x0000312A	0x0000000B	[  1] literal string: Directions
+0x00003135	0x00000007	[  1] literal string: scroll
+0x0000313C	0x00000005	[  1] literal string: move
+0x00003141	0x00000007	[  1] literal string: SELECT
+0x00003148	0x00000007	[  1] literal string: select
+0x0000314F	0x0000000C	[  1] literal string: Long SELECT
+0x0000315B	0x00000003	[  1] literal string: go
+0x0000315E	0x00000005	[  1] literal string: menu
+0x00003163	0x0000000C	[  1] literal string: Resume Game
+0x0000316F	0x0000000F	[  1] literal string: Start New Game
+0x0000317E	0x00000005	[  1] literal string: Help
+0x00003183	0x0000000C	[  1] literal string: High Scores
+0x0000318F	0x00000011	[  1] literal string: Playback Control
+0x000031A0	0x00000014	[  1] literal string: Quit without Saving
+0x000031B4	0x00000005	[  1] literal string: Quit
+0x000031B9	0x00000007	[  1] literal string: Normal
+0x000031C0	0x00000007	[  1] literal string: Puzzle
+0x000031C7	0x00000007	[  3] literal string: Volume
+0x000031CE	0x00000008	[  3] literal string: Shuffle
+0x000031D6	0x00000007	[  3] literal string: Repeat
+0x000031DD	0x0000000A	[  4] literal string: %d:%d:%s\n
+0x000031E7	0x00000004	[  4] literal string: %s\n
+0x000031EB	0x00000006	[  4] literal string: Score
+0x000031F1	0x00000004	[  4] literal string: %d)
+0x000031F5	0x00000002	[  5] literal string:  
+0x000031F8	0x00000004	[  1] _CSWTCH.112
+0x000031FC	0x00000008	[  1] _jewels_bkgd
+0x00003208	0x00000018	[  3] _playback_control_menu__
+0x00003220	0x00000018	[  3] _repeat_mode_item_
+0x00003238	0x00000018	[  3] _shuffle_item_
+0x00003250	0x00000018	[  3] _volume_item_
+0x00003268	0x00000018	[  3] _nexttrack_item_
+0x00003280	0x00000018	[  3] _stop_item_
+0x00003298	0x00000018	[  3] _playpause_item_
+0x000032B0	0x00000018	[  3] _prevtrack_item_
+0x000032C8	0x0000A1B8	[  6] _jewels
+0x0000D480	0x00000018	[  1] CFI
+0x0000D498	0x00000040	[  1] FDE for: _jewels_setcolors
+0x0000D4D8	0x00000070	[  1] FDE for: _jewels_drawboard
+0x0000D548	0x00000068	[  1] FDE for: _jewels_putjewels
+0x0000D5B0	0x00000058	[  1] FDE for: _jewels_runboard
+0x0000D608	0x00000080	[  1] FDE for: _jewels_swapjewels
+0x0000D688	0x00000058	[  1] FDE for: _jewels_movesavail
+0x0000D6E0	0x00000060	[  1] FDE for: _jewels_initlevel
+0x0000D740	0x00000060	[  1] FDE for: _jewels_nextlevel
+0x0000D7A0	0x00000020	[  1] FDE for: _jewels_menu_cb
+0x0000D7C0	0x00000060	[  1] FDE for: _jewels_game_menu
+0x0000D820	0x00000070	[  1] FDE for: _plugin_start
+0x0000D890	0x00000018	[  2] CFI
+0x0000D8A8	0x00000020	[  2] FDE for: _cleanup_wrapper
+0x0000D8C8	0x00000040	[  2] FDE for: _plugin__start
+0x0000D908	0x00000020	[  2] FDE for: _rb_atexit
+0x0000D928	0x00000030	[  2] FDE for: _exit
+0x0000D958	0x00000030	[  2] FDE for: __exit
+0x0000D988	0x00000038	[  2] FDE for: _exit_on_usb
+0x0000D9C0	0x00000018	[  3] CFI
+0x0000D9D8	0x00000038	[  3] FDE for: _prevtrack
+0x0000DA10	0x00000048	[  3] FDE for: _play
+0x0000DA58	0x00000038	[  3] FDE for: _stop
+0x0000DA90	0x00000038	[  3] FDE for: _nexttrack
+0x0000DAC8	0x00000040	[  3] FDE for: _volume
+0x0000DB08	0x00000040	[  3] FDE for: _shuffle
+0x0000DB48	0x00000040	[  3] FDE for: _repeat_mode
+0x0000DB88	0x00000020	[  3] FDE for: _playback_control_init
+0x0000DBA8	0x00000038	[  3] FDE for: _playback_control
+0x0000DBE0	0x00000018	[  4] CFI
+0x0000DBF8	0x00000070	[  4] FDE for: _highscore_save
+0x0000DC68	0x00000070	[  4] FDE for: _highscore_load
+0x0000DCD8	0x00000020	[  4] FDE for: _highscore_would_update
+0x0000DCF8	0x00000068	[  4] FDE for: _highscore_update
+0x0000DD60	0x00000080	[  4] FDE for: _highscore_show
+0x0000DDE0	0x00000018	[  5] CFI
+0x0000DDF8	0x00000050	[  5] FDE for: _wait_key_press
+0x0000DE48	0x00000070	[  5] FDE for: _display_text
+0x00010000	0x00000008	[  8] _longjmp.got
+0x00010008	0x00000008	[  8] _setjmp.got
+0x00010010	0x00000018	[  1] _main_menu__.3
+0x00010028	0x00000018	[  1] _main_menu.5
+0x00010040	0x00000038	[  2] ___header
+0x00010078	0x00000018	[  3] _playback_control_menu
+0x00010090	0x00000018	[  3] _repeat_mode_item
+0x000100A8	0x00000008	[  3] _repeat_mode_item__
+0x000100B0	0x00000018	[  3] _shuffle_item
+0x000100C8	0x00000008	[  3] _shuffle_item__
+0x000100D0	0x00000018	[  3] _volume_item
+0x000100E8	0x00000008	[  3] _volume_item__
+0x000100F0	0x00000018	[  3] _nexttrack_item
+0x00010108	0x00000008	[  3] _nexttrack_item__
+0x00010110	0x00000018	[  3] _stop_item
+0x00010128	0x00000008	[  3] _stop_item__
+0x00010130	0x00000018	[  3] _playpause_item
+0x00010148	0x00000008	[  3] _playpause_item__
+0x00010150	0x00000018	[  3] _prevtrack_item
+0x00010168	0x00000008	[  3] _prevtrack_item__
+0x00010170	0x00000028	[  6] _bm_jewels
+0x00014000	0x00000010	[  1] _formation.0
+0x00014010	0x000001D8	[  1] _help_text.1
+0x000141E8	0x00000040	[  1] _main_menu_.2
+0x00014228	0x00000020	[  1] _mode.4
+0x00014248	0x00000230	[  1] _puzzle_levels
+0x00014478	0x00000038	[  3] _playback_control_menu_
+0x000144B0	0x00000008	[  2] _rb
+0x000144B8	0x00000001	[  1] __ingame
+0x000144B9	0x00000001	[  1] _resume_file
+0x000144C0	0x00000008	[  2] _atexit_handler
+0x000144C8	0x000000C0	[  2] ___exit_env
+0x00014588	0x00000001	[  4] _highscore_updated
+0x00014590	0x000000C8	[  1] _highscores
+0x00014658	0x00000008	[  3] _parentvp

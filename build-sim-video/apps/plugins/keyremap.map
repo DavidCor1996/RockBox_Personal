@@ -1,0 +1,282 @@
+# Path: /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/keyremap.elf
+# Arch: arm64
+# Object files:
+[  0] linker synthesized
+[  1] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/keyremap.o
+[  2] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/plugin_crt0.o
+[  3] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(action_helper.o)
+[  4] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(button_helper.o)
+[  5] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(printcell_helper.o)
+[  6] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(kbd_helper.o)
+[  7] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/libSystem.tbd
+[  8] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/system/libsystem_c.tbd
+[  9] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/system/libsystem_platform.tbd
+# Sections:
+# Address	Size    	Segment	Section
+0x00000780	0x00004320	__TEXT	__text
+0x00004AA0	0x00000018	__TEXT	__stubs
+0x00004AB8	0x00000632	__TEXT	__cstring
+0x000050F0	0x00000FF0	__TEXT	__const
+0x000060E0	0x00000FB8	__TEXT	__eh_frame
+0x00008000	0x00000018	__DATA_CONST	__got
+0x00008018	0x000001C0	__DATA_CONST	__const
+0x0000C000	0x0000019C	__DATA	__data
+0x0000C1A0	0x00000008	__DATA	.data
+0x0000C1A8	0x00000658	__DATA	__bss
+0x0000C800	0x00000008	__DATA	__common
+# Symbols:
+# Address	Size    	File  Name
+0x00000780	0x00000058	[  1] _btnval_to_index
+0x000007D8	0x000000A8	[  1] _keyremap_check_extension
+0x00000880	0x00000060	[  1] _keyremap_reset_buffer
+0x000008E0	0x0000004C	[  1] _keyremap_write_entries
+0x0000092C	0x00000044	[  1] _test_get_context_map
+0x00000970	0x00000074	[  1] _menu_useract_set_positions
+0x000009E4	0x0000009C	[  1] _keymap_add_button_entry
+0x00000A80	0x00000068	[  1] _prompt_filename.constprop.0
+0x00000AE8	0x00000040	[  1] _lang_strlcpy.constprop.0.isra.0
+0x00000B28	0x000000A8	[  1] _btnval_to_name.constprop.0.isra.0
+0x00000BD0	0x000000FC	[  1] _kmffiles_name_cb.isra.0
+0x00000CCC	0x00000088	[  1] _keymap_add_context_entry.isra.0
+0x00000D54	0x00000044	[  1] _ctx_name_and_flag
+0x00000D98	0x000005AC	[  1] _keyremap_import_user_keys
+0x00001344	0x00000298	[  1] _edit_keymap_name_cb
+0x000015DC	0x00000328	[  1] _keyremap_export_user_keys
+0x00001904	0x000002D0	[  1] _list_get_name_cb
+0x00001BD4	0x000000FC	[  1] _list_voice_cb
+0x00001CD0	0x00000238	[  1] _synclist_set.constprop.0
+0x00001F08	0x00000028	[  1] _synclist_set_update.constprop.0
+0x00001F30	0x000002A8	[  1] _keyremap_create_temp
+0x000021D8	0x000000F8	[  1] _keyremap_save_current
+0x000022D0	0x00000114	[  1] _keyremap_save_user_keys
+0x000023E4	0x00000008	[  1] _cleanup
+0x000023EC	0x000003D0	[  1] _menu_action_listfiles.part.0
+0x000027BC	0x00000404	[  1] _menu_action_root
+0x00002BC0	0x00000240	[  1] _menu_action_setkeys
+0x00002E00	0x00000174	[  1] _menu_action_testkeys
+0x00002F74	0x00000030	[  1] _menu_action_listfiles
+0x00002FA4	0x00000390	[  1] _menu_action_submenus
+0x00003334	0x00000260	[  1] _menu_action_cb
+0x00003594	0x00000194	[  1] _plugin_start
+0x00003728	0x00000018	[  2] _cleanup_wrapper
+0x00003740	0x00000068	[  2] _plugin__start
+0x000037A8	0x00000020	[  2] _rb_atexit
+0x000037C8	0x00000024	[  2] _exit
+0x000037EC	0x00000014	[  2] __exit
+0x00003800	0x00000064	[  2] _exit_on_usb
+0x00003864	0x0000009C	[  3] _action_name
+0x00003900	0x000000B4	[  3] _context_name
+0x000039B4	0x000000D8	[  4] _get_button_names
+0x00003A8C	0x00000154	[  5] _draw_selector
+0x00003BE0	0x00000098	[  5] _parse_dsptext.constprop.0
+0x00003C78	0x000007D4	[  5] _printcell_listdraw_fn
+0x0000444C	0x00000080	[  5] _printcell_enable
+0x000044CC	0x000000AC	[  5] _printcell_increment_column
+0x00004578	0x00000020	[  5] _printcell_get_column_selected
+0x00004598	0x0000002C	[  5] _printcell_get_column_visibility
+0x000045C4	0x00000054	[  5] _printcell_set_column_visible
+0x00004618	0x00000264	[  5] _printcell_set_columns
+0x0000487C	0x00000074	[  5] _printcell_get_title_text
+0x000048F0	0x000000D8	[  5] _printcell_get_column_text
+0x000049C8	0x000000D8	[  6] _kbd_create_layout
+0x00004AA0	0x0000000C	[  9] _longjmp.stub
+0x00004AAC	0x0000000C	[  9] _setjmp.stub
+0x00004AB8	0x00000005	[  1] literal string: .kmf
+0x00004ABD	0x00000009	[  1] literal string: .kmf.old
+0x00004AC6	0x00000068	[  1] literal string: abcdefghijklmnop\nqrstuvwxyz |()[]\n1234567890 /._-+\n\n\nABCDEFGHIJKLMNOP\nQRSTUVWXYZ |()[]\n1234567890 /._-+
+0x00004B2E	0x00000003	[  1] literal string: %s
+0x00004B31	0x0000000F	[  1] literal string: BUTTON_UNKNOWN
+0x00004B40	0x00000007	[  1] literal string: Error!
+0x00004B47	0x0000000A	[  1] literal string: /.rockbox
+0x00004B51	0x00000002	[  1] literal string: ?
+0x00004B53	0x00000001	[  1] literal string: 
+0x00004B54	0x0000000E	[  1] literal string: Select Keymap
+0x00004B62	0x00000002	[  1] literal string: /
+0x00004B64	0x00000012	[  1] literal string: Invalid Button %s
+0x00004B76	0x0000000E	[  1] literal string: Error Opening
+0x00004B84	0x00000014	[  1] literal string: Loaded Text Keymap 
+0x00004B98	0x00000010	[  1] literal string: Error @ line %d
+0x00004BA8	0x0000000A	[  1] literal string: $%s = {\n\n
+0x00004BB2	0x0000000C	[  1] literal string: Add Context
+0x00004BBE	0x0000000D	[  1] literal string: $%s$%s$%s$%s
+0x00004BCB	0x00000006	[  1] literal string: %s$%s
+0x00004BD1	0x00000016	[  1] literal string: Select$to add$actions
+0x00004BE7	0x0000000A	[  1] literal string: %s/%s%d%s
+0x00004BF1	0x00000005	[  1] literal string: .txt
+0x00004BF6	0x0000000E	[  1] literal string: user_keyremap
+0x00004C04	0x0000000D	[  1] literal string: Error Saving
+0x00004C11	0x00000029	[  1] literal string: # Key Remap\n# Device: %s\n# Entries: %d\n\n
+0x00004C3A	0x00000011	[  1] literal string: Apple iPod Video
+0x00004C4B	0x00000057	[  1] literal string: # Each entry should be PROPER_CASE and on its own line\n# Comments run to end of line \n
+0x00004CA2	0x00000016	[  1] literal string:     {%s%s, %s, %s},\n\n
+0x00004CB8	0x00000004	[  1] literal string: }\n\n
+0x00004CBC	0x00000003	[  1] literal string: }\n
+0x00004CBF	0x00000009	[  1] literal string: Saved %s
+0x00004CC8	0x0000000C	[  1] literal string: %s: [0x%X] 
+0x00004CD4	0x00000007	[  1] literal string: < %s >
+0x00004CDB	0x0000000B	[  1] literal string: Testing %d
+0x00004CE6	0x0000000B	[  1] literal string: Start test
+0x00004CF1	0x0000001E	[  1] literal string: $Context$Action$Button$PreBtn
+0x00004D0F	0x0000000E	[  1] literal string: Out of Memory
+0x00004D1D	0x00000004	[  1] literal string: %s/
+0x00004D21	0x0000000B	[  1] literal string: Loaded %s 
+0x00004D2C	0x00000012	[  1] literal string: Error Loading %sz
+0x00004D3E	0x0000000F	[  1] literal string: Keymap Applied
+0x00004D4D	0x0000000F	[  1] literal string: Error Applying
+0x00004D5C	0x00000017	[  1] literal string: /.rockbox/keyremap.kmf
+0x00004D73	0x0000001B	[  1] literal string: /.rockbox/keyremap.kmf.old
+0x00004D8E	0x00000006	[  1] literal string: Saved
+0x00004D94	0x0000001F	[  1] literal string: /.rockbox/core_deleted.kmf.old
+0x00004DB3	0x00000008	[  1] literal string: Removed
+0x00004DBB	0x0000000F	[  1] literal string: Error Removing
+0x00004DCA	0x00000018	[  1] literal string: Delete Current Entries?
+0x00004DE2	0x0000001F	[  1] literal string: short press increments columns
+0x00004E01	0x0000000D	[  1] literal string: Save Keymap?
+0x00004E0E	0x00000011	[  1] literal string: Key Remap Plugin
+0x00004E1F	0x0000000C	[  1] literal string: Edit Keymap
+0x00004E2B	0x0000000C	[  1] literal string: Test Keymap
+0x00004E37	0x0000000D	[  1] literal string: Reset Keymap
+0x00004E44	0x00000013	[  1] literal string: Export Text Keymap
+0x00004E57	0x00000013	[  1] literal string: Import Text Keymap
+0x00004E6A	0x00000013	[  1] literal string: Save Native Keymap
+0x00004E7D	0x00000014	[  1] literal string: Load Native Keymaps
+0x00004E91	0x0000000F	[  1] literal string: Delete Keymaps
+0x00004EA0	0x00000010	[  1] literal string: Temp Core Remap
+0x00004EB0	0x0000000F	[  1] literal string: Set Core Remap
+0x00004EBF	0x00000012	[  1] literal string: Remove Core Remap
+0x00004ED1	0x00000008	[  1] literal string: Actions
+0x00004ED9	0x00000008	[  1] literal string: Buttons
+0x00004EE1	0x00000009	[  1] literal string: Contexts
+0x00004EEA	0x00000008	[  1] literal string: UNKNOWN
+0x00004EF2	0x00000008	[  3] literal string: ACTION_
+0x00004EFA	0x00000010	[  3] literal string: ACTION_USB_HID_
+0x00004F0A	0x0000000F	[  3] literal string: ACTION_UNKNOWN
+0x00004F19	0x0000000A	[  3] literal string: %sUNKNOWN
+0x00004F23	0x00000009	[  3] literal string: CONTEXT_
+0x00004F2C	0x00000004	[  4] literal string:  | 
+0x00004F30	0x0000000C	[  4] literal string: BUTTON_NONE
+0x00004F3C	0x0000000E	[  4] literal string: BUTTON_REMOTE
+0x00004F4A	0x0000000E	[  4] literal string: BUTTON_SELECT
+0x00004F58	0x0000000C	[  4] literal string: BUTTON_MENU
+0x00004F64	0x0000000C	[  4] literal string: BUTTON_LEFT
+0x00004F70	0x0000000D	[  4] literal string: BUTTON_RIGHT
+0x00004F7D	0x00000012	[  4] literal string: BUTTON_SCROLL_FWD
+0x00004F8F	0x00000013	[  4] literal string: BUTTON_SCROLL_BACK
+0x00004FA2	0x0000000C	[  4] literal string: BUTTON_PLAY
+0x00004FAE	0x0000000B	[  4] literal string: BUTTON_REL
+0x00004FB9	0x0000000E	[  4] literal string: BUTTON_REPEAT
+0x00004FC7	0x00000013	[  4] literal string: BUTTON_TOUCHSCREEN
+0x00004FDA	0x00000012	[  4] literal string: BUTTON_MULTIMEDIA
+0x00004FEC	0x0000000E	[  4] literal string: BUTTON_REDRAW
+0x00004FFA	0x00000017	[  4] literal string: BUTTON_MULTIMEDIA_FFWD
+0x00005011	0x00000016	[  4] literal string: BUTTON_MULTIMEDIA_ALL
+0x00005027	0x00000017	[  4] literal string: BUTTON_MULTIMEDIA_STOP
+0x0000503E	0x0000001C	[  4] literal string: BUTTON_MULTIMEDIA_PLAYPAUSE
+0x0000505A	0x00000017	[  4] literal string: BUTTON_MULTIMEDIA_NEXT
+0x00005071	0x00000016	[  4] literal string: BUTTON_MULTIMEDIA_REW
+0x00005087	0x00000017	[  4] literal string: BUTTON_MULTIMEDIA_PREV
+0x0000509E	0x0000000C	[  4] literal string: BUTTON_MAIN
+0x000050AA	0x00000006	[  5] literal string: $1I$t
+0x000050B0	0x00000003	[  5] literal string: $t
+0x000050B3	0x0000000F	[  5] literal string: $*s$1I$i$1s$*t
+0x000050C2	0x0000000A	[  5] literal string: $*s$1I$*t
+0x000050CC	0x00000007	[  5] literal string: $*s$*t
+0x000050D3	0x00000015	[  5] literal string: $PRINTCELL NOT SETUP
+0x000050E8	0x00000002	[  5] literal string: W
+0x000050F0	0x00000002	[  1] lC16
+0x000050F8	0x00000008	[  3] _action_helper_maxbuffer
+0x00005100	0x00000186	[  3] _action_offsets
+0x00005286	0x00000174	[  3] _context_names
+0x000053FA	0x00000CD0	[  3] _action_names
+0x000060D0	0x00000004	[  4] _available_button_count
+0x000060D4	0x00000004	[  4] lC23
+0x000060D8	0x00000008	[  4] _button_helper_maxbuffer
+0x000060E0	0x00000018	[  1] CFI
+0x000060F8	0x00000020	[  1] FDE for: _btnval_to_index
+0x00006118	0x00000058	[  1] FDE for: _keyremap_check_extension
+0x00006170	0x00000040	[  1] FDE for: _keyremap_reset_buffer
+0x000061B0	0x00000038	[  1] FDE for: _keyremap_write_entries
+0x000061E8	0x00000020	[  1] FDE for: _test_get_context_map
+0x00006208	0x00000020	[  1] FDE for: _menu_useract_set_positions
+0x00006228	0x00000038	[  1] FDE for: _keymap_add_button_entry
+0x00006260	0x00000048	[  1] FDE for: _prompt_filename.constprop.0
+0x000062A8	0x00000020	[  1] FDE for: _lang_strlcpy.constprop.0.isra.0
+0x000062C8	0x00000050	[  1] FDE for: _btnval_to_name.constprop.0.isra.0
+0x00006318	0x00000068	[  1] FDE for: _kmffiles_name_cb.isra.0
+0x00006380	0x00000020	[  1] FDE for: _keymap_add_context_entry.isra.0
+0x000063A0	0x00000020	[  1] FDE for: _ctx_name_and_flag
+0x000063C0	0x00000078	[  1] FDE for: _keyremap_import_user_keys
+0x00006438	0x00000070	[  1] FDE for: _edit_keymap_name_cb
+0x000064A8	0x00000078	[  1] FDE for: _keyremap_export_user_keys
+0x00006520	0x000000B8	[  1] FDE for: _list_get_name_cb
+0x000065D8	0x00000048	[  1] FDE for: _list_voice_cb
+0x00006620	0x00000080	[  1] FDE for: _synclist_set.constprop.0
+0x000066A0	0x00000020	[  1] FDE for: _synclist_set_update.constprop.0
+0x000066C0	0x00000060	[  1] FDE for: _keyremap_create_temp
+0x00006720	0x00000058	[  1] FDE for: _keyremap_save_current
+0x00006778	0x00000070	[  1] FDE for: _keyremap_save_user_keys
+0x000067E8	0x00000020	[  1] FDE for: _cleanup
+0x00006808	0x00000070	[  1] FDE for: _menu_action_listfiles.part.0
+0x00006878	0x00000060	[  1] FDE for: _menu_action_root
+0x000068D8	0x00000068	[  1] FDE for: _menu_action_setkeys
+0x00006940	0x00000048	[  1] FDE for: _menu_action_testkeys
+0x00006988	0x00000038	[  1] FDE for: _menu_action_listfiles
+0x000069C0	0x00000048	[  1] FDE for: _menu_action_submenus
+0x00006A08	0x00000060	[  1] FDE for: _menu_action_cb
+0x00006A68	0x00000068	[  1] FDE for: _plugin_start
+0x00006AD0	0x00000018	[  2] CFI
+0x00006AE8	0x00000020	[  2] FDE for: _cleanup_wrapper
+0x00006B08	0x00000040	[  2] FDE for: _plugin__start
+0x00006B48	0x00000020	[  2] FDE for: _rb_atexit
+0x00006B68	0x00000030	[  2] FDE for: _exit
+0x00006B98	0x00000030	[  2] FDE for: __exit
+0x00006BC8	0x00000038	[  2] FDE for: _exit_on_usb
+0x00006C00	0x00000018	[  3] CFI
+0x00006C18	0x00000050	[  3] FDE for: _action_name
+0x00006C68	0x00000050	[  3] FDE for: _context_name
+0x00006CB8	0x00000018	[  4] CFI
+0x00006CD0	0x00000060	[  4] FDE for: _get_button_names
+0x00006D30	0x00000018	[  5] CFI
+0x00006D48	0x00000078	[  5] FDE for: _draw_selector
+0x00006DC0	0x00000020	[  5] FDE for: _parse_dsptext.constprop.0
+0x00006DE0	0x00000068	[  5] FDE for: _printcell_listdraw_fn
+0x00006E48	0x00000020	[  5] FDE for: _printcell_enable
+0x00006E68	0x00000050	[  5] FDE for: _printcell_increment_column
+0x00006EB8	0x00000020	[  5] FDE for: _printcell_get_column_selected
+0x00006ED8	0x00000020	[  5] FDE for: _printcell_get_column_visibility
+0x00006EF8	0x00000020	[  5] FDE for: _printcell_set_column_visible
+0x00006F18	0x00000070	[  5] FDE for: _printcell_set_columns
+0x00006F88	0x00000038	[  5] FDE for: _printcell_get_title_text
+0x00006FC0	0x00000058	[  5] FDE for: _printcell_get_column_text
+0x00007018	0x00000018	[  6] CFI
+0x00007030	0x00000068	[  6] FDE for: _kbd_create_layout
+0x00008000	0x00000008	[  8] __DefaultRuneLocale.got
+0x00008008	0x00000008	[  9] _longjmp.got
+0x00008010	0x00000008	[  9] _setjmp.got
+0x00008018	0x00000010	[  1] _context_flags
+0x00008028	0x00000038	[  2] ___header
+0x00008060	0x00000008	[  4] _available_buttons
+0x00008068	0x00000170	[  4] _buttons
+0x0000C000	0x00000198	[  1] _mainmenu
+0x0000C198	0x00000004	[  5] _list_sep_color.2
+0x0000C1A0	0x00000008	[  2] _rb
+0x0000C1A8	0x00000004	[  1] _last_count.1
+0x0000C1AC	0x00000040	[  1] _menu_title.2
+0x0000C1EC	0x000000A0	[  1] _buf_prebtn.4
+0x0000C28C	0x000000A4	[  1] _buf_button.5
+0x0000C330	0x00000018	[  1] _empty.6
+0x0000C348	0x00000028	[  1] _mlastsel
+0x0000C370	0x00000090	[  1] _lists
+0x0000C400	0x00000008	[  1] _core_savecount
+0x0000C408	0x00000020	[  1] _ctx_menu_data
+0x0000C428	0x00000018	[  1] _keytest
+0x0000C440	0x00000010	[  1] _keyset
+0x0000C450	0x00000020	[  1] _ctx_data
+0x0000C470	0x00000020	[  1] _keyremap_buffer
+0x0000C490	0x00000008	[  2] _atexit_handler
+0x0000C498	0x000000C0	[  2] ___exit_env
+0x0000C558	0x0000002E	[  3] _name_buf
+0x0000C588	0x00000020	[  5] _sidx.0
+0x0000C5A8	0x00000108	[  5] _printcell_buffer.1
+0x0000C6B0	0x00000150	[  5] _printcell
+0x0000C800	0x00000008	[  1] _kmffiles_dirp

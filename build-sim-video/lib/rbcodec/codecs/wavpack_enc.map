@@ -1,0 +1,242 @@
+# Path: /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/wavpack_enc.elf
+# Arch: arm64
+# Object files:
+[  0] linker synthesized
+[  1] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/wavpack_enc.o
+[  2] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/codec_crt0.o
+[  3] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libwavpack.a(bits.o)
+[  4] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libwavpack.a(float.o)
+[  5] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libwavpack.a(metadata.o)
+[  6] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libwavpack.a(unpack.o)
+[  7] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libwavpack.a(pack.o)
+[  8] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libwavpack.a(words.o)
+[  9] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libwavpack.a(wputils.o)
+[ 10] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+[ 11] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/libSystem.tbd
+[ 12] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/system/libsystem_c.tbd
+# Sections:
+# Address	Size    	Segment	Section
+0x000006E8	0x0000504C	__TEXT	__text
+0x00005734	0x0000000C	__TEXT	__stubs
+0x00005740	0x00000680	__TEXT	__const
+0x00005DC0	0x00000051	__TEXT	__cstring
+0x00005E18	0x00001278	__TEXT	__eh_frame
+0x00008000	0x00000008	__DATA_CONST	__got
+0x00008008	0x00000048	__DATA_CONST	__const
+0x0000C000	0x00000008	__DATA	.data
+0x0000C008	0x0000A698	__DATA	__bss
+# Symbols:
+# Address	Size    	File  Name
+0x000006E8	0x00000030	[  1] _sample_to_int32
+0x00000718	0x00000190	[  1] _codec_run
+0x000008A8	0x000002B0	[  1] _enc_callback
+0x00000B58	0x00000024	[  1] _codec_main
+0x00000B7C	0x00000008	[  2] __start
+0x00000B84	0x00000004	[  2] _codec_start
+0x00000B88	0x00000014	[  3] _bs_write
+0x00000B9C	0x0000009C	[  3] _bs_read
+0x00000C38	0x00000078	[  3] _bs_open_read
+0x00000CB0	0x0000001C	[  3] _bs_open_write
+0x00000CCC	0x000000A8	[  3] _bs_close_write
+0x00000D74	0x00000014	[  3] _little_endian_to_native
+0x00000D88	0x00000004	[  3] _native_to_little_endian
+0x00000D8C	0x00000040	[  4] _read_float_info
+0x00000DCC	0x00000094	[  4] _float_values
+0x00000E60	0x0000019C	[  5] _read_metadata_buff
+0x00000FFC	0x000000A4	[  5] _process_metadata
+0x000010A0	0x00000130	[  5] _copy_metadata
+0x000011D0	0x00000008	[  5] _free_metadata
+0x000011D8	0x0000070C	[  6] _decorr_stereo_pass
+0x000018E4	0x00000138	[  6] _unpack_init
+0x00001A1C	0x00000050	[  6] _init_wv_bitstream
+0x00001A6C	0x00000098	[  6] _read_decorr_terms
+0x00001B04	0x000000E0	[  6] _read_decorr_weights
+0x00001BE4	0x0000018C	[  6] _read_decorr_samples
+0x00001D70	0x00000040	[  6] _read_int32_info
+0x00001DB0	0x0000005C	[  6] _read_channel_info
+0x00001E0C	0x00000044	[  6] _read_config_info
+0x00001E50	0x00000038	[  6] _read_sample_rate
+0x00001E88	0x00000D50	[  6] _unpack_samples
+0x00002BD8	0x00000014	[  6] _check_crc_error
+0x00002BEC	0x000000E0	[  7] _pack_init
+0x00002CCC	0x000003B4	[  7] _pack_start_block
+0x00003080	0x000004D4	[  7] _pack_samples
+0x00003554	0x00000138	[  7] _pack_finish_block
+0x0000368C	0x00000098	[  8] _mylog2
+0x00003724	0x00000010	[  8] _init_words
+0x00003734	0x00000588	[  8] _flush_word
+0x00003CBC	0x0000038C	[  8] _send_words
+0x00004048	0x00000024	[  8] _log2s
+0x0000406C	0x00000050	[  8] _exp2s
+0x000040BC	0x00000098	[  8] _read_entropy_vars
+0x00004154	0x00000090	[  8] _write_entropy_vars
+0x000041E4	0x000000C4	[  8] _read_hybrid_profile
+0x000042A8	0x00000958	[  8] _get_words
+0x00004C00	0x0000003C	[  8] _store_weight
+0x00004C3C	0x00000018	[  8] _restore_weight
+0x00004C54	0x00000018	[  9] _strcpy_loc
+0x00004C6C	0x00000180	[  9] _read_next_header
+0x00004DEC	0x000001A0	[  9] _WavpackOpenFileInput
+0x00004F8C	0x00000054	[  9] _WavpackGetMode
+0x00004FE0	0x000001D0	[  9] _WavpackUnpackSamples
+0x000051B0	0x00000014	[  9] _WavpackGetNumSamples
+0x000051C4	0x00000014	[  9] _WavpackGetSampleIndex
+0x000051D8	0x00000014	[  9] _WavpackGetNumErrors
+0x000051EC	0x00000014	[  9] _WavpackLossyBlocks
+0x00005200	0x00000014	[  9] _WavpackGetSampleRate
+0x00005214	0x00000014	[  9] _WavpackGetNumChannels
+0x00005228	0x00000014	[  9] _WavpackGetBitsPerSample
+0x0000523C	0x00000014	[  9] _WavpackGetBytesPerSample
+0x00005250	0x00000020	[  9] _WavpackGetReducedChannels
+0x00005270	0x00000030	[  9] _WavpackOpenFileOutput
+0x000052A0	0x00000134	[  9] _WavpackSetConfiguration
+0x000053D4	0x0000000C	[  9] _WavpackAddWrapper
+0x000053E0	0x00000008	[  9] _WavpackStartBlock
+0x000053E8	0x00000054	[  9] _WavpackPackSamples
+0x0000543C	0x00000038	[  9] _WavpackFinishBlock
+0x00005474	0x00000048	[  9] _WavpackUpdateNumSamples
+0x000054BC	0x00000014	[  9] _WavpackGetWrapperLocation
+0x000054D0	0x00000040	[ 10] _codec_init
+0x00005510	0x00000048	[ 10] _codec_set_replaygain
+0x00005558	0x00000048	[ 10] _codec_malloc
+0x000055A0	0x0000004C	[ 10] _codec_calloc
+0x000055EC	0x00000004	[ 10] _codec_free
+0x000055F0	0x00000054	[ 10] _codec_realloc
+0x00005644	0x00000018	[ 10] _codec_strlen
+0x0000565C	0x00000018	[ 10] _strcpy
+0x00005674	0x00000018	[ 10] _strcat
+0x0000568C	0x00000018	[ 10] _strcmp
+0x000056A4	0x00000018	[ 10] _memcpy
+0x000056BC	0x00000018	[ 10] _memset
+0x000056D4	0x00000018	[ 10] _memcmp
+0x000056EC	0x00000018	[ 10] _memchr
+0x00005704	0x00000018	[ 10] _memmove
+0x0000571C	0x00000018	[ 10] _qsort
+0x00005734	0x0000000C	[ 12] _labs.stub
+0x00005740	0x0000002C	[  1] _riff_template_header
+0x0000576C	0x00000002	[  1] _wvpk_mdh
+0x0000576E	0x00000003	[  7] _fast_terms
+0x00005771	0x0000000D	[  7] _high_terms
+0x0000577E	0x00000006	[  7] _default_terms
+0x00005784	0x00000100	[  8] _ones_count_table
+0x00005884	0x00000100	[  8] _exp2_table
+0x00005984	0x00000100	[  8] _log2_table
+0x00005A84	0x00000100	[  8] _nbits_table
+0x00005B84	0x0000003C	[  9] _sample_rates
+0x00005BC0	0x00000100	[ 10] _bs_clz_tab
+0x00005CC0	0x00000100	[ 10] _bs_log2_tab
+0x00005DC0	0x00000012	[  6] literal string: invalid metadata!
+0x00005DD2	0x00000016	[  6] literal string: invalid WavPack file!
+0x00005DE8	0x0000000A	[  9] literal string: 4LS2LLLLL
+0x00005DF2	0x00000005	[  9] literal string: wvpk
+0x00005DF7	0x0000001A	[  9] literal string: output buffer overflowed!
+0x00005E18	0x00000018	[  1] CFI
+0x00005E30	0x00000020	[  1] FDE for: _sample_to_int32
+0x00005E50	0x00000058	[  1] FDE for: _codec_run
+0x00005EA8	0x00000050	[  1] FDE for: _enc_callback
+0x00005EF8	0x00000038	[  1] FDE for: _codec_main
+0x00005F30	0x00000018	[  2] CFI
+0x00005F48	0x00000020	[  2] FDE for: __start
+0x00005F68	0x00000020	[  2] FDE for: _codec_start
+0x00005F88	0x00000018	[  3] CFI
+0x00005FA0	0x00000020	[  3] FDE for: _bs_write
+0x00005FC0	0x00000048	[  3] FDE for: _bs_read
+0x00006008	0x00000060	[  3] FDE for: _bs_open_read
+0x00006068	0x00000020	[  3] FDE for: _bs_open_write
+0x00006088	0x00000048	[  3] FDE for: _bs_close_write
+0x000060D0	0x00000020	[  3] FDE for: _little_endian_to_native
+0x000060F0	0x00000020	[  3] FDE for: _native_to_little_endian
+0x00006110	0x00000018	[  4] CFI
+0x00006128	0x00000020	[  4] FDE for: _read_float_info
+0x00006148	0x00000020	[  4] FDE for: _float_values
+0x00006168	0x00000018	[  5] CFI
+0x00006180	0x00000058	[  5] FDE for: _read_metadata_buff
+0x000061D8	0x00000020	[  5] FDE for: _process_metadata
+0x000061F8	0x00000048	[  5] FDE for: _copy_metadata
+0x00006240	0x00000020	[  5] FDE for: _free_metadata
+0x00006260	0x00000018	[  6] CFI
+0x00006278	0x00000058	[  6] FDE for: _decorr_stereo_pass
+0x000062D0	0x00000048	[  6] FDE for: _unpack_init
+0x00006318	0x00000040	[  6] FDE for: _init_wv_bitstream
+0x00006358	0x00000020	[  6] FDE for: _read_decorr_terms
+0x00006378	0x00000050	[  6] FDE for: _read_decorr_weights
+0x000063C8	0x00000060	[  6] FDE for: _read_decorr_samples
+0x00006428	0x00000020	[  6] FDE for: _read_int32_info
+0x00006448	0x00000020	[  6] FDE for: _read_channel_info
+0x00006468	0x00000020	[  6] FDE for: _read_config_info
+0x00006488	0x00000020	[  6] FDE for: _read_sample_rate
+0x000064A8	0x00000070	[  6] FDE for: _unpack_samples
+0x00006518	0x00000020	[  6] FDE for: _check_crc_error
+0x00006538	0x00000018	[  7] CFI
+0x00006550	0x00000050	[  7] FDE for: _pack_init
+0x000065A0	0x00000068	[  7] FDE for: _pack_start_block
+0x00006608	0x00000060	[  7] FDE for: _pack_samples
+0x00006668	0x00000060	[  7] FDE for: _pack_finish_block
+0x000066C8	0x00000018	[  8] CFI
+0x000066E0	0x00000020	[  8] FDE for: _mylog2
+0x00006700	0x00000020	[  8] FDE for: _init_words
+0x00006720	0x00000058	[  8] FDE for: _flush_word
+0x00006778	0x00000078	[  8] FDE for: _send_words
+0x000067F0	0x00000038	[  8] FDE for: _log2s
+0x00006828	0x00000020	[  8] FDE for: _exp2s
+0x00006848	0x00000048	[  8] FDE for: _read_entropy_vars
+0x00006890	0x00000040	[  8] FDE for: _write_entropy_vars
+0x000068D0	0x00000040	[  8] FDE for: _read_hybrid_profile
+0x00006910	0x00000070	[  8] FDE for: _get_words
+0x00006980	0x00000020	[  8] FDE for: _store_weight
+0x000069A0	0x00000020	[  8] FDE for: _restore_weight
+0x000069C0	0x00000018	[  9] CFI
+0x000069D8	0x00000020	[  9] FDE for: _strcpy_loc
+0x000069F8	0x00000060	[  9] FDE for: _read_next_header
+0x00006A58	0x00000058	[  9] FDE for: _WavpackOpenFileInput
+0x00006AB0	0x00000020	[  9] FDE for: _WavpackGetMode
+0x00006AD0	0x00000060	[  9] FDE for: _WavpackUnpackSamples
+0x00006B30	0x00000020	[  9] FDE for: _WavpackGetNumSamples
+0x00006B50	0x00000020	[  9] FDE for: _WavpackGetSampleIndex
+0x00006B70	0x00000020	[  9] FDE for: _WavpackGetNumErrors
+0x00006B90	0x00000020	[  9] FDE for: _WavpackLossyBlocks
+0x00006BB0	0x00000020	[  9] FDE for: _WavpackGetSampleRate
+0x00006BD0	0x00000020	[  9] FDE for: _WavpackGetNumChannels
+0x00006BF0	0x00000020	[  9] FDE for: _WavpackGetBitsPerSample
+0x00006C10	0x00000020	[  9] FDE for: _WavpackGetBytesPerSample
+0x00006C30	0x00000020	[  9] FDE for: _WavpackGetReducedChannels
+0x00006C50	0x00000040	[  9] FDE for: _WavpackOpenFileOutput
+0x00006C90	0x00000040	[  9] FDE for: _WavpackSetConfiguration
+0x00006CD0	0x00000020	[  9] FDE for: _WavpackAddWrapper
+0x00006CF0	0x00000020	[  9] FDE for: _WavpackStartBlock
+0x00006D10	0x00000050	[  9] FDE for: _WavpackPackSamples
+0x00006D60	0x00000040	[  9] FDE for: _WavpackFinishBlock
+0x00006DA0	0x00000048	[  9] FDE for: _WavpackUpdateNumSamples
+0x00006DE8	0x00000020	[  9] FDE for: _WavpackGetWrapperLocation
+0x00006E08	0x00000018	[ 10] CFI
+0x00006E20	0x00000038	[ 10] FDE for: _codec_init
+0x00006E58	0x00000038	[ 10] FDE for: _codec_set_replaygain
+0x00006E90	0x00000020	[ 10] FDE for: _codec_malloc
+0x00006EB0	0x00000040	[ 10] FDE for: _codec_calloc
+0x00006EF0	0x00000020	[ 10] FDE for: _codec_free
+0x00006F10	0x00000040	[ 10] FDE for: _codec_realloc
+0x00006F50	0x00000020	[ 10] FDE for: _codec_strlen
+0x00006F70	0x00000020	[ 10] FDE for: _strcpy
+0x00006F90	0x00000020	[ 10] FDE for: _strcat
+0x00006FB0	0x00000020	[ 10] FDE for: _strcmp
+0x00006FD0	0x00000020	[ 10] FDE for: _memcpy
+0x00006FF0	0x00000020	[ 10] FDE for: _memset
+0x00007010	0x00000020	[ 10] FDE for: _memcmp
+0x00007030	0x00000020	[ 10] FDE for: _memchr
+0x00007050	0x00000020	[ 10] FDE for: _memmove
+0x00007070	0x00000020	[ 10] FDE for: _qsort
+0x00008000	0x00000008	[ 12] _labs.got
+0x00008008	0x00000048	[  1] ___header
+0x0000C000	0x00000008	[  2] _ci
+0x0000C008	0x00000008	[  1] _frame_size
+0x0000C010	0x00000008	[  1] _out_reqsize
+0x0000C018	0x00000004	[  1] _total_samples
+0x0000C01C	0x00000004	[  1] _num_channels
+0x0000C020	0x00000008	[  1] _sample_rate
+0x0000C028	0x00000008	[  1] _wpc
+0x0000C030	0x0000001C	[  1] _config
+0x0000C04C	0x00009C40	[  1] _input_buffer
+0x00015C90	0x000009F8	[  9] _wpc
+0x00016688	0x00000008	[ 10] _mallocbuf
+0x00016690	0x00000008	[ 10] _bufsize
+0x00016698	0x00000008	[ 10] _mem_ptr

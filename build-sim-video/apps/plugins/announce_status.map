@@ -1,0 +1,173 @@
+# Path: /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/announce_status.elf
+# Arch: arm64
+# Object files:
+[  0] linker synthesized
+[  1] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/announce_status.o
+[  2] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/plugin_crt0.o
+[  3] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(helper.o)
+[  4] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(configfile.o)
+[  5] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(kbd_helper.o)
+[  6] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/libSystem.tbd
+[  7] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/system/libsystem_c.tbd
+[  8] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/system/libsystem_platform.tbd
+# Sections:
+# Address	Size    	Segment	Section
+0x00000730	0x00001C1C	__TEXT	__text
+0x0000234C	0x00000024	__TEXT	__stubs
+0x00002370	0x000000E9	__TEXT	__cstring
+0x00002460	0x00000093	__TEXT	__const
+0x000024F8	0x00000B98	__TEXT	__eh_frame
+0x00004000	0x00000020	__DATA_CONST	__got
+0x00004020	0x00000080	__DATA_CONST	__const
+0x00008000	0x000001C1	__DATA	__data
+0x000081C8	0x00000008	__DATA	.data
+0x000081D0	0x000383B8	__DATA	__bss
+# Symbols:
+# Address	Size    	File  Name
+0x00000730	0x00000028	[  1] _config_set_defaults
+0x00000758	0x00000030	[  1] _icon_callback
+0x00000788	0x000000BC	[  1] _check_user_input
+0x00000844	0x000004C0	[  1] _voice_info_group
+0x00000D04	0x0000003C	[  1] _playback_event_callback
+0x00000D40	0x00000070	[  1] _announce_test
+0x00000DB0	0x00000094	[  1] _announce_add
+0x00000E44	0x00000238	[  1] _announce_menu_cb
+0x0000107C	0x000001D4	[  1] _settings_menu
+0x00001250	0x00000148	[  1] _announce
+0x00001398	0x00000174	[  1] _thread
+0x0000150C	0x00000094	[  1] _thread_create
+0x000015A0	0x00000094	[  1] _thread_quit
+0x00001634	0x00000068	[  1] _exit_tsr
+0x0000169C	0x00000140	[  1] _plugin_main
+0x000017DC	0x000000E0	[  1] _plugin_start
+0x000018BC	0x00000018	[  2] _cleanup_wrapper
+0x000018D4	0x00000068	[  2] _plugin__start
+0x0000193C	0x00000020	[  2] _rb_atexit
+0x0000195C	0x00000024	[  2] _exit
+0x00001980	0x00000014	[  2] __exit
+0x00001994	0x00000064	[  2] _exit_on_usb
+0x000019F8	0x00000020	[  3] _talk_val
+0x00001A18	0x00000040	[  3] _backlight_force_on
+0x00001A58	0x0000006C	[  3] _backlight_ignore_timeout
+0x00001AC4	0x00000048	[  3] _backlight_use_settings
+0x00001B0C	0x00000044	[  3] _sw_poweroff_disable
+0x00001B50	0x00000020	[  3] _sw_poweroff_restore
+0x00001B70	0x00000004	[  3] _remote_backlight_force_on
+0x00001B74	0x00000004	[  3] _remote_backlight_ignore_timeout
+0x00001B78	0x00000004	[  3] _remote_backlight_use_settings
+0x00001B7C	0x00000004	[  3] _buttonlight_force_on
+0x00001B80	0x00000004	[  3] _buttonlight_force_off
+0x00001B84	0x00000004	[  3] _buttonlight_ignore_timeout
+0x00001B88	0x00000004	[  3] _buttonlight_use_settings
+0x00001B8C	0x00000018	[  3] _backlight_brightness_set
+0x00001BA4	0x00000020	[  3] _backlight_brightness_use_setting
+0x00001BC4	0x00000004	[  3] _buttonlight_brightness_set
+0x00001BC8	0x00000004	[  3] _buttonlight_brightness_use_setting
+0x00001BCC	0x000000E8	[  4] _get_cfg_filename.constprop.0
+0x00001CB4	0x00000160	[  4] _configfile_save
+0x00001E14	0x00000228	[  4] _configfile_load
+0x0000203C	0x000000E0	[  4] _configfile_get_value
+0x0000211C	0x00000158	[  4] _configfile_update_entry
+0x00002274	0x000000D8	[  5] _kbd_create_layout
+0x0000234C	0x0000000C	[  7] ___toupper.stub
+0x00002358	0x0000000C	[  8] _longjmp.stub
+0x00002364	0x0000000C	[  8] _setjmp.stub
+0x00002370	0x00000007	[  1] literal string: D1Dt ;
+0x00002377	0x00000007	[  1] literal string: D2Dd ;
+0x0000237E	0x00000011	[  1] literal string: TT TA T1TeT2Tr ;
+0x0000238F	0x0000000C	[  1] literal string: P1PC P2PN ;
+0x0000239B	0x00000007	[  1] literal string: B1Bp ;
+0x000023A2	0x00000009	[  1] literal string: R2RsR3 ;
+0x000023AB	0x00000007	[  1] literal string: R1Rt ;
+0x000023B2	0x0000000E	[  1] literal string: /VoiceTSR.cfg
+0x000023C0	0x00000002	[  1] literal string: s
+0x000023C2	0x00000001	[  1] literal string: 
+0x000023C3	0x00000006	[  1] literal string: D1Dt 
+0x000023C9	0x00000005	[  1] literal string: vTSR
+0x000023CE	0x00000003	[  1] literal string: %s
+0x000023D1	0x00000009	[  1] literal string: Interval
+0x000023DA	0x00000009	[  1] literal string: Announce
+0x000023E3	0x00000009	[  1] literal string: Grouping
+0x000023EC	0x00000006	[  1] literal string: Added
+0x000023F2	0x00000007	[  1] literal string: Prompt
+0x000023F9	0x00000008	[  1] literal string: Enqueue
+0x00002401	0x00000004	[  1] literal string: Fmt
+0x00002405	0x0000000A	[  4] literal string: /.rockbox
+0x0000240F	0x00000004	[  4] literal string: /%s
+0x00002413	0x00000013	[  4] literal string: /.rockbox/rocks/%s
+0x00002426	0x00000014	[  4] literal string: file version: %10d\n
+0x0000243A	0x0000000A	[  4] literal string: %s: %10d\n
+0x00002444	0x00000008	[  4] literal string: %s: %s\n
+0x0000244C	0x0000000D	[  4] literal string: file version
+0x00002460	0x00000018	[  1] _settings_menu__.4
+0x00002478	0x00000020	[  1] _announce_options.5
+0x00002498	0x00000004	[  1] _gCfg_sz
+0x0000249C	0x00000057	[  1] _keybd_layout
+0x000024F8	0x00000018	[  1] CFI
+0x00002510	0x00000020	[  1] FDE for: _config_set_defaults
+0x00002530	0x00000020	[  1] FDE for: _icon_callback
+0x00002550	0x00000050	[  1] FDE for: _check_user_input
+0x000025A0	0x00000068	[  1] FDE for: _voice_info_group
+0x00002608	0x00000020	[  1] FDE for: _playback_event_callback
+0x00002628	0x00000050	[  1] FDE for: _announce_test
+0x00002678	0x00000060	[  1] FDE for: _announce_add
+0x000026D8	0x00000058	[  1] FDE for: _announce_menu_cb
+0x00002730	0x00000058	[  1] FDE for: _settings_menu
+0x00002788	0x00000070	[  1] FDE for: _announce
+0x000027F8	0x00000068	[  1] FDE for: _thread
+0x00002860	0x00000040	[  1] FDE for: _thread_create
+0x000028A0	0x00000050	[  1] FDE for: _thread_quit
+0x000028F0	0x00000040	[  1] FDE for: _exit_tsr
+0x00002930	0x00000060	[  1] FDE for: _plugin_main
+0x00002990	0x00000068	[  1] FDE for: _plugin_start
+0x000029F8	0x00000018	[  2] CFI
+0x00002A10	0x00000020	[  2] FDE for: _cleanup_wrapper
+0x00002A30	0x00000040	[  2] FDE for: _plugin__start
+0x00002A70	0x00000020	[  2] FDE for: _rb_atexit
+0x00002A90	0x00000030	[  2] FDE for: _exit
+0x00002AC0	0x00000030	[  2] FDE for: __exit
+0x00002AF0	0x00000038	[  2] FDE for: _exit_on_usb
+0x00002B28	0x00000018	[  3] CFI
+0x00002B40	0x00000020	[  3] FDE for: _talk_val
+0x00002B60	0x00000040	[  3] FDE for: _backlight_force_on
+0x00002BA0	0x00000050	[  3] FDE for: _backlight_ignore_timeout
+0x00002BF0	0x00000040	[  3] FDE for: _backlight_use_settings
+0x00002C30	0x00000040	[  3] FDE for: _sw_poweroff_disable
+0x00002C70	0x00000020	[  3] FDE for: _sw_poweroff_restore
+0x00002C90	0x00000020	[  3] FDE for: _remote_backlight_force_on
+0x00002CB0	0x00000020	[  3] FDE for: _remote_backlight_ignore_timeout
+0x00002CD0	0x00000020	[  3] FDE for: _remote_backlight_use_settings
+0x00002CF0	0x00000020	[  3] FDE for: _buttonlight_force_on
+0x00002D10	0x00000020	[  3] FDE for: _buttonlight_force_off
+0x00002D30	0x00000020	[  3] FDE for: _buttonlight_ignore_timeout
+0x00002D50	0x00000020	[  3] FDE for: _buttonlight_use_settings
+0x00002D70	0x00000020	[  3] FDE for: _backlight_brightness_set
+0x00002D90	0x00000020	[  3] FDE for: _backlight_brightness_use_setting
+0x00002DB0	0x00000020	[  3] FDE for: _buttonlight_brightness_set
+0x00002DD0	0x00000020	[  3] FDE for: _buttonlight_brightness_use_setting
+0x00002DF0	0x00000018	[  4] CFI
+0x00002E08	0x00000068	[  4] FDE for: _get_cfg_filename.constprop.0
+0x00002E70	0x00000070	[  4] FDE for: _configfile_save
+0x00002EE0	0x00000068	[  4] FDE for: _configfile_load
+0x00002F48	0x00000058	[  4] FDE for: _configfile_get_value
+0x00002FA0	0x00000070	[  4] FDE for: _configfile_update_entry
+0x00003010	0x00000018	[  5] CFI
+0x00003028	0x00000068	[  5] FDE for: _kbd_create_layout
+0x00004000	0x00000008	[  7] __DefaultRuneLocale.got
+0x00004008	0x00000008	[  7] ___toupper.got
+0x00004010	0x00000008	[  8] _longjmp.got
+0x00004018	0x00000008	[  8] _setjmp.got
+0x00004020	0x00000018	[  1] _announce_menu__.1
+0x00004038	0x00000018	[  1] _announce_menu.2
+0x00004050	0x00000018	[  1] _settings_menu.6
+0x00004068	0x00000038	[  2] ___header
+0x00008000	0x00000068	[  1] _announce_menu_.0
+0x00008068	0x00000040	[  1] _settings_menu_.3
+0x000080A8	0x00000118	[  1] _config
+0x000081C0	0x00000001	[  3] _original_sw_poweroff_state
+0x000081C8	0x00000008	[  2] _rb
+0x000081D0	0x00000060	[  1] _gAnnounce
+0x00008230	0x00038130	[  1] _gThread
+0x00040360	0x00000160	[  1] _kbd_buf
+0x000404C0	0x00000008	[  2] _atexit_handler
+0x000404C8	0x000000C0	[  2] ___exit_env

@@ -1,0 +1,64 @@
+# Path: /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/vbrfix.elf
+# Arch: arm64
+# Object files:
+[  0] linker synthesized
+[  1] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/vbrfix.o
+[  2] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/plugin_crt0.o
+[  3] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/libSystem.tbd
+[  4] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/system/libsystem_platform.tbd
+# Sections:
+# Address	Size    	Segment	Section
+0x00000728	0x000008A8	__TEXT	__text
+0x00000FD0	0x00000018	__TEXT	__stubs
+0x00000FE8	0x0000007B	__TEXT	__cstring
+0x00001063	0x0000000A	__TEXT	__const
+0x00001070	0x000002A8	__TEXT	__eh_frame
+0x00004000	0x00000010	__DATA_CONST	__got
+0x00004010	0x00000038	__DATA_CONST	__const
+0x00008000	0x00000008	__DATA	.data
+0x00008008	0x000000E0	__DATA	__bss
+0x000080E8	0x000006E0	__DATA	__common
+# Symbols:
+# Address	Size    	File  Name
+0x00000728	0x000000B0	[  1] _xingupdate
+0x000007D8	0x00000090	[  1] _fileerror
+0x00000868	0x000005A8	[  1] _vbr_fix.isra.0
+0x00000E10	0x00000084	[  1] _plugin_start
+0x00000E94	0x00000018	[  2] _cleanup_wrapper
+0x00000EAC	0x00000068	[  2] _plugin__start
+0x00000F14	0x00000020	[  2] _rb_atexit
+0x00000F34	0x00000024	[  2] _exit
+0x00000F58	0x00000014	[  2] __exit
+0x00000F6C	0x00000064	[  2] _exit_on_usb
+0x00000FD0	0x0000000C	[  4] _longjmp.stub
+0x00000FDC	0x0000000C	[  4] _setjmp.stub
+0x00000FE8	0x00000005	[  1] literal string: %d%%
+0x00000FED	0x00000032	[  1] literal string: Using existing space between ID3 and first frame\n
+0x0000101F	0x00000014	[  1] literal string: Inserting %d bytes\n
+0x00001033	0x00000019	[  1] literal string: Inserting 4096+%d bytes\n
+0x0000104C	0x00000007	[  1] literal string: %s.tmp
+0x00001053	0x00000010	[  1] literal string: Not a VBR file\n
+0x00001063	0x0000000A	[  1] _empty_id3_header
+0x00001070	0x00000018	[  1] CFI
+0x00001088	0x00000050	[  1] FDE for: _xingupdate
+0x000010D8	0x00000048	[  1] FDE for: _fileerror
+0x00001120	0x00000080	[  1] FDE for: _vbr_fix.isra.0
+0x000011A0	0x00000048	[  1] FDE for: _plugin_start
+0x000011E8	0x00000018	[  2] CFI
+0x00001200	0x00000020	[  2] FDE for: _cleanup_wrapper
+0x00001220	0x00000040	[  2] FDE for: _plugin__start
+0x00001260	0x00000020	[  2] FDE for: _rb_atexit
+0x00001280	0x00000030	[  2] FDE for: _exit
+0x000012B0	0x00000030	[  2] FDE for: __exit
+0x000012E0	0x00000038	[  2] FDE for: _exit_on_usb
+0x00004000	0x00000008	[  4] _longjmp.got
+0x00004008	0x00000008	[  4] _setjmp.got
+0x00004010	0x00000038	[  2] ___header
+0x00008000	0x00000008	[  2] _rb
+0x00008008	0x00000008	[  1] _last_talk
+0x00008010	0x00000008	[  1] _audiobuflen
+0x00008018	0x00000008	[  1] _audiobuf
+0x00008020	0x00000008	[  2] _atexit_handler
+0x00008028	0x000000C0	[  2] ___exit_env
+0x000080E8	0x00000104	[  1] _tmpname
+0x000081EC	0x000005DC	[  1] _xingbuf

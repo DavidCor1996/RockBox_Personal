@@ -1,0 +1,180 @@
+# Path: /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/speedread.elf
+# Arch: arm64
+# Object files:
+[  0] linker synthesized
+[  1] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/speedread.o
+[  2] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/plugin_crt0.o
+[  3] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(pluginlib_actions.o)
+[  4] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(helper.o)
+[  5] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/libSystem.tbd
+[  6] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/system/libsystem_platform.tbd
+# Sections:
+# Address	Size    	Segment	Section
+0x00000780	0x00001720	__TEXT	__text
+0x00001EA0	0x00000018	__TEXT	__stubs
+0x00001EB8	0x000001C0	__TEXT	__cstring
+0x00002078	0x0000010C	__TEXT	__const
+0x00002188	0x000008B8	__TEXT	__eh_frame
+0x00004000	0x00000010	__DATA_CONST	__got
+0x00004010	0x00000130	__DATA_CONST	__const
+0x00008000	0x00000035	__DATA	__data
+0x00008038	0x00000008	__DATA	.data
+0x00008040	0x00000758	__DATA	__bss
+0x00008798	0x0000001C	__DATA	__common
+# Symbols:
+# Address	Size    	File  Name
+0x00000780	0x00000134	[  1] _get_next_word
+0x000008B4	0x0000015C	[  1] _reset_drawing
+0x00000A10	0x000001A4	[  1] _render_word
+0x00000BB4	0x00000088	[  1] _calculate_focus
+0x00000C3C	0x000000E4	[  1] _begin_anim
+0x00000D20	0x00000068	[  1] _new_font
+0x00000D88	0x00000118	[  1] _font_menu
+0x00000EA0	0x00000078	[  1] _init_drawing
+0x00000F18	0x00000034	[  1] _cleanup
+0x00000F4C	0x000000AC	[  1] _get_useraction
+0x00000FF8	0x000005AC	[  1] _poll_input
+0x000015A4	0x000001C4	[  1] _load_bookmark.constprop.0
+0x00001768	0x000003B0	[  1] _plugin_start
+0x00001B18	0x00000018	[  2] _cleanup_wrapper
+0x00001B30	0x00000068	[  2] _plugin__start
+0x00001B98	0x00000020	[  2] _rb_atexit
+0x00001BB8	0x00000024	[  2] _exit
+0x00001BDC	0x00000014	[  2] __exit
+0x00001BF0	0x00000064	[  2] _exit_on_usb
+0x00001C54	0x00000038	[  3] _get_context_map
+0x00001C8C	0x00000040	[  3] _pluginlib_getaction
+0x00001CCC	0x00000020	[  4] _talk_val
+0x00001CEC	0x00000040	[  4] _backlight_force_on
+0x00001D2C	0x0000006C	[  4] _backlight_ignore_timeout
+0x00001D98	0x00000048	[  4] _backlight_use_settings
+0x00001DE0	0x00000044	[  4] _sw_poweroff_disable
+0x00001E24	0x00000020	[  4] _sw_poweroff_restore
+0x00001E44	0x00000004	[  4] _remote_backlight_force_on
+0x00001E48	0x00000004	[  4] _remote_backlight_ignore_timeout
+0x00001E4C	0x00000004	[  4] _remote_backlight_use_settings
+0x00001E50	0x00000004	[  4] _buttonlight_force_on
+0x00001E54	0x00000004	[  4] _buttonlight_force_off
+0x00001E58	0x00000004	[  4] _buttonlight_ignore_timeout
+0x00001E5C	0x00000004	[  4] _buttonlight_use_settings
+0x00001E60	0x00000018	[  4] _backlight_brightness_set
+0x00001E78	0x00000020	[  4] _backlight_brightness_use_setting
+0x00001E98	0x00000004	[  4] _buttonlight_brightness_set
+0x00001E9C	0x00000004	[  4] _buttonlight_brightness_use_setting
+0x00001EA0	0x0000000C	[  6] _longjmp.stub
+0x00001EAC	0x0000000C	[  6] _setjmp.stub
+0x00001EB8	0x00000002	[  1] literal string:  
+0x00001EBA	0x00000002	[  1] literal string: X
+0x00001EBC	0x00000007	[  1] literal string: %s.fnt
+0x00001EC3	0x00000010	[  1] literal string: /.rockbox/fonts
+0x00001ED3	0x00000026	[  1] literal string: /.rockbox/rocks/viewers/speedread.cfg
+0x00001EF9	0x00000007	[  1] literal string: %d wpm
+0x00001F00	0x0000000E	[  1] literal string: %jd/%jd bytes
+0x00001F0E	0x0000000E	[  1] literal string: Are you sure?
+0x00001F1C	0x00000027	[  1] literal string: This will erase your current position.
+0x00001F43	0x0000000A	[  1] literal string: Saving...
+0x00001F4D	0x00000026	[  1] literal string: /.rockbox/rocks/viewers/speedread.dat
+0x00001F73	0x0000002A	[  1] literal string: /.rockbox/rocks/viewers/speedread.dat.tmp
+0x00001F9D	0x00000001	[  1] literal string: 
+0x00001F9E	0x00000002	[  1] literal string: \n
+0x00001FA0	0x0000000E	[  1] literal string: %jd %d %d %s\n
+0x00001FAE	0x00000011	[  1] literal string: Loaded bookmark.
+0x00001FBF	0x0000000F	[  1] literal string: Resume Reading
+0x00001FCE	0x00000017	[  1] literal string: Restart from Beginning
+0x00001FE5	0x0000000C	[  1] literal string: Change Font
+0x00001FF1	0x00000005	[  1] literal string: Quit
+0x00001FF6	0x0000000A	[  1] literal string: Speedread
+0x00002000	0x00000005	[  1] literal string: This
+0x00002005	0x00000007	[  1] literal string: plugin
+0x0000200C	0x00000003	[  1] literal string: is
+0x0000200F	0x00000004	[  1] literal string: for
+0x00002013	0x0000000E	[  1] literal string: speed-reading
+0x00002021	0x00000006	[  1] literal string: plain
+0x00002027	0x00000005	[  1] literal string: text
+0x0000202C	0x00000007	[  1] literal string: files.
+0x00002033	0x00000007	[  1] literal string: Please
+0x0000203A	0x00000005	[  1] literal string: open
+0x0000203F	0x00000002	[  1] literal string: a
+0x00002041	0x00000005	[  1] literal string: file
+0x00002046	0x00000003	[  1] literal string: to
+0x00002049	0x00000005	[  1] literal string: read
+0x0000204E	0x00000003	[  1] literal string: by
+0x00002051	0x00000006	[  1] literal string: using
+0x00002057	0x00000004	[  1] literal string: the
+0x0000205B	0x00000008	[  1] literal string: context
+0x00002063	0x00000006	[  1] literal string: menu.
+0x00002069	0x00000005	[  1] literal string: Have
+0x0000206E	0x00000005	[  1] literal string: nice
+0x00002073	0x00000005	[  1] literal string: day!
+0x00002078	0x00000034	[  1] lC0
+0x000020AC	0x000000D8	[  3] _pla_main_ctx
+0x00002188	0x00000018	[  1] CFI
+0x000021A0	0x00000058	[  1] FDE for: _get_next_word
+0x000021F8	0x00000048	[  1] FDE for: _reset_drawing
+0x00002240	0x00000060	[  1] FDE for: _render_word
+0x000022A0	0x00000050	[  1] FDE for: _calculate_focus
+0x000022F0	0x00000058	[  1] FDE for: _begin_anim
+0x00002348	0x00000048	[  1] FDE for: _new_font
+0x00002390	0x00000058	[  1] FDE for: _font_menu
+0x000023E8	0x00000040	[  1] FDE for: _init_drawing
+0x00002428	0x00000038	[  1] FDE for: _cleanup
+0x00002460	0x00000040	[  1] FDE for: _get_useraction
+0x000024A0	0x00000078	[  1] FDE for: _poll_input
+0x00002518	0x00000070	[  1] FDE for: _load_bookmark.constprop.0
+0x00002588	0x00000068	[  1] FDE for: _plugin_start
+0x000025F0	0x00000018	[  2] CFI
+0x00002608	0x00000020	[  2] FDE for: _cleanup_wrapper
+0x00002628	0x00000040	[  2] FDE for: _plugin__start
+0x00002668	0x00000020	[  2] FDE for: _rb_atexit
+0x00002688	0x00000030	[  2] FDE for: _exit
+0x000026B8	0x00000030	[  2] FDE for: __exit
+0x000026E8	0x00000038	[  2] FDE for: _exit_on_usb
+0x00002720	0x00000018	[  3] CFI
+0x00002738	0x00000020	[  3] FDE for: _get_context_map
+0x00002758	0x00000020	[  3] FDE for: _pluginlib_getaction
+0x00002778	0x00000018	[  4] CFI
+0x00002790	0x00000020	[  4] FDE for: _talk_val
+0x000027B0	0x00000040	[  4] FDE for: _backlight_force_on
+0x000027F0	0x00000050	[  4] FDE for: _backlight_ignore_timeout
+0x00002840	0x00000040	[  4] FDE for: _backlight_use_settings
+0x00002880	0x00000040	[  4] FDE for: _sw_poweroff_disable
+0x000028C0	0x00000020	[  4] FDE for: _sw_poweroff_restore
+0x000028E0	0x00000020	[  4] FDE for: _remote_backlight_force_on
+0x00002900	0x00000020	[  4] FDE for: _remote_backlight_ignore_timeout
+0x00002920	0x00000020	[  4] FDE for: _remote_backlight_use_settings
+0x00002940	0x00000020	[  4] FDE for: _buttonlight_force_on
+0x00002960	0x00000020	[  4] FDE for: _buttonlight_force_off
+0x00002980	0x00000020	[  4] FDE for: _buttonlight_ignore_timeout
+0x000029A0	0x00000020	[  4] FDE for: _buttonlight_use_settings
+0x000029C0	0x00000020	[  4] FDE for: _backlight_brightness_set
+0x000029E0	0x00000020	[  4] FDE for: _backlight_brightness_use_setting
+0x00002A00	0x00000020	[  4] FDE for: _buttonlight_brightness_set
+0x00002A20	0x00000020	[  4] FDE for: _buttonlight_brightness_use_setting
+0x00004000	0x00000008	[  6] _longjmp.got
+0x00004008	0x00000008	[  6] _setjmp.got
+0x00004010	0x00000018	[  1] _menu__.2
+0x00004028	0x00000018	[  1] _menu.3
+0x00004040	0x000000C8	[  1] _words.4
+0x00004108	0x00000038	[  2] ___header
+0x00008000	0x00000020	[  1] _menu_.1
+0x00008020	0x00000008	[  1] _plugin_contexts
+0x00008028	0x00000004	[  1] _custom_font
+0x0000802C	0x00000004	[  1] _line_len
+0x00008030	0x00000004	[  1] _fd
+0x00008034	0x00000001	[  4] _original_sw_poweroff_state
+0x00008038	0x00000008	[  2] _rb
+0x00008040	0x00000128	[  1] _line.0
+0x00008168	0x00000008	[  1] _idx.5
+0x00008170	0x00000008	[  1] _end.6
+0x00008178	0x00000400	[  1] _line_buf.7
+0x00008578	0x00000040	[  1] _half.8
+0x000085B8	0x00000105	[  1] _font_buf
+0x000086C0	0x00000008	[  2] _atexit_handler
+0x000086C8	0x000000C0	[  2] ___exit_env
+0x00008788	0x00000004	[  3] _last_context
+0x0000878C	0x00000004	[  3] _plugin_context_count
+0x00008790	0x00000008	[  3] _plugin_context_order
+0x00008798	0x00000008	[  1] _last_word
+0x000087A0	0x00000008	[  1] _begin_offs
+0x000087A8	0x00000008	[  1] _line_offs
+0x000087B0	0x00000004	[  1] _word_num

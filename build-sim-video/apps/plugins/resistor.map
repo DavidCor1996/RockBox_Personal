@@ -1,0 +1,409 @@
+# Path: /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/resistor.elf
+# Arch: arm64
+# Object files:
+[  0] linker synthesized
+[  1] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/resistor.o
+[  2] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/plugin_crt0.o
+[  3] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(gcc-support.o)
+[  4] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(helper.o)
+[  5] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(display_text.o)
+[  6] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/bitmaps/libpluginbitmaps.a(resistor.320x240x16.o)
+[  7] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/libSystem.tbd
+[  8] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/system/libsystem_platform.tbd
+# Sections:
+# Address	Size    	Segment	Section
+0x00000730	0x0000155C	__TEXT	__text
+0x00001C8C	0x00000018	__TEXT	__stubs
+0x00001CA4	0x00000970	__TEXT	__cstring
+0x00002614	0x000106D4	__TEXT	__const
+0x00012CE8	0x000006B0	__TEXT	__eh_frame
+0x00014000	0x00000010	__DATA_CONST	__got
+0x00014010	0x00000480	__DATA_CONST	__const
+0x00018000	0x00000E11	__DATA	__data
+0x00018E18	0x00000008	__DATA	.data
+0x00018E20	0x00000180	__DATA	__bss
+# Symbols:
+# Address	Size    	File  Name
+0x00000730	0x000001AC	[  1] _draw_resistor
+0x000008DC	0x000000E0	[  1] _draw_resistor_text
+0x000009BC	0x00000B94	[  1] _plugin_start
+0x00001550	0x00000018	[  2] _cleanup_wrapper
+0x00001568	0x00000068	[  2] _plugin__start
+0x000015D0	0x00000020	[  2] _rb_atexit
+0x000015F0	0x00000024	[  2] _exit
+0x00001614	0x00000014	[  2] __exit
+0x00001628	0x00000064	[  2] _exit_on_usb
+0x0000168C	0x00000018	[  3] _memcpy
+0x000016A4	0x00000018	[  3] _memset
+0x000016BC	0x00000018	[  3] _memmove
+0x000016D4	0x00000018	[  3] _memcmp
+0x000016EC	0x00000020	[  4] _talk_val
+0x0000170C	0x00000040	[  4] _backlight_force_on
+0x0000174C	0x0000006C	[  4] _backlight_ignore_timeout
+0x000017B8	0x00000048	[  4] _backlight_use_settings
+0x00001800	0x00000044	[  4] _sw_poweroff_disable
+0x00001844	0x00000020	[  4] _sw_poweroff_restore
+0x00001864	0x00000004	[  4] _remote_backlight_force_on
+0x00001868	0x00000004	[  4] _remote_backlight_ignore_timeout
+0x0000186C	0x00000004	[  4] _remote_backlight_use_settings
+0x00001870	0x00000004	[  4] _buttonlight_force_on
+0x00001874	0x00000004	[  4] _buttonlight_force_off
+0x00001878	0x00000004	[  4] _buttonlight_ignore_timeout
+0x0000187C	0x00000004	[  4] _buttonlight_use_settings
+0x00001880	0x00000018	[  4] _backlight_brightness_set
+0x00001898	0x00000020	[  4] _backlight_brightness_use_setting
+0x000018B8	0x00000004	[  4] _buttonlight_brightness_set
+0x000018BC	0x00000004	[  4] _buttonlight_brightness_use_setting
+0x000018C0	0x00000078	[  5] _wait_key_press
+0x00001938	0x00000354	[  5] _display_text
+0x00001C8C	0x0000000C	[  8] _longjmp.stub
+0x00001C98	0x0000000C	[  8] _setjmp.stub
+0x00001CA4	0x00000012	[  1] literal string: %s - %s - %s - %s
+0x00001CB6	0x00000009	[  1] literal string: 1/8 Watt
+0x00001CBF	0x00000009	[  1] literal string: 1/4 Watt
+0x00001CC8	0x00000008	[  1] literal string: Unknown
+0x00001CD0	0x00000015	[  1] literal string: Colour to resistance
+0x00001CE5	0x00000012	[  1] literal string: Resistance: %d %s
+0x00001CF7	0x00000018	[  1] literal string: Resistance: %d.%2.2d %s
+0x00001D0F	0x0000000F	[  1] literal string: %d%% tolerance
+0x00001D1E	0x00000015	[  1] literal string: Resistance to Colour
+0x00001D33	0x0000001D	[  1] literal string: %d %s can not be represented
+0x00001D50	0x0000000D	[  1] literal string: Input: %d %s
+0x00001D5D	0x00000022	[  1] literal string: (First) Input the supply voltage:
+0x00001D7F	0x00000022	[  1] literal string: Input the foreward current, in mA
+0x00001DA1	0x00000030	[  1] literal string: Problem: LED voltage is higher than the source.
+0x00001DD1	0x00000021	[  1] literal string: Problem: Input voltage too high.
+0x00001DF2	0x00000006	[  1] literal string: %d mA
+0x00001DF8	0x00000019	[  1] literal string: Input: %dv, %d Ohms @ %s
+0x00001E11	0x0000001B	[  1] literal string: Rounded/displayed: [%d %s]
+0x00001E2C	0x0000001B	[  1] literal string: Recommended: %s or greater
+0x00001E47	0x0000001D	[  1] literal string: Resistor Calculator Helpfile
+0x00001E64	0x00000001	[  1] literal string: 
+0x00001E65	0x00000011	[  1] literal string: About resistors:
+0x00001E76	0x00000002	[  1] literal string: A
+0x00001E78	0x00000009	[  1] literal string: resistor
+0x00001E81	0x00000003	[  1] literal string: is
+0x00001E84	0x00000003	[  1] literal string: a 
+0x00001E87	0x0000000D	[  1] literal string: two-terminal
+0x00001E94	0x0000000B	[  1] literal string: electronic
+0x00001E9F	0x0000000A	[  1] literal string: component
+0x00001EA9	0x00000005	[  1] literal string: that
+0x00001EAE	0x00000009	[  1] literal string: produces
+0x00001EB7	0x00000002	[  1] literal string: a
+0x00001EB9	0x00000008	[  1] literal string: voltage
+0x00001EC1	0x00000007	[  1] literal string: across
+0x00001EC8	0x00000004	[  1] literal string: its
+0x00001ECC	0x0000000A	[  1] literal string: terminals
+0x00001ED6	0x0000000D	[  1] literal string: proportional
+0x00001EE3	0x00000003	[  1] literal string: to
+0x00001EE6	0x00000004	[  1] literal string: the
+0x00001EEA	0x00000009	[  1] literal string: electric
+0x00001EF3	0x00000008	[  1] literal string: current
+0x00001EFB	0x00000008	[  1] literal string: passing
+0x00001F03	0x00000008	[  1] literal string: through
+0x00001F0B	0x00000003	[  1] literal string: it
+0x00001F0E	0x00000003	[  1] literal string: in
+0x00001F11	0x0000000B	[  1] literal string: accordance
+0x00001F1C	0x00000006	[  1] literal string: Ohm's
+0x00001F22	0x00000005	[  1] literal string: Law:
+0x00001F27	0x00000007	[  1] literal string: V = IR
+0x00001F2E	0x00000008	[  1] literal string: I = V/R
+0x00001F36	0x00000004	[  1] literal string: and
+0x00001F3A	0x00000008	[  1] literal string: R = V/I
+0x00001F42	0x00000006	[  1] literal string: Where
+0x00001F48	0x00000002	[  1] literal string: V
+0x00001F4A	0x00000002	[  1] literal string: =
+0x00001F4C	0x0000000A	[  1] literal string: voltage, 
+0x00001F56	0x00000002	[  1] literal string: I
+0x00001F58	0x00000004	[  1] literal string: (in
+0x00001F5C	0x00000006	[  1] literal string: amps)
+0x00001F62	0x00000002	[  1] literal string: R
+0x00001F64	0x0000000B	[  1] literal string: resistance
+0x00001F6F	0x0000000A	[  1] literal string: (measured
+0x00001F79	0x00000007	[  1] literal string: Ohms).
+0x00001F80	0x00000004	[  1] literal string: The
+0x00001F84	0x00000008	[  1] literal string: primary
+0x00001F8C	0x00000010	[  1] literal string: characteristics
+0x00001F9C	0x00000003	[  1] literal string: of
+0x00001F9F	0x00000004	[  1] literal string: are
+0x00001FA3	0x0000000C	[  1] literal string: resistance,
+0x00001FAF	0x0000000B	[  1] literal string: tolerance,
+0x00001FBA	0x00000008	[  1] literal string: maximum
+0x00001FC2	0x00000008	[  1] literal string: working
+0x00001FCA	0x00000006	[  1] literal string: power
+0x00001FD0	0x00000008	[  1] literal string: rating.
+0x00001FD8	0x00000003	[  1] literal string: At
+0x00001FDB	0x00000005	[  1] literal string: this
+0x00001FE0	0x00000006	[  1] literal string: time,
+0x00001FE6	0x0000000B	[  1] literal string: calculator
+0x00001FF1	0x00000005	[  1] literal string: only
+0x00001FF6	0x00000009	[  1] literal string: utilises
+0x00001FFF	0x0000000B	[  1] literal string: tolerance.
+0x0000200A	0x00000004	[  1] literal string: Ohm
+0x0000200E	0x00000003	[  1] literal string: SI
+0x00002011	0x00000005	[  1] literal string: unit
+0x00002016	0x00000007	[  1] literal string: common
+0x0000201D	0x0000000A	[  1] literal string: multiples
+0x00002027	0x00000008	[  1] literal string: include
+0x0000202F	0x00000008	[  1] literal string: kiloohm
+0x00002037	0x00000006	[  1] literal string: (KOhm
+0x0000203D	0x00000002	[  1] literal string: -
+0x0000203F	0x00000008	[  1] literal string: 1x10^3)
+0x00002047	0x00000008	[  1] literal string: megaohm
+0x0000204F	0x00000006	[  1] literal string: (MOhm
+0x00002055	0x00000009	[  1] literal string: 1x10^6),
+0x0000205E	0x00000005	[  1] literal string: both
+0x00002063	0x00000006	[  1] literal string: which
+0x00002069	0x0000000A	[  1] literal string: supported
+0x00002073	0x00000003	[  1] literal string: by
+0x00002076	0x0000000C	[  1] literal string: calculator.
+0x00002082	0x0000000A	[  1] literal string: Resistors
+0x0000208C	0x0000000A	[  1] literal string: parallel:
+0x00002096	0x00000009	[  1] literal string: 1/Rtotal
+0x0000209F	0x00000005	[  1] literal string: 1/R1
+0x000020A4	0x00000002	[  1] literal string: +
+0x000020A6	0x00000005	[  1] literal string: 1/R2
+0x000020AB	0x00000004	[  1] literal string: ...
+0x000020AF	0x00000005	[  1] literal string: 1/Rn
+0x000020B4	0x00000008	[  1] literal string: series:
+0x000020BC	0x00000007	[  1] literal string: Rtotal
+0x000020C3	0x00000003	[  1] literal string: R1
+0x000020C6	0x00000003	[  1] literal string: R2
+0x000020C9	0x00000003	[  1] literal string: Rn
+0x000020CC	0x0000001B	[  1] literal string: How to use this calculator
+0x000020E7	0x00000005	[  1] literal string: This
+0x000020EC	0x00000004	[  1] literal string: has
+0x000020F0	0x00000006	[  1] literal string: three
+0x000020F6	0x00000007	[  1] literal string: modes:
+0x000020FD	0x0000000B	[  1] literal string: Resistance
+0x00002108	0x00000007	[  1] literal string: colour
+0x0000210F	0x00000007	[  1] literal string: codes,
+0x00002116	0x00000007	[  1] literal string: Colour
+0x0000211D	0x00000006	[  1] literal string: codes
+0x00002123	0x00000004	[  1] literal string: LED
+0x00002127	0x00000005	[  1] literal string: time
+0x0000212C	0x00000006	[  1] literal string: there
+0x00002132	0x00000008	[  1] literal string: support
+0x0000213A	0x00000004	[  1] literal string: for
+0x0000213E	0x00000006	[  1] literal string: four-
+0x00002144	0x00000005	[  1] literal string: band
+0x00002149	0x0000000B	[  1] literal string: resistors.
+0x00002154	0x00000003	[  1] literal string: In
+0x00002157	0x00000005	[  1] literal string: mode
+0x0000215C	0x00000004	[  1] literal string: use
+0x00002160	0x00000006	[  1] literal string: menus
+0x00002166	0x00000006	[  1] literal string: input
+0x0000216C	0x00000007	[  1] literal string: order)
+0x00002173	0x00000006	[  1] literal string: bands
+0x00002179	0x00000004	[  1] literal string: you
+0x0000217D	0x00000006	[  1] literal string: would
+0x00002183	0x00000005	[  1] literal string: like
+0x00002188	0x00000005	[  1] literal string: know
+0x0000218D	0x0000000C	[  1] literal string: resistance.
+0x00002199	0x00000006	[  1] literal string: mode,
+0x0000219F	0x00000007	[  1] literal string: select
+0x000021A6	0x00000008	[  1] literal string: (choose
+0x000021AE	0x00000005	[  1] literal string: from
+0x000021B3	0x00000006	[  1] literal string: Ohms,
+0x000021B9	0x00000009	[  1] literal string: KiloOhms
+0x000021C2	0x0000000A	[  1] literal string: MegaOhms)
+0x000021CC	0x0000000A	[  1] literal string: on-screen
+0x000021D6	0x00000009	[  1] literal string: keyboard
+0x000021DF	0x00000006	[  1] literal string: value
+0x000021E5	0x00000004	[  1] literal string: of.
+0x000021E9	0x00000007	[  1] literal string: Output
+0x000021F0	0x00000005	[  1] literal string: will
+0x000021F5	0x00000003	[  1] literal string: be
+0x000021F8	0x0000000A	[  1] literal string: graphical
+0x00002202	0x00000006	[  1] literal string: (with
+0x00002208	0x00000006	[  1] literal string: shown
+0x0000220E	0x00000006	[  1] literal string: their
+0x00002214	0x0000000E	[  1] literal string: corresponding
+0x00002222	0x00000008	[  1] literal string: colours
+0x0000222A	0x00000008	[  1] literal string: targets
+0x00002232	0x00000006	[  1] literal string: only)
+0x00002238	0x0000000B	[  1] literal string: textually.
+0x00002243	0x00000005	[  1] literal string: used
+0x00002248	0x0000000A	[  1] literal string: determine
+0x00002252	0x0000000A	[  1] literal string: necessary
+0x0000225C	0x00000006	[  1] literal string: light
+0x00002262	0x00000007	[  1] literal string: safely
+0x00002269	0x00000003	[  1] literal string: at
+0x0000226C	0x00000006	[  1] literal string: given
+0x00002272	0x00000009	[  1] literal string: voltage.
+0x0000227B	0x00000007	[  1] literal string: First,
+0x00002282	0x00000005	[  1] literal string: (the
+0x00002287	0x00000006	[  1] literal string: first
+0x0000228D	0x00000007	[  1] literal string: option
+0x00002294	0x00000005	[  1] literal string: most
+0x00002299	0x00000005	[  1] literal string: safe
+0x0000229E	0x00000007	[  1] literal string: guess)
+0x000022A5	0x00000005	[  1] literal string: draw
+0x000022AA	0x0000000A	[  1] literal string: (likewise
+0x000022B4	0x00000005	[  1] literal string: with
+0x000022B9	0x00000009	[  1] literal string: option).
+0x000022C2	0x00000005	[  1] literal string: Then
+0x000022C7	0x00000009	[  1] literal string: onscreen
+0x000022D0	0x00000005	[  1] literal string: type
+0x000022D5	0x00000007	[  1] literal string: supply
+0x000022DC	0x00000005	[  1] literal string: and,
+0x000022E1	0x00000003	[  1] literal string: if
+0x000022E4	0x0000000A	[  1] literal string: selected,
+0x000022EE	0x00000007	[  1] literal string: custom
+0x000022F5	0x00000009	[  1] literal string: foreward
+0x000022FE	0x00000009	[  1] literal string: current.
+0x00002307	0x0000000C	[  1] literal string: Disclaimer:
+0x00002313	0x0000000B	[  1] literal string: estimates,
+0x0000231E	0x00000004	[  1] literal string: but
+0x00002322	0x00000005	[  1] literal string: your
+0x00002327	0x00000004	[  1] literal string: own
+0x0000232B	0x0000000A	[  1] literal string: judgement
+0x00002335	0x00000005	[  1] literal string: when
+0x0000233A	0x00000006	[  1] literal string: using
+0x00002340	0x00000006	[  1] literal string: these
+0x00002346	0x00000007	[  1] literal string: output
+0x0000234D	0x00000008	[  1] literal string: values.
+0x00002355	0x00000006	[  1] literal string: Power
+0x0000235B	0x00000007	[  1] literal string: rating
+0x00002362	0x0000000A	[  1] literal string: displayed
+0x0000236C	0x00000008	[  1] literal string: rounded
+0x00002374	0x00000003	[  1] literal string: up
+0x00002377	0x00000008	[  1] literal string: nearest
+0x0000237F	0x00000007	[  1] literal string: value.
+0x00002386	0x00000018	[  1] literal string: 2v (Common red, orange)
+0x0000239E	0x0000000A	[  1] literal string: 1.5v (IR)
+0x000023A8	0x0000000E	[  1] literal string: 2.1v (Yellow)
+0x000023B6	0x0000000D	[  1] literal string: 2.2v (Green)
+0x000023C3	0x00000023	[  1] literal string: 3.3v (True green, blue, white, UV)
+0x000023E6	0x00000014	[  1] literal string: 4.6v (Blue - 430nm)
+0x000023FA	0x00000014	[  1] literal string: Select LED voltage:
+0x0000240E	0x0000003C	[  1] literal string: 20mA - Most common for 5mm and 3mm LEDs - select if unsure.
+0x0000244A	0x00000025	[  1] literal string: Key in other (only if already known)
+0x0000246F	0x00000019	[  1] literal string: Select foreward current:
+0x00002488	0x00000005	[  1] literal string: Ohms
+0x0000248D	0x00000011	[  1] literal string: Kiloohms (KOhms)
+0x0000249E	0x00000011	[  1] literal string: Megaohms (MOhms)
+0x000024AF	0x00000011	[  1] literal string: Gigaohms (GOhms)
+0x000024C0	0x00000014	[  1] literal string: Select unit to use:
+0x000024D4	0x00000003	[  1] literal string: 5%
+0x000024D7	0x00000004	[  1] literal string: 10%
+0x000024DB	0x00000003	[  1] literal string: 1%
+0x000024DE	0x00000003	[  1] literal string: 2%
+0x000024E1	0x00000004	[  1] literal string: 20%
+0x000024E5	0x00000016	[  1] literal string: Tolerance to display:
+0x000024FB	0x00000005	[  1] literal string: Gold
+0x00002500	0x00000006	[  1] literal string: Brown
+0x00002506	0x00000004	[  1] literal string: Red
+0x0000250A	0x00000007	[  1] literal string: Silver
+0x00002511	0x00000007	[  1] literal string: (none)
+0x00002518	0x00000014	[  1] literal string: Fourth band colour:
+0x0000252C	0x00000006	[  1] literal string: Black
+0x00002532	0x00000007	[  1] literal string: Orange
+0x00002539	0x00000007	[  1] literal string: Yellow
+0x00002540	0x00000006	[  1] literal string: Green
+0x00002546	0x00000005	[  1] literal string: Blue
+0x0000254B	0x00000007	[  1] literal string: Violet
+0x00002552	0x00000005	[  1] literal string: Grey
+0x00002557	0x00000006	[  1] literal string: White
+0x0000255D	0x00000013	[  1] literal string: Third band colour:
+0x00002570	0x00000014	[  1] literal string: Second band colour:
+0x00002584	0x00000013	[  1] literal string: First band colour:
+0x00002597	0x00000016	[  1] literal string: Colours -> Resistance
+0x000025AD	0x00000016	[  1] literal string: Resistance -> Colours
+0x000025C3	0x00000018	[  1] literal string: LED resistor calculator
+0x000025DB	0x00000005	[  1] literal string: Help
+0x000025E0	0x00000005	[  1] literal string: Exit
+0x000025E5	0x00000014	[  1] literal string: Resistor Calculator
+0x000025F9	0x00000006	[  1] literal string: KOhms
+0x000025FF	0x00000006	[  1] literal string: MOhms
+0x00002605	0x00000006	[  1] literal string: GOhms
+0x0000260B	0x00000007	[  1] literal string: [None]
+0x00002612	0x00000002	[  5] literal string:  
+0x00002614	0x0000000C	[  1] _CSWTCH.142
+0x00002620	0x00000005	[  1] _CSWTCH.140
+0x00002625	0x00000005	[  1] _CSWTCH.137
+0x0000262A	0x0000000E	[  1] _CSWTCH.135
+0x00002638	0x00000030	[  1] _common_values
+0x00002668	0x00010680	[  6] _resistor
+0x00012CE8	0x00000018	[  1] CFI
+0x00012D00	0x00000068	[  1] FDE for: _draw_resistor
+0x00012D68	0x00000058	[  1] FDE for: _draw_resistor_text
+0x00012DC0	0x00000070	[  1] FDE for: _plugin_start
+0x00012E30	0x00000018	[  2] CFI
+0x00012E48	0x00000020	[  2] FDE for: _cleanup_wrapper
+0x00012E68	0x00000040	[  2] FDE for: _plugin__start
+0x00012EA8	0x00000020	[  2] FDE for: _rb_atexit
+0x00012EC8	0x00000030	[  2] FDE for: _exit
+0x00012EF8	0x00000030	[  2] FDE for: __exit
+0x00012F28	0x00000038	[  2] FDE for: _exit_on_usb
+0x00012F60	0x00000018	[  3] CFI
+0x00012F78	0x00000020	[  3] FDE for: _memcpy
+0x00012F98	0x00000020	[  3] FDE for: _memset
+0x00012FB8	0x00000020	[  3] FDE for: _memmove
+0x00012FD8	0x00000020	[  3] FDE for: _memcmp
+0x00012FF8	0x00000018	[  4] CFI
+0x00013010	0x00000020	[  4] FDE for: _talk_val
+0x00013030	0x00000040	[  4] FDE for: _backlight_force_on
+0x00013070	0x00000050	[  4] FDE for: _backlight_ignore_timeout
+0x000130C0	0x00000040	[  4] FDE for: _backlight_use_settings
+0x00013100	0x00000040	[  4] FDE for: _sw_poweroff_disable
+0x00013140	0x00000020	[  4] FDE for: _sw_poweroff_restore
+0x00013160	0x00000020	[  4] FDE for: _remote_backlight_force_on
+0x00013180	0x00000020	[  4] FDE for: _remote_backlight_ignore_timeout
+0x000131A0	0x00000020	[  4] FDE for: _remote_backlight_use_settings
+0x000131C0	0x00000020	[  4] FDE for: _buttonlight_force_on
+0x000131E0	0x00000020	[  4] FDE for: _buttonlight_force_off
+0x00013200	0x00000020	[  4] FDE for: _buttonlight_ignore_timeout
+0x00013220	0x00000020	[  4] FDE for: _buttonlight_use_settings
+0x00013240	0x00000020	[  4] FDE for: _backlight_brightness_set
+0x00013260	0x00000020	[  4] FDE for: _backlight_brightness_use_setting
+0x00013280	0x00000020	[  4] FDE for: _buttonlight_brightness_set
+0x000132A0	0x00000020	[  4] FDE for: _buttonlight_brightness_use_setting
+0x000132C0	0x00000018	[  5] CFI
+0x000132D8	0x00000050	[  5] FDE for: _wait_key_press
+0x00013328	0x00000070	[  5] FDE for: _display_text
+0x00014000	0x00000008	[  8] _longjmp.got
+0x00014008	0x00000008	[  8] _setjmp.got
+0x00014010	0x00000018	[  1] _voltage_menu__.3
+0x00014028	0x00000018	[  1] _fwd_current_menu__.5
+0x00014040	0x00000018	[  1] _fwd_current_menu.6
+0x00014058	0x00000018	[  1] _voltage_menu.7
+0x00014070	0x00000018	[  1] _r_to_c_menu__.9
+0x00014088	0x00000018	[  1] _r_to_c_menu_tol__.11
+0x000140A0	0x00000018	[  1] _r_to_c_menu_tol.12
+0x000140B8	0x00000018	[  1] _r_to_c_menu.13
+0x000140D0	0x00000018	[  1] _colors_menu_fourth__.16
+0x000140E8	0x00000018	[  1] _colors_menu_fourth.17
+0x00014100	0x00000018	[  1] _colors_menu_third__.19
+0x00014118	0x00000018	[  1] _colors_menu_third.20
+0x00014130	0x00000018	[  1] _colors_menu_second__.22
+0x00014148	0x00000018	[  1] _colors_menu_second.23
+0x00014160	0x00000018	[  1] _colors_menu_first__.25
+0x00014178	0x00000018	[  1] _colors_menu_first.26
+0x00014190	0x00000018	[  1] _main_menu__.28
+0x000141A8	0x00000018	[  1] _main_menu.29
+0x000141C0	0x00000270	[  1] _band_data
+0x00014430	0x00000038	[  2] ___header
+0x00014468	0x00000028	[  6] _bm_resistor
+0x00018000	0x00000010	[  1] _formatting.0
+0x00018010	0x00000C28	[  1] _helpfile_text.1
+0x00018C38	0x00000030	[  1] _voltage_menu_.2
+0x00018C68	0x00000010	[  1] _fwd_current_menu_.4
+0x00018C78	0x00000020	[  1] _r_to_c_menu_.8
+0x00018C98	0x00000028	[  1] _r_to_c_menu_tol_.10
+0x00018CC0	0x00000028	[  1] _colors_menu_fourth_.15
+0x00018CE8	0x00000060	[  1] _colors_menu_third_.18
+0x00018D48	0x00000050	[  1] _colors_menu_second_.21
+0x00018D98	0x00000050	[  1] _colors_menu_first_.24
+0x00018DE8	0x00000028	[  1] _main_menu_.27
+0x00018E10	0x00000001	[  4] _original_sw_poweroff_state
+0x00018E18	0x00000008	[  2] _rb
+0x00018E20	0x00000010	[  1] _tolerance_str.14
+0x00018E30	0x00000008	[  1] _lineno
+0x00018E38	0x00000008	[  1] _display
+0x00018E40	0x00000030	[  1] _text_vp
+0x00018E70	0x00000030	[  1] _bitmap_vp
+0x00018EA0	0x00000030	[  1] _screen_vp
+0x00018ED0	0x00000008	[  1] _unit_abbrev
+0x00018ED8	0x00000008	[  2] _atexit_handler
+0x00018EE0	0x000000C0	[  2] ___exit_env

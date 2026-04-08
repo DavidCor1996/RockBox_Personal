@@ -1,0 +1,123 @@
+# Path: /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/test_resize.elf
+# Arch: arm64
+# Object files:
+[  0] linker synthesized
+[  1] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/test_resize.o
+[  2] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/plugin_crt0.o
+[  3] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(gcc-support.o)
+[  4] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(pluginlib_actions.o)
+[  5] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(pluginlib_resize.o)
+[  6] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(pluginlib_bmp.o)
+[  7] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(bmp_smooth_scale.o)
+[  8] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/libSystem.tbd
+[  9] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/system/libsystem_platform.tbd
+# Sections:
+# Address	Size    	Segment	Section
+0x00000730	0x00002AE0	__TEXT	__text
+0x00003210	0x00000018	__TEXT	__stubs
+0x00003228	0x000001E9	__TEXT	__cstring
+0x00003414	0x00000128	__TEXT	__const
+0x00003540	0x00000770	__TEXT	__eh_frame
+0x00004000	0x00000010	__DATA_CONST	__got
+0x00004010	0x00000058	__DATA_CONST	__const
+0x00008000	0x00000008	__DATA	__data
+0x00008008	0x00000008	__DATA	.data
+0x00008010	0x000391A8	__DATA	__bss
+# Symbols:
+# Address	Size    	File  Name
+0x00000730	0x000002BC	[  1] _plugin_start
+0x000009EC	0x00000018	[  2] _cleanup_wrapper
+0x00000A04	0x00000068	[  2] _plugin__start
+0x00000A6C	0x00000020	[  2] _rb_atexit
+0x00000A8C	0x00000024	[  2] _exit
+0x00000AB0	0x00000014	[  2] __exit
+0x00000AC4	0x00000064	[  2] _exit_on_usb
+0x00000B28	0x00000018	[  3] _memcpy
+0x00000B40	0x00000018	[  3] _memset
+0x00000B58	0x00000018	[  3] _memmove
+0x00000B70	0x00000018	[  3] _memcmp
+0x00000B88	0x00000038	[  4] _get_context_map
+0x00000BC0	0x00000040	[  4] _pluginlib_getaction
+0x00000C00	0x0000020C	[  5] _scale_h_area
+0x00000E0C	0x00000140	[  5] _output_row_32_native_fromyuv
+0x00000F4C	0x00000130	[  5] _output_row_32_native
+0x0000107C	0x00000010	[  5] _get_size_native
+0x0000108C	0x00000220	[  5] _scale_h_linear
+0x000012AC	0x00000090	[  5] _recalc_dimension
+0x0000133C	0x000003D8	[  5] _resize_on_load
+0x00001714	0x00000318	[  6] _read_part_line
+0x00001A2C	0x00000034	[  6] _store_part_bmp
+0x00001A60	0x00000128	[  6] _output_row_8_native
+0x00001B88	0x000001D4	[  6] _save_bmp_file
+0x00001D5C	0x00000090	[  6] _simple_resize_bitmap
+0x00001DEC	0x00000690	[  6] _read_bmp_fd
+0x0000247C	0x000000AC	[  6] _read_bmp_file
+0x00002528	0x00000CE8	[  7] _smooth_resize_bitmap
+0x00003210	0x0000000C	[  9] _longjmp.stub
+0x0000321C	0x0000000C	[  9] _setjmp.stub
+0x00003228	0x0000000A	[  1] literal string: /test.bmp
+0x00003232	0x00000019	[  1] literal string: Could not load /test.bmp
+0x0000324B	0x0000001D	[  1] literal string: input_bmp_data starts at %p\n
+0x00003268	0x0000001E	[  1] literal string: output_bmp_data starts at %p\n
+0x00003286	0x00000015	[  1] literal string: smooth_resize_bitmap
+0x0000329B	0x00000015	[  1] literal string: simple_resize_bitmap
+0x000032B0	0x0000003D	[  5] literal string: unable to allocate required buffer: %d needed, %d available\n
+0x000032ED	0x00000043	[  6] literal string: read_part_line: error reading image, read returned %d expected %d\n
+0x00003330	0x00000024	[  6] literal string: read_bmp_fd: can't read BMP header.
+0x00003354	0x0000003E	[  6] literal string: read_bmp_fd: Bitmap too large for buffer: %d bytes (%d max).\n
+0x00003392	0x00000027	[  6] literal string: read_bmp_fd: Can't read color palette\n
+0x000033B9	0x00000030	[  6] literal string: read_bmp_fd: Unsupported compression (type %d)\n
+0x000033E9	0x00000028	[  6] literal string: read_bmp_file: can't open '%s', rc: %d\n
+0x00003414	0x000000D8	[  4] _pla_main_ctx
+0x000034EC	0x00000010	[  6] _dither_table
+0x000034FC	0x00000040	[  6] _bitfields
+0x00003540	0x00000018	[  1] CFI
+0x00003558	0x00000078	[  1] FDE for: _plugin_start
+0x000035D0	0x00000018	[  2] CFI
+0x000035E8	0x00000020	[  2] FDE for: _cleanup_wrapper
+0x00003608	0x00000040	[  2] FDE for: _plugin__start
+0x00003648	0x00000020	[  2] FDE for: _rb_atexit
+0x00003668	0x00000030	[  2] FDE for: _exit
+0x00003698	0x00000030	[  2] FDE for: __exit
+0x000036C8	0x00000038	[  2] FDE for: _exit_on_usb
+0x00003700	0x00000018	[  3] CFI
+0x00003718	0x00000020	[  3] FDE for: _memcpy
+0x00003738	0x00000020	[  3] FDE for: _memset
+0x00003758	0x00000020	[  3] FDE for: _memmove
+0x00003778	0x00000020	[  3] FDE for: _memcmp
+0x00003798	0x00000018	[  4] CFI
+0x000037B0	0x00000020	[  4] FDE for: _get_context_map
+0x000037D0	0x00000020	[  4] FDE for: _pluginlib_getaction
+0x000037F0	0x00000018	[  5] CFI
+0x00003808	0x00000068	[  5] FDE for: _scale_h_area
+0x00003870	0x00000040	[  5] FDE for: _output_row_32_native_fromyuv
+0x000038B0	0x00000020	[  5] FDE for: _output_row_32_native
+0x000038D0	0x00000020	[  5] FDE for: _get_size_native
+0x000038F0	0x00000068	[  5] FDE for: _scale_h_linear
+0x00003958	0x00000020	[  5] FDE for: _recalc_dimension
+0x00003978	0x00000070	[  5] FDE for: _resize_on_load
+0x000039E8	0x00000018	[  6] CFI
+0x00003A00	0x00000078	[  6] FDE for: _read_part_line
+0x00003A78	0x00000040	[  6] FDE for: _store_part_bmp
+0x00003AB8	0x00000020	[  6] FDE for: _output_row_8_native
+0x00003AD8	0x00000068	[  6] FDE for: _save_bmp_file
+0x00003B40	0x00000020	[  6] FDE for: _simple_resize_bitmap
+0x00003B60	0x00000088	[  6] FDE for: _read_bmp_fd
+0x00003BE8	0x00000058	[  6] FDE for: _read_bmp_file
+0x00003C40	0x00000018	[  7] CFI
+0x00003C58	0x00000058	[  7] FDE for: _smooth_resize_bitmap
+0x00004000	0x00000008	[  9] _longjmp.got
+0x00004008	0x00000008	[  9] _setjmp.got
+0x00004010	0x00000038	[  2] ___header
+0x00004048	0x00000020	[  5] _format_native
+0x00008000	0x00000008	[  1] _plugin_contexts
+0x00008008	0x00000008	[  2] _rb
+0x00008010	0x00025800	[  1] _output_bmp_data
+0x0002D810	0x00013880	[  1] _input_bmp_data
+0x00041090	0x00000028	[  1] _output_bmp
+0x000410B8	0x00000028	[  1] _input_bmp
+0x000410E0	0x00000008	[  2] _atexit_handler
+0x000410E8	0x000000C0	[  2] ___exit_env
+0x000411A8	0x00000004	[  4] _last_context
+0x000411AC	0x00000004	[  4] _plugin_context_count
+0x000411B0	0x00000008	[  4] _plugin_context_order

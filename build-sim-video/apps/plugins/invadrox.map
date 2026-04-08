@@ -1,0 +1,203 @@
+# Path: /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/invadrox.elf
+# Arch: arm64
+# Object files:
+[  0] linker synthesized
+[  1] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/invadrox.o
+[  2] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/plugin_crt0.o
+[  3] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(gcc-support.o)
+[  4] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(helper.o)
+[  5] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(highscore.o)
+[  6] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/bitmaps/libpluginbitmaps.a(invadrox_fire.8x8x1.o)
+[  7] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/bitmaps/libpluginbitmaps.a(invadrox_aliens.24x24x16.o)
+[  8] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/bitmaps/libpluginbitmaps.a(invadrox_alien_explode.13x7x16.o)
+[  9] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/bitmaps/libpluginbitmaps.a(invadrox_ships.16x24x16.o)
+[ 10] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/bitmaps/libpluginbitmaps.a(invadrox_bombs.9x42x16.o)
+[ 11] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/bitmaps/libpluginbitmaps.a(invadrox_shield.22x16x16.o)
+[ 12] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/bitmaps/libpluginbitmaps.a(invadrox_ufo.16x7x16.o)
+[ 13] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/bitmaps/libpluginbitmaps.a(invadrox_ufo_explode.21x8x16.o)
+[ 14] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/bitmaps/libpluginbitmaps.a(invadrox_numbers.50x7x16.o)
+[ 15] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/bitmaps/libpluginbitmaps.a(invadrox_background.320x240x16.o)
+[ 16] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/libSystem.tbd
+[ 17] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/system/libsystem_platform.tbd
+# Sections:
+# Address	Size    	Segment	Section
+0x00000780	0x0000242C	__TEXT	__text
+0x00002BAC	0x00000018	__TEXT	__stubs
+0x00002BC4	0x00000068	__TEXT	__cstring
+0x00002C2C	0x00026ADE	__TEXT	__const
+0x00029710	0x00000940	__TEXT	__eh_frame
+0x0002C000	0x00000010	__DATA_CONST	__got
+0x0002C010	0x000001C8	__DATA_CONST	__const
+0x00030000	0x00000015	__DATA	__data
+0x00030018	0x00000008	__DATA	.data
+0x00030020	0x000000E1	__DATA	__bss
+0x00030104	0x0000071C	__DATA	__common
+# Symbols:
+# Address	Size    	File  Name
+0x00000780	0x000000B0	[  1] _draw_number
+0x00000830	0x0000005C	[  1] _draw_score
+0x0000088C	0x00000100	[  1] _draw_lives
+0x0000098C	0x00000068	[  1] _first_alien
+0x000009F4	0x000000A8	[  1] _fire_alpha
+0x00000A9C	0x00000084	[  1] _draw_bomb
+0x00000B20	0x00000348	[  1] _new_level
+0x00000E68	0x000000C8	[  1] _next_alien
+0x00000F30	0x0000127C	[  1] _plugin_start
+0x000021AC	0x00000018	[  2] _cleanup_wrapper
+0x000021C4	0x00000068	[  2] _plugin__start
+0x0000222C	0x00000020	[  2] _rb_atexit
+0x0000224C	0x00000024	[  2] _exit
+0x00002270	0x00000014	[  2] __exit
+0x00002284	0x00000064	[  2] _exit_on_usb
+0x000022E8	0x00000018	[  3] _memcpy
+0x00002300	0x00000018	[  3] _memset
+0x00002318	0x00000018	[  3] _memmove
+0x00002330	0x00000018	[  3] _memcmp
+0x00002348	0x00000020	[  4] _talk_val
+0x00002368	0x00000040	[  4] _backlight_force_on
+0x000023A8	0x0000006C	[  4] _backlight_ignore_timeout
+0x00002414	0x00000048	[  4] _backlight_use_settings
+0x0000245C	0x00000044	[  4] _sw_poweroff_disable
+0x000024A0	0x00000020	[  4] _sw_poweroff_restore
+0x000024C0	0x00000004	[  4] _remote_backlight_force_on
+0x000024C4	0x00000004	[  4] _remote_backlight_ignore_timeout
+0x000024C8	0x00000004	[  4] _remote_backlight_use_settings
+0x000024CC	0x00000004	[  4] _buttonlight_force_on
+0x000024D0	0x00000004	[  4] _buttonlight_force_off
+0x000024D4	0x00000004	[  4] _buttonlight_ignore_timeout
+0x000024D8	0x00000004	[  4] _buttonlight_use_settings
+0x000024DC	0x00000018	[  4] _backlight_brightness_set
+0x000024F4	0x00000020	[  4] _backlight_brightness_use_setting
+0x00002514	0x00000004	[  4] _buttonlight_brightness_set
+0x00002518	0x00000004	[  4] _buttonlight_brightness_use_setting
+0x0000251C	0x00000128	[  5] _highscore_save
+0x00002644	0x00000174	[  5] _highscore_load
+0x000027B8	0x0000002C	[  5] _highscore_would_update
+0x000027E4	0x000000D8	[  5] _highscore_update
+0x000028BC	0x000002F0	[  5] _highscore_show
+0x00002BAC	0x0000000C	[ 17] _longjmp.stub
+0x00002BB8	0x0000000C	[ 17] _setjmp.stub
+0x00002BC4	0x00000024	[  1] literal string: /.rockbox/rocks/games/invadrox.high
+0x00002BE8	0x00000008	[  1] literal string: Invader
+0x00002BF0	0x00000005	[  1] literal string: Quit
+0x00002BF5	0x0000000A	[  1] literal string: Game Over
+0x00002BFF	0x0000000A	[  5] literal string: %d:%d:%s\n
+0x00002C09	0x00000004	[  5] literal string: %s\n
+0x00002C0D	0x0000000C	[  5] literal string: High Scores
+0x00002C19	0x00000006	[  5] literal string: Score
+0x00002C1F	0x00000006	[  5] literal string: Level
+0x00002C25	0x00000004	[  5] literal string: %d)
+0x00002C29	0x00000003	[  5] literal string: %d
+0x00002C2C	0x00000008	[  6] _invadrox_fire
+0x00002C34	0x00000480	[  7] _invadrox_aliens
+0x000030B4	0x000000B6	[  8] _invadrox_alien_explode
+0x0000316A	0x00000300	[  9] _invadrox_ships
+0x0000346A	0x000002F4	[ 10] _invadrox_bombs
+0x0000375E	0x000002C0	[ 11] _invadrox_shield
+0x00003A1E	0x000000E0	[ 12] _invadrox_ufo
+0x00003AFE	0x00000150	[ 13] _invadrox_ufo_explode
+0x00003C4E	0x000002BC	[ 14] _invadrox_numbers
+0x00003F0A	0x00025800	[ 15] _invadrox_background
+0x00029710	0x00000018	[  1] CFI
+0x00029728	0x00000058	[  1] FDE for: _draw_number
+0x00029780	0x00000050	[  1] FDE for: _draw_score
+0x000297D0	0x00000058	[  1] FDE for: _draw_lives
+0x00029828	0x00000020	[  1] FDE for: _first_alien
+0x00029848	0x00000050	[  1] FDE for: _fire_alpha
+0x00029898	0x00000040	[  1] FDE for: _draw_bomb
+0x000298D8	0x00000058	[  1] FDE for: _new_level
+0x00029930	0x00000020	[  1] FDE for: _next_alien
+0x00029950	0x00000070	[  1] FDE for: _plugin_start
+0x000299C0	0x00000018	[  2] CFI
+0x000299D8	0x00000020	[  2] FDE for: _cleanup_wrapper
+0x000299F8	0x00000040	[  2] FDE for: _plugin__start
+0x00029A38	0x00000020	[  2] FDE for: _rb_atexit
+0x00029A58	0x00000030	[  2] FDE for: _exit
+0x00029A88	0x00000030	[  2] FDE for: __exit
+0x00029AB8	0x00000038	[  2] FDE for: _exit_on_usb
+0x00029AF0	0x00000018	[  3] CFI
+0x00029B08	0x00000020	[  3] FDE for: _memcpy
+0x00029B28	0x00000020	[  3] FDE for: _memset
+0x00029B48	0x00000020	[  3] FDE for: _memmove
+0x00029B68	0x00000020	[  3] FDE for: _memcmp
+0x00029B88	0x00000018	[  4] CFI
+0x00029BA0	0x00000020	[  4] FDE for: _talk_val
+0x00029BC0	0x00000040	[  4] FDE for: _backlight_force_on
+0x00029C00	0x00000050	[  4] FDE for: _backlight_ignore_timeout
+0x00029C50	0x00000040	[  4] FDE for: _backlight_use_settings
+0x00029C90	0x00000040	[  4] FDE for: _sw_poweroff_disable
+0x00029CD0	0x00000020	[  4] FDE for: _sw_poweroff_restore
+0x00029CF0	0x00000020	[  4] FDE for: _remote_backlight_force_on
+0x00029D10	0x00000020	[  4] FDE for: _remote_backlight_ignore_timeout
+0x00029D30	0x00000020	[  4] FDE for: _remote_backlight_use_settings
+0x00029D50	0x00000020	[  4] FDE for: _buttonlight_force_on
+0x00029D70	0x00000020	[  4] FDE for: _buttonlight_force_off
+0x00029D90	0x00000020	[  4] FDE for: _buttonlight_ignore_timeout
+0x00029DB0	0x00000020	[  4] FDE for: _buttonlight_use_settings
+0x00029DD0	0x00000020	[  4] FDE for: _backlight_brightness_set
+0x00029DF0	0x00000020	[  4] FDE for: _backlight_brightness_use_setting
+0x00029E10	0x00000020	[  4] FDE for: _buttonlight_brightness_set
+0x00029E30	0x00000020	[  4] FDE for: _buttonlight_brightness_use_setting
+0x00029E50	0x00000018	[  5] CFI
+0x00029E68	0x00000070	[  5] FDE for: _highscore_save
+0x00029ED8	0x00000070	[  5] FDE for: _highscore_load
+0x00029F48	0x00000020	[  5] FDE for: _highscore_would_update
+0x00029F68	0x00000068	[  5] FDE for: _highscore_update
+0x00029FD0	0x00000080	[  5] FDE for: _highscore_show
+0x0002C000	0x00000008	[ 17] _longjmp.got
+0x0002C008	0x00000008	[ 17] _setjmp.got
+0x0002C010	0x00000038	[  2] ___header
+0x0002C048	0x00000028	[  6] _bm_invadrox_fire
+0x0002C070	0x00000028	[  7] _bm_invadrox_aliens
+0x0002C098	0x00000028	[  8] _bm_invadrox_alien_explode
+0x0002C0C0	0x00000028	[  9] _bm_invadrox_ships
+0x0002C0E8	0x00000028	[ 10] _bm_invadrox_bombs
+0x0002C110	0x00000028	[ 11] _bm_invadrox_shield
+0x0002C138	0x00000028	[ 12] _bm_invadrox_ufo
+0x0002C160	0x00000028	[ 13] _bm_invadrox_ufo_explode
+0x0002C188	0x00000028	[ 14] _bm_invadrox_numbers
+0x0002C1B0	0x00000028	[ 15] _bm_invadrox_background
+0x00030000	0x00000004	[  1] _exploding_alien.2
+0x00030004	0x0000000C	[  1] _scores
+0x00030010	0x00000004	[  1] _lives
+0x00030014	0x00000001	[  4] _original_sw_poweroff_state
+0x00030018	0x00000008	[  2] _rb
+0x00030020	0x00000004	[  1] _counter.0
+0x00030024	0x00000004	[  1] _ufo_speed.1
+0x00030028	0x00000008	[  1] _oldbuttonstate.3
+0x00030030	0x00000008	[  1] _lcd_fb
+0x00030038	0x00000008	[  2] _atexit_handler
+0x00030040	0x000000C0	[  2] ___exit_env
+0x00030100	0x00000001	[  5] _highscore_updated
+0x00030104	0x00000001	[  1] _hit_right_border
+0x00030105	0x00000001	[  1] _hit_left_border
+0x00030106	0x00000001	[  1] _aliens_right
+0x00030107	0x00000001	[  1] _aliens_down
+0x00030108	0x00000004	[  1] _level_finished
+0x0003010C	0x00000004	[  1] _ufo_x
+0x00030110	0x00000004	[  1] _ufo_state
+0x00030114	0x00000004	[  1] _gamespeed
+0x00030118	0x00000004	[  1] _aliens_paralyzed
+0x0003011C	0x00000004	[  1] _curr_alien
+0x00030120	0x00000004	[  1] _fire_y
+0x00030124	0x00000004	[  1] _fire_x
+0x00030128	0x00000004	[  1] _fire_target
+0x0003012C	0x00000004	[  1] _fire
+0x00030130	0x00000004	[  1] _ship_hit
+0x00030134	0x00000004	[  1] _ship_frame_counter
+0x00030138	0x00000004	[  1] _ship_frame
+0x0003013C	0x00000004	[  1] _max_ship_speed
+0x00030140	0x00000004	[  1] _ship_acc
+0x00030144	0x00000004	[  1] _ship_dir
+0x00030148	0x00000004	[  1] _old_ship_x
+0x0003014C	0x00000004	[  1] _ship_x
+0x00030150	0x00000004	[  1] _game_over
+0x00030154	0x00000028	[  1] _hiscore
+0x0003017C	0x00000004	[  1] _level
+0x00030180	0x00000004	[  1] _score
+0x00030184	0x000003C0	[  1] _ytab
+0x00030544	0x00000002	[  1] _screen_white
+0x00030546	0x00000002	[  1] _screen_green
+0x00030548	0x00000004	[  1] _max_bombs
+0x0003054C	0x00000040	[  1] _bombs
+0x0003058C	0x00000294	[  1] _aliens

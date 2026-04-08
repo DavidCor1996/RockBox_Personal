@@ -1,0 +1,134 @@
+# Path: /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/au.elf
+# Arch: arm64
+# Object files:
+[  0] linker synthesized
+[  1] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/au.o
+[  2] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/codec_crt0.o
+[  3] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libpcm.a(linear_pcm.o)
+[  4] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libpcm.a(itut_g711.o)
+[  5] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libpcm.a(ieee_float.o)
+[  6] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+[  7] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/libSystem.tbd
+# Sections:
+# Address	Size    	Segment	Section
+0x00000640	0x00001238	__TEXT	__text
+0x00001878	0x00000203	__TEXT	__cstring
+0x00001A7C	0x00000612	__TEXT	__const
+0x00002090	0x00000638	__TEXT	__eh_frame
+0x00004000	0x000000E0	__DATA_CONST	__const
+0x00008000	0x00000008	__DATA	.data
+0x00008008	0x00002048	__DATA	__bss
+# Symbols:
+# Address	Size    	File  Name
+0x00000640	0x0000000C	[  1] _get_be32
+0x0000064C	0x0000057C	[  1] _codec_run
+0x00000BC8	0x0000003C	[  1] _codec_main
+0x00000C04	0x00000008	[  2] __start
+0x00000C0C	0x00000004	[  2] _codec_start
+0x00000C10	0x000000BC	[  3] _set_format
+0x00000CCC	0x00000060	[  3] _get_seek_pos
+0x00000D2C	0x00000390	[  3] _decode
+0x000010BC	0x0000000C	[  3] _get_linear_pcm_codec
+0x000010C8	0x000000B4	[  4] _set_format
+0x0000117C	0x00000060	[  4] _get_seek_pos
+0x000011DC	0x00000054	[  4] _decode_alaw
+0x00001230	0x00000054	[  4] _decode_mulaw
+0x00001284	0x0000000C	[  4] _get_itut_g711_alaw_codec
+0x00001290	0x0000000C	[  4] _get_itut_g711_mulaw_codec
+0x0000129C	0x000000D0	[  5] _set_format
+0x0000136C	0x00000060	[  5] _get_seek_pos
+0x000013CC	0x0000023C	[  5] _decode
+0x00001608	0x0000000C	[  5] _get_ieee_float_codec
+0x00001614	0x00000040	[  6] _codec_init
+0x00001654	0x00000048	[  6] _codec_set_replaygain
+0x0000169C	0x00000048	[  6] _codec_malloc
+0x000016E4	0x0000004C	[  6] _codec_calloc
+0x00001730	0x00000004	[  6] _codec_free
+0x00001734	0x00000054	[  6] _codec_realloc
+0x00001788	0x00000018	[  6] _codec_strlen
+0x000017A0	0x00000018	[  6] _strcpy
+0x000017B8	0x00000018	[  6] _strcat
+0x000017D0	0x00000018	[  6] _strcmp
+0x000017E8	0x00000018	[  6] _memcpy
+0x00001800	0x00000018	[  6] _memset
+0x00001818	0x00000018	[  6] _memcmp
+0x00001830	0x00000018	[  6] _memchr
+0x00001848	0x00000018	[  6] _memmove
+0x00001860	0x00000018	[  6] _qsort
+0x00001878	0x00000014	[  1] literal string: codec_init() error\n
+0x0000188C	0x00000005	[  1] literal string: .snd
+0x00001891	0x00000031	[  1] literal string: CODEC_ERROR: sun audio offset size is small: %d\n
+0x000018C2	0x0000002D	[  1] literal string: CODEC_ERROR: sun audio unsupport format: %d\n
+0x000018EF	0x0000002D	[  1] literal string: CODEC_ERROR: unsupport sun audio format: %x\n
+0x0000191C	0x0000001D	[  1] literal string: CODEC_ERROR: data size is 0\n
+0x00001939	0x0000001D	[  1] literal string: CODEC_ERROR: chunksize is 0\n
+0x00001956	0x00000023	[  1] literal string: CODEC_ERROR: more than 2 channels\n
+0x00001979	0x0000000D	[  1] literal string: codec error\n
+0x00001986	0x0000001C	[  3] literal string: CODEC_ERROR: channels is 0\n
+0x000019A2	0x00000021	[  3] literal string: CODEC_ERROR: bitspersample is 0\n
+0x000019C3	0x00000041	[  3] literal string: CODEC_ERROR: pcm with more than 32 bitspersample is unsupported\n
+0x00001A04	0x0000003B	[  4] literal string: CODEC_ERROR: alaw and mulaw must have 8 bitspersample: %d\n
+0x00001A3F	0x0000003C	[  5] literal string: CODEC_ERROR: ieee float must be 32 or 64 bitspersample: %d\n
+0x00001A7C	0x00000012	[  1] _support_formats
+0x00001A8E	0x00000200	[  4] _ulaw2linear16
+0x00001C8E	0x00000200	[  4] _alaw2linear16
+0x00001E8E	0x00000100	[  6] _bs_clz_tab
+0x00001F8E	0x00000100	[  6] _bs_log2_tab
+0x00002090	0x00000018	[  1] CFI
+0x000020A8	0x00000020	[  1] FDE for: _get_be32
+0x000020C8	0x00000070	[  1] FDE for: _codec_run
+0x00002138	0x00000038	[  1] FDE for: _codec_main
+0x00002170	0x00000018	[  2] CFI
+0x00002188	0x00000020	[  2] FDE for: __start
+0x000021A8	0x00000020	[  2] FDE for: _codec_start
+0x000021C8	0x00000018	[  3] CFI
+0x000021E0	0x00000040	[  3] FDE for: _set_format
+0x00002220	0x00000020	[  3] FDE for: _get_seek_pos
+0x00002240	0x00000020	[  3] FDE for: _decode
+0x00002260	0x00000020	[  3] FDE for: _get_linear_pcm_codec
+0x00002280	0x00000018	[  4] CFI
+0x00002298	0x00000048	[  4] FDE for: _set_format
+0x000022E0	0x00000020	[  4] FDE for: _get_seek_pos
+0x00002300	0x00000020	[  4] FDE for: _decode_alaw
+0x00002320	0x00000020	[  4] FDE for: _decode_mulaw
+0x00002340	0x00000020	[  4] FDE for: _get_itut_g711_alaw_codec
+0x00002360	0x00000020	[  4] FDE for: _get_itut_g711_mulaw_codec
+0x00002380	0x00000018	[  5] CFI
+0x00002398	0x00000048	[  5] FDE for: _set_format
+0x000023E0	0x00000020	[  5] FDE for: _get_seek_pos
+0x00002400	0x00000020	[  5] FDE for: _decode
+0x00002420	0x00000020	[  5] FDE for: _get_ieee_float_codec
+0x00002440	0x00000018	[  6] CFI
+0x00002458	0x00000038	[  6] FDE for: _codec_init
+0x00002490	0x00000038	[  6] FDE for: _codec_set_replaygain
+0x000024C8	0x00000020	[  6] FDE for: _codec_malloc
+0x000024E8	0x00000040	[  6] FDE for: _codec_calloc
+0x00002528	0x00000020	[  6] FDE for: _codec_free
+0x00002548	0x00000040	[  6] FDE for: _codec_realloc
+0x00002588	0x00000020	[  6] FDE for: _codec_strlen
+0x000025A8	0x00000020	[  6] FDE for: _strcpy
+0x000025C8	0x00000020	[  6] FDE for: _strcat
+0x000025E8	0x00000020	[  6] FDE for: _strcmp
+0x00002608	0x00000020	[  6] FDE for: _memcpy
+0x00002628	0x00000020	[  6] FDE for: _memset
+0x00002648	0x00000020	[  6] FDE for: _memcmp
+0x00002668	0x00000020	[  6] FDE for: _memchr
+0x00002688	0x00000020	[  6] FDE for: _memmove
+0x000026A8	0x00000020	[  6] FDE for: _qsort
+0x00004000	0x00000040	[  1] _au_codecs
+0x00004040	0x00000040	[  1] ___header
+0x00004080	0x00000018	[  3] _codec
+0x00004098	0x00000018	[  4] _mulaw_codec
+0x000040B0	0x00000018	[  4] _alaw_codec
+0x000040C8	0x00000018	[  5] _codec
+0x00008000	0x00000008	[  2] _ci
+0x00008008	0x00002000	[  1] _samples
+0x0000A008	0x00000008	[  3] _newpos.0
+0x0000A010	0x00000008	[  3] _fmt
+0x0000A018	0x00000008	[  4] _newpos.0
+0x0000A020	0x00000008	[  4] _fmt
+0x0000A028	0x00000008	[  5] _newpos.0
+0x0000A030	0x00000008	[  5] _fmt
+0x0000A038	0x00000008	[  6] _mallocbuf
+0x0000A040	0x00000008	[  6] _bufsize
+0x0000A048	0x00000008	[  6] _mem_ptr

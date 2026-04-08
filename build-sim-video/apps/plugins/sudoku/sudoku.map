@@ -1,0 +1,269 @@
+# Path: /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/sudoku/sudoku.elf
+# Arch: arm64
+# Object files:
+[  0] linker synthesized
+[  1] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/sudoku/sudoku.o
+[  2] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/sudoku/generator.o
+[  3] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/sudoku/templates.o
+[  4] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/plugin_crt0.o
+[  5] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(configfile.o)
+[  6] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(playback_control.o)
+[  7] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/bitmaps/libpluginbitmaps.a(sudoku_start.320x240x16.o)
+[  8] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/bitmaps/libpluginbitmaps.a(sudoku_normal.320x240x16.o)
+[  9] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/bitmaps/libpluginbitmaps.a(sudoku_inverse.320x240x16.o)
+[ 10] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/libSystem.tbd
+[ 11] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/system/libsystem_platform.tbd
+# Sections:
+# Address	Size    	Segment	Section
+0x00000780	0x000036C0	__TEXT	__text
+0x00003E40	0x00000018	__TEXT	__stubs
+0x00003E58	0x000001BF	__TEXT	__cstring
+0x00004018	0x000121F8	__TEXT	__const
+0x00016210	0x00001058	__TEXT	__eh_frame
+0x00018000	0x00000010	__DATA_CONST	__got
+0x00018010	0x00000248	__DATA_CONST	__const
+0x0001C000	0x00000110	__DATA	__data
+0x0001C110	0x00000008	__DATA	.data
+0x0001C118	0x00000018	__DATA	__common
+0x0001C130	0x00000908	__DATA	__bss
+# Symbols:
+# Address	Size    	File  Name
+0x00000780	0x00000054	[  1] _save_state
+0x000007D4	0x00000084	[  1] _clear_state
+0x00000858	0x00000150	[  1] _check_status
+0x000009A8	0x00000284	[  1] _load_sudoku
+0x00000C2C	0x00000204	[  1] _save_sudoku
+0x00000E30	0x0000011C	[  1] _update_cell
+0x00000F4C	0x000004A4	[  1] _display_board
+0x000013F0	0x00000094	[  1] _move_cursor
+0x00001484	0x0000010C	[  1] _sudoku_generate.isra.0
+0x00001590	0x00000778	[  1] _plugin_start
+0x00001D08	0x00000068	[  2] _reset
+0x00001D70	0x0000000C	[  2] _idx_row
+0x00001D7C	0x0000000C	[  2] _idx_column
+0x00001D88	0x00000034	[  2] _idx_block
+0x00001DBC	0x000000B8	[  2] _update
+0x00001E74	0x00000044	[  2] _numset
+0x00001EB8	0x0000008C	[  2] _count_set_digits
+0x00001F44	0x00000180	[  2] _singles
+0x000020C4	0x000000A0	[  2] _findmoves
+0x00002164	0x00000188	[  2] _pairs
+0x000022EC	0x000000C8	[  2] _exmask
+0x000023B4	0x00000098	[  2] _exblock
+0x0000244C	0x00000018	[  2] _cmp
+0x00002464	0x00000028	[  2] _exchange
+0x0000248C	0x00000124	[  2] _rotate
+0x000025B0	0x00000070	[  2] _shuffle
+0x00002620	0x00000034	[  2] _check_buttons
+0x00002654	0x000003B8	[  2] _allmoves
+0x00002A0C	0x000000CC	[  2] _add_move
+0x00002AD8	0x00000078	[  2] _fill
+0x00002B50	0x00000090	[  2] _choose
+0x00002BE0	0x0000008C	[  2] _reapply.isra.0
+0x00002C6C	0x00000090	[  2] _backtrack
+0x00002CFC	0x00000138	[  2] _solve
+0x00002E34	0x0000003C	[  2] _clear_moves
+0x00002E70	0x000004A4	[  2] _sudoku_generate_board
+0x00003314	0x000000C4	[  2] _sudoku_solve_board
+0x000033D8	0x00000018	[  4] _cleanup_wrapper
+0x000033F0	0x00000068	[  4] _plugin__start
+0x00003458	0x00000020	[  4] _rb_atexit
+0x00003478	0x00000024	[  4] _exit
+0x0000349C	0x00000014	[  4] __exit
+0x000034B0	0x00000064	[  4] _exit_on_usb
+0x00003514	0x000000E8	[  5] _get_cfg_filename.constprop.0
+0x000035FC	0x00000160	[  5] _configfile_save
+0x0000375C	0x00000228	[  5] _configfile_load
+0x00003984	0x000000E0	[  5] _configfile_get_value
+0x00003A64	0x00000158	[  5] _configfile_update_entry
+0x00003BBC	0x00000028	[  6] _prevtrack
+0x00003BE4	0x00000088	[  6] _play
+0x00003C6C	0x00000028	[  6] _stop
+0x00003C94	0x00000028	[  6] _nexttrack
+0x00003CBC	0x00000050	[  6] _volume
+0x00003D0C	0x00000054	[  6] _shuffle
+0x00003D60	0x0000008C	[  6] _repeat_mode
+0x00003DEC	0x0000000C	[  6] _playback_control_init
+0x00003DF8	0x00000048	[  6] _playback_control
+0x00003E40	0x0000000C	[ 11] _longjmp.stub
+0x00003E4C	0x0000000C	[ 11] _setjmp.stub
+0x00003E58	0x00000020	[  1] literal string: /.rockbox/rocks/games/sudoku.ss
+0x00003E78	0x0000000A	[  1] literal string: Saving...
+0x00003E82	0x00000003	[  1] literal string: \r\n
+0x00003E85	0x0000000E	[  1] literal string: Illegal move!
+0x00003E93	0x0000000E	[  1] literal string: Generating...
+0x00003EA1	0x0000000F	[  1] literal string: Difficulty: %s
+0x00003EB0	0x00000008	[  1] literal string: Aborted
+0x00003EB8	0x0000000B	[  1] literal string: Load error
+0x00003EC3	0x0000000C	[  1] literal string: Save failed
+0x00003ECF	0x0000000F	[  1] literal string: Number Display
+0x00003EDE	0x0000000E	[  1] literal string: Show Markings
+0x00003EEC	0x0000000D	[  1] literal string: Solve failed
+0x00003EF9	0x00000005	[  1] literal string: Hide
+0x00003EFE	0x00000005	[  1] literal string: Show
+0x00003F03	0x00000006	[  1] literal string: Black
+0x00003F09	0x00000009	[  1] literal string: Coloured
+0x00003F12	0x0000000F	[  1] literal string: Audio Playback
+0x00003F21	0x00000005	[  1] literal string: Save
+0x00003F26	0x00000007	[  1] literal string: Reload
+0x00003F2D	0x00000006	[  1] literal string: Clear
+0x00003F33	0x00000006	[  1] literal string: Solve
+0x00003F39	0x00000009	[  1] literal string: Generate
+0x00003F42	0x00000004	[  1] literal string: New
+0x00003F46	0x00000005	[  1] literal string: Quit
+0x00003F4B	0x00000007	[  1] literal string: Sudoku
+0x00003F52	0x00000008	[  1] literal string: Save as
+0x00003F5A	0x00000005	[  1] literal string: Edit
+0x00003F5F	0x00000008	[  1] literal string: numbers
+0x00003F67	0x00000009	[  1] literal string: markings
+0x00003F70	0x00000005	[  1] literal string: hide
+0x00003F75	0x00000005	[  1] literal string: show
+0x00003F7A	0x00000006	[  1] literal string: black
+0x00003F80	0x00000009	[  1] literal string: coloured
+0x00003F89	0x0000000A	[  2] literal string: very easy
+0x00003F93	0x00000005	[  2] literal string: easy
+0x00003F98	0x00000007	[  2] literal string: medium
+0x00003F9F	0x00000005	[  2] literal string: hard
+0x00003FA4	0x00000009	[  2] literal string: fiendish
+0x00003FAD	0x0000000A	[  5] literal string: /.rockbox
+0x00003FB7	0x00000004	[  5] literal string: /%s
+0x00003FBB	0x00000013	[  5] literal string: /.rockbox/rocks/%s
+0x00003FCE	0x00000014	[  5] literal string: file version: %10d\n
+0x00003FE2	0x0000000A	[  5] literal string: %s: %10d\n
+0x00003FEC	0x00000008	[  5] literal string: %s: %s\n
+0x00003FF4	0x0000000D	[  5] literal string: file version
+0x00004001	0x00000007	[  6] literal string: Volume
+0x00004008	0x00000008	[  6] literal string: Shuffle
+0x00004010	0x00000007	[  6] literal string: Repeat
+0x00004018	0x00000029	[  1] lC1
+0x00004041	0x0000000F	[  1] lC2
+0x00004050	0x00000024	[  1] _cellypos
+0x00004074	0x00000024	[  1] _cellxpos
+0x00004098	0x0000000B	[  1] _cfg_filename
+0x000040A3	0x00000051	[  1] _default_game
+0x000040F4	0x0000125A	[  3] _templates
+0x00005350	0x00000018	[  6] _playback_control_menu__
+0x00005368	0x00000018	[  6] _repeat_mode_item_
+0x00005380	0x00000018	[  6] _shuffle_item_
+0x00005398	0x00000018	[  6] _volume_item_
+0x000053B0	0x00000018	[  6] _nexttrack_item_
+0x000053C8	0x00000018	[  6] _stop_item_
+0x000053E0	0x00000018	[  6] _playpause_item_
+0x000053F8	0x00000018	[  6] _prevtrack_item_
+0x00005410	0x00005A00	[  7] _sudoku_start
+0x0000AE10	0x00005A00	[  8] _sudoku_normal
+0x00010810	0x00005A00	[  9] _sudoku_inverse
+0x00016210	0x00000018	[  1] CFI
+0x00016228	0x00000040	[  1] FDE for: _save_state
+0x00016268	0x00000040	[  1] FDE for: _clear_state
+0x000162A8	0x00000030	[  1] FDE for: _check_status
+0x000162D8	0x00000060	[  1] FDE for: _load_sudoku
+0x00016338	0x00000078	[  1] FDE for: _save_sudoku
+0x000163B0	0x00000050	[  1] FDE for: _update_cell
+0x00016400	0x00000070	[  1] FDE for: _display_board
+0x00016470	0x00000060	[  1] FDE for: _move_cursor
+0x000164D0	0x00000058	[  1] FDE for: _sudoku_generate.isra.0
+0x00016528	0x00000080	[  1] FDE for: _plugin_start
+0x000165A8	0x00000018	[  2] CFI
+0x000165C0	0x00000040	[  2] FDE for: _reset
+0x00016600	0x00000020	[  2] FDE for: _idx_row
+0x00016620	0x00000020	[  2] FDE for: _idx_column
+0x00016640	0x00000020	[  2] FDE for: _idx_block
+0x00016660	0x00000038	[  2] FDE for: _update
+0x00016698	0x00000020	[  2] FDE for: _numset
+0x000166B8	0x00000058	[  2] FDE for: _count_set_digits
+0x00016710	0x00000078	[  2] FDE for: _singles
+0x00016788	0x00000058	[  2] FDE for: _findmoves
+0x000167E0	0x00000078	[  2] FDE for: _pairs
+0x00016858	0x00000070	[  2] FDE for: _exmask
+0x000168C8	0x00000048	[  2] FDE for: _exblock
+0x00016910	0x00000020	[  2] FDE for: _cmp
+0x00016930	0x00000020	[  2] FDE for: _exchange
+0x00016950	0x00000050	[  2] FDE for: _rotate
+0x000169A0	0x00000058	[  2] FDE for: _shuffle
+0x000169F8	0x00000038	[  2] FDE for: _check_buttons
+0x00016A30	0x00000078	[  2] FDE for: _allmoves
+0x00016AA8	0x00000020	[  2] FDE for: _add_move
+0x00016AC8	0x00000038	[  2] FDE for: _fill
+0x00016B00	0x00000048	[  2] FDE for: _choose
+0x00016B48	0x00000048	[  2] FDE for: _reapply.isra.0
+0x00016B90	0x00000048	[  2] FDE for: _backtrack
+0x00016BD8	0x00000050	[  2] FDE for: _solve
+0x00016C28	0x00000020	[  2] FDE for: _clear_moves
+0x00016C48	0x00000070	[  2] FDE for: _sudoku_generate_board
+0x00016CB8	0x00000040	[  2] FDE for: _sudoku_solve_board
+0x00016CF8	0x00000018	[  4] CFI
+0x00016D10	0x00000020	[  4] FDE for: _cleanup_wrapper
+0x00016D30	0x00000040	[  4] FDE for: _plugin__start
+0x00016D70	0x00000020	[  4] FDE for: _rb_atexit
+0x00016D90	0x00000030	[  4] FDE for: _exit
+0x00016DC0	0x00000030	[  4] FDE for: __exit
+0x00016DF0	0x00000038	[  4] FDE for: _exit_on_usb
+0x00016E28	0x00000018	[  5] CFI
+0x00016E40	0x00000068	[  5] FDE for: _get_cfg_filename.constprop.0
+0x00016EA8	0x00000070	[  5] FDE for: _configfile_save
+0x00016F18	0x00000068	[  5] FDE for: _configfile_load
+0x00016F80	0x00000058	[  5] FDE for: _configfile_get_value
+0x00016FD8	0x00000070	[  5] FDE for: _configfile_update_entry
+0x00017048	0x00000018	[  6] CFI
+0x00017060	0x00000038	[  6] FDE for: _prevtrack
+0x00017098	0x00000048	[  6] FDE for: _play
+0x000170E0	0x00000038	[  6] FDE for: _stop
+0x00017118	0x00000038	[  6] FDE for: _nexttrack
+0x00017150	0x00000040	[  6] FDE for: _volume
+0x00017190	0x00000040	[  6] FDE for: _shuffle
+0x000171D0	0x00000040	[  6] FDE for: _repeat_mode
+0x00017210	0x00000020	[  6] FDE for: _playback_control_init
+0x00017230	0x00000038	[  6] FDE for: _playback_control
+0x00018000	0x00000008	[ 11] _longjmp.got
+0x00018008	0x00000008	[ 11] _setjmp.got
+0x00018010	0x00000020	[  1] _names.0
+0x00018030	0x00000020	[  1] _names.1
+0x00018050	0x00000018	[  1] _menu__.3
+0x00018068	0x00000018	[  1] _menu.4
+0x00018080	0x00000018	[  1] _menu__.6
+0x00018098	0x00000018	[  1] _menu.7
+0x000180B0	0x00000038	[  4] ___header
+0x000180E8	0x00000018	[  6] _playback_control_menu
+0x00018100	0x00000018	[  6] _repeat_mode_item
+0x00018118	0x00000008	[  6] _repeat_mode_item__
+0x00018120	0x00000018	[  6] _shuffle_item
+0x00018138	0x00000008	[  6] _shuffle_item__
+0x00018140	0x00000018	[  6] _volume_item
+0x00018158	0x00000008	[  6] _volume_item__
+0x00018160	0x00000018	[  6] _nexttrack_item
+0x00018178	0x00000008	[  6] _nexttrack_item__
+0x00018180	0x00000018	[  6] _stop_item
+0x00018198	0x00000008	[  6] _stop_item__
+0x000181A0	0x00000018	[  6] _playpause_item
+0x000181B8	0x00000008	[  6] _playpause_item__
+0x000181C0	0x00000018	[  6] _prevtrack_item
+0x000181D8	0x00000008	[  6] _prevtrack_item__
+0x000181E0	0x00000028	[  7] _bm_sudoku_start
+0x00018208	0x00000028	[  8] _bm_sudoku_normal
+0x00018230	0x00000028	[  9] _bm_sudoku_inverse
+0x0001C000	0x00000050	[  1] _menu_.2
+0x0001C050	0x00000010	[  1] _menu_.5
+0x0001C060	0x00000050	[  1] _disk_config
+0x0001C0B0	0x00000010	[  1] _mark_str
+0x0001C0C0	0x00000010	[  1] _number_str
+0x0001C0D0	0x00000008	[  1] _sudcfg_disk
+0x0001C0D8	0x00000038	[  6] _playback_control_menu_
+0x0001C110	0x00000008	[  4] _rb
+0x0001C118	0x00000008	[  1] _sudcfg
+0x0001C120	0x00000004	[  1] _invertdir
+0x0001C128	0x00000008	[  6] _parentvp
+0x0001C130	0x00000024	[  2] _digits.0
+0x0001C154	0x00000028	[  2] _posn_digit
+0x0001C17C	0x00000024	[  2] _counts
+0x0001C1A0	0x00000024	[  2] _digits
+0x0001C1C4	0x00000004	[  2] _len_tmplt
+0x0001C1C8	0x00000144	[  2] _tmplt
+0x0001C30C	0x00000004	[  2] _pass
+0x0001C310	0x00000144	[  2] _possible
+0x0001C454	0x00000004	[  2] _idx_possible
+0x0001C458	0x000003CC	[  2] _history
+0x0001C824	0x00000004	[  2] _idx_history
+0x0001C828	0x00000144	[  2] _board
+0x0001C970	0x00000008	[  4] _atexit_handler
+0x0001C978	0x000000C0	[  4] ___exit_env

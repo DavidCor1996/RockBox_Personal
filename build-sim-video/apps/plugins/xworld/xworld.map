@@ -1,0 +1,803 @@
+# Path: /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/xworld/xworld.elf
+# Arch: arm64
+# Object files:
+[  0] linker synthesized
+[  1] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/xworld/bank.o
+[  2] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/xworld/engine.o
+[  3] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/xworld/file.o
+[  4] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/xworld/mixer.o
+[  5] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/xworld/parts.o
+[  6] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/xworld/resource.o
+[  7] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/xworld/serializer.o
+[  8] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/xworld/sfxplayer.o
+[  9] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/xworld/sys.o
+[ 10] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/xworld/util.o
+[ 11] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/xworld/video.o
+[ 12] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/xworld/video_data.o
+[ 13] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/xworld/vm.o
+[ 14] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/xworld/xworld.o
+[ 15] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/plugin_crt0.o
+[ 16] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(gcc-support.o)
+[ 17] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(helper.o)
+[ 18] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(display_text.o)
+[ 19] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(strncpy.o)
+[ 20] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(pluginlib_resize.o)
+[ 21] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(pluginlib_bmp.o)
+[ 22] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(bmp_smooth_scale.o)
+[ 23] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/libSystem.tbd
+[ 24] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/system/libsystem_platform.tbd
+# Sections:
+# Address	Size    	Segment	Section
+0x00000780	0x0000A10C	__TEXT	__text
+0x0000A88C	0x00000018	__TEXT	__stubs
+0x0000A8A8	0x0000140A	__TEXT	__cstring
+0x0000BCC0	0x00000170	__TEXT	__const
+0x0000BE30	0x000036B0	__TEXT	__eh_frame
+0x00010000	0x00000010	__DATA_CONST	__got
+0x00010010	0x000004F8	__DATA_CONST	__const
+0x00014000	0x00001401	__DATA	__data
+0x00015408	0x00000008	__DATA	.data
+0x00015410	0x000000A2	__DATA	__common
+0x000154C0	0x000028C0	__DATA	__bss
+# Symbols:
+# Address	Size    	File  Name
+0x00000780	0x00000080	[  1] _bank_nextChunk.part.0
+0x00000800	0x00000008	[  1] _bank_create
+0x00000808	0x000000F8	[  1] _bank_getCode
+0x00000900	0x000000E0	[  1] _bank_decUnk1
+0x000009E0	0x000000CC	[  1] _bank_decUnk2
+0x00000AAC	0x0000019C	[  1] _bank_unpack
+0x00000C48	0x00000118	[  1] _bank_read
+0x00000D60	0x000000A0	[  1] _bank_nextChunk
+0x00000E00	0x00000014	[  1] _bank_rcr
+0x00000E20	0x000000B0	[  2] _engine_create
+0x00000ED0	0x000001B0	[  2] _engine_loadFontFile
+0x00001080	0x00000280	[  2] _engine_loadStringTable
+0x00001300	0x00000080	[  2] _engine_init
+0x00001380	0x00000040	[  2] _engine_finish
+0x000013C0	0x00000040	[  2] _engine_makeGameStateName
+0x00001400	0x00000180	[  2] _engine_saveGameState
+0x00001580	0x00000168	[  2] _engine_loadGameState
+0x000016E8	0x000000B8	[  2] _engine_processInput
+0x000017A0	0x00000080	[  2] _engine_run
+0x00001820	0x00000060	[  2] _engine_deleteGameState
+0x00001880	0x00000008	[  2] _engine_getDataDir
+0x000018A0	0x00000020	[  3] _file_create
+0x000018C0	0x00000130	[  3] _file_open
+0x000019F0	0x00000030	[  3] _file_close
+0x00001A20	0x00000008	[  3] _file_ioErr
+0x00001A28	0x00000038	[  3] _file_seek
+0x00001A60	0x00000060	[  3] _file_read
+0x00001AC0	0x00000060	[  3] _file_readByte
+0x00001B20	0x00000080	[  3] _file_readUint16BE
+0x00001BA0	0x00000030	[  3] _file_readUint32BE
+0x00001BD0	0x0000003C	[  3] _file_write
+0x00001C0C	0x0000003C	[  3] _file_writeByte
+0x00001C48	0x00000080	[  3] _file_writeUint16BE
+0x00001CC8	0x00000038	[  3] _file_writeUint32BE
+0x00001D00	0x000000A8	[  3] _file_remove
+0x00001DC0	0x0000018C	[  4] _mixer_mixCallback
+0x00001F4C	0x00000014	[  4] _mixer_create
+0x00001F60	0x00000070	[  4] _mixer_init
+0x00001FD0	0x00000050	[  4] _mixer_free
+0x00002020	0x000000C0	[  4] _mixer_playChannel
+0x000020E0	0x00000080	[  4] _mixer_stopChannel
+0x00002160	0x00000080	[  4] _mixer_setChannelVolume
+0x000021E0	0x00000040	[  4] _mixer_stopAll
+0x00002220	0x00000154	[  4] _mixer_saveOrLoad
+0x00002380	0x00000020	[  6] _res_create
+0x000023A0	0x0000008C	[  6] _res_readBank
+0x0000242C	0x00000234	[  6] _res_readEntries
+0x00002660	0x000001A4	[  6] _res_loadMarkedAsNeeded
+0x00002804	0x0000005C	[  6] _res_invalidateRes
+0x00002860	0x00000040	[  6] _res_invalidateAll
+0x000028A0	0x00000040	[  6] _res_loadPartsOrMemoryEntry
+0x000028E0	0x00000190	[  6] _res_setupPart
+0x00002A70	0x000000B0	[  6] _res_allocMemBlock
+0x00002B20	0x00000004	[  6] _res_freeMemBlock
+0x00002B24	0x0000035C	[  6] _res_saveOrLoad
+0x00002E80	0x00000008	[  6] _res_getDataDir
+0x00002EA0	0x00000020	[  7] _ser_create
+0x00002EC0	0x00000040	[  7] _ser_saveInt
+0x00002F00	0x0000012C	[  7] _ser_saveEntries
+0x0000302C	0x00000074	[  7] _ser_loadInt
+0x000030A0	0x00000140	[  7] _ser_loadEntries
+0x000031E0	0x00000020	[  7] _ser_saveOrLoadEntries
+0x00003200	0x00000010	[  8] _player_create
+0x00003210	0x00000030	[  8] _player_init
+0x00003240	0x00000064	[  8] _player_free
+0x000032A4	0x0000005C	[  8] _player_setEventsDelay
+0x00003300	0x00000100	[  8] _player_prepareInstruments
+0x00003400	0x00000160	[  8] _player_loadSfxModule
+0x00003560	0x00000050	[  8] _player_start
+0x000035B0	0x0000005C	[  8] _player_stop
+0x0000360C	0x000001F4	[  8] _player_handlePattern
+0x00003800	0x000000F0	[  8] _player_handleEvents
+0x000038F0	0x00000030	[  8] _player_eventsCallback
+0x00003920	0x00000118	[  8] _player_saveOrLoad
+0x00003A40	0x00000040	[  9] _mainmenu_cb
+0x00003A80	0x00000160	[  9] _get_more
+0x00003BE0	0x00000080	[  9] _timer_callback
+0x00003C60	0x00000060	[  9] _sys_rotate_keymap
+0x00003CC0	0x0000008C	[  9] _sys_do_help.isra.0
+0x00003D4C	0x00000064	[  9] _sys_save_settings.isra.0
+0x00003DB0	0x00000050	[  9] _exit_handler
+0x00003E00	0x000001F0	[  9] _do_video_settings
+0x00003FF0	0x00000110	[  9] _do_sound_settings
+0x00004100	0x00000248	[  9] _sys_menu
+0x00004348	0x00000118	[  9] _sys_init
+0x00004460	0x00000024	[  9] _sys_destroy
+0x00004484	0x0000009C	[  9] _sys_setPalette
+0x00004520	0x000006CC	[  9] _sys_copyRect
+0x00004BEC	0x00000354	[  9] _sys_processEvents
+0x00004F40	0x00000028	[  9] _sys_sleep
+0x00004F68	0x00000020	[  9] _sys_getTimeStamp
+0x00004F88	0x00000044	[  9] _sys_startAudio
+0x00004FCC	0x00000018	[  9] _sys_stopAudio
+0x00004FE4	0x0000001C	[  9] _sys_getOutputSampleRate
+0x00005000	0x00000060	[  9] _sys_addTimer
+0x00005060	0x00000020	[  9] _sys_removeTimer
+0x00005080	0x0000010C	[  9] _sys_createMutex
+0x0000518C	0x00000034	[  9] _sys_destroyMutex
+0x000051C0	0x00000020	[  9] _sys_lockMutex
+0x000051E0	0x00000020	[  9] _sys_unlockMutex
+0x00005200	0x00000008	[  9] _getOffScreenFramebuffer
+0x00005208	0x00000098	[  9] _sys_get_buffer
+0x000052A0	0x00000008	[  9] _MutexStack
+0x000052A8	0x00000004	[  9] _MutexStack_destroy
+0x000052C0	0x00000064	[ 10] _error
+0x00005324	0x0000006C	[ 10] _warning
+0x00005390	0x00000034	[ 10] _string_lower
+0x000053C4	0x0000002C	[ 10] _string_upper
+0x00005400	0x0000014C	[ 11] _video_drawLineBlend
+0x0000554C	0x00000118	[ 11] _video_drawLineN
+0x00005664	0x0000013C	[ 11] _video_drawLineP
+0x000057A0	0x000000A0	[ 11] _video_changePal.part.0
+0x00005840	0x000000E0	[ 11] _polygon_readVertices
+0x00005920	0x00000008	[ 11] _video_create
+0x00005928	0x000000B8	[ 11] _video_init
+0x000059E0	0x00000010	[ 11] _video_setDataBuffer
+0x000059F0	0x00000034	[ 11] _video_calcStep
+0x00005A24	0x000000A8	[ 11] _video_drawChar
+0x00005ACC	0x000000F4	[ 11] _video_drawString
+0x00005BC0	0x00000090	[ 11] _video_drawPoint
+0x00005C50	0x00000250	[ 11] _video_fillPolygon
+0x00005EA0	0x000000E0	[ 11] _video_readAndDrawPolygon
+0x00005F80	0x00000110	[ 11] _video_readAndDrawPolygonHierarchy
+0x00006090	0x00000078	[ 11] _video_getPagePtr
+0x00006108	0x0000007C	[ 11] _video_changePagePtr1
+0x00006184	0x0000009C	[ 11] _video_fillPage
+0x00006220	0x000001E4	[ 11] _video_copyPage
+0x00006404	0x000000E8	[ 11] _video_copyPagePtr
+0x000064EC	0x00000014	[ 11] _video_changePal
+0x00006500	0x000000C0	[ 11] _video_updateDisplay
+0x000065C0	0x000001D8	[ 11] _video_saveOrLoad
+0x000067A0	0x0000002C	[ 13] _vm_op_movConst
+0x000067CC	0x00000034	[ 13] _vm_op_mov
+0x00006800	0x00000040	[ 13] _vm_op_add
+0x00006840	0x0000000C	[ 13] _vm_op_pauseThread
+0x0000684C	0x00000020	[ 13] _vm_op_jmp
+0x0000686C	0x00000034	[ 13] _vm_op_setSetVect
+0x000068A0	0x00000050	[ 13] _vm_op_jnz
+0x000068F0	0x00000020	[ 13] _vm_op_setPalette
+0x00006910	0x00000020	[ 13] _vm_op_killThread
+0x00006930	0x00000038	[ 13] _vm_op_sub
+0x00006968	0x00000038	[ 13] _vm_op_and
+0x000069A0	0x00000040	[ 13] _vm_op_or
+0x000069E0	0x00000040	[ 13] _vm_op_shl
+0x00006A20	0x00000040	[ 13] _vm_op_shr
+0x00006A60	0x000000A0	[ 13] _vm_op_call
+0x00006B00	0x0000006C	[ 13] _vm_op_ret
+0x00006B6C	0x000001B4	[ 13] _vm_op_condJmp
+0x00006D20	0x000000C0	[ 13] _vm_op_resetThread
+0x00006DE0	0x00000020	[ 13] _vm_op_selectVideoPage
+0x00006E00	0x00000024	[ 13] _vm_op_fillVideoPage
+0x00006E24	0x00000028	[ 13] _vm_op_copyVideoPage
+0x00006E4C	0x0000003C	[ 13] _vm_op_drawString
+0x00006E88	0x00000058	[ 13] _vm_op_updateMemList
+0x00006EE0	0x0000006C	[ 13] _vm_op_playMusic
+0x00006F4C	0x00000014	[ 13] _vm_create
+0x00006F60	0x00000080	[ 13] _vm_init
+0x00006FE0	0x00000080	[ 13] _vm_initForPart
+0x00007060	0x000000E0	[ 13] _vm_checkThreadRequests
+0x00007140	0x00000250	[ 13] _vm_executeThread
+0x00007390	0x000000B0	[ 13] _vm_hostFrame
+0x00007440	0x000000E0	[ 13] _vm_inp_updatePlayer
+0x00007520	0x000000A0	[ 13] _vm_inp_handleSpecialKeys
+0x000075C0	0x000000EC	[ 13] _vm_op_blitFramebuffer
+0x000076AC	0x00000140	[ 13] _vm_snd_playSound
+0x000077EC	0x00000094	[ 13] _vm_op_addConst
+0x00007880	0x00000040	[ 13] _vm_op_playSound
+0x000078C0	0x00000048	[ 13] _vm_snd_playMusic
+0x00007908	0x000000B8	[ 13] _vm_saveOrLoad
+0x000079C0	0x000000D0	[ 13] _vm_bypassProtection
+0x00007AA0	0x00000068	[ 14] _plugin_start
+0x00007B08	0x00000018	[ 15] _cleanup_wrapper
+0x00007B20	0x00000068	[ 15] _plugin__start
+0x00007B88	0x00000020	[ 15] _rb_atexit
+0x00007BA8	0x00000024	[ 15] _exit
+0x00007BCC	0x00000014	[ 15] __exit
+0x00007BE0	0x00000064	[ 15] _exit_on_usb
+0x00007C44	0x00000018	[ 16] _memcpy
+0x00007C5C	0x00000018	[ 16] _memset
+0x00007C74	0x00000018	[ 16] _memmove
+0x00007C8C	0x00000018	[ 16] _memcmp
+0x00007CA4	0x00000020	[ 17] _talk_val
+0x00007CC4	0x00000040	[ 17] _backlight_force_on
+0x00007D04	0x0000006C	[ 17] _backlight_ignore_timeout
+0x00007D70	0x00000048	[ 17] _backlight_use_settings
+0x00007DB8	0x00000044	[ 17] _sw_poweroff_disable
+0x00007DFC	0x00000020	[ 17] _sw_poweroff_restore
+0x00007E1C	0x00000004	[ 17] _remote_backlight_force_on
+0x00007E20	0x00000004	[ 17] _remote_backlight_ignore_timeout
+0x00007E24	0x00000004	[ 17] _remote_backlight_use_settings
+0x00007E28	0x00000004	[ 17] _buttonlight_force_on
+0x00007E2C	0x00000004	[ 17] _buttonlight_force_off
+0x00007E30	0x00000004	[ 17] _buttonlight_ignore_timeout
+0x00007E34	0x00000004	[ 17] _buttonlight_use_settings
+0x00007E38	0x00000018	[ 17] _backlight_brightness_set
+0x00007E50	0x00000020	[ 17] _backlight_brightness_use_setting
+0x00007E70	0x00000004	[ 17] _buttonlight_brightness_set
+0x00007E74	0x00000004	[ 17] _buttonlight_brightness_use_setting
+0x00007E78	0x00000078	[ 18] _wait_key_press
+0x00007EF0	0x00000354	[ 18] _display_text
+0x00008244	0x00000038	[ 19] _strncpy
+0x0000827C	0x0000020C	[ 20] _scale_h_area
+0x00008488	0x00000140	[ 20] _output_row_32_native_fromyuv
+0x000085C8	0x00000130	[ 20] _output_row_32_native
+0x000086F8	0x00000010	[ 20] _get_size_native
+0x00008708	0x00000220	[ 20] _scale_h_linear
+0x00008928	0x00000090	[ 20] _recalc_dimension
+0x000089B8	0x000003D8	[ 20] _resize_on_load
+0x00008D90	0x00000318	[ 21] _read_part_line
+0x000090A8	0x00000034	[ 21] _store_part_bmp
+0x000090DC	0x00000128	[ 21] _output_row_8_native
+0x00009204	0x000001D4	[ 21] _save_bmp_file
+0x000093D8	0x00000090	[ 21] _simple_resize_bitmap
+0x00009468	0x00000690	[ 21] _read_bmp_fd
+0x00009AF8	0x000000AC	[ 21] _read_bmp_file
+0x00009BA4	0x00000CE8	[ 22] _smooth_resize_bitmap
+0x0000A88C	0x0000000C	[ 24] _longjmp.stub
+0x0000A898	0x0000000C	[ 24] _setjmp.stub
+0x0000A8A8	0x00000022	[  1] literal string: Assertion failed line %d, file %s
+0x0000A8D0	0x00000042	[  1] literal string: /Volumes/Data/rockbox/RockBox_Personal/apps/plugins/xworld/bank.c
+0x0000A918	0x00000009	[  1] literal string: bank%02x
+0x0000A928	0x00000003	[  1] literal string: rb
+0x0000A930	0x0000002C	[  1] literal string: bank_read() unable to open '%s' in dir '%s'
+0x0000A960	0x0000000C	[  2] literal string: xworld.font
+0x0000A970	0x0000003C	[  2] literal string: Invalid font file signature, falling back to alternate font
+0x0000A9B0	0x0000004E	[  2] literal string: Font file version mismatch (have=%d, need=%d), falling back to alternate font
+0x0000AA00	0x00000032	[  2] literal string: Bad font checksum, falling back to alternate font
+0x0000AA38	0x00000008	[  2] literal string: UNKNOWN
+0x0000AA40	0x0000000F	[  2] literal string: xworld.strings
+0x0000AA50	0x00000042	[  2] literal string: Invalid string table signature, falling back to alternate strings
+0x0000AA98	0x00000054	[  2] literal string: String table version mismatch (have=%d, need=%d), falling back to alternate strings
+0x0000AAF0	0x0000003F	[  2] literal string: Title shorter than expected, falling back to alternate strings
+0x0000AB30	0x0000004C	[  2] literal string: Unexpected EOF in while parsing entry %d, falling back to alternate strings
+0x0000AB80	0x00000036	[  2] literal string: Entry %d too short, falling back to alternate strings
+0x0000ABB8	0x00000019	[  2] literal string: String table '%s' loaded
+0x0000ABD8	0x00000012	[  2] literal string: Out Of This World
+0x0000ABF0	0x00000012	[  2] literal string: xworld_save.s%02d
+0x0000AC08	0x00000003	[  2] literal string: wb
+0x0000AC10	0x0000001F	[  2] literal string: Unable to save state file '%s'
+0x0000AC30	0x00000021	[  2] literal string: I/O error when saving game state
+0x0000AC58	0x0000000A	[  2] literal string: quicksave
+0x0000AC68	0x00000006	[  3] literal string: %s/%s
+0x0000AC70	0x00000015	[  4] literal string: in mixer sys is NULL
+0x0000AC88	0x00000043	[  4] literal string: /Volumes/Data/rockbox/RockBox_Personal/apps/plugins/xworld/mixer.c
+0x0000ACD0	0x0000002A	[  6] literal string: res_readBank() unable to unpack entry %d\n
+0x0000AD00	0x0000000C	[  6] literal string: memlist.bin
+0x0000AD10	0x00000031	[  6] literal string: Could not open 'MEMLIST.BIN', data files missing
+0x0000AD48	0x00000046	[  6] literal string: /Volumes/Data/rockbox/RockBox_Personal/apps/plugins/xworld/resource.c
+0x0000AD90	0x0000001D	[  6] literal string: res_load() not enough memory
+0x0000ADB0	0x00000025	[  6] literal string: res_load() ec=0x%X (me->bankId == 0)
+0x0000ADD8	0x00000027	[  6] literal string: res_setupPart() ec=0x%X invalid partId
+0x0000AE00	0x00000031	[  6] literal string: res_allocMemBlock: can't allocate enough memory!
+0x0000AE38	0x0000001E	[  8] literal string: Error loading instrument 0x%X
+0x0000AE58	0x0000001F	[  8] literal string: player_loadSfxModule() ec=0x%X
+0x0000AE78	0x00000021	[  9] literal string: sys_rotate_keymap: fall-through!
+0x0000AEA0	0x00000007	[  9] literal string: XWorld
+0x0000AEA8	0x00000001	[  9] literal string: 
+0x0000AEB0	0x00000003	[  9] literal string: is
+0x0000AEB8	0x00000002	[  9] literal string: a
+0x0000AEC0	0x00000005	[  9] literal string: port
+0x0000AEC8	0x00000003	[  9] literal string: of
+0x0000AED0	0x00000009	[  9] literal string: bytecode
+0x0000AEE0	0x0000000C	[  9] literal string: interpreter
+0x0000AEF0	0x00000004	[  9] literal string: for
+0x0000AEF8	0x00000009	[  9] literal string: `Another
+0x0000AF08	0x00000008	[  9] literal string: World',
+0x0000AF10	0x0000000A	[  9] literal string: cinematic
+0x0000AF20	0x0000000A	[  9] literal string: adventure
+0x0000AF30	0x00000005	[  9] literal string: game
+0x0000AF38	0x00000003	[  9] literal string: by
+0x0000AF40	0x00000005	[  9] literal string: Eric
+0x0000AF48	0x00000007	[  9] literal string: Chahi.
+0x0000AF50	0x00000006	[  9] literal string: Level
+0x0000AF58	0x00000007	[  9] literal string: Codes:
+0x0000AF60	0x00000003	[  9] literal string: 1:
+0x0000AF68	0x00000005	[  9] literal string: LDKD
+0x0000AF70	0x00000003	[  9] literal string: 2:
+0x0000AF78	0x00000005	[  9] literal string: HTDC
+0x0000AF80	0x00000003	[  9] literal string: 3:
+0x0000AF88	0x00000005	[  9] literal string: CLLD
+0x0000AF90	0x00000003	[  9] literal string: 4:
+0x0000AF98	0x00000005	[  9] literal string: LBKG
+0x0000AFA0	0x00000003	[  9] literal string: 5:
+0x0000AFA8	0x00000005	[  9] literal string: XDDJ
+0x0000AFB0	0x00000003	[  9] literal string: 6:
+0x0000AFB8	0x00000005	[  9] literal string: FXLC
+0x0000AFC0	0x00000003	[  9] literal string: 7:
+0x0000AFC8	0x00000005	[  9] literal string: KRFK
+0x0000AFD0	0x00000003	[  9] literal string: 8:
+0x0000AFD8	0x00000005	[  9] literal string: KFLB
+0x0000AFE0	0x00000003	[  9] literal string: 9:
+0x0000AFE8	0x00000005	[  9] literal string: DDRX
+0x0000AFF0	0x00000004	[  9] literal string: 10:
+0x0000AFF8	0x00000005	[  9] literal string: BFLX
+0x0000B000	0x00000004	[  9] literal string: 11:
+0x0000B008	0x00000005	[  9] literal string: BRTD
+0x0000B010	0x00000004	[  9] literal string: 12:
+0x0000B018	0x00000005	[  9] literal string: TFBB
+0x0000B020	0x00000004	[  9] literal string: 13:
+0x0000B028	0x00000005	[  9] literal string: TXHF
+0x0000B030	0x00000004	[  9] literal string: 14:
+0x0000B038	0x00000005	[  9] literal string: CKJL
+0x0000B040	0x00000004	[  9] literal string: 15:
+0x0000B048	0x00000005	[  9] literal string: LFCK
+0x0000B050	0x0000000D	[  9] literal string: settings.zfg
+0x0000B060	0x00000009	[  9] literal string: Negative
+0x0000B070	0x0000000C	[  9] literal string: Motion Blur
+0x0000B080	0x00000008	[  9] literal string: Scaling
+0x0000B088	0x0000001D	[  9] literal string: Zoom automatically disabled.
+0x0000B0A8	0x00000009	[  9] literal string: Rotation
+0x0000B0B8	0x00000009	[  9] literal string: Show FPS
+0x0000B0C8	0x0000000D	[  9] literal string: Zoom on Code
+0x0000B0D8	0x0000002D	[  9] literal string: Scaling and rotation automatically disabled.
+0x0000B108	0x00000008	[  9] literal string: Enabled
+0x0000B110	0x00000008	[  9] literal string: samples
+0x0000B118	0x0000000D	[  9] literal string: Buffer Level
+0x0000B128	0x00000007	[  9] literal string: Volume
+0x0000B130	0x0000000B	[  9] literal string: Loading...
+0x0000B140	0x0000000A	[  9] literal string: Fast Mode
+0x0000B150	0x0000000A	[  9] literal string: Saving...
+0x0000B160	0x0000000B	[  9] literal string: Exiting...
+0x0000B170	0x0000001F	[  9] literal string: sys_get_buffer: out of memory!
+0x0000B190	0x00000008	[  9] literal string: FPS: %d
+0x0000B198	0x0000000D	[  9] literal string: sys is NULL!
+0x0000B1A8	0x00000010	[  9] literal string: Out of mutexes!
+0x0000B1B8	0x0000000C	[  9] literal string: Resume Game
+0x0000B1C8	0x0000000F	[  9] literal string: Start New Game
+0x0000B1D8	0x0000000F	[  9] literal string: Video Settings
+0x0000B1E8	0x0000000F	[  9] literal string: Sound Settings
+0x0000B1F8	0x0000000B	[  9] literal string: Enter Code
+0x0000B208	0x00000005	[  9] literal string: Help
+0x0000B210	0x0000000F	[  9] literal string: Reset Settings
+0x0000B220	0x00000005	[  9] literal string: Load
+0x0000B228	0x00000005	[  9] literal string: Save
+0x0000B230	0x00000005	[  9] literal string: Quit
+0x0000B238	0x00000005	[  9] literal string: Back
+0x0000B240	0x00000014	[  9] literal string: Quit without Saving
+0x0000B258	0x0000000E	[  9] literal string: Save and Quit
+0x0000B268	0x00000009	[  9] literal string: Disabled
+0x0000B278	0x0000000A	[  9] literal string: Clockwise
+0x0000B288	0x00000011	[  9] literal string: Counterclockwise
+0x0000B2A0	0x00000005	[  9] literal string: Fast
+0x0000B2A8	0x00000005	[  9] literal string: Good
+0x0000B2B0	0x0000000B	[ 10] literal string: ERROR: %s!
+0x0000B2C0	0x0000000D	[ 10] literal string: WARNING: %s!
+0x0000B2D0	0x00000043	[ 11] literal string: /Volumes/Data/rockbox/RockBox_Personal/apps/plugins/xworld/video.c
+0x0000B318	0x0000002C	[ 11] literal string: video_readAndDrawPolygon() ec=0x%X (i != 2)
+0x0000B348	0x00000034	[ 11] literal string: video_getPagePtr() p != [0,1,2,3,0xFF,0xFE] == 0x%X
+0x0000B380	0x00000012	[ 12] literal string: B A N A N A  2000
+0x0000B398	0x0000003A	[ 12] literal string: Copyright  } 2016 Franklin Wei\nGPLv2\n\nBUNIX Revision 3.14
+0x0000B3D8	0x00000002	[ 12] literal string: 1
+0x0000B3E0	0x00000002	[ 12] literal string: 3
+0x0000B3E8	0x00000002	[ 12] literal string: .
+0x0000B3F0	0x00000002	[ 12] literal string: @
+0x0000B3F8	0x0000000C	[ 12] literal string: BANANA 2000
+0x0000B408	0x00000002	[ 12] literal string: R
+0x0000B410	0x00000002	[ 12] literal string: U
+0x0000B418	0x00000002	[ 12] literal string: N
+0x0000B420	0x00000002	[ 12] literal string: P
+0x0000B428	0x00000002	[ 12] literal string: O
+0x0000B430	0x00000002	[ 12] literal string: J
+0x0000B438	0x00000002	[ 12] literal string: E
+0x0000B440	0x00000002	[ 12] literal string: C
+0x0000B448	0x00000002	[ 12] literal string: T
+0x0000B450	0x00000013	[ 12] literal string: Fields 100.05Mf OK
+0x0000B468	0x0000001A	[ 12] literal string: Lines of Flux % 14.077 OK
+0x0000B488	0x00000009	[ 12] literal string: IONS  OK
+0x0000B498	0x0000000B	[ 12] literal string:  %%%ddd OK
+0x0000B4A8	0x00000008	[ 12] literal string: TEMP ok
+0x0000B4B0	0x00000008	[ 12] literal string: EXECUTE
+0x0000B4B8	0x0000004B	[ 12] literal string: V= 24%\nG: 1.05\n\nMG: 177.2l\n\nOPT: G>\n\n Field:\nI: OFF\nII: ON\nIII: ON\n\np~: I\n
+0x0000B508	0x00000003	[ 12] literal string: on
+0x0000B510	0x00000002	[ 12] literal string: -
+0x0000B518	0x00000002	[ 12] literal string: |
+0x0000B520	0x00000013	[ 12] literal string: --- Simulation ---
+0x0000B538	0x00000029	[ 12] literal string:            TEST WILL START IN    SECONDS
+0x0000B568	0x00000005	[ 12] literal string:   20
+0x0000B570	0x00000005	[ 12] literal string:   19
+0x0000B578	0x00000005	[ 12] literal string:   18
+0x0000B580	0x00000004	[ 12] literal string:   4
+0x0000B588	0x00000004	[ 12] literal string:   3
+0x0000B590	0x00000004	[ 12] literal string:   2
+0x0000B598	0x00000004	[ 12] literal string:   1
+0x0000B5A0	0x00000004	[ 12] literal string:   0
+0x0000B5A8	0x0000000E	[ 12] literal string: C A U T I O N
+0x0000B5B8	0x00000022	[ 12] literal string: - Test 0:\nGenerate electron beam\n
+0x0000B5E0	0x00000028	[ 12] literal string: - Test 1:\nCalculating flux coefficient\n
+0x0000B608	0x00000023	[ 12] literal string: - Test 2:\nIncrease magnetic field\n
+0x0000B630	0x0000000E	[ 12] literal string: R E S U L T S
+0x0000B640	0x00000058	[ 12] literal string: - NOTE:\nChances of producing:\n Anti-matter: 34 %\n Neutrino 71:  4 %\n Positron 34: 99 %\n
+0x0000B698	0x00000017	[ 12] literal string:    Continue Test y/n ?
+0x0000B6B0	0x0000000E	[ 12] literal string: Are You Sure?
+0x0000B6C0	0x00000031	[ 12] literal string: Setting Configuration\n of accelerator\n'Verified'
+0x0000B6F8	0x00000012	[ 12] literal string:        Continue ?
+0x0000B710	0x00000006	[ 12] literal string: T___T
+0x0000B718	0x00000006	[ 12] literal string: OOO ~
+0x0000B720	0x00000009	[ 12] literal string: .40X13DD
+0x0000B730	0x00000009	[ 12] literal string: ferfxwre
+0x0000B740	0x0000000A	[ 12] literal string: Trfor 25%
+0x0000B750	0x0000000D	[ 12] literal string: 32% 56% GOOD
+0x0000B760	0x0000000F	[ 12] literal string: E=2.7182818289
+0x0000B770	0x00000009	[ 12] literal string: G=330.01
+0x0000B780	0x00000002	[ 12] literal string: +
+0x0000B788	0x00000002	[ 12] literal string: *
+0x0000B790	0x00000006	[ 12] literal string: % 234
+0x0000B798	0x0000000A	[ 12] literal string: Gorwle 12
+0x0000B7A8	0x00000005	[ 12] literal string: [[[[
+0x0000B7B0	0x0000000E	[ 12] literal string: Elephine Soft
+0x0000B7C0	0x00000018	[ 12] literal string: By Many talented People
+0x0000B7D8	0x00000005	[ 12] literal string:   16
+0x0000B7E0	0x00000002	[ 12] literal string: 0
+0x0000B7E8	0x00000002	[ 12] literal string: 2
+0x0000B7F0	0x00000002	[ 12] literal string: 4
+0x0000B7F8	0x00000002	[ 12] literal string: 5
+0x0000B800	0x00000002	[ 12] literal string: 6
+0x0000B808	0x00000002	[ 12] literal string: 7
+0x0000B810	0x00000002	[ 12] literal string: 8
+0x0000B818	0x00000002	[ 12] literal string: 9
+0x0000B820	0x00000002	[ 12] literal string: A
+0x0000B828	0x00000002	[ 12] literal string: B
+0x0000B830	0x00000002	[ 12] literal string: D
+0x0000B838	0x00000002	[ 12] literal string: F
+0x0000B840	0x00000014	[ 12] literal string:         LEVEL CODE:
+0x0000B858	0x0000001E	[ 12] literal string:     PRESS ANY KEY TO CONTINUE
+0x0000B878	0x0000000E	[ 12] literal string:    ENTER CODE
+0x0000B888	0x00000014	[ 12] literal string:    CODE NOT VALID!!
+0x0000B8A0	0x00000009	[ 12] literal string: AN NULER
+0x0000B8B0	0x00000029	[ 12] literal string:       ??????\n\n\n\n\n\n\n\n\nANY KEY TO CONTINUE
+0x0000B8E0	0x0000003F	[ 12] literal string:  ENTER THE CODE CORRELATING TO\n POSITION\n ON THE DECODER WHEEL
+0x0000B920	0x0000000C	[ 12] literal string:     LOAD...
+0x0000B930	0x00000014	[ 12] literal string:               ERROR
+0x0000B948	0x00000005	[ 12] literal string: KLFB
+0x0000B950	0x00000005	[ 12] literal string: TTCT
+0x0000B958	0x00000005	[ 12] literal string: TBHK
+0x0000B960	0x00000005	[ 12] literal string: XJRT
+0x0000B968	0x00000005	[ 12] literal string: HRTB
+0x0000B970	0x00000005	[ 12] literal string: HBHK
+0x0000B978	0x00000005	[ 12] literal string: JCGB
+0x0000B980	0x00000005	[ 12] literal string: HHFL
+0x0000B988	0x00000005	[ 12] literal string: JHJL
+0x0000B990	0x00000002	[ 12] literal string:  
+0x0000B998	0x0000000E	[ 12] literal string: Hello Master.
+0x0000B9A8	0x00000025	[ 12] literal string: Identifiy confirmed.\nAccess granted.
+0x0000B9D0	0x0000000B	[ 12] literal string:  ACCESSING
+0x0000B9E0	0x00000003	[ 12] literal string: y\n
+0x0000B9E8	0x00000005	[ 12] literal string: !!!\n
+0x0000B9F0	0x00000024	[ 13] literal string: vm_op_call() ec=0x%X stack overflow
+0x0000BA18	0x00000024	[ 13] literal string: vm_op_ret() ec=0x%X stack underflow
+0x0000BA40	0x00000025	[ 13] literal string: vm_op_condJmp() invalid condition %d
+0x0000BA68	0x00000027	[ 13] literal string: vm_op_m->resetThread() ec=0x%X (n < 0)
+0x0000BA90	0x0000002F	[ 13] literal string: vm_executeThread() ec=0x%X invalid opcode=0x%X
+0x0000BAC0	0x00000040	[ 13] literal string: /Volumes/Data/rockbox/RockBox_Personal/apps/plugins/xworld/vm.c
+0x0000BB00	0x00000007	[ 13] literal string: bank0e
+0x0000BB08	0x00000038	[ 13] literal string: Unable to bypass protection: add bank0e file to datadir
+0x0000BB40	0x00000011	[ 14] literal string: /.rockbox/xworld
+0x0000BB51	0x0000003D	[ 20] literal string: unable to allocate required buffer: %d needed, %d available\n
+0x0000BB8E	0x00000043	[ 21] literal string: read_part_line: error reading image, read returned %d expected %d\n
+0x0000BBD1	0x00000024	[ 21] literal string: read_bmp_fd: can't read BMP header.
+0x0000BBF5	0x0000003E	[ 21] literal string: read_bmp_fd: Bitmap too large for buffer: %d bytes (%d max).\n
+0x0000BC33	0x00000027	[ 21] literal string: read_bmp_fd: Can't read color palette\n
+0x0000BC5A	0x00000030	[ 21] literal string: read_bmp_fd: Unsupported compression (type %d)\n
+0x0000BC8A	0x00000028	[ 21] literal string: read_bmp_file: can't open '%s', rc: %d\n
+0x0000BCC0	0x00000050	[  5] _memListParts
+0x0000BD10	0x00000010	[  9] 16-byte-literal
+0x0000BD20	0x00000010	[  9] 16-byte-literal
+0x0000BD30	0x00000010	[  9] 16-byte-literal
+0x0000BD40	0x00000010	[  9] 16-byte-literal
+0x0000BD50	0x00000010	[  9] 16-byte-literal
+0x0000BD60	0x00000008	[  9] lC73
+0x0000BD68	0x00000008	[  9] lC78
+0x0000BD70	0x00000010	[ 11] 16-byte-literal
+0x0000BD80	0x00000010	[ 11] 16-byte-literal
+0x0000BD90	0x00000050	[ 13] _vm_frequenceTable
+0x0000BDE0	0x00000010	[ 21] _dither_table
+0x0000BDF0	0x00000040	[ 21] _bitfields
+0x0000BE30	0x00000018	[  1] CFI
+0x0000BE48	0x00000048	[  1] FDE for: _bank_nextChunk.part.0
+0x0000BE90	0x00000020	[  1] FDE for: _bank_create
+0x0000BEB0	0x00000078	[  1] FDE for: _bank_getCode
+0x0000BF28	0x00000068	[  1] FDE for: _bank_decUnk1
+0x0000BF90	0x00000068	[  1] FDE for: _bank_decUnk2
+0x0000BFF8	0x00000048	[  1] FDE for: _bank_unpack
+0x0000C040	0x00000060	[  1] FDE for: _bank_read
+0x0000C0A0	0x00000048	[  1] FDE for: _bank_nextChunk
+0x0000C0E8	0x00000020	[  1] FDE for: _bank_rcr
+0x0000C108	0x00000018	[  2] CFI
+0x0000C120	0x00000058	[  2] FDE for: _engine_create
+0x0000C178	0x00000078	[  2] FDE for: _engine_loadFontFile
+0x0000C1F0	0x000000B0	[  2] FDE for: _engine_loadStringTable
+0x0000C2A0	0x00000040	[  2] FDE for: _engine_init
+0x0000C2E0	0x00000040	[  2] FDE for: _engine_finish
+0x0000C320	0x00000040	[  2] FDE for: _engine_makeGameStateName
+0x0000C360	0x00000068	[  2] FDE for: _engine_saveGameState
+0x0000C3C8	0x00000060	[  2] FDE for: _engine_loadGameState
+0x0000C428	0x00000040	[  2] FDE for: _engine_processInput
+0x0000C468	0x00000048	[  2] FDE for: _engine_run
+0x0000C4B0	0x00000048	[  2] FDE for: _engine_deleteGameState
+0x0000C4F8	0x00000020	[  2] FDE for: _engine_getDataDir
+0x0000C518	0x00000018	[  3] CFI
+0x0000C530	0x00000020	[  3] FDE for: _file_create
+0x0000C550	0x00000080	[  3] FDE for: _file_open
+0x0000C5D0	0x00000020	[  3] FDE for: _file_close
+0x0000C5F0	0x00000020	[  3] FDE for: _file_ioErr
+0x0000C610	0x00000020	[  3] FDE for: _file_seek
+0x0000C630	0x00000048	[  3] FDE for: _file_read
+0x0000C678	0x00000038	[  3] FDE for: _file_readByte
+0x0000C6B0	0x00000040	[  3] FDE for: _file_readUint16BE
+0x0000C6F0	0x00000040	[  3] FDE for: _file_readUint32BE
+0x0000C730	0x00000038	[  3] FDE for: _file_write
+0x0000C768	0x00000038	[  3] FDE for: _file_writeByte
+0x0000C7A0	0x00000038	[  3] FDE for: _file_writeUint16BE
+0x0000C7D8	0x00000040	[  3] FDE for: _file_writeUint32BE
+0x0000C818	0x00000058	[  3] FDE for: _file_remove
+0x0000C870	0x00000018	[  4] CFI
+0x0000C888	0x00000050	[  4] FDE for: _mixer_mixCallback
+0x0000C8D8	0x00000020	[  4] FDE for: _mixer_create
+0x0000C8F8	0x00000048	[  4] FDE for: _mixer_init
+0x0000C940	0x00000040	[  4] FDE for: _mixer_free
+0x0000C980	0x00000068	[  4] FDE for: _mixer_playChannel
+0x0000C9E8	0x00000058	[  4] FDE for: _mixer_stopChannel
+0x0000CA40	0x00000058	[  4] FDE for: _mixer_setChannelVolume
+0x0000CA98	0x00000040	[  4] FDE for: _mixer_stopAll
+0x0000CAD8	0x00000070	[  4] FDE for: _mixer_saveOrLoad
+0x0000CB48	0x00000018	[  6] CFI
+0x0000CB60	0x00000020	[  6] FDE for: _res_create
+0x0000CB80	0x00000060	[  6] FDE for: _res_readBank
+0x0000CBE0	0x00000068	[  6] FDE for: _res_readEntries
+0x0000CC48	0x00000070	[  6] FDE for: _res_loadMarkedAsNeeded
+0x0000CCB8	0x00000020	[  6] FDE for: _res_invalidateRes
+0x0000CCD8	0x00000020	[  6] FDE for: _res_invalidateAll
+0x0000CCF8	0x00000020	[  6] FDE for: _res_loadPartsOrMemoryEntry
+0x0000CD18	0x00000070	[  6] FDE for: _res_setupPart
+0x0000CD88	0x00000048	[  6] FDE for: _res_allocMemBlock
+0x0000CDD0	0x00000020	[  6] FDE for: _res_freeMemBlock
+0x0000CDF0	0x000000B0	[  6] FDE for: _res_saveOrLoad
+0x0000CEA0	0x00000020	[  6] FDE for: _res_getDataDir
+0x0000CEC0	0x00000018	[  7] CFI
+0x0000CED8	0x00000020	[  7] FDE for: _ser_create
+0x0000CEF8	0x00000020	[  7] FDE for: _ser_saveInt
+0x0000CF18	0x00000068	[  7] FDE for: _ser_saveEntries
+0x0000CF80	0x00000058	[  7] FDE for: _ser_loadInt
+0x0000CFD8	0x00000068	[  7] FDE for: _ser_loadEntries
+0x0000D040	0x00000020	[  7] FDE for: _ser_saveOrLoadEntries
+0x0000D060	0x00000018	[  8] CFI
+0x0000D078	0x00000020	[  8] FDE for: _player_create
+0x0000D098	0x00000040	[  8] FDE for: _player_init
+0x0000D0D8	0x00000058	[  8] FDE for: _player_free
+0x0000D130	0x00000040	[  8] FDE for: _player_setEventsDelay
+0x0000D170	0x00000060	[  8] FDE for: _player_prepareInstruments
+0x0000D1D0	0x00000070	[  8] FDE for: _player_loadSfxModule
+0x0000D240	0x00000040	[  8] FDE for: _player_start
+0x0000D280	0x00000058	[  8] FDE for: _player_stop
+0x0000D2D8	0x00000068	[  8] FDE for: _player_handlePattern
+0x0000D340	0x00000068	[  8] FDE for: _player_handleEvents
+0x0000D3A8	0x00000038	[  8] FDE for: _player_eventsCallback
+0x0000D3E0	0x00000058	[  8] FDE for: _player_saveOrLoad
+0x0000D438	0x00000018	[  9] CFI
+0x0000D450	0x00000020	[  9] FDE for: _mainmenu_cb
+0x0000D470	0x00000050	[  9] FDE for: _get_more
+0x0000D4C0	0x00000050	[  9] FDE for: _timer_callback
+0x0000D510	0x00000020	[  9] FDE for: _sys_rotate_keymap
+0x0000D530	0x00000048	[  9] FDE for: _sys_do_help.isra.0
+0x0000D578	0x00000040	[  9] FDE for: _sys_save_settings.isra.0
+0x0000D5B8	0x00000040	[  9] FDE for: _exit_handler
+0x0000D5F8	0x00000058	[  9] FDE for: _do_video_settings
+0x0000D650	0x00000068	[  9] FDE for: _do_sound_settings
+0x0000D6B8	0x00000058	[  9] FDE for: _sys_menu
+0x0000D710	0x00000050	[  9] FDE for: _sys_init
+0x0000D760	0x00000020	[  9] FDE for: _sys_destroy
+0x0000D780	0x00000028	[  9] FDE for: _sys_setPalette
+0x0000D7A8	0x00000088	[  9] FDE for: _sys_copyRect
+0x0000D830	0x00000068	[  9] FDE for: _sys_processEvents
+0x0000D898	0x00000020	[  9] FDE for: _sys_sleep
+0x0000D8B8	0x00000020	[  9] FDE for: _sys_getTimeStamp
+0x0000D8D8	0x00000020	[  9] FDE for: _sys_startAudio
+0x0000D8F8	0x00000020	[  9] FDE for: _sys_stopAudio
+0x0000D918	0x00000020	[  9] FDE for: _sys_getOutputSampleRate
+0x0000D938	0x00000038	[  9] FDE for: _sys_addTimer
+0x0000D970	0x00000020	[  9] FDE for: _sys_removeTimer
+0x0000D990	0x00000050	[  9] FDE for: _sys_createMutex
+0x0000D9E0	0x00000020	[  9] FDE for: _sys_destroyMutex
+0x0000DA00	0x00000020	[  9] FDE for: _sys_lockMutex
+0x0000DA20	0x00000020	[  9] FDE for: _sys_unlockMutex
+0x0000DA40	0x00000020	[  9] FDE for: _getOffScreenFramebuffer
+0x0000DA60	0x00000060	[  9] FDE for: _sys_get_buffer
+0x0000DAC0	0x00000020	[  9] FDE for: _MutexStack
+0x0000DAE0	0x00000020	[  9] FDE for: _MutexStack_destroy
+0x0000DB00	0x00000018	[ 10] CFI
+0x0000DB18	0x00000040	[ 10] FDE for: _error
+0x0000DB58	0x00000050	[ 10] FDE for: _warning
+0x0000DBA8	0x00000020	[ 10] FDE for: _string_lower
+0x0000DBC8	0x00000020	[ 10] FDE for: _string_upper
+0x0000DBE8	0x00000018	[ 11] CFI
+0x0000DC00	0x00000020	[ 11] FDE for: _video_drawLineBlend
+0x0000DC20	0x00000020	[ 11] FDE for: _video_drawLineN
+0x0000DC40	0x00000020	[ 11] FDE for: _video_drawLineP
+0x0000DC60	0x00000040	[ 11] FDE for: _video_changePal.part.0
+0x0000DCA0	0x00000040	[ 11] FDE for: _polygon_readVertices
+0x0000DCE0	0x00000020	[ 11] FDE for: _video_create
+0x0000DD00	0x00000040	[ 11] FDE for: _video_init
+0x0000DD40	0x00000020	[ 11] FDE for: _video_setDataBuffer
+0x0000DD60	0x00000020	[ 11] FDE for: _video_calcStep
+0x0000DD80	0x00000020	[ 11] FDE for: _video_drawChar
+0x0000DDA0	0x00000060	[ 11] FDE for: _video_drawString
+0x0000DE00	0x00000020	[ 11] FDE for: _video_drawPoint
+0x0000DE20	0x000000B8	[ 11] FDE for: _video_fillPolygon
+0x0000DED8	0x00000080	[ 11] FDE for: _video_readAndDrawPolygon
+0x0000DF58	0x00000058	[ 11] FDE for: _video_readAndDrawPolygonHierarchy
+0x0000DFB0	0x00000040	[ 11] FDE for: _video_getPagePtr
+0x0000DFF0	0x00000040	[ 11] FDE for: _video_changePagePtr1
+0x0000E030	0x00000048	[ 11] FDE for: _video_fillPage
+0x0000E078	0x000000B0	[ 11] FDE for: _video_copyPage
+0x0000E128	0x00000028	[ 11] FDE for: _video_copyPagePtr
+0x0000E150	0x00000020	[ 11] FDE for: _video_changePal
+0x0000E170	0x00000048	[ 11] FDE for: _video_updateDisplay
+0x0000E1B8	0x00000058	[ 11] FDE for: _video_saveOrLoad
+0x0000E210	0x00000018	[ 13] CFI
+0x0000E228	0x00000020	[ 13] FDE for: _vm_op_movConst
+0x0000E248	0x00000020	[ 13] FDE for: _vm_op_mov
+0x0000E268	0x00000020	[ 13] FDE for: _vm_op_add
+0x0000E288	0x00000020	[ 13] FDE for: _vm_op_pauseThread
+0x0000E2A8	0x00000020	[ 13] FDE for: _vm_op_jmp
+0x0000E2C8	0x00000020	[ 13] FDE for: _vm_op_setSetVect
+0x0000E2E8	0x00000020	[ 13] FDE for: _vm_op_jnz
+0x0000E308	0x00000020	[ 13] FDE for: _vm_op_setPalette
+0x0000E328	0x00000020	[ 13] FDE for: _vm_op_killThread
+0x0000E348	0x00000020	[ 13] FDE for: _vm_op_sub
+0x0000E368	0x00000020	[ 13] FDE for: _vm_op_and
+0x0000E388	0x00000020	[ 13] FDE for: _vm_op_or
+0x0000E3A8	0x00000020	[ 13] FDE for: _vm_op_shl
+0x0000E3C8	0x00000020	[ 13] FDE for: _vm_op_shr
+0x0000E3E8	0x00000040	[ 13] FDE for: _vm_op_call
+0x0000E428	0x00000048	[ 13] FDE for: _vm_op_ret
+0x0000E470	0x00000040	[ 13] FDE for: _vm_op_condJmp
+0x0000E4B0	0x00000040	[ 13] FDE for: _vm_op_resetThread
+0x0000E4F0	0x00000020	[ 13] FDE for: _vm_op_selectVideoPage
+0x0000E510	0x00000020	[ 13] FDE for: _vm_op_fillVideoPage
+0x0000E530	0x00000020	[ 13] FDE for: _vm_op_copyVideoPage
+0x0000E550	0x00000020	[ 13] FDE for: _vm_op_drawString
+0x0000E570	0x00000050	[ 13] FDE for: _vm_op_updateMemList
+0x0000E5C0	0x00000038	[ 13] FDE for: _vm_op_playMusic
+0x0000E5F8	0x00000020	[ 13] FDE for: _vm_create
+0x0000E618	0x00000040	[ 13] FDE for: _vm_init
+0x0000E658	0x00000040	[ 13] FDE for: _vm_initForPart
+0x0000E698	0x00000038	[ 13] FDE for: _vm_checkThreadRequests
+0x0000E6D0	0x00000090	[ 13] FDE for: _vm_executeThread
+0x0000E760	0x00000058	[ 13] FDE for: _vm_hostFrame
+0x0000E7B8	0x00000048	[ 13] FDE for: _vm_inp_updatePlayer
+0x0000E800	0x00000040	[ 13] FDE for: _vm_inp_handleSpecialKeys
+0x0000E840	0x00000060	[ 13] FDE for: _vm_op_blitFramebuffer
+0x0000E8A0	0x00000060	[ 13] FDE for: _vm_snd_playSound
+0x0000E900	0x00000040	[ 13] FDE for: _vm_op_addConst
+0x0000E940	0x00000020	[ 13] FDE for: _vm_op_playSound
+0x0000E960	0x00000038	[ 13] FDE for: _vm_snd_playMusic
+0x0000E998	0x00000038	[ 13] FDE for: _vm_saveOrLoad
+0x0000E9D0	0x00000058	[ 13] FDE for: _vm_bypassProtection
+0x0000EA28	0x00000018	[ 14] CFI
+0x0000EA40	0x00000040	[ 14] FDE for: _plugin_start
+0x0000EA80	0x00000018	[ 15] CFI
+0x0000EA98	0x00000020	[ 15] FDE for: _cleanup_wrapper
+0x0000EAB8	0x00000040	[ 15] FDE for: _plugin__start
+0x0000EAF8	0x00000020	[ 15] FDE for: _rb_atexit
+0x0000EB18	0x00000030	[ 15] FDE for: _exit
+0x0000EB48	0x00000030	[ 15] FDE for: __exit
+0x0000EB78	0x00000038	[ 15] FDE for: _exit_on_usb
+0x0000EBB0	0x00000018	[ 16] CFI
+0x0000EBC8	0x00000020	[ 16] FDE for: _memcpy
+0x0000EBE8	0x00000020	[ 16] FDE for: _memset
+0x0000EC08	0x00000020	[ 16] FDE for: _memmove
+0x0000EC28	0x00000020	[ 16] FDE for: _memcmp
+0x0000EC48	0x00000018	[ 17] CFI
+0x0000EC60	0x00000020	[ 17] FDE for: _talk_val
+0x0000EC80	0x00000040	[ 17] FDE for: _backlight_force_on
+0x0000ECC0	0x00000050	[ 17] FDE for: _backlight_ignore_timeout
+0x0000ED10	0x00000040	[ 17] FDE for: _backlight_use_settings
+0x0000ED50	0x00000040	[ 17] FDE for: _sw_poweroff_disable
+0x0000ED90	0x00000020	[ 17] FDE for: _sw_poweroff_restore
+0x0000EDB0	0x00000020	[ 17] FDE for: _remote_backlight_force_on
+0x0000EDD0	0x00000020	[ 17] FDE for: _remote_backlight_ignore_timeout
+0x0000EDF0	0x00000020	[ 17] FDE for: _remote_backlight_use_settings
+0x0000EE10	0x00000020	[ 17] FDE for: _buttonlight_force_on
+0x0000EE30	0x00000020	[ 17] FDE for: _buttonlight_force_off
+0x0000EE50	0x00000020	[ 17] FDE for: _buttonlight_ignore_timeout
+0x0000EE70	0x00000020	[ 17] FDE for: _buttonlight_use_settings
+0x0000EE90	0x00000020	[ 17] FDE for: _backlight_brightness_set
+0x0000EEB0	0x00000020	[ 17] FDE for: _backlight_brightness_use_setting
+0x0000EED0	0x00000020	[ 17] FDE for: _buttonlight_brightness_set
+0x0000EEF0	0x00000020	[ 17] FDE for: _buttonlight_brightness_use_setting
+0x0000EF10	0x00000018	[ 18] CFI
+0x0000EF28	0x00000050	[ 18] FDE for: _wait_key_press
+0x0000EF78	0x00000070	[ 18] FDE for: _display_text
+0x0000EFE8	0x00000018	[ 19] CFI
+0x0000F000	0x00000020	[ 19] FDE for: _strncpy
+0x0000F020	0x00000018	[ 20] CFI
+0x0000F038	0x00000068	[ 20] FDE for: _scale_h_area
+0x0000F0A0	0x00000040	[ 20] FDE for: _output_row_32_native_fromyuv
+0x0000F0E0	0x00000020	[ 20] FDE for: _output_row_32_native
+0x0000F100	0x00000020	[ 20] FDE for: _get_size_native
+0x0000F120	0x00000068	[ 20] FDE for: _scale_h_linear
+0x0000F188	0x00000020	[ 20] FDE for: _recalc_dimension
+0x0000F1A8	0x00000070	[ 20] FDE for: _resize_on_load
+0x0000F218	0x00000018	[ 21] CFI
+0x0000F230	0x00000078	[ 21] FDE for: _read_part_line
+0x0000F2A8	0x00000040	[ 21] FDE for: _store_part_bmp
+0x0000F2E8	0x00000020	[ 21] FDE for: _output_row_8_native
+0x0000F308	0x00000068	[ 21] FDE for: _save_bmp_file
+0x0000F370	0x00000020	[ 21] FDE for: _simple_resize_bitmap
+0x0000F390	0x00000088	[ 21] FDE for: _read_bmp_fd
+0x0000F418	0x00000058	[ 21] FDE for: _read_bmp_file
+0x0000F470	0x00000018	[ 22] CFI
+0x0000F488	0x00000058	[ 22] FDE for: _smooth_resize_bitmap
+0x00010000	0x00000008	[ 24] _longjmp.got
+0x00010008	0x00000008	[ 24] _setjmp.got
+0x00010010	0x000002A8	[  9] lC54
+0x000102B8	0x00000018	[  9] _menu__.1
+0x000102D0	0x00000018	[  9] _menu.2
+0x000102E8	0x00000018	[  9] _menu__.9
+0x00010300	0x00000018	[  9] _menu.10
+0x00010318	0x00000018	[  9] _menu__.12
+0x00010330	0x00000018	[  9] _menu.13
+0x00010348	0x00000018	[  9] _menu__.15
+0x00010360	0x00000018	[  9] _menu.16
+0x00010378	0x00000030	[  9] _rotation_settings
+0x000103A8	0x00000030	[  9] _scaling_settings
+0x000103D8	0x000000D8	[ 13] _vm_opcodeTable
+0x000104B0	0x00000038	[ 15] ___header
+0x000104E8	0x00000020	[ 20] _format_native
+0x00014000	0x00000058	[  9] _menu_.0
+0x00014058	0x00000008	[  9] _last_timestamp.4
+0x00014060	0x00000020	[  9] _menu_.8
+0x00014080	0x00000038	[  9] _menu_.11
+0x000140B8	0x00000058	[  9] _menu_.14
+0x00014110	0x00000FF0	[ 12] _video_stringsTableEng
+0x00015100	0x00000300	[ 12] _video_font
+0x00015400	0x00000001	[ 17] _original_sw_poweroff_state
+0x00015408	0x00000008	[ 15] _rb
+0x00015410	0x00000038	[  6] _resourceUnitStats
+0x00015448	0x00000038	[  6] _resourceSizeStats
+0x00015480	0x00000002	[ 10] _g_debugMask
+0x00015482	0x00000030	[ 11] _pal
+0x000154C0	0x00000004	[  9] _oldbuttonstate.3
+0x000154C4	0x00000004	[  9] _prev_baseidx.5
+0x000154C8	0x00000008	[  9] _orig_fb.6
+0x000154D0	0x00000008	[  9] _prev_frames.7
+0x000154D8	0x00000008	[  9] _user_callback
+0x000154E0	0x00000008	[  9] _cur_param
+0x000154E8	0x00000008	[  9] _cur_delay
+0x000154F0	0x00000100	[  9] _temp_soundbuf
+0x000155F0	0x00000400	[  9] _rb_soundbuf
+0x000159F0	0x00000008	[  9] _audio_sys
+0x000159F8	0x00000008	[  9] _audio_param
+0x00015A00	0x00000008	[  9] _audio_callback
+0x00015A08	0x00000008	[  9] _mainmenu_sysptr
+0x00015A10	0x00000008	[  9] _lcd_fb
+0x00015A18	0x00000008	[  9] _save_sys
+0x00015A20	0x00000004	[ 13] _lastTimeStamp
+0x00015A28	0x00000308	[ 14] _sys
+0x00015D30	0x00001F88	[ 14] _e
+0x00017CB8	0x00000008	[ 15] _atexit_handler
+0x00017CC0	0x000000C0	[ 15] ___exit_env

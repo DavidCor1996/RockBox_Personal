@@ -1,0 +1,257 @@
+# Path: /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/asap.elf
+# Arch: arm64
+# Object files:
+[  0] linker synthesized
+[  1] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/asap.o
+[  2] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/codec_crt0.o
+[  3] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libasap.a(acpu.o)
+[  4] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libasap.a(asap.o)
+[  5] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libasap.a(apokeysnd.o)
+[  6] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+[  7] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/libSystem.tbd
+# Sections:
+# Address	Size    	Segment	Section
+0x00000640	0x0000BB04	__TEXT	__text
+0x0000C144	0x000000ED	__TEXT	__cstring
+0x0000C238	0x00005BC6	__TEXT	__const
+0x00011E00	0x00001330	__TEXT	__eh_frame
+0x00014000	0x00000040	__DATA_CONST	__const
+0x00018000	0x00000008	__DATA	.data
+0x00018008	0x00016A50	__DATA	__bss
+# Symbols:
+# Address	Size    	File  Name
+0x00000640	0x000002A4	[  1] _codec_run
+0x000008E4	0x00000008	[  1] _codec_main
+0x000008EC	0x00000008	[  2] __start
+0x000008F4	0x00000004	[  2] _codec_start
+0x000008F8	0x00005ACC	[  3] _Cpu_RunScanlines
+0x000063C4	0x00000048	[  4] _set_song_duration
+0x0000640C	0x0000005C	[  4] _is_dlt_track_empty
+0x00006468	0x00000180	[  4] _parse_tmc_song
+0x000065E8	0x00000194	[  4] _parse_tm2_song
+0x0000677C	0x000000BC	[  4] _is_our_ext
+0x00006838	0x0000002C	[  4] _serialize_int
+0x00006864	0x00000020	[  4] _put_string
+0x00006884	0x00000054	[  4] _put_dec
+0x000068D8	0x00000084	[  4] _put_text_tag
+0x0000695C	0x00000028	[  4] _put_dec_tag
+0x00006984	0x000000C0	[  4] _start_sap_header
+0x00006A44	0x00000034	[  4] _has_two_digits
+0x00006A78	0x00000074	[  4] _get_packed_ext
+0x00006AEC	0x00000060	[  4] _has_string_at
+0x00006B4C	0x000000A0	[  4] _parse_text
+0x00006BEC	0x00000144	[  4] _load_native
+0x00006D30	0x000001CC	[  4] _parse_cmc_song
+0x00006EFC	0x0000020C	[  4] _parse_dlt
+0x00007108	0x00000314	[  4] _parse_mpt
+0x0000741C	0x00000660	[  4] _parse_rmt
+0x00007A7C	0x00000038	[  4] _call_6502
+0x00007AB4	0x0000001C	[  4] _call_6502_init
+0x00007AD0	0x0000004C	[  4] _parse_dec
+0x00007B1C	0x00000078	[  4] _parse_hex
+0x00007B94	0x0000006C	[  4] _put_hex_tag
+0x00007C00	0x00000150	[  4] _parse_cmc
+0x00007D50	0x000000E4	[  4] _ASAP_GetByte
+0x00007E34	0x00000264	[  4] _ASAP_PutByte
+0x00008098	0x00000160	[  4] _ASAP_ParseDuration
+0x000081F8	0x00000A38	[  4] _parse_file
+0x00008C30	0x00000014	[  4] _ASAP_IsOurFile
+0x00008C44	0x0000005C	[  4] _ASAP_IsOurExt
+0x00008CA0	0x00000018	[  4] _ASAP_GetModuleInfo
+0x00008CB8	0x0000002C	[  4] _ASAP_Load
+0x00008CE4	0x0000002C	[  4] _ASAP_DetectSilence
+0x00008D10	0x00000034	[  4] _ASAP_MutePokeyChannels
+0x00008D44	0x000001E0	[  4] _ASAP_PlaySong
+0x00008F24	0x00000308	[  4] _call_6502_player
+0x0000922C	0x00000018	[  4] _ASAP_GetPosition
+0x00009244	0x00000014	[  4] _milliseconds_to_blocks
+0x00009258	0x00000080	[  4] _ASAP_Seek
+0x000092D8	0x000000E4	[  4] _ASAP_GetWavHeader
+0x000093BC	0x000000DC	[  4] _ASAP_Generate
+0x00009498	0x00000020	[  4] _ASAP_CanSetModuleInfo
+0x000094B8	0x0000005C	[  4] _ASAP_ChangeExt
+0x00009514	0x000000B8	[  4] _ASAP_DurationToString
+0x000095CC	0x000000B0	[  4] _put_durations
+0x0000967C	0x0000009C	[  4] _put_sap_header
+0x00009718	0x000001A8	[  4] _ASAP_SetModuleInfo
+0x000098C0	0x000001E0	[  4] _ASAP_CanConvert
+0x00009AA0	0x000007DC	[  4] _ASAP_Convert
+0x0000A27C	0x000000A4	[  4] _ASAP_DateToYear
+0x0000A320	0x00000828	[  5] _PokeySound_GenerateUntilCycle
+0x0000AB48	0x000000BC	[  5] _end_frame
+0x0000AC04	0x00000140	[  5] _PokeySound_Initialize
+0x0000AD44	0x00000DA4	[  5] _PokeySound_PutByte
+0x0000BAE8	0x0000009C	[  5] _PokeySound_GetRandom
+0x0000BB84	0x0000004C	[  5] _PokeySound_StartFrame
+0x0000BBD0	0x00000088	[  5] _PokeySound_EndFrame
+0x0000BC58	0x00000184	[  5] _PokeySound_Generate
+0x0000BDDC	0x00000020	[  5] _PokeySound_IsSilent
+0x0000BDFC	0x000000E4	[  5] _PokeySound_Mute
+0x0000BEE0	0x00000040	[  6] _codec_init
+0x0000BF20	0x00000048	[  6] _codec_set_replaygain
+0x0000BF68	0x00000048	[  6] _codec_malloc
+0x0000BFB0	0x0000004C	[  6] _codec_calloc
+0x0000BFFC	0x00000004	[  6] _codec_free
+0x0000C000	0x00000054	[  6] _codec_realloc
+0x0000C054	0x00000018	[  6] _codec_strlen
+0x0000C06C	0x00000018	[  6] _strcpy
+0x0000C084	0x00000018	[  6] _strcat
+0x0000C09C	0x00000018	[  6] _strcmp
+0x0000C0B4	0x00000018	[  6] _memcpy
+0x0000C0CC	0x00000018	[  6] _memset
+0x0000C0E4	0x00000018	[  6] _memcmp
+0x0000C0FC	0x00000018	[  6] _memchr
+0x0000C114	0x00000018	[  6] _memmove
+0x0000C12C	0x00000018	[  6] _qsort
+0x0000C144	0x00000013	[  1] literal string: codec init failed\n
+0x0000C157	0x0000000F	[  1] literal string: loading error\n
+0x0000C166	0x00000019	[  1] literal string: %s: format not supported
+0x0000C17F	0x00000004	[  4] literal string: <?>
+0x0000C183	0x00000006	[  4] literal string: SAP\r\n
+0x0000C189	0x00000008	[  4] literal string: AUTHOR 
+0x0000C191	0x00000006	[  4] literal string: NAME 
+0x0000C197	0x00000006	[  4] literal string: DATE 
+0x0000C19D	0x00000007	[  4] literal string: SONGS 
+0x0000C1A4	0x00000009	[  4] literal string: DEFSONG 
+0x0000C1AD	0x00000009	[  4] literal string: STEREO\r\n
+0x0000C1B6	0x00000005	[  4] literal string: <?>\"
+0x0000C1BB	0x00000008	[  4] literal string: STEREO\r
+0x0000C1C3	0x00000006	[  4] literal string: NTSC\r
+0x0000C1C9	0x00000006	[  4] literal string: TIME 
+0x0000C1CF	0x00000006	[  4] literal string:  LOOP
+0x0000C1D5	0x00000006	[  4] literal string: TYPE 
+0x0000C1DB	0x0000000A	[  4] literal string: FASTPLAY 
+0x0000C1E5	0x00000007	[  4] literal string: MUSIC 
+0x0000C1EC	0x00000006	[  4] literal string: INIT 
+0x0000C1F2	0x00000008	[  4] literal string: PLAYER 
+0x0000C1FA	0x00000007	[  4] literal string: COVOX 
+0x0000C201	0x00000004	[  4] literal string: dlt
+0x0000C205	0x00000004	[  4] literal string: mpt
+0x0000C209	0x00000004	[  4] literal string: rmt
+0x0000C20D	0x00000004	[  4] literal string: tmc
+0x0000C211	0x00000004	[  4] literal string: tm2
+0x0000C215	0x00000004	[  4] literal string: dmc
+0x0000C219	0x00000004	[  4] literal string: cms
+0x0000C21D	0x00000004	[  4] literal string: cmr
+0x0000C221	0x00000004	[  4] literal string: cm3
+0x0000C225	0x00000004	[  4] literal string: cmc
+0x0000C229	0x00000004	[  4] literal string: sap
+0x0000C22D	0x00000004	[  4] literal string: mpd
+0x0000C238	0x00000008	[  1] 8-byte-literal
+0x0000C240	0x00000400	[  3] _opcode_cycles
+0x0000C640	0x00000010	[  4] _tmc_init.0
+0x0000C650	0x00000010	[  4] _tmc_player.1
+0x0000C660	0x00000010	[  4] _rmt_volume_silent
+0x0000C670	0x00000010	[  4] _perframe2fastplay
+0x0000C680	0x00000025	[  4] _cmr_bass_table
+0x0000C6A5	0x00000E72	[  4] _tm2_obx
+0x0000D517	0x00000A6F	[  4] _tmc_obx
+0x0000DF86	0x000008E3	[  4] _rmt8_obx
+0x0000E869	0x000007D7	[  4] _rmt4_obx
+0x0000F040	0x000008B9	[  4] _mpt_obx
+0x0000F8F9	0x0000084D	[  4] _dlt_obx
+0x00010146	0x00000AC1	[  4] _cms_obx
+0x00010C07	0x000007E6	[  4] _cm3_obx
+0x000113ED	0x000007E3	[  4] _cmc_obx
+0x00011BD0	0x0000001F	[  5] _poly5_lookup
+0x00011BEF	0x0000000F	[  5] _poly4_lookup
+0x00011BFE	0x00000100	[  6] _bs_clz_tab
+0x00011CFE	0x00000100	[  6] _bs_log2_tab
+0x00011E00	0x00000018	[  1] CFI
+0x00011E18	0x00000068	[  1] FDE for: _codec_run
+0x00011E80	0x00000020	[  1] FDE for: _codec_main
+0x00011EA0	0x00000018	[  2] CFI
+0x00011EB8	0x00000020	[  2] FDE for: __start
+0x00011ED8	0x00000020	[  2] FDE for: _codec_start
+0x00011EF8	0x00000018	[  3] CFI
+0x00011F10	0x00000060	[  3] FDE for: _Cpu_RunScanlines
+0x00011F70	0x00000018	[  4] CFI
+0x00011F88	0x00000020	[  4] FDE for: _set_song_duration
+0x00011FA8	0x00000020	[  4] FDE for: _is_dlt_track_empty
+0x00011FC8	0x00000030	[  4] FDE for: _parse_tmc_song
+0x00011FF8	0x00000030	[  4] FDE for: _parse_tm2_song
+0x00012028	0x00000020	[  4] FDE for: _is_our_ext
+0x00012048	0x00000020	[  4] FDE for: _serialize_int
+0x00012068	0x00000020	[  4] FDE for: _put_string
+0x00012088	0x00000048	[  4] FDE for: _put_dec
+0x000120D0	0x00000040	[  4] FDE for: _put_text_tag
+0x00012110	0x00000038	[  4] FDE for: _put_dec_tag
+0x00012148	0x00000048	[  4] FDE for: _start_sap_header
+0x00012190	0x00000020	[  4] FDE for: _has_two_digits
+0x000121B0	0x00000048	[  4] FDE for: _get_packed_ext
+0x000121F8	0x00000048	[  4] FDE for: _has_string_at
+0x00012240	0x00000058	[  4] FDE for: _parse_text
+0x00012298	0x00000050	[  4] FDE for: _load_native
+0x000122E8	0x00000060	[  4] FDE for: _parse_cmc_song
+0x00012348	0x00000058	[  4] FDE for: _parse_dlt
+0x000123A0	0x000000A0	[  4] FDE for: _parse_mpt
+0x00012440	0x00000090	[  4] FDE for: _parse_rmt
+0x000124D0	0x00000020	[  4] FDE for: _call_6502
+0x000124F0	0x00000020	[  4] FDE for: _call_6502_init
+0x00012510	0x00000020	[  4] FDE for: _parse_dec
+0x00012530	0x00000020	[  4] FDE for: _parse_hex
+0x00012550	0x00000038	[  4] FDE for: _put_hex_tag
+0x00012588	0x00000058	[  4] FDE for: _parse_cmc
+0x000125E0	0x00000020	[  4] FDE for: _ASAP_GetByte
+0x00012600	0x00000020	[  4] FDE for: _ASAP_PutByte
+0x00012620	0x00000048	[  4] FDE for: _ASAP_ParseDuration
+0x00012668	0x000000E0	[  4] FDE for: _parse_file
+0x00012748	0x00000038	[  4] FDE for: _ASAP_IsOurFile
+0x00012780	0x00000050	[  4] FDE for: _ASAP_IsOurExt
+0x000127D0	0x00000020	[  4] FDE for: _ASAP_GetModuleInfo
+0x000127F0	0x00000020	[  4] FDE for: _ASAP_Load
+0x00012810	0x00000020	[  4] FDE for: _ASAP_DetectSilence
+0x00012830	0x00000038	[  4] FDE for: _ASAP_MutePokeyChannels
+0x00012868	0x00000048	[  4] FDE for: _ASAP_PlaySong
+0x000128B0	0x00000048	[  4] FDE for: _call_6502_player
+0x000128F8	0x00000020	[  4] FDE for: _ASAP_GetPosition
+0x00012918	0x00000020	[  4] FDE for: _milliseconds_to_blocks
+0x00012938	0x00000048	[  4] FDE for: _ASAP_Seek
+0x00012980	0x00000038	[  4] FDE for: _ASAP_GetWavHeader
+0x000129B8	0x00000058	[  4] FDE for: _ASAP_Generate
+0x00012A10	0x00000038	[  4] FDE for: _ASAP_CanSetModuleInfo
+0x00012A48	0x00000038	[  4] FDE for: _ASAP_ChangeExt
+0x00012A80	0x00000020	[  4] FDE for: _ASAP_DurationToString
+0x00012AA0	0x00000060	[  4] FDE for: _put_durations
+0x00012B00	0x00000048	[  4] FDE for: _put_sap_header
+0x00012B48	0x00000070	[  4] FDE for: _ASAP_SetModuleInfo
+0x00012BB8	0x00000020	[  4] FDE for: _ASAP_CanConvert
+0x00012BD8	0x00000060	[  4] FDE for: _ASAP_Convert
+0x00012C38	0x00000048	[  4] FDE for: _ASAP_DateToYear
+0x00012C80	0x00000018	[  5] CFI
+0x00012C98	0x00000020	[  5] FDE for: _PokeySound_GenerateUntilCycle
+0x00012CB8	0x00000040	[  5] FDE for: _end_frame
+0x00012CF8	0x00000050	[  5] FDE for: _PokeySound_Initialize
+0x00012D48	0x00000048	[  5] FDE for: _PokeySound_PutByte
+0x00012D90	0x00000020	[  5] FDE for: _PokeySound_GetRandom
+0x00012DB0	0x00000050	[  5] FDE for: _PokeySound_StartFrame
+0x00012E00	0x00000048	[  5] FDE for: _PokeySound_EndFrame
+0x00012E48	0x00000020	[  5] FDE for: _PokeySound_Generate
+0x00012E68	0x00000020	[  5] FDE for: _PokeySound_IsSilent
+0x00012E88	0x00000020	[  5] FDE for: _PokeySound_Mute
+0x00012EA8	0x00000018	[  6] CFI
+0x00012EC0	0x00000038	[  6] FDE for: _codec_init
+0x00012EF8	0x00000038	[  6] FDE for: _codec_set_replaygain
+0x00012F30	0x00000020	[  6] FDE for: _codec_malloc
+0x00012F50	0x00000040	[  6] FDE for: _codec_calloc
+0x00012F90	0x00000020	[  6] FDE for: _codec_free
+0x00012FB0	0x00000040	[  6] FDE for: _codec_realloc
+0x00012FF0	0x00000020	[  6] FDE for: _codec_strlen
+0x00013010	0x00000020	[  6] FDE for: _strcpy
+0x00013030	0x00000020	[  6] FDE for: _strcat
+0x00013050	0x00000020	[  6] FDE for: _strcmp
+0x00013070	0x00000020	[  6] FDE for: _memcpy
+0x00013090	0x00000020	[  6] FDE for: _memset
+0x000130B0	0x00000020	[  6] FDE for: _memcmp
+0x000130D0	0x00000020	[  6] FDE for: _memchr
+0x000130F0	0x00000020	[  6] FDE for: _memmove
+0x00013110	0x00000020	[  6] FDE for: _qsort
+0x00014000	0x00000040	[  1] ___header
+0x00018000	0x00000008	[  2] _ci
+0x00018008	0x00005F68	[  1] _asap
+0x0001DF70	0x00000800	[  1] _samples
+0x0001E770	0x000002CC	[  4] _s_module_info
+0x0001EA3C	0x00010000	[  4] _s_memory
+0x0002EA40	0x00000008	[  6] _mallocbuf
+0x0002EA48	0x00000008	[  6] _bufsize
+0x0002EA50	0x00000008	[  6] _mem_ptr

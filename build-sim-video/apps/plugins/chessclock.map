@@ -1,0 +1,126 @@
+# Path: /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/chessclock.elf
+# Arch: arm64
+# Object files:
+[  0] linker synthesized
+[  1] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/chessclock.o
+[  2] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/plugin_crt0.o
+[  3] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(playback_control.o)
+[  4] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/libSystem.tbd
+[  5] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/system/libsystem_platform.tbd
+# Sections:
+# Address	Size    	Segment	Section
+0x00000780	0x00000D54	__TEXT	__text
+0x000014D4	0x00000018	__TEXT	__stubs
+0x000014EC	0x000000DC	__TEXT	__cstring
+0x000015C8	0x000000C8	__TEXT	__const
+0x00001690	0x000004F0	__TEXT	__eh_frame
+0x00004000	0x00000010	__DATA_CONST	__got
+0x00004010	0x00000160	__DATA_CONST	__const
+0x00008000	0x00000068	__DATA	__data
+0x00008068	0x00000008	__DATA	.data
+0x00008070	0x00000150	__DATA	__bss
+0x000081C0	0x00000008	__DATA	__common
+# Symbols:
+# Address	Size    	File  Name
+0x00000780	0x00000060	[  1] _show_time
+0x000007E0	0x000001C4	[  1] _chessclock_set_int
+0x000009A4	0x0000008C	[  1] _show_pause_mode
+0x00000A30	0x000006E4	[  1] _plugin_start
+0x00001114	0x00000018	[  2] _cleanup_wrapper
+0x0000112C	0x00000068	[  2] _plugin__start
+0x00001194	0x00000020	[  2] _rb_atexit
+0x000011B4	0x00000024	[  2] _exit
+0x000011D8	0x00000014	[  2] __exit
+0x000011EC	0x00000064	[  2] _exit_on_usb
+0x00001250	0x00000028	[  3] _prevtrack
+0x00001278	0x00000088	[  3] _play
+0x00001300	0x00000028	[  3] _stop
+0x00001328	0x00000028	[  3] _nexttrack
+0x00001350	0x00000050	[  3] _volume
+0x000013A0	0x00000054	[  3] _shuffle
+0x000013F4	0x0000008C	[  3] _repeat_mode
+0x00001480	0x0000000C	[  3] _playback_control_init
+0x0000148C	0x00000048	[  3] _playback_control
+0x000014D4	0x0000000C	[  5] _longjmp.stub
+0x000014E0	0x0000000C	[  5] _setjmp.stub
+0x000014EC	0x0000000A	[  1] literal string: %02d:%02d
+0x000014F6	0x00000009	[  1] literal string: %s (m:s)
+0x000014FF	0x00000003	[  1] literal string: %d
+0x00001502	0x0000000C	[  1] literal string: Chess Clock
+0x0000150E	0x00000012	[  1] literal string: Number of players
+0x00001520	0x0000000B	[  1] literal string: Total time
+0x0000152B	0x0000000F	[  1] literal string: Max round time
+0x0000153A	0x0000000A	[  1] literal string: Player %d
+0x00001544	0x0000000A	[  1] literal string: ROUND UP!
+0x0000154E	0x0000000A	[  1] literal string: TIME OUT!
+0x00001558	0x00000004	[  1] literal string: %s/
+0x0000155C	0x0000000B	[  1] literal string: Round time
+0x00001567	0x0000000E	[  1] literal string: Delete player
+0x00001575	0x0000000E	[  1] literal string: Restart round
+0x00001583	0x0000000F	[  1] literal string: Set round time
+0x00001592	0x0000000F	[  1] literal string: Set total time
+0x000015A1	0x00000011	[  1] literal string: Playback Control
+0x000015B2	0x00000007	[  3] literal string: Volume
+0x000015B9	0x00000008	[  3] literal string: Shuffle
+0x000015C1	0x00000007	[  3] literal string: Repeat
+0x000015C8	0x00000007	[  1] _pause_icon.0
+0x000015D0	0x00000018	[  3] _playback_control_menu__
+0x000015E8	0x00000018	[  3] _repeat_mode_item_
+0x00001600	0x00000018	[  3] _shuffle_item_
+0x00001618	0x00000018	[  3] _volume_item_
+0x00001630	0x00000018	[  3] _nexttrack_item_
+0x00001648	0x00000018	[  3] _stop_item_
+0x00001660	0x00000018	[  3] _playpause_item_
+0x00001678	0x00000018	[  3] _prevtrack_item_
+0x00001690	0x00000018	[  1] CFI
+0x000016A8	0x00000048	[  1] FDE for: _show_time
+0x000016F0	0x00000078	[  1] FDE for: _chessclock_set_int
+0x00001768	0x00000050	[  1] FDE for: _show_pause_mode
+0x000017B8	0x00000078	[  1] FDE for: _plugin_start
+0x00001830	0x00000018	[  2] CFI
+0x00001848	0x00000020	[  2] FDE for: _cleanup_wrapper
+0x00001868	0x00000040	[  2] FDE for: _plugin__start
+0x000018A8	0x00000020	[  2] FDE for: _rb_atexit
+0x000018C8	0x00000030	[  2] FDE for: _exit
+0x000018F8	0x00000030	[  2] FDE for: __exit
+0x00001928	0x00000038	[  2] FDE for: _exit_on_usb
+0x00001960	0x00000018	[  3] CFI
+0x00001978	0x00000038	[  3] FDE for: _prevtrack
+0x000019B0	0x00000048	[  3] FDE for: _play
+0x000019F8	0x00000038	[  3] FDE for: _stop
+0x00001A30	0x00000038	[  3] FDE for: _nexttrack
+0x00001A68	0x00000040	[  3] FDE for: _volume
+0x00001AA8	0x00000040	[  3] FDE for: _shuffle
+0x00001AE8	0x00000040	[  3] FDE for: _repeat_mode
+0x00001B28	0x00000020	[  3] FDE for: _playback_control_init
+0x00001B48	0x00000038	[  3] FDE for: _playback_control
+0x00004000	0x00000008	[  5] _longjmp.got
+0x00004008	0x00000008	[  5] _setjmp.got
+0x00004010	0x00000018	[  1] _menu__.2
+0x00004028	0x00000018	[  1] _menu.3
+0x00004040	0x00000038	[  2] ___header
+0x00004078	0x00000018	[  3] _playback_control_menu
+0x00004090	0x00000018	[  3] _repeat_mode_item
+0x000040A8	0x00000008	[  3] _repeat_mode_item__
+0x000040B0	0x00000018	[  3] _shuffle_item
+0x000040C8	0x00000008	[  3] _shuffle_item__
+0x000040D0	0x00000018	[  3] _volume_item
+0x000040E8	0x00000008	[  3] _volume_item__
+0x000040F0	0x00000018	[  3] _nexttrack_item
+0x00004108	0x00000008	[  3] _nexttrack_item__
+0x00004110	0x00000018	[  3] _stop_item
+0x00004128	0x00000008	[  3] _stop_item__
+0x00004130	0x00000018	[  3] _playpause_item
+0x00004148	0x00000008	[  3] _playpause_item__
+0x00004150	0x00000018	[  3] _prevtrack_item
+0x00004168	0x00000008	[  3] _prevtrack_item__
+0x00008000	0x00000028	[  1] _menu_.1
+0x00008028	0x00000006	[  1] _buf.4
+0x00008030	0x00000038	[  3] _playback_control_menu_
+0x00008068	0x00000008	[  2] _rb
+0x00008070	0x00000004	[  1] _chesspause
+0x00008074	0x00000078	[  1] _timer_holder
+0x000080EC	0x0000000C	[  1] _settings
+0x000080F8	0x00000008	[  2] _atexit_handler
+0x00008100	0x000000C0	[  2] ___exit_env
+0x000081C0	0x00000008	[  3] _parentvp

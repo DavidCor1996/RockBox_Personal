@@ -1,0 +1,176 @@
+# Path: /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/star.elf
+# Arch: arm64
+# Object files:
+[  0] linker synthesized
+[  1] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/star.o
+[  2] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/plugin_crt0.o
+[  3] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(playback_control.o)
+[  4] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(display_text.o)
+[  5] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/bitmaps/libpluginbitmaps.a(star_tiles.20x20.o)
+[  6] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/libSystem.tbd
+[  7] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/system/libsystem_platform.tbd
+# Sections:
+# Address	Size    	Segment	Section
+0x00000778	0x00001234	__TEXT	__text
+0x000019AC	0x00000018	__TEXT	__stubs
+0x000019C4	0x00000D50	__TEXT	__cstring
+0x00002718	0x00001060	__TEXT	__const
+0x00003778	0x00000608	__TEXT	__eh_frame
+0x00004000	0x00000010	__DATA_CONST	__got
+0x00004010	0x00000188	__DATA_CONST	__const
+0x00008000	0x00000230	__DATA	__data
+0x00008230	0x00000008	__DATA	.data
+0x00008238	0x00000178	__DATA	__bss
+0x000083B0	0x00000008	__DATA	__common
+# Symbols:
+# Address	Size    	File  Name
+0x00000778	0x00000164	[  1] _star_display_board_info
+0x000008DC	0x000001A0	[  1] _star_animate_tile
+0x00000A7C	0x000002EC	[  1] _star_load_level.isra.0
+0x00000D68	0x000004B8	[  1] _plugin_start
+0x00001220	0x00000018	[  2] _cleanup_wrapper
+0x00001238	0x00000068	[  2] _plugin__start
+0x000012A0	0x00000020	[  2] _rb_atexit
+0x000012C0	0x00000024	[  2] _exit
+0x000012E4	0x00000014	[  2] __exit
+0x000012F8	0x00000064	[  2] _exit_on_usb
+0x0000135C	0x00000028	[  3] _prevtrack
+0x00001384	0x00000088	[  3] _play
+0x0000140C	0x00000028	[  3] _stop
+0x00001434	0x00000028	[  3] _nexttrack
+0x0000145C	0x00000050	[  3] _volume
+0x000014AC	0x00000054	[  3] _shuffle
+0x00001500	0x0000008C	[  3] _repeat_mode
+0x0000158C	0x0000000C	[  3] _playback_control_init
+0x00001598	0x00000048	[  3] _playback_control
+0x000015E0	0x00000078	[  4] _wait_key_press
+0x00001658	0x00000354	[  4] _display_text
+0x000019AC	0x0000000C	[  7] _longjmp.stub
+0x000019B8	0x0000000C	[  7] _setjmp.stub
+0x000019C4	0x00000007	[  1] literal string: L:%02d
+0x000019CB	0x00000007	[  1] literal string: S:%02d
+0x000019D2	0x00000003	[  1] literal string: C:
+0x000019D5	0x00000C07	[  1] literal string: ****************\n*X**........o*x*\n*..........o.***\n*.......**o....*\n*...**.o......**\n**.o..o.....o..*\n*.o......o**.o.*\n*.....**o.....o*\n****************\n\n.*..*.*.*...*.**\n*...o.........X*\n...*o..*o...o...\n*.*.o.....o..*.*\n......*...o...*.\n*....*x*..o....*\n...*..*.*...*oo*\n*.............*.\n.*..*........*..\n\n****************\n*...........o*x*\n*...**......**X*\n*...*o.........*\n*.o.....o**...o*\n*.*o..o..o*..o**\n*.**o.*o..o.o***\n*o....**o......*\n****************\n\n****************\n*............*x*\n*.....*........*\n**o*o.o*o*o*o*o*\n*.*.*o.o*.*.*.**\n**o*o*o.o*o*o*o*\n*.....*........*\n*...*.......*X.*\n****************\n\n.**************.\n*X..*...*..*...*\n*..*o.*.o..o.*.*\n**......*..*...*\n*o.*o*........**\n**.....*.o.*...*\n*o*..*.*.*...*x*\n*...*....o*..*o*\n.**************.\n\n....************\n...*...o...*o.o*\n..*....o....*.**\n.*.....o.......*\n*X.....o.......*\n**.....o..*...**\n*......o....*..*\n*x.*...o..**o..*\n****************\n\n****************\n*..............*\n.**.***..*o.**o*\n.*o..*o.*.*.*.*.\n..*..*..***.**..\n.**..*..*o*.*o**\n*..............*\n*..X*o....x..*o*\n****************\n\n***************.\n*..o**.........*\n*..*o..**.o....*\n*..o**.*.*o....*\n**.....**..*o*.*\n**.*.......o*o.*\n*oxo*...o..*X*.*\n**.............*\n.***************\n\n..*.***********.\n.*o*o......*..X*\n*o.o*....o....*.\n.*.*..o**..o*..*\n*..*o.*oxo....o*\n*.....o**.....*.\n*o*o.........*..\n*...........*...\n.***********....\n\n....***********.\n*****.o........*\n*...x.***o.o*.o*\n*.o...*o.*o...*.\n*.....*..o..*.o*\n*o*o..*.o*..*X*.\n.*o...***..***..\n*.........*.*.*.\n.*********..*..*\n\n****************\n*......*......X*\n*..*oo.....oo.**\n**...o...**...o*\n*o....*o*oo..***\n**.**....**....*\n*o..o*.o....x.o*\n**o***....*...**\n***************.\n\n**.....**..****.\n*X*****o.***.o**\n*....oo.....o..*\n*.**..**o..*o*.*\n*.*.o.*.*o.**..*\n*.**..**...*x*.*\n*.....o........*\n*........o.....*\n****************\n\n.**************.\n*.X*........o.**\n*.*...*o...o**.*\n*.......o....*.*\n*.o..........*o*\n*.*......o.....*\n**......o.o..*o*\n*x..*....o.*.*.*\n.**************.\n\n****************\n*o*o........o*o*\n*.o*X......**..*\n*.x........o...*\n*........o*....*\n*......o.......*\n*.o*........*..*\n*o*o........o*o*\n****************\n\n.******.********\n*.....o*.....o.*\n*.*.o.*..*...o.*\n*..X*...*oo.*o.*\n.*.*...*.o..x*.*\n*o.......*..*o.*\n.*......o.....*.\n*o............o*\n****************\n\n****************\n**.x*o.o......o*\n*o.Xo*o.......**\n**.***........**\n**.....o*o*....*\n*oo.......o*o..*\n**.o....****o..*\n**o*..*........*\n****************\n\n****************\n*.o*........*X.*\n*.*..o*oo*o..*.*\n*....*o**o*.o..*\n*.o*.......o*..*\n*..o*o....o*...*\n*.*..*.**o*..*.*\n*....o.*o...x..*\n****************\n\n****************\n*.o....o..x*...*\n*..*o*o...*o...*\n*...*o*....*o..*\n*...o..*...o*o.*\n*.*o*...*.o*...*\n*.o*o.*.o.*....*\n*o*X..*.....*..*\n****************\n\n****************\n*o...**.....**o*\n*.*..*......*o.*\n*.o*...o**..o..*\n*.*....*o......*\n*....*...o*....*\n*.**.o*.**o..*x*\n*.o*.*o.....**X*\n****************\n\n****************\n*...o*o........*\n**o..o*.**o...**\n*.*.*.o...*..*.*\n*.x.*..**..*.Xo*\n*.*..*...o.*.*.*\n**...o**.*o..o**\n*........o*o...*\n****************
+0x000025DC	0x00000002	[  1] literal string: a
+0x000025DE	0x00000011	[  1] literal string: Congratulations!
+0x000025EF	0x00000001	[  1] literal string: 
+0x000025F0	0x00000006	[  1] literal string: Level
+0x000025F6	0x00000005	[  1] literal string: Star
+0x000025FB	0x00000004	[  1] literal string: Aim
+0x000025FF	0x00000005	[  1] literal string: Take
+0x00002604	0x00000004	[  1] literal string: all
+0x00002608	0x00000004	[  1] literal string: the
+0x0000260C	0x00000006	[  1] literal string: stars
+0x00002612	0x00000003	[  1] literal string: to
+0x00002615	0x00000003	[  1] literal string: go
+0x00002618	0x00000005	[  1] literal string: next
+0x0000261D	0x00000007	[  1] literal string: level.
+0x00002624	0x00000004	[  1] literal string: You
+0x00002628	0x00000004	[  1] literal string: can
+0x0000262C	0x00000007	[  1] literal string: toggle
+0x00002633	0x00000008	[  1] literal string: control
+0x0000263B	0x00000005	[  1] literal string: with
+0x00002640	0x00000006	[  1] literal string: block
+0x00002646	0x00000004	[  1] literal string: use
+0x0000264A	0x00000003	[  1] literal string: it
+0x0000264D	0x00000003	[  1] literal string: as
+0x00002650	0x00000007	[  1] literal string: mobile
+0x00002657	0x00000006	[  1] literal string: wall.
+0x0000265D	0x00000004	[  1] literal string: The
+0x00002661	0x00000007	[  1] literal string: cannot
+0x00002668	0x00000005	[  1] literal string: take
+0x0000266D	0x00000007	[  1] literal string: stars.
+0x00002674	0x00000009	[  1] literal string: Controls
+0x0000267D	0x00000008	[  1] literal string: SELECT:
+0x00002685	0x00000007	[  1] literal string: Toggle
+0x0000268C	0x0000000D	[  1] literal string: Long SELECT:
+0x00002699	0x00000005	[  1] literal string: Exit
+0x0000269E	0x00000005	[  1] literal string: S <:
+0x000026A3	0x00000006	[  1] literal string: Prev.
+0x000026A9	0x00000006	[  1] literal string: level
+0x000026AF	0x0000000A	[  1] literal string: S + PLAY:
+0x000026B9	0x00000006	[  1] literal string: Reset
+0x000026BF	0x00000005	[  1] literal string: S >:
+0x000026C4	0x00000005	[  1] literal string: Next
+0x000026C9	0x0000000B	[  1] literal string: Start Game
+0x000026D4	0x0000000D	[  1] literal string: Choose Level
+0x000026E1	0x00000005	[  1] literal string: Help
+0x000026E6	0x00000011	[  1] literal string: Playback Control
+0x000026F7	0x00000005	[  1] literal string: Quit
+0x000026FC	0x00000007	[  3] literal string: Volume
+0x00002703	0x00000008	[  3] literal string: Shuffle
+0x0000270B	0x00000007	[  3] literal string: Repeat
+0x00002712	0x00000002	[  4] literal string:  
+0x00002718	0x00000018	[  3] _playback_control_menu__
+0x00002730	0x00000018	[  3] _repeat_mode_item_
+0x00002748	0x00000018	[  3] _shuffle_item_
+0x00002760	0x00000018	[  3] _volume_item_
+0x00002778	0x00000018	[  3] _nexttrack_item_
+0x00002790	0x00000018	[  3] _stop_item_
+0x000027A8	0x00000018	[  3] _playpause_item_
+0x000027C0	0x00000018	[  3] _prevtrack_item_
+0x000027D8	0x00000FA0	[  5] _star_tiles
+0x00003778	0x00000018	[  1] CFI
+0x00003790	0x00000068	[  1] FDE for: _star_display_board_info
+0x000037F8	0x00000070	[  1] FDE for: _star_animate_tile
+0x00003868	0x00000078	[  1] FDE for: _star_load_level.isra.0
+0x000038E0	0x00000078	[  1] FDE for: _plugin_start
+0x00003958	0x00000018	[  2] CFI
+0x00003970	0x00000020	[  2] FDE for: _cleanup_wrapper
+0x00003990	0x00000040	[  2] FDE for: _plugin__start
+0x000039D0	0x00000020	[  2] FDE for: _rb_atexit
+0x000039F0	0x00000030	[  2] FDE for: _exit
+0x00003A20	0x00000030	[  2] FDE for: __exit
+0x00003A50	0x00000038	[  2] FDE for: _exit_on_usb
+0x00003A88	0x00000018	[  3] CFI
+0x00003AA0	0x00000038	[  3] FDE for: _prevtrack
+0x00003AD8	0x00000048	[  3] FDE for: _play
+0x00003B20	0x00000038	[  3] FDE for: _stop
+0x00003B58	0x00000038	[  3] FDE for: _nexttrack
+0x00003B90	0x00000040	[  3] FDE for: _volume
+0x00003BD0	0x00000040	[  3] FDE for: _shuffle
+0x00003C10	0x00000040	[  3] FDE for: _repeat_mode
+0x00003C50	0x00000020	[  3] FDE for: _playback_control_init
+0x00003C70	0x00000038	[  3] FDE for: _playback_control
+0x00003CA8	0x00000018	[  4] CFI
+0x00003CC0	0x00000050	[  4] FDE for: _wait_key_press
+0x00003D10	0x00000070	[  4] FDE for: _display_text
+0x00004000	0x00000008	[  7] _longjmp.got
+0x00004008	0x00000008	[  7] _setjmp.got
+0x00004010	0x00000018	[  1] _menu__.3
+0x00004028	0x00000018	[  1] _menu.4
+0x00004040	0x00000038	[  2] ___header
+0x00004078	0x00000018	[  3] _playback_control_menu
+0x00004090	0x00000018	[  3] _repeat_mode_item
+0x000040A8	0x00000008	[  3] _repeat_mode_item__
+0x000040B0	0x00000018	[  3] _shuffle_item
+0x000040C8	0x00000008	[  3] _shuffle_item__
+0x000040D0	0x00000018	[  3] _volume_item
+0x000040E8	0x00000008	[  3] _volume_item__
+0x000040F0	0x00000018	[  3] _nexttrack_item
+0x00004108	0x00000008	[  3] _nexttrack_item__
+0x00004110	0x00000018	[  3] _stop_item
+0x00004128	0x00000008	[  3] _stop_item__
+0x00004130	0x00000018	[  3] _playpause_item
+0x00004148	0x00000008	[  3] _playpause_item__
+0x00004150	0x00000018	[  3] _prevtrack_item
+0x00004168	0x00000008	[  3] _prevtrack_item__
+0x00004170	0x00000028	[  5] _bm_star_tiles
+0x00008000	0x00000010	[  1] _formation.0
+0x00008010	0x000001B8	[  1] _help_text.1
+0x000081C8	0x00000028	[  1] _menu_.2
+0x000081F0	0x00000004	[  1] _char_height
+0x000081F4	0x00000004	[  1] _char_width
+0x000081F8	0x00000038	[  3] _playback_control_menu_
+0x00008230	0x00000008	[  2] _rb
+0x00008238	0x00000090	[  1] _board
+0x000082C8	0x00000004	[  1] _control
+0x000082CC	0x00000004	[  1] _star_count
+0x000082D0	0x00000004	[  1] _block_y
+0x000082D4	0x00000004	[  1] _block_x
+0x000082D8	0x00000004	[  1] _ball_y
+0x000082DC	0x00000004	[  1] _ball_x
+0x000082E0	0x00000001	[  1] _usb_detected
+0x000082E8	0x00000008	[  2] _atexit_handler
+0x000082F0	0x000000C0	[  2] ___exit_env
+0x000083B0	0x00000008	[  3] _parentvp

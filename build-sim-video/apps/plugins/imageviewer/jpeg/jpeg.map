@@ -1,0 +1,94 @@
+# Path: /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/imageviewer/jpeg/jpeg.elf
+# Arch: arm64
+# Object files:
+[  0] linker synthesized
+[  1] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/imageviewer/jpeg/jpeg.o
+[  2] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/imageviewer/jpeg/jpeg_decoder.o
+[  3] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/imageviewer/jpeg/yuv2rgb.o
+[  4] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/libSystem.tbd
+# Sections:
+# Address	Size    	Segment	Section
+0x00000698	0x000024E8	__TEXT	__text
+0x00002B80	0x00000070	__TEXT	__cstring
+0x00002BF0	0x00000930	__TEXT	__const
+0x00003520	0x000005C8	__TEXT	__eh_frame
+0x00004000	0x000000A8	__DATA_CONST	__const
+0x00008000	0x00000010	__DATA	.data
+0x00008010	0x00002898	__DATA	__bss
+0x0000A8A8	0x00000794	__DATA	__common
+# Symbols:
+# Address	Size    	File  Name
+0x00000698	0x00000060	[  1] _img_mem
+0x000006F8	0x000000C0	[  1] _draw_image_rect
+0x000007B8	0x000002C0	[  1] _get_image
+0x00000A78	0x000002BC	[  1] _load_image
+0x00000D34	0x00000020	[  2] _range_limit
+0x00000D54	0x0000002C	[  2] _idct1x1
+0x00000D80	0x000000C0	[  2] _idct2x2
+0x00000E40	0x00000190	[  2] _idct4x4
+0x00000FD0	0x00000468	[  2] _idct8x8
+0x00001438	0x000001C4	[  2] _fix_huff_tbl
+0x000015FC	0x00000060	[  2] _check_bit_buffer
+0x0000165C	0x000000E0	[  2] _huff_decode_ac
+0x0000173C	0x0000043C	[  2] _process_markers
+0x00001B78	0x0000005C	[  2] _default_huff_tbl
+0x00001BD4	0x00000264	[  2] _build_lut
+0x00001E38	0x00000680	[  2] _jpeg_decode
+0x000024B8	0x000000A0	[  3] _pixel_to_lcd_colour
+0x00002558	0x0000006C	[  3] _pixel_to_lcd_gray
+0x000025C4	0x000000BC	[  3] _pixel_odither_to_lcd
+0x00002680	0x00000048	[  3] _distribute_error
+0x000026C8	0x00000128	[  3] _pixel_fsdither_to_lcd
+0x000027F0	0x00000390	[  3] _yuv_bitmap_part
+0x00002B80	0x0000000F	[  1] literal string: decoding %d*%d
+0x00002B8F	0x00000010	[  1] literal string: decode error %d
+0x00002B9F	0x00000010	[  1] literal string:  %ld.%02ld sec 
+0x00002BAF	0x00000013	[  1] literal string: err opening %s: %d
+0x00002BC2	0x00000011	[  1] literal string: loading %d bytes
+0x00002BD3	0x00000011	[  1] literal string: decoding markers
+0x00002BE4	0x0000000C	[  1] literal string: image %dx%d
+0x00002BF0	0x00000338	[  2] _chroma_table.0
+0x00002F28	0x00000338	[  2] _luma_table.1
+0x00003260	0x00000040	[  2] _extend_offset
+0x000032A0	0x00000040	[  2] _extend_test
+0x000032E0	0x00000140	[  2] _zag
+0x00003420	0x00000100	[  3] _dither_matrix.0
+0x00003520	0x00000018	[  1] CFI
+0x00003538	0x00000020	[  1] FDE for: _img_mem
+0x00003558	0x00000048	[  1] FDE for: _draw_image_rect
+0x000035A0	0x00000070	[  1] FDE for: _get_image
+0x00003610	0x00000080	[  1] FDE for: _load_image
+0x00003690	0x00000018	[  2] CFI
+0x000036A8	0x00000020	[  2] FDE for: _range_limit
+0x000036C8	0x00000038	[  2] FDE for: _idct1x1
+0x00003700	0x00000038	[  2] FDE for: _idct2x2
+0x00003738	0x00000038	[  2] FDE for: _idct4x4
+0x00003770	0x00000078	[  2] FDE for: _idct8x8
+0x000037E8	0x00000050	[  2] FDE for: _fix_huff_tbl
+0x00003838	0x00000020	[  2] FDE for: _check_bit_buffer
+0x00003858	0x00000040	[  2] FDE for: _huff_decode_ac
+0x00003898	0x00000020	[  2] FDE for: _process_markers
+0x000038B8	0x00000040	[  2] FDE for: _default_huff_tbl
+0x000038F8	0x00000048	[  2] FDE for: _build_lut
+0x00003940	0x00000068	[  2] FDE for: _jpeg_decode
+0x000039A8	0x00000018	[  3] CFI
+0x000039C0	0x00000020	[  3] FDE for: _pixel_to_lcd_colour
+0x000039E0	0x00000020	[  3] FDE for: _pixel_to_lcd_gray
+0x00003A00	0x00000020	[  3] FDE for: _pixel_odither_to_lcd
+0x00003A20	0x00000020	[  3] FDE for: _distribute_error
+0x00003A40	0x00000038	[  3] FDE for: _pixel_fsdither_to_lcd
+0x00003A78	0x00000070	[  3] FDE for: _yuv_bitmap_part
+0x00004000	0x00000050	[  1] ___header
+0x00004050	0x00000028	[  1] _image_decoder
+0x00004078	0x00000030	[  3] _pixel_funcs
+0x00008000	0x00000008	[  1] _iv
+0x00008008	0x00000008	[  1] _rb
+0x00008010	0x000026F0	[  1] _jpg
+0x0000A700	0x00000008	[  1] _buf_images_size
+0x0000A708	0x00000008	[  1] _buf_images
+0x0000A710	0x00000008	[  1] _root_size
+0x0000A718	0x00000008	[  1] _buf_root
+0x0000A720	0x00000020	[  1] _print
+0x0000A740	0x00000168	[  1] _disp
+0x0000A8A8	0x00000008	[  3] _pixel
+0x0000A8B0	0x0000078C	[  3] _rgb_err_buffers

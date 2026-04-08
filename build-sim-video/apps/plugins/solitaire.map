@@ -1,0 +1,249 @@
+# Path: /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/solitaire.elf
+# Arch: arm64
+# Object files:
+[  0] linker synthesized
+[  1] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/solitaire.o
+[  2] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/plugin_crt0.o
+[  3] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(configfile.o)
+[  4] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(playback_control.o)
+[  5] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(display_text.o)
+[  6] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/bitmaps/libpluginbitmaps.a(card_back.37x49x16.o)
+[  7] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/bitmaps/libpluginbitmaps.a(card_deck.481x196x16.o)
+[  8] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/bitmaps/libpluginbitmaps.a(solitaire_suitsi.37x196x16.o)
+[  9] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/libSystem.tbd
+[ 10] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/system/libsystem_platform.tbd
+# Sections:
+# Address	Size    	Segment	Section
+0x00000780	0x000029B8	__TEXT	__text
+0x00003138	0x00000018	__TEXT	__stubs
+0x00003150	0x000002C3	__TEXT	__cstring
+0x00003418	0x0003281A	__TEXT	__const
+0x00035C38	0x00000B08	__TEXT	__eh_frame
+0x00038000	0x00000010	__DATA_CONST	__got
+0x00038010	0x000001F8	__DATA_CONST	__const
+0x0003C000	0x000003B8	__DATA	__data
+0x0003C3B8	0x00000008	__DATA	.data
+0x0003C3C0	0x00000128	__DATA	__common
+0x0003C4E8	0x000000D0	__DATA	__bss
+# Symbols:
+# Address	Size    	File  Name
+0x00000780	0x000000CC	[  1] _draw_cursor
+0x0000084C	0x000001A8	[  1] _draw_card_ext
+0x000009F4	0x000000AC	[  1] _draw_card
+0x00000AA0	0x00000038	[  1] _solitaire_menu_cb
+0x00000AD8	0x00000034	[  1] _find_prev_card
+0x00000B0C	0x00000064	[  1] _find_last_card
+0x00000B70	0x00000074	[  1] _get_save_filename
+0x00000BE4	0x00000050	[  1] _open_save_file
+0x00000C34	0x00000034	[  1] _delete_save_file
+0x00000C68	0x000000A0	[  1] _find_card_col
+0x00000D08	0x00000244	[  1] _move_card
+0x00000F4C	0x00000070	[  1] _save_write
+0x00000FBC	0x00000070	[  1] _save_read
+0x0000102C	0x0000007C	[  1] _next_random_card.constprop.0
+0x000010A8	0x0000016C	[  1] _solitaire_init
+0x00001214	0x0000011C	[  1] _solitaire_menu
+0x00001330	0x00000FD4	[  1] _plugin_start
+0x00002304	0x00000018	[  2] _cleanup_wrapper
+0x0000231C	0x00000068	[  2] _plugin__start
+0x00002384	0x00000020	[  2] _rb_atexit
+0x000023A4	0x00000024	[  2] _exit
+0x000023C8	0x00000014	[  2] __exit
+0x000023DC	0x00000064	[  2] _exit_on_usb
+0x00002440	0x000000E8	[  3] _get_cfg_filename.constprop.0
+0x00002528	0x00000160	[  3] _configfile_save
+0x00002688	0x00000228	[  3] _configfile_load
+0x000028B0	0x000000E0	[  3] _configfile_get_value
+0x00002990	0x00000158	[  3] _configfile_update_entry
+0x00002AE8	0x00000028	[  4] _prevtrack
+0x00002B10	0x00000088	[  4] _play
+0x00002B98	0x00000028	[  4] _stop
+0x00002BC0	0x00000028	[  4] _nexttrack
+0x00002BE8	0x00000050	[  4] _volume
+0x00002C38	0x00000054	[  4] _shuffle
+0x00002C8C	0x0000008C	[  4] _repeat_mode
+0x00002D18	0x0000000C	[  4] _playback_control_init
+0x00002D24	0x00000048	[  4] _playback_control
+0x00002D6C	0x00000078	[  5] _wait_key_press
+0x00002DE4	0x00000354	[  5] _display_text
+0x00003138	0x0000000C	[ 10] _longjmp.stub
+0x00003144	0x0000000C	[ 10] _setjmp.stub
+0x00003150	0x00000009	[  1] literal string: sol.save
+0x00003159	0x00000012	[  1] literal string: Draw Cards Option
+0x0000316B	0x00000008	[  1] literal string: sol.cfg
+0x00003173	0x0000002A	[  1] literal string: Error while loading saved game. Aborting.
+0x0000319D	0x00000023	[  1] literal string: Save file was corrupted. Aborting.
+0x000031C0	0x00000015	[  1] literal string: Resuming saved game.
+0x000031D5	0x0000000B	[  1] literal string: You Won :)
+0x000031E0	0x00000023	[  1] literal string: Error while saving game. Aborting.
+0x00003203	0x0000000A	[  1] literal string: Solitaire
+0x0000320D	0x00000001	[  1] literal string: 
+0x0000320E	0x00000009	[  1] literal string: Controls
+0x00003217	0x0000000C	[  1] literal string: LEFT/RIGHT:
+0x00003223	0x00000005	[  1] literal string: Move
+0x00003228	0x00000004	[  1] literal string: the
+0x0000322C	0x00000007	[  1] literal string: cursor
+0x00003233	0x00000003	[  1] literal string: to
+0x00003236	0x0000000A	[  1] literal string: previous/
+0x00003240	0x00000005	[  1] literal string: next
+0x00003245	0x00000008	[  1] literal string: column.
+0x0000324D	0x0000000C	[  1] literal string: SCROLL U/D:
+0x00003259	0x00000004	[  1] literal string: up/
+0x0000325D	0x00000005	[  1] literal string: down
+0x00003262	0x00000003	[  1] literal string: in
+0x00003265	0x00000008	[  1] literal string: SELECT:
+0x0000326D	0x00000007	[  1] literal string: Select
+0x00003274	0x00000007	[  1] literal string: cards,
+0x0000327B	0x00000005	[  1] literal string: move
+0x00003280	0x00000009	[  1] literal string: cards...
+0x00003289	0x00000006	[  1] literal string: MENU:
+0x0000328F	0x00000009	[  1] literal string: Deselect
+0x00003298	0x00000002	[  1] literal string: a
+0x0000329A	0x00000005	[  1] literal string: card
+0x0000329F	0x00000003	[  1] literal string: if
+0x000032A2	0x00000003	[  1] literal string: it
+0x000032A5	0x00000004	[  1] literal string: was
+0x000032A9	0x0000000A	[  1] literal string: selected.
+0x000032B3	0x00000005	[  1] literal string: Else
+0x000032B8	0x00000005	[  1] literal string: draw
+0x000032BD	0x00000004	[  1] literal string: new
+0x000032C1	0x00000008	[  1] literal string: card(s)
+0x000032C9	0x00000005	[  1] literal string: from
+0x000032CE	0x00000008	[  1] literal string: remains
+0x000032D6	0x00000007	[  1] literal string: stack.
+0x000032DD	0x0000000A	[  1] literal string: Shortcuts
+0x000032E7	0x00000006	[  1] literal string: PLAY:
+0x000032ED	0x00000004	[  1] literal string: Put
+0x000032F1	0x00000003	[  1] literal string: on
+0x000032F4	0x00000004	[  1] literal string: top
+0x000032F8	0x00000003	[  1] literal string: of
+0x000032FB	0x00000006	[  1] literal string: stack
+0x00003301	0x00000008	[  1] literal string: cursor.
+0x00003309	0x00000008	[  1] literal string: MENU..:
+0x00003311	0x00000006	[  1] literal string: under
+0x00003317	0x00000004	[  1] literal string: one
+0x0000331B	0x00000002	[  1] literal string: 4
+0x0000331D	0x00000006	[  1] literal string: final
+0x00003323	0x00000008	[  1] literal string: stacks.
+0x0000332B	0x00000009	[  1] literal string: RIGHT..:
+0x00003334	0x0000000C	[  1] literal string: Resume Game
+0x00003340	0x0000000F	[  1] literal string: Start New Game
+0x0000334F	0x00000005	[  1] literal string: Help
+0x00003354	0x00000011	[  1] literal string: Playback Control
+0x00003365	0x00000014	[  1] literal string: Quit without Saving
+0x00003379	0x00000005	[  1] literal string: Quit
+0x0000337E	0x00000011	[  1] literal string: Draw Three Cards
+0x0000338F	0x0000000E	[  1] literal string: Draw One Card
+0x0000339D	0x0000000A	[  1] literal string: draw_type
+0x000033A7	0x0000000A	[  3] literal string: /.rockbox
+0x000033B1	0x00000004	[  3] literal string: /%s
+0x000033B5	0x00000013	[  3] literal string: /.rockbox/rocks/%s
+0x000033C8	0x00000014	[  3] literal string: file version: %10d\n
+0x000033DC	0x0000000A	[  3] literal string: %s: %10d\n
+0x000033E6	0x00000008	[  3] literal string: %s: %s\n
+0x000033EE	0x0000000D	[  3] literal string: file version
+0x000033FB	0x00000007	[  4] literal string: Volume
+0x00003402	0x00000008	[  4] literal string: Shuffle
+0x0000340A	0x00000007	[  4] literal string: Repeat
+0x00003411	0x00000002	[  5] literal string:  
+0x00003418	0x00000018	[  4] _playback_control_menu__
+0x00003430	0x00000018	[  4] _repeat_mode_item_
+0x00003448	0x00000018	[  4] _shuffle_item_
+0x00003460	0x00000018	[  4] _volume_item_
+0x00003478	0x00000018	[  4] _nexttrack_item_
+0x00003490	0x00000018	[  4] _stop_item_
+0x000034A8	0x00000018	[  4] _playpause_item_
+0x000034C0	0x00000018	[  4] _prevtrack_item_
+0x000034D8	0x00000E2A	[  6] _card_back
+0x00004302	0x0002E088	[  7] _card_deck
+0x0003238A	0x000038A8	[  8] _solitaire_suitsi
+0x00035C38	0x00000018	[  1] CFI
+0x00035C50	0x00000058	[  1] FDE for: _draw_cursor
+0x00035CA8	0x00000080	[  1] FDE for: _draw_card_ext
+0x00035D28	0x00000058	[  1] FDE for: _draw_card
+0x00035D80	0x00000020	[  1] FDE for: _solitaire_menu_cb
+0x00035DA0	0x00000020	[  1] FDE for: _find_prev_card
+0x00035DC0	0x00000020	[  1] FDE for: _find_last_card
+0x00035DE0	0x00000048	[  1] FDE for: _get_save_filename
+0x00035E28	0x00000040	[  1] FDE for: _open_save_file
+0x00035E68	0x00000038	[  1] FDE for: _delete_save_file
+0x00035EA0	0x00000020	[  1] FDE for: _find_card_col
+0x00035EC0	0x00000058	[  1] FDE for: _move_card
+0x00035F18	0x00000048	[  1] FDE for: _save_write
+0x00035F60	0x00000048	[  1] FDE for: _save_read
+0x00035FA8	0x00000040	[  1] FDE for: _next_random_card.constprop.0
+0x00035FE8	0x00000058	[  1] FDE for: _solitaire_init
+0x00036040	0x00000050	[  1] FDE for: _solitaire_menu
+0x00036090	0x00000068	[  1] FDE for: _plugin_start
+0x000360F8	0x00000018	[  2] CFI
+0x00036110	0x00000020	[  2] FDE for: _cleanup_wrapper
+0x00036130	0x00000040	[  2] FDE for: _plugin__start
+0x00036170	0x00000020	[  2] FDE for: _rb_atexit
+0x00036190	0x00000030	[  2] FDE for: _exit
+0x000361C0	0x00000030	[  2] FDE for: __exit
+0x000361F0	0x00000038	[  2] FDE for: _exit_on_usb
+0x00036228	0x00000018	[  3] CFI
+0x00036240	0x00000068	[  3] FDE for: _get_cfg_filename.constprop.0
+0x000362A8	0x00000070	[  3] FDE for: _configfile_save
+0x00036318	0x00000068	[  3] FDE for: _configfile_load
+0x00036380	0x00000058	[  3] FDE for: _configfile_get_value
+0x000363D8	0x00000070	[  3] FDE for: _configfile_update_entry
+0x00036448	0x00000018	[  4] CFI
+0x00036460	0x00000038	[  4] FDE for: _prevtrack
+0x00036498	0x00000048	[  4] FDE for: _play
+0x000364E0	0x00000038	[  4] FDE for: _stop
+0x00036518	0x00000038	[  4] FDE for: _nexttrack
+0x00036550	0x00000040	[  4] FDE for: _volume
+0x00036590	0x00000040	[  4] FDE for: _shuffle
+0x000365D0	0x00000040	[  4] FDE for: _repeat_mode
+0x00036610	0x00000020	[  4] FDE for: _playback_control_init
+0x00036630	0x00000038	[  4] FDE for: _playback_control
+0x00036668	0x00000018	[  5] CFI
+0x00036680	0x00000050	[  5] FDE for: _wait_key_press
+0x000366D0	0x00000070	[  5] FDE for: _display_text
+0x00038000	0x00000008	[ 10] _longjmp.got
+0x00038008	0x00000008	[ 10] _setjmp.got
+0x00038010	0x00000018	[  1] _menu__.3
+0x00038028	0x00000018	[  1] _menu.4
+0x00038040	0x00000020	[  1] _drawcards
+0x00038060	0x00000038	[  2] ___header
+0x00038098	0x00000018	[  4] _playback_control_menu
+0x000380B0	0x00000018	[  4] _repeat_mode_item
+0x000380C8	0x00000008	[  4] _repeat_mode_item__
+0x000380D0	0x00000018	[  4] _shuffle_item
+0x000380E8	0x00000008	[  4] _shuffle_item__
+0x000380F0	0x00000018	[  4] _volume_item
+0x00038108	0x00000008	[  4] _volume_item__
+0x00038110	0x00000018	[  4] _nexttrack_item
+0x00038128	0x00000008	[  4] _nexttrack_item__
+0x00038130	0x00000018	[  4] _stop_item
+0x00038148	0x00000008	[  4] _stop_item__
+0x00038150	0x00000018	[  4] _playpause_item
+0x00038168	0x00000008	[  4] _playpause_item__
+0x00038170	0x00000018	[  4] _prevtrack_item
+0x00038188	0x00000008	[  4] _prevtrack_item__
+0x00038190	0x00000028	[  6] _bm_card_back
+0x000381B8	0x00000028	[  7] _bm_card_deck
+0x000381E0	0x00000028	[  8] _bm_solitaire_suitsi
+0x0003C000	0x00000010	[  1] _formation.0
+0x0003C010	0x00000310	[  1] _help_text.1
+0x0003C320	0x00000038	[  1] _menu_.2
+0x0003C358	0x00000028	[  1] _config
+0x0003C380	0x00000038	[  4] _playback_control_menu_
+0x0003C3B8	0x00000008	[  2] _rb
+0x0003C3C0	0x00000010	[  1] _stacks
+0x0003C3D0	0x0000001C	[  1] _cols
+0x0003C3EC	0x00000004	[  1] _cards_per_draw
+0x0003C3F0	0x00000004	[  1] _count_rem
+0x0003C3F4	0x00000004	[  1] _cur_rem
+0x0003C3F8	0x00000004	[  1] _rem
+0x0003C3FC	0x000000D0	[  1] _deck
+0x0003C4CC	0x00000004	[  1] _sel_card
+0x0003C4D0	0x00000004	[  1] _cur_col
+0x0003C4D4	0x00000004	[  1] _cur_card
+0x0003C4D8	0x00000004	[  1] _sol
+0x0003C4DC	0x00000004	[  1] _sol_disk
+0x0003C4E0	0x00000008	[  4] _parentvp
+0x0003C4E8	0x00000001	[  1] __ingame
+0x0003C4F0	0x00000008	[  2] _atexit_handler
+0x0003C4F8	0x000000C0	[  2] ___exit_env

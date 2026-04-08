@@ -1,0 +1,329 @@
+# Path: /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/tagcache/tagcache.elf
+# Arch: arm64
+# Object files:
+[  0] linker synthesized
+[  1] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/tagcache/tagcache.o
+[  2] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/plugin_crt0.o
+[  3] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(gcc-support.o)
+[  4] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(helper.o)
+[  5] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/libSystem.tbd
+[  6] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/system/libsystem_c.tbd
+[  7] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/system/libsystem_kernel.tbd
+[  8] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/system/libsystem_platform.tbd
+# Sections:
+# Address	Size    	Segment	Section
+0x00000738	0x00003E6C	__TEXT	__text
+0x000045A4	0x00000030	__TEXT	__stubs
+0x000045D4	0x00000878	__TEXT	__cstring
+0x00004E4C	0x00000019	__TEXT	__const
+0x00004E68	0x00001018	__TEXT	__eh_frame
+0x00008000	0x00000020	__DATA_CONST	__got
+0x00008020	0x000000F0	__DATA_CONST	__const
+0x0000C000	0x00000009	__DATA	__data
+0x0000C010	0x00000008	__DATA	.data
+0x0000C018	0x00016540	__DATA	__bss
+# Symbols:
+# Address	Size    	File  Name
+0x00000738	0x0000003C	[  1] _sleep_yield
+0x00000774	0x00000034	[  1] _tempbuf_find_location
+0x000007A8	0x0000026C	[  1] _list_get_name_cb
+0x00000A14	0x0000002C	[  1] _swap_tagcache_header
+0x00000A40	0x00000044	[  1] _swap_master_header
+0x00000A84	0x00000014	[  1] _swap_tagfile_entry.part.0
+0x00000A98	0x0000002C	[  1] _swap_index_entry.part.0
+0x00000AC4	0x000000A8	[  1] _write_index_entries
+0x00000B6C	0x00000184	[  1] _fcpy.constprop.0
+0x00000CF0	0x00000054	[  1] _do_timed_yield.isra.0
+0x00000D44	0x000000AC	[  1] _compare
+0x00000DF0	0x00000110	[  1] _logdump.isra.0
+0x00000F00	0x00000050	[  1] _log_push
+0x00000F50	0x000000C8	[  1] __log
+0x00001018	0x000002BC	[  1] _backup_restore_tagcache
+0x000012D4	0x0000009C	[  1] _prompt_backup_restore
+0x00001370	0x00000268	[  1] _tempbuf_insert.constprop.0
+0x000015D8	0x00000060	[  1] _remove_db_file.isra.0
+0x00001638	0x000000D4	[  1] _remove_files
+0x0000170C	0x0000004C	[  1] _write_master_header.isra.0
+0x00001758	0x0000006C	[  1] _read_index_entries
+0x000017C4	0x0000004C	[  1] _write_tagfile_entry.isra.0
+0x00001810	0x0000007C	[  1] _open_pathfmt
+0x0000188C	0x0000008C	[  1] _open_db_fd
+0x00001918	0x00000118	[  1] _open_master_fd
+0x00001A30	0x00000128	[  1] _open_tag_fd
+0x00001B58	0x000000C4	[  1] _check_all_headers
+0x00001C1C	0x0000010C	[  1] _user_check_tag
+0x00001D28	0x00000FF0	[  1] _build_index
+0x00002D18	0x00000048	[  1] _itoa_buf
+0x00002D60	0x00000010	[  1] _tagcache_tag_to_str
+0x00002D70	0x00000028	[  1] _tagcache_commit_finalize
+0x00002D98	0x000000C8	[  1] _compute_nb_lines
+0x00002E60	0x00000204	[  1] _logdisplay.isra.0
+0x00003064	0x00000B48	[  1] _thread
+0x00003BAC	0x00000688	[  1] _plugin_start
+0x00004234	0x00000018	[  2] _cleanup_wrapper
+0x0000424C	0x00000068	[  2] _plugin__start
+0x000042B4	0x00000020	[  2] _rb_atexit
+0x000042D4	0x00000024	[  2] _exit
+0x000042F8	0x00000014	[  2] __exit
+0x0000430C	0x00000064	[  2] _exit_on_usb
+0x00004370	0x00000018	[  3] _memcpy
+0x00004388	0x00000018	[  3] _memset
+0x000043A0	0x00000018	[  3] _memmove
+0x000043B8	0x00000018	[  3] _memcmp
+0x000043D0	0x00000020	[  4] _talk_val
+0x000043F0	0x00000040	[  4] _backlight_force_on
+0x00004430	0x0000006C	[  4] _backlight_ignore_timeout
+0x0000449C	0x00000048	[  4] _backlight_use_settings
+0x000044E4	0x00000044	[  4] _sw_poweroff_disable
+0x00004528	0x00000020	[  4] _sw_poweroff_restore
+0x00004548	0x00000004	[  4] _remote_backlight_force_on
+0x0000454C	0x00000004	[  4] _remote_backlight_ignore_timeout
+0x00004550	0x00000004	[  4] _remote_backlight_use_settings
+0x00004554	0x00000004	[  4] _buttonlight_force_on
+0x00004558	0x00000004	[  4] _buttonlight_force_off
+0x0000455C	0x00000004	[  4] _buttonlight_ignore_timeout
+0x00004560	0x00000004	[  4] _buttonlight_use_settings
+0x00004564	0x00000018	[  4] _backlight_brightness_set
+0x0000457C	0x00000020	[  4] _backlight_brightness_use_setting
+0x0000459C	0x00000004	[  4] _buttonlight_brightness_set
+0x000045A0	0x00000004	[  4] _buttonlight_brightness_use_setting
+0x000045A4	0x0000000C	[  7] ___error.stub
+0x000045B0	0x0000000C	[  6] ___tolower.stub
+0x000045BC	0x0000000C	[  8] _longjmp.stub
+0x000045C8	0x0000000C	[  8] _setjmp.stub
+0x000045D4	0x00000002	[  1] literal string: ?
+0x000045D6	0x00000007	[  1] literal string: Backup
+0x000045DD	0x00000012	[  1] literal string: Nothing to commit
+0x000045EF	0x00000008	[  1] literal string: Restore
+0x000045F7	0x00000007	[  1] literal string: Commit
+0x000045FE	0x00000014	[  1] literal string: Disable auto commit
+0x00004612	0x00000013	[  1] literal string: Enable auto commit
+0x00004625	0x00000010	[  1] literal string: Delete database
+0x00004635	0x0000001A	[  1] literal string: %s/database_commit.ignore
+0x0000464F	0x00000014	[  1] literal string: %s/database_tmp.tcd
+0x00004663	0x00000014	[  1] literal string: %s/database_idx.tcd
+0x00004677	0x0000001F	[  1] literal string: /.rockbox/rocks/apps/db_commit
+0x00004696	0x0000000B	[  1] literal string: <Untagged>
+0x000046A1	0x0000001C	[  1] literal string: /.rockbox/db_commit_log.txt
+0x000046BD	0x00000002	[  1] literal string: \n
+0x000046BF	0x00000003	[  1] literal string: %c
+0x000046C2	0x00000010	[  1] literal string: log not enabled
+0x000046D2	0x00000004	[  1] literal string: %s\n
+0x000046D6	0x00000018	[  1] literal string: master file read failed
+0x000046EE	0x00000017	[  1] literal string: master file %d entries
+0x00004705	0x00000010	[  1] literal string: backup db to %s
+0x00004715	0x00000011	[  1] literal string: restore db to %s
+0x00004726	0x00000003	[  1] literal string: %s
+0x00004729	0x00000013	[  1] literal string: %s/database_%d.tcd
+0x0000473C	0x0000000E	[  1] literal string: failed backup
+0x0000474A	0x00000011	[  1] literal string: Backup database?
+0x0000475B	0x00000012	[  1] literal string: Error committing,
+0x0000476D	0x00000012	[  1] literal string: Restore database?
+0x0000477F	0x00000016	[  1] literal string: lookup buf overf.: %d
+0x00004795	0x00000027	[  1] literal string: temp buf error rem: %ld idx: %ld / %ld
+0x000047BC	0x00000019	[  1] literal string: lookup buf overf. #2: %d
+0x000047D5	0x00000006	[  1] literal string: %s/%s
+0x000047DB	0x00000011	[  1] literal string: database_idx.tcd
+0x000047EC	0x00000020	[  1] literal string: master file open failed for R/W
+0x0000480C	0x0000001E	[  1] literal string: master file bad magic: %08lx\n
+0x0000482A	0x00000031	[  1] literal string: %s failed: tag=%d write=%d file= database_%d.tcd
+0x0000485B	0x0000000D	[  1] literal string: header error
+0x00004868	0x00000013	[  1] literal string: tagcache is dirty!
+0x0000487B	0x00000016	[  1] literal string: Can't display (%d) %s
+0x00004891	0x00000013	[  1] literal string: Building index: %d
+0x000048A4	0x00000010	[  1] literal string: tch.datasize=%d
+0x000048B4	0x00000018	[  1] literal string: lookup_buffer_depth=%ld
+0x000048CC	0x00000017	[  1] literal string: commit_entry_count=%ld
+0x000048E3	0x00000016	[  1] literal string: Buffer way too small!
+0x000048F9	0x00000010	[  1] literal string: loading tags...
+0x00004909	0x0000000E	[  1] literal string: read error #7
+0x00004917	0x00000010	[  1] literal string: too long tag #3
+0x00004927	0x0000000E	[  1] literal string: read error #8
+0x00004935	0x00000005	[  1] literal string: done
+0x0000493A	0x00000015	[  1] literal string: Create New Index: %d
+0x0000494F	0x0000001A	[  1] literal string: database_%d.tcd open fail
+0x00004969	0x00000014	[  1] literal string: header write failed
+0x0000497D	0x00000013	[  1] literal string: Loading index file
+0x00004990	0x00000010	[  1] literal string: Creating new DB
+0x000049A0	0x00000022	[  1] literal string: Failure to create index file (%s)
+0x000049C2	0x0000000D	[  1] literal string: appending...
+0x000049CF	0x00000016	[  1] literal string: inserting new tags...
+0x000049E5	0x0000000D	[  1] literal string: read fail #3
+0x000049F2	0x00000010	[  1] literal string: too long entry!
+0x00004A02	0x0000000D	[  1] literal string: read fail #4
+0x00004A0F	0x0000000D	[  1] literal string: insert error
+0x00004A1C	0x0000001D	[  1] literal string: tempbuf_sort: write error #1
+0x00004A39	0x0000001D	[  1] literal string: tempbuf_sort: write error #2
+0x00004A56	0x00000009	[  1] literal string: XXXXXXXX
+0x00004A5F	0x0000000F	[  1] literal string: sorted %d tags
+0x00004A6E	0x00000014	[  1] literal string: updating indices...
+0x00004A82	0x0000000D	[  1] literal string: read fail #5
+0x00004A8F	0x00000017	[  1] literal string: update error: %d/%d/%d
+0x00004AA6	0x0000000B	[  1] literal string: write fail
+0x00004AB1	0x00000018	[  1] literal string: updating new indices...
+0x00004AC9	0x0000000D	[  1] literal string: read fail #6
+0x00004AD6	0x0000000D	[  1] literal string: read fail #7
+0x00004AE3	0x0000000A	[  1] literal string: length=%d
+0x00004AED	0x0000000C	[  1] literal string: pos=0x%02lx
+0x00004AF9	0x0000000D	[  1] literal string: read fail #8
+0x00004B06	0x0000000E	[  1] literal string: offset=0x%02x
+0x00004B14	0x0000000E	[  1] literal string: length=0x%02x
+0x00004B22	0x00000015	[  1] literal string: entry not found (%d)
+0x00004B37	0x00000018	[  1] literal string: tagcache: write fail #4
+0x00004B4F	0x0000000B	[  1] literal string: s:%d/%d/%d
+0x00004B5A	0x00000004	[  1] literal string: %ld
+0x00004B5E	0x00000002	[  1] literal string: A
+0x00004B60	0x0000000F	[  1] literal string: Thread Started
+0x00004B6F	0x00000014	[  1] literal string: committing tagcache
+0x00004B83	0x00000011	[  1] literal string: database_tmp.tcd
+0x00004B94	0x00000012	[  1] literal string: nothing to commit
+0x00004BA6	0x00000014	[  1] literal string: incorrect tmpheader
+0x00004BBA	0x00000020	[  1] literal string: delaying commit until next boot
+0x00004BDA	0x00000015	[  1] literal string: commit %d entries...
+0x00004BEF	0x00000015	[  1] literal string: tagcache failed init
+0x00004C04	0x0000001C	[  1] literal string: Building numeric indices...
+0x00004C20	0x00000011	[  1] literal string: we can't append!
+0x00004C31	0x0000000D	[  1] literal string: read fail #1
+0x00004C3E	0x0000001B	[  1] literal string: read fail: buffer overflow
+0x00004C59	0x0000000D	[  1] literal string: read fail #2
+0x00004C66	0x0000001B	[  1] literal string: masterfd writeback fail #1
+0x00004C81	0x00000012	[  1] literal string: Entry resurrected
+0x00004C93	0x00000018	[  1] literal string: %d/%d entries processed
+0x00004CAB	0x00000022	[  1] literal string: Failure to commit numeric indices
+0x00004CCD	0x00000013	[  1] literal string: tagcache committed
+0x00004CE0	0x0000000A	[  1] literal string: /.rockbox
+0x00004CEA	0x00000008	[  1] literal string: started
+0x00004CF2	0x0000000F	[  1] literal string: Backup failed!
+0x00004D01	0x00000010	[  1] literal string: Backup success!
+0x00004D11	0x00000010	[  1] literal string: Restore failed!
+0x00004D21	0x00000011	[  1] literal string: Restore success!
+0x00004D32	0x0000000E	[  1] literal string: Are you sure?
+0x00004D40	0x0000001C	[  1] literal string: This will destroy database.
+0x00004D5C	0x0000000A	[  1] literal string: db_commit
+0x00004D66	0x00000018	[  1] literal string: This will abort commit.
+0x00004D7E	0x00000007	[  1] literal string: artist
+0x00004D85	0x00000006	[  1] literal string: album
+0x00004D8B	0x00000006	[  1] literal string: genre
+0x00004D91	0x00000006	[  1] literal string: title
+0x00004D97	0x00000009	[  1] literal string: filename
+0x00004DA0	0x00000009	[  1] literal string: composer
+0x00004DA9	0x00000008	[  1] literal string: comment
+0x00004DB1	0x0000000C	[  1] literal string: albumartist
+0x00004DBD	0x00000009	[  1] literal string: grouping
+0x00004DC6	0x00000005	[  1] literal string: year
+0x00004DCB	0x0000000B	[  1] literal string: discnumber
+0x00004DD6	0x0000000C	[  1] literal string: tracknumber
+0x00004DE2	0x00000010	[  1] literal string: canonicalartist
+0x00004DF2	0x00000008	[  1] literal string: bitrate
+0x00004DFA	0x00000007	[  1] literal string: length
+0x00004E01	0x0000000A	[  1] literal string: playcount
+0x00004E0B	0x00000007	[  1] literal string: rating
+0x00004E12	0x00000009	[  1] literal string: playtime
+0x00004E1B	0x0000000B	[  1] literal string: lastplayed
+0x00004E26	0x00000009	[  1] literal string: commitid
+0x00004E2F	0x00000006	[  1] literal string: mtime
+0x00004E35	0x0000000C	[  1] literal string: lastelapsed
+0x00004E41	0x0000000B	[  1] literal string: lastoffset
+0x00004E4C	0x0000000D	[  1] ___func__.0
+0x00004E59	0x0000000C	[  1] ___func__.2
+0x00004E68	0x00000018	[  1] CFI
+0x00004E80	0x00000040	[  1] FDE for: _sleep_yield
+0x00004EC0	0x00000020	[  1] FDE for: _tempbuf_find_location
+0x00004EE0	0x00000068	[  1] FDE for: _list_get_name_cb
+0x00004F48	0x00000020	[  1] FDE for: _swap_tagcache_header
+0x00004F68	0x00000038	[  1] FDE for: _swap_master_header
+0x00004FA0	0x00000020	[  1] FDE for: _swap_tagfile_entry.part.0
+0x00004FC0	0x00000020	[  1] FDE for: _swap_index_entry.part.0
+0x00004FE0	0x00000068	[  1] FDE for: _write_index_entries
+0x00005048	0x00000060	[  1] FDE for: _fcpy.constprop.0
+0x000050A8	0x00000040	[  1] FDE for: _do_timed_yield.isra.0
+0x000050E8	0x00000068	[  1] FDE for: _compare
+0x00005150	0x00000068	[  1] FDE for: _logdump.isra.0
+0x000051B8	0x00000040	[  1] FDE for: _log_push
+0x000051F8	0x00000058	[  1] FDE for: __log
+0x00005250	0x00000078	[  1] FDE for: _backup_restore_tagcache
+0x000052C8	0x00000048	[  1] FDE for: _prompt_backup_restore
+0x00005310	0x00000078	[  1] FDE for: _tempbuf_insert.constprop.0
+0x00005388	0x00000048	[  1] FDE for: _remove_db_file.isra.0
+0x000053D0	0x00000060	[  1] FDE for: _remove_files
+0x00005430	0x00000038	[  1] FDE for: _write_master_header.isra.0
+0x00005468	0x00000048	[  1] FDE for: _read_index_entries
+0x000054B0	0x00000038	[  1] FDE for: _write_tagfile_entry.isra.0
+0x000054E8	0x00000058	[  1] FDE for: _open_pathfmt
+0x00005540	0x00000058	[  1] FDE for: _open_db_fd
+0x00005598	0x00000058	[  1] FDE for: _open_master_fd
+0x000055F0	0x00000068	[  1] FDE for: _open_tag_fd
+0x00005658	0x00000050	[  1] FDE for: _check_all_headers
+0x000056A8	0x00000068	[  1] FDE for: _user_check_tag
+0x00005710	0x00000080	[  1] FDE for: _build_index
+0x00005790	0x00000048	[  1] FDE for: _itoa_buf
+0x000057D8	0x00000020	[  1] FDE for: _tagcache_tag_to_str
+0x000057F8	0x00000038	[  1] FDE for: _tagcache_commit_finalize
+0x00005830	0x00000068	[  1] FDE for: _compute_nb_lines
+0x00005898	0x00000070	[  1] FDE for: _logdisplay.isra.0
+0x00005908	0x00000070	[  1] FDE for: _thread
+0x00005978	0x00000078	[  1] FDE for: _plugin_start
+0x000059F0	0x00000018	[  2] CFI
+0x00005A08	0x00000020	[  2] FDE for: _cleanup_wrapper
+0x00005A28	0x00000040	[  2] FDE for: _plugin__start
+0x00005A68	0x00000020	[  2] FDE for: _rb_atexit
+0x00005A88	0x00000030	[  2] FDE for: _exit
+0x00005AB8	0x00000030	[  2] FDE for: __exit
+0x00005AE8	0x00000038	[  2] FDE for: _exit_on_usb
+0x00005B20	0x00000018	[  3] CFI
+0x00005B38	0x00000020	[  3] FDE for: _memcpy
+0x00005B58	0x00000020	[  3] FDE for: _memset
+0x00005B78	0x00000020	[  3] FDE for: _memmove
+0x00005B98	0x00000020	[  3] FDE for: _memcmp
+0x00005BB8	0x00000018	[  4] CFI
+0x00005BD0	0x00000020	[  4] FDE for: _talk_val
+0x00005BF0	0x00000040	[  4] FDE for: _backlight_force_on
+0x00005C30	0x00000050	[  4] FDE for: _backlight_ignore_timeout
+0x00005C80	0x00000040	[  4] FDE for: _backlight_use_settings
+0x00005CC0	0x00000040	[  4] FDE for: _sw_poweroff_disable
+0x00005D00	0x00000020	[  4] FDE for: _sw_poweroff_restore
+0x00005D20	0x00000020	[  4] FDE for: _remote_backlight_force_on
+0x00005D40	0x00000020	[  4] FDE for: _remote_backlight_ignore_timeout
+0x00005D60	0x00000020	[  4] FDE for: _remote_backlight_use_settings
+0x00005D80	0x00000020	[  4] FDE for: _buttonlight_force_on
+0x00005DA0	0x00000020	[  4] FDE for: _buttonlight_force_off
+0x00005DC0	0x00000020	[  4] FDE for: _buttonlight_ignore_timeout
+0x00005DE0	0x00000020	[  4] FDE for: _buttonlight_use_settings
+0x00005E00	0x00000020	[  4] FDE for: _backlight_brightness_set
+0x00005E20	0x00000020	[  4] FDE for: _backlight_brightness_use_setting
+0x00005E40	0x00000020	[  4] FDE for: _buttonlight_brightness_set
+0x00005E60	0x00000020	[  4] FDE for: _buttonlight_brightness_use_setting
+0x00008000	0x00000008	[  7] ___error.got
+0x00008008	0x00000008	[  6] ___tolower.got
+0x00008010	0x00000008	[  8] _longjmp.got
+0x00008018	0x00000008	[  8] _setjmp.got
+0x00008020	0x000000B8	[  1] _tags_str
+0x000080D8	0x00000038	[  2] ___header
+0x0000C000	0x00000004	[  1] _logenabled
+0x0000C004	0x00000004	[  1] _log_font_h
+0x0000C008	0x00000001	[  4] _original_sw_poweroff_state
+0x0000C010	0x00000008	[  2] _rb
+0x0000C018	0x00000008	[  1] _wakeup_tick.1
+0x0000C020	0x00000008	[  1] _pf.3
+0x0000C028	0x00000004	[  1] _read_lock
+0x0000C02C	0x00000004	[  1] _write_lock
+0x0000C030	0x00000008	[  1] _lookup
+0x0000C038	0x00000008	[  1] _lookup_buffer_depth
+0x0000C040	0x00000008	[  1] _commit_entry_count
+0x0000C048	0x00000018	[  1] _current_tcmh
+0x0000C060	0x00000004	[  1] _command_queue_ridx
+0x0000C064	0x00000004	[  1] _command_queue_widx
+0x0000C068	0x00000080	[  1] _tc_stat
+0x0000C0E8	0x00000008	[  1] _tempbuf_pos
+0x0000C0F0	0x00000008	[  1] _tempbuf_left
+0x0000C0F8	0x00000008	[  1] _tempbuf_size
+0x0000C100	0x00000008	[  1] _tempbufidx
+0x0000C108	0x00000008	[  1] _tempbuf
+0x0000C110	0x00000228	[  1] _build_idx_buf
+0x0000C338	0x00012000	[  1] _tagcache_stack
+0x0001E338	0x00000004	[  1] _logindex
+0x0001E33C	0x00004004	[  1] _logbuffer
+0x00022340	0x00000010	[  1] _gStatus
+0x00022350	0x00000140	[  1] _gThread
+0x00022490	0x00000008	[  2] _atexit_handler
+0x00022498	0x000000C0	[  2] ___exit_env

@@ -1,0 +1,136 @@
+# Path: /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/test_disk.elf
+# Arch: arm64
+# Object files:
+[  0] linker synthesized
+[  1] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/test_disk.o
+[  2] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/plugin_crt0.o
+[  3] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(helper.o)
+[  4] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/libSystem.tbd
+[  5] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/system/libsystem_platform.tbd
+# Sections:
+# Address	Size    	Segment	Section
+0x00000730	0x00001268	__TEXT	__text
+0x00001998	0x00000018	__TEXT	__stubs
+0x000019B0	0x00000254	__TEXT	__cstring
+0x00001C04	0x0000000B	__TEXT	__const
+0x00001C10	0x000005A8	__TEXT	__eh_frame
+0x00004000	0x00000010	__DATA_CONST	__got
+0x00004010	0x00000068	__DATA_CONST	__const
+0x00008000	0x00000011	__DATA	__data
+0x00008018	0x00000008	__DATA	.data
+0x00008020	0x000001F0	__DATA	__bss
+# Symbols:
+# Address	Size    	File  Name
+0x00000730	0x00000020	[  1] _log_close
+0x00000750	0x000000A4	[  1] _log_text
+0x000007F4	0x000003D0	[  1] _file_speed
+0x00000BC4	0x000000CC	[  1] _log_init.isra.0
+0x00000C90	0x000009F8	[  1] _plugin_start
+0x00001688	0x00000018	[  2] _cleanup_wrapper
+0x000016A0	0x00000068	[  2] _plugin__start
+0x00001708	0x00000020	[  2] _rb_atexit
+0x00001728	0x00000024	[  2] _exit
+0x0000174C	0x00000014	[  2] __exit
+0x00001760	0x00000064	[  2] _exit_on_usb
+0x000017C4	0x00000020	[  3] _talk_val
+0x000017E4	0x00000040	[  3] _backlight_force_on
+0x00001824	0x0000006C	[  3] _backlight_ignore_timeout
+0x00001890	0x00000048	[  3] _backlight_use_settings
+0x000018D8	0x00000044	[  3] _sw_poweroff_disable
+0x0000191C	0x00000020	[  3] _sw_poweroff_restore
+0x0000193C	0x00000004	[  3] _remote_backlight_force_on
+0x00001940	0x00000004	[  3] _remote_backlight_ignore_timeout
+0x00001944	0x00000004	[  3] _remote_backlight_use_settings
+0x00001948	0x00000004	[  3] _buttonlight_force_on
+0x0000194C	0x00000004	[  3] _buttonlight_force_off
+0x00001950	0x00000004	[  3] _buttonlight_ignore_timeout
+0x00001954	0x00000004	[  3] _buttonlight_use_settings
+0x00001958	0x00000018	[  3] _backlight_brightness_set
+0x00001970	0x00000020	[  3] _backlight_brightness_use_setting
+0x00001990	0x00000004	[  3] _buttonlight_brightness_set
+0x00001994	0x00000004	[  3] _buttonlight_brightness_use_setting
+0x00001998	0x0000000C	[  5] _longjmp.stub
+0x000019A4	0x0000000C	[  5] _setjmp.stub
+0x000019B0	0x00000004	[  1] literal string: %s\n
+0x000019B4	0x00000015	[  1] literal string: --------------------
+0x000019C9	0x00000019	[  1] literal string: //__TEST__/test_disk.tmp
+0x000019E2	0x00000013	[  1] literal string: creat() failed: %d
+0x000019F5	0x00000016	[  1] literal string: write() failed: %d/%d
+0x00001A0B	0x00000019	[  1] literal string: Create (%d,%c): %ld KB/s
+0x00001A24	0x00000012	[  1] literal string: open() failed: %d
+0x00001A36	0x00000019	[  1] literal string: Write  (%d,%c): %ld KB/s
+0x00001A4F	0x00000015	[  1] literal string: read() failed: %d/%d
+0x00001A64	0x00000019	[  1] literal string: Read   (%d,%c): %ld KB/s
+0x00001A7D	0x00000002	[  1] literal string: A
+0x00001A7F	0x00000005	[  1] literal string: .txt
+0x00001A84	0x0000000F	[  1] literal string: test_disk_log_
+0x00001A93	0x00000002	[  1] literal string: /
+0x00001A95	0x0000001D	[  1] literal string: Can't create test directory.
+0x00001AB2	0x00000015	[  1] literal string: test_disk SPEED TEST
+0x00001AC7	0x00000014	[  1] literal string: //__TEST__/%08x.tmp
+0x00001ADB	0x00000014	[  1] literal string: Create:  %d files/s
+0x00001AEF	0x00000014	[  1] literal string: Open:    %d files/s
+0x00001B03	0x00000012	[  1] literal string: opendir() failed.
+0x00001B15	0x00000014	[  1] literal string: Dirscan: %d files/s
+0x00001B29	0x0000001B	[  1] literal string: Dirscan w info: %d files/s
+0x00001B44	0x00000015	[  1] literal string: Delete:  %ld files/s
+0x00001B59	0x00000005	[  1] literal string: DONE
+0x00001B5E	0x00000017	[  1] literal string: test_disk WRITE&VERIFY
+0x00001B75	0x00000017	[  1] literal string: ----------------------
+0x00001B8C	0x00000010	[  1] literal string: Data size: %dKB
+0x00001B9C	0x00000014	[  1] literal string: Wrt %dKB, %dKB left
+0x00001BB0	0x00000014	[  1] literal string: Cmp %dKB, %dKB left
+0x00001BC4	0x0000000F	[  1] literal string: Compare error.
+0x00001BD3	0x0000000D	[  1] literal string: Test passed.
+0x00001BE0	0x0000000B	[  1] literal string: Disk speed
+0x00001BEB	0x0000000F	[  1] literal string: Write & verify
+0x00001BFA	0x0000000A	[  1] literal string: Test Disk
+0x00001C04	0x0000000B	[  1] _testbasedir
+0x00001C10	0x00000018	[  1] CFI
+0x00001C28	0x00000020	[  1] FDE for: _log_close
+0x00001C48	0x00000050	[  1] FDE for: _log_text
+0x00001C98	0x00000070	[  1] FDE for: _file_speed
+0x00001D08	0x00000048	[  1] FDE for: _log_init.isra.0
+0x00001D50	0x00000070	[  1] FDE for: _plugin_start
+0x00001DC0	0x00000018	[  2] CFI
+0x00001DD8	0x00000020	[  2] FDE for: _cleanup_wrapper
+0x00001DF8	0x00000040	[  2] FDE for: _plugin__start
+0x00001E38	0x00000020	[  2] FDE for: _rb_atexit
+0x00001E58	0x00000030	[  2] FDE for: _exit
+0x00001E88	0x00000030	[  2] FDE for: __exit
+0x00001EB8	0x00000038	[  2] FDE for: _exit_on_usb
+0x00001EF0	0x00000018	[  3] CFI
+0x00001F08	0x00000020	[  3] FDE for: _talk_val
+0x00001F28	0x00000040	[  3] FDE for: _backlight_force_on
+0x00001F68	0x00000050	[  3] FDE for: _backlight_ignore_timeout
+0x00001FB8	0x00000040	[  3] FDE for: _backlight_use_settings
+0x00001FF8	0x00000040	[  3] FDE for: _sw_poweroff_disable
+0x00002038	0x00000020	[  3] FDE for: _sw_poweroff_restore
+0x00002058	0x00000020	[  3] FDE for: _remote_backlight_force_on
+0x00002078	0x00000020	[  3] FDE for: _remote_backlight_ignore_timeout
+0x00002098	0x00000020	[  3] FDE for: _remote_backlight_use_settings
+0x000020B8	0x00000020	[  3] FDE for: _buttonlight_force_on
+0x000020D8	0x00000020	[  3] FDE for: _buttonlight_force_off
+0x000020F8	0x00000020	[  3] FDE for: _buttonlight_ignore_timeout
+0x00002118	0x00000020	[  3] FDE for: _buttonlight_use_settings
+0x00002138	0x00000020	[  3] FDE for: _backlight_brightness_set
+0x00002158	0x00000020	[  3] FDE for: _backlight_brightness_use_setting
+0x00002178	0x00000020	[  3] FDE for: _buttonlight_brightness_set
+0x00002198	0x00000020	[  3] FDE for: _buttonlight_brightness_use_setting
+0x00004000	0x00000008	[  5] _longjmp.got
+0x00004008	0x00000008	[  5] _setjmp.got
+0x00004010	0x00000018	[  1] _menu__.1
+0x00004028	0x00000018	[  1] _menu.2
+0x00004040	0x00000038	[  2] ___header
+0x00008000	0x00000010	[  1] _menu_.0
+0x00008010	0x00000001	[  3] _original_sw_poweroff_state
+0x00008018	0x00000008	[  2] _rb
+0x00008020	0x00000104	[  1] _logfilename
+0x00008124	0x00000004	[  1] _log_fd
+0x00008128	0x00000004	[  1] _max_line
+0x0000812C	0x00000004	[  1] _line
+0x00008130	0x00000008	[  1] _frnd_buffer
+0x00008138	0x00000008	[  1] _audiobuflen
+0x00008140	0x00000008	[  1] _audiobuf
+0x00008148	0x00000008	[  2] _atexit_handler
+0x00008150	0x000000C0	[  2] ___exit_env

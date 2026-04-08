@@ -65,6 +65,20 @@ amaze_tiles_3.3x3x1.bmp
 #endif
 #endif /* amaze */
 
+/* Minish Cap proof of concept */
+minishcap_link_back.24x24x24.bmp
+minishcap_link_front.24x24x24.bmp
+minishcap_link_front_step.24x24x24.bmp
+minishcap_link_left.24x24x24.bmp
+minishcap_link_left_step.24x24x24.bmp
+minishcap_link_right.24x24x24.bmp
+minishcap_link_right_step.24x24x24.bmp
+minishcap_room_meadow_real.320x208x24.bmp
+minishcap_room_creek_real.320x208x24.bmp
+minishcap_room_links_house_bedroom.240x160x24.bmp
+minishcap_room_links_house_entrance.240x160x24.bmp
+minishcap_room_links_house_smith.240x160x24.bmp
+
 /* Brickmania */
 #ifdef HAVE_LCD_COLOR
 #if LCD_WIDTH >= 112
@@ -1115,4 +1129,17 @@ resistor.160x128x16.bmp
 resistor.128x128x16.bmp
 #else
 resistor.68x20x16.bmp
+#endif
+
+/* C-Dogs prototype */
+#if defined(HAVE_LCD_COLOR) && (LCD_WIDTH >= 320)
+cdogs_player_legs.24x192x24.bmp
+cdogs_player_upper.24x192x24.bmp
+cdogs_enemy_legs.24x192x24.bmp
+cdogs_enemy_upper.24x192x24.bmp
+cdogs_pulse.40x5x24.bmp
+cdogs_wall_n.16x12x24.bmp
+cdogs_wall_w.16x24x24.bmp
+cdogs_table.19x20x24.bmp
+cdogs_objective.11x11x24.bmp
 #endif

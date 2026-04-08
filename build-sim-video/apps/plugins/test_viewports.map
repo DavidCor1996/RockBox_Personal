@@ -1,0 +1,57 @@
+# Path: /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/test_viewports.elf
+# Arch: arm64
+# Object files:
+[  0] linker synthesized
+[  1] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/test_viewports.o
+[  2] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/plugin_crt0.o
+[  3] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/libSystem.tbd
+[  4] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/system/libsystem_platform.tbd
+# Sections:
+# Address	Size    	Segment	Section
+0x000006E0	0x000004A8	__TEXT	__text
+0x00000B88	0x00000018	__TEXT	__stubs
+0x00000BA0	0x0000009D	__TEXT	__cstring
+0x00000C40	0x000001C8	__TEXT	__eh_frame
+0x00004000	0x00000010	__DATA_CONST	__got
+0x00004010	0x00000038	__DATA_CONST	__const
+0x00008000	0x000000C0	__DATA	__data
+0x000080C0	0x00000008	__DATA	.data
+0x000080C8	0x000000C8	__DATA	__bss
+# Symbols:
+# Address	Size    	File  Name
+0x000006E0	0x0000002C	[  1] _test_address_fn
+0x0000070C	0x00000340	[  1] _plugin_start
+0x00000A4C	0x00000018	[  2] _cleanup_wrapper
+0x00000A64	0x00000068	[  2] _plugin__start
+0x00000ACC	0x00000020	[  2] _rb_atexit
+0x00000AEC	0x00000024	[  2] _exit
+0x00000B10	0x00000014	[  2] __exit
+0x00000B24	0x00000064	[  2] _exit_on_usb
+0x00000B88	0x0000000C	[  4] _longjmp.stub
+0x00000B94	0x0000000C	[  4] _setjmp.stub
+0x00000BA0	0x00000002	[  1] literal string: W
+0x00000BA2	0x00000034	[  1] literal string: Viewport testing plugin - this is a scrolling title
+0x00000BD6	0x0000001D	[  1] literal string: Left text, scrolling_line %d
+0x00000BF3	0x0000001E	[  1] literal string: Right text, scrolling line %d
+0x00000C11	0x00000021	[  1] literal string: Bottom text, a scrolling line %d
+0x00000C32	0x0000000B	[  1] literal string: Short line
+0x00000C40	0x00000018	[  1] CFI
+0x00000C58	0x00000020	[  1] FDE for: _test_address_fn
+0x00000C78	0x00000060	[  1] FDE for: _plugin_start
+0x00000CD8	0x00000018	[  2] CFI
+0x00000CF0	0x00000020	[  2] FDE for: _cleanup_wrapper
+0x00000D10	0x00000040	[  2] FDE for: _plugin__start
+0x00000D50	0x00000020	[  2] FDE for: _rb_atexit
+0x00000D70	0x00000030	[  2] FDE for: _exit
+0x00000DA0	0x00000030	[  2] FDE for: __exit
+0x00000DD0	0x00000038	[  2] FDE for: _exit_on_usb
+0x00004000	0x00000008	[  4] _longjmp.got
+0x00004008	0x00000008	[  4] _setjmp.got
+0x00004010	0x00000038	[  2] ___header
+0x00008000	0x00000030	[  1] _vp3
+0x00008030	0x00000030	[  1] _vp2
+0x00008060	0x00000030	[  1] _vp1
+0x00008090	0x00000030	[  1] _vp0
+0x000080C0	0x00000008	[  2] _rb
+0x000080C8	0x00000008	[  2] _atexit_handler
+0x000080D0	0x000000C0	[  2] ___exit_env

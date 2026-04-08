@@ -1,0 +1,143 @@
+# Path: /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/plasma.elf
+# Arch: arm64
+# Object files:
+[  0] linker synthesized
+[  1] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/plasma.o
+[  2] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/plugin_crt0.o
+[  3] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(pluginlib_actions.o)
+[  4] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(helper.o)
+[  5] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/libfixedpoint.a(fixedpoint.o)
+[  6] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/libSystem.tbd
+[  7] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/system/libsystem_c.tbd
+[  8] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/system/libsystem_platform.tbd
+# Sections:
+# Address	Size    	Segment	Section
+0x00000728	0x00000AF8	__TEXT	__text
+0x00001220	0x000003DC	__TEXT	__text_startup
+0x000015FC	0x00000024	__TEXT	__stubs
+0x00001620	0x00000290	__TEXT	__const
+0x000018B0	0x00000758	__TEXT	__eh_frame
+0x00004000	0x00000018	__DATA_CONST	__got
+0x00004018	0x00000038	__DATA_CONST	__const
+0x00008000	0x0000001D	__DATA	__data
+0x00008020	0x00000008	__DATA	.data
+0x00008028	0x000003F0	__DATA	__bss
+# Symbols:
+# Address	Size    	File  Name
+0x00000728	0x00000004	[  1] _cleanup
+0x0000072C	0x00000074	[  1] _wave_table_generate
+0x000007A0	0x00000054	[  1] _plugin_start
+0x000007F4	0x00000018	[  2] _cleanup_wrapper
+0x0000080C	0x00000068	[  2] _plugin__start
+0x00000874	0x00000020	[  2] _rb_atexit
+0x00000894	0x00000024	[  2] _exit
+0x000008B8	0x00000014	[  2] __exit
+0x000008CC	0x00000064	[  2] _exit_on_usb
+0x00000930	0x00000038	[  3] _get_context_map
+0x00000968	0x00000040	[  3] _pluginlib_getaction
+0x000009A8	0x00000020	[  4] _talk_val
+0x000009C8	0x00000040	[  4] _backlight_force_on
+0x00000A08	0x0000006C	[  4] _backlight_ignore_timeout
+0x00000A74	0x00000048	[  4] _backlight_use_settings
+0x00000ABC	0x00000044	[  4] _sw_poweroff_disable
+0x00000B00	0x00000020	[  4] _sw_poweroff_restore
+0x00000B20	0x00000004	[  4] _remote_backlight_force_on
+0x00000B24	0x00000004	[  4] _remote_backlight_ignore_timeout
+0x00000B28	0x00000004	[  4] _remote_backlight_use_settings
+0x00000B2C	0x00000004	[  4] _buttonlight_force_on
+0x00000B30	0x00000004	[  4] _buttonlight_force_off
+0x00000B34	0x00000004	[  4] _buttonlight_ignore_timeout
+0x00000B38	0x00000004	[  4] _buttonlight_use_settings
+0x00000B3C	0x00000018	[  4] _backlight_brightness_set
+0x00000B54	0x00000020	[  4] _backlight_brightness_use_setting
+0x00000B74	0x00000004	[  4] _buttonlight_brightness_set
+0x00000B78	0x00000004	[  4] _buttonlight_brightness_use_setting
+0x00000B7C	0x000000B0	[  5] _fp_sincos
+0x00000C2C	0x000000B4	[  5] _fp_sqrt
+0x00000CE0	0x0000003C	[  5] _ipow
+0x00000D1C	0x00000060	[  5] _fp14_sin
+0x00000D7C	0x00000064	[  5] _fp14_cos
+0x00000DE0	0x00000110	[  5] _fp16_log
+0x00000EF0	0x000000F8	[  5] _fp16_exp
+0x00000FE8	0x00000154	[  5] _fp_exp10
+0x0000113C	0x000000AC	[  5] _fp_log10
+0x000011E8	0x00000024	[  5] _fp_decibels
+0x0000120C	0x00000014	[  5] _fp_factor
+0x00001220	0x000003DC	[  1] _main
+0x000015FC	0x0000000C	[  7] _abs.stub
+0x00001608	0x0000000C	[  8] _longjmp.stub
+0x00001614	0x0000000C	[  8] _setjmp.stub
+0x00001620	0x000000D8	[  3] _pla_main_ctx
+0x000016F8	0x000000B8	[  5] _sin_table
+0x000017B0	0x00000100	[  5] _atan_table
+0x000018B0	0x00000018	[  1] CFI
+0x000018C8	0x00000020	[  1] FDE for: _cleanup
+0x000018E8	0x00000058	[  1] FDE for: _wave_table_generate
+0x00001940	0x00000060	[  1] FDE for: _main
+0x000019A0	0x00000040	[  1] FDE for: _plugin_start
+0x000019E0	0x00000018	[  2] CFI
+0x000019F8	0x00000020	[  2] FDE for: _cleanup_wrapper
+0x00001A18	0x00000040	[  2] FDE for: _plugin__start
+0x00001A58	0x00000020	[  2] FDE for: _rb_atexit
+0x00001A78	0x00000030	[  2] FDE for: _exit
+0x00001AA8	0x00000030	[  2] FDE for: __exit
+0x00001AD8	0x00000038	[  2] FDE for: _exit_on_usb
+0x00001B10	0x00000018	[  3] CFI
+0x00001B28	0x00000020	[  3] FDE for: _get_context_map
+0x00001B48	0x00000020	[  3] FDE for: _pluginlib_getaction
+0x00001B68	0x00000018	[  4] CFI
+0x00001B80	0x00000020	[  4] FDE for: _talk_val
+0x00001BA0	0x00000040	[  4] FDE for: _backlight_force_on
+0x00001BE0	0x00000050	[  4] FDE for: _backlight_ignore_timeout
+0x00001C30	0x00000040	[  4] FDE for: _backlight_use_settings
+0x00001C70	0x00000040	[  4] FDE for: _sw_poweroff_disable
+0x00001CB0	0x00000020	[  4] FDE for: _sw_poweroff_restore
+0x00001CD0	0x00000020	[  4] FDE for: _remote_backlight_force_on
+0x00001CF0	0x00000020	[  4] FDE for: _remote_backlight_ignore_timeout
+0x00001D10	0x00000020	[  4] FDE for: _remote_backlight_use_settings
+0x00001D30	0x00000020	[  4] FDE for: _buttonlight_force_on
+0x00001D50	0x00000020	[  4] FDE for: _buttonlight_force_off
+0x00001D70	0x00000020	[  4] FDE for: _buttonlight_ignore_timeout
+0x00001D90	0x00000020	[  4] FDE for: _buttonlight_use_settings
+0x00001DB0	0x00000020	[  4] FDE for: _backlight_brightness_set
+0x00001DD0	0x00000020	[  4] FDE for: _backlight_brightness_use_setting
+0x00001DF0	0x00000020	[  4] FDE for: _buttonlight_brightness_set
+0x00001E10	0x00000020	[  4] FDE for: _buttonlight_brightness_use_setting
+0x00001E30	0x00000018	[  5] CFI
+0x00001E48	0x00000020	[  5] FDE for: _fp_sincos
+0x00001E68	0x00000020	[  5] FDE for: _fp_sqrt
+0x00001E88	0x00000020	[  5] FDE for: _ipow
+0x00001EA8	0x00000020	[  5] FDE for: _fp14_sin
+0x00001EC8	0x00000020	[  5] FDE for: _fp14_cos
+0x00001EE8	0x00000020	[  5] FDE for: _fp16_log
+0x00001F08	0x00000020	[  5] FDE for: _fp16_exp
+0x00001F28	0x00000068	[  5] FDE for: _fp_exp10
+0x00001F90	0x00000020	[  5] FDE for: _fp_log10
+0x00001FB0	0x00000038	[  5] FDE for: _fp_decibels
+0x00001FE8	0x00000020	[  5] FDE for: _fp_factor
+0x00004000	0x00000008	[  7] _abs.got
+0x00004008	0x00000008	[  8] _longjmp.got
+0x00004010	0x00000008	[  8] _setjmp.got
+0x00004018	0x00000038	[  2] ___header
+0x00008000	0x00000008	[  1] _plugin_contexts
+0x00008008	0x00000004	[  1] _bluephase
+0x0000800C	0x00000004	[  1] _greenphase
+0x00008010	0x00000004	[  1] _bluefactor
+0x00008014	0x00000004	[  1] _greenfactor
+0x00008018	0x00000004	[  1] _redfactor
+0x0000801C	0x00000001	[  4] _original_sw_poweroff_state
+0x00008020	0x00000008	[  2] _rb
+0x00008028	0x00000004	[  1] _plasma_frequency
+0x0000802C	0x00000001	[  1] _sp4
+0x0000802D	0x00000001	[  1] _sp3
+0x0000802E	0x00000001	[  1] _sp2
+0x0000802F	0x00000001	[  1] _sp1
+0x00008030	0x00000004	[  1] _redphase
+0x00008034	0x00000200	[  1] _colours
+0x00008234	0x00000104	[  1] _wave_array
+0x00008338	0x00000008	[  1] _lcd_fb
+0x00008340	0x00000008	[  2] _atexit_handler
+0x00008348	0x000000C0	[  2] ___exit_env
+0x00008408	0x00000004	[  3] _last_context
+0x0000840C	0x00000004	[  3] _plugin_context_count
+0x00008410	0x00000008	[  3] _plugin_context_order

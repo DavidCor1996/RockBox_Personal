@@ -1,0 +1,90 @@
+# Path: /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/stats.elf
+# Arch: arm64
+# Object files:
+[  0] linker synthesized
+[  1] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/stats.o
+[  2] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/plugin_crt0.o
+[  3] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(mul_id3.o)
+[  4] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/libSystem.tbd
+[  5] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/system/libsystem_platform.tbd
+# Sections:
+# Address	Size    	Segment	Section
+0x000006D8	0x00000AEC	__TEXT	__text
+0x000011C4	0x00000018	__TEXT	__stubs
+0x000011DC	0x000000B5	__TEXT	__cstring
+0x00001294	0x00000010	__TEXT	__const
+0x000012A8	0x00000320	__TEXT	__eh_frame
+0x00004000	0x00000010	__DATA_CONST	__got
+0x00004010	0x00000088	__DATA_CONST	__const
+0x00008000	0x00000008	__DATA	.data
+0x00008008	0x00000258	__DATA	__bss
+# Symbols:
+# Address	Size    	File  Name
+0x000006D8	0x000000CC	[  1] _plugin_start
+0x000007A4	0x00000018	[  2] _cleanup_wrapper
+0x000007BC	0x00000068	[  2] _plugin__start
+0x00000824	0x00000020	[  2] _rb_atexit
+0x00000844	0x00000024	[  2] _exit
+0x00000868	0x00000014	[  2] __exit
+0x0000087C	0x00000064	[  2] _exit_on_usb
+0x000008E0	0x0000004C	[  3] _mfnv
+0x0000092C	0x00000218	[  3] _collect_id3
+0x00000B44	0x000000E4	[  3] _finalize_id3
+0x00000C28	0x00000034	[  3] _human_size
+0x00000C5C	0x000001A4	[  3] _display_dir_stats
+0x00000E00	0x000003C4	[  3] _collect_dir_stats
+0x000011C4	0x0000000C	[  5] _longjmp.stub
+0x000011D0	0x0000000C	[  5] _setjmp.stub
+0x000011DC	0x00000005	[  1] literal string: Done
+0x000011E1	0x00000013	[  3] literal string: Files: %d (%lu %s)
+0x000011F4	0x0000000A	[  3] literal string: Audio: %d
+0x000011FE	0x00000010	[  3] literal string: Directories: %d
+0x0000120E	0x0000000E	[  3] literal string: Playlists: %d
+0x0000121C	0x0000000B	[  3] literal string: Images: %d
+0x00001227	0x0000000B	[  3] literal string: Videos: %d
+0x00001232	0x00000015	[  3] literal string: Max files in Dir: %d
+0x00001247	0x0000000F	[  3] literal string: open error: %s
+0x00001256	0x00000002	[  3] literal string: .
+0x00001258	0x00000003	[  3] literal string: ..
+0x0000125B	0x00000004	[  3] literal string: /%s
+0x0000125F	0x00000008	[  3] literal string: %s (%s)
+0x00001267	0x00000004	[  3] literal string: mpg
+0x0000126B	0x00000005	[  3] literal string: mpeg
+0x00001270	0x00000004	[  3] literal string: mpv
+0x00001274	0x00000004	[  3] literal string: m2v
+0x00001278	0x00000004	[  3] literal string: bmp
+0x0000127C	0x00000004	[  3] literal string: jpg
+0x00001280	0x00000004	[  3] literal string: jpe
+0x00001284	0x00000005	[  3] literal string: jpeg
+0x00001289	0x00000004	[  3] literal string: png
+0x0000128D	0x00000004	[  3] literal string: ppm
+0x00001294	0x00000010	[  3] _units
+0x000012A8	0x00000018	[  1] CFI
+0x000012C0	0x00000040	[  1] FDE for: _plugin_start
+0x00001300	0x00000018	[  2] CFI
+0x00001318	0x00000020	[  2] FDE for: _cleanup_wrapper
+0x00001338	0x00000040	[  2] FDE for: _plugin__start
+0x00001378	0x00000020	[  2] FDE for: _rb_atexit
+0x00001398	0x00000030	[  2] FDE for: _exit
+0x000013C8	0x00000030	[  2] FDE for: __exit
+0x000013F8	0x00000038	[  2] FDE for: _exit_on_usb
+0x00001430	0x00000018	[  3] CFI
+0x00001448	0x00000020	[  3] FDE for: _mfnv
+0x00001468	0x00000040	[  3] FDE for: _collect_id3
+0x000014A8	0x00000020	[  3] FDE for: _finalize_id3
+0x000014C8	0x00000020	[  3] FDE for: _human_size
+0x000014E8	0x00000068	[  3] FDE for: _display_dir_stats
+0x00001550	0x00000078	[  3] FDE for: _collect_dir_stats
+0x00004000	0x00000008	[  5] _longjmp.got
+0x00004008	0x00000008	[  5] _setjmp.got
+0x00004010	0x00000038	[  2] ___header
+0x00004048	0x00000020	[  3] _video_exts
+0x00004068	0x00000030	[  3] _image_exts
+0x00008000	0x00000008	[  2] _rb
+0x00008008	0x00000130	[  1] _stats.0
+0x00008138	0x00000008	[  2] _atexit_handler
+0x00008140	0x000000C0	[  2] ___exit_env
+0x00008200	0x00000008	[  3] _last_get_action.0
+0x00008208	0x00000008	[  3] _id3_count.1
+0x00008210	0x00000008	[  3] _last_displayed.2
+0x00008218	0x00000048	[  3] _mul_id3

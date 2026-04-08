@@ -1,0 +1,174 @@
+# Path: /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/calculator.elf
+# Arch: arm64
+# Object files:
+[  0] linker synthesized
+[  1] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/calculator.o
+[  2] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/plugin_crt0.o
+[  3] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(strncpy.o)
+[  4] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/libSystem.tbd
+[  5] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/system/libsystem_platform.tbd
+# Sections:
+# Address	Size    	Segment	Section
+0x00000780	0x000022A0	__TEXT	__text
+0x00002A20	0x00000018	__TEXT	__stubs
+0x00002A38	0x000000AD	__TEXT	__cstring
+0x00002AE8	0x00000388	__TEXT	__const
+0x00002E70	0x000006C0	__TEXT	__eh_frame
+0x00004000	0x00000010	__DATA_CONST	__got
+0x00004010	0x00000038	__DATA_CONST	__const
+0x00008000	0x000001A8	__DATA	__data
+0x000081A8	0x00000008	__DATA	.data
+0x000081B0	0x0000006C	__DATA	__common
+0x00008220	0x000000C8	__DATA	__bss
+# Symbols:
+# Address	Size    	File  Name
+0x00000780	0x00000038	[  1] _cleartypingbuf
+0x000007B8	0x00000028	[  1] _clearbuf
+0x000007E0	0x00000034	[  1] _switchOperands
+0x00000814	0x00000090	[  1] _drawLines
+0x000008A4	0x00000170	[  1] _drawButtons
+0x00000A14	0x0000008C	[  1] _mySqrt
+0x00000AA0	0x00000070	[  1] _myExp
+0x00000B10	0x0000006C	[  1] _myLn
+0x00000B7C	0x0000002C	[  1] _printButtonGroups
+0x00000BA8	0x0000016C	[  1] _flashButton
+0x00000D14	0x00000120	[  1] _formatResult
+0x00000E34	0x0000054C	[  1] _printResult
+0x00001380	0x000003C0	[  1] _transcendFunc
+0x00001740	0x000003FC	[  1] _oneOperand
+0x00001B3C	0x00000088	[  1] _doAdd
+0x00001BC4	0x0000005C	[  1] _clearInput
+0x00001C20	0x00000050	[  1] _clearMem
+0x00001C70	0x00000224	[  1] _typingProcess
+0x00001E94	0x00000084	[  1] _atoll
+0x00001F18	0x000000A4	[  1] _strtod
+0x00001FBC	0x00000334	[  1] _twoOperands
+0x000022F0	0x000005BC	[  1] _plugin_start
+0x000028AC	0x00000018	[  2] _cleanup_wrapper
+0x000028C4	0x00000068	[  2] _plugin__start
+0x0000292C	0x00000020	[  2] _rb_atexit
+0x0000294C	0x00000024	[  2] _exit
+0x00002970	0x00000014	[  2] __exit
+0x00002984	0x00000064	[  2] _exit_on_usb
+0x000029E8	0x00000038	[  3] _strncpy
+0x00002A20	0x0000000C	[  5] _longjmp.stub
+0x00002A2C	0x0000000C	[  5] _setjmp.stub
+0x00002A38	0x00000005	[  1] literal string: %18s
+0x00002A3D	0x00000006	[  1] literal string: Error
+0x00002A43	0x00000011	[  1] literal string: Coming soon ^_* 
+0x00002A54	0x00000005	[  1] literal string: %11s
+0x00002A59	0x00000004	[  1] literal string: e%d
+0x00002A5D	0x00000004	[  1] literal string: %4s
+0x00002A61	0x00000005	[  1] literal string: asin
+0x00002A66	0x00000004	[  1] literal string: sin
+0x00002A6A	0x00000004	[  1] literal string: cos
+0x00002A6E	0x00000004	[  1] literal string: tan
+0x00002A72	0x00000005	[  1] literal string: acos
+0x00002A77	0x00000005	[  1] literal string: atan
+0x00002A7C	0x00000005	[  1] literal string: %.*f
+0x00002A81	0x00000004	[  1] literal string: 2nd
+0x00002A85	0x00000003	[  1] literal string: MR
+0x00002A88	0x00000003	[  1] literal string: M+
+0x00002A8B	0x00000003	[  1] literal string: CE
+0x00002A8E	0x00000002	[  1] literal string: C
+0x00002A90	0x00000002	[  1] literal string: 7
+0x00002A92	0x00000002	[  1] literal string: 8
+0x00002A94	0x00000002	[  1] literal string: 9
+0x00002A96	0x00000002	[  1] literal string: /
+0x00002A98	0x00000004	[  1] literal string: sqr
+0x00002A9C	0x00000002	[  1] literal string: 4
+0x00002A9E	0x00000002	[  1] literal string: 5
+0x00002AA0	0x00000002	[  1] literal string: 6
+0x00002AA2	0x00000002	[  1] literal string: *
+0x00002AA4	0x00000004	[  1] literal string: x^2
+0x00002AA8	0x00000002	[  1] literal string: 1
+0x00002AAA	0x00000002	[  1] literal string: 2
+0x00002AAC	0x00000002	[  1] literal string: 3
+0x00002AAE	0x00000002	[  1] literal string: -
+0x00002AB0	0x00000004	[  1] literal string: 1/x
+0x00002AB4	0x00000002	[  1] literal string: 0
+0x00002AB6	0x00000004	[  1] literal string: +/-
+0x00002ABA	0x00000002	[  1] literal string: .
+0x00002ABC	0x00000002	[  1] literal string: +
+0x00002ABE	0x00000002	[  1] literal string: =
+0x00002AC0	0x00000003	[  1] literal string: n!
+0x00002AC3	0x00000003	[  1] literal string: PI
+0x00002AC6	0x00000004	[  1] literal string: 1st
+0x00002ACA	0x00000004	[  1] literal string: asi
+0x00002ACE	0x00000004	[  1] literal string: aco
+0x00002AD2	0x00000004	[  1] literal string: ata
+0x00002AD6	0x00000003	[  1] literal string: ln
+0x00002AD9	0x00000004	[  1] literal string: e^x
+0x00002ADD	0x00000004	[  1] literal string: log
+0x00002AE1	0x00000004	[  1] literal string: x^y
+0x00002AE8	0x00000330	[  1] _cordicTable
+0x00002E18	0x00000008	[  1] 8-byte-literal
+0x00002E20	0x00000008	[  1] 8-byte-literal
+0x00002E28	0x00000008	[  1] 8-byte-literal
+0x00002E30	0x00000008	[  1] 8-byte-literal
+0x00002E38	0x00000008	[  1] 8-byte-literal
+0x00002E40	0x00000008	[  1] 8-byte-literal
+0x00002E48	0x00000008	[  1] 8-byte-literal
+0x00002E50	0x00000008	[  1] 8-byte-literal
+0x00002E58	0x00000008	[  1] 8-byte-literal
+0x00002E60	0x00000008	[  1] 8-byte-literal
+0x00002E68	0x00000008	[  1] 8-byte-literal
+0x00002E70	0x00000018	[  1] CFI
+0x00002E88	0x00000020	[  1] FDE for: _cleartypingbuf
+0x00002EA8	0x00000020	[  1] FDE for: _clearbuf
+0x00002EC8	0x00000020	[  1] FDE for: _switchOperands
+0x00002EE8	0x00000040	[  1] FDE for: _drawLines
+0x00002F28	0x00000078	[  1] FDE for: _drawButtons
+0x00002FA0	0x00000020	[  1] FDE for: _mySqrt
+0x00002FC0	0x00000020	[  1] FDE for: _myExp
+0x00002FE0	0x00000020	[  1] FDE for: _myLn
+0x00003000	0x00000038	[  1] FDE for: _printButtonGroups
+0x00003038	0x00000068	[  1] FDE for: _flashButton
+0x000030A0	0x00000020	[  1] FDE for: _formatResult
+0x000030C0	0x00000060	[  1] FDE for: _printResult
+0x00003120	0x00000048	[  1] FDE for: _transcendFunc
+0x00003168	0x00000050	[  1] FDE for: _oneOperand
+0x000031B8	0x00000020	[  1] FDE for: _doAdd
+0x000031D8	0x00000038	[  1] FDE for: _clearInput
+0x00003210	0x00000038	[  1] FDE for: _clearMem
+0x00003248	0x00000050	[  1] FDE for: _typingProcess
+0x00003298	0x00000020	[  1] FDE for: _atoll
+0x000032B8	0x00000040	[  1] FDE for: _strtod
+0x000032F8	0x00000068	[  1] FDE for: _twoOperands
+0x00003360	0x00000068	[  1] FDE for: _plugin_start
+0x000033C8	0x00000018	[  2] CFI
+0x000033E0	0x00000020	[  2] FDE for: _cleanup_wrapper
+0x00003400	0x00000040	[  2] FDE for: _plugin__start
+0x00003440	0x00000020	[  2] FDE for: _rb_atexit
+0x00003460	0x00000030	[  2] FDE for: _exit
+0x00003490	0x00000030	[  2] FDE for: __exit
+0x000034C0	0x00000038	[  2] FDE for: _exit_on_usb
+0x000034F8	0x00000018	[  3] CFI
+0x00003510	0x00000020	[  3] FDE for: _strncpy
+0x00004000	0x00000008	[  5] _longjmp.got
+0x00004008	0x00000008	[  5] _setjmp.got
+0x00004010	0x00000038	[  2] ___header
+0x00008000	0x00000008	[  1] _oper
+0x00008008	0x00000008	[  1] _modifier
+0x00008010	0x00000008	[  1] _typingbufPointer
+0x00008018	0x00000190	[  1] _buttonChar
+0x000081A8	0x00000008	[  2] _rb
+0x000081B0	0x00000004	[  1] _calStatus
+0x000081B4	0x00000004	[  1] _lastbtn
+0x000081B8	0x00000004	[  1] _btn
+0x000081BC	0x00000004	[  1] _prev_btn_col
+0x000081C0	0x00000004	[  1] _prev_btn_row
+0x000081C4	0x00000004	[  1] _btn_col
+0x000081C8	0x00000004	[  1] _btn_row
+0x000081CC	0x00000004	[  1] _memTempPower
+0x000081D0	0x00000008	[  1] _memTemp
+0x000081D8	0x00000004	[  1] _operInputted
+0x000081DC	0x00000004	[  1] _operandPower
+0x000081E0	0x00000008	[  1] _operand
+0x000081E8	0x00000008	[  1] _power
+0x000081F0	0x00000008	[  1] _result
+0x000081F8	0x0000000C	[  1] _typingbuf
+0x00008204	0x00000014	[  1] _buf
+0x00008218	0x00000004	[  1] _buttonGroup
+0x00008220	0x00000008	[  2] _atexit_handler
+0x00008228	0x000000C0	[  2] ___exit_env

@@ -1,0 +1,241 @@
+# Path: /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/wmapro.elf
+# Arch: arm64
+# Object files:
+[  0] linker synthesized
+[  1] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/wmapro.o
+[  2] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/codec_crt0.o
+[  3] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libwmapro.a(wmaprodec.o)
+[  4] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libwmapro.a(wma.o)
+[  5] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libwmapro.a(mdct_tables.o)
+[  6] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libasf.a(asf.o)
+[  7] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+[  8] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libcodec.a(ffmpeg_bitstream.o)
+[  9] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libcodec.a(mdct_lookup.o)
+[ 10] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libcodec.a(fft-ffmpeg.o)
+[ 11] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libcodec.a(mdct.o)
+[ 12] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/libSystem.tbd
+# Sections:
+# Address	Size    	Segment	Section
+0x00000690	0x00004A94	__TEXT	__text
+0x00005124	0x0000E3E8	__TEXT	__const
+0x0001350C	0x00000171	__TEXT	__cstring
+0x00013680	0x00000F10	__TEXT	__eh_frame
+0x00018000	0x00000098	__DATA_CONST	__const
+0x0001C000	0x00000008	__DATA	.data
+0x0001C008	0x00000030	__DATA	__data
+0x0001C038	0x00049CDF	__DATA	__bss
+# Symbols:
+# Address	Size    	File  Name
+0x00000690	0x00000298	[  1] _codec_run
+0x00000928	0x0000003C	[  1] _codec_main
+0x00000964	0x00000008	[  2] __start
+0x0000096C	0x00000004	[  2] _codec_start
+0x00000970	0x0000004C	[  3] _get_bits
+0x000009BC	0x0000002C	[  3] _init_get_bits
+0x000009E8	0x00000060	[  3] _vector_fixmul_scalar
+0x00000A48	0x00000040	[  3] _bs_generic.constprop.0
+0x00000A88	0x00000034	[  3] _get_bits1.constprop.0
+0x00000ABC	0x000017EC	[  3] _decode_frame.constprop.0
+0x000022A8	0x000001EC	[  3] _save_bits.constprop.0
+0x00002494	0x00000678	[  3] _decode_init
+0x00002B0C	0x000002C8	[  3] _decode_packet
+0x00002DD4	0x0000004C	[  4] _get_bits
+0x00002E20	0x00000028	[  4] _get_bits1
+0x00002E48	0x000000A4	[  4] _ff_wma_get_frame_len_bits
+0x00002EEC	0x00000074	[  4] _ff_wma_get_large_val
+0x00002F60	0x00000284	[  4] _ff_wma_run_level_decode
+0x000031E4	0x00000008	[  6] _get_long_le
+0x000031EC	0x00000430	[  6] _asf_read_packet
+0x0000361C	0x000001B8	[  6] _asf_get_timestamp
+0x000037D4	0x0000014C	[  6] _asf_seek
+0x00003920	0x00000040	[  7] _codec_init
+0x00003960	0x00000048	[  7] _codec_set_replaygain
+0x000039A8	0x00000048	[  7] _codec_malloc
+0x000039F0	0x0000004C	[  7] _codec_calloc
+0x00003A3C	0x00000004	[  7] _codec_free
+0x00003A40	0x00000054	[  7] _codec_realloc
+0x00003A94	0x00000018	[  7] _codec_strlen
+0x00003AAC	0x00000018	[  7] _strcpy
+0x00003AC4	0x00000018	[  7] _strcat
+0x00003ADC	0x00000018	[  7] _strcmp
+0x00003AF4	0x00000018	[  7] _memcpy
+0x00003B0C	0x00000018	[  7] _memset
+0x00003B24	0x00000018	[  7] _memcmp
+0x00003B3C	0x00000018	[  7] _memchr
+0x00003B54	0x00000018	[  7] _memmove
+0x00003B6C	0x00000018	[  7] _qsort
+0x00003B84	0x00000014	[  8] _compare_vlcspec
+0x00003B98	0x000001CC	[  8] _build_table
+0x00003D64	0x00000088	[  8] _put_bits
+0x00003DEC	0x00000150	[  8] _ff_copy_bits
+0x00003F3C	0x0000026C	[  8] _init_vlc_sparse
+0x000041A8	0x00000118	[ 10] _TRANSFORM_W01
+0x000042C0	0x00000118	[ 10] _TRANSFORM_W10
+0x000043D8	0x000000AC	[ 10] _TRANSFORM_ZERO
+0x00004484	0x00000070	[ 10] _fft4
+0x000044F4	0x00000004	[ 10] _fft4_dispatch
+0x000044F8	0x000000A4	[ 10] _pass
+0x0000459C	0x000000C8	[ 10] _TRANSFORM.constprop.0.isra.0
+0x00004664	0x00000104	[ 10] _TRANSFORM_EQUAL.isra.0
+0x00004768	0x000000A8	[ 10] _fft8
+0x00004810	0x00000004	[ 10] _fft8_dispatch
+0x00004814	0x0000006C	[ 10] _fft16
+0x00004880	0x0000003C	[ 10] _fft32
+0x000048BC	0x0000003C	[ 10] _fft64
+0x000048F8	0x0000003C	[ 10] _fft128
+0x00004934	0x0000003C	[ 10] _fft256
+0x00004970	0x0000003C	[ 10] _fft512
+0x000049AC	0x00000040	[ 10] _fft1024
+0x000049EC	0x0000003C	[ 10] _fft2048
+0x00004A28	0x0000003C	[ 10] _fft4096
+0x00004A64	0x0000001C	[ 10] _ff_fft_calc_c
+0x00004A80	0x00000558	[ 11] _ff_imdct_half
+0x00004FD8	0x0000014C	[ 11] _ff_imdct_calc
+0x00005124	0x000002D4	[  3] _quant_tab
+0x000053F8	0x0000008A	[  3] _symbol_to_vec2
+0x00005482	0x000000FE	[  3] _symbol_to_vec4
+0x00005580	0x00000066	[  3] _vec1_huffbits
+0x000055E6	0x000000CA	[  3] _vec1_huffcodes
+0x000056B0	0x0000008A	[  3] _vec2_huffbits
+0x0000573A	0x00000112	[  3] _vec2_huffcodes
+0x0000584C	0x00000080	[  3] _vec4_huffbits
+0x000058CC	0x00000100	[  3] _vec4_huffcodes
+0x000059CC	0x000003D0	[  3] _coef1_level
+0x00005D9C	0x000001E8	[  3] _coef1_run
+0x00005F84	0x00000440	[  3] _coef0_level
+0x000063C4	0x00000220	[  3] _coef0_run
+0x000065E4	0x000000F4	[  3] _coef1_huffbits
+0x000066D8	0x000003D0	[  3] _coef1_huffcodes
+0x00006AA8	0x00000110	[  3] _coef0_huffbits
+0x00006BB8	0x00000440	[  3] _coef0_huffcodes
+0x00006FF8	0x00000078	[  3] _scale_rl_level
+0x00007070	0x00000078	[  3] _scale_rl_run
+0x000070E8	0x00000078	[  3] _scale_rl_huffbits
+0x00007160	0x000001E0	[  3] _scale_rl_huffcodes
+0x00007340	0x0000007A	[  3] _scale_huffbits
+0x000073BA	0x000000F2	[  3] _scale_huffcodes
+0x000074AC	0x00000038	[  3] _critical_freq
+0x000074E4	0x00000200	[  5] _sine_128
+0x000076E4	0x00000400	[  5] _sine_256
+0x00007AE4	0x00000800	[  5] _sine_512
+0x000082E4	0x00001000	[  5] _sine_1024
+0x000092E4	0x00002000	[  5] _sine_2048
+0x0000B2E4	0x00004000	[  5] _sine_4096
+0x0000F2E4	0x00000100	[  7] _bs_clz_tab
+0x0000F3E4	0x00000100	[  7] _bs_log2_tab
+0x0000F4E4	0x00000020	[  8] _ff_log2_run
+0x0000F504	0x00002000	[  9] _revtab
+0x00011504	0x00001000	[  9] _sincos_lookup1
+0x00012504	0x00001008	[  9] _sincos_lookup0
+0x0001350C	0x00000023	[  6] literal string: Read failed:  packet did not sync\n
+0x0001352F	0x00000022	[  6] literal string: packet with too big length value\n
+0x00013551	0x00000045	[  6] literal string: header exceeded packet size, invalid file - length=%d, bytesread=%d\n
+0x00013596	0x0000004E	[  6] literal string: Could not read packet (requested %d bytes, received %d), curpos=%d, aborting\n
+0x000135E4	0x00000012	[  6] literal string: ASF ERROR (EOF?)\n
+0x000135F6	0x00000028	[  6] literal string: Get timestamp:  Detected end of stream\n
+0x0001361E	0x0000001A	[  6] literal string: Detected end of stream 2\n
+0x00013638	0x00000019	[  6] literal string: Detected end of stream3\n
+0x00013651	0x00000019	[  6] literal string: Detected end of stream4\n
+0x0001366A	0x00000013	[  6] literal string: UKNOWN SEEK ERROR\n
+0x00013680	0x00000018	[  1] CFI
+0x00013698	0x00000070	[  1] FDE for: _codec_run
+0x00013708	0x00000038	[  1] FDE for: _codec_main
+0x00013740	0x00000018	[  2] CFI
+0x00013758	0x00000020	[  2] FDE for: __start
+0x00013778	0x00000020	[  2] FDE for: _codec_start
+0x00013798	0x00000018	[  3] CFI
+0x000137B0	0x00000020	[  3] FDE for: _get_bits
+0x000137D0	0x00000020	[  3] FDE for: _init_get_bits
+0x000137F0	0x00000020	[  3] FDE for: _vector_fixmul_scalar
+0x00013810	0x00000020	[  3] FDE for: _bs_generic.constprop.0
+0x00013830	0x00000020	[  3] FDE for: _get_bits1.constprop.0
+0x00013850	0x00000070	[  3] FDE for: _decode_frame.constprop.0
+0x000138C0	0x00000048	[  3] FDE for: _save_bits.constprop.0
+0x00013908	0x00000068	[  3] FDE for: _decode_init
+0x00013970	0x00000078	[  3] FDE for: _decode_packet
+0x000139E8	0x00000018	[  4] CFI
+0x00013A00	0x00000020	[  4] FDE for: _get_bits
+0x00013A20	0x00000020	[  4] FDE for: _get_bits1
+0x00013A40	0x00000020	[  4] FDE for: _ff_wma_get_frame_len_bits
+0x00013A60	0x00000050	[  4] FDE for: _ff_wma_get_large_val
+0x00013AB0	0x00000058	[  4] FDE for: _ff_wma_run_level_decode
+0x00013B08	0x00000018	[  6] CFI
+0x00013B20	0x00000020	[  6] FDE for: _get_long_le
+0x00013B40	0x00000080	[  6] FDE for: _asf_read_packet
+0x00013BC0	0x00000060	[  6] FDE for: _asf_get_timestamp
+0x00013C20	0x00000070	[  6] FDE for: _asf_seek
+0x00013C90	0x00000018	[  7] CFI
+0x00013CA8	0x00000038	[  7] FDE for: _codec_init
+0x00013CE0	0x00000038	[  7] FDE for: _codec_set_replaygain
+0x00013D18	0x00000020	[  7] FDE for: _codec_malloc
+0x00013D38	0x00000040	[  7] FDE for: _codec_calloc
+0x00013D78	0x00000020	[  7] FDE for: _codec_free
+0x00013D98	0x00000040	[  7] FDE for: _codec_realloc
+0x00013DD8	0x00000020	[  7] FDE for: _codec_strlen
+0x00013DF8	0x00000020	[  7] FDE for: _strcpy
+0x00013E18	0x00000020	[  7] FDE for: _strcat
+0x00013E38	0x00000020	[  7] FDE for: _strcmp
+0x00013E58	0x00000020	[  7] FDE for: _memcpy
+0x00013E78	0x00000020	[  7] FDE for: _memset
+0x00013E98	0x00000020	[  7] FDE for: _memcmp
+0x00013EB8	0x00000020	[  7] FDE for: _memchr
+0x00013ED8	0x00000020	[  7] FDE for: _memmove
+0x00013EF8	0x00000020	[  7] FDE for: _qsort
+0x00013F18	0x00000018	[  8] CFI
+0x00013F30	0x00000020	[  8] FDE for: _compare_vlcspec
+0x00013F50	0x00000070	[  8] FDE for: _build_table
+0x00013FC0	0x00000020	[  8] FDE for: _put_bits
+0x00013FE0	0x00000070	[  8] FDE for: _ff_copy_bits
+0x00014050	0x00000068	[  8] FDE for: _init_vlc_sparse
+0x000140B8	0x00000018	[ 10] CFI
+0x000140D0	0x00000020	[ 10] FDE for: _TRANSFORM_W01
+0x000140F0	0x00000020	[ 10] FDE for: _TRANSFORM_W10
+0x00014110	0x00000020	[ 10] FDE for: _TRANSFORM_ZERO
+0x00014130	0x00000020	[ 10] FDE for: _fft4
+0x00014150	0x00000020	[ 10] FDE for: _fft4_dispatch
+0x00014170	0x00000060	[ 10] FDE for: _pass
+0x000141D0	0x00000020	[ 10] FDE for: _TRANSFORM.constprop.0.isra.0
+0x000141F0	0x00000020	[ 10] FDE for: _TRANSFORM_EQUAL.isra.0
+0x00014210	0x00000038	[ 10] FDE for: _fft8
+0x00014248	0x00000020	[ 10] FDE for: _fft8_dispatch
+0x00014268	0x00000038	[ 10] FDE for: _fft16
+0x000142A0	0x00000040	[ 10] FDE for: _fft32
+0x000142E0	0x00000040	[ 10] FDE for: _fft64
+0x00014320	0x00000040	[ 10] FDE for: _fft128
+0x00014360	0x00000040	[ 10] FDE for: _fft256
+0x000143A0	0x00000040	[ 10] FDE for: _fft512
+0x000143E0	0x00000040	[ 10] FDE for: _fft1024
+0x00014420	0x00000040	[ 10] FDE for: _fft2048
+0x00014460	0x00000040	[ 10] FDE for: _fft4096
+0x000144A0	0x00000020	[ 10] FDE for: _ff_fft_calc_c
+0x000144C0	0x00000018	[ 11] CFI
+0x000144D8	0x00000060	[ 11] FDE for: _ff_imdct_half
+0x00014538	0x00000058	[ 11] FDE for: _ff_imdct_calc
+0x00018000	0x00000040	[  1] ___header
+0x00018040	0x00000058	[ 10] _fft_dispatch
+0x0001C000	0x00000008	[  2] _ci
+0x0001C008	0x00000030	[  5] _sine_windows
+0x0001C038	0x00000010	[  1] _dec
+0x0001C048	0x000008C8	[  3] _table.0
+0x0001C910	0x000008C8	[  3] _table.1
+0x0001D1D8	0x00000970	[  3] _table.2
+0x0001DB48	0x00003D20	[  3] _table.3
+0x00021868	0x000020F0	[  3] _table.4
+0x00023958	0x000015F8	[  3] _table.5
+0x00024F50	0x000009A0	[  3] _table.6
+0x000258F0	0x00009ED0	[  3] _globWMAProDecCtx
+0x0002F7C0	0x00024000	[  3] _g_out_multichannel
+0x000537C0	0x00006000	[  3] _g_out_ch1
+0x000597C0	0x00006000	[  3] _g_out_ch0
+0x0005F7C0	0x00004000	[  3] _g_tmp
+0x000637C0	0x00000030	[  3] _coef_vlc
+0x000637F0	0x00000018	[  3] _vec1_vlc
+0x00063808	0x00000018	[  3] _vec2_vlc
+0x00063820	0x00000018	[  3] _vec4_vlc
+0x00063838	0x00000018	[  3] _sf_rl_vlc
+0x00063850	0x00000018	[  3] _sf_vlc
+0x00063868	0x00000004	[  6] _packet_count.0
+0x00063870	0x00000008	[  7] _mallocbuf
+0x00063878	0x00000008	[  7] _bufsize
+0x00063880	0x00000008	[  7] _mem_ptr
+0x00063888	0x0000248F	[  8] _buf

@@ -1,0 +1,580 @@
+# Path: /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/text_viewer/text_viewer.elf
+# Arch: arm64
+# Object files:
+[  0] linker synthesized
+[  1] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/text_viewer/text_viewer.o
+[  2] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/text_viewer/tv_action.o
+[  3] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/text_viewer/tv_bookmark.o
+[  4] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/text_viewer/tv_display.o
+[  5] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/text_viewer/tv_menu.o
+[  6] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/text_viewer/tv_pager.o
+[  7] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/text_viewer/tv_preferences.o
+[  8] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/text_viewer/tv_reader.o
+[  9] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/text_viewer/tv_screen_pos.o
+[ 10] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/text_viewer/tv_settings.o
+[ 11] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/text_viewer/tv_text_processor.o
+[ 12] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/text_viewer/tv_text_reader.o
+[ 13] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/text_viewer/tv_window.o
+[ 14] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/plugin_crt0.o
+[ 15] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(playback_control.o)
+[ 16] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/libSystem.tbd
+[ 17] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/system/libsystem_c.tbd
+[ 18] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/system/libsystem_platform.tbd
+# Sections:
+# Address	Size    	Segment	Section
+0x00000788	0x00005174	__TEXT	__text
+0x000058FC	0x00000018	__TEXT	__stubs
+0x00005914	0x00000498	__TEXT	__cstring
+0x00005DB0	0x00000160	__TEXT	__const
+0x00005F10	0x00002198	__TEXT	__eh_frame
+0x0000C000	0x00000018	__DATA_CONST	__got
+0x0000C018	0x00000690	__DATA_CONST	__const
+0x00010000	0x00000120	__DATA	__data
+0x00010120	0x00000008	__DATA	.data
+0x00010128	0x000001B0	__DATA	__common
+0x000102D8	0x0000B8D8	__DATA	__bss
+# Symbols:
+# Address	Size    	File  Name
+0x00000788	0x00000328	[  1] _plugin_start
+0x00000AB0	0x0000003C	[  2] _tv_init_action
+0x00000AEC	0x000000C4	[  2] _tv_exit
+0x00000BB0	0x00000028	[  2] _tv_load_file
+0x00000BD8	0x00000034	[  2] _tv_draw
+0x00000C0C	0x00000068	[  2] _tv_scroll_up
+0x00000C74	0x0000006C	[  2] _tv_scroll_down
+0x00000CE0	0x00000060	[  2] _tv_scroll_left
+0x00000D40	0x0000005C	[  2] _tv_scroll_right
+0x00000D9C	0x00000010	[  2] _tv_top
+0x00000DAC	0x00000050	[  2] _tv_bottom
+0x00000DFC	0x0000005C	[  2] _tv_menu
+0x00000E58	0x00000020	[  2] _tv_add_or_remove_bookmark
+0x00000E78	0x00000028	[  3] _bm_comp
+0x00000EA0	0x00000090	[  3] _get_bookmark_name
+0x00000F30	0x00000010	[  3] _list_action_callback
+0x00000F40	0x00000060	[  3] _tv_remove_bookmark.part.0
+0x00000FA0	0x00000060	[  3] _tv_change_preferences
+0x00001000	0x00000054	[  3] _tv_find_bookmark
+0x00001054	0x00000020	[  3] _tv_init_bookmark
+0x00001074	0x00000004	[  3] _tv_finalize_bookmark
+0x00001078	0x00000038	[  3] _tv_get_bookmark_positions
+0x000010B0	0x000000A8	[  3] _tv_toggle_bookmark
+0x00001158	0x00000084	[  3] _tv_create_system_bookmark
+0x000011DC	0x00000190	[  3] _tv_select_bookmark
+0x0000136C	0x000000DC	[  3] _tv_deserialize_bookmarks
+0x00001448	0x00000090	[  3] _tv_serialize_bookmarks
+0x000014D8	0x00000060	[  4] _tv_get_title_text
+0x00001538	0x00000258	[  4] _tv_change_preferences
+0x00001790	0x0000003C	[  4] _tv_init_scrollbar
+0x000017CC	0x000000AC	[  4] _tv_show_bookmarks
+0x00001878	0x000001C8	[  4] _tv_update_extra
+0x00001A40	0x00000058	[  4] _tv_set_sbs_title
+0x00001A98	0x00000074	[  4] _tv_end_display
+0x00001B0C	0x00000198	[  4] _tv_set_layout
+0x00001CA4	0x00000028	[  4] _tv_get_drawarea_info
+0x00001CCC	0x00000040	[  4] _tv_init_display
+0x00001D0C	0x000000E0	[  4] _tv_night_mode
+0x00001DEC	0x000000F8	[  4] _tv_draw_text
+0x00001EE4	0x00000090	[  4] _tv_start_display
+0x00001F74	0x0000007C	[  4] _tv_finalize_display
+0x00001FF0	0x00000008	[  4] _tv_exist_scrollbar
+0x00001FF8	0x00000028	[  5] _tv_horizontal_scrollbar_setting
+0x00002020	0x0000003C	[  5] _tv_horizontal_scroll_mode_setting
+0x0000205C	0x00000028	[  5] _tv_vertical_scrollbar_setting
+0x00002084	0x0000003C	[  5] _tv_vertical_scroll_mode_setting
+0x000020C0	0x00000028	[  5] _tv_overlap_page_mode_setting
+0x000020E8	0x0000005C	[  5] _tv_autoscroll_speed_setting
+0x00002144	0x0000003C	[  5] _tv_narrow_mode_setting
+0x00002180	0x00000090	[  5] _tv_encoding_setting
+0x00002210	0x0000003C	[  5] _tv_word_wrap_setting
+0x0000224C	0x0000003C	[  5] _tv_line_mode_setting
+0x00002288	0x0000005C	[  5] _tv_windows_setting
+0x000022E4	0x0000003C	[  5] _tv_alignment_setting
+0x00002320	0x00000028	[  5] _tv_header_setting
+0x00002348	0x00000028	[  5] _tv_footer_setting
+0x00002370	0x00000028	[  5] _tv_statusbar_setting
+0x00002398	0x000000FC	[  5] _tv_font_setting
+0x00002494	0x0000005C	[  5] _tv_indent_spaces_setting
+0x000024F0	0x00000028	[  5] _tv_night_mode_setting
+0x00002518	0x0000004C	[  5] _tv_options_menu
+0x00002564	0x00000110	[  5] _tv_display_menu
+0x00002674	0x00000030	[  6] _tv_get_fpos
+0x000026A4	0x00000058	[  6] _tv_seek_page
+0x000026FC	0x00000048	[  6] _tv_change_preferences
+0x00002744	0x00000054	[  6] _tv_init_pager
+0x00002798	0x00000004	[  6] _tv_finalize_pager
+0x0000279C	0x00000028	[  6] _tv_reset_line_positions
+0x000027C4	0x00000070	[  6] _tv_move_next_line
+0x00002834	0x0000004C	[  6] _tv_get_line_positions
+0x00002880	0x000000B8	[  6] _tv_new_page
+0x00002938	0x00000054	[  6] _tv_create_line_positions
+0x0000298C	0x00000160	[  6] _tv_convert_fpos
+0x00002AEC	0x000002DC	[  6] _tv_move_screen
+0x00002DC8	0x00000024	[  7] _tv_copy_preferences
+0x00002DEC	0x00000198	[  7] _tv_set_preferences
+0x00002F84	0x00000038	[  7] _tv_compare_preferences
+0x00002FBC	0x00000098	[  7] _tv_set_default_preferences
+0x00003054	0x00000028	[  7] _tv_add_preferences_change_listner
+0x0000307C	0x0000000C	[  7] _tv_change_fontid
+0x00003088	0x0000004C	[  8] _tv_read
+0x000030D4	0x0000000C	[  8] _tv_get_file_size
+0x000030E0	0x00000028	[  8] _tv_is_eof
+0x00003108	0x00000018	[  8] _tv_get_current_file_pos
+0x00003120	0x00000028	[  8] _tv_get_buffer
+0x00003148	0x00000180	[  8] _tv_seek
+0x000032C8	0x00000184	[  8] _tv_change_preferences
+0x0000344C	0x0000006C	[  8] _tv_init_reader
+0x000034B8	0x00000028	[  8] _tv_finalize_reader
+0x000034E0	0x0000000C	[  9] _tv_get_screen_pos
+0x000034EC	0x0000000C	[  9] _tv_set_screen_pos
+0x000034F8	0x00000014	[  9] _tv_copy_screen_pos
+0x0000350C	0x0000020C	[ 10] _tv_read_preferences
+0x00003718	0x000000F8	[ 10] _tv_write_preferences
+0x00003810	0x000001C8	[ 10] _tv_convert_settings
+0x000039D8	0x00000180	[ 10] _tv_convert_settings_file
+0x00003B58	0x000000EC	[ 10] _tv_load_global_settings
+0x00003C44	0x00000110	[ 10] _tv_save_global_settings
+0x00003D54	0x00000200	[ 10] _tv_load_settings
+0x00003F54	0x00000590	[ 10] _tv_save_settings
+0x000044E4	0x0000008C	[ 11] _tv_glyph_width
+0x00004570	0x000001B8	[ 11] _tv_get_ucs
+0x00004728	0x00000030	[ 11] _tv_isspace
+0x00004758	0x000001D8	[ 11] _tv_form_reflow_line
+0x00004930	0x0000004C	[ 11] _tv_is_line_break_char
+0x0000497C	0x000006E4	[ 11] _tv_create_formed_text
+0x00005060	0x00000020	[ 11] _tv_init_text_processor
+0x00005080	0x00000014	[ 11] _tv_set_creation_conditions
+0x00005094	0x0000003C	[ 12] _tv_init_text_reader
+0x000050D0	0x00000004	[ 12] _tv_finalize_text_reader
+0x000050D4	0x00000004	[ 12] _tv_set_read_conditions
+0x000050D8	0x00000004	[ 12] _tv_get_total_text_size
+0x000050DC	0x00000050	[ 12] _tv_get_next_line
+0x0000512C	0x00000014	[ 12] _tv_read_start
+0x00005140	0x00000008	[ 12] _tv_read_end
+0x00005148	0x00000010	[ 12] _tv_seek_top
+0x00005158	0x00000080	[ 13] _tv_draw_bookmarks
+0x000051D8	0x0000003C	[ 13] _tv_update_sbs_title
+0x00005214	0x000000B8	[ 13] _tv_draw_window
+0x000052CC	0x00000064	[ 13] _tv_traverse_lines
+0x00005330	0x000000E8	[ 13] _tv_change_preferences
+0x00005418	0x00000050	[ 13] _tv_init_window
+0x00005468	0x00000014	[ 13] _tv_finalize_window
+0x0000547C	0x000000C0	[ 13] _tv_move_window
+0x0000553C	0x00000018	[ 14] _cleanup_wrapper
+0x00005554	0x00000068	[ 14] _plugin__start
+0x000055BC	0x00000020	[ 14] _rb_atexit
+0x000055DC	0x00000024	[ 14] _exit
+0x00005600	0x00000014	[ 14] __exit
+0x00005614	0x00000064	[ 14] _exit_on_usb
+0x00005678	0x00000028	[ 15] _prevtrack
+0x000056A0	0x00000088	[ 15] _play
+0x00005728	0x00000028	[ 15] _stop
+0x00005750	0x00000028	[ 15] _nexttrack
+0x00005778	0x00000050	[ 15] _volume
+0x000057C8	0x00000054	[ 15] _shuffle
+0x0000581C	0x0000008C	[ 15] _repeat_mode
+0x000058A8	0x0000000C	[ 15] _playback_control_init
+0x000058B4	0x00000048	[ 15] _playback_control
+0x000058FC	0x0000000C	[ 18] _longjmp.stub
+0x00005908	0x0000000C	[ 18] _setjmp.stub
+0x00005914	0x0000000B	[  1] literal string: initialize
+0x0000591F	0x0000000D	[  1] literal string: reading file
+0x0000592C	0x00000039	[  2] literal string: preferences_changed=%d\tbookmarks_changed=%d\tscrolled=%d\n
+0x00005965	0x00000011	[  2] literal string: Saving settings\n
+0x00005976	0x00000025	[  2] literal string: Can't save preferences and bookmarks
+0x0000599B	0x00000016	[  2] literal string: Skip saving settings\n
+0x000059B1	0x00000015	[  3] literal string: %cPage: %d  Line: %d
+0x000059C6	0x00000015	[  3] literal string: No more add bookmark
+0x000059DB	0x00000010	[  3] literal string: Bookmark remove
+0x000059EB	0x00000010	[  3] literal string: Select bookmark
+0x000059FB	0x00000015	[  3] literal string: Start the first page
+0x00005A10	0x0000001B	[  3] literal string: Return to the current page
+0x00005A2B	0x0000000A	[  4] literal string: %s/%s.fnt
+0x00005A35	0x00000010	[  4] literal string: /.rockbox/fonts
+0x00005A45	0x00000011	[  4] literal string: font load failed
+0x00005A56	0x00000003	[  4] literal string: %d
+0x00005A59	0x00000008	[  4] literal string: %d - %d
+0x00005A61	0x00000015	[  5] literal string: Horizontal Scrollbar
+0x00005A76	0x0000000C	[  5] literal string: Scroll Mode
+0x00005A82	0x00000013	[  5] literal string: Vertical Scrollbar
+0x00005A95	0x0000000E	[  5] literal string: Overlap Pages
+0x00005AA3	0x00000001	[  5] literal string: 
+0x00005AA4	0x00000012	[  5] literal string: Auto-scroll Speed
+0x00005AB6	0x0000000F	[  5] literal string: Left/Right Key
+0x00005AC5	0x00000009	[  5] literal string: Encoding
+0x00005ACE	0x0000000A	[  5] literal string: Word Wrap
+0x00005AD8	0x0000000A	[  5] literal string: Line Mode
+0x00005AE2	0x00000011	[  5] literal string: Screens Per Page
+0x00005AF3	0x0000000A	[  5] literal string: Alignment
+0x00005AFD	0x0000000C	[  5] literal string: Show Header
+0x00005B09	0x0000000C	[  5] literal string: Show Footer
+0x00005B15	0x0000000F	[  5] literal string: Show Statusbar
+0x00005B24	0x00000007	[  5] literal string: %s.fnt
+0x00005B2B	0x0000000E	[  5] literal string: Indent Spaces
+0x00005B39	0x0000000B	[  5] literal string: Night Mode
+0x00005B44	0x0000000F	[  5] literal string: Viewer Options
+0x00005B53	0x00000010	[  5] literal string: Global Settings
+0x00005B63	0x0000000C	[  5] literal string: Text Viewer
+0x00005B6F	0x0000000B	[  5] literal string: Join Lines
+0x00005B7A	0x0000000D	[  5] literal string: Expand Lines
+0x00005B87	0x0000000D	[  5] literal string: Reflow Lines
+0x00005B94	0x00000011	[  5] literal string: Off (Chop Words)
+0x00005BA5	0x00000013	[  5] literal string: Previous/Next Page
+0x00005BB8	0x00000010	[  5] literal string: Top/Bottom Page
+0x00005BC8	0x0000000F	[  5] literal string: Scroll by Page
+0x00005BD7	0x0000000F	[  5] literal string: Scroll by Line
+0x00005BE6	0x00000011	[  5] literal string: Scroll by Screen
+0x00005BF7	0x00000011	[  5] literal string: Scroll by Column
+0x00005C08	0x00000010	[  5] literal string: Scroll Settings
+0x00005C18	0x00000009	[  5] literal string: Vertical
+0x00005C21	0x0000001D	[  5] literal string: Left/Right Key (Narrow mode)
+0x00005C3E	0x00000012	[  5] literal string: Auto-Scroll Speed
+0x00005C50	0x0000000B	[  5] literal string: Horizontal
+0x00005C5B	0x00000014	[  6] literal string: converting %jd%%...
+0x00005C6F	0x00000011	[  6] literal string: loading %jd%%...
+0x00005C80	0x00000010	[  6] literal string: loading %d%%...
+0x00005C90	0x00000004	[  8] literal string: ﻿
+0x00005C94	0x00000028	[ 10] literal string: /.rockbox/rocks/viewers/viewer_file.dat
+0x00005CBC	0x00000024	[ 10] literal string: /.rockbox/rocks/viewers/tv_file.tmp
+0x00005CE0	0x00000024	[ 10] literal string: /.rockbox/rocks/viewers/tv_file.dat
+0x00005D04	0x00000026	[ 10] literal string: /.rockbox/rocks/viewers/tv_global.dat
+0x00005D2A	0x00000023	[ 10] literal string: /.rockbox/rocks/viewers/viewer.dat
+0x00005D4D	0x00000005	[ 10] literal string: TVGS
+0x00005D52	0x00000004	[ 10] literal string: TVS
+0x00005D56	0x00000021	[ 10] literal string: Saving preferences: overwriting\n
+0x00005D77	0x0000001F	[ 10] literal string: Saving preferences: appending\n
+0x00005D96	0x00000007	[ 15] literal string: Volume
+0x00005D9D	0x00000008	[ 15] literal string: Shuffle
+0x00005DA5	0x00000007	[ 15] literal string: Repeat
+0x00005DB0	0x00000020	[  5] _names.3
+0x00005DD0	0x00000018	[  5] _font_item_
+0x00005DE8	0x00000018	[  5] _vertical_scrollbar_item_
+0x00005E00	0x00000018	[  5] _horizontal_scrollbar_item_
+0x00005E18	0x00000036	[ 11] _break_chars
+0x00005E50	0x00000018	[ 15] _playback_control_menu__
+0x00005E68	0x00000018	[ 15] _repeat_mode_item_
+0x00005E80	0x00000018	[ 15] _shuffle_item_
+0x00005E98	0x00000018	[ 15] _volume_item_
+0x00005EB0	0x00000018	[ 15] _nexttrack_item_
+0x00005EC8	0x00000018	[ 15] _stop_item_
+0x00005EE0	0x00000018	[ 15] _playpause_item_
+0x00005EF8	0x00000018	[ 15] _prevtrack_item_
+0x00005F10	0x00000018	[  1] CFI
+0x00005F28	0x00000070	[  1] FDE for: _plugin_start
+0x00005F98	0x00000018	[  2] CFI
+0x00005FB0	0x00000050	[  2] FDE for: _tv_init_action
+0x00006000	0x00000058	[  2] FDE for: _tv_exit
+0x00006058	0x00000038	[  2] FDE for: _tv_load_file
+0x00006090	0x00000038	[  2] FDE for: _tv_draw
+0x000060C8	0x00000040	[  2] FDE for: _tv_scroll_up
+0x00006108	0x00000040	[  2] FDE for: _tv_scroll_down
+0x00006148	0x00000040	[  2] FDE for: _tv_scroll_left
+0x00006188	0x00000040	[  2] FDE for: _tv_scroll_right
+0x000061C8	0x00000020	[  2] FDE for: _tv_top
+0x000061E8	0x00000048	[  2] FDE for: _tv_bottom
+0x00006230	0x00000048	[  2] FDE for: _tv_menu
+0x00006278	0x00000038	[  2] FDE for: _tv_add_or_remove_bookmark
+0x000062B0	0x00000018	[  3] CFI
+0x000062C8	0x00000020	[  3] FDE for: _bm_comp
+0x000062E8	0x00000048	[  3] FDE for: _get_bookmark_name
+0x00006330	0x00000020	[  3] FDE for: _list_action_callback
+0x00006350	0x00000020	[  3] FDE for: _tv_remove_bookmark.part.0
+0x00006370	0x00000060	[  3] FDE for: _tv_change_preferences
+0x000063D0	0x00000020	[  3] FDE for: _tv_find_bookmark
+0x000063F0	0x00000038	[  3] FDE for: _tv_init_bookmark
+0x00006428	0x00000020	[  3] FDE for: _tv_finalize_bookmark
+0x00006448	0x00000020	[  3] FDE for: _tv_get_bookmark_positions
+0x00006468	0x00000040	[  3] FDE for: _tv_toggle_bookmark
+0x000064A8	0x00000040	[  3] FDE for: _tv_create_system_bookmark
+0x000064E8	0x00000058	[  3] FDE for: _tv_select_bookmark
+0x00006540	0x00000060	[  3] FDE for: _tv_deserialize_bookmarks
+0x000065A0	0x00000020	[  3] FDE for: _tv_serialize_bookmarks
+0x000065C0	0x00000018	[  4] CFI
+0x000065D8	0x00000040	[  4] FDE for: _tv_get_title_text
+0x00006618	0x00000060	[  4] FDE for: _tv_change_preferences
+0x00006678	0x00000020	[  4] FDE for: _tv_init_scrollbar
+0x00006698	0x00000060	[  4] FDE for: _tv_show_bookmarks
+0x000066F8	0x00000058	[  4] FDE for: _tv_update_extra
+0x00006750	0x00000040	[  4] FDE for: _tv_set_sbs_title
+0x00006790	0x00000050	[  4] FDE for: _tv_end_display
+0x000067E0	0x00000058	[  4] FDE for: _tv_set_layout
+0x00006838	0x00000020	[  4] FDE for: _tv_get_drawarea_info
+0x00006858	0x00000038	[  4] FDE for: _tv_init_display
+0x00006890	0x00000050	[  4] FDE for: _tv_night_mode
+0x000068E0	0x00000058	[  4] FDE for: _tv_draw_text
+0x00006938	0x00000040	[  4] FDE for: _tv_start_display
+0x00006978	0x00000040	[  4] FDE for: _tv_finalize_display
+0x000069B8	0x00000020	[  4] FDE for: _tv_exist_scrollbar
+0x000069D8	0x00000018	[  5] CFI
+0x000069F0	0x00000020	[  5] FDE for: _tv_horizontal_scrollbar_setting
+0x00006A10	0x00000020	[  5] FDE for: _tv_horizontal_scroll_mode_setting
+0x00006A30	0x00000020	[  5] FDE for: _tv_vertical_scrollbar_setting
+0x00006A50	0x00000020	[  5] FDE for: _tv_vertical_scroll_mode_setting
+0x00006A70	0x00000020	[  5] FDE for: _tv_overlap_page_mode_setting
+0x00006A90	0x00000040	[  5] FDE for: _tv_autoscroll_speed_setting
+0x00006AD0	0x00000020	[  5] FDE for: _tv_narrow_mode_setting
+0x00006AF0	0x00000050	[  5] FDE for: _tv_encoding_setting
+0x00006B40	0x00000020	[  5] FDE for: _tv_word_wrap_setting
+0x00006B60	0x00000020	[  5] FDE for: _tv_line_mode_setting
+0x00006B80	0x00000040	[  5] FDE for: _tv_windows_setting
+0x00006BC0	0x00000020	[  5] FDE for: _tv_alignment_setting
+0x00006BE0	0x00000020	[  5] FDE for: _tv_header_setting
+0x00006C00	0x00000020	[  5] FDE for: _tv_footer_setting
+0x00006C20	0x00000020	[  5] FDE for: _tv_statusbar_setting
+0x00006C40	0x00000050	[  5] FDE for: _tv_font_setting
+0x00006C90	0x00000040	[  5] FDE for: _tv_indent_spaces_setting
+0x00006CD0	0x00000020	[  5] FDE for: _tv_night_mode_setting
+0x00006CF0	0x00000040	[  5] FDE for: _tv_options_menu
+0x00006D30	0x00000050	[  5] FDE for: _tv_display_menu
+0x00006D80	0x00000018	[  6] CFI
+0x00006D98	0x00000020	[  6] FDE for: _tv_get_fpos
+0x00006DB8	0x00000040	[  6] FDE for: _tv_seek_page
+0x00006DF8	0x00000038	[  6] FDE for: _tv_change_preferences
+0x00006E30	0x00000040	[  6] FDE for: _tv_init_pager
+0x00006E70	0x00000020	[  6] FDE for: _tv_finalize_pager
+0x00006E90	0x00000020	[  6] FDE for: _tv_reset_line_positions
+0x00006EB0	0x00000040	[  6] FDE for: _tv_move_next_line
+0x00006EF0	0x00000020	[  6] FDE for: _tv_get_line_positions
+0x00006F10	0x00000058	[  6] FDE for: _tv_new_page
+0x00006F68	0x00000048	[  6] FDE for: _tv_create_line_positions
+0x00006FB0	0x00000068	[  6] FDE for: _tv_convert_fpos
+0x00007018	0x00000080	[  6] FDE for: _tv_move_screen
+0x00007098	0x00000018	[  7] CFI
+0x000070B0	0x00000020	[  7] FDE for: _tv_copy_preferences
+0x000070D0	0x00000050	[  7] FDE for: _tv_set_preferences
+0x00007120	0x00000038	[  7] FDE for: _tv_compare_preferences
+0x00007158	0x00000040	[  7] FDE for: _tv_set_default_preferences
+0x00007198	0x00000020	[  7] FDE for: _tv_add_preferences_change_listner
+0x000071B8	0x00000020	[  7] FDE for: _tv_change_fontid
+0x000071D8	0x00000018	[  8] CFI
+0x000071F0	0x00000020	[  8] FDE for: _tv_read
+0x00007210	0x00000020	[  8] FDE for: _tv_get_file_size
+0x00007230	0x00000020	[  8] FDE for: _tv_is_eof
+0x00007250	0x00000020	[  8] FDE for: _tv_get_current_file_pos
+0x00007270	0x00000020	[  8] FDE for: _tv_get_buffer
+0x00007290	0x00000050	[  8] FDE for: _tv_seek
+0x000072E0	0x00000058	[  8] FDE for: _tv_change_preferences
+0x00007338	0x00000038	[  8] FDE for: _tv_init_reader
+0x00007370	0x00000020	[  8] FDE for: _tv_finalize_reader
+0x00007390	0x00000018	[  9] CFI
+0x000073A8	0x00000020	[  9] FDE for: _tv_get_screen_pos
+0x000073C8	0x00000020	[  9] FDE for: _tv_set_screen_pos
+0x000073E8	0x00000020	[  9] FDE for: _tv_copy_screen_pos
+0x00007408	0x00000018	[ 10] CFI
+0x00007420	0x00000058	[ 10] FDE for: _tv_read_preferences
+0x00007478	0x00000050	[ 10] FDE for: _tv_write_preferences
+0x000074C8	0x00000070	[ 10] FDE for: _tv_convert_settings
+0x00007538	0x00000078	[ 10] FDE for: _tv_convert_settings_file
+0x000075B0	0x00000058	[ 10] FDE for: _tv_load_global_settings
+0x00007608	0x00000060	[ 10] FDE for: _tv_save_global_settings
+0x00007668	0x00000078	[ 10] FDE for: _tv_load_settings
+0x000076E0	0x00000080	[ 10] FDE for: _tv_save_settings
+0x00007760	0x00000018	[ 11] CFI
+0x00007778	0x00000058	[ 11] FDE for: _tv_glyph_width
+0x000077D0	0x00000068	[ 11] FDE for: _tv_get_ucs
+0x00007838	0x00000020	[ 11] FDE for: _tv_isspace
+0x00007858	0x00000068	[ 11] FDE for: _tv_form_reflow_line
+0x000078C0	0x00000020	[ 11] FDE for: _tv_is_line_break_char
+0x000078E0	0x00000060	[ 11] FDE for: _tv_create_formed_text
+0x00007940	0x00000020	[ 11] FDE for: _tv_init_text_processor
+0x00007960	0x00000020	[ 11] FDE for: _tv_set_creation_conditions
+0x00007980	0x00000018	[ 12] CFI
+0x00007998	0x00000050	[ 12] FDE for: _tv_init_text_reader
+0x000079E8	0x00000020	[ 12] FDE for: _tv_finalize_text_reader
+0x00007A08	0x00000020	[ 12] FDE for: _tv_set_read_conditions
+0x00007A28	0x00000020	[ 12] FDE for: _tv_get_total_text_size
+0x00007A48	0x00000040	[ 12] FDE for: _tv_get_next_line
+0x00007A88	0x00000020	[ 12] FDE for: _tv_read_start
+0x00007AA8	0x00000020	[ 12] FDE for: _tv_read_end
+0x00007AC8	0x00000020	[ 12] FDE for: _tv_seek_top
+0x00007AE8	0x00000018	[ 13] CFI
+0x00007B00	0x00000048	[ 13] FDE for: _tv_draw_bookmarks
+0x00007B48	0x00000048	[ 13] FDE for: _tv_update_sbs_title
+0x00007B90	0x00000068	[ 13] FDE for: _tv_draw_window
+0x00007BF8	0x00000050	[ 13] FDE for: _tv_traverse_lines
+0x00007C48	0x00000060	[ 13] FDE for: _tv_change_preferences
+0x00007CA8	0x00000058	[ 13] FDE for: _tv_init_window
+0x00007D00	0x00000038	[ 13] FDE for: _tv_finalize_window
+0x00007D38	0x00000020	[ 13] FDE for: _tv_move_window
+0x00007D58	0x00000018	[ 14] CFI
+0x00007D70	0x00000020	[ 14] FDE for: _cleanup_wrapper
+0x00007D90	0x00000040	[ 14] FDE for: _plugin__start
+0x00007DD0	0x00000020	[ 14] FDE for: _rb_atexit
+0x00007DF0	0x00000030	[ 14] FDE for: _exit
+0x00007E20	0x00000030	[ 14] FDE for: __exit
+0x00007E50	0x00000038	[ 14] FDE for: _exit_on_usb
+0x00007E88	0x00000018	[ 15] CFI
+0x00007EA0	0x00000038	[ 15] FDE for: _prevtrack
+0x00007ED8	0x00000048	[ 15] FDE for: _play
+0x00007F20	0x00000038	[ 15] FDE for: _stop
+0x00007F58	0x00000038	[ 15] FDE for: _nexttrack
+0x00007F90	0x00000040	[ 15] FDE for: _volume
+0x00007FD0	0x00000040	[ 15] FDE for: _shuffle
+0x00008010	0x00000040	[ 15] FDE for: _repeat_mode
+0x00008050	0x00000020	[ 15] FDE for: _playback_control_init
+0x00008070	0x00000038	[ 15] FDE for: _playback_control
+0x0000C000	0x00000008	[ 17] __DefaultRuneLocale.got
+0x0000C008	0x00000008	[ 18] _longjmp.got
+0x0000C010	0x00000008	[ 18] _setjmp.got
+0x0000C018	0x00000018	[  5] _menu__.1
+0x0000C030	0x00000018	[  5] _menu.2
+0x0000C048	0x00000040	[  5] _names.4
+0x0000C088	0x00000020	[  5] _names.5
+0x0000C0A8	0x00000020	[  5] _names.7
+0x0000C0C8	0x00000020	[  5] _names.8
+0x0000C0E8	0x00000020	[  5] _names.9
+0x0000C108	0x00000018	[  5] _option_menu
+0x0000C120	0x00000018	[  5] _option_menu__
+0x0000C138	0x00000018	[  5] _night_mode_item
+0x0000C150	0x00000008	[  5] _night_mode_item__
+0x0000C158	0x00000018	[  5] _night_mode_item_
+0x0000C170	0x00000018	[  5] _indent_spaces_item
+0x0000C188	0x00000008	[  5] _indent_spaces_item__
+0x0000C190	0x00000018	[  5] _indent_spaces_item_
+0x0000C1A8	0x00000018	[  5] _font_item
+0x0000C1C0	0x00000008	[  5] _font_item__
+0x0000C1C8	0x00000018	[  5] _statusbar_item
+0x0000C1E0	0x00000008	[  5] _statusbar_item__
+0x0000C1E8	0x00000018	[  5] _statusbar_item_
+0x0000C200	0x00000018	[  5] _footer_item
+0x0000C218	0x00000008	[  5] _footer_item__
+0x0000C220	0x00000018	[  5] _footer_item_
+0x0000C238	0x00000018	[  5] _header_item
+0x0000C250	0x00000008	[  5] _header_item__
+0x0000C258	0x00000018	[  5] _header_item_
+0x0000C270	0x00000018	[  5] _alignment_item
+0x0000C288	0x00000008	[  5] _alignment_item__
+0x0000C290	0x00000018	[  5] _alignment_item_
+0x0000C2A8	0x00000018	[  5] _windows_item
+0x0000C2C0	0x00000008	[  5] _windows_item__
+0x0000C2C8	0x00000018	[  5] _windows_item_
+0x0000C2E0	0x00000018	[  5] _line_mode_item
+0x0000C2F8	0x00000008	[  5] _line_mode_item__
+0x0000C300	0x00000018	[  5] _line_mode_item_
+0x0000C318	0x00000018	[  5] _word_wrap_item
+0x0000C330	0x00000008	[  5] _word_wrap_item__
+0x0000C338	0x00000018	[  5] _word_wrap_item_
+0x0000C350	0x00000018	[  5] _encoding_item
+0x0000C368	0x00000008	[  5] _encoding_item__
+0x0000C370	0x00000018	[  5] _encoding_item_
+0x0000C388	0x00000018	[  5] _scroll_menu
+0x0000C3A0	0x00000018	[  5] _scroll_menu__
+0x0000C3B8	0x00000018	[  5] _vertical_scroll_menu
+0x0000C3D0	0x00000018	[  5] _vertical_scroll_menu__
+0x0000C3E8	0x00000018	[  5] _narrow_mode_item
+0x0000C400	0x00000008	[  5] _narrow_mode_item__
+0x0000C408	0x00000018	[  5] _narrow_mode_item_
+0x0000C420	0x00000018	[  5] _autoscroll_speed_item
+0x0000C438	0x00000008	[  5] _autoscroll_speed_item__
+0x0000C440	0x00000018	[  5] _autoscroll_speed_item_
+0x0000C458	0x00000018	[  5] _overlap_page_mode_item
+0x0000C470	0x00000008	[  5] _overlap_page_mode_item__
+0x0000C478	0x00000018	[  5] _overlap_page_mode_item_
+0x0000C490	0x00000018	[  5] _vertical_scroll_mode_item
+0x0000C4A8	0x00000008	[  5] _vertical_scroll_mode_item__
+0x0000C4B0	0x00000018	[  5] _vertical_scroll_mode_item_
+0x0000C4C8	0x00000018	[  5] _vertical_scrollbar_item
+0x0000C4E0	0x00000008	[  5] _vertical_scrollbar_item__
+0x0000C4E8	0x00000018	[  5] _horizontal_scroll_menu
+0x0000C500	0x00000018	[  5] _horizontal_scroll_menu__
+0x0000C518	0x00000018	[  5] _horizontal_scroll_mode_item
+0x0000C530	0x00000008	[  5] _horizontal_scroll_mode_item__
+0x0000C538	0x00000018	[  5] _horizontal_scroll_mode_item_
+0x0000C550	0x00000018	[  5] _horizontal_scrollbar_item
+0x0000C568	0x00000008	[  5] _horizontal_scrollbar_item__
+0x0000C570	0x00000008	[  7] _preferences
+0x0000C578	0x00000038	[ 14] ___header
+0x0000C5B0	0x00000018	[ 15] _playback_control_menu
+0x0000C5C8	0x00000018	[ 15] _repeat_mode_item
+0x0000C5E0	0x00000008	[ 15] _repeat_mode_item__
+0x0000C5E8	0x00000018	[ 15] _shuffle_item
+0x0000C600	0x00000008	[ 15] _shuffle_item__
+0x0000C608	0x00000018	[ 15] _volume_item
+0x0000C620	0x00000008	[ 15] _volume_item__
+0x0000C628	0x00000018	[ 15] _nexttrack_item
+0x0000C640	0x00000008	[ 15] _nexttrack_item__
+0x0000C648	0x00000018	[ 15] _stop_item
+0x0000C660	0x00000008	[ 15] _stop_item__
+0x0000C668	0x00000018	[ 15] _playpause_item
+0x0000C680	0x00000008	[ 15] _playpause_item__
+0x0000C688	0x00000018	[ 15] _prevtrack_item
+0x0000C6A0	0x00000008	[ 15] _prevtrack_item__
+0x00010000	0x00000004	[  4] _row_height
+0x00010004	0x00000004	[  4] _col_width
+0x00010008	0x00000030	[  5] _menu_.0
+0x00010038	0x00000060	[  5] _option_menu_
+0x00010098	0x00000010	[  5] _scroll_menu_
+0x000100A8	0x00000028	[  5] _vertical_scroll_menu_
+0x000100D0	0x00000010	[  5] _horizontal_scroll_menu_
+0x000100E0	0x00000004	[  8] _fd
+0x000100E8	0x00000038	[ 15] _playback_control_menu_
+0x00010120	0x00000008	[ 14] _rb
+0x00010128	0x00000001	[  2] _scrolled
+0x00010129	0x00000001	[  2] _bookmarks_changed
+0x00010130	0x00000198	[  3] _bookmarks
+0x000102C8	0x00000001	[  7] _preferences_changed
+0x000102D0	0x00000008	[ 15] _parentvp
+0x000102D8	0x00000001	[  3] _bookmark_count
+0x000102E0	0x00000004	[  4] _bg_color.0
+0x000102E4	0x00000004	[  4] _fg_color.1
+0x000102E8	0x00000008	[  4] _font_changing.2
+0x000102F0	0x00000008	[  4] _title.3
+0x000102F8	0x00000004	[  4] _totalsize
+0x000102FC	0x00000004	[  4] _display_rows
+0x00010300	0x00000004	[  4] _display_columns
+0x00010304	0x00000001	[  4] _show_vertical_scrollbar
+0x00010305	0x00000003	[  4] _show_horizontal_scrollbar
+0x00010308	0x00000010	[  4] _vertical_scrollbar
+0x00010318	0x00000010	[  4] _horizontal_scrollbar
+0x00010328	0x00000010	[  4] _footer
+0x00010338	0x00000010	[  4] _header
+0x00010348	0x00000008	[  4] _display
+0x00010350	0x00000008	[  4] _backdrop
+0x00010358	0x00000001	[  4] _sbs_has_title
+0x00010359	0x00000007	[  4] _is_initialized_vp
+0x00010360	0x00000030	[  4] _vp_text
+0x00010390	0x00000030	[  4] _vp_info
+0x000103C0	0x000000F0	[  5] _names.6
+0x000104B0	0x00000240	[  5] _new_prefs
+0x000106F0	0x00000004	[  6] _parse_lines
+0x000106F4	0x00000004	[  6] _parse_top_line
+0x000106F8	0x000001E0	[  6] _line_pos
+0x000108D8	0x00000004	[  6] _lines_per_page
+0x000108DC	0x00000004	[  6] _max_page
+0x000108E0	0x00000004	[  6] _last_page
+0x000108E4	0x00000004	[  6] _parse_page
+0x000108E8	0x00000010	[  6] _cur_pos
+0x000108F8	0x00009C3C	[  6] _pager_buffer
+0x0001A538	0x00000240	[  7] _old_prefs.0
+0x0001A778	0x00000008	[  7] _is_initialized.1
+0x0001A780	0x00000028	[  7] _listners
+0x0001A7A8	0x00000004	[  7] _listner_count
+0x0001A7AC	0x00000240	[  7] _prefs
+0x0001A9F0	0x00000008	[  8] _read_size
+0x0001A9F8	0x00000008	[  8] _buf_pos
+0x0001AA00	0x00000008	[  8] _block_size
+0x0001AA08	0x00000008	[  8] _buffer_size
+0x0001AA10	0x00000008	[  8] _reader_buffer
+0x0001AA18	0x00000008	[  8] _file_size
+0x0001AA20	0x00000008	[  8] _start_file_pos
+0x0001AA28	0x00000008	[  8] _file_pos
+0x0001AA30	0x00000008	[  9] _screen_pos
+0x0001AA38	0x00000008	[ 10] _stored_preferences_size
+0x0001AA40	0x00000008	[ 10] _stored_preferences_offset
+0x0001AA48	0x00000001	[ 11] _is_break_line
+0x0001AA49	0x00000003	[ 11] _expand_extra_line
+0x0001AA4C	0x00000004	[ 11] _block_width
+0x0001AA50	0x00000008	[ 11] _block_count
+0x0001AA58	0x00000008	[ 11] _outbuf
+0x0001AA60	0x000003C8	[ 11] _utf8buf
+0x0001AE28	0x00000C98	[ 11] _ucsbuf
+0x0001BAC0	0x00000008	[ 11] _end_ptr
+0x0001BAC8	0x00000004	[ 11] _text_type
+0x0001BACC	0x00000004	[ 12] _get_double_blocks
+0x0001BAD0	0x00000004	[ 12] _get_block
+0x0001BAD4	0x00000004	[ 13] _cur_column
+0x0001BAD8	0x00000004	[ 13] _cur_window
+0x0001BADC	0x00000004	[ 13] _display_lines
+0x0001BAE0	0x00000004	[ 13] _window_columns
+0x0001BAE4	0x00000004	[ 13] _window_width
+0x0001BAE8	0x00000008	[ 14] _atexit_handler
+0x0001BAF0	0x000000C0	[ 14] ___exit_env

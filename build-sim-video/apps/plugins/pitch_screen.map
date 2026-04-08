@@ -1,0 +1,111 @@
+# Path: /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/pitch_screen.elf
+# Arch: arm64
+# Object files:
+[  0] linker synthesized
+[  1] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/pitch_screen.o
+[  2] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/plugin_crt0.o
+[  3] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(icon_helper.o)
+[  4] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(arg_helper.o)
+[  5] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/libSystem.tbd
+[  6] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/system/libsystem_c.tbd
+[  7] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/system/libsystem_platform.tbd
+# Sections:
+# Address	Size    	Segment	Section
+0x000006E0	0x00001C8C	__TEXT	__text
+0x0000236C	0x0000003C	__TEXT	__stubs
+0x000023A8	0x000000AD	__TEXT	__cstring
+0x00002456	0x0000003E	__TEXT	__const
+0x00002498	0x000005D8	__TEXT	__eh_frame
+0x00004000	0x00000030	__DATA_CONST	__got
+0x00004030	0x00000038	__DATA_CONST	__const
+0x00008000	0x00000008	__DATA	.data
+0x00008008	0x000000E0	__DATA	__bss
+# Symbols:
+# Address	Size    	File  Name
+0x000006E0	0x00000084	[  1] _speak_pitch_mode
+0x00000764	0x00000154	[  1] _pitch_increase
+0x000008B8	0x00000098	[  1] _get_semitone_from_pitch
+0x00000950	0x00000068	[  1] _get_pitch_from_semitone
+0x000009B8	0x00000258	[  1] _arg_callback
+0x00000C10	0x0000003C	[  1] _viewport_get_nb_lines
+0x00000C4C	0x00000DEC	[  1] _gui_syncpitchscreen_run
+0x00001A38	0x000000A8	[  1] _fill_pitchvars
+0x00001AE0	0x00000234	[  1] _plugin_start
+0x00001D14	0x00000018	[  2] _cleanup_wrapper
+0x00001D2C	0x00000068	[  2] _plugin__start
+0x00001D94	0x00000020	[  2] _rb_atexit
+0x00001DB4	0x00000024	[  2] _exit
+0x00001DD8	0x00000014	[  2] __exit
+0x00001DEC	0x00000064	[  2] _exit_on_usb
+0x00001E50	0x00000064	[  3] _cbmp_get_icon
+0x00001EB4	0x000000F4	[  4] _string_parse
+0x00001FA8	0x0000003C	[  4] _char_parse
+0x00001FE4	0x000000F4	[  4] _bool_parse
+0x000020D8	0x00000150	[  4] _longnum_parse
+0x00002228	0x0000003C	[  4] _num_parse
+0x00002264	0x00000108	[  4] _argparse
+0x0000236C	0x0000000C	[  6] ___maskrune.stub
+0x00002378	0x0000000C	[  6] ___tolower.stub
+0x00002384	0x0000000C	[  6] _abs.stub
+0x00002390	0x0000000C	[  7] _longjmp.stub
+0x0000239C	0x0000000C	[  7] _setjmp.stub
+0x000023A8	0x00000005	[  1] literal string: true
+0x000023AD	0x00000006	[  1] literal string: false
+0x000023B3	0x00000010	[  1] literal string: Timestretch: %s
+0x000023C3	0x00000014	[  1] literal string: Unknown switch '%c'
+0x000023D7	0x00000002	[  1] literal string: +
+0x000023D9	0x00000002	[  1] literal string: -
+0x000023DB	0x00000004	[  1] literal string: +2%
+0x000023DF	0x00000004	[  1] literal string: -2%
+0x000023E3	0x00000003	[  1] literal string: >>
+0x000023E6	0x00000003	[  1] literal string: <<
+0x000023E9	0x0000000E	[  1] literal string: %s: %s%d.%02d
+0x000023F7	0x0000000E	[  1] literal string: %s: %ld.%ld%%
+0x00002405	0x00000004	[  1] literal string: %s:
+0x00002409	0x0000000A	[  1] literal string: %s%d.%02d
+0x00002413	0x0000000A	[  1] literal string: %ld.%ld%%
+0x0000241D	0x00000013	[  1] literal string: pitch: %ld.%02ld%%
+0x00002430	0x00000013	[  1] literal string: speed: %ld.%02ld%%
+0x00002443	0x00000008	[  1] literal string: GUI: %d
+0x0000244B	0x00000003	[  4] literal string: '\"
+0x0000244E	0x00000007	[  4] literal string: fn0ty1
+0x00002456	0x0000000C	[  1] _cent_interp
+0x00002462	0x00000032	[  1] _semitone_table
+0x00002498	0x00000018	[  1] CFI
+0x000024B0	0x00000048	[  1] FDE for: _speak_pitch_mode
+0x000024F8	0x00000058	[  1] FDE for: _pitch_increase
+0x00002550	0x00000020	[  1] FDE for: _get_semitone_from_pitch
+0x00002570	0x00000020	[  1] FDE for: _get_pitch_from_semitone
+0x00002590	0x00000050	[  1] FDE for: _arg_callback
+0x000025E0	0x00000040	[  1] FDE for: _viewport_get_nb_lines
+0x00002620	0x00000070	[  1] FDE for: _gui_syncpitchscreen_run
+0x00002690	0x00000048	[  1] FDE for: _fill_pitchvars
+0x000026D8	0x00000058	[  1] FDE for: _plugin_start
+0x00002730	0x00000018	[  2] CFI
+0x00002748	0x00000020	[  2] FDE for: _cleanup_wrapper
+0x00002768	0x00000040	[  2] FDE for: _plugin__start
+0x000027A8	0x00000020	[  2] FDE for: _rb_atexit
+0x000027C8	0x00000030	[  2] FDE for: _exit
+0x000027F8	0x00000030	[  2] FDE for: __exit
+0x00002828	0x00000038	[  2] FDE for: _exit_on_usb
+0x00002860	0x00000018	[  3] CFI
+0x00002878	0x00000020	[  3] FDE for: _cbmp_get_icon
+0x00002898	0x00000018	[  4] CFI
+0x000028B0	0x00000058	[  4] FDE for: _string_parse
+0x00002908	0x00000040	[  4] FDE for: _char_parse
+0x00002948	0x00000068	[  4] FDE for: _bool_parse
+0x000029B0	0x00000020	[  4] FDE for: _longnum_parse
+0x000029D0	0x00000038	[  4] FDE for: _num_parse
+0x00002A08	0x00000068	[  4] FDE for: _argparse
+0x00004000	0x00000008	[  6] __DefaultRuneLocale.got
+0x00004008	0x00000008	[  6] ___maskrune.got
+0x00004010	0x00000008	[  6] ___tolower.got
+0x00004018	0x00000008	[  6] _abs.got
+0x00004020	0x00000008	[  7] _longjmp.got
+0x00004028	0x00000008	[  7] _setjmp.got
+0x00004030	0x00000038	[  2] ___header
+0x00008000	0x00000008	[  2] _rb
+0x00008008	0x00000004	[  1] _at_limit
+0x0000800C	0x00000010	[  1] _pitch_vars
+0x00008020	0x00000008	[  2] _atexit_handler
+0x00008028	0x000000C0	[  2] ___exit_env

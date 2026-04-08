@@ -1,0 +1,482 @@
+# Path: /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/rockboy/rockboy.elf
+# Arch: arm64
+# Object files:
+[  0] linker synthesized
+[  1] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/rockboy/../../../firmware/libc/sscanf.o
+[  2] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/rockboy/cpu.o
+[  3] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/rockboy/emu.o
+[  4] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/rockboy/events.o
+[  5] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/rockboy/fastmem.o
+[  6] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/rockboy/hw.o
+[  7] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/rockboy/lcd.o
+[  8] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/rockboy/lcdc.o
+[  9] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/rockboy/loader.o
+[ 10] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/rockboy/mem.o
+[ 11] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/rockboy/menu.o
+[ 12] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/rockboy/rbsound.o
+[ 13] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/rockboy/rockboy.o
+[ 14] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/rockboy/rtc.o
+[ 15] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/rockboy/save.o
+[ 16] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/rockboy/sound.o
+[ 17] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/rockboy/sys_rockbox.o
+[ 18] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/plugin_crt0.o
+[ 19] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(gcc-support.o)
+[ 20] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(helper.o)
+[ 21] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/libSystem.tbd
+[ 22] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/system/libsystem_c.tbd
+[ 23] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/system/libsystem_platform.tbd
+# Sections:
+# Address	Size    	Segment	Section
+0x00000780	0x0000AFB4	__TEXT	__text
+0x0000B734	0x00000024	__TEXT	__stubs
+0x0000B758	0x0000047A	__TEXT	__cstring
+0x0000BBD4	0x00001A48	__TEXT	__const
+0x0000D620	0x00001B88	__TEXT	__eh_frame
+0x00010000	0x00000020	__DATA_CONST	__got
+0x00010020	0x000003A8	__DATA_CONST	__const
+0x00014000	0x00000D99	__DATA	__data
+0x00014DA0	0x00000008	__DATA	.data
+0x00014DA8	0x00000B38	__DATA	__bss
+0x000158E0	0x0004D044	__DATA	__common
+# Symbols:
+# Address	Size    	File  Name
+0x00000780	0x0000000C	[  1] _sspeek
+0x0000078C	0x00000014	[  1] _sspop
+0x000007A0	0x000000A4	[  1] _parse_hex.constprop.0
+0x00000844	0x00000540	[  1] _sscanf
+0x00000D84	0x0000003C	[  2] _div_advance
+0x00000DC0	0x0000009C	[  2] _timer_advance
+0x00000E5C	0x00000024	[  2] _lcdc_advance
+0x00000E80	0x00000068	[  2] _cpu_reset
+0x00000EE8	0x00000060	[  2] _cpu_timers
+0x00000F48	0x000046B0	[  2] _cpu_emulate
+0x000055F8	0x00000020	[  3] _emu_reset
+0x00005618	0x000001A8	[  3] _emu_run
+0x000057C0	0x00000050	[  4] _ev_postevent
+0x00005810	0x00000054	[  4] _ev_getevent
+0x00005864	0x00000024	[  5] _readb
+0x00005888	0x00000024	[  5] _writeb
+0x000058AC	0x0000006C	[  5] _readw
+0x00005918	0x00000078	[  5] _writew
+0x00005990	0x00000008	[  5] _readhi
+0x00005998	0x00000008	[  5] _writehi
+0x000059A0	0x0000005C	[  6] _hw_interrupt
+0x000059FC	0x00000054	[  6] _hw_dma
+0x00005A50	0x000000CC	[  6] _hw_hdma
+0x00005B1C	0x00000114	[  6] _hw_hdma_cmd
+0x00005C30	0x00000074	[  6] _pad_refresh
+0x00005CA4	0x00000038	[  6] _pad_set
+0x00005CDC	0x0000007C	[  6] _hw_reset
+0x00005D58	0x00000028	[  7] _blendcpy
+0x00005D80	0x00000090	[  7] _updatepalette
+0x00005E10	0x000000BC	[  7] _lcd_begin
+0x00005ECC	0x000000F0	[  7] _setvidmode
+0x00005FBC	0x00000E24	[  7] _lcd_refreshline
+0x00006DE0	0x0000002C	[  7] _pal_write
+0x00006E0C	0x000000A0	[  7] _pal_write_dmg
+0x00006EAC	0x00000034	[  7] _vram_dirty
+0x00006EE0	0x00000084	[  7] _pal_dirty
+0x00006F64	0x00000038	[  7] _set_pal
+0x00006F9C	0x00000058	[  7] _vram_write
+0x00006FF4	0x00000038	[  7] _lcd_reset
+0x0000702C	0x0000006C	[  8] _stat_trigger
+0x00007098	0x0000003C	[  8] _stat_change
+0x000070D4	0x00000048	[  8] _lcdc_change
+0x0000711C	0x00000200	[  8] _lcdc_trans
+0x0000731C	0x00000004	[  9] _initmem
+0x00007320	0x00000074	[  9] _sn_save
+0x00007394	0x00000074	[  9] _sn_load
+0x00007408	0x00000118	[  9] _cleanup
+0x00007520	0x00000400	[  9] _loader_init
+0x00007920	0x00000164	[ 10] _mem_updatemap
+0x00007A84	0x000007FC	[ 10] _mem_write
+0x00008280	0x00000280	[ 10] _mem_read
+0x00008500	0x00000018	[ 10] _mbc_reset
+0x00008518	0x000000CC	[ 11] _getbutton
+0x000085E4	0x00000060	[ 11] _slot_get_name
+0x00008644	0x00000010	[ 11] _list_action_callback
+0x00008654	0x00000130	[ 11] _build_slot_path.constprop.0
+0x00008784	0x000000E0	[ 11] _slot_info.constprop.0
+0x00008864	0x00000220	[ 11] _do_slot_menu
+0x00008A84	0x00000424	[ 11] _do_user_menu
+0x00008EA8	0x00000070	[ 12] _get_more
+0x00008F18	0x000000F8	[ 12] _rockboy_pcm_init
+0x00009010	0x00000064	[ 12] _rockboy_pcm_close
+0x00009074	0x000000B4	[ 12] _rockboy_pcm_submit
+0x00009128	0x00000018	[ 13] _die
+0x00009140	0x00000040	[ 13] _my_malloc
+0x00009180	0x0000004C	[ 13] _doevents
+0x000091CC	0x00000394	[ 13] _plugin_start
+0x00009560	0x0000005C	[ 14] _rtc_latch
+0x000095BC	0x0000011C	[ 14] _rtc_write
+0x000096D8	0x000000A8	[ 14] _rtc_tick
+0x00009780	0x00000098	[ 14] _rtc_save_internal
+0x00009818	0x000001D8	[ 14] _rtc_load_internal
+0x000099F0	0x000002F0	[ 15] _loadstate
+0x00009CE0	0x000002A8	[ 15] _savestate
+0x00009F88	0x0000065C	[ 16] _sound_mix
+0x0000A5E4	0x00000044	[ 16] _sound_read
+0x0000A628	0x00000644	[ 16] _sound_write
+0x0000AC6C	0x000001C0	[ 16] _sound_reset
+0x0000AE2C	0x0000010C	[ 16] _sound_dirty
+0x0000AF38	0x0000043C	[ 17] _ev_poll
+0x0000B374	0x00000040	[ 17] _vid_begin
+0x0000B3B4	0x00000010	[ 17] _vid_init
+0x0000B3C4	0x00000018	[ 18] _cleanup_wrapper
+0x0000B3DC	0x00000068	[ 18] _plugin__start
+0x0000B444	0x00000020	[ 18] _rb_atexit
+0x0000B464	0x00000024	[ 18] _exit
+0x0000B488	0x00000014	[ 18] __exit
+0x0000B49C	0x00000064	[ 18] _exit_on_usb
+0x0000B500	0x00000018	[ 19] _memcpy
+0x0000B518	0x00000018	[ 19] _memset
+0x0000B530	0x00000018	[ 19] _memmove
+0x0000B548	0x00000018	[ 19] _memcmp
+0x0000B560	0x00000020	[ 20] _talk_val
+0x0000B580	0x00000040	[ 20] _backlight_force_on
+0x0000B5C0	0x0000006C	[ 20] _backlight_ignore_timeout
+0x0000B62C	0x00000048	[ 20] _backlight_use_settings
+0x0000B674	0x00000044	[ 20] _sw_poweroff_disable
+0x0000B6B8	0x00000020	[ 20] _sw_poweroff_restore
+0x0000B6D8	0x00000004	[ 20] _remote_backlight_force_on
+0x0000B6DC	0x00000004	[ 20] _remote_backlight_ignore_timeout
+0x0000B6E0	0x00000004	[ 20] _remote_backlight_use_settings
+0x0000B6E4	0x00000004	[ 20] _buttonlight_force_on
+0x0000B6E8	0x00000004	[ 20] _buttonlight_force_off
+0x0000B6EC	0x00000004	[ 20] _buttonlight_ignore_timeout
+0x0000B6F0	0x00000004	[ 20] _buttonlight_use_settings
+0x0000B6F4	0x00000018	[ 20] _backlight_brightness_set
+0x0000B70C	0x00000020	[ 20] _backlight_brightness_use_setting
+0x0000B72C	0x00000004	[ 20] _buttonlight_brightness_set
+0x0000B730	0x00000004	[ 20] _buttonlight_brightness_use_setting
+0x0000B734	0x0000000C	[ 22] ___maskrune.stub
+0x0000B740	0x0000000C	[ 23] _longjmp.stub
+0x0000B74C	0x0000000C	[ 23] _setjmp.stub
+0x0000B758	0x00000037	[  2] literal string: invalid opcode 0x%02X at address 0x%04X, rombank = %d\n
+0x0000B78F	0x00000008	[  7] literal string:  %d %d 
+0x0000B797	0x00000018	[  7] literal string:  FPS: %d Frameskip: %d 
+0x0000B7AF	0x00000018	[  9] literal string: cannot open rom file %s
+0x0000B7C7	0x00000012	[  9] literal string: Not enough memory
+0x0000B7D9	0x00000012	[  9] literal string: Not Enough Memory
+0x0000B7EB	0x00000017	[  9] literal string: unknown ROM size %02X\n
+0x0000B802	0x00000018	[  9] literal string: unknown SRAM size %02X\n
+0x0000B81A	0x00000012	[  9] literal string: Not enough Memory
+0x0000B82C	0x00000006	[  9] literal string: %s/%s
+0x0000B832	0x00000012	[  9] literal string: /.rockbox/rockboy
+0x0000B844	0x00000005	[  9] literal string: .sav
+0x0000B849	0x00000005	[  9] literal string: .rtc
+0x0000B84E	0x00000004	[  9] literal string: .sn
+0x0000B852	0x00000007	[ 11] literal string: %d. %s
+0x0000B859	0x0000000D	[ 11] literal string: %s/%s-%d.rbs
+0x0000B866	0x00000006	[ 11] literal string: ERROR
+0x0000B86C	0x00000008	[ 11] literal string: <Empty>
+0x0000B874	0x00000009	[ 11] literal string: Untitled
+0x0000B87D	0x00000017	[ 11] literal string: Loaded state from \"%s\"
+0x0000B894	0x0000000E	[ 11] literal string: Max Frameskip
+0x0000B8A2	0x00000009	[ 11] literal string: Autosave
+0x0000B8AB	0x00000006	[ 11] literal string: Sound
+0x0000B8B1	0x00000007	[ 11] literal string: Volume
+0x0000B8B8	0x00000006	[ 11] literal string: Stats
+0x0000B8BE	0x00000009	[ 11] literal string: Press Up
+0x0000B8C7	0x0000000B	[ 11] literal string: Press Down
+0x0000B8D2	0x0000000B	[ 11] literal string: Press Left
+0x0000B8DD	0x0000000C	[ 11] literal string: Press Right
+0x0000B8E9	0x00000008	[ 11] literal string: Press A
+0x0000B8F1	0x00000008	[ 11] literal string: Press B
+0x0000B8F9	0x0000000C	[ 11] literal string: Press Start
+0x0000B905	0x0000000D	[ 11] literal string: Press Select
+0x0000B912	0x0000000B	[ 11] literal string: Press Menu
+0x0000B91D	0x0000000C	[ 11] literal string: Screen Size
+0x0000B929	0x0000000E	[ 11] literal string: Screen Rotate
+0x0000B937	0x0000000C	[ 11] literal string: Set Palette
+0x0000B943	0x00000011	[ 11] literal string: Set Keys (Buggy)
+0x0000B954	0x00000008	[ 11] literal string: Options
+0x0000B95C	0x00000010	[ 11] literal string: Brown (Default)
+0x0000B96C	0x00000005	[ 11] literal string: Gray
+0x0000B971	0x0000000B	[ 11] literal string: Light Gray
+0x0000B97C	0x0000000E	[ 11] literal string: Multi-Color 1
+0x0000B98A	0x0000000E	[ 11] literal string: Multi-Color 2
+0x0000B998	0x00000011	[ 11] literal string: Adventure Island
+0x0000B9A9	0x00000013	[ 11] literal string: Adventure Island 2
+0x0000B9BC	0x0000000C	[ 11] literal string: Balloon Kid
+0x0000B9C8	0x00000007	[ 11] literal string: Batman
+0x0000B9CF	0x00000018	[ 11] literal string: Batman: Return of Joker
+0x0000B9E7	0x00000010	[ 11] literal string: Bionic Commando
+0x0000B9F7	0x00000015	[ 11] literal string: Castlvania Adventure
+0x0000BA0C	0x00000011	[ 11] literal string: Donkey Kong Land
+0x0000BA1D	0x0000000A	[ 11] literal string: Dr. Mario
+0x0000BA27	0x00000006	[ 11] literal string: Kirby
+0x0000BA2D	0x00000008	[ 11] literal string: Metroid
+0x0000BA35	0x00000006	[ 11] literal string: Zelda
+0x0000BA3B	0x0000000C	[ 11] literal string: No rotation
+0x0000BA47	0x0000000D	[ 11] literal string: Rotate Right
+0x0000BA54	0x0000000C	[ 11] literal string: Rotate Left
+0x0000BA60	0x00000007	[ 11] literal string: Scaled
+0x0000BA67	0x00000018	[ 11] literal string: Scaled - Maintain Ratio
+0x0000BA7F	0x00000009	[ 11] literal string: Unscaled
+0x0000BA88	0x00000004	[ 11] literal string: Off
+0x0000BA8C	0x00000006	[ 11] literal string: Short
+0x0000BA92	0x00000005	[ 11] literal string: Full
+0x0000BA97	0x00000003	[ 11] literal string: On
+0x0000BA9A	0x00000006	[ 11] literal string: 0 Max
+0x0000BAA0	0x00000006	[ 11] literal string: 1 Max
+0x0000BAA6	0x00000006	[ 11] literal string: 2 Max
+0x0000BAAC	0x00000006	[ 11] literal string: 3 Max
+0x0000BAB2	0x00000006	[ 11] literal string: 4 Max
+0x0000BAB8	0x00000006	[ 11] literal string: 5 Max
+0x0000BABE	0x00000006	[ 11] literal string: 6 Max
+0x0000BAC4	0x00000006	[ 11] literal string: 7 Max
+0x0000BACA	0x00000006	[ 11] literal string: 8 Max
+0x0000BAD0	0x00000006	[ 11] literal string: 9 Max
+0x0000BAD6	0x00000007	[ 11] literal string: 10 Max
+0x0000BADD	0x00000007	[ 11] literal string: 11 Max
+0x0000BAE4	0x00000007	[ 11] literal string: 12 Max
+0x0000BAEB	0x00000007	[ 11] literal string: 13 Max
+0x0000BAF2	0x00000007	[ 11] literal string: 14 Max
+0x0000BAF9	0x00000007	[ 11] literal string: 15 Max
+0x0000BB00	0x00000007	[ 11] literal string: 16 Max
+0x0000BB07	0x00000007	[ 11] literal string: 17 Max
+0x0000BB0E	0x00000007	[ 11] literal string: 18 Max
+0x0000BB15	0x00000007	[ 11] literal string: 19 Max
+0x0000BB1C	0x00000007	[ 11] literal string: 20 Max
+0x0000BB23	0x0000000A	[ 11] literal string: Load Game
+0x0000BB2D	0x0000000A	[ 11] literal string: Save Game
+0x0000BB37	0x00000006	[ 11] literal string: Reset
+0x0000BB3D	0x00000005	[ 11] literal string: Quit
+0x0000BB42	0x00000008	[ 11] literal string: Rockboy
+0x0000BB4A	0x00000022	[ 13] literal string: Play gameboy ROM file! (.gb/.gbc)
+0x0000BB6C	0x00000008	[ 13] literal string: options
+0x0000BB74	0x0000000B	[ 13] literal string: Init video
+0x0000BB7F	0x0000000B	[ 13] literal string: Init sound
+0x0000BB8A	0x0000000C	[ 13] literal string: Loading rom
+0x0000BB96	0x0000000A	[ 13] literal string: Emu reset
+0x0000BBA0	0x00000008	[ 13] literal string: Emu run
+0x0000BBA8	0x00000010	[ 13] literal string: Closing Rockboy
+0x0000BBB8	0x00000019	[ 14] literal string: %d %d %d %d %d %d %d %d\n
+0x0000BBD1	0x00000001	[ 17] literal string: 
+0x0000BBD4	0x00000040	[  2] _daa_carry_table
+0x0000BC14	0x00001000	[  2] _daa_table
+0x0000CC14	0x00000100	[  2] _swap_table
+0x0000CD14	0x00000100	[  2] _decflag_table
+0x0000CE14	0x00000100	[  2] _incflag_table
+0x0000CF14	0x00000100	[  2] _cb_cycles_table
+0x0000D014	0x00000100	[  2] _cycles_table
+0x0000D114	0x00000010	[  8] _condbits.0
+0x0000D124	0x00000006	[  9] _ramsize_table
+0x0000D12A	0x00000072	[  9] _romsize_table
+0x0000D19C	0x00000400	[  9] _mbc_table
+0x0000D59C	0x00000080	[ 16] _soundWavePattern
+0x0000D620	0x00000018	[  1] CFI
+0x0000D638	0x00000020	[  1] FDE for: _sspeek
+0x0000D658	0x00000020	[  1] FDE for: _sspop
+0x0000D678	0x00000020	[  1] FDE for: _parse_hex.constprop.0
+0x0000D698	0x00000060	[  1] FDE for: _sscanf
+0x0000D6F8	0x00000018	[  2] CFI
+0x0000D710	0x00000020	[  2] FDE for: _div_advance
+0x0000D730	0x00000048	[  2] FDE for: _timer_advance
+0x0000D778	0x00000020	[  2] FDE for: _lcdc_advance
+0x0000D798	0x00000020	[  2] FDE for: _cpu_reset
+0x0000D7B8	0x00000040	[  2] FDE for: _cpu_timers
+0x0000D7F8	0x00000070	[  2] FDE for: _cpu_emulate
+0x0000D868	0x00000018	[  3] CFI
+0x0000D880	0x00000038	[  3] FDE for: _emu_reset
+0x0000D8B8	0x00000070	[  3] FDE for: _emu_run
+0x0000D928	0x00000018	[  4] CFI
+0x0000D940	0x00000020	[  4] FDE for: _ev_postevent
+0x0000D960	0x00000020	[  4] FDE for: _ev_getevent
+0x0000D980	0x00000018	[  5] CFI
+0x0000D998	0x00000020	[  5] FDE for: _readb
+0x0000D9B8	0x00000020	[  5] FDE for: _writeb
+0x0000D9D8	0x00000048	[  5] FDE for: _readw
+0x0000DA20	0x00000058	[  5] FDE for: _writew
+0x0000DA78	0x00000020	[  5] FDE for: _readhi
+0x0000DA98	0x00000020	[  5] FDE for: _writehi
+0x0000DAB8	0x00000018	[  6] CFI
+0x0000DAD0	0x00000020	[  6] FDE for: _hw_interrupt
+0x0000DAF0	0x00000048	[  6] FDE for: _hw_dma
+0x0000DB38	0x00000050	[  6] FDE for: _hw_hdma
+0x0000DB88	0x00000070	[  6] FDE for: _hw_hdma_cmd
+0x0000DBF8	0x00000038	[  6] FDE for: _pad_refresh
+0x0000DC30	0x00000020	[  6] FDE for: _pad_set
+0x0000DC50	0x00000040	[  6] FDE for: _hw_reset
+0x0000DC90	0x00000018	[  7] CFI
+0x0000DCA8	0x00000020	[  7] FDE for: _blendcpy
+0x0000DCC8	0x00000040	[  7] FDE for: _updatepalette
+0x0000DD08	0x00000020	[  7] FDE for: _lcd_begin
+0x0000DD28	0x00000020	[  7] FDE for: _setvidmode
+0x0000DD48	0x000000A0	[  7] FDE for: _lcd_refreshline
+0x0000DDE8	0x00000020	[  7] FDE for: _pal_write
+0x0000DE08	0x00000058	[  7] FDE for: _pal_write_dmg
+0x0000DE60	0x00000020	[  7] FDE for: _vram_dirty
+0x0000DE80	0x00000040	[  7] FDE for: _pal_dirty
+0x0000DEC0	0x00000038	[  7] FDE for: _set_pal
+0x0000DEF8	0x00000020	[  7] FDE for: _vram_write
+0x0000DF18	0x00000038	[  7] FDE for: _lcd_reset
+0x0000DF50	0x00000018	[  8] CFI
+0x0000DF68	0x00000020	[  8] FDE for: _stat_trigger
+0x0000DF88	0x00000038	[  8] FDE for: _stat_change
+0x0000DFC0	0x00000038	[  8] FDE for: _lcdc_change
+0x0000DFF8	0x00000068	[  8] FDE for: _lcdc_trans
+0x0000E060	0x00000018	[  9] CFI
+0x0000E078	0x00000020	[  9] FDE for: _initmem
+0x0000E098	0x00000060	[  9] FDE for: _sn_save
+0x0000E0F8	0x00000060	[  9] FDE for: _sn_load
+0x0000E158	0x00000068	[  9] FDE for: _cleanup
+0x0000E1C0	0x000000A0	[  9] FDE for: _loader_init
+0x0000E260	0x00000018	[ 10] CFI
+0x0000E278	0x00000020	[ 10] FDE for: _mem_updatemap
+0x0000E298	0x000000F8	[ 10] FDE for: _mem_write
+0x0000E390	0x00000020	[ 10] FDE for: _mem_read
+0x0000E3B0	0x00000020	[ 10] FDE for: _mbc_reset
+0x0000E3D0	0x00000018	[ 11] CFI
+0x0000E3E8	0x00000048	[ 11] FDE for: _getbutton
+0x0000E430	0x00000048	[ 11] FDE for: _slot_get_name
+0x0000E478	0x00000020	[ 11] FDE for: _list_action_callback
+0x0000E498	0x00000080	[ 11] FDE for: _build_slot_path.constprop.0
+0x0000E518	0x00000060	[ 11] FDE for: _slot_info.constprop.0
+0x0000E578	0x00000080	[ 11] FDE for: _do_slot_menu
+0x0000E5F8	0x00000068	[ 11] FDE for: _do_user_menu
+0x0000E660	0x00000018	[ 12] CFI
+0x0000E678	0x00000050	[ 12] FDE for: _get_more
+0x0000E6C8	0x00000050	[ 12] FDE for: _rockboy_pcm_init
+0x0000E718	0x00000040	[ 12] FDE for: _rockboy_pcm_close
+0x0000E758	0x00000050	[ 12] FDE for: _rockboy_pcm_submit
+0x0000E7A8	0x00000018	[ 13] CFI
+0x0000E7C0	0x00000020	[ 13] FDE for: _die
+0x0000E7E0	0x00000020	[ 13] FDE for: _my_malloc
+0x0000E800	0x00000048	[ 13] FDE for: _doevents
+0x0000E848	0x00000070	[ 13] FDE for: _plugin_start
+0x0000E8B8	0x00000018	[ 14] CFI
+0x0000E8D0	0x00000020	[ 14] FDE for: _rtc_latch
+0x0000E8F0	0x00000020	[ 14] FDE for: _rtc_write
+0x0000E910	0x00000020	[ 14] FDE for: _rtc_tick
+0x0000E930	0x00000050	[ 14] FDE for: _rtc_save_internal
+0x0000E980	0x00000050	[ 14] FDE for: _rtc_load_internal
+0x0000E9D0	0x00000018	[ 15] CFI
+0x0000E9E8	0x00000070	[ 15] FDE for: _loadstate
+0x0000EA58	0x00000078	[ 15] FDE for: _savestate
+0x0000EAD0	0x00000018	[ 16] CFI
+0x0000EAE8	0x00000060	[ 16] FDE for: _sound_mix
+0x0000EB48	0x00000040	[ 16] FDE for: _sound_read
+0x0000EB88	0x00000050	[ 16] FDE for: _sound_write
+0x0000EBD8	0x00000050	[ 16] FDE for: _sound_reset
+0x0000EC28	0x00000040	[ 16] FDE for: _sound_dirty
+0x0000EC68	0x00000018	[ 17] CFI
+0x0000EC80	0x00000058	[ 17] FDE for: _ev_poll
+0x0000ECD8	0x00000020	[ 17] FDE for: _vid_begin
+0x0000ECF8	0x00000020	[ 17] FDE for: _vid_init
+0x0000ED18	0x00000018	[ 18] CFI
+0x0000ED30	0x00000020	[ 18] FDE for: _cleanup_wrapper
+0x0000ED50	0x00000040	[ 18] FDE for: _plugin__start
+0x0000ED90	0x00000020	[ 18] FDE for: _rb_atexit
+0x0000EDB0	0x00000030	[ 18] FDE for: _exit
+0x0000EDE0	0x00000030	[ 18] FDE for: __exit
+0x0000EE10	0x00000038	[ 18] FDE for: _exit_on_usb
+0x0000EE48	0x00000018	[ 19] CFI
+0x0000EE60	0x00000020	[ 19] FDE for: _memcpy
+0x0000EE80	0x00000020	[ 19] FDE for: _memset
+0x0000EEA0	0x00000020	[ 19] FDE for: _memmove
+0x0000EEC0	0x00000020	[ 19] FDE for: _memcmp
+0x0000EEE0	0x00000018	[ 20] CFI
+0x0000EEF8	0x00000020	[ 20] FDE for: _talk_val
+0x0000EF18	0x00000040	[ 20] FDE for: _backlight_force_on
+0x0000EF58	0x00000050	[ 20] FDE for: _backlight_ignore_timeout
+0x0000EFA8	0x00000040	[ 20] FDE for: _backlight_use_settings
+0x0000EFE8	0x00000040	[ 20] FDE for: _sw_poweroff_disable
+0x0000F028	0x00000020	[ 20] FDE for: _sw_poweroff_restore
+0x0000F048	0x00000020	[ 20] FDE for: _remote_backlight_force_on
+0x0000F068	0x00000020	[ 20] FDE for: _remote_backlight_ignore_timeout
+0x0000F088	0x00000020	[ 20] FDE for: _remote_backlight_use_settings
+0x0000F0A8	0x00000020	[ 20] FDE for: _buttonlight_force_on
+0x0000F0C8	0x00000020	[ 20] FDE for: _buttonlight_force_off
+0x0000F0E8	0x00000020	[ 20] FDE for: _buttonlight_ignore_timeout
+0x0000F108	0x00000020	[ 20] FDE for: _buttonlight_use_settings
+0x0000F128	0x00000020	[ 20] FDE for: _backlight_brightness_set
+0x0000F148	0x00000020	[ 20] FDE for: _backlight_brightness_use_setting
+0x0000F168	0x00000020	[ 20] FDE for: _buttonlight_brightness_set
+0x0000F188	0x00000020	[ 20] FDE for: _buttonlight_brightness_use_setting
+0x00010000	0x00000008	[ 22] __DefaultRuneLocale.got
+0x00010008	0x00000008	[ 22] ___maskrune.got
+0x00010010	0x00000008	[ 23] _longjmp.got
+0x00010018	0x00000008	[ 23] _setjmp.got
+0x00010020	0x00000018	[ 11] _menu__.1
+0x00010038	0x00000110	[ 11] _palette.2
+0x00010148	0x00000030	[ 11] _rotate.3
+0x00010178	0x00000030	[ 11] _scaling.4
+0x000101A8	0x00000030	[ 11] _stats.5
+0x000101D8	0x00000020	[ 11] _onoff.6
+0x000101F8	0x00000150	[ 11] _frameskip.7
+0x00010348	0x00000018	[ 11] _menu.8
+0x00010360	0x00000018	[ 11] _menu__.10
+0x00010378	0x00000018	[ 11] _menu.11
+0x00010390	0x00000038	[ 18] ___header
+0x00014000	0x00000100	[  7] _wraptable.1
+0x00014100	0x00000004	[  7] _hpt.2
+0x00014104	0x00000004	[  7] _sremain
+0x00014108	0x00000004	[  7] _swidth
+0x0001410C	0x00000004	[  7] _SCALEHS
+0x00014110	0x00000004	[  7] _SCALEHL
+0x00014114	0x00000004	[  7] _SCALEWS
+0x00014118	0x00000004	[  7] _SCALEWL
+0x0001411C	0x00000440	[  7] _palettes
+0x00014560	0x00000048	[ 11] _menu_.0
+0x000145A8	0x00000028	[ 11] _menu_.9
+0x000145D0	0x00000001	[ 12] _doneplay
+0x000145D8	0x00000760	[ 15] _svars
+0x00014D38	0x00000040	[ 16] _soundShiftClock
+0x00014D78	0x00000020	[ 16] _soundFreqRatio
+0x00014D98	0x00000001	[ 20] _original_sw_poweroff_state
+0x00014DA0	0x00000008	[ 18] _rb
+0x00014DA8	0x00000002	[  2] _cbop.0
+0x00014DAA	0x00000002	[  2] _w.1
+0x00014DAC	0x00000001	[  2] _b.3
+0x00014DB0	0x00000004	[  4] _eventpos
+0x00014DB4	0x00000004	[  4] _eventhead
+0x00014DB8	0x00000100	[  4] _eventqueue
+0x00014EB8	0x00000100	[  7] _bgdup.0
+0x00014FB8	0x00000040	[  7] _dmg_pal
+0x00014FF8	0x000001F4	[  9] _saveprefix
+0x000151EC	0x000001F4	[  9] _snfile
+0x000153E0	0x000001F4	[  9] _rtcfile
+0x000155D4	0x000001F4	[  9] _sramfile
+0x000157C8	0x00000008	[  9] _romfile
+0x000157D0	0x00000008	[ 12] _newly_started
+0x000157D8	0x00000008	[ 12] _hwbuf
+0x000157E0	0x00000008	[ 12] _buf
+0x000157E8	0x00000004	[ 15] _wavofs
+0x000157EC	0x00000004	[ 15] _oamofs
+0x000157F0	0x00000004	[ 15] _palofs
+0x000157F4	0x00000004	[ 15] _hiofs
+0x000157F8	0x00000004	[ 15] _hramofs
+0x000157FC	0x00000004	[ 15] _vramblock
+0x00015800	0x00000004	[ 15] _iramblock
+0x00015804	0x00000004	[ 15] _sramblock
+0x00015808	0x00000004	[ 15] _ver
+0x0001580C	0x00000004	[ 17] _skip.0
+0x00015810	0x00000004	[ 17] _oldbuttonstate.1
+0x00015818	0x00000008	[ 18] _atexit_handler
+0x00015820	0x000000C0	[ 18] ___exit_env
+0x000158E0	0x00000004	[  2] _plugbuf
+0x000158E4	0x00000038	[  2] _cpu
+0x0001591C	0x0000000C	[  6] _hw
+0x00015928	0x00000008	[  7] _vdest
+0x00015930	0x00000001	[  7] _anydirty
+0x00015931	0x00000400	[  7] _patdirty
+0x00015D31	0x00040007	[  7] _patpix
+0x00055D38	0x000005B0	[  7] _scan
+0x000562E8	0x00004180	[  7] _lcd
+0x0005A468	0x00008110	[ 10] _ram
+0x00062578	0x00000020	[ 10] _rom
+0x00062598	0x00000120	[ 10] _mbc
+0x000626B8	0x00000008	[ 12] _bufnum
+0x000626C0	0x00000020	[ 12] _pcm
+0x000626E0	0x00000008	[ 13] _audio_buffer_free
+0x000626E8	0x00000008	[ 13] _audio_bufferpointer
+0x000626F0	0x00000008	[ 13] _audio_bufferbase
+0x000626F8	0x00000050	[ 13] _options
+0x00062748	0x00000008	[ 13] _errormsg
+0x00062750	0x00000004	[ 13] _cleanshut
+0x00062754	0x00000004	[ 13] _shut
+0x00062758	0x00000030	[ 14] _rtc
+0x00062788	0x00000198	[ 16] _snd
+0x00062920	0x00000004	[ 17] _fb

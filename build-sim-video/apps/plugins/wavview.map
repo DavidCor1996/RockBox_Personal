@@ -1,0 +1,84 @@
+# Path: /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/wavview.elf
+# Arch: arm64
+# Object files:
+[  0] linker synthesized
+[  1] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/wavview.o
+[  2] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/plugin_crt0.o
+[  3] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/libSystem.tbd
+[  4] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/system/libsystem_platform.tbd
+# Sections:
+# Address	Size    	Segment	Section
+0x00000728	0x00000B24	__TEXT	__text
+0x0000124C	0x00000018	__TEXT	__stubs
+0x00001264	0x000001E0	__TEXT	__cstring
+0x00001448	0x000001D8	__TEXT	__eh_frame
+0x00004000	0x00000010	__DATA_CONST	__got
+0x00004010	0x00000038	__DATA_CONST	__const
+0x00008000	0x00000008	__DATA	__data
+0x00008008	0x00000008	__DATA	.data
+0x00008010	0x00000118	__DATA	__bss
+0x00008128	0x00002800	__DATA	__common
+# Symbols:
+# Address	Size    	File  Name
+0x00000728	0x000009E8	[  1] _plugin_start
+0x00001110	0x00000018	[  2] _cleanup_wrapper
+0x00001128	0x00000068	[  2] _plugin__start
+0x00001190	0x00000020	[  2] _rb_atexit
+0x000011B0	0x00000024	[  2] _exit
+0x000011D4	0x00000014	[  2] __exit
+0x000011E8	0x00000064	[  2] _exit_on_usb
+0x0000124C	0x0000000C	[  4] _longjmp.stub
+0x00001258	0x0000000C	[  4] _setjmp.stub
+0x00001264	0x00000005	[  1] literal string: mono
+0x00001269	0x00000007	[  1] literal string: stereo
+0x00001270	0x0000001C	[  1] literal string: unable to get audio buffer!
+0x0000128C	0x00000004	[  1] literal string: wav
+0x00001290	0x00000014	[  1] literal string: Only for wav files!
+0x000012A4	0x00000015	[  1] literal string: Could not open file!
+0x000012B9	0x00000015	[  1] literal string: Could not read file!
+0x000012CE	0x00000005	[  1] literal string: RIFF
+0x000012D3	0x00000017	[  1] literal string: Incompatible wav file!
+0x000012EA	0x00000005	[  1] literal string: fmt 
+0x000012EF	0x00000005	[  1] literal string: data
+0x000012F4	0x0000000E	[  1] literal string: Viewing file:
+0x00001302	0x0000000D	[  1] literal string: Channels: %s
+0x0000130F	0x00000010	[  1] literal string: Bits/sample: %d
+0x0000131F	0x00000012	[  1] literal string: Samplerate: %u Hz
+0x00001331	0x00000022	[  1] literal string: Length (hh:mm:ss): %02d:%02d:%02d
+0x00001353	0x00000018	[  1] literal string: Searching for peaks... 
+0x0000136B	0x00000011	[  1] literal string: File read error!
+0x0000137C	0x00000017	[  1] literal string: bytes_read/*4 err: %ld
+0x00001393	0x0000001C	[  1] literal string: Searching for peaks... %u%%
+0x000013AF	0x00000008	[  1] literal string: ABORTED
+0x000013B7	0x0000001C	[  1] literal string: Searching for peaks... done
+0x000013D3	0x0000000A	[  1] literal string: ZOOM: %dx
+0x000013DD	0x0000000F	[  1] literal string: WAVVIEW USAGE:
+0x000013EC	0x00000015	[  1] literal string: up/down: zoom out/in
+0x00001401	0x0000001B	[  1] literal string: left/right: pan left/right
+0x0000141C	0x00000019	[  1] literal string: select: refresh/continue
+0x00001435	0x0000000F	[  1] literal string: stop/off: quit
+0x00001448	0x00000018	[  1] CFI
+0x00001460	0x00000090	[  1] FDE for: _plugin_start
+0x000014F0	0x00000018	[  2] CFI
+0x00001508	0x00000020	[  2] FDE for: _cleanup_wrapper
+0x00001528	0x00000040	[  2] FDE for: _plugin__start
+0x00001568	0x00000020	[  2] FDE for: _rb_atexit
+0x00001588	0x00000030	[  2] FDE for: _exit
+0x000015B8	0x00000030	[  2] FDE for: __exit
+0x000015E8	0x00000038	[  2] FDE for: _exit_on_usb
+0x00004000	0x00000008	[  4] _longjmp.got
+0x00004008	0x00000008	[  4] _setjmp.got
+0x00004010	0x00000038	[  2] ___header
+0x00008000	0x00000004	[  1] _ppp
+0x00008004	0x00000004	[  1] _zoomlevel
+0x00008008	0x00000008	[  2] _rb
+0x00008010	0x00000004	[  1] _center
+0x00008014	0x00000004	[  1] _leftmargin
+0x00008018	0x00000004	[  1] _fppmp
+0x0000801C	0x00000004	[  1] _mempeakcount
+0x00008020	0x00000008	[  1] _audiobuflen
+0x00008028	0x00000008	[  1] _audiobuf
+0x00008030	0x0000002C	[  1] _header
+0x00008060	0x00000008	[  2] _atexit_handler
+0x00008068	0x000000C0	[  2] ___exit_env
+0x00008128	0x00002800	[  1] _samples

@@ -1,0 +1,59 @@
+# Path: /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/logo.elf
+# Arch: arm64
+# Object files:
+[  0] linker synthesized
+[  1] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/logo.o
+[  2] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/plugin_crt0.o
+[  3] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(pluginlib_actions.o)
+[  4] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/bitmaps/libpluginbitmaps.a(rockboxlogo.220x68x16.o)
+[  5] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/libSystem.tbd
+[  6] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/system/libsystem_platform.tbd
+# Sections:
+# Address	Size    	Segment	Section
+0x000006D8	0x000003C0	__TEXT	__text
+0x00000A98	0x00000018	__TEXT	__stubs
+0x00000AB0	0x000075B8	__TEXT	__const
+0x00008068	0x00000208	__TEXT	__eh_frame
+0x0000C000	0x00000010	__DATA_CONST	__got
+0x0000C010	0x00000060	__DATA_CONST	__const
+0x00010000	0x00000008	__DATA	__data
+0x00010008	0x00000008	__DATA	.data
+0x00010010	0x000000D8	__DATA	__bss
+# Symbols:
+# Address	Size    	File  Name
+0x000006D8	0x0000020C	[  1] _plugin_start
+0x000008E4	0x00000018	[  2] _cleanup_wrapper
+0x000008FC	0x00000068	[  2] _plugin__start
+0x00000964	0x00000020	[  2] _rb_atexit
+0x00000984	0x00000024	[  2] _exit
+0x000009A8	0x00000014	[  2] __exit
+0x000009BC	0x00000064	[  2] _exit_on_usb
+0x00000A20	0x00000038	[  3] _get_context_map
+0x00000A58	0x00000040	[  3] _pluginlib_getaction
+0x00000A98	0x0000000C	[  6] _longjmp.stub
+0x00000AA4	0x0000000C	[  6] _setjmp.stub
+0x00000AB0	0x000000D8	[  3] _pla_main_ctx
+0x00000B88	0x000074E0	[  4] _rockboxlogo
+0x00008068	0x00000018	[  1] CFI
+0x00008080	0x00000068	[  1] FDE for: _plugin_start
+0x000080E8	0x00000018	[  2] CFI
+0x00008100	0x00000020	[  2] FDE for: _cleanup_wrapper
+0x00008120	0x00000040	[  2] FDE for: _plugin__start
+0x00008160	0x00000020	[  2] FDE for: _rb_atexit
+0x00008180	0x00000030	[  2] FDE for: _exit
+0x000081B0	0x00000030	[  2] FDE for: __exit
+0x000081E0	0x00000038	[  2] FDE for: _exit_on_usb
+0x00008218	0x00000018	[  3] CFI
+0x00008230	0x00000020	[  3] FDE for: _get_context_map
+0x00008250	0x00000020	[  3] FDE for: _pluginlib_getaction
+0x0000C000	0x00000008	[  6] _longjmp.got
+0x0000C008	0x00000008	[  6] _setjmp.got
+0x0000C010	0x00000038	[  2] ___header
+0x0000C048	0x00000028	[  4] _bm_rockboxlogo
+0x00010000	0x00000008	[  1] _plugin_contexts
+0x00010008	0x00000008	[  2] _rb
+0x00010010	0x00000008	[  2] _atexit_handler
+0x00010018	0x000000C0	[  2] ___exit_env
+0x000100D8	0x00000004	[  3] _last_context
+0x000100DC	0x00000004	[  3] _plugin_context_count
+0x000100E0	0x00000008	[  3] _plugin_context_order

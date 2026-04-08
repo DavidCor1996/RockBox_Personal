@@ -1,0 +1,118 @@
+# Path: /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/test_fps.elf
+# Arch: arm64
+# Object files:
+[  0] linker synthesized
+[  1] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/test_fps.o
+[  2] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/plugin_crt0.o
+[  3] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(pluginlib_actions.o)
+[  4] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(helper.o)
+[  5] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/libSystem.tbd
+[  6] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/system/libsystem_platform.tbd
+# Sections:
+# Address	Size    	Segment	Section
+0x00000780	0x00000A00	__TEXT	__text
+0x00001180	0x00000018	__TEXT	__stubs
+0x00001198	0x0000003D	__TEXT	__cstring
+0x000011D8	0x000000D8	__TEXT	__const
+0x000012B0	0x00000618	__TEXT	__eh_frame
+0x00004000	0x00000010	__DATA_CONST	__got
+0x00004010	0x00000050	__DATA_CONST	__const
+0x00008000	0x00000009	__DATA	__data
+0x00008010	0x00000008	__DATA	.data
+0x00008018	0x0001C2F0	__DATA	__bss
+0x00024308	0x00000010	__DATA	__common
+# Symbols:
+# Address	Size    	File  Name
+0x00000780	0x000000C0	[  1] _make_gradient_rect
+0x00000840	0x0000007C	[  1] _show_log.part.0
+0x000008BC	0x000000B8	[  1] _log_text
+0x00000974	0x00000044	[  1] _plugin_quit
+0x000009B8	0x00000440	[  1] _plugin_start
+0x00000DF8	0x00000018	[  2] _cleanup_wrapper
+0x00000E10	0x00000068	[  2] _plugin__start
+0x00000E78	0x00000020	[  2] _rb_atexit
+0x00000E98	0x00000024	[  2] _exit
+0x00000EBC	0x00000014	[  2] __exit
+0x00000ED0	0x00000064	[  2] _exit_on_usb
+0x00000F34	0x00000038	[  3] _get_context_map
+0x00000F6C	0x00000040	[  3] _pluginlib_getaction
+0x00000FAC	0x00000020	[  4] _talk_val
+0x00000FCC	0x00000040	[  4] _backlight_force_on
+0x0000100C	0x0000006C	[  4] _backlight_ignore_timeout
+0x00001078	0x00000048	[  4] _backlight_use_settings
+0x000010C0	0x00000044	[  4] _sw_poweroff_disable
+0x00001104	0x00000020	[  4] _sw_poweroff_restore
+0x00001124	0x00000004	[  4] _remote_backlight_force_on
+0x00001128	0x00000004	[  4] _remote_backlight_ignore_timeout
+0x0000112C	0x00000004	[  4] _remote_backlight_use_settings
+0x00001130	0x00000004	[  4] _buttonlight_force_on
+0x00001134	0x00000004	[  4] _buttonlight_force_off
+0x00001138	0x00000004	[  4] _buttonlight_ignore_timeout
+0x0000113C	0x00000004	[  4] _buttonlight_use_settings
+0x00001140	0x00000018	[  4] _backlight_brightness_set
+0x00001158	0x00000020	[  4] _backlight_brightness_use_setting
+0x00001178	0x00000004	[  4] _buttonlight_brightness_set
+0x0000117C	0x00000004	[  4] _buttonlight_brightness_use_setting
+0x00001180	0x0000000C	[  6] _longjmp.stub
+0x0000118C	0x0000000C	[  6] _setjmp.stub
+0x00001198	0x00000002	[  1] literal string: A
+0x0000119A	0x00000010	[  1] literal string: Main LCD Update
+0x000011AA	0x0000000F	[  1] literal string: 1/1: %d.%d fps
+0x000011B9	0x0000000F	[  1] literal string: 1/4: %d.%d fps
+0x000011C8	0x0000000D	[  1] literal string: Main LCD YUV
+0x000011D8	0x000000D8	[  3] _pla_main_ctx
+0x000012B0	0x00000018	[  1] CFI
+0x000012C8	0x00000058	[  1] FDE for: _make_gradient_rect
+0x00001320	0x00000058	[  1] FDE for: _show_log.part.0
+0x00001378	0x00000058	[  1] FDE for: _log_text
+0x000013D0	0x00000038	[  1] FDE for: _plugin_quit
+0x00001408	0x00000070	[  1] FDE for: _plugin_start
+0x00001478	0x00000018	[  2] CFI
+0x00001490	0x00000020	[  2] FDE for: _cleanup_wrapper
+0x000014B0	0x00000040	[  2] FDE for: _plugin__start
+0x000014F0	0x00000020	[  2] FDE for: _rb_atexit
+0x00001510	0x00000030	[  2] FDE for: _exit
+0x00001540	0x00000030	[  2] FDE for: __exit
+0x00001570	0x00000038	[  2] FDE for: _exit_on_usb
+0x000015A8	0x00000018	[  3] CFI
+0x000015C0	0x00000020	[  3] FDE for: _get_context_map
+0x000015E0	0x00000020	[  3] FDE for: _pluginlib_getaction
+0x00001600	0x00000018	[  4] CFI
+0x00001618	0x00000020	[  4] FDE for: _talk_val
+0x00001638	0x00000040	[  4] FDE for: _backlight_force_on
+0x00001678	0x00000050	[  4] FDE for: _backlight_ignore_timeout
+0x000016C8	0x00000040	[  4] FDE for: _backlight_use_settings
+0x00001708	0x00000040	[  4] FDE for: _sw_poweroff_disable
+0x00001748	0x00000020	[  4] FDE for: _sw_poweroff_restore
+0x00001768	0x00000020	[  4] FDE for: _remote_backlight_force_on
+0x00001788	0x00000020	[  4] FDE for: _remote_backlight_ignore_timeout
+0x000017A8	0x00000020	[  4] FDE for: _remote_backlight_use_settings
+0x000017C8	0x00000020	[  4] FDE for: _buttonlight_force_on
+0x000017E8	0x00000020	[  4] FDE for: _buttonlight_force_off
+0x00001808	0x00000020	[  4] FDE for: _buttonlight_ignore_timeout
+0x00001828	0x00000020	[  4] FDE for: _buttonlight_use_settings
+0x00001848	0x00000020	[  4] FDE for: _backlight_brightness_set
+0x00001868	0x00000020	[  4] FDE for: _backlight_brightness_use_setting
+0x00001888	0x00000020	[  4] FDE for: _buttonlight_brightness_set
+0x000018A8	0x00000020	[  4] FDE for: _buttonlight_brightness_use_setting
+0x00004000	0x00000008	[  6] _longjmp.got
+0x00004008	0x00000008	[  6] _setjmp.got
+0x00004010	0x00000018	[  1] _yuvbuf
+0x00004028	0x00000038	[  2] ___header
+0x00008000	0x00000008	[  1] _plugin_contexts
+0x00008008	0x00000001	[  4] _original_sw_poweroff_state
+0x00008010	0x00000008	[  2] _rb
+0x00008018	0x00004B00	[  1] _vdata
+0x0000CB18	0x00004B00	[  1] _udata
+0x00011618	0x00012C00	[  1] _ydata
+0x00024218	0x00000004	[  1] _max_line_len
+0x0002421C	0x00000004	[  1] _max_line
+0x00024220	0x00000008	[  1] _lines
+0x00024228	0x00000004	[  1] _line
+0x00024230	0x00000008	[  2] _atexit_handler
+0x00024238	0x000000C0	[  2] ___exit_env
+0x000242F8	0x00000004	[  3] _last_context
+0x000242FC	0x00000004	[  3] _plugin_context_count
+0x00024300	0x00000008	[  3] _plugin_context_order
+0x00024308	0x00000008	[  1] _plugin_buf
+0x00024310	0x00000008	[  1] _plugin_buf_len

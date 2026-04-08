@@ -1,0 +1,504 @@
+# Path: /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/vorbis.elf
+# Arch: arm64
+# Object files:
+[  0] linker synthesized
+[  1] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/vorbis.o
+[  2] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/codec_crt0.o
+[  3] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libtremor.a(bitwise.o)
+[  4] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libtremor.a(block.o)
+[  5] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libtremor.a(codebook.o)
+[  6] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libtremor.a(floor0.o)
+[  7] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libtremor.a(floor1.o)
+[  8] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libtremor.a(framing.o)
+[  9] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libtremor.a(info.o)
+[ 10] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libtremor.a(mapping0.o)
+[ 11] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libtremor.a(registry.o)
+[ 12] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libtremor.a(res012.o)
+[ 13] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libtremor.a(sharedbook.o)
+[ 14] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libtremor.a(synthesis.o)
+[ 15] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libtremor.a(vorbisfile.o)
+[ 16] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libtremor.a(window.o)
+[ 17] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libtremor.a(oggmalloc.o)
+[ 18] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/libtlsf.a(tlsf.o)
+[ 19] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+[ 20] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libcodec.a(mdct_lookup.o)
+[ 21] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libcodec.a(fft-ffmpeg.o)
+[ 22] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libcodec.a(mdct.o)
+[ 23] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/libSystem.tbd
+[ 24] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/system/libsystem_c.tbd
+# Sections:
+# Address	Size    	Segment	Section
+0x00000730	0x0000A568	__TEXT	__text
+0x0000AC98	0x00000018	__TEXT	__stubs
+0x0000ACB0	0x00000104	__TEXT	__cstring
+0x0000ADB8	0x0000D6B4	__TEXT	__const
+0x00018470	0x00003028	__TEXT	__eh_frame
+0x0001C000	0x00000010	__DATA_CONST	__got
+0x0001C010	0x00000198	__DATA_CONST	__const
+0x00020000	0x00000008	__DATA	.data
+0x00020008	0x00000030	__DATA	__data
+0x00020038	0x00000058	__DATA	__bss
+# Symbols:
+# Address	Size    	File  Name
+0x00000730	0x0000001C	[  1] _read_handler
+0x0000074C	0x00000008	[  1] _initial_seek_handler
+0x00000754	0x0000004C	[  1] _seek_handler
+0x000007A0	0x00000008	[  1] _close_handler
+0x000007A8	0x00000014	[  1] _tell_handler
+0x000007BC	0x00000330	[  1] _codec_run
+0x00000AEC	0x0000004C	[  1] _codec_main
+0x00000B38	0x00000008	[  2] __start
+0x00000B40	0x00000004	[  2] _codec_start
+0x00000B44	0x00000044	[  3] _oggpack_readinit
+0x00000B88	0x0000011C	[  3] _oggpack_read
+0x00000CA4	0x00000090	[  4] _ff_vector_fmul_window_c
+0x00000D34	0x0000003C	[  4] _vorbis_block_init
+0x00000D70	0x00000084	[  4] __vorbis_block_alloc
+0x00000DF4	0x00000084	[  4] __vorbis_block_ripcord
+0x00000E78	0x00000040	[  4] _vorbis_block_clear
+0x00000EB8	0x0000003C	[  4] _vorbis_synthesis_restart
+0x00000EF4	0x000000EC	[  4] _vorbis_dsp_clear
+0x00000FE0	0x00000320	[  4] _vorbis_synthesis_init
+0x00001300	0x00000380	[  4] _vorbis_synthesis_blockin
+0x00001680	0x00000060	[  4] _vorbis_synthesis_pcmout
+0x000016E0	0x0000002C	[  4] _vorbis_synthesis_read
+0x0000170C	0x000000E8	[  5] _oggpack_look
+0x000017F4	0x00000054	[  5] _oggpack_adv
+0x00001848	0x00000064	[  5] _bisect_codelist
+0x000018AC	0x000000E4	[  5] _decode_packed_entry_number
+0x00001990	0x000001A0	[  5] _decode_packed_block
+0x00001B30	0x000003B4	[  5] _vorbis_staticbook_unpack
+0x00001EE4	0x00000040	[  5] _vorbis_book_decode
+0x00001F24	0x000001B4	[  5] _vorbis_book_decodevs_add
+0x000020D8	0x00000130	[  5] _vorbis_book_decodev_add
+0x00002208	0x00000148	[  5] _vorbis_book_decodev_set
+0x00002350	0x00000444	[  5] _vorbis_book_decodevv_add
+0x00002794	0x00000068	[  6] _toBARK
+0x000027FC	0x0000015C	[  6] _floor0_inverse1
+0x00002958	0x00000050	[  6] _floor0_free_look
+0x000029A8	0x00000164	[  6] _floor0_look
+0x00002B0C	0x00000034	[  6] _floor0_free_info
+0x00002B40	0x00000130	[  6] _floor0_unpack
+0x00002C70	0x0000047C	[  6] _vorbis_lsp_to_curve.isra.0
+0x000030EC	0x00000054	[  6] _floor0_inverse2
+0x00003140	0x00000018	[  7] _icomp
+0x00003158	0x00000290	[  7] _floor1_inverse1
+0x000033E8	0x0000000C	[  7] _floor1_free_info
+0x000033F4	0x00000004	[  7] _floor1_free_look
+0x000033F8	0x000001BC	[  7] _floor1_look
+0x000035B4	0x0000028C	[  7] _floor1_unpack
+0x00003840	0x00000298	[  7] _floor1_inverse2
+0x00003AD8	0x0000001C	[  8] _ogg_stream_check
+0x00003AF4	0x000000EC	[  8] __packetout
+0x00003BE0	0x00000010	[  8] _ogg_page_continued
+0x00003BF0	0x00000010	[  8] _ogg_page_bos
+0x00003C00	0x00000010	[  8] _ogg_page_eos
+0x00003C10	0x0000000C	[  8] _ogg_page_granulepos
+0x00003C1C	0x0000000C	[  8] _ogg_page_serialno
+0x00003C28	0x00000060	[  8] _ogg_stream_clear
+0x00003C88	0x0000009C	[  8] _ogg_stream_init
+0x00003D24	0x00000070	[  8] __os_body_expand
+0x00003D94	0x00000034	[  8] _ogg_sync_init
+0x00003DC8	0x00000048	[  8] _ogg_sync_clear
+0x00003E10	0x000000BC	[  8] _ogg_sync_buffer
+0x00003ECC	0x00000030	[  8] _ogg_sync_wrote
+0x00003EFC	0x000001F0	[  8] _ogg_sync_pageseek
+0x000040EC	0x00000348	[  8] _ogg_stream_pagein
+0x00004434	0x00000020	[  8] _ogg_sync_reset
+0x00004454	0x0000003C	[  8] _ogg_stream_reset
+0x00004490	0x0000003C	[  8] _ogg_stream_reset_serialno
+0x000044CC	0x00000030	[  8] _ogg_stream_packetout
+0x000044FC	0x00000030	[  8] _ogg_stream_packetpeek
+0x0000452C	0x0000001C	[  9] _vorbis_info_blocksize
+0x00004548	0x00000038	[  9] _vorbis_info_init
+0x00004580	0x0000017C	[  9] _vorbis_info_clear
+0x000046FC	0x000000B4	[  9] _vorbis_synthesis_idheader
+0x000047B0	0x000004C0	[  9] _vorbis_synthesis_headerin
+0x00004C70	0x0000035C	[ 10] _mapping0_inverse
+0x00004FCC	0x00000168	[ 10] _mapping0_look
+0x00005134	0x000000A8	[ 10] _mapping0_free_look
+0x000051DC	0x00000034	[ 10] _mapping0_free_info
+0x00005210	0x00000238	[ 10] _mapping0_unpack
+0x00005448	0x000001E0	[ 12] _res0_look
+0x00005628	0x000001EC	[ 12] _res2_inverse
+0x00005814	0x0000008C	[ 12] _res0_free_look
+0x000058A0	0x00000034	[ 12] _res0_free_info
+0x000058D4	0x000001E4	[ 12] _res0_unpack
+0x00005AB8	0x00000234	[ 12] __01inverse.isra.0
+0x00005CEC	0x0000005C	[ 12] _res1_inverse
+0x00005D48	0x0000005C	[ 12] _res0_inverse
+0x00005DA4	0x00000038	[ 13] __float32_unpack
+0x00005DDC	0x00000038	[ 13] _bitreverse
+0x00005E14	0x00000020	[ 13] _sort32a
+0x00005E34	0x000000A8	[ 13] _VFLOAT_ADD
+0x00005EDC	0x00000010	[ 13] __ilog
+0x00005EEC	0x00000074	[ 13] _VFLOAT_MULTI.constprop.0
+0x00005F60	0x00000088	[ 13] __book_maptype1_quantvals
+0x00005FE8	0x00000048	[ 13] _vorbis_staticbook_destroy
+0x00006030	0x00000064	[ 13] _vorbis_book_clear
+0x00006094	0x0000082C	[ 13] _vorbis_book_init_decode
+0x000068C0	0x000001B0	[ 14] __vorbis_synthesis1
+0x00006A70	0x00000008	[ 14] _vorbis_synthesis
+0x00006A78	0x00000008	[ 14] _vorbis_synthesis_trackonly
+0x00006A80	0x0000008C	[ 14] _vorbis_packet_blocksize
+0x00006B0C	0x00000034	[ 15] __decode_clear
+0x00006B40	0x000000EC	[ 15] __get_next_page
+0x00006C2C	0x000000E0	[ 15] __initial_pcmoffset
+0x00006D0C	0x00000060	[ 15] __seek_helper
+0x00006D6C	0x0000007C	[ 15] __make_decode_ready
+0x00006DE8	0x00000038	[ 15] __lookup_serialno
+0x00006E20	0x00000130	[ 15] __get_prev_page_serial
+0x00006F50	0x00000314	[ 15] __fetch_headers
+0x00007264	0x00000344	[ 15] __bisect_forward_serialno
+0x000075A8	0x00000280	[ 15] __fetch_and_process_packet.constprop.0
+0x00007828	0x000000E8	[ 15] _ov_clear
+0x00007910	0x00000094	[ 15] _ov_pcm_total
+0x000079A4	0x000000AC	[ 15] _ov_time_total
+0x00007A50	0x0000034C	[ 15] _ov_raw_seek
+0x00007D9C	0x00000300	[ 15] _ov_open_callbacks
+0x0000809C	0x00000070	[ 15] _rescale64
+0x0000810C	0x00000498	[ 15] _ov_pcm_seek_page
+0x000085A4	0x000002A4	[ 15] _ov_pcm_seek
+0x00008848	0x000000C8	[ 15] _ov_time_seek
+0x00008910	0x0000001C	[ 15] _ov_raw_tell
+0x0000892C	0x000000B8	[ 15] _ov_time_tell
+0x000089E4	0x0000005C	[ 15] _ov_info
+0x00008A40	0x000000CC	[ 15] _ov_read_fixed
+0x00008B0C	0x000000AC	[ 16] __vorbis_window
+0x00008BB8	0x00000034	[ 17] _ogg_malloc_init
+0x00008BEC	0x0000002C	[ 17] _ogg_malloc_destroy
+0x00008C18	0x00000044	[ 17] _ogg_malloc
+0x00008C5C	0x00000044	[ 17] _ogg_calloc
+0x00008CA0	0x00000044	[ 17] _ogg_realloc
+0x00008CE4	0x00000004	[ 17] _ogg_free
+0x00008CE8	0x00000050	[ 18] _ls_bit
+0x00008D38	0x00000048	[ 18] _ms_bit
+0x00008D80	0x00000020	[ 18] _set_bit
+0x00008DA0	0x00000020	[ 18] _clear_bit
+0x00008DC0	0x0000008C	[ 18] _FIND_SUITABLE_BLOCK
+0x00008E4C	0x0000004C	[ 18] _process_area
+0x00008E98	0x00000058	[ 18] _MAPPING_INSERT
+0x00008EF0	0x00000004	[ 18] _panicf
+0x00008EF4	0x00000008	[ 18] _get_new_area
+0x00008EFC	0x00000008	[ 18] _get_used_size
+0x00008F04	0x00000008	[ 18] _get_max_size
+0x00008F0C	0x00000008	[ 18] _destroy_memory_pool
+0x00008F14	0x00000248	[ 18] _free_ex
+0x0000915C	0x000000C4	[ 18] _init_memory_pool
+0x00009220	0x0000016C	[ 18] _add_new_area
+0x0000938C	0x000002CC	[ 18] _malloc_ex
+0x00009658	0x0000006C	[ 18] _tlsf_malloc
+0x000096C4	0x0000000C	[ 18] _tlsf_free
+0x000096D0	0x00000368	[ 18] _realloc_ex
+0x00009A38	0x00000018	[ 18] _tlsf_realloc
+0x00009A50	0x0000005C	[ 18] _calloc_ex
+0x00009AAC	0x0000000C	[ 18] _tlsf_calloc
+0x00009AB8	0x00000040	[ 19] _codec_init
+0x00009AF8	0x00000048	[ 19] _codec_set_replaygain
+0x00009B40	0x00000048	[ 19] _codec_malloc
+0x00009B88	0x0000004C	[ 19] _codec_calloc
+0x00009BD4	0x00000004	[ 19] _codec_free
+0x00009BD8	0x00000054	[ 19] _codec_realloc
+0x00009C2C	0x00000018	[ 19] _codec_strlen
+0x00009C44	0x00000018	[ 19] _strcpy
+0x00009C5C	0x00000018	[ 19] _strcat
+0x00009C74	0x00000018	[ 19] _strcmp
+0x00009C8C	0x00000018	[ 19] _memcpy
+0x00009CA4	0x00000018	[ 19] _memset
+0x00009CBC	0x00000018	[ 19] _memcmp
+0x00009CD4	0x00000018	[ 19] _memchr
+0x00009CEC	0x00000018	[ 19] _memmove
+0x00009D04	0x00000018	[ 19] _qsort
+0x00009D1C	0x00000118	[ 21] _TRANSFORM_W01
+0x00009E34	0x00000118	[ 21] _TRANSFORM_W10
+0x00009F4C	0x000000AC	[ 21] _TRANSFORM_ZERO
+0x00009FF8	0x00000070	[ 21] _fft4
+0x0000A068	0x00000004	[ 21] _fft4_dispatch
+0x0000A06C	0x000000A4	[ 21] _pass
+0x0000A110	0x000000C8	[ 21] _TRANSFORM.constprop.0.isra.0
+0x0000A1D8	0x00000104	[ 21] _TRANSFORM_EQUAL.isra.0
+0x0000A2DC	0x000000A8	[ 21] _fft8
+0x0000A384	0x00000004	[ 21] _fft8_dispatch
+0x0000A388	0x0000006C	[ 21] _fft16
+0x0000A3F4	0x0000003C	[ 21] _fft32
+0x0000A430	0x0000003C	[ 21] _fft64
+0x0000A46C	0x0000003C	[ 21] _fft128
+0x0000A4A8	0x0000003C	[ 21] _fft256
+0x0000A4E4	0x0000003C	[ 21] _fft512
+0x0000A520	0x00000040	[ 21] _fft1024
+0x0000A560	0x0000003C	[ 21] _fft2048
+0x0000A59C	0x0000003C	[ 21] _fft4096
+0x0000A5D8	0x0000001C	[ 21] _ff_fft_calc_c
+0x0000A5F4	0x00000558	[ 22] _ff_imdct_half
+0x0000AB4C	0x0000014C	[ 22] _ff_imdct_calc
+0x0000AC98	0x0000000C	[ 24] _abs.stub
+0x0000ACA4	0x0000000C	[ 24] _labs.stub
+0x0000ACB0	0x0000001C	[  1] literal string: Vorbis: ov_open failed: %d\n
+0x0000ACCC	0x0000001E	[  1] literal string: Vorbis: Error decoding frame\n
+0x0000ACEA	0x00000005	[  8] literal string: OggS
+0x0000ACEF	0x00000007	[  9] literal string: vorbis
+0x0000ACF6	0x0000001C	[ 17] literal string: Vorbis: allocation failed!\n
+0x0000AD12	0x00000016	[ 18] literal string: * Heap Corruption: %s
+0x0000AD28	0x00000021	[ 18] literal string: free_ex(): Freeing unused block\n
+0x0000AD49	0x0000001D	[ 18] literal string: free_ex(): Mismatched flags\n
+0x0000AD66	0x0000001E	[ 18] literal string: free_ex(): uncoalesced block\n
+0x0000AD84	0x00000030	[ 18] literal string: malloc_ex(): Mismatched flags after allocation\n
+0x0000ADB8	0x00000108	[  3] _mask
+0x0000AEC0	0x00000008	[  6] _MLOOP_3
+0x0000AEC8	0x00000040	[  6] _MLOOP_2
+0x0000AF08	0x00000040	[  6] _MLOOP_1
+0x0000AF48	0x00000070	[  6] _barklook
+0x0000AFB8	0x00000010	[  6] _ADJUST_SQRT2
+0x0000AFC8	0x00000208	[  6] _COS_LOOKUP_I
+0x0000B1D0	0x00000200	[  6] _INVSQ_LOOKUP_IDel
+0x0000B3D0	0x00000208	[  6] _INVSQ_LOOKUP_I
+0x0000B5D8	0x00000080	[  6] _FROMdB2_LOOKUP
+0x0000B658	0x0000008C	[  6] _FROMdB_LOOKUP
+0x0000B6E4	0x00000400	[  7] _FLOOR_fromdB_LOOKUP
+0x0000BAE4	0x00000400	[  8] _crc_lookup
+0x0000BEE4	0x00004000	[ 16] _vwin8192
+0x0000FEE4	0x00002000	[ 16] _vwin4096
+0x00011EE4	0x00001000	[ 16] _vwin2048
+0x00012EE4	0x00000800	[ 16] _vwin1024
+0x000136E4	0x00000400	[ 16] _vwin512
+0x00013AE4	0x00000200	[ 16] _vwin256
+0x00013CE4	0x00000100	[ 16] _vwin128
+0x00013DE4	0x00000080	[ 16] _vwin64
+0x00013E64	0x00000400	[ 18] _table
+0x00014264	0x00000100	[ 19] _bs_clz_tab
+0x00014364	0x00000100	[ 19] _bs_log2_tab
+0x00014464	0x00002000	[ 20] _revtab
+0x00016464	0x00001000	[ 20] _sincos_lookup1
+0x00017464	0x00001008	[ 20] _sincos_lookup0
+0x00018470	0x00000018	[  1] CFI
+0x00018488	0x00000020	[  1] FDE for: _read_handler
+0x000184A8	0x00000020	[  1] FDE for: _initial_seek_handler
+0x000184C8	0x00000040	[  1] FDE for: _seek_handler
+0x00018508	0x00000020	[  1] FDE for: _close_handler
+0x00018528	0x00000020	[  1] FDE for: _tell_handler
+0x00018548	0x00000068	[  1] FDE for: _codec_run
+0x000185B0	0x00000048	[  1] FDE for: _codec_main
+0x000185F8	0x00000018	[  2] CFI
+0x00018610	0x00000020	[  2] FDE for: __start
+0x00018630	0x00000020	[  2] FDE for: _codec_start
+0x00018650	0x00000018	[  3] CFI
+0x00018668	0x00000048	[  3] FDE for: _oggpack_readinit
+0x000186B0	0x00000020	[  3] FDE for: _oggpack_read
+0x000186D0	0x00000018	[  4] CFI
+0x000186E8	0x00000020	[  4] FDE for: _ff_vector_fmul_window_c
+0x00018708	0x00000040	[  4] FDE for: _vorbis_block_init
+0x00018748	0x00000040	[  4] FDE for: __vorbis_block_alloc
+0x00018788	0x00000050	[  4] FDE for: __vorbis_block_ripcord
+0x000187D8	0x00000040	[  4] FDE for: _vorbis_block_clear
+0x00018818	0x00000020	[  4] FDE for: _vorbis_synthesis_restart
+0x00018838	0x00000068	[  4] FDE for: _vorbis_dsp_clear
+0x000188A0	0x00000060	[  4] FDE for: _vorbis_synthesis_init
+0x00018900	0x00000060	[  4] FDE for: _vorbis_synthesis_blockin
+0x00018960	0x00000020	[  4] FDE for: _vorbis_synthesis_pcmout
+0x00018980	0x00000020	[  4] FDE for: _vorbis_synthesis_read
+0x000189A0	0x00000018	[  5] CFI
+0x000189B8	0x00000020	[  5] FDE for: _oggpack_look
+0x000189D8	0x00000020	[  5] FDE for: _oggpack_adv
+0x000189F8	0x00000020	[  5] FDE for: _bisect_codelist
+0x00018A18	0x00000040	[  5] FDE for: _decode_packed_entry_number
+0x00018A58	0x00000070	[  5] FDE for: _decode_packed_block
+0x00018AC8	0x00000060	[  5] FDE for: _vorbis_staticbook_unpack
+0x00018B28	0x00000048	[  5] FDE for: _vorbis_book_decode
+0x00018B70	0x00000068	[  5] FDE for: _vorbis_book_decodevs_add
+0x00018BD8	0x00000048	[  5] FDE for: _vorbis_book_decodev_add
+0x00018C20	0x00000058	[  5] FDE for: _vorbis_book_decodev_set
+0x00018C78	0x00000060	[  5] FDE for: _vorbis_book_decodevv_add
+0x00018CD8	0x00000018	[  6] CFI
+0x00018CF0	0x00000020	[  6] FDE for: _toBARK
+0x00018D10	0x00000058	[  6] FDE for: _floor0_inverse1
+0x00018D68	0x00000040	[  6] FDE for: _floor0_free_look
+0x00018DA8	0x00000058	[  6] FDE for: _floor0_look
+0x00018E00	0x00000040	[  6] FDE for: _floor0_free_info
+0x00018E40	0x00000058	[  6] FDE for: _floor0_unpack
+0x00018E98	0x00000068	[  6] FDE for: _vorbis_lsp_to_curve.isra.0
+0x00018F00	0x00000040	[  6] FDE for: _floor0_inverse2
+0x00018F40	0x00000018	[  7] CFI
+0x00018F58	0x00000020	[  7] FDE for: _icomp
+0x00018F78	0x00000070	[  7] FDE for: _floor1_inverse1
+0x00018FE8	0x00000020	[  7] FDE for: _floor1_free_info
+0x00019008	0x00000020	[  7] FDE for: _floor1_free_look
+0x00019028	0x00000060	[  7] FDE for: _floor1_look
+0x00019088	0x00000078	[  7] FDE for: _floor1_unpack
+0x00019100	0x00000068	[  7] FDE for: _floor1_inverse2
+0x00019168	0x00000018	[  8] CFI
+0x00019180	0x00000020	[  8] FDE for: _ogg_stream_check
+0x000191A0	0x00000020	[  8] FDE for: __packetout
+0x000191C0	0x00000020	[  8] FDE for: _ogg_page_continued
+0x000191E0	0x00000020	[  8] FDE for: _ogg_page_bos
+0x00019200	0x00000020	[  8] FDE for: _ogg_page_eos
+0x00019220	0x00000020	[  8] FDE for: _ogg_page_granulepos
+0x00019240	0x00000020	[  8] FDE for: _ogg_page_serialno
+0x00019260	0x00000040	[  8] FDE for: _ogg_stream_clear
+0x000192A0	0x00000058	[  8] FDE for: _ogg_stream_init
+0x000192F8	0x00000048	[  8] FDE for: __os_body_expand
+0x00019340	0x00000038	[  8] FDE for: _ogg_sync_init
+0x00019378	0x00000040	[  8] FDE for: _ogg_sync_clear
+0x000193B8	0x00000050	[  8] FDE for: _ogg_sync_buffer
+0x00019408	0x00000020	[  8] FDE for: _ogg_sync_wrote
+0x00019428	0x00000058	[  8] FDE for: _ogg_sync_pageseek
+0x00019480	0x00000060	[  8] FDE for: _ogg_stream_pagein
+0x000194E0	0x00000020	[  8] FDE for: _ogg_sync_reset
+0x00019500	0x00000040	[  8] FDE for: _ogg_stream_reset
+0x00019540	0x00000040	[  8] FDE for: _ogg_stream_reset_serialno
+0x00019580	0x00000048	[  8] FDE for: _ogg_stream_packetout
+0x000195C8	0x00000048	[  8] FDE for: _ogg_stream_packetpeek
+0x00019610	0x00000018	[  9] CFI
+0x00019628	0x00000020	[  9] FDE for: _vorbis_info_blocksize
+0x00019648	0x00000040	[  9] FDE for: _vorbis_info_init
+0x00019688	0x00000058	[  9] FDE for: _vorbis_info_clear
+0x000196E0	0x00000060	[  9] FDE for: _vorbis_synthesis_idheader
+0x00019740	0x00000060	[  9] FDE for: _vorbis_synthesis_headerin
+0x000197A0	0x00000018	[ 10] CFI
+0x000197B8	0x00000070	[ 10] FDE for: _mapping0_inverse
+0x00019828	0x00000078	[ 10] FDE for: _mapping0_look
+0x000198A0	0x00000060	[ 10] FDE for: _mapping0_free_look
+0x00019900	0x00000040	[ 10] FDE for: _mapping0_free_info
+0x00019940	0x00000060	[ 10] FDE for: _mapping0_unpack
+0x000199A0	0x00000018	[ 12] CFI
+0x000199B8	0x00000078	[ 12] FDE for: _res0_look
+0x00019A30	0x00000060	[ 12] FDE for: _res2_inverse
+0x00019A90	0x00000050	[ 12] FDE for: _res0_free_look
+0x00019AE0	0x00000040	[ 12] FDE for: _res0_free_info
+0x00019B20	0x00000060	[ 12] FDE for: _res0_unpack
+0x00019B80	0x00000060	[ 12] FDE for: __01inverse.isra.0
+0x00019BE0	0x00000038	[ 12] FDE for: _res1_inverse
+0x00019C18	0x00000038	[ 12] FDE for: _res0_inverse
+0x00019C50	0x00000018	[ 13] CFI
+0x00019C68	0x00000020	[ 13] FDE for: __float32_unpack
+0x00019C88	0x00000020	[ 13] FDE for: _bitreverse
+0x00019CA8	0x00000020	[ 13] FDE for: _sort32a
+0x00019CC8	0x00000020	[ 13] FDE for: _VFLOAT_ADD
+0x00019CE8	0x00000020	[ 13] FDE for: __ilog
+0x00019D08	0x00000050	[ 13] FDE for: _VFLOAT_MULTI.constprop.0
+0x00019D58	0x00000040	[ 13] FDE for: __book_maptype1_quantvals
+0x00019D98	0x00000040	[ 13] FDE for: _vorbis_staticbook_destroy
+0x00019DD8	0x00000040	[ 13] FDE for: _vorbis_book_clear
+0x00019E18	0x00000070	[ 13] FDE for: _vorbis_book_init_decode
+0x00019E88	0x00000018	[ 14] CFI
+0x00019EA0	0x00000078	[ 14] FDE for: __vorbis_synthesis1
+0x00019F18	0x00000020	[ 14] FDE for: _vorbis_synthesis
+0x00019F38	0x00000020	[ 14] FDE for: _vorbis_synthesis_trackonly
+0x00019F58	0x00000048	[ 14] FDE for: _vorbis_packet_blocksize
+0x00019FA0	0x00000018	[ 15] CFI
+0x00019FB8	0x00000040	[ 15] FDE for: __decode_clear
+0x00019FF8	0x00000058	[ 15] FDE for: __get_next_page
+0x0001A050	0x00000068	[ 15] FDE for: __initial_pcmoffset
+0x0001A0B8	0x00000048	[ 15] FDE for: __seek_helper
+0x0001A100	0x00000048	[ 15] FDE for: __make_decode_ready
+0x0001A148	0x00000020	[ 15] FDE for: __lookup_serialno
+0x0001A168	0x00000070	[ 15] FDE for: __get_prev_page_serial
+0x0001A1D8	0x00000070	[ 15] FDE for: __fetch_headers
+0x0001A248	0x00000080	[ 15] FDE for: __bisect_forward_serialno
+0x0001A2C8	0x00000060	[ 15] FDE for: __fetch_and_process_packet.constprop.0
+0x0001A328	0x00000060	[ 15] FDE for: _ov_clear
+0x0001A388	0x00000050	[ 15] FDE for: _ov_pcm_total
+0x0001A3D8	0x00000050	[ 15] FDE for: _ov_time_total
+0x0001A428	0x00000068	[ 15] FDE for: _ov_raw_seek
+0x0001A490	0x00000070	[ 15] FDE for: _ov_open_callbacks
+0x0001A500	0x00000020	[ 15] FDE for: _rescale64
+0x0001A520	0x00000068	[ 15] FDE for: _ov_pcm_seek_page
+0x0001A588	0x00000068	[ 15] FDE for: _ov_pcm_seek
+0x0001A5F0	0x00000058	[ 15] FDE for: _ov_time_seek
+0x0001A648	0x00000020	[ 15] FDE for: _ov_raw_tell
+0x0001A668	0x00000048	[ 15] FDE for: _ov_time_tell
+0x0001A6B0	0x00000020	[ 15] FDE for: _ov_info
+0x0001A6D0	0x00000058	[ 15] FDE for: _ov_read_fixed
+0x0001A728	0x00000018	[ 16] CFI
+0x0001A740	0x00000020	[ 16] FDE for: __vorbis_window
+0x0001A760	0x00000018	[ 17] CFI
+0x0001A778	0x00000038	[ 17] FDE for: _ogg_malloc_init
+0x0001A7B0	0x00000038	[ 17] FDE for: _ogg_malloc_destroy
+0x0001A7E8	0x00000040	[ 17] FDE for: _ogg_malloc
+0x0001A828	0x00000040	[ 17] FDE for: _ogg_calloc
+0x0001A868	0x00000040	[ 17] FDE for: _ogg_realloc
+0x0001A8A8	0x00000020	[ 17] FDE for: _ogg_free
+0x0001A8C8	0x00000018	[ 18] CFI
+0x0001A8E0	0x00000020	[ 18] FDE for: _ls_bit
+0x0001A900	0x00000020	[ 18] FDE for: _ms_bit
+0x0001A920	0x00000020	[ 18] FDE for: _set_bit
+0x0001A940	0x00000020	[ 18] FDE for: _clear_bit
+0x0001A960	0x00000040	[ 18] FDE for: _FIND_SUITABLE_BLOCK
+0x0001A9A0	0x00000020	[ 18] FDE for: _process_area
+0x0001A9C0	0x00000038	[ 18] FDE for: _MAPPING_INSERT
+0x0001A9F8	0x00000020	[ 18] FDE for: _panicf
+0x0001AA18	0x00000020	[ 18] FDE for: _get_new_area
+0x0001AA38	0x00000020	[ 18] FDE for: _get_used_size
+0x0001AA58	0x00000020	[ 18] FDE for: _get_max_size
+0x0001AA78	0x00000020	[ 18] FDE for: _destroy_memory_pool
+0x0001AA98	0x00000040	[ 18] FDE for: _free_ex
+0x0001AAD8	0x00000050	[ 18] FDE for: _init_memory_pool
+0x0001AB28	0x00000048	[ 18] FDE for: _add_new_area
+0x0001AB70	0x00000060	[ 18] FDE for: _malloc_ex
+0x0001ABD0	0x00000058	[ 18] FDE for: _tlsf_malloc
+0x0001AC28	0x00000020	[ 18] FDE for: _tlsf_free
+0x0001AC48	0x00000068	[ 18] FDE for: _realloc_ex
+0x0001ACB0	0x00000020	[ 18] FDE for: _tlsf_realloc
+0x0001ACD0	0x00000048	[ 18] FDE for: _calloc_ex
+0x0001AD18	0x00000020	[ 18] FDE for: _tlsf_calloc
+0x0001AD38	0x00000018	[ 19] CFI
+0x0001AD50	0x00000038	[ 19] FDE for: _codec_init
+0x0001AD88	0x00000038	[ 19] FDE for: _codec_set_replaygain
+0x0001ADC0	0x00000020	[ 19] FDE for: _codec_malloc
+0x0001ADE0	0x00000040	[ 19] FDE for: _codec_calloc
+0x0001AE20	0x00000020	[ 19] FDE for: _codec_free
+0x0001AE40	0x00000040	[ 19] FDE for: _codec_realloc
+0x0001AE80	0x00000020	[ 19] FDE for: _codec_strlen
+0x0001AEA0	0x00000020	[ 19] FDE for: _strcpy
+0x0001AEC0	0x00000020	[ 19] FDE for: _strcat
+0x0001AEE0	0x00000020	[ 19] FDE for: _strcmp
+0x0001AF00	0x00000020	[ 19] FDE for: _memcpy
+0x0001AF20	0x00000020	[ 19] FDE for: _memset
+0x0001AF40	0x00000020	[ 19] FDE for: _memcmp
+0x0001AF60	0x00000020	[ 19] FDE for: _memchr
+0x0001AF80	0x00000020	[ 19] FDE for: _memmove
+0x0001AFA0	0x00000020	[ 19] FDE for: _qsort
+0x0001AFC0	0x00000018	[ 21] CFI
+0x0001AFD8	0x00000020	[ 21] FDE for: _TRANSFORM_W01
+0x0001AFF8	0x00000020	[ 21] FDE for: _TRANSFORM_W10
+0x0001B018	0x00000020	[ 21] FDE for: _TRANSFORM_ZERO
+0x0001B038	0x00000020	[ 21] FDE for: _fft4
+0x0001B058	0x00000020	[ 21] FDE for: _fft4_dispatch
+0x0001B078	0x00000060	[ 21] FDE for: _pass
+0x0001B0D8	0x00000020	[ 21] FDE for: _TRANSFORM.constprop.0.isra.0
+0x0001B0F8	0x00000020	[ 21] FDE for: _TRANSFORM_EQUAL.isra.0
+0x0001B118	0x00000038	[ 21] FDE for: _fft8
+0x0001B150	0x00000020	[ 21] FDE for: _fft8_dispatch
+0x0001B170	0x00000038	[ 21] FDE for: _fft16
+0x0001B1A8	0x00000040	[ 21] FDE for: _fft32
+0x0001B1E8	0x00000040	[ 21] FDE for: _fft64
+0x0001B228	0x00000040	[ 21] FDE for: _fft128
+0x0001B268	0x00000040	[ 21] FDE for: _fft256
+0x0001B2A8	0x00000040	[ 21] FDE for: _fft512
+0x0001B2E8	0x00000040	[ 21] FDE for: _fft1024
+0x0001B328	0x00000040	[ 21] FDE for: _fft2048
+0x0001B368	0x00000040	[ 21] FDE for: _fft4096
+0x0001B3A8	0x00000020	[ 21] FDE for: _ff_fft_calc_c
+0x0001B3C8	0x00000018	[ 22] CFI
+0x0001B3E0	0x00000060	[ 22] FDE for: _ff_imdct_half
+0x0001B440	0x00000058	[ 22] FDE for: _ff_imdct_calc
+0x0001C000	0x00000008	[ 24] _abs.got
+0x0001C008	0x00000008	[ 24] _labs.got
+0x0001C010	0x00000040	[  1] ___header
+0x0001C050	0x00000030	[  6] _floor0_exportbundle
+0x0001C080	0x00000030	[  7] _floor1_exportbundle
+0x0001C0B0	0x00000028	[ 10] _mapping0_exportbundle
+0x0001C0D8	0x00000028	[ 12] _residue2_exportbundle
+0x0001C100	0x00000028	[ 12] _residue1_exportbundle
+0x0001C128	0x00000028	[ 12] _residue0_exportbundle
+0x0001C150	0x00000058	[ 21] _fft_dispatch
+0x00020000	0x00000008	[  2] _ci
+0x00020008	0x00000008	[ 11] __mapping_P
+0x00020010	0x00000018	[ 11] __residue_P
+0x00020028	0x00000010	[ 11] __floor_P
+0x00020038	0x00000018	[  4] _malloc_pointers
+0x00020050	0x00000010	[  4] __pcmret
+0x00020060	0x00000010	[  4] __pcmbp
+0x00020070	0x00000008	[ 18] _mp
+0x00020078	0x00000008	[ 19] _mallocbuf
+0x00020080	0x00000008	[ 19] _bufsize
+0x00020088	0x00000008	[ 19] _mem_ptr

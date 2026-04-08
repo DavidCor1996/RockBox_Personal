@@ -1,0 +1,212 @@
+# Path: /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/atrac3_rm.elf
+# Arch: arm64
+# Object files:
+[  0] linker synthesized
+[  1] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/atrac3_rm.o
+[  2] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/codec_crt0.o
+[  3] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libatrac.a(atrac3.o)
+[  4] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/librm.a(rm.o)
+[  5] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+[  6] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libcodec.a(ffmpeg_bitstream.o)
+[  7] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libcodec.a(mdct_lookup.o)
+[  8] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libcodec.a(fft-ffmpeg.o)
+[  9] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libcodec.a(mdct.o)
+[ 10] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/libSystem.tbd
+# Sections:
+# Address	Size    	Segment	Section
+0x00000640	0x0000414C	__TEXT	__text
+0x0000478C	0x00000075	__TEXT	__cstring
+0x00004808	0x00004818	__TEXT	__const
+0x00009020	0x00000E00	__TEXT	__eh_frame
+0x0000C000	0x00000108	__DATA_CONST	__const
+0x00010000	0x00000008	__DATA	.data
+0x00010008	0x00010BFF	__DATA	__bss
+# Symbols:
+# Address	Size    	File  Name
+0x00000640	0x0000009C	[  1] _request_packet
+0x000006DC	0x00000504	[  1] _codec_run
+0x00000BE0	0x00000008	[  1] _codec_main
+0x00000BE8	0x00000008	[  2] __start
+0x00000BF0	0x00000004	[  2] _codec_start
+0x00000BF4	0x0000004C	[  3] _get_bits
+0x00000C40	0x00000028	[  3] _get_bits1
+0x00000C68	0x0000002C	[  3] _init_get_bits
+0x00000C94	0x000003CC	[  3] _readQuantSpectralCoeffs
+0x00001060	0x00000298	[  3] _applyFixGain
+0x000012F8	0x00000330	[  3] _decodeSpectrum
+0x00001628	0x00000858	[  3] _decodeChannelSoundUnit
+0x00001E80	0x00000628	[  3] _iqmf
+0x000024A8	0x000005BC	[  3] _atrac3_decode_frame
+0x00002A64	0x00000330	[  3] _atrac3_decode_init
+0x00002D94	0x0000002C	[  4] _rm_ac3_swap_bytes
+0x00002DC0	0x000001C8	[  4] _rm_get_packet
+0x00002F88	0x00000040	[  5] _codec_init
+0x00002FC8	0x00000048	[  5] _codec_set_replaygain
+0x00003010	0x00000048	[  5] _codec_malloc
+0x00003058	0x0000004C	[  5] _codec_calloc
+0x000030A4	0x00000004	[  5] _codec_free
+0x000030A8	0x00000054	[  5] _codec_realloc
+0x000030FC	0x00000018	[  5] _codec_strlen
+0x00003114	0x00000018	[  5] _strcpy
+0x0000312C	0x00000018	[  5] _strcat
+0x00003144	0x00000018	[  5] _strcmp
+0x0000315C	0x00000018	[  5] _memcpy
+0x00003174	0x00000018	[  5] _memset
+0x0000318C	0x00000018	[  5] _memcmp
+0x000031A4	0x00000018	[  5] _memchr
+0x000031BC	0x00000018	[  5] _memmove
+0x000031D4	0x00000018	[  5] _qsort
+0x000031EC	0x00000014	[  6] _compare_vlcspec
+0x00003200	0x000001CC	[  6] _build_table
+0x000033CC	0x00000088	[  6] _put_bits
+0x00003454	0x00000150	[  6] _ff_copy_bits
+0x000035A4	0x0000026C	[  6] _init_vlc_sparse
+0x00003810	0x00000118	[  8] _TRANSFORM_W01
+0x00003928	0x00000118	[  8] _TRANSFORM_W10
+0x00003A40	0x000000AC	[  8] _TRANSFORM_ZERO
+0x00003AEC	0x00000070	[  8] _fft4
+0x00003B5C	0x00000004	[  8] _fft4_dispatch
+0x00003B60	0x000000A4	[  8] _pass
+0x00003C04	0x000000C8	[  8] _TRANSFORM.constprop.0.isra.0
+0x00003CCC	0x00000104	[  8] _TRANSFORM_EQUAL.isra.0
+0x00003DD0	0x000000A8	[  8] _fft8
+0x00003E78	0x00000004	[  8] _fft8_dispatch
+0x00003E7C	0x0000006C	[  8] _fft16
+0x00003EE8	0x0000003C	[  8] _fft32
+0x00003F24	0x0000003C	[  8] _fft64
+0x00003F60	0x0000003C	[  8] _fft128
+0x00003F9C	0x0000003C	[  8] _fft256
+0x00003FD8	0x0000003C	[  8] _fft512
+0x00004014	0x00000040	[  8] _fft1024
+0x00004054	0x0000003C	[  8] _fft2048
+0x00004090	0x0000003C	[  8] _fft4096
+0x000040CC	0x0000001C	[  8] _ff_fft_calc_c
+0x000040E8	0x00000558	[  9] _ff_imdct_half
+0x00004640	0x0000014C	[  9] _ff_imdct_calc
+0x0000478C	0x00000013	[  1] literal string: codec init failed\n
+0x0000479F	0x00000027	[  1] literal string: failed to initialize RM atrac decoder\n
+0x000047C6	0x00000016	[  1] literal string: rm_get_packet failed\n
+0x000047DC	0x0000000D	[  1] literal string: codec error\n
+0x000047E9	0x00000018	[  4] literal string: parsing packets failed\n
+0x00004808	0x00000020	[  3] _channelWeights1
+0x00004828	0x00000020	[  3] _channelWeights0
+0x00004848	0x00000020	[  3] _matrixCoeffs_fix
+0x00004868	0x00000080	[  3] _gain_tab2
+0x000048E8	0x00000200	[  3] _window_lookup
+0x00004AE8	0x00000060	[  3] _qmf_48tap_half_fix
+0x00004B48	0x00000100	[  3] _SFTable_fixed
+0x00004C48	0x00000020	[  3] _iMaxQuant_fix
+0x00004C68	0x00000042	[  3] _subbandTab
+0x00004CAA	0x00000012	[  3] _decTable1
+0x00004CBC	0x00000004	[  3] _seTab_0
+0x00004CC0	0x00000008	[  3] _CLCLengthTab
+0x00004CC8	0x00000012	[  3] _atrac3_vlc_offs
+0x00004CDA	0x00000007	[  3] _huff_tab_sizes
+0x00004CE1	0x0000003F	[  3] _huffbits7
+0x00004D20	0x0000003F	[  3] _huffcode7
+0x00004D5F	0x0000001F	[  3] _huffbits6
+0x00004D7E	0x0000001F	[  3] _huffcode6
+0x00004D9D	0x0000000F	[  3] _huffbits5
+0x00004DAC	0x0000000F	[  3] _huffcode5
+0x00004DBB	0x00000009	[  3] _huffbits4
+0x00004DC4	0x00000009	[  3] _huffcode4
+0x00004DCD	0x00000007	[  3] _huffbits3
+0x00004DD4	0x00000007	[  3] _huffcode3
+0x00004DDB	0x00000005	[  3] _huffbits2
+0x00004DE0	0x00000005	[  3] _huffcode2
+0x00004DE5	0x00000009	[  3] _huffbits1
+0x00004DEE	0x00000009	[  3] _huffcode1
+0x00004DF7	0x00000100	[  5] _bs_clz_tab
+0x00004EF7	0x00000100	[  5] _bs_log2_tab
+0x00004FF7	0x00000020	[  6] _ff_log2_run
+0x00005018	0x00002000	[  7] _revtab
+0x00007018	0x00001000	[  7] _sincos_lookup1
+0x00008018	0x00001008	[  7] _sincos_lookup0
+0x00009020	0x00000018	[  1] CFI
+0x00009038	0x00000058	[  1] FDE for: _request_packet
+0x00009090	0x00000068	[  1] FDE for: _codec_run
+0x000090F8	0x00000020	[  1] FDE for: _codec_main
+0x00009118	0x00000018	[  2] CFI
+0x00009130	0x00000020	[  2] FDE for: __start
+0x00009150	0x00000020	[  2] FDE for: _codec_start
+0x00009170	0x00000018	[  3] CFI
+0x00009188	0x00000020	[  3] FDE for: _get_bits
+0x000091A8	0x00000020	[  3] FDE for: _get_bits1
+0x000091C8	0x00000020	[  3] FDE for: _init_get_bits
+0x000091E8	0x00000050	[  3] FDE for: _readQuantSpectralCoeffs
+0x00009238	0x00000058	[  3] FDE for: _applyFixGain
+0x00009290	0x00000070	[  3] FDE for: _decodeSpectrum
+0x00009300	0x00000068	[  3] FDE for: _decodeChannelSoundUnit
+0x00009368	0x00000068	[  3] FDE for: _iqmf
+0x000093D0	0x00000068	[  3] FDE for: _atrac3_decode_frame
+0x00009438	0x00000070	[  3] FDE for: _atrac3_decode_init
+0x000094A8	0x00000018	[  4] CFI
+0x000094C0	0x00000020	[  4] FDE for: _rm_ac3_swap_bytes
+0x000094E0	0x00000040	[  4] FDE for: _rm_get_packet
+0x00009520	0x00000018	[  5] CFI
+0x00009538	0x00000038	[  5] FDE for: _codec_init
+0x00009570	0x00000038	[  5] FDE for: _codec_set_replaygain
+0x000095A8	0x00000020	[  5] FDE for: _codec_malloc
+0x000095C8	0x00000040	[  5] FDE for: _codec_calloc
+0x00009608	0x00000020	[  5] FDE for: _codec_free
+0x00009628	0x00000040	[  5] FDE for: _codec_realloc
+0x00009668	0x00000020	[  5] FDE for: _codec_strlen
+0x00009688	0x00000020	[  5] FDE for: _strcpy
+0x000096A8	0x00000020	[  5] FDE for: _strcat
+0x000096C8	0x00000020	[  5] FDE for: _strcmp
+0x000096E8	0x00000020	[  5] FDE for: _memcpy
+0x00009708	0x00000020	[  5] FDE for: _memset
+0x00009728	0x00000020	[  5] FDE for: _memcmp
+0x00009748	0x00000020	[  5] FDE for: _memchr
+0x00009768	0x00000020	[  5] FDE for: _memmove
+0x00009788	0x00000020	[  5] FDE for: _qsort
+0x000097A8	0x00000018	[  6] CFI
+0x000097C0	0x00000020	[  6] FDE for: _compare_vlcspec
+0x000097E0	0x00000070	[  6] FDE for: _build_table
+0x00009850	0x00000020	[  6] FDE for: _put_bits
+0x00009870	0x00000070	[  6] FDE for: _ff_copy_bits
+0x000098E0	0x00000068	[  6] FDE for: _init_vlc_sparse
+0x00009948	0x00000018	[  8] CFI
+0x00009960	0x00000020	[  8] FDE for: _TRANSFORM_W01
+0x00009980	0x00000020	[  8] FDE for: _TRANSFORM_W10
+0x000099A0	0x00000020	[  8] FDE for: _TRANSFORM_ZERO
+0x000099C0	0x00000020	[  8] FDE for: _fft4
+0x000099E0	0x00000020	[  8] FDE for: _fft4_dispatch
+0x00009A00	0x00000060	[  8] FDE for: _pass
+0x00009A60	0x00000020	[  8] FDE for: _TRANSFORM.constprop.0.isra.0
+0x00009A80	0x00000020	[  8] FDE for: _TRANSFORM_EQUAL.isra.0
+0x00009AA0	0x00000038	[  8] FDE for: _fft8
+0x00009AD8	0x00000020	[  8] FDE for: _fft8_dispatch
+0x00009AF8	0x00000038	[  8] FDE for: _fft16
+0x00009B30	0x00000040	[  8] FDE for: _fft32
+0x00009B70	0x00000040	[  8] FDE for: _fft64
+0x00009BB0	0x00000040	[  8] FDE for: _fft128
+0x00009BF0	0x00000040	[  8] FDE for: _fft256
+0x00009C30	0x00000040	[  8] FDE for: _fft512
+0x00009C70	0x00000040	[  8] FDE for: _fft1024
+0x00009CB0	0x00000040	[  8] FDE for: _fft2048
+0x00009CF0	0x00000040	[  8] FDE for: _fft4096
+0x00009D30	0x00000020	[  8] FDE for: _ff_fft_calc_c
+0x00009D50	0x00000018	[  9] CFI
+0x00009D68	0x00000060	[  9] FDE for: _ff_imdct_half
+0x00009DC8	0x00000058	[  9] FDE for: _ff_imdct_calc
+0x0000C000	0x00000040	[  1] ___header
+0x0000C040	0x00000038	[  3] _huff_bits
+0x0000C078	0x00000038	[  3] _huff_codes
+0x0000C0B0	0x00000058	[  8] _fft_dispatch
+0x00010000	0x00000008	[  2] _ci
+0x00010008	0x00003558	[  1] _q
+0x00013560	0x00000330	[  1] _pkt
+0x00013890	0x0000007C	[  1] _rmctx
+0x00013910	0x00000004	[  3] _vlcs_initialized
+0x00013914	0x00004004	[  3] _atrac3_vlc_table
+0x00017918	0x00001CE0	[  3] _channel_units
+0x000195F8	0x00002000	[  3] _atrac3_prevFrame
+0x0001B5F8	0x00001000	[  3] _atrac3_IMDCT_buf
+0x0001C5F8	0x00002000	[  3] _atrac3_spectrum
+0x0001E5F8	0x000000C0	[  3] _qmf_window
+0x0001E6B8	0x000000A8	[  3] _spectral_coeff_tab
+0x0001E760	0x00000008	[  5] _mallocbuf
+0x0001E768	0x00000008	[  5] _bufsize
+0x0001E770	0x00000008	[  5] _mem_ptr
+0x0001E778	0x0000248F	[  6] _buf

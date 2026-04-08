@@ -1,0 +1,904 @@
+# Path: /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/frotz/frotz.elf
+# Arch: arm64
+# Object files:
+[  0] linker synthesized
+[  1] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/frotz/frotz.o
+[  2] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/frotz/buffer.o
+[  3] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/frotz/err.o
+[  4] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/frotz/fastmem.o
+[  5] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/frotz/files.o
+[  6] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/frotz/hotkey.o
+[  7] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/frotz/input.o
+[  8] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/frotz/main.o
+[  9] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/frotz/math.o
+[ 10] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/frotz/object.o
+[ 11] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/frotz/process.o
+[ 12] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/frotz/quetzal.o
+[ 13] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/frotz/random.o
+[ 14] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/frotz/redirect.o
+[ 15] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/frotz/screen.o
+[ 16] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/frotz/sound.o
+[ 17] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/frotz/stream.o
+[ 18] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/frotz/table.o
+[ 19] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/frotz/text.o
+[ 20] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/frotz/variable.o
+[ 21] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/frotz/dumb_init.o
+[ 22] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/frotz/dumb_output.o
+[ 23] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/plugin_crt0.o
+[ 24] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(gcc-support.o)
+[ 25] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(pluginlib_actions.o)
+[ 26] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/libSystem.tbd
+[ 27] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/system/libsystem_platform.tbd
+# Sections:
+# Address	Size    	Segment	Section
+0x00000780	0x0000B1B0	__TEXT	__text
+0x0000B930	0x00000018	__TEXT	__stubs
+0x0000B948	0x00000935	__TEXT	__cstring
+0x0000C280	0x000002D8	__TEXT	__const
+0x0000C558	0x000047B8	__TEXT	__eh_frame
+0x00014000	0x00000010	__DATA_CONST	__got
+0x00014010	0x00000168	__DATA_CONST	__const
+0x00018000	0x00000473	__DATA	__data
+0x00018478	0x00000008	__DATA	.data
+0x00018480	0x000012E8	__DATA	__bss
+0x00019768	0x00000D04	__DATA	__common
+# Symbols:
+# Address	Size    	File  Name
+0x00000780	0x000000B8	[  1] _atexit_cleanup
+0x00000838	0x000001A0	[  1] _plugin_start
+0x000009D8	0x00000060	[  1] _menu
+0x00000A38	0x00000050	[  1] _wait_for_key
+0x00000A88	0x00000104	[  1] _do_input
+0x00000B8C	0x000000AC	[  1] _os_read_key
+0x00000C38	0x000000FC	[  1] _os_read_line
+0x00000D34	0x00000084	[  1] _read_yes_or_no
+0x00000DB8	0x00000008	[  1] _os_read_mouse
+0x00000DC0	0x00000028	[  1] _os_read_file_name
+0x00000DE8	0x00000054	[  1] _os_beep
+0x00000E3C	0x00000014	[  1] _frotz_ungetc
+0x00000E50	0x0000005C	[  1] _frotz_fgetc
+0x00000EAC	0x00000044	[  1] _frotz_fputc
+0x00000EF0	0x00000058	[  2] _flush_buffer
+0x00000F48	0x00000014	[  2] _new_line
+0x00000F5C	0x00000114	[  2] _print_char
+0x00001070	0x00000034	[  2] _init_buffer
+0x000010A4	0x0000008C	[  3] _print_long
+0x00001130	0x00000020	[  3] _init_err
+0x00001150	0x00000138	[  3] _runtime_error
+0x00001288	0x00000088	[  4] _free_undo
+0x00001310	0x000000DC	[  4] _get_default_name
+0x000013EC	0x0000005C	[  4] _get_header_extension
+0x00001448	0x0000004C	[  4] _set_header_extension
+0x00001494	0x000004E8	[  4] _init_memory
+0x0000197C	0x00000080	[  4] _init_undo
+0x000019FC	0x00000074	[  4] _reset_memory
+0x00001A70	0x00000090	[  4] _storeb
+0x00001B00	0x00000180	[  4] _restart_header
+0x00001C80	0x00000038	[  4] _storew
+0x00001CB8	0x00000128	[  4] _z_restart
+0x00001DE0	0x00000214	[  4] _z_restore
+0x00001FF4	0x00000174	[  4] _restore_undo
+0x00002168	0x00000018	[  4] _z_restore_undo
+0x00002180	0x000001BC	[  4] _z_save
+0x0000233C	0x000002F0	[  4] _save_undo
+0x0000262C	0x00000018	[  4] _z_save_undo
+0x00002644	0x00000090	[  4] _z_verify
+0x000026D4	0x0000009C	[  5] _record_code
+0x00002770	0x00000088	[  5] _record_char
+0x000027F8	0x00000070	[  5] _replay_code
+0x00002868	0x00000098	[  5] _replay_char
+0x00002900	0x0000012C	[  5] _script_open
+0x00002A2C	0x00000070	[  5] _script_close
+0x00002A9C	0x00000034	[  5] _script_new_line
+0x00002AD0	0x00000064	[  5] _script_char
+0x00002B34	0x00000100	[  5] _script_word
+0x00002C34	0x00000094	[  5] _script_write_input
+0x00002CC8	0x00000064	[  5] _script_erase_input
+0x00002D2C	0x0000002C	[  5] _script_mssg_on
+0x00002D58	0x00000004	[  5] _script_mssg_off
+0x00002D5C	0x000000A8	[  5] _record_open
+0x00002E04	0x00000048	[  5] _record_close
+0x00002E4C	0x00000034	[  5] _record_write_key
+0x00002E80	0x00000060	[  5] _record_write_input
+0x00002EE0	0x000000A8	[  5] _replay_open
+0x00002F88	0x00000050	[  5] _replay_close
+0x00002FD8	0x00000040	[  5] _replay_read_key
+0x00003018	0x0000006C	[  5] _replay_read_input
+0x00003084	0x0000002C	[  6] _hot_key_quit
+0x000030B0	0x00000210	[  6] _handle_hot_key
+0x000032C0	0x000000A4	[  7] _is_terminator
+0x00003364	0x00000008	[  7] _z_make_menu
+0x0000336C	0x00000048	[  7] _read_string
+0x000033B4	0x00000054	[  7] _read_number
+0x00003408	0x00000224	[  7] _z_read
+0x0000362C	0x00000054	[  7] _z_read_char
+0x00003680	0x000000A0	[  7] _z_read_mouse
+0x00003720	0x00000018	[  8] _z_piracy
+0x00003738	0x00000050	[  8] _frotz_main
+0x00003788	0x0000001C	[  9] _z_add
+0x000037A4	0x0000001C	[  9] _z_and
+0x000037C0	0x00000034	[  9] _z_art_shift
+0x000037F4	0x00000040	[  9] _z_div
+0x00003834	0x00000068	[  9] _z_je
+0x0000389C	0x0000001C	[  9] _z_jg
+0x000038B8	0x0000001C	[  9] _z_jl
+0x000038D4	0x00000018	[  9] _z_jz
+0x000038EC	0x00000034	[  9] _z_log_shift
+0x00003920	0x00000044	[  9] _z_mod
+0x00003964	0x0000001C	[  9] _z_mul
+0x00003980	0x00000018	[  9] _z_not
+0x00003998	0x0000001C	[  9] _z_or
+0x000039B4	0x0000001C	[  9] _z_sub
+0x000039D0	0x0000001C	[  9] _z_test
+0x000039EC	0x00000060	[ 10] _next_property
+0x00003A4C	0x000000B0	[ 10] _object_address
+0x00003AFC	0x0000016C	[ 10] _unlink_object.part.0
+0x00003C68	0x00000060	[ 10] _object_name
+0x00003CC8	0x00000034	[ 10] _first_property
+0x00003CFC	0x000000F8	[ 10] _z_clear_attr
+0x00003DF4	0x000000E0	[ 10] _z_jin
+0x00003ED4	0x000000D0	[ 10] _z_get_child
+0x00003FA4	0x000000AC	[ 10] _z_get_next_prop
+0x00004050	0x000000B8	[ 10] _z_get_parent
+0x00004108	0x00000100	[ 10] _z_get_prop
+0x00004208	0x000000C0	[ 10] _z_get_prop_addr
+0x000042C8	0x00000060	[ 10] _z_get_prop_len
+0x00004328	0x000000A0	[ 10] _z_get_sibling
+0x000043C8	0x0000017C	[ 10] _z_insert_obj
+0x00004544	0x00000104	[ 10] _z_put_prop
+0x00004648	0x00000064	[ 10] _z_remove_obj
+0x000046AC	0x000000F8	[ 10] _z_set_attr
+0x000047A4	0x000000DC	[ 10] _z_test_attr
+0x00004880	0x000000D4	[ 11] _load_operand
+0x00004954	0x00000050	[ 11] _load_all_operands
+0x000049A4	0x00000058	[ 11] ___extended__
+0x000049FC	0x00000004	[ 11] _z_nop
+0x00004A00	0x00000010	[ 11] _z_quit
+0x00004A10	0x00000008	[ 11] ___illegal__
+0x00004A18	0x00000074	[ 11] _z_jump
+0x00004A8C	0x0000000C	[ 11] _init_process
+0x00004A98	0x00000108	[ 11] _interpret
+0x00004BA0	0x00000250	[ 11] _call
+0x00004DF0	0x0000002C	[ 11] _z_call_n
+0x00004E1C	0x00000094	[ 11] _store
+0x00004EB0	0x0000010C	[ 11] _ret
+0x00004FBC	0x00000074	[ 11] _branch
+0x00005030	0x00000044	[ 11] _z_check_arg_count
+0x00005074	0x000000F0	[ 11] _z_throw
+0x00005164	0x0000000C	[ 11] _z_ret
+0x00005170	0x0000001C	[ 11] _z_ret_popped
+0x0000518C	0x00000008	[ 11] _z_rfalse
+0x00005194	0x00000008	[ 11] _z_rtrue
+0x0000519C	0x00000040	[ 11] _z_catch
+0x000051DC	0x0000002C	[ 11] _z_call_s
+0x00005208	0x0000009C	[ 11] _direct_call
+0x000052A4	0x000000A4	[ 12] _read_long
+0x00005348	0x0000005C	[ 12] _read_word
+0x000053A4	0x00000814	[ 12] _restore_quetzal
+0x00005BB8	0x000009F0	[ 12] _save_quetzal
+0x000065A8	0x00000060	[ 13] _seed_random
+0x00006608	0x00000094	[ 13] _z_random
+0x0000669C	0x000000B8	[ 14] _memory_open
+0x00006754	0x000000C0	[ 14] _memory_new_line
+0x00006814	0x00000144	[ 14] _memory_word
+0x00006958	0x000000B8	[ 14] _memory_close
+0x00006A10	0x00000024	[ 15] _units_left
+0x00006A34	0x000000B0	[ 15] _update_attributes
+0x00006AE4	0x00000074	[ 15] _winarg0
+0x00006B58	0x00000078	[ 15] _winarg2
+0x00006BD0	0x0000002C	[ 15] _update_cursor
+0x00006BFC	0x00000078	[ 15] _reset_cursor
+0x00006C74	0x0000002C	[ 15] _countdown
+0x00006CA0	0x00000024	[ 15] _set_more_prompts
+0x00006CC4	0x00000070	[ 15] _get_max_width
+0x00006D34	0x000001D4	[ 15] _screen_new_line
+0x00006F08	0x000000B8	[ 15] _screen_char
+0x00006FC0	0x00000050	[ 15] _pad_status_line
+0x00007010	0x00000128	[ 15] _screen_word
+0x00007138	0x0000007C	[ 15] _screen_write_input
+0x000071B4	0x00000080	[ 15] _screen_erase_input
+0x00007234	0x00000134	[ 15] _console_read_input
+0x00007368	0x00000048	[ 15] _console_read_key
+0x000073B0	0x000000B4	[ 15] _refresh_text_style
+0x00007464	0x000000D4	[ 15] _set_window
+0x00007538	0x00000118	[ 15] _erase_window
+0x00007650	0x0000012C	[ 15] _split_window
+0x0000777C	0x0000008C	[ 15] _erase_screen
+0x00007808	0x00000058	[ 15] _resize_screen
+0x00007860	0x00000174	[ 15] _restart_screen
+0x000079D4	0x00000174	[ 15] _validate_click
+0x00007B48	0x00000058	[ 15] _screen_mssg_on
+0x00007BA0	0x00000030	[ 15] _screen_mssg_off
+0x00007BD0	0x00000058	[ 15] _z_buffer_mode
+0x00007C28	0x0000019C	[ 15] _z_draw_picture
+0x00007DC4	0x0000008C	[ 15] _z_erase_line
+0x00007E50	0x0000009C	[ 15] _z_erase_picture
+0x00007EEC	0x00000038	[ 15] _z_erase_window
+0x00007F24	0x00000098	[ 15] _z_get_cursor
+0x00007FBC	0x00000050	[ 15] _z_get_wind_prop
+0x0000800C	0x0000004C	[ 15] _z_mouse_window
+0x00008058	0x00000058	[ 15] _z_move_window
+0x000080B0	0x00000110	[ 15] _z_picture_data
+0x000081C0	0x00000004	[ 15] _z_picture_table
+0x000081C4	0x000000F4	[ 15] _z_print_table
+0x000082B8	0x00000054	[ 15] _z_put_wind_prop
+0x0000830C	0x000000EC	[ 15] _z_scroll_window
+0x000083F8	0x0000019C	[ 15] _z_set_colour
+0x00008594	0x00000114	[ 15] _z_set_font
+0x000086A8	0x00000184	[ 15] _z_set_cursor
+0x0000882C	0x00000094	[ 15] _z_set_margins
+0x000088C0	0x0000005C	[ 15] _z_set_text_style
+0x0000891C	0x00000014	[ 15] _z_set_window
+0x00008930	0x0000020C	[ 15] _z_show_status
+0x00008B3C	0x00000010	[ 15] _z_split_window
+0x00008B4C	0x00000068	[ 15] _z_window_size
+0x00008BB4	0x00000104	[ 15] _z_window_style
+0x00008CB8	0x00000078	[ 16] _start_next_sample
+0x00008D30	0x00000014	[ 16] _init_sound
+0x00008D44	0x00000054	[ 16] _end_of_sound
+0x00008D98	0x00000178	[ 16] _z_sound_effect
+0x00008F10	0x0000005C	[ 17] _stream_mssg_on
+0x00008F6C	0x00000058	[ 17] _stream_mssg_off
+0x00008FC4	0x00000114	[ 17] _z_output_stream
+0x000090D8	0x00000060	[ 17] _stream_char
+0x00009138	0x000000A4	[ 17] _stream_word
+0x000091DC	0x00000094	[ 17] _stream_new_line
+0x00009270	0x00000068	[ 17] _z_input_stream
+0x000092D8	0x00000104	[ 17] _stream_read_key
+0x000093DC	0x00000190	[ 17] _stream_read_input
+0x0000956C	0x000000F8	[ 18] _z_copy_table
+0x00009664	0x0000002C	[ 18] _z_loadb
+0x00009690	0x00000044	[ 18] _z_loadw
+0x000096D4	0x000000B0	[ 18] _z_scan_table
+0x00009784	0x00000020	[ 18] _z_storeb
+0x000097A4	0x00000024	[ 18] _z_storew
+0x000097C8	0x000000E4	[ 19] _translate_from_zscii
+0x000098AC	0x000000A0	[ 19] _load_string
+0x0000994C	0x00000084	[ 19] _alphabet
+0x000099D0	0x00000370	[ 19] _decode_text
+0x00009D40	0x000000F4	[ 19] _translate_to_zscii
+0x00009E34	0x000001C0	[ 19] _encode_text
+0x00009FF4	0x00000174	[ 19] _lookup_text
+0x0000A168	0x000000F4	[ 19] _tokenise_text
+0x0000A25C	0x0000004C	[ 19] _z_check_unicode
+0x0000A2A8	0x00000074	[ 19] _z_encode_text
+0x0000A31C	0x00000004	[ 19] _z_new_line
+0x0000A320	0x0000000C	[ 19] _z_print
+0x0000A32C	0x00000014	[ 19] _z_print_addr
+0x0000A340	0x00000020	[ 19] _z_print_char
+0x0000A360	0x000000AC	[ 19] _z_print_form
+0x0000A40C	0x00000078	[ 19] _print_num
+0x0000A484	0x00000010	[ 19] _z_print_num
+0x0000A494	0x00000014	[ 19] _z_print_paddr
+0x0000A4A8	0x00000024	[ 19] _z_print_ret
+0x0000A4CC	0x00000044	[ 19] _print_string
+0x0000A510	0x00000080	[ 19] _print_object
+0x0000A590	0x00000010	[ 19] _z_print_obj
+0x0000A5A0	0x00000020	[ 19] _z_print_unicode
+0x0000A5C0	0x000001A0	[ 19] _tokenise_line
+0x0000A760	0x0000004C	[ 19] _z_tokenise
+0x0000A7AC	0x00000124	[ 19] _completion
+0x0000A8D0	0x000000A4	[ 20] _z_dec
+0x0000A974	0x000000A4	[ 20] _z_dec_chk
+0x0000AA18	0x000000A4	[ 20] _z_inc
+0x0000AABC	0x000000A4	[ 20] _z_inc_chk
+0x0000AB60	0x00000080	[ 20] _z_load
+0x0000ABE0	0x00000018	[ 20] _z_pop
+0x0000ABF8	0x0000006C	[ 20] _z_pop_stack
+0x0000AC64	0x00000150	[ 20] _z_pull
+0x0000ADB4	0x00000028	[ 20] _z_push
+0x0000ADDC	0x0000007C	[ 20] _z_push_stack
+0x0000AE58	0x00000080	[ 20] _z_store
+0x0000AED8	0x000000DC	[ 21] _os_init_screen
+0x0000AFB4	0x0000001C	[ 21] _os_random_seed
+0x0000AFD0	0x00000004	[ 21] _os_restart_game
+0x0000AFD4	0x0000002C	[ 21] _os_fatal
+0x0000B000	0x00000034	[ 21] _os_init_setup
+0x0000B034	0x00000020	[ 22] _dumb_row
+0x0000B054	0x00000084	[ 22] _dumb_display_char
+0x0000B0D8	0x00000008	[ 22] _os_char_width
+0x0000B0E0	0x00000038	[ 22] _os_string_width
+0x0000B118	0x00000034	[ 22] _os_set_cursor
+0x0000B14C	0x00000010	[ 22] _os_set_text_style
+0x0000B15C	0x00000060	[ 22] _os_display_char
+0x0000B1BC	0x00000088	[ 22] _os_display_string
+0x0000B244	0x000000D8	[ 22] _os_erase_area
+0x0000B31C	0x00000154	[ 22] _os_scroll_area
+0x0000B470	0x0000001C	[ 22] _os_font_data
+0x0000B48C	0x00000004	[ 22] _os_set_colour
+0x0000B490	0x00000004	[ 22] _os_set_font
+0x0000B494	0x0000010C	[ 22] _dumb_dump_screen
+0x0000B5A0	0x00000004	[ 22] _dumb_show_screen
+0x0000B5A4	0x00000074	[ 22] _os_more_prompt
+0x0000B618	0x00000028	[ 22] _os_reset_screen
+0x0000B640	0x00000004	[ 22] _os_prepare_sample
+0x0000B644	0x00000004	[ 22] _os_finish_with_sample
+0x0000B648	0x00000004	[ 22] _os_start_sample
+0x0000B64C	0x00000004	[ 22] _os_stop_sample
+0x0000B650	0x000000B0	[ 22] _dumb_init_output
+0x0000B700	0x00000010	[ 22] _os_picture_data
+0x0000B710	0x00000004	[ 22] _os_draw_picture
+0x0000B714	0x00000008	[ 22] _os_peek_colour
+0x0000B71C	0x00000018	[ 23] _cleanup_wrapper
+0x0000B734	0x00000068	[ 23] _plugin__start
+0x0000B79C	0x00000020	[ 23] _rb_atexit
+0x0000B7BC	0x00000024	[ 23] _exit
+0x0000B7E0	0x00000014	[ 23] __exit
+0x0000B7F4	0x00000064	[ 23] _exit_on_usb
+0x0000B858	0x00000018	[ 24] _memcpy
+0x0000B870	0x00000018	[ 24] _memset
+0x0000B888	0x00000018	[ 24] _memmove
+0x0000B8A0	0x00000018	[ 24] _memcmp
+0x0000B8B8	0x00000038	[ 25] _get_context_map
+0x0000B8F0	0x00000040	[ 25] _pluginlib_getaction
+0x0000B930	0x0000000C	[ 27] _longjmp.stub
+0x0000B93C	0x0000000C	[ 27] _setjmp.stub
+0x0000B948	0x00000005	[  1] literal string: .sav
+0x0000B94D	0x00000005	[  1] literal string: .aux
+0x0000B952	0x00000005	[  1] literal string: .scr
+0x0000B957	0x00000005	[  1] literal string: .rec
+0x0000B95C	0x00000002	[  1] literal string: ?
+0x0000B95E	0x00000005	[  1] literal string: HIGH
+0x0000B963	0x00000004	[  1] literal string: LOW
+0x0000B967	0x00000012	[  1] literal string: [%s-PITCHED BEEP]
+0x0000B979	0x00000006	[  1] literal string: Frotz
+0x0000B97F	0x00000007	[  1] literal string: Resume
+0x0000B986	0x00000005	[  1] literal string: Undo
+0x0000B98B	0x00000008	[  1] literal string: Restart
+0x0000B993	0x00000017	[  1] literal string: Toggle input recording
+0x0000B9AA	0x00000010	[  1] literal string: Play back input
+0x0000B9BA	0x0000000E	[  1] literal string: Debug options
+0x0000B9C8	0x00000005	[  1] literal string: Exit
+0x0000B9CD	0x0000000A	[  3] literal string: Warning: 
+0x0000B9D7	0x00000008	[  3] literal string:  (PC = 
+0x0000B9DF	0x00000023	[  3] literal string:  (will ignore further occurrences)
+0x0000BA02	0x0000000D	[  3] literal string:  (occurence 
+0x0000BA0F	0x00000015	[  3] literal string: Text buffer overflow
+0x0000BA24	0x0000001C	[  3] literal string: Store out of dynamic memory
+0x0000BA40	0x00000011	[  3] literal string: Division by zero
+0x0000BA51	0x0000000F	[  3] literal string: Illegal object
+0x0000BA60	0x00000012	[  3] literal string: Illegal attribute
+0x0000BA72	0x00000011	[  3] literal string: No such property
+0x0000BA83	0x0000000F	[  3] literal string: Stack overflow
+0x0000BA92	0x00000018	[  3] literal string: Call to illegal address
+0x0000BAAA	0x00000014	[  3] literal string: Call to non-routine
+0x0000BABE	0x00000010	[  3] literal string: Stack underflow
+0x0000BACE	0x0000000F	[  3] literal string: Illegal opcode
+0x0000BADD	0x00000010	[  3] literal string: Bad stack frame
+0x0000BAED	0x00000018	[  3] literal string: Jump to illegal address
+0x0000BB05	0x0000001E	[  3] literal string: Can't save while in interrupt
+0x0000BB23	0x0000001B	[  3] literal string: Nesting stream #3 too deep
+0x0000BB3E	0x0000000F	[  3] literal string: Illegal window
+0x0000BB4D	0x00000018	[  3] literal string: Illegal window property
+0x0000BB65	0x00000019	[  3] literal string: Print at illegal address
+0x0000BB7E	0x0000001A	[  3] literal string: @jin called with object 0
+0x0000BB98	0x00000020	[  3] literal string: @get_child called with object 0
+0x0000BBB8	0x00000021	[  3] literal string: @get_parent called with object 0
+0x0000BBD9	0x00000022	[  3] literal string: @get_sibling called with object 0
+0x0000BBFB	0x00000024	[  3] literal string: @get_prop_addr called with object 0
+0x0000BC1F	0x0000001F	[  3] literal string: @get_prop called with object 0
+0x0000BC3E	0x0000001F	[  3] literal string: @put_prop called with object 0
+0x0000BC5D	0x00000021	[  3] literal string: @clear_attr called with object 0
+0x0000BC7E	0x0000001F	[  3] literal string: @set_attr called with object 0
+0x0000BC9D	0x00000020	[  3] literal string: @test_attr called with object 0
+0x0000BCBD	0x00000024	[  3] literal string: @move_object called moving object 0
+0x0000BCE1	0x00000029	[  3] literal string: @move_object called moving into object 0
+0x0000BD0A	0x00000024	[  3] literal string: @remove_object called with object 0
+0x0000BD2E	0x00000024	[  3] literal string: @get_next_prop called with object 0
+0x0000BD52	0x00000005	[  4] literal string: .AUX
+0x0000BD57	0x00000017	[  4] literal string: Cannot open story file
+0x0000BD6E	0x00000016	[  4] literal string: Story file read error
+0x0000BD84	0x00000017	[  4] literal string: Unknown Z-code version
+0x0000BD9B	0x00000018	[  4] literal string: Byte swapped story file
+0x0000BDB3	0x0000000E	[  4] literal string: Out of memory
+0x0000BDC1	0x00000018	[  4] literal string: Error reading save file
+0x0000BDD9	0x00000019	[  4] literal string: Error writing save file\n
+0x0000BDF2	0x00000012	[  5] literal string: Cannot open file\n
+0x0000BE04	0x00000019	[  5] literal string: Do you want MORE prompts
+0x0000BE1D	0x00000014	[  6] literal string: Do you wish to quit
+0x0000BE31	0x0000000D	[  6] literal string: Playback off
+0x0000BE3E	0x0000000E	[  6] literal string: Recording off
+0x0000BE4C	0x0000000D	[  6] literal string: Recording on
+0x0000BE59	0x0000000C	[  6] literal string: Playback on
+0x0000BE65	0x0000002C	[  6] literal string: Enter seed value (or return to randomize): 
+0x0000BE91	0x00000006	[  6] literal string: undo\n
+0x0000BE97	0x0000001F	[  6] literal string: No undo information available.
+0x0000BEB6	0x00000017	[  6] literal string: Do you wish to restart
+0x0000BECD	0x0000001B	[  6] literal string: Watch attribute assignment
+0x0000BEE8	0x00000018	[  6] literal string: Watch attribute testing
+0x0000BF00	0x00000016	[  6] literal string: Watch object movement
+0x0000BF16	0x00000016	[  6] literal string: Watch object locating
+0x0000BF2C	0x00000024	[ 10] literal string: @Attempt to address illegal object 
+0x0000BF50	0x0000001B	[ 10] literal string: .  This is normally fatal.
+0x0000BF6B	0x0000000D	[ 10] literal string: @clear_attr 
+0x0000BF78	0x00000002	[ 10] literal string:  
+0x0000BF7A	0x00000006	[ 10] literal string: @jin 
+0x0000BF80	0x0000000C	[ 10] literal string: @get_child 
+0x0000BF8C	0x0000000D	[ 10] literal string: @get_parent 
+0x0000BF99	0x0000000B	[ 10] literal string: @move_obj 
+0x0000BFA4	0x0000000D	[ 10] literal string: @remove_obj 
+0x0000BFB1	0x0000000B	[ 10] literal string: @set_attr 
+0x0000BFBC	0x0000000C	[ 10] literal string: @test_attr 
+0x0000BFC8	0x00000020	[ 12] literal string: This is not a saved game file!\n
+0x0000BFE8	0x00000020	[ 12] literal string: Save file has two IFZS chunks!\n
+0x0000C008	0x00000025	[ 12] literal string: File was not saved from this story!\n
+0x0000C02D	0x00000021	[ 12] literal string: File contains two stack chunks!\n
+0x0000C04E	0x00000032	[ 12] literal string: Save-file has too much stack (and I can't cope).\n
+0x0000C080	0x0000004D	[ 12] literal string: Save-file has wrong variable number on stack (possibly wrong game version?)\n
+0x0000C0CD	0x00000041	[ 12] literal string: Save-file uses incomplete argument lists (which I can't handle)\n
+0x0000C10E	0x00000023	[ 12] literal string: File contains bogus `CMem' chunk.\n
+0x0000C131	0x00000021	[ 12] literal string: warning: `CMem' chunk too long!\n
+0x0000C152	0x0000001A	[ 12] literal string: `UMem' chunk wrong size!\n
+0x0000C16C	0x00000030	[ 12] literal string: error: no valid header (`IFhd') chunk in file.\n
+0x0000C19C	0x0000002F	[ 12] literal string: error: no valid stack (`Stks') chunk in file.\n
+0x0000C1CB	0x0000003A	[ 12] literal string: error: no valid memory (`CMem' or `UMem') chunk in file.\n
+0x0000C205	0x00000004	[ 15] literal string: S: 
+0x0000C209	0x00000008	[ 15] literal string: Score: 
+0x0000C211	0x00000004	[ 15] literal string: M: 
+0x0000C215	0x00000008	[ 15] literal string: Moves: 
+0x0000C21D	0x00000007	[ 15] literal string: Time: 
+0x0000C224	0x0000001B	[ 19] literal string:  0123456789.,!?_#'\"/\<-:()
+0x0000C23F	0x0000001B	[ 19] literal string:  ^0123456789.,!?_#'\"/\-:()
+0x0000C25A	0x00000008	[ 19] literal string: object#
+0x0000C262	0x00000007	[ 22] literal string: [MORE]
+0x0000C269	0x00000014	[ 22] literal string: [Press key to exit]
+0x0000C280	0x00000006	[  1] _CSWTCH.58
+0x0000C288	0x0000012C	[  4] _records.1
+0x0000C3B4	0x00000070	[ 15] _mapper
+0x0000C424	0x00000014	[ 16] _lh_repeats.0
+0x0000C438	0x00000045	[ 19] _zscii_to_latin1
+0x0000C480	0x000000D8	[ 25] _pla_main_ctx
+0x0000C558	0x00000018	[  1] CFI
+0x0000C570	0x00000048	[  1] FDE for: _atexit_cleanup
+0x0000C5B8	0x00000048	[  1] FDE for: _plugin_start
+0x0000C600	0x00000040	[  1] FDE for: _menu
+0x0000C640	0x00000048	[  1] FDE for: _wait_for_key
+0x0000C688	0x00000058	[  1] FDE for: _do_input
+0x0000C6E0	0x00000058	[  1] FDE for: _os_read_key
+0x0000C738	0x00000060	[  1] FDE for: _os_read_line
+0x0000C798	0x00000040	[  1] FDE for: _read_yes_or_no
+0x0000C7D8	0x00000020	[  1] FDE for: _os_read_mouse
+0x0000C7F8	0x00000038	[  1] FDE for: _os_read_file_name
+0x0000C830	0x00000040	[  1] FDE for: _os_beep
+0x0000C870	0x00000020	[  1] FDE for: _frotz_ungetc
+0x0000C890	0x00000038	[  1] FDE for: _frotz_fgetc
+0x0000C8C8	0x00000038	[  1] FDE for: _frotz_fputc
+0x0000C900	0x00000018	[  2] CFI
+0x0000C918	0x00000040	[  2] FDE for: _flush_buffer
+0x0000C958	0x00000038	[  2] FDE for: _new_line
+0x0000C990	0x00000088	[  2] FDE for: _print_char
+0x0000CA18	0x00000038	[  2] FDE for: _init_buffer
+0x0000CA50	0x00000018	[  3] CFI
+0x0000CA68	0x00000060	[  3] FDE for: _print_long
+0x0000CAC8	0x00000020	[  3] FDE for: _init_err
+0x0000CAE8	0x00000060	[  3] FDE for: _runtime_error
+0x0000CB48	0x00000018	[  4] CFI
+0x0000CB60	0x00000020	[  4] FDE for: _free_undo
+0x0000CB80	0x00000078	[  4] FDE for: _get_default_name
+0x0000CBF8	0x00000020	[  4] FDE for: _get_header_extension
+0x0000CC18	0x00000020	[  4] FDE for: _set_header_extension
+0x0000CC38	0x00000068	[  4] FDE for: _init_memory
+0x0000CCA0	0x00000020	[  4] FDE for: _init_undo
+0x0000CCC0	0x00000040	[  4] FDE for: _reset_memory
+0x0000CD00	0x00000048	[  4] FDE for: _storeb
+0x0000CD48	0x00000050	[  4] FDE for: _restart_header
+0x0000CD98	0x00000040	[  4] FDE for: _storew
+0x0000CDD8	0x00000050	[  4] FDE for: _z_restart
+0x0000CE28	0x00000058	[  4] FDE for: _z_restore
+0x0000CE80	0x00000070	[  4] FDE for: _restore_undo
+0x0000CEF0	0x00000038	[  4] FDE for: _z_restore_undo
+0x0000CF28	0x00000058	[  4] FDE for: _z_save
+0x0000CF80	0x00000070	[  4] FDE for: _save_undo
+0x0000CFF0	0x00000038	[  4] FDE for: _z_save_undo
+0x0000D028	0x00000058	[  4] FDE for: _z_verify
+0x0000D080	0x00000018	[  5] CFI
+0x0000D098	0x00000058	[  5] FDE for: _record_code
+0x0000D0F0	0x00000050	[  5] FDE for: _record_char
+0x0000D140	0x00000050	[  5] FDE for: _replay_code
+0x0000D190	0x00000048	[  5] FDE for: _replay_char
+0x0000D1D8	0x00000060	[  5] FDE for: _script_open
+0x0000D238	0x00000040	[  5] FDE for: _script_close
+0x0000D278	0x00000038	[  5] FDE for: _script_new_line
+0x0000D2B0	0x00000040	[  5] FDE for: _script_char
+0x0000D2F0	0x00000048	[  5] FDE for: _script_word
+0x0000D338	0x00000060	[  5] FDE for: _script_write_input
+0x0000D398	0x00000048	[  5] FDE for: _script_erase_input
+0x0000D3E0	0x00000038	[  5] FDE for: _script_mssg_on
+0x0000D418	0x00000020	[  5] FDE for: _script_mssg_off
+0x0000D438	0x00000058	[  5] FDE for: _record_open
+0x0000D490	0x00000040	[  5] FDE for: _record_close
+0x0000D4D0	0x00000048	[  5] FDE for: _record_write_key
+0x0000D518	0x00000058	[  5] FDE for: _record_write_input
+0x0000D570	0x00000050	[  5] FDE for: _replay_open
+0x0000D5C0	0x00000040	[  5] FDE for: _replay_close
+0x0000D600	0x00000040	[  5] FDE for: _replay_read_key
+0x0000D640	0x00000048	[  5] FDE for: _replay_read_input
+0x0000D688	0x00000018	[  6] CFI
+0x0000D6A0	0x00000038	[  6] FDE for: _hot_key_quit
+0x0000D6D8	0x00000058	[  6] FDE for: _handle_hot_key
+0x0000D730	0x00000018	[  7] CFI
+0x0000D748	0x00000060	[  7] FDE for: _is_terminator
+0x0000D7A8	0x00000020	[  7] FDE for: _z_make_menu
+0x0000D7C8	0x00000040	[  7] FDE for: _read_string
+0x0000D808	0x00000040	[  7] FDE for: _read_number
+0x0000D848	0x00000060	[  7] FDE for: _z_read
+0x0000D8A8	0x00000048	[  7] FDE for: _z_read_char
+0x0000D8F0	0x00000048	[  7] FDE for: _z_read_mouse
+0x0000D938	0x00000018	[  8] CFI
+0x0000D950	0x00000020	[  8] FDE for: _z_piracy
+0x0000D970	0x00000038	[  8] FDE for: _frotz_main
+0x0000D9A8	0x00000018	[  9] CFI
+0x0000D9C0	0x00000020	[  9] FDE for: _z_add
+0x0000D9E0	0x00000020	[  9] FDE for: _z_and
+0x0000DA00	0x00000020	[  9] FDE for: _z_art_shift
+0x0000DA20	0x00000040	[  9] FDE for: _z_div
+0x0000DA60	0x00000020	[  9] FDE for: _z_je
+0x0000DA80	0x00000020	[  9] FDE for: _z_jg
+0x0000DAA0	0x00000020	[  9] FDE for: _z_jl
+0x0000DAC0	0x00000020	[  9] FDE for: _z_jz
+0x0000DAE0	0x00000020	[  9] FDE for: _z_log_shift
+0x0000DB00	0x00000040	[  9] FDE for: _z_mod
+0x0000DB40	0x00000020	[  9] FDE for: _z_mul
+0x0000DB60	0x00000020	[  9] FDE for: _z_not
+0x0000DB80	0x00000020	[  9] FDE for: _z_or
+0x0000DBA0	0x00000020	[  9] FDE for: _z_sub
+0x0000DBC0	0x00000020	[  9] FDE for: _z_test
+0x0000DBE0	0x00000018	[ 10] CFI
+0x0000DBF8	0x00000020	[ 10] FDE for: _next_property
+0x0000DC18	0x00000048	[ 10] FDE for: _object_address
+0x0000DC60	0x00000058	[ 10] FDE for: _unlink_object.part.0
+0x0000DCB8	0x00000038	[ 10] FDE for: _object_name
+0x0000DCF0	0x00000038	[ 10] FDE for: _first_property
+0x0000DD28	0x00000050	[ 10] FDE for: _z_clear_attr
+0x0000DD78	0x00000048	[ 10] FDE for: _z_jin
+0x0000DDC0	0x00000048	[ 10] FDE for: _z_get_child
+0x0000DE08	0x00000050	[ 10] FDE for: _z_get_next_prop
+0x0000DE58	0x00000048	[ 10] FDE for: _z_get_parent
+0x0000DEA0	0x00000050	[ 10] FDE for: _z_get_prop
+0x0000DEF0	0x00000050	[ 10] FDE for: _z_get_prop_addr
+0x0000DF40	0x00000020	[ 10] FDE for: _z_get_prop_len
+0x0000DF60	0x00000040	[ 10] FDE for: _z_get_sibling
+0x0000DFA0	0x00000068	[ 10] FDE for: _z_insert_obj
+0x0000E008	0x00000070	[ 10] FDE for: _z_put_prop
+0x0000E078	0x00000050	[ 10] FDE for: _z_remove_obj
+0x0000E0C8	0x00000050	[ 10] FDE for: _z_set_attr
+0x0000E118	0x00000048	[ 10] FDE for: _z_test_attr
+0x0000E160	0x00000018	[ 11] CFI
+0x0000E178	0x00000020	[ 11] FDE for: _load_operand
+0x0000E198	0x00000048	[ 11] FDE for: _load_all_operands
+0x0000E1E0	0x00000048	[ 11] FDE for: ___extended__
+0x0000E228	0x00000020	[ 11] FDE for: _z_nop
+0x0000E248	0x00000020	[ 11] FDE for: _z_quit
+0x0000E268	0x00000020	[ 11] FDE for: ___illegal__
+0x0000E288	0x00000048	[ 11] FDE for: _z_jump
+0x0000E2D0	0x00000020	[ 11] FDE for: _init_process
+0x0000E2F0	0x00000058	[ 11] FDE for: _interpret
+0x0000E348	0x00000088	[ 11] FDE for: _call
+0x0000E3D0	0x00000020	[ 11] FDE for: _z_call_n
+0x0000E3F0	0x00000020	[ 11] FDE for: _store
+0x0000E410	0x00000060	[ 11] FDE for: _ret
+0x0000E470	0x00000020	[ 11] FDE for: _branch
+0x0000E490	0x00000020	[ 11] FDE for: _z_check_arg_count
+0x0000E4B0	0x00000050	[ 11] FDE for: _z_throw
+0x0000E500	0x00000020	[ 11] FDE for: _z_ret
+0x0000E520	0x00000020	[ 11] FDE for: _z_ret_popped
+0x0000E540	0x00000020	[ 11] FDE for: _z_rfalse
+0x0000E560	0x00000020	[ 11] FDE for: _z_rtrue
+0x0000E580	0x00000020	[ 11] FDE for: _z_catch
+0x0000E5A0	0x00000020	[ 11] FDE for: _z_call_s
+0x0000E5C0	0x00000050	[ 11] FDE for: _direct_call
+0x0000E610	0x00000018	[ 12] CFI
+0x0000E628	0x00000058	[ 12] FDE for: _read_long
+0x0000E680	0x00000050	[ 12] FDE for: _read_word
+0x0000E6D0	0x00000070	[ 12] FDE for: _restore_quetzal
+0x0000E740	0x00000070	[ 12] FDE for: _save_quetzal
+0x0000E7B0	0x00000018	[ 13] CFI
+0x0000E7C8	0x00000038	[ 13] FDE for: _seed_random
+0x0000E800	0x00000038	[ 13] FDE for: _z_random
+0x0000E838	0x00000018	[ 14] CFI
+0x0000E850	0x00000060	[ 14] FDE for: _memory_open
+0x0000E8B0	0x00000050	[ 14] FDE for: _memory_new_line
+0x0000E900	0x00000060	[ 14] FDE for: _memory_word
+0x0000E960	0x00000040	[ 14] FDE for: _memory_close
+0x0000E9A0	0x00000018	[ 15] CFI
+0x0000E9B8	0x00000020	[ 15] FDE for: _units_left
+0x0000E9D8	0x00000020	[ 15] FDE for: _update_attributes
+0x0000E9F8	0x00000048	[ 15] FDE for: _winarg0
+0x0000EA40	0x00000050	[ 15] FDE for: _winarg2
+0x0000EA90	0x00000020	[ 15] FDE for: _update_cursor
+0x0000EAB0	0x00000020	[ 15] FDE for: _reset_cursor
+0x0000EAD0	0x00000020	[ 15] FDE for: _countdown
+0x0000EAF0	0x00000020	[ 15] FDE for: _set_more_prompts
+0x0000EB10	0x00000040	[ 15] FDE for: _get_max_width
+0x0000EB50	0x00000060	[ 15] FDE for: _screen_new_line
+0x0000EBB0	0x00000058	[ 15] FDE for: _screen_char
+0x0000EC08	0x00000048	[ 15] FDE for: _pad_status_line
+0x0000EC50	0x00000050	[ 15] FDE for: _screen_word
+0x0000ECA0	0x00000060	[ 15] FDE for: _screen_write_input
+0x0000ED00	0x00000038	[ 15] FDE for: _screen_erase_input
+0x0000ED38	0x00000058	[ 15] FDE for: _console_read_input
+0x0000ED90	0x00000038	[ 15] FDE for: _console_read_key
+0x0000EDC8	0x00000050	[ 15] FDE for: _refresh_text_style
+0x0000EE18	0x00000058	[ 15] FDE for: _set_window
+0x0000EE70	0x00000058	[ 15] FDE for: _erase_window
+0x0000EEC8	0x00000070	[ 15] FDE for: _split_window
+0x0000EF38	0x00000040	[ 15] FDE for: _erase_screen
+0x0000EF78	0x00000020	[ 15] FDE for: _resize_screen
+0x0000EF98	0x00000058	[ 15] FDE for: _restart_screen
+0x0000EFF0	0x00000040	[ 15] FDE for: _validate_click
+0x0000F030	0x00000038	[ 15] FDE for: _screen_mssg_on
+0x0000F068	0x00000038	[ 15] FDE for: _screen_mssg_off
+0x0000F0A0	0x00000038	[ 15] FDE for: _z_buffer_mode
+0x0000F0D8	0x00000060	[ 15] FDE for: _z_draw_picture
+0x0000F138	0x00000040	[ 15] FDE for: _z_erase_line
+0x0000F178	0x00000050	[ 15] FDE for: _z_erase_picture
+0x0000F1C8	0x00000048	[ 15] FDE for: _z_erase_window
+0x0000F210	0x00000040	[ 15] FDE for: _z_get_cursor
+0x0000F250	0x00000040	[ 15] FDE for: _z_get_wind_prop
+0x0000F290	0x00000038	[ 15] FDE for: _z_mouse_window
+0x0000F2C8	0x00000048	[ 15] FDE for: _z_move_window
+0x0000F310	0x00000058	[ 15] FDE for: _z_picture_data
+0x0000F368	0x00000020	[ 15] FDE for: _z_picture_table
+0x0000F388	0x00000060	[ 15] FDE for: _z_print_table
+0x0000F3E8	0x00000040	[ 15] FDE for: _z_put_wind_prop
+0x0000F428	0x00000060	[ 15] FDE for: _z_scroll_window
+0x0000F488	0x00000068	[ 15] FDE for: _z_set_colour
+0x0000F4F0	0x00000070	[ 15] FDE for: _z_set_font
+0x0000F560	0x00000068	[ 15] FDE for: _z_set_cursor
+0x0000F5C8	0x00000048	[ 15] FDE for: _z_set_margins
+0x0000F610	0x00000020	[ 15] FDE for: _z_set_text_style
+0x0000F630	0x00000038	[ 15] FDE for: _z_set_window
+0x0000F668	0x00000060	[ 15] FDE for: _z_show_status
+0x0000F6C8	0x00000020	[ 15] FDE for: _z_split_window
+0x0000F6E8	0x00000048	[ 15] FDE for: _z_window_size
+0x0000F730	0x00000060	[ 15] FDE for: _z_window_style
+0x0000F790	0x00000018	[ 16] CFI
+0x0000F7A8	0x00000048	[ 16] FDE for: _start_next_sample
+0x0000F7F0	0x00000020	[ 16] FDE for: _init_sound
+0x0000F810	0x00000038	[ 16] FDE for: _end_of_sound
+0x0000F848	0x00000080	[ 16] FDE for: _z_sound_effect
+0x0000F8C8	0x00000018	[ 17] CFI
+0x0000F8E0	0x00000038	[ 17] FDE for: _stream_mssg_on
+0x0000F918	0x00000038	[ 17] FDE for: _stream_mssg_off
+0x0000F950	0x000000A0	[ 17] FDE for: _z_output_stream
+0x0000F9F0	0x00000050	[ 17] FDE for: _stream_char
+0x0000FA40	0x00000050	[ 17] FDE for: _stream_word
+0x0000FA90	0x00000050	[ 17] FDE for: _stream_new_line
+0x0000FAE0	0x00000050	[ 17] FDE for: _z_input_stream
+0x0000FB30	0x00000068	[ 17] FDE for: _stream_read_key
+0x0000FB98	0x00000078	[ 17] FDE for: _stream_read_input
+0x0000FC10	0x00000018	[ 18] CFI
+0x0000FC28	0x00000058	[ 18] FDE for: _z_copy_table
+0x0000FC80	0x00000020	[ 18] FDE for: _z_loadb
+0x0000FCA0	0x00000020	[ 18] FDE for: _z_loadw
+0x0000FCC0	0x00000040	[ 18] FDE for: _z_scan_table
+0x0000FD00	0x00000020	[ 18] FDE for: _z_storeb
+0x0000FD20	0x00000020	[ 18] FDE for: _z_storew
+0x0000FD40	0x00000018	[ 19] CFI
+0x0000FD58	0x00000020	[ 19] FDE for: _translate_from_zscii
+0x0000FD78	0x00000058	[ 19] FDE for: _load_string
+0x0000FDD0	0x00000020	[ 19] FDE for: _alphabet
+0x0000FDF0	0x00000070	[ 19] FDE for: _decode_text
+0x0000FE60	0x00000020	[ 19] FDE for: _translate_to_zscii
+0x0000FE80	0x00000040	[ 19] FDE for: _encode_text
+0x0000FEC0	0x00000048	[ 19] FDE for: _lookup_text
+0x0000FF08	0x00000068	[ 19] FDE for: _tokenise_text
+0x0000FF70	0x00000020	[ 19] FDE for: _z_check_unicode
+0x0000FF90	0x00000048	[ 19] FDE for: _z_encode_text
+0x0000FFD8	0x00000020	[ 19] FDE for: _z_new_line
+0x0000FFF8	0x00000020	[ 19] FDE for: _z_print
+0x00010018	0x00000020	[ 19] FDE for: _z_print_addr
+0x00010038	0x00000038	[ 19] FDE for: _z_print_char
+0x00010070	0x00000050	[ 19] FDE for: _z_print_form
+0x000100C0	0x00000050	[ 19] FDE for: _print_num
+0x00010110	0x00000020	[ 19] FDE for: _z_print_num
+0x00010130	0x00000020	[ 19] FDE for: _z_print_paddr
+0x00010150	0x00000038	[ 19] FDE for: _z_print_ret
+0x00010188	0x00000048	[ 19] FDE for: _print_string
+0x000101D0	0x00000050	[ 19] FDE for: _print_object
+0x00010220	0x00000020	[ 19] FDE for: _z_print_obj
+0x00010240	0x00000020	[ 19] FDE for: _z_print_unicode
+0x00010260	0x00000070	[ 19] FDE for: _tokenise_line
+0x000102D0	0x00000020	[ 19] FDE for: _z_tokenise
+0x000102F0	0x00000058	[ 19] FDE for: _completion
+0x00010348	0x00000018	[ 20] CFI
+0x00010360	0x00000020	[ 20] FDE for: _z_dec
+0x00010380	0x00000020	[ 20] FDE for: _z_dec_chk
+0x000103A0	0x00000020	[ 20] FDE for: _z_inc
+0x000103C0	0x00000020	[ 20] FDE for: _z_inc_chk
+0x000103E0	0x00000020	[ 20] FDE for: _z_load
+0x00010400	0x00000020	[ 20] FDE for: _z_pop
+0x00010420	0x00000020	[ 20] FDE for: _z_pop_stack
+0x00010440	0x00000040	[ 20] FDE for: _z_pull
+0x00010480	0x00000020	[ 20] FDE for: _z_push
+0x000104A0	0x00000040	[ 20] FDE for: _z_push_stack
+0x000104E0	0x00000020	[ 20] FDE for: _z_store
+0x00010500	0x00000018	[ 21] CFI
+0x00010518	0x00000040	[ 21] FDE for: _os_init_screen
+0x00010558	0x00000020	[ 21] FDE for: _os_random_seed
+0x00010578	0x00000020	[ 21] FDE for: _os_restart_game
+0x00010598	0x00000030	[ 21] FDE for: _os_fatal
+0x000105C8	0x00000020	[ 21] FDE for: _os_init_setup
+0x000105E8	0x00000018	[ 22] CFI
+0x00010600	0x00000020	[ 22] FDE for: _dumb_row
+0x00010620	0x00000040	[ 22] FDE for: _dumb_display_char
+0x00010660	0x00000020	[ 22] FDE for: _os_char_width
+0x00010680	0x00000020	[ 22] FDE for: _os_string_width
+0x000106A0	0x00000020	[ 22] FDE for: _os_set_cursor
+0x000106C0	0x00000020	[ 22] FDE for: _os_set_text_style
+0x000106E0	0x00000048	[ 22] FDE for: _os_display_char
+0x00010728	0x00000058	[ 22] FDE for: _os_display_string
+0x00010780	0x00000070	[ 22] FDE for: _os_erase_area
+0x000107F0	0x00000088	[ 22] FDE for: _os_scroll_area
+0x00010878	0x00000020	[ 22] FDE for: _os_font_data
+0x00010898	0x00000020	[ 22] FDE for: _os_set_colour
+0x000108B8	0x00000020	[ 22] FDE for: _os_set_font
+0x000108D8	0x00000068	[ 22] FDE for: _dumb_dump_screen
+0x00010940	0x00000020	[ 22] FDE for: _dumb_show_screen
+0x00010960	0x00000058	[ 22] FDE for: _os_more_prompt
+0x000109B8	0x00000038	[ 22] FDE for: _os_reset_screen
+0x000109F0	0x00000020	[ 22] FDE for: _os_prepare_sample
+0x00010A10	0x00000020	[ 22] FDE for: _os_finish_with_sample
+0x00010A30	0x00000020	[ 22] FDE for: _os_start_sample
+0x00010A50	0x00000020	[ 22] FDE for: _os_stop_sample
+0x00010A70	0x00000020	[ 22] FDE for: _dumb_init_output
+0x00010A90	0x00000020	[ 22] FDE for: _os_picture_data
+0x00010AB0	0x00000020	[ 22] FDE for: _os_draw_picture
+0x00010AD0	0x00000020	[ 22] FDE for: _os_peek_colour
+0x00010AF0	0x00000018	[ 23] CFI
+0x00010B08	0x00000020	[ 23] FDE for: _cleanup_wrapper
+0x00010B28	0x00000040	[ 23] FDE for: _plugin__start
+0x00010B68	0x00000020	[ 23] FDE for: _rb_atexit
+0x00010B88	0x00000030	[ 23] FDE for: _exit
+0x00010BB8	0x00000030	[ 23] FDE for: __exit
+0x00010BE8	0x00000038	[ 23] FDE for: _exit_on_usb
+0x00010C20	0x00000018	[ 24] CFI
+0x00010C38	0x00000020	[ 24] FDE for: _memcpy
+0x00010C58	0x00000020	[ 24] FDE for: _memset
+0x00010C78	0x00000020	[ 24] FDE for: _memmove
+0x00010C98	0x00000020	[ 24] FDE for: _memcmp
+0x00010CB8	0x00000018	[ 25] CFI
+0x00010CD0	0x00000020	[ 25] FDE for: _get_context_map
+0x00010CF0	0x00000020	[ 25] FDE for: _pluginlib_getaction
+0x00014000	0x00000008	[ 27] _longjmp.got
+0x00014008	0x00000008	[ 27] _setjmp.got
+0x00014010	0x00000018	[  1] _ingame_menu
+0x00014028	0x00000018	[  1] _ingame_menu__
+0x00014040	0x00000100	[  3] _err_messages
+0x00014140	0x00000038	[ 23] ___header
+0x00018000	0x00000008	[  1] _plugin_contexts
+0x00018008	0x00000038	[  1] _ingame_menu_
+0x00018040	0x00000004	[  4] _first_restart.0
+0x00018044	0x00000004	[  4] _story_fp
+0x00018048	0x00000004	[  5] _pfp
+0x0001804C	0x00000004	[  5] _rfp
+0x00018050	0x00000004	[  5] _sfp
+0x00018054	0x00000004	[  8] _option_sound
+0x00018058	0x00000001	[  8] _ostream_screen
+0x00018059	0x00000001	[  8] _h_standard_high
+0x0001805A	0x00000001	[  8] _h_font_width
+0x0001805B	0x00000001	[  8] _h_font_height
+0x0001805C	0x00000004	[  8] _story_id
+0x00018060	0x000000E8	[ 11] _ext_opcodes
+0x00018148	0x00000200	[ 11] _var_opcodes
+0x00018348	0x00000080	[ 11] _op1_opcodes
+0x000183C8	0x00000080	[ 11] _op0_opcodes
+0x00018448	0x00000008	[ 13] _A
+0x00018450	0x00000004	[ 14] _depth
+0x00018454	0x00000001	[ 15] _cursor
+0x00018455	0x00000003	[ 15] _more_prompts
+0x00018458	0x00000004	[ 15] _font_width
+0x0001845C	0x00000004	[ 15] _font_height
+0x00018460	0x00000005	[ 19] _wait.0
+0x00018465	0x00000008	[ 19] _examine.1
+0x0001846D	0x00000006	[ 19] _again.2
+0x00018478	0x00000008	[ 23] _rb
+0x00018480	0x00000004	[  1] _unget_file
+0x00018484	0x00000004	[  1] _unget_buf
+0x00018488	0x00000030	[  1] _vp
+0x000184B8	0x00000001	[  2] _flag.0
+0x000184B9	0x00000001	[  2] _locked.1
+0x000184BA	0x00000002	[  2] _prev_c
+0x000184BC	0x00000004	[  2] _bufpos
+0x000184C0	0x000000C8	[  2] _buffer
+0x00018588	0x00000080	[  3] _error_count
+0x00018608	0x00000008	[  4] _arena_next
+0x00018610	0x00000008	[  4] _arena_end
+0x00018618	0x00000008	[  4] _arena_start
+0x00018620	0x00000008	[  4] _undo_count
+0x00018628	0x00000008	[  4] _undo_diff
+0x00018630	0x00000008	[  4] _prev_zmp
+0x00018638	0x00000008	[  4] _curr_undo
+0x00018640	0x00000008	[  4] _last_undo
+0x00018648	0x00000008	[  4] _first_undo
+0x00018650	0x00000004	[  5] _script_valid.0
+0x00018654	0x00000004	[  5] _script_width
+0x00018658	0x00000004	[ 11] _finished
+0x0001865C	0x00000202	[ 12] _frames
+0x00018860	0x00000004	[ 13] _counter
+0x00018864	0x00000004	[ 13] _interval
+0x00018868	0x00000080	[ 14] _redirect
+0x000188E8	0x00000008	[ 15] _cwp
+0x000188F0	0x00000100	[ 15] _wp
+0x000189F0	0x00000004	[ 15] _input_window
+0x000189F4	0x00000001	[ 15] _discarding
+0x000189F5	0x00000001	[ 15] _input_redraw
+0x000189F8	0x00000001	[ 16] _playing
+0x000189F9	0x00000003	[ 16] _locked
+0x000189FC	0x00000004	[ 16] _next_volume
+0x00018A00	0x00000004	[ 16] _next_sample
+0x00018A04	0x00000002	[ 16] _routine
+0x00018A06	0x00000006	[ 19] _encoded
+0x00018A0C	0x0000000A	[ 19] _decoded
+0x00018A18	0x00000004	[ 22] _cursor_col
+0x00018A1C	0x00000004	[ 22] _cursor_row
+0x00018A20	0x00000004	[ 22] _current_style
+0x00018A24	0x00000C6C	[ 22] _screen_data
+0x00019690	0x00000008	[ 23] _atexit_handler
+0x00019698	0x000000C0	[ 23] ___exit_env
+0x00019758	0x00000004	[ 25] _last_context
+0x0001975C	0x00000004	[ 25] _plugin_context_count
+0x00019760	0x00000008	[ 25] _plugin_context_order
+0x00019768	0x00000040	[  1] _f_setup
+0x000197A8	0x00000008	[  4] _pcp
+0x000197B0	0x00000008	[  4] _zmp
+0x000197B8	0x00000104	[  4] _auxilary_name
+0x000198BC	0x00000104	[  4] _save_name
+0x000199C0	0x00000104	[  5] _command_name
+0x00019AC4	0x00000104	[  5] _script_name
+0x00019BC8	0x00000008	[  8] _option_zcode_path
+0x00019BD0	0x00000001	[  8] _enable_buffering
+0x00019BD1	0x00000001	[  8] _enable_scrolling
+0x00019BD2	0x00000001	[  8] _enable_scripting
+0x00019BD3	0x00000001	[  8] _enable_wrapping
+0x00019BD4	0x00000004	[  8] _mouse_x
+0x00019BD8	0x00000004	[  8] _mouse_y
+0x00019BDC	0x00000004	[  8] _mwin
+0x00019BE0	0x00000004	[  8] _cwin
+0x00019BE4	0x00000001	[  8] _message
+0x00019BE5	0x00000001	[  8] _istream_replay
+0x00019BE6	0x00000001	[  8] _ostream_record
+0x00019BE7	0x00000001	[  8] _ostream_memory
+0x00019BE8	0x00000002	[  8] _ostream_script
+0x00019BEA	0x00000006	[  8] _frame_count
+0x00019BF0	0x00000008	[  8] _fp
+0x00019BF8	0x00000008	[  8] _sp
+0x00019C00	0x00000800	[  8] _stack
+0x0001A400	0x00000002	[  8] _hx_unicode_table
+0x0001A402	0x00000002	[  8] _hx_mouse_y
+0x0001A404	0x00000002	[  8] _hx_mouse_x
+0x0001A406	0x00000002	[  8] _hx_table_size
+0x0001A408	0x00000008	[  8] _h_user_name
+0x0001A410	0x00000002	[  8] _h_extension_table
+0x0001A412	0x00000002	[  8] _h_alphabet
+0x0001A414	0x00000002	[  8] _h_standard_low
+0x0001A416	0x00000002	[  8] _h_line_width
+0x0001A418	0x00000002	[  8] _h_terminating_keys
+0x0001A41A	0x00000001	[  8] _h_default_foreground
+0x0001A41B	0x00000001	[  8] _h_default_background
+0x0001A41C	0x00000002	[  8] _h_strings_offset
+0x0001A41E	0x00000002	[  8] _h_functions_offset
+0x0001A420	0x00000002	[  8] _h_screen_height
+0x0001A422	0x00000002	[  8] _h_screen_width
+0x0001A424	0x00000001	[  8] _h_screen_cols
+0x0001A425	0x00000001	[  8] _h_screen_rows
+0x0001A426	0x00000001	[  8] _h_interpreter_version
+0x0001A427	0x00000001	[  8] _h_interpreter_number
+0x0001A428	0x00000002	[  8] _h_checksum
+0x0001A42A	0x00000002	[  8] _h_file_size
+0x0001A42C	0x00000002	[  8] _h_abbreviations
+0x0001A42E	0x00000006	[  8] _h_serial
+0x0001A434	0x00000002	[  8] _h_flags
+0x0001A436	0x00000002	[  8] _h_dynamic_size
+0x0001A438	0x00000002	[  8] _h_globals
+0x0001A43A	0x00000002	[  8] _h_objects
+0x0001A43C	0x00000002	[  8] _h_dictionary
+0x0001A43E	0x00000002	[  8] _h_start_pc
+0x0001A440	0x00000002	[  8] _h_resident_size
+0x0001A442	0x00000002	[  8] _h_release
+0x0001A444	0x00000001	[  8] _h_config
+0x0001A445	0x00000003	[  8] _h_version
+0x0001A448	0x00000008	[  8] _story_size
+0x0001A450	0x00000008	[  8] _story_name
+0x0001A458	0x00000004	[ 11] _zargc
+0x0001A45C	0x00000010	[ 11] _zargs

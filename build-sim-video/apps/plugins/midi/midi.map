@@ -1,0 +1,206 @@
+# Path: /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/midi/midi.elf
+# Arch: arm64
+# Object files:
+[  0] linker synthesized
+[  1] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/midi/midifile.o
+[  2] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/midi/midiutil.o
+[  3] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/midi/sequencer.o
+[  4] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/midi/guspat.o
+[  5] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/midi/synth.o
+[  6] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/midi/midiplay.o
+[  7] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/plugin_crt0.o
+[  8] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/libSystem.tbd
+[  9] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/system/libsystem_platform.tbd
+# Sections:
+# Address	Size    	Segment	Section
+0x00000780	0x00003028	__TEXT	__text
+0x000037A8	0x00000018	__TEXT	__stubs
+0x000037C0	0x0000050C	__TEXT	__cstring
+0x00003CD0	0x00000A98	__TEXT	__const
+0x00004768	0x00000D88	__TEXT	__eh_frame
+0x00008000	0x00000010	__DATA_CONST	__got
+0x00008010	0x00000038	__DATA_CONST	__const
+0x0000C000	0x00000008	__DATA	__data
+0x0000C008	0x00000008	__DATA	.data
+0x0000C010	0x000084A0	__DATA	__common
+0x000144B0	0x00011168	__DATA	__bss
+# Symbols:
+# Address	Size    	File  Name
+0x00000780	0x00000300	[  1] _readEvent
+0x00000A80	0x000001C0	[  1] _readTrack
+0x00000C40	0x000000EC	[  1] _readID
+0x00000D2C	0x00000340	[  1] _loadFile
+0x0000106C	0x00000054	[  1] _readFourBytes
+0x000010C0	0x00000030	[  1] _readTwoBytes
+0x000010F0	0x00000054	[  1] _readVarData
+0x00001160	0x00000030	[  2] _readChar
+0x00001190	0x00000098	[  2] _eof
+0x00001228	0x000000C8	[  2] _midi_debug
+0x000012F0	0x00000120	[  2] _alloc
+0x00001410	0x00000010	[  2] _my_malloc
+0x00001420	0x0000005C	[  2] _readData
+0x00001480	0x0000008C	[  3] _findDelta
+0x0000150C	0x00000084	[  3] _releaseNote.part.0
+0x00001590	0x00000050	[  3] _rewindFile
+0x000015E0	0x0000064C	[  3] _tick
+0x00001C2C	0x00000120	[  3] _seekBackward
+0x00001D4C	0x00000040	[  3] _seekForward
+0x00001DA0	0x00000060	[  4] _readDWord
+0x00001E00	0x000005B8	[  4] _gusload
+0x000023C0	0x000000E0	[  5] _readTextBlock
+0x000024A0	0x000000E4	[  5] _resetControllers
+0x00002584	0x000003FC	[  5] _initSynth
+0x00002980	0x000000A0	[  5] _setPoint
+0x00002A20	0x000004E0	[  5] _synthSamples
+0x00002F00	0x000001A0	[  6] _get_more
+0x000030A0	0x000005CC	[  6] _plugin_start
+0x0000366C	0x00000018	[  7] _cleanup_wrapper
+0x00003684	0x00000068	[  7] _plugin__start
+0x000036EC	0x00000020	[  7] _rb_atexit
+0x0000370C	0x00000024	[  7] _exit
+0x00003730	0x00000014	[  7] __exit
+0x00003744	0x00000064	[  7] _exit_on_usb
+0x000037A8	0x0000000C	[  9] _longjmp.stub
+0x000037B4	0x0000000C	[  9] _setjmp.stub
+0x000037C0	0x00000009	[  1] literal string: Text: %s
+0x000037D0	0x0000000E	[  1] literal string: Copyright: %s
+0x000037E0	0x00000009	[  1] literal string: Name: %s
+0x000037F0	0x0000000F	[  1] literal string: Instrument: %s
+0x00003800	0x0000000A	[  1] literal string: Lyric: %s
+0x00003810	0x0000000B	[  1] literal string: Marker: %s
+0x00003820	0x0000000E	[  1] literal string: Cue point: %s
+0x00003830	0x0000000A	[  1] literal string: Patch: %s
+0x00003840	0x00000009	[  1] literal string: Port: %s
+0x00003850	0x00000022	[  1] literal string: Track parser memory out of bounds
+0x00003878	0x00000015	[  1] literal string: End of file reached.
+0x00003890	0x00000005	[  1] literal string: MThd
+0x00003898	0x00000005	[  1] literal string: MTrk
+0x000038A0	0x00000005	[  1] literal string: RIFF
+0x000038A8	0x00000014	[  1] literal string: Could not open file
+0x000038C0	0x00000013	[  1] literal string: Detected RMID file
+0x000038D8	0x00000018	[  1] literal string: Looking for MThd header
+0x000038F0	0x00000021	[  1] literal string: Invalid MIDI header within RIFF.
+0x00003918	0x0000001B	[  1] literal string: Invalid file header chunk.
+0x00003938	0x0000001B	[  1] literal string: Header chunk size invalid.
+0x00003958	0x0000001F	[  1] literal string: MIDI file type 2 not supported
+0x00003978	0x00000014	[  1] literal string: File has %d tracks.
+0x00003990	0x0000003C	[  1] literal string: Warning: file claims to have %d tracks. I only see %d here.
+0x000039D0	0x0000000F	[  1] literal string: SKIPPING TRACK
+0x000039E0	0x0000000E	[  2] literal string: Out of Memory
+0x000039F0	0x0000000F	[  3] literal string: NULL TRACK: %d
+0x00003A00	0x00000044	[  3] literal string: NOTE LESS THAN 35, AND A DRUM PATCH EXISTS FOR THIS? WHAT THE HELL?
+0x00003A48	0x00000011	[  4] literal string: Error opening %s
+0x00003A60	0x0000000F	[  5] literal string: NULL TRACK !!!
+0x00003A70	0x00000016	[  5] literal string: Null Track in loader.
+0x00003A88	0x00000001	[  5] literal string: 
+0x00003A90	0x00000018	[  5] literal string: No MIDI patchset found.
+0x00003AA8	0x00000020	[  5] literal string: Please install the instruments.
+0x00003AC8	0x00000020	[  5] literal string: See Rockbox page for more info.
+0x00003AE8	0x0000000F	[  5] literal string: No Instruments
+0x00003AF8	0x00000014	[  5] literal string: Loading instruments
+0x00003B10	0x0000001A	[  5] literal string: /.rockbox/patchset/%s.pat
+0x00003B30	0x0000002F	[  5] literal string: Bad drum config. Did you install the patchset?
+0x00003B60	0x0000000E	[  5] literal string: Loading drums
+0x00003B70	0x00000019	[  5] literal string: Crap... null waveform...
+0x00003B90	0x0000001D	[  5] literal string: Waveform has no envelope set
+0x00003BB0	0x0000000D	[  6] literal string: Playing from
+0x00003BC0	0x0000000A	[  6] literal string: Paused at
+0x00003BD0	0x00000011	[  6] literal string:  Play .MID file 
+0x00003BE8	0x00000003	[  6] literal string: %s
+0x00003BF0	0x0000000D	[  6] literal string: Loading file
+0x00003C00	0x00000014	[  6] literal string: Error loading file.
+0x00003C18	0x00000011	[  6] literal string: FINISHED PLAYING
+0x00003C30	0x0000001D	[  6] literal string: /.rockbox/patchset/drums.cfg
+0x00003C50	0x00000020	[  6] literal string: /.rockbox/patchset/patchset.cfg
+0x00003C70	0x0000001A	[  6] literal string: Okay, starting sequencing
+0x00003C90	0x00000013	[  6] literal string: Rewind to %d:%02d\n
+0x00003CA8	0x00000011	[  6] literal string: Skip to %d:%02d\n
+0x00003CC0	0x0000000C	[  6] literal string: %s %d:%02d\n
+0x00003CD0	0x00000804	[  3] _pitchTbl
+0x000044D4	0x00000084	[  3] _patchScale
+0x00004558	0x00000008	[  3] lC2
+0x00004560	0x00000200	[  4] _freqtable
+0x00004760	0x00000008	[  5] lC13
+0x00004768	0x00000018	[  1] CFI
+0x00004780	0x00000070	[  1] FDE for: _readEvent
+0x000047F0	0x00000080	[  1] FDE for: _readTrack
+0x00004870	0x00000060	[  1] FDE for: _readID
+0x000048D0	0x00000138	[  1] FDE for: _loadFile
+0x00004A08	0x00000048	[  1] FDE for: _readFourBytes
+0x00004A50	0x00000040	[  1] FDE for: _readTwoBytes
+0x00004A90	0x00000058	[  1] FDE for: _readVarData
+0x00004AE8	0x00000018	[  2] CFI
+0x00004B00	0x00000038	[  2] FDE for: _readChar
+0x00004B38	0x00000050	[  2] FDE for: _eof
+0x00004B88	0x00000058	[  2] FDE for: _midi_debug
+0x00004BE0	0x00000040	[  2] FDE for: _alloc
+0x00004C20	0x00000020	[  2] FDE for: _my_malloc
+0x00004C40	0x00000040	[  2] FDE for: _readData
+0x00004C80	0x00000018	[  3] CFI
+0x00004C98	0x00000020	[  3] FDE for: _findDelta
+0x00004CB8	0x00000050	[  3] FDE for: _releaseNote.part.0
+0x00004D08	0x00000020	[  3] FDE for: _rewindFile
+0x00004D28	0x00000110	[  3] FDE for: _tick
+0x00004E38	0x00000058	[  3] FDE for: _seekBackward
+0x00004E90	0x00000040	[  3] FDE for: _seekForward
+0x00004ED0	0x00000018	[  4] CFI
+0x00004EE8	0x00000048	[  4] FDE for: _readDWord
+0x00004F30	0x000000E0	[  4] FDE for: _gusload
+0x00005010	0x00000018	[  5] CFI
+0x00005028	0x00000060	[  5] FDE for: _readTextBlock
+0x00005088	0x00000020	[  5] FDE for: _resetControllers
+0x000050A8	0x00000148	[  5] FDE for: _initSynth
+0x000051F0	0x00000048	[  5] FDE for: _setPoint
+0x00005238	0x00000070	[  5] FDE for: _synthSamples
+0x000052A8	0x00000018	[  6] CFI
+0x000052C0	0x00000070	[  6] FDE for: _get_more
+0x00005330	0x00000090	[  6] FDE for: _plugin_start
+0x000053C0	0x00000018	[  7] CFI
+0x000053D8	0x00000020	[  7] FDE for: _cleanup_wrapper
+0x000053F8	0x00000040	[  7] FDE for: _plugin__start
+0x00005438	0x00000020	[  7] FDE for: _rb_atexit
+0x00005458	0x00000030	[  7] FDE for: _exit
+0x00005488	0x00000030	[  7] FDE for: __exit
+0x000054B8	0x00000038	[  7] FDE for: _exit_on_usb
+0x00008000	0x00000008	[  9] _longjmp.got
+0x00008008	0x00000008	[  9] _setjmp.got
+0x00008010	0x00000038	[  7] ___header
+0x0000C000	0x00000008	[  3] _tempo
+0x0000C008	0x00000008	[  7] _rb
+0x0000C010	0x00000480	[  1] _tracks
+0x0000C490	0x00000004	[  1] _curr_track
+0x0000C494	0x00000004	[  1] _rStatus
+0x0000C498	0x00000210	[  1] _midi_file
+0x0000C6A8	0x00000C00	[  2] _voices
+0x0000D2A8	0x00000400	[  2] _drumSet
+0x0000D6A8	0x00000400	[  2] _patchSet
+0x0000DAA8	0x00000010	[  2] _chLastCtrlLSB
+0x0000DAB8	0x00000010	[  2] _chLastCtrlMSB
+0x0000DAC8	0x00000040	[  2] _chPBFractBend
+0x0000DB08	0x00000040	[  2] _chPBNoteOffset
+0x0000DB48	0x00000040	[  2] _chPBDepth
+0x0000DB88	0x00000040	[  2] _chPW
+0x0000DBC8	0x00000040	[  2] _chPat
+0x0000DC08	0x00000040	[  2] _chPan
+0x0000DC48	0x00000040	[  2] _chVol
+0x0000DC88	0x00006800	[  4] _waveforms
+0x00014488	0x00000004	[  4] _curr_waveform
+0x00014490	0x00000008	[  6] _bpm
+0x00014498	0x00000004	[  6] _samples_this_second
+0x0001449C	0x00000004	[  6] _playing_time
+0x000144A0	0x00000008	[  6] _number_of_samples
+0x000144A8	0x00000008	[  6] _mf
+0x000144B0	0x00000008	[  2] _p_xtpt.0
+0x000144B8	0x00000010	[  2] _totalSize.1
+0x000144C8	0x00000010	[  2] _offset.2
+0x000144D8	0x00000004	[  3] _lastKill.0
+0x000144E0	0x00000030	[  6] _dst
+0x00014510	0x00000028	[  6] _src
+0x00014538	0x00000008	[  6] _dsp
+0x00014540	0x00001000	[  6] _samp_buf
+0x00015540	0x00000001	[  6] _quit
+0x00015541	0x00000007	[  6] _midi_end
+0x00015548	0x00000008	[  6] _samples_in_buf
+0x00015550	0x00010000	[  6] _gmbuf
+0x00025550	0x00000008	[  7] _atexit_handler
+0x00025558	0x000000C0	[  7] ___exit_env

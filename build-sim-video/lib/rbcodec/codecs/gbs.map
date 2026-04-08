@@ -1,0 +1,318 @@
+# Path: /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/gbs.elf
+# Arch: arm64
+# Object files:
+[  0] linker synthesized
+[  1] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/gbs.o
+[  2] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/codec_crt0.o
+[  3] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libgbs.a(gb_apu.o)
+[  4] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libgbs.a(gb_cpu.o)
+[  5] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libgbs.a(gbs_cpu.o)
+[  6] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libgbs.a(gb_oscs.o)
+[  7] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libgbs.a(gbs_emu.o)
+[  8] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libgbs.a(blip_buffer.o)
+[  9] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libgbs.a(multi_buffer.o)
+[ 10] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libgbs.a(rom_data.o)
+[ 11] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libgbs.a(track_filter.o)
+[ 12] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+[ 13] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/libSystem.tbd
+# Sections:
+# Address	Size    	Segment	Section
+0x00000640	0x00004924	__TEXT	__text
+0x00004F64	0x0000005E	__TEXT	__cstring
+0x00004FC4	0x000004E4	__TEXT	__const
+0x000054A8	0x00001910	__TEXT	__eh_frame
+0x00008000	0x00000040	__DATA_CONST	__const
+0x0000C000	0x00000008	__DATA	.data
+0x0000C008	0x000178C0	__DATA	__bss
+# Symbols:
+# Address	Size    	File  Name
+0x00000640	0x00000250	[  1] _codec_run
+0x00000890	0x00000088	[  1] _codec_main
+0x00000918	0x00000008	[  2] __start
+0x00000920	0x00000004	[  2] _codec_start
+0x00000924	0x00000034	[  3] _apply_volume
+0x00000958	0x0000008C	[  3] _reset_regs
+0x000009E4	0x00000148	[  3] _run_until
+0x00000B2C	0x00000088	[  3] _silence_osc
+0x00000BB4	0x00000044	[  3] _Apu_set_output
+0x00000BF8	0x00000018	[  3] _Apu_volume
+0x00000C10	0x00000054	[  3] _Apu_reduce_clicks
+0x00000C64	0x0000002C	[  3] _Apu_set_tempo
+0x00000C90	0x00000048	[  3] _Apu_end_frame
+0x00000CD8	0x00000200	[  3] _Apu_write_register
+0x00000ED8	0x000000F4	[  3] _Apu_reset
+0x00000FCC	0x00000094	[  3] _Apu_init
+0x00001060	0x000000F8	[  3] _Apu_read_register
+0x00001158	0x0000002C	[  4] _Cpu_reset
+0x00001184	0x00000038	[  4] _Cpu_map_code
+0x000011BC	0x00000084	[  5] _write_io_inline
+0x00001240	0x00000048	[  5] _read_io
+0x00001288	0x00000050	[  5] _read_mem
+0x000012D8	0x00000054	[  5] _write_mem
+0x0000132C	0x000012BC	[  5] _run_cpu
+0x000025E8	0x00000060	[  6] _calc_sweep
+0x00002648	0x00000064	[  6] _write_trig
+0x000026AC	0x00000014	[  6] _Osc_frequency.isra.0
+0x000026C0	0x0000004C	[  6] _Synth_offset_inline
+0x0000270C	0x0000002C	[  6] _Osc_update_amp
+0x00002738	0x00000018	[  6] _Osc_reset
+0x00002750	0x0000002C	[  6] _Osc_clock_length
+0x0000277C	0x0000006C	[  6] _Noise_clock_envelope
+0x000027E8	0x0000006C	[  6] _Square_clock_envelope
+0x00002854	0x0000016C	[  6] _Square_write_register
+0x000029C0	0x0000006C	[  6] _clock_sweep
+0x00002A2C	0x0000003C	[  6] _wave_access
+0x00002A68	0x0000034C	[  6] _write_osc
+0x00002DB4	0x00000198	[  6] _Square_run
+0x00002F4C	0x00000310	[  6] _Noise_run
+0x0000325C	0x000001DC	[  6] _Wave_run
+0x00003438	0x000000C4	[  7] _Gbs_init
+0x000034FC	0x00000080	[  7] _set_bank
+0x0000357C	0x0000004C	[  7] _update_timer
+0x000035C8	0x00000054	[  7] _jsr_then_stop
+0x0000361C	0x000000F8	[  7] _end_frame.isra.0
+0x00003714	0x00000018	[  7] _run_clocks
+0x0000372C	0x0000007C	[  7] _Gbs_set_sample_rate
+0x000037A8	0x0000008C	[  7] _Sound_mute_voices
+0x00003834	0x000000D0	[  7] _play_
+0x00003904	0x00000020	[  7] _Sound_mute_voice
+0x00003924	0x0000005C	[  7] _Sound_set_tempo
+0x00003980	0x0000012C	[  7] _Gbs_load_mem
+0x00003AAC	0x00000228	[  7] _Gbs_start_track
+0x00003CD4	0x00000028	[  7] _Track_tell
+0x00003CFC	0x00000070	[  7] _Track_seek
+0x00003D6C	0x00000080	[  7] _skip_
+0x00003DEC	0x00000008	[  7] _Track_skip
+0x00003DF4	0x00000038	[  7] _Track_set_fade
+0x00003E2C	0x00000008	[  7] _Gbs_play
+0x00003E34	0x00000024	[  8] _Blip_clear
+0x00003E58	0x00000020	[  8] _Blip_init
+0x00003E78	0x00000014	[  8] _Blip_clock_rate_factor
+0x00003E8C	0x00000040	[  8] _Blip_bass_freq
+0x00003ECC	0x00000090	[  8] _Blip_set_sample_rate
+0x00003F5C	0x00000010	[  8] _Blip_end_frame
+0x00003F6C	0x00000014	[  8] _Blip_count_samples
+0x00003F80	0x00000028	[  8] _Blip_count_clocks
+0x00003FA8	0x00000064	[  8] _Blip_remove_samples
+0x0000400C	0x000000C8	[  8] _Blip_read_samples
+0x000040D4	0x00000054	[  8] _Blip_mix_samples
+0x00004128	0x0000000C	[  8] _volume_unit
+0x00004134	0x00000008	[  8] _Synth_init
+0x0000413C	0x00000024	[  9] _Tracked_init
+0x00004160	0x00000008	[  9] _Tracked_clear
+0x00004168	0x00000038	[  9] _Tracked_end_frame
+0x000041A0	0x00000010	[  9] _Tracked_non_silent
+0x000041B0	0x00000020	[  9] _Tracked_remove_silence
+0x000041D0	0x00000014	[  9] _Tracked_remove_samples
+0x000041E4	0x0000001C	[  9] _Tracked_remove_all_samples
+0x00004200	0x00000034	[  9] _Tracked_read_samples
+0x00004234	0x00000008	[  9] _Mixer_init
+0x0000423C	0x00000120	[  9] _Mixer_read_pairs
+0x0000435C	0x0000008C	[  9] _Buffer_init
+0x000043E8	0x0000006C	[  9] _Buffer_set_sample_rate
+0x00004454	0x00000050	[  9] _Buffer_clock_rate
+0x000044A4	0x00000048	[  9] _Buffer_bass_freq
+0x000044EC	0x00000010	[  9] _Buffer_set_channel_count
+0x000044FC	0x0000001C	[  9] _Buffer_channel
+0x00004518	0x00000040	[  9] _Buffer_clear
+0x00004558	0x00000048	[  9] _Buffer_end_frame
+0x000045A0	0x000000C0	[  9] _Buffer_read_samples
+0x00004660	0x000000BC	[ 10] _Rom_load
+0x0000471C	0x00000074	[ 10] _Rom_set_addr
+0x00004790	0x00000064	[ 11] _emu_play
+0x000047F4	0x0000000C	[ 11] _track_init
+0x00004800	0x00000028	[ 11] _track_stop
+0x00004828	0x00000014	[ 11] _track_create
+0x0000483C	0x000000A8	[ 11] _track_skip
+0x000048E4	0x0000005C	[ 11] _skippy_
+0x00004940	0x00000024	[ 11] _track_set_fade
+0x00004964	0x00000094	[ 11] _fill_buf
+0x000049F8	0x0000006C	[ 11] _track_start
+0x00004A64	0x0000029C	[ 11] _track_play
+0x00004D00	0x00000040	[ 12] _codec_init
+0x00004D40	0x00000048	[ 12] _codec_set_replaygain
+0x00004D88	0x00000048	[ 12] _codec_malloc
+0x00004DD0	0x0000004C	[ 12] _codec_calloc
+0x00004E1C	0x00000004	[ 12] _codec_free
+0x00004E20	0x00000054	[ 12] _codec_realloc
+0x00004E74	0x00000018	[ 12] _codec_strlen
+0x00004E8C	0x00000018	[ 12] _strcpy
+0x00004EA4	0x00000018	[ 12] _strcat
+0x00004EBC	0x00000018	[ 12] _strcmp
+0x00004ED4	0x00000018	[ 12] _memcpy
+0x00004EEC	0x00000018	[ 12] _memset
+0x00004F04	0x00000018	[ 12] _memcmp
+0x00004F1C	0x00000018	[ 12] _memchr
+0x00004F34	0x00000018	[ 12] _memmove
+0x00004F4C	0x00000018	[ 12] _qsort
+0x00004F64	0x00000011	[  1] literal string: GBS: next_track\n
+0x00004F75	0x00000013	[  1] literal string: GBS: request file\n
+0x00004F88	0x00000017	[  1] literal string: GBS: file load failed\n
+0x00004F9F	0x0000001F	[  1] literal string: GBS: Gbs_load_mem failed (%s)\n
+0x00004FBE	0x00000004	[  7] literal string: GBS
+0x00004FC4	0x00000020	[  3] _masks.0
+0x00004FE4	0x00000020	[  3] _initial_wave.1
+0x00005004	0x00000004	[  3] _power_mask
+0x00005008	0x00000004	[  3] _wave_ram
+0x0000500C	0x00000004	[  3] _status_reg
+0x00005010	0x00000004	[  3] _stereo_reg
+0x00005014	0x00000004	[  3] _vol_reg
+0x00005018	0x00000200	[  5] _instr_times.0
+0x00005218	0x00000008	[  6] _volumes.0
+0x00005220	0x00000008	[  6] _period1s.1
+0x00005228	0x00000004	[  6] _duties.2
+0x0000522C	0x00000004	[  6] _duty_offsets.3
+0x00005230	0x00000004	[  6] _length_enabled
+0x00005234	0x00000004	[  6] _trigger_mask
+0x00005238	0x00000004	[  6] _cgb_05
+0x0000523C	0x00000004	[  6] _cgb_02
+0x00005240	0x00000017	[  7] _sound_data.0
+0x00005257	0x00000005	[  7] _rates.1
+0x0000525C	0x00000010	[  7] _types.2
+0x0000526C	0x00000004	[  7] _tempo_unit
+0x00005270	0x00000004	[  7] _idle_addr
+0x00005274	0x00000022	[  7] _gme_wrong_file_type
+0x00005298	0x00000004	[  9] _blip_buffer_extra
+0x0000529C	0x00000004	[ 11] _silence_threshold
+0x000052A0	0x00000004	[ 11] _fade_shift
+0x000052A4	0x00000004	[ 11] _fade_block_size
+0x000052A8	0x00000100	[ 12] _bs_clz_tab
+0x000053A8	0x00000100	[ 12] _bs_log2_tab
+0x000054A8	0x00000018	[  1] CFI
+0x000054C0	0x00000068	[  1] FDE for: _codec_run
+0x00005528	0x00000040	[  1] FDE for: _codec_main
+0x00005568	0x00000018	[  2] CFI
+0x00005580	0x00000020	[  2] FDE for: __start
+0x000055A0	0x00000020	[  2] FDE for: _codec_start
+0x000055C0	0x00000018	[  3] CFI
+0x000055D8	0x00000020	[  3] FDE for: _apply_volume
+0x000055F8	0x00000048	[  3] FDE for: _reset_regs
+0x00005640	0x00000058	[  3] FDE for: _run_until
+0x00005698	0x00000020	[  3] FDE for: _silence_osc
+0x000056B8	0x00000020	[  3] FDE for: _Apu_set_output
+0x000056D8	0x00000020	[  3] FDE for: _Apu_volume
+0x000056F8	0x00000020	[  3] FDE for: _Apu_reduce_clicks
+0x00005718	0x00000020	[  3] FDE for: _Apu_set_tempo
+0x00005738	0x00000040	[  3] FDE for: _Apu_end_frame
+0x00005778	0x00000088	[  3] FDE for: _Apu_write_register
+0x00005800	0x00000058	[  3] FDE for: _Apu_reset
+0x00005858	0x00000040	[  3] FDE for: _Apu_init
+0x00005898	0x00000048	[  3] FDE for: _Apu_read_register
+0x000058E0	0x00000018	[  4] CFI
+0x000058F8	0x00000020	[  4] FDE for: _Cpu_reset
+0x00005918	0x00000020	[  4] FDE for: _Cpu_map_code
+0x00005938	0x00000018	[  5] CFI
+0x00005950	0x00000020	[  5] FDE for: _write_io_inline
+0x00005970	0x00000020	[  5] FDE for: _read_io
+0x00005990	0x00000020	[  5] FDE for: _read_mem
+0x000059B0	0x00000020	[  5] FDE for: _write_mem
+0x000059D0	0x00000070	[  5] FDE for: _run_cpu
+0x00005A40	0x00000018	[  6] CFI
+0x00005A58	0x00000020	[  6] FDE for: _calc_sweep
+0x00005A78	0x00000020	[  6] FDE for: _write_trig
+0x00005A98	0x00000020	[  6] FDE for: _Osc_frequency.isra.0
+0x00005AB8	0x00000020	[  6] FDE for: _Synth_offset_inline
+0x00005AD8	0x00000020	[  6] FDE for: _Osc_update_amp
+0x00005AF8	0x00000020	[  6] FDE for: _Osc_reset
+0x00005B18	0x00000020	[  6] FDE for: _Osc_clock_length
+0x00005B38	0x00000020	[  6] FDE for: _Noise_clock_envelope
+0x00005B58	0x00000020	[  6] FDE for: _Square_clock_envelope
+0x00005B78	0x00000040	[  6] FDE for: _Square_write_register
+0x00005BB8	0x00000038	[  6] FDE for: _clock_sweep
+0x00005BF0	0x00000020	[  6] FDE for: _wave_access
+0x00005C10	0x00000070	[  6] FDE for: _write_osc
+0x00005C80	0x00000040	[  6] FDE for: _Square_run
+0x00005CC0	0x00000040	[  6] FDE for: _Noise_run
+0x00005D00	0x00000048	[  6] FDE for: _Wave_run
+0x00005D48	0x00000018	[  7] CFI
+0x00005D60	0x00000040	[  7] FDE for: _Gbs_init
+0x00005DA0	0x00000020	[  7] FDE for: _set_bank
+0x00005DC0	0x00000020	[  7] FDE for: _update_timer
+0x00005DE0	0x00000040	[  7] FDE for: _jsr_then_stop
+0x00005E20	0x00000060	[  7] FDE for: _end_frame.isra.0
+0x00005E80	0x00000038	[  7] FDE for: _run_clocks
+0x00005EB8	0x00000048	[  7] FDE for: _Gbs_set_sample_rate
+0x00005F00	0x00000060	[  7] FDE for: _Sound_mute_voices
+0x00005F60	0x00000068	[  7] FDE for: _play_
+0x00005FC8	0x00000020	[  7] FDE for: _Sound_mute_voice
+0x00005FE8	0x00000040	[  7] FDE for: _Sound_set_tempo
+0x00006028	0x00000058	[  7] FDE for: _Gbs_load_mem
+0x00006080	0x00000060	[  7] FDE for: _Gbs_start_track
+0x000060E0	0x00000020	[  7] FDE for: _Track_tell
+0x00006100	0x00000058	[  7] FDE for: _Track_seek
+0x00006158	0x00000060	[  7] FDE for: _skip_
+0x000061B8	0x00000020	[  7] FDE for: _Track_skip
+0x000061D8	0x00000020	[  7] FDE for: _Track_set_fade
+0x000061F8	0x00000020	[  7] FDE for: _Gbs_play
+0x00006218	0x00000018	[  8] CFI
+0x00006230	0x00000020	[  8] FDE for: _Blip_clear
+0x00006250	0x00000020	[  8] FDE for: _Blip_init
+0x00006270	0x00000020	[  8] FDE for: _Blip_clock_rate_factor
+0x00006290	0x00000020	[  8] FDE for: _Blip_bass_freq
+0x000062B0	0x00000040	[  8] FDE for: _Blip_set_sample_rate
+0x000062F0	0x00000020	[  8] FDE for: _Blip_end_frame
+0x00006310	0x00000020	[  8] FDE for: _Blip_count_samples
+0x00006330	0x00000020	[  8] FDE for: _Blip_count_clocks
+0x00006350	0x00000048	[  8] FDE for: _Blip_remove_samples
+0x00006398	0x00000040	[  8] FDE for: _Blip_read_samples
+0x000063D8	0x00000020	[  8] FDE for: _Blip_mix_samples
+0x000063F8	0x00000020	[  8] FDE for: _volume_unit
+0x00006418	0x00000020	[  8] FDE for: _Synth_init
+0x00006438	0x00000018	[  9] CFI
+0x00006450	0x00000040	[  9] FDE for: _Tracked_init
+0x00006490	0x00000020	[  9] FDE for: _Tracked_clear
+0x000064B0	0x00000040	[  9] FDE for: _Tracked_end_frame
+0x000064F0	0x00000020	[  9] FDE for: _Tracked_non_silent
+0x00006510	0x00000020	[  9] FDE for: _Tracked_remove_silence
+0x00006530	0x00000020	[  9] FDE for: _Tracked_remove_samples
+0x00006550	0x00000020	[  9] FDE for: _Tracked_remove_all_samples
+0x00006570	0x00000040	[  9] FDE for: _Tracked_read_samples
+0x000065B0	0x00000020	[  9] FDE for: _Mixer_init
+0x000065D0	0x00000020	[  9] FDE for: _Mixer_read_pairs
+0x000065F0	0x00000050	[  9] FDE for: _Buffer_init
+0x00006640	0x00000050	[  9] FDE for: _Buffer_set_sample_rate
+0x00006690	0x00000040	[  9] FDE for: _Buffer_clock_rate
+0x000066D0	0x00000040	[  9] FDE for: _Buffer_bass_freq
+0x00006710	0x00000020	[  9] FDE for: _Buffer_set_channel_count
+0x00006730	0x00000020	[  9] FDE for: _Buffer_channel
+0x00006750	0x00000040	[  9] FDE for: _Buffer_clear
+0x00006790	0x00000040	[  9] FDE for: _Buffer_end_frame
+0x000067D0	0x00000058	[  9] FDE for: _Buffer_read_samples
+0x00006828	0x00000018	[ 10] CFI
+0x00006840	0x00000060	[ 10] FDE for: _Rom_load
+0x000068A0	0x00000020	[ 10] FDE for: _Rom_set_addr
+0x000068C0	0x00000018	[ 11] CFI
+0x000068D8	0x00000050	[ 11] FDE for: _emu_play
+0x00006928	0x00000020	[ 11] FDE for: _track_init
+0x00006948	0x00000020	[ 11] FDE for: _track_stop
+0x00006968	0x00000020	[ 11] FDE for: _track_create
+0x00006988	0x00000040	[ 11] FDE for: _track_skip
+0x000069C8	0x00000050	[ 11] FDE for: _skippy_
+0x00006A18	0x00000020	[ 11] FDE for: _track_set_fade
+0x00006A38	0x00000048	[ 11] FDE for: _fill_buf
+0x00006A80	0x00000048	[ 11] FDE for: _track_start
+0x00006AC8	0x00000068	[ 11] FDE for: _track_play
+0x00006B30	0x00000018	[ 12] CFI
+0x00006B48	0x00000038	[ 12] FDE for: _codec_init
+0x00006B80	0x00000038	[ 12] FDE for: _codec_set_replaygain
+0x00006BB8	0x00000020	[ 12] FDE for: _codec_malloc
+0x00006BD8	0x00000040	[ 12] FDE for: _codec_calloc
+0x00006C18	0x00000020	[ 12] FDE for: _codec_free
+0x00006C38	0x00000040	[ 12] FDE for: _codec_realloc
+0x00006C78	0x00000020	[ 12] FDE for: _codec_strlen
+0x00006C98	0x00000020	[ 12] FDE for: _strcpy
+0x00006CB8	0x00000020	[ 12] FDE for: _strcat
+0x00006CD8	0x00000020	[ 12] FDE for: _strcmp
+0x00006CF8	0x00000020	[ 12] FDE for: _memcpy
+0x00006D18	0x00000020	[ 12] FDE for: _memset
+0x00006D38	0x00000020	[ 12] FDE for: _memcmp
+0x00006D58	0x00000020	[ 12] FDE for: _memchr
+0x00006D78	0x00000020	[ 12] FDE for: _memmove
+0x00006D98	0x00000020	[ 12] FDE for: _qsort
+0x00008000	0x00000040	[  1] ___header
+0x0000C000	0x00000008	[  2] _ci
+0x0000C008	0x000168A8	[  1] _gbs_emu
+0x000228B0	0x00001000	[  1] _samples
+0x000238B0	0x00000008	[ 12] _mallocbuf
+0x000238B8	0x00000008	[ 12] _bufsize
+0x000238C0	0x00000008	[ 12] _mem_ptr

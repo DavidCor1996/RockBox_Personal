@@ -1,0 +1,120 @@
+# Path: /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/mp3_enc.elf
+# Arch: arm64
+# Object files:
+[  0] linker synthesized
+[  1] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/mp3_enc.o
+[  2] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/codec_crt0.o
+[  3] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/libSystem.tbd
+# Sections:
+# Address	Size    	Segment	Section
+0x00000640	0x00002FA4	__TEXT	__text
+0x000035E4	0x0000000F	__TEXT	__cstring
+0x000035F8	0x00004306	__TEXT	__const
+0x00007900	0x00000468	__TEXT	__eh_frame
+0x00008000	0x000001C8	__DATA_CONST	__const
+0x0000C000	0x00000008	__DATA	.data
+0x0000C008	0x00005598	__DATA	__bss
+# Symbols:
+# Address	Size    	File  Name
+0x00000640	0x00000074	[  1] _putbits
+0x000006B4	0x0000003C	[  1] _encode_header
+0x000006F0	0x00000338	[  1] _window_subband1_s_
+0x00000A28	0x000006B4	[  1] _window_subband2_
+0x000010DC	0x00000108	[  1] _mp3_encoder_reset
+0x000011E4	0x000000A0	[  1] _find_best_3.constprop.0
+0x00001284	0x00000058	[  1] _find_best_2.constprop.0
+0x000012DC	0x0000027C	[  1] _huffman_code.constprop.0
+0x00001558	0x00000240	[  1] _choose_table.constprop.0
+0x00001798	0x000002BC	[  1] _quantize_and_count_bits.constprop.0
+0x00001A54	0x000012E0	[  1] _mp3_enc_encode_frame
+0x00002D34	0x00000198	[  1] _codec_run
+0x00002ECC	0x00000704	[  1] _enc_callback
+0x000035D0	0x00000008	[  1] _codec_main
+0x000035D8	0x00000008	[  2] __start
+0x000035E0	0x00000004	[  2] _codec_start
+0x000035E4	0x00000005	[  1] literal string: Info
+0x000035E9	0x0000000A	[  1] literal string: LAMErbshn
+0x000035F8	0x00000010	[  1] _frac_pow.0
+0x00003608	0x00000200	[  1] _crc16_lookup
+0x00003808	0x000000B8	[  1] _num_bands
+0x000038C0	0x000000F0	[  1] _bitr_index
+0x000039B0	0x00000030	[  1] _sampr_index
+0x000039E0	0x00000120	[  1] _win
+0x00003B00	0x00000278	[  1] _enwindow
+0x00003D78	0x00000020	[  1] _cs
+0x00003D98	0x00000020	[  1] _ca
+0x00003DB8	0x00000080	[  1] _order
+0x00003E38	0x00002000	[  1] _int2idx
+0x00005E38	0x00000210	[  1] _sf_band
+0x00006048	0x000000B8	[  1] _subdv_table
+0x00006100	0x000000C0	[  1] _ht_big
+0x000061C0	0x00000100	[  1] _t24l
+0x000062C0	0x00000100	[  1] _t16l
+0x000063C0	0x00000100	[  1] _t15l
+0x000064C0	0x00000100	[  1] _t13l
+0x000065C0	0x00000040	[  1] _t12l
+0x00006600	0x00000040	[  1] _t11l
+0x00006640	0x00000040	[  1] _t10l
+0x00006680	0x00000024	[  1] _t9l
+0x000066A4	0x00000024	[  1] _t8l
+0x000066C8	0x00000024	[  1] _t7l
+0x000066EC	0x00000010	[  1] _t6l
+0x000066FC	0x00000010	[  1] _t5l
+0x0000670C	0x00000009	[  1] _t3l
+0x00006715	0x00000009	[  1] _t2l
+0x0000671E	0x0000000A	[  1] _t1l
+0x00006728	0x00000400	[  1] _tab1624
+0x00006B28	0x00000100	[  1] _tabABC
+0x00006C28	0x00000090	[  1] _tab789
+0x00006CB8	0x00000040	[  1] _tab56
+0x00006CF8	0x00000024	[  1] _tab23
+0x00006D1C	0x00000040	[  1] _tab01
+0x00006D5C	0x00000400	[  1] _tab1315
+0x0000715C	0x00000200	[  1] _t24HB
+0x0000735C	0x00000200	[  1] _t16HB
+0x0000755C	0x00000100	[  1] _t15HB
+0x0000765C	0x00000100	[  1] _t13HB
+0x0000775C	0x00000040	[  1] _t12HB
+0x0000779C	0x00000040	[  1] _t11HB
+0x000077DC	0x00000040	[  1] _t10HB
+0x0000781C	0x00000024	[  1] _t9HB
+0x00007840	0x00000024	[  1] _t8HB
+0x00007864	0x00000024	[  1] _t7HB
+0x00007888	0x00000010	[  1] _t6HB
+0x00007898	0x00000010	[  1] _t5HB
+0x000078A8	0x00000009	[  1] _t3HB
+0x000078B1	0x00000009	[  1] _t2HB
+0x000078BA	0x00000004	[  1] _t1HB
+0x000078BE	0x00000040	[  1] _ht_count
+0x00007900	0x00000018	[  1] CFI
+0x00007918	0x00000020	[  1] FDE for: _putbits
+0x00007938	0x00000020	[  1] FDE for: _encode_header
+0x00007958	0x00000060	[  1] FDE for: _window_subband1_s_
+0x000079B8	0x00000060	[  1] FDE for: _window_subband2_
+0x00007A18	0x00000040	[  1] FDE for: _mp3_encoder_reset
+0x00007A58	0x00000020	[  1] FDE for: _find_best_3.constprop.0
+0x00007A78	0x00000020	[  1] FDE for: _find_best_2.constprop.0
+0x00007A98	0x00000068	[  1] FDE for: _huffman_code.constprop.0
+0x00007B00	0x00000060	[  1] FDE for: _choose_table.constprop.0
+0x00007B60	0x00000058	[  1] FDE for: _quantize_and_count_bits.constprop.0
+0x00007BB8	0x00000068	[  1] FDE for: _mp3_enc_encode_frame
+0x00007C20	0x00000068	[  1] FDE for: _codec_run
+0x00007C88	0x00000068	[  1] FDE for: _enc_callback
+0x00007CF0	0x00000020	[  1] FDE for: _codec_main
+0x00007D10	0x00000018	[  2] CFI
+0x00007D28	0x00000020	[  2] FDE for: __start
+0x00007D48	0x00000020	[  2] FDE for: _codec_start
+0x00008000	0x00000180	[  1] _ht
+0x00008180	0x00000048	[  1] ___header
+0x0000C000	0x00000008	[  2] _ci
+0x0000C008	0x00000008	[  1] _mp3_crc16
+0x0000C010	0x00000008	[  1] _header_size
+0x0000C018	0x00000018	[  1] _band_scale_f
+0x0000C030	0x000005AC	[  1] _coded_data
+0x0000C5DC	0x00000058	[  1] _scalefac
+0x0000C634	0x00000480	[  1] _enc_data
+0x0000CAB4	0x00000240	[  1] _mdct_sign
+0x0000CCF4	0x00000900	[  1] _mdct_freq
+0x0000D5F4	0x00002404	[  1] _sb_data
+0x0000F9F8	0x00001A00	[  1] _mfbuf
+0x000113F8	0x000001A8	[  1] _cfg

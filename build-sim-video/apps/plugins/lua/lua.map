@@ -1,0 +1,2483 @@
+# Path: /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/lua/lua.elf
+# Arch: arm64
+# Object files:
+[  0] linker synthesized
+[  1] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/lua/lauxlib.o
+[  2] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/lua/lapi.o
+[  3] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/lua/lbaselib.o
+[  4] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/lua/lbitlib.o
+[  5] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/lua/lcode.o
+[  6] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/lua/ldebug.o
+[  7] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/lua/ldo.o
+[  8] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/lua/ldump.o
+[  9] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/lua/lfunc.o
+[ 10] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/lua/lgc.o
+[ 11] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/lua/liolib.o
+[ 12] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/lua/llex.o
+[ 13] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/lua/lmathlib.o
+[ 14] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/lua/lmem.o
+[ 15] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/lua/loadlib.o
+[ 16] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/lua/lobject.o
+[ 17] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/lua/lopcodes.o
+[ 18] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/lua/loslib.o
+[ 19] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/lua/lparser.o
+[ 20] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/lua/lstate.o
+[ 21] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/lua/lstring.o
+[ 22] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/lua/lstrlib.o
+[ 23] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/lua/ltable.o
+[ 24] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/lua/ltablib.o
+[ 25] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/lua/ltm.o
+[ 26] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/lua/lundump.o
+[ 27] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/lua/lua_user.o
+[ 28] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/lua/lvm.o
+[ 29] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/lua/lzio.o
+[ 30] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/lua/rockaux.o
+[ 31] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/lua/rocklib.o
+[ 32] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/lua/rocklib_img.o
+[ 33] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/lua/tlsf_helper.o
+[ 34] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/lua/strpbrk.o
+[ 35] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/lua/rocklua.o
+[ 36] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/lua/luadir.o
+[ 37] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/lua/rocklib_events.o
+[ 38] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/lua/rocklib_aux.o
+[ 39] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/plugin_crt0.o
+[ 40] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/libtlsf.a(tlsf.o)
+[ 41] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(gcc-support.o)
+[ 42] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(pluginlib_actions.o)
+[ 43] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(helper.o)
+[ 44] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(strncpy.o)
+[ 45] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/libSystem.tbd
+[ 46] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/system/libsystem_c.tbd
+[ 47] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/system/libsystem_kernel.tbd
+[ 48] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/system/libsystem_platform.tbd
+# Sections:
+# Address	Size    	Segment	Section
+0x00000728	0x0001DC48	__TEXT	__text
+0x0001E370	0x00000054	__TEXT	__stubs
+0x0001E3C4	0x0000243A	__TEXT	__cstring
+0x00020800	0x00000748	__TEXT	__const
+0x00020F48	0x0000D468	__TEXT	__eh_frame
+0x00030000	0x00000040	__DATA_CONST	__got
+0x00030040	0x00001850	__DATA_CONST	__const
+0x00034000	0x00000041	__DATA	__data
+0x00034048	0x00000008	__DATA	.data
+0x00034050	0x00000360	__DATA	__bss
+# Symbols:
+# Address	Size    	File  Name
+0x00000728	0x00000018	[  1] _getS
+0x00000740	0x00000054	[  1] _emptybuffer
+0x00000794	0x00000088	[  1] _panic
+0x0000081C	0x00000068	[  1] _libsize_storenames
+0x00000884	0x00000070	[  1] _getF
+0x000008F4	0x00000090	[  1] _adjuststack.part.0
+0x00000984	0x0000008C	[  1] _l_alloc
+0x00000A10	0x00000084	[  1] _luaL_where
+0x00000A94	0x00000054	[  1] _luaL_error
+0x00000AE8	0x000000E4	[  1] _luaL_argerror
+0x00000BCC	0x00000064	[  1] _luaL_typerror
+0x00000C30	0x00000034	[  1] _tag_error
+0x00000C64	0x00000040	[  1] _luaL_checknumber.part.0
+0x00000CA4	0x000001EC	[  1] _latebind_func_index
+0x00000E90	0x00000080	[  1] _luaL_newmetatable
+0x00000F10	0x00000094	[  1] _luaL_checkudata
+0x00000FA4	0x00000044	[  1] _luaL_checkstack
+0x00000FE8	0x00000044	[  1] _luaL_checktype
+0x0000102C	0x00000048	[  1] _luaL_checkany
+0x00001074	0x00000040	[  1] _luaL_checklstring
+0x000010B4	0x00000088	[  1] _luaL_optlstring
+0x0000113C	0x000000C4	[  1] _luaL_checkoption
+0x00001200	0x0000003C	[  1] _luaL_checknumber
+0x0000123C	0x00000048	[  1] _luaL_optnumber
+0x00001284	0x0000003C	[  1] _luaL_checkinteger
+0x000012C0	0x00000048	[  1] _luaL_optinteger
+0x00001308	0x0000005C	[  1] _luaL_checkboolean
+0x00001364	0x00000044	[  1] _luaL_optboolean
+0x000013A8	0x00000074	[  1] _luaL_getmetafield
+0x0000141C	0x00000080	[  1] _luaL_callmeta
+0x0000149C	0x00000130	[  1] _luaL_findtable
+0x000015CC	0x00000150	[  1] _luaI_openlib
+0x0000171C	0x000000F4	[  1] _luaL_register
+0x00001810	0x0000003C	[  1] _luaL_prepbuffer
+0x0000184C	0x00000064	[  1] _luaL_addlstring
+0x000018B0	0x00000044	[  1] _luaL_addstring
+0x000018F4	0x00000034	[  1] _luaL_pushresult
+0x00001928	0x000000D4	[  1] _luaL_gsub
+0x000019FC	0x000000A8	[  1] _luaL_addvalue
+0x00001AA4	0x00000014	[  1] _luaL_buffinit
+0x00001AB8	0x000000E4	[  1] _luaL_ref
+0x00001B9C	0x00000088	[  1] _luaL_unref
+0x00001C24	0x0000011C	[  1] _luaL_loadfile
+0x00001D40	0x00000024	[  1] _luaL_loadbuffer
+0x00001D64	0x00000048	[  1] _luaL_loadstring
+0x00001DAC	0x000000C8	[  1] _latebind_func_pairs
+0x00001E74	0x00000050	[  1] _luaL_newstate
+0x00001EC4	0x00000028	[  2] _getcurrenv
+0x00001EEC	0x00000094	[  2] _aux_upvalue
+0x00001F80	0x0000000C	[  2] _f_call
+0x00001F8C	0x0000006C	[  2] _f_Ccall
+0x00001FF8	0x000000D8	[  2] _index2adr
+0x000020D0	0x00000020	[  2] _luaA_pushobject
+0x000020F0	0x000000A4	[  2] _lua_checkstack
+0x00002194	0x00000054	[  2] _lua_xmove
+0x000021E8	0x0000000C	[  2] _lua_setlevel
+0x000021F4	0x00000010	[  2] _lua_atpanic
+0x00002204	0x00000050	[  2] _lua_newthread
+0x00002254	0x00000010	[  2] _lua_gettop
+0x00002264	0x00000040	[  2] _lua_settop
+0x000022A4	0x00000044	[  2] _lua_remove
+0x000022E8	0x00000050	[  2] _lua_insert
+0x00002338	0x000000F4	[  2] _lua_replace
+0x0000242C	0x00000034	[  2] _lua_pushvalue
+0x00002460	0x00000030	[  2] _lua_type
+0x00002490	0x00000024	[  2] _lua_typename
+0x000024B4	0x00000038	[  2] _lua_iscfunction
+0x000024EC	0x00000038	[  2] _lua_isnumber
+0x00002524	0x00000020	[  2] _lua_isstring
+0x00002544	0x00000024	[  2] _lua_isuserdata
+0x00002568	0x00000058	[  2] _lua_rawequal
+0x000025C0	0x00000074	[  2] _lua_equal
+0x00002634	0x0000005C	[  2] _lua_lessthan
+0x00002690	0x00000044	[  2] _lua_tonumber
+0x000026D4	0x00000004	[  2] _lua_tointeger
+0x000026D8	0x0000003C	[  2] _lua_toboolean
+0x00002714	0x000000A4	[  2] _lua_tolstring
+0x000027B8	0x00000084	[  2] _lua_objlen
+0x0000283C	0x00000038	[  2] _lua_tocfunction
+0x00002874	0x00000040	[  2] _lua_touserdata
+0x000028B4	0x0000002C	[  2] _lua_tothread
+0x000028E0	0x00000064	[  2] _lua_topointer
+0x00002944	0x00000014	[  2] _lua_pushnil
+0x00002958	0x0000001C	[  2] _lua_pushnumber
+0x00002974	0x00000004	[  2] _lua_pushinteger
+0x00002978	0x0000005C	[  2] _lua_pushlstring
+0x000029D4	0x0000004C	[  2] _lua_pushstring
+0x00002A20	0x0000003C	[  2] _lua_pushvfstring
+0x00002A5C	0x0000004C	[  2] _lua_pushfstring
+0x00002AA8	0x000000A8	[  2] _lua_pushcclosure
+0x00002B50	0x00000024	[  2] _lua_pushboolean
+0x00002B74	0x0000001C	[  2] _lua_pushlightuserdata
+0x00002B90	0x0000002C	[  2] _lua_pushthread
+0x00002BBC	0x0000002C	[  2] _lua_gettable
+0x00002BE8	0x00000080	[  2] _lua_getfield
+0x00002C68	0x00000044	[  2] _lua_rawget
+0x00002CAC	0x0000004C	[  2] _lua_rawgeti
+0x00002CF8	0x00000058	[  2] _lua_createtable
+0x00002D50	0x0000006C	[  2] _lua_getmetatable
+0x00002DBC	0x00000070	[  2] _lua_getfenv
+0x00002E2C	0x00000044	[  2] _lua_settable
+0x00002E70	0x00000070	[  2] _lua_setfield
+0x00002EE0	0x000000A8	[  2] _lua_rawset
+0x00002F88	0x000000AC	[  2] _lua_rawseti
+0x00003034	0x000000C8	[  2] _lua_setmetatable
+0x000030FC	0x000000A4	[  2] _lua_setfenv
+0x000031A0	0x00000050	[  2] _lua_call
+0x000031F0	0x00000090	[  2] _lua_pcall
+0x00003280	0x00000034	[  2] _lua_cpcall
+0x000032B4	0x00000050	[  2] _lua_load
+0x00003304	0x00000038	[  2] _lua_dump
+0x0000333C	0x00000008	[  2] _lua_status
+0x00003344	0x00000100	[  2] _lua_gc
+0x00003444	0x00000018	[  2] _lua_error
+0x0000345C	0x0000004C	[  2] _lua_next
+0x000034A8	0x0000009C	[  2] _lua_concat
+0x00003544	0x0000001C	[  2] _lua_getallocf
+0x00003560	0x0000000C	[  2] _lua_setallocf
+0x0000356C	0x00000068	[  2] _lua_newuserdata
+0x000035D4	0x00000054	[  2] _lua_getupvalue
+0x00003628	0x00000094	[  2] _lua_setupvalue
+0x000036BC	0x00000028	[  3] _luaB_yield
+0x000036E4	0x00000030	[  3] _luaB_corunning
+0x00003714	0x00000080	[  3] _luaB_cocreate
+0x00003794	0x00000038	[  3] _luaB_cowrap
+0x000037CC	0x00000060	[  3] _luaB_pcall
+0x0000382C	0x00000070	[  3] _luaB_xpcall
+0x0000389C	0x0000005C	[  3] _luaB_rawset
+0x000038F8	0x00000050	[  3] _luaB_rawget
+0x00003948	0x00000078	[  3] _luaB_error
+0x000039C0	0x000000FC	[  3] _luaB_unpack
+0x00003ABC	0x0000004C	[  3] _luaB_type
+0x00003B08	0x00000134	[  3] _luaB_tonumber
+0x00003C3C	0x0000009C	[  3] _luaB_setmetatable
+0x00003CD8	0x000000FC	[  3] _getfunc
+0x00003DD4	0x000000C0	[  3] _luaB_setfenv
+0x00003E94	0x000000B4	[  3] _luaB_select
+0x00003F48	0x0000006C	[  3] _ipairsaux
+0x00003FB4	0x00000050	[  3] _luaB_rawequal
+0x00004004	0x00000058	[  3] _luaB_next
+0x0000405C	0x000000AC	[  3] _generic_reader
+0x00004108	0x00000070	[  3] _luaB_dofile
+0x00004178	0x00000054	[  3] _luaB_getfenv
+0x000041CC	0x00000038	[  3] _luaB_gcinfo
+0x00004204	0x000000BC	[  3] _luaB_collectgarbage
+0x000042C0	0x0000007C	[  3] _costatus
+0x0000433C	0x00000110	[  3] _auxresume
+0x0000444C	0x0000009C	[  3] _luaB_coresume
+0x000044E8	0x00000064	[  3] _luaB_costatus
+0x0000454C	0x00000088	[  3] _luaB_auxwrap
+0x000045D4	0x00000078	[  3] _luaB_loadstring
+0x0000464C	0x00000100	[  3] _luaB_newproxy
+0x0000474C	0x00000120	[  3] _luaB_tostring
+0x0000486C	0x00000058	[  3] _luaB_getmetatable
+0x000048C4	0x0000007C	[  3] _luaB_assert
+0x00004940	0x000000B0	[  3] _pairsmeta.isra.0
+0x000049F0	0x0000002C	[  3] _luaB_ipairs
+0x00004A1C	0x0000002C	[  3] _luaB_pairs
+0x00004A48	0x0000005C	[  3] _luaB_loadfile
+0x00004AA4	0x0000008C	[  3] _luaB_load
+0x00004B30	0x00000108	[  3] _luaopen_base
+0x00004C38	0x00000054	[  4] _bit_arshift
+0x00004C8C	0x00000050	[  4] _bit_rshift
+0x00004CDC	0x00000054	[  4] _bit_lshift
+0x00004D30	0x00000040	[  4] _bit_bnot
+0x00004D70	0x00000088	[  4] _bit_bxor
+0x00004DF8	0x00000088	[  4] _bit_bor
+0x00004E80	0x00000088	[  4] _bit_band
+0x00004F08	0x00000054	[  4] _luaopen_bit
+0x00004F5C	0x00000030	[  5] _isnumeral
+0x00004F8C	0x00000070	[  5] _fixjump
+0x00004FFC	0x00000020	[  5] _freereg
+0x0000501C	0x00000120	[  5] _addk.constprop.0
+0x0000513C	0x00000018	[  5] _freeexp
+0x00005154	0x00000030	[  5] _getjumpcontrol.isra.0
+0x00005184	0x00000068	[  5] _patchtestreg.isra.0
+0x000051EC	0x00000030	[  5] _invertjump.isra.0
+0x0000521C	0x00000024	[  5] _getjump.isra.0
+0x00005240	0x0000008C	[  5] _patchlistaux
+0x000052CC	0x000000E8	[  5] _luaK_code
+0x000053B4	0x00000050	[  5] _removevalues
+0x00005404	0x0000006C	[  5] _need_value
+0x00005470	0x00000010	[  5] _luaK_getlabel
+0x00005480	0x00000064	[  5] _luaK_concat
+0x000054E4	0x00000014	[  5] _luaK_patchtohere
+0x000054F8	0x0000001C	[  5] _luaK_patchlist
+0x00005514	0x00000054	[  5] _luaK_checkstack
+0x00005568	0x00000030	[  5] _luaK_reserveregs
+0x00005598	0x00000028	[  5] _luaK_stringK
+0x000055C0	0x00000028	[  5] _luaK_numberK
+0x000055E8	0x0000007C	[  5] _luaK_setreturns
+0x00005664	0x00000064	[  5] _luaK_setoneret
+0x000056C8	0x00000018	[  5] _luaK_fixline
+0x000056E0	0x0000001C	[  5] _luaK_codeABC
+0x000056FC	0x00000094	[  5] _luaK_nil
+0x00005790	0x00000014	[  5] _luaK_ret
+0x000057A4	0x00000014	[  5] _luaK_codeABx
+0x000057B8	0x00000050	[  5] _luaK_jump
+0x00005808	0x000000BC	[  5] _luaK_dischargevars
+0x000058C4	0x00000108	[  5] _discharge2reg
+0x000059CC	0x00000148	[  5] _exp2reg
+0x00005B14	0x00000048	[  5] _luaK_exp2nextreg
+0x00005B5C	0x0000006C	[  5] _luaK_exp2anyreg
+0x00005BC8	0x00000014	[  5] _luaK_exp2val
+0x00005BDC	0x000000E8	[  5] _luaK_exp2RK
+0x00005CC4	0x00000030	[  5] _luaK_indexed
+0x00005CF4	0x00000184	[  5] _codearith
+0x00005E78	0x000000BC	[  5] _codecomp
+0x00005F34	0x00000200	[  5] _luaK_posfix
+0x00006134	0x0000008C	[  5] _luaK_self
+0x000061C0	0x00000180	[  5] _luaK_prefix
+0x00006340	0x000000C0	[  5] _jumponcond
+0x00006400	0x00000098	[  5] _luaK_goiftrue
+0x00006498	0x000000F0	[  5] _luaK_infix
+0x00006588	0x000000D8	[  5] _luaK_storevar
+0x00006660	0x00000094	[  5] _luaK_setlist
+0x000066F4	0x00000054	[  6] _currentpc
+0x00006748	0x00000044	[  6] _currentline
+0x0000678C	0x00000034	[  6] _kname
+0x000067C0	0x0000005C	[  6] _checkArgMode
+0x0000681C	0x000000B0	[  6] _findlocal
+0x000068CC	0x00000024	[  6] _lua_sethook
+0x000068F0	0x00000008	[  6] _lua_gethook
+0x000068F8	0x00000008	[  6] _lua_gethookmask
+0x00006900	0x00000008	[  6] _lua_gethookcount
+0x00006908	0x00000080	[  6] _lua_getstack
+0x00006988	0x00000068	[  6] _lua_getlocal
+0x000069F0	0x00000074	[  6] _lua_setlocal
+0x00006A64	0x00000030	[  6] _luaG_checkopenop
+0x00006A94	0x00000498	[  6] _symbexec
+0x00006F2C	0x0000016C	[  6] _getobjname
+0x00007098	0x000003AC	[  6] _lua_getinfo
+0x00007444	0x00000024	[  6] _luaG_checkcode
+0x00007468	0x000000AC	[  6] _luaG_errormsg
+0x00007514	0x000000AC	[  6] _luaG_runerror
+0x000075C0	0x000000BC	[  6] _luaG_typeerror
+0x0000767C	0x0000001C	[  6] _luaG_concaterror
+0x00007698	0x00000050	[  6] _luaG_aritherror
+0x000076E8	0x00000068	[  6] _luaG_ordererror
+0x00007750	0x000000D0	[  7] _luaD_seterrorobj
+0x00007820	0x00000054	[  7] _luaD_rawrunprotected
+0x00007874	0x000000E4	[  7] _luaD_reallocstack
+0x00007958	0x0000007C	[  7] _luaD_reallocCI
+0x000079D4	0x00000044	[  7] _restore_stack_limit
+0x00007A18	0x000000AC	[  7] _luaD_throw
+0x00007AC4	0x00000064	[  7] _growCI
+0x00007B28	0x0000001C	[  7] _luaD_growstack
+0x00007B44	0x00000114	[  7] _f_parser
+0x00007C58	0x0000006C	[  7] _resume_error.isra.0
+0x00007CC4	0x000000DC	[  7] _luaD_callhook
+0x00007DA0	0x0000010C	[  7] _luaD_poscall
+0x00007EAC	0x0000030C	[  7] _luaD_precall
+0x000081B8	0x00000098	[  7] _resume
+0x00008250	0x000000AC	[  7] _luaD_call
+0x000082FC	0x000000D0	[  7] _lua_resume
+0x000083CC	0x00000054	[  7] _lua_yield
+0x00008420	0x000000BC	[  7] _luaD_pcall
+0x000084DC	0x00000064	[  7] _luaD_protectedparser
+0x00008540	0x0000000C	[  8] _luaU_dump
+0x0000854C	0x0000006C	[  9] _luaF_newCclosure
+0x000085B8	0x0000007C	[  9] _luaF_newLclosure
+0x00008634	0x00000054	[  9] _luaF_newupval
+0x00008688	0x000000D8	[  9] _luaF_findupval
+0x00008760	0x00000028	[  9] _luaF_freeupval
+0x00008788	0x00000094	[  9] _luaF_close
+0x0000881C	0x00000064	[  9] _luaF_newproto
+0x00008880	0x000000BC	[  9] _luaF_freeproto
+0x0000893C	0x00000028	[  9] _luaF_freeclosure
+0x00008964	0x00000054	[  9] _luaF_getlocalname
+0x000089B8	0x00000118	[ 10] _reallymarkobject
+0x00008AD0	0x00000050	[ 10] _iscleared
+0x00008B20	0x0000006C	[ 10] _markmt
+0x00008B8C	0x00000098	[ 10] _markroot
+0x00008C24	0x000000F0	[ 10] _GCTM
+0x00008D14	0x00000180	[ 10] _sweeplist
+0x00008E94	0x00000068	[ 10] _sweepstrstep
+0x00008EFC	0x000005B8	[ 10] _propagatemark
+0x000094B4	0x0000003C	[ 10] _propagateall
+0x000094F0	0x000000DC	[ 10] _luaC_separateudata
+0x000095CC	0x00000328	[ 10] _singlestep
+0x000098F4	0x00000038	[ 10] _luaC_callGCTM
+0x0000992C	0x00000068	[ 10] _luaC_freeall
+0x00009994	0x000000D8	[ 10] _luaC_step
+0x00009A6C	0x00000048	[ 10] _luaC_sweepstrgc
+0x00009AB4	0x000000DC	[ 10] _luaC_fullgc
+0x00009B90	0x00000038	[ 10] _luaC_barrierf
+0x00009BC8	0x00000020	[ 10] _luaC_barrierback
+0x00009BE8	0x00000024	[ 10] _luaC_marknew
+0x00009C0C	0x00000024	[ 10] _luaC_link
+0x00009C30	0x0000006C	[ 10] _luaC_linkupval
+0x00009C9C	0x000000A8	[ 11] _pushresult
+0x00009D44	0x0000010C	[ 11] _g_write
+0x00009E50	0x000000AC	[ 11] _io_type
+0x00009EFC	0x000000C8	[ 11] __read_line
+0x00009FC4	0x000000DC	[ 11] _read_chars
+0x0000A0A0	0x00000054	[ 11] _newfile
+0x0000A0F4	0x0000004C	[ 11] _tofile
+0x0000A140	0x00000054	[ 11] _io_fclose
+0x0000A194	0x00000048	[ 11] _io_close
+0x0000A1DC	0x0000002C	[ 11] _f_write
+0x0000A208	0x00000114	[ 11] _io_open
+0x0000A31C	0x00000050	[ 11] _f_lines
+0x0000A36C	0x000000BC	[ 11] _f_seek
+0x0000A428	0x0000007C	[ 11] _getiofile
+0x0000A4A4	0x00000030	[ 11] _io_write
+0x0000A4D4	0x0000006C	[ 11] _io_tostring
+0x0000A540	0x00000064	[ 11] _fileerror.constprop.0
+0x0000A5A4	0x0000021C	[ 11] _g_read
+0x0000A7C0	0x00000030	[ 11] _io_read
+0x0000A7F0	0x0000002C	[ 11] _f_read
+0x0000A81C	0x000000C8	[ 11] _g_iofile.isra.0
+0x0000A8E4	0x00000020	[ 11] _io_input
+0x0000A904	0x00000020	[ 11] _io_output
+0x0000A924	0x00000088	[ 11] _io_readline
+0x0000A9AC	0x00000040	[ 11] _io_gc
+0x0000A9EC	0x000000E0	[ 11] _io_lines
+0x0000AACC	0x00000090	[ 11] _luaopen_io
+0x0000AB5C	0x00000024	[ 12] _buffreplace.isra.0
+0x0000AB80	0x00000058	[ 12] _luaX_init
+0x0000ABD8	0x00000094	[ 12] _luaX_token2str
+0x0000AC6C	0x000000CC	[ 12] _luaX_lexerror
+0x0000AD38	0x0000009C	[ 12] _save
+0x0000ADD4	0x000000B8	[ 12] _skip_sep
+0x0000AE8C	0x00000084	[ 12] _check_next
+0x0000AF10	0x000001BC	[ 12] _read_numeral
+0x0000B0CC	0x00000008	[ 12] _luaX_syntaxerror
+0x0000B0D4	0x000000C4	[ 12] _inclinenumber
+0x0000B198	0x0000007C	[ 12] _luaX_newstring
+0x0000B214	0x000001A8	[ 12] _read_long_string
+0x0000B3BC	0x000008AC	[ 12] _llex
+0x0000BC68	0x00000094	[ 12] _luaX_setinput
+0x0000BCFC	0x00000050	[ 12] _luaX_next
+0x0000BD4C	0x00000028	[ 12] _luaX_lookahead
+0x0000BD74	0x00000034	[ 13] _math_ident
+0x0000BDA8	0x0000004C	[ 13] _math_rad
+0x0000BDF4	0x00000044	[ 13] _math_deg
+0x0000BE38	0x00000038	[ 13] _math_abs
+0x0000BE70	0x00000038	[ 13] _math_randomseed
+0x0000BEA8	0x00000074	[ 13] _math_min
+0x0000BF1C	0x00000074	[ 13] _math_max
+0x0000BF90	0x0000006C	[ 13] _math_fmod
+0x0000BFFC	0x0000012C	[ 13] _math_random
+0x0000C128	0x00000028	[ 13] _luaopen_math
+0x0000C150	0x00000020	[ 14] _luaM_toobig
+0x0000C170	0x00000070	[ 14] _luaM_realloc_
+0x0000C1E0	0x000000C0	[ 14] _luaM_growaux_
+0x0000C2A0	0x0000026C	[ 15] _ll_require
+0x0000C50C	0x0000025C	[ 15] _ll_module
+0x0000C768	0x000000A4	[ 15] _loader_preload
+0x0000C80C	0x00000084	[ 15] _ll_seeall
+0x0000C890	0x00000258	[ 15] _loader_Lua
+0x0000CAE8	0x0000018C	[ 15] _luaopen_package
+0x0000CC74	0x00000060	[ 16] _pushstr
+0x0000CCD4	0x00000034	[ 16] _luaO_int2fb
+0x0000CD08	0x0000001C	[ 16] _luaO_fb2int
+0x0000CD24	0x0000002C	[ 16] _luaO_log2
+0x0000CD50	0x0000005C	[ 16] _luaO_rawequalObj
+0x0000CDAC	0x000000EC	[ 16] _luaO_str2d
+0x0000CE98	0x00000018	[ 16] _luaO_getstring
+0x0000CEB0	0x00000200	[ 16] _luaO_pushvfstring
+0x0000D0B0	0x0000001C	[ 16] _luaO_pushfstring
+0x0000D0CC	0x00000184	[ 16] _luaO_chunkid
+0x0000D250	0x00000018	[ 18] _os_date
+0x0000D268	0x00000088	[ 18] _os_pushresult
+0x0000D2F0	0x00000068	[ 18] _os_rename
+0x0000D358	0x00000050	[ 18] _os_remove
+0x0000D3A8	0x00000074	[ 18] _os_exit
+0x0000D41C	0x00000090	[ 18] _getfield
+0x0000D4AC	0x00000184	[ 18] _os_time
+0x0000D630	0x00000028	[ 18] _luaopen_os
+0x0000D658	0x0000002C	[ 19] _testnext
+0x0000D684	0x000000F4	[ 19] _open_func
+0x0000D778	0x00000088	[ 19] _breakstat
+0x0000D800	0x00000070	[ 19] _errorlimit
+0x0000D870	0x00000118	[ 19] _new_localvar
+0x0000D988	0x00000048	[ 19] _error_expected
+0x0000D9D0	0x00000040	[ 19] _str_checkname
+0x0000DA10	0x00000030	[ 19] _enterlevel
+0x0000DA40	0x000000CC	[ 19] _check_match
+0x0000DB0C	0x000000A8	[ 19] _adjust_assign.isra.0
+0x0000DBB4	0x0000020C	[ 19] _singlevaraux
+0x0000DDC0	0x00000058	[ 19] _singlevar
+0x0000DE18	0x0000003C	[ 19] _removevars.isra.0
+0x0000DE54	0x000001E4	[ 19] _close_func
+0x0000E038	0x00000068	[ 19] _leaveblock
+0x0000E0A0	0x00000040	[ 19] _adjustlocalvars.isra.0
+0x0000E0E0	0x00000044	[ 19] _checkname
+0x0000E124	0x00000060	[ 19] _field
+0x0000E184	0x00000030	[ 19] _checknext
+0x0000E1B4	0x00000900	[ 19] _chunk
+0x0000EAB4	0x00000288	[ 19] _body
+0x0000ED3C	0x00000374	[ 19] _subexpr
+0x0000F0B0	0x00000008	[ 19] _expr
+0x0000F0B8	0x00000040	[ 19] _cond
+0x0000F0F8	0x00000044	[ 19] _yindex
+0x0000F13C	0x000000E8	[ 19] _recfield
+0x0000F224	0x00000064	[ 19] _explist1
+0x0000F288	0x00000028	[ 19] _exp1.isra.0
+0x0000F2B0	0x0000025C	[ 19] _constructor
+0x0000F50C	0x00000174	[ 19] _funcargs
+0x0000F680	0x00000154	[ 19] _primaryexp
+0x0000F7D4	0x000001D4	[ 19] _assignment
+0x0000F9A8	0x0000004C	[ 19] _block
+0x0000F9F4	0x00000044	[ 19] _test_then_block
+0x0000FA38	0x00000144	[ 19] _forbody
+0x0000FB7C	0x000000EC	[ 19] _luaY_parser
+0x0000FC68	0x00000090	[ 20] _stack_init
+0x0000FCF8	0x0000004C	[ 20] _freestack
+0x0000FD44	0x000000B4	[ 20] _f_luaopen
+0x0000FDF8	0x00000088	[ 20] _close_state
+0x0000FE80	0x00000004	[ 20] _callallgcTM
+0x0000FE84	0x000000F0	[ 20] _luaE_newthread
+0x0000FF74	0x00000048	[ 20] _luaE_freethread
+0x0000FFBC	0x00000118	[ 20] _lua_newstate
+0x000100D4	0x00000070	[ 20] _lua_close
+0x00010144	0x00000140	[ 21] _luaS_resize
+0x00010284	0x00000214	[ 21] _luaS_newllocstr
+0x00010498	0x0000007C	[ 21] _luaS_newudata
+0x00010514	0x00000068	[ 22] _addintlen
+0x0001057C	0x00000098	[ 22] _str_reverse
+0x00010614	0x0000009C	[ 22] _str_upper
+0x000106B0	0x00000084	[ 22] _str_rep
+0x00010734	0x0000001C	[ 22] _writer
+0x00010750	0x00000038	[ 22] _str_len
+0x00010788	0x000000C4	[ 22] _classend
+0x0001084C	0x0000000C	[ 22] _gfind_nodef
+0x00010858	0x0000009C	[ 22] _str_lower
+0x000108F4	0x00000230	[ 22] _match_class
+0x00010B24	0x000000CC	[ 22] _matchbracketclass
+0x00010BF0	0x00000068	[ 22] _gmatch
+0x00010C58	0x000000C0	[ 22] _str_char
+0x00010D18	0x00000510	[ 22] _str_format
+0x00011228	0x0000007C	[ 22] _str_dump
+0x000112A4	0x000000A4	[ 22] _push_onecapture
+0x00011348	0x00000084	[ 22] _push_captures
+0x000113CC	0x00000040	[ 22] _singlematch
+0x0001140C	0x000003C0	[ 22] _match
+0x000117CC	0x00000090	[ 22] _max_expand
+0x0001185C	0x0000007C	[ 22] _start_capture
+0x000118D8	0x00000394	[ 22] _str_gsub
+0x00011C6C	0x000000E4	[ 22] _gmatch_aux
+0x00011D50	0x00000104	[ 22] _str_byte
+0x00011E54	0x00000244	[ 22] _str_find_aux
+0x00012098	0x00000008	[ 22] _str_match
+0x000120A0	0x00000008	[ 22] _str_find
+0x000120A8	0x000000C0	[ 22] _str_sub
+0x00012168	0x000000A8	[ 22] _luaopen_string
+0x00012210	0x0000006C	[ 23] _hashnum
+0x0001227C	0x0000008C	[ 23] _mainposition
+0x00012308	0x0000006C	[ 23] _setarrayvector
+0x00012374	0x000000D0	[ 23] _setnodevector
+0x00012444	0x00000068	[ 23] _countint
+0x000124AC	0x000001AC	[ 23] _luaH_next
+0x00012658	0x000000D4	[ 23] _luaH_new
+0x0001272C	0x00000078	[ 23] _luaH_free
+0x000127A4	0x00000064	[ 23] _luaH_getnum
+0x00012808	0x00000050	[ 23] _luaH_getstr
+0x00012858	0x00000094	[ 23] _luaH_get
+0x000128EC	0x00000060	[ 23] _luaH_setnum
+0x0001294C	0x00000184	[ 23] _resize
+0x00012AD0	0x0000002C	[ 23] _luaH_resizearray
+0x00012AFC	0x000002C0	[ 23] _newkey
+0x00012DBC	0x00000080	[ 23] _luaH_set
+0x00012E3C	0x00000050	[ 23] _luaH_setstr
+0x00012E8C	0x00000128	[ 23] _luaH_getn
+0x00012FB4	0x00000048	[ 24] _setn
+0x00012FFC	0x00000038	[ 24] _set2
+0x00013034	0x000000C8	[ 24] _tremove
+0x000130FC	0x000000D4	[ 24] _tinsert
+0x000131D0	0x000000AC	[ 24] _foreach
+0x0001327C	0x0000008C	[ 24] _maxn
+0x00013308	0x00000044	[ 24] _getn
+0x0001334C	0x000000C4	[ 24] _foreachi
+0x00013410	0x00000080	[ 24] _addfield
+0x00013490	0x00000114	[ 24] _tconcat
+0x000135A4	0x000000A8	[ 24] _sort_comp
+0x0001364C	0x000002CC	[ 24] _auxsort
+0x00013918	0x00000090	[ 24] _sort
+0x000139A8	0x00000028	[ 24] _luaopen_table
+0x000139D0	0x0000005C	[ 25] _luaT_init
+0x00013A2C	0x00000048	[ 25] _luaT_gettm
+0x00013A74	0x00000050	[ 25] _luaT_gettmbyobj
+0x00013AC4	0x0000002C	[ 26] _luaU_undump
+0x00013AF0	0x00000020	[ 27] _set_lua_OOM
+0x00013B10	0x0000000C	[ 27] _get_lua_OOM
+0x00013B1C	0x000000AC	[ 28] _callTMres
+0x00013BC8	0x00000080	[ 28] _call_binTM
+0x00013C48	0x000000AC	[ 28] _l_strcmp
+0x00013CF4	0x000000B4	[ 28] _call_orderTM
+0x00013DA8	0x0000009C	[ 28] _get_compTM.constprop.0
+0x00013E44	0x00000060	[ 28] _luaV_tonumber
+0x00013EA4	0x00000134	[ 28] _Arith
+0x00013FD8	0x000000A0	[ 28] _luaV_tostring
+0x00014078	0x00000148	[ 28] _luaV_gettable
+0x000141C0	0x0000021C	[ 28] _luaV_settable
+0x000143DC	0x000000A0	[ 28] _luaV_lessthan
+0x0001447C	0x00000108	[ 28] _luaV_equalval
+0x00014584	0x00000228	[ 28] _luaV_concat
+0x000147AC	0x00001028	[ 28] _luaV_execute
+0x000157D4	0x00000060	[ 29] _luaZ_fill
+0x00015834	0x00000048	[ 29] _luaZ_lookahead
+0x0001587C	0x00000010	[ 29] _luaZ_init
+0x0001588C	0x0000007C	[ 29] _luaZ_read
+0x00015908	0x0000006C	[ 29] _luaZ_openspace
+0x00015974	0x0000003C	[ 30] _strerror
+0x000159B0	0x000003C0	[ 30] _splash_scroller
+0x00015D70	0x00000050	[ 30] _rb_pow
+0x00015DC0	0x00000018	[ 30] _strcoll
+0x00015DD8	0x00000088	[ 30] _get_current_path
+0x00015E60	0x00000158	[ 30] _filetol
+0x00015FB8	0x00000010	[ 30] _get_plugin_action
+0x00015FC8	0x00000028	[ 31] _rock_settings_save
+0x00015FF0	0x0000005C	[ 31] _rock_mem_stats
+0x0001604C	0x0000002C	[ 31] _rock_current_tick
+0x00016078	0x0000003C	[ 31] _rock_restart_lua
+0x000160B4	0x00000030	[ 31] _rock_sleep
+0x000160E4	0x00000094	[ 31] _rock_talk
+0x00016178	0x000000AC	[ 31] _rock_strncasecmp
+0x00016224	0x00000058	[ 31] _rock_utf8encode
+0x0001627C	0x00000078	[ 31] _rock_mixer_frequency
+0x000162F4	0x00000058	[ 31] _rock_splash
+0x0001634C	0x0000006C	[ 31] _rock_thread_set_priority
+0x000163B8	0x00000018	[ 31] _rock_backlight_use_settings
+0x000163D0	0x00000018	[ 31] _rock_backlight_force_on
+0x000163E8	0x00000100	[ 31] _rock_pcm
+0x000164E8	0x000001AC	[ 31] _rock_sound
+0x00016694	0x00000210	[ 31] _rock_audio
+0x000168A4	0x00000368	[ 31] _rock_playlist
+0x00016C0C	0x00000054	[ 31] _rock_splash_scroller
+0x00016C60	0x000000B0	[ 31] _get_table_items
+0x00016D10	0x00000094	[ 31] _menu_callback
+0x00016DA4	0x00000140	[ 31] _rock_do_menu
+0x00016EE4	0x00000104	[ 31] _rock_kbd_input
+0x00016FE8	0x00000058	[ 31] _rock_get_plugin_action
+0x00017040	0x00000008	[ 31] _rock_current_path
+0x00017048	0x0000003C	[ 31] _rock_talk_shutup
+0x00017084	0x00000048	[ 31] _rock_backlight_brightness_set
+0x000170CC	0x0000003C	[ 31] _rock_backlight_onoff
+0x00017108	0x0000028C	[ 31] _mem_read_write.isra.0
+0x00017394	0x00000030	[ 31] _rock_global_status
+0x000173C4	0x00000030	[ 31] _rock_global_settings
+0x000173F4	0x00000074	[ 31] _rock_audio_next_track
+0x00017468	0x00000074	[ 31] _rock_audio_current_track
+0x000174DC	0x000000EC	[ 31] _rock_gui_syncyesno_run
+0x000175C8	0x000000C4	[ 31] _luaopen_rock
+0x0001768C	0x0000002C	[ 32] _img_address_fn
+0x000176B8	0x00000040	[ 32] _rli_get_element
+0x000176F8	0x000000AC	[ 32] _next_rli_iter
+0x000177A4	0x0000024C	[ 32] _blit_transform
+0x000179F0	0x00000058	[ 32] _invert_transform
+0x00017A48	0x0000002C	[ 32] _rock_lcd_update
+0x00017A74	0x0000002C	[ 32] _rock_lcd_clear_display
+0x00017AA0	0x0000002C	[ 32] _rock_lcd_scroll_stop
+0x00017ACC	0x0000002C	[ 32] _rock_clear_viewport
+0x00017AF8	0x00000044	[ 32] _bounds_check_xy
+0x00017B3C	0x00000084	[ 32] _alloc_rlimage
+0x00017BC0	0x00000104	[ 32] _rock_read_bmp_file
+0x00017CC4	0x00000060	[ 32] _rock_lcd_get_backdrop
+0x00017D24	0x00000054	[ 32] _checkint_arr
+0x00017D78	0x00000044	[ 32] _rock_lcd_vline
+0x00017DBC	0x00000044	[ 32] _rock_lcd_hline
+0x00017E00	0x00000048	[ 32] _rock_lcd_drawline
+0x00017E48	0x00000048	[ 32] _rock_lcd_fillrect
+0x00017E90	0x00000048	[ 32] _rock_lcd_drawrect
+0x00017ED8	0x00000048	[ 32] _rock_lcd_update_rect
+0x00017F20	0x0000005C	[ 32] _rock_gui_scrollbar_draw
+0x00017F7C	0x00000058	[ 32] _rock_lcd_drawpixel
+0x00017FD4	0x00000034	[ 32] _rock_lcd_set_background
+0x00018008	0x00000034	[ 32] _rock_lcd_set_foreground
+0x0001803C	0x00000034	[ 32] _rock_lcd_setfont
+0x00018070	0x00000054	[ 32] _lcd_putshelper
+0x000180C4	0x00000044	[ 32] _rock_lcd_puts
+0x00018108	0x00000044	[ 32] _rock_lcd_putsxy
+0x0001814C	0x00000068	[ 32] _rock_lcd_rgbunpack
+0x000181B4	0x00000050	[ 32] _rock_lcd_rgbpack
+0x00018204	0x00000044	[ 32] _rock_lcd_get_background
+0x00018248	0x00000044	[ 32] _rock_lcd_get_foreground
+0x0001828C	0x00000098	[ 32] _rli_checktype_opt
+0x00018324	0x00000044	[ 32] _rli_checktype
+0x00018368	0x00000064	[ 32] _rock_lcd_bitmap_transparent
+0x000183CC	0x0000006C	[ 32] _rock_lcd_bitmap_transparent_part
+0x00018438	0x00000064	[ 32] _rock_lcd_bitmap
+0x0001849C	0x0000006C	[ 32] _rock_lcd_bitmap_part
+0x00018508	0x00000064	[ 32] _rock_lcd_mono_bitmap
+0x0001856C	0x0000006C	[ 32] _rock_lcd_mono_bitmap_part
+0x000185D8	0x00000034	[ 32] _rli_height
+0x0001860C	0x00000034	[ 32] _rli_width
+0x00018640	0x00000034	[ 32] _rli_size
+0x00018674	0x0000008C	[ 32] _rock_lcd_set_drawmode
+0x00018700	0x00000030	[ 32] _lua_to_fbscalar
+0x00018730	0x000000D8	[ 32] _rock_font_getstringsize
+0x00018808	0x000000A8	[ 32] _rli_raw
+0x000188B0	0x00000078	[ 32] _check_tablevalue_def
+0x00018928	0x00000008	[ 32] _check_tablevalue
+0x00018930	0x00000354	[ 32] _rock_lcd_put_line
+0x00018C84	0x0000005C	[ 32] _rock_lcd_puts_scroll
+0x00018CE0	0x00000050	[ 32] _rli_equal
+0x00018D30	0x00000130	[ 32] _rli_tostring
+0x00018E60	0x0000012C	[ 32] _opt_viewport
+0x00018F8C	0x0000005C	[ 32] _img_set_as_vp.constprop.0
+0x00018FE8	0x00000088	[ 32] _rock_set_viewport
+0x00019070	0x000000A0	[ 32] _d_line.isra.0
+0x00019110	0x000000EC	[ 32] _rli_setget.isra.0
+0x000191FC	0x00000020	[ 32] _rli_set
+0x0001921C	0x00000020	[ 32] _rli_get
+0x0001923C	0x00000018	[ 32] _clear_transform
+0x00019254	0x00000088	[ 32] _rli_iter_init.isra.0
+0x000192DC	0x00000358	[ 32] _rli_copy
+0x00019634	0x00000150	[ 32] _rli_iter_create
+0x00019784	0x000000B0	[ 32] _rli_marshal
+0x00019834	0x00000064	[ 32] _rli_clear
+0x00019898	0x00000038	[ 32] _rli_iterator_factory
+0x000198D0	0x00000070	[ 32] _rock_lcd_framebuffer
+0x00019940	0x00000090	[ 32] _rli_new
+0x000199D0	0x000000E4	[ 32] _d_ellipse_elements
+0x00019AB4	0x000002A0	[ 32] _rli_line_ellipse.isra.0
+0x00019D54	0x00000020	[ 32] _rli_line
+0x00019D74	0x00000020	[ 32] _rli_ellipse
+0x00019D94	0x00000084	[ 32] _rli_iterator
+0x00019E18	0x00000150	[ 32] _custom_transform
+0x00019F68	0x00000078	[ 32] _luaopen_rock_img
+0x00019FE0	0x00000064	[ 33] _check_sentinel
+0x0001A044	0x00000018	[ 33] _rock_get_allocated_bytes
+0x0001A05C	0x00000050	[ 33] _rock_get_unused_bytes
+0x0001A0AC	0x000000FC	[ 33] _get_new_area
+0x0001A1A8	0x00000044	[ 34] _strpbrk_n
+0x0001A1EC	0x0000000C	[ 34] _strpbrk
+0x0001A1F8	0x00000058	[ 35] _traceback
+0x0001A250	0x000002F4	[ 35] _db_errorfb
+0x0001A544	0x00000164	[ 35] _loadfile_newstate.constprop.0
+0x0001A6A8	0x000000A4	[ 35] _browse_scripts
+0x0001A74C	0x00000188	[ 35] _plugin_start
+0x0001A8D4	0x00000104	[ 35] _lua_atexit
+0x0001A9D8	0x00000050	[ 36] _remove_dir
+0x0001AA28	0x00000050	[ 36] _make_dir
+0x0001AA78	0x000000D4	[ 36] _dir_iter_factory
+0x0001AB4C	0x00000154	[ 36] _dir_iter
+0x0001ACA0	0x00000054	[ 36] _dir_close
+0x0001ACF4	0x000000DC	[ 36] _luaopen_luadir
+0x0001ADD0	0x00000020	[ 37] _remove_evt
+0x0001ADF0	0x00000050	[ 37] _suspend_evt
+0x0001AE40	0x00000020	[ 37] _rev_lock_mtx
+0x0001AE60	0x00000020	[ 37] _rev_unlock_mtx
+0x0001AE80	0x00000080	[ 37] _register_playbk_events
+0x0001AF00	0x000000A8	[ 37] _lua_interrupt_set
+0x0001AFA8	0x00000064	[ 37] _destroy_event_userdata
+0x0001B00C	0x0000020C	[ 37] _event_thread
+0x0001B218	0x0000005C	[ 37] _set_event_meta
+0x0001B274	0x00000038	[ 37] _playback_event_callback
+0x0001B2AC	0x00000070	[ 37] _lua_interrupt_callback
+0x0001B31C	0x00000080	[ 37] _exit_event_thread.constprop.0
+0x0001B39C	0x000000CC	[ 37] _rockev_gc
+0x0001B468	0x00000030	[ 37] _rockev_unregister
+0x0001B498	0x0000026C	[ 37] _rockev_register
+0x0001B704	0x000000B0	[ 37] _rockev_suspend
+0x0001B7B4	0x000000CC	[ 37] _rockev_trigger
+0x0001B880	0x0000011C	[ 37] _rev_timer_isr
+0x0001B99C	0x0000008C	[ 37] _luaopen_rockevents
+0x0001BA28	0x00000028	[ 38] _rock_button_clear_queue
+0x0001BA50	0x00000028	[ 38] _rock_pcm_close_recording
+0x0001BA78	0x00000028	[ 38] _rock_pcm_init_recording
+0x0001BAA0	0x00000028	[ 38] _rock_pcm_stop_recording
+0x0001BAC8	0x00000028	[ 38] _rock_reset_poweroff_timer
+0x0001BAF0	0x00000028	[ 38] _rock_storage_sleep
+0x0001BB18	0x00000028	[ 38] _rock_storage_spin
+0x0001BB40	0x00000028	[ 38] _rock_sys_poweroff
+0x0001BB68	0x00000028	[ 38] _rock_sys_reboot
+0x0001BB90	0x00000028	[ 38] _rock_tagcache_commit_finalize
+0x0001BBB8	0x00000028	[ 38] _rock_talk_force_enqueue_next
+0x0001BBE0	0x00000028	[ 38] _rock_yield
+0x0001BC08	0x0000004C	[ 38] _rock_yesno_pop_confirm
+0x0001BC54	0x0000004C	[ 38] _rock_yesno_pop
+0x0001BCA0	0x00000040	[ 38] _rock_warn_on_pl_erase
+0x0001BCE0	0x00000040	[ 38] _rock_usb_inserted
+0x0001BD20	0x00000040	[ 38] _rock_tagcache_is_in_ram
+0x0001BD60	0x0000004C	[ 38] _rock_file_exists
+0x0001BDAC	0x00000040	[ 38] _rock_dsp_timestretch_available
+0x0001BDEC	0x0000004C	[ 38] _rock_dir_exists
+0x0001BE38	0x00000040	[ 38] _rock_charging_state
+0x0001BE78	0x00000040	[ 38] _rock_charger_inserted
+0x0001BEB8	0x00000040	[ 38] _rock_button_hold
+0x0001BEF8	0x00000040	[ 38] _rock_button_get_sw_poweroff_state
+0x0001BF38	0x00000040	[ 38] _rock_battery_level_safe
+0x0001BF78	0x00000030	[ 38] _rock_storage_spindown
+0x0001BFA8	0x00000034	[ 38] _rock_splash_progress_set_delay
+0x0001BFDC	0x00000030	[ 38] _rock_set_sleeptimer_duration
+0x0001C00C	0x00000080	[ 38] _rock_sb_set_title_text
+0x0001C08C	0x00000080	[ 38] _rock_sb_set_persistent_title
+0x0001C10C	0x00000030	[ 38] _rock_font_unload
+0x0001C13C	0x00000074	[ 38] _rock_fix_path_part
+0x0001C1B0	0x00000030	[ 38] _rock_dsp_set_crossfeed_type
+0x0001C1E0	0x00000070	[ 38] _rock_beep_play
+0x0001C250	0x00000030	[ 38] _rock_backlight_set_timeout_plugged
+0x0001C280	0x00000030	[ 38] _rock_backlight_set_timeout
+0x0001C2B0	0x00000070	[ 38] _rock_audio_set_recording_gain
+0x0001C320	0x00000030	[ 38] _rock_audio_set_output_source
+0x0001C350	0x00000054	[ 38] _rock_audio_set_input_source
+0x0001C3A4	0x00000030	[ 38] _rock_adjust_volume
+0x0001C3D4	0x00000048	[ 38] _rock_action_userabort
+0x0001C41C	0x00000064	[ 38] _rock_utf8seek
+0x0001C480	0x0000004C	[ 38] _rock_utf8length
+0x0001C4CC	0x00000068	[ 38] _rock_strcmp
+0x0001C534	0x0000004C	[ 38] _rock_plugin_reserve_buffer
+0x0001C580	0x00000068	[ 38] _rock_plugin_open
+0x0001C5E8	0x00000040	[ 38] _rock_playlist_get_display_index
+0x0001C628	0x00000040	[ 38] _rock_lcd_get_drawmode
+0x0001C668	0x00000040	[ 38] _rock_lang_is_rtl
+0x0001C6A8	0x00000040	[ 38] _rock_get_sleep_timer
+0x0001C6E8	0x00000060	[ 38] _rock_get_action
+0x0001C748	0x0000004C	[ 38] _rock_font_load
+0x0001C794	0x0000004C	[ 38] _rock_filetype_get_attr
+0x0001C7E0	0x00000048	[ 38] _rock_dynamic_colors_resolve
+0x0001C828	0x0000004C	[ 38] _rock_default_event_handler
+0x0001C874	0x00000040	[ 38] _rock_button_status
+0x0001C8B4	0x00000040	[ 38] _rock_button_queue_count
+0x0001C8F4	0x00000048	[ 38] _rock_button_get_w_tmo
+0x0001C93C	0x00000040	[ 38] _rock_battery_voltage
+0x0001C97C	0x00000040	[ 38] _rock_battery_time
+0x0001C9BC	0x00000040	[ 38] _rock_battery_level
+0x0001C9FC	0x00000040	[ 38] _rock_battery_current
+0x0001CA3C	0x00000098	[ 38] _rock_talk_value_decimal
+0x0001CAD4	0x00000068	[ 38] _rock_talk_fullpath
+0x0001CB3C	0x00000038	[ 38] _rock_talk_disable
+0x0001CB74	0x00000038	[ 38] _rock_skin_render_inhibit_flush
+0x0001CBAC	0x00000038	[ 38] _rock_pcmbuf_set_low_latency
+0x0001CBE4	0x0000005C	[ 38] _rock_pcmbuf_fade
+0x0001CC40	0x00000038	[ 38] _rock_led
+0x0001CC78	0x00000058	[ 38] _rock_keyclick_click
+0x0001CCD0	0x00000050	[ 38] _rock_is_backlight_on
+0x0001CD20	0x00000038	[ 38] _rock_dsp_timestretch_enable
+0x0001CD58	0x00000038	[ 38] _rock_dsp_eq_enable
+0x0001CD90	0x00000038	[ 38] _rock_dsp_dither_enable
+0x0001CDC8	0x00000038	[ 38] _rock_button_set_sw_poweroff_state
+0x0001CE00	0x00000050	[ 38] _rock_button_get
+0x0001CE50	0x00000068	[ 38] _rock_strstr
+0x0001CEB8	0x00000064	[ 38] _rock_strrchr
+0x0001CF1C	0x00000064	[ 38] _rock_strchr
+0x0001CF80	0x00000048	[ 38] _rock_get_codepage_name
+0x0001CFC8	0x00000048	[ 38] _rock_get_codec_string
+0x0001D010	0x00000048	[ 38] _rock_get_codec_filename
+0x0001D058	0x000000B0	[ 38] _rock_format_time_auto
+0x0001D108	0x00000080	[ 38] _rock_filetype_get_plugin
+0x0001D188	0x00000018	[ 39] _cleanup_wrapper
+0x0001D1A0	0x00000068	[ 39] _plugin__start
+0x0001D208	0x00000020	[ 39] _rb_atexit
+0x0001D228	0x00000024	[ 39] _exit
+0x0001D24C	0x00000014	[ 39] __exit
+0x0001D260	0x00000064	[ 39] _exit_on_usb
+0x0001D2C4	0x00000050	[ 40] _ls_bit
+0x0001D314	0x00000048	[ 40] _ms_bit
+0x0001D35C	0x00000020	[ 40] _set_bit
+0x0001D37C	0x00000020	[ 40] _clear_bit
+0x0001D39C	0x0000008C	[ 40] _FIND_SUITABLE_BLOCK
+0x0001D428	0x0000004C	[ 40] _process_area
+0x0001D474	0x00000058	[ 40] _MAPPING_INSERT
+0x0001D4CC	0x00000004	[ 40] _panicf
+0x0001D4D0	0x00000008	[ 40] _get_used_size
+0x0001D4D8	0x00000008	[ 40] _get_max_size
+0x0001D4E0	0x00000008	[ 40] _destroy_memory_pool
+0x0001D4E8	0x00000248	[ 40] _free_ex
+0x0001D730	0x000000C4	[ 40] _init_memory_pool
+0x0001D7F4	0x0000016C	[ 40] _add_new_area
+0x0001D960	0x000002CC	[ 40] _malloc_ex
+0x0001DC2C	0x0000006C	[ 40] _tlsf_malloc
+0x0001DC98	0x0000000C	[ 40] _tlsf_free
+0x0001DCA4	0x00000368	[ 40] _realloc_ex
+0x0001E00C	0x00000018	[ 40] _tlsf_realloc
+0x0001E024	0x0000005C	[ 40] _calloc_ex
+0x0001E080	0x0000000C	[ 40] _tlsf_calloc
+0x0001E08C	0x00000018	[ 41] _memcpy
+0x0001E0A4	0x00000018	[ 41] _memset
+0x0001E0BC	0x00000018	[ 41] _memmove
+0x0001E0D4	0x00000018	[ 41] _memcmp
+0x0001E0EC	0x00000038	[ 42] _get_context_map
+0x0001E124	0x00000040	[ 42] _pluginlib_getaction
+0x0001E164	0x00000020	[ 43] _talk_val
+0x0001E184	0x00000040	[ 43] _backlight_force_on
+0x0001E1C4	0x0000006C	[ 43] _backlight_ignore_timeout
+0x0001E230	0x00000048	[ 43] _backlight_use_settings
+0x0001E278	0x00000044	[ 43] _sw_poweroff_disable
+0x0001E2BC	0x00000020	[ 43] _sw_poweroff_restore
+0x0001E2DC	0x00000004	[ 43] _remote_backlight_force_on
+0x0001E2E0	0x00000004	[ 43] _remote_backlight_ignore_timeout
+0x0001E2E4	0x00000004	[ 43] _remote_backlight_use_settings
+0x0001E2E8	0x00000004	[ 43] _buttonlight_force_on
+0x0001E2EC	0x00000004	[ 43] _buttonlight_force_off
+0x0001E2F0	0x00000004	[ 43] _buttonlight_ignore_timeout
+0x0001E2F4	0x00000004	[ 43] _buttonlight_use_settings
+0x0001E2F8	0x00000018	[ 43] _backlight_brightness_set
+0x0001E310	0x00000020	[ 43] _backlight_brightness_use_setting
+0x0001E330	0x00000004	[ 43] _buttonlight_brightness_set
+0x0001E334	0x00000004	[ 43] _buttonlight_brightness_use_setting
+0x0001E338	0x00000038	[ 44] _strncpy
+0x0001E370	0x0000000C	[ 47] ___error.stub
+0x0001E37C	0x0000000C	[ 46] ___maskrune.stub
+0x0001E388	0x0000000C	[ 46] ___tolower.stub
+0x0001E394	0x0000000C	[ 46] ___toupper.stub
+0x0001E3A0	0x0000000C	[ 46] _abs.stub
+0x0001E3AC	0x0000000C	[ 48] _longjmp.stub
+0x0001E3B8	0x0000000C	[ 48] _setjmp.stub
+0x0001E3C4	0x00000032	[  1] literal string: PANIC: unprotected error in call to Lua API (%s)\n
+0x0001E3F6	0x00000031	[  1] literal string: PANIC: unprotected error in call to Lua API (%s)
+0x0001E427	0x00000002	[  1] literal string: \n
+0x0001E429	0x00000003	[  1] literal string: Sl
+0x0001E42C	0x00000008	[  1] literal string: %s:%d: 
+0x0001E434	0x00000001	[  1] literal string: 
+0x0001E435	0x00000002	[  1] literal string: ?
+0x0001E437	0x00000016	[  1] literal string: bad argument #%d (%s)
+0x0001E44D	0x00000002	[  1] literal string: n
+0x0001E44F	0x00000007	[  1] literal string: method
+0x0001E456	0x0000001E	[  1] literal string: calling '%s' on bad self (%s)
+0x0001E474	0x0000001E	[  1] literal string: bad argument #%d to '%s' (%s)
+0x0001E492	0x00000014	[  1] literal string: %s expected, got %s
+0x0001E4A6	0x0000000B	[  1] literal string: __latebind
+0x0001E4B1	0x0000001A	[  1] literal string: __latebind table expected
+0x0001E4CB	0x00000014	[  1] literal string: stack overflow (%s)
+0x0001E4DF	0x0000000F	[  1] literal string: value expected
+0x0001E4EE	0x00000014	[  1] literal string: invalid option '%s'
+0x0001E502	0x00000008	[  1] literal string: _LOADED
+0x0001E50A	0x0000001E	[  1] literal string: name conflict for module '%s'
+0x0001E528	0x0000000E	[  1] literal string: META_LATEBIND
+0x0001E536	0x0000000C	[  1] literal string: __metatable
+0x0001E542	0x00000004	[  1] literal string: @%s
+0x0001E546	0x00000011	[  1] literal string: cannot %s %s: %s
+0x0001E557	0x00000005	[  1] literal string: open
+0x0001E55C	0x0000000F	[  1] literal string: table expected
+0x0001E56B	0x0000001A	[  1] literal string: return next, {}, nil, nil
+0x0001E585	0x00000008	[  1] literal string: __index
+0x0001E58D	0x00000008	[  1] literal string: __pairs
+0x0001E595	0x00000007	[  1] literal string: __call
+0x0001E59C	0x00000017	[  2] literal string: no calling environment
+0x0001E5B3	0x00000009	[  2] literal string: no value
+0x0001E5BC	0x00000016	[  3] literal string: Lua function expected
+0x0001E5D2	0x0000001B	[  3] literal string: too many results to unpack
+0x0001E5ED	0x00000012	[  3] literal string: base out of range
+0x0001E5FF	0x00000016	[  3] literal string: nil or table expected
+0x0001E615	0x00000024	[  3] literal string: cannot change a protected metatable
+0x0001E639	0x0000001B	[  3] literal string: level must be non-negative
+0x0001E654	0x0000000E	[  3] literal string: invalid level
+0x0001E662	0x00000002	[  3] literal string: f
+0x0001E664	0x00000032	[  3] literal string: no function environment for tail call at level %d
+0x0001E696	0x00000034	[  3] literal string: 'setfenv' cannot change environment of given object
+0x0001E6CA	0x00000013	[  3] literal string: index out of range
+0x0001E6DD	0x0000001A	[  3] literal string: too many nested functions
+0x0001E6F7	0x00000025	[  3] literal string: reader function must return a string
+0x0001E71C	0x00000008	[  3] literal string: collect
+0x0001E724	0x0000001D	[  3] literal string: too many arguments to resume
+0x0001E741	0x0000001B	[  3] literal string: cannot resume %s coroutine
+0x0001E75C	0x0000001B	[  3] literal string: too many results to resume
+0x0001E777	0x00000013	[  3] literal string: coroutine expected
+0x0001E78A	0x0000001A	[  3] literal string: boolean or proxy expected
+0x0001E7A4	0x00000005	[  3] literal string: true
+0x0001E7A9	0x00000006	[  3] literal string: false
+0x0001E7AF	0x0000000B	[  3] literal string: __tostring
+0x0001E7BA	0x00000004	[  3] literal string: nil
+0x0001E7BE	0x00000007	[  3] literal string: %s: %p
+0x0001E7C5	0x00000012	[  3] literal string: assertion failed!
+0x0001E7D7	0x00000003	[  3] literal string: %s
+0x0001E7DA	0x00000009	[  3] literal string: __ipairs
+0x0001E7E3	0x00000008	[  3] literal string: =(load)
+0x0001E7EB	0x00000003	[  3] literal string: _G
+0x0001E7EE	0x00000008	[  3] literal string: Lua 5.1
+0x0001E7F6	0x00000009	[  3] literal string: _VERSION
+0x0001E7FF	0x00000003	[  3] literal string: kv
+0x0001E802	0x00000007	[  3] literal string: __mode
+0x0001E809	0x00000009	[  3] literal string: newproxy
+0x0001E812	0x0000000A	[  3] literal string: coroutine
+0x0001E81C	0x00000005	[  3] literal string: stop
+0x0001E821	0x00000008	[  3] literal string: restart
+0x0001E829	0x00000006	[  3] literal string: count
+0x0001E82F	0x00000005	[  3] literal string: step
+0x0001E834	0x00000009	[  3] literal string: setpause
+0x0001E83D	0x0000000B	[  3] literal string: setstepmul
+0x0001E848	0x00000007	[  3] literal string: create
+0x0001E84F	0x00000007	[  3] literal string: resume
+0x0001E856	0x00000008	[  3] literal string: running
+0x0001E85E	0x00000007	[  3] literal string: status
+0x0001E865	0x00000005	[  3] literal string: wrap
+0x0001E86A	0x00000006	[  3] literal string: yield
+0x0001E870	0x0000000A	[  3] literal string: suspended
+0x0001E87A	0x00000007	[  3] literal string: normal
+0x0001E881	0x00000005	[  3] literal string: dead
+0x0001E886	0x00000007	[  3] literal string: assert
+0x0001E88D	0x0000000F	[  3] literal string: collectgarbage
+0x0001E89C	0x00000007	[  3] literal string: dofile
+0x0001E8A3	0x00000006	[  3] literal string: error
+0x0001E8A9	0x00000007	[  3] literal string: gcinfo
+0x0001E8B0	0x00000008	[  3] literal string: getfenv
+0x0001E8B8	0x0000000D	[  3] literal string: getmetatable
+0x0001E8C5	0x00000007	[  3] literal string: ipairs
+0x0001E8CC	0x00000009	[  3] literal string: loadfile
+0x0001E8D5	0x00000005	[  3] literal string: load
+0x0001E8DA	0x0000000B	[  3] literal string: loadstring
+0x0001E8E5	0x00000005	[  3] literal string: next
+0x0001E8EA	0x00000006	[  3] literal string: pairs
+0x0001E8F0	0x00000006	[  3] literal string: pcall
+0x0001E8F6	0x00000009	[  3] literal string: rawequal
+0x0001E8FF	0x00000007	[  3] literal string: rawget
+0x0001E906	0x00000007	[  3] literal string: rawset
+0x0001E90D	0x00000007	[  3] literal string: select
+0x0001E914	0x00000008	[  3] literal string: setfenv
+0x0001E91C	0x0000000D	[  3] literal string: setmetatable
+0x0001E929	0x00000009	[  3] literal string: tonumber
+0x0001E932	0x00000009	[  3] literal string: tostring
+0x0001E93B	0x00000005	[  3] literal string: type
+0x0001E940	0x00000007	[  3] literal string: unpack
+0x0001E947	0x00000007	[  3] literal string: xpcall
+0x0001E94E	0x00000004	[  4] literal string: bit
+0x0001E952	0x00000005	[  4] literal string: bits
+0x0001E957	0x00000005	[  4] literal string: bnot
+0x0001E95C	0x00000005	[  4] literal string: band
+0x0001E961	0x00000004	[  4] literal string: bor
+0x0001E965	0x00000005	[  4] literal string: bxor
+0x0001E96A	0x00000007	[  4] literal string: lshift
+0x0001E971	0x00000007	[  4] literal string: rshift
+0x0001E978	0x00000008	[  4] literal string: arshift
+0x0001E980	0x0000001B	[  5] literal string: control structure too long
+0x0001E99B	0x00000018	[  5] literal string: constant table overflow
+0x0001E9B3	0x00000013	[  5] literal string: code size overflow
+0x0001E9C6	0x00000023	[  5] literal string: function or expression too complex
+0x0001E9E9	0x0000000B	[  5] literal string: Inf or NaN
+0x0001E9F4	0x0000000D	[  6] literal string: (*temporary)
+0x0001EA01	0x00000006	[  6] literal string: local
+0x0001EA07	0x00000007	[  6] literal string: global
+0x0001EA0E	0x00000006	[  6] literal string: field
+0x0001EA14	0x00000008	[  6] literal string: upvalue
+0x0001EA1C	0x00000005	[  6] literal string: main
+0x0001EA21	0x00000004	[  6] literal string: Lua
+0x0001EA25	0x00000002	[  6] literal string: C
+0x0001EA27	0x00000005	[  6] literal string: =[C]
+0x0001EA2C	0x00000005	[  6] literal string: tail
+0x0001EA31	0x0000000D	[  6] literal string: =(tail call)
+0x0001EA3E	0x0000000B	[  6] literal string: %s: %d: %s
+0x0001EA49	0x00000023	[  6] literal string: attempt to %s %s '%s' (a %s value)
+0x0001EA6C	0x00000019	[  6] literal string: attempt to %s a %s value
+0x0001EA85	0x0000000C	[  6] literal string: concatenate
+0x0001EA91	0x00000016	[  6] literal string: perform arithmetic on
+0x0001EAA7	0x00000021	[  6] literal string: attempt to compare two %s values
+0x0001EAC8	0x0000001E	[  6] literal string: attempt to compare %s with %s
+0x0001EAE6	0x00000012	[  7] literal string: not enough memory
+0x0001EAF8	0x00000018	[  7] literal string: error in error handling
+0x0001EB10	0x0000000F	[  7] literal string: stack overflow
+0x0001EB1F	0x00000005	[  7] literal string: call
+0x0001EB24	0x00000011	[  7] literal string: C stack overflow
+0x0001EB35	0x00000026	[  7] literal string: cannot resume non-suspended coroutine
+0x0001EB5B	0x00000033	[  7] literal string: attempt to yield across metamethod/C-call boundary
+0x0001EB8E	0x00000018	[  8] literal string:  bytecode not supported
+0x0001EBA6	0x00000007	[ 11] literal string: %s: %s
+0x0001EBAD	0x00000004	[ 11] literal string: %ld
+0x0001EBB1	0x00000006	[ 11] literal string: FILE*
+0x0001EBB7	0x0000000C	[ 11] literal string: closed file
+0x0001EBC3	0x00000005	[ 11] literal string: file
+0x0001EBC8	0x00000013	[ 11] literal string: error reading file
+0x0001EBDB	0x0000001D	[ 11] literal string: attempt to use a closed file
+0x0001EBF8	0x00000002	[ 11] literal string: r
+0x0001EBFA	0x0000001E	[ 11] literal string: invalid option '%c' to 'open'
+0x0001EC18	0x00000004	[ 11] literal string: cur
+0x0001EC1C	0x0000001B	[ 11] literal string: standard %s file is closed
+0x0001EC37	0x0000000E	[ 11] literal string: file (closed)
+0x0001EC45	0x0000000A	[ 11] literal string: file (%d)
+0x0001EC4F	0x00000013	[ 11] literal string: too many arguments
+0x0001EC62	0x0000000F	[ 11] literal string: invalid option
+0x0001EC71	0x0000000F	[ 11] literal string: invalid format
+0x0001EC80	0x00000017	[ 11] literal string: file is already closed
+0x0001EC97	0x00000003	[ 11] literal string: io
+0x0001EC9A	0x00000004	[ 11] literal string: set
+0x0001EC9E	0x00000004	[ 11] literal string: end
+0x0001ECA2	0x00000006	[ 11] literal string: close
+0x0001ECA8	0x00000006	[ 11] literal string: lines
+0x0001ECAE	0x00000005	[ 11] literal string: read
+0x0001ECB3	0x00000005	[ 11] literal string: seek
+0x0001ECB8	0x00000006	[ 11] literal string: write
+0x0001ECBE	0x00000005	[ 11] literal string: __gc
+0x0001ECC3	0x00000006	[ 11] literal string: input
+0x0001ECC9	0x00000007	[ 11] literal string: output
+0x0001ECD0	0x00000009	[ 12] literal string: char(%d)
+0x0001ECD9	0x00000003	[ 12] literal string: %c
+0x0001ECDC	0x0000000A	[ 12] literal string: %s:%d: %s
+0x0001ECE6	0x0000000D	[ 12] literal string: %s near '%s'
+0x0001ECF3	0x00000019	[ 12] literal string: lexical element too long
+0x0001ED0C	0x00000003	[ 12] literal string: Ee
+0x0001ED0F	0x00000003	[ 12] literal string: +-
+0x0001ED12	0x00000011	[ 12] literal string: malformed number
+0x0001ED23	0x00000019	[ 12] literal string: chunk has too many lines
+0x0001ED3C	0x00000017	[ 12] literal string: unfinished long string
+0x0001ED53	0x00000018	[ 12] literal string: unfinished long comment
+0x0001ED6B	0x0000001E	[ 12] literal string: invalid long string delimiter
+0x0001ED89	0x00000012	[ 12] literal string: unfinished string
+0x0001ED9B	0x0000001A	[ 12] literal string: escape sequence too large
+0x0001EDB5	0x00000002	[ 12] literal string: .
+0x0001EDB7	0x00000004	[ 12] literal string: and
+0x0001EDBB	0x00000006	[ 12] literal string: break
+0x0001EDC1	0x00000003	[ 12] literal string: do
+0x0001EDC4	0x00000005	[ 12] literal string: else
+0x0001EDC9	0x00000007	[ 12] literal string: elseif
+0x0001EDD0	0x00000004	[ 12] literal string: for
+0x0001EDD4	0x00000009	[ 12] literal string: function
+0x0001EDDD	0x00000003	[ 12] literal string: if
+0x0001EDE0	0x00000003	[ 12] literal string: in
+0x0001EDE3	0x00000004	[ 12] literal string: not
+0x0001EDE7	0x00000003	[ 12] literal string: or
+0x0001EDEA	0x00000007	[ 12] literal string: repeat
+0x0001EDF1	0x00000007	[ 12] literal string: return
+0x0001EDF8	0x00000005	[ 12] literal string: then
+0x0001EDFD	0x00000006	[ 12] literal string: until
+0x0001EE03	0x00000006	[ 12] literal string: while
+0x0001EE09	0x00000003	[ 12] literal string: ..
+0x0001EE0C	0x00000004	[ 12] literal string: ...
+0x0001EE10	0x00000003	[ 12] literal string: ==
+0x0001EE13	0x00000003	[ 12] literal string: >=
+0x0001EE16	0x00000003	[ 12] literal string: <=
+0x0001EE19	0x00000003	[ 12] literal string: ~=
+0x0001EE1C	0x00000009	[ 12] literal string: <number>
+0x0001EE25	0x00000007	[ 12] literal string: <name>
+0x0001EE2C	0x00000009	[ 12] literal string: <string>
+0x0001EE35	0x00000006	[ 12] literal string: <eof>
+0x0001EE3B	0x00000011	[ 13] literal string: division by zero
+0x0001EE4C	0x00000012	[ 13] literal string: interval is empty
+0x0001EE5E	0x0000001A	[ 13] literal string: wrong number of arguments
+0x0001EE78	0x00000005	[ 13] literal string: math
+0x0001EE7D	0x00000004	[ 13] literal string: abs
+0x0001EE81	0x00000004	[ 13] literal string: deg
+0x0001EE85	0x00000005	[ 13] literal string: fmod
+0x0001EE8A	0x00000004	[ 13] literal string: max
+0x0001EE8E	0x00000004	[ 13] literal string: min
+0x0001EE92	0x00000004	[ 13] literal string: rad
+0x0001EE96	0x00000007	[ 13] literal string: random
+0x0001EE9D	0x0000000B	[ 13] literal string: randomseed
+0x0001EEA8	0x00000005	[ 13] literal string: ceil
+0x0001EEAD	0x00000006	[ 13] literal string: floor
+0x0001EEB3	0x00000027	[ 14] literal string: memory allocation error: block too big
+0x0001EEDA	0x0000002B	[ 15] literal string: loop or previous error loading module '%s'
+0x0001EF05	0x00000008	[ 15] literal string: loaders
+0x0001EF0D	0x00000022	[ 15] literal string: 'package.loaders' must be a table
+0x0001EF2F	0x00000019	[ 15] literal string: module '%s' not found:%s
+0x0001EF48	0x00000006	[ 15] literal string: _NAME
+0x0001EF4E	0x00000003	[ 15] literal string: _M
+0x0001EF51	0x00000009	[ 15] literal string: _PACKAGE
+0x0001EF5A	0x00000028	[ 15] literal string: 'module' not called from a Lua function
+0x0001EF82	0x00000008	[ 15] literal string: preload
+0x0001EF8A	0x00000022	[ 15] literal string: 'package.preload' must be a table
+0x0001EFAC	0x00000021	[ 15] literal string: \n\tno field package.preload['%s']
+0x0001EFCD	0x00000002	[ 15] literal string: /
+0x0001EFCF	0x00000005	[ 15] literal string: path
+0x0001EFD4	0x0000001E	[ 15] literal string: 'package.%s' must be a string
+0x0001EFF2	0x00000002	[ 15] literal string: $
+0x0001EFF4	0x0000000F	[ 15] literal string: \n\tno file '%s'
+0x0001F003	0x0000002E	[ 15] literal string: error loading module '%s' from file '%s':\n\t%s
+0x0001F031	0x00000009	[ 15] literal string: _LOADLIB
+0x0001F03A	0x00000008	[ 15] literal string: package
+0x0001F042	0x0000005F	[ 15] literal string: $/?.lua;$/?/init.lua;/.rockbox/rocks/viewers/lua/?.lua;/.rockbox/rocks/viewers/lua/?/init.lua;
+0x0001F0A1	0x0000000A	[ 15] literal string: /\n;\n?\n!\n-
+0x0001F0AB	0x00000007	[ 15] literal string: config
+0x0001F0B2	0x00000007	[ 15] literal string: loaded
+0x0001F0B9	0x00000007	[ 15] literal string: module
+0x0001F0C0	0x00000008	[ 15] literal string: require
+0x0001F0C8	0x00000007	[ 15] literal string: seeall
+0x0001F0CF	0x00000007	[ 16] literal string: (null)
+0x0001F0D6	0x00000003	[ 16] literal string: %p
+0x0001F0D9	0x00000002	[ 16] literal string: %
+0x0001F0DB	0x0000000A	[ 16] literal string: [string \"
+0x0001F0E5	0x00000003	[ 16] literal string: \"]
+0x0001F0E8	0x00000005	[ 17] literal string: MOVE
+0x0001F0ED	0x00000006	[ 17] literal string: LOADK
+0x0001F0F3	0x00000009	[ 17] literal string: LOADBOOL
+0x0001F0FC	0x00000008	[ 17] literal string: LOADNIL
+0x0001F104	0x00000009	[ 17] literal string: GETUPVAL
+0x0001F10D	0x0000000A	[ 17] literal string: GETGLOBAL
+0x0001F117	0x00000009	[ 17] literal string: GETTABLE
+0x0001F120	0x0000000A	[ 17] literal string: SETGLOBAL
+0x0001F12A	0x00000009	[ 17] literal string: SETUPVAL
+0x0001F133	0x00000009	[ 17] literal string: SETTABLE
+0x0001F13C	0x00000009	[ 17] literal string: NEWTABLE
+0x0001F145	0x00000005	[ 17] literal string: SELF
+0x0001F14A	0x00000004	[ 17] literal string: ADD
+0x0001F14E	0x00000004	[ 17] literal string: SUB
+0x0001F152	0x00000004	[ 17] literal string: MUL
+0x0001F156	0x00000004	[ 17] literal string: DIV
+0x0001F15A	0x00000004	[ 17] literal string: MOD
+0x0001F15E	0x00000004	[ 17] literal string: POW
+0x0001F162	0x00000004	[ 17] literal string: UNM
+0x0001F166	0x00000004	[ 17] literal string: NOT
+0x0001F16A	0x00000004	[ 17] literal string: LEN
+0x0001F16E	0x00000007	[ 17] literal string: CONCAT
+0x0001F175	0x00000004	[ 17] literal string: JMP
+0x0001F179	0x00000003	[ 17] literal string: EQ
+0x0001F17C	0x00000003	[ 17] literal string: LT
+0x0001F17F	0x00000003	[ 17] literal string: LE
+0x0001F182	0x00000005	[ 17] literal string: TEST
+0x0001F187	0x00000008	[ 17] literal string: TESTSET
+0x0001F18F	0x00000005	[ 17] literal string: CALL
+0x0001F194	0x00000009	[ 17] literal string: TAILCALL
+0x0001F19D	0x00000007	[ 17] literal string: RETURN
+0x0001F1A4	0x00000008	[ 17] literal string: FORLOOP
+0x0001F1AC	0x00000008	[ 17] literal string: FORPREP
+0x0001F1B4	0x00000009	[ 17] literal string: TFORLOOP
+0x0001F1BD	0x00000008	[ 17] literal string: SETLIST
+0x0001F1C5	0x00000006	[ 17] literal string: CLOSE
+0x0001F1CB	0x00000008	[ 17] literal string: CLOSURE
+0x0001F1D3	0x00000007	[ 17] literal string: VARARG
+0x0001F1DA	0x0000000A	[ 18] literal string: exit (%d)
+0x0001F1E4	0x00000021	[ 18] literal string: field '%s' missing in date table
+0x0001F205	0x00000004	[ 18] literal string: sec
+0x0001F209	0x00000005	[ 18] literal string: hour
+0x0001F20E	0x00000004	[ 18] literal string: day
+0x0001F212	0x00000006	[ 18] literal string: month
+0x0001F218	0x00000005	[ 18] literal string: year
+0x0001F21D	0x00000006	[ 18] literal string: isdst
+0x0001F223	0x00000003	[ 18] literal string: os
+0x0001F226	0x00000005	[ 18] literal string: date
+0x0001F22B	0x00000005	[ 18] literal string: exit
+0x0001F230	0x00000007	[ 18] literal string: remove
+0x0001F237	0x00000007	[ 18] literal string: rename
+0x0001F23E	0x00000005	[ 18] literal string: time
+0x0001F243	0x00000011	[ 19] literal string: no loop to break
+0x0001F254	0x00000022	[ 19] literal string: main function has more than %d %s
+0x0001F276	0x00000028	[ 19] literal string: function at line %d has more than %d %s
+0x0001F29E	0x00000010	[ 19] literal string: local variables
+0x0001F2AE	0x00000019	[ 19] literal string: too many local variables
+0x0001F2C7	0x0000000E	[ 19] literal string: '%s' expected
+0x0001F2D5	0x00000021	[ 19] literal string: chunk has too many syntax levels
+0x0001F2F6	0x00000029	[ 19] literal string: '%s' expected (to close '%s' at line %d)
+0x0001F31F	0x00000009	[ 19] literal string: upvalues
+0x0001F328	0x0000000C	[ 19] literal string: (for index)
+0x0001F334	0x0000000C	[ 19] literal string: (for limit)
+0x0001F340	0x0000000B	[ 19] literal string: (for step)
+0x0001F34B	0x00000010	[ 19] literal string: (for generator)
+0x0001F35B	0x0000000C	[ 19] literal string: (for state)
+0x0001F367	0x0000000E	[ 19] literal string: (for control)
+0x0001F375	0x00000015	[ 19] literal string: '=' or 'in' expected
+0x0001F38A	0x00000005	[ 19] literal string: self
+0x0001F38F	0x00000019	[ 19] literal string: <name> or '...' expected
+0x0001F3A8	0x0000002B	[ 19] literal string: cannot use '...' outside a vararg function
+0x0001F3D3	0x00000017	[ 19] literal string: items in a constructor
+0x0001F3EA	0x00000031	[ 19] literal string: ambiguous syntax (function call x new statement)
+0x0001F41B	0x0000001C	[ 19] literal string: function arguments expected
+0x0001F437	0x00000012	[ 19] literal string: unexpected symbol
+0x0001F449	0x0000000D	[ 19] literal string: syntax error
+0x0001F456	0x00000018	[ 19] literal string: variables in assignment
+0x0001F46E	0x00000002	[ 22] literal string: l
+0x0001F470	0x00000023	[ 22] literal string: malformed pattern (ends with '%%')
+0x0001F493	0x00000020	[ 22] literal string: malformed pattern (missing ']')
+0x0001F4B3	0x0000002E	[ 22] literal string: 'string.gfind' was renamed to 'string.gmatch'
+0x0001F4E1	0x0000000E	[ 22] literal string: invalid value
+0x0001F4EF	0x00000006	[ 22] literal string: -+ #0
+0x0001F4F5	0x00000020	[ 22] literal string: invalid format (repeated flags)
+0x0001F515	0x0000002D	[ 22] literal string: invalid format (width or precision too long)
+0x0001F542	0x00000003	[ 22] literal string: \r
+0x0001F545	0x00000005	[ 22] literal string: \000
+0x0001F54A	0x00000022	[ 22] literal string: invalid option '%%%c' to 'format'
+0x0001F56C	0x0000001E	[ 22] literal string: unable to dump given function
+0x0001F58A	0x00000016	[ 22] literal string: invalid capture index
+0x0001F5A0	0x00000013	[ 22] literal string: unfinished capture
+0x0001F5B3	0x00000012	[ 22] literal string: too many captures
+0x0001F5C5	0x00000018	[ 22] literal string: invalid pattern capture
+0x0001F5DD	0x00000013	[ 22] literal string: unbalanced pattern
+0x0001F5F0	0x00000023	[ 22] literal string: missing '[' after '%%f' in pattern
+0x0001F613	0x0000001F	[ 22] literal string: string/function/table expected
+0x0001F632	0x00000021	[ 22] literal string: invalid replacement value (a %s)
+0x0001F653	0x00000016	[ 22] literal string: string slice too long
+0x0001F669	0x0000000B	[ 22] literal string: ^$*+?.([%-
+0x0001F674	0x00000007	[ 22] literal string: string
+0x0001F67B	0x00000005	[ 22] literal string: byte
+0x0001F680	0x00000005	[ 22] literal string: char
+0x0001F685	0x00000005	[ 22] literal string: dump
+0x0001F68A	0x00000005	[ 22] literal string: find
+0x0001F68F	0x00000007	[ 22] literal string: format
+0x0001F696	0x00000006	[ 22] literal string: gfind
+0x0001F69C	0x00000007	[ 22] literal string: gmatch
+0x0001F6A3	0x00000005	[ 22] literal string: gsub
+0x0001F6A8	0x00000004	[ 22] literal string: len
+0x0001F6AC	0x00000006	[ 22] literal string: lower
+0x0001F6B2	0x00000006	[ 22] literal string: match
+0x0001F6B8	0x00000004	[ 22] literal string: rep
+0x0001F6BC	0x00000008	[ 22] literal string: reverse
+0x0001F6C4	0x00000004	[ 22] literal string: sub
+0x0001F6C8	0x00000006	[ 22] literal string: upper
+0x0001F6CE	0x0000000F	[ 23] literal string: table overflow
+0x0001F6DD	0x00000016	[ 23] literal string: invalid key to 'next'
+0x0001F6F3	0x00000013	[ 23] literal string: table index is nil
+0x0001F706	0x00000013	[ 24] literal string: 'setn' is obsolete
+0x0001F719	0x00000026	[ 24] literal string: wrong number of arguments to 'insert'
+0x0001F73F	0x00000035	[ 24] literal string: invalid value (%s) at index %d in table for 'concat'
+0x0001F774	0x00000023	[ 24] literal string: invalid order function for sorting
+0x0001F797	0x00000006	[ 24] literal string: table
+0x0001F79D	0x00000007	[ 24] literal string: concat
+0x0001F7A4	0x00000008	[ 24] literal string: foreach
+0x0001F7AC	0x00000009	[ 24] literal string: foreachi
+0x0001F7B5	0x00000005	[ 24] literal string: getn
+0x0001F7BA	0x00000005	[ 24] literal string: maxn
+0x0001F7BF	0x00000007	[ 24] literal string: insert
+0x0001F7C6	0x00000005	[ 24] literal string: setn
+0x0001F7CB	0x00000005	[ 24] literal string: sort
+0x0001F7D0	0x0000000B	[ 25] literal string: __newindex
+0x0001F7DB	0x00000005	[ 25] literal string: __eq
+0x0001F7E0	0x00000006	[ 25] literal string: __add
+0x0001F7E6	0x00000006	[ 25] literal string: __sub
+0x0001F7EC	0x00000006	[ 25] literal string: __mul
+0x0001F7F2	0x00000006	[ 25] literal string: __div
+0x0001F7F8	0x00000006	[ 25] literal string: __mod
+0x0001F7FE	0x00000006	[ 25] literal string: __pow
+0x0001F804	0x00000006	[ 25] literal string: __unm
+0x0001F80A	0x00000006	[ 25] literal string: __len
+0x0001F810	0x00000005	[ 25] literal string: __lt
+0x0001F815	0x00000005	[ 25] literal string: __le
+0x0001F81A	0x00000009	[ 25] literal string: __concat
+0x0001F823	0x00000008	[ 25] literal string: boolean
+0x0001F82B	0x00000009	[ 25] literal string: userdata
+0x0001F834	0x00000007	[ 25] literal string: number
+0x0001F83B	0x00000007	[ 25] literal string: thread
+0x0001F842	0x00000006	[ 25] literal string: proto
+0x0001F848	0x00000006	[ 25] literal string: upval
+0x0001F84E	0x0000001C	[ 26] literal string: '%s' bytecode not supported
+0x0001F86A	0x00000006	[ 28] literal string: index
+0x0001F870	0x00000011	[ 28] literal string: loop in gettable
+0x0001F881	0x00000011	[ 28] literal string: loop in settable
+0x0001F892	0x00000017	[ 28] literal string: string length overflow
+0x0001F8A9	0x0000000F	[ 28] literal string: divide by zero
+0x0001F8B8	0x0000000E	[ 28] literal string: perform 'n%0'
+0x0001F8C6	0x0000000E	[ 28] literal string: get length of
+0x0001F8D4	0x00000025	[ 28] literal string: 'for' initial value must be a number
+0x0001F8F9	0x0000001D	[ 28] literal string: 'for' limit must be a number
+0x0001F916	0x0000001C	[ 28] literal string: 'for' step must be a number
+0x0001F932	0x0000000E	[ 30] literal string: strerror(%d)\n
+0x0001F940	0x00000006	[ 30] literal string: [nil]
+0x0001F946	0x00000002	[ 30] literal string: W
+0x0001F948	0x0000001F	[ 30] literal string: @#$%^&*+-{}[]()/\|<>:;.,? _\n\r\t
+0x0001F967	0x00000002	[ 30] literal string: S
+0x0001F969	0x0000000F	[ 31] literal string: apply_settings
+0x0001F978	0x0000000B	[ 31] literal string: is_playing
+0x0001F983	0x0000000A	[ 31] literal string: play_stop
+0x0001F98D	0x0000000A	[ 31] literal string: play_lock
+0x0001F997	0x0000000C	[ 31] literal string: play_unlock
+0x0001F9A3	0x0000000E	[ 31] literal string: set_frequency
+0x0001F9B1	0x00000008	[ 31] literal string: current
+0x0001F9B9	0x00000008	[ 31] literal string: default
+0x0001F9C1	0x00000005	[ 31] literal string: unit
+0x0001F9C6	0x00000006	[ 31] literal string: pitch
+0x0001F9CC	0x00000009	[ 31] literal string: val2phys
+0x0001F9D5	0x00000005	[ 31] literal string: play
+0x0001F9DA	0x00000006	[ 31] literal string: pause
+0x0001F9E0	0x00000005	[ 31] literal string: prev
+0x0001F9E5	0x0000000E	[ 31] literal string: pre_ff_rewind
+0x0001F9F3	0x0000000A	[ 31] literal string: ff_rewind
+0x0001F9FD	0x00000018	[ 31] literal string: flush_and_reload_tracks
+0x0001FA15	0x0000000D	[ 31] literal string: get_file_pos
+0x0001FA22	0x00000007	[ 31] literal string: length
+0x0001FA29	0x00000008	[ 31] literal string: elapsed
+0x0001FA31	0x00000007	[ 31] literal string: amount
+0x0001FA38	0x00000006	[ 31] literal string: start
+0x0001FA3E	0x0000000D	[ 31] literal string: resume_track
+0x0001FA4B	0x00000008	[ 31] literal string: shuffle
+0x0001FA53	0x00000005	[ 31] literal string: sync
+0x0001FA58	0x00000012	[ 31] literal string: remove_all_tracks
+0x0001FA6A	0x0000000D	[ 31] literal string: insert_track
+0x0001FA77	0x00000011	[ 31] literal string: insert_directory
+0x0001FA88	0x00000010	[ 31] literal string: insert_playlist
+0x0001FA98	0x0000000E	[ 31] literal string: data overflow
+0x0001FAA6	0x0000000D	[ 31] literal string: Unknown Type
+0x0001FAB3	0x00000003	[ 31] literal string: rb
+0x0001FAB6	0x0000000A	[ 31] literal string: SIMULATOR
+0x0001FAC0	0x0000000B	[ 31] literal string: rb_defines
+0x0001FACB	0x0000000D	[ 31] literal string: current_tick
+0x0001FAD8	0x00000006	[ 31] literal string: sleep
+0x0001FADE	0x00000014	[ 31] literal string: thread_set_priority
+0x0001FAF2	0x0000000D	[ 31] literal string: current_path
+0x0001FAFF	0x00000012	[ 31] literal string: get_plugin_action
+0x0001FB11	0x0000000A	[ 31] literal string: kbd_input
+0x0001FB1B	0x00000012	[ 31] literal string: gui_syncyesno_run
+0x0001FB2D	0x00000008	[ 31] literal string: do_menu
+0x0001FB35	0x00000007	[ 31] literal string: splash
+0x0001FB3C	0x00000010	[ 31] literal string: splash_scroller
+0x0001FB4C	0x00000006	[ 31] literal string: audio
+0x0001FB52	0x00000009	[ 31] literal string: playlist
+0x0001FB5B	0x00000006	[ 31] literal string: sound
+0x0001FB61	0x00000004	[ 31] literal string: pcm
+0x0001FB65	0x00000010	[ 31] literal string: mixer_frequency
+0x0001FB75	0x00000010	[ 31] literal string: backlight_onoff
+0x0001FB85	0x00000013	[ 31] literal string: backlight_force_on
+0x0001FB98	0x00000017	[ 31] literal string: backlight_use_settings
+0x0001FBAF	0x00000019	[ 31] literal string: backlight_brightness_set
+0x0001FBC8	0x0000000B	[ 31] literal string: utf8encode
+0x0001FBD3	0x0000000C	[ 31] literal string: strncasecmp
+0x0001FBDF	0x0000000E	[ 31] literal string: global_status
+0x0001FBED	0x00000010	[ 31] literal string: global_settings
+0x0001FBFD	0x00000011	[ 31] literal string: audio_next_track
+0x0001FC0E	0x00000014	[ 31] literal string: audio_current_track
+0x0001FC22	0x0000000E	[ 31] literal string: settings_save
+0x0001FC30	0x0000000C	[ 31] literal string: talk_number
+0x0001FC3C	0x0000000B	[ 31] literal string: talk_spell
+0x0001FC47	0x0000000C	[ 31] literal string: talk_shutup
+0x0001FC53	0x0000000C	[ 31] literal string: restart_lua
+0x0001FC5F	0x0000000A	[ 31] literal string: mem_stats
+0x0001FC69	0x00000009	[ 32] literal string: rb.image
+0x0001FC72	0x00000005	[ 32] literal string: line
+0x0001FC77	0x00000007	[ 32] literal string: height
+0x0001FC7E	0x00000007	[ 32] literal string: nlines
+0x0001FC85	0x00000006	[ 32] literal string: style
+0x0001FC8B	0x00000011	[ 32] literal string: separator_height
+0x0001FC9C	0x00000007	[ 32] literal string: scroll
+0x0001FCA3	0x0000000B	[ 32] literal string: text_color
+0x0001FCAE	0x0000000B	[ 32] literal string: line_color
+0x0001FCB9	0x0000000F	[ 32] literal string: line_end_color
+0x0001FCC8	0x00000005	[ 32] literal string: icon
+0x0001FCCD	0x0000000B	[ 32] literal string: show_icons
+0x0001FCD8	0x0000000C	[ 32] literal string: show_cursor
+0x0001FCE4	0x00000009	[ 32] literal string: selected
+0x0001FCED	0x00000007	[ 32] literal string: indent
+0x0001FCF4	0x00000007	[ 32] literal string: offset
+0x0001FCFB	0x0000000F	[ 32] literal string: $*s$1I$i$1s$*t
+0x0001FD0A	0x0000000A	[ 32] literal string: $*s$1I$*t
+0x0001FD14	0x00000007	[ 32] literal string: $*s$*t
+0x0001FD1B	0x0000003E	[ 32] literal string: rb.image: %dx%d, %d elements, %d bytes, %d-bit depth, %d pack
+0x0001FD59	0x00000002	[ 32] literal string: x
+0x0001FD5B	0x00000002	[ 32] literal string: y
+0x0001FD5D	0x00000006	[ 32] literal string: width
+0x0001FD63	0x00000005	[ 32] literal string: font
+0x0001FD68	0x00000009	[ 32] literal string: drawmode
+0x0001FD71	0x0000000B	[ 32] literal string: fg_pattern
+0x0001FD7C	0x0000000B	[ 32] literal string: bg_pattern
+0x0001FD87	0x0000000B	[ 32] literal string: lcd_update
+0x0001FD92	0x00000012	[ 32] literal string: lcd_clear_display
+0x0001FDA4	0x00000011	[ 32] literal string: lcd_set_drawmode
+0x0001FDB5	0x0000000B	[ 32] literal string: lcd_putsxy
+0x0001FDC0	0x00000009	[ 32] literal string: lcd_puts
+0x0001FDC9	0x0000000D	[ 32] literal string: lcd_put_line
+0x0001FDD6	0x00000010	[ 32] literal string: lcd_puts_scroll
+0x0001FDE6	0x00000010	[ 32] literal string: lcd_scroll_stop
+0x0001FDF6	0x0000000D	[ 32] literal string: set_viewport
+0x0001FE03	0x0000000F	[ 32] literal string: clear_viewport
+0x0001FE12	0x00000013	[ 32] literal string: font_getstringsize
+0x0001FE25	0x00000010	[ 32] literal string: lcd_framebuffer
+0x0001FE35	0x0000000C	[ 32] literal string: lcd_setfont
+0x0001FE41	0x00000013	[ 32] literal string: gui_scrollbar_draw
+0x0001FE54	0x00000015	[ 32] literal string: lcd_mono_bitmap_part
+0x0001FE69	0x00000010	[ 32] literal string: lcd_mono_bitmap
+0x0001FE79	0x00000011	[ 32] literal string: lcd_get_backdrop
+0x0001FE8A	0x00000010	[ 32] literal string: lcd_bitmap_part
+0x0001FE9A	0x0000000B	[ 32] literal string: lcd_bitmap
+0x0001FEA5	0x00000013	[ 32] literal string: lcd_set_foreground
+0x0001FEB8	0x00000013	[ 32] literal string: lcd_get_foreground
+0x0001FECB	0x00000013	[ 32] literal string: lcd_set_background
+0x0001FEDE	0x00000013	[ 32] literal string: lcd_get_background
+0x0001FEF1	0x0000001C	[ 32] literal string: lcd_bitmap_transparent_part
+0x0001FF0D	0x00000017	[ 32] literal string: lcd_bitmap_transparent
+0x0001FF24	0x00000010	[ 32] literal string: lcd_update_rect
+0x0001FF34	0x0000000D	[ 32] literal string: lcd_drawrect
+0x0001FF41	0x0000000D	[ 32] literal string: lcd_fillrect
+0x0001FF4E	0x0000000D	[ 32] literal string: lcd_drawline
+0x0001FF5B	0x0000000A	[ 32] literal string: lcd_hline
+0x0001FF65	0x0000000A	[ 32] literal string: lcd_vline
+0x0001FF6F	0x0000000E	[ 32] literal string: lcd_drawpixel
+0x0001FF7D	0x0000000C	[ 32] literal string: lcd_rgbpack
+0x0001FF89	0x0000000E	[ 32] literal string: lcd_rgbunpack
+0x0001FF97	0x0000000E	[ 32] literal string: read_bmp_file
+0x0001FFA5	0x0000000A	[ 32] literal string: new_image
+0x0001FFAF	0x00000006	[ 32] literal string: _data
+0x0001FFB5	0x00000004	[ 32] literal string: get
+0x0001FFB9	0x00000005	[ 32] literal string: copy
+0x0001FFBE	0x00000006	[ 32] literal string: clear
+0x0001FFC4	0x00000007	[ 32] literal string: invert
+0x0001FFCB	0x00000008	[ 32] literal string: marshal
+0x0001FFD3	0x00000007	[ 32] literal string: points
+0x0001FFDA	0x00000008	[ 32] literal string: ellipse
+0x0001FFE2	0x00000003	[ 35] literal string: \n\n
+0x0001FFE5	0x00000012	[ 35] literal string: stack traceback: 
+0x0001FFF7	0x00000006	[ 35] literal string: \n\t...
+0x0001FFFD	0x00000004	[ 35] literal string: \n\n\t
+0x00020001	0x00000004	[ 35] literal string: Snl
+0x00020005	0x00000004	[ 35] literal string: %s:
+0x00020009	0x00000004	[ 35] literal string: %d:
+0x0002000D	0x00000012	[ 35] literal string:  in function '%s'
+0x0002001F	0x0000000F	[ 35] literal string:  in main chunk
+0x0002002E	0x00000003	[ 35] literal string:  ?
+0x00020031	0x00000015	[ 35] literal string:  in function <%s:%d>
+0x00020046	0x00000012	[ 35] literal string: \n\nRam Used: %d Kb
+0x00020058	0x0000000B	[ 35] literal string: _arguments
+0x00020063	0x0000000A	[ 35] literal string: _fullpath
+0x0002006D	0x00000010	[ 35] literal string: /.rockbox/rocks
+0x0002007D	0x00000017	[ 35] literal string: -r'%s'-f'.lua'-s'%s'-d
+0x00020094	0x00000023	[ 35] literal string: /.rockbox/rocks/demos/lua_scripts/
+0x000200B7	0x00000029	[ 35] literal string: /.rockbox/rocks/viewers/file_picker.rock
+0x000200E0	0x00000012	[ 35] literal string: Play a .lua file!
+0x000200F2	0x00000004	[ 35] literal string: %s\n
+0x000200F6	0x00000007	[ 35] literal string: rockev
+0x000200FD	0x00000007	[ 35] literal string: luadir
+0x00020104	0x00000014	[ 36] literal string: directory metatable
+0x00020118	0x00000013	[ 36] literal string: cannot open %s: %d
+0x0002012B	0x00000011	[ 36] literal string: closed directory
+0x0002013C	0x0000000A	[ 36] literal string: attribute
+0x00020146	0x00000005	[ 36] literal string: size
+0x0002014B	0x00000004	[ 36] literal string: dir
+0x0002014F	0x00000006	[ 36] literal string: mkdir
+0x00020155	0x00000006	[ 36] literal string: rmdir
+0x0002015B	0x00000010	[ 37] literal string: event metatable
+0x0002016B	0x0000000E	[ 37] literal string: rockev.thread
+0x00020179	0x00000014	[ 37] literal string: No timer available!
+0x0002018D	0x00000007	[ 37] literal string: action
+0x00020194	0x00000007	[ 37] literal string: button
+0x0002019B	0x00000007	[ 37] literal string: custom
+0x000201A2	0x00000009	[ 37] literal string: playback
+0x000201AB	0x00000006	[ 37] literal string: timer
+0x000201B1	0x00000009	[ 37] literal string: register
+0x000201BA	0x00000008	[ 37] literal string: suspend
+0x000201C2	0x00000008	[ 37] literal string: trigger
+0x000201CA	0x0000000B	[ 37] literal string: unregister
+0x000201D5	0x00000011	[ 38] literal string: action_userabort
+0x000201E6	0x0000000E	[ 38] literal string: adjust_volume
+0x000201F4	0x00000017	[ 38] literal string: audio_set_input_source
+0x0002020B	0x00000018	[ 38] literal string: audio_set_output_source
+0x00020223	0x00000019	[ 38] literal string: audio_set_recording_gain
+0x0002023C	0x00000016	[ 38] literal string: backlight_set_timeout
+0x00020252	0x0000001E	[ 38] literal string: backlight_set_timeout_plugged
+0x00020270	0x00000010	[ 38] literal string: battery_current
+0x00020280	0x0000000E	[ 38] literal string: battery_level
+0x0002028E	0x00000013	[ 38] literal string: battery_level_safe
+0x000202A1	0x0000000D	[ 38] literal string: battery_time
+0x000202AE	0x00000010	[ 38] literal string: battery_voltage
+0x000202BE	0x0000000A	[ 38] literal string: beep_play
+0x000202C8	0x00000013	[ 38] literal string: button_clear_queue
+0x000202DB	0x0000000B	[ 38] literal string: button_get
+0x000202E6	0x0000001D	[ 38] literal string: button_get_sw_poweroff_state
+0x00020303	0x00000011	[ 38] literal string: button_get_w_tmo
+0x00020314	0x0000000C	[ 38] literal string: button_hold
+0x00020320	0x00000013	[ 38] literal string: button_queue_count
+0x00020333	0x0000001D	[ 38] literal string: button_set_sw_poweroff_state
+0x00020350	0x0000000E	[ 38] literal string: button_status
+0x0002035E	0x00000011	[ 38] literal string: charger_inserted
+0x0002036F	0x0000000F	[ 38] literal string: charging_state
+0x0002037E	0x00000016	[ 38] literal string: default_event_handler
+0x00020394	0x0000000B	[ 38] literal string: dir_exists
+0x0002039F	0x00000012	[ 38] literal string: dsp_dither_enable
+0x000203B1	0x0000000E	[ 38] literal string: dsp_eq_enable
+0x000203BF	0x00000017	[ 38] literal string: dsp_set_crossfeed_type
+0x000203D6	0x0000001A	[ 38] literal string: dsp_timestretch_available
+0x000203F0	0x00000017	[ 38] literal string: dsp_timestretch_enable
+0x00020407	0x00000017	[ 38] literal string: dynamic_colors_resolve
+0x0002041E	0x0000000C	[ 38] literal string: file_exists
+0x0002042A	0x00000012	[ 38] literal string: filetype_get_attr
+0x0002043C	0x00000014	[ 38] literal string: filetype_get_plugin
+0x00020450	0x0000000E	[ 38] literal string: fix_path_part
+0x0002045E	0x0000000A	[ 38] literal string: font_load
+0x00020468	0x0000000C	[ 38] literal string: font_unload
+0x00020474	0x00000011	[ 38] literal string: format_time_auto
+0x00020485	0x0000000B	[ 38] literal string: get_action
+0x00020490	0x00000013	[ 38] literal string: get_codec_filename
+0x000204A3	0x00000011	[ 38] literal string: get_codec_string
+0x000204B4	0x00000012	[ 38] literal string: get_codepage_name
+0x000204C6	0x00000010	[ 38] literal string: get_sleep_timer
+0x000204D6	0x00000010	[ 38] literal string: is_backlight_on
+0x000204E6	0x0000000F	[ 38] literal string: keyclick_click
+0x000204F5	0x0000000C	[ 38] literal string: lang_is_rtl
+0x00020501	0x00000011	[ 38] literal string: lcd_get_drawmode
+0x00020512	0x00000004	[ 38] literal string: led
+0x00020516	0x00000014	[ 38] literal string: pcm_close_recording
+0x0002052A	0x00000013	[ 38] literal string: pcm_init_recording
+0x0002053D	0x00000013	[ 38] literal string: pcm_stop_recording
+0x00020550	0x0000000C	[ 38] literal string: pcmbuf_fade
+0x0002055C	0x00000017	[ 38] literal string: pcmbuf_set_low_latency
+0x00020573	0x0000001B	[ 38] literal string: playlist_get_display_index
+0x0002058E	0x0000000C	[ 38] literal string: plugin_open
+0x0002059A	0x00000016	[ 38] literal string: plugin_reserve_buffer
+0x000205B0	0x00000015	[ 38] literal string: reset_poweroff_timer
+0x000205C5	0x00000018	[ 38] literal string: sb_set_persistent_title
+0x000205DD	0x00000012	[ 38] literal string: sb_set_title_text
+0x000205EF	0x00000018	[ 38] literal string: set_sleeptimer_duration
+0x00020607	0x0000001A	[ 38] literal string: skin_render_inhibit_flush
+0x00020621	0x0000001A	[ 38] literal string: splash_progress_set_delay
+0x0002063B	0x0000000E	[ 38] literal string: storage_sleep
+0x00020649	0x0000000D	[ 38] literal string: storage_spin
+0x00020656	0x00000011	[ 38] literal string: storage_spindown
+0x00020667	0x00000007	[ 38] literal string: strchr
+0x0002066E	0x00000007	[ 38] literal string: strcmp
+0x00020675	0x00000008	[ 38] literal string: strrchr
+0x0002067D	0x00000007	[ 38] literal string: strstr
+0x00020684	0x0000000D	[ 38] literal string: sys_poweroff
+0x00020691	0x0000000B	[ 38] literal string: sys_reboot
+0x0002069C	0x00000019	[ 38] literal string: tagcache_commit_finalize
+0x000206B5	0x00000013	[ 38] literal string: tagcache_is_in_ram
+0x000206C8	0x0000000D	[ 38] literal string: talk_disable
+0x000206D5	0x00000018	[ 38] literal string: talk_force_enqueue_next
+0x000206ED	0x0000000E	[ 38] literal string: talk_fullpath
+0x000206FB	0x00000013	[ 38] literal string: talk_value_decimal
+0x0002070E	0x0000000D	[ 38] literal string: usb_inserted
+0x0002071B	0x0000000B	[ 38] literal string: utf8length
+0x00020726	0x00000009	[ 38] literal string: utf8seek
+0x0002072F	0x00000011	[ 38] literal string: warn_on_pl_erase
+0x00020740	0x0000000A	[ 38] literal string: yesno_pop
+0x0002074A	0x00000012	[ 38] literal string: yesno_pop_confirm
+0x0002075C	0x00000016	[ 40] literal string: * Heap Corruption: %s
+0x00020772	0x00000021	[ 40] literal string: free_ex(): Freeing unused block\n
+0x00020793	0x0000001D	[ 40] literal string: free_ex(): Mismatched flags\n
+0x000207B0	0x0000001E	[ 40] literal string: free_ex(): uncoalesced block\n
+0x000207CE	0x00000030	[ 40] literal string: malloc_ex(): Mismatched flags after allocation\n
+0x00020800	0x00000010	[  1] _late_lib.1
+0x00020810	0x0000008D	[  2] _lua_ident
+0x000208A0	0x0000001C	[  3] _optsnum.0
+0x000208BC	0x0000000C	[ 11] _mode.0
+0x000208C8	0x00000008	[ 13] 8-byte-literal
+0x000208D0	0x00000008	[ 13] 8-byte-literal
+0x000208D8	0x00000004	[ 15] _sentinel_
+0x000208E0	0x00000100	[ 16] _log_2.0
+0x000209E0	0x00000010	[ 16] _luaO_nilobject_
+0x000209F0	0x00000026	[ 17] _luaP_opmodes
+0x00020A16	0x0000001E	[ 19] _priority
+0x00020A38	0x00000028	[ 23] _dummynode_
+0x00020A60	0x0000000E	[ 37] _playback_events.4
+0x00020A70	0x00000400	[ 40] _table
+0x00020E70	0x000000D8	[ 42] _pla_main_ctx
+0x00020F48	0x00000018	[  1] CFI
+0x00020F60	0x00000020	[  1] FDE for: _getS
+0x00020F80	0x00000048	[  1] FDE for: _emptybuffer
+0x00020FC8	0x00000050	[  1] FDE for: _panic
+0x00021018	0x00000050	[  1] FDE for: _libsize_storenames
+0x00021068	0x00000048	[  1] FDE for: _getF
+0x000210B0	0x00000050	[  1] FDE for: _adjuststack.part.0
+0x00021100	0x00000068	[  1] FDE for: _l_alloc
+0x00021168	0x00000050	[  1] FDE for: _luaL_where
+0x000211B8	0x00000040	[  1] FDE for: _luaL_error
+0x000211F8	0x00000060	[  1] FDE for: _luaL_argerror
+0x00021258	0x00000050	[  1] FDE for: _luaL_typerror
+0x000212A8	0x00000040	[  1] FDE for: _tag_error
+0x000212E8	0x00000050	[  1] FDE for: _luaL_checknumber.part.0
+0x00021338	0x00000058	[  1] FDE for: _latebind_func_index
+0x00021390	0x00000048	[  1] FDE for: _luaL_newmetatable
+0x000213D8	0x00000058	[  1] FDE for: _luaL_checkudata
+0x00021430	0x00000048	[  1] FDE for: _luaL_checkstack
+0x00021478	0x00000050	[  1] FDE for: _luaL_checktype
+0x000214C8	0x00000050	[  1] FDE for: _luaL_checkany
+0x00021518	0x00000040	[  1] FDE for: _luaL_checklstring
+0x00021558	0x00000060	[  1] FDE for: _luaL_optlstring
+0x000215B8	0x00000070	[  1] FDE for: _luaL_checkoption
+0x00021628	0x00000040	[  1] FDE for: _luaL_checknumber
+0x00021668	0x00000050	[  1] FDE for: _luaL_optnumber
+0x000216B8	0x00000040	[  1] FDE for: _luaL_checkinteger
+0x000216F8	0x00000050	[  1] FDE for: _luaL_optinteger
+0x00021748	0x00000048	[  1] FDE for: _luaL_checkboolean
+0x00021790	0x00000050	[  1] FDE for: _luaL_optboolean
+0x000217E0	0x00000048	[  1] FDE for: _luaL_getmetafield
+0x00021828	0x00000048	[  1] FDE for: _luaL_callmeta
+0x00021870	0x00000058	[  1] FDE for: _luaL_findtable
+0x000218C8	0x00000068	[  1] FDE for: _luaI_openlib
+0x00021930	0x00000048	[  1] FDE for: _luaL_register
+0x00021978	0x00000040	[  1] FDE for: _luaL_prepbuffer
+0x000219B8	0x00000058	[  1] FDE for: _luaL_addlstring
+0x00021A10	0x00000040	[  1] FDE for: _luaL_addstring
+0x00021A50	0x00000040	[  1] FDE for: _luaL_pushresult
+0x00021A90	0x00000070	[  1] FDE for: _luaL_gsub
+0x00021B00	0x00000048	[  1] FDE for: _luaL_addvalue
+0x00021B48	0x00000020	[  1] FDE for: _luaL_buffinit
+0x00021B68	0x00000058	[  1] FDE for: _luaL_ref
+0x00021BC0	0x00000048	[  1] FDE for: _luaL_unref
+0x00021C08	0x00000060	[  1] FDE for: _luaL_loadfile
+0x00021C68	0x00000038	[  1] FDE for: _luaL_loadbuffer
+0x00021CA0	0x00000040	[  1] FDE for: _luaL_loadstring
+0x00021CE0	0x00000048	[  1] FDE for: _latebind_func_pairs
+0x00021D28	0x00000040	[  1] FDE for: _luaL_newstate
+0x00021D68	0x00000018	[  2] CFI
+0x00021D80	0x00000020	[  2] FDE for: _getcurrenv
+0x00021DA0	0x00000020	[  2] FDE for: _aux_upvalue
+0x00021DC0	0x00000020	[  2] FDE for: _f_call
+0x00021DE0	0x00000040	[  2] FDE for: _f_Ccall
+0x00021E20	0x00000020	[  2] FDE for: _index2adr
+0x00021E40	0x00000020	[  2] FDE for: _luaA_pushobject
+0x00021E60	0x00000060	[  2] FDE for: _lua_checkstack
+0x00021EC0	0x00000020	[  2] FDE for: _lua_xmove
+0x00021EE0	0x00000020	[  2] FDE for: _lua_setlevel
+0x00021F00	0x00000020	[  2] FDE for: _lua_atpanic
+0x00021F20	0x00000040	[  2] FDE for: _lua_newthread
+0x00021F60	0x00000020	[  2] FDE for: _lua_gettop
+0x00021F80	0x00000020	[  2] FDE for: _lua_settop
+0x00021FA0	0x00000040	[  2] FDE for: _lua_remove
+0x00021FE0	0x00000040	[  2] FDE for: _lua_insert
+0x00022020	0x00000048	[  2] FDE for: _lua_replace
+0x00022068	0x00000038	[  2] FDE for: _lua_pushvalue
+0x000220A0	0x00000040	[  2] FDE for: _lua_type
+0x000220E0	0x00000020	[  2] FDE for: _lua_typename
+0x00022100	0x00000040	[  2] FDE for: _lua_iscfunction
+0x00022140	0x00000040	[  2] FDE for: _lua_isnumber
+0x00022180	0x00000038	[  2] FDE for: _lua_isstring
+0x000221B8	0x00000038	[  2] FDE for: _lua_isuserdata
+0x000221F0	0x00000048	[  2] FDE for: _lua_rawequal
+0x00022238	0x00000040	[  2] FDE for: _lua_equal
+0x00022278	0x00000048	[  2] FDE for: _lua_lessthan
+0x000222C0	0x00000040	[  2] FDE for: _lua_tonumber
+0x00022300	0x00000020	[  2] FDE for: _lua_tointeger
+0x00022320	0x00000040	[  2] FDE for: _lua_toboolean
+0x00022360	0x00000060	[  2] FDE for: _lua_tolstring
+0x000223C0	0x00000040	[  2] FDE for: _lua_objlen
+0x00022400	0x00000040	[  2] FDE for: _lua_tocfunction
+0x00022440	0x00000040	[  2] FDE for: _lua_touserdata
+0x00022480	0x00000040	[  2] FDE for: _lua_tothread
+0x000224C0	0x00000048	[  2] FDE for: _lua_topointer
+0x00022508	0x00000020	[  2] FDE for: _lua_pushnil
+0x00022528	0x00000020	[  2] FDE for: _lua_pushnumber
+0x00022548	0x00000020	[  2] FDE for: _lua_pushinteger
+0x00022568	0x00000040	[  2] FDE for: _lua_pushlstring
+0x000225A8	0x00000040	[  2] FDE for: _lua_pushstring
+0x000225E8	0x00000040	[  2] FDE for: _lua_pushvfstring
+0x00022628	0x00000040	[  2] FDE for: _lua_pushfstring
+0x00022668	0x00000050	[  2] FDE for: _lua_pushcclosure
+0x000226B8	0x00000020	[  2] FDE for: _lua_pushboolean
+0x000226D8	0x00000020	[  2] FDE for: _lua_pushlightuserdata
+0x000226F8	0x00000020	[  2] FDE for: _lua_pushthread
+0x00022718	0x00000038	[  2] FDE for: _lua_gettable
+0x00022750	0x00000040	[  2] FDE for: _lua_getfield
+0x00022790	0x00000040	[  2] FDE for: _lua_rawget
+0x000227D0	0x00000040	[  2] FDE for: _lua_rawgeti
+0x00022810	0x00000040	[  2] FDE for: _lua_createtable
+0x00022850	0x00000040	[  2] FDE for: _lua_getmetatable
+0x00022890	0x00000040	[  2] FDE for: _lua_getfenv
+0x000228D0	0x00000040	[  2] FDE for: _lua_settable
+0x00022910	0x00000040	[  2] FDE for: _lua_setfield
+0x00022950	0x00000048	[  2] FDE for: _lua_rawset
+0x00022998	0x00000048	[  2] FDE for: _lua_rawseti
+0x000229E0	0x00000048	[  2] FDE for: _lua_setmetatable
+0x00022A28	0x00000048	[  2] FDE for: _lua_setfenv
+0x00022A70	0x00000038	[  2] FDE for: _lua_call
+0x00022AA8	0x00000048	[  2] FDE for: _lua_pcall
+0x00022AF0	0x00000038	[  2] FDE for: _lua_cpcall
+0x00022B28	0x00000048	[  2] FDE for: _lua_load
+0x00022B70	0x00000020	[  2] FDE for: _lua_dump
+0x00022B90	0x00000020	[  2] FDE for: _lua_status
+0x00022BB0	0x00000048	[  2] FDE for: _lua_gc
+0x00022BF8	0x00000038	[  2] FDE for: _lua_error
+0x00022C30	0x00000040	[  2] FDE for: _lua_next
+0x00022C70	0x00000048	[  2] FDE for: _lua_concat
+0x00022CB8	0x00000020	[  2] FDE for: _lua_getallocf
+0x00022CD8	0x00000020	[  2] FDE for: _lua_setallocf
+0x00022CF8	0x00000040	[  2] FDE for: _lua_newuserdata
+0x00022D38	0x00000040	[  2] FDE for: _lua_getupvalue
+0x00022D78	0x00000048	[  2] FDE for: _lua_setupvalue
+0x00022DC0	0x00000018	[  3] CFI
+0x00022DD8	0x00000040	[  3] FDE for: _luaB_yield
+0x00022E18	0x00000040	[  3] FDE for: _luaB_corunning
+0x00022E58	0x00000048	[  3] FDE for: _luaB_cocreate
+0x00022EA0	0x00000040	[  3] FDE for: _luaB_cowrap
+0x00022EE0	0x00000040	[  3] FDE for: _luaB_pcall
+0x00022F20	0x00000040	[  3] FDE for: _luaB_xpcall
+0x00022F60	0x00000040	[  3] FDE for: _luaB_rawset
+0x00022FA0	0x00000040	[  3] FDE for: _luaB_rawget
+0x00022FE0	0x00000040	[  3] FDE for: _luaB_error
+0x00023020	0x00000070	[  3] FDE for: _luaB_unpack
+0x00023090	0x00000040	[  3] FDE for: _luaB_type
+0x000230D0	0x00000058	[  3] FDE for: _luaB_tonumber
+0x00023128	0x00000040	[  3] FDE for: _luaB_setmetatable
+0x00023168	0x00000070	[  3] FDE for: _getfunc
+0x000231D8	0x00000048	[  3] FDE for: _luaB_setfenv
+0x00023220	0x00000050	[  3] FDE for: _luaB_select
+0x00023270	0x00000040	[  3] FDE for: _ipairsaux
+0x000232B0	0x00000040	[  3] FDE for: _luaB_rawequal
+0x000232F0	0x00000048	[  3] FDE for: _luaB_next
+0x00023338	0x00000060	[  3] FDE for: _generic_reader
+0x00023398	0x00000040	[  3] FDE for: _luaB_dofile
+0x000233D8	0x00000048	[  3] FDE for: _luaB_getfenv
+0x00023420	0x00000040	[  3] FDE for: _luaB_gcinfo
+0x00023460	0x00000040	[  3] FDE for: _luaB_collectgarbage
+0x000234A0	0x00000050	[  3] FDE for: _costatus
+0x000234F0	0x00000058	[  3] FDE for: _auxresume
+0x00023548	0x00000048	[  3] FDE for: _luaB_coresume
+0x00023590	0x00000040	[  3] FDE for: _luaB_costatus
+0x000235D0	0x00000040	[  3] FDE for: _luaB_auxwrap
+0x00023610	0x00000048	[  3] FDE for: _luaB_loadstring
+0x00023658	0x00000048	[  3] FDE for: _luaB_newproxy
+0x000236A0	0x00000050	[  3] FDE for: _luaB_tostring
+0x000236F0	0x00000048	[  3] FDE for: _luaB_getmetatable
+0x00023738	0x00000058	[  3] FDE for: _luaB_assert
+0x00023790	0x00000070	[  3] FDE for: _pairsmeta.isra.0
+0x00023800	0x00000038	[  3] FDE for: _luaB_ipairs
+0x00023838	0x00000038	[  3] FDE for: _luaB_pairs
+0x00023870	0x00000048	[  3] FDE for: _luaB_loadfile
+0x000238B8	0x00000048	[  3] FDE for: _luaB_load
+0x00023900	0x00000040	[  3] FDE for: _luaopen_base
+0x00023940	0x00000018	[  4] CFI
+0x00023958	0x00000040	[  4] FDE for: _bit_arshift
+0x00023998	0x00000040	[  4] FDE for: _bit_rshift
+0x000239D8	0x00000040	[  4] FDE for: _bit_lshift
+0x00023A18	0x00000040	[  4] FDE for: _bit_bnot
+0x00023A58	0x00000060	[  4] FDE for: _bit_bxor
+0x00023AB8	0x00000060	[  4] FDE for: _bit_bor
+0x00023B18	0x00000060	[  4] FDE for: _bit_band
+0x00023B78	0x00000040	[  4] FDE for: _luaopen_bit
+0x00023BB8	0x00000018	[  5] CFI
+0x00023BD0	0x00000020	[  5] FDE for: _isnumeral
+0x00023BF0	0x00000050	[  5] FDE for: _fixjump
+0x00023C40	0x00000020	[  5] FDE for: _freereg
+0x00023C60	0x00000060	[  5] FDE for: _addk.constprop.0
+0x00023CC0	0x00000020	[  5] FDE for: _freeexp
+0x00023CE0	0x00000020	[  5] FDE for: _getjumpcontrol.isra.0
+0x00023D00	0x00000040	[  5] FDE for: _patchtestreg.isra.0
+0x00023D40	0x00000038	[  5] FDE for: _invertjump.isra.0
+0x00023D78	0x00000020	[  5] FDE for: _getjump.isra.0
+0x00023D98	0x00000060	[  5] FDE for: _patchlistaux
+0x00023DF8	0x00000050	[  5] FDE for: _luaK_code
+0x00023E48	0x00000038	[  5] FDE for: _removevalues
+0x00023E80	0x00000050	[  5] FDE for: _need_value
+0x00023ED0	0x00000020	[  5] FDE for: _luaK_getlabel
+0x00023EF0	0x00000038	[  5] FDE for: _luaK_concat
+0x00023F28	0x00000020	[  5] FDE for: _luaK_patchtohere
+0x00023F48	0x00000020	[  5] FDE for: _luaK_patchlist
+0x00023F68	0x00000040	[  5] FDE for: _luaK_checkstack
+0x00023FA8	0x00000040	[  5] FDE for: _luaK_reserveregs
+0x00023FE8	0x00000038	[  5] FDE for: _luaK_stringK
+0x00024020	0x00000038	[  5] FDE for: _luaK_numberK
+0x00024058	0x00000020	[  5] FDE for: _luaK_setreturns
+0x00024078	0x00000020	[  5] FDE for: _luaK_setoneret
+0x00024098	0x00000020	[  5] FDE for: _luaK_fixline
+0x000240B8	0x00000020	[  5] FDE for: _luaK_codeABC
+0x000240D8	0x00000020	[  5] FDE for: _luaK_nil
+0x000240F8	0x00000020	[  5] FDE for: _luaK_ret
+0x00024118	0x00000020	[  5] FDE for: _luaK_codeABx
+0x00024138	0x00000040	[  5] FDE for: _luaK_jump
+0x00024178	0x00000058	[  5] FDE for: _luaK_dischargevars
+0x000241D0	0x00000050	[  5] FDE for: _discharge2reg
+0x00024220	0x00000060	[  5] FDE for: _exp2reg
+0x00024280	0x00000040	[  5] FDE for: _luaK_exp2nextreg
+0x000242C0	0x00000048	[  5] FDE for: _luaK_exp2anyreg
+0x00024308	0x00000020	[  5] FDE for: _luaK_exp2val
+0x00024328	0x00000058	[  5] FDE for: _luaK_exp2RK
+0x00024380	0x00000040	[  5] FDE for: _luaK_indexed
+0x000243C0	0x00000070	[  5] FDE for: _codearith
+0x00024430	0x00000060	[  5] FDE for: _codecomp
+0x00024490	0x00000078	[  5] FDE for: _luaK_posfix
+0x00024508	0x00000050	[  5] FDE for: _luaK_self
+0x00024558	0x00000068	[  5] FDE for: _luaK_prefix
+0x000245C0	0x00000050	[  5] FDE for: _jumponcond
+0x00024610	0x00000048	[  5] FDE for: _luaK_goiftrue
+0x00024658	0x00000080	[  5] FDE for: _luaK_infix
+0x000246D8	0x00000068	[  5] FDE for: _luaK_storevar
+0x00024740	0x00000050	[  5] FDE for: _luaK_setlist
+0x00024790	0x00000018	[  6] CFI
+0x000247A8	0x00000020	[  6] FDE for: _currentpc
+0x000247C8	0x00000040	[  6] FDE for: _currentline
+0x00024808	0x00000020	[  6] FDE for: _kname
+0x00024828	0x00000020	[  6] FDE for: _checkArgMode
+0x00024848	0x00000050	[  6] FDE for: _findlocal
+0x00024898	0x00000020	[  6] FDE for: _lua_sethook
+0x000248B8	0x00000020	[  6] FDE for: _lua_gethook
+0x000248D8	0x00000020	[  6] FDE for: _lua_gethookmask
+0x000248F8	0x00000020	[  6] FDE for: _lua_gethookcount
+0x00024918	0x00000020	[  6] FDE for: _lua_getstack
+0x00024938	0x00000058	[  6] FDE for: _lua_getlocal
+0x00024990	0x00000048	[  6] FDE for: _lua_setlocal
+0x000249D8	0x00000020	[  6] FDE for: _luaG_checkopenop
+0x000249F8	0x00000070	[  6] FDE for: _symbexec
+0x00024A68	0x00000060	[  6] FDE for: _getobjname
+0x00024AC8	0x00000068	[  6] FDE for: _lua_getinfo
+0x00024B30	0x00000038	[  6] FDE for: _luaG_checkcode
+0x00024B68	0x00000050	[  6] FDE for: _luaG_errormsg
+0x00024BB8	0x00000058	[  6] FDE for: _luaG_runerror
+0x00024C10	0x00000050	[  6] FDE for: _luaG_typeerror
+0x00024C60	0x00000020	[  6] FDE for: _luaG_concaterror
+0x00024C80	0x00000048	[  6] FDE for: _luaG_aritherror
+0x00024CC8	0x00000048	[  6] FDE for: _luaG_ordererror
+0x00024D10	0x00000018	[  7] CFI
+0x00024D28	0x00000058	[  7] FDE for: _luaD_seterrorobj
+0x00024D80	0x00000038	[  7] FDE for: _luaD_rawrunprotected
+0x00024DB8	0x00000058	[  7] FDE for: _luaD_reallocstack
+0x00024E10	0x00000058	[  7] FDE for: _luaD_reallocCI
+0x00024E68	0x00000020	[  7] FDE for: _restore_stack_limit
+0x00024E88	0x00000038	[  7] FDE for: _luaD_throw
+0x00024EC0	0x00000040	[  7] FDE for: _growCI
+0x00024F00	0x00000020	[  7] FDE for: _luaD_growstack
+0x00024F20	0x00000058	[  7] FDE for: _f_parser
+0x00024F78	0x00000040	[  7] FDE for: _resume_error.isra.0
+0x00024FB8	0x00000050	[  7] FDE for: _luaD_callhook
+0x00025008	0x00000048	[  7] FDE for: _luaD_poscall
+0x00025050	0x00000060	[  7] FDE for: _luaD_precall
+0x000250B0	0x00000058	[  7] FDE for: _resume
+0x00025108	0x00000058	[  7] FDE for: _luaD_call
+0x00025160	0x00000048	[  7] FDE for: _lua_resume
+0x000251A8	0x00000040	[  7] FDE for: _lua_yield
+0x000251E8	0x00000060	[  7] FDE for: _luaD_pcall
+0x00025248	0x00000040	[  7] FDE for: _luaD_protectedparser
+0x00025288	0x00000018	[  8] CFI
+0x000252A0	0x00000020	[  8] FDE for: _luaU_dump
+0x000252C0	0x00000018	[  9] CFI
+0x000252D8	0x00000050	[  9] FDE for: _luaF_newCclosure
+0x00025328	0x00000058	[  9] FDE for: _luaF_newLclosure
+0x00025380	0x00000040	[  9] FDE for: _luaF_newupval
+0x000253C0	0x00000058	[  9] FDE for: _luaF_findupval
+0x00025418	0x00000020	[  9] FDE for: _luaF_freeupval
+0x00025438	0x00000050	[  9] FDE for: _luaF_close
+0x00025488	0x00000040	[  9] FDE for: _luaF_newproto
+0x000254C8	0x00000040	[  9] FDE for: _luaF_freeproto
+0x00025508	0x00000020	[  9] FDE for: _luaF_freeclosure
+0x00025528	0x00000020	[  9] FDE for: _luaF_getlocalname
+0x00025548	0x00000018	[ 10] CFI
+0x00025560	0x00000048	[ 10] FDE for: _reallymarkobject
+0x000255A8	0x00000020	[ 10] FDE for: _iscleared
+0x000255C8	0x00000048	[ 10] FDE for: _markmt
+0x00025610	0x00000038	[ 10] FDE for: _markroot
+0x00025648	0x00000060	[ 10] FDE for: _GCTM
+0x000256A8	0x00000060	[ 10] FDE for: _sweeplist
+0x00025708	0x00000040	[ 10] FDE for: _sweepstrstep
+0x00025748	0x00000058	[ 10] FDE for: _propagatemark
+0x000257A0	0x00000048	[ 10] FDE for: _propagateall
+0x000257E8	0x00000058	[ 10] FDE for: _luaC_separateudata
+0x00025840	0x00000068	[ 10] FDE for: _singlestep
+0x000258A8	0x00000038	[ 10] FDE for: _luaC_callGCTM
+0x000258E0	0x00000050	[ 10] FDE for: _luaC_freeall
+0x00025930	0x00000050	[ 10] FDE for: _luaC_step
+0x00025980	0x00000048	[ 10] FDE for: _luaC_sweepstrgc
+0x000259C8	0x00000050	[ 10] FDE for: _luaC_fullgc
+0x00025A18	0x00000020	[ 10] FDE for: _luaC_barrierf
+0x00025A38	0x00000020	[ 10] FDE for: _luaC_barrierback
+0x00025A58	0x00000020	[ 10] FDE for: _luaC_marknew
+0x00025A78	0x00000020	[ 10] FDE for: _luaC_link
+0x00025A98	0x00000020	[ 10] FDE for: _luaC_linkupval
+0x00025AB8	0x00000018	[ 11] CFI
+0x00025AD0	0x00000058	[ 11] FDE for: _pushresult
+0x00025B28	0x00000078	[ 11] FDE for: _g_write
+0x00025BA0	0x00000048	[ 11] FDE for: _io_type
+0x00025BE8	0x00000068	[ 11] FDE for: __read_line
+0x00025C50	0x00000070	[ 11] FDE for: _read_chars
+0x00025CC0	0x00000040	[ 11] FDE for: _newfile
+0x00025D00	0x00000040	[ 11] FDE for: _tofile
+0x00025D40	0x00000040	[ 11] FDE for: _io_fclose
+0x00025D80	0x00000040	[ 11] FDE for: _io_close
+0x00025DC0	0x00000040	[ 11] FDE for: _f_write
+0x00025E00	0x00000070	[ 11] FDE for: _io_open
+0x00025E70	0x00000040	[ 11] FDE for: _f_lines
+0x00025EB0	0x00000060	[ 11] FDE for: _f_seek
+0x00025F10	0x00000048	[ 11] FDE for: _getiofile
+0x00025F58	0x00000040	[ 11] FDE for: _io_write
+0x00025F98	0x00000050	[ 11] FDE for: _io_tostring
+0x00025FE8	0x00000048	[ 11] FDE for: _fileerror.constprop.0
+0x00026030	0x00000088	[ 11] FDE for: _g_read
+0x000260B8	0x00000040	[ 11] FDE for: _io_read
+0x000260F8	0x00000040	[ 11] FDE for: _f_read
+0x00026138	0x00000060	[ 11] FDE for: _g_iofile.isra.0
+0x00026198	0x00000038	[ 11] FDE for: _io_input
+0x000261D0	0x00000038	[ 11] FDE for: _io_output
+0x00026208	0x00000040	[ 11] FDE for: _io_readline
+0x00026248	0x00000040	[ 11] FDE for: _io_gc
+0x00026288	0x00000060	[ 11] FDE for: _io_lines
+0x000262E8	0x00000040	[ 11] FDE for: _luaopen_io
+0x00026328	0x00000018	[ 12] CFI
+0x00026340	0x00000020	[ 12] FDE for: _buffreplace.isra.0
+0x00026360	0x00000048	[ 12] FDE for: _luaX_init
+0x000263A8	0x00000050	[ 12] FDE for: _luaX_token2str
+0x000263F8	0x00000060	[ 12] FDE for: _luaX_lexerror
+0x00026458	0x00000050	[ 12] FDE for: _save
+0x000264A8	0x00000050	[ 12] FDE for: _skip_sep
+0x000264F8	0x00000048	[ 12] FDE for: _check_next
+0x00026540	0x00000060	[ 12] FDE for: _read_numeral
+0x000265A0	0x00000020	[ 12] FDE for: _luaX_syntaxerror
+0x000265C0	0x00000058	[ 12] FDE for: _inclinenumber
+0x00026618	0x00000048	[ 12] FDE for: _luaX_newstring
+0x00026660	0x00000058	[ 12] FDE for: _read_long_string
+0x000266B8	0x00000068	[ 12] FDE for: _llex
+0x00026720	0x00000048	[ 12] FDE for: _luaX_setinput
+0x00026768	0x00000048	[ 12] FDE for: _luaX_next
+0x000267B0	0x00000040	[ 12] FDE for: _luaX_lookahead
+0x000267F0	0x00000018	[ 13] CFI
+0x00026808	0x00000040	[ 13] FDE for: _math_ident
+0x00026848	0x00000040	[ 13] FDE for: _math_rad
+0x00026888	0x00000040	[ 13] FDE for: _math_deg
+0x000268C8	0x00000040	[ 13] FDE for: _math_abs
+0x00026908	0x00000040	[ 13] FDE for: _math_randomseed
+0x00026948	0x00000058	[ 13] FDE for: _math_min
+0x000269A0	0x00000058	[ 13] FDE for: _math_max
+0x000269F8	0x00000048	[ 13] FDE for: _math_fmod
+0x00026A40	0x00000068	[ 13] FDE for: _math_random
+0x00026AA8	0x00000038	[ 13] FDE for: _luaopen_math
+0x00026AE0	0x00000018	[ 14] CFI
+0x00026AF8	0x00000038	[ 14] FDE for: _luaM_toobig
+0x00026B30	0x00000058	[ 14] FDE for: _luaM_realloc_
+0x00026B88	0x00000060	[ 14] FDE for: _luaM_growaux_
+0x00026BE8	0x00000018	[ 15] CFI
+0x00026C00	0x00000058	[ 15] FDE for: _ll_require
+0x00026C58	0x00000060	[ 15] FDE for: _ll_module
+0x00026CB8	0x00000048	[ 15] FDE for: _loader_preload
+0x00026D00	0x00000040	[ 15] FDE for: _ll_seeall
+0x00026D40	0x00000070	[ 15] FDE for: _loader_Lua
+0x00026DB0	0x00000050	[ 15] FDE for: _luaopen_package
+0x00026E00	0x00000018	[ 16] CFI
+0x00026E18	0x00000040	[ 16] FDE for: _pushstr
+0x00026E58	0x00000020	[ 16] FDE for: _luaO_int2fb
+0x00026E78	0x00000020	[ 16] FDE for: _luaO_fb2int
+0x00026E98	0x00000020	[ 16] FDE for: _luaO_log2
+0x00026EB8	0x00000020	[ 16] FDE for: _luaO_rawequalObj
+0x00026ED8	0x00000050	[ 16] FDE for: _luaO_str2d
+0x00026F28	0x00000020	[ 16] FDE for: _luaO_getstring
+0x00026F48	0x00000070	[ 16] FDE for: _luaO_pushvfstring
+0x00026FB8	0x00000038	[ 16] FDE for: _luaO_pushfstring
+0x00026FF0	0x00000070	[ 16] FDE for: _luaO_chunkid
+0x00027060	0x00000018	[ 18] CFI
+0x00027078	0x00000038	[ 18] FDE for: _os_date
+0x000270B0	0x00000058	[ 18] FDE for: _os_pushresult
+0x00027108	0x00000040	[ 18] FDE for: _os_rename
+0x00027148	0x00000040	[ 18] FDE for: _os_remove
+0x00027188	0x00000048	[ 18] FDE for: _os_exit
+0x000271D0	0x00000050	[ 18] FDE for: _getfield
+0x00027220	0x00000050	[ 18] FDE for: _os_time
+0x00027270	0x00000038	[ 18] FDE for: _luaopen_os
+0x000272A8	0x00000018	[ 19] CFI
+0x000272C0	0x00000038	[ 19] FDE for: _testnext
+0x000272F8	0x00000050	[ 19] FDE for: _open_func
+0x00027348	0x00000050	[ 19] FDE for: _breakstat
+0x00027398	0x00000050	[ 19] FDE for: _errorlimit
+0x000273E8	0x00000060	[ 19] FDE for: _new_localvar
+0x00027448	0x00000048	[ 19] FDE for: _error_expected
+0x00027490	0x00000040	[ 19] FDE for: _str_checkname
+0x000274D0	0x00000020	[ 19] FDE for: _enterlevel
+0x000274F0	0x00000088	[ 19] FDE for: _check_match
+0x00027578	0x00000070	[ 19] FDE for: _adjust_assign.isra.0
+0x000275E8	0x00000058	[ 19] FDE for: _singlevaraux
+0x00027640	0x00000040	[ 19] FDE for: _singlevar
+0x00027680	0x00000020	[ 19] FDE for: _removevars.isra.0
+0x000276A0	0x00000060	[ 19] FDE for: _close_func
+0x00027700	0x00000040	[ 19] FDE for: _leaveblock
+0x00027740	0x00000020	[ 19] FDE for: _adjustlocalvars.isra.0
+0x00027760	0x00000040	[ 19] FDE for: _checkname
+0x000277A0	0x00000048	[ 19] FDE for: _field
+0x000277E8	0x00000040	[ 19] FDE for: _checknext
+0x00027828	0x00000060	[ 19] FDE for: _chunk
+0x00027888	0x00000070	[ 19] FDE for: _body
+0x000278F8	0x00000060	[ 19] FDE for: _subexpr
+0x00027958	0x00000020	[ 19] FDE for: _expr
+0x00027978	0x00000038	[ 19] FDE for: _cond
+0x000279B0	0x00000040	[ 19] FDE for: _yindex
+0x000279F0	0x00000060	[ 19] FDE for: _recfield
+0x00027A50	0x00000050	[ 19] FDE for: _explist1
+0x00027AA0	0x00000038	[ 19] FDE for: _exp1.isra.0
+0x00027AD8	0x00000060	[ 19] FDE for: _constructor
+0x00027B38	0x00000068	[ 19] FDE for: _funcargs
+0x00027BA0	0x00000058	[ 19] FDE for: _primaryexp
+0x00027BF8	0x00000058	[ 19] FDE for: _assignment
+0x00027C50	0x00000040	[ 19] FDE for: _block
+0x00027C90	0x00000040	[ 19] FDE for: _test_then_block
+0x00027CD0	0x00000068	[ 19] FDE for: _forbody
+0x00027D38	0x00000050	[ 19] FDE for: _luaY_parser
+0x00027D88	0x00000018	[ 20] CFI
+0x00027DA0	0x00000040	[ 20] FDE for: _stack_init
+0x00027DE0	0x00000040	[ 20] FDE for: _freestack
+0x00027E20	0x00000048	[ 20] FDE for: _f_luaopen
+0x00027E68	0x00000040	[ 20] FDE for: _close_state
+0x00027EA8	0x00000020	[ 20] FDE for: _callallgcTM
+0x00027EC8	0x00000040	[ 20] FDE for: _luaE_newthread
+0x00027F08	0x00000040	[ 20] FDE for: _luaE_freethread
+0x00027F48	0x00000048	[ 20] FDE for: _lua_newstate
+0x00027F90	0x00000040	[ 20] FDE for: _lua_close
+0x00027FD0	0x00000018	[ 21] CFI
+0x00027FE8	0x00000050	[ 21] FDE for: _luaS_resize
+0x00028038	0x00000068	[ 21] FDE for: _luaS_newllocstr
+0x000280A0	0x00000048	[ 21] FDE for: _luaS_newudata
+0x000280E8	0x00000018	[ 22] CFI
+0x00028100	0x00000050	[ 22] FDE for: _addintlen
+0x00028150	0x00000050	[ 22] FDE for: _str_reverse
+0x000281A0	0x00000058	[ 22] FDE for: _str_upper
+0x000281F8	0x00000058	[ 22] FDE for: _str_rep
+0x00028250	0x00000038	[ 22] FDE for: _writer
+0x00028288	0x00000040	[ 22] FDE for: _str_len
+0x000282C8	0x00000050	[ 22] FDE for: _classend
+0x00028318	0x00000020	[ 22] FDE for: _gfind_nodef
+0x00028338	0x00000058	[ 22] FDE for: _str_lower
+0x00028390	0x00000048	[ 22] FDE for: _match_class
+0x000283D8	0x00000058	[ 22] FDE for: _matchbracketclass
+0x00028430	0x00000040	[ 22] FDE for: _gmatch
+0x00028470	0x00000068	[ 22] FDE for: _str_char
+0x000284D8	0x00000078	[ 22] FDE for: _str_format
+0x00028550	0x00000048	[ 22] FDE for: _str_dump
+0x00028598	0x00000068	[ 22] FDE for: _push_onecapture
+0x00028600	0x00000058	[ 22] FDE for: _push_captures
+0x00028658	0x00000020	[ 22] FDE for: _singlematch
+0x00028678	0x00000090	[ 22] FDE for: _match
+0x00028708	0x00000060	[ 22] FDE for: _max_expand
+0x00028768	0x00000050	[ 22] FDE for: _start_capture
+0x000287B8	0x00000078	[ 22] FDE for: _str_gsub
+0x00028830	0x00000060	[ 22] FDE for: _gmatch_aux
+0x00028890	0x00000058	[ 22] FDE for: _str_byte
+0x000288E8	0x00000070	[ 22] FDE for: _str_find_aux
+0x00028958	0x00000020	[ 22] FDE for: _str_match
+0x00028978	0x00000020	[ 22] FDE for: _str_find
+0x00028998	0x00000050	[ 22] FDE for: _str_sub
+0x000289E8	0x00000040	[ 22] FDE for: _luaopen_string
+0x00028A28	0x00000018	[ 23] CFI
+0x00028A40	0x00000048	[ 23] FDE for: _hashnum
+0x00028A88	0x00000020	[ 23] FDE for: _mainposition
+0x00028AA8	0x00000048	[ 23] FDE for: _setarrayvector
+0x00028AF0	0x00000058	[ 23] FDE for: _setnodevector
+0x00028B48	0x00000048	[ 23] FDE for: _countint
+0x00028B90	0x00000060	[ 23] FDE for: _luaH_next
+0x00028BF0	0x00000050	[ 23] FDE for: _luaH_new
+0x00028C40	0x00000040	[ 23] FDE for: _luaH_free
+0x00028C80	0x00000038	[ 23] FDE for: _luaH_getnum
+0x00028CB8	0x00000020	[ 23] FDE for: _luaH_getstr
+0x00028CD8	0x00000060	[ 23] FDE for: _luaH_get
+0x00028D38	0x00000040	[ 23] FDE for: _luaH_setnum
+0x00028D78	0x00000088	[ 23] FDE for: _resize
+0x00028E00	0x00000020	[ 23] FDE for: _luaH_resizearray
+0x00028E20	0x00000090	[ 23] FDE for: _newkey
+0x00028EB0	0x00000060	[ 23] FDE for: _luaH_set
+0x00028F10	0x00000038	[ 23] FDE for: _luaH_setstr
+0x00028F48	0x00000050	[ 23] FDE for: _luaH_getn
+0x00028F98	0x00000018	[ 24] CFI
+0x00028FB0	0x00000040	[ 24] FDE for: _setn
+0x00028FF0	0x00000040	[ 24] FDE for: _set2
+0x00029030	0x00000058	[ 24] FDE for: _tremove
+0x00029088	0x00000060	[ 24] FDE for: _tinsert
+0x000290E8	0x00000048	[ 24] FDE for: _foreach
+0x00029130	0x00000048	[ 24] FDE for: _maxn
+0x00029178	0x00000040	[ 24] FDE for: _getn
+0x000291B8	0x00000050	[ 24] FDE for: _foreachi
+0x00029208	0x00000050	[ 24] FDE for: _addfield
+0x00029258	0x00000060	[ 24] FDE for: _tconcat
+0x000292B8	0x00000060	[ 24] FDE for: _sort_comp
+0x00029318	0x00000068	[ 24] FDE for: _auxsort
+0x00029380	0x00000040	[ 24] FDE for: _sort
+0x000293C0	0x00000038	[ 24] FDE for: _luaopen_table
+0x000293F8	0x00000018	[ 25] CFI
+0x00029410	0x00000050	[ 25] FDE for: _luaT_init
+0x00029460	0x00000040	[ 25] FDE for: _luaT_gettm
+0x000294A0	0x00000020	[ 25] FDE for: _luaT_gettmbyobj
+0x000294C0	0x00000018	[ 26] CFI
+0x000294D8	0x00000040	[ 26] FDE for: _luaU_undump
+0x00029518	0x00000018	[ 27] CFI
+0x00029530	0x00000020	[ 27] FDE for: _set_lua_OOM
+0x00029550	0x00000020	[ 27] FDE for: _get_lua_OOM
+0x00029570	0x00000018	[ 28] CFI
+0x00029588	0x00000040	[ 28] FDE for: _callTMres
+0x000295C8	0x00000050	[ 28] FDE for: _call_binTM
+0x00029618	0x00000060	[ 28] FDE for: _l_strcmp
+0x00029678	0x00000060	[ 28] FDE for: _call_orderTM
+0x000296D8	0x00000050	[ 28] FDE for: _get_compTM.constprop.0
+0x00029728	0x00000048	[ 28] FDE for: _luaV_tonumber
+0x00029770	0x00000070	[ 28] FDE for: _Arith
+0x000297E0	0x00000050	[ 28] FDE for: _luaV_tostring
+0x00029830	0x00000098	[ 28] FDE for: _luaV_gettable
+0x000298C8	0x00000070	[ 28] FDE for: _luaV_settable
+0x00029938	0x00000060	[ 28] FDE for: _luaV_lessthan
+0x00029998	0x00000080	[ 28] FDE for: _luaV_equalval
+0x00029A18	0x00000070	[ 28] FDE for: _luaV_concat
+0x00029A88	0x00000068	[ 28] FDE for: _luaV_execute
+0x00029AF0	0x00000018	[ 29] CFI
+0x00029B08	0x00000050	[ 29] FDE for: _luaZ_fill
+0x00029B58	0x00000040	[ 29] FDE for: _luaZ_lookahead
+0x00029B98	0x00000020	[ 29] FDE for: _luaZ_init
+0x00029BB8	0x00000050	[ 29] FDE for: _luaZ_read
+0x00029C08	0x00000040	[ 29] FDE for: _luaZ_openspace
+0x00029C48	0x00000018	[ 30] CFI
+0x00029C60	0x00000040	[ 30] FDE for: _strerror
+0x00029CA0	0x00000068	[ 30] FDE for: _splash_scroller
+0x00029D08	0x00000020	[ 30] FDE for: _rb_pow
+0x00029D28	0x00000020	[ 30] FDE for: _strcoll
+0x00029D48	0x00000048	[ 30] FDE for: _get_current_path
+0x00029D90	0x00000060	[ 30] FDE for: _filetol
+0x00029DF0	0x00000020	[ 30] FDE for: _get_plugin_action
+0x00029E10	0x00000018	[ 31] CFI
+0x00029E28	0x00000038	[ 31] FDE for: _rock_settings_save
+0x00029E60	0x00000048	[ 31] FDE for: _rock_mem_stats
+0x00029EA8	0x00000038	[ 31] FDE for: _rock_current_tick
+0x00029EE0	0x00000038	[ 31] FDE for: _rock_restart_lua
+0x00029F18	0x00000038	[ 31] FDE for: _rock_sleep
+0x00029F50	0x00000050	[ 31] FDE for: _rock_talk
+0x00029FA0	0x00000058	[ 31] FDE for: _rock_strncasecmp
+0x00029FF8	0x00000040	[ 31] FDE for: _rock_utf8encode
+0x0002A038	0x00000048	[ 31] FDE for: _rock_mixer_frequency
+0x0002A080	0x00000040	[ 31] FDE for: _rock_splash
+0x0002A0C0	0x00000048	[ 31] FDE for: _rock_thread_set_priority
+0x0002A108	0x00000038	[ 31] FDE for: _rock_backlight_use_settings
+0x0002A140	0x00000038	[ 31] FDE for: _rock_backlight_force_on
+0x0002A178	0x00000050	[ 31] FDE for: _rock_pcm
+0x0002A1C8	0x00000050	[ 31] FDE for: _rock_sound
+0x0002A218	0x00000050	[ 31] FDE for: _rock_audio
+0x0002A268	0x00000058	[ 31] FDE for: _rock_playlist
+0x0002A2C0	0x00000040	[ 31] FDE for: _rock_splash_scroller
+0x0002A300	0x00000060	[ 31] FDE for: _get_table_items
+0x0002A360	0x00000048	[ 31] FDE for: _menu_callback
+0x0002A3A8	0x00000050	[ 31] FDE for: _rock_do_menu
+0x0002A3F8	0x00000060	[ 31] FDE for: _rock_kbd_input
+0x0002A458	0x00000040	[ 31] FDE for: _rock_get_plugin_action
+0x0002A498	0x00000020	[ 31] FDE for: _rock_current_path
+0x0002A4B8	0x00000040	[ 31] FDE for: _rock_talk_shutup
+0x0002A4F8	0x00000048	[ 31] FDE for: _rock_backlight_brightness_set
+0x0002A540	0x00000040	[ 31] FDE for: _rock_backlight_onoff
+0x0002A580	0x00000080	[ 31] FDE for: _mem_read_write.isra.0
+0x0002A600	0x00000038	[ 31] FDE for: _rock_global_status
+0x0002A638	0x00000038	[ 31] FDE for: _rock_global_settings
+0x0002A670	0x00000048	[ 31] FDE for: _rock_audio_next_track
+0x0002A6B8	0x00000048	[ 31] FDE for: _rock_audio_current_track
+0x0002A700	0x00000050	[ 31] FDE for: _rock_gui_syncyesno_run
+0x0002A750	0x00000040	[ 31] FDE for: _luaopen_rock
+0x0002A790	0x00000018	[ 32] CFI
+0x0002A7A8	0x00000020	[ 32] FDE for: _img_address_fn
+0x0002A7C8	0x00000020	[ 32] FDE for: _rli_get_element
+0x0002A7E8	0x00000038	[ 32] FDE for: _next_rli_iter
+0x0002A820	0x00000020	[ 32] FDE for: _blit_transform
+0x0002A840	0x00000020	[ 32] FDE for: _invert_transform
+0x0002A860	0x00000038	[ 32] FDE for: _rock_lcd_update
+0x0002A898	0x00000038	[ 32] FDE for: _rock_lcd_clear_display
+0x0002A8D0	0x00000038	[ 32] FDE for: _rock_lcd_scroll_stop
+0x0002A908	0x00000038	[ 32] FDE for: _rock_clear_viewport
+0x0002A940	0x00000020	[ 32] FDE for: _bounds_check_xy
+0x0002A960	0x00000058	[ 32] FDE for: _alloc_rlimage
+0x0002A9B8	0x00000058	[ 32] FDE for: _rock_read_bmp_file
+0x0002AA10	0x00000048	[ 32] FDE for: _rock_lcd_get_backdrop
+0x0002AA58	0x00000050	[ 32] FDE for: _checkint_arr
+0x0002AAA8	0x00000038	[ 32] FDE for: _rock_lcd_vline
+0x0002AAE0	0x00000038	[ 32] FDE for: _rock_lcd_hline
+0x0002AB18	0x00000038	[ 32] FDE for: _rock_lcd_drawline
+0x0002AB50	0x00000038	[ 32] FDE for: _rock_lcd_fillrect
+0x0002AB88	0x00000038	[ 32] FDE for: _rock_lcd_drawrect
+0x0002ABC0	0x00000038	[ 32] FDE for: _rock_lcd_update_rect
+0x0002ABF8	0x00000040	[ 32] FDE for: _rock_gui_scrollbar_draw
+0x0002AC38	0x00000040	[ 32] FDE for: _rock_lcd_drawpixel
+0x0002AC78	0x00000038	[ 32] FDE for: _rock_lcd_set_background
+0x0002ACB0	0x00000038	[ 32] FDE for: _rock_lcd_set_foreground
+0x0002ACE8	0x00000038	[ 32] FDE for: _rock_lcd_setfont
+0x0002AD20	0x00000048	[ 32] FDE for: _lcd_putshelper
+0x0002AD68	0x00000038	[ 32] FDE for: _rock_lcd_puts
+0x0002ADA0	0x00000038	[ 32] FDE for: _rock_lcd_putsxy
+0x0002ADD8	0x00000040	[ 32] FDE for: _rock_lcd_rgbunpack
+0x0002AE18	0x00000038	[ 32] FDE for: _rock_lcd_rgbpack
+0x0002AE50	0x00000040	[ 32] FDE for: _rock_lcd_get_background
+0x0002AE90	0x00000040	[ 32] FDE for: _rock_lcd_get_foreground
+0x0002AED0	0x00000058	[ 32] FDE for: _rli_checktype_opt
+0x0002AF28	0x00000040	[ 32] FDE for: _rli_checktype
+0x0002AF68	0x00000040	[ 32] FDE for: _rock_lcd_bitmap_transparent
+0x0002AFA8	0x00000040	[ 32] FDE for: _rock_lcd_bitmap_transparent_part
+0x0002AFE8	0x00000040	[ 32] FDE for: _rock_lcd_bitmap
+0x0002B028	0x00000040	[ 32] FDE for: _rock_lcd_bitmap_part
+0x0002B068	0x00000040	[ 32] FDE for: _rock_lcd_mono_bitmap
+0x0002B0A8	0x00000040	[ 32] FDE for: _rock_lcd_mono_bitmap_part
+0x0002B0E8	0x00000040	[ 32] FDE for: _rli_height
+0x0002B128	0x00000040	[ 32] FDE for: _rli_width
+0x0002B168	0x00000040	[ 32] FDE for: _rli_size
+0x0002B1A8	0x00000050	[ 32] FDE for: _rock_lcd_set_drawmode
+0x0002B1F8	0x00000038	[ 32] FDE for: _lua_to_fbscalar
+0x0002B230	0x00000050	[ 32] FDE for: _rock_font_getstringsize
+0x0002B280	0x00000050	[ 32] FDE for: _rli_raw
+0x0002B2D0	0x00000048	[ 32] FDE for: _check_tablevalue_def
+0x0002B318	0x00000020	[ 32] FDE for: _check_tablevalue
+0x0002B338	0x00000070	[ 32] FDE for: _rock_lcd_put_line
+0x0002B3A8	0x00000040	[ 32] FDE for: _rock_lcd_puts_scroll
+0x0002B3E8	0x00000040	[ 32] FDE for: _rli_equal
+0x0002B428	0x00000050	[ 32] FDE for: _rli_tostring
+0x0002B478	0x00000058	[ 32] FDE for: _opt_viewport
+0x0002B4D0	0x00000020	[ 32] FDE for: _img_set_as_vp.constprop.0
+0x0002B4F0	0x00000048	[ 32] FDE for: _rock_set_viewport
+0x0002B538	0x00000058	[ 32] FDE for: _d_line.isra.0
+0x0002B590	0x00000078	[ 32] FDE for: _rli_setget.isra.0
+0x0002B608	0x00000038	[ 32] FDE for: _rli_set
+0x0002B640	0x00000038	[ 32] FDE for: _rli_get
+0x0002B678	0x00000020	[ 32] FDE for: _clear_transform
+0x0002B698	0x00000038	[ 32] FDE for: _rli_iter_init.isra.0
+0x0002B6D0	0x00000070	[ 32] FDE for: _rli_copy
+0x0002B740	0x00000068	[ 32] FDE for: _rli_iter_create
+0x0002B7A8	0x00000058	[ 32] FDE for: _rli_marshal
+0x0002B800	0x00000040	[ 32] FDE for: _rli_clear
+0x0002B840	0x00000040	[ 32] FDE for: _rli_iterator_factory
+0x0002B880	0x00000048	[ 32] FDE for: _rock_lcd_framebuffer
+0x0002B8C8	0x00000050	[ 32] FDE for: _rli_new
+0x0002B918	0x00000058	[ 32] FDE for: _d_ellipse_elements
+0x0002B970	0x00000080	[ 32] FDE for: _rli_line_ellipse.isra.0
+0x0002B9F0	0x00000038	[ 32] FDE for: _rli_line
+0x0002BA28	0x00000038	[ 32] FDE for: _rli_ellipse
+0x0002BA60	0x00000058	[ 32] FDE for: _rli_iterator
+0x0002BAB8	0x00000060	[ 32] FDE for: _custom_transform
+0x0002BB18	0x00000040	[ 32] FDE for: _luaopen_rock_img
+0x0002BB58	0x00000018	[ 33] CFI
+0x0002BB70	0x00000020	[ 33] FDE for: _check_sentinel
+0x0002BB90	0x00000020	[ 33] FDE for: _rock_get_allocated_bytes
+0x0002BBB0	0x00000038	[ 33] FDE for: _rock_get_unused_bytes
+0x0002BBE8	0x00000048	[ 33] FDE for: _get_new_area
+0x0002BC30	0x00000018	[ 34] CFI
+0x0002BC48	0x00000020	[ 34] FDE for: _strpbrk_n
+0x0002BC68	0x00000020	[ 34] FDE for: _strpbrk
+0x0002BC88	0x00000018	[ 35] CFI
+0x0002BCA0	0x00000040	[ 35] FDE for: _traceback
+0x0002BCE0	0x00000070	[ 35] FDE for: _db_errorfb
+0x0002BD50	0x00000060	[ 35] FDE for: _loadfile_newstate.constprop.0
+0x0002BDB0	0x00000050	[ 35] FDE for: _browse_scripts
+0x0002BE00	0x00000078	[ 35] FDE for: _plugin_start
+0x0002BE78	0x00000040	[ 35] FDE for: _lua_atexit
+0x0002BEB8	0x00000018	[ 36] CFI
+0x0002BED0	0x00000040	[ 36] FDE for: _remove_dir
+0x0002BF10	0x00000040	[ 36] FDE for: _make_dir
+0x0002BF50	0x00000050	[ 36] FDE for: _dir_iter_factory
+0x0002BFA0	0x00000050	[ 36] FDE for: _dir_iter
+0x0002BFF0	0x00000040	[ 36] FDE for: _dir_close
+0x0002C030	0x00000040	[ 36] FDE for: _luaopen_luadir
+0x0002C070	0x00000018	[ 37] CFI
+0x0002C088	0x00000020	[ 37] FDE for: _remove_evt
+0x0002C0A8	0x00000038	[ 37] FDE for: _suspend_evt
+0x0002C0E0	0x00000020	[ 37] FDE for: _rev_lock_mtx
+0x0002C100	0x00000020	[ 37] FDE for: _rev_unlock_mtx
+0x0002C120	0x00000060	[ 37] FDE for: _register_playbk_events
+0x0002C180	0x00000058	[ 37] FDE for: _lua_interrupt_set
+0x0002C1D8	0x00000040	[ 37] FDE for: _destroy_event_userdata
+0x0002C218	0x00000060	[ 37] FDE for: _event_thread
+0x0002C278	0x00000040	[ 37] FDE for: _set_event_meta
+0x0002C2B8	0x00000020	[ 37] FDE for: _playback_event_callback
+0x0002C2D8	0x00000058	[ 37] FDE for: _lua_interrupt_callback
+0x0002C330	0x00000040	[ 37] FDE for: _exit_event_thread.constprop.0
+0x0002C370	0x00000058	[ 37] FDE for: _rockev_gc
+0x0002C3C8	0x00000040	[ 37] FDE for: _rockev_unregister
+0x0002C408	0x00000060	[ 37] FDE for: _rockev_register
+0x0002C468	0x00000048	[ 37] FDE for: _rockev_suspend
+0x0002C4B0	0x00000058	[ 37] FDE for: _rockev_trigger
+0x0002C508	0x00000080	[ 37] FDE for: _rev_timer_isr
+0x0002C588	0x00000040	[ 37] FDE for: _luaopen_rockevents
+0x0002C5C8	0x00000018	[ 38] CFI
+0x0002C5E0	0x00000038	[ 38] FDE for: _rock_button_clear_queue
+0x0002C618	0x00000038	[ 38] FDE for: _rock_pcm_close_recording
+0x0002C650	0x00000038	[ 38] FDE for: _rock_pcm_init_recording
+0x0002C688	0x00000038	[ 38] FDE for: _rock_pcm_stop_recording
+0x0002C6C0	0x00000038	[ 38] FDE for: _rock_reset_poweroff_timer
+0x0002C6F8	0x00000038	[ 38] FDE for: _rock_storage_sleep
+0x0002C730	0x00000038	[ 38] FDE for: _rock_storage_spin
+0x0002C768	0x00000038	[ 38] FDE for: _rock_sys_poweroff
+0x0002C7A0	0x00000038	[ 38] FDE for: _rock_sys_reboot
+0x0002C7D8	0x00000038	[ 38] FDE for: _rock_tagcache_commit_finalize
+0x0002C810	0x00000038	[ 38] FDE for: _rock_talk_force_enqueue_next
+0x0002C848	0x00000038	[ 38] FDE for: _rock_yield
+0x0002C880	0x00000040	[ 38] FDE for: _rock_yesno_pop_confirm
+0x0002C8C0	0x00000040	[ 38] FDE for: _rock_yesno_pop
+0x0002C900	0x00000040	[ 38] FDE for: _rock_warn_on_pl_erase
+0x0002C940	0x00000040	[ 38] FDE for: _rock_usb_inserted
+0x0002C980	0x00000040	[ 38] FDE for: _rock_tagcache_is_in_ram
+0x0002C9C0	0x00000040	[ 38] FDE for: _rock_file_exists
+0x0002CA00	0x00000040	[ 38] FDE for: _rock_dsp_timestretch_available
+0x0002CA40	0x00000040	[ 38] FDE for: _rock_dir_exists
+0x0002CA80	0x00000040	[ 38] FDE for: _rock_charging_state
+0x0002CAC0	0x00000040	[ 38] FDE for: _rock_charger_inserted
+0x0002CB00	0x00000040	[ 38] FDE for: _rock_button_hold
+0x0002CB40	0x00000040	[ 38] FDE for: _rock_button_get_sw_poweroff_state
+0x0002CB80	0x00000040	[ 38] FDE for: _rock_battery_level_safe
+0x0002CBC0	0x00000038	[ 38] FDE for: _rock_storage_spindown
+0x0002CBF8	0x00000038	[ 38] FDE for: _rock_splash_progress_set_delay
+0x0002CC30	0x00000038	[ 38] FDE for: _rock_set_sleeptimer_duration
+0x0002CC68	0x00000048	[ 38] FDE for: _rock_sb_set_title_text
+0x0002CCB0	0x00000048	[ 38] FDE for: _rock_sb_set_persistent_title
+0x0002CCF8	0x00000038	[ 38] FDE for: _rock_font_unload
+0x0002CD30	0x00000048	[ 38] FDE for: _rock_fix_path_part
+0x0002CD78	0x00000038	[ 38] FDE for: _rock_dsp_set_crossfeed_type
+0x0002CDB0	0x00000048	[ 38] FDE for: _rock_beep_play
+0x0002CDF8	0x00000038	[ 38] FDE for: _rock_backlight_set_timeout_plugged
+0x0002CE30	0x00000038	[ 38] FDE for: _rock_backlight_set_timeout
+0x0002CE68	0x00000048	[ 38] FDE for: _rock_audio_set_recording_gain
+0x0002CEB0	0x00000038	[ 38] FDE for: _rock_audio_set_output_source
+0x0002CEE8	0x00000040	[ 38] FDE for: _rock_audio_set_input_source
+0x0002CF28	0x00000038	[ 38] FDE for: _rock_adjust_volume
+0x0002CF60	0x00000040	[ 38] FDE for: _rock_action_userabort
+0x0002CFA0	0x00000040	[ 38] FDE for: _rock_utf8seek
+0x0002CFE0	0x00000040	[ 38] FDE for: _rock_utf8length
+0x0002D020	0x00000040	[ 38] FDE for: _rock_strcmp
+0x0002D060	0x00000040	[ 38] FDE for: _rock_plugin_reserve_buffer
+0x0002D0A0	0x00000040	[ 38] FDE for: _rock_plugin_open
+0x0002D0E0	0x00000040	[ 38] FDE for: _rock_playlist_get_display_index
+0x0002D120	0x00000040	[ 38] FDE for: _rock_lcd_get_drawmode
+0x0002D160	0x00000040	[ 38] FDE for: _rock_lang_is_rtl
+0x0002D1A0	0x00000040	[ 38] FDE for: _rock_get_sleep_timer
+0x0002D1E0	0x00000040	[ 38] FDE for: _rock_get_action
+0x0002D220	0x00000040	[ 38] FDE for: _rock_font_load
+0x0002D260	0x00000040	[ 38] FDE for: _rock_filetype_get_attr
+0x0002D2A0	0x00000040	[ 38] FDE for: _rock_dynamic_colors_resolve
+0x0002D2E0	0x00000040	[ 38] FDE for: _rock_default_event_handler
+0x0002D320	0x00000040	[ 38] FDE for: _rock_button_status
+0x0002D360	0x00000040	[ 38] FDE for: _rock_button_queue_count
+0x0002D3A0	0x00000040	[ 38] FDE for: _rock_button_get_w_tmo
+0x0002D3E0	0x00000040	[ 38] FDE for: _rock_battery_voltage
+0x0002D420	0x00000040	[ 38] FDE for: _rock_battery_time
+0x0002D460	0x00000040	[ 38] FDE for: _rock_battery_level
+0x0002D4A0	0x00000040	[ 38] FDE for: _rock_battery_current
+0x0002D4E0	0x00000048	[ 38] FDE for: _rock_talk_value_decimal
+0x0002D528	0x00000040	[ 38] FDE for: _rock_talk_fullpath
+0x0002D568	0x00000038	[ 38] FDE for: _rock_talk_disable
+0x0002D5A0	0x00000038	[ 38] FDE for: _rock_skin_render_inhibit_flush
+0x0002D5D8	0x00000038	[ 38] FDE for: _rock_pcmbuf_set_low_latency
+0x0002D610	0x00000040	[ 38] FDE for: _rock_pcmbuf_fade
+0x0002D650	0x00000038	[ 38] FDE for: _rock_led
+0x0002D688	0x00000040	[ 38] FDE for: _rock_keyclick_click
+0x0002D6C8	0x00000040	[ 38] FDE for: _rock_is_backlight_on
+0x0002D708	0x00000038	[ 38] FDE for: _rock_dsp_timestretch_enable
+0x0002D740	0x00000038	[ 38] FDE for: _rock_dsp_eq_enable
+0x0002D778	0x00000038	[ 38] FDE for: _rock_dsp_dither_enable
+0x0002D7B0	0x00000038	[ 38] FDE for: _rock_button_set_sw_poweroff_state
+0x0002D7E8	0x00000040	[ 38] FDE for: _rock_button_get
+0x0002D828	0x00000040	[ 38] FDE for: _rock_strstr
+0x0002D868	0x00000040	[ 38] FDE for: _rock_strrchr
+0x0002D8A8	0x00000040	[ 38] FDE for: _rock_strchr
+0x0002D8E8	0x00000040	[ 38] FDE for: _rock_get_codepage_name
+0x0002D928	0x00000040	[ 38] FDE for: _rock_get_codec_string
+0x0002D968	0x00000040	[ 38] FDE for: _rock_get_codec_filename
+0x0002D9A8	0x00000050	[ 38] FDE for: _rock_format_time_auto
+0x0002D9F8	0x00000048	[ 38] FDE for: _rock_filetype_get_plugin
+0x0002DA40	0x00000018	[ 39] CFI
+0x0002DA58	0x00000020	[ 39] FDE for: _cleanup_wrapper
+0x0002DA78	0x00000040	[ 39] FDE for: _plugin__start
+0x0002DAB8	0x00000020	[ 39] FDE for: _rb_atexit
+0x0002DAD8	0x00000030	[ 39] FDE for: _exit
+0x0002DB08	0x00000030	[ 39] FDE for: __exit
+0x0002DB38	0x00000038	[ 39] FDE for: _exit_on_usb
+0x0002DB70	0x00000018	[ 40] CFI
+0x0002DB88	0x00000020	[ 40] FDE for: _ls_bit
+0x0002DBA8	0x00000020	[ 40] FDE for: _ms_bit
+0x0002DBC8	0x00000020	[ 40] FDE for: _set_bit
+0x0002DBE8	0x00000020	[ 40] FDE for: _clear_bit
+0x0002DC08	0x00000040	[ 40] FDE for: _FIND_SUITABLE_BLOCK
+0x0002DC48	0x00000020	[ 40] FDE for: _process_area
+0x0002DC68	0x00000038	[ 40] FDE for: _MAPPING_INSERT
+0x0002DCA0	0x00000020	[ 40] FDE for: _panicf
+0x0002DCC0	0x00000020	[ 40] FDE for: _get_used_size
+0x0002DCE0	0x00000020	[ 40] FDE for: _get_max_size
+0x0002DD00	0x00000020	[ 40] FDE for: _destroy_memory_pool
+0x0002DD20	0x00000040	[ 40] FDE for: _free_ex
+0x0002DD60	0x00000050	[ 40] FDE for: _init_memory_pool
+0x0002DDB0	0x00000048	[ 40] FDE for: _add_new_area
+0x0002DDF8	0x00000060	[ 40] FDE for: _malloc_ex
+0x0002DE58	0x00000058	[ 40] FDE for: _tlsf_malloc
+0x0002DEB0	0x00000020	[ 40] FDE for: _tlsf_free
+0x0002DED0	0x00000068	[ 40] FDE for: _realloc_ex
+0x0002DF38	0x00000020	[ 40] FDE for: _tlsf_realloc
+0x0002DF58	0x00000048	[ 40] FDE for: _calloc_ex
+0x0002DFA0	0x00000020	[ 40] FDE for: _tlsf_calloc
+0x0002DFC0	0x00000018	[ 41] CFI
+0x0002DFD8	0x00000020	[ 41] FDE for: _memcpy
+0x0002DFF8	0x00000020	[ 41] FDE for: _memset
+0x0002E018	0x00000020	[ 41] FDE for: _memmove
+0x0002E038	0x00000020	[ 41] FDE for: _memcmp
+0x0002E058	0x00000018	[ 42] CFI
+0x0002E070	0x00000020	[ 42] FDE for: _get_context_map
+0x0002E090	0x00000020	[ 42] FDE for: _pluginlib_getaction
+0x0002E0B0	0x00000018	[ 43] CFI
+0x0002E0C8	0x00000020	[ 43] FDE for: _talk_val
+0x0002E0E8	0x00000040	[ 43] FDE for: _backlight_force_on
+0x0002E128	0x00000050	[ 43] FDE for: _backlight_ignore_timeout
+0x0002E178	0x00000040	[ 43] FDE for: _backlight_use_settings
+0x0002E1B8	0x00000040	[ 43] FDE for: _sw_poweroff_disable
+0x0002E1F8	0x00000020	[ 43] FDE for: _sw_poweroff_restore
+0x0002E218	0x00000020	[ 43] FDE for: _remote_backlight_force_on
+0x0002E238	0x00000020	[ 43] FDE for: _remote_backlight_ignore_timeout
+0x0002E258	0x00000020	[ 43] FDE for: _remote_backlight_use_settings
+0x0002E278	0x00000020	[ 43] FDE for: _buttonlight_force_on
+0x0002E298	0x00000020	[ 43] FDE for: _buttonlight_force_off
+0x0002E2B8	0x00000020	[ 43] FDE for: _buttonlight_ignore_timeout
+0x0002E2D8	0x00000020	[ 43] FDE for: _buttonlight_use_settings
+0x0002E2F8	0x00000020	[ 43] FDE for: _backlight_brightness_set
+0x0002E318	0x00000020	[ 43] FDE for: _backlight_brightness_use_setting
+0x0002E338	0x00000020	[ 43] FDE for: _buttonlight_brightness_set
+0x0002E358	0x00000020	[ 43] FDE for: _buttonlight_brightness_use_setting
+0x0002E378	0x00000018	[ 44] CFI
+0x0002E390	0x00000020	[ 44] FDE for: _strncpy
+0x00030000	0x00000008	[ 46] __DefaultRuneLocale.got
+0x00030008	0x00000008	[ 47] ___error.got
+0x00030010	0x00000008	[ 46] ___maskrune.got
+0x00030018	0x00000008	[ 46] ___tolower.got
+0x00030020	0x00000008	[ 46] ___toupper.got
+0x00030028	0x00000008	[ 46] _abs.got
+0x00030030	0x00000008	[ 48] _longjmp.got
+0x00030038	0x00000008	[ 48] _setjmp.got
+0x00030040	0x00000040	[  1] _late_meta.0
+0x00030080	0x00000040	[  3] _opts.1
+0x000300C0	0x00000070	[  3] _co_funcs
+0x00030130	0x00000020	[  3] _statnames
+0x00030150	0x000001A0	[  3] _base_funcs
+0x000302F0	0x00000080	[  4] _bitlib
+0x00030370	0x00000020	[ 11] _modenames.1
+0x00030390	0x00000080	[ 11] _flib
+0x00030410	0x00000090	[ 11] _iolib
+0x000304A0	0x00000010	[ 11] _fnames
+0x000304B0	0x00000100	[ 12] _luaX_tokens
+0x000305B0	0x000000B0	[ 13] _mathlib
+0x00030660	0x00000018	[ 15] _loaders
+0x00030678	0x00000030	[ 15] _ll_funcs
+0x000306A8	0x00000020	[ 15] _pk_funcs
+0x000306C8	0x00000138	[ 17] _luaP_opnames
+0x00030800	0x00000060	[ 18] _syslib
+0x00030860	0x00000100	[ 22] _strlib
+0x00030960	0x000000A0	[ 24] _tab_funcs
+0x00030A00	0x00000088	[ 25] _luaT_eventname.0
+0x00030A88	0x00000058	[ 25] _luaT_typenames
+0x00030AE0	0x00000038	[ 31] lC41
+0x00030B18	0x00000048	[ 31] lC42
+0x00030B60	0x00000070	[ 31] lC43
+0x00030BD0	0x00000060	[ 31] lC44
+0x00030C30	0x00000200	[ 31] _rocklib
+0x00030E30	0x00000250	[ 32] _rocklib_img
+0x00031080	0x00000100	[ 32] _rli_lib
+0x00031180	0x000000D0	[ 35] _lualibs
+0x00031250	0x00000040	[ 36] _fslib
+0x00031290	0x00000028	[ 37] _ev_map.0
+0x000312B8	0x00000050	[ 37] _evlib
+0x00031308	0x00000550	[ 38] _rocklib_aux
+0x00031858	0x00000038	[ 39] ___header
+0x00034000	0x00000008	[ 30] _m1.0
+0x00034008	0x00000004	[ 31] _lua_ref.0
+0x00034010	0x00000030	[ 32] _img_vp
+0x00034040	0x00000001	[ 43] _original_sw_poweroff_state
+0x00034048	0x00000008	[ 39] _rb
+0x00034050	0x00000010	[ 27] _l_oom
+0x00034060	0x00000020	[ 30] _buffer.1
+0x00034080	0x00000008	[ 31] _LStored.1
+0x00034088	0x00000020	[ 32] _fb.0
+0x000340A8	0x00000030	[ 32] _vp.1
+0x000340D8	0x00000030	[ 32] _vp.2
+0x00034108	0x00000008	[ 32] _last.3
+0x00034110	0x00000008	[ 33] _audiobuf_size
+0x00034118	0x00000008	[ 33] _audiobuf_ptr
+0x00034120	0x00000008	[ 33] _pluginbuf_size
+0x00034128	0x00000008	[ 33] _pluginbuf_ptr
+0x00034130	0x00000104	[ 35] _buf.0
+0x00034234	0x00000004	[ 35] _lu_status
+0x00034238	0x00000008	[ 35] _Ls
+0x00034240	0x00000004	[ 37] _oldcount.1
+0x00034244	0x00000004	[ 37] _oldmask.2
+0x00034248	0x00000008	[ 37] _oldhook.3
+0x00034250	0x00000028	[ 37] _rev_mtx
+0x00034278	0x00000058	[ 37] _ev_data
+0x000342D0	0x00000008	[ 39] _atexit_handler
+0x000342D8	0x000000C0	[ 39] ___exit_env
+0x00034398	0x00000008	[ 40] _mp
+0x000343A0	0x00000004	[ 42] _last_context
+0x000343A4	0x00000004	[ 42] _plugin_context_count
+0x000343A8	0x00000008	[ 42] _plugin_context_order

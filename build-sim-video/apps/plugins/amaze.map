@@ -1,0 +1,178 @@
+# Path: /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/amaze.elf
+# Arch: arm64
+# Object files:
+[  0] linker synthesized
+[  1] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/amaze.o
+[  2] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/plugin_crt0.o
+[  3] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(pluginlib_actions.o)
+[  4] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/bitmaps/libpluginbitmaps.a(amaze_tiles_9.9x9x16.o)
+[  5] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/bitmaps/libpluginbitmaps.a(amaze_tiles_7.7x7x16.o)
+[  6] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/libSystem.tbd
+[  7] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/system/libsystem_platform.tbd
+# Sections:
+# Address	Size    	Segment	Section
+0x00000778	0x00002BFC	__TEXT	__text
+0x00003374	0x00000018	__TEXT	__stubs
+0x0000338C	0x00000075	__TEXT	__cstring
+0x00003408	0x00000B88	__TEXT	__const
+0x00003F90	0x00000E30	__TEXT	__eh_frame
+0x00008000	0x00000010	__DATA_CONST	__got
+0x00008010	0x000000B8	__DATA_CONST	__const
+0x0000C000	0x00000060	__DATA	__data
+0x0000C060	0x00000008	__DATA	.data
+0x0000C068	0x00012CD8	__DATA	__bss
+0x0001ED40	0x000000E7	__DATA	__common
+# Symbols:
+# Address	Size    	File  Name
+0x00000778	0x00000058	[  1] _menu_cb
+0x000007D0	0x00000058	[  1] _clearscreen
+0x00000828	0x00000024	[  1] _getmaxyx
+0x0000084C	0x00000058	[  1] _map_write
+0x000008A4	0x0000005C	[  1] _map_read
+0x00000900	0x00000064	[  1] _werase
+0x00000964	0x0000008C	[  1] _at
+0x000009F0	0x00000060	[  1] _copyumap
+0x00000A50	0x000002A8	[  1] _eatmaze
+0x00000CF8	0x000000C8	[  1] _mappmove
+0x00000DC0	0x00000064	[  1] _clearmap
+0x00000E24	0x00000110	[  1] _showmap
+0x00000F34	0x00000158	[  1] _makemaze
+0x0000108C	0x00000124	[  1] _draw_arrow
+0x000011B0	0x00000154	[  1] _draw_pointer
+0x00001304	0x00000070	[  1] _draw_end_wall
+0x00001374	0x000000EC	[  1] _draw_side
+0x00001460	0x00000094	[  1] _draw_hall
+0x000014F4	0x0000013C	[  1] _draw_side_tri
+0x00001630	0x00000120	[  1] _draw_hall_crnr
+0x00001750	0x000001F8	[  1] _draw_center_sq
+0x00001948	0x00000014	[  1] _is_visited
+0x0000195C	0x0000042C	[  1] _graphic_view
+0x00001D88	0x00000030	[  1] _win
+0x00001DB8	0x000000A4	[  1] _trymove
+0x00001E5C	0x00000150	[  1] _walkleft
+0x00001FAC	0x00000070	[  1] _draw_tile
+0x0000201C	0x000001B4	[  1] _draw_tile_map
+0x000021D0	0x000000AC	[  1] _check_map_bounds
+0x0000227C	0x000000CC	[  1] _calc_map_size
+0x00002348	0x00000128	[  1] _draw_portion_map
+0x00002470	0x00000260	[  1] _load_map
+0x000026D0	0x00000040	[  1] _load_game
+0x00002710	0x000001AC	[  1] _save_map
+0x000028BC	0x00000040	[  1] _save_game
+0x000028FC	0x00000124	[  1] _save_prefs
+0x00002A20	0x000002DC	[  1] _menu
+0x00002CFC	0x00000314	[  1] _amaze
+0x00003010	0x00000104	[  1] _load_prefs
+0x00003114	0x000000AC	[  1] _plugin_start
+0x000031C0	0x00000018	[  2] _cleanup_wrapper
+0x000031D8	0x00000068	[  2] _plugin__start
+0x00003240	0x00000020	[  2] _rb_atexit
+0x00003260	0x00000024	[  2] _exit
+0x00003284	0x00000014	[  2] __exit
+0x00003298	0x00000064	[  2] _exit_on_usb
+0x000032FC	0x00000038	[  3] _get_context_map
+0x00003334	0x00000040	[  3] _pluginlib_getaction
+0x00003374	0x0000000C	[  7] _longjmp.stub
+0x00003380	0x0000000C	[  7] _setjmp.stub
+0x0000338C	0x00000025	[  1] literal string: /.rockbox/rocks/games/amaze_umap.sav
+0x000033B1	0x00000024	[  1] literal string: /.rockbox/rocks/games/amaze_map.sav
+0x000033D5	0x00000026	[  1] literal string: /.rockbox/rocks/games/amaze_prefs.sav
+0x000033FB	0x00000006	[  1] literal string: Amaze
+0x00003408	0x00000004	[  1] _ptab
+0x0000340C	0x00000024	[  1] _dirtab
+0x00003430	0x00000040	[  1] _mazesize_text
+0x00003470	0x00000020	[  1] _noyes_text
+0x00003490	0x000000D8	[  3] _pla_main_ctx
+0x00003568	0x00000654	[  4] _amaze_tiles_9
+0x00003BBC	0x000003D4	[  5] _amaze_tiles_7
+0x00003F90	0x00000018	[  1] CFI
+0x00003FA8	0x00000020	[  1] FDE for: _menu_cb
+0x00003FC8	0x00000040	[  1] FDE for: _clearscreen
+0x00004008	0x00000020	[  1] FDE for: _getmaxyx
+0x00004028	0x00000038	[  1] FDE for: _map_write
+0x00004060	0x00000040	[  1] FDE for: _map_read
+0x000040A0	0x00000040	[  1] FDE for: _werase
+0x000040E0	0x00000050	[  1] FDE for: _at
+0x00004130	0x00000040	[  1] FDE for: _copyumap
+0x00004170	0x00000068	[  1] FDE for: _eatmaze
+0x000041D8	0x00000040	[  1] FDE for: _mappmove
+0x00004218	0x00000040	[  1] FDE for: _clearmap
+0x00004258	0x00000060	[  1] FDE for: _showmap
+0x000042B8	0x00000048	[  1] FDE for: _makemaze
+0x00004300	0x00000060	[  1] FDE for: _draw_arrow
+0x00004360	0x00000050	[  1] FDE for: _draw_pointer
+0x000043B0	0x00000048	[  1] FDE for: _draw_end_wall
+0x000043F8	0x00000078	[  1] FDE for: _draw_side
+0x00004470	0x00000060	[  1] FDE for: _draw_hall
+0x000044D0	0x00000070	[  1] FDE for: _draw_side_tri
+0x00004540	0x00000078	[  1] FDE for: _draw_hall_crnr
+0x000045B8	0x000000A8	[  1] FDE for: _draw_center_sq
+0x00004660	0x00000020	[  1] FDE for: _is_visited
+0x00004680	0x00000080	[  1] FDE for: _graphic_view
+0x00004700	0x00000038	[  1] FDE for: _win
+0x00004738	0x00000048	[  1] FDE for: _trymove
+0x00004780	0x00000058	[  1] FDE for: _walkleft
+0x000047D8	0x00000020	[  1] FDE for: _draw_tile
+0x000047F8	0x00000078	[  1] FDE for: _draw_tile_map
+0x00004870	0x00000038	[  1] FDE for: _check_map_bounds
+0x000048A8	0x00000038	[  1] FDE for: _calc_map_size
+0x000048E0	0x00000058	[  1] FDE for: _draw_portion_map
+0x00004938	0x00000068	[  1] FDE for: _load_map
+0x000049A0	0x00000048	[  1] FDE for: _load_game
+0x000049E8	0x00000060	[  1] FDE for: _save_map
+0x00004A48	0x00000048	[  1] FDE for: _save_game
+0x00004A90	0x00000050	[  1] FDE for: _save_prefs
+0x00004AE0	0x00000058	[  1] FDE for: _menu
+0x00004B38	0x00000068	[  1] FDE for: _amaze
+0x00004BA0	0x00000050	[  1] FDE for: _load_prefs
+0x00004BF0	0x00000048	[  1] FDE for: _plugin_start
+0x00004C38	0x00000018	[  2] CFI
+0x00004C50	0x00000020	[  2] FDE for: _cleanup_wrapper
+0x00004C70	0x00000040	[  2] FDE for: _plugin__start
+0x00004CB0	0x00000020	[  2] FDE for: _rb_atexit
+0x00004CD0	0x00000030	[  2] FDE for: _exit
+0x00004D00	0x00000030	[  2] FDE for: __exit
+0x00004D30	0x00000038	[  2] FDE for: _exit_on_usb
+0x00004D68	0x00000018	[  3] CFI
+0x00004D80	0x00000020	[  3] FDE for: _get_context_map
+0x00004DA0	0x00000020	[  3] FDE for: _pluginlib_getaction
+0x00008000	0x00000008	[  7] _longjmp.got
+0x00008008	0x00000008	[  7] _setjmp.got
+0x00008010	0x00000018	[  1] _menu__.1
+0x00008028	0x00000018	[  1] _menu.2
+0x00008040	0x00000038	[  2] ___header
+0x00008078	0x00000028	[  4] _bm_amaze_tiles_9
+0x000080A0	0x00000028	[  5] _bm_amaze_tiles_7
+0x0000C000	0x00000058	[  1] _menu_.0
+0x0000C058	0x00000008	[  1] _plugin_contexts
+0x0000C060	0x00000008	[  2] _rb
+0x0000C068	0x0000FA00	[  1] _path_storage.3
+0x0001BA68	0x00001900	[  1] _umap
+0x0001D368	0x00001900	[  1] _map
+0x0001EC68	0x00000008	[  2] _atexit_handler
+0x0001EC70	0x000000C0	[  2] ___exit_env
+0x0001ED30	0x00000004	[  3] _last_context
+0x0001ED34	0x00000004	[  3] _plugin_context_count
+0x0001ED38	0x00000008	[  3] _plugin_context_order
+0x0001ED40	0x00000004	[  1] _ingame
+0x0001ED44	0x00000050	[  1] _crd_y
+0x0001ED94	0x00000050	[  1] _crd_x
+0x0001EDE4	0x00000004	[  1] _depth
+0x0001EDE8	0x00000004	[  1] _loaded
+0x0001EDEC	0x00000004	[  1] _button
+0x0001EDF0	0x00000004	[  1] _compass
+0x0001EDF4	0x00000004	[  1] _cheated
+0x0001EDF8	0x00000004	[  1] _won
+0x0001EDFC	0x00000004	[  1] _gdist
+0x0001EE00	0x00000004	[  1] _gy
+0x0001EE04	0x00000004	[  1] _gx
+0x0001EE08	0x00000004	[  1] _sy
+0x0001EE0C	0x00000004	[  1] _sx
+0x0001EE10	0x00000004	[  1] _punder
+0x0001EE14	0x00000004	[  1] _pdir
+0x0001EE18	0x00000004	[  1] _py
+0x0001EE1C	0x00000004	[  1] _px
+0x0001EE20	0x00000004	[  1] _maze_size
+0x0001EE24	0x00000001	[  1] _use_large_tiles
+0x0001EE25	0x00000001	[  1] _remember_visited
+0x0001EE26	0x00000001	[  1] _show_map

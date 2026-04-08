@@ -1,0 +1,285 @@
+# Path: /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/oscilloscope.elf
+# Arch: arm64
+# Object files:
+[  0] linker synthesized
+[  1] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/oscilloscope.o
+[  2] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/plugin_crt0.o
+[  3] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(gcc-support.o)
+[  4] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(helper.o)
+[  5] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(configfile.o)
+[  6] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(osd.o)
+[  7] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(xlcd_core.o)
+[  8] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(xlcd_scroll.o)
+[  9] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/libSystem.tbd
+[ 10] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/system/libsystem_platform.tbd
+# Sections:
+# Address	Size    	Segment	Section
+0x00000730	0x00003798	__TEXT	__text
+0x00003EC8	0x00000018	__TEXT	__stubs
+0x00003EE0	0x00000132	__TEXT	__cstring
+0x00004012	0x000000DA	__TEXT	__const
+0x000040F0	0x00001480	__TEXT	__eh_frame
+0x00008000	0x00000010	__DATA_CONST	__got
+0x00008010	0x00000088	__DATA_CONST	__const
+0x0000C000	0x00000161	__DATA	__data
+0x0000C168	0x00000008	__DATA	.data
+0x0000C170	0x00032240	__DATA	__bss
+# Symbols:
+# Address	Size    	File  Name
+0x00000730	0x00000090	[  1] _osd_lcd_draw_cb
+0x000007C0	0x0000005C	[  1] _anim_draw_cursor_h
+0x0000081C	0x0000005C	[  1] _anim_draw_cursor_v
+0x00000878	0x0000003C	[  1] _get_next_delay
+0x000008B4	0x00000074	[  1] _waveform_buffer_set_threshold
+0x00000928	0x00000024	[  1] _update_osc_delay
+0x0000094C	0x000000CC	[  1] _osc_cleanup
+0x00000A18	0x000000C8	[  1] _waveform_buffer_callback
+0x00000AE0	0x0000006C	[  1] _waveform_buffer_done
+0x00000B4C	0x000003EC	[  1] _anim_waveform_horizontal
+0x00000F38	0x000000B4	[  1] _graphmode_reset
+0x00000FEC	0x00000084	[  1] _graphmode_setup
+0x00001070	0x000004F0	[  1] _anim_peaks_vertical
+0x00001560	0x00000058	[  1] _anim_waveform_plot_filled_h
+0x000015B8	0x00000094	[  1] _anim_waveform_plot_lines_h
+0x0000164C	0x00000064	[  1] _anim_waveform_plot_pixel_h
+0x000016B0	0x0000005C	[  1] _anim_waveform_plot_filled_v
+0x0000170C	0x0000008C	[  1] _anim_waveform_plot_lines_v
+0x00001798	0x00000068	[  1] _anim_waveform_plot_pixel_v
+0x00001800	0x000003F0	[  1] _anim_waveform_vertical
+0x00001BF0	0x00000500	[  1] _anim_peaks_horizontal
+0x000020F0	0x000006C8	[  1] _plugin_start
+0x000027B8	0x00000018	[  2] _cleanup_wrapper
+0x000027D0	0x00000068	[  2] _plugin__start
+0x00002838	0x00000020	[  2] _rb_atexit
+0x00002858	0x00000024	[  2] _exit
+0x0000287C	0x00000014	[  2] __exit
+0x00002890	0x00000064	[  2] _exit_on_usb
+0x000028F4	0x00000018	[  3] _memcpy
+0x0000290C	0x00000018	[  3] _memset
+0x00002924	0x00000018	[  3] _memmove
+0x0000293C	0x00000018	[  3] _memcmp
+0x00002954	0x00000020	[  4] _talk_val
+0x00002974	0x00000040	[  4] _backlight_force_on
+0x000029B4	0x0000006C	[  4] _backlight_ignore_timeout
+0x00002A20	0x00000048	[  4] _backlight_use_settings
+0x00002A68	0x00000044	[  4] _sw_poweroff_disable
+0x00002AAC	0x00000020	[  4] _sw_poweroff_restore
+0x00002ACC	0x00000004	[  4] _remote_backlight_force_on
+0x00002AD0	0x00000004	[  4] _remote_backlight_ignore_timeout
+0x00002AD4	0x00000004	[  4] _remote_backlight_use_settings
+0x00002AD8	0x00000004	[  4] _buttonlight_force_on
+0x00002ADC	0x00000004	[  4] _buttonlight_force_off
+0x00002AE0	0x00000004	[  4] _buttonlight_ignore_timeout
+0x00002AE4	0x00000004	[  4] _buttonlight_use_settings
+0x00002AE8	0x00000018	[  4] _backlight_brightness_set
+0x00002B00	0x00000020	[  4] _backlight_brightness_use_setting
+0x00002B20	0x00000004	[  4] _buttonlight_brightness_set
+0x00002B24	0x00000004	[  4] _buttonlight_brightness_use_setting
+0x00002B28	0x000000E8	[  5] _get_cfg_filename.constprop.0
+0x00002C10	0x00000160	[  5] _configfile_save
+0x00002D70	0x00000228	[  5] _configfile_load
+0x00002F98	0x000000E0	[  5] _configfile_get_value
+0x00003078	0x00000158	[  5] _configfile_update_entry
+0x000031D0	0x000000D0	[  6] __osd_lcd_init_buffers
+0x000032A0	0x0000000C	[  6] __osd_lcd_viewport_set_pos
+0x000032AC	0x0000007C	[  6] __osd_lcd_viewport_set_buffer
+0x00003328	0x00000028	[  6] __osd_erase_osd.constprop.0
+0x00003350	0x00000054	[  6] __osd_update_back_buffer.constprop.0
+0x000033A4	0x00000018	[  6] __osd_update_viewport.constprop.0
+0x000033BC	0x00000058	[  6] __osd_draw_osd_rect.constprop.0
+0x00003414	0x00000018	[  6] __osd_draw_osd.constprop.0
+0x0000342C	0x00000034	[  6] __osd_update.constprop.0
+0x00003460	0x000000D0	[  6] __osd_show.constprop.0
+0x00003530	0x00000050	[  6] __osd_destroy.constprop.0
+0x00003580	0x0000004C	[  6] __osd_monitor_timeout.constprop.0
+0x000035CC	0x000001DC	[  6] _osd_init
+0x000037A8	0x00000004	[  6] _osd_destroy
+0x000037AC	0x00000004	[  6] _osd_show
+0x000037B0	0x00000004	[  6] _osd_update
+0x000037B4	0x000000D0	[  6] _osd_update_rect
+0x00003884	0x00000158	[  6] _osd_update_pos
+0x000039DC	0x00000004	[  6] _osd_monitor_timeout
+0x000039E0	0x0000001C	[  6] _osd_set_timeout
+0x000039FC	0x0000000C	[  6] _osd_get_viewport
+0x00003A08	0x00000024	[  6] _osd_get_max_dims
+0x00003A2C	0x00000014	[  6] _osd_enabled
+0x00003A40	0x00000020	[  6] _osd_lcd_update_prepare
+0x00003A60	0x00000040	[  6] _osd_lcd_update
+0x00003AA0	0x00000050	[  6] _osd_lcd_update_rect
+0x00003AF0	0x00000044	[  7] _get_framebuffer
+0x00003B34	0x000000F8	[  8] _xlcd_scroll_left
+0x00003C2C	0x000000F4	[  8] _xlcd_scroll_right
+0x00003D20	0x000000D8	[  8] _xlcd_scroll_up
+0x00003DF8	0x000000D0	[  8] _xlcd_scroll_down
+0x00003EC8	0x0000000C	[ 10] _longjmp.stub
+0x00003ED4	0x0000000C	[ 10] _setjmp.stub
+0x00003EE0	0x00000001	[  1] literal string: 
+0x00003EE1	0x00000005	[  1] literal string: Wrap
+0x00003EE6	0x00000007	[  1] literal string: Scroll
+0x00003EED	0x00000006	[  1] literal string: Pixel
+0x00003EF3	0x00000005	[  1] literal string: Line
+0x00003EF8	0x00000007	[  1] literal string: Filled
+0x00003EFF	0x00000009	[  1] literal string: Waveform
+0x00003F08	0x00000006	[  1] literal string: Peaks
+0x00003F0E	0x00000009	[  1] literal string: Vertical
+0x00003F17	0x0000000B	[  1] literal string: Horizontal
+0x00003F22	0x00000007	[  1] literal string: Paused
+0x00003F29	0x00000008	[  1] literal string: Running
+0x00003F31	0x0000000A	[  1] literal string: Speed: %d
+0x00003F3B	0x00000002	[  1] literal string: M
+0x00003F3D	0x0000000D	[  1] literal string: Volume: %d%s
+0x00003F4A	0x00000006	[  1] literal string: speed
+0x00003F50	0x00000005	[  1] literal string: draw
+0x00003F55	0x00000008	[  1] literal string: advance
+0x00003F5D	0x0000000C	[  1] literal string: orientation
+0x00003F69	0x0000000A	[  1] literal string: wavespeed
+0x00003F73	0x0000000A	[  1] literal string: graphmode
+0x00003F7D	0x00000006	[  1] literal string: peaks
+0x00003F83	0x00000009	[  1] literal string: waveform
+0x00003F8C	0x0000000B	[  1] literal string: horizontal
+0x00003F97	0x00000009	[  1] literal string: vertical
+0x00003FA0	0x00000007	[  1] literal string: scroll
+0x00003FA7	0x00000005	[  1] literal string: wrap
+0x00003FAC	0x00000007	[  1] literal string: filled
+0x00003FB3	0x00000005	[  1] literal string: line
+0x00003FB8	0x00000006	[  1] literal string: pixel
+0x00003FBE	0x0000000A	[  5] literal string: /.rockbox
+0x00003FC8	0x00000004	[  5] literal string: /%s
+0x00003FCC	0x00000013	[  5] literal string: /.rockbox/rocks/%s
+0x00003FDF	0x00000014	[  5] literal string: file version: %10d\n
+0x00003FF3	0x0000000A	[  5] literal string: %s: %10d\n
+0x00003FFD	0x00000008	[  5] literal string: %s: %s\n
+0x00004005	0x0000000D	[  5] literal string: file version
+0x00004012	0x00000012	[  1] _cfg_filename
+0x00004024	0x000000C8	[  1] _osc_delay_tbl
+0x000040F0	0x00000018	[  1] CFI
+0x00004108	0x00000040	[  1] FDE for: _osd_lcd_draw_cb
+0x00004148	0x00000040	[  1] FDE for: _anim_draw_cursor_h
+0x00004188	0x00000040	[  1] FDE for: _anim_draw_cursor_v
+0x000041C8	0x00000020	[  1] FDE for: _get_next_delay
+0x000041E8	0x00000060	[  1] FDE for: _waveform_buffer_set_threshold
+0x00004248	0x00000020	[  1] FDE for: _update_osc_delay
+0x00004268	0x00000060	[  1] FDE for: _osc_cleanup
+0x000042C8	0x00000048	[  1] FDE for: _waveform_buffer_callback
+0x00004310	0x00000048	[  1] FDE for: _waveform_buffer_done
+0x00004358	0x00000068	[  1] FDE for: _anim_waveform_horizontal
+0x000043C0	0x00000040	[  1] FDE for: _graphmode_reset
+0x00004400	0x00000048	[  1] FDE for: _graphmode_setup
+0x00004448	0x00000068	[  1] FDE for: _anim_peaks_vertical
+0x000044B0	0x00000020	[  1] FDE for: _anim_waveform_plot_filled_h
+0x000044D0	0x00000060	[  1] FDE for: _anim_waveform_plot_lines_h
+0x00004530	0x00000058	[  1] FDE for: _anim_waveform_plot_pixel_h
+0x00004588	0x00000020	[  1] FDE for: _anim_waveform_plot_filled_v
+0x000045A8	0x00000060	[  1] FDE for: _anim_waveform_plot_lines_v
+0x00004608	0x00000058	[  1] FDE for: _anim_waveform_plot_pixel_v
+0x00004660	0x00000068	[  1] FDE for: _anim_waveform_vertical
+0x000046C8	0x00000068	[  1] FDE for: _anim_peaks_horizontal
+0x00004730	0x00000068	[  1] FDE for: _plugin_start
+0x00004798	0x00000018	[  2] CFI
+0x000047B0	0x00000020	[  2] FDE for: _cleanup_wrapper
+0x000047D0	0x00000040	[  2] FDE for: _plugin__start
+0x00004810	0x00000020	[  2] FDE for: _rb_atexit
+0x00004830	0x00000030	[  2] FDE for: _exit
+0x00004860	0x00000030	[  2] FDE for: __exit
+0x00004890	0x00000038	[  2] FDE for: _exit_on_usb
+0x000048C8	0x00000018	[  3] CFI
+0x000048E0	0x00000020	[  3] FDE for: _memcpy
+0x00004900	0x00000020	[  3] FDE for: _memset
+0x00004920	0x00000020	[  3] FDE for: _memmove
+0x00004940	0x00000020	[  3] FDE for: _memcmp
+0x00004960	0x00000018	[  4] CFI
+0x00004978	0x00000020	[  4] FDE for: _talk_val
+0x00004998	0x00000040	[  4] FDE for: _backlight_force_on
+0x000049D8	0x00000050	[  4] FDE for: _backlight_ignore_timeout
+0x00004A28	0x00000040	[  4] FDE for: _backlight_use_settings
+0x00004A68	0x00000040	[  4] FDE for: _sw_poweroff_disable
+0x00004AA8	0x00000020	[  4] FDE for: _sw_poweroff_restore
+0x00004AC8	0x00000020	[  4] FDE for: _remote_backlight_force_on
+0x00004AE8	0x00000020	[  4] FDE for: _remote_backlight_ignore_timeout
+0x00004B08	0x00000020	[  4] FDE for: _remote_backlight_use_settings
+0x00004B28	0x00000020	[  4] FDE for: _buttonlight_force_on
+0x00004B48	0x00000020	[  4] FDE for: _buttonlight_force_off
+0x00004B68	0x00000020	[  4] FDE for: _buttonlight_ignore_timeout
+0x00004B88	0x00000020	[  4] FDE for: _buttonlight_use_settings
+0x00004BA8	0x00000020	[  4] FDE for: _backlight_brightness_set
+0x00004BC8	0x00000020	[  4] FDE for: _backlight_brightness_use_setting
+0x00004BE8	0x00000020	[  4] FDE for: _buttonlight_brightness_set
+0x00004C08	0x00000020	[  4] FDE for: _buttonlight_brightness_use_setting
+0x00004C28	0x00000018	[  5] CFI
+0x00004C40	0x00000068	[  5] FDE for: _get_cfg_filename.constprop.0
+0x00004CA8	0x00000070	[  5] FDE for: _configfile_save
+0x00004D18	0x00000068	[  5] FDE for: _configfile_load
+0x00004D80	0x00000058	[  5] FDE for: _configfile_get_value
+0x00004DD8	0x00000070	[  5] FDE for: _configfile_update_entry
+0x00004E48	0x00000018	[  6] CFI
+0x00004E60	0x00000050	[  6] FDE for: __osd_lcd_init_buffers
+0x00004EB0	0x00000020	[  6] FDE for: __osd_lcd_viewport_set_pos
+0x00004ED0	0x00000020	[  6] FDE for: __osd_lcd_viewport_set_buffer
+0x00004EF0	0x00000020	[  6] FDE for: __osd_erase_osd.constprop.0
+0x00004F10	0x00000040	[  6] FDE for: __osd_update_back_buffer.constprop.0
+0x00004F50	0x00000020	[  6] FDE for: __osd_update_viewport.constprop.0
+0x00004F70	0x00000040	[  6] FDE for: __osd_draw_osd_rect.constprop.0
+0x00004FB0	0x00000020	[  6] FDE for: __osd_draw_osd.constprop.0
+0x00004FD0	0x00000038	[  6] FDE for: __osd_update.constprop.0
+0x00005008	0x00000048	[  6] FDE for: __osd_show.constprop.0
+0x00005050	0x00000040	[  6] FDE for: __osd_destroy.constprop.0
+0x00005090	0x00000020	[  6] FDE for: __osd_monitor_timeout.constprop.0
+0x000050B0	0x00000068	[  6] FDE for: _osd_init
+0x00005118	0x00000020	[  6] FDE for: _osd_destroy
+0x00005138	0x00000020	[  6] FDE for: _osd_show
+0x00005158	0x00000020	[  6] FDE for: _osd_update
+0x00005178	0x00000058	[  6] FDE for: _osd_update_rect
+0x000051D0	0x00000068	[  6] FDE for: _osd_update_pos
+0x00005238	0x00000020	[  6] FDE for: _osd_monitor_timeout
+0x00005258	0x00000020	[  6] FDE for: _osd_set_timeout
+0x00005278	0x00000020	[  6] FDE for: _osd_get_viewport
+0x00005298	0x00000020	[  6] FDE for: _osd_get_max_dims
+0x000052B8	0x00000020	[  6] FDE for: _osd_enabled
+0x000052D8	0x00000020	[  6] FDE for: _osd_lcd_update_prepare
+0x000052F8	0x00000040	[  6] FDE for: _osd_lcd_update
+0x00005338	0x00000040	[  6] FDE for: _osd_lcd_update_rect
+0x00005378	0x00000018	[  7] CFI
+0x00005390	0x00000020	[  7] FDE for: _get_framebuffer
+0x000053B0	0x00000018	[  8] CFI
+0x000053C8	0x00000068	[  8] FDE for: _xlcd_scroll_left
+0x00005430	0x00000070	[  8] FDE for: _xlcd_scroll_right
+0x000054A0	0x00000070	[  8] FDE for: _xlcd_scroll_up
+0x00005510	0x00000060	[  8] FDE for: _xlcd_scroll_down
+0x00008000	0x00000008	[ 10] _longjmp.got
+0x00008008	0x00000008	[ 10] _setjmp.got
+0x00008010	0x00000018	[  1] _plot.1
+0x00008028	0x00000018	[  1] _plot.2
+0x00008040	0x00000020	[  1] _fns.3
+0x00008060	0x00000038	[  2] ___header
+0x0000C000	0x00000008	[  1] _mixer_sampr
+0x0000C008	0x00000008	[  1] _message
+0x0000C010	0x000000F0	[  1] _disk_config
+0x0000C100	0x00000010	[  1] _graphmode_str
+0x0000C110	0x00000010	[  1] _orientation_str
+0x0000C120	0x00000010	[  1] _advance_str
+0x0000C130	0x00000018	[  1] _draw_str
+0x0000C148	0x00000018	[  1] _osc_disk
+0x0000C160	0x00000001	[  4] _original_sw_poweroff_state
+0x0000C168	0x00000008	[  2] _rb
+0x0000C170	0x00000018	[  1] _peaks.0
+0x0000C188	0x00000008	[  1] _waveform_buffer_break
+0x0000C190	0x00000008	[  1] _waveform_buffer_have
+0x0000C198	0x00000008	[  1] _waveform_buffer_threshold
+0x0000C1A0	0x00032000	[  1] _waveform_buffer
+0x0003E1A0	0x00000004	[  1] _last_right
+0x0003E1A4	0x00000004	[  1] _last_left
+0x0003E1A8	0x00000008	[  1] _last_pos
+0x0003E1B0	0x00000008	[  1] _last_delay
+0x0003E1B8	0x00000008	[  1] _last_tick
+0x0003E1C0	0x00000010	[  1] _osc_osd_message
+0x0003E1D0	0x00000008	[  1] _channel
+0x0003E1D8	0x00000008	[  1] _osc_delay_error
+0x0003E1E0	0x00000008	[  1] _osc_delay
+0x0003E1E8	0x00000001	[  1] _one_frame_paused
+0x0003E1E9	0x00000003	[  1] _paused
+0x0003E1EC	0x00000004	[  1] _msgval
+0x0003E1F0	0x00000008	[  1] _anim_draw
+0x0003E1F8	0x00000018	[  1] _osc
+0x0003E210	0x00000008	[  2] _atexit_handler
+0x0003E218	0x000000C0	[  2] ___exit_env
+0x0003E2D8	0x000000D8	[  6] _native_osd

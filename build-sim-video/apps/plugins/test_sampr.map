@@ -1,0 +1,92 @@
+# Path: /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/test_sampr.elf
+# Arch: arm64
+# Object files:
+[  0] linker synthesized
+[  1] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/test_sampr.o
+[  2] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/plugin_crt0.o
+[  3] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/libSystem.tbd
+[  4] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/system/libsystem_platform.tbd
+# Sections:
+# Address	Size    	Segment	Section
+0x00000730	0x000006B8	__TEXT	__text
+0x00000DE8	0x00000018	__TEXT	__stubs
+0x00000E00	0x00000096	__TEXT	__cstring
+0x00000E96	0x00000102	__TEXT	__const
+0x00000F98	0x00000368	__TEXT	__eh_frame
+0x00004000	0x00000010	__DATA_CONST	__got
+0x00004010	0x00000068	__DATA_CONST	__const
+0x00008000	0x000000B4	__DATA	__data
+0x000080B8	0x00000008	__DATA	.data
+0x000080C0	0x000104E0	__DATA	__bss
+# Symbols:
+# Address	Size    	File  Name
+0x00000730	0x00000050	[  1] _get_more
+0x00000780	0x00000138	[  1] _gen_thread_func
+0x000008B8	0x00000064	[  1] _output_clear
+0x0000091C	0x00000020	[  1] _set_volume
+0x0000093C	0x0000008C	[  1] _format_volume
+0x000009C8	0x000001DC	[  1] _play_tone
+0x00000BA4	0x0000006C	[  1] _set_frequency
+0x00000C10	0x0000009C	[  1] _plugin_start
+0x00000CAC	0x00000018	[  2] _cleanup_wrapper
+0x00000CC4	0x00000068	[  2] _plugin__start
+0x00000D2C	0x00000020	[  2] _rb_atexit
+0x00000D4C	0x00000024	[  2] _exit
+0x00000D70	0x00000014	[  2] __exit
+0x00000D84	0x00000064	[  2] _exit_on_usb
+0x00000DE8	0x0000000C	[  4] _longjmp.stub
+0x00000DF4	0x0000000C	[  4] _setjmp.stub
+0x00000E00	0x00000006	[  1] literal string: %d %s
+0x00000E06	0x00000015	[  1] literal string: test_sampr generator
+0x00000E1B	0x00000007	[  1] literal string: Volume
+0x00000E22	0x0000000C	[  1] literal string: Sample Rate
+0x00000E2E	0x00000006	[  1] literal string: 48kHz
+0x00000E34	0x00000008	[  1] literal string: 44.1kHz
+0x00000E3C	0x00000006	[  1] literal string: 32kHz
+0x00000E42	0x00000006	[  1] literal string: 24kHz
+0x00000E48	0x00000009	[  1] literal string: 22.05kHz
+0x00000E51	0x00000006	[  1] literal string: 16kHz
+0x00000E57	0x00000006	[  1] literal string: 12kHz
+0x00000E5D	0x0000000A	[  1] literal string: 11.025kHz
+0x00000E67	0x00000005	[  1] literal string: 8kHz
+0x00000E6C	0x0000000B	[  1] literal string: Set Volume
+0x00000E77	0x0000000F	[  1] literal string: Set Samplerate
+0x00000E86	0x00000005	[  1] literal string: Quit
+0x00000E8B	0x0000000B	[  1] literal string: Test Sampr
+0x00000E96	0x00000102	[  1] _sinetab.0
+0x00000F98	0x00000018	[  1] CFI
+0x00000FB0	0x00000020	[  1] FDE for: _get_more
+0x00000FD0	0x00000060	[  1] FDE for: _gen_thread_func
+0x00001030	0x00000040	[  1] FDE for: _output_clear
+0x00001070	0x00000020	[  1] FDE for: _set_volume
+0x00001090	0x00000060	[  1] FDE for: _format_volume
+0x000010F0	0x00000058	[  1] FDE for: _play_tone
+0x00001148	0x00000040	[  1] FDE for: _set_frequency
+0x00001188	0x00000048	[  1] FDE for: _plugin_start
+0x000011D0	0x00000018	[  2] CFI
+0x000011E8	0x00000020	[  2] FDE for: _cleanup_wrapper
+0x00001208	0x00000040	[  2] FDE for: _plugin__start
+0x00001248	0x00000020	[  2] FDE for: _rb_atexit
+0x00001268	0x00000030	[  2] FDE for: _exit
+0x00001298	0x00000030	[  2] FDE for: __exit
+0x000012C8	0x00000038	[  2] FDE for: _exit_on_usb
+0x00004000	0x00000008	[  4] _longjmp.got
+0x00004008	0x00000008	[  4] _setjmp.got
+0x00004010	0x00000018	[  1] _menu__.3
+0x00004028	0x00000018	[  1] _menu.4
+0x00004040	0x00000038	[  2] ___header
+0x00008000	0x00000090	[  1] _names.1
+0x00008090	0x00000018	[  1] _menu_.2
+0x000080A8	0x00000008	[  1] _hw_sampr
+0x000080B0	0x00000004	[  1] _hw_freq
+0x000080B8	0x00000008	[  2] _rb
+0x000080C0	0x00000004	[  1] _gen_phase_step
+0x000080C4	0x00000004	[  1] _output_step
+0x000080C8	0x00000004	[  1] _output_tail
+0x000080CC	0x00000004	[  1] _output_head
+0x000080D0	0x00002400	[  1] _output_buf
+0x0000A4D0	0x00000004	[  1] _gen_thread_id
+0x0000A4D4	0x00000004	[  1] _gen_quit
+0x0000A4D8	0x0000E000	[  1] _gen_thread_stack
+0x000184D8	0x00000008	[  2] _atexit_handler
+0x000184E0	0x000000C0	[  2] ___exit_env

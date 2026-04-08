@@ -1,0 +1,4 @@
+#define BMPHEIGHT_minishcap_room_links_house_entrance 160
+#define BMPWIDTH_minishcap_room_links_house_entrance 240
+extern const unsigned short minishcap_room_links_house_entrance[];
+extern const struct bitmap bm_minishcap_room_links_house_entrance;

@@ -1,0 +1,39 @@
+# Path: /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/aiff_enc.elf
+# Arch: arm64
+# Object files:
+[  0] linker synthesized
+[  1] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/aiff_enc.o
+[  2] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/codec_crt0.o
+[  3] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/libSystem.tbd
+# Sections:
+# Address	Size    	Segment	Section
+0x000005F0	0x000003C4	__TEXT	__text
+0x000009B4	0x00000036	__TEXT	__const
+0x000009F0	0x00000180	__TEXT	__eh_frame
+0x00004000	0x00000048	__DATA_CONST	__const
+0x00008000	0x00000008	__DATA	.data
+0x00008008	0x00000020	__DATA	__bss
+# Symbols:
+# Address	Size    	File  Name
+0x000005F0	0x00000008	[  1] _swap_odd_even32_hw
+0x000005F8	0x0000013C	[  1] _codec_run
+0x00000734	0x0000026C	[  1] _enc_callback
+0x000009A0	0x00000008	[  1] _codec_main
+0x000009A8	0x00000008	[  2] __start
+0x000009B0	0x00000004	[  2] _codec_start
+0x000009B4	0x00000036	[  1] _aiff_template_header
+0x000009F0	0x00000018	[  1] CFI
+0x00000A08	0x00000020	[  1] FDE for: _swap_odd_even32_hw
+0x00000A28	0x00000058	[  1] FDE for: _codec_run
+0x00000A80	0x00000078	[  1] FDE for: _enc_callback
+0x00000AF8	0x00000020	[  1] FDE for: _codec_main
+0x00000B18	0x00000018	[  2] CFI
+0x00000B30	0x00000020	[  2] FDE for: __start
+0x00000B50	0x00000020	[  2] FDE for: _codec_start
+0x00004000	0x00000048	[  1] ___header
+0x00008000	0x00000008	[  2] _ci
+0x00008008	0x00000008	[  1] _num_sample_frames
+0x00008010	0x00000008	[  1] _pcm_size
+0x00008018	0x00000008	[  1] _frame_size
+0x00008020	0x00000004	[  1] _sample_rate
+0x00008024	0x00000004	[  1] _num_channels

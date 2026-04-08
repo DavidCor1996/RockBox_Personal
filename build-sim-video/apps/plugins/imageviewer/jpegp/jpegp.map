@@ -1,0 +1,254 @@
+# Path: /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/imageviewer/jpegp/jpegp.elf
+# Arch: arm64
+# Object files:
+[  0] linker synthesized
+[  1] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/imageviewer/jpegp/jpegp.o
+[  2] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/imageviewer/jpegp/BUFFILEGETC.o
+[  3] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/imageviewer/jpegp/jpeg81.o
+[  4] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/imageviewer/jpegp/idct.o
+[  5] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/imageviewer/jpegp/mempool.o
+[  6] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/libSystem.tbd
+# Sections:
+# Address	Size    	Segment	Section
+0x00000698	0x00002EE4	__TEXT	__text
+0x0000357C	0x00000480	__TEXT	__cstring
+0x000039FC	0x00000710	__TEXT	__const
+0x00004110	0x00001100	__TEXT	__eh_frame
+0x00008000	0x00000138	__DATA_CONST	__const
+0x0000C000	0x00000010	__DATA	.data
+0x0000C010	0x00000508	__DATA	__data
+0x0000C518	0x000037B0	__DATA	__bss
+# Symbols:
+# Address	Size    	File  Name
+0x00000698	0x00000098	[  1] _draw_image_rect
+0x00000730	0x00000024	[  1] _img_mem
+0x00000754	0x000003C0	[  1] _get_image
+0x00000B14	0x0000013C	[  1] _scaled_dequantization_and_idct
+0x00000C50	0x00000264	[  1] _load_image
+0x00000EB4	0x00000088	[  2] _GETC
+0x00000F3C	0x00000028	[  2] _GETWbi
+0x00000F64	0x00000040	[  2] _GETDbi
+0x00000FA4	0x00000028	[  2] _GETWli
+0x00000FCC	0x00000040	[  2] _GETDli
+0x0000100C	0x00000078	[  2] _SEEK
+0x00001084	0x00000040	[  2] _POS
+0x000010C4	0x00000024	[  2] _TELL
+0x000010E8	0x000000BC	[  2] _OPEN
+0x000011A4	0x00000038	[  2] _CLOSE
+0x000011DC	0x00000008	[  3] _P1
+0x000011E4	0x00000010	[  3] _P2
+0x000011F4	0x00000010	[  3] _P3
+0x00001204	0x00000024	[  3] _P4
+0x00001228	0x00000024	[  3] _P5
+0x0000124C	0x00000024	[  3] _P6
+0x00001270	0x0000001C	[  3] _P7
+0x0000128C	0x00000030	[  3] _Reset_decoder_huff
+0x000012BC	0x0000000C	[  3] _Reset_decoder_huff_lossless
+0x000012C8	0x00000020	[  3] _ResetStat
+0x000012E8	0x000001D4	[  3] _set_dim
+0x000014BC	0x0000008C	[  3] _Byte_in_huff
+0x00001548	0x0000004C	[  3] _Byte_in_arith
+0x00001594	0x00000044	[  3] _InitDecoder
+0x000015D8	0x00000080	[  3] _Reset_decoder_arith
+0x00001658	0x00000060	[  3] _Reset_decoder_arith_lossless
+0x000016B8	0x00000048	[  3] _GetBit
+0x00001700	0x0000004C	[  3] _Getnbit
+0x0000174C	0x0000004C	[  3] _ReadDiff
+0x00001798	0x0000005C	[  3] _ReadHuffmanCode
+0x000017F4	0x00000058	[  3] _dc_decode_huff
+0x0000184C	0x000000C0	[  3] _ac_decode_huff
+0x0000190C	0x0000007C	[  3] _du_sequential_huff
+0x00001988	0x00000038	[  3] _dc_succ_huff
+0x000019C0	0x00000058	[  3] _ac_refine
+0x00001A18	0x00000108	[  3] _ac_succ_huff
+0x00001B20	0x00000044	[  3] _Renorm
+0x00001B64	0x0000008C	[  3] _DecodeFIX
+0x00001BF0	0x00000038	[  3] _dc_succ_arith
+0x00001C28	0x00000058	[  3] _DC_Context
+0x00001C80	0x0000005C	[  3] _Predx
+0x00001CDC	0x00000080	[  3] _decode_lossless_huff
+0x00001D5C	0x0000008C	[  3] _NextMarker.isra.0
+0x00001DE8	0x000000A8	[  3] _Ri
+0x00001E90	0x000000B8	[  3] _DecodeBin
+0x00001F48	0x000000AC	[  3] _Decode_V
+0x00001FF4	0x00000080	[  3] _Decode_DIFF
+0x00002074	0x00000068	[  3] _dc_decode_arith
+0x000020DC	0x000000D8	[  3] _decode_lossless_arith
+0x000021B4	0x000000D0	[  3] _ac_band
+0x00002284	0x00000028	[  3] _du_sequential_arith
+0x000022AC	0x00000008	[  3] _ac_decode_arith
+0x000022B4	0x00000154	[  3] _ac_succ_arith
+0x00002408	0x00000D8C	[  3] _JPEGDecode
+0x00003194	0x00000120	[  4] _idct1
+0x000032B4	0x000000E4	[  4] _idct_s
+0x00003398	0x000000E8	[  4] _idct_sq
+0x00003480	0x00000038	[  5] _malloc
+0x000034B8	0x0000004C	[  5] _calloc
+0x00003504	0x00000030	[  5] _init_mem_pool
+0x00003534	0x0000001C	[  5] _freeze_mem_pool
+0x00003550	0x0000002C	[  5] _clear_mem_pool
+0x0000357C	0x00000019	[  1] literal string: YUV-to-RGB conversion.. 
+0x00003595	0x00000006	[  1] literal string: done\n
+0x0000359B	0x00000023	[  1] literal string: Scaled de-quantization and IDCT.. 
+0x000035BE	0x0000000C	[  1] literal string: decoding...
+0x000035CA	0x0000000F	[  1] literal string: unsupported %d
+0x000035D9	0x0000000C	[  1] literal string: image %dx%d
+0x000035E5	0x00000015	[  1] literal string: jpegp %ld.%02ld sec 
+0x000035FA	0x0000000C	[  2] literal string: Opening %s\n
+0x00003606	0x00000012	[  2] literal string: Error opening %s\n
+0x00003618	0x0000001B	[  3] literal string:     Ci=%3d HV=%dx%d Qi=%d\n
+0x00003633	0x00000002	[  3] literal string: \n
+0x00003635	0x0000000E	[  3] literal string: %08X: FF%02x\n
+0x00003643	0x0000002B	[  3] literal string: STREAM ERROR: marker found in Huffman ECS\n
+0x0000366E	0x00000007	[  3] literal string: %08X: 
+0x00003675	0x00000003	[  3] literal string: FF
+0x00003678	0x00000006	[  3] literal string: %02X 
+0x0000367E	0x00000007	[  3] literal string: RST%d\n
+0x00003685	0x0000000B	[  3] literal string: %08X: ECS\n
+0x00003690	0x0000002E	[  3] literal string: STREAM ERROR: expected RSTn missing from ECS\n
+0x000036BE	0x00000003	[  3] literal string: AC
+0x000036C1	0x00000003	[  3] literal string: DC
+0x000036C4	0x0000000C	[  3] literal string: Interleaved
+0x000036D0	0x00000007	[  3] literal string: Single
+0x000036D7	0x00000003	[  3] literal string: Px
+0x000036DA	0x00000003	[  3] literal string: Ss
+0x000036DD	0x00000003	[  3] literal string: Pt
+0x000036E0	0x00000003	[  3] literal string: Al
+0x000036E3	0x00000005	[  3] literal string: SOI\n
+0x000036E8	0x00000005	[  3] literal string: DAC\n
+0x000036ED	0x00000029	[  3] literal string:   Arithmetic Conditioning\n  parameters:\n
+0x00003716	0x0000000E	[  3] literal string:   AC%d Kx=%d\n
+0x00003724	0x00000012	[  3] literal string:   DC%d L=%d U=%d\n
+0x00003736	0x00000005	[  3] literal string: DHT\n
+0x0000373B	0x00000008	[  3] literal string:   %s%d\n
+0x00003743	0x00000008	[  3] literal string:     N: 
+0x0000374B	0x00000004	[  3] literal string: %d 
+0x0000374F	0x00000018	[  3] literal string:     S: %d symbol bytes\n
+0x00003767	0x0000000C	[  3] literal string: SOF%d (%s)\n
+0x00003773	0x00000012	[  3] literal string:   P=%d Y=%d X=%d\n
+0x00003785	0x00000009	[  3] literal string:   Nf=%d\n
+0x0000378E	0x00000014	[  3] literal string:   %d MCU (%d x %d)\n
+0x000037A2	0x00000029	[  3] literal string:   Malloc for %d Data Units (%lu bytes)\n\n
+0x000037CB	0x00000005	[  3] literal string: EOI\n
+0x000037D0	0x00000005	[  3] literal string: SOS\n
+0x000037D5	0x00000014	[  3] literal string:   Ns: %d (%s scan)\n
+0x000037E9	0x00000017	[  3] literal string:     Cs=%d Td=%d Ta=%d\n
+0x00003800	0x0000000A	[  3] literal string:   %s: %d\n
+0x0000380A	0x0000000A	[  3] literal string:   Se: %d\n
+0x00003814	0x0000000A	[  3] literal string:   Ah: %d\n
+0x0000381E	0x00000005	[  3] literal string: DQT\n
+0x00003823	0x00000018	[  3] literal string:   Tq=%d Pq=%d (%d-bit)\n
+0x0000383B	0x00000005	[  3] literal string: DNL\n
+0x00003840	0x00000005	[  3] literal string: DRI\n
+0x00003845	0x0000000A	[  3] literal string:   Ri: %d\n
+0x0000384F	0x00000007	[  3] literal string: APP%d\n
+0x00003856	0x00000005	[  3] literal string: COM\n
+0x0000385B	0x00000005	[  3] literal string: ???\n
+0x00003860	0x0000000D	[  3] literal string: Baseline DCT
+0x0000386D	0x00000020	[  3] literal string: Huffman Extended sequential DCT
+0x0000388D	0x00000018	[  3] literal string: Huffman Progressive DCT
+0x000038A5	0x0000001C	[  3] literal string: Huffman Lossless sequential
+0x000038C1	0x00000001	[  3] literal string: 
+0x000038C2	0x0000001D	[  3] literal string: -Differential sequential DCT
+0x000038DF	0x0000001E	[  3] literal string: -Differential progressive DCT
+0x000038FD	0x00000024	[  3] literal string: -Differential lossless (sequential)
+0x00003921	0x00000023	[  3] literal string: Arithmetic Extended sequential DCT
+0x00003944	0x0000001B	[  3] literal string: Arithmetic Progressive DCT
+0x0000395F	0x0000001F	[  3] literal string: Arithmetic Lossless sequential
+0x0000397E	0x00000028	[  3] literal string: -Arithmetic Differential sequential DCT
+0x000039A6	0x00000029	[  3] literal string: -Arithmetic Differential progressive DCT
+0x000039CF	0x0000002D	[  3] literal string: -Arithmetic Differential lossless sequential
+0x000039FC	0x00000710	[  3] _STATE
+0x00004110	0x00000018	[  1] CFI
+0x00004128	0x00000020	[  1] FDE for: _draw_image_rect
+0x00004148	0x00000020	[  1] FDE for: _img_mem
+0x00004168	0x00000070	[  1] FDE for: _get_image
+0x000041D8	0x00000070	[  1] FDE for: _scaled_dequantization_and_idct
+0x00004248	0x00000078	[  1] FDE for: _load_image
+0x000042C0	0x00000018	[  2] CFI
+0x000042D8	0x00000048	[  2] FDE for: _GETC
+0x00004320	0x00000040	[  2] FDE for: _GETWbi
+0x00004360	0x00000040	[  2] FDE for: _GETDbi
+0x000043A0	0x00000040	[  2] FDE for: _GETWli
+0x000043E0	0x00000040	[  2] FDE for: _GETDli
+0x00004420	0x00000040	[  2] FDE for: _SEEK
+0x00004460	0x00000020	[  2] FDE for: _POS
+0x00004480	0x00000020	[  2] FDE for: _TELL
+0x000044A0	0x00000050	[  2] FDE for: _OPEN
+0x000044F0	0x00000020	[  2] FDE for: _CLOSE
+0x00004510	0x00000018	[  3] CFI
+0x00004528	0x00000020	[  3] FDE for: _P1
+0x00004548	0x00000020	[  3] FDE for: _P2
+0x00004568	0x00000020	[  3] FDE for: _P3
+0x00004588	0x00000020	[  3] FDE for: _P4
+0x000045A8	0x00000020	[  3] FDE for: _P5
+0x000045C8	0x00000020	[  3] FDE for: _P6
+0x000045E8	0x00000020	[  3] FDE for: _P7
+0x00004608	0x00000020	[  3] FDE for: _Reset_decoder_huff
+0x00004628	0x00000020	[  3] FDE for: _Reset_decoder_huff_lossless
+0x00004648	0x00000020	[  3] FDE for: _ResetStat
+0x00004668	0x00000070	[  3] FDE for: _set_dim
+0x000046D8	0x00000058	[  3] FDE for: _Byte_in_huff
+0x00004730	0x00000040	[  3] FDE for: _Byte_in_arith
+0x00004770	0x00000040	[  3] FDE for: _InitDecoder
+0x000047B0	0x00000038	[  3] FDE for: _Reset_decoder_arith
+0x000047E8	0x00000038	[  3] FDE for: _Reset_decoder_arith_lossless
+0x00004820	0x00000038	[  3] FDE for: _GetBit
+0x00004858	0x00000050	[  3] FDE for: _Getnbit
+0x000048A8	0x00000040	[  3] FDE for: _ReadDiff
+0x000048E8	0x00000050	[  3] FDE for: _ReadHuffmanCode
+0x00004938	0x00000050	[  3] FDE for: _dc_decode_huff
+0x00004988	0x00000058	[  3] FDE for: _ac_decode_huff
+0x000049E0	0x00000058	[  3] FDE for: _du_sequential_huff
+0x00004A38	0x00000040	[  3] FDE for: _dc_succ_huff
+0x00004A78	0x00000040	[  3] FDE for: _ac_refine
+0x00004AB8	0x00000068	[  3] FDE for: _ac_succ_huff
+0x00004B20	0x00000040	[  3] FDE for: _Renorm
+0x00004B60	0x00000050	[  3] FDE for: _DecodeFIX
+0x00004BB0	0x00000040	[  3] FDE for: _dc_succ_arith
+0x00004BF0	0x00000020	[  3] FDE for: _DC_Context
+0x00004C10	0x00000020	[  3] FDE for: _Predx
+0x00004C30	0x00000058	[  3] FDE for: _decode_lossless_huff
+0x00004C88	0x00000058	[  3] FDE for: _NextMarker.isra.0
+0x00004CE0	0x00000060	[  3] FDE for: _Ri
+0x00004D40	0x00000048	[  3] FDE for: _DecodeBin
+0x00004D88	0x00000058	[  3] FDE for: _Decode_V
+0x00004DE0	0x00000058	[  3] FDE for: _Decode_DIFF
+0x00004E38	0x00000048	[  3] FDE for: _dc_decode_arith
+0x00004E80	0x00000068	[  3] FDE for: _decode_lossless_arith
+0x00004EE8	0x00000068	[  3] FDE for: _ac_band
+0x00004F50	0x00000038	[  3] FDE for: _du_sequential_arith
+0x00004F88	0x00000020	[  3] FDE for: _ac_decode_arith
+0x00004FA8	0x00000060	[  3] FDE for: _ac_succ_arith
+0x00005008	0x00000068	[  3] FDE for: _JPEGDecode
+0x00005070	0x00000018	[  4] CFI
+0x00005088	0x00000020	[  4] FDE for: _idct1
+0x000050A8	0x00000048	[  4] FDE for: _idct_s
+0x000050F0	0x00000048	[  4] FDE for: _idct_sq
+0x00005138	0x00000018	[  5] CFI
+0x00005150	0x00000020	[  5] FDE for: _malloc
+0x00005170	0x00000040	[  5] FDE for: _calloc
+0x000051B0	0x00000020	[  5] FDE for: _init_mem_pool
+0x000051D0	0x00000020	[  5] FDE for: _freeze_mem_pool
+0x000051F0	0x00000020	[  5] FDE for: _clear_mem_pool
+0x00008000	0x00000050	[  1] ___header
+0x00008050	0x00000028	[  1] _image_decoder
+0x00008078	0x00000080	[  3] _SOFSTRING
+0x000080F8	0x00000040	[  3] _PN
+0x0000C000	0x00000008	[  1] _iv
+0x0000C008	0x00000008	[  1] _rb
+0x0000C010	0x00000100	[  4] _zigzag
+0x0000C110	0x00000008	[  4] _CLIP
+0x0000C118	0x00000300	[  4] _clip_table
+0x0000C418	0x00000100	[  4] _SCALEM
+0x0000C518	0x00000020	[  1] _print
+0x0000C538	0x00003620	[  1] _jpg
+0x0000FB58	0x00000048	[  1] _disp
+0x0000FBA0	0x00000004	[  2] _file_pos
+0x0000FBA4	0x00000004	[  2] _cur_buff_pos
+0x0000FBA8	0x00000004	[  2] _length
+0x0000FBAC	0x00000100	[  2] _buff
+0x0000FCAC	0x00000004	[  2] _fd
+0x0000FCB0	0x00000008	[  5] _memory_size
+0x0000FCB8	0x00000008	[  5] _mem_pool_start
+0x0000FCC0	0x00000008	[  5] _mem_pool

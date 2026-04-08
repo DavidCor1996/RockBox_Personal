@@ -1,0 +1,550 @@
+# Path: /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/robotfindskitten.elf
+# Arch: arm64
+# Object files:
+[  0] linker synthesized
+[  1] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/robotfindskitten.o
+[  2] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/plugin_crt0.o
+[  3] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(pluginlib_actions.o)
+[  4] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(display_text.o)
+[  5] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/libSystem.tbd
+[  6] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/system/libsystem_platform.tbd
+# Sections:
+# Address	Size    	Segment	Section
+0x00000788	0x00000E90	__TEXT	__text
+0x00001618	0x00000018	__TEXT	__stubs
+0x00001630	0x00004D41	__TEXT	__cstring
+0x00006374	0x000000F0	__TEXT	__const
+0x00006468	0x000003F0	__TEXT	__eh_frame
+0x00008000	0x00000010	__DATA_CONST	__got
+0x00008010	0x00000D40	__DATA_CONST	__const
+0x0000C000	0x000001A0	__DATA	__data
+0x0000C1A0	0x00000008	__DATA	.data
+0x0000C1A8	0x00001BAC	__DATA	__common
+0x0000DD58	0x000000D8	__DATA	__bss
+# Symbols:
+# Address	Size    	File  Name
+0x00000788	0x00000044	[  1] _drawchar
+0x000007CC	0x00000024	[  1] _message
+0x000007F0	0x00000018	[  1] _refresh
+0x00000808	0x00000048	[  1] _rfkpause
+0x00000850	0x00000074	[  1] _draw.isra.0
+0x000008C4	0x000007D4	[  1] _plugin_start
+0x00001098	0x00000018	[  2] _cleanup_wrapper
+0x000010B0	0x00000068	[  2] _plugin__start
+0x00001118	0x00000020	[  2] _rb_atexit
+0x00001138	0x00000024	[  2] _exit
+0x0000115C	0x00000014	[  2] __exit
+0x00001170	0x00000064	[  2] _exit_on_usb
+0x000011D4	0x00000038	[  3] _get_context_map
+0x0000120C	0x00000040	[  3] _pluginlib_getaction
+0x0000124C	0x00000078	[  4] _wait_key_press
+0x000012C4	0x00000354	[  4] _display_text
+0x00001618	0x0000000C	[  6] _longjmp.stub
+0x00001624	0x0000000C	[  6] _setjmp.stub
+0x00001630	0x00000003	[  1] literal string: %c
+0x00001633	0x00000014	[  1] literal string: robotfindskitten %s
+0x00001647	0x0000000F	[  1] literal string: v1.4142135.406
+0x00001656	0x0000003C	[  1] literal string:                                                            
+0x00001692	0x00000002	[  1] literal string:  
+0x00001694	0x00000024	[  1] literal string: You found kitten! Way to go, robot!
+0x000016B8	0x00000005	[  1] literal string: Bye!
+0x000016BD	0x00000003	[  1] literal string: In
+0x000016C0	0x00000005	[  1] literal string: this
+0x000016C5	0x00000005	[  1] literal string: game
+0x000016CA	0x00000004	[  1] literal string: you
+0x000016CE	0x00000004	[  1] literal string: are
+0x000016D2	0x00000006	[  1] literal string: robot
+0x000016D8	0x00000005	[  1] literal string: (#).
+0x000016DD	0x00000005	[  1] literal string: Your
+0x000016E2	0x00000004	[  1] literal string: job
+0x000016E6	0x00000003	[  1] literal string: is
+0x000016E9	0x00000003	[  1] literal string: to
+0x000016EC	0x00000005	[  1] literal string: find
+0x000016F1	0x00000008	[  1] literal string: kitten.
+0x000016F9	0x00000005	[  1] literal string: This
+0x000016FE	0x00000005	[  1] literal string: task
+0x00001703	0x0000000C	[  1] literal string: complicated
+0x0000170F	0x00000003	[  1] literal string: by
+0x00001712	0x00000004	[  1] literal string: the
+0x00001716	0x0000000A	[  1] literal string: existence
+0x00001720	0x00000003	[  1] literal string: of
+0x00001723	0x00000008	[  1] literal string: various
+0x0000172B	0x00000007	[  1] literal string: things
+0x00001732	0x00000006	[  1] literal string: which
+0x00001738	0x00000004	[  1] literal string: not
+0x0000173C	0x00000006	[  1] literal string: Robot
+0x00001742	0x00000005	[  1] literal string: must
+0x00001747	0x00000006	[  1] literal string: touch
+0x0000174D	0x00000006	[  1] literal string: items
+0x00001753	0x0000000A	[  1] literal string: determine
+0x0000175D	0x00000003	[  1] literal string: if
+0x00001760	0x00000005	[  1] literal string: they
+0x00001765	0x00000007	[  1] literal string: kitten
+0x0000176C	0x00000003	[  1] literal string: or
+0x0000176F	0x00000005	[  1] literal string: not.
+0x00001774	0x00000001	[  1] literal string: 
+0x00001775	0x00000004	[  1] literal string: The
+0x00001779	0x00000005	[  1] literal string: ends
+0x0000177E	0x00000005	[  1] literal string: when
+0x00001783	0x00000012	[  1] literal string: robotfindskitten.
+0x00001795	0x00000006	[  1] literal string: Press
+0x0000179B	0x00000004	[  1] literal string: any
+0x0000179F	0x00000004	[  1] literal string: key
+0x000017A3	0x00000006	[  1] literal string: start
+0x000017A9	0x0000003A	[  1] literal string: \"I pity the fool who mistakes me for kitten!\", sez Mr. T.
+0x000017E3	0x0000001C	[  1] literal string: That's just an old tin can.
+0x000017FF	0x00000020	[  1] literal string: It's an altar to the horse god.
+0x0000181F	0x0000003C	[  1] literal string: A box of dancing mechanical pencils. They dance! They sing!
+0x0000185B	0x00000023	[  1] literal string: It's an old Duke Ellington record.
+0x0000187E	0x0000001D	[  1] literal string: A box of fumigation pellets.
+0x0000189B	0x00000028	[  1] literal string: A digital clock. It's stuck at 2:17 PM.
+0x000018C3	0x00000024	[  1] literal string: That's just a charred human corpse.
+0x000018E7	0x00000030	[  1] literal string: I don't know what that is, but it's not kitten.
+0x00001917	0x00000029	[  1] literal string: An empty shopping bag. Paper or plastic?
+0x00001940	0x0000002A	[  1] literal string: Could it be... a big ugly bowling trophy?
+0x0000196A	0x00000027	[  1] literal string: A coat hanger hovers in thin air. Odd.
+0x00001991	0x0000002B	[  1] literal string: Not kitten, just a packet of Kool-Aid(tm).
+0x000019BC	0x00000035	[  1] literal string: A shameless plug for Rockbox: http://www.rockbox.org
+0x000019F1	0x0000001D	[  1] literal string: A freshly-baked pumpkin pie.
+0x00001A0E	0x0000002D	[  1] literal string: A lone, forgotten comma, sits here, sobbing.
+0x00001A3B	0x00000028	[  1] literal string: ONE HUNDRED THOUSAND CARPET FIBERS!!!!!
+0x00001A63	0x0000001B	[  1] literal string: It's Richard Nixon's nose!
+0x00001A7E	0x0000002E	[  1] literal string: It's Lucy Ricardo. \"Aaaah, Ricky!\", she says.
+0x00001AAC	0x0000002B	[  1] literal string: You stumble upon Bill Gates' stand-up act.
+0x00001AD7	0x0000002C	[  1] literal string: Just an autographed copy of the Kama Sutra.
+0x00001B03	0x0000003B	[  1] literal string: It's the Will Rogers Highway. Who was Will Rogers, anyway?
+0x00001B3E	0x0000004D	[  1] literal string: It's another robot, more advanced in design than you but strangely immobile.
+0x00001B8B	0x00000037	[  1] literal string: Leonard Richardson is here, asking people to lick him.
+0x00001BC2	0x0000002E	[  1] literal string: It's a stupid mask, fashioned after a beagle.
+0x00001BF0	0x0000002E	[  1] literal string: Your State Farm Insurance(tm) representative!
+0x00001C1E	0x0000001C	[  1] literal string: It's the local draft board.
+0x00001C3A	0x0000002A	[  1] literal string: Seven 1/4\" screws and a piece of plastic.
+0x00001C64	0x00000012	[  1] literal string: An 80286 machine.
+0x00001C76	0x0000002F	[  1] literal string: One of those stupid \"Homes of the Stars\" maps.
+0x00001CA5	0x00000045	[  1] literal string: A signpost saying \"TO KITTEN\". It points in no particular direction.
+0x00001CEA	0x0000003A	[  1] literal string: A hammock stretched between a tree and a volleyball pole.
+0x00001D24	0x0000002F	[  1] literal string: A Texas Instruments of Destruction calculator.
+0x00001D53	0x00000027	[  1] literal string: It's a dark, amphorous blob of matter.
+0x00001D7A	0x00000013	[  1] literal string: Just a pincushion.
+0x00001D8D	0x0000001C	[  1] literal string: Oh hey, you're not Llorean!
+0x00001DA9	0x0000003D	[  1] literal string: It's a mighty zombie talking about some love and prosperity.
+0x00001DE6	0x00000046	[  1] literal string: \"Dear robot, you may have already won our 10 MILLION DOLLAR prize...\"
+0x00001E2C	0x00000015	[  1] literal string: It's just an object.
+0x00001E41	0x0000001D	[  1] literal string: A mere collection of pixels.
+0x00001E5E	0x00000036	[  1] literal string: A badly dented high-hat cymbal lies on its side here.
+0x00001E94	0x00000015	[  1] literal string: A marijuana brownie.
+0x00001EA9	0x00000013	[  1] literal string: A plush Chewbacca.
+0x00001EBC	0x0000002A	[  1] literal string: Daily hunger conditioner from Australasia
+0x00001EE6	0x00000011	[  1] literal string: Just some stuff.
+0x00001EF7	0x0000003D	[  1] literal string: Why are you touching this when you should be finding kitten?
+0x00001F34	0x00000024	[  1] literal string: A glorious fan of peacock feathers.
+0x00001F58	0x00000035	[  1] literal string: It's some compromising photos of Babar the Elephant.
+0x00001F8D	0x00000047	[  1] literal string: A copy of the Weekly World News. Watch out for the chambered nautilus!
+0x00001FD4	0x00000021	[  1] literal string: It's the proverbial wet blanket.
+0x00001FF5	0x0000001F	[  1] literal string: A \"Get Out of Jail Free\" card.
+0x00002014	0x00000039	[  1] literal string: An incredibly expensive \"Mad About You\" collector plate.
+0x0000204D	0x00000016	[  1] literal string: Paul Moyer's necktie.
+0x00002063	0x00000039	[  1] literal string: A haircut and a real job. Now you know where to get one!
+0x0000209C	0x0000003B	[  1] literal string: An automated robot-hater. It frowns disapprovingly at you.
+0x000020D7	0x0000002C	[  1] literal string: An automated robot-liker. It smiles at you.
+0x00002103	0x00000022	[  1] literal string: It's a black hole. Don't fall in!
+0x00002125	0x00000036	[  1] literal string: It's a Toshiba MK8022GAA hard drive, untested, as-is.
+0x0000215B	0x00000017	[  1] literal string: Just a big brick wall.
+0x00002172	0x00000024	[  1] literal string: You found kitten! No, just kidding.
+0x00002196	0x00000028	[  1] literal string: Heart of Darkness brand pistachio nuts.
+0x000021BE	0x00000038	[  1] literal string: A smoking branding iron shaped like a 24-pin connector.
+0x000021F6	0x00000014	[  1] literal string: It's a Java applet.
+0x0000220A	0x0000001B	[  1] literal string: An abandoned used-car lot.
+0x00002225	0x00000034	[  1] literal string: A shameless plug for Crummy: http://www.crummy.com/
+0x00002259	0x00000048	[  1] literal string: A shameless plug for the UCLA Linux Users Group: http://linux.ucla.edu/
+0x000022A1	0x00000014	[  1] literal string: A can of Spam Lite.
+0x000022B5	0x0000003A	[  1] literal string: This is another fine mess you've gotten us into, Stanley.
+0x000022EF	0x00000026	[  1] literal string: It's scenery for \"Waiting for Godot\".
+0x00002315	0x0000002B	[  1] literal string: This grain elevator towers high above you.
+0x00002340	0x00000012	[  1] literal string: A Mentos wrapper.
+0x00002352	0x0000001F	[  1] literal string: It's the constellation Pisces.
+0x00002371	0x00000021	[  1] literal string: It's a fly on the wall. Hi, fly!
+0x00002392	0x0000002E	[  1] literal string: This kind of looks like kitten, but it's not.
+0x000023C0	0x00000018	[  1] literal string: It's a banana! Oh, joy!
+0x000023D8	0x0000001F	[  1] literal string: A helicopter has crashed here.
+0x000023F7	0x00000044	[  1] literal string: Carlos Tarango stands here, doing his best impression of Pat Smear.
+0x0000243B	0x00000021	[  1] literal string: A patch of mushrooms grows here.
+0x0000245C	0x0000002C	[  1] literal string: It's a song by Kraftwerk, all about robots.
+0x00002488	0x00000023	[  1] literal string: A patch of grape jelly grows here.
+0x000024AB	0x00000032	[  1] literal string: A spindle, and a grindle, and a bucka-wacka-woom!
+0x000024DD	0x00000029	[  1] literal string: A geyser sprays water high into the air.
+0x00002506	0x00000023	[  1] literal string: A toenail? What good is a toenail?
+0x00002529	0x00000044	[  1] literal string: You've found the fish! Not that it does you much good in this game.
+0x0000256D	0x00000015	[  1] literal string: A Buttertonsils bar.
+0x00002582	0x00000022	[  1] literal string: One of the few remaining discoes.
+0x000025A4	0x00000032	[  1] literal string: Ah, the uniform of a Revolutionary-era minuteman.
+0x000025D6	0x00000032	[  1] literal string: A punch bowl, filled with punch and lemon slices.
+0x00002608	0x00000022	[  1] literal string: It's nothing but a G-thang, baby.
+0x0000262A	0x0000001C	[  1] literal string: IT'S ALIVE! AH HA HA HA HA!
+0x00002646	0x0000001E	[  1] literal string: This was no boating accident!
+0x00002664	0x00000048	[  1] literal string: Wait! This isn't the poker chip! You've been tricked! DAMN YOU, MENDEZ!
+0x000026AC	0x00000022	[  1] literal string: A livery stable! Get your livery!
+0x000026CE	0x00000025	[  1] literal string: It's a perpetual immobility machine.
+0x000026F3	0x00000030	[  1] literal string: \"On this spot in 1962, Henry Winkler was sick.\"
+0x00002723	0x00000035	[  1] literal string: There's nothing here; it's just an optical illusion.
+0x00002758	0x00000021	[  1] literal string: The World's Biggest Motzah Ball!
+0x00002779	0x0000004F	[  1] literal string: A tribe of cannibals lives here. They eat Malt-O-Meal for breakfast, you know.
+0x000027C8	0x00000042	[  1] literal string: This appears to be a rather large stack of trashy romance novels.
+0x0000280A	0x0000001E	[  1] literal string: Look out! Exclamation points!
+0x00002828	0x0000002A	[  1] literal string: A herd of wild coffee mugs slumbers here.
+0x00002852	0x00000026	[  1] literal string: It's a limbo bar! How low can you go?
+0x00002878	0x00000024	[  1] literal string: It's the horizon. Now THAT'S weird.
+0x0000289C	0x0000003E	[  1] literal string: A vase full of artificial flowers is stuck to the floor here.
+0x000028DA	0x0000001D	[  1] literal string: A large snake bars your way.
+0x000028F7	0x0000003F	[  1] literal string: A pair of saloon-style doors swing slowly back and forth here.
+0x00002936	0x00000043	[  1] literal string: It's an ordinary bust of Beethoven... but why is it painted green?
+0x00002979	0x0000003A	[  1] literal string: It's TV's lovable wisecracking Crow! \"Bite me!\", he says.
+0x000029B3	0x0000004C	[  1] literal string: Hey, look, it's war. What is it good for? Absolutely nothing. Say it again.
+0x000029FF	0x0000003B	[  1] literal string: It's the amazing self-referential thing that's not kitten.
+0x00002A3A	0x00000044	[  1] literal string: A flamboyant feather boa. Now you can dress up like Carol Channing!
+0x00002A7E	0x00000034	[  1] literal string: \"Sure hope we get some rain soon,\" says Farmer Joe.
+0x00002AB2	0x00000051	[  1] literal string: \"How in heck can I wash my neck if it ain't gonna rain no more?\" asks Farmer Al.
+0x00002B03	0x0000002B	[  1] literal string: \"Topsoil's all gone, ma,\" weeps Lil' Greg.
+0x00002B2E	0x0000004E	[  1] literal string: This is a large brown bear. Oddly enough, it's currently peeing in the woods.
+0x00002B7C	0x0000002B	[  1] literal string: A team of arctic explorers is camped here.
+0x00002BA7	0x0000003A	[  1] literal string: This object here appears to be Louis Farrakhan's bow tie.
+0x00002BE1	0x0000002E	[  1] literal string: This is the world-famous Chain of Jockstraps.
+0x00002C0F	0x00000024	[  1] literal string: A trash compactor, compacting away.
+0x00002C33	0x00000033	[  1] literal string: This toaster strudel is riddled with bullet holes!
+0x00002C66	0x00000016	[  1] literal string: A capsaicin molecule.
+0x00002C7C	0x00000029	[  1] literal string: It's a hologram of a crashed helicopter.
+0x00002CA5	0x0000004F	[  1] literal string: This is a television. On screen you see a robot strangely similar to yourself.
+0x00002CF4	0x00000031	[  1] literal string: This balogna has a first name, it's R-A-N-C-I-D.
+0x00002D25	0x0000003C	[  1] literal string: A salmon hatchery? Look again. It's merely a single salmon.
+0x00002D61	0x0000001D	[  1] literal string: It's a rim shot. Ba-da-boom!
+0x00002D7E	0x0000004C	[  1] literal string: It's creepy and it's kooky, mysterious and spooky. It's also somewhat ooky.
+0x00002DCA	0x00000014	[  1] literal string: This is an anagram.
+0x00002DDE	0x00000020	[  1] literal string: This object is like an analogy.
+0x00002DFE	0x00000041	[  1] literal string: It's a symbol. You see in it a model for all symbols everywhere.
+0x00002E3F	0x0000001F	[  1] literal string: The object pushes back at you.
+0x00002E5E	0x0000003F	[  1] literal string: A traffic signal. It appears to have been recently vandalized.
+0x00002E9D	0x0000004F	[  1] literal string: \"There is no kitten!\" cackles the old crone. You are shocked by her blasphemy.
+0x00002EEC	0x00000034	[  1] literal string: This is a Lagrange point. Don't come too close now.
+0x00002F20	0x00000037	[  1] literal string: The dirty old tramp bemoans the loss of his harmonica.
+0x00002F57	0x0000001F	[  1] literal string: Look, it's Fanny the Irishman!
+0x00002F76	0x00000018	[  1] literal string: What in blazes is this?
+0x00002F8E	0x00000041	[  1] literal string: It's the instruction manual for a previous version of this game.
+0x00002FCF	0x00000038	[  1] literal string: A brain cell. Oddly enough, it seems to be functioning.
+0x00003007	0x00000015	[  1] literal string: Tea and/or crumpets.
+0x0000301C	0x0000003A	[  1] literal string: This jukebox has nothing but Cliff Richards albums in it.
+0x00003056	0x00000033	[  1] literal string: It's a Quaker Oatmeal tube, converted into a drum.
+0x00003089	0x00000040	[  1] literal string: This is a remote control. Being a robot, you keep a wide berth.
+0x000030C9	0x00000030	[  1] literal string: It's a roll of industrial-strength copper wire.
+0x000030F9	0x00000019	[  1] literal string: Oh boy! Grub! Er, grubs.
+0x00003112	0x0000002D	[  1] literal string: A puddle of mud, where the mudskippers play.
+0x0000313F	0x00000013	[  1] literal string: Plenty of nothing.
+0x00003152	0x00000023	[  1] literal string: Look at that, it's the Crudmobile.
+0x00003175	0x00000026	[  1] literal string: Just Walter Mattheau and Jack Lemmon.
+0x0000319B	0x00000021	[  1] literal string: Two crepes, two crepes in a box.
+0x000031BC	0x00000037	[  1] literal string: An autographed copy of \"Primary Colors\", by Anonymous.
+0x000031F3	0x00000024	[  1] literal string: Another rabbit? That's three today!
+0x00003217	0x00000034	[  1] literal string: It's a segmentation fault. Core dumped, by the way.
+0x0000324B	0x0000003E	[  1] literal string: A historical marker showing the actual location of /dev/null.
+0x00003289	0x00000030	[  1] literal string: Thar's Mobius Dick, the convoluted whale. Arrr!
+0x000032B9	0x00000029	[  1] literal string: It's a charcoal briquette, smoking away.
+0x000032E2	0x0000001D	[  1] literal string: A pizza, melting in the sun.
+0x000032FF	0x00000035	[  1] literal string: It's a \"HOME ALONE 2: Lost in New York\" novelty cup.
+0x00003334	0x00000031	[  1] literal string: A stack of 7 inch floppies wobbles precariously.
+0x00003365	0x00000035	[  1] literal string: It's nothing but a corrupted floppy. Coaster anyone?
+0x0000339A	0x00000046	[  1] literal string: A section of glowing phosphor cells sings a song of radiation to you.
+0x000033E0	0x00000022	[  1] literal string: This TRS-80 III is eerily silent.
+0x00003402	0x00000023	[  1] literal string: A toilet bowl occupies this space.
+0x00003425	0x00000025	[  1] literal string: This peg-leg is stuck in a knothole!
+0x0000344A	0x0000001D	[  1] literal string: It's a solitary vacuum tube.
+0x00003467	0x0000002B	[  1] literal string: This corroded robot is clutching a mitten.
+0x00003492	0x00000028	[  1] literal string: \"Hi, I'm Anson Williams, TV's 'Potsy'.\"
+0x000034BA	0x00000026	[  1] literal string: This subwoofer was blown out in 1974.
+0x000034E0	0x00000028	[  1] literal string: Three half-pennies and a wooden nickel.
+0x00003508	0x00000032	[  1] literal string: It's the missing chapter to \"A Clockwork Orange\".
+0x0000353A	0x00000034	[  1] literal string: It's a burrito stand flyer. \"Taqueria El Ranchito\".
+0x0000356E	0x00000034	[  1] literal string: This smiling family is happy because they eat LARD.
+0x000035A2	0x00000036	[  1] literal string: Roger Avery, persona un famoso de los Estados Unidos.
+0x000035D8	0x0000001A	[  1] literal string: Ne'er but a potted plant.
+0x000035F2	0x0000001F	[  1] literal string: A parrot, kipping on its back.
+0x00003611	0x00000023	[  1] literal string: A forgotten telephone switchboard.
+0x00003634	0x0000004B	[  1] literal string: It's a trio of Swedish hackers. They seem to be busy with that MP3 player.
+0x0000367F	0x0000002C	[  1] literal string: A forgotten telephone switchboard operator.
+0x000036AB	0x00000041	[  1] literal string: It's an automated robot-disdainer. It pretends you're not there.
+0x000036EC	0x0000003D	[  1] literal string: It's a portable hole. A sign reads: \"Closed for the winter\".
+0x00003729	0x0000001C	[  1] literal string: Just a moldy loaf of bread.
+0x00003745	0x0000003F	[  1] literal string: A little glass tub of Carmex. ($.89) Too bad you have no lips.
+0x00003784	0x00000044	[  1] literal string: A Swiss-Army knife. All of its appendages are out. (toothpick lost)
+0x000037C8	0x0000003A	[  1] literal string: It's a zen simulation, trapped within an ASCII character.
+0x00003802	0x0000002F	[  1] literal string: It's a copy of \"The Rubaiyat of Spike Schudy\".
+0x00003831	0x00000035	[  1] literal string: It's \"War and Peace\" (unabridged, very small print).
+0x00003866	0x0000003F	[  1] literal string: A willing, ripe tomato bemoans your inability to digest fruit.
+0x000038A5	0x00000023	[  1] literal string: A robot comedian. You feel amused.
+0x000038C8	0x0000001C	[  1] literal string: It's KITT, the talking car.
+0x000038E4	0x00000041	[  1] literal string: Here's Pete Peterson. His batteries seem to have long gone dead.
+0x00003925	0x00000026	[  1] literal string: \"Blup, blup, blup\", says the mud pot.
+0x0000394B	0x00000019	[  1] literal string: More grist for the mill.
+0x00003964	0x00000032	[  1] literal string: Cory Doctorow's hot air balloon is tethered here.
+0x00003996	0x0000002B	[  1] literal string: Grind 'em up, spit 'em out, they're twigs.
+0x000039C1	0x00000032	[  1] literal string: The boom box cranks out an old Ethel Merman tune.
+0x000039F3	0x0000003D	[  1] literal string: It's \"Finding kitten\", published by O'Reilly and Associates.
+0x00003A30	0x00000013	[  1] literal string: Pumpkin pie spice.
+0x00003A43	0x00000030	[  1] literal string: It's the Bass-Matic '76! Mmm, that's good bass!
+0x00003A73	0x00000032	[  1] literal string: \"Lend us a fiver 'til Thursday\", pleas Andy Capp.
+0x00003AA5	0x00000043	[  1] literal string: It's a tape of '70s rock. All original hits! All original artists!
+0x00003AE8	0x00000037	[  1] literal string: You've found the fabled America Online disk graveyard!
+0x00003B1F	0x00000027	[  1] literal string: Empty jewelboxes litter the landscape.
+0x00003B46	0x00000021	[  1] literal string: It's the astounding meta-object.
+0x00003B67	0x0000004C	[  1] literal string: Ed McMahon stands here, lost in thought. Seeing you, he bellows, \"YES SIR!\"
+0x00003BB3	0x0000000D	[  1] literal string: ...thingy???
+0x00003BC0	0x0000003B	[  1] literal string: It's 1000 secrets the government doesn't want you to know!
+0x00003BFB	0x00000015	[  1] literal string: The letters O and R.
+0x00003C10	0x0000001A	[  1] literal string: A magical... magic thing.
+0x00003C2A	0x0000001A	[  1] literal string: It's a moment of silence.
+0x00003C44	0x00000024	[  1] literal string: It's Sirhan-Sirhan, looking guilty.
+0x00003C68	0x0000003B	[  1] literal string: It's \"Chicken Soup for the Kitten-seeking Soulless Robot.\"
+0x00003CA3	0x00000026	[  1] literal string: It is a set of wind-up chatter teeth.
+0x00003CC9	0x00000021	[  1] literal string: It is a cloud shaped like an ox.
+0x00003CEA	0x0000002A	[  1] literal string: You see a snowflake here, melting slowly.
+0x00003D14	0x00000018	[  1] literal string: It's 91 yards of twine.
+0x00003D2C	0x00000041	[  1] literal string: It's a big block of ice. Something seems to be frozen inside it.
+0x00003D6D	0x00000024	[  1] literal string: Vladimir Lenin's casket rests here.
+0x00003D91	0x00000037	[  1] literal string: It's a copy of \"Zen and The Art of Robot Maintenance\".
+0x00003DC8	0x0000002F	[  1] literal string: This invisible box contains a pantomime horse.
+0x00003DF7	0x0000003E	[  1] literal string: A mason jar lies here open. It's label reads: \"do not open!\".
+0x00003E35	0x00000027	[  1] literal string: A train of thought chugs through here.
+0x00003E5C	0x00000025	[  1] literal string: This jar of pickles expired in 1957.
+0x00003E81	0x00000023	[  1] literal string: Someone's identity disk lies here.
+0x00003EA4	0x00000015	[  1] literal string: \"Yes!\" says the bit.
+0x00003EB9	0x00000014	[  1] literal string: \"No!\" says the bit.
+0x00003ECD	0x0000001E	[  1] literal string: A dodecahedron bars your way.
+0x00003EEB	0x0000001D	[  1] literal string: Mr. Hooper is here, surfing.
+0x00003F08	0x00000019	[  1] literal string: It's a big smoking fish.
+0x00003F21	0x00000026	[  1] literal string: You have new mail in /var/spool/robot
+0x00003F47	0x00000030	[  1] literal string: Just a monitor with the blue element burnt out.
+0x00003F77	0x00000026	[  1] literal string: A pile of coaxial plumbing lies here.
+0x00003F9D	0x00000018	[  1] literal string: It's a rotten old shoe.
+0x00003FB5	0x0000001C	[  1] literal string: It's a hundred-dollar bill.
+0x00003FD1	0x00000018	[  1] literal string: It's a Dvorak keyboard.
+0x00003FE9	0x00000049	[  1] literal string: It's Bender, the loveable kleptomaniac robot! \"Bite my shiny metal ass!\"
+0x00004032	0x00000027	[  1] literal string: It's a cardboard box full of 8-tracks.
+0x00004059	0x0000003E	[  1] literal string: Just a broken hard drive containg the archives of Nerth Pork.
+0x00004097	0x0000003B	[  1] literal string: A broken metronome sits here, it's needle off to one side.
+0x000040D2	0x00000019	[  1] literal string: A sign reads: \"Go home!\"
+0x000040EB	0x00000023	[  1] literal string: A sign reads: \"No robots allowed!\"
+0x0000410E	0x00000033	[  1] literal string: It's the handheld robotfindskitten game, by Tiger.
+0x00004141	0x00000031	[  1] literal string: This particular monstrosity appears to be ENIAC.
+0x00004172	0x0000002A	[  1] literal string: This is a tasty-looking banana creme pie.
+0x0000419C	0x00000036	[  1] literal string: A wireframe model of a hot dog rotates in space here.
+0x000041D2	0x00000021	[  1] literal string: Just the empty husk of a locust.
+0x000041F3	0x0000001F	[  1] literal string: You disturb a murder of crows.
+0x00004212	0x0000002A	[  1] literal string: It's a copy of the robotfindskitten EULA.
+0x0000423C	0x0000000C	[  1] literal string: It's Death.
+0x00004248	0x0000003D	[  1] literal string: It's an autographed copy of \"Secondary Colors,\" by Bob Ross.
+0x00004285	0x00000044	[  1] literal string: It is a marzipan dreadnought that appears to have melted and stuck.
+0x000042C9	0x0000004E	[  1] literal string: It's a DVD of \"Crouching Monkey, Hidden Kitten\", region encoded for the moon.
+0x00004317	0x00000025	[  1] literal string: It's Kieran Hervold.  Damn dyslexia!
+0x0000433C	0x00000020	[  1] literal string: A non-descript box of crackers.
+0x0000435C	0x00000057	[  1] literal string: Carbonated Water, High Fructose Corn Syrup, Color, Phosphoric Acid, Flavors, Caffeine.
+0x000043B3	0x00000023	[  1] literal string: \"Move along! Nothing to see here!\"
+0x000043D6	0x0000002C	[  1] literal string: It's the embalmed corpse of Vladimir Lenin.
+0x00004402	0x0000003D	[  1] literal string: A coupon for one free steak-fish at your local family diner.
+0x0000443F	0x00000030	[  1] literal string: A set of keys to a 2001 Rolls Royce. Worthless.
+0x0000446F	0x00000036	[  1] literal string: A gravestone stands here.  \"Izchak Miller, ascended.\"
+0x000044A5	0x00000036	[  1] literal string: Someone has written \"ad aerarium\" on the ground here.
+0x000044DB	0x00000023	[  1] literal string: A large blue eye floats in midair.
+0x000044FE	0x00000028	[  1] literal string: This appears to be a statue of Perseus.
+0x00004526	0x00000021	[  1] literal string: There is an opulent throne here.
+0x00004547	0x0000001F	[  1] literal string: It's a squad of Keystone Kops.
+0x00004566	0x00000047	[  1] literal string: This seems to be junk mail addressed to the finder of the Eye of Larn.
+0x000045AD	0x00000043	[  1] literal string: A wondrous and intricate golden amulet.  Too bad you have no neck.
+0x000045F0	0x0000003A	[  1] literal string: The swampy ground around you seems to stink with disease.
+0x0000462A	0x0000003E	[  1] literal string: An animate blob of acid.  Being metallic, you keep well away.
+0x00004668	0x0000004C	[  1] literal string: It's a copy of Knuth with the chapter on kitten-search algorithms torn out.
+0x000046B4	0x0000003F	[  1] literal string: A crowd of people, and at the center, a popular misconception.
+0x000046F3	0x00000051	[  1] literal string: It's a blind man. When you touch, he exclaims \"It's a kitten prospecting robot!\"
+0x00004744	0x00000044	[  1] literal string: It's a lost wallet. It's owner didn't have pets, so you discard it.
+0x00004788	0x0000003A	[  1] literal string: This place is called Antarctica. There is no kitten here.
+0x000047C2	0x00000024	[  1] literal string: It's a mousetrap, baited with soap.
+0x000047E6	0x00000046	[  1] literal string: A book with \"Don't Panic\" in large friendly letters across the cover.
+0x0000482C	0x00000024	[  1] literal string: A compendium of haiku about metals.
+0x00004850	0x00000030	[  1] literal string: A discredited cosmology, relic of a bygone era.
+0x00004880	0x0000001D	[  1] literal string: A hollow voice says \"Plugh\".
+0x0000489D	0x0000004A	[  1] literal string: A knight who says \"Either I am an insane knave, or you will find kitten.\"
+0x000048E7	0x00000040	[  1] literal string: The secret meeting place of the Knights of the Lambda Calculus.
+0x00004927	0x00000037	[  1] literal string: A neural net -- maybe it's trying to recognize kitten.
+0x0000495E	0x0000000F	[  1] literal string: A screwdriver.
+0x0000496D	0x00000047	[  1] literal string: A statue of a girl holding a goose like the one in Gottingen, Germany.
+0x000049B4	0x0000001E	[  1] literal string: A tetradrachm dated \"42 B.C.\"
+0x000049D2	0x0000002F	[  1] literal string: A voice booms out \"Onward, kitten soldiers...\"
+0x00004A01	0x00000020	[  1] literal string: An eminently forgettable zahir.
+0x00004A21	0x0000001F	[  1] literal string: Apparently, it's Edmund Burke.
+0x00004A40	0x00000043	[  1] literal string: For a moment, you feel something in your hands, but it disappears!
+0x00004A83	0x00000025	[  1] literal string: Here is a book about Robert Kennedy.
+0x00004AA8	0x00000025	[  1] literal string: Hey, robot, leave those lists alone.
+0x00004ACD	0x00000029	[  1] literal string: Ho hum.  Another synthetic a posteriori.
+0x00004AF6	0x00000047	[  1] literal string: It's Asimov's Laws of Robotics.  You feel a strange affinity for them.
+0x00004B3D	0x0000001D	[  1] literal string: It's Bach's Mass in B-minor!
+0x00004B5A	0x0000000C	[  1] literal string: It's a bug.
+0x00004B66	0x00000040	[  1] literal string: It's a synthetic a priori truth!  Immanuel would be so pleased!
+0x00004BA6	0x00000014	[  1] literal string: It's the Tiki Room.
+0x00004BBA	0x00000044	[  1] literal string: Just some old play by a Czech playwright, and you can't read Czech.
+0x00004BFE	0x00000030	[  1] literal string: Kitten is the letter 'Q'.  Oh, wait, maybe not.
+0x00004C2E	0x0000002C	[  1] literal string: Quidquid Latine dictum sit, kitten non est.
+0x00004C5A	0x00000039	[  1] literal string: Sutro Tower is visible at some distance through the fog.
+0x00004C93	0x0000002E	[  1] literal string: The Digital Millennium Copyright Act of 1998.
+0x00004CC1	0x0000003C	[  1] literal string: The United States Court of Appeals for the Federal Circuit.
+0x00004CFD	0x0000004C	[  1] literal string: The non-kitten item like this but with \"false\" and \"true\" switched is true.
+0x00004D49	0x0000004D	[  1] literal string: The non-kitten item like this but with \"true\" and \"false\" switched is false.
+0x00004D96	0x0000004D	[  1] literal string: This is the chapter called \"A Map of the Cat?\" from Feynman's autobiography.
+0x00004DE3	0x0000001D	[  1] literal string: This is the forest primeval.
+0x00004E00	0x0000003D	[  1] literal string: Werner's \"Pocket Field Guide to Things That Are Not Kitten\".
+0x00004E3D	0x00000028	[  1] literal string: You found nettik, but that's backwards.
+0x00004E65	0x00000050	[  1] literal string: You have found some zinc, but you must not stop here, for you must find kitten.
+0x00004EB5	0x00000035	[  1] literal string: \"50 Years Among the Non-Kitten Items\", by Ann Droyd.
+0x00004EEA	0x00000039	[  1] literal string: \"Robot may not injure kitten, or, through inaction, ...\"
+0x00004F23	0x00000043	[  1] literal string: \"Address Allocation for Private Internets\" by Yakov Rekhter et al.
+0x00004F66	0x00000039	[  1] literal string: \"Mail Routing and the Domain System\" by Craig Partridge.
+0x00004F9F	0x0000004E	[  1] literal string: \"The Theory and Practice of Oligarchical Collectivism\" by Emmanuel Goldstein.
+0x00004FED	0x0000003C	[  1] literal string: \"201 Kitten Verbs, Fully Conjugated\".  You look for \"find\".
+0x00005029	0x00000046	[  1] literal string: A card shark sits here, practicing his Faro shuffle.  He ignores you.
+0x0000506F	0x00000035	[  1] literal string: A copy of DeCSS.  They're a dime a dozen these days.
+0x000050A4	0x00000046	[  1] literal string: A demonic voice proclaims \"There is no kitten, only Zuul\".  You flee.
+0x000050EA	0x00000028	[  1] literal string: A lotus.  You make an interesting pair.
+0x00005112	0x00000042	[  1] literal string: It's the missing 24 seconds of \"Monty Python and the Holy Grail\".
+0x00005154	0x00000045	[  1] literal string: A milk carton, with a black and white picture of kitten on the side.
+0x00005199	0x00000047	[  1] literal string: Any ordinary robot could see from a mile away that this wasn't kitten.
+0x000051E0	0x0000004B	[  1] literal string: A stegosaurus, escaped from the stegosaurusfindsrobot game.  It finds you.
+0x0000522B	0x0000001D	[  1] literal string: Baling wire and chewing gum.
+0x00005248	0x0000001D	[  1] literal string: Chewing gum and baling wire.
+0x00005265	0x00000048	[  1] literal string: Here is no kitten but only rock, rock and no kitten and the sandy road.
+0x000052AD	0x00000028	[  1] literal string: Hey, I bet you thought this was kitten.
+0x000052D5	0x00000038	[  1] literal string: It is an ancient mariner, and he stoppeth one of three.
+0x0000530D	0x00000048	[  1] literal string: It pleases you to be kind to what appears to be kitten -- but it's not!
+0x00005355	0x0000003B	[  1] literal string: It's a blatant plug for Ogg Vorbis, http://www.vorbis.com/
+0x00005390	0x00000034	[  1] literal string: It's a business plan for a new startup, kitten.net.
+0x000053C4	0x0000003F	[  1] literal string: It's a revised business plan for a new startup, my.kitten.net.
+0x00005403	0x0000000F	[  1] literal string: It's a square.
+0x00005412	0x00000032	[  1] literal string: It seems to be a copy of \"A Tail of Two Kitties\".
+0x00005444	0x00000022	[  1] literal string: It's the Donation of Constantine!
+0x00005466	0x00000021	[  1] literal string: It's this message, nothing more.
+0x00005487	0x0000003E	[  1] literal string: Lysine, an essential amino acid.  Well, maybe not for robots.
+0x000054C5	0x00000010	[  1] literal string: No kitten here.
+0x000054D5	0x00000041	[  1] literal string: The score for a Czech composer's \"Kitten-Finding Symphony in C\".
+0x00005516	0x00000049	[  1] literal string: This looks like Bradley's \"Appearance and Reality\", but it's really not.
+0x0000555F	0x0000001E	[  1] literal string: This non-kitten item no verb.
+0x0000557D	0x00000020	[  1] literal string: You feel strangely unfulfilled.
+0x0000559D	0x00000041	[  1] literal string: You hit the non-kitten item.  The non-kitten item fails to yowl.
+0x000055DE	0x0000002E	[  1] literal string: You suddenly yearn for your distant homeland.
+0x0000560C	0x00000049	[  1] literal string: You've found the snows of yesteryear!  So that's where they all went to.
+0x00005655	0x0000004D	[  1] literal string: Approaching.  One car.  J.  Followed by.  Two car.  M, M.  In five. Minutes.
+0x000056A2	0x00000013	[  1] literal string: Free Jon Johansen!
+0x000056B5	0x00000016	[  1] literal string: Free Dmitry Sklyarov!
+0x000056CB	0x00000046	[  1] literal string: One person shouts \"What do we want?\" The crowd answers \"Free Dmitry!\"
+0x00005711	0x00000021	[  1] literal string: Judith Platt insults librarians.
+0x00005732	0x0000001F	[  1] literal string: This map is not the territory.
+0x00005751	0x0000002C	[  1] literal string: \"Go back to Libraria!\", says Pat Schroeder.
+0x0000577D	0x00000036	[  1] literal string: This is a porcelain kitten-counter.  0, 0, 0, 0, 0...
+0x000057B3	0x00000046	[  1] literal string: An old bootable business card, unfortunately cracked down the middle.
+0x000057F9	0x00000040	[  1] literal string: A kitten sink, for washing kitten (if only kitten liked water).
+0x00005839	0x0000002C	[  1] literal string: A kitten source (to match the kitten sink).
+0x00005865	0x00000025	[  1] literal string: If it's one thing, it's not another.
+0x0000588A	0x00000025	[  1] literal string: If it's not one thing, it's another.
+0x000058AF	0x0000000C	[  1] literal string: A caboodle.
+0x000058BB	0x00000008	[  1] literal string: A grin.
+0x000058C3	0x00000039	[  1] literal string: A hedgehog.  It looks like it knows something important.
+0x000058FC	0x0000002C	[  1] literal string: You've found... Oh wait, that's just a cat.
+0x00005928	0x00000023	[  1] literal string: Robot should not be touching that.
+0x0000594B	0x0000001D	[  1] literal string: Air Guitar!!!  NA na NA na!!
+0x00005968	0x00000031	[  1] literal string: An aromatherapy candle burns with healing light.
+0x00005999	0x0000001F	[  1] literal string: You find a bright shiny penny.
+0x000059B8	0x0000001A	[  1] literal string: It's a free Jon Johansen!
+0x000059D2	0x0000001D	[  1] literal string: It's a free Dmitry Sklyarov!
+0x000059EF	0x00000021	[  1] literal string: The rothe hits!  The rothe hits!
+0x00005A10	0x0000003C	[  1] literal string: It's an Internet chain letter about sodium laureth sulfate.
+0x00005A4C	0x0000002E	[  1] literal string: Ed Witten sits here, pondering string theory.
+0x00005A7A	0x00000046	[  1] literal string: Something is written here in the dust.  You read: \"rJbotf ndQkttten\".
+0x00005AC0	0x00000032	[  1] literal string: We wish you a merry kitten, and a happy New Year!
+0x00005AF2	0x00000015	[  1] literal string: Run away!  Run away!
+0x00005B07	0x00000045	[  1] literal string: You can see right through this copy of Brin's \"Transparent Society\".
+0x00005B4C	0x00000041	[  1] literal string: This copy of \"Steal This Book\" has been stolen from a bookstore.
+0x00005B8D	0x00000011	[  1] literal string: It's Roya Naini.
+0x00005B9E	0x00000049	[  1] literal string: This kit is the fourteenth in a series of kits named with Roman letters.
+0x00005BE7	0x0000002B	[  1] literal string: This is the tenth key you've found so far.
+0x00005C12	0x0000004D	[  1] literal string: You find a fraud scheme in which loans are used as security for other loans.
+0x00005C5F	0x00000035	[  1] literal string: It's the phrase \"and her\", written in ancient Greek.
+0x00005C94	0x00000038	[  1] literal string: It's the author of \"Randomness and Mathematical Proof\".
+0x00005CCC	0x0000002D	[  1] literal string: It's the crusty exoskeleton of an arthropod!
+0x00005CF9	0x00000027	[  1] literal string: It's Emporer Shaddam the 4th's planet!
+0x00005D20	0x0000004B	[  1] literal string: It's the triangle leg adjacent to an angle divided by the leg opposite it.
+0x00005D6B	0x00000026	[  1] literal string: It's a bottle of nail polish remover.
+0x00005D91	0x00000024	[  1] literal string: You found netkit! Way to go, robot!
+0x00005DB5	0x00000033	[  1] literal string: It's the ASCII Floating Head of Seth David Schoen!
+0x00005DE8	0x00000027	[  1] literal string: A frosted pink party-cake, half eaten.
+0x00005E0F	0x00000020	[  1] literal string: A bitchin' homemade tesla coil.
+0x00005E2F	0x0000001D	[  1] literal string: Conan O'Brian, sans jawbone.
+0x00005E4C	0x00000040	[  1] literal string: It's either a mirror, or another soulless kitten-seeking robot.
+0x00005E8C	0x0000004B	[  1] literal string: Preoccupation with finding kitten prevents you from investigating further.
+0x00005ED7	0x0000004F	[  1] literal string: Fonzie sits here, mumbling incoherently about a shark and a pair of waterskis.
+0x00005F26	0x00000049	[  1] literal string: The ghost of your dance instructor, his face a paper-white mask of evil.
+0x00005F6F	0x00000043	[  1] literal string: A bag of groceries taken off the shelf before the expiration date.
+0x00005FB2	0x00000051	[  1] literal string: A book: Feng Shui, Zen: the art of randomly arranging items that are not kitten.
+0x00006003	0x0000003C	[  1] literal string: This might be the fountain of youth, but you'll never know.
+0x0000603F	0x0000000F	[  1] literal string: Tigerbot Hesh.
+0x0000604E	0x0000000B	[  1] literal string: Stimutacs.
+0x00006059	0x0000003D	[  1] literal string: A canister of pressurized whipped cream, sans whipped cream.
+0x00006096	0x0000001B	[  1] literal string: The non-kitten item bites!
+0x000060B1	0x00000040	[  1] literal string: A chain hanging from two posts reminds you of the Gateway Arch.
+0x000060F1	0x00000048	[  1] literal string: A mathematician calculates the halting probability of a Turing machine.
+0x00006139	0x00000045	[  1] literal string: A number of short theatrical productions are indexed 1, 2, 3, ... n.
+0x0000617E	0x00000025	[  1] literal string: A technical university in Australia.
+0x000061A3	0x0000003D	[  1] literal string: It is -- I just feel something wonderful is about to happen.
+0x000061E0	0x00000014	[  1] literal string: It's a Cat 5 cable.
+0x000061F4	0x00000017	[  1] literal string: It's a U.S. president.
+0x0000620B	0x00000045	[  1] literal string: It's a piece of cloth used to cover a stage in between performances.
+0x00006250	0x0000002B	[  1] literal string: The ionosphere seems charged with meaning.
+0x0000627B	0x0000002B	[  1] literal string: This tomography is like, hella axial, man!
+0x000062A6	0x0000002C	[  1] literal string: It's your favorite game -- robotfindscatan!
+0x000062D2	0x00000021	[  1] literal string: Just a man selling an albatross.
+0x000062F3	0x0000002C	[  1] literal string: The intermission from a 1930s silent movie.
+0x0000631F	0x00000020	[  1] literal string: It's an inverted billiard ball!
+0x0000633F	0x00000032	[  1] literal string: The spectre of Sherlock Holmes wills you onwards.
+0x00006374	0x00000018	[  1] _colors
+0x0000638C	0x000000D8	[  3] _pla_main_ctx
+0x00006468	0x00000018	[  1] CFI
+0x00006480	0x00000040	[  1] FDE for: _drawchar
+0x000064C0	0x00000020	[  1] FDE for: _message
+0x000064E0	0x00000020	[  1] FDE for: _refresh
+0x00006500	0x00000040	[  1] FDE for: _rfkpause
+0x00006540	0x00000048	[  1] FDE for: _draw.isra.0
+0x00006588	0x00000070	[  1] FDE for: _plugin_start
+0x000065F8	0x00000018	[  2] CFI
+0x00006610	0x00000020	[  2] FDE for: _cleanup_wrapper
+0x00006630	0x00000040	[  2] FDE for: _plugin__start
+0x00006670	0x00000020	[  2] FDE for: _rb_atexit
+0x00006690	0x00000030	[  2] FDE for: _exit
+0x000066C0	0x00000030	[  2] FDE for: __exit
+0x000066F0	0x00000038	[  2] FDE for: _exit_on_usb
+0x00006728	0x00000018	[  3] CFI
+0x00006740	0x00000020	[  3] FDE for: _get_context_map
+0x00006760	0x00000020	[  3] FDE for: _pluginlib_getaction
+0x00006780	0x00000018	[  4] CFI
+0x00006798	0x00000050	[  4] FDE for: _wait_key_press
+0x000067E8	0x00000070	[  4] FDE for: _display_text
+0x00008000	0x00000008	[  6] _longjmp.got
+0x00008008	0x00000008	[  6] _setjmp.got
+0x00008010	0x00000D08	[  1] _messages
+0x00008D18	0x00000038	[  2] ___header
+0x0000C000	0x000001A0	[  1] _help_text.0
+0x0000C1A0	0x00000008	[  2] _rb
+0x0000C1A8	0x000018D8	[  1] _screen
+0x0000DA80	0x00000001	[  1] _exit_rfk
+0x0000DA81	0x000001A1	[  1] _used_messages
+0x0000DC22	0x0000002A	[  1] _bogus_messages
+0x0000DC4C	0x000000F0	[  1] _bogus
+0x0000DD3C	0x0000000C	[  1] _kitten
+0x0000DD48	0x0000000C	[  1] _robot
+0x0000DD58	0x00000008	[  2] _atexit_handler
+0x0000DD60	0x000000C0	[  2] ___exit_env
+0x0000DE20	0x00000004	[  3] _last_context
+0x0000DE24	0x00000004	[  3] _plugin_context_count
+0x0000DE28	0x00000008	[  3] _plugin_context_order

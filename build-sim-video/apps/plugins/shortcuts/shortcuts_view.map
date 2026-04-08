@@ -1,0 +1,142 @@
+# Path: /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/shortcuts/shortcuts_view.elf
+# Arch: arm64
+# Object files:
+[  0] linker synthesized
+[  1] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/shortcuts/shortcuts_common.o
+[  2] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/shortcuts/shortcuts_view.o
+[  3] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/plugin_crt0.o
+[  4] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/libSystem.tbd
+[  5] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/system/libsystem_platform.tbd
+# Sections:
+# Address	Size    	Segment	Section
+0x000006F0	0x000013CC	__TEXT	__text
+0x00001ABC	0x00000018	__TEXT	__stubs
+0x00001AD4	0x0000039A	__TEXT	__cstring
+0x00001E70	0x000009A8	__TEXT	__eh_frame
+0x00004000	0x00000010	__DATA_CONST	__got
+0x00004010	0x00000038	__DATA_CONST	__const
+0x00008000	0x00000008	__DATA	.data
+0x00008008	0x00000028	__DATA	__common
+0x00008030	0x000000E0	__DATA	__bss
+# Symbols:
+# Address	Size    	File  Name
+0x000006F0	0x00000068	[  1] _allocate_memory
+0x00000758	0x0000005C	[  1] _init_sc_file
+0x000007B4	0x000000D0	[  1] _print_file
+0x00000884	0x00000064	[  1] _append_entry
+0x000008E8	0x0000007C	[  1] _remove_entry
+0x00000964	0x0000001C	[  1] _is_valid_index
+0x00000980	0x00000084	[  1] _starts_with
+0x00000A04	0x000000A8	[  1] _last_segments
+0x00000AAC	0x0000011C	[  1] _parse_entry_content
+0x00000BC8	0x000000DC	[  1] _parse_name_value
+0x00000CA4	0x000000D8	[  1] _is_control.part.0
+0x00000D7C	0x00000044	[  1] _is_control
+0x00000DC0	0x000001CC	[  1] _load_sc_file
+0x00000F8C	0x00000050	[  1] _write_int_instruction_to_file
+0x00000FDC	0x00000098	[  1] _write_entry_to_file
+0x00001074	0x00000108	[  1] _dump_sc_file
+0x0000117C	0x0000008C	[  2] _build_sc_list
+0x00001208	0x00000074	[  2] _callback_show_item
+0x0000127C	0x000000CC	[  2] _draw_sc_list
+0x00001348	0x000000A8	[  2] _open_browse
+0x000013F0	0x00000088	[  2] _ends_with
+0x00001478	0x000001B4	[  2] _goto_entry
+0x0000162C	0x000001B4	[  2] _list_sc
+0x000017E0	0x000001A0	[  2] _plugin_start
+0x00001980	0x00000018	[  3] _cleanup_wrapper
+0x00001998	0x00000068	[  3] _plugin__start
+0x00001A00	0x00000020	[  3] _rb_atexit
+0x00001A20	0x00000024	[  3] _exit
+0x00001A44	0x00000014	[  3] __exit
+0x00001A58	0x00000064	[  3] _exit_on_usb
+0x00001ABC	0x0000000C	[  5] _longjmp.stub
+0x00001AC8	0x0000000C	[  5] _setjmp.stub
+0x00001AD4	0x00000019	[  1] literal string: Got %lu bytes of memory\n
+0x00001AED	0x0000001D	[  1] literal string: Buffer capacity: %d entries\n
+0x00001B0A	0x00000018	[  1] literal string: Number of entries : %d\n
+0x00001B22	0x00000018	[  1] literal string: Show Last Segments: %d\n
+0x00001B3A	0x00000019	[  1] literal string: %2d. '%s', show as '%s'\n
+0x00001B53	0x00000010	[  1] literal string: %2d. '%s' (%s)\n
+0x00001B63	0x00000002	[  1] literal string: /
+0x00001B65	0x00000002	[  1] literal string: \t
+0x00001B67	0x00000023	[  1] literal string: Bad entry: pathlen=%d, displen=%d\n
+0x00001B8A	0x00000002	[  1] literal string: =
+0x00001B8C	0x00000022	[  1] literal string: Bad processing instruction: '%s'\n
+0x00001BAE	0x0000001B	[  1] literal string: Display last path segments
+0x00001BC9	0x0000001B	[  1] literal string: Set show last segms to %d\n
+0x00001BE4	0x00000026	[  1] literal string: Unknown processing instruction: '%s'\n
+0x00001C0A	0x00000002	[  1] literal string: #
+0x00001C0C	0x00000024	[  1] literal string: Trying to create link file '%s'...\n
+0x00001C30	0x00000026	[  1] literal string: Couldn't create the shortcuts file %s
+0x00001C56	0x00000011	[  1] literal string: Couldn't open %s
+0x00001C67	0x0000002E	[  1] literal string: Too many entries in the file, max allowed: %d
+0x00001C95	0x00000021	[  1] literal string: Could not parse '%s' -> ignored\n
+0x00001CB6	0x00000020	[  1] literal string: Parsed entry: path=%s, disp=%s\n
+0x00001CD6	0x0000000A	[  1] literal string: %s%s%s%d\n
+0x00001CE0	0x00000003	[  1] literal string: %s
+0x00001CE3	0x00000005	[  1] literal string: %s%s
+0x00001CE8	0x00000002	[  1] literal string: \n
+0x00001CEA	0x00000024	[  1] literal string: Dumping shortcuts to the file '%s'\n
+0x00001D0E	0x0000002D	[  1] literal string: Could not open shortcuts file %s for writing
+0x00001D3B	0x00000024	[  1] literal string: Dumped %d entries to the file '%s'\n
+0x00001D5F	0x0000000A	[  2] literal string: Directory
+0x00001D69	0x00000005	[  2] literal string: File
+0x00001D6E	0x00000019	[  2] literal string: Trying to go to '%s'...\n
+0x00001D87	0x0000001F	[  2] literal string: %s %s no longer exists on disk
+0x00001DA6	0x00000006	[  2] literal string: .rock
+0x00001DAC	0x00000018	[  2] literal string: Trying to load '%s'...\n
+0x00001DC4	0x00000013	[  2] literal string: Shortcuts (sealed)
+0x00001DD7	0x00000015	[  2] literal string: Shortcuts (editable)
+0x00001DEC	0x00000014	[  2] literal string: Bad entry selected!
+0x00001E00	0x0000000C	[  2] literal string: Deleting %s
+0x00001E0C	0x00000018	[  2] literal string: No parameter specified!
+0x00001E24	0x00000010	[  2] literal string: /shortcuts.link
+0x00001E34	0x00000013	[  2] literal string: Could not load %s\n
+0x00001E47	0x0000001A	[  2] literal string: No shortcuts in the file!
+0x00001E61	0x0000000D	[  2] literal string: list_sc(%d)\n
+0x00001E70	0x00000018	[  1] CFI
+0x00001E88	0x00000050	[  1] FDE for: _allocate_memory
+0x00001ED8	0x00000048	[  1] FDE for: _init_sc_file
+0x00001F20	0x00000068	[  1] FDE for: _print_file
+0x00001F88	0x00000048	[  1] FDE for: _append_entry
+0x00001FD0	0x00000050	[  1] FDE for: _remove_entry
+0x00002020	0x00000020	[  1] FDE for: _is_valid_index
+0x00002040	0x00000050	[  1] FDE for: _starts_with
+0x00002090	0x00000060	[  1] FDE for: _last_segments
+0x000020F0	0x00000068	[  1] FDE for: _parse_entry_content
+0x00002158	0x00000068	[  1] FDE for: _parse_name_value
+0x000021C0	0x00000068	[  1] FDE for: _is_control.part.0
+0x00002228	0x00000058	[  1] FDE for: _is_control
+0x00002280	0x00000078	[  1] FDE for: _load_sc_file
+0x000022F8	0x00000040	[  1] FDE for: _write_int_instruction_to_file
+0x00002338	0x00000050	[  1] FDE for: _write_entry_to_file
+0x00002388	0x00000068	[  1] FDE for: _dump_sc_file
+0x000023F0	0x00000018	[  2] CFI
+0x00002408	0x00000058	[  2] FDE for: _build_sc_list
+0x00002460	0x00000050	[  2] FDE for: _callback_show_item
+0x000024B0	0x00000050	[  2] FDE for: _draw_sc_list
+0x00002500	0x00000048	[  2] FDE for: _open_browse
+0x00002548	0x00000058	[  2] FDE for: _ends_with
+0x000025A0	0x00000070	[  2] FDE for: _goto_entry
+0x00002610	0x00000068	[  2] FDE for: _list_sc
+0x00002678	0x00000070	[  2] FDE for: _plugin_start
+0x000026E8	0x00000018	[  3] CFI
+0x00002700	0x00000020	[  3] FDE for: _cleanup_wrapper
+0x00002720	0x00000040	[  3] FDE for: _plugin__start
+0x00002760	0x00000020	[  3] FDE for: _rb_atexit
+0x00002780	0x00000030	[  3] FDE for: _exit
+0x000027B0	0x00000030	[  3] FDE for: __exit
+0x000027E0	0x00000038	[  3] FDE for: _exit_on_usb
+0x00004000	0x00000008	[  5] _longjmp.got
+0x00004008	0x00000008	[  5] _setjmp.got
+0x00004010	0x00000038	[  3] ___header
+0x00008000	0x00000008	[  3] _rb
+0x00008008	0x00000018	[  1] _sc_file
+0x00008020	0x00000008	[  1] _memory_bufsize
+0x00008028	0x00000008	[  1] _memory_buf
+0x00008030	0x00000008	[  2] _user_file
+0x00008038	0x00000008	[  2] _link_filename
+0x00008040	0x00000008	[  2] _root_len
+0x00008048	0x00000008	[  3] _atexit_handler
+0x00008050	0x000000C0	[  3] ___exit_env

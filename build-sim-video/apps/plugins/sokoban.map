@@ -1,0 +1,168 @@
+# Path: /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/sokoban.elf
+# Arch: arm64
+# Object files:
+[  0] linker synthesized
+[  1] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/sokoban.o
+[  2] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/plugin_crt0.o
+[  3] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(playback_control.o)
+[  4] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/bitmaps/libpluginbitmaps.a(sokoban_tiles.14x14x16.o)
+[  5] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/libSystem.tbd
+[  6] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/system/libsystem_platform.tbd
+# Sections:
+# Address	Size    	Segment	Section
+0x00000778	0x0000233C	__TEXT	__text
+0x00002AB4	0x00000018	__TEXT	__stubs
+0x00002ACC	0x0000023E	__TEXT	__cstring
+0x00002D10	0x00000B98	__TEXT	__const
+0x000038A8	0x000007A8	__TEXT	__eh_frame
+0x00008000	0x00000010	__DATA_CONST	__got
+0x00008010	0x00000188	__DATA_CONST	__const
+0x0000C000	0x00000070	__DATA	__data
+0x0000C070	0x00000008	__DATA	.data
+0x0000C078	0x00032200	__DATA	__bss
+0x0003E278	0x00000008	__DATA	__common
+# Symbols:
+# Address	Size    	File  Name
+0x00000778	0x00000014	[  1] _init_undo
+0x0000078C	0x0000003C	[  1] _add_undo
+0x000007C8	0x00000060	[  1] _init_boards
+0x00000828	0x000002F0	[  1] _read_levels
+0x00000B18	0x0000034C	[  1] _load_level
+0x00000E64	0x000002AC	[  1] _update_screen
+0x00001110	0x00000028	[  1] _draw_level
+0x00001138	0x00000270	[  1] _move
+0x000013A8	0x00000038	[  1] _redo
+0x000013E0	0x000001EC	[  1] _save.isra.0
+0x000015CC	0x00000268	[  1] _sokoban_menu
+0x00001834	0x000001F8	[  1] _undo
+0x00001A2C	0x0000050C	[  1] _load
+0x00001F38	0x000007BC	[  1] _plugin_start
+0x000026F4	0x00000018	[  2] _cleanup_wrapper
+0x0000270C	0x00000068	[  2] _plugin__start
+0x00002774	0x00000020	[  2] _rb_atexit
+0x00002794	0x00000024	[  2] _exit
+0x000027B8	0x00000014	[  2] __exit
+0x000027CC	0x00000064	[  2] _exit_on_usb
+0x00002830	0x00000028	[  3] _prevtrack
+0x00002858	0x00000088	[  3] _play
+0x000028E0	0x00000028	[  3] _stop
+0x00002908	0x00000028	[  3] _nexttrack
+0x00002930	0x00000050	[  3] _volume
+0x00002980	0x00000054	[  3] _shuffle
+0x000029D4	0x0000008C	[  3] _repeat_mode
+0x00002A60	0x0000000C	[  3] _playback_control_init
+0x00002A6C	0x00000048	[  3] _playback_control
+0x00002AB4	0x0000000C	[  6] _longjmp.stub
+0x00002AC0	0x0000000C	[  6] _setjmp.stub
+0x00002ACC	0x00000025	[  1] literal string: /.rockbox/rocks/games/sokoban.levels
+0x00002AF1	0x00000012	[  1] literal string: Unable to open %s
+0x00002B03	0x00000006	[  1] literal string: Level
+0x00002B09	0x00000003	[  1] literal string: %d
+0x00002B0C	0x00000006	[  1] literal string: Moves
+0x00002B12	0x00000007	[  1] literal string: Pushes
+0x00002B19	0x0000000A	[  1] literal string: Saving...
+0x00002B23	0x00000012	[  1] literal string: Sokoban:%c:%d:%d\n
+0x00002B35	0x00000002	[  1] literal string: \n
+0x00002B37	0x00000013	[  1] literal string: [SELECT+MENU] Menu
+0x00002B4A	0x0000000E	[  1] literal string: [SELECT] Undo
+0x00002B58	0x00000013	[  1] literal string: [SELECT+PLAY] Redo
+0x00002B6B	0x0000001D	[  1] literal string: [SELECT+LEFT] Previous Level
+0x00002B88	0x0000001A	[  1] literal string: [SELECT+RIGHT] Next Level
+0x00002BA2	0x00000001	[  1] literal string: 
+0x00002BA3	0x0000000D	[  1] literal string: Select Level
+0x00002BB0	0x00000023	[  1] literal string: /.rockbox/rocks/games/sokoban.save
+0x00002BD3	0x00000008	[  1] literal string: Sokoban
+0x00002BDB	0x00000021	[  1] literal string: File is not a Sokoban level file
+0x00002BFC	0x00000014	[  1] literal string: Error loading level
+0x00002C10	0x00000013	[  1] literal string: Level %d Complete!
+0x00002C23	0x0000000B	[  1] literal string: %4d Moves 
+0x00002C2E	0x0000000B	[  1] literal string: %4d Pushes
+0x00002C39	0x00000012	[  1] literal string: %s: Save solution
+0x00002C4B	0x00000007	[  1] literal string: SELECT
+0x00002C52	0x00000012	[  1] literal string: %s/sokoban.%d.sok
+0x00002C64	0x00000007	[  1] literal string: /games
+0x00002C6B	0x0000000A	[  1] literal string: %s.%d.sok
+0x00002C75	0x0000001A	[  1] literal string: Solution too long to save
+0x00002C8F	0x0000000A	[  1] literal string: You WIN!!
+0x00002C99	0x00000007	[  1] literal string: Resume
+0x00002CA0	0x0000000F	[  1] literal string: Audio Playback
+0x00002CAF	0x00000005	[  1] literal string: Keys
+0x00002CB4	0x00000017	[  1] literal string: Load Default Level Set
+0x00002CCB	0x00000014	[  1] literal string: Quit Without Saving
+0x00002CDF	0x00000015	[  1] literal string: Save Progress & Quit
+0x00002CF4	0x00000007	[  3] literal string: Volume
+0x00002CFB	0x00000008	[  3] literal string: Shuffle
+0x00002D03	0x00000007	[  3] literal string: Repeat
+0x00002D10	0x00000020	[  1] lC0
+0x00002D30	0x00000018	[  3] _playback_control_menu__
+0x00002D48	0x00000018	[  3] _repeat_mode_item_
+0x00002D60	0x00000018	[  3] _shuffle_item_
+0x00002D78	0x00000018	[  3] _volume_item_
+0x00002D90	0x00000018	[  3] _nexttrack_item_
+0x00002DA8	0x00000018	[  3] _stop_item_
+0x00002DC0	0x00000018	[  3] _playpause_item_
+0x00002DD8	0x00000018	[  3] _prevtrack_item_
+0x00002DF0	0x00000AB8	[  4] _sokoban_tiles
+0x000038A8	0x00000018	[  1] CFI
+0x000038C0	0x00000020	[  1] FDE for: _init_undo
+0x000038E0	0x00000020	[  1] FDE for: _add_undo
+0x00003900	0x00000040	[  1] FDE for: _init_boards
+0x00003940	0x00000070	[  1] FDE for: _read_levels
+0x000039B0	0x00000060	[  1] FDE for: _load_level
+0x00003A10	0x00000070	[  1] FDE for: _update_screen
+0x00003A80	0x00000038	[  1] FDE for: _draw_level
+0x00003AB8	0x00000050	[  1] FDE for: _move
+0x00003B08	0x00000020	[  1] FDE for: _redo
+0x00003B28	0x00000068	[  1] FDE for: _save.isra.0
+0x00003B90	0x00000060	[  1] FDE for: _sokoban_menu
+0x00003BF0	0x00000020	[  1] FDE for: _undo
+0x00003C10	0x00000078	[  1] FDE for: _load
+0x00003C88	0x00000078	[  1] FDE for: _plugin_start
+0x00003D00	0x00000018	[  2] CFI
+0x00003D18	0x00000020	[  2] FDE for: _cleanup_wrapper
+0x00003D38	0x00000040	[  2] FDE for: _plugin__start
+0x00003D78	0x00000020	[  2] FDE for: _rb_atexit
+0x00003D98	0x00000030	[  2] FDE for: _exit
+0x00003DC8	0x00000030	[  2] FDE for: __exit
+0x00003DF8	0x00000038	[  2] FDE for: _exit_on_usb
+0x00003E30	0x00000018	[  3] CFI
+0x00003E48	0x00000038	[  3] FDE for: _prevtrack
+0x00003E80	0x00000048	[  3] FDE for: _play
+0x00003EC8	0x00000038	[  3] FDE for: _stop
+0x00003F00	0x00000038	[  3] FDE for: _nexttrack
+0x00003F38	0x00000040	[  3] FDE for: _volume
+0x00003F78	0x00000040	[  3] FDE for: _shuffle
+0x00003FB8	0x00000040	[  3] FDE for: _repeat_mode
+0x00003FF8	0x00000020	[  3] FDE for: _playback_control_init
+0x00004018	0x00000038	[  3] FDE for: _playback_control
+0x00008000	0x00000008	[  6] _longjmp.got
+0x00008008	0x00000008	[  6] _setjmp.got
+0x00008010	0x00000018	[  1] _menu__.1
+0x00008028	0x00000018	[  1] _menu.2
+0x00008040	0x00000038	[  2] ___header
+0x00008078	0x00000018	[  3] _playback_control_menu
+0x00008090	0x00000018	[  3] _repeat_mode_item
+0x000080A8	0x00000008	[  3] _repeat_mode_item__
+0x000080B0	0x00000018	[  3] _shuffle_item
+0x000080C8	0x00000008	[  3] _shuffle_item__
+0x000080D0	0x00000018	[  3] _volume_item
+0x000080E8	0x00000008	[  3] _volume_item__
+0x000080F0	0x00000018	[  3] _nexttrack_item
+0x00008108	0x00000008	[  3] _nexttrack_item__
+0x00008110	0x00000018	[  3] _stop_item
+0x00008128	0x00000008	[  3] _stop_item__
+0x00008130	0x00000018	[  3] _playpause_item
+0x00008148	0x00000008	[  3] _playpause_item__
+0x00008150	0x00000018	[  3] _prevtrack_item
+0x00008168	0x00000008	[  3] _prevtrack_item__
+0x00008170	0x00000028	[  4] _bm_sokoban_tiles
+0x0000C000	0x00000038	[  1] _menu_.0
+0x0000C038	0x00000038	[  3] _playback_control_menu_
+0x0000C070	0x00000008	[  2] _rb
+0x0000C078	0x00000168	[  1] _buf
+0x0000C1E0	0x00021E54	[  1] _buffered_boards
+0x0002E034	0x00000170	[  1] _current_info
+0x0002E1A4	0x0001000C	[  1] _undo_info
+0x0003E1B0	0x00000008	[  2] _atexit_handler
+0x0003E1B8	0x000000C0	[  2] ___exit_env
+0x0003E278	0x00000008	[  3] _parentvp

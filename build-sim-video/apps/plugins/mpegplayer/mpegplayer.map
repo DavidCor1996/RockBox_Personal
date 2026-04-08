@@ -1,0 +1,1199 @@
+# Path: /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/mpegplayer/mpegplayer.elf
+# Arch: arm64
+# Object files:
+[  0] linker synthesized
+[  1] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/mpegplayer/libmpeg2/decode.o
+[  2] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/mpegplayer/libmpeg2/header.o
+[  3] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/mpegplayer/libmpeg2/idct.o
+[  4] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/mpegplayer/libmpeg2/motion_comp.o
+[  5] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/mpegplayer/libmpeg2/slice.o
+[  6] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/mpegplayer/libmpeg2/motion_comp_c.o
+[  7] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/mpegplayer/alloc.o
+[  8] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/mpegplayer/video_out_rockbox.o
+[  9] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/mpegplayer/video_thread.o
+[ 10] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/mpegplayer/pcm_output.o
+[ 11] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/mpegplayer/audio_thread.o
+[ 12] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/mpegplayer/disk_buf.o
+[ 13] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/mpegplayer/mpeg_settings.o
+[ 14] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/mpegplayer/stream_mgr.o
+[ 15] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/mpegplayer/mpegplayer.o
+[ 16] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/mpegplayer/mpeg_parser.o
+[ 17] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/mpegplayer/mpeg_misc.o
+[ 18] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/plugin_crt0.o
+[ 19] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libmad-mpeg.a(bit.o)
+[ 20] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libmad-mpeg.a(frame.o)
+[ 21] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libmad-mpeg.a(huffman.o)
+[ 22] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libmad-mpeg.a(layer12.o)
+[ 23] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libmad-mpeg.a(layer3.o)
+[ 24] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libmad-mpeg.a(stream.o)
+[ 25] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libmad-mpeg.a(synth.o)
+[ 26] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(gcc-support.o)
+[ 27] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(helper.o)
+[ 28] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(configfile.o)
+[ 29] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/bitmaps/libpluginbitmaps.a(mpegplayer_status_icons_8x8x1.o)
+[ 30] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/bitmaps/libpluginbitmaps.a(mpegplayer_status_icons_12x12x1.o)
+[ 31] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/bitmaps/libpluginbitmaps.a(mpegplayer_status_icons_16x16x1.o)
+[ 32] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/libSystem.tbd
+[ 33] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/system/libsystem_platform.tbd
+# Sections:
+# Address	Size    	Segment	Section
+0x00000788	0x0001AF38	__TEXT	__text
+0x0001B6C0	0x00000018	__TEXT	__stubs
+0x0001B6D8	0x0000103C	__TEXT	__cstring
+0x0001C718	0x0000B548	__TEXT	__const
+0x00027C60	0x00005720	__TEXT	__eh_frame
+0x00030000	0x00000010	__DATA_CONST	__got
+0x00030010	0x000005D0	__DATA_CONST	__const
+0x00034000	0x00000291	__DATA	__data
+0x00034298	0x00000008	__DATA	.data
+0x000342A0	0x0003F0B8	__DATA	__bss
+0x00073358	0x00002AD8	__DATA	__common
+# Symbols:
+# Address	Size    	File  Name
+0x00000788	0x00000070	[  1] _copy_chunk
+0x000007F8	0x00000094	[  1] _seek_chunk
+0x0000088C	0x000001C8	[  1] _mpeg2_parse_header
+0x00000A54	0x000000C8	[  1] _mpeg2_seek_header
+0x00000B1C	0x0000000C	[  1] _mpeg2_info
+0x00000B28	0x0000000C	[  1] _mpeg2_buffer
+0x00000B34	0x00000010	[  1] _mpeg2_getpos
+0x00000B44	0x00000164	[  1] _mpeg2_parse
+0x00000CA8	0x00000068	[  1] _mpeg2_convert
+0x00000D10	0x00000068	[  1] _mpeg2_stride
+0x00000D78	0x000000A0	[  1] _mpeg2_set_buf
+0x00000E18	0x0000000C	[  1] _mpeg2_custom_fbuf
+0x00000E24	0x00000020	[  1] _mpeg2_skip
+0x00000E44	0x00000040	[  1] _mpeg2_slice_region
+0x00000E84	0x00000030	[  1] _mpeg2_tag_picture
+0x00000EB4	0x00000090	[  1] _mpeg2_reset
+0x00000F44	0x000000AC	[  1] _mpeg2_init
+0x00000FF0	0x00000004	[  1] _mpeg2_close
+0x00000FF4	0x00000020	[  2] _info_user_data
+0x00001014	0x00000158	[  2] _sequence_ext
+0x0000116C	0x000000B0	[  2] _sequence_display_ext
+0x0000121C	0x0000008C	[  2] _copy_matrix
+0x000012A8	0x000000F8	[  2] _finalize_matrix
+0x000013A0	0x00000198	[  2] _picture_coding_ext
+0x00001538	0x00000104	[  2] _picture_display_ext
+0x0000163C	0x00000008	[  2] _copyright_ext
+0x00001644	0x000000A0	[  2] _quant_matrix_ext
+0x000016E4	0x00000088	[  2] _prescale
+0x0000176C	0x00000094	[  2] _mpeg2_header_state_init
+0x00001800	0x00000014	[  2] _mpeg2_reset_info
+0x00001814	0x00000078	[  2] _invalid_end_action
+0x0000188C	0x00000048	[  2] _seek_sequence
+0x000018D4	0x00000208	[  2] _mpeg2_header_sequence
+0x00001ADC	0x000001AC	[  2] _mpeg2_guess_aspect
+0x00001C88	0x00000094	[  2] _mpeg2_header_gop
+0x00001D1C	0x00000038	[  2] _mpeg2_header_gop_finalize
+0x00001D54	0x00000084	[  2] _mpeg2_set_fbuf
+0x00001DD8	0x0000016C	[  2] _mpeg2_header_picture
+0x00001F44	0x00000384	[  2] _mpeg2_header_picture_finalize
+0x000022C8	0x00000048	[  2] _mpeg2_header_extension
+0x00002310	0x0000002C	[  2] _mpeg2_header_user_data
+0x0000233C	0x00000188	[  2] _mpeg2_header_slice_start
+0x000024C4	0x000000B8	[  2] _mpeg2_header_end
+0x0000257C	0x000002F0	[  2] _mpeg2_header_sequence_finalize
+0x0000286C	0x00000120	[  3] _idct_col
+0x0000298C	0x0000014C	[  3] _idct_row
+0x00002AD8	0x0000016C	[  3] _mpeg2_idct_copy
+0x00002C44	0x00000248	[  3] _mpeg2_idct_add
+0x00002E8C	0x00000064	[  3] _mpeg2_idct_init
+0x00002EF0	0x00000030	[  5] _get_dmv
+0x00002F20	0x000000C0	[  5] _motion_zero_420
+0x00002FE0	0x000000AC	[  5] _motion_zero_422
+0x0000308C	0x000000A0	[  5] _motion_zero_444
+0x0000312C	0x00000108	[  5] _get_motion_delta
+0x00003234	0x000002A4	[  5] _motion_fi_dmv_444
+0x000034D8	0x00000384	[  5] _motion_fi_16x8_444
+0x0000385C	0x000001D4	[  5] _motion_fi_field_444
+0x00003A30	0x00000308	[  5] _motion_fi_dmv_422
+0x00003D38	0x000003FC	[  5] _motion_fi_16x8_422
+0x00004134	0x00000208	[  5] _motion_fi_field_422
+0x0000433C	0x00000348	[  5] _motion_fi_dmv_420
+0x00004684	0x00000440	[  5] _motion_fi_16x8_420
+0x00004AC4	0x00000228	[  5] _motion_fi_field_420
+0x00004CEC	0x000000F4	[  5] _motion_reuse_444
+0x00004DE0	0x00000454	[  5] _motion_fr_dmv_444
+0x00005234	0x000001B8	[  5] _motion_fr_frame_444
+0x000053EC	0x0000035C	[  5] _motion_fr_field_444
+0x00005748	0x00000128	[  5] _motion_reuse_422
+0x00005870	0x00000518	[  5] _motion_fr_dmv_422
+0x00005D88	0x000001EC	[  5] _motion_fr_frame_422
+0x00005F74	0x000003CC	[  5] _motion_fr_field_422
+0x00006340	0x00000570	[  5] _motion_fr_dmv_420
+0x000068B0	0x0000020C	[  5] _motion_fr_frame_420
+0x00006ABC	0x00000424	[  5] _motion_fr_field_420
+0x00006EE0	0x00000148	[  5] _motion_reuse_420
+0x00007028	0x00000210	[  5] _motion_mp1
+0x00007238	0x00000A10	[  5] _slice_intra_DCT
+0x00007C48	0x000005CC	[  5] _slice_non_intra_DCT
+0x00008214	0x000002E0	[  5] _mpeg2_init_fbuf
+0x000084F4	0x00000F90	[  5] _mpeg2_slice
+0x00009484	0x00000094	[  6] _MC_put_o_16
+0x00009518	0x00000054	[  6] _MC_put_o_8
+0x0000956C	0x00000194	[  6] _MC_avg_o_16
+0x00009700	0x000000D4	[  6] _MC_avg_o_8
+0x000097D4	0x00000194	[  6] _MC_put_x_16
+0x00009968	0x000000D4	[  6] _MC_put_x_8
+0x00009A3C	0x00000254	[  6] _MC_avg_x_16
+0x00009C90	0x00000134	[  6] _MC_avg_x_8
+0x00009DC4	0x0000019C	[  6] _MC_put_y_16
+0x00009F60	0x000000DC	[  6] _MC_put_y_8
+0x0000A03C	0x0000025C	[  6] _MC_avg_y_16
+0x0000A298	0x0000013C	[  6] _MC_avg_y_8
+0x0000A3D4	0x0000029C	[  6] _MC_put_xy_16
+0x0000A670	0x0000015C	[  6] _MC_put_xy_8
+0x0000A7CC	0x0000035C	[  6] _MC_avg_xy_16
+0x0000AB28	0x000001BC	[  6] _MC_avg_xy_8
+0x0000ACE4	0x000000D0	[  7] _mpeg_get_reason_str
+0x0000ADB4	0x000000B4	[  7] _mpeg_malloc_internal
+0x0000AE68	0x00000024	[  7] _mpeg_malloc
+0x0000AE8C	0x00000034	[  7] _mpeg_malloc_all
+0x0000AEC0	0x00000080	[  7] _mpeg_alloc_init
+0x0000AF40	0x00000068	[  7] _mpeg2_malloc
+0x0000AFA8	0x00000034	[  7] _mpeg2_bufalloc
+0x0000AFDC	0x0000003C	[  7] _mpeg2_get_buf
+0x0000B018	0x00000048	[  7] _mpeg2_mem_reset
+0x0000B060	0x00000068	[  7] _codec_malloc
+0x0000B0C8	0x00000068	[  7] _codec_calloc
+0x0000B130	0x00000038	[  7] _codec_free
+0x0000B168	0x000000B4	[  8] _vo_draw_black
+0x0000B21C	0x00000030	[  8] _vo_rect_empty_inl
+0x0000B24C	0x00000074	[  8] _vo_rects_intersect_inl
+0x0000B2C0	0x000000A8	[  8] _vo_draw_frame
+0x0000B368	0x00000008	[  8] _vo_rect_clear
+0x0000B370	0x00000004	[  8] _vo_rect_empty
+0x0000B374	0x00000014	[  8] _vo_rect_set_ext
+0x0000B388	0x00000004	[  8] _vo_rects_intersect
+0x0000B38C	0x00000094	[  8] _vo_rect_intersect
+0x0000B420	0x000000C0	[  8] _vo_rect_union
+0x0000B4E0	0x00000024	[  8] _vo_rect_offset
+0x0000B504	0x000000A8	[  8] _stretch_image_plane
+0x0000B5AC	0x00000200	[  8] _vo_draw_frame_thumb
+0x0000B7AC	0x00000014	[  8] _vo_dimensions
+0x0000B7C0	0x00000024	[  8] _vo_init
+0x0000B7E4	0x00000028	[  8] _vo_show
+0x0000B80C	0x00000010	[  8] _vo_is_visible
+0x0000B81C	0x0000000C	[  8] _vo_cleanup
+0x0000B828	0x00000094	[  8] _vo_set_clip_rect
+0x0000B8BC	0x000000F0	[  8] _vo_setup
+0x0000B9AC	0x00000034	[  8] _vo_get_clip_rect
+0x0000B9E0	0x0000000C	[  8] _vo_set_post_draw_callback
+0x0000B9EC	0x00000024	[  9] _pic_coding_type_char
+0x0000BA10	0x000001F8	[  9] _video_str_scan
+0x0000BC08	0x00000058	[  9] _frame_print_handler
+0x0000BC60	0x00000024	[  9] _str_get_msg.constprop.0
+0x0000BC84	0x00000E00	[  9] _video_thread
+0x0000CA84	0x000000C4	[  9] _video_thread_init
+0x0000CB48	0x0000005C	[  9] _video_thread_exit
+0x0000CBA4	0x0000005C	[  9] _video_thread_get_stats
+0x0000CC00	0x0000005C	[ 10] _pcm_reset_buffer
+0x0000CC5C	0x0000002C	[ 10] _pcm_advance_buffer
+0x0000CC88	0x000001F8	[ 10] _get_more
+0x0000CE80	0x0000004C	[ 10] _pcm_output_get_buffer
+0x0000CECC	0x00000074	[ 10] _pcm_output_commit_data
+0x0000CF40	0x00000020	[ 10] _pcm_output_empty
+0x0000CF60	0x00000098	[ 10] _pcm_output_flush
+0x0000CFF8	0x00000054	[ 10] _pcm_output_set_clock
+0x0000D04C	0x00000074	[ 10] _pcm_output_get_clock
+0x0000D0C0	0x00000098	[ 10] _pcm_output_get_ticks
+0x0000D158	0x000000BC	[ 10] _pcm_output_play_pause
+0x0000D214	0x00000064	[ 10] _pcm_output_stop
+0x0000D278	0x00000040	[ 10] _pcm_output_drain
+0x0000D2B8	0x000000C0	[ 10] _pcm_output_init
+0x0000D378	0x00000058	[ 10] _pcm_output_exit
+0x0000D3D0	0x00000030	[ 11] _audiodesc_queue_full
+0x0000D400	0x00000064	[ 11] _audio_queue_reset
+0x0000D464	0x0000002C	[ 11] _audio_queue_advance_pos
+0x0000D490	0x00000060	[ 11] _init_mad
+0x0000D4F0	0x000001C0	[ 11] _audio_buffer
+0x0000D6B0	0x000008E4	[ 11] _audio_thread
+0x0000DF94	0x000000C4	[ 11] _audio_thread_init
+0x0000E058	0x00000060	[ 11] _audio_thread_exit
+0x0000E0B8	0x00000020	[ 12] _disk_buf_lock
+0x0000E0D8	0x00000020	[ 12] _disk_buf_unlock
+0x0000E0F8	0x00000128	[ 12] _disk_buf_probe
+0x0000E220	0x00000048	[ 12] _disk_buf_is_data_ready
+0x0000E268	0x00000080	[ 12] _check_data_notifies_callback
+0x0000E2E8	0x0000000C	[ 12] _dbuf_l2_init
+0x0000E2F4	0x000000AC	[ 12] __disk_buf_getbuffer
+0x0000E3A0	0x00000148	[ 12] __disk_buf_getbuffer_l2
+0x0000E4E8	0x000000E0	[ 12] _disk_buf_read
+0x0000E5C8	0x00000088	[ 12] _disk_buf_lseek
+0x0000E650	0x00000088	[ 12] _disk_buf_set_streaming_window
+0x0000E6D8	0x0000003C	[ 12] _disk_buf_offset2ptr
+0x0000E714	0x00000070	[ 12] _disk_buf_close
+0x0000E784	0x00000098	[ 12] _disk_buf_open
+0x0000E81C	0x00000028	[ 12] _disk_buf_send_msg
+0x0000E844	0x000000BC	[ 12] _disk_buf_prepare_streaming
+0x0000E900	0x00000028	[ 12] _disk_buf_post_msg
+0x0000E928	0x00000024	[ 12] _disk_buf_reply_msg
+0x0000E94C	0x00000794	[ 12] _disk_buf_thread
+0x0000F0E0	0x000001C4	[ 12] _disk_buf_init
+0x0000F2A4	0x0000005C	[ 12] _disk_buf_exit
+0x0000F300	0x0000001C	[ 13] _backlight_brightness_getlang
+0x0000F31C	0x0000019C	[ 13] _sync_audio_setting
+0x0000F4B8	0x00000048	[ 13] _sync_audio_settings
+0x0000F500	0x00000020	[ 13] _get_start_time_lcd_enable_hook
+0x0000F520	0x0000005C	[ 13] _backlight_brightness_formatter
+0x0000F57C	0x00000054	[ 13] _mpeg_set_option.constprop.0.isra.0
+0x0000F5D0	0x00000010	[ 13] _mpeg_backlight_update_brightness
+0x0000F5E0	0x000003D0	[ 13] _mpeg_settings
+0x0000F9B0	0x00000004	[ 13] _backlight_brightness_function
+0x0000F9B4	0x00000964	[ 13] _mpeg_start_menu
+0x00010318	0x0000006C	[ 13] _mpeg_menu
+0x00010384	0x000000CC	[ 13] _init_settings
+0x00010450	0x00000090	[ 13] _save_settings
+0x000104E0	0x00000020	[ 14] _stream_mgr_lock
+0x00010500	0x00000020	[ 14] _stream_mgr_unlock
+0x00010520	0x00000020	[ 14] _actl_lock
+0x00010540	0x00000020	[ 14] _actl_unlock
+0x00010560	0x00000028	[ 14] _stream_mgr_send_msg
+0x00010588	0x00000024	[ 14] _stream_mgr_reply_msg
+0x000105AC	0x0000002C	[ 14] _stream_get_window_callback
+0x000105D8	0x00000058	[ 14] _strl_enum_callback
+0x00010630	0x00000030	[ 14] _actl_stream_broadcast
+0x00010660	0x00000018	[ 14] _str_send_msg.isra.0
+0x00010678	0x00000098	[ 14] _send_video_msg
+0x00010710	0x00000088	[ 14] _actl_stream_broadcast_callback
+0x00010798	0x00000098	[ 14] _str_next_data_not_ready
+0x00010830	0x00000034	[ 14] _str_data_notify_received
+0x00010864	0x0000003C	[ 14] _stream_add_stream
+0x000108A0	0x0000002C	[ 14] _stream_remove_streams
+0x000108CC	0x00000030	[ 14] _move_strl_to_actl
+0x000108FC	0x00000078	[ 14] _stream_start_playback
+0x00010974	0x00000034	[ 14] _stream_generate_event
+0x000109A8	0x00000018	[ 14] _stream_clear_notify
+0x000109C0	0x00000038	[ 14] _stream_show_vo
+0x000109F8	0x00000034	[ 14] _stream_vo_is_visible
+0x00010A2C	0x0000005C	[ 14] _stream_vo_get_size
+0x00010A88	0x00000040	[ 14] _stream_vo_set_clip
+0x00010AC8	0x0000005C	[ 14] _stream_vo_get_clip
+0x00010B24	0x0000005C	[ 14] _stream_display_thumb
+0x00010B80	0x00000038	[ 14] _stream_draw_frame
+0x00010BB8	0x00000044	[ 14] _stream_set_callback
+0x00010BFC	0x00000028	[ 14] _stream_get_resume_time
+0x00010C24	0x00000074	[ 14] _stream_get_seek_time
+0x00010C98	0x00000060	[ 14] _stream_remember_resume_time
+0x00010CF8	0x00000074	[ 14] _stream_on_stop
+0x00010D6C	0x00000054	[ 14] _stream_on_close.isra.0
+0x00010DC0	0x00000054	[ 14] _stream_on_open
+0x00010E14	0x0000008C	[ 14] _time_from_whence
+0x00010EA0	0x00000320	[ 14] _stream_mgr_thread
+0x000111C0	0x00000014	[ 14] _stream_wait_status
+0x000111D4	0x00000060	[ 14] _stream_get_window
+0x00011234	0x00000030	[ 14] _stream_open
+0x00011264	0x00000030	[ 14] _stream_play
+0x00011294	0x00000030	[ 14] _stream_pause
+0x000112C4	0x00000030	[ 14] _stream_resume
+0x000112F4	0x00000030	[ 14] _stream_stop
+0x00011324	0x00000064	[ 14] _stream_seek
+0x00011388	0x00000030	[ 14] _stream_close
+0x000113B8	0x000001D4	[ 14] _stream_init
+0x0001158C	0x00000070	[ 14] _stream_exit
+0x000115FC	0x00000094	[ 15] _draw_blendcolor
+0x00011690	0x0000002C	[ 15] _draw_update_rect
+0x000116BC	0x00000038	[ 15] _draw_clear_area
+0x000116F4	0x00000018	[ 15] _draw_clear_area_rect
+0x0001170C	0x00000030	[ 15] _draw_hline
+0x0001173C	0x00000030	[ 15] _draw_vline
+0x0001176C	0x00000020	[ 15] _draw_setfont
+0x0001178C	0x00000088	[ 15] _draw_putsxy_oriented
+0x00011814	0x00000028	[ 15] _fps_post_frame_callback
+0x0001183C	0x00000020	[ 15] _osd_lcd_enable_hook
+0x0001185C	0x00000054	[ 15] _osd_schedule_refresh
+0x000118B0	0x00000044	[ 15] _osd_halt
+0x000118F4	0x00000020	[ 15] _osd_backlight_brightness_video_mode
+0x00011914	0x000000B8	[ 15] _fps_update_post_frame_callback
+0x000119CC	0x00000028	[ 15] _osd_update_time
+0x000119F4	0x00000028	[ 15] _osd_stream_status
+0x00011A1C	0x00000034	[ 15] _osdbacklight_hw_on_video_mode.part.0
+0x00011A50	0x00000180	[ 15] _get_videofile.constprop.0
+0x00011BD0	0x00000030	[ 15] _osdbacklight_hw_on_video_mode.constprop.0
+0x00011C00	0x000007AC	[ 15] _osd_refresh
+0x000123AC	0x0000002C	[ 15] _osd_set_status
+0x000123D8	0x0000004C	[ 15] _osd_resume
+0x00012424	0x00000088	[ 15] _osd_set_volume
+0x000124AC	0x00000118	[ 15] _osd_show
+0x000125C4	0x00000060	[ 15] _osd_stop
+0x00012624	0x000000A8	[ 15] _osd_pause.isra.0
+0x000126CC	0x00000248	[ 15] _osd_seek_btn
+0x00012914	0x00000A9C	[ 15] _plugin_start
+0x000133B0	0x0000001C	[ 16] _parser_init_state
+0x000133CC	0x00000064	[ 16] _read_pts
+0x00013430	0x00000018	[ 16] _str_send_msg.isra.0
+0x00013448	0x00000188	[ 16] _init_times
+0x000135D0	0x00000038	[ 16] _str_initialize
+0x00013608	0x00000020	[ 16] _str_end_of_stream
+0x00013628	0x00000138	[ 16] _parse_elementary
+0x00013760	0x0000052C	[ 16] _parse_demux
+0x00013C8C	0x000000D0	[ 16] _mpeg_parser_scan_start_code
+0x00013D5C	0x000000B8	[ 16] _mpeg_parser_scan_pes
+0x00013E14	0x0000011C	[ 16] _mpeg_parser_scan_scr
+0x00013F30	0x0000016C	[ 16] _mpeg_parser_scan_pts
+0x0001409C	0x00000434	[ 16] _mpeg_parser_seek_PTS
+0x000144D0	0x000001D0	[ 16] _parser_prepare_image
+0x000146A0	0x00000038	[ 16] _parser_seek_time
+0x000146D8	0x00000154	[ 16] _parser_prepare_streaming
+0x0001482C	0x00000220	[ 16] _parser_init_stream
+0x00014A4C	0x00000014	[ 16] _parser_close_stream
+0x00014A60	0x00000018	[ 16] _parser_init
+0x00014A78	0x00000008	[ 17] _stream_scan_init
+0x00014A80	0x0000002C	[ 17] _stream_scan_normalize
+0x00014AAC	0x00000020	[ 17] _stream_scan_offset
+0x00014ACC	0x00000044	[ 17] _ts_to_hms
+0x00014B10	0x00000064	[ 17] _hms_format
+0x00014B74	0x0000003C	[ 17] _muldiv_uint32
+0x00014BB0	0x00000010	[ 17] _list_is_empty
+0x00014BC0	0x00000030	[ 17] _list_is_member
+0x00014BF0	0x0000002C	[ 17] _list_remove_item
+0x00014C1C	0x0000003C	[ 17] _list_add_item
+0x00014C58	0x00000014	[ 17] _list_clear_all
+0x00014C6C	0x00000060	[ 17] _list_enum_items
+0x00014CCC	0x0000000C	[ 17] _mpeg_sysevent_clear
+0x00014CD8	0x00000010	[ 17] _mpeg_sysevent_set
+0x00014CE8	0x0000000C	[ 17] _mpeg_sysevent
+0x00014CF4	0x00000030	[ 17] _mpeg_sysevent_callback
+0x00014D24	0x00000028	[ 17] _mpeg_sysevent_handle
+0x00014D4C	0x00000070	[ 17] _mpeg_button_get
+0x00014DBC	0x00000018	[ 18] _cleanup_wrapper
+0x00014DD4	0x00000068	[ 18] _plugin__start
+0x00014E3C	0x00000020	[ 18] _rb_atexit
+0x00014E5C	0x00000024	[ 18] _exit
+0x00014E80	0x00000014	[ 18] __exit
+0x00014E94	0x00000064	[ 18] _exit_on_usb
+0x00014EF8	0x00000014	[ 19] _mad_bit_init
+0x00014F0C	0x00000010	[ 19] _mad_bit_length
+0x00014F1C	0x00000018	[ 19] _mad_bit_nextbyte
+0x00014F34	0x00000010	[ 19] _mad_bit_skip
+0x00014F44	0x00000060	[ 19] _mad_bit_read
+0x00014FA4	0x00000154	[ 19] _mad_bit_crc
+0x000150F8	0x0000023C	[ 20] _decode_header
+0x00015334	0x00000010	[ 20] _mad_header_init
+0x00015344	0x00000340	[ 20] _mad_header_decode
+0x00015684	0x000000CC	[ 20] _mad_frame_decode
+0x00015750	0x00000048	[ 20] _mad_frame_mute
+0x00015798	0x00000018	[ 20] _mad_frame_init
+0x000157B0	0x00000078	[ 22] _I_sample
+0x00015828	0x000000FC	[ 22] _II_samples
+0x00015924	0x00000368	[ 22] _mad_layer_I
+0x00015C8C	0x000006F8	[ 22] _mad_layer_II
+0x00016384	0x00000094	[ 23] _III_requantize
+0x00016418	0x0000009C	[ 23] _III_aliasreduce
+0x000164B4	0x00001040	[ 23] _III_imdct_l
+0x000174F4	0x0000024C	[ 23] _III_imdct_s
+0x00017740	0x00000038	[ 23] _III_overlap
+0x00017778	0x00000028	[ 23] _III_freqinver
+0x000177A0	0x000018EC	[ 23] _III_decode
+0x0001908C	0x0000064C	[ 23] _mad_layer_III
+0x000196D8	0x00000050	[ 24] _mad_stream_init
+0x00019728	0x0000001C	[ 24] _mad_stream_buffer
+0x00019744	0x0000007C	[ 24] _mad_stream_sync
+0x000197C0	0x00000190	[ 24] _mad_stream_errorstr
+0x00019950	0x000000FC	[ 25] _prod_sb
+0x00019A4C	0x0000000C	[ 25] _mad_synth_mute
+0x00019A58	0x00000028	[ 25] _mad_synth_init
+0x00019A80	0x00001364	[ 25] _mad_synth_frame
+0x0001ADE4	0x00000018	[ 26] _memcpy
+0x0001ADFC	0x00000018	[ 26] _memset
+0x0001AE14	0x00000018	[ 26] _memmove
+0x0001AE2C	0x00000018	[ 26] _memcmp
+0x0001AE44	0x00000020	[ 27] _talk_val
+0x0001AE64	0x00000040	[ 27] _backlight_force_on
+0x0001AEA4	0x0000006C	[ 27] _backlight_ignore_timeout
+0x0001AF10	0x00000048	[ 27] _backlight_use_settings
+0x0001AF58	0x00000044	[ 27] _sw_poweroff_disable
+0x0001AF9C	0x00000020	[ 27] _sw_poweroff_restore
+0x0001AFBC	0x00000004	[ 27] _remote_backlight_force_on
+0x0001AFC0	0x00000004	[ 27] _remote_backlight_ignore_timeout
+0x0001AFC4	0x00000004	[ 27] _remote_backlight_use_settings
+0x0001AFC8	0x00000004	[ 27] _buttonlight_force_on
+0x0001AFCC	0x00000004	[ 27] _buttonlight_force_off
+0x0001AFD0	0x00000004	[ 27] _buttonlight_ignore_timeout
+0x0001AFD4	0x00000004	[ 27] _buttonlight_use_settings
+0x0001AFD8	0x00000018	[ 27] _backlight_brightness_set
+0x0001AFF0	0x00000020	[ 27] _backlight_brightness_use_setting
+0x0001B010	0x00000004	[ 27] _buttonlight_brightness_set
+0x0001B014	0x00000004	[ 27] _buttonlight_brightness_use_setting
+0x0001B018	0x000000E8	[ 28] _get_cfg_filename.constprop.0
+0x0001B100	0x00000160	[ 28] _configfile_save
+0x0001B260	0x00000228	[ 28] _configfile_load
+0x0001B488	0x000000E0	[ 28] _configfile_get_value
+0x0001B568	0x00000158	[ 28] _configfile_update_entry
+0x0001B6C0	0x0000000C	[ 33] _longjmp.stub
+0x0001B6CC	0x0000000C	[ 33] _setjmp.stub
+0x0001B6D8	0x0000000E	[  1] literal string: DCTblock: %p\n
+0x0001B6E6	0x00000015	[  7] literal string: MPEG2_ALLOC_MPEG2DEC
+0x0001B6FB	0x00000012	[  7] literal string: MPEG2_ALLOC_CHUNK
+0x0001B70D	0x00000010	[  7] literal string: MPEG2_ALLOC_YUV
+0x0001B71D	0x00000017	[  7] literal string: MPEG2_ALLOC_CONVERT_ID
+0x0001B734	0x00000016	[  7] literal string: MPEG2_ALLOC_CONVERTED
+0x0001B74A	0x00000018	[  7] literal string: MPEG_ALLOC_MPEG2_BUFFER
+0x0001B762	0x00000014	[  7] literal string: MPEG_ALLOC_AUDIOBUF
+0x0001B776	0x00000012	[  7] literal string: MPEG_ALLOC_PCMOUT
+0x0001B788	0x00000013	[  7] literal string: MPEG_ALLOC_DISKBUF
+0x0001B79B	0x00000018	[  7] literal string: MPEG_ALLOC_CODEC_MALLOC
+0x0001B7B3	0x00000018	[  7] literal string: MPEG_ALLOC_CODEC_CALLOC
+0x0001B7CB	0x00000008	[  7] literal string: Unknown
+0x0001B7D3	0x00000031	[  7] literal string: mpeg_alloc_internal: bs:%lu s:%u reason:%s (%d)\n
+0x0001B804	0x0000000F	[  7] literal string: OUT OF MEMORY\n
+0x0001B813	0x00000011	[  7] literal string: mpeg2_mem_reset\n
+0x0001B824	0x00000011	[  7] literal string: codec_free - %p\n
+0x0001B835	0x0000000B	[  8] literal string: vo hidden\n
+0x0001B840	0x0000000D	[  8] literal string: vo no frame\n
+0x0001B84D	0x0000001A	[  8] literal string: thumb_rc: %d, %d, %d, %d\n
+0x0001B867	0x00000024	[  8] literal string: thumb: w: %d h: %d uvw: %d uvh: %d\n
+0x0001B88B	0x0000001C	[  8] literal string: thumb: insufficient buffer\n
+0x0001B8A7	0x00000016	[  8] literal string: vo_setup - w:%d h:%d\n
+0x0001B8BD	0x00000023	[  9] literal string: video_stream_scan:STREAM_DATA_END\n
+0x0001B8E0	0x00000022	[  9] literal string: video_stream_scan:STATE_SEQUENCE\n
+0x0001B902	0x00000007	[  9] literal string: closed
+0x0001B909	0x00000005	[  9] literal string: open
+0x0001B90E	0x00000009	[  9] literal string:  skipped
+0x0001B917	0x00000001	[  9] literal string: 
+0x0001B918	0x00000013	[  9] literal string: check_needs_sync:\n
+0x0001B92B	0x0000000B	[  9] literal string:   no fbuf\n
+0x0001B936	0x0000000C	[  9] literal string:   no frame\n
+0x0001B942	0x00000017	[  9] literal string:   sft:%u t:%u sfte:%u\n
+0x0001B959	0x00000024	[  9] literal string: sync_decoder=>init_sequence failed\n
+0x0001B97D	0x0000001B	[  9] literal string: sync_decoder:STR_DATA_END\n
+0x0001B998	0x00000012	[  9] literal string:   STATE_SEQUENCE\n
+0x0001B9AA	0x00000013	[  9] literal string:   STATE_GOP: (%s)\n
+0x0001B9BD	0x0000001A	[  9] literal string:   STATE_PICTURE (%c): %u\n
+0x0001B9D7	0x00000019	[  9] literal string:   STATE_PICTURE (%c): -\n
+0x0001B9F0	0x00000025	[  9] literal string:   td->info->display_picture == NULL\n
+0x0001BA15	0x0000001A	[  9] literal string:   frame tagged:%u (%c%s)\n
+0x0001BA2F	0x0000001E	[  9] literal string:   add frame_period:%u (%c%s)\n
+0x0001BA4D	0x0000001A	[  9] literal string:   ft:%u t:%u fe:%u (%c%s)
+0x0001BA67	0x0000000C	[  9] literal string:  too early\n
+0x0001BA73	0x0000000B	[  9] literal string:  ft<=t<fe\n
+0x0001BA7E	0x00000007	[  9] literal string:  ft>t\n
+0x0001BA85	0x00000002	[  9] literal string: \n
+0x0001BA87	0x00000009	[  9] literal string: mpgvideo
+0x0001BA90	0x0000001E	[ 10] literal string: get_more: invalid size (%ld)\n
+0x0001BAAE	0x00000031	[ 11] literal string: audiodesc_queue_add_tail: audiodesc queue full!\n
+0x0001BADF	0x00000033	[ 11] literal string: audio_sync:STR_DATA_END\n  aqu:%ld swl:%jd swr:%jd\n
+0x0001BB12	0x00000020	[ 11] literal string:  audio: mad_stream_sync failed\n
+0x0001BB32	0x00000025	[ 11] literal string:  audio: mad_header_decode failed:%s\n
+0x0001BB57	0x0000002C	[ 11] literal string:  audio: ft:%u t:%u fe:%u nsamp:%u sampr:%u\n
+0x0001BB83	0x00000012	[ 11] literal string:  audio: ft<=t<fe\n
+0x0001BB95	0x0000000E	[ 11] literal string:  audio: ft>t\n
+0x0001BBA3	0x00000023	[ 11] literal string:  audio header: 0x%02X%02X%02X%02X\n
+0x0001BBC6	0x00000019	[ 11] literal string: audio: Stream error: %s\n
+0x0001BBDF	0x00000018	[ 11] literal string: audio: Too many errors\n
+0x0001BBF7	0x0000001C	[ 11] literal string: audio: Unrecoverable error\n
+0x0001BC13	0x00000016	[ 12] literal string: disk_buf: cache miss\n
+0x0001BC29	0x00000029	[ 12] literal string: DISK_BUF_DATA_NOTIFY: 0x%02X (notified)\n
+0x0001BC52	0x00000023	[ 12] literal string: disk_buf_getbuffer_l2: l2 = NULL!\n
+0x0001BC75	0x00000026	[ 12] literal string: prepare streaming:\n  pos:%jd len:%lu\n
+0x0001BC9B	0x0000001F	[ 12] literal string:   probe done: pos:%jd len:%lu\n
+0x0001BCBA	0x00000022	[ 12] literal string: disk buf reset\n  dwl:%jd dwr:%jd\n
+0x0001BCDC	0x0000001E	[ 12] literal string: DISK_BUF_DATA_NOTIFY: 0x%02X 
+0x0001BCFA	0x00000031	[ 12] literal string: (was ready)\n  swl:%jd swr:%jd\n  dwl:%jd dwr:%jd\n
+0x0001BD2B	0x00000032	[ 12] literal string: (registered)\n  swl:%jd swr:%jd\n  dwl:%jd dwr:%jd\n
+0x0001BD5D	0x00000009	[ 12] literal string: (error)\n
+0x0001BD66	0x0000002E	[ 12] literal string: DISK_BUF_CLEAR_DATA_NOTIFY: 0x%02X (cleared)\n
+0x0001BD94	0x00000033	[ 12] literal string: disk_buf info:\n  page count: %d\n  size:       %ld\n
+0x0001BDC7	0x0000000A	[ 12] literal string: mpgbuffer
+0x0001BDD1	0x00000003	[ 13] literal string: %d
+0x0001BDD4	0x0000000F	[ 13] literal string: mpegplayer.cfg
+0x0001BDE3	0x0000001A	[ 13] literal string: rc_bound: %d, %d, %d, %d\n
+0x0001BDFD	0x00000017	[ 13] literal string: aspect_bound: %u.%02u\n
+0x0001BE14	0x00000015	[ 13] literal string: aspect_vid: %u.%02u\n
+0x0001BE29	0x00000018	[ 13] literal string: rc_vid: %d, %d, %d, %d\n
+0x0001BE41	0x0000000B	[ 13] literal string: Loading...
+0x0001BE4C	0x00000009	[ 13] literal string: No Frame
+0x0001BE55	0x0000000D	[ 13] literal string: Resume count
+0x0001BE62	0x0000000C	[ 13] literal string: MPEG Player
+0x0001BE6E	0x0000000E	[ 13] literal string: Audio Options
+0x0001BE7C	0x00000010	[ 13] literal string: Display Options
+0x0001BE8C	0x00000009	[ 13] literal string: Settings
+0x0001BE95	0x00000009	[ 13] literal string: Show FPS
+0x0001BE9E	0x0000000A	[ 13] literal string: Limit FPS
+0x0001BEA8	0x0000000C	[ 13] literal string: Skip frames
+0x0001BEB4	0x0000000F	[ 13] literal string: Resume options
+0x0001BEC3	0x0000000E	[ 13] literal string: Tone controls
+0x0001BED1	0x0000000E	[ 13] literal string: Channel modes
+0x0001BEDF	0x0000000A	[ 13] literal string: Crossfeed
+0x0001BEE9	0x0000000A	[ 13] literal string: Equalizer
+0x0001BEF3	0x0000000A	[ 13] literal string: Dithering
+0x0001BEFD	0x0000000A	[ 13] literal string: Play mode
+0x0001BF07	0x00000015	[ 13] literal string: Backlight brightness
+0x0001BF1C	0x00000014	[ 14] literal string:   finished: 0x%02x\n
+0x0001BF30	0x0000000E	[ 14] literal string: mpgstream_mgr
+0x0001BF3E	0x00000028	[ 14] literal string: Could not create stream manager thread!
+0x0001BF66	0x0000001D	[ 14] literal string: Out of memory in stream_init
+0x0001BF83	0x0000001A	[ 14] literal string: Could not initialize PCM!
+0x0001BF9D	0x0000001C	[ 14] literal string: Cannot create audio thread!
+0x0001BFB9	0x0000001C	[ 14] literal string: Cannot create video thread!
+0x0001BFD5	0x00000020	[ 14] literal string: Cannot create buffering thread!
+0x0001BFF5	0x00000014	[ 14] literal string: Parser init failed!
+0x0001C009	0x00000008	[ 15] literal string: %d.%02d
+0x0001C011	0x00000005	[ 15] literal string: %d%s
+0x0001C016	0x00000013	[ 15] literal string: Unsupported format
+0x0001C029	0x00000017	[ 15] literal string: Error opening file: %d
+0x0001C040	0x00000008	[ 15] literal string: No File
+0x0001C048	0x0000001E	[ 15] literal string: Could not initialize streams\n
+0x0001C066	0x00000002	[ 15] literal string:  
+0x0001C068	0x00000007	[ 15] literal string: 999.99
+0x0001C06F	0x00000010	[ 15] literal string: Playback failed
+0x0001C07F	0x00000013	[ 15] literal string: Could not open %s\n
+0x0001C092	0x00000004	[ 15] literal string: mpg
+0x0001C096	0x00000005	[ 15] literal string: mpeg
+0x0001C09B	0x00000004	[ 15] literal string: mpv
+0x0001C09F	0x00000004	[ 15] literal string: m2v
+0x0001C0A3	0x0000001B	[ 16] literal string: Finding start_pts: 0x%02x\n
+0x0001C0BE	0x0000001C	[ 16] literal string:    stream not found:0x%02x\n
+0x0001C0DA	0x0000000C	[ 16] literal string:   start:%u\n
+0x0001C0E6	0x00000019	[ 16] literal string: Finding end_pts: 0x%02x\n
+0x0001C0FF	0x0000000A	[ 16] literal string:   end:%u\n
+0x0001C109	0x00000014	[ 16] literal string: weird pack header!\n
+0x0001C11D	0x00000067	[ 16] literal string: packet start code prefix not found: 0x%02x\n  wl:%jd wr:%jd\n  p:%p cp:%p cpe:%p\n  dbs:%p dbe:%p dbt:%p\n
+0x0001C184	0x0000001A	[ 16] literal string: MPEG program end: 0x%02x\n
+0x0001C19E	0x00000012	[ 16] literal string: Too much stuffing
+0x0001C1B0	0x00000017	[ 16] literal string: Seeking stream 0x%02x\n
+0x0001C1C7	0x00000033	[ 16] literal string: $$ tl:%u t:%u ct:?? tr:%u\n   pl:%ld pn:%ld pr:%ld\n
+0x0001C1FA	0x00000033	[ 16] literal string: >> tl:%u t:%u ct:%u tr:%u\n   pl:%ld pn:%ld pr:%ld\n
+0x0001C22D	0x00000033	[ 16] literal string: << tl:%u t:%u ct:%u tr:%u\n   pl:%ld pn:%ld pr:%ld\n
+0x0001C260	0x00000033	[ 16] literal string: || tl:%u t:%u ct:%u tr:%u\n   pl:%ld pn:%ld pr:%ld\n
+0x0001C293	0x00000014	[ 16] literal string: !! no timestamp 2x\n
+0x0001C2A7	0x00000025	[ 16] literal string: !! no timestamp on first probe: %jd\n
+0x0001C2CC	0x00000033	[ 16] literal string: ?? tl:%u t:%u ct:%u tr:%u\n   pl:%ld pn:%ld pr:%ld\n
+0x0001C2FF	0x0000001E	[ 16] literal string: !! currpts == prevpts (stop)\n
+0x0001C31D	0x00000027	[ 16] literal string: Seek pos:%ld pts:%u t:%u next pts:%u \n
+0x0001C344	0x00000019	[ 16] literal string:   :) pts<=time<next pts\n
+0x0001C35D	0x0000000F	[ 16] literal string:   :\ pts>time\n
+0x0001C36C	0x00000014	[ 16] literal string:   :p pts>=next pts\n
+0x0001C380	0x00000014	[ 16] literal string:   :( time>=nextpts\n
+0x0001C394	0x00000011	[ 16] literal string: Image was ready\n
+0x0001C3A5	0x00000013	[ 16] literal string: GOP found at: %jd\n
+0x0001C3B8	0x00000018	[ 16] literal string:   wrong stream: 0x%02x\n
+0x0001C3D0	0x00000017	[ 16] literal string:   wrong timestamp: %u\n
+0x0001C3E7	0x00000017	[ 16] literal string: thumb pos:%jd len:%ld\n
+0x0001C3FE	0x0000001A	[ 16] literal string: parser_prepare_streaming\n
+0x0001C418	0x00000011	[ 16] literal string: Audio was ready\n
+0x0001C429	0x00000013	[ 16] literal string:   swl:%jd swr:%jd\n
+0x0001C43C	0x00000014	[ 16] literal string: Getting movie size\n
+0x0001C450	0x0000000A	[ 16] literal string:   failed\n
+0x0001C45A	0x0000003C	[ 16] literal string: Movie info:\n  size:%dx%d\n  start:%u\n  end:%u\n  duration:%u\n
+0x0001C496	0x0000000D	[ 17] literal string: %u:%02u:%02u
+0x0001C4A3	0x00000008	[ 17] literal string: %u:%02u
+0x0001C4AB	0x00000009	[ 24] literal string: no error
+0x0001C4B4	0x00000020	[ 24] literal string: input buffer too small (or EOF)
+0x0001C4D4	0x0000001E	[ 24] literal string: invalid (null) buffer pointer
+0x0001C4F2	0x00000012	[ 24] literal string: not enough memory
+0x0001C504	0x00000015	[ 24] literal string: lost synchronization
+0x0001C519	0x0000001C	[ 24] literal string: reserved header layer value
+0x0001C535	0x00000018	[ 24] literal string: forbidden bitrate value
+0x0001C54D	0x00000020	[ 24] literal string: reserved sample frequency value
+0x0001C56D	0x00000018	[ 24] literal string: reserved emphasis value
+0x0001C585	0x00000011	[ 24] literal string: CRC check failed
+0x0001C596	0x0000001F	[ 24] literal string: forbidden bit allocation value
+0x0001C5B5	0x00000016	[ 24] literal string: bad scalefactor index
+0x0001C5CB	0x0000001D	[ 24] literal string: bad bitrate/mode combination
+0x0001C5E8	0x00000011	[ 24] literal string: bad frame length
+0x0001C5F9	0x00000015	[ 24] literal string: bad big_values count
+0x0001C60E	0x00000014	[ 24] literal string: reserved block_type
+0x0001C622	0x0000001F	[ 24] literal string: bad scalefactor selection info
+0x0001C641	0x0000001C	[ 24] literal string: bad main_data_begin pointer
+0x0001C65D	0x00000016	[ 24] literal string: bad audio data length
+0x0001C673	0x00000019	[ 24] literal string: bad Huffman table select
+0x0001C68C	0x00000015	[ 24] literal string: Huffman data overrun
+0x0001C6A1	0x0000001F	[ 24] literal string: incompatible block_type for JS
+0x0001C6C0	0x0000000A	[ 28] literal string: /.rockbox
+0x0001C6CA	0x00000004	[ 28] literal string: /%s
+0x0001C6CE	0x00000013	[ 28] literal string: /.rockbox/rocks/%s
+0x0001C6E1	0x00000014	[ 28] literal string: file version: %10d\n
+0x0001C6F5	0x0000000A	[ 28] literal string: %s: %10d\n
+0x0001C6FF	0x00000008	[ 28] literal string: %s: %s\n
+0x0001C707	0x0000000D	[ 28] literal string: file version
+0x0001C718	0x00000080	[  2] _non_linear_scale.0
+0x0001C798	0x00000010	[  2] _mpeg1_check.2
+0x0001C7A8	0x00000088	[  2] _video_modes.3
+0x0001C830	0x00000040	[  2] _frame_period.4
+0x0001C870	0x00000040	[  2] _default_mpeg2_scan_alt
+0x0001C8B0	0x00000040	[  2] _default_mpeg2_scan_norm
+0x0001C8F0	0x00000040	[  2] _default_intra_quantizer_matrix
+0x0001C930	0x000000D0	[  5] _MBA_11
+0x0001CA00	0x0000003C	[  5] _MBA_5
+0x0001CA3C	0x000002F4	[  5] _DCT_B15_8
+0x0001CD30	0x00000018	[  5] _DCT_B15_10
+0x0001CD48	0x00000051	[  5] _DCT_B14DC_5
+0x0001CD99	0x00000051	[  5] _DCT_B14AC_5
+0x0001CDEA	0x0000006C	[  5] _DCT_B14_8
+0x0001CE56	0x00000018	[  5] _DCT_B14_10
+0x0001CE6E	0x00000090	[  5] _DCT_13
+0x0001CEFE	0x00000090	[  5] _DCT_15
+0x0001CF8E	0x00000060	[  5] _DCT_16
+0x0001CFEE	0x00000040	[  5] _DC_long
+0x0001D02E	0x0000003E	[  5] _DC_chrom_5
+0x0001D06C	0x0000003E	[  5] _DC_lum_5
+0x0001D0AA	0x00000080	[  5] _CBP_9
+0x0001D12A	0x000000E0	[  5] _CBP_7
+0x0001D20A	0x00000008	[  5] _DMV_2
+0x0001D212	0x00000060	[  5] _MV_10
+0x0001D272	0x00000010	[  5] _MV_4
+0x0001D282	0x00000080	[  5] _MB_B
+0x0001D302	0x00000040	[  5] _MB_P
+0x0001D342	0x00000004	[  5] _MB_I
+0x0001D346	0x00000004	[  9] _CSWTCH.69
+0x0001D350	0x00000018	[ 13] _setting_index.0
+0x0001D368	0x00000040	[ 13] _items.4
+0x0001D3A8	0x00000020	[ 13] _globaloff
+0x0001D3C8	0x00000020	[ 13] _singleall
+0x0001D3E8	0x00000020	[ 13] _noyes
+0x0001D408	0x00000040	[ 16] _mpeg1_skip_table.0
+0x0001D448	0x00000200	[ 19] _crc_table
+0x0001D648	0x00000010	[ 20] _samplerate_table
+0x0001D658	0x00000258	[ 20] _bitrate_table
+0x0001D8B0	0x00000304	[ 21] _hufftab24
+0x0001DBB4	0x00000324	[ 21] _hufftab16
+0x0001DED8	0x000002F8	[ 21] _hufftab15
+0x0001E1D0	0x0000031C	[ 21] _hufftab13
+0x0001E4EC	0x000000C0	[ 21] _hufftab12
+0x0001E5AC	0x000000D0	[ 21] _hufftab11
+0x0001E67C	0x000000CC	[ 21] _hufftab10
+0x0001E748	0x0000006C	[ 21] _hufftab9
+0x0001E7B4	0x00000084	[ 21] _hufftab8
+0x0001E838	0x00000080	[ 21] _hufftab7
+0x0001E8B8	0x00000038	[ 21] _hufftab6
+0x0001E8F0	0x00000034	[ 21] _hufftab5
+0x0001E924	0x00000020	[ 21] _hufftab3
+0x0001E944	0x00000020	[ 21] _hufftab2
+0x0001E964	0x00000010	[ 21] _hufftab1
+0x0001E974	0x00000002	[ 21] _hufftab0
+0x0001E976	0x00000020	[ 21] _hufftabB
+0x0001E996	0x00000038	[ 21] _hufftabA
+0x0001E9D0	0x000000CC	[ 22] _qc_table
+0x0001EA9C	0x0000005A	[ 22] _offset_table
+0x0001EAF6	0x00000022	[ 22] _bitalloc_table
+0x0001EB18	0x000000B4	[ 22] _sbquant_table
+0x0001EBCC	0x00000038	[ 22] _linear_table
+0x0001EC04	0x00000100	[ 22] _sf_table
+0x0001ED08	0x00000078	[ 23] _is_lsf_table
+0x0001ED80	0x00000020	[ 23] _is_table
+0x0001EDA0	0x00000030	[ 23] _window_s
+0x0001EDD0	0x00000090	[ 23] _window_l
+0x0001EE60	0x00000090	[ 23] _imdct_s
+0x0001EEF0	0x00000020	[ 23] _ca
+0x0001EF10	0x00000020	[ 23] _cs
+0x0001EF30	0x0000001C	[ 23] _root_table
+0x0001EF4C	0x0000803C	[ 23] _rq_table
+0x00026F88	0x00000016	[ 23] _pretab
+0x00026F9E	0x00000027	[ 23] _sfb_8000_mixed
+0x00026FC5	0x00000027	[ 23] _sfb_8000_short
+0x00026FEC	0x00000016	[ 23] _sfb_8000_long
+0x00027002	0x00000024	[ 23] _sfb_16000_mixed
+0x00027026	0x00000024	[ 23] _sfb_22050_mixed
+0x0002704A	0x00000024	[ 23] _sfb_24000_mixed
+0x0002706E	0x00000027	[ 23] _sfb_16000_short
+0x00027095	0x00000027	[ 23] _sfb_22050_short
+0x000270BC	0x00000027	[ 23] _sfb_24000_short
+0x000270E3	0x00000016	[ 23] _sfb_22050_long
+0x000270F9	0x00000016	[ 23] _sfb_24000_long
+0x0002710F	0x00000026	[ 23] _sfb_32000_mixed
+0x00027135	0x00000026	[ 23] _sfb_44100_mixed
+0x0002715B	0x00000026	[ 23] _sfb_48000_mixed
+0x00027181	0x00000027	[ 23] _sfb_32000_short
+0x000271A8	0x00000027	[ 23] _sfb_44100_short
+0x000271CF	0x00000027	[ 23] _sfb_48000_short
+0x000271F6	0x00000016	[ 23] _sfb_32000_long
+0x0002720C	0x00000016	[ 23] _sfb_44100_long
+0x00027222	0x00000016	[ 23] _sfb_48000_long
+0x00027238	0x00000048	[ 23] _nsfb_table
+0x00027280	0x00000020	[ 23] _sflen_table
+0x000272A0	0x00000880	[ 25] _D
+0x00027B20	0x00000028	[ 29] _mpegplayer_status_icons_8x8x1
+0x00027B48	0x00000078	[ 30] _mpegplayer_status_icons_12x12x1
+0x00027BC0	0x000000A0	[ 31] _mpegplayer_status_icons_16x16x1
+0x00027C60	0x00000018	[  1] CFI
+0x00027C78	0x00000020	[  1] FDE for: _copy_chunk
+0x00027C98	0x00000020	[  1] FDE for: _seek_chunk
+0x00027CB8	0x00000058	[  1] FDE for: _mpeg2_parse_header
+0x00027D10	0x00000068	[  1] FDE for: _mpeg2_seek_header
+0x00027D78	0x00000020	[  1] FDE for: _mpeg2_info
+0x00027D98	0x00000020	[  1] FDE for: _mpeg2_buffer
+0x00027DB8	0x00000020	[  1] FDE for: _mpeg2_getpos
+0x00027DD8	0x00000048	[  1] FDE for: _mpeg2_parse
+0x00027E20	0x00000048	[  1] FDE for: _mpeg2_convert
+0x00027E68	0x00000048	[  1] FDE for: _mpeg2_stride
+0x00027EB0	0x00000048	[  1] FDE for: _mpeg2_set_buf
+0x00027EF8	0x00000020	[  1] FDE for: _mpeg2_custom_fbuf
+0x00027F18	0x00000020	[  1] FDE for: _mpeg2_skip
+0x00027F38	0x00000020	[  1] FDE for: _mpeg2_slice_region
+0x00027F58	0x00000020	[  1] FDE for: _mpeg2_tag_picture
+0x00027F78	0x00000058	[  1] FDE for: _mpeg2_reset
+0x00027FD0	0x00000048	[  1] FDE for: _mpeg2_init
+0x00028018	0x00000020	[  1] FDE for: _mpeg2_close
+0x00028038	0x00000018	[  2] CFI
+0x00028050	0x00000020	[  2] FDE for: _info_user_data
+0x00028070	0x00000020	[  2] FDE for: _sequence_ext
+0x00028090	0x00000020	[  2] FDE for: _sequence_display_ext
+0x000280B0	0x00000050	[  2] FDE for: _copy_matrix
+0x00028100	0x00000070	[  2] FDE for: _finalize_matrix
+0x00028170	0x00000020	[  2] FDE for: _picture_coding_ext
+0x00028190	0x00000020	[  2] FDE for: _picture_display_ext
+0x000281B0	0x00000020	[  2] FDE for: _copyright_ext
+0x000281D0	0x00000020	[  2] FDE for: _quant_matrix_ext
+0x000281F0	0x00000020	[  2] FDE for: _prescale
+0x00028210	0x00000040	[  2] FDE for: _mpeg2_header_state_init
+0x00028250	0x00000020	[  2] FDE for: _mpeg2_reset_info
+0x00028270	0x00000040	[  2] FDE for: _invalid_end_action
+0x000282B0	0x00000040	[  2] FDE for: _seek_sequence
+0x000282F0	0x00000048	[  2] FDE for: _mpeg2_header_sequence
+0x00028338	0x00000020	[  2] FDE for: _mpeg2_guess_aspect
+0x00028358	0x00000020	[  2] FDE for: _mpeg2_header_gop
+0x00028378	0x00000038	[  2] FDE for: _mpeg2_header_gop_finalize
+0x000283B0	0x00000020	[  2] FDE for: _mpeg2_set_fbuf
+0x000283D0	0x00000020	[  2] FDE for: _mpeg2_header_picture
+0x000283F0	0x00000060	[  2] FDE for: _mpeg2_header_picture_finalize
+0x00028450	0x00000020	[  2] FDE for: _mpeg2_header_extension
+0x00028470	0x00000020	[  2] FDE for: _mpeg2_header_user_data
+0x00028490	0x00000048	[  2] FDE for: _mpeg2_header_slice_start
+0x000284D8	0x00000038	[  2] FDE for: _mpeg2_header_end
+0x00028510	0x00000068	[  2] FDE for: _mpeg2_header_sequence_finalize
+0x00028578	0x00000018	[  3] CFI
+0x00028590	0x00000020	[  3] FDE for: _idct_col
+0x000285B0	0x00000020	[  3] FDE for: _idct_row
+0x000285D0	0x00000040	[  3] FDE for: _mpeg2_idct_copy
+0x00028610	0x00000040	[  3] FDE for: _mpeg2_idct_add
+0x00028650	0x00000020	[  3] FDE for: _mpeg2_idct_init
+0x00028670	0x00000018	[  5] CFI
+0x00028688	0x00000020	[  5] FDE for: _get_dmv
+0x000286A8	0x00000050	[  5] FDE for: _motion_zero_420
+0x000286F8	0x00000050	[  5] FDE for: _motion_zero_422
+0x00028748	0x00000050	[  5] FDE for: _motion_zero_444
+0x00028798	0x00000020	[  5] FDE for: _get_motion_delta
+0x000287B8	0x00000060	[  5] FDE for: _motion_fi_dmv_444
+0x00028818	0x00000058	[  5] FDE for: _motion_fi_16x8_444
+0x00028870	0x00000050	[  5] FDE for: _motion_fi_field_444
+0x000288C0	0x00000060	[  5] FDE for: _motion_fi_dmv_422
+0x00028920	0x00000060	[  5] FDE for: _motion_fi_16x8_422
+0x00028980	0x00000058	[  5] FDE for: _motion_fi_field_422
+0x000289D8	0x00000060	[  5] FDE for: _motion_fi_dmv_420
+0x00028A38	0x00000058	[  5] FDE for: _motion_fi_16x8_420
+0x00028A90	0x00000058	[  5] FDE for: _motion_fi_field_420
+0x00028AE8	0x00000058	[  5] FDE for: _motion_reuse_444
+0x00028B40	0x00000068	[  5] FDE for: _motion_fr_dmv_444
+0x00028BA8	0x00000058	[  5] FDE for: _motion_fr_frame_444
+0x00028C00	0x00000058	[  5] FDE for: _motion_fr_field_444
+0x00028C58	0x00000058	[  5] FDE for: _motion_reuse_422
+0x00028CB0	0x00000068	[  5] FDE for: _motion_fr_dmv_422
+0x00028D18	0x00000058	[  5] FDE for: _motion_fr_frame_422
+0x00028D70	0x00000058	[  5] FDE for: _motion_fr_field_422
+0x00028DC8	0x00000060	[  5] FDE for: _motion_fr_dmv_420
+0x00028E28	0x00000058	[  5] FDE for: _motion_fr_frame_420
+0x00028E80	0x00000060	[  5] FDE for: _motion_fr_field_420
+0x00028EE0	0x00000058	[  5] FDE for: _motion_reuse_420
+0x00028F38	0x00000058	[  5] FDE for: _motion_mp1
+0x00028F90	0x00000020	[  5] FDE for: _slice_intra_DCT
+0x00028FB0	0x00000020	[  5] FDE for: _slice_non_intra_DCT
+0x00028FD0	0x00000020	[  5] FDE for: _mpeg2_init_fbuf
+0x00028FF0	0x00000060	[  5] FDE for: _mpeg2_slice
+0x00029050	0x00000018	[  6] CFI
+0x00029068	0x00000020	[  6] FDE for: _MC_put_o_16
+0x00029088	0x00000020	[  6] FDE for: _MC_put_o_8
+0x000290A8	0x00000020	[  6] FDE for: _MC_avg_o_16
+0x000290C8	0x00000020	[  6] FDE for: _MC_avg_o_8
+0x000290E8	0x00000020	[  6] FDE for: _MC_put_x_16
+0x00029108	0x00000020	[  6] FDE for: _MC_put_x_8
+0x00029128	0x00000020	[  6] FDE for: _MC_avg_x_16
+0x00029148	0x00000020	[  6] FDE for: _MC_avg_x_8
+0x00029168	0x00000020	[  6] FDE for: _MC_put_y_16
+0x00029188	0x00000020	[  6] FDE for: _MC_put_y_8
+0x000291A8	0x00000020	[  6] FDE for: _MC_avg_y_16
+0x000291C8	0x00000020	[  6] FDE for: _MC_avg_y_8
+0x000291E8	0x00000020	[  6] FDE for: _MC_put_xy_16
+0x00029208	0x00000020	[  6] FDE for: _MC_put_xy_8
+0x00029228	0x00000020	[  6] FDE for: _MC_avg_xy_16
+0x00029248	0x00000020	[  6] FDE for: _MC_avg_xy_8
+0x00029268	0x00000018	[  7] CFI
+0x00029280	0x00000020	[  7] FDE for: _mpeg_get_reason_str
+0x000292A0	0x00000060	[  7] FDE for: _mpeg_malloc_internal
+0x00029300	0x00000020	[  7] FDE for: _mpeg_malloc
+0x00029320	0x00000020	[  7] FDE for: _mpeg_malloc_all
+0x00029340	0x00000038	[  7] FDE for: _mpeg_alloc_init
+0x00029378	0x00000040	[  7] FDE for: _mpeg2_malloc
+0x000293B8	0x00000038	[  7] FDE for: _mpeg2_bufalloc
+0x000293F0	0x00000020	[  7] FDE for: _mpeg2_get_buf
+0x00029410	0x00000038	[  7] FDE for: _mpeg2_mem_reset
+0x00029448	0x00000040	[  7] FDE for: _codec_malloc
+0x00029488	0x00000040	[  7] FDE for: _codec_calloc
+0x000294C8	0x00000040	[  7] FDE for: _codec_free
+0x00029508	0x00000018	[  8] CFI
+0x00029520	0x00000050	[  8] FDE for: _vo_draw_black
+0x00029570	0x00000020	[  8] FDE for: _vo_rect_empty_inl
+0x00029590	0x00000040	[  8] FDE for: _vo_rects_intersect_inl
+0x000295D0	0x00000058	[  8] FDE for: _vo_draw_frame
+0x00029628	0x00000020	[  8] FDE for: _vo_rect_clear
+0x00029648	0x00000020	[  8] FDE for: _vo_rect_empty
+0x00029668	0x00000020	[  8] FDE for: _vo_rect_set_ext
+0x00029688	0x00000020	[  8] FDE for: _vo_rects_intersect
+0x000296A8	0x00000048	[  8] FDE for: _vo_rect_intersect
+0x000296F0	0x00000038	[  8] FDE for: _vo_rect_union
+0x00029728	0x00000020	[  8] FDE for: _vo_rect_offset
+0x00029748	0x00000020	[  8] FDE for: _stretch_image_plane
+0x00029768	0x00000070	[  8] FDE for: _vo_draw_frame_thumb
+0x000297D8	0x00000020	[  8] FDE for: _vo_dimensions
+0x000297F8	0x00000020	[  8] FDE for: _vo_init
+0x00029818	0x00000020	[  8] FDE for: _vo_show
+0x00029838	0x00000020	[  8] FDE for: _vo_is_visible
+0x00029858	0x00000020	[  8] FDE for: _vo_cleanup
+0x00029878	0x00000040	[  8] FDE for: _vo_set_clip_rect
+0x000298B8	0x00000058	[  8] FDE for: _vo_setup
+0x00029910	0x00000020	[  8] FDE for: _vo_get_clip_rect
+0x00029930	0x00000020	[  8] FDE for: _vo_set_post_draw_callback
+0x00029950	0x00000018	[  9] CFI
+0x00029968	0x00000020	[  9] FDE for: _pic_coding_type_char
+0x00029988	0x00000070	[  9] FDE for: _video_str_scan
+0x000299F8	0x00000038	[  9] FDE for: _frame_print_handler
+0x00029A30	0x00000020	[  9] FDE for: _str_get_msg.constprop.0
+0x00029A50	0x00000068	[  9] FDE for: _video_thread
+0x00029AB8	0x00000048	[  9] FDE for: _video_thread_init
+0x00029B00	0x00000040	[  9] FDE for: _video_thread_exit
+0x00029B40	0x00000040	[  9] FDE for: _video_thread_get_stats
+0x00029B80	0x00000018	[ 10] CFI
+0x00029B98	0x00000020	[ 10] FDE for: _pcm_reset_buffer
+0x00029BB8	0x00000020	[ 10] FDE for: _pcm_advance_buffer
+0x00029BD8	0x00000080	[ 10] FDE for: _get_more
+0x00029C58	0x00000020	[ 10] FDE for: _pcm_output_get_buffer
+0x00029C78	0x00000038	[ 10] FDE for: _pcm_output_commit_data
+0x00029CB0	0x00000020	[ 10] FDE for: _pcm_output_empty
+0x00029CD0	0x00000058	[ 10] FDE for: _pcm_output_flush
+0x00029D28	0x00000040	[ 10] FDE for: _pcm_output_set_clock
+0x00029D68	0x00000050	[ 10] FDE for: _pcm_output_get_clock
+0x00029DB8	0x00000060	[ 10] FDE for: _pcm_output_get_ticks
+0x00029E18	0x00000068	[ 10] FDE for: _pcm_output_play_pause
+0x00029E80	0x00000040	[ 10] FDE for: _pcm_output_stop
+0x00029EC0	0x00000040	[ 10] FDE for: _pcm_output_drain
+0x00029F00	0x00000048	[ 10] FDE for: _pcm_output_init
+0x00029F48	0x00000050	[ 10] FDE for: _pcm_output_exit
+0x00029F98	0x00000018	[ 11] CFI
+0x00029FB0	0x00000020	[ 11] FDE for: _audiodesc_queue_full
+0x00029FD0	0x00000040	[ 11] FDE for: _audio_queue_reset
+0x0002A010	0x00000020	[ 11] FDE for: _audio_queue_advance_pos
+0x0002A030	0x00000040	[ 11] FDE for: _init_mad
+0x0002A070	0x00000060	[ 11] FDE for: _audio_buffer
+0x0002A0D0	0x00000070	[ 11] FDE for: _audio_thread
+0x0002A140	0x00000050	[ 11] FDE for: _audio_thread_init
+0x0002A190	0x00000040	[ 11] FDE for: _audio_thread_exit
+0x0002A1D0	0x00000018	[ 12] CFI
+0x0002A1E8	0x00000020	[ 12] FDE for: _disk_buf_lock
+0x0002A208	0x00000020	[ 12] FDE for: _disk_buf_unlock
+0x0002A228	0x00000058	[ 12] FDE for: _disk_buf_probe
+0x0002A280	0x00000020	[ 12] FDE for: _disk_buf_is_data_ready
+0x0002A2A0	0x00000048	[ 12] FDE for: _check_data_notifies_callback
+0x0002A2E8	0x00000020	[ 12] FDE for: _dbuf_l2_init
+0x0002A308	0x00000058	[ 12] FDE for: __disk_buf_getbuffer
+0x0002A360	0x00000078	[ 12] FDE for: __disk_buf_getbuffer_l2
+0x0002A3D8	0x00000068	[ 12] FDE for: _disk_buf_read
+0x0002A440	0x00000048	[ 12] FDE for: _disk_buf_lseek
+0x0002A488	0x00000040	[ 12] FDE for: _disk_buf_set_streaming_window
+0x0002A4C8	0x00000020	[ 12] FDE for: _disk_buf_offset2ptr
+0x0002A4E8	0x00000040	[ 12] FDE for: _disk_buf_close
+0x0002A528	0x00000048	[ 12] FDE for: _disk_buf_open
+0x0002A570	0x00000020	[ 12] FDE for: _disk_buf_send_msg
+0x0002A590	0x00000058	[ 12] FDE for: _disk_buf_prepare_streaming
+0x0002A5E8	0x00000020	[ 12] FDE for: _disk_buf_post_msg
+0x0002A608	0x00000020	[ 12] FDE for: _disk_buf_reply_msg
+0x0002A628	0x00000078	[ 12] FDE for: _disk_buf_thread
+0x0002A6A0	0x00000058	[ 12] FDE for: _disk_buf_init
+0x0002A6F8	0x00000040	[ 12] FDE for: _disk_buf_exit
+0x0002A738	0x00000018	[ 13] CFI
+0x0002A750	0x00000020	[ 13] FDE for: _backlight_brightness_getlang
+0x0002A770	0x00000068	[ 13] FDE for: _sync_audio_setting
+0x0002A7D8	0x00000048	[ 13] FDE for: _sync_audio_settings
+0x0002A820	0x00000020	[ 13] FDE for: _get_start_time_lcd_enable_hook
+0x0002A840	0x00000050	[ 13] FDE for: _backlight_brightness_formatter
+0x0002A890	0x00000048	[ 13] FDE for: _mpeg_set_option.constprop.0.isra.0
+0x0002A8D8	0x00000020	[ 13] FDE for: _mpeg_backlight_update_brightness
+0x0002A8F8	0x00000070	[ 13] FDE for: _mpeg_settings
+0x0002A968	0x00000020	[ 13] FDE for: _backlight_brightness_function
+0x0002A988	0x00000078	[ 13] FDE for: _mpeg_start_menu
+0x0002AA00	0x00000040	[ 13] FDE for: _mpeg_menu
+0x0002AA40	0x00000058	[ 13] FDE for: _init_settings
+0x0002AA98	0x00000048	[ 13] FDE for: _save_settings
+0x0002AAE0	0x00000018	[ 14] CFI
+0x0002AAF8	0x00000020	[ 14] FDE for: _stream_mgr_lock
+0x0002AB18	0x00000020	[ 14] FDE for: _stream_mgr_unlock
+0x0002AB38	0x00000020	[ 14] FDE for: _actl_lock
+0x0002AB58	0x00000020	[ 14] FDE for: _actl_unlock
+0x0002AB78	0x00000020	[ 14] FDE for: _stream_mgr_send_msg
+0x0002AB98	0x00000020	[ 14] FDE for: _stream_mgr_reply_msg
+0x0002ABB8	0x00000020	[ 14] FDE for: _stream_get_window_callback
+0x0002ABD8	0x00000040	[ 14] FDE for: _strl_enum_callback
+0x0002AC18	0x00000038	[ 14] FDE for: _actl_stream_broadcast
+0x0002AC50	0x00000020	[ 14] FDE for: _str_send_msg.isra.0
+0x0002AC70	0x00000050	[ 14] FDE for: _send_video_msg
+0x0002ACC0	0x00000040	[ 14] FDE for: _actl_stream_broadcast_callback
+0x0002AD00	0x00000048	[ 14] FDE for: _str_next_data_not_ready
+0x0002AD48	0x00000020	[ 14] FDE for: _str_data_notify_received
+0x0002AD68	0x00000040	[ 14] FDE for: _stream_add_stream
+0x0002ADA8	0x00000038	[ 14] FDE for: _stream_remove_streams
+0x0002ADE0	0x00000038	[ 14] FDE for: _move_strl_to_actl
+0x0002AE18	0x00000038	[ 14] FDE for: _stream_start_playback
+0x0002AE50	0x00000020	[ 14] FDE for: _stream_generate_event
+0x0002AE70	0x00000020	[ 14] FDE for: _stream_clear_notify
+0x0002AE90	0x00000038	[ 14] FDE for: _stream_show_vo
+0x0002AEC8	0x00000038	[ 14] FDE for: _stream_vo_is_visible
+0x0002AF00	0x00000048	[ 14] FDE for: _stream_vo_get_size
+0x0002AF48	0x00000038	[ 14] FDE for: _stream_vo_set_clip
+0x0002AF80	0x00000048	[ 14] FDE for: _stream_vo_get_clip
+0x0002AFC8	0x00000038	[ 14] FDE for: _stream_display_thumb
+0x0002B000	0x00000038	[ 14] FDE for: _stream_draw_frame
+0x0002B038	0x00000040	[ 14] FDE for: _stream_set_callback
+0x0002B078	0x00000038	[ 14] FDE for: _stream_get_resume_time
+0x0002B0B0	0x00000048	[ 14] FDE for: _stream_get_seek_time
+0x0002B0F8	0x00000040	[ 14] FDE for: _stream_remember_resume_time
+0x0002B138	0x00000040	[ 14] FDE for: _stream_on_stop
+0x0002B178	0x00000040	[ 14] FDE for: _stream_on_close.isra.0
+0x0002B1B8	0x00000048	[ 14] FDE for: _stream_on_open
+0x0002B200	0x00000050	[ 14] FDE for: _time_from_whence
+0x0002B250	0x00000068	[ 14] FDE for: _stream_mgr_thread
+0x0002B2B8	0x00000038	[ 14] FDE for: _stream_wait_status
+0x0002B2F0	0x00000040	[ 14] FDE for: _stream_get_window
+0x0002B330	0x00000038	[ 14] FDE for: _stream_open
+0x0002B368	0x00000038	[ 14] FDE for: _stream_play
+0x0002B3A0	0x00000038	[ 14] FDE for: _stream_pause
+0x0002B3D8	0x00000038	[ 14] FDE for: _stream_resume
+0x0002B410	0x00000038	[ 14] FDE for: _stream_stop
+0x0002B448	0x00000050	[ 14] FDE for: _stream_seek
+0x0002B498	0x00000038	[ 14] FDE for: _stream_close
+0x0002B4D0	0x00000058	[ 14] FDE for: _stream_init
+0x0002B528	0x00000040	[ 14] FDE for: _stream_exit
+0x0002B568	0x00000018	[ 15] CFI
+0x0002B580	0x00000020	[ 15] FDE for: _draw_blendcolor
+0x0002B5A0	0x00000020	[ 15] FDE for: _draw_update_rect
+0x0002B5C0	0x00000020	[ 15] FDE for: _draw_clear_area
+0x0002B5E0	0x00000020	[ 15] FDE for: _draw_clear_area_rect
+0x0002B600	0x00000020	[ 15] FDE for: _draw_hline
+0x0002B620	0x00000020	[ 15] FDE for: _draw_vline
+0x0002B640	0x00000020	[ 15] FDE for: _draw_setfont
+0x0002B660	0x00000050	[ 15] FDE for: _draw_putsxy_oriented
+0x0002B6B0	0x00000020	[ 15] FDE for: _fps_post_frame_callback
+0x0002B6D0	0x00000020	[ 15] FDE for: _osd_lcd_enable_hook
+0x0002B6F0	0x00000020	[ 15] FDE for: _osd_schedule_refresh
+0x0002B710	0x00000038	[ 15] FDE for: _osd_halt
+0x0002B748	0x00000020	[ 15] FDE for: _osd_backlight_brightness_video_mode
+0x0002B768	0x00000058	[ 15] FDE for: _fps_update_post_frame_callback
+0x0002B7C0	0x00000038	[ 15] FDE for: _osd_update_time
+0x0002B7F8	0x00000020	[ 15] FDE for: _osd_stream_status
+0x0002B818	0x00000038	[ 15] FDE for: _osdbacklight_hw_on_video_mode.part.0
+0x0002B850	0x00000070	[ 15] FDE for: _get_videofile.constprop.0
+0x0002B8C0	0x00000038	[ 15] FDE for: _osdbacklight_hw_on_video_mode.constprop.0
+0x0002B8F8	0x000000A0	[ 15] FDE for: _osd_refresh
+0x0002B998	0x00000020	[ 15] FDE for: _osd_set_status
+0x0002B9B8	0x00000040	[ 15] FDE for: _osd_resume
+0x0002B9F8	0x00000048	[ 15] FDE for: _osd_set_volume
+0x0002BA40	0x00000068	[ 15] FDE for: _osd_show
+0x0002BAA8	0x00000038	[ 15] FDE for: _osd_stop
+0x0002BAE0	0x00000058	[ 15] FDE for: _osd_pause.isra.0
+0x0002BB38	0x00000068	[ 15] FDE for: _osd_seek_btn
+0x0002BBA0	0x00000070	[ 15] FDE for: _plugin_start
+0x0002BC10	0x00000018	[ 16] CFI
+0x0002BC28	0x00000020	[ 16] FDE for: _parser_init_state
+0x0002BC48	0x00000020	[ 16] FDE for: _read_pts
+0x0002BC68	0x00000020	[ 16] FDE for: _str_send_msg.isra.0
+0x0002BC88	0x00000070	[ 16] FDE for: _init_times
+0x0002BCF8	0x00000040	[ 16] FDE for: _str_initialize
+0x0002BD38	0x00000020	[ 16] FDE for: _str_end_of_stream
+0x0002BD58	0x00000048	[ 16] FDE for: _parse_elementary
+0x0002BDA0	0x00000070	[ 16] FDE for: _parse_demux
+0x0002BE10	0x00000058	[ 16] FDE for: _mpeg_parser_scan_start_code
+0x0002BE68	0x00000058	[ 16] FDE for: _mpeg_parser_scan_pes
+0x0002BEC0	0x00000048	[ 16] FDE for: _mpeg_parser_scan_scr
+0x0002BF08	0x00000060	[ 16] FDE for: _mpeg_parser_scan_pts
+0x0002BF68	0x00000078	[ 16] FDE for: _mpeg_parser_seek_PTS
+0x0002BFE0	0x00000068	[ 16] FDE for: _parser_prepare_image
+0x0002C048	0x00000020	[ 16] FDE for: _parser_seek_time
+0x0002C068	0x00000060	[ 16] FDE for: _parser_prepare_streaming
+0x0002C0C8	0x00000070	[ 16] FDE for: _parser_init_stream
+0x0002C138	0x00000038	[ 16] FDE for: _parser_close_stream
+0x0002C170	0x00000038	[ 16] FDE for: _parser_init
+0x0002C1A8	0x00000018	[ 17] CFI
+0x0002C1C0	0x00000020	[ 17] FDE for: _stream_scan_init
+0x0002C1E0	0x00000020	[ 17] FDE for: _stream_scan_normalize
+0x0002C200	0x00000020	[ 17] FDE for: _stream_scan_offset
+0x0002C220	0x00000020	[ 17] FDE for: _ts_to_hms
+0x0002C240	0x00000048	[ 17] FDE for: _hms_format
+0x0002C288	0x00000020	[ 17] FDE for: _muldiv_uint32
+0x0002C2A8	0x00000020	[ 17] FDE for: _list_is_empty
+0x0002C2C8	0x00000038	[ 17] FDE for: _list_is_member
+0x0002C300	0x00000038	[ 17] FDE for: _list_remove_item
+0x0002C338	0x00000040	[ 17] FDE for: _list_add_item
+0x0002C378	0x00000020	[ 17] FDE for: _list_clear_all
+0x0002C398	0x00000050	[ 17] FDE for: _list_enum_items
+0x0002C3E8	0x00000020	[ 17] FDE for: _mpeg_sysevent_clear
+0x0002C408	0x00000020	[ 17] FDE for: _mpeg_sysevent_set
+0x0002C428	0x00000020	[ 17] FDE for: _mpeg_sysevent
+0x0002C448	0x00000020	[ 17] FDE for: _mpeg_sysevent_callback
+0x0002C468	0x00000020	[ 17] FDE for: _mpeg_sysevent_handle
+0x0002C488	0x00000048	[ 17] FDE for: _mpeg_button_get
+0x0002C4D0	0x00000018	[ 18] CFI
+0x0002C4E8	0x00000020	[ 18] FDE for: _cleanup_wrapper
+0x0002C508	0x00000040	[ 18] FDE for: _plugin__start
+0x0002C548	0x00000020	[ 18] FDE for: _rb_atexit
+0x0002C568	0x00000030	[ 18] FDE for: _exit
+0x0002C598	0x00000030	[ 18] FDE for: __exit
+0x0002C5C8	0x00000038	[ 18] FDE for: _exit_on_usb
+0x0002C600	0x00000018	[ 19] CFI
+0x0002C618	0x00000020	[ 19] FDE for: _mad_bit_init
+0x0002C638	0x00000020	[ 19] FDE for: _mad_bit_length
+0x0002C658	0x00000020	[ 19] FDE for: _mad_bit_nextbyte
+0x0002C678	0x00000020	[ 19] FDE for: _mad_bit_skip
+0x0002C698	0x00000020	[ 19] FDE for: _mad_bit_read
+0x0002C6B8	0x00000038	[ 19] FDE for: _mad_bit_crc
+0x0002C6F0	0x00000018	[ 20] CFI
+0x0002C708	0x00000050	[ 20] FDE for: _decode_header
+0x0002C758	0x00000020	[ 20] FDE for: _mad_header_init
+0x0002C778	0x00000060	[ 20] FDE for: _mad_header_decode
+0x0002C7D8	0x00000048	[ 20] FDE for: _mad_frame_decode
+0x0002C820	0x00000040	[ 20] FDE for: _mad_frame_mute
+0x0002C860	0x00000038	[ 20] FDE for: _mad_frame_init
+0x0002C898	0x00000018	[ 22] CFI
+0x0002C8B0	0x00000038	[ 22] FDE for: _I_sample
+0x0002C8E8	0x00000060	[ 22] FDE for: _II_samples
+0x0002C948	0x00000070	[ 22] FDE for: _mad_layer_I
+0x0002C9B8	0x00000070	[ 22] FDE for: _mad_layer_II
+0x0002CA28	0x00000018	[ 23] CFI
+0x0002CA40	0x00000020	[ 23] FDE for: _III_requantize
+0x0002CA60	0x00000020	[ 23] FDE for: _III_aliasreduce
+0x0002CA80	0x00000068	[ 23] FDE for: _III_imdct_l
+0x0002CAE8	0x00000030	[ 23] FDE for: _III_imdct_s
+0x0002CB18	0x00000020	[ 23] FDE for: _III_overlap
+0x0002CB38	0x00000020	[ 23] FDE for: _III_freqinver
+0x0002CB58	0x00000078	[ 23] FDE for: _III_decode
+0x0002CBD0	0x00000060	[ 23] FDE for: _mad_layer_III
+0x0002CC30	0x00000018	[ 24] CFI
+0x0002CC48	0x00000040	[ 24] FDE for: _mad_stream_init
+0x0002CC88	0x00000020	[ 24] FDE for: _mad_stream_buffer
+0x0002CCA8	0x00000040	[ 24] FDE for: _mad_stream_sync
+0x0002CCE8	0x00000020	[ 24] FDE for: _mad_stream_errorstr
+0x0002CD08	0x00000018	[ 25] CFI
+0x0002CD20	0x00000020	[ 25] FDE for: _prod_sb
+0x0002CD40	0x00000020	[ 25] FDE for: _mad_synth_mute
+0x0002CD60	0x00000040	[ 25] FDE for: _mad_synth_init
+0x0002CDA0	0x00000060	[ 25] FDE for: _mad_synth_frame
+0x0002CE00	0x00000018	[ 26] CFI
+0x0002CE18	0x00000020	[ 26] FDE for: _memcpy
+0x0002CE38	0x00000020	[ 26] FDE for: _memset
+0x0002CE58	0x00000020	[ 26] FDE for: _memmove
+0x0002CE78	0x00000020	[ 26] FDE for: _memcmp
+0x0002CE98	0x00000018	[ 27] CFI
+0x0002CEB0	0x00000020	[ 27] FDE for: _talk_val
+0x0002CED0	0x00000040	[ 27] FDE for: _backlight_force_on
+0x0002CF10	0x00000050	[ 27] FDE for: _backlight_ignore_timeout
+0x0002CF60	0x00000040	[ 27] FDE for: _backlight_use_settings
+0x0002CFA0	0x00000040	[ 27] FDE for: _sw_poweroff_disable
+0x0002CFE0	0x00000020	[ 27] FDE for: _sw_poweroff_restore
+0x0002D000	0x00000020	[ 27] FDE for: _remote_backlight_force_on
+0x0002D020	0x00000020	[ 27] FDE for: _remote_backlight_ignore_timeout
+0x0002D040	0x00000020	[ 27] FDE for: _remote_backlight_use_settings
+0x0002D060	0x00000020	[ 27] FDE for: _buttonlight_force_on
+0x0002D080	0x00000020	[ 27] FDE for: _buttonlight_force_off
+0x0002D0A0	0x00000020	[ 27] FDE for: _buttonlight_ignore_timeout
+0x0002D0C0	0x00000020	[ 27] FDE for: _buttonlight_use_settings
+0x0002D0E0	0x00000020	[ 27] FDE for: _backlight_brightness_set
+0x0002D100	0x00000020	[ 27] FDE for: _backlight_brightness_use_setting
+0x0002D120	0x00000020	[ 27] FDE for: _buttonlight_brightness_set
+0x0002D140	0x00000020	[ 27] FDE for: _buttonlight_brightness_use_setting
+0x0002D160	0x00000018	[ 28] CFI
+0x0002D178	0x00000068	[ 28] FDE for: _get_cfg_filename.constprop.0
+0x0002D1E0	0x00000070	[ 28] FDE for: _configfile_save
+0x0002D250	0x00000068	[ 28] FDE for: _configfile_load
+0x0002D2B8	0x00000058	[ 28] FDE for: _configfile_get_value
+0x0002D310	0x00000070	[ 28] FDE for: _configfile_update_entry
+0x00030000	0x00000008	[ 33] _longjmp.got
+0x00030008	0x00000008	[ 33] _setjmp.got
+0x00030010	0x00000048	[  1] _process_header.0
+0x00030058	0x00000048	[  2] _parser.1
+0x000300A0	0x00000080	[  4] _mpeg2_mc
+0x00030120	0x00000018	[ 13] _menu__.2
+0x00030138	0x00000018	[ 13] _menu.3
+0x00030150	0x00000018	[ 13] _menu__.6
+0x00030168	0x00000018	[ 13] _menu.7
+0x00030180	0x00000018	[ 13] _menu__.9
+0x00030198	0x00000018	[ 13] _menu.10
+0x000301B0	0x00000018	[ 13] _menu__.12
+0x000301C8	0x00000018	[ 13] _menu.13
+0x000301E0	0x00000018	[ 13] _menu__.15
+0x000301F8	0x00000018	[ 13] _menu.16
+0x00030210	0x00000020	[ 15] _extensions.0
+0x00030230	0x00000038	[ 18] ___header
+0x00030268	0x00000018	[ 20] _decoder_table
+0x00030280	0x00000200	[ 21] _mad_huff_pair_table
+0x00030480	0x00000010	[ 21] _mad_huff_quad_table
+0x00030490	0x000000D8	[ 23] _sfbwidth_table
+0x00030568	0x00000028	[ 29] _bm_mpegplayer_status_icons_8x8x1
+0x00030590	0x00000028	[ 30] _bm_mpegplayer_status_icons_12x12x1
+0x000305B8	0x00000028	[ 31] _bm_mpegplayer_status_icons_16x16x1
+0x00034000	0x00000018	[ 13] _menu_.1
+0x00034018	0x00000028	[ 13] _menu_.5
+0x00034040	0x00000020	[ 13] _menu_.8
+0x00034060	0x00000028	[ 13] _menu_.11
+0x00034088	0x00000028	[ 13] _menu_.14
+0x000340B0	0x000001E0	[ 13] _config
+0x00034290	0x00000001	[ 27] _original_sw_poweroff_state
+0x00034298	0x00000008	[ 18] _rb
+0x000342A0	0x00000080	[  1] _static_dct_block
+0x00034320	0x00000008	[  7] _mpeg2_bufallocbuf
+0x00034328	0x00000008	[  7] _mpeg2_mallocbuf
+0x00034330	0x00000008	[  7] _mpeg2_bufsize
+0x00034338	0x00000008	[  7] _mpeg2_mem_ptr
+0x00034340	0x00000008	[  7] _mallocbuf
+0x00034348	0x00000008	[  7] _bufsize
+0x00034350	0x00000008	[  7] _mem_ptr
+0x00034358	0x00000058	[  8] _vo
+0x000343B0	0x000000A8	[  9] _video_str_queue_send
+0x00034458	0x00000128	[  9] _video_str_queue
+0x00034580	0x00001000	[  9] _video_stack
+0x00035580	0x00000004	[  9] _video_num_skipped
+0x00035584	0x00000004	[  9] _video_num_drawn
+0x00035588	0x00000400	[ 10] _silence
+0x00035988	0x00000004	[ 10] _old_sampr
+0x0003598C	0x00000004	[ 10] _pcm_underruns
+0x00035990	0x00000004	[ 10] _pcm_skipped
+0x00035994	0x00000004	[ 10] _clock_time
+0x00035998	0x00000004	[ 10] _clock_tick
+0x0003599C	0x00000004	[ 10] _clock_start
+0x000359A0	0x00000008	[ 10] _pcmbuf_threshold
+0x000359A8	0x00000008	[ 10] _pcmbuf_written
+0x000359B0	0x00000008	[ 10] _pcmbuf_read
+0x000359B8	0x00000008	[ 10] _pcmbuf_curr_size
+0x000359C0	0x00000008	[ 10] _pcmbuf_tail
+0x000359C8	0x00000008	[ 10] _pcmbuf_head
+0x000359D0	0x00000008	[ 10] _pcmbuf_end
+0x000359D8	0x00000008	[ 10] _pcm_buffer
+0x000359E0	0x00001200	[ 11] _mad_frame_overlap
+0x00036BE0	0x00000A08	[ 11] _mad_main_data
+0x000375E8	0x00003410	[ 11] _synth
+0x0003A9F8	0x00000048	[ 11] _frame
+0x0003AA40	0x00000070	[ 11] _stream
+0x0003AAB0	0x000000A8	[ 11] _audio_str_queue_send
+0x0003AB58	0x00000128	[ 11] _audio_str_queue
+0x0003AC80	0x00000010	[ 12] _rng.0
+0x0003AC90	0x00000028	[ 12] _nf_list
+0x0003ACB8	0x0001C000	[ 12] _disk_buf_stack
+0x00056CB8	0x000000A8	[ 12] _disk_buf_queue_send
+0x00056D60	0x00000128	[ 12] _disk_buf_queue
+0x00056E88	0x00000028	[ 12] _disk_buf_mtx
+0x00056EB0	0x0001C000	[ 14] _stream_mgr_thread_stack
+0x00072EB0	0x000000A8	[ 14] _stream_mgr_queue_send
+0x00072F58	0x00000128	[ 14] _stream_mgr_queue
+0x00073080	0x00000108	[ 15] _videofile.1
+0x00073188	0x00000028	[ 15] _fps
+0x000731B0	0x000000D8	[ 15] _osd
+0x00073288	0x00000008	[ 17] _mpeg_sysevent_id
+0x00073290	0x00000008	[ 18] _atexit_handler
+0x00073298	0x000000C0	[ 18] ___exit_env
+0x00073358	0x00000040	[  2] _mpeg2_scan_alt
+0x00073398	0x00000040	[  2] _mpeg2_scan_norm
+0x000733D8	0x00000050	[  9] _video_str
+0x00073428	0x00000228	[ 11] _audio_queue
+0x00073650	0x00002400	[ 11] _sbsample
+0x00075A50	0x00000050	[ 11] _audio_str
+0x00075AA0	0x00000098	[ 12] _disk_buf
+0x00075B38	0x00000138	[ 13] _settings
+0x00075C70	0x000000D8	[ 14] _stream_mgr
+0x00075D48	0x000000E8	[ 16] _str_parser

@@ -1,0 +1,114 @@
+# Path: /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/cube.elf
+# Arch: arm64
+# Object files:
+[  0] linker synthesized
+[  1] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/cube.o
+[  2] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/plugin_crt0.o
+[  3] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(xlcd_core.o)
+[  4] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(xlcd_draw.o)
+[  5] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/libfixedpoint.a(fixedpoint.o)
+[  6] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/libSystem.tbd
+[  7] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/system/libsystem_c.tbd
+[  8] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/system/libsystem_platform.tbd
+# Sections:
+# Address	Size    	Segment	Section
+0x00000728	0x00001898	__TEXT	__text
+0x00001FC0	0x00000024	__TEXT	__stubs
+0x00001FE4	0x00000025	__TEXT	__cstring
+0x00002010	0x000003B0	__TEXT	__const
+0x000023C0	0x00000628	__TEXT	__eh_frame
+0x00004000	0x00000018	__DATA_CONST	__got
+0x00004018	0x00000038	__DATA_CONST	__const
+0x00008000	0x00000030	__DATA	__data
+0x00008030	0x00000008	__DATA	.data
+0x00008038	0x00000218	__DATA	__bss
+# Symbols:
+# Address	Size    	File  Name
+0x00000728	0x00000004	[  1] _cleanup
+0x0000072C	0x000008A0	[  1] _plugin_start
+0x00000FCC	0x00000018	[  2] _cleanup_wrapper
+0x00000FE4	0x00000068	[  2] _plugin__start
+0x0000104C	0x00000020	[  2] _rb_atexit
+0x0000106C	0x00000024	[  2] _exit
+0x00001090	0x00000014	[  2] __exit
+0x000010A4	0x00000064	[  2] _exit_on_usb
+0x00001108	0x00000044	[  3] _get_framebuffer
+0x0000114C	0x00000368	[  4] _xlcd_filltriangle_screen
+0x000014B4	0x0000002C	[  4] _xlcd_filltriangle
+0x000014E0	0x00000164	[  4] _xlcd_fillcircle_screen
+0x00001644	0x00000020	[  4] _xlcd_fillcircle
+0x00001664	0x0000010C	[  4] _xlcd_drawcircle_screen
+0x00001770	0x00000020	[  4] _xlcd_drawcircle
+0x00001790	0x00000170	[  4] _xlcd_color_bitmap_part
+0x00001900	0x0000001C	[  4] _xlcd_color_bitmap
+0x0000191C	0x000000B0	[  5] _fp_sincos
+0x000019CC	0x000000B4	[  5] _fp_sqrt
+0x00001A80	0x0000003C	[  5] _ipow
+0x00001ABC	0x00000060	[  5] _fp14_sin
+0x00001B1C	0x00000064	[  5] _fp14_cos
+0x00001B80	0x00000110	[  5] _fp16_log
+0x00001C90	0x000000F8	[  5] _fp16_exp
+0x00001D88	0x00000154	[  5] _fp_exp10
+0x00001EDC	0x000000AC	[  5] _fp_log10
+0x00001F88	0x00000024	[  5] _fp_decibels
+0x00001FAC	0x00000014	[  5] _fp_factor
+0x00001FC0	0x0000000C	[  7] _abs.stub
+0x00001FCC	0x0000000C	[  8] _longjmp.stub
+0x00001FD8	0x0000000C	[  8] _setjmp.stub
+0x00001FE4	0x00000005	[  1] literal string: (hs)
+0x00001FE9	0x00000001	[  1] literal string: 
+0x00001FEA	0x0000000A	[  1] literal string: %s: %d %s
+0x00001FF4	0x00000007	[  1] literal string: x-axis
+0x00001FFB	0x00000007	[  1] literal string: y-axis
+0x00002002	0x00000007	[  1] literal string: z-axis
+0x00002010	0x00000018	[  1] _face_colors
+0x00002028	0x000000C0	[  1] _faces
+0x000020E8	0x00000060	[  1] _lines
+0x00002148	0x000000C0	[  1] _sommet
+0x00002208	0x000000B8	[  5] _sin_table
+0x000022C0	0x00000100	[  5] _atan_table
+0x000023C0	0x00000018	[  1] CFI
+0x000023D8	0x00000020	[  1] FDE for: _cleanup
+0x000023F8	0x00000070	[  1] FDE for: _plugin_start
+0x00002468	0x00000018	[  2] CFI
+0x00002480	0x00000020	[  2] FDE for: _cleanup_wrapper
+0x000024A0	0x00000040	[  2] FDE for: _plugin__start
+0x000024E0	0x00000020	[  2] FDE for: _rb_atexit
+0x00002500	0x00000030	[  2] FDE for: _exit
+0x00002530	0x00000030	[  2] FDE for: __exit
+0x00002560	0x00000038	[  2] FDE for: _exit_on_usb
+0x00002598	0x00000018	[  3] CFI
+0x000025B0	0x00000020	[  3] FDE for: _get_framebuffer
+0x000025D0	0x00000018	[  4] CFI
+0x000025E8	0x00000070	[  4] FDE for: _xlcd_filltriangle_screen
+0x00002658	0x00000020	[  4] FDE for: _xlcd_filltriangle
+0x00002678	0x00000060	[  4] FDE for: _xlcd_fillcircle_screen
+0x000026D8	0x00000020	[  4] FDE for: _xlcd_fillcircle
+0x000026F8	0x00000070	[  4] FDE for: _xlcd_drawcircle_screen
+0x00002768	0x00000020	[  4] FDE for: _xlcd_drawcircle
+0x00002788	0x00000068	[  4] FDE for: _xlcd_color_bitmap_part
+0x000027F0	0x00000020	[  4] FDE for: _xlcd_color_bitmap
+0x00002810	0x00000018	[  5] CFI
+0x00002828	0x00000020	[  5] FDE for: _fp_sincos
+0x00002848	0x00000020	[  5] FDE for: _fp_sqrt
+0x00002868	0x00000020	[  5] FDE for: _ipow
+0x00002888	0x00000020	[  5] FDE for: _fp14_sin
+0x000028A8	0x00000020	[  5] FDE for: _fp14_cos
+0x000028C8	0x00000020	[  5] FDE for: _fp16_log
+0x000028E8	0x00000020	[  5] FDE for: _fp16_exp
+0x00002908	0x00000068	[  5] FDE for: _fp_exp10
+0x00002970	0x00000020	[  5] FDE for: _fp_log10
+0x00002990	0x00000038	[  5] FDE for: _fp_decibels
+0x000029C8	0x00000020	[  5] FDE for: _fp_factor
+0x00004000	0x00000008	[  7] _abs.got
+0x00004008	0x00000008	[  8] _longjmp.got
+0x00004010	0x00000008	[  8] _setjmp.got
+0x00004018	0x00000038	[  2] ___header
+0x00008000	0x00000030	[  1] _axes
+0x00008030	0x00000008	[  2] _rb
+0x00008038	0x00000080	[  1] _point2D
+0x000080B8	0x000000C0	[  1] _point3D
+0x00008178	0x00000004	[  1] _mode
+0x0000817C	0x0000000C	[  1] _lines_drawn
+0x00008188	0x00000008	[  2] _atexit_handler
+0x00008190	0x000000C0	[  2] ___exit_env

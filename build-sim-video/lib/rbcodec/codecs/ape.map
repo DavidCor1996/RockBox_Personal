@@ -1,0 +1,195 @@
+# Path: /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/ape.elf
+# Arch: arm64
+# Object files:
+[  0] linker synthesized
+[  1] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/ape.o
+[  2] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/codec_crt0.o
+[  3] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libdemac.a(predictor.o)
+[  4] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libdemac.a(entropy.o)
+[  5] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libdemac.a(decoder.o)
+[  6] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libdemac.a(parser.o)
+[  7] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libdemac.a(filter_1280_15.o)
+[  8] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libdemac.a(filter_16_11.o)
+[  9] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libdemac.a(filter_256_13.o)
+[ 10] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libdemac.a(filter_32_10.o)
+[ 11] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libdemac.a(filter_64_11.o)
+[ 12] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+[ 13] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/libSystem.tbd
+# Sections:
+# Address	Size    	Segment	Section
+0x00000640	0x000044D4	__TEXT	__text
+0x00004B14	0x00000618	__TEXT	__const
+0x0000512C	0x00000005	__TEXT	__cstring
+0x00005138	0x00000EC8	__TEXT	__eh_frame
+0x00008000	0x00000040	__DATA_CONST	__const
+0x0000C000	0x00000008	__DATA	.data
+0x0000C008	0x00025818	__DATA	__bss
+# Symbols:
+# Address	Size    	File  Name
+0x00000640	0x000004D4	[  1] _codec_run
+0x00000B14	0x0000003C	[  1] _codec_main
+0x00000B50	0x00000008	[  2] __start
+0x00000B58	0x00000004	[  2] _codec_start
+0x00000B5C	0x00000080	[  3] _init_predictor_decoder
+0x00000BDC	0x0000044C	[  3] _predictor_decode_stereo
+0x00001028	0x0000016C	[  3] _predictor_decode_mono
+0x00001194	0x0000002C	[  4] _skip_byte
+0x000011C0	0x0000002C	[  4] _read_byte
+0x000011EC	0x00000058	[  4] _range_dec_normalize
+0x00001244	0x00000030	[  4] _range_decode_culshift
+0x00001274	0x00000020	[  4] _range_decode_update
+0x00001294	0x0000002C	[  4] _range_decode_short
+0x000012C0	0x00000060	[  4] _update_rice
+0x00001320	0x0000013C	[  4] _entropy_decode3980
+0x0000145C	0x000000EC	[  4] _entropy_decode3970
+0x00001548	0x00000104	[  4] _init_entropy_decoder
+0x0000164C	0x00000160	[  4] _entropy_decode
+0x000017AC	0x000000B4	[  5] _init_frame_decoder
+0x00001860	0x00000370	[  5] _decode_chunk
+0x00001BD0	0x00000008	[  6] _get_uint32
+0x00001BD8	0x000002BC	[  6] _ape_parseheaderbuf
+0x00001E94	0x00000218	[  7] _vector_add
+0x000020AC	0x00000218	[  7] _vector_sub
+0x000022C4	0x000001A8	[  7] _scalarproduct
+0x0000246C	0x0000008C	[  7] _init_filter_1280_15
+0x000024F8	0x000002D4	[  7] _apply_filter_1280_15
+0x000027CC	0x00000104	[  8] _vector_add
+0x000028D0	0x00000104	[  8] _vector_sub
+0x000029D4	0x000000C8	[  8] _scalarproduct
+0x00002A9C	0x00000078	[  8] _init_filter_16_11
+0x00002B14	0x000002BC	[  8] _apply_filter_16_11
+0x00002DD0	0x00000218	[  9] _vector_add
+0x00002FE8	0x00000218	[  9] _vector_sub
+0x00003200	0x000001A8	[  9] _scalarproduct
+0x000033A8	0x0000007C	[  9] _init_filter_256_13
+0x00003424	0x000002BC	[  9] _apply_filter_256_13
+0x000036E0	0x00000204	[ 10] _vector_add
+0x000038E4	0x00000204	[ 10] _vector_sub
+0x00003AE8	0x00000188	[ 10] _scalarproduct
+0x00003C70	0x00000078	[ 10] _init_filter_32_10
+0x00003CE8	0x000002BC	[ 10] _apply_filter_32_10
+0x00003FA4	0x00000218	[ 11] _vector_add
+0x000041BC	0x00000218	[ 11] _vector_sub
+0x000043D4	0x000001A8	[ 11] _scalarproduct
+0x0000457C	0x00000078	[ 11] _init_filter_64_11
+0x000045F4	0x000002BC	[ 11] _apply_filter_64_11
+0x000048B0	0x00000040	[ 12] _codec_init
+0x000048F0	0x00000048	[ 12] _codec_set_replaygain
+0x00004938	0x00000048	[ 12] _codec_malloc
+0x00004980	0x0000004C	[ 12] _codec_calloc
+0x000049CC	0x00000004	[ 12] _codec_free
+0x000049D0	0x00000054	[ 12] _codec_realloc
+0x00004A24	0x00000018	[ 12] _codec_strlen
+0x00004A3C	0x00000018	[ 12] _strcpy
+0x00004A54	0x00000018	[ 12] _strcat
+0x00004A6C	0x00000018	[ 12] _strcmp
+0x00004A84	0x00000018	[ 12] _memcpy
+0x00004A9C	0x00000018	[ 12] _memset
+0x00004AB4	0x00000018	[ 12] _memcmp
+0x00004ACC	0x00000018	[ 12] _memchr
+0x00004AE4	0x00000018	[ 12] _memmove
+0x00004AFC	0x00000018	[ 12] _qsort
+0x00004B14	0x00000010	[  3] _initial_coeffs
+0x00004B24	0x00000100	[  4] _counts_diff_3980
+0x00004C24	0x00000104	[  4] _counts_3980
+0x00004D28	0x00000100	[  4] _counts_diff_3970
+0x00004E28	0x00000104	[  4] _counts_3970
+0x00004F2C	0x00000100	[ 12] _bs_clz_tab
+0x0000502C	0x00000100	[ 12] _bs_log2_tab
+0x0000512C	0x00000005	[  6] literal string: MAC 
+0x00005138	0x00000018	[  1] CFI
+0x00005150	0x00000078	[  1] FDE for: _codec_run
+0x000051C8	0x00000038	[  1] FDE for: _codec_main
+0x00005200	0x00000018	[  2] CFI
+0x00005218	0x00000020	[  2] FDE for: __start
+0x00005238	0x00000020	[  2] FDE for: _codec_start
+0x00005258	0x00000018	[  3] CFI
+0x00005270	0x00000040	[  3] FDE for: _init_predictor_decoder
+0x000052B0	0x00000070	[  3] FDE for: _predictor_decode_stereo
+0x00005320	0x00000068	[  3] FDE for: _predictor_decode_mono
+0x00005388	0x00000018	[  4] CFI
+0x000053A0	0x00000020	[  4] FDE for: _skip_byte
+0x000053C0	0x00000038	[  4] FDE for: _read_byte
+0x000053F8	0x00000038	[  4] FDE for: _range_dec_normalize
+0x00005430	0x00000038	[  4] FDE for: _range_decode_culshift
+0x00005468	0x00000020	[  4] FDE for: _range_decode_update
+0x00005488	0x00000038	[  4] FDE for: _range_decode_short
+0x000054C0	0x00000020	[  4] FDE for: _update_rice
+0x000054E0	0x00000040	[  4] FDE for: _entropy_decode3980
+0x00005520	0x00000040	[  4] FDE for: _entropy_decode3970
+0x00005560	0x00000038	[  4] FDE for: _init_entropy_decoder
+0x00005598	0x00000078	[  4] FDE for: _entropy_decode
+0x00005610	0x00000018	[  5] CFI
+0x00005628	0x00000078	[  5] FDE for: _init_frame_decoder
+0x000056A0	0x00000060	[  5] FDE for: _decode_chunk
+0x00005700	0x00000018	[  6] CFI
+0x00005718	0x00000020	[  6] FDE for: _get_uint32
+0x00005738	0x00000050	[  6] FDE for: _ape_parseheaderbuf
+0x00005788	0x00000018	[  7] CFI
+0x000057A0	0x00000020	[  7] FDE for: _vector_add
+0x000057C0	0x00000020	[  7] FDE for: _vector_sub
+0x000057E0	0x00000020	[  7] FDE for: _scalarproduct
+0x00005800	0x00000048	[  7] FDE for: _init_filter_1280_15
+0x00005848	0x00000070	[  7] FDE for: _apply_filter_1280_15
+0x000058B8	0x00000018	[  8] CFI
+0x000058D0	0x00000020	[  8] FDE for: _vector_add
+0x000058F0	0x00000020	[  8] FDE for: _vector_sub
+0x00005910	0x00000020	[  8] FDE for: _scalarproduct
+0x00005930	0x00000048	[  8] FDE for: _init_filter_16_11
+0x00005978	0x00000070	[  8] FDE for: _apply_filter_16_11
+0x000059E8	0x00000018	[  9] CFI
+0x00005A00	0x00000020	[  9] FDE for: _vector_add
+0x00005A20	0x00000020	[  9] FDE for: _vector_sub
+0x00005A40	0x00000020	[  9] FDE for: _scalarproduct
+0x00005A60	0x00000048	[  9] FDE for: _init_filter_256_13
+0x00005AA8	0x00000070	[  9] FDE for: _apply_filter_256_13
+0x00005B18	0x00000018	[ 10] CFI
+0x00005B30	0x00000020	[ 10] FDE for: _vector_add
+0x00005B50	0x00000020	[ 10] FDE for: _vector_sub
+0x00005B70	0x00000020	[ 10] FDE for: _scalarproduct
+0x00005B90	0x00000048	[ 10] FDE for: _init_filter_32_10
+0x00005BD8	0x00000070	[ 10] FDE for: _apply_filter_32_10
+0x00005C48	0x00000018	[ 11] CFI
+0x00005C60	0x00000020	[ 11] FDE for: _vector_add
+0x00005C80	0x00000020	[ 11] FDE for: _vector_sub
+0x00005CA0	0x00000020	[ 11] FDE for: _scalarproduct
+0x00005CC0	0x00000048	[ 11] FDE for: _init_filter_64_11
+0x00005D08	0x00000070	[ 11] FDE for: _apply_filter_64_11
+0x00005D78	0x00000018	[ 12] CFI
+0x00005D90	0x00000038	[ 12] FDE for: _codec_init
+0x00005DC8	0x00000038	[ 12] FDE for: _codec_set_replaygain
+0x00005E00	0x00000020	[ 12] FDE for: _codec_malloc
+0x00005E20	0x00000040	[ 12] FDE for: _codec_calloc
+0x00005E60	0x00000020	[ 12] FDE for: _codec_free
+0x00005E80	0x00000040	[ 12] FDE for: _codec_realloc
+0x00005EC0	0x00000020	[ 12] FDE for: _codec_strlen
+0x00005EE0	0x00000020	[ 12] FDE for: _strcpy
+0x00005F00	0x00000020	[ 12] FDE for: _strcat
+0x00005F20	0x00000020	[ 12] FDE for: _strcmp
+0x00005F40	0x00000020	[ 12] FDE for: _memcpy
+0x00005F60	0x00000020	[ 12] FDE for: _memset
+0x00005F80	0x00000020	[ 12] FDE for: _memcmp
+0x00005FA0	0x00000020	[ 12] FDE for: _memchr
+0x00005FC0	0x00000020	[ 12] FDE for: _memmove
+0x00005FE0	0x00000020	[ 12] FDE for: _qsort
+0x00008000	0x00000040	[  1] ___header
+0x0000C000	0x00000008	[  2] _ci
+0x0000C008	0x00001000	[  1] _decoded1
+0x0000D008	0x00001000	[  1] _decoded0
+0x0000E008	0x0001D4C0	[  1] _seektablebuf
+0x0002B4C8	0x00000008	[  4] _riceY
+0x0002B4D0	0x00000008	[  4] _riceX
+0x0002B4D8	0x00000010	[  4] _rc
+0x0002B4E8	0x00000008	[  4] _bytebufferoffset
+0x0002B4F0	0x00000008	[  4] _bytebuffer
+0x0002B4F8	0x00004400	[  5] _filterbuf1280
+0x0002F8F8	0x00001400	[  5] _filterbuf256
+0x00030CF8	0x00000980	[  5] _filterbuf32
+0x00031678	0x00000050	[  7] _filter
+0x000316C8	0x00000050	[  8] _filter
+0x00031718	0x00000050	[  9] _filter
+0x00031768	0x00000050	[ 10] _filter
+0x000317B8	0x00000050	[ 11] _filter
+0x00031808	0x00000008	[ 12] _mallocbuf
+0x00031810	0x00000008	[ 12] _bufsize
+0x00031818	0x00000008	[ 12] _mem_ptr

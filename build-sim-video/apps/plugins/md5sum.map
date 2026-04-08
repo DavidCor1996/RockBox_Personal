@@ -1,0 +1,94 @@
+# Path: /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/md5sum.elf
+# Arch: arm64
+# Object files:
+[  0] linker synthesized
+[  1] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/md5sum.o
+[  2] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/plugin_crt0.o
+[  3] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(md5.o)
+[  4] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/libSystem.tbd
+[  5] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/system/libsystem_platform.tbd
+# Sections:
+# Address	Size    	Segment	Section
+0x00000688	0x00001770	__TEXT	__text
+0x00001DF8	0x00000018	__TEXT	__stubs
+0x00001E10	0x000000CF	__TEXT	__cstring
+0x00001EE0	0x00000590	__TEXT	__eh_frame
+0x00004000	0x00000010	__DATA_CONST	__got
+0x00004010	0x00000038	__DATA_CONST	__const
+0x00008000	0x00000008	__DATA	.data
+0x00008008	0x000041D8	__DATA	__bss
+# Symbols:
+# Address	Size    	File  Name
+0x00000688	0x000000F8	[  1] _hash
+0x00000780	0x0000023C	[  1] _hash_check
+0x000009BC	0x00000130	[  1] _hash_file
+0x00000AEC	0x00000184	[  1] _hash_dir
+0x00000C70	0x000000CC	[  1] _hash_list
+0x00000D3C	0x00000300	[  1] _plugin_start
+0x0000103C	0x00000018	[  2] _cleanup_wrapper
+0x00001054	0x00000068	[  2] _plugin__start
+0x000010BC	0x00000020	[  2] _rb_atexit
+0x000010DC	0x00000024	[  2] _exit
+0x00001100	0x00000014	[  2] __exit
+0x00001114	0x00000064	[  2] _exit_on_usb
+0x00001178	0x000009E0	[  3] _DigestMD5
+0x00001B58	0x00000064	[  3] _InitMD5
+0x00001BBC	0x00000100	[  3] _AddMD5
+0x00001CBC	0x000000A8	[  3] _EndMD5
+0x00001D64	0x00000094	[  3] _psz_md5_hash
+0x00001DF8	0x0000000C	[  5] _longjmp.stub
+0x00001E04	0x0000000C	[  5] _setjmp.stub
+0x00001E10	0x0000000D	[  1] literal string: %d / %d : %s
+0x00001E1D	0x00000003	[  1] literal string: : 
+0x00001E20	0x00000014	[  1] literal string: FAILED open or read
+0x00001E34	0x00000007	[  1] literal string: FAILED
+0x00001E3B	0x00000003	[  1] literal string: OK
+0x00001E3E	0x00000002	[  1] literal string: \n
+0x00001E40	0x00000022	[  1] literal string: Malformed input line ... skipping
+0x00001E62	0x00000006	[  1] literal string: error
+0x00001E68	0x00000003	[  1] literal string:   
+0x00001E6B	0x00000001	[  1] literal string: 
+0x00001E6C	0x00000002	[  1] literal string: /
+0x00001E6E	0x00000006	[  1] literal string: %s/%s
+0x00001E74	0x00000002	[  1] literal string: .
+0x00001E76	0x00000003	[  1] literal string: ..
+0x00001E79	0x0000000A	[  1] literal string: %s.md5sum
+0x00001E83	0x00000005	[  1] literal string: .md5
+0x00001E88	0x0000000A	[  1] literal string: .md5check
+0x00001E92	0x00000008	[  1] literal string: .md5sum
+0x00001E9A	0x00000009	[  1] literal string: .md5list
+0x00001EA3	0x00000013	[  1] literal string: /everything.md5sum
+0x00001EB6	0x0000000B	[  1] literal string: Hashing %s
+0x00001EC1	0x0000000D	[  1] literal string: Output file:
+0x00001ECE	0x00000011	[  3] literal string: %02x%02x%02x%02x
+0x00001EE0	0x00000018	[  1] CFI
+0x00001EF8	0x00000060	[  1] FDE for: _hash
+0x00001F58	0x00000078	[  1] FDE for: _hash_check
+0x00001FD0	0x00000058	[  1] FDE for: _hash_file
+0x00002028	0x00000088	[  1] FDE for: _hash_dir
+0x000020B0	0x00000060	[  1] FDE for: _hash_list
+0x00002110	0x00000070	[  1] FDE for: _plugin_start
+0x00002180	0x00000018	[  2] CFI
+0x00002198	0x00000020	[  2] FDE for: _cleanup_wrapper
+0x000021B8	0x00000040	[  2] FDE for: _plugin__start
+0x000021F8	0x00000020	[  2] FDE for: _rb_atexit
+0x00002218	0x00000030	[  2] FDE for: _exit
+0x00002248	0x00000030	[  2] FDE for: __exit
+0x00002278	0x00000038	[  2] FDE for: _exit_on_usb
+0x000022B0	0x00000018	[  3] CFI
+0x000022C8	0x00000050	[  3] FDE for: _DigestMD5
+0x00002318	0x00000040	[  3] FDE for: _InitMD5
+0x00002358	0x00000070	[  3] FDE for: _AddMD5
+0x000023C8	0x00000048	[  3] FDE for: _EndMD5
+0x00002410	0x00000060	[  3] FDE for: _psz_md5_hash
+0x00004000	0x00000008	[  5] _longjmp.got
+0x00004008	0x00000008	[  5] _setjmp.got
+0x00004010	0x00000038	[  2] ___header
+0x00008000	0x00000008	[  2] _rb
+0x00008008	0x00000104	[  1] _temp.0
+0x0000810C	0x00004000	[  1] _buffer.1
+0x0000C10C	0x00000004	[  1] _quit
+0x0000C110	0x00000004	[  1] _done
+0x0000C114	0x00000004	[  1] _count
+0x0000C118	0x00000008	[  2] _atexit_handler
+0x0000C120	0x000000C0	[  2] ___exit_env

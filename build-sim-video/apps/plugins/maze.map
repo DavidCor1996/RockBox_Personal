@@ -1,0 +1,85 @@
+# Path: /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/maze.elf
+# Arch: arm64
+# Object files:
+[  0] linker synthesized
+[  1] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/maze.o
+[  2] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/plugin_crt0.o
+[  3] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(helper.o)
+[  4] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/libSystem.tbd
+[  5] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/system/libsystem_platform.tbd
+# Sections:
+# Address	Size    	Segment	Section
+0x00000688	0x00000E98	__TEXT	__text
+0x00001520	0x00000018	__TEXT	__stubs
+0x00001538	0x00000580	__TEXT	__eh_frame
+0x00004000	0x00000010	__DATA_CONST	__got
+0x00004010	0x00000038	__DATA_CONST	__const
+0x00008000	0x00000008	__DATA	.data
+0x00008008	0x00000001	__DATA	__data
+0x00008010	0x000000C8	__DATA	__bss
+# Symbols:
+# Address	Size    	File  Name
+0x00000688	0x000003F4	[  1] _maze_draw
+0x00000A7C	0x000002DC	[  1] _maze_generate
+0x00000D58	0x000004B8	[  1] _plugin_start
+0x00001210	0x00000018	[  2] _cleanup_wrapper
+0x00001228	0x00000068	[  2] _plugin__start
+0x00001290	0x00000020	[  2] _rb_atexit
+0x000012B0	0x00000024	[  2] _exit
+0x000012D4	0x00000014	[  2] __exit
+0x000012E8	0x00000064	[  2] _exit_on_usb
+0x0000134C	0x00000020	[  3] _talk_val
+0x0000136C	0x00000040	[  3] _backlight_force_on
+0x000013AC	0x0000006C	[  3] _backlight_ignore_timeout
+0x00001418	0x00000048	[  3] _backlight_use_settings
+0x00001460	0x00000044	[  3] _sw_poweroff_disable
+0x000014A4	0x00000020	[  3] _sw_poweroff_restore
+0x000014C4	0x00000004	[  3] _remote_backlight_force_on
+0x000014C8	0x00000004	[  3] _remote_backlight_ignore_timeout
+0x000014CC	0x00000004	[  3] _remote_backlight_use_settings
+0x000014D0	0x00000004	[  3] _buttonlight_force_on
+0x000014D4	0x00000004	[  3] _buttonlight_force_off
+0x000014D8	0x00000004	[  3] _buttonlight_ignore_timeout
+0x000014DC	0x00000004	[  3] _buttonlight_use_settings
+0x000014E0	0x00000018	[  3] _backlight_brightness_set
+0x000014F8	0x00000020	[  3] _backlight_brightness_use_setting
+0x00001518	0x00000004	[  3] _buttonlight_brightness_set
+0x0000151C	0x00000004	[  3] _buttonlight_brightness_use_setting
+0x00001520	0x0000000C	[  5] _longjmp.stub
+0x0000152C	0x0000000C	[  5] _setjmp.stub
+0x00001538	0x00000018	[  1] CFI
+0x00001550	0x00000070	[  1] FDE for: _maze_draw
+0x000015C0	0x00000080	[  1] FDE for: _maze_generate
+0x00001640	0x00000080	[  1] FDE for: _plugin_start
+0x000016C0	0x00000018	[  2] CFI
+0x000016D8	0x00000020	[  2] FDE for: _cleanup_wrapper
+0x000016F8	0x00000040	[  2] FDE for: _plugin__start
+0x00001738	0x00000020	[  2] FDE for: _rb_atexit
+0x00001758	0x00000030	[  2] FDE for: _exit
+0x00001788	0x00000030	[  2] FDE for: __exit
+0x000017B8	0x00000038	[  2] FDE for: _exit_on_usb
+0x000017F0	0x00000018	[  3] CFI
+0x00001808	0x00000020	[  3] FDE for: _talk_val
+0x00001828	0x00000040	[  3] FDE for: _backlight_force_on
+0x00001868	0x00000050	[  3] FDE for: _backlight_ignore_timeout
+0x000018B8	0x00000040	[  3] FDE for: _backlight_use_settings
+0x000018F8	0x00000040	[  3] FDE for: _sw_poweroff_disable
+0x00001938	0x00000020	[  3] FDE for: _sw_poweroff_restore
+0x00001958	0x00000020	[  3] FDE for: _remote_backlight_force_on
+0x00001978	0x00000020	[  3] FDE for: _remote_backlight_ignore_timeout
+0x00001998	0x00000020	[  3] FDE for: _remote_backlight_use_settings
+0x000019B8	0x00000020	[  3] FDE for: _buttonlight_force_on
+0x000019D8	0x00000020	[  3] FDE for: _buttonlight_force_off
+0x000019F8	0x00000020	[  3] FDE for: _buttonlight_ignore_timeout
+0x00001A18	0x00000020	[  3] FDE for: _buttonlight_use_settings
+0x00001A38	0x00000020	[  3] FDE for: _backlight_brightness_set
+0x00001A58	0x00000020	[  3] FDE for: _backlight_brightness_use_setting
+0x00001A78	0x00000020	[  3] FDE for: _buttonlight_brightness_set
+0x00001A98	0x00000020	[  3] FDE for: _buttonlight_brightness_use_setting
+0x00004000	0x00000008	[  5] _longjmp.got
+0x00004008	0x00000008	[  5] _setjmp.got
+0x00004010	0x00000038	[  2] ___header
+0x00008000	0x00000008	[  2] _rb
+0x00008008	0x00000001	[  3] _original_sw_poweroff_state
+0x00008010	0x00000008	[  2] _atexit_handler
+0x00008018	0x000000C0	[  2] ___exit_env

@@ -1,0 +1,2146 @@
+# Path: /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/puzzles/magnets.elf
+# Arch: arm64
+# Object files:
+[  0] linker synthesized
+[  1] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/puzzles/src/magnets.o
+[  2] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/puzzles/help/magnets.o
+[  3] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/puzzles/rockbox.o
+[  4] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/puzzles/rbwrappers.o
+[  5] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/puzzles/rbmalloc.o
+[  6] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/puzzles/lz4tiny.o
+[  7] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/puzzles/dummy/nullhelp.o
+[  8] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/puzzles/src/combi.o
+[  9] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/puzzles/src/divvy.o
+[ 10] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/puzzles/src/drawing.o
+[ 11] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/puzzles/src/draw-poly.o
+[ 12] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/puzzles/src/dsf.o
+[ 13] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/puzzles/src/findloop.o
+[ 14] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/puzzles/src/grid.o
+[ 15] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/puzzles/src/hat.o
+[ 16] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/puzzles/src/latin.o
+[ 17] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/puzzles/src/laydomino.o
+[ 18] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/puzzles/src/loopgen.o
+[ 19] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/puzzles/src/matching.o
+[ 20] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/puzzles/src/midend.o
+[ 21] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/puzzles/src/misc.o
+[ 22] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/puzzles/src/penrose.o
+[ 23] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/puzzles/src/penrose-legacy.o
+[ 24] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/puzzles/src/random.o
+[ 25] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/puzzles/src/sort.o
+[ 26] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/puzzles/src/spectre.o
+[ 27] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/puzzles/src/tdq.o
+[ 28] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/puzzles/src/tree234.o
+[ 29] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/puzzles/src/version.o
+[ 30] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/puzzles/src/printing.o
+[ 31] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/plugin_crt0.o
+[ 32] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/libtlsf.a(tlsf.o)
+[ 33] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(gcc-support.o)
+[ 34] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(helper.o)
+[ 35] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(playback_control.o)
+[ 36] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(display_text.o)
+[ 37] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(strncpy.o)
+[ 38] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(stdio_compat.o)
+[ 39] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(xlcd_core.o)
+[ 40] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(xlcd_draw.o)
+[ 41] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/bitmaps/libpluginbitmaps.a(puzzles_cursor.11x16x24.o)
+[ 42] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/libfixedpoint.a(fixedpoint.o)
+[ 43] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/libSystem.tbd
+[ 44] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/system/libsystem_c.tbd
+[ 45] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/system/libsystem_kernel.tbd
+[ 46] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/system/libsystem_platform.tbd
+# Sections:
+# Address	Size    	Segment	Section
+0x00000780	0x00031154	__TEXT	__text
+0x000318D4	0x00000054	__TEXT	__stubs
+0x00031928	0x0000470A	__TEXT	__cstring
+0x00036040	0x00013408	__TEXT	__const
+0x00049448	0x0000C5A8	__TEXT	__eh_frame
+0x00058000	0x00000040	__DATA_CONST	__got
+0x00058040	0x00000928	__DATA_CONST	__const
+0x0005C000	0x000003FC	__DATA	__data
+0x0005C400	0x00000008	__DATA	.data
+0x0005C410	0x00000200	__DATA	__bss
+0x0005C610	0x00000040	__DATA	__common
+# Symbols:
+# Address	Size    	File  Name
+0x00000780	0x00000108	[  1] _decode_params
+0x00000888	0x0000009C	[  1] _validate_params
+0x00000924	0x000000E4	[  1] _readrow
+0x00000A08	0x00000008	[  1] _game_can_format_as_text_now
+0x00000A10	0x0000003C	[  1] _game_compute_size
+0x00000A4C	0x00000014	[  1] _game_set_size
+0x00000A60	0x00000008	[  1] _game_anim_length
+0x00000A68	0x00000008	[  1] _game_status
+0x00000A70	0x0000003C	[  1] _game_print_size
+0x00000AAC	0x000000B8	[  1] _count_rowcol
+0x00000B64	0x0000003C	[  1] _game_free_drawstate
+0x00000BA0	0x00000080	[  1] _free_game
+0x00000C20	0x00000004	[  1] _free_params
+0x00000C24	0x0000007C	[  1] _custom_params
+0x00000CA0	0x0000002C	[  1] _dup_params
+0x00000CCC	0x00000034	[  1] _default_params
+0x00000D00	0x000000AC	[  1] _game_new_drawstate
+0x00000DAC	0x000000BC	[  1] _clear_state
+0x00000E68	0x000000E4	[  1] _new_state
+0x00000F4C	0x000000D4	[  1] _game_colours
+0x00001020	0x000000F0	[  1] _game_configure
+0x00001110	0x000000BC	[  1] _encode_params
+0x000011CC	0x00000054	[  1] _new_ui
+0x00001220	0x000000CC	[  1] _dup_game
+0x000012EC	0x00000058	[  1] _game_get_cursor_location
+0x00001344	0x000001A4	[  1] _draw_num.part.0
+0x000014E8	0x000000C8	[  1] _game_fetch_preset
+0x000015B0	0x00000038	[  1] _game_flash_length
+0x000015E8	0x000000D8	[  1] _current_key_label
+0x000016C0	0x00000020	[  1] _game_changed_state
+0x000016E0	0x00000168	[  1] _draw_sym.isra.0
+0x00001848	0x0000033C	[  1] _draw_tile_col
+0x00001B84	0x000006A4	[  1] _game_print
+0x00002228	0x00000228	[  1] _interpret_move
+0x00002450	0x000001A0	[  1] _solve_counts.isra.0
+0x000025F0	0x00000194	[  1] _solve_rowcols
+0x00002784	0x000001DC	[  1] _solve_unflag.isra.0
+0x00002960	0x00000200	[  1] _solve_countdominoes_neutral
+0x00002B60	0x00000100	[  1] _solve_unflag_surrounds
+0x00002C60	0x000001C8	[  1] _solve_set.isra.0
+0x00002E28	0x00000218	[  1] _solve_checkfull
+0x00003040	0x000000C0	[  1] _solve_neither
+0x00003100	0x000000C4	[  1] _solve_force
+0x000031C4	0x000000EC	[  1] _solve_oddlength
+0x000032B0	0x00000258	[  1] _solve_advancedfull
+0x00003508	0x000000E4	[  1] _solve_nonneutral
+0x000035EC	0x00000320	[  1] _new_game_int.isra.0
+0x0000390C	0x00000038	[  1] _validate_desc
+0x00003944	0x00000068	[  1] _new_game
+0x000039AC	0x00000004	[  1] _free_ui
+0x000039B0	0x00000330	[  1] _solve_countdominoes_nonneutral
+0x00003CE0	0x0000046C	[  1] _check_completion
+0x0000414C	0x000001DC	[  1] _solve_state
+0x00004328	0x00000320	[  1] _solve_game
+0x00004648	0x000002F8	[  1] _execute_move
+0x00004940	0x00000480	[  1] _game_text_format
+0x00004DC0	0x00000140	[  1] _get_count_color
+0x00004F00	0x00000640	[  1] _game_redraw
+0x00005540	0x0000097C	[  1] _new_game_desc
+0x00005EC0	0x00000088	[  3] _unload_fonts
+0x00005F48	0x0000009C	[  3] _trim_rect
+0x00005FE4	0x0000013C	[  3] _rb_blitter_save
+0x00006120	0x000000A0	[  3] _rb_draw_update
+0x000061C0	0x00000068	[  3] _zoom_clamp_panning
+0x00006228	0x0000005C	[  3] _config_formatter
+0x00006284	0x0000005C	[  3] _preset_formatter
+0x000062E0	0x00000084	[  3] _quick_help
+0x00006364	0x0000007C	[  3] _reset_drawing
+0x000063E0	0x00000040	[  3] _read_wrapper
+0x00006420	0x00000020	[  3] _write_wrapper
+0x00006440	0x00000020	[  3] _rb_blitter_free
+0x00006460	0x00000050	[  3] _rb_blitter_new
+0x000064B0	0x0000003C	[  3] _rb_status_bar
+0x000064EC	0x000000E0	[  3] _config_choices_formatter
+0x000065CC	0x00000094	[  3] _send_click
+0x00006660	0x00000028	[  3] _exit_handler
+0x00006688	0x00000118	[  3] _mainmenu_cb
+0x000067A0	0x00000180	[  3] _do_preset_menu
+0x00006920	0x000000A0	[  3] _presets_menu
+0x000069C0	0x000000A4	[  3] _fix_size
+0x00006A64	0x0000005C	[  3] _new_game_notify
+0x00006AC0	0x00000160	[  3] _pausemenu_cb
+0x00006C20	0x000000C0	[  3] _timer_cb
+0x00006CE0	0x0000008C	[  3] _zoom_drawpixel
+0x00006D6C	0x0000009C	[  3] _zoom_hline.part.0
+0x00006E08	0x000000BC	[  3] _rb_clip
+0x00006EC4	0x0000007C	[  3] _rb_unclip
+0x00006F40	0x00000080	[  3] _rb_end_draw
+0x00006FC0	0x000001A4	[  3] _rb_blitter_load
+0x00007164	0x00000424	[  3] _draw_antialiased_line
+0x00007588	0x000000E4	[  3] _rb_start_draw
+0x0000766C	0x000000D8	[  3] _clear_mouse
+0x00007744	0x00000228	[  3] _full_help.isra.0
+0x0000796C	0x00000114	[  3] _draw_mouse
+0x00007A80	0x000001E0	[  3] _draw_title
+0x00007C60	0x00000084	[  3] _clear_and_draw
+0x00007CE4	0x000000A4	[  3] _fatal
+0x00007D88	0x00000058	[  3] _rb_color
+0x00007DE0	0x00000104	[  3] _rb_draw_line
+0x00007EE4	0x000000FC	[  3] _rb_draw_rect
+0x00007FE0	0x000003A8	[  3] _rb_draw_circle
+0x00008388	0x000003DC	[  3] _rb_setfont
+0x00008764	0x0000041C	[  3] _rb_draw_text
+0x00008B80	0x00000780	[  3] _config_menu_core
+0x00009300	0x00000B60	[  3] _pause_menu
+0x00009E60	0x000009E0	[  3] _process_input
+0x0000A840	0x000003A0	[  3] _init_for_game.constprop.0
+0x0000ABE0	0x0000018C	[  3] _load_game
+0x0000AD6C	0x00000364	[  3] _save_game
+0x0000B0D0	0x000004B8	[  3] _puzzles_main
+0x0000B588	0x0000005C	[  3] _get_random_seed
+0x0000B5E4	0x0000002C	[  3] _activate_timer
+0x0000B610	0x00000010	[  3] _deactivate_timer
+0x0000B620	0x00000020	[  3] _frontend_default_colour
+0x0000B640	0x00000110	[  3] _plugin_start
+0x0000B760	0x00000040	[  4] _sprintf_wrapper
+0x0000B7A0	0x00000040	[  4] _getenv_wrapper
+0x0000B7E0	0x00000008	[  4] _puts_wrapper
+0x0000B7E8	0x000000F8	[  4] _sin_wrapper
+0x0000B8E0	0x00000100	[  4] _cos_wrapper
+0x0000B9E0	0x00000024	[  4] _vsprintf_wrapper
+0x0000BA04	0x0000001C	[  4] _fabs_wrapper
+0x0000BA20	0x00000024	[  4] _floor_wrapper
+0x0000BA44	0x0000003C	[  4] _rb_exp
+0x0000BA80	0x0000022C	[  4] _atan_wrapper
+0x0000BCAC	0x000001D4	[  4] _atan2_wrapper
+0x0000BE80	0x00000040	[  4] _sqrt_wrapper
+0x0000BEC0	0x00000060	[  4] _acos_wrapper
+0x0000BF20	0x00000020	[  4] _strtoq_wrapper
+0x0000BF40	0x00000020	[  4] _strtouq_wrapper
+0x0000BF60	0x000000F0	[  4] _pow_wrapper
+0x0000C050	0x00000030	[  4] _copysign_wrapper
+0x0000C080	0x00000160	[  4] _scalbn_wrapper
+0x0000C1E0	0x00000040	[  4] _ceil_wrapper
+0x0000C220	0x00000264	[  4] _atof_wrapper
+0x0000C484	0x00000924	[  4] _rb_vsscanf
+0x0000CDA8	0x0000001C	[  4] _sscanf_wrapper
+0x0000CDC4	0x0000003C	[  4] _strcspn_wrapper
+0x0000CE00	0x00000038	[  4] _strspn_wrapper
+0x0000CE40	0x0000006C	[  5] _grab_audiobuf.part.0
+0x0000CEAC	0x00000078	[  5] _smalloc
+0x0000CF24	0x0000001C	[  5] _sfree
+0x0000CF40	0x000000A0	[  5] _srealloc
+0x0000CFE0	0x0000009C	[  5] _dupstr
+0x0000D080	0x0000025C	[  6] _LZ4_decompress_tiny
+0x0000D2E0	0x00000040	[  8] _reset_combi
+0x0000D320	0x00000160	[  8] _new_combi
+0x0000D480	0x000000AC	[  8] _next_combi
+0x0000D52C	0x00000028	[  8] _free_combi
+0x0000D560	0x00000168	[  9] _addremcommon
+0x0000D6C8	0x00000DD8	[  9] _divvy_rectangle_attempt
+0x0000E4A0	0x00000048	[  9] _divvy_rectangle
+0x0000E500	0x00000080	[ 10] _drawing_new
+0x0000E580	0x00000030	[ 10] _drawing_free
+0x0000E5B0	0x00000010	[ 10] _draw_text
+0x0000E5C0	0x00000010	[ 10] _draw_rect
+0x0000E5D0	0x00000010	[ 10] _draw_line
+0x0000E5E0	0x00000108	[ 10] _draw_thick_line
+0x0000E6E8	0x00000018	[ 10] _draw_polygon
+0x0000E700	0x00000010	[ 10] _draw_circle
+0x0000E710	0x00000018	[ 10] _draw_update
+0x0000E728	0x00000018	[ 10] _clip
+0x0000E740	0x00000010	[ 10] _unclip
+0x0000E750	0x00000010	[ 10] _start_draw
+0x0000E760	0x00000010	[ 10] _end_draw
+0x0000E770	0x00000098	[ 10] _text_fallback
+0x0000E808	0x000000C4	[ 10] _status_bar
+0x0000E8CC	0x00000014	[ 10] _blitter_new
+0x0000E8E0	0x00000010	[ 10] _blitter_free
+0x0000E8F0	0x00000010	[ 10] _blitter_save
+0x0000E900	0x00000010	[ 10] _blitter_load
+0x0000E910	0x00000010	[ 10] _print_begin_doc
+0x0000E920	0x00000010	[ 10] _print_begin_page
+0x0000E930	0x00000018	[ 10] _print_begin_puzzle
+0x0000E948	0x00000038	[ 10] _print_end_puzzle
+0x0000E980	0x00000010	[ 10] _print_end_page
+0x0000E990	0x00000010	[ 10] _print_end_doc
+0x0000E9A0	0x00000164	[ 10] _print_get_colour
+0x0000EB04	0x00000084	[ 10] _print_mono_colour
+0x0000EB88	0x00000084	[ 10] _print_grey_colour
+0x0000EC0C	0x00000084	[ 10] _print_hatched_colour
+0x0000EC90	0x00000098	[ 10] _print_rgb_mono_colour
+0x0000ED28	0x00000098	[ 10] _print_rgb_grey_colour
+0x0000EDC0	0x000000A8	[ 10] _print_rgb_hatched_colour
+0x0000EE68	0x00000044	[ 10] _print_line_width
+0x0000EEAC	0x00000010	[ 10] _print_line_dotted
+0x0000EEC0	0x00000490	[ 11] _draw_polygon_fallback
+0x0000F360	0x00000120	[ 12] _dsf_new_internal
+0x0000F480	0x0000000C	[ 12] _dsf_new
+0x0000F48C	0x00000014	[ 12] _dsf_new_flip
+0x0000F4A0	0x0000000C	[ 12] _dsf_new_min
+0x0000F4AC	0x00000054	[ 12] _dsf_reinit
+0x0000F500	0x00000120	[ 12] _dsf_copy
+0x0000F620	0x00000040	[ 12] _dsf_free
+0x0000F660	0x000000E0	[ 12] _dsf_canonify
+0x0000F740	0x00000260	[ 12] _dsf_merge
+0x0000F9A0	0x00000040	[ 12] _dsf_equivalent
+0x0000F9E0	0x0000002C	[ 12] _dsf_size
+0x0000FA0C	0x000001B4	[ 12] _dsf_canonify_flip
+0x0000FBC0	0x0000038C	[ 12] _dsf_merge_flip
+0x0000FF4C	0x00000084	[ 12] _dsf_minimal
+0x0000FFE0	0x0000000C	[ 13] _findloop_new_state
+0x0000FFEC	0x00000004	[ 13] _findloop_free_state
+0x0000FFF0	0x00000070	[ 13] _findloop_is_loop_edge
+0x00010060	0x000000C0	[ 13] _findloop_is_bridge
+0x00010120	0x000001C8	[ 13] _findloop_run
+0x00010300	0x00000060	[ 14] _grid_edge_bydots_cmpfn
+0x00010360	0x00000028	[ 14] _grid_point_cmp_fn
+0x00010388	0x00000044	[ 14] _grid_validate_params_square
+0x000103CC	0x00000024	[ 14] _grid_size_square
+0x000103F0	0x00000058	[ 14] _grid_validate_params_honeycomb
+0x00010448	0x00000028	[ 14] _grid_size_honeycomb
+0x00010470	0x00000050	[ 14] _grid_validate_params_triangular
+0x000104C0	0x00000024	[ 14] _grid_size_triangular
+0x000104E4	0x0000005C	[ 14] _grid_validate_params_snubsquare
+0x00010540	0x00000024	[ 14] _grid_size_snubsquare
+0x00010564	0x00000064	[ 14] _grid_validate_params_cairo
+0x000105C8	0x00000020	[ 14] _grid_size_cairo
+0x000105E8	0x0000005C	[ 14] _grid_validate_params_greathexagonal
+0x00010644	0x0000002C	[ 14] _grid_size_greathexagonal
+0x00010670	0x0000005C	[ 14] _grid_validate_params_kagome
+0x000106CC	0x00000034	[ 14] _grid_size_kagome
+0x00010700	0x00000044	[ 14] _grid_validate_params_octagonal
+0x00010744	0x00000020	[ 14] _grid_size_octagonal
+0x00010764	0x0000005C	[ 14] _grid_validate_params_kites
+0x000107C0	0x0000002C	[ 14] _grid_size_kites
+0x000107EC	0x0000005C	[ 14] _grid_validate_params_floret
+0x00010848	0x00000038	[ 14] _grid_size_floret
+0x00010880	0x00000060	[ 14] _grid_validate_params_dodecagonal
+0x000108E0	0x0000002C	[ 14] _grid_size_dodecagonal
+0x0001090C	0x00000054	[ 14] _grid_validate_params_greatdodecagonal
+0x00010960	0x0000002C	[ 14] _grid_size_greatdodecagonal
+0x0001098C	0x00000054	[ 14] _grid_validate_params_greatgreatdodecagonal
+0x000109E0	0x0000002C	[ 14] _grid_size_greatgreatdodecagonal
+0x00010A0C	0x00000040	[ 14] _grid_validate_params_compassdodecagonal
+0x00010A4C	0x00000020	[ 14] _grid_size_compassdodecagonal
+0x00010A6C	0x00000044	[ 14] _grid_validate_params_penrose_p2_kite
+0x00010AB0	0x0000001C	[ 14] _grid_size_penrose_p2_kite
+0x00010ACC	0x00000040	[ 14] _grid_validate_params_hats
+0x00010B0C	0x00000024	[ 14] _grid_size_hats
+0x00010B30	0x00000040	[ 14] _grid_validate_params_spectres
+0x00010B70	0x00000020	[ 14] _grid_size_spectres
+0x00010B90	0x00000030	[ 14] _grid_empty
+0x00010BC0	0x00000188	[ 14] _grid_desc_to_hat_params
+0x00010D48	0x00000118	[ 14] _grid_face_add_new
+0x00010E60	0x000004EC	[ 14] _grid_trim_vigorously
+0x0001134C	0x000008B8	[ 14] _grid_make_consistent
+0x00011C04	0x000000C0	[ 14] _grid_new_hats
+0x00011CC4	0x00000108	[ 14] _grid_desc_to_spectre_params.part.0
+0x00011DCC	0x00000134	[ 14] _grid_new_spectres
+0x00011F00	0x00000148	[ 14] _grid_get_dot
+0x00012048	0x00000098	[ 14] _grid_hats_callback
+0x000120E0	0x00000684	[ 14] _grid_new_compassdodecagonal
+0x00012764	0x00000EBC	[ 14] _grid_new_greatgreatdodecagonal
+0x00013620	0x000008A8	[ 14] _grid_new_greatdodecagonal
+0x00013EC8	0x00000524	[ 14] _grid_new_dodecagonal
+0x000143EC	0x0000085C	[ 14] _grid_new_floret
+0x00014C48	0x00000588	[ 14] _grid_new_kites
+0x000151D0	0x00000370	[ 14] _grid_new_octagonal
+0x00015540	0x00000530	[ 14] _grid_new_kagome
+0x00015A70	0x0000069C	[ 14] _grid_new_greathexagonal
+0x0001610C	0x00000554	[ 14] _grid_new_cairo
+0x00016660	0x000004E0	[ 14] _grid_new_snubsquare
+0x00016B40	0x00000620	[ 14] _grid_new_triangular
+0x00017160	0x00000210	[ 14] _grid_new_honeycomb
+0x00017370	0x00000198	[ 14] _grid_new_square
+0x00017508	0x000000B8	[ 14] _grid_spectres_callback
+0x000175C0	0x000000C0	[ 14] _grid_penrose_callback
+0x00017680	0x00000128	[ 14] _grid_desc_to_penrose_params.part.0
+0x000177A8	0x0000001C	[ 14] _grid_size_penrose_p3_thick
+0x000177C4	0x000001BC	[ 14] _penrose_legacy_set_faces
+0x00017980	0x00000044	[ 14] _grid_validate_params_penrose_p3_thick
+0x000179C4	0x0000015C	[ 14] _grid_free
+0x00017B20	0x00000200	[ 14] _grid_new_penrose_legacy
+0x00017D20	0x00000148	[ 14] _grid_new_penrose
+0x00017E68	0x00000018	[ 14] _grid_new_penrose_p3_thick
+0x00017E80	0x0000000C	[ 14] _grid_new_penrose_p2_kite
+0x00017E8C	0x00000174	[ 14] _grid_nearest_edge
+0x00018000	0x00000B30	[ 14] _grid_find_incentre
+0x00018B30	0x00000038	[ 14] _grid_validate_params
+0x00018B68	0x0000031C	[ 14] _grid_new_desc
+0x00018E84	0x000002FC	[ 14] _grid_validate_desc
+0x00019180	0x00000080	[ 14] _grid_new
+0x00019200	0x0000002C	[ 14] _grid_compute_size
+0x00019240	0x00000020	[ 15] _report_hat
+0x00019260	0x00000120	[ 15] _choose_mpp
+0x00019380	0x00000040	[ 15] _hat_kiteenum_first
+0x000193C0	0x000003E0	[ 15] _hat_kiteenum_next
+0x000197A0	0x00000020	[ 15] _hat_coords_new
+0x000197C0	0x0000002C	[ 15] _hat_coords_free
+0x000197EC	0x00000054	[ 15] _hat_coords_make_space
+0x00019840	0x00000080	[ 15] _hat_coords_copy
+0x000198C0	0x000000C0	[ 15] _hatctx_init_random
+0x00019980	0x00000008	[ 15] _hatctx_initial_coords
+0x00019988	0x00000260	[ 15] _hatctx_extend_coords
+0x00019BE8	0x000000D8	[ 15] _try_step_coords_kitemap
+0x00019CC0	0x000001E4	[ 15] _try_step_coords_metamap
+0x00019EA4	0x0000002C	[ 15] _hatctx_cleanup
+0x00019ED0	0x00000070	[ 15] _hatctx_step
+0x00019F40	0x000001EC	[ 15] _hat_tiling_randomise
+0x0001A12C	0x000000D4	[ 15] _hat_tiling_params_invalid
+0x0001A200	0x00000240	[ 15] _maybe_report_hat
+0x0001A440	0x000003F8	[ 15] _hat_tiling_generate
+0x0001A840	0x00000020	[ 16] _latin_check_cmp
+0x0001A860	0x000001A0	[ 16] _latin_solver_place
+0x0001AA00	0x00000100	[ 16] _latin_solver_elim
+0x0001AB00	0x00000370	[ 16] _latin_solver_set
+0x0001AE70	0x0000033C	[ 16] _latin_solver_forcing
+0x0001B1AC	0x00000094	[ 16] _latin_solver_new_scratch
+0x0001B240	0x00000050	[ 16] _latin_solver_free_scratch
+0x0001B290	0x00000110	[ 16] _latin_solver_alloc
+0x0001B3A0	0x00000030	[ 16] _latin_solver_free
+0x0001B3D0	0x0000017C	[ 16] _latin_solver_diff_simple
+0x0001B54C	0x00000144	[ 16] _latin_solver_diff_set
+0x0001B690	0x00000710	[ 16] _latin_solver_top
+0x0001BDA0	0x00000004	[ 16] _latin_solver_main
+0x0001BDA4	0x000000BC	[ 16] _latin_solver
+0x0001BE60	0x00000004	[ 16] _latin_solver_debug
+0x0001BE64	0x00000004	[ 16] _latin_debug
+0x0001BE68	0x0000033C	[ 16] _latin_generate
+0x0001C1A4	0x000000CC	[ 16] _latin_generate_rect
+0x0001C270	0x00000198	[ 16] _latin_check
+0x0001C420	0x00000540	[ 17] _domino_layout_prealloc
+0x0001C960	0x00000088	[ 17] _domino_layout
+0x0001CA00	0x00000040	[ 18] _white_sort_cmpfn
+0x0001CA40	0x000002D0	[ 18] _can_colour_face.isra.0
+0x0001CD10	0x0000003C	[ 18] _black_sort_cmpfn
+0x0001CD4C	0x000007F0	[ 18] _generate_loop
+0x0001D540	0x00000030	[ 19] _matching_scratch_size
+0x0001D570	0x00000678	[ 19] _matching_with_scratch
+0x0001DBE8	0x000000B8	[ 19] _matching
+0x0001DCA0	0x00000074	[ 19] _matching_witness
+0x0001DD20	0x00000064	[ 20] _midend_size_new_drawstate
+0x0001DD84	0x0000009C	[ 20] _preset_menu_alloc_ids
+0x0001DE20	0x00000090	[ 20] _midend_free_game
+0x0001DEB0	0x0000009C	[ 20] _midend_free_preset_menu
+0x0001DF4C	0x00000074	[ 20] _midend_purge_states
+0x0001DFC0	0x000001A0	[ 20] _midend_get_prefs
+0x0001E160	0x00000140	[ 20] _buffer_append
+0x0001E2A0	0x000000A0	[ 20] _preset_menu_add
+0x0001E340	0x000000E8	[ 20] _midend_serialise_buf_write
+0x0001E428	0x00000064	[ 20] _midend_serialise_buf_read
+0x0001E48C	0x00000294	[ 20] _midend_serialise_prefs
+0x0001E720	0x00000100	[ 20] _midend_set_prefs
+0x0001E820	0x000003C0	[ 20] _midend_deserialise_prefs
+0x0001EBE0	0x000000B0	[ 20] _midend_set_timer
+0x0001EC90	0x00000174	[ 20] _midend_finish_move
+0x0001EE04	0x00000C7C	[ 20] _midend_deserialise_internal
+0x0001FA80	0x00000180	[ 20] _midend_redraw.part.0
+0x0001FC00	0x000000A8	[ 20] _encode_params.isra.0
+0x0001FCA8	0x000003A8	[ 20] _midend_game_id_int
+0x00020050	0x00000090	[ 20] _preset_menu_encode_params
+0x000200E0	0x000000E0	[ 20] _newgame_undo_deserialise_check
+0x000201C0	0x000001E4	[ 20] _preset_menu_add_from_user_env
+0x000203A4	0x0000011C	[ 20] _midend_reset_tilesize
+0x000204C0	0x000001E0	[ 20] _midend_new
+0x000206A0	0x00000008	[ 20] _midend_which_game
+0x000206A8	0x000000F8	[ 20] _midend_free
+0x000207A0	0x00000340	[ 20] _midend_size
+0x00020AE0	0x00000008	[ 20] _midend_tilesize
+0x00020AE8	0x00000044	[ 20] _midend_set_params
+0x00020B2C	0x00000014	[ 20] _midend_get_params
+0x00020B40	0x000000C0	[ 20] _midend_force_redraw
+0x00020C00	0x00000010	[ 20] _midend_load_prefs
+0x00020C10	0x00000010	[ 20] _midend_save_prefs
+0x00020C20	0x00000024	[ 20] _midend_can_undo
+0x00020C44	0x00000028	[ 20] _midend_can_redo
+0x00020C6C	0x00000094	[ 20] _midend_stop_anim
+0x00020D00	0x00000208	[ 20] _midend_restart_game
+0x00020F08	0x000000B8	[ 20] _midend_request_keys
+0x00020FC0	0x000000A0	[ 20] _midend_current_key_label
+0x00021060	0x00000090	[ 20] _midend_redraw
+0x000210F0	0x00000090	[ 20] _midend_freeze_timer
+0x00021180	0x000001E0	[ 20] _midend_timer
+0x00021360	0x000002A0	[ 20] _midend_colours
+0x00021600	0x00000020	[ 20] _preset_menu_new
+0x00021620	0x0000008C	[ 20] _preset_menu_add_submenu
+0x000216AC	0x00000094	[ 20] _preset_menu_add_preset
+0x00021740	0x00000088	[ 20] _preset_menu_lookup_by_id
+0x000217C8	0x000001F8	[ 20] _midend_get_presets
+0x000219C0	0x00000090	[ 20] _midend_which_preset
+0x00021A50	0x00000010	[ 20] _midend_wants_statusbar
+0x00021A60	0x00000008	[ 20] _midend_request_id_changes
+0x00021A68	0x000000D8	[ 20] _midend_get_cursor_location
+0x00021B40	0x00000180	[ 20] _midend_supersede_game_desc
+0x00021CC0	0x00000320	[ 20] _midend_get_config
+0x00021FE0	0x00000008	[ 20] _midend_game_id
+0x00021FE8	0x000000FC	[ 20] _midend_get_game_id
+0x000220E4	0x000000CC	[ 20] _midend_get_random_seed
+0x000221B0	0x000000E0	[ 20] _midend_set_config
+0x00022290	0x00000030	[ 20] _midend_can_format_as_text_now
+0x000222C0	0x00000080	[ 20] _midend_text_format
+0x00022340	0x00000304	[ 20] _midend_solve
+0x00022644	0x0000003C	[ 20] _midend_status
+0x00022680	0x00000120	[ 20] _midend_rewrite_statusbar
+0x000227A0	0x00001884	[ 20] _midend_serialise
+0x00024024	0x000004A8	[ 20] _midend_new_game
+0x000244CC	0x000007BC	[ 20] _midend_really_process_key
+0x00024C88	0x00000218	[ 20] _midend_process_key
+0x00024EA0	0x0000000C	[ 20] _midend_deserialise
+0x00024EAC	0x0000027C	[ 20] _identify_game
+0x00025128	0x000001F8	[ 20] _midend_print_puzzle
+0x00025320	0x00000050	[ 21] _free_cfg
+0x00025370	0x00000054	[ 21] _free_keys
+0x000253C4	0x000001FC	[ 21] _obfuscate_bitmap
+0x000255C0	0x000000A0	[ 21] _bin2hex
+0x00025660	0x00000124	[ 21] _hex2bin
+0x00025784	0x000000BC	[ 21] _fgetline
+0x00025840	0x00000060	[ 21] _getenv_bool
+0x000258A0	0x00000030	[ 21] _colour_mix
+0x000258D0	0x000002BC	[ 21] _game_mkhighlight_specific
+0x00025B8C	0x00000044	[ 21] _game_mkhighlight
+0x00025BD0	0x00000094	[ 21] _swap_regions
+0x00025C64	0x0000009C	[ 21] _shuffle
+0x00025D00	0x00000044	[ 21] _draw_rect_outline
+0x00025D44	0x00000144	[ 21] _draw_rect_corners
+0x00025E88	0x00000018	[ 21] _compare_integers
+0x00025EA0	0x000000E0	[ 21] _move_cursor
+0x00025F80	0x00000090	[ 21] _c2pos
+0x00026010	0x00000358	[ 21] _c2diff
+0x00026368	0x000000C8	[ 21] _pos2c
+0x00026430	0x000000FC	[ 21] _draw_text_outline
+0x0002652C	0x000000E0	[ 21] _copy_left_justified
+0x0002660C	0x000000E4	[ 21] _button2label
+0x000266F0	0x00000170	[ 21] _make_prefs_path
+0x00026860	0x00000144	[ 21] _n_times_root_k
+0x000269C0	0x000000A8	[ 22] _penrose_valid_parents
+0x00026A68	0x00000158	[ 22] _penrose_cmp
+0x00026BC0	0x00000004	[ 22] _null_output_tile
+0x00026BC4	0x0000005C	[ 22] _really_output_tile
+0x00026C20	0x00000180	[ 22] _penrose_choose_random
+0x00026DA0	0x000001E0	[ 22] _inbounds
+0x00026F80	0x00000080	[ 22] _penrose_valid_letter
+0x00027000	0x00000020	[ 22] _penrose_coords_new
+0x00027020	0x0000002C	[ 22] _penrose_coords_free
+0x0002704C	0x00000054	[ 22] _penrose_coords_make_space
+0x000270A0	0x00000070	[ 22] _penrose_coords_copy
+0x00027110	0x00000110	[ 22] _penrose_place
+0x00027220	0x00000040	[ 22] _penrose_free
+0x00027260	0x000000C0	[ 22] _penrosectx_init_random
+0x00027320	0x000000C0	[ 22] _penrosectx_init_from_params
+0x000273E0	0x00000050	[ 22] _penrosectx_cleanup
+0x00027430	0x00000070	[ 22] _penrosectx_initial_coords
+0x000274A0	0x00000164	[ 22] _penrosectx_extend_coords
+0x00027604	0x000006C8	[ 22] _penrosectx_step_recurse
+0x00027CCC	0x00000034	[ 22] _penrosectx_step
+0x00027D00	0x000002E8	[ 22] _penrose_initial
+0x00027FE8	0x00000104	[ 22] _penrose_adjacent
+0x000280EC	0x000002B4	[ 22] _penrosectx_generate
+0x000283A0	0x00000108	[ 22] _penrose_tiling_params_invalid
+0x000284A8	0x000000D8	[ 22] _penrose_tiling_randomise
+0x00028580	0x000000A4	[ 22] _penrose_tiling_generate
+0x00028640	0x00000120	[ 23] _v_rotate
+0x00028760	0x00000344	[ 23] _penrose_p3_large.isra.0
+0x00028AA4	0x0000025C	[ 23] _penrose_p3_small.isra.0
+0x00028D00	0x00000288	[ 23] _penrose_p2_small.isra.0
+0x00028F88	0x00000284	[ 23] _penrose_p2_large.isra.0
+0x0002920C	0x00000040	[ 23] _penrose_legacy_vx
+0x0002924C	0x00000040	[ 23] _penrose_legacy_vy
+0x0002928C	0x00000038	[ 23] _penrose_legacy_side_length
+0x000292C4	0x000000BC	[ 23] _penrose_legacy
+0x00029380	0x000000EC	[ 23] _penrose_legacy_calculate_size
+0x00029480	0x00000024	[ 24] _SHA_Init
+0x000294A4	0x000003C4	[ 24] _SHA_Bytes
+0x00029868	0x00000118	[ 24] _SHA_Final
+0x00029980	0x00000060	[ 24] _SHA_Simple
+0x000299E0	0x000000E0	[ 24] _random_new
+0x00029AC0	0x00000050	[ 24] _random_copy
+0x00029B10	0x00000130	[ 24] _random_bits
+0x00029C40	0x000000A8	[ 24] _random_upto
+0x00029CE8	0x00000004	[ 24] _random_free
+0x00029CEC	0x000000B4	[ 24] _random_state_encode
+0x00029DA0	0x000000F0	[ 24] _random_state_decode
+0x00029EA0	0x00000100	[ 25] _downheap
+0x00029FA0	0x000000C0	[ 25] _arraysort_fn
+0x0002A060	0x00000160	[ 26] _spectre_cmp
+0x0002A1C0	0x00000120	[ 26] _choose_poss
+0x0002A2E0	0x00000200	[ 26] _spectre_internal_callback
+0x0002A4E0	0x00000180	[ 26] _point_rot
+0x0002A660	0x000001A8	[ 26] _spectrectx_start_vertices
+0x0002A808	0x00000038	[ 26] _spectre_valid_hex_letter
+0x0002A840	0x00000020	[ 26] _spectre_coords_new
+0x0002A860	0x0000002C	[ 26] _spectre_coords_free
+0x0002A88C	0x00000054	[ 26] _spectre_coords_make_space
+0x0002A8E0	0x00000090	[ 26] _spectre_coords_copy
+0x0002A970	0x00000110	[ 26] _spectre_place
+0x0002AA80	0x00000050	[ 26] _spectre_initial
+0x0002AAD0	0x0000003C	[ 26] _spectre_free
+0x0002AB0C	0x000000BC	[ 26] _spectrectx_init_random
+0x0002ABC8	0x00000198	[ 26] _spectrectx_init_from_params
+0x0002AD60	0x00000050	[ 26] _spectrectx_cleanup
+0x0002ADB0	0x00000010	[ 26] _spectrectx_initial_coords
+0x0002ADC0	0x00000240	[ 26] _spectrectx_extend_coords
+0x0002B000	0x00000300	[ 26] _spectrectx_step_hex
+0x0002B300	0x00000210	[ 26] _spectrectx_step
+0x0002B510	0x000000B0	[ 26] _spectre_adjacent
+0x0002B5C0	0x000001A0	[ 26] _spectrectx_generate
+0x0002B760	0x00000120	[ 26] _spectre_tiling_params_invalid
+0x0002B880	0x00000124	[ 26] _spectre_tiling_randomise
+0x0002B9A4	0x00000098	[ 26] _spectre_tiling_generate
+0x0002BA40	0x00000080	[ 27] _tdq_new
+0x0002BAC0	0x00000030	[ 27] _tdq_free
+0x0002BAF0	0x00000094	[ 27] _tdq_add
+0x0002BB84	0x00000040	[ 27] _tdq_remove
+0x0002BBC4	0x000000D0	[ 27] _tdq_fill
+0x0002BCA0	0x00000128	[ 28] _trans234_subtree_right
+0x0002BDC8	0x00000118	[ 28] _trans234_subtree_left
+0x0002BEE0	0x000000D0	[ 28] _copynode234
+0x0002BFB0	0x00000270	[ 28] _trans234_subtree_merge
+0x0002C220	0x00000348	[ 28] _delpos234_internal
+0x0002C568	0x000005C8	[ 28] _freenode234
+0x0002CB30	0x00000500	[ 28] _add234_insert
+0x0002D030	0x00000254	[ 28] _add234_internal
+0x0002D284	0x000001E8	[ 28] _join234_internal
+0x0002D46C	0x00000034	[ 28] _newtree234
+0x0002D4A0	0x00000380	[ 28] _freetree234
+0x0002D820	0x00000040	[ 28] _count234
+0x0002D860	0x00000020	[ 28] _add234
+0x0002D880	0x00000020	[ 28] _addpos234
+0x0002D8A0	0x000000EC	[ 28] _index234
+0x0002D98C	0x00000234	[ 28] _findrelpos234
+0x0002DBC0	0x0000000C	[ 28] _find234
+0x0002DBCC	0x00000014	[ 28] _findrel234
+0x0002DBE0	0x0000000C	[ 28] _findpos234
+0x0002DBEC	0x00000054	[ 28] _delpos234
+0x0002DC40	0x00000044	[ 28] _del234
+0x0002DC84	0x0000001C	[ 28] _height234
+0x0002DCA0	0x00000168	[ 28] _join234
+0x0002DE08	0x0000017C	[ 28] _join234r
+0x0002DF84	0x00000560	[ 28] _splitpos234
+0x0002E4E4	0x000000AC	[ 28] _split234
+0x0002E590	0x00000068	[ 28] _copytree234
+0x0002E600	0x000000A0	[ 30] _get_puzzle_size
+0x0002E6A0	0x00000080	[ 30] _document_new
+0x0002E720	0x000000CC	[ 30] _document_free
+0x0002E7EC	0x00000094	[ 30] _document_add_puzzle
+0x0002E880	0x00000024	[ 30] _document_npages
+0x0002E8A4	0x0000002C	[ 30] _document_begin
+0x0002E8D0	0x00000010	[ 30] _document_end
+0x0002E8E0	0x00000440	[ 30] _document_print_page
+0x0002ED20	0x00000080	[ 30] _document_print
+0x0002EDA0	0x00000018	[ 31] _cleanup_wrapper
+0x0002EDB8	0x00000068	[ 31] _plugin__start
+0x0002EE20	0x00000020	[ 31] _rb_atexit
+0x0002EE40	0x00000024	[ 31] _exit
+0x0002EE64	0x00000014	[ 31] __exit
+0x0002EE78	0x00000064	[ 31] _exit_on_usb
+0x0002EEDC	0x00000050	[ 32] _ls_bit
+0x0002EF2C	0x00000048	[ 32] _ms_bit
+0x0002EF74	0x00000020	[ 32] _set_bit
+0x0002EF94	0x00000020	[ 32] _clear_bit
+0x0002EFB4	0x0000008C	[ 32] _FIND_SUITABLE_BLOCK
+0x0002F040	0x0000004C	[ 32] _process_area
+0x0002F08C	0x00000058	[ 32] _MAPPING_INSERT
+0x0002F0E4	0x00000004	[ 32] _panicf
+0x0002F0E8	0x00000008	[ 32] _get_new_area
+0x0002F0F0	0x00000008	[ 32] _get_used_size
+0x0002F0F8	0x00000008	[ 32] _get_max_size
+0x0002F100	0x00000008	[ 32] _destroy_memory_pool
+0x0002F108	0x00000248	[ 32] _free_ex
+0x0002F350	0x000000C4	[ 32] _init_memory_pool
+0x0002F414	0x0000016C	[ 32] _add_new_area
+0x0002F580	0x000002CC	[ 32] _malloc_ex
+0x0002F84C	0x0000006C	[ 32] _tlsf_malloc
+0x0002F8B8	0x0000000C	[ 32] _tlsf_free
+0x0002F8C4	0x00000368	[ 32] _realloc_ex
+0x0002FC2C	0x00000018	[ 32] _tlsf_realloc
+0x0002FC44	0x0000005C	[ 32] _calloc_ex
+0x0002FCA0	0x0000000C	[ 32] _tlsf_calloc
+0x0002FCAC	0x00000018	[ 33] _memcpy
+0x0002FCC4	0x00000018	[ 33] _memset
+0x0002FCDC	0x00000018	[ 33] _memmove
+0x0002FCF4	0x00000018	[ 33] _memcmp
+0x0002FD0C	0x00000020	[ 34] _talk_val
+0x0002FD2C	0x00000040	[ 34] _backlight_force_on
+0x0002FD6C	0x0000006C	[ 34] _backlight_ignore_timeout
+0x0002FDD8	0x00000048	[ 34] _backlight_use_settings
+0x0002FE20	0x00000044	[ 34] _sw_poweroff_disable
+0x0002FE64	0x00000020	[ 34] _sw_poweroff_restore
+0x0002FE84	0x00000004	[ 34] _remote_backlight_force_on
+0x0002FE88	0x00000004	[ 34] _remote_backlight_ignore_timeout
+0x0002FE8C	0x00000004	[ 34] _remote_backlight_use_settings
+0x0002FE90	0x00000004	[ 34] _buttonlight_force_on
+0x0002FE94	0x00000004	[ 34] _buttonlight_force_off
+0x0002FE98	0x00000004	[ 34] _buttonlight_ignore_timeout
+0x0002FE9C	0x00000004	[ 34] _buttonlight_use_settings
+0x0002FEA0	0x00000018	[ 34] _backlight_brightness_set
+0x0002FEB8	0x00000020	[ 34] _backlight_brightness_use_setting
+0x0002FED8	0x00000004	[ 34] _buttonlight_brightness_set
+0x0002FEDC	0x00000004	[ 34] _buttonlight_brightness_use_setting
+0x0002FEE0	0x00000028	[ 35] _prevtrack
+0x0002FF08	0x00000088	[ 35] _play
+0x0002FF90	0x00000028	[ 35] _stop
+0x0002FFB8	0x00000028	[ 35] _nexttrack
+0x0002FFE0	0x00000050	[ 35] _volume
+0x00030030	0x00000054	[ 35] _shuffle
+0x00030084	0x0000008C	[ 35] _repeat_mode
+0x00030110	0x0000000C	[ 35] _playback_control_init
+0x0003011C	0x00000048	[ 35] _playback_control
+0x00030164	0x00000078	[ 36] _wait_key_press
+0x000301DC	0x00000354	[ 36] _display_text
+0x00030530	0x00000038	[ 37] _strncpy
+0x00030568	0x000000F8	[ 38] __fopen_
+0x00030660	0x00000008	[ 38] __fflush_
+0x00030668	0x00000060	[ 38] __fread_
+0x000306C8	0x0000006C	[ 38] __fwrite_
+0x00030734	0x00000078	[ 38] __fseek_
+0x000307AC	0x00000024	[ 38] __ftell_
+0x000307D0	0x00000058	[ 38] __fclose_
+0x00030828	0x00000064	[ 38] __fgetc_
+0x0003088C	0x00000008	[ 38] __ungetc_
+0x00030894	0x00000044	[ 38] __fputc_
+0x000308D8	0x00000098	[ 38] __fgets_
+0x00030970	0x0000000C	[ 38] __clearerr_
+0x0003097C	0x00000014	[ 38] __ferror_
+0x00030990	0x00000030	[ 38] __feof_
+0x000309C0	0x0000005C	[ 38] __fprintf_
+0x00030A1C	0x00000044	[ 39] _get_framebuffer
+0x00030A60	0x00000368	[ 40] _xlcd_filltriangle_screen
+0x00030DC8	0x0000002C	[ 40] _xlcd_filltriangle
+0x00030DF4	0x00000164	[ 40] _xlcd_fillcircle_screen
+0x00030F58	0x00000020	[ 40] _xlcd_fillcircle
+0x00030F78	0x0000010C	[ 40] _xlcd_drawcircle_screen
+0x00031084	0x00000020	[ 40] _xlcd_drawcircle
+0x000310A4	0x00000170	[ 40] _xlcd_color_bitmap_part
+0x00031214	0x0000001C	[ 40] _xlcd_color_bitmap
+0x00031230	0x000000B0	[ 42] _fp_sincos
+0x000312E0	0x000000B4	[ 42] _fp_sqrt
+0x00031394	0x0000003C	[ 42] _ipow
+0x000313D0	0x00000060	[ 42] _fp14_sin
+0x00031430	0x00000064	[ 42] _fp14_cos
+0x00031494	0x00000110	[ 42] _fp16_log
+0x000315A4	0x000000F8	[ 42] _fp16_exp
+0x0003169C	0x00000154	[ 42] _fp_exp10
+0x000317F0	0x000000AC	[ 42] _fp_log10
+0x0003189C	0x00000024	[ 42] _fp_decibels
+0x000318C0	0x00000014	[ 42] _fp_factor
+0x000318D4	0x0000000C	[ 45] ___error.stub
+0x000318E0	0x0000000C	[ 44] ___maskrune.stub
+0x000318EC	0x0000000C	[ 44] ___tolower.stub
+0x000318F8	0x0000000C	[ 44] ___toupper.stub
+0x00031904	0x0000000C	[ 44] _abs.stub
+0x00031910	0x0000000C	[ 46] _longjmp.stub
+0x0003191C	0x0000000C	[ 46] _setjmp.stub
+0x00031928	0x0000001B	[  1] literal string: Width must be at least two
+0x00031948	0x0000001C	[  1] literal string: Height must be at least two
+0x00031968	0x00000032	[  1] literal string: Width times height must not be unreasonably large
+0x000319A0	0x00000038	[  1] literal string: Either width or height must be at least five for Tricky
+0x000319D8	0x0000002E	[  1] literal string: Either width or height must be at least three
+0x00031A08	0x00000019	[  1] literal string: Unknown difficulty level
+0x00031A28	0x0000001B	[  1] literal string: Game description too short
+0x00031A48	0x00000031	[  1] literal string: Game description contained unexpected characters
+0x00031A80	0x00000006	[  1] literal string: Width
+0x00031A88	0x00000003	[  1] literal string: %d
+0x00031A90	0x00000007	[  1] literal string: Height
+0x00031A98	0x0000000B	[  1] literal string: Difficulty
+0x00031AA8	0x0000000D	[  1] literal string: :Easy:Tricky
+0x00031AB8	0x0000000C	[  1] literal string: Strip clues
+0x00031AC8	0x00000002	[  1] literal string: S
+0x00031AD0	0x00000001	[  1] literal string: 
+0x00031AD8	0x00000006	[  1] literal string: %dx%d
+0x00031AE0	0x00000006	[  1] literal string: d%c%s
+0x00031AE8	0x00000014	[  1] literal string: PUZZLES_SHOW_CURSOR
+0x00031B00	0x0000000E	[  1] literal string: , strip clues
+0x00031B10	0x0000000B	[  1] literal string: %dx%d %s%s
+0x00031B20	0x00000002	[  1] literal string: +
+0x00031B28	0x00000006	[  1] literal string: Clear
+0x00031B30	0x00000002	[  1] literal string: -
+0x00031B38	0x00000002	[  1] literal string: X
+0x00031B40	0x00000002	[  1] literal string: ?
+0x00031B48	0x0000003A	[  1] literal string: assertion failed on %s line %d: !\"mad domino orientation\"
+0x00031B88	0x0000004A	[  1] literal string: /Volumes/Data/rockbox/RockBox_Personal/apps/plugins/puzzles/src/magnets.c
+0x00031BD8	0x00000007	[  1] literal string: D%d,%d
+0x00031BE0	0x00000008	[  1] literal string: %c%d,%d
+0x00031BE8	0x00000027	[  1] literal string: assertion failed on %s line %d: counts
+0x00031C10	0x00000033	[  1] literal string: assertion failed on %s line %d: state->grid[i] < 3
+0x00031C48	0x00000007	[  1] literal string: column
+0x00031C50	0x00000004	[  1] literal string: row
+0x00031C58	0x00000038	[  1] literal string: assertion failed on %s line %d: i >= 0 && i < state->wh
+0x00031C90	0x00000038	[  1] literal string: assertion failed on %s line %d: state->grid[i] == EMPTY
+0x00031CC8	0x00000034	[  1] literal string: assertion failed on %s line %d: INGRID(state, x, y)
+0x00031D00	0x00000030	[  1] literal string: assertion failed on %s line %d: state->numbered
+0x00031D30	0x0000001B	[  1] literal string: Column counts inconsistent
+0x00031D50	0x00000018	[  1] literal string: Row counts inconsistent
+0x00031D68	0x00000021	[  1] literal string: Domino descriptions inconsistent
+0x00031D90	0x00000023	[  1] literal string: assertion failed on %s line %d: st
+0x00031DB8	0x00000039	[  1] literal string: assertion failed on %s line %d: POSSIBLE(i+rc.di, which)
+0x00031DF8	0x00000046	[  1] literal string: assertion failed on %s line %d: state->common->dominoes[i] == i+rc.di
+0x00031E40	0x00000016	[  1] literal string: Puzzle is impossible.
+0x00031E58	0x00000018	[  1] literal string: Unable to solve puzzle.
+0x00031E70	0x00000039	[  1] literal string: assertion failed on %s line %d: strlen(aux) == state->wh
+0x00031EB0	0x00000045	[  1] literal string: assertion failed on %s line %d: src->w == dst->w && src->h == dst->h
+0x00031EF8	0x00000009	[  1] literal string: %c%d,%d;
+0x00031F08	0x00000004	[  1] literal string: .+-
+0x00031F10	0x00000008	[  1] literal string: %d,%d%n
+0x00031F18	0x00000043	[  1] literal string: assertion failed on %s line %d: !(state->flags[i] & GS_NOTNEUTRAL)
+0x00031F60	0x0000002A	[  1] literal string: assertion failed on %s line %d: ret != -1
+0x00031F90	0x00000008	[  1] literal string: Magnets
+0x00031F98	0x0000000E	[  1] literal string: games.magnets
+0x00031FA8	0x00000008	[  1] literal string: magnets
+0x00031FB0	0x00000005	[  1] literal string: Easy
+0x00031FB8	0x00000007	[  1] literal string: Tricky
+0x00031FC0	0x00000008	[  1] literal string: (count)
+0x00031FC8	0x00000003	[  3] literal string: %s
+0x00031FD0	0x00000019	[  3] literal string: You are now a developer!
+0x00031FF0	0x0000000F	[  3] literal string: Please wait...
+0x00032000	0x0000000F	[  3] literal string:  (interaction)
+0x00032010	0x0000000B	[  3] literal string:  (viewing)
+0x00032020	0x00000005	[  3] literal string: %s%s
+0x00032028	0x00000006	[  3] literal string: FATAL
+0x00032030	0x0000000D	[  3] literal string: bad color %d
+0x00032040	0x00000032	[  3] literal string: assertion failed on %s line %d: outlinecolor >= 0
+0x00032078	0x00000046	[  3] literal string: /Volumes/Data/rockbox/RockBox_Personal/apps/plugins/puzzles/rockbox.c
+0x000320C0	0x0000000F	[  3] literal string: DejaVuSansMono
+0x000320D0	0x0000000B	[  3] literal string: DejaVuSans
+0x000320E0	0x0000001D	[  3] literal string: /.rockbox/fonts/07-Fixed.fnt
+0x00032100	0x00000020	[  3] literal string: /.rockbox/fonts/08-Rockfont.fnt
+0x00032120	0x0000001D	[  3] literal string: /.rockbox/fonts/09-Fixed.fnt
+0x00032140	0x0000001C	[  3] literal string: /.rockbox/fonts/%02d-%s.fnt
+0x00032160	0x00000030	[  3] literal string: assertion failed on %s line %d: oldest_idx >= 0
+0x00032190	0x00000007	[  3] literal string: < %d >
+0x00032198	0x0000000A	[  3] literal string: Canceled.
+0x000321A8	0x0000004B	[  3] literal string: assertion failed on %s line %d: !midend_set_config(me, CFG_SETTINGS, cfgs)
+0x000321F8	0x0000000D	[  3] literal string: Cannot undo.
+0x00032208	0x0000000D	[  3] literal string: Cannot redo.
+0x00032218	0x0000001F	[  3] literal string: Out of memory. Cannot zoom in.
+0x00032238	0x0000000E	[  3] literal string: Slowmo factor
+0x00032248	0x00000010	[  3] literal string: %d AA lines/sec
+0x00032258	0x00000014	[  3] literal string: %d normal lines/sec
+0x00032270	0x00000011	[  3] literal string: Efficiency: %d%%
+0x00032288	0x00000008	[  3] literal string: Fifteen
+0x00032290	0x0000000E	[  3] literal string: %s/sgt-%s.sav
+0x000322A0	0x00000016	[  3] literal string: /.rockbox/rocks/games
+0x000322B8	0x0000000B	[  3] literal string: Loading...
+0x000322C8	0x0000000D	[  3] literal string: Load failed.
+0x000322D8	0x0000000A	[  3] literal string: Saving...
+0x000322E8	0x0000002A	[  3] literal string: /.rockbox/rocks/games/.sgt-puzzles.fnttab
+0x00032318	0x0000002E	[  3] literal string: /.rockbox/rocks/games/.sgt-puzzles.fnttab.tmp
+0x00032348	0x00000002	[  3] literal string: :
+0x00032350	0x00000002	[  3] literal string: \n
+0x00032358	0x0000002D	[  3] literal string: assertion failed on %s line %d: oldmask == 0
+0x00032388	0x0000000A	[  3] literal string: %s:%u:%u\n
+0x00032398	0x00000005	[  3] literal string: Solo
+0x000323A0	0x00000008	[  3] literal string: puzzles
+0x000323A8	0x00000011	[  3] literal string: Randomize colors
+0x000323C0	0x0000001C	[  3] literal string: Toggle flash pixel on timer
+0x000323E0	0x0000000C	[  3] literal string: Toggle clip
+0x000323F0	0x00000011	[  3] literal string: Toggle shortcuts
+0x00032408	0x00000011	[  3] literal string: Toggle antialias
+0x00032420	0x00000014	[  3] literal string: Benchmark antialias
+0x00032438	0x00000017	[  3] literal string: Toggle show poly steps
+0x00032450	0x00000012	[  3] literal string: Toggle mouse mode
+0x00032468	0x0000001E	[  3] literal string: Toggle spacebar on long click
+0x00032488	0x0000001C	[  3] literal string: Toggle send keys on release
+0x000324A8	0x00000016	[  3] literal string: Toggle ignore repeats
+0x000324C0	0x00000028	[  3] literal string: Toggle right-click on hold vs. dragging
+0x000324E8	0x0000001F	[  3] literal string: Toggle highlight cursor region
+0x00032508	0x0000001C	[  3] literal string: Toggle force zoom on center
+0x00032528	0x00000005	[  3] literal string: Back
+0x00032530	0x00000006	[  3] literal string: Debug
+0x00032538	0x0000000C	[  3] literal string: Resume Game
+0x00032548	0x00000009	[  3] literal string: New Game
+0x00032558	0x0000000D	[  3] literal string: Restart Game
+0x00032568	0x00000005	[  3] literal string: Undo
+0x00032570	0x00000005	[  3] literal string: Redo
+0x00032578	0x00000006	[  3] literal string: Solve
+0x00032580	0x00000008	[  3] literal string: Zoom In
+0x00032588	0x0000000B	[  3] literal string: Quick Help
+0x00032598	0x0000000F	[  3] literal string: Extensive Help
+0x000325A8	0x00000011	[  3] literal string: Playback Control
+0x000325C0	0x0000000A	[  3] literal string: Game Type
+0x000325D0	0x0000000F	[  3] literal string: Configure Game
+0x000325E0	0x0000000C	[  3] literal string: Preferences
+0x000325F0	0x00000014	[  3] literal string: Quit without Saving
+0x00032608	0x00000005	[  3] literal string: Quit
+0x00032610	0x00000008	[  3] literal string: Inertia
+0x00032618	0x00000008	[  3] literal string: Filling
+0x00032620	0x00000006	[  3] literal string: Group
+0x00032628	0x00000005	[  3] literal string: Keen
+0x00032630	0x00000007	[  3] literal string: Towers
+0x00032638	0x00000007	[  3] literal string: Undead
+0x00032640	0x00000008	[  3] literal string: Unequal
+0x00032648	0x00000004	[  3] literal string: Map
+0x00032650	0x00000009	[  3] literal string: Signpost
+0x00032660	0x00000006	[  3] literal string: Slide
+0x00032668	0x00000009	[  3] literal string: Untangle
+0x00032678	0x00000006	[  3] literal string: Loopy
+0x00032680	0x0000000A	[  3] literal string: Black Box
+0x00032690	0x00000008	[  3] literal string: Bridges
+0x00032698	0x00000009	[  3] literal string: Galaxies
+0x000326A8	0x00000006	[  3] literal string: Mines
+0x000326B0	0x00000009	[  3] literal string: Palisade
+0x000326C0	0x00000008	[  3] literal string: Pattern
+0x000326C8	0x0000000B	[  3] literal string: Rectangles
+0x000326D8	0x00000008	[  3] literal string: Singles
+0x000326E0	0x00000006	[  3] literal string: Tents
+0x000326E8	0x00000002	[  4] literal string: y
+0x000326F0	0x0000000F	[  4] literal string: SIGNPOST_GEARS
+0x00032700	0x0000000E	[  5] literal string: out of memory
+0x00032710	0x00000027	[  8] literal string: assertion failed on %s line %d: r <= n
+0x00032738	0x00000048	[  8] literal string: /Volumes/Data/rockbox/RockBox_Personal/apps/plugins/puzzles/src/combi.c
+0x00032780	0x00000027	[  8] literal string: assertion failed on %s line %d: n >= 1
+0x000327A8	0x0000002A	[  9] literal string: assertion failed on %s line %d: wh == k*n
+0x000327D8	0x00000048	[  9] literal string: /Volumes/Data/rockbox/RockBox_Personal/apps/plugins/puzzles/src/divvy.c
+0x00032820	0x0000002A	[  9] literal string: assertion failed on %s line %d: wh >= 2*n
+0x00032850	0x00000030	[  9] literal string: assertion failed on %s line %d: own[tmpsq] == j
+0x00032880	0x0000002A	[  9] literal string: assertion failed on %s line %d: qtail < n
+0x000328B0	0x0000003A	[  9] literal string: assertion failed on %s line %d: own[i] >= 0 && own[i] < n
+0x000328F0	0x0000003D	[  9] literal string: assertion failed on %s line %d: dsf_equivalent(tmpdsf, j, i)
+0x00032930	0x00000038	[ 10] literal string: Drawing API version mismatch: expected: %d, actual: %d\n
+0x00032968	0x00000039	[ 10] literal string: assertion failed on %s line %d: !\"Should never get here\"
+0x000329A8	0x0000004A	[ 10] literal string: /Volumes/Data/rockbox/RockBox_Personal/apps/plugins/puzzles/src/drawing.c
+0x000329F8	0x00000028	[ 10] literal string: assertion failed on %s line %d: dri->me
+0x00032A20	0x00000046	[ 10] literal string: assertion failed on %s line %d: colour >= 0 && colour < dri->ncolours
+0x00032A68	0x00000045	[ 11] literal string: assertion failed on %s line %d: x1 < COORD_LIMIT && y1 < COORD_LIMIT
+0x00032AB0	0x0000004C	[ 11] literal string: /Volumes/Data/rockbox/RockBox_Personal/apps/plugins/puzzles/src/draw-poly.c
+0x00032B00	0x00000039	[ 11] literal string: assertion failed on %s line %d: n_intersections % 2 == 0
+0x00032B40	0x0000003B	[ 11] literal string: assertion failed on %s line %d: n_intersections <= n_edges
+0x00032B80	0x00000033	[ 11] literal string: assertion failed on %s line %d: outlinecolour >= 0
+0x00032BB8	0x0000004E	[ 12] literal string: assertion failed on %s line %d: 0 < size && size <= DSF_MAX && \"Bad dsf size\"
+0x00032C08	0x00000046	[ 12] literal string: /Volumes/Data/rockbox/RockBox_Personal/apps/plugins/puzzles/src/dsf.c
+0x00032C50	0x00000051	[ 12] literal string: assertion failed on %s line %d: to->size == from->size && \"Mismatch in dsf_copy\"
+0x00032CA8	0x00000055	[ 12] literal string: assertion failed on %s line %d: from->flip && \"Copying a non-flip dsf to a flip one\"
+0x00032D00	0x00000052	[ 12] literal string: assertion failed on %s line %d: from->min && \"Copying a non-min dsf to a min one\"
+0x00032D58	0x00000055	[ 12] literal string: assertion failed on %s line %d: 0 <= n && n < dsf->size && \"Overrun in dsf_canonify\"
+0x00032DB0	0x0000002A	[ 12] literal string: assertion failed on %s line %d: n == root
+0x00032DE0	0x00000054	[ 12] literal string: assertion failed on %s line %d: 0 <= n1 && n1 < dsf->size && \"Overrun in dsf_merge\"
+0x00032E38	0x00000054	[ 12] literal string: assertion failed on %s line %d: 0 <= n2 && n2 < dsf->size && \"Overrun in dsf_merge\"
+0x00032E90	0x00000048	[ 12] literal string: assertion failed on %s line %d: !dsf->flip && \"dsf_merge on a flip dsf\"
+0x00032ED8	0x0000005A	[ 12] literal string: assertion failed on %s line %d: 0 <= n && n < dsf->size && \"Overrun in dsf_canonify_flip\"
+0x00032F38	0x00000053	[ 12] literal string: assertion failed on %s line %d: dsf->flip && \"dsf_canonify_flip on a non-flip dsf\"
+0x00032F90	0x00000059	[ 12] literal string: assertion failed on %s line %d: 0 <= n1 && n1 < dsf->size && \"Overrun in dsf_merge_flip\"
+0x00032FF0	0x00000059	[ 12] literal string: assertion failed on %s line %d: 0 <= n2 && n2 < dsf->size && \"Overrun in dsf_merge_flip\"
+0x00033050	0x00000050	[ 12] literal string: assertion failed on %s line %d: dsf->flip && \"dsf_merge_flip on a non-flip dsf\"
+0x000330A0	0x0000005E	[ 12] literal string: assertion failed on %s line %d: (f1 ^ f2 ^ inverse) == 0 && \"Inconsistency in dsf_merge_flip\"
+0x00033100	0x0000004B	[ 12] literal string: assertion failed on %s line %d: dsf->min && \"dsf_minimal on a non-min dsf\"
+0x00033150	0x00000029	[ 14] literal string: Grid size must not be unreasonably large
+0x00033180	0x00000024	[ 14] literal string: Grid must not be unreasonably large
+0x000331A8	0x00000021	[ 14] literal string: expected ',' in grid description
+0x000331D0	0x00000029	[ 14] literal string: too-large coordinate in grid description
+0x00033200	0x00000026	[ 14] literal string: invalid character in grid description
+0x00033228	0x00000038	[ 14] literal string: assertion failed on %s line %d: hp->ncoords < maxcoords
+0x00033260	0x00000047	[ 14] literal string: /Volumes/Data/rockbox/RockBox_Personal/apps/plugins/puzzles/src/grid.c
+0x000332A8	0x00000037	[ 14] literal string: assertion failed on %s line %d: g->num_faces < INT_MAX
+0x000332E0	0x00000037	[ 14] literal string: assertion failed on %s line %d: g->num_edges < INT_MAX
+0x00033318	0x0000002E	[ 14] literal string: assertion failed on %s line %d: k != f->order
+0x00033348	0x00000034	[ 14] literal string: assertion failed on %s line %d: f->edges[k] == NULL
+0x00033380	0x00000035	[ 14] literal string: assertion failed on %s line %d: f->edges[k2] == NULL
+0x000333B8	0x0000004B	[ 14] literal string: assertion failed on %s line %d: !\"Grid broken: bad edge-face relationship\"
+0x00033408	0x0000002E	[ 14] literal string: assertion failed on %s line %d: d->order >= 2
+0x00033438	0x0000002A	[ 14] literal string: assertion failed on %s line %d: f != NULL
+0x00033468	0x0000002E	[ 14] literal string: assertion failed on %s line %d: j != f->order
+0x00033498	0x00000038	[ 14] literal string: assertion failed on %s line %d: d->faces[current_face2]
+0x000334D0	0x0000005E	[ 14] literal string: assertion failed on %s line %d: error == NULL && \"grid_validate_desc_hats should have failed\"
+0x00033530	0x00000033	[ 14] literal string: expected digit or A,B at start of grid description
+0x00033568	0x00000023	[ 14] literal string: expected digit in grid description
+0x00033590	0x00000062	[ 14] literal string: assertion failed on %s line %d: error == NULL && \"grid_validate_desc_spectres should have failed\"
+0x000335F8	0x00000036	[ 14] literal string: assertion failed on %s line %d: g->num_dots < INT_MAX
+0x00033630	0x0000002C	[ 14] literal string: expected digit at start of grid description
+0x00033660	0x00000032	[ 14] literal string: expected digit as second char of grid description
+0x00033698	0x00000029	[ 14] literal string: expected tile letter in grid description
+0x000336C8	0x0000002C	[ 14] literal string: assertion failed on %s line %d: g->refcount
+0x000336F8	0x0000000A	[ 14] literal string: G%d,%d,%d
+0x00033708	0x0000003D	[ 14] literal string: assertion failed on %s line %d: !\"Invalid grid description.\"
+0x00033748	0x00000061	[ 14] literal string: assertion failed on %s line %d: error == NULL && \"grid_validate_desc_penrose should have failed\"
+0x000337B0	0x0000002D	[ 14] literal string: assertion failed on %s line %d: bestdist > 0
+0x000337E0	0x00000027	[ 14] literal string: Width and height must both be positive
+0x00033808	0x00000033	[ 14] literal string: assertion failed on %s line %d: hp.coords[i] < 100
+0x00033840	0x00000034	[ 14] literal string: assertion failed on %s line %d: p - buf <= bufmax-4
+0x00033878	0x00000004	[ 14] literal string: %d,
+0x00033880	0x00000034	[ 14] literal string: assertion failed on %s line %d: p - buf <= bufmax-2
+0x000338B8	0x00000032	[ 14] literal string: assertion failed on %s line %d: sp.coords[i] < 10
+0x000338F0	0x00000002	[ 14] literal string: 0
+0x000338F8	0x00000028	[ 14] literal string: Invalid format grid description string.
+0x00033920	0x0000001C	[ 14] literal string: Patch offset out of bounds.
+0x00033940	0x00000039	[ 14] literal string: Patch coordinates do not identify a usable grid fragment
+0x00033980	0x0000001C	[ 14] literal string: Angle offset out of bounds.
+0x000339A0	0x00000017	[ 14] literal string: empty grid description
+0x000339B8	0x00000021	[ 14] literal string: Missing grid description string.
+0x000339E0	0x0000001F	[ 14] literal string: Unrecognised grid description.
+0x00033A00	0x00000036	[ 14] literal string: Grid description strings not used with this grid type
+0x00033A38	0x00000032	[ 15] literal string: assertion failed on %s line %d: i == nparents - 1
+0x00033A70	0x00000046	[ 15] literal string: /Volumes/Data/rockbox/RockBox_Personal/apps/plugins/puzzles/src/hat.c
+0x00033AB8	0x0000003F	[ 15] literal string: assertion failed on %s line %d: value < parents[i].probability
+0x00033AF8	0x00000056	[ 15] literal string: assertion failed on %s line %d: ctx->prototype->c[ctx->prototype->nc - 1].index == -1
+0x00033B50	0x0000003E	[ 15] literal string: assertion failed on %s line %d: hc->c[hc->nc - 1].index == -1
+0x00033B90	0x0000005D	[ 15] literal string: assertion failed on %s line %d: hc->c[hc->nc - 1].type == ctx->prototype->c[hc->nc - 1].type
+0x00033BF0	0x0000002F	[ 15] literal string: assertion failed on %s line %d: me->meta != -1
+0x00033C20	0x00000033	[ 15] literal string: Grid parameters require at least three coordinates
+0x00033C58	0x00000032	[ 15] literal string: Grid parameters contain an invalid final metatile
+0x00033C90	0x0000002E	[ 15] literal string: Grid parameters contain an invalid kite index
+0x00033CC0	0x00000032	[ 15] literal string: Grid parameters contain an invalid metatile index
+0x00033CF8	0x0000002D	[ 15] literal string: Grid parameters contain an invalid hat index
+0x00033D28	0x00000031	[ 15] literal string: assertion failed on %s line %d: hp->ncoords >= 3
+0x00033D60	0x00000044	[ 15] literal string: assertion failed on %s line %d: hp->coords[i] < nchildren[metatile]
+0x00033DA8	0x00000032	[ 15] literal string: assertion failed on %s line %d: hp->coords[0] < 8
+0x00033DE0	0x00000027	[ 16] literal string: assertion failed on %s line %d: n <= o
+0x00033E08	0x00000048	[ 16] literal string: /Volumes/Data/rockbox/RockBox_Personal/apps/plugins/puzzles/src/latin.c
+0x00033E50	0x0000002C	[ 16] literal string: assertion failed on %s line %d: cube(x,y,n)
+0x00033E80	0x0000002A	[ 16] literal string: assertion failed on %s line %d: fpos >= 0
+0x00033EB0	0x00000027	[ 16] literal string: assertion failed on %s line %d: n == j
+0x00033ED8	0x0000003A	[ 16] literal string: assertion failed on %s line %d: maxdiff <= diff_recursive
+0x00033F18	0x0000002A	[ 16] literal string: assertion failed on %s line %d: count > 1
+0x00033F48	0x00000037	[ 16] literal string: assertion failed on %s line %d: ret != diff_unfinished
+0x00033F80	0x00000037	[ 16] literal string: assertion failed on %s line %d: diff == diff_recursive
+0x00033FB8	0x00000027	[ 16] literal string: assertion failed on %s line %d: j == o
+0x00033FE0	0x0000002C	[ 16] literal string: assertion failed on %s line %d: aret == lcp
+0x00034010	0x00000032	[ 17] literal string: assertion failed on %s line %d: k == 2*wh - h - w
+0x00034048	0x0000004C	[ 17] literal string: /Volumes/Data/rockbox/RockBox_Personal/apps/plugins/puzzles/src/laydomino.c
+0x00034098	0x0000002A	[ 17] literal string: assertion failed on %s line %d: todo < wh
+0x000340C8	0x00000027	[ 17] literal string: assertion failed on %s line %d: i >= 0
+0x000340F0	0x00000031	[ 17] literal string: assertion failed on %s line %d: j >= 0 && j < wh
+0x00034128	0x0000003C	[ 18] literal string: assertion failed on %s line %d: board[face_index] != colour
+0x00034168	0x0000004A	[ 18] literal string: /Volumes/Data/rockbox/RockBox_Personal/apps/plugins/puzzles/src/loopgen.c
+0x000341B8	0x0000003F	[ 18] literal string: assertion failed on %s line %d: j != test_face->dots[i]->order
+0x000341F8	0x00000044	[ 18] literal string: assertion failed on %s line %d: c_lightable != 0 && c_darkable != 0
+0x00034240	0x00000036	[ 18] literal string: assertion failed on %s line %d: board[k] == FACE_GREY
+0x00034278	0x00000023	[ 18] literal string: assertion failed on %s line %d: fs
+0x000342A0	0x00000036	[ 18] literal string: assertion failed on %s line %d: board[i] == FACE_GREY
+0x000342D8	0x00000036	[ 19] literal string: assertion failed on %s line %d: s->Llayer[L] == layer
+0x00034310	0x0000004B	[ 19] literal string: /Volumes/Data/rockbox/RockBox_Personal/apps/plugins/puzzles/src/matching.c
+0x00034360	0x00000036	[ 19] literal string: assertion failed on %s line %d: s->Rlayer[R] == layer
+0x00034398	0x00000020	[ 20] literal string: Keyboard shortcuts without Ctrl
+0x000343B8	0x00000012	[ 20] literal string: one-key-shortcuts
+0x000343D0	0x00000035	[ 20] literal string: assertion failed on %s line %d: new_size > buf->size
+0x00034408	0x00000049	[ 20] literal string: /Volumes/Data/rockbox/RockBox_Personal/apps/plugins/puzzles/src/midend.c
+0x00034458	0x00000035	[ 20] literal string: assertion failed on %s line %d: buf->len < buf->size
+0x00034490	0x00000039	[ 20] literal string: assertion failed on %s line %d: len < INT_MAX - ser->len
+0x000344D0	0x00000024	[ 20] literal string: assertion failed on %s line %d: cfg
+0x000344F8	0x0000001C	[ 20] literal string: abcdefghijklmnopqrstuvwxyz-
+0x00034518	0x0000005E	[ 20] literal string: assertion failed on %s line %d: it->kw[strspn(it->kw, \"abcdefghijklmnopqrstuvwxyz-\")] == '\0'
+0x00034578	0x00000002	[ 20] literal string: =
+0x00034580	0x00000005	[ 20] literal string: true
+0x00034588	0x00000006	[ 20] literal string: false
+0x00034590	0x00000002	[ 20] literal string:  
+0x00034598	0x0000004F	[ 20] literal string: assertion failed on %s line %d: q != NULL && \"Value out of range in C_CHOICES\"
+0x000345E8	0x00000028	[ 20] literal string: Partial line at end of preferences file
+0x00034610	0x0000001E	[ 20] literal string: Invalid value for enumeration
+0x00034630	0x0000002C	[ 20] literal string: Value for boolean was not 'true' or 'false'
+0x00034660	0x0000001B	[ 20] literal string: Expected '=' after keyword
+0x00034680	0x0000002D	[ 20] literal string: Data does not appear to be a saved game file
+0x000346B0	0x0000001E	[ 20] literal string: Saved data ended unexpectedly
+0x000346D0	0x00000035	[ 20] literal string: Data was incorrectly formatted for a saved game file
+0x00034708	0x00000027	[ 20] literal string: No game position provided in save file
+0x00034730	0x00000025	[ 20] literal string: No state count provided in save file
+0x00034758	0x00000028	[ 20] literal string: Forbidden characters in saved game file
+0x00034780	0x00000039	[ 20] literal string: Cannot handle this version of the saved game file format
+0x000347C0	0x00000023	[ 20] literal string: Save file is from a different game
+0x000347E8	0x00000027	[ 20] literal string: Two state counts provided in save file
+0x00034810	0x0000002B	[ 20] literal string: Number of states in save file was negative
+0x00034840	0x0000002E	[ 20] literal string: Long-term parameters in save file are missing
+0x00034870	0x0000002E	[ 20] literal string: Long-term parameters in save file are invalid
+0x000348A0	0x0000002F	[ 20] literal string: Short-term parameters in save file are missing
+0x000348D0	0x0000002F	[ 20] literal string: Short-term parameters in save file are invalid
+0x00034900	0x00000029	[ 20] literal string: Game description in save file is missing
+0x00034930	0x00000029	[ 20] literal string: Game description in save file is invalid
+0x00034960	0x00000031	[ 20] literal string: Game private description in save file is invalid
+0x00034998	0x00000024	[ 20] literal string: Save file contained an invalid move
+0x000349C0	0x0000002C	[ 20] literal string: Save file contained an invalid restart move
+0x000349F0	0x0000002B	[ 20] literal string: Game position in save file is out of range
+0x00034A20	0x00000003	[ 20] literal string: : 
+0x00034A28	0x00000029	[ 20] literal string: assertion failed on %s line %d: len <= 8
+0x00034A58	0x00000005	[ 20] literal string: SEED
+0x00034A60	0x00000009	[ 20] literal string: SAVEFILE
+0x00034A70	0x0000002A	[ 20] literal string: Simon Tatham's Portable Puzzle Collection
+0x00034AA0	0x00000008	[ 20] literal string: VERSION
+0x00034AA8	0x00000002	[ 20] literal string: 1
+0x00034AB0	0x00000005	[ 20] literal string: GAME
+0x00034AB8	0x00000007	[ 20] literal string: PARAMS
+0x00034AC0	0x00000008	[ 20] literal string: CPARAMS
+0x00034AC8	0x00000008	[ 20] literal string: HEXSEED
+0x00034AD0	0x00000005	[ 20] literal string: DESC
+0x00034AD8	0x00000009	[ 20] literal string: PRIVDESC
+0x00034AE8	0x00000008	[ 20] literal string: AUXINFO
+0x00034AF0	0x00000003	[ 20] literal string: UI
+0x00034AF8	0x00000005	[ 20] literal string: TIME
+0x00034B00	0x00000008	[ 20] literal string: NSTATES
+0x00034B08	0x00000009	[ 20] literal string: STATEPOS
+0x00034B18	0x00000005	[ 20] literal string: MOVE
+0x00034B20	0x00000006	[ 20] literal string: SOLVE
+0x00034B28	0x00000008	[ 20] literal string: RESTART
+0x00034B30	0x00000039	[ 20] literal string: assertion failed on %s line %d: gotstates < data.nstates
+0x00034B70	0x00000043	[ 20] literal string: assertion failed on %s line %d: data.states[i].movetype != NEWGAME
+0x00034BB8	0x00000054	[ 20] literal string: assertion failed on %s line %d: !err && \"Bad internal serialisation of preferences\"
+0x00034C10	0x0000002D	[ 20] literal string: assertion failed on %s line %d: me->dir != 0
+0x00034C40	0x0000006F	[ 20] literal string: assertion failed on %s line %d: encoded[i] >= 32 && encoded[i] < 127 && encoded[i] != '#' && encoded[i] != ':'
+0x00034CB0	0x00000034	[ 20] literal string: Undoing this new-game operation would change params
+0x00034CE8	0x00000002	[ 20] literal string: #
+0x00034CF0	0x0000000C	[ 20] literal string: %s_TILESIZE
+0x00034D00	0x0000000B	[ 20] literal string: %s_DEFAULT
+0x00034D10	0x0000002C	[ 20] literal string: assertion failed on %s line %d: me->drawing
+0x00034D40	0x00000032	[ 20] literal string: assertion failed on %s line %d: me->statepos >= 1
+0x00034D78	0x00000039	[ 20] literal string: assertion failed on %s line %d: IS_CURSOR_SELECT(button)
+0x00034DB8	0x0000002F	[ 20] literal string: assertion failed on %s line %d: *ncolours >= 1
+0x00034DE8	0x0000000D	[ 20] literal string: %s_COLOUR_%d
+0x00034DF8	0x0000000A	[ 20] literal string: %2x%2x%2x
+0x00034E08	0x0000004D	[ 20] literal string: assertion failed on %s line %d: 0.0F <= ret[i*3 + 0] && ret[i*3 + 0] <= 1.0F
+0x00034E58	0x0000004D	[ 20] literal string: assertion failed on %s line %d: 0.0F <= ret[i*3 + 1] && ret[i*3 + 1] <= 1.0F
+0x00034EA8	0x0000004D	[ 20] literal string: assertion failed on %s line %d: 0.0F <= ret[i*3 + 2] && ret[i*3 + 2] <= 1.0F
+0x00034EF8	0x0000003A	[ 20] literal string: assertion failed on %s line %d: !me->ourgame->preset_menu
+0x00034F38	0x0000000B	[ 20] literal string: %s_PRESETS
+0x00034F48	0x00000039	[ 20] literal string: assertion failed on %s line %d: s[i] >= 32 && s[i] < 127
+0x00034F88	0x00000029	[ 20] literal string: assertion failed on %s line %d: wintitle
+0x00034FB8	0x00000011	[ 20] literal string: %s configuration
+0x00034FD0	0x00000007	[ 20] literal string: %s%c%s
+0x00034FD8	0x0000000F	[ 20] literal string: %s preferences
+0x00034FE8	0x00000038	[ 20] literal string: assertion failed on %s line %d: !\"We shouldn't be here\"
+0x00035020	0x00000010	[ 20] literal string: %s %s selection
+0x00035030	0x00000005	[ 20] literal string: game
+0x00035038	0x00000008	[ 20] literal string: Game ID
+0x00035040	0x00000007	[ 20] literal string: random
+0x00035048	0x00000011	[ 20] literal string: Game random seed
+0x00035060	0x00000027	[ 20] literal string: assertion failed on %s line %d: parstr
+0x00035088	0x00000029	[ 20] literal string: assertion failed on %s line %d: me->desc
+0x000350B8	0x00000006	[ 20] literal string: %s:%s
+0x000350C0	0x00000006	[ 20] literal string: %s#%s
+0x000350C8	0x00000017	[ 20] literal string: Solve operation failed
+0x000350E0	0x0000002F	[ 20] literal string: This game does not support the Solve operation
+0x00035110	0x00000018	[ 20] literal string: No game set up to solve
+0x00035128	0x0000003A	[ 20] literal string: assertion failed on %s line %d: movestr != MOVE_UI_UPDATE
+0x00035168	0x00000022	[ 20] literal string: assertion failed on %s line %d: s
+0x00035190	0x0000000B	[ 20] literal string: [%d:%02d] 
+0x000351A0	0x00000007	[ 20] literal string: %s:%d:
+0x000351A8	0x00000003	[ 20] literal string: %g
+0x000351B0	0x00000051	[ 20] literal string: assertion failed on %s line %d: me->statepos >= 1 && me->statepos <= me->nstates
+0x00035208	0x00000042	[ 20] literal string: assertion failed on %s line %d: me->states[i].movetype != NEWGAME
+0x00035250	0x00000031	[ 20] literal string: assertion failed on %s line %d: me->nstates == 0
+0x00035288	0x00000030	[ 20] literal string: assertion failed on %s line %d: movestr && !msg
+0x000352B8	0x00000033	[ 20] literal string: assertion failed on %s line %d: !deserialise_error
+0x000352F0	0x0000002A	[ 20] literal string: assertion failed on %s line %d: s != NULL
+0x00035320	0x00000018	[ 20] literal string: No game set up to print
+0x00035338	0x00000025	[ 20] literal string: assertion failed on %s line %d: soln
+0x00035360	0x00000011	[ 21] literal string: 0123456789abcdef
+0x00035378	0x00000027	[ 21] literal string: assertion failed on %s line %d: c != 0
+0x000353A0	0x00000047	[ 21] literal string: /Volumes/Data/rockbox/RockBox_Personal/apps/plugins/puzzles/src/misc.c
+0x000353E8	0x00000005	[ 21] literal string: yYtT
+0x000353F0	0x00000037	[ 21] literal string: assertion failed on %s line %d: !\"invalid cursor pos!\"
+0x00035428	0x00000037	[ 21] literal string: assertion failed on %s line %d: IS_CURSOR_MOVE(button)
+0x00035460	0x00000035	[ 21] literal string: assertion failed on %s line %d: !\"invalid pos, huh?\"
+0x00035498	0x00000027	[ 21] literal string: assertion failed on %s line %d: sz > 0
+0x000354C0	0x0000002E	[ 21] literal string: assertion failed on %s line %d: len <= sz - 1
+0x000354F0	0x00000003	[ 21] literal string: Up
+0x000354F8	0x00000005	[ 21] literal string: Down
+0x00035500	0x00000005	[ 21] literal string: Left
+0x00035508	0x00000006	[ 21] literal string: Right
+0x00035510	0x00000007	[ 21] literal string: Select
+0x00035518	0x00000014	[ 21] literal string: unknown generic key
+0x00035530	0x00000031	[ 21] literal string: assertion failed on %s line %d: x*x + r == k*m*m
+0x00035568	0x0000002A	[ 21] literal string: assertion failed on %s line %d: r < 2*x+1
+0x00035598	0x00000004	[ 22] literal string: ABV
+0x000355A0	0x00000004	[ 22] literal string: ABU
+0x000355A8	0x00000003	[ 22] literal string: AU
+0x000355B0	0x00000003	[ 22] literal string: BV
+0x000355B8	0x00000003	[ 22] literal string: CX
+0x000355C0	0x00000003	[ 22] literal string: DY
+0x000355C8	0x00000004	[ 22] literal string: DXY
+0x000355D0	0x00000004	[ 22] literal string: CXY
+0x000355D8	0x00000041	[ 22] literal string: assertion failed on %s line %d: false && \"Probability overflow!\"
+0x00035620	0x0000004A	[ 22] literal string: /Volumes/Data/rockbox/RockBox_Personal/apps/plugins/puzzles/src/penrose.c
+0x00035670	0x00000005	[ 22] literal string: ABUV
+0x00035678	0x00000005	[ 22] literal string: CDXY
+0x00035680	0x00000006	[ 22] literal string: dummy
+0x00035688	0x00000034	[ 22] literal string: assertion failed on %s line %d: tr.type == INTERNAL
+0x000356C0	0x00000021	[ 22] literal string: expected at least one coordinate
+0x000356E8	0x0000001A	[ 22] literal string: invalid coordinate letter
+0x00035708	0x00000028	[ 22] literal string: invalid pair of consecutive coordinates
+0x00035730	0x00000030	[ 23] literal string: assertion failed on %s line %d: (ang % 36) == 0
+0x00035760	0x00000051	[ 23] literal string: /Volumes/Data/rockbox/RockBox_Personal/apps/plugins/puzzles/src/penrose-legacy.c
+0x000357B8	0x0000002A	[ 24] literal string: assertion failed on %s line %d: bits < 32
+0x000357E8	0x00000049	[ 24] literal string: /Volumes/Data/rockbox/RockBox_Personal/apps/plugins/puzzles/src/random.c
+0x00035838	0x00000005	[ 24] literal string: %02x
+0x00035840	0x0000002F	[ 26] literal string: assertion failed on %s line %d: i == nposs - 1
+0x00035870	0x0000004A	[ 26] literal string: /Volumes/Data/rockbox/RockBox_Personal/apps/plugins/puzzles/src/spectre.c
+0x000358C0	0x00000035	[ 26] literal string: assertion failed on %s line %d: value < poss[i].prob
+0x000358F8	0x0000000A	[ 26] literal string: GDJLXPSFY
+0x00035908	0x0000003E	[ 26] literal string: assertion failed on %s line %d: sc->c[sc->nc - 1].index == -1
+0x00035948	0x0000005D	[ 26] literal string: assertion failed on %s line %d: sc->c[sc->nc - 1].type == ctx->prototype->c[sc->nc - 1].type
+0x000359A8	0x00000038	[ 26] literal string: assertion failed on %s line %d: 0 <= sc->c[depth].index
+0x000359E0	0x00000055	[ 26] literal string: assertion failed on %s line %d: sc->c[depth].index < num_subhexes(sc->c[depth].type)
+0x00035A38	0x00000029	[ 26] literal string: assertion failed on %s line %d: edge < 6
+0x00035A68	0x0000002C	[ 26] literal string: assertion failed on %s line %d: recedge < 6
+0x00035A98	0x00000030	[ 26] literal string: assertion failed on %s line %d: m->lo < me->len
+0x00035AC8	0x0000002C	[ 26] literal string: assertion failed on %s line %d: m->internal
+0x00035AF8	0x0000002F	[ 26] literal string: assertion failed on %s line %d: 0 <= sc->index
+0x00035B28	0x00000048	[ 26] literal string: assertion failed on %s line %d: sc->index < num_spectres(sc->c[0].type)
+0x00035B70	0x0000002A	[ 26] literal string: assertion failed on %s line %d: edge < 14
+0x00035BA0	0x00000029	[ 26] literal string: expected at least one numeric coordinate
+0x00035BD0	0x0000001B	[ 26] literal string: invalid final hexagon type
+0x00035BF0	0x00000018	[ 26] literal string: coordinate out of range
+0x00035C08	0x0000003F	[ 27] literal string: assertion failed on %s line %d: (unsigned)k < (unsigned)tdq->n
+0x00035C48	0x00000046	[ 27] literal string: /Volumes/Data/rockbox/RockBox_Personal/apps/plugins/puzzles/src/tdq.c
+0x00035C90	0x00000044	[ 28] literal string: assertion failed on %s line %d: !left->elems[2] && !right->elems[2]
+0x00035CD8	0x0000004A	[ 28] literal string: /Volumes/Data/rockbox/RockBox_Personal/apps/plugins/puzzles/src/tree234.c
+0x00035D28	0x00000022	[ 28] literal string: assertion failed on %s line %d: 0
+0x00035D50	0x0000002D	[ 28] literal string: assertion failed on %s line %d: n->elems[ki]
+0x00035D80	0x0000002D	[ 28] literal string: assertion failed on %s line %d: n == t->root
+0x00035DB0	0x0000004F	[ 28] literal string: assertion failed on %s line %d: relation == REL234_LT || relation == REL234_GT
+0x00035E00	0x00000032	[ 28] literal string: assertion failed on %s line %d: halves[0] != NULL
+0x00035E38	0x00000032	[ 28] literal string: assertion failed on %s line %d: halves[1] != NULL
+0x00035E70	0x0000002B	[ 28] literal string: assertion failed on %s line %d: !n->parent
+0x00035EA0	0x00000031	[ 28] literal string: assertion failed on %s line %d: rel != REL234_EQ
+0x00035ED8	0x0000002F	[ 30] literal string: assertion failed on %s line %d: doc->got_solns
+0x00035F08	0x0000004B	[ 30] literal string: /Volumes/Data/rockbox/RockBox_Personal/apps/plugins/puzzles/src/printing.c
+0x00035F53	0x00000016	[ 32] literal string: * Heap Corruption: %s
+0x00035F69	0x00000021	[ 32] literal string: free_ex(): Freeing unused block\n
+0x00035F8A	0x0000001D	[ 32] literal string: free_ex(): Mismatched flags\n
+0x00035FA7	0x0000001E	[ 32] literal string: free_ex(): uncoalesced block\n
+0x00035FC5	0x00000030	[ 32] literal string: malloc_ex(): Mismatched flags after allocation\n
+0x00035FF5	0x00000007	[ 35] literal string: Volume
+0x00035FFC	0x00000008	[ 35] literal string: Shuffle
+0x00036004	0x00000007	[ 35] literal string: Repeat
+0x0003600B	0x0000000E	[ 38] literal string: no open slots
+0x00036019	0x00000019	[ 38] literal string: lseek() failed: %d fd:%d
+0x00036040	0x0000000C	[  1] _CSWTCH.201
+0x0003604C	0x0000000C	[  1] _CSWTCH.194
+0x00036058	0x0000000C	[  1] _CSWTCH.189
+0x00036064	0x0000000C	[  1] _CSWTCH.188
+0x00036070	0x0000000C	[  1] _CSWTCH.153
+0x0003607C	0x0000000C	[  1] _CSWTCH.152
+0x00036088	0x00000010	[  1] _dy
+0x00036098	0x00000010	[  1] _dx
+0x000360A8	0x00000080	[  1] _magnets_presets
+0x00036128	0x00000003	[  1] _magnets_diffchars
+0x00036130	0x00000010	[  1] 16-byte-literal
+0x00036140	0x00000010	[  1] 16-byte-literal
+0x00036150	0x00000010	[  1] 16-byte-literal
+0x00036160	0x00000010	[  1] 16-byte-literal
+0x00036170	0x00000008	[  2] _quick_help_valid
+0x00036178	0x00000042	[  2] _quick_help_text
+0x000361BA	0x00000002	[  2] _help_text_valid
+0x000361BC	0x00000002	[  2] _help_text_words
+0x000361BE	0x00000002	[  2] _help_text_len
+0x000361C0	0x00000675	[  2] _help_text
+0x00036838	0x00000008	[  3] lC4
+0x00036840	0x00000008	[  3] lC5
+0x00036848	0x00000008	[  3] lC44
+0x00036850	0x0000000C	[  4] _CSWTCH.99
+0x0003685C	0x0000000C	[  4] _CSWTCH.98
+0x00036868	0x00000024	[  4] _basefix.0
+0x0003688C	0x00000010	[  4] _atanlo
+0x0003689C	0x00000010	[  4] _atanhi
+0x000368AC	0x00000004	[  4] _TWO127
+0x000368B0	0x00000004	[  4] _TWOM100
+0x000368B8	0x00000008	[  4] 8-byte-literal
+0x000368C0	0x00000008	[  4] 8-byte-literal
+0x000368CC	0x00000002	[  7] _quick_help_text_len
+0x000368D0	0x00000020	[ 15] lC0
+0x000368F0	0x00000040	[ 15] _CSWTCH.184
+0x00036930	0x00000090	[ 15] _starting_hats
+0x000369C0	0x00000020	[ 15] _n_possible_parents
+0x000369E0	0x00000080	[ 15] _parents_F
+0x00036A60	0x00000050	[ 15] _parents_P
+0x00036AB0	0x00000010	[ 15] _parents_T
+0x00036AC0	0x00000080	[ 15] _parents_H
+0x00036B40	0x00000478	[ 15] _metamap_F
+0x00036FB8	0x00000478	[ 15] _metamap_P
+0x00037430	0x000002D8	[ 15] _metamap_T
+0x00037708	0x00000548	[ 15] _metamap_H
+0x00037C50	0x00004200	[ 15] _kitemap_F
+0x0003BE50	0x00004200	[ 15] _kitemap_P
+0x00040050	0x00002A00	[ 15] _kitemap_T
+0x00042A50	0x00004E00	[ 15] _kitemap_H
+0x00047850	0x00000020	[ 15] _nchildren
+0x00047870	0x0000002C	[ 15] _children_F
+0x0004789C	0x0000002C	[ 15] _children_P
+0x000478C8	0x0000001C	[ 15] _children_T
+0x000478E4	0x00000034	[ 15] _children_H
+0x00047918	0x00000010	[ 15] _hats_in_metatile
+0x00047928	0x00000005	[ 15] _tilechars
+0x00047930	0x00000010	[ 16] 16-byte-literal
+0x00047940	0x00000010	[ 21] _CSWTCH.46
+0x00047950	0x00000010	[ 21] _CSWTCH.45
+0x00047960	0x00000010	[ 21] _white.0
+0x00047970	0x0000000C	[ 21] _black.1
+0x00047980	0x00000030	[ 22] _obtuse_post_edge.0
+0x000479B0	0x00000030	[ 22] _acute_post_edge.1
+0x000479E0	0x00000008	[ 22] lC19
+0x000479E8	0x00000008	[ 22] lC21
+0x000479F0	0x00000010	[ 22] 16-byte-literal
+0x00047A00	0x00000010	[ 22] 16-byte-literal
+0x00047A10	0x00000010	[ 22] 16-byte-literal
+0x00047A20	0x00000010	[ 22] 16-byte-literal
+0x00047A30	0x00000010	[ 22] 16-byte-literal
+0x00047A40	0x00000010	[ 22] 16-byte-literal
+0x00047A50	0x00000008	[ 23] 8-byte-literal
+0x00047A58	0x00000008	[ 23] 8-byte-literal
+0x00047A60	0x00000008	[ 23] 8-byte-literal
+0x00047A68	0x00000008	[ 23] 8-byte-literal
+0x00047A70	0x00000008	[ 23] 8-byte-literal
+0x00047A78	0x00000008	[ 23] 8-byte-literal
+0x00047A80	0x00000008	[ 23] 8-byte-literal
+0x00047A90	0x00000010	[ 24] 16-byte-literal
+0x00047AA0	0x000000A0	[ 26] _poss_spectre
+0x00047B40	0x000000B0	[ 26] _poss_Y
+0x00047BF0	0x00000100	[ 26] _poss_F
+0x00047CF0	0x00000090	[ 26] _poss_S
+0x00047D80	0x00000080	[ 26] _poss_P
+0x00047E00	0x00000070	[ 26] _poss_X
+0x00047E70	0x00000010	[ 26] _poss_L
+0x00047E80	0x00000010	[ 26] _poss_J
+0x00047E90	0x00000090	[ 26] _poss_D
+0x00047F20	0x00000090	[ 26] _poss_G
+0x00047FB0	0x0000002A	[ 26] _specin_Y
+0x00047FDA	0x0000000C	[ 26] _specedges_Y
+0x00047FE6	0x0000002A	[ 26] _specmap_Y
+0x00048010	0x0000002A	[ 26] _specin_F
+0x0004803A	0x0000000C	[ 26] _specedges_F
+0x00048046	0x0000002A	[ 26] _specmap_F
+0x00048070	0x00000036	[ 26] _specin_S
+0x000480A6	0x0000000C	[ 26] _specedges_S
+0x000480B2	0x0000002A	[ 26] _specmap_S
+0x000480DC	0x0000002A	[ 26] _specin_P
+0x00048106	0x0000000C	[ 26] _specedges_P
+0x00048112	0x0000002A	[ 26] _specmap_P
+0x0004813C	0x0000002A	[ 26] _specin_X
+0x00048166	0x0000000C	[ 26] _specedges_X
+0x00048172	0x0000002A	[ 26] _specmap_X
+0x0004819C	0x0000002A	[ 26] _specin_L
+0x000481C6	0x0000000C	[ 26] _specedges_L
+0x000481D2	0x0000002A	[ 26] _specmap_L
+0x000481FC	0x0000002A	[ 26] _specin_J
+0x00048226	0x0000000C	[ 26] _specedges_J
+0x00048232	0x0000002A	[ 26] _specmap_J
+0x0004825C	0x0000002A	[ 26] _specin_D
+0x00048286	0x0000000C	[ 26] _specedges_D
+0x00048292	0x0000002A	[ 26] _specmap_D
+0x000482BC	0x0000003C	[ 26] _specin_G
+0x000482F8	0x0000000C	[ 26] _specedges_G
+0x00048304	0x00000054	[ 26] _specmap_G
+0x00048358	0x00000042	[ 26] _hexin_Y
+0x0004839A	0x0000000C	[ 26] _hexedges_Y
+0x000483A6	0x00000090	[ 26] _hexmap_Y
+0x00048436	0x00000042	[ 26] _hexin_F
+0x00048478	0x0000000C	[ 26] _hexedges_F
+0x00048484	0x00000090	[ 26] _hexmap_F
+0x00048514	0x00000042	[ 26] _hexin_S
+0x00048556	0x0000000C	[ 26] _hexedges_S
+0x00048562	0x00000090	[ 26] _hexmap_S
+0x000485F2	0x00000042	[ 26] _hexin_P
+0x00048634	0x0000000C	[ 26] _hexedges_P
+0x00048640	0x00000090	[ 26] _hexmap_P
+0x000486D0	0x00000042	[ 26] _hexin_X
+0x00048712	0x0000000C	[ 26] _hexedges_X
+0x0004871E	0x00000090	[ 26] _hexmap_X
+0x000487AE	0x00000042	[ 26] _hexin_L
+0x000487F0	0x0000000C	[ 26] _hexedges_L
+0x000487FC	0x00000090	[ 26] _hexmap_L
+0x0004888C	0x00000042	[ 26] _hexin_J
+0x000488CE	0x0000000C	[ 26] _hexedges_J
+0x000488DA	0x00000090	[ 26] _hexmap_J
+0x0004896A	0x00000042	[ 26] _hexin_D
+0x000489AC	0x0000000C	[ 26] _hexedges_D
+0x000489B8	0x00000090	[ 26] _hexmap_D
+0x00048A48	0x0000003C	[ 26] _hexin_G
+0x00048A84	0x0000000C	[ 26] _hexedges_G
+0x00048A90	0x00000080	[ 26] _hexmap_G
+0x00048B10	0x00000038	[ 26] _spectre_angles
+0x00048B48	0x00000020	[ 26] _subhexes_Y
+0x00048B68	0x00000020	[ 26] _subhexes_F
+0x00048B88	0x00000020	[ 26] _subhexes_S
+0x00048BA8	0x00000020	[ 26] _subhexes_P
+0x00048BC8	0x00000020	[ 26] _subhexes_X
+0x00048BE8	0x00000020	[ 26] _subhexes_L
+0x00048C08	0x00000020	[ 26] _subhexes_J
+0x00048C28	0x00000020	[ 26] _subhexes_D
+0x00048C48	0x00000020	[ 26] _subhexes_G
+0x00048C68	0x00000008	[ 26] lC8
+0x00048C70	0x00000400	[ 32] _table
+0x00049070	0x00000018	[ 35] _playback_control_menu__
+0x00049088	0x00000018	[ 35] _repeat_mode_item_
+0x000490A0	0x00000018	[ 35] _shuffle_item_
+0x000490B8	0x00000018	[ 35] _volume_item_
+0x000490D0	0x00000018	[ 35] _nexttrack_item_
+0x000490E8	0x00000018	[ 35] _stop_item_
+0x00049100	0x00000018	[ 35] _playpause_item_
+0x00049118	0x00000018	[ 35] _prevtrack_item_
+0x00049130	0x00000160	[ 41] _puzzles_cursor
+0x00049290	0x000000B8	[ 42] _sin_table
+0x00049348	0x00000100	[ 42] _atan_table
+0x00049448	0x00000018	[  1] CFI
+0x00049460	0x00000058	[  1] FDE for: _decode_params
+0x000494B8	0x00000020	[  1] FDE for: _validate_params
+0x000494D8	0x00000020	[  1] FDE for: _readrow
+0x000494F8	0x00000020	[  1] FDE for: _game_can_format_as_text_now
+0x00049518	0x00000020	[  1] FDE for: _game_compute_size
+0x00049538	0x00000020	[  1] FDE for: _game_set_size
+0x00049558	0x00000020	[  1] FDE for: _game_anim_length
+0x00049578	0x00000020	[  1] FDE for: _game_status
+0x00049598	0x00000020	[  1] FDE for: _game_print_size
+0x000495B8	0x00000020	[  1] FDE for: _count_rowcol
+0x000495D8	0x00000040	[  1] FDE for: _game_free_drawstate
+0x00049618	0x00000048	[  1] FDE for: _free_game
+0x00049660	0x00000020	[  1] FDE for: _free_params
+0x00049680	0x00000048	[  1] FDE for: _custom_params
+0x000496C8	0x00000040	[  1] FDE for: _dup_params
+0x00049708	0x00000038	[  1] FDE for: _default_params
+0x00049740	0x00000040	[  1] FDE for: _game_new_drawstate
+0x00049780	0x00000040	[  1] FDE for: _clear_state
+0x000497C0	0x00000048	[  1] FDE for: _new_state
+0x00049808	0x00000048	[  1] FDE for: _game_colours
+0x00049850	0x00000058	[  1] FDE for: _game_configure
+0x000498A8	0x00000050	[  1] FDE for: _encode_params
+0x000498F8	0x00000040	[  1] FDE for: _new_ui
+0x00049938	0x00000040	[  1] FDE for: _dup_game
+0x00049978	0x00000020	[  1] FDE for: _game_get_cursor_location
+0x00049998	0x00000078	[  1] FDE for: _draw_num.part.0
+0x00049A10	0x00000040	[  1] FDE for: _game_fetch_preset
+0x00049A50	0x00000020	[  1] FDE for: _game_flash_length
+0x00049A70	0x00000020	[  1] FDE for: _current_key_label
+0x00049A90	0x00000020	[  1] FDE for: _game_changed_state
+0x00049AB0	0x00000068	[  1] FDE for: _draw_sym.isra.0
+0x00049B18	0x000000E8	[  1] FDE for: _draw_tile_col
+0x00049C00	0x00000070	[  1] FDE for: _game_print
+0x00049C70	0x00000060	[  1] FDE for: _interpret_move
+0x00049CD0	0x000000A0	[  1] FDE for: _solve_counts.isra.0
+0x00049D70	0x00000078	[  1] FDE for: _solve_rowcols
+0x00049DE8	0x00000058	[  1] FDE for: _solve_unflag.isra.0
+0x00049E40	0x000000D8	[  1] FDE for: _solve_countdominoes_neutral
+0x00049F18	0x00000060	[  1] FDE for: _solve_unflag_surrounds
+0x00049F78	0x00000050	[  1] FDE for: _solve_set.isra.0
+0x00049FC8	0x000000B0	[  1] FDE for: _solve_checkfull
+0x0004A078	0x00000040	[  1] FDE for: _solve_neither
+0x0004A0B8	0x00000058	[  1] FDE for: _solve_force
+0x0004A110	0x00000020	[  1] FDE for: _solve_oddlength
+0x0004A130	0x00000118	[  1] FDE for: _solve_advancedfull
+0x0004A248	0x00000088	[  1] FDE for: _solve_nonneutral
+0x0004A2D0	0x00000048	[  1] FDE for: _new_game_int.isra.0
+0x0004A318	0x00000048	[  1] FDE for: _validate_desc
+0x0004A360	0x00000050	[  1] FDE for: _new_game
+0x0004A3B0	0x00000020	[  1] FDE for: _free_ui
+0x0004A3D0	0x00000080	[  1] FDE for: _solve_countdominoes_nonneutral
+0x0004A450	0x00000068	[  1] FDE for: _check_completion
+0x0004A4B8	0x00000060	[  1] FDE for: _solve_state
+0x0004A518	0x000000C0	[  1] FDE for: _solve_game
+0x0004A5D8	0x000000A8	[  1] FDE for: _execute_move
+0x0004A680	0x00000048	[  1] FDE for: _game_text_format
+0x0004A6C8	0x00000060	[  1] FDE for: _get_count_color
+0x0004A728	0x00000080	[  1] FDE for: _game_redraw
+0x0004A7A8	0x00000078	[  1] FDE for: _new_game_desc
+0x0004A820	0x00000018	[  3] CFI
+0x0004A838	0x00000050	[  3] FDE for: _unload_fonts
+0x0004A888	0x00000020	[  3] FDE for: _trim_rect
+0x0004A8A8	0x000000C8	[  3] FDE for: _rb_blitter_save
+0x0004A970	0x00000020	[  3] FDE for: _rb_draw_update
+0x0004A990	0x00000020	[  3] FDE for: _zoom_clamp_panning
+0x0004A9B0	0x00000048	[  3] FDE for: _config_formatter
+0x0004A9F8	0x00000048	[  3] FDE for: _preset_formatter
+0x0004AA40	0x00000040	[  3] FDE for: _quick_help
+0x0004AA80	0x00000040	[  3] FDE for: _reset_drawing
+0x0004AAC0	0x00000038	[  3] FDE for: _read_wrapper
+0x0004AAF8	0x00000020	[  3] FDE for: _write_wrapper
+0x0004AB18	0x00000038	[  3] FDE for: _rb_blitter_free
+0x0004AB50	0x00000048	[  3] FDE for: _rb_blitter_new
+0x0004AB98	0x00000040	[  3] FDE for: _rb_status_bar
+0x0004ABD8	0x00000070	[  3] FDE for: _config_choices_formatter
+0x0004AC48	0x00000060	[  3] FDE for: _send_click
+0x0004ACA8	0x00000038	[  3] FDE for: _exit_handler
+0x0004ACE0	0x00000058	[  3] FDE for: _mainmenu_cb
+0x0004AD38	0x00000088	[  3] FDE for: _do_preset_menu
+0x0004ADC0	0x00000058	[  3] FDE for: _presets_menu
+0x0004AE18	0x00000050	[  3] FDE for: _fix_size
+0x0004AE68	0x00000040	[  3] FDE for: _new_game_notify
+0x0004AEA8	0x00000058	[  3] FDE for: _pausemenu_cb
+0x0004AF00	0x00000048	[  3] FDE for: _timer_cb
+0x0004AF48	0x00000038	[  3] FDE for: _zoom_drawpixel
+0x0004AF80	0x00000040	[  3] FDE for: _zoom_hline.part.0
+0x0004AFC0	0x00000038	[  3] FDE for: _rb_clip
+0x0004AFF8	0x00000038	[  3] FDE for: _rb_unclip
+0x0004B030	0x00000038	[  3] FDE for: _rb_end_draw
+0x0004B068	0x000000B0	[  3] FDE for: _rb_blitter_load
+0x0004B118	0x000000A0	[  3] FDE for: _draw_antialiased_line
+0x0004B1B8	0x00000038	[  3] FDE for: _rb_start_draw
+0x0004B1F0	0x00000058	[  3] FDE for: _clear_mouse
+0x0004B248	0x00000078	[  3] FDE for: _full_help.isra.0
+0x0004B2C0	0x00000070	[  3] FDE for: _draw_mouse
+0x0004B330	0x00000070	[  3] FDE for: _draw_title
+0x0004B3A0	0x00000058	[  3] FDE for: _clear_and_draw
+0x0004B3F8	0x00000048	[  3] FDE for: _fatal
+0x0004B440	0x00000040	[  3] FDE for: _rb_color
+0x0004B480	0x00000078	[  3] FDE for: _rb_draw_line
+0x0004B4F8	0x00000070	[  3] FDE for: _rb_draw_rect
+0x0004B568	0x00000118	[  3] FDE for: _rb_draw_circle
+0x0004B680	0x000000A0	[  3] FDE for: _rb_setfont
+0x0004B720	0x000000D8	[  3] FDE for: _rb_draw_text
+0x0004B7F8	0x000000B0	[  3] FDE for: _config_menu_core
+0x0004B8A8	0x00000178	[  3] FDE for: _pause_menu
+0x0004BA20	0x00000118	[  3] FDE for: _process_input
+0x0004BB38	0x00000088	[  3] FDE for: _init_for_game.constprop.0
+0x0004BBC0	0x00000060	[  3] FDE for: _load_game
+0x0004BC20	0x000000A8	[  3] FDE for: _save_game
+0x0004BCC8	0x00000068	[  3] FDE for: _puzzles_main
+0x0004BD30	0x00000040	[  3] FDE for: _get_random_seed
+0x0004BD70	0x00000020	[  3] FDE for: _activate_timer
+0x0004BD90	0x00000020	[  3] FDE for: _deactivate_timer
+0x0004BDB0	0x00000020	[  3] FDE for: _frontend_default_colour
+0x0004BDD0	0x00000060	[  3] FDE for: _plugin_start
+0x0004BE30	0x00000018	[  4] CFI
+0x0004BE48	0x00000038	[  4] FDE for: _sprintf_wrapper
+0x0004BE80	0x00000038	[  4] FDE for: _getenv_wrapper
+0x0004BEB8	0x00000020	[  4] FDE for: _puts_wrapper
+0x0004BED8	0x00000050	[  4] FDE for: _sin_wrapper
+0x0004BF28	0x00000050	[  4] FDE for: _cos_wrapper
+0x0004BF78	0x00000020	[  4] FDE for: _vsprintf_wrapper
+0x0004BF98	0x00000020	[  4] FDE for: _fabs_wrapper
+0x0004BFB8	0x00000020	[  4] FDE for: _floor_wrapper
+0x0004BFD8	0x00000038	[  4] FDE for: _rb_exp
+0x0004C010	0x00000020	[  4] FDE for: _atan_wrapper
+0x0004C030	0x00000078	[  4] FDE for: _atan2_wrapper
+0x0004C0A8	0x00000020	[  4] FDE for: _sqrt_wrapper
+0x0004C0C8	0x00000038	[  4] FDE for: _acos_wrapper
+0x0004C100	0x00000020	[  4] FDE for: _strtoq_wrapper
+0x0004C120	0x00000020	[  4] FDE for: _strtouq_wrapper
+0x0004C140	0x00000038	[  4] FDE for: _pow_wrapper
+0x0004C178	0x00000020	[  4] FDE for: _copysign_wrapper
+0x0004C198	0x00000020	[  4] FDE for: _scalbn_wrapper
+0x0004C1B8	0x00000020	[  4] FDE for: _ceil_wrapper
+0x0004C1D8	0x00000048	[  4] FDE for: _atof_wrapper
+0x0004C220	0x00000070	[  4] FDE for: _rb_vsscanf
+0x0004C290	0x00000038	[  4] FDE for: _sscanf_wrapper
+0x0004C2C8	0x00000020	[  4] FDE for: _strcspn_wrapper
+0x0004C2E8	0x00000020	[  4] FDE for: _strspn_wrapper
+0x0004C308	0x00000018	[  5] CFI
+0x0004C320	0x00000040	[  5] FDE for: _grab_audiobuf.part.0
+0x0004C360	0x00000060	[  5] FDE for: _smalloc
+0x0004C3C0	0x00000020	[  5] FDE for: _sfree
+0x0004C3E0	0x00000068	[  5] FDE for: _srealloc
+0x0004C448	0x00000058	[  5] FDE for: _dupstr
+0x0004C4A0	0x00000018	[  6] CFI
+0x0004C4B8	0x00000078	[  6] FDE for: _LZ4_decompress_tiny
+0x0004C530	0x00000018	[  8] CFI
+0x0004C548	0x00000020	[  8] FDE for: _reset_combi
+0x0004C568	0x00000058	[  8] FDE for: _new_combi
+0x0004C5C0	0x00000020	[  8] FDE for: _next_combi
+0x0004C5E0	0x00000040	[  8] FDE for: _free_combi
+0x0004C620	0x00000018	[  9] CFI
+0x0004C638	0x00000030	[  9] FDE for: _addremcommon
+0x0004C668	0x00000078	[  9] FDE for: _divvy_rectangle_attempt
+0x0004C6E0	0x00000050	[  9] FDE for: _divvy_rectangle
+0x0004C730	0x00000018	[ 10] CFI
+0x0004C748	0x00000050	[ 10] FDE for: _drawing_new
+0x0004C798	0x00000040	[ 10] FDE for: _drawing_free
+0x0004C7D8	0x00000020	[ 10] FDE for: _draw_text
+0x0004C7F8	0x00000020	[ 10] FDE for: _draw_rect
+0x0004C818	0x00000020	[ 10] FDE for: _draw_line
+0x0004C838	0x00000038	[ 10] FDE for: _draw_thick_line
+0x0004C870	0x00000020	[ 10] FDE for: _draw_polygon
+0x0004C890	0x00000020	[ 10] FDE for: _draw_circle
+0x0004C8B0	0x00000020	[ 10] FDE for: _draw_update
+0x0004C8D0	0x00000020	[ 10] FDE for: _clip
+0x0004C8F0	0x00000020	[ 10] FDE for: _unclip
+0x0004C910	0x00000020	[ 10] FDE for: _start_draw
+0x0004C930	0x00000020	[ 10] FDE for: _end_draw
+0x0004C950	0x00000040	[ 10] FDE for: _text_fallback
+0x0004C990	0x00000060	[ 10] FDE for: _status_bar
+0x0004C9F0	0x00000020	[ 10] FDE for: _blitter_new
+0x0004CA10	0x00000020	[ 10] FDE for: _blitter_free
+0x0004CA30	0x00000020	[ 10] FDE for: _blitter_save
+0x0004CA50	0x00000020	[ 10] FDE for: _blitter_load
+0x0004CA70	0x00000020	[ 10] FDE for: _print_begin_doc
+0x0004CA90	0x00000020	[ 10] FDE for: _print_begin_page
+0x0004CAB0	0x00000020	[ 10] FDE for: _print_begin_puzzle
+0x0004CAD0	0x00000040	[ 10] FDE for: _print_end_puzzle
+0x0004CB10	0x00000020	[ 10] FDE for: _print_end_page
+0x0004CB30	0x00000020	[ 10] FDE for: _print_end_doc
+0x0004CB50	0x00000068	[ 10] FDE for: _print_get_colour
+0x0004CBB8	0x00000048	[ 10] FDE for: _print_mono_colour
+0x0004CC00	0x00000048	[ 10] FDE for: _print_grey_colour
+0x0004CC48	0x00000040	[ 10] FDE for: _print_hatched_colour
+0x0004CC88	0x00000060	[ 10] FDE for: _print_rgb_mono_colour
+0x0004CCE8	0x00000060	[ 10] FDE for: _print_rgb_grey_colour
+0x0004CD48	0x00000058	[ 10] FDE for: _print_rgb_hatched_colour
+0x0004CDA0	0x00000040	[ 10] FDE for: _print_line_width
+0x0004CDE0	0x00000020	[ 10] FDE for: _print_line_dotted
+0x0004CE00	0x00000018	[ 11] CFI
+0x0004CE18	0x000000D0	[ 11] FDE for: _draw_polygon_fallback
+0x0004CEE8	0x00000018	[ 12] CFI
+0x0004CF00	0x00000060	[ 12] FDE for: _dsf_new_internal
+0x0004CF60	0x00000020	[ 12] FDE for: _dsf_new
+0x0004CF80	0x00000020	[ 12] FDE for: _dsf_new_flip
+0x0004CFA0	0x00000020	[ 12] FDE for: _dsf_new_min
+0x0004CFC0	0x00000020	[ 12] FDE for: _dsf_reinit
+0x0004CFE0	0x00000070	[ 12] FDE for: _dsf_copy
+0x0004D050	0x00000040	[ 12] FDE for: _dsf_free
+0x0004D090	0x00000048	[ 12] FDE for: _dsf_canonify
+0x0004D0D8	0x00000068	[ 12] FDE for: _dsf_merge
+0x0004D140	0x00000040	[ 12] FDE for: _dsf_equivalent
+0x0004D180	0x00000040	[ 12] FDE for: _dsf_size
+0x0004D1C0	0x00000060	[ 12] FDE for: _dsf_canonify_flip
+0x0004D220	0x00000060	[ 12] FDE for: _dsf_merge_flip
+0x0004D280	0x00000058	[ 12] FDE for: _dsf_minimal
+0x0004D2D8	0x00000018	[ 13] CFI
+0x0004D2F0	0x00000020	[ 13] FDE for: _findloop_new_state
+0x0004D310	0x00000020	[ 13] FDE for: _findloop_free_state
+0x0004D330	0x00000020	[ 13] FDE for: _findloop_is_loop_edge
+0x0004D350	0x00000020	[ 13] FDE for: _findloop_is_bridge
+0x0004D370	0x00000068	[ 13] FDE for: _findloop_run
+0x0004D3D8	0x00000018	[ 14] CFI
+0x0004D3F0	0x00000020	[ 14] FDE for: _grid_edge_bydots_cmpfn
+0x0004D410	0x00000020	[ 14] FDE for: _grid_point_cmp_fn
+0x0004D430	0x00000020	[ 14] FDE for: _grid_validate_params_square
+0x0004D450	0x00000020	[ 14] FDE for: _grid_size_square
+0x0004D470	0x00000020	[ 14] FDE for: _grid_validate_params_honeycomb
+0x0004D490	0x00000020	[ 14] FDE for: _grid_size_honeycomb
+0x0004D4B0	0x00000020	[ 14] FDE for: _grid_validate_params_triangular
+0x0004D4D0	0x00000020	[ 14] FDE for: _grid_size_triangular
+0x0004D4F0	0x00000020	[ 14] FDE for: _grid_validate_params_snubsquare
+0x0004D510	0x00000020	[ 14] FDE for: _grid_size_snubsquare
+0x0004D530	0x00000020	[ 14] FDE for: _grid_validate_params_cairo
+0x0004D550	0x00000020	[ 14] FDE for: _grid_size_cairo
+0x0004D570	0x00000020	[ 14] FDE for: _grid_validate_params_greathexagonal
+0x0004D590	0x00000020	[ 14] FDE for: _grid_size_greathexagonal
+0x0004D5B0	0x00000020	[ 14] FDE for: _grid_validate_params_kagome
+0x0004D5D0	0x00000020	[ 14] FDE for: _grid_size_kagome
+0x0004D5F0	0x00000020	[ 14] FDE for: _grid_validate_params_octagonal
+0x0004D610	0x00000020	[ 14] FDE for: _grid_size_octagonal
+0x0004D630	0x00000020	[ 14] FDE for: _grid_validate_params_kites
+0x0004D650	0x00000020	[ 14] FDE for: _grid_size_kites
+0x0004D670	0x00000020	[ 14] FDE for: _grid_validate_params_floret
+0x0004D690	0x00000020	[ 14] FDE for: _grid_size_floret
+0x0004D6B0	0x00000020	[ 14] FDE for: _grid_validate_params_dodecagonal
+0x0004D6D0	0x00000020	[ 14] FDE for: _grid_size_dodecagonal
+0x0004D6F0	0x00000020	[ 14] FDE for: _grid_validate_params_greatdodecagonal
+0x0004D710	0x00000020	[ 14] FDE for: _grid_size_greatdodecagonal
+0x0004D730	0x00000020	[ 14] FDE for: _grid_validate_params_greatgreatdodecagonal
+0x0004D750	0x00000020	[ 14] FDE for: _grid_size_greatgreatdodecagonal
+0x0004D770	0x00000020	[ 14] FDE for: _grid_validate_params_compassdodecagonal
+0x0004D790	0x00000020	[ 14] FDE for: _grid_size_compassdodecagonal
+0x0004D7B0	0x00000020	[ 14] FDE for: _grid_validate_params_penrose_p2_kite
+0x0004D7D0	0x00000020	[ 14] FDE for: _grid_size_penrose_p2_kite
+0x0004D7F0	0x00000020	[ 14] FDE for: _grid_validate_params_hats
+0x0004D810	0x00000020	[ 14] FDE for: _grid_size_hats
+0x0004D830	0x00000020	[ 14] FDE for: _grid_validate_params_spectres
+0x0004D850	0x00000020	[ 14] FDE for: _grid_size_spectres
+0x0004D870	0x00000038	[ 14] FDE for: _grid_empty
+0x0004D8A8	0x00000078	[ 14] FDE for: _grid_desc_to_hat_params
+0x0004D920	0x00000058	[ 14] FDE for: _grid_face_add_new
+0x0004D978	0x00000090	[ 14] FDE for: _grid_trim_vigorously
+0x0004DA08	0x00000070	[ 14] FDE for: _grid_make_consistent
+0x0004DA78	0x00000050	[ 14] FDE for: _grid_new_hats
+0x0004DAC8	0x00000060	[ 14] FDE for: _grid_desc_to_spectre_params.part.0
+0x0004DB28	0x00000060	[ 14] FDE for: _grid_new_spectres
+0x0004DB88	0x00000070	[ 14] FDE for: _grid_get_dot
+0x0004DBF8	0x00000058	[ 14] FDE for: _grid_hats_callback
+0x0004DC50	0x000000A0	[ 14] FDE for: _grid_new_compassdodecagonal
+0x0004DCF0	0x000000C8	[ 14] FDE for: _grid_new_greatgreatdodecagonal
+0x0004DDB8	0x000000A8	[ 14] FDE for: _grid_new_greatdodecagonal
+0x0004DE60	0x000000A8	[ 14] FDE for: _grid_new_dodecagonal
+0x0004DF08	0x000000A0	[ 14] FDE for: _grid_new_floret
+0x0004DFA8	0x00000090	[ 14] FDE for: _grid_new_kites
+0x0004E038	0x000000A0	[ 14] FDE for: _grid_new_octagonal
+0x0004E0D8	0x000000A0	[ 14] FDE for: _grid_new_kagome
+0x0004E178	0x000000C0	[ 14] FDE for: _grid_new_greathexagonal
+0x0004E238	0x000000A0	[ 14] FDE for: _grid_new_cairo
+0x0004E2D8	0x000000A0	[ 14] FDE for: _grid_new_snubsquare
+0x0004E378	0x000000F0	[ 14] FDE for: _grid_new_triangular
+0x0004E468	0x00000098	[ 14] FDE for: _grid_new_honeycomb
+0x0004E500	0x00000088	[ 14] FDE for: _grid_new_square
+0x0004E588	0x00000060	[ 14] FDE for: _grid_spectres_callback
+0x0004E5E8	0x00000060	[ 14] FDE for: _grid_penrose_callback
+0x0004E648	0x000000C0	[ 14] FDE for: _grid_desc_to_penrose_params.part.0
+0x0004E708	0x00000020	[ 14] FDE for: _grid_size_penrose_p3_thick
+0x0004E728	0x00000110	[ 14] FDE for: _penrose_legacy_set_faces
+0x0004E838	0x00000020	[ 14] FDE for: _grid_validate_params_penrose_p3_thick
+0x0004E858	0x00000060	[ 14] FDE for: _grid_free
+0x0004E8B8	0x00000090	[ 14] FDE for: _grid_new_penrose_legacy
+0x0004E948	0x00000060	[ 14] FDE for: _grid_new_penrose
+0x0004E9A8	0x00000020	[ 14] FDE for: _grid_new_penrose_p3_thick
+0x0004E9C8	0x00000020	[ 14] FDE for: _grid_new_penrose_p2_kite
+0x0004E9E8	0x000000B8	[ 14] FDE for: _grid_nearest_edge
+0x0004EAA0	0x00000130	[ 14] FDE for: _grid_find_incentre
+0x0004EBD0	0x00000020	[ 14] FDE for: _grid_validate_params
+0x0004EBF0	0x000000E8	[ 14] FDE for: _grid_new_desc
+0x0004ECD8	0x000000B0	[ 14] FDE for: _grid_validate_desc
+0x0004ED88	0x00000058	[ 14] FDE for: _grid_new
+0x0004EDE0	0x00000020	[ 14] FDE for: _grid_compute_size
+0x0004EE00	0x00000018	[ 15] CFI
+0x0004EE18	0x00000020	[ 15] FDE for: _report_hat
+0x0004EE38	0x00000068	[ 15] FDE for: _choose_mpp
+0x0004EEA0	0x00000028	[ 15] FDE for: _hat_kiteenum_first
+0x0004EEC8	0x00000030	[ 15] FDE for: _hat_kiteenum_next
+0x0004EEF8	0x00000038	[ 15] FDE for: _hat_coords_new
+0x0004EF30	0x00000038	[ 15] FDE for: _hat_coords_free
+0x0004EF68	0x00000038	[ 15] FDE for: _hat_coords_make_space
+0x0004EFA0	0x00000040	[ 15] FDE for: _hat_coords_copy
+0x0004EFE0	0x00000050	[ 15] FDE for: _hatctx_init_random
+0x0004F030	0x00000020	[ 15] FDE for: _hatctx_initial_coords
+0x0004F050	0x00000070	[ 15] FDE for: _hatctx_extend_coords
+0x0004F0C0	0x00000050	[ 15] FDE for: _try_step_coords_kitemap
+0x0004F110	0x00000078	[ 15] FDE for: _try_step_coords_metamap
+0x0004F188	0x00000038	[ 15] FDE for: _hatctx_cleanup
+0x0004F1C0	0x00000060	[ 15] FDE for: _hatctx_step
+0x0004F220	0x00000068	[ 15] FDE for: _hat_tiling_randomise
+0x0004F288	0x00000020	[ 15] FDE for: _hat_tiling_params_invalid
+0x0004F2A8	0x00000058	[ 15] FDE for: _maybe_report_hat
+0x0004F300	0x00000078	[ 15] FDE for: _hat_tiling_generate
+0x0004F378	0x00000018	[ 16] CFI
+0x0004F390	0x00000020	[ 16] FDE for: _latin_check_cmp
+0x0004F3B0	0x00000048	[ 16] FDE for: _latin_solver_place
+0x0004F3F8	0x00000048	[ 16] FDE for: _latin_solver_elim
+0x0004F440	0x00000078	[ 16] FDE for: _latin_solver_set
+0x0004F4B8	0x000000C0	[ 16] FDE for: _latin_solver_forcing
+0x0004F578	0x00000050	[ 16] FDE for: _latin_solver_new_scratch
+0x0004F5C8	0x00000040	[ 16] FDE for: _latin_solver_free_scratch
+0x0004F608	0x00000058	[ 16] FDE for: _latin_solver_alloc
+0x0004F660	0x00000040	[ 16] FDE for: _latin_solver_free
+0x0004F6A0	0x000000A0	[ 16] FDE for: _latin_solver_diff_simple
+0x0004F740	0x00000098	[ 16] FDE for: _latin_solver_diff_set
+0x0004F7D8	0x00000080	[ 16] FDE for: _latin_solver_top
+0x0004F858	0x00000020	[ 16] FDE for: _latin_solver_main
+0x0004F878	0x00000068	[ 16] FDE for: _latin_solver
+0x0004F8E0	0x00000020	[ 16] FDE for: _latin_solver_debug
+0x0004F900	0x00000020	[ 16] FDE for: _latin_debug
+0x0004F920	0x00000078	[ 16] FDE for: _latin_generate
+0x0004F998	0x00000060	[ 16] FDE for: _latin_generate_rect
+0x0004F9F8	0x00000080	[ 16] FDE for: _latin_check
+0x0004FA78	0x00000018	[ 17] CFI
+0x0004FA90	0x00000078	[ 17] FDE for: _domino_layout_prealloc
+0x0004FB08	0x00000050	[ 17] FDE for: _domino_layout
+0x0004FB58	0x00000018	[ 18] CFI
+0x0004FB70	0x00000020	[ 18] FDE for: _white_sort_cmpfn
+0x0004FB90	0x00000058	[ 18] FDE for: _can_colour_face.isra.0
+0x0004FBE8	0x00000020	[ 18] FDE for: _black_sort_cmpfn
+0x0004FC08	0x00000070	[ 18] FDE for: _generate_loop
+0x0004FC78	0x00000018	[ 19] CFI
+0x0004FC90	0x00000020	[ 19] FDE for: _matching_scratch_size
+0x0004FCB0	0x000000F0	[ 19] FDE for: _matching_with_scratch
+0x0004FDA0	0x00000068	[ 19] FDE for: _matching
+0x0004FE08	0x00000020	[ 19] FDE for: _matching_witness
+0x0004FE28	0x00000018	[ 20] CFI
+0x0004FE40	0x00000038	[ 20] FDE for: _midend_size_new_drawstate
+0x0004FE78	0x00000040	[ 20] FDE for: _preset_menu_alloc_ids
+0x0004FEB8	0x00000058	[ 20] FDE for: _midend_free_game
+0x0004FF10	0x00000050	[ 20] FDE for: _midend_free_preset_menu
+0x0004FF60	0x00000048	[ 20] FDE for: _midend_purge_states
+0x0004FFA8	0x00000050	[ 20] FDE for: _midend_get_prefs
+0x0004FFF8	0x00000060	[ 20] FDE for: _buffer_append
+0x00050058	0x00000038	[ 20] FDE for: _preset_menu_add
+0x00050090	0x00000050	[ 20] FDE for: _midend_serialise_buf_write
+0x000500E0	0x00000038	[ 20] FDE for: _midend_serialise_buf_read
+0x00050118	0x000000A8	[ 20] FDE for: _midend_serialise_prefs
+0x000501C0	0x000000A8	[ 20] FDE for: _midend_set_prefs
+0x00050268	0x00000070	[ 20] FDE for: _midend_deserialise_prefs
+0x000502D8	0x00000048	[ 20] FDE for: _midend_set_timer
+0x00050320	0x00000048	[ 20] FDE for: _midend_finish_move
+0x00050368	0x00000080	[ 20] FDE for: _midend_deserialise_internal
+0x000503E8	0x00000098	[ 20] FDE for: _midend_redraw.part.0
+0x00050480	0x00000068	[ 20] FDE for: _encode_params.isra.0
+0x000504E8	0x00000108	[ 20] FDE for: _midend_game_id_int
+0x000505F0	0x00000070	[ 20] FDE for: _preset_menu_encode_params
+0x00050660	0x00000070	[ 20] FDE for: _newgame_undo_deserialise_check
+0x000506D0	0x000000C8	[ 20] FDE for: _preset_menu_add_from_user_env
+0x00050798	0x00000078	[ 20] FDE for: _midend_reset_tilesize
+0x00050810	0x00000070	[ 20] FDE for: _midend_new
+0x00050880	0x00000020	[ 20] FDE for: _midend_which_game
+0x000508A0	0x00000040	[ 20] FDE for: _midend_free
+0x000508E0	0x00000080	[ 20] FDE for: _midend_size
+0x00050960	0x00000020	[ 20] FDE for: _midend_tilesize
+0x00050980	0x00000040	[ 20] FDE for: _midend_set_params
+0x000509C0	0x00000020	[ 20] FDE for: _midend_get_params
+0x000509E0	0x00000060	[ 20] FDE for: _midend_force_redraw
+0x00050A40	0x00000020	[ 20] FDE for: _midend_load_prefs
+0x00050A60	0x00000020	[ 20] FDE for: _midend_save_prefs
+0x00050A80	0x00000020	[ 20] FDE for: _midend_can_undo
+0x00050AA0	0x00000020	[ 20] FDE for: _midend_can_redo
+0x00050AC0	0x00000068	[ 20] FDE for: _midend_stop_anim
+0x00050B28	0x00000080	[ 20] FDE for: _midend_restart_game
+0x00050BA8	0x00000058	[ 20] FDE for: _midend_request_keys
+0x00050C00	0x00000050	[ 20] FDE for: _midend_current_key_label
+0x00050C50	0x00000050	[ 20] FDE for: _midend_redraw
+0x00050CA0	0x00000048	[ 20] FDE for: _midend_freeze_timer
+0x00050CE8	0x00000058	[ 20] FDE for: _midend_timer
+0x00050D40	0x000000B8	[ 20] FDE for: _midend_colours
+0x00050DF8	0x00000038	[ 20] FDE for: _preset_menu_new
+0x00050E30	0x00000048	[ 20] FDE for: _preset_menu_add_submenu
+0x00050E78	0x00000038	[ 20] FDE for: _preset_menu_add_preset
+0x00050EB0	0x00000080	[ 20] FDE for: _preset_menu_lookup_by_id
+0x00050F30	0x00000088	[ 20] FDE for: _midend_get_presets
+0x00050FB8	0x00000050	[ 20] FDE for: _midend_which_preset
+0x00051008	0x00000020	[ 20] FDE for: _midend_wants_statusbar
+0x00051028	0x00000020	[ 20] FDE for: _midend_request_id_changes
+0x00051048	0x00000048	[ 20] FDE for: _midend_get_cursor_location
+0x00051090	0x00000078	[ 20] FDE for: _midend_supersede_game_desc
+0x00051108	0x000000A8	[ 20] FDE for: _midend_get_config
+0x000511B0	0x00000020	[ 20] FDE for: _midend_game_id
+0x000511D0	0x00000058	[ 20] FDE for: _midend_get_game_id
+0x00051228	0x00000070	[ 20] FDE for: _midend_get_random_seed
+0x00051298	0x00000080	[ 20] FDE for: _midend_set_config
+0x00051318	0x00000020	[ 20] FDE for: _midend_can_format_as_text_now
+0x00051338	0x00000048	[ 20] FDE for: _midend_text_format
+0x00051380	0x000000D8	[ 20] FDE for: _midend_solve
+0x00051458	0x00000020	[ 20] FDE for: _midend_status
+0x00051478	0x00000070	[ 20] FDE for: _midend_rewrite_statusbar
+0x000514E8	0x00000080	[ 20] FDE for: _midend_serialise
+0x00051568	0x00000090	[ 20] FDE for: _midend_new_game
+0x000515F8	0x00000080	[ 20] FDE for: _midend_really_process_key
+0x00051678	0x00000068	[ 20] FDE for: _midend_process_key
+0x000516E0	0x00000020	[ 20] FDE for: _midend_deserialise
+0x00051700	0x000000D8	[ 20] FDE for: _identify_game
+0x000517D8	0x000000B8	[ 20] FDE for: _midend_print_puzzle
+0x00051890	0x00000018	[ 21] CFI
+0x000518A8	0x00000048	[ 21] FDE for: _free_cfg
+0x000518F0	0x00000050	[ 21] FDE for: _free_keys
+0x00051940	0x00000078	[ 21] FDE for: _obfuscate_bitmap
+0x000519B8	0x00000058	[ 21] FDE for: _bin2hex
+0x00051A10	0x00000088	[ 21] FDE for: _hex2bin
+0x00051A98	0x00000060	[ 21] FDE for: _fgetline
+0x00051AF8	0x00000050	[ 21] FDE for: _getenv_bool
+0x00051B48	0x00000020	[ 21] FDE for: _colour_mix
+0x00051B68	0x000000A8	[ 21] FDE for: _game_mkhighlight_specific
+0x00051C10	0x00000040	[ 21] FDE for: _game_mkhighlight
+0x00051C50	0x00000060	[ 21] FDE for: _swap_regions
+0x00051CB0	0x00000058	[ 21] FDE for: _shuffle
+0x00051D08	0x00000038	[ 21] FDE for: _draw_rect_outline
+0x00051D40	0x00000070	[ 21] FDE for: _draw_rect_corners
+0x00051DB0	0x00000020	[ 21] FDE for: _compare_integers
+0x00051DD0	0x00000020	[ 21] FDE for: _move_cursor
+0x00051DF0	0x00000040	[ 21] FDE for: _c2pos
+0x00051E30	0x00000080	[ 21] FDE for: _c2diff
+0x00051EB0	0x00000040	[ 21] FDE for: _pos2c
+0x00051EF0	0x00000068	[ 21] FDE for: _draw_text_outline
+0x00051F58	0x00000058	[ 21] FDE for: _copy_left_justified
+0x00051FB0	0x000000A0	[ 21] FDE for: _button2label
+0x00052050	0x00000088	[ 21] FDE for: _make_prefs_path
+0x000520D8	0x00000080	[ 21] FDE for: _n_times_root_k
+0x00052158	0x00000018	[ 22] CFI
+0x00052170	0x00000020	[ 22] FDE for: _penrose_valid_parents
+0x00052190	0x00000020	[ 22] FDE for: _penrose_cmp
+0x000521B0	0x00000020	[ 22] FDE for: _null_output_tile
+0x000521D0	0x00000038	[ 22] FDE for: _really_output_tile
+0x00052208	0x00000060	[ 22] FDE for: _penrose_choose_random
+0x00052268	0x00000020	[ 22] FDE for: _inbounds
+0x00052288	0x00000020	[ 22] FDE for: _penrose_valid_letter
+0x000522A8	0x00000038	[ 22] FDE for: _penrose_coords_new
+0x000522E0	0x00000038	[ 22] FDE for: _penrose_coords_free
+0x00052318	0x00000038	[ 22] FDE for: _penrose_coords_make_space
+0x00052350	0x00000040	[ 22] FDE for: _penrose_coords_copy
+0x00052390	0x00000028	[ 22] FDE for: _penrose_place
+0x000523B8	0x00000038	[ 22] FDE for: _penrose_free
+0x000523F0	0x00000050	[ 22] FDE for: _penrosectx_init_random
+0x00052440	0x00000048	[ 22] FDE for: _penrosectx_init_from_params
+0x00052488	0x00000050	[ 22] FDE for: _penrosectx_cleanup
+0x000524D8	0x00000040	[ 22] FDE for: _penrosectx_initial_coords
+0x00052518	0x00000070	[ 22] FDE for: _penrosectx_extend_coords
+0x00052588	0x00000060	[ 22] FDE for: _penrosectx_step_recurse
+0x000525E8	0x00000038	[ 22] FDE for: _penrosectx_step
+0x00052620	0x00000058	[ 22] FDE for: _penrose_initial
+0x00052678	0x00000060	[ 22] FDE for: _penrose_adjacent
+0x000526D8	0x00000090	[ 22] FDE for: _penrosectx_generate
+0x00052768	0x00000098	[ 22] FDE for: _penrose_tiling_params_invalid
+0x00052800	0x00000048	[ 22] FDE for: _penrose_tiling_randomise
+0x00052848	0x00000040	[ 22] FDE for: _penrose_tiling_generate
+0x00052888	0x00000018	[ 23] CFI
+0x000528A0	0x00000048	[ 23] FDE for: _v_rotate
+0x000528E8	0x00000090	[ 23] FDE for: _penrose_p3_large.isra.0
+0x00052978	0x00000078	[ 23] FDE for: _penrose_p3_small.isra.0
+0x000529F0	0x00000088	[ 23] FDE for: _penrose_p2_small.isra.0
+0x00052A78	0x00000088	[ 23] FDE for: _penrose_p2_large.isra.0
+0x00052B00	0x00000020	[ 23] FDE for: _penrose_legacy_vx
+0x00052B20	0x00000020	[ 23] FDE for: _penrose_legacy_vy
+0x00052B40	0x00000040	[ 23] FDE for: _penrose_legacy_side_length
+0x00052B80	0x00000070	[ 23] FDE for: _penrose_legacy
+0x00052BF0	0x00000080	[ 23] FDE for: _penrose_legacy_calculate_size
+0x00052C70	0x00000018	[ 24] CFI
+0x00052C88	0x00000020	[ 24] FDE for: _SHA_Init
+0x00052CA8	0x000000A0	[ 24] FDE for: _SHA_Bytes
+0x00052D48	0x00000060	[ 24] FDE for: _SHA_Final
+0x00052DA8	0x00000040	[ 24] FDE for: _SHA_Simple
+0x00052DE8	0x00000050	[ 24] FDE for: _random_new
+0x00052E38	0x00000040	[ 24] FDE for: _random_copy
+0x00052E78	0x00000070	[ 24] FDE for: _random_bits
+0x00052EE8	0x00000058	[ 24] FDE for: _random_upto
+0x00052F40	0x00000020	[ 24] FDE for: _random_free
+0x00052F60	0x00000060	[ 24] FDE for: _random_state_encode
+0x00052FC0	0x00000048	[ 24] FDE for: _random_state_decode
+0x00053008	0x00000018	[ 25] CFI
+0x00053020	0x00000080	[ 25] FDE for: _downheap
+0x000530A0	0x00000058	[ 25] FDE for: _arraysort_fn
+0x000530F8	0x00000018	[ 26] CFI
+0x00053110	0x00000020	[ 26] FDE for: _spectre_cmp
+0x00053130	0x00000068	[ 26] FDE for: _choose_poss
+0x00053198	0x00000050	[ 26] FDE for: _spectre_internal_callback
+0x000531E8	0x00000030	[ 26] FDE for: _point_rot
+0x00053218	0x00000038	[ 26] FDE for: _spectrectx_start_vertices
+0x00053250	0x00000038	[ 26] FDE for: _spectre_valid_hex_letter
+0x00053288	0x00000038	[ 26] FDE for: _spectre_coords_new
+0x000532C0	0x00000038	[ 26] FDE for: _spectre_coords_free
+0x000532F8	0x00000038	[ 26] FDE for: _spectre_coords_make_space
+0x00053330	0x00000040	[ 26] FDE for: _spectre_coords_copy
+0x00053370	0x00000038	[ 26] FDE for: _spectre_place
+0x000533A8	0x00000040	[ 26] FDE for: _spectre_initial
+0x000533E8	0x00000038	[ 26] FDE for: _spectre_free
+0x00053420	0x00000048	[ 26] FDE for: _spectrectx_init_random
+0x00053468	0x00000050	[ 26] FDE for: _spectrectx_init_from_params
+0x000534B8	0x00000050	[ 26] FDE for: _spectrectx_cleanup
+0x00053508	0x00000020	[ 26] FDE for: _spectrectx_initial_coords
+0x00053528	0x00000070	[ 26] FDE for: _spectrectx_extend_coords
+0x00053598	0x00000070	[ 26] FDE for: _spectrectx_step_hex
+0x00053608	0x00000088	[ 26] FDE for: _spectrectx_step
+0x00053690	0x00000058	[ 26] FDE for: _spectre_adjacent
+0x000536E8	0x00000068	[ 26] FDE for: _spectrectx_generate
+0x00053750	0x00000090	[ 26] FDE for: _spectre_tiling_params_invalid
+0x000537E0	0x00000048	[ 26] FDE for: _spectre_tiling_randomise
+0x00053828	0x00000040	[ 26] FDE for: _spectre_tiling_generate
+0x00053868	0x00000018	[ 27] CFI
+0x00053880	0x00000048	[ 27] FDE for: _tdq_new
+0x000538C8	0x00000040	[ 27] FDE for: _tdq_free
+0x00053908	0x00000048	[ 27] FDE for: _tdq_add
+0x00053950	0x00000020	[ 27] FDE for: _tdq_remove
+0x00053970	0x00000070	[ 27] FDE for: _tdq_fill
+0x000539E0	0x00000018	[ 28] CFI
+0x000539F8	0x00000020	[ 28] FDE for: _trans234_subtree_right
+0x00053A18	0x00000020	[ 28] FDE for: _trans234_subtree_left
+0x00053A38	0x00000068	[ 28] FDE for: _copynode234
+0x00053AA0	0x00000098	[ 28] FDE for: _trans234_subtree_merge
+0x00053B38	0x00000080	[ 28] FDE for: _delpos234_internal
+0x00053BB8	0x00000050	[ 28] FDE for: _freenode234
+0x00053C08	0x00000070	[ 28] FDE for: _add234_insert
+0x00053C78	0x00000068	[ 28] FDE for: _add234_internal
+0x00053CE0	0x00000058	[ 28] FDE for: _join234_internal
+0x00053D38	0x00000040	[ 28] FDE for: _newtree234
+0x00053D78	0x00000048	[ 28] FDE for: _freetree234
+0x00053DC0	0x00000020	[ 28] FDE for: _count234
+0x00053DE0	0x00000020	[ 28] FDE for: _add234
+0x00053E00	0x00000020	[ 28] FDE for: _addpos234
+0x00053E20	0x00000020	[ 28] FDE for: _index234
+0x00053E40	0x00000118	[ 28] FDE for: _findrelpos234
+0x00053F58	0x00000020	[ 28] FDE for: _find234
+0x00053F78	0x00000020	[ 28] FDE for: _findrel234
+0x00053F98	0x00000020	[ 28] FDE for: _findpos234
+0x00053FB8	0x00000020	[ 28] FDE for: _delpos234
+0x00053FD8	0x00000050	[ 28] FDE for: _del234
+0x00054028	0x00000020	[ 28] FDE for: _height234
+0x00054048	0x00000060	[ 28] FDE for: _join234
+0x000540A8	0x00000060	[ 28] FDE for: _join234r
+0x00054108	0x00000128	[ 28] FDE for: _splitpos234
+0x00054230	0x00000050	[ 28] FDE for: _split234
+0x00054280	0x00000050	[ 28] FDE for: _copytree234
+0x000542D0	0x00000018	[ 30] CFI
+0x000542E8	0x00000058	[ 30] FDE for: _get_puzzle_size
+0x00054340	0x00000058	[ 30] FDE for: _document_new
+0x00054398	0x00000050	[ 30] FDE for: _document_free
+0x000543E8	0x00000040	[ 30] FDE for: _document_add_puzzle
+0x00054428	0x00000020	[ 30] FDE for: _document_npages
+0x00054448	0x00000020	[ 30] FDE for: _document_begin
+0x00054468	0x00000020	[ 30] FDE for: _document_end
+0x00054488	0x00000110	[ 30] FDE for: _document_print_page
+0x00054598	0x00000048	[ 30] FDE for: _document_print
+0x000545E0	0x00000018	[ 31] CFI
+0x000545F8	0x00000020	[ 31] FDE for: _cleanup_wrapper
+0x00054618	0x00000040	[ 31] FDE for: _plugin__start
+0x00054658	0x00000020	[ 31] FDE for: _rb_atexit
+0x00054678	0x00000030	[ 31] FDE for: _exit
+0x000546A8	0x00000030	[ 31] FDE for: __exit
+0x000546D8	0x00000038	[ 31] FDE for: _exit_on_usb
+0x00054710	0x00000018	[ 32] CFI
+0x00054728	0x00000020	[ 32] FDE for: _ls_bit
+0x00054748	0x00000020	[ 32] FDE for: _ms_bit
+0x00054768	0x00000020	[ 32] FDE for: _set_bit
+0x00054788	0x00000020	[ 32] FDE for: _clear_bit
+0x000547A8	0x00000040	[ 32] FDE for: _FIND_SUITABLE_BLOCK
+0x000547E8	0x00000020	[ 32] FDE for: _process_area
+0x00054808	0x00000038	[ 32] FDE for: _MAPPING_INSERT
+0x00054840	0x00000020	[ 32] FDE for: _panicf
+0x00054860	0x00000020	[ 32] FDE for: _get_new_area
+0x00054880	0x00000020	[ 32] FDE for: _get_used_size
+0x000548A0	0x00000020	[ 32] FDE for: _get_max_size
+0x000548C0	0x00000020	[ 32] FDE for: _destroy_memory_pool
+0x000548E0	0x00000040	[ 32] FDE for: _free_ex
+0x00054920	0x00000050	[ 32] FDE for: _init_memory_pool
+0x00054970	0x00000048	[ 32] FDE for: _add_new_area
+0x000549B8	0x00000060	[ 32] FDE for: _malloc_ex
+0x00054A18	0x00000058	[ 32] FDE for: _tlsf_malloc
+0x00054A70	0x00000020	[ 32] FDE for: _tlsf_free
+0x00054A90	0x00000068	[ 32] FDE for: _realloc_ex
+0x00054AF8	0x00000020	[ 32] FDE for: _tlsf_realloc
+0x00054B18	0x00000048	[ 32] FDE for: _calloc_ex
+0x00054B60	0x00000020	[ 32] FDE for: _tlsf_calloc
+0x00054B80	0x00000018	[ 33] CFI
+0x00054B98	0x00000020	[ 33] FDE for: _memcpy
+0x00054BB8	0x00000020	[ 33] FDE for: _memset
+0x00054BD8	0x00000020	[ 33] FDE for: _memmove
+0x00054BF8	0x00000020	[ 33] FDE for: _memcmp
+0x00054C18	0x00000018	[ 34] CFI
+0x00054C30	0x00000020	[ 34] FDE for: _talk_val
+0x00054C50	0x00000040	[ 34] FDE for: _backlight_force_on
+0x00054C90	0x00000050	[ 34] FDE for: _backlight_ignore_timeout
+0x00054CE0	0x00000040	[ 34] FDE for: _backlight_use_settings
+0x00054D20	0x00000040	[ 34] FDE for: _sw_poweroff_disable
+0x00054D60	0x00000020	[ 34] FDE for: _sw_poweroff_restore
+0x00054D80	0x00000020	[ 34] FDE for: _remote_backlight_force_on
+0x00054DA0	0x00000020	[ 34] FDE for: _remote_backlight_ignore_timeout
+0x00054DC0	0x00000020	[ 34] FDE for: _remote_backlight_use_settings
+0x00054DE0	0x00000020	[ 34] FDE for: _buttonlight_force_on
+0x00054E00	0x00000020	[ 34] FDE for: _buttonlight_force_off
+0x00054E20	0x00000020	[ 34] FDE for: _buttonlight_ignore_timeout
+0x00054E40	0x00000020	[ 34] FDE for: _buttonlight_use_settings
+0x00054E60	0x00000020	[ 34] FDE for: _backlight_brightness_set
+0x00054E80	0x00000020	[ 34] FDE for: _backlight_brightness_use_setting
+0x00054EA0	0x00000020	[ 34] FDE for: _buttonlight_brightness_set
+0x00054EC0	0x00000020	[ 34] FDE for: _buttonlight_brightness_use_setting
+0x00054EE0	0x00000018	[ 35] CFI
+0x00054EF8	0x00000038	[ 35] FDE for: _prevtrack
+0x00054F30	0x00000048	[ 35] FDE for: _play
+0x00054F78	0x00000038	[ 35] FDE for: _stop
+0x00054FB0	0x00000038	[ 35] FDE for: _nexttrack
+0x00054FE8	0x00000040	[ 35] FDE for: _volume
+0x00055028	0x00000040	[ 35] FDE for: _shuffle
+0x00055068	0x00000040	[ 35] FDE for: _repeat_mode
+0x000550A8	0x00000020	[ 35] FDE for: _playback_control_init
+0x000550C8	0x00000038	[ 35] FDE for: _playback_control
+0x00055100	0x00000018	[ 36] CFI
+0x00055118	0x00000050	[ 36] FDE for: _wait_key_press
+0x00055168	0x00000070	[ 36] FDE for: _display_text
+0x000551D8	0x00000018	[ 37] CFI
+0x000551F0	0x00000020	[ 37] FDE for: _strncpy
+0x00055210	0x00000018	[ 38] CFI
+0x00055228	0x00000050	[ 38] FDE for: __fopen_
+0x00055278	0x00000020	[ 38] FDE for: __fflush_
+0x00055298	0x00000048	[ 38] FDE for: __fread_
+0x000552E0	0x00000040	[ 38] FDE for: __fwrite_
+0x00055320	0x00000050	[ 38] FDE for: __fseek_
+0x00055370	0x00000020	[ 38] FDE for: __ftell_
+0x00055390	0x00000048	[ 38] FDE for: __fclose_
+0x000553D8	0x00000048	[ 38] FDE for: __fgetc_
+0x00055420	0x00000020	[ 38] FDE for: __ungetc_
+0x00055440	0x00000038	[ 38] FDE for: __fputc_
+0x00055478	0x00000060	[ 38] FDE for: __fgets_
+0x000554D8	0x00000020	[ 38] FDE for: __clearerr_
+0x000554F8	0x00000020	[ 38] FDE for: __ferror_
+0x00055518	0x00000040	[ 38] FDE for: __feof_
+0x00055558	0x00000048	[ 38] FDE for: __fprintf_
+0x000555A0	0x00000018	[ 39] CFI
+0x000555B8	0x00000020	[ 39] FDE for: _get_framebuffer
+0x000555D8	0x00000018	[ 40] CFI
+0x000555F0	0x00000070	[ 40] FDE for: _xlcd_filltriangle_screen
+0x00055660	0x00000020	[ 40] FDE for: _xlcd_filltriangle
+0x00055680	0x00000060	[ 40] FDE for: _xlcd_fillcircle_screen
+0x000556E0	0x00000020	[ 40] FDE for: _xlcd_fillcircle
+0x00055700	0x00000070	[ 40] FDE for: _xlcd_drawcircle_screen
+0x00055770	0x00000020	[ 40] FDE for: _xlcd_drawcircle
+0x00055790	0x00000068	[ 40] FDE for: _xlcd_color_bitmap_part
+0x000557F8	0x00000020	[ 40] FDE for: _xlcd_color_bitmap
+0x00055818	0x00000018	[ 42] CFI
+0x00055830	0x00000020	[ 42] FDE for: _fp_sincos
+0x00055850	0x00000020	[ 42] FDE for: _fp_sqrt
+0x00055870	0x00000020	[ 42] FDE for: _ipow
+0x00055890	0x00000020	[ 42] FDE for: _fp14_sin
+0x000558B0	0x00000020	[ 42] FDE for: _fp14_cos
+0x000558D0	0x00000020	[ 42] FDE for: _fp16_log
+0x000558F0	0x00000020	[ 42] FDE for: _fp16_exp
+0x00055910	0x00000068	[ 42] FDE for: _fp_exp10
+0x00055978	0x00000020	[ 42] FDE for: _fp_log10
+0x00055998	0x00000038	[ 42] FDE for: _fp_decibels
+0x000559D0	0x00000020	[ 42] FDE for: _fp_factor
+0x00058000	0x00000008	[ 44] __DefaultRuneLocale.got
+0x00058008	0x00000008	[ 45] ___error.got
+0x00058010	0x00000008	[ 44] ___maskrune.got
+0x00058018	0x00000008	[ 44] ___tolower.got
+0x00058020	0x00000008	[ 44] ___toupper.got
+0x00058028	0x00000008	[ 44] _abs.got
+0x00058030	0x00000008	[ 46] _longjmp.got
+0x00058038	0x00000008	[ 46] _setjmp.got
+0x00058040	0x000001A0	[  1] _thegame
+0x000581E0	0x00000018	[  1] _magnets_diffnames
+0x000581F8	0x00000018	[  3] _menu__.2
+0x00058210	0x00000018	[  3] _menu.3
+0x00058228	0x00000018	[  3] _menu__.5
+0x00058240	0x00000018	[  3] _menu.6
+0x00058258	0x00000018	[  3] _menu__.20
+0x00058270	0x00000018	[  3] _menu.21
+0x00058288	0x000000D0	[  3] _rb_drawing
+0x00058358	0x00000090	[ 14] _grid_sizes
+0x000583E8	0x00000090	[ 14] _grid_news
+0x00058478	0x00000090	[ 14] _grid_validate_paramses
+0x00058508	0x00000020	[ 15] _possible_parents
+0x00058528	0x00000020	[ 15] _metamap
+0x00058548	0x00000020	[ 15] _kitemap
+0x00058568	0x00000020	[ 15] _children
+0x00058588	0x00000288	[ 26] _hexdata
+0x00058810	0x00000038	[ 31] ___header
+0x00058848	0x00000018	[ 35] _playback_control_menu
+0x00058860	0x00000018	[ 35] _repeat_mode_item
+0x00058878	0x00000008	[ 35] _repeat_mode_item__
+0x00058880	0x00000018	[ 35] _shuffle_item
+0x00058898	0x00000008	[ 35] _shuffle_item__
+0x000588A0	0x00000018	[ 35] _volume_item
+0x000588B8	0x00000008	[ 35] _volume_item__
+0x000588C0	0x00000018	[ 35] _nexttrack_item
+0x000588D8	0x00000008	[ 35] _nexttrack_item__
+0x000588E0	0x00000018	[ 35] _stop_item
+0x000588F8	0x00000008	[ 35] _stop_item__
+0x00058900	0x00000018	[ 35] _playpause_item
+0x00058918	0x00000008	[ 35] _playpause_item__
+0x00058920	0x00000018	[ 35] _prevtrack_item
+0x00058938	0x00000008	[ 35] _prevtrack_item__
+0x00058940	0x00000028	[ 41] _bm_puzzles_cursor
+0x0005C000	0x00000028	[  2] _help_text_style
+0x0005C028	0x00000080	[  3] _menu_.1
+0x0005C0A8	0x00000080	[  3] _menu_.4
+0x0005C128	0x00000004	[  3] _shortcuts_ok.7
+0x0005C12C	0x00000004	[  3] _v.8
+0x0005C130	0x00000010	[  3] _force_center_games.10
+0x0005C140	0x00000040	[  3] _number_chooser_games.11
+0x0005C180	0x00000020	[  3] _sticky_mouse_games.12
+0x0005C1A0	0x00000018	[  3] _mouse_games.13
+0x0005C1B8	0x00000028	[  3] _no_rclick_on_hold.14
+0x0005C1E0	0x00000010	[  3] _allow_repeats.15
+0x0005C1F0	0x00000010	[  3] _falling_edge.16
+0x0005C200	0x00000090	[  3] _want_spacebar.17
+0x0005C290	0x00000010	[  3] _def.18
+0x0005C2A0	0x00000050	[  3] _menu_.19
+0x0005C2F0	0x00000004	[  3] _access_counter
+0x0005C2F4	0x00000004	[  3] _accept_input
+0x0005C2F8	0x00000004	[  3] _thread
+0x0005C2FC	0x00000004	[  3] _ud_d
+0x0005C300	0x00000004	[  3] _ud_r
+0x0005C304	0x00000004	[  3] _cur_font
+0x0005C308	0x00000004	[  3] _zoom_y
+0x0005C30C	0x00000004	[  3] _zoom_x
+0x0005C310	0x00000001	[  3] _view_mode
+0x0005C318	0x00000008	[  4] _lastcos
+0x0005C320	0x00000001	[  5] _audiobuf_available
+0x0005C328	0x00000013	[ 29] _ver
+0x0005C33B	0x00000001	[ 34] _original_sw_poweroff_state
+0x0005C340	0x00000038	[ 35] _playback_control_menu_
+0x0005C378	0x00000084	[ 38] ___file__
+0x0005C400	0x00000008	[ 31] _rb
+0x0005C410	0x00000004	[  3] _what.0
+0x0005C414	0x00000004	[  3] _held_count.9
+0x0005C418	0x00000008	[  3] _giant_buffer_len
+0x0005C420	0x00000008	[  3] _mouse_bl
+0x0005C428	0x00000008	[  3] _n_fonts
+0x0005C430	0x00000008	[  3] _loaded_fonts
+0x0005C438	0x00000020	[  3] _menu_desc
+0x0005C458	0x0000000C	[  3] _debug_settings
+0x0005C464	0x00000001	[  3] _load_success
+0x0005C465	0x00000003	[  3] _timer_on
+0x0005C468	0x00000008	[  3] _last_tstamp
+0x0005C470	0x00000008	[  3] _input_settings
+0x0005C478	0x00000008	[  3] _titlebar
+0x0005C480	0x00000004	[  3] _ud_u
+0x0005C484	0x00000004	[  3] _ud_l
+0x0005C488	0x00000001	[  3] _need_draw_update
+0x0005C489	0x00000003	[  3] _zoom_force_center
+0x0005C48C	0x00000004	[  3] _game_h
+0x0005C490	0x00000004	[  3] _game_w
+0x0005C494	0x00000004	[  3] _zoom_clipr
+0x0005C498	0x00000004	[  3] _zoom_clipl
+0x0005C49C	0x00000004	[  3] _zoom_clipd
+0x0005C4A0	0x00000004	[  3] _zoom_clipu
+0x0005C4A4	0x00000004	[  3] _zoom_h
+0x0005C4A8	0x00000008	[  3] _zoom_w
+0x0005C4B0	0x00000008	[  3] _zoom_fb
+0x0005C4B8	0x00000004	[  3] _mouse_dragging
+0x0005C4BC	0x00000004	[  3] _mouse_y
+0x0005C4C0	0x00000004	[  3] _mouse_x
+0x0005C4C4	0x00000001	[  3] _mouse_mode
+0x0005C4C5	0x00000001	[  3] _zoom_enabled
+0x0005C4C6	0x0000000A	[  3] _clipped
+0x0005C4D0	0x00000030	[  3] _clip_rect
+0x0005C500	0x00000008	[  3] _lcd_fb
+0x0005C508	0x00000004	[  3] _help_times
+0x0005C50C	0x00000004	[  3] _debug_mode
+0x0005C510	0x00000008	[  3] _last_keystate
+0x0005C518	0x00000008	[  3] _ncolors
+0x0005C520	0x00000008	[  3] _colors
+0x0005C528	0x00000008	[  3] _me
+0x0005C530	0x00000008	[  4] _lastsin
+0x0005C538	0x00000008	[  4] _lastphase
+0x0005C540	0x00000008	[ 31] _atexit_handler
+0x0005C548	0x000000C0	[ 31] ___exit_env
+0x0005C608	0x00000008	[ 32] _mp
+0x0005C610	0x00000008	[  3] _giant_buffer
+0x0005C618	0x00000004	[  5] _frees
+0x0005C61C	0x00000004	[  5] _allocs
+0x0005C620	0x00000008	[ 21] _MOVE_UNUSED
+0x0005C628	0x00000008	[ 21] _MOVE_NO_EFFECT
+0x0005C630	0x00000001	[ 21] _MOVE_UI_UPDATE
+0x0005C638	0x00000008	[ 35] _parentvp
+0x0005C640	0x00000008	[ 38] __stderr_
+0x0005C648	0x00000008	[ 38] __stdout_

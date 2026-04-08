@@ -1,0 +1,532 @@
+# Path: /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/kss.elf
+# Arch: arm64
+# Object files:
+[  0] linker synthesized
+[  1] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/kss.o
+[  2] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/codec_crt0.o
+[  3] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libkss.a(ay_apu.o)
+[  4] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libkss.a(kss_cpu.o)
+[  5] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libkss.a(kss_emu.o)
+[  6] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libkss.a(kss_scc_apu.o)
+[  7] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libkss.a(opl_apu.o)
+[  8] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libkss.a(z80_cpu.o)
+[  9] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libkss.a(blip_buffer.o)
+[ 10] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libkss.a(multi_buffer.o)
+[ 11] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libkss.a(rom_data.o)
+[ 12] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libkss.a(emu8950.o)
+[ 13] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libkss.a(emuadpcm.o)
+[ 14] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libkss.a(track_filter.o)
+[ 15] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libemu2413.a(sms_apu.o)
+[ 16] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libemu2413.a(emu2413.o)
+[ 17] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+[ 18] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/libSystem.tbd
+# Sections:
+# Address	Size    	Segment	Section
+0x000006E0	0x00009B80	__TEXT	__text
+0x0000A260	0x00000116	__TEXT	__cstring
+0x0000A378	0x000022A6	__TEXT	__const
+0x0000C620	0x00002740	__TEXT	__eh_frame
+0x00010000	0x00000050	__DATA_CONST	__const
+0x00014000	0x00000008	__DATA	.data
+0x00014008	0x00000398	__DATA	__data
+0x000143A0	0x00051EC8	__DATA	__bss
+0x00066268	0x00009000	__DATA	__common
+# Symbols:
+# Address	Size    	File  Name
+0x000006E0	0x00000260	[  1] _codec_run
+0x00000940	0x00000088	[  1] _codec_main
+0x000009C8	0x00000008	[  2] __start
+0x000009D0	0x00000004	[  2] _codec_start
+0x000009D4	0x0000004C	[  3] _Synth_offset_inline
+0x00000A20	0x0000006C	[  3] _Ay_apu_reset
+0x00000A8C	0x000000B4	[  3] _Ay_apu_init
+0x00000B40	0x00000024	[  3] _Ay_apu_read
+0x00000B64	0x000000B0	[  3] _write_data_
+0x00000C14	0x00000378	[  3] _run_until
+0x00000F8C	0x00002688	[  4] _run_cpu
+0x00003614	0x00000138	[  5] _set_bank
+0x0000374C	0x000000A8	[  5] _set_voice
+0x000037F4	0x0000001C	[  5] _init_opl_apu.isra.0
+0x00003810	0x00000100	[  5] _update_gain_
+0x00003910	0x000000FC	[  5] _Kss_init
+0x00003A0C	0x00000040	[  5] _jsr
+0x00003A4C	0x000000C0	[  5] _cpu_write
+0x00003B0C	0x000001A8	[  5] _cpu_out
+0x00003CB4	0x0000004C	[  5] _cpu_in
+0x00003D00	0x000000FC	[  5] _end_frame
+0x00003DFC	0x00000070	[  5] _Kss_set_sample_rate
+0x00003E6C	0x00000084	[  5] _Sound_mute_voices
+0x00003EF0	0x00000020	[  5] _Sound_mute_voice
+0x00003F10	0x0000004C	[  5] _Sound_set_tempo
+0x00003F5C	0x00000244	[  5] _Kss_load_mem
+0x000041A0	0x00000278	[  5] _Kss_start_track
+0x00004418	0x00000028	[  5] _Track_tell
+0x00004440	0x00000070	[  5] _Track_seek
+0x000044B0	0x00000080	[  5] _skip_
+0x00004530	0x00000008	[  5] _Track_skip
+0x00004538	0x00000038	[  5] _Track_set_fade
+0x00004570	0x00000008	[  5] _Kss_play
+0x00004578	0x00000184	[  5] _play_
+0x000046FC	0x0000003C	[  6] _Synth_offset_resampled.isra.0
+0x00004738	0x000001A4	[  6] _run_until
+0x000048DC	0x00000030	[  6] _Scc_volume
+0x0000490C	0x00000058	[  6] _Scc_reset
+0x00004964	0x00000048	[  6] _Scc_init
+0x000049AC	0x0000007C	[  6] _Scc_write
+0x00004A28	0x0000003C	[  6] _Scc_end_frame
+0x00004A64	0x0000003C	[  7] _Synth_offset_resampled.isra.0
+0x00004AA0	0x00000180	[  7] _run_until
+0x00004C20	0x00000020	[  7] _Opl_shutdown
+0x00004C40	0x0000005C	[  7] _Opl_reset
+0x00004C9C	0x00000104	[  7] _Opl_init
+0x00004DA0	0x00000088	[  7] _Opl_write_data
+0x00004E28	0x00000060	[  7] _Opl_read
+0x00004E88	0x00000040	[  7] _Opl_end_frame
+0x00004EC8	0x00000070	[  8] _Z80_init
+0x00004F38	0x00000034	[  8] _Z80_reset
+0x00004F6C	0x00000044	[  8] _Z80_map_mem
+0x00004FB0	0x00000024	[  9] _Blip_clear
+0x00004FD4	0x00000020	[  9] _Blip_init
+0x00004FF4	0x00000014	[  9] _Blip_clock_rate_factor
+0x00005008	0x00000040	[  9] _Blip_bass_freq
+0x00005048	0x00000090	[  9] _Blip_set_sample_rate
+0x000050D8	0x00000010	[  9] _Blip_end_frame
+0x000050E8	0x00000014	[  9] _Blip_count_samples
+0x000050FC	0x00000028	[  9] _Blip_count_clocks
+0x00005124	0x00000064	[  9] _Blip_remove_samples
+0x00005188	0x000000C8	[  9] _Blip_read_samples
+0x00005250	0x00000054	[  9] _Blip_mix_samples
+0x000052A4	0x0000000C	[  9] _volume_unit
+0x000052B0	0x00000008	[  9] _Synth_init
+0x000052B8	0x00000024	[ 10] _Tracked_init
+0x000052DC	0x00000008	[ 10] _Tracked_clear
+0x000052E4	0x00000038	[ 10] _Tracked_end_frame
+0x0000531C	0x00000010	[ 10] _Tracked_non_silent
+0x0000532C	0x00000020	[ 10] _Tracked_remove_silence
+0x0000534C	0x00000014	[ 10] _Tracked_remove_samples
+0x00005360	0x0000001C	[ 10] _Tracked_remove_all_samples
+0x0000537C	0x00000034	[ 10] _Tracked_read_samples
+0x000053B0	0x00000008	[ 10] _Mixer_init
+0x000053B8	0x00000120	[ 10] _Mixer_read_pairs
+0x000054D8	0x0000008C	[ 10] _Buffer_init
+0x00005564	0x0000006C	[ 10] _Buffer_set_sample_rate
+0x000055D0	0x00000050	[ 10] _Buffer_clock_rate
+0x00005620	0x00000048	[ 10] _Buffer_bass_freq
+0x00005668	0x00000010	[ 10] _Buffer_set_channel_count
+0x00005678	0x0000001C	[ 10] _Buffer_channel
+0x00005694	0x00000040	[ 10] _Buffer_clear
+0x000056D4	0x00000048	[ 10] _Buffer_end_frame
+0x0000571C	0x000000C0	[ 10] _Buffer_read_samples
+0x000057DC	0x000000BC	[ 11] _Rom_load
+0x00005898	0x00000074	[ 11] _Rom_set_addr
+0x0000590C	0x00000038	[ 12] _calc_phase
+0x00005944	0x00000090	[ 12] _checkMuteHelper
+0x000059D4	0x000000AC	[ 12] _slotUpdateEG
+0x00005A80	0x00000078	[ 12] _slotUpdateAll
+0x00005AF8	0x0000001C	[ 12] _slotOn
+0x00005B14	0x0000003C	[ 12] _slotOff
+0x00005B50	0x00000158	[ 12] _calc_envelope
+0x00005CA8	0x00000060	[ 12] _calc_slot_car
+0x00005D08	0x000000A0	[ 12] _calc_slot_mod
+0x00005DA8	0x0000000C	[ 12] _patchReset
+0x00005DB4	0x00000044	[ 12] _slotReset
+0x00005DF8	0x00000028	[ 12] _channelReset
+0x00005E20	0x000001C0	[ 12] _OPL_setSampleRate
+0x00005FE0	0x00000098	[ 12] _OPL_reset
+0x00006078	0x00000264	[ 12] _OPL_init
+0x000062DC	0x000003FC	[ 12] _OPL_updateBuffer
+0x000066D8	0x00000008	[ 12] _OPL_setInternalVolume
+0x000066E0	0x00000044	[ 12] _OPL_readReg
+0x00006724	0x00000024	[ 12] _OPL_setStatus
+0x00006748	0x00000030	[ 12] _OPL_readStatus
+0x00006778	0x00000024	[ 12] _OPL_resetStatus
+0x0000679C	0x0000001C	[ 12] _OPL_changeStatusMask
+0x000067B8	0x00000580	[ 12] _OPL_writeReg
+0x00006D38	0x0000003C	[ 13] _ADPCM_init
+0x00006D74	0x00000008	[ 13] _ADPCM_setSampleRate
+0x00006D7C	0x0000001C	[ 13] _ADPCM_muted
+0x00006D98	0x00000048	[ 13] _restart
+0x00006DE0	0x00000234	[ 13] _ADPCM_writeReg
+0x00007014	0x0000004C	[ 13] _ADPCM_reset
+0x00007060	0x000000BC	[ 13] _ADPCM_readReg
+0x0000711C	0x00000188	[ 13] _ADPCM_calcSample
+0x000072A4	0x00000064	[ 14] _emu_play
+0x00007308	0x0000000C	[ 14] _track_init
+0x00007314	0x00000028	[ 14] _track_stop
+0x0000733C	0x00000014	[ 14] _track_create
+0x00007350	0x000000A8	[ 14] _track_skip
+0x000073F8	0x0000005C	[ 14] _skippy_
+0x00007454	0x00000024	[ 14] _track_set_fade
+0x00007478	0x00000094	[ 14] _fill_buf
+0x0000750C	0x0000006C	[ 14] _track_start
+0x00007578	0x0000029C	[ 14] _track_play
+0x00007814	0x0000004C	[ 15] _Synth_offset_inline
+0x00007860	0x00000204	[ 15] _run_until
+0x00007A64	0x00000020	[ 15] _Sms_apu_volume
+0x00007A84	0x00000064	[ 15] _Sms_apu_set_output
+0x00007AE8	0x00000098	[ 15] _Sms_apu_write_ggstereo
+0x00007B80	0x00000088	[ 15] _Sms_apu_reset
+0x00007C08	0x00000070	[ 15] _Sms_apu_init
+0x00007C78	0x00000094	[ 15] _Sms_apu_write_data
+0x00007D0C	0x0000003C	[ 15] _Sms_apu_end_frame
+0x00007D48	0x00000060	[ 16] _UPDATE_PG
+0x00007DA8	0x000001B8	[ 16] _update_rhythm_mode
+0x00007F60	0x00000070	[ 16] _update_key_status
+0x00007FD0	0x000001A4	[ 16] _internal_refresh
+0x00008174	0x00000050	[ 16] _calc_slot_car
+0x000081C4	0x00000088	[ 16] _calc_slot_mod
+0x0000824C	0x000000D8	[ 16] _calc_eg_dphase
+0x00008324	0x00000028	[ 16] _slotOn
+0x0000834C	0x00000050	[ 16] _slotOff
+0x0000839C	0x000004A8	[ 16] _calc
+0x00008844	0x00000124	[ 16] _OPLL_dump2patch
+0x00008968	0x00000024	[ 16] _OPLL_getDefaultPatch
+0x0000898C	0x0000006C	[ 16] _OPLL_setPatch
+0x000089F8	0x000000D4	[ 16] _OPLL_patch2dump
+0x00008ACC	0x00000020	[ 16] _OPLL_copyPatch
+0x00008AEC	0x00000004	[ 16] _OPLL_delete
+0x00008AF0	0x00000064	[ 16] _OPLL_reset_patch
+0x00008B54	0x00000114	[ 16] _OPLL_forceRefresh
+0x00008C68	0x00000048	[ 16] _OPLL_set_rate
+0x00008CB0	0x00000010	[ 16] _OPLL_set_quality
+0x00008CC0	0x00000008	[ 16] _OPLL_set_internal_mute
+0x00008CC8	0x00000008	[ 16] _OPLL_is_internal_muted
+0x00008CD0	0x00000120	[ 16] _OPLL_update_buffer
+0x00008DF0	0x00000004	[ 16] _OPLL_calc
+0x00008DF4	0x0000001C	[ 16] _OPLL_setMask
+0x00008E10	0x00000020	[ 16] _OPLL_toggleMask
+0x00008E30	0x00000DB0	[ 16] _OPLL_writeReg
+0x00009BE0	0x000000F8	[ 16] _OPLL_reset
+0x00009CD8	0x000002F8	[ 16] _OPLL_new
+0x00009FD0	0x00000018	[ 16] _OPLL_writeIO
+0x00009FE8	0x00000014	[ 16] _OPLL_read
+0x00009FFC	0x00000040	[ 17] _codec_init
+0x0000A03C	0x00000048	[ 17] _codec_set_replaygain
+0x0000A084	0x00000048	[ 17] _codec_malloc
+0x0000A0CC	0x0000004C	[ 17] _codec_calloc
+0x0000A118	0x00000004	[ 17] _codec_free
+0x0000A11C	0x00000054	[ 17] _codec_realloc
+0x0000A170	0x00000018	[ 17] _codec_strlen
+0x0000A188	0x00000018	[ 17] _strcpy
+0x0000A1A0	0x00000018	[ 17] _strcat
+0x0000A1B8	0x00000018	[ 17] _strcmp
+0x0000A1D0	0x00000018	[ 17] _memcpy
+0x0000A1E8	0x00000018	[ 17] _memset
+0x0000A200	0x00000018	[ 17] _memcmp
+0x0000A218	0x00000018	[ 17] _memchr
+0x0000A230	0x00000018	[ 17] _memmove
+0x0000A248	0x00000018	[ 17] _qsort
+0x0000A260	0x00000011	[  1] literal string: KSS: next_track\n
+0x0000A271	0x00000013	[  1] literal string: KSS: request file\n
+0x0000A284	0x00000017	[  1] literal string: KSS: file load failed\n
+0x0000A29B	0x0000001B	[  1] literal string: KSS: Kss_load failed (%s)\n
+0x0000A2B6	0x00000016	[  4] literal string: LD R,A not supported\n
+0x0000A2CC	0x00000016	[  4] literal string: LD A,R not supported\n
+0x0000A2E2	0x00000020	[  4] literal string: Opcode $ED $%02X not supported\n
+0x0000A302	0x00000026	[  4] literal string: Opcode $%02X $CB $%02X not supported\n
+0x0000A328	0x00000026	[  4] literal string: Unnecessary DD/FD prefix encountered\n
+0x0000A34E	0x0000001E	[  4] literal string: Unhandled main opcode: $%02X\n
+0x0000A36C	0x00000005	[  5] literal string: KSCC
+0x0000A371	0x00000005	[  5] literal string: KSSX
+0x0000A378	0x00000010	[  3] _masks.0
+0x0000A388	0x00000004	[  3] _tone_off
+0x0000A38C	0x00000004	[  3] _noise_off
+0x0000A390	0x00000008	[  3] _modes
+0x0000A398	0x00000010	[  3] _amp_table
+0x0000A3A8	0x00000004	[  3] _period_factor
+0x0000A3AC	0x00000004	[  3] _inaudible_freq
+0x0000A3B0	0x00000200	[  4] _clock_table.0
+0x0000A5B0	0x00000006	[  5] _vectors.0
+0x0000A5B6	0x0000000E	[  5] _bios.1
+0x0000A5C4	0x00000020	[  5] _types.2
+0x0000A5E4	0x00000010	[  5] _types.3
+0x0000A5F4	0x00000014	[  5] _types.4
+0x0000A608	0x00000024	[  5] _gme_wrong_file_type
+0x0000A62C	0x00000004	[  5] _clock_rate
+0x0000A630	0x00000004	[  6] _wave_size
+0x0000A634	0x00000004	[  8] _C01
+0x0000A638	0x00000004	[  8] _N02
+0x0000A63C	0x00000004	[  8] _P04
+0x0000A640	0x00000004	[  8] _V04
+0x0000A644	0x00000004	[  8] _F08
+0x0000A648	0x00000004	[  8] _H10
+0x0000A64C	0x00000004	[  8] _F20
+0x0000A650	0x00000004	[  8] _Z40
+0x0000A654	0x00000004	[  8] _S80
+0x0000A658	0x00000004	[ 10] _blip_buffer_extra
+0x0000A65C	0x00000080	[ 12] lC0
+0x0000A6DC	0x00000020	[ 12] _damp.0
+0x0000A6FC	0x00000040	[ 12] _SL.1
+0x0000A73C	0x00000040	[ 12] _mltable.2
+0x0000A77C	0x00000200	[ 12] _am1_coeff
+0x0000A97C	0x00000200	[ 12] _am0_coeff
+0x0000AB7C	0x00000200	[ 12] _pm1_coeff
+0x0000AD7C	0x00000200	[ 12] _pm0_coeff
+0x0000AF7C	0x00000200	[ 12] _sin_coeff
+0x0000B17C	0x00000400	[ 12] _db2lin_coeff
+0x0000B57C	0x000003FE	[ 12] _ar_adjust_coeff
+0x0000B97C	0x00000040	[ 13] _F2.0
+0x0000B9BC	0x00000040	[ 13] _F1.1
+0x0000B9FC	0x00000004	[ 13] _DECODE_MIN
+0x0000BA00	0x00000004	[ 13] _DECODE_MAX
+0x0000BA04	0x00000004	[ 13] _DDEF
+0x0000BA08	0x00000004	[ 13] _DMIN
+0x0000BA0C	0x00000004	[ 13] _DMAX
+0x0000BA10	0x00000004	[ 13] _R08_CSM
+0x0000BA14	0x00000004	[ 13] _R08_NOTE_SET
+0x0000BA18	0x00000004	[ 13] _R08_SAMPL
+0x0000BA1C	0x00000004	[ 13] _R08_DA_AD
+0x0000BA20	0x00000004	[ 13] _R08_64K
+0x0000BA24	0x00000004	[ 13] _R08_ROM
+0x0000BA28	0x00000004	[ 13] _R07_START
+0x0000BA2C	0x00000004	[ 13] _R07_REC
+0x0000BA30	0x00000004	[ 13] _R07_MEMORY_DATA
+0x0000BA34	0x00000004	[ 13] _R07_REPEAT
+0x0000BA38	0x00000004	[ 13] _R07_SP_OFF
+0x0000BA3C	0x00000004	[ 13] _ADPCM_VOLUME
+0x0000BA40	0x00000004	[ 14] _silence_threshold
+0x0000BA44	0x00000004	[ 14] _fade_shift
+0x0000BA48	0x00000004	[ 14] _fade_block_size
+0x0000BA4C	0x00000010	[ 15] _volumes.0
+0x0000BA5C	0x00000004	[ 15] _noise_osc
+0x0000BA60	0x00000040	[ 16] _SL.0
+0x0000BAA0	0x00000040	[ 16] _mltable.1
+0x0000BAE0	0x00000040	[ 16] _kltable.2
+0x0000BB20	0x000000FE	[ 16] _ar_adjust_coeff
+0x0000BC1E	0x00000400	[ 16] _db2lin_coeff
+0x0000C01E	0x00000100	[ 16] _am_coeff
+0x0000C11E	0x00000200	[ 16] _pm_coeff
+0x0000C31E	0x00000100	[ 16] _sin_coeff
+0x0000C41E	0x00000100	[ 17] _bs_clz_tab
+0x0000C51E	0x00000100	[ 17] _bs_log2_tab
+0x0000C620	0x00000018	[  1] CFI
+0x0000C638	0x00000068	[  1] FDE for: _codec_run
+0x0000C6A0	0x00000040	[  1] FDE for: _codec_main
+0x0000C6E0	0x00000018	[  2] CFI
+0x0000C6F8	0x00000020	[  2] FDE for: __start
+0x0000C718	0x00000020	[  2] FDE for: _codec_start
+0x0000C738	0x00000018	[  3] CFI
+0x0000C750	0x00000020	[  3] FDE for: _Synth_offset_inline
+0x0000C770	0x00000020	[  3] FDE for: _Ay_apu_reset
+0x0000C790	0x00000040	[  3] FDE for: _Ay_apu_init
+0x0000C7D0	0x00000020	[  3] FDE for: _Ay_apu_read
+0x0000C7F0	0x00000020	[  3] FDE for: _write_data_
+0x0000C810	0x00000060	[  3] FDE for: _run_until
+0x0000C870	0x00000018	[  4] CFI
+0x0000C888	0x00000088	[  4] FDE for: _run_cpu
+0x0000C910	0x00000018	[  5] CFI
+0x0000C928	0x00000080	[  5] FDE for: _set_bank
+0x0000C9A8	0x00000020	[  5] FDE for: _set_voice
+0x0000C9C8	0x00000020	[  5] FDE for: _init_opl_apu.isra.0
+0x0000C9E8	0x00000058	[  5] FDE for: _update_gain_
+0x0000CA40	0x00000040	[  5] FDE for: _Kss_init
+0x0000CA80	0x00000020	[  5] FDE for: _jsr
+0x0000CAA0	0x00000020	[  5] FDE for: _cpu_write
+0x0000CAC0	0x000000A8	[  5] FDE for: _cpu_out
+0x0000CB68	0x00000020	[  5] FDE for: _cpu_in
+0x0000CB88	0x00000060	[  5] FDE for: _end_frame
+0x0000CBE8	0x00000048	[  5] FDE for: _Kss_set_sample_rate
+0x0000CC30	0x00000060	[  5] FDE for: _Sound_mute_voices
+0x0000CC90	0x00000020	[  5] FDE for: _Sound_mute_voice
+0x0000CCB0	0x00000020	[  5] FDE for: _Sound_set_tempo
+0x0000CCD0	0x00000050	[  5] FDE for: _Kss_load_mem
+0x0000CD20	0x00000060	[  5] FDE for: _Kss_start_track
+0x0000CD80	0x00000020	[  5] FDE for: _Track_tell
+0x0000CDA0	0x00000058	[  5] FDE for: _Track_seek
+0x0000CDF8	0x00000060	[  5] FDE for: _skip_
+0x0000CE58	0x00000020	[  5] FDE for: _Track_skip
+0x0000CE78	0x00000020	[  5] FDE for: _Track_set_fade
+0x0000CE98	0x00000020	[  5] FDE for: _Kss_play
+0x0000CEB8	0x00000068	[  5] FDE for: _play_
+0x0000CF20	0x00000018	[  6] CFI
+0x0000CF38	0x00000020	[  6] FDE for: _Synth_offset_resampled.isra.0
+0x0000CF58	0x00000060	[  6] FDE for: _run_until
+0x0000CFB8	0x00000020	[  6] FDE for: _Scc_volume
+0x0000CFD8	0x00000048	[  6] FDE for: _Scc_reset
+0x0000D020	0x00000040	[  6] FDE for: _Scc_init
+0x0000D060	0x00000040	[  6] FDE for: _Scc_write
+0x0000D0A0	0x00000040	[  6] FDE for: _Scc_end_frame
+0x0000D0E0	0x00000018	[  7] CFI
+0x0000D0F8	0x00000020	[  7] FDE for: _Synth_offset_resampled.isra.0
+0x0000D118	0x00000060	[  7] FDE for: _run_until
+0x0000D178	0x00000020	[  7] FDE for: _Opl_shutdown
+0x0000D198	0x00000038	[  7] FDE for: _Opl_reset
+0x0000D1D0	0x00000060	[  7] FDE for: _Opl_init
+0x0000D230	0x00000068	[  7] FDE for: _Opl_write_data
+0x0000D298	0x00000048	[  7] FDE for: _Opl_read
+0x0000D2E0	0x00000040	[  7] FDE for: _Opl_end_frame
+0x0000D320	0x00000018	[  8] CFI
+0x0000D338	0x00000020	[  8] FDE for: _Z80_init
+0x0000D358	0x00000020	[  8] FDE for: _Z80_reset
+0x0000D378	0x00000020	[  8] FDE for: _Z80_map_mem
+0x0000D398	0x00000018	[  9] CFI
+0x0000D3B0	0x00000020	[  9] FDE for: _Blip_clear
+0x0000D3D0	0x00000020	[  9] FDE for: _Blip_init
+0x0000D3F0	0x00000020	[  9] FDE for: _Blip_clock_rate_factor
+0x0000D410	0x00000020	[  9] FDE for: _Blip_bass_freq
+0x0000D430	0x00000040	[  9] FDE for: _Blip_set_sample_rate
+0x0000D470	0x00000020	[  9] FDE for: _Blip_end_frame
+0x0000D490	0x00000020	[  9] FDE for: _Blip_count_samples
+0x0000D4B0	0x00000020	[  9] FDE for: _Blip_count_clocks
+0x0000D4D0	0x00000048	[  9] FDE for: _Blip_remove_samples
+0x0000D518	0x00000040	[  9] FDE for: _Blip_read_samples
+0x0000D558	0x00000020	[  9] FDE for: _Blip_mix_samples
+0x0000D578	0x00000020	[  9] FDE for: _volume_unit
+0x0000D598	0x00000020	[  9] FDE for: _Synth_init
+0x0000D5B8	0x00000018	[ 10] CFI
+0x0000D5D0	0x00000040	[ 10] FDE for: _Tracked_init
+0x0000D610	0x00000020	[ 10] FDE for: _Tracked_clear
+0x0000D630	0x00000040	[ 10] FDE for: _Tracked_end_frame
+0x0000D670	0x00000020	[ 10] FDE for: _Tracked_non_silent
+0x0000D690	0x00000020	[ 10] FDE for: _Tracked_remove_silence
+0x0000D6B0	0x00000020	[ 10] FDE for: _Tracked_remove_samples
+0x0000D6D0	0x00000020	[ 10] FDE for: _Tracked_remove_all_samples
+0x0000D6F0	0x00000040	[ 10] FDE for: _Tracked_read_samples
+0x0000D730	0x00000020	[ 10] FDE for: _Mixer_init
+0x0000D750	0x00000020	[ 10] FDE for: _Mixer_read_pairs
+0x0000D770	0x00000050	[ 10] FDE for: _Buffer_init
+0x0000D7C0	0x00000050	[ 10] FDE for: _Buffer_set_sample_rate
+0x0000D810	0x00000040	[ 10] FDE for: _Buffer_clock_rate
+0x0000D850	0x00000040	[ 10] FDE for: _Buffer_bass_freq
+0x0000D890	0x00000020	[ 10] FDE for: _Buffer_set_channel_count
+0x0000D8B0	0x00000020	[ 10] FDE for: _Buffer_channel
+0x0000D8D0	0x00000040	[ 10] FDE for: _Buffer_clear
+0x0000D910	0x00000040	[ 10] FDE for: _Buffer_end_frame
+0x0000D950	0x00000058	[ 10] FDE for: _Buffer_read_samples
+0x0000D9A8	0x00000018	[ 11] CFI
+0x0000D9C0	0x00000060	[ 11] FDE for: _Rom_load
+0x0000DA20	0x00000020	[ 11] FDE for: _Rom_set_addr
+0x0000DA40	0x00000018	[ 12] CFI
+0x0000DA58	0x00000020	[ 12] FDE for: _calc_phase
+0x0000DA78	0x00000020	[ 12] FDE for: _checkMuteHelper
+0x0000DA98	0x00000020	[ 12] FDE for: _slotUpdateEG
+0x0000DAB8	0x00000020	[ 12] FDE for: _slotUpdateAll
+0x0000DAD8	0x00000020	[ 12] FDE for: _slotOn
+0x0000DAF8	0x00000020	[ 12] FDE for: _slotOff
+0x0000DB18	0x00000040	[ 12] FDE for: _calc_envelope
+0x0000DB58	0x00000040	[ 12] FDE for: _calc_slot_car
+0x0000DB98	0x00000040	[ 12] FDE for: _calc_slot_mod
+0x0000DBD8	0x00000020	[ 12] FDE for: _patchReset
+0x0000DBF8	0x00000038	[ 12] FDE for: _slotReset
+0x0000DC30	0x00000038	[ 12] FDE for: _channelReset
+0x0000DC68	0x00000050	[ 12] FDE for: _OPL_setSampleRate
+0x0000DCB8	0x00000040	[ 12] FDE for: _OPL_reset
+0x0000DCF8	0x00000048	[ 12] FDE for: _OPL_init
+0x0000DD40	0x00000068	[ 12] FDE for: _OPL_updateBuffer
+0x0000DDA8	0x00000020	[ 12] FDE for: _OPL_setInternalVolume
+0x0000DDC8	0x00000020	[ 12] FDE for: _OPL_readReg
+0x0000DDE8	0x00000020	[ 12] FDE for: _OPL_setStatus
+0x0000DE08	0x00000038	[ 12] FDE for: _OPL_readStatus
+0x0000DE40	0x00000020	[ 12] FDE for: _OPL_resetStatus
+0x0000DE60	0x00000020	[ 12] FDE for: _OPL_changeStatusMask
+0x0000DE80	0x00000050	[ 12] FDE for: _OPL_writeReg
+0x0000DED0	0x00000018	[ 13] CFI
+0x0000DEE8	0x00000040	[ 13] FDE for: _ADPCM_init
+0x0000DF28	0x00000020	[ 13] FDE for: _ADPCM_setSampleRate
+0x0000DF48	0x00000020	[ 13] FDE for: _ADPCM_muted
+0x0000DF68	0x00000020	[ 13] FDE for: _restart
+0x0000DF88	0x00000068	[ 13] FDE for: _ADPCM_writeReg
+0x0000DFF0	0x00000040	[ 13] FDE for: _ADPCM_reset
+0x0000E030	0x00000048	[ 13] FDE for: _ADPCM_readReg
+0x0000E078	0x00000040	[ 13] FDE for: _ADPCM_calcSample
+0x0000E0B8	0x00000018	[ 14] CFI
+0x0000E0D0	0x00000050	[ 14] FDE for: _emu_play
+0x0000E120	0x00000020	[ 14] FDE for: _track_init
+0x0000E140	0x00000020	[ 14] FDE for: _track_stop
+0x0000E160	0x00000020	[ 14] FDE for: _track_create
+0x0000E180	0x00000040	[ 14] FDE for: _track_skip
+0x0000E1C0	0x00000050	[ 14] FDE for: _skippy_
+0x0000E210	0x00000020	[ 14] FDE for: _track_set_fade
+0x0000E230	0x00000048	[ 14] FDE for: _fill_buf
+0x0000E278	0x00000048	[ 14] FDE for: _track_start
+0x0000E2C0	0x00000068	[ 14] FDE for: _track_play
+0x0000E328	0x00000018	[ 15] CFI
+0x0000E340	0x00000020	[ 15] FDE for: _Synth_offset_inline
+0x0000E360	0x00000068	[ 15] FDE for: _run_until
+0x0000E3C8	0x00000020	[ 15] FDE for: _Sms_apu_volume
+0x0000E3E8	0x00000020	[ 15] FDE for: _Sms_apu_set_output
+0x0000E408	0x00000040	[ 15] FDE for: _Sms_apu_write_ggstereo
+0x0000E448	0x00000020	[ 15] FDE for: _Sms_apu_reset
+0x0000E468	0x00000040	[ 15] FDE for: _Sms_apu_init
+0x0000E4A8	0x00000048	[ 15] FDE for: _Sms_apu_write_data
+0x0000E4F0	0x00000040	[ 15] FDE for: _Sms_apu_end_frame
+0x0000E530	0x00000018	[ 16] CFI
+0x0000E548	0x00000020	[ 16] FDE for: _UPDATE_PG
+0x0000E568	0x00000020	[ 16] FDE for: _update_rhythm_mode
+0x0000E588	0x00000020	[ 16] FDE for: _update_key_status
+0x0000E5A8	0x00000020	[ 16] FDE for: _internal_refresh
+0x0000E5C8	0x00000020	[ 16] FDE for: _calc_slot_car
+0x0000E5E8	0x00000020	[ 16] FDE for: _calc_slot_mod
+0x0000E608	0x00000020	[ 16] FDE for: _calc_eg_dphase
+0x0000E628	0x00000038	[ 16] FDE for: _slotOn
+0x0000E660	0x00000038	[ 16] FDE for: _slotOff
+0x0000E698	0x00000058	[ 16] FDE for: _calc
+0x0000E6F0	0x00000020	[ 16] FDE for: _OPLL_dump2patch
+0x0000E710	0x00000020	[ 16] FDE for: _OPLL_getDefaultPatch
+0x0000E730	0x00000058	[ 16] FDE for: _OPLL_setPatch
+0x0000E788	0x00000020	[ 16] FDE for: _OPLL_patch2dump
+0x0000E7A8	0x00000020	[ 16] FDE for: _OPLL_copyPatch
+0x0000E7C8	0x00000020	[ 16] FDE for: _OPLL_delete
+0x0000E7E8	0x00000040	[ 16] FDE for: _OPLL_reset_patch
+0x0000E828	0x00000048	[ 16] FDE for: _OPLL_forceRefresh
+0x0000E870	0x00000040	[ 16] FDE for: _OPLL_set_rate
+0x0000E8B0	0x00000020	[ 16] FDE for: _OPLL_set_quality
+0x0000E8D0	0x00000020	[ 16] FDE for: _OPLL_set_internal_mute
+0x0000E8F0	0x00000020	[ 16] FDE for: _OPLL_is_internal_muted
+0x0000E910	0x00000058	[ 16] FDE for: _OPLL_update_buffer
+0x0000E968	0x00000020	[ 16] FDE for: _OPLL_calc
+0x0000E988	0x00000020	[ 16] FDE for: _OPLL_setMask
+0x0000E9A8	0x00000020	[ 16] FDE for: _OPLL_toggleMask
+0x0000E9C8	0x00000050	[ 16] FDE for: _OPLL_writeReg
+0x0000EA18	0x00000038	[ 16] FDE for: _OPLL_reset
+0x0000EA50	0x00000048	[ 16] FDE for: _OPLL_new
+0x0000EA98	0x00000020	[ 16] FDE for: _OPLL_writeIO
+0x0000EAB8	0x00000020	[ 16] FDE for: _OPLL_read
+0x0000EAD8	0x00000018	[ 17] CFI
+0x0000EAF0	0x00000038	[ 17] FDE for: _codec_init
+0x0000EB28	0x00000038	[ 17] FDE for: _codec_set_replaygain
+0x0000EB60	0x00000020	[ 17] FDE for: _codec_malloc
+0x0000EB80	0x00000040	[ 17] FDE for: _codec_calloc
+0x0000EBC0	0x00000020	[ 17] FDE for: _codec_free
+0x0000EBE0	0x00000040	[ 17] FDE for: _codec_realloc
+0x0000EC20	0x00000020	[ 17] FDE for: _codec_strlen
+0x0000EC40	0x00000020	[ 17] FDE for: _strcpy
+0x0000EC60	0x00000020	[ 17] FDE for: _strcat
+0x0000EC80	0x00000020	[ 17] FDE for: _strcmp
+0x0000ECA0	0x00000020	[ 17] FDE for: _memcpy
+0x0000ECC0	0x00000020	[ 17] FDE for: _memset
+0x0000ECE0	0x00000020	[ 17] FDE for: _memcmp
+0x0000ED00	0x00000020	[ 17] FDE for: _memchr
+0x0000ED20	0x00000020	[ 17] FDE for: _memmove
+0x0000ED40	0x00000020	[ 17] FDE for: _qsort
+0x00010000	0x00000040	[  1] ___header
+0x00010040	0x00000010	[ 16] _waveform
+0x00014000	0x00000008	[  2] _ci
+0x00014008	0x00000004	[ 16] _rate
+0x0001400C	0x00000004	[ 16] _clk
+0x00014010	0x00000390	[ 16] _default_inst
+0x000143A0	0x00042E48	[  1] _kss_emu
+0x000571E8	0x00001000	[  1] _samples
+0x000581E8	0x00000800	[ 12] _AR_ADJUST_TABLE
+0x000589E8	0x00000080	[ 12] _rksTable
+0x00058A68	0x00000400	[ 12] _dphaseDRTable
+0x00058E68	0x00000400	[ 12] _dphaseARTable
+0x00059268	0x00001000	[ 12] _sintable
+0x0005A268	0x00008000	[ 12] _dphaseNoiseTable
+0x00062268	0x00001000	[ 12] _dB2LinTab
+0x00063268	0x00000080	[ 16] _rksTable
+0x000632E8	0x00000400	[ 16] _dphaseDRTable
+0x000636E8	0x00000400	[ 16] _dphaseARTable
+0x00063AE8	0x00001728	[ 16] _default_patch
+0x00065210	0x00000034	[ 16] _null_patch
+0x00065244	0x00000800	[ 16] _DB2LIN_TABLE
+0x00065A44	0x00000004	[ 16] _am_dphase
+0x00065A48	0x00000004	[ 16] _pm_dphase
+0x00065A4C	0x00000400	[ 16] _halfsintable
+0x00065E4C	0x00000400	[ 16] _fullsintable
+0x00066250	0x00000008	[ 17] _mallocbuf
+0x00066258	0x00000008	[ 17] _bufsize
+0x00066260	0x00000008	[ 17] _mem_ptr
+0x00066268	0x00000800	[ 12] _amtable
+0x00066A68	0x00000800	[ 12] _pmtable
+0x00067268	0x00008000	[ 16] _tllTable

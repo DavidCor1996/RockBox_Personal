@@ -1,0 +1,109 @@
+# Path: /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/flac.elf
+# Arch: arm64
+# Object files:
+[  0] linker synthesized
+[  1] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/flac.o
+[  2] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/codec_crt0.o
+[  3] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libffmpegFLAC.a(decoder.o)
+[  4] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+[  5] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/libSystem.tbd
+# Sections:
+# Address	Size    	Segment	Section
+0x00000640	0x00001F6C	__TEXT	__text
+0x000025AC	0x00000005	__TEXT	__cstring
+0x000025B4	0x000003A0	__TEXT	__const
+0x00002958	0x000006A8	__TEXT	__eh_frame
+0x00004000	0x00000040	__DATA_CONST	__const
+0x00008000	0x00000008	__DATA	.data
+0x00008008	0x00046B30	__DATA	__bss
+# Symbols:
+# Address	Size    	File  Name
+0x00000640	0x00000420	[  1] _flac_init.constprop.0
+0x00000A60	0x00000034	[  1] _init_get_bits.constprop.0
+0x00000A94	0x00000050	[  1] _get_bits.constprop.0
+0x00000AE4	0x0000010C	[  1] _frame_sync.constprop.0
+0x00000BF0	0x00000344	[  1] _flac_seek.constprop.0
+0x00000F34	0x000002E4	[  1] _codec_run
+0x00001218	0x0000003C	[  1] _codec_main
+0x00001254	0x00000008	[  2] __start
+0x0000125C	0x00000004	[  2] _codec_start
+0x00001260	0x0000004C	[  3] _get_sbits
+0x000012AC	0x0000004C	[  3] _get_bits
+0x000012F8	0x00000028	[  3] _get_bits1
+0x00001320	0x000003A4	[  3] _decode_residuals
+0x000016C4	0x00000174	[  3] _decode_subframe_fixed
+0x00001838	0x00000B10	[  3] _flac_decode_frame
+0x00002348	0x00000040	[  4] _codec_init
+0x00002388	0x00000048	[  4] _codec_set_replaygain
+0x000023D0	0x00000048	[  4] _codec_malloc
+0x00002418	0x0000004C	[  4] _codec_calloc
+0x00002464	0x00000004	[  4] _codec_free
+0x00002468	0x00000054	[  4] _codec_realloc
+0x000024BC	0x00000018	[  4] _codec_strlen
+0x000024D4	0x00000018	[  4] _strcpy
+0x000024EC	0x00000018	[  4] _strcat
+0x00002504	0x00000018	[  4] _strcmp
+0x0000251C	0x00000018	[  4] _memcpy
+0x00002534	0x00000018	[  4] _memset
+0x0000254C	0x00000018	[  4] _memcmp
+0x00002564	0x00000018	[  4] _memchr
+0x0000257C	0x00000018	[  4] _memmove
+0x00002594	0x00000018	[  4] _qsort
+0x000025AC	0x00000005	[  1] literal string: fLaC
+0x000025B4	0x00000100	[  3] _table_crc8
+0x000026B4	0x00000040	[  3] _blocksize_table
+0x000026F4	0x00000020	[  3] _sample_size_table
+0x00002714	0x00000040	[  3] _sample_rate_table
+0x00002754	0x00000100	[  4] _bs_clz_tab
+0x00002854	0x00000100	[  4] _bs_log2_tab
+0x00002958	0x00000018	[  1] CFI
+0x00002970	0x00000078	[  1] FDE for: _flac_init.constprop.0
+0x000029E8	0x00000020	[  1] FDE for: _init_get_bits.constprop.0
+0x00002A08	0x00000020	[  1] FDE for: _get_bits.constprop.0
+0x00002A28	0x00000050	[  1] FDE for: _frame_sync.constprop.0
+0x00002A78	0x00000070	[  1] FDE for: _flac_seek.constprop.0
+0x00002AE8	0x00000060	[  1] FDE for: _codec_run
+0x00002B48	0x00000038	[  1] FDE for: _codec_main
+0x00002B80	0x00000018	[  2] CFI
+0x00002B98	0x00000020	[  2] FDE for: __start
+0x00002BB8	0x00000020	[  2] FDE for: _codec_start
+0x00002BD8	0x00000018	[  3] CFI
+0x00002BF0	0x00000020	[  3] FDE for: _get_sbits
+0x00002C10	0x00000020	[  3] FDE for: _get_bits
+0x00002C30	0x00000020	[  3] FDE for: _get_bits1
+0x00002C50	0x00000070	[  3] FDE for: _decode_residuals
+0x00002CC0	0x00000050	[  3] FDE for: _decode_subframe_fixed
+0x00002D10	0x00000068	[  3] FDE for: _flac_decode_frame
+0x00002D78	0x00000018	[  4] CFI
+0x00002D90	0x00000038	[  4] FDE for: _codec_init
+0x00002DC8	0x00000038	[  4] FDE for: _codec_set_replaygain
+0x00002E00	0x00000020	[  4] FDE for: _codec_malloc
+0x00002E20	0x00000040	[  4] FDE for: _codec_calloc
+0x00002E60	0x00000020	[  4] FDE for: _codec_free
+0x00002E80	0x00000040	[  4] FDE for: _codec_realloc
+0x00002EC0	0x00000020	[  4] FDE for: _codec_strlen
+0x00002EE0	0x00000020	[  4] FDE for: _strcpy
+0x00002F00	0x00000020	[  4] FDE for: _strcat
+0x00002F20	0x00000020	[  4] FDE for: _strcmp
+0x00002F40	0x00000020	[  4] FDE for: _memcpy
+0x00002F60	0x00000020	[  4] FDE for: _memset
+0x00002F80	0x00000020	[  4] FDE for: _memcmp
+0x00002FA0	0x00000020	[  4] FDE for: _memchr
+0x00002FC0	0x00000020	[  4] FDE for: _memmove
+0x00002FE0	0x00000020	[  4] FDE for: _qsort
+0x00004000	0x00000040	[  1] ___header
+0x00008000	0x00000008	[  2] _ci
+0x00008008	0x00000008	[  1] _buff_size
+0x00008010	0x00000004	[  1] _nseekpoints
+0x00008014	0x0000EA60	[  1] _seekpoints
+0x00016A74	0x00008000	[  1] _decoded6
+0x0001EA74	0x00008000	[  1] _decoded5
+0x00026A74	0x00008000	[  1] _decoded4
+0x0002EA74	0x00008000	[  1] _decoded3
+0x00036A74	0x00008000	[  1] _decoded2
+0x0003EA74	0x00008000	[  1] _decoded1
+0x00046A74	0x00008004	[  1] _decoded0
+0x0004EA78	0x000000A8	[  1] _fc
+0x0004EB20	0x00000008	[  4] _mallocbuf
+0x0004EB28	0x00000008	[  4] _bufsize
+0x0004EB30	0x00000008	[  4] _mem_ptr

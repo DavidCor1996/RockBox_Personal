@@ -1,0 +1,73 @@
+# Path: /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/view_text.elf
+# Arch: arm64
+# Object files:
+[  0] linker synthesized
+[  1] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/view_text.o
+[  2] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/plugin_crt0.o
+[  3] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(pluginlib_actions.o)
+[  4] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(simple_viewer.o)
+[  5] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/libSystem.tbd
+[  6] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/system/libsystem_c.tbd
+[  7] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/system/libsystem_platform.tbd
+# Sections:
+# Address	Size    	Segment	Section
+0x000006E0	0x000008D4	__TEXT	__text
+0x00000FB4	0x00000024	__TEXT	__stubs
+0x00000FD8	0x000000D8	__TEXT	__const
+0x000010B0	0x00000026	__TEXT	__cstring
+0x000010D8	0x000003C8	__TEXT	__eh_frame
+0x00004000	0x00000020	__DATA_CONST	__got
+0x00004020	0x00000038	__DATA_CONST	__const
+0x00008000	0x00000008	__DATA	.data
+0x00008008	0x00000219	__DATA	__bss
+# Symbols:
+# Address	Size    	File  Name
+0x000006E0	0x00000028	[  1] _plugin_start
+0x00000708	0x00000018	[  2] _cleanup_wrapper
+0x00000720	0x00000068	[  2] _plugin__start
+0x00000788	0x00000020	[  2] _rb_atexit
+0x000007A8	0x00000024	[  2] _exit
+0x000007CC	0x00000014	[  2] __exit
+0x000007E0	0x00000064	[  2] _exit_on_usb
+0x00000844	0x00000038	[  3] _get_context_map
+0x0000087C	0x00000040	[  3] _pluginlib_getaction
+0x000008BC	0x000001C4	[  4] _get_next_line
+0x00000A80	0x00000084	[  4] _calc_first_line
+0x00000B04	0x000001E4	[  4] _draw_text
+0x00000CE8	0x00000058	[  4] _scroll_down
+0x00000D40	0x00000274	[  4] _view_text
+0x00000FB4	0x0000000C	[  6] ___maskrune.stub
+0x00000FC0	0x0000000C	[  7] _longjmp.stub
+0x00000FCC	0x0000000C	[  7] _setjmp.stub
+0x00000FD8	0x000000D8	[  3] _pla_main_ctx
+0x000010B0	0x00000026	[  4] literal string: !,-.:;?　、。！，．：；？―
+0x000010D8	0x00000018	[  1] CFI
+0x000010F0	0x00000038	[  1] FDE for: _plugin_start
+0x00001128	0x00000018	[  2] CFI
+0x00001140	0x00000020	[  2] FDE for: _cleanup_wrapper
+0x00001160	0x00000040	[  2] FDE for: _plugin__start
+0x000011A0	0x00000020	[  2] FDE for: _rb_atexit
+0x000011C0	0x00000030	[  2] FDE for: _exit
+0x000011F0	0x00000030	[  2] FDE for: __exit
+0x00001220	0x00000038	[  2] FDE for: _exit_on_usb
+0x00001258	0x00000018	[  3] CFI
+0x00001270	0x00000020	[  3] FDE for: _get_context_map
+0x00001290	0x00000020	[  3] FDE for: _pluginlib_getaction
+0x000012B0	0x00000018	[  4] CFI
+0x000012C8	0x00000078	[  4] FDE for: _get_next_line
+0x00001340	0x00000050	[  4] FDE for: _calc_first_line
+0x00001390	0x00000070	[  4] FDE for: _draw_text
+0x00001400	0x00000040	[  4] FDE for: _scroll_down
+0x00001440	0x00000060	[  4] FDE for: _view_text
+0x00004000	0x00000008	[  6] __DefaultRuneLocale.got
+0x00004008	0x00000008	[  6] ___maskrune.got
+0x00004010	0x00000008	[  7] _longjmp.got
+0x00004018	0x00000008	[  7] _setjmp.got
+0x00004020	0x00000038	[  2] ___header
+0x00008000	0x00000008	[  2] _rb
+0x00008008	0x00000008	[  2] _atexit_handler
+0x00008010	0x000000C0	[  2] ___exit_env
+0x000080D0	0x00000004	[  3] _last_context
+0x000080D4	0x00000004	[  3] _plugin_context_count
+0x000080D8	0x00000008	[  3] _plugin_context_order
+0x000080E0	0x00000141	[  4] _output.0

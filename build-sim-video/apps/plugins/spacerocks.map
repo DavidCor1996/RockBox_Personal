@@ -1,0 +1,263 @@
+# Path: /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/spacerocks.elf
+# Arch: arm64
+# Object files:
+[  0] linker synthesized
+[  1] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/spacerocks.o
+[  2] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/plugin_crt0.o
+[  3] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(helper.o)
+[  4] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(playback_control.o)
+[  5] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(highscore.o)
+[  6] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(display_text.o)
+[  7] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/libSystem.tbd
+[  8] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/system/libsystem_platform.tbd
+# Sections:
+# Address	Size    	Segment	Section
+0x00000780	0x00002E24	__TEXT	__text
+0x000035A4	0x00000018	__TEXT	__stubs
+0x000035BC	0x00000155	__TEXT	__cstring
+0x00003718	0x00000168	__TEXT	__const
+0x00003880	0x00000DF0	__TEXT	__eh_frame
+0x00008000	0x00000010	__DATA_CONST	__got
+0x00008010	0x00000160	__DATA_CONST	__const
+0x0000C000	0x00000168	__DATA	__data
+0x0000C168	0x00000008	__DATA	.data
+0x0000C170	0x000024B1	__DATA	__bss
+0x0000E628	0x00000008	__DATA	__common
+# Symbols:
+# Address	Size    	File  Name
+0x00000780	0x000000E4	[  1] _is_point_in_polygon
+0x00000864	0x000000B4	[  1] _rotate_polygon
+0x00000918	0x0000016C	[  1] _draw_polygon
+0x00000A84	0x0000004C	[  1] _move_point
+0x00000AD0	0x00000068	[  1] _create_explosion_trail
+0x00000B38	0x000001BC	[  1] _create_trail_blaze
+0x00000CF4	0x00000078	[  1] _initialise_ship
+0x00000D6C	0x000000F0	[  1] _draw_and_move_ship
+0x00000E5C	0x0000007C	[  1] _draw_lives
+0x00000ED8	0x000000AC	[  1] _draw_and_move_missiles
+0x00000F84	0x0000003C	[  1] _add_score
+0x00000FC0	0x00000028	[  1] _explode_ship
+0x00000FE8	0x00000024	[  1] _spacerocks_menu_cb
+0x0000100C	0x000000A0	[  1] _is_point_within_rectangle.isra.0
+0x000010AC	0x00000060	[  1] _is_point_within_enemy.isra.0
+0x0000110C	0x00000260	[  1] _initialise_asteroid
+0x0000136C	0x00000040	[  1] _create_asteroid
+0x000013AC	0x000000E8	[  1] _is_point_within_asteroid
+0x00001494	0x000000D0	[  1] _initialise_level
+0x00001564	0x00001050	[  1] _plugin_start
+0x000025B4	0x00000018	[  2] _cleanup_wrapper
+0x000025CC	0x00000068	[  2] _plugin__start
+0x00002634	0x00000020	[  2] _rb_atexit
+0x00002654	0x00000024	[  2] _exit
+0x00002678	0x00000014	[  2] __exit
+0x0000268C	0x00000064	[  2] _exit_on_usb
+0x000026F0	0x00000020	[  3] _talk_val
+0x00002710	0x00000040	[  3] _backlight_force_on
+0x00002750	0x0000006C	[  3] _backlight_ignore_timeout
+0x000027BC	0x00000048	[  3] _backlight_use_settings
+0x00002804	0x00000044	[  3] _sw_poweroff_disable
+0x00002848	0x00000020	[  3] _sw_poweroff_restore
+0x00002868	0x00000004	[  3] _remote_backlight_force_on
+0x0000286C	0x00000004	[  3] _remote_backlight_ignore_timeout
+0x00002870	0x00000004	[  3] _remote_backlight_use_settings
+0x00002874	0x00000004	[  3] _buttonlight_force_on
+0x00002878	0x00000004	[  3] _buttonlight_force_off
+0x0000287C	0x00000004	[  3] _buttonlight_ignore_timeout
+0x00002880	0x00000004	[  3] _buttonlight_use_settings
+0x00002884	0x00000018	[  3] _backlight_brightness_set
+0x0000289C	0x00000020	[  3] _backlight_brightness_use_setting
+0x000028BC	0x00000004	[  3] _buttonlight_brightness_set
+0x000028C0	0x00000004	[  3] _buttonlight_brightness_use_setting
+0x000028C4	0x00000028	[  4] _prevtrack
+0x000028EC	0x00000088	[  4] _play
+0x00002974	0x00000028	[  4] _stop
+0x0000299C	0x00000028	[  4] _nexttrack
+0x000029C4	0x00000050	[  4] _volume
+0x00002A14	0x00000054	[  4] _shuffle
+0x00002A68	0x0000008C	[  4] _repeat_mode
+0x00002AF4	0x0000000C	[  4] _playback_control_init
+0x00002B00	0x00000048	[  4] _playback_control
+0x00002B48	0x00000128	[  5] _highscore_save
+0x00002C70	0x00000174	[  5] _highscore_load
+0x00002DE4	0x0000002C	[  5] _highscore_would_update
+0x00002E10	0x000000D8	[  5] _highscore_update
+0x00002EE8	0x000002F0	[  5] _highscore_show
+0x000031D8	0x00000078	[  6] _wait_key_press
+0x00003250	0x00000354	[  6] _display_text
+0x000035A4	0x0000000C	[  8] _longjmp.stub
+0x000035B0	0x0000000C	[  8] _setjmp.stub
+0x000035BC	0x00000027	[  1] literal string: /.rockbox/rocks/games/spacerocks.score
+0x000035E3	0x0000000A	[  1] literal string: Game Over
+0x000035ED	0x00000001	[  1] literal string: 
+0x000035EE	0x0000000F	[  1] literal string: New High Score
+0x000035FD	0x0000000A	[  1] literal string: score %d 
+0x00003607	0x00000006	[  1] literal string: pause
+0x0000360D	0x0000000A	[  1] literal string: stage %d 
+0x00003617	0x0000000B	[  1] literal string: Spacerocks
+0x00003622	0x00000004	[  1] literal string: Aim
+0x00003626	0x00000004	[  1] literal string: The
+0x0000362A	0x00000005	[  1] literal string: goal
+0x0000362F	0x00000003	[  1] literal string: of
+0x00003632	0x00000004	[  1] literal string: the
+0x00003636	0x00000005	[  1] literal string: game
+0x0000363B	0x00000003	[  1] literal string: is
+0x0000363E	0x00000003	[  1] literal string: to
+0x00003641	0x00000005	[  1] literal string: blow
+0x00003646	0x00000003	[  1] literal string: up
+0x00003649	0x0000000A	[  1] literal string: asteroids
+0x00003653	0x00000004	[  1] literal string: and
+0x00003657	0x00000006	[  1] literal string: avoid
+0x0000365D	0x00000006	[  1] literal string: being
+0x00003663	0x00000004	[  1] literal string: hit
+0x00003667	0x00000003	[  1] literal string: by
+0x0000366A	0x00000006	[  1] literal string: them.
+0x00003670	0x00000005	[  1] literal string: Also
+0x00003675	0x00000006	[  1] literal string: you'd
+0x0000367B	0x00000007	[  1] literal string: better
+0x00003682	0x00000006	[  1] literal string: watch
+0x00003688	0x00000004	[  1] literal string: out
+0x0000368C	0x00000004	[  1] literal string: for
+0x00003690	0x00000006	[  1] literal string: UFOs!
+0x00003696	0x0000000C	[  1] literal string: Resume Game
+0x000036A2	0x0000000F	[  1] literal string: Start New Game
+0x000036B1	0x00000005	[  1] literal string: Help
+0x000036B6	0x0000000C	[  1] literal string: High Scores
+0x000036C2	0x00000011	[  1] literal string: Playback Control
+0x000036D3	0x00000005	[  1] literal string: Quit
+0x000036D8	0x00000007	[  4] literal string: Volume
+0x000036DF	0x00000008	[  4] literal string: Shuffle
+0x000036E7	0x00000007	[  4] literal string: Repeat
+0x000036EE	0x0000000A	[  5] literal string: %d:%d:%s\n
+0x000036F8	0x00000004	[  5] literal string: %s\n
+0x000036FC	0x00000006	[  5] literal string: Score
+0x00003702	0x00000006	[  5] literal string: Level
+0x00003708	0x00000004	[  5] literal string: %d)
+0x0000370C	0x00000003	[  5] literal string: %d
+0x0000370F	0x00000002	[  6] literal string:  
+0x00003718	0x00000020	[  1] _enemy_vertices
+0x00003738	0x00000010	[  1] _ship_vertices
+0x00003748	0x00000028	[  1] _asteroid_three
+0x00003770	0x00000028	[  1] _asteroid_two
+0x00003798	0x00000028	[  1] _asteroid_one
+0x000037C0	0x00000018	[  4] _playback_control_menu__
+0x000037D8	0x00000018	[  4] _repeat_mode_item_
+0x000037F0	0x00000018	[  4] _shuffle_item_
+0x00003808	0x00000018	[  4] _volume_item_
+0x00003820	0x00000018	[  4] _nexttrack_item_
+0x00003838	0x00000018	[  4] _stop_item_
+0x00003850	0x00000018	[  4] _playpause_item_
+0x00003868	0x00000018	[  4] _prevtrack_item_
+0x00003880	0x00000018	[  1] CFI
+0x00003898	0x00000020	[  1] FDE for: _is_point_in_polygon
+0x000038B8	0x00000020	[  1] FDE for: _rotate_polygon
+0x000038D8	0x00000068	[  1] FDE for: _draw_polygon
+0x00003940	0x00000020	[  1] FDE for: _move_point
+0x00003960	0x00000048	[  1] FDE for: _create_explosion_trail
+0x000039A8	0x00000070	[  1] FDE for: _create_trail_blaze
+0x00003A18	0x00000020	[  1] FDE for: _initialise_ship
+0x00003A38	0x00000068	[  1] FDE for: _draw_and_move_ship
+0x00003AA0	0x00000048	[  1] FDE for: _draw_lives
+0x00003AE8	0x00000050	[  1] FDE for: _draw_and_move_missiles
+0x00003B38	0x00000020	[  1] FDE for: _add_score
+0x00003B58	0x00000020	[  1] FDE for: _explode_ship
+0x00003B78	0x00000020	[  1] FDE for: _spacerocks_menu_cb
+0x00003B98	0x00000020	[  1] FDE for: _is_point_within_rectangle.isra.0
+0x00003BB8	0x00000040	[  1] FDE for: _is_point_within_enemy.isra.0
+0x00003BF8	0x00000060	[  1] FDE for: _initialise_asteroid
+0x00003C58	0x00000020	[  1] FDE for: _create_asteroid
+0x00003C78	0x00000048	[  1] FDE for: _is_point_within_asteroid
+0x00003CC0	0x00000048	[  1] FDE for: _initialise_level
+0x00003D08	0x00000078	[  1] FDE for: _plugin_start
+0x00003D80	0x00000018	[  2] CFI
+0x00003D98	0x00000020	[  2] FDE for: _cleanup_wrapper
+0x00003DB8	0x00000040	[  2] FDE for: _plugin__start
+0x00003DF8	0x00000020	[  2] FDE for: _rb_atexit
+0x00003E18	0x00000030	[  2] FDE for: _exit
+0x00003E48	0x00000030	[  2] FDE for: __exit
+0x00003E78	0x00000038	[  2] FDE for: _exit_on_usb
+0x00003EB0	0x00000018	[  3] CFI
+0x00003EC8	0x00000020	[  3] FDE for: _talk_val
+0x00003EE8	0x00000040	[  3] FDE for: _backlight_force_on
+0x00003F28	0x00000050	[  3] FDE for: _backlight_ignore_timeout
+0x00003F78	0x00000040	[  3] FDE for: _backlight_use_settings
+0x00003FB8	0x00000040	[  3] FDE for: _sw_poweroff_disable
+0x00003FF8	0x00000020	[  3] FDE for: _sw_poweroff_restore
+0x00004018	0x00000020	[  3] FDE for: _remote_backlight_force_on
+0x00004038	0x00000020	[  3] FDE for: _remote_backlight_ignore_timeout
+0x00004058	0x00000020	[  3] FDE for: _remote_backlight_use_settings
+0x00004078	0x00000020	[  3] FDE for: _buttonlight_force_on
+0x00004098	0x00000020	[  3] FDE for: _buttonlight_force_off
+0x000040B8	0x00000020	[  3] FDE for: _buttonlight_ignore_timeout
+0x000040D8	0x00000020	[  3] FDE for: _buttonlight_use_settings
+0x000040F8	0x00000020	[  3] FDE for: _backlight_brightness_set
+0x00004118	0x00000020	[  3] FDE for: _backlight_brightness_use_setting
+0x00004138	0x00000020	[  3] FDE for: _buttonlight_brightness_set
+0x00004158	0x00000020	[  3] FDE for: _buttonlight_brightness_use_setting
+0x00004178	0x00000018	[  4] CFI
+0x00004190	0x00000038	[  4] FDE for: _prevtrack
+0x000041C8	0x00000048	[  4] FDE for: _play
+0x00004210	0x00000038	[  4] FDE for: _stop
+0x00004248	0x00000038	[  4] FDE for: _nexttrack
+0x00004280	0x00000040	[  4] FDE for: _volume
+0x000042C0	0x00000040	[  4] FDE for: _shuffle
+0x00004300	0x00000040	[  4] FDE for: _repeat_mode
+0x00004340	0x00000020	[  4] FDE for: _playback_control_init
+0x00004360	0x00000038	[  4] FDE for: _playback_control
+0x00004398	0x00000018	[  5] CFI
+0x000043B0	0x00000070	[  5] FDE for: _highscore_save
+0x00004420	0x00000070	[  5] FDE for: _highscore_load
+0x00004490	0x00000020	[  5] FDE for: _highscore_would_update
+0x000044B0	0x00000068	[  5] FDE for: _highscore_update
+0x00004518	0x00000080	[  5] FDE for: _highscore_show
+0x00004598	0x00000018	[  6] CFI
+0x000045B0	0x00000050	[  6] FDE for: _wait_key_press
+0x00004600	0x00000070	[  6] FDE for: _display_text
+0x00008000	0x00000008	[  8] _longjmp.got
+0x00008008	0x00000008	[  8] _setjmp.got
+0x00008010	0x00000018	[  1] _main_menu__.3
+0x00008028	0x00000018	[  1] _main_menu.4
+0x00008040	0x00000038	[  2] ___header
+0x00008078	0x00000018	[  4] _playback_control_menu
+0x00008090	0x00000018	[  4] _repeat_mode_item
+0x000080A8	0x00000008	[  4] _repeat_mode_item__
+0x000080B0	0x00000018	[  4] _shuffle_item
+0x000080C8	0x00000008	[  4] _shuffle_item__
+0x000080D0	0x00000018	[  4] _volume_item
+0x000080E8	0x00000008	[  4] _volume_item__
+0x000080F0	0x00000018	[  4] _nexttrack_item
+0x00008108	0x00000008	[  4] _nexttrack_item__
+0x00008110	0x00000018	[  4] _stop_item
+0x00008128	0x00000008	[  4] _stop_item__
+0x00008130	0x00000018	[  4] _playpause_item
+0x00008148	0x00000008	[  4] _playpause_item__
+0x00008150	0x00000018	[  4] _prevtrack_item
+0x00008168	0x00000008	[  4] _prevtrack_item__
+0x0000C000	0x00000010	[  1] _formation.0
+0x0000C010	0x000000E8	[  1] _help_text.1
+0x0000C0F8	0x00000030	[  1] _main_menu_.2
+0x0000C128	0x00000001	[  3] _original_sw_poweroff_state
+0x0000C130	0x00000038	[  4] _playback_control_menu_
+0x0000C168	0x00000008	[  2] _rb
+0x0000C170	0x00000004	[  1] _ingame
+0x0000C174	0x000007A8	[  1] _trail_points
+0x0000C91C	0x00000040	[  1] _lives_points
+0x0000C95C	0x000000A4	[  1] _enemy
+0x0000CA00	0x00000024	[  1] _enemy_missile
+0x0000CA24	0x000000DC	[  1] _missiles_array
+0x0000CB00	0x000015E0	[  1] _asteroids_array
+0x0000E0E0	0x00000320	[  1] _stars
+0x0000E400	0x0000006C	[  1] _ship
+0x0000E46C	0x00000004	[  1] _current_score
+0x0000E470	0x00000004	[  1] _current_level
+0x0000E474	0x00000004	[  1] _show_level_timeout
+0x0000E478	0x00000004	[  1] _extra_life
+0x0000E47C	0x00000004	[  1] _num_lives
+0x0000E480	0x00000004	[  1] _next_thrust_count
+0x0000E484	0x00000004	[  1] _next_missile_count
+0x0000E488	0x00000004	[  1] _asteroid_count
+0x0000E48C	0x00000004	[  1] _game_state
+0x0000E490	0x000000C8	[  1] _highscores
+0x0000E558	0x00000008	[  2] _atexit_handler
+0x0000E560	0x000000C0	[  2] ___exit_env
+0x0000E620	0x00000001	[  5] _highscore_updated
+0x0000E628	0x00000008	[  4] _parentvp

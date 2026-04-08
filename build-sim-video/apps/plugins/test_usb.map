@@ -1,0 +1,76 @@
+# Path: /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/test_usb.elf
+# Arch: arm64
+# Object files:
+[  0] linker synthesized
+[  1] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/test_usb.o
+[  2] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/plugin_crt0.o
+[  3] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/libSystem.tbd
+[  4] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/system/libsystem_platform.tbd
+# Sections:
+# Address	Size    	Segment	Section
+0x00000730	0x00000454	__TEXT	__text
+0x00000B84	0x00000018	__TEXT	__stubs
+0x00000B9C	0x000000A6	__TEXT	__cstring
+0x00000C48	0x00000240	__TEXT	__eh_frame
+0x00004000	0x00000010	__DATA_CONST	__got
+0x00004010	0x00000098	__DATA_CONST	__const
+0x00008000	0x00000038	__DATA	__data
+0x00008038	0x00000008	__DATA	.data
+0x00008040	0x0000E130	__DATA	__common
+0x00016170	0x000000C8	__DATA	__bss
+# Symbols:
+# Address	Size    	File  Name
+0x00000730	0x0000011C	[  1] _main_loop
+0x0000084C	0x00000120	[  1] _exit_tsr
+0x0000096C	0x000000DC	[  1] _plugin_start
+0x00000A48	0x00000018	[  2] _cleanup_wrapper
+0x00000A60	0x00000068	[  2] _plugin__start
+0x00000AC8	0x00000020	[  2] _rb_atexit
+0x00000AE8	0x00000024	[  2] _exit
+0x00000B0C	0x00000014	[  2] __exit
+0x00000B20	0x00000064	[  2] _exit_on_usb
+0x00000B84	0x0000000C	[  4] _longjmp.stub
+0x00000B90	0x0000000C	[  4] _setjmp.stub
+0x00000B9C	0x0000000A	[  1] literal string: connected
+0x00000BA6	0x0000000D	[  1] literal string: disconnected
+0x00000BB3	0x00000008	[  1] literal string: exiting
+0x00000BBB	0x0000000A	[  1] literal string: State: %s
+0x00000BC5	0x00000009	[  1] literal string: Prev: %s
+0x00000BCE	0x00000019	[  1] literal string: Stopping USB test thread
+0x00000BE7	0x0000000D	[  1] literal string: test_usb TSR
+0x00000BF4	0x00000018	[  1] literal string: USB test thread started
+0x00000C0C	0x00000007	[  1] literal string: Status
+0x00000C13	0x0000000C	[  1] literal string: Stop plugin
+0x00000C1F	0x00000005	[  1] literal string: Back
+0x00000C24	0x0000000E	[  1] literal string: USB test menu
+0x00000C32	0x00000006	[  1] literal string: Start
+0x00000C38	0x00000005	[  1] literal string: Quit
+0x00000C3D	0x00000005	[  1] literal string: none
+0x00000C48	0x00000018	[  1] CFI
+0x00000C60	0x00000058	[  1] FDE for: _main_loop
+0x00000CB8	0x00000058	[  1] FDE for: _exit_tsr
+0x00000D10	0x00000048	[  1] FDE for: _plugin_start
+0x00000D58	0x00000018	[  2] CFI
+0x00000D70	0x00000020	[  2] FDE for: _cleanup_wrapper
+0x00000D90	0x00000040	[  2] FDE for: _plugin__start
+0x00000DD0	0x00000020	[  2] FDE for: _rb_atexit
+0x00000DF0	0x00000030	[  2] FDE for: _exit
+0x00000E20	0x00000030	[  2] FDE for: __exit
+0x00000E50	0x00000038	[  2] FDE for: _exit_on_usb
+0x00004000	0x00000008	[  4] _longjmp.got
+0x00004008	0x00000008	[  4] _setjmp.got
+0x00004010	0x00000018	[  1] _menu__.1
+0x00004028	0x00000018	[  1] _menu.2
+0x00004040	0x00000018	[  1] _menu__.4
+0x00004058	0x00000018	[  1] _menu.5
+0x00004070	0x00000038	[  2] ___header
+0x00008000	0x00000018	[  1] _menu_.0
+0x00008018	0x00000010	[  1] _menu_.3
+0x00008028	0x00000008	[  1] _prev_state
+0x00008030	0x00000008	[  1] _state
+0x00008038	0x00000008	[  2] _rb
+0x00008040	0x00000008	[  1] _thread_id
+0x00008048	0x00000128	[  1] _queue
+0x00008170	0x0000E000	[  1] _stack
+0x00016170	0x00000008	[  2] _atexit_handler
+0x00016178	0x000000C0	[  2] ___exit_env

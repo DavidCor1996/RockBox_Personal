@@ -1,0 +1,236 @@
+# Path: /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/vu_meter.elf
+# Arch: arm64
+# Object files:
+[  0] linker synthesized
+[  1] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/vu_meter.o
+[  2] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/plugin_crt0.o
+[  3] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(helper.o)
+[  4] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(playback_control.o)
+[  5] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/libfixedpoint.a(fixedpoint.o)
+[  6] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/libSystem.tbd
+[  7] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/system/libsystem_c.tbd
+[  8] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/system/libsystem_platform.tbd
+# Sections:
+# Address	Size    	Segment	Section
+0x00000780	0x00001BF0	__TEXT	__text
+0x00002370	0x00000024	__TEXT	__stubs
+0x00002394	0x00000147	__TEXT	__cstring
+0x000024E0	0x000002F0	__TEXT	__const
+0x000027D0	0x00000918	__TEXT	__eh_frame
+0x00004000	0x00000018	__DATA_CONST	__got
+0x00004018	0x000001F0	__DATA_CONST	__const
+0x00008000	0x00000070	__DATA	__data
+0x00008070	0x00000008	__DATA	.data
+0x00008078	0x000000F8	__DATA	__bss
+0x00008170	0x00000188	__DATA	__common
+# Symbols:
+# Address	Size    	File  Name
+0x00000780	0x000000E8	[  1] _change_volume
+0x00000868	0x00000030	[  1] _vu_meter_cleanup
+0x00000898	0x00000EA0	[  1] _plugin_start
+0x00001738	0x00000018	[  2] _cleanup_wrapper
+0x00001750	0x00000068	[  2] _plugin__start
+0x000017B8	0x00000020	[  2] _rb_atexit
+0x000017D8	0x00000024	[  2] _exit
+0x000017FC	0x00000014	[  2] __exit
+0x00001810	0x00000064	[  2] _exit_on_usb
+0x00001874	0x00000020	[  3] _talk_val
+0x00001894	0x00000040	[  3] _backlight_force_on
+0x000018D4	0x0000006C	[  3] _backlight_ignore_timeout
+0x00001940	0x00000048	[  3] _backlight_use_settings
+0x00001988	0x00000044	[  3] _sw_poweroff_disable
+0x000019CC	0x00000020	[  3] _sw_poweroff_restore
+0x000019EC	0x00000004	[  3] _remote_backlight_force_on
+0x000019F0	0x00000004	[  3] _remote_backlight_ignore_timeout
+0x000019F4	0x00000004	[  3] _remote_backlight_use_settings
+0x000019F8	0x00000004	[  3] _buttonlight_force_on
+0x000019FC	0x00000004	[  3] _buttonlight_force_off
+0x00001A00	0x00000004	[  3] _buttonlight_ignore_timeout
+0x00001A04	0x00000004	[  3] _buttonlight_use_settings
+0x00001A08	0x00000018	[  3] _backlight_brightness_set
+0x00001A20	0x00000020	[  3] _backlight_brightness_use_setting
+0x00001A40	0x00000004	[  3] _buttonlight_brightness_set
+0x00001A44	0x00000004	[  3] _buttonlight_brightness_use_setting
+0x00001A48	0x00000028	[  4] _prevtrack
+0x00001A70	0x00000088	[  4] _play
+0x00001AF8	0x00000028	[  4] _stop
+0x00001B20	0x00000028	[  4] _nexttrack
+0x00001B48	0x00000050	[  4] _volume
+0x00001B98	0x00000054	[  4] _shuffle
+0x00001BEC	0x0000008C	[  4] _repeat_mode
+0x00001C78	0x0000000C	[  4] _playback_control_init
+0x00001C84	0x00000048	[  4] _playback_control
+0x00001CCC	0x000000B0	[  5] _fp_sincos
+0x00001D7C	0x000000B4	[  5] _fp_sqrt
+0x00001E30	0x0000003C	[  5] _ipow
+0x00001E6C	0x00000060	[  5] _fp14_sin
+0x00001ECC	0x00000064	[  5] _fp14_cos
+0x00001F30	0x00000110	[  5] _fp16_log
+0x00002040	0x000000F8	[  5] _fp16_exp
+0x00002138	0x00000154	[  5] _fp_exp10
+0x0000228C	0x000000AC	[  5] _fp_log10
+0x00002338	0x00000024	[  5] _fp_decibels
+0x0000235C	0x00000014	[  5] _fp_factor
+0x00002370	0x0000000C	[  7] _abs.stub
+0x0000237C	0x0000000C	[  8] _longjmp.stub
+0x00002388	0x0000000C	[  8] _setjmp.stub
+0x00002394	0x00000003	[  1] literal string: %d
+0x00002397	0x00000020	[  1] literal string: /.rockbox/rocks/demos/.vu_meter
+0x000023B7	0x00000014	[  1] literal string: Press PLAY for help
+0x000023CB	0x0000000A	[  1] literal string: VU %d kHz
+0x000023D5	0x0000000D	[  1] literal string: VU %d.%u kHz
+0x000023E2	0x00000005	[  1] literal string: Left
+0x000023E7	0x00000006	[  1] literal string: Right
+0x000023ED	0x0000000B	[  1] literal string: MENU: Exit
+0x000023F8	0x00000011	[  1] literal string: SELECT: Settings
+0x00002409	0x0000000E	[  1] literal string: Wheel: Volume
+0x00002417	0x0000000B	[  1] literal string: Meter Type
+0x00002422	0x00000007	[  1] literal string: Linear
+0x00002429	0x00000005	[  1] literal string: dBfs
+0x0000242E	0x00000006	[  1] literal string: Scale
+0x00002434	0x00000012	[  1] literal string: Enable Minimeters
+0x00002446	0x0000000C	[  1] literal string: Decay Speed
+0x00002452	0x0000000B	[  1] literal string: Minimeters
+0x0000245D	0x00000011	[  1] literal string: Playback Control
+0x0000246E	0x00000005	[  1] literal string: Quit
+0x00002473	0x00000009	[  1] literal string: VU Meter
+0x0000247C	0x00000009	[  1] literal string: No Decay
+0x00002485	0x0000000A	[  1] literal string: Very Fast
+0x0000248F	0x00000005	[  1] literal string: Fast
+0x00002494	0x00000007	[  1] literal string: Medium
+0x0000249B	0x0000000C	[  1] literal string: Medium-Slow
+0x000024A7	0x00000005	[  1] literal string: Slow
+0x000024AC	0x0000000A	[  1] literal string: Very Slow
+0x000024B6	0x00000007	[  1] literal string: Analog
+0x000024BD	0x00000008	[  1] literal string: Digital
+0x000024C5	0x00000007	[  4] literal string: Volume
+0x000024CC	0x00000008	[  4] literal string: Shuffle
+0x000024D4	0x00000007	[  4] literal string: Repeat
+0x000024E0	0x00000004	[  1] _digital_block_height
+0x000024E4	0x00000004	[  1] _digital_lead
+0x000024E8	0x00000004	[  1] _digital_block_gap
+0x000024EC	0x00000004	[  1] _digital_block_width
+0x000024F0	0x00000004	[  1] _analog_mini_4
+0x000024F4	0x00000004	[  1] _analog_mini_3
+0x000024F8	0x00000004	[  1] _analog_mini_2
+0x000024FC	0x00000004	[  1] _analog_mini_1
+0x00002500	0x00000004	[  1] _half_height
+0x00002504	0x00000004	[  1] _quarter_width
+0x00002508	0x00000004	[  1] _half_width
+0x0000250C	0x00000003	[  1] _sound_max_level
+0x0000250F	0x00000002	[  1] _sound_high_level
+0x00002511	0x00000002	[  1] _sound_med_level
+0x00002513	0x00000002	[  1] _sound_low_level
+0x00002515	0x00000004	[  1] _sound_speaker
+0x00002519	0x0000000D	[  1] _needle_cover
+0x00002526	0x0000002C	[  1] _digital_db_scale
+0x00002558	0x00000018	[  4] _playback_control_menu__
+0x00002570	0x00000018	[  4] _repeat_mode_item_
+0x00002588	0x00000018	[  4] _shuffle_item_
+0x000025A0	0x00000018	[  4] _volume_item_
+0x000025B8	0x00000018	[  4] _nexttrack_item_
+0x000025D0	0x00000018	[  4] _stop_item_
+0x000025E8	0x00000018	[  4] _playpause_item_
+0x00002600	0x00000018	[  4] _prevtrack_item_
+0x00002618	0x000000B8	[  5] _sin_table
+0x000026D0	0x00000100	[  5] _atan_table
+0x000027D0	0x00000018	[  1] CFI
+0x000027E8	0x00000068	[  1] FDE for: _change_volume
+0x00002850	0x00000038	[  1] FDE for: _vu_meter_cleanup
+0x00002888	0x00000070	[  1] FDE for: _plugin_start
+0x000028F8	0x00000018	[  2] CFI
+0x00002910	0x00000020	[  2] FDE for: _cleanup_wrapper
+0x00002930	0x00000040	[  2] FDE for: _plugin__start
+0x00002970	0x00000020	[  2] FDE for: _rb_atexit
+0x00002990	0x00000030	[  2] FDE for: _exit
+0x000029C0	0x00000030	[  2] FDE for: __exit
+0x000029F0	0x00000038	[  2] FDE for: _exit_on_usb
+0x00002A28	0x00000018	[  3] CFI
+0x00002A40	0x00000020	[  3] FDE for: _talk_val
+0x00002A60	0x00000040	[  3] FDE for: _backlight_force_on
+0x00002AA0	0x00000050	[  3] FDE for: _backlight_ignore_timeout
+0x00002AF0	0x00000040	[  3] FDE for: _backlight_use_settings
+0x00002B30	0x00000040	[  3] FDE for: _sw_poweroff_disable
+0x00002B70	0x00000020	[  3] FDE for: _sw_poweroff_restore
+0x00002B90	0x00000020	[  3] FDE for: _remote_backlight_force_on
+0x00002BB0	0x00000020	[  3] FDE for: _remote_backlight_ignore_timeout
+0x00002BD0	0x00000020	[  3] FDE for: _remote_backlight_use_settings
+0x00002BF0	0x00000020	[  3] FDE for: _buttonlight_force_on
+0x00002C10	0x00000020	[  3] FDE for: _buttonlight_force_off
+0x00002C30	0x00000020	[  3] FDE for: _buttonlight_ignore_timeout
+0x00002C50	0x00000020	[  3] FDE for: _buttonlight_use_settings
+0x00002C70	0x00000020	[  3] FDE for: _backlight_brightness_set
+0x00002C90	0x00000020	[  3] FDE for: _backlight_brightness_use_setting
+0x00002CB0	0x00000020	[  3] FDE for: _buttonlight_brightness_set
+0x00002CD0	0x00000020	[  3] FDE for: _buttonlight_brightness_use_setting
+0x00002CF0	0x00000018	[  4] CFI
+0x00002D08	0x00000038	[  4] FDE for: _prevtrack
+0x00002D40	0x00000048	[  4] FDE for: _play
+0x00002D88	0x00000038	[  4] FDE for: _stop
+0x00002DC0	0x00000038	[  4] FDE for: _nexttrack
+0x00002DF8	0x00000040	[  4] FDE for: _volume
+0x00002E38	0x00000040	[  4] FDE for: _shuffle
+0x00002E78	0x00000040	[  4] FDE for: _repeat_mode
+0x00002EB8	0x00000020	[  4] FDE for: _playback_control_init
+0x00002ED8	0x00000038	[  4] FDE for: _playback_control
+0x00002F10	0x00000018	[  5] CFI
+0x00002F28	0x00000020	[  5] FDE for: _fp_sincos
+0x00002F48	0x00000020	[  5] FDE for: _fp_sqrt
+0x00002F68	0x00000020	[  5] FDE for: _ipow
+0x00002F88	0x00000020	[  5] FDE for: _fp14_sin
+0x00002FA8	0x00000020	[  5] FDE for: _fp14_cos
+0x00002FC8	0x00000020	[  5] FDE for: _fp16_log
+0x00002FE8	0x00000020	[  5] FDE for: _fp16_exp
+0x00003008	0x00000068	[  5] FDE for: _fp_exp10
+0x00003070	0x00000020	[  5] FDE for: _fp_log10
+0x00003090	0x00000038	[  5] FDE for: _fp_decibels
+0x000030C8	0x00000020	[  5] FDE for: _fp_factor
+0x00004000	0x00000008	[  7] _abs.got
+0x00004008	0x00000008	[  8] _longjmp.got
+0x00004010	0x00000008	[  8] _setjmp.got
+0x00004018	0x00000018	[  1] _menu__.1
+0x00004030	0x00000070	[  1] _decay_speed_option.2
+0x000040A0	0x00000020	[  1] _meter_type_option.3
+0x000040C0	0x00000018	[  1] _menu.4
+0x000040D8	0x00000038	[  2] ___header
+0x00004110	0x00000018	[  4] _playback_control_menu
+0x00004128	0x00000018	[  4] _repeat_mode_item
+0x00004140	0x00000008	[  4] _repeat_mode_item__
+0x00004148	0x00000018	[  4] _shuffle_item
+0x00004160	0x00000008	[  4] _shuffle_item__
+0x00004168	0x00000018	[  4] _volume_item
+0x00004180	0x00000008	[  4] _volume_item__
+0x00004188	0x00000018	[  4] _nexttrack_item
+0x000041A0	0x00000008	[  4] _nexttrack_item__
+0x000041A8	0x00000018	[  4] _stop_item
+0x000041C0	0x00000008	[  4] _stop_item__
+0x000041C8	0x00000018	[  4] _playpause_item
+0x000041E0	0x00000008	[  4] _playpause_item__
+0x000041E8	0x00000018	[  4] _prevtrack_item
+0x00004200	0x00000008	[  4] _prevtrack_item__
+0x00008000	0x00000030	[  1] _menu_.0
+0x00008030	0x00000004	[  1] _last_right_needle_top_x
+0x00008034	0x00000001	[  3] _original_sw_poweroff_state
+0x00008038	0x00000038	[  4] _playback_control_menu_
+0x00008070	0x00000008	[  2] _rb
+0x00008078	0x00000004	[  1] _x.5
+0x0000807C	0x00000010	[  1] _title.6
+0x0000808C	0x00000004	[  1] _sampr.7
+0x00008090	0x00000018	[  1] _peaks.8
+0x000080A8	0x00000008	[  2] _atexit_handler
+0x000080B0	0x000000C0	[  2] ___exit_env
+0x00008170	0x00000010	[  1] _vumeter_settings
+0x00008180	0x00000004	[  1] _screen_foreground
+0x00008184	0x00000004	[  1] _i
+0x00008188	0x00000004	[  1] _last_num_right_leds
+0x0000818C	0x00000004	[  1] _last_num_left_leds
+0x00008190	0x00000004	[  1] _num_right_leds
+0x00008194	0x00000004	[  1] _num_left_leds
+0x00008198	0x00000004	[  1] _right_needle_top_x
+0x0000819C	0x00000004	[  1] _right_needle_top_y
+0x000081A0	0x00000004	[  1] _last_left_needle_top_x
+0x000081A4	0x00000004	[  1] _left_needle_top_x
+0x000081A8	0x00000004	[  1] _left_needle_top_y
+0x000081AC	0x000000A0	[  1] _y_values
+0x0000824C	0x000000A0	[  1] _analog_db_scale
+0x000082F0	0x00000008	[  4] _parentvp

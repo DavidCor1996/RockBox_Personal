@@ -1,0 +1,529 @@
+# Path: /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/pictureflow/pictureflow.elf
+# Arch: arm64
+# Object files:
+[  0] linker synthesized
+[  1] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/pictureflow/pictureflow.o
+[  2] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/plugin_crt0.o
+[  3] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(gcc-support.o)
+[  4] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(pluginlib_actions.o)
+[  5] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(helper.o)
+[  6] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(configfile.o)
+[  7] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(playback_control.o)
+[  8] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(simple_viewer.o)
+[  9] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(read_image.o)
+[ 10] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(mul_id3.o)
+[ 11] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/libSystem.tbd
+[ 12] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/system/libsystem_c.tbd
+[ 13] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/system/libsystem_platform.tbd
+# Sections:
+# Address	Size    	Segment	Section
+0x000007A0	0x0000B0C4	__TEXT	__text
+0x0000B864	0x00000030	__TEXT	__stubs
+0x0000B898	0x000007C1	__TEXT	__cstring
+0x0000C060	0x00000498	__TEXT	__const
+0x0000C4F8	0x00002268	__TEXT	__eh_frame
+0x00010000	0x00000028	__DATA_CONST	__got
+0x00010028	0x00000230	__DATA_CONST	__const
+0x00014000	0x000004F8	__DATA	__data
+0x000144F8	0x00000008	__DATA	.data
+0x00014500	0x00002260	__DATA	__bss
+0x00016760	0x00070338	__DATA	__common
+# Symbols:
+# Address	Size    	File  Name
+0x000007A0	0x000000C8	[  1] _output_row_8_transposed
+0x00000868	0x000000E0	[  1] _output_row_32_transposed
+0x00000948	0x00000178	[  1] _output_row_32_transposed_fromyuv
+0x00000AC0	0x00000010	[  1] _get_size
+0x00000AD0	0x00000018	[  1] _get_context_map
+0x00000AE8	0x000000A4	[  1] _set_scroll_line
+0x00000B8C	0x00000094	[  1] _compare_albums
+0x00000C20	0x00000010	[  1] _compare_album_artists
+0x00000C30	0x00000040	[  1] _write_artist_entry
+0x00000C70	0x00000140	[  1] _id3_get_index
+0x00000DB0	0x00000010	[  1] _compare_tracks
+0x00000DC0	0x000000EC	[  1] _draw_splashscreen
+0x00000EAC	0x000000B4	[  1] _create_pf_thread
+0x00000F60	0x00000080	[  1] _initialize_slide_cache
+0x00000FE0	0x000000C4	[  1] _reset_slides
+0x000010A4	0x0000015C	[  1] _track_list_yh
+0x00001200	0x00000080	[  1] _error_wait
+0x00001280	0x000000B0	[  1] _write_album_entry
+0x00001330	0x00000070	[  1] _end_pf_thread.part.0
+0x000013A0	0x00000060	[  1] _cleanup
+0x00001400	0x000000C0	[  1] _save_pfraw.constprop.0
+0x000014C0	0x00000148	[  1] _get_albumart_for_index_from_db.constprop.0
+0x00001608	0x000001B8	[  1] _pf_current_playlist_insert
+0x000017C0	0x00000340	[  1] _context_menu
+0x00001B00	0x00000180	[  1] _pf_add_to_playlist
+0x00001C80	0x00000184	[  1] _recalc_offsets
+0x00001E04	0x0000006C	[  1] _get_slide_name
+0x00001E70	0x00000294	[  1] _free_slide_prio
+0x00002104	0x0000013C	[  1] _track_buffer_avail
+0x00002240	0x00000350	[  1] _create_track_index
+0x00002590	0x00000150	[  1] _read_pfraw
+0x000026E0	0x000003C4	[  1] _update_scroll_animation
+0x00002AA4	0x00000884	[  1] _render_slide
+0x00003328	0x000003D8	[  1] _render_all_slides
+0x00003700	0x0000040C	[  1] _draw_album_text.part.0
+0x00003B0C	0x0000025C	[  1] _draw_progressbar
+0x00003D68	0x000000D8	[  1] _progress_cancel
+0x00003E40	0x00000140	[  1] _get_tcs_search_res.constprop.0
+0x00003F80	0x000001A0	[  1] _assign_album_year
+0x00004120	0x000001C0	[  1] _load_and_prepare_surface
+0x000042E0	0x000000CC	[  1] _skip_animation_to_idle_state
+0x000043AC	0x000000D4	[  1] _set_initial_slide.part.0
+0x00004480	0x00000130	[  1] _select_prev_album.part.0
+0x000045B0	0x00000470	[  1] _incremental_albumart_cache.isra.0
+0x00004A20	0x00001260	[  1] _init
+0x00005C80	0x00000160	[  1] _select_next_album
+0x00005DE0	0x000001AC	[  1] _reselect
+0x00005F8C	0x00000324	[  1] _reinit
+0x000062B0	0x000000B8	[  1] _prompt_reinit
+0x00006368	0x00000478	[  1] _sort_albums
+0x000067E0	0x00000020	[  1] _retrieve_id3
+0x00006800	0x00000824	[  1] _load_new_slide
+0x00007024	0x0000011C	[  1] _thread
+0x00007140	0x00000080	[  1] _reset_track_list
+0x000071C0	0x000000E8	[  1] _track_list_ready
+0x000072A8	0x00000164	[  1] _start_playback.isra.0
+0x0000740C	0x000026DC	[  1] _plugin_start
+0x00009AE8	0x00000018	[  2] _cleanup_wrapper
+0x00009B00	0x00000068	[  2] _plugin__start
+0x00009B68	0x00000020	[  2] _rb_atexit
+0x00009B88	0x00000024	[  2] _exit
+0x00009BAC	0x00000014	[  2] __exit
+0x00009BC0	0x00000064	[  2] _exit_on_usb
+0x00009C24	0x00000018	[  3] _memcpy
+0x00009C3C	0x00000018	[  3] _memset
+0x00009C54	0x00000018	[  3] _memmove
+0x00009C6C	0x00000018	[  3] _memcmp
+0x00009C84	0x00000038	[  4] _get_context_map
+0x00009CBC	0x00000040	[  4] _pluginlib_getaction
+0x00009CFC	0x00000020	[  5] _talk_val
+0x00009D1C	0x00000040	[  5] _backlight_force_on
+0x00009D5C	0x0000006C	[  5] _backlight_ignore_timeout
+0x00009DC8	0x00000048	[  5] _backlight_use_settings
+0x00009E10	0x00000044	[  5] _sw_poweroff_disable
+0x00009E54	0x00000020	[  5] _sw_poweroff_restore
+0x00009E74	0x00000004	[  5] _remote_backlight_force_on
+0x00009E78	0x00000004	[  5] _remote_backlight_ignore_timeout
+0x00009E7C	0x00000004	[  5] _remote_backlight_use_settings
+0x00009E80	0x00000004	[  5] _buttonlight_force_on
+0x00009E84	0x00000004	[  5] _buttonlight_force_off
+0x00009E88	0x00000004	[  5] _buttonlight_ignore_timeout
+0x00009E8C	0x00000004	[  5] _buttonlight_use_settings
+0x00009E90	0x00000018	[  5] _backlight_brightness_set
+0x00009EA8	0x00000020	[  5] _backlight_brightness_use_setting
+0x00009EC8	0x00000004	[  5] _buttonlight_brightness_set
+0x00009ECC	0x00000004	[  5] _buttonlight_brightness_use_setting
+0x00009ED0	0x000000E8	[  6] _get_cfg_filename.constprop.0
+0x00009FB8	0x00000160	[  6] _configfile_save
+0x0000A118	0x00000228	[  6] _configfile_load
+0x0000A340	0x000000E0	[  6] _configfile_get_value
+0x0000A420	0x00000158	[  6] _configfile_update_entry
+0x0000A578	0x00000028	[  7] _prevtrack
+0x0000A5A0	0x00000088	[  7] _play
+0x0000A628	0x00000028	[  7] _stop
+0x0000A650	0x00000028	[  7] _nexttrack
+0x0000A678	0x00000050	[  7] _volume
+0x0000A6C8	0x00000054	[  7] _shuffle
+0x0000A71C	0x0000008C	[  7] _repeat_mode
+0x0000A7A8	0x0000000C	[  7] _playback_control_init
+0x0000A7B4	0x00000048	[  7] _playback_control
+0x0000A7FC	0x000001C4	[  8] _get_next_line
+0x0000A9C0	0x00000084	[  8] _calc_first_line
+0x0000AA44	0x000001E4	[  8] _draw_text
+0x0000AC28	0x00000058	[  8] _scroll_down
+0x0000AC80	0x00000274	[  8] _view_text
+0x0000AEF4	0x0000008C	[  9] _read_image_file
+0x0000AF80	0x0000004C	[ 10] _mfnv
+0x0000AFCC	0x00000218	[ 10] _collect_id3
+0x0000B1E4	0x000000E4	[ 10] _finalize_id3
+0x0000B2C8	0x00000034	[ 10] _human_size
+0x0000B2FC	0x000001A4	[ 10] _display_dir_stats
+0x0000B4A0	0x000003C4	[ 10] _collect_dir_stats
+0x0000B864	0x0000000C	[ 12] ___maskrune.stub
+0x0000B870	0x0000000C	[ 12] _abs.stub
+0x0000B87C	0x0000000C	[ 13] _longjmp.stub
+0x0000B888	0x0000000C	[ 13] _setjmp.stub
+0x0000B898	0x0000000B	[  1] literal string: <Untagged>
+0x0000B8A8	0x00000011	[  1] literal string: Album Not Found!
+0x0000B8C0	0x0000002D	[  1] literal string: /.rockbox/rocks/demos/pictureflow_splash.bmp
+0x0000B8F0	0x00000014	[  1] literal string: Picture load thread
+0x0000B908	0x00000022	[  1] literal string: %s. Press any button to continue.
+0x0000B930	0x00000002	[  1] literal string: :
+0x0000B938	0x00000004	[  1] literal string: /%s
+0x0000B940	0x00000008	[  1] literal string: %s (%s)
+0x0000B948	0x00000004	[  1] literal string: %s\n
+0x0000B950	0x00000002	[  1] literal string: ?
+0x0000B958	0x00000003	[  1] literal string: %s
+0x0000B960	0x0000000A	[  1] literal string: %s – %d
+0x0000B970	0x00000006	[  1] literal string: Quit?
+0x0000B978	0x00000016	[  1] literal string: Progress will be lost
+0x0000B990	0x00000015	[  1] literal string: 3/5 Check Album Year
+0x0000B9A8	0x0000002D	[  1] literal string: /.rockbox/rocks/demos/pictureflow/%x%x.pfraw
+0x0000B9D8	0x00000010	[  1] literal string: pictureflow.cfg
+0x0000B9E8	0x00000015	[  1] literal string: Album art is bad: %s
+0x0000BA00	0x00000014	[  1] literal string: Could not write bmp
+0x0000BA18	0x00000022	[  1] literal string: /.rockbox/rocks/demos/pictureflow
+0x0000BA40	0x0000003D	[  1] literal string: Could not create directory /.rockbox/rocks/demos/pictureflow
+0x0000BA80	0x00000038	[  1] literal string: /.rockbox/rocks/demos/pictureflow/pictureflow_album.idx
+0x0000BAB8	0x00000005	[  1] literal string: PFID
+0x0000BAC0	0x00000015	[  1] literal string: Failed to load index
+0x0000BAD8	0x00000014	[  1] literal string: 1/5 Find <Untagged>
+0x0000BAF0	0x00000010	[  1] literal string: 2/5 Find Albums
+0x0000BB00	0x00000016	[  1] literal string: 4/5 Remove Duplicates
+0x0000BB18	0x00000016	[  1] literal string: Could not write index
+0x0000BB30	0x00000022	[  1] literal string: Not enough memory for album names
+0x0000BB58	0x00000028	[  1] literal string: No albums found. Please enable database
+0x0000BB80	0x0000001F	[  1] literal string: Could not load the empty slide
+0x0000BBA0	0x00000033	[  1] literal string: /.rockbox/rocks/demos/pictureflow/emptyslide.pfraw
+0x0000BBD8	0x00000031	[  1] literal string: /.rockbox/rocks/demos/pictureflow_emptyslide.bmp
+0x0000BC10	0x00000014	[  1] literal string: 5/5 Prepare Artwork
+0x0000BC28	0x00000021	[  1] literal string: Could not create album art cache
+0x0000BC50	0x00000021	[  1] literal string: Unable to load empty slide image
+0x0000BC78	0x00000016	[  1] literal string: Cannot create thread!
+0x0000BC90	0x0000000B	[  1] literal string: Cover Flow
+0x0000BCA0	0x00000008	[  1] literal string: FPS: %d
+0x0000BCA8	0x00000006	[  1] literal string: %d %%
+0x0000BCB0	0x00000001	[  1] literal string: 
+0x0000BCB8	0x0000000F	[  1] literal string: Show Statusbar
+0x0000BCC8	0x0000000F	[  1] literal string: Scroll Speed %
+0x0000BCD8	0x00000013	[  1] literal string: Transition Speed %
+0x0000BCF0	0x0000000F	[  1] literal string: Text Crossfade
+0x0000BD00	0x00000017	[  1] literal string: Please enable database
+0x0000BD18	0x00000015	[  1] literal string: PictureFlow Settings
+0x0000BD30	0x0000000C	[  1] literal string: PictureFlow
+0x0000BD40	0x0000000E	[  1] literal string: slide spacing
+0x0000BD50	0x0000000E	[  1] literal string: center margin
+0x0000BD60	0x0000000B	[  1] literal string: slide tuck
+0x0000BD70	0x0000000D	[  1] literal string: slides count
+0x0000BD80	0x00000005	[  1] literal string: zoom
+0x0000BD88	0x00000009	[  1] literal string: show fps
+0x0000BD98	0x00000007	[  1] literal string: resize
+0x0000BDA0	0x0000000E	[  1] literal string: cache version
+0x0000BDB0	0x00000010	[  1] literal string: show album name
+0x0000BDC0	0x00000009	[  1] literal string: auto wps
+0x0000BDD0	0x0000000B	[  1] literal string: last album
+0x0000BDE0	0x0000000E	[  1] literal string: art cache pos
+0x0000BDF0	0x00000014	[  1] literal string: art cache inspected
+0x0000BE08	0x0000000F	[  1] literal string: sort albums by
+0x0000BE18	0x0000000B	[  1] literal string: year order
+0x0000BE28	0x0000000A	[  1] literal string: show year
+0x0000BE38	0x00000010	[  1] literal string: parallel slides
+0x0000BE48	0x0000000F	[  1] literal string: show statusbar
+0x0000BE58	0x00000010	[  1] literal string: update albumart
+0x0000BE68	0x0000000D	[  1] literal string: scroll speed
+0x0000BE78	0x00000011	[  1] literal string: transition speed
+0x0000BE90	0x0000000F	[  1] literal string: text crossfade
+0x0000BEA0	0x0000000A	[  1] literal string: ascending
+0x0000BEB0	0x0000000B	[  1] literal string: descending
+0x0000BEC0	0x0000000E	[  1] literal string: artist + name
+0x0000BED0	0x0000000E	[  1] literal string: artist + year
+0x0000BEE0	0x00000005	[  1] literal string: year
+0x0000BEE8	0x00000005	[  1] literal string: name
+0x0000BEF0	0x00000005	[  1] literal string: hide
+0x0000BEF8	0x00000007	[  1] literal string: bottom
+0x0000BF00	0x00000004	[  1] literal string: top
+0x0000BF08	0x00000009	[  1] literal string: both top
+0x0000BF18	0x0000000C	[  1] literal string: both bottom
+0x0000BF24	0x0000000A	[  6] literal string: /.rockbox
+0x0000BF2E	0x00000013	[  6] literal string: /.rockbox/rocks/%s
+0x0000BF41	0x00000014	[  6] literal string: file version: %10d\n
+0x0000BF55	0x0000000A	[  6] literal string: %s: %10d\n
+0x0000BF5F	0x00000008	[  6] literal string: %s: %s\n
+0x0000BF67	0x0000000D	[  6] literal string: file version
+0x0000BF74	0x00000007	[  7] literal string: Volume
+0x0000BF7B	0x00000008	[  7] literal string: Shuffle
+0x0000BF83	0x00000007	[  7] literal string: Repeat
+0x0000BF8A	0x00000026	[  8] literal string: !,-.:;?　、。！，．：；？―
+0x0000BFB0	0x00000005	[  9] literal string: .bmp
+0x0000BFB5	0x00000013	[ 10] literal string: Files: %d (%lu %s)
+0x0000BFC8	0x0000000A	[ 10] literal string: Audio: %d
+0x0000BFD2	0x00000010	[ 10] literal string: Directories: %d
+0x0000BFE2	0x0000000E	[ 10] literal string: Playlists: %d
+0x0000BFF0	0x0000000B	[ 10] literal string: Images: %d
+0x0000BFFB	0x0000000B	[ 10] literal string: Videos: %d
+0x0000C006	0x00000015	[ 10] literal string: Max files in Dir: %d
+0x0000C01B	0x0000000F	[ 10] literal string: open error: %s
+0x0000C02A	0x00000002	[ 10] literal string: .
+0x0000C02C	0x00000003	[ 10] literal string: ..
+0x0000C02F	0x00000004	[ 10] literal string: mpg
+0x0000C033	0x00000005	[ 10] literal string: mpeg
+0x0000C038	0x00000004	[ 10] literal string: mpv
+0x0000C03C	0x00000004	[ 10] literal string: m2v
+0x0000C040	0x00000004	[ 10] literal string: bmp
+0x0000C044	0x00000004	[ 10] literal string: jpg
+0x0000C048	0x00000004	[ 10] literal string: jpe
+0x0000C04C	0x00000005	[ 10] literal string: jpeg
+0x0000C051	0x00000004	[ 10] literal string: png
+0x0000C055	0x00000004	[ 10] literal string: ppm
+0x0000C060	0x00000018	[  1] _context_menu__.1
+0x0000C078	0x00000020	[  1] _sort_options.3
+0x0000C098	0x00000018	[  1] _display_menu__.5
+0x0000C0B0	0x00000030	[  1] _wps_options.9
+0x0000C0E0	0x00000020	[  1] _year_sort_order_options.10
+0x0000C100	0x00000050	[  1] _album_name_options.11
+0x0000C150	0x00000040	[  1] _sort_options.15
+0x0000C190	0x00000010	[  1] _scroll_tick_table.24
+0x0000C1A0	0x00000088	[  1] _sin_tab
+0x0000C228	0x00000010	[  1] _clz_lut
+0x0000C238	0x00000010	[  1] _pf_dither_table
+0x0000C248	0x0000003C	[  1] _pf_context_buttons
+0x0000C284	0x0000006C	[  1] _pf_context_album_scroll
+0x0000C2F0	0x00000008	[  1] lC3
+0x0000C2F8	0x00000008	[  1] lC5
+0x0000C300	0x00000008	[  1] lC22
+0x0000C308	0x00000008	[  1] lC43
+0x0000C310	0x00000010	[  1] 16-byte-literal
+0x0000C320	0x00000010	[  1] 16-byte-literal
+0x0000C330	0x00000010	[  1] 16-byte-literal
+0x0000C340	0x00000010	[  1] 16-byte-literal
+0x0000C350	0x000000D8	[  4] _pla_main_ctx
+0x0000C428	0x00000018	[  7] _playback_control_menu__
+0x0000C440	0x00000018	[  7] _repeat_mode_item_
+0x0000C458	0x00000018	[  7] _shuffle_item_
+0x0000C470	0x00000018	[  7] _volume_item_
+0x0000C488	0x00000018	[  7] _nexttrack_item_
+0x0000C4A0	0x00000018	[  7] _stop_item_
+0x0000C4B8	0x00000018	[  7] _playpause_item_
+0x0000C4D0	0x00000018	[  7] _prevtrack_item_
+0x0000C4E8	0x00000010	[ 10] _units
+0x0000C4F8	0x00000018	[  1] CFI
+0x0000C510	0x00000020	[  1] FDE for: _output_row_8_transposed
+0x0000C530	0x00000020	[  1] FDE for: _output_row_32_transposed
+0x0000C550	0x00000030	[  1] FDE for: _output_row_32_transposed_fromyuv
+0x0000C580	0x00000020	[  1] FDE for: _get_size
+0x0000C5A0	0x00000020	[  1] FDE for: _get_context_map
+0x0000C5C0	0x00000058	[  1] FDE for: _set_scroll_line
+0x0000C618	0x00000020	[  1] FDE for: _compare_albums
+0x0000C638	0x00000020	[  1] FDE for: _compare_album_artists
+0x0000C658	0x00000020	[  1] FDE for: _write_artist_entry
+0x0000C678	0x000000A8	[  1] FDE for: _id3_get_index
+0x0000C720	0x00000020	[  1] FDE for: _compare_tracks
+0x0000C740	0x00000048	[  1] FDE for: _draw_splashscreen
+0x0000C788	0x00000040	[  1] FDE for: _create_pf_thread
+0x0000C7C8	0x00000020	[  1] FDE for: _initialize_slide_cache
+0x0000C7E8	0x00000020	[  1] FDE for: _reset_slides
+0x0000C808	0x00000020	[  1] FDE for: _track_list_yh
+0x0000C828	0x00000048	[  1] FDE for: _error_wait
+0x0000C870	0x00000038	[  1] FDE for: _write_album_entry
+0x0000C8A8	0x00000040	[  1] FDE for: _end_pf_thread.part.0
+0x0000C8E8	0x00000038	[  1] FDE for: _cleanup
+0x0000C920	0x00000068	[  1] FDE for: _save_pfraw.constprop.0
+0x0000C988	0x00000078	[  1] FDE for: _get_albumart_for_index_from_db.constprop.0
+0x0000CA00	0x00000070	[  1] FDE for: _pf_current_playlist_insert
+0x0000CA70	0x000000C0	[  1] FDE for: _context_menu
+0x0000CB30	0x00000078	[  1] FDE for: _pf_add_to_playlist
+0x0000CBA8	0x00000020	[  1] FDE for: _recalc_offsets
+0x0000CBC8	0x00000020	[  1] FDE for: _get_slide_name
+0x0000CBE8	0x00000058	[  1] FDE for: _free_slide_prio
+0x0000CC40	0x00000058	[  1] FDE for: _track_buffer_avail
+0x0000CC98	0x000000C0	[  1] FDE for: _create_track_index
+0x0000CD58	0x00000098	[  1] FDE for: _read_pfraw
+0x0000CDF0	0x00000068	[  1] FDE for: _update_scroll_animation
+0x0000CE58	0x000000E8	[  1] FDE for: _render_slide
+0x0000CF40	0x000000C8	[  1] FDE for: _render_all_slides
+0x0000D008	0x00000088	[  1] FDE for: _draw_album_text.part.0
+0x0000D090	0x00000060	[  1] FDE for: _draw_progressbar
+0x0000D0F0	0x00000058	[  1] FDE for: _progress_cancel
+0x0000D148	0x00000070	[  1] FDE for: _get_tcs_search_res.constprop.0
+0x0000D1B8	0x000000B0	[  1] FDE for: _assign_album_year
+0x0000D268	0x00000060	[  1] FDE for: _load_and_prepare_surface
+0x0000D2C8	0x00000038	[  1] FDE for: _skip_animation_to_idle_state
+0x0000D300	0x00000048	[  1] FDE for: _set_initial_slide.part.0
+0x0000D348	0x00000040	[  1] FDE for: _select_prev_album.part.0
+0x0000D388	0x00000160	[  1] FDE for: _incremental_albumart_cache.isra.0
+0x0000D4E8	0x00000090	[  1] FDE for: _init
+0x0000D578	0x00000040	[  1] FDE for: _select_next_album
+0x0000D5B8	0x00000038	[  1] FDE for: _reselect
+0x0000D5F0	0x00000068	[  1] FDE for: _reinit
+0x0000D658	0x00000058	[  1] FDE for: _prompt_reinit
+0x0000D6B0	0x00000078	[  1] FDE for: _sort_albums
+0x0000D728	0x00000020	[  1] FDE for: _retrieve_id3
+0x0000D748	0x00000068	[  1] FDE for: _load_new_slide
+0x0000D7B0	0x00000088	[  1] FDE for: _thread
+0x0000D838	0x00000038	[  1] FDE for: _reset_track_list
+0x0000D870	0x00000050	[  1] FDE for: _track_list_ready
+0x0000D8C0	0x00000070	[  1] FDE for: _start_playback.isra.0
+0x0000D930	0x00000118	[  1] FDE for: _plugin_start
+0x0000DA48	0x00000018	[  2] CFI
+0x0000DA60	0x00000020	[  2] FDE for: _cleanup_wrapper
+0x0000DA80	0x00000040	[  2] FDE for: _plugin__start
+0x0000DAC0	0x00000020	[  2] FDE for: _rb_atexit
+0x0000DAE0	0x00000030	[  2] FDE for: _exit
+0x0000DB10	0x00000030	[  2] FDE for: __exit
+0x0000DB40	0x00000038	[  2] FDE for: _exit_on_usb
+0x0000DB78	0x00000018	[  3] CFI
+0x0000DB90	0x00000020	[  3] FDE for: _memcpy
+0x0000DBB0	0x00000020	[  3] FDE for: _memset
+0x0000DBD0	0x00000020	[  3] FDE for: _memmove
+0x0000DBF0	0x00000020	[  3] FDE for: _memcmp
+0x0000DC10	0x00000018	[  4] CFI
+0x0000DC28	0x00000020	[  4] FDE for: _get_context_map
+0x0000DC48	0x00000020	[  4] FDE for: _pluginlib_getaction
+0x0000DC68	0x00000018	[  5] CFI
+0x0000DC80	0x00000020	[  5] FDE for: _talk_val
+0x0000DCA0	0x00000040	[  5] FDE for: _backlight_force_on
+0x0000DCE0	0x00000050	[  5] FDE for: _backlight_ignore_timeout
+0x0000DD30	0x00000040	[  5] FDE for: _backlight_use_settings
+0x0000DD70	0x00000040	[  5] FDE for: _sw_poweroff_disable
+0x0000DDB0	0x00000020	[  5] FDE for: _sw_poweroff_restore
+0x0000DDD0	0x00000020	[  5] FDE for: _remote_backlight_force_on
+0x0000DDF0	0x00000020	[  5] FDE for: _remote_backlight_ignore_timeout
+0x0000DE10	0x00000020	[  5] FDE for: _remote_backlight_use_settings
+0x0000DE30	0x00000020	[  5] FDE for: _buttonlight_force_on
+0x0000DE50	0x00000020	[  5] FDE for: _buttonlight_force_off
+0x0000DE70	0x00000020	[  5] FDE for: _buttonlight_ignore_timeout
+0x0000DE90	0x00000020	[  5] FDE for: _buttonlight_use_settings
+0x0000DEB0	0x00000020	[  5] FDE for: _backlight_brightness_set
+0x0000DED0	0x00000020	[  5] FDE for: _backlight_brightness_use_setting
+0x0000DEF0	0x00000020	[  5] FDE for: _buttonlight_brightness_set
+0x0000DF10	0x00000020	[  5] FDE for: _buttonlight_brightness_use_setting
+0x0000DF30	0x00000018	[  6] CFI
+0x0000DF48	0x00000068	[  6] FDE for: _get_cfg_filename.constprop.0
+0x0000DFB0	0x00000070	[  6] FDE for: _configfile_save
+0x0000E020	0x00000068	[  6] FDE for: _configfile_load
+0x0000E088	0x00000058	[  6] FDE for: _configfile_get_value
+0x0000E0E0	0x00000070	[  6] FDE for: _configfile_update_entry
+0x0000E150	0x00000018	[  7] CFI
+0x0000E168	0x00000038	[  7] FDE for: _prevtrack
+0x0000E1A0	0x00000048	[  7] FDE for: _play
+0x0000E1E8	0x00000038	[  7] FDE for: _stop
+0x0000E220	0x00000038	[  7] FDE for: _nexttrack
+0x0000E258	0x00000040	[  7] FDE for: _volume
+0x0000E298	0x00000040	[  7] FDE for: _shuffle
+0x0000E2D8	0x00000040	[  7] FDE for: _repeat_mode
+0x0000E318	0x00000020	[  7] FDE for: _playback_control_init
+0x0000E338	0x00000038	[  7] FDE for: _playback_control
+0x0000E370	0x00000018	[  8] CFI
+0x0000E388	0x00000078	[  8] FDE for: _get_next_line
+0x0000E400	0x00000050	[  8] FDE for: _calc_first_line
+0x0000E450	0x00000070	[  8] FDE for: _draw_text
+0x0000E4C0	0x00000040	[  8] FDE for: _scroll_down
+0x0000E500	0x00000060	[  8] FDE for: _view_text
+0x0000E560	0x00000018	[  9] CFI
+0x0000E578	0x00000050	[  9] FDE for: _read_image_file
+0x0000E5C8	0x00000018	[ 10] CFI
+0x0000E5E0	0x00000020	[ 10] FDE for: _mfnv
+0x0000E600	0x00000040	[ 10] FDE for: _collect_id3
+0x0000E640	0x00000020	[ 10] FDE for: _finalize_id3
+0x0000E660	0x00000020	[ 10] FDE for: _human_size
+0x0000E680	0x00000068	[ 10] FDE for: _display_dir_stats
+0x0000E6E8	0x00000078	[ 10] FDE for: _collect_dir_stats
+0x00010000	0x00000008	[ 12] __DefaultRuneLocale.got
+0x00010008	0x00000008	[ 12] ___maskrune.got
+0x00010010	0x00000008	[ 12] _abs.got
+0x00010018	0x00000008	[ 13] _longjmp.got
+0x00010020	0x00000008	[ 13] _setjmp.got
+0x00010028	0x00000018	[  1] _context_menu.2
+0x00010040	0x00000018	[  1] _display_menu.6
+0x00010058	0x00000018	[  1] _settings_menu__.8
+0x00010070	0x00000018	[  1] _settings_menu.12
+0x00010088	0x00000018	[  1] _main_menu__.14
+0x000100A0	0x00000018	[  1] _main_menu.16
+0x000100B8	0x00000020	[  1] _format_transposed
+0x000100D8	0x00000038	[  2] ___header
+0x00010110	0x00000018	[  7] _playback_control_menu
+0x00010128	0x00000018	[  7] _repeat_mode_item
+0x00010140	0x00000008	[  7] _repeat_mode_item__
+0x00010148	0x00000018	[  7] _shuffle_item
+0x00010160	0x00000008	[  7] _shuffle_item__
+0x00010168	0x00000018	[  7] _volume_item
+0x00010180	0x00000008	[  7] _volume_item__
+0x00010188	0x00000018	[  7] _nexttrack_item
+0x000101A0	0x00000008	[  7] _nexttrack_item__
+0x000101A8	0x00000018	[  7] _stop_item
+0x000101C0	0x00000008	[  7] _stop_item__
+0x000101C8	0x00000018	[  7] _playpause_item
+0x000101E0	0x00000008	[  7] _playpause_item__
+0x000101E8	0x00000018	[  7] _prevtrack_item
+0x00010200	0x00000008	[  7] _prevtrack_item__
+0x00010208	0x00000020	[ 10] _video_exts
+0x00010228	0x00000030	[ 10] _image_exts
+0x00014000	0x00000018	[  1] _context_menu_.0
+0x00014018	0x00000050	[  1] _display_menu_.4
+0x00014068	0x00000028	[  1] _settings_menu_.7
+0x00014090	0x00000048	[  1] _main_menu_.13
+0x000140D8	0x00000004	[  1] _prev_albumtxt_index.18
+0x000140DC	0x00000004	[  1] _old_playlist
+0x000140E0	0x00000370	[  1] _config
+0x00014450	0x00000010	[  1] _year_sort_order_conf
+0x00014460	0x00000020	[  1] _sort_albums_by_conf
+0x00014480	0x00000028	[  1] _show_album_name_conf
+0x000144A8	0x00000010	[  1] _pf_contexts
+0x000144B8	0x00000001	[  5] _original_sw_poweroff_state
+0x000144C0	0x00000038	[  7] _playback_control_menu_
+0x000144F8	0x00000008	[  2] _rb
+0x00014500	0x00000004	[  1] _prev_show_year.17
+0x00014504	0x00000004	[  1] _y.19
+0x00014508	0x00000004	[  1] _txt_h.20
+0x0001450C	0x00000004	[  1] _txt_w.21
+0x00014510	0x00000228	[  1] _tcs_buf.22
+0x00014738	0x00000228	[  1] _tcs_buf.23
+0x00014960	0x00000001	[  1] _old_shuffle
+0x00014961	0x00000003	[  1] _insert_whole_album
+0x00014964	0x00000004	[  1] _pf_state
+0x00014968	0x00000048	[  1] _scroll_lines
+0x000149B0	0x00000020	[  1] _scroll_line_info
+0x000149D0	0x00000004	[  1] _extra_fade
+0x000149D4	0x00000004	[  1] _cover_animation_keyframe
+0x000149D8	0x00000008	[  1] _buf_ctx_locked
+0x000149E0	0x00000028	[  1] _buf_ctx_mutex
+0x00014A08	0x00000001	[  1] _wants_to_quit
+0x00014A09	0x00000007	[  1] _thread_is_running
+0x00014A10	0x00000B70	[  1] _id3
+0x00015580	0x00000050	[  1] _pf_tracks
+0x000155D0	0x00000058	[  1] _pf_idx
+0x00015628	0x00000030	[  1] _buf_ctx
+0x00015658	0x00000360	[  1] _tcs
+0x000159B8	0x00000008	[  1] _empty_slide_hid
+0x000159C0	0x000004C4	[  1] _pf_sldcache
+0x00015E84	0x00000004	[  1] _show_tracks_while_browsing
+0x00015E88	0x00000008	[  1] _number_of_slides
+0x00015E90	0x00000008	[  1] _offsetY
+0x00015E98	0x00000008	[  1] _auto_slide_spacing
+0x00015EA0	0x00000008	[  1] _offsetX
+0x00015EA8	0x00000004	[  1] _itilt
+0x00015EAC	0x00000004	[  1] _center_index
+0x00015EB0	0x00000004	[  1] _fade
+0x00015EB4	0x00000004	[  1] _target
+0x00015EB8	0x00000004	[  1] _step
+0x00015EBC	0x00000004	[  1] _slide_frame
+0x00015EC0	0x00000140	[  1] _right_slides
+0x00016000	0x00000140	[  1] _left_slides
+0x00016140	0x00000020	[  1] _center_slide
+0x00016160	0x00000020	[  1] _pf_framebuffer
+0x00016180	0x00000030	[  1] _pf_vp
+0x000161B0	0x00000004	[  1] _pf_vp_y
+0x000161B4	0x00000004	[  1] _pf_display_offs
+0x000161B8	0x00000004	[  1] _pf_reflect_height
+0x000161BC	0x00000004	[  1] _pf_lower_half
+0x000161C0	0x00000004	[  1] _pf_half_height
+0x000161C4	0x0000000C	[  1] _pf_height
+0x000161D0	0x00000050	[  1] _reflect_table
+0x00016220	0x00000010	[  1] _buffer
+0x00016230	0x00000040	[  1] _pf_cfg
+0x00016270	0x00000250	[  1] _aa_cache
+0x000164C0	0x00000004	[  1] _pf_bg_g
+0x000164C4	0x00000004	[  1] _pf_bg_rb
+0x000164C8	0x00000002	[  1] _pf_lst_color
+0x000164CA	0x00000002	[  1] _pf_lse_color
+0x000164CC	0x00000002	[  1] _pf_lss_color
+0x000164CE	0x00000002	[  1] _pf_fg_color
+0x000164D0	0x00000008	[  1] _pf_bg_color
+0x000164D8	0x00000008	[  1] _lcd_fb
+0x000164E0	0x00000008	[  2] _atexit_handler
+0x000164E8	0x000000C0	[  2] ___exit_env
+0x000165A8	0x00000004	[  4] _last_context
+0x000165AC	0x00000004	[  4] _plugin_context_count
+0x000165B0	0x00000008	[  4] _plugin_context_order
+0x000165B8	0x00000141	[  8] _output.0
+0x00016700	0x00000008	[ 10] _last_get_action.0
+0x00016708	0x00000008	[ 10] _id3_count.1
+0x00016710	0x00000008	[ 10] _last_displayed.2
+0x00016718	0x00000048	[ 10] _mul_id3
+0x00016760	0x00000128	[  1] _thread_q
+0x00016888	0x00000008	[  1] _thread_id
+0x00016890	0x00070200	[  1] _thread_stack
+0x00086A90	0x00000008	[  7] _parentvp

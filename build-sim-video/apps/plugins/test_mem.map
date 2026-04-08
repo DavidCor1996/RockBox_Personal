@@ -1,0 +1,66 @@
+# Path: /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/test_mem.elf
+# Arch: arm64
+# Object files:
+[  0] linker synthesized
+[  1] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/test_mem.o
+[  2] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/plugin_crt0.o
+[  3] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(gcc-support.o)
+[  4] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/libSystem.tbd
+[  5] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/system/libsystem_platform.tbd
+# Sections:
+# Address	Size    	Segment	Section
+0x00000730	0x00000568	__TEXT	__text
+0x00000C98	0x00000018	__TEXT	__stubs
+0x00000CB0	0x0000005F	__TEXT	__cstring
+0x00000D0F	0x0000001C	__TEXT	__const
+0x00000D30	0x000002B8	__TEXT	__eh_frame
+0x00004000	0x00000010	__DATA_CONST	__got
+0x00004010	0x00000038	__DATA_CONST	__const
+0x00008000	0x00000004	__DATA	__data
+0x00008008	0x00000008	__DATA	.data
+0x00008010	0x000200D0	__DATA	__bss
+# Symbols:
+# Address	Size    	File  Name
+0x00000730	0x00000208	[  1] _test.constprop.0
+0x00000938	0x000001C4	[  1] _plugin_start
+0x00000AFC	0x00000018	[  2] _cleanup_wrapper
+0x00000B14	0x00000068	[  2] _plugin__start
+0x00000B7C	0x00000020	[  2] _rb_atexit
+0x00000B9C	0x00000024	[  2] _exit
+0x00000BC0	0x00000014	[  2] __exit
+0x00000BD4	0x00000064	[  2] _exit_on_usb
+0x00000C38	0x00000018	[  3] _memcpy
+0x00000C50	0x00000018	[  3] _memset
+0x00000C68	0x00000018	[  3] _memmove
+0x00000C80	0x00000018	[  3] _memcmp
+0x00000C98	0x0000000C	[  5] _longjmp.stub
+0x00000CA4	0x0000000C	[  5] _setjmp.stub
+0x00000CB0	0x00000019	[  1] literal string: %s: %3d.%d MB/s (%3d ms)
+0x00000CC9	0x00000023	[  1] literal string: patience, may take some seconds...
+0x00000CEC	0x0000000A	[  1] literal string: loop#: %d
+0x00000CF6	0x00000019	[  1] literal string: DRAM cnt: %d size: %d MB
+0x00000D0F	0x0000001C	[  1] _tests
+0x00000D30	0x00000018	[  1] CFI
+0x00000D48	0x00000070	[  1] FDE for: _test.constprop.0
+0x00000DB8	0x00000068	[  1] FDE for: _plugin_start
+0x00000E20	0x00000018	[  2] CFI
+0x00000E38	0x00000020	[  2] FDE for: _cleanup_wrapper
+0x00000E58	0x00000040	[  2] FDE for: _plugin__start
+0x00000E98	0x00000020	[  2] FDE for: _rb_atexit
+0x00000EB8	0x00000030	[  2] FDE for: _exit
+0x00000EE8	0x00000030	[  2] FDE for: __exit
+0x00000F18	0x00000038	[  2] FDE for: _exit_on_usb
+0x00000F50	0x00000018	[  3] CFI
+0x00000F68	0x00000020	[  3] FDE for: _memcpy
+0x00000F88	0x00000020	[  3] FDE for: _memset
+0x00000FA8	0x00000020	[  3] FDE for: _memmove
+0x00000FC8	0x00000020	[  3] FDE for: _memcmp
+0x00004000	0x00000008	[  5] _longjmp.got
+0x00004008	0x00000008	[  5] _setjmp.got
+0x00004010	0x00000038	[  2] ___header
+0x00008000	0x00000004	[  1] _loop_repeat_dram
+0x00008008	0x00000008	[  2] _rb
+0x00008010	0x00000008	[  1] _line
+0x00008018	0x00020000	[  1] _buf_dram
+0x00028018	0x00000008	[  2] _atexit_handler
+0x00028020	0x000000C0	[  2] ___exit_env

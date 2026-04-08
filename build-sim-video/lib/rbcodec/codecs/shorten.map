@@ -1,0 +1,93 @@
+# Path: /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/shorten.elf
+# Arch: arm64
+# Object files:
+[  0] linker synthesized
+[  1] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/shorten.o
+[  2] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/codec_crt0.o
+[  3] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libffmpegFLAC.a(shndec.o)
+[  4] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+[  5] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/libSystem.tbd
+# Sections:
+# Address	Size    	Segment	Section
+0x000005F0	0x00001294	__TEXT	__text
+0x00001884	0x00000200	__TEXT	__const
+0x00001A88	0x000005C0	__TEXT	__eh_frame
+0x00004000	0x00000040	__DATA_CONST	__const
+0x00008000	0x00000008	__DATA	.data
+0x00008008	0x00009CB8	__DATA	__bss
+# Symbols:
+# Address	Size    	File  Name
+0x000005F0	0x000003A0	[  1] _codec_run
+0x00000990	0x00000058	[  1] _codec_main
+0x000009E8	0x00000008	[  2] __start
+0x000009F0	0x00000004	[  2] _codec_start
+0x000009F4	0x0000004C	[  3] _get_bits
+0x00000A40	0x0000002C	[  3] _init_get_bits
+0x00000A6C	0x0000002C	[  3] _get_bits_long.part.0.constprop.0
+0x00000A98	0x00000040	[  3] _bs_generic.constprop.0
+0x00000AD8	0x000001DC	[  3] _get_ur_golomb_jpegls.constprop.0
+0x00000CB4	0x0000002C	[  3] _get_uint
+0x00000CE0	0x00000020	[  3] _get_sr_golomb_shorten
+0x00000D00	0x000005EC	[  3] _shorten_decode_frames
+0x000012EC	0x00000334	[  3] _shorten_init
+0x00001620	0x00000040	[  4] _codec_init
+0x00001660	0x00000048	[  4] _codec_set_replaygain
+0x000016A8	0x00000048	[  4] _codec_malloc
+0x000016F0	0x0000004C	[  4] _codec_calloc
+0x0000173C	0x00000004	[  4] _codec_free
+0x00001740	0x00000054	[  4] _codec_realloc
+0x00001794	0x00000018	[  4] _codec_strlen
+0x000017AC	0x00000018	[  4] _strcpy
+0x000017C4	0x00000018	[  4] _strcat
+0x000017DC	0x00000018	[  4] _strcmp
+0x000017F4	0x00000018	[  4] _memcpy
+0x0000180C	0x00000018	[  4] _memset
+0x00001824	0x00000018	[  4] _memcmp
+0x0000183C	0x00000018	[  4] _memchr
+0x00001854	0x00000018	[  4] _memmove
+0x0000186C	0x00000018	[  4] _qsort
+0x00001884	0x00000100	[  4] _bs_clz_tab
+0x00001984	0x00000100	[  4] _bs_log2_tab
+0x00001A88	0x00000018	[  1] CFI
+0x00001AA0	0x00000068	[  1] FDE for: _codec_run
+0x00001B08	0x00000040	[  1] FDE for: _codec_main
+0x00001B48	0x00000018	[  2] CFI
+0x00001B60	0x00000020	[  2] FDE for: __start
+0x00001B80	0x00000020	[  2] FDE for: _codec_start
+0x00001BA0	0x00000018	[  3] CFI
+0x00001BB8	0x00000020	[  3] FDE for: _get_bits
+0x00001BD8	0x00000020	[  3] FDE for: _init_get_bits
+0x00001BF8	0x00000038	[  3] FDE for: _get_bits_long.part.0.constprop.0
+0x00001C30	0x00000020	[  3] FDE for: _bs_generic.constprop.0
+0x00001C50	0x00000040	[  3] FDE for: _get_ur_golomb_jpegls.constprop.0
+0x00001C90	0x00000038	[  3] FDE for: _get_uint
+0x00001CC8	0x00000038	[  3] FDE for: _get_sr_golomb_shorten
+0x00001D00	0x00000070	[  3] FDE for: _shorten_decode_frames
+0x00001D70	0x00000050	[  3] FDE for: _shorten_init
+0x00001DC0	0x00000018	[  4] CFI
+0x00001DD8	0x00000038	[  4] FDE for: _codec_init
+0x00001E10	0x00000038	[  4] FDE for: _codec_set_replaygain
+0x00001E48	0x00000020	[  4] FDE for: _codec_malloc
+0x00001E68	0x00000040	[  4] FDE for: _codec_calloc
+0x00001EA8	0x00000020	[  4] FDE for: _codec_free
+0x00001EC8	0x00000040	[  4] FDE for: _codec_realloc
+0x00001F08	0x00000020	[  4] FDE for: _codec_strlen
+0x00001F28	0x00000020	[  4] FDE for: _strcpy
+0x00001F48	0x00000020	[  4] FDE for: _strcat
+0x00001F68	0x00000020	[  4] FDE for: _strcmp
+0x00001F88	0x00000020	[  4] FDE for: _memcpy
+0x00001FA8	0x00000020	[  4] FDE for: _memset
+0x00001FC8	0x00000020	[  4] FDE for: _memcmp
+0x00001FE8	0x00000020	[  4] FDE for: _memchr
+0x00002008	0x00000020	[  4] FDE for: _memmove
+0x00002028	0x00000020	[  4] FDE for: _qsort
+0x00004000	0x00000040	[  1] ___header
+0x00008000	0x00000008	[  2] _ci
+0x00008008	0x00003400	[  1] _ibuf
+0x0000B408	0x00000010	[  1] _offset1
+0x0000B418	0x00000010	[  1] _offset0
+0x0000B428	0x00003440	[  1] _decoded1
+0x0000E868	0x00003440	[  1] _decoded0
+0x00011CA8	0x00000008	[  4] _mallocbuf
+0x00011CB0	0x00000008	[  4] _bufsize
+0x00011CB8	0x00000008	[  4] _mem_ptr

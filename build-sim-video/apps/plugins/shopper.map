@@ -1,0 +1,149 @@
+# Path: /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/shopper.elf
+# Arch: arm64
+# Object files:
+[  0] linker synthesized
+[  1] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/shopper.o
+[  2] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/plugin_crt0.o
+[  3] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(playback_control.o)
+[  4] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/libSystem.tbd
+[  5] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/system/libsystem_platform.tbd
+# Sections:
+# Address	Size    	Segment	Section
+0x00000778	0x00000E3C	__TEXT	__text
+0x000015B4	0x00000018	__TEXT	__stubs
+0x000015CC	0x00000148	__TEXT	__cstring
+0x00001718	0x000000C0	__TEXT	__const
+0x000017D8	0x00000558	__TEXT	__eh_frame
+0x00004000	0x00000010	__DATA_CONST	__got
+0x00004010	0x00000190	__DATA_CONST	__const
+0x00008000	0x000000C8	__DATA	__data
+0x000080C8	0x00000008	__DATA	.data
+0x000080D0	0x00005378	__DATA	__bss
+0x0000D448	0x00000008	__DATA	__common
+# Symbols:
+# Address	Size    	File  Name
+0x00000778	0x00000060	[  1] _list_get_name_cb
+0x000007D8	0x00000040	[  1] _list_get_icon_cb
+0x00000818	0x00000170	[  1] _create_view
+0x00000988	0x00000040	[  1] _update_category_string
+0x000009C8	0x00000298	[  1] _load_file
+0x00000C60	0x0000016C	[  1] _save_changes.isra.0
+0x00000DCC	0x00000428	[  1] _plugin_start
+0x000011F4	0x00000018	[  2] _cleanup_wrapper
+0x0000120C	0x00000068	[  2] _plugin__start
+0x00001274	0x00000020	[  2] _rb_atexit
+0x00001294	0x00000024	[  2] _exit
+0x000012B8	0x00000014	[  2] __exit
+0x000012CC	0x00000064	[  2] _exit_on_usb
+0x00001330	0x00000028	[  3] _prevtrack
+0x00001358	0x00000088	[  3] _play
+0x000013E0	0x00000028	[  3] _stop
+0x00001408	0x00000028	[  3] _nexttrack
+0x00001430	0x00000050	[  3] _volume
+0x00001480	0x00000054	[  3] _shuffle
+0x000014D4	0x0000008C	[  3] _repeat_mode
+0x00001560	0x0000000C	[  3] _playback_control_init
+0x0000156C	0x00000048	[  3] _playback_control
+0x000015B4	0x0000000C	[  5] _longjmp.stub
+0x000015C0	0x0000000C	[  5] _setjmp.stub
+0x000015CC	0x0000000D	[  1] literal string: Select items
+0x000015D9	0x0000000E	[  1] literal string: Shopping list
+0x000015E7	0x00000010	[  1] literal string: Hide categories
+0x000015F7	0x00000010	[  1] literal string: Show categories
+0x00001607	0x00000017	[  1] literal string: Couldn't open file: %s
+0x0000161E	0x00000002	[  1] literal string: $
+0x00001620	0x00000002	[  1] literal string:  
+0x00001622	0x00000002	[  1] literal string: !
+0x00001624	0x00000002	[  1] literal string: #
+0x00001626	0x00000025	[  1] literal string: Truncating shopping list to %d items
+0x0000164B	0x00000012	[  1] literal string: Changes NOT saved
+0x0000165D	0x00000005	[  1] literal string: #%s\n
+0x00001662	0x00000005	[  1] literal string: !%s\n
+0x00001667	0x00000005	[  1] literal string:  %s\n
+0x0000166C	0x00000007	[  1] literal string: $%d%d\n
+0x00001673	0x00000013	[  1] literal string: View shopping list
+0x00001686	0x00000010	[  1] literal string: Clear all items
+0x00001696	0x0000000F	[  1] literal string: Mark all items
+0x000016A5	0x00000010	[  1] literal string: Revert to saved
+0x000016B5	0x00000013	[  1] literal string: Show Playback Menu
+0x000016C8	0x00000014	[  1] literal string: Quit without saving
+0x000016DC	0x00000005	[  1] literal string: Quit
+0x000016E1	0x00000008	[  1] literal string: Options
+0x000016E9	0x0000000A	[  1] literal string: Edit list
+0x000016F3	0x0000000B	[  1] literal string: Reset list
+0x000016FE	0x00000007	[  3] literal string: Volume
+0x00001705	0x00000008	[  3] literal string: Shuffle
+0x0000170D	0x00000007	[  3] literal string: Repeat
+0x00001718	0x00000018	[  3] _playback_control_menu__
+0x00001730	0x00000018	[  3] _repeat_mode_item_
+0x00001748	0x00000018	[  3] _shuffle_item_
+0x00001760	0x00000018	[  3] _volume_item_
+0x00001778	0x00000018	[  3] _nexttrack_item_
+0x00001790	0x00000018	[  3] _stop_item_
+0x000017A8	0x00000018	[  3] _playpause_item_
+0x000017C0	0x00000018	[  3] _prevtrack_item_
+0x000017D8	0x00000018	[  1] CFI
+0x000017F0	0x00000040	[  1] FDE for: _list_get_name_cb
+0x00001830	0x00000020	[  1] FDE for: _list_get_icon_cb
+0x00001850	0x00000020	[  1] FDE for: _create_view
+0x00001870	0x00000020	[  1] FDE for: _update_category_string
+0x00001890	0x00000070	[  1] FDE for: _load_file
+0x00001900	0x00000080	[  1] FDE for: _save_changes.isra.0
+0x00001980	0x00000060	[  1] FDE for: _plugin_start
+0x000019E0	0x00000018	[  2] CFI
+0x000019F8	0x00000020	[  2] FDE for: _cleanup_wrapper
+0x00001A18	0x00000040	[  2] FDE for: _plugin__start
+0x00001A58	0x00000020	[  2] FDE for: _rb_atexit
+0x00001A78	0x00000030	[  2] FDE for: _exit
+0x00001AA8	0x00000030	[  2] FDE for: __exit
+0x00001AD8	0x00000038	[  2] FDE for: _exit_on_usb
+0x00001B10	0x00000018	[  3] CFI
+0x00001B28	0x00000038	[  3] FDE for: _prevtrack
+0x00001B60	0x00000048	[  3] FDE for: _play
+0x00001BA8	0x00000038	[  3] FDE for: _stop
+0x00001BE0	0x00000038	[  3] FDE for: _nexttrack
+0x00001C18	0x00000040	[  3] FDE for: _volume
+0x00001C58	0x00000040	[  3] FDE for: _shuffle
+0x00001C98	0x00000040	[  3] FDE for: _repeat_mode
+0x00001CD8	0x00000020	[  3] FDE for: _playback_control_init
+0x00001CF8	0x00000038	[  3] FDE for: _playback_control
+0x00004000	0x00000008	[  5] _longjmp.got
+0x00004008	0x00000008	[  5] _setjmp.got
+0x00004010	0x00000018	[  1] _menu__.4
+0x00004028	0x00000018	[  1] _menu__.6
+0x00004040	0x00000018	[  1] _menu.7
+0x00004058	0x00000018	[  1] _menu.8
+0x00004070	0x00000038	[  2] ___header
+0x000040A8	0x00000018	[  3] _playback_control_menu
+0x000040C0	0x00000018	[  3] _repeat_mode_item
+0x000040D8	0x00000008	[  3] _repeat_mode_item__
+0x000040E0	0x00000018	[  3] _shuffle_item
+0x000040F8	0x00000008	[  3] _shuffle_item__
+0x00004100	0x00000018	[  3] _volume_item
+0x00004118	0x00000008	[  3] _volume_item__
+0x00004120	0x00000018	[  3] _nexttrack_item
+0x00004138	0x00000008	[  3] _nexttrack_item__
+0x00004140	0x00000018	[  3] _stop_item
+0x00004158	0x00000008	[  3] _stop_item__
+0x00004160	0x00000018	[  3] _playpause_item
+0x00004178	0x00000008	[  3] _playpause_item__
+0x00004180	0x00000018	[  3] _prevtrack_item
+0x00004198	0x00000008	[  3] _prevtrack_item__
+0x00008000	0x00000040	[  1] _menu_.3
+0x00008040	0x00000038	[  1] _menu_.5
+0x00008078	0x00000010	[  1] _category_string
+0x00008088	0x00000001	[  1] _show_categories
+0x00008090	0x00000038	[  3] _playback_control_menu_
+0x000080C8	0x00000008	[  2] _rb
+0x000080D0	0x00000030	[  1] _new_item.0
+0x00008100	0x00000028	[  1] _temp_line.2
+0x00008128	0x00000001	[  1] _changed
+0x00008129	0x00000107	[  1] _filename
+0x00008230	0x00000004	[  1] _view
+0x00008234	0x00000004	[  1] _view_item_count
+0x00008238	0x00000640	[  1] _view_id_list
+0x00008878	0x00000004	[  1] _total_item_count
+0x0000887C	0x00004B00	[  1] _items_list
+0x0000D380	0x00000008	[  2] _atexit_handler
+0x0000D388	0x000000C0	[  2] ___exit_env
+0x0000D448	0x00000008	[  3] _parentvp

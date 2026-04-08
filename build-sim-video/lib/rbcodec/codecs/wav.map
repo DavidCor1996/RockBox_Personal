@@ -1,0 +1,287 @@
+# Path: /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/wav.elf
+# Arch: arm64
+# Object files:
+[  0] linker synthesized
+[  1] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/wav.o
+[  2] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/codec_crt0.o
+[  3] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libpcm.a(linear_pcm.o)
+[  4] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libpcm.a(itut_g711.o)
+[  5] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libpcm.a(dvi_adpcm.o)
+[  6] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libpcm.a(ieee_float.o)
+[  7] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libpcm.a(adpcm_seek.o)
+[  8] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libpcm.a(dialogic_oki_adpcm.o)
+[  9] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libpcm.a(ms_adpcm.o)
+[ 10] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libpcm.a(yamaha_adpcm.o)
+[ 11] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libpcm.a(ima_adpcm_common.o)
+[ 12] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libpcm.a(swf_adpcm.o)
+[ 13] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+[ 14] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/libSystem.tbd
+# Sections:
+# Address	Size    	Segment	Section
+0x00000690	0x00003020	__TEXT	__text
+0x000036B0	0x0000065B	__TEXT	__cstring
+0x00003D0C	0x000008A8	__TEXT	__const
+0x000045B8	0x00000DD0	__TEXT	__eh_frame
+0x00008000	0x000001D0	__DATA_CONST	__const
+0x0000C000	0x00000008	__DATA	.data
+0x0000C008	0x00000020	__DATA	__data
+0x0000C028	0x0000A878	__DATA	__bss
+# Symbols:
+# Address	Size    	File  Name
+0x00000690	0x00000084	[  1] _read_buffer
+0x00000714	0x000007E0	[  1] _codec_run
+0x00000EF4	0x0000003C	[  1] _codec_main
+0x00000F30	0x00000008	[  2] __start
+0x00000F38	0x00000004	[  2] _codec_start
+0x00000F3C	0x000000BC	[  3] _set_format
+0x00000FF8	0x00000060	[  3] _get_seek_pos
+0x00001058	0x00000390	[  3] _decode
+0x000013E8	0x0000000C	[  3] _get_linear_pcm_codec
+0x000013F4	0x000000B4	[  4] _set_format
+0x000014A8	0x00000060	[  4] _get_seek_pos
+0x00001508	0x00000054	[  4] _decode_alaw
+0x0000155C	0x00000054	[  4] _decode_mulaw
+0x000015B0	0x0000000C	[  4] _get_itut_g711_alaw_codec
+0x000015BC	0x0000000C	[  4] _get_itut_g711_mulaw_codec
+0x000015C8	0x00000060	[  5] _get_seek_pos
+0x00001628	0x000006C4	[  5] _decode
+0x00001CEC	0x00000074	[  5] _set_format
+0x00001D60	0x0000000C	[  5] _get_dvi_adpcm_codec
+0x00001D6C	0x000000D0	[  6] _set_format
+0x00001E3C	0x00000060	[  6] _get_seek_pos
+0x00001E9C	0x0000023C	[  6] _decode
+0x000020D8	0x0000000C	[  6] _get_ieee_float_codec
+0x000020E4	0x00000058	[  7] _init_seek_table
+0x0000213C	0x00000098	[  7] _add_adpcm_data
+0x000021D4	0x000000E8	[  7] _seek
+0x000022BC	0x000000C8	[  8] _create_pcmdata
+0x00002384	0x0000006C	[  8] _decode
+0x000023F0	0x00000048	[  8] _decode_for_seek
+0x00002438	0x000000A8	[  8] _get_seek_pos
+0x000024E0	0x000000D0	[  8] _set_format
+0x000025B0	0x0000001C	[  8] _get_dialogic_oki_adpcm_codec
+0x000025CC	0x00000060	[  9] _set_format
+0x0000262C	0x00000060	[  9] _get_seek_pos
+0x0000268C	0x000000A8	[  9] _create_pcmdata
+0x00002734	0x00000194	[  9] _decode
+0x000028C8	0x0000000C	[  9] _get_ms_adpcm_codec
+0x000028D4	0x000000A4	[ 10] _create_pcmdata
+0x00002978	0x000000E8	[ 10] _decode
+0x00002A60	0x00000060	[ 10] _decode_for_seek
+0x00002AC0	0x000000B8	[ 10] _get_seek_pos
+0x00002B78	0x0000010C	[ 10] _set_format
+0x00002C84	0x00000020	[ 10] _get_yamaha_adpcm_codec
+0x00002CA4	0x0000004C	[ 11] _init_ima_adpcm_decoder
+0x00002CF0	0x00000044	[ 11] _set_decode_parameters
+0x00002D34	0x000000E8	[ 11] _create_pcmdata
+0x00002E1C	0x000000C0	[ 11] _create_pcmdata_size4
+0x00002EDC	0x000000D4	[ 12] _get_seek_pos
+0x00002FB0	0x0000007C	[ 12] _get_data
+0x0000302C	0x00000320	[ 12] _decode
+0x0000334C	0x000000D8	[ 12] _set_format
+0x00003424	0x00000028	[ 12] _get_swf_adpcm_codec
+0x0000344C	0x00000040	[ 13] _codec_init
+0x0000348C	0x00000048	[ 13] _codec_set_replaygain
+0x000034D4	0x00000048	[ 13] _codec_malloc
+0x0000351C	0x0000004C	[ 13] _codec_calloc
+0x00003568	0x00000004	[ 13] _codec_free
+0x0000356C	0x00000054	[ 13] _codec_realloc
+0x000035C0	0x00000018	[ 13] _codec_strlen
+0x000035D8	0x00000018	[ 13] _strcpy
+0x000035F0	0x00000018	[ 13] _strcat
+0x00003608	0x00000018	[ 13] _strcmp
+0x00003620	0x00000018	[ 13] _memcpy
+0x00003638	0x00000018	[ 13] _memset
+0x00003650	0x00000018	[ 13] _memcmp
+0x00003668	0x00000018	[ 13] _memchr
+0x00003680	0x00000018	[ 13] _memmove
+0x00003698	0x00000018	[ 13] _qsort
+0x000036B0	0x00000014	[  1] literal string: codec_init() error\n
+0x000036C4	0x00000016	[  1] literal string: request_buffer error\n
+0x000036DA	0x00000005	[  1] literal string: RIFF
+0x000036DF	0x00000022	[  1] literal string: CODEC_ERROR: missing riff header\n
+0x00003701	0x00000005	[  1] literal string: WAVE
+0x00003706	0x00000021	[  1] literal string: data chunk request_buffer error\n
+0x00003727	0x00000005	[  1] literal string: fmt 
+0x0000372C	0x00000029	[  1] literal string: CODEC_ERROR: 'fmt ' chunk size=%lu < 16\n
+0x00003755	0x0000005D	[  1] literal string: CODEC_WARNING: non-PCM WAVE (formattag=0x%x) doesn't have ext. fmt descr (chunksize=%d<18).\n
+0x000037B2	0x0000003A	[  1] literal string: CODEC_ERROR: WAVE_FORMAT_EXTENSIBLE is missing extension\n
+0x000037EC	0x00000039	[  1] literal string: CODEC_ERROR: microsoft adpcm 'fmt ' chunk size=%lu < 50\n
+0x00003825	0x0000002F	[  1] literal string: CODEC_ERROR: microsoft adpcm nNumCoef=%d != 7\n
+0x00003854	0x0000002B	[  1] literal string: CODEC_ERROR: unsupported wave format 0x%x\n
+0x0000387F	0x00000005	[  1] literal string: data
+0x00003884	0x00000005	[  1] literal string: fact
+0x00003889	0x0000002A	[  1] literal string: unknown WAVE chunk: '%c%c%c%c', size=%lu\n
+0x000038B3	0x00000025	[  1] literal string: CODEC_ERROR: 'fmt ' chunk not found\n
+0x000038D8	0x00000038	[  1] literal string: CODEC_ERROR: 'fmt ' chunk not found or 0-channels file\n
+0x00003910	0x00000040	[  1] literal string: CODEC_ERROR: 'fmt ' chunk not found or 0-wSamplesPerBlock file\n
+0x00003950	0x0000003A	[  1] literal string: CODEC_ERROR: 'fmt ' chunk not found or 0-blockalign file\n
+0x0000398A	0x00000038	[  1] literal string: CODEC_ERROR: 'data' chunk not found or has zero-length\n
+0x000039C2	0x0000001D	[  1] literal string: CODEC_ERROR: chunksize is 0\n
+0x000039DF	0x00000023	[  1] literal string: CODEC_ERROR: more than 2 channels\n
+0x00003A02	0x0000000D	[  1] literal string: codec error\n
+0x00003A0F	0x0000001C	[  3] literal string: CODEC_ERROR: channels is 0\n
+0x00003A2B	0x00000021	[  3] literal string: CODEC_ERROR: bitspersample is 0\n
+0x00003A4C	0x00000041	[  3] literal string: CODEC_ERROR: pcm with more than 32 bitspersample is unsupported\n
+0x00003A8D	0x0000003B	[  4] literal string: CODEC_ERROR: alaw and mulaw must have 8 bitspersample: %d\n
+0x00003AC8	0x00000033	[  5] literal string: CODEC_ERROR: dvi adpcm illegal step index=%d > 88\n
+0x00003AFB	0x0000003F	[  5] literal string: CODEC_ERROR: dvi adpcm must be 2, 3, 4 or 5 bitspersample: %d\n
+0x00003B3A	0x0000003C	[  6] literal string: CODEC_ERROR: ieee float must be 32 or 64 bitspersample: %d\n
+0x00003B76	0x0000003D	[  8] literal string: CODEC_ERROR: dialogic oki adpcm must be 4 bitspersample: %d\n
+0x00003BB3	0x00000032	[  8] literal string: CODEC_ERROR: dialogic oki adpcm must be monaural\n
+0x00003BE5	0x0000003A	[  9] literal string: CODEC_ERROR: microsoft adpcm must be 4 bitspersample: %d\n
+0x00003C1F	0x0000003B	[  9] literal string: CODEC_ERROR: microsoft adpcm illegal initial coeff=%d > 7\n
+0x00003C5A	0x00000037	[ 10] literal string: CODEC_ERROR: yamaha adpcm must be 4 bitspersample: %d\n
+0x00003C91	0x0000003B	[ 12] literal string: CODEC_ERROR: swf adpcm different adpcm code size=%d != %d\n
+0x00003CCC	0x0000003F	[ 12] literal string: CODEC_ERROR: swf adpcm must be 2, 3, 4 or 5 bitspersample: %d\n
+0x00003D0C	0x00000200	[  4] _ulaw2linear16
+0x00003F0C	0x00000200	[  4] _alaw2linear16
+0x0000410C	0x00000020	[  8] _index_table
+0x0000412C	0x00000062	[  8] _step_table
+0x0000418E	0x00000020	[  9] _adaptation_table
+0x000041B0	0x00000040	[ 10] _amplification_table
+0x000041F0	0x00000100	[ 11] _index_tables
+0x000042F0	0x000000B2	[ 11] _step_table
+0x000043A4	0x00000010	[ 12] _index_table
+0x000043B4	0x00000100	[ 13] _bs_clz_tab
+0x000044B4	0x00000100	[ 13] _bs_log2_tab
+0x000045B8	0x00000018	[  1] CFI
+0x000045D0	0x00000050	[  1] FDE for: _read_buffer
+0x00004620	0x00000070	[  1] FDE for: _codec_run
+0x00004690	0x00000038	[  1] FDE for: _codec_main
+0x000046C8	0x00000018	[  2] CFI
+0x000046E0	0x00000020	[  2] FDE for: __start
+0x00004700	0x00000020	[  2] FDE for: _codec_start
+0x00004720	0x00000018	[  3] CFI
+0x00004738	0x00000040	[  3] FDE for: _set_format
+0x00004778	0x00000020	[  3] FDE for: _get_seek_pos
+0x00004798	0x00000020	[  3] FDE for: _decode
+0x000047B8	0x00000020	[  3] FDE for: _get_linear_pcm_codec
+0x000047D8	0x00000018	[  4] CFI
+0x000047F0	0x00000048	[  4] FDE for: _set_format
+0x00004838	0x00000020	[  4] FDE for: _get_seek_pos
+0x00004858	0x00000020	[  4] FDE for: _decode_alaw
+0x00004878	0x00000020	[  4] FDE for: _decode_mulaw
+0x00004898	0x00000020	[  4] FDE for: _get_itut_g711_alaw_codec
+0x000048B8	0x00000020	[  4] FDE for: _get_itut_g711_mulaw_codec
+0x000048D8	0x00000018	[  5] CFI
+0x000048F0	0x00000020	[  5] FDE for: _get_seek_pos
+0x00004910	0x00000078	[  5] FDE for: _decode
+0x00004988	0x00000048	[  5] FDE for: _set_format
+0x000049D0	0x00000020	[  5] FDE for: _get_dvi_adpcm_codec
+0x000049F0	0x00000018	[  6] CFI
+0x00004A08	0x00000048	[  6] FDE for: _set_format
+0x00004A50	0x00000020	[  6] FDE for: _get_seek_pos
+0x00004A70	0x00000020	[  6] FDE for: _decode
+0x00004A90	0x00000020	[  6] FDE for: _get_ieee_float_codec
+0x00004AB0	0x00000018	[  7] CFI
+0x00004AC8	0x00000020	[  7] FDE for: _init_seek_table
+0x00004AE8	0x00000020	[  7] FDE for: _add_adpcm_data
+0x00004B08	0x00000060	[  7] FDE for: _seek
+0x00004B68	0x00000018	[  8] CFI
+0x00004B80	0x00000020	[  8] FDE for: _create_pcmdata
+0x00004BA0	0x00000040	[  8] FDE for: _decode
+0x00004BE0	0x00000040	[  8] FDE for: _decode_for_seek
+0x00004C20	0x00000048	[  8] FDE for: _get_seek_pos
+0x00004C68	0x00000050	[  8] FDE for: _set_format
+0x00004CB8	0x00000020	[  8] FDE for: _get_dialogic_oki_adpcm_codec
+0x00004CD8	0x00000018	[  9] CFI
+0x00004CF0	0x00000040	[  9] FDE for: _set_format
+0x00004D30	0x00000020	[  9] FDE for: _get_seek_pos
+0x00004D50	0x00000020	[  9] FDE for: _create_pcmdata
+0x00004D70	0x00000050	[  9] FDE for: _decode
+0x00004DC0	0x00000020	[  9] FDE for: _get_ms_adpcm_codec
+0x00004DE0	0x00000018	[ 10] CFI
+0x00004DF8	0x00000020	[ 10] FDE for: _create_pcmdata
+0x00004E18	0x00000040	[ 10] FDE for: _decode
+0x00004E58	0x00000040	[ 10] FDE for: _decode_for_seek
+0x00004E98	0x00000048	[ 10] FDE for: _get_seek_pos
+0x00004EE0	0x00000048	[ 10] FDE for: _set_format
+0x00004F28	0x00000020	[ 10] FDE for: _get_yamaha_adpcm_codec
+0x00004F48	0x00000018	[ 11] CFI
+0x00004F60	0x00000020	[ 11] FDE for: _init_ima_adpcm_decoder
+0x00004F80	0x00000020	[ 11] FDE for: _set_decode_parameters
+0x00004FA0	0x00000020	[ 11] FDE for: _create_pcmdata
+0x00004FC0	0x00000020	[ 11] FDE for: _create_pcmdata_size4
+0x00004FE0	0x00000018	[ 12] CFI
+0x00004FF8	0x00000020	[ 12] FDE for: _get_seek_pos
+0x00005018	0x00000020	[ 12] FDE for: _get_data
+0x00005038	0x00000060	[ 12] FDE for: _decode
+0x00005098	0x00000048	[ 12] FDE for: _set_format
+0x000050E0	0x00000020	[ 12] FDE for: _get_swf_adpcm_codec
+0x00005100	0x00000018	[ 13] CFI
+0x00005118	0x00000038	[ 13] FDE for: _codec_init
+0x00005150	0x00000038	[ 13] FDE for: _codec_set_replaygain
+0x00005188	0x00000020	[ 13] FDE for: _codec_malloc
+0x000051A8	0x00000040	[ 13] FDE for: _codec_calloc
+0x000051E8	0x00000020	[ 13] FDE for: _codec_free
+0x00005208	0x00000040	[ 13] FDE for: _codec_realloc
+0x00005248	0x00000020	[ 13] FDE for: _codec_strlen
+0x00005268	0x00000020	[ 13] FDE for: _strcpy
+0x00005288	0x00000020	[ 13] FDE for: _strcat
+0x000052A8	0x00000020	[ 13] FDE for: _strcmp
+0x000052C8	0x00000020	[ 13] FDE for: _memcpy
+0x000052E8	0x00000020	[ 13] FDE for: _memset
+0x00005308	0x00000020	[ 13] FDE for: _memcmp
+0x00005328	0x00000020	[ 13] FDE for: _memchr
+0x00005348	0x00000020	[ 13] FDE for: _memmove
+0x00005368	0x00000020	[ 13] FDE for: _qsort
+0x00008000	0x000000D0	[  1] _wave_codecs
+0x000080D0	0x00000040	[  1] ___header
+0x00008110	0x00000018	[  3] _codec
+0x00008128	0x00000018	[  4] _mulaw_codec
+0x00008140	0x00000018	[  4] _alaw_codec
+0x00008158	0x00000018	[  5] _codec
+0x00008170	0x00000018	[  6] _codec
+0x00008188	0x00000018	[  8] _codec
+0x000081A0	0x00000018	[  9] _codec
+0x000081B8	0x00000018	[ 12] _codec
+0x0000C000	0x00000008	[  2] _ci
+0x0000C008	0x00000018	[ 10] _codec
+0x0000C020	0x00000004	[ 12] _first_block
+0x0000C024	0x00000004	[ 12] _validity_bits
+0x0000C028	0x00000008	[  1] _bytesdone
+0x0000C030	0x00000050	[  1] _format
+0x0000C080	0x00008000	[  1] _samples
+0x00014080	0x00000008	[  3] _newpos.0
+0x00014088	0x00000008	[  3] _fmt
+0x00014090	0x00000008	[  4] _newpos.0
+0x00014098	0x00000008	[  4] _fmt
+0x000140A0	0x00000008	[  5] _newpos.0
+0x000140A8	0x00000008	[  5] _fmt
+0x000140B0	0x00000008	[  6] _newpos.0
+0x000140B8	0x00000008	[  6] _fmt
+0x000140C0	0x00000004	[  7] _cur_ratio
+0x000140C4	0x00000004	[  7] _max_ratio
+0x000140C8	0x00000004	[  7] _cur_count
+0x000140CC	0x00000004	[  7] _seek_count
+0x000140D0	0x00002710	[  7] _seek_table
+0x000167E0	0x00000008	[  8] _newpos.0
+0x000167E8	0x00000008	[  8] _fmt
+0x000167F0	0x00000004	[  8] _blocksperchunk
+0x000167F4	0x0000000A	[  8] _cur_data
+0x00016800	0x00000008	[  9] _newpos.0
+0x00016808	0x00000008	[  9] _fmt
+0x00016810	0x00000008	[  9] _sample
+0x00016818	0x00000004	[  9] _delta
+0x0001681C	0x00000008	[  9] _dec_coeff
+0x00016828	0x00000008	[ 10] _newpos.0
+0x00016830	0x00000008	[ 10] _fmt
+0x00016838	0x00000004	[ 10] _blocksperchunk
+0x0001683C	0x0000000A	[ 10] _cur_data
+0x00016846	0x00000001	[ 10] _has_block_header
+0x00016848	0x00000008	[ 11] _use_index_table
+0x00016850	0x00000001	[ 11] _step_shift
+0x00016851	0x00000001	[ 11] _step_sign_mask
+0x00016852	0x00000001	[ 11] _step_mask
+0x00016853	0x00000005	[ 11] _indices
+0x00016858	0x00000008	[ 11] _pcmdata
+0x00016860	0x00000008	[ 12] _newpos.0
+0x00016868	0x00000008	[ 12] _lastbyte.1
+0x00016870	0x00000008	[ 12] _fmt
+0x00016878	0x00000004	[ 12] _after_seek
+0x0001687C	0x00000004	[ 12] _lastbytebits
+0x00016880	0x00000004	[ 12] _blockbits
+0x00016888	0x00000008	[ 13] _mallocbuf
+0x00016890	0x00000008	[ 13] _bufsize
+0x00016898	0x00000008	[ 13] _mem_ptr

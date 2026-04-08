@@ -1,0 +1,124 @@
+# Path: /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/adx.elf
+# Arch: arm64
+# Object files:
+[  0] linker synthesized
+[  1] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/adx.o
+[  2] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/codec_crt0.o
+[  3] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+[  4] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/libfixedpoint.a(fixedpoint.o)
+[  5] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/libSystem.tbd
+[  6] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/system/libsystem_c.tbd
+# Sections:
+# Address	Size    	Segment	Section
+0x000006E0	0x000012E0	__TEXT	__text
+0x000019C0	0x0000000C	__TEXT	__stubs
+0x000019CC	0x000001E1	__TEXT	__cstring
+0x00001BB0	0x000003C0	__TEXT	__const
+0x00001F70	0x00000578	__TEXT	__eh_frame
+0x00004000	0x00000008	__DATA_CONST	__got
+0x00004008	0x00000040	__DATA_CONST	__const
+0x00008000	0x00000008	__DATA	.data
+0x00008008	0x00001018	__DATA	__bss
+# Symbols:
+# Address	Size    	File  Name
+0x000006E0	0x00000990	[  1] _codec_run
+0x00001070	0x0000003C	[  1] _codec_main
+0x000010AC	0x00000008	[  2] __start
+0x000010B4	0x00000004	[  2] _codec_start
+0x000010B8	0x00000040	[  3] _codec_init
+0x000010F8	0x00000048	[  3] _codec_set_replaygain
+0x00001140	0x00000048	[  3] _codec_malloc
+0x00001188	0x0000004C	[  3] _codec_calloc
+0x000011D4	0x00000004	[  3] _codec_free
+0x000011D8	0x00000054	[  3] _codec_realloc
+0x0000122C	0x00000018	[  3] _codec_strlen
+0x00001244	0x00000018	[  3] _strcpy
+0x0000125C	0x00000018	[  3] _strcat
+0x00001274	0x00000018	[  3] _strcmp
+0x0000128C	0x00000018	[  3] _memcpy
+0x000012A4	0x00000018	[  3] _memset
+0x000012BC	0x00000018	[  3] _memcmp
+0x000012D4	0x00000018	[  3] _memchr
+0x000012EC	0x00000018	[  3] _memmove
+0x00001304	0x00000018	[  3] _qsort
+0x0000131C	0x000000B0	[  4] _fp_sincos
+0x000013CC	0x000000B4	[  4] _fp_sqrt
+0x00001480	0x0000003C	[  4] _ipow
+0x000014BC	0x00000060	[  4] _fp14_sin
+0x0000151C	0x00000064	[  4] _fp14_cos
+0x00001580	0x00000110	[  4] _fp16_log
+0x00001690	0x000000F8	[  4] _fp16_exp
+0x00001788	0x00000154	[  4] _fp_exp10
+0x000018DC	0x000000AC	[  4] _fp_log10
+0x00001988	0x00000024	[  4] _fp_decibels
+0x000019AC	0x00000014	[  4] _fp_factor
+0x000019C0	0x0000000C	[  6] _abs.stub
+0x000019CC	0x00000011	[  1] literal string: ADX: next_track\n
+0x000019DD	0x00000011	[  1] literal string: ADX: after init\n
+0x000019EE	0x0000001D	[  1] literal string: ADX: request initial buffer\n
+0x00001A0B	0x00000016	[  1] literal string: ADX: read size = %lx\n
+0x00001A21	0x00000014	[  1] literal string: avgbytespersec=%ld\n
+0x00001A35	0x00000013	[  1] literal string: ADX: samprate=%ld 
+0x00001A48	0x0000000C	[  1] literal string: coef1 %04x 
+0x00001A54	0x0000000C	[  1] literal string: coef2 %04x\n
+0x00001A60	0x00000004	[  1] literal string: ô
+0x00001A64	0x00000014	[  1] literal string: ADX: type 03 found\n
+0x00001A78	0x00000004	[  1] literal string: ô
+0x00001A7C	0x00000014	[  1] literal string: ADX: type 04 found\n
+0x00001A90	0x00000029	[  1] literal string: ADX: error, couldn't determine ADX type\n
+0x00001AB9	0x00000029	[  1] literal string: ADX: error, encrypted ADX not supported\n
+0x00001AE2	0x00000022	[  1] literal string: ADX: looped, start: %jx end: %jx\n
+0x00001B04	0x00000011	[  1] literal string: ADX: not looped\n
+0x00001B15	0x00000019	[  1] literal string: ADX: first frame at %jx\n
+0x00001B2E	0x00000027	[  1] literal string: ADX CODEC_ERROR: more than 2 channels\n
+0x00001B55	0x0000000C	[  1] literal string: ADX: loop!\n
+0x00001B61	0x00000017	[  1] literal string: ADX: fade_frames = %d\n
+0x00001B78	0x00000014	[  1] literal string: ADX: seek to %ldms\n
+0x00001B8C	0x00000021	[  1] literal string: ADX: couldn't get buffer at %jx\n
+0x00001BB0	0x00000008	[  1] 8-byte-literal
+0x00001BB8	0x00000100	[  3] _bs_clz_tab
+0x00001CB8	0x00000100	[  3] _bs_log2_tab
+0x00001DB8	0x000000B8	[  4] _sin_table
+0x00001E70	0x00000100	[  4] _atan_table
+0x00001F70	0x00000018	[  1] CFI
+0x00001F88	0x00000070	[  1] FDE for: _codec_run
+0x00001FF8	0x00000038	[  1] FDE for: _codec_main
+0x00002030	0x00000018	[  2] CFI
+0x00002048	0x00000020	[  2] FDE for: __start
+0x00002068	0x00000020	[  2] FDE for: _codec_start
+0x00002088	0x00000018	[  3] CFI
+0x000020A0	0x00000038	[  3] FDE for: _codec_init
+0x000020D8	0x00000038	[  3] FDE for: _codec_set_replaygain
+0x00002110	0x00000020	[  3] FDE for: _codec_malloc
+0x00002130	0x00000040	[  3] FDE for: _codec_calloc
+0x00002170	0x00000020	[  3] FDE for: _codec_free
+0x00002190	0x00000040	[  3] FDE for: _codec_realloc
+0x000021D0	0x00000020	[  3] FDE for: _codec_strlen
+0x000021F0	0x00000020	[  3] FDE for: _strcpy
+0x00002210	0x00000020	[  3] FDE for: _strcat
+0x00002230	0x00000020	[  3] FDE for: _strcmp
+0x00002250	0x00000020	[  3] FDE for: _memcpy
+0x00002270	0x00000020	[  3] FDE for: _memset
+0x00002290	0x00000020	[  3] FDE for: _memcmp
+0x000022B0	0x00000020	[  3] FDE for: _memchr
+0x000022D0	0x00000020	[  3] FDE for: _memmove
+0x000022F0	0x00000020	[  3] FDE for: _qsort
+0x00002310	0x00000018	[  4] CFI
+0x00002328	0x00000020	[  4] FDE for: _fp_sincos
+0x00002348	0x00000020	[  4] FDE for: _fp_sqrt
+0x00002368	0x00000020	[  4] FDE for: _ipow
+0x00002388	0x00000020	[  4] FDE for: _fp14_sin
+0x000023A8	0x00000020	[  4] FDE for: _fp14_cos
+0x000023C8	0x00000020	[  4] FDE for: _fp16_log
+0x000023E8	0x00000020	[  4] FDE for: _fp16_exp
+0x00002408	0x00000068	[  4] FDE for: _fp_exp10
+0x00002470	0x00000020	[  4] FDE for: _fp_log10
+0x00002490	0x00000038	[  4] FDE for: _fp_decibels
+0x000024C8	0x00000020	[  4] FDE for: _fp_factor
+0x00004000	0x00000008	[  6] _abs.got
+0x00004008	0x00000040	[  1] ___header
+0x00008000	0x00000008	[  2] _ci
+0x00008008	0x00001000	[  1] _samples
+0x00009008	0x00000008	[  3] _mallocbuf
+0x00009010	0x00000008	[  3] _bufsize
+0x00009018	0x00000008	[  3] _mem_ptr

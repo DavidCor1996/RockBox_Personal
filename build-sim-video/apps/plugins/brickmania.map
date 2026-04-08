@@ -1,0 +1,348 @@
+# Path: /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/brickmania.elf
+# Arch: arm64
+# Object files:
+[  0] linker synthesized
+[  1] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/brickmania.o
+[  2] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/plugin_crt0.o
+[  3] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(helper.o)
+[  4] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(configfile.o)
+[  5] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(playback_control.o)
+[  6] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(highscore.o)
+[  7] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(display_text.o)
+[  8] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/bitmaps/libpluginbitmaps.a(brickmania_gameover.112x54x16.o)
+[  9] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/bitmaps/libpluginbitmaps.a(brickmania_ball.5x5x16.o)
+[ 10] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/bitmaps/libpluginbitmaps.a(brickmania_bricks.320x240x16.o)
+[ 11] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/bitmaps/libpluginbitmaps.a(brickmania_pads.320x240x16.o)
+[ 12] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/bitmaps/libpluginbitmaps.a(brickmania_short_pads.320x240x16.o)
+[ 13] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/bitmaps/libpluginbitmaps.a(brickmania_long_pads.320x240x16.o)
+[ 14] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/bitmaps/libpluginbitmaps.a(brickmania_break.320x240x16.o)
+[ 15] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/bitmaps/libpluginbitmaps.a(brickmania_powerups.320x240x16.o)
+[ 16] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/libSystem.tbd
+[ 17] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/system/libsystem_c.tbd
+[ 18] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/system/libsystem_platform.tbd
+# Sections:
+# Address	Size    	Segment	Section
+0x00000780	0x00003A60	__TEXT	__text
+0x000041E0	0x00000024	__TEXT	__stubs
+0x00004204	0x0000047B	__TEXT	__cstring
+0x00004680	0x00008E54	__TEXT	__const
+0x0000D4D8	0x00000D20	__TEXT	__eh_frame
+0x00010000	0x00000018	__DATA_CONST	__got
+0x00010018	0x000002A0	__DATA_CONST	__const
+0x00014000	0x00000490	__DATA	__data
+0x00014490	0x00000008	__DATA	.data
+0x00014498	0x00000951	__DATA	__bss
+0x00014DF0	0x00000008	__DATA	__common
+# Symbols:
+# Address	Size    	File  Name
+0x00000780	0x000000A0	[  1] _check_lines
+0x00000820	0x000000E4	[  1] _check_rect
+0x00000904	0x00000184	[  1] _brickmania_init_game
+0x00000A88	0x00000138	[  1] _brickmania_sleep
+0x00000BC0	0x00000068	[  1] _brickmania_menu_cb
+0x00000C28	0x00000118	[  1] _brick_hit
+0x00000D40	0x00001E08	[  1] _plugin_start
+0x00002B48	0x00000018	[  2] _cleanup_wrapper
+0x00002B60	0x00000068	[  2] _plugin__start
+0x00002BC8	0x00000020	[  2] _rb_atexit
+0x00002BE8	0x00000024	[  2] _exit
+0x00002C0C	0x00000014	[  2] __exit
+0x00002C20	0x00000064	[  2] _exit_on_usb
+0x00002C84	0x00000020	[  3] _talk_val
+0x00002CA4	0x00000040	[  3] _backlight_force_on
+0x00002CE4	0x0000006C	[  3] _backlight_ignore_timeout
+0x00002D50	0x00000048	[  3] _backlight_use_settings
+0x00002D98	0x00000044	[  3] _sw_poweroff_disable
+0x00002DDC	0x00000020	[  3] _sw_poweroff_restore
+0x00002DFC	0x00000004	[  3] _remote_backlight_force_on
+0x00002E00	0x00000004	[  3] _remote_backlight_ignore_timeout
+0x00002E04	0x00000004	[  3] _remote_backlight_use_settings
+0x00002E08	0x00000004	[  3] _buttonlight_force_on
+0x00002E0C	0x00000004	[  3] _buttonlight_force_off
+0x00002E10	0x00000004	[  3] _buttonlight_ignore_timeout
+0x00002E14	0x00000004	[  3] _buttonlight_use_settings
+0x00002E18	0x00000018	[  3] _backlight_brightness_set
+0x00002E30	0x00000020	[  3] _backlight_brightness_use_setting
+0x00002E50	0x00000004	[  3] _buttonlight_brightness_set
+0x00002E54	0x00000004	[  3] _buttonlight_brightness_use_setting
+0x00002E58	0x000000E8	[  4] _get_cfg_filename.constprop.0
+0x00002F40	0x00000160	[  4] _configfile_save
+0x000030A0	0x00000228	[  4] _configfile_load
+0x000032C8	0x000000E0	[  4] _configfile_get_value
+0x000033A8	0x00000158	[  4] _configfile_update_entry
+0x00003500	0x00000028	[  5] _prevtrack
+0x00003528	0x00000088	[  5] _play
+0x000035B0	0x00000028	[  5] _stop
+0x000035D8	0x00000028	[  5] _nexttrack
+0x00003600	0x00000050	[  5] _volume
+0x00003650	0x00000054	[  5] _shuffle
+0x000036A4	0x0000008C	[  5] _repeat_mode
+0x00003730	0x0000000C	[  5] _playback_control_init
+0x0000373C	0x00000048	[  5] _playback_control
+0x00003784	0x00000128	[  6] _highscore_save
+0x000038AC	0x00000174	[  6] _highscore_load
+0x00003A20	0x0000002C	[  6] _highscore_would_update
+0x00003A4C	0x000000D8	[  6] _highscore_update
+0x00003B24	0x000002F0	[  6] _highscore_show
+0x00003E14	0x00000078	[  7] _wait_key_press
+0x00003E8C	0x00000354	[  7] _display_text
+0x000041E0	0x0000000C	[ 17] _abs.stub
+0x000041EC	0x0000000C	[ 18] _longjmp.stub
+0x000041F8	0x0000000C	[ 18] _setjmp.stub
+0x00004204	0x00000003	[  1] literal string: %d
+0x00004207	0x00000026	[  1] literal string: /.rockbox/rocks/games/brickmania.save
+0x0000422D	0x00000027	[  1] literal string: /.rockbox/rocks/games/brickmania.score
+0x00004254	0x0000000F	[  1] literal string: brickmania.cfg
+0x00004263	0x00000014	[  1] literal string: Failed to load game
+0x00004277	0x00000001	[  1] literal string: 
+0x00004278	0x0000000F	[  1] literal string: New High Score
+0x00004287	0x0000000B	[  1] literal string: Difficulty
+0x00004292	0x00000010	[  1] literal string: Saving game ...
+0x000042A2	0x00000014	[  1] literal string: Failed to save game
+0x000042B6	0x00000009	[  1] literal string: Life: %d
+0x000042BF	0x00000006	[  1] literal string: L: %d
+0x000042C5	0x00000009	[  1] literal string: Level %d
+0x000042CE	0x00000007	[  1] literal string: Lvl %d
+0x000042D5	0x00000019	[  1] literal string: Press SELECT To Continue
+0x000042EE	0x0000003A	[  1] literal string: Some error happened, so the current balls will be killed.
+0x00004328	0x00000012	[  1] literal string: The reason is: %s
+0x0000433A	0x00000014	[  1] literal string: Ball went offscreen
+0x0000434E	0x00000041	[  1] literal string: Don't worry, it's my fault, you won't lose any life for this. :)
+0x0000438F	0x00000011	[  1] literal string: Congratulations!
+0x000043A0	0x0000001C	[  1] literal string: You have finished the game!
+0x000043BC	0x0000000E	[  1] literal string: Balls killed!
+0x000043CA	0x0000000B	[  1] literal string: Brickmania
+0x000043D5	0x00000004	[  1] literal string: Aim
+0x000043D9	0x00000008	[  1] literal string: Destroy
+0x000043E1	0x00000004	[  1] literal string: all
+0x000043E5	0x00000004	[  1] literal string: the
+0x000043E9	0x00000007	[  1] literal string: bricks
+0x000043F0	0x00000003	[  1] literal string: by
+0x000043F3	0x00000009	[  1] literal string: bouncing
+0x000043FC	0x00000005	[  1] literal string: ball
+0x00004401	0x00000003	[  1] literal string: of
+0x00004404	0x00000005	[  1] literal string: them
+0x00004409	0x00000006	[  1] literal string: using
+0x0000440F	0x00000008	[  1] literal string: paddle.
+0x00004417	0x00000009	[  1] literal string: Controls
+0x00004420	0x00000007	[  1] literal string: < & >:
+0x00004427	0x00000006	[  1] literal string: Moves
+0x0000442D	0x00000007	[  1] literal string: paddle
+0x00004434	0x00000008	[  1] literal string: SELECT:
+0x0000443C	0x00000009	[  1] literal string: Releases
+0x00004445	0x0000000B	[  1] literal string: ball/Fire!
+0x00004450	0x00000006	[  1] literal string: MENU:
+0x00004456	0x00000008	[  1] literal string: Returns
+0x0000445E	0x00000003	[  1] literal string: to
+0x00004461	0x00000005	[  1] literal string: menu
+0x00004466	0x00000006	[  1] literal string: Press
+0x0000446C	0x00000006	[  1] literal string: Fire,
+0x00004472	0x00000006	[  1] literal string: Down,
+0x00004478	0x00000005	[  1] literal string: Quit
+0x0000447D	0x0000000A	[  1] literal string: together:
+0x00004487	0x00000006	[  1] literal string: Kills
+0x0000448D	0x00000006	[  1] literal string: balls
+0x00004493	0x0000000A	[  1] literal string: (suicide)
+0x0000449D	0x00000009	[  1] literal string: Specials
+0x000044A6	0x00000002	[  1] literal string: N
+0x000044A8	0x00000008	[  1] literal string: Normal:
+0x000044B0	0x00000008	[  1] literal string: returns
+0x000044B8	0x00000007	[  1] literal string: normal
+0x000044BF	0x00000002	[  1] literal string: D
+0x000044C1	0x00000006	[  1] literal string: DIE!:
+0x000044C7	0x00000006	[  1] literal string: loses
+0x000044CD	0x00000002	[  1] literal string: a
+0x000044CF	0x00000005	[  1] literal string: life
+0x000044D4	0x00000002	[  1] literal string: L
+0x000044D6	0x00000006	[  1] literal string: Life:
+0x000044DC	0x00000006	[  1] literal string: gains
+0x000044E2	0x0000000B	[  1] literal string: life/power
+0x000044ED	0x00000003	[  1] literal string: up
+0x000044F0	0x00000002	[  1] literal string: F
+0x000044F2	0x00000006	[  1] literal string: Fire:
+0x000044F8	0x00000007	[  1] literal string: allows
+0x000044FF	0x00000004	[  1] literal string: you
+0x00004503	0x00000006	[  1] literal string: shoot
+0x00004509	0x00000002	[  1] literal string: G
+0x0000450B	0x00000006	[  1] literal string: Glue:
+0x00004511	0x00000007	[  1] literal string: sticks
+0x00004518	0x00000002	[  1] literal string: B
+0x0000451A	0x00000006	[  1] literal string: Ball:
+0x00004520	0x0000000A	[  1] literal string: generates
+0x0000452A	0x00000008	[  1] literal string: another
+0x00004532	0x00000003	[  1] literal string: FL
+0x00004535	0x00000006	[  1] literal string: Flip:
+0x0000453B	0x00000006	[  1] literal string: flips
+0x00004541	0x0000000D	[  1] literal string: left / right
+0x0000454E	0x00000009	[  1] literal string: movement
+0x00004557	0x00000004	[  1] literal string: <->
+0x0000455B	0x00000003	[  1] literal string: or
+0x0000455E	0x00000005	[  1] literal string: <E>:
+0x00004563	0x00000009	[  1] literal string: enlarges
+0x0000456C	0x00000004	[  1] literal string: >-<
+0x00004570	0x00000005	[  1] literal string: >S<:
+0x00004575	0x00000008	[  1] literal string: shrinks
+0x0000457D	0x0000000C	[  1] literal string: Resume Game
+0x00004589	0x0000000F	[  1] literal string: Start New Game
+0x00004598	0x00000005	[  1] literal string: Help
+0x0000459D	0x0000000C	[  1] literal string: High Scores
+0x000045A9	0x00000011	[  1] literal string: Playback Control
+0x000045BA	0x00000010	[  1] literal string: Remove savefile
+0x000045CA	0x00000014	[  1] literal string: Quit without Saving
+0x000045DE	0x00000005	[  1] literal string: Easy
+0x000045E3	0x00000007	[  1] literal string: Normal
+0x000045EA	0x0000000B	[  1] literal string: difficulty
+0x000045F5	0x0000000A	[  4] literal string: /.rockbox
+0x000045FF	0x00000004	[  4] literal string: /%s
+0x00004603	0x00000013	[  4] literal string: /.rockbox/rocks/%s
+0x00004616	0x00000014	[  4] literal string: file version: %10d\n
+0x0000462A	0x0000000A	[  4] literal string: %s: %10d\n
+0x00004634	0x00000008	[  4] literal string: %s: %s\n
+0x0000463C	0x0000000D	[  4] literal string: file version
+0x00004649	0x00000007	[  5] literal string: Volume
+0x00004650	0x00000008	[  5] literal string: Shuffle
+0x00004658	0x00000007	[  5] literal string: Repeat
+0x0000465F	0x0000000A	[  6] literal string: %d:%d:%s\n
+0x00004669	0x00000004	[  6] literal string: %s\n
+0x0000466D	0x00000006	[  6] literal string: Score
+0x00004673	0x00000006	[  6] literal string: Level
+0x00004679	0x00000004	[  6] literal string: %d)
+0x0000467D	0x00000002	[  7] literal string:  
+0x00004680	0x00000C80	[  1] _levels
+0x00005300	0x00000018	[  5] _playback_control_menu__
+0x00005318	0x00000018	[  5] _repeat_mode_item_
+0x00005330	0x00000018	[  5] _shuffle_item_
+0x00005348	0x00000018	[  5] _volume_item_
+0x00005360	0x00000018	[  5] _nexttrack_item_
+0x00005378	0x00000018	[  5] _stop_item_
+0x00005390	0x00000018	[  5] _playpause_item_
+0x000053A8	0x00000018	[  5] _prevtrack_item_
+0x000053C0	0x00002F40	[  8] _brickmania_gameover
+0x00008300	0x00000032	[  9] _brickmania_ball
+0x00008332	0x00001500	[ 10] _brickmania_bricks
+0x00009832	0x00000930	[ 11] _brickmania_pads
+0x0000A162	0x00000666	[ 12] _brickmania_short_pads
+0x0000A7C8	0x00000CCC	[ 13] _brickmania_long_pads
+0x0000B494	0x00001500	[ 14] _brickmania_break
+0x0000C994	0x00000B40	[ 15] _brickmania_powerups
+0x0000D4D8	0x00000018	[  1] CFI
+0x0000D4F0	0x00000020	[  1] FDE for: _check_lines
+0x0000D510	0x00000050	[  1] FDE for: _check_rect
+0x0000D560	0x00000020	[  1] FDE for: _brickmania_init_game
+0x0000D580	0x00000068	[  1] FDE for: _brickmania_sleep
+0x0000D5E8	0x00000038	[  1] FDE for: _brickmania_menu_cb
+0x0000D620	0x00000060	[  1] FDE for: _brick_hit
+0x0000D680	0x00000068	[  1] FDE for: _plugin_start
+0x0000D6E8	0x00000018	[  2] CFI
+0x0000D700	0x00000020	[  2] FDE for: _cleanup_wrapper
+0x0000D720	0x00000040	[  2] FDE for: _plugin__start
+0x0000D760	0x00000020	[  2] FDE for: _rb_atexit
+0x0000D780	0x00000030	[  2] FDE for: _exit
+0x0000D7B0	0x00000030	[  2] FDE for: __exit
+0x0000D7E0	0x00000038	[  2] FDE for: _exit_on_usb
+0x0000D818	0x00000018	[  3] CFI
+0x0000D830	0x00000020	[  3] FDE for: _talk_val
+0x0000D850	0x00000040	[  3] FDE for: _backlight_force_on
+0x0000D890	0x00000050	[  3] FDE for: _backlight_ignore_timeout
+0x0000D8E0	0x00000040	[  3] FDE for: _backlight_use_settings
+0x0000D920	0x00000040	[  3] FDE for: _sw_poweroff_disable
+0x0000D960	0x00000020	[  3] FDE for: _sw_poweroff_restore
+0x0000D980	0x00000020	[  3] FDE for: _remote_backlight_force_on
+0x0000D9A0	0x00000020	[  3] FDE for: _remote_backlight_ignore_timeout
+0x0000D9C0	0x00000020	[  3] FDE for: _remote_backlight_use_settings
+0x0000D9E0	0x00000020	[  3] FDE for: _buttonlight_force_on
+0x0000DA00	0x00000020	[  3] FDE for: _buttonlight_force_off
+0x0000DA20	0x00000020	[  3] FDE for: _buttonlight_ignore_timeout
+0x0000DA40	0x00000020	[  3] FDE for: _buttonlight_use_settings
+0x0000DA60	0x00000020	[  3] FDE for: _backlight_brightness_set
+0x0000DA80	0x00000020	[  3] FDE for: _backlight_brightness_use_setting
+0x0000DAA0	0x00000020	[  3] FDE for: _buttonlight_brightness_set
+0x0000DAC0	0x00000020	[  3] FDE for: _buttonlight_brightness_use_setting
+0x0000DAE0	0x00000018	[  4] CFI
+0x0000DAF8	0x00000068	[  4] FDE for: _get_cfg_filename.constprop.0
+0x0000DB60	0x00000070	[  4] FDE for: _configfile_save
+0x0000DBD0	0x00000068	[  4] FDE for: _configfile_load
+0x0000DC38	0x00000058	[  4] FDE for: _configfile_get_value
+0x0000DC90	0x00000070	[  4] FDE for: _configfile_update_entry
+0x0000DD00	0x00000018	[  5] CFI
+0x0000DD18	0x00000038	[  5] FDE for: _prevtrack
+0x0000DD50	0x00000048	[  5] FDE for: _play
+0x0000DD98	0x00000038	[  5] FDE for: _stop
+0x0000DDD0	0x00000038	[  5] FDE for: _nexttrack
+0x0000DE08	0x00000040	[  5] FDE for: _volume
+0x0000DE48	0x00000040	[  5] FDE for: _shuffle
+0x0000DE88	0x00000040	[  5] FDE for: _repeat_mode
+0x0000DEC8	0x00000020	[  5] FDE for: _playback_control_init
+0x0000DEE8	0x00000038	[  5] FDE for: _playback_control
+0x0000DF20	0x00000018	[  6] CFI
+0x0000DF38	0x00000070	[  6] FDE for: _highscore_save
+0x0000DFA8	0x00000070	[  6] FDE for: _highscore_load
+0x0000E018	0x00000020	[  6] FDE for: _highscore_would_update
+0x0000E038	0x00000068	[  6] FDE for: _highscore_update
+0x0000E0A0	0x00000080	[  6] FDE for: _highscore_show
+0x0000E120	0x00000018	[  7] CFI
+0x0000E138	0x00000050	[  7] FDE for: _wait_key_press
+0x0000E188	0x00000070	[  7] FDE for: _display_text
+0x00010000	0x00000008	[ 17] _abs.got
+0x00010008	0x00000008	[ 18] _longjmp.got
+0x00010010	0x00000008	[ 18] _setjmp.got
+0x00010018	0x00000018	[  1] _main_menu__.3
+0x00010030	0x00000018	[  1] _main_menu.5
+0x00010048	0x00000038	[  2] ___header
+0x00010080	0x00000018	[  5] _playback_control_menu
+0x00010098	0x00000018	[  5] _repeat_mode_item
+0x000100B0	0x00000008	[  5] _repeat_mode_item__
+0x000100B8	0x00000018	[  5] _shuffle_item
+0x000100D0	0x00000008	[  5] _shuffle_item__
+0x000100D8	0x00000018	[  5] _volume_item
+0x000100F0	0x00000008	[  5] _volume_item__
+0x000100F8	0x00000018	[  5] _nexttrack_item
+0x00010110	0x00000008	[  5] _nexttrack_item__
+0x00010118	0x00000018	[  5] _stop_item
+0x00010130	0x00000008	[  5] _stop_item__
+0x00010138	0x00000018	[  5] _playpause_item
+0x00010150	0x00000008	[  5] _playpause_item__
+0x00010158	0x00000018	[  5] _prevtrack_item
+0x00010170	0x00000008	[  5] _prevtrack_item__
+0x00010178	0x00000028	[  8] _bm_brickmania_gameover
+0x000101A0	0x00000028	[  9] _bm_brickmania_ball
+0x000101C8	0x00000028	[ 10] _bm_brickmania_bricks
+0x000101F0	0x00000028	[ 11] _bm_brickmania_pads
+0x00010218	0x00000028	[ 12] _bm_brickmania_short_pads
+0x00010240	0x00000028	[ 13] _bm_brickmania_long_pads
+0x00010268	0x00000028	[ 14] _bm_brickmania_break
+0x00010290	0x00000028	[ 15] _bm_brickmania_powerups
+0x00014000	0x00000048	[  1] _formation.0
+0x00014048	0x00000378	[  1] _help_text.1
+0x000143C0	0x00000048	[  1] _main_menu_.2
+0x00014408	0x00000020	[  1] _options.4
+0x00014428	0x00000028	[  1] _config
+0x00014450	0x00000004	[  1] _difficulty
+0x00014454	0x00000001	[  3] _original_sw_poweroff_state
+0x00014458	0x00000038	[  5] _playback_control_menu_
+0x00014490	0x00000008	[  2] _rb
+0x00014498	0x000000C8	[  1] _highscores
+0x00014560	0x00000004	[  1] _paddle_type
+0x00014564	0x00000078	[  1] _power
+0x000145DC	0x000000F0	[  1] _fire
+0x000146CC	0x00000118	[  1] _ball
+0x000147E4	0x00000500	[  1] _brick
+0x00014CE4	0x00000001	[  1] _resume_file
+0x00014CE5	0x00000003	[  1] _resume
+0x00014CE8	0x00000004	[  1] _flip_sides_delay
+0x00014CEC	0x00000004	[  1] _pad_width
+0x00014CF0	0x00000004	[  1] _used_powers
+0x00014CF4	0x00000004	[  1] _used_fires
+0x00014CF8	0x00000004	[  1] _used_balls
+0x00014CFC	0x00000004	[  1] _brick_on_board
+0x00014D00	0x00000004	[  1] _level
+0x00014D04	0x00000004	[  1] _flip_sides
+0x00014D08	0x00000004	[  1] _vscore
+0x00014D0C	0x00000004	[  1] _score
+0x00014D10	0x00000004	[  1] _life
+0x00014D14	0x00000004	[  1] _pad_pos_x
+0x00014D18	0x00000004	[  1] _game_state
+0x00014D20	0x00000008	[  2] _atexit_handler
+0x00014D28	0x000000C0	[  2] ___exit_env
+0x00014DE8	0x00000001	[  6] _highscore_updated
+0x00014DF0	0x00000008	[  5] _parentvp

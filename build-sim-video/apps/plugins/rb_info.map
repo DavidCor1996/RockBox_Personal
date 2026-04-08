@@ -1,0 +1,213 @@
+# Path: /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/rb_info.elf
+# Arch: arm64
+# Object files:
+[  0] linker synthesized
+[  1] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/rb_info.o
+[  2] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/plugin_crt0.o
+[  3] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(action_helper.o)
+[  4] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(button_helper.o)
+[  5] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(printcell_helper.o)
+[  6] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/libSystem.tbd
+[  7] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/system/libsystem_c.tbd
+[  8] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/system/libsystem_platform.tbd
+# Sections:
+# Address	Size    	Segment	Section
+0x00000728	0x000020F4	__TEXT	__text
+0x0000281C	0x00000018	__TEXT	__stubs
+0x00002834	0x000004F5	__TEXT	__cstring
+0x00002D30	0x00001010	__TEXT	__const
+0x00003D40	0x00000780	__TEXT	__eh_frame
+0x00008000	0x00000018	__DATA_CONST	__got
+0x00008018	0x00000300	__DATA_CONST	__const
+0x0000C000	0x0000010C	__DATA	__data
+0x0000C110	0x00000008	__DATA	.data
+0x0000C118	0x00000418	__DATA	__bss
+# Symbols:
+# Address	Size    	File  Name
+0x00000728	0x00000004	[  1] _cleanup
+0x0000072C	0x000005F0	[  1] _list_get_name_cb
+0x00000D1C	0x000001A0	[  1] _list_voice_cb
+0x00000EBC	0x0000010C	[  1] _synclist_set.constprop.0
+0x00000FC8	0x00000458	[  1] _menu_action_cb
+0x00001420	0x0000015C	[  1] _plugin_start
+0x0000157C	0x00000018	[  2] _cleanup_wrapper
+0x00001594	0x00000068	[  2] _plugin__start
+0x000015FC	0x00000020	[  2] _rb_atexit
+0x0000161C	0x00000024	[  2] _exit
+0x00001640	0x00000014	[  2] __exit
+0x00001654	0x00000064	[  2] _exit_on_usb
+0x000016B8	0x0000009C	[  3] _action_name
+0x00001754	0x000000B4	[  3] _context_name
+0x00001808	0x000000D8	[  4] _get_button_names
+0x000018E0	0x00000154	[  5] _draw_selector
+0x00001A34	0x00000098	[  5] _parse_dsptext.constprop.0
+0x00001ACC	0x000007D4	[  5] _printcell_listdraw_fn
+0x000022A0	0x00000080	[  5] _printcell_enable
+0x00002320	0x000000AC	[  5] _printcell_increment_column
+0x000023CC	0x00000020	[  5] _printcell_get_column_selected
+0x000023EC	0x0000002C	[  5] _printcell_get_column_visibility
+0x00002418	0x00000054	[  5] _printcell_set_column_visible
+0x0000246C	0x00000264	[  5] _printcell_set_columns
+0x000026D0	0x00000074	[  5] _printcell_get_title_text
+0x00002744	0x000000D8	[  5] _printcell_get_column_text
+0x0000281C	0x0000000C	[  8] _longjmp.stub
+0x00002828	0x0000000C	[  8] _setjmp.stub
+0x00002834	0x00000005	[  1] literal string: true
+0x00002839	0x00000006	[  1] literal string: false
+0x0000283F	0x00000003	[  1] literal string: %s
+0x00002842	0x00000006	[  1] literal string: %s > 
+0x00002848	0x00000008	[  1] literal string: < %s   
+0x00002850	0x00000008	[  1] literal string: < %s > 
+0x00002858	0x0000000A	[  1] literal string: %s: [%s] 
+0x00002862	0x0000000C	[  1] literal string: %s: [0x%X] 
+0x0000286E	0x0000000C	[  1] literal string: Button test
+0x0000287A	0x0000000C	[  1] literal string: Action test
+0x00002886	0x00000011	[  1] literal string: %s: [%ld bytes] 
+0x00002897	0x00000010	[  1] literal string: %s: [%d bytes] 
+0x000028A7	0x0000000B	[  1] literal string: plugin_api
+0x000028B2	0x0000000E	[  1] literal string: plugin buffer
+0x000028C0	0x0000000D	[  1] literal string: frame_buffer
+0x000028CD	0x00000012	[  1] literal string: %s: [W: %d H:%d] 
+0x000028DF	0x00000004	[  1] literal string: LCD
+0x000028E3	0x0000000F	[  1] literal string: %s: [%d bits] 
+0x000028F2	0x00000008	[  1] literal string: fb_data
+0x000028FA	0x00000044	[  1] literal string: put_line item: [ %d ]$Text %d$Text LONGER TEST text %d $4$5$6$7$8$9
+0x0000293E	0x00000006	[  1] literal string: bytes
+0x00002944	0x00000036	[  1] literal string: $*64$col1$col2$*128$col3$col4$col5$col6$*64$col7$col8
+0x0000297A	0x00000009	[  1] literal string: Item: %s
+0x00002983	0x0000000D	[  1] literal string: %s %d (0x%X)
+0x00002990	0x00000014	[  1] literal string: Rockbox Info Plugin
+0x000029A4	0x00000008	[  1] literal string: Buttons
+0x000029AC	0x00000008	[  1] literal string: Actions
+0x000029B4	0x00000009	[  1] literal string: Contexts
+0x000029BD	0x0000000F	[  1] literal string: Printcell test
+0x000029CC	0x00000005	[  1] literal string: Home
+0x000029D1	0x00000002	[  1] literal string: /
+0x000029D3	0x00000008	[  1] literal string: Rockbox
+0x000029DB	0x0000000A	[  1] literal string: /.rockbox
+0x000029E5	0x00000008	[  1] literal string: Plugins
+0x000029ED	0x00000010	[  1] literal string: /.rockbox/rocks
+0x000029FD	0x00000007	[  1] literal string: Codecs
+0x00002A04	0x00000011	[  1] literal string: /.rockbox/codecs
+0x00002A15	0x00000004	[  1] literal string: WPS
+0x00002A19	0x0000000E	[  1] literal string: /.rockbox/wps
+0x00002A27	0x00000004	[  1] literal string: SBS
+0x00002A2B	0x00000006	[  1] literal string: Theme
+0x00002A31	0x00000011	[  1] literal string: /.rockbox/themes
+0x00002A42	0x00000005	[  1] literal string: Font
+0x00002A47	0x00000010	[  1] literal string: /.rockbox/fonts
+0x00002A57	0x00000005	[  1] literal string: Icon
+0x00002A5C	0x00000010	[  1] literal string: /.rockbox/icons
+0x00002A6C	0x00000009	[  1] literal string: Backdrop
+0x00002A75	0x00000014	[  1] literal string: /.rockbox/backdrops
+0x00002A89	0x00000003	[  1] literal string: Eq
+0x00002A8C	0x0000000E	[  1] literal string: /.rockbox/eqs
+0x00002A9A	0x0000000C	[  1] literal string: Rec Presets
+0x00002AA6	0x00000015	[  1] literal string: /.rockbox/recpresets
+0x00002ABB	0x0000000B	[  1] literal string: Recordings
+0x00002AC6	0x0000000C	[  1] literal string: /Recordings
+0x00002AD2	0x0000000B	[  1] literal string: Fm Presets
+0x00002ADD	0x00000014	[  1] literal string: /.rockbox/fmpresets
+0x00002AF1	0x00000009	[  1] literal string: MAX_PATH
+0x00002AFA	0x0000000A	[  1] literal string: 260 bytes
+0x00002B04	0x0000000D	[  1] literal string: thread stack
+0x00002B11	0x0000000D	[  1] literal string: codec_buffer
+0x00002B1E	0x0000000C	[  1] literal string: logf_buffer
+0x00002B2A	0x00000006	[  1] literal string: cache
+0x00002B30	0x00000008	[  3] literal string: ACTION_
+0x00002B38	0x00000010	[  3] literal string: ACTION_USB_HID_
+0x00002B48	0x0000000F	[  3] literal string: ACTION_UNKNOWN
+0x00002B57	0x0000000A	[  3] literal string: %sUNKNOWN
+0x00002B61	0x00000009	[  3] literal string: CONTEXT_
+0x00002B6A	0x00000004	[  4] literal string:  | 
+0x00002B6E	0x0000000C	[  4] literal string: BUTTON_NONE
+0x00002B7A	0x0000000E	[  4] literal string: BUTTON_REMOTE
+0x00002B88	0x0000000E	[  4] literal string: BUTTON_SELECT
+0x00002B96	0x0000000C	[  4] literal string: BUTTON_MENU
+0x00002BA2	0x0000000C	[  4] literal string: BUTTON_LEFT
+0x00002BAE	0x0000000D	[  4] literal string: BUTTON_RIGHT
+0x00002BBB	0x00000012	[  4] literal string: BUTTON_SCROLL_FWD
+0x00002BCD	0x00000013	[  4] literal string: BUTTON_SCROLL_BACK
+0x00002BE0	0x0000000C	[  4] literal string: BUTTON_PLAY
+0x00002BEC	0x0000000B	[  4] literal string: BUTTON_REL
+0x00002BF7	0x0000000E	[  4] literal string: BUTTON_REPEAT
+0x00002C05	0x00000013	[  4] literal string: BUTTON_TOUCHSCREEN
+0x00002C18	0x00000012	[  4] literal string: BUTTON_MULTIMEDIA
+0x00002C2A	0x0000000E	[  4] literal string: BUTTON_REDRAW
+0x00002C38	0x00000017	[  4] literal string: BUTTON_MULTIMEDIA_FFWD
+0x00002C4F	0x00000016	[  4] literal string: BUTTON_MULTIMEDIA_ALL
+0x00002C65	0x00000017	[  4] literal string: BUTTON_MULTIMEDIA_STOP
+0x00002C7C	0x0000001C	[  4] literal string: BUTTON_MULTIMEDIA_PLAYPAUSE
+0x00002C98	0x00000017	[  4] literal string: BUTTON_MULTIMEDIA_NEXT
+0x00002CAF	0x00000016	[  4] literal string: BUTTON_MULTIMEDIA_REW
+0x00002CC5	0x00000017	[  4] literal string: BUTTON_MULTIMEDIA_PREV
+0x00002CDC	0x0000000C	[  4] literal string: BUTTON_MAIN
+0x00002CE8	0x00000006	[  5] literal string: $1I$t
+0x00002CEE	0x00000003	[  5] literal string: $t
+0x00002CF1	0x00000001	[  5] literal string: 
+0x00002CF2	0x0000000F	[  5] literal string: $*s$1I$i$1s$*t
+0x00002D01	0x0000000A	[  5] literal string: $*s$1I$*t
+0x00002D0B	0x00000007	[  5] literal string: $*s$*t
+0x00002D12	0x00000015	[  5] literal string: $PRINTCELL NOT SETUP
+0x00002D27	0x00000002	[  5] literal string: W
+0x00002D30	0x00000010	[  1] lC6
+0x00002D40	0x00000018	[  1] _empty.0
+0x00002D58	0x00000008	[  3] _action_helper_maxbuffer
+0x00002D60	0x00000186	[  3] _action_offsets
+0x00002EE6	0x00000174	[  3] _context_names
+0x0000305A	0x00000CD0	[  3] _action_names
+0x00003D30	0x00000004	[  4] _available_button_count
+0x00003D34	0x00000004	[  4] lC23
+0x00003D38	0x00000008	[  4] _button_helper_maxbuffer
+0x00003D40	0x00000018	[  1] CFI
+0x00003D58	0x00000020	[  1] FDE for: _cleanup
+0x00003D78	0x00000078	[  1] FDE for: _list_get_name_cb
+0x00003DF0	0x00000048	[  1] FDE for: _list_voice_cb
+0x00003E38	0x00000070	[  1] FDE for: _synclist_set.constprop.0
+0x00003EA8	0x00000070	[  1] FDE for: _menu_action_cb
+0x00003F18	0x00000060	[  1] FDE for: _plugin_start
+0x00003F78	0x00000018	[  2] CFI
+0x00003F90	0x00000020	[  2] FDE for: _cleanup_wrapper
+0x00003FB0	0x00000040	[  2] FDE for: _plugin__start
+0x00003FF0	0x00000020	[  2] FDE for: _rb_atexit
+0x00004010	0x00000030	[  2] FDE for: _exit
+0x00004040	0x00000030	[  2] FDE for: __exit
+0x00004070	0x00000038	[  2] FDE for: _exit_on_usb
+0x000040A8	0x00000018	[  3] CFI
+0x000040C0	0x00000050	[  3] FDE for: _action_name
+0x00004110	0x00000050	[  3] FDE for: _context_name
+0x00004160	0x00000018	[  4] CFI
+0x00004178	0x00000060	[  4] FDE for: _get_button_names
+0x000041D8	0x00000018	[  5] CFI
+0x000041F0	0x00000078	[  5] FDE for: _draw_selector
+0x00004268	0x00000020	[  5] FDE for: _parse_dsptext.constprop.0
+0x00004288	0x00000068	[  5] FDE for: _printcell_listdraw_fn
+0x000042F0	0x00000020	[  5] FDE for: _printcell_enable
+0x00004310	0x00000050	[  5] FDE for: _printcell_increment_column
+0x00004360	0x00000020	[  5] FDE for: _printcell_get_column_selected
+0x00004380	0x00000020	[  5] FDE for: _printcell_get_column_visibility
+0x000043A0	0x00000020	[  5] FDE for: _printcell_set_column_visible
+0x000043C0	0x00000070	[  5] FDE for: _printcell_set_columns
+0x00004430	0x00000038	[  5] FDE for: _printcell_get_title_text
+0x00004468	0x00000058	[  5] FDE for: _printcell_get_column_text
+0x00008000	0x00000008	[  7] __DefaultRuneLocale.got
+0x00008008	0x00000008	[  8] _longjmp.got
+0x00008010	0x00000008	[  8] _setjmp.got
+0x00008018	0x000000F0	[  1] _paths
+0x00008108	0x00000060	[  1] _m_buffer
+0x00008168	0x00000038	[  2] ___header
+0x000081A0	0x00000008	[  4] _available_buttons
+0x000081A8	0x00000170	[  4] _buttons
+0x0000C000	0x00000108	[  1] _mainmenu
+0x0000C108	0x00000004	[  5] _list_sep_color.2
+0x0000C110	0x00000008	[  2] _rb
+0x0000C118	0x00000008	[  1] _testput_cols
+0x0000C120	0x00000090	[  1] _lists
+0x0000C1B0	0x00000004	[  1] _main_last_sel
+0x0000C1B4	0x0000000C	[  1] _m_test
+0x0000C1C0	0x00000008	[  2] _atexit_handler
+0x0000C1C8	0x000000C0	[  2] ___exit_env
+0x0000C288	0x0000002E	[  3] _name_buf
+0x0000C2B8	0x00000020	[  5] _sidx.0
+0x0000C2D8	0x00000108	[  5] _printcell_buffer.1
+0x0000C3E0	0x00000150	[  5] _printcell

@@ -1,0 +1,282 @@
+# Path: /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/2048.elf
+# Arch: arm64
+# Object files:
+[  0] linker synthesized
+[  1] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/2048.o
+[  2] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/plugin_crt0.o
+[  3] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(gcc-support.o)
+[  4] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(pluginlib_actions.o)
+[  5] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(helper.o)
+[  6] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(playback_control.o)
+[  7] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(highscore.o)
+[  8] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(display_text.o)
+[  9] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/bitmaps/libpluginbitmaps.a(_2048_tiles.48x48x24.o)
+[ 10] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/bitmaps/libpluginbitmaps.a(_2048_background.224x224x24.o)
+[ 11] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/libSystem.tbd
+[ 12] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/system/libsystem_platform.tbd
+# Sections:
+# Address	Size    	Segment	Section
+0x00000778	0x000025A8	__TEXT	__text
+0x00002D20	0x00000018	__TEXT	__stubs
+0x00002D38	0x000001EA	__TEXT	__cstring
+0x00002F28	0x0002CDC8	__TEXT	__const
+0x0002FCF0	0x00000E88	__TEXT	__eh_frame
+0x00034000	0x00000010	__DATA_CONST	__got
+0x00034010	0x000001E0	__DATA_CONST	__const
+0x00038000	0x00000200	__DATA	__data
+0x00038200	0x00000008	__DATA	.data
+0x00038208	0x00000201	__DATA	__bss
+0x00038410	0x00000058	__DATA	__common
+# Symbols:
+# Address	Size    	File  Name
+0x00000778	0x00000108	[  1] _slide_internal
+0x00000880	0x00000040	[  1] _up
+0x000008C0	0x00000040	[  1] _down
+0x00000900	0x00000040	[  1] _left
+0x00000940	0x00000040	[  1] _right
+0x00000980	0x00000700	[  1] _draw
+0x00001080	0x000000EC	[  1] _save_game
+0x0000116C	0x00000060	[  1] _confirm_quit
+0x000011CC	0x00000028	[  1] _mainmenu_cb
+0x000011F4	0x00000018	[  1] _RESTORE_GRID
+0x0000120C	0x00000028	[  1] _exit_handler
+0x00001234	0x000000F4	[  1] _hs_check_update.constprop.0
+0x00001328	0x000000D4	[  1] _place_random
+0x000013FC	0x000000C0	[  1] _init_game
+0x000014BC	0x00000084	[  1] _do_help.isra.0
+0x00001540	0x00000718	[  1] _plugin_start
+0x00001C58	0x00000018	[  2] _cleanup_wrapper
+0x00001C70	0x00000068	[  2] _plugin__start
+0x00001CD8	0x00000020	[  2] _rb_atexit
+0x00001CF8	0x00000024	[  2] _exit
+0x00001D1C	0x00000014	[  2] __exit
+0x00001D30	0x00000064	[  2] _exit_on_usb
+0x00001D94	0x00000018	[  3] _memcpy
+0x00001DAC	0x00000018	[  3] _memset
+0x00001DC4	0x00000018	[  3] _memmove
+0x00001DDC	0x00000018	[  3] _memcmp
+0x00001DF4	0x00000038	[  4] _get_context_map
+0x00001E2C	0x00000040	[  4] _pluginlib_getaction
+0x00001E6C	0x00000020	[  5] _talk_val
+0x00001E8C	0x00000040	[  5] _backlight_force_on
+0x00001ECC	0x0000006C	[  5] _backlight_ignore_timeout
+0x00001F38	0x00000048	[  5] _backlight_use_settings
+0x00001F80	0x00000044	[  5] _sw_poweroff_disable
+0x00001FC4	0x00000020	[  5] _sw_poweroff_restore
+0x00001FE4	0x00000004	[  5] _remote_backlight_force_on
+0x00001FE8	0x00000004	[  5] _remote_backlight_ignore_timeout
+0x00001FEC	0x00000004	[  5] _remote_backlight_use_settings
+0x00001FF0	0x00000004	[  5] _buttonlight_force_on
+0x00001FF4	0x00000004	[  5] _buttonlight_force_off
+0x00001FF8	0x00000004	[  5] _buttonlight_ignore_timeout
+0x00001FFC	0x00000004	[  5] _buttonlight_use_settings
+0x00002000	0x00000018	[  5] _backlight_brightness_set
+0x00002018	0x00000020	[  5] _backlight_brightness_use_setting
+0x00002038	0x00000004	[  5] _buttonlight_brightness_set
+0x0000203C	0x00000004	[  5] _buttonlight_brightness_use_setting
+0x00002040	0x00000028	[  6] _prevtrack
+0x00002068	0x00000088	[  6] _play
+0x000020F0	0x00000028	[  6] _stop
+0x00002118	0x00000028	[  6] _nexttrack
+0x00002140	0x00000050	[  6] _volume
+0x00002190	0x00000054	[  6] _shuffle
+0x000021E4	0x0000008C	[  6] _repeat_mode
+0x00002270	0x0000000C	[  6] _playback_control_init
+0x0000227C	0x00000048	[  6] _playback_control
+0x000022C4	0x00000128	[  7] _highscore_save
+0x000023EC	0x00000174	[  7] _highscore_load
+0x00002560	0x0000002C	[  7] _highscore_would_update
+0x0000258C	0x000000D8	[  7] _highscore_update
+0x00002664	0x000002F0	[  7] _highscore_show
+0x00002954	0x00000078	[  8] _wait_key_press
+0x000029CC	0x00000354	[  8] _display_text
+0x00002D20	0x0000000C	[ 12] _longjmp.stub
+0x00002D2C	0x0000000C	[ 12] _setjmp.stub
+0x00002D38	0x00000003	[  1] literal string: %d
+0x00002D3B	0x0000000A	[  1] literal string: Score: %d
+0x00002D45	0x00000006	[  1] literal string: S: %d
+0x00002D4B	0x00000009	[  1] literal string: Best: %d
+0x00002D54	0x00000006	[  1] literal string: B: %d
+0x00002D5A	0x0000000A	[  1] literal string: Saving...
+0x00002D64	0x00000020	[  1] literal string: /.rockbox/rocks/games/2048.save
+0x00002D84	0x0000000E	[  1] literal string: Are you sure?
+0x00002D92	0x00000023	[  1] literal string: This will clear your current game.
+0x00002DB5	0x00000001	[  1] literal string: 
+0x00002DB6	0x00000013	[  1] literal string: New High Score: %d
+0x00002DC9	0x00000021	[  1] literal string: /.rockbox/rocks/games/2048.score
+0x00002DEA	0x0000000B	[  1] literal string: 0123456789
+0x00002DF5	0x0000000B	[  1] literal string: Game Over!
+0x00002E00	0x00000009	[  1] literal string: You win!
+0x00002E09	0x00000005	[  1] literal string: 2048
+0x00002E0E	0x00000004	[  1] literal string: Aim
+0x00002E12	0x00000005	[  1] literal string: Join
+0x00002E17	0x00000004	[  1] literal string: the
+0x00002E1B	0x00000008	[  1] literal string: numbers
+0x00002E23	0x00000003	[  1] literal string: to
+0x00002E26	0x00000004	[  1] literal string: get
+0x00002E2A	0x00000006	[  1] literal string: tile!
+0x00002E30	0x00000004	[  1] literal string: How
+0x00002E34	0x00000005	[  1] literal string: Play
+0x00002E39	0x00000004	[  1] literal string: Use
+0x00002E3D	0x0000000C	[  1] literal string: directional
+0x00002E49	0x00000005	[  1] literal string: keys
+0x00002E4E	0x00000005	[  1] literal string: move
+0x00002E53	0x00000007	[  1] literal string: tiles.
+0x00002E5A	0x00000005	[  1] literal string: When
+0x00002E5F	0x00000004	[  1] literal string: two
+0x00002E63	0x00000006	[  1] literal string: tiles
+0x00002E69	0x00000005	[  1] literal string: with
+0x00002E6E	0x00000005	[  1] literal string: same
+0x00002E73	0x00000007	[  1] literal string: number
+0x00002E7A	0x00000007	[  1] literal string: touch,
+0x00002E81	0x00000005	[  1] literal string: they
+0x00002E86	0x00000006	[  1] literal string: merge
+0x00002E8C	0x00000005	[  1] literal string: into
+0x00002E91	0x00000005	[  1] literal string: one!
+0x00002E96	0x0000000C	[  1] literal string: Resume Game
+0x00002EA2	0x0000000F	[  1] literal string: Start New Game
+0x00002EB1	0x0000000C	[  1] literal string: High Scores
+0x00002EBD	0x00000011	[  1] literal string: Playback Control
+0x00002ECE	0x00000005	[  1] literal string: Help
+0x00002ED3	0x00000014	[  1] literal string: Quit without Saving
+0x00002EE7	0x00000005	[  1] literal string: Quit
+0x00002EEC	0x00000007	[  6] literal string: Volume
+0x00002EF3	0x00000008	[  6] literal string: Shuffle
+0x00002EFB	0x00000007	[  6] literal string: Repeat
+0x00002F02	0x0000000A	[  7] literal string: %d:%d:%s\n
+0x00002F0C	0x00000004	[  7] literal string: %s\n
+0x00002F10	0x00000006	[  7] literal string: Score
+0x00002F16	0x00000006	[  7] literal string: Level
+0x00002F1C	0x00000004	[  7] literal string: %d)
+0x00002F20	0x00000002	[  8] literal string:  
+0x00002F28	0x00000018	[  1] lC0
+0x00002F40	0x00000008	[  1] 8-byte-literal
+0x00002F48	0x00000008	[  1] 8-byte-literal
+0x00002F50	0x00000008	[  1] 8-byte-literal
+0x00002F58	0x000000D8	[  4] _pla_main_ctx
+0x00003030	0x00000018	[  6] _playback_control_menu__
+0x00003048	0x00000018	[  6] _repeat_mode_item_
+0x00003060	0x00000018	[  6] _shuffle_item_
+0x00003078	0x00000018	[  6] _volume_item_
+0x00003090	0x00000018	[  6] _nexttrack_item_
+0x000030A8	0x00000018	[  6] _stop_item_
+0x000030C0	0x00000018	[  6] _playpause_item_
+0x000030D8	0x00000018	[  6] _prevtrack_item_
+0x000030F0	0x00014400	[  9] __2048_tiles
+0x000174F0	0x00018800	[ 10] __2048_background
+0x0002FCF0	0x00000018	[  1] CFI
+0x0002FD08	0x00000058	[  1] FDE for: _slide_internal
+0x0002FD60	0x00000040	[  1] FDE for: _up
+0x0002FDA0	0x00000040	[  1] FDE for: _down
+0x0002FDE0	0x00000040	[  1] FDE for: _left
+0x0002FE20	0x00000040	[  1] FDE for: _right
+0x0002FE60	0x00000080	[  1] FDE for: _draw
+0x0002FEE0	0x00000060	[  1] FDE for: _save_game
+0x0002FF40	0x00000038	[  1] FDE for: _confirm_quit
+0x0002FF78	0x00000020	[  1] FDE for: _mainmenu_cb
+0x0002FF98	0x00000020	[  1] FDE for: _RESTORE_GRID
+0x0002FFB8	0x00000048	[  1] FDE for: _exit_handler
+0x00030000	0x00000058	[  1] FDE for: _hs_check_update.constprop.0
+0x00030058	0x00000050	[  1] FDE for: _place_random
+0x000300A8	0x00000040	[  1] FDE for: _init_game
+0x000300E8	0x00000040	[  1] FDE for: _do_help.isra.0
+0x00030128	0x00000070	[  1] FDE for: _plugin_start
+0x00030198	0x00000018	[  2] CFI
+0x000301B0	0x00000020	[  2] FDE for: _cleanup_wrapper
+0x000301D0	0x00000040	[  2] FDE for: _plugin__start
+0x00030210	0x00000020	[  2] FDE for: _rb_atexit
+0x00030230	0x00000030	[  2] FDE for: _exit
+0x00030260	0x00000030	[  2] FDE for: __exit
+0x00030290	0x00000038	[  2] FDE for: _exit_on_usb
+0x000302C8	0x00000018	[  3] CFI
+0x000302E0	0x00000020	[  3] FDE for: _memcpy
+0x00030300	0x00000020	[  3] FDE for: _memset
+0x00030320	0x00000020	[  3] FDE for: _memmove
+0x00030340	0x00000020	[  3] FDE for: _memcmp
+0x00030360	0x00000018	[  4] CFI
+0x00030378	0x00000020	[  4] FDE for: _get_context_map
+0x00030398	0x00000020	[  4] FDE for: _pluginlib_getaction
+0x000303B8	0x00000018	[  5] CFI
+0x000303D0	0x00000020	[  5] FDE for: _talk_val
+0x000303F0	0x00000040	[  5] FDE for: _backlight_force_on
+0x00030430	0x00000050	[  5] FDE for: _backlight_ignore_timeout
+0x00030480	0x00000040	[  5] FDE for: _backlight_use_settings
+0x000304C0	0x00000040	[  5] FDE for: _sw_poweroff_disable
+0x00030500	0x00000020	[  5] FDE for: _sw_poweroff_restore
+0x00030520	0x00000020	[  5] FDE for: _remote_backlight_force_on
+0x00030540	0x00000020	[  5] FDE for: _remote_backlight_ignore_timeout
+0x00030560	0x00000020	[  5] FDE for: _remote_backlight_use_settings
+0x00030580	0x00000020	[  5] FDE for: _buttonlight_force_on
+0x000305A0	0x00000020	[  5] FDE for: _buttonlight_force_off
+0x000305C0	0x00000020	[  5] FDE for: _buttonlight_ignore_timeout
+0x000305E0	0x00000020	[  5] FDE for: _buttonlight_use_settings
+0x00030600	0x00000020	[  5] FDE for: _backlight_brightness_set
+0x00030620	0x00000020	[  5] FDE for: _backlight_brightness_use_setting
+0x00030640	0x00000020	[  5] FDE for: _buttonlight_brightness_set
+0x00030660	0x00000020	[  5] FDE for: _buttonlight_brightness_use_setting
+0x00030680	0x00000018	[  6] CFI
+0x00030698	0x00000038	[  6] FDE for: _prevtrack
+0x000306D0	0x00000048	[  6] FDE for: _play
+0x00030718	0x00000038	[  6] FDE for: _stop
+0x00030750	0x00000038	[  6] FDE for: _nexttrack
+0x00030788	0x00000040	[  6] FDE for: _volume
+0x000307C8	0x00000040	[  6] FDE for: _shuffle
+0x00030808	0x00000040	[  6] FDE for: _repeat_mode
+0x00030848	0x00000020	[  6] FDE for: _playback_control_init
+0x00030868	0x00000038	[  6] FDE for: _playback_control
+0x000308A0	0x00000018	[  7] CFI
+0x000308B8	0x00000070	[  7] FDE for: _highscore_save
+0x00030928	0x00000070	[  7] FDE for: _highscore_load
+0x00030998	0x00000020	[  7] FDE for: _highscore_would_update
+0x000309B8	0x00000068	[  7] FDE for: _highscore_update
+0x00030A20	0x00000080	[  7] FDE for: _highscore_show
+0x00030AA0	0x00000018	[  8] CFI
+0x00030AB8	0x00000050	[  8] FDE for: _wait_key_press
+0x00030B08	0x00000070	[  8] FDE for: _display_text
+0x00034000	0x00000008	[ 12] _longjmp.got
+0x00034008	0x00000008	[ 12] _setjmp.got
+0x00034010	0x00000018	[  1] _menu__.2
+0x00034028	0x00000018	[  1] _menu.3
+0x00034040	0x00000018	[  1] _menu__.5
+0x00034058	0x00000018	[  1] _menu.6
+0x00034070	0x00000038	[  2] ___header
+0x000340A8	0x00000018	[  6] _playback_control_menu
+0x000340C0	0x00000018	[  6] _repeat_mode_item
+0x000340D8	0x00000008	[  6] _repeat_mode_item__
+0x000340E0	0x00000018	[  6] _shuffle_item
+0x000340F8	0x00000008	[  6] _shuffle_item__
+0x00034100	0x00000018	[  6] _volume_item
+0x00034118	0x00000008	[  6] _volume_item__
+0x00034120	0x00000018	[  6] _nexttrack_item
+0x00034138	0x00000008	[  6] _nexttrack_item__
+0x00034140	0x00000018	[  6] _stop_item
+0x00034158	0x00000008	[  6] _stop_item__
+0x00034160	0x00000018	[  6] _playpause_item
+0x00034178	0x00000008	[  6] _playpause_item__
+0x00034180	0x00000018	[  6] _prevtrack_item
+0x00034198	0x00000008	[  6] _prevtrack_item__
+0x000341A0	0x00000028	[  9] _bm__2048_tiles
+0x000341C8	0x00000028	[ 10] _bm__2048_background
+0x00038000	0x00000140	[  1] _help_text.0
+0x00038140	0x00000038	[  1] _menu_.1
+0x00038178	0x00000038	[  1] _menu_.4
+0x000381B0	0x00000004	[  1] _abnormal_exit
+0x000381B4	0x00000004	[  1] _max_numeral_height
+0x000381B8	0x00000008	[  1] _plugin_contexts
+0x000381C0	0x00000001	[  5] _original_sw_poweroff_state
+0x000381C8	0x00000038	[  6] _playback_control_menu_
+0x00038200	0x00000008	[  2] _rb
+0x00038208	0x00000004	[  1] _check_hs
+0x0003820C	0x000000C8	[  1] _highscores
+0x000382D4	0x00000004	[  1] _best_score
+0x000382D8	0x00000004	[  1] _loaded
+0x000382DC	0x00000040	[  1] _old_grid
+0x0003831C	0x00000010	[  1] _merged_grid
+0x00038330	0x00000008	[  2] _atexit_handler
+0x00038338	0x000000C0	[  2] ___exit_env
+0x000383F8	0x00000004	[  4] _last_context
+0x000383FC	0x00000004	[  4] _plugin_context_count
+0x00038400	0x00000008	[  4] _plugin_context_order
+0x00038408	0x00000001	[  7] _highscore_updated
+0x00038410	0x0000004C	[  1] _game_ctx
+0x00038460	0x00000008	[  6] _parentvp

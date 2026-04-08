@@ -1,0 +1,283 @@
+# Path: /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/imageviewer/imageviewer.elf
+# Arch: arm64
+# Object files:
+[  0] linker synthesized
+[  1] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/imageviewer/imageviewer.o
+[  2] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/imageviewer/image_decoder.o
+[  3] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/plugin_crt0.o
+[  4] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(helper.o)
+[  5] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(configfile.o)
+[  6] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(playback_control.o)
+[  7] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(xlcd_core.o)
+[  8] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(xlcd_scroll.o)
+[  9] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/libSystem.tbd
+[ 10] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/system/libsystem_platform.tbd
+# Sections:
+# Address	Size    	Segment	Section
+0x00000788	0x000029E0	__TEXT	__text
+0x00003168	0x00000018	__TEXT	__stubs
+0x00003180	0x000002DA	__TEXT	__cstring
+0x00003460	0x00000140	__TEXT	__const
+0x000035A0	0x00000DB0	__TEXT	__eh_frame
+0x00008000	0x00000010	__DATA_CONST	__got
+0x00008010	0x000002E0	__DATA_CONST	__const
+0x0000C000	0x00000150	__DATA	__data
+0x0000C150	0x00000008	__DATA	.data
+0x0000C158	0x000004F0	__DATA	__bss
+0x0000C648	0x00000008	__DATA	__common
+# Symbols:
+# Address	Size    	File  Name
+0x00000788	0x00000164	[  1] _change_filename
+0x000008EC	0x00000004	[  1] _cleanup
+0x000008F0	0x00000058	[  1] _set_option_grayscale
+0x00000948	0x0000004C	[  1] _set_option_dithering
+0x00000994	0x000000D4	[  1] _cb_progress
+0x00000A68	0x000002A4	[  1] _ask_and_get_audio_buffer.constprop.0
+0x00000D0C	0x000010FC	[  1] _plugin_start
+0x00001E08	0x00000170	[  2] _get_image_type
+0x00001F78	0x0000003C	[  2] _release_decoder
+0x00001FB4	0x000001A0	[  2] _load_decoder
+0x00002154	0x00000018	[  3] _cleanup_wrapper
+0x0000216C	0x00000068	[  3] _plugin__start
+0x000021D4	0x00000020	[  3] _rb_atexit
+0x000021F4	0x00000024	[  3] _exit
+0x00002218	0x00000014	[  3] __exit
+0x0000222C	0x00000064	[  3] _exit_on_usb
+0x00002290	0x00000020	[  4] _talk_val
+0x000022B0	0x00000040	[  4] _backlight_force_on
+0x000022F0	0x0000006C	[  4] _backlight_ignore_timeout
+0x0000235C	0x00000048	[  4] _backlight_use_settings
+0x000023A4	0x00000044	[  4] _sw_poweroff_disable
+0x000023E8	0x00000020	[  4] _sw_poweroff_restore
+0x00002408	0x00000004	[  4] _remote_backlight_force_on
+0x0000240C	0x00000004	[  4] _remote_backlight_ignore_timeout
+0x00002410	0x00000004	[  4] _remote_backlight_use_settings
+0x00002414	0x00000004	[  4] _buttonlight_force_on
+0x00002418	0x00000004	[  4] _buttonlight_force_off
+0x0000241C	0x00000004	[  4] _buttonlight_ignore_timeout
+0x00002420	0x00000004	[  4] _buttonlight_use_settings
+0x00002424	0x00000018	[  4] _backlight_brightness_set
+0x0000243C	0x00000020	[  4] _backlight_brightness_use_setting
+0x0000245C	0x00000004	[  4] _buttonlight_brightness_set
+0x00002460	0x00000004	[  4] _buttonlight_brightness_use_setting
+0x00002464	0x000000E8	[  5] _get_cfg_filename.constprop.0
+0x0000254C	0x00000160	[  5] _configfile_save
+0x000026AC	0x00000228	[  5] _configfile_load
+0x000028D4	0x000000E0	[  5] _configfile_get_value
+0x000029B4	0x00000158	[  5] _configfile_update_entry
+0x00002B0C	0x00000028	[  6] _prevtrack
+0x00002B34	0x00000088	[  6] _play
+0x00002BBC	0x00000028	[  6] _stop
+0x00002BE4	0x00000028	[  6] _nexttrack
+0x00002C0C	0x00000050	[  6] _volume
+0x00002C5C	0x00000054	[  6] _shuffle
+0x00002CB0	0x0000008C	[  6] _repeat_mode
+0x00002D3C	0x0000000C	[  6] _playback_control_init
+0x00002D48	0x00000048	[  6] _playback_control
+0x00002D90	0x00000044	[  7] _get_framebuffer
+0x00002DD4	0x000000F8	[  8] _xlcd_scroll_left
+0x00002ECC	0x000000F4	[  8] _xlcd_scroll_right
+0x00002FC0	0x000000D8	[  8] _xlcd_scroll_up
+0x00003098	0x000000D0	[  8] _xlcd_scroll_down
+0x00003168	0x0000000C	[ 10] _longjmp.stub
+0x00003174	0x0000000C	[ 10] _setjmp.stub
+0x00003180	0x00000013	[  1] literal string: No supported files
+0x00003193	0x00000003	[  1] literal string: %s
+0x00003196	0x00000011	[  1] literal string: Grayscale (Jpeg)
+0x000031A7	0x0000001A	[  1] literal string: Not enough plugin memory!
+0x000031C1	0x00000018	[  1] literal string: Zoom In: Stop playback.
+0x000031D9	0x00000017	[  1] literal string: Left/Right: Skip File.
+0x000031F0	0x00000011	[  1] literal string: Show Menu: Quit.
+0x00003201	0x00000001	[  1] literal string: 
+0x00003202	0x00000008	[  1] literal string: No file
+0x0000320A	0x00000011	[  1] literal string: Unsupported file
+0x0000321B	0x00000010	[  1] literal string: imageviewer.cfg
+0x0000322B	0x0000000E	[  1] literal string: Out of Memory
+0x00003239	0x00000008	[  1] literal string: Aborted
+0x00003241	0x0000000A	[  1] literal string: Too large
+0x0000324B	0x0000000E	[  1] literal string: showing %dx%d
+0x00003259	0x00000002	[  1] literal string: s
+0x0000325B	0x00000010	[  1] literal string: Saving Settings
+0x0000326B	0x0000000D	[  1] literal string: Image Viewer
+0x00003278	0x00000010	[  1] literal string: Display Options
+0x00003288	0x0000000C	[  1] literal string: Colour Mode
+0x00003294	0x0000000C	[  1] literal string: Dither Mode
+0x000032A0	0x0000000F	[  1] literal string: Slideshow Time
+0x000032AF	0x00000005	[  1] literal string: None
+0x000032B4	0x00000008	[  1] literal string: Ordered
+0x000032BC	0x0000000A	[  1] literal string: Diffusion
+0x000032C6	0x00000007	[  1] literal string: Colour
+0x000032CD	0x0000000A	[  1] literal string: Grayscale
+0x000032D7	0x00000024	[  2] literal string: Note: File extension is not correct
+0x000032FB	0x00000011	[  2] literal string: Unknown type: %d
+0x0000330C	0x0000001F	[  2] literal string: /.rockbox/rocks/viewers/%s.ovl
+0x0000332B	0x0000000E	[  2] literal string: Can't open %s
+0x00003339	0x00000011	[  2] literal string: Can't get header
+0x0000334A	0x00000020	[  2] literal string: %s decoder: Incompatible model.
+0x0000336A	0x00000022	[  2] literal string: %s decoder: Incompatible version.
+0x0000338C	0x00000003	[  2] literal string: BM
+0x0000338F	0x00000005	[  2] literal string: ÿØÿà
+0x00003394	0x00000009	[  2] literal string: ‰PNG\r\n\n
+0x0000339D	0x00000003	[  2] literal string: P3
+0x000033A0	0x00000003	[  2] literal string: P6
+0x000033A3	0x00000007	[  2] literal string: GIF87a
+0x000033AA	0x00000007	[  2] literal string: GIF89a
+0x000033B1	0x00000005	[  2] literal string: .bmp
+0x000033B6	0x00000005	[  2] literal string: .jpg
+0x000033BB	0x00000005	[  2] literal string: .jpe
+0x000033C0	0x00000006	[  2] literal string: .jpeg
+0x000033C6	0x00000005	[  2] literal string: .png
+0x000033CB	0x00000005	[  2] literal string: .ppm
+0x000033D0	0x00000005	[  2] literal string: .gif
+0x000033D5	0x00000004	[  2] literal string: bmp
+0x000033D9	0x00000005	[  2] literal string: jpeg
+0x000033DE	0x00000004	[  2] literal string: png
+0x000033E2	0x00000004	[  2] literal string: ppm
+0x000033E6	0x00000004	[  2] literal string: gif
+0x000033EA	0x00000006	[  2] literal string: jpegp
+0x000033F0	0x0000000A	[  5] literal string: /.rockbox
+0x000033FA	0x00000004	[  5] literal string: /%s
+0x000033FE	0x00000013	[  5] literal string: /.rockbox/rocks/%s
+0x00003411	0x00000014	[  5] literal string: file version: %10d\n
+0x00003425	0x0000000A	[  5] literal string: %s: %10d\n
+0x0000342F	0x00000008	[  5] literal string: %s: %s\n
+0x00003437	0x0000000D	[  5] literal string: file version
+0x00003444	0x00000007	[  6] literal string: Volume
+0x0000344B	0x00000008	[  6] literal string: Shuffle
+0x00003453	0x00000007	[  6] literal string: Repeat
+0x00003460	0x00000020	[  1] _slideshow.2
+0x00003480	0x00000030	[  1] _dithering.7
+0x000034B0	0x00000018	[  1] _dithering_item_
+0x000034C8	0x00000018	[  1] _grayscale_item_
+0x000034E0	0x00000018	[  6] _playback_control_menu__
+0x000034F8	0x00000018	[  6] _repeat_mode_item_
+0x00003510	0x00000018	[  6] _shuffle_item_
+0x00003528	0x00000018	[  6] _volume_item_
+0x00003540	0x00000018	[  6] _nexttrack_item_
+0x00003558	0x00000018	[  6] _stop_item_
+0x00003570	0x00000018	[  6] _playpause_item_
+0x00003588	0x00000018	[  6] _prevtrack_item_
+0x000035A0	0x00000018	[  1] CFI
+0x000035B8	0x00000068	[  1] FDE for: _change_filename
+0x00003620	0x00000020	[  1] FDE for: _cleanup
+0x00003640	0x00000040	[  1] FDE for: _set_option_grayscale
+0x00003680	0x00000038	[  1] FDE for: _set_option_dithering
+0x000036B8	0x00000060	[  1] FDE for: _cb_progress
+0x00003718	0x00000078	[  1] FDE for: _ask_and_get_audio_buffer.constprop.0
+0x00003790	0x00000070	[  1] FDE for: _plugin_start
+0x00003800	0x00000018	[  2] CFI
+0x00003818	0x00000068	[  2] FDE for: _get_image_type
+0x00003880	0x00000040	[  2] FDE for: _release_decoder
+0x000038C0	0x00000060	[  2] FDE for: _load_decoder
+0x00003920	0x00000018	[  3] CFI
+0x00003938	0x00000020	[  3] FDE for: _cleanup_wrapper
+0x00003958	0x00000040	[  3] FDE for: _plugin__start
+0x00003998	0x00000020	[  3] FDE for: _rb_atexit
+0x000039B8	0x00000030	[  3] FDE for: _exit
+0x000039E8	0x00000030	[  3] FDE for: __exit
+0x00003A18	0x00000038	[  3] FDE for: _exit_on_usb
+0x00003A50	0x00000018	[  4] CFI
+0x00003A68	0x00000020	[  4] FDE for: _talk_val
+0x00003A88	0x00000040	[  4] FDE for: _backlight_force_on
+0x00003AC8	0x00000050	[  4] FDE for: _backlight_ignore_timeout
+0x00003B18	0x00000040	[  4] FDE for: _backlight_use_settings
+0x00003B58	0x00000040	[  4] FDE for: _sw_poweroff_disable
+0x00003B98	0x00000020	[  4] FDE for: _sw_poweroff_restore
+0x00003BB8	0x00000020	[  4] FDE for: _remote_backlight_force_on
+0x00003BD8	0x00000020	[  4] FDE for: _remote_backlight_ignore_timeout
+0x00003BF8	0x00000020	[  4] FDE for: _remote_backlight_use_settings
+0x00003C18	0x00000020	[  4] FDE for: _buttonlight_force_on
+0x00003C38	0x00000020	[  4] FDE for: _buttonlight_force_off
+0x00003C58	0x00000020	[  4] FDE for: _buttonlight_ignore_timeout
+0x00003C78	0x00000020	[  4] FDE for: _buttonlight_use_settings
+0x00003C98	0x00000020	[  4] FDE for: _backlight_brightness_set
+0x00003CB8	0x00000020	[  4] FDE for: _backlight_brightness_use_setting
+0x00003CD8	0x00000020	[  4] FDE for: _buttonlight_brightness_set
+0x00003CF8	0x00000020	[  4] FDE for: _buttonlight_brightness_use_setting
+0x00003D18	0x00000018	[  5] CFI
+0x00003D30	0x00000068	[  5] FDE for: _get_cfg_filename.constprop.0
+0x00003D98	0x00000070	[  5] FDE for: _configfile_save
+0x00003E08	0x00000068	[  5] FDE for: _configfile_load
+0x00003E70	0x00000058	[  5] FDE for: _configfile_get_value
+0x00003EC8	0x00000070	[  5] FDE for: _configfile_update_entry
+0x00003F38	0x00000018	[  6] CFI
+0x00003F50	0x00000038	[  6] FDE for: _prevtrack
+0x00003F88	0x00000048	[  6] FDE for: _play
+0x00003FD0	0x00000038	[  6] FDE for: _stop
+0x00004008	0x00000038	[  6] FDE for: _nexttrack
+0x00004040	0x00000040	[  6] FDE for: _volume
+0x00004080	0x00000040	[  6] FDE for: _shuffle
+0x000040C0	0x00000040	[  6] FDE for: _repeat_mode
+0x00004100	0x00000020	[  6] FDE for: _playback_control_init
+0x00004120	0x00000038	[  6] FDE for: _playback_control
+0x00004158	0x00000018	[  7] CFI
+0x00004170	0x00000020	[  7] FDE for: _get_framebuffer
+0x00004190	0x00000018	[  8] CFI
+0x000041A8	0x00000068	[  8] FDE for: _xlcd_scroll_left
+0x00004210	0x00000070	[  8] FDE for: _xlcd_scroll_right
+0x00004280	0x00000070	[  8] FDE for: _xlcd_scroll_up
+0x000042F0	0x00000060	[  8] FDE for: _xlcd_scroll_down
+0x00008000	0x00000008	[ 10] _longjmp.got
+0x00008008	0x00000008	[ 10] _setjmp.got
+0x00008010	0x00000018	[  1] _menu__.1
+0x00008028	0x00000018	[  1] _menu.3
+0x00008040	0x00000018	[  1] _display_menu
+0x00008058	0x00000018	[  1] _display_menu__
+0x00008070	0x00000018	[  1] _dithering_item
+0x00008088	0x00000008	[  1] _dithering_item__
+0x00008090	0x00000018	[  1] _grayscale_item
+0x000080A8	0x00000008	[  1] _grayscale_item__
+0x000080B0	0x00000070	[  2] _magic_list.0
+0x00008120	0x00000070	[  2] _ext_list.1
+0x00008190	0x00000030	[  2] _decoder_names
+0x000081C0	0x00000038	[  3] ___header
+0x000081F8	0x00000018	[  6] _playback_control_menu
+0x00008210	0x00000018	[  6] _repeat_mode_item
+0x00008228	0x00000008	[  6] _repeat_mode_item__
+0x00008230	0x00000018	[  6] _shuffle_item
+0x00008248	0x00000008	[  6] _shuffle_item__
+0x00008250	0x00000018	[  6] _volume_item
+0x00008268	0x00000008	[  6] _volume_item__
+0x00008270	0x00000018	[  6] _nexttrack_item
+0x00008288	0x00000008	[  6] _nexttrack_item__
+0x00008290	0x00000018	[  6] _stop_item
+0x000082A8	0x00000008	[  6] _stop_item__
+0x000082B0	0x00000018	[  6] _playpause_item
+0x000082C8	0x00000008	[  6] _playpause_item__
+0x000082D0	0x00000018	[  6] _prevtrack_item
+0x000082E8	0x00000008	[  6] _prevtrack_item__
+0x0000C000	0x00000030	[  1] _menu_.0
+0x0000C030	0x00000010	[  1] _display_menu_
+0x0000C040	0x00000004	[  1] _image_type
+0x0000C044	0x00000004	[  1] _direction
+0x0000C048	0x00000008	[  1] _curfile
+0x0000C050	0x00000018	[  1] _iv_api
+0x0000C068	0x00000078	[  1] _config
+0x0000C0E0	0x00000018	[  1] ___compound_literal.1
+0x0000C0F8	0x00000010	[  1] ___compound_literal.0
+0x0000C108	0x0000000C	[  1] _settings
+0x0000C114	0x00000001	[  4] _original_sw_poweroff_state
+0x0000C118	0x00000038	[  6] _playback_control_menu_
+0x0000C150	0x00000008	[  3] _rb
+0x0000C158	0x00000008	[  1] _lcd_fb.4
+0x0000C160	0x00000008	[  1] _ss_timeout.5
+0x0000C168	0x00000008	[  1] _lastbutton.6
+0x0000C170	0x00000008	[  1] _imgdec
+0x0000C178	0x00000008	[  1] _next_progress_tick
+0x0000C180	0x00000008	[  1] _file_pt
+0x0000C188	0x00000004	[  1] _entries
+0x0000C18C	0x00000104	[  1] _np_file
+0x0000C290	0x00000028	[  1] _image_info
+0x0000C2B8	0x00000004	[  1] _ds_max
+0x0000C2BC	0x00000004	[  1] _ds_min
+0x0000C2C0	0x00000008	[  1] _ds
+0x0000C2C8	0x00000008	[  1] _buf_size
+0x0000C2D0	0x00000008	[  1] _buf
+0x0000C2D8	0x00000008	[  1] _decoder_buf_size
+0x0000C2E0	0x00000008	[  1] _decoder_buf
+0x0000C2E8	0x00000280	[  1] _rgb_linebuf
+0x0000C568	0x0000000C	[  1] _old_settings
+0x0000C578	0x00000008	[  2] _decoder_handle
+0x0000C580	0x00000008	[  3] _atexit_handler
+0x0000C588	0x000000C0	[  3] ___exit_env
+0x0000C648	0x00000008	[  6] _parentvp

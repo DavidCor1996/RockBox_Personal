@@ -1,0 +1,96 @@
+# Path: /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/sliding_puzzle.elf
+# Arch: arm64
+# Object files:
+[  0] linker synthesized
+[  1] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/sliding_puzzle.o
+[  2] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/plugin_crt0.o
+[  3] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(read_image.o)
+[  4] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/bitmaps/libpluginbitmaps.a(sliding_puzzle.240x240x16.o)
+[  5] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/libSystem.tbd
+[  6] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/system/libsystem_platform.tbd
+# Sections:
+# Address	Size    	Segment	Section
+0x00000730	0x00000EC4	__TEXT	__text
+0x000015F4	0x00000018	__TEXT	__stubs
+0x0000160C	0x000000D0	__TEXT	__cstring
+0x000016DC	0x0001C200	__TEXT	__const
+0x0001D8E0	0x00000448	__TEXT	__eh_frame
+0x00020000	0x00000010	__DATA_CONST	__got
+0x00020010	0x00000088	__DATA_CONST	__const
+0x00024000	0x00000010	__DATA	__data
+0x00024010	0x00000008	__DATA	.data
+0x00024018	0x00000360	__DATA	__bss
+# Symbols:
+# Address	Size    	File  Name
+0x00000730	0x00000220	[  1] _draw_spot
+0x00000950	0x00000038	[  1] _puzzle_finished
+0x00000988	0x00000218	[  1] _move_spot
+0x00000BA0	0x00000150	[  1] _draw_playfield
+0x00000CF0	0x00000178	[  1] _puzzle_init
+0x00000E68	0x00000158	[  1] _load_resize_bitmap
+0x00000FC0	0x0000046C	[  1] _plugin_start
+0x0000142C	0x00000018	[  2] _cleanup_wrapper
+0x00001444	0x00000068	[  2] _plugin__start
+0x000014AC	0x00000020	[  2] _rb_atexit
+0x000014CC	0x00000024	[  2] _exit
+0x000014F0	0x00000014	[  2] __exit
+0x00001504	0x00000064	[  2] _exit_on_usb
+0x00001568	0x0000008C	[  3] _read_image_file
+0x000015F4	0x0000000C	[  6] _longjmp.stub
+0x00001600	0x0000000C	[  6] _setjmp.stub
+0x0000160C	0x00000003	[  1] literal string: %d
+0x0000160F	0x00000006	[  1] literal string: Moves
+0x00001615	0x00000001	[  1] literal string: 
+0x00001616	0x0000000F	[  1] literal string: Sliding Puzzle
+0x00001625	0x00000016	[  1] literal string: Long [SELECT] to stop
+0x0000163B	0x00000011	[  1] literal string: [S-LEFT] shuffle
+0x0000164C	0x00000015	[  1] literal string: [S-RIGHT] change pic
+0x00001661	0x00000017	[  1] literal string:     pic->albumart->num
+0x00001678	0x00000017	[  1] literal string: Failed to load bitmap!
+0x0000168F	0x00000003	[  1] literal string: 15
+0x00001692	0x00000009	[  1] literal string: Numerals
+0x0000169B	0x0000000F	[  1] literal string: Viewer Picture
+0x000016AA	0x00000010	[  1] literal string: Default Picture
+0x000016BA	0x0000000A	[  1] literal string: Album Art
+0x000016C4	0x00000013	[  1] literal string: Shouldn't Get Here
+0x000016D7	0x00000005	[  3] literal string: .bmp
+0x000016DC	0x0001C200	[  4] _sliding_puzzle
+0x0001D8E0	0x00000018	[  1] CFI
+0x0001D8F8	0x00000088	[  1] FDE for: _draw_spot
+0x0001D980	0x00000020	[  1] FDE for: _puzzle_finished
+0x0001D9A0	0x00000078	[  1] FDE for: _move_spot
+0x0001DA18	0x00000058	[  1] FDE for: _draw_playfield
+0x0001DA70	0x00000068	[  1] FDE for: _puzzle_init
+0x0001DAD8	0x00000058	[  1] FDE for: _load_resize_bitmap
+0x0001DB30	0x00000060	[  1] FDE for: _plugin_start
+0x0001DB90	0x00000018	[  2] CFI
+0x0001DBA8	0x00000020	[  2] FDE for: _cleanup_wrapper
+0x0001DBC8	0x00000040	[  2] FDE for: _plugin__start
+0x0001DC08	0x00000020	[  2] FDE for: _rb_atexit
+0x0001DC28	0x00000030	[  2] FDE for: _exit
+0x0001DC58	0x00000030	[  2] FDE for: __exit
+0x0001DC88	0x00000038	[  2] FDE for: _exit_on_usb
+0x0001DCC0	0x00000018	[  3] CFI
+0x0001DCD8	0x00000050	[  3] FDE for: _read_image_file
+0x00020000	0x00000008	[  6] _longjmp.got
+0x00020008	0x00000008	[  6] _setjmp.got
+0x00020010	0x00000028	[  1] _picmode_descriptions
+0x00020038	0x00000038	[  2] ___header
+0x00020070	0x00000028	[  4] _bm_sliding_puzzle
+0x00024000	0x00000004	[  1] _moves_font
+0x00024004	0x00000004	[  1] _num_font
+0x00024008	0x00000004	[  1] _picmode
+0x0002400C	0x00000004	[  1] _hole
+0x00024010	0x00000008	[  2] _rb
+0x00024018	0x00000008	[  1] _initial_bmp_path
+0x00024020	0x00000008	[  1] _puzzle_bmp_ptr
+0x00024028	0x00000105	[  1] _img_buf_path
+0x0002412D	0x0000010B	[  1] _albumart_path
+0x00024238	0x00000008	[  1] _img_buf_len
+0x00024240	0x00000008	[  1] _img_buf
+0x00024248	0x00000004	[  1] _moves_y
+0x0002424C	0x00000020	[  1] _s
+0x0002426C	0x00000004	[  1] _moves
+0x00024270	0x00000040	[  1] _spots
+0x000242B0	0x00000008	[  2] _atexit_handler
+0x000242B8	0x000000C0	[  2] ___exit_env

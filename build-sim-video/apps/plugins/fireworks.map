@@ -1,0 +1,241 @@
+# Path: /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/fireworks.elf
+# Arch: arm64
+# Object files:
+[  0] linker synthesized
+[  1] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/fireworks.o
+[  2] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/plugin_crt0.o
+[  3] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(pluginlib_actions.o)
+[  4] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(helper.o)
+[  5] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(playback_control.o)
+[  6] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/libSystem.tbd
+[  7] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/system/libsystem_platform.tbd
+# Sections:
+# Address	Size    	Segment	Section
+0x00000780	0x00000FAC	__TEXT	__text
+0x0000172C	0x00000018	__TEXT	__stubs
+0x00001744	0x000001C3	__TEXT	__cstring
+0x00001908	0x00000208	__TEXT	__const
+0x00001B10	0x00000790	__TEXT	__eh_frame
+0x00004000	0x00000010	__DATA_CONST	__got
+0x00004010	0x00000460	__DATA_CONST	__const
+0x00008000	0x00000168	__DATA	__data
+0x00008168	0x00000008	__DATA	.data
+0x00008170	0x00008170	__DATA	__common
+0x000102E0	0x000000D8	__DATA	__bss
+# Symbols:
+# Address	Size    	File  Name
+0x00000780	0x000000EC	[  1] _init_rocket
+0x0000086C	0x0000029C	[  1] _fireworks_menu
+0x00000B08	0x00000618	[  1] _plugin_start
+0x00001120	0x00000018	[  2] _cleanup_wrapper
+0x00001138	0x00000068	[  2] _plugin__start
+0x000011A0	0x00000020	[  2] _rb_atexit
+0x000011C0	0x00000024	[  2] _exit
+0x000011E4	0x00000014	[  2] __exit
+0x000011F8	0x00000064	[  2] _exit_on_usb
+0x0000125C	0x00000038	[  3] _get_context_map
+0x00001294	0x00000040	[  3] _pluginlib_getaction
+0x000012D4	0x00000020	[  4] _talk_val
+0x000012F4	0x00000040	[  4] _backlight_force_on
+0x00001334	0x0000006C	[  4] _backlight_ignore_timeout
+0x000013A0	0x00000048	[  4] _backlight_use_settings
+0x000013E8	0x00000044	[  4] _sw_poweroff_disable
+0x0000142C	0x00000020	[  4] _sw_poweroff_restore
+0x0000144C	0x00000004	[  4] _remote_backlight_force_on
+0x00001450	0x00000004	[  4] _remote_backlight_ignore_timeout
+0x00001454	0x00000004	[  4] _remote_backlight_use_settings
+0x00001458	0x00000004	[  4] _buttonlight_force_on
+0x0000145C	0x00000004	[  4] _buttonlight_force_off
+0x00001460	0x00000004	[  4] _buttonlight_ignore_timeout
+0x00001464	0x00000004	[  4] _buttonlight_use_settings
+0x00001468	0x00000018	[  4] _backlight_brightness_set
+0x00001480	0x00000020	[  4] _backlight_brightness_use_setting
+0x000014A0	0x00000004	[  4] _buttonlight_brightness_set
+0x000014A4	0x00000004	[  4] _buttonlight_brightness_use_setting
+0x000014A8	0x00000028	[  5] _prevtrack
+0x000014D0	0x00000088	[  5] _play
+0x00001558	0x00000028	[  5] _stop
+0x00001580	0x00000028	[  5] _nexttrack
+0x000015A8	0x00000050	[  5] _volume
+0x000015F8	0x00000054	[  5] _shuffle
+0x0000164C	0x0000008C	[  5] _repeat_mode
+0x000016D8	0x0000000C	[  5] _playback_control_init
+0x000016E4	0x00000048	[  5] _playback_control
+0x0000172C	0x0000000C	[  7] _longjmp.stub
+0x00001738	0x0000000C	[  7] _setjmp.stub
+0x00001744	0x0000000A	[  1] literal string: Auto-Fire
+0x0000174E	0x00000017	[  1] literal string: Particles Per Firework
+0x00001765	0x0000000E	[  1] literal string: Particle Life
+0x00001773	0x00000008	[  1] literal string: Gravity
+0x0000177B	0x0000000D	[  1] literal string: Show Rockets
+0x00001788	0x0000000C	[  1] literal string: FPS (Speed)
+0x00001794	0x0000000A	[  1] literal string: Fireworks
+0x0000179E	0x0000000B	[  1] literal string: Start Demo
+0x000017A9	0x00000011	[  1] literal string: Playback Control
+0x000017BA	0x00000005	[  1] literal string: Quit
+0x000017BF	0x00000007	[  1] literal string: 20 FPS
+0x000017C6	0x00000007	[  1] literal string: 25 FPS
+0x000017CD	0x00000007	[  1] literal string: 30 FPS
+0x000017D4	0x00000007	[  1] literal string: 35 FPS
+0x000017DB	0x00000007	[  1] literal string: 40 FPS
+0x000017E2	0x00000007	[  1] literal string: 45 FPS
+0x000017E9	0x00000007	[  1] literal string: 50 FPS
+0x000017F0	0x00000007	[  1] literal string: 55 FPS
+0x000017F7	0x00000007	[  1] literal string: 60 FPS
+0x000017FE	0x00000003	[  1] literal string: No
+0x00001801	0x00000010	[  1] literal string: Yes (no trails)
+0x00001811	0x00000012	[  1] literal string: Yes (with trails)
+0x00001823	0x00000005	[  1] literal string: Weak
+0x00001828	0x00000009	[  1] literal string: Moderate
+0x00001831	0x00000007	[  1] literal string: Strong
+0x00001838	0x0000000A	[  1] literal string: 20 cycles
+0x00001842	0x0000000A	[  1] literal string: 30 cycles
+0x0000184C	0x0000000A	[  1] literal string: 40 cycles
+0x00001856	0x0000000A	[  1] literal string: 50 cycles
+0x00001860	0x0000000A	[  1] literal string: 60 cycles
+0x0000186A	0x0000000A	[  1] literal string: 70 cycles
+0x00001874	0x0000000A	[  1] literal string: 80 cycles
+0x0000187E	0x0000000A	[  1] literal string: 90 cycles
+0x00001888	0x0000000B	[  1] literal string: 100 cycles
+0x00001893	0x00000002	[  1] literal string: 5
+0x00001895	0x00000003	[  1] literal string: 10
+0x00001898	0x00000003	[  1] literal string: 15
+0x0000189B	0x00000003	[  1] literal string: 20
+0x0000189E	0x00000003	[  1] literal string: 25
+0x000018A1	0x00000003	[  1] literal string: 30
+0x000018A4	0x00000003	[  1] literal string: 35
+0x000018A7	0x00000003	[  1] literal string: 40
+0x000018AA	0x00000005	[  1] literal string: 50ms
+0x000018AF	0x00000006	[  1] literal string: 100ms
+0x000018B5	0x00000006	[  1] literal string: 200ms
+0x000018BB	0x00000006	[  1] literal string: 300ms
+0x000018C1	0x00000006	[  1] literal string: 400ms
+0x000018C7	0x00000006	[  1] literal string: 500ms
+0x000018CD	0x00000006	[  1] literal string: 600ms
+0x000018D3	0x00000006	[  1] literal string: 700ms
+0x000018D9	0x00000006	[  1] literal string: 800ms
+0x000018DF	0x00000006	[  1] literal string: 900ms
+0x000018E5	0x00000003	[  1] literal string: 1s
+0x000018E8	0x00000003	[  1] literal string: 2s
+0x000018EB	0x00000003	[  1] literal string: 3s
+0x000018EE	0x00000003	[  1] literal string: 4s
+0x000018F1	0x00000007	[  5] literal string: Volume
+0x000018F8	0x00000008	[  5] literal string: Shuffle
+0x00001900	0x00000007	[  5] literal string: Repeat
+0x00001908	0x0000001C	[  1] _firework_darkest_colors
+0x00001924	0x0000001C	[  1] _firework_darker_colors
+0x00001940	0x0000001C	[  1] _firework_dark_colors
+0x0000195C	0x0000001C	[  1] _firework_colors
+0x00001978	0x000000D8	[  3] _pla_main_ctx
+0x00001A50	0x00000018	[  5] _playback_control_menu__
+0x00001A68	0x00000018	[  5] _repeat_mode_item_
+0x00001A80	0x00000018	[  5] _shuffle_item_
+0x00001A98	0x00000018	[  5] _volume_item_
+0x00001AB0	0x00000018	[  5] _nexttrack_item_
+0x00001AC8	0x00000018	[  5] _stop_item_
+0x00001AE0	0x00000018	[  5] _playpause_item_
+0x00001AF8	0x00000018	[  5] _prevtrack_item_
+0x00001B10	0x00000018	[  1] CFI
+0x00001B28	0x00000048	[  1] FDE for: _init_rocket
+0x00001B70	0x00000050	[  1] FDE for: _fireworks_menu
+0x00001BC0	0x00000070	[  1] FDE for: _plugin_start
+0x00001C30	0x00000018	[  2] CFI
+0x00001C48	0x00000020	[  2] FDE for: _cleanup_wrapper
+0x00001C68	0x00000040	[  2] FDE for: _plugin__start
+0x00001CA8	0x00000020	[  2] FDE for: _rb_atexit
+0x00001CC8	0x00000030	[  2] FDE for: _exit
+0x00001CF8	0x00000030	[  2] FDE for: __exit
+0x00001D28	0x00000038	[  2] FDE for: _exit_on_usb
+0x00001D60	0x00000018	[  3] CFI
+0x00001D78	0x00000020	[  3] FDE for: _get_context_map
+0x00001D98	0x00000020	[  3] FDE for: _pluginlib_getaction
+0x00001DB8	0x00000018	[  4] CFI
+0x00001DD0	0x00000020	[  4] FDE for: _talk_val
+0x00001DF0	0x00000040	[  4] FDE for: _backlight_force_on
+0x00001E30	0x00000050	[  4] FDE for: _backlight_ignore_timeout
+0x00001E80	0x00000040	[  4] FDE for: _backlight_use_settings
+0x00001EC0	0x00000040	[  4] FDE for: _sw_poweroff_disable
+0x00001F00	0x00000020	[  4] FDE for: _sw_poweroff_restore
+0x00001F20	0x00000020	[  4] FDE for: _remote_backlight_force_on
+0x00001F40	0x00000020	[  4] FDE for: _remote_backlight_ignore_timeout
+0x00001F60	0x00000020	[  4] FDE for: _remote_backlight_use_settings
+0x00001F80	0x00000020	[  4] FDE for: _buttonlight_force_on
+0x00001FA0	0x00000020	[  4] FDE for: _buttonlight_force_off
+0x00001FC0	0x00000020	[  4] FDE for: _buttonlight_ignore_timeout
+0x00001FE0	0x00000020	[  4] FDE for: _buttonlight_use_settings
+0x00002000	0x00000020	[  4] FDE for: _backlight_brightness_set
+0x00002020	0x00000020	[  4] FDE for: _backlight_brightness_use_setting
+0x00002040	0x00000020	[  4] FDE for: _buttonlight_brightness_set
+0x00002060	0x00000020	[  4] FDE for: _buttonlight_brightness_use_setting
+0x00002080	0x00000018	[  5] CFI
+0x00002098	0x00000038	[  5] FDE for: _prevtrack
+0x000020D0	0x00000048	[  5] FDE for: _play
+0x00002118	0x00000038	[  5] FDE for: _stop
+0x00002150	0x00000038	[  5] FDE for: _nexttrack
+0x00002188	0x00000040	[  5] FDE for: _volume
+0x000021C8	0x00000040	[  5] FDE for: _shuffle
+0x00002208	0x00000040	[  5] FDE for: _repeat_mode
+0x00002248	0x00000020	[  5] FDE for: _playback_control_init
+0x00002268	0x00000038	[  5] FDE for: _playback_control
+0x00004000	0x00000008	[  7] _longjmp.got
+0x00004008	0x00000008	[  7] _setjmp.got
+0x00004010	0x00000018	[  1] _menu
+0x00004028	0x00000018	[  1] _menu__
+0x00004040	0x00000090	[  1] _fps_settings
+0x000040D0	0x00000030	[  1] _rocket_settings
+0x00004100	0x00000040	[  1] _gravity_settings
+0x00004140	0x00000090	[  1] _particle_life_settings
+0x000041D0	0x00000080	[  1] _particle_settings
+0x00004250	0x000000F0	[  1] _autofire_delay_settings
+0x00004340	0x00000038	[  2] ___header
+0x00004378	0x00000018	[  5] _playback_control_menu
+0x00004390	0x00000018	[  5] _repeat_mode_item
+0x000043A8	0x00000008	[  5] _repeat_mode_item__
+0x000043B0	0x00000018	[  5] _shuffle_item
+0x000043C8	0x00000008	[  5] _shuffle_item__
+0x000043D0	0x00000018	[  5] _volume_item
+0x000043E8	0x00000008	[  5] _volume_item__
+0x000043F0	0x00000018	[  5] _nexttrack_item
+0x00004408	0x00000008	[  5] _nexttrack_item__
+0x00004410	0x00000018	[  5] _stop_item
+0x00004428	0x00000008	[  5] _stop_item__
+0x00004430	0x00000018	[  5] _playpause_item
+0x00004448	0x00000008	[  5] _playpause_item__
+0x00004450	0x00000018	[  5] _prevtrack_item
+0x00004468	0x00000008	[  5] _prevtrack_item__
+0x00008000	0x00000048	[  1] _menu_
+0x00008048	0x00000024	[  1] _fps_values
+0x0000806C	0x00000010	[  1] _rocket_values
+0x0000807C	0x00000010	[  1] _gravity_values
+0x0000808C	0x00000024	[  1] _particle_life_values
+0x000080B0	0x00000020	[  1] _particle_values
+0x000080D0	0x0000003C	[  1] _autofire_delay_values
+0x0000810C	0x00000004	[  1] _frames_per_second
+0x00008110	0x00000004	[  1] _show_rockets
+0x00008114	0x00000004	[  1] _gravity
+0x00008118	0x00000004	[  1] _particle_life
+0x0000811C	0x00000004	[  1] _particles_per_firework
+0x00008120	0x00000008	[  1] _plugin_contexts
+0x00008128	0x00000001	[  4] _original_sw_poweroff_state
+0x00008130	0x00000038	[  5] _playback_control_menu_
+0x00008168	0x00000008	[  2] _rb
+0x00008170	0x00000004	[  1] _quit_plugin
+0x00008174	0x00000004	[  1] _autofire_delay
+0x00008178	0x000000A0	[  1] _rocket_targetphase
+0x00008218	0x000000A0	[  1] _rocket_phase
+0x000082B8	0x000000A0	[  1] _rocket_yspeed
+0x00008358	0x000000A0	[  1] _rocket_xspeed
+0x000083F8	0x000000A0	[  1] _rocket_ypos
+0x00008498	0x000000A0	[  1] _rocket_xpos
+0x00008538	0x00001900	[  1] _firework_color
+0x00009E38	0x000000A0	[  1] _firework_phase
+0x00009ED8	0x00001900	[  1] _firework_yspeed
+0x0000B7D8	0x00001900	[  1] _firework_xspeed
+0x0000D0D8	0x00001900	[  1] _firework_ypoints
+0x0000E9D8	0x00001900	[  1] _firework_xpoints
+0x000102D8	0x00000008	[  5] _parentvp
+0x000102E0	0x00000008	[  2] _atexit_handler
+0x000102E8	0x000000C0	[  2] ___exit_env
+0x000103A8	0x00000004	[  3] _last_context
+0x000103AC	0x00000004	[  3] _plugin_context_count
+0x000103B0	0x00000008	[  3] _plugin_context_order

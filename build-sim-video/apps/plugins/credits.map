@@ -1,0 +1,882 @@
+# Path: /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/credits.elf
+# Arch: arm64
+# Object files:
+[  0] linker synthesized
+[  1] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/credits.o
+[  2] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/plugin_crt0.o
+[  3] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(helper.o)
+[  4] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/bitmaps/libpluginbitmaps.a(creditslogo.320x98x16.o)
+[  5] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/libSystem.tbd
+[  6] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/system/libsystem_platform.tbd
+# Sections:
+# Address	Size    	Segment	Section
+0x00000728	0x00000DB8	__TEXT	__text
+0x000014E0	0x00000018	__TEXT	__stubs
+0x000014F8	0x00002FBA	__TEXT	__cstring
+0x000044B2	0x0000F500	__TEXT	__const
+0x000139B8	0x000004D8	__TEXT	__eh_frame
+0x00014000	0x00000010	__DATA_CONST	__got
+0x00014010	0x00001900	__DATA_CONST	__const
+0x00018000	0x00000008	__DATA	.data
+0x00018008	0x00000001	__DATA	__data
+0x00018010	0x000000C8	__DATA	__bss
+# Symbols:
+# Address	Size    	File  Name
+0x00000728	0x00000120	[  1] _show_logo
+0x00000848	0x00000988	[  1] _plugin_start
+0x000011D0	0x00000018	[  2] _cleanup_wrapper
+0x000011E8	0x00000068	[  2] _plugin__start
+0x00001250	0x00000020	[  2] _rb_atexit
+0x00001270	0x00000024	[  2] _exit
+0x00001294	0x00000014	[  2] __exit
+0x000012A8	0x00000064	[  2] _exit_on_usb
+0x0000130C	0x00000020	[  3] _talk_val
+0x0000132C	0x00000040	[  3] _backlight_force_on
+0x0000136C	0x0000006C	[  3] _backlight_ignore_timeout
+0x000013D8	0x00000048	[  3] _backlight_use_settings
+0x00001420	0x00000044	[  3] _sw_poweroff_disable
+0x00001464	0x00000020	[  3] _sw_poweroff_restore
+0x00001484	0x00000004	[  3] _remote_backlight_force_on
+0x00001488	0x00000004	[  3] _remote_backlight_ignore_timeout
+0x0000148C	0x00000004	[  3] _remote_backlight_use_settings
+0x00001490	0x00000004	[  3] _buttonlight_force_on
+0x00001494	0x00000004	[  3] _buttonlight_force_off
+0x00001498	0x00000004	[  3] _buttonlight_ignore_timeout
+0x0000149C	0x00000004	[  3] _buttonlight_use_settings
+0x000014A0	0x00000018	[  3] _backlight_brightness_set
+0x000014B8	0x00000020	[  3] _backlight_brightness_use_setting
+0x000014D8	0x00000004	[  3] _buttonlight_brightness_set
+0x000014DC	0x00000004	[  3] _buttonlight_brightness_use_setting
+0x000014E0	0x0000000C	[  6] _longjmp.stub
+0x000014EC	0x0000000C	[  6] _setjmp.stub
+0x000014F8	0x00000008	[  1] literal string: Ver. %s
+0x00001500	0x00000002	[  1] literal string: A
+0x00001502	0x00000010	[  1] literal string: [Credits] %d/%d
+0x00001512	0x00000003	[  1] literal string: %s
+0x00001515	0x00000013	[  1] literal string: [Credits] %d-%d/%d
+0x00001528	0x00000010	[  1] literal string: Björn Stenberg
+0x00001538	0x00000017	[  1] literal string: Linus Nielsen Feltzing
+0x0000154F	0x0000000A	[  1] literal string: Andy Choi
+0x00001559	0x00000010	[  1] literal string: Andrew Jamieson
+0x00001569	0x0000000B	[  1] literal string: Paul Suade
+0x00001574	0x00000011	[  1] literal string: Joachim Schiffer
+0x00001585	0x00000010	[  1] literal string: Daniel Stenberg
+0x00001595	0x0000000A	[  1] literal string: Alan Korr
+0x0000159F	0x00000011	[  1] literal string: Gary Czvitkovicz
+0x000015B0	0x0000000E	[  1] literal string: Stuart Martin
+0x000015BE	0x0000000D	[  1] literal string: Felix Arends
+0x000015CB	0x0000000C	[  1] literal string: Ulf Ralberg
+0x000015D7	0x00000010	[  1] literal string: David Härdeman
+0x000015E7	0x0000000D	[  1] literal string: Thomas Saeys
+0x000015F4	0x0000000B	[  1] literal string: Grant Wier
+0x000015FF	0x00000012	[  1] literal string: Julien Labruyére
+0x00001611	0x00000010	[  1] literal string: Nicolas Sauzede
+0x00001621	0x0000000B	[  1] literal string: Robert Hak
+0x0000162C	0x0000000D	[  1] literal string: Dave Chapman
+0x00001639	0x0000000D	[  1] literal string: Stefan Meyer
+0x00001646	0x0000000F	[  1] literal string: Eric Linenberg
+0x00001655	0x0000000B	[  1] literal string: Tom Cvitan
+0x00001660	0x0000000D	[  1] literal string: Magnus Öman
+0x0000166D	0x0000000D	[  1] literal string: Jerome Kuptz
+0x0000167A	0x00000011	[  1] literal string: Julien Boissinot
+0x0000168B	0x00000011	[  1] literal string: Nuutti Kotivuori
+0x0000169C	0x00000013	[  1] literal string: Heikki Hannikainen
+0x000016AF	0x0000000E	[  1] literal string: Hardeep Sidhu
+0x000016BD	0x0000000D	[  1] literal string: Markus Braun
+0x000016CA	0x0000000E	[  1] literal string: Justin Heiner
+0x000016D8	0x00000010	[  1] literal string: Magnus Holmgren
+0x000016E8	0x0000000C	[  1] literal string: Bill Napier
+0x000016F4	0x0000000E	[  1] literal string: George Styles
+0x00001702	0x0000000C	[  1] literal string: Mats Lidell
+0x0000170E	0x0000000B	[  1] literal string: Lee Marlow
+0x00001719	0x0000000D	[  1] literal string: Nate Nystrom
+0x00001726	0x0000000E	[  1] literal string: Nick Robinson
+0x00001734	0x0000000E	[  1] literal string: Chad Lockwood
+0x00001742	0x0000000B	[  1] literal string: John Pybus
+0x0000174D	0x0000000B	[  1] literal string: Uwe Freese
+0x00001758	0x0000000B	[  1] literal string: Randy Wood
+0x00001763	0x0000000E	[  1] literal string: Gregory Haerr
+0x00001771	0x00000013	[  1] literal string: Philipp Pertermann
+0x00001784	0x0000000C	[  1] literal string: Gilles Roux
+0x00001790	0x00000010	[  1] literal string: Mark Hillebrand
+0x000017A0	0x0000000D	[  1] literal string: Damien Teney
+0x000017AD	0x00000010	[  1] literal string: Andreas Zwirtes
+0x000017BD	0x0000000E	[  1] literal string: Kjell Ericson
+0x000017CB	0x0000000B	[  1] literal string: Jim Hagani
+0x000017D6	0x0000000E	[  1] literal string: Ludovic Lange
+0x000017E4	0x0000000C	[  1] literal string: Mike Holden
+0x000017F0	0x0000000C	[  1] literal string: Simon Elén
+0x000017FC	0x00000014	[  1] literal string: Matthew P. O'Reilly
+0x00001810	0x00000017	[  1] literal string: Christian Schönberger
+0x00001827	0x0000000D	[  1] literal string: Henrik Backe
+0x00001834	0x0000000D	[  1] literal string: Craig Sather
+0x00001841	0x00000025	[  1] literal string: José Maria Garcia-Valdecasas Bernal
+0x00001866	0x0000000A	[  1] literal string: Stevie Oh
+0x00001870	0x00000010	[  1] literal string: Jörg Hohensohn
+0x00001880	0x0000000B	[  1] literal string: Dave Jones
+0x0000188B	0x00000017	[  1] literal string: Thomas Paul Diffenbach
+0x000018A2	0x00000010	[  1] literal string: Roland Kletzing
+0x000018B2	0x0000000C	[  1] literal string: Itai Shaked
+0x000018BE	0x0000000E	[  1] literal string: Keith Hubbard
+0x000018CC	0x00000011	[  1] literal string: Benjamin Metzler
+0x000018DD	0x00000013	[  1] literal string: Frederic Dang Ngoc
+0x000018F0	0x0000000E	[  1] literal string: Pierre Delore
+0x000018FE	0x0000000A	[  1] literal string: Huw Smith
+0x00001908	0x0000000F	[  1] literal string: Garrett Derner
+0x00001917	0x0000000F	[  1] literal string: Barry McIntosh
+0x00001926	0x00000011	[  1] literal string: Leslie Donaldson
+0x00001937	0x0000000C	[  1] literal string: Lee Pilgrim
+0x00001943	0x0000000D	[  1] literal string: Zakk Roberts
+0x00001950	0x00000011	[  1] literal string: Francois Boucher
+0x00001961	0x00000014	[  1] literal string: Matthias Wientapper
+0x00001975	0x0000000D	[  1] literal string: Brent Coutts
+0x00001982	0x0000000C	[  1] literal string: Jens Arnold
+0x0000198E	0x00000010	[  1] literal string: Gerald Vanbaren
+0x0000199E	0x00000014	[  1] literal string: Christi Scarborough
+0x000019B2	0x0000000E	[  1] literal string: Steve Cundari
+0x000019C0	0x0000000B	[  1] literal string: Mat Holton
+0x000019CB	0x0000000B	[  1] literal string: Jan Gajdos
+0x000019D6	0x00000012	[  1] literal string: Antoine Cellerier
+0x000019E8	0x0000000B	[  1] literal string: Brian King
+0x000019F3	0x0000000D	[  1] literal string: Jiri Jurecek
+0x00001A00	0x0000000E	[  1] literal string: Jacob Erlbeck
+0x00001A0E	0x00000017	[  1] literal string: Jean-Philippe Bernardy
+0x00001A25	0x0000000C	[  1] literal string: Dave Hooper
+0x00001A31	0x00000011	[  1] literal string: Jonas Häggqvist
+0x00001A42	0x0000000E	[  1] literal string: Thom Johansen
+0x00001A50	0x0000000E	[  1] literal string: Rinat Zakirov
+0x00001A5E	0x00000010	[  1] literal string: Manuel Dejonghe
+0x00001A6E	0x00000013	[  1] literal string: Marcoen Hirschberg
+0x00001A81	0x00000015	[  1] literal string: Michiel van der Kolk
+0x00001A96	0x0000000D	[  1] literal string: Tony Motakis
+0x00001AA3	0x0000000B	[  1] literal string: Andy Young
+0x00001AAE	0x00000012	[  1] literal string: Alexandre Bourget
+0x00001AC0	0x0000001B	[  1] literal string: Richard S. La Charité III
+0x00001ADB	0x00000012	[  1] literal string: Christian Gmeiner
+0x00001AED	0x00000015	[  1] literal string: Tomas Salfischberger
+0x00001B02	0x00000011	[  1] literal string: Miika Pekkarinen
+0x00001B13	0x00000010	[  1] literal string: Tapio Karppinen
+0x00001B23	0x00000016	[  1] literal string: Richard Ottó O'Brien
+0x00001B39	0x0000000D	[  1] literal string: Luca Burelli
+0x00001B46	0x0000000E	[  1] literal string: Alessio Lenzi
+0x00001B54	0x0000000D	[  1] literal string: David Bryant
+0x00001B61	0x0000000D	[  1] literal string: Martin Arver
+0x00001B6E	0x00000015	[  1] literal string: Alexander Spyridakis
+0x00001B83	0x0000001B	[  1] literal string: Pedro Baltazar Vasconcelos
+0x00001B9E	0x0000000C	[  1] literal string: Ray Lambert
+0x00001BAA	0x0000000B	[  1] literal string: Dave Wiard
+0x00001BB5	0x0000000B	[  1] literal string: Pieter Bos
+0x00001BC0	0x00000012	[  1] literal string: Konstantin Isakov
+0x00001BD2	0x0000000E	[  1] literal string: Bryan Vandyke
+0x00001BE0	0x00000010	[  1] literal string: Hristo Kovachev
+0x00001BF0	0x0000000E	[  1] literal string: Sander Sweers
+0x00001BFE	0x00000011	[  1] literal string: Antonius Hellman
+0x00001C0F	0x0000000D	[  1] literal string: Ryan Jackson
+0x00001C1C	0x0000000D	[  1] literal string: Per Holmäng
+0x00001C29	0x00000012	[  1] literal string: Frederic Devernay
+0x00001C3B	0x00000012	[  1] literal string: José M. Fandiño
+0x00001C4D	0x0000000B	[  1] literal string: Gadi Cohen
+0x00001C58	0x00000012	[  1] literal string: Naftali Goldstein
+0x00001C6A	0x0000000B	[  1] literal string: David Dent
+0x00001C75	0x0000000F	[  1] literal string: Frank Dischner
+0x00001C84	0x00000011	[  1] literal string: Liberman Shachar
+0x00001C95	0x0000000E	[  1] literal string: Stephan Wezel
+0x00001CA3	0x0000000F	[  1] literal string: Alyssa Milburn
+0x00001CB2	0x0000000E	[  1] literal string: Kevin Ferrare
+0x00001CC0	0x00000010	[  1] literal string: Anton Oleynikov
+0x00001CD0	0x0000000B	[  1] literal string: Mark Arigo
+0x00001CDB	0x00000012	[  1] literal string: Magnus Westerlund
+0x00001CED	0x0000000A	[  1] literal string: Jake Owen
+0x00001CF7	0x00000011	[  1] literal string: Mustapha Senhaji
+0x00001D08	0x0000000A	[  1] literal string: Adam Boot
+0x00001D12	0x00000010	[  1] literal string: Jonathan Gordon
+0x00001D22	0x00000009	[  1] literal string: Tat Tang
+0x00001D2B	0x0000000F	[  1] literal string: Toshihiko Itoh
+0x00001D3A	0x0000000E	[  1] literal string: David J. Song
+0x00001D48	0x0000000E	[  1] literal string: Jeong Taek In
+0x00001D56	0x0000000F	[  1] literal string: Anders Kagerin
+0x00001D65	0x0000000D	[  1] literal string: Peter D'Hoye
+0x00001D72	0x0000000A	[  1] literal string: Ben Basha
+0x00001D7C	0x0000000C	[  1] literal string: Brandon Low
+0x00001D88	0x0000000C	[  1] literal string: Nathan Hand
+0x00001D94	0x0000000C	[  1] literal string: Nick Lanham
+0x00001DA0	0x00000014	[  1] literal string: Sebastian Henriksen
+0x00001DB4	0x00000010	[  1] literal string: Martin Scarratt
+0x00001DC4	0x0000000D	[  1] literal string: Karl Kurbjun
+0x00001DD1	0x00000012	[  1] literal string: Tomasz Malesinski
+0x00001DE3	0x0000000E	[  1] literal string: Andrew Pilley
+0x00001DF1	0x00000015	[  1] literal string: Matt v.d. Westhuizen
+0x00001E06	0x0000000A	[  1] literal string: Tim Crist
+0x00001E10	0x0000000B	[  1] literal string: Jvo Studer
+0x00001E1B	0x0000000C	[  1] literal string: Dan Everton
+0x00001E27	0x0000000C	[  1] literal string: Imre Herceg
+0x00001E33	0x0000000F	[  1] literal string: Seven Le Mesle
+0x00001E42	0x0000000F	[  1] literal string: Craig Bachelor
+0x00001E51	0x00000014	[  1] literal string: Nikolaj Christensen
+0x00001E65	0x00000011	[  1] literal string: Mikael Magnusson
+0x00001E76	0x0000000F	[  1] literal string: Dominik Wenger
+0x00001E85	0x00000011	[  1] literal string: Henrico Witvliet
+0x00001E96	0x0000000D	[  1] literal string: Andrew Scott
+0x00001EA3	0x00000013	[  1] literal string: Miguel A. Arévalo
+0x00001EB6	0x00000012	[  1] literal string: Aaron F. Gonzalez
+0x00001EC8	0x00000011	[  1] literal string: Aleksey Kozyulin
+0x00001ED9	0x0000000E	[  1] literal string: Jani Kinnunen
+0x00001EE7	0x0000000C	[  1] literal string: Rui Marinho
+0x00001EF3	0x0000000C	[  1] literal string: Alun Thomas
+0x00001EFF	0x00000011	[  1] literal string: Nils Wallménius
+0x00001F10	0x0000000F	[  1] literal string: Naoaki Okazaki
+0x00001F1F	0x0000000B	[  1] literal string: Will Dyson
+0x00001F2A	0x0000000E	[  1] literal string: Matthias Mohr
+0x00001F38	0x0000000F	[  1] literal string: Christian Marg
+0x00001F47	0x0000000B	[  1] literal string: Eli Sherer
+0x00001F52	0x0000000E	[  1] literal string: Fredrik Öhrn
+0x00001F60	0x00000012	[  1] literal string: Nicolas Pennequin
+0x00001F72	0x0000000A	[  1] literal string: Ralf Herz
+0x00001F7C	0x00000010	[  1] literal string: Michael DiFebbo
+0x00001F8C	0x00000013	[  1] literal string: David Rothenberger
+0x00001F9F	0x0000000E	[  1] literal string: Robert Keevil
+0x00001FAD	0x0000000C	[  1] literal string: Mark Bright
+0x00001FB9	0x00000012	[  1] literal string: Dominik Riebeling
+0x00001FCB	0x00000011	[  1] literal string: Alexander Bondar
+0x00001FDC	0x0000000D	[  1] literal string: Peter Cawley
+0x00001FE9	0x00000009	[  1] literal string: Rani Hod
+0x00001FF2	0x00000009	[  1] literal string: Tom Ross
+0x00001FFB	0x0000000E	[  1] literal string: Anton Romanov
+0x00002009	0x0000000D	[  1] literal string: Jean-Luc Ohl
+0x00002016	0x0000000C	[  1] literal string: Steve Bavin
+0x00002022	0x00000010	[  1] literal string: Marianne Arnold
+0x00002032	0x0000000E	[  1] literal string: Gaetano Vocca
+0x00002040	0x00000010	[  1] literal string: Frederik Vestre
+0x00002050	0x0000000B	[  1] literal string: Wenbin Leo
+0x0000205B	0x0000000A	[  1] literal string: Tom Evans
+0x00002065	0x0000000C	[  1] literal string: Ewan Davies
+0x00002071	0x00000015	[  1] literal string: Frédéric François
+0x00002086	0x00000013	[  1] literal string: Marc-André Moreau
+0x00002099	0x00000014	[  1] literal string: Ioannis Koutoulakis
+0x000020AD	0x00000012	[  1] literal string: Alistair Marshall
+0x000020BF	0x00000014	[  1] literal string: Karl Ove Hufthammer
+0x000020D3	0x00000010	[  1] literal string: Víctor Zabalza
+0x000020E3	0x0000000F	[  1] literal string: Ulrich Pegelow
+0x000020F2	0x00000011	[  1] literal string: Andreas Mattsson
+0x00002103	0x0000000E	[  1] literal string: Daniel Ankers
+0x00002111	0x0000000C	[  1] literal string: Paul Louden
+0x0000211D	0x0000000E	[  1] literal string: Rainer Sinsch
+0x0000212B	0x00000011	[  1] literal string: Plácido Revilla
+0x0000213C	0x00000010	[  1] literal string: Michael Sevakis
+0x0000214C	0x0000000D	[  1] literal string: Lukas Sabota
+0x00002159	0x0000000F	[  1] literal string: Emanuel Zephir
+0x00002168	0x00000010	[  1] literal string: Alexander Levin
+0x00002178	0x0000000E	[  1] literal string: Barry Wardell
+0x00002186	0x00000012	[  1] literal string: Lars van de Klomp
+0x00002198	0x00000011	[  1] literal string: Philippe Miossec
+0x000021A9	0x0000000F	[  1] literal string: Jochen Kemnade
+0x000021B8	0x00000011	[  1] literal string: Corry Lazarowitz
+0x000021C9	0x0000000A	[  1] literal string: Tom Meyer
+0x000021D3	0x0000000D	[  1] literal string: Laurent Baum
+0x000021E0	0x0000000A	[  1] literal string: James Teh
+0x000021EA	0x0000000E	[  1] literal string: Liam Nattrass
+0x000021F8	0x0000000F	[  1] literal string: Christian Hack
+0x00002207	0x0000000B	[  1] literal string: Wade Brown
+0x00002212	0x0000000D	[  1] literal string: Vadim Chekan
+0x0000221F	0x00000014	[  1] literal string: Christopher Borcsok
+0x00002233	0x00000010	[  1] literal string: Victor Cardenas
+0x00002243	0x00000010	[  1] literal string: Andrew Melville
+0x00002253	0x0000000D	[  1] literal string: Pengxuan Liu
+0x00002260	0x0000000E	[  1] literal string: Andrew Cupper
+0x0000226E	0x00000017	[  1] literal string: Thilo-Alexander Ginkel
+0x00002285	0x0000000D	[  1] literal string: Adam Gashlin
+0x00002292	0x0000000D	[  1] literal string: Robert Kukla
+0x0000229F	0x0000000E	[  1] literal string: David Quesada
+0x000022AD	0x0000000F	[  1] literal string: Jared Stafford
+0x000022BC	0x0000000E	[  1] literal string: Martin Hensel
+0x000022CA	0x00000010	[  1] literal string: Stéphane Doyon
+0x000022DA	0x0000000D	[  1] literal string: Austin Appel
+0x000022E7	0x0000000C	[  1] literal string: Andre Smith
+0x000022F3	0x0000000E	[  1] literal string: Travis Hyyppa
+0x00002301	0x0000000B	[  1] literal string: Ian Webber
+0x0000230C	0x0000000F	[  1] literal string: Pavel Gnelitsa
+0x0000231B	0x0000000C	[  1] literal string: Lutz Böhne
+0x00002327	0x0000000F	[  1] literal string: Will Robertson
+0x00002336	0x00000011	[  1] literal string: Robert Carboneau
+0x00002347	0x00000007	[  1] literal string: Ye Wei
+0x0000234E	0x0000000D	[  1] literal string: Bryan Childs
+0x0000235B	0x0000000D	[  1] literal string: Mike Schmitt
+0x00002368	0x0000000D	[  1] literal string: Chris Taylor
+0x00002375	0x00000010	[  1] literal string: Tobias Langhoff
+0x00002385	0x00000010	[  1] literal string: Steve Gotthardt
+0x00002395	0x0000000B	[  1] literal string: Greg White
+0x000023A0	0x00000012	[  1] literal string: Mattieu Favréaux
+0x000023B2	0x00000010	[  1] literal string: Malcolm Tyrrell
+0x000023C2	0x0000000F	[  1] literal string: Piotr Jafiszow
+0x000023D1	0x0000000B	[  1] literal string: Gary Allen
+0x000023DC	0x0000000F	[  1] literal string: John BouAntoun
+0x000023EB	0x0000000B	[  1] literal string: Tomasz Mon
+0x000023F6	0x00000010	[  1] literal string: Jakub Matoušek
+0x00002406	0x0000000C	[  1] literal string: Albert Veli
+0x00002412	0x0000000C	[  1] literal string: Chris Dohan
+0x0000241E	0x0000000E	[  1] literal string: Takashi Obara
+0x0000242C	0x0000000E	[  1] literal string: Rene Peinthor
+0x0000243A	0x0000000D	[  1] literal string: Roan Horning
+0x00002447	0x0000000C	[  1] literal string: Ben Keroack
+0x00002453	0x0000000E	[  1] literal string: Sean Morrisey
+0x00002461	0x0000000B	[  1] literal string: Shay Green
+0x0000246C	0x00000010	[  1] literal string: Nick Vanderweit
+0x0000247C	0x0000000D	[  1] literal string: Simon Menzel
+0x00002489	0x00000013	[  1] literal string: Timo Horstschäfer
+0x0000249C	0x0000000D	[  1] literal string: Jacco Koning
+0x000024A9	0x0000000A	[  1] literal string: Chris Ham
+0x000024B3	0x00000012	[  1] literal string: Jose Ramon Garcia
+0x000024C5	0x00000015	[  1] literal string: Simon Descarpentries
+0x000024DA	0x00000012	[  1] literal string: Douglas Valentine
+0x000024EC	0x0000000E	[  1] literal string: Jacob Gardner
+0x000024FA	0x0000000E	[  1] literal string: Pascal Briehl
+0x00002508	0x00000014	[  1] literal string: Denis Stanishevskiy
+0x0000251C	0x0000000B	[  1] literal string: Eddy Coman
+0x00002527	0x0000000C	[  1] literal string: Luke Blaney
+0x00002533	0x0000000C	[  1] literal string: Mark Reiche
+0x0000253F	0x0000000E	[  1] literal string: Michal Jevjak
+0x0000254D	0x00000013	[  1] literal string: Philippe Latulippe
+0x00002560	0x00000013	[  1] literal string: Mauricio Peccorini
+0x00002573	0x0000000F	[  1] literal string: Nathan Hepting
+0x00002582	0x0000000D	[  1] literal string: Akio Idehara
+0x0000258F	0x0000000D	[  1] literal string: Dagni McPhee
+0x0000259C	0x00000012	[  1] literal string: Alex Gerchanovsky
+0x000025AE	0x00000010	[  1] literal string: Gerhard Dirschl
+0x000025BE	0x0000000B	[  1] literal string: Ivan Zupan
+0x000025C9	0x00000010	[  1] literal string: Alexander Papst
+0x000025D9	0x00000011	[  1] literal string: Christoph Reiter
+0x000025EA	0x0000000C	[  1] literal string: Rhino Banga
+0x000025F6	0x0000000B	[  1] literal string: Paul Jones
+0x00002601	0x00000013	[  1] literal string: Michael Giacomelli
+0x00002614	0x0000000C	[  1] literal string: Alex Wenger
+0x00002620	0x00000011	[  1] literal string: Andree Buschmann
+0x00002631	0x00000012	[  1] literal string: Johnathon Mihalop
+0x00002643	0x0000000D	[  1] literal string: Rene Allkivi
+0x00002650	0x0000000F	[  1] literal string: Tobias Schladt
+0x0000265F	0x0000000A	[  1] literal string: John Zhou
+0x00002669	0x00000010	[  1] literal string: Charles Voelger
+0x00002679	0x00000011	[  1] literal string: Gerritt Gonzales
+0x0000268A	0x00000011	[  1] literal string: Dieter Pellkofer
+0x0000269B	0x00000011	[  1] literal string: Evgeniy Kachalin
+0x000026AC	0x0000000F	[  1] literal string: Lenny Koepsell
+0x000026BB	0x00000009	[  1] literal string: Harry Tu
+0x000026C4	0x0000000E	[  1] literal string: Pawel Wysocki
+0x000026D2	0x0000000C	[  1] literal string: Xinlu Huang
+0x000026DE	0x0000000E	[  1] literal string: Daniel Dalton
+0x000026EC	0x0000000E	[  1] literal string: Boris Gjenero
+0x000026FA	0x00000013	[  1] literal string: Sylvain Fourmanoit
+0x0000270D	0x0000000C	[  1] literal string: Alex Parker
+0x00002719	0x0000000B	[  1] literal string: Mario Lang
+0x00002724	0x0000000D	[  1] literal string: Justin Foell
+0x00002731	0x0000000C	[  1] literal string: Igor Kuzmin
+0x0000273D	0x00000017	[  1] literal string: Adilson Vicente Xavier
+0x00002754	0x0000000F	[  1] literal string: Jesse Lockwood
+0x00002763	0x00000010	[  1] literal string: Jonathan Backer
+0x00002773	0x0000000D	[  1] literal string: Sofian Babai
+0x00002780	0x00000012	[  1] literal string: Costas Calamvokis
+0x00002792	0x00000010	[  1] literal string: Catalin Patulea
+0x000027A2	0x0000000D	[  1] literal string: Peter Harley
+0x000027AF	0x0000000B	[  1] literal string: Max Kelley
+0x000027BA	0x00000013	[  1] literal string: Alexander Eickhoff
+0x000027CD	0x0000000C	[  1] literal string: Ken Fazzone
+0x000027D9	0x0000000D	[  1] literal string: David Bishop
+0x000027E6	0x00000016	[  1] literal string: Hein-Pieter van Braam
+0x000027FC	0x00000018	[  1] literal string: Przemysław Hołubowski
+0x00002814	0x00000014	[  1] literal string: Stepan Moskovchenko
+0x00002828	0x0000000F	[  1] literal string: John S. Gwynne
+0x00002837	0x0000000F	[  1] literal string: Brian J. Morey
+0x00002846	0x0000000D	[  1] literal string: Stijn Hisken
+0x00002853	0x0000000F	[  1] literal string: Bertrik Sikken
+0x00002862	0x0000000E	[  1] literal string: Karim Boucher
+0x00002870	0x0000000F	[  1] literal string: James Espinoza
+0x0000287F	0x00000010	[  1] literal string: Franz Rühmland
+0x0000288F	0x00000010	[  1] literal string: Jordan Anderson
+0x0000289F	0x00000012	[  1] literal string: Maurus Cuelenaere
+0x000028B1	0x00000011	[  1] literal string: Chris Allegretta
+0x000028C2	0x0000000B	[  1] literal string: Alastair S
+0x000028CD	0x00000011	[  1] literal string: Martin Crkovský
+0x000028DE	0x0000000E	[  1] literal string: Ariya Hidayat
+0x000028EC	0x00000011	[  1] literal string: Jonas Hurrelmann
+0x000028FD	0x0000000E	[  1] literal string: Lee Kang Hyuk
+0x0000290B	0x00000010	[  1] literal string: Clemens Werther
+0x0000291B	0x0000000D	[  1] literal string: Robert Menes
+0x00002928	0x0000000C	[  1] literal string: Henri Valta
+0x00002934	0x0000000D	[  1] literal string: Melba Sitjar
+0x00002941	0x00000016	[  1] literal string: Mehmet Ş. Çatalbaş
+0x00002957	0x0000000D	[  1] literal string: Scott Tinman
+0x00002964	0x00000014	[  1] literal string: Alexander Kuzmenkov
+0x00002978	0x0000000F	[  1] literal string: Thomas Martitz
+0x00002987	0x00000019	[  1] literal string: Prakarn Sahasoontornvute
+0x000029A0	0x00000010	[  1] literal string: George Tamplaru
+0x000029B0	0x00000010	[  1] literal string: Apoorva Mahajan
+0x000029C0	0x00000010	[  1] literal string: Vuong Minh Hiep
+0x000029D0	0x0000000F	[  1] literal string: Mateusz Kubica
+0x000029DF	0x0000000F	[  1] literal string: Frank Gevaerts
+0x000029EE	0x00000011	[  1] literal string: Chelo Sacristán
+0x000029FF	0x0000000C	[  1] literal string: Sascha Wolf
+0x00002A0B	0x00000012	[  1] literal string: Nickolay Jordanov
+0x00002A1D	0x00000016	[  1] literal string: Johannes Voggenthaler
+0x00002A33	0x0000000A	[  1] literal string: Marc Guay
+0x00002A3D	0x0000000F	[  1] literal string: Alex Vanderpol
+0x00002A4C	0x0000000C	[  1] literal string: Jerry Lange
+0x00002A58	0x00000011	[  1] literal string: Yohann Misquitta
+0x00002A69	0x0000000C	[  1] literal string: Keith Perri
+0x00002A75	0x0000000C	[  1] literal string: Mark Fawcus
+0x00002A81	0x0000000D	[  1] literal string: Ivan Pešić
+0x00002A8E	0x00000012	[  1] literal string: Marcel Barbulescu
+0x00002AA0	0x0000000B	[  1] literal string: Phil Light
+0x00002AAB	0x0000000D	[  1] literal string: Rob Purchase
+0x00002AB8	0x00000010	[  1] literal string: Andreas Müller
+0x00002AC8	0x00000015	[  1] literal string: Christopher Williams
+0x00002ADD	0x0000000E	[  1] literal string: Martin Ritter
+0x00002AEB	0x00000010	[  1] literal string: Justin Hannigan
+0x00002AFB	0x00000011	[  1] literal string: Tomasz Wasilczyk
+0x00002B0C	0x0000000D	[  1] literal string: Kenjiro Arai
+0x00002B19	0x0000000D	[  1] literal string: John Kaminar
+0x00002B26	0x0000000D	[  1] literal string: Joris Goosen
+0x00002B33	0x0000000C	[  1] literal string: Mark Ganson
+0x00002B3F	0x0000000F	[  1] literal string: Davide Gentile
+0x00002B4E	0x0000000D	[  1] literal string: James Vasile
+0x00002B5B	0x0000000E	[  1] literal string: Mohamed Tarek
+0x00002B69	0x0000000B	[  1] literal string: Mike Burke
+0x00002B74	0x00000011	[  1] literal string: Michael Chicoine
+0x00002B85	0x00000010	[  1] literal string: Maciej Adamczak
+0x00002B95	0x0000000D	[  1] literal string: Tomer Shalev
+0x00002BA2	0x0000000E	[  1] literal string: Thibaut Girka
+0x00002BB0	0x0000000A	[  1] literal string: Rasmus Ry
+0x00002BBA	0x00000020	[  1] literal string: William Poetra Yoga Hadisoeseno
+0x00002BDA	0x0000000F	[  1] literal string: Adrian Osoianu
+0x00002BE9	0x0000000C	[  1] literal string: Martin Pahl
+0x00002BF5	0x0000000D	[  1] literal string: Ori Avtalion
+0x00002C02	0x0000000E	[  1] literal string: Thomas Schott
+0x00002C10	0x0000000E	[  1] literal string: Dennis Ivanov
+0x00002C1E	0x0000000E	[  1] literal string: Takumi Suzuki
+0x00002C2C	0x00000011	[  1] literal string: Shunsuke Shimizu
+0x00002C3D	0x00000013	[  1] literal string: Tadayuki Nishizono
+0x00002C50	0x00000007	[  1] literal string: Jun Gu
+0x00002C57	0x0000000C	[  1] literal string: Daniel Weck
+0x00002C63	0x00000015	[  1] literal string: Clément Pit-Claudel
+0x00002C78	0x0000000D	[  1] literal string: Jelle Geerts
+0x00002C85	0x0000000D	[  1] literal string: Tadeusz Pyś
+0x00002C92	0x00000011	[  1] literal string: Rostislav Chekan
+0x00002CA3	0x0000000F	[  1] literal string: Florin Popescu
+0x00002CB2	0x0000000E	[  1] literal string: Volker Mische
+0x00002CC0	0x0000000E	[  1] literal string: Vitja Makarov
+0x00002CCE	0x0000000F	[  1] literal string: Francisco Vila
+0x00002CDD	0x0000000F	[  1] literal string: Christian Lees
+0x00002CEC	0x0000000F	[  1] literal string: Rafaël Carré
+0x00002CFB	0x0000000F	[  1] literal string: Denes Balatoni
+0x00002D0A	0x0000000C	[  1] literal string: Roy Wallace
+0x00002D16	0x0000000E	[  1] literal string: Eric Lassauge
+0x00002D24	0x00000010	[  1] literal string: François Dinel
+0x00002D34	0x00000011	[  1] literal string: Francesco Rigoni
+0x00002D45	0x0000000B	[  1] literal string: Joël Puik
+0x00002D50	0x0000000F	[  1] literal string: Klaas Bosteels
+0x00002D5F	0x00000012	[  1] literal string: Teruaki Kawashima
+0x00002D71	0x00000010	[  1] literal string: Marcin Łukasik
+0x00002D81	0x00000007	[  1] literal string: Le Jin
+0x00002D88	0x0000000C	[  1] literal string: Alex Bennee
+0x00002D94	0x00000016	[  1] literal string: Stéphane Quertinmont
+0x00002DAA	0x00000014	[  1] literal string: Bartosz Fabianowski
+0x00002DBE	0x0000000B	[  1] literal string: Adam Hogan
+0x00002DC9	0x0000000E	[  1] literal string: Andrew Mahone
+0x00002DD7	0x00000012	[  1] literal string: Anton Veretenenko
+0x00002DE9	0x0000000F	[  1] literal string: Vicente Ibarra
+0x00002DF8	0x0000000C	[  1] literal string: Rui Araújo
+0x00002E04	0x0000000F	[  1] literal string: Brian Cloutier
+0x00002E13	0x0000000F	[  1] literal string: Olivier Barbut
+0x00002E22	0x00000011	[  1] literal string: Yoshihisa Uchida
+0x00002E33	0x0000000C	[  1] literal string: Sanggon Lee
+0x00002E3F	0x00000014	[  1] literal string: Kaspar Rothenfußer
+0x00002E53	0x0000000B	[  1] literal string: Ryan Press
+0x00002E5E	0x0000000E	[  1] literal string: Craig Elliott
+0x00002E6C	0x0000000F	[  1] literal string: Kenderes Tamas
+0x00002E7B	0x0000000D	[  1] literal string: Eric Shattow
+0x00002E88	0x0000000F	[  1] literal string: Joshua Simmons
+0x00002E97	0x0000000B	[  1] literal string: Sei Aoyumi
+0x00002EA2	0x0000000C	[  1] literal string: Martin Pool
+0x00002EAE	0x0000000F	[  1] literal string: Gareth Schakel
+0x00002EBD	0x00000011	[  1] literal string: Brian Sutherland
+0x00002ECE	0x0000000B	[  1] literal string: Sam Bouwer
+0x00002ED9	0x0000000F	[  1] literal string: Johannes Linke
+0x00002EE8	0x00000010	[  1] literal string: Michaël Burtin
+0x00002EF8	0x0000000E	[  1] literal string: Sasha Khamkov
+0x00002F06	0x0000000F	[  1] literal string: Kai Posadowsky
+0x00002F15	0x0000000C	[  1] literal string: Jack Halpin
+0x00002F21	0x00000011	[  1] literal string: Johannes Schwarz
+0x00002F32	0x00000010	[  1] literal string: Dustin Skoracki
+0x00002F42	0x0000000B	[  1] literal string: Torne Wuff
+0x00002F4D	0x00000007	[  1] literal string: Wookey
+0x00002F54	0x0000000A	[  1] literal string: Nick Sant
+0x00002F5E	0x0000000A	[  1] literal string: Joni Carr
+0x00002F68	0x0000000D	[  1] literal string: Eric Clayton
+0x00002F75	0x0000000D	[  1] literal string: Marko Pahlke
+0x00002F82	0x00000010	[  1] literal string: Vytenis Sabelka
+0x00002F92	0x0000000E	[  1] literal string: Nicolas Pitre
+0x00002FA0	0x0000000E	[  1] literal string: Benedikt Goos
+0x00002FAE	0x0000000F	[  1] literal string: Frederick Full
+0x00002FBD	0x0000000E	[  1] literal string: Jeffrey Goode
+0x00002FCB	0x0000000D	[  1] literal string: Raafat Akkad
+0x00002FD8	0x0000000E	[  1] literal string: Davide Quarta
+0x00002FE6	0x0000000B	[  1] literal string: Andre Lupa
+0x00002FF1	0x0000000F	[  1] literal string: Hilton Shumway
+0x00003000	0x00000010	[  1] literal string: Matthew Bonnett
+0x00003010	0x0000000B	[  1] literal string: Nick Tryon
+0x0000301B	0x0000000F	[  1] literal string: David Johnston
+0x0000302A	0x0000000B	[  1] literal string: Ralph Soto
+0x00003035	0x00000015	[  1] literal string: Mykhailo Radzievskyi
+0x0000304A	0x00000013	[  1] literal string: Christophe Gouiran
+0x0000305D	0x0000000D	[  1] literal string: Asael Reiter
+0x0000306A	0x0000000D	[  1] literal string: Jens Erdmann
+0x00003077	0x0000000E	[  1] literal string: Rosso Maltese
+0x00003085	0x0000000D	[  1] literal string: Amaury Pouly
+0x00003092	0x0000000F	[  1] literal string: Laurent Papier
+0x000030A1	0x0000000D	[  1] literal string: Johannes Boy
+0x000030AE	0x00000009	[  1] literal string: Jason Yu
+0x000030B7	0x0000000E	[  1] literal string: Aaron DeMille
+0x000030C5	0x00000011	[  1] literal string: Tomasz Kowalczyk
+0x000030D6	0x00000010	[  1] literal string: Michael Lechner
+0x000030E6	0x00000010	[  1] literal string: Peter Schlenker
+0x000030F6	0x0000000C	[  1] literal string: Dan Davison
+0x00003102	0x00000010	[  1] literal string: David Kauffmann
+0x00003112	0x00000012	[  1] literal string: Carsten Schreiter
+0x00003124	0x00000011	[  1] literal string: Michael Sparmann
+0x00003135	0x0000000F	[  1] literal string: Seth Opgenorth
+0x00003144	0x0000000D	[  1] literal string: Jonas Aaberg
+0x00003151	0x0000000F	[  1] literal string: Junio C Hamano
+0x00003160	0x0000000C	[  1] literal string: Bob Cousins
+0x0000316C	0x00000013	[  1] literal string: Christophe Nicolas
+0x0000317F	0x0000000C	[  1] literal string: Yann Muller
+0x0000318B	0x0000000D	[  1] literal string: Sascha Wilde
+0x00003198	0x0000000B	[  1] literal string: Fred Bauer
+0x000031A3	0x0000000D	[  1] literal string: Simon Rothen
+0x000031B0	0x0000000E	[  1] literal string: Pavel Rzehák
+0x000031BE	0x0000000E	[  1] literal string: Diego Herranz
+0x000031CC	0x0000000D	[  1] literal string: Viktor Varga
+0x000031D9	0x00000013	[  1] literal string: Juliusz Chroboczek
+0x000031EC	0x00000010	[  1] literal string: Christian Beier
+0x000031FC	0x0000000F	[  1] literal string: Giovanni Zilli
+0x0000320B	0x0000000E	[  1] literal string: Shiloh Hawley
+0x00003219	0x0000000D	[  1] literal string: Peter Lecký
+0x00003226	0x0000000F	[  1] literal string: Wilfred Hughes
+0x00003235	0x00000010	[  1] literal string: Laurent Gautier
+0x00003245	0x00000010	[  1] literal string: Simon Zhukovsky
+0x00003255	0x0000000C	[  1] literal string: Daniel Kluz
+0x00003261	0x00000017	[  1] literal string: Phinitnun Chanasabaeng
+0x00003278	0x00000011	[  1] literal string: Tse-Hsien Chiang
+0x00003289	0x0000000D	[  1] literal string: Szymon Dziok
+0x00003296	0x00000011	[  1] literal string: Domenico Di Misa
+0x000032A7	0x00000010	[  1] literal string: Delyan Kratunov
+0x000032B7	0x0000000F	[  1] literal string: Purling Nayuki
+0x000032C6	0x0000000D	[  1] literal string: Marek Salaba
+0x000032D3	0x00000009	[  1] literal string: Altay Oz
+0x000032DC	0x00000010	[  1] literal string: Mark Borgerding
+0x000032EC	0x00000010	[  1] literal string: Tobias Diedrich
+0x000032FC	0x00000013	[  1] literal string: Andrew Engelbrecht
+0x0000330F	0x0000000F	[  1] literal string: Kevin Schoedel
+0x0000331E	0x0000000C	[  1] literal string: Jens Theeß
+0x0000332A	0x0000000F	[  1] literal string: Alexey Nemtsev
+0x00003339	0x0000000D	[  1] literal string: Pascal Below
+0x00003346	0x0000000C	[  1] literal string: Danny Attar
+0x00003352	0x00000011	[  1] literal string: Philipp Stephani
+0x00003363	0x00000016	[  1] literal string: Tore Johnny Bråtveit
+0x00003379	0x0000000D	[  1] literal string: Marcin Bukat
+0x00003386	0x0000000F	[  1] literal string: Andrew Rodland
+0x00003395	0x00000016	[  1] literal string: Luca Leonardo Scorcia
+0x000033AB	0x0000000F	[  1] literal string: Gerhard Zintel
+0x000033BA	0x00000019	[  1] literal string: Adrián Cereto Massagué
+0x000033D3	0x0000000D	[  1] literal string: Chris Savery
+0x000033E0	0x0000000F	[  1] literal string: Raphaël Jakse
+0x000033EF	0x0000000E	[  1] literal string: Wincent Balin
+0x000033FD	0x0000000F	[  1] literal string: Aaron Rothbaum
+0x0000340C	0x0000000C	[  1] literal string: Nejc Lotric
+0x00003418	0x00000018	[  1] literal string: Hinrik Örn Sigurðsson
+0x00003430	0x00000010	[  1] literal string: Stephen Carroll
+0x00003440	0x0000000C	[  1] literal string: Joe Balough
+0x0000344C	0x0000000E	[  1] literal string: Jérôme Heil
+0x0000345A	0x00000009	[  1] literal string: Tim Graf
+0x00003463	0x00000013	[  1] literal string: Martin Sägmüller
+0x00003476	0x0000000D	[  1] literal string: Joshua Hulst
+0x00003483	0x00000014	[  1] literal string: Pierre-Yves Roosens
+0x00003497	0x0000000E	[  1] literal string: Hayden Pearce
+0x000034A5	0x00000011	[  1] literal string: Rodrigo Barretto
+0x000034B6	0x0000000D	[  1] literal string: Daniel Rigby
+0x000034C3	0x00000011	[  1] literal string: Alexey Polkhirev
+0x000034D4	0x0000000D	[  1] literal string: István Nagy
+0x000034E1	0x00000012	[  1] literal string: Wojciech Leśniak
+0x000034F3	0x00000012	[  1] literal string: Tuomas Airaksinen
+0x00003505	0x0000000E	[  1] literal string: Calvin Walden
+0x00003513	0x0000000F	[  1] literal string: Michael Gentry
+0x00003522	0x0000000C	[  1] literal string: David Fowle
+0x0000352E	0x0000000D	[  1] literal string: Fabian Vogel
+0x0000353B	0x00000012	[  1] literal string: Michael Stummvoll
+0x0000354D	0x00000013	[  1] literal string: Franz-Josef Haider
+0x00003560	0x00000010	[  1] literal string: Michael Hohmuth
+0x00003570	0x0000000C	[  1] literal string: Sergio Vera
+0x0000357C	0x0000000F	[  1] literal string: Michael Leslie
+0x0000358B	0x0000000B	[  1] literal string: Craig Mann
+0x00003596	0x0000000F	[  1] literal string: William Peters
+0x000035A5	0x00000007	[  1] literal string: Li Jie
+0x000035AC	0x00000011	[  1] literal string: Cristina Talpiga
+0x000035BD	0x00000018	[  1] literal string: Alexander Meshcheryakov
+0x000035D5	0x0000000D	[  1] literal string: Ryan Sawhill
+0x000035E2	0x0000000F	[  1] literal string: Thomas Jarosch
+0x000035F1	0x00000010	[  1] literal string: Will Sowerbutts
+0x00003601	0x0000000D	[  1] literal string: Gabriel Maia
+0x0000360E	0x0000000C	[  1] literal string: Robert Horn
+0x0000361A	0x0000000D	[  1] literal string: Ante Maretic
+0x00003627	0x0000000F	[  1] literal string: Benjamin Brown
+0x00003636	0x0000000C	[  1] literal string: Uwe Wiebach
+0x00003642	0x0000000E	[  1] literal string: Mikhail Titov
+0x00003650	0x0000000D	[  1] literal string: Dave Slusher
+0x0000365D	0x00000012	[  1] literal string: Jean-Marie Moraux
+0x0000366F	0x0000001C	[  1] literal string: Ismael Castiñeira Álvarez
+0x0000368B	0x00000012	[  1] literal string: Mārtiņš Šimis
+0x0000369D	0x0000000B	[  1] literal string: Huan Zhang
+0x000036A8	0x0000000E	[  1] literal string: Leif Andersen
+0x000036B6	0x0000000E	[  1] literal string: Sergiu Rotaru
+0x000036C4	0x0000000D	[  1] literal string: Noé Lojkine
+0x000036D1	0x0000000E	[  1] literal string: Ophir Lojkine
+0x000036DF	0x00000013	[  1] literal string: Stephan Grossklass
+0x000036F2	0x0000000C	[  1] literal string: John Morris
+0x000036FE	0x0000000D	[  1] literal string: Sean Bartell
+0x0000370B	0x0000000B	[  1] literal string: Seheon Ryu
+0x00003716	0x0000000E	[  1] literal string: Asier Arsuaga
+0x00003724	0x00000013	[  1] literal string: Vencislav Atanasov
+0x00003737	0x00000011	[  1] literal string: Mauricio Garrido
+0x00003748	0x0000000D	[  1] literal string: Nick Peskett
+0x00003755	0x00000010	[  1] literal string: Michael Goerner
+0x00003765	0x00000011	[  1] literal string: Richard Brittain
+0x00003776	0x00000010	[  1] literal string: Andrew Ryabinin
+0x00003786	0x00000011	[  1] literal string: Maksim Postolati
+0x00003797	0x00000012	[  1] literal string: Stanislav Chizhik
+0x000037A9	0x0000000B	[  1] literal string: Desu Rozen
+0x000037B4	0x00000012	[  1] literal string: Olivier Kaloudoff
+0x000037C6	0x00000010	[  1] literal string: Kessia Pinheiro
+0x000037D6	0x00000013	[  1] literal string: Jean-Louis Biasini
+0x000037E9	0x0000000E	[  1] literal string: Lorenzo Miori
+0x000037F7	0x0000000B	[  1] literal string: James Hunt
+0x00003802	0x0000000F	[  1] literal string: Artur Juraszek
+0x00003811	0x00000011	[  1] literal string: Wieland Hoffmann
+0x00003822	0x0000000D	[  1] literal string: Nathan Korth
+0x0000382F	0x0000000D	[  1] literal string: Igor Petelin
+0x0000383C	0x0000000F	[  1] literal string: Cástor Muñoz
+0x0000384B	0x0000000D	[  1] literal string: Albert Barca
+0x00003858	0x00000010	[  1] literal string: Fukuda Takafumi
+0x00003868	0x00000011	[  1] literal string: Dimitar Dimitrov
+0x00003879	0x0000000F	[  1] literal string: Osborne Jacobs
+0x00003888	0x0000000D	[  1] literal string: Marty Miller
+0x00003895	0x00000011	[  1] literal string: Eduardo Gonzalez
+0x000038A6	0x0000000E	[  1] literal string: Enric Morales
+0x000038B4	0x00000013	[  1] literal string: Mateusz Renkiewicz
+0x000038C7	0x00000012	[  1] literal string: Dario Castellarin
+0x000038D9	0x00000013	[  1] literal string: Thiago Kenji Okada
+0x000038EC	0x0000000D	[  1] literal string: Manuel Flury
+0x000038F9	0x0000000E	[  1] literal string: Vanja Cvelbar
+0x00003907	0x0000000E	[  1] literal string: Richard Quirk
+0x00003915	0x00000013	[  1] literal string: Kirill Stryaponoff
+0x00003928	0x00000012	[  1] literal string: Roman Poltoradnev
+0x0000393A	0x0000000D	[  1] literal string: Ryan Billing
+0x00003947	0x0000000D	[  1] literal string: Dmitry Gamza
+0x00003954	0x00000014	[  1] literal string: Sebastian Leonhardt
+0x00003968	0x0000000E	[  1] literal string: Avi Eisenberg
+0x00003976	0x0000000E	[  1] literal string: Richard Burke
+0x00003984	0x0000000D	[  1] literal string: Franklin Wei
+0x00003991	0x00000010	[  1] literal string: Serhij Kyryljan
+0x000039A1	0x0000000B	[  1] literal string: Yifu Huang
+0x000039AC	0x00000015	[  1] literal string: Jonathan Bettencourt
+0x000039C1	0x0000000F	[  1] literal string: Ilia Sergachev
+0x000039D0	0x0000000A	[  1] literal string: Nial Shui
+0x000039DA	0x0000000E	[  1] literal string: Mihail Zenkov
+0x000039E8	0x0000000D	[  1] literal string: Thomas Orgis
+0x000039F5	0x00000011	[  1] literal string: Semyon Zhukovsky
+0x00003A06	0x0000000F	[  1] literal string: Kostadin Kolev
+0x00003A15	0x00000010	[  1] literal string: Jordi Prenafeta
+0x00003A25	0x0000000F	[  1] literal string: Tiago Medeiros
+0x00003A34	0x0000000F	[  1] literal string: Udo Schläpfer
+0x00003A43	0x0000000D	[  1] literal string: Thomas White
+0x00003A50	0x0000000B	[  1] literal string: Karl Huber
+0x00003A5B	0x0000000D	[  1] literal string: Adam Sampson
+0x00003A68	0x0000000F	[  1] literal string: William Wilgus
+0x00003A77	0x00000010	[  1] literal string: Igor Skochinsky
+0x00003A87	0x00000013	[  1] literal string: Sebastiano Pistore
+0x00003A9A	0x00000019	[  1] literal string: Stefan Schneider-Kennedy
+0x00003AB3	0x0000000E	[  1] literal string: Johannes Rauh
+0x00003AC1	0x0000001B	[  1] literal string: Constantine Mountantonakis
+0x00003ADC	0x0000000F	[  1] literal string: Jonatan Nyberg
+0x00003AEB	0x00000014	[  1] literal string: Alessandro Stoppani
+0x00003AFF	0x00000012	[  1] literal string: Alexander Yurenin
+0x00003B11	0x00000010	[  1] literal string: Roman Stolyarov
+0x00003B21	0x0000000F	[  1] literal string: Solomon Peachy
+0x00003B30	0x0000000E	[  1] literal string: Igor Poretsky
+0x00003B3E	0x00000009	[  1] literal string: Adam Rak
+0x00003B47	0x0000000C	[  1] literal string: Rémi Oudin
+0x00003B53	0x00000012	[  1] literal string: Malik Enes Şafak
+0x00003B65	0x00000016	[  1] literal string: Roman Levkin-Taymenev
+0x00003B7B	0x0000000F	[  1] literal string: Nathan Follens
+0x00003B8A	0x00000011	[  1] literal string: Gergely Békési
+0x00003B9B	0x0000000F	[  1] literal string: Stephane Doyon
+0x00003BAA	0x0000000C	[  1] literal string: Alex Wallis
+0x00003BB6	0x00000010	[  1] literal string: Moshe Piekarski
+0x00003BC6	0x00000011	[  1] literal string: Christian Soffke
+0x00003BD7	0x0000000E	[  1] literal string: Juan Gonzalez
+0x00003BE5	0x0000000C	[  1] literal string: Yangyong Wu
+0x00003BF1	0x0000000C	[  1] literal string: Andy Potter
+0x00003BFD	0x0000000F	[  1] literal string: Stefan Waigand
+0x00003C0C	0x0000000E	[  1] literal string: Guo Zhong Kai
+0x00003C1A	0x0000000C	[  1] literal string: Martin Buck
+0x00003C26	0x0000000B	[  1] literal string: Stefan Ott
+0x00003C31	0x0000000E	[  1] literal string: David Chionne
+0x00003C3F	0x00000011	[  1] literal string: Wilfried Winkler
+0x00003C50	0x00000010	[  1] literal string: Johannes König
+0x00003C60	0x00000012	[  1] literal string: Alexander Drammen
+0x00003C72	0x0000000D	[  1] literal string: Kei Miyamoto
+0x00003C7F	0x0000000F	[  1] literal string: James D. Smith
+0x00003C8E	0x00000012	[  1] literal string: Howard Richardson
+0x00003CA0	0x00000010	[  1] literal string: Sylvain Saubier
+0x00003CB0	0x0000000F	[  1] literal string: Adrián Tinoco
+0x00003CBF	0x00000012	[  1] literal string: Boris Kovačević
+0x00003CD1	0x00000019	[  1] literal string: Stéphane Moutard-Martin
+0x00003CEA	0x0000000A	[  1] literal string: Rune Pade
+0x00003CF4	0x0000000C	[  1] literal string: Michael Rey
+0x00003D00	0x0000000C	[  1] literal string: Yuxuan Shui
+0x00003D0C	0x0000000C	[  1] literal string: James Buren
+0x00003D18	0x00000010	[  1] literal string: Issa Beganović
+0x00003D28	0x0000000F	[  1] literal string: Georg Gadinger
+0x00003D37	0x0000000D	[  1] literal string: Wolfram Sang
+0x00003D44	0x00000010	[  1] literal string: Aidan MacDonald
+0x00003D54	0x0000000F	[  1] literal string: Caleb Connolly
+0x00003D63	0x00000013	[  1] literal string: Spencer Brennessel
+0x00003D76	0x0000000C	[  1] literal string: Dana Conrad
+0x00003D82	0x0000000C	[  1] literal string: Albert Song
+0x00003D8E	0x0000000B	[  1] literal string: Marc Aarts
+0x00003D99	0x00000010	[  1] literal string: Fabrice Bellard
+0x00003DA9	0x0000000F	[  1] literal string: Selami Dinçer
+0x00003DB8	0x0000000D	[  1] literal string: Matej Golian
+0x00003DC5	0x00000010	[  1] literal string: James Le Cuirot
+0x00003DD5	0x00000011	[  1] literal string: Michael Landherr
+0x00003DE6	0x00000010	[  1] literal string: Roman Artiukhin
+0x00003DF6	0x00000011	[  1] literal string: Richard Goedeken
+0x00003E07	0x00000018	[  1] literal string: Mihaly 'Hermit' Horvath
+0x00003E1F	0x00000012	[  1] literal string: Uwe Kleine-König
+0x00003E31	0x00000009	[  1] literal string: JJ Style
+0x00003E3A	0x0000000E	[  1] literal string: Jerry Chapman
+0x00003E48	0x00000010	[  1] literal string: Leander Lismond
+0x00003E58	0x0000000D	[  1] literal string: Eren Akpolat
+0x00003E65	0x00000014	[  1] literal string: Pierluigi Vicinanza
+0x00003E79	0x0000000E	[  1] literal string: Matteo Italia
+0x00003E87	0x0000000B	[  1] literal string: Evan Kenny
+0x00003E92	0x0000000B	[  1] literal string: Medu Hedan
+0x00003E9D	0x00000011	[  1] literal string: Uwe Schächterle
+0x00003EAE	0x0000000B	[  1] literal string: Hoseok Seo
+0x00003EB9	0x0000000B	[  1] literal string: Paul Sauro
+0x00003EC4	0x00000010	[  1] literal string: Dmitry Prozorov
+0x00003ED4	0x0000000F	[  1] literal string: Mustafa YILDIZ
+0x00003EE3	0x0000000C	[  1] literal string: Lianela Sky
+0x00003EEF	0x0000000E	[  1] literal string: Nick Feldmann
+0x00003EFD	0x0000000B	[  1] literal string: Emi Foster
+0x00003F08	0x00000010	[  1] literal string: CHAPUIS Adhemar
+0x00003F18	0x0000000F	[  1] literal string: Renalds Belaks
+0x00003F27	0x0000000D	[  1] literal string: Luyara Muniz
+0x00003F34	0x0000000F	[  1] literal string: Fedor Pomazkov
+0x00003F43	0x00000017	[  1] literal string: Guillermo Garcia Rojas
+0x00003F5A	0x00000018	[  1] literal string: Mihai Alexandru Vasiliu
+0x00003F72	0x00000011	[  1] literal string: Wilton Millfjord
+0x00003F83	0x0000000B	[  1] literal string: Pavlo Rudy
+0x00003F8E	0x0000000F	[  1] literal string: Yannic Schmidt
+0x00003F9D	0x00000010	[  1] literal string: Hairo R. Carela
+0x00003FAD	0x0000000F	[  1] literal string: Sergio Delgado
+0x00003FBC	0x00000012	[  1] literal string: Cameron John Peck
+0x00003FCE	0x00000010	[  1] literal string: Chu Khánh Hanh
+0x00003FDE	0x00000011	[  1] literal string: Hoàng Manh Phú
+0x00003FEF	0x00000014	[  1] literal string: Gyúróczki Norbert
+0x00004003	0x0000001B	[  1] literal string: Ivan Romaniuk-Mikhailovsky
+0x0000401E	0x00000013	[  1] literal string: Matthieu BACHELIER
+0x00004031	0x00000011	[  1] literal string: Petr Mikhalitsyn
+0x00004042	0x0000000F	[  1] literal string: Melissa Autumn
+0x00004051	0x0000000D	[  1] literal string: Sho Tanimoto
+0x0000405E	0x00000009	[  1] literal string: Nyx Guan
+0x00004067	0x00000009	[  1] literal string: Arin Kim
+0x00004070	0x0000000D	[  1] literal string: Ingmar Steen
+0x0000407D	0x00000010	[  1] literal string: The libmad team
+0x0000408D	0x00000011	[  1] literal string: The wavpack team
+0x0000409E	0x00000010	[  1] literal string: The FFmpeg team
+0x000040AE	0x00000014	[  1] literal string: The Ogg Vorbis team
+0x000040C2	0x00000010	[  1] literal string: The liba52 team
+0x000040D2	0x0000000F	[  1] literal string: The Speex team
+0x000040E1	0x00000011	[  1] literal string: The libfaad team
+0x000040F2	0x0000000E	[  1] literal string: The Doom team
+0x00004100	0x00000012	[  1] literal string: The gnuchess team
+0x00004112	0x00000010	[  1] literal string: The gnuboy team
+0x00004122	0x00000027	[  1] literal string: The Pacman Instructional Emulator team
+0x00004149	0x00000012	[  1] literal string: The Spectemu team
+0x0000415B	0x00000012	[  1] literal string: The libmpeg2 team
+0x0000416D	0x00000018	[  1] literal string: The Game_Music_Emu team
+0x00004185	0x0000001E	[  1] literal string: The OpenSPC DSP emulator team
+0x000041A3	0x00000016	[  1] literal string: The ALAC decoder team
+0x000041B9	0x0000000D	[  1] literal string: The UCL team
+0x000041C6	0x00000014	[  1] literal string: The iPod Linux team
+0x000041DA	0x0000001B	[  1] literal string: The Vision-8 Emulator team
+0x000041F5	0x0000001A	[  1] literal string: The robotfindskitten team
+0x0000420F	0x00000010	[  1] literal string: The libmtp team
+0x0000421F	0x0000000E	[  1] literal string: The asap team
+0x0000422D	0x00000010	[  1] literal string: The libpng team
+0x0000423D	0x00000030	[  1] literal string: The Pure Data team (Miller Puckette and others)
+0x0000426D	0x00000010	[  1] literal string: The MikMod team
+0x0000427D	0x0000002B	[  1] literal string: Michael McTernan (The ARM unwinder author)
+0x000042A8	0x0000002E	[  1] literal string: The New RAW team (Piotr Padkowski and others)
+0x000042D6	0x00000035	[  1] literal string: The Fabother World team (Fabien Sanglard and others)
+0x0000430B	0x0000002F	[  1] literal string: The sgt-puzzles team (Simon Tatham and others)
+0x0000433A	0x0000000D	[  1] literal string: The SDL team
+0x00004347	0x00000021	[  1] literal string: The Chocolate Duke Nukem 3D team
+0x00004368	0x00000018	[  1] literal string: The Wolfenstein 3D team
+0x00004380	0x0000000E	[  1] literal string: The MAME team
+0x0000438E	0x0000000F	[  1] literal string: The Quake team
+0x0000439D	0x0000002C	[  1] literal string: The Pocket Quake team (Dan East and others)
+0x000043C9	0x0000000F	[  1] literal string: The bzip2 team
+0x000043D8	0x00000010	[  1] literal string: The bsdiff team
+0x000043E8	0x00000015	[  1] literal string: The libtomcrypt team
+0x000043FD	0x00000023	[  1] literal string: The microtar team (rxi and others)
+0x00004420	0x00000024	[  1] literal string: The UnifontEX and GNU Unifont teams
+0x00004444	0x0000000F	[  1] literal string: The xrick team
+0x00004453	0x00000017	[  1] literal string: The Terminus Font team
+0x0000446A	0x00000035	[  1] literal string: Attila Tarpai (The RAINBOW image decoder lib author)
+0x0000449F	0x00000013	[  1] literal string: The WenQangYi team
+0x000044B2	0x0000F500	[  4] _creditslogo
+0x000139B8	0x00000018	[  1] CFI
+0x000139D0	0x00000058	[  1] FDE for: _show_logo
+0x00013A28	0x00000070	[  1] FDE for: _plugin_start
+0x00013A98	0x00000018	[  2] CFI
+0x00013AB0	0x00000020	[  2] FDE for: _cleanup_wrapper
+0x00013AD0	0x00000040	[  2] FDE for: _plugin__start
+0x00013B10	0x00000020	[  2] FDE for: _rb_atexit
+0x00013B30	0x00000030	[  2] FDE for: _exit
+0x00013B60	0x00000030	[  2] FDE for: __exit
+0x00013B90	0x00000038	[  2] FDE for: _exit_on_usb
+0x00013BC8	0x00000018	[  3] CFI
+0x00013BE0	0x00000020	[  3] FDE for: _talk_val
+0x00013C00	0x00000040	[  3] FDE for: _backlight_force_on
+0x00013C40	0x00000050	[  3] FDE for: _backlight_ignore_timeout
+0x00013C90	0x00000040	[  3] FDE for: _backlight_use_settings
+0x00013CD0	0x00000040	[  3] FDE for: _sw_poweroff_disable
+0x00013D10	0x00000020	[  3] FDE for: _sw_poweroff_restore
+0x00013D30	0x00000020	[  3] FDE for: _remote_backlight_force_on
+0x00013D50	0x00000020	[  3] FDE for: _remote_backlight_ignore_timeout
+0x00013D70	0x00000020	[  3] FDE for: _remote_backlight_use_settings
+0x00013D90	0x00000020	[  3] FDE for: _buttonlight_force_on
+0x00013DB0	0x00000020	[  3] FDE for: _buttonlight_force_off
+0x00013DD0	0x00000020	[  3] FDE for: _buttonlight_ignore_timeout
+0x00013DF0	0x00000020	[  3] FDE for: _buttonlight_use_settings
+0x00013E10	0x00000020	[  3] FDE for: _backlight_brightness_set
+0x00013E30	0x00000020	[  3] FDE for: _backlight_brightness_use_setting
+0x00013E50	0x00000020	[  3] FDE for: _buttonlight_brightness_set
+0x00013E70	0x00000020	[  3] FDE for: _buttonlight_brightness_use_setting
+0x00014000	0x00000008	[  6] _longjmp.got
+0x00014008	0x00000008	[  6] _setjmp.got
+0x00014010	0x000018A0	[  1] _credits
+0x000158B0	0x00000038	[  2] ___header
+0x000158E8	0x00000028	[  4] _bm_creditslogo
+0x00018000	0x00000008	[  2] _rb
+0x00018008	0x00000001	[  3] _original_sw_poweroff_state
+0x00018010	0x00000008	[  2] _atexit_handler
+0x00018018	0x000000C0	[  2] ___exit_env

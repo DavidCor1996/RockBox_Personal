@@ -1,0 +1,864 @@
+# Path: /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/opus.elf
+# Arch: arm64
+# Object files:
+[  0] linker synthesized
+[  1] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/opus.o
+[  2] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/codec_crt0.o
+[  3] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libopus.a(bands.o)
+[  4] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libopus.a(celt.o)
+[  5] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libopus.a(celt_decoder.o)
+[  6] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libopus.a(celt_lpc.o)
+[  7] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libopus.a(cwrs.o)
+[  8] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libopus.a(entcode.o)
+[  9] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libopus.a(entdec.o)
+[ 10] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libopus.a(entenc.o)
+[ 11] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libopus.a(kiss_fft.o)
+[ 12] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libopus.a(laplace.o)
+[ 13] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libopus.a(mathops.o)
+[ 14] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libopus.a(mdct.o)
+[ 15] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libopus.a(modes.o)
+[ 16] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libopus.a(pitch.o)
+[ 17] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libopus.a(quant_bands.o)
+[ 18] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libopus.a(rate.o)
+[ 19] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libopus.a(vq.o)
+[ 20] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libopus.a(bwexpander_32.o)
+[ 21] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libopus.a(bwexpander.o)
+[ 22] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libopus.a(CNG.o)
+[ 23] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libopus.a(code_signs.o)
+[ 24] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libopus.a(dec_API.o)
+[ 25] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libopus.a(decode_core.o)
+[ 26] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libopus.a(decode_frame.o)
+[ 27] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libopus.a(decode_indices.o)
+[ 28] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libopus.a(decode_parameters.o)
+[ 29] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libopus.a(decode_pitch.o)
+[ 30] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libopus.a(decode_pulses.o)
+[ 31] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libopus.a(decoder_set_fs.o)
+[ 32] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libopus.a(gain_quant.o)
+[ 33] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libopus.a(init_decoder.o)
+[ 34] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libopus.a(lin2log.o)
+[ 35] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libopus.a(log2lin.o)
+[ 36] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libopus.a(LPC_analysis_filter.o)
+[ 37] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libopus.a(LPC_fit.o)
+[ 38] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libopus.a(LPC_inv_pred_gain.o)
+[ 39] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libopus.a(NLSF2A.o)
+[ 40] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libopus.a(NLSF_decode.o)
+[ 41] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libopus.a(NLSF_stabilize.o)
+[ 42] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libopus.a(NLSF_unpack.o)
+[ 43] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libopus.a(pitch_est_tables.o)
+[ 44] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libopus.a(PLC.o)
+[ 45] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libopus.a(resampler.o)
+[ 46] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libopus.a(resampler_private_AR2.o)
+[ 47] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libopus.a(resampler_private_down_FIR.o)
+[ 48] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libopus.a(resampler_private_IIR_FIR.o)
+[ 49] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libopus.a(resampler_private_up2_HQ.o)
+[ 50] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libopus.a(resampler_rom.o)
+[ 51] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libopus.a(shell_coder.o)
+[ 52] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libopus.a(sort.o)
+[ 53] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libopus.a(stereo_decode_pred.o)
+[ 54] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libopus.a(stereo_MS_to_LR.o)
+[ 55] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libopus.a(sum_sqr_shift.o)
+[ 56] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libopus.a(table_LSF_cos.o)
+[ 57] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libopus.a(tables_gain.o)
+[ 58] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libopus.a(tables_LTP.o)
+[ 59] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libopus.a(tables_NLSF_CB_NB_MB.o)
+[ 60] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libopus.a(tables_NLSF_CB_WB.o)
+[ 61] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libopus.a(tables_other.o)
+[ 62] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libopus.a(tables_pitch_lag.o)
+[ 63] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libopus.a(tables_pulses_per_block.o)
+[ 64] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libopus.a(opus.o)
+[ 65] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libopus.a(opus_decoder.o)
+[ 66] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libopus.a(opus_header.o)
+[ 67] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libopus.a(framing.o)
+[ 68] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/libtlsf.a(tlsf.o)
+[ 69] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+[ 70] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/libSystem.tbd
+[ 71] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/system/libsystem_c.tbd
+# Sections:
+# Address	Size    	Segment	Section
+0x000006E0	0x000152AC	__TEXT	__text
+0x0001598C	0x0000000C	__TEXT	__stubs
+0x00015998	0x000001A1	__TEXT	__cstring
+0x00015B3C	0x00007824	__TEXT	__const
+0x0001D360	0x00004960	__TEXT	__eh_frame
+0x00024000	0x00000008	__DATA_CONST	__got
+0x00024008	0x000003B0	__DATA_CONST	__const
+0x00028000	0x00000008	__DATA	.data
+0x00028008	0x000067D8	__DATA	__bss
+# Symbols:
+# Address	Size    	File  Name
+0x000006E0	0x00000050	[  1] __ogg_malloc
+0x00000730	0x00000050	[  1] _get_more_data
+0x00000780	0x00000094	[  1] _get_next_page
+0x00000814	0x000000C8	[  1] _seek_ogg_page.isra.0
+0x000008DC	0x00000634	[  1] _codec_run
+0x00000F10	0x00000008	[  1] _codec_main
+0x00000F18	0x00000008	[  2] __start
+0x00000F20	0x00000004	[  2] _codec_start
+0x00000F24	0x0000003C	[  3] _celt_exp2_frac
+0x00000F60	0x00000060	[  3] _celt_exp2
+0x00000FC0	0x0000002C	[  3] _celt_inner_prod_c
+0x00000FEC	0x000000D4	[  3] _deinterleave_hadamard
+0x000010C0	0x0000009C	[  3] _special_hybrid_folding.isra.0
+0x0000115C	0x000000FC	[  3] _quant_band_n1.isra.0
+0x00001258	0x000000F4	[  3] _intensity_stereo.isra.0
+0x0000134C	0x00000070	[  3] _hysteresis_decision
+0x000013BC	0x00000018	[  3] _celt_lcg_rand
+0x000013D4	0x00000050	[  3] _bitexact_cos
+0x00001424	0x00000064	[  3] _bitexact_log2tan
+0x00001488	0x0000063C	[  3] _compute_theta
+0x00001AC4	0x000004FC	[  3] _quant_partition
+0x00001FC0	0x000001C8	[  3] _compute_band_energies
+0x00002188	0x0000014C	[  3] _normalise_bands
+0x000022D4	0x000001F0	[  3] _denormalise_bands
+0x000024C4	0x000002D8	[  3] _anti_collapse
+0x0000279C	0x00000230	[  3] _spreading_decision
+0x000029CC	0x00000068	[  3] _haar1
+0x00002A34	0x000003A4	[  3] _quant_band
+0x00002DD8	0x0000054C	[  3] _quant_band_stereo
+0x00003324	0x00000C98	[  3] _quant_all_bands
+0x00003FBC	0x00000064	[  4] _resampling_factor
+0x00004020	0x0000038C	[  4] _comb_filter
+0x000043AC	0x0000005C	[  4] _init_caps
+0x00004408	0x0000002C	[  4] _opus_strerror
+0x00004434	0x0000000C	[  4] _opus_get_version_string
+0x00004440	0x000003C0	[  5] _celt_synthesis
+0x00004800	0x00000950	[  5] _celt_decode_lost
+0x00005150	0x0000002C	[  5] _opus_custom_decoder_get_size.isra.0
+0x0000517C	0x00000010	[  5] _ec_tell.isra.0
+0x0000518C	0x000002D4	[  5] _deemphasis
+0x00005460	0x00000034	[  5] _celt_decoder_get_size
+0x00005494	0x00000D48	[  5] _celt_decode_with_ec
+0x000061DC	0x00000244	[  5] _opus_custom_decoder_ctl
+0x00006420	0x000000C4	[  5] _celt_decoder_init
+0x000064E4	0x0000016C	[  6] _xcorr_kernel_c
+0x00006650	0x00000170	[  6] __celt_lpc
+0x000067C0	0x000001A8	[  6] _celt_fir_c
+0x00006968	0x0000033C	[  6] _celt_iir
+0x00006CA4	0x00000258	[  6] __celt_autocorr
+0x00006EFC	0x00000124	[  7] _encode_pulses
+0x00007020	0x000001F8	[  7] _decode_pulses
+0x00007218	0x00000048	[  8] _ec_tell_frac
+0x00007260	0x00000070	[  9] _ec_dec_normalize
+0x000072D0	0x00000048	[  9] _ec_dec_init
+0x00007318	0x00000028	[  9] _ec_decode
+0x00007340	0x00000030	[  9] _ec_decode_bin
+0x00007370	0x00000034	[  9] _ec_dec_update
+0x000073A4	0x0000003C	[  9] _ec_dec_bit_logp
+0x000073E0	0x00000048	[  9] _ec_dec_icdf
+0x00007428	0x00000074	[  9] _ec_dec_bits
+0x0000749C	0x00000098	[  9] _ec_dec_uint
+0x00007534	0x000000B0	[ 10] _ec_enc_carry_out.part.0
+0x000075E4	0x000000AC	[ 10] _ec_enc_normalize
+0x00007690	0x0000002C	[ 10] _ec_enc_init
+0x000076BC	0x0000003C	[ 10] _ec_encode
+0x000076F8	0x00000044	[ 10] _ec_encode_bin
+0x0000773C	0x00000028	[ 10] _ec_enc_bit_logp
+0x00007764	0x0000004C	[ 10] _ec_enc_icdf
+0x000077B0	0x00000080	[ 10] _ec_enc_bits
+0x00007830	0x00000060	[ 10] _ec_enc_uint
+0x00007890	0x00000098	[ 10] _ec_enc_patch_initial_bits
+0x00007928	0x00000044	[ 10] _ec_enc_shrink
+0x0000796C	0x000001A8	[ 10] _ec_enc_done
+0x00007B14	0x0000086C	[ 11] _opus_fft_impl
+0x00008380	0x00000064	[ 11] _opus_fft_c
+0x000083E4	0x00000090	[ 11] _opus_ifft_c
+0x00008474	0x000000E0	[ 12] _ec_laplace_encode
+0x00008554	0x000000E8	[ 12] _ec_laplace_decode
+0x0000863C	0x0000006C	[ 13] __celt_cos_pi_2
+0x000086A8	0x0000004C	[ 13] _isqrt32
+0x000086F4	0x00000070	[ 13] _celt_rsqrt_norm
+0x00008764	0x000000B0	[ 13] _celt_sqrt
+0x00008814	0x00000074	[ 13] _celt_cos_norm
+0x00008888	0x000000AC	[ 13] _celt_rcp
+0x00008934	0x000000A8	[ 13] _frac_div32
+0x000089DC	0x0000036C	[ 14] _clt_mdct_forward_c
+0x00008D48	0x00000240	[ 14] _clt_mdct_backward_c
+0x00008F88	0x00000054	[ 15] _opus_custom_mode_create
+0x00008FDC	0x0000013C	[ 16] _find_best_pitch
+0x00009118	0x00000104	[ 16] _compute_pitch_gain
+0x0000921C	0x000002F8	[ 16] _pitch_downsample
+0x00009514	0x0000021C	[ 16] _celt_pitch_xcorr_c
+0x00009730	0x00000354	[ 16] _pitch_search
+0x00009A84	0x0000040C	[ 16] _remove_doubling
+0x00009E90	0x0000038C	[ 17] _quant_coarse_energy_impl
+0x0000A21C	0x00000430	[ 17] _quant_coarse_energy
+0x0000A64C	0x00000114	[ 17] _quant_fine_energy
+0x0000A760	0x00000130	[ 17] _quant_energy_finalise
+0x0000A890	0x000001D4	[ 17] _unquant_coarse_energy
+0x0000AA64	0x000000AC	[ 17] _unquant_fine_energy
+0x0000AB10	0x00000104	[ 17] _unquant_energy_finalise
+0x0000AC14	0x0000012C	[ 17] _amp2Log2
+0x0000AD40	0x000009E0	[ 18] _clt_compute_allocation
+0x0000B720	0x0000004C	[ 19] _celt_atan01
+0x0000B76C	0x0000002C	[ 19] _celt_inner_prod_c
+0x0000B798	0x000000A4	[ 19] _exp_rotation1
+0x0000B83C	0x00000068	[ 19] _extract_collapse_mask
+0x0000B8A4	0x000000A4	[ 19] _normalise_residual
+0x0000B948	0x00000168	[ 19] _exp_rotation
+0x0000BAB0	0x00000274	[ 19] _op_pvq_search_c
+0x0000BD24	0x00000104	[ 19] _alg_quant
+0x0000BE28	0x000000A4	[ 19] _alg_unquant
+0x0000BECC	0x000000AC	[ 19] _renormalise_vector
+0x0000BF78	0x00000114	[ 19] _stereo_itheta
+0x0000C08C	0x00000054	[ 20] _silk_bwexpander_32
+0x0000C0E0	0x00000060	[ 21] _silk_bwexpander
+0x0000C140	0x00000074	[ 22] _silk_SQRT_APPROX
+0x0000C1B4	0x00000048	[ 22] _silk_CNG_Reset
+0x0000C1FC	0x00000598	[ 22] _silk_CNG
+0x0000C794	0x000000D8	[ 23] _silk_encode_signs
+0x0000C86C	0x000000F0	[ 23] _silk_decode_signs
+0x0000C95C	0x00000010	[ 24] _silk_Get_Decoder_Size
+0x0000C96C	0x0000004C	[ 24] _silk_InitDecoder
+0x0000C9B8	0x000009A8	[ 24] _silk_Decode
+0x0000D360	0x00000874	[ 25] _silk_decode_core
+0x0000DBD4	0x000001A8	[ 26] _silk_decode_frame
+0x0000DD7C	0x00000348	[ 27] _silk_decode_indices
+0x0000E0C4	0x000001F8	[ 28] _silk_decode_parameters
+0x0000E2BC	0x000000CC	[ 29] _silk_decode_pitch
+0x0000E388	0x000001F0	[ 30] _silk_decode_pulses
+0x0000E578	0x000001A8	[ 31] _silk_decoder_set_fs
+0x0000E720	0x000001AC	[ 32] _silk_gains_quant
+0x0000E8CC	0x000000D8	[ 32] _silk_gains_dequant
+0x0000E9A4	0x00000028	[ 32] _silk_gains_ID
+0x0000E9CC	0x00000050	[ 33] _silk_init_decoder
+0x0000EA1C	0x0000005C	[ 34] _silk_lin2log
+0x0000EA78	0x00000064	[ 35] _silk_log2lin
+0x0000EADC	0x000000F0	[ 36] _silk_LPC_analysis_filter
+0x0000EBCC	0x000001C4	[ 37] _silk_LPC_fit
+0x0000ED90	0x0000025C	[ 38] _silk_LPC_inverse_pred_gain_c
+0x0000EFEC	0x000000C0	[ 39] _silk_NLSF2A_find_poly
+0x0000F0AC	0x00000194	[ 39] _silk_NLSF2A
+0x0000F240	0x00000120	[ 40] _silk_NLSF_decode
+0x0000F360	0x00000294	[ 41] _silk_NLSF_stabilize
+0x0000F5F4	0x00000098	[ 42] _silk_NLSF_unpack
+0x0000F68C	0x00000028	[ 44] _silk_PLC_Reset
+0x0000F6B4	0x00000A18	[ 44] _silk_PLC
+0x000100CC	0x00000194	[ 44] _silk_PLC_glue_frames
+0x00010260	0x000002FC	[ 45] _silk_resampler_init
+0x0001055C	0x00000154	[ 45] _silk_resampler
+0x000106B0	0x00000054	[ 46] _silk_resampler_private_AR2
+0x00010704	0x00000644	[ 47] _silk_resampler_private_down_FIR
+0x00010D48	0x000001B8	[ 48] _silk_resampler_private_IIR_FIR
+0x00010F00	0x0000013C	[ 49] _silk_resampler_private_up2_HQ
+0x0001103C	0x00000004	[ 49] _silk_resampler_private_up2_HQ_wrapper
+0x00011040	0x00000020	[ 51] _combine_pulses
+0x00011060	0x00000028	[ 51] _encode_split
+0x00011088	0x00000068	[ 51] _decode_split
+0x000110F0	0x000001CC	[ 51] _silk_shell_encoder
+0x000112BC	0x000001B0	[ 51] _silk_shell_decoder
+0x0001146C	0x00000108	[ 52] _silk_insertion_sort_increasing
+0x00011574	0x00000108	[ 52] _silk_insertion_sort_decreasing_int16
+0x0001167C	0x00000058	[ 52] _silk_insertion_sort_increasing_all_values_int16
+0x000116D4	0x00000120	[ 53] _silk_stereo_decode_pred
+0x000117F4	0x00000030	[ 53] _silk_stereo_decode_mid_only
+0x00011824	0x00000268	[ 54] _silk_stereo_MS_to_LR
+0x00011A8C	0x000000C8	[ 55] _silk_sum_sqr_shift
+0x00011B54	0x0000004C	[ 64] _parse_size
+0x00011BA0	0x00000034	[ 64] _encode_size
+0x00011BD4	0x00000060	[ 64] _opus_packet_get_samples_per_frame
+0x00011C34	0x000002C4	[ 64] _opus_packet_parse_impl
+0x00011EF8	0x0000001C	[ 64] _opus_packet_parse
+0x00011F14	0x00000074	[ 65] _smooth_fade
+0x00011F88	0x00000048	[ 65] __ogg_free
+0x00011FD0	0x00000B0C	[ 65] _opus_decode_frame
+0x00012ADC	0x00000068	[ 65] _opus_decoder_get_size
+0x00012B44	0x0000011C	[ 65] _opus_decoder_init
+0x00012C60	0x0000011C	[ 65] _opus_decoder_create
+0x00012D7C	0x000001A8	[ 65] _opus_decoder_ctl
+0x00012F24	0x00000004	[ 65] _opus_decoder_destroy
+0x00012F28	0x00000044	[ 65] _opus_packet_get_bandwidth
+0x00012F6C	0x00000010	[ 65] _opus_packet_get_nb_channels
+0x00012F7C	0x000002C4	[ 65] _opus_decode_native
+0x00013240	0x00000038	[ 65] _opus_decode
+0x00013278	0x00000050	[ 65] _opus_packet_get_nb_frames
+0x000132C8	0x00000058	[ 65] _opus_packet_get_nb_samples
+0x00013320	0x00000014	[ 65] _opus_decoder_get_nb_samples
+0x00013334	0x00000048	[ 66] _read_chars
+0x0001337C	0x000002A8	[ 66] _opus_header_parse
+0x00013624	0x000000D4	[ 67] __os_update_crc
+0x000136F8	0x000000EC	[ 67] __packetout
+0x000137E4	0x00000050	[ 67] __ogg_malloc
+0x00013834	0x00000048	[ 67] __ogg_free
+0x0001387C	0x00000060	[ 67] __ogg_realloc
+0x000138DC	0x0000007C	[ 67] _ogg_page_checksum_set.part.0
+0x00013958	0x0000000C	[ 67] _ogg_page_version
+0x00013964	0x00000010	[ 67] _ogg_page_continued
+0x00013974	0x00000010	[ 67] _ogg_page_bos
+0x00013984	0x00000010	[ 67] _ogg_page_eos
+0x00013994	0x0000000C	[ 67] _ogg_page_granulepos
+0x000139A0	0x0000000C	[ 67] _ogg_page_serialno
+0x000139AC	0x0000000C	[ 67] _ogg_page_pageno
+0x000139B8	0x00000034	[ 67] _ogg_page_packets
+0x000139EC	0x0000001C	[ 67] _ogg_stream_check
+0x00013A08	0x00000060	[ 67] _ogg_stream_clear
+0x00013A68	0x0000009C	[ 67] _ogg_stream_init
+0x00013B04	0x00000080	[ 67] __os_body_expand
+0x00013B84	0x00000090	[ 67] __os_lacing_expand
+0x00013C14	0x00000038	[ 67] _ogg_stream_destroy
+0x00013C4C	0x0000000C	[ 67] _ogg_page_checksum_set
+0x00013C58	0x00000260	[ 67] _ogg_stream_flush_i
+0x00013EB8	0x000001B8	[ 67] _ogg_stream_iovecin
+0x00014070	0x00000028	[ 67] _ogg_stream_packetin
+0x00014098	0x0000000C	[ 67] _ogg_stream_flush
+0x000140A4	0x0000000C	[ 67] _ogg_stream_flush_fill
+0x000140B0	0x00000058	[ 67] _ogg_stream_pageout
+0x00014108	0x0000005C	[ 67] _ogg_stream_pageout_fill
+0x00014164	0x00000028	[ 67] _ogg_stream_eos
+0x0001418C	0x00000034	[ 67] _ogg_sync_init
+0x000141C0	0x00000048	[ 67] _ogg_sync_clear
+0x00014208	0x00000038	[ 67] _ogg_sync_destroy
+0x00014240	0x0000000C	[ 67] _ogg_sync_check
+0x0001424C	0x000000BC	[ 67] _ogg_sync_buffer
+0x00014308	0x00000030	[ 67] _ogg_sync_wrote
+0x00014338	0x000001A0	[ 67] _ogg_sync_pageseek
+0x000144D8	0x00000064	[ 67] _ogg_sync_pageout
+0x0001453C	0x000002EC	[ 67] _ogg_stream_pagein
+0x00014828	0x00000020	[ 67] _ogg_sync_reset
+0x00014848	0x00000044	[ 67] _ogg_stream_reset
+0x0001488C	0x0000003C	[ 67] _ogg_stream_reset_serialno
+0x000148C8	0x00000030	[ 67] _ogg_stream_packetout
+0x000148F8	0x00000030	[ 67] _ogg_stream_packetpeek
+0x00014928	0x00000030	[ 67] _ogg_packet_clear
+0x00014958	0x00000050	[ 68] _ls_bit
+0x000149A8	0x00000048	[ 68] _ms_bit
+0x000149F0	0x00000020	[ 68] _set_bit
+0x00014A10	0x00000020	[ 68] _clear_bit
+0x00014A30	0x0000008C	[ 68] _FIND_SUITABLE_BLOCK
+0x00014ABC	0x0000004C	[ 68] _process_area
+0x00014B08	0x00000058	[ 68] _MAPPING_INSERT
+0x00014B60	0x00000004	[ 68] _panicf
+0x00014B64	0x00000008	[ 68] _get_new_area
+0x00014B6C	0x00000008	[ 68] _get_used_size
+0x00014B74	0x00000008	[ 68] _get_max_size
+0x00014B7C	0x00000008	[ 68] _destroy_memory_pool
+0x00014B84	0x00000248	[ 68] _free_ex
+0x00014DCC	0x000000C4	[ 68] _init_memory_pool
+0x00014E90	0x0000016C	[ 68] _add_new_area
+0x00014FFC	0x000002CC	[ 68] _malloc_ex
+0x000152C8	0x0000006C	[ 68] _tlsf_malloc
+0x00015334	0x0000000C	[ 68] _tlsf_free
+0x00015340	0x00000368	[ 68] _realloc_ex
+0x000156A8	0x00000018	[ 68] _tlsf_realloc
+0x000156C0	0x0000005C	[ 68] _calloc_ex
+0x0001571C	0x0000000C	[ 68] _tlsf_calloc
+0x00015728	0x00000040	[ 69] _codec_init
+0x00015768	0x00000048	[ 69] _codec_set_replaygain
+0x000157B0	0x00000048	[ 69] _codec_malloc
+0x000157F8	0x0000004C	[ 69] _codec_calloc
+0x00015844	0x00000004	[ 69] _codec_free
+0x00015848	0x00000054	[ 69] _codec_realloc
+0x0001589C	0x00000018	[ 69] _codec_strlen
+0x000158B4	0x00000018	[ 69] _strcpy
+0x000158CC	0x00000018	[ 69] _strcat
+0x000158E4	0x00000018	[ 69] _strcmp
+0x000158FC	0x00000018	[ 69] _memcpy
+0x00015914	0x00000018	[ 69] _memset
+0x0001592C	0x00000018	[ 69] _memcmp
+0x00015944	0x00000018	[ 69] _memchr
+0x0001595C	0x00000018	[ 69] _memmove
+0x00015974	0x00000018	[ 69] _qsort
+0x0001598C	0x0000000C	[ 71] _abs.stub
+0x00015998	0x00000015	[  1] literal string: ogg_malloc %zu = %p\n
+0x000159AD	0x00000009	[  1] literal string: OpusTags
+0x000159B6	0x0000000E	[  4] literal string: unknown error
+0x000159C4	0x00000016	[  4] literal string: libopus unknown-fixed
+0x000159DA	0x00000008	[  4] literal string: success
+0x000159E2	0x00000011	[  4] literal string: invalid argument
+0x000159F3	0x00000011	[  4] literal string: buffer too small
+0x00015A04	0x0000000F	[  4] literal string: internal error
+0x00015A13	0x00000011	[  4] literal string: corrupted stream
+0x00015A24	0x00000018	[  4] literal string: request not implemented
+0x00015A3C	0x0000000E	[  4] literal string: invalid state
+0x00015A4A	0x00000019	[  4] literal string: memory allocation failed
+0x00015A63	0x0000000D	[ 65] literal string: ogg_free %p\n
+0x00015A70	0x00000009	[ 66] literal string: OpusHead
+0x00015A79	0x00000019	[ 67] literal string: ogg_realloc %p %zu = %p\n
+0x00015A92	0x00000005	[ 67] literal string: OggS
+0x00015A97	0x00000016	[ 68] literal string: * Heap Corruption: %s
+0x00015AAD	0x00000021	[ 68] literal string: free_ex(): Freeing unused block\n
+0x00015ACE	0x0000001D	[ 68] literal string: free_ex(): Mismatched flags\n
+0x00015AEB	0x0000001E	[ 68] literal string: free_ex(): uncoalesced block\n
+0x00015B09	0x00000030	[ 68] literal string: malloc_ex(): Mismatched flags after allocation\n
+0x00015B3C	0x00000006	[  1] lC1
+0x00015B44	0x00000010	[  3] _bit_deinterleave_table.0
+0x00015B54	0x00000010	[  3] _bit_interleave_table.1
+0x00015B64	0x00000010	[  3] _exp2_table8.2
+0x00015B74	0x00000078	[  3] _ordery_table
+0x00015BEC	0x00000012	[  4] _gains.1
+0x00015BFE	0x00000020	[  4] _tf_select_table
+0x00015C1E	0x00000003	[  5] _tapset_icdf
+0x00015C21	0x00000004	[  5] _spread_icdf
+0x00015C25	0x0000000B	[  5] _trim_icdf
+0x00015C30	0x000013E0	[  7] _CELT_PVQ_U_DATA
+0x00017010	0x00000020	[  8] _correction.0
+0x00017030	0x00000E10	[ 15] _mdct_twiddles960
+0x00017E40	0x00000078	[ 15] _fft_bitrev60
+0x00017EB8	0x000000F0	[ 15] _fft_bitrev120
+0x00017FA8	0x000001E0	[ 15] _fft_bitrev240
+0x00018188	0x000003C0	[ 15] _fft_bitrev480
+0x00018548	0x00000780	[ 15] _fft_twiddles48000_960
+0x00018CC8	0x000000A8	[ 15] _cache_caps50
+0x00018D70	0x00000188	[ 15] _cache_bits50
+0x00018EF8	0x000000D2	[ 15] _cache_index50
+0x00018FCA	0x0000002A	[ 15] _logN400
+0x00018FF4	0x000000F0	[ 15] _window120
+0x000190E4	0x000000E8	[ 15] _band_allocation
+0x000191CC	0x0000002C	[ 15] _eband5ms
+0x000191F8	0x00000040	[ 16] _second_check
+0x00019238	0x00000003	[ 17] _small_energy_icdf
+0x0001923B	0x00000151	[ 17] _e_prob_model
+0x0001938C	0x00000008	[ 17] _beta_coef
+0x00019394	0x00000008	[ 17] _pred_coef
+0x0001939C	0x00000019	[ 17] _eMeans
+0x000193B5	0x00000018	[ 18] _LOG2_FRAC_TABLE
+0x000193D0	0x0000000C	[ 19] _SPREAD_FACTOR.0
+0x000193DC	0x0000000A	[ 39] _ordering10.0
+0x000193E6	0x00000010	[ 39] _ordering16.1
+0x000193F6	0x00000003	[ 43] _silk_nb_cbk_searchs_stage3
+0x000193F9	0x00000018	[ 43] _silk_Lag_range_stage3
+0x00019411	0x00000088	[ 43] _silk_CB_lags_stage3
+0x00019499	0x0000002C	[ 43] _silk_CB_lags_stage2
+0x000194C5	0x00000004	[ 43] _silk_Lag_range_stage3_10_ms
+0x000194C9	0x00000018	[ 43] _silk_CB_lags_stage3_10_ms
+0x000194E1	0x00000006	[ 43] _silk_CB_lags_stage2_10_ms
+0x000194E8	0x00000004	[ 44] _PLC_RAND_ATTENUATE_UV_Q15
+0x000194EC	0x00000004	[ 44] _PLC_RAND_ATTENUATE_V_Q15
+0x000194F0	0x00000004	[ 44] _HARM_ATT_Q15
+0x000194F4	0x0000000F	[ 45] _delay_matrix_dec
+0x00019503	0x0000000F	[ 45] _delay_matrix_enc
+0x00019514	0x00000060	[ 50] _silk_resampler_frac_FIR_12
+0x00019574	0x0000000C	[ 50] _silk_Resampler_2_3_COEFS_LQ
+0x00019580	0x00000028	[ 50] _silk_Resampler_1_6_COEFS
+0x000195A8	0x00000028	[ 50] _silk_Resampler_1_4_COEFS
+0x000195D0	0x00000028	[ 50] _silk_Resampler_1_3_COEFS
+0x000195F8	0x0000001C	[ 50] _silk_Resampler_1_2_COEFS
+0x00019614	0x00000028	[ 50] _silk_Resampler_2_3_COEFS
+0x0001963C	0x0000003A	[ 50] _silk_Resampler_3_4_COEFS
+0x00019676	0x00000102	[ 56] _silk_LSFCosTab_FIX_Q12
+0x00019778	0x00000029	[ 57] _silk_delta_gain_iCDF
+0x000197A1	0x00000018	[ 57] _silk_gain_iCDF
+0x000197B9	0x00000003	[ 58] _silk_LTP_vq_sizes
+0x000197BC	0x00000020	[ 58] _silk_LTP_gain_vq_2_gain
+0x000197DC	0x00000010	[ 58] _silk_LTP_gain_vq_1_gain
+0x000197EC	0x00000008	[ 58] _silk_LTP_gain_vq_0_gain
+0x000197F4	0x000000A0	[ 58] _silk_LTP_gain_vq_2
+0x00019894	0x00000050	[ 58] _silk_LTP_gain_vq_1
+0x000198E4	0x00000028	[ 58] _silk_LTP_gain_vq_0
+0x0001990C	0x00000020	[ 58] _silk_LTP_gain_BITS_Q5_2
+0x0001992C	0x00000010	[ 58] _silk_LTP_gain_BITS_Q5_1
+0x0001993C	0x00000008	[ 58] _silk_LTP_gain_BITS_Q5_0
+0x00019944	0x00000020	[ 58] _silk_LTP_gain_iCDF_2
+0x00019964	0x00000010	[ 58] _silk_LTP_gain_iCDF_1
+0x00019974	0x00000008	[ 58] _silk_LTP_gain_iCDF_0
+0x0001997C	0x00000003	[ 58] _silk_LTP_per_index_iCDF
+0x00019980	0x00000016	[ 59] _silk_NLSF_DELTA_MIN_NB_MB_Q15
+0x00019996	0x00000012	[ 59] _silk_NLSF_PRED_NB_MB_Q8
+0x000199A8	0x00000048	[ 59] _silk_NLSF_CB2_BITS_NB_MB_Q5
+0x000199F0	0x00000048	[ 59] _silk_NLSF_CB2_iCDF_NB_MB
+0x00019A38	0x000000A0	[ 59] _silk_NLSF_CB2_SELECT_NB_MB
+0x00019AD8	0x00000040	[ 59] _silk_NLSF_CB1_iCDF_NB_MB
+0x00019B18	0x00000280	[ 59] _silk_NLSF_CB1_Wght_Q9
+0x00019D98	0x00000140	[ 59] _silk_NLSF_CB1_NB_MB_Q8
+0x00019ED8	0x00000022	[ 60] _silk_NLSF_DELTA_MIN_WB_Q15
+0x00019EFA	0x0000001E	[ 60] _silk_NLSF_PRED_WB_Q8
+0x00019F18	0x00000048	[ 60] _silk_NLSF_CB2_BITS_WB_Q5
+0x00019F60	0x00000048	[ 60] _silk_NLSF_CB2_iCDF_WB
+0x00019FA8	0x00000100	[ 60] _silk_NLSF_CB2_SELECT_WB
+0x0001A0A8	0x00000040	[ 60] _silk_NLSF_CB1_iCDF_WB
+0x0001A0E8	0x00000400	[ 60] _silk_NLSF_CB1_WB_Wght_Q9
+0x0001A4E8	0x00000200	[ 60] _silk_NLSF_CB1_WB_Q8
+0x0001A6E8	0x00000028	[ 61] _silk_Transition_LP_A_Q28
+0x0001A710	0x0000003C	[ 61] _silk_Transition_LP_B_Q28
+0x0001A74C	0x00000007	[ 61] _silk_NLSF_EXT_iCDF
+0x0001A753	0x00000008	[ 61] _silk_uniform8_iCDF
+0x0001A75B	0x00000006	[ 61] _silk_uniform6_iCDF
+0x0001A761	0x00000005	[ 61] _silk_uniform5_iCDF
+0x0001A766	0x00000004	[ 61] _silk_uniform4_iCDF
+0x0001A76A	0x00000004	[ 61] _silk_uniform3_iCDF
+0x0001A76E	0x00000006	[ 61] _silk_LTPScales_table_Q14
+0x0001A774	0x00000008	[ 61] _silk_Quantization_Offsets_Q10
+0x0001A77C	0x00000005	[ 61] _silk_NLSF_interpolation_factor_iCDF
+0x0001A781	0x00000002	[ 61] _silk_type_offset_no_VAD_iCDF
+0x0001A783	0x00000004	[ 61] _silk_type_offset_VAD_iCDF
+0x0001A787	0x00000003	[ 61] _silk_LTPscale_iCDF
+0x0001A78A	0x00000002	[ 61] _silk_lsb_iCDF
+0x0001A78C	0x00000007	[ 61] _silk_LBRR_flags_3_iCDF
+0x0001A793	0x00000003	[ 61] _silk_LBRR_flags_2_iCDF
+0x0001A796	0x00000002	[ 61] _silk_stereo_only_code_mid_iCDF
+0x0001A798	0x0000001A	[ 61] _silk_stereo_pred_joint_iCDF
+0x0001A7B2	0x00000020	[ 61] _silk_stereo_pred_quant_Q13
+0x0001A7D2	0x00000003	[ 62] _silk_pitch_contour_10_ms_NB_iCDF
+0x0001A7D5	0x0000000C	[ 62] _silk_pitch_contour_10_ms_iCDF
+0x0001A7E1	0x0000000B	[ 62] _silk_pitch_contour_NB_iCDF
+0x0001A7EC	0x00000022	[ 62] _silk_pitch_contour_iCDF
+0x0001A80E	0x00000015	[ 62] _silk_pitch_delta_iCDF
+0x0001A823	0x00000020	[ 62] _silk_pitch_lag_iCDF
+0x0001A843	0x0000002A	[ 63] _silk_sign_iCDF
+0x0001A86D	0x00000011	[ 63] _silk_shell_code_table_offsets
+0x0001A87E	0x00000098	[ 63] _silk_shell_code_table3
+0x0001A916	0x00000098	[ 63] _silk_shell_code_table2
+0x0001A9AE	0x00000098	[ 63] _silk_shell_code_table1
+0x0001AA46	0x00000098	[ 63] _silk_shell_code_table0
+0x0001AADE	0x00000012	[ 63] _silk_rate_levels_BITS_Q5
+0x0001AAF0	0x00000012	[ 63] _silk_rate_levels_iCDF
+0x0001AB02	0x000000A2	[ 63] _silk_pulses_per_block_BITS_Q5
+0x0001ABA4	0x000000B4	[ 63] _silk_pulses_per_block_iCDF
+0x0001AC58	0x00000004	[ 63] _silk_max_pulses_table
+0x0001AC5C	0x00000004	[ 65] _CSWTCH.45
+0x0001AC60	0x00000100	[ 66] _wav_permute_matrix
+0x0001AD60	0x00002000	[ 67] _crc_lookup
+0x0001CD60	0x00000400	[ 68] _table
+0x0001D160	0x00000100	[ 69] _bs_clz_tab
+0x0001D260	0x00000100	[ 69] _bs_log2_tab
+0x0001D360	0x00000018	[  1] CFI
+0x0001D378	0x00000048	[  1] FDE for: __ogg_malloc
+0x0001D3C0	0x00000040	[  1] FDE for: _get_more_data
+0x0001D400	0x00000058	[  1] FDE for: _get_next_page
+0x0001D458	0x00000050	[  1] FDE for: _seek_ogg_page.isra.0
+0x0001D4A8	0x00000078	[  1] FDE for: _codec_run
+0x0001D520	0x00000020	[  1] FDE for: _codec_main
+0x0001D540	0x00000018	[  2] CFI
+0x0001D558	0x00000020	[  2] FDE for: __start
+0x0001D578	0x00000020	[  2] FDE for: _codec_start
+0x0001D598	0x00000018	[  3] CFI
+0x0001D5B0	0x00000020	[  3] FDE for: _celt_exp2_frac
+0x0001D5D0	0x00000048	[  3] FDE for: _celt_exp2
+0x0001D618	0x00000020	[  3] FDE for: _celt_inner_prod_c
+0x0001D638	0x00000038	[  3] FDE for: _deinterleave_hadamard
+0x0001D670	0x00000060	[  3] FDE for: _special_hybrid_folding.isra.0
+0x0001D6D0	0x00000078	[  3] FDE for: _quant_band_n1.isra.0
+0x0001D748	0x00000050	[  3] FDE for: _intensity_stereo.isra.0
+0x0001D798	0x00000020	[  3] FDE for: _hysteresis_decision
+0x0001D7B8	0x00000020	[  3] FDE for: _celt_lcg_rand
+0x0001D7D8	0x00000020	[  3] FDE for: _bitexact_cos
+0x0001D7F8	0x00000020	[  3] FDE for: _bitexact_log2tan
+0x0001D818	0x00000078	[  3] FDE for: _compute_theta
+0x0001D890	0x00000078	[  3] FDE for: _quant_partition
+0x0001D908	0x00000070	[  3] FDE for: _compute_band_energies
+0x0001D978	0x00000078	[  3] FDE for: _normalise_bands
+0x0001D9F0	0x00000058	[  3] FDE for: _denormalise_bands
+0x0001DA48	0x00000078	[  3] FDE for: _anti_collapse
+0x0001DAC0	0x00000060	[  3] FDE for: _spreading_decision
+0x0001DB20	0x00000020	[  3] FDE for: _haar1
+0x0001DB40	0x00000068	[  3] FDE for: _quant_band
+0x0001DBA8	0x00000070	[  3] FDE for: _quant_band_stereo
+0x0001DC18	0x00000080	[  3] FDE for: _quant_all_bands
+0x0001DC98	0x00000018	[  4] CFI
+0x0001DCB0	0x00000020	[  4] FDE for: _resampling_factor
+0x0001DCD0	0x00000078	[  4] FDE for: _comb_filter
+0x0001DD48	0x00000020	[  4] FDE for: _init_caps
+0x0001DD68	0x00000020	[  4] FDE for: _opus_strerror
+0x0001DD88	0x00000020	[  4] FDE for: _opus_get_version_string
+0x0001DDA8	0x00000018	[  5] CFI
+0x0001DDC0	0x00000070	[  5] FDE for: _celt_synthesis
+0x0001DE30	0x00000080	[  5] FDE for: _celt_decode_lost
+0x0001DEB0	0x00000020	[  5] FDE for: _opus_custom_decoder_get_size.isra.0
+0x0001DED0	0x00000020	[  5] FDE for: _ec_tell.isra.0
+0x0001DEF0	0x00000058	[  5] FDE for: _deemphasis
+0x0001DF48	0x00000040	[  5] FDE for: _celt_decoder_get_size
+0x0001DF88	0x00000070	[  5] FDE for: _celt_decode_with_ec
+0x0001DFF8	0x00000050	[  5] FDE for: _opus_custom_decoder_ctl
+0x0001E048	0x00000058	[  5] FDE for: _celt_decoder_init
+0x0001E0A0	0x00000018	[  6] CFI
+0x0001E0B8	0x00000040	[  6] FDE for: _xcorr_kernel_c
+0x0001E0F8	0x00000078	[  6] FDE for: __celt_lpc
+0x0001E170	0x00000070	[  6] FDE for: _celt_fir_c
+0x0001E1E0	0x00000078	[  6] FDE for: _celt_iir
+0x0001E258	0x00000060	[  6] FDE for: __celt_autocorr
+0x0001E2B8	0x00000018	[  7] CFI
+0x0001E2D0	0x00000078	[  7] FDE for: _encode_pulses
+0x0001E348	0x00000058	[  7] FDE for: _decode_pulses
+0x0001E3A0	0x00000018	[  8] CFI
+0x0001E3B8	0x00000020	[  8] FDE for: _ec_tell_frac
+0x0001E3D8	0x00000018	[  9] CFI
+0x0001E3F0	0x00000020	[  9] FDE for: _ec_dec_normalize
+0x0001E410	0x00000020	[  9] FDE for: _ec_dec_init
+0x0001E430	0x00000020	[  9] FDE for: _ec_decode
+0x0001E450	0x00000020	[  9] FDE for: _ec_decode_bin
+0x0001E470	0x00000020	[  9] FDE for: _ec_dec_update
+0x0001E490	0x00000038	[  9] FDE for: _ec_dec_bit_logp
+0x0001E4C8	0x00000038	[  9] FDE for: _ec_dec_icdf
+0x0001E500	0x00000020	[  9] FDE for: _ec_dec_bits
+0x0001E520	0x00000040	[  9] FDE for: _ec_dec_uint
+0x0001E560	0x00000018	[ 10] CFI
+0x0001E578	0x00000020	[ 10] FDE for: _ec_enc_carry_out.part.0
+0x0001E598	0x00000058	[ 10] FDE for: _ec_enc_normalize
+0x0001E5F0	0x00000020	[ 10] FDE for: _ec_enc_init
+0x0001E610	0x00000020	[ 10] FDE for: _ec_encode
+0x0001E630	0x00000020	[ 10] FDE for: _ec_encode_bin
+0x0001E650	0x00000020	[ 10] FDE for: _ec_enc_bit_logp
+0x0001E670	0x00000020	[ 10] FDE for: _ec_enc_icdf
+0x0001E690	0x00000020	[ 10] FDE for: _ec_enc_bits
+0x0001E6B0	0x00000038	[ 10] FDE for: _ec_enc_uint
+0x0001E6E8	0x00000020	[ 10] FDE for: _ec_enc_patch_initial_bits
+0x0001E708	0x00000040	[ 10] FDE for: _ec_enc_shrink
+0x0001E748	0x00000058	[ 10] FDE for: _ec_enc_done
+0x0001E7A0	0x00000018	[ 11] CFI
+0x0001E7B8	0x00000058	[ 11] FDE for: _opus_fft_impl
+0x0001E810	0x00000020	[ 11] FDE for: _opus_fft_c
+0x0001E830	0x00000048	[ 11] FDE for: _opus_ifft_c
+0x0001E878	0x00000018	[ 12] CFI
+0x0001E890	0x00000020	[ 12] FDE for: _ec_laplace_encode
+0x0001E8B0	0x00000050	[ 12] FDE for: _ec_laplace_decode
+0x0001E900	0x00000018	[ 13] CFI
+0x0001E918	0x00000020	[ 13] FDE for: __celt_cos_pi_2
+0x0001E938	0x00000020	[ 13] FDE for: _isqrt32
+0x0001E958	0x00000020	[ 13] FDE for: _celt_rsqrt_norm
+0x0001E978	0x00000020	[ 13] FDE for: _celt_sqrt
+0x0001E998	0x00000038	[ 13] FDE for: _celt_cos_norm
+0x0001E9D0	0x00000020	[ 13] FDE for: _celt_rcp
+0x0001E9F0	0x00000040	[ 13] FDE for: _frac_div32
+0x0001EA30	0x00000018	[ 14] CFI
+0x0001EA48	0x00000068	[ 14] FDE for: _clt_mdct_forward_c
+0x0001EAB0	0x00000060	[ 14] FDE for: _clt_mdct_backward_c
+0x0001EB10	0x00000018	[ 15] CFI
+0x0001EB28	0x00000020	[ 15] FDE for: _opus_custom_mode_create
+0x0001EB48	0x00000018	[ 16] CFI
+0x0001EB60	0x00000048	[ 16] FDE for: _find_best_pitch
+0x0001EBA8	0x00000058	[ 16] FDE for: _compute_pitch_gain
+0x0001EC00	0x00000048	[ 16] FDE for: _pitch_downsample
+0x0001EC48	0x00000068	[ 16] FDE for: _celt_pitch_xcorr_c
+0x0001ECB0	0x00000078	[ 16] FDE for: _pitch_search
+0x0001ED28	0x00000068	[ 16] FDE for: _remove_doubling
+0x0001ED90	0x00000018	[ 17] CFI
+0x0001EDA8	0x00000068	[ 17] FDE for: _quant_coarse_energy_impl
+0x0001EE10	0x00000070	[ 17] FDE for: _quant_coarse_energy
+0x0001EE80	0x00000078	[ 17] FDE for: _quant_fine_energy
+0x0001EEF8	0x00000070	[ 17] FDE for: _quant_energy_finalise
+0x0001EF68	0x00000070	[ 17] FDE for: _unquant_coarse_energy
+0x0001EFD8	0x00000060	[ 17] FDE for: _unquant_fine_energy
+0x0001F038	0x00000070	[ 17] FDE for: _unquant_energy_finalise
+0x0001F0A8	0x00000050	[ 17] FDE for: _amp2Log2
+0x0001F0F8	0x00000018	[ 18] CFI
+0x0001F110	0x00000070	[ 18] FDE for: _clt_compute_allocation
+0x0001F180	0x00000018	[ 19] CFI
+0x0001F198	0x00000020	[ 19] FDE for: _celt_atan01
+0x0001F1B8	0x00000020	[ 19] FDE for: _celt_inner_prod_c
+0x0001F1D8	0x00000020	[ 19] FDE for: _exp_rotation1
+0x0001F1F8	0x00000020	[ 19] FDE for: _extract_collapse_mask
+0x0001F218	0x00000050	[ 19] FDE for: _normalise_residual
+0x0001F268	0x00000078	[ 19] FDE for: _exp_rotation
+0x0001F2E0	0x00000060	[ 19] FDE for: _op_pvq_search_c
+0x0001F340	0x00000068	[ 19] FDE for: _alg_quant
+0x0001F3A8	0x00000058	[ 19] FDE for: _alg_unquant
+0x0001F400	0x00000058	[ 19] FDE for: _renormalise_vector
+0x0001F458	0x00000048	[ 19] FDE for: _stereo_itheta
+0x0001F4A0	0x00000018	[ 20] CFI
+0x0001F4B8	0x00000020	[ 20] FDE for: _silk_bwexpander_32
+0x0001F4D8	0x00000018	[ 21] CFI
+0x0001F4F0	0x00000020	[ 21] FDE for: _silk_bwexpander
+0x0001F510	0x00000018	[ 22] CFI
+0x0001F528	0x00000020	[ 22] FDE for: _silk_SQRT_APPROX
+0x0001F548	0x00000020	[ 22] FDE for: _silk_CNG_Reset
+0x0001F568	0x00000070	[ 22] FDE for: _silk_CNG
+0x0001F5D8	0x00000018	[ 23] CFI
+0x0001F5F0	0x00000078	[ 23] FDE for: _silk_encode_signs
+0x0001F668	0x00000078	[ 23] FDE for: _silk_decode_signs
+0x0001F6E0	0x00000018	[ 24] CFI
+0x0001F6F8	0x00000020	[ 24] FDE for: _silk_Get_Decoder_Size
+0x0001F718	0x00000040	[ 24] FDE for: _silk_InitDecoder
+0x0001F758	0x00000080	[ 24] FDE for: _silk_Decode
+0x0001F7D8	0x00000018	[ 25] CFI
+0x0001F7F0	0x00000070	[ 25] FDE for: _silk_decode_core
+0x0001F860	0x00000018	[ 26] CFI
+0x0001F878	0x00000070	[ 26] FDE for: _silk_decode_frame
+0x0001F8E8	0x00000018	[ 27] CFI
+0x0001F900	0x00000068	[ 27] FDE for: _silk_decode_indices
+0x0001F968	0x00000018	[ 28] CFI
+0x0001F980	0x00000060	[ 28] FDE for: _silk_decode_parameters
+0x0001F9E0	0x00000018	[ 29] CFI
+0x0001F9F8	0x00000020	[ 29] FDE for: _silk_decode_pitch
+0x0001FA18	0x00000018	[ 30] CFI
+0x0001FA30	0x00000078	[ 30] FDE for: _silk_decode_pulses
+0x0001FAA8	0x00000018	[ 31] CFI
+0x0001FAC0	0x00000060	[ 31] FDE for: _silk_decoder_set_fs
+0x0001FB20	0x00000018	[ 32] CFI
+0x0001FB38	0x00000078	[ 32] FDE for: _silk_gains_quant
+0x0001FBB0	0x00000060	[ 32] FDE for: _silk_gains_dequant
+0x0001FC10	0x00000020	[ 32] FDE for: _silk_gains_ID
+0x0001FC30	0x00000018	[ 33] CFI
+0x0001FC48	0x00000040	[ 33] FDE for: _silk_init_decoder
+0x0001FC88	0x00000018	[ 34] CFI
+0x0001FCA0	0x00000020	[ 34] FDE for: _silk_lin2log
+0x0001FCC0	0x00000018	[ 35] CFI
+0x0001FCD8	0x00000020	[ 35] FDE for: _silk_log2lin
+0x0001FCF8	0x00000018	[ 36] CFI
+0x0001FD10	0x00000020	[ 36] FDE for: _silk_LPC_analysis_filter
+0x0001FD30	0x00000018	[ 37] CFI
+0x0001FD48	0x00000070	[ 37] FDE for: _silk_LPC_fit
+0x0001FDB8	0x00000018	[ 38] CFI
+0x0001FDD0	0x00000050	[ 38] FDE for: _silk_LPC_inverse_pred_gain_c
+0x0001FE20	0x00000018	[ 39] CFI
+0x0001FE38	0x00000020	[ 39] FDE for: _silk_NLSF2A_find_poly
+0x0001FE58	0x00000060	[ 39] FDE for: _silk_NLSF2A
+0x0001FEB8	0x00000018	[ 40] CFI
+0x0001FED0	0x00000058	[ 40] FDE for: _silk_NLSF_decode
+0x0001FF28	0x00000018	[ 41] CFI
+0x0001FF40	0x00000048	[ 41] FDE for: _silk_NLSF_stabilize
+0x0001FF88	0x00000018	[ 42] CFI
+0x0001FFA0	0x00000020	[ 42] FDE for: _silk_NLSF_unpack
+0x0001FFC0	0x00000018	[ 44] CFI
+0x0001FFD8	0x00000020	[ 44] FDE for: _silk_PLC_Reset
+0x0001FFF8	0x00000068	[ 44] FDE for: _silk_PLC
+0x00020060	0x00000058	[ 44] FDE for: _silk_PLC_glue_frames
+0x000200B8	0x00000018	[ 45] CFI
+0x000200D0	0x00000058	[ 45] FDE for: _silk_resampler_init
+0x00020128	0x00000060	[ 45] FDE for: _silk_resampler
+0x00020188	0x00000018	[ 46] CFI
+0x000201A0	0x00000020	[ 46] FDE for: _silk_resampler_private_AR2
+0x000201C0	0x00000018	[ 47] CFI
+0x000201D8	0x00000070	[ 47] FDE for: _silk_resampler_private_down_FIR
+0x00020248	0x00000018	[ 48] CFI
+0x00020260	0x00000068	[ 48] FDE for: _silk_resampler_private_IIR_FIR
+0x000202C8	0x00000018	[ 49] CFI
+0x000202E0	0x00000020	[ 49] FDE for: _silk_resampler_private_up2_HQ
+0x00020300	0x00000020	[ 49] FDE for: _silk_resampler_private_up2_HQ_wrapper
+0x00020320	0x00000018	[ 51] CFI
+0x00020338	0x00000020	[ 51] FDE for: _combine_pulses
+0x00020358	0x00000020	[ 51] FDE for: _encode_split
+0x00020378	0x00000050	[ 51] FDE for: _decode_split
+0x000203C8	0x00000058	[ 51] FDE for: _silk_shell_encoder
+0x00020420	0x00000050	[ 51] FDE for: _silk_shell_decoder
+0x00020470	0x00000018	[ 52] CFI
+0x00020488	0x00000020	[ 52] FDE for: _silk_insertion_sort_increasing
+0x000204A8	0x00000020	[ 52] FDE for: _silk_insertion_sort_decreasing_int16
+0x000204C8	0x00000020	[ 52] FDE for: _silk_insertion_sort_increasing_all_values_int16
+0x000204E8	0x00000018	[ 53] CFI
+0x00020500	0x00000060	[ 53] FDE for: _silk_stereo_decode_pred
+0x00020560	0x00000040	[ 53] FDE for: _silk_stereo_decode_mid_only
+0x000205A0	0x00000018	[ 54] CFI
+0x000205B8	0x00000060	[ 54] FDE for: _silk_stereo_MS_to_LR
+0x00020618	0x00000018	[ 55] CFI
+0x00020630	0x00000020	[ 55] FDE for: _silk_sum_sqr_shift
+0x00020650	0x00000018	[ 64] CFI
+0x00020668	0x00000020	[ 64] FDE for: _parse_size
+0x00020688	0x00000020	[ 64] FDE for: _encode_size
+0x000206A8	0x00000020	[ 64] FDE for: _opus_packet_get_samples_per_frame
+0x000206C8	0x00000060	[ 64] FDE for: _opus_packet_parse_impl
+0x00020728	0x00000020	[ 64] FDE for: _opus_packet_parse
+0x00020748	0x00000018	[ 65] CFI
+0x00020760	0x00000020	[ 65] FDE for: _smooth_fade
+0x00020780	0x00000048	[ 65] FDE for: __ogg_free
+0x000207C8	0x00000068	[ 65] FDE for: _opus_decode_frame
+0x00020830	0x00000050	[ 65] FDE for: _opus_decoder_get_size
+0x00020880	0x00000058	[ 65] FDE for: _opus_decoder_init
+0x000208D8	0x00000060	[ 65] FDE for: _opus_decoder_create
+0x00020938	0x00000058	[ 65] FDE for: _opus_decoder_ctl
+0x00020990	0x00000020	[ 65] FDE for: _opus_decoder_destroy
+0x000209B0	0x00000020	[ 65] FDE for: _opus_packet_get_bandwidth
+0x000209D0	0x00000020	[ 65] FDE for: _opus_packet_get_nb_channels
+0x000209F0	0x000000B0	[ 65] FDE for: _opus_decode_native
+0x00020AA0	0x00000040	[ 65] FDE for: _opus_decode
+0x00020AE0	0x00000020	[ 65] FDE for: _opus_packet_get_nb_frames
+0x00020B00	0x00000040	[ 65] FDE for: _opus_packet_get_nb_samples
+0x00020B40	0x00000020	[ 65] FDE for: _opus_decoder_get_nb_samples
+0x00020B60	0x00000018	[ 66] CFI
+0x00020B78	0x00000020	[ 66] FDE for: _read_chars
+0x00020B98	0x00000050	[ 66] FDE for: _opus_header_parse
+0x00020BE8	0x00000018	[ 67] CFI
+0x00020C00	0x00000020	[ 67] FDE for: __os_update_crc
+0x00020C20	0x00000020	[ 67] FDE for: __packetout
+0x00020C40	0x00000048	[ 67] FDE for: __ogg_malloc
+0x00020C88	0x00000048	[ 67] FDE for: __ogg_free
+0x00020CD0	0x00000050	[ 67] FDE for: __ogg_realloc
+0x00020D20	0x00000038	[ 67] FDE for: _ogg_page_checksum_set.part.0
+0x00020D58	0x00000020	[ 67] FDE for: _ogg_page_version
+0x00020D78	0x00000020	[ 67] FDE for: _ogg_page_continued
+0x00020D98	0x00000020	[ 67] FDE for: _ogg_page_bos
+0x00020DB8	0x00000020	[ 67] FDE for: _ogg_page_eos
+0x00020DD8	0x00000020	[ 67] FDE for: _ogg_page_granulepos
+0x00020DF8	0x00000020	[ 67] FDE for: _ogg_page_serialno
+0x00020E18	0x00000020	[ 67] FDE for: _ogg_page_pageno
+0x00020E38	0x00000020	[ 67] FDE for: _ogg_page_packets
+0x00020E58	0x00000020	[ 67] FDE for: _ogg_stream_check
+0x00020E78	0x00000040	[ 67] FDE for: _ogg_stream_clear
+0x00020EB8	0x00000058	[ 67] FDE for: _ogg_stream_init
+0x00020F10	0x00000048	[ 67] FDE for: __os_body_expand
+0x00020F58	0x00000048	[ 67] FDE for: __os_lacing_expand
+0x00020FA0	0x00000040	[ 67] FDE for: _ogg_stream_destroy
+0x00020FE0	0x00000020	[ 67] FDE for: _ogg_page_checksum_set
+0x00021000	0x00000058	[ 67] FDE for: _ogg_stream_flush_i
+0x00021058	0x00000068	[ 67] FDE for: _ogg_stream_iovecin
+0x000210C0	0x00000038	[ 67] FDE for: _ogg_stream_packetin
+0x000210F8	0x00000020	[ 67] FDE for: _ogg_stream_flush
+0x00021118	0x00000020	[ 67] FDE for: _ogg_stream_flush_fill
+0x00021138	0x00000048	[ 67] FDE for: _ogg_stream_pageout
+0x00021180	0x00000048	[ 67] FDE for: _ogg_stream_pageout_fill
+0x000211C8	0x00000040	[ 67] FDE for: _ogg_stream_eos
+0x00021208	0x00000038	[ 67] FDE for: _ogg_sync_init
+0x00021240	0x00000040	[ 67] FDE for: _ogg_sync_clear
+0x00021280	0x00000040	[ 67] FDE for: _ogg_sync_destroy
+0x000212C0	0x00000020	[ 67] FDE for: _ogg_sync_check
+0x000212E0	0x00000050	[ 67] FDE for: _ogg_sync_buffer
+0x00021330	0x00000020	[ 67] FDE for: _ogg_sync_wrote
+0x00021350	0x00000058	[ 67] FDE for: _ogg_sync_pageseek
+0x000213A8	0x00000048	[ 67] FDE for: _ogg_sync_pageout
+0x000213F0	0x00000068	[ 67] FDE for: _ogg_stream_pagein
+0x00021458	0x00000020	[ 67] FDE for: _ogg_sync_reset
+0x00021478	0x00000040	[ 67] FDE for: _ogg_stream_reset
+0x000214B8	0x00000040	[ 67] FDE for: _ogg_stream_reset_serialno
+0x000214F8	0x00000048	[ 67] FDE for: _ogg_stream_packetout
+0x00021540	0x00000048	[ 67] FDE for: _ogg_stream_packetpeek
+0x00021588	0x00000040	[ 67] FDE for: _ogg_packet_clear
+0x000215C8	0x00000018	[ 68] CFI
+0x000215E0	0x00000020	[ 68] FDE for: _ls_bit
+0x00021600	0x00000020	[ 68] FDE for: _ms_bit
+0x00021620	0x00000020	[ 68] FDE for: _set_bit
+0x00021640	0x00000020	[ 68] FDE for: _clear_bit
+0x00021660	0x00000040	[ 68] FDE for: _FIND_SUITABLE_BLOCK
+0x000216A0	0x00000020	[ 68] FDE for: _process_area
+0x000216C0	0x00000038	[ 68] FDE for: _MAPPING_INSERT
+0x000216F8	0x00000020	[ 68] FDE for: _panicf
+0x00021718	0x00000020	[ 68] FDE for: _get_new_area
+0x00021738	0x00000020	[ 68] FDE for: _get_used_size
+0x00021758	0x00000020	[ 68] FDE for: _get_max_size
+0x00021778	0x00000020	[ 68] FDE for: _destroy_memory_pool
+0x00021798	0x00000040	[ 68] FDE for: _free_ex
+0x000217D8	0x00000050	[ 68] FDE for: _init_memory_pool
+0x00021828	0x00000048	[ 68] FDE for: _add_new_area
+0x00021870	0x00000060	[ 68] FDE for: _malloc_ex
+0x000218D0	0x00000058	[ 68] FDE for: _tlsf_malloc
+0x00021928	0x00000020	[ 68] FDE for: _tlsf_free
+0x00021948	0x00000068	[ 68] FDE for: _realloc_ex
+0x000219B0	0x00000020	[ 68] FDE for: _tlsf_realloc
+0x000219D0	0x00000048	[ 68] FDE for: _calloc_ex
+0x00021A18	0x00000020	[ 68] FDE for: _tlsf_calloc
+0x00021A38	0x00000018	[ 69] CFI
+0x00021A50	0x00000038	[ 69] FDE for: _codec_init
+0x00021A88	0x00000038	[ 69] FDE for: _codec_set_replaygain
+0x00021AC0	0x00000020	[ 69] FDE for: _codec_malloc
+0x00021AE0	0x00000040	[ 69] FDE for: _codec_calloc
+0x00021B20	0x00000020	[ 69] FDE for: _codec_free
+0x00021B40	0x00000040	[ 69] FDE for: _codec_realloc
+0x00021B80	0x00000020	[ 69] FDE for: _codec_strlen
+0x00021BA0	0x00000020	[ 69] FDE for: _strcpy
+0x00021BC0	0x00000020	[ 69] FDE for: _strcat
+0x00021BE0	0x00000020	[ 69] FDE for: _strcmp
+0x00021C00	0x00000020	[ 69] FDE for: _memcpy
+0x00021C20	0x00000020	[ 69] FDE for: _memset
+0x00021C40	0x00000020	[ 69] FDE for: _memcmp
+0x00021C60	0x00000020	[ 69] FDE for: _memchr
+0x00021C80	0x00000020	[ 69] FDE for: _memmove
+0x00021CA0	0x00000020	[ 69] FDE for: _qsort
+0x00024000	0x00000008	[ 71] _abs.got
+0x00024008	0x00000040	[  1] ___header
+0x00024048	0x00000040	[  4] _error_strings.0
+0x00024088	0x00000078	[  7] _CELT_PVQ_U_ROW
+0x00024100	0x00000098	[ 15] _mode48000_960_120
+0x00024198	0x00000048	[ 15] _fft_state48000_960_3
+0x000241E0	0x00000048	[ 15] _fft_state48000_960_2
+0x00024228	0x00000048	[ 15] _fft_state48000_960_1
+0x00024270	0x00000048	[ 15] _fft_state48000_960_0
+0x000242B8	0x00000018	[ 58] _silk_LTP_vq_gain_ptrs_Q7
+0x000242D0	0x00000018	[ 58] _silk_LTP_vq_ptrs_Q7
+0x000242E8	0x00000018	[ 58] _silk_LTP_gain_BITS_Q5_ptrs
+0x00024300	0x00000018	[ 58] _silk_LTP_gain_iCDF_ptrs
+0x00024318	0x00000048	[ 59] _silk_NLSF_CB_NB_MB
+0x00024360	0x00000048	[ 60] _silk_NLSF_CB_WB
+0x000243A8	0x00000010	[ 61] _silk_LBRR_flags_iCDF_ptr
+0x00028000	0x00000008	[  2] _ci
+0x00028008	0x000067B4	[ 65] _s_dec
+0x0002E7C0	0x00000008	[ 68] _mp
+0x0002E7C8	0x00000008	[ 69] _mallocbuf
+0x0002E7D0	0x00000008	[ 69] _bufsize
+0x0002E7D8	0x00000008	[ 69] _mem_ptr

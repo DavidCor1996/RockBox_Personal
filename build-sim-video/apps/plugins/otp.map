@@ -1,0 +1,318 @@
+# Path: /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/otp.elf
+# Arch: arm64
+# Object files:
+[  0] linker synthesized
+[  1] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/otp.o
+[  2] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/plugin_crt0.o
+[  3] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(sha1.o)
+[  4] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(gcc-support.o)
+[  5] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(pluginlib_actions.o)
+[  6] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(display_text.o)
+[  7] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/libSystem.tbd
+[  8] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/system/libsystem_platform.tbd
+# Sections:
+# Address	Size    	Segment	Section
+0x00000778	0x000032E0	__TEXT	__text
+0x00003A58	0x00000018	__TEXT	__stubs
+0x00003A70	0x000008DF	__TEXT	__cstring
+0x00004350	0x00000124	__TEXT	__const
+0x00004478	0x000008E8	__TEXT	__eh_frame
+0x00008000	0x00000010	__DATA_CONST	__got
+0x00008010	0x00000188	__DATA_CONST	__const
+0x0000C000	0x000004B8	__DATA	__data
+0x0000C4B8	0x00000008	__DATA	.data
+0x0000C4C0	0x00000308	__DATA	__common
+0x0000C7C8	0x000000F0	__DATA	__bss
+# Symbols:
+# Address	Size    	File  Name
+0x00000778	0x00000040	[  1] _get_utc
+0x000007B8	0x00000080	[  1] _acct_exists
+0x00000838	0x000000D8	[  1] _save_accts
+0x00000910	0x00000044	[  1] _danger_confirm
+0x00000954	0x000000A0	[  1] _HOTP
+0x000009F4	0x000000C4	[  1] _get_time_seconds
+0x00000AB8	0x00000094	[  1] _get_time_offs
+0x00000B4C	0x000000F0	[  1] _base32_decode.constprop.0
+0x00000C3C	0x00000334	[  1] _add_acct_manual
+0x00000F70	0x000004F8	[  1] _add_acct_file
+0x00001468	0x00000B70	[  1] _plugin_start
+0x00001FD8	0x00000018	[  2] _cleanup_wrapper
+0x00001FF0	0x00000068	[  2] _plugin__start
+0x00002058	0x00000020	[  2] _rb_atexit
+0x00002078	0x00000024	[  2] _exit
+0x0000209C	0x00000014	[  2] __exit
+0x000020B0	0x00000064	[  2] _exit_on_usb
+0x00002114	0x00000034	[  3] _sha1_init_ctx
+0x00002148	0x00000044	[  3] _sha1_read_ctx
+0x0000218C	0x0000104C	[  3] _sha1_process_block
+0x000031D8	0x000000C8	[  3] _sha1_finish_ctx
+0x000032A0	0x00000128	[  3] _sha1_process_bytes
+0x000033C8	0x00000068	[  3] _sha1_buffer
+0x00003430	0x00000028	[  3] _memxor
+0x00003458	0x0000015C	[  3] _hmac_sha1
+0x000035B4	0x00000018	[  4] _memcpy
+0x000035CC	0x00000018	[  4] _memset
+0x000035E4	0x00000018	[  4] _memmove
+0x000035FC	0x00000018	[  4] _memcmp
+0x00003614	0x00000038	[  5] _get_context_map
+0x0000364C	0x00000040	[  5] _pluginlib_getaction
+0x0000368C	0x00000078	[  6] _wait_key_press
+0x00003704	0x00000354	[  6] _display_text
+0x00003A58	0x0000000C	[  8] _longjmp.stub
+0x00003A64	0x0000000C	[  8] _setjmp.stub
+0x00003A70	0x0000001D	[  1] literal string: /.rockbox/rocks/apps/otp.dat
+0x00003A8D	0x00000005	[  1] literal string: OTP1
+0x00003A92	0x00000004	[  1] literal string: UTC
+0x00003A96	0x00000002	[  1] literal string: :
+0x00003A98	0x00000003	[  1] literal string: : 
+0x00003A9B	0x00000017	[  1] literal string: Account limit reached!
+0x00003AB2	0x00000014	[  1] literal string: Enter account name.
+0x00003AC6	0x00000018	[  1] literal string: Duplicate account name!
+0x00003ADE	0x0000001D	[  1] literal string: Enter base32-encoded secret.
+0x00003AFB	0x00000017	[  1] literal string: Invalid Base32 secret!
+0x00003B12	0x00000018	[  1] literal string: Is this a TOTP account?
+0x00003B2A	0x0000002D	[  1] literal string: The protocol can be determined from the URI.
+0x00003B57	0x0000001D	[  1] literal string: Enter counter (0 is normal).
+0x00003B74	0x00000020	[  1] literal string: Enter time step (30 is normal).
+0x00003B94	0x00000021	[  1] literal string: Enter code length (6 is normal).
+0x00003BB5	0x00000010	[  1] literal string: Invalid length!
+0x00003BC5	0x00000009	[  1] literal string: Success.
+0x00003BCE	0x00000026	[  1] literal string: Please choose file containing URI(s).
+0x00003BF4	0x00000002	[  1] literal string: /
+0x00003BF6	0x00000030	[  1] literal string: Account limit reached: some accounts not added.
+0x00003C26	0x0000000B	[  1] literal string: otpauth://
+0x00003C31	0x00000005	[  1] literal string: totp
+0x00003C36	0x00000005	[  1] literal string: hotp
+0x00003C3B	0x00000002	[  1] literal string: ?
+0x00003C3D	0x0000002D	[  1] literal string: Not adding account with duplicate name `%s'!
+0x00003C6A	0x00000022	[  1] literal string: Skipping account with empty name.
+0x00003C8C	0x00000002	[  1] literal string: =
+0x00003C8E	0x00000002	[  1] literal string: &
+0x00003C90	0x00000007	[  1] literal string: secret
+0x00003C97	0x00000037	[  1] literal string: URI with multiple `secret' parameters found, skipping!
+0x00003CCE	0x00000008	[  1] literal string: counter
+0x00003CD6	0x00000033	[  1] literal string: Counter parameter specified for TOTP!? Skipping...
+0x00003D09	0x00000007	[  1] literal string: period
+0x00003D10	0x00000032	[  1] literal string: Period parameter specified for HOTP!? Skipping...
+0x00003D42	0x00000007	[  1] literal string: digits
+0x00003D49	0x00000034	[  1] literal string: Digits parameter not in acceptable range, skipping.
+0x00003D7D	0x0000001F	[  1] literal string: Unnown parameter `%s' ignored.
+0x00003D9C	0x00000030	[  1] literal string: URI with NO `secret' parameter found, skipping!
+0x00003DCC	0x00000013	[  1] literal string: No accounts added.
+0x00003DDF	0x00000015	[  1] literal string: Added %d account(s).
+0x00003DF4	0x00000015	[  1] literal string: 12345678901234567890
+0x00003E09	0x00000013	[  1] literal string: Corrupt save data!
+0x00003E1C	0x0000000E	[  1] literal string: Generate Code
+0x00003E2A	0x00000003	[  1] literal string: %s
+0x00003E2D	0x00000018	[  1] literal string: No accounts configured!
+0x00003E45	0x00000005	[  1] literal string: %0*d
+0x00003E4A	0x0000001B	[  1] literal string: %0*d (%lu seconds(s) left)
+0x00003E65	0x0000000D	[  1] literal string: Edit Account
+0x00003E72	0x00000016	[  1] literal string: Editing account `%s'.
+0x00003E88	0x00000010	[  1] literal string: Enter new name.
+0x00003E98	0x00000009	[  1] literal string: Deleted.
+0x00003EA1	0x0000000F	[  1] literal string: Not confirmed.
+0x00003EB0	0x00000003	[  1] literal string: %d
+0x00003EB3	0x00000004	[  1] literal string: %lu
+0x00003EB7	0x00000017	[  1] literal string: It is done, my master.
+0x00003ECE	0x00000021	[  1] literal string: ABCDEFGHIJKLMNOPQRSTUVWXYZ234567
+0x00003EEF	0x00000003	[  1] literal string: No
+0x00003EF2	0x0000000B	[  1] literal string: Yes, DO IT
+0x00003EFD	0x00000015	[  1] literal string: Are you REALLY SURE?
+0x00003F12	0x00000007	[  1] literal string: Rename
+0x00003F19	0x00000007	[  1] literal string: Delete
+0x00003F20	0x00000014	[  1] literal string: Change HOTP Counter
+0x00003F34	0x00000013	[  1] literal string: Change Digit Count
+0x00003F47	0x00000015	[  1] literal string: Change Shared Secret
+0x00003F5C	0x00000005	[  1] literal string: Back
+0x00003F61	0x00000013	[  1] literal string: Change TOTP Period
+0x00003F74	0x00000014	[  1] literal string: Delete ALL accounts
+0x00003F88	0x00000013	[  1] literal string: Change Time Offset
+0x00003F9B	0x00000009	[  1] literal string: Advanced
+0x00003FA4	0x0000001A	[  1] literal string: One-Time Password Manager
+0x00003FBE	0x00000001	[  1] literal string: 
+0x00003FBF	0x0000000D	[  1] literal string: Introduction
+0x00003FCC	0x00000005	[  1] literal string: This
+0x00003FD1	0x00000007	[  1] literal string: plugin
+0x00003FD8	0x00000007	[  1] literal string: allows
+0x00003FDF	0x00000004	[  1] literal string: you
+0x00003FE3	0x00000003	[  1] literal string: to
+0x00003FE6	0x00000009	[  1] literal string: generate
+0x00003FEF	0x00000009	[  1] literal string: one-time
+0x00003FF8	0x0000000A	[  1] literal string: passwords
+0x00004002	0x00000008	[  1] literal string: provide
+0x0000400A	0x00000002	[  1] literal string: a
+0x0000400C	0x00000007	[  1] literal string: second
+0x00004013	0x00000007	[  1] literal string: factor
+0x0000401A	0x00000003	[  1] literal string: of
+0x0000401D	0x0000000F	[  1] literal string: authentication
+0x0000402C	0x00000004	[  1] literal string: for
+0x00004030	0x00000009	[  1] literal string: services
+0x00004039	0x00000005	[  1] literal string: that
+0x0000403E	0x00000008	[  1] literal string: support
+0x00004046	0x00000004	[  1] literal string: it.
+0x0000404A	0x00000003	[  1] literal string: It
+0x0000404D	0x0000000A	[  1] literal string: suppports
+0x00004057	0x00000005	[  1] literal string: both
+0x0000405C	0x0000000C	[  1] literal string: event-based
+0x00004068	0x00000008	[  1] literal string: (HOTP),
+0x00004070	0x00000004	[  1] literal string: and
+0x00004074	0x0000000B	[  1] literal string: time-based
+0x0000407F	0x00000007	[  1] literal string: (TOTP)
+0x00004086	0x00000009	[  1] literal string: password
+0x0000408F	0x00000009	[  1] literal string: schemes.
+0x00004098	0x00000003	[  1] literal string: In
+0x0000409B	0x00000006	[  1] literal string: order
+0x000040A1	0x00000007	[  1] literal string: ensure
+0x000040A8	0x00000007	[  1] literal string: proper
+0x000040AF	0x0000000C	[  1] literal string: functioning
+0x000040BB	0x00000004	[  1] literal string: the
+0x000040BF	0x00000006	[  1] literal string: clock
+0x000040C5	0x00000003	[  1] literal string: is
+0x000040C8	0x00000009	[  1] literal string: accurate
+0x000040D1	0x00000007	[  1] literal string: within
+0x000040D8	0x00000003	[  1] literal string: 30
+0x000040DB	0x00000008	[  1] literal string: seconds
+0x000040E3	0x00000007	[  1] literal string: actual
+0x000040EA	0x00000006	[  1] literal string: time.
+0x000040F0	0x00000005	[  1] literal string: Note
+0x000040F5	0x00000005	[  1] literal string: some
+0x000040FA	0x00000008	[  1] literal string: devices
+0x00004102	0x00000005	[  1] literal string: lack
+0x00004107	0x0000000A	[  1] literal string: real-time
+0x00004111	0x00000007	[  1] literal string: clock,
+0x00004118	0x00000003	[  1] literal string: so
+0x0000411B	0x00000004	[  1] literal string: are
+0x0000411F	0x00000004	[  1] literal string: not
+0x00004123	0x0000000A	[  1] literal string: supported
+0x0000412D	0x00000003	[  1] literal string: on
+0x00004130	0x00000006	[  1] literal string: those
+0x00004136	0x00000009	[  1] literal string: targets.
+0x0000413F	0x00000011	[  1] literal string: From URI on disk
+0x00004150	0x0000000D	[  1] literal string: Manual Entry
+0x0000415D	0x0000000C	[  1] literal string: Add Account
+0x00004169	0x00000013	[  1] literal string: Select Time Offset
+0x0000417C	0x0000000A	[  1] literal string: UTC-12:00
+0x00004186	0x0000000A	[  1] literal string: UTC-11:00
+0x00004190	0x00000011	[  1] literal string: UTC-10:00 (HAST)
+0x000041A1	0x00000009	[  1] literal string: UTC-9:30
+0x000041AA	0x00000016	[  1] literal string: UTC-9:00 (AKST, HADT)
+0x000041C0	0x00000015	[  1] literal string: UTC-8:00 (PST, AKDT)
+0x000041D5	0x00000014	[  1] literal string: UTC-7:00 (MST, PDT)
+0x000041E9	0x00000014	[  1] literal string: UTC-6:00 (CST, MDT)
+0x000041FD	0x00000014	[  1] literal string: UTC-5:00 (EST, CDT)
+0x00004211	0x00000014	[  1] literal string: UTC-4:00 (AST, EDT)
+0x00004225	0x0000000F	[  1] literal string: UTC-3:30 (NST)
+0x00004234	0x0000000F	[  1] literal string: UTC-3:00 (ADT)
+0x00004243	0x0000000F	[  1] literal string: UTC-2:30 (NDT)
+0x00004252	0x00000009	[  1] literal string: UTC-2:00
+0x0000425B	0x00000009	[  1] literal string: UTC-1:00
+0x00004264	0x00000009	[  1] literal string: UTC+1:00
+0x0000426D	0x00000009	[  1] literal string: UTC+2:00
+0x00004276	0x00000009	[  1] literal string: UTC+3:00
+0x0000427F	0x00000009	[  1] literal string: UTC+3:30
+0x00004288	0x00000009	[  1] literal string: UTC+4:00
+0x00004291	0x00000009	[  1] literal string: UTC+4:30
+0x0000429A	0x00000009	[  1] literal string: UTC+5:00
+0x000042A3	0x00000009	[  1] literal string: UTC+5:30
+0x000042AC	0x00000009	[  1] literal string: UTC+5:45
+0x000042B5	0x00000009	[  1] literal string: UTC+6:00
+0x000042BE	0x00000009	[  1] literal string: UTC+6:30
+0x000042C7	0x00000009	[  1] literal string: UTC+7:00
+0x000042D0	0x00000009	[  1] literal string: UTC+8:00
+0x000042D9	0x00000009	[  1] literal string: UTC+8:30
+0x000042E2	0x00000009	[  1] literal string: UTC+8:45
+0x000042EB	0x00000009	[  1] literal string: UTC+9:00
+0x000042F4	0x00000009	[  1] literal string: UTC+9:30
+0x000042FD	0x0000000A	[  1] literal string: UTC+10:00
+0x00004307	0x0000000A	[  1] literal string: UTC+10:30
+0x00004311	0x0000000A	[  1] literal string: UTC+11:00
+0x0000431B	0x0000000A	[  1] literal string: UTC+12:00
+0x00004325	0x0000000A	[  1] literal string: UTC+12:45
+0x0000432F	0x0000000A	[  1] literal string: UTC+13:00
+0x00004339	0x0000000A	[  1] literal string: UTC+14:00
+0x00004343	0x00000005	[  1] literal string: Help
+0x00004348	0x00000005	[  1] literal string: Quit
+0x0000434D	0x00000002	[  6] literal string:  
+0x00004350	0x0000000C	[  1] lC0
+0x0000435C	0x00000040	[  3] _fillbuf
+0x0000439C	0x000000D8	[  5] _pla_main_ctx
+0x00004478	0x00000018	[  1] CFI
+0x00004490	0x00000040	[  1] FDE for: _get_utc
+0x000044D0	0x00000060	[  1] FDE for: _acct_exists
+0x00004530	0x00000068	[  1] FDE for: _save_accts
+0x00004598	0x00000038	[  1] FDE for: _danger_confirm
+0x000045D0	0x00000048	[  1] FDE for: _HOTP
+0x00004618	0x00000048	[  1] FDE for: _get_time_seconds
+0x00004660	0x00000058	[  1] FDE for: _get_time_offs
+0x000046B8	0x00000020	[  1] FDE for: _base32_decode.constprop.0
+0x000046D8	0x00000078	[  1] FDE for: _add_acct_manual
+0x00004750	0x00000078	[  1] FDE for: _add_acct_file
+0x000047C8	0x00000070	[  1] FDE for: _plugin_start
+0x00004838	0x00000018	[  2] CFI
+0x00004850	0x00000020	[  2] FDE for: _cleanup_wrapper
+0x00004870	0x00000040	[  2] FDE for: _plugin__start
+0x000048B0	0x00000020	[  2] FDE for: _rb_atexit
+0x000048D0	0x00000030	[  2] FDE for: _exit
+0x00004900	0x00000030	[  2] FDE for: __exit
+0x00004930	0x00000038	[  2] FDE for: _exit_on_usb
+0x00004968	0x00000018	[  3] CFI
+0x00004980	0x00000020	[  3] FDE for: _sha1_init_ctx
+0x000049A0	0x00000020	[  3] FDE for: _sha1_read_ctx
+0x000049C0	0x00000058	[  3] FDE for: _sha1_process_block
+0x00004A18	0x00000050	[  3] FDE for: _sha1_finish_ctx
+0x00004A68	0x00000060	[  3] FDE for: _sha1_process_bytes
+0x00004AC8	0x00000040	[  3] FDE for: _sha1_buffer
+0x00004B08	0x00000020	[  3] FDE for: _memxor
+0x00004B28	0x00000070	[  3] FDE for: _hmac_sha1
+0x00004B98	0x00000018	[  4] CFI
+0x00004BB0	0x00000020	[  4] FDE for: _memcpy
+0x00004BD0	0x00000020	[  4] FDE for: _memset
+0x00004BF0	0x00000020	[  4] FDE for: _memmove
+0x00004C10	0x00000020	[  4] FDE for: _memcmp
+0x00004C30	0x00000018	[  5] CFI
+0x00004C48	0x00000020	[  5] FDE for: _get_context_map
+0x00004C68	0x00000020	[  5] FDE for: _pluginlib_getaction
+0x00004C88	0x00000018	[  6] CFI
+0x00004CA0	0x00000050	[  6] FDE for: _wait_key_press
+0x00004CF0	0x00000070	[  6] FDE for: _display_text
+0x00008000	0x00000008	[  8] _longjmp.got
+0x00008008	0x00000008	[  8] _setjmp.got
+0x00008010	0x00000018	[  1] _menu__.1
+0x00008028	0x00000018	[  1] _menu.2
+0x00008040	0x00000018	[  1] _menu_1__.4
+0x00008058	0x00000018	[  1] _menu_2__.6
+0x00008070	0x00000018	[  1] _menu_1.7
+0x00008088	0x00000018	[  1] _menu_2.8
+0x000080A0	0x00000018	[  1] _menu__.11
+0x000080B8	0x00000018	[  1] _menu.12
+0x000080D0	0x00000018	[  1] _menu__.15
+0x000080E8	0x00000018	[  1] _menu.16
+0x00008100	0x00000018	[  1] _menu__.18
+0x00008118	0x00000018	[  1] _menu.19
+0x00008130	0x00000018	[  1] _menu__.22
+0x00008148	0x00000018	[  1] _menu.23
+0x00008160	0x00000038	[  2] ___header
+0x0000C000	0x00000060	[  1] _menu_.0
+0x0000C060	0x00000030	[  1] _menu_1_.3
+0x0000C090	0x00000030	[  1] _menu_2_.5
+0x0000C0C0	0x00000008	[  1] _plugin_contexts.9
+0x0000C0C8	0x00000020	[  1] _menu_.10
+0x0000C0E8	0x00000248	[  1] _help_text.13
+0x0000C330	0x00000018	[  1] _menu_.14
+0x0000C348	0x00000008	[  1] _plugin_contexts.17
+0x0000C350	0x00000140	[  1] _menu_.20
+0x0000C490	0x00000028	[  1] _menu_.21
+0x0000C4B8	0x00000008	[  2] _rb
+0x0000C4C0	0x00000008	[  1] _old_len
+0x0000C4C8	0x00000100	[  1] _temp_sec
+0x0000C5C8	0x00000200	[  1] _data_buf
+0x0000C7C8	0x00000004	[  1] _time_offs
+0x0000C7CC	0x00000004	[  1] _next_slot
+0x0000C7D0	0x00000008	[  1] _accounts
+0x0000C7D8	0x00000004	[  1] _max_accts
+0x0000C7E0	0x00000008	[  2] _atexit_handler
+0x0000C7E8	0x000000C0	[  2] ___exit_env
+0x0000C8A8	0x00000004	[  5] _last_context
+0x0000C8AC	0x00000004	[  5] _plugin_context_count
+0x0000C8B0	0x00000008	[  5] _plugin_context_order

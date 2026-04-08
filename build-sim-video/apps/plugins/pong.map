@@ -1,0 +1,99 @@
+# Path: /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/pong.elf
+# Arch: arm64
+# Object files:
+[  0] linker synthesized
+[  1] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/pong.o
+[  2] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/plugin_crt0.o
+[  3] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(helper.o)
+[  4] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/libSystem.tbd
+[  5] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/system/libsystem_platform.tbd
+# Sections:
+# Address	Size    	Segment	Section
+0x000006D8	0x00000B48	__TEXT	__text
+0x00001220	0x00000018	__TEXT	__stubs
+0x00001238	0x0000003C	__TEXT	__cstring
+0x00001278	0x000005E0	__TEXT	__eh_frame
+0x00004000	0x00000010	__DATA_CONST	__got
+0x00004010	0x00000038	__DATA_CONST	__const
+0x00008000	0x00000008	__DATA	.data
+0x00008008	0x00000001	__DATA	__data
+0x00008010	0x00000100	__DATA	__bss
+# Symbols:
+# Address	Size    	File  Name
+0x000006D8	0x000000BC	[  1] _bounce
+0x00000794	0x00000020	[  1] _padmove
+0x000007B4	0x00000064	[  1] _singlepad.part.0
+0x00000818	0x0000011C	[  1] _key_pad
+0x00000934	0x000000FC	[  1] _keys
+0x00000A30	0x000004E0	[  1] _plugin_start
+0x00000F10	0x00000018	[  2] _cleanup_wrapper
+0x00000F28	0x00000068	[  2] _plugin__start
+0x00000F90	0x00000020	[  2] _rb_atexit
+0x00000FB0	0x00000024	[  2] _exit
+0x00000FD4	0x00000014	[  2] __exit
+0x00000FE8	0x00000064	[  2] _exit_on_usb
+0x0000104C	0x00000020	[  3] _talk_val
+0x0000106C	0x00000040	[  3] _backlight_force_on
+0x000010AC	0x0000006C	[  3] _backlight_ignore_timeout
+0x00001118	0x00000048	[  3] _backlight_use_settings
+0x00001160	0x00000044	[  3] _sw_poweroff_disable
+0x000011A4	0x00000020	[  3] _sw_poweroff_restore
+0x000011C4	0x00000004	[  3] _remote_backlight_force_on
+0x000011C8	0x00000004	[  3] _remote_backlight_ignore_timeout
+0x000011CC	0x00000004	[  3] _remote_backlight_use_settings
+0x000011D0	0x00000004	[  3] _buttonlight_force_on
+0x000011D4	0x00000004	[  3] _buttonlight_force_off
+0x000011D8	0x00000004	[  3] _buttonlight_ignore_timeout
+0x000011DC	0x00000004	[  3] _buttonlight_use_settings
+0x000011E0	0x00000018	[  3] _backlight_brightness_set
+0x000011F8	0x00000020	[  3] _backlight_brightness_use_setting
+0x00001218	0x00000004	[  3] _buttonlight_brightness_set
+0x0000121C	0x00000004	[  3] _buttonlight_brightness_use_setting
+0x00001220	0x0000000C	[  5] _longjmp.stub
+0x0000122C	0x0000000C	[  5] _setjmp.stub
+0x00001238	0x00000012	[  1] literal string: Press Key To Play
+0x0000124A	0x00000008	[  1] literal string: %d - %d
+0x00001252	0x0000000E	[  1] literal string: right scores!
+0x00001260	0x0000000D	[  1] literal string: left scores!
+0x0000126D	0x00000007	[  1] literal string: PAUSED
+0x00001278	0x00000018	[  1] CFI
+0x00001290	0x00000040	[  1] FDE for: _bounce
+0x000012D0	0x00000020	[  1] FDE for: _padmove
+0x000012F0	0x00000040	[  1] FDE for: _singlepad.part.0
+0x00001330	0x00000058	[  1] FDE for: _key_pad
+0x00001388	0x00000060	[  1] FDE for: _keys
+0x000013E8	0x00000078	[  1] FDE for: _plugin_start
+0x00001460	0x00000018	[  2] CFI
+0x00001478	0x00000020	[  2] FDE for: _cleanup_wrapper
+0x00001498	0x00000040	[  2] FDE for: _plugin__start
+0x000014D8	0x00000020	[  2] FDE for: _rb_atexit
+0x000014F8	0x00000030	[  2] FDE for: _exit
+0x00001528	0x00000030	[  2] FDE for: __exit
+0x00001558	0x00000038	[  2] FDE for: _exit_on_usb
+0x00001590	0x00000018	[  3] CFI
+0x000015A8	0x00000020	[  3] FDE for: _talk_val
+0x000015C8	0x00000040	[  3] FDE for: _backlight_force_on
+0x00001608	0x00000050	[  3] FDE for: _backlight_ignore_timeout
+0x00001658	0x00000040	[  3] FDE for: _backlight_use_settings
+0x00001698	0x00000040	[  3] FDE for: _sw_poweroff_disable
+0x000016D8	0x00000020	[  3] FDE for: _sw_poweroff_restore
+0x000016F8	0x00000020	[  3] FDE for: _remote_backlight_force_on
+0x00001718	0x00000020	[  3] FDE for: _remote_backlight_ignore_timeout
+0x00001738	0x00000020	[  3] FDE for: _remote_backlight_use_settings
+0x00001758	0x00000020	[  3] FDE for: _buttonlight_force_on
+0x00001778	0x00000020	[  3] FDE for: _buttonlight_force_off
+0x00001798	0x00000020	[  3] FDE for: _buttonlight_ignore_timeout
+0x000017B8	0x00000020	[  3] FDE for: _buttonlight_use_settings
+0x000017D8	0x00000020	[  3] FDE for: _backlight_brightness_set
+0x000017F8	0x00000020	[  3] FDE for: _backlight_brightness_use_setting
+0x00001818	0x00000020	[  3] FDE for: _buttonlight_brightness_set
+0x00001838	0x00000020	[  3] FDE for: _buttonlight_brightness_use_setting
+0x00004000	0x00000008	[  5] _longjmp.got
+0x00004008	0x00000008	[  5] _setjmp.got
+0x00004010	0x00000038	[  2] ___header
+0x00008000	0x00000008	[  2] _rb
+0x00008008	0x00000001	[  3] _original_sw_poweroff_state
+0x00008010	0x00000014	[  1] _buffer.0
+0x00008024	0x0000001E	[  1] _buffer.1
+0x00008048	0x00000008	[  2] _atexit_handler
+0x00008050	0x000000C0	[  2] ___exit_env

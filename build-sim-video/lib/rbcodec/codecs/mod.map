@@ -1,0 +1,102 @@
+# Path: /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/mod.elf
+# Arch: arm64
+# Object files:
+[  0] linker synthesized
+[  1] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/mod.o
+[  2] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/codec_crt0.o
+[  3] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+[  4] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/libSystem.tbd
+[  5] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/system/libsystem_c.tbd
+# Sections:
+# Address	Size    	Segment	Section
+0x00000730	0x0000141C	__TEXT	__text
+0x00001B4C	0x0000000C	__TEXT	__stubs
+0x00001B58	0x00000032	__TEXT	__cstring
+0x00001B8C	0x00000220	__TEXT	__const
+0x00001DB0	0x00000450	__TEXT	__eh_frame
+0x00004000	0x00000008	__DATA_CONST	__got
+0x00004008	0x00000040	__DATA_CONST	__const
+0x00008000	0x000002D2	__DATA	__data
+0x000082D8	0x00000008	__DATA	.data
+0x000082E0	0x000025F8	__DATA	__bss
+# Symbols:
+# Address	Size    	File  Name
+0x00000730	0x00000090	[  1] _mixer_playsample
+0x000007C0	0x0000002C	[  1] _mixer_setamigaperiod
+0x000007EC	0x00000058	[  1] _vibrate
+0x00000844	0x00000084	[  1] _volumeslide
+0x000008C8	0x00000068	[  1] _slidetonote
+0x00000930	0x00000F40	[  1] _codec_run
+0x00001870	0x0000006C	[  1] _codec_main
+0x000018DC	0x00000008	[  2] __start
+0x000018E4	0x00000004	[  2] _codec_start
+0x000018E8	0x00000040	[  3] _codec_init
+0x00001928	0x00000048	[  3] _codec_set_replaygain
+0x00001970	0x00000048	[  3] _codec_malloc
+0x000019B8	0x0000004C	[  3] _codec_calloc
+0x00001A04	0x00000004	[  3] _codec_free
+0x00001A08	0x00000054	[  3] _codec_realloc
+0x00001A5C	0x00000018	[  3] _codec_strlen
+0x00001A74	0x00000018	[  3] _strcpy
+0x00001A8C	0x00000018	[  3] _strcat
+0x00001AA4	0x00000018	[  3] _strcmp
+0x00001ABC	0x00000018	[  3] _memcpy
+0x00001AD4	0x00000018	[  3] _memset
+0x00001AEC	0x00000018	[  3] _memcmp
+0x00001B04	0x00000018	[  3] _memchr
+0x00001B1C	0x00000018	[  3] _memmove
+0x00001B34	0x00000018	[  3] _qsort
+0x00001B4C	0x0000000C	[  5] _abs.stub
+0x00001B58	0x00000005	[  1] literal string: PP20
+0x00001B5D	0x00000005	[  1] literal string: 2CHN
+0x00001B62	0x00000005	[  1] literal string: M.K.
+0x00001B67	0x00000005	[  1] literal string: M!K!
+0x00001B6C	0x00000005	[  1] literal string: 4CHN
+0x00001B71	0x00000005	[  1] literal string: FLT4
+0x00001B76	0x00000005	[  1] literal string: 6CHN
+0x00001B7B	0x00000005	[  1] literal string: 8CHN
+0x00001B80	0x00000005	[  1] literal string: OKTA
+0x00001B85	0x00000005	[  1] literal string: CD81
+0x00001B8C	0x00000020	[  1] lC0
+0x00001BAC	0x00000100	[  3] _bs_clz_tab
+0x00001CAC	0x00000100	[  3] _bs_log2_tab
+0x00001DB0	0x00000018	[  1] CFI
+0x00001DC8	0x00000020	[  1] FDE for: _mixer_playsample
+0x00001DE8	0x00000020	[  1] FDE for: _mixer_setamigaperiod
+0x00001E08	0x00000038	[  1] FDE for: _vibrate
+0x00001E40	0x00000020	[  1] FDE for: _volumeslide
+0x00001E60	0x00000020	[  1] FDE for: _slidetonote
+0x00001E80	0x00000060	[  1] FDE for: _codec_run
+0x00001EE0	0x00000040	[  1] FDE for: _codec_main
+0x00001F20	0x00000018	[  2] CFI
+0x00001F38	0x00000020	[  2] FDE for: __start
+0x00001F58	0x00000020	[  2] FDE for: _codec_start
+0x00001F78	0x00000018	[  3] CFI
+0x00001F90	0x00000038	[  3] FDE for: _codec_init
+0x00001FC8	0x00000038	[  3] FDE for: _codec_set_replaygain
+0x00002000	0x00000020	[  3] FDE for: _codec_malloc
+0x00002020	0x00000040	[  3] FDE for: _codec_calloc
+0x00002060	0x00000020	[  3] FDE for: _codec_free
+0x00002080	0x00000040	[  3] FDE for: _codec_realloc
+0x000020C0	0x00000020	[  3] FDE for: _codec_strlen
+0x000020E0	0x00000020	[  3] FDE for: _strcpy
+0x00002100	0x00000020	[  3] FDE for: _strcat
+0x00002120	0x00000020	[  3] FDE for: _strcmp
+0x00002140	0x00000020	[  3] FDE for: _memcpy
+0x00002160	0x00000020	[  3] FDE for: _memset
+0x00002180	0x00000020	[  3] FDE for: _memcmp
+0x000021A0	0x00000020	[  3] FDE for: _memchr
+0x000021C0	0x00000020	[  3] FDE for: _memmove
+0x000021E0	0x00000020	[  3] FDE for: _qsort
+0x00004000	0x00000008	[  5] _abs.got
+0x00004008	0x00000040	[  1] ___header
+0x00008000	0x00000080	[  1] _s_sintable
+0x00008080	0x00000252	[  1] _s_periodtable
+0x000082D8	0x00000008	[  2] _ci
+0x000082E0	0x00000380	[  1] _mixer
+0x00008660	0x000000C8	[  1] _modplayer
+0x00008728	0x00000198	[  1] _modsong
+0x000088C0	0x00002000	[  1] _samples
+0x0000A8C0	0x00000008	[  3] _mallocbuf
+0x0000A8C8	0x00000008	[  3] _bufsize
+0x0000A8D0	0x00000008	[  3] _mem_ptr

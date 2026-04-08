@@ -1,0 +1,86 @@
+# Path: /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/playing_time.elf
+# Arch: arm64
+# Object files:
+[  0] linker synthesized
+[  1] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/playing_time.o
+[  2] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/plugin_crt0.o
+[  3] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/libSystem.tbd
+[  4] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/system/libsystem_platform.tbd
+# Sections:
+# Address	Size    	Segment	Section
+0x000006E0	0x00001194	__TEXT	__text
+0x00001874	0x00000018	__TEXT	__stubs
+0x0000188C	0x00000065	__TEXT	__cstring
+0x000018F8	0x00000050	__TEXT	__const
+0x00001948	0x00000488	__TEXT	__eh_frame
+0x00004000	0x00000010	__DATA_CONST	__got
+0x00004010	0x00000040	__DATA_CONST	__const
+0x00008000	0x00000008	__DATA	.data
+0x00008008	0x00000E58	__DATA	__bss
+# Symbols:
+# Address	Size    	File  Name
+0x000006E0	0x00000038	[  1] _single_mode_lang
+0x00000718	0x00000080	[  1] _single_mode_id3_tag
+0x00000798	0x00000050	[  1] _get_percent_str
+0x000007E8	0x0000004C	[  1] _pt_options_speak
+0x00000834	0x00000170	[  1] _pt_add_track
+0x000009A4	0x0000055C	[  1] _playing_time
+0x00000F00	0x000000A4	[  1] _prepare_time_string
+0x00000FA4	0x00000680	[  1] _pt_get_or_speak_info
+0x00001624	0x00000008	[  1] _pt_get_info
+0x0000162C	0x00000028	[  1] _pt_speak_info
+0x00001654	0x00000044	[  1] _pt_options_name
+0x00001698	0x000000A0	[  1] _plugin_start
+0x00001738	0x00000018	[  2] _cleanup_wrapper
+0x00001750	0x00000068	[  2] _plugin__start
+0x000017B8	0x00000020	[  2] _rb_atexit
+0x000017D8	0x00000024	[  2] _exit
+0x000017FC	0x00000014	[  2] __exit
+0x00001810	0x00000064	[  2] _exit_on_usb
+0x00001874	0x0000000C	[  4] _longjmp.stub
+0x00001880	0x0000000C	[  4] _setjmp.stub
+0x0000188C	0x00000001	[  1] literal string: 
+0x0000188D	0x00000008	[  1] literal string: %s (%s)
+0x00001895	0x00000006	[  1] literal string: %d %s
+0x0000189B	0x0000000B	[  1] literal string: %s %s / %s
+0x000018A6	0x0000000B	[  1] literal string: %s / %s %s
+0x000018B1	0x00000003	[  1] literal string: %s
+0x000018B4	0x0000000B	[  1] literal string: %s %d / %d
+0x000018BF	0x0000000B	[  1] literal string: %d / %d %s
+0x000018CA	0x0000000D	[  1] literal string: %s (%s / %s)
+0x000018D7	0x0000000A	[  1] literal string: %ld  kbps
+0x000018E1	0x00000010	[  1] literal string: Nothing Playing
+0x000018F8	0x00000010	[  1] _CSWTCH.111
+0x00001908	0x00000020	[  1] _menu_items
+0x00001928	0x00000020	[  1] _byte_units
+0x00001948	0x00000018	[  1] CFI
+0x00001960	0x00000020	[  1] FDE for: _single_mode_lang
+0x00001980	0x00000020	[  1] FDE for: _single_mode_id3_tag
+0x000019A0	0x00000048	[  1] FDE for: _get_percent_str
+0x000019E8	0x00000040	[  1] FDE for: _pt_options_speak
+0x00001A28	0x00000060	[  1] FDE for: _pt_add_track
+0x00001A88	0x00000060	[  1] FDE for: _playing_time
+0x00001AE8	0x00000068	[  1] FDE for: _prepare_time_string
+0x00001B50	0x00000078	[  1] FDE for: _pt_get_or_speak_info
+0x00001BC8	0x00000020	[  1] FDE for: _pt_get_info
+0x00001BE8	0x00000038	[  1] FDE for: _pt_speak_info
+0x00001C20	0x00000038	[  1] FDE for: _pt_options_name
+0x00001C58	0x00000048	[  1] FDE for: _plugin_start
+0x00001CA0	0x00000018	[  2] CFI
+0x00001CB8	0x00000020	[  2] FDE for: _cleanup_wrapper
+0x00001CD8	0x00000040	[  2] FDE for: _plugin__start
+0x00001D18	0x00000020	[  2] FDE for: _rb_atexit
+0x00001D38	0x00000030	[  2] FDE for: _exit
+0x00001D68	0x00000030	[  2] FDE for: __exit
+0x00001D98	0x00000038	[  2] FDE for: _exit_on_usb
+0x00004000	0x00000008	[  4] _longjmp.got
+0x00004008	0x00000008	[  4] _setjmp.got
+0x00004010	0x00000008	[  1] _kibyte_units
+0x00004018	0x00000038	[  2] ___header
+0x00008000	0x00000008	[  2] _rb
+0x00008008	0x0000000A	[  1] _val.0
+0x00008012	0x00000106	[  1] _buffer.1
+0x00008118	0x00000B70	[  1] _id3.2
+0x00008C88	0x00000110	[  1] _pl_track.3
+0x00008D98	0x00000008	[  2] _atexit_handler
+0x00008DA0	0x000000C0	[  2] ___exit_env

@@ -1,0 +1,75 @@
+# Path: /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/settings_dumper.elf
+# Arch: arm64
+# Object files:
+[  0] linker synthesized
+[  1] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/settings_dumper.o
+[  2] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/plugin_crt0.o
+[  3] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/libSystem.tbd
+[  4] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/system/libsystem_platform.tbd
+# Sections:
+# Address	Size    	Segment	Section
+0x00000690	0x0000077C	__TEXT	__text
+0x00000E0C	0x00000018	__TEXT	__stubs
+0x00000E24	0x0000025D	__TEXT	__cstring
+0x00001088	0x00000240	__TEXT	__eh_frame
+0x00004000	0x00000010	__DATA_CONST	__got
+0x00004010	0x00000038	__DATA_CONST	__const
+0x00008000	0x00000008	__DATA	.data
+0x00008008	0x000000D0	__DATA	__bss
+# Symbols:
+# Address	Size    	File  Name
+0x00000690	0x000003DC	[  1] _write_setting.part.0
+0x00000A6C	0x0000002C	[  1] _write_setting
+0x00000A98	0x00000238	[  1] _plugin_start
+0x00000CD0	0x00000018	[  2] _cleanup_wrapper
+0x00000CE8	0x00000068	[  2] _plugin__start
+0x00000D50	0x00000020	[  2] _rb_atexit
+0x00000D70	0x00000024	[  2] _exit
+0x00000D94	0x00000014	[  2] __exit
+0x00000DA8	0x00000064	[  2] _exit_on_usb
+0x00000E0C	0x0000000C	[  4] _longjmp.stub
+0x00000E18	0x0000000C	[  4] _setjmp.stub
+0x00000E24	0x00000019	[  1] literal string:  (And any value between)
+0x00000E3D	0x00000001	[  1] literal string: 
+0x00000E3E	0x00000003	[  1] literal string: \r\n
+0x00000E41	0x0000003C	[  1] literal string: No information available. Check the manual for valid values
+0x00000E7D	0x00000035	[  1] literal string: RGB colour value in the form RRGGBB (in hexadecimal)
+0x00000EB2	0x00000010	[  1] literal string: Min: %d, Max %d
+0x00000EC2	0x00000028	[  1] literal string: Setting allows the following values%s: 
+0x00000EEA	0x00000005	[  1] literal string: %d, 
+0x00000EEF	0x00000020	[  1] literal string: Min: %d, Max: %d, Step size: %d
+0x00000F0F	0x00000005	[  1] literal string: %s, 
+0x00000F14	0x00000005	[  1] literal string: [%s]
+0x00000F19	0x00000008	[  1] literal string: on, off
+0x00000F21	0x0000001D	[  1] literal string: Text.. Up to %d characters. 
+0x00000F3E	0x00000014	[  1] literal string: Should start with:\"
+0x00000F52	0x00000011	[  1] literal string: \" and end with:\"
+0x00000F63	0x00000002	[  1] literal string: \"
+0x00000F65	0x00000009	[  1] literal string: %s: %s\r\n
+0x00000F6E	0x00000015	[  1] literal string: /settings_dumper.txt
+0x00000F83	0x0000003F	[  1] literal string: # .cfg file created by rockbox %s - http://www.rockbox.org\r\n\r\n
+0x00000FC2	0x0000001B	[  1] literal string: # -- Sound settings -- #\r\n
+0x00000FDD	0x0000001F	[  1] literal string: \r\n\r\n# -- Theme settings -- #\r\n
+0x00000FFC	0x00000023	[  1] literal string: \r\n\r\n# -- Recording settings -- #\r\n
+0x0000101F	0x0000001C	[  1] literal string: \r\n\r\n# -- EQ settings -- #\r\n
+0x0000103B	0x0000001F	[  1] literal string: \r\n\r\n# -- Other settings -- #\r\n
+0x0000105A	0x00000021	[  1] literal string: \r\n\r\n# Total settings count: %d\r\n
+0x0000107B	0x00000006	[  1] literal string: Done!
+0x00001088	0x00000018	[  1] CFI
+0x000010A0	0x00000078	[  1] FDE for: _write_setting.part.0
+0x00001118	0x00000020	[  1] FDE for: _write_setting
+0x00001138	0x00000060	[  1] FDE for: _plugin_start
+0x00001198	0x00000018	[  2] CFI
+0x000011B0	0x00000020	[  2] FDE for: _cleanup_wrapper
+0x000011D0	0x00000040	[  2] FDE for: _plugin__start
+0x00001210	0x00000020	[  2] FDE for: _rb_atexit
+0x00001230	0x00000030	[  2] FDE for: _exit
+0x00001260	0x00000030	[  2] FDE for: __exit
+0x00001290	0x00000038	[  2] FDE for: _exit_on_usb
+0x00004000	0x00000008	[  4] _longjmp.got
+0x00004008	0x00000008	[  4] _setjmp.got
+0x00004010	0x00000038	[  2] ___header
+0x00008000	0x00000008	[  2] _rb
+0x00008008	0x00000004	[  1] _setting_count
+0x00008010	0x00000008	[  2] _atexit_handler
+0x00008018	0x000000C0	[  2] ___exit_env

@@ -1,0 +1,126 @@
+# Path: /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/alac.elf
+# Arch: arm64
+# Object files:
+[  0] linker synthesized
+[  1] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/alac.o
+[  2] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/codec_crt0.o
+[  3] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libalac.a(alac.o)
+[  4] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libm4a.a(m4a.o)
+[  5] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libm4a.a(demux.o)
+[  6] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+[  7] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/libSystem.tbd
+# Sections:
+# Address	Size    	Segment	Section
+0x000005F0	0x00002470	__TEXT	__text
+0x00002A60	0x00000200	__TEXT	__const
+0x00002C60	0x00000978	__TEXT	__eh_frame
+0x00004000	0x00000040	__DATA_CONST	__const
+0x00008000	0x00000008	__DATA	.data
+0x00008008	0x000080D8	__DATA	__bss
+# Symbols:
+# Address	Size    	File  Name
+0x000005F0	0x00000030	[  1] _set_elapsed_samples
+0x00000620	0x00000268	[  1] _codec_run
+0x00000888	0x00000058	[  1] _codec_main
+0x000008E0	0x00000008	[  2] __start
+0x000008E8	0x00000004	[  2] _codec_start
+0x000008EC	0x0000000C	[  3] _get_uint32be
+0x000008F8	0x00000050	[  3] _readbits_16
+0x00000948	0x00000048	[  3] _readbits
+0x00000990	0x000004E4	[  3] _predictor_decompress_fir_adapt
+0x00000E74	0x000000E4	[  3] _entropy_decode_value
+0x00000F58	0x00000194	[  3] _entropy_rice_decode
+0x000010EC	0x00000080	[  3] _alac_set_info
+0x0000116C	0x00000800	[  3] _alac_decode_frame
+0x0000196C	0x00000044	[  4] _stream_read
+0x000019B0	0x00000024	[  4] _stream_read_int32
+0x000019D4	0x0000000C	[  4] _stream_tell
+0x000019E0	0x00000024	[  4] _stream_read_uint32
+0x00001A04	0x00000028	[  4] _stream_read_uint16
+0x00001A2C	0x00000020	[  4] _stream_read_uint8
+0x00001A4C	0x00000014	[  4] _stream_skip
+0x00001A60	0x00000014	[  4] _stream_seek
+0x00001A74	0x00000008	[  4] _stream_eof
+0x00001A7C	0x0000000C	[  4] _stream_create
+0x00001A88	0x00000050	[  4] _m4a_check_sample_offset
+0x00001AD8	0x00000218	[  4] _m4a_seek
+0x00001CF0	0x000000DC	[  4] _m4a_seek_raw
+0x00001DCC	0x00000054	[  5] _mp4ff_read_mp4_descr_length
+0x00001E20	0x000009DC	[  5] _qtmovie_read
+0x000027FC	0x00000040	[  6] _codec_init
+0x0000283C	0x00000048	[  6] _codec_set_replaygain
+0x00002884	0x00000048	[  6] _codec_malloc
+0x000028CC	0x0000004C	[  6] _codec_calloc
+0x00002918	0x00000004	[  6] _codec_free
+0x0000291C	0x00000054	[  6] _codec_realloc
+0x00002970	0x00000018	[  6] _codec_strlen
+0x00002988	0x00000018	[  6] _strcpy
+0x000029A0	0x00000018	[  6] _strcat
+0x000029B8	0x00000018	[  6] _strcmp
+0x000029D0	0x00000018	[  6] _memcpy
+0x000029E8	0x00000018	[  6] _memset
+0x00002A00	0x00000018	[  6] _memcmp
+0x00002A18	0x00000018	[  6] _memchr
+0x00002A30	0x00000018	[  6] _memmove
+0x00002A48	0x00000018	[  6] _qsort
+0x00002A60	0x00000100	[  6] _bs_clz_tab
+0x00002B60	0x00000100	[  6] _bs_log2_tab
+0x00002C60	0x00000018	[  1] CFI
+0x00002C78	0x00000020	[  1] FDE for: _set_elapsed_samples
+0x00002C98	0x00000060	[  1] FDE for: _codec_run
+0x00002CF8	0x00000040	[  1] FDE for: _codec_main
+0x00002D38	0x00000018	[  2] CFI
+0x00002D50	0x00000020	[  2] FDE for: __start
+0x00002D70	0x00000020	[  2] FDE for: _codec_start
+0x00002D90	0x00000018	[  3] CFI
+0x00002DA8	0x00000020	[  3] FDE for: _get_uint32be
+0x00002DC8	0x00000020	[  3] FDE for: _readbits_16
+0x00002DE8	0x00000040	[  3] FDE for: _readbits
+0x00002E28	0x00000050	[  3] FDE for: _predictor_decompress_fir_adapt
+0x00002E78	0x00000040	[  3] FDE for: _entropy_decode_value
+0x00002EB8	0x00000078	[  3] FDE for: _entropy_rice_decode
+0x00002F30	0x00000038	[  3] FDE for: _alac_set_info
+0x00002F68	0x00000070	[  3] FDE for: _alac_decode_frame
+0x00002FD8	0x00000018	[  4] CFI
+0x00002FF0	0x00000040	[  4] FDE for: _stream_read
+0x00003030	0x00000038	[  4] FDE for: _stream_read_int32
+0x00003068	0x00000020	[  4] FDE for: _stream_tell
+0x00003088	0x00000038	[  4] FDE for: _stream_read_uint32
+0x000030C0	0x00000038	[  4] FDE for: _stream_read_uint16
+0x000030F8	0x00000038	[  4] FDE for: _stream_read_uint8
+0x00003130	0x00000020	[  4] FDE for: _stream_skip
+0x00003150	0x00000020	[  4] FDE for: _stream_seek
+0x00003170	0x00000020	[  4] FDE for: _stream_eof
+0x00003190	0x00000020	[  4] FDE for: _stream_create
+0x000031B0	0x00000020	[  4] FDE for: _m4a_check_sample_offset
+0x000031D0	0x00000060	[  4] FDE for: _m4a_seek
+0x00003230	0x00000058	[  4] FDE for: _m4a_seek_raw
+0x00003288	0x00000018	[  5] CFI
+0x000032A0	0x00000048	[  5] FDE for: _mp4ff_read_mp4_descr_length
+0x000032E8	0x00000068	[  5] FDE for: _qtmovie_read
+0x00003350	0x00000018	[  6] CFI
+0x00003368	0x00000038	[  6] FDE for: _codec_init
+0x000033A0	0x00000038	[  6] FDE for: _codec_set_replaygain
+0x000033D8	0x00000020	[  6] FDE for: _codec_malloc
+0x000033F8	0x00000040	[  6] FDE for: _codec_calloc
+0x00003438	0x00000020	[  6] FDE for: _codec_free
+0x00003458	0x00000040	[  6] FDE for: _codec_realloc
+0x00003498	0x00000020	[  6] FDE for: _codec_strlen
+0x000034B8	0x00000020	[  6] FDE for: _strcpy
+0x000034D8	0x00000020	[  6] FDE for: _strcat
+0x000034F8	0x00000020	[  6] FDE for: _strcmp
+0x00003518	0x00000020	[  6] FDE for: _memcpy
+0x00003538	0x00000020	[  6] FDE for: _memset
+0x00003558	0x00000020	[  6] FDE for: _memcmp
+0x00003578	0x00000020	[  6] FDE for: _memchr
+0x00003598	0x00000020	[  6] FDE for: _memmove
+0x000035B8	0x00000020	[  6] FDE for: _qsort
+0x00004000	0x00000040	[  1] ___header
+0x00008000	0x00000008	[  2] _ci
+0x00008008	0x00008000	[  1] _outputbuffer
+0x00010008	0x00000040	[  3] _predictor_coef_table_b
+0x00010048	0x00000040	[  3] _predictor_coef_table_a
+0x00010088	0x00000040	[  3] _predictor_coef_table
+0x000100C8	0x00000008	[  6] _mallocbuf
+0x000100D0	0x00000008	[  6] _bufsize
+0x000100D8	0x00000008	[  6] _mem_ptr

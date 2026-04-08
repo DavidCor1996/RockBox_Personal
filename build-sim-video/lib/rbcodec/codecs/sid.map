@@ -1,0 +1,237 @@
+# Path: /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/sid.elf
+# Arch: arm64
+# Object files:
+[  0] linker synthesized
+[  1] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/sid.o
+[  2] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/codec_crt0.o
+[  3] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/cRSID.a(libcRSID.o)
+[  4] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+[  5] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/libSystem.tbd
+# Sections:
+# Address	Size    	Segment	Section
+0x00000690	0x000034A4	__TEXT	__text
+0x00003B34	0x000064AF	__TEXT	__const
+0x00009FE8	0x00000C38	__TEXT	__eh_frame
+0x0000C000	0x00000040	__DATA_CONST	__const
+0x00010000	0x00000008	__DATA	.data
+0x00010008	0x00000008	__DATA	__data
+0x00010010	0x000004B0	__DATA	__bss
+0x000104C0	0x00040AC0	__DATA	__common
+# Symbols:
+# Address	Size    	File  Name
+0x00000690	0x00000188	[  1] _codec_run
+0x00000818	0x00000078	[  1] _codec_main
+0x00000890	0x00000008	[  2] __start
+0x00000898	0x00000004	[  2] _codec_start
+0x0000089C	0x00000054	[  3] _storeReg.27
+0x000008F0	0x00000028	[  3] _addrModeImmediate.16
+0x00000918	0x00000018	[  3] _setC.10
+0x00000930	0x00000014	[  3] _clrNZC.3
+0x00000944	0x00000034	[  3] _setNZbyA.14
+0x00000978	0x0000003C	[  3] _setNZbyT.11
+0x000009B4	0x00000034	[  3] _setNZbyX.15
+0x000009E8	0x00000034	[  3] _setNZbyY.24
+0x00000A1C	0x00000044	[  3] _setNZCbyAdd.8
+0x00000A60	0x00000038	[  3] _setVbyAdd.5
+0x00000A98	0x00000040	[  3] _setNZCbySub.26
+0x00000AD8	0x0000002C	[  3] _push.21
+0x00000B04	0x0000002C	[  3] _pop.22
+0x00000B30	0x00000030	[  3] _push.29
+0x00000B60	0x000001B0	[  3] _cRSID_emulateCIA
+0x00000D10	0x00000098	[  3] _combinedWF.28
+0x00000DA8	0x000000CC	[  3] _cRSID_getMemWritePtr
+0x00000E74	0x00000100	[  3] _rd.25
+0x00000F74	0x0000004C	[  3] _addrModeZeropageYindexed.6
+0x00000FC0	0x00000068	[  3] _addrModeYindexed.7
+0x00001028	0x00000054	[  3] _setNZbyM.13
+0x0000107C	0x0000003C	[  3] _addrModeZeropage.17
+0x000010B8	0x00000050	[  3] _addrModeAbsolute.18
+0x00001108	0x0000004C	[  3] _addrModeZeropageXindexed.19
+0x00001154	0x00000068	[  3] _addrModeXindexed.20
+0x000011BC	0x00000030	[  3] _cRSID_writeCIAIRQmask
+0x000011EC	0x00000180	[  3] _wr2.23
+0x0000136C	0x00000068	[  3] _wr.12
+0x000013D4	0x000000E0	[  3] _cRSID_setROMcontent
+0x000014B4	0x000000DC	[  3] _cRSID_initMem
+0x00001590	0x00000014	[  3] _cRSID_initCPU
+0x000015A4	0x00000DF0	[  3] _cRSID_emulateCPU
+0x00002394	0x00000024	[  3] _cRSID_initCIAchip
+0x000023B8	0x0000003C	[  3] _cRSID_createCIAchip
+0x000023F4	0x00000028	[  3] _cRSID_initVICchip
+0x0000241C	0x0000003C	[  3] _cRSID_createVICchip
+0x00002458	0x00000080	[  3] _cRSID_initSIDchip
+0x000024D8	0x00000060	[  3] _cRSID_createSIDchip
+0x00002538	0x00000180	[  3] _cRSID_emulateADSRs
+0x000026B8	0x00000650	[  3] _cRSID_emulateWaves
+0x00002D08	0x00000144	[  3] _cRSID_setC64
+0x00002E4C	0x00000074	[  3] _cRSID_initC64
+0x00002EC0	0x000000A8	[  3] _cRSID_createC64
+0x00002F68	0x00000424	[  3] _cRSID_emulateC64
+0x0000338C	0x0000013C	[  3] _cRSID_processSIDfile
+0x000034C8	0x000001A4	[  3] _cRSID_generateSample
+0x0000366C	0x00000024	[  3] _cRSID_init
+0x00003690	0x00000240	[  3] _cRSID_initSIDtune
+0x000038D0	0x00000040	[  4] _codec_init
+0x00003910	0x00000048	[  4] _codec_set_replaygain
+0x00003958	0x00000048	[  4] _codec_malloc
+0x000039A0	0x0000004C	[  4] _codec_calloc
+0x000039EC	0x00000004	[  4] _codec_free
+0x000039F0	0x00000054	[  4] _codec_realloc
+0x00003A44	0x00000018	[  4] _codec_strlen
+0x00003A5C	0x00000018	[  4] _strcpy
+0x00003A74	0x00000018	[  4] _strcat
+0x00003A8C	0x00000018	[  4] _strcmp
+0x00003AA4	0x00000018	[  4] _memcpy
+0x00003ABC	0x00000018	[  4] _memset
+0x00003AD4	0x00000018	[  4] _memcmp
+0x00003AEC	0x00000018	[  4] _memchr
+0x00003B04	0x00000018	[  4] _memmove
+0x00003B1C	0x00000018	[  4] _qsort
+0x00003B34	0x00000008	[  3] _PowersOf2.30
+0x00003B3C	0x00000008	[  3] _Attenuations.45
+0x00003B44	0x00000002	[  3] _ScanLineCycles.46
+0x00003B46	0x00000006	[  3] _ScanLines.47
+0x00003B4C	0x00000008	[  3] _CPUspeeds.48
+0x00003B54	0x00000020	[  3] _Resonances6581.54
+0x00003B74	0x00001000	[  3] _CutoffMul6581_44100Hz.55
+0x00004B74	0x00000020	[  3] _Resonances8580.56
+0x00004B94	0x00001000	[  3] _CutoffMul8580_44100Hz.57
+0x00005B94	0x0000000F	[  3] _FilterSwitchVal.60
+0x00005BA3	0x00000100	[  3] _ADSR_DAC_6581.62
+0x00005CA3	0x00001000	[  3] _SawTriangle.63
+0x00006CA3	0x00001000	[  3] _PulseSawtooth.64
+0x00007CA3	0x00001000	[  3] _PulseTriangle.65
+0x00008CA3	0x00001000	[  3] _PulseSawTriangle.66
+0x00009CA3	0x00000101	[  3] _ADSRexponentPeriods.85
+0x00009DA4	0x00000020	[  3] _ADSRprescalePeriods.87
+0x00009DC4	0x00000004	[  3] _BranchFlags.100
+0x00009DC8	0x00000008	[  3] _FlagSwitches.101
+0x00009DD0	0x00000013	[  3] _ROM_IRQBRKstartCode.115
+0x00009DE3	0x00000100	[  4] _bs_clz_tab
+0x00009EE3	0x00000100	[  4] _bs_log2_tab
+0x00009FE8	0x00000018	[  1] CFI
+0x0000A000	0x00000060	[  1] FDE for: _codec_run
+0x0000A060	0x00000040	[  1] FDE for: _codec_main
+0x0000A0A0	0x00000018	[  2] CFI
+0x0000A0B8	0x00000020	[  2] FDE for: __start
+0x0000A0D8	0x00000020	[  2] FDE for: _codec_start
+0x0000A0F8	0x00000018	[  3] CFI
+0x0000A110	0x00000020	[  3] FDE for: _storeReg.27
+0x0000A130	0x00000020	[  3] FDE for: _addrModeImmediate.16
+0x0000A150	0x00000020	[  3] FDE for: _setC.10
+0x0000A170	0x00000020	[  3] FDE for: _clrNZC.3
+0x0000A190	0x00000020	[  3] FDE for: _setNZbyA.14
+0x0000A1B0	0x00000020	[  3] FDE for: _setNZbyT.11
+0x0000A1D0	0x00000020	[  3] FDE for: _setNZbyX.15
+0x0000A1F0	0x00000020	[  3] FDE for: _setNZbyY.24
+0x0000A210	0x00000020	[  3] FDE for: _setNZCbyAdd.8
+0x0000A230	0x00000020	[  3] FDE for: _setVbyAdd.5
+0x0000A250	0x00000020	[  3] FDE for: _setNZCbySub.26
+0x0000A270	0x00000020	[  3] FDE for: _push.21
+0x0000A290	0x00000020	[  3] FDE for: _pop.22
+0x0000A2B0	0x00000020	[  3] FDE for: _push.29
+0x0000A2D0	0x00000020	[  3] FDE for: _cRSID_emulateCIA
+0x0000A2F0	0x00000020	[  3] FDE for: _combinedWF.28
+0x0000A310	0x00000020	[  3] FDE for: _cRSID_getMemWritePtr
+0x0000A330	0x00000020	[  3] FDE for: _rd.25
+0x0000A350	0x00000038	[  3] FDE for: _addrModeZeropageYindexed.6
+0x0000A388	0x00000038	[  3] FDE for: _addrModeYindexed.7
+0x0000A3C0	0x00000038	[  3] FDE for: _setNZbyM.13
+0x0000A3F8	0x00000038	[  3] FDE for: _addrModeZeropage.17
+0x0000A430	0x00000038	[  3] FDE for: _addrModeAbsolute.18
+0x0000A468	0x00000038	[  3] FDE for: _addrModeZeropageXindexed.19
+0x0000A4A0	0x00000038	[  3] FDE for: _addrModeXindexed.20
+0x0000A4D8	0x00000020	[  3] FDE for: _cRSID_writeCIAIRQmask
+0x0000A4F8	0x00000050	[  3] FDE for: _wr2.23
+0x0000A548	0x00000038	[  3] FDE for: _wr.12
+0x0000A580	0x00000020	[  3] FDE for: _cRSID_setROMcontent
+0x0000A5A0	0x00000020	[  3] FDE for: _cRSID_initMem
+0x0000A5C0	0x00000020	[  3] FDE for: _cRSID_initCPU
+0x0000A5E0	0x00000068	[  3] FDE for: _cRSID_emulateCPU
+0x0000A648	0x00000020	[  3] FDE for: _cRSID_initCIAchip
+0x0000A668	0x00000020	[  3] FDE for: _cRSID_createCIAchip
+0x0000A688	0x00000020	[  3] FDE for: _cRSID_initVICchip
+0x0000A6A8	0x00000020	[  3] FDE for: _cRSID_createVICchip
+0x0000A6C8	0x00000020	[  3] FDE for: _cRSID_initSIDchip
+0x0000A6E8	0x00000020	[  3] FDE for: _cRSID_createSIDchip
+0x0000A708	0x00000020	[  3] FDE for: _cRSID_emulateADSRs
+0x0000A728	0x00000058	[  3] FDE for: _cRSID_emulateWaves
+0x0000A780	0x00000040	[  3] FDE for: _cRSID_setC64
+0x0000A7C0	0x00000040	[  3] FDE for: _cRSID_initC64
+0x0000A800	0x00000038	[  3] FDE for: _cRSID_createC64
+0x0000A838	0x00000060	[  3] FDE for: _cRSID_emulateC64
+0x0000A898	0x00000020	[  3] FDE for: _cRSID_processSIDfile
+0x0000A8B8	0x00000048	[  3] FDE for: _cRSID_generateSample
+0x0000A900	0x00000038	[  3] FDE for: _cRSID_init
+0x0000A938	0x00000060	[  3] FDE for: _cRSID_initSIDtune
+0x0000A998	0x00000018	[  4] CFI
+0x0000A9B0	0x00000038	[  4] FDE for: _codec_init
+0x0000A9E8	0x00000038	[  4] FDE for: _codec_set_replaygain
+0x0000AA20	0x00000020	[  4] FDE for: _codec_malloc
+0x0000AA40	0x00000040	[  4] FDE for: _codec_calloc
+0x0000AA80	0x00000020	[  4] FDE for: _codec_free
+0x0000AAA0	0x00000040	[  4] FDE for: _codec_realloc
+0x0000AAE0	0x00000020	[  4] FDE for: _codec_strlen
+0x0000AB00	0x00000020	[  4] FDE for: _strcpy
+0x0000AB20	0x00000020	[  4] FDE for: _strcat
+0x0000AB40	0x00000020	[  4] FDE for: _strcmp
+0x0000AB60	0x00000020	[  4] FDE for: _memcpy
+0x0000AB80	0x00000020	[  4] FDE for: _memset
+0x0000ABA0	0x00000020	[  4] FDE for: _memcmp
+0x0000ABC0	0x00000020	[  4] FDE for: _memchr
+0x0000ABE0	0x00000020	[  4] FDE for: _memmove
+0x0000AC00	0x00000020	[  4] FDE for: _qsort
+0x0000C000	0x00000040	[  1] ___header
+0x00010000	0x00000008	[  2] _ci
+0x00010008	0x00000008	[  3] _C64.31
+0x00010010	0x00000400	[  1] _samples
+0x00010410	0x00000002	[  3] _Output.32
+0x00010412	0x00000001	[  3] _Shifts.33
+0x00010413	0x00000001	[  3] _RepeatCounter.35
+0x00010414	0x00000002	[  3] _SampleAddress.36
+0x00010416	0x00000002	[  3] _NybbleCounter.37
+0x00010418	0x00000004	[  3] _PeriodCounter.38
+0x0001041C	0x00000004	[  3] _PlaybackEnabled.39
+0x00010420	0x00000004	[  3] _Output.40
+0x00010424	0x00000004	[  3] _Tmp.42
+0x00010428	0x00000004	[  3] _Output.43
+0x0001042C	0x00000001	[  3] _InstructionCycles.44
+0x0001042D	0x00000003	[  3] _MainVolume.52
+0x00010430	0x00000004	[  3] _FilterOutput.53
+0x00010434	0x00000004	[  3] _Resonance.58
+0x00010438	0x00000004	[  3] _Cutoff.59
+0x0001043C	0x00000004	[  3] _PulsePeak.67
+0x00010440	0x00000004	[  3] _Steepness.68
+0x00010444	0x00000004	[  3] _PW.70
+0x00010448	0x00000004	[  3] _WavGenOut.71
+0x0001044C	0x00000004	[  3] _Tmp.73
+0x00010450	0x00000008	[  3] _MSB.74
+0x00010458	0x00000008	[  3] _PhaseAccuPtr.76
+0x00010460	0x00000008	[  3] _WF.78
+0x00010468	0x00000008	[  3] _ChannelPtr.79
+0x00010470	0x00000001	[  3] _Channel.80
+0x00010471	0x00000001	[  3] _VolumeBand.81
+0x00010472	0x00000002	[  3] _FilterSwitchReso.82
+0x00010474	0x00000004	[  3] _FilterInput.83
+0x00010478	0x00000004	[  3] _NonFilted.84
+0x0001047C	0x00000002	[  3] _PrescalePeriod.86
+0x0001047E	0x00000001	[  3] _Channel.96
+0x0001047F	0x00000001	[  3] _Channel.97
+0x00010480	0x00000004	[  3] _Tmp.99
+0x00010484	0x00000002	[  3] _Y.102
+0x00010486	0x00000002	[  3] _SP.103
+0x00010488	0x00000002	[  3] _X.104
+0x0001048A	0x00000002	[  3] _T.105
+0x0001048C	0x00000002	[  3] _ST.106
+0x0001048E	0x00000002	[  3] _A.107
+0x00010490	0x00000004	[  3] _Addr.108
+0x00010494	0x00000001	[  3] _SamePage.109
+0x00010495	0x00000001	[  3] _Cycles.110
+0x00010496	0x00000002	[  3] _IR.111
+0x00010498	0x00000004	[  3] _PrevPC.112
+0x0001049C	0x00000004	[  3] _PC.113
+0x000104A0	0x00000004	[  3] _i.114
+0x000104A8	0x00000008	[  4] _mallocbuf
+0x000104B0	0x00000008	[  4] _bufsize
+0x000104B8	0x00000008	[  4] _mem_ptr
+0x000104C0	0x00040AC0	[  3] _cRSID_C64

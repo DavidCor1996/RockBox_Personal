@@ -1,0 +1,1780 @@
+# Path: /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/mikmod/mikmod.elf
+# Arch: arm64
+# Object files:
+[  0] linker synthesized
+[  1] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/mikmod/drv_nos.o
+[  2] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/mikmod/load_669.o
+[  3] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/mikmod/load_amf.o
+[  4] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/mikmod/load_asy.o
+[  5] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/mikmod/load_dsm.o
+[  6] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/mikmod/load_far.o
+[  7] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/mikmod/load_gdm.o
+[  8] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/mikmod/load_imf.o
+[  9] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/mikmod/load_it.o
+[ 10] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/mikmod/load_m15.o
+[ 11] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/mikmod/load_med.o
+[ 12] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/mikmod/load_mod.o
+[ 13] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/mikmod/load_mtm.o
+[ 14] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/mikmod/load_okt.o
+[ 15] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/mikmod/load_s3m.o
+[ 16] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/mikmod/load_stm.o
+[ 17] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/mikmod/load_stx.o
+[ 18] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/mikmod/load_ult.o
+[ 19] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/mikmod/load_umx.o
+[ 20] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/mikmod/load_uni.o
+[ 21] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/mikmod/load_xm.o
+[ 22] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/mikmod/mdreg.o
+[ 23] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/mikmod/mdriver.o
+[ 24] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/mikmod/mloader.o
+[ 25] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/mikmod/mlreg.o
+[ 26] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/mikmod/mlutil.o
+[ 27] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/mikmod/mmalloc.o
+[ 28] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/mikmod/mmerror.o
+[ 29] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/mikmod/mmio.o
+[ 30] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/mikmod/mplayer.o
+[ 31] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/mikmod/munitrk.o
+[ 32] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/mikmod/npertab.o
+[ 33] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/mikmod/sloader.o
+[ 34] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/mikmod/virtch.o
+[ 35] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/mikmod/virtch2.o
+[ 36] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/mikmod/virtch_common.o
+[ 37] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/mikmod/mikmod.o
+[ 38] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/plugin_crt0.o
+[ 39] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/lib/libtlsf.a(tlsf.o)
+[ 40] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(gcc-support.o)
+[ 41] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(configfile.o)
+[ 42] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(strncpy.o)
+[ 43] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/libSystem.tbd
+[ 44] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/system/libsystem_c.tbd
+[ 45] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/system/libsystem_info.tbd
+[ 46] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/system/libsystem_kernel.tbd
+[ 47] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/system/libsystem_platform.tbd
+# Sections:
+# Address	Size    	Segment	Section
+0x00000780	0x00026D00	__TEXT	__text
+0x00027480	0x00000084	__TEXT	__stubs
+0x00027508	0x00000F2B	__TEXT	__cstring
+0x00028440	0x000015D0	__TEXT	__const
+0x00029A10	0x00009F30	__TEXT	__eh_frame
+0x00034000	0x00000060	__DATA_CONST	__got
+0x00034060	0x00000888	__DATA_CONST	__const
+0x00038000	0x00000819	__DATA	__data
+0x00038820	0x00000008	__DATA	.data
+0x00038830	0x000008D8	__DATA	__bss
+0x00039110	0x0001046D	__DATA	__common
+# Symbols:
+# Address	Size    	File  Name
+0x00000780	0x00000008	[  1] _NS_IsThere
+0x00000788	0x00000004	[  1] _NS_Update
+0x0000078C	0x00000004	[  1] _NS_Exit
+0x00000790	0x00000004	[  1] _NS_Init
+0x000007A0	0x00000064	[  2] _S69_LoadTitle
+0x00000804	0x0000003C	[  2] _S69_Cleanup
+0x00000840	0x000002C0	[  2] _S69_Test
+0x00000B00	0x00000044	[  2] _S69_Init
+0x00000B44	0x00000860	[  2] _S69_Load
+0x000013C0	0x00000064	[  3] _AMF_LoadTitle
+0x00001424	0x0000003C	[  3] _AMF_Cleanup
+0x00001460	0x00001080	[  3] _AMF_Load
+0x000024E0	0x00000080	[  3] _AMF_Test
+0x00002560	0x00000048	[  3] _AMF_Init
+0x000025C0	0x0000000C	[  4] _ASY_LoadTitle
+0x000025CC	0x00000038	[  4] _ASY_Cleanup
+0x00002604	0x00000080	[  4] _ASY_Test
+0x00002684	0x00000028	[  4] _ASY_Init
+0x000026AC	0x000006F8	[  4] _ASY_Load
+0x00002DC0	0x00000064	[  5] _DSM_LoadTitle
+0x00002E24	0x0000003C	[  5] _DSM_Cleanup
+0x00002E60	0x00000070	[  5] _DSM_Test
+0x00002ED0	0x00000130	[  5] _GetBlockHeader
+0x00003000	0x00000048	[  5] _DSM_Init
+0x00003048	0x0000078C	[  5] _DSM_Load
+0x000037E0	0x00000064	[  6] _FAR_LoadTitle
+0x00003844	0x0000005C	[  6] _FAR_Cleanup
+0x000038A0	0x00000964	[  6] _FAR_Load
+0x00004204	0x0000007C	[  6] _FAR_Test
+0x00004280	0x0000005C	[  6] _FAR_Init
+0x000042E0	0x00000064	[  7] _GDM_LoadTitle
+0x00004344	0x0000003C	[  7] _GDM_Cleanup
+0x00004380	0x00000C00	[  7] _GDM_Load
+0x00004F80	0x000000C0	[  7] _GDM_Test
+0x00005040	0x00000044	[  7] _GDM_Init
+0x000050A0	0x00000064	[  8] _IMF_LoadTitle
+0x00005104	0x0000003C	[  8] _IMF_Cleanup
+0x00005140	0x00000140	[  8] _IMF_Test
+0x00005280	0x00000044	[  8] _IMF_Init
+0x000052C4	0x0000037C	[  8] _IMF_ProcessCmd.part.0
+0x00005640	0x00001188	[  8] _IMF_Load
+0x000067E0	0x00000064	[  9] _IT_LoadTitle
+0x00006844	0x000000AC	[  9] _IT_Cleanup
+0x000068F0	0x00000090	[  9] _IT_Init
+0x00006980	0x0000004C	[  9] _IT_Test
+0x000069CC	0x000000B4	[  9] _LoadMidiString
+0x00006A80	0x00000220	[  9] _IT_LoadMidiConfiguration
+0x00006CA0	0x00001DD4	[  9] _IT_Load
+0x00008A80	0x00000068	[ 10] _M15_LoadTitle
+0x00008AE8	0x00000038	[ 10] _M15_Cleanup
+0x00008B20	0x0000024C	[ 10] _LoadModuleHeader
+0x00008D6C	0x00000034	[ 10] _M15_Init
+0x00008DA0	0x000002C0	[ 10] _M15_Test
+0x00009060	0x00000898	[ 10] _M15_Load
+0x00009900	0x00000060	[ 11] _MED_Init
+0x00009960	0x000000D0	[ 11] _MED_LoadTitle
+0x00009A30	0x00000090	[ 11] _MED_Cleanup
+0x00009AC0	0x00000080	[ 11] _MED_Test
+0x00009B40	0x000000C0	[ 11] _MED_ConvertTempo
+0x00009C00	0x000003C4	[ 11] _EffectCvt
+0x00009FC4	0x0000113C	[ 11] _MED_Load
+0x0000B100	0x00000068	[ 12] _MOD_LoadTitle
+0x0000B168	0x00000038	[ 12] _MOD_Cleanup
+0x0000B1A0	0x00000390	[ 12] _MOD_CheckType
+0x0000B530	0x0000005C	[ 12] _MOD_Test
+0x0000B58C	0x00000034	[ 12] _MOD_Init
+0x0000B5C0	0x000002C0	[ 12] _ConvertNote.isra.0
+0x0000B880	0x00000B2C	[ 12] _MOD_Load
+0x0000C3C0	0x00000064	[ 13] _MTM_LoadTitle
+0x0000C424	0x0000003C	[ 13] _MTM_Cleanup
+0x0000C460	0x000000E0	[ 13] _MTM_Convert
+0x0000C540	0x00000560	[ 13] _MTM_Load
+0x0000CAA0	0x0000004C	[ 13] _MTM_Test
+0x0000CAEC	0x00000048	[ 13] _MTM_Init
+0x0000CB40	0x0000000C	[ 14] _OKT_LoadTitle
+0x0000CB4C	0x00000054	[ 14] _OKT_Test
+0x0000CBA0	0x000008F4	[ 14] _OKT_Load
+0x0000D4A0	0x00000064	[ 15] _S3M_LoadTitle
+0x0000D504	0x00000080	[ 15] _S3M_Cleanup
+0x0000D584	0x00000068	[ 15] _S3M_Test
+0x0000D5EC	0x00000074	[ 15] _S3M_Init
+0x0000D660	0x00000C00	[ 15] _S3M_Load
+0x0000E260	0x00000064	[ 16] _STM_LoadTitle
+0x0000E2C4	0x0000003C	[ 16] _STM_Cleanup
+0x0000E300	0x00000890	[ 16] _STM_Load
+0x0000EB90	0x000000D0	[ 16] _STM_Test
+0x0000EC60	0x00000048	[ 16] _STM_Init
+0x0000ECC0	0x00000064	[ 17] _STX_LoadTitle
+0x0000ED24	0x00000064	[ 17] _STX_Cleanup
+0x0000ED88	0x00000078	[ 17] _STX_Init
+0x0000EE00	0x00000AAC	[ 17] _STX_Load
+0x0000F8AC	0x000000E8	[ 17] _STX_Test
+0x0000F9A0	0x00000008	[ 18] _ULT_Init
+0x0000F9A8	0x00000004	[ 18] _ULT_Cleanup
+0x0000F9AC	0x00000064	[ 18] _ULT_LoadTitle
+0x0000FA10	0x00000074	[ 18] _ULT_Test
+0x0000FA84	0x00000824	[ 18] _ULT_Load
+0x000102C0	0x00000080	[ 19] _get_fci
+0x00010340	0x00000040	[ 19] _UMX_Init
+0x00010380	0x00000088	[ 19] _UMX_Load
+0x00010408	0x00000088	[ 19] _UMX_LoadTitle
+0x00010490	0x00000050	[ 19] _UMX_Cleanup
+0x000104E0	0x000006A8	[ 19] _UMX_Test
+0x00010BA0	0x00000008	[ 20] _UNI_Init
+0x00010BA8	0x00000068	[ 20] _readstring
+0x00010C10	0x000000A0	[ 20] _UNI_LoadTitle
+0x00010CB0	0x00000030	[ 20] _UNI_Cleanup
+0x00010CE0	0x000000A0	[ 20] _UNI_Test
+0x00010D80	0x0000159C	[ 20] _UNI_Load
+0x00012320	0x00000068	[ 21] _FixEnvelope
+0x00012388	0x00000064	[ 21] _XM_LoadTitle
+0x000123EC	0x00000034	[ 21] _XM_Cleanup
+0x00012420	0x00000404	[ 21] _XM_Convert
+0x00012824	0x00000508	[ 21] _LoadPatterns
+0x00012D2C	0x00000974	[ 21] _LoadInstruments
+0x000136A0	0x000006E0	[ 21] _XM_Load
+0x00013D80	0x00000060	[ 21] _XM_Test
+0x00013DE0	0x00000028	[ 21] _XM_Init
+0x00013E20	0x0000000C	[ 22] _MikMod_RegisterAllDrivers
+0x00013E40	0x00000080	[ 23] _Voice_SetPanning_internal.part.0
+0x00013EC0	0x00000044	[ 23] _Voice_Play_internal.part.0
+0x00013F04	0x0000004C	[ 23] _MD_SampleSpace
+0x00013F50	0x00000050	[ 23] _MD_SampleLength
+0x00013FA0	0x000000E4	[ 23] _MikMod_InfoDriver
+0x00014084	0x00000048	[ 23] __mm_registerdriver
+0x000140CC	0x0000001C	[ 23] _MikMod_RegisterDriver
+0x000140E8	0x00000098	[ 23] _MikMod_DriverFromAlias
+0x00014180	0x00000040	[ 23] _MikMod_DriverByOrdinal
+0x000141C0	0x00000080	[ 23] _MD_SampleLoad
+0x00014240	0x00000020	[ 23] _MD_SampleUnload
+0x00014260	0x00000020	[ 23] _MikMod_RegisterPlayer
+0x00014280	0x0000004C	[ 23] _MikMod_Update
+0x000142CC	0x000000C0	[ 23] _Voice_SetVolume_internal
+0x0001438C	0x00000004	[ 23] _Voice_SetVolume
+0x00014390	0x00000034	[ 23] _Voice_GetVolume
+0x000143C4	0x0000004C	[ 23] _Voice_SetFrequency_internal
+0x00014410	0x00000050	[ 23] _Voice_SetFrequency
+0x00014460	0x00000040	[ 23] _Voice_GetFrequency
+0x000144A0	0x00000020	[ 23] _Voice_SetPanning_internal
+0x000144C0	0x00000020	[ 23] _Voice_SetPanning
+0x000144E0	0x00000040	[ 23] _Voice_GetPanning
+0x00014520	0x00000020	[ 23] _Voice_Play_internal
+0x00014540	0x00000028	[ 23] _Voice_Play
+0x00014568	0x00000058	[ 23] _Voice_Stop_internal
+0x000145C0	0x00000050	[ 23] _Voice_Stop
+0x00014610	0x00000034	[ 23] _Voice_Stopped_internal
+0x00014644	0x0000003C	[ 23] _Voice_Stopped
+0x00014680	0x00000040	[ 23] _Voice_GetPosition
+0x000146C0	0x00000040	[ 23] _Voice_RealVolume
+0x00014700	0x0000000C	[ 23] _VC_SetCallback
+0x0001470C	0x00000094	[ 23] _MikMod_Exit_internal
+0x000147A0	0x000001AC	[ 23] __mm_init
+0x0001494C	0x00000004	[ 23] _MikMod_Init
+0x00014950	0x00000010	[ 23] _MikMod_Exit
+0x00014960	0x000000EC	[ 23] _MikMod_Reset
+0x00014A4C	0x00000498	[ 23] _MikMod_SetNumVoices_internal
+0x00014EE4	0x00000004	[ 23] _MikMod_SetNumVoices
+0x00014EE8	0x00000078	[ 23] _MikMod_EnableOutput_internal
+0x00014F60	0x00000070	[ 23] _MikMod_EnableOutput
+0x00014FD0	0x00000030	[ 23] _MikMod_DisableOutput_internal
+0x00015000	0x0000002C	[ 23] _MikMod_DisableOutput
+0x0001502C	0x00000014	[ 23] _MikMod_Active_internal
+0x00015040	0x0000000C	[ 23] _MikMod_Active
+0x0001504C	0x00000254	[ 23] _Sample_Play
+0x000152A0	0x0000000C	[ 23] _MikMod_GetVersion
+0x000152AC	0x00000018	[ 23] _MikMod_InitThreads
+0x000152C4	0x00000004	[ 23] _MikMod_Unlock
+0x000152C8	0x00000004	[ 23] _MikMod_Lock
+0x000152CC	0x00000154	[ 23] _MD_GetAtom
+0x00015420	0x00000080	[ 23] _MD_Access
+0x000154A0	0x00000078	[ 23] _MD_DropPrivileges
+0x00015520	0x00000170	[ 24] _ML_FreeEx
+0x00015690	0x000000B4	[ 24] _Player_LoadTitle_internal
+0x00015744	0x000003E0	[ 24] _Player_LoadGeneric_internal
+0x00015B24	0x0000011C	[ 24] _MikMod_InfoLoader
+0x00015C40	0x00000028	[ 24] __mm_registerloader
+0x00015C68	0x00000038	[ 24] _MikMod_RegisterLoader
+0x00015CA0	0x000000D0	[ 24] _ReadComment
+0x00015D70	0x00000190	[ 24] _ReadLinedComment
+0x00015F00	0x00000048	[ 24] _AllocPositions
+0x00015F48	0x00000120	[ 24] _AllocPatterns
+0x00016068	0x00000058	[ 24] _AllocTracks
+0x000160C0	0x00000108	[ 24] _AllocInstruments
+0x000161C8	0x00000098	[ 24] _AllocSamples
+0x00016260	0x00000140	[ 24] _DupStr
+0x000163A0	0x0000002C	[ 24] _Player_Free
+0x000163CC	0x00000054	[ 24] _Player_LoadTitleFP
+0x00016420	0x00000060	[ 24] _Player_LoadTitleMem
+0x00016480	0x0000000C	[ 24] _Player_LoadTitleGeneric
+0x0001648C	0x00000064	[ 24] _Player_LoadTitle
+0x000164F0	0x00000010	[ 24] _Player_LoadGeneric
+0x00016500	0x00000070	[ 24] _Player_LoadMem
+0x00016570	0x00000070	[ 24] _Player_LoadFP
+0x000165E0	0x00000094	[ 24] _Player_Load
+0x00016680	0x000000FC	[ 25] _MikMod_RegisterAllLoaders
+0x00016780	0x0000004C	[ 26] _AllocLinear
+0x000167CC	0x00000034	[ 26] _FreeLinear
+0x00016800	0x00000110	[ 26] _speed_to_finetune
+0x00016910	0x00000114	[ 26] _S3MIT_CreateOrders
+0x00016A24	0x000008DC	[ 26] _S3MIT_ProcessCmd
+0x00017300	0x0000006C	[ 26] _UniEffect
+0x0001736C	0x000000A0	[ 26] _UniPTEffect
+0x0001740C	0x00000044	[ 26] _UniVolEffect
+0x00017460	0x00000010	[ 27] _MikMod_realloc
+0x00017470	0x00000050	[ 27] _MikMod_malloc
+0x000174C0	0x0000004C	[ 27] _MikMod_calloc
+0x0001750C	0x00000014	[ 27] _MikMod_free
+0x00017520	0x000000A4	[ 27] _MikMod_strdup
+0x000175E0	0x00000024	[ 28] _MikMod_strerror
+0x00017604	0x00000014	[ 28] _MikMod_RegisterErrorHandler
+0x00017620	0x00000068	[ 29] __mm_FileReader_Eof
+0x00017688	0x00000028	[ 29] __mm_FileReader_Read
+0x000176B0	0x00000040	[ 29] __mm_FileReader_Get
+0x000176F0	0x0000003C	[ 29] __mm_FileReader_Seek
+0x0001772C	0x00000034	[ 29] __mm_FileReader_Tell
+0x00017760	0x00000028	[ 29] __mm_FileWriter_Seek
+0x00017788	0x00000024	[ 29] __mm_FileWriter_Tell
+0x000177AC	0x00000014	[ 29] __mm_FileWriter_Write
+0x000177C0	0x00000008	[ 29] __mm_FileWriter_Put
+0x000177C8	0x0000001C	[ 29] __mm_MemReader_Eof
+0x000177E4	0x0000007C	[ 29] __mm_MemReader_Read
+0x00017860	0x0000002C	[ 29] __mm_MemReader_Get
+0x0001788C	0x00000078	[ 29] __mm_MemReader_Seek
+0x00017904	0x0000001C	[ 29] __mm_MemReader_Tell
+0x00017920	0x00000060	[ 29] __mm_fopen
+0x00017980	0x00000060	[ 29] __mm_FileExists
+0x000179E0	0x00000020	[ 29] __mm_fclose
+0x00017A00	0x00000030	[ 29] __mm_iobase_setcur
+0x00017A30	0x00000010	[ 29] __mm_iobase_revert
+0x00017A40	0x00000064	[ 29] __mm_new_file_reader
+0x00017AA4	0x00000004	[ 29] __mm_delete_file_reader
+0x00017AA8	0x00000058	[ 29] __mm_new_file_writer
+0x00017B00	0x00000004	[ 29] __mm_delete_file_writer
+0x00017B04	0x00000004	[ 29] __mm_delete_mem_reader
+0x00017B08	0x00000078	[ 29] __mm_new_mem_reader
+0x00017B80	0x00000048	[ 29] __mm_write_string
+0x00017BC8	0x00000040	[ 29] __mm_write_M_UWORD
+0x00017C08	0x00000040	[ 29] __mm_write_I_UWORD
+0x00017C48	0x00000078	[ 29] __mm_write_M_ULONG
+0x00017CC0	0x00000070	[ 29] __mm_write_I_ULONG
+0x00017D30	0x00000040	[ 29] __mm_write_M_SWORD
+0x00017D70	0x00000040	[ 29] __mm_write_I_SWORD
+0x00017DB0	0x00000070	[ 29] __mm_write_M_SLONG
+0x00017E20	0x00000070	[ 29] __mm_write_I_SLONG
+0x00017E90	0x00000070	[ 29] __mm_write_M_SWORDS
+0x00017F00	0x00000064	[ 29] __mm_write_M_UWORDS
+0x00017F64	0x00000064	[ 29] __mm_write_I_SWORDS
+0x00017FC8	0x00000064	[ 29] __mm_write_I_UWORDS
+0x0001802C	0x0000009C	[ 29] __mm_write_M_SLONGS
+0x000180C8	0x00000098	[ 29] __mm_write_M_ULONGS
+0x00018160	0x000000A0	[ 29] __mm_write_I_SLONGS
+0x00018200	0x000000A0	[ 29] __mm_write_I_ULONGS
+0x000182A0	0x00000020	[ 29] __mm_read_string
+0x000182C0	0x00000040	[ 29] __mm_read_M_UWORD
+0x00018300	0x00000040	[ 29] __mm_read_I_UWORD
+0x00018340	0x00000070	[ 29] __mm_read_M_ULONG
+0x000183B0	0x00000070	[ 29] __mm_read_I_ULONG
+0x00018420	0x00000040	[ 29] __mm_read_M_SWORD
+0x00018460	0x00000040	[ 29] __mm_read_I_SWORD
+0x000184A0	0x00000070	[ 29] __mm_read_M_SLONG
+0x00018510	0x00000070	[ 29] __mm_read_I_SLONG
+0x00018580	0x00000080	[ 29] __mm_read_M_SWORDS
+0x00018600	0x00000080	[ 29] __mm_read_M_UWORDS
+0x00018680	0x00000080	[ 29] __mm_read_I_SWORDS
+0x00018700	0x00000080	[ 29] __mm_read_I_UWORDS
+0x00018780	0x000000AC	[ 29] __mm_read_M_SLONGS
+0x0001882C	0x000000B8	[ 29] __mm_read_M_ULONGS
+0x000188E4	0x000000A4	[ 29] __mm_read_I_SLONGS
+0x00018988	0x000000A4	[ 29] __mm_read_I_ULONGS
+0x00018A40	0x000000D0	[ 30] _StartEnvelope
+0x00018B10	0x00000070	[ 30] _SetEnvelopePosition
+0x00018B80	0x000000A4	[ 30] _DoS3MVolSlide
+0x00018C24	0x0000007C	[ 30] _DoS3MSlideDn
+0x00018CA0	0x00000070	[ 30] _DoS3MSlideUp
+0x00018D10	0x00000030	[ 30] _DoKeyOff
+0x00018D40	0x00000040	[ 30] _DoMEDEffectF3
+0x00018D80	0x0000000C	[ 30] _DoMEDEffectFD
+0x00018D8C	0x000000A4	[ 30] _SetFARTempo
+0x00018E30	0x00000270	[ 30] _DoNNAEffects
+0x000190A0	0x000000F0	[ 30] _Player_Init_internal
+0x00019190	0x00000054	[ 30] _DoFAREffectF
+0x000191E4	0x0000007C	[ 30] _DoFAREffectE
+0x00019260	0x00000080	[ 30] _DoFAREffectD
+0x000192E0	0x00000110	[ 30] _DoFAREffect4
+0x000193F0	0x00000098	[ 30] _DoFAREffect3
+0x00019488	0x00000058	[ 30] _DoFAREffect2
+0x000194E0	0x00000050	[ 30] _DoFAREffect1
+0x00019530	0x00000094	[ 30] _DoMEDEffect1F
+0x000195C4	0x00000048	[ 30] _DoMEDEffect1E
+0x0001960C	0x00000034	[ 30] _DoMEDEffect18
+0x00019640	0x000000C0	[ 30] _DoITEffectW
+0x00019700	0x00000068	[ 30] _DoITEffectT
+0x00019768	0x000000C0	[ 30] _DoITEffectP
+0x00019828	0x000000B8	[ 30] _DoITEffectN
+0x000198E0	0x00000040	[ 30] _DoITEffectM
+0x00019920	0x00000080	[ 30] _DoITEffectI
+0x000199A0	0x00000080	[ 30] _DoXMEffectX2
+0x00019A20	0x00000080	[ 30] _DoXMEffectX1
+0x00019AA0	0x00000090	[ 30] _DoXMEffectP
+0x00019B30	0x00000090	[ 30] _DoXMEffectL
+0x00019BC0	0x0000008C	[ 30] _DoXMEffectH
+0x00019C4C	0x0000003C	[ 30] _DoXMEffectG
+0x00019C88	0x00000084	[ 30] _DoXMEffectA
+0x00019D0C	0x00000054	[ 30] _DoS3MEffectT
+0x00019D60	0x000000A0	[ 30] _DoS3MEffectI
+0x00019E00	0x00000050	[ 30] _DoS3MEffectF
+0x00019E50	0x00000050	[ 30] _DoS3MEffectE
+0x00019EA0	0x00000040	[ 30] _DoS3MEffectD
+0x00019EE0	0x00000060	[ 30] _DoS3MEffectA
+0x00019F40	0x00000088	[ 30] _DoPTEffectF
+0x00019FC8	0x00000108	[ 30] _DoPTEffectD
+0x0001A0D0	0x00000058	[ 30] _DoPTEffectC
+0x0001A128	0x00000118	[ 30] _DoPTEffectB
+0x0001A240	0x00000044	[ 30] _DoPTEffect8
+0x0001A284	0x0000001C	[ 30] _DoNothing
+0x0001A2A0	0x00000028	[ 30] _DoMEDSpeed
+0x0001A2C8	0x00000064	[ 30] _DoULTEffect9
+0x0001A32C	0x00000114	[ 30] _DoITToneSlide
+0x0001A440	0x00000040	[ 30] _DoITEffectG
+0x0001A480	0x000000E8	[ 30] _DoToneSlide
+0x0001A568	0x00000060	[ 30] _DoPTEffect3
+0x0001A5C8	0x00000028	[ 30] _DoMEDEffectF1
+0x0001A5F0	0x00000054	[ 30] _DoXMEffectEB
+0x0001A644	0x0000005C	[ 30] _DoXMEffectEA
+0x0001A6A0	0x00000050	[ 30] _DoXMEffectE2
+0x0001A6F0	0x00000050	[ 30] _DoXMEffectE1
+0x0001A740	0x00000080	[ 30] _DoKeyFade
+0x0001A7C0	0x0000018C	[ 30] _DoS3MEffectQ
+0x0001A94C	0x00000074	[ 30] _DoPTEffect9
+0x0001A9C0	0x0000006C	[ 30] _DoPTEffect2
+0x0001AA2C	0x00000074	[ 30] _DoPTEffect1
+0x0001AAA0	0x000000E4	[ 30] _GetPeriod
+0x0001AB84	0x00000128	[ 30] _DoArpeggio
+0x0001ACAC	0x00000084	[ 30] _DoOktArp
+0x0001AD30	0x0000007C	[ 30] _DoPTEffect0
+0x0001ADAC	0x00000034	[ 30] _DoMEDEffectF2
+0x0001ADE0	0x000001C0	[ 30] _ProcessEnvelope
+0x0001AFA0	0x00000100	[ 30] _DoMEDEffect16
+0x0001B0A0	0x000002C0	[ 30] _DoEEffects
+0x0001B360	0x00000240	[ 30] _DoITEffectS0
+0x0001B5A0	0x00000040	[ 30] _DoPTEffectE
+0x0001B5E0	0x00000088	[ 30] _DoPTEffectA
+0x0001B668	0x000000B8	[ 30] _DoPTEffect5
+0x0001B720	0x000000A8	[ 30] _LFOVibrato
+0x0001B7C8	0x000000D8	[ 30] _DoS3MEffectR
+0x0001B8A0	0x000000C0	[ 30] _DoVibrato
+0x0001B960	0x00000080	[ 30] _DoFAREffect6
+0x0001B9E0	0x00000070	[ 30] _DoMEDEffectVib
+0x0001BA50	0x0000009C	[ 30] _DoXMEffect6
+0x0001BAEC	0x0000007C	[ 30] _DoPTEffect4Fix
+0x0001BB68	0x000000A4	[ 30] _DoPTEffect6
+0x0001BC0C	0x0000007C	[ 30] _DoPTEffect4
+0x0001BC88	0x000000B8	[ 30] _DoS3MEffectU
+0x0001BD40	0x000000E0	[ 30] _DoPTEffect7
+0x0001BE20	0x00000004	[ 30] _DoPTEffect7Fix
+0x0001BE24	0x00000124	[ 30] _DoITVibrato
+0x0001BF48	0x0000003C	[ 30] _DoITEffectUOld
+0x0001BF84	0x0000003C	[ 30] _DoITEffectHOld
+0x0001BFC0	0x00000040	[ 30] _DoITEffectU
+0x0001C000	0x00000040	[ 30] _DoITEffectH
+0x0001C040	0x0000014C	[ 30] _DoVolEffects
+0x0001C18C	0x00000154	[ 30] _DoITEffectY
+0x0001C2E0	0x00000020	[ 30] _getlinearperiod
+0x0001C300	0x00000070	[ 30] _getfrequency
+0x0001C370	0x000015DC	[ 30] _Player_HandleTick
+0x0001D94C	0x00000094	[ 30] _Player_Init
+0x0001D9E0	0x00000088	[ 30] _Player_Exit_internal
+0x0001DA68	0x00000084	[ 30] _Player_Exit
+0x0001DAEC	0x00000034	[ 30] _Player_SetVolume
+0x0001DB20	0x0000000C	[ 30] _Player_GetModule
+0x0001DB2C	0x000000A0	[ 30] _Player_Start
+0x0001DBCC	0x00000058	[ 30] _Player_Stop_internal
+0x0001DC24	0x0000005C	[ 30] _Player_Stop
+0x0001DC80	0x00000024	[ 30] _Player_Active
+0x0001DCA4	0x000000E4	[ 30] _Player_NextPosition
+0x0001DD88	0x000000E0	[ 30] _Player_PrevPosition
+0x0001DE68	0x00000118	[ 30] _Player_SetPosition
+0x0001DF80	0x00000120	[ 30] _Player_Unmute
+0x0001E0A0	0x00000120	[ 30] _Player_Mute
+0x0001E1C0	0x00000140	[ 30] _Player_ToggleMute
+0x0001E300	0x00000040	[ 30] _Player_Muted
+0x0001E340	0x00000040	[ 30] _Player_GetChannelVoice
+0x0001E380	0x00000040	[ 30] _Player_GetChannelPeriod
+0x0001E3C0	0x00000020	[ 30] _Player_Paused_internal
+0x0001E3E0	0x00000020	[ 30] _Player_Paused
+0x0001E400	0x00000020	[ 30] _Player_TogglePause
+0x0001E420	0x00000028	[ 30] _Player_SetSpeed
+0x0001E448	0x00000038	[ 30] _Player_SetTempo
+0x0001E480	0x00000084	[ 30] _Player_QueryVoices
+0x0001E504	0x0000001C	[ 30] _Player_GetOrder
+0x0001E520	0x00000018	[ 30] _Player_GetRow
+0x0001E540	0x00000040	[ 31] _UniSetRow
+0x0001E580	0x00000040	[ 31] _UniGetByte
+0x0001E5C0	0x00000070	[ 31] _UniGetWord
+0x0001E630	0x00000070	[ 31] _UniSkipOpcode
+0x0001E6A0	0x00000040	[ 31] _UniFindRow
+0x0001E6E0	0x0000002C	[ 31] _UniReset
+0x0001E70C	0x00000094	[ 31] _UniWriteByte
+0x0001E7A0	0x000000A8	[ 31] _UniWriteWord
+0x0001E848	0x00000138	[ 31] _UniNewline
+0x0001E980	0x000000AC	[ 31] _UniDup
+0x0001EA2C	0x00000034	[ 31] _UniInit
+0x0001EA60	0x00000028	[ 31] _UniCleanup
+0x0001EAA0	0x00000210	[ 33] _DitherSamples
+0x0001ECB0	0x00000070	[ 33] _SL_Init
+0x0001ED20	0x0000004C	[ 33] _SL_Exit
+0x0001ED6C	0x00000DF8	[ 33] _SL_Load
+0x0001FB64	0x000000BC	[ 33] _SL_RegisterSample
+0x0001FC20	0x00000068	[ 33] _SL_LoadSamples
+0x0001FC88	0x00000024	[ 33] _SL_Sample16to8
+0x0001FCAC	0x00000024	[ 33] _SL_Sample8to16
+0x0001FCD0	0x00000030	[ 33] _SL_SampleSigned
+0x0001FD00	0x00000024	[ 33] _SL_SampleUnsigned
+0x0001FD24	0x0000004C	[ 33] _SL_HalveSample
+0x0001FD80	0x000002A8	[ 34] _MixReverb_Normal
+0x00020028	0x00000420	[ 34] _MixReverb_Stereo
+0x00020448	0x00000060	[ 34] _MixLowPass_Stereo
+0x000204A8	0x0000003C	[ 34] _MixLowPass_Normal
+0x000204E4	0x00000088	[ 34] _VC1_SilenceBytes
+0x0002056C	0x00000054	[ 34] _VC1_Exit
+0x000205C0	0x00000020	[ 34] _VC1_VoiceGetVolume
+0x000205E0	0x00000020	[ 34] _VC1_VoiceGetPanning
+0x00020600	0x00000020	[ 34] _VC1_VoiceSetFrequency
+0x00020620	0x00000020	[ 34] _VC1_VoiceGetFrequency
+0x00020640	0x00000030	[ 34] _VC1_VoicePlay
+0x00020670	0x00000018	[ 34] _VC1_VoiceStop
+0x00020688	0x00000020	[ 34] _VC1_VoiceStopped
+0x000206A8	0x0000001C	[ 34] _VC1_VoiceGetPosition
+0x000206C4	0x0000004C	[ 34] _VC1_VoiceSetVolume
+0x00020710	0x00000050	[ 34] _VC1_VoiceSetPanning
+0x00020760	0x00000048	[ 34] _VC1_SampleUnload
+0x000207A8	0x00000218	[ 34] _VC1_SampleLoad
+0x000209C0	0x00000008	[ 34] _VC1_SampleSpace
+0x000209C8	0x00000024	[ 34] _VC1_SampleLength
+0x000209EC	0x000000B4	[ 34] _VC1_VoiceRealVolume
+0x00020AA0	0x00000D44	[ 34] _VC1_WriteSamples
+0x000217E4	0x0000009C	[ 34] _VC1_WriteBytes
+0x00021880	0x000000E0	[ 34] _VC1_Init
+0x00021960	0x00000360	[ 34] _VC1_PlayStart
+0x00021CC0	0x00000130	[ 34] _VC1_PlayStop
+0x00021DF0	0x0000009C	[ 34] _VC1_SetNumVoices
+0x00021EA0	0x000002A8	[ 35] _MixReverb_Normal
+0x00022148	0x00000420	[ 35] _MixReverb_Stereo
+0x00022568	0x00000060	[ 35] _MixLowPass_Stereo
+0x000225C8	0x0000003C	[ 35] _MixLowPass_Normal
+0x00022604	0x0000009C	[ 35] _Mix32ToFP_Normal
+0x000226A0	0x000000E0	[ 35] _Mix32ToFP_Stereo
+0x00022780	0x000000D0	[ 35] _Mix32To16_Normal
+0x00022850	0x000000F8	[ 35] _Mix32To16_Stereo
+0x00022948	0x000000DC	[ 35] _Mix32To8_Normal
+0x00022A24	0x00000108	[ 35] _Mix32To8_Stereo
+0x00022B2C	0x00000094	[ 35] _VC2_SilenceBytes
+0x00022BC0	0x00000050	[ 35] _VC2_Exit
+0x00022C10	0x00000018	[ 35] _VC2_VoiceGetVolume
+0x00022C28	0x00000018	[ 35] _VC2_VoiceGetPanning
+0x00022C40	0x00000020	[ 35] _VC2_VoiceSetFrequency
+0x00022C60	0x00000020	[ 35] _VC2_VoiceGetFrequency
+0x00022C80	0x00000030	[ 35] _VC2_VoicePlay
+0x00022CB0	0x00000018	[ 35] _VC2_VoiceStop
+0x00022CC8	0x00000020	[ 35] _VC2_VoiceStopped
+0x00022CE8	0x0000001C	[ 35] _VC2_VoiceGetPosition
+0x00022D04	0x0000004C	[ 35] _VC2_VoiceSetVolume
+0x00022D50	0x00000050	[ 35] _VC2_VoiceSetPanning
+0x00022DA0	0x00000048	[ 35] _VC2_SampleUnload
+0x00022DE8	0x00000218	[ 35] _VC2_SampleLoad
+0x00023000	0x00000008	[ 35] _VC2_SampleSpace
+0x00023008	0x00000024	[ 35] _VC2_SampleLength
+0x0002302C	0x000000B4	[ 35] _VC2_VoiceRealVolume
+0x000230E0	0x00000A08	[ 35] _VC2_WriteSamples
+0x00023AE8	0x00000098	[ 35] _VC2_WriteBytes
+0x00023B80	0x0000012C	[ 35] _VC2_Init
+0x00023CAC	0x00000374	[ 35] _VC2_PlayStart
+0x00024020	0x00000150	[ 35] _VC2_PlayStop
+0x00024170	0x000000BC	[ 35] _VC2_SetNumVoices
+0x00024240	0x0000000C	[ 36] _VC_Init
+0x0002424C	0x00000014	[ 36] _VC_Exit
+0x00024260	0x0000000C	[ 36] _VC_SetNumVoices
+0x0002426C	0x00000014	[ 36] _VC_SampleSpace
+0x00024280	0x0000000C	[ 36] _VC_SampleLength
+0x0002428C	0x00000014	[ 36] _VC_PlayStart
+0x000242A0	0x0000000C	[ 36] _VC_PlayStop
+0x000242AC	0x00000014	[ 36] _VC_SampleLoad
+0x000242C0	0x0000000C	[ 36] _VC_SampleUnload
+0x000242CC	0x00000014	[ 36] _VC_WriteBytes
+0x000242E0	0x0000000C	[ 36] _VC_SilenceBytes
+0x000242EC	0x00000014	[ 36] _VC_VoiceSetVolume
+0x00024300	0x0000000C	[ 36] _VC_VoiceGetVolume
+0x0002430C	0x00000014	[ 36] _VC_VoiceSetFrequency
+0x00024320	0x0000000C	[ 36] _VC_VoiceGetFrequency
+0x0002432C	0x00000014	[ 36] _VC_VoiceSetPanning
+0x00024340	0x0000000C	[ 36] _VC_VoiceGetPanning
+0x0002434C	0x00000014	[ 36] _VC_VoicePlay
+0x00024360	0x0000000C	[ 36] _VC_VoiceStop
+0x0002436C	0x00000014	[ 36] _VC_VoiceStopped
+0x00024380	0x0000000C	[ 36] _VC_VoiceGetPosition
+0x0002438C	0x00000014	[ 36] _VC_VoiceRealVolume
+0x000243A0	0x00000244	[ 36] _VC_SetupPointers
+0x00024600	0x0000012C	[ 37] _change_filename
+0x0002472C	0x0000011C	[ 37] _applysettings
+0x00024848	0x00000048	[ 37] _get_more
+0x00024890	0x000000BC	[ 37] _mm_errorhandler
+0x0002494C	0x00000064	[ 37] _mmsupp_strncat
+0x000249B0	0x00000040	[ 37] _mmsupp_sprintf
+0x000249F0	0x000000D0	[ 37] _mmsupp_printf
+0x00024AC0	0x00001374	[ 37] _plugin_start
+0x00025E34	0x00000018	[ 38] _cleanup_wrapper
+0x00025E4C	0x00000068	[ 38] _plugin__start
+0x00025EB4	0x00000020	[ 38] _rb_atexit
+0x00025ED4	0x00000024	[ 38] _exit
+0x00025EF8	0x00000014	[ 38] __exit
+0x00025F0C	0x00000064	[ 38] _exit_on_usb
+0x00025F70	0x00000050	[ 39] _ls_bit
+0x00025FC0	0x00000048	[ 39] _ms_bit
+0x00026008	0x00000020	[ 39] _set_bit
+0x00026028	0x00000020	[ 39] _clear_bit
+0x00026048	0x0000008C	[ 39] _FIND_SUITABLE_BLOCK
+0x000260D4	0x0000004C	[ 39] _process_area
+0x00026120	0x00000058	[ 39] _MAPPING_INSERT
+0x00026178	0x00000004	[ 39] _panicf
+0x0002617C	0x00000008	[ 39] _get_new_area
+0x00026184	0x00000008	[ 39] _get_used_size
+0x0002618C	0x00000008	[ 39] _get_max_size
+0x00026194	0x00000008	[ 39] _destroy_memory_pool
+0x0002619C	0x00000248	[ 39] _free_ex
+0x000263E4	0x000000C4	[ 39] _init_memory_pool
+0x000264A8	0x0000016C	[ 39] _add_new_area
+0x00026614	0x000002CC	[ 39] _malloc_ex
+0x000268E0	0x0000006C	[ 39] _tlsf_malloc
+0x0002694C	0x0000000C	[ 39] _tlsf_free
+0x00026958	0x00000368	[ 39] _realloc_ex
+0x00026CC0	0x00000018	[ 39] _tlsf_realloc
+0x00026CD8	0x0000005C	[ 39] _calloc_ex
+0x00026D34	0x0000000C	[ 39] _tlsf_calloc
+0x00026D40	0x00000018	[ 40] _memcpy
+0x00026D58	0x00000018	[ 40] _memset
+0x00026D70	0x00000018	[ 40] _memmove
+0x00026D88	0x00000018	[ 40] _memcmp
+0x00026DA0	0x000000E8	[ 41] _get_cfg_filename.constprop.0
+0x00026E88	0x00000160	[ 41] _configfile_save
+0x00026FE8	0x00000228	[ 41] _configfile_load
+0x00027210	0x000000E0	[ 41] _configfile_get_value
+0x000272F0	0x00000158	[ 41] _configfile_update_entry
+0x00027448	0x00000038	[ 42] _strncpy
+0x00027480	0x0000000C	[ 44] ___maskrune.stub
+0x0002748C	0x0000000C	[ 44] ___toupper.stub
+0x00027498	0x0000000C	[ 44] _abs.stub
+0x000274A4	0x0000000C	[ 46] _geteuid.stub
+0x000274B0	0x0000000C	[ 46] _getgid.stub
+0x000274BC	0x0000000C	[ 45] _getpwnam.stub
+0x000274C8	0x0000000C	[ 46] _getuid.stub
+0x000274D4	0x0000000C	[ 47] _longjmp.stub
+0x000274E0	0x0000000C	[ 47] _setjmp.stub
+0x000274EC	0x0000000C	[ 46] _setuid.stub
+0x000274F8	0x0000000C	[ 46] _stat.stub
+0x00027508	0x00000009	[  1] literal string: No Sound
+0x00027518	0x00000014	[  1] literal string: Nosound Driver v3.0
+0x00027530	0x00000008	[  1] literal string: nosound
+0x00027538	0x00000003	[  2] literal string: if
+0x00027540	0x00000003	[  2] literal string: JN
+0x00027548	0x00000002	[  2] literal string: \r
+0x00027550	0x00000004	[  2] literal string: 669
+0x00027558	0x0000001D	[  2] literal string: 669 (Composer 669, Unis 669)
+0x00027578	0x0000000D	[  2] literal string: Composer 669
+0x00027588	0x0000000D	[  2] literal string: Extended 669
+0x00027598	0x00000004	[  3] literal string: AMF
+0x000275A0	0x00000022	[  3] literal string: AMF (DSMI Advanced Module Format)
+0x000275C8	0x00000001	[  4] literal string: 
+0x000275D0	0x00000019	[  4] literal string: ASYLUM Music Format V1.0
+0x000275F0	0x0000001F	[  4] literal string: AMF (ASYLUM Music Format V1.0)
+0x00027610	0x00000005	[  5] literal string: SONG
+0x00027618	0x00000005	[  5] literal string: INST
+0x00027620	0x00000005	[  5] literal string: PATT
+0x00027628	0x00000004	[  5] literal string: DSM
+0x00027630	0x0000001B	[  5] literal string: DSM (DSIK internal format)
+0x00027650	0x00000004	[  6] literal string: FAR
+0x00027658	0x00000019	[  6] literal string: FAR (Farandole Composer)
+0x00027678	0x00000005	[  7] literal string: GDMþ
+0x00027680	0x00000005	[  7] literal string: GMFS
+0x00027688	0x00000004	[  7] literal string: GDM
+0x00027690	0x00000018	[  7] literal string: GDM (General DigiMusic)
+0x000276A8	0x00000005	[  8] literal string: IM10
+0x000276B0	0x00000005	[  8] literal string: II10
+0x000276B8	0x00000005	[  8] literal string: IS10
+0x000276C0	0x00000005	[  8] literal string: IW10
+0x000276C8	0x00000004	[  8] literal string: IMF
+0x000276D0	0x00000014	[  8] literal string: IMF (Imago Orpheus)
+0x000276E8	0x00000005	[  9] literal string: IMPM
+0x000276F0	0x00000006	[  9] literal string: F0F00
+0x000276F8	0x00000016	[  9] literal string: ImpulseTracker 2.14p4
+0x00027710	0x00000021	[  9] literal string: Compressed ImpulseTracker 2.14p4
+0x00027738	0x00000016	[  9] literal string: ImpulseTracker 2.14p3
+0x00027750	0x00000021	[  9] literal string: Compressed ImpulseTracker 2.14p3
+0x00027778	0x00000005	[  9] literal string: IMPS
+0x00027780	0x00000005	[  9] literal string: IMPI
+0x00027788	0x00000003	[  9] literal string: IT
+0x00027790	0x00000015	[  9] literal string: IT (Impulse Tracker)
+0x000277A8	0x00000014	[  9] literal string: ImpulseTracker  .  
+0x000277C0	0x0000001F	[  9] literal string: Compressed ImpulseTracker  .  
+0x000277E0	0x00000009	[ 10] literal string: CAKEWALK
+0x000277F0	0x00000005	[ 10] literal string: SZDD
+0x000277F8	0x00000004	[ 10] literal string: st-
+0x00027800	0x00000004	[ 10] literal string: ST-
+0x00027808	0x00000016	[ 10] literal string: Ultimate Soundtracker
+0x00027820	0x0000000D	[ 10] literal string: Soundtracker
+0x00027830	0x00000015	[ 10] literal string: 15-instrument module
+0x00027848	0x00000014	[ 10] literal string: MOD (15 instrument)
+0x00027860	0x00000005	[ 11] literal string: MMD0
+0x00027868	0x00000005	[ 11] literal string: MMD1
+0x00027870	0x00000004	[ 11] literal string: MED
+0x00027878	0x0000000E	[ 11] literal string: MED (OctaMED)
+0x00027888	0x00000005	[ 12] literal string: M.K.
+0x00027890	0x00000005	[ 12] literal string: M!K!
+0x00027898	0x00000005	[ 12] literal string: M&K!
+0x000278A0	0x00000004	[ 12] literal string: FLT
+0x000278A8	0x00000004	[ 12] literal string: EXO
+0x000278B0	0x00000005	[ 12] literal string: OKTA
+0x000278B8	0x00000005	[ 12] literal string: CD81
+0x000278C0	0x00000005	[ 12] literal string: CD61
+0x000278C8	0x00000004	[ 12] literal string: CHN
+0x000278D0	0x00000003	[ 12] literal string: CH
+0x000278D8	0x00000003	[ 12] literal string: CN
+0x000278E0	0x00000004	[ 12] literal string: TDZ
+0x000278E8	0x00000004	[ 12] literal string: FA0
+0x000278F0	0x00000005	[ 12] literal string: LARD
+0x000278F8	0x00000005	[ 12] literal string: NSMS
+0x00027900	0x00000006	[ 12] literal string: ADPCM
+0x00027908	0x00000010	[ 12] literal string: Standard module
+0x00027918	0x00000015	[ 12] literal string: MOD (31 instruments)
+0x00027930	0x00000004	[ 13] literal string: MTM
+0x00027938	0x00000021	[ 13] literal string: MTM (MultiTracker Module editor)
+0x00027960	0x00000009	[ 14] literal string: OKTASONG
+0x00027970	0x00000010	[ 14] literal string: Amiga Oktalyzer
+0x00027980	0x00000005	[ 14] literal string: CMOD
+0x00027988	0x00000005	[ 14] literal string: SAMP
+0x00027990	0x00000005	[ 14] literal string: SPEE
+0x00027998	0x00000005	[ 14] literal string: SLEN
+0x000279A0	0x00000005	[ 14] literal string: PLEN
+0x000279A8	0x00000005	[ 14] literal string: PBOD
+0x000279B0	0x00000005	[ 14] literal string: SBOD
+0x000279B8	0x00000004	[ 14] literal string: OKT
+0x000279C0	0x00000016	[ 14] literal string: OKT (Amiga Oktalyzer)
+0x000279D8	0x00000005	[ 15] literal string: SCRM
+0x000279E0	0x00000022	[ 15] literal string: Unknown tracker x.xx (S3M format)
+0x00027A08	0x00000024	[ 15] literal string: Impulse Tracker 2.14p4 (S3M format)
+0x00027A30	0x00000024	[ 15] literal string: Impulse Tracker 2.14p3 (S3M format)
+0x00027A58	0x00000005	[ 15] literal string: SCRS
+0x00027A60	0x00000004	[ 15] literal string: S3M
+0x00027A68	0x00000017	[ 15] literal string: S3M (Scream Tracker 3)
+0x00027A80	0x00000013	[ 15] literal string: Screamtracker x.xx
+0x00027A98	0x00000020	[ 15] literal string: Imago Orpheus x.xx (S3M format)
+0x00027AB8	0x00000022	[ 15] literal string: Impulse Tracker x.xx (S3M format)
+0x00027AE0	0x00000004	[ 16] literal string: STM
+0x00027AE8	0x00000015	[ 16] literal string: STM (Scream Tracker)
+0x00027B00	0x00000010	[ 16] literal string: Screamtracker 2
+0x00027B10	0x00000022	[ 16] literal string: Converted by MOD2STM (STM format)
+0x00027B38	0x00000015	[ 16] literal string: Wuzamod (STM format)
+0x00027B50	0x00000018	[ 17] literal string: STMIK 0.2 (STM2STX 1.0)
+0x00027B68	0x00000018	[ 17] literal string: STMIK 0.2 (STM2STX 1.1)
+0x00027B80	0x00000004	[ 17] literal string: STX
+0x00027B88	0x00000029	[ 17] literal string: STX (Scream Tracker Music Interface Kit)
+0x00027BB8	0x0000000F	[ 18] literal string: MAS_UTrack_V00
+0x00027BC8	0x00000004	[ 18] literal string: ULT
+0x00027BD0	0x00000013	[ 18] literal string: ULT (UltraTracker)
+0x00027BE8	0x00000011	[ 19] literal string: Extended Module:
+0x00027C00	0x00000004	[ 19] literal string: UMX
+0x00027C08	0x0000001B	[ 19] literal string: UMX (Unreal UMX container)
+0x00027C28	0x00000003	[ 19] literal string: XM
+0x00027C30	0x00000004	[ 19] literal string: MOD
+0x00027C38	0x00000004	[ 20] literal string: UN0
+0x00027C40	0x00000006	[ 20] literal string: APUN
+0x00027C48	0x00000008	[ 20] literal string: APlayer
+0x00027C50	0x00000008	[ 20] literal string: MikCvt2
+0x00027C58	0x00000008	[ 20] literal string: MikCvt3
+0x00027C60	0x0000000C	[ 20] literal string: %s (was %s)
+0x00027C70	0x00000003	[ 20] literal string: %s
+0x00027C78	0x00000004	[ 20] literal string: UNI
+0x00027C80	0x00000020	[ 20] literal string: APUN (APlayer) and UNI (MikMod)
+0x00027CA0	0x00000010	[ 21] literal string: Unknown tracker
+0x00027CB0	0x00000017	[ 21] literal string: %s (XM format %d.%02d)
+0x00027CC8	0x00000012	[ 21] literal string: Extended Module: 
+0x00027CE0	0x00000013	[ 21] literal string: XM (FastTracker 2)
+0x00027CF8	0x00000008	[ 23] literal string: %2d %s\n
+0x00027D00	0x00000007	[ 23] literal string: nobody
+0x00027D08	0x00000002	[ 24] literal string: \n
+0x00027D10	0x00000005	[ 24] literal string: %s%s
+0x00027D18	0x00000003	[ 24] literal string: rb
+0x00027D20	0x00000009	[ 26] literal string: !Scream!
+0x00027D30	0x00000009	[ 26] literal string: BMOD2STM
+0x00027D40	0x00000009	[ 26] literal string: WUZAMOD!
+0x00027D50	0x00000013	[ 28] literal string: Invalid error code
+0x00027D68	0x00000009	[ 28] literal string: No error
+0x00027D78	0x0000001E	[ 28] literal string: Could not open requested file
+0x00027D98	0x0000000E	[ 28] literal string: Out of memory
+0x00027DA8	0x00000017	[ 28] literal string: Dynamic linking failed
+0x00027DC0	0x0000001D	[ 28] literal string: Out of memory to load sample
+0x00027DE0	0x00000025	[ 28] literal string: Out of sample handles to load sample
+0x00027E08	0x0000001D	[ 28] literal string: Sample format not recognized
+0x00027E28	0x0000001F	[ 28] literal string: Failure loading module pattern
+0x00027E48	0x0000001D	[ 28] literal string: Failure loading module track
+0x00027E68	0x0000001E	[ 28] literal string: Failure loading module header
+0x00027E88	0x0000001B	[ 28] literal string: Failure loading sampleinfo
+0x00027EA8	0x0000001D	[ 28] literal string: Module format not recognized
+0x00027EC8	0x00000024	[ 28] literal string: Module sample format not recognized
+0x00027EF0	0x00000027	[ 28] literal string: Synthsounds not supported in MED files
+0x00027F18	0x0000001D	[ 28] literal string: Compressed sample is invalid
+0x00027F38	0x0000001A	[ 28] literal string: Sound device not detected
+0x00027F58	0x0000001B	[ 28] literal string: Device number out of range
+0x00027F78	0x00000017	[ 28] literal string: Software mixer failure
+0x00027F90	0x0000001C	[ 28] literal string: Could not open sound device
+0x00027FB0	0x0000002E	[ 28] literal string: This driver supports 8 bit linear output only
+0x00027FE0	0x0000002F	[ 28] literal string: This driver supports 16 bit linear output only
+0x00028010	0x00000028	[ 28] literal string: This driver supports stereo output only
+0x00028038	0x0000003A	[ 28] literal string: This driver supports uLaw output (8 bit mono, 8 kHz) only
+0x00028078	0x00000031	[ 28] literal string: Unable to set non-blocking mode for audio device
+0x000280B0	0x00000030	[ 28] literal string: This driver doesn't support 32 bit float output
+0x000280E0	0x00000006	[ 37] literal string: [n/a]
+0x000280E8	0x00000002	[ 37] literal string: A
+0x000280F0	0x00000005	[ 37] literal string: .669
+0x000280F8	0x00000005	[ 37] literal string: .amf
+0x00028100	0x00000005	[ 37] literal string: .asy
+0x00028108	0x00000005	[ 37] literal string: .dsm
+0x00028110	0x00000005	[ 37] literal string: .far
+0x00028118	0x00000005	[ 37] literal string: .gdm
+0x00028120	0x00000005	[ 37] literal string: .imf
+0x00028128	0x00000004	[ 37] literal string: .it
+0x00028130	0x00000005	[ 37] literal string: .m15
+0x00028138	0x00000005	[ 37] literal string: .med
+0x00028140	0x00000005	[ 37] literal string: .mod
+0x00028148	0x00000005	[ 37] literal string: .mtm
+0x00028150	0x00000005	[ 37] literal string: .okt
+0x00028158	0x00000005	[ 37] literal string: .s3m
+0x00028160	0x00000005	[ 37] literal string: .stm
+0x00028168	0x00000005	[ 37] literal string: .stx
+0x00028170	0x00000005	[ 37] literal string: .ult
+0x00028178	0x00000005	[ 37] literal string: .uni
+0x00028180	0x00000005	[ 37] literal string: .umx
+0x00028188	0x00000004	[ 37] literal string: .xm
+0x00028190	0x0000000B	[ 37] literal string: mikmod.cfg
+0x000281A0	0x00000006	[ 37] literal string: %s %s
+0x000281A8	0x00000008	[ 37] literal string: %02d %s
+0x000281B0	0x00000009	[ 37] literal string: Name: %s
+0x000281C0	0x00000009	[ 37] literal string: Type: %s
+0x000281D0	0x0000000C	[ 37] literal string: Samples: %d
+0x000281E0	0x00000010	[ 37] literal string: Instruments: %d
+0x000281F0	0x00000016	[ 37] literal string: pat: %03d/%03d  %2.2X
+0x00028208	0x0000000B	[ 37] literal string: spd: %d/%d
+0x00028218	0x0000000A	[ 37] literal string: vol: %ddB
+0x00028228	0x0000000E	[ 37] literal string: time: %d:%02d
+0x00028238	0x00000012	[ 37] literal string: chn: %d/%d+%d->%d
+0x00028250	0x0000000B	[ 37] literal string: chn: %d/%d
+0x00028260	0x00000013	[ 37] literal string: Panning Separation
+0x00028278	0x0000000E	[ 37] literal string: Reverberation
+0x00028288	0x0000000E	[ 37] literal string: Interpolation
+0x00028298	0x00000011	[ 37] literal string: Reverse Channels
+0x000282B0	0x00000009	[ 37] literal string: Surround
+0x000282C0	0x00000009	[ 37] literal string: HQ Mixer
+0x000282D0	0x0000000C	[ 37] literal string: Sample Rate
+0x000282E0	0x00000007	[ 37] literal string: Mikmod
+0x000282E8	0x00000006	[ 37] literal string: 48kHz
+0x000282F0	0x00000008	[ 37] literal string: 44.1kHz
+0x000282F8	0x00000006	[ 37] literal string: 32kHz
+0x00028300	0x00000006	[ 37] literal string: 24kHz
+0x00028308	0x00000009	[ 37] literal string: 22.05kHz
+0x00028318	0x00000006	[ 37] literal string: 16kHz
+0x00028320	0x00000006	[ 37] literal string: 12kHz
+0x00028328	0x0000000A	[ 37] literal string: 11.025kHz
+0x00028338	0x00000005	[ 37] literal string: 8kHz
+0x0002833D	0x00000016	[ 39] literal string: * Heap Corruption: %s
+0x00028353	0x00000021	[ 39] literal string: free_ex(): Freeing unused block\n
+0x00028374	0x0000001D	[ 39] literal string: free_ex(): Mismatched flags\n
+0x00028391	0x0000001E	[ 39] literal string: free_ex(): uncoalesced block\n
+0x000283AF	0x00000030	[ 39] literal string: malloc_ex(): Mismatched flags after allocation\n
+0x000283DF	0x0000000A	[ 41] literal string: /.rockbox
+0x000283E9	0x00000004	[ 41] literal string: /%s
+0x000283ED	0x00000013	[ 41] literal string: /.rockbox/rocks/%s
+0x00028400	0x00000014	[ 41] literal string: file version: %10d\n
+0x00028414	0x0000000A	[ 41] literal string: %s: %10d\n
+0x0002841E	0x00000008	[ 41] literal string: %s: %s\n
+0x00028426	0x0000000D	[ 41] literal string: file version
+0x00028440	0x00000010	[  2] 16-byte-literal
+0x00028450	0x00000010	[  2] 16-byte-literal
+0x00028460	0x000000C0	[  4] _periodtable
+0x00028520	0x00000008	[  5] _DSMSIG
+0x00028528	0x00000007	[  6] _FARSIG
+0x00028530	0x00000005	[  8] lC2
+0x00028538	0x0000000A	[  9] _portatable
+0x00028550	0x00000010	[  9] 16-byte-literal
+0x00028560	0x00000010	[ 11] _tempocompat.0
+0x00028570	0x0000000B	[ 11] _tempo8channel.1
+0x0002857C	0x00000010	[ 15] _numeric
+0x00028590	0x00000018	[ 20] _CSWTCH.307
+0x000285A8	0x00000008	[ 20] lC2
+0x000285B0	0x00000020	[ 24] _finetune
+0x000285D0	0x00000040	[ 30] _far_tempos
+0x00028610	0x00000100	[ 30] _PanbrelloTable
+0x00028710	0x000000D0	[ 30] _logtab
+0x000287E0	0x00000C00	[ 30] _lintab
+0x000293E0	0x00000080	[ 30] _VibratoTable
+0x00029460	0x00000030	[ 30] _oldperiods
+0x00029490	0x00000010	[ 30] 16-byte-literal
+0x000294A0	0x000000A6	[ 31] _unioperands
+0x00029546	0x000000A8	[ 32] _npertab
+0x000295F0	0x00000008	[ 35] lC0
+0x000295F8	0x00000018	[ 37] _settings_menu__.1
+0x00029610	0x00000400	[ 39] _table
+0x00029A10	0x00000018	[  1] CFI
+0x00029A28	0x00000020	[  1] FDE for: _NS_IsThere
+0x00029A48	0x00000020	[  1] FDE for: _NS_Update
+0x00029A68	0x00000020	[  1] FDE for: _NS_Exit
+0x00029A88	0x00000020	[  1] FDE for: _NS_Init
+0x00029AA8	0x00000018	[  2] CFI
+0x00029AC0	0x00000040	[  2] FDE for: _S69_LoadTitle
+0x00029B00	0x00000040	[  2] FDE for: _S69_Cleanup
+0x00029B40	0x00000048	[  2] FDE for: _S69_Test
+0x00029B88	0x00000038	[  2] FDE for: _S69_Init
+0x00029BC0	0x00000100	[  2] FDE for: _S69_Load
+0x00029CC0	0x00000018	[  3] CFI
+0x00029CD8	0x00000040	[  3] FDE for: _AMF_LoadTitle
+0x00029D18	0x00000040	[  3] FDE for: _AMF_Cleanup
+0x00029D58	0x00000120	[  3] FDE for: _AMF_Load
+0x00029E78	0x00000058	[  3] FDE for: _AMF_Test
+0x00029ED0	0x00000038	[  3] FDE for: _AMF_Init
+0x00029F08	0x00000018	[  4] CFI
+0x00029F20	0x00000020	[  4] FDE for: _ASY_LoadTitle
+0x00029F40	0x00000040	[  4] FDE for: _ASY_Cleanup
+0x00029F80	0x00000050	[  4] FDE for: _ASY_Test
+0x00029FD0	0x00000038	[  4] FDE for: _ASY_Init
+0x0002A008	0x000000E0	[  4] FDE for: _ASY_Load
+0x0002A0E8	0x00000018	[  5] CFI
+0x0002A100	0x00000040	[  5] FDE for: _DSM_LoadTitle
+0x0002A140	0x00000040	[  5] FDE for: _DSM_Cleanup
+0x0002A180	0x00000048	[  5] FDE for: _DSM_Test
+0x0002A1C8	0x00000070	[  5] FDE for: _GetBlockHeader
+0x0002A238	0x00000038	[  5] FDE for: _DSM_Init
+0x0002A270	0x00000110	[  5] FDE for: _DSM_Load
+0x0002A380	0x00000018	[  6] CFI
+0x0002A398	0x00000040	[  6] FDE for: _FAR_LoadTitle
+0x0002A3D8	0x00000048	[  6] FDE for: _FAR_Cleanup
+0x0002A420	0x000000F8	[  6] FDE for: _FAR_Load
+0x0002A518	0x00000048	[  6] FDE for: _FAR_Test
+0x0002A560	0x00000048	[  6] FDE for: _FAR_Init
+0x0002A5A8	0x00000018	[  7] CFI
+0x0002A5C0	0x00000040	[  7] FDE for: _GDM_LoadTitle
+0x0002A600	0x00000040	[  7] FDE for: _GDM_Cleanup
+0x0002A640	0x00000118	[  7] FDE for: _GDM_Load
+0x0002A758	0x00000058	[  7] FDE for: _GDM_Test
+0x0002A7B0	0x00000038	[  7] FDE for: _GDM_Init
+0x0002A7E8	0x00000018	[  8] CFI
+0x0002A800	0x00000040	[  8] FDE for: _IMF_LoadTitle
+0x0002A840	0x00000040	[  8] FDE for: _IMF_Cleanup
+0x0002A880	0x00000078	[  8] FDE for: _IMF_Test
+0x0002A8F8	0x00000038	[  8] FDE for: _IMF_Init
+0x0002A930	0x00000250	[  8] FDE for: _IMF_ProcessCmd.part.0
+0x0002AB80	0x00000150	[  8] FDE for: _IMF_Load
+0x0002ACD0	0x00000018	[  9] CFI
+0x0002ACE8	0x00000040	[  9] FDE for: _IT_LoadTitle
+0x0002AD28	0x00000060	[  9] FDE for: _IT_Cleanup
+0x0002AD88	0x00000048	[  9] FDE for: _IT_Init
+0x0002ADD0	0x00000038	[  9] FDE for: _IT_Test
+0x0002AE08	0x00000050	[  9] FDE for: _LoadMidiString
+0x0002AE58	0x00000080	[  9] FDE for: _IT_LoadMidiConfiguration
+0x0002AED8	0x00000188	[  9] FDE for: _IT_Load
+0x0002B060	0x00000018	[ 10] CFI
+0x0002B078	0x00000040	[ 10] FDE for: _M15_LoadTitle
+0x0002B0B8	0x00000040	[ 10] FDE for: _M15_Cleanup
+0x0002B0F8	0x00000090	[ 10] FDE for: _LoadModuleHeader
+0x0002B188	0x00000038	[ 10] FDE for: _M15_Init
+0x0002B1C0	0x000000A0	[ 10] FDE for: _M15_Test
+0x0002B260	0x00000108	[ 10] FDE for: _M15_Load
+0x0002B368	0x00000018	[ 11] CFI
+0x0002B380	0x00000048	[ 11] FDE for: _MED_Init
+0x0002B3C8	0x00000050	[ 11] FDE for: _MED_LoadTitle
+0x0002B418	0x00000058	[ 11] FDE for: _MED_Cleanup
+0x0002B470	0x00000048	[ 11] FDE for: _MED_Test
+0x0002B4B8	0x00000020	[ 11] FDE for: _MED_ConvertTempo
+0x0002B4D8	0x00000210	[ 11] FDE for: _EffectCvt
+0x0002B6E8	0x000000C0	[ 11] FDE for: _MED_Load
+0x0002B7A8	0x00000018	[ 12] CFI
+0x0002B7C0	0x00000040	[ 12] FDE for: _MOD_LoadTitle
+0x0002B800	0x00000040	[ 12] FDE for: _MOD_Cleanup
+0x0002B840	0x00000060	[ 12] FDE for: _MOD_CheckType
+0x0002B8A0	0x00000040	[ 12] FDE for: _MOD_Test
+0x0002B8E0	0x00000038	[ 12] FDE for: _MOD_Init
+0x0002B918	0x00000088	[ 12] FDE for: _ConvertNote.isra.0
+0x0002B9A0	0x00000078	[ 12] FDE for: _MOD_Load
+0x0002BA18	0x00000018	[ 13] CFI
+0x0002BA30	0x00000040	[ 13] FDE for: _MTM_LoadTitle
+0x0002BA70	0x00000040	[ 13] FDE for: _MTM_Cleanup
+0x0002BAB0	0x00000060	[ 13] FDE for: _MTM_Convert
+0x0002BB10	0x00000100	[ 13] FDE for: _MTM_Load
+0x0002BC10	0x00000038	[ 13] FDE for: _MTM_Test
+0x0002BC48	0x00000038	[ 13] FDE for: _MTM_Init
+0x0002BC80	0x00000018	[ 14] CFI
+0x0002BC98	0x00000020	[ 14] FDE for: _OKT_LoadTitle
+0x0002BCB8	0x00000038	[ 14] FDE for: _OKT_Test
+0x0002BCF0	0x00000070	[ 14] FDE for: _OKT_Load
+0x0002BD60	0x00000018	[ 15] CFI
+0x0002BD78	0x00000040	[ 15] FDE for: _S3M_LoadTitle
+0x0002BDB8	0x00000058	[ 15] FDE for: _S3M_Cleanup
+0x0002BE10	0x00000040	[ 15] FDE for: _S3M_Test
+0x0002BE50	0x00000048	[ 15] FDE for: _S3M_Init
+0x0002BE98	0x000000F0	[ 15] FDE for: _S3M_Load
+0x0002BF88	0x00000018	[ 16] CFI
+0x0002BFA0	0x00000040	[ 16] FDE for: _STM_LoadTitle
+0x0002BFE0	0x00000040	[ 16] FDE for: _STM_Cleanup
+0x0002C020	0x00000128	[ 16] FDE for: _STM_Load
+0x0002C148	0x00000068	[ 16] FDE for: _STM_Test
+0x0002C1B0	0x00000038	[ 16] FDE for: _STM_Init
+0x0002C1E8	0x00000018	[ 17] CFI
+0x0002C200	0x00000040	[ 17] FDE for: _STX_LoadTitle
+0x0002C240	0x00000050	[ 17] FDE for: _STX_Cleanup
+0x0002C290	0x00000048	[ 17] FDE for: _STX_Init
+0x0002C2D8	0x00000128	[ 17] FDE for: _STX_Load
+0x0002C400	0x00000068	[ 17] FDE for: _STX_Test
+0x0002C468	0x00000018	[ 18] CFI
+0x0002C480	0x00000020	[ 18] FDE for: _ULT_Init
+0x0002C4A0	0x00000020	[ 18] FDE for: _ULT_Cleanup
+0x0002C4C0	0x00000040	[ 18] FDE for: _ULT_LoadTitle
+0x0002C500	0x00000048	[ 18] FDE for: _ULT_Test
+0x0002C548	0x00000180	[ 18] FDE for: _ULT_Load
+0x0002C6C8	0x00000018	[ 19] CFI
+0x0002C6E0	0x00000020	[ 19] FDE for: _get_fci
+0x0002C700	0x00000020	[ 19] FDE for: _UMX_Init
+0x0002C720	0x00000070	[ 19] FDE for: _UMX_Load
+0x0002C790	0x00000048	[ 19] FDE for: _UMX_LoadTitle
+0x0002C7D8	0x00000040	[ 19] FDE for: _UMX_Cleanup
+0x0002C818	0x000000C8	[ 19] FDE for: _UMX_Test
+0x0002C8E0	0x00000018	[ 20] CFI
+0x0002C8F8	0x00000020	[ 20] FDE for: _UNI_Init
+0x0002C918	0x00000048	[ 20] FDE for: _readstring
+0x0002C960	0x00000050	[ 20] FDE for: _UNI_LoadTitle
+0x0002C9B0	0x00000040	[ 20] FDE for: _UNI_Cleanup
+0x0002C9F0	0x00000048	[ 20] FDE for: _UNI_Test
+0x0002CA38	0x000001D0	[ 20] FDE for: _UNI_Load
+0x0002CC08	0x00000018	[ 21] CFI
+0x0002CC20	0x00000020	[ 21] FDE for: _FixEnvelope
+0x0002CC40	0x00000040	[ 21] FDE for: _XM_LoadTitle
+0x0002CC80	0x00000040	[ 21] FDE for: _XM_Cleanup
+0x0002CCC0	0x00000078	[ 21] FDE for: _XM_Convert
+0x0002CD38	0x00000100	[ 21] FDE for: _LoadPatterns
+0x0002CE38	0x00000100	[ 21] FDE for: _LoadInstruments
+0x0002CF38	0x00000058	[ 21] FDE for: _XM_Load
+0x0002CF90	0x00000048	[ 21] FDE for: _XM_Test
+0x0002CFD8	0x00000038	[ 21] FDE for: _XM_Init
+0x0002D010	0x00000018	[ 22] CFI
+0x0002D028	0x00000020	[ 22] FDE for: _MikMod_RegisterAllDrivers
+0x0002D048	0x00000018	[ 23] CFI
+0x0002D060	0x00000020	[ 23] FDE for: _Voice_SetPanning_internal.part.0
+0x0002D080	0x00000020	[ 23] FDE for: _Voice_Play_internal.part.0
+0x0002D0A0	0x00000020	[ 23] FDE for: _MD_SampleSpace
+0x0002D0C0	0x00000020	[ 23] FDE for: _MD_SampleLength
+0x0002D0E0	0x00000060	[ 23] FDE for: _MikMod_InfoDriver
+0x0002D140	0x00000020	[ 23] FDE for: __mm_registerdriver
+0x0002D160	0x00000020	[ 23] FDE for: _MikMod_RegisterDriver
+0x0002D180	0x00000078	[ 23] FDE for: _MikMod_DriverFromAlias
+0x0002D1F8	0x00000020	[ 23] FDE for: _MikMod_DriverByOrdinal
+0x0002D218	0x00000048	[ 23] FDE for: _MD_SampleLoad
+0x0002D260	0x00000020	[ 23] FDE for: _MD_SampleUnload
+0x0002D280	0x00000020	[ 23] FDE for: _MikMod_RegisterPlayer
+0x0002D2A0	0x00000020	[ 23] FDE for: _MikMod_Update
+0x0002D2C0	0x00000020	[ 23] FDE for: _Voice_SetVolume_internal
+0x0002D2E0	0x00000020	[ 23] FDE for: _Voice_SetVolume
+0x0002D300	0x00000020	[ 23] FDE for: _Voice_GetVolume
+0x0002D320	0x00000020	[ 23] FDE for: _Voice_SetFrequency_internal
+0x0002D340	0x00000020	[ 23] FDE for: _Voice_SetFrequency
+0x0002D360	0x00000020	[ 23] FDE for: _Voice_GetFrequency
+0x0002D380	0x00000020	[ 23] FDE for: _Voice_SetPanning_internal
+0x0002D3A0	0x00000020	[ 23] FDE for: _Voice_SetPanning
+0x0002D3C0	0x00000020	[ 23] FDE for: _Voice_GetPanning
+0x0002D3E0	0x00000020	[ 23] FDE for: _Voice_Play_internal
+0x0002D400	0x00000020	[ 23] FDE for: _Voice_Play
+0x0002D420	0x00000020	[ 23] FDE for: _Voice_Stop_internal
+0x0002D440	0x00000020	[ 23] FDE for: _Voice_Stop
+0x0002D460	0x00000020	[ 23] FDE for: _Voice_Stopped_internal
+0x0002D480	0x00000020	[ 23] FDE for: _Voice_Stopped
+0x0002D4A0	0x00000020	[ 23] FDE for: _Voice_GetPosition
+0x0002D4C0	0x00000020	[ 23] FDE for: _Voice_RealVolume
+0x0002D4E0	0x00000020	[ 23] FDE for: _VC_SetCallback
+0x0002D500	0x00000040	[ 23] FDE for: _MikMod_Exit_internal
+0x0002D540	0x00000068	[ 23] FDE for: __mm_init
+0x0002D5A8	0x00000020	[ 23] FDE for: _MikMod_Init
+0x0002D5C8	0x00000020	[ 23] FDE for: _MikMod_Exit
+0x0002D5E8	0x00000070	[ 23] FDE for: _MikMod_Reset
+0x0002D658	0x000000D8	[ 23] FDE for: _MikMod_SetNumVoices_internal
+0x0002D730	0x00000020	[ 23] FDE for: _MikMod_SetNumVoices
+0x0002D750	0x00000038	[ 23] FDE for: _MikMod_EnableOutput_internal
+0x0002D788	0x00000038	[ 23] FDE for: _MikMod_EnableOutput
+0x0002D7C0	0x00000020	[ 23] FDE for: _MikMod_DisableOutput_internal
+0x0002D7E0	0x00000020	[ 23] FDE for: _MikMod_DisableOutput
+0x0002D800	0x00000020	[ 23] FDE for: _MikMod_Active_internal
+0x0002D820	0x00000020	[ 23] FDE for: _MikMod_Active
+0x0002D840	0x000000B8	[ 23] FDE for: _Sample_Play
+0x0002D8F8	0x00000020	[ 23] FDE for: _MikMod_GetVersion
+0x0002D918	0x00000020	[ 23] FDE for: _MikMod_InitThreads
+0x0002D938	0x00000020	[ 23] FDE for: _MikMod_Unlock
+0x0002D958	0x00000020	[ 23] FDE for: _MikMod_Lock
+0x0002D978	0x000000C0	[ 23] FDE for: _MD_GetAtom
+0x0002DA38	0x00000050	[ 23] FDE for: _MD_Access
+0x0002DA88	0x00000050	[ 23] FDE for: _MD_DropPrivileges
+0x0002DAD8	0x00000018	[ 24] CFI
+0x0002DAF0	0x00000060	[ 24] FDE for: _ML_FreeEx
+0x0002DB50	0x00000060	[ 24] FDE for: _Player_LoadTitle_internal
+0x0002DBB0	0x00000060	[ 24] FDE for: _Player_LoadGeneric_internal
+0x0002DC10	0x00000078	[ 24] FDE for: _MikMod_InfoLoader
+0x0002DC88	0x00000020	[ 24] FDE for: __mm_registerloader
+0x0002DCA8	0x00000020	[ 24] FDE for: _MikMod_RegisterLoader
+0x0002DCC8	0x00000040	[ 24] FDE for: _ReadComment
+0x0002DD08	0x000000A0	[ 24] FDE for: _ReadLinedComment
+0x0002DDA8	0x00000038	[ 24] FDE for: _AllocPositions
+0x0002DDE0	0x00000050	[ 24] FDE for: _AllocPatterns
+0x0002DE30	0x00000038	[ 24] FDE for: _AllocTracks
+0x0002DE68	0x00000048	[ 24] FDE for: _AllocInstruments
+0x0002DEB0	0x00000048	[ 24] FDE for: _AllocSamples
+0x0002DEF8	0x00000050	[ 24] FDE for: _DupStr
+0x0002DF48	0x00000040	[ 24] FDE for: _Player_Free
+0x0002DF88	0x00000038	[ 24] FDE for: _Player_LoadTitleFP
+0x0002DFC0	0x00000038	[ 24] FDE for: _Player_LoadTitleMem
+0x0002DFF8	0x00000020	[ 24] FDE for: _Player_LoadTitleGeneric
+0x0002E018	0x00000050	[ 24] FDE for: _Player_LoadTitle
+0x0002E068	0x00000020	[ 24] FDE for: _Player_LoadGeneric
+0x0002E088	0x00000040	[ 24] FDE for: _Player_LoadMem
+0x0002E0C8	0x00000040	[ 24] FDE for: _Player_LoadFP
+0x0002E108	0x00000058	[ 24] FDE for: _Player_Load
+0x0002E160	0x00000018	[ 25] CFI
+0x0002E178	0x00000038	[ 25] FDE for: _MikMod_RegisterAllLoaders
+0x0002E1B0	0x00000018	[ 26] CFI
+0x0002E1C8	0x00000038	[ 26] FDE for: _AllocLinear
+0x0002E200	0x00000040	[ 26] FDE for: _FreeLinear
+0x0002E240	0x00000068	[ 26] FDE for: _speed_to_finetune
+0x0002E2A8	0x00000058	[ 26] FDE for: _S3MIT_CreateOrders
+0x0002E300	0x00000168	[ 26] FDE for: _S3MIT_ProcessCmd
+0x0002E468	0x00000050	[ 26] FDE for: _UniEffect
+0x0002E4B8	0x00000080	[ 26] FDE for: _UniPTEffect
+0x0002E538	0x00000040	[ 26] FDE for: _UniVolEffect
+0x0002E578	0x00000018	[ 27] CFI
+0x0002E590	0x00000020	[ 27] FDE for: _MikMod_realloc
+0x0002E5B0	0x00000048	[ 27] FDE for: _MikMod_malloc
+0x0002E5F8	0x00000048	[ 27] FDE for: _MikMod_calloc
+0x0002E640	0x00000020	[ 27] FDE for: _MikMod_free
+0x0002E660	0x00000050	[ 27] FDE for: _MikMod_strdup
+0x0002E6B0	0x00000018	[ 28] CFI
+0x0002E6C8	0x00000020	[ 28] FDE for: _MikMod_strerror
+0x0002E6E8	0x00000020	[ 28] FDE for: _MikMod_RegisterErrorHandler
+0x0002E708	0x00000018	[ 29] CFI
+0x0002E720	0x00000048	[ 29] FDE for: __mm_FileReader_Eof
+0x0002E768	0x00000038	[ 29] FDE for: __mm_FileReader_Read
+0x0002E7A0	0x00000040	[ 29] FDE for: __mm_FileReader_Get
+0x0002E7E0	0x00000038	[ 29] FDE for: __mm_FileReader_Seek
+0x0002E818	0x00000020	[ 29] FDE for: __mm_FileReader_Tell
+0x0002E838	0x00000038	[ 29] FDE for: __mm_FileWriter_Seek
+0x0002E870	0x00000020	[ 29] FDE for: __mm_FileWriter_Tell
+0x0002E890	0x00000020	[ 29] FDE for: __mm_FileWriter_Write
+0x0002E8B0	0x00000020	[ 29] FDE for: __mm_FileWriter_Put
+0x0002E8D0	0x00000020	[ 29] FDE for: __mm_MemReader_Eof
+0x0002E8F0	0x00000020	[ 29] FDE for: __mm_MemReader_Read
+0x0002E910	0x00000020	[ 29] FDE for: __mm_MemReader_Get
+0x0002E930	0x00000020	[ 29] FDE for: __mm_MemReader_Seek
+0x0002E950	0x00000020	[ 29] FDE for: __mm_MemReader_Tell
+0x0002E970	0x00000048	[ 29] FDE for: __mm_fopen
+0x0002E9B8	0x00000050	[ 29] FDE for: __mm_FileExists
+0x0002EA08	0x00000020	[ 29] FDE for: __mm_fclose
+0x0002EA28	0x00000040	[ 29] FDE for: __mm_iobase_setcur
+0x0002EA68	0x00000020	[ 29] FDE for: __mm_iobase_revert
+0x0002EA88	0x00000040	[ 29] FDE for: __mm_new_file_reader
+0x0002EAC8	0x00000020	[ 29] FDE for: __mm_delete_file_reader
+0x0002EAE8	0x00000040	[ 29] FDE for: __mm_new_file_writer
+0x0002EB28	0x00000020	[ 29] FDE for: __mm_delete_file_writer
+0x0002EB48	0x00000020	[ 29] FDE for: __mm_delete_mem_reader
+0x0002EB68	0x00000040	[ 29] FDE for: __mm_new_mem_reader
+0x0002EBA8	0x00000040	[ 29] FDE for: __mm_write_string
+0x0002EBE8	0x00000040	[ 29] FDE for: __mm_write_M_UWORD
+0x0002EC28	0x00000040	[ 29] FDE for: __mm_write_I_UWORD
+0x0002EC68	0x00000048	[ 29] FDE for: __mm_write_M_ULONG
+0x0002ECB0	0x00000048	[ 29] FDE for: __mm_write_I_ULONG
+0x0002ECF8	0x00000040	[ 29] FDE for: __mm_write_M_SWORD
+0x0002ED38	0x00000040	[ 29] FDE for: __mm_write_I_SWORD
+0x0002ED78	0x00000048	[ 29] FDE for: __mm_write_M_SLONG
+0x0002EDC0	0x00000048	[ 29] FDE for: __mm_write_I_SLONG
+0x0002EE08	0x00000050	[ 29] FDE for: __mm_write_M_SWORDS
+0x0002EE58	0x00000050	[ 29] FDE for: __mm_write_M_UWORDS
+0x0002EEA8	0x00000050	[ 29] FDE for: __mm_write_I_SWORDS
+0x0002EEF8	0x00000050	[ 29] FDE for: __mm_write_I_UWORDS
+0x0002EF48	0x00000058	[ 29] FDE for: __mm_write_M_SLONGS
+0x0002EFA0	0x00000058	[ 29] FDE for: __mm_write_M_ULONGS
+0x0002EFF8	0x00000058	[ 29] FDE for: __mm_write_I_SLONGS
+0x0002F050	0x00000058	[ 29] FDE for: __mm_write_I_ULONGS
+0x0002F0A8	0x00000020	[ 29] FDE for: __mm_read_string
+0x0002F0C8	0x00000040	[ 29] FDE for: __mm_read_M_UWORD
+0x0002F108	0x00000040	[ 29] FDE for: __mm_read_I_UWORD
+0x0002F148	0x00000048	[ 29] FDE for: __mm_read_M_ULONG
+0x0002F190	0x00000048	[ 29] FDE for: __mm_read_I_ULONG
+0x0002F1D8	0x00000040	[ 29] FDE for: __mm_read_M_SWORD
+0x0002F218	0x00000040	[ 29] FDE for: __mm_read_I_SWORD
+0x0002F258	0x00000048	[ 29] FDE for: __mm_read_M_SLONG
+0x0002F2A0	0x00000048	[ 29] FDE for: __mm_read_I_SLONG
+0x0002F2E8	0x00000050	[ 29] FDE for: __mm_read_M_SWORDS
+0x0002F338	0x00000050	[ 29] FDE for: __mm_read_M_UWORDS
+0x0002F388	0x00000050	[ 29] FDE for: __mm_read_I_SWORDS
+0x0002F3D8	0x00000050	[ 29] FDE for: __mm_read_I_UWORDS
+0x0002F428	0x00000060	[ 29] FDE for: __mm_read_M_SLONGS
+0x0002F488	0x00000060	[ 29] FDE for: __mm_read_M_ULONGS
+0x0002F4E8	0x00000060	[ 29] FDE for: __mm_read_I_SLONGS
+0x0002F548	0x00000060	[ 29] FDE for: __mm_read_I_ULONGS
+0x0002F5A8	0x00000018	[ 30] CFI
+0x0002F5C0	0x00000020	[ 30] FDE for: _StartEnvelope
+0x0002F5E0	0x00000020	[ 30] FDE for: _SetEnvelopePosition
+0x0002F600	0x00000020	[ 30] FDE for: _DoS3MVolSlide
+0x0002F620	0x00000020	[ 30] FDE for: _DoS3MSlideDn
+0x0002F640	0x00000020	[ 30] FDE for: _DoS3MSlideUp
+0x0002F660	0x00000020	[ 30] FDE for: _DoKeyOff
+0x0002F680	0x00000020	[ 30] FDE for: _DoMEDEffectF3
+0x0002F6A0	0x00000020	[ 30] FDE for: _DoMEDEffectFD
+0x0002F6C0	0x00000020	[ 30] FDE for: _SetFARTempo
+0x0002F6E0	0x00000020	[ 30] FDE for: _DoNNAEffects
+0x0002F700	0x00000040	[ 30] FDE for: _Player_Init_internal
+0x0002F740	0x00000050	[ 30] FDE for: _DoFAREffectF
+0x0002F790	0x00000048	[ 30] FDE for: _DoFAREffectE
+0x0002F7D8	0x00000048	[ 30] FDE for: _DoFAREffectD
+0x0002F820	0x00000068	[ 30] FDE for: _DoFAREffect4
+0x0002F888	0x00000048	[ 30] FDE for: _DoFAREffect3
+0x0002F8D0	0x00000048	[ 30] FDE for: _DoFAREffect2
+0x0002F918	0x00000048	[ 30] FDE for: _DoFAREffect1
+0x0002F960	0x00000060	[ 30] FDE for: _DoMEDEffect1F
+0x0002F9C0	0x00000040	[ 30] FDE for: _DoMEDEffect1E
+0x0002FA00	0x00000040	[ 30] FDE for: _DoMEDEffect18
+0x0002FA40	0x00000060	[ 30] FDE for: _DoITEffectW
+0x0002FAA0	0x00000040	[ 30] FDE for: _DoITEffectT
+0x0002FAE0	0x00000050	[ 30] FDE for: _DoITEffectP
+0x0002FB30	0x00000060	[ 30] FDE for: _DoITEffectN
+0x0002FB90	0x00000040	[ 30] FDE for: _DoITEffectM
+0x0002FBD0	0x00000048	[ 30] FDE for: _DoITEffectI
+0x0002FC18	0x00000058	[ 30] FDE for: _DoXMEffectX2
+0x0002FC70	0x00000058	[ 30] FDE for: _DoXMEffectX1
+0x0002FCC8	0x00000050	[ 30] FDE for: _DoXMEffectP
+0x0002FD18	0x00000048	[ 30] FDE for: _DoXMEffectL
+0x0002FD60	0x00000058	[ 30] FDE for: _DoXMEffectH
+0x0002FDB8	0x00000040	[ 30] FDE for: _DoXMEffectG
+0x0002FDF8	0x00000058	[ 30] FDE for: _DoXMEffectA
+0x0002FE50	0x00000040	[ 30] FDE for: _DoS3MEffectT
+0x0002FE90	0x00000060	[ 30] FDE for: _DoS3MEffectI
+0x0002FEF0	0x00000058	[ 30] FDE for: _DoS3MEffectF
+0x0002FF48	0x00000058	[ 30] FDE for: _DoS3MEffectE
+0x0002FFA0	0x00000040	[ 30] FDE for: _DoS3MEffectD
+0x0002FFE0	0x00000058	[ 30] FDE for: _DoS3MEffectA
+0x00030038	0x00000060	[ 30] FDE for: _DoPTEffectF
+0x00030098	0x00000068	[ 30] FDE for: _DoPTEffectD
+0x00030100	0x00000048	[ 30] FDE for: _DoPTEffectC
+0x00030148	0x00000068	[ 30] FDE for: _DoPTEffectB
+0x000301B0	0x00000040	[ 30] FDE for: _DoPTEffect8
+0x000301F0	0x00000038	[ 30] FDE for: _DoNothing
+0x00030228	0x00000040	[ 30] FDE for: _DoMEDSpeed
+0x00030268	0x00000048	[ 30] FDE for: _DoULTEffect9
+0x000302B0	0x00000058	[ 30] FDE for: _DoITToneSlide
+0x00030308	0x00000040	[ 30] FDE for: _DoITEffectG
+0x00030348	0x00000040	[ 30] FDE for: _DoToneSlide
+0x00030388	0x00000058	[ 30] FDE for: _DoPTEffect3
+0x000303E0	0x00000020	[ 30] FDE for: _DoMEDEffectF1
+0x00030400	0x00000048	[ 30] FDE for: _DoXMEffectEB
+0x00030448	0x00000048	[ 30] FDE for: _DoXMEffectEA
+0x00030490	0x00000040	[ 30] FDE for: _DoXMEffectE2
+0x000304D0	0x00000040	[ 30] FDE for: _DoXMEffectE1
+0x00030510	0x00000060	[ 30] FDE for: _DoKeyFade
+0x00030570	0x00000050	[ 30] FDE for: _DoS3MEffectQ
+0x000305C0	0x00000048	[ 30] FDE for: _DoPTEffect9
+0x00030608	0x00000058	[ 30] FDE for: _DoPTEffect2
+0x00030660	0x00000058	[ 30] FDE for: _DoPTEffect1
+0x000306B8	0x00000020	[ 30] FDE for: _GetPeriod
+0x000306D8	0x00000048	[ 30] FDE for: _DoArpeggio
+0x00030720	0x00000060	[ 30] FDE for: _DoOktArp
+0x00030780	0x00000060	[ 30] FDE for: _DoPTEffect0
+0x000307E0	0x00000020	[ 30] FDE for: _DoMEDEffectF2
+0x00030800	0x00000020	[ 30] FDE for: _ProcessEnvelope
+0x00030820	0x00000058	[ 30] FDE for: _DoMEDEffect16
+0x00030878	0x00000050	[ 30] FDE for: _DoEEffects
+0x000308C8	0x00000078	[ 30] FDE for: _DoITEffectS0
+0x00030940	0x00000040	[ 30] FDE for: _DoPTEffectE
+0x00030980	0x00000068	[ 30] FDE for: _DoPTEffectA
+0x000309E8	0x00000068	[ 30] FDE for: _DoPTEffect5
+0x00030A50	0x00000038	[ 30] FDE for: _LFOVibrato
+0x00030A88	0x00000048	[ 30] FDE for: _DoS3MEffectR
+0x00030AD0	0x00000040	[ 30] FDE for: _DoVibrato
+0x00030B10	0x00000058	[ 30] FDE for: _DoFAREffect6
+0x00030B68	0x00000060	[ 30] FDE for: _DoMEDEffectVib
+0x00030BC8	0x00000060	[ 30] FDE for: _DoXMEffect6
+0x00030C28	0x00000058	[ 30] FDE for: _DoPTEffect4Fix
+0x00030C80	0x00000068	[ 30] FDE for: _DoPTEffect6
+0x00030CE8	0x00000058	[ 30] FDE for: _DoPTEffect4
+0x00030D40	0x00000058	[ 30] FDE for: _DoS3MEffectU
+0x00030D98	0x00000060	[ 30] FDE for: _DoPTEffect7
+0x00030DF8	0x00000020	[ 30] FDE for: _DoPTEffect7Fix
+0x00030E18	0x00000040	[ 30] FDE for: _DoITVibrato
+0x00030E58	0x00000040	[ 30] FDE for: _DoITEffectUOld
+0x00030E98	0x00000040	[ 30] FDE for: _DoITEffectHOld
+0x00030ED8	0x00000040	[ 30] FDE for: _DoITEffectU
+0x00030F18	0x00000040	[ 30] FDE for: _DoITEffectH
+0x00030F58	0x00000060	[ 30] FDE for: _DoVolEffects
+0x00030FB8	0x00000068	[ 30] FDE for: _DoITEffectY
+0x00031020	0x00000020	[ 30] FDE for: _getlinearperiod
+0x00031040	0x00000020	[ 30] FDE for: _getfrequency
+0x00031060	0x000000B0	[ 30] FDE for: _Player_HandleTick
+0x00031110	0x00000058	[ 30] FDE for: _Player_Init
+0x00031168	0x00000050	[ 30] FDE for: _Player_Exit_internal
+0x000311B8	0x00000050	[ 30] FDE for: _Player_Exit
+0x00031208	0x00000020	[ 30] FDE for: _Player_SetVolume
+0x00031228	0x00000020	[ 30] FDE for: _Player_GetModule
+0x00031248	0x00000060	[ 30] FDE for: _Player_Start
+0x000312A8	0x00000038	[ 30] FDE for: _Player_Stop_internal
+0x000312E0	0x00000038	[ 30] FDE for: _Player_Stop
+0x00031318	0x00000020	[ 30] FDE for: _Player_Active
+0x00031338	0x00000050	[ 30] FDE for: _Player_NextPosition
+0x00031388	0x00000050	[ 30] FDE for: _Player_PrevPosition
+0x000313D8	0x00000088	[ 30] FDE for: _Player_SetPosition
+0x00031460	0x00000040	[ 30] FDE for: _Player_Unmute
+0x000314A0	0x00000040	[ 30] FDE for: _Player_Mute
+0x000314E0	0x00000040	[ 30] FDE for: _Player_ToggleMute
+0x00031520	0x00000020	[ 30] FDE for: _Player_Muted
+0x00031540	0x00000020	[ 30] FDE for: _Player_GetChannelVoice
+0x00031560	0x00000020	[ 30] FDE for: _Player_GetChannelPeriod
+0x00031580	0x00000020	[ 30] FDE for: _Player_Paused_internal
+0x000315A0	0x00000020	[ 30] FDE for: _Player_Paused
+0x000315C0	0x00000020	[ 30] FDE for: _Player_TogglePause
+0x000315E0	0x00000020	[ 30] FDE for: _Player_SetSpeed
+0x00031600	0x00000020	[ 30] FDE for: _Player_SetTempo
+0x00031620	0x00000020	[ 30] FDE for: _Player_QueryVoices
+0x00031640	0x00000020	[ 30] FDE for: _Player_GetOrder
+0x00031660	0x00000020	[ 30] FDE for: _Player_GetRow
+0x00031680	0x00000018	[ 31] CFI
+0x00031698	0x00000020	[ 31] FDE for: _UniSetRow
+0x000316B8	0x00000020	[ 31] FDE for: _UniGetByte
+0x000316D8	0x00000020	[ 31] FDE for: _UniGetWord
+0x000316F8	0x00000020	[ 31] FDE for: _UniSkipOpcode
+0x00031718	0x00000020	[ 31] FDE for: _UniFindRow
+0x00031738	0x00000020	[ 31] FDE for: _UniReset
+0x00031758	0x00000038	[ 31] FDE for: _UniWriteByte
+0x00031790	0x00000038	[ 31] FDE for: _UniWriteWord
+0x000317C8	0x00000038	[ 31] FDE for: _UniNewline
+0x00031800	0x00000048	[ 31] FDE for: _UniDup
+0x00031848	0x00000038	[ 31] FDE for: _UniInit
+0x00031880	0x00000040	[ 31] FDE for: _UniCleanup
+0x000318C0	0x00000018	[ 33] CFI
+0x000318D8	0x00000070	[ 33] FDE for: _DitherSamples
+0x00031948	0x00000040	[ 33] FDE for: _SL_Init
+0x00031988	0x00000040	[ 33] FDE for: _SL_Exit
+0x000319C8	0x000000A0	[ 33] FDE for: _SL_Load
+0x00031A68	0x00000060	[ 33] FDE for: _SL_RegisterSample
+0x00031AC8	0x00000048	[ 33] FDE for: _SL_LoadSamples
+0x00031B10	0x00000020	[ 33] FDE for: _SL_Sample16to8
+0x00031B30	0x00000020	[ 33] FDE for: _SL_Sample8to16
+0x00031B50	0x00000020	[ 33] FDE for: _SL_SampleSigned
+0x00031B70	0x00000020	[ 33] FDE for: _SL_SampleUnsigned
+0x00031B90	0x00000020	[ 33] FDE for: _SL_HalveSample
+0x00031BB0	0x00000018	[ 34] CFI
+0x00031BC8	0x00000058	[ 34] FDE for: _MixReverb_Normal
+0x00031C20	0x00000058	[ 34] FDE for: _MixReverb_Stereo
+0x00031C78	0x00000020	[ 34] FDE for: _MixLowPass_Stereo
+0x00031C98	0x00000020	[ 34] FDE for: _MixLowPass_Normal
+0x00031CB8	0x00000048	[ 34] FDE for: _VC1_SilenceBytes
+0x00031D00	0x00000048	[ 34] FDE for: _VC1_Exit
+0x00031D48	0x00000020	[ 34] FDE for: _VC1_VoiceGetVolume
+0x00031D68	0x00000020	[ 34] FDE for: _VC1_VoiceGetPanning
+0x00031D88	0x00000020	[ 34] FDE for: _VC1_VoiceSetFrequency
+0x00031DA8	0x00000020	[ 34] FDE for: _VC1_VoiceGetFrequency
+0x00031DC8	0x00000020	[ 34] FDE for: _VC1_VoicePlay
+0x00031DE8	0x00000020	[ 34] FDE for: _VC1_VoiceStop
+0x00031E08	0x00000020	[ 34] FDE for: _VC1_VoiceStopped
+0x00031E28	0x00000020	[ 34] FDE for: _VC1_VoiceGetPosition
+0x00031E48	0x00000040	[ 34] FDE for: _VC1_VoiceSetVolume
+0x00031E88	0x00000040	[ 34] FDE for: _VC1_VoiceSetPanning
+0x00031EC8	0x00000038	[ 34] FDE for: _VC1_SampleUnload
+0x00031F00	0x00000108	[ 34] FDE for: _VC1_SampleLoad
+0x00032008	0x00000020	[ 34] FDE for: _VC1_SampleSpace
+0x00032028	0x00000020	[ 34] FDE for: _VC1_SampleLength
+0x00032048	0x00000020	[ 34] FDE for: _VC1_VoiceRealVolume
+0x00032068	0x00000070	[ 34] FDE for: _VC1_WriteSamples
+0x000320D8	0x00000060	[ 34] FDE for: _VC1_WriteBytes
+0x00032138	0x00000058	[ 34] FDE for: _VC1_Init
+0x00032190	0x00000070	[ 34] FDE for: _VC1_PlayStart
+0x00032200	0x00000068	[ 34] FDE for: _VC1_PlayStop
+0x00032268	0x00000048	[ 34] FDE for: _VC1_SetNumVoices
+0x000322B0	0x00000018	[ 35] CFI
+0x000322C8	0x00000058	[ 35] FDE for: _MixReverb_Normal
+0x00032320	0x00000058	[ 35] FDE for: _MixReverb_Stereo
+0x00032378	0x00000020	[ 35] FDE for: _MixLowPass_Stereo
+0x00032398	0x00000020	[ 35] FDE for: _MixLowPass_Normal
+0x000323B8	0x00000020	[ 35] FDE for: _Mix32ToFP_Normal
+0x000323D8	0x00000020	[ 35] FDE for: _Mix32ToFP_Stereo
+0x000323F8	0x00000020	[ 35] FDE for: _Mix32To16_Normal
+0x00032418	0x00000020	[ 35] FDE for: _Mix32To16_Stereo
+0x00032438	0x00000020	[ 35] FDE for: _Mix32To8_Normal
+0x00032458	0x00000020	[ 35] FDE for: _Mix32To8_Stereo
+0x00032478	0x00000048	[ 35] FDE for: _VC2_SilenceBytes
+0x000324C0	0x00000048	[ 35] FDE for: _VC2_Exit
+0x00032508	0x00000020	[ 35] FDE for: _VC2_VoiceGetVolume
+0x00032528	0x00000020	[ 35] FDE for: _VC2_VoiceGetPanning
+0x00032548	0x00000020	[ 35] FDE for: _VC2_VoiceSetFrequency
+0x00032568	0x00000020	[ 35] FDE for: _VC2_VoiceGetFrequency
+0x00032588	0x00000020	[ 35] FDE for: _VC2_VoicePlay
+0x000325A8	0x00000020	[ 35] FDE for: _VC2_VoiceStop
+0x000325C8	0x00000020	[ 35] FDE for: _VC2_VoiceStopped
+0x000325E8	0x00000020	[ 35] FDE for: _VC2_VoiceGetPosition
+0x00032608	0x00000040	[ 35] FDE for: _VC2_VoiceSetVolume
+0x00032648	0x00000040	[ 35] FDE for: _VC2_VoiceSetPanning
+0x00032688	0x00000038	[ 35] FDE for: _VC2_SampleUnload
+0x000326C0	0x00000108	[ 35] FDE for: _VC2_SampleLoad
+0x000327C8	0x00000020	[ 35] FDE for: _VC2_SampleSpace
+0x000327E8	0x00000020	[ 35] FDE for: _VC2_SampleLength
+0x00032808	0x00000020	[ 35] FDE for: _VC2_VoiceRealVolume
+0x00032828	0x00000090	[ 35] FDE for: _VC2_WriteSamples
+0x000328B8	0x00000060	[ 35] FDE for: _VC2_WriteBytes
+0x00032918	0x00000058	[ 35] FDE for: _VC2_Init
+0x00032970	0x00000070	[ 35] FDE for: _VC2_PlayStart
+0x000329E0	0x00000070	[ 35] FDE for: _VC2_PlayStop
+0x00032A50	0x00000048	[ 35] FDE for: _VC2_SetNumVoices
+0x00032A98	0x00000018	[ 36] CFI
+0x00032AB0	0x00000020	[ 36] FDE for: _VC_Init
+0x00032AD0	0x00000020	[ 36] FDE for: _VC_Exit
+0x00032AF0	0x00000020	[ 36] FDE for: _VC_SetNumVoices
+0x00032B10	0x00000020	[ 36] FDE for: _VC_SampleSpace
+0x00032B30	0x00000020	[ 36] FDE for: _VC_SampleLength
+0x00032B50	0x00000020	[ 36] FDE for: _VC_PlayStart
+0x00032B70	0x00000020	[ 36] FDE for: _VC_PlayStop
+0x00032B90	0x00000020	[ 36] FDE for: _VC_SampleLoad
+0x00032BB0	0x00000020	[ 36] FDE for: _VC_SampleUnload
+0x00032BD0	0x00000020	[ 36] FDE for: _VC_WriteBytes
+0x00032BF0	0x00000020	[ 36] FDE for: _VC_SilenceBytes
+0x00032C10	0x00000020	[ 36] FDE for: _VC_VoiceSetVolume
+0x00032C30	0x00000020	[ 36] FDE for: _VC_VoiceGetVolume
+0x00032C50	0x00000020	[ 36] FDE for: _VC_VoiceSetFrequency
+0x00032C70	0x00000020	[ 36] FDE for: _VC_VoiceGetFrequency
+0x00032C90	0x00000020	[ 36] FDE for: _VC_VoiceSetPanning
+0x00032CB0	0x00000020	[ 36] FDE for: _VC_VoiceGetPanning
+0x00032CD0	0x00000020	[ 36] FDE for: _VC_VoicePlay
+0x00032CF0	0x00000020	[ 36] FDE for: _VC_VoiceStop
+0x00032D10	0x00000020	[ 36] FDE for: _VC_VoiceStopped
+0x00032D30	0x00000020	[ 36] FDE for: _VC_VoiceGetPosition
+0x00032D50	0x00000020	[ 36] FDE for: _VC_VoiceRealVolume
+0x00032D70	0x00000048	[ 36] FDE for: _VC_SetupPointers
+0x00032DB8	0x00000018	[ 37] CFI
+0x00032DD0	0x00000070	[ 37] FDE for: _change_filename
+0x00032E40	0x00000038	[ 37] FDE for: _applysettings
+0x00032E78	0x00000048	[ 37] FDE for: _get_more
+0x00032EC0	0x00000050	[ 37] FDE for: _mm_errorhandler
+0x00032F10	0x00000020	[ 37] FDE for: _mmsupp_strncat
+0x00032F30	0x00000038	[ 37] FDE for: _mmsupp_sprintf
+0x00032F68	0x00000058	[ 37] FDE for: _mmsupp_printf
+0x00032FC0	0x000000F0	[ 37] FDE for: _plugin_start
+0x000330B0	0x00000018	[ 38] CFI
+0x000330C8	0x00000020	[ 38] FDE for: _cleanup_wrapper
+0x000330E8	0x00000040	[ 38] FDE for: _plugin__start
+0x00033128	0x00000020	[ 38] FDE for: _rb_atexit
+0x00033148	0x00000030	[ 38] FDE for: _exit
+0x00033178	0x00000030	[ 38] FDE for: __exit
+0x000331A8	0x00000038	[ 38] FDE for: _exit_on_usb
+0x000331E0	0x00000018	[ 39] CFI
+0x000331F8	0x00000020	[ 39] FDE for: _ls_bit
+0x00033218	0x00000020	[ 39] FDE for: _ms_bit
+0x00033238	0x00000020	[ 39] FDE for: _set_bit
+0x00033258	0x00000020	[ 39] FDE for: _clear_bit
+0x00033278	0x00000040	[ 39] FDE for: _FIND_SUITABLE_BLOCK
+0x000332B8	0x00000020	[ 39] FDE for: _process_area
+0x000332D8	0x00000038	[ 39] FDE for: _MAPPING_INSERT
+0x00033310	0x00000020	[ 39] FDE for: _panicf
+0x00033330	0x00000020	[ 39] FDE for: _get_new_area
+0x00033350	0x00000020	[ 39] FDE for: _get_used_size
+0x00033370	0x00000020	[ 39] FDE for: _get_max_size
+0x00033390	0x00000020	[ 39] FDE for: _destroy_memory_pool
+0x000333B0	0x00000040	[ 39] FDE for: _free_ex
+0x000333F0	0x00000050	[ 39] FDE for: _init_memory_pool
+0x00033440	0x00000048	[ 39] FDE for: _add_new_area
+0x00033488	0x00000060	[ 39] FDE for: _malloc_ex
+0x000334E8	0x00000058	[ 39] FDE for: _tlsf_malloc
+0x00033540	0x00000020	[ 39] FDE for: _tlsf_free
+0x00033560	0x00000068	[ 39] FDE for: _realloc_ex
+0x000335C8	0x00000020	[ 39] FDE for: _tlsf_realloc
+0x000335E8	0x00000048	[ 39] FDE for: _calloc_ex
+0x00033630	0x00000020	[ 39] FDE for: _tlsf_calloc
+0x00033650	0x00000018	[ 40] CFI
+0x00033668	0x00000020	[ 40] FDE for: _memcpy
+0x00033688	0x00000020	[ 40] FDE for: _memset
+0x000336A8	0x00000020	[ 40] FDE for: _memmove
+0x000336C8	0x00000020	[ 40] FDE for: _memcmp
+0x000336E8	0x00000018	[ 41] CFI
+0x00033700	0x00000068	[ 41] FDE for: _get_cfg_filename.constprop.0
+0x00033768	0x00000070	[ 41] FDE for: _configfile_save
+0x000337D8	0x00000068	[ 41] FDE for: _configfile_load
+0x00033840	0x00000058	[ 41] FDE for: _configfile_get_value
+0x00033898	0x00000070	[ 41] FDE for: _configfile_update_entry
+0x00033908	0x00000018	[ 42] CFI
+0x00033920	0x00000020	[ 42] FDE for: _strncpy
+0x00034000	0x00000008	[ 44] __DefaultRuneLocale.got
+0x00034008	0x00000008	[ 44] ___maskrune.got
+0x00034010	0x00000008	[ 44] ___toupper.got
+0x00034018	0x00000008	[ 44] _abs.got
+0x00034020	0x00000008	[ 46] _geteuid.got
+0x00034028	0x00000008	[ 46] _getgid.got
+0x00034030	0x00000008	[ 45] _getpwnam.got
+0x00034038	0x00000008	[ 46] _getuid.got
+0x00034040	0x00000008	[ 47] _longjmp.got
+0x00034048	0x00000008	[ 47] _setjmp.got
+0x00034050	0x00000008	[ 46] _setuid.got
+0x00034058	0x00000008	[ 46] _stat.got
+0x00034060	0x00000010	[  2] _S69_Version
+0x00034070	0x00000030	[  9] _IT_Version
+0x000340A0	0x00000030	[ 15] _S3M_Version
+0x000340D0	0x00000018	[ 16] _STM_Version
+0x000340E8	0x00000028	[ 19] _mustype
+0x00034110	0x00000318	[ 28] __mm_errmsg
+0x00034428	0x00000298	[ 30] _effects
+0x000346C0	0x00000018	[ 37] _settings_menu.2
+0x000346D8	0x00000018	[ 37] _main_menu__.4
+0x000346F0	0x00000018	[ 37] _main_menu.5
+0x00034708	0x00000090	[ 37] _sr_names
+0x00034798	0x00000118	[ 37] _config
+0x000348B0	0x00000038	[ 38] ___header
+0x00038000	0x000000F8	[  1] _drv_nos
+0x000380F8	0x00000040	[  2] _load_669
+0x00038138	0x00000040	[  3] _load_amf
+0x00038178	0x00000017	[  3] _AMF_Version
+0x00038190	0x00000040	[  4] _load_asy
+0x000381D0	0x0000000B	[  4] _asylum
+0x000381E0	0x00000040	[  5] _load_dsm
+0x00038220	0x00000010	[  5] _DSM_Version
+0x00038230	0x00000040	[  6] _load_far
+0x00038270	0x0000000A	[  6] _FAR_Version
+0x00038280	0x00000040	[  7] _load_gdm
+0x000382C0	0x00000017	[  7] _GDM_Version
+0x000382D8	0x00000040	[  8] _load_imf
+0x00038318	0x0000000E	[  8] _IMF_Version
+0x00038328	0x00000040	[  9] _load_it
+0x00038368	0x00000040	[ 10] _load_m15
+0x000383A8	0x00000040	[ 11] _load_med
+0x000383E8	0x0000000F	[ 11] _MED_Version
+0x000383F8	0x00000040	[ 12] _load_mod
+0x00038438	0x00000018	[ 12] _unknown
+0x00038450	0x00000010	[ 12] _modsgrave
+0x00038460	0x00000020	[ 12] _orpheus
+0x00038480	0x00000018	[ 12] _digitaltracker
+0x00038498	0x00000010	[ 12] _taketracker
+0x000384A8	0x00000010	[ 12] _oktalyzer
+0x000384B8	0x00000010	[ 12] _octalyser
+0x000384C8	0x00000010	[ 12] _fasttracker
+0x000384D8	0x00000010	[ 12] _startrekker
+0x000384E8	0x0000000B	[ 12] _protracker
+0x000384F8	0x00000040	[ 13] _load_mtm
+0x00038538	0x00000004	[ 13] _MTM_Version
+0x00038540	0x00000040	[ 14] _load_okt
+0x00038580	0x00000040	[ 15] _load_s3m
+0x000385C0	0x00000040	[ 16] _load_stm
+0x00038600	0x00000040	[ 17] _load_stx
+0x00038640	0x00000040	[ 18] _load_ult
+0x00038680	0x00000013	[ 18] _ULT_Version
+0x00038698	0x00000040	[ 19] _load_umx
+0x000386D8	0x00000040	[ 20] _load_uni
+0x00038718	0x00000040	[ 21] _load_xm
+0x00038758	0x00000004	[ 23] _firstcall.1
+0x0003875C	0x00000004	[ 23] _olddevice
+0x00038760	0x00000008	[ 23] _md_player
+0x00038768	0x00000002	[ 23] _md_bpm
+0x0003876A	0x00000001	[ 23] _md_sndfxvolume
+0x0003876B	0x00000001	[ 23] _md_musicvolume
+0x0003876C	0x00000001	[ 23] _md_volume
+0x0003876D	0x00000001	[ 23] _md_pansep
+0x0003876E	0x00000002	[ 23] _md_mode
+0x00038770	0x00000004	[ 23] _md_mixfreq
+0x00038778	0x00000018	[ 26] _STM_Version
+0x00038790	0x00000018	[ 26] _STM_Signatures
+0x000387A8	0x00000008	[ 36] _VC_Exit_ptr
+0x000387B0	0x00000008	[ 36] _VC_Init_ptr
+0x000387B8	0x00000038	[ 37] _settings_menu_.0
+0x000387F0	0x00000018	[ 37] _main_menu_.3
+0x00038808	0x00000010	[ 37] _settings
+0x00038818	0x00000001	[ 37] _lastswap
+0x00038820	0x00000008	[ 38] _rb
+0x00038830	0x00000008	[  2] _mh
+0x00038838	0x00000008	[  2] _s69pat
+0x00038840	0x00000008	[  3] _track
+0x00038848	0x00000008	[  3] _mh
+0x00038850	0x00000008	[  4] _modtype
+0x00038858	0x00000008	[  4] _patbuf
+0x00038860	0x00000008	[  4] _mh
+0x00038868	0x00000008	[  5] _dsmbuf
+0x00038870	0x00000008	[  5] _mh
+0x00038878	0x00000004	[  5] _blocklp
+0x0003887C	0x00000004	[  5] _blockln
+0x00038880	0x00000004	[  5] _blockid
+0x00038888	0x00000008	[  6] _pat
+0x00038890	0x00000008	[  6] _mh2
+0x00038898	0x00000008	[  6] _mh1
+0x000388A0	0x00000008	[  7] _gdmbuf
+0x000388A8	0x00000008	[  7] _mh
+0x000388B0	0x00000008	[  8] _mh
+0x000388B8	0x00000008	[  8] _imfpat
+0x000388C0	0x00000004	[  9] _old_effect
+0x000388C4	0x00000004	[  9] _numtrk
+0x000388C8	0x00000008	[  9] _last
+0x000388D0	0x00000008	[  9] _mask
+0x000388D8	0x00000008	[  9] _itpat
+0x000388E0	0x00000008	[  9] _mh
+0x000388E8	0x00000008	[  9] _paraptr
+0x000388F0	0x00000008	[ 10] _ust_loader
+0x000388F8	0x00000008	[ 10] _patbuf
+0x00038900	0x00000008	[ 10] _mh
+0x00038908	0x00000004	[ 11] _rowsperbeat
+0x0003890C	0x00000004	[ 11] _is8channel
+0x00038910	0x00000004	[ 11] _bpmtempos
+0x00038914	0x00000004	[ 11] _decimalvolumes
+0x00038918	0x00000008	[ 11] _medversion
+0x00038920	0x00000008	[ 11] _mmd1pat
+0x00038928	0x00000008	[ 11] _mmd0pat
+0x00038930	0x00000008	[ 11] _ba
+0x00038938	0x00000008	[ 11] _me
+0x00038940	0x00000008	[ 11] _ms
+0x00038948	0x00000008	[ 11] _mh
+0x00038950	0x00000004	[ 12] _trekker
+0x00038954	0x00000004	[ 12] _modtype
+0x00038958	0x00000008	[ 12] _patbuf
+0x00038960	0x00000008	[ 12] _mh
+0x00038968	0x00000040	[ 13] _pat
+0x000389A8	0x00000008	[ 13] _mtmtrk
+0x000389B0	0x00000008	[ 13] _mh
+0x000389B8	0x00000008	[ 14] _okttrk
+0x000389C0	0x00000008	[ 15] _tracker
+0x000389C8	0x00000008	[ 15] _paraptr
+0x000389D0	0x00000008	[ 15] _mh
+0x000389D8	0x00000008	[ 15] _s3mbuf
+0x000389E0	0x00000008	[ 16] _mh
+0x000389E8	0x00000008	[ 16] _stmbuf
+0x000389F0	0x00000008	[ 17] _paraptr
+0x000389F8	0x00000008	[ 17] _mh
+0x00038A00	0x00000008	[ 17] _stxbuf
+0x00038A08	0x00000005	[ 18] _ev
+0x00038A10	0x00000008	[ 19] _umx_data
+0x00038A20	0x00000008	[ 20] _s
+0x00038A28	0x00000008	[ 20] _wh
+0x00038A30	0x0000013C	[ 20] _mh
+0x00038B6C	0x00000002	[ 20] _universion
+0x00038B70	0x00000008	[ 21] _s
+0x00038B78	0x00000008	[ 21] _wh
+0x00038B80	0x00000008	[ 21] _nextwav
+0x00038B88	0x00000008	[ 21] _mh
+0x00038B90	0x00000008	[ 21] _xmpat
+0x00038B98	0x00000008	[ 23] _md_sample
+0x00038BA0	0x00000008	[ 23] _sfxpool
+0x00038BA8	0x00000008	[ 23] _sfxinfo
+0x00038BB0	0x00000004	[ 23] _initialized
+0x00038BB4	0x00000004	[ 23] _isplaying
+0x00038BB8	0x00000008	[ 23] _firstdriver
+0x00038BC0	0x00000008	[ 24] _firstloader
+0x00038BC8	0x00000004	[ 26] _noteindexcount
+0x00038BD0	0x00000002	[ 31] _lastp
+0x00038BD2	0x00000002	[ 31] _unitt
+0x00038BD4	0x00000002	[ 31] _unipc
+0x00038BD6	0x00000002	[ 31] _unimax
+0x00038BD8	0x00000008	[ 31] _unibuf
+0x00038BE0	0x00000008	[ 31] _lastbyte
+0x00038BE8	0x00000008	[ 31] _rowpc
+0x00038BF0	0x00000008	[ 31] _rowend
+0x00038BF8	0x00000008	[ 33] _sndfxlist
+0x00038C00	0x00000008	[ 33] _musiclist
+0x00038C08	0x00000008	[ 33] _sl_buffer
+0x00038C10	0x00000004	[ 33] _sl_old
+0x00038C14	0x00000004	[ 33] _sl_rlength
+0x00038C18	0x00000004	[ 34] _nRightNR
+0x00038C1C	0x00000004	[ 34] _nLeftNR
+0x00038C20	0x00000008	[ 34] _MixLowPass
+0x00038C28	0x00000008	[ 34] _MixReverb
+0x00038C30	0x00000008	[ 34] _RVbufR8
+0x00038C38	0x00000008	[ 34] _RVbufR7
+0x00038C40	0x00000008	[ 34] _RVbufR6
+0x00038C48	0x00000008	[ 34] _RVbufR5
+0x00038C50	0x00000008	[ 34] _RVbufR4
+0x00038C58	0x00000008	[ 34] _RVbufR3
+0x00038C60	0x00000008	[ 34] _RVbufR2
+0x00038C68	0x00000008	[ 34] _RVbufR1
+0x00038C70	0x00000008	[ 34] _RVbufL8
+0x00038C78	0x00000008	[ 34] _RVbufL7
+0x00038C80	0x00000008	[ 34] _RVbufL6
+0x00038C88	0x00000008	[ 34] _RVbufL5
+0x00038C90	0x00000008	[ 34] _RVbufL4
+0x00038C98	0x00000008	[ 34] _RVbufL3
+0x00038CA0	0x00000008	[ 34] _RVbufL2
+0x00038CA8	0x00000008	[ 34] _RVbufL1
+0x00038CB0	0x00000004	[ 34] _RVRindex
+0x00038CB4	0x00000004	[ 34] _RVc8
+0x00038CB8	0x00000004	[ 34] _RVc7
+0x00038CBC	0x00000004	[ 34] _RVc6
+0x00038CC0	0x00000004	[ 34] _RVc5
+0x00038CC4	0x00000004	[ 34] _RVc4
+0x00038CC8	0x00000004	[ 34] _RVc3
+0x00038CCC	0x00000004	[ 34] _RVc2
+0x00038CD0	0x00000004	[ 34] _RVc1
+0x00038CD4	0x00000004	[ 34] _vc_mode
+0x00038CD8	0x00000008	[ 34] _vc_tickbuf
+0x00038CE0	0x00000008	[ 34] _idxlend
+0x00038CE8	0x00000008	[ 34] _idxlpos
+0x00038CF0	0x00000008	[ 34] _idxsize
+0x00038CF8	0x00000008	[ 34] _vc_softchn
+0x00038D00	0x00000008	[ 34] _samplesthatfit
+0x00038D08	0x00000008	[ 34] _tickleft
+0x00038D10	0x00000008	[ 34] _vnf
+0x00038D18	0x00000008	[ 34] _vinf
+0x00038D20	0x00000008	[ 34] _Samples
+0x00038D28	0x00000004	[ 35] _nRightNR
+0x00038D2C	0x00000004	[ 35] _nLeftNR
+0x00038D30	0x00000008	[ 35] _MixLowPass
+0x00038D38	0x00000008	[ 35] _MixReverb
+0x00038D40	0x00000008	[ 35] _Mix32to8
+0x00038D48	0x00000008	[ 35] _Mix32to16
+0x00038D50	0x00000008	[ 35] _Mix32toFP
+0x00038D58	0x00000008	[ 35] _RVbufR8
+0x00038D60	0x00000008	[ 35] _RVbufR7
+0x00038D68	0x00000008	[ 35] _RVbufR6
+0x00038D70	0x00000008	[ 35] _RVbufR5
+0x00038D78	0x00000008	[ 35] _RVbufR4
+0x00038D80	0x00000008	[ 35] _RVbufR3
+0x00038D88	0x00000008	[ 35] _RVbufR2
+0x00038D90	0x00000008	[ 35] _RVbufR1
+0x00038D98	0x00000008	[ 35] _RVbufL8
+0x00038DA0	0x00000008	[ 35] _RVbufL7
+0x00038DA8	0x00000008	[ 35] _RVbufL6
+0x00038DB0	0x00000008	[ 35] _RVbufL5
+0x00038DB8	0x00000008	[ 35] _RVbufL4
+0x00038DC0	0x00000008	[ 35] _RVbufL3
+0x00038DC8	0x00000008	[ 35] _RVbufL2
+0x00038DD0	0x00000008	[ 35] _RVbufL1
+0x00038DD8	0x00000004	[ 35] _RVRindex
+0x00038DDC	0x00000004	[ 35] _RVc8
+0x00038DE0	0x00000004	[ 35] _RVc7
+0x00038DE4	0x00000004	[ 35] _RVc6
+0x00038DE8	0x00000004	[ 35] _RVc5
+0x00038DEC	0x00000004	[ 35] _RVc4
+0x00038DF0	0x00000004	[ 35] _RVc3
+0x00038DF4	0x00000004	[ 35] _RVc2
+0x00038DF8	0x00000004	[ 35] _RVc1
+0x00038DFC	0x00000004	[ 35] _vc_mode
+0x00038E00	0x00000008	[ 35] _vc_tickbuf
+0x00038E08	0x00000008	[ 35] _idxlend
+0x00038E10	0x00000008	[ 35] _idxlpos
+0x00038E18	0x00000008	[ 35] _idxsize
+0x00038E20	0x00000008	[ 35] _vc_softchn
+0x00038E28	0x00000008	[ 35] _samplesthatfit
+0x00038E30	0x00000008	[ 35] _tickleft
+0x00038E38	0x00000008	[ 35] _vnf
+0x00038E40	0x00000008	[ 35] _vinf
+0x00038E48	0x00000008	[ 35] _Samples
+0x00038E50	0x00000008	[ 36] _VC_VoiceRealVolume_ptr
+0x00038E58	0x00000008	[ 36] _VC_VoiceGetPosition_ptr
+0x00038E60	0x00000008	[ 36] _VC_VoiceStopped_ptr
+0x00038E68	0x00000008	[ 36] _VC_VoiceStop_ptr
+0x00038E70	0x00000008	[ 36] _VC_VoicePlay_ptr
+0x00038E78	0x00000008	[ 36] _VC_VoiceGetPanning_ptr
+0x00038E80	0x00000008	[ 36] _VC_VoiceSetPanning_ptr
+0x00038E88	0x00000008	[ 36] _VC_VoiceGetFrequency_ptr
+0x00038E90	0x00000008	[ 36] _VC_VoiceSetFrequency_ptr
+0x00038E98	0x00000008	[ 36] _VC_VoiceGetVolume_ptr
+0x00038EA0	0x00000008	[ 36] _VC_VoiceSetVolume_ptr
+0x00038EA8	0x00000008	[ 36] _VC_SilenceBytes_ptr
+0x00038EB0	0x00000008	[ 36] _VC_WriteBytes_ptr
+0x00038EB8	0x00000008	[ 36] _VC_SampleUnload_ptr
+0x00038EC0	0x00000008	[ 36] _VC_SampleLoad_ptr
+0x00038EC8	0x00000008	[ 36] _VC_PlayStop_ptr
+0x00038ED0	0x00000008	[ 36] _VC_PlayStart_ptr
+0x00038ED8	0x00000008	[ 36] _VC_SampleLength_ptr
+0x00038EE0	0x00000008	[ 36] _VC_SampleSpace_ptr
+0x00038EE8	0x00000008	[ 36] _VC_SetNumVoices_ptr
+0x00038EF0	0x00000004	[ 37] _p_xtpt.6
+0x00038EF4	0x00000014	[ 37] _old_settings
+0x00038F08	0x00000008	[ 37] _audio_buffer_free
+0x00038F10	0x00000008	[ 37] _audio_buffer
+0x00038F18	0x00000008	[ 37] _inited
+0x00038F20	0x00000008	[ 37] _file_pt
+0x00038F28	0x00000004	[ 37] _entries
+0x00038F2C	0x00000004	[ 37] _curfile
+0x00038F30	0x00000104	[ 37] _np_file
+0x00039034	0x00000004	[ 37] _font_h
+0x00039038	0x00000008	[ 38] _atexit_handler
+0x00039040	0x000000C0	[ 38] ___exit_env
+0x00039100	0x00000008	[ 39] _mp
+0x00039110	0x00000008	[ 23] __mm_mutex_lists
+0x00039118	0x00000008	[ 23] __mm_mutex_vars
+0x00039120	0x00000008	[ 23] _vc_callback
+0x00039128	0x00000001	[ 23] _md_softchn
+0x00039129	0x00000001	[ 23] _md_hardchn
+0x0003912A	0x00000001	[ 23] _md_sfxchn
+0x0003912B	0x00000001	[ 23] _md_sngchn
+0x0003912C	0x00000001	[ 23] _md_numchn
+0x0003912D	0x00000001	[ 23] _md_reverb
+0x0003912E	0x00000002	[ 23] _md_device
+0x00039130	0x00000008	[ 23] _md_driver
+0x00039140	0x00000178	[ 24] _of
+0x000392B8	0x00000008	[ 24] _modreader
+0x000392C0	0x00000010	[ 26] _noteindex
+0x000392D0	0x00000200	[ 26] _filtersettings
+0x000394D0	0x00000010	[ 26] _filtermacros
+0x000394E0	0x00000004	[ 26] _activemacro
+0x000394E4	0x00000004	[ 26] _filters
+0x000394E8	0x00000008	[ 26] _origpositions
+0x000394F0	0x00000008	[ 26] _poslookupcnt
+0x000394F8	0x00000008	[ 26] _poslookup
+0x00039500	0x00000040	[ 26] _remap
+0x00039540	0x00000004	[ 28] _MikMod_critical
+0x00039544	0x00000004	[ 28] _MikMod_errno
+0x00039548	0x00000008	[ 28] __mm_errorhandler
+0x00039550	0x00000008	[ 30] _pf
+0x00039558	0x00000004	[ 37] _swap
+0x0003955C	0x00000004	[ 37] _display
+0x00039560	0x00000004	[ 37] _screenupdated
+0x00039564	0x00000004	[ 37] _hscroll
+0x00039568	0x00000004	[ 37] _vscroll
+0x0003956C	0x00000004	[ 37] _textlines
+0x00039570	0x00010000	[ 37] _gmbuf
+0x00049570	0x00000008	[ 37] _module
+0x00049578	0x00000004	[ 37] _playingtime
+0x0004957C	0x00000001	[ 37] _quit

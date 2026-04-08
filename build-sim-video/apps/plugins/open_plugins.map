@@ -1,0 +1,110 @@
+# Path: /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/open_plugins.elf
+# Arch: arm64
+# Object files:
+[  0] linker synthesized
+[  1] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/open_plugins.o
+[  2] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/plugin_crt0.o
+[  3] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/libSystem.tbd
+[  4] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/system/libsystem_platform.tbd
+# Sections:
+# Address	Size    	Segment	Section
+0x00000780	0x00001BC0	__TEXT	__text
+0x00002340	0x00000018	__TEXT	__stubs
+0x00002358	0x000000AF	__TEXT	__cstring
+0x00002408	0x00000010	__TEXT	__const
+0x00002418	0x000006E8	__TEXT	__eh_frame
+0x00004000	0x00000010	__DATA_CONST	__got
+0x00004010	0x00000068	__DATA_CONST	__const
+0x00008000	0x00000038	__DATA	__data
+0x00008038	0x00000008	__DATA	.data
+0x00008040	0x00000238	__DATA	__common
+0x00008278	0x00000160	__DATA	__bss
+# Symbols:
+# Address	Size    	File  Name
+0x00000780	0x00000030	[  1] _open_plugin_get_hash
+0x000007B0	0x00000068	[  1] __yesno_pop
+0x00000818	0x0000002C	[  1] _op_entry_checksum
+0x00000844	0x000000BC	[  1] _op_entry_read
+0x00000900	0x000000B8	[  1] _op_entry_read_opx
+0x000009B8	0x00000198	[  1] _op_entry_export
+0x00000B50	0x000000CC	[  1] _op_entry_set_path
+0x00000C1C	0x0000002C	[  1] _op_et_exclude_hash
+0x00000C48	0x00000028	[  1] _op_et_exclude_user
+0x00000C70	0x000000EC	[  1] _op_entry_transfer
+0x00000D5C	0x00000054	[  1] _op_entry_run
+0x00000DB0	0x000001B0	[  1] _list_get_name_cb
+0x00000F60	0x000000C8	[  1] _context_menu_cb
+0x00001028	0x00000028	[  1] _op_et_exclude_builtin
+0x00001050	0x00000114	[  1] _op_entry_set_param
+0x00001164	0x00000178	[  1] _list_voice_cb
+0x000012DC	0x000000B0	[  1] _synclist_set
+0x0000138C	0x00000490	[  1] _op_entry_add_path
+0x0000181C	0x00000070	[  1] _op_entry_browse_add
+0x0000188C	0x00000978	[  1] _plugin_start
+0x00002204	0x00000018	[  2] _cleanup_wrapper
+0x0000221C	0x00000068	[  2] _plugin__start
+0x00002284	0x00000020	[  2] _rb_atexit
+0x000022A4	0x00000024	[  2] _exit
+0x000022C8	0x00000014	[  2] __exit
+0x000022DC	0x00000064	[  2] _exit_on_usb
+0x00002340	0x0000000C	[  4] _longjmp.stub
+0x0000234C	0x0000000C	[  4] _setjmp.stub
+0x00002358	0x00000006	[  1] literal string: %s/%s
+0x0000235E	0x00000015	[  1] literal string: /.rockbox/rocks/apps
+0x00002373	0x00000005	[  1] literal string: .opx
+0x00002378	0x00000010	[  1] literal string: File Saved (%s)
+0x00002388	0x00000011	[  1] literal string: Save Failed (%s)
+0x00002399	0x00000011	[  1] literal string: /.rockbox/rocks/
+0x000023AA	0x00000002	[  1] literal string: ?
+0x000023AC	0x00000007	[  1] literal string: [NULL]
+0x000023B3	0x00000001	[  1] literal string: 
+0x000023B4	0x00000002	[  1] literal string: 0
+0x000023B6	0x00000009	[  1] literal string: %s [%s] 
+0x000023BF	0x00000005	[  1] literal string:  ...
+0x000023C4	0x00000002	[  1] literal string: /
+0x000023C6	0x0000001F	[  1] literal string: /.rockbox/rocks/plugin.dat.tmp
+0x000023E5	0x0000001B	[  1] literal string: /.rockbox/rocks/plugin.dat
+0x00002400	0x00000005	[  1] literal string: -add
+0x00002405	0x00000002	[  1] literal string: 1
+0x00002408	0x00000008	[  1] lC13
+0x00002410	0x00000008	[  1] _op_name_sz
+0x00002418	0x00000018	[  1] CFI
+0x00002430	0x00000020	[  1] FDE for: _open_plugin_get_hash
+0x00002450	0x00000040	[  1] FDE for: __yesno_pop
+0x00002490	0x00000020	[  1] FDE for: _op_entry_checksum
+0x000024B0	0x00000060	[  1] FDE for: _op_entry_read
+0x00002510	0x00000050	[  1] FDE for: _op_entry_read_opx
+0x00002560	0x00000058	[  1] FDE for: _op_entry_export
+0x000025B8	0x00000048	[  1] FDE for: _op_entry_set_path
+0x00002600	0x00000020	[  1] FDE for: _op_et_exclude_hash
+0x00002620	0x00000020	[  1] FDE for: _op_et_exclude_user
+0x00002640	0x00000060	[  1] FDE for: _op_entry_transfer
+0x000026A0	0x00000020	[  1] FDE for: _op_entry_run
+0x000026C0	0x00000058	[  1] FDE for: _list_get_name_cb
+0x00002718	0x00000050	[  1] FDE for: _context_menu_cb
+0x00002768	0x00000020	[  1] FDE for: _op_et_exclude_builtin
+0x00002788	0x00000050	[  1] FDE for: _op_entry_set_param
+0x000027D8	0x00000068	[  1] FDE for: _list_voice_cb
+0x00002840	0x00000058	[  1] FDE for: _synclist_set
+0x00002898	0x00000070	[  1] FDE for: _op_entry_add_path
+0x00002908	0x00000048	[  1] FDE for: _op_entry_browse_add
+0x00002950	0x00000080	[  1] FDE for: _plugin_start
+0x000029D0	0x00000018	[  2] CFI
+0x000029E8	0x00000020	[  2] FDE for: _cleanup_wrapper
+0x00002A08	0x00000040	[  2] FDE for: _plugin__start
+0x00002A48	0x00000020	[  2] FDE for: _rb_atexit
+0x00002A68	0x00000030	[  2] FDE for: _exit
+0x00002A98	0x00000030	[  2] FDE for: __exit
+0x00002AC8	0x00000038	[  2] FDE for: _exit_on_usb
+0x00004000	0x00000008	[  4] _longjmp.got
+0x00004008	0x00000008	[  4] _setjmp.got
+0x00004010	0x00000018	[  1] _menu__.1
+0x00004028	0x00000018	[  1] _menu.2
+0x00004040	0x00000038	[  2] ___header
+0x00008000	0x00000038	[  1] _menu_.0
+0x00008038	0x00000008	[  2] _rb
+0x00008040	0x00000238	[  1] _op_entry
+0x00008278	0x00000090	[  1] _lists
+0x00008308	0x00000004	[  1] _fd_dat
+0x00008310	0x00000008	[  2] _atexit_handler
+0x00008318	0x000000C0	[  2] ___exit_env

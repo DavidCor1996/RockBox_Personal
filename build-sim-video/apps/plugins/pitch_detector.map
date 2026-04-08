@@ -1,0 +1,190 @@
+# Path: /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/pitch_detector.elf
+# Arch: arm64
+# Object files:
+[  0] linker synthesized
+[  1] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/pitch_detector.o
+[  2] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/plugin_crt0.o
+[  3] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(pluginlib_actions.o)
+[  4] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(helper.o)
+[  5] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(picture.o)
+[  6] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/bitmaps/libpluginbitmaps.a(pitch_notes.320x240x16.o)
+[  7] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/libSystem.tbd
+[  8] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/system/libsystem_platform.tbd
+# Sections:
+# Address	Size    	Segment	Section
+0x00000730	0x00000ED4	__TEXT	__text
+0x00001604	0x00000018	__TEXT	__stubs
+0x0000161C	0x00000218	__TEXT	__cstring
+0x00001834	0x0002883C	__TEXT	__const
+0x0002A070	0x000005B8	__TEXT	__eh_frame
+0x0002C000	0x00000010	__DATA_CONST	__got
+0x0002C010	0x00000328	__DATA_CONST	__const
+0x00030000	0x00000061	__DATA	__data
+0x00030068	0x00000008	__DATA	.data
+0x00030070	0x00000150	__DATA	__bss
+# Symbols:
+# Address	Size    	File  Name
+0x00000730	0x00000050	[  1] _tuner_settings_reset
+0x00000780	0x00000034	[  1] _set_min_freq
+0x000007B4	0x00000070	[  1] _log.part.0
+0x00000824	0x000009FC	[  1] _plugin_start
+0x00001220	0x00000018	[  2] _cleanup_wrapper
+0x00001238	0x00000068	[  2] _plugin__start
+0x000012A0	0x00000020	[  2] _rb_atexit
+0x000012C0	0x00000024	[  2] _exit
+0x000012E4	0x00000014	[  2] __exit
+0x000012F8	0x00000064	[  2] _exit_on_usb
+0x0000135C	0x00000038	[  3] _get_context_map
+0x00001394	0x00000040	[  3] _pluginlib_getaction
+0x000013D4	0x00000020	[  4] _talk_val
+0x000013F4	0x00000040	[  4] _backlight_force_on
+0x00001434	0x0000006C	[  4] _backlight_ignore_timeout
+0x000014A0	0x00000048	[  4] _backlight_use_settings
+0x000014E8	0x00000044	[  4] _sw_poweroff_disable
+0x0000152C	0x00000020	[  4] _sw_poweroff_restore
+0x0000154C	0x00000004	[  4] _remote_backlight_force_on
+0x00001550	0x00000004	[  4] _remote_backlight_ignore_timeout
+0x00001554	0x00000004	[  4] _remote_backlight_use_settings
+0x00001558	0x00000004	[  4] _buttonlight_force_on
+0x0000155C	0x00000004	[  4] _buttonlight_force_off
+0x00001560	0x00000004	[  4] _buttonlight_ignore_timeout
+0x00001564	0x00000004	[  4] _buttonlight_use_settings
+0x00001568	0x00000018	[  4] _backlight_brightness_set
+0x00001580	0x00000020	[  4] _backlight_brightness_use_setting
+0x000015A0	0x00000004	[  4] _buttonlight_brightness_set
+0x000015A4	0x00000004	[  4] _buttonlight_brightness_use_setting
+0x000015A8	0x00000024	[  5] _picture_draw
+0x000015CC	0x0000002C	[  5] _vertical_picture_draw_part
+0x000015F8	0x0000000C	[  5] _vertical_picture_draw_sprite
+0x00001604	0x0000000C	[  8] _longjmp.stub
+0x00001610	0x0000000C	[  8] _setjmp.stub
+0x0000161C	0x0000002E	[  1] literal string: /.rockbox/rocks/apps/.pitch_detector_settings
+0x0000164A	0x00000002	[  1] literal string: X
+0x0000164C	0x00000002	[  1] literal string: %
+0x0000164E	0x00000011	[  1] literal string: Volume Threshold
+0x0000165F	0x00000011	[  1] literal string: Listening Volume
+0x00001670	0x00000003	[  1] literal string: Hz
+0x00001673	0x00000011	[  1] literal string: Lowest Frequency
+0x00001684	0x00000033	[  1] literal string: Algorithm Pickiness (Lower -> more discriminating)
+0x000016B7	0x00000017	[  1] literal string: Display Accidentals As
+0x000016CE	0x00000012	[  1] literal string: Key Transposition
+0x000016E0	0x00000017	[  1] literal string: Display Frequency (Hz)
+0x000016F7	0x00000014	[  1] literal string: Frequency of A (Hz)
+0x0000170B	0x00000016	[  1] literal string: Reset Tuner Settings?
+0x00001721	0x00000003	[  1] literal string: %d
+0x00001724	0x0000001A	[  1] literal string: %s : %d cents (%d.%02dHz)
+0x0000173E	0x00000010	[  1] literal string: Return to Tuner
+0x0000174E	0x00000014	[  1] literal string: Algorithm Pickiness
+0x00001762	0x0000000C	[  1] literal string: Accidentals
+0x0000176E	0x0000000F	[  1] literal string: Reset Settings
+0x0000177D	0x00000005	[  1] literal string: Quit
+0x00001782	0x0000000F	[  1] literal string: Tuner Settings
+0x00001791	0x00000012	[  1] literal string: C (Concert Pitch)
+0x000017A3	0x00000007	[  1] literal string: D-flat
+0x000017AA	0x00000002	[  1] literal string: D
+0x000017AC	0x00000007	[  1] literal string: E-flat
+0x000017B3	0x00000002	[  1] literal string: E
+0x000017B5	0x00000002	[  1] literal string: F
+0x000017B7	0x00000007	[  1] literal string: G-flat
+0x000017BE	0x00000002	[  1] literal string: G
+0x000017C0	0x00000007	[  1] literal string: A-flat
+0x000017C7	0x00000002	[  1] literal string: A
+0x000017C9	0x00000007	[  1] literal string: B-flat
+0x000017D0	0x00000002	[  1] literal string: B
+0x000017D2	0x00000005	[  1] literal string: Flat
+0x000017D7	0x00000006	[  1] literal string: Sharp
+0x000017DD	0x00000005	[  1] literal string: 0.01
+0x000017E2	0x00000005	[  1] literal string: 0.02
+0x000017E7	0x00000005	[  1] literal string: 0.03
+0x000017EC	0x00000005	[  1] literal string: 0.04
+0x000017F1	0x00000005	[  1] literal string: 0.05
+0x000017F6	0x00000005	[  1] literal string: 0.10
+0x000017FB	0x00000005	[  1] literal string: 0.15
+0x00001800	0x00000005	[  1] literal string: 0.20
+0x00001805	0x00000005	[  1] literal string: 0.25
+0x0000180A	0x00000005	[  1] literal string: 0.30
+0x0000180F	0x00000005	[  1] literal string: 0.35
+0x00001814	0x00000005	[  1] literal string: 0.40
+0x00001819	0x00000005	[  1] literal string: 0.45
+0x0000181E	0x00000005	[  1] literal string: 0.50
+0x00001823	0x00000003	[  1] literal string: A#
+0x00001826	0x00000002	[  1] literal string: C
+0x00001828	0x00000003	[  1] literal string: C#
+0x0000182B	0x00000003	[  1] literal string: D#
+0x0000182E	0x00000003	[  1] literal string: F#
+0x00001831	0x00000003	[  1] literal string: G#
+0x00001834	0x00000084	[  1] _freq_A
+0x000018B8	0x000000D8	[  3] _pla_main_ctx
+0x00001990	0x000286E0	[  6] _pitch_notes
+0x0002A070	0x00000018	[  1] CFI
+0x0002A088	0x00000020	[  1] FDE for: _tuner_settings_reset
+0x0002A0A8	0x00000020	[  1] FDE for: _set_min_freq
+0x0002A0C8	0x00000020	[  1] FDE for: _log.part.0
+0x0002A0E8	0x00000078	[  1] FDE for: _plugin_start
+0x0002A160	0x00000018	[  2] CFI
+0x0002A178	0x00000020	[  2] FDE for: _cleanup_wrapper
+0x0002A198	0x00000040	[  2] FDE for: _plugin__start
+0x0002A1D8	0x00000020	[  2] FDE for: _rb_atexit
+0x0002A1F8	0x00000030	[  2] FDE for: _exit
+0x0002A228	0x00000030	[  2] FDE for: __exit
+0x0002A258	0x00000038	[  2] FDE for: _exit_on_usb
+0x0002A290	0x00000018	[  3] CFI
+0x0002A2A8	0x00000020	[  3] FDE for: _get_context_map
+0x0002A2C8	0x00000020	[  3] FDE for: _pluginlib_getaction
+0x0002A2E8	0x00000018	[  4] CFI
+0x0002A300	0x00000020	[  4] FDE for: _talk_val
+0x0002A320	0x00000040	[  4] FDE for: _backlight_force_on
+0x0002A360	0x00000050	[  4] FDE for: _backlight_ignore_timeout
+0x0002A3B0	0x00000040	[  4] FDE for: _backlight_use_settings
+0x0002A3F0	0x00000040	[  4] FDE for: _sw_poweroff_disable
+0x0002A430	0x00000020	[  4] FDE for: _sw_poweroff_restore
+0x0002A450	0x00000020	[  4] FDE for: _remote_backlight_force_on
+0x0002A470	0x00000020	[  4] FDE for: _remote_backlight_ignore_timeout
+0x0002A490	0x00000020	[  4] FDE for: _remote_backlight_use_settings
+0x0002A4B0	0x00000020	[  4] FDE for: _buttonlight_force_on
+0x0002A4D0	0x00000020	[  4] FDE for: _buttonlight_force_off
+0x0002A4F0	0x00000020	[  4] FDE for: _buttonlight_ignore_timeout
+0x0002A510	0x00000020	[  4] FDE for: _buttonlight_use_settings
+0x0002A530	0x00000020	[  4] FDE for: _backlight_brightness_set
+0x0002A550	0x00000020	[  4] FDE for: _backlight_brightness_use_setting
+0x0002A570	0x00000020	[  4] FDE for: _buttonlight_brightness_set
+0x0002A590	0x00000020	[  4] FDE for: _buttonlight_brightness_use_setting
+0x0002A5B0	0x00000018	[  5] CFI
+0x0002A5C8	0x00000020	[  5] FDE for: _picture_draw
+0x0002A5E8	0x00000020	[  5] FDE for: _vertical_picture_draw_part
+0x0002A608	0x00000020	[  5] FDE for: _vertical_picture_draw_sprite
+0x0002C000	0x00000008	[  8] _longjmp.got
+0x0002C008	0x00000008	[  8] _setjmp.got
+0x0002C010	0x00000018	[  1] _menu__.1
+0x0002C028	0x00000018	[  1] _menu.2
+0x0002C040	0x000000C0	[  1] _transpose_text
+0x0002C100	0x00000020	[  1] _accidental_text
+0x0002C120	0x000000E0	[  1] _yin_threshold_text
+0x0002C200	0x000000C0	[  1] _notes
+0x0002C2C0	0x00000018	[  1] _note_bitmaps
+0x0002C2D8	0x00000038	[  2] ___header
+0x0002C310	0x00000028	[  6] _bm_pitch_notes
+0x00030000	0x00000058	[  1] _menu_.0
+0x00030058	0x00000008	[  1] _plugin_contexts
+0x00030060	0x00000001	[  4] _original_sw_poweroff_state
+0x00030068	0x00000008	[  2] _rb
+0x00030070	0x00000020	[  1] _hdd_settings
+0x00030090	0x00000020	[  1] _settings
+0x000300B0	0x00000004	[  1] _lbl_x_50
+0x000300B4	0x00000004	[  1] _lbl_x_20
+0x000300B8	0x00000004	[  1] _lbl_x_0
+0x000300BC	0x00000004	[  1] _lbl_x_minus_20
+0x000300C0	0x00000004	[  1] _lbl_x_minus_50
+0x000300C4	0x00000004	[  1] _bar_x_0
+0x000300C8	0x00000004	[  1] _font_h
+0x000300CC	0x00000004	[  1] _font_w
+0x000300D0	0x00000004	[  1] _front_color
+0x000300D4	0x00000004	[  1] _audio_tail
+0x000300D8	0x00000004	[  1] _sample_rate
+0x000300DC	0x00000004	[  1] _bar_grad_y
+0x000300E0	0x00000004	[  1] _note_y
+0x000300E8	0x00000008	[  2] _atexit_handler
+0x000300F0	0x000000C0	[  2] ___exit_env
+0x000301B0	0x00000004	[  3] _last_context
+0x000301B4	0x00000004	[  3] _plugin_context_count
+0x000301B8	0x00000008	[  3] _plugin_context_order

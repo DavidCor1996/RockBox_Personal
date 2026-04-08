@@ -1,0 +1,2313 @@
+# Path: /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/zxbox/zxbox.elf
+# Arch: arm64
+# Object files:
+[  0] linker synthesized
+[  1] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/zxbox/compr.o
+[  2] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/zxbox/helpers.o
+[  3] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/zxbox/interf.o
+[  4] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/zxbox/keynames.o
+[  5] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/zxbox/loadim.o
+[  6] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/zxbox/zxmisc.o
+[  7] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/zxbox/rom_imag.o
+[  8] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/zxbox/snapshot.o
+[  9] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/zxbox/spconf.o
+[ 10] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/zxbox/spect.o
+[ 11] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/zxbox/spkey.o
+[ 12] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/zxbox/spmain.o
+[ 13] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/zxbox/spperif.o
+[ 14] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/zxbox/spscr.o
+[ 15] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/zxbox/spsound.o
+[ 16] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/zxbox/sptape.o
+[ 17] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/zxbox/sptiming.o
+[ 18] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/zxbox/tapefile.o
+[ 19] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/zxbox/z80.o
+[ 20] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/zxbox/z80_op1.o
+[ 21] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/zxbox/z80_op2.o
+[ 22] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/zxbox/z80_op3.o
+[ 23] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/zxbox/z80_op4.o
+[ 24] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/zxbox/z80_op5.o
+[ 25] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/zxbox/z80_op6.o
+[ 26] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/zxbox/z80_step.o
+[ 27] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/zxbox/z80optab.o
+[ 28] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/zxbox/zxbox.o
+[ 29] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/zxbox/zxbox_keyb.o
+[ 30] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/zxbox/zxvid_16bpp.o
+[ 31] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/plugin_crt0.o
+[ 32] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(configfile.o)
+[ 33] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/libSystem.tbd
+[ 34] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/system/libsystem_c.tbd
+[ 35] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/system/libsystem_platform.tbd
+# Sections:
+# Address	Size    	Segment	Section
+0x00000780	0x0001CDF0	__TEXT	__text
+0x0001D570	0x0000003C	__TEXT	__stubs
+0x0001D5B0	0x000011F2	__TEXT	__cstring
+0x0001E7B0	0x00000850	__TEXT	__const
+0x0001F000	0x00007F48	__TEXT	__eh_frame
+0x00028000	0x00000030	__DATA_CONST	__got
+0x00028030	0x00000168	__DATA_CONST	__const
+0x0002C000	0x000087A8	__DATA	__data
+0x000347A8	0x00000008	__DATA	.data
+0x000347B0	0x000025B8	__DATA	__bss
+0x00036D70	0x0001ACD8	__DATA	__common
+# Symbols:
+# Address	Size    	File  Name
+0x00000780	0x0000025C	[  1] _compr
+0x000009E0	0x00000040	[  2] _my_getc
+0x00000A20	0x00000020	[  2] _my_ftell
+0x00000A40	0x00000040	[  2] _my_putc
+0x00000A80	0x000000A4	[  2] _my_malloc
+0x00000B40	0x00000008	[  3] _spif_get_filename
+0x00000B48	0x00000018	[  3] _spif_get_tape_fileinfo
+0x00000B60	0x00000020	[  3] _put_msg
+0x00000B80	0x0000001C	[  3] _put_tmp_msg
+0x00000BA0	0x000004E0	[  6] _get_base_name
+0x00001080	0x0000036C	[  6] _check_ext
+0x000013EC	0x000000B8	[  6] _add_extension
+0x000014A4	0x0000005C	[  6] _file_exist
+0x00001500	0x0000008C	[  6] _try_extension
+0x0000158C	0x00000004	[  6] _malloc_err
+0x00001590	0x00000054	[  6] _make_string
+0x000015E4	0x00000004	[  6] _free_string
+0x000015E8	0x00000054	[  6] _mis_strcasecmp
+0x00001640	0x000007AC	[  8] _read_compressed_data
+0x00001DEC	0x00000C84	[  8] _snsh_z80_load
+0x00002A70	0x00000038	[  8] _compr_read_byte
+0x00002AA8	0x00000018	[  8] _compr_put_byte
+0x00002AC0	0x0000046C	[  8] _save_snapshot_file
+0x00002F2C	0x000001D4	[  8] _save_quick_snapshot
+0x00003100	0x00000064	[  8] _save_snapshot
+0x00003164	0x0000027C	[  8] _load_snapshot_file_type
+0x000033E0	0x00000028	[  8] _snsh_z80_load_intern
+0x00003408	0x00000064	[  8] _load_quick_snapshot
+0x0000346C	0x00000030	[  8] _load_snapshot
+0x000034A0	0x00000244	[  9] _spcf_find_file_type
+0x000036E4	0x0000015C	[  9] _spcf_read_command_line
+0x00003840	0x0000017C	[ 10] _sp_halfframe
+0x000039C0	0x00000A20	[ 11] _copy_key
+0x000043E0	0x00000050	[ 11] _spkey_new_custom
+0x00004430	0x00000140	[ 11] _spkey_add_custom
+0x00004570	0x0000033C	[ 11] _init_basekeys
+0x000048AC	0x00000420	[ 11] _spkb_refresh
+0x00004CCC	0x000004D4	[ 11] _process_keys
+0x000051A0	0x0000007C	[ 11] _clear_keystates
+0x00005220	0x0000016C	[ 12] _spcf_read_conf_file
+0x0000538C	0x00000034	[ 12] _check_params
+0x000053C0	0x000009E4	[ 12] _start_spectemu
+0x00005DC0	0x00000060	[ 13] _sp_init_screen_mark
+0x00005E20	0x000001C0	[ 13] _sp_init
+0x00005FE0	0x00000260	[ 14] _update_screen_line
+0x00006240	0x000002C0	[ 14] _spscr_init_mask_color
+0x00006500	0x00000100	[ 14] _flash_change
+0x00006600	0x00000538	[ 14] _spscr_init_line_pointers
+0x00006B40	0x00000004	[ 15] _setbufsize
+0x00006B44	0x00000004	[ 15] _init_spect_sound
+0x00006B48	0x00000004	[ 15] _play_sound
+0x00006B4C	0x00000004	[ 15] _autoclose_sound
+0x00006B60	0x000002C0	[ 16] _get_next_segment
+0x00006E20	0x00000A20	[ 16] _play_tape
+0x00007840	0x00000004	[ 16] _rec_tape
+0x00007844	0x00000064	[ 16] _pause_play
+0x000078A8	0x00000138	[ 16] _start_play_file_type
+0x000079E0	0x00000060	[ 16] _start_play
+0x00007A40	0x00000064	[ 16] _stop_play
+0x00007AA4	0x00000004	[ 16] _start_rec
+0x00007AA8	0x00000358	[ 16] _qload
+0x00007E00	0x00000020	[ 17] _spti_init
+0x00007E20	0x00000020	[ 17] _spti_sleep
+0x00007E40	0x00000020	[ 17] _spti_reset
+0x00007E60	0x000000B4	[ 17] _spti_wait
+0x00007F20	0x00000600	[ 18] _jump_to_segment.constprop.0
+0x00008520	0x00000DA0	[ 18] _interpret_tzx_header.constprop.0
+0x000092C0	0x00000484	[ 18] _tf_get_block
+0x00009744	0x0000008C	[ 18] _next_byte
+0x000097D0	0x00000950	[ 18] _next_imps
+0x0000A120	0x000006A0	[ 18] _next_segment
+0x0000A7C0	0x00000020	[ 18] _goto_segment
+0x0000A7E0	0x0000000C	[ 18] _segment_pos
+0x0000A7EC	0x00000054	[ 18] _close_tapefile
+0x0000A840	0x00000204	[ 18] _open_tapefile
+0x0000AA44	0x0000000C	[ 18] _get_level
+0x0000AA50	0x00000010	[ 18] _get_seglen
+0x0000AA60	0x0000000C	[ 18] _get_segpos
+0x0000AA6C	0x00000024	[ 18] _set_tapefile_options
+0x0000AAA0	0x00000220	[ 19] _z80_init
+0x0000ACC0	0x00000040	[ 19] _z80_nmi
+0x0000AD00	0x000000A0	[ 19] _z80_interrupt
+0x0000ADA0	0x00000018	[ 19] _z80_reset
+0x0000ADC0	0x00000020	[ 20] _z80op_nop
+0x0000ADE0	0x00000028	[ 20] _z80op_ex_af_afb
+0x0000AE08	0x00000058	[ 20] _z80op_djnz_e
+0x0000AE60	0x00000030	[ 20] _z80op_jr_e
+0x0000AE90	0x00000050	[ 20] _z80op_jr_nz_e
+0x0000AEE0	0x0000004C	[ 20] _z80op_jr_z_e
+0x0000AF2C	0x00000054	[ 20] _z80op_jr_nc_e
+0x0000AF80	0x0000004C	[ 20] _z80op_jr_c_e
+0x0000AFCC	0x00000044	[ 20] _z80op_ld_bc_nn
+0x0000B010	0x00000050	[ 20] _z80op_ld_de_nn
+0x0000B060	0x00000044	[ 20] _z80op_ld_hl_nn
+0x0000B0A4	0x00000044	[ 20] _z80op_ld_sp_nn
+0x0000B0E8	0x00000078	[ 20] _z80op_add_hl_bc
+0x0000B160	0x00000070	[ 20] _z80op_add_hl_de
+0x0000B1D0	0x00000070	[ 20] _z80op_add_hl_hl
+0x0000B240	0x00000070	[ 20] _z80op_add_hl_sp
+0x0000B2B0	0x00000030	[ 20] _z80op_inc_bc
+0x0000B2E0	0x00000024	[ 20] _z80op_inc_de
+0x0000B304	0x00000024	[ 20] _z80op_inc_hl
+0x0000B328	0x00000024	[ 20] _z80op_inc_sp
+0x0000B34C	0x00000024	[ 20] _z80op_dec_bc
+0x0000B370	0x00000030	[ 20] _z80op_dec_de
+0x0000B3A0	0x00000024	[ 20] _z80op_dec_hl
+0x0000B3C4	0x00000024	[ 20] _z80op_dec_sp
+0x0000B3E8	0x00000098	[ 20] _z80op_ld_ibc_a
+0x0000B480	0x000000A0	[ 20] _z80op_ld_ide_a
+0x0000B520	0x00000130	[ 20] _z80op_ld_inn_hl
+0x0000B650	0x000000BC	[ 20] _z80op_ld_inn_a
+0x0000B70C	0x00000024	[ 20] _z80op_ld_a_ibc
+0x0000B730	0x00000030	[ 20] _z80op_ld_a_ide
+0x0000B760	0x00000060	[ 20] _z80op_ld_hl_inn
+0x0000B7C0	0x0000004C	[ 20] _z80op_ld_a_inn
+0x0000B80C	0x00000054	[ 20] _z80op_inc_b
+0x0000B860	0x00000048	[ 20] _z80op_inc_c
+0x0000B8A8	0x00000048	[ 20] _z80op_inc_d
+0x0000B8F0	0x00000050	[ 20] _z80op_inc_e
+0x0000B940	0x00000048	[ 20] _z80op_inc_h
+0x0000B988	0x00000048	[ 20] _z80op_inc_l
+0x0000B9D0	0x00000050	[ 20] _z80op_inc_a
+0x0000BA20	0x000000C0	[ 20] _z80op_inc_ihl
+0x0000BAE0	0x00000048	[ 20] _z80op_dec_b
+0x0000BB28	0x00000048	[ 20] _z80op_dec_c
+0x0000BB70	0x00000050	[ 20] _z80op_dec_d
+0x0000BBC0	0x00000048	[ 20] _z80op_dec_e
+0x0000BC08	0x00000048	[ 20] _z80op_dec_h
+0x0000BC50	0x00000050	[ 20] _z80op_dec_l
+0x0000BCA0	0x00000048	[ 20] _z80op_dec_a
+0x0000BCE8	0x000000B8	[ 20] _z80op_dec_ihl
+0x0000BDA0	0x00000030	[ 20] _z80op_ld_b_n
+0x0000BDD0	0x00000030	[ 20] _z80op_ld_c_n
+0x0000BE00	0x00000030	[ 20] _z80op_ld_d_n
+0x0000BE30	0x00000030	[ 20] _z80op_ld_e_n
+0x0000BE60	0x00000030	[ 20] _z80op_ld_h_n
+0x0000BE90	0x00000030	[ 20] _z80op_ld_l_n
+0x0000BEC0	0x00000030	[ 20] _z80op_ld_a_n
+0x0000BEF0	0x000000D0	[ 20] _z80op_ld_ihl_n
+0x0000BFC0	0x00000040	[ 20] _z80op_rlca
+0x0000C000	0x00000040	[ 20] _z80op_rrca
+0x0000C040	0x00000040	[ 20] _z80op_rla
+0x0000C080	0x00000040	[ 20] _z80op_rra
+0x0000C0C0	0x00000108	[ 20] _z80op_daa
+0x0000C1C8	0x00000038	[ 20] _z80op_cpl
+0x0000C200	0x0000002C	[ 20] _z80op_scf
+0x0000C22C	0x00000034	[ 20] _z80op_ccf
+0x0000C260	0x00000044	[ 20] _z80op_ld_ix_nn
+0x0000C2A4	0x0000007C	[ 20] _z80op_add_ix_bc
+0x0000C320	0x00000070	[ 20] _z80op_add_ix_de
+0x0000C390	0x00000070	[ 20] _z80op_add_ix_ix
+0x0000C400	0x00000070	[ 20] _z80op_add_ix_sp
+0x0000C470	0x00000030	[ 20] _z80op_inc_ix
+0x0000C4A0	0x00000024	[ 20] _z80op_dec_ix
+0x0000C4C4	0x0000013C	[ 20] _z80op_ld_inn_ix
+0x0000C600	0x00000060	[ 20] _z80op_ld_ix_inn
+0x0000C660	0x00000048	[ 20] _z80op_inc_ixh
+0x0000C6A8	0x00000048	[ 20] _z80op_inc_ixl
+0x0000C6F0	0x000000D4	[ 20] _z80op_inc_iixd
+0x0000C7C4	0x00000048	[ 20] _z80op_dec_ixh
+0x0000C80C	0x00000054	[ 20] _z80op_dec_ixl
+0x0000C860	0x000000E0	[ 20] _z80op_dec_iixd
+0x0000C940	0x00000030	[ 20] _z80op_ld_ixh_n
+0x0000C970	0x00000030	[ 20] _z80op_ld_ixl_n
+0x0000C9A0	0x000000E4	[ 20] _z80op_ld_iixd_n
+0x0000CA84	0x00000044	[ 20] _z80op_ld_iy_nn
+0x0000CAC8	0x00000078	[ 20] _z80op_add_iy_bc
+0x0000CB40	0x00000070	[ 20] _z80op_add_iy_de
+0x0000CBB0	0x00000070	[ 20] _z80op_add_iy_iy
+0x0000CC20	0x00000070	[ 20] _z80op_add_iy_sp
+0x0000CC90	0x00000030	[ 20] _z80op_inc_iy
+0x0000CCC0	0x00000024	[ 20] _z80op_dec_iy
+0x0000CCE4	0x0000013C	[ 20] _z80op_ld_inn_iy
+0x0000CE20	0x00000060	[ 20] _z80op_ld_iy_inn
+0x0000CE80	0x00000048	[ 20] _z80op_inc_iyh
+0x0000CEC8	0x00000048	[ 20] _z80op_inc_iyl
+0x0000CF10	0x000000D4	[ 20] _z80op_inc_iiyd
+0x0000CFE4	0x00000048	[ 20] _z80op_dec_iyh
+0x0000D02C	0x00000054	[ 20] _z80op_dec_iyl
+0x0000D080	0x000000E0	[ 20] _z80op_dec_iiyd
+0x0000D160	0x00000030	[ 20] _z80op_ld_iyh_n
+0x0000D190	0x00000030	[ 20] _z80op_ld_iyl_n
+0x0000D1C0	0x000000E4	[ 20] _z80op_ld_iiyd_n
+0x0000D2C0	0x00000040	[ 21] _z80op_halt
+0x0000D300	0x00000020	[ 21] _z80op_ld_b_c
+0x0000D320	0x00000020	[ 21] _z80op_ld_b_d
+0x0000D340	0x00000020	[ 21] _z80op_ld_b_e
+0x0000D360	0x00000020	[ 21] _z80op_ld_b_h
+0x0000D380	0x00000020	[ 21] _z80op_ld_b_l
+0x0000D3A0	0x00000020	[ 21] _z80op_ld_b_a
+0x0000D3C0	0x00000020	[ 21] _z80op_ld_c_b
+0x0000D3E0	0x00000020	[ 21] _z80op_ld_c_d
+0x0000D400	0x00000020	[ 21] _z80op_ld_c_e
+0x0000D420	0x00000020	[ 21] _z80op_ld_c_h
+0x0000D440	0x00000020	[ 21] _z80op_ld_c_l
+0x0000D460	0x00000020	[ 21] _z80op_ld_c_a
+0x0000D480	0x00000020	[ 21] _z80op_ld_d_b
+0x0000D4A0	0x00000020	[ 21] _z80op_ld_d_c
+0x0000D4C0	0x00000020	[ 21] _z80op_ld_d_e
+0x0000D4E0	0x00000020	[ 21] _z80op_ld_d_h
+0x0000D500	0x00000020	[ 21] _z80op_ld_d_l
+0x0000D520	0x00000020	[ 21] _z80op_ld_d_a
+0x0000D540	0x00000020	[ 21] _z80op_ld_e_b
+0x0000D560	0x00000020	[ 21] _z80op_ld_e_c
+0x0000D580	0x00000020	[ 21] _z80op_ld_e_d
+0x0000D5A0	0x00000020	[ 21] _z80op_ld_e_h
+0x0000D5C0	0x00000020	[ 21] _z80op_ld_e_l
+0x0000D5E0	0x00000020	[ 21] _z80op_ld_e_a
+0x0000D600	0x00000020	[ 21] _z80op_ld_h_b
+0x0000D620	0x00000020	[ 21] _z80op_ld_h_c
+0x0000D640	0x00000020	[ 21] _z80op_ld_h_d
+0x0000D660	0x00000020	[ 21] _z80op_ld_h_e
+0x0000D680	0x00000020	[ 21] _z80op_ld_h_l
+0x0000D6A0	0x00000020	[ 21] _z80op_ld_h_a
+0x0000D6C0	0x00000020	[ 21] _z80op_ld_l_b
+0x0000D6E0	0x00000020	[ 21] _z80op_ld_l_c
+0x0000D700	0x00000020	[ 21] _z80op_ld_l_d
+0x0000D720	0x00000020	[ 21] _z80op_ld_l_e
+0x0000D740	0x00000020	[ 21] _z80op_ld_l_h
+0x0000D760	0x00000020	[ 21] _z80op_ld_l_a
+0x0000D780	0x00000020	[ 21] _z80op_ld_a_b
+0x0000D7A0	0x00000020	[ 21] _z80op_ld_a_c
+0x0000D7C0	0x00000020	[ 21] _z80op_ld_a_d
+0x0000D7E0	0x00000020	[ 21] _z80op_ld_a_e
+0x0000D800	0x00000020	[ 21] _z80op_ld_a_h
+0x0000D820	0x00000020	[ 21] _z80op_ld_a_l
+0x0000D840	0x00000024	[ 21] _z80op_ld_b_ihl
+0x0000D864	0x00000024	[ 21] _z80op_ld_c_ihl
+0x0000D888	0x00000024	[ 21] _z80op_ld_d_ihl
+0x0000D8AC	0x00000024	[ 21] _z80op_ld_e_ihl
+0x0000D8D0	0x00000030	[ 21] _z80op_ld_h_ihl
+0x0000D900	0x00000024	[ 21] _z80op_ld_l_ihl
+0x0000D924	0x00000024	[ 21] _z80op_ld_a_ihl
+0x0000D948	0x00000098	[ 21] _z80op_ld_ihl_b
+0x0000D9E0	0x000000A0	[ 21] _z80op_ld_ihl_c
+0x0000DA80	0x000000A0	[ 21] _z80op_ld_ihl_d
+0x0000DB20	0x000000A0	[ 21] _z80op_ld_ihl_e
+0x0000DBC0	0x000000A0	[ 21] _z80op_ld_ihl_h
+0x0000DC60	0x000000A0	[ 21] _z80op_ld_ihl_l
+0x0000DD00	0x000000A0	[ 21] _z80op_ld_ihl_a
+0x0000DDA0	0x00000020	[ 21] _z80op_ld_b_ixh
+0x0000DDC0	0x00000020	[ 21] _z80op_ld_b_ixl
+0x0000DDE0	0x00000020	[ 21] _z80op_ld_c_ixh
+0x0000DE00	0x00000020	[ 21] _z80op_ld_c_ixl
+0x0000DE20	0x00000020	[ 21] _z80op_ld_d_ixh
+0x0000DE40	0x00000020	[ 21] _z80op_ld_d_ixl
+0x0000DE60	0x00000020	[ 21] _z80op_ld_e_ixh
+0x0000DE80	0x00000020	[ 21] _z80op_ld_e_ixl
+0x0000DEA0	0x00000020	[ 21] _z80op_ld_ixh_b
+0x0000DEC0	0x00000020	[ 21] _z80op_ld_ixh_c
+0x0000DEE0	0x00000020	[ 21] _z80op_ld_ixh_d
+0x0000DF00	0x00000020	[ 21] _z80op_ld_ixh_e
+0x0000DF20	0x00000020	[ 21] _z80op_ld_ixh_ixl
+0x0000DF40	0x00000020	[ 21] _z80op_ld_ixh_a
+0x0000DF60	0x00000020	[ 21] _z80op_ld_ixl_b
+0x0000DF80	0x00000020	[ 21] _z80op_ld_ixl_c
+0x0000DFA0	0x00000020	[ 21] _z80op_ld_ixl_d
+0x0000DFC0	0x00000020	[ 21] _z80op_ld_ixl_e
+0x0000DFE0	0x00000020	[ 21] _z80op_ld_ixl_ixh
+0x0000E000	0x00000020	[ 21] _z80op_ld_ixl_a
+0x0000E020	0x00000020	[ 21] _z80op_ld_a_ixh
+0x0000E040	0x00000020	[ 21] _z80op_ld_a_ixl
+0x0000E060	0x000000C0	[ 21] _z80op_ld_iixd_b
+0x0000E120	0x000000C0	[ 21] _z80op_ld_iixd_c
+0x0000E1E0	0x000000C0	[ 21] _z80op_ld_iixd_d
+0x0000E2A0	0x000000C0	[ 21] _z80op_ld_iixd_e
+0x0000E360	0x000000C0	[ 21] _z80op_ld_iixd_h
+0x0000E420	0x000000C0	[ 21] _z80op_ld_iixd_l
+0x0000E4E0	0x000000C0	[ 21] _z80op_ld_iixd_a
+0x0000E5A0	0x00000044	[ 21] _z80op_ld_b_iixd
+0x0000E5E4	0x00000044	[ 21] _z80op_ld_c_iixd
+0x0000E628	0x00000044	[ 21] _z80op_ld_d_iixd
+0x0000E66C	0x00000044	[ 21] _z80op_ld_e_iixd
+0x0000E6B0	0x00000050	[ 21] _z80op_ld_h_iixd
+0x0000E700	0x00000044	[ 21] _z80op_ld_l_iixd
+0x0000E744	0x00000044	[ 21] _z80op_ld_a_iixd
+0x0000E788	0x00000020	[ 21] _z80op_ld_b_iyh
+0x0000E7A8	0x00000020	[ 21] _z80op_ld_b_iyl
+0x0000E7C8	0x00000020	[ 21] _z80op_ld_c_iyh
+0x0000E7E8	0x00000020	[ 21] _z80op_ld_c_iyl
+0x0000E808	0x00000020	[ 21] _z80op_ld_d_iyh
+0x0000E828	0x00000020	[ 21] _z80op_ld_d_iyl
+0x0000E848	0x00000020	[ 21] _z80op_ld_e_iyh
+0x0000E868	0x00000020	[ 21] _z80op_ld_e_iyl
+0x0000E888	0x00000020	[ 21] _z80op_ld_iyh_b
+0x0000E8A8	0x00000020	[ 21] _z80op_ld_iyh_c
+0x0000E8C8	0x00000020	[ 21] _z80op_ld_iyh_d
+0x0000E8E8	0x00000020	[ 21] _z80op_ld_iyh_e
+0x0000E908	0x00000020	[ 21] _z80op_ld_iyh_iyl
+0x0000E928	0x00000020	[ 21] _z80op_ld_iyh_a
+0x0000E948	0x00000020	[ 21] _z80op_ld_iyl_b
+0x0000E968	0x00000020	[ 21] _z80op_ld_iyl_c
+0x0000E988	0x00000020	[ 21] _z80op_ld_iyl_d
+0x0000E9A8	0x00000020	[ 21] _z80op_ld_iyl_e
+0x0000E9C8	0x00000020	[ 21] _z80op_ld_iyl_iyh
+0x0000E9E8	0x00000020	[ 21] _z80op_ld_iyl_a
+0x0000EA08	0x00000020	[ 21] _z80op_ld_a_iyh
+0x0000EA28	0x00000020	[ 21] _z80op_ld_a_iyl
+0x0000EA48	0x000000B8	[ 21] _z80op_ld_iiyd_b
+0x0000EB00	0x000000C0	[ 21] _z80op_ld_iiyd_c
+0x0000EBC0	0x000000C0	[ 21] _z80op_ld_iiyd_d
+0x0000EC80	0x000000C0	[ 21] _z80op_ld_iiyd_e
+0x0000ED40	0x000000C0	[ 21] _z80op_ld_iiyd_h
+0x0000EE00	0x000000C0	[ 21] _z80op_ld_iiyd_l
+0x0000EEC0	0x000000C0	[ 21] _z80op_ld_iiyd_a
+0x0000EF80	0x00000044	[ 21] _z80op_ld_b_iiyd
+0x0000EFC4	0x00000044	[ 21] _z80op_ld_c_iiyd
+0x0000F008	0x00000044	[ 21] _z80op_ld_d_iiyd
+0x0000F04C	0x00000044	[ 21] _z80op_ld_e_iiyd
+0x0000F090	0x00000050	[ 21] _z80op_ld_h_iiyd
+0x0000F0E0	0x00000044	[ 21] _z80op_ld_l_iiyd
+0x0000F124	0x00000044	[ 21] _z80op_ld_a_iiyd
+0x0000F180	0x00000064	[ 22] _z80op_add_a_b
+0x0000F1E4	0x00000064	[ 22] _z80op_add_a_c
+0x0000F248	0x00000064	[ 22] _z80op_add_a_d
+0x0000F2AC	0x00000064	[ 22] _z80op_add_a_e
+0x0000F310	0x00000070	[ 22] _z80op_add_a_h
+0x0000F380	0x00000064	[ 22] _z80op_add_a_l
+0x0000F3E4	0x00000060	[ 22] _z80op_add_a_a
+0x0000F444	0x0000007C	[ 22] _z80op_adc_a_b
+0x0000F4C0	0x00000070	[ 22] _z80op_adc_a_c
+0x0000F530	0x00000070	[ 22] _z80op_adc_a_d
+0x0000F5A0	0x00000070	[ 22] _z80op_adc_a_e
+0x0000F610	0x00000070	[ 22] _z80op_adc_a_h
+0x0000F680	0x00000070	[ 22] _z80op_adc_a_l
+0x0000F6F0	0x00000070	[ 22] _z80op_adc_a_a
+0x0000F760	0x00000064	[ 22] _z80op_sub_b
+0x0000F7C4	0x00000064	[ 22] _z80op_sub_c
+0x0000F828	0x00000064	[ 22] _z80op_sub_d
+0x0000F88C	0x00000064	[ 22] _z80op_sub_e
+0x0000F8F0	0x00000070	[ 22] _z80op_sub_h
+0x0000F960	0x00000064	[ 22] _z80op_sub_l
+0x0000F9C4	0x00000048	[ 22] _z80op_sub_a
+0x0000FA0C	0x00000074	[ 22] _z80op_sbc_a_b
+0x0000FA80	0x00000070	[ 22] _z80op_sbc_a_c
+0x0000FAF0	0x00000070	[ 22] _z80op_sbc_a_d
+0x0000FB60	0x00000070	[ 22] _z80op_sbc_a_e
+0x0000FBD0	0x00000070	[ 22] _z80op_sbc_a_h
+0x0000FC40	0x00000070	[ 22] _z80op_sbc_a_l
+0x0000FCB0	0x00000070	[ 22] _z80op_sbc_a_a
+0x0000FD20	0x00000040	[ 22] _z80op_and_b
+0x0000FD60	0x00000040	[ 22] _z80op_and_c
+0x0000FDA0	0x00000040	[ 22] _z80op_and_d
+0x0000FDE0	0x00000040	[ 22] _z80op_and_e
+0x0000FE20	0x00000040	[ 22] _z80op_and_h
+0x0000FE60	0x00000040	[ 22] _z80op_and_l
+0x0000FEA0	0x00000030	[ 22] _z80op_and_a
+0x0000FED0	0x0000003C	[ 22] _z80op_xor_b
+0x0000FF0C	0x0000003C	[ 22] _z80op_xor_c
+0x0000FF48	0x0000003C	[ 22] _z80op_xor_d
+0x0000FF84	0x0000003C	[ 22] _z80op_xor_e
+0x0000FFC0	0x00000040	[ 22] _z80op_xor_h
+0x00010000	0x00000040	[ 22] _z80op_xor_l
+0x00010040	0x00000040	[ 22] _z80op_xor_a
+0x00010080	0x00000040	[ 22] _z80op_or_b
+0x000100C0	0x00000040	[ 22] _z80op_or_c
+0x00010100	0x00000040	[ 22] _z80op_or_d
+0x00010140	0x00000040	[ 22] _z80op_or_e
+0x00010180	0x00000040	[ 22] _z80op_or_h
+0x000101C0	0x00000040	[ 22] _z80op_or_l
+0x00010200	0x0000002C	[ 22] _z80op_or_a
+0x0001022C	0x00000060	[ 22] _z80op_cp_b
+0x0001028C	0x00000060	[ 22] _z80op_cp_c
+0x000102EC	0x00000060	[ 22] _z80op_cp_d
+0x0001034C	0x00000060	[ 22] _z80op_cp_e
+0x000103AC	0x00000060	[ 22] _z80op_cp_h
+0x0001040C	0x00000060	[ 22] _z80op_cp_l
+0x0001046C	0x00000044	[ 22] _z80op_cp_a
+0x000104B0	0x00000070	[ 22] _z80op_add_a_ihl
+0x00010520	0x00000080	[ 22] _z80op_adc_a_ihl
+0x000105A0	0x00000068	[ 22] _z80op_sub_ihl
+0x00010608	0x00000078	[ 22] _z80op_sbc_a_ihl
+0x00010680	0x00000044	[ 22] _z80op_and_ihl
+0x000106C4	0x00000040	[ 22] _z80op_xor_ihl
+0x00010704	0x00000040	[ 22] _z80op_or_ihl
+0x00010744	0x00000064	[ 22] _z80op_cp_ihl
+0x000107A8	0x00000064	[ 22] _z80op_add_a_ixh
+0x0001080C	0x00000064	[ 22] _z80op_add_a_ixl
+0x00010870	0x00000070	[ 22] _z80op_adc_a_ixh
+0x000108E0	0x00000070	[ 22] _z80op_adc_a_ixl
+0x00010950	0x00000070	[ 22] _z80op_sub_ixh
+0x000109C0	0x00000064	[ 22] _z80op_sub_ixl
+0x00010A24	0x0000007C	[ 22] _z80op_sbc_a_ixh
+0x00010AA0	0x00000070	[ 22] _z80op_sbc_a_ixl
+0x00010B10	0x00000040	[ 22] _z80op_and_ixh
+0x00010B50	0x00000040	[ 22] _z80op_and_ixl
+0x00010B90	0x0000003C	[ 22] _z80op_xor_ixh
+0x00010BCC	0x0000003C	[ 22] _z80op_xor_ixl
+0x00010C08	0x0000003C	[ 22] _z80op_or_ixh
+0x00010C44	0x0000003C	[ 22] _z80op_or_ixl
+0x00010C80	0x00000060	[ 22] _z80op_cp_ixh
+0x00010CE0	0x00000060	[ 22] _z80op_cp_ixl
+0x00010D40	0x00000088	[ 22] _z80op_add_a_iixd
+0x00010DC8	0x00000098	[ 22] _z80op_adc_a_iixd
+0x00010E60	0x00000088	[ 22] _z80op_sub_iixd
+0x00010EE8	0x00000098	[ 22] _z80op_sbc_a_iixd
+0x00010F80	0x00000064	[ 22] _z80op_and_iixd
+0x00010FE4	0x00000060	[ 22] _z80op_xor_iixd
+0x00011044	0x00000060	[ 22] _z80op_or_iixd
+0x000110A4	0x00000084	[ 22] _z80op_cp_iixd
+0x00011128	0x00000064	[ 22] _z80op_add_a_iyh
+0x0001118C	0x00000064	[ 22] _z80op_add_a_iyl
+0x000111F0	0x00000070	[ 22] _z80op_adc_a_iyh
+0x00011260	0x00000070	[ 22] _z80op_adc_a_iyl
+0x000112D0	0x00000070	[ 22] _z80op_sub_iyh
+0x00011340	0x00000064	[ 22] _z80op_sub_iyl
+0x000113A4	0x0000007C	[ 22] _z80op_sbc_a_iyh
+0x00011420	0x00000070	[ 22] _z80op_sbc_a_iyl
+0x00011490	0x00000040	[ 22] _z80op_and_iyh
+0x000114D0	0x00000040	[ 22] _z80op_and_iyl
+0x00011510	0x0000003C	[ 22] _z80op_xor_iyh
+0x0001154C	0x0000003C	[ 22] _z80op_xor_iyl
+0x00011588	0x0000003C	[ 22] _z80op_or_iyh
+0x000115C4	0x0000003C	[ 22] _z80op_or_iyl
+0x00011600	0x00000060	[ 22] _z80op_cp_iyh
+0x00011660	0x00000060	[ 22] _z80op_cp_iyl
+0x000116C0	0x00000088	[ 22] _z80op_add_a_iiyd
+0x00011748	0x00000098	[ 22] _z80op_adc_a_iiyd
+0x000117E0	0x00000088	[ 22] _z80op_sub_iiyd
+0x00011868	0x00000098	[ 22] _z80op_sbc_a_iiyd
+0x00011900	0x00000064	[ 22] _z80op_and_iiyd
+0x00011964	0x00000060	[ 22] _z80op_xor_iiyd
+0x000119C4	0x00000060	[ 22] _z80op_or_iiyd
+0x00011A24	0x00000084	[ 22] _z80op_cp_iiyd
+0x00011AC0	0x00000060	[ 23] _z80op_ret_nz
+0x00011B20	0x00000060	[ 23] _z80op_ret_z
+0x00011B80	0x00000060	[ 23] _z80op_ret_nc
+0x00011BE0	0x00000060	[ 23] _z80op_ret_c
+0x00011C40	0x00000060	[ 23] _z80op_ret_po
+0x00011CA0	0x00000060	[ 23] _z80op_ret_pe
+0x00011D00	0x00000060	[ 23] _z80op_ret_p
+0x00011D60	0x00000060	[ 23] _z80op_ret_m
+0x00011DC0	0x00000044	[ 23] _z80op_pop_bc
+0x00011E04	0x00000044	[ 23] _z80op_pop_de
+0x00011E48	0x00000044	[ 23] _z80op_pop_hl
+0x00011E8C	0x00000044	[ 23] _z80op_pop_af
+0x00011ED0	0x00000050	[ 23] _z80op_ret
+0x00011F20	0x00000048	[ 23] _z80op_exx
+0x00011F68	0x00000020	[ 23] _z80op_jp_hl
+0x00011F88	0x00000020	[ 23] _z80op_ld_sp_hl
+0x00011FA8	0x00000058	[ 23] _z80op_jp_nz_nn
+0x00012000	0x00000060	[ 23] _z80op_jp_z_nn
+0x00012060	0x00000060	[ 23] _z80op_jp_nc_nn
+0x000120C0	0x00000060	[ 23] _z80op_jp_c_nn
+0x00012120	0x00000060	[ 23] _z80op_jp_po_nn
+0x00012180	0x00000060	[ 23] _z80op_jp_pe_nn
+0x000121E0	0x00000060	[ 23] _z80op_jp_p_nn
+0x00012240	0x00000060	[ 23] _z80op_jp_m_nn
+0x000122A0	0x00000040	[ 23] _z80op_jp_nn
+0x000122E0	0x00000080	[ 23] _z80op_out_in_a
+0x00012360	0x000000CC	[ 23] _z80op_in_a_in
+0x0001242C	0x00000154	[ 23] _z80op_ex_isp_hl
+0x00012580	0x00000028	[ 23] _z80op_ex_de_hl
+0x000125A8	0x00000058	[ 23] _z80op_di
+0x00012600	0x00000020	[ 23] _z80op_ei
+0x00012620	0x00000148	[ 23] _z80op_call_nz_nn
+0x00012768	0x00000148	[ 23] _z80op_call_z_nn
+0x000128B0	0x00000150	[ 23] _z80op_call_nc_nn
+0x00012A00	0x00000148	[ 23] _z80op_call_c_nn
+0x00012B48	0x00000148	[ 23] _z80op_call_po_nn
+0x00012C90	0x00000150	[ 23] _z80op_call_pe_nn
+0x00012DE0	0x00000148	[ 23] _z80op_call_p_nn
+0x00012F28	0x00000158	[ 23] _z80op_call_m_nn
+0x00013080	0x00000120	[ 23] _z80op_push_bc
+0x000131A0	0x00000120	[ 23] _z80op_push_de
+0x000132C0	0x00000120	[ 23] _z80op_push_hl
+0x000133E0	0x00000120	[ 23] _z80op_push_af
+0x00013500	0x00000140	[ 23] _z80op_call_nn
+0x00013640	0x00000080	[ 23] _z80op_add_a_n
+0x000136C0	0x00000080	[ 23] _z80op_adc_a_n
+0x00013740	0x00000080	[ 23] _z80op_sub_n
+0x000137C0	0x00000080	[ 23] _z80op_sbc_a_n
+0x00013840	0x00000050	[ 23] _z80op_and_n
+0x00013890	0x00000050	[ 23] _z80op_xor_n
+0x000138E0	0x0000004C	[ 23] _z80op_or_n
+0x0001392C	0x00000074	[ 23] _z80op_cp_n
+0x000139A0	0x00000124	[ 23] _z80op_rst_00
+0x00013AC4	0x0000012C	[ 23] _z80op_rst_08
+0x00013BF0	0x00000130	[ 23] _z80op_rst_10
+0x00013D20	0x0000012C	[ 23] _z80op_rst_18
+0x00013E4C	0x00000134	[ 23] _z80op_rst_20
+0x00013F80	0x0000012C	[ 23] _z80op_rst_28
+0x000140AC	0x00000134	[ 23] _z80op_rst_30
+0x000141E0	0x0000012C	[ 23] _z80op_rst_38
+0x0001430C	0x00000044	[ 23] _z80op_pop_ix
+0x00014350	0x0000011C	[ 23] _z80op_push_ix
+0x0001446C	0x00000020	[ 23] _z80op_jp_ix
+0x0001448C	0x00000020	[ 23] _z80op_ld_sp_ix
+0x000144AC	0x00000154	[ 23] _z80op_ex_isp_ix
+0x00014600	0x00000044	[ 23] _z80op_pop_iy
+0x00014644	0x0000011C	[ 23] _z80op_push_iy
+0x00014760	0x00000020	[ 23] _z80op_jp_iy
+0x00014780	0x00000020	[ 23] _z80op_ld_sp_iy
+0x000147A0	0x0000014C	[ 23] _z80op_ex_isp_iy
+0x00014900	0x00000020	[ 24] _z80op_ill_ed
+0x00014920	0x000000E0	[ 24] _z80op_in_b_ic
+0x00014A00	0x000000E0	[ 24] _z80op_in_c_ic
+0x00014AE0	0x000000E0	[ 24] _z80op_in_d_ic
+0x00014BC0	0x000000E0	[ 24] _z80op_in_e_ic
+0x00014CA0	0x000000E0	[ 24] _z80op_in_h_ic
+0x00014D80	0x000000E0	[ 24] _z80op_in_l_ic
+0x00014E60	0x000000C0	[ 24] _z80op_in_f_ic
+0x00014F20	0x000000E0	[ 24] _z80op_in_a_ic
+0x00015000	0x00000064	[ 24] _z80op_out_ic_b
+0x00015064	0x00000060	[ 24] _z80op_out_ic_c
+0x000150C4	0x00000064	[ 24] _z80op_out_ic_d
+0x00015128	0x00000064	[ 24] _z80op_out_ic_e
+0x0001518C	0x00000064	[ 24] _z80op_out_ic_h
+0x000151F0	0x00000070	[ 24] _z80op_out_ic_l
+0x00015260	0x00000050	[ 24] _z80op_out_ic_0
+0x000152B0	0x00000070	[ 24] _z80op_out_ic_a
+0x00015320	0x00000084	[ 24] _z80op_sbc_hl_bc
+0x000153A4	0x00000084	[ 24] _z80op_sbc_hl_de
+0x00015428	0x0000007C	[ 24] _z80op_sbc_hl_hl
+0x000154A4	0x00000084	[ 24] _z80op_sbc_hl_sp
+0x00015528	0x00000084	[ 24] _z80op_adc_hl_bc
+0x000155AC	0x00000084	[ 24] _z80op_adc_hl_de
+0x00015630	0x0000007C	[ 24] _z80op_adc_hl_hl
+0x000156AC	0x00000084	[ 24] _z80op_adc_hl_sp
+0x00015730	0x00000130	[ 24] _z80op_ld_inn_bc
+0x00015860	0x00000130	[ 24] _z80op_ld_inn_de
+0x00015990	0x00000130	[ 24] _z80op_ld_inn_hl_ed
+0x00015AC0	0x00000130	[ 24] _z80op_ld_inn_sp
+0x00015BF0	0x00000060	[ 24] _z80op_ld_bc_inn
+0x00015C50	0x00000060	[ 24] _z80op_ld_de_inn
+0x00015CB0	0x00000060	[ 24] _z80op_ld_hl_inn_ed
+0x00015D10	0x00000060	[ 24] _z80op_ld_sp_inn
+0x00015D70	0x00000054	[ 24] _z80op_neg
+0x00015DC4	0x0000004C	[ 24] _z80op_retn
+0x00015E10	0x00000050	[ 24] _z80op_reti
+0x00015E60	0x00000020	[ 24] _z80op_im_0
+0x00015E80	0x00000020	[ 24] _z80op_im_1
+0x00015EA0	0x00000020	[ 24] _z80op_im_2
+0x00015EC0	0x00000020	[ 24] _z80op_ld_i_a
+0x00015EE0	0x00000024	[ 24] _z80op_ld_r_a
+0x00015F04	0x0000005C	[ 24] _z80op_ld_a_i
+0x00015F60	0x00000060	[ 24] _z80op_ld_a_r
+0x00015FC0	0x000000C8	[ 24] _z80op_rrd
+0x00016088	0x000000D8	[ 24] _z80op_rld
+0x00016160	0x000000CC	[ 24] _z80op_ldi
+0x0001622C	0x000000D4	[ 24] _z80op_ldd
+0x00016300	0x000000E0	[ 24] _z80op_ldir
+0x000163E0	0x000000E0	[ 24] _z80op_lddr
+0x000164C0	0x000000A8	[ 24] _z80op_cpi
+0x00016568	0x000000A8	[ 24] _z80op_cpd
+0x00016610	0x000000D0	[ 24] _z80op_cpir
+0x000166E0	0x000000CC	[ 24] _z80op_cpdr
+0x000167AC	0x000001A4	[ 24] _z80op_ini
+0x00016950	0x000001B0	[ 24] _z80op_ind
+0x00016B00	0x000001A0	[ 24] _z80op_inir
+0x00016CA0	0x000001A0	[ 24] _z80op_indr
+0x00016E40	0x000000E8	[ 24] _z80op_outi
+0x00016F28	0x000000E8	[ 24] _z80op_outd
+0x00017010	0x000000FC	[ 24] _z80op_otir
+0x0001710C	0x000000FC	[ 24] _z80op_otdr
+0x00017220	0x00000040	[ 25] _z80op_rlc_b
+0x00017260	0x00000040	[ 25] _z80op_rlc_c
+0x000172A0	0x00000040	[ 25] _z80op_rlc_d
+0x000172E0	0x00000040	[ 25] _z80op_rlc_e
+0x00017320	0x00000040	[ 25] _z80op_rlc_h
+0x00017360	0x00000040	[ 25] _z80op_rlc_l
+0x000173A0	0x00000040	[ 25] _z80op_rlc_a
+0x000173E0	0x00000044	[ 25] _z80op_rrc_b
+0x00017424	0x00000044	[ 25] _z80op_rrc_c
+0x00017468	0x00000044	[ 25] _z80op_rrc_d
+0x000174AC	0x00000044	[ 25] _z80op_rrc_e
+0x000174F0	0x00000050	[ 25] _z80op_rrc_h
+0x00017540	0x00000044	[ 25] _z80op_rrc_l
+0x00017584	0x00000044	[ 25] _z80op_rrc_a
+0x000175C8	0x00000044	[ 25] _z80op_rl_b
+0x0001760C	0x00000044	[ 25] _z80op_rl_c
+0x00017650	0x00000050	[ 25] _z80op_rl_d
+0x000176A0	0x00000044	[ 25] _z80op_rl_e
+0x000176E4	0x00000044	[ 25] _z80op_rl_h
+0x00017728	0x00000044	[ 25] _z80op_rl_l
+0x0001776C	0x00000044	[ 25] _z80op_rl_a
+0x000177B0	0x00000050	[ 25] _z80op_rr_b
+0x00017800	0x00000048	[ 25] _z80op_rr_c
+0x00017848	0x00000048	[ 25] _z80op_rr_d
+0x00017890	0x00000050	[ 25] _z80op_rr_e
+0x000178E0	0x00000048	[ 25] _z80op_rr_h
+0x00017928	0x00000048	[ 25] _z80op_rr_l
+0x00017970	0x00000050	[ 25] _z80op_rr_a
+0x000179C0	0x00000040	[ 25] _z80op_sla_b
+0x00017A00	0x00000040	[ 25] _z80op_sla_c
+0x00017A40	0x00000040	[ 25] _z80op_sla_d
+0x00017A80	0x00000040	[ 25] _z80op_sla_e
+0x00017AC0	0x00000040	[ 25] _z80op_sla_h
+0x00017B00	0x00000040	[ 25] _z80op_sla_l
+0x00017B40	0x00000040	[ 25] _z80op_sla_a
+0x00017B80	0x00000040	[ 25] _z80op_sra_b
+0x00017BC0	0x00000040	[ 25] _z80op_sra_c
+0x00017C00	0x00000040	[ 25] _z80op_sra_d
+0x00017C40	0x00000040	[ 25] _z80op_sra_e
+0x00017C80	0x00000040	[ 25] _z80op_sra_h
+0x00017CC0	0x00000040	[ 25] _z80op_sra_l
+0x00017D00	0x00000040	[ 25] _z80op_sra_a
+0x00017D40	0x00000040	[ 25] _z80op_sll_b
+0x00017D80	0x00000040	[ 25] _z80op_sll_c
+0x00017DC0	0x00000040	[ 25] _z80op_sll_d
+0x00017E00	0x00000040	[ 25] _z80op_sll_e
+0x00017E40	0x00000040	[ 25] _z80op_sll_h
+0x00017E80	0x00000040	[ 25] _z80op_sll_l
+0x00017EC0	0x00000040	[ 25] _z80op_sll_a
+0x00017F00	0x00000040	[ 25] _z80op_srl_b
+0x00017F40	0x00000040	[ 25] _z80op_srl_c
+0x00017F80	0x00000040	[ 25] _z80op_srl_d
+0x00017FC0	0x00000040	[ 25] _z80op_srl_e
+0x00018000	0x00000040	[ 25] _z80op_srl_h
+0x00018040	0x00000040	[ 25] _z80op_srl_l
+0x00018080	0x00000040	[ 25] _z80op_srl_a
+0x000180C0	0x000000C0	[ 25] _z80op_rlc_ihl
+0x00018180	0x000000C0	[ 25] _z80op_rrc_ihl
+0x00018240	0x000000C0	[ 25] _z80op_rl_ihl
+0x00018300	0x000000C0	[ 25] _z80op_rr_ihl
+0x000183C0	0x000000AC	[ 25] _z80op_sla_ihl
+0x0001846C	0x000000B4	[ 25] _z80op_sra_ihl
+0x00018520	0x000000B0	[ 25] _z80op_sll_ihl
+0x000185D0	0x000000B0	[ 25] _z80op_srl_ihl
+0x00018680	0x00000040	[ 25] _z80op_bit_0_b
+0x000186C0	0x00000040	[ 25] _z80op_bit_0_c
+0x00018700	0x00000040	[ 25] _z80op_bit_0_d
+0x00018740	0x00000040	[ 25] _z80op_bit_0_e
+0x00018780	0x00000040	[ 25] _z80op_bit_0_h
+0x000187C0	0x00000040	[ 25] _z80op_bit_0_l
+0x00018800	0x00000040	[ 25] _z80op_bit_0_a
+0x00018840	0x00000040	[ 25] _z80op_bit_1_b
+0x00018880	0x00000040	[ 25] _z80op_bit_1_c
+0x000188C0	0x00000040	[ 25] _z80op_bit_1_d
+0x00018900	0x00000040	[ 25] _z80op_bit_1_e
+0x00018940	0x00000040	[ 25] _z80op_bit_1_h
+0x00018980	0x00000040	[ 25] _z80op_bit_1_l
+0x000189C0	0x00000040	[ 25] _z80op_bit_1_a
+0x00018A00	0x00000040	[ 25] _z80op_bit_2_b
+0x00018A40	0x00000040	[ 25] _z80op_bit_2_c
+0x00018A80	0x00000040	[ 25] _z80op_bit_2_d
+0x00018AC0	0x00000040	[ 25] _z80op_bit_2_e
+0x00018B00	0x00000040	[ 25] _z80op_bit_2_h
+0x00018B40	0x00000040	[ 25] _z80op_bit_2_l
+0x00018B80	0x00000040	[ 25] _z80op_bit_2_a
+0x00018BC0	0x00000040	[ 25] _z80op_bit_3_b
+0x00018C00	0x00000040	[ 25] _z80op_bit_3_c
+0x00018C40	0x00000040	[ 25] _z80op_bit_3_d
+0x00018C80	0x00000040	[ 25] _z80op_bit_3_e
+0x00018CC0	0x00000040	[ 25] _z80op_bit_3_h
+0x00018D00	0x00000040	[ 25] _z80op_bit_3_l
+0x00018D40	0x00000040	[ 25] _z80op_bit_3_a
+0x00018D80	0x00000040	[ 25] _z80op_bit_4_b
+0x00018DC0	0x00000040	[ 25] _z80op_bit_4_c
+0x00018E00	0x00000040	[ 25] _z80op_bit_4_d
+0x00018E40	0x00000040	[ 25] _z80op_bit_4_e
+0x00018E80	0x00000040	[ 25] _z80op_bit_4_h
+0x00018EC0	0x00000040	[ 25] _z80op_bit_4_l
+0x00018F00	0x00000040	[ 25] _z80op_bit_4_a
+0x00018F40	0x00000040	[ 25] _z80op_bit_5_b
+0x00018F80	0x00000040	[ 25] _z80op_bit_5_c
+0x00018FC0	0x00000040	[ 25] _z80op_bit_5_d
+0x00019000	0x00000040	[ 25] _z80op_bit_5_e
+0x00019040	0x00000040	[ 25] _z80op_bit_5_h
+0x00019080	0x00000040	[ 25] _z80op_bit_5_l
+0x000190C0	0x00000040	[ 25] _z80op_bit_5_a
+0x00019100	0x00000040	[ 25] _z80op_bit_6_b
+0x00019140	0x00000040	[ 25] _z80op_bit_6_c
+0x00019180	0x00000040	[ 25] _z80op_bit_6_d
+0x000191C0	0x00000040	[ 25] _z80op_bit_6_e
+0x00019200	0x00000040	[ 25] _z80op_bit_6_h
+0x00019240	0x00000040	[ 25] _z80op_bit_6_l
+0x00019280	0x00000040	[ 25] _z80op_bit_6_a
+0x000192C0	0x00000040	[ 25] _z80op_bit_7_b
+0x00019300	0x00000040	[ 25] _z80op_bit_7_c
+0x00019340	0x00000040	[ 25] _z80op_bit_7_d
+0x00019380	0x00000040	[ 25] _z80op_bit_7_e
+0x000193C0	0x00000040	[ 25] _z80op_bit_7_h
+0x00019400	0x00000040	[ 25] _z80op_bit_7_l
+0x00019440	0x00000040	[ 25] _z80op_bit_7_a
+0x00019480	0x00000048	[ 25] _z80op_bit_0_ihl
+0x000194C8	0x00000048	[ 25] _z80op_bit_1_ihl
+0x00019510	0x00000050	[ 25] _z80op_bit_2_ihl
+0x00019560	0x00000048	[ 25] _z80op_bit_3_ihl
+0x000195A8	0x00000048	[ 25] _z80op_bit_4_ihl
+0x000195F0	0x00000050	[ 25] _z80op_bit_5_ihl
+0x00019640	0x00000048	[ 25] _z80op_bit_6_ihl
+0x00019688	0x00000048	[ 25] _z80op_bit_7_ihl
+0x000196D0	0x00000030	[ 25] _z80op_res_0_b
+0x00019700	0x00000024	[ 25] _z80op_res_0_c
+0x00019724	0x00000024	[ 25] _z80op_res_0_d
+0x00019748	0x00000024	[ 25] _z80op_res_0_e
+0x0001976C	0x00000024	[ 25] _z80op_res_0_h
+0x00019790	0x00000030	[ 25] _z80op_res_0_l
+0x000197C0	0x00000024	[ 25] _z80op_res_0_a
+0x000197E4	0x00000024	[ 25] _z80op_res_1_b
+0x00019808	0x00000024	[ 25] _z80op_res_1_c
+0x0001982C	0x00000024	[ 25] _z80op_res_1_d
+0x00019850	0x00000030	[ 25] _z80op_res_1_e
+0x00019880	0x00000024	[ 25] _z80op_res_1_h
+0x000198A4	0x00000024	[ 25] _z80op_res_1_l
+0x000198C8	0x00000024	[ 25] _z80op_res_1_a
+0x000198EC	0x00000024	[ 25] _z80op_res_2_b
+0x00019910	0x00000030	[ 25] _z80op_res_2_c
+0x00019940	0x00000024	[ 25] _z80op_res_2_d
+0x00019964	0x00000024	[ 25] _z80op_res_2_e
+0x00019988	0x00000024	[ 25] _z80op_res_2_h
+0x000199AC	0x00000024	[ 25] _z80op_res_2_l
+0x000199D0	0x00000030	[ 25] _z80op_res_2_a
+0x00019A00	0x00000024	[ 25] _z80op_res_3_b
+0x00019A24	0x00000024	[ 25] _z80op_res_3_c
+0x00019A48	0x00000024	[ 25] _z80op_res_3_d
+0x00019A6C	0x00000024	[ 25] _z80op_res_3_e
+0x00019A90	0x00000030	[ 25] _z80op_res_3_h
+0x00019AC0	0x00000024	[ 25] _z80op_res_3_l
+0x00019AE4	0x00000024	[ 25] _z80op_res_3_a
+0x00019B08	0x00000024	[ 25] _z80op_res_4_b
+0x00019B2C	0x00000024	[ 25] _z80op_res_4_c
+0x00019B50	0x00000030	[ 25] _z80op_res_4_d
+0x00019B80	0x00000024	[ 25] _z80op_res_4_e
+0x00019BA4	0x00000024	[ 25] _z80op_res_4_h
+0x00019BC8	0x00000024	[ 25] _z80op_res_4_l
+0x00019BEC	0x00000024	[ 25] _z80op_res_4_a
+0x00019C10	0x00000030	[ 25] _z80op_res_5_b
+0x00019C40	0x00000024	[ 25] _z80op_res_5_c
+0x00019C64	0x00000024	[ 25] _z80op_res_5_d
+0x00019C88	0x00000024	[ 25] _z80op_res_5_e
+0x00019CAC	0x00000024	[ 25] _z80op_res_5_h
+0x00019CD0	0x00000030	[ 25] _z80op_res_5_l
+0x00019D00	0x00000024	[ 25] _z80op_res_5_a
+0x00019D24	0x00000024	[ 25] _z80op_res_6_b
+0x00019D48	0x00000024	[ 25] _z80op_res_6_c
+0x00019D6C	0x00000024	[ 25] _z80op_res_6_d
+0x00019D90	0x00000030	[ 25] _z80op_res_6_e
+0x00019DC0	0x00000024	[ 25] _z80op_res_6_h
+0x00019DE4	0x00000024	[ 25] _z80op_res_6_l
+0x00019E08	0x00000024	[ 25] _z80op_res_6_a
+0x00019E2C	0x00000024	[ 25] _z80op_res_7_b
+0x00019E50	0x00000030	[ 25] _z80op_res_7_c
+0x00019E80	0x00000024	[ 25] _z80op_res_7_d
+0x00019EA4	0x00000024	[ 25] _z80op_res_7_e
+0x00019EC8	0x00000024	[ 25] _z80op_res_7_h
+0x00019EEC	0x00000024	[ 25] _z80op_res_7_l
+0x00019F10	0x00000030	[ 25] _z80op_res_7_a
+0x00019F40	0x000000A0	[ 25] _z80op_res_0_ihl
+0x00019FE0	0x000000A0	[ 25] _z80op_res_1_ihl
+0x0001A080	0x000000A0	[ 25] _z80op_res_2_ihl
+0x0001A120	0x000000A0	[ 25] _z80op_res_3_ihl
+0x0001A1C0	0x000000A0	[ 25] _z80op_res_4_ihl
+0x0001A260	0x000000A0	[ 25] _z80op_res_5_ihl
+0x0001A300	0x000000A0	[ 25] _z80op_res_6_ihl
+0x0001A3A0	0x000000A0	[ 25] _z80op_res_7_ihl
+0x0001A440	0x00000024	[ 25] _z80op_set_0_b
+0x0001A464	0x00000024	[ 25] _z80op_set_0_c
+0x0001A488	0x00000024	[ 25] _z80op_set_0_d
+0x0001A4AC	0x00000024	[ 25] _z80op_set_0_e
+0x0001A4D0	0x00000030	[ 25] _z80op_set_0_h
+0x0001A500	0x00000024	[ 25] _z80op_set_0_l
+0x0001A524	0x00000024	[ 25] _z80op_set_0_a
+0x0001A548	0x00000024	[ 25] _z80op_set_1_b
+0x0001A56C	0x00000024	[ 25] _z80op_set_1_c
+0x0001A590	0x00000030	[ 25] _z80op_set_1_d
+0x0001A5C0	0x00000024	[ 25] _z80op_set_1_e
+0x0001A5E4	0x00000024	[ 25] _z80op_set_1_h
+0x0001A608	0x00000024	[ 25] _z80op_set_1_l
+0x0001A62C	0x00000024	[ 25] _z80op_set_1_a
+0x0001A650	0x00000030	[ 25] _z80op_set_2_b
+0x0001A680	0x00000024	[ 25] _z80op_set_2_c
+0x0001A6A4	0x00000024	[ 25] _z80op_set_2_d
+0x0001A6C8	0x00000024	[ 25] _z80op_set_2_e
+0x0001A6EC	0x00000024	[ 25] _z80op_set_2_h
+0x0001A710	0x00000030	[ 25] _z80op_set_2_l
+0x0001A740	0x00000024	[ 25] _z80op_set_2_a
+0x0001A764	0x00000024	[ 25] _z80op_set_3_b
+0x0001A788	0x00000024	[ 25] _z80op_set_3_c
+0x0001A7AC	0x00000024	[ 25] _z80op_set_3_d
+0x0001A7D0	0x00000030	[ 25] _z80op_set_3_e
+0x0001A800	0x00000024	[ 25] _z80op_set_3_h
+0x0001A824	0x00000024	[ 25] _z80op_set_3_l
+0x0001A848	0x00000024	[ 25] _z80op_set_3_a
+0x0001A86C	0x00000024	[ 25] _z80op_set_4_b
+0x0001A890	0x00000030	[ 25] _z80op_set_4_c
+0x0001A8C0	0x00000024	[ 25] _z80op_set_4_d
+0x0001A8E4	0x00000024	[ 25] _z80op_set_4_e
+0x0001A908	0x00000024	[ 25] _z80op_set_4_h
+0x0001A92C	0x00000024	[ 25] _z80op_set_4_l
+0x0001A950	0x00000030	[ 25] _z80op_set_4_a
+0x0001A980	0x00000024	[ 25] _z80op_set_5_b
+0x0001A9A4	0x00000024	[ 25] _z80op_set_5_c
+0x0001A9C8	0x00000024	[ 25] _z80op_set_5_d
+0x0001A9EC	0x00000024	[ 25] _z80op_set_5_e
+0x0001AA10	0x00000030	[ 25] _z80op_set_5_h
+0x0001AA40	0x00000024	[ 25] _z80op_set_5_l
+0x0001AA64	0x00000024	[ 25] _z80op_set_5_a
+0x0001AA88	0x00000024	[ 25] _z80op_set_6_b
+0x0001AAAC	0x00000024	[ 25] _z80op_set_6_c
+0x0001AAD0	0x00000030	[ 25] _z80op_set_6_d
+0x0001AB00	0x00000024	[ 25] _z80op_set_6_e
+0x0001AB24	0x00000024	[ 25] _z80op_set_6_h
+0x0001AB48	0x00000024	[ 25] _z80op_set_6_l
+0x0001AB6C	0x00000024	[ 25] _z80op_set_6_a
+0x0001AB90	0x00000030	[ 25] _z80op_set_7_b
+0x0001ABC0	0x00000024	[ 25] _z80op_set_7_c
+0x0001ABE4	0x00000024	[ 25] _z80op_set_7_d
+0x0001AC08	0x00000024	[ 25] _z80op_set_7_e
+0x0001AC2C	0x00000024	[ 25] _z80op_set_7_h
+0x0001AC50	0x00000030	[ 25] _z80op_set_7_l
+0x0001AC80	0x00000024	[ 25] _z80op_set_7_a
+0x0001ACA4	0x0000009C	[ 25] _z80op_set_0_ihl
+0x0001AD40	0x000000A0	[ 25] _z80op_set_1_ihl
+0x0001ADE0	0x000000A0	[ 25] _z80op_set_2_ihl
+0x0001AE80	0x000000A0	[ 25] _z80op_set_3_ihl
+0x0001AF20	0x000000A0	[ 25] _z80op_set_4_ihl
+0x0001AFC0	0x000000A0	[ 25] _z80op_set_5_ihl
+0x0001B060	0x000000A0	[ 25] _z80op_set_6_ihl
+0x0001B100	0x00000098	[ 25] _z80op_set_7_ihl
+0x0001B1A0	0x00000104	[ 26] _z80_pushpc
+0x0001B2A4	0x00000528	[ 26] _z80_local_init
+0x0001B7CC	0x000000C0	[ 26] _z80_step
+0x0001B8A0	0x00000040	[ 27] _z80op_special_cb
+0x0001B8E0	0x00000044	[ 27] _z80op_special_dd
+0x0001B924	0x0000003C	[ 27] _z80op_special_ed
+0x0001B960	0x00000044	[ 27] _z80op_special_fd
+0x0001B9A4	0x00000024	[ 27] _z80op_special_xx
+0x0001B9C8	0x00000058	[ 27] _z80op_special_dd_cb
+0x0001BA20	0x00000054	[ 27] _z80op_special_fd_cb
+0x0001BA80	0x00000080	[ 28] _plugin_start
+0x0001BB00	0x00000020	[ 28] _init_spect_key
+0x0001BB20	0x00000304	[ 28] _spkb_process_events
+0x0001BE24	0x00000090	[ 28] _press_key
+0x0001BEC0	0x00000CEC	[ 29] _zx_kbd_input
+0x0001CBC0	0x00000060	[ 30] _init_spect_scr
+0x0001CC20	0x0000016C	[ 30] _update_screen
+0x0001CD8C	0x00000018	[ 31] _cleanup_wrapper
+0x0001CDA4	0x00000068	[ 31] _plugin__start
+0x0001CE0C	0x00000020	[ 31] _rb_atexit
+0x0001CE2C	0x00000024	[ 31] _exit
+0x0001CE50	0x00000014	[ 31] __exit
+0x0001CE64	0x00000064	[ 31] _exit_on_usb
+0x0001CEC8	0x000000E8	[ 32] _get_cfg_filename.constprop.0
+0x0001CFB0	0x00000160	[ 32] _configfile_save
+0x0001D110	0x00000228	[ 32] _configfile_load
+0x0001D338	0x000000E0	[ 32] _configfile_get_value
+0x0001D418	0x00000158	[ 32] _configfile_update_entry
+0x0001D570	0x0000000C	[ 34] ___maskrune.stub
+0x0001D57C	0x0000000C	[ 34] ___tolower.stub
+0x0001D588	0x0000000C	[ 34] ___toupper.stub
+0x0001D594	0x0000000C	[ 35] _longjmp.stub
+0x0001D5A0	0x0000000C	[ 35] _setjmp.stub
+0x0001D5B0	0x0000000A	[  4] literal string: BackSpace
+0x0001D5BC	0x00000001	[  4] literal string: 
+0x0001D5C0	0x00000004	[  4] literal string: Tab
+0x0001D5C8	0x00000009	[  4] literal string: Linefeed
+0x0001D5D8	0x00000006	[  4] literal string: Clear
+0x0001D5E0	0x00000007	[  4] literal string: Return
+0x0001D5E8	0x00000006	[  4] literal string: Pause
+0x0001D5F0	0x0000000C	[  4] literal string: Scroll_Lock
+0x0001D600	0x00000008	[  4] literal string: Sys_Req
+0x0001D608	0x00000007	[  4] literal string: Escape
+0x0001D610	0x0000000A	[  4] literal string: Multi_key
+0x0001D620	0x00000005	[  4] literal string: Home
+0x0001D628	0x00000005	[  4] literal string: Left
+0x0001D630	0x00000003	[  4] literal string: Up
+0x0001D638	0x00000006	[  4] literal string: Right
+0x0001D640	0x00000005	[  4] literal string: Down
+0x0001D648	0x00000008	[  4] literal string: Page_Up
+0x0001D650	0x0000000A	[  4] literal string: Page_Down
+0x0001D660	0x00000004	[  4] literal string: End
+0x0001D668	0x00000006	[  4] literal string: Begin
+0x0001D670	0x00000007	[  4] literal string: Select
+0x0001D678	0x00000006	[  4] literal string: Print
+0x0001D680	0x00000008	[  4] literal string: Execute
+0x0001D688	0x00000007	[  4] literal string: Insert
+0x0001D690	0x00000005	[  4] literal string: Undo
+0x0001D698	0x00000005	[  4] literal string: Redo
+0x0001D6A0	0x00000005	[  4] literal string: Menu
+0x0001D6A8	0x00000005	[  4] literal string: Find
+0x0001D6B0	0x00000007	[  4] literal string: Cancel
+0x0001D6B8	0x00000005	[  4] literal string: Help
+0x0001D6C0	0x00000006	[  4] literal string: Break
+0x0001D6C8	0x0000000C	[  4] literal string: Mode_switch
+0x0001D6D8	0x00000009	[  4] literal string: Num_Lock
+0x0001D6E8	0x00000009	[  4] literal string: KP_Space
+0x0001D6F8	0x00000007	[  4] literal string: KP_Tab
+0x0001D700	0x00000009	[  4] literal string: KP_Enter
+0x0001D710	0x00000006	[  4] literal string: KP_F1
+0x0001D718	0x00000006	[  4] literal string: KP_F2
+0x0001D720	0x00000006	[  4] literal string: KP_F3
+0x0001D728	0x00000006	[  4] literal string: KP_F4
+0x0001D730	0x00000008	[  4] literal string: KP_Home
+0x0001D738	0x00000008	[  4] literal string: KP_Left
+0x0001D740	0x00000006	[  4] literal string: KP_Up
+0x0001D748	0x00000009	[  4] literal string: KP_Right
+0x0001D758	0x00000008	[  4] literal string: KP_Down
+0x0001D760	0x0000000B	[  4] literal string: KP_Page_Up
+0x0001D770	0x0000000D	[  4] literal string: KP_Page_Down
+0x0001D780	0x00000007	[  4] literal string: KP_End
+0x0001D788	0x00000009	[  4] literal string: KP_Begin
+0x0001D798	0x0000000A	[  4] literal string: KP_Insert
+0x0001D7A8	0x0000000A	[  4] literal string: KP_Delete
+0x0001D7B8	0x0000000C	[  4] literal string: KP_Multiply
+0x0001D7C8	0x00000007	[  4] literal string: KP_Add
+0x0001D7D0	0x0000000D	[  4] literal string: KP_Separator
+0x0001D7E0	0x0000000C	[  4] literal string: KP_Subtract
+0x0001D7F0	0x0000000B	[  4] literal string: KP_Decimal
+0x0001D800	0x0000000A	[  4] literal string: KP_Divide
+0x0001D810	0x00000005	[  4] literal string: KP_0
+0x0001D818	0x00000005	[  4] literal string: KP_1
+0x0001D820	0x00000005	[  4] literal string: KP_2
+0x0001D828	0x00000005	[  4] literal string: KP_3
+0x0001D830	0x00000005	[  4] literal string: KP_4
+0x0001D838	0x00000005	[  4] literal string: KP_5
+0x0001D840	0x00000005	[  4] literal string: KP_6
+0x0001D848	0x00000005	[  4] literal string: KP_7
+0x0001D850	0x00000005	[  4] literal string: KP_8
+0x0001D858	0x00000005	[  4] literal string: KP_9
+0x0001D860	0x00000009	[  4] literal string: KP_Equal
+0x0001D870	0x00000003	[  4] literal string: F1
+0x0001D878	0x00000003	[  4] literal string: F2
+0x0001D880	0x00000003	[  4] literal string: F3
+0x0001D888	0x00000003	[  4] literal string: F4
+0x0001D890	0x00000003	[  4] literal string: F5
+0x0001D898	0x00000003	[  4] literal string: F6
+0x0001D8A0	0x00000003	[  4] literal string: F7
+0x0001D8A8	0x00000003	[  4] literal string: F8
+0x0001D8B0	0x00000003	[  4] literal string: F9
+0x0001D8B8	0x00000004	[  4] literal string: F10
+0x0001D8C0	0x00000004	[  4] literal string: F11
+0x0001D8C8	0x00000004	[  4] literal string: F12
+0x0001D8D0	0x00000004	[  4] literal string: F13
+0x0001D8D8	0x00000004	[  4] literal string: F14
+0x0001D8E0	0x00000004	[  4] literal string: F15
+0x0001D8E8	0x00000004	[  4] literal string: F16
+0x0001D8F0	0x00000004	[  4] literal string: F17
+0x0001D8F8	0x00000004	[  4] literal string: F18
+0x0001D900	0x00000004	[  4] literal string: F19
+0x0001D908	0x00000004	[  4] literal string: F20
+0x0001D910	0x00000004	[  4] literal string: F21
+0x0001D918	0x00000004	[  4] literal string: F22
+0x0001D920	0x00000004	[  4] literal string: F23
+0x0001D928	0x00000004	[  4] literal string: F24
+0x0001D930	0x00000004	[  4] literal string: F25
+0x0001D938	0x00000004	[  4] literal string: F26
+0x0001D940	0x00000004	[  4] literal string: F27
+0x0001D948	0x00000004	[  4] literal string: F28
+0x0001D950	0x00000004	[  4] literal string: F29
+0x0001D958	0x00000004	[  4] literal string: F30
+0x0001D960	0x00000004	[  4] literal string: F31
+0x0001D968	0x00000004	[  4] literal string: F32
+0x0001D970	0x00000004	[  4] literal string: F33
+0x0001D978	0x00000004	[  4] literal string: F34
+0x0001D980	0x00000004	[  4] literal string: F35
+0x0001D988	0x00000008	[  4] literal string: Shift_L
+0x0001D990	0x00000008	[  4] literal string: Shift_R
+0x0001D998	0x0000000A	[  4] literal string: Control_L
+0x0001D9A8	0x0000000A	[  4] literal string: Control_R
+0x0001D9B8	0x0000000A	[  4] literal string: Caps_Lock
+0x0001D9C8	0x0000000B	[  4] literal string: Shift_Lock
+0x0001D9D8	0x00000007	[  4] literal string: Meta_L
+0x0001D9E0	0x00000007	[  4] literal string: Meta_R
+0x0001D9E8	0x00000006	[  4] literal string: Alt_L
+0x0001D9F0	0x00000006	[  4] literal string: Alt_R
+0x0001D9F8	0x00000008	[  4] literal string: Super_L
+0x0001DA00	0x00000008	[  4] literal string: Super_R
+0x0001DA08	0x00000008	[  4] literal string: Hyper_L
+0x0001DA10	0x00000008	[  4] literal string: Hyper_R
+0x0001DA18	0x00000007	[  4] literal string: Delete
+0x0001DA20	0x00000006	[  4] literal string: space
+0x0001DA28	0x00000007	[  4] literal string: exclam
+0x0001DA30	0x00000009	[  4] literal string: quotedbl
+0x0001DA40	0x0000000B	[  4] literal string: numbersign
+0x0001DA50	0x00000007	[  4] literal string: dollar
+0x0001DA58	0x00000008	[  4] literal string: percent
+0x0001DA60	0x0000000A	[  4] literal string: ampersand
+0x0001DA70	0x0000000B	[  4] literal string: apostrophe
+0x0001DA80	0x0000000A	[  4] literal string: parenleft
+0x0001DA90	0x0000000B	[  4] literal string: parenright
+0x0001DAA0	0x00000009	[  4] literal string: asterisk
+0x0001DAB0	0x00000005	[  4] literal string: plus
+0x0001DAB8	0x00000006	[  4] literal string: comma
+0x0001DAC0	0x00000006	[  4] literal string: minus
+0x0001DAC8	0x00000007	[  4] literal string: period
+0x0001DAD0	0x00000006	[  4] literal string: slash
+0x0001DAD8	0x00000002	[  4] literal string: 0
+0x0001DAE0	0x00000002	[  4] literal string: 1
+0x0001DAE8	0x00000002	[  4] literal string: 2
+0x0001DAF0	0x00000002	[  4] literal string: 3
+0x0001DAF8	0x00000002	[  4] literal string: 4
+0x0001DB00	0x00000002	[  4] literal string: 5
+0x0001DB08	0x00000002	[  4] literal string: 6
+0x0001DB10	0x00000002	[  4] literal string: 7
+0x0001DB18	0x00000002	[  4] literal string: 8
+0x0001DB20	0x00000002	[  4] literal string: 9
+0x0001DB28	0x00000006	[  4] literal string: colon
+0x0001DB30	0x0000000A	[  4] literal string: semicolon
+0x0001DB40	0x00000005	[  4] literal string: less
+0x0001DB48	0x00000006	[  4] literal string: equal
+0x0001DB50	0x00000008	[  4] literal string: greater
+0x0001DB58	0x00000009	[  4] literal string: question
+0x0001DB68	0x00000003	[  4] literal string: at
+0x0001DB70	0x00000002	[  4] literal string: A
+0x0001DB78	0x00000002	[  4] literal string: B
+0x0001DB80	0x00000002	[  4] literal string: C
+0x0001DB88	0x00000002	[  4] literal string: D
+0x0001DB90	0x00000002	[  4] literal string: E
+0x0001DB98	0x00000002	[  4] literal string: F
+0x0001DBA0	0x00000002	[  4] literal string: G
+0x0001DBA8	0x00000002	[  4] literal string: H
+0x0001DBB0	0x00000002	[  4] literal string: I
+0x0001DBB8	0x00000002	[  4] literal string: J
+0x0001DBC0	0x00000002	[  4] literal string: K
+0x0001DBC8	0x00000002	[  4] literal string: L
+0x0001DBD0	0x00000002	[  4] literal string: M
+0x0001DBD8	0x00000002	[  4] literal string: N
+0x0001DBE0	0x00000002	[  4] literal string: O
+0x0001DBE8	0x00000002	[  4] literal string: P
+0x0001DBF0	0x00000002	[  4] literal string: Q
+0x0001DBF8	0x00000002	[  4] literal string: R
+0x0001DC00	0x00000002	[  4] literal string: S
+0x0001DC08	0x00000002	[  4] literal string: T
+0x0001DC10	0x00000002	[  4] literal string: U
+0x0001DC18	0x00000002	[  4] literal string: V
+0x0001DC20	0x00000002	[  4] literal string: W
+0x0001DC28	0x00000002	[  4] literal string: X
+0x0001DC30	0x00000002	[  4] literal string: Y
+0x0001DC38	0x00000002	[  4] literal string: Z
+0x0001DC40	0x0000000C	[  4] literal string: bracketleft
+0x0001DC50	0x0000000A	[  4] literal string: backslash
+0x0001DC60	0x0000000D	[  4] literal string: bracketright
+0x0001DC70	0x0000000C	[  4] literal string: asciicircum
+0x0001DC80	0x0000000B	[  4] literal string: underscore
+0x0001DC90	0x00000006	[  4] literal string: grave
+0x0001DC98	0x00000002	[  4] literal string: a
+0x0001DCA0	0x00000002	[  4] literal string: b
+0x0001DCA8	0x00000002	[  4] literal string: c
+0x0001DCB0	0x00000002	[  4] literal string: d
+0x0001DCB8	0x00000002	[  4] literal string: e
+0x0001DCC0	0x00000002	[  4] literal string: f
+0x0001DCC8	0x00000002	[  4] literal string: g
+0x0001DCD0	0x00000002	[  4] literal string: h
+0x0001DCD8	0x00000002	[  4] literal string: i
+0x0001DCE0	0x00000002	[  4] literal string: j
+0x0001DCE8	0x00000002	[  4] literal string: k
+0x0001DCF0	0x00000002	[  4] literal string: l
+0x0001DCF8	0x00000002	[  4] literal string: m
+0x0001DD00	0x00000002	[  4] literal string: n
+0x0001DD08	0x00000002	[  4] literal string: o
+0x0001DD10	0x00000002	[  4] literal string: p
+0x0001DD18	0x00000002	[  4] literal string: q
+0x0001DD20	0x00000002	[  4] literal string: r
+0x0001DD28	0x00000002	[  4] literal string: s
+0x0001DD30	0x00000002	[  4] literal string: t
+0x0001DD38	0x00000002	[  4] literal string: u
+0x0001DD40	0x00000002	[  4] literal string: v
+0x0001DD48	0x00000002	[  4] literal string: w
+0x0001DD50	0x00000002	[  4] literal string: x
+0x0001DD58	0x00000002	[  4] literal string: y
+0x0001DD60	0x00000002	[  4] literal string: z
+0x0001DD68	0x0000000A	[  4] literal string: braceleft
+0x0001DD78	0x00000004	[  4] literal string: bar
+0x0001DD80	0x0000000B	[  4] literal string: braceright
+0x0001DD90	0x0000000B	[  4] literal string: asciitilde
+0x0001DDA0	0x00000030	[  8] literal string: Warning: Repeat parameter too large in snapshot
+0x0001DDD0	0x00000024	[  8] literal string: Warning: Illegal ending of snapshot
+0x0001DDF8	0x00000023	[  8] literal string: Warning: Page too long in snapshot
+0x0001DE20	0x00000024	[  8] literal string: Warning: Page too short in snapshot
+0x0001DE48	0x00000026	[  8] literal string: Error, End Of File in snapshot header
+0x0001DE70	0x00000014	[  8] literal string: Error in Z80 header
+0x0001DE88	0x0000001C	[  8] literal string: Can't load non 48k snapshot
+0x0001DEA8	0x00000027	[  8] literal string: Can't load snapshot: IF1 roma paged in
+0x0001DED0	0x00000022	[  8] literal string: Error, End Of File in page header
+0x0001DEF8	0x00000027	[  8] literal string: Warning: Snapshot file too short (z80)
+0x0001DF20	0x00000020	[  8] literal string: Warning: Snapshot file too long
+0x0001DF40	0x00000004	[  8] literal string: z80
+0x0001DF48	0x00000004	[  8] literal string: sna
+0x0001DF50	0x0000001F	[  8] literal string: Could not create snapshot file
+0x0001DF70	0x0000001A	[  8] literal string: Saved snapshot to file %s
+0x0001DF90	0x00000025	[  8] literal string: Enter name of snapshot file to save:
+0x0001DFB8	0x00000022	[  8] literal string: Could not open snapshot file `%s'
+0x0001DFE0	0x00000027	[  8] literal string: Warning: Snapshot file too short (sna)
+0x0001E008	0x0000001C	[  8] literal string: No quick snapshot saved yet
+0x0001E028	0x00000025	[  8] literal string: Enter name of snapshot file to load:
+0x0001E050	0x00000004	[  9] literal string: tzx
+0x0001E058	0x00000004	[  9] literal string: tap
+0x0001E060	0x00000005	[ 11] literal string: none
+0x0001E068	0x00000006	[ 11] literal string: enter
+0x0001E070	0x0000000A	[ 11] literal string: capsshift
+0x0001E080	0x0000000C	[ 11] literal string: symbolshift
+0x0001E090	0x0000000C	[ 11] literal string: kempston_up
+0x0001E0A0	0x0000000E	[ 11] literal string: kempston_down
+0x0001E0B0	0x0000000E	[ 11] literal string: kempston_left
+0x0001E0C0	0x0000000F	[ 11] literal string: kempston_right
+0x0001E0D0	0x0000000E	[ 11] literal string: kempston_fire
+0x0001E0E0	0x0000000A	[ 12] literal string: zxbox.cfg
+0x0001E0F0	0x00000016	[ 12] literal string: Loading snapshot '%s'
+0x0001E108	0x00000015	[ 12] literal string: Map Keys to kempston
+0x0001E120	0x0000000E	[ 12] literal string: Display Speed
+0x0001E130	0x0000000E	[ 12] literal string: Invert Colors
+0x0001E140	0x00000016	[ 12] literal string: Restart to see effect
+0x0001E158	0x0000000A	[ 12] literal string: Frameskip
+0x0001E168	0x00000006	[ 12] literal string: Sound
+0x0001E170	0x00000007	[ 12] literal string: Volume
+0x0001E178	0x00000006	[ 12] literal string: 2w90z
+0x0001E180	0x00000006	[ 12] literal string: qaopS
+0x0001E188	0x00000006	[ 12] literal string: 7658S
+0x0001E190	0x00000013	[ 12] literal string: Saving settings...
+0x0001E1A8	0x0000000B	[ 12] literal string: Map Up key
+0x0001E1B8	0x0000000D	[ 12] literal string: Map Down key
+0x0001E1C8	0x0000000D	[ 12] literal string: Map Left key
+0x0001E1D8	0x0000000E	[ 12] literal string: Map Right key
+0x0001E1E8	0x00000012	[ 12] literal string: Map Fire/Jump key
+0x0001E200	0x0000000E	[ 12] literal string: Custom keymap
+0x0001E210	0x00000012	[ 12] literal string: Predefined keymap
+0x0001E228	0x00000008	[ 12] literal string: Options
+0x0001E230	0x00000003	[ 12] literal string: No
+0x0001E238	0x00000004	[ 12] literal string: Yes
+0x0001E240	0x0000000A	[ 12] literal string: VKeyboard
+0x0001E250	0x00000010	[ 12] literal string: Play/Pause Tape
+0x0001E260	0x00000014	[ 12] literal string: Save quick snapshot
+0x0001E278	0x00000014	[ 12] literal string: Load quick snapshot
+0x0001E290	0x0000000E	[ 12] literal string: Save Snapshot
+0x0001E2A0	0x00000013	[ 12] literal string: Toggle \"fast\" mode
+0x0001E2B8	0x00000005	[ 12] literal string: Quit
+0x0001E2C0	0x00000006	[ 12] literal string: ZXBox
+0x0001E2C8	0x00000015	[ 12] literal string: Map keys to kempston
+0x0001E2E0	0x0000000B	[ 12] literal string: Show Speed
+0x0001E2F0	0x0000000C	[ 12] literal string: Key Mapping
+0x0001E300	0x00000006	[ 16] literal string: %4d: 
+0x0001E308	0x0000000D	[ 16] literal string: %5ld bytes, 
+0x0001E318	0x00000007	[ 16] literal string:       
+0x0001E320	0x00000005	[ 16] literal string: %4d:
+0x0001E328	0x0000002B	[ 16] literal string:  * Tape paused; Press Ctrl-o to restart * 
+0x0001E358	0x00000005	[ 16] literal string: %3dk
+0x0001E360	0x00000012	[ 16] literal string:  * Tape paused * 
+0x0001E378	0x0000001B	[ 16] literal string:  * Stop the tape first! * 
+0x0001E398	0x00000016	[ 16] literal string: Enter tape file path:
+0x0001E3B0	0x00000016	[ 16] literal string:  * Stopped playing * 
+0x0001E3C8	0x00000017	[ 16] literal string: Not quick loading tape
+0x0001E3E0	0x00000019	[ 18] literal string: Premature end of segment
+0x0001E400	0x0000000C	[ 18] literal string: End of Tape
+0x0001E410	0x00000005	[ 18] literal string: Data
+0x0001E418	0x0000000B	[ 18] literal string: Turbo Data
+0x0001E428	0x0000000A	[ 18] literal string: Pure Tone
+0x0001E438	0x0000000F	[ 18] literal string: Pulse Sequence
+0x0001E448	0x0000000A	[ 18] literal string: Pure Data
+0x0001E458	0x00000011	[ 18] literal string: Direct Recording
+0x0001E470	0x00000013	[ 18] literal string: Stop the Tape Mark
+0x0001E488	0x00000013	[ 18] literal string: Pause for %i.%03is
+0x0001E4A0	0x0000000E	[ 18] literal string: Begin Group: 
+0x0001E4B0	0x0000000A	[ 18] literal string: End Group
+0x0001E4C0	0x0000000E	[ 18] literal string: Infinite loop
+0x0001E4D0	0x0000000B	[ 18] literal string: Jump to %i
+0x0001E4E0	0x0000000E	[ 18] literal string: Loop %i times
+0x0001E4F0	0x0000000C	[ 18] literal string: Loop to: %i
+0x0001E500	0x00000009	[ 18] literal string: Loop End
+0x0001E510	0x0000000B	[ 18] literal string: Call to %i
+0x0001E520	0x00000012	[ 18] literal string: Call Sequence End
+0x0001E538	0x0000001E	[ 18] literal string: Selection (Not yet supported)
+0x0001E558	0x00000024	[ 18] literal string: Stop the Tape in 48k Mode (Stopped)
+0x0001E580	0x00000028	[ 18] literal string: Stop the Tape in 48k Mode (Not Stopped)
+0x0001E5A8	0x00000029	[ 18] literal string: Hardware Information (Not yet supported)
+0x0001E5D8	0x0000002A	[ 18] literal string: Emulation Information (Not yet supported)
+0x0001E608	0x00000027	[ 18] literal string: Custom Information (Not yet supported)
+0x0001E630	0x0000001D	[ 18] literal string: Snapshot (Not yet supported)
+0x0001E650	0x0000001D	[ 18] literal string: Tapefile Concatenation Point
+0x0001E670	0x0000002F	[ 18] literal string: Unknown TZX block (id: %02X, version: %i.%02i)
+0x0001E6A0	0x00000012	[ 18] literal string: Illegal tape type
+0x0001E6B8	0x00000029	[ 18] literal string: Cannot handle TZX file version (%i.%02i)
+0x0001E6E8	0x00000018	[ 18] literal string: Illegal TZX file header
+0x0001E700	0x00000011	[ 28] literal string: Welcome to ZXBox
+0x0001E718	0x0000002C	[ 29] literal string: 1234567890\nqwertyuiop\nasdfghjkl\nzxcvbnm\nS\nE
+0x0001E748	0x00000006	[ 30] literal string: %d %%
+0x0001E74E	0x0000000A	[ 32] literal string: /.rockbox
+0x0001E758	0x00000004	[ 32] literal string: /%s
+0x0001E75C	0x00000013	[ 32] literal string: /.rockbox/rocks/%s
+0x0001E76F	0x00000014	[ 32] literal string: file version: %10d\n
+0x0001E783	0x0000000A	[ 32] literal string: %s: %10d\n
+0x0001E78D	0x00000008	[ 32] literal string: %s: %s\n
+0x0001E795	0x0000000D	[ 32] literal string: file version
+0x0001E7B0	0x00000008	[  5] _loadim_size
+0x0001E7C0	0x00000010	[  6] 16-byte-literal
+0x0001E7D0	0x00000010	[  6] 16-byte-literal
+0x0001E7E0	0x00000010	[  6] 16-byte-literal
+0x0001E7F0	0x00000010	[  6] 16-byte-literal
+0x0001E800	0x00000008	[  7] _rom_imag_size
+0x0001E810	0x00000010	[ 11] 16-byte-literal
+0x0001E820	0x00000008	[ 12] lC0
+0x0001E830	0x00000010	[ 12] 16-byte-literal
+0x0001E840	0x00000010	[ 16] 16-byte-literal
+0x0001E850	0x00000010	[ 16] 16-byte-literal
+0x0001E860	0x00000010	[ 16] 16-byte-literal
+0x0001E870	0x00000010	[ 16] 16-byte-literal
+0x0001E880	0x00000010	[ 16] 16-byte-literal
+0x0001E890	0x00000010	[ 16] 16-byte-literal
+0x0001E8A0	0x00000010	[ 16] 16-byte-literal
+0x0001E8B0	0x00000010	[ 16] 16-byte-literal
+0x0001E8C0	0x00000010	[ 16] 16-byte-literal
+0x0001E8D0	0x00000010	[ 16] 16-byte-literal
+0x0001E8E0	0x00000010	[ 16] 16-byte-literal
+0x0001E8F0	0x00000010	[ 16] 16-byte-literal
+0x0001E900	0x00000010	[ 16] 16-byte-literal
+0x0001E910	0x00000008	[ 16] lC20
+0x0001E918	0x00000600	[ 18] _tzxb
+0x0001EF18	0x00000008	[ 18] lC29
+0x0001EF20	0x00000008	[ 18] lC30
+0x0001EF28	0x00000008	[ 18] lC31
+0x0001EF30	0x00000008	[ 18] lC32
+0x0001EF38	0x00000008	[ 18] lC33
+0x0001EF40	0x00000008	[ 18] lC34
+0x0001EF48	0x00000008	[ 18] lC35
+0x0001EF50	0x00000008	[ 18] lC36
+0x0001EF58	0x00000008	[ 18] lC37
+0x0001EF60	0x00000008	[ 18] lC38
+0x0001EF68	0x00000008	[ 18] lC39
+0x0001EF70	0x00000080	[ 30] __16bpp_colors
+0x0001EFF0	0x00000010	[ 30] 16-byte-literal
+0x0001F000	0x00000018	[  1] CFI
+0x0001F018	0x00000080	[  1] FDE for: _compr
+0x0001F098	0x00000018	[  2] CFI
+0x0001F0B0	0x00000040	[  2] FDE for: _my_getc
+0x0001F0F0	0x00000020	[  2] FDE for: _my_ftell
+0x0001F110	0x00000038	[  2] FDE for: _my_putc
+0x0001F148	0x00000048	[  2] FDE for: _my_malloc
+0x0001F190	0x00000018	[  3] CFI
+0x0001F1A8	0x00000020	[  3] FDE for: _spif_get_filename
+0x0001F1C8	0x00000020	[  3] FDE for: _spif_get_tape_fileinfo
+0x0001F1E8	0x00000020	[  3] FDE for: _put_msg
+0x0001F208	0x00000020	[  3] FDE for: _put_tmp_msg
+0x0001F228	0x00000018	[  6] CFI
+0x0001F240	0x00000020	[  6] FDE for: _get_base_name
+0x0001F260	0x000000A8	[  6] FDE for: _check_ext
+0x0001F308	0x00000058	[  6] FDE for: _add_extension
+0x0001F360	0x00000050	[  6] FDE for: _file_exist
+0x0001F3B0	0x00000060	[  6] FDE for: _try_extension
+0x0001F410	0x00000020	[  6] FDE for: _malloc_err
+0x0001F430	0x00000040	[  6] FDE for: _make_string
+0x0001F470	0x00000020	[  6] FDE for: _free_string
+0x0001F490	0x00000050	[  6] FDE for: _mis_strcasecmp
+0x0001F4E0	0x00000018	[  8] CFI
+0x0001F4F8	0x00000108	[  8] FDE for: _read_compressed_data
+0x0001F600	0x000000D0	[  8] FDE for: _snsh_z80_load
+0x0001F6D0	0x00000020	[  8] FDE for: _compr_read_byte
+0x0001F6F0	0x00000020	[  8] FDE for: _compr_put_byte
+0x0001F710	0x00000098	[  8] FDE for: _save_snapshot_file
+0x0001F7A8	0x00000060	[  8] FDE for: _save_quick_snapshot
+0x0001F808	0x00000050	[  8] FDE for: _save_snapshot
+0x0001F858	0x00000070	[  8] FDE for: _load_snapshot_file_type
+0x0001F8C8	0x00000038	[  8] FDE for: _snsh_z80_load_intern
+0x0001F900	0x00000058	[  8] FDE for: _load_quick_snapshot
+0x0001F958	0x00000048	[  8] FDE for: _load_snapshot
+0x0001F9A0	0x00000018	[  9] CFI
+0x0001F9B8	0x00000068	[  9] FDE for: _spcf_find_file_type
+0x0001FA20	0x00000078	[  9] FDE for: _spcf_read_command_line
+0x0001FA98	0x00000018	[ 10] CFI
+0x0001FAB0	0x00000088	[ 10] FDE for: _sp_halfframe
+0x0001FB38	0x00000018	[ 11] CFI
+0x0001FB50	0x00000020	[ 11] FDE for: _copy_key
+0x0001FB70	0x00000020	[ 11] FDE for: _spkey_new_custom
+0x0001FB90	0x00000098	[ 11] FDE for: _spkey_add_custom
+0x0001FC28	0x00000068	[ 11] FDE for: _init_basekeys
+0x0001FC90	0x00000070	[ 11] FDE for: _spkb_refresh
+0x0001FD00	0x00000068	[ 11] FDE for: _process_keys
+0x0001FD68	0x00000020	[ 11] FDE for: _clear_keystates
+0x0001FD88	0x00000018	[ 12] CFI
+0x0001FDA0	0x00000050	[ 12] FDE for: _spcf_read_conf_file
+0x0001FDF0	0x00000040	[ 12] FDE for: _check_params
+0x0001FE30	0x00000110	[ 12] FDE for: _start_spectemu
+0x0001FF40	0x00000018	[ 13] CFI
+0x0001FF58	0x00000020	[ 13] FDE for: _sp_init_screen_mark
+0x0001FF78	0x00000038	[ 13] FDE for: _sp_init
+0x0001FFB0	0x00000018	[ 14] CFI
+0x0001FFC8	0x00000020	[ 14] FDE for: _update_screen_line
+0x0001FFE8	0x00000020	[ 14] FDE for: _spscr_init_mask_color
+0x00020008	0x00000020	[ 14] FDE for: _flash_change
+0x00020028	0x00000020	[ 14] FDE for: _spscr_init_line_pointers
+0x00020048	0x00000018	[ 15] CFI
+0x00020060	0x00000020	[ 15] FDE for: _setbufsize
+0x00020080	0x00000020	[ 15] FDE for: _init_spect_sound
+0x000200A0	0x00000020	[ 15] FDE for: _play_sound
+0x000200C0	0x00000020	[ 15] FDE for: _autoclose_sound
+0x000200E0	0x00000018	[ 16] CFI
+0x000200F8	0x00000080	[ 16] FDE for: _get_next_segment
+0x00020178	0x000000E8	[ 16] FDE for: _play_tape
+0x00020260	0x00000020	[ 16] FDE for: _rec_tape
+0x00020280	0x00000038	[ 16] FDE for: _pause_play
+0x000202B8	0x00000078	[ 16] FDE for: _start_play_file_type
+0x00020330	0x00000038	[ 16] FDE for: _start_play
+0x00020368	0x00000048	[ 16] FDE for: _stop_play
+0x000203B0	0x00000020	[ 16] FDE for: _start_rec
+0x000203D0	0x00000088	[ 16] FDE for: _qload
+0x00020458	0x00000018	[ 17] CFI
+0x00020470	0x00000020	[ 17] FDE for: _spti_init
+0x00020490	0x00000020	[ 17] FDE for: _spti_sleep
+0x000204B0	0x00000020	[ 17] FDE for: _spti_reset
+0x000204D0	0x00000038	[ 17] FDE for: _spti_wait
+0x00020508	0x00000018	[ 18] CFI
+0x00020520	0x00000150	[ 18] FDE for: _jump_to_segment.constprop.0
+0x00020670	0x000000E0	[ 18] FDE for: _interpret_tzx_header.constprop.0
+0x00020750	0x000000B8	[ 18] FDE for: _tf_get_block
+0x00020808	0x00000048	[ 18] FDE for: _next_byte
+0x00020850	0x000000C8	[ 18] FDE for: _next_imps
+0x00020918	0x00000070	[ 18] FDE for: _next_segment
+0x00020988	0x00000038	[ 18] FDE for: _goto_segment
+0x000209C0	0x00000020	[ 18] FDE for: _segment_pos
+0x000209E0	0x00000038	[ 18] FDE for: _close_tapefile
+0x00020A18	0x000000A0	[ 18] FDE for: _open_tapefile
+0x00020AB8	0x00000020	[ 18] FDE for: _get_level
+0x00020AD8	0x00000020	[ 18] FDE for: _get_seglen
+0x00020AF8	0x00000020	[ 18] FDE for: _get_segpos
+0x00020B18	0x00000020	[ 18] FDE for: _set_tapefile_options
+0x00020B38	0x00000018	[ 19] CFI
+0x00020B50	0x00000058	[ 19] FDE for: _z80_init
+0x00020BA8	0x00000040	[ 19] FDE for: _z80_nmi
+0x00020BE8	0x00000050	[ 19] FDE for: _z80_interrupt
+0x00020C38	0x00000020	[ 19] FDE for: _z80_reset
+0x00020C58	0x00000018	[ 20] CFI
+0x00020C70	0x00000020	[ 20] FDE for: _z80op_nop
+0x00020C90	0x00000020	[ 20] FDE for: _z80op_ex_af_afb
+0x00020CB0	0x00000020	[ 20] FDE for: _z80op_djnz_e
+0x00020CD0	0x00000020	[ 20] FDE for: _z80op_jr_e
+0x00020CF0	0x00000020	[ 20] FDE for: _z80op_jr_nz_e
+0x00020D10	0x00000020	[ 20] FDE for: _z80op_jr_z_e
+0x00020D30	0x00000020	[ 20] FDE for: _z80op_jr_nc_e
+0x00020D50	0x00000020	[ 20] FDE for: _z80op_jr_c_e
+0x00020D70	0x00000020	[ 20] FDE for: _z80op_ld_bc_nn
+0x00020D90	0x00000020	[ 20] FDE for: _z80op_ld_de_nn
+0x00020DB0	0x00000020	[ 20] FDE for: _z80op_ld_hl_nn
+0x00020DD0	0x00000020	[ 20] FDE for: _z80op_ld_sp_nn
+0x00020DF0	0x00000020	[ 20] FDE for: _z80op_add_hl_bc
+0x00020E10	0x00000020	[ 20] FDE for: _z80op_add_hl_de
+0x00020E30	0x00000020	[ 20] FDE for: _z80op_add_hl_hl
+0x00020E50	0x00000020	[ 20] FDE for: _z80op_add_hl_sp
+0x00020E70	0x00000020	[ 20] FDE for: _z80op_inc_bc
+0x00020E90	0x00000020	[ 20] FDE for: _z80op_inc_de
+0x00020EB0	0x00000020	[ 20] FDE for: _z80op_inc_hl
+0x00020ED0	0x00000020	[ 20] FDE for: _z80op_inc_sp
+0x00020EF0	0x00000020	[ 20] FDE for: _z80op_dec_bc
+0x00020F10	0x00000020	[ 20] FDE for: _z80op_dec_de
+0x00020F30	0x00000020	[ 20] FDE for: _z80op_dec_hl
+0x00020F50	0x00000020	[ 20] FDE for: _z80op_dec_sp
+0x00020F70	0x00000020	[ 20] FDE for: _z80op_ld_ibc_a
+0x00020F90	0x00000020	[ 20] FDE for: _z80op_ld_ide_a
+0x00020FB0	0x00000020	[ 20] FDE for: _z80op_ld_inn_hl
+0x00020FD0	0x00000020	[ 20] FDE for: _z80op_ld_inn_a
+0x00020FF0	0x00000020	[ 20] FDE for: _z80op_ld_a_ibc
+0x00021010	0x00000020	[ 20] FDE for: _z80op_ld_a_ide
+0x00021030	0x00000020	[ 20] FDE for: _z80op_ld_hl_inn
+0x00021050	0x00000020	[ 20] FDE for: _z80op_ld_a_inn
+0x00021070	0x00000020	[ 20] FDE for: _z80op_inc_b
+0x00021090	0x00000020	[ 20] FDE for: _z80op_inc_c
+0x000210B0	0x00000020	[ 20] FDE for: _z80op_inc_d
+0x000210D0	0x00000020	[ 20] FDE for: _z80op_inc_e
+0x000210F0	0x00000020	[ 20] FDE for: _z80op_inc_h
+0x00021110	0x00000020	[ 20] FDE for: _z80op_inc_l
+0x00021130	0x00000020	[ 20] FDE for: _z80op_inc_a
+0x00021150	0x00000020	[ 20] FDE for: _z80op_inc_ihl
+0x00021170	0x00000020	[ 20] FDE for: _z80op_dec_b
+0x00021190	0x00000020	[ 20] FDE for: _z80op_dec_c
+0x000211B0	0x00000020	[ 20] FDE for: _z80op_dec_d
+0x000211D0	0x00000020	[ 20] FDE for: _z80op_dec_e
+0x000211F0	0x00000020	[ 20] FDE for: _z80op_dec_h
+0x00021210	0x00000020	[ 20] FDE for: _z80op_dec_l
+0x00021230	0x00000020	[ 20] FDE for: _z80op_dec_a
+0x00021250	0x00000020	[ 20] FDE for: _z80op_dec_ihl
+0x00021270	0x00000020	[ 20] FDE for: _z80op_ld_b_n
+0x00021290	0x00000020	[ 20] FDE for: _z80op_ld_c_n
+0x000212B0	0x00000020	[ 20] FDE for: _z80op_ld_d_n
+0x000212D0	0x00000020	[ 20] FDE for: _z80op_ld_e_n
+0x000212F0	0x00000020	[ 20] FDE for: _z80op_ld_h_n
+0x00021310	0x00000020	[ 20] FDE for: _z80op_ld_l_n
+0x00021330	0x00000020	[ 20] FDE for: _z80op_ld_a_n
+0x00021350	0x00000020	[ 20] FDE for: _z80op_ld_ihl_n
+0x00021370	0x00000020	[ 20] FDE for: _z80op_rlca
+0x00021390	0x00000020	[ 20] FDE for: _z80op_rrca
+0x000213B0	0x00000020	[ 20] FDE for: _z80op_rla
+0x000213D0	0x00000020	[ 20] FDE for: _z80op_rra
+0x000213F0	0x00000020	[ 20] FDE for: _z80op_daa
+0x00021410	0x00000020	[ 20] FDE for: _z80op_cpl
+0x00021430	0x00000020	[ 20] FDE for: _z80op_scf
+0x00021450	0x00000020	[ 20] FDE for: _z80op_ccf
+0x00021470	0x00000020	[ 20] FDE for: _z80op_ld_ix_nn
+0x00021490	0x00000020	[ 20] FDE for: _z80op_add_ix_bc
+0x000214B0	0x00000020	[ 20] FDE for: _z80op_add_ix_de
+0x000214D0	0x00000020	[ 20] FDE for: _z80op_add_ix_ix
+0x000214F0	0x00000020	[ 20] FDE for: _z80op_add_ix_sp
+0x00021510	0x00000020	[ 20] FDE for: _z80op_inc_ix
+0x00021530	0x00000020	[ 20] FDE for: _z80op_dec_ix
+0x00021550	0x00000020	[ 20] FDE for: _z80op_ld_inn_ix
+0x00021570	0x00000020	[ 20] FDE for: _z80op_ld_ix_inn
+0x00021590	0x00000020	[ 20] FDE for: _z80op_inc_ixh
+0x000215B0	0x00000020	[ 20] FDE for: _z80op_inc_ixl
+0x000215D0	0x00000020	[ 20] FDE for: _z80op_inc_iixd
+0x000215F0	0x00000020	[ 20] FDE for: _z80op_dec_ixh
+0x00021610	0x00000020	[ 20] FDE for: _z80op_dec_ixl
+0x00021630	0x00000020	[ 20] FDE for: _z80op_dec_iixd
+0x00021650	0x00000020	[ 20] FDE for: _z80op_ld_ixh_n
+0x00021670	0x00000020	[ 20] FDE for: _z80op_ld_ixl_n
+0x00021690	0x00000020	[ 20] FDE for: _z80op_ld_iixd_n
+0x000216B0	0x00000020	[ 20] FDE for: _z80op_ld_iy_nn
+0x000216D0	0x00000020	[ 20] FDE for: _z80op_add_iy_bc
+0x000216F0	0x00000020	[ 20] FDE for: _z80op_add_iy_de
+0x00021710	0x00000020	[ 20] FDE for: _z80op_add_iy_iy
+0x00021730	0x00000020	[ 20] FDE for: _z80op_add_iy_sp
+0x00021750	0x00000020	[ 20] FDE for: _z80op_inc_iy
+0x00021770	0x00000020	[ 20] FDE for: _z80op_dec_iy
+0x00021790	0x00000020	[ 20] FDE for: _z80op_ld_inn_iy
+0x000217B0	0x00000020	[ 20] FDE for: _z80op_ld_iy_inn
+0x000217D0	0x00000020	[ 20] FDE for: _z80op_inc_iyh
+0x000217F0	0x00000020	[ 20] FDE for: _z80op_inc_iyl
+0x00021810	0x00000020	[ 20] FDE for: _z80op_inc_iiyd
+0x00021830	0x00000020	[ 20] FDE for: _z80op_dec_iyh
+0x00021850	0x00000020	[ 20] FDE for: _z80op_dec_iyl
+0x00021870	0x00000020	[ 20] FDE for: _z80op_dec_iiyd
+0x00021890	0x00000020	[ 20] FDE for: _z80op_ld_iyh_n
+0x000218B0	0x00000020	[ 20] FDE for: _z80op_ld_iyl_n
+0x000218D0	0x00000020	[ 20] FDE for: _z80op_ld_iiyd_n
+0x000218F0	0x00000018	[ 21] CFI
+0x00021908	0x00000020	[ 21] FDE for: _z80op_halt
+0x00021928	0x00000020	[ 21] FDE for: _z80op_ld_b_c
+0x00021948	0x00000020	[ 21] FDE for: _z80op_ld_b_d
+0x00021968	0x00000020	[ 21] FDE for: _z80op_ld_b_e
+0x00021988	0x00000020	[ 21] FDE for: _z80op_ld_b_h
+0x000219A8	0x00000020	[ 21] FDE for: _z80op_ld_b_l
+0x000219C8	0x00000020	[ 21] FDE for: _z80op_ld_b_a
+0x000219E8	0x00000020	[ 21] FDE for: _z80op_ld_c_b
+0x00021A08	0x00000020	[ 21] FDE for: _z80op_ld_c_d
+0x00021A28	0x00000020	[ 21] FDE for: _z80op_ld_c_e
+0x00021A48	0x00000020	[ 21] FDE for: _z80op_ld_c_h
+0x00021A68	0x00000020	[ 21] FDE for: _z80op_ld_c_l
+0x00021A88	0x00000020	[ 21] FDE for: _z80op_ld_c_a
+0x00021AA8	0x00000020	[ 21] FDE for: _z80op_ld_d_b
+0x00021AC8	0x00000020	[ 21] FDE for: _z80op_ld_d_c
+0x00021AE8	0x00000020	[ 21] FDE for: _z80op_ld_d_e
+0x00021B08	0x00000020	[ 21] FDE for: _z80op_ld_d_h
+0x00021B28	0x00000020	[ 21] FDE for: _z80op_ld_d_l
+0x00021B48	0x00000020	[ 21] FDE for: _z80op_ld_d_a
+0x00021B68	0x00000020	[ 21] FDE for: _z80op_ld_e_b
+0x00021B88	0x00000020	[ 21] FDE for: _z80op_ld_e_c
+0x00021BA8	0x00000020	[ 21] FDE for: _z80op_ld_e_d
+0x00021BC8	0x00000020	[ 21] FDE for: _z80op_ld_e_h
+0x00021BE8	0x00000020	[ 21] FDE for: _z80op_ld_e_l
+0x00021C08	0x00000020	[ 21] FDE for: _z80op_ld_e_a
+0x00021C28	0x00000020	[ 21] FDE for: _z80op_ld_h_b
+0x00021C48	0x00000020	[ 21] FDE for: _z80op_ld_h_c
+0x00021C68	0x00000020	[ 21] FDE for: _z80op_ld_h_d
+0x00021C88	0x00000020	[ 21] FDE for: _z80op_ld_h_e
+0x00021CA8	0x00000020	[ 21] FDE for: _z80op_ld_h_l
+0x00021CC8	0x00000020	[ 21] FDE for: _z80op_ld_h_a
+0x00021CE8	0x00000020	[ 21] FDE for: _z80op_ld_l_b
+0x00021D08	0x00000020	[ 21] FDE for: _z80op_ld_l_c
+0x00021D28	0x00000020	[ 21] FDE for: _z80op_ld_l_d
+0x00021D48	0x00000020	[ 21] FDE for: _z80op_ld_l_e
+0x00021D68	0x00000020	[ 21] FDE for: _z80op_ld_l_h
+0x00021D88	0x00000020	[ 21] FDE for: _z80op_ld_l_a
+0x00021DA8	0x00000020	[ 21] FDE for: _z80op_ld_a_b
+0x00021DC8	0x00000020	[ 21] FDE for: _z80op_ld_a_c
+0x00021DE8	0x00000020	[ 21] FDE for: _z80op_ld_a_d
+0x00021E08	0x00000020	[ 21] FDE for: _z80op_ld_a_e
+0x00021E28	0x00000020	[ 21] FDE for: _z80op_ld_a_h
+0x00021E48	0x00000020	[ 21] FDE for: _z80op_ld_a_l
+0x00021E68	0x00000020	[ 21] FDE for: _z80op_ld_b_ihl
+0x00021E88	0x00000020	[ 21] FDE for: _z80op_ld_c_ihl
+0x00021EA8	0x00000020	[ 21] FDE for: _z80op_ld_d_ihl
+0x00021EC8	0x00000020	[ 21] FDE for: _z80op_ld_e_ihl
+0x00021EE8	0x00000020	[ 21] FDE for: _z80op_ld_h_ihl
+0x00021F08	0x00000020	[ 21] FDE for: _z80op_ld_l_ihl
+0x00021F28	0x00000020	[ 21] FDE for: _z80op_ld_a_ihl
+0x00021F48	0x00000020	[ 21] FDE for: _z80op_ld_ihl_b
+0x00021F68	0x00000020	[ 21] FDE for: _z80op_ld_ihl_c
+0x00021F88	0x00000020	[ 21] FDE for: _z80op_ld_ihl_d
+0x00021FA8	0x00000020	[ 21] FDE for: _z80op_ld_ihl_e
+0x00021FC8	0x00000020	[ 21] FDE for: _z80op_ld_ihl_h
+0x00021FE8	0x00000020	[ 21] FDE for: _z80op_ld_ihl_l
+0x00022008	0x00000020	[ 21] FDE for: _z80op_ld_ihl_a
+0x00022028	0x00000020	[ 21] FDE for: _z80op_ld_b_ixh
+0x00022048	0x00000020	[ 21] FDE for: _z80op_ld_b_ixl
+0x00022068	0x00000020	[ 21] FDE for: _z80op_ld_c_ixh
+0x00022088	0x00000020	[ 21] FDE for: _z80op_ld_c_ixl
+0x000220A8	0x00000020	[ 21] FDE for: _z80op_ld_d_ixh
+0x000220C8	0x00000020	[ 21] FDE for: _z80op_ld_d_ixl
+0x000220E8	0x00000020	[ 21] FDE for: _z80op_ld_e_ixh
+0x00022108	0x00000020	[ 21] FDE for: _z80op_ld_e_ixl
+0x00022128	0x00000020	[ 21] FDE for: _z80op_ld_ixh_b
+0x00022148	0x00000020	[ 21] FDE for: _z80op_ld_ixh_c
+0x00022168	0x00000020	[ 21] FDE for: _z80op_ld_ixh_d
+0x00022188	0x00000020	[ 21] FDE for: _z80op_ld_ixh_e
+0x000221A8	0x00000020	[ 21] FDE for: _z80op_ld_ixh_ixl
+0x000221C8	0x00000020	[ 21] FDE for: _z80op_ld_ixh_a
+0x000221E8	0x00000020	[ 21] FDE for: _z80op_ld_ixl_b
+0x00022208	0x00000020	[ 21] FDE for: _z80op_ld_ixl_c
+0x00022228	0x00000020	[ 21] FDE for: _z80op_ld_ixl_d
+0x00022248	0x00000020	[ 21] FDE for: _z80op_ld_ixl_e
+0x00022268	0x00000020	[ 21] FDE for: _z80op_ld_ixl_ixh
+0x00022288	0x00000020	[ 21] FDE for: _z80op_ld_ixl_a
+0x000222A8	0x00000020	[ 21] FDE for: _z80op_ld_a_ixh
+0x000222C8	0x00000020	[ 21] FDE for: _z80op_ld_a_ixl
+0x000222E8	0x00000020	[ 21] FDE for: _z80op_ld_iixd_b
+0x00022308	0x00000020	[ 21] FDE for: _z80op_ld_iixd_c
+0x00022328	0x00000020	[ 21] FDE for: _z80op_ld_iixd_d
+0x00022348	0x00000020	[ 21] FDE for: _z80op_ld_iixd_e
+0x00022368	0x00000020	[ 21] FDE for: _z80op_ld_iixd_h
+0x00022388	0x00000020	[ 21] FDE for: _z80op_ld_iixd_l
+0x000223A8	0x00000020	[ 21] FDE for: _z80op_ld_iixd_a
+0x000223C8	0x00000020	[ 21] FDE for: _z80op_ld_b_iixd
+0x000223E8	0x00000020	[ 21] FDE for: _z80op_ld_c_iixd
+0x00022408	0x00000020	[ 21] FDE for: _z80op_ld_d_iixd
+0x00022428	0x00000020	[ 21] FDE for: _z80op_ld_e_iixd
+0x00022448	0x00000020	[ 21] FDE for: _z80op_ld_h_iixd
+0x00022468	0x00000020	[ 21] FDE for: _z80op_ld_l_iixd
+0x00022488	0x00000020	[ 21] FDE for: _z80op_ld_a_iixd
+0x000224A8	0x00000020	[ 21] FDE for: _z80op_ld_b_iyh
+0x000224C8	0x00000020	[ 21] FDE for: _z80op_ld_b_iyl
+0x000224E8	0x00000020	[ 21] FDE for: _z80op_ld_c_iyh
+0x00022508	0x00000020	[ 21] FDE for: _z80op_ld_c_iyl
+0x00022528	0x00000020	[ 21] FDE for: _z80op_ld_d_iyh
+0x00022548	0x00000020	[ 21] FDE for: _z80op_ld_d_iyl
+0x00022568	0x00000020	[ 21] FDE for: _z80op_ld_e_iyh
+0x00022588	0x00000020	[ 21] FDE for: _z80op_ld_e_iyl
+0x000225A8	0x00000020	[ 21] FDE for: _z80op_ld_iyh_b
+0x000225C8	0x00000020	[ 21] FDE for: _z80op_ld_iyh_c
+0x000225E8	0x00000020	[ 21] FDE for: _z80op_ld_iyh_d
+0x00022608	0x00000020	[ 21] FDE for: _z80op_ld_iyh_e
+0x00022628	0x00000020	[ 21] FDE for: _z80op_ld_iyh_iyl
+0x00022648	0x00000020	[ 21] FDE for: _z80op_ld_iyh_a
+0x00022668	0x00000020	[ 21] FDE for: _z80op_ld_iyl_b
+0x00022688	0x00000020	[ 21] FDE for: _z80op_ld_iyl_c
+0x000226A8	0x00000020	[ 21] FDE for: _z80op_ld_iyl_d
+0x000226C8	0x00000020	[ 21] FDE for: _z80op_ld_iyl_e
+0x000226E8	0x00000020	[ 21] FDE for: _z80op_ld_iyl_iyh
+0x00022708	0x00000020	[ 21] FDE for: _z80op_ld_iyl_a
+0x00022728	0x00000020	[ 21] FDE for: _z80op_ld_a_iyh
+0x00022748	0x00000020	[ 21] FDE for: _z80op_ld_a_iyl
+0x00022768	0x00000020	[ 21] FDE for: _z80op_ld_iiyd_b
+0x00022788	0x00000020	[ 21] FDE for: _z80op_ld_iiyd_c
+0x000227A8	0x00000020	[ 21] FDE for: _z80op_ld_iiyd_d
+0x000227C8	0x00000020	[ 21] FDE for: _z80op_ld_iiyd_e
+0x000227E8	0x00000020	[ 21] FDE for: _z80op_ld_iiyd_h
+0x00022808	0x00000020	[ 21] FDE for: _z80op_ld_iiyd_l
+0x00022828	0x00000020	[ 21] FDE for: _z80op_ld_iiyd_a
+0x00022848	0x00000020	[ 21] FDE for: _z80op_ld_b_iiyd
+0x00022868	0x00000020	[ 21] FDE for: _z80op_ld_c_iiyd
+0x00022888	0x00000020	[ 21] FDE for: _z80op_ld_d_iiyd
+0x000228A8	0x00000020	[ 21] FDE for: _z80op_ld_e_iiyd
+0x000228C8	0x00000020	[ 21] FDE for: _z80op_ld_h_iiyd
+0x000228E8	0x00000020	[ 21] FDE for: _z80op_ld_l_iiyd
+0x00022908	0x00000020	[ 21] FDE for: _z80op_ld_a_iiyd
+0x00022928	0x00000018	[ 22] CFI
+0x00022940	0x00000020	[ 22] FDE for: _z80op_add_a_b
+0x00022960	0x00000020	[ 22] FDE for: _z80op_add_a_c
+0x00022980	0x00000020	[ 22] FDE for: _z80op_add_a_d
+0x000229A0	0x00000020	[ 22] FDE for: _z80op_add_a_e
+0x000229C0	0x00000020	[ 22] FDE for: _z80op_add_a_h
+0x000229E0	0x00000020	[ 22] FDE for: _z80op_add_a_l
+0x00022A00	0x00000020	[ 22] FDE for: _z80op_add_a_a
+0x00022A20	0x00000020	[ 22] FDE for: _z80op_adc_a_b
+0x00022A40	0x00000020	[ 22] FDE for: _z80op_adc_a_c
+0x00022A60	0x00000020	[ 22] FDE for: _z80op_adc_a_d
+0x00022A80	0x00000020	[ 22] FDE for: _z80op_adc_a_e
+0x00022AA0	0x00000020	[ 22] FDE for: _z80op_adc_a_h
+0x00022AC0	0x00000020	[ 22] FDE for: _z80op_adc_a_l
+0x00022AE0	0x00000020	[ 22] FDE for: _z80op_adc_a_a
+0x00022B00	0x00000020	[ 22] FDE for: _z80op_sub_b
+0x00022B20	0x00000020	[ 22] FDE for: _z80op_sub_c
+0x00022B40	0x00000020	[ 22] FDE for: _z80op_sub_d
+0x00022B60	0x00000020	[ 22] FDE for: _z80op_sub_e
+0x00022B80	0x00000020	[ 22] FDE for: _z80op_sub_h
+0x00022BA0	0x00000020	[ 22] FDE for: _z80op_sub_l
+0x00022BC0	0x00000020	[ 22] FDE for: _z80op_sub_a
+0x00022BE0	0x00000020	[ 22] FDE for: _z80op_sbc_a_b
+0x00022C00	0x00000020	[ 22] FDE for: _z80op_sbc_a_c
+0x00022C20	0x00000020	[ 22] FDE for: _z80op_sbc_a_d
+0x00022C40	0x00000020	[ 22] FDE for: _z80op_sbc_a_e
+0x00022C60	0x00000020	[ 22] FDE for: _z80op_sbc_a_h
+0x00022C80	0x00000020	[ 22] FDE for: _z80op_sbc_a_l
+0x00022CA0	0x00000020	[ 22] FDE for: _z80op_sbc_a_a
+0x00022CC0	0x00000020	[ 22] FDE for: _z80op_and_b
+0x00022CE0	0x00000020	[ 22] FDE for: _z80op_and_c
+0x00022D00	0x00000020	[ 22] FDE for: _z80op_and_d
+0x00022D20	0x00000020	[ 22] FDE for: _z80op_and_e
+0x00022D40	0x00000020	[ 22] FDE for: _z80op_and_h
+0x00022D60	0x00000020	[ 22] FDE for: _z80op_and_l
+0x00022D80	0x00000020	[ 22] FDE for: _z80op_and_a
+0x00022DA0	0x00000020	[ 22] FDE for: _z80op_xor_b
+0x00022DC0	0x00000020	[ 22] FDE for: _z80op_xor_c
+0x00022DE0	0x00000020	[ 22] FDE for: _z80op_xor_d
+0x00022E00	0x00000020	[ 22] FDE for: _z80op_xor_e
+0x00022E20	0x00000020	[ 22] FDE for: _z80op_xor_h
+0x00022E40	0x00000020	[ 22] FDE for: _z80op_xor_l
+0x00022E60	0x00000020	[ 22] FDE for: _z80op_xor_a
+0x00022E80	0x00000020	[ 22] FDE for: _z80op_or_b
+0x00022EA0	0x00000020	[ 22] FDE for: _z80op_or_c
+0x00022EC0	0x00000020	[ 22] FDE for: _z80op_or_d
+0x00022EE0	0x00000020	[ 22] FDE for: _z80op_or_e
+0x00022F00	0x00000020	[ 22] FDE for: _z80op_or_h
+0x00022F20	0x00000020	[ 22] FDE for: _z80op_or_l
+0x00022F40	0x00000020	[ 22] FDE for: _z80op_or_a
+0x00022F60	0x00000020	[ 22] FDE for: _z80op_cp_b
+0x00022F80	0x00000020	[ 22] FDE for: _z80op_cp_c
+0x00022FA0	0x00000020	[ 22] FDE for: _z80op_cp_d
+0x00022FC0	0x00000020	[ 22] FDE for: _z80op_cp_e
+0x00022FE0	0x00000020	[ 22] FDE for: _z80op_cp_h
+0x00023000	0x00000020	[ 22] FDE for: _z80op_cp_l
+0x00023020	0x00000020	[ 22] FDE for: _z80op_cp_a
+0x00023040	0x00000020	[ 22] FDE for: _z80op_add_a_ihl
+0x00023060	0x00000020	[ 22] FDE for: _z80op_adc_a_ihl
+0x00023080	0x00000020	[ 22] FDE for: _z80op_sub_ihl
+0x000230A0	0x00000020	[ 22] FDE for: _z80op_sbc_a_ihl
+0x000230C0	0x00000020	[ 22] FDE for: _z80op_and_ihl
+0x000230E0	0x00000020	[ 22] FDE for: _z80op_xor_ihl
+0x00023100	0x00000020	[ 22] FDE for: _z80op_or_ihl
+0x00023120	0x00000020	[ 22] FDE for: _z80op_cp_ihl
+0x00023140	0x00000020	[ 22] FDE for: _z80op_add_a_ixh
+0x00023160	0x00000020	[ 22] FDE for: _z80op_add_a_ixl
+0x00023180	0x00000020	[ 22] FDE for: _z80op_adc_a_ixh
+0x000231A0	0x00000020	[ 22] FDE for: _z80op_adc_a_ixl
+0x000231C0	0x00000020	[ 22] FDE for: _z80op_sub_ixh
+0x000231E0	0x00000020	[ 22] FDE for: _z80op_sub_ixl
+0x00023200	0x00000020	[ 22] FDE for: _z80op_sbc_a_ixh
+0x00023220	0x00000020	[ 22] FDE for: _z80op_sbc_a_ixl
+0x00023240	0x00000020	[ 22] FDE for: _z80op_and_ixh
+0x00023260	0x00000020	[ 22] FDE for: _z80op_and_ixl
+0x00023280	0x00000020	[ 22] FDE for: _z80op_xor_ixh
+0x000232A0	0x00000020	[ 22] FDE for: _z80op_xor_ixl
+0x000232C0	0x00000020	[ 22] FDE for: _z80op_or_ixh
+0x000232E0	0x00000020	[ 22] FDE for: _z80op_or_ixl
+0x00023300	0x00000020	[ 22] FDE for: _z80op_cp_ixh
+0x00023320	0x00000020	[ 22] FDE for: _z80op_cp_ixl
+0x00023340	0x00000020	[ 22] FDE for: _z80op_add_a_iixd
+0x00023360	0x00000020	[ 22] FDE for: _z80op_adc_a_iixd
+0x00023380	0x00000020	[ 22] FDE for: _z80op_sub_iixd
+0x000233A0	0x00000020	[ 22] FDE for: _z80op_sbc_a_iixd
+0x000233C0	0x00000020	[ 22] FDE for: _z80op_and_iixd
+0x000233E0	0x00000020	[ 22] FDE for: _z80op_xor_iixd
+0x00023400	0x00000020	[ 22] FDE for: _z80op_or_iixd
+0x00023420	0x00000020	[ 22] FDE for: _z80op_cp_iixd
+0x00023440	0x00000020	[ 22] FDE for: _z80op_add_a_iyh
+0x00023460	0x00000020	[ 22] FDE for: _z80op_add_a_iyl
+0x00023480	0x00000020	[ 22] FDE for: _z80op_adc_a_iyh
+0x000234A0	0x00000020	[ 22] FDE for: _z80op_adc_a_iyl
+0x000234C0	0x00000020	[ 22] FDE for: _z80op_sub_iyh
+0x000234E0	0x00000020	[ 22] FDE for: _z80op_sub_iyl
+0x00023500	0x00000020	[ 22] FDE for: _z80op_sbc_a_iyh
+0x00023520	0x00000020	[ 22] FDE for: _z80op_sbc_a_iyl
+0x00023540	0x00000020	[ 22] FDE for: _z80op_and_iyh
+0x00023560	0x00000020	[ 22] FDE for: _z80op_and_iyl
+0x00023580	0x00000020	[ 22] FDE for: _z80op_xor_iyh
+0x000235A0	0x00000020	[ 22] FDE for: _z80op_xor_iyl
+0x000235C0	0x00000020	[ 22] FDE for: _z80op_or_iyh
+0x000235E0	0x00000020	[ 22] FDE for: _z80op_or_iyl
+0x00023600	0x00000020	[ 22] FDE for: _z80op_cp_iyh
+0x00023620	0x00000020	[ 22] FDE for: _z80op_cp_iyl
+0x00023640	0x00000020	[ 22] FDE for: _z80op_add_a_iiyd
+0x00023660	0x00000020	[ 22] FDE for: _z80op_adc_a_iiyd
+0x00023680	0x00000020	[ 22] FDE for: _z80op_sub_iiyd
+0x000236A0	0x00000020	[ 22] FDE for: _z80op_sbc_a_iiyd
+0x000236C0	0x00000020	[ 22] FDE for: _z80op_and_iiyd
+0x000236E0	0x00000020	[ 22] FDE for: _z80op_xor_iiyd
+0x00023700	0x00000020	[ 22] FDE for: _z80op_or_iiyd
+0x00023720	0x00000020	[ 22] FDE for: _z80op_cp_iiyd
+0x00023740	0x00000018	[ 23] CFI
+0x00023758	0x00000020	[ 23] FDE for: _z80op_ret_nz
+0x00023778	0x00000020	[ 23] FDE for: _z80op_ret_z
+0x00023798	0x00000020	[ 23] FDE for: _z80op_ret_nc
+0x000237B8	0x00000020	[ 23] FDE for: _z80op_ret_c
+0x000237D8	0x00000020	[ 23] FDE for: _z80op_ret_po
+0x000237F8	0x00000020	[ 23] FDE for: _z80op_ret_pe
+0x00023818	0x00000020	[ 23] FDE for: _z80op_ret_p
+0x00023838	0x00000020	[ 23] FDE for: _z80op_ret_m
+0x00023858	0x00000020	[ 23] FDE for: _z80op_pop_bc
+0x00023878	0x00000020	[ 23] FDE for: _z80op_pop_de
+0x00023898	0x00000020	[ 23] FDE for: _z80op_pop_hl
+0x000238B8	0x00000020	[ 23] FDE for: _z80op_pop_af
+0x000238D8	0x00000020	[ 23] FDE for: _z80op_ret
+0x000238F8	0x00000020	[ 23] FDE for: _z80op_exx
+0x00023918	0x00000020	[ 23] FDE for: _z80op_jp_hl
+0x00023938	0x00000020	[ 23] FDE for: _z80op_ld_sp_hl
+0x00023958	0x00000020	[ 23] FDE for: _z80op_jp_nz_nn
+0x00023978	0x00000020	[ 23] FDE for: _z80op_jp_z_nn
+0x00023998	0x00000020	[ 23] FDE for: _z80op_jp_nc_nn
+0x000239B8	0x00000020	[ 23] FDE for: _z80op_jp_c_nn
+0x000239D8	0x00000020	[ 23] FDE for: _z80op_jp_po_nn
+0x000239F8	0x00000020	[ 23] FDE for: _z80op_jp_pe_nn
+0x00023A18	0x00000020	[ 23] FDE for: _z80op_jp_p_nn
+0x00023A38	0x00000020	[ 23] FDE for: _z80op_jp_m_nn
+0x00023A58	0x00000020	[ 23] FDE for: _z80op_jp_nn
+0x00023A78	0x00000020	[ 23] FDE for: _z80op_out_in_a
+0x00023A98	0x00000020	[ 23] FDE for: _z80op_in_a_in
+0x00023AB8	0x00000020	[ 23] FDE for: _z80op_ex_isp_hl
+0x00023AD8	0x00000020	[ 23] FDE for: _z80op_ex_de_hl
+0x00023AF8	0x00000020	[ 23] FDE for: _z80op_di
+0x00023B18	0x00000020	[ 23] FDE for: _z80op_ei
+0x00023B38	0x00000020	[ 23] FDE for: _z80op_call_nz_nn
+0x00023B58	0x00000020	[ 23] FDE for: _z80op_call_z_nn
+0x00023B78	0x00000020	[ 23] FDE for: _z80op_call_nc_nn
+0x00023B98	0x00000020	[ 23] FDE for: _z80op_call_c_nn
+0x00023BB8	0x00000020	[ 23] FDE for: _z80op_call_po_nn
+0x00023BD8	0x00000020	[ 23] FDE for: _z80op_call_pe_nn
+0x00023BF8	0x00000020	[ 23] FDE for: _z80op_call_p_nn
+0x00023C18	0x00000020	[ 23] FDE for: _z80op_call_m_nn
+0x00023C38	0x00000020	[ 23] FDE for: _z80op_push_bc
+0x00023C58	0x00000020	[ 23] FDE for: _z80op_push_de
+0x00023C78	0x00000020	[ 23] FDE for: _z80op_push_hl
+0x00023C98	0x00000020	[ 23] FDE for: _z80op_push_af
+0x00023CB8	0x00000020	[ 23] FDE for: _z80op_call_nn
+0x00023CD8	0x00000020	[ 23] FDE for: _z80op_add_a_n
+0x00023CF8	0x00000020	[ 23] FDE for: _z80op_adc_a_n
+0x00023D18	0x00000020	[ 23] FDE for: _z80op_sub_n
+0x00023D38	0x00000020	[ 23] FDE for: _z80op_sbc_a_n
+0x00023D58	0x00000020	[ 23] FDE for: _z80op_and_n
+0x00023D78	0x00000020	[ 23] FDE for: _z80op_xor_n
+0x00023D98	0x00000020	[ 23] FDE for: _z80op_or_n
+0x00023DB8	0x00000020	[ 23] FDE for: _z80op_cp_n
+0x00023DD8	0x00000020	[ 23] FDE for: _z80op_rst_00
+0x00023DF8	0x00000020	[ 23] FDE for: _z80op_rst_08
+0x00023E18	0x00000020	[ 23] FDE for: _z80op_rst_10
+0x00023E38	0x00000020	[ 23] FDE for: _z80op_rst_18
+0x00023E58	0x00000020	[ 23] FDE for: _z80op_rst_20
+0x00023E78	0x00000020	[ 23] FDE for: _z80op_rst_28
+0x00023E98	0x00000020	[ 23] FDE for: _z80op_rst_30
+0x00023EB8	0x00000020	[ 23] FDE for: _z80op_rst_38
+0x00023ED8	0x00000020	[ 23] FDE for: _z80op_pop_ix
+0x00023EF8	0x00000020	[ 23] FDE for: _z80op_push_ix
+0x00023F18	0x00000020	[ 23] FDE for: _z80op_jp_ix
+0x00023F38	0x00000020	[ 23] FDE for: _z80op_ld_sp_ix
+0x00023F58	0x00000020	[ 23] FDE for: _z80op_ex_isp_ix
+0x00023F78	0x00000020	[ 23] FDE for: _z80op_pop_iy
+0x00023F98	0x00000020	[ 23] FDE for: _z80op_push_iy
+0x00023FB8	0x00000020	[ 23] FDE for: _z80op_jp_iy
+0x00023FD8	0x00000020	[ 23] FDE for: _z80op_ld_sp_iy
+0x00023FF8	0x00000020	[ 23] FDE for: _z80op_ex_isp_iy
+0x00024018	0x00000018	[ 24] CFI
+0x00024030	0x00000020	[ 24] FDE for: _z80op_ill_ed
+0x00024050	0x00000020	[ 24] FDE for: _z80op_in_b_ic
+0x00024070	0x00000020	[ 24] FDE for: _z80op_in_c_ic
+0x00024090	0x00000020	[ 24] FDE for: _z80op_in_d_ic
+0x000240B0	0x00000020	[ 24] FDE for: _z80op_in_e_ic
+0x000240D0	0x00000020	[ 24] FDE for: _z80op_in_h_ic
+0x000240F0	0x00000020	[ 24] FDE for: _z80op_in_l_ic
+0x00024110	0x00000020	[ 24] FDE for: _z80op_in_f_ic
+0x00024130	0x00000020	[ 24] FDE for: _z80op_in_a_ic
+0x00024150	0x00000020	[ 24] FDE for: _z80op_out_ic_b
+0x00024170	0x00000020	[ 24] FDE for: _z80op_out_ic_c
+0x00024190	0x00000020	[ 24] FDE for: _z80op_out_ic_d
+0x000241B0	0x00000020	[ 24] FDE for: _z80op_out_ic_e
+0x000241D0	0x00000020	[ 24] FDE for: _z80op_out_ic_h
+0x000241F0	0x00000020	[ 24] FDE for: _z80op_out_ic_l
+0x00024210	0x00000020	[ 24] FDE for: _z80op_out_ic_0
+0x00024230	0x00000020	[ 24] FDE for: _z80op_out_ic_a
+0x00024250	0x00000020	[ 24] FDE for: _z80op_sbc_hl_bc
+0x00024270	0x00000020	[ 24] FDE for: _z80op_sbc_hl_de
+0x00024290	0x00000020	[ 24] FDE for: _z80op_sbc_hl_hl
+0x000242B0	0x00000020	[ 24] FDE for: _z80op_sbc_hl_sp
+0x000242D0	0x00000020	[ 24] FDE for: _z80op_adc_hl_bc
+0x000242F0	0x00000020	[ 24] FDE for: _z80op_adc_hl_de
+0x00024310	0x00000020	[ 24] FDE for: _z80op_adc_hl_hl
+0x00024330	0x00000020	[ 24] FDE for: _z80op_adc_hl_sp
+0x00024350	0x00000020	[ 24] FDE for: _z80op_ld_inn_bc
+0x00024370	0x00000020	[ 24] FDE for: _z80op_ld_inn_de
+0x00024390	0x00000020	[ 24] FDE for: _z80op_ld_inn_hl_ed
+0x000243B0	0x00000020	[ 24] FDE for: _z80op_ld_inn_sp
+0x000243D0	0x00000020	[ 24] FDE for: _z80op_ld_bc_inn
+0x000243F0	0x00000020	[ 24] FDE for: _z80op_ld_de_inn
+0x00024410	0x00000020	[ 24] FDE for: _z80op_ld_hl_inn_ed
+0x00024430	0x00000020	[ 24] FDE for: _z80op_ld_sp_inn
+0x00024450	0x00000020	[ 24] FDE for: _z80op_neg
+0x00024470	0x00000020	[ 24] FDE for: _z80op_retn
+0x00024490	0x00000020	[ 24] FDE for: _z80op_reti
+0x000244B0	0x00000020	[ 24] FDE for: _z80op_im_0
+0x000244D0	0x00000020	[ 24] FDE for: _z80op_im_1
+0x000244F0	0x00000020	[ 24] FDE for: _z80op_im_2
+0x00024510	0x00000020	[ 24] FDE for: _z80op_ld_i_a
+0x00024530	0x00000020	[ 24] FDE for: _z80op_ld_r_a
+0x00024550	0x00000020	[ 24] FDE for: _z80op_ld_a_i
+0x00024570	0x00000020	[ 24] FDE for: _z80op_ld_a_r
+0x00024590	0x00000020	[ 24] FDE for: _z80op_rrd
+0x000245B0	0x00000020	[ 24] FDE for: _z80op_rld
+0x000245D0	0x00000020	[ 24] FDE for: _z80op_ldi
+0x000245F0	0x00000020	[ 24] FDE for: _z80op_ldd
+0x00024610	0x00000020	[ 24] FDE for: _z80op_ldir
+0x00024630	0x00000020	[ 24] FDE for: _z80op_lddr
+0x00024650	0x00000020	[ 24] FDE for: _z80op_cpi
+0x00024670	0x00000020	[ 24] FDE for: _z80op_cpd
+0x00024690	0x00000020	[ 24] FDE for: _z80op_cpir
+0x000246B0	0x00000020	[ 24] FDE for: _z80op_cpdr
+0x000246D0	0x00000020	[ 24] FDE for: _z80op_ini
+0x000246F0	0x00000020	[ 24] FDE for: _z80op_ind
+0x00024710	0x00000020	[ 24] FDE for: _z80op_inir
+0x00024730	0x00000020	[ 24] FDE for: _z80op_indr
+0x00024750	0x00000020	[ 24] FDE for: _z80op_outi
+0x00024770	0x00000020	[ 24] FDE for: _z80op_outd
+0x00024790	0x00000020	[ 24] FDE for: _z80op_otir
+0x000247B0	0x00000020	[ 24] FDE for: _z80op_otdr
+0x000247D0	0x00000018	[ 25] CFI
+0x000247E8	0x00000020	[ 25] FDE for: _z80op_rlc_b
+0x00024808	0x00000020	[ 25] FDE for: _z80op_rlc_c
+0x00024828	0x00000020	[ 25] FDE for: _z80op_rlc_d
+0x00024848	0x00000020	[ 25] FDE for: _z80op_rlc_e
+0x00024868	0x00000020	[ 25] FDE for: _z80op_rlc_h
+0x00024888	0x00000020	[ 25] FDE for: _z80op_rlc_l
+0x000248A8	0x00000020	[ 25] FDE for: _z80op_rlc_a
+0x000248C8	0x00000020	[ 25] FDE for: _z80op_rrc_b
+0x000248E8	0x00000020	[ 25] FDE for: _z80op_rrc_c
+0x00024908	0x00000020	[ 25] FDE for: _z80op_rrc_d
+0x00024928	0x00000020	[ 25] FDE for: _z80op_rrc_e
+0x00024948	0x00000020	[ 25] FDE for: _z80op_rrc_h
+0x00024968	0x00000020	[ 25] FDE for: _z80op_rrc_l
+0x00024988	0x00000020	[ 25] FDE for: _z80op_rrc_a
+0x000249A8	0x00000020	[ 25] FDE for: _z80op_rl_b
+0x000249C8	0x00000020	[ 25] FDE for: _z80op_rl_c
+0x000249E8	0x00000020	[ 25] FDE for: _z80op_rl_d
+0x00024A08	0x00000020	[ 25] FDE for: _z80op_rl_e
+0x00024A28	0x00000020	[ 25] FDE for: _z80op_rl_h
+0x00024A48	0x00000020	[ 25] FDE for: _z80op_rl_l
+0x00024A68	0x00000020	[ 25] FDE for: _z80op_rl_a
+0x00024A88	0x00000020	[ 25] FDE for: _z80op_rr_b
+0x00024AA8	0x00000020	[ 25] FDE for: _z80op_rr_c
+0x00024AC8	0x00000020	[ 25] FDE for: _z80op_rr_d
+0x00024AE8	0x00000020	[ 25] FDE for: _z80op_rr_e
+0x00024B08	0x00000020	[ 25] FDE for: _z80op_rr_h
+0x00024B28	0x00000020	[ 25] FDE for: _z80op_rr_l
+0x00024B48	0x00000020	[ 25] FDE for: _z80op_rr_a
+0x00024B68	0x00000020	[ 25] FDE for: _z80op_sla_b
+0x00024B88	0x00000020	[ 25] FDE for: _z80op_sla_c
+0x00024BA8	0x00000020	[ 25] FDE for: _z80op_sla_d
+0x00024BC8	0x00000020	[ 25] FDE for: _z80op_sla_e
+0x00024BE8	0x00000020	[ 25] FDE for: _z80op_sla_h
+0x00024C08	0x00000020	[ 25] FDE for: _z80op_sla_l
+0x00024C28	0x00000020	[ 25] FDE for: _z80op_sla_a
+0x00024C48	0x00000020	[ 25] FDE for: _z80op_sra_b
+0x00024C68	0x00000020	[ 25] FDE for: _z80op_sra_c
+0x00024C88	0x00000020	[ 25] FDE for: _z80op_sra_d
+0x00024CA8	0x00000020	[ 25] FDE for: _z80op_sra_e
+0x00024CC8	0x00000020	[ 25] FDE for: _z80op_sra_h
+0x00024CE8	0x00000020	[ 25] FDE for: _z80op_sra_l
+0x00024D08	0x00000020	[ 25] FDE for: _z80op_sra_a
+0x00024D28	0x00000020	[ 25] FDE for: _z80op_sll_b
+0x00024D48	0x00000020	[ 25] FDE for: _z80op_sll_c
+0x00024D68	0x00000020	[ 25] FDE for: _z80op_sll_d
+0x00024D88	0x00000020	[ 25] FDE for: _z80op_sll_e
+0x00024DA8	0x00000020	[ 25] FDE for: _z80op_sll_h
+0x00024DC8	0x00000020	[ 25] FDE for: _z80op_sll_l
+0x00024DE8	0x00000020	[ 25] FDE for: _z80op_sll_a
+0x00024E08	0x00000020	[ 25] FDE for: _z80op_srl_b
+0x00024E28	0x00000020	[ 25] FDE for: _z80op_srl_c
+0x00024E48	0x00000020	[ 25] FDE for: _z80op_srl_d
+0x00024E68	0x00000020	[ 25] FDE for: _z80op_srl_e
+0x00024E88	0x00000020	[ 25] FDE for: _z80op_srl_h
+0x00024EA8	0x00000020	[ 25] FDE for: _z80op_srl_l
+0x00024EC8	0x00000020	[ 25] FDE for: _z80op_srl_a
+0x00024EE8	0x00000020	[ 25] FDE for: _z80op_rlc_ihl
+0x00024F08	0x00000020	[ 25] FDE for: _z80op_rrc_ihl
+0x00024F28	0x00000020	[ 25] FDE for: _z80op_rl_ihl
+0x00024F48	0x00000020	[ 25] FDE for: _z80op_rr_ihl
+0x00024F68	0x00000020	[ 25] FDE for: _z80op_sla_ihl
+0x00024F88	0x00000020	[ 25] FDE for: _z80op_sra_ihl
+0x00024FA8	0x00000020	[ 25] FDE for: _z80op_sll_ihl
+0x00024FC8	0x00000020	[ 25] FDE for: _z80op_srl_ihl
+0x00024FE8	0x00000020	[ 25] FDE for: _z80op_bit_0_b
+0x00025008	0x00000020	[ 25] FDE for: _z80op_bit_0_c
+0x00025028	0x00000020	[ 25] FDE for: _z80op_bit_0_d
+0x00025048	0x00000020	[ 25] FDE for: _z80op_bit_0_e
+0x00025068	0x00000020	[ 25] FDE for: _z80op_bit_0_h
+0x00025088	0x00000020	[ 25] FDE for: _z80op_bit_0_l
+0x000250A8	0x00000020	[ 25] FDE for: _z80op_bit_0_a
+0x000250C8	0x00000020	[ 25] FDE for: _z80op_bit_1_b
+0x000250E8	0x00000020	[ 25] FDE for: _z80op_bit_1_c
+0x00025108	0x00000020	[ 25] FDE for: _z80op_bit_1_d
+0x00025128	0x00000020	[ 25] FDE for: _z80op_bit_1_e
+0x00025148	0x00000020	[ 25] FDE for: _z80op_bit_1_h
+0x00025168	0x00000020	[ 25] FDE for: _z80op_bit_1_l
+0x00025188	0x00000020	[ 25] FDE for: _z80op_bit_1_a
+0x000251A8	0x00000020	[ 25] FDE for: _z80op_bit_2_b
+0x000251C8	0x00000020	[ 25] FDE for: _z80op_bit_2_c
+0x000251E8	0x00000020	[ 25] FDE for: _z80op_bit_2_d
+0x00025208	0x00000020	[ 25] FDE for: _z80op_bit_2_e
+0x00025228	0x00000020	[ 25] FDE for: _z80op_bit_2_h
+0x00025248	0x00000020	[ 25] FDE for: _z80op_bit_2_l
+0x00025268	0x00000020	[ 25] FDE for: _z80op_bit_2_a
+0x00025288	0x00000020	[ 25] FDE for: _z80op_bit_3_b
+0x000252A8	0x00000020	[ 25] FDE for: _z80op_bit_3_c
+0x000252C8	0x00000020	[ 25] FDE for: _z80op_bit_3_d
+0x000252E8	0x00000020	[ 25] FDE for: _z80op_bit_3_e
+0x00025308	0x00000020	[ 25] FDE for: _z80op_bit_3_h
+0x00025328	0x00000020	[ 25] FDE for: _z80op_bit_3_l
+0x00025348	0x00000020	[ 25] FDE for: _z80op_bit_3_a
+0x00025368	0x00000020	[ 25] FDE for: _z80op_bit_4_b
+0x00025388	0x00000020	[ 25] FDE for: _z80op_bit_4_c
+0x000253A8	0x00000020	[ 25] FDE for: _z80op_bit_4_d
+0x000253C8	0x00000020	[ 25] FDE for: _z80op_bit_4_e
+0x000253E8	0x00000020	[ 25] FDE for: _z80op_bit_4_h
+0x00025408	0x00000020	[ 25] FDE for: _z80op_bit_4_l
+0x00025428	0x00000020	[ 25] FDE for: _z80op_bit_4_a
+0x00025448	0x00000020	[ 25] FDE for: _z80op_bit_5_b
+0x00025468	0x00000020	[ 25] FDE for: _z80op_bit_5_c
+0x00025488	0x00000020	[ 25] FDE for: _z80op_bit_5_d
+0x000254A8	0x00000020	[ 25] FDE for: _z80op_bit_5_e
+0x000254C8	0x00000020	[ 25] FDE for: _z80op_bit_5_h
+0x000254E8	0x00000020	[ 25] FDE for: _z80op_bit_5_l
+0x00025508	0x00000020	[ 25] FDE for: _z80op_bit_5_a
+0x00025528	0x00000020	[ 25] FDE for: _z80op_bit_6_b
+0x00025548	0x00000020	[ 25] FDE for: _z80op_bit_6_c
+0x00025568	0x00000020	[ 25] FDE for: _z80op_bit_6_d
+0x00025588	0x00000020	[ 25] FDE for: _z80op_bit_6_e
+0x000255A8	0x00000020	[ 25] FDE for: _z80op_bit_6_h
+0x000255C8	0x00000020	[ 25] FDE for: _z80op_bit_6_l
+0x000255E8	0x00000020	[ 25] FDE for: _z80op_bit_6_a
+0x00025608	0x00000020	[ 25] FDE for: _z80op_bit_7_b
+0x00025628	0x00000020	[ 25] FDE for: _z80op_bit_7_c
+0x00025648	0x00000020	[ 25] FDE for: _z80op_bit_7_d
+0x00025668	0x00000020	[ 25] FDE for: _z80op_bit_7_e
+0x00025688	0x00000020	[ 25] FDE for: _z80op_bit_7_h
+0x000256A8	0x00000020	[ 25] FDE for: _z80op_bit_7_l
+0x000256C8	0x00000020	[ 25] FDE for: _z80op_bit_7_a
+0x000256E8	0x00000020	[ 25] FDE for: _z80op_bit_0_ihl
+0x00025708	0x00000020	[ 25] FDE for: _z80op_bit_1_ihl
+0x00025728	0x00000020	[ 25] FDE for: _z80op_bit_2_ihl
+0x00025748	0x00000020	[ 25] FDE for: _z80op_bit_3_ihl
+0x00025768	0x00000020	[ 25] FDE for: _z80op_bit_4_ihl
+0x00025788	0x00000020	[ 25] FDE for: _z80op_bit_5_ihl
+0x000257A8	0x00000020	[ 25] FDE for: _z80op_bit_6_ihl
+0x000257C8	0x00000020	[ 25] FDE for: _z80op_bit_7_ihl
+0x000257E8	0x00000020	[ 25] FDE for: _z80op_res_0_b
+0x00025808	0x00000020	[ 25] FDE for: _z80op_res_0_c
+0x00025828	0x00000020	[ 25] FDE for: _z80op_res_0_d
+0x00025848	0x00000020	[ 25] FDE for: _z80op_res_0_e
+0x00025868	0x00000020	[ 25] FDE for: _z80op_res_0_h
+0x00025888	0x00000020	[ 25] FDE for: _z80op_res_0_l
+0x000258A8	0x00000020	[ 25] FDE for: _z80op_res_0_a
+0x000258C8	0x00000020	[ 25] FDE for: _z80op_res_1_b
+0x000258E8	0x00000020	[ 25] FDE for: _z80op_res_1_c
+0x00025908	0x00000020	[ 25] FDE for: _z80op_res_1_d
+0x00025928	0x00000020	[ 25] FDE for: _z80op_res_1_e
+0x00025948	0x00000020	[ 25] FDE for: _z80op_res_1_h
+0x00025968	0x00000020	[ 25] FDE for: _z80op_res_1_l
+0x00025988	0x00000020	[ 25] FDE for: _z80op_res_1_a
+0x000259A8	0x00000020	[ 25] FDE for: _z80op_res_2_b
+0x000259C8	0x00000020	[ 25] FDE for: _z80op_res_2_c
+0x000259E8	0x00000020	[ 25] FDE for: _z80op_res_2_d
+0x00025A08	0x00000020	[ 25] FDE for: _z80op_res_2_e
+0x00025A28	0x00000020	[ 25] FDE for: _z80op_res_2_h
+0x00025A48	0x00000020	[ 25] FDE for: _z80op_res_2_l
+0x00025A68	0x00000020	[ 25] FDE for: _z80op_res_2_a
+0x00025A88	0x00000020	[ 25] FDE for: _z80op_res_3_b
+0x00025AA8	0x00000020	[ 25] FDE for: _z80op_res_3_c
+0x00025AC8	0x00000020	[ 25] FDE for: _z80op_res_3_d
+0x00025AE8	0x00000020	[ 25] FDE for: _z80op_res_3_e
+0x00025B08	0x00000020	[ 25] FDE for: _z80op_res_3_h
+0x00025B28	0x00000020	[ 25] FDE for: _z80op_res_3_l
+0x00025B48	0x00000020	[ 25] FDE for: _z80op_res_3_a
+0x00025B68	0x00000020	[ 25] FDE for: _z80op_res_4_b
+0x00025B88	0x00000020	[ 25] FDE for: _z80op_res_4_c
+0x00025BA8	0x00000020	[ 25] FDE for: _z80op_res_4_d
+0x00025BC8	0x00000020	[ 25] FDE for: _z80op_res_4_e
+0x00025BE8	0x00000020	[ 25] FDE for: _z80op_res_4_h
+0x00025C08	0x00000020	[ 25] FDE for: _z80op_res_4_l
+0x00025C28	0x00000020	[ 25] FDE for: _z80op_res_4_a
+0x00025C48	0x00000020	[ 25] FDE for: _z80op_res_5_b
+0x00025C68	0x00000020	[ 25] FDE for: _z80op_res_5_c
+0x00025C88	0x00000020	[ 25] FDE for: _z80op_res_5_d
+0x00025CA8	0x00000020	[ 25] FDE for: _z80op_res_5_e
+0x00025CC8	0x00000020	[ 25] FDE for: _z80op_res_5_h
+0x00025CE8	0x00000020	[ 25] FDE for: _z80op_res_5_l
+0x00025D08	0x00000020	[ 25] FDE for: _z80op_res_5_a
+0x00025D28	0x00000020	[ 25] FDE for: _z80op_res_6_b
+0x00025D48	0x00000020	[ 25] FDE for: _z80op_res_6_c
+0x00025D68	0x00000020	[ 25] FDE for: _z80op_res_6_d
+0x00025D88	0x00000020	[ 25] FDE for: _z80op_res_6_e
+0x00025DA8	0x00000020	[ 25] FDE for: _z80op_res_6_h
+0x00025DC8	0x00000020	[ 25] FDE for: _z80op_res_6_l
+0x00025DE8	0x00000020	[ 25] FDE for: _z80op_res_6_a
+0x00025E08	0x00000020	[ 25] FDE for: _z80op_res_7_b
+0x00025E28	0x00000020	[ 25] FDE for: _z80op_res_7_c
+0x00025E48	0x00000020	[ 25] FDE for: _z80op_res_7_d
+0x00025E68	0x00000020	[ 25] FDE for: _z80op_res_7_e
+0x00025E88	0x00000020	[ 25] FDE for: _z80op_res_7_h
+0x00025EA8	0x00000020	[ 25] FDE for: _z80op_res_7_l
+0x00025EC8	0x00000020	[ 25] FDE for: _z80op_res_7_a
+0x00025EE8	0x00000020	[ 25] FDE for: _z80op_res_0_ihl
+0x00025F08	0x00000020	[ 25] FDE for: _z80op_res_1_ihl
+0x00025F28	0x00000020	[ 25] FDE for: _z80op_res_2_ihl
+0x00025F48	0x00000020	[ 25] FDE for: _z80op_res_3_ihl
+0x00025F68	0x00000020	[ 25] FDE for: _z80op_res_4_ihl
+0x00025F88	0x00000020	[ 25] FDE for: _z80op_res_5_ihl
+0x00025FA8	0x00000020	[ 25] FDE for: _z80op_res_6_ihl
+0x00025FC8	0x00000020	[ 25] FDE for: _z80op_res_7_ihl
+0x00025FE8	0x00000020	[ 25] FDE for: _z80op_set_0_b
+0x00026008	0x00000020	[ 25] FDE for: _z80op_set_0_c
+0x00026028	0x00000020	[ 25] FDE for: _z80op_set_0_d
+0x00026048	0x00000020	[ 25] FDE for: _z80op_set_0_e
+0x00026068	0x00000020	[ 25] FDE for: _z80op_set_0_h
+0x00026088	0x00000020	[ 25] FDE for: _z80op_set_0_l
+0x000260A8	0x00000020	[ 25] FDE for: _z80op_set_0_a
+0x000260C8	0x00000020	[ 25] FDE for: _z80op_set_1_b
+0x000260E8	0x00000020	[ 25] FDE for: _z80op_set_1_c
+0x00026108	0x00000020	[ 25] FDE for: _z80op_set_1_d
+0x00026128	0x00000020	[ 25] FDE for: _z80op_set_1_e
+0x00026148	0x00000020	[ 25] FDE for: _z80op_set_1_h
+0x00026168	0x00000020	[ 25] FDE for: _z80op_set_1_l
+0x00026188	0x00000020	[ 25] FDE for: _z80op_set_1_a
+0x000261A8	0x00000020	[ 25] FDE for: _z80op_set_2_b
+0x000261C8	0x00000020	[ 25] FDE for: _z80op_set_2_c
+0x000261E8	0x00000020	[ 25] FDE for: _z80op_set_2_d
+0x00026208	0x00000020	[ 25] FDE for: _z80op_set_2_e
+0x00026228	0x00000020	[ 25] FDE for: _z80op_set_2_h
+0x00026248	0x00000020	[ 25] FDE for: _z80op_set_2_l
+0x00026268	0x00000020	[ 25] FDE for: _z80op_set_2_a
+0x00026288	0x00000020	[ 25] FDE for: _z80op_set_3_b
+0x000262A8	0x00000020	[ 25] FDE for: _z80op_set_3_c
+0x000262C8	0x00000020	[ 25] FDE for: _z80op_set_3_d
+0x000262E8	0x00000020	[ 25] FDE for: _z80op_set_3_e
+0x00026308	0x00000020	[ 25] FDE for: _z80op_set_3_h
+0x00026328	0x00000020	[ 25] FDE for: _z80op_set_3_l
+0x00026348	0x00000020	[ 25] FDE for: _z80op_set_3_a
+0x00026368	0x00000020	[ 25] FDE for: _z80op_set_4_b
+0x00026388	0x00000020	[ 25] FDE for: _z80op_set_4_c
+0x000263A8	0x00000020	[ 25] FDE for: _z80op_set_4_d
+0x000263C8	0x00000020	[ 25] FDE for: _z80op_set_4_e
+0x000263E8	0x00000020	[ 25] FDE for: _z80op_set_4_h
+0x00026408	0x00000020	[ 25] FDE for: _z80op_set_4_l
+0x00026428	0x00000020	[ 25] FDE for: _z80op_set_4_a
+0x00026448	0x00000020	[ 25] FDE for: _z80op_set_5_b
+0x00026468	0x00000020	[ 25] FDE for: _z80op_set_5_c
+0x00026488	0x00000020	[ 25] FDE for: _z80op_set_5_d
+0x000264A8	0x00000020	[ 25] FDE for: _z80op_set_5_e
+0x000264C8	0x00000020	[ 25] FDE for: _z80op_set_5_h
+0x000264E8	0x00000020	[ 25] FDE for: _z80op_set_5_l
+0x00026508	0x00000020	[ 25] FDE for: _z80op_set_5_a
+0x00026528	0x00000020	[ 25] FDE for: _z80op_set_6_b
+0x00026548	0x00000020	[ 25] FDE for: _z80op_set_6_c
+0x00026568	0x00000020	[ 25] FDE for: _z80op_set_6_d
+0x00026588	0x00000020	[ 25] FDE for: _z80op_set_6_e
+0x000265A8	0x00000020	[ 25] FDE for: _z80op_set_6_h
+0x000265C8	0x00000020	[ 25] FDE for: _z80op_set_6_l
+0x000265E8	0x00000020	[ 25] FDE for: _z80op_set_6_a
+0x00026608	0x00000020	[ 25] FDE for: _z80op_set_7_b
+0x00026628	0x00000020	[ 25] FDE for: _z80op_set_7_c
+0x00026648	0x00000020	[ 25] FDE for: _z80op_set_7_d
+0x00026668	0x00000020	[ 25] FDE for: _z80op_set_7_e
+0x00026688	0x00000020	[ 25] FDE for: _z80op_set_7_h
+0x000266A8	0x00000020	[ 25] FDE for: _z80op_set_7_l
+0x000266C8	0x00000020	[ 25] FDE for: _z80op_set_7_a
+0x000266E8	0x00000020	[ 25] FDE for: _z80op_set_0_ihl
+0x00026708	0x00000020	[ 25] FDE for: _z80op_set_1_ihl
+0x00026728	0x00000020	[ 25] FDE for: _z80op_set_2_ihl
+0x00026748	0x00000020	[ 25] FDE for: _z80op_set_3_ihl
+0x00026768	0x00000020	[ 25] FDE for: _z80op_set_4_ihl
+0x00026788	0x00000020	[ 25] FDE for: _z80op_set_5_ihl
+0x000267A8	0x00000020	[ 25] FDE for: _z80op_set_6_ihl
+0x000267C8	0x00000020	[ 25] FDE for: _z80op_set_7_ihl
+0x000267E8	0x00000018	[ 26] CFI
+0x00026800	0x00000020	[ 26] FDE for: _z80_pushpc
+0x00026820	0x00000048	[ 26] FDE for: _z80_local_init
+0x00026868	0x00000058	[ 26] FDE for: _z80_step
+0x000268C0	0x00000018	[ 27] CFI
+0x000268D8	0x00000020	[ 27] FDE for: _z80op_special_cb
+0x000268F8	0x00000020	[ 27] FDE for: _z80op_special_dd
+0x00026918	0x00000020	[ 27] FDE for: _z80op_special_ed
+0x00026938	0x00000020	[ 27] FDE for: _z80op_special_fd
+0x00026958	0x00000020	[ 27] FDE for: _z80op_special_xx
+0x00026978	0x00000020	[ 27] FDE for: _z80op_special_dd_cb
+0x00026998	0x00000020	[ 27] FDE for: _z80op_special_fd_cb
+0x000269B8	0x00000018	[ 28] CFI
+0x000269D0	0x00000040	[ 28] FDE for: _plugin_start
+0x00026A10	0x00000038	[ 28] FDE for: _init_spect_key
+0x00026A48	0x00000050	[ 28] FDE for: _spkb_process_events
+0x00026A98	0x00000020	[ 28] FDE for: _press_key
+0x00026AB8	0x00000018	[ 29] CFI
+0x00026AD0	0x00000090	[ 29] FDE for: _zx_kbd_input
+0x00026B60	0x00000018	[ 30] CFI
+0x00026B78	0x00000038	[ 30] FDE for: _init_spect_scr
+0x00026BB0	0x00000048	[ 30] FDE for: _update_screen
+0x00026BF8	0x00000018	[ 31] CFI
+0x00026C10	0x00000020	[ 31] FDE for: _cleanup_wrapper
+0x00026C30	0x00000040	[ 31] FDE for: _plugin__start
+0x00026C70	0x00000020	[ 31] FDE for: _rb_atexit
+0x00026C90	0x00000030	[ 31] FDE for: _exit
+0x00026CC0	0x00000030	[ 31] FDE for: __exit
+0x00026CF0	0x00000038	[ 31] FDE for: _exit_on_usb
+0x00026D28	0x00000018	[ 32] CFI
+0x00026D40	0x00000068	[ 32] FDE for: _get_cfg_filename.constprop.0
+0x00026DA8	0x00000070	[ 32] FDE for: _configfile_save
+0x00026E18	0x00000068	[ 32] FDE for: _configfile_load
+0x00026E80	0x00000058	[ 32] FDE for: _configfile_get_value
+0x00026ED8	0x00000070	[ 32] FDE for: _configfile_update_entry
+0x00028000	0x00000008	[ 34] __DefaultRuneLocale.got
+0x00028008	0x00000008	[ 34] ___maskrune.got
+0x00028010	0x00000008	[ 34] ___tolower.got
+0x00028018	0x00000008	[ 34] ___toupper.got
+0x00028020	0x00000008	[ 35] _longjmp.got
+0x00028028	0x00000008	[ 35] _setjmp.got
+0x00028030	0x00000050	[  9] _extensions
+0x00028080	0x00000018	[ 12] _menu__.1
+0x00028098	0x00000018	[ 12] _menu.2
+0x000280B0	0x00000018	[ 12] _menu__.4
+0x000280C8	0x00000018	[ 12] _menu.5
+0x000280E0	0x00000018	[ 12] _menu__.7
+0x000280F8	0x00000020	[ 12] _no_yes.9
+0x00028118	0x00000018	[ 12] _menu.10
+0x00028130	0x00000018	[ 12] _menu__.12
+0x00028148	0x00000018	[ 12] _menu.13
+0x00028160	0x00000038	[ 31] ___header
+0x0002C000	0x00000800	[  4] _spcf_keynames_misc
+0x0002C800	0x000002F8	[  4] _spcf_keynames_ascii
+0x0002CAF8	0x000004B4	[  5] _loadim
+0x0002CFAC	0x00004000	[  7] _rom_imag
+0x00030FB0	0x00000015	[  8] _quick_snap_file
+0x00030FC8	0x00000004	[  9] _file_type
+0x00030FD0	0x00000190	[ 11] _joycurs
+0x00031160	0x000000B4	[ 11] _rawcurs
+0x00031214	0x000000B4	[ 11] _shiftedcurs
+0x000312C8	0x0000008C	[ 11] _compatkeys
+0x00031354	0x00000050	[ 11] _spectrumkeys
+0x000313A4	0x000000C8	[ 11] _extendedkeys
+0x0003146C	0x000002E4	[ 11] _normalkeys
+0x00031750	0x00000108	[ 11] _spkey_misc
+0x00031858	0x00000478	[ 11] _spkey_ascii
+0x00031CD0	0x00000008	[ 11] _oldstate
+0x00031CD8	0x00000004	[ 11] _spkb_funcshift
+0x00031CDC	0x00000004	[ 11] _spkb_trueshift
+0x00031CE0	0x00000004	[ 11] _spkb_allow_ascii
+0x00031CE4	0x00000004	[ 11] _cursor_type
+0x00031CE8	0x00000028	[ 12] _menu_.0
+0x00031D10	0x00000018	[ 12] _menu_.3
+0x00031D28	0x00000040	[ 12] _menu_.6
+0x00031D68	0x000000A0	[ 12] _frameskip_items.8
+0x00031E08	0x00000040	[ 12] _menu_.11
+0x00031E48	0x00000118	[ 12] _config
+0x00031F60	0x00000010	[ 12] _noyes_options
+0x00031F70	0x00000004	[ 12] _load_immed
+0x00031F74	0x00000004	[ 12] _showframe
+0x00031F78	0x00000004	[ 13] _sp_quick_load
+0x00031F7C	0x00000004	[ 14] _accept_keys
+0x00031F80	0x00000004	[ 14] _screen_visible
+0x00031F84	0x00000004	[ 15] _sound_on
+0x00031F88	0x00000004	[ 15] _bufframes
+0x00031F8C	0x00000004	[ 16] _cleared_buffers.5
+0x00031F90	0x00000004	[ 16] _spt_auto_stop
+0x00031F98	0x00000008	[ 18] _tzxheader
+0x00031FA0	0x00000004	[ 18] _tapefd
+0x00031FA8	0x00000800	[ 27] _z80c_op_tab_cb
+0x000327A8	0x00000800	[ 27] _z80c_op_tab_fd
+0x00032FA8	0x00000800	[ 27] _z80c_op_tab_dd
+0x000337A8	0x00000800	[ 27] _z80c_op_tab_ed
+0x00033FA8	0x00000800	[ 27] _z80c_op_tab
+0x000347A8	0x00000008	[ 31] _rb
+0x000347B0	0x00000008	[  2] _totalSize.0
+0x000347B8	0x00000008	[  2] _offset.1
+0x000347C0	0x00000004	[  8] _memptr
+0x000347C4	0x00000004	[  8] _savfd
+0x000347C8	0x00000004	[  9] _file_subtype
+0x000347D0	0x00000004	[ 11] _extraendframe.0
+0x000347D4	0x00000004	[ 11] _extrai.1
+0x000347D8	0x00000004	[ 11] _numcustomkeys
+0x000347DC	0x00000A00	[ 11] _customkeys
+0x000351DC	0x00000004	[ 11] _numbasekeys
+0x000351E0	0x00000A00	[ 11] _basekeys
+0x00035BE0	0x00000004	[ 11] _trueshift
+0x00035BE4	0x00000020	[ 12] _old_settings
+0x00035C08	0x00000800	[ 16] _impbuf.0
+0x00036408	0x00000008	[ 16] _impbufp.1
+0x00036410	0x00000008	[ 16] _impbufrem.2
+0x00036418	0x00000008	[ 16] _imprem.3
+0x00036420	0x00000004	[ 16] _clevel.4
+0x00036424	0x00000004	[ 16] _currseg
+0x00036428	0x00000004	[ 16] _lastdatak
+0x0003642C	0x00000004	[ 16] _segtype
+0x00036430	0x00000004	[ 16] _ingroup
+0x00036434	0x00000004	[ 16] _tapetype
+0x00036438	0x00000400	[ 16] _tapename
+0x00036838	0x00000004	[ 16] _paused
+0x0003683C	0x00000004	[ 16] _playing
+0x00036840	0x00000004	[ 18] _toput.0
+0x00036844	0x00000004	[ 18] _bitrem.1
+0x00036848	0x00000002	[ 18] _dirpulse.2
+0x0003684A	0x00000402	[ 18] _rbuf
+0x00036C4C	0x00000004	[ 18] _currlev
+0x00036C50	0x00000004	[ 18] _playstate
+0x00036C54	0x00000002	[ 18] _lead_pause
+0x00036C56	0x00000002	[ 18] _callbeg
+0x00036C58	0x00000002	[ 18] _callctr
+0x00036C5A	0x00000002	[ 18] _loopbeg
+0x00036C5C	0x00000004	[ 18] _loopctr
+0x00036C60	0x00000010	[ 18] _tapeopt
+0x00036C70	0x00000008	[ 18] _firstseg_offs
+0x00036C78	0x00000004	[ 18] _finished
+0x00036C7C	0x00000004	[ 18] _endpause
+0x00036C80	0x00000004	[ 18] _endplay
+0x00036C84	0x00000004	[ 18] _endnext
+0x00036C88	0x00000004	[ 18] _endtype
+0x00036C8C	0x00000004	[ 18] _segbeg
+0x00036C90	0x00000002	[ 18] _currsegi
+0x00036C92	0x00000002	[ 18] _segi
+0x00036C94	0x00000004	[ 28] _previous_state
+0x00036C98	0x00000008	[ 30] _lcd_fb
+0x00036CA0	0x00000008	[ 31] _atexit_handler
+0x00036CA8	0x000000C0	[ 31] ___exit_env
+0x00036D70	0x00000800	[  3] _msgbuf
+0x00037570	0x00000400	[  3] _filenamebuf
+0x00037970	0x00000008	[  9] _spcf_init_tapefile_type
+0x00037978	0x00000008	[  9] _spcf_init_tapefile
+0x00037980	0x00000008	[  9] _spcf_init_snapshot_type
+0x00037988	0x00000008	[  9] _spcf_init_snapshot
+0x00037990	0x00000004	[ 11] _spkb_state_changed
+0x00037994	0x0000001C	[ 11] _spkb_last
+0x000379B0	0x00001000	[ 11] _spkb_kbstate
+0x000389B0	0x00000010	[ 11] _spmisc_state
+0x000389C0	0x00000008	[ 11] _spkey_state
+0x000389C8	0x00000004	[ 11] _keyboard_type
+0x000389D0	0x00000014	[ 12] _intkeys
+0x000389E4	0x00000004	[ 12] _sp_int_ctr
+0x000389E8	0x00000004	[ 12] _sp_nosync
+0x000389EC	0x00000004	[ 12] _endofsingle
+0x000389F0	0x00000004	[ 13] _sp_lastborder
+0x000389F4	0x00000004	[ 13] _sp_border_update
+0x000389F8	0x00000004	[ 13] _sp_imag_vert
+0x000389FC	0x00000004	[ 13] _sp_imag_horiz
+0x00038A00	0x00000300	[ 13] _sp_imag_mark
+0x00038D00	0x00000008	[ 13] _sp_updating
+0x00038D08	0x00000008	[ 13] _sp_image
+0x00038D10	0x00000004	[ 13] _sp_playing_tape
+0x00038D14	0x00001000	[ 13] _sp_coli
+0x00039D14	0x00001000	[ 13] _sp_scri
+0x0003AD14	0x00000270	[ 13] _sp_tape_sound
+0x0003AF84	0x00000400	[ 13] _sp_sound_buf
+0x0003B384	0x00000400	[ 13] _sp_fe_outport_time
+0x0003B784	0x0000000C	[ 13] _sp_fe_inport_default
+0x0003B790	0x00000400	[ 13] _sp_tape_impinfo
+0x0003BB90	0x00000008	[ 13] _sp_scr_f1_table
+0x0003BB98	0x00000008	[ 13] _sp_scr_f0_table
+0x0003BBA0	0x00000004	[ 13] _sp_flash_state
+0x0003BBA4	0x00000010	[ 13] _sp_colors
+0x0003BBB4	0x0000000C	[ 13] _sp_scline
+0x0003BBC0	0x00000100	[ 13] _sp_fe_inport_high
+0x0003BCC0	0x00002000	[ 13] _sp_scr_mark
+0x0003DCC0	0x00000004	[ 13] _sp_load_trapped
+0x0003DCC4	0x00000004	[ 15] _doneplay
+0x0003DCC8	0x00000004	[ 15] _sound_to_autoclose
+0x0003DCCC	0x00000004	[ 15] _sound_avail
+0x0003DCD0	0x00000008	[ 17] _shouldbe_tick
+0x0003DCE0	0x00000028	[ 18] _tf_cseg
+0x0003DD08	0x00000010	[ 18] _tf_tpi
+0x0003DD18	0x00000008	[ 18] _tf_segoffs
+0x0003DD20	0x00000100	[ 18] _seg_desc
+0x0003DE20	0x00000100	[ 19] _z80_outports
+0x0003DF20	0x00000100	[ 19] _z80_inports
+0x0003E020	0x000000A8	[ 19] _z80_proc
+0x0003E0D0	0x00000100	[ 26] _z80c_orf_tbl
+0x0003E1D0	0x00000100	[ 26] _z80c_subf_tbl
+0x0003E2D0	0x00000100	[ 26] _z80c_addf_tbl
+0x0003E3D0	0x00000100	[ 26] _z80c_decf_tbl
+0x0003E4D0	0x00000100	[ 26] _z80c_incf_tbl
+0x0003E5D0	0x00000008	[ 28] _start_time
+0x0003E5D8	0x00000008	[ 28] _video_frames
+0x0003E5E0	0x00012C00	[ 28] _image_array
+0x000511E0	0x00000020	[ 28] _settings
+0x00051200	0x00000004	[ 28] _vga_pause_bg
+0x00051204	0x00000004	[ 28] _pause_on_iconify
+0x00051208	0x00000004	[ 28] _small_screen
+0x0005120C	0x00000004	[ 28] _use_shm
+0x00051210	0x00000004	[ 28] _privatemap
+0x00051214	0x00000001	[ 28] _clear_kbd
+0x00051215	0x00000001	[ 28] _exit_requested
+0x00051216	0x00000008	[ 28] _kb_mkey
+0x00051220	0x00000828	[ 29] _param

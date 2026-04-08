@@ -1,0 +1,358 @@
+# Path: /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/lrcplayer.elf
+# Arch: arm64
+# Object files:
+[  0] linker synthesized
+[  1] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/lrcplayer.o
+[  2] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/plugin_crt0.o
+[  3] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(pluginlib_actions.o)
+[  4] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(helper.o)
+[  5] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(configfile.o)
+[  6] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/libplugin.a(playback_control.o)
+[  7] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/libSystem.tbd
+[  8] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/system/libsystem_c.tbd
+[  9] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/system/libsystem_platform.tbd
+# Sections:
+# Address	Size    	Segment	Section
+0x00000780	0x0000513C	__TEXT	__text
+0x000058BC	0x00000024	__TEXT	__stubs
+0x000058E0	0x0000041A	__TEXT	__cstring
+0x00005D00	0x000001E8	__TEXT	__const
+0x00005EE8	0x00001350	__TEXT	__eh_frame
+0x00008000	0x00000020	__DATA_CONST	__got
+0x00008020	0x00000270	__DATA_CONST	__const
+0x0000C000	0x000002D8	__DATA	__data
+0x0000C2D8	0x00000008	__DATA	.data
+0x0000C2E0	0x000005A8	__DATA	__bss
+0x0000C888	0x00000008	__DATA	__common
+# Symbols:
+# Address	Size    	File  Name
+0x00000780	0x00000050	[  1] _reset_current_data
+0x000007D0	0x000000AC	[  1] _lrcbufadd
+0x0000087C	0x00000044	[  1] _alloc_buf
+0x000008C0	0x00000058	[  1] _new_lrc_word
+0x00000918	0x00000078	[  1] _add_lrc_line
+0x00000990	0x0000007C	[  1] _get_lrc_line
+0x00000A0C	0x0000002C	[  1] _get_time_start
+0x00000A38	0x00000294	[  1] _find_lrc_file_helper
+0x00000CCC	0x00000064	[  1] _parse_int
+0x00000D30	0x0000021C	[  1] _get_time_value
+0x00000F4C	0x000001F8	[  1] _parse_lrc_line
+0x00001144	0x000001A8	[  1] _parse_snc_line
+0x000012EC	0x00000040	[  1] _parse_txt_line
+0x0000132C	0x00000020	[  1] _bytes2int
+0x0000134C	0x00000060	[  1] _unsynchronize
+0x000013AC	0x00000084	[  1] _read_unsynched
+0x00001430	0x00000054	[  1] _utf8cpy
+0x00001484	0x00000210	[  1] _display_state
+0x00001694	0x00000038	[  1] _set_to_default
+0x000016CC	0x00000038	[  1] _set_to_inactive
+0x00001704	0x00000050	[  1] _get_icon
+0x00001754	0x000000B0	[  1] _check_audio_status
+0x00001804	0x0000003C	[  1] _ff_rewind
+0x00001840	0x0000007C	[  1] _lrc_skip_space
+0x000018BC	0x00000480	[  1] _calc_brpos.constprop.0
+0x00001D3C	0x000000A4	[  1] _sort_lrcs
+0x00001DE0	0x00000094	[  1] _init_time_tag
+0x00001E74	0x00000344	[  1] _load_lrc_file
+0x000021B8	0x00000490	[  1] _lrc_set_time.constprop.0
+0x00002648	0x00000078	[  1] _format_time_tag.constprop.0.isra.0
+0x000026C0	0x00000094	[  1] _get_lrc_timeline
+0x00002754	0x00000810	[  1] _parse_id3v2
+0x00002F64	0x00000504	[  1] _save_changes.part.0
+0x00003468	0x00000014	[  1] _save_changes
+0x0000347C	0x000001C8	[  1] _lrc_lyrics_menu
+0x00003644	0x000015C4	[  1] _plugin_start
+0x00004C08	0x00000018	[  2] _cleanup_wrapper
+0x00004C20	0x00000068	[  2] _plugin__start
+0x00004C88	0x00000020	[  2] _rb_atexit
+0x00004CA8	0x00000024	[  2] _exit
+0x00004CCC	0x00000014	[  2] __exit
+0x00004CE0	0x00000064	[  2] _exit_on_usb
+0x00004D44	0x00000038	[  3] _get_context_map
+0x00004D7C	0x00000040	[  3] _pluginlib_getaction
+0x00004DBC	0x00000020	[  4] _talk_val
+0x00004DDC	0x00000040	[  4] _backlight_force_on
+0x00004E1C	0x0000006C	[  4] _backlight_ignore_timeout
+0x00004E88	0x00000048	[  4] _backlight_use_settings
+0x00004ED0	0x00000044	[  4] _sw_poweroff_disable
+0x00004F14	0x00000020	[  4] _sw_poweroff_restore
+0x00004F34	0x00000004	[  4] _remote_backlight_force_on
+0x00004F38	0x00000004	[  4] _remote_backlight_ignore_timeout
+0x00004F3C	0x00000004	[  4] _remote_backlight_use_settings
+0x00004F40	0x00000004	[  4] _buttonlight_force_on
+0x00004F44	0x00000004	[  4] _buttonlight_force_off
+0x00004F48	0x00000004	[  4] _buttonlight_ignore_timeout
+0x00004F4C	0x00000004	[  4] _buttonlight_use_settings
+0x00004F50	0x00000018	[  4] _backlight_brightness_set
+0x00004F68	0x00000020	[  4] _backlight_brightness_use_setting
+0x00004F88	0x00000004	[  4] _buttonlight_brightness_set
+0x00004F8C	0x00000004	[  4] _buttonlight_brightness_use_setting
+0x00004F90	0x000000E8	[  5] _get_cfg_filename.constprop.0
+0x00005078	0x00000160	[  5] _configfile_save
+0x000051D8	0x00000228	[  5] _configfile_load
+0x00005400	0x000000E0	[  5] _configfile_get_value
+0x000054E0	0x00000158	[  5] _configfile_update_entry
+0x00005638	0x00000028	[  6] _prevtrack
+0x00005660	0x00000088	[  6] _play
+0x000056E8	0x00000028	[  6] _stop
+0x00005710	0x00000028	[  6] _nexttrack
+0x00005738	0x00000050	[  6] _volume
+0x00005788	0x00000054	[  6] _shuffle
+0x000057DC	0x0000008C	[  6] _repeat_mode
+0x00005868	0x0000000C	[  6] _playback_control_init
+0x00005874	0x00000048	[  6] _playback_control
+0x000058BC	0x0000000C	[  8] ___maskrune.stub
+0x000058C8	0x0000000C	[  9] _longjmp.stub
+0x000058D4	0x0000000C	[  9] _setjmp.stub
+0x000058E0	0x00000006	[  1] literal string: %s%s/
+0x000058E6	0x00000012	[  1] literal string: check file in %s\n
+0x000058F8	0x00000005	[  1] literal string: %s%s
+0x000058FD	0x0000000D	[  1] literal string: found: `%s'\n
+0x0000590A	0x00000004	[  1] literal string: ti:
+0x0000590E	0x00000004	[  1] literal string: ar:
+0x00005912	0x00000008	[  1] literal string: offset:
+0x0000591A	0x00000001	[  1] literal string: 
+0x0000591B	0x00000003	[  1] literal string: ¢‚
+0x0000591E	0x00000003	[  1] literal string: ¢–
+0x00005921	0x00000002	[  1] literal string: \n
+0x00005923	0x0000000A	[  1] literal string: No lyrics
+0x0000592D	0x0000000C	[  1] literal string: Loading lrc
+0x00005939	0x0000000A	[  1] literal string: (no info)
+0x00005943	0x0000000E	[  1] literal string: Audio Stopped
+0x00005951	0x00000006	[  1] literal string: %s/%s
+0x00005957	0x00000026	[  1] literal string: !,-.:;?„ÄÄ„ÄÅ„ÄÇÔºÅÔºåÔºéÔºöÔºõÔºü‚Äï
+0x0000597D	0x00000004	[  1] literal string: Ôªø
+0x00005981	0x00000003	[  1] literal string: ˇ˛
+0x00005984	0x00000003	[  1] literal string: ˛ˇ
+0x00005987	0x00000004	[  1] literal string: %s~
+0x0000598B	0x00000006	[  1] literal string:  (%s)
+0x00005991	0x0000000A	[  1] literal string: Cancelled
+0x0000599B	0x00000012	[  1] literal string: %02ld:%02ld.%02ld
+0x000059AD	0x00000007	[  1] literal string: [%s]%s
+0x000059B4	0x00000004	[  1] literal string: SLT
+0x000059B8	0x00000005	[  1] literal string: SYLT
+0x000059BD	0x00000004	[  1] literal string: ULT
+0x000059C1	0x00000005	[  1] literal string: USLT
+0x000059C6	0x00000012	[  1] literal string: Saving changes...
+0x000059D8	0x00000005	[  1] literal string: .lrc
+0x000059DD	0x00000015	[  1] literal string: %02ld%02ld%02ld%02ld
+0x000059F2	0x00000005	[  1] literal string: [%s]
+0x000059F7	0x00000004	[  1] literal string: %s\n
+0x000059FB	0x00000018	[  1] literal string: Could not save changes.
+0x00005A13	0x00000015	[  1] literal string: Use default codepage
+0x00005A28	0x00000009	[  1] literal string: Encoding
+0x00005A31	0x0000000D	[  1] literal string: Read ID3 tag
+0x00005A3E	0x00000008	[  1] literal string: /Lyrics
+0x00005A46	0x0000001F	[  1] literal string: Specified file dose not exist.
+0x00005A65	0x00000014	[  1] literal string: %s is not supported
+0x00005A79	0x00000018	[  1] literal string: find lrc file for `%s'\n
+0x00005A91	0x00000014	[  1] literal string: %ld:%02ld/%ld:%02ld
+0x00005AA5	0x00000006	[  1] literal string: [end]
+0x00005AAB	0x0000000F	[  1] literal string: Show Statusbar
+0x00005ABA	0x0000000E	[  1] literal string: Display Title
+0x00005AC8	0x0000000D	[  1] literal string: Display Time
+0x00005AD5	0x00000010	[  1] literal string: Inactive Colour
+0x00005AE5	0x00000014	[  1] literal string: Backlight Always On
+0x00005AF9	0x00000005	[  1] literal string: Wrap
+0x00005AFE	0x00000005	[  1] literal string: Wipe
+0x00005B03	0x0000000A	[  1] literal string: Alignment
+0x00005B0D	0x0000001B	[  1] literal string: Activate Only Current Line
+0x00005B28	0x00000004	[  1] literal string: sec
+0x00005B2C	0x0000000C	[  1] literal string: Time Offset
+0x00005B38	0x0000000F	[  1] literal string: Timetag Editor
+0x00005B47	0x00000010	[  1] literal string: Saving Settings
+0x00005B57	0x00000005	[  1] literal string: Left
+0x00005B5C	0x00000007	[  1] literal string: Centre
+0x00005B63	0x00000006	[  1] literal string: Right
+0x00005B69	0x0000000F	[  1] literal string: inactive color
+0x00005B78	0x00000005	[  1] literal string: wrap
+0x00005B7D	0x00000005	[  1] literal string: wipe
+0x00005B82	0x00000010	[  1] literal string: active one line
+0x00005B92	0x00000006	[  1] literal string: align
+0x00005B98	0x0000000D	[  1] literal string: statusbar on
+0x00005BA5	0x0000000E	[  1] literal string: display title
+0x00005BB3	0x0000000D	[  1] literal string: display time
+0x00005BC0	0x0000000D	[  1] literal string: backlight on
+0x00005BCD	0x0000000E	[  1] literal string: lrc directory
+0x00005BDB	0x00000009	[  1] literal string: encoding
+0x00005BE4	0x00000009	[  1] literal string: read id3
+0x00005BED	0x00000004	[  1] literal string: Yes
+0x00005BF1	0x00000010	[  1] literal string: No (save later)
+0x00005C01	0x00000014	[  1] literal string: Discard All Changes
+0x00005C15	0x0000000E	[  1] literal string: Save Changes?
+0x00005C23	0x0000000D	[  1] literal string: Lrc Directry
+0x00005C30	0x00000010	[  1] literal string: Lyrics Settings
+0x00005C40	0x00000011	[  1] literal string: Display Settings
+0x00005C51	0x0000000F	[  1] literal string: Theme Settings
+0x00005C60	0x00000011	[  1] literal string: Playback Control
+0x00005C71	0x00000005	[  1] literal string: Quit
+0x00005C76	0x0000000A	[  1] literal string: Lrcplayer
+0x00005C80	0x00000006	[  1] literal string: .lrc8
+0x00005C86	0x00000005	[  1] literal string: .snc
+0x00005C8B	0x00000005	[  1] literal string: .txt
+0x00005C90	0x0000000A	[  5] literal string: /.rockbox
+0x00005C9A	0x00000004	[  5] literal string: /%s
+0x00005C9E	0x00000013	[  5] literal string: /.rockbox/rocks/%s
+0x00005CB1	0x00000014	[  5] literal string: file version: %10d\n
+0x00005CC5	0x0000000A	[  5] literal string: %s: %10d\n
+0x00005CCF	0x00000008	[  5] literal string: %s: %s\n
+0x00005CD7	0x0000000D	[  5] literal string: file version
+0x00005CE4	0x00000007	[  6] literal string: Volume
+0x00005CEB	0x00000008	[  6] literal string: Shuffle
+0x00005CF3	0x00000007	[  6] literal string: Repeat
+0x00005D00	0x00000020	[  1] lC4
+0x00005D20	0x00000020	[  1] lC5
+0x00005D40	0x0000000E	[  1] _config_file.1
+0x00005D50	0x000000D8	[  3] _pla_main_ctx
+0x00005E28	0x00000018	[  6] _playback_control_menu__
+0x00005E40	0x00000018	[  6] _repeat_mode_item_
+0x00005E58	0x00000018	[  6] _shuffle_item_
+0x00005E70	0x00000018	[  6] _volume_item_
+0x00005E88	0x00000018	[  6] _nexttrack_item_
+0x00005EA0	0x00000018	[  6] _stop_item_
+0x00005EB8	0x00000018	[  6] _playpause_item_
+0x00005ED0	0x00000018	[  6] _prevtrack_item_
+0x00005EE8	0x00000018	[  1] CFI
+0x00005F00	0x00000020	[  1] FDE for: _reset_current_data
+0x00005F20	0x00000060	[  1] FDE for: _lrcbufadd
+0x00005F80	0x00000020	[  1] FDE for: _alloc_buf
+0x00005FA0	0x00000048	[  1] FDE for: _new_lrc_word
+0x00005FE8	0x00000048	[  1] FDE for: _add_lrc_line
+0x00006030	0x00000020	[  1] FDE for: _get_lrc_line
+0x00006050	0x00000020	[  1] FDE for: _get_time_start
+0x00006070	0x00000078	[  1] FDE for: _find_lrc_file_helper
+0x000060E8	0x00000040	[  1] FDE for: _parse_int
+0x00006128	0x00000050	[  1] FDE for: _get_time_value
+0x00006178	0x00000078	[  1] FDE for: _parse_lrc_line
+0x000061F0	0x00000058	[  1] FDE for: _parse_snc_line
+0x00006248	0x00000048	[  1] FDE for: _parse_txt_line
+0x00006290	0x00000020	[  1] FDE for: _bytes2int
+0x000062B0	0x00000020	[  1] FDE for: _unsynchronize
+0x000062D0	0x00000058	[  1] FDE for: _read_unsynched
+0x00006328	0x00000040	[  1] FDE for: _utf8cpy
+0x00006368	0x00000050	[  1] FDE for: _display_state
+0x000063B8	0x00000040	[  1] FDE for: _set_to_default
+0x000063F8	0x00000040	[  1] FDE for: _set_to_inactive
+0x00006438	0x00000040	[  1] FDE for: _get_icon
+0x00006478	0x00000050	[  1] FDE for: _check_audio_status
+0x000064C8	0x00000040	[  1] FDE for: _ff_rewind
+0x00006508	0x00000048	[  1] FDE for: _lrc_skip_space
+0x00006550	0x00000078	[  1] FDE for: _calc_brpos.constprop.0
+0x000065C8	0x00000020	[  1] FDE for: _sort_lrcs
+0x000065E8	0x00000048	[  1] FDE for: _init_time_tag
+0x00006630	0x00000080	[  1] FDE for: _load_lrc_file
+0x000066B0	0x00000078	[  1] FDE for: _lrc_set_time.constprop.0
+0x00006728	0x00000040	[  1] FDE for: _format_time_tag.constprop.0.isra.0
+0x00006768	0x00000050	[  1] FDE for: _get_lrc_timeline
+0x000067B8	0x00000070	[  1] FDE for: _parse_id3v2
+0x00006828	0x00000078	[  1] FDE for: _save_changes.part.0
+0x000068A0	0x00000020	[  1] FDE for: _save_changes
+0x000068C0	0x00000070	[  1] FDE for: _lrc_lyrics_menu
+0x00006930	0x00000078	[  1] FDE for: _plugin_start
+0x000069A8	0x00000018	[  2] CFI
+0x000069C0	0x00000020	[  2] FDE for: _cleanup_wrapper
+0x000069E0	0x00000040	[  2] FDE for: _plugin__start
+0x00006A20	0x00000020	[  2] FDE for: _rb_atexit
+0x00006A40	0x00000030	[  2] FDE for: _exit
+0x00006A70	0x00000030	[  2] FDE for: __exit
+0x00006AA0	0x00000038	[  2] FDE for: _exit_on_usb
+0x00006AD8	0x00000018	[  3] CFI
+0x00006AF0	0x00000020	[  3] FDE for: _get_context_map
+0x00006B10	0x00000020	[  3] FDE for: _pluginlib_getaction
+0x00006B30	0x00000018	[  4] CFI
+0x00006B48	0x00000020	[  4] FDE for: _talk_val
+0x00006B68	0x00000040	[  4] FDE for: _backlight_force_on
+0x00006BA8	0x00000050	[  4] FDE for: _backlight_ignore_timeout
+0x00006BF8	0x00000040	[  4] FDE for: _backlight_use_settings
+0x00006C38	0x00000040	[  4] FDE for: _sw_poweroff_disable
+0x00006C78	0x00000020	[  4] FDE for: _sw_poweroff_restore
+0x00006C98	0x00000020	[  4] FDE for: _remote_backlight_force_on
+0x00006CB8	0x00000020	[  4] FDE for: _remote_backlight_ignore_timeout
+0x00006CD8	0x00000020	[  4] FDE for: _remote_backlight_use_settings
+0x00006CF8	0x00000020	[  4] FDE for: _buttonlight_force_on
+0x00006D18	0x00000020	[  4] FDE for: _buttonlight_force_off
+0x00006D38	0x00000020	[  4] FDE for: _buttonlight_ignore_timeout
+0x00006D58	0x00000020	[  4] FDE for: _buttonlight_use_settings
+0x00006D78	0x00000020	[  4] FDE for: _backlight_brightness_set
+0x00006D98	0x00000020	[  4] FDE for: _backlight_brightness_use_setting
+0x00006DB8	0x00000020	[  4] FDE for: _buttonlight_brightness_set
+0x00006DD8	0x00000020	[  4] FDE for: _buttonlight_brightness_use_setting
+0x00006DF8	0x00000018	[  5] CFI
+0x00006E10	0x00000068	[  5] FDE for: _get_cfg_filename.constprop.0
+0x00006E78	0x00000070	[  5] FDE for: _configfile_save
+0x00006EE8	0x00000068	[  5] FDE for: _configfile_load
+0x00006F50	0x00000058	[  5] FDE for: _configfile_get_value
+0x00006FA8	0x00000070	[  5] FDE for: _configfile_update_entry
+0x00007018	0x00000018	[  6] CFI
+0x00007030	0x00000038	[  6] FDE for: _prevtrack
+0x00007068	0x00000048	[  6] FDE for: _play
+0x000070B0	0x00000038	[  6] FDE for: _stop
+0x000070E8	0x00000038	[  6] FDE for: _nexttrack
+0x00007120	0x00000040	[  6] FDE for: _volume
+0x00007160	0x00000040	[  6] FDE for: _shuffle
+0x000071A0	0x00000040	[  6] FDE for: _repeat_mode
+0x000071E0	0x00000020	[  6] FDE for: _playback_control_init
+0x00007200	0x00000038	[  6] FDE for: _playback_control
+0x00008000	0x00000008	[  8] __DefaultRuneLocale.got
+0x00008008	0x00000008	[  8] ___maskrune.got
+0x00008010	0x00000008	[  9] _longjmp.got
+0x00008018	0x00000008	[  9] _setjmp.got
+0x00008020	0x00000030	[  1] lC55
+0x00008050	0x00000018	[  1] _save_menu__.5
+0x00008068	0x00000018	[  1] _save_menu.6
+0x00008080	0x00000018	[  1] _menu__.8
+0x00008098	0x00000018	[  1] _menu.9
+0x000080B0	0x00000018	[  1] _menu__.11
+0x000080C8	0x00000018	[  1] _menu.12
+0x000080E0	0x00000018	[  1] _menu__.14
+0x000080F8	0x00000018	[  1] _menu.15
+0x00008110	0x00000018	[  1] _menu__.17
+0x00008128	0x00000018	[  1] _menu.18
+0x00008140	0x00000020	[  1] _extentions
+0x00008160	0x00000038	[  2] ___header
+0x00008198	0x00000018	[  6] _playback_control_menu
+0x000081B0	0x00000018	[  6] _repeat_mode_item
+0x000081C8	0x00000008	[  6] _repeat_mode_item__
+0x000081D0	0x00000018	[  6] _shuffle_item
+0x000081E8	0x00000008	[  6] _shuffle_item__
+0x000081F0	0x00000018	[  6] _volume_item
+0x00008208	0x00000008	[  6] _volume_item__
+0x00008210	0x00000018	[  6] _nexttrack_item
+0x00008228	0x00000008	[  6] _nexttrack_item__
+0x00008230	0x00000018	[  6] _stop_item
+0x00008248	0x00000008	[  6] _stop_item__
+0x00008250	0x00000018	[  6] _playpause_item
+0x00008268	0x00000008	[  6] _playpause_item__
+0x00008270	0x00000018	[  6] _prevtrack_item
+0x00008288	0x00000008	[  6] _prevtrack_item__
+0x0000C000	0x000001E0	[  1] _config.0
+0x0000C1E0	0x00000018	[  1] _save_menu_.4
+0x0000C1F8	0x00000018	[  1] _menu_.7
+0x0000C210	0x00000020	[  1] _menu_.10
+0x0000C230	0x00000028	[  1] _menu_.13
+0x0000C258	0x00000038	[  1] _menu_.16
+0x0000C290	0x00000004	[  1] _font_ui_height
+0x0000C294	0x00000004	[  1] _uifont
+0x0000C298	0x00000001	[  4] _original_sw_poweroff_state
+0x0000C2A0	0x00000038	[  6] _playback_control_menu_
+0x0000C2D8	0x00000008	[  2] _rb
+0x0000C2E0	0x00000008	[  1] _lrc_line.2
+0x0000C2E8	0x00000004	[  1] _n.3
+0x0000C2EC	0x00000004	[  1] _step.19
+0x0000C2F0	0x00000008	[  1] _last_audio_status.20
+0x0000C2F8	0x00000030	[  1] _vp_lyrics
+0x0000C328	0x00000030	[  1] _vp_info
+0x0000C358	0x00000108	[  1] _temp_buf
+0x0000C460	0x00000278	[  1] _current
+0x0000C6D8	0x00000008	[  1] _lrc_buffer_end
+0x0000C6E0	0x00000008	[  1] _lrc_buffer_used
+0x0000C6E8	0x00000008	[  1] _lrc_buffer_size
+0x0000C6F0	0x00000008	[  1] _lrc_buffer
+0x0000C6F8	0x0000005C	[  1] _old_prefs
+0x0000C754	0x0000005C	[  1] _prefs
+0x0000C7B0	0x00000008	[  2] _atexit_handler
+0x0000C7B8	0x000000C0	[  2] ___exit_env
+0x0000C878	0x00000004	[  3] _last_context
+0x0000C87C	0x00000004	[  3] _plugin_context_count
+0x0000C880	0x00000008	[  3] _plugin_context_order
+0x0000C888	0x00000008	[  6] _parentvp
