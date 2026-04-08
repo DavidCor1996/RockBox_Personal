@@ -201,9 +201,9 @@ static const struct tag_info legal_tags[] =
     TAG(SKIN_TOKEN_DRAW_INBUILTBAR,       "wi", "", SKIN_REFRESH_STATIC|NOBREAK),
 
     TAG(SKIN_TOKEN_LOAD_FONT,             "Fl" , "IF|I", 0|NOBREAK),
-    TAG(SKIN_TOKEN_ALBUMART_LOAD,         "Cl" , "[iP][iP][iP][iP]|ss", 0|NOBREAK),
-    TAG(SKIN_TOKEN_ALBUMART_DISPLAY,      "Cd" , "", SKIN_REFRESH_STATIC),
-    TAG(SKIN_TOKEN_ALBUMART_FOUND,        "C" , "", SKIN_REFRESH_STATIC),
+    TAG(SKIN_TOKEN_ALBUMART_LOAD,         "Cl" , "[iP][iP][iP][iP]|[si][si][si]", 0|NOBREAK),
+    TAG(SKIN_TOKEN_ALBUMART_DISPLAY,      "Cd" , "|i", SKIN_REFRESH_STATIC),
+    TAG(SKIN_TOKEN_ALBUMART_FOUND,        "C" , "|i", SKIN_REFRESH_STATIC),
 
 
     TAG(SKIN_TOKEN_LIST_TITLE_TEXT,       "Lt" , "", SKIN_REFRESH_DYNAMIC),
@@ -330,4 +330,3 @@ const struct tag_info* find_tag(const char *name)
     }
     return tag;
 }
-
