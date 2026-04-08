@@ -427,6 +427,8 @@ static void show_sim_help(void)
     HELPTXT(SDLK_3, "zoom display level 3");
     HELPTXT(SDLK_4, "toggle display quality");
     HELPTXT(USB_KEY, "toggle USB");
+    HELPTXT(SDLK_F11, "plug USB");
+    HELPTXT(SDLK_F12, "unplug USB");
 
 #ifdef HAVE_HEADPHONE_DETECTION
     HELPTXT(SDLK_p, "toggle headphone");
@@ -476,6 +478,7 @@ strlcat(helptext, "Note: If you don't have a keypad\n" \
 static void button_event(int key, bool pressed)
 {
     int new_btn = 0;
+    static bool usb_connected = false;
     switch (key)
     {
 #ifdef SIMULATOR
@@ -522,11 +525,31 @@ static void button_event(int key, bool pressed)
         button_queue_post(SDLK_UNKNOWN, 0); /* update window on main thread */
 #endif
         return;
+    case SDLK_c:
+        if (!pressed && usb_connected)
+        {
+            usb_connected = false;
+            sim_trigger_usb(usb_connected);
+        }
+        return;
     case USB_KEY:
         if (!pressed)
         {
-            static bool usb_connected = false;
             usb_connected = !usb_connected;
+            sim_trigger_usb(usb_connected);
+        }
+        return;
+    case SDLK_F11:
+        if (!pressed && !usb_connected)
+        {
+            usb_connected = true;
+            sim_trigger_usb(usb_connected);
+        }
+        return;
+    case SDLK_F12:
+        if (!pressed && usb_connected)
+        {
+            usb_connected = false;
             sim_trigger_usb(usb_connected);
         }
         return;

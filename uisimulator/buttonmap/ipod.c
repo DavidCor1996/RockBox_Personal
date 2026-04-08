@@ -36,11 +36,13 @@ int key_to_button(int keyboard_button)
         case SDLK_F7:
         case SDLK_KP_4:
         case SDLK_LEFT:
+        case SDLK_a:
             new_btn = BUTTON_LEFT;
             break;
         case SDLK_F9:
         case SDLK_KP_6:
         case SDLK_RIGHT:
+        case SDLK_d:
             new_btn = BUTTON_RIGHT;
             break;
         case SDLK_KP_8:
@@ -54,6 +56,7 @@ int key_to_button(int keyboard_button)
         case SDLK_KP_PLUS:
         case SDLK_SPACE:
         case SDLK_F8:
+        case SDLK_s:
             new_btn = BUTTON_PLAY;
             break;
         case SDLK_KP_5:
@@ -64,6 +67,7 @@ int key_to_button(int keyboard_button)
         case SDLK_BACKSPACE:
         case SDLK_KP_PERIOD:
         case SDLK_INSERT:
+        case SDLK_w:
             new_btn = BUTTON_MENU;
             break;
     }

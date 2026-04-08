@@ -1013,6 +1013,9 @@ bool is_remote_backlight_on(bool ignore_always_off)
 #ifdef HAVE_BACKLIGHT_BRIGHTNESS
 void backlight_set_brightness(int val)
 {
+#ifdef SIMULATOR
+    val = MAX_BRIGHTNESS_SETTING;
+#endif
     if (val < MIN_BRIGHTNESS_SETTING)
         val = MIN_BRIGHTNESS_SETTING;
     else if (val > MAX_BRIGHTNESS_SETTING)

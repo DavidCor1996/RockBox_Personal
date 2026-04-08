@@ -37,6 +37,26 @@
 #define MEADOW_WORLD_Y 210
 #define MEADOW_ROOM_W 320
 #define MEADOW_ROOM_H 208
+#define HOUSE_DOOR_Y 82
+#define HOUSE_DOOR_H 30
+#define HOUSE_EXIT_LOCK_X 98
+#define HOUSE_EXIT_LOCK_Y 142
+#define HOUSE_EXIT_LOCK_W 44
+#define HOUSE_EXIT_LOCK_H 18
+#define HOUSE_FRONT_EXIT_X 84
+#define HOUSE_FRONT_EXIT_Y 136
+#define HOUSE_FRONT_EXIT_W 72
+#define HOUSE_FRONT_EXIT_H 28
+#define SWORD_PICKUP_X 136
+#define SWORD_PICKUP_Y 88
+#define SWORD_PICKUP_W 28
+#define SWORD_PICKUP_H 24
+#define SMITH_INTRO_X 0x80
+#define SMITH_INTRO_Y 0x50
+#define ZELDA_SMITH_X 0x60
+#define ZELDA_SMITH_Y 0x50
+#define SMITH_POST_X 0xb8
+#define SMITH_POST_Y 0x60
 
 #define SOUTH_HYRULE_TILE_W 63
 #define SOUTH_HYRULE_TILE_H 43
@@ -52,21 +72,35 @@ enum { NPCTYPE_NONE = 0, NPCTYPE_ZELDA, NPCTYPE_SMITH };
 #define COLOR_WHITE 255
 #define COLOR_HEART 0xF800
 #define MINISHCAP_USE_REAL_ASSETS 0
-#define MINISHCAP_SWAP_LEFT_RIGHT 0
+#define MINISHCAP_SWAP_LEFT_RIGHT 1
 #define COLOR_SWORD 0x39E7
 #define COLOR_HUD_PARCHMENT_DARK 0x18C3
 #define COLOR_HUD_PARCHMENT_SHADOW 0x1059
 #define COLOR_HUD_INSET 0x18C3
 #define COLOR_PANEL_ACCENT 0x31A0
-#define COLOR_PANEL_TEXT 0x0000
+#define COLOR_PANEL_TEXT 0xFFFF
 #define COLOR_DIALOG 0x3186
 #define COLOR_DIALOG_BORDER 0x0000
-#define COLOR_DIALOG_TEXT 0x0000
+#define COLOR_DIALOG_TEXT 0xFFFF
 #define COLOR_ROOM_FLOOR 0x18C3
 #define COLOR_ROOM_WALL 0x2945
 #define COLOR_ROOM_OBJECT 0x31A0
 #define COLOR_MINIMAP_MARKER 0xFF00
-#define MINISHCAP_BUILD_TAG "MC-SIM r3"
+#define MINISHCAP_BUILD_TAG "MC-SIM r4"
+#define LINK_USE_BITMAP_SPRITES 1
+#define LINK_TRANSPARENT_KEY 0x0000
+#define COLOR_UI_BG 0x10A2
+#define COLOR_UI_FRAME 0x6B4D
+#define COLOR_UI_TEXT 0xFFFF
+
+#define NPC_BMP_W 24
+#define NPC_BMP_H 24
+#define NPC_BMP_PIXELS (NPC_BMP_W * NPC_BMP_H)
+#define NPC_BMP_BYTES (NPC_BMP_PIXELS * sizeof(fb_data))
+#define SMITH_BMP_FILE PLUGIN_GAMES_DIR "/minishcap_smith_real.bmp"
+#define SMITH_BMP_FILE_ALT PLUGIN_GAMES_DIR "/minishcap_smith_real.24x24x24.bmp"
+#define ZELDA_BMP_FILE PLUGIN_GAMES_DIR "/minishcap_zelda_real.bmp"
+#define ZELDA_BMP_FILE_ALT PLUGIN_GAMES_DIR "/minishcap_zelda_real.24x24x24.bmp"
 
 #include "pluginbitmaps/minishcap_link_back.h"
 #include "pluginbitmaps/minishcap_link_front.h"
@@ -136,20 +170,113 @@ struct game_state
     int camera_x, camera_y;
     bool moving;
     bool sword_equipped;
+    int interaction_cooldown;
+    bool menu_open;
+    int menu_tab;
 };
 
-#define AUDIO_SAMPLE_RATE 11025
-#define AUDIO_BUF_SIZE 256
+#define AUDIO_SAMPLE_RATE 44100
+#define AUDIO_BUF_SIZE 8192
 
 static int16_t audio_buf[AUDIO_BUF_SIZE];
-static int audio_buf_pos;
 static bool audio_initialized;
+static bool audio_playing;
+static struct bitmap smith_bmp;
+static struct bitmap zelda_bmp;
+static fb_data smith_bmp_data[NPC_BMP_PIXELS];
+static fb_data zelda_bmp_data[NPC_BMP_PIXELS];
+static bool smith_bmp_loaded;
+static bool zelda_bmp_loaded;
+
+static bool rect_overlap(int x, int y, int w, int h, int rx, int ry, int rw, int rh);
+static void play_sfx(struct game_state *game, unsigned freq, unsigned duration_ms, unsigned amplitude);
+
+static void set_message(struct game_state *game, const char *l1, const char *l2, const char *l3, int ticks)
+{
+    rb->snprintf(game->line1, sizeof(game->line1), "%s", l1 ? l1 : "");
+    rb->snprintf(game->line2, sizeof(game->line2), "%s", l2 ? l2 : "");
+    rb->snprintf(game->line3, sizeof(game->line3), "%s", l3 ? l3 : "");
+    game->message_timer = ticks;
+}
+
+static void blit_skip_black(const fb_data *src, int width, int height, int dst_x, int dst_y)
+{
+    for (int y = 0; y < height; ++y)
+    {
+        for (int x = 0; x < width; ++x)
+        {
+            fb_data pixel = src[y * width + x];
+            if (pixel == (fb_data)COLOR_BLACK)
+                continue;
+            rb->lcd_set_foreground(pixel);
+            rb->lcd_drawpixel(dst_x + x, dst_y + y);
+        }
+    }
+}
+
+static void draw_smith_at(int x, int y)
+{
+    if (smith_bmp_loaded)
+    {
+        blit_skip_black((const fb_data*)smith_bmp.data, NPC_BMP_W, NPC_BMP_H, x, y);
+    }
+    else
+    {
+        rb->lcd_set_foreground(COLOR_ROOM_OBJECT);
+        rb->lcd_fillrect(x + 6, y + 4, 11, 16);
+    }
+}
+
+static void draw_zelda_at(int x, int y)
+{
+    if (zelda_bmp_loaded)
+    {
+        blit_skip_black((const fb_data*)zelda_bmp.data, NPC_BMP_W, NPC_BMP_H, x, y);
+    }
+    else
+    {
+        rb->lcd_set_foreground(COLOR_HEART);
+        rb->lcd_fillrect(x + 5, y + 5, 10, 14);
+    }
+}
 
 static void audio_callback(const void **start, size_t *size)
 {
-    *start = audio_buf;
-    *size = audio_buf_pos * sizeof(int16_t);
-    audio_buf_pos = 0;
+    *start = NULL;
+    *size = 0;
+    audio_playing = false;
+}
+
+static bool try_select_interaction(struct game_state *game, int event)
+{
+    if (!(event & BUTTON_SELECT)) return false;
+    if (game->message_timer > 0) return true;
+    if (game->interaction_cooldown > 0) return true;
+
+    if (game->room_id == ROOM_LINKS_HOUSE_SMITH &&
+        rect_overlap(game->x, game->y, PLAYER_W, PLAYER_H, SMITH_INTRO_X - 18, SMITH_INTRO_Y - 8, 64, 44))
+    {
+        if (!game->sword_equipped)
+        {
+            set_message(game, "Smith: Take this sword.", "", "", HZ);
+        }
+        else
+        {
+            set_message(game, "Smith: Go outside now!", "", "", HZ);
+        }
+        game->interaction_cooldown = HZ / 3;
+        return true;
+    }
+
+    if (game->sword_equipped)
+    {
+        game->sword_dir = game->facing;
+        game->sword_timer = 7;
+        play_sfx(game, 620, 50, 1200);
+        return true;
+    }
+
+    return false;
 }
 
 static void init_audio(void)
@@ -157,35 +284,47 @@ static void init_audio(void)
     if (audio_initialized) return;
     rb->pcm_play_stop();
     rb->pcm_set_frequency(AUDIO_SAMPLE_RATE);
-    audio_buf_pos = 0;
     audio_initialized = true;
+    audio_playing = false;
 }
 
 static void play_tone(unsigned freq, unsigned duration_ms)
 {
     if (!audio_initialized) return;
+    if (freq < 100 || freq > 2000) return;
+
+    if (audio_playing) return;
+
     int samples = (AUDIO_SAMPLE_RATE * duration_ms) / 1000;
-    int phase = 0;
-    int phase_inc = (freq * 256) / AUDIO_SAMPLE_RATE;
-    for (int i = 0; i < samples && audio_buf_pos < AUDIO_BUF_SIZE; i++)
+    int sample_count = samples > AUDIO_BUF_SIZE ? AUDIO_BUF_SIZE : samples;
+    if (sample_count <= 0) return;
+    int period = AUDIO_SAMPLE_RATE / freq;
+    if (period < 4) period = 4;
+
+    for (int i = 0; i < sample_count; i++)
     {
-        audio_buf[audio_buf_pos++] = (int16_t)((phase >> 8) & 0xFF);
-        phase += phase_inc;
+        int t = i % period;
+        int half = period / 2;
+        int sample = (t < half)
+            ? (-4096 + ((8192 * t) / half))
+            : (4096 - ((8192 * (t - half)) / half));
+        audio_buf[i] = (int16_t)sample;
     }
-    if (audio_buf_pos > 0)
-        rb->pcm_play_data(audio_callback, NULL, audio_buf, audio_buf_pos * sizeof(int16_t));
+
+    audio_playing = true;
+    rb->pcm_play_data(audio_callback, NULL, audio_buf, sample_count * sizeof(int16_t));
 }
 
 static void play_sfx(struct game_state *game, unsigned freq, unsigned duration_ms, unsigned amplitude)
 {
     (void)amplitude;
-    play_tone(freq * 2, duration_ms);
+    play_tone(freq, duration_ms);
     game->bgm_cooldown = 3;
 }
 
-static const unsigned bgm_bedroom[] = {392, 440, 523, 0, 523, 440, 392, 0, 0};
-static const unsigned bgm_entrance[] = {330, 392, 440, 523, 440, 392, 330, 0, 0};
-static const unsigned bgm_meadow[] = {523, 659, 784, 0, 784, 659, 523, 0, 0};
+static const unsigned bgm_decomp_house[] = {262, 294, 330, 392, 330, 294, 262, 220, 0, 220, 262, 294};
+static const unsigned bgm_decomp_hyrule_field[] = {392, 440, 494, 587, 659, 587, 494, 440, 392, 349, 330, 294};
+static const unsigned bgm_decomp_minish_cap[] = {523, 587, 659, 784, 659, 587, 523, 494, 440, 392, 349, 330};
 
 static int bgm_note_idx;
 static int bgm_note_timer;
@@ -200,11 +339,11 @@ static void update_bgm(struct game_state *game)
     
     const unsigned *bgm = NULL;
     if (game->room_id == ROOM_LINKS_HOUSE_BEDROOM || game->room_id == ROOM_LINKS_HOUSE_ENTRANCE || game->room_id == ROOM_LINKS_HOUSE_SMITH)
-        bgm = bgm_bedroom;
+        bgm = bgm_decomp_house;
     else if (game->room_id == ROOM_MEADOW)
-        bgm = bgm_meadow;
+        bgm = game->sword_equipped ? bgm_decomp_hyrule_field : bgm_decomp_minish_cap;
     else
-        bgm = bgm_entrance;
+        bgm = bgm_decomp_hyrule_field;
     
     if (!bgm) return;
     
@@ -214,9 +353,9 @@ static void update_bgm(struct game_state *game)
         bgm_note_timer = 0;
         unsigned freq = bgm[bgm_note_idx];
         if (freq > 0)
-            play_tone(freq, 100);
-        bgm_note_idx = (bgm_note_idx + 1) % 9;
-        game->bgm_cooldown = 2;
+            play_tone(freq, 170);
+        bgm_note_idx = (bgm_note_idx + 1) % 12;
+        game->bgm_cooldown = 1;
     }
 }
 
@@ -278,13 +417,13 @@ static const struct room_def room_defs[ROOM_COUNT] = {
     },
     {
         THEME_HOUSE, 0, {{0,0}, {0,0}, {0,0}}, 0, {{0,0,0,0}, {0,0,0,0}},
-        4, {{0, 0, 240, 8}, {0, 0, 8, 160}, {232, 0, 8, 160}, {0, 152, 86, 8}, {154, 152, 86, 8}, {0,0,0,0}, {0,0,0,0}, {0,0,0,0}},
+        6, {{0, 0, 240, 8}, {0, 0, 8, 160}, {232, 0, 8, HOUSE_DOOR_Y}, {232, HOUSE_DOOR_Y + HOUSE_DOOR_H, 8, 160 - (HOUSE_DOOR_Y + HOUSE_DOOR_H)}, {0, 152, 86, 8}, {154, 152, 86, 8}, {0,0,0,0}, {0,0,0,0}},
         false, {0,0,0,0}, false, {0,0,0,0}, 12, 86,
         {{ROOM_MEADOW, HOUSE_EXIT_SAFE_X, HOUSE_EXIT_SAFE_Y}, {-1,0,0}, {ROOM_LINKS_HOUSE_BEDROOM, BEDROOM_START_X, BEDROOM_START_Y}, {ROOM_LINKS_HOUSE_SMITH, 154, 86}},
     },
     {
         THEME_HOUSE, 0, {{0,0}, {0,0}, {0,0}}, 0, {{0,0,0,0}, {0,0,0,0}},
-        4, {{0, 0, 240, 8}, {0, 0, 8, 160}, {232, 0, 8, 160}, {0, 150, 240, 10}, {0,0,0,0}, {0,0,0,0}, {0,0,0,0}, {0,0,0,0}},
+        5, {{0, 0, 240, 8}, {0, 0, 8, HOUSE_DOOR_Y}, {0, HOUSE_DOOR_Y + HOUSE_DOOR_H, 8, 160 - (HOUSE_DOOR_Y + HOUSE_DOOR_H)}, {232, 0, 8, 160}, {0, 150, 240, 10}, {0,0,0,0}, {0,0,0,0}, {0,0,0,0}},
         false, {0,0,0,0}, false, {0,0,0,0}, 148, 110,
         {{-1,0,0}, {-1,0,0}, {ROOM_LINKS_HOUSE_ENTRANCE, 12, 86}, {-1,0,0}},
     },
@@ -383,33 +522,46 @@ static void draw_hud_heart(int x, int y, bool filled)
 static void draw_hud(const struct game_state *game)
 {
     int left_x = 8;
-    int right_x = LCD_WIDTH - 80;
-    set_fg(COLOR_HUD_PARCHMENT_SHADOW);
-    rb->lcd_fillrect(4, 4, 70, 24);
-    rb->lcd_fillrect(LCD_WIDTH - 76, 4, 72, 24);
-    set_fg(COLOR_HUD_PARCHMENT_DARK);
-    rb->lcd_fillrect(6, 6, 66, 20);
-    rb->lcd_fillrect(LCD_WIDTH - 74, 6, 68, 20);
-    set_fg(COLOR_PANEL_ACCENT);
-    rb->lcd_drawrect(6, 6, 66, 20);
-    rb->lcd_drawrect(LCD_WIDTH - 74, 6, 68, 20);
-    set_fg(COLOR_HUD_INSET);
-    rb->lcd_putsxy(left_x + 8, 6, "LIFE");
+    int right_x = LCD_WIDTH - 96;
+    set_fg(COLOR_UI_TEXT);
+    rb->lcd_putsxy(left_x, 4, "LIFE");
     for (int i = 0; i < PLAYER_MAX_HEALTH; ++i)
-        draw_hud_heart(left_x + 8 + i * 15, 11, i < game->health);
-    set_fg(COLOR_MINIMAP_MARKER);
-    rb->lcd_fillrect(right_x + 10, 10, 12, 12);
-    set_fg(COLOR_PANEL_TEXT);
-    rb->lcd_fillrect(right_x + 12, 12, 8, 8);
+        draw_hud_heart(left_x + 30 + i * 16, 6, i < game->health);
+
     char line[16];
     rb->snprintf(line, sizeof(line), "%d", game->rupees);
-    set_fg(COLOR_PANEL_TEXT);
-    rb->lcd_putsxy(right_x + 26, 13, line);
-    rb->lcd_putsxy(8, LCD_HEIGHT - 10, MINISHCAP_BUILD_TAG);
+    set_fg(COLOR_UI_BG);
+    rb->lcd_fillrect(right_x - 4, 4, 92, 22);
+    set_fg(COLOR_UI_FRAME);
+    rb->lcd_drawrect(right_x - 4, 4, 92, 22);
+    set_fg(COLOR_UI_TEXT);
+    rb->lcd_putsxy(right_x, 7, "R");
+    rb->lcd_putsxy(right_x + 12, 7, line);
+    rb->lcd_putsxy(right_x + 36, 7, "B");
+    rb->lcd_putsxy(right_x + 48, 7, game->sword_equipped ? "SWRD" : "----");
+    rb->lcd_putsxy(right_x + 36, 15, "A");
+    rb->lcd_putsxy(right_x + 48, 15, "ROLL");
+}
+
+static void draw_masked_bitmap(const fb_data *src, int w, int h, int x, int y, fb_data key)
+{
+    for (int py = 0; py < h; ++py)
+    {
+        for (int px = 0; px < w; ++px)
+        {
+            fb_data c = src[py * w + px];
+            if (c != key)
+            {
+                rb->lcd_set_foreground(c);
+                rb->lcd_drawpixel(x + px, y + py);
+            }
+        }
+    }
 }
 
 static void draw_player(const struct game_state *game)
 {
+#if LINK_USE_BITMAP_SPRITES
     const fb_data *sprite = minishcap_link_front;
     int sprite_w = 24, sprite_h = 24;
     bool step = game->moving && ((game->step_clock / 3) & 1);
@@ -422,7 +574,7 @@ static void draw_player(const struct game_state *game)
         case FACE_RIGHT: sprite = (MINISHCAP_SWAP_LEFT_RIGHT) ? (step ? minishcap_link_left_step : minishcap_link_left) : (step ? minishcap_link_right_step : minishcap_link_right); break;
         default: sprite = (step ? minishcap_link_front_step : minishcap_link_front); break;
     }
-    rb->lcd_bitmap_transparent(sprite, draw_x, draw_y, sprite_w, sprite_h);
+    draw_masked_bitmap(sprite, sprite_w, sprite_h, draw_x, draw_y, LINK_TRANSPARENT_KEY);
     
     if (game->sword_equipped && game->sword_timer > 0)
     {
@@ -432,21 +584,45 @@ static void draw_player(const struct game_state *game)
         switch (game->sword_dir)
         {
             case FACE_UP:
-                rb->lcd_fillrect(base_x - 1, base_y - 12, 3, 10);
-                rb->lcd_fillrect(base_x - 3, base_y - 15, 7, 2);
+                rb->lcd_fillrect(base_x - 1, base_y - 12, 3, 9);
+                rb->lcd_fillrect(base_x - 3, base_y - 2, 7, 2);
                 break;
             case FACE_LEFT:
-                rb->lcd_fillrect(base_x - 12, base_y - 1, 10, 3);
-                rb->lcd_fillrect(base_x - 15, base_y - 3, 2, 7);
+                rb->lcd_fillrect(base_x - 12, base_y - 1, 9, 3);
+                rb->lcd_fillrect(base_x - 2, base_y - 3, 2, 7);
                 break;
             case FACE_RIGHT:
-                rb->lcd_fillrect(base_x + 2, base_y - 1, 10, 3);
-                rb->lcd_fillrect(base_x + 4, base_y - 3, 2, 7);
+                rb->lcd_fillrect(base_x + 3, base_y - 1, 9, 3);
+                rb->lcd_fillrect(base_x + 1, base_y - 3, 2, 7);
                 break;
             default:
-                rb->lcd_fillrect(base_x - 1, base_y + 4, 3, 10);
-                rb->lcd_fillrect(base_x - 3, base_y + 14, 7, 2);
+                rb->lcd_fillrect(base_x - 1, base_y + 3, 3, 9);
+                rb->lcd_fillrect(base_x - 3, base_y + 2, 7, 2);
                 break;
+        }
+    }
+#endif
+}
+
+static void draw_npcs(const struct game_state *game)
+{
+    if (game->room_id == ROOM_LINKS_HOUSE_SMITH)
+    {
+        int smith_x = game->sword_equipped ? SMITH_POST_X : SMITH_INTRO_X;
+        int smith_y = game->sword_equipped ? SMITH_POST_Y : SMITH_INTRO_Y;
+
+        if (!game->sword_equipped)
+            draw_zelda_at(world_to_screen_x(game, ZELDA_SMITH_X), world_to_screen_y(game, ZELDA_SMITH_Y));
+
+        draw_smith_at(world_to_screen_x(game, smith_x), world_to_screen_y(game, smith_y));
+
+        if (!game->sword_equipped)
+        {
+            int sx = world_to_screen_x(game, SWORD_PICKUP_X);
+            int sy = world_to_screen_y(game, SWORD_PICKUP_Y);
+            set_fg(COLOR_SWORD);
+            rb->lcd_fillrect(sx, sy, 8, 16);
+            rb->lcd_fillrect(sx + 6, sy + 2, 4, 12);
         }
     }
 }
@@ -454,22 +630,64 @@ static void draw_player(const struct game_state *game)
 static void draw_dialog(const struct game_state *game)
 {
     if (game->message_timer <= 0 || game->line1[0] == '\0') return;
-    
-    int box_x = 18;
-    int box_w = LCD_WIDTH - (box_x * 2);
-    int box_h = 32;
-    int box_y = LCD_HEIGHT - 50;
-    
-    set_fg(COLOR_DIALOG_BORDER);
+
+    int box_x = 8;
+    int box_w = LCD_WIDTH - 16;
+    int box_h = 24;
+    int box_y = LCD_HEIGHT - box_h - 6;
+
+    set_fg(COLOR_UI_BG);
+    rb->lcd_fillrect(box_x, box_y, box_w, box_h);
+    set_fg(COLOR_UI_FRAME);
     rb->lcd_drawrect(box_x, box_y, box_w, box_h);
-    set_fg(COLOR_DIALOG);
-    rb->lcd_drawrect(box_x + 1, box_y + 1, box_w - 2, box_h - 2);
-    set_fg(COLOR_DIALOG_TEXT);
-    rb->lcd_putsxy(box_x + 8, box_y + 4, game->line1);
-    if (game->line2[0])
-        rb->lcd_putsxy(box_x + 8, box_y + 14, game->line2);
-    if (game->line3[0])
-        rb->lcd_putsxy(box_x + 8, box_y + 24, game->line3);
+    set_fg(COLOR_UI_TEXT);
+    rb->lcd_putsxy(box_x + 6, box_y + 8, game->line1);
+}
+
+static void draw_menu_overlay(const struct game_state *game)
+{
+    if (!game->menu_open) return;
+
+    int x = 44, y = 36, w = LCD_WIDTH - 88, h = LCD_HEIGHT - 72;
+    set_fg(COLOR_UI_BG);
+    rb->lcd_fillrect(x, y, w, h);
+    set_fg(COLOR_UI_FRAME);
+    rb->lcd_drawrect(x, y, w, h);
+    set_fg(COLOR_UI_TEXT);
+    rb->lcd_putsxy(x + 10, y + 8, "MINISH CAP MENU");
+
+    const char *tabs[3] = {"STATUS", "ITEMS", "QUEST"};
+    for (int i = 0; i < 3; ++i)
+    {
+        int tx = x + 10 + (i * 64);
+        if (i == game->menu_tab)
+        {
+            set_fg(COLOR_UI_FRAME);
+            rb->lcd_fillrect(tx - 2, y + 24, 60, 12);
+            set_fg(COLOR_UI_TEXT);
+        }
+        rb->lcd_putsxy(tx, y + 26, tabs[i]);
+    }
+
+    if (game->menu_tab == 0)
+    {
+        char hp[24];
+        char rup[24];
+        rb->snprintf(hp, sizeof(hp), "Hearts: %d/%d", game->health, PLAYER_MAX_HEALTH);
+        rb->snprintf(rup, sizeof(rup), "Rupees: %d", game->rupees);
+        rb->lcd_putsxy(x + 12, y + 52, hp);
+        rb->lcd_putsxy(x + 12, y + 66, rup);
+    }
+    else if (game->menu_tab == 1)
+    {
+        rb->lcd_putsxy(x + 12, y + 52, game->sword_equipped ? "Sword: Equipped" : "Sword: Not yet");
+    }
+    else
+    {
+        rb->lcd_putsxy(x + 12, y + 52, game->sword_equipped ? "Quest: Leave house" : "Quest: Get sword");
+    }
+
+    rb->lcd_putsxy(x + 12, y + h - 18, "UP+DOWN: Menu  LEFT/RIGHT: Tabs");
 }
 
 static void draw_screen(const struct game_state *game)
@@ -478,14 +696,17 @@ static void draw_screen(const struct game_state *game)
     set_fg(COLOR_ROOM_WALL);
     rb->lcd_fillrect(0, 0, LCD_WIDTH, LCD_HEIGHT);
     draw_room_background(game);
+    draw_npcs(game);
     draw_player(game);
     draw_hud(game);
     draw_dialog(game);
+    draw_menu_overlay(game);
     rb->lcd_update();
 }
 
 static void begin_room(struct game_state *game, int room_id, int x, int y)
 {
+    if (room_id < 0 || room_id >= ROOM_COUNT) return;
     game->room_id = room_id;
     game->x = x;
     game->y = y;
@@ -499,6 +720,10 @@ static void begin_room(struct game_state *game, int room_id, int x, int y)
     game->line2[0] = '\0';
     game->line3[0] = '\0';
     game->message_timer = 0;
+    game->bgm_cooldown = 0;
+    game->interaction_cooldown = 10;
+    bgm_note_idx = 0;
+    bgm_note_timer = 0;
     normalize_meadow_spawn(game);
 }
 
@@ -510,37 +735,133 @@ static void init_default_game(struct game_state *game)
     game->sword_dir = FACE_DOWN;
     game->sword_equipped = false;
     game->quest_stage = 1;
+    game->menu_open = false;
+    game->menu_tab = 0;
     begin_room(game, ROOM_LINKS_HOUSE_BEDROOM, BEDROOM_START_X, BEDROOM_START_Y);
     game->x = BEDROOM_START_X;
     game->y = BEDROOM_START_Y;
 }
 
-static int map_buttons(long button)
+static int decode_cmd(int button)
 {
     int cmd = 0;
     if (button & BUTTON_LEFT) cmd |= CMD_LEFT;
     if (button & BUTTON_RIGHT) cmd |= CMD_RIGHT;
+#if defined(SIMULATOR) && defined(BUTTON_SCROLL_BACK)
+    if (button & (BUTTON_MENU | BUTTON_SCROLL_BACK)) cmd |= CMD_UP;
+#else
     if (button & BUTTON_MENU) cmd |= CMD_UP;
+#endif
+#if defined(SIMULATOR) && defined(BUTTON_SCROLL_FWD)
+    if (button & (BUTTON_PLAY | BUTTON_SCROLL_FWD)) cmd |= CMD_DOWN;
+#else
     if (button & BUTTON_PLAY) cmd |= CMD_DOWN;
+#endif
     return cmd;
 }
 
 static int clean_button(long button)
 {
-    return button & (BUTTON_LEFT | BUTTON_RIGHT | BUTTON_MENU | BUTTON_PLAY | BUTTON_SELECT);
+    int mask = BUTTON_LEFT | BUTTON_RIGHT | BUTTON_MENU | BUTTON_PLAY | BUTTON_SELECT;
+#if defined(SIMULATOR) && defined(BUTTON_SCROLL_BACK)
+    mask |= BUTTON_SCROLL_BACK;
+#endif
+#if defined(SIMULATOR) && defined(BUTTON_SCROLL_FWD)
+    mask |= BUTTON_SCROLL_FWD;
+#endif
+    return button & mask;
 }
+
+static bool rect_overlap(int x, int y, int w, int h, int rx, int ry, int rw, int rh);
 
 static bool try_transition(struct game_state *game, int edge)
 {
     const struct room_transition *exit = &current_room(game)->exits[edge];
     if (exit->room < 0) return false;
+
+    if (exit->room == ROOM_MEADOW && !game->sword_equipped)
+    {
+        if (!rect_overlap(game->x, game->y, PLAYER_W, PLAYER_H, HOUSE_EXIT_LOCK_X, HOUSE_EXIT_LOCK_Y, HOUSE_EXIT_LOCK_W, HOUSE_EXIT_LOCK_H))
+            return false;
+        set_message(game, "Need Smith sword.", "", "", HZ);
+        play_sfx(game, 220, 80, 1200);
+        return false;
+    }
+
     play_sfx(game, 510, 65, 1200);
     begin_room(game, exit->room, exit->x, exit->y);
     return true;
 }
 
+static bool rect_overlap(int x, int y, int w, int h, int rx, int ry, int rw, int rh)
+{
+    return x < rx + rw && x + w > rx && y < ry + rh && y + h > ry;
+}
+
+static bool try_area_transition(struct game_state *game, int test_x, int test_y)
+{
+    if (game->room_id == ROOM_LINKS_HOUSE_BEDROOM) {
+        if (rect_overlap(test_x, test_y, PLAYER_W, PLAYER_H, 0x58, 0x18, 12, 12)) {
+            begin_room(game, ROOM_LINKS_HOUSE_ENTRANCE, 12, 86);
+            return true;
+        }
+    } else if (game->room_id == ROOM_LINKS_HOUSE_ENTRANCE) {
+        if (rect_overlap(test_x, test_y, PLAYER_W, PLAYER_H, 0x58, 0x18, 12, 12)) {
+            begin_room(game, ROOM_LINKS_HOUSE_BEDROOM, BEDROOM_START_X, BEDROOM_START_Y);
+            return true;
+        }
+        if (rect_overlap(test_x, test_y, PLAYER_W, PLAYER_H, HOUSE_FRONT_EXIT_X, HOUSE_FRONT_EXIT_Y, HOUSE_FRONT_EXIT_W, HOUSE_FRONT_EXIT_H)) {
+            if (game->sword_equipped) {
+                begin_room(game, ROOM_MEADOW, HOUSE_EXIT_SAFE_X, HOUSE_EXIT_SAFE_Y);
+                return true;
+            }
+            set_message(game, "Need Smith sword.", "", "", HZ);
+            return false;
+        }
+        if (rect_overlap(test_x, test_y, PLAYER_W, PLAYER_H, 224, HOUSE_DOOR_Y, 16, HOUSE_DOOR_H)) {
+            begin_room(game, ROOM_LINKS_HOUSE_SMITH, 18, 92);
+            return true;
+        }
+    } else if (game->room_id == ROOM_LINKS_HOUSE_SMITH) {
+        if (rect_overlap(test_x, test_y, PLAYER_W, PLAYER_H, 0, HOUSE_DOOR_Y, 8, HOUSE_DOOR_H)) {
+            begin_room(game, ROOM_LINKS_HOUSE_ENTRANCE, 206, 92);
+            return true;
+        }
+    }
+
+    return false;
+}
+
+static bool try_sword_pickup(struct game_state *game)
+{
+    if (game->sword_equipped) return false;
+    if (game->room_id != ROOM_LINKS_HOUSE_SMITH) return false;
+
+    if (rect_overlap(game->x, game->y, PLAYER_W, PLAYER_H, SWORD_PICKUP_X, SWORD_PICKUP_Y, SWORD_PICKUP_W, SWORD_PICKUP_H))
+    {
+        game->sword_equipped = true;
+        game->quest_stage = 2;
+        set_message(game, "Got Smith's Sword!", "", "", HZ * 2);
+        play_sfx(game, 880, 140, 1200);
+        return true;
+    }
+
+    return false;
+}
+
 static void update_game(struct game_state *game, int cmd, int event)
 {
+    bool select_used = try_select_interaction(game, event);
+
+    if ((cmd & CMD_UP) && (cmd & CMD_DOWN) && game->interaction_cooldown == 0)
+    {
+        game->menu_open = !game->menu_open;
+        game->interaction_cooldown = HZ / 3;
+    }
+
+    if (game->interaction_cooldown > 0)
+        game->interaction_cooldown--;
+
     if (game->message_timer > 0)
     {
         game->message_timer--;
@@ -550,6 +871,18 @@ static void update_game(struct game_state *game, int cmd, int event)
             game->line2[0] = '\0';
             game->line3[0] = '\0';
         }
+        return;
+    }
+
+    if (select_used)
+        return;
+
+    if (game->menu_open)
+    {
+        if (cmd & CMD_LEFT)
+            game->menu_tab = (game->menu_tab + 2) % 3;
+        else if (cmd & CMD_RIGHT)
+            game->menu_tab = (game->menu_tab + 1) % 3;
         return;
     }
 
@@ -584,6 +917,8 @@ static void update_game(struct game_state *game, int cmd, int event)
     if (next_y < room_top) next_y = room_top;
     if (next_y + PLAYER_H > room_bottom) next_y = room_bottom - PLAYER_H;
     
+    if (try_area_transition(game, next_x, next_y)) return;
+
     // Interior collision: clamp movement against defined solids in the room
     if (game->room_id != ROOM_MEADOW) {
         const struct room_def *rd = current_room(game);
@@ -601,12 +936,36 @@ static void update_game(struct game_state *game, int cmd, int event)
     }
     game->x = next_x;
     game->y = next_y;
+    if (try_sword_pickup(game)) return;
     if (game->moving) game->step_clock++;
     if (game->sword_timer > 0) game->sword_timer--;
-    update_bgm(game);
+    // Only update BGM when room changes or cooldown expires
+    static int last_room = -1;
+    if (game->room_id != last_room || game->bgm_cooldown == 0) {
+        update_bgm(game);
+        last_room = game->room_id;
+    }
+    if (game->bgm_cooldown > 0) game->bgm_cooldown--;
 }
 
-static void load_external_bitmaps(void) { }
+static bool load_bitmap24(const char *path, struct bitmap *bmp, fb_data *pixels)
+{
+    memset(bmp, 0, sizeof(*bmp));
+    bmp->data = (char*)pixels;
+    int rc = rb->read_bmp_file(path, bmp, NPC_BMP_BYTES, FORMAT_NATIVE, NULL);
+    return rc > 0 && bmp->width == NPC_BMP_W && bmp->height == NPC_BMP_H;
+}
+
+static void load_external_bitmaps(void)
+{
+    smith_bmp_loaded = load_bitmap24(SMITH_BMP_FILE, &smith_bmp, smith_bmp_data);
+    if (!smith_bmp_loaded)
+        smith_bmp_loaded = load_bitmap24(SMITH_BMP_FILE_ALT, &smith_bmp, smith_bmp_data);
+
+    zelda_bmp_loaded = load_bitmap24(ZELDA_BMP_FILE, &zelda_bmp, zelda_bmp_data);
+    if (!zelda_bmp_loaded)
+        zelda_bmp_loaded = load_bitmap24(ZELDA_BMP_FILE_ALT, &zelda_bmp, zelda_bmp_data);
+}
 
 enum plugin_status plugin_start(const void *parameter)
 {
@@ -624,7 +983,7 @@ enum plugin_status plugin_start(const void *parameter)
     {
         long event = rb->button_get_w_tmo(HZ / 30);
         int held = clean_button(rb->button_status());
-        int cmd = map_buttons(held);
+        int cmd = decode_cmd(held);
         int clean_event = clean_button(event);
         if (event == SYS_USB_CONNECTED || rb->default_event_handler(event) == SYS_USB_CONNECTED)
         {
