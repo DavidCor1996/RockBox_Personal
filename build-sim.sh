@@ -1,10 +1,16 @@
 #!/bin/sh
 cd "$(dirname "$0")"
+TARGET=${1:-ipod6g}
+if [ "$TARGET" = "5g" ] || [ "$TARGET" = "ipodvideo" ]; then
+  TARGET_IPOD="ipodvideo"
+else
+  TARGET_IPOD="ipod6g"
+fi
 
 if [ ! -d build-sim ]; then
     mkdir build-sim
     cd build-sim
-    ../tools/configure --target=ipod6g --type=s
+  ../tools/configure --target="$TARGET_IPOD" --type=s
 else
     cd build-sim
 fi

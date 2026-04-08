@@ -13,145 +13,160 @@
 [  9] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_link_right.24x24x24.o)
 [ 10] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_link_right_step.24x24x24.o)
 [ 11] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_room_meadow_real.320x208x24.o)
-[ 12] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_room_links_house_bedroom.240x160x24.o)
-[ 13] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_room_links_house_entrance.240x160x24.o)
-[ 14] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_room_links_house_smith.240x160x24.o)
-[ 15] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/libSystem.tbd
-[ 16] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/system/libsystem_platform.tbd
+[ 12] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_room_creek_real.320x208x24.o)
+[ 13] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_room_links_house_bedroom.240x160x24.o)
+[ 14] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_room_links_house_entrance.240x160x24.o)
+[ 15] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/bitmaps/libpluginbitmaps.a(minishcap_room_links_house_smith.240x160x24.o)
+[ 16] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/libSystem.tbd
+[ 17] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/system/libsystem_c.tbd
+[ 18] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/system/libsystem_platform.tbd
 # Sections:
 # Address	Size    	Segment	Section
-0x00000730	0x0000192C	__TEXT	__text
-0x0000205C	0x00000018	__TEXT	__stubs
-0x00002074	0x000001EC	__TEXT	__cstring
-0x00002260	0x0005B454	__TEXT	__const
-0x0005D6B8	0x000004A0	__TEXT	__eh_frame
-0x00060000	0x00000010	__DATA_CONST	__got
-0x00060010	0x00000208	__DATA_CONST	__const
-0x00064000	0x00000004	__DATA	__data
-0x00064008	0x00000008	__DATA	.data
-0x00064010	0x00004A30	__DATA	__bss
+0x00000730	0x00001CE0	__TEXT	__text
+0x00002410	0x00000024	__TEXT	__stubs
+0x00002434	0x0000026C	__TEXT	__cstring
+0x000026A0	0x0007BC54	__TEXT	__const
+0x0007E2F8	0x00000580	__TEXT	__eh_frame
+0x00080000	0x00000018	__DATA_CONST	__got
+0x00080018	0x00000230	__DATA_CONST	__const
+0x00084000	0x00000004	__DATA	__data
+0x00084008	0x00000008	__DATA	.data
+0x00084010	0x00157460	__DATA	__bss
 # Symbols:
 # Address	Size    	File  Name
 0x00000730	0x00000014	[  1] _audio_callback
 0x00000744	0x00000044	[  1] _south_hyrule_pixel_blocked
-0x00000788	0x00000018	[  1] _set_fg
-0x000007A0	0x00000090	[  1] _load_bitmap24
-0x00000830	0x000000C0	[  1] _play_tone
-0x000008F0	0x00000028	[  1] _draw_house_background.part.0
-0x00000918	0x0000009C	[  1] _blit_skip_black.constprop.0
-0x000009B4	0x000000A4	[  1] _set_message.constprop.0
-0x00000A58	0x00000140	[  1] _begin_room.part.0
-0x00000B98	0x00000108	[  1] _try_transition
-0x00000CA0	0x00001220	[  1] _plugin_start
-0x00001EC0	0x00000018	[  2] _cleanup_wrapper
-0x00001ED8	0x00000068	[  2] _plugin__start
-0x00001F40	0x00000020	[  2] _rb_atexit
-0x00001F60	0x00000024	[  2] _exit
-0x00001F84	0x00000014	[  2] __exit
-0x00001F98	0x00000064	[  2] _exit_on_usb
-0x00001FFC	0x00000018	[  3] _memcpy
-0x00002014	0x00000018	[  3] _memset
-0x0000202C	0x00000018	[  3] _memmove
-0x00002044	0x00000018	[  3] _memcmp
-0x0000205C	0x0000000C	[ 16] _longjmp.stub
-0x00002068	0x0000000C	[ 16] _setjmp.stub
-0x00002074	0x00000003	[  1] literal string: %s
-0x00002077	0x00000001	[  1] literal string: 
-0x00002078	0x00000012	[  1] literal string: Need Smith sword.
-0x0000208A	0x00000005	[  1] literal string: SWRD
-0x0000208F	0x00000005	[  1] literal string: ----
-0x00002094	0x00000010	[  1] literal string: Sword: Equipped
-0x000020A4	0x0000000F	[  1] literal string: Sword: Not yet
-0x000020B3	0x00000013	[  1] literal string: Quest: Leave house
-0x000020C6	0x00000011	[  1] literal string: Quest: Get sword
-0x000020D7	0x0000000A	[  1] literal string: MC-SIM r4
-0x000020E1	0x0000002F	[  1] literal string: /.rockbox/rocks/games/minishcap_smith_real.bmp
-0x00002110	0x00000038	[  1] literal string: /.rockbox/rocks/games/minishcap_smith_real.24x24x24.bmp
-0x00002148	0x0000002F	[  1] literal string: /.rockbox/rocks/games/minishcap_zelda_real.bmp
-0x00002177	0x00000038	[  1] literal string: /.rockbox/rocks/games/minishcap_zelda_real.24x24x24.bmp
-0x000021AF	0x00000018	[  1] literal string: Smith: Take this sword.
-0x000021C7	0x00000017	[  1] literal string: Smith: Go outside now!
-0x000021DE	0x00000013	[  1] literal string: Got Smith's Sword!
-0x000021F1	0x00000005	[  1] literal string: LIFE
-0x000021F6	0x00000003	[  1] literal string: %d
-0x000021F9	0x00000002	[  1] literal string: R
-0x000021FB	0x00000002	[  1] literal string: B
-0x000021FD	0x00000002	[  1] literal string: A
-0x000021FF	0x00000005	[  1] literal string: ROLL
-0x00002204	0x00000010	[  1] literal string: MINISH CAP MENU
-0x00002214	0x0000000E	[  1] literal string: Hearts: %d/%d
-0x00002222	0x0000000B	[  1] literal string: Rupees: %d
-0x0000222D	0x00000020	[  1] literal string: UP+DOWN: Menu  LEFT/RIGHT: Tabs
-0x0000224D	0x00000007	[  1] literal string: STATUS
-0x00002254	0x00000006	[  1] literal string: ITEMS
-0x0000225A	0x00000006	[  1] literal string: QUEST
-0x00002260	0x000006F0	[  1] _room_defs
-0x00002950	0x00000030	[  1] _bgm_decomp_minish_cap
-0x00002980	0x00000030	[  1] _bgm_decomp_hyrule_field
-0x000029B0	0x00000030	[  1] _bgm_decomp_house
-0x000029E0	0x00000153	[  1] _south_hyrule_blocked_bits
-0x00002B34	0x00000480	[  4] _minishcap_link_back
-0x00002FB4	0x00000480	[  5] _minishcap_link_front
-0x00003434	0x00000480	[  6] _minishcap_link_front_step
-0x000038B4	0x00000480	[  7] _minishcap_link_left
-0x00003D34	0x00000480	[  8] _minishcap_link_left_step
-0x000041B4	0x00000480	[  9] _minishcap_link_right
-0x00004634	0x00000480	[ 10] _minishcap_link_right_step
-0x00004AB4	0x00020800	[ 11] _minishcap_room_meadow_real
-0x000252B4	0x00012C00	[ 12] _minishcap_room_links_house_bedroom
-0x00037EB4	0x00012C00	[ 13] _minishcap_room_links_house_entrance
-0x0004AAB4	0x00012C00	[ 14] _minishcap_room_links_house_smith
-0x0005D6B8	0x00000018	[  1] CFI
-0x0005D6D0	0x00000020	[  1] FDE for: _audio_callback
-0x0005D6F0	0x00000020	[  1] FDE for: _south_hyrule_pixel_blocked
-0x0005D710	0x00000020	[  1] FDE for: _set_fg
-0x0005D730	0x00000050	[  1] FDE for: _load_bitmap24
-0x0005D780	0x00000020	[  1] FDE for: _play_tone
-0x0005D7A0	0x00000020	[  1] FDE for: _draw_house_background.part.0
-0x0005D7C0	0x00000068	[  1] FDE for: _blit_skip_black.constprop.0
-0x0005D828	0x00000060	[  1] FDE for: _set_message.constprop.0
-0x0005D888	0x00000038	[  1] FDE for: _begin_room.part.0
-0x0005D8C0	0x00000060	[  1] FDE for: _try_transition
-0x0005D920	0x00000070	[  1] FDE for: _plugin_start
-0x0005D990	0x00000018	[  2] CFI
-0x0005D9A8	0x00000020	[  2] FDE for: _cleanup_wrapper
-0x0005D9C8	0x00000040	[  2] FDE for: _plugin__start
-0x0005DA08	0x00000020	[  2] FDE for: _rb_atexit
-0x0005DA28	0x00000030	[  2] FDE for: _exit
-0x0005DA58	0x00000030	[  2] FDE for: __exit
-0x0005DA88	0x00000038	[  2] FDE for: _exit_on_usb
-0x0005DAC0	0x00000018	[  3] CFI
-0x0005DAD8	0x00000020	[  3] FDE for: _memcpy
-0x0005DAF8	0x00000020	[  3] FDE for: _memset
-0x0005DB18	0x00000020	[  3] FDE for: _memmove
-0x0005DB38	0x00000020	[  3] FDE for: _memcmp
-0x00060000	0x00000008	[ 16] _longjmp.got
-0x00060008	0x00000008	[ 16] _setjmp.got
-0x00060010	0x00000018	[  1] lC28
-0x00060028	0x00000038	[  2] ___header
-0x00060060	0x00000028	[  4] _bm_minishcap_link_back
-0x00060088	0x00000028	[  5] _bm_minishcap_link_front
-0x000600B0	0x00000028	[  6] _bm_minishcap_link_front_step
-0x000600D8	0x00000028	[  7] _bm_minishcap_link_left
-0x00060100	0x00000028	[  8] _bm_minishcap_link_left_step
-0x00060128	0x00000028	[  9] _bm_minishcap_link_right
-0x00060150	0x00000028	[ 10] _bm_minishcap_link_right_step
-0x00060178	0x00000028	[ 11] _bm_minishcap_room_meadow_real
-0x000601A0	0x00000028	[ 12] _bm_minishcap_room_links_house_bedroom
-0x000601C8	0x00000028	[ 13] _bm_minishcap_room_links_house_entrance
-0x000601F0	0x00000028	[ 14] _bm_minishcap_room_links_house_smith
-0x00064000	0x00000004	[  1] _last_room.0
-0x00064008	0x00000008	[  2] _rb
-0x00064010	0x00000004	[  1] _bgm_note_timer
-0x00064014	0x00000004	[  1] _bgm_note_idx
-0x00064018	0x00000001	[  1] _zelda_bmp_loaded
-0x00064019	0x00000001	[  1] _smith_bmp_loaded
-0x0006401A	0x00000480	[  1] _zelda_bmp_data
-0x0006449A	0x00000486	[  1] _smith_bmp_data
-0x00064920	0x00000028	[  1] _zelda_bmp
-0x00064948	0x00000028	[  1] _smith_bmp
-0x00064970	0x00000001	[  1] _audio_playing
-0x00064971	0x00000001	[  1] _audio_initialized
-0x00064972	0x00004000	[  1] _audio_buf
-0x00068978	0x00000008	[  2] _atexit_handler
-0x00068980	0x000000C0	[  2] ___exit_env
+0x00000788	0x00000064	[  1] _meadow_player_blocked_at
+0x000007EC	0x00000068	[  1] _update_camera
+0x00000854	0x00000018	[  1] _set_fg
+0x0000086C	0x00000090	[  1] _load_bitmap24
+0x000008FC	0x000000C0	[  1] _play_tone
+0x000009BC	0x00000028	[  1] _draw_house_background.part.0
+0x000009E4	0x00000098	[  1] _load_bitmap_exact.constprop.0
+0x00000A7C	0x0000009C	[  1] _blit_skip_black.constprop.0
+0x00000B18	0x000000A4	[  1] _set_message.constprop.0
+0x00000BBC	0x000001A8	[  1] _begin_room.part.0
+0x00000D64	0x00000108	[  1] _try_transition
+0x00000E6C	0x00001408	[  1] _plugin_start
+0x00002274	0x00000018	[  2] _cleanup_wrapper
+0x0000228C	0x00000068	[  2] _plugin__start
+0x000022F4	0x00000020	[  2] _rb_atexit
+0x00002314	0x00000024	[  2] _exit
+0x00002338	0x00000014	[  2] __exit
+0x0000234C	0x00000064	[  2] _exit_on_usb
+0x000023B0	0x00000018	[  3] _memcpy
+0x000023C8	0x00000018	[  3] _memset
+0x000023E0	0x00000018	[  3] _memmove
+0x000023F8	0x00000018	[  3] _memcmp
+0x00002410	0x0000000C	[ 17] _abs.stub
+0x0000241C	0x0000000C	[ 18] _longjmp.stub
+0x00002428	0x0000000C	[ 18] _setjmp.stub
+0x00002434	0x00000003	[  1] literal string: %s
+0x00002437	0x00000001	[  1] literal string: 
+0x00002438	0x00000012	[  1] literal string: Need Smith sword.
+0x0000244A	0x00000010	[  1] literal string: Sword: Equipped
+0x0000245A	0x0000000F	[  1] literal string: Sword: Not yet
+0x00002469	0x00000013	[  1] literal string: Quest: Leave house
+0x0000247C	0x00000011	[  1] literal string: Quest: Get sword
+0x0000248D	0x0000000A	[  1] literal string: MC-SIM r4
+0x00002497	0x0000002F	[  1] literal string: /.rockbox/rocks/games/minishcap_smith_real.bmp
+0x000024C6	0x00000038	[  1] literal string: /.rockbox/rocks/games/minishcap_smith_real.24x24x24.bmp
+0x000024FE	0x0000002F	[  1] literal string: /.rockbox/rocks/games/minishcap_zelda_real.bmp
+0x0000252D	0x00000038	[  1] literal string: /.rockbox/rocks/games/minishcap_zelda_real.24x24x24.bmp
+0x00002565	0x00000036	[  1] literal string: /.rockbox/rocks/games/minishcap_south_hyrule_full.bmp
+0x0000259B	0x00000042	[  1] literal string: /.rockbox/rocks/games/minishcap_south_hyrule_full.1008x688x24.bmp
+0x000025DD	0x00000018	[  1] literal string: Smith: Take this sword.
+0x000025F5	0x00000017	[  1] literal string: Smith: Go outside now!
+0x0000260C	0x0000000D	[  1] literal string: Minish Creek
+0x00002619	0x0000000D	[  1] literal string: South Hyrule
+0x00002626	0x00000013	[  1] literal string: Got Smith's Sword!
+0x00002639	0x00000005	[  1] literal string: %03d
+0x0000263E	0x00000002	[  1] literal string: R
+0x00002640	0x00000002	[  1] literal string: B
+0x00002642	0x00000002	[  1] literal string: A
+0x00002644	0x00000010	[  1] literal string: MINISH CAP MENU
+0x00002654	0x0000000E	[  1] literal string: Hearts: %d/%d
+0x00002662	0x0000000B	[  1] literal string: Rupees: %d
+0x0000266D	0x00000020	[  1] literal string: UP+DOWN: Menu  LEFT/RIGHT: Tabs
+0x0000268D	0x00000007	[  1] literal string: STATUS
+0x00002694	0x00000006	[  1] literal string: ITEMS
+0x0000269A	0x00000006	[  1] literal string: QUEST
+0x000026A0	0x000006F0	[  1] _room_defs
+0x00002D90	0x00000030	[  1] _bgm_decomp_minish_cap
+0x00002DC0	0x00000030	[  1] _bgm_decomp_hyrule_field
+0x00002DF0	0x00000030	[  1] _bgm_decomp_house
+0x00002E20	0x00000153	[  1] _south_hyrule_blocked_bits
+0x00002F74	0x00000480	[  4] _minishcap_link_back
+0x000033F4	0x00000480	[  5] _minishcap_link_front
+0x00003874	0x00000480	[  6] _minishcap_link_front_step
+0x00003CF4	0x00000480	[  7] _minishcap_link_left
+0x00004174	0x00000480	[  8] _minishcap_link_left_step
+0x000045F4	0x00000480	[  9] _minishcap_link_right
+0x00004A74	0x00000480	[ 10] _minishcap_link_right_step
+0x00004EF4	0x00020800	[ 11] _minishcap_room_meadow_real
+0x000256F4	0x00020800	[ 12] _minishcap_room_creek_real
+0x00045EF4	0x00012C00	[ 13] _minishcap_room_links_house_bedroom
+0x00058AF4	0x00012C00	[ 14] _minishcap_room_links_house_entrance
+0x0006B6F4	0x00012C00	[ 15] _minishcap_room_links_house_smith
+0x0007E2F8	0x00000018	[  1] CFI
+0x0007E310	0x00000020	[  1] FDE for: _audio_callback
+0x0007E330	0x00000020	[  1] FDE for: _south_hyrule_pixel_blocked
+0x0007E350	0x00000040	[  1] FDE for: _meadow_player_blocked_at
+0x0007E390	0x00000020	[  1] FDE for: _update_camera
+0x0007E3B0	0x00000020	[  1] FDE for: _set_fg
+0x0007E3D0	0x00000050	[  1] FDE for: _load_bitmap24
+0x0007E420	0x00000020	[  1] FDE for: _play_tone
+0x0007E440	0x00000020	[  1] FDE for: _draw_house_background.part.0
+0x0007E460	0x00000050	[  1] FDE for: _load_bitmap_exact.constprop.0
+0x0007E4B0	0x00000068	[  1] FDE for: _blit_skip_black.constprop.0
+0x0007E518	0x00000060	[  1] FDE for: _set_message.constprop.0
+0x0007E578	0x00000068	[  1] FDE for: _begin_room.part.0
+0x0007E5E0	0x00000060	[  1] FDE for: _try_transition
+0x0007E640	0x00000070	[  1] FDE for: _plugin_start
+0x0007E6B0	0x00000018	[  2] CFI
+0x0007E6C8	0x00000020	[  2] FDE for: _cleanup_wrapper
+0x0007E6E8	0x00000040	[  2] FDE for: _plugin__start
+0x0007E728	0x00000020	[  2] FDE for: _rb_atexit
+0x0007E748	0x00000030	[  2] FDE for: _exit
+0x0007E778	0x00000030	[  2] FDE for: __exit
+0x0007E7A8	0x00000038	[  2] FDE for: _exit_on_usb
+0x0007E7E0	0x00000018	[  3] CFI
+0x0007E7F8	0x00000020	[  3] FDE for: _memcpy
+0x0007E818	0x00000020	[  3] FDE for: _memset
+0x0007E838	0x00000020	[  3] FDE for: _memmove
+0x0007E858	0x00000020	[  3] FDE for: _memcmp
+0x00080000	0x00000008	[ 17] _abs.got
+0x00080008	0x00000008	[ 18] _longjmp.got
+0x00080010	0x00000008	[ 18] _setjmp.got
+0x00080018	0x00000018	[  1] lC28
+0x00080030	0x00000038	[  2] ___header
+0x00080068	0x00000028	[  4] _bm_minishcap_link_back
+0x00080090	0x00000028	[  5] _bm_minishcap_link_front
+0x000800B8	0x00000028	[  6] _bm_minishcap_link_front_step
+0x000800E0	0x00000028	[  7] _bm_minishcap_link_left
+0x00080108	0x00000028	[  8] _bm_minishcap_link_left_step
+0x00080130	0x00000028	[  9] _bm_minishcap_link_right
+0x00080158	0x00000028	[ 10] _bm_minishcap_link_right_step
+0x00080180	0x00000028	[ 11] _bm_minishcap_room_meadow_real
+0x000801A8	0x00000028	[ 12] _bm_minishcap_room_creek_real
+0x000801D0	0x00000028	[ 13] _bm_minishcap_room_links_house_bedroom
+0x000801F8	0x00000028	[ 14] _bm_minishcap_room_links_house_entrance
+0x00080220	0x00000028	[ 15] _bm_minishcap_room_links_house_smith
+0x00084000	0x00000004	[  1] _last_room.0
+0x00084008	0x00000008	[  2] _rb
+0x00084010	0x00000004	[  1] _bgm_note_timer
+0x00084014	0x00000004	[  1] _bgm_note_idx
+0x00084018	0x00000002	[  1] _south_hyrule_bmp_loaded
+0x0008401A	0x00152A06	[  1] _south_hyrule_bmp_data
+0x001D6A20	0x00000028	[  1] _south_hyrule_bmp
+0x001D6A48	0x00000001	[  1] _zelda_bmp_loaded
+0x001D6A49	0x00000001	[  1] _smith_bmp_loaded
+0x001D6A4A	0x00000480	[  1] _zelda_bmp_data
+0x001D6ECA	0x00000486	[  1] _smith_bmp_data
+0x001D7350	0x00000028	[  1] _zelda_bmp
+0x001D7378	0x00000028	[  1] _smith_bmp
+0x001D73A0	0x00000001	[  1] _audio_playing
+0x001D73A1	0x00000001	[  1] _audio_initialized
+0x001D73A2	0x00004000	[  1] _audio_buf
+0x001DB3A8	0x00000008	[  2] _atexit_handler
+0x001DB3B0	0x000000C0	[  2] ___exit_env

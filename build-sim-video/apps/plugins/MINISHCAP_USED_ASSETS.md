@@ -33,20 +33,11 @@ Updated: 2026-04-08
 ## Gameplay progression notes
 - Added outdoor area transition: South Hyrule (meadow) <-> Minish Creek
 - Meadow movement now respects `minishcap_south_hyrule_collision.h` during runtime movement (not just spawn validation)
-- Added nearest-walkable spawn resolver for meadow room entry (prevents house-exit stuck states)
-- Added edge-based transition fallback for meadow<->creek to increase traversal reliability
-- Meadow collision now supports axis sliding against obstacles for smoother open-world movement
 
 ## HUD notes
 - Removed placeholder-style HUD labels (e.g. `LIFE`, overlapping `A`/`ROLL` look)
 - Current HUD uses compact framed counters/actions (`R###`, `B:SWORD`, `A:ROLL`) as a closer in-game presentation
 - Current pass split A/B into separate framed button panels with icon-style action hints (no `Aroll`-style text mash)
-- HUD/button placement is now mapped to decompile `InitUI()` positions from `tmc-source/src/ui.c` (`buttonX={0xd0,0xb8,0xd8}`, `buttonY={0x1c,0x1c,0x0e}`)
-
-## Decompile UI asset status
-- Decompile UI code references (`tmc-source/include/ui.h`, `tmc-source/src/ui.c`) are integrated for element layout/slots.
-- Extracted UI bitmap sheets/icons (button glyph sprites, rupee wallet icon sheet, heart UI tile sheet, dialog frame tiles) are not yet present as standalone `minishcap_ui_*.bmp` files in this workspace.
-- Current rendering therefore uses decompile geometry + logic placement with temporary primitive glyphs where extracted UI sprite sheets are missing.
 
 ## Simulator sync targets required
 When updating external NPC assets, copy to both:
