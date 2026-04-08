@@ -35,6 +35,9 @@ void draw_playlist_viewer_list(struct gui_wps *gwps, struct playlistviewer *view
 /* clears the area where the image was shown */
 void clear_image_pos(struct gui_wps *gwps, struct gui_img *img);
 void wps_display_images(struct gui_wps *gwps, struct viewport* vp);
+struct skin_albumart *skin_resolve_albumart(char *skin_buffer,
+                                            struct wps_data *data,
+                                            skinoffset_t aa_ref);
 
 
 void skin_render_viewport(struct skin_element* viewport, struct gui_wps *gwps,
@@ -58,7 +61,8 @@ void draw_peakmeters(struct gui_wps *gwps, int line_number,
 #ifdef HAVE_ALBUMART
 /* Draw the album art bitmap from the given handle ID onto the given Skin.
    Call with clear = true to clear the bitmap instead of drawing it. */
-void draw_album_art(struct gui_wps *gwps, int handle_id, bool clear);
+void draw_album_art(struct gui_wps *gwps, struct skin_albumart *aa,
+                    int handle_id, bool clear);
 #endif
 
 #endif

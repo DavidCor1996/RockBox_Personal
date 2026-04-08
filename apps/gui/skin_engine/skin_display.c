@@ -422,17 +422,48 @@ void wps_display_images(struct gui_wps *gwps, struct viewport* vp)
         list = SKINOFFSETTOPTR(get_skin_buffer(data), list->next);
     }
 #ifdef HAVE_ALBUMART
-    /* now draw the AA */
+/* now draw the AA */
     struct skin_albumart *aa = SKINOFFSETTOPTR(get_skin_buffer(data), data->albumart);
-    if (aa && aa->draw_handle >= 0)
+    while (aa)
     {
-        draw_album_art(gwps, aa->draw_handle, false);
-        aa->draw_handle = -1;
+        struct skin_albumart *next = SKINOFFSETTOPTR(get_skin_buffer(data), aa->next);
+        if (aa->draw_handle >= 0)
+        {
+            draw_album_art(gwps, aa, aa->draw_handle, false);
+            aa->draw_handle = -1;
+        }
+        aa = next;
     }
 #endif
 
     display->set_drawmode(DRMODE_SOLID);
 }
+
+#ifdef HAVE_ALBUMART
+struct skin_albumart *skin_resolve_albumart(char *skin_buffer,
+                                            struct wps_data *data,
+                                            skinoffset_t aa_ref)
+{
+    if (!data)
+        return NULL;
+
+    if (WPS_ALBUMART_REF_IS_SLOT(aa_ref))
+    {
+        int slot_id = WPS_ALBUMART_REF_SLOT_ID(aa_ref);
+        struct skin_albumart *aa = SKINOFFSETTOPTR(skin_buffer, data->albumart);
+
+        while (aa)
+        {
+            if (aa->slot_id == slot_id)
+                return aa;
+            aa = SKINOFFSETTOPTR(skin_buffer, aa->next);
+        }
+        return NULL;
+    }
+
+    return SKINOFFSETTOPTR(skin_buffer, aa_ref);
+}
+#endif
 
 /* Evaluate the conditional that is at *token_index and return whether a skip
    has ocurred. *token_index is updated with the new position.
@@ -651,15 +682,10 @@ void draw_peakmeters(struct gui_wps *gwps, int line_number,
 #ifdef HAVE_ALBUMART
 /* Draw the album art bitmap from the given handle ID onto the given WPS.
    Call with clear = true to clear the bitmap instead of drawing it. */
-void draw_album_art(struct gui_wps *gwps, int handle_id, bool clear)
+void draw_album_art(struct gui_wps *gwps, struct skin_albumart *aa,
+                    int handle_id, bool clear)
 {
-    if (!gwps || !gwps->data || !gwps->display || handle_id < 0)
-        return;
-
-    struct wps_data *data = gwps->data;
-    struct skin_albumart *aa = SKINOFFSETTOPTR(get_skin_buffer(data), data->albumart);
-
-    if (!aa)
+    if (!gwps || !gwps->data || !gwps->display || !aa || handle_id < 0)
         return;
 
     struct bitmap *bmp;

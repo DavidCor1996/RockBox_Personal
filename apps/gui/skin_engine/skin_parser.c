@@ -1429,6 +1429,29 @@ failure:
 }
 
 #ifdef HAVE_ALBUMART
+static int parse_albumart_reference(struct skin_element* element,
+                                    struct wps_token *token,
+                                    struct wps_data *wps_data)
+{
+    (void)element;
+
+    if (element->params_count > 0 && !isdefault(get_param(element, 0)))
+    {
+        int slot_id = get_param(element, 0)->data.number;
+        if (slot_id < 0)
+            return WPS_ERROR_INVALID_PARAM;
+
+        token->value.data = WPS_ALBUMART_REF_SLOT(slot_id);
+    }
+    else
+    {
+        if (wps_data->albumart_last == INVALID_OFFSET)
+            return -1;
+
+        token->value.data = wps_data->albumart_last;
+    }
+    return 0;
+}
 
 static int parse_albumart_load(struct skin_element* element,
                                struct wps_token *token,
@@ -1450,6 +1473,9 @@ static int parse_albumart_load(struct skin_element* element,
     aa->y =  percent_parse_param(get_param(element, 1), curr_vp->vp.height);
     aa->width =  percent_parse_param(get_param(element, 2), curr_vp->vp.width);
     aa->height =  percent_parse_param(get_param(element, 3), curr_vp->vp.height);
+    aa->next = INVALID_OFFSET;
+    aa->slot_id = WPS_ALBUMART_SLOT_NONE;
+    aa->playback_aa_slot = -1;
     aa->draw_handle = -1;
 
     /* if we got here, we parsed everything ok .. ! */
@@ -1463,7 +1489,16 @@ static int parse_albumart_load(struct skin_element* element,
         aa->x = (curr_vp->vp.width - aa->width - aa->x);
 
     aa->state = WPS_ALBUMART_LOAD;
-    wps_data->albumart = PTRTOSKINOFFSET(skin_buffer, aa);
+    if (wps_data->albumart == INVALID_OFFSET)
+        wps_data->albumart = PTRTOSKINOFFSET(skin_buffer, aa);
+    else
+    {
+        struct skin_albumart *prev =
+            SKINOFFSETTOPTR(skin_buffer, wps_data->albumart_last);
+        prev->next = PTRTOSKINOFFSET(skin_buffer, aa);
+    }
+    wps_data->albumart_last = PTRTOSKINOFFSET(skin_buffer, aa);
+    token->value.data = PTRTOSKINOFFSET(skin_buffer, aa);
 
     dimensions.width = aa->width;
     dimensions.height = aa->height;
@@ -1471,43 +1506,78 @@ static int parse_albumart_load(struct skin_element* element,
     albumart_slot = playback_claim_aa_slot(&dimensions);
 
     if (0 <= albumart_slot)
-        wps_data->playback_aa_slot = albumart_slot;
+    {
+        if (wps_data->playback_aa_slot_count >= WPS_MAX_ALBUMART)
+        {
+            playback_release_aa_slot(albumart_slot);
+            return -1;
+        }
 
-    if (element->params_count > 4 && !isdefault(get_param(element, 4)))
-    {
-        switch (tolower(*get_param_text(element, 4)))
-        {
-            case 'l':
-                if (swap_for_rtl)
-                    aa->xalign = WPS_ALBUMART_ALIGN_RIGHT;
-                else
-                    aa->xalign = WPS_ALBUMART_ALIGN_LEFT;
-                break;
-            case 'c':
-                aa->xalign = WPS_ALBUMART_ALIGN_CENTER;
-                break;
-            case 'r':
-                if (swap_for_rtl)
-                    aa->xalign = WPS_ALBUMART_ALIGN_LEFT;
-                else
-                    aa->xalign = WPS_ALBUMART_ALIGN_RIGHT;
-                break;
-        }
+        aa->playback_aa_slot = albumart_slot;
+        wps_data->playback_aa_slot = albumart_slot;
+        wps_data->playback_aa_slots[wps_data->playback_aa_slot_count++] =
+            albumart_slot;
     }
-    if (element->params_count > 5 && !isdefault(get_param(element, 5)))
+
+    int align_param = 0;
+    for (int i = 4; i < element->params_count; i++)
     {
-        switch (tolower(*get_param_text(element, 5)))
+        struct skin_tag_parameter *param = get_param(element, i);
+        if (isdefault(param))
+            continue;
+
+        if (param->type == INTEGER)
         {
-            case 't':
-                aa->yalign = WPS_ALBUMART_ALIGN_TOP;
-                break;
-            case 'c':
-                aa->yalign = WPS_ALBUMART_ALIGN_CENTER;
-                break;
-            case 'b':
-                aa->yalign = WPS_ALBUMART_ALIGN_BOTTOM;
-                break;
+            if (param->data.number < 0)
+                return WPS_ERROR_INVALID_PARAM;
+            aa->slot_id = param->data.number;
+            continue;
         }
+
+        if (align_param == 0)
+        {
+            switch (tolower(*get_param_text(element, i)))
+            {
+                case 'l':
+                    if (swap_for_rtl)
+                        aa->xalign = WPS_ALBUMART_ALIGN_RIGHT;
+                    else
+                        aa->xalign = WPS_ALBUMART_ALIGN_LEFT;
+                    break;
+                case 'c':
+                    aa->xalign = WPS_ALBUMART_ALIGN_CENTER;
+                    break;
+                case 'r':
+                    if (swap_for_rtl)
+                        aa->xalign = WPS_ALBUMART_ALIGN_LEFT;
+                    else
+                        aa->xalign = WPS_ALBUMART_ALIGN_RIGHT;
+                    break;
+                default:
+                    return WPS_ERROR_INVALID_PARAM;
+            }
+            align_param++;
+        }
+        else if (align_param == 1)
+        {
+            switch (tolower(*get_param_text(element, i)))
+            {
+                case 't':
+                    aa->yalign = WPS_ALBUMART_ALIGN_TOP;
+                    break;
+                case 'c':
+                    aa->yalign = WPS_ALBUMART_ALIGN_CENTER;
+                    break;
+                case 'b':
+                    aa->yalign = WPS_ALBUMART_ALIGN_BOTTOM;
+                    break;
+                default:
+                    return WPS_ERROR_INVALID_PARAM;
+            }
+            align_param++;
+        }
+        else
+            return WPS_ERROR_INVALID_PARAM;
     }
     return 0;
 }
@@ -2002,12 +2072,14 @@ static void skin_data_reset(struct wps_data *wps_data)
     wps_data->skinvars = INVALID_OFFSET;
 #endif
 #ifdef HAVE_ALBUMART
-    wps_data->albumart = INVALID_OFFSET;
-    if (wps_data->playback_aa_slot >= 0)
+    while (wps_data->playback_aa_slot_count > 0)
     {
-        playback_release_aa_slot(wps_data->playback_aa_slot);
-        wps_data->playback_aa_slot = -1;
+        int index = --wps_data->playback_aa_slot_count;
+        playback_release_aa_slot(wps_data->playback_aa_slots[index]);
     }
+    wps_data->albumart = INVALID_OFFSET;
+    wps_data->albumart_last = INVALID_OFFSET;
+    wps_data->playback_aa_slot = -1;
 #endif
 
     wps_data->peak_meter_enabled = false;
@@ -2537,6 +2609,10 @@ static int skin_element_callback(struct skin_element* element, void* data)
                 case SKIN_TOKEN_ALBUMART_LOAD:
                     function = parse_albumart_load;
                     break;
+                case SKIN_TOKEN_ALBUMART_DISPLAY:
+                case SKIN_TOKEN_ALBUMART_FOUND:
+                    function = parse_albumart_reference;
+                    break;
 #endif
 #ifdef HAVE_SKIN_VARIABLES
                 case SKIN_TOKEN_VAR_SET:
@@ -2711,11 +2787,7 @@ bool skin_data_load(enum screen_type screen, struct wps_data *wps_data,
         return false;
     }
 #if defined(HAVE_ALBUMART) && !defined(__PCTOOL__)
-    /* last_albumart_{width,height} is either both 0 or valid AA dimensions */
-    struct skin_albumart *aa = SKINOFFSETTOPTR(skin_buffer, wps_data->albumart);
-    if (aa && (aa->state != WPS_ALBUMART_NONE ||
-        (((wps_data->last_albumart_height != aa->height) ||
-        (wps_data->last_albumart_width != aa->width)))))
+    if (wps_data->albumart != INVALID_OFFSET)
     {
         playback_update_aa_dims();
     }

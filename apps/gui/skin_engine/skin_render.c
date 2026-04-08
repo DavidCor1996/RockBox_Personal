@@ -301,10 +301,11 @@ static bool do_non_text_tags(struct gui_wps *gwps, struct skin_draw_info *info,
             /* now draw the AA */
             if (do_refresh)
             {
-                struct skin_albumart *aa = SKINOFFSETTOPTR(skin_buffer, data->albumart);
+                struct skin_albumart *aa =
+                    skin_resolve_albumart(skin_buffer, data, token->value.data);
                 if (aa)
-                {    
-                    int handle = playback_current_aa_hid(data->playback_aa_slot);
+                {
+                    int handle = playback_current_aa_hid(aa->playback_aa_slot);
 #if CONFIG_TUNER
                     if (in_radio_screen() || (get_radio_status() != FMRADIO_OFF))
                     {
@@ -472,8 +473,12 @@ static void do_tags_in_hidden_conditional(struct skin_element* branch,
 #ifdef HAVE_ALBUMART
             else if (token->type == SKIN_TOKEN_ALBUMART_DISPLAY && data->albumart)
             {
+                struct skin_albumart *aa =
+                    skin_resolve_albumart(skin_buffer, data, token->value.data);
                 draw_album_art(gwps,
-                        playback_current_aa_hid(data->playback_aa_slot), true);
+                        aa,
+                        aa ? playback_current_aa_hid(aa->playback_aa_slot) : -1,
+                        true);
             }
 #endif
         skip:
@@ -858,11 +863,17 @@ void skin_render_viewport(struct skin_element* viewport, struct gui_wps *gwps,
 }
 
 static bool inhibit_flush = false;
+static int inhibit_flush_count = 0;
 static bool pending_full_update = false;
 
 void skin_render_inhibit_flush(bool inhibit)
 {
-    inhibit_flush = inhibit;
+    if (inhibit)
+        inhibit_flush_count++;
+    else if (inhibit_flush_count > 0)
+        inhibit_flush_count--;
+
+    inhibit_flush = (inhibit_flush_count > 0);
 }
 
 bool skin_render_pending_update(void)

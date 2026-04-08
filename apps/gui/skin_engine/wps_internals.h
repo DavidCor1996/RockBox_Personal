@@ -273,6 +273,11 @@ struct playlistviewer {
 #define WPS_ALBUMART_ALIGN_LEFT     4    /* x align:   left */
 #define WPS_ALBUMART_ALIGN_TOP      1    /* y align:   top */
 #define WPS_ALBUMART_ALIGN_BOTTOM   4    /* y align:   bottom */
+#define WPS_MAX_ALBUMART            8
+#define WPS_ALBUMART_SLOT_NONE      (-1)
+#define WPS_ALBUMART_REF_SLOT(slot) (-(slot) - 2)
+#define WPS_ALBUMART_REF_IS_SLOT(ref) ((ref) < -1)
+#define WPS_ALBUMART_REF_SLOT_ID(ref) (-(ref) - 2)
 
 struct skin_albumart {
     /* Album art support */
@@ -285,6 +290,9 @@ struct skin_albumart {
     unsigned char yalign; /* WPS_ALBUMART_ALIGN_TOP, _CENTER, _BOTTOM */
     unsigned char state; /* WPS_ALBUMART_NONE, _CHECK, _LOAD */
 
+    OFFSETTYPE(struct skin_albumart *) next;
+    int slot_id;
+    int playback_aa_slot;
     int draw_handle;
 };
 #endif
@@ -382,7 +390,10 @@ struct wps_data
 #endif
 #ifdef HAVE_ALBUMART
     OFFSETTYPE(struct skin_albumart *) albumart;
+    OFFSETTYPE(struct skin_albumart *) albumart_last;
     int    playback_aa_slot;
+    int    playback_aa_slots[WPS_MAX_ALBUMART];
+    int    playback_aa_slot_count;
     /* copy of albumart to survive skin resets, used to check if albumart
      * dimensions changed on skin change */
     int16_t last_albumart_width, last_albumart_height;

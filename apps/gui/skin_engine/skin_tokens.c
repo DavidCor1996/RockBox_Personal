@@ -68,6 +68,7 @@
 #include "list.h"
 #include "option_select.h"
 #include "wps.h"
+#include "skin_display.h"
 
 #define NOINLINE __attribute__ ((noinline))
 
@@ -1223,15 +1224,20 @@ const char *get_token_value(struct gui_wps *gwps,
             goto gtv_ret_numeric_tag_info;
 #ifdef HAVE_ALBUMART
         case SKIN_TOKEN_ALBUMART_FOUND:
-            if (SKINOFFSETTOPTR(get_skin_buffer(data), data->albumart))
+        {
+            struct skin_albumart *aa =
+                skin_resolve_albumart(get_skin_buffer(data), data,
+                                      token->value.data);
+            if (!aa)
+                aa = SKINOFFSETTOPTR(get_skin_buffer(data), data->albumart);
+
+            if (aa)
             {
                 int handle = -1;
-                handle = playback_current_aa_hid(data->playback_aa_slot);
+                handle = playback_current_aa_hid(aa->playback_aa_slot);
 #if CONFIG_TUNER
                 if (in_radio_screen() || (get_radio_status() != FMRADIO_OFF))
                 {
-                    struct skin_albumart *aa = SKINOFFSETTOPTR(get_skin_buffer(data), data->albumart);
-                    if (!aa) return NULL;
                     struct dim dim = {aa->width, aa->height};
                     handle = radio_get_art_hid(&dim);
                 }
@@ -1240,6 +1246,7 @@ const char *get_token_value(struct gui_wps *gwps,
                     return "C";
             }
             return NULL;
+        }
 #endif /* def HAVE_ALBUMART */
 
         case SKIN_TOKEN_BATTERY_PERCENT:

@@ -270,6 +270,8 @@ void skin_backdrop_show(int backdrop_id)
 {
     if (backdrop_id < 0)
     {
+        if (current_lcd_backdrop[0] < 0)
+            return;
         screens[0].backdrop_show(NULL);
         current_lcd_backdrop[0] = -1;
         return;
@@ -279,6 +281,12 @@ void skin_backdrop_show(int backdrop_id)
 #else /* HAVE_REMOTE_LCD */
     enum screen_type screen = backdrops[backdrop_id].screen;
 #endif
+
+    if (current_lcd_backdrop[screen] == backdrop_id &&
+        backdrops[backdrop_id].buffer)
+    {
+        return;
+    }
 
     if ((backdrops[backdrop_id].loaded == false) ||
         (backdrops[backdrop_id].name[0] == '-' &&
