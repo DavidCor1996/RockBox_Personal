@@ -29,14 +29,18 @@
 #define BEDROOM_START_Y 86
 
 #define HOUSE_EXIT_SAFE_X TMC_TO_PLAYER_X(0x290)
-#define HOUSE_EXIT_SAFE_Y TMC_TO_PLAYER_Y(0x1e0)
+#define HOUSE_EXIT_SAFE_Y TMC_TO_PLAYER_Y(0x188)
 
 #define TMC_TO_PLAYER_X(tmc_x) ((tmc_x) - 7)
 #define TMC_TO_PLAYER_Y(tmc_y) ((tmc_y) - 16 + 2)
-#define MEADOW_WORLD_X 470
-#define MEADOW_WORLD_Y 210
-#define MEADOW_ROOM_W 320
-#define MEADOW_ROOM_H 208
+#define MEADOW_WORLD_X 0
+#define MEADOW_WORLD_Y 0
+#define MEADOW_ROOM_W 1008
+#define MEADOW_ROOM_H 688
+#define CREEK_WORLD_X 0
+#define CREEK_WORLD_Y 0
+#define CREEK_ROOM_W 320
+#define CREEK_ROOM_H 208
 #define HOUSE_DOOR_Y 82
 #define HOUSE_DOOR_H 30
 #define HOUSE_EXIT_LOCK_X 98
@@ -47,6 +51,16 @@
 #define HOUSE_FRONT_EXIT_Y 136
 #define HOUSE_FRONT_EXIT_W 72
 #define HOUSE_FRONT_EXIT_H 28
+#define MEADOW_TO_CREEK_X (MEADOW_WORLD_X + MEADOW_ROOM_W - 10)
+#define MEADOW_TO_CREEK_Y (MEADOW_WORLD_Y + 8)
+#define MEADOW_TO_CREEK_W 12
+#define MEADOW_TO_CREEK_H (MEADOW_ROOM_H - 16)
+#define CREEK_TO_MEADOW_X 0
+#define CREEK_TO_MEADOW_Y 8
+#define CREEK_TO_MEADOW_W 12
+#define CREEK_TO_MEADOW_H (CREEK_ROOM_H - 16)
+#define SOUTH_HYRULE_BMP_FILE PLUGIN_GAMES_DIR "/minishcap_south_hyrule_full.bmp"
+#define SOUTH_HYRULE_BMP_FILE_ALT PLUGIN_GAMES_DIR "/minishcap_south_hyrule_full.1008x688x24.bmp"
 #define SWORD_PICKUP_X 136
 #define SWORD_PICKUP_Y 88
 #define SWORD_PICKUP_W 28
@@ -187,6 +201,9 @@ static fb_data smith_bmp_data[NPC_BMP_PIXELS];
 static fb_data zelda_bmp_data[NPC_BMP_PIXELS];
 static bool smith_bmp_loaded;
 static bool zelda_bmp_loaded;
+static struct bitmap south_hyrule_bmp;
+static fb_data south_hyrule_bmp_data[MEADOW_ROOM_W * MEADOW_ROOM_H];
+static bool south_hyrule_bmp_loaded;
 
 static bool rect_overlap(int x, int y, int w, int h, int rx, int ry, int rw, int rh);
 static void play_sfx(struct game_state *game, unsigned freq, unsigned duration_ms, unsigned amplitude);
@@ -375,9 +392,70 @@ static bool south_hyrule_pixel_blocked(int world_x, int world_y)
     return south_hyrule_tile_blocked(world_x >> 4, world_y >> 4);
 }
 
+static void update_camera(struct game_state *game)
+{
+    int world_x = 0;
+    int world_y = 0;
+    int room_w = 0;
+    int room_h = 0;
+    if (game->room_id == ROOM_MEADOW)
+    {
+        world_x = MEADOW_WORLD_X;
+        world_y = MEADOW_WORLD_Y;
+        room_w = MEADOW_ROOM_W;
+        room_h = MEADOW_ROOM_H;
+    }
+    else if (game->room_id == ROOM_CREEK)
+    {
+        world_x = CREEK_WORLD_X;
+        world_y = CREEK_WORLD_Y;
+        room_w = CREEK_ROOM_W;
+        room_h = CREEK_ROOM_H;
+    }
+    else
+    {
+        game->camera_x = 0;
+        game->camera_y = 0;
+        return;
+    }
+
+    int view_top = ROOM_TOP + 18;
+    int view_w = ROOM_RIGHT - ROOM_LEFT;
+    int view_h = ROOM_BOTTOM - view_top;
+
+    int target_x = game->x + (PLAYER_W / 2) - (view_w / 2);
+    int target_y = game->y + (PLAYER_H / 2) - (view_h / 2);
+
+    int cam_min_x = world_x;
+    int cam_max_x = world_x + room_w - view_w;
+    int cam_min_y = world_y;
+    int cam_max_y = world_y + room_h - view_h;
+
+    if (cam_max_x < cam_min_x) cam_max_x = cam_min_x;
+    if (cam_max_y < cam_min_y) cam_max_y = cam_min_y;
+
+    if (target_x < cam_min_x) target_x = cam_min_x;
+    if (target_x > cam_max_x) target_x = cam_max_x;
+    if (target_y < cam_min_y) target_y = cam_min_y;
+    if (target_y > cam_max_y) target_y = cam_max_y;
+
+    game->camera_x = target_x;
+    game->camera_y = target_y;
+}
+
 static void normalize_meadow_spawn(struct game_state *game)
 {
     if (game->room_id != ROOM_MEADOW) return;
+
+    if (game->x < MEADOW_WORLD_X)
+        game->x = MEADOW_WORLD_X;
+    if (game->x + PLAYER_W > MEADOW_WORLD_X + MEADOW_ROOM_W)
+        game->x = MEADOW_WORLD_X + MEADOW_ROOM_W - PLAYER_W;
+    if (game->y < MEADOW_WORLD_Y)
+        game->y = MEADOW_WORLD_Y;
+    if (game->y + PLAYER_H > MEADOW_WORLD_Y + MEADOW_ROOM_H)
+        game->y = MEADOW_WORLD_Y + MEADOW_ROOM_H - PLAYER_H;
+
     if (south_hyrule_pixel_blocked(game->x + 2, game->y + 5) ||
         south_hyrule_pixel_blocked(game->x + PLAYER_W - 3, game->y + 5) ||
         south_hyrule_pixel_blocked(game->x + 2, game->y + PLAYER_H - 2) ||
@@ -430,17 +508,26 @@ static const struct room_def room_defs[ROOM_COUNT] = {
 };
 
 static const struct room_def *current_room(const struct game_state *game) { return &room_defs[game->room_id]; }
-static bool room_uses_world_map(const struct game_state *game) { return game->room_id == ROOM_MEADOW; }
-static bool room_uses_local_coords(const struct game_state *game) { return game->room_id >= ROOM_LINKS_HOUSE_BEDROOM; }
+static bool room_uses_world_map(const struct game_state *game)
+{
+    return game->room_id == ROOM_MEADOW || game->room_id == ROOM_CREEK;
+}
 
 static void get_room_bounds(const struct game_state *game, int *left, int *top, int *right, int *bottom)
 {
-    if (room_uses_world_map(game))
+    if (game->room_id == ROOM_MEADOW)
     {
         *left = MEADOW_WORLD_X;
         *top = MEADOW_WORLD_Y;
         *right = MEADOW_WORLD_X + MEADOW_ROOM_W;
         *bottom = MEADOW_WORLD_Y + MEADOW_ROOM_H;
+    }
+    else if (game->room_id == ROOM_CREEK)
+    {
+        *left = CREEK_WORLD_X;
+        *top = CREEK_WORLD_Y;
+        *right = CREEK_WORLD_X + CREEK_ROOM_W;
+        *bottom = CREEK_WORLD_Y + CREEK_ROOM_H;
     }
     else
     {
@@ -453,13 +540,13 @@ static void get_room_bounds(const struct game_state *game, int *left, int *top, 
 
 static int world_to_screen_x(const struct game_state *game, int x)
 {
-    if (game->room_id == ROOM_MEADOW) return x + 12 - game->camera_x;
+    if (room_uses_world_map(game)) return x + ROOM_LEFT - game->camera_x;
     return INTERIOR_ORIGIN_X + x;
 }
 
 static int world_to_screen_y(const struct game_state *game, int y)
 {
-    if (game->room_id == ROOM_MEADOW) return ROOM_TOP + 18 + y - game->camera_y;
+    if (room_uses_world_map(game)) return ROOM_TOP + 18 + y - game->camera_y;
     return INTERIOR_ORIGIN_Y + y;
 }
 
@@ -470,24 +557,21 @@ static void draw_house_background(const fb_data *src, int w, int h)
     if (w == 240 && h == 160) rb->lcd_bitmap(src, INTERIOR_ORIGIN_X, INTERIOR_ORIGIN_Y, w, h);
 }
 
-static void draw_meadow_background(void)
+static void draw_meadow_background(const struct game_state *game)
 {
-    set_fg(0x2945);
-    rb->lcd_fillrect(0, ROOM_TOP, LCD_WIDTH, ROOM_BOTTOM - ROOM_TOP);
-    set_fg(0x4A52);
-    int path_y = 128;
-    for (int x = 0; x < LCD_WIDTH; x += 16)
-    {
-        rb->lcd_fillrect(x, path_y, 14, 16);
-        rb->lcd_fillrect(x + 4, path_y + 16, 14, 16);
-    }
-    set_fg(0x39E7);
-    rb->lcd_fillrect(40, 80, 8, 48);
-    rb->lcd_fillrect(44, 84, 6, 40);
-    rb->lcd_fillrect(42, 120, 10, 8);
-    set_fg(0x7FE0);
-    rb->lcd_fillrect(48, 72, 10, 10);
-    rb->lcd_fillrect(50, 74, 6, 6);
+    int draw_x = ROOM_LEFT + MEADOW_WORLD_X - game->camera_x;
+    int draw_y = ROOM_TOP + 18 + MEADOW_WORLD_Y - game->camera_y;
+    if (south_hyrule_bmp_loaded)
+        rb->lcd_bitmap(south_hyrule_bmp_data, draw_x, draw_y, MEADOW_ROOM_W, MEADOW_ROOM_H);
+    else
+        rb->lcd_bitmap(minishcap_room_meadow_real, draw_x + 470, draw_y + 210, 320, 208);
+}
+
+static void draw_creek_background(const struct game_state *game)
+{
+    int draw_x = ROOM_LEFT + CREEK_WORLD_X - game->camera_x;
+    int draw_y = ROOM_TOP + 18 + CREEK_WORLD_Y - game->camera_y;
+    rb->lcd_bitmap(minishcap_room_creek_real, draw_x, draw_y, CREEK_ROOM_W, CREEK_ROOM_H);
 }
 
 static void draw_room_background(const struct game_state *game)
@@ -498,8 +582,10 @@ static void draw_room_background(const struct game_state *game)
         draw_house_background(minishcap_room_links_house_entrance, 240, 160);
     else if (game->room_id == ROOM_LINKS_HOUSE_SMITH)
         draw_house_background(minishcap_room_links_house_smith, 240, 160);
+    else if (game->room_id == ROOM_CREEK)
+        draw_creek_background(game);
     else
-        draw_meadow_background();
+        draw_meadow_background(game);
 }
 
 static void draw_hud_heart(int x, int y, bool filled)
@@ -521,26 +607,43 @@ static void draw_hud_heart(int x, int y, bool filled)
 
 static void draw_hud(const struct game_state *game)
 {
-    int left_x = 8;
-    int right_x = LCD_WIDTH - 96;
-    set_fg(COLOR_UI_TEXT);
-    rb->lcd_putsxy(left_x, 4, "LIFE");
+    int heart_box_x = 6;
+    int rupee_box_x = 202;
+    int b_box_x = 252;
+    int a_box_x = 286;
+
+    set_fg(COLOR_UI_BG);
+    rb->lcd_fillrect(heart_box_x, 4, 184, 18);
+    rb->lcd_fillrect(rupee_box_x, 4, 46, 18);
+    rb->lcd_fillrect(b_box_x, 4, 30, 28);
+    rb->lcd_fillrect(a_box_x, 4, 30, 28);
+    set_fg(COLOR_UI_FRAME);
+    rb->lcd_drawrect(heart_box_x, 4, 184, 18);
+    rb->lcd_drawrect(rupee_box_x, 4, 46, 18);
+    rb->lcd_drawrect(b_box_x, 4, 30, 28);
+    rb->lcd_drawrect(a_box_x, 4, 30, 28);
+
     for (int i = 0; i < PLAYER_MAX_HEALTH; ++i)
-        draw_hud_heart(left_x + 30 + i * 16, 6, i < game->health);
+        draw_hud_heart(heart_box_x + 8 + i * 15, 7, i < game->health);
 
     char line[16];
-    rb->snprintf(line, sizeof(line), "%d", game->rupees);
-    set_fg(COLOR_UI_BG);
-    rb->lcd_fillrect(right_x - 4, 4, 92, 22);
-    set_fg(COLOR_UI_FRAME);
-    rb->lcd_drawrect(right_x - 4, 4, 92, 22);
+    rb->snprintf(line, sizeof(line), "%03d", game->rupees);
     set_fg(COLOR_UI_TEXT);
-    rb->lcd_putsxy(right_x, 7, "R");
-    rb->lcd_putsxy(right_x + 12, 7, line);
-    rb->lcd_putsxy(right_x + 36, 7, "B");
-    rb->lcd_putsxy(right_x + 48, 7, game->sword_equipped ? "SWRD" : "----");
-    rb->lcd_putsxy(right_x + 36, 15, "A");
-    rb->lcd_putsxy(right_x + 48, 15, "ROLL");
+    rb->lcd_putsxy(rupee_box_x + 6, 8, "R");
+    rb->lcd_putsxy(rupee_box_x + 16, 8, line);
+    rb->lcd_putsxy(b_box_x + 11, 7, "B");
+    rb->lcd_putsxy(a_box_x + 11, 7, "A");
+
+    if (game->sword_equipped)
+    {
+        int sx = b_box_x + 13;
+        int sy = 16;
+        set_fg(COLOR_SWORD);
+        rb->lcd_fillrect(sx, sy, 3, 10);
+        rb->lcd_fillrect(sx - 2, sy + 8, 7, 2);
+    }
+    set_fg(COLOR_UI_TEXT);
+    rb->lcd_fillrect(a_box_x + 12, 18, 6, 6);
 }
 
 static void draw_masked_bitmap(const fb_data *src, int w, int h, int x, int y, fb_data key)
@@ -725,6 +828,7 @@ static void begin_room(struct game_state *game, int room_id, int x, int y)
     bgm_note_idx = 0;
     bgm_note_timer = 0;
     normalize_meadow_spawn(game);
+    update_camera(game);
 }
 
 static void init_default_game(struct game_state *game)
@@ -800,7 +904,19 @@ static bool rect_overlap(int x, int y, int w, int h, int rx, int ry, int rw, int
 
 static bool try_area_transition(struct game_state *game, int test_x, int test_y)
 {
-    if (game->room_id == ROOM_LINKS_HOUSE_BEDROOM) {
+    if (game->room_id == ROOM_MEADOW) {
+        if (rect_overlap(test_x, test_y, PLAYER_W, PLAYER_H, MEADOW_TO_CREEK_X, MEADOW_TO_CREEK_Y, MEADOW_TO_CREEK_W, MEADOW_TO_CREEK_H)) {
+            begin_room(game, ROOM_CREEK, 18, 156);
+            set_message(game, "Minish Creek", "", "", HZ / 2);
+            return true;
+        }
+    } else if (game->room_id == ROOM_CREEK) {
+        if (rect_overlap(test_x, test_y, PLAYER_W, PLAYER_H, CREEK_TO_MEADOW_X, CREEK_TO_MEADOW_Y, CREEK_TO_MEADOW_W, CREEK_TO_MEADOW_H)) {
+            begin_room(game, ROOM_MEADOW, MEADOW_WORLD_X + MEADOW_ROOM_W - 30, HOUSE_EXIT_SAFE_Y + 6);
+            set_message(game, "South Hyrule", "", "", HZ / 2);
+            return true;
+        }
+    } else if (game->room_id == ROOM_LINKS_HOUSE_BEDROOM) {
         if (rect_overlap(test_x, test_y, PLAYER_W, PLAYER_H, 0x58, 0x18, 12, 12)) {
             begin_room(game, ROOM_LINKS_HOUSE_ENTRANCE, 12, 86);
             return true;
@@ -920,7 +1036,16 @@ static void update_game(struct game_state *game, int cmd, int event)
     if (try_area_transition(game, next_x, next_y)) return;
 
     // Interior collision: clamp movement against defined solids in the room
-    if (game->room_id != ROOM_MEADOW) {
+    if (game->room_id == ROOM_MEADOW) {
+        if (south_hyrule_pixel_blocked(next_x + 2, next_y + 5) ||
+            south_hyrule_pixel_blocked(next_x + PLAYER_W - 3, next_y + 5) ||
+            south_hyrule_pixel_blocked(next_x + 2, next_y + PLAYER_H - 2) ||
+            south_hyrule_pixel_blocked(next_x + PLAYER_W - 3, next_y + PLAYER_H - 2)) {
+            next_x = game->x;
+            next_y = game->y;
+            dx = 0; dy = 0;
+        }
+    } else {
         const struct room_def *rd = current_room(game);
         for (int i = 0; i < rd->solid_count; i++) {
             struct rect s = rd->solids[i];
@@ -939,6 +1064,7 @@ static void update_game(struct game_state *game, int cmd, int event)
     if (try_sword_pickup(game)) return;
     if (game->moving) game->step_clock++;
     if (game->sword_timer > 0) game->sword_timer--;
+    update_camera(game);
     // Only update BGM when room changes or cooldown expires
     static int last_room = -1;
     if (game->room_id != last_room || game->bgm_cooldown == 0) {
@@ -956,6 +1082,14 @@ static bool load_bitmap24(const char *path, struct bitmap *bmp, fb_data *pixels)
     return rc > 0 && bmp->width == NPC_BMP_W && bmp->height == NPC_BMP_H;
 }
 
+static bool load_bitmap_exact(const char *path, struct bitmap *bmp, fb_data *pixels, int w, int h, size_t bytes)
+{
+    memset(bmp, 0, sizeof(*bmp));
+    bmp->data = (char*)pixels;
+    int rc = rb->read_bmp_file(path, bmp, bytes, FORMAT_NATIVE, NULL);
+    return rc > 0 && bmp->width == w && bmp->height == h;
+}
+
 static void load_external_bitmaps(void)
 {
     smith_bmp_loaded = load_bitmap24(SMITH_BMP_FILE, &smith_bmp, smith_bmp_data);
@@ -965,6 +1099,24 @@ static void load_external_bitmaps(void)
     zelda_bmp_loaded = load_bitmap24(ZELDA_BMP_FILE, &zelda_bmp, zelda_bmp_data);
     if (!zelda_bmp_loaded)
         zelda_bmp_loaded = load_bitmap24(ZELDA_BMP_FILE_ALT, &zelda_bmp, zelda_bmp_data);
+
+    south_hyrule_bmp_loaded = load_bitmap_exact(
+        SOUTH_HYRULE_BMP_FILE,
+        &south_hyrule_bmp,
+        south_hyrule_bmp_data,
+        MEADOW_ROOM_W,
+        MEADOW_ROOM_H,
+        sizeof(south_hyrule_bmp_data));
+    if (!south_hyrule_bmp_loaded)
+    {
+        south_hyrule_bmp_loaded = load_bitmap_exact(
+            SOUTH_HYRULE_BMP_FILE_ALT,
+            &south_hyrule_bmp,
+            south_hyrule_bmp_data,
+            MEADOW_ROOM_W,
+            MEADOW_ROOM_H,
+            sizeof(south_hyrule_bmp_data));
+    }
 }
 
 enum plugin_status plugin_start(const void *parameter)
