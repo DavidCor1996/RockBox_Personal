@@ -49,9 +49,6 @@ void show_logo( void )
     int text_width = TEXT_WIDTH(len);
     int text_xpos  = TEXT_XPOS(text_width);
 
-#if (LCD_WIDTH >= 320) && (LCD_HEIGHT >= 240) && (LCD_DEPTH >= 16)
-    lcd_bmp(&bm_rockboxlogo, 0, 0);
-#else
 #if defined(SANSA_CLIP) || defined(SANSA_CLIPV2) || defined(SANSA_CLIPPLUS)
     /* The top 16 lines of the Sansa Clip screen are yellow, and the bottom 48 
        are blue, so we reverse the usual positioning */
@@ -62,7 +59,6 @@ void show_logo( void )
     lcd_bmp(&bm_rockboxlogo, LOGO_XPOS, 10);
 #endif
     lcd_putsxy(text_xpos, LCD_HEIGHT-SYSFONT_HEIGHT, verstr);
-#endif
 #endif
 
     lcd_update();
