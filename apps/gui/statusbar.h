@@ -70,6 +70,9 @@ struct gui_statusbar
     struct tm *time;
     int last_tm_min;
 #endif
+#ifdef HAVE_RECORDING
+    bool last_recscreen_on;
+#endif
     struct screen * display;
 };
 

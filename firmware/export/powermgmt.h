@@ -74,6 +74,7 @@ enum shutdown_type
 {
     SHUTDOWN_POWER_OFF,
     SHUTDOWN_REBOOT,
+    SHUTDOWN_DISK_MODE,
 };
 
 #if CONFIG_CHARGING == CHARGING_TARGET
@@ -173,6 +174,8 @@ void cancel_shutdown(void);
 void shutdown_hw(enum shutdown_type sd_type);
 void sys_poweroff(void);
 void sys_reboot(void);
+void sys_disk_mode(void);
+enum shutdown_type sys_get_reboot_type(void);
 /* Returns true if the system should force shutdown for some reason -
  * eg. low battery */
 bool query_force_shutdown(void);

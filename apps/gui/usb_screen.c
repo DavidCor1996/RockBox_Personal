@@ -133,6 +133,8 @@ static void usb_screen_fix_viewports(struct screen *screen,
     int logo_width, logo_height;
     struct viewport *parent = &usb_screen_vps->parent;
     struct viewport *logo = &usb_screen_vps->logo;
+    int group_height;
+    int group_top;
 
 #ifdef HAVE_REMOTE_LCD
     if (screen->screen_type == SCREEN_REMOTE)
@@ -147,7 +149,8 @@ static void usb_screen_fix_viewports(struct screen *screen,
         logo_height = BMPHEIGHT_usblogo;
     }
 
-    viewportmanager_theme_enable(screen->screen_type, true, parent);
+    viewportmanager_overlay_begin(screen->screen_type, parent);
+    viewport_set_centered_preset(parent, VIEWPORT_OVERLAY_PRESET_LARGE);
 
     if (logo_width  > parent->width)
         logo_width  = parent->width;
@@ -155,27 +158,9 @@ static void usb_screen_fix_viewports(struct screen *screen,
         logo_height = parent->height;
 
     *logo = *parent;
-    logo->x = parent->x + parent->width - logo_width;
-#ifdef HAVE_LCD_SPLIT
-    switch (statusbar_position(screen))
-    {
-         /* start beyond split */
-         case STATUSBAR_OFF:
-             logo->y = parent->y + LCD_SPLIT_POS;
-             break;
-         case STATUSBAR_TOP:
-             logo->y = parent->y + LCD_SPLIT_POS - STATUSBAR_HEIGHT;
-             break;
-         /* start at the top for maximum space */
-         default:
-             logo->y = parent->y;
-             break;
-    }
-#else
-    logo->y = parent->y + (parent->height - logo_height) / 2;
-#endif
     logo->width = logo_width;
     logo->height = logo_height;
+    group_height = logo_height;
 
 #ifdef USB_ENABLE_HID
     if (usb_hid)
@@ -183,14 +168,7 @@ static void usb_screen_fix_viewports(struct screen *screen,
         struct viewport *title = &usb_screen_vps->title;
         int char_height = font_get(parent->font)->height;
         *title = *parent;
-        title->y = logo->y + logo->height + char_height;
-        title->height = char_height;
-        /* try to fit logo and title to parent */
-        if (parent->y + parent->height < title->y + title->height)
-        {
-            logo->y = parent->y;
-            title->y = parent->y + logo->height;
-        }
+        group_height += char_height + char_height / 2;
 
         int i =0, langid = LANG_USB_KEYPAD_MODE;
         while (langid >= 0) /* ensure the USB mode strings get cached */
@@ -198,6 +176,22 @@ static void usb_screen_fix_viewports(struct screen *screen,
             font_getstringsize(str(langid), NULL, NULL, title->font);
             langid = keypad_mode_name_get(i++);
         }
+    }
+#endif
+
+    group_height = MIN(group_height, parent->height);
+    group_top = parent->y + (parent->height - group_height) / 2;
+    logo->x = parent->x + (parent->width - logo_width) / 2;
+    logo->y = group_top;
+
+#ifdef USB_ENABLE_HID
+    if (usb_hid)
+    {
+        struct viewport *title = &usb_screen_vps->title;
+        int char_height = font_get(parent->font)->height;
+        title->y = logo->y + logo->height + char_height / 2;
+        title->height = char_height;
+        title->flags |= VP_FLAG_ALIGN_CENTER;
     }
 #endif
 }
@@ -276,12 +270,6 @@ void gui_usb_screen_run(bool early_usb, intptr_t seqnum)
     FOR_NB_SCREENS(i)
     {
         struct screen *screen = &screens[i];
-        /* we might be coming from anywhere, and the originating screen
-         * can't be practically expected to cleanup the UI because
-         * we're invoked via default_event_handler(), therefore we make a
-         * generic cleanup here */
-        screen->set_viewport(NULL);
-        screen->scroll_stop();
         usb_screen_fix_viewports(screen, &usb_screen_vps_ar[i]);
     }
 
@@ -346,7 +334,7 @@ void gui_usb_screen_run(bool early_usb, intptr_t seqnum)
     FOR_NB_SCREENS(i)
     {
         screens[i].backlight_on();
-        viewportmanager_theme_undo(i, false);
+        viewportmanager_overlay_end(i, false);
     }
 
     pop_current_activity();

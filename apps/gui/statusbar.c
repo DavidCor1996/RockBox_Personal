@@ -121,6 +121,16 @@
                                                 7*ICONS_SPACING
 #define STATUSBAR_LOCKR_WIDTH                   5
 
+#ifdef HAS_REMOTE_BUTTON_HOLD
+#define STATUSBAR_LEFT_REGION_WIDTH             (STATUSBAR_LOCKR_X_POS + \
+                                                STATUSBAR_LOCKR_WIDTH + \
+                                                ICONS_SPACING)
+#else
+#define STATUSBAR_LEFT_REGION_WIDTH             (STATUSBAR_LOCKM_X_POS + \
+                                                STATUSBAR_LOCKM_WIDTH + \
+                                                ICONS_SPACING)
+#endif
+
 #if (CONFIG_LED == LED_VIRTUAL) || defined(HAVE_REMOTE_LCD)
 #define STATUSBAR_DISK_WIDTH                    12
 #define STATUSBAR_DISK_X_POS(statusbar_width)   statusbar_width - \
@@ -130,6 +140,9 @@
 #endif
 #define STATUSBAR_TIME_X_END(statusbar_width)   statusbar_width - 1 - \
                                                 STATUSBAR_DISK_WIDTH
+#define STATUSBAR_TIME_REGION_WIDTH             (5 * SYSFONT_WIDTH + \
+                                                STATUSBAR_DISK_WIDTH + \
+                                                ICONS_SPACING)
 struct gui_syncstatusbar statusbars;
 
 /* Prototypes */
@@ -252,6 +265,16 @@ static struct screen * sb_fill_bar_info(struct gui_statusbar * bar)
     return display;
 }
 
+static void gui_statusbar_clear_rect(struct screen *display, int x, int width)
+{
+    if (width <= 0)
+        return;
+
+    display->set_drawmode(DRMODE_SOLID|DRMODE_INVERSEVID);
+    display->fillrect(x, 0, width, STATUSBAR_HEIGHT);
+    display->set_drawmode(DRMODE_SOLID);
+}
+
 void gui_statusbar_draw(struct gui_statusbar * bar, bool force_redraw, struct viewport *vp)
 {
     struct viewport *last_vp = NULL;
@@ -259,73 +282,127 @@ void gui_statusbar_draw(struct gui_statusbar * bar, bool force_redraw, struct vi
     if (!display)
         return;
 
-    /* only redraw if forced to, or info has changed */
-    if (force_redraw || bar->redraw_volume ||
-#if CONFIG_RTC
-        (bar->time->tm_min != bar->last_tm_min) ||
+    bool left_changed;
+    bool right_changed = false;
+#ifdef HAVE_RECORDING
+    bool recscreen_on = in_recording_screen();
 #endif
-        memcmp(&(bar->info), &(bar->lastinfo), sizeof(struct status_info)))
+
+    left_changed = force_redraw || bar->redraw_volume ||
+                   bar->info.battlevel != bar->lastinfo.battlevel ||
+                   bar->info.batt_charge_step != bar->lastinfo.batt_charge_step ||
+                   bar->info.volume != bar->lastinfo.volume ||
+                   bar->info.playmode != bar->lastinfo.playmode ||
+                   bar->info.repeat != bar->lastinfo.repeat ||
+#if CONFIG_CHARGING
+                   bar->info.inserted != bar->lastinfo.inserted ||
+#endif
+#ifdef HAVE_USB_POWER
+                   bar->info.usb_inserted != bar->lastinfo.usb_inserted ||
+#endif
+                   bar->info.battery_state != bar->lastinfo.battery_state ||
+                   bar->info.shuffle != bar->lastinfo.shuffle ||
+                   bar->info.keylock != bar->lastinfo.keylock ||
+#ifdef HAS_REMOTE_BUTTON_HOLD
+                   bar->info.keylockremote != bar->lastinfo.keylockremote ||
+#endif
+#ifdef HAVE_RECORDING
+                   recscreen_on != bar->last_recscreen_on ||
+#endif
+                   false;
+
+#if CONFIG_RTC
+    right_changed = right_changed || force_redraw ||
+                    (bar->time->tm_min != bar->last_tm_min);
+#endif
+#if (CONFIG_LED == LED_VIRTUAL) || defined(HAVE_REMOTE_LCD)
+    right_changed = right_changed || force_redraw ||
+                    (bar->info.led != bar->lastinfo.led);
+#endif
+
+    if (left_changed || right_changed)
     {
+        bool full_clear = force_redraw || (left_changed && right_changed);
         last_vp = display->set_viewport(vp);
-        display->set_drawmode(DRMODE_SOLID|DRMODE_INVERSEVID);
-        display->fill_viewport();
-        display->set_drawmode(DRMODE_SOLID);
+        if (full_clear)
+        {
+            display->set_drawmode(DRMODE_SOLID|DRMODE_INVERSEVID);
+            display->fill_viewport();
+            display->set_drawmode(DRMODE_SOLID);
+        }
+        else
+        {
+            if (left_changed)
+                gui_statusbar_clear_rect(display, 0, STATUSBAR_LEFT_REGION_WIDTH);
+            if (right_changed)
+            {
+                int x = STATUSBAR_TIME_X_END(display->getwidth()) -
+                        STATUSBAR_TIME_REGION_WIDTH + 1;
+                gui_statusbar_clear_rect(display, MAX(0, x),
+                                         display->getwidth() - MAX(0, x));
+            }
+        }
         display->setfont(FONT_SYSFIXED);
 
-        if (bar->info.battery_state)
-            gui_statusbar_icon_battery(display, bar->info.battlevel,
-                                       bar->info.batt_charge_step);
+        if (left_changed)
+        {
+            if (bar->info.battery_state)
+                gui_statusbar_icon_battery(display, bar->info.battlevel,
+                                           bar->info.batt_charge_step);
 #ifdef HAVE_USB_POWER
-        if (bar->info.usb_inserted)
-            display->mono_bitmap(bitmap_icons_7x8[Icon_USBPlug],
-                                 STATUSBAR_PLUG_X_POS,
-                                 STATUSBAR_Y_POS, STATUSBAR_PLUG_WIDTH,
-                                 SB_ICON_HEIGHT);
+            if (bar->info.usb_inserted)
+                display->mono_bitmap(bitmap_icons_7x8[Icon_USBPlug],
+                                     STATUSBAR_PLUG_X_POS,
+                                     STATUSBAR_Y_POS, STATUSBAR_PLUG_WIDTH,
+                                     SB_ICON_HEIGHT);
 #endif /* HAVE_USB_POWER */
 #if CONFIG_CHARGING
 #ifdef HAVE_USB_POWER
-        else
+            else
 #endif
-        /* draw power plug if charging */
-        if (bar->info.inserted)
-            display->mono_bitmap(bitmap_icons_7x8[Icon_Plug],
-                                    STATUSBAR_PLUG_X_POS,
-                                    STATUSBAR_Y_POS, STATUSBAR_PLUG_WIDTH,
-                                    SB_ICON_HEIGHT);
+            /* draw power plug if charging */
+            if (bar->info.inserted)
+                display->mono_bitmap(bitmap_icons_7x8[Icon_Plug],
+                                        STATUSBAR_PLUG_X_POS,
+                                        STATUSBAR_Y_POS, STATUSBAR_PLUG_WIDTH,
+                                        SB_ICON_HEIGHT);
 #endif /* CONFIG_CHARGING */
 #ifdef HAVE_RECORDING
-        /* turn off volume display in recording screen */
-        bool recscreen_on = in_recording_screen();
-        if (!recscreen_on)
+            /* turn off volume display in recording screen */
+            if (!recscreen_on)
 #endif
-            bar->redraw_volume = gui_statusbar_icon_volume(bar, bar->info.volume);
-        gui_statusbar_icon_play_state(display, current_playmode() + Icon_Play);
+                bar->redraw_volume = gui_statusbar_icon_volume(bar, bar->info.volume);
+            gui_statusbar_icon_play_state(display, current_playmode() + Icon_Play);
 
 #ifdef HAVE_RECORDING
-        /* If in recording screen, replace repeat mode, volume
-           and shuffle icons with recording info */
-        if (recscreen_on)
-            gui_statusbar_icon_recording_info(display);
-        else
+            /* If in recording screen, replace repeat mode, volume
+               and shuffle icons with recording info */
+            if (recscreen_on)
+                gui_statusbar_icon_recording_info(display);
+            else
 #endif
-        {
-            gui_statusbar_icon_play_mode(display, bar->info.repeat);
+            {
+                gui_statusbar_icon_play_mode(display, bar->info.repeat);
 
-            if (bar->info.shuffle)
-                gui_statusbar_icon_shuffle(display);
-        }
-        if (bar->info.keylock)
-            gui_statusbar_icon_lock(display);
+                if (bar->info.shuffle)
+                    gui_statusbar_icon_shuffle(display);
+            }
+            if (bar->info.keylock)
+                gui_statusbar_icon_lock(display);
 #ifdef HAS_REMOTE_BUTTON_HOLD
-        if (bar->info.keylockremote)
-            gui_statusbar_icon_lock_remote(display);
+            if (bar->info.keylockremote)
+                gui_statusbar_icon_lock_remote(display);
 #endif
+        }
 #if CONFIG_RTC
-        gui_statusbar_time(display, bar->time);
-        bar->last_tm_min = bar->time->tm_min;
+        if (right_changed)
+        {
+            gui_statusbar_time(display, bar->time);
+            bar->last_tm_min = bar->time->tm_min;
+        }
 #endif /* CONFIG_RTC */
 #if (CONFIG_LED == LED_VIRTUAL) || defined(HAVE_REMOTE_LCD)
-        if(!display->has_disk_led && bar->info.led)
+        if (right_changed && !display->has_disk_led && bar->info.led)
         {
             gui_statusbar_led(display);
         }
@@ -334,6 +411,9 @@ void gui_statusbar_draw(struct gui_statusbar * bar, bool force_redraw, struct vi
         display->update_viewport();
         display->set_viewport(last_vp);
         bar->lastinfo = bar->info;
+#ifdef HAVE_RECORDING
+        bar->last_recscreen_on = recscreen_on;
+#endif
     }
 }
 

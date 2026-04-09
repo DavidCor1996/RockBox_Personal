@@ -4579,8 +4579,6 @@ static bool start_playback(bool return_to_WPS)
 #endif
     rb->lcd_clear_display();
     rb->lcd_update();
-#else /* if !USEGSLIB */
-    (void) return_to_WPS;
 #endif
 
     if (!rb->warn_on_pl_erase() || !track_list_ready())
@@ -4610,9 +4608,16 @@ static bool start_playback(bool return_to_WPS)
     }
     rb->playlist_start(start_index, 0, 0);
     old_shuffle = shuffle;
+    
+    /* Handle return_to_WPS for all display types */
+    if (return_to_WPS)
+    {
+        /* Return to WPS after starting playback */
+        return true;
+    }
+    
 #ifdef USEGSLIB
-    if (!return_to_WPS)
-        grey_show(true);
+    grey_show(true);
 #endif
     return true;
 }
@@ -5297,7 +5302,7 @@ static int pictureflow_main(void)
                 if (pf_state == pf_scrolling)
                     set_current_slide(target);
 #if PF_PLAYBACK_CAPABLE
-                if(pf_cfg.auto_wps == 1 && button == PF_SELECT)
+                if (button == PF_SELECT)
                 {
                     if (start_playback(true))
                         return PLUGIN_GOTO_WPS;
@@ -5315,12 +5320,8 @@ static int pictureflow_main(void)
                 if (show_tracks_while_browsing)
                     show_tracks_while_browsing = false;
 #if PF_PLAYBACK_CAPABLE
-                else if(pf_cfg.auto_wps != 0) {
-                    if (start_playback(true))
-                        return PLUGIN_GOTO_WPS;
-                }
-                else
-                    start_playback(false);
+                if (start_playback(true))
+                    return PLUGIN_GOTO_WPS;
 #endif
             }
             break;

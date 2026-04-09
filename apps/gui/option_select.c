@@ -490,7 +490,7 @@ bool option_screen(const struct settings_list *setting,
 
     int var_type = setting->flags&F_T_MASK;
     void (*function)(int) = NULL;
-    const char *title = NULL;
+    const char *title = P2STR(option_title);
     if (var_type == F_T_INT || var_type == F_T_UINT)
     {
         variable = use_temp_var ? &temp_var: (int*)setting->setting;
@@ -507,13 +507,10 @@ bool option_screen(const struct settings_list *setting,
     push_current_activity(ACTIVITY_OPTIONSELECT);
     gui_synclist_init(&lists, value_setting_get_name_cb,
                       (void*)setting, false, 1, parent);
-    if (setting->lang_id == -1)
+    if ((!title || !title[0]) && setting->lang_id == -1)
     {
         title = setting_get_cfgvals(setting);
     }
-
-    if (!title)
-        title = P2STR(option_title);
 
     gui_synclist_set_title(&lists, title, Icon_Questionmark);
     if(global_settings.talk_menu)

@@ -80,10 +80,13 @@ static void gui_yesno_draw(struct gui_yesno * yn)
 {
     struct screen * display=yn->display;
     struct viewport *vp = &yn->vp;
-    int vp_lines = yn->vp_lines;
     enum yesno_res def_res = yn->tmo_default_res;
     const struct text_message *main_message = yn->main_message;
     int line_shift = 0;
+    viewport_set_defaults(vp, display->screen_type);
+    viewport_set_centered_preset(vp, VIEWPORT_OVERLAY_PRESET_MEDIUM);
+    yn->vp_lines = viewport_get_nb_lines(vp);
+    int vp_lines = yn->vp_lines;
     struct viewport *last_vp = display->set_viewport_ex(vp, VP_FLAG_VP_SET_CLEAN);
 
     /* do our own clear to avoid stopping scrolling */
@@ -182,6 +185,9 @@ static void gui_yesno_draw_result(struct gui_yesno * yn, const struct text_messa
 {
     struct viewport *vp = &yn->vp;
     struct screen * display=yn->display;
+    viewport_set_defaults(vp, display->screen_type);
+    viewport_set_centered_preset(vp, VIEWPORT_OVERLAY_PRESET_MEDIUM);
+    yn->vp_lines = viewport_get_nb_lines(vp);
     struct viewport *last_vp = display->set_viewport_ex(vp, VP_FLAG_VP_SET_CLEAN);
 
     display->clear_viewport();
@@ -244,7 +250,7 @@ enum yesno_res gui_syncyesno_run_w_tmo(int ticks, enum yesno_res tmo_default_res
         yn[i].display=&screens[i];
         screens[i].scroll_stop();
         sb_set_persistent_title(title, Icon_NOICON, i);
-        viewportmanager_theme_enable(i, true, &(yn[i].vp));
+        viewportmanager_overlay_begin(i, &(yn[i].vp));
 
         yn[i].vp_lines = viewport_get_nb_lines(&(yn[i].vp));
     }
@@ -355,7 +361,7 @@ exit:
     {
         screens[i].scroll_stop_viewport(&(yn[i].vp));
         sb_set_persistent_title(title, Icon_NOICON, i);
-        viewportmanager_theme_undo(i, false);
+        viewportmanager_overlay_end(i, false);
     }
 
 #ifdef HAVE_TOUCHSCREEN

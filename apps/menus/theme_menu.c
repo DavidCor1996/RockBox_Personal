@@ -379,6 +379,8 @@ static int showicons_callback(int action,
 }
 
 MENUITEM_SETTING(show_icons, &global_settings.show_icons, showicons_callback);
+MENUITEM_SETTING_W_TEXT(ipone_charge_wallpaper, &global_settings.ipone_charge_wallpaper,
+                        "Charge Wallpaper", NULL);
 MENUITEM_FUNCTION_W_PARAM(browse_themes, 0, ID2P(LANG_CUSTOM_THEME),
                           browse_folder, (void*)&themes, NULL, Icon_Config);
 MENUITEM_SETTING(cursor_style, &global_settings.cursor_style, NULL);
@@ -407,6 +409,7 @@ MAKE_MENU(theme_menu, ID2P(LANG_THEME_MENU),
 #ifdef HAVE_REMOTE_LCD
             &browse_rsbs,
 #endif
+            &ipone_charge_wallpaper,
             &show_icons,
 #ifdef HAVE_BACKDROP_IMAGE
             &clear_main_bd,

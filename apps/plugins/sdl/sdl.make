@@ -20,9 +20,9 @@ DUKE3D_OBJ = $(call c2obj, $(DUKE3D_SRC))
 WOLF3D_OBJ = $(call c2obj, $(WOLF3D_SRC))
 QUAKE_OBJ = $(call c2obj, $(QUAKE_SRC))
 
-# add source files to OTHER_SRC to get automatic dependencies
-OTHER_SRC += $(SDL_SRC) $(DUKE3D_SRC) $(WOLF3D_SRC) $(QUAKE_SRC)
-OTHER_INC += -I$(SDL_SRCDIR)/include
+# SDL plugins disabled for power menu build
+# OTHER_SRC += $(SDL_SRC) $(DUKE3D_SRC) $(WOLF3D_SRC) $(QUAKE_SRC)
+# OTHER_INC += -I$(SDL_SRCDIR)/include
 
 # include comes first because of possible system SDL headers taking
 # precedence

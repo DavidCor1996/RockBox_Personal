@@ -51,6 +51,19 @@
 #define HOUSE_FRONT_EXIT_Y 136
 #define HOUSE_FRONT_EXIT_W 72
 #define HOUSE_FRONT_EXIT_H 28
+
+#define SOUTH_HYRULE_LINK_HOUSE_EXIT_X 0x290
+#define SOUTH_HYRULE_LINK_HOUSE_EXIT_Y 0x188
+#define SOUTH_HYRULE_TREE_HOLE_X 0x3a0
+#define SOUTH_HYRULE_TREE_HOLE_Y 0x228
+#define SOUTH_HYRULE_FAIRY_CAVE_X 0x118
+#define SOUTH_HYRULE_FAIRY_CAVE_Y 0x0a8
+#define SOUTH_HYRULE_MINISH_CAVE_X 0x178
+#define SOUTH_HYRULE_MINISH_CAVE_Y 0x0d8
+#define SOUTH_HYRULE_MINISH_CAVE_RETURN_X 0x178
+#define SOUTH_HYRULE_MINISH_CAVE_RETURN_Y 0x0e8
+#define SOUTH_HYRULE_POI_TRIGGER_HALF 10
+
 #define MEADOW_TO_CREEK_X (MEADOW_WORLD_X + MEADOW_ROOM_W - 10)
 #define MEADOW_TO_CREEK_Y (MEADOW_WORLD_Y + 8)
 #define MEADOW_TO_CREEK_W 12
@@ -84,10 +97,11 @@
 
 enum { FACE_DOWN = 0, FACE_UP, FACE_LEFT, FACE_RIGHT };
 enum { CMD_LEFT = 1, CMD_RIGHT = 2, CMD_UP = 4, CMD_DOWN = 8 };
-enum { ROOM_MEADOW = 0, ROOM_CREEK, ROOM_SHRINE, ROOM_LINKS_HOUSE_BEDROOM, ROOM_LINKS_HOUSE_ENTRANCE, ROOM_LINKS_HOUSE_SMITH, ROOM_COUNT };
+enum { ROOM_MEADOW = 0, ROOM_CREEK, ROOM_SHRINE, ROOM_MINISH_CAVE, ROOM_LINKS_HOUSE_BEDROOM, ROOM_LINKS_HOUSE_ENTRANCE, ROOM_LINKS_HOUSE_SMITH, ROOM_COUNT };
 enum { THEME_MEADOW = 0, THEME_CREEK, THEME_SHRINE, THEME_HOUSE };
 enum { AXIS_HORIZONTAL = 0, AXIS_VERTICAL };
 enum { NPCTYPE_NONE = 0, NPCTYPE_ZELDA, NPCTYPE_SMITH };
+enum { MENU_TAB_STATUS = 0, MENU_TAB_ITEMS, MENU_TAB_QUEST, MENU_TAB_MAP, MENU_TAB_COUNT };
 
 #define COLOR_BLACK 0
 #define COLOR_WHITE 255
@@ -274,6 +288,12 @@ static void audio_callback(const void **start, size_t *size)
 static bool try_select_interaction(struct game_state *game, int event)
 {
     if (!(event & BUTTON_SELECT)) return false;
+    if (game->menu_open)
+    {
+        game->menu_open = false;
+        game->interaction_cooldown = HZ / 4;
+        return true;
+    }
     if (game->message_timer > 0) return true;
     if (game->interaction_cooldown > 0) return true;
 
@@ -349,9 +369,17 @@ static void play_sfx(struct game_state *game, unsigned freq, unsigned duration_m
 static const unsigned bgm_decomp_house[] = {262, 294, 330, 392, 330, 294, 262, 220, 0, 220, 262, 294};
 static const unsigned bgm_decomp_hyrule_field[] = {392, 440, 494, 587, 659, 587, 494, 440, 392, 349, 330, 294};
 static const unsigned bgm_decomp_minish_cap[] = {523, 587, 659, 784, 659, 587, 523, 494, 440, 392, 349, 330};
+static const unsigned bgm_decomp_cave[] = {196, 220, 247, 262, 247, 220, 196, 175};
 
 static int bgm_note_idx;
 static int bgm_note_timer;
+
+struct bgm_track {
+    const unsigned *notes;
+    int length;
+    int step_frames;
+    int note_ms;
+};
 
 static void update_bgm(struct game_state *game)
 {
@@ -361,24 +389,53 @@ static void update_bgm(struct game_state *game)
         return;
     }
     
-    const unsigned *bgm = NULL;
-    if (game->room_id == ROOM_LINKS_HOUSE_BEDROOM || game->room_id == ROOM_LINKS_HOUSE_ENTRANCE || game->room_id == ROOM_LINKS_HOUSE_SMITH)
-        bgm = bgm_decomp_house;
+    struct bgm_track track;
+    if (game->menu_open)
+    {
+        track.notes = bgm_decomp_house;
+        track.length = 12;
+        track.step_frames = 12;
+        track.note_ms = 120;
+    }
+    else if (game->room_id == ROOM_LINKS_HOUSE_BEDROOM || game->room_id == ROOM_LINKS_HOUSE_ENTRANCE || game->room_id == ROOM_LINKS_HOUSE_SMITH)
+    {
+        track.notes = bgm_decomp_house;
+        track.length = 12;
+        track.step_frames = 8;
+        track.note_ms = 160;
+    }
     else if (game->room_id == ROOM_MEADOW)
-        bgm = game->sword_equipped ? bgm_decomp_hyrule_field : bgm_decomp_minish_cap;
+    {
+        track.notes = game->sword_equipped ? bgm_decomp_hyrule_field : bgm_decomp_minish_cap;
+        track.length = 12;
+        track.step_frames = game->sword_equipped ? 7 : 8;
+        track.note_ms = game->sword_equipped ? 180 : 160;
+    }
+    else if (game->room_id == ROOM_MINISH_CAVE)
+    {
+        track.notes = bgm_decomp_cave;
+        track.length = 8;
+        track.step_frames = 10;
+        track.note_ms = 170;
+    }
     else
-        bgm = bgm_decomp_hyrule_field;
-    
-    if (!bgm) return;
+    {
+        track.notes = bgm_decomp_hyrule_field;
+        track.length = 12;
+        track.step_frames = 7;
+        track.note_ms = 175;
+    }
+
+    if (!track.notes || track.length <= 0) return;
     
     bgm_note_timer++;
-    if (bgm_note_timer >= 8)
+    if (bgm_note_timer >= track.step_frames)
     {
         bgm_note_timer = 0;
-        unsigned freq = bgm[bgm_note_idx];
+        unsigned freq = track.notes[bgm_note_idx];
         if (freq > 0)
-            play_tone(freq, 170);
-        bgm_note_idx = (bgm_note_idx + 1) % 12;
+            play_tone(freq, track.note_ms);
+        bgm_note_idx = (bgm_note_idx + 1) % track.length;
         game->bgm_cooldown = 1;
     }
 }
@@ -401,10 +458,16 @@ static bool south_hyrule_pixel_blocked(int world_x, int world_y)
 
 static bool meadow_player_blocked_at(int x, int y)
 {
-    return south_hyrule_pixel_blocked(x + 2, y + 5) ||
-           south_hyrule_pixel_blocked(x + PLAYER_W - 3, y + 5) ||
+    int foot_y = y + PLAYER_H - 2;
+    int knee_y = y + PLAYER_H - 7;
+    int center_x = x + (PLAYER_W / 2);
+
+    return south_hyrule_pixel_blocked(x + 2, knee_y) ||
+           south_hyrule_pixel_blocked(x + PLAYER_W - 3, knee_y) ||
+           south_hyrule_pixel_blocked(center_x, knee_y) ||
            south_hyrule_pixel_blocked(x + 2, y + PLAYER_H - 2) ||
-           south_hyrule_pixel_blocked(x + PLAYER_W - 3, y + PLAYER_H - 2);
+           south_hyrule_pixel_blocked(x + PLAYER_W - 3, foot_y) ||
+           south_hyrule_pixel_blocked(center_x, foot_y);
 }
 
 static void clamp_meadow_player_pos(int *x, int *y)
@@ -524,8 +587,8 @@ static void normalize_meadow_spawn(struct game_state *game)
 
 static const struct room_def room_defs[ROOM_COUNT] = {
     {
-        THEME_MEADOW, 2, {{MEADOW_WORLD_X + 90, 226}, {MEADOW_WORLD_X + 262, 236}, {0,0}},
-        1, {{MEADOW_WORLD_X + 144, 256, AXIS_HORIZONTAL, 34}, {0,0,0,0}},
+        THEME_MEADOW, 3, {{MEADOW_WORLD_X + 90, 226}, {MEADOW_WORLD_X + 262, 236}, {MEADOW_WORLD_X + 506, 318}},
+        2, {{MEADOW_WORLD_X + 144, 256, AXIS_HORIZONTAL, 34}, {MEADOW_WORLD_X + 552, 334, AXIS_VERTICAL, 42}},
         0, {{0,0,0,0}, {0,0,0,0}, {0,0,0,0}, {0,0,0,0}, {0,0,0,0}, {0,0,0,0}, {0,0,0,0}, {0,0,0,0}},
         false, {0,0,0,0}, false, {0,0,0,0},
         HOUSE_EXIT_SAFE_X, HOUSE_EXIT_SAFE_Y,
@@ -542,6 +605,12 @@ static const struct room_def room_defs[ROOM_COUNT] = {
         4, {{50, 54, 18, 102}, {252, 54, 18, 102}, {90, 46, 18, 26}, {212, 46, 18, 26}, {0,0,0,0}, {0,0,0,0}, {0,0,0,0}, {0,0,0,0}},
         false, {0,0,0,0}, true, {136, 62, 48, 34}, 148, 164,
         {{ROOM_SHRINE, 148, 164}, {-1,0,0}, {-1,0,0}, {-1,0,0}},
+    },
+    {
+        THEME_SHRINE, 1, {{120, 80}, {0,0}, {0,0}}, 0, {{0,0,0,0}, {0,0,0,0}},
+        4, {{0, 0, 240, 8}, {0, 0, 8, 160}, {232, 0, 8, 160}, {0, 0, 240, 8}, {0,0,0,0}, {0,0,0,0}, {0,0,0,0}, {0,0,0,0}},
+        false, {0,0,0,0}, false, {0,0,0,0}, 120, 120,
+        {{-1,0,0}, {-1,0,0}, {-1,0,0}, {ROOM_MEADOW, TMC_TO_PLAYER_X(SOUTH_HYRULE_MINISH_CAVE_RETURN_X), TMC_TO_PLAYER_Y(SOUTH_HYRULE_MINISH_CAVE_RETURN_Y)}},
     },
     {
         THEME_HOUSE, 0, {{0,0}, {0,0}, {0,0}}, 0, {{0,0,0,0}, {0,0,0,0}},
@@ -615,12 +684,35 @@ static void draw_house_background(const fb_data *src, int w, int h)
 
 static void draw_meadow_background(const struct game_state *game)
 {
+    int view_x = ROOM_LEFT;
+    int view_y = ROOM_TOP + 18;
+    int view_w = ROOM_RIGHT - ROOM_LEFT;
+    int view_h = ROOM_BOTTOM - view_y;
     int draw_x = ROOM_LEFT + MEADOW_WORLD_X - game->camera_x;
     int draw_y = ROOM_TOP + 18 + MEADOW_WORLD_Y - game->camera_y;
+
+    set_fg(COLOR_ROOM_FLOOR);
+    rb->lcd_fillrect(view_x, view_y, view_w, view_h);
+
     if (south_hyrule_bmp_loaded)
         rb->lcd_bitmap(south_hyrule_bmp_data, draw_x, draw_y, MEADOW_ROOM_W, MEADOW_ROOM_H);
     else
-        rb->lcd_bitmap(minishcap_room_meadow_real, draw_x + 470, draw_y + 210, 320, 208);
+    {
+        int tile_w = 320;
+        int tile_h = 208;
+        int start_x = view_x - (game->camera_x % tile_w);
+        int start_y = view_y - (game->camera_y % tile_h);
+        int end_x = view_x + view_w;
+        int end_y = view_y + view_h;
+
+        for (int y = start_y; y < end_y; y += tile_h)
+        {
+            for (int x = start_x; x < end_x; x += tile_w)
+            {
+                rb->lcd_bitmap(minishcap_room_meadow_real, x, y, tile_w, tile_h);
+            }
+        }
+    }
 }
 
 static void draw_creek_background(const struct game_state *game)
@@ -628,6 +720,20 @@ static void draw_creek_background(const struct game_state *game)
     int draw_x = ROOM_LEFT + CREEK_WORLD_X - game->camera_x;
     int draw_y = ROOM_TOP + 18 + CREEK_WORLD_Y - game->camera_y;
     rb->lcd_bitmap(minishcap_room_creek_real, draw_x, draw_y, CREEK_ROOM_W, CREEK_ROOM_H);
+}
+
+static void draw_minish_cave_background(void)
+{
+    int x = INTERIOR_ORIGIN_X;
+    int y = INTERIOR_ORIGIN_Y;
+    set_fg(0x0000);
+    rb->lcd_fillrect(x, y, 240, 160);
+    set_fg(0x2104);
+    rb->lcd_fillrect(x + 8, y + 8, 224, 128);
+    set_fg(0x39E7);
+    rb->lcd_fillrect(x + 92, y + 120, 56, 30);
+    set_fg(COLOR_UI_TEXT);
+    rb->lcd_putsxy(x + 78, y + 18, "MINISH CAVE");
 }
 
 static void draw_room_background(const struct game_state *game)
@@ -638,6 +744,8 @@ static void draw_room_background(const struct game_state *game)
         draw_house_background(minishcap_room_links_house_entrance, 240, 160);
     else if (game->room_id == ROOM_LINKS_HOUSE_SMITH)
         draw_house_background(minishcap_room_links_house_smith, 240, 160);
+    else if (game->room_id == ROOM_MINISH_CAVE)
+        draw_minish_cave_background();
     else if (game->room_id == ROOM_CREEK)
         draw_creek_background(game);
     else
@@ -824,20 +932,20 @@ static void draw_menu_overlay(const struct game_state *game)
     set_fg(COLOR_UI_TEXT);
     rb->lcd_putsxy(x + 10, y + 8, "MINISH CAP MENU");
 
-    const char *tabs[3] = {"STATUS", "ITEMS", "QUEST"};
-    for (int i = 0; i < 3; ++i)
+    const char *tabs[MENU_TAB_COUNT] = {"STATUS", "ITEMS", "QUEST", "MAP"};
+    for (int i = 0; i < MENU_TAB_COUNT; ++i)
     {
-        int tx = x + 10 + (i * 64);
+        int tx = x + 8 + (i * 52);
         if (i == game->menu_tab)
         {
             set_fg(COLOR_UI_FRAME);
-            rb->lcd_fillrect(tx - 2, y + 24, 60, 12);
+            rb->lcd_fillrect(tx - 2, y + 24, 48, 12);
             set_fg(COLOR_UI_TEXT);
         }
         rb->lcd_putsxy(tx, y + 26, tabs[i]);
     }
 
-    if (game->menu_tab == 0)
+    if (game->menu_tab == MENU_TAB_STATUS)
     {
         char hp[24];
         char rup[24];
@@ -845,17 +953,26 @@ static void draw_menu_overlay(const struct game_state *game)
         rb->snprintf(rup, sizeof(rup), "Rupees: %d", game->rupees);
         rb->lcd_putsxy(x + 12, y + 52, hp);
         rb->lcd_putsxy(x + 12, y + 66, rup);
+        rb->lcd_putsxy(x + 12, y + 82, game->room_id == ROOM_MEADOW ? "Area: South Hyrule" : "Area: Interior");
     }
-    else if (game->menu_tab == 1)
+    else if (game->menu_tab == MENU_TAB_ITEMS)
     {
-        rb->lcd_putsxy(x + 12, y + 52, game->sword_equipped ? "Sword: Equipped" : "Sword: Not yet");
+        rb->lcd_putsxy(x + 12, y + 52, game->sword_equipped ? "B item: Smith Sword" : "B item: Empty");
+        rb->lcd_putsxy(x + 12, y + 66, "A item: Roll");
+    }
+    else if (game->menu_tab == MENU_TAB_QUEST)
+    {
+        rb->lcd_putsxy(x + 12, y + 52, game->sword_equipped ? "Quest: Leave house" : "Quest: Get sword");
+        rb->lcd_putsxy(x + 12, y + 66, "Talk: Select near NPC");
     }
     else
     {
-        rb->lcd_putsxy(x + 12, y + 52, game->sword_equipped ? "Quest: Leave house" : "Quest: Get sword");
+        rb->lcd_putsxy(x + 12, y + 52, "South Hyrule Warps:");
+        rb->lcd_putsxy(x + 12, y + 66, "0x118,0x0a8 Fairy Cave");
+        rb->lcd_putsxy(x + 12, y + 80, "0x178,0x0d8 Minish Cave");
     }
 
-    rb->lcd_putsxy(x + 12, y + h - 18, "UP+DOWN: Menu  LEFT/RIGHT: Tabs");
+    rb->lcd_putsxy(x + 12, y + h - 18, "UP+DOWN: Toggle  SELECT: Close");
 }
 
 static void draw_screen(const struct game_state *game)
@@ -905,7 +1022,7 @@ static void init_default_game(struct game_state *game)
     game->sword_equipped = false;
     game->quest_stage = 1;
     game->menu_open = false;
-    game->menu_tab = 0;
+    game->menu_tab = MENU_TAB_STATUS;
     begin_room(game, ROOM_LINKS_HOUSE_BEDROOM, BEDROOM_START_X, BEDROOM_START_Y);
     game->x = BEDROOM_START_X;
     game->y = BEDROOM_START_Y;
@@ -970,6 +1087,36 @@ static bool rect_overlap(int x, int y, int w, int h, int rx, int ry, int rw, int
 static bool try_area_transition(struct game_state *game, int test_x, int test_y)
 {
     if (game->room_id == ROOM_MEADOW) {
+        if (rect_overlap(test_x, test_y, PLAYER_W, PLAYER_H,
+                         TMC_TO_PLAYER_X(SOUTH_HYRULE_FAIRY_CAVE_X) - SOUTH_HYRULE_POI_TRIGGER_HALF,
+                         TMC_TO_PLAYER_Y(SOUTH_HYRULE_FAIRY_CAVE_Y) - SOUTH_HYRULE_POI_TRIGGER_HALF,
+                         SOUTH_HYRULE_POI_TRIGGER_HALF * 2,
+                         SOUTH_HYRULE_POI_TRIGGER_HALF * 2)) {
+            play_sfx(game, 510, 65, 1200);
+            begin_room(game, ROOM_SHRINE, 148, 164);
+            set_message(game, "Fairy Cave", "", "", HZ / 2);
+            return true;
+        }
+        if (rect_overlap(test_x, test_y, PLAYER_W, PLAYER_H,
+                         TMC_TO_PLAYER_X(SOUTH_HYRULE_MINISH_CAVE_X) - SOUTH_HYRULE_POI_TRIGGER_HALF,
+                         TMC_TO_PLAYER_Y(SOUTH_HYRULE_MINISH_CAVE_Y) - SOUTH_HYRULE_POI_TRIGGER_HALF,
+                         SOUTH_HYRULE_POI_TRIGGER_HALF * 2,
+                         SOUTH_HYRULE_POI_TRIGGER_HALF * 2)) {
+            play_sfx(game, 510, 65, 1200);
+            begin_room(game, ROOM_MINISH_CAVE, 120, 122);
+            set_message(game, "Minish Passage", "", "", HZ / 2);
+            return true;
+        }
+        if (rect_overlap(test_x, test_y, PLAYER_W, PLAYER_H,
+                         TMC_TO_PLAYER_X(SOUTH_HYRULE_TREE_HOLE_X) - SOUTH_HYRULE_POI_TRIGGER_HALF,
+                         TMC_TO_PLAYER_Y(SOUTH_HYRULE_TREE_HOLE_Y) - SOUTH_HYRULE_POI_TRIGGER_HALF,
+                         SOUTH_HYRULE_POI_TRIGGER_HALF * 2,
+                         SOUTH_HYRULE_POI_TRIGGER_HALF * 2)) {
+            play_sfx(game, 510, 65, 1200);
+            begin_room(game, ROOM_CREEK, 18, 156);
+            set_message(game, "Tree Hollow", "", "", HZ / 2);
+            return true;
+        }
         if (test_x + PLAYER_W >= MEADOW_WORLD_X + MEADOW_ROOM_W - 1) {
             begin_room(game, ROOM_CREEK, 18, 156);
             set_message(game, "Minish Creek", "", "", HZ / 2);
@@ -991,6 +1138,24 @@ static bool try_area_transition(struct game_state *game, int test_x, int test_y)
             set_message(game, "South Hyrule", "", "", HZ / 2);
             return true;
         }
+    } else if (game->room_id == ROOM_SHRINE) {
+        if (test_y + PLAYER_H >= INTERIOR_ROOM_H - 1) {
+            play_sfx(game, 510, 65, 1200);
+            begin_room(game, ROOM_MEADOW,
+                       TMC_TO_PLAYER_X(SOUTH_HYRULE_FAIRY_CAVE_X),
+                       TMC_TO_PLAYER_Y(SOUTH_HYRULE_FAIRY_CAVE_Y + 0x10));
+            set_message(game, "South Hyrule", "", "", HZ / 2);
+            return true;
+        }
+    } else if (game->room_id == ROOM_MINISH_CAVE) {
+        if (test_y + PLAYER_H >= INTERIOR_ROOM_H - 1) {
+            play_sfx(game, 510, 65, 1200);
+            begin_room(game, ROOM_MEADOW,
+                       TMC_TO_PLAYER_X(SOUTH_HYRULE_MINISH_CAVE_RETURN_X),
+                       TMC_TO_PLAYER_Y(SOUTH_HYRULE_MINISH_CAVE_RETURN_Y));
+            set_message(game, "South Hyrule", "", "", HZ / 2);
+            return true;
+        }
     } else if (game->room_id == ROOM_LINKS_HOUSE_BEDROOM) {
         if (rect_overlap(test_x, test_y, PLAYER_W, PLAYER_H, 0x58, 0x18, 12, 12)) {
             begin_room(game, ROOM_LINKS_HOUSE_ENTRANCE, 12, 86);
@@ -1003,7 +1168,9 @@ static bool try_area_transition(struct game_state *game, int test_x, int test_y)
         }
         if (rect_overlap(test_x, test_y, PLAYER_W, PLAYER_H, HOUSE_FRONT_EXIT_X, HOUSE_FRONT_EXIT_Y, HOUSE_FRONT_EXIT_W, HOUSE_FRONT_EXIT_H)) {
             if (game->sword_equipped) {
-                begin_room(game, ROOM_MEADOW, HOUSE_EXIT_SAFE_X, HOUSE_EXIT_SAFE_Y);
+                begin_room(game, ROOM_MEADOW,
+                           TMC_TO_PLAYER_X(SOUTH_HYRULE_LINK_HOUSE_EXIT_X),
+                           TMC_TO_PLAYER_Y(SOUTH_HYRULE_LINK_HOUSE_EXIT_Y));
                 return true;
             }
             set_message(game, "Need Smith sword.", "", "", HZ);
@@ -1070,10 +1237,19 @@ static void update_game(struct game_state *game, int cmd, int event)
 
     if (game->menu_open)
     {
-        if (cmd & CMD_LEFT)
-            game->menu_tab = (game->menu_tab + 2) % 3;
-        else if (cmd & CMD_RIGHT)
-            game->menu_tab = (game->menu_tab + 1) % 3;
+        if (game->interaction_cooldown == 0)
+        {
+            if ((cmd & CMD_LEFT) || (cmd & CMD_UP))
+            {
+                game->menu_tab = (game->menu_tab + MENU_TAB_COUNT - 1) % MENU_TAB_COUNT;
+                game->interaction_cooldown = HZ / 8;
+            }
+            else if ((cmd & CMD_RIGHT) || (cmd & CMD_DOWN))
+            {
+                game->menu_tab = (game->menu_tab + 1) % MENU_TAB_COUNT;
+                game->interaction_cooldown = HZ / 8;
+            }
+        }
         return;
     }
 
@@ -1154,7 +1330,6 @@ static void update_game(struct game_state *game, int cmd, int event)
         update_bgm(game);
         last_room = game->room_id;
     }
-    if (game->bgm_cooldown > 0) game->bgm_cooldown--;
 }
 
 static bool load_bitmap24(const char *path, struct bitmap *bmp, fb_data *pixels)

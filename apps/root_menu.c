@@ -50,6 +50,9 @@
 #include "action.h"
 #include "yesno.h"
 #include "viewport.h"
+#include "core_alloc.h"
+#include "rbpaths.h"
+#include "bmp.h"
 
 #include "tree.h"
 #if CONFIG_TUNER
@@ -517,6 +520,19 @@ static const struct root_items items[] = {
 static int item_callback(int action,
                          const struct menu_item_ex *this_item,
                          struct gui_synclist *this_list);
+static bool root_menu_wait_for_power_hold(void);
+static void root_menu_draw_power_button(struct screen *display,
+                                        struct viewport *vp,
+                                        int x, int y, int width, int height,
+                                        const char *label,
+                                        bool selected);
+static void root_menu_draw_power_backdrop(struct screen *display,
+                                          struct viewport *vp);
+static void root_menu_draw_power_menu(struct screen *display,
+                                      struct viewport *vp,
+                                      int selection);
+static void root_menu_wait_for_button_release(void);
+static void root_menu_open_power_menu(void);
 
 MENUITEM_RETURNVALUE(shortcut_menu, ID2P(LANG_SHORTCUTS), GO_TO_SHORTCUTMENU,
                         NULL, Icon_Bookmark);
@@ -524,7 +540,7 @@ MENUITEM_RETURNVALUE(shortcut_menu, ID2P(LANG_SHORTCUTS), GO_TO_SHORTCUTMENU,
 MENUITEM_RETURNVALUE(file_browser, ID2P(LANG_DIR_BROWSER), GO_TO_FILEBROWSER,
                         NULL, Icon_file_view_menu);
 #ifdef HAVE_TAGCACHE
-MENUITEM_RETURNVALUE(db_browser, ID2P(LANG_TAGCACHE), GO_TO_DBBROWSER,
+MENUITEM_RETURNVALUE(db_browser, "Music", GO_TO_DBBROWSER,
                         NULL, Icon_Audio);
 MENUITEM_RETURNVALUE(pictureflow_item, "Cover Flow", GO_TO_PICTUREFLOW,
                         NULL, Icon_Rockbox);
@@ -579,6 +595,22 @@ static struct menu_table menu_table[] = {
 };
 #define MAX_MENU_ITEMS (sizeof(menu_table) / sizeof(struct menu_table))
 static struct menu_item_ex *root_menu__[MAX_MENU_ITEMS];
+
+#define ROOT_POWER_MENU_HOLD_TICKS (2*HZ)
+
+enum root_power_menu_choice
+{
+    ROOT_POWER_MENU_SHUTDOWN = 0,
+    ROOT_POWER_MENU_REBOOT,
+    ROOT_POWER_MENU_CANCEL,
+};
+
+MENUITEM_RETURNVALUE(root_power_shutdown_item, "Shut Down",
+                     ROOT_POWER_MENU_SHUTDOWN, NULL, Icon_NOICON);
+MENUITEM_RETURNVALUE(root_power_reboot_item, "Reboot",
+                     ROOT_POWER_MENU_REBOOT, NULL, Icon_NOICON);
+MAKE_MENU(root_power_menu, "Power", NULL, Icon_NOICON,
+          &root_power_shutdown_item, &root_power_reboot_item);
 
 struct menu_table *root_menu_get_options(int *nb_options)
 {
@@ -683,6 +715,13 @@ static int item_callback(int action,
     {
         case ACTION_TREE_STOP:
             return ACTION_REDRAW;
+        case ACTION_TREE_POWER_MENU:
+            if (this_item == &root_menu_)
+            {
+                root_menu_open_power_menu();
+                return ACTION_REDRAW;
+            }
+            return ACTION_NONE;
         case ACTION_REQUEST_MENUITEM:
 #if CONFIG_TUNER
             if (this_item == &fm)
@@ -700,6 +739,64 @@ static int item_callback(int action,
         break;
     }
     return action;
+}
+
+static bool root_menu_wait_for_power_hold(void)
+{
+    long deadline = current_tick + ROOT_POWER_MENU_HOLD_TICKS;
+
+    while (TIME_BEFORE(current_tick, deadline))
+    {
+        if ((button_status() & (BUTTON_MENU | BUTTON_SELECT)) !=
+            (BUTTON_MENU | BUTTON_SELECT))
+            return false;
+
+        sleep(HZ/20);
+    }
+
+    return (button_status() & (BUTTON_MENU | BUTTON_SELECT)) ==
+           (BUTTON_MENU | BUTTON_SELECT);
+}
+
+static void root_menu_wait_for_button_release(void)
+{
+    while (button_status() & (BUTTON_MENU | BUTTON_SELECT))
+        sleep(HZ/50);
+}
+
+static void root_menu_open_power_menu(void)
+{
+    int selection = 0;
+    int result;
+
+    root_menu_wait_for_button_release();
+    button_clear_queue();
+
+    result = do_menu(&root_power_menu, &selection, NULL, false);
+
+    switch (result)
+    {
+    case ROOT_POWER_MENU_SHUTDOWN:
+#if CONFIG_CHARGING && !defined(HAVE_POWEROFF_WHILE_CHARGING)
+        if (charger_inserted())
+            charging_splash();
+        else
+#endif
+            sys_poweroff();
+        break;
+
+    case ROOT_POWER_MENU_REBOOT:
+#if CONFIG_CHARGING && !defined(HAVE_POWEROFF_WHILE_CHARGING)
+        if (charger_inserted())
+            charging_splash();
+        else
+#endif
+            sys_reboot();
+        break;
+
+    default:
+        break;
+    }
 }
 
 static int get_selection(int last_screen)
