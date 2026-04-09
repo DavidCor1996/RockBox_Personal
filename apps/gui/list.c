@@ -54,6 +54,8 @@ static struct viewport parent[NB_SCREENS];
 static struct gui_synclist *current_lists;
 static bool need_full_update = false;
 
+#define LIST_TOP_INSET_MAIN 5
+
 bool list_need_full_update(void)
 {
     bool ret = need_full_update;
@@ -486,6 +488,14 @@ void gui_synclist_set_viewport_defaults(struct viewport *vp,
                                         enum screen_type screen)
 {
     viewport_set_defaults(vp, screen);
+
+    /* Give default list screens a little breathing room below the status bar
+     * without affecting custom parent viewports supplied by callers. */
+    if (screen == SCREEN_MAIN && vp->height > LIST_TOP_INSET_MAIN)
+    {
+        vp->y += LIST_TOP_INSET_MAIN;
+        vp->height -= LIST_TOP_INSET_MAIN;
+    }
 }
 
 #ifdef HAVE_LCD_COLOR

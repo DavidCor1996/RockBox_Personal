@@ -68,6 +68,8 @@ extern unsigned short percent_to_volt_charge[11];
 #include "misc.h"
 #include "splash.h"
 
+static enum shutdown_type requested_reboot_type = SHUTDOWN_REBOOT;
+
 struct battery_tables_t device_battery_tables =
 {
 #if (BATTERY_CAPACITY_DEFAULT > 0)
@@ -1071,6 +1073,14 @@ void shutdown_hw(enum shutdown_type sd_type)
     case SHUTDOWN_REBOOT:
         system_reboot();
         break;
+
+    case SHUTDOWN_DISK_MODE:
+#ifdef USB_FIREWIRE_HANDLING
+        usb_reboot_to_diskmode();
+#else
+        system_reboot();
+#endif
+        break;
     }
 }
 
@@ -1113,6 +1123,7 @@ void sys_poweroff(void)
 {
 #ifndef BOOTLOADER
     logf("sys_poweroff()");
+    requested_reboot_type = SHUTDOWN_POWER_OFF;
     sys_shutdown_common();
     queue_broadcast(SYS_POWEROFF, 0);
 #endif
@@ -1123,9 +1134,25 @@ void sys_reboot(void)
 {
 #ifndef BOOTLOADER
     logf("sys_reboot()");
+    requested_reboot_type = SHUTDOWN_REBOOT;
     sys_shutdown_common();
     queue_broadcast(SYS_REBOOT, 0);
 #endif
+}
+
+void sys_disk_mode(void)
+{
+#ifndef BOOTLOADER
+    logf("sys_disk_mode()");
+    requested_reboot_type = SHUTDOWN_DISK_MODE;
+    sys_shutdown_common();
+    queue_broadcast(SYS_REBOOT, 0);
+#endif
+}
+
+enum shutdown_type sys_get_reboot_type(void)
+{
+    return requested_reboot_type;
 }
 
 void cancel_shutdown(void)

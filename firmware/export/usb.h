@@ -273,6 +273,7 @@ void usb_release_exclusive_storage(void);
 #ifdef USB_FIREWIRE_HANDLING
 bool firewire_detect(void);
 void usb_firewire_connect_event(void);
+void usb_reboot_to_diskmode(void);
 #endif
 
 #ifdef USB_ENABLE_HID

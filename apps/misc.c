@@ -42,6 +42,7 @@
 #include "lcd-remote.h"
 #endif
 #include "action.h"
+#include "appevents.h"
 #include "timefuncs.h"
 #include "screens.h"
 #include "usb_screen.h"
@@ -51,6 +52,7 @@
 #include "storage.h"
 #include "ata_idle_notify.h"
 #include "kernel.h"
+#include "usb.h"
 #include "power.h"
 #include "powermgmt.h"
 #include "backlight.h"
@@ -351,10 +353,130 @@ static void system_restore(void)
     tree_restore();
 }
 
+#if defined(IPOD_VIDEO)
+#define IPODVIDEO_SUSPEND_TIMEOUT_TICKS (30 * 60 * HZ)
+#define IPODVIDEO_SUSPEND_POLL_TICKS    (5 * HZ)
+
+/*
+ * The 5G Video path does not have a proven Rockbox-owned hibernate/warmboot
+ * implementation, so keep the first pass conservative: suspend the running
+ * session in place for a while, then fall back to the normal shutdown path.
+ */
+static bool ipodvideo_try_suspend(void (*callback)(void *), void *parameter)
+{
+    const int audio_stat = audio_status();
+    const bool resume_playback =
+        (audio_stat & AUDIO_STATUS_PLAY) && !(audio_stat & AUDIO_STATUS_PAUSE);
+    const long resume_deadline = current_tick + IPODVIDEO_SUSPEND_TIMEOUT_TICKS;
+    const long old_cpu_frequency = cpu_frequency;
+    long wake_event = BUTTON_NONE;
+
+#if defined(HAVE_RECORDING)
+    if (audio_stat & AUDIO_STATUS_RECORD)
+        return false;
+#endif
+
+#if CONFIG_TUNER
+    if (get_radio_status() & FMRADIO_PLAYING)
+        return false;
+#endif
+
+    if (!battery_level_safe() || usb_inserted()
+#if CONFIG_CHARGING
+        || charger_inserted()
+#endif
+       )
+    {
+        return false;
+    }
+
+    if (resume_playback)
+        audio_pause();
+
+    status_save(true);
+
+    button_clear_queue();
+    storage_sleepnow();
+#ifdef HAVE_LCD_SLEEP
+    lcd_sleep();
+#endif
+    backlight_off();
+
+#ifdef HAVE_ADJUSTABLE_CPU_FREQ
+    set_cpu_frequency(CPUFREQ_SLEEP);
+#endif
+
+    for (;;)
+    {
+        wake_event = button_get_w_tmo(IPODVIDEO_SUSPEND_POLL_TICKS);
+
+        if (wake_event != BUTTON_NONE)
+            break;
+
+        if (!battery_level_safe() || usb_inserted()
+#if CONFIG_CHARGING
+            || charger_inserted()
+#endif
+            || TIME_AFTER(current_tick, resume_deadline))
+        {
+#ifdef HAVE_ADJUSTABLE_CPU_FREQ
+            set_cpu_frequency(old_cpu_frequency);
+#endif
+#ifdef HAVE_LCD_SLEEP
+            lcd_awake();
+#endif
+            backlight_on();
+            return false;
+        }
+
+        storage_sleepnow();
+    }
+
+#ifdef HAVE_ADJUSTABLE_CPU_FREQ
+    set_cpu_frequency(old_cpu_frequency);
+#endif
+#ifdef HAVE_LCD_SLEEP
+    lcd_awake();
+#endif
+    backlight_on();
+    reset_poweroff_timer();
+    cancel_shutdown();
+
+    /* Wake on first press, but don't let that same press leak into the UI. */
+    button_clear_pressed();
+    button_clear_queue();
+
+    if (wake_event == SYS_USB_CONNECTED)
+    {
+        default_event_handler_ex(SYS_USB_CONNECTED, callback, parameter);
+        return true;
+    }
+
+    if (resume_playback && !usb_inserted()
+#if CONFIG_CHARGING
+        && !charger_inserted()
+#endif
+       )
+    {
+        audio_resume();
+    }
+
+    return true;
+}
+#endif /* IPOD_VIDEO */
+
 static bool clean_shutdown(enum shutdown_type sd_type,
                            void (*callback)(void *), void *parameter)
 {
     long msg_id = -1;
+
+#if defined(IPOD_VIDEO)
+    if (sd_type == SHUTDOWN_POWER_OFF &&
+        ipodvideo_try_suspend(callback, parameter))
+    {
+        return true;
+    }
+#endif
 
     if (!global_settings.show_shutdown_message && get_sleep_timer_active())
     {
@@ -684,7 +806,7 @@ long default_event_handler_ex(long event, void (*callback)(void *), void *parame
             if (event == SYS_POWEROFF)
                 sd_type = SHUTDOWN_POWER_OFF;
             else
-                sd_type = SHUTDOWN_REBOOT;
+                sd_type = sys_get_reboot_type();
 
             if (!clean_shutdown(sd_type, callback, parameter))
                 return event;
@@ -867,7 +989,6 @@ void check_bootfile(bool do_rolo)
 #endif
 #endif
 
-/* check range, set volume and save settings */
 void setvol(void)
 {
     const int min_vol = sound_min(SOUND_VOLUME);

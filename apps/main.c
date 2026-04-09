@@ -246,6 +246,9 @@ int show_logo_boot( void )
     ver_w = font_getstringsize(version, NULL, &font_h, FONT_SYSFIXED);
     lcd_clear_display();
     lcd_setfont(FONT_SYSFIXED);
+#if (LCD_WIDTH >= 320) && (LCD_HEIGHT >= 240) && (LCD_DEPTH >= 16)
+    lcd_bmp(&bm_rockboxlogo, 0, 0);
+#else
 #if defined(SANSA_CLIP) || defined(SANSA_CLIPV2) || defined(SANSA_CLIPPLUS)
     /* display the logo in the blue area of the screen (bottom 48 pixels) */
     if (ver_w > LCD_WIDTH)
@@ -259,6 +262,7 @@ int show_logo_boot( void )
         lcd_putsxy(0, LCD_HEIGHT-font_h, rbversion);
     else
         lcd_putsxy((LCD_WIDTH/2) - (ver_w/2), LCD_HEIGHT-font_h, version);
+#endif
 #endif
     lcd_setfont(FONT_UI);
     lcd_update();

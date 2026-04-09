@@ -43,6 +43,15 @@ void viewport_set_defaults(struct viewport *vp,
                             const enum screen_type screen);
 void viewport_set_fullscreen(struct viewport *vp,
                               const enum screen_type screen);
+void viewport_set_centered(struct viewport *vp, int width, int height);
+enum viewport_overlay_preset
+{
+    VIEWPORT_OVERLAY_PRESET_SMALL = 0,
+    VIEWPORT_OVERLAY_PRESET_MEDIUM,
+    VIEWPORT_OVERLAY_PRESET_LARGE,
+};
+void viewport_set_centered_preset(struct viewport *vp,
+                                  enum viewport_overlay_preset preset);
 
 #ifndef __PCTOOL__
 
@@ -58,6 +67,9 @@ void viewportmanager_theme_enable(enum screen_type screen, bool enable,
  * currently enabled (i,e the undo doing nothing).
  * Should almost always be set to false except coming out of fully skinned screens */
 void viewportmanager_theme_undo(enum screen_type screen, bool force_redraw);
+void viewportmanager_overlay_begin(enum screen_type screen,
+                                   struct viewport *viewport);
+void viewportmanager_overlay_end(enum screen_type screen, bool force_redraw);
 
 /* call this when a theme changed */
 void viewportmanager_theme_changed(const int);

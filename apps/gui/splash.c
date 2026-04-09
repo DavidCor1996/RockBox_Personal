@@ -47,6 +47,7 @@ static bool splash_internal(struct screen * screen, const char *fmt, va_list ap,
                             struct viewport *vp, int addl_lines)
 {
     static int max_width[NB_SCREENS] = {2*RECT_SPACING};
+    struct viewport bounds = *vp;
 #ifndef BOOTLOADER
     static enum current_activity last_act = ACTIVITY_UNKNOWN;
     enum current_activity act = get_current_activity();
@@ -79,6 +80,7 @@ static bool splash_internal(struct screen * screen, const char *fmt, va_list ap,
     char lastbrkchr;
     size_t len, next_len;
     const char matchstr[] = "\r\n\f\v\t ";
+    viewport_set_centered_preset(&bounds, VIEWPORT_OVERLAY_PRESET_SMALL);
     font_getstringsize(" ", &space_w, &chr_h, fontnum);
     y = chr_h + (addl_lines * chr_h);
 
@@ -99,18 +101,18 @@ static bool splash_internal(struct screen * screen, const char *fmt, va_list ap,
         {
             len = next - lastbreak;
             int next_w = len * space_w;
-            if (x + next_w + w > vp->width - RECT_SPACING*2 || lastbrkchr != ' ')
+            if (x + next_w + w > bounds.width - RECT_SPACING*2 || lastbrkchr != ' ')
             {   /* too wide, or control character wrap */
                 if (x > maxw)
                     maxw = x;
-                if ((y + chr_h * 2 > vp->height) || (line >= (MAXLINES-1)))
+                if ((y + chr_h * 2 > bounds.height) || (line >= (MAXLINES-1)))
                     break;  /* screen full or out of lines */
                 x = 0;
                 y += chr_h;
 
                 /* split when it fits since we didn't find a valid token to break on */
                 size_t nl = next_len;
-                while (w > vp->width && --nl > 0)
+                while (w > bounds.width && --nl > 0)
                     w = font_getstringnsize(next, nl, NULL, NULL, fontnum);
 
                 if (nl > 1 && nl != next_len)
@@ -153,15 +155,8 @@ static bool splash_internal(struct screen * screen, const char *fmt, va_list ap,
     width = maxw + 2*RECT_SPACING;
     height = y + 2*RECT_SPACING;
 
-    if (width > vp->width)
-        width = vp->width;
-    if (height > vp->height)
-        height = vp->height;
-
-    vp->x += (vp->width - width) / 2;
-    vp->y += (vp->height - height) / 2;
-    vp->width = width;
-    vp->height = height;
+    *vp = bounds;
+    viewport_set_centered(vp, width, height);
 
     /* prevent artifacts by locking to max width observed on repeated calls */
     max_width[screen->screen_type] = width;

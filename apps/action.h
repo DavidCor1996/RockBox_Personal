@@ -207,6 +207,7 @@ enum {
     ACTION_TREE_STOP,
     ACTION_TREE_WPS,
     ACTION_TREE_HOTKEY,
+    ACTION_TREE_POWER_MENU,
 
     /* radio */
     ACTION_FM_MENU,

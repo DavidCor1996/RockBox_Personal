@@ -119,6 +119,7 @@ static void toggle_theme(enum screen_type screen, bool force)
     {
         last_vp = screens[screen].set_viewport(NULL);
         bool first_boot = theme_stack_top[screen] == 0;
+        skin_render_inhibit_flush(true);
         /* remove the left overs from the previous screen.
          * could cause a tiny flicker. Redo your screen code if that happens */
 #ifdef HAVE_BACKDROP_IMAGE
@@ -153,7 +154,6 @@ static void toggle_theme(enum screen_type screen, bool force)
             screens[screen].set_viewport(last_vp);
         }
         intptr_t force = first_boot?0:1;
-        skin_render_inhibit_flush(true);
         send_event(GUI_EVENT_ACTIONUPDATE, (void*)force);
         skin_render_inhibit_flush(false);
         if (!first_boot)
@@ -200,6 +200,24 @@ void viewportmanager_theme_undo(enum screen_type screen, bool force_redraw)
     toggle_theme(screen, force_redraw);
     if (sb_get_persistent_title(screen))
         screens[screen].scroll_stop();
+}
+
+void viewportmanager_overlay_begin(enum screen_type screen,
+                                   struct viewport *viewport)
+{
+    screens[screen].set_viewport(NULL);
+    screens[screen].scroll_stop();
+    skin_render_inhibit_flush(true);
+    viewportmanager_theme_enable(screen, true, viewport);
+    skin_render_inhibit_flush(false);
+}
+
+void viewportmanager_overlay_end(enum screen_type screen, bool force_redraw)
+{
+    skin_render_inhibit_flush(true);
+    screens[screen].scroll_stop();
+    viewportmanager_theme_undo(screen, force_redraw);
+    skin_render_inhibit_flush(false);
 }
 
 
@@ -303,6 +321,50 @@ void viewport_set_fullscreen(struct viewport *vp,
         vp->bg_pattern = LCD_REMOTE_DEFAULT_BG;
     }
 #endif
+}
+
+void viewport_set_centered(struct viewport *vp, int width, int height)
+{
+    if (width < 0)
+        width = 0;
+    if (height < 0)
+        height = 0;
+
+    if (width > vp->width)
+        width = vp->width;
+    if (height > vp->height)
+        height = vp->height;
+
+    vp->x += (vp->width - width) / 2;
+    vp->y += (vp->height - height) / 2;
+    vp->width = width;
+    vp->height = height;
+}
+
+void viewport_set_centered_preset(struct viewport *vp,
+                                  enum viewport_overlay_preset preset)
+{
+    int width = vp->width;
+    int height = vp->height;
+
+    switch (preset)
+    {
+        case VIEWPORT_OVERLAY_PRESET_SMALL:
+            width = (vp->width * 5) / 8;
+            height = (vp->height * 2) / 5;
+            break;
+        case VIEWPORT_OVERLAY_PRESET_LARGE:
+            width = (vp->width * 7) / 8;
+            height = (vp->height * 3) / 4;
+            break;
+        case VIEWPORT_OVERLAY_PRESET_MEDIUM:
+        default:
+            width = (vp->width * 3) / 4;
+            height = (vp->height * 2) / 3;
+            break;
+    }
+
+    viewport_set_centered(vp, width, height);
 }
 
 void viewport_set_buffer(struct viewport *vp, struct frame_buffer_t *buffer,

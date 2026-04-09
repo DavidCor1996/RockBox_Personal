@@ -168,6 +168,13 @@ static inline bool usb_reboot_button(void)
 }
 #endif /* USB_FIREWIRE_HANDLING */
 
+#ifdef USB_FIREWIRE_HANDLING
+void usb_reboot_to_diskmode(void)
+{
+    try_reboot();
+}
+#endif
+
 
 /*--- Routines that differ depending upon the presence of a USB stack ---*/
 

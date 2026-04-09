@@ -1,0 +1,43 @@
+# Path: /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/pocketcatch_simple.elf
+# Arch: arm64
+# Object files:
+[  0] linker synthesized
+[  1] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/pocketcatch_simple.o
+[  2] /Volumes/Data/rockbox/RockBox_Personal/build-sim-video/apps/plugins/plugin_crt0.o
+[  3] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/libSystem.tbd
+[  4] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/system/libsystem_platform.tbd
+# Sections:
+# Address	Size    	Segment	Section
+0x00000648	0x00000144	__TEXT	__text
+0x0000078C	0x00000018	__TEXT	__stubs
+0x000007A8	0x00000168	__TEXT	__eh_frame
+0x00004000	0x00000010	__DATA_CONST	__got
+0x00004010	0x00000038	__DATA_CONST	__const
+0x00008000	0x00000008	__DATA	.data
+0x00008008	0x000000C8	__DATA	__bss
+# Symbols:
+# Address	Size    	File  Name
+0x00000648	0x00000008	[  1] _plugin_start
+0x00000650	0x00000018	[  2] _cleanup_wrapper
+0x00000668	0x00000068	[  2] _plugin__start
+0x000006D0	0x00000020	[  2] _rb_atexit
+0x000006F0	0x00000024	[  2] _exit
+0x00000714	0x00000014	[  2] __exit
+0x00000728	0x00000064	[  2] _exit_on_usb
+0x0000078C	0x0000000C	[  4] _longjmp.stub
+0x00000798	0x0000000C	[  4] _setjmp.stub
+0x000007A8	0x00000018	[  1] CFI
+0x000007C0	0x00000020	[  1] FDE for: _plugin_start
+0x000007E0	0x00000018	[  2] CFI
+0x000007F8	0x00000020	[  2] FDE for: _cleanup_wrapper
+0x00000818	0x00000040	[  2] FDE for: _plugin__start
+0x00000858	0x00000020	[  2] FDE for: _rb_atexit
+0x00000878	0x00000030	[  2] FDE for: _exit
+0x000008A8	0x00000030	[  2] FDE for: __exit
+0x000008D8	0x00000038	[  2] FDE for: _exit_on_usb
+0x00004000	0x00000008	[  4] _longjmp.got
+0x00004008	0x00000008	[  4] _setjmp.got
+0x00004010	0x00000038	[  2] ___header
+0x00008000	0x00000008	[  2] _rb
+0x00008008	0x00000008	[  2] _atexit_handler
+0x00008010	0x000000C0	[  2] ___exit_env

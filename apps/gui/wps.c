@@ -520,18 +520,21 @@ static void wps_lcd_activation_hook(unsigned short id, void *param)
 
 static void gwps_leave_wps(bool theme_enabled)
 {
+    if (theme_enabled)
+        skin_render_inhibit_flush(true);
+
     FOR_NB_SCREENS(i)
     {
         struct gui_wps *gwps = skin_get_gwps(WPS, i);
         gwps->display->scroll_stop();
         if (theme_enabled)
         {
-#ifdef HAVE_BACKDROP_IMAGE
-            skin_backdrop_show(sb_get_backdrop(i));
-#endif
             viewportmanager_theme_undo(i, skin_has_sbs(gwps));
         }
     }
+
+    if (theme_enabled)
+        skin_render_inhibit_flush(false);
 
 #if defined(HAVE_LCD_ENABLE) || defined(HAVE_LCD_SLEEP)
     /* Play safe and unregister the hook */
@@ -884,8 +887,6 @@ long gui_wps_show(void)
                     adjust_volume(1);
                 else
                     adjust_volume(-1);
-
-                setvol();
                 FOR_NB_SCREENS(i)
                 {
                     skin_update(WPS, i, SKIN_REFRESH_NON_STATIC);
