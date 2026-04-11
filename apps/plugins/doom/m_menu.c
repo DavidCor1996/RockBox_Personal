@@ -1283,7 +1283,7 @@ void M_StopMessage(void)
 int M_StringWidth(const char* string)
 {
    int i, c, w = 0;
-   for (i = 0;(size_t)i < strlen(string);i++)
+   for (i = 0; string[i]; i++)
       w += (c = toupper(string[i]) - HU_FONTSTART) < 0 || c >= HU_FONTSIZE ?
            4 : SHORT(hu_font[c].width);
    return w;
@@ -1724,7 +1724,10 @@ void M_Drawer (void)
       y = 100 - M_StringHeight(messageString)/2;
       while(*(messageString+start))
       {
-         for (i = 0;i < strlen(messageString+start);i++)
+         const char *line_start = messageString + start;
+         size_t line_len = strlen(line_start);
+
+         for (i = 0;i < line_len;i++)
             if (*(messageString+start+i) == '\n')
             {
                memset(string,0,40);
@@ -1732,9 +1735,9 @@ void M_Drawer (void)
                start += i+1;
                break;
             }
-         if (i == strlen(messageString+start))
+         if (i == line_len)
          {
-            strcpy(string,messageString+start);
+            strcpy(string,line_start);
             start += i;
          }
 
@@ -1857,4 +1860,3 @@ void M_Init (void)
    }
 
 }
-

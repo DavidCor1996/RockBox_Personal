@@ -1306,7 +1306,8 @@ static game_state *execute_move(const game_state *state, const char *move)
         sol_location = 0;
         bits = 0;
         i = 1;
-        while (i < strlen(move)) {
+        int move_len = strlen(move);
+        while (i < move_len) {
             sol_value = 0;
             while (bits < 8) {
                 sol_value <<= 4;

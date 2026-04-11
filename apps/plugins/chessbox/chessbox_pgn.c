@@ -593,12 +593,14 @@ static int speak_game_selection(int selected_item, void *data){
 }
 
 static void write_pgn_token(int fhandler, char *buffer, size_t *line_length){
-    if (*line_length + rb->strlen(buffer) + 1 > 80){
+    size_t buffer_length = rb->strlen(buffer);
+
+    if (*line_length + buffer_length + 1 > 80){
         rb->fdprintf(fhandler,"\n");
         *line_length = 0;
     }
     rb->fdprintf(fhandler,"%s ",buffer);
-    *line_length += (rb->strlen(buffer) + 1);
+    *line_length += buffer_length + 1;
 }
 
 /* ---- api functions ---- */
@@ -725,7 +727,8 @@ void pgn_parse_game(const char* filename,
             break;
         }
         pos = 0;
-        while (pos < rb->strlen(line_buffer)){
+        unsigned short line_length = rb->strlen(line_buffer);
+        while (pos < line_length){
             pos = get_next_token(line_buffer, pos, token_buffer);
             if ((token_buffer[0] >= 'A' && token_buffer[0] <= 'Z')
                 || (token_buffer[0] >= 'a' && token_buffer[0] <= 'z')
