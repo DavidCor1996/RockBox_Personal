@@ -1,0 +1,12 @@
+# Simple SBS - just show image placeholder
+%Vi(-,0,16,-,-,1)
+
+%?mh<%Vd(Lock)|%Vd(StatusBar)>
+
+%Vl(StatusBar,0,0,-,16,1)%Vf(F7F4FA)%Vb(100F16)
+%dr(0,0,-,-,181421)
+
+%Vl(MiniPlayer,0,16,-,-,1)%Vb(100F16)
+%Cl(0,0,50,50,c,c,0)
+
+%Vl(Lock,0,0,-,-,1)%Vb(100F16)%Vf(F7F4FA)%acHOLD

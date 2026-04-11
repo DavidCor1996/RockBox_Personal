@@ -1,0 +1,9 @@
+# Simple SBS - 176x132 screen
+# UI area: top 16px for status bar
+%Vi(-,0,16,-,-,1)
+
+# Status bar (top 16px)
+%V(0,0,-,16,1)%Vf(F7F4FA)%Vb(100F16)%alTEST
+
+# Miniplayer area below status bar (132-16=116px)
+%V(0,16,-,116,1)%Vf(FFFFFF)%Vb(100F16)%alMINI

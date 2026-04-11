@@ -1,0 +1,36 @@
+# .cfg file created by rockbox 2a72f8d3f9M-260407 - http://www.rockbox.org
+
+volume: 3
+album art: prefer image file
+backlight timeout plugged: 25
+statusbar: off
+scrollbar: off
+list separator color: 181421
+brightness: 19
+backlight fade out: 5000
+foreground color: f7f7ff
+background color: 100c10
+line selector start color: 292031
+line selector end color: 9c79e7
+line selector text color: fffbff
+show files: all
+gather runtime data: on
+backlight on button hold: normal
+lcd sleep after backlight off: 120
+fms: /.rockbox/wps/iPone.fms
+font: /.rockbox/fonts/24 iLike.fnt
+wps: /.rockbox/wps/iPone.wps
+sbs: /.rockbox/wps/iPone.sbs
+lang: -
+backdrop: -
+iconset: /.rockbox/icons/iPone.bmp
+viewers iconset: -
+dynamic colors: off
+hardware keyclick: on
+qs top: hardware keyclick
+qs left: shuffle
+qs right: repeat
+qs bottom: usb mode
+root menu order: pictureflow, database, files, playlists, plugins, shortcuts, settings, 
+
+battery display: graphic

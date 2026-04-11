@@ -1,0 +1,76 @@
+# Theme: iPone (Dark Mode)
+# Fully Reconstructed - No Failsafe Trigger
+%wd
+
+# --- 1. Global Touch Regions ---
+%T(0,0,140,19,menu)%T(0,0,140,19,&cancel)
+%T(172,5,136,60,prev)%T(172,5,136,60,&rwd)
+%T(172,175,136,60,next)%T(172,175,136,60,&ffwd)
+%T(172,90,136,60,select)%T(172,90,136,60,&cancel)
+
+# --- 2. Load Fonts ---
+%Fl(2,14-Adobe-Helvetica-Bold.fnt)
+%Fl(3,16-Adobe-Helvetica-Bold.fnt)
+%Fl(4,35-Adobe-Helvetica-Bold.fnt)
+%Fl(5,18-Adobe-Helvetica-Bold.fnt)
+%Fl(7,150-Adwaitapod-Icons.fnt,2)
+
+# --- 3. Load Bitmaps ---
+%xl(B,Battery.bmp,0,0,24)
+%xl(LsWallpaper,Wallpaper.bmp)
+%xl(ChargeWallpaper,ChargeWallpaper.bmp)
+%xl(ChargeWallpaperAlt,ChargeWallpaperAlt.bmp)
+%xl(ChargeWallpaperThird,ChargeWallpaperThird.bmp)
+%xl(ChargeWallpaperFourth,ChargeWallpaperFourth.bmp)
+%xl(SbsBg,iPone_bd.bmp)
+%xl(h,Hold Icon.bmp,0,1)
+%xl(NotificationMusic,NotifMusic.bmp,14,12)
+%xl(NotificationBackdrop,Notification.bmp,16,150)
+%xl(LockPlayIcon,NotifPlayIcon.bmp,2)
+%xl(LockPlayIconLarge,NotifPlayIconLock.bmp,2)
+
+# --- 4. Simplified Charge Wallpaper Logic ---
+# Flattened logic to prevent the 7-level nesting crash
+%Vl(ChargeWallpaperChoice,0,0,-,-,-)
+%?if(%St(ipone charge wallpaper), =, image1)<%xd(ChargeWallpaper)>
+%?if(%St(ipone charge wallpaper), =, image2)<%xd(ChargeWallpaperAlt)>
+%?if(%St(ipone charge wallpaper), =, image3)<%xd(ChargeWallpaperThird)>
+%?if(%St(ipone charge wallpaper), =, image4)<%xd(ChargeWallpaperFourth)>
+%?if(%St(ipone charge wallpaper), =, rotate)<%?if(%cM, <, 15)<%xd(ChargeWallpaper)|%?if(%cM, <, 30)<%xd(ChargeWallpaperAlt)|%?if(%cM, <, 45)<%xd(ChargeWallpaperThird)|%xd(ChargeWallpaperFourth)>>>>
+
+# --- 5. Main Viewport Definitions ---
+# Backdrop Layer
+%V(0,0,-,-,4)%VB
+%?if(%cs, =, 21)<%Vd(ChargeWallpaperChoice)|%?mh<%?if(%St(backlight on button hold), =, off)<%dr(0,0,-,-,FFFFFF)|%xd(LsWallpaper)>|%xd(SbsBg)>>
+
+# UI List Viewport
+%Vi(UiMenu,0,24,160,216,3)%Vf(F7F4FA)%Vb(0F0E14)
+
+# --- 6. Main Logic Loop ---
+%V(0,0,-,-,-)
+# UI Redirection
+%?if(%cs, =, 21)<%VI(USB)|%?mh<|%VI(UiMenu)>>
+
+# Clock (Upper Right)
+%Vl(clock,163,10,154,30,5)%Vf(E8DFF8)
+%s%ac%cl:%cM %cP
+%?if(%cs, =, 21)<|%?mh<|%Vd(clock)>>
+
+# Battery (Icon Area)
+%V(134,5,25,11,-)
+%?if(%cs, =, 21)<|%?mh<|%?bp<%?bc<%t(1.0)%xd(Ba);%t(1.0)%xd(Bb)|%xd(Bc)>|%?bl<%xd(Bd)|%xd(Be)|%xd(Bf)|%xd(Bg)|%xd(Bh)|%xd(Bi)|%xd(Bj)|%xd(Bk)|%xd(Bl)|%xd(Bm)|%xd(Bn)|%xd(Bo)|%xd(Bp)|%xd(Bq)|%xd(Br)|%xd(Bs)|%xd(Bt)|%xd(Bu)|%xd(Bv)|%xd(Bw)|%xd(Bx)>>>>
+
+# Lockscreen Overlay
+%Vl(iPoneLockscreen,0,0,-,-,-)
+%Vl(iPoneLockscreen,12,10,16,16,-)%xd(h)
+%Vl(iPoneLockscreen,32,8,60,16,2)%Vf(FFFFFF)%alHOLD
+%Vl(iPoneLockscreen,0,55,-,60,4)%Vf(FFFFFF)%ac%cl:%cM %cP
+
+# USB Screen
+%Vl(USB,0,0,-,-,4)%Vf(E3D8FB)%Vb(000000)
+%dr(0,0,-,-,000000)
+%acUSB Connected
+%acEject before disconnecting
+
+# Final State Check
+%?if(%cs, =, 21)<%Vd(USB)|%?mh<%Vd(iPoneLockscreen)>>

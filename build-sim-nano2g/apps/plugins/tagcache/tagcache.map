@@ -1,0 +1,824 @@
+Archive member included to satisfy reference by file (symbol)
+
+/home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/libplugin.a(gcc-support.o)
+                              /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/tagcache/tagcache.o (memcpy)
+/home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/libplugin.a(helper.o)
+                              /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/tagcache/tagcache.o (backlight_ignore_timeout)
+
+Merging object attributes
+
+
+Merging program properties
+
+Removed property 0xc0000002 to merge /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o (0x3) and /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/tagcache/tagcache.o (not found)
+Updated property 0xc0010001 (0x9) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o (0x1) and /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/tagcache/tagcache.o (0x9)
+Updated property 0xc0010001 (0x9) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o (0x9) and /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/plugin_crt0.o (0x1)
+Updated property 0xc0010001 (0x9) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o (0x9) and /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/libplugin.a(gcc-support.o) (0x1)
+Updated property 0xc0010001 (0x9) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o (0x9) and /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/libplugin.a(helper.o) (0x1)
+Updated property 0xc0010001 (0x9) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o (0x9) and /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtendS.o (0x1)
+Updated property 0xc0010002 (0x1) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o (0x1) and /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtendS.o (0x0)
+Removed property 0xc0000002 to merge /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o (not found) and /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtendS.o (0x3)
+Updated property 0xc0010001 (0x9) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o (0x9) and /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o (0x1)
+Removed property 0xc0000002 to merge /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o (not found) and /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o (0x3)
+
+Discarded input sections
+
+ .note.gnu.property
+                0x0000000000000000       0x50 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtbeginS.o
+ .note.gnu.property
+                0x0000000000000000       0x30 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/tagcache/tagcache.o
+ .note.gnu.property
+                0x0000000000000000       0x30 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/plugin_crt0.o
+ .note.gnu.property
+                0x0000000000000000       0x30 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/libplugin.a(gcc-support.o)
+ .note.gnu.property
+                0x0000000000000000       0x30 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/libplugin.a(helper.o)
+ .note.gnu.property
+                0x0000000000000000       0x50 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtendS.o
+ .note.gnu.property
+                0x0000000000000000       0x50 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
+
+Memory Configuration
+
+Name             Origin             Length             Attributes
+*default*        0x0000000000000000 0xffffffffffffffff
+
+Linker script and memory map
+
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtbeginS.o
+LOAD /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/tagcache/tagcache.o
+LOAD /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/plugin_crt0.o
+LOAD /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/libplugin.a
+LOAD /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/bitmaps/libpluginbitmaps.a
+LOAD /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/libfixedpoint.a
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/libgcc.a
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/libgcc.a
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/libgcc_s.so
+START GROUP
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/libgcc_s.so.1
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/libgcc.a
+END GROUP
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/libc.so
+START GROUP
+LOAD /usr/lib/libc.so.6
+LOAD /usr/lib/libc_nonshared.a
+LOAD /usr/lib/ld-linux-x86-64.so.2
+END GROUP
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/libgcc.a
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/libgcc_s.so
+START GROUP
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/libgcc_s.so.1
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/libgcc.a
+END GROUP
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtendS.o
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
+                0x00000000000002a8                . = (SEGMENT_START ("text-segment", 0x0) + SIZEOF_HEADERS)
+
+.note.gnu.build-id
+                0x00000000000002a8       0x24
+ *(.note.gnu.build-id)
+ .note.gnu.build-id
+                0x00000000000002a8       0x24 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+
+.hash
+ *(.hash)
+
+.gnu.hash       0x00000000000002d0       0x24
+ *(.gnu.hash)
+ .gnu.hash      0x00000000000002d0       0x24 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+
+.dynsym         0x00000000000002f8      0x108
+ *(.dynsym)
+ .dynsym        0x00000000000002f8      0x108 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+
+.dynstr         0x0000000000000400       0xce
+ *(.dynstr)
+ .dynstr        0x0000000000000400       0xce /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+
+.gnu.version    0x00000000000004ce       0x16
+ *(.gnu.version)
+ .gnu.version   0x00000000000004ce       0x16 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+
+.gnu.version_d  0x00000000000004e8        0x0
+ *(.gnu.version_d)
+ .gnu.version_d
+                0x00000000000004e8        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+
+.gnu.version_r  0x00000000000004e8       0x40
+ *(.gnu.version_r)
+ .gnu.version_r
+                0x00000000000004e8       0x40 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+
+.rela.dyn       0x0000000000000528      0x300
+ *(.rela.init)
+ *(.rela.text .rela.text.* .rela.gnu.linkonce.t.*)
+ .rela.text     0x0000000000000528        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ *(.rela.fini)
+ *(.rela.rodata .rela.rodata.* .rela.gnu.linkonce.r.*)
+ *(.rela.data .rela.data.* .rela.gnu.linkonce.d.*)
+ .rela.data.rel.local
+                0x0000000000000528       0x18 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ .rela.data.rel.ro.local.tags_str
+                0x0000000000000540      0x228 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ .rela.data.rel.ro.local
+                0x0000000000000768       0x30 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ *(.rela.tdata .rela.tdata.* .rela.gnu.linkonce.td.*)
+ *(.rela.tbss .rela.tbss.* .rela.gnu.linkonce.tb.*)
+ *(.rela.ctors)
+ *(.rela.dtors)
+ *(.rela.got)
+ .rela.got      0x0000000000000798       0x60 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ *(.rela.tls)
+ .rela.tls      0x00000000000007f8        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ *(.rela.bss .rela.bss.* .rela.gnu.linkonce.b.*)
+ *(.rela.ldata .rela.ldata.* .rela.gnu.linkonce.l.*)
+ *(.rela.lbss .rela.lbss.* .rela.gnu.linkonce.lb.*)
+ *(.rela.lrodata .rela.lrodata.* .rela.gnu.linkonce.lr.*)
+ *(.rela.ifunc)
+ .rela.ifunc    0x00000000000007f8        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ .rela.fini_array
+                0x00000000000007f8       0x18 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ .rela.init_array
+                0x0000000000000810       0x18 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+
+.rela.plt       0x0000000000000828       0x78
+ *(.rela.plt)
+ .rela.plt      0x0000000000000828       0x78 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ *(.rela.iplt)
+
+.relr.dyn
+ *(.relr.dyn)
+                0x0000000000001000                . = ALIGN (CONSTANT (MAXPAGESIZE))
+
+.init           0x0000000000001000       0x1b
+ *(SORT_NONE(.init))
+ .init          0x0000000000001000       0x16 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+                0x0000000000001000                _init
+ .init          0x0000000000001016        0x5 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
+
+.plt            0x0000000000001020       0x60
+ *(.plt)
+ .plt           0x0000000000001020       0x60 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ *(.iplt)
+
+.plt.got        0x0000000000001080        0x0
+ *(.plt.got)
+ .plt.got       0x0000000000001080        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+
+.plt.sec
+ *(.plt.sec)
+
+.text           0x0000000000001080     0x3b19
+ *(.text.unlikely .text.*_unlikely .text.unlikely.*)
+ *(.text.exit .text.exit.*)
+ *(.text.startup .text.startup.*)
+ *(.text.hot .text.hot.*)
+ *(SORT_BY_NAME(.text.sorted.*))
+ *(.text .stub .text.* .gnu.linkonce.t.*)
+ .text          0x0000000000001080        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ .text          0x0000000000001080       0xc9 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtbeginS.o
+ .text          0x0000000000001149        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/tagcache/tagcache.o
+ .text.sleep_yield
+                0x0000000000001149       0x23 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/tagcache/tagcache.o
+ .text.tempbuf_find_location
+                0x000000000000116c       0x2e /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/tagcache/tagcache.o
+ .text.list_get_name_cb
+                0x000000000000119a      0x1c2 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/tagcache/tagcache.o
+ .text.swap_tagcache_header
+                0x000000000000135c       0x20 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/tagcache/tagcache.o
+ .text.swap_master_header
+                0x000000000000137c       0x27 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/tagcache/tagcache.o
+ .text.swap_tagfile_entry.part.0
+                0x00000000000013a3        0xf /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/tagcache/tagcache.o
+ .text.swap_index_entry.part.0
+                0x00000000000013b2       0x1c /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/tagcache/tagcache.o
+ .text.write_index_entries
+                0x00000000000013ce       0x9f /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/tagcache/tagcache.o
+ .text.fcpy.constprop.0
+                0x000000000000146d      0x165 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/tagcache/tagcache.o
+ .text.do_timed_yield.isra.0
+                0x00000000000015d2       0x3d /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/tagcache/tagcache.o
+ .text.compare  0x000000000000160f       0x7a /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/tagcache/tagcache.o
+ .text.logdump.isra.0
+                0x0000000000001689       0xce /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/tagcache/tagcache.o
+ .text.log_push
+                0x0000000000001757       0x43 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/tagcache/tagcache.o
+ .text._log     0x000000000000179a      0x17f /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/tagcache/tagcache.o
+ .text.backup_restore_tagcache
+                0x0000000000001919      0x2cc /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/tagcache/tagcache.o
+ .text.prompt_backup_restore
+                0x0000000000001be5       0xa8 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/tagcache/tagcache.o
+ .text.tempbuf_insert.constprop.0
+                0x0000000000001c8d      0x274 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/tagcache/tagcache.o
+ .text.remove_db_file.isra.0
+                0x0000000000001f01       0x7a /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/tagcache/tagcache.o
+ .text.remove_files
+                0x0000000000001f7b       0xc9 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/tagcache/tagcache.o
+ .text.write_master_header.isra.0
+                0x0000000000002044       0x60 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/tagcache/tagcache.o
+ .text.read_index_entries
+                0x00000000000020a4       0x3f /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/tagcache/tagcache.o
+ .text.write_tagfile_entry.isra.0
+                0x00000000000020e3       0x5d /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/tagcache/tagcache.o
+ .text.open_pathfmt
+                0x0000000000002140       0xe7 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/tagcache/tagcache.o
+                0x0000000000002140                open_pathfmt
+ .text.open_db_fd
+                0x0000000000002227       0x96 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/tagcache/tagcache.o
+ .text.open_master_fd
+                0x00000000000022bd       0xce /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/tagcache/tagcache.o
+ .text.open_tag_fd
+                0x000000000000238b      0x115 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/tagcache/tagcache.o
+ .text.check_all_headers
+                0x00000000000024a0       0xbe /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/tagcache/tagcache.o
+ .text.user_check_tag
+                0x000000000000255e      0x107 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/tagcache/tagcache.o
+                0x000000000000255e                user_check_tag
+ .text.build_index
+                0x0000000000002665      0xf6d /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/tagcache/tagcache.o
+ .text.itoa_buf
+                0x00000000000035d2       0x26 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/tagcache/tagcache.o
+                0x00000000000035d2                itoa_buf
+ .text.tagcache_tag_to_str
+                0x00000000000035f8        0xf /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/tagcache/tagcache.o
+                0x00000000000035f8                tagcache_tag_to_str
+ .text.tagcache_commit_finalize
+                0x0000000000003607       0x15 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/tagcache/tagcache.o
+                0x0000000000003607                tagcache_commit_finalize
+ .text.compute_nb_lines
+                0x000000000000361c       0x8b /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/tagcache/tagcache.o
+                0x000000000000361c                compute_nb_lines
+ .text.logdisplay.isra.0
+                0x00000000000036a7      0x1bf /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/tagcache/tagcache.o
+ .text.thread   0x0000000000003866      0xade /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/tagcache/tagcache.o
+ .text.plugin_start
+                0x0000000000004344      0x618 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/tagcache/tagcache.o
+                0x0000000000004344                plugin_start
+ .text          0x000000000000495c       0xe3 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/plugin_crt0.o
+                0x000000000000496b                plugin__start
+                0x00000000000049bf                rb_atexit
+                0x00000000000049d8                exit
+                0x00000000000049f1                _exit
+                0x0000000000004a00                exit_on_usb
+ .text          0x0000000000004a3f       0x40 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/libplugin.a(gcc-support.o)
+                0x0000000000004a3f                memcpy
+                0x0000000000004a4f                memset
+                0x0000000000004a5f                memmove
+                0x0000000000004a6f                memcmp
+ .text          0x0000000000004a7f      0x11a /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/libplugin.a(helper.o)
+                0x0000000000004a7f                talk_val
+                0x0000000000004a97                backlight_force_on
+                0x0000000000004ab9                backlight_ignore_timeout
+                0x0000000000004af7                backlight_use_settings
+                0x0000000000004b29                sw_poweroff_disable
+                0x0000000000004b4f                sw_poweroff_restore
+                0x0000000000004b66                remote_backlight_force_on
+                0x0000000000004b67                remote_backlight_ignore_timeout
+                0x0000000000004b68                remote_backlight_use_settings
+                0x0000000000004b69                buttonlight_force_on
+                0x0000000000004b6a                buttonlight_force_off
+                0x0000000000004b6b                buttonlight_ignore_timeout
+                0x0000000000004b6c                buttonlight_use_settings
+                0x0000000000004b6d                backlight_brightness_set
+                0x0000000000004b7d                backlight_brightness_use_setting
+                0x0000000000004b97                buttonlight_brightness_set
+                0x0000000000004b98                buttonlight_brightness_use_setting
+ .text          0x0000000000004b99        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtendS.o
+ .text          0x0000000000004b99        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
+ *(.gnu.warning)
+
+.fini           0x0000000000004b9c        0xd
+ *(SORT_NONE(.fini))
+ .fini          0x0000000000004b9c        0x8 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+                0x0000000000004b9c                _fini
+ .fini          0x0000000000004ba4        0x5 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
+                [!provide]                        PROVIDE (__etext = .)
+                [!provide]                        PROVIDE (_etext = .)
+                [!provide]                        PROVIDE (etext = .)
+                0x0000000000005000                . = ALIGN (CONSTANT (MAXPAGESIZE))
+                0x0000000000005000                . = SEGMENT_START ("rodata-segment", (ALIGN (CONSTANT (MAXPAGESIZE)) + (. & (CONSTANT (MAXPAGESIZE) - 0x1))))
+
+.rodata         0x0000000000005000      0x89c
+ *(.rodata .rodata.* .gnu.linkonce.r.*)
+ .rodata.list_get_name_cb.str1.1
+                0x0000000000005000      0x83a /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/tagcache/tagcache.o
+                                         0xc2 (size before relaxing)
+ *fill*         0x000000000000583a        0x2 
+ .rodata.list_get_name_cb
+                0x000000000000583c       0x24 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/tagcache/tagcache.o
+ .rodata.compare.str1.1
+                0x0000000000005860        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/tagcache/tagcache.o
+                                          0xb (size before relaxing)
+ .rodata.logdump.isra.0.str1.1
+                0x0000000000005860        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/tagcache/tagcache.o
+                                         0x21 (size before relaxing)
+ .rodata._log.str1.1
+                0x0000000000005860        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/tagcache/tagcache.o
+                                         0x14 (size before relaxing)
+ .rodata.backup_restore_tagcache.str1.1
+                0x0000000000005860        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/tagcache/tagcache.o
+                                         0x74 (size before relaxing)
+ .rodata.prompt_backup_restore.str1.1
+                0x0000000000005860        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/tagcache/tagcache.o
+                                         0x35 (size before relaxing)
+ .rodata.tempbuf_insert.constprop.0.str1.1
+                0x0000000000005860        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/tagcache/tagcache.o
+                                         0x56 (size before relaxing)
+ .rodata.remove_db_file.isra.0.str1.1
+                0x0000000000005860        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/tagcache/tagcache.o
+                                          0x6 (size before relaxing)
+ .rodata.remove_files.str1.1
+                0x0000000000005860        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/tagcache/tagcache.o
+                                         0x11 (size before relaxing)
+ .rodata.open_master_fd.str1.1
+                0x0000000000005860        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/tagcache/tagcache.o
+                                         0x3e (size before relaxing)
+ .rodata.open_tag_fd.str1.1
+                0x0000000000005860        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/tagcache/tagcache.o
+                                         0x3e (size before relaxing)
+ .rodata.check_all_headers.str1.1
+                0x0000000000005860        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/tagcache/tagcache.o
+                                         0x13 (size before relaxing)
+ .rodata.user_check_tag.str1.1
+                0x0000000000005860        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/tagcache/tagcache.o
+                                         0x16 (size before relaxing)
+ .rodata.build_index.str1.1
+                0x0000000000005860        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/tagcache/tagcache.o
+                                        0x2c9 (size before relaxing)
+ .rodata.itoa_buf.str1.1
+                0x0000000000005860        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/tagcache/tagcache.o
+                                          0x4 (size before relaxing)
+ .rodata.logdisplay.isra.0.str1.1
+                0x0000000000005860        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/tagcache/tagcache.o
+                                          0x2 (size before relaxing)
+ .rodata.thread.str1.1
+                0x0000000000005860        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/tagcache/tagcache.o
+                                        0x180 (size before relaxing)
+ .rodata.plugin_start.str1.1
+                0x0000000000005860        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/tagcache/tagcache.o
+                                         0x9e (size before relaxing)
+ .rodata.plugin_start
+                0x0000000000005860       0x20 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/tagcache/tagcache.o
+ .rodata.__func__.0
+                0x0000000000005880        0xd /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/tagcache/tagcache.o
+ *fill*         0x000000000000588d        0x3 
+ .rodata.__func__.2
+                0x0000000000005890        0xc /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/tagcache/tagcache.o
+ .rodata.str1.1
+                0x000000000000589c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/tagcache/tagcache.o
+                                         0xce (size before relaxing)
+
+.rodata1
+ *(.rodata1)
+
+.eh_frame_hdr   0x000000000000589c      0x20c
+ *(.eh_frame_hdr)
+ .eh_frame_hdr  0x000000000000589c      0x20c /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/tagcache/tagcache.o
+                0x000000000000589c                __GNU_EH_FRAME_HDR
+ *(.eh_frame_entry .eh_frame_entry.*)
+
+.eh_frame       0x0000000000005aa8      0x8ec
+ *(.eh_frame)
+ .eh_frame      0x0000000000005aa8       0x40 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ .eh_frame      0x0000000000005ae8        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ .eh_frame      0x0000000000005ae8      0x658 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/tagcache/tagcache.o
+                                        0x670 (size before relaxing)
+ .eh_frame      0x0000000000006140       0x88 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/plugin_crt0.o
+                                         0xa0 (size before relaxing)
+ .eh_frame      0x00000000000061c8       0x50 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/libplugin.a(gcc-support.o)
+                                         0x68 (size before relaxing)
+ .eh_frame      0x0000000000006218      0x178 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/libplugin.a(helper.o)
+                                        0x190 (size before relaxing)
+ .eh_frame      0x0000000000006390        0x4 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtendS.o
+ *(.eh_frame.*)
+
+.sframe
+ *(.sframe)
+ *(.sframe.*)
+
+.gcc_except_table
+ *(.gcc_except_table .gcc_except_table.*)
+
+.gnu_extab
+ *(.gnu_extab*)
+
+.exception_ranges
+ *(.exception_ranges*)
+
+.note.build-id
+ *(.note.build-id)
+
+.note.GNU-stack
+                0x0000000000006394        0x0
+ *(.note.GNU-stack)
+ .note.GNU-stack
+                0x0000000000006394        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ .note.GNU-stack
+                0x0000000000006394        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtbeginS.o
+ .note.GNU-stack
+                0x0000000000006394        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/tagcache/tagcache.o
+ .note.GNU-stack
+                0x0000000000006394        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/plugin_crt0.o
+ .note.GNU-stack
+                0x0000000000006394        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/libplugin.a(gcc-support.o)
+ .note.GNU-stack
+                0x0000000000006394        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/libplugin.a(helper.o)
+ .note.GNU-stack
+                0x0000000000006394        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtendS.o
+ .note.GNU-stack
+                0x0000000000006394        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
+
+.note.gnu.property
+                0x0000000000006398       0x30
+ *(.note.gnu.property)
+ .note.gnu.property
+                0x0000000000006398       0x30 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+
+.note.ABI-tag
+ *(.note.ABI-tag)
+
+.note.package
+ *(.note.package)
+
+.note.dlopen
+ *(.note.dlopen)
+
+.note.netbsd.ident
+ *(.note.netbsd.ident)
+
+.note.openbsd.ident
+ *(.note.openbsd.ident)
+                0x0000000000007cf0                . = DATA_SEGMENT_ALIGN (CONSTANT (MAXPAGESIZE), CONSTANT (COMMONPAGESIZE))
+
+.eh_frame
+ *(.eh_frame)
+ *(.eh_frame.*)
+
+.sframe
+ *(.sframe)
+ *(.sframe.*)
+
+.gnu_extab
+ *(.gnu_extab)
+
+.gcc_except_table
+ *(.gcc_except_table .gcc_except_table.*)
+
+.exception_ranges
+ *(.exception_ranges*)
+
+.tdata
+ *(.tdata .tdata.* .gnu.linkonce.td.*)
+
+.tbss
+ *(.tbss .tbss.* .gnu.linkonce.tb.*)
+ *(.tcommon)
+
+.preinit_array
+ *(.preinit_array)
+
+.init_array     0x0000000000007cf0        0x8
+ *(SORT_BY_INIT_PRIORITY(.init_array.*) SORT_BY_INIT_PRIORITY(.ctors.*))
+ *(.init_array EXCLUDE_FILE(*crtend?.o *crtend.o *crtbegin?.o *crtbegin.o) .ctors)
+ .init_array    0x0000000000007cf0        0x8 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtbeginS.o
+
+.fini_array     0x0000000000007cf8        0x8
+ *(SORT_BY_INIT_PRIORITY(.fini_array.*) SORT_BY_INIT_PRIORITY(.dtors.*))
+ *(.fini_array EXCLUDE_FILE(*crtend?.o *crtend.o *crtbegin?.o *crtbegin.o) .dtors)
+ .fini_array    0x0000000000007cf8        0x8 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtbeginS.o
+
+.ctors
+ *crtbegin.o(.ctors)
+ *crtbegin?.o(.ctors)
+ *(EXCLUDE_FILE(*crtend?.o *crtend.o) .ctors)
+ *(SORT_BY_NAME(.ctors.*))
+ *(.ctors)
+
+.dtors
+ *crtbegin.o(.dtors)
+ *crtbegin?.o(.dtors)
+ *(EXCLUDE_FILE(*crtend?.o *crtend.o) .dtors)
+ *(SORT_BY_NAME(.dtors.*))
+ *(.dtors)
+
+.jcr
+ *(.jcr)
+
+.data.rel.ro    0x0000000000007d00       0xf8
+ *(.data.rel.ro.local* .gnu.linkonce.d.rel.ro.local.*)
+ .data.rel.ro.local.tags_str
+                0x0000000000007d00       0xb8 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/tagcache/tagcache.o
+ *fill*         0x0000000000007db8        0x8 
+ .data.rel.ro.local
+                0x0000000000007dc0       0x38 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/plugin_crt0.o
+                0x0000000000007dc0                __header
+ *(.data.rel.ro .data.rel.ro.* .gnu.linkonce.d.rel.ro.*)
+ .data.rel.ro   0x0000000000007df8        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+
+.dynamic        0x0000000000007df8      0x1c0
+ *(.dynamic)
+ .dynamic       0x0000000000007df8      0x1c0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+                0x0000000000007df8                _DYNAMIC
+
+.got            0x0000000000007fb8       0x20
+ *(.got)
+ .got           0x0000000000007fb8       0x20 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ *(.igot)
+                0x0000000000007fe8                . = DATA_SEGMENT_RELRO_END (., (SIZEOF (.got.plt) >= 0x18)?0x18:0x0)
+
+.got.plt        0x0000000000007fe8       0x40
+ *(.got.plt)
+ .got.plt       0x0000000000007fe8       0x40 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+                0x0000000000007fe8                _GLOBAL_OFFSET_TABLE_
+ *(.igot.plt)
+
+.data           0x0000000000008028       0x19
+ *(.data .data.* .gnu.linkonce.d.*)
+ .data          0x0000000000008028        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ .data          0x0000000000008028        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtbeginS.o
+ .data.rel.local
+                0x0000000000008028        0x8 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtbeginS.o
+                0x0000000000008028                __dso_handle
+ .data          0x0000000000008030        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/tagcache/tagcache.o
+ .data.logenabled
+                0x0000000000008030        0x1 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/tagcache/tagcache.o
+ *fill*         0x0000000000008031        0x3 
+ .data.log_font_h
+                0x0000000000008034        0x4 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/tagcache/tagcache.o
+ .data          0x0000000000008038        0x8 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/plugin_crt0.o
+                0x0000000000008038                rb
+ .data          0x0000000000008040        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/libplugin.a(gcc-support.o)
+ .data          0x0000000000008040        0x1 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/libplugin.a(helper.o)
+ .data          0x0000000000008041        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtendS.o
+ .data          0x0000000000008041        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
+
+.tm_clone_table
+                0x0000000000008048        0x0
+ .tm_clone_table
+                0x0000000000008048        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtbeginS.o
+ .tm_clone_table
+                0x0000000000008048        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtendS.o
+
+.data1
+ *(.data1)
+                [!provide]                        PROVIDE (_edata = .)
+                [!provide]                        PROVIDE (edata = .)
+                0x0000000000008048                . = ALIGN (ALIGNOF (NEXT_SECTION))
+                [!provide]                        PROVIDE (__bss_start = .)
+
+.bss            0x0000000000008060    0x125c8
+ *(.dynbss)
+ .dynbss        0x0000000000008060        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ *(.bss .bss.* .gnu.linkonce.b.*)
+ .bss           0x0000000000008060        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ .bss           0x0000000000008060        0x1 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtbeginS.o
+ .bss           0x0000000000008061        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/tagcache/tagcache.o
+ *fill*         0x0000000000008061        0x7 
+ .bss.wakeup_tick.1
+                0x0000000000008068        0x8 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/tagcache/tagcache.o
+ .bss.pf.3      0x0000000000008070        0x8 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/tagcache/tagcache.o
+ .bss.read_lock
+                0x0000000000008078        0x4 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/tagcache/tagcache.o
+ .bss.write_lock
+                0x000000000000807c        0x4 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/tagcache/tagcache.o
+ .bss.lookup    0x0000000000008080        0x8 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/tagcache/tagcache.o
+ .bss.lookup_buffer_depth
+                0x0000000000008088        0x8 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/tagcache/tagcache.o
+ .bss.commit_entry_count
+                0x0000000000008090        0x8 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/tagcache/tagcache.o
+ *fill*         0x0000000000008098        0x8 
+ .bss.current_tcmh
+                0x00000000000080a0       0x18 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/tagcache/tagcache.o
+ .bss.command_queue_ridx
+                0x00000000000080b8        0x4 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/tagcache/tagcache.o
+ .bss.command_queue_widx
+                0x00000000000080bc        0x4 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/tagcache/tagcache.o
+ .bss.tc_stat   0x00000000000080c0       0x80 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/tagcache/tagcache.o
+ .bss.tempbuf_pos
+                0x0000000000008140        0x8 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/tagcache/tagcache.o
+ .bss.tempbuf_left
+                0x0000000000008148        0x8 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/tagcache/tagcache.o
+ .bss.tempbuf_size
+                0x0000000000008150        0x8 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/tagcache/tagcache.o
+ .bss.tempbufidx
+                0x0000000000008158        0x8 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/tagcache/tagcache.o
+ .bss.tempbuf   0x0000000000008160        0x8 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/tagcache/tagcache.o
+ *fill*         0x0000000000008168       0x18 
+ .bss.build_idx_buf
+                0x0000000000008180      0x228 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/tagcache/tagcache.o
+ *fill*         0x00000000000083a8       0x18 
+ .bss.tagcache_stack
+                0x00000000000083c0     0xe000 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/tagcache/tagcache.o
+ .bss.logindex  0x00000000000163c0        0x4 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/tagcache/tagcache.o
+ *fill*         0x00000000000163c4       0x1c 
+ .bss.logbuffer
+                0x00000000000163e0     0x4001 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/tagcache/tagcache.o
+ *fill*         0x000000000001a3e1        0xf 
+ .bss.gStatus   0x000000000001a3f0       0x10 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/tagcache/tagcache.o
+ .bss.gThread   0x000000000001a400      0x140 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/tagcache/tagcache.o
+ .bss           0x000000000001a540       0xe8 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/plugin_crt0.o
+ .bss           0x000000000001a628        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/libplugin.a(gcc-support.o)
+ .bss           0x000000000001a628        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/libplugin.a(helper.o)
+ .bss           0x000000000001a628        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtendS.o
+ .bss           0x000000000001a628        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
+ *(COMMON)
+                0x000000000001a628                . = ALIGN ((. != 0x0)?0x8:0x1)
+
+.lbss
+ *(.dynlbss)
+ *(.lbss .lbss.* .gnu.linkonce.lb.*)
+ *(LARGE_COMMON)
+                0x000000000001a628                . = ALIGN (0x8)
+                0x000000000001a628                . = SEGMENT_START ("ldata-segment", .)
+
+.lrodata
+ *(.lrodata .lrodata.* .gnu.linkonce.lr.*)
+
+.ldata          0x000000000001c628        0x0
+ *(.ldata .ldata.* .gnu.linkonce.l.*)
+                0x000000000001c628                . = ALIGN ((. != 0x0)?0x8:0x1)
+                0x000000000001c628                . = ALIGN (0x8)
+                [!provide]                        PROVIDE (_end = .)
+                [!provide]                        PROVIDE (end = .)
+                0x000000000001c628                . = DATA_SEGMENT_END (.)
+
+.stab
+ *(.stab)
+
+.stabstr
+ *(.stabstr)
+
+.stab.excl
+ *(.stab.excl)
+
+.stab.exclstr
+ *(.stab.exclstr)
+
+.stab.index
+ *(.stab.index)
+
+.stab.indexstr
+ *(.stab.indexstr)
+
+.comment        0x0000000000000000       0x1b
+ *(.comment)
+ .comment       0x0000000000000000       0x1b /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtbeginS.o
+                                         0x1c (size before relaxing)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/tagcache/tagcache.o
+                                         0x1c (size before relaxing)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/plugin_crt0.o
+                                         0x1c (size before relaxing)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/libplugin.a(gcc-support.o)
+                                         0x1c (size before relaxing)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/libplugin.a(helper.o)
+                                         0x1c (size before relaxing)
+ .comment       0x000000000000001b        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtendS.o
+                                         0x1c (size before relaxing)
+
+.gnu.build.attributes
+ *(.gnu.build.attributes .gnu.build.attributes.*)
+
+.debug
+ *(.debug)
+
+.line
+ *(.line)
+
+.debug_srcinfo
+ *(.debug_srcinfo)
+
+.debug_sfnames
+ *(.debug_sfnames)
+
+.debug_aranges  0x0000000000000000      0x2f0
+ *(.debug_aranges)
+ .debug_aranges
+                0x0000000000000000      0x260 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/tagcache/tagcache.o
+ .debug_aranges
+                0x0000000000000260       0x30 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/plugin_crt0.o
+ .debug_aranges
+                0x0000000000000290       0x30 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/libplugin.a(gcc-support.o)
+ .debug_aranges
+                0x00000000000002c0       0x30 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/libplugin.a(helper.o)
+
+.debug_pubnames
+ *(.debug_pubnames)
+
+.debug_info     0x0000000000000000    0x2472b
+ *(.debug_info .gnu.linkonce.wi.*)
+ .debug_info    0x0000000000000000     0xe88d /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/tagcache/tagcache.o
+ .debug_info    0x000000000000e88d     0x7768 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/plugin_crt0.o
+ .debug_info    0x0000000000015ff5     0x71d3 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/libplugin.a(gcc-support.o)
+ .debug_info    0x000000000001d1c8     0x7563 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/libplugin.a(helper.o)
+
+.debug_abbrev   0x0000000000000000     0x1278
+ *(.debug_abbrev)
+ .debug_abbrev  0x0000000000000000      0x852 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/tagcache/tagcache.o
+ .debug_abbrev  0x0000000000000852      0x3f5 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/plugin_crt0.o
+ .debug_abbrev  0x0000000000000c47      0x2c5 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/libplugin.a(gcc-support.o)
+ .debug_abbrev  0x0000000000000f0c      0x36c /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/libplugin.a(helper.o)
+
+.debug_line     0x0000000000000000     0x3054
+ *(.debug_line .debug_line.* .debug_line_end)
+ .debug_line    0x0000000000000000     0x2907 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/tagcache/tagcache.o
+ .debug_line    0x0000000000002907      0x2b8 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/plugin_crt0.o
+ .debug_line    0x0000000000002bbf      0x1e6 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/libplugin.a(gcc-support.o)
+ .debug_line    0x0000000000002da5      0x2af /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/libplugin.a(helper.o)
+
+.debug_frame
+ *(.debug_frame)
+
+.debug_str      0x0000000000000000     0xb0a9
+ *(.debug_str)
+ .debug_str     0x0000000000000000     0xb0a9 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/tagcache/tagcache.o
+                                       0xb54d (size before relaxing)
+ .debug_str     0x000000000000b0a9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/plugin_crt0.o
+                                       0x4c33 (size before relaxing)
+ .debug_str     0x000000000000b0a9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/libplugin.a(gcc-support.o)
+                                       0x444e (size before relaxing)
+ .debug_str     0x000000000000b0a9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/libplugin.a(helper.o)
+                                       0x4c2a (size before relaxing)
+
+.debug_loc
+ *(.debug_loc)
+
+.debug_macinfo
+ *(.debug_macinfo)
+
+.debug_weaknames
+ *(.debug_weaknames)
+
+.debug_funcnames
+ *(.debug_funcnames)
+
+.debug_typenames
+ *(.debug_typenames)
+
+.debug_varnames
+ *(.debug_varnames)
+
+.debug_pubtypes
+ *(.debug_pubtypes)
+
+.debug_ranges
+ *(.debug_ranges)
+
+.debug_addr
+ *(.debug_addr)
+
+.debug_line_str
+                0x0000000000000000      0x7f5
+ *(.debug_line_str)
+ .debug_line_str
+                0x0000000000000000      0x7f5 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/tagcache/tagcache.o
+                                        0x70e (size before relaxing)
+ .debug_line_str
+                0x00000000000007f5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/plugin_crt0.o
+                                        0x684 (size before relaxing)
+ .debug_line_str
+                0x00000000000007f5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/libplugin.a(gcc-support.o)
+                                        0x627 (size before relaxing)
+ .debug_line_str
+                0x00000000000007f5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/libplugin.a(helper.o)
+                                        0x629 (size before relaxing)
+
+.debug_loclists
+                0x0000000000000000     0x1df4
+ *(.debug_loclists)
+ .debug_loclists
+                0x0000000000000000     0x1c13 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/tagcache/tagcache.o
+ .debug_loclists
+                0x0000000000001c13       0x9e /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/plugin_crt0.o
+ .debug_loclists
+                0x0000000000001cb1       0xe4 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/libplugin.a(gcc-support.o)
+ .debug_loclists
+                0x0000000000001d95       0x5f /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/libplugin.a(helper.o)
+
+.debug_macro
+ *(.debug_macro)
+
+.debug_names
+ *(.debug_names)
+
+.debug_rnglists
+                0x0000000000000000      0x43c
+ *(.debug_rnglists)
+ .debug_rnglists
+                0x0000000000000000      0x43c /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/tagcache/tagcache.o
+
+.debug_str_offsets
+ *(.debug_str_offsets)
+
+.debug_sup
+ *(.debug_sup)
+
+.gnu.attributes
+ *(.gnu.attributes)
+
+/DISCARD/
+ *(.note.GNU-stack)
+ *(.gnu_debuglink)
+ *(.gnu.lto_*)
+ *(.gnu_object_only)
+OUTPUT(/home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/tagcache/tagcache.elf elf64-x86-64)

@@ -1,0 +1,10 @@
+# Ultra simple SBS test
+%xl(F,fallback.bmp,0,0)
+
+%Vi(-,0,16,-,-,1)
+
+# Test - small 16x16 image in status bar corner
+%V(0,0,16,16,1)%xd(F)
+
+# UI for menus (rest of screen)
+%Vi(Ui,0,16,-,-,1)
