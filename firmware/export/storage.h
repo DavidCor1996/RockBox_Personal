@@ -255,6 +255,7 @@ static inline void storage_sleep(void) {};
         #define STORAGE_FUNCTION(NAME) (nand_## NAME)
         #define storage_spindown(sec) nand_spindown(sec)
         #define storage_spin() nand_spin()
+        #define storage_get_ssd_mode() nand_get_ssd_mode()
 
         #define storage_enable(on) (void)0
         #define storage_sleepnow() nand_sleepnow()

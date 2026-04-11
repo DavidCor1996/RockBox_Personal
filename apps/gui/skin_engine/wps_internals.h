@@ -291,6 +291,9 @@ struct skin_albumart {
     unsigned char state; /* WPS_ALBUMART_NONE, _CHECK, _LOAD */
 
     OFFSETTYPE(struct skin_albumart *) next;
+#ifdef IPOD_NANO2G
+    OFFSETTYPE(struct skin_viewport *) viewport;
+#endif
     int slot_id;
     int playback_aa_slot;
     int draw_handle;

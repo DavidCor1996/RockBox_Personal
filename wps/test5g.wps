@@ -1,0 +1,11 @@
+# Test WPS for 5G - no conditional
+%wd
+
+%V(0,0,-,-,-)
+%al5G TEST
+
+%V(10,100,300,8,-)
+%pb(0,0,300,8,pb-320x240x16.bmp)
+
+%V(10,120,300,14,1)
+%al%pc%ac%?Sr<%pe %Sx(of) %pp|%pp %Sx(of) %pe>%ar%pr

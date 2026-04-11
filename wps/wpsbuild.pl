@@ -73,6 +73,7 @@ my $lineselecttextcolor;
 my $filetylecolor;
 my $listviewport;
 my $remotelistviewport;
+my $backlightonhold;
 
 # LCD sizes
 my ($main_height, $main_width, $main_depth);
@@ -304,6 +305,7 @@ MOO
     push @out, "viewers iconset: $viewericon\n" if (defined($viewericon));
     push @out, "show icons: $showicons\n"       if (defined($viewericon) && defined($showicons));
     push @out, "ui viewport: $listviewport\n"   if (defined($listviewport));
+    push @out, "backlight on button hold: $backlightonhold\n" if (defined($backlightonhold));
 
     if ($has_remote) {
         push @out, "remote font: $remotefont\n"                  if (defined($remotefont));
@@ -453,6 +455,7 @@ while(<WPS>) {
         undef $filetylecolor;
         undef $listviewport;
         undef $remotelistviewport;
+        undef $backlightonhold;
     }
     elsif($l =~ /^Name: *(.*)/i) {
         $theme = $1;
@@ -541,6 +544,9 @@ while(<WPS>) {
             }
             elsif($_ = check_res_feature($l, "ui viewport")) {
                 $listviewport = $_;
+            }
+            elsif($l =~ /^backlight on button hold: *(.*)/i) {
+                $backlightonhold = $1;
             }
         }
     }

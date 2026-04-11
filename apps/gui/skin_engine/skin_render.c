@@ -55,6 +55,49 @@
 
 #define MAX_LINE 1024
 
+static char* skin_buffer;
+
+#if defined(HAVE_ALBUMART) && defined(IPOD_NANO2G)
+static int nano2g_albumart_handle_or_fallback(int handle)
+{
+    if (handle >= 0)
+        return handle;
+
+    for (int slot = 0; slot < WPS_MAX_ALBUMART; slot++)
+    {
+        handle = playback_current_aa_hid(slot);
+        if (handle >= 0)
+            return handle;
+    }
+
+    return -1;
+}
+
+static void nano2g_draw_viewport_albumart(struct gui_wps *gwps,
+                                          struct skin_viewport *skin_viewport)
+{
+    struct wps_data *data = gwps->data;
+    struct skin_albumart *aa =
+        SKINOFFSETTOPTR(skin_buffer, data->albumart);
+
+    while (aa)
+    {
+        struct skin_viewport *owner =
+            SKINOFFSETTOPTR(skin_buffer, aa->viewport);
+
+        if (owner == skin_viewport)
+        {
+            int handle = playback_current_aa_hid(aa->playback_aa_slot);
+            handle = nano2g_albumart_handle_or_fallback(handle);
+            draw_album_art(gwps, aa, handle, false);
+            aa->draw_handle = -1;
+        }
+
+        aa = SKINOFFSETTOPTR(skin_buffer, aa->next);
+    }
+}
+#endif
+
 struct skin_draw_info {
     struct gui_wps *gwps;
     struct skin_viewport *skin_vp;
@@ -83,8 +126,6 @@ static void skin_render_playlistviewer(struct playlistviewer* viewer,
                                        struct gui_wps *gwps,
                                        struct skin_viewport* skin_viewport,
                                        unsigned long refresh_type);
-
-static char* skin_buffer;
 
 static inline struct skin_element*
 get_child(OFFSETTYPE(struct skin_element**) children, int child)
@@ -306,6 +347,9 @@ static bool do_non_text_tags(struct gui_wps *gwps, struct skin_draw_info *info,
                 if (aa)
                 {
                     int handle = playback_current_aa_hid(aa->playback_aa_slot);
+#ifdef IPOD_NANO2G
+                    handle = nano2g_albumart_handle_or_fallback(handle);
+#endif
 #if CONFIG_TUNER
                     if (in_radio_screen() || (get_radio_status() != FMRADIO_OFF))
                     {
@@ -475,10 +519,13 @@ static void do_tags_in_hidden_conditional(struct skin_element* branch,
             {
                 struct skin_albumart *aa =
                     skin_resolve_albumart(skin_buffer, data, token->value.data);
-                draw_album_art(gwps,
-                        aa,
-                        aa ? playback_current_aa_hid(aa->playback_aa_slot) : -1,
-                        true);
+                int handle = -1;
+                if (aa)
+                    handle = playback_current_aa_hid(aa->playback_aa_slot);
+#ifdef IPOD_NANO2G
+                handle = nano2g_albumart_handle_or_fallback(handle);
+#endif
+                draw_album_art(gwps, aa, handle, true);
             }
 #endif
         skip:
@@ -859,6 +906,9 @@ void skin_render_viewport(struct skin_element* viewport, struct gui_wps *gwps,
             info.line_number++;
         line = SKINOFFSETTOPTR(skin_buffer, line->next);
     }
+#ifdef IPOD_NANO2G
+    nano2g_draw_viewport_albumart(gwps, skin_viewport);
+#endif
     wps_display_images(gwps, &skin_viewport->vp);
 }
 

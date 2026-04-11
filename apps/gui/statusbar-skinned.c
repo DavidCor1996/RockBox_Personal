@@ -191,6 +191,10 @@ void sb_skin_update(enum screen_type screen, bool force)
     int i = screen;
     if (!data->wps_loaded)
         return;
+#if defined(HAVE_ALBUMART) && defined(IPOD_NANO2G)
+    if (data->albumart != INVALID_OFFSET)
+        force = true;
+#endif
 #if defined(HAVE_ALBUMART) && defined(HAVE_LCD_COLOR)
     {
         static bool sb_was_fading[NB_SCREENS] = {false};

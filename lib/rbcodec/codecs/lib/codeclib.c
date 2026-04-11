@@ -136,6 +136,7 @@ int memcmp(const void *s1, const void *s2, size_t n)
     return(ci->memcmp(s1,s2,n));
 }
 
+#undef memchr
 void* memchr(const void *s, int c, size_t n)
 {
     return(ci->memchr(s,c,n));

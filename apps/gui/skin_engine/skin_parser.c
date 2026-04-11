@@ -23,6 +23,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include "config.h"
 #ifndef __PCTOOL__
 #include "core_alloc.h"
@@ -1441,7 +1442,7 @@ static int parse_albumart_reference(struct skin_element* element,
         if (slot_id < 0)
             return WPS_ERROR_INVALID_PARAM;
 
-        token->value.data = WPS_ALBUMART_REF_SLOT(slot_id);
+        token->value.data = (OFFSETTYPE(void *))(intptr_t)WPS_ALBUMART_REF_SLOT(slot_id);
     }
     else
     {
@@ -1474,6 +1475,9 @@ static int parse_albumart_load(struct skin_element* element,
     aa->width =  percent_parse_param(get_param(element, 2), curr_vp->vp.width);
     aa->height =  percent_parse_param(get_param(element, 3), curr_vp->vp.height);
     aa->next = INVALID_OFFSET;
+#ifdef IPOD_NANO2G
+    aa->viewport = PTRTOSKINOFFSET(skin_buffer, curr_vp);
+#endif
     aa->slot_id = WPS_ALBUMART_SLOT_NONE;
     aa->playback_aa_slot = -1;
     aa->draw_handle = -1;
@@ -1502,6 +1506,14 @@ static int parse_albumart_load(struct skin_element* element,
 
     dimensions.width = aa->width;
     dimensions.height = aa->height;
+
+#ifdef IPOD_NANO2G
+    if (dimensions.width > 0 && dimensions.height > 0)
+    {
+        dimensions.width = 55;
+        dimensions.height = 55;
+    }
+#endif
 
     albumart_slot = playback_claim_aa_slot(&dimensions);
 
@@ -2490,6 +2502,11 @@ static int skin_element_callback(struct skin_element* element, void* data)
 
             element->data = PTRTOSKINOFFSET(skin_buffer, token);
 
+#if defined(HAVE_ALBUMART) && defined(IPOD_NANO2G)
+            if (token->type == SKIN_TOKEN_ALBUMART_DISPLAY)
+                curr_line->update_mode |= SKIN_REFRESH_DYNAMIC;
+#endif
+
             /* Some tags need special handling for the tag, so add them here */
             switch (token->type)
             {
@@ -2610,9 +2627,16 @@ static int skin_element_callback(struct skin_element* element, void* data)
                     function = parse_albumart_load;
                     break;
                 case SKIN_TOKEN_ALBUMART_DISPLAY:
+                    function = parse_albumart_reference;
+                    break;
+#ifdef IPOD_NANO2G
+                case SKIN_TOKEN_ALBUMART_FOUND:
+                    break;
+#else
                 case SKIN_TOKEN_ALBUMART_FOUND:
                     function = parse_albumart_reference;
                     break;
+#endif
 #endif
 #ifdef HAVE_SKIN_VARIABLES
                 case SKIN_TOKEN_VAR_SET:

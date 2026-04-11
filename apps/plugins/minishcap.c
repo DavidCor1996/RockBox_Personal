@@ -223,7 +223,7 @@ static fb_data zelda_bmp_data[NPC_BMP_PIXELS];
 static bool smith_bmp_loaded;
 static bool zelda_bmp_loaded;
 static struct bitmap south_hyrule_bmp;
-static fb_data south_hyrule_bmp_data[MEADOW_ROOM_W * MEADOW_ROOM_H];
+static fb_data *south_hyrule_bmp_data;
 static bool south_hyrule_bmp_loaded;
 
 static bool rect_overlap(int x, int y, int w, int h, int rx, int ry, int rw, int rh);
@@ -1350,6 +1350,10 @@ static bool load_bitmap_exact(const char *path, struct bitmap *bmp, fb_data *pix
 
 static void load_external_bitmaps(void)
 {
+    size_t plugin_buf_size = 0;
+    void *plugin_buf = rb->plugin_get_buffer(&plugin_buf_size);
+    size_t south_hyrule_bytes = (size_t)MEADOW_ROOM_W * MEADOW_ROOM_H * sizeof(fb_data);
+
     smith_bmp_loaded = load_bitmap24(SMITH_BMP_FILE, &smith_bmp, smith_bmp_data);
     if (!smith_bmp_loaded)
         smith_bmp_loaded = load_bitmap24(SMITH_BMP_FILE_ALT, &smith_bmp, smith_bmp_data);
@@ -1358,22 +1362,31 @@ static void load_external_bitmaps(void)
     if (!zelda_bmp_loaded)
         zelda_bmp_loaded = load_bitmap24(ZELDA_BMP_FILE_ALT, &zelda_bmp, zelda_bmp_data);
 
-    south_hyrule_bmp_loaded = load_bitmap_exact(
-        SOUTH_HYRULE_BMP_FILE,
-        &south_hyrule_bmp,
-        south_hyrule_bmp_data,
-        MEADOW_ROOM_W,
-        MEADOW_ROOM_H,
-        sizeof(south_hyrule_bmp_data));
-    if (!south_hyrule_bmp_loaded)
+    south_hyrule_bmp_loaded = false;
+    south_hyrule_bmp_data = NULL;
+
+    if (plugin_buf != NULL && plugin_buf_size >= south_hyrule_bytes)
     {
         south_hyrule_bmp_loaded = load_bitmap_exact(
-            SOUTH_HYRULE_BMP_FILE_ALT,
+            SOUTH_HYRULE_BMP_FILE,
             &south_hyrule_bmp,
-            south_hyrule_bmp_data,
+            (fb_data *)plugin_buf,
             MEADOW_ROOM_W,
             MEADOW_ROOM_H,
-            sizeof(south_hyrule_bmp_data));
+            south_hyrule_bytes);
+        if (!south_hyrule_bmp_loaded)
+        {
+            south_hyrule_bmp_loaded = load_bitmap_exact(
+                SOUTH_HYRULE_BMP_FILE_ALT,
+                &south_hyrule_bmp,
+                (fb_data *)plugin_buf,
+                MEADOW_ROOM_W,
+                MEADOW_ROOM_H,
+                south_hyrule_bytes);
+        }
+
+        if (south_hyrule_bmp_loaded)
+            south_hyrule_bmp_data = (fb_data *)plugin_buf;
     }
 }
 

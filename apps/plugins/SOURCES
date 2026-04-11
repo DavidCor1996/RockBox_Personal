@@ -8,7 +8,9 @@ tagcache/tagcache.c
 #endif
 chessclock.c
 credits.c
+#if defined(HAVE_LCD_COLOR) && (LCD_WIDTH >= 320)
 cdogs.c
+#endif
 cube.c
 cue_playlist.c
 dart_scorer.c

@@ -295,7 +295,7 @@ static inline pix_t pf_color_mix(int brightness)
 #define DISPLAY_LEFT_R (PFREAL_HALF - LCD_WIDTH * PFREAL_HALF)
 #define MAXSLIDE_LEFT_R (PFREAL_HALF - DISPLAY_WIDTH * PFREAL_HALF)
 
-#define SLIDE_CACHE_SIZE 100
+#define SLIDE_CACHE_SIZE 200
 
 #define MAX_SLIDES_COUNT 10
 
@@ -706,6 +706,15 @@ static inline void buf_ctx_unlock(void)
     buf_ctx_locked = false;
 }
 
+static inline bool storage_mode_is_ssd(void)
+{
+#ifdef HAVE_DISK_STORAGE
+    return rb->global_settings->storage_mode == 2;
+#else
+    return false;
+#endif
+}
+
 static bool check_database(void)
 {
     bool needwarn = true;
@@ -782,8 +791,8 @@ static void config_set_defaults(struct pf_config_t *cfg)
      cfg->parallel_slides = true;
      cfg->show_statusbar = true;
      cfg->update_albumart = false;
-     cfg->scroll_speed = 200;
-     cfg->transition_speed = 200;
+     cfg->scroll_speed = 300;
+     cfg->transition_speed = 300;
      cfg->text_crossfade = true;
 }
 
@@ -2461,12 +2470,7 @@ static int create_empty_slide(bool force)
 static void thread(void)
 {
     /* SSD mode: poll more frequently since disk access is cheap */
-#ifdef HAVE_DISK_STORAGE
-    long sleep_time = (rb->global_settings->storage_mode == 2)
-                      ? HZ : 5 * HZ;
-#else
-    long sleep_time = 5 * HZ;
-#endif
+    long sleep_time = storage_mode_is_ssd() ? HZ : 5 * HZ;
     struct queue_event ev;
     while (1) {
         rb->queue_wait_w_tmo(&thread_q, &ev, sleep_time);
@@ -4232,7 +4236,7 @@ static bool show_track_list(void)
 {
     pf_clear_display();
     if ( center_slide.slide_index != pf_tracks.cur_idx ) {
-        if (rb->global_settings->storage_mode != 2
+        if (!storage_mode_is_ssd()
 #ifdef HAVE_TC_RAMCACHE
             && !rb->tagcache_is_in_ram()
 #endif
@@ -4446,7 +4450,7 @@ static bool track_list_ready(void)
 {
     if (pf_state != pf_show_tracks)
     {
-        if (rb->global_settings->storage_mode != 2
+        if (!storage_mode_is_ssd()
 #ifdef HAVE_TC_RAMCACHE
             && !rb->tagcache_is_in_ram()
 #endif
@@ -5053,7 +5057,7 @@ static int pictureflow_main(void)
                 update_cover_in_animation();
                 render_all_slides();
                 if (center_slide.slide_index != pf_tracks.cur_idx
-                    && (rb->global_settings->storage_mode == 2
+                    && (storage_mode_is_ssd()
 #ifdef HAVE_TC_RAMCACHE
                         || rb->tagcache_is_in_ram()
 #endif

@@ -24,6 +24,7 @@
 #include <stdlib.h>
 
 #include "config.h"
+#include "string-extra.h"
 #include "lang.h"
 
 #if !defined(BOOTLOADER)
@@ -39,6 +40,16 @@
 #include "splash.h"
 #include "settings.h"
 #include "misc.h"
+
+#if defined(IPOD_NANO2G)
+#include "lcd.h"
+#include "font.h"
+#include "timefuncs.h"
+#include "rbpaths.h"
+#include "bmp.h"
+#include "powermgmt.h"
+#include "power.h"
+#endif
 
 #ifdef HAVE_TOUCHSCREEN
 #include "statusbar-skinned.h"
@@ -1255,6 +1266,159 @@ int action_get_touchscreen_press_in_vp(short *x1, short *y1, struct viewport *vp
 }
 #endif
 
+#if defined(IPOD_NANO2G)
+#define NANO2G_LOCK_BG       LCD_RGBPACK(12, 8, 18)
+#define NANO2G_LOCK_PANEL    LCD_RGBPACK(30, 22, 42)
+#define NANO2G_LOCK_TEXT     LCD_RGBPACK(252, 249, 255)
+#define NANO2G_LOCK_DIM      LCD_RGBPACK(204, 195, 228)
+#define NANO2G_LOCK_ACCENT   LCD_RGBPACK(157, 122, 230)
+
+static unsigned char action_nano2g_bmp_buf[
+    BM_SIZE(LCD_WIDTH, LCD_HEIGHT, FORMAT_NATIVE, false)];
+static struct bitmap action_nano2g_bmp;
+static char action_nano2g_bmp_path[MAX_PATH];
+
+static bool action_nano2g_draw_bitmap(const char *name)
+{
+    char path[MAX_PATH];
+
+    snprintf(path, sizeof(path), WPS_DIR "/iPone_nano2g/%s", name);
+
+    if (strcmp(action_nano2g_bmp_path, path))
+    {
+        action_nano2g_bmp.data = action_nano2g_bmp_buf;
+        action_nano2g_bmp.width = LCD_WIDTH;
+        action_nano2g_bmp.height = LCD_HEIGHT;
+
+        if (read_bmp_file(path, &action_nano2g_bmp,
+                          sizeof(action_nano2g_bmp_buf),
+                          FORMAT_NATIVE | FORMAT_DITHER, NULL) < 0)
+        {
+            action_nano2g_bmp_path[0] = '\0';
+            return false;
+        }
+
+        strmemccpy(action_nano2g_bmp_path, path,
+                   sizeof(action_nano2g_bmp_path));
+    }
+
+    lcd_bmp(&action_nano2g_bmp, 0, 0);
+    return true;
+}
+
+static void action_nano2g_puts_fit(int x, int y, int width,
+                                   const char *text, bool center)
+{
+    char buf[48];
+    int w, h, len;
+
+    if (!text || !text[0])
+        return;
+
+    strmemccpy(buf, text, sizeof(buf));
+    len = strlen(buf);
+    lcd_getstringsize((const unsigned char *)buf, &w, &h);
+    while (len > 1 && w > width)
+    {
+        buf[--len] = '\0';
+        lcd_getstringsize((const unsigned char *)buf, &w, &h);
+    }
+
+    if (center && w < width)
+        x += (width - w) / 2;
+
+    lcd_putsxy(x, y, (const unsigned char *)buf);
+}
+
+static void action_nano2g_time12(char *buf, size_t buf_size,
+                                 const struct tm *tm)
+{
+    int hour;
+
+    if (!tm || !valid_time(tm))
+    {
+        snprintf(buf, buf_size, "--:--");
+        return;
+    }
+
+    hour = tm->tm_hour % 12;
+    if (hour == 0)
+        hour = 12;
+
+    snprintf(buf, buf_size, "%d:%02d %s", hour, tm->tm_min,
+             tm->tm_hour < 12 ? "AM" : "PM");
+}
+
+static void action_nano2g_lock_screen(void)
+{
+    char buf[32];
+    struct tm *tm = get_time();
+    int batt = battery_level();
+
+    backlight_on();
+    lcd_set_viewport(NULL);
+    lcd_set_drawmode(DRMODE_SOLID);
+    lcd_set_background(NANO2G_LOCK_BG);
+    lcd_clear_display();
+
+    if (!action_nano2g_draw_bitmap(charger_inserted() ?
+                                   "ChargeWallpaper.bmp" :
+                                   "Wallpaper.bmp"))
+    {
+        lcd_set_foreground(NANO2G_LOCK_BG);
+        lcd_fillrect(0, 0, LCD_WIDTH, LCD_HEIGHT);
+        lcd_set_foreground(LCD_RGBPACK(55, 30, 90));
+        lcd_fillrect(0, 0, LCD_WIDTH, 58);
+    }
+
+    lcd_set_foreground(LCD_RGBPACK(10, 6, 16));
+    lcd_fillrect(0, 0, LCD_WIDTH, 18);
+    lcd_set_foreground(NANO2G_LOCK_PANEL);
+    lcd_fillrect(12, 86, 152, 33);
+
+    lcd_setfont(FONT_SYSFIXED);
+    lcd_set_foreground(NANO2G_LOCK_ACCENT);
+    action_nano2g_puts_fit(8, 7, 42, "HOLD", false);
+    lcd_set_foreground(NANO2G_LOCK_TEXT);
+    snprintf(buf, sizeof(buf), "%s%d%%", charger_inserted() ? "CHG " : "", batt);
+    action_nano2g_puts_fit(120, 7, 48, buf, false);
+
+    action_nano2g_time12(buf, sizeof(buf), tm);
+    lcd_set_foreground(NANO2G_LOCK_TEXT);
+    action_nano2g_puts_fit(0, 39, LCD_WIDTH, buf, true);
+
+    if (tm && valid_time(tm))
+        snprintf(buf, sizeof(buf), "%04d-%02d-%02d",
+                 tm->tm_year + 1900, tm->tm_mon + 1, tm->tm_mday);
+    else
+        snprintf(buf, sizeof(buf), "Locked");
+    lcd_set_foreground(NANO2G_LOCK_DIM);
+    action_nano2g_puts_fit(0, 58, LCD_WIDTH, buf, true);
+
+    lcd_set_foreground(NANO2G_LOCK_TEXT);
+    action_nano2g_puts_fit(18, 94, 140, "Locked", false);
+    lcd_set_foreground(NANO2G_LOCK_DIM);
+    action_nano2g_puts_fit(18, 106, 140, "Slide hold to unlock", false);
+
+    lcd_update();
+}
+
+static void action_nano2g_handle_hold(void)
+{
+    if (!button_hold())
+        return;
+
+    action_nano2g_lock_screen();
+    while (button_hold())
+    {
+        sleep(HZ/4);
+        action_nano2g_lock_screen();
+    }
+
+    button_clear_queue();
+}
+#endif /* IPOD_NANO2G */
+
 bool action_userabort(int timeout)
 {
     int  action = get_custom_action(CONTEXT_STD, timeout, NULL);
@@ -1276,6 +1440,10 @@ void action_wait_for_release(void)
 
 int get_action(int context, int timeout)
 {
+#if defined(IPOD_NANO2G)
+    action_nano2g_handle_hold();
+#endif
+
     action_cur_t current;
     init_act_cur(&current, context, timeout, NULL);
 

@@ -138,7 +138,7 @@
 #define CODEC_SIZE 0x100000
 
 /* The number of bytes reserved for loadable plugins */
-#define PLUGIN_BUFFER_SIZE 0x80000
+#define PLUGIN_BUFFER_SIZE 0xA0000
 
 #define BATTERY_CAPACITY_DEFAULT 400 /* default battery capacity */
 #define BATTERY_CAPACITY_MIN     300 /* min. capacity selectable */

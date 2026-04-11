@@ -244,9 +244,11 @@ int show_logo_boot( void )
     int font_h, ver_w;
     snprintf(version, sizeof(version), "Ver. %s", rbversion);
     ver_w = font_getstringsize(version, NULL, &font_h, FONT_SYSFIXED);
+    (void)ver_w;
     lcd_clear_display();
     lcd_setfont(FONT_SYSFIXED);
-#if (LCD_WIDTH >= 320) && (LCD_HEIGHT >= 240) && (LCD_DEPTH >= 16)
+#if ((LCD_WIDTH >= 320) && (LCD_HEIGHT >= 240) && (LCD_DEPTH >= 16)) || \
+    defined(IPOD_NANO2G)
     lcd_bmp(&bm_rockboxlogo, 0, 0);
 #else
 #if defined(SANSA_CLIP) || defined(SANSA_CLIPV2) || defined(SANSA_CLIPPLUS)

@@ -41,6 +41,8 @@
 */
 
 static volatile int locked = 0;
+extern volatile bool pcm_dma_start_inhibit;
+volatile bool pcm_dma_start_inhibit = false;
 static const int zerosample = 0;
 static unsigned char dblbuf[1024] IBSS_ATTR;
 static const void* queuedbuf;

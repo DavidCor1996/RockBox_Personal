@@ -36,6 +36,8 @@
 #include "rolo.h"
 #include "powermgmt.h"
 #include "power.h"
+#include "button.h"
+#include "backlight.h"
 #include "talk.h"
 #include "audio.h"
 #include "shortcuts.h"
@@ -77,6 +79,11 @@
 #include "plugin.h"
 #include "filetypes.h"
 #include "disk.h"
+#if defined(IPOD_NANO2G)
+#include "lcd.h"
+#include "font.h"
+#include "timefuncs.h"
+#endif
 
 struct root_items {
     int (*function)(void* param);
@@ -520,17 +527,6 @@ static const struct root_items items[] = {
 static int item_callback(int action,
                          const struct menu_item_ex *this_item,
                          struct gui_synclist *this_list);
-static bool root_menu_wait_for_power_hold(void);
-static void root_menu_draw_power_button(struct screen *display,
-                                        struct viewport *vp,
-                                        int x, int y, int width, int height,
-                                        const char *label,
-                                        bool selected);
-static void root_menu_draw_power_backdrop(struct screen *display,
-                                          struct viewport *vp);
-static void root_menu_draw_power_menu(struct screen *display,
-                                      struct viewport *vp,
-                                      int selection);
 static void root_menu_wait_for_button_release(void);
 static void root_menu_open_power_menu(void);
 
@@ -595,8 +591,6 @@ static struct menu_table menu_table[] = {
 };
 #define MAX_MENU_ITEMS (sizeof(menu_table) / sizeof(struct menu_table))
 static struct menu_item_ex *root_menu__[MAX_MENU_ITEMS];
-
-#define ROOT_POWER_MENU_HOLD_TICKS (2*HZ)
 
 enum root_power_menu_choice
 {
@@ -741,23 +735,6 @@ static int item_callback(int action,
     return action;
 }
 
-static bool root_menu_wait_for_power_hold(void)
-{
-    long deadline = current_tick + ROOT_POWER_MENU_HOLD_TICKS;
-
-    while (TIME_BEFORE(current_tick, deadline))
-    {
-        if ((button_status() & (BUTTON_MENU | BUTTON_SELECT)) !=
-            (BUTTON_MENU | BUTTON_SELECT))
-            return false;
-
-        sleep(HZ/20);
-    }
-
-    return (button_status() & (BUTTON_MENU | BUTTON_SELECT)) ==
-           (BUTTON_MENU | BUTTON_SELECT);
-}
-
 static void root_menu_wait_for_button_release(void)
 {
     while (button_status() & (BUTTON_MENU | BUTTON_SELECT))
@@ -798,6 +775,557 @@ static void root_menu_open_power_menu(void)
         break;
     }
 }
+
+#if defined(IPOD_NANO2G)
+#define NANO2G_DASH_BG          LCD_RGBPACK(13, 16, 20)
+#define NANO2G_DASH_PANEL       LCD_RGBPACK(30, 22, 42)
+#define NANO2G_DASH_PANEL_2     LCD_RGBPACK(48, 34, 68)
+#define NANO2G_DASH_ACCENT      LCD_RGBPACK(157, 122, 230)
+#define NANO2G_DASH_ACCENT_2    LCD_RGBPACK(232, 210, 255)
+#define NANO2G_DASH_TEXT        LCD_RGBPACK(252, 249, 255)
+#define NANO2G_DASH_DIM         LCD_RGBPACK(204, 195, 228)
+#define NANO2G_DASH_DANGER      LCD_RGBPACK(255, 118, 150)
+
+static unsigned char root_menu_nano2g_bmp_buf[
+    BM_SIZE(LCD_WIDTH, LCD_HEIGHT, FORMAT_NATIVE, false)];
+static struct bitmap root_menu_nano2g_bmp;
+static char root_menu_nano2g_bmp_path[MAX_PATH];
+
+static bool root_menu_nano2g_draw_bitmap(const char *name)
+{
+    char path[MAX_PATH];
+
+    snprintf(path, sizeof(path), WPS_DIR "/iPone_nano2g/%s", name);
+
+    if (strcmp(root_menu_nano2g_bmp_path, path))
+    {
+        root_menu_nano2g_bmp.data = root_menu_nano2g_bmp_buf;
+        root_menu_nano2g_bmp.width = LCD_WIDTH;
+        root_menu_nano2g_bmp.height = LCD_HEIGHT;
+        if (read_bmp_file(path, &root_menu_nano2g_bmp,
+                          sizeof(root_menu_nano2g_bmp_buf),
+                          FORMAT_NATIVE | FORMAT_DITHER, NULL) < 0)
+        {
+            root_menu_nano2g_bmp_path[0] = '\0';
+            return false;
+        }
+
+        strmemccpy(root_menu_nano2g_bmp_path, path,
+                   sizeof(root_menu_nano2g_bmp_path));
+    }
+
+    lcd_bmp(&root_menu_nano2g_bmp, 0, 0);
+    return true;
+}
+
+static int root_menu_nano2g_count(void)
+{
+    return MENU_GET_COUNT(root_menu_.flags);
+}
+
+static const char *root_menu_nano2g_label(const struct menu_item_ex *item)
+{
+    if ((item->flags & MENU_TYPE_MASK) == MT_RETURN_VALUE)
+    {
+        switch (item->value)
+        {
+#ifdef HAVE_TAGCACHE
+            case GO_TO_DBBROWSER:
+                return "Music";
+            case GO_TO_PICTUREFLOW:
+                return "Covers";
+#endif
+            case GO_TO_FILEBROWSER:
+                return "Files";
+            case GO_TO_WPS:
+                return audio_status() ? "Playing" : "Resume";
+            case GO_TO_MAINMENU:
+                return "Setup";
+            case GO_TO_BROWSEPLUGINS:
+                return "Apps";
+            case GO_TO_PLAYLISTS_SCREEN:
+                return "Lists";
+            case GO_TO_SYSTEM_SCREEN:
+                return "Info";
+            case GO_TO_SHORTCUTMENU:
+                return "Pins";
+#if CONFIG_TUNER
+            case GO_TO_FM:
+                return "Radio";
+#endif
+        }
+    }
+
+    return "Menu";
+}
+
+static const char *root_menu_nano2g_glyph(const struct menu_item_ex *item)
+{
+    if ((item->flags & MENU_TYPE_MASK) == MT_RETURN_VALUE)
+    {
+        switch (item->value)
+        {
+#ifdef HAVE_TAGCACHE
+            case GO_TO_DBBROWSER:
+                return "M";
+            case GO_TO_PICTUREFLOW:
+                return "C";
+#endif
+            case GO_TO_FILEBROWSER:
+                return "F";
+            case GO_TO_WPS:
+                return ">";
+            case GO_TO_MAINMENU:
+                return "*";
+            case GO_TO_BROWSEPLUGINS:
+                return "A";
+            case GO_TO_PLAYLISTS_SCREEN:
+                return "L";
+            case GO_TO_SYSTEM_SCREEN:
+                return "i";
+            case GO_TO_SHORTCUTMENU:
+                return "P";
+#if CONFIG_TUNER
+            case GO_TO_FM:
+                return "R";
+#endif
+        }
+    }
+
+    return ".";
+}
+
+static void root_menu_nano2g_puts_fit(int x, int y, int width,
+                                      const char *text, bool center)
+{
+    char buf[64];
+    int w, h, len;
+
+    if (!text || !text[0])
+        return;
+
+    strmemccpy(buf, text, sizeof(buf));
+    len = strlen(buf);
+    lcd_getstringsize((const unsigned char *)buf, &w, &h);
+    while (len > 1 && w > width)
+    {
+        buf[--len] = '\0';
+        lcd_getstringsize((const unsigned char *)buf, &w, &h);
+    }
+
+    if (center && w < width)
+        x += (width - w) / 2;
+
+    lcd_putsxy(x, y, (const unsigned char *)buf);
+}
+
+static void root_menu_nano2g_fill_roundish(int x, int y, int w, int h,
+                                           unsigned color)
+{
+    lcd_set_foreground(color);
+    lcd_fillrect(x + 1, y, w - 2, h);
+    lcd_fillrect(x, y + 1, w, h - 2);
+}
+
+static void root_menu_nano2g_draw_meter(int x, int y, int w, int h,
+                                        int percent, unsigned fill)
+{
+    int inner = (w - 2) * MAX(0, MIN(100, percent)) / 100;
+
+    lcd_set_foreground(NANO2G_DASH_DIM);
+    lcd_drawrect(x, y, w, h);
+    lcd_set_foreground(fill);
+    lcd_fillrect(x + 1, y + 1, inner, h - 2);
+}
+
+static void root_menu_nano2g_time12(char *buf, size_t buf_size,
+                                    const struct tm *tm, bool full_suffix)
+{
+    int hour;
+
+    if (!tm || !valid_time(tm))
+    {
+        snprintf(buf, buf_size, "--:--");
+        return;
+    }
+
+    hour = tm->tm_hour % 12;
+    if (hour == 0)
+        hour = 12;
+
+    if (full_suffix)
+        snprintf(buf, buf_size, "%d:%02d %s", hour, tm->tm_min,
+                 tm->tm_hour < 12 ? "AM" : "PM");
+    else
+        snprintf(buf, buf_size, "%d:%02d%c", hour, tm->tm_min,
+                 tm->tm_hour < 12 ? 'a' : 'p');
+}
+
+static const char *root_menu_nano2g_now_title(void)
+{
+    struct mp3entry *id3 = audio_current_track();
+    char *name;
+
+    if (id3)
+    {
+        if (id3->title && id3->title[0])
+            return id3->title;
+
+        name = strrchr(id3->path, '/');
+        return (name && name[1]) ? name + 1 : id3->path;
+    }
+
+    return "Ready";
+}
+
+static const char *root_menu_nano2g_now_subtitle(void)
+{
+    struct mp3entry *id3 = audio_current_track();
+
+    if (id3 && id3->artist && id3->artist[0])
+        return id3->artist;
+
+    if (audio_status() & AUDIO_STATUS_PAUSE)
+        return "Paused";
+    if (audio_status() & AUDIO_STATUS_PLAY)
+        return "Playing";
+
+    return "Select Music or Files";
+}
+
+static void root_menu_nano2g_draw_status(void)
+{
+    char buf[24];
+    struct tm *tm = get_time();
+    int batt = battery_level();
+
+    lcd_setfont(FONT_SYSFIXED);
+    lcd_set_foreground(NANO2G_DASH_TEXT);
+    root_menu_nano2g_puts_fit(6, 4, 62, "iPone", false);
+
+    lcd_set_foreground(NANO2G_DASH_DIM);
+    root_menu_nano2g_time12(buf, sizeof(buf), tm, false);
+    root_menu_nano2g_puts_fit(69, 4, 38, buf, true);
+
+    snprintf(buf, sizeof(buf), "%s%d%%", charger_inserted() ? "+" : "", batt);
+    lcd_set_foreground(charger_inserted() ? NANO2G_DASH_ACCENT :
+                                      (batt <= 15 ? NANO2G_DASH_DANGER :
+                                                    NANO2G_DASH_TEXT));
+    root_menu_nano2g_puts_fit(122, 4, 28, buf, false);
+    root_menu_nano2g_draw_meter(150, 6, 20, 6, batt,
+                                batt <= 15 ? NANO2G_DASH_DANGER :
+                                             NANO2G_DASH_ACCENT);
+}
+
+static void root_menu_nano2g_draw_now_playing(bool selected)
+{
+    int elapsed = 0;
+    int total = 100;
+    int percent = 0;
+    struct mp3entry *id3 = audio_current_track();
+
+    root_menu_nano2g_fill_roundish(7, 18, 162, 28,
+        selected ? LCD_RGBPACK(74, 48, 112) : NANO2G_DASH_PANEL);
+    lcd_set_foreground(selected ? NANO2G_DASH_ACCENT_2 : NANO2G_DASH_ACCENT);
+    lcd_fillrect(8, 19, 3, 26);
+
+    lcd_setfont(FONT_SYSFIXED);
+    lcd_set_foreground(NANO2G_DASH_TEXT);
+    root_menu_nano2g_puts_fit(15, 21, selected ? 94 : 106,
+                              root_menu_nano2g_now_title(), false);
+    lcd_set_foreground(NANO2G_DASH_DIM);
+    root_menu_nano2g_puts_fit(15, 33, selected ? 94 : 106,
+                              selected ? "Sel WPS  Play" :
+                                         root_menu_nano2g_now_subtitle(),
+                              false);
+
+    lcd_set_foreground((audio_status() & AUDIO_STATUS_PAUSE) ?
+                       NANO2G_DASH_ACCENT_2 : NANO2G_DASH_ACCENT);
+    root_menu_nano2g_puts_fit(130, 25, 30,
+                              (audio_status() & AUDIO_STATUS_PLAY) ?
+                              ((audio_status() & AUDIO_STATUS_PAUSE) ? "PAUSE" : "PLAY") :
+                              "IDLE", true);
+
+    if (id3 && id3->length > 0)
+    {
+        elapsed = id3->elapsed;
+        total = id3->length;
+        percent = elapsed * 100 / total;
+    }
+    root_menu_nano2g_draw_meter(15, 43, 144, 3, percent, NANO2G_DASH_ACCENT);
+
+    if (selected)
+    {
+        lcd_set_foreground(NANO2G_DASH_ACCENT_2);
+        lcd_drawrect(7, 18, 162, 28);
+    }
+}
+
+static void root_menu_nano2g_draw_tile(int item_index, int slot, int selected)
+{
+    int col = slot % 2;
+    int row = slot / 2;
+    int x = 7 + col * 83;
+    int y = 51 + row * 22;
+    bool is_selected = item_index == selected;
+    const struct menu_item_ex *item = root_menu__[item_index];
+
+    root_menu_nano2g_fill_roundish(x, y, 79, 19,
+        is_selected ? LCD_RGBPACK(86, 56, 126) : NANO2G_DASH_PANEL_2);
+
+    lcd_set_foreground(is_selected ? NANO2G_DASH_ACCENT_2 : NANO2G_DASH_ACCENT);
+    lcd_fillrect(x + 4, y + 4, 11, 11);
+    lcd_set_foreground(is_selected ? LCD_RGBPACK(86, 56, 126) : NANO2G_DASH_PANEL_2);
+    root_menu_nano2g_puts_fit(x + 6, y + 5, 7,
+                              root_menu_nano2g_glyph(item), true);
+
+    lcd_set_foreground(is_selected ? NANO2G_DASH_TEXT : NANO2G_DASH_DIM);
+    root_menu_nano2g_puts_fit(x + 20, y + 6, 52,
+                              root_menu_nano2g_label(item), false);
+
+    if (is_selected)
+    {
+        lcd_set_foreground(NANO2G_DASH_ACCENT_2);
+        lcd_drawrect(x, y, 79, 19);
+    }
+}
+
+static void root_menu_nano2g_draw_dashboard(int selected)
+{
+    int count = root_menu_nano2g_count();
+    int page = selected < 0 ? 0 : selected / 6;
+    int start = page * 6;
+    int pages = (count + 5) / 6;
+    int i;
+    char page_label[16];
+
+    lcd_set_viewport(NULL);
+    lcd_set_drawmode(DRMODE_SOLID);
+    lcd_set_background(NANO2G_DASH_BG);
+    lcd_clear_display();
+
+    lcd_set_foreground(LCD_RGBPACK(16, 11, 24));
+    lcd_fillrect(0, 0, LCD_WIDTH, LCD_HEIGHT);
+    lcd_set_foreground(LCD_RGBPACK(41, 24, 66));
+    lcd_fillrect(0, 0, LCD_WIDTH, 34);
+    lcd_set_foreground(LCD_RGBPACK(30, 16, 50));
+    lcd_fillrect(0, 102, LCD_WIDTH, 30);
+    lcd_set_foreground(LCD_RGBPACK(37, 22, 56));
+    lcd_fillrect(0, 0, LCD_WIDTH, 16);
+
+    root_menu_nano2g_draw_status();
+    root_menu_nano2g_draw_now_playing(selected < 0);
+
+    lcd_setfont(FONT_SYSFIXED);
+    lcd_set_foreground(NANO2G_DASH_ACCENT_2);
+    snprintf(page_label, sizeof(page_label), "Page %d/%d", page + 1, pages);
+    root_menu_nano2g_puts_fit(112, 36, 55, page_label, false);
+
+    for (i = 0; i < 6 && start + i < count; i++)
+        root_menu_nano2g_draw_tile(start + i, i, selected);
+
+    lcd_setfont(FONT_SYSFIXED);
+    lcd_set_foreground(NANO2G_DASH_DIM);
+    root_menu_nano2g_puts_fit(8, 121, 65, "Wheel", false);
+    root_menu_nano2g_puts_fit(103, 121, 65, "Select", false);
+    for (i = 0; i < pages; i++)
+    {
+        lcd_set_foreground(i == page ? NANO2G_DASH_ACCENT_2 : NANO2G_DASH_DIM);
+        lcd_fillrect(82 + i * 6, 124, 3, 3);
+    }
+
+    lcd_update();
+}
+
+static void root_menu_nano2g_draw_lockscreen(void)
+{
+    char buf[32];
+    struct tm *tm = get_time();
+    int batt = battery_level();
+
+    backlight_on();
+    lcd_set_viewport(NULL);
+    lcd_set_drawmode(DRMODE_SOLID);
+    lcd_set_background(LCD_RGBPACK(12, 8, 18));
+    lcd_clear_display();
+
+    if (!root_menu_nano2g_draw_bitmap(charger_inserted() ?
+                                      "ChargeWallpaper.bmp" :
+                                      "Wallpaper.bmp"))
+    {
+        lcd_set_foreground(LCD_RGBPACK(16, 11, 24));
+        lcd_fillrect(0, 0, LCD_WIDTH, LCD_HEIGHT);
+        lcd_set_foreground(LCD_RGBPACK(55, 30, 90));
+        lcd_fillrect(0, 0, LCD_WIDTH, 55);
+        lcd_set_foreground(LCD_RGBPACK(27, 15, 45));
+        lcd_fillrect(0, 86, LCD_WIDTH, 46);
+    }
+    lcd_set_foreground(LCD_RGBPACK(10, 6, 16));
+    lcd_fillrect(0, 0, LCD_WIDTH, 18);
+    lcd_set_foreground(LCD_RGBPACK(18, 11, 30));
+    lcd_fillrect(0, 86, LCD_WIDTH, 46);
+
+    lcd_setfont(FONT_SYSFIXED);
+    lcd_set_foreground(NANO2G_DASH_ACCENT_2);
+    root_menu_nano2g_puts_fit(8, 7, 48, "HOLD", false);
+    lcd_set_foreground(charger_inserted() ? NANO2G_DASH_ACCENT : NANO2G_DASH_TEXT);
+    snprintf(buf, sizeof(buf), "%s%d%%", charger_inserted() ? "CHG " : "", batt);
+    root_menu_nano2g_puts_fit(121, 7, 48, buf, false);
+
+    lcd_setfont(FONT_SYSFIXED);
+    lcd_set_foreground(NANO2G_DASH_TEXT);
+    root_menu_nano2g_time12(buf, sizeof(buf), tm, true);
+    root_menu_nano2g_puts_fit(0, 39, LCD_WIDTH, buf, true);
+
+    lcd_setfont(FONT_SYSFIXED);
+    lcd_set_foreground(NANO2G_DASH_DIM);
+    if (tm && valid_time(tm))
+        snprintf(buf, sizeof(buf), "%04d-%02d-%02d",
+                 tm->tm_year + 1900, tm->tm_mon + 1, tm->tm_mday);
+    else
+        snprintf(buf, sizeof(buf), "Locked");
+    root_menu_nano2g_puts_fit(0, 58, LCD_WIDTH, buf, true);
+
+    root_menu_nano2g_fill_roundish(12, 88, 152, 30, NANO2G_DASH_PANEL);
+    lcd_set_foreground(NANO2G_DASH_TEXT);
+    root_menu_nano2g_puts_fit(18, 93, 108, root_menu_nano2g_now_title(), false);
+    lcd_set_foreground(NANO2G_DASH_DIM);
+    root_menu_nano2g_puts_fit(18, 105, 108, root_menu_nano2g_now_subtitle(), false);
+    lcd_set_foreground(NANO2G_DASH_ACCENT);
+    root_menu_nano2g_puts_fit(132, 99, 24,
+                              (audio_status() & AUDIO_STATUS_PLAY) ? "PLAY" : "IDLE",
+                              true);
+
+    lcd_set_foreground(NANO2G_DASH_DIM);
+    root_menu_nano2g_puts_fit(0, 124, LCD_WIDTH, "Slide hold switch to unlock", true);
+    lcd_update();
+}
+
+static int root_menu_nano2g_dashboard(int *selectedp)
+{
+    int selected = *selectedp;
+    int count = root_menu_nano2g_count();
+    bool redraw = true;
+
+    selected = MAX(-1, MIN(selected, count - 1));
+
+    viewportmanager_theme_enable(SCREEN_MAIN, false, NULL);
+    button_clear_queue();
+
+    while (true)
+    {
+        int action;
+
+        if (button_hold())
+        {
+            root_menu_nano2g_draw_lockscreen();
+            while (button_hold())
+            {
+                sleep(HZ/4);
+                root_menu_nano2g_draw_lockscreen();
+            }
+            button_clear_queue();
+            redraw = true;
+        }
+
+        if (redraw)
+        {
+            root_menu_nano2g_draw_dashboard(selected);
+            redraw = false;
+        }
+
+        action = get_action(CONTEXT_TREE, HZ/5);
+        switch (action)
+        {
+            case ACTION_STD_PREV:
+            case ACTION_STD_PREVREPEAT:
+                if (selected < 0)
+                    selected = count - 1;
+                else if (selected == 0)
+                    selected = -1;
+                else
+                    selected--;
+                redraw = true;
+                break;
+
+            case ACTION_STD_NEXT:
+            case ACTION_STD_NEXTREPEAT:
+                if (selected < 0)
+                    selected = 0;
+                else if (selected >= count - 1)
+                    selected = -1;
+                else
+                    selected++;
+                redraw = true;
+                break;
+
+            case ACTION_STD_OK:
+                *selectedp = selected;
+                viewportmanager_theme_undo(SCREEN_MAIN, false);
+                if (selected < 0)
+                    return GO_TO_WPS;
+                if ((root_menu__[selected]->flags & MENU_TYPE_MASK) == MT_RETURN_VALUE)
+                    return root_menu__[selected]->value;
+                return GO_TO_ROOT;
+
+            case ACTION_STD_CONTEXT:
+                *selectedp = selected;
+                if (selected < 0)
+                {
+                    if (audio_status() & AUDIO_STATUS_PLAY)
+                    {
+                        if (audio_status() & AUDIO_STATUS_PAUSE)
+                            audio_resume();
+                        else
+                            audio_pause();
+                        redraw = true;
+                        break;
+                    }
+                    viewportmanager_theme_undo(SCREEN_MAIN, false);
+                    return GO_TO_WPS;
+                }
+                viewportmanager_theme_undo(SCREEN_MAIN, false);
+                return GO_TO_ROOTITEM_CONTEXT;
+
+            case ACTION_TREE_WPS:
+                *selectedp = selected;
+                if (selected < 0 && (audio_status() & AUDIO_STATUS_PLAY))
+                {
+                    if (audio_status() & AUDIO_STATUS_PAUSE)
+                        audio_resume();
+                    else
+                        audio_pause();
+                    redraw = true;
+                    break;
+                }
+                viewportmanager_theme_undo(SCREEN_MAIN, false);
+                return GO_TO_WPS;
+
+            case ACTION_TREE_POWER_MENU:
+                root_menu_open_power_menu();
+                redraw = true;
+                button_clear_queue();
+                break;
+
+            case ACTION_STD_MENU:
+                *selectedp = selected;
+                viewportmanager_theme_undo(SCREEN_MAIN, false);
+                return GO_TO_MAINMENU;
+
+            case ACTION_STD_CANCEL:
+                if (selected < 0 && (audio_status() & AUDIO_STATUS_PLAY))
+                {
+                    audio_prev();
+                    redraw = true;
+                    break;
+                }
+                *selectedp = selected;
+                viewportmanager_theme_undo(SCREEN_MAIN, false);
+                return GO_TO_PREVIOUS;
+        }
+    }
+}
+#endif /* IPOD_NANO2G */
 
 static int get_selection(int last_screen)
 {
@@ -1079,7 +1607,11 @@ void root_menu(void)
                  * button to be handled by HOST instead of rockbox */
                 ignore_back_button_stub(true);
 
+#if defined(IPOD_NANO2G)
+                next_screen = root_menu_nano2g_dashboard(&selected);
+#else
                 next_screen = do_menu(&root_menu_, &selected, NULL, false);
+#endif
 
                 ignore_back_button_stub(false);
 

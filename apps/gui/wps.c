@@ -30,6 +30,7 @@
 #include "backlight.h"
 #include "action.h"
 #include "kernel.h"
+#include "button.h"
 #include "filetypes.h"
 #include "settings.h"
 #include "skin_engine/skin_engine.h"
@@ -709,6 +710,9 @@ long gui_wps_show(void)
     bool bookmark = false;
     bool update = false;
     bool theme_enabled = true;
+#ifdef IPOD_NANO2G
+    bool last_hold = button_hold();
+#endif
     long last_left = 0, last_right = 0;
     struct wps_state *state = get_wps_state();
 
@@ -750,6 +754,16 @@ long gui_wps_show(void)
         else
         {
             gwps_caption_backlight(state);
+
+#ifdef IPOD_NANO2G
+            bool hold = button_hold();
+            if (hold != last_hold)
+            {
+                last_hold = hold;
+                skin_request_full_update(WPS);
+                update = true;
+            }
+#endif
 
             FOR_NB_SCREENS(i)
             {

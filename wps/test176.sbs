@@ -1,0 +1,14 @@
+# Test SBS - 176x132 with miniplayer cover
+%xl(F,fallback.bmp,0,0)
+
+%Vi(-,0,16,-,-,1)
+
+# Status bar
+%V(0,0,-,16,1)%Vf(F7F4FA)%Vb(100F16)%alTEST
+
+# Miniplayer with cover (below status bar)
+%V(0,16,40,40,1)%Vb(100F16)%xd(F)
+%V(44,20,-,30,1)%Vf(FFFFFF)%alNow Playing
+
+# Lockscreen (show when HOLD)
+%V(0,80,-,40,1)%Vb(100F16)%Vf(F7F4FA)%alHOLD

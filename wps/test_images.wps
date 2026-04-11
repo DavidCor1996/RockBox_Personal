@@ -1,0 +1,9 @@
+# Test with preload images only
+%wd
+
+%xl(A,lock-176x132x16.bmp,0,0,2)
+%xl(B,battery-176x132x16.bmp,0,0,10)
+%xl(C,volume-176x132x16.bmp,0,0,10)
+
+%V(10,50,-,-,1)
+%alTest Images

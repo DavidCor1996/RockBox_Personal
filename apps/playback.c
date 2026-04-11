@@ -1967,10 +1967,12 @@ static int audio_load_albumart(struct track_info *infop,
             checked_image_file = true;
         }
 
-        /* We can only decode jpeg for embedded AA */
+        /* We can only decode jpeg/png for embedded AA */
         if (global_settings.album_art != AA_OFF &&
             hid < 0 && hid != ERR_BUFFER_FULL &&
-            track_id3->has_embedded_albumart && (track_id3->albumart.type & AA_CLEAR_FLAGS_MASK) == AA_TYPE_JPG)
+            track_id3->has_embedded_albumart &&
+            ((track_id3->albumart.type & AA_CLEAR_FLAGS_MASK) == AA_TYPE_JPG ||
+             (track_id3->albumart.type & AA_CLEAR_FLAGS_MASK) == AA_TYPE_PNG))
         {
             if (is_current_track)
                 clear_last_folder_album_art();

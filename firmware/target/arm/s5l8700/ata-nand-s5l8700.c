@@ -106,3 +106,8 @@ int nand_num_drives(int first_drive)
     return 1;
 }
 #endif
+
+bool nand_get_ssd_mode(void)
+{
+    return false;
+}
