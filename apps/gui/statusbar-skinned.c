@@ -29,7 +29,7 @@
 #include "screen_access.h"
 #include "skin_parser.h"
 #include "skin_buffer.h"
-#include "skin_engine/skin_engine.h"
+#include "skin_engine/skin_engine.h"f
 #include "skin_engine/wps_internals.h"
 #include "viewport.h"
 #include "statusbar.h"
@@ -45,6 +45,7 @@
 #include "misc.h"
 #endif
 #include "skin_engine/skin_albumart_color.h"
+#define VP_FULLSCREEN_UI_LABEL "__sbs_fullscreen_ui"
 
 /* initial setup of wps_data  */
 static int update_delay = DEFAULT_UPDATE_DELAY;
@@ -54,6 +55,12 @@ static const char* sbs_title[NB_SCREENS];
 static char sbs_persistent_title[NB_SCREENS][80];
 static enum themable_icons sbs_icon[NB_SCREENS];
 static bool sbs_loaded[NB_SCREENS] = { false };
+static bool sbs_fullscreen_ui[NB_SCREENS] = { false };
+
+bool sb_skin_theme_owns_fullscreen(enum screen_type screen)
+{
+    return sbs_loaded[screen] && sbs_fullscreen_ui[screen];
+}
 
 void sb_set_info_vp(enum screen_type screen, OFFSETTYPE(char*) label);
 
@@ -103,31 +110,50 @@ void sb_process(enum screen_type screen, struct wps_data *data, bool preprocess)
     {
         sbs_loaded[screen] = false;
         sbs_has_title[screen] = false;
+        sbs_fullscreen_ui[screen] = false;
         viewportmanager_theme_enable(screen, false, NULL);
         return;
     }
+
     if (data->wps_loaded)
     {
-        /* hide the sb's default viewport because it has nasty effect with stuff
-        * not part of the statusbar,
-        * hence .sbs's without any other vps are unsupported*/
-        struct skin_viewport *vp = skin_find_item(VP_DEFAULT_LABEL_STRING, SKIN_FIND_VP, data);
-        struct skin_element *tree = SKINOFFSETTOPTR(get_skin_buffer(data), data->tree);
+        struct skin_viewport *vp =
+            skin_find_item(VP_DEFAULT_LABEL_STRING, SKIN_FIND_VP, data);
+        struct skin_viewport *fullscreen_vp =
+            skin_find_item(VP_FULLSCREEN_UI_LABEL, SKIN_FIND_UIVP, data);
+        struct skin_element *tree =
+            SKINOFFSETTOPTR(get_skin_buffer(data), data->tree);
         struct skin_element *next_vp = NULL;
-        if (tree) next_vp = SKINOFFSETTOPTR(get_skin_buffer(data), tree->next);
+
+        if (tree)
+            next_vp = SKINOFFSETTOPTR(get_skin_buffer(data), tree->next);
+
+        sbs_fullscreen_ui[screen] = (fullscreen_vp != NULL);
 
         if (vp)
         {
-            if (!next_vp)
-            {    /* no second viewport, let parsing fail */
-                return;
+            if (sbs_fullscreen_ui[screen])
+            {
+                /* Fullscreen SBS themes are allowed to keep the default viewport. */
+                vp->hidden_flags = 0;
             }
-            /* hide this viewport, forever */
-            vp->hidden_flags = VP_NEVER_VISIBLE;
+            else
+            {
+                /* Keep old behavior for normal SBS layouts. */
+                if (!next_vp)
+                {
+                    /* no second viewport, let parsing fail */
+                    return;
+                }
+
+                vp->hidden_flags = VP_NEVER_VISIBLE;
+            }
         }
+
         sb_set_info_vp(screen, VP_DEFAULT_LABEL);
         sbs_loaded[screen] = true;
     }
+
     viewportmanager_theme_undo(screen, false);
 }
 

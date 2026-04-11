@@ -72,6 +72,19 @@ static int theme_stack_top[NB_SCREENS]; /* the last item added */
 static struct viewport_stack_item theme_stack[NB_SCREENS][VPSTACK_DEPTH];
 static bool is_theme_enabled(enum screen_type screen);
 
+static bool viewport_theme_owns_fullscreen(enum screen_type screen)
+{
+    struct viewport *vp = sb_skin_get_info_vp(screen);
+
+    if (!vp)
+        return false;
+
+    return vp->x == 0 &&
+    vp->y == 0 &&
+    vp->width == screens[screen].lcdwidth &&
+    vp->height == screens[screen].lcdheight;
+}
+
 static void evt_toggle(bool enable, unsigned short id,
                          void (*handler)(unsigned short id, void *data))
 {
@@ -113,67 +126,86 @@ static void toggle_theme(enum screen_type screen, bool force)
         if (!sb_get_persistent_title(i))
             sb_set_title_text(NULL, Icon_NOICON, i);
     }
+
     toggle_events(enable_event);
 
     if (is_theme_enabled(screen))
     {
         last_vp = screens[screen].set_viewport(NULL);
         bool first_boot = theme_stack_top[screen] == 0;
+
         skin_render_inhibit_flush(true);
+
         /* remove the left overs from the previous screen.
-         * could cause a tiny flicker. Redo your screen code if that happens */
-#ifdef HAVE_BACKDROP_IMAGE
+         * could cause a tiny flicker.
+         * Redo your screen code if that happens */
+        #ifdef HAVE_BACKDROP_IMAGE
         skin_backdrop_show(sb_get_backdrop(screen));
-#endif
+        #endif
+
         if (LIKELY(after_boot[screen]) && (!was_enabled[screen] || force))
         {
-            struct viewport deadspace, user;
-            viewport_set_defaults(&user, screen);
-            deadspace = user; /* get colours and everything */
-            /* above */
-            deadspace.x = 0;
-            deadspace.y = 0;
-            deadspace.width = screens[screen].lcdwidth;
-            deadspace.height = user.y;
-            set_clear_update_valid_vp(screen, &deadspace);
-            /* below */
-            deadspace.y = user.y + user.height;
-            deadspace.height = screens[screen].lcdheight - deadspace.y;
-            set_clear_update_valid_vp(screen, &deadspace);
-            /* left */
-            deadspace.x = 0;
-            deadspace.y = 0;
-            deadspace.width = user.x;
-            deadspace.height = screens[screen].lcdheight;
-            set_clear_update_valid_vp(screen, &deadspace);
-            /* below */
-            deadspace.x = user.x + user.width;
-            deadspace.width = screens[screen].lcdwidth - deadspace.x;
-            set_clear_update_valid_vp(screen, &deadspace);
+            if (!sb_skin_theme_owns_fullscreen(screen))
+            {
+                struct viewport deadspace, user;
+
+                viewport_set_defaults(&user, screen);
+                deadspace = user;
+
+                /* above */
+                deadspace.x = 0;
+                deadspace.y = 0;
+                deadspace.width = screens[screen].lcdwidth;
+                deadspace.height = user.y;
+                set_clear_update_valid_vp(screen, &deadspace);
+
+                /* below */
+                deadspace.y = user.y + user.height;
+                deadspace.height = screens[screen].lcdheight - deadspace.y;
+                set_clear_update_valid_vp(screen, &deadspace);
+
+                /* left */
+                deadspace.x = 0;
+                deadspace.y = 0;
+                deadspace.width = user.x;
+                deadspace.height = screens[screen].lcdheight;
+                set_clear_update_valid_vp(screen, &deadspace);
+
+                /* right */
+                deadspace.x = user.x + user.width;
+                deadspace.width = screens[screen].lcdwidth - deadspace.x;
+                set_clear_update_valid_vp(screen, &deadspace);
+            }
 
             screens[screen].set_viewport(last_vp);
         }
-        intptr_t force = first_boot?0:1;
-        send_event(GUI_EVENT_ACTIONUPDATE, (void*)force);
+
+        intptr_t force_redraw = first_boot ? 0 : 1;
+        send_event(GUI_EVENT_ACTIONUPDATE, (void *)force_redraw);
+
         skin_render_inhibit_flush(false);
+
         if (!first_boot)
             sb_skin_force_next_update();
     }
     else
     {
-#if LCD_DEPTH > 1 || (defined(LCD_REMOTE_DEPTH) && LCD_REMOTE_DEPTH > 1)
+        #if LCD_DEPTH > 1 || (defined(LCD_REMOTE_DEPTH) && LCD_REMOTE_DEPTH > 1)
         screens[screen].backdrop_show(NULL);
-#endif
+        #endif
         screens[screen].scroll_stop();
         skinlist_set_cfg(screen, NULL);
     }
-    /* let list initialize viewport in case viewport dimensions is changed. */
+
     send_event(GUI_EVENT_THEME_CHANGED, NULL);
+
     FOR_NB_SCREENS(i)
-        was_enabled[i] = is_theme_enabled(i);
-#ifdef HAVE_TOUCHSCREEN
+    was_enabled[i] = is_theme_enabled(i);
+
+    #ifdef HAVE_TOUCHSCREEN
     sb_bypass_touchregions(!is_theme_enabled(SCREEN_MAIN));
-#endif
+    #endif
+
     after_boot[screen] = true;
 }
 
