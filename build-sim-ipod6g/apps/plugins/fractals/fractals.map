@@ -1,0 +1,683 @@
+Archive member included to satisfy reference by file (symbol)
+
+/home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(xlcd_scroll.o)
+                              /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/fractals/fractal.o (xlcd_scroll_left)
+/home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(xlcd_core.o)
+                              /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(xlcd_scroll.o) (get_framebuffer)
+
+Merging object attributes
+
+
+Merging program properties
+
+Removed property 0xc0000002 to merge /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o (0x3) and /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/fractals/fractal.o (not found)
+Updated property 0xc0010002 (0x1) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o (0x1) and /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtendS.o (0x0)
+Removed property 0xc0000002 to merge /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o (not found) and /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtendS.o (0x3)
+Removed property 0xc0000002 to merge /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o (not found) and /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o (0x3)
+
+Discarded input sections
+
+ .note.gnu.property
+                0x0000000000000000       0x50 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtbeginS.o
+ .note.gnu.property
+                0x0000000000000000       0x30 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/fractals/fractal.o
+ .note.gnu.property
+                0x0000000000000000       0x30 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/fractals/fractal_rect.o
+ .note.gnu.property
+                0x0000000000000000       0x30 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/fractals/mandelbrot_set.o
+ .note.gnu.property
+                0x0000000000000000       0x30 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
+ .note.gnu.property
+                0x0000000000000000       0x30 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(xlcd_scroll.o)
+ .note.gnu.property
+                0x0000000000000000       0x30 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(xlcd_core.o)
+ .note.gnu.property
+                0x0000000000000000       0x50 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtendS.o
+ .note.gnu.property
+                0x0000000000000000       0x50 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
+
+Memory Configuration
+
+Name             Origin             Length             Attributes
+*default*        0x0000000000000000 0xffffffffffffffff
+
+Linker script and memory map
+
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtbeginS.o
+LOAD /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/fractals/fractal.o
+LOAD /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/fractals/fractal_rect.o
+LOAD /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/fractals/mandelbrot_set.o
+LOAD /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
+LOAD /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a
+LOAD /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a
+LOAD /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/libfixedpoint.a
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/libgcc.a
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/libgcc.a
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/libgcc_s.so
+START GROUP
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/libgcc_s.so.1
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/libgcc.a
+END GROUP
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/libc.so
+START GROUP
+LOAD /usr/lib/libc.so.6
+LOAD /usr/lib/libc_nonshared.a
+LOAD /usr/lib/ld-linux-x86-64.so.2
+END GROUP
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/libgcc.a
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/libgcc_s.so
+START GROUP
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/libgcc_s.so.1
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/libgcc.a
+END GROUP
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtendS.o
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
+                0x00000000000002a8                . = (SEGMENT_START ("text-segment", 0x0) + SIZEOF_HEADERS)
+
+.note.gnu.build-id
+                0x00000000000002a8       0x24
+ *(.note.gnu.build-id)
+ .note.gnu.build-id
+                0x00000000000002a8       0x24 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+
+.hash
+ *(.hash)
+
+.gnu.hash       0x00000000000002d0       0x24
+ *(.gnu.hash)
+ .gnu.hash      0x00000000000002d0       0x24 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+
+.dynsym         0x00000000000002f8       0xd8
+ *(.dynsym)
+ .dynsym        0x00000000000002f8       0xd8 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+
+.dynstr         0x00000000000003d0       0x9f
+ *(.dynstr)
+ .dynstr        0x00000000000003d0       0x9f /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+
+.gnu.version    0x0000000000000470       0x12
+ *(.gnu.version)
+ .gnu.version   0x0000000000000470       0x12 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+
+.gnu.version_d  0x0000000000000488        0x0
+ *(.gnu.version_d)
+ .gnu.version_d
+                0x0000000000000488        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+
+.gnu.version_r  0x0000000000000488       0x30
+ *(.gnu.version_r)
+ .gnu.version_r
+                0x0000000000000488       0x30 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+
+.rela.dyn       0x00000000000004b8      0x138
+ *(.rela.init)
+ *(.rela.text .rela.text.* .rela.gnu.linkonce.t.*)
+ .rela.text     0x00000000000004b8        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ *(.rela.fini)
+ *(.rela.rodata .rela.rodata.* .rela.gnu.linkonce.r.*)
+ *(.rela.data .rela.data.* .rela.gnu.linkonce.d.*)
+ .rela.data.rel.local
+                0x00000000000004b8       0x78 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ .rela.data.rel.ro.local
+                0x0000000000000530       0x30 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ *(.rela.tdata .rela.tdata.* .rela.gnu.linkonce.td.*)
+ *(.rela.tbss .rela.tbss.* .rela.gnu.linkonce.tb.*)
+ *(.rela.ctors)
+ *(.rela.dtors)
+ *(.rela.got)
+ .rela.got      0x0000000000000560       0x60 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ *(.rela.tls)
+ .rela.tls      0x00000000000005c0        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ *(.rela.bss .rela.bss.* .rela.gnu.linkonce.b.*)
+ *(.rela.ldata .rela.ldata.* .rela.gnu.linkonce.l.*)
+ *(.rela.lbss .rela.lbss.* .rela.gnu.linkonce.lb.*)
+ *(.rela.lrodata .rela.lrodata.* .rela.gnu.linkonce.lr.*)
+ *(.rela.ifunc)
+ .rela.ifunc    0x00000000000005c0        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ .rela.fini_array
+                0x00000000000005c0       0x18 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ .rela.init_array
+                0x00000000000005d8       0x18 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+
+.rela.plt       0x00000000000005f0       0x48
+ *(.rela.plt)
+ .rela.plt      0x00000000000005f0       0x48 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ *(.rela.iplt)
+
+.relr.dyn
+ *(.relr.dyn)
+                0x0000000000001000                . = ALIGN (CONSTANT (MAXPAGESIZE))
+
+.init           0x0000000000001000       0x1b
+ *(SORT_NONE(.init))
+ .init          0x0000000000001000       0x16 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+                0x0000000000001000                _init
+ .init          0x0000000000001016        0x5 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
+
+.plt            0x0000000000001020       0x40
+ *(.plt)
+ .plt           0x0000000000001020       0x40 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ *(.iplt)
+
+.plt.got        0x0000000000001060        0x0
+ *(.plt.got)
+ .plt.got       0x0000000000001060        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+
+.plt.sec
+ *(.plt.sec)
+
+.text           0x0000000000001060     0x10a4
+ *(.text.unlikely .text.*_unlikely .text.unlikely.*)
+ *(.text.exit .text.exit.*)
+ *(.text.startup .text.startup.*)
+ *(.text.hot .text.hot.*)
+ *(SORT_BY_NAME(.text.sorted.*))
+ *(.text .stub .text.* .gnu.linkonce.t.*)
+ .text          0x0000000000001060        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ .text          0x0000000000001060       0xc9 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtbeginS.o
+ .text          0x0000000000001129      0x286 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/fractals/fractal.o
+                0x0000000000001182                plugin_start
+ .text          0x00000000000013af      0x269 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/fractals/fractal_rect.o
+                0x0000000000001401                rects_queue_init
+                0x000000000000141a                rects_calc_all
+                0x0000000000001482                rects_move_up
+                0x00000000000014ea                rects_move_down
+                0x0000000000001556                rects_move_left
+                0x00000000000015b5                rects_move_right
+ .text          0x0000000000001618      0x6fb /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/fractals/mandelbrot_set.o
+ .text          0x0000000000001d13       0xe3 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
+                0x0000000000001d22                plugin__start
+                0x0000000000001d76                rb_atexit
+                0x0000000000001d8f                exit
+                0x0000000000001da8                _exit
+                0x0000000000001db7                exit_on_usb
+ .text          0x0000000000001df6      0x2d0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(xlcd_scroll.o)
+                0x0000000000001df6                xlcd_scroll_left
+                0x0000000000001ec5                xlcd_scroll_right
+                0x0000000000001f8b                xlcd_scroll_up
+                0x000000000000202f                xlcd_scroll_down
+ .text          0x00000000000020c6       0x3e /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(xlcd_core.o)
+                0x00000000000020c6                get_framebuffer
+ .text          0x0000000000002104        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtendS.o
+ .text          0x0000000000002104        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
+ *(.gnu.warning)
+
+.fini           0x0000000000002104        0xd
+ *(SORT_NONE(.fini))
+ .fini          0x0000000000002104        0x8 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+                0x0000000000002104                _fini
+ .fini          0x000000000000210c        0x5 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
+                [!provide]                        PROVIDE (__etext = .)
+                [!provide]                        PROVIDE (_etext = .)
+                [!provide]                        PROVIDE (etext = .)
+                0x0000000000003000                . = ALIGN (CONSTANT (MAXPAGESIZE))
+                0x0000000000003000                . = SEGMENT_START ("rodata-segment", (ALIGN (CONSTANT (MAXPAGESIZE)) + (. & (CONSTANT (MAXPAGESIZE) - 0x1))))
+
+.rodata         0x0000000000003000       0x3c
+ *(.rodata .rodata.* .gnu.linkonce.r.*)
+ .rodata        0x0000000000003000       0x3c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/fractals/fractal.o
+
+.rodata1
+ *(.rodata1)
+
+.eh_frame_hdr   0x000000000000303c       0xf4
+ *(.eh_frame_hdr)
+ .eh_frame_hdr  0x000000000000303c       0xf4 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/fractals/fractal.o
+                0x000000000000303c                __GNU_EH_FRAME_HDR
+ *(.eh_frame_entry .eh_frame_entry.*)
+
+.eh_frame       0x0000000000003130      0x468
+ *(.eh_frame)
+ .eh_frame      0x0000000000003130       0x40 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ .eh_frame      0x0000000000003170        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ .eh_frame      0x0000000000003170       0x70 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/fractals/fractal.o
+                                         0x88 (size before relaxing)
+ .eh_frame      0x00000000000031e0       0xb0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/fractals/fractal_rect.o
+                                         0xc8 (size before relaxing)
+ .eh_frame      0x0000000000003290      0x120 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/fractals/mandelbrot_set.o
+                                        0x138 (size before relaxing)
+ .eh_frame      0x00000000000033b0       0x88 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
+                                         0xa0 (size before relaxing)
+ .eh_frame      0x0000000000003438      0x148 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(xlcd_scroll.o)
+                                        0x160 (size before relaxing)
+ .eh_frame      0x0000000000003580       0x14 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(xlcd_core.o)
+                                         0x30 (size before relaxing)
+ .eh_frame      0x0000000000003594        0x4 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtendS.o
+ *(.eh_frame.*)
+
+.sframe
+ *(.sframe)
+ *(.sframe.*)
+
+.gcc_except_table
+ *(.gcc_except_table .gcc_except_table.*)
+
+.gnu_extab
+ *(.gnu_extab*)
+
+.exception_ranges
+ *(.exception_ranges*)
+
+.note.build-id
+ *(.note.build-id)
+
+.note.GNU-stack
+                0x0000000000003598        0x0
+ *(.note.GNU-stack)
+ .note.GNU-stack
+                0x0000000000003598        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ .note.GNU-stack
+                0x0000000000003598        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtbeginS.o
+ .note.GNU-stack
+                0x0000000000003598        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/fractals/fractal.o
+ .note.GNU-stack
+                0x0000000000003598        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/fractals/fractal_rect.o
+ .note.GNU-stack
+                0x0000000000003598        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/fractals/mandelbrot_set.o
+ .note.GNU-stack
+                0x0000000000003598        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
+ .note.GNU-stack
+                0x0000000000003598        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(xlcd_scroll.o)
+ .note.GNU-stack
+                0x0000000000003598        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(xlcd_core.o)
+ .note.GNU-stack
+                0x0000000000003598        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtendS.o
+ .note.GNU-stack
+                0x0000000000003598        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
+
+.note.gnu.property
+                0x0000000000003598       0x30
+ *(.note.gnu.property)
+ .note.gnu.property
+                0x0000000000003598       0x30 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+
+.note.ABI-tag
+ *(.note.ABI-tag)
+
+.note.package
+ *(.note.package)
+
+.note.dlopen
+ *(.note.dlopen)
+
+.note.netbsd.ident
+ *(.note.netbsd.ident)
+
+.note.openbsd.ident
+ *(.note.openbsd.ident)
+                0x0000000000004db0                . = DATA_SEGMENT_ALIGN (CONSTANT (MAXPAGESIZE), CONSTANT (COMMONPAGESIZE))
+
+.eh_frame
+ *(.eh_frame)
+ *(.eh_frame.*)
+
+.sframe
+ *(.sframe)
+ *(.sframe.*)
+
+.gnu_extab
+ *(.gnu_extab)
+
+.gcc_except_table
+ *(.gcc_except_table .gcc_except_table.*)
+
+.exception_ranges
+ *(.exception_ranges*)
+
+.tdata
+ *(.tdata .tdata.* .gnu.linkonce.td.*)
+
+.tbss
+ *(.tbss .tbss.* .gnu.linkonce.tb.*)
+ *(.tcommon)
+
+.preinit_array
+ *(.preinit_array)
+
+.init_array     0x0000000000004db0        0x8
+ *(SORT_BY_INIT_PRIORITY(.init_array.*) SORT_BY_INIT_PRIORITY(.ctors.*))
+ *(.init_array EXCLUDE_FILE(*crtend?.o *crtend.o *crtbegin?.o *crtbegin.o) .ctors)
+ .init_array    0x0000000000004db0        0x8 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtbeginS.o
+
+.fini_array     0x0000000000004db8        0x8
+ *(SORT_BY_INIT_PRIORITY(.fini_array.*) SORT_BY_INIT_PRIORITY(.dtors.*))
+ *(.fini_array EXCLUDE_FILE(*crtend?.o *crtend.o *crtbegin?.o *crtbegin.o) .dtors)
+ .fini_array    0x0000000000004db8        0x8 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtbeginS.o
+
+.ctors
+ *crtbegin.o(.ctors)
+ *crtbegin?.o(.ctors)
+ *(EXCLUDE_FILE(*crtend?.o *crtend.o) .ctors)
+ *(SORT_BY_NAME(.ctors.*))
+ *(.ctors)
+
+.dtors
+ *crtbegin.o(.dtors)
+ *crtbegin?.o(.dtors)
+ *(EXCLUDE_FILE(*crtend?.o *crtend.o) .dtors)
+ *(SORT_BY_NAME(.dtors.*))
+ *(.dtors)
+
+.jcr
+ *(.jcr)
+
+.data.rel.ro    0x0000000000004dc0       0x38
+ *(.data.rel.ro.local* .gnu.linkonce.d.rel.ro.local.*)
+ .data.rel.ro.local
+                0x0000000000004dc0       0x38 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
+                0x0000000000004dc0                __header
+ *(.data.rel.ro .data.rel.ro.* .gnu.linkonce.d.rel.ro.*)
+ .data.rel.ro   0x0000000000004df8        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+
+.dynamic        0x0000000000004df8      0x1c0
+ *(.dynamic)
+ .dynamic       0x0000000000004df8      0x1c0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+                0x0000000000004df8                _DYNAMIC
+
+.got            0x0000000000004fb8       0x20
+ *(.got)
+ .got           0x0000000000004fb8       0x20 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ *(.igot)
+                0x0000000000004fe8                . = DATA_SEGMENT_RELRO_END (., (SIZEOF (.got.plt) >= 0x18)?0x18:0x0)
+
+.got.plt        0x0000000000004fe8       0x30
+ *(.got.plt)
+ .got.plt       0x0000000000004fe8       0x30 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+                0x0000000000004fe8                _GLOBAL_OFFSET_TABLE_
+ *(.igot.plt)
+
+.data           0x0000000000005020       0x50
+ *(.data .data.* .gnu.linkonce.d.*)
+ .data          0x0000000000005020        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ .data          0x0000000000005020        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtbeginS.o
+ .data.rel.local
+                0x0000000000005020        0x8 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtbeginS.o
+                0x0000000000005020                __dso_handle
+ .data          0x0000000000005028        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/fractals/fractal.o
+ .data          0x0000000000005028        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/fractals/fractal_rect.o
+ .data          0x0000000000005028        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/fractals/mandelbrot_set.o
+ *fill*         0x0000000000005028       0x18 
+ .data.rel.local
+                0x0000000000005040       0x28 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/fractals/mandelbrot_set.o
+                0x0000000000005040                mandelbrot_ops
+ .data          0x0000000000005068        0x8 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
+                0x0000000000005068                rb
+ .data          0x0000000000005070        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(xlcd_scroll.o)
+ .data          0x0000000000005070        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(xlcd_core.o)
+ .data          0x0000000000005070        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtendS.o
+ .data          0x0000000000005070        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
+
+.tm_clone_table
+                0x0000000000005070        0x0
+ .tm_clone_table
+                0x0000000000005070        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtbeginS.o
+ .tm_clone_table
+                0x0000000000005070        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtendS.o
+
+.data1
+ *(.data1)
+                [!provide]                        PROVIDE (_edata = .)
+                [!provide]                        PROVIDE (edata = .)
+                0x0000000000005070                . = ALIGN (ALIGNOF (NEXT_SECTION))
+                [!provide]                        PROVIDE (__bss_start = .)
+
+.bss            0x0000000000005080      0x5e8
+ *(.dynbss)
+ .dynbss        0x0000000000005080        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ *(.bss .bss.* .gnu.linkonce.b.*)
+ .bss           0x0000000000005080        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ .bss           0x0000000000005080        0x1 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtbeginS.o
+ .bss           0x0000000000005081        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/fractals/fractal.o
+ *fill*         0x0000000000005081       0x1f 
+ .bss           0x00000000000050a0      0x288 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/fractals/fractal_rect.o
+ *fill*         0x0000000000005328       0x18 
+ .bss           0x0000000000005340      0x240 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/fractals/mandelbrot_set.o
+                0x0000000000005340                max_iter
+                0x0000000000005344                step_log2
+                0x0000000000005348                y_delta
+                0x0000000000005350                y_step
+                0x0000000000005358                y_max
+                0x0000000000005360                y_min
+                0x0000000000005368                x_delta
+                0x0000000000005370                x_step
+                0x0000000000005378                x_max
+                0x0000000000005380                x_min
+                0x0000000000005388                ops
+ .bss           0x0000000000005580       0xe8 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
+ .bss           0x0000000000005668        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(xlcd_scroll.o)
+ .bss           0x0000000000005668        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(xlcd_core.o)
+ .bss           0x0000000000005668        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtendS.o
+ .bss           0x0000000000005668        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
+ *(COMMON)
+                0x0000000000005668                . = ALIGN ((. != 0x0)?0x8:0x1)
+
+.lbss
+ *(.dynlbss)
+ *(.lbss .lbss.* .gnu.linkonce.lb.*)
+ *(LARGE_COMMON)
+                0x0000000000005668                . = ALIGN (0x8)
+                0x0000000000005668                . = SEGMENT_START ("ldata-segment", .)
+
+.lrodata
+ *(.lrodata .lrodata.* .gnu.linkonce.lr.*)
+
+.ldata          0x0000000000007668        0x0
+ *(.ldata .ldata.* .gnu.linkonce.l.*)
+                0x0000000000007668                . = ALIGN ((. != 0x0)?0x8:0x1)
+                0x0000000000007668                . = ALIGN (0x8)
+                [!provide]                        PROVIDE (_end = .)
+                [!provide]                        PROVIDE (end = .)
+                0x0000000000007668                . = DATA_SEGMENT_END (.)
+
+.stab
+ *(.stab)
+
+.stabstr
+ *(.stabstr)
+
+.stab.excl
+ *(.stab.excl)
+
+.stab.exclstr
+ *(.stab.exclstr)
+
+.stab.index
+ *(.stab.index)
+
+.stab.indexstr
+ *(.stab.indexstr)
+
+.comment        0x0000000000000000       0x1b
+ *(.comment)
+ .comment       0x0000000000000000       0x1b /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtbeginS.o
+                                         0x1c (size before relaxing)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/fractals/fractal.o
+                                         0x1c (size before relaxing)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/fractals/fractal_rect.o
+                                         0x1c (size before relaxing)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/fractals/mandelbrot_set.o
+                                         0x1c (size before relaxing)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
+                                         0x1c (size before relaxing)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(xlcd_scroll.o)
+                                         0x1c (size before relaxing)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(xlcd_core.o)
+                                         0x1c (size before relaxing)
+ .comment       0x000000000000001b        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtendS.o
+                                         0x1c (size before relaxing)
+
+.gnu.build.attributes
+ *(.gnu.build.attributes .gnu.build.attributes.*)
+
+.debug
+ *(.debug)
+
+.line
+ *(.line)
+
+.debug_srcinfo
+ *(.debug_srcinfo)
+
+.debug_sfnames
+ *(.debug_sfnames)
+
+.debug_aranges  0x0000000000000000      0x120
+ *(.debug_aranges)
+ .debug_aranges
+                0x0000000000000000       0x30 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/fractals/fractal.o
+ .debug_aranges
+                0x0000000000000030       0x30 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/fractals/fractal_rect.o
+ .debug_aranges
+                0x0000000000000060       0x30 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/fractals/mandelbrot_set.o
+ .debug_aranges
+                0x0000000000000090       0x30 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
+ .debug_aranges
+                0x00000000000000c0       0x30 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(xlcd_scroll.o)
+ .debug_aranges
+                0x00000000000000f0       0x30 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(xlcd_core.o)
+
+.debug_pubnames
+ *(.debug_pubnames)
+
+.debug_info     0x0000000000000000    0x26951
+ *(.debug_info .gnu.linkonce.wi.*)
+ .debug_info    0x0000000000000000     0x7873 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/fractals/fractal.o
+ .debug_info    0x0000000000007873      0x8a1 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/fractals/fractal_rect.o
+ .debug_info    0x0000000000008114     0x7f54 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/fractals/mandelbrot_set.o
+ .debug_info    0x0000000000010068     0x7c39 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
+ .debug_info    0x0000000000017ca1     0x7825 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(xlcd_scroll.o)
+ .debug_info    0x000000000001f4c6     0x748b /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(xlcd_core.o)
+
+.debug_abbrev   0x0000000000000000     0x155c
+ *(.debug_abbrev)
+ .debug_abbrev  0x0000000000000000      0x3fb /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/fractals/fractal.o
+ .debug_abbrev  0x00000000000003fb      0x225 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/fractals/fractal_rect.o
+ .debug_abbrev  0x0000000000000620      0x4d8 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/fractals/mandelbrot_set.o
+ .debug_abbrev  0x0000000000000af8      0x442 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
+ .debug_abbrev  0x0000000000000f3a      0x331 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(xlcd_scroll.o)
+ .debug_abbrev  0x000000000000126b      0x2f1 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(xlcd_core.o)
+
+.debug_line     0x0000000000000000     0x1726
+ *(.debug_line .debug_line.* .debug_line_end)
+ .debug_line    0x0000000000000000      0x372 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/fractals/fractal.o
+ .debug_line    0x0000000000000372      0x341 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/fractals/fractal_rect.o
+ .debug_line    0x00000000000006b3      0x79c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/fractals/mandelbrot_set.o
+ .debug_line    0x0000000000000e4f      0x2bd /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
+ .debug_line    0x000000000000110c      0x444 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(xlcd_scroll.o)
+ .debug_line    0x0000000000001550      0x1d6 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(xlcd_core.o)
+
+.debug_frame
+ *(.debug_frame)
+
+.debug_str      0x0000000000000000     0x4cc9
+ *(.debug_str)
+ .debug_str     0x0000000000000000     0x4cc9 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/fractals/fractal.o
+                                       0x494d (size before relaxing)
+ .debug_str     0x0000000000004cc9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/fractals/fractal_rect.o
+                                        0x9e5 (size before relaxing)
+ .debug_str     0x0000000000004cc9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/fractals/mandelbrot_set.o
+                                       0x50d2 (size before relaxing)
+ .debug_str     0x0000000000004cc9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
+                                       0x50c8 (size before relaxing)
+ .debug_str     0x0000000000004cc9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(xlcd_scroll.o)
+                                       0x47d5 (size before relaxing)
+ .debug_str     0x0000000000004cc9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(xlcd_core.o)
+                                       0x4782 (size before relaxing)
+
+.debug_loc
+ *(.debug_loc)
+
+.debug_macinfo
+ *(.debug_macinfo)
+
+.debug_weaknames
+ *(.debug_weaknames)
+
+.debug_funcnames
+ *(.debug_funcnames)
+
+.debug_typenames
+ *(.debug_typenames)
+
+.debug_varnames
+ *(.debug_varnames)
+
+.debug_pubtypes
+ *(.debug_pubtypes)
+
+.debug_ranges
+ *(.debug_ranges)
+
+.debug_addr
+ *(.debug_addr)
+
+.debug_line_str
+                0x0000000000000000      0x860
+ *(.debug_line_str)
+ .debug_line_str
+                0x0000000000000000      0x860 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/fractals/fractal.o
+                                        0x6ad (size before relaxing)
+ .debug_line_str
+                0x0000000000000860        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/fractals/fractal_rect.o
+                                        0x2a8 (size before relaxing)
+ .debug_line_str
+                0x0000000000000860        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/fractals/mandelbrot_set.o
+                                        0x676 (size before relaxing)
+ .debug_line_str
+                0x0000000000000860        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
+                                        0x68f (size before relaxing)
+ .debug_line_str
+                0x0000000000000860        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(xlcd_scroll.o)
+                                        0x630 (size before relaxing)
+ .debug_line_str
+                0x0000000000000860        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(xlcd_core.o)
+                                        0x623 (size before relaxing)
+
+.debug_loclists
+                0x0000000000000000      0xbbc
+ *(.debug_loclists)
+ .debug_loclists
+                0x0000000000000000       0xa8 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/fractals/fractal.o
+ .debug_loclists
+                0x00000000000000a8      0x28c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/fractals/fractal_rect.o
+ .debug_loclists
+                0x0000000000000334      0x4d5 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/fractals/mandelbrot_set.o
+ .debug_loclists
+                0x0000000000000809       0x9e /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
+ .debug_loclists
+                0x00000000000008a7      0x2e0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(xlcd_scroll.o)
+ .debug_loclists
+                0x0000000000000b87       0x35 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(xlcd_core.o)
+
+.debug_macro
+ *(.debug_macro)
+
+.debug_names
+ *(.debug_names)
+
+.debug_rnglists
+                0x0000000000000000       0x81
+ *(.debug_rnglists)
+ .debug_rnglists
+                0x0000000000000000       0x2e /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/fractals/fractal.o
+ .debug_rnglists
+                0x000000000000002e       0x3f /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/fractals/fractal_rect.o
+ .debug_rnglists
+                0x000000000000006d       0x14 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/fractals/mandelbrot_set.o
+
+.debug_str_offsets
+ *(.debug_str_offsets)
+
+.debug_sup
+ *(.debug_sup)
+
+.gnu.attributes
+ *(.gnu.attributes)
+
+/DISCARD/
+ *(.note.GNU-stack)
+ *(.gnu_debuglink)
+ *(.gnu.lto_*)
+ *(.gnu_object_only)
+OUTPUT(/home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/fractals/fractals.elf elf64-x86-64)

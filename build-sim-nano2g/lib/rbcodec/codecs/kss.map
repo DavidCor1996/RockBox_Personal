@@ -1,0 +1,1170 @@
+Archive member included to satisfy reference by file (symbol)
+
+/home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(kss_emu.o)
+                              /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/kss.o (Kss_init)
+/home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(kss_scc_apu.o)
+                              /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(kss_emu.o) (Scc_volume)
+/home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(opl_apu.o)
+                              /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(kss_emu.o) (Opl_reset)
+/home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(z80_cpu.o)
+                              /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(kss_emu.o) (Z80_init)
+/home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(blip_buffer.o)
+                              /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(kss_emu.o) (volume_unit)
+/home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(multi_buffer.o)
+                              /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(kss_emu.o) (Buffer_init)
+/home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(rom_data.o)
+                              /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(kss_emu.o) (Rom_load)
+/home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(emu8950.o)
+                              /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(opl_apu.o) (OPL_setSampleRate)
+/home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(emuadpcm.o)
+                              /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(emu8950.o) (ADPCM_init)
+/home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(track_filter.o)
+                              /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(kss_emu.o) (track_init)
+/home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(ay_apu.o)
+                              /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(kss_emu.o) (Ay_apu_reset)
+/home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(kss_cpu.o)
+                              /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(kss_emu.o) (run_cpu)
+/home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libemu2413.a(sms_apu.o)
+                              /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(kss_emu.o) (Sms_apu_volume)
+/home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libemu2413.a(emu2413.o)
+                              /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(opl_apu.o) (OPLL_delete)
+/home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+                              /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/kss.o (codec_init)
+
+Merging object attributes
+
+
+Merging program properties
+
+Removed property 0xc0000002 to merge /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o (0x3) and /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/kss.o (not found)
+Updated property 0xc0010001 (0x9) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o (0x1) and /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(multi_buffer.o) (0x9)
+Updated property 0xc0010001 (0x9) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o (0x9) and /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(rom_data.o) (0x1)
+Updated property 0xc0010001 (0x9) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o (0x9) and /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(emu8950.o) (0x1)
+Updated property 0xc0010001 (0x9) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o (0x9) and /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(emuadpcm.o) (0x1)
+Updated property 0xc0010001 (0x9) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o (0x9) and /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(track_filter.o) (0x1)
+Updated property 0xc0010001 (0x9) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o (0x9) and /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(ay_apu.o) (0x1)
+Updated property 0xc0010001 (0x9) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o (0x9) and /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(kss_cpu.o) (0x1)
+Updated property 0xc0010001 (0x9) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o (0x9) and /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libemu2413.a(sms_apu.o) (0x1)
+Updated property 0xc0010001 (0x9) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o (0x9) and /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libemu2413.a(emu2413.o) (0x1)
+Updated property 0xc0010001 (0x9) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o (0x9) and /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libcodec.a(codeclib.o) (0x1)
+Updated property 0xc0010001 (0x9) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o (0x9) and /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtendS.o (0x1)
+Updated property 0xc0010002 (0x1) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o (0x1) and /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtendS.o (0x0)
+Removed property 0xc0000002 to merge /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o (not found) and /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtendS.o (0x3)
+Updated property 0xc0010001 (0x9) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o (0x9) and /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o (0x1)
+Removed property 0xc0000002 to merge /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o (not found) and /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o (0x3)
+
+Discarded input sections
+
+ .text          0x0000000000000000        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ .data          0x0000000000000000        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ .bss           0x0000000000000000        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ .data          0x0000000000000000        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtbeginS.o
+ .note.gnu.property
+                0x0000000000000000       0x50 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtbeginS.o
+ .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/kss.o
+ .note.gnu.property
+                0x0000000000000000       0x30 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/kss.o
+ .bss           0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/codec_crt0.o
+ .note.gnu.property
+                0x0000000000000000       0x30 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/codec_crt0.o
+ .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(kss_emu.o)
+ .bss           0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(kss_emu.o)
+ .note.gnu.property
+                0x0000000000000000       0x30 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(kss_emu.o)
+ .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(kss_scc_apu.o)
+ .bss           0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(kss_scc_apu.o)
+ .rodata        0x0000000000000000        0x4 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(kss_scc_apu.o)
+ .note.gnu.property
+                0x0000000000000000       0x30 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(kss_scc_apu.o)
+ .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(opl_apu.o)
+ .bss           0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(opl_apu.o)
+ .note.gnu.property
+                0x0000000000000000       0x30 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(opl_apu.o)
+ .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(z80_cpu.o)
+ .bss           0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(z80_cpu.o)
+ .rodata        0x0000000000000000       0x24 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(z80_cpu.o)
+ .note.gnu.property
+                0x0000000000000000       0x30 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(z80_cpu.o)
+ .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(blip_buffer.o)
+ .bss           0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(blip_buffer.o)
+ .note.gnu.property
+                0x0000000000000000       0x30 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(blip_buffer.o)
+ .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(multi_buffer.o)
+ .bss           0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(multi_buffer.o)
+ .rodata        0x0000000000000000        0x4 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(multi_buffer.o)
+ .note.gnu.property
+                0x0000000000000000       0x30 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(multi_buffer.o)
+ .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(rom_data.o)
+ .bss           0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(rom_data.o)
+ .note.gnu.property
+                0x0000000000000000       0x30 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(rom_data.o)
+ .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(emu8950.o)
+ .note.gnu.property
+                0x0000000000000000       0x30 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(emu8950.o)
+ .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(emuadpcm.o)
+ .bss           0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(emuadpcm.o)
+ .note.gnu.property
+                0x0000000000000000       0x30 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(emuadpcm.o)
+ .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(track_filter.o)
+ .bss           0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(track_filter.o)
+ .rodata        0x0000000000000000        0xc /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(track_filter.o)
+ .note.gnu.property
+                0x0000000000000000       0x30 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(track_filter.o)
+ .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(ay_apu.o)
+ .bss           0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(ay_apu.o)
+ .note.gnu.property
+                0x0000000000000000       0x30 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(ay_apu.o)
+ .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(kss_cpu.o)
+ .bss           0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(kss_cpu.o)
+ .note.gnu.property
+                0x0000000000000000       0x30 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(kss_cpu.o)
+ .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libemu2413.a(sms_apu.o)
+ .bss           0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libemu2413.a(sms_apu.o)
+ .note.gnu.property
+                0x0000000000000000       0x30 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libemu2413.a(sms_apu.o)
+ .note.gnu.property
+                0x0000000000000000       0x30 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libemu2413.a(emu2413.o)
+ .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+ .rodata        0x0000000000000000      0x200 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+ .note.gnu.property
+                0x0000000000000000       0x30 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+ .text          0x0000000000000000        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtendS.o
+ .data          0x0000000000000000        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtendS.o
+ .bss           0x0000000000000000        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtendS.o
+ .note.gnu.property
+                0x0000000000000000       0x50 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtendS.o
+ .text          0x0000000000000000        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
+ .data          0x0000000000000000        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
+ .bss           0x0000000000000000        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
+ .note.gnu.property
+                0x0000000000000000       0x50 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
+
+Memory Configuration
+
+Name             Origin             Length             Attributes
+*default*        0x0000000000000000 0xffffffffffffffff
+
+Linker script and memory map
+
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtbeginS.o
+LOAD /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/kss.o
+LOAD /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/codec_crt0.o
+LOAD /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a
+LOAD /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libemu2413.a
+LOAD /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libcodec.a
+LOAD /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/libfixedpoint.a
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/libgcc.a
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/libgcc.a
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/libgcc_s.so
+START GROUP
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/libgcc_s.so.1
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/libgcc.a
+END GROUP
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/libc.so
+START GROUP
+LOAD /usr/lib/libc.so.6
+LOAD /usr/lib/libc_nonshared.a
+LOAD /usr/lib/ld-linux-x86-64.so.2
+END GROUP
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/libgcc.a
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/libgcc_s.so
+START GROUP
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/libgcc_s.so.1
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/libgcc.a
+END GROUP
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtendS.o
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
+                0x00000000000002a8                . = (SEGMENT_START ("text-segment", 0x0) + SIZEOF_HEADERS)
+
+.note.gnu.build-id
+                0x00000000000002a8       0x24
+ *(.note.gnu.build-id)
+ .note.gnu.build-id
+                0x00000000000002a8       0x24 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+
+.hash
+ *(.hash)
+
+.gnu.hash       0x00000000000002d0       0x24
+ *(.gnu.hash)
+ .gnu.hash      0x00000000000002d0       0x24 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+
+.dynsym         0x00000000000002f8       0xa8
+ *(.dynsym)
+ .dynsym        0x00000000000002f8       0xa8 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+
+.dynstr         0x00000000000003a0       0x8f
+ *(.dynstr)
+ .dynstr        0x00000000000003a0       0x8f /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+
+.gnu.version    0x0000000000000430        0xe
+ *(.gnu.version)
+ .gnu.version   0x0000000000000430        0xe /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+
+.gnu.version_d  0x0000000000000440        0x0
+ *(.gnu.version_d)
+ .gnu.version_d
+                0x0000000000000440        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+
+.gnu.version_r  0x0000000000000440       0x30
+ *(.gnu.version_r)
+ .gnu.version_r
+                0x0000000000000440       0x30 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+
+.rela.dyn       0x0000000000000470      0x120
+ *(.rela.init)
+ *(.rela.text .rela.text.* .rela.gnu.linkonce.t.*)
+ .rela.text     0x0000000000000470        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ *(.rela.fini)
+ *(.rela.rodata .rela.rodata.* .rela.gnu.linkonce.r.*)
+ *(.rela.data .rela.data.* .rela.gnu.linkonce.d.*)
+ .rela.data.rel.local
+                0x0000000000000470       0x18 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ .rela.data.rel.ro
+                0x0000000000000488       0x48 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ .rela.data.rel.ro.local
+                0x00000000000004d0       0x30 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ *(.rela.tdata .rela.tdata.* .rela.gnu.linkonce.td.*)
+ *(.rela.tbss .rela.tbss.* .rela.gnu.linkonce.tb.*)
+ *(.rela.ctors)
+ *(.rela.dtors)
+ *(.rela.got)
+ .rela.got      0x0000000000000500       0x60 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ *(.rela.tls)
+ .rela.tls      0x0000000000000560        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ *(.rela.bss .rela.bss.* .rela.gnu.linkonce.b.*)
+ *(.rela.ldata .rela.ldata.* .rela.gnu.linkonce.l.*)
+ *(.rela.lbss .rela.lbss.* .rela.gnu.linkonce.lb.*)
+ *(.rela.lrodata .rela.lrodata.* .rela.gnu.linkonce.lr.*)
+ *(.rela.ifunc)
+ .rela.ifunc    0x0000000000000560        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ .rela.fini_array
+                0x0000000000000560       0x18 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ .rela.init_array
+                0x0000000000000578       0x18 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+
+.rela.plt       0x0000000000000590       0x18
+ *(.rela.plt)
+ .rela.plt      0x0000000000000590       0x18 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ *(.rela.iplt)
+
+.relr.dyn
+ *(.relr.dyn)
+                0x0000000000001000                . = ALIGN (CONSTANT (MAXPAGESIZE))
+
+.init           0x0000000000001000       0x1b
+ *(SORT_NONE(.init))
+ .init          0x0000000000001000       0x16 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+                0x0000000000001000                _init
+ .init          0x0000000000001016        0x5 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
+
+.plt            0x0000000000001020       0x20
+ *(.plt)
+ .plt           0x0000000000001020       0x20 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ *(.iplt)
+
+.plt.got        0x0000000000001040        0x0
+ *(.plt.got)
+ .plt.got       0x0000000000001040        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+
+.plt.sec
+ *(.plt.sec)
+
+.text           0x0000000000001040     0x8cde
+ *(.text.unlikely .text.*_unlikely .text.unlikely.*)
+ *(.text.exit .text.exit.*)
+ *(.text.startup .text.startup.*)
+ *(.text.hot .text.hot.*)
+ *(SORT_BY_NAME(.text.sorted.*))
+ *(.text .stub .text.* .gnu.linkonce.t.*)
+ .text          0x0000000000001040       0xc9 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtbeginS.o
+ .text          0x0000000000001109      0x27c /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/kss.o
+                0x0000000000001109                codec_run
+                0x0000000000001328                codec_main
+ .text          0x0000000000001385        0x8 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/codec_crt0.o
+                0x0000000000001385                _start
+                0x0000000000001388                codec_start
+ .text          0x000000000000138d      0xe85 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(kss_emu.o)
+                0x00000000000015ff                Kss_init
+                0x000000000000170b                jsr
+                0x0000000000001740                cpu_write
+                0x00000000000017e0                cpu_out
+                0x0000000000001942                cpu_in
+                0x0000000000001981                end_frame
+                0x0000000000001a31                Kss_set_sample_rate
+                0x0000000000001a84                Sound_mute_voices
+                0x0000000000001b08                Sound_mute_voice
+                0x0000000000001b2a                Sound_set_tempo
+                0x0000000000001b67                Kss_load_mem
+                0x0000000000001d52                Kss_start_track
+                0x0000000000001f88                Track_tell
+                0x0000000000001fa9                Track_seek
+                0x000000000000200a                skip_
+                0x000000000000207b                Track_skip
+                0x0000000000002087                Track_set_fade
+                0x00000000000020d7                Kss_play
+                0x00000000000020e3                play_
+ .text          0x0000000000002212      0x2ce /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(kss_scc_apu.o)
+                0x00000000000023be                Scc_volume
+                0x00000000000023ef                Scc_reset
+                0x000000000000242f                Scc_init
+                0x000000000000246f                Scc_write
+                0x00000000000024c9                Scc_end_frame
+ .text          0x00000000000024e0      0x393 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(opl_apu.o)
+                0x000000000000266f                Opl_shutdown
+                0x0000000000002687                Opl_reset
+                0x00000000000026ca                Opl_init
+                0x00000000000027aa                Opl_write_data
+                0x000000000000280c                Opl_read
+                0x0000000000002853                Opl_end_frame
+ .text          0x0000000000002873       0xf3 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(z80_cpu.o)
+                0x0000000000002873                Z80_init
+                0x00000000000028c5                Z80_reset
+                0x0000000000002915                Z80_map_mem
+ .text          0x0000000000002966      0x2b2 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(blip_buffer.o)
+                0x0000000000002966                Blip_clear
+                0x000000000000298a                Blip_init
+                0x00000000000029b5                Blip_clock_rate_factor
+                0x00000000000029c6                Blip_bass_freq
+                0x00000000000029f2                Blip_set_sample_rate
+                0x0000000000002a60                Blip_end_frame
+                0x0000000000002a67                Blip_count_samples
+                0x0000000000002a79                Blip_count_clocks
+                0x0000000000002a95                Blip_remove_samples
+                0x0000000000002aea                Blip_read_samples
+                0x0000000000002bbe                Blip_mix_samples
+                0x0000000000002c04                volume_unit
+                0x0000000000002c0e                Synth_init
+ .text          0x0000000000002c18      0x498 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(multi_buffer.o)
+                0x0000000000002c18                Tracked_init
+                0x0000000000002c2b                Tracked_clear
+                0x0000000000002c38                Tracked_end_frame
+                0x0000000000002c5a                Tracked_non_silent
+                0x0000000000002c67                Tracked_remove_silence
+                0x0000000000002c87                Tracked_remove_samples
+                0x0000000000002ca5                Tracked_remove_all_samples
+                0x0000000000002cbb                Tracked_read_samples
+                0x0000000000002ce5                Mixer_init
+                0x0000000000002ceb                Mixer_read_pairs
+                0x0000000000002e4c                Buffer_init
+                0x0000000000002ed8                Buffer_set_sample_rate
+                0x0000000000002f2b                Buffer_clock_rate
+                0x0000000000002f66                Buffer_bass_freq
+                0x0000000000002f97                Buffer_set_channel_count
+                0x0000000000002fa1                Buffer_channel
+                0x0000000000002fba                Buffer_clear
+                0x0000000000002fe8                Buffer_end_frame
+                0x0000000000003019                Buffer_read_samples
+ .text          0x00000000000030b0       0xed /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(rom_data.o)
+                0x00000000000030b0                Rom_load
+                0x0000000000003142                Rom_set_addr
+ .text          0x000000000000319d     0x1425 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(emu8950.o)
+                0x0000000000003528                patchReset
+                0x0000000000003533                slotReset
+                0x000000000000357d                channelReset
+                0x0000000000003597                OPL_setSampleRate
+                0x0000000000003749                OPL_reset
+                0x00000000000037ff                OPL_init
+                0x0000000000003a6d                OPL_updateBuffer
+                0x0000000000003ece                OPL_setInternalVolume
+                0x0000000000003ed8                OPL_readReg
+                0x0000000000003f0d                OPL_setStatus
+                0x0000000000003f2c                OPL_readStatus
+                0x0000000000003f49                OPL_resetStatus
+                0x0000000000003f6a                OPL_changeStatusMask
+                0x0000000000003f85                OPL_writeReg
+ .text          0x00000000000045c2      0x40e /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(emuadpcm.o)
+                0x00000000000045c2                ADPCM_init
+                0x00000000000045e7                ADPCM_setSampleRate
+                0x00000000000045ee                ADPCM_muted
+                0x0000000000004600                restart
+                0x0000000000004644                ADPCM_writeReg
+                0x00000000000047e8                ADPCM_reset
+                0x000000000000482e                ADPCM_readReg
+                0x000000000000489f                ADPCM_calcSample
+ .text          0x00000000000049d0      0x462 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(track_filter.o)
+                0x0000000000004a11                track_init
+                0x0000000000004a17                track_stop
+                0x0000000000004a45                track_create
+                0x0000000000004a62                track_skip
+                0x0000000000004ad3                skippy_
+                0x0000000000004b12                track_set_fade
+                0x0000000000004b30                fill_buf
+                0x0000000000004ba3                track_start
+                0x0000000000004be9                track_play
+ .text          0x0000000000004e32      0x59f /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(ay_apu.o)
+                0x0000000000004e5d                Ay_apu_reset
+                0x0000000000004ecc                Ay_apu_init
+                0x0000000000004f79                Ay_apu_read
+                0x0000000000004f8f                write_data_
+                0x000000000000501b                run_until
+ .text          0x00000000000053d1     0x1fcf /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(kss_cpu.o)
+                0x00000000000053d1                run_cpu
+ .text          0x00000000000073a0      0x4c3 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libemu2413.a(sms_apu.o)
+                0x00000000000075ae                Sms_apu_volume
+                0x00000000000075d1                Sms_apu_set_output
+                0x0000000000007641                Sms_apu_write_ggstereo
+                0x00000000000076ce                Sms_apu_reset
+                0x0000000000007762                Sms_apu_init
+                0x00000000000077be                Sms_apu_write_data
+                0x0000000000007846                Sms_apu_end_frame
+ .text          0x0000000000007863     0x22df /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libemu2413.a(emu2413.o)
+                0x00000000000082e6                OPLL_dump2patch
+                0x00000000000083e9                OPLL_getDefaultPatch
+                0x000000000000840e                OPLL_setPatch
+                0x000000000000848f                OPLL_patch2dump
+                0x0000000000008532                OPLL_copyPatch
+                0x000000000000854e                OPLL_delete
+                0x000000000000854f                OPLL_reset_patch
+                0x00000000000085a1                OPLL_forceRefresh
+                0x00000000000086a3                OPLL_set_rate
+                0x00000000000086d2                OPLL_set_quality
+                0x00000000000086e0                OPLL_set_internal_mute
+                0x00000000000086e7                OPLL_is_internal_muted
+                0x00000000000086ee                OPLL_update_buffer
+                0x00000000000087e6                OPLL_calc
+                0x00000000000087eb                OPLL_setMask
+                0x00000000000087ff                OPLL_toggleMask
+                0x0000000000008815                OPLL_writeReg
+                0x000000000000974c                OPLL_reset
+                0x0000000000009857                OPLL_new
+                0x0000000000009b22                OPLL_writeIO
+                0x0000000000009b31                OPLL_read
+ .text          0x0000000000009b42      0x1dc /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+                0x0000000000009b42                codec_init
+                0x0000000000009b6b                codec_set_replaygain
+                0x0000000000009bde                codec_malloc
+                0x0000000000009c14                codec_calloc
+                0x0000000000009c46                codec_free
+                0x0000000000009c47                codec_realloc
+                0x0000000000009c7e                codec_strlen
+                0x0000000000009c8e                strcpy
+                0x0000000000009c9e                strcat
+                0x0000000000009cae                strcmp
+                0x0000000000009cbe                memcpy
+                0x0000000000009cce                memset
+                0x0000000000009cde                memcmp
+                0x0000000000009cee                memchr
+                0x0000000000009cfe                memmove
+                0x0000000000009d0e                qsort
+ *(.gnu.warning)
+
+.fini           0x0000000000009d20        0xd
+ *(SORT_NONE(.fini))
+ .fini          0x0000000000009d20        0x8 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+                0x0000000000009d20                _fini
+ .fini          0x0000000000009d28        0x5 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
+                [!provide]                        PROVIDE (__etext = .)
+                [!provide]                        PROVIDE (_etext = .)
+                [!provide]                        PROVIDE (etext = .)
+                0x000000000000a000                . = ALIGN (CONSTANT (MAXPAGESIZE))
+                0x000000000000a000                . = SEGMENT_START ("rodata-segment", (ALIGN (CONSTANT (MAXPAGESIZE)) + (. & (CONSTANT (MAXPAGESIZE) - 0x1))))
+
+.rodata         0x000000000000a000     0x2cc0
+ *(.rodata .rodata.* .gnu.linkonce.r.*)
+ .rodata.str1.1
+                0x000000000000a000      0x116 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/kss.o
+                                         0x56 (size before relaxing)
+ .rodata.str1.1
+                0x000000000000a116        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(kss_emu.o)
+                                          0xa (size before relaxing)
+ *fill*         0x000000000000a116        0xa 
+ .rodata        0x000000000000a120       0xa8 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(kss_emu.o)
+                0x000000000000a1a0                gme_wrong_file_type
+                0x000000000000a1c4                clock_rate
+ *fill*         0x000000000000a1c8       0x18 
+ .rodata        0x000000000000a1e0     0x13de /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(emu8950.o)
+ *fill*         0x000000000000b5be        0x2 
+ .rodata        0x000000000000b5c0      0x104 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(emuadpcm.o)
+                0x000000000000b680                DECODE_MIN
+                0x000000000000b684                DECODE_MAX
+                0x000000000000b688                DDEF
+                0x000000000000b68c                DMIN
+                0x000000000000b690                DMAX
+                0x000000000000b694                R08_CSM
+                0x000000000000b698                R08_NOTE_SET
+                0x000000000000b69c                R08_SAMPL
+                0x000000000000b6a0                R08_DA_AD
+                0x000000000000b6a4                R08_64K
+                0x000000000000b6a8                R08_ROM
+                0x000000000000b6ac                R07_START
+                0x000000000000b6b0                R07_REC
+                0x000000000000b6b4                R07_MEMORY_DATA
+                0x000000000000b6b8                R07_REPEAT
+                0x000000000000b6bc                R07_SP_OFF
+                0x000000000000b6c0                ADPCM_VOLUME
+ *fill*         0x000000000000b6c4        0xc 
+ .rodata        0x000000000000b6d0       0x38 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(ay_apu.o)
+                0x000000000000b6e0                tone_off
+                0x000000000000b6e4                noise_off
+                0x000000000000b700                period_factor
+                0x000000000000b704                inaudible_freq
+ .rodata.str1.1
+                0x000000000000b708        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(kss_cpu.o)
+                                         0xb6 (size before relaxing)
+ *fill*         0x000000000000b708       0x18 
+ .rodata        0x000000000000b720      0xb20 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(kss_cpu.o)
+ .rodata        0x000000000000c240       0x14 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libemu2413.a(sms_apu.o)
+                0x000000000000c250                noise_osc
+ *fill*         0x000000000000c254        0xc 
+ .rodata        0x000000000000c260      0xa60 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libemu2413.a(emu2413.o)
+
+.rodata1
+ *(.rodata1)
+
+.eh_frame_hdr   0x000000000000ccc0      0x5cc
+ *(.eh_frame_hdr)
+ .eh_frame_hdr  0x000000000000ccc0      0x5cc /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/kss.o
+                0x000000000000ccc0                __GNU_EH_FRAME_HDR
+ *(.eh_frame_entry .eh_frame_entry.*)
+
+.eh_frame       0x000000000000d290     0x174c
+ *(.eh_frame)
+ .eh_frame      0x000000000000d290       0x40 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ .eh_frame      0x000000000000d2d0        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ .eh_frame      0x000000000000d2d0       0x58 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/kss.o
+                                         0x70 (size before relaxing)
+ .eh_frame      0x000000000000d328       0x28 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/codec_crt0.o
+                                         0x40 (size before relaxing)
+ .eh_frame      0x000000000000d350      0x388 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(kss_emu.o)
+                                        0x3a0 (size before relaxing)
+ .eh_frame      0x000000000000d6d8      0x118 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(kss_scc_apu.o)
+                                        0x130 (size before relaxing)
+ .eh_frame      0x000000000000d7f0      0x178 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(opl_apu.o)
+                                        0x190 (size before relaxing)
+ .eh_frame      0x000000000000d968       0x48 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(z80_cpu.o)
+                                         0x60 (size before relaxing)
+ .eh_frame      0x000000000000d9b0      0x138 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(blip_buffer.o)
+                                        0x150 (size before relaxing)
+ .eh_frame      0x000000000000dae8      0x288 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(multi_buffer.o)
+                                        0x2a0 (size before relaxing)
+ .eh_frame      0x000000000000dd70       0x60 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(rom_data.o)
+                                         0x78 (size before relaxing)
+ .eh_frame      0x000000000000ddd0      0x278 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(emu8950.o)
+                                        0x290 (size before relaxing)
+ .eh_frame      0x000000000000e048       0xd0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(emuadpcm.o)
+                                         0xe8 (size before relaxing)
+ .eh_frame      0x000000000000e118      0x150 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(track_filter.o)
+                                        0x168 (size before relaxing)
+ .eh_frame      0x000000000000e268       0xd8 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(ay_apu.o)
+                                         0xf0 (size before relaxing)
+ .eh_frame      0x000000000000e340       0x50 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(kss_cpu.o)
+                                         0x68 (size before relaxing)
+ .eh_frame      0x000000000000e390      0x138 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libemu2413.a(sms_apu.o)
+                                        0x150 (size before relaxing)
+ .eh_frame      0x000000000000e4c8      0x3b8 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libemu2413.a(emu2413.o)
+                                        0x3d0 (size before relaxing)
+ .eh_frame      0x000000000000e880      0x158 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+                                        0x170 (size before relaxing)
+ .eh_frame      0x000000000000e9d8        0x4 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtendS.o
+ *(.eh_frame.*)
+
+.sframe
+ *(.sframe)
+ *(.sframe.*)
+
+.gcc_except_table
+ *(.gcc_except_table .gcc_except_table.*)
+
+.gnu_extab
+ *(.gnu_extab*)
+
+.exception_ranges
+ *(.exception_ranges*)
+
+.note.build-id
+ *(.note.build-id)
+
+.note.GNU-stack
+                0x000000000000e9dc        0x0
+ *(.note.GNU-stack)
+ .note.GNU-stack
+                0x000000000000e9dc        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ .note.GNU-stack
+                0x000000000000e9dc        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtbeginS.o
+ .note.GNU-stack
+                0x000000000000e9dc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/kss.o
+ .note.GNU-stack
+                0x000000000000e9dc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/codec_crt0.o
+ .note.GNU-stack
+                0x000000000000e9dc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(kss_emu.o)
+ .note.GNU-stack
+                0x000000000000e9dc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(kss_scc_apu.o)
+ .note.GNU-stack
+                0x000000000000e9dc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(opl_apu.o)
+ .note.GNU-stack
+                0x000000000000e9dc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(z80_cpu.o)
+ .note.GNU-stack
+                0x000000000000e9dc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(blip_buffer.o)
+ .note.GNU-stack
+                0x000000000000e9dc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(multi_buffer.o)
+ .note.GNU-stack
+                0x000000000000e9dc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(rom_data.o)
+ .note.GNU-stack
+                0x000000000000e9dc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(emu8950.o)
+ .note.GNU-stack
+                0x000000000000e9dc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(emuadpcm.o)
+ .note.GNU-stack
+                0x000000000000e9dc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(track_filter.o)
+ .note.GNU-stack
+                0x000000000000e9dc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(ay_apu.o)
+ .note.GNU-stack
+                0x000000000000e9dc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(kss_cpu.o)
+ .note.GNU-stack
+                0x000000000000e9dc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libemu2413.a(sms_apu.o)
+ .note.GNU-stack
+                0x000000000000e9dc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libemu2413.a(emu2413.o)
+ .note.GNU-stack
+                0x000000000000e9dc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+ .note.GNU-stack
+                0x000000000000e9dc        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtendS.o
+ .note.GNU-stack
+                0x000000000000e9dc        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
+
+.note.gnu.property
+                0x000000000000e9e0       0x30
+ *(.note.gnu.property)
+ .note.gnu.property
+                0x000000000000e9e0       0x30 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+
+.note.ABI-tag
+ *(.note.ABI-tag)
+
+.note.package
+ *(.note.package)
+
+.note.dlopen
+ *(.note.dlopen)
+
+.note.netbsd.ident
+ *(.note.netbsd.ident)
+
+.note.openbsd.ident
+ *(.note.openbsd.ident)
+                0x000000000000fd90                . = DATA_SEGMENT_ALIGN (CONSTANT (MAXPAGESIZE), CONSTANT (COMMONPAGESIZE))
+
+.eh_frame
+ *(.eh_frame)
+ *(.eh_frame.*)
+
+.sframe
+ *(.sframe)
+ *(.sframe.*)
+
+.gnu_extab
+ *(.gnu_extab)
+
+.gcc_except_table
+ *(.gcc_except_table .gcc_except_table.*)
+
+.exception_ranges
+ *(.exception_ranges*)
+
+.tdata
+ *(.tdata .tdata.* .gnu.linkonce.td.*)
+
+.tbss
+ *(.tbss .tbss.* .gnu.linkonce.tb.*)
+ *(.tcommon)
+
+.preinit_array
+ *(.preinit_array)
+
+.init_array     0x000000000000fd90        0x8
+ *(SORT_BY_INIT_PRIORITY(.init_array.*) SORT_BY_INIT_PRIORITY(.ctors.*))
+ *(.init_array EXCLUDE_FILE(*crtend?.o *crtend.o *crtbegin?.o *crtbegin.o) .ctors)
+ .init_array    0x000000000000fd90        0x8 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtbeginS.o
+
+.fini_array     0x000000000000fd98        0x8
+ *(SORT_BY_INIT_PRIORITY(.fini_array.*) SORT_BY_INIT_PRIORITY(.dtors.*))
+ *(.fini_array EXCLUDE_FILE(*crtend?.o *crtend.o *crtbegin?.o *crtbegin.o) .dtors)
+ .fini_array    0x000000000000fd98        0x8 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtbeginS.o
+
+.ctors
+ *crtbegin.o(.ctors)
+ *crtbegin?.o(.ctors)
+ *(EXCLUDE_FILE(*crtend?.o *crtend.o) .ctors)
+ *(SORT_BY_NAME(.ctors.*))
+ *(.ctors)
+
+.dtors
+ *crtbegin.o(.dtors)
+ *crtbegin?.o(.dtors)
+ *(EXCLUDE_FILE(*crtend?.o *crtend.o) .dtors)
+ *(SORT_BY_NAME(.dtors.*))
+ *(.dtors)
+
+.jcr
+ *(.jcr)
+
+.data.rel.ro    0x000000000000fda0       0x60
+ *(.data.rel.ro.local* .gnu.linkonce.d.rel.ro.local.*)
+ .data.rel.ro.local
+                0x000000000000fda0       0x10 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libemu2413.a(emu2413.o)
+ *(.data.rel.ro .data.rel.ro.* .gnu.linkonce.d.rel.ro.*)
+ .data.rel.ro   0x000000000000fdb0        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ *fill*         0x000000000000fdb0       0x10 
+ .data.rel.ro   0x000000000000fdc0       0x40 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/kss.o
+                0x000000000000fdc0                __header
+
+.dynamic        0x000000000000fe00      0x1c0
+ *(.dynamic)
+ .dynamic       0x000000000000fe00      0x1c0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+                0x000000000000fe00                _DYNAMIC
+
+.got            0x000000000000ffc0       0x20
+ *(.got)
+ .got           0x000000000000ffc0       0x20 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ *(.igot)
+                0x000000000000ffe8                . = DATA_SEGMENT_RELRO_END (., (SIZEOF (.got.plt) >= 0x18)?0x18:0x0)
+
+.got.plt        0x000000000000ffe8       0x20
+ *(.got.plt)
+ .got.plt       0x000000000000ffe8       0x20 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+                0x000000000000ffe8                _GLOBAL_OFFSET_TABLE_
+ *(.igot.plt)
+
+.data           0x0000000000010020      0x3d0
+ *(.data .data.* .gnu.linkonce.d.*)
+ .data.rel.local
+                0x0000000000010020        0x8 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtbeginS.o
+                0x0000000000010020                __dso_handle
+ .data          0x0000000000010028        0x8 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/codec_crt0.o
+                0x0000000000010028                ci
+ *fill*         0x0000000000010030       0x10 
+ .data          0x0000000000010040      0x3b0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libemu2413.a(emu2413.o)
+
+.tm_clone_table
+                0x00000000000103f0        0x0
+ .tm_clone_table
+                0x00000000000103f0        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtbeginS.o
+ .tm_clone_table
+                0x00000000000103f0        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtendS.o
+
+.data1
+ *(.data1)
+                [!provide]                        PROVIDE (_edata = .)
+                [!provide]                        PROVIDE (edata = .)
+                0x00000000000103f0                . = ALIGN (ALIGNOF (NEXT_SECTION))
+                [!provide]                        PROVIDE (__bss_start = .)
+
+.bss            0x0000000000010400    0x5af38
+ *(.dynbss)
+ .dynbss        0x0000000000010400        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ *(.bss .bss.* .gnu.linkonce.b.*)
+ .bss           0x0000000000010400        0x1 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtbeginS.o
+ *fill*         0x0000000000010401       0x1f 
+ .bss           0x0000000000010420    0x43e60 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/kss.o
+ .bss           0x0000000000054280     0xc080 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(emu8950.o)
+                0x0000000000054280                amtable
+                0x0000000000054a80                pmtable
+ .bss           0x0000000000060300     0xb020 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libemu2413.a(emu2413.o)
+                0x0000000000060300                tllTable
+ .bss           0x000000000006b320       0x18 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+ *(COMMON)
+                0x000000000006b338                . = ALIGN ((. != 0x0)?0x8:0x1)
+
+.lbss
+ *(.dynlbss)
+ *(.lbss .lbss.* .gnu.linkonce.lb.*)
+ *(LARGE_COMMON)
+                0x000000000006b338                . = ALIGN (0x8)
+                0x000000000006b338                . = SEGMENT_START ("ldata-segment", .)
+
+.lrodata
+ *(.lrodata .lrodata.* .gnu.linkonce.lr.*)
+
+.ldata          0x000000000006d338        0x0
+ *(.ldata .ldata.* .gnu.linkonce.l.*)
+                0x000000000006d338                . = ALIGN ((. != 0x0)?0x8:0x1)
+                0x000000000006d338                . = ALIGN (0x8)
+                [!provide]                        PROVIDE (_end = .)
+                [!provide]                        PROVIDE (end = .)
+                0x000000000006d338                . = DATA_SEGMENT_END (.)
+
+.stab
+ *(.stab)
+
+.stabstr
+ *(.stabstr)
+
+.stab.excl
+ *(.stab.excl)
+
+.stab.exclstr
+ *(.stab.exclstr)
+
+.stab.index
+ *(.stab.index)
+
+.stab.indexstr
+ *(.stab.indexstr)
+
+.comment        0x0000000000000000       0x1b
+ *(.comment)
+ .comment       0x0000000000000000       0x1b /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtbeginS.o
+                                         0x1c (size before relaxing)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/kss.o
+                                         0x1c (size before relaxing)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/codec_crt0.o
+                                         0x1c (size before relaxing)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(kss_emu.o)
+                                         0x1c (size before relaxing)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(kss_scc_apu.o)
+                                         0x1c (size before relaxing)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(opl_apu.o)
+                                         0x1c (size before relaxing)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(z80_cpu.o)
+                                         0x1c (size before relaxing)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(blip_buffer.o)
+                                         0x1c (size before relaxing)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(multi_buffer.o)
+                                         0x1c (size before relaxing)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(rom_data.o)
+                                         0x1c (size before relaxing)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(emu8950.o)
+                                         0x1c (size before relaxing)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(emuadpcm.o)
+                                         0x1c (size before relaxing)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(track_filter.o)
+                                         0x1c (size before relaxing)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(ay_apu.o)
+                                         0x1c (size before relaxing)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(kss_cpu.o)
+                                         0x1c (size before relaxing)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libemu2413.a(sms_apu.o)
+                                         0x1c (size before relaxing)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libemu2413.a(emu2413.o)
+                                         0x1c (size before relaxing)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+                                         0x1c (size before relaxing)
+ .comment       0x000000000000001b        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtendS.o
+                                         0x1c (size before relaxing)
+
+.gnu.build.attributes
+ *(.gnu.build.attributes .gnu.build.attributes.*)
+
+.debug
+ *(.debug)
+
+.line
+ *(.line)
+
+.debug_srcinfo
+ *(.debug_srcinfo)
+
+.debug_sfnames
+ *(.debug_sfnames)
+
+.debug_aranges  0x0000000000000000      0x330
+ *(.debug_aranges)
+ .debug_aranges
+                0x0000000000000000       0x30 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/kss.o
+ .debug_aranges
+                0x0000000000000030       0x30 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/codec_crt0.o
+ .debug_aranges
+                0x0000000000000060       0x30 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(kss_emu.o)
+ .debug_aranges
+                0x0000000000000090       0x30 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(kss_scc_apu.o)
+ .debug_aranges
+                0x00000000000000c0       0x30 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(opl_apu.o)
+ .debug_aranges
+                0x00000000000000f0       0x30 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(z80_cpu.o)
+ .debug_aranges
+                0x0000000000000120       0x30 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(blip_buffer.o)
+ .debug_aranges
+                0x0000000000000150       0x30 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(multi_buffer.o)
+ .debug_aranges
+                0x0000000000000180       0x30 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(rom_data.o)
+ .debug_aranges
+                0x00000000000001b0       0x30 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(emu8950.o)
+ .debug_aranges
+                0x00000000000001e0       0x30 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(emuadpcm.o)
+ .debug_aranges
+                0x0000000000000210       0x30 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(track_filter.o)
+ .debug_aranges
+                0x0000000000000240       0x30 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(ay_apu.o)
+ .debug_aranges
+                0x0000000000000270       0x30 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(kss_cpu.o)
+ .debug_aranges
+                0x00000000000002a0       0x30 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libemu2413.a(sms_apu.o)
+ .debug_aranges
+                0x00000000000002d0       0x30 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libemu2413.a(emu2413.o)
+ .debug_aranges
+                0x0000000000000300       0x30 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+
+.debug_pubnames
+ *(.debug_pubnames)
+
+.debug_info     0x0000000000000000    0x1c04b
+ *(.debug_info .gnu.linkonce.wi.*)
+ .debug_info    0x0000000000000000     0x2b7f /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/kss.o
+ .debug_info    0x0000000000002b7f      0xbfb /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/codec_crt0.o
+ .debug_info    0x000000000000377a     0x4fc1 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(kss_emu.o)
+ .debug_info    0x000000000000873b      0xce0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(kss_scc_apu.o)
+ .debug_info    0x000000000000941b     0x1bd0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(opl_apu.o)
+ .debug_info    0x000000000000afeb      0x8b5 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(z80_cpu.o)
+ .debug_info    0x000000000000b8a0      0xaf9 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(blip_buffer.o)
+ .debug_info    0x000000000000c399     0x13ef /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(multi_buffer.o)
+ .debug_info    0x000000000000d788      0x360 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(rom_data.o)
+ .debug_info    0x000000000000dae8     0x2d89 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(emu8950.o)
+ .debug_info    0x0000000000010871      0xe7a /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(emuadpcm.o)
+ .debug_info    0x00000000000116eb      0xe04 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(track_filter.o)
+ .debug_info    0x00000000000124ef      0xf0b /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(ay_apu.o)
+ .debug_info    0x00000000000133fa     0x3b22 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(kss_cpu.o)
+ .debug_info    0x0000000000016f1c     0x1031 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libemu2413.a(sms_apu.o)
+ .debug_info    0x0000000000017f4d     0x2d4e /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libemu2413.a(emu2413.o)
+ .debug_info    0x000000000001ac9b     0x13b0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+
+.debug_abbrev   0x0000000000000000     0x4101
+ *(.debug_abbrev)
+ .debug_abbrev  0x0000000000000000      0x4c5 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/kss.o
+ .debug_abbrev  0x00000000000004c5      0x1fd /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/codec_crt0.o
+ .debug_abbrev  0x00000000000006c2      0x69f /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(kss_emu.o)
+ .debug_abbrev  0x0000000000000d61      0x3a7 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(kss_scc_apu.o)
+ .debug_abbrev  0x0000000000001108      0x408 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(opl_apu.o)
+ .debug_abbrev  0x0000000000001510      0x2c4 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(z80_cpu.o)
+ .debug_abbrev  0x00000000000017d4      0x343 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(blip_buffer.o)
+ .debug_abbrev  0x0000000000001b17      0x46f /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(multi_buffer.o)
+ .debug_abbrev  0x0000000000001f86      0x176 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(rom_data.o)
+ .debug_abbrev  0x00000000000020fc      0x4b7 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(emu8950.o)
+ .debug_abbrev  0x00000000000025b3      0x350 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(emuadpcm.o)
+ .debug_abbrev  0x0000000000002903      0x37b /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(track_filter.o)
+ .debug_abbrev  0x0000000000002c7e      0x401 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(ay_apu.o)
+ .debug_abbrev  0x000000000000307f      0x51d /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(kss_cpu.o)
+ .debug_abbrev  0x000000000000359c      0x443 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libemu2413.a(sms_apu.o)
+ .debug_abbrev  0x00000000000039df      0x42f /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libemu2413.a(emu2413.o)
+ .debug_abbrev  0x0000000000003e0e      0x2f3 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+
+.debug_line     0x0000000000000000     0xa171
+ *(.debug_line .debug_line.* .debug_line_end)
+ .debug_line    0x0000000000000000      0x32c /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/kss.o
+ .debug_line    0x000000000000032c       0xa4 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/codec_crt0.o
+ .debug_line    0x00000000000003d0     0x1523 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(kss_emu.o)
+ .debug_line    0x00000000000018f3      0x526 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(kss_scc_apu.o)
+ .debug_line    0x0000000000001e19      0x4c9 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(opl_apu.o)
+ .debug_line    0x00000000000022e2      0x201 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(z80_cpu.o)
+ .debug_line    0x00000000000024e3      0x4ae /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(blip_buffer.o)
+ .debug_line    0x0000000000002991      0x741 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(multi_buffer.o)
+ .debug_line    0x00000000000030d2      0x15a /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(rom_data.o)
+ .debug_line    0x000000000000322c     0x1671 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(emu8950.o)
+ .debug_line    0x000000000000489d      0x551 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(emuadpcm.o)
+ .debug_line    0x0000000000004dee      0x665 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(track_filter.o)
+ .debug_line    0x0000000000005453      0x790 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(ay_apu.o)
+ .debug_line    0x0000000000005be3     0x1b2c /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(kss_cpu.o)
+ .debug_line    0x000000000000770f      0x6dd /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libemu2413.a(sms_apu.o)
+ .debug_line    0x0000000000007dec     0x20d7 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libemu2413.a(emu2413.o)
+ .debug_line    0x0000000000009ec3      0x2ae /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+
+.debug_frame
+ *(.debug_frame)
+
+.debug_str      0x0000000000000000     0x312c
+ *(.debug_str)
+ .debug_str     0x0000000000000000     0x312c /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/kss.o
+                                       0x1665 (size before relaxing)
+ .debug_str     0x000000000000312c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/codec_crt0.o
+                                        0xa2d (size before relaxing)
+ .debug_str     0x000000000000312c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(kss_emu.o)
+                                       0x15ca (size before relaxing)
+ .debug_str     0x000000000000312c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(kss_scc_apu.o)
+                                        0x4d2 (size before relaxing)
+ .debug_str     0x000000000000312c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(opl_apu.o)
+                                        0xa8b (size before relaxing)
+ .debug_str     0x000000000000312c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(z80_cpu.o)
+                                        0x5e5 (size before relaxing)
+ .debug_str     0x000000000000312c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(blip_buffer.o)
+                                        0x519 (size before relaxing)
+ .debug_str     0x000000000000312c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(multi_buffer.o)
+                                        0x6db (size before relaxing)
+ .debug_str     0x000000000000312c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(rom_data.o)
+                                        0x288 (size before relaxing)
+ .debug_str     0x000000000000312c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(emu8950.o)
+                                        0xaa0 (size before relaxing)
+ .debug_str     0x000000000000312c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(emuadpcm.o)
+                                        0x6b0 (size before relaxing)
+ .debug_str     0x000000000000312c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(track_filter.o)
+                                        0x731 (size before relaxing)
+ .debug_str     0x000000000000312c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(ay_apu.o)
+                                        0x604 (size before relaxing)
+ .debug_str     0x000000000000312c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(kss_cpu.o)
+                                       0x1502 (size before relaxing)
+ .debug_str     0x000000000000312c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libemu2413.a(sms_apu.o)
+                                        0x53b (size before relaxing)
+ .debug_str     0x000000000000312c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libemu2413.a(emu2413.o)
+                                        0xba7 (size before relaxing)
+ .debug_str     0x000000000000312c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+                                        0xc5b (size before relaxing)
+
+.debug_loc
+ *(.debug_loc)
+
+.debug_macinfo
+ *(.debug_macinfo)
+
+.debug_weaknames
+ *(.debug_weaknames)
+
+.debug_funcnames
+ *(.debug_funcnames)
+
+.debug_typenames
+ *(.debug_typenames)
+
+.debug_varnames
+ *(.debug_varnames)
+
+.debug_pubtypes
+ *(.debug_pubtypes)
+
+.debug_ranges
+ *(.debug_ranges)
+
+.debug_addr
+ *(.debug_addr)
+
+.debug_line_str
+                0x0000000000000000      0x947
+ *(.debug_line_str)
+ .debug_line_str
+                0x0000000000000000      0x947 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/kss.o
+                                        0x402 (size before relaxing)
+ .debug_line_str
+                0x0000000000000947        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/codec_crt0.o
+                                        0x259 (size before relaxing)
+ .debug_line_str
+                0x0000000000000947        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(kss_emu.o)
+                                        0x24a (size before relaxing)
+ .debug_line_str
+                0x0000000000000947        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(kss_scc_apu.o)
+                                        0x192 (size before relaxing)
+ .debug_line_str
+                0x0000000000000947        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(opl_apu.o)
+                                        0x18e (size before relaxing)
+ .debug_line_str
+                0x0000000000000947        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(z80_cpu.o)
+                                        0x21d (size before relaxing)
+ .debug_line_str
+                0x0000000000000947        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(blip_buffer.o)
+                                        0x16c (size before relaxing)
+ .debug_line_str
+                0x0000000000000947        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(multi_buffer.o)
+                                        0x168 (size before relaxing)
+ .debug_line_str
+                0x0000000000000947        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(rom_data.o)
+                                        0x170 (size before relaxing)
+ .debug_line_str
+                0x0000000000000947        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(emu8950.o)
+                                        0x15d (size before relaxing)
+ .debug_line_str
+                0x0000000000000947        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(emuadpcm.o)
+                                        0x16a (size before relaxing)
+ .debug_line_str
+                0x0000000000000947        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(track_filter.o)
+                                        0x208 (size before relaxing)
+ .debug_line_str
+                0x0000000000000947        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(ay_apu.o)
+                                        0x150 (size before relaxing)
+ .debug_line_str
+                0x0000000000000947        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(kss_cpu.o)
+                                        0x390 (size before relaxing)
+ .debug_line_str
+                0x0000000000000947        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libemu2413.a(sms_apu.o)
+                                        0x144 (size before relaxing)
+ .debug_line_str
+                0x0000000000000947        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libemu2413.a(emu2413.o)
+                                        0x1fb (size before relaxing)
+ .debug_line_str
+                0x0000000000000947        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+                                        0x321 (size before relaxing)
+
+.debug_loclists
+                0x0000000000000000     0xc505
+ *(.debug_loclists)
+ .debug_loclists
+                0x0000000000000000      0x143 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/kss.o
+ .debug_loclists
+                0x0000000000000143       0x1e /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/codec_crt0.o
+ .debug_loclists
+                0x0000000000000161     0x1730 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(kss_emu.o)
+ .debug_loclists
+                0x0000000000001891      0x5e6 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(kss_scc_apu.o)
+ .debug_loclists
+                0x0000000000001e77      0x687 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(opl_apu.o)
+ .debug_loclists
+                0x00000000000024fe      0x205 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(z80_cpu.o)
+ .debug_loclists
+                0x0000000000002703      0x649 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(blip_buffer.o)
+ .debug_loclists
+                0x0000000000002d4c      0x850 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(multi_buffer.o)
+ .debug_loclists
+                0x000000000000359c      0x170 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(rom_data.o)
+ .debug_loclists
+                0x000000000000370c     0x1058 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(emu8950.o)
+ .debug_loclists
+                0x0000000000004764      0x2ee /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(emuadpcm.o)
+ .debug_loclists
+                0x0000000000004a52      0x51b /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(track_filter.o)
+ .debug_loclists
+                0x0000000000004f6d      0x9ef /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(ay_apu.o)
+ .debug_loclists
+                0x000000000000595c     0x47ea /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(kss_cpu.o)
+ .debug_loclists
+                0x000000000000a146      0x8c6 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libemu2413.a(sms_apu.o)
+ .debug_loclists
+                0x000000000000aa0c     0x17c4 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libemu2413.a(emu2413.o)
+ .debug_loclists
+                0x000000000000c1d0      0x335 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+
+.debug_macro
+ *(.debug_macro)
+
+.debug_names
+ *(.debug_names)
+
+.debug_rnglists
+                0x0000000000000000      0xb78
+ *(.debug_rnglists)
+ .debug_rnglists
+                0x0000000000000000      0x1a4 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(kss_emu.o)
+ .debug_rnglists
+                0x00000000000001a4       0xaf /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(kss_scc_apu.o)
+ .debug_rnglists
+                0x0000000000000253       0x9b /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(opl_apu.o)
+ .debug_rnglists
+                0x00000000000002ee       0x17 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(z80_cpu.o)
+ .debug_rnglists
+                0x0000000000000305       0x97 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(blip_buffer.o)
+ .debug_rnglists
+                0x000000000000039c      0x111 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(multi_buffer.o)
+ .debug_rnglists
+                0x00000000000004ad      0x1bd /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(emu8950.o)
+ .debug_rnglists
+                0x000000000000066a       0x67 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(emuadpcm.o)
+ .debug_rnglists
+                0x00000000000006d1       0x77 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(track_filter.o)
+ .debug_rnglists
+                0x0000000000000748       0x7b /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(ay_apu.o)
+ .debug_rnglists
+                0x00000000000007c3      0x161 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libkss.a(kss_cpu.o)
+ .debug_rnglists
+                0x0000000000000924       0x77 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libemu2413.a(sms_apu.o)
+ .debug_rnglists
+                0x000000000000099b      0x1dd /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/libemu2413.a(emu2413.o)
+
+.debug_str_offsets
+ *(.debug_str_offsets)
+
+.debug_sup
+ *(.debug_sup)
+
+.gnu.attributes
+ *(.gnu.attributes)
+
+/DISCARD/
+ *(.note.GNU-stack)
+ *(.gnu_debuglink)
+ *(.gnu.lto_*)
+ *(.gnu_object_only)
+OUTPUT(/home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/rbcodec/codecs/kss.elf elf64-x86-64)

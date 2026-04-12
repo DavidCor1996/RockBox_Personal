@@ -1,0 +1,1426 @@
+Archive member included to satisfy reference by file (symbol)
+
+/home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(gcc-support.o)
+                              /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/pacbox/wsg3.o (memcpy)
+/home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(helper.o)
+                              /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/pacbox/pacbox.o (backlight_ignore_timeout)
+/home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(configfile.o)
+                              /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/pacbox/pacbox.o (configfile_save)
+/home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/lib/libsetjmp.a(setjmp.o)
+                              /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/plugin_crt0.o (setjmp)
+/usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivsi3.o)
+                              /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/pacbox/wsg3.o (__aeabi_uidiv)
+/usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+                              /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/pacbox/pacbox.o (__aeabi_idiv)
+/usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
+                              /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivsi3.o) (__aeabi_idiv0)
+
+Discarded input sections
+
+ .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/pacbox/hardware.o
+ .bss           0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/pacbox/z80.o
+ .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/pacbox/wsg3.o
+ .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/pacbox/pacbox_lcd.o
+ .bss           0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/pacbox/pacbox_lcd.o
+ .text          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(gcc-support.o)
+ .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(gcc-support.o)
+ .bss           0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(gcc-support.o)
+ .text.__div0   0x0000000000000000       0x14 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(gcc-support.o)
+ .text.memmove  0x0000000000000000       0x14 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(gcc-support.o)
+ .text.memcmp   0x0000000000000000       0x14 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(gcc-support.o)
+ .text          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(helper.o)
+ .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(helper.o)
+ .bss           0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(helper.o)
+ .text.talk_val
+                0x0000000000000000       0x28 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(helper.o)
+ .text.backlight_force_on
+                0x0000000000000000       0x34 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(helper.o)
+ .text.sw_poweroff_disable
+                0x0000000000000000       0x3c /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(helper.o)
+ .text.sw_poweroff_restore
+                0x0000000000000000       0x20 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(helper.o)
+ .text.remote_backlight_force_on
+                0x0000000000000000        0x4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(helper.o)
+ .text.remote_backlight_ignore_timeout
+                0x0000000000000000        0x4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(helper.o)
+ .text.remote_backlight_use_settings
+                0x0000000000000000        0x4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(helper.o)
+ .text.buttonlight_force_on
+                0x0000000000000000        0x4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(helper.o)
+ .text.buttonlight_force_off
+                0x0000000000000000        0x4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(helper.o)
+ .text.buttonlight_ignore_timeout
+                0x0000000000000000        0x4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(helper.o)
+ .text.buttonlight_use_settings
+                0x0000000000000000        0x4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(helper.o)
+ .text.backlight_brightness_set
+                0x0000000000000000       0x14 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(helper.o)
+ .text.backlight_brightness_use_setting
+                0x0000000000000000       0x1c /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(helper.o)
+ .text.buttonlight_brightness_set
+                0x0000000000000000        0x4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(helper.o)
+ .text.buttonlight_brightness_use_setting
+                0x0000000000000000        0x4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(helper.o)
+ .data.original_sw_poweroff_state
+                0x0000000000000000        0x1 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(helper.o)
+ .text          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(configfile.o)
+ .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(configfile.o)
+ .bss           0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(configfile.o)
+ .text.configfile_get_value
+                0x0000000000000000       0xec /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(configfile.o)
+ .text.configfile_update_entry
+                0x0000000000000000      0x13c /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(configfile.o)
+ .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/lib/libsetjmp.a(setjmp.o)
+ .bss           0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/lib/libsetjmp.a(setjmp.o)
+ .data          0x0000000000000000        0x0 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivsi3.o)
+ .bss           0x0000000000000000        0x0 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivsi3.o)
+ .data          0x0000000000000000        0x0 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+ .bss           0x0000000000000000        0x0 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+ .data          0x0000000000000000        0x0 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
+ .bss           0x0000000000000000        0x0 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
+
+Memory Configuration
+
+Name             Origin             Length             Attributes
+PLUGIN_RAM       0x0000000009f60000 0x00000000000a0000
+PLUGIN_IRAM      0x000000000000c000 0x0000000000020000
+*default*        0x0000000000000000 0xffffffffffffffff
+
+Linker script and memory map
+
+LOAD /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/pacbox/arcade.o
+LOAD /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/pacbox/pacbox.o
+LOAD /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/pacbox/hardware.o
+LOAD /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/pacbox/z80.o
+LOAD /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/pacbox/wsg3.o
+LOAD /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/pacbox/pacbox_lcd.o
+LOAD /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/plugin_crt0.o
+LOAD /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a
+LOAD /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/bitmaps/libpluginbitmaps.a
+LOAD /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/lib/libsetjmp.a
+LOAD /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/lib/libfixedpoint.a
+LOAD /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a
+
+.header         0x0000000009f60000       0x1c
+                0x0000000009f60000                _plugin_start_addr = .
+                0x0000000009f60000                plugin_start_addr = .
+ *(.header)
+ .header        0x0000000009f60000       0x1c /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/plugin_crt0.o
+                0x0000000009f60000                __header
+
+.text           0x0000000009f6001c    0x1c918
+ *(.text*)
+ .text          0x0000000009f6001c      0xdbc /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/pacbox/arcade.o
+                0x0000000009f6001c                reset_PacmanMachine
+                0x0000000009f600f8                run
+                0x0000000009f60144                decodeROMs
+                0x0000000009f6057c                setDeviceMode
+                0x0000000009f60618                setDipSwitches
+                0x0000000009f6066c                init_PacmanMachine
+                0x0000000009f607ac                getDipSwitches
+                0x0000000009f607ec                renderBackground
+                0x0000000009f60b1c                renderSprites
+                0x0000000009f60d9c                playSound
+ .text          0x0000000009f60dd8      0xdb0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/pacbox/pacbox.o
+                0x0000000009f60f8c                joystick
+                0x0000000009f61034                clear_joystick
+                0x0000000009f61070                ai_turn
+                0x0000000009f61118                ai
+                0x0000000009f61338                plugin_start
+ .text          0x0000000009f61b88      0x360 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/pacbox/hardware.o
+                0x0000000009f61ba0                writeByte
+                0x0000000009f61ea4                readPort
+                0x0000000009f61eac                writePort
+                0x0000000009f61ec0                setOutputFlipFlop
+ .text          0x0000000009f61ee8    0x19d4c /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/pacbox/z80.o
+                0x0000000009f61f6c                opcode_cb_00
+                0x0000000009f61fa0                opcode_cb_01
+                0x0000000009f61fd4                opcode_cb_02
+                0x0000000009f62008                opcode_cb_03
+                0x0000000009f6203c                opcode_cb_04
+                0x0000000009f62070                opcode_cb_05
+                0x0000000009f620a4                opcode_cb_07
+                0x0000000009f620d8                opcode_cb_08
+                0x0000000009f62110                opcode_cb_09
+                0x0000000009f62114                opcode_cb_0a
+                0x0000000009f62118                opcode_cb_0b
+                0x0000000009f6211c                opcode_cb_0c
+                0x0000000009f62120                opcode_cb_0d
+                0x0000000009f62124                opcode_cb_0f
+                0x0000000009f62128                opcode_cb_10
+                0x0000000009f62168                opcode_cb_11
+                0x0000000009f621a8                opcode_cb_12
+                0x0000000009f621e8                opcode_cb_13
+                0x0000000009f62228                opcode_cb_14
+                0x0000000009f62268                opcode_cb_15
+                0x0000000009f622a8                opcode_cb_17
+                0x0000000009f622e8                opcode_cb_18
+                0x0000000009f62324                opcode_cb_19
+                0x0000000009f62360                opcode_cb_1a
+                0x0000000009f6239c                opcode_cb_1b
+                0x0000000009f623d8                opcode_cb_1c
+                0x0000000009f62414                opcode_cb_1d
+                0x0000000009f62450                opcode_cb_1f
+                0x0000000009f6248c                opcode_cb_20
+                0x0000000009f624bc                opcode_cb_21
+                0x0000000009f624ec                opcode_cb_22
+                0x0000000009f6251c                opcode_cb_23
+                0x0000000009f6254c                opcode_cb_24
+                0x0000000009f6257c                opcode_cb_25
+                0x0000000009f625ac                opcode_cb_27
+                0x0000000009f625dc                opcode_cb_28
+                0x0000000009f62610                opcode_cb_29
+                0x0000000009f62644                opcode_cb_2a
+                0x0000000009f62678                opcode_cb_2b
+                0x0000000009f626ac                opcode_cb_2c
+                0x0000000009f626e0                opcode_cb_2d
+                0x0000000009f62714                opcode_cb_2f
+                0x0000000009f62748                opcode_cb_30
+                0x0000000009f6277c                opcode_cb_31
+                0x0000000009f627b0                opcode_cb_32
+                0x0000000009f627e4                opcode_cb_33
+                0x0000000009f62818                opcode_cb_34
+                0x0000000009f6284c                opcode_cb_35
+                0x0000000009f62880                opcode_cb_37
+                0x0000000009f628b4                opcode_cb_38
+                0x0000000009f628e4                opcode_cb_39
+                0x0000000009f62914                opcode_cb_3a
+                0x0000000009f62944                opcode_cb_3b
+                0x0000000009f62974                opcode_cb_3c
+                0x0000000009f629a4                opcode_cb_3d
+                0x0000000009f629d4                opcode_cb_3f
+                0x0000000009f62a04                opcode_cb_40
+                0x0000000009f62a2c                opcode_cb_41
+                0x0000000009f62a54                opcode_cb_42
+                0x0000000009f62a7c                opcode_cb_43
+                0x0000000009f62aa4                opcode_cb_44
+                0x0000000009f62acc                opcode_cb_45
+                0x0000000009f62af4                opcode_cb_47
+                0x0000000009f62b1c                opcode_cb_48
+                0x0000000009f62b44                opcode_cb_49
+                0x0000000009f62b6c                opcode_cb_4a
+                0x0000000009f62b94                opcode_cb_4b
+                0x0000000009f62bbc                opcode_cb_4c
+                0x0000000009f62be4                opcode_cb_4d
+                0x0000000009f62c0c                opcode_cb_4f
+                0x0000000009f62c34                opcode_cb_50
+                0x0000000009f62c5c                opcode_cb_51
+                0x0000000009f62c84                opcode_cb_52
+                0x0000000009f62cac                opcode_cb_53
+                0x0000000009f62cd4                opcode_cb_54
+                0x0000000009f62cfc                opcode_cb_55
+                0x0000000009f62d24                opcode_cb_57
+                0x0000000009f62d4c                opcode_cb_58
+                0x0000000009f62d74                opcode_cb_59
+                0x0000000009f62d9c                opcode_cb_5a
+                0x0000000009f62dc4                opcode_cb_5b
+                0x0000000009f62dec                opcode_cb_5c
+                0x0000000009f62e14                opcode_cb_5d
+                0x0000000009f62e3c                opcode_cb_5f
+                0x0000000009f62e64                opcode_cb_60
+                0x0000000009f62e8c                opcode_cb_61
+                0x0000000009f62eb4                opcode_cb_62
+                0x0000000009f62edc                opcode_cb_63
+                0x0000000009f62f04                opcode_cb_64
+                0x0000000009f62f2c                opcode_cb_65
+                0x0000000009f62f54                opcode_cb_67
+                0x0000000009f62f7c                opcode_cb_68
+                0x0000000009f62fa4                opcode_cb_69
+                0x0000000009f62fcc                opcode_cb_6a
+                0x0000000009f62ff4                opcode_cb_6b
+                0x0000000009f6301c                opcode_cb_6c
+                0x0000000009f63044                opcode_cb_6d
+                0x0000000009f6306c                opcode_cb_6f
+                0x0000000009f63094                opcode_cb_70
+                0x0000000009f630bc                opcode_cb_71
+                0x0000000009f630e4                opcode_cb_72
+                0x0000000009f6310c                opcode_cb_73
+                0x0000000009f63134                opcode_cb_74
+                0x0000000009f6315c                opcode_cb_75
+                0x0000000009f63184                opcode_cb_77
+                0x0000000009f631ac                opcode_cb_78
+                0x0000000009f631d4                opcode_cb_79
+                0x0000000009f631fc                opcode_cb_7a
+                0x0000000009f63224                opcode_cb_7b
+                0x0000000009f6324c                opcode_cb_7c
+                0x0000000009f63274                opcode_cb_7d
+                0x0000000009f6329c                opcode_cb_7f
+                0x0000000009f632c4                opcode_cb_80
+                0x0000000009f632dc                opcode_cb_81
+                0x0000000009f632f4                opcode_cb_82
+                0x0000000009f6330c                opcode_cb_83
+                0x0000000009f63324                opcode_cb_84
+                0x0000000009f6333c                opcode_cb_85
+                0x0000000009f63354                opcode_cb_87
+                0x0000000009f6336c                opcode_cb_88
+                0x0000000009f63384                opcode_cb_89
+                0x0000000009f6339c                opcode_cb_8a
+                0x0000000009f633b4                opcode_cb_8b
+                0x0000000009f633cc                opcode_cb_8c
+                0x0000000009f633e4                opcode_cb_8d
+                0x0000000009f633fc                opcode_cb_8f
+                0x0000000009f63414                opcode_cb_90
+                0x0000000009f6342c                opcode_cb_91
+                0x0000000009f63444                opcode_cb_92
+                0x0000000009f6345c                opcode_cb_93
+                0x0000000009f63474                opcode_cb_94
+                0x0000000009f6348c                opcode_cb_95
+                0x0000000009f634a4                opcode_cb_97
+                0x0000000009f634bc                opcode_cb_98
+                0x0000000009f634d4                opcode_cb_99
+                0x0000000009f634ec                opcode_cb_9a
+                0x0000000009f63504                opcode_cb_9b
+                0x0000000009f6351c                opcode_cb_9c
+                0x0000000009f63534                opcode_cb_9d
+                0x0000000009f6354c                opcode_cb_9f
+                0x0000000009f63564                opcode_cb_a0
+                0x0000000009f6357c                opcode_cb_a1
+                0x0000000009f63594                opcode_cb_a2
+                0x0000000009f635ac                opcode_cb_a3
+                0x0000000009f635c4                opcode_cb_a4
+                0x0000000009f635dc                opcode_cb_a5
+                0x0000000009f635f4                opcode_cb_a7
+                0x0000000009f6360c                opcode_cb_a8
+                0x0000000009f63624                opcode_cb_a9
+                0x0000000009f6363c                opcode_cb_aa
+                0x0000000009f63654                opcode_cb_ab
+                0x0000000009f6366c                opcode_cb_ac
+                0x0000000009f63684                opcode_cb_ad
+                0x0000000009f6369c                opcode_cb_af
+                0x0000000009f636b4                opcode_cb_b0
+                0x0000000009f636cc                opcode_cb_b1
+                0x0000000009f636e4                opcode_cb_b2
+                0x0000000009f636fc                opcode_cb_b3
+                0x0000000009f63714                opcode_cb_b4
+                0x0000000009f6372c                opcode_cb_b5
+                0x0000000009f63744                opcode_cb_b7
+                0x0000000009f6375c                opcode_cb_b8
+                0x0000000009f63774                opcode_cb_b9
+                0x0000000009f6378c                opcode_cb_ba
+                0x0000000009f637a4                opcode_cb_bb
+                0x0000000009f637bc                opcode_cb_bc
+                0x0000000009f637d4                opcode_cb_bd
+                0x0000000009f637ec                opcode_cb_bf
+                0x0000000009f63804                opcode_cb_c0
+                0x0000000009f6381c                opcode_cb_c1
+                0x0000000009f63834                opcode_cb_c2
+                0x0000000009f6384c                opcode_cb_c3
+                0x0000000009f63864                opcode_cb_c4
+                0x0000000009f6387c                opcode_cb_c5
+                0x0000000009f63894                opcode_cb_c7
+                0x0000000009f638ac                opcode_cb_c8
+                0x0000000009f638c4                opcode_cb_c9
+                0x0000000009f638dc                opcode_cb_ca
+                0x0000000009f638f4                opcode_cb_cb
+                0x0000000009f6390c                opcode_cb_cc
+                0x0000000009f63924                opcode_cb_cd
+                0x0000000009f6393c                opcode_cb_cf
+                0x0000000009f63954                opcode_cb_d0
+                0x0000000009f6396c                opcode_cb_d1
+                0x0000000009f63984                opcode_cb_d2
+                0x0000000009f6399c                opcode_cb_d3
+                0x0000000009f639b4                opcode_cb_d4
+                0x0000000009f639cc                opcode_cb_d5
+                0x0000000009f639e4                opcode_cb_d7
+                0x0000000009f639fc                opcode_cb_d8
+                0x0000000009f63a14                opcode_cb_d9
+                0x0000000009f63a2c                opcode_cb_da
+                0x0000000009f63a44                opcode_cb_db
+                0x0000000009f63a5c                opcode_cb_dc
+                0x0000000009f63a74                opcode_cb_dd
+                0x0000000009f63a8c                opcode_cb_df
+                0x0000000009f63aa4                opcode_cb_e0
+                0x0000000009f63abc                opcode_cb_e1
+                0x0000000009f63ad4                opcode_cb_e2
+                0x0000000009f63aec                opcode_cb_e3
+                0x0000000009f63b04                opcode_cb_e4
+                0x0000000009f63b1c                opcode_cb_e5
+                0x0000000009f63b34                opcode_cb_e7
+                0x0000000009f63b4c                opcode_cb_e8
+                0x0000000009f63b64                opcode_cb_e9
+                0x0000000009f63b7c                opcode_cb_ea
+                0x0000000009f63b94                opcode_cb_eb
+                0x0000000009f63bac                opcode_cb_ec
+                0x0000000009f63bc4                opcode_cb_ed
+                0x0000000009f63bdc                opcode_cb_ef
+                0x0000000009f63bf4                opcode_cb_f0
+                0x0000000009f63c0c                opcode_cb_f1
+                0x0000000009f63c24                opcode_cb_f2
+                0x0000000009f63c3c                opcode_cb_f3
+                0x0000000009f63c54                opcode_cb_f4
+                0x0000000009f63c6c                opcode_cb_f5
+                0x0000000009f63c84                opcode_cb_f7
+                0x0000000009f63c9c                opcode_cb_f8
+                0x0000000009f63cb8                opcode_cb_f9
+                0x0000000009f63cd4                opcode_cb_fa
+                0x0000000009f63cf0                opcode_cb_fb
+                0x0000000009f63d0c                opcode_cb_fc
+                0x0000000009f63d28                opcode_cb_fd
+                0x0000000009f63d44                opcode_cb_ff
+                0x0000000009f63d60                opcode_dd_23
+                0x0000000009f63d78                opcode_dd_2b
+                0x0000000009f63d90                opcode_dd_44
+                0x0000000009f63da8                opcode_dd_45
+                0x0000000009f63dbc                opcode_dd_4c
+                0x0000000009f63dd4                opcode_dd_4d
+                0x0000000009f63de8                opcode_dd_54
+                0x0000000009f63e00                opcode_dd_55
+                0x0000000009f63e14                opcode_dd_5c
+                0x0000000009f63e2c                opcode_dd_5d
+                0x0000000009f63e40                opcode_dd_60
+                0x0000000009f63e5c                opcode_dd_61
+                0x0000000009f63e78                opcode_dd_62
+                0x0000000009f63e94                opcode_dd_63
+                0x0000000009f63eb0                opcode_dd_65
+                0x0000000009f63ed8                opcode_dd_67
+                0x0000000009f63ef4                opcode_dd_68
+                0x0000000009f63f14                opcode_dd_69
+                0x0000000009f63f34                opcode_dd_6a
+                0x0000000009f63f54                opcode_dd_6b
+                0x0000000009f63f74                opcode_dd_6c
+                0x0000000009f63f94                opcode_dd_6f
+                0x0000000009f63fb4                opcode_dd_7c
+                0x0000000009f63fcc                opcode_dd_7d
+                0x0000000009f63fe0                opcode_dd_84
+                0x0000000009f63ff4                opcode_dd_85
+                0x0000000009f64008                opcode_dd_8c
+                0x0000000009f64020                opcode_dd_8d
+                0x0000000009f64038                opcode_dd_a4
+                0x0000000009f64068                opcode_dd_a5
+                0x0000000009f64098                opcode_dd_ac
+                0x0000000009f640c4                opcode_dd_ad
+                0x0000000009f640f0                opcode_dd_b4
+                0x0000000009f6411c                opcode_dd_b5
+                0x0000000009f64148                opcode_dd_e9
+                0x0000000009f6415c                opcode_dd_f9
+                0x0000000009f64170                opcode_ed_47
+                0x0000000009f64184                opcode_ed_4f
+                0x0000000009f64198                opcode_ed_57
+                0x0000000009f641dc                opcode_ed_5f
+                0x0000000009f64220                opcode_fd_23
+                0x0000000009f64238                opcode_fd_2b
+                0x0000000009f64250                opcode_fd_44
+                0x0000000009f64268                opcode_fd_45
+                0x0000000009f6427c                opcode_fd_4c
+                0x0000000009f64294                opcode_fd_4d
+                0x0000000009f642a8                opcode_fd_54
+                0x0000000009f642c0                opcode_fd_55
+                0x0000000009f642d4                opcode_fd_5c
+                0x0000000009f642ec                opcode_fd_5d
+                0x0000000009f64300                opcode_fd_60
+                0x0000000009f6431c                opcode_fd_61
+                0x0000000009f64338                opcode_fd_62
+                0x0000000009f64354                opcode_fd_63
+                0x0000000009f64370                opcode_fd_65
+                0x0000000009f64398                opcode_fd_67
+                0x0000000009f643b4                opcode_fd_68
+                0x0000000009f643d4                opcode_fd_69
+                0x0000000009f643f4                opcode_fd_6a
+                0x0000000009f64414                opcode_fd_6b
+                0x0000000009f64434                opcode_fd_6c
+                0x0000000009f64454                opcode_fd_6f
+                0x0000000009f64474                opcode_fd_7c
+                0x0000000009f6448c                opcode_fd_7d
+                0x0000000009f644a0                opcode_fd_84
+                0x0000000009f644b4                opcode_fd_85
+                0x0000000009f644c8                opcode_fd_8c
+                0x0000000009f644e0                opcode_fd_8d
+                0x0000000009f644f8                opcode_fd_a4
+                0x0000000009f64528                opcode_fd_a5
+                0x0000000009f64558                opcode_fd_ac
+                0x0000000009f64584                opcode_fd_ad
+                0x0000000009f645b0                opcode_fd_b4
+                0x0000000009f645dc                opcode_fd_b5
+                0x0000000009f64608                opcode_fd_e9
+                0x0000000009f6461c                opcode_fd_f9
+                0x0000000009f64630                opcode_00
+                0x0000000009f64634                opcode_07
+                0x0000000009f64664                opcode_08
+                0x0000000009f64690                opcode_09
+                0x0000000009f646fc                opcode_0f
+                0x0000000009f64734                opcode_17
+                0x0000000009f64770                opcode_19
+                0x0000000009f647dc                opcode_1f
+                0x0000000009f64818                opcode_27
+                0x0000000009f64950                opcode_29
+                0x0000000009f649a8                opcode_2f
+                0x0000000009f649cc                opcode_33
+                0x0000000009f649ec                opcode_37
+                0x0000000009f64a08                opcode_39
+                0x0000000009f64a6c                opcode_3b
+                0x0000000009f64a8c                opcode_3f
+                0x0000000009f64abc                opcode_41
+                0x0000000009f64ad0                opcode_42
+                0x0000000009f64ae4                opcode_43
+                0x0000000009f64af8                opcode_44
+                0x0000000009f64b0c                opcode_45
+                0x0000000009f64b20                opcode_47
+                0x0000000009f64b34                opcode_48
+                0x0000000009f64b48                opcode_4a
+                0x0000000009f64b5c                opcode_4b
+                0x0000000009f64b70                opcode_4c
+                0x0000000009f64b84                opcode_4d
+                0x0000000009f64b98                opcode_4f
+                0x0000000009f64bac                opcode_50
+                0x0000000009f64bc0                opcode_51
+                0x0000000009f64bd4                opcode_53
+                0x0000000009f64be8                opcode_54
+                0x0000000009f64bfc                opcode_55
+                0x0000000009f64c10                opcode_57
+                0x0000000009f64c24                opcode_58
+                0x0000000009f64c38                opcode_59
+                0x0000000009f64c4c                opcode_5a
+                0x0000000009f64c60                opcode_5c
+                0x0000000009f64c74                opcode_5d
+                0x0000000009f64c88                opcode_5f
+                0x0000000009f64c9c                opcode_60
+                0x0000000009f64cb0                opcode_61
+                0x0000000009f64cc4                opcode_62
+                0x0000000009f64cd8                opcode_63
+                0x0000000009f64cec                opcode_65
+                0x0000000009f64d00                opcode_67
+                0x0000000009f64d14                opcode_68
+                0x0000000009f64d28                opcode_69
+                0x0000000009f64d3c                opcode_6a
+                0x0000000009f64d50                opcode_6b
+                0x0000000009f64d64                opcode_6c
+                0x0000000009f64d78                opcode_6f
+                0x0000000009f64d8c                opcode_76
+                0x0000000009f64da4                opcode_78
+                0x0000000009f64db8                opcode_79
+                0x0000000009f64dcc                opcode_7a
+                0x0000000009f64de0                opcode_7b
+                0x0000000009f64df4                opcode_7c
+                0x0000000009f64e08                opcode_7d
+                0x0000000009f64e1c                opcode_80
+                0x0000000009f64e30                opcode_81
+                0x0000000009f64e44                opcode_82
+                0x0000000009f64e58                opcode_83
+                0x0000000009f64e6c                opcode_84
+                0x0000000009f64e80                opcode_85
+                0x0000000009f64e94                opcode_87
+                0x0000000009f64ea8                opcode_88
+                0x0000000009f64ec0                opcode_89
+                0x0000000009f64ed8                opcode_8a
+                0x0000000009f64ef0                opcode_8b
+                0x0000000009f64f08                opcode_8c
+                0x0000000009f64f20                opcode_8d
+                0x0000000009f64f38                opcode_8f
+                0x0000000009f64f50                opcode_a0
+                0x0000000009f64f80                opcode_a1
+                0x0000000009f64fb0                opcode_a2
+                0x0000000009f64fe0                opcode_a3
+                0x0000000009f65010                opcode_a4
+                0x0000000009f65040                opcode_a5
+                0x0000000009f65070                opcode_a7
+                0x0000000009f65094                opcode_a8
+                0x0000000009f650c0                opcode_a9
+                0x0000000009f650ec                opcode_aa
+                0x0000000009f65118                opcode_ab
+                0x0000000009f65144                opcode_ac
+                0x0000000009f65170                opcode_ad
+                0x0000000009f6519c                opcode_af
+                0x0000000009f651c0                opcode_b0
+                0x0000000009f651ec                opcode_b1
+                0x0000000009f65218                opcode_b2
+                0x0000000009f65244                opcode_b3
+                0x0000000009f65270                opcode_b4
+                0x0000000009f6529c                opcode_b5
+                0x0000000009f652c8                opcode_b7
+                0x0000000009f652e8                opcode_d9
+                0x0000000009f6535c                opcode_e9
+                0x0000000009f65378                opcode_eb
+                0x0000000009f653a4                opcode_f3
+                0x0000000009f653bc                opcode_f9
+                0x0000000009f653d8                opcode_fb
+                0x0000000009f653f0                opcode_02
+                0x0000000009f65418                opcode_12
+                0x0000000009f65440                opcode_70
+                0x0000000009f65468                opcode_71
+                0x0000000009f65490                opcode_72
+                0x0000000009f654b8                opcode_73
+                0x0000000009f654e0                opcode_74
+                0x0000000009f65504                opcode_75
+                0x0000000009f65528                opcode_77
+                0x0000000009f65550                opcode_c5
+                0x0000000009f6558c                opcode_d5
+                0x0000000009f655c8                opcode_e5
+                0x0000000009f65604                opcode_f5
+                0x0000000009f65640                opcode_ed_70
+                0x0000000009f65678                opcode_ed_40
+                0x0000000009f656b4                opcode_ed_48
+                0x0000000009f656f0                opcode_ed_50
+                0x0000000009f6572c                opcode_ed_58
+                0x0000000009f65768                opcode_ed_60
+                0x0000000009f657a4                opcode_ed_68
+                0x0000000009f657e0                opcode_ed_78
+                0x0000000009f6581c                opcode_ed_41
+                0x0000000009f6583c                opcode_ed_49
+                0x0000000009f6585c                opcode_ed_51
+                0x0000000009f6587c                opcode_ed_59
+                0x0000000009f6589c                opcode_ed_61
+                0x0000000009f658bc                opcode_ed_69
+                0x0000000009f658dc                opcode_ed_71
+                0x0000000009f658fc                opcode_ed_79
+                0x0000000009f65a14                opcode_dd_2a
+                0x0000000009f65a44                opcode_ed_45
+                0x0000000009f65a84                opcode_ed_55
+                0x0000000009f65a88                opcode_ed_7b
+                0x0000000009f65ab8                opcode_fd_2a
+                0x0000000009f65ae8                opcode_ed_43
+                0x0000000009f65b28                opcode_ed_53
+                0x0000000009f65b68                opcode_22
+                0x0000000009f65ba8                opcode_ed_63
+                0x0000000009f65bac                opcode_ed_a0
+                0x0000000009f65c88                opcode_ed_a8
+                0x0000000009f65d5c                opcode_ed_7a
+                0x0000000009f65e68                opcode_dd_94
+                0x0000000009f65e8c                opcode_dd_95
+                0x0000000009f65eb0                opcode_dd_9c
+                0x0000000009f65ed8                opcode_dd_9d
+                0x0000000009f65f00                opcode_dd_bc
+                0x0000000009f65f14                opcode_dd_bd
+                0x0000000009f65f28                opcode_ed_44
+                0x0000000009f65f50                opcode_ed_4c
+                0x0000000009f65f54                opcode_ed_54
+                0x0000000009f65f58                opcode_ed_5c
+                0x0000000009f65f5c                opcode_ed_64
+                0x0000000009f65f60                opcode_ed_6c
+                0x0000000009f65f64                opcode_ed_74
+                0x0000000009f65f68                opcode_ed_7c
+                0x0000000009f65f6c                opcode_ed_a1
+                0x0000000009f66024                opcode_ed_a9
+                0x0000000009f660d8                opcode_fd_94
+                0x0000000009f660fc                opcode_fd_95
+                0x0000000009f66120                opcode_fd_9c
+                0x0000000009f66148                opcode_fd_9d
+                0x0000000009f66170                opcode_fd_bc
+                0x0000000009f66184                opcode_fd_bd
+                0x0000000009f66198                opcode_90
+                0x0000000009f661bc                opcode_91
+                0x0000000009f661e0                opcode_92
+                0x0000000009f66204                opcode_93
+                0x0000000009f66228                opcode_94
+                0x0000000009f6624c                opcode_95
+                0x0000000009f66270                opcode_97
+                0x0000000009f66294                opcode_98
+                0x0000000009f662bc                opcode_99
+                0x0000000009f662e4                opcode_9a
+                0x0000000009f6630c                opcode_9b
+                0x0000000009f66334                opcode_9c
+                0x0000000009f6635c                opcode_9d
+                0x0000000009f66384                opcode_9f
+                0x0000000009f663ac                opcode_b8
+                0x0000000009f663c0                opcode_b9
+                0x0000000009f663d4                opcode_ba
+                0x0000000009f663e8                opcode_bb
+                0x0000000009f663fc                opcode_bc
+                0x0000000009f66410                opcode_bd
+                0x0000000009f66424                opcode_bf
+                0x0000000009f66450                opcode_dd_09
+                0x0000000009f664b4                opcode_dd_19
+                0x0000000009f66518                opcode_dd_29
+                0x0000000009f66550                opcode_dd_39
+                0x0000000009f665d0                opcode_ed_b1
+                0x0000000009f66600                opcode_ed_b9
+                0x0000000009f66630                opcode_fd_09
+                0x0000000009f66694                opcode_fd_19
+                0x0000000009f666f8                opcode_fd_29
+                0x0000000009f66730                opcode_fd_39
+                0x0000000009f6678c                opcode_03
+                0x0000000009f667b8                opcode_0b
+                0x0000000009f667e0                opcode_13
+                0x0000000009f6680c                opcode_1b
+                0x0000000009f66834                opcode_23
+                0x0000000009f66860                opcode_2b
+                0x0000000009f66888                opcode_f2
+                0x0000000009f668b4                opcode_ed_b0
+                0x0000000009f668dc                opcode_ed_b8
+                0x0000000009f66920                opcode_ed_46
+                0x0000000009f66928                opcode_ed_4e
+                0x0000000009f6692c                opcode_ed_66
+                0x0000000009f66930                opcode_ed_6e
+                0x0000000009f66934                opcode_ed_56
+                0x0000000009f6693c                opcode_ed_76
+                0x0000000009f66940                opcode_ed_5e
+                0x0000000009f66948                opcode_ed_7e
+                0x0000000009f6694c                opcode_7f
+                0x0000000009f66950                opcode_dd_64
+                0x0000000009f66954                opcode_dd_6d
+                0x0000000009f66958                opcode_fd_64
+                0x0000000009f6695c                opcode_fd_6d
+                0x0000000009f66960                opcode_40
+                0x0000000009f66964                opcode_49
+                0x0000000009f66968                opcode_52
+                0x0000000009f6696c                opcode_5b
+                0x0000000009f66970                opcode_64
+                0x0000000009f66974                opcode_6d
+                0x0000000009f66978                opcode_ed_5d
+                0x0000000009f6697c                opcode_ed_65
+                0x0000000009f66980                opcode_ed_6d
+                0x0000000009f66984                opcode_ed_75
+                0x0000000009f66988                opcode_ed_7d
+                0x0000000009f66a64                opcode_dd_25
+                0x0000000009f66a94                opcode_fd_25
+                0x0000000009f66ac4                opcode_ed_a2
+                0x0000000009f66b24                opcode_ed_b2
+                0x0000000009f66b4c                opcode_ed_aa
+                0x0000000009f66ba8                opcode_ed_ba
+                0x0000000009f66bd0                opcode_ed_62
+                0x0000000009f66c38                opcode_ed_6a
+                0x0000000009f66ca4                opcode_ed_42
+                0x0000000009f66d14                opcode_ed_4a
+                0x0000000009f66d88                opcode_ed_52
+                0x0000000009f66df8                opcode_ed_5a
+                0x0000000009f66e6c                opcode_ed_72
+                0x0000000009f66edc                opcode_dd_e5
+                0x0000000009f66f18                opcode_fd_e5
+                0x0000000009f66f54                opcode_f7
+                0x0000000009f66f98                opcode_ff
+                0x0000000009f66fdc                opcode_ef
+                0x0000000009f67020                opcode_c7
+                0x0000000009f67064                opcode_cf
+                0x0000000009f670a8                opcode_d7
+                0x0000000009f670ec                opcode_df
+                0x0000000009f67130                opcode_e7
+                0x0000000009f67174                opcode_ed_73
+                0x0000000009f671bc                opcode_dd_22
+                0x0000000009f67204                opcode_fd_22
+                0x0000000009f6724c                opcode_cd
+                0x0000000009f67310                opcode_cc
+                0x0000000009f67338                opcode_d4
+                0x0000000009f67360                opcode_dc
+                0x0000000009f67388                opcode_e4
+                0x0000000009f673b0                opcode_ec
+                0x0000000009f673d8                opcode_f4
+                0x0000000009f67400                opcode_fc
+                0x0000000009f67428                opcode_c4
+                0x0000000009f67450                opcode_1e
+                0x0000000009f67504                opcode_06
+                0x0000000009f675b8                opcode_16
+                0x0000000009f6766c                opcode_3e
+                0x0000000009f67720                opcode_0e
+                0x0000000009f677d4                opcode_2e
+                0x0000000009f67888                opcode_26
+                0x0000000009f6793c                opcode_c6
+                0x0000000009f679f0                opcode_fe
+                0x0000000009f67aa4                opcode_db
+                0x0000000009f67b84                opcode_fd_2e
+                0x0000000009f67c34                opcode_dd_2e
+                0x0000000009f67ce4                opcode_d3
+                0x0000000009f67dc4                opcode_21
+                0x0000000009f67ee8                opcode_11
+                0x0000000009f6800c                opcode_01
+                0x0000000009f68130                opcode_d6
+                0x0000000009f681e4                opcode_ee
+                0x0000000009f682a0                opcode_ce
+                0x0000000009f68368                opcode_fd_26
+                0x0000000009f68424                opcode_dd_26
+                0x0000000009f684e0                opcode_f6
+                0x0000000009f6859c                opcode_fd_70
+                0x0000000009f68654                opcode_fd_74
+                0x0000000009f6870c                opcode_dd_77
+                0x0000000009f687c4                opcode_dd_74
+                0x0000000009f6887c                opcode_dd_75
+                0x0000000009f68934                opcode_dd_70
+                0x0000000009f689ec                opcode_dd_71
+                0x0000000009f68aa4                opcode_dd_72
+                0x0000000009f68b5c                opcode_dd_73
+                0x0000000009f68c14                opcode_e6
+                0x0000000009f68cd4                opcode_fd_77
+                0x0000000009f68d8c                opcode_fd_75
+                0x0000000009f68e44                opcode_fd_72
+                0x0000000009f68efc                opcode_fd_71
+                0x0000000009f68fb4                opcode_fd_73
+                0x0000000009f6906c                opcode_de
+                0x0000000009f69124                opcode_18
+                0x0000000009f691dc                opcode_36
+                0x0000000009f692b0                opcode_fd_36
+                0x0000000009f693f0                opcode_dd_36
+                0x0000000009f69530                opcode_cb
+                0x0000000009f69690                opcode_1a
+                0x0000000009f6973c                opcode_5e
+                0x0000000009f697e8                opcode_66
+                0x0000000009f69894                opcode_6e
+                0x0000000009f69940                opcode_7e
+                0x0000000009f699ec                opcode_0a
+                0x0000000009f69a98                opcode_4e
+                0x0000000009f69b44                opcode_56
+                0x0000000009f69bf0                opcode_46
+                0x0000000009f69c9c                opcode_xycb_fe
+                0x0000000009f69d60                opcode_xycb_f6
+                0x0000000009f69e24                opcode_xycb_e6
+                0x0000000009f69ee8                opcode_xycb_ee
+                0x0000000009f69fac                opcode_xycb_c6
+                0x0000000009f6a070                opcode_xycb_ce
+                0x0000000009f6a134                opcode_xycb_d6
+                0x0000000009f6a1f8                opcode_xycb_de
+                0x0000000009f6a2bc                opcode_xycb_86
+                0x0000000009f6a380                opcode_xycb_8e
+                0x0000000009f6a444                opcode_xycb_96
+                0x0000000009f6a508                opcode_xycb_9e
+                0x0000000009f6a5cc                opcode_xycb_a6
+                0x0000000009f6a690                opcode_xycb_ae
+                0x0000000009f6a754                opcode_xycb_b6
+                0x0000000009f6a818                opcode_xycb_be
+                0x0000000009f6a8dc                opcode_xycb_b3
+                0x0000000009f6a98c                opcode_xycb_b4
+                0x0000000009f6aa3c                opcode_xycb_95
+                0x0000000009f6aaec                opcode_xycb_9d
+                0x0000000009f6ab9c                opcode_xycb_9b
+                0x0000000009f6ac4c                opcode_xycb_9c
+                0x0000000009f6acfc                opcode_xycb_9f
+                0x0000000009f6adac                opcode_xycb_a0
+                0x0000000009f6ae5c                opcode_xycb_a1
+                0x0000000009f6af0c                opcode_xycb_a2
+                0x0000000009f6afbc                opcode_fd_66
+                0x0000000009f6b0e4                opcode_xycb_d5
+                0x0000000009f6b194                opcode_xycb_dd
+                0x0000000009f6b244                opcode_xycb_db
+                0x0000000009f6b2f4                opcode_xycb_dc
+                0x0000000009f6b3a4                opcode_xycb_df
+                0x0000000009f6b454                opcode_xycb_e0
+                0x0000000009f6b504                opcode_xycb_e1
+                0x0000000009f6b5b4                opcode_xycb_e2
+                0x0000000009f6b664                opcode_xycb_e7
+                0x0000000009f6b714                opcode_xycb_e8
+                0x0000000009f6b7c4                opcode_xycb_e9
+                0x0000000009f6b874                opcode_xycb_ea
+                0x0000000009f6b924                opcode_xycb_d7
+                0x0000000009f6b9d4                opcode_xycb_d8
+                0x0000000009f6ba84                opcode_xycb_d9
+                0x0000000009f6bb34                opcode_xycb_da
+                0x0000000009f6bbe4                opcode_xycb_c5
+                0x0000000009f6bc94                opcode_xycb_cd
+                0x0000000009f6bd44                opcode_xycb_cb
+                0x0000000009f6bdf4                opcode_xycb_cc
+                0x0000000009f6bea4                opcode_xycb_cf
+                0x0000000009f6bf54                opcode_xycb_d0
+                0x0000000009f6c004                opcode_xycb_d1
+                0x0000000009f6c0b4                opcode_xycb_d2
+                0x0000000009f6c164                opcode_xycb_e3
+                0x0000000009f6c214                opcode_xycb_e4
+                0x0000000009f6c2c4                opcode_xycb_c3
+                0x0000000009f6c374                opcode_xycb_c4
+                0x0000000009f6c424                opcode_xycb_c7
+                0x0000000009f6c4d4                opcode_xycb_c8
+                0x0000000009f6c584                opcode_xycb_c9
+                0x0000000009f6c634                opcode_xycb_ca
+                0x0000000009f6c6e4                opcode_xycb_e5
+                0x0000000009f6c794                opcode_xycb_ed
+                0x0000000009f6c844                opcode_xycb_eb
+                0x0000000009f6c8f4                opcode_xycb_ec
+                0x0000000009f6c9a4                opcode_xycb_ef
+                0x0000000009f6ca54                opcode_xycb_f0
+                0x0000000009f6cb04                opcode_xycb_f1
+                0x0000000009f6cbb4                opcode_xycb_f2
+                0x0000000009f6cc64                opcode_xycb_fd
+                0x0000000009f6cd14                opcode_xycb_f5
+                0x0000000009f6cdc4                opcode_xycb_f3
+                0x0000000009f6ce74                opcode_xycb_f4
+                0x0000000009f6cf24                opcode_xycb_f7
+                0x0000000009f6cfd4                opcode_xycb_f8
+                0x0000000009f6d084                opcode_xycb_f9
+                0x0000000009f6d134                opcode_xycb_fa
+                0x0000000009f6d1e4                opcode_xycb_fb
+                0x0000000009f6d294                opcode_xycb_fc
+                0x0000000009f6d344                opcode_xycb_b5
+                0x0000000009f6d3f4                opcode_xycb_bd
+                0x0000000009f6d4a4                opcode_xycb_bb
+                0x0000000009f6d554                opcode_xycb_bc
+                0x0000000009f6d604                opcode_xycb_bf
+                0x0000000009f6d6b4                opcode_xycb_c0
+                0x0000000009f6d764                opcode_xycb_c1
+                0x0000000009f6d814                opcode_xycb_c2
+                0x0000000009f6d8c4                opcode_xycb_97
+                0x0000000009f6d974                opcode_xycb_98
+                0x0000000009f6da24                opcode_xycb_99
+                0x0000000009f6dad4                opcode_xycb_9a
+                0x0000000009f6db84                opcode_xycb_b7
+                0x0000000009f6dc34                opcode_xycb_b8
+                0x0000000009f6dce4                opcode_xycb_b9
+                0x0000000009f6dd94                opcode_xycb_ba
+                0x0000000009f6de44                opcode_xycb_a5
+                0x0000000009f6def4                opcode_xycb_ad
+                0x0000000009f6dfa4                opcode_xycb_ab
+                0x0000000009f6e054                opcode_xycb_ac
+                0x0000000009f6e104                opcode_xycb_af
+                0x0000000009f6e1b4                opcode_xycb_b0
+                0x0000000009f6e264                opcode_xycb_b1
+                0x0000000009f6e314                opcode_xycb_b2
+                0x0000000009f6e3c4                opcode_xycb_93
+                0x0000000009f6e474                opcode_xycb_94
+                0x0000000009f6e524                opcode_xycb_a3
+                0x0000000009f6e5d4                opcode_xycb_a4
+                0x0000000009f6e684                opcode_xycb_a7
+                0x0000000009f6e734                opcode_xycb_a8
+                0x0000000009f6e7e4                opcode_xycb_a9
+                0x0000000009f6e894                opcode_xycb_aa
+                0x0000000009f6e944                opcode_xycb_85
+                0x0000000009f6e9f4                opcode_xycb_8d
+                0x0000000009f6eaa4                opcode_xycb_8b
+                0x0000000009f6eb54                opcode_xycb_8c
+                0x0000000009f6ec04                opcode_xycb_8f
+                0x0000000009f6ecb4                opcode_xycb_90
+                0x0000000009f6ed64                opcode_xycb_91
+                0x0000000009f6ee14                opcode_xycb_92
+                0x0000000009f6eec4                opcode_xycb_d3
+                0x0000000009f6ef74                opcode_xycb_d4
+                0x0000000009f6f024                opcode_xycb_83
+                0x0000000009f6f0d4                opcode_xycb_84
+                0x0000000009f6f184                opcode_xycb_87
+                0x0000000009f6f234                opcode_xycb_88
+                0x0000000009f6f2e4                opcode_xycb_89
+                0x0000000009f6f394                opcode_xycb_8a
+                0x0000000009f6f444                opcode_xycb_80
+                0x0000000009f6f4f4                opcode_xycb_81
+                0x0000000009f6f5a4                opcode_xycb_82
+                0x0000000009f6f654                opcode_dd_7e
+                0x0000000009f6f77c                opcode_fd_46
+                0x0000000009f6f8a4                opcode_dd_5e
+                0x0000000009f6f9cc                opcode_fd_6e
+                0x0000000009f6faf4                opcode_dd_6e
+                0x0000000009f6fc1c                opcode_fd_5e
+                0x0000000009f6fd44                opcode_xycb_ff
+                0x0000000009f6fdf4                opcode_fd_7e
+                0x0000000009f6ff1c                opcode_dd_4e
+                0x0000000009f70044                opcode_dd_56
+                0x0000000009f7016c                opcode_fd_4e
+                0x0000000009f70294                opcode_dd_66
+                0x0000000009f703bc                opcode_fd_56
+                0x0000000009f704e4                opcode_dd_46
+                0x0000000009f7060c                opcode_28
+                0x0000000009f706d8                opcode_30
+                0x0000000009f707a4                opcode_20
+                0x0000000009f70870                opcode_86
+                0x0000000009f7091c                opcode_be
+                0x0000000009f709c8                opcode_38
+                0x0000000009f70a94                opcode_ed
+                0x0000000009f70b8c                opcode_10
+                0x0000000009f70c64                opcode_fd_be
+                0x0000000009f70d8c                opcode_3a
+                0x0000000009f70e5c                opcode_cb_86
+                0x0000000009f70f2c                opcode_cb_8e
+                0x0000000009f70ffc                opcode_cb_96
+                0x0000000009f710cc                opcode_cb_9e
+                0x0000000009f7119c                opcode_cb_a6
+                0x0000000009f7126c                opcode_cb_ae
+                0x0000000009f7133c                opcode_cb_b6
+                0x0000000009f7140c                opcode_cb_be
+                0x0000000009f714dc                opcode_cb_c6
+                0x0000000009f715ac                opcode_cb_ce
+                0x0000000009f7167c                opcode_cb_d6
+                0x0000000009f7174c                opcode_cb_de
+                0x0000000009f7181c                opcode_cb_e6
+                0x0000000009f718ec                opcode_cb_ee
+                0x0000000009f719bc                opcode_cb_f6
+                0x0000000009f71a8c                opcode_cb_fe
+                0x0000000009f71b5c                opcode_dd_be
+                0x0000000009f71c84                opcode_fd_86
+                0x0000000009f71dac                opcode_dd_86
+                0x0000000009f71ed4                opcode_b6
+                0x0000000009f71f88                opcode_ae
+                0x0000000009f7203c                opcode_8e
+                0x0000000009f720fc                opcode_96
+                0x0000000009f721a8                opcode_34
+                0x0000000009f72254                opcode_35
+                0x0000000009f72300                opcode_a6
+                0x0000000009f723b8                opcode_fd_8e
+                0x0000000009f724f4                opcode_fd_ae
+                0x0000000009f72624                opcode_fd_96
+                0x0000000009f7274c                opcode_xycb_78
+                0x0000000009f72814                opcode_xycb_79
+                0x0000000009f72818                opcode_xycb_7a
+                0x0000000009f7281c                opcode_xycb_7b
+                0x0000000009f72820                opcode_xycb_7c
+                0x0000000009f72824                opcode_xycb_7d
+                0x0000000009f72828                opcode_xycb_7e
+                0x0000000009f7282c                opcode_xycb_7f
+                0x0000000009f72830                opcode_dd_8e
+                0x0000000009f7296c                opcode_dd_b6
+                0x0000000009f72a9c                opcode_dd_ae
+                0x0000000009f72bcc                opcode_dd_96
+                0x0000000009f72cf4                opcode_fd_b6
+                0x0000000009f72e24                opcode_xycb_40
+                0x0000000009f72eec                opcode_xycb_41
+                0x0000000009f72ef0                opcode_xycb_42
+                0x0000000009f72ef4                opcode_xycb_43
+                0x0000000009f72ef8                opcode_xycb_44
+                0x0000000009f72efc                opcode_xycb_45
+                0x0000000009f72f00                opcode_xycb_46
+                0x0000000009f72f04                opcode_xycb_47
+                0x0000000009f72f08                opcode_fd_34
+                0x0000000009f73030                opcode_xycb_48
+                0x0000000009f73108                opcode_xycb_49
+                0x0000000009f7310c                opcode_xycb_4a
+                0x0000000009f73110                opcode_xycb_4b
+                0x0000000009f73114                opcode_xycb_4c
+                0x0000000009f73118                opcode_xycb_4d
+                0x0000000009f7311c                opcode_xycb_4e
+                0x0000000009f73120                opcode_xycb_4f
+                0x0000000009f73124                opcode_xycb_50
+                0x0000000009f731fc                opcode_xycb_51
+                0x0000000009f73200                opcode_xycb_52
+                0x0000000009f73204                opcode_xycb_53
+                0x0000000009f73208                opcode_xycb_54
+                0x0000000009f7320c                opcode_xycb_55
+                0x0000000009f73210                opcode_xycb_56
+                0x0000000009f73214                opcode_xycb_57
+                0x0000000009f73218                opcode_dd_a6
+                0x0000000009f7334c                opcode_dd_35
+                0x0000000009f73474                opcode_dd_34
+                0x0000000009f7359c                opcode_fd_35
+                0x0000000009f736c4                opcode_fd_a6
+                0x0000000009f737f8                opcode_xycb_58
+                0x0000000009f738d0                opcode_xycb_59
+                0x0000000009f738d4                opcode_xycb_5a
+                0x0000000009f738d8                opcode_xycb_5b
+                0x0000000009f738dc                opcode_xycb_5c
+                0x0000000009f738e0                opcode_xycb_5d
+                0x0000000009f738e4                opcode_xycb_5e
+                0x0000000009f738e8                opcode_xycb_5f
+                0x0000000009f738ec                opcode_xycb_60
+                0x0000000009f739c4                opcode_xycb_61
+                0x0000000009f739c8                opcode_xycb_62
+                0x0000000009f739cc                opcode_xycb_63
+                0x0000000009f739d0                opcode_xycb_64
+                0x0000000009f739d4                opcode_xycb_65
+                0x0000000009f739d8                opcode_xycb_66
+                0x0000000009f739dc                opcode_xycb_67
+                0x0000000009f739e0                opcode_xycb_68
+                0x0000000009f73ab8                opcode_xycb_69
+                0x0000000009f73abc                opcode_xycb_6a
+                0x0000000009f73ac0                opcode_xycb_6b
+                0x0000000009f73ac4                opcode_xycb_6c
+                0x0000000009f73ac8                opcode_xycb_6d
+                0x0000000009f73acc                opcode_xycb_6e
+                0x0000000009f73ad0                opcode_xycb_6f
+                0x0000000009f73ad4                opcode_xycb_70
+                0x0000000009f73bac                opcode_xycb_71
+                0x0000000009f73bb0                opcode_xycb_72
+                0x0000000009f73bb4                opcode_xycb_73
+                0x0000000009f73bb8                opcode_xycb_74
+                0x0000000009f73bbc                opcode_xycb_75
+                0x0000000009f73bc0                opcode_xycb_76
+                0x0000000009f73bc4                opcode_xycb_77
+                0x0000000009f73bc8                opcode_9e
+                0x0000000009f73c78                opcode_fd_9e
+                0x0000000009f73da4                opcode_dd_9e
+                0x0000000009f73ed0                opcode_xycb_26
+                0x0000000009f73fb8                opcode_cb_7e
+                0x0000000009f74084                opcode_cb_46
+                0x0000000009f74150                opcode_cb_6e
+                0x0000000009f7422c                opcode_cb_76
+                0x0000000009f74308                opcode_cb_4e
+                0x0000000009f743e4                opcode_cb_56
+                0x0000000009f744c0                opcode_cb_5e
+                0x0000000009f7459c                opcode_cb_66
+                0x0000000009f74678                opcode_xycb_25
+                0x0000000009f74764                opcode_xycb_23
+                0x0000000009f74850                opcode_xycb_24
+                0x0000000009f7493c                opcode_xycb_27
+                0x0000000009f74a28                opcode_xycb_20
+                0x0000000009f74b14                opcode_xycb_21
+                0x0000000009f74c00                opcode_xycb_22
+                0x0000000009f74cec                opcode_xycb_3e
+                0x0000000009f74ddc                opcode_xycb_36
+                0x0000000009f74ec8                opcode_xycb_33
+                0x0000000009f74fb8                opcode_xycb_3d
+                0x0000000009f750ac                opcode_xycb_3b
+                0x0000000009f751a0                opcode_xycb_3c
+                0x0000000009f75294                opcode_xycb_35
+                0x0000000009f75384                opcode_xycb_30
+                0x0000000009f75474                opcode_xycb_31
+                0x0000000009f75564                opcode_xycb_32
+                0x0000000009f75654                opcode_xycb_37
+                0x0000000009f75744                opcode_xycb_38
+                0x0000000009f75838                opcode_xycb_39
+                0x0000000009f7592c                opcode_xycb_3a
+                0x0000000009f75a20                opcode_xycb_34
+                0x0000000009f75b10                opcode_xycb_3f
+                0x0000000009f75c04                opcode_c1
+                0x0000000009f75d28                opcode_e1
+                0x0000000009f75e4c                opcode_xycb_06
+                0x0000000009f75f3c                opcode_d1
+                0x0000000009f76060                opcode_f1
+                0x0000000009f76184                opcode_xycb_0e
+                0x0000000009f76268                opcode_xycb_2e
+                0x0000000009f76350                opcode_xycb_05
+                0x0000000009f76444                opcode_xycb_03
+                0x0000000009f76538                opcode_xycb_04
+                0x0000000009f7662c                opcode_xycb_07
+                0x0000000009f76720                opcode_xycb_01
+                0x0000000009f76814                opcode_xycb_02
+                0x0000000009f76908                opcode_cb_26
+                0x0000000009f769f4                opcode_xycb_00
+                0x0000000009f76ae8                opcode_cb_3e
+                0x0000000009f76bdc                opcode_cb_36
+                0x0000000009f76ccc                opcode_xycb_08
+                0x0000000009f76db4                opcode_xycb_09
+                0x0000000009f76e9c                opcode_xycb_0a
+                0x0000000009f76f84                opcode_xycb_0d
+                0x0000000009f7706c                opcode_xycb_2d
+                0x0000000009f77158                opcode_xycb_2b
+                0x0000000009f77244                opcode_xycb_2c
+                0x0000000009f77330                opcode_2a
+                0x0000000009f77474                opcode_ed_6b
+                0x0000000009f77478                opcode_xycb_2f
+                0x0000000009f77564                opcode_ed_4b
+                0x0000000009f776a8                opcode_xycb_0b
+                0x0000000009f77790                opcode_xycb_0c
+                0x0000000009f77878                opcode_xycb_0f
+                0x0000000009f77960                opcode_xycb_28
+                0x0000000009f77a4c                opcode_xycb_29
+                0x0000000009f77b38                opcode_xycb_2a
+                0x0000000009f77c24                opcode_ed_5b
+                0x0000000009f77d68                opcode_cb_06
+                0x0000000009f77e5c                opcode_xycb_16
+                0x0000000009f77f48                opcode_cb_0e
+                0x0000000009f78030                opcode_cb_2e
+                0x0000000009f7811c                opcode_xycb_15
+                0x0000000009f7820c                opcode_xycb_13
+                0x0000000009f782fc                opcode_xycb_14
+                0x0000000009f783ec                opcode_xycb_17
+                0x0000000009f784dc                opcode_xycb_11
+                0x0000000009f785cc                opcode_xycb_12
+                0x0000000009f786bc                opcode_xycb_10
+                0x0000000009f787ac                opcode_xycb_1e
+                0x0000000009f7889c                opcode_xycb_1d
+                0x0000000009f78990                opcode_xycb_1b
+                0x0000000009f78a84                opcode_xycb_1c
+                0x0000000009f78b78                opcode_xycb_1f
+                0x0000000009f78c6c                opcode_xycb_18
+                0x0000000009f78d60                opcode_xycb_19
+                0x0000000009f78e54                opcode_xycb_1a
+                0x0000000009f78f48                opcode_04
+                0x0000000009f78fbc                opcode_0c
+                0x0000000009f79030                opcode_2c
+                0x0000000009f790a4                opcode_24
+                0x0000000009f79118                opcode_1c
+                0x0000000009f7918c                opcode_3c
+                0x0000000009f79200                opcode_14
+                0x0000000009f79274                opcode_e3
+                0x0000000009f7939c                opcode_ed_ab
+                0x0000000009f7946c                opcode_ed_bb
+                0x0000000009f79494                opcode_cb_16
+                0x0000000009f79580                opcode_ed_a3
+                0x0000000009f79654                opcode_ed_b3
+                0x0000000009f7967c                opcode_ed_67
+                0x0000000009f7977c                opcode_cb_1e
+                0x0000000009f7986c                opcode_ed_6f
+                0x0000000009f79980                opcode_dd_2c
+                0x0000000009f799f8                opcode_fd_2c
+                0x0000000009f79bb8                opcode_ca
+                0x0000000009f79bdc                opcode_d2
+                0x0000000009f79c00                opcode_da
+                0x0000000009f79c24                opcode_e2
+                0x0000000009f79c48                opcode_ea
+                0x0000000009f79c6c                opcode_fa
+                0x0000000009f79c94                opcode_c2
+                0x0000000009f79cb8                opcode_c3
+                0x0000000009f79e00                opcode_fd_24
+                0x0000000009f79e7c                opcode_dd_24
+                0x0000000009f79ef8                opcode_dd_21
+                0x0000000009f7a07c                opcode_fd_21
+                0x0000000009f7a200                opcode_dd_e1
+                0x0000000009f7a384                opcode_fd_e1
+                0x0000000009f7a508                opcode_c9
+                0x0000000009f7a68c                opcode_ed_4d
+                0x0000000009f7a690                opcode_31
+                0x0000000009f7a814                opcode_15
+                0x0000000009f7a894                opcode_3d
+                0x0000000009f7a914                opcode_05
+                0x0000000009f7a994                opcode_25
+                0x0000000009f7aa14                opcode_2d
+                0x0000000009f7aa94                opcode_1d
+                0x0000000009f7ab14                opcode_0d
+                0x0000000009f7ab94                opcode_fd_e3
+                0x0000000009f7ad00                opcode_dd_e3
+                0x0000000009f7ae6c                opcode_dd_2d
+                0x0000000009f7aef0                opcode_fd_2d
+                0x0000000009f7b0d4                opcode_c8
+                0x0000000009f7b0ec                opcode_d0
+                0x0000000009f7b104                opcode_d8
+                0x0000000009f7b11c                opcode_e0
+                0x0000000009f7b134                opcode_e8
+                0x0000000009f7b14c                opcode_f0
+                0x0000000009f7b164                opcode_f8
+                0x0000000009f7b17c                opcode_c0
+                0x0000000009f7b194                opcode_32
+                0x0000000009f7b2ec                getCycles
+                0x0000000009f7b2fc                setCycles
+                0x0000000009f7b30c                getInterruptMode
+                0x0000000009f7b320                isHalted
+                0x0000000009f7b334                setInterruptMode
+                0x0000000009f7b340                callSub
+                0x0000000009f7b38c                z80_reset
+                0x0000000009f7b400                z80_getSizeOfSnapshotBuffer
+                0x0000000009f7b408                z80_takeSnapshot
+                0x0000000009f7b534                z80_restoreSnapshot
+                0x0000000009f7b6bc                do_opcode_xycb
+                0x0000000009f7b804                opcode_dd_cb
+                0x0000000009f7b814                opcode_fd_cb
+                0x0000000009f7b824                step
+                0x0000000009f7b8ac                z80_run
+                0x0000000009f7b9cc                z80_interrupt
+                0x0000000009f7badc                nmi
+                0x0000000009f7bb38                do_opcode_xy
+                0x0000000009f7bbe4                opcode_dd
+                0x0000000009f7bc0c                opcode_fd
+ .text          0x0000000009f7bc34      0x310 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/pacbox/wsg3.o
+                0x0000000009f7bcd0                wsg3_play_sound
+                0x0000000009f7be9c                wsg3_set_sampling_rate
+                0x0000000009f7bec8                wsg3_set_sound_prom
+                0x0000000009f7bf18                wsg3_init
+ .text          0x0000000009f7bf44       0x60 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/pacbox/pacbox_lcd.o
+                0x0000000009f7bf44                blit_display
+ .text          0x0000000009f7bfa4      0x214 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/plugin_crt0.o
+                0x0000000009f7bfbc                plugin__start
+                0x0000000009f7c104                rb_atexit
+                0x0000000009f7c124                exit
+                0x0000000009f7c14c                _exit
+                0x0000000009f7c160                exit_on_usb
+ .text.memcpy   0x0000000009f7c1b8       0x14 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(gcc-support.o)
+                0x0000000009f7c1b8                memcpy
+ .text.memset   0x0000000009f7c1cc       0x14 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(gcc-support.o)
+                0x0000000009f7c1cc                memset
+ .text.backlight_ignore_timeout
+                0x0000000009f7c1e0       0x5c /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(helper.o)
+                0x0000000009f7c1e0                backlight_ignore_timeout
+ .text.backlight_use_settings
+                0x0000000009f7c23c       0x3c /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(helper.o)
+                0x0000000009f7c23c                backlight_use_settings
+ .text.get_cfg_filename.constprop.0
+                0x0000000009f7c278       0xd8 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(configfile.o)
+ .text.configfile_save
+                0x0000000009f7c350      0x140 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(configfile.o)
+                0x0000000009f7c350                configfile_save
+ .text.configfile_load
+                0x0000000009f7c490      0x228 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(configfile.o)
+                0x0000000009f7c490                configfile_load
+ .text          0x0000000009f7c6b8       0x1c /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/lib/libsetjmp.a(setjmp.o)
+                0x0000000009f7c6b8                setjmp
+                0x0000000009f7c6c4                longjmp
+ .text          0x0000000009f7c6d4      0x114 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivsi3.o)
+                0x0000000009f7c6d4                __udivsi3
+                0x0000000009f7c6d4                __aeabi_uidiv
+                0x0000000009f7c7c8                __aeabi_uidivmod
+ .text          0x0000000009f7c7e8      0x148 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+                0x0000000009f7c7e8                __aeabi_idiv
+                0x0000000009f7c7e8                __divsi3
+                0x0000000009f7c910                __aeabi_idivmod
+ .text          0x0000000009f7c930        0x4 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
+                0x0000000009f7c930                __aeabi_ldiv0
+                0x0000000009f7c930                __aeabi_idiv0
+ *(.glue_7)
+ .glue_7        0x0000000009f7c934        0x0 linker stubs
+ *(.glue_7t)
+ .glue_7t       0x0000000009f7c934        0x0 linker stubs
+
+.vfp11_veneer   0x0000000009f7c934        0x0
+ .vfp11_veneer  0x0000000009f7c934        0x0 linker stubs
+
+.v4_bx          0x0000000009f7c934        0x0
+ .v4_bx         0x0000000009f7c934        0x0 linker stubs
+
+.iplt           0x0000000009f7c934        0x0
+ .iplt          0x0000000009f7c934        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/pacbox/arcade.o
+
+.rodata         0x0000000009f7c934     0x1c40
+ *(.rodata*)
+ .rodata        0x0000000009f7c934      0x130 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/pacbox/arcade.o
+ .rodata.str1.4
+                0x0000000009f7ca64      0x1e9 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/pacbox/pacbox.o
+ *fill*         0x0000000009f7cc4d        0x3 
+ .rodata        0x0000000009f7cc50     0x18d4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/pacbox/pacbox.o
+ .rodata.get_cfg_filename.constprop.0.str1.1
+                0x0000000009f7e524       0x1d /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(configfile.o)
+                                         0x21 (size before relaxing)
+ .rodata.configfile_save.str1.1
+                0x0000000009f7e541       0x26 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(configfile.o)
+ .rodata.configfile_load.str1.1
+                0x0000000009f7e567        0xd /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(configfile.o)
+
+.rel.dyn        0x0000000009f7e574        0x0
+ .rel.iplt      0x0000000009f7e574        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/pacbox/arcade.o
+
+.data           0x0000000009f7e574     0x3208
+ *(.data*)
+ .data          0x0000000009f7e574      0x100 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/pacbox/arcade.o
+ .data          0x0000000009f7e674      0x104 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/pacbox/pacbox.o
+ .data          0x0000000009f7e778     0x3000 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/pacbox/z80.o
+                0x0000000009f7e778                OpInfoCB_
+                0x0000000009f7ef78                OpInfoED_
+                0x0000000009f7f778                OpInfo_
+                0x0000000009f7ff78                OpInfoXYCB_
+                0x0000000009f80778                OpInfoDD_
+                0x0000000009f80f78                OpInfoFD_
+ .data          0x0000000009f81778        0x4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/plugin_crt0.o
+                0x0000000009f81778                rb
+
+.igot.plt       0x0000000009f8177c        0x0
+ .igot.plt      0x0000000009f8177c        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/pacbox/arcade.o
+
+/DISCARD/
+ *(.eh_frame)
+
+.bss            0x0000000009f81780    0x14c88
+                0x0000000009f81780                plugin_bss_start = .
+                0x0000000009f81780                _plugin_bss_start = .
+ *(.bss*)
+ .bss           0x0000000009f81780      0x200 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/pacbox/arcade.o
+                0x0000000009f81780                palette
+ .bss           0x0000000009f81980     0xfe50 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/pacbox/pacbox.o
+ .bss           0x0000000009f917d0     0x48a0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/pacbox/hardware.o
+                0x0000000009f917d0                vchar_to_i_
+                0x0000000009f91fd0                sprites_
+                0x0000000009f92070                spritemap_
+ .bss           0x0000000009f96070      0x338 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/pacbox/wsg3.o
+                0x0000000009f96070                wsg3
+ .bss           0x0000000009f963a8       0x60 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/plugin_crt0.o
+ *(COMMON)
+                0x0000000009f96408                . = ALIGN (0x4)
+
+.pluginend      0x0000000009f96408        0x0
+                0x0000000009f96408                _plugin_end_addr = .
+                0x0000000009f96408                plugin_end_addr = .
+
+.iram           0x000000000000c000      0x100 load address 0x0000000009f81780
+                0x000000000000c000                iramstart = .
+ *(.icode)
+ *(.irodata)
+ *(.idata)
+ .idata         0x000000000000c000      0x100 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/pacbox/z80.o
+                0x000000000000c000                PSZ_
+                0x000000000000c100                iramend = .
+                0x0000000009f81780                iramcopy = LOADADDR (.iram)
+
+.ibss           0x000000000000c100     0xbd38 load address 0x0000000009f81880
+                0x000000000000c100                iedata = .
+ *(.ibss)
+ .ibss          0x000000000000c100      0x100 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/pacbox/pacbox.o
+ .ibss          0x000000000000c200     0xbc0c /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/pacbox/hardware.o
+                0x000000000000c200                output_devices_
+                0x000000000000c204                dirty_
+                0x000000000000c604                video_mem_
+                0x000000000000ca04                color_mem_
+                0x000000000000ce04                coin_counter_
+                0x000000000000ce08                interrupt_vector_
+                0x000000000000ce09                dip_switches_
+                0x000000000000ce0a                port2_
+                0x000000000000ce0b                port1_
+                0x000000000000ce0c                charmap_
+                0x0000000000010e0c                spriteset_rom_
+                0x0000000000011e0c                charset_rom_
+                0x0000000000012e0c                ram_
+ .ibss          0x0000000000017e0c       0x2c /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/pacbox/z80.o
+                0x0000000000017e0c                A
+                0x0000000000017e0d                F
+                0x0000000000017e0e                B
+                0x0000000000017e0f                C
+                0x0000000000017e10                D
+                0x0000000000017e11                E
+                0x0000000000017e12                H
+                0x0000000000017e13                L
+                0x0000000000017e14                IX
+                0x0000000000017e18                PC
+                0x0000000000017e1c                SP
+                0x0000000000017e20                I
+                0x0000000000017e21                R
+                0x0000000000017e24                iflags_
+                0x0000000000017e28                IY
+                0x0000000000017e2c                A1
+                0x0000000000017e2d                F1
+                0x0000000000017e2e                B1
+                0x0000000000017e2f                C1
+                0x0000000000017e30                D1
+                0x0000000000017e31                E1
+                0x0000000000017e32                H1
+                0x0000000000017e33                L1
+                0x0000000000017e34                cycles_
+                0x0000000000017e38                . = ALIGN (0x4)
+                0x0000000000017e38                iend = .
+                0x0000000009f96408                loadendaddr = MAX (plugin_end_addr, (LOADADDR (.iram) + SIZEOF (.iram)))
+
+.pluginloadend  0x0000000009f96408        0x0
+                0x0000000009f96408                _plugin_load_end_addr = .
+                0x0000000009f96408                plugin_load_end_addr = .
+
+.comment        0x0000000000000000       0x11
+ *(.comment)
+ .comment       0x0000000000000000       0x11 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/pacbox/arcade.o
+                                         0x12 (size before relaxing)
+ .comment       0x0000000000000011       0x12 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/pacbox/pacbox.o
+ .comment       0x0000000000000011       0x12 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/pacbox/hardware.o
+ .comment       0x0000000000000011       0x12 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/pacbox/z80.o
+ .comment       0x0000000000000011       0x12 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/pacbox/wsg3.o
+ .comment       0x0000000000000011       0x12 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/pacbox/pacbox_lcd.o
+ .comment       0x0000000000000011       0x12 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/plugin_crt0.o
+ .comment       0x0000000000000011       0x12 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(gcc-support.o)
+ .comment       0x0000000000000011       0x12 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(helper.o)
+ .comment       0x0000000000000011       0x12 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(configfile.o)
+OUTPUT(/home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/pacbox/pacbox.elf elf32-littlearm)
+LOAD linker stubs
+
+.ARM.attributes
+                0x0000000000000000       0x28
+ .ARM.attributes
+                0x0000000000000000       0x2a /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/pacbox/arcade.o
+ .ARM.attributes
+                0x000000000000002a       0x2a /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/pacbox/pacbox.o
+ .ARM.attributes
+                0x0000000000000054       0x2a /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/pacbox/hardware.o
+ .ARM.attributes
+                0x000000000000007e       0x2a /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/pacbox/z80.o
+ .ARM.attributes
+                0x00000000000000a8       0x2a /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/pacbox/wsg3.o
+ .ARM.attributes
+                0x00000000000000d2       0x2a /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/pacbox/pacbox_lcd.o
+ .ARM.attributes
+                0x00000000000000fc       0x2a /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/plugin_crt0.o
+ .ARM.attributes
+                0x0000000000000126       0x2a /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(gcc-support.o)
+ .ARM.attributes
+                0x0000000000000150       0x2a /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(helper.o)
+ .ARM.attributes
+                0x000000000000017a       0x2a /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(configfile.o)
+ .ARM.attributes
+                0x00000000000001a4       0x1a /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/lib/libsetjmp.a(setjmp.o)
+ .ARM.attributes
+                0x00000000000001be       0x1c /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivsi3.o)
+ .ARM.attributes
+                0x00000000000001da       0x1c /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+ .ARM.attributes
+                0x00000000000001f6       0x1c /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
+
+.debug_frame    0x0000000000000000       0x40
+ .debug_frame   0x0000000000000000       0x20 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivsi3.o)
+ .debug_frame   0x0000000000000020       0x20 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+
+.debug_line     0x0000000000000000      0x169
+ .debug_line    0x0000000000000000       0x7e /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivsi3.o)
+ .debug_line    0x000000000000007e       0x8a /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+ .debug_line    0x0000000000000108       0x61 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
+
+.debug_info     0x0000000000000000       0x72
+ .debug_info    0x0000000000000000       0x26 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivsi3.o)
+ .debug_info    0x0000000000000026       0x26 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+ .debug_info    0x000000000000004c       0x26 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
+
+.debug_abbrev   0x0000000000000000       0x3c
+ .debug_abbrev  0x0000000000000000       0x14 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivsi3.o)
+ .debug_abbrev  0x0000000000000014       0x14 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+ .debug_abbrev  0x0000000000000028       0x14 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
+
+.debug_aranges  0x0000000000000000       0x60
+ .debug_aranges
+                0x0000000000000000       0x20 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivsi3.o)
+ .debug_aranges
+                0x0000000000000020       0x20 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+ .debug_aranges
+                0x0000000000000040       0x20 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
+
+.debug_str      0x0000000000000000       0x6c
+ .debug_str     0x0000000000000000       0x6c /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivsi3.o)
+ .debug_str     0x000000000000006c       0x6c /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+ .debug_str     0x000000000000006c       0x6c /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)

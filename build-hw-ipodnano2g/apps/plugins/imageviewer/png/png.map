@@ -1,0 +1,290 @@
+Archive member included to satisfy reference by file (symbol)
+
+/home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(gcc-support.o)
+                              /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/imageviewer/png/tinflate.o (memcpy)
+/home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(pluginlib_resize.o)
+                              /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/imageviewer/png/png_decoder.o (format_native)
+/home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(pluginlib_bmp.o)
+                              /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(pluginlib_resize.o) (output_row_8_native)
+/home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(bmp_smooth_scale.o)
+                              /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/imageviewer/png/png.o (smooth_resize_bitmap)
+/usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivsi3.o)
+                              /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/imageviewer/png/png.o (__aeabi_uidiv)
+/usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+                              /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/imageviewer/png/png_decoder.o (__aeabi_idiv)
+/usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
+                              /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivsi3.o) (__aeabi_idiv0)
+
+Discarded input sections
+
+ .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/imageviewer/png/crc32.o
+ .bss           0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/imageviewer/png/crc32.o
+ .bss           0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/imageviewer/png/tinflate.o
+ .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/imageviewer/png/tinfzlib.o
+ .bss           0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/imageviewer/png/tinfzlib.o
+ .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/imageviewer/png/png_decoder.o
+ .bss           0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/imageviewer/png/png_decoder.o
+ .text          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(gcc-support.o)
+ .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(gcc-support.o)
+ .bss           0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(gcc-support.o)
+ .text.__div0   0x0000000000000000       0x14 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(gcc-support.o)
+ .text.memmove  0x0000000000000000       0x14 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(gcc-support.o)
+ .text.memcmp   0x0000000000000000       0x14 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(gcc-support.o)
+ .text          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(pluginlib_resize.o)
+ .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(pluginlib_resize.o)
+ .bss           0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(pluginlib_resize.o)
+ .text.scale_h_area
+                0x0000000000000000      0x2a0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(pluginlib_resize.o)
+ .text.scale_h_linear
+                0x0000000000000000      0x26c /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(pluginlib_resize.o)
+ .text.recalc_dimension
+                0x0000000000000000       0x9c /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(pluginlib_resize.o)
+ .text.resize_on_load
+                0x0000000000000000      0x478 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(pluginlib_resize.o)
+ .text          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(pluginlib_bmp.o)
+ .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(pluginlib_bmp.o)
+ .bss           0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(pluginlib_bmp.o)
+ .text.read_part_line
+                0x0000000000000000      0x330 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(pluginlib_bmp.o)
+ .text.store_part_bmp
+                0x0000000000000000       0x24 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(pluginlib_bmp.o)
+ .text.save_bmp_file
+                0x0000000000000000      0x238 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(pluginlib_bmp.o)
+ .text.simple_resize_bitmap
+                0x0000000000000000       0xb8 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(pluginlib_bmp.o)
+ .text.read_bmp_fd
+                0x0000000000000000      0x688 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(pluginlib_bmp.o)
+ .text.read_bmp_file
+                0x0000000000000000       0x80 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(pluginlib_bmp.o)
+ .rodata.bitfields
+                0x0000000000000000       0x40 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(pluginlib_bmp.o)
+ .text          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(bmp_smooth_scale.o)
+ .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(bmp_smooth_scale.o)
+ .bss           0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(bmp_smooth_scale.o)
+ .data          0x0000000000000000        0x0 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivsi3.o)
+ .bss           0x0000000000000000        0x0 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivsi3.o)
+ .data          0x0000000000000000        0x0 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+ .bss           0x0000000000000000        0x0 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+ .data          0x0000000000000000        0x0 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
+ .bss           0x0000000000000000        0x0 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
+
+Memory Configuration
+
+Name             Origin             Length             Attributes
+PLUGIN_RAM       0x0000000009ffa680 0x0000000000005980
+PLUGIN_IRAM      0x000000000000c000 0x0000000000020000
+*default*        0x0000000000000000 0xffffffffffffffff
+
+Linker script and memory map
+
+LOAD /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/imageviewer/png/crc32.o
+LOAD /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/imageviewer/png/tinflate.o
+LOAD /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/imageviewer/png/tinfzlib.o
+LOAD /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/imageviewer/png/png_decoder.o
+LOAD /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/imageviewer/png/png.o
+LOAD /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a
+LOAD /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/bitmaps/libpluginbitmaps.a
+LOAD /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/lib/libsetjmp.a
+LOAD /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/lib/libfixedpoint.a
+LOAD /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a
+
+.header         0x0000000009ffa680       0x28
+                0x0000000009ffa680                _plugin_start_addr = .
+                0x0000000009ffa680                plugin_start_addr = .
+ *(.header)
+ .header        0x0000000009ffa680       0x28 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/imageviewer/png/png.o
+                0x0000000009ffa680                __header
+
+.text           0x0000000009ffa6a8     0x453c
+ *(.text*)
+ .text          0x0000000009ffa6a8       0x50 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/imageviewer/png/crc32.o
+                0x0000000009ffa6a8                tinf_crc32
+ .text          0x0000000009ffa6f8      0x560 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/imageviewer/png/tinflate.o
+                0x0000000009ffa978                tinf_uncompress
+ .text          0x0000000009ffac58       0x74 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/imageviewer/png/tinfzlib.o
+                0x0000000009ffac58                tinf_zlib_uncompress
+ .text          0x0000000009ffaccc     0x20b4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/imageviewer/png/png_decoder.o
+                0x0000000009ffbbd0                LodePNG_inspect
+                0x0000000009ffbe74                LodePNG_decode
+                0x0000000009ffccd4                LodePNG_Decoder_init
+                0x0000000009ffcd5c                LodePNG_perror
+ .text          0x0000000009ffcd80      0x738 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/imageviewer/png/png.o
+ .text.memcpy   0x0000000009ffd4b8       0x14 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(gcc-support.o)
+                0x0000000009ffd4b8                memcpy
+ .text.memset   0x0000000009ffd4cc       0x14 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(gcc-support.o)
+                0x0000000009ffd4cc                memset
+ .text.output_row_32_native_fromyuv
+                0x0000000009ffd4e0      0x170 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(pluginlib_resize.o)
+ .text.output_row_32_native
+                0x0000000009ffd650      0x12c /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(pluginlib_resize.o)
+ .text.get_size_native
+                0x0000000009ffd77c       0x14 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(pluginlib_resize.o)
+                0x0000000009ffd77c                get_size_native
+ .text.output_row_8_native
+                0x0000000009ffd790      0x114 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(pluginlib_bmp.o)
+                0x0000000009ffd790                output_row_8_native
+ .text.smooth_resize_bitmap
+                0x0000000009ffd8a4     0x10e0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(bmp_smooth_scale.o)
+                0x0000000009ffd8a4                smooth_resize_bitmap
+ .text          0x0000000009ffe984      0x114 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivsi3.o)
+                0x0000000009ffe984                __udivsi3
+                0x0000000009ffe984                __aeabi_uidiv
+                0x0000000009ffea78                __aeabi_uidivmod
+ .text          0x0000000009ffea98      0x148 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+                0x0000000009ffea98                __aeabi_idiv
+                0x0000000009ffea98                __divsi3
+                0x0000000009ffebc0                __aeabi_idivmod
+ .text          0x0000000009ffebe0        0x4 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
+                0x0000000009ffebe0                __aeabi_ldiv0
+                0x0000000009ffebe0                __aeabi_idiv0
+ *(.glue_7)
+ .glue_7        0x0000000009ffebe4        0x0 linker stubs
+ *(.glue_7t)
+ .glue_7t       0x0000000009ffebe4        0x0 linker stubs
+
+.vfp11_veneer   0x0000000009ffebe4        0x0
+ .vfp11_veneer  0x0000000009ffebe4        0x0 linker stubs
+
+.v4_bx          0x0000000009ffebe4        0x0
+ .v4_bx         0x0000000009ffebe4        0x0 linker stubs
+
+.iplt           0x0000000009ffebe4        0x0
+ .iplt          0x0000000009ffebe4        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/imageviewer/png/crc32.o
+
+.rodata         0x0000000009ffebe4      0x5ec
+ *(.rodata*)
+ .rodata        0x0000000009ffebe4       0x40 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/imageviewer/png/crc32.o
+ .rodata.str1.1
+                0x0000000009ffec24      0x3fc /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/imageviewer/png/png_decoder.o
+ .rodata        0x0000000009fff020       0xe4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/imageviewer/png/png_decoder.o
+ .rodata.str1.1
+                0x0000000009fff104       0x98 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/imageviewer/png/png.o
+ .rodata        0x0000000009fff19c       0x14 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/imageviewer/png/png.o
+                0x0000000009fff19c                image_decoder
+ .rodata.format_native
+                0x0000000009fff1b0       0x10 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(pluginlib_resize.o)
+                0x0000000009fff1b0                format_native
+ .rodata.dither_table
+                0x0000000009fff1c0       0x10 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(pluginlib_bmp.o)
+                0x0000000009fff1c0                dither_table
+
+.rel.dyn        0x0000000009fff1d0        0x0
+ .rel.iplt      0x0000000009fff1d0        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/imageviewer/png/crc32.o
+
+.data           0x0000000009fff1d0      0x590
+ *(.data*)
+ .data          0x0000000009fff1d0      0x588 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/imageviewer/png/tinflate.o
+ .data          0x0000000009fff758        0x8 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/imageviewer/png/png.o
+                0x0000000009fff758                rb
+                0x0000000009fff75c                iv
+
+.igot.plt       0x0000000009fff760        0x0
+ .igot.plt      0x0000000009fff760        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/imageviewer/png/crc32.o
+
+/DISCARD/
+ *(.eh_frame)
+
+.bss            0x0000000009fff760      0x4a0
+                0x0000000009fff760                plugin_bss_start = .
+                0x0000000009fff760                _plugin_bss_start = .
+ *(.bss*)
+ .bss           0x0000000009fff760      0x4a0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/imageviewer/png/png.o
+ *(COMMON)
+                0x0000000009fffc00                . = ALIGN (0x4)
+
+.pluginend      0x0000000009fffc00        0x0
+                0x0000000009fffc00                _plugin_end_addr = .
+                0x0000000009fffc00                plugin_end_addr = .
+
+.iram           0x000000000000c000        0x0 load address 0x0000000009fff760
+                0x000000000000c000                iramstart = .
+ *(.icode)
+ *(.irodata)
+ *(.idata)
+                0x000000000000c000                iramend = .
+                0x0000000009fff760                iramcopy = LOADADDR (.iram)
+
+.ibss           0x000000000000c000        0x0
+                0x000000000000c000                iedata = .
+ *(.ibss)
+                0x000000000000c000                . = ALIGN (0x4)
+                0x000000000000c000                iend = .
+                0x0000000009fffc00                loadendaddr = MAX (plugin_end_addr, (LOADADDR (.iram) + SIZEOF (.iram)))
+
+.pluginloadend  0x0000000009fffc00        0x0
+                0x0000000009fffc00                _plugin_load_end_addr = .
+                0x0000000009fffc00                plugin_load_end_addr = .
+
+.comment        0x0000000000000000       0x11
+ *(.comment)
+ .comment       0x0000000000000000       0x11 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/imageviewer/png/crc32.o
+                                         0x12 (size before relaxing)
+ .comment       0x0000000000000011       0x12 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/imageviewer/png/tinflate.o
+ .comment       0x0000000000000011       0x12 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/imageviewer/png/tinfzlib.o
+ .comment       0x0000000000000011       0x12 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/imageviewer/png/png_decoder.o
+ .comment       0x0000000000000011       0x12 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/imageviewer/png/png.o
+ .comment       0x0000000000000011       0x12 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(gcc-support.o)
+ .comment       0x0000000000000011       0x12 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(pluginlib_resize.o)
+ .comment       0x0000000000000011       0x12 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(pluginlib_bmp.o)
+ .comment       0x0000000000000011       0x12 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(bmp_smooth_scale.o)
+OUTPUT(/home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/imageviewer/png/png.elf elf32-littlearm)
+LOAD linker stubs
+
+.ARM.attributes
+                0x0000000000000000       0x2a
+ .ARM.attributes
+                0x0000000000000000       0x2a /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/imageviewer/png/crc32.o
+ .ARM.attributes
+                0x000000000000002a       0x2a /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/imageviewer/png/tinflate.o
+ .ARM.attributes
+                0x0000000000000054       0x2a /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/imageviewer/png/tinfzlib.o
+ .ARM.attributes
+                0x000000000000007e       0x2a /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/imageviewer/png/png_decoder.o
+ .ARM.attributes
+                0x00000000000000a8       0x2a /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/imageviewer/png/png.o
+ .ARM.attributes
+                0x00000000000000d2       0x2a /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(gcc-support.o)
+ .ARM.attributes
+                0x00000000000000fc       0x2a /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(pluginlib_resize.o)
+ .ARM.attributes
+                0x0000000000000126       0x2a /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(pluginlib_bmp.o)
+ .ARM.attributes
+                0x0000000000000150       0x2a /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(bmp_smooth_scale.o)
+ .ARM.attributes
+                0x000000000000017a       0x1c /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivsi3.o)
+ .ARM.attributes
+                0x0000000000000196       0x1c /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+ .ARM.attributes
+                0x00000000000001b2       0x1c /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
+
+.debug_frame    0x0000000000000000       0x40
+ .debug_frame   0x0000000000000000       0x20 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivsi3.o)
+ .debug_frame   0x0000000000000020       0x20 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+
+.debug_line     0x0000000000000000      0x169
+ .debug_line    0x0000000000000000       0x7e /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivsi3.o)
+ .debug_line    0x000000000000007e       0x8a /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+ .debug_line    0x0000000000000108       0x61 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
+
+.debug_info     0x0000000000000000       0x72
+ .debug_info    0x0000000000000000       0x26 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivsi3.o)
+ .debug_info    0x0000000000000026       0x26 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+ .debug_info    0x000000000000004c       0x26 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
+
+.debug_abbrev   0x0000000000000000       0x3c
+ .debug_abbrev  0x0000000000000000       0x14 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivsi3.o)
+ .debug_abbrev  0x0000000000000014       0x14 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+ .debug_abbrev  0x0000000000000028       0x14 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
+
+.debug_aranges  0x0000000000000000       0x60
+ .debug_aranges
+                0x0000000000000000       0x20 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivsi3.o)
+ .debug_aranges
+                0x0000000000000020       0x20 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+ .debug_aranges
+                0x0000000000000040       0x20 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
+
+.debug_str      0x0000000000000000       0x6c
+ .debug_str     0x0000000000000000       0x6c /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivsi3.o)
+ .debug_str     0x000000000000006c       0x6c /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+ .debug_str     0x000000000000006c       0x6c /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)

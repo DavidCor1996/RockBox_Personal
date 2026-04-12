@@ -1,0 +1,400 @@
+Archive member included to satisfy reference by file (symbol)
+
+/home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/liba52.a(parse.o)
+                              /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/a52_rm.o (a52_init)
+/home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/liba52.a(bit_allocate.o)
+                              /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/liba52.a(parse.o) (a52_bit_allocate)
+/home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/liba52.a(bitstream.o)
+                              /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/liba52.a(parse.o) (a52_bitstream_get_bh)
+/home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/liba52.a(downmix.o)
+                              /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/liba52.a(parse.o) (a52_downmix_init)
+/home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/liba52.a(imdct.o)
+                              /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/liba52.a(parse.o) (a52_imdct_512)
+/home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/librm.a(rm.o)
+                              /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/a52_rm.o (rm_ac3_swap_bytes)
+/home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+                              /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/a52_rm.o (codec_init)
+/home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/libcodec.a(fft-ffmpeg.o)
+                              /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/liba52.a(imdct.o) (ff_fft_calc_c)
+/home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/libcodec.a(mdct_lookup.o)
+                              /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/libcodec.a(fft-ffmpeg.o) (sincos_lookup0)
+/home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivsi3.o)
+                              /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/a52_rm.o (__aeabi_uidiv)
+/home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+                              /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/liba52.a(parse.o) (__aeabi_idiv)
+/home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
+                              /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivsi3.o) (__aeabi_idiv0)
+/home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_aeabi_ldivmod.o)
+                              /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/liba52.a(downmix.o) (__aeabi_ldivmod)
+/home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivmoddi4.o)
+                              /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_aeabi_ldivmod.o) (__udivmoddi4)
+/home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzdi2.o)
+                              /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivmoddi4.o) (__clzdi2)
+/home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzsi2.o)
+                              /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzdi2.o) (__clzsi2)
+
+Discarded input sections
+
+ .bss           0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/codec_crt0.o
+ .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/liba52.a(parse.o)
+ .bss           0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/liba52.a(parse.o)
+ .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/liba52.a(bit_allocate.o)
+ .bss           0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/liba52.a(bit_allocate.o)
+ .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/liba52.a(bitstream.o)
+ .bss           0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/liba52.a(bitstream.o)
+ .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/liba52.a(downmix.o)
+ .bss           0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/liba52.a(downmix.o)
+ .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/liba52.a(imdct.o)
+ .bss           0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/liba52.a(imdct.o)
+ .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/librm.a(rm.o)
+ .bss           0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/librm.a(rm.o)
+ .text          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+ .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+ .text.codec_malloc
+                0x0000000000000000       0x40 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+ .text.codec_calloc
+                0x0000000000000000       0x48 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+ .text.codec_free
+                0x0000000000000000        0x4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+ .text.codec_realloc
+                0x0000000000000000       0x54 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+ .text.codec_strlen
+                0x0000000000000000       0x24 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+ .text.strcpy   0x0000000000000000       0x24 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+ .text.strcat   0x0000000000000000       0x24 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+ .text.strcmp   0x0000000000000000       0x24 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+ .text.memcmp   0x0000000000000000       0x24 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+ .text.memchr   0x0000000000000000       0x24 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+ .text.memmove  0x0000000000000000       0x24 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+ .text.qsort    0x0000000000000000       0x24 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+ .irodata       0x0000000000000000      0x200 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+ .text          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/libcodec.a(fft-ffmpeg.o)
+ .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/libcodec.a(fft-ffmpeg.o)
+ .bss           0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/libcodec.a(fft-ffmpeg.o)
+ .text          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/libcodec.a(mdct_lookup.o)
+ .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/libcodec.a(mdct_lookup.o)
+ .bss           0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/libcodec.a(mdct_lookup.o)
+ .rodata        0x0000000000000000     0x2000 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/libcodec.a(mdct_lookup.o)
+ .data          0x0000000000000000        0x0 /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivsi3.o)
+ .bss           0x0000000000000000        0x0 /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivsi3.o)
+ .data          0x0000000000000000        0x0 /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+ .bss           0x0000000000000000        0x0 /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+ .data          0x0000000000000000        0x0 /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
+ .bss           0x0000000000000000        0x0 /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
+ .data          0x0000000000000000        0x0 /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_aeabi_ldivmod.o)
+ .bss           0x0000000000000000        0x0 /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_aeabi_ldivmod.o)
+ .data          0x0000000000000000        0x0 /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivmoddi4.o)
+ .bss           0x0000000000000000        0x0 /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivmoddi4.o)
+ .data          0x0000000000000000        0x0 /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzdi2.o)
+ .bss           0x0000000000000000        0x0 /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzdi2.o)
+ .data          0x0000000000000000        0x0 /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzsi2.o)
+ .bss           0x0000000000000000        0x0 /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzsi2.o)
+
+Memory Configuration
+
+Name             Origin             Length             Attributes
+PLUGIN_RAM       0x0000000003e00000 0x0000000000100000
+PLUGIN_IRAM      0x000000004000c000 0x0000000000014000
+*default*        0x0000000000000000 0xffffffffffffffff
+
+Linker script and memory map
+
+LOAD /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/a52_rm.o
+LOAD /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/codec_crt0.o
+LOAD /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/liba52.a
+LOAD /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/librm.a
+LOAD /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/libcodec.a
+LOAD /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/libfixedpoint.a
+LOAD /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a
+
+.header         0x0000000003e00000       0x20
+                0x0000000003e00000                _plugin_start_addr = .
+                0x0000000003e00000                plugin_start_addr = .
+ *(.header)
+ .header        0x0000000003e00000       0x20 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/a52_rm.o
+                0x0000000003e00000                __header
+
+.text           0x0000000003e00020     0x60f0
+ *(.text*)
+ .text          0x0000000003e00020      0x690 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/a52_rm.o
+                0x0000000003e001f8                codec_run
+                0x0000000003e0063c                codec_main
+ .text          0x0000000003e006b0       0xec /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/codec_crt0.o
+                0x0000000003e006b0                _start
+                0x0000000003e006b8                codec_start
+                0x0000000003e00788                __div0
+ .text          0x0000000003e0079c     0x2b98 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/liba52.a(parse.o)
+                0x0000000003e00fb8                a52_init
+                0x0000000003e01018                a52_samples
+                0x0000000003e01024                a52_syncinfo
+                0x0000000003e0117c                a52_frame
+                0x0000000003e016e0                a52_dynrng
+                0x0000000003e01700                a52_block
+                0x0000000003e03330                a52_free
+ .text          0x0000000003e03334      0x7bc /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/liba52.a(bit_allocate.o)
+                0x0000000003e03334                a52_bit_allocate
+ .text          0x0000000003e03af0      0x11c /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/liba52.a(bitstream.o)
+                0x0000000003e03af0                a52_bitstream_get_bh
+                0x0000000003e03b58                a52_bitstream_get_bh_2
+                0x0000000003e03bc0                a52_bitstream_set_ptr
+ .text          0x0000000003e03c0c     0x1158 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/liba52.a(downmix.o)
+                0x0000000003e03cbc                a52_downmix_init
+                0x0000000003e04048                a52_downmix_coeff
+                0x0000000003e045e8                a52_downmix
+                0x0000000003e04b30                a52_upmix
+ .text          0x0000000003e04d64      0x618 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/liba52.a(imdct.o)
+                0x0000000003e04d64                a52_imdct_512
+                0x0000000003e04fa0                a52_imdct_256
+                0x0000000003e05378                a52_imdct_init
+ .text          0x0000000003e0537c      0x604 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/librm.a(rm.o)
+                0x0000000003e0537c                rm_ac3_swap_bytes
+                0x0000000003e053c0                rm_get_packet
+ .text.codec_init
+                0x0000000003e05980       0x40 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+                0x0000000003e05980                codec_init
+ .text.codec_set_replaygain
+                0x0000000003e059c0       0x54 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+                0x0000000003e059c0                codec_set_replaygain
+ .text.memcpy   0x0000000003e05a14       0x24 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+                0x0000000003e05a14                memcpy
+ .text.memset   0x0000000003e05a38       0x24 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+                0x0000000003e05a38                memset
+ .text.fft4_dispatch
+                0x0000000003e05a5c       0x54 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/libcodec.a(fft-ffmpeg.o)
+ .text.fft8_dispatch
+                0x0000000003e05ab0      0x164 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/libcodec.a(fft-ffmpeg.o)
+ .text.ff_fft_calc_c
+                0x0000000003e05c14       0x28 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/libcodec.a(fft-ffmpeg.o)
+                0x0000000003e05c14                ff_fft_calc_c
+ .text          0x0000000003e05c3c      0x114 /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivsi3.o)
+                0x0000000003e05c3c                __udivsi3
+                0x0000000003e05c3c                __aeabi_uidiv
+                0x0000000003e05d30                __aeabi_uidivmod
+ .text          0x0000000003e05d50      0x148 /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+                0x0000000003e05d50                __aeabi_idiv
+                0x0000000003e05d50                __divsi3
+                0x0000000003e05e78                __aeabi_idivmod
+ .text          0x0000000003e05e98        0x4 /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
+                0x0000000003e05e98                __aeabi_ldiv0
+                0x0000000003e05e98                __aeabi_idiv0
+ .text          0x0000000003e05e9c       0xd4 /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_aeabi_ldivmod.o)
+                0x0000000003e05e9c                __aeabi_ldivmod
+ .text          0x0000000003e05f70      0x130 /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivmoddi4.o)
+                0x0000000003e05f70                __udivmoddi4
+ .text          0x0000000003e060a0       0x28 /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzdi2.o)
+                0x0000000003e060a0                __clzdi2
+ .text          0x0000000003e060c8       0x48 /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzsi2.o)
+                0x0000000003e060c8                __clzsi2
+ *(.glue_7)
+ .glue_7        0x0000000003e06110        0x0 linker stubs
+ *(.glue_7t)
+ .glue_7t       0x0000000003e06110        0x0 linker stubs
+
+.vfp11_veneer   0x0000000003e06110        0x0
+ .vfp11_veneer  0x0000000003e06110        0x0 linker stubs
+
+.v4_bx          0x0000000003e06110        0x0
+ .v4_bx         0x0000000003e06110        0x0 linker stubs
+
+.iplt           0x0000000003e06110        0x0
+ .iplt          0x0000000003e06110        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/a52_rm.o
+
+.rodata         0x0000000003e06110      0xb60
+ *(.rodata*)
+ .rodata        0x0000000003e06110      0xa1c /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/liba52.a(parse.o)
+ .rodata        0x0000000003e06b2c       0x40 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/liba52.a(bit_allocate.o)
+ .rodata        0x0000000003e06b6c       0x58 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/liba52.a(downmix.o)
+ .rodata        0x0000000003e06bc4       0x80 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/liba52.a(imdct.o)
+ .rodata        0x0000000003e06c44       0x2c /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/libcodec.a(fft-ffmpeg.o)
+
+.rel.dyn        0x0000000003e06c70        0x0
+ .rel.iplt      0x0000000003e06c70        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/a52_rm.o
+
+.data           0x0000000003e06c70        0xc
+ *(.data*)
+ .data          0x0000000003e06c70        0x8 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/a52_rm.o
+ .data          0x0000000003e06c78        0x4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/codec_crt0.o
+                0x0000000003e06c78                ci
+
+.igot.plt       0x0000000003e06c7c        0x0
+ .igot.plt      0x0000000003e06c7c        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/a52_rm.o
+
+.ncdata         0x0000000013e06c80        0x0 load address 0x0000000003e06c80
+ *(.ncdata*)
+                0x0000000013e06c80                . = ALIGN (0x10)
+
+/DISCARD/
+ *(.eh_frame)
+
+.bss            0x0000000003e06c7c      0x234
+                0x0000000003e06c7c                plugin_bss_start = .
+                0x0000000003e06c7c                _plugin_bss_start = .
+ *(.bss*)
+ .bss           0x0000000003e06c7c      0x228 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/a52_rm.o
+ .bss           0x0000000003e06ea4        0xc /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+ *(COMMON)
+                0x0000000003e06eb0                . = ALIGN (0x4)
+
+.ncbss          0x0000000013e06eb0        0x0 load address 0x0000000003e06eb0
+ *(.ncbss*)
+                0x0000000013e06eb0                . = ALIGN (0x10)
+
+.ncbss_vma      0x0000000003e06eb0        0x0
+                0x0000000003e06eb0                . = (. + SIZEOF (.ncbss))
+
+.pluginend      0x0000000003e06eb0        0x0
+                0x0000000003e06eb0                _plugin_end_addr = .
+                0x0000000003e06eb0                plugin_end_addr = .
+
+.iram           0x000000004000c000     0x3f24 load address 0x0000000003e06c7c
+                0x000000004000c000                iramstart = .
+ *(.icode)
+ .icode         0x000000004000c000      0xd18 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/libcodec.a(fft-ffmpeg.o)
+ *(.irodata)
+ .irodata       0x000000004000cd18      0xd00 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/liba52.a(imdct.o)
+ .irodata       0x000000004000da18     0x2008 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/libcodec.a(mdct_lookup.o)
+                0x000000004000da18                sincos_lookup1
+                0x000000004000ea18                sincos_lookup0
+ *(.idata)
+ .idata         0x000000004000fa20      0x504 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/liba52.a(bit_allocate.o)
+                0x000000004000ff24                iramend = .
+                0x0000000003e06c7c                iramcopy = LOADADDR (.iram)
+
+.ibss           0x000000004000ff24     0x502c load address 0x0000000003e0aba0
+                0x000000004000ff24                iedata = .
+ *(.ibss)
+ .ibss          0x000000004000ff24      0xf00 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/a52_rm.o
+ .ibss          0x0000000040010e24     0x412c /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/liba52.a(parse.o)
+                0x0000000040014f50                . = ALIGN (0x4)
+                0x0000000040014f50                iend = .
+                0x0000000003e0aba0                loadendaddr = MAX (plugin_end_addr, (LOADADDR (.iram) + SIZEOF (.iram)))
+
+.pluginloadend  0x0000000003e0aba0        0x0
+                0x0000000003e0aba0                _plugin_load_end_addr = .
+                0x0000000003e0aba0                plugin_load_end_addr = .
+
+.comment        0x0000000000000000       0x11
+ *(.comment)
+ .comment       0x0000000000000000       0x11 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/a52_rm.o
+                                         0x12 (size before relaxing)
+ .comment       0x0000000000000011       0x12 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/codec_crt0.o
+ .comment       0x0000000000000011       0x12 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/liba52.a(parse.o)
+ .comment       0x0000000000000011       0x12 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/liba52.a(bit_allocate.o)
+ .comment       0x0000000000000011       0x12 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/liba52.a(bitstream.o)
+ .comment       0x0000000000000011       0x12 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/liba52.a(downmix.o)
+ .comment       0x0000000000000011       0x12 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/liba52.a(imdct.o)
+ .comment       0x0000000000000011       0x12 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/librm.a(rm.o)
+ .comment       0x0000000000000011       0x12 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+ .comment       0x0000000000000011       0x12 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/libcodec.a(fft-ffmpeg.o)
+ .comment       0x0000000000000011       0x12 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/libcodec.a(mdct_lookup.o)
+ .comment       0x0000000000000011       0x12 /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivmoddi4.o)
+                0x0000000000000001                ASSERT ((LOADADDR (.ncdata) == (ADDR (.ncdata) - 0x10000000)), .ncdata has incorrect LMA/VMA address)
+                0x0000000000000001                ASSERT (((LOADADDR (.ncdata) % 0x10) == 0x0), .ncdata incorrectly aligned)
+                0x0000000000000001                ASSERT ((LOADADDR (.ncbss) == (ADDR (.ncbss) - 0x10000000)), .ncbss has incorrect LMA/VMA address)
+                0x0000000000000001                ASSERT (((LOADADDR (.ncbss) % 0x10) == 0x0), .ncbss incorrectly aligned)
+                0x0000000000000001                ASSERT ((ADDR (.ncbss_vma) == LOADADDR (.ncbss)), .ncbss_vma has wrong address)
+                0x0000000000000001                ASSERT ((SIZEOF (.ncbss_vma) == SIZEOF (.ncbss)), .ncbss_vma has wrong size)
+OUTPUT(/home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/a52_rm.elf elf32-littlearm)
+LOAD linker stubs
+
+.ARM.attributes
+                0x0000000000000000       0x2a
+ .ARM.attributes
+                0x0000000000000000       0x2a /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/a52_rm.o
+ .ARM.attributes
+                0x000000000000002a       0x2a /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/codec_crt0.o
+ .ARM.attributes
+                0x0000000000000054       0x2a /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/liba52.a(parse.o)
+ .ARM.attributes
+                0x000000000000007e       0x2a /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/liba52.a(bit_allocate.o)
+ .ARM.attributes
+                0x00000000000000a8       0x2a /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/liba52.a(bitstream.o)
+ .ARM.attributes
+                0x00000000000000d2       0x2a /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/liba52.a(downmix.o)
+ .ARM.attributes
+                0x00000000000000fc       0x2a /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/liba52.a(imdct.o)
+ .ARM.attributes
+                0x0000000000000126       0x2a /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/librm.a(rm.o)
+ .ARM.attributes
+                0x0000000000000150       0x2a /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+ .ARM.attributes
+                0x000000000000017a       0x2a /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/libcodec.a(fft-ffmpeg.o)
+ .ARM.attributes
+                0x00000000000001a4       0x2a /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/libcodec.a(mdct_lookup.o)
+ .ARM.attributes
+                0x00000000000001ce       0x1c /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivsi3.o)
+ .ARM.attributes
+                0x00000000000001ea       0x1c /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+ .ARM.attributes
+                0x0000000000000206       0x1c /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
+ .ARM.attributes
+                0x0000000000000222       0x1c /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_aeabi_ldivmod.o)
+ .ARM.attributes
+                0x000000000000023e       0x2a /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivmoddi4.o)
+ .ARM.attributes
+                0x0000000000000268       0x1c /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzdi2.o)
+ .ARM.attributes
+                0x0000000000000284       0x1c /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzsi2.o)
+
+.debug_frame    0x0000000000000000       0xc4
+ .debug_frame   0x0000000000000000       0x20 /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivsi3.o)
+ .debug_frame   0x0000000000000020       0x20 /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+ .debug_frame   0x0000000000000040       0x44 /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_aeabi_ldivmod.o)
+ .debug_frame   0x0000000000000084       0x40 /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivmoddi4.o)
+
+.debug_line     0x0000000000000000      0x4cc
+ .debug_line    0x0000000000000000       0x7e /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivsi3.o)
+ .debug_line    0x000000000000007e       0x8a /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+ .debug_line    0x0000000000000108       0x61 /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
+ .debug_line    0x0000000000000169       0x7f /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_aeabi_ldivmod.o)
+ .debug_line    0x00000000000001e8      0x20b /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivmoddi4.o)
+ .debug_line    0x00000000000003f3       0x6b /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzdi2.o)
+ .debug_line    0x000000000000045e       0x6e /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzsi2.o)
+
+.debug_info     0x0000000000000000      0xadf
+ .debug_info    0x0000000000000000       0x26 /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivsi3.o)
+ .debug_info    0x0000000000000026       0x26 /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+ .debug_info    0x000000000000004c       0x26 /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
+ .debug_info    0x0000000000000072       0x26 /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_aeabi_ldivmod.o)
+ .debug_info    0x0000000000000098      0x9fb /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivmoddi4.o)
+ .debug_info    0x0000000000000a93       0x26 /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzdi2.o)
+ .debug_info    0x0000000000000ab9       0x26 /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzsi2.o)
+
+.debug_abbrev   0x0000000000000000      0x1da
+ .debug_abbrev  0x0000000000000000       0x14 /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivsi3.o)
+ .debug_abbrev  0x0000000000000014       0x14 /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+ .debug_abbrev  0x0000000000000028       0x14 /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
+ .debug_abbrev  0x000000000000003c       0x14 /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_aeabi_ldivmod.o)
+ .debug_abbrev  0x0000000000000050      0x162 /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivmoddi4.o)
+ .debug_abbrev  0x00000000000001b2       0x14 /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzdi2.o)
+ .debug_abbrev  0x00000000000001c6       0x14 /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzsi2.o)
+
+.debug_aranges  0x0000000000000000       0xe0
+ .debug_aranges
+                0x0000000000000000       0x20 /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivsi3.o)
+ .debug_aranges
+                0x0000000000000020       0x20 /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+ .debug_aranges
+                0x0000000000000040       0x20 /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
+ .debug_aranges
+                0x0000000000000060       0x20 /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_aeabi_ldivmod.o)
+ .debug_aranges
+                0x0000000000000080       0x20 /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivmoddi4.o)
+ .debug_aranges
+                0x00000000000000a0       0x20 /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzdi2.o)
+ .debug_aranges
+                0x00000000000000c0       0x20 /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzsi2.o)
+
+.debug_str      0x0000000000000000     0x11d0
+ .debug_str     0x0000000000000000       0x6c /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivsi3.o)
+ .debug_str     0x000000000000006c       0x6c /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+ .debug_str     0x000000000000006c       0x6c /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
+ .debug_str     0x000000000000006c       0x2d /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_aeabi_ldivmod.o)
+                                         0x68 (size before relaxing)
+ .debug_str     0x0000000000000099     0x1137 /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivmoddi4.o)
+                                       0x1196 (size before relaxing)
+ .debug_str     0x00000000000011d0       0x6c /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzdi2.o)
+ .debug_str     0x00000000000011d0       0x6c /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzsi2.o)
+
+.debug_loc      0x0000000000000000      0x1e2
+ .debug_loc     0x0000000000000000      0x1e2 /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivmoddi4.o)

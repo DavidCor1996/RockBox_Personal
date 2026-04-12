@@ -1,0 +1,560 @@
+Archive member included to satisfy reference by file (symbol)
+
+/home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(gcc-support.o)
+                              /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/chessbox/gnuchess.o (memcpy)
+/home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(playback_control.o)
+                              /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/chessbox/chessbox.o (playback_control)
+/home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/bitmaps/libpluginbitmaps.a(chessbox_pieces.128x128x2.o)
+                              /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/chessbox/chessbox.o (chessbox_pieces)
+/home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/lib/libsetjmp.a(setjmp.o)
+                              /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/plugin_crt0.o (setjmp)
+/usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+                              /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/chessbox/gnuchess.o (__aeabi_idiv)
+/usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
+                              /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o) (__aeabi_idiv0)
+
+Discarded input sections
+
+ .text          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/chessbox/opening.o
+ .bss           0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/chessbox/opening.o
+ .text          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(gcc-support.o)
+ .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(gcc-support.o)
+ .bss           0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(gcc-support.o)
+ .text.__div0   0x0000000000000000       0x14 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(gcc-support.o)
+ .text.memset   0x0000000000000000       0x14 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(gcc-support.o)
+ .text.memmove  0x0000000000000000       0x14 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(gcc-support.o)
+ .text.memcmp   0x0000000000000000       0x14 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(gcc-support.o)
+ .text          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(playback_control.o)
+ .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(playback_control.o)
+ .bss           0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(playback_control.o)
+ .text.playback_control_init
+                0x0000000000000000       0x10 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(playback_control.o)
+ .text          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/bitmaps/libpluginbitmaps.a(chessbox_pieces.128x128x2.o)
+ .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/bitmaps/libpluginbitmaps.a(chessbox_pieces.128x128x2.o)
+ .bss           0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/bitmaps/libpluginbitmaps.a(chessbox_pieces.128x128x2.o)
+ .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/lib/libsetjmp.a(setjmp.o)
+ .bss           0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/lib/libsetjmp.a(setjmp.o)
+ .data          0x0000000000000000        0x0 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+ .bss           0x0000000000000000        0x0 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+ .data          0x0000000000000000        0x0 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
+ .bss           0x0000000000000000        0x0 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
+
+Memory Configuration
+
+Name             Origin             Length             Attributes
+PLUGIN_RAM       0x0000000009f60000 0x00000000000a0000
+PLUGIN_IRAM      0x000000000000c000 0x0000000000020000
+*default*        0x0000000000000000 0xffffffffffffffff
+
+Linker script and memory map
+
+LOAD /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/chessbox/chessbox.o
+LOAD /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/chessbox/gnuchess.o
+LOAD /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/chessbox/opening.o
+LOAD /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/chessbox/chessbox_pgn.o
+LOAD /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/plugin_crt0.o
+LOAD /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a
+LOAD /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/bitmaps/libpluginbitmaps.a
+LOAD /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/lib/libsetjmp.a
+LOAD /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/lib/libfixedpoint.a
+LOAD /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a
+
+.header         0x0000000009f60000       0x1c
+                0x0000000009f60000                _plugin_start_addr = .
+                0x0000000009f60000                plugin_start_addr = .
+ *(.header)
+ .header        0x0000000009f60000       0x1c /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/plugin_crt0.o
+                0x0000000009f60000                __header
+
+.text           0x0000000009f6001c     0xc7d8
+ *(.text*)
+ .text          0x0000000009f6001c     0x2374 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/chessbox/chessbox.o
+                0x0000000009f616f0                cb_talk
+                0x0000000009f618cc                plugin_start
+ .text          0x0000000009f62390     0x79c0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/chessbox/gnuchess.o
+                0x0000000009f62480                ScoreKPK
+                0x0000000009f6269c                ScoreKBNK
+                0x0000000009f627f8                KingScan
+                0x0000000009f62d94                BRscan
+                0x0000000009f62fec                trapped
+                0x0000000009f632c0                SqValue
+                0x0000000009f63f20                UpdateWeights
+                0x0000000009f64238                ScoreLoneKing
+                0x0000000009f64408                ScorePosition
+                0x0000000009f6475c                distance
+                0x0000000009f647c4                BlendBoard
+                0x0000000009f64820                CopyBoard
+                0x0000000009f64840                ProbeTTable
+                0x0000000009f64914                PutInTTable
+                0x0000000009f64994                ZeroTTable
+                0x0000000009f649ac                LinkMove
+                0x0000000009f64ba8                GenMoves
+                0x0000000009f64edc                CaptureList
+                0x0000000009f652e0                UpdateHashbd
+                0x0000000009f65350                UpdatePieceList
+                0x0000000009f653a4                InitializeStats
+                0x0000000009f6557c                EnPassant
+                0x0000000009f655c4                pick
+                0x0000000009f6567c                OpeningBook
+                0x0000000009f65844                repetition
+                0x0000000009f65950                SqAtakd
+                0x0000000009f65c10                castle
+                0x0000000009f65e7c                MoveList
+                0x0000000009f6609c                MakeMove
+                0x0000000009f665cc                UnmakeMove
+                0x0000000009f66960                ataks
+                0x0000000009f66b38                ExaminePosition
+                0x0000000009f67abc                evaluate
+                0x0000000009f67dac                ElapsedTime
+                0x0000000009f67e94                search
+                0x0000000009f68af4                SetTimeControl
+                0x0000000009f68b48                NewGame
+                0x0000000009f68e1c                GNUChess_Initialize
+                0x0000000009f68e6c                algbr
+                0x0000000009f69008                SelectMove
+                0x0000000009f69a14                VerifyMove
+ .text          0x0000000009f69d50     0x247c /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/chessbox/chessbox_pgn.o
+                0x0000000009f6a1f4                pgn_list_games
+                0x0000000009f6a3b4                pgn_show_game_list
+                0x0000000009f6a568                pgn_parse_game
+                0x0000000009f6b42c                pgn_init_game
+                0x0000000009f6b5ec                pgn_append_ply
+                0x0000000009f6b6a8                pgn_set_result
+                0x0000000009f6b6d4                pgn_store_game
+ .text          0x0000000009f6c1cc      0x214 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/plugin_crt0.o
+                0x0000000009f6c1e4                plugin__start
+                0x0000000009f6c32c                rb_atexit
+                0x0000000009f6c34c                exit
+                0x0000000009f6c374                _exit
+                0x0000000009f6c388                exit_on_usb
+ .text.memcpy   0x0000000009f6c3e0       0x14 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(gcc-support.o)
+                0x0000000009f6c3e0                memcpy
+ .text.prevtrack
+                0x0000000009f6c3f4       0x28 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(playback_control.o)
+ .text.stop     0x0000000009f6c41c       0x28 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(playback_control.o)
+ .text.nexttrack
+                0x0000000009f6c444       0x28 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(playback_control.o)
+ .text.volume   0x0000000009f6c46c       0x4c /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(playback_control.o)
+ .text.shuffle  0x0000000009f6c4b8       0x54 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(playback_control.o)
+ .text.play     0x0000000009f6c50c       0x98 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(playback_control.o)
+ .text.repeat_mode
+                0x0000000009f6c5a4       0x98 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(playback_control.o)
+ .text.playback_control
+                0x0000000009f6c63c       0x50 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(playback_control.o)
+                0x0000000009f6c63c                playback_control
+ .text          0x0000000009f6c68c       0x1c /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/lib/libsetjmp.a(setjmp.o)
+                0x0000000009f6c68c                setjmp
+                0x0000000009f6c698                longjmp
+ .text          0x0000000009f6c6a8      0x148 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+                0x0000000009f6c6a8                __aeabi_idiv
+                0x0000000009f6c6a8                __divsi3
+                0x0000000009f6c7d0                __aeabi_idivmod
+ .text          0x0000000009f6c7f0        0x4 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
+                0x0000000009f6c7f0                __aeabi_ldiv0
+                0x0000000009f6c7f0                __aeabi_idiv0
+ *(.glue_7)
+ .glue_7        0x0000000009f6c7f4        0x0 linker stubs
+ *(.glue_7t)
+ .glue_7t       0x0000000009f6c7f4        0x0 linker stubs
+
+.vfp11_veneer   0x0000000009f6c7f4        0x0
+ .vfp11_veneer  0x0000000009f6c7f4        0x0 linker stubs
+
+.v4_bx          0x0000000009f6c7f4        0x0
+ .v4_bx         0x0000000009f6c7f4        0x0 linker stubs
+
+.iplt           0x0000000009f6c7f4        0x0
+ .iplt          0x0000000009f6c7f4        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/chessbox/chessbox.o
+
+.rodata         0x0000000009f6c7f4     0x37d4
+ *(.rodata*)
+ .rodata.str1.4
+                0x0000000009f6c7f4       0x2d /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/chessbox/chessbox.o
+ *fill*         0x0000000009f6c821        0x3 
+ .rodata        0x0000000009f6c824       0x50 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/chessbox/chessbox.o
+ .rodata.str1.4
+                0x0000000009f6c874       0x2c /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/chessbox/gnuchess.o
+ .rodata.str1.4
+                0x0000000009f6c8a0      0x1f3 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/chessbox/chessbox_pgn.o
+                                        0x203 (size before relaxing)
+ *fill*         0x0000000009f6ca93        0x1 
+ .rodata        0x0000000009f6ca94       0x2a /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/chessbox/chessbox_pgn.o
+ .rodata.volume.str1.1
+                0x0000000009f6cabe        0x7 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(playback_control.o)
+ .rodata.shuffle.str1.1
+                0x0000000009f6cac5        0x8 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(playback_control.o)
+ .rodata.repeat_mode.str1.1
+                0x0000000009f6cacd        0x7 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(playback_control.o)
+ .rodata.nexttrack_item
+                0x0000000009f6cad4        0xc /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(playback_control.o)
+                0x0000000009f6cad4                nexttrack_item
+ .rodata.nexttrack_item_
+                0x0000000009f6cae0        0xc /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(playback_control.o)
+ .rodata.nexttrack_item__
+                0x0000000009f6caec        0x4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(playback_control.o)
+ .rodata.playback_control_menu
+                0x0000000009f6caf0        0xc /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(playback_control.o)
+                0x0000000009f6caf0                playback_control_menu
+ .rodata.playback_control_menu__
+                0x0000000009f6cafc        0xc /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(playback_control.o)
+ .rodata.playpause_item
+                0x0000000009f6cb08        0xc /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(playback_control.o)
+                0x0000000009f6cb08                playpause_item
+ .rodata.playpause_item_
+                0x0000000009f6cb14        0xc /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(playback_control.o)
+ .rodata.playpause_item__
+                0x0000000009f6cb20        0x4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(playback_control.o)
+ .rodata.prevtrack_item
+                0x0000000009f6cb24        0xc /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(playback_control.o)
+                0x0000000009f6cb24                prevtrack_item
+ .rodata.prevtrack_item_
+                0x0000000009f6cb30        0xc /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(playback_control.o)
+ .rodata.prevtrack_item__
+                0x0000000009f6cb3c        0x4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(playback_control.o)
+ .rodata.repeat_mode_item
+                0x0000000009f6cb40        0xc /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(playback_control.o)
+                0x0000000009f6cb40                repeat_mode_item
+ .rodata.repeat_mode_item_
+                0x0000000009f6cb4c        0xc /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(playback_control.o)
+ .rodata.repeat_mode_item__
+                0x0000000009f6cb58        0x4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(playback_control.o)
+ .rodata.shuffle_item
+                0x0000000009f6cb5c        0xc /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(playback_control.o)
+                0x0000000009f6cb5c                shuffle_item
+ .rodata.shuffle_item_
+                0x0000000009f6cb68        0xc /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(playback_control.o)
+ .rodata.shuffle_item__
+                0x0000000009f6cb74        0x4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(playback_control.o)
+ .rodata.stop_item
+                0x0000000009f6cb78        0xc /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(playback_control.o)
+                0x0000000009f6cb78                stop_item
+ .rodata.stop_item_
+                0x0000000009f6cb84        0xc /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(playback_control.o)
+ .rodata.stop_item__
+                0x0000000009f6cb90        0x4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(playback_control.o)
+ .rodata.volume_item
+                0x0000000009f6cb94        0xc /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(playback_control.o)
+                0x0000000009f6cb94                volume_item
+ .rodata.volume_item_
+                0x0000000009f6cba0        0xc /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(playback_control.o)
+ .rodata.volume_item__
+                0x0000000009f6cbac        0x4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(playback_control.o)
+ .rodata        0x0000000009f6cbb0     0x3418 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/bitmaps/libpluginbitmaps.a(chessbox_pieces.128x128x2.o)
+                0x0000000009f6cbb0                bm_chessbox_pieces
+                0x0000000009f6cbc8                chessbox_pieces
+
+.rel.dyn        0x0000000009f6ffc8        0x0
+ .rel.iplt      0x0000000009f6ffc8        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/chessbox/chessbox.o
+
+.data           0x0000000009f6ffc8     0x7218
+ *(.data*)
+ .data          0x0000000009f6ffc8       0x50 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/chessbox/chessbox.o
+                0x0000000009f6ffcc                level_string
+ .data          0x0000000009f70018      0x7f4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/chessbox/gnuchess.o
+                0x0000000009f70018                KBNK
+                0x0000000009f70098                map
+                0x0000000009f70118                Dstart
+                0x0000000009f70128                Dstop
+                0x0000000009f70138                Dir
+                0x0000000009f70158                unmap
+                0x0000000009f70248                Kthreat
+                0x0000000009f70268                control
+                0x0000000009f70278                sweep
+                0x0000000009f70288                Dpwn
+                0x0000000009f70290                ISOLANI
+                0x0000000009f702a0                BACKWARD
+                0x0000000009f702b0                PassedPawn2
+                0x0000000009f702c0                PassedPawn1
+                0x0000000009f702d0                PassedPawn0
+                0x0000000009f702e0                BMBLTY
+                0x0000000009f702fc                RMBLTY
+                0x0000000009f70318                rank7
+                0x0000000009f70320                PassedPawn3
+                0x0000000009f70330                otherside
+                0x0000000009f70338                KingEnding
+                0x0000000009f703b8                value
+                0x0000000009f703c8                Dcode
+                0x0000000009f704b8                Pdir
+                0x0000000009f704fc                pbit
+                0x0000000009f7050c                pknight
+                0x0000000009f7058c                pbishop
+                0x0000000009f7060c                KingOpening
+                0x0000000009f7068c                PawnAdvance
+                0x0000000009f7070c                Stboard
+                0x0000000009f7078c                Stcolor
+ .data          0x0000000009f7080c     0x6970 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/chessbox/opening.o
+                0x0000000009f7080c                OBook
+ .data          0x0000000009f7717c       0x44 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/chessbox/chessbox_pgn.o
+                0x0000000009f7717c                kn_offs
+                0x0000000009f7719c                rk_offs
+                0x0000000009f771ac                bp_offs
+                0x0000000009f771bc                pgn_file
+ .data          0x0000000009f771c0        0x4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/plugin_crt0.o
+                0x0000000009f771c0                rb
+ .data.playback_control_menu_
+                0x0000000009f771c4       0x1c /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(playback_control.o)
+
+.igot.plt       0x0000000009f771e0        0x0
+ .igot.plt      0x0000000009f771e0        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/chessbox/chessbox.o
+
+/DISCARD/
+ *(.eh_frame)
+
+.bss            0x0000000009f771e0    0x1556c
+                0x0000000009f771e0                plugin_bss_start = .
+                0x0000000009f771e0                _plugin_bss_start = .
+ *(.bss*)
+ .bss           0x0000000009f771e0        0xe /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/chessbox/chessbox.o
+                0x0000000009f771e0                wt_command
+                0x0000000009f771ec                plugin_mode
+ *fill*         0x0000000009f771ee        0x2 
+ .bss           0x0000000009f771f0    0x154ec /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/chessbox/gnuchess.o
+                0x0000000009f771f0                ptbl
+                0x0000000009f771f4                hashbd
+                0x0000000009f771f8                hashkey
+                0x0000000009f771fc                PieceCnt
+                0x0000000009f77200                Pindex
+                0x0000000009f77280                PieceList
+                0x0000000009f772c0                row
+                0x0000000009f77340                column
+                0x0000000009f773c0                emtl
+                0x0000000009f773c4                KBNKsq
+                0x0000000009f773c8                locn
+                0x0000000009f77448                c2
+                0x0000000009f7744c                HasBishop
+                0x0000000009f77450                HasQueen
+                0x0000000009f77454                atk2
+                0x0000000009f77458                atk1
+                0x0000000009f7745c                color
+                0x0000000009f774dc                HasRook
+                0x0000000009f774e0                HasKnight
+                0x0000000009f774e4                KSFTY
+                0x0000000009f774e8                board
+                0x0000000009f77568                c1
+                0x0000000009f7756c                Kfield
+                0x0000000009f7766c                PINVAL
+                0x0000000009f77670                hung
+                0x0000000009f77674                XRAY
+                0x0000000009f77678                Mwpawn
+                0x0000000009f776f8                PEDRNK2B
+                0x0000000009f776fc                PC1
+                0x0000000009f77700                PDOUBLED
+                0x0000000009f77704                PC2
+                0x0000000009f77708                PWEAKH
+                0x0000000009f7770a                PBLOK
+                0x0000000009f7770c                bking
+                0x0000000009f7770e                stage
+                0x0000000009f77710                Mbpawn
+                0x0000000009f77790                wking
+                0x0000000009f77794                Mknight
+                0x0000000009f77894                Mbishop
+                0x0000000009f77994                RookBonus
+                0x0000000009f77996                RHOPN
+                0x0000000009f77998                RHOPNX
+                0x0000000009f7799c                pmtl
+                0x0000000009f779a0                EnemyKing
+                0x0000000009f779a4                Mking
+                0x0000000009f77aa4                Developed
+                0x0000000009f77aa8                castld
+                0x0000000009f77aac                KCASTLD
+                0x0000000009f77ab0                kingmoved
+                0x0000000009f77ab4                KMOVD
+                0x0000000009f77ab6                KHOPN
+                0x0000000009f77ab8                KHOPNX
+                0x0000000009f77aba                HUNGP
+                0x0000000009f77abc                ATAKD
+                0x0000000009f77ac0                mtl
+                0x0000000009f77ac4                Zwmtl
+                0x0000000009f77ac6                Zbmtl
+                0x0000000009f77ac8                stage2
+                0x0000000009f77aca                PAWNSHIELD
+                0x0000000009f77acc                PADVNCM
+                0x0000000009f77ace                PADVNCI
+                0x0000000009f77ad0                PawnBonus
+                0x0000000009f77ad2                KNIGHTPOST
+                0x0000000009f77ad4                KNIGHTSTRONG
+                0x0000000009f77ad6                BISHOPSTRONG
+                0x0000000009f77ad8                BishopBonus
+                0x0000000009f77ada                KATAK
+                0x0000000009f77adc                HUNGX
+                0x0000000009f77ae0                atak
+                0x0000000009f77be0                PawnCnt
+                0x0000000009f77c00                svalue
+                0x0000000009f77c80                dither
+                0x0000000009f77c84                HashCnt
+                0x0000000009f77c88                PV
+                0x0000000009f77c8a                hashflag
+                0x0000000009f77c8c                TrPnt
+                0x0000000009f77cc8                Swag0
+                0x0000000009f77cca                Swag1
+                0x0000000009f77ccc                Swag2
+                0x0000000009f77cce                Swag3
+                0x0000000009f77cd0                Swag4
+                0x0000000009f77cd2                TOsquare
+                0x0000000009f77cd4                epsquare
+                0x0000000009f77cd6                hint
+                0x0000000009f77cd8                GameCnt
+                0x0000000009f77cd9                withbook
+                0x0000000009f77cda                Game50
+                0x0000000009f77cdc                killr0
+                0x0000000009f77d18                killr1
+                0x0000000009f77d54                killr2
+                0x0000000009f77d90                killr3
+                0x0000000009f77dcc                FROMsquare
+                0x0000000009f77dce                INCscore
+                0x0000000009f77dd0                HasPawn
+                0x0000000009f77dd4                PawnStorm
+                0x0000000009f77dd8                Pscore
+                0x0000000009f77e14                Xscore
+                0x0000000009f77e16                Sdepth
+                0x0000000009f77e18                xwndw
+                0x0000000009f77e1a                InChk
+                0x0000000009f77e1c                ChkFlag
+                0x0000000009f77e58                EvalNodes
+                0x0000000009f77e5c                slk
+                0x0000000009f77e60                time0
+                0x0000000009f77e64                et
+                0x0000000009f77e68                ETnodes
+                0x0000000009f77e6c                et0
+                0x0000000009f77e70                ResponseTime
+                0x0000000009f77e74                ExtraTime
+                0x0000000009f77e78                timeout
+                0x0000000009f77e7c                NodeCnt
+                0x0000000009f77e80                PawnThreat
+                0x0000000009f77ebc                rcptr
+                0x0000000009f77ec0                CptrFlag
+                0x0000000009f77efc                Zscore
+                0x0000000009f77efe                zwndw
+                0x0000000009f77f00                Tscore
+                0x0000000009f77f3c                contempt
+                0x0000000009f77f3e                computer
+                0x0000000009f77f40                TCminutes
+                0x0000000009f77f42                TCflag
+                0x0000000009f77f44                TCmoves
+                0x0000000009f77f48                TimeControl
+                0x0000000009f77f54                Level
+                0x0000000009f77f58                post
+                0x0000000009f77f5a                bothsides
+                0x0000000009f77f5c                reverse
+                0x0000000009f77f5e                quit
+                0x0000000009f77f60                mate
+                0x0000000009f77f62                force
+                0x0000000009f77f64                beep
+                0x0000000009f77f66                easy
+                0x0000000009f77f68                lpost
+                0x0000000009f77f6a                Awindow
+                0x0000000009f77f6c                Bwindow
+                0x0000000009f77f6e                MaxSearchDepth
+                0x0000000009f77f70                Threat
+                0x0000000009f77fac                opponent
+                0x0000000009f77fae                OperatorTime
+                0x0000000009f77fb0                mvstr1
+                0x0000000009f77fb8                mvstr2
+                0x0000000009f77fc0                mvstr3
+                0x0000000009f77fc8                player
+                0x0000000009f77fcc                root
+                0x0000000009f77fd0                ft
+                0x0000000009f77fd8                PrVar
+                0x0000000009f7803c                history
+                0x0000000009f7a03c                ttable
+                0x0000000009f8603c                hashcode
+                0x0000000009f87c3c                GameList
+                0x0000000009f88c3c                evrate
+                0x0000000009f88c40                cputimer
+                0x0000000009f88c44                Tree
+ .bss           0x0000000009f8c6dc        0xc /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/chessbox/chessbox_pgn.o
+                0x0000000009f8c6dc                bufptr
+                0x0000000009f8c6e0                bufleft
+                0x0000000009f8c6e4                loghandler
+ .bss           0x0000000009f8c6e8       0x60 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/plugin_crt0.o
+ .bss.parentvp  0x0000000009f8c748        0x4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(playback_control.o)
+                0x0000000009f8c748                parentvp
+ *(COMMON)
+                0x0000000009f8c74c                . = ALIGN (0x4)
+
+.pluginend      0x0000000009f8c74c        0x0
+                0x0000000009f8c74c                _plugin_end_addr = .
+                0x0000000009f8c74c                plugin_end_addr = .
+
+.iram           0x000000000000c000        0x0 load address 0x0000000009f771e0
+                0x000000000000c000                iramstart = .
+ *(.icode)
+ *(.irodata)
+ *(.idata)
+                0x000000000000c000                iramend = .
+                0x0000000009f771e0                iramcopy = LOADADDR (.iram)
+
+.ibss           0x000000000000c000        0x0
+                0x000000000000c000                iedata = .
+ *(.ibss)
+                0x000000000000c000                . = ALIGN (0x4)
+                0x000000000000c000                iend = .
+                0x0000000009f8c74c                loadendaddr = MAX (plugin_end_addr, (LOADADDR (.iram) + SIZEOF (.iram)))
+
+.pluginloadend  0x0000000009f8c74c        0x0
+                0x0000000009f8c74c                _plugin_load_end_addr = .
+                0x0000000009f8c74c                plugin_load_end_addr = .
+
+.comment        0x0000000000000000       0x11
+ *(.comment)
+ .comment       0x0000000000000000       0x11 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/chessbox/chessbox.o
+                                         0x12 (size before relaxing)
+ .comment       0x0000000000000011       0x12 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/chessbox/gnuchess.o
+ .comment       0x0000000000000011       0x12 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/chessbox/opening.o
+ .comment       0x0000000000000011       0x12 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/chessbox/chessbox_pgn.o
+ .comment       0x0000000000000011       0x12 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/plugin_crt0.o
+ .comment       0x0000000000000011       0x12 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(gcc-support.o)
+ .comment       0x0000000000000011       0x12 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(playback_control.o)
+ .comment       0x0000000000000011       0x12 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/bitmaps/libpluginbitmaps.a(chessbox_pieces.128x128x2.o)
+OUTPUT(/home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/chessbox/chessbox.elf elf32-littlearm)
+LOAD linker stubs
+
+.ARM.attributes
+                0x0000000000000000       0x28
+ .ARM.attributes
+                0x0000000000000000       0x2a /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/chessbox/chessbox.o
+ .ARM.attributes
+                0x000000000000002a       0x2a /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/chessbox/gnuchess.o
+ .ARM.attributes
+                0x0000000000000054       0x2a /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/chessbox/opening.o
+ .ARM.attributes
+                0x000000000000007e       0x2a /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/chessbox/chessbox_pgn.o
+ .ARM.attributes
+                0x00000000000000a8       0x2a /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/plugin_crt0.o
+ .ARM.attributes
+                0x00000000000000d2       0x2a /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(gcc-support.o)
+ .ARM.attributes
+                0x00000000000000fc       0x2a /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(playback_control.o)
+ .ARM.attributes
+                0x0000000000000126       0x2a /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/bitmaps/libpluginbitmaps.a(chessbox_pieces.128x128x2.o)
+ .ARM.attributes
+                0x0000000000000150       0x1a /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/lib/libsetjmp.a(setjmp.o)
+ .ARM.attributes
+                0x000000000000016a       0x1c /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+ .ARM.attributes
+                0x0000000000000186       0x1c /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
+
+.debug_frame    0x0000000000000000       0x20
+ .debug_frame   0x0000000000000000       0x20 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+
+.debug_line     0x0000000000000000       0xeb
+ .debug_line    0x0000000000000000       0x8a /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+ .debug_line    0x000000000000008a       0x61 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
+
+.debug_info     0x0000000000000000       0x4c
+ .debug_info    0x0000000000000000       0x26 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+ .debug_info    0x0000000000000026       0x26 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
+
+.debug_abbrev   0x0000000000000000       0x28
+ .debug_abbrev  0x0000000000000000       0x14 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+ .debug_abbrev  0x0000000000000014       0x14 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
+
+.debug_aranges  0x0000000000000000       0x40
+ .debug_aranges
+                0x0000000000000000       0x20 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+ .debug_aranges
+                0x0000000000000020       0x20 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
+
+.debug_str      0x0000000000000000       0x6c
+ .debug_str     0x0000000000000000       0x6c /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+ .debug_str     0x000000000000006c       0x6c /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)

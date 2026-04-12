@@ -1,0 +1,660 @@
+Archive member included to satisfy reference by file (symbol)
+
+/home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/libplugin.a(pluginlib_resize.o)
+                              /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/imageviewer/bmp/bmp.o (format_native)
+/home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/libplugin.a(pluginlib_bmp.o)
+                              /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/libplugin.a(pluginlib_resize.o) (output_row_8_native)
+/home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/libplugin.a(bmp_smooth_scale.o)
+                              /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/imageviewer/bmp/bmp.o (smooth_resize_bitmap)
+/home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/libplugin.a(gcc-support.o)
+                              /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/libplugin.a(pluginlib_bmp.o) (memcpy)
+
+Merging object attributes
+
+
+Merging program properties
+
+Removed property 0xc0000002 to merge /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o (0x3) and /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/imageviewer/bmp/bmp.o (not found)
+Updated property 0xc0010002 (0x1) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o (0x1) and /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtendS.o (0x0)
+Removed property 0xc0000002 to merge /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o (not found) and /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtendS.o (0x3)
+Removed property 0xc0000002 to merge /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o (not found) and /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o (0x3)
+
+Discarded input sections
+
+ .note.gnu.property
+                0x0000000000000000       0x50 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtbeginS.o
+ .note.gnu.property
+                0x0000000000000000       0x30 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/imageviewer/bmp/bmp.o
+ .note.gnu.property
+                0x0000000000000000       0x30 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/libplugin.a(pluginlib_resize.o)
+ .note.gnu.property
+                0x0000000000000000       0x30 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/libplugin.a(pluginlib_bmp.o)
+ .note.gnu.property
+                0x0000000000000000       0x30 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/libplugin.a(bmp_smooth_scale.o)
+ .note.gnu.property
+                0x0000000000000000       0x30 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/libplugin.a(gcc-support.o)
+ .note.gnu.property
+                0x0000000000000000       0x50 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtendS.o
+ .note.gnu.property
+                0x0000000000000000       0x50 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
+
+Memory Configuration
+
+Name             Origin             Length             Attributes
+*default*        0x0000000000000000 0xffffffffffffffff
+
+Linker script and memory map
+
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtbeginS.o
+LOAD /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/imageviewer/bmp/bmp.o
+LOAD /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/libplugin.a
+LOAD /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/bitmaps/libpluginbitmaps.a
+LOAD /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/lib/libfixedpoint.a
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/libgcc.a
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/libgcc.a
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/libgcc_s.so
+START GROUP
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/libgcc_s.so.1
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/libgcc.a
+END GROUP
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/libc.so
+START GROUP
+LOAD /usr/lib/libc.so.6
+LOAD /usr/lib/libc_nonshared.a
+LOAD /usr/lib/ld-linux-x86-64.so.2
+END GROUP
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/libgcc.a
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/libgcc_s.so
+START GROUP
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/libgcc_s.so.1
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/libgcc.a
+END GROUP
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtendS.o
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
+                0x00000000000002a8                . = (SEGMENT_START ("text-segment", 0x0) + SIZEOF_HEADERS)
+
+.note.gnu.build-id
+                0x00000000000002a8       0x24
+ *(.note.gnu.build-id)
+ .note.gnu.build-id
+                0x00000000000002a8       0x24 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+
+.hash
+ *(.hash)
+
+.gnu.hash       0x00000000000002d0       0x24
+ *(.gnu.hash)
+ .gnu.hash      0x00000000000002d0       0x24 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+
+.dynsym         0x00000000000002f8       0xa8
+ *(.dynsym)
+ .dynsym        0x00000000000002f8       0xa8 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+
+.dynstr         0x00000000000003a0       0x8f
+ *(.dynstr)
+ .dynstr        0x00000000000003a0       0x8f /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+
+.gnu.version    0x0000000000000430        0xe
+ *(.gnu.version)
+ .gnu.version   0x0000000000000430        0xe /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+
+.gnu.version_d  0x0000000000000440        0x0
+ *(.gnu.version_d)
+ .gnu.version_d
+                0x0000000000000440        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+
+.gnu.version_r  0x0000000000000440       0x30
+ *(.gnu.version_r)
+ .gnu.version_r
+                0x0000000000000440       0x30 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+
+.rela.dyn       0x0000000000000470      0x1b0
+ *(.rela.init)
+ *(.rela.text .rela.text.* .rela.gnu.linkonce.t.*)
+ .rela.text     0x0000000000000470        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ *(.rela.fini)
+ *(.rela.rodata .rela.rodata.* .rela.gnu.linkonce.r.*)
+ *(.rela.data .rela.data.* .rela.gnu.linkonce.d.*)
+ .rela.data.rel.local
+                0x0000000000000470       0x18 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ .rela.data.rel.ro.local
+                0x0000000000000488       0xa8 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ .rela.data.rel.ro
+                0x0000000000000530       0x60 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ *(.rela.tdata .rela.tdata.* .rela.gnu.linkonce.td.*)
+ *(.rela.tbss .rela.tbss.* .rela.gnu.linkonce.tb.*)
+ *(.rela.ctors)
+ *(.rela.dtors)
+ *(.rela.got)
+ .rela.got      0x0000000000000590       0x60 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ *(.rela.tls)
+ .rela.tls      0x00000000000005f0        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ *(.rela.bss .rela.bss.* .rela.gnu.linkonce.b.*)
+ *(.rela.ldata .rela.ldata.* .rela.gnu.linkonce.l.*)
+ *(.rela.lbss .rela.lbss.* .rela.gnu.linkonce.lb.*)
+ *(.rela.lrodata .rela.lrodata.* .rela.gnu.linkonce.lr.*)
+ *(.rela.ifunc)
+ .rela.ifunc    0x00000000000005f0        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ .rela.fini_array
+                0x00000000000005f0       0x18 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ .rela.init_array
+                0x0000000000000608       0x18 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+
+.rela.plt       0x0000000000000620       0x18
+ *(.rela.plt)
+ .rela.plt      0x0000000000000620       0x18 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ *(.rela.iplt)
+
+.relr.dyn
+ *(.relr.dyn)
+                0x0000000000001000                . = ALIGN (CONSTANT (MAXPAGESIZE))
+
+.init           0x0000000000001000       0x1b
+ *(SORT_NONE(.init))
+ .init          0x0000000000001000       0x16 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+                0x0000000000001000                _init
+ .init          0x0000000000001016        0x5 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
+
+.plt            0x0000000000001020       0x20
+ *(.plt)
+ .plt           0x0000000000001020       0x20 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ *(.iplt)
+
+.plt.got        0x0000000000001040        0x0
+ *(.plt.got)
+ .plt.got       0x0000000000001040        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+
+.plt.sec
+ *(.plt.sec)
+
+.text           0x0000000000001040     0x34e6
+ *(.text.unlikely .text.*_unlikely .text.unlikely.*)
+ *(.text.exit .text.exit.*)
+ *(.text.startup .text.startup.*)
+ *(.text.hot .text.hot.*)
+ *(SORT_BY_NAME(.text.sorted.*))
+ *(.text .stub .text.* .gnu.linkonce.t.*)
+ .text          0x0000000000001040        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ .text          0x0000000000001040       0xc9 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtbeginS.o
+ .text          0x0000000000001109      0x645 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/imageviewer/bmp/bmp.o
+ .text          0x000000000000174e      0xb6e /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/libplugin.a(pluginlib_resize.o)
+                0x0000000000001c13                get_size_native
+                0x0000000000001e4c                recalc_dimension
+                0x0000000000001ec4                resize_on_load
+ .text          0x00000000000022bc      0xe6d /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/libplugin.a(pluginlib_bmp.o)
+                0x00000000000025fc                output_row_8_native
+                0x0000000000002703                save_bmp_file
+                0x000000000000290c                simple_resize_bitmap
+                0x00000000000029b1                read_bmp_fd
+                0x000000000000309c                read_bmp_file
+ .text          0x0000000000003129     0x13bd /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/libplugin.a(bmp_smooth_scale.o)
+                0x0000000000003129                smooth_resize_bitmap
+ .text          0x00000000000044e6       0x40 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/libplugin.a(gcc-support.o)
+                0x00000000000044e6                memcpy
+                0x00000000000044f6                memset
+                0x0000000000004506                memmove
+                0x0000000000004516                memcmp
+ .text          0x0000000000004526        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtendS.o
+ .text          0x0000000000004526        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
+ *(.gnu.warning)
+
+.fini           0x0000000000004528        0xd
+ *(SORT_NONE(.fini))
+ .fini          0x0000000000004528        0x8 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+                0x0000000000004528                _fini
+ .fini          0x0000000000004530        0x5 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
+                [!provide]                        PROVIDE (__etext = .)
+                [!provide]                        PROVIDE (_etext = .)
+                [!provide]                        PROVIDE (etext = .)
+                0x0000000000005000                . = ALIGN (CONSTANT (MAXPAGESIZE))
+                0x0000000000005000                . = SEGMENT_START ("rodata-segment", (ALIGN (CONSTANT (MAXPAGESIZE)) + (. & (CONSTANT (MAXPAGESIZE) - 0x1))))
+
+.rodata         0x0000000000005000      0x240
+ *(.rodata .rodata.* .gnu.linkonce.r.*)
+ .rodata.str1.1
+                0x0000000000005000      0x1dc /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/imageviewer/bmp/bmp.o
+                                         0x7c (size before relaxing)
+ .rodata.str1.1
+                0x00000000000051dc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/libplugin.a(pluginlib_resize.o)
+                                         0x3d (size before relaxing)
+ .rodata.str1.1
+                0x00000000000051dc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/libplugin.a(pluginlib_bmp.o)
+                                        0x124 (size before relaxing)
+ *fill*         0x00000000000051dc        0x4 
+ .rodata        0x00000000000051e0       0x60 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/libplugin.a(pluginlib_bmp.o)
+                0x00000000000051e0                dither_table
+
+.rodata1
+ *(.rodata1)
+
+.eh_frame_hdr   0x0000000000005240       0xcc
+ *(.eh_frame_hdr)
+ .eh_frame_hdr  0x0000000000005240       0xcc /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/imageviewer/bmp/bmp.o
+                0x0000000000005240                __GNU_EH_FRAME_HDR
+ *(.eh_frame_entry .eh_frame_entry.*)
+
+.eh_frame       0x0000000000005310      0x51c
+ *(.eh_frame)
+ .eh_frame      0x0000000000005310       0x40 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ .eh_frame      0x0000000000005350        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ .eh_frame      0x0000000000005350       0xd0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/imageviewer/bmp/bmp.o
+                                         0xe8 (size before relaxing)
+ .eh_frame      0x0000000000005420      0x190 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/libplugin.a(pluginlib_resize.o)
+                                        0x1a8 (size before relaxing)
+ .eh_frame      0x00000000000055b0      0x1d8 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/libplugin.a(pluginlib_bmp.o)
+                                        0x1f0 (size before relaxing)
+ .eh_frame      0x0000000000005788       0x50 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/libplugin.a(bmp_smooth_scale.o)
+                                         0x68 (size before relaxing)
+ .eh_frame      0x00000000000057d8       0x50 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/libplugin.a(gcc-support.o)
+                                         0x68 (size before relaxing)
+ .eh_frame      0x0000000000005828        0x4 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtendS.o
+ *(.eh_frame.*)
+
+.sframe
+ *(.sframe)
+ *(.sframe.*)
+
+.gcc_except_table
+ *(.gcc_except_table .gcc_except_table.*)
+
+.gnu_extab
+ *(.gnu_extab*)
+
+.exception_ranges
+ *(.exception_ranges*)
+
+.note.build-id
+ *(.note.build-id)
+
+.note.GNU-stack
+                0x000000000000582c        0x0
+ *(.note.GNU-stack)
+ .note.GNU-stack
+                0x000000000000582c        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ .note.GNU-stack
+                0x000000000000582c        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtbeginS.o
+ .note.GNU-stack
+                0x000000000000582c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/imageviewer/bmp/bmp.o
+ .note.GNU-stack
+                0x000000000000582c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/libplugin.a(pluginlib_resize.o)
+ .note.GNU-stack
+                0x000000000000582c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/libplugin.a(pluginlib_bmp.o)
+ .note.GNU-stack
+                0x000000000000582c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/libplugin.a(bmp_smooth_scale.o)
+ .note.GNU-stack
+                0x000000000000582c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/libplugin.a(gcc-support.o)
+ .note.GNU-stack
+                0x000000000000582c        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtendS.o
+ .note.GNU-stack
+                0x000000000000582c        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
+
+.note.gnu.property
+                0x0000000000005830       0x30
+ *(.note.gnu.property)
+ .note.gnu.property
+                0x0000000000005830       0x30 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+
+.note.ABI-tag
+ *(.note.ABI-tag)
+
+.note.package
+ *(.note.package)
+
+.note.dlopen
+ *(.note.dlopen)
+
+.note.netbsd.ident
+ *(.note.netbsd.ident)
+
+.note.openbsd.ident
+ *(.note.openbsd.ident)
+                0x0000000000006d30                . = DATA_SEGMENT_ALIGN (CONSTANT (MAXPAGESIZE), CONSTANT (COMMONPAGESIZE))
+
+.eh_frame
+ *(.eh_frame)
+ *(.eh_frame.*)
+
+.sframe
+ *(.sframe)
+ *(.sframe.*)
+
+.gnu_extab
+ *(.gnu_extab)
+
+.gcc_except_table
+ *(.gcc_except_table .gcc_except_table.*)
+
+.exception_ranges
+ *(.exception_ranges*)
+
+.tdata
+ *(.tdata .tdata.* .gnu.linkonce.td.*)
+
+.tbss
+ *(.tbss .tbss.* .gnu.linkonce.tb.*)
+ *(.tcommon)
+
+.preinit_array
+ *(.preinit_array)
+
+.init_array     0x0000000000006d30        0x8
+ *(SORT_BY_INIT_PRIORITY(.init_array.*) SORT_BY_INIT_PRIORITY(.ctors.*))
+ *(.init_array EXCLUDE_FILE(*crtend?.o *crtend.o *crtbegin?.o *crtbegin.o) .ctors)
+ .init_array    0x0000000000006d30        0x8 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtbeginS.o
+
+.fini_array     0x0000000000006d38        0x8
+ *(SORT_BY_INIT_PRIORITY(.fini_array.*) SORT_BY_INIT_PRIORITY(.dtors.*))
+ *(.fini_array EXCLUDE_FILE(*crtend?.o *crtend.o *crtbegin?.o *crtbegin.o) .dtors)
+ .fini_array    0x0000000000006d38        0x8 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtbeginS.o
+
+.ctors
+ *crtbegin.o(.ctors)
+ *crtbegin?.o(.ctors)
+ *(EXCLUDE_FILE(*crtend?.o *crtend.o) .ctors)
+ *(SORT_BY_NAME(.ctors.*))
+ *(.ctors)
+
+.dtors
+ *crtbegin.o(.dtors)
+ *crtbegin?.o(.dtors)
+ *(EXCLUDE_FILE(*crtend?.o *crtend.o) .dtors)
+ *(SORT_BY_NAME(.dtors.*))
+ *(.dtors)
+
+.jcr
+ *(.jcr)
+
+.data.rel.ro    0x0000000000006d40       0xc0
+ *(.data.rel.ro.local* .gnu.linkonce.d.rel.ro.local.*)
+ .data.rel.ro.local
+                0x0000000000006d40       0x88 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/imageviewer/bmp/bmp.o
+                0x0000000000006d40                __header
+                0x0000000000006da0                image_decoder
+ *(.data.rel.ro .data.rel.ro.* .gnu.linkonce.d.rel.ro.*)
+ .data.rel.ro   0x0000000000006dc8        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ *fill*         0x0000000000006dc8       0x18 
+ .data.rel.ro   0x0000000000006de0       0x20 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/libplugin.a(pluginlib_resize.o)
+                0x0000000000006de0                format_native
+
+.dynamic        0x0000000000006e00      0x1c0
+ *(.dynamic)
+ .dynamic       0x0000000000006e00      0x1c0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+                0x0000000000006e00                _DYNAMIC
+
+.got            0x0000000000006fc0       0x20
+ *(.got)
+ .got           0x0000000000006fc0       0x20 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ *(.igot)
+                0x0000000000006fe8                . = DATA_SEGMENT_RELRO_END (., (SIZEOF (.got.plt) >= 0x18)?0x18:0x0)
+
+.got.plt        0x0000000000006fe8       0x20
+ *(.got.plt)
+ .got.plt       0x0000000000006fe8       0x20 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+                0x0000000000006fe8                _GLOBAL_OFFSET_TABLE_
+ *(.igot.plt)
+
+.data           0x0000000000007008       0x18
+ *(.data .data.* .gnu.linkonce.d.*)
+ .data          0x0000000000007008        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ .data          0x0000000000007008        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtbeginS.o
+ .data.rel.local
+                0x0000000000007008        0x8 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtbeginS.o
+                0x0000000000007008                __dso_handle
+ .data          0x0000000000007010       0x10 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/imageviewer/bmp/bmp.o
+                0x0000000000007010                iv
+                0x0000000000007018                rb
+ .data          0x0000000000007020        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/libplugin.a(pluginlib_resize.o)
+ .data          0x0000000000007020        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/libplugin.a(pluginlib_bmp.o)
+ .data          0x0000000000007020        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/libplugin.a(bmp_smooth_scale.o)
+ .data          0x0000000000007020        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/libplugin.a(gcc-support.o)
+ .data          0x0000000000007020        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtendS.o
+ .data          0x0000000000007020        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
+
+.tm_clone_table
+                0x0000000000007020        0x0
+ .tm_clone_table
+                0x0000000000007020        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtbeginS.o
+ .tm_clone_table
+                0x0000000000007020        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtendS.o
+
+.data1
+ *(.data1)
+                [!provide]                        PROVIDE (_edata = .)
+                [!provide]                        PROVIDE (edata = .)
+                0x0000000000007020                . = ALIGN (ALIGNOF (NEXT_SECTION))
+                [!provide]                        PROVIDE (__bss_start = .)
+
+.bss            0x0000000000007020       0xe8
+ *(.dynbss)
+ .dynbss        0x0000000000007020        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ *(.bss .bss.* .gnu.linkonce.b.*)
+ .bss           0x0000000000007020        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ .bss           0x0000000000007020        0x1 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtbeginS.o
+ *fill*         0x0000000000007021       0x1f 
+ .bss           0x0000000000007040       0xc8 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/imageviewer/bmp/bmp.o
+                0x0000000000007040                bmp
+ .bss           0x0000000000007108        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/libplugin.a(pluginlib_resize.o)
+ .bss           0x0000000000007108        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/libplugin.a(pluginlib_bmp.o)
+ .bss           0x0000000000007108        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/libplugin.a(bmp_smooth_scale.o)
+ .bss           0x0000000000007108        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/libplugin.a(gcc-support.o)
+ .bss           0x0000000000007108        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtendS.o
+ .bss           0x0000000000007108        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
+ *(COMMON)
+                0x0000000000007108                . = ALIGN ((. != 0x0)?0x8:0x1)
+
+.lbss
+ *(.dynlbss)
+ *(.lbss .lbss.* .gnu.linkonce.lb.*)
+ *(LARGE_COMMON)
+                0x0000000000007108                . = ALIGN (0x8)
+                0x0000000000007108                . = SEGMENT_START ("ldata-segment", .)
+
+.lrodata
+ *(.lrodata .lrodata.* .gnu.linkonce.lr.*)
+
+.ldata          0x0000000000009108        0x0
+ *(.ldata .ldata.* .gnu.linkonce.l.*)
+                0x0000000000009108                . = ALIGN ((. != 0x0)?0x8:0x1)
+                0x0000000000009108                . = ALIGN (0x8)
+                [!provide]                        PROVIDE (_end = .)
+                [!provide]                        PROVIDE (end = .)
+                0x0000000000009108                . = DATA_SEGMENT_END (.)
+
+.stab
+ *(.stab)
+
+.stabstr
+ *(.stabstr)
+
+.stab.excl
+ *(.stab.excl)
+
+.stab.exclstr
+ *(.stab.exclstr)
+
+.stab.index
+ *(.stab.index)
+
+.stab.indexstr
+ *(.stab.indexstr)
+
+.comment        0x0000000000000000       0x1b
+ *(.comment)
+ .comment       0x0000000000000000       0x1b /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtbeginS.o
+                                         0x1c (size before relaxing)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/imageviewer/bmp/bmp.o
+                                         0x1c (size before relaxing)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/libplugin.a(pluginlib_resize.o)
+                                         0x1c (size before relaxing)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/libplugin.a(pluginlib_bmp.o)
+                                         0x1c (size before relaxing)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/libplugin.a(bmp_smooth_scale.o)
+                                         0x1c (size before relaxing)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/libplugin.a(gcc-support.o)
+                                         0x1c (size before relaxing)
+ .comment       0x000000000000001b        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtendS.o
+                                         0x1c (size before relaxing)
+
+.gnu.build.attributes
+ *(.gnu.build.attributes .gnu.build.attributes.*)
+
+.debug
+ *(.debug)
+
+.line
+ *(.line)
+
+.debug_srcinfo
+ *(.debug_srcinfo)
+
+.debug_sfnames
+ *(.debug_sfnames)
+
+.debug_aranges  0x0000000000000000       0xf0
+ *(.debug_aranges)
+ .debug_aranges
+                0x0000000000000000       0x30 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/imageviewer/bmp/bmp.o
+ .debug_aranges
+                0x0000000000000030       0x30 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/libplugin.a(pluginlib_resize.o)
+ .debug_aranges
+                0x0000000000000060       0x30 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/libplugin.a(pluginlib_bmp.o)
+ .debug_aranges
+                0x0000000000000090       0x30 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/libplugin.a(bmp_smooth_scale.o)
+ .debug_aranges
+                0x00000000000000c0       0x30 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/libplugin.a(gcc-support.o)
+
+.debug_pubnames
+ *(.debug_pubnames)
+
+.debug_info     0x0000000000000000    0x1fc19
+ *(.debug_info .gnu.linkonce.wi.*)
+ .debug_info    0x0000000000000000     0x7df0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/imageviewer/bmp/bmp.o
+ .debug_info    0x0000000000007df0     0x8102 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/libplugin.a(pluginlib_resize.o)
+ .debug_info    0x000000000000fef2     0x84cc /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/libplugin.a(pluginlib_bmp.o)
+ .debug_info    0x00000000000183be      0x688 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/libplugin.a(bmp_smooth_scale.o)
+ .debug_info    0x0000000000018a46     0x71d3 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/libplugin.a(gcc-support.o)
+
+.debug_abbrev   0x0000000000000000     0x12e8
+ *(.debug_abbrev)
+ .debug_abbrev  0x0000000000000000      0x470 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/imageviewer/bmp/bmp.o
+ .debug_abbrev  0x0000000000000470      0x582 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/libplugin.a(pluginlib_resize.o)
+ .debug_abbrev  0x00000000000009f2      0x538 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/libplugin.a(pluginlib_bmp.o)
+ .debug_abbrev  0x0000000000000f2a       0xf9 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/libplugin.a(bmp_smooth_scale.o)
+ .debug_abbrev  0x0000000000001023      0x2c5 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/libplugin.a(gcc-support.o)
+
+.debug_line     0x0000000000000000     0x33c9
+ *(.debug_line .debug_line.* .debug_line_end)
+ .debug_line    0x0000000000000000      0x528 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/imageviewer/bmp/bmp.o
+ .debug_line    0x0000000000000528      0xe4c /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/libplugin.a(pluginlib_resize.o)
+ .debug_line    0x0000000000001374      0xea9 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/libplugin.a(pluginlib_bmp.o)
+ .debug_line    0x000000000000221d      0xfc6 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/libplugin.a(bmp_smooth_scale.o)
+ .debug_line    0x00000000000031e3      0x1e6 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/libplugin.a(gcc-support.o)
+
+.debug_frame
+ *(.debug_frame)
+
+.debug_str      0x0000000000000000     0x4b74
+ *(.debug_str)
+ .debug_str     0x0000000000000000     0x4b74 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/imageviewer/bmp/bmp.o
+                                       0x4da2 (size before relaxing)
+ .debug_str     0x0000000000004b74        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/libplugin.a(pluginlib_resize.o)
+                                       0x4c99 (size before relaxing)
+ .debug_str     0x0000000000004b74        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/libplugin.a(pluginlib_bmp.o)
+                                       0x4dbe (size before relaxing)
+ .debug_str     0x0000000000004b74        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/libplugin.a(bmp_smooth_scale.o)
+                                        0x22c (size before relaxing)
+ .debug_str     0x0000000000004b74        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/libplugin.a(gcc-support.o)
+                                       0x444e (size before relaxing)
+
+.debug_loc
+ *(.debug_loc)
+
+.debug_macinfo
+ *(.debug_macinfo)
+
+.debug_weaknames
+ *(.debug_weaknames)
+
+.debug_funcnames
+ *(.debug_funcnames)
+
+.debug_typenames
+ *(.debug_typenames)
+
+.debug_varnames
+ *(.debug_varnames)
+
+.debug_pubtypes
+ *(.debug_pubtypes)
+
+.debug_ranges
+ *(.debug_ranges)
+
+.debug_addr
+ *(.debug_addr)
+
+.debug_line_str
+                0x0000000000000000      0x826
+ *(.debug_line_str)
+ .debug_line_str
+                0x0000000000000000      0x826 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/imageviewer/bmp/bmp.o
+                                        0x6ef (size before relaxing)
+ .debug_line_str
+                0x0000000000000826        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/libplugin.a(pluginlib_resize.o)
+                                        0x699 (size before relaxing)
+ .debug_line_str
+                0x0000000000000826        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/libplugin.a(pluginlib_bmp.o)
+                                        0x64d (size before relaxing)
+ .debug_line_str
+                0x0000000000000826        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/libplugin.a(bmp_smooth_scale.o)
+                                        0x179 (size before relaxing)
+ .debug_line_str
+                0x0000000000000826        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/libplugin.a(gcc-support.o)
+                                        0x627 (size before relaxing)
+
+.debug_loclists
+                0x0000000000000000     0x4e03
+ *(.debug_loclists)
+ .debug_loclists
+                0x0000000000000000      0x30b /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/imageviewer/bmp/bmp.o
+ .debug_loclists
+                0x000000000000030b     0x2188 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/libplugin.a(pluginlib_resize.o)
+ .debug_loclists
+                0x0000000000002493     0x1089 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/libplugin.a(pluginlib_bmp.o)
+ .debug_loclists
+                0x000000000000351c     0x1803 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/libplugin.a(bmp_smooth_scale.o)
+ .debug_loclists
+                0x0000000000004d1f       0xe4 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/libplugin.a(gcc-support.o)
+
+.debug_macro
+ *(.debug_macro)
+
+.debug_names
+ *(.debug_names)
+
+.debug_rnglists
+                0x0000000000000000      0x1b6
+ *(.debug_rnglists)
+ .debug_rnglists
+                0x0000000000000000       0xe4 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/libplugin.a(pluginlib_resize.o)
+ .debug_rnglists
+                0x00000000000000e4       0x6d /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/libplugin.a(pluginlib_bmp.o)
+ .debug_rnglists
+                0x0000000000000151       0x65 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/libplugin.a(bmp_smooth_scale.o)
+
+.debug_str_offsets
+ *(.debug_str_offsets)
+
+.debug_sup
+ *(.debug_sup)
+
+.gnu.attributes
+ *(.gnu.attributes)
+
+/DISCARD/
+ *(.note.GNU-stack)
+ *(.gnu_debuglink)
+ *(.gnu.lto_*)
+ *(.gnu_object_only)
+OUTPUT(/home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/imageviewer/bmp/bmp.elf elf64-x86-64)

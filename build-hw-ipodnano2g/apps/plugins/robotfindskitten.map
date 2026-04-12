@@ -1,0 +1,237 @@
+Archive member included to satisfy reference by file (symbol)
+
+/home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(pluginlib_actions.o)
+                              /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/robotfindskitten.o (pluginlib_getaction)
+/home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(display_text.o)
+                              /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/robotfindskitten.o (display_text)
+/home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/lib/libsetjmp.a(setjmp.o)
+                              /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/plugin_crt0.o (setjmp)
+/usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivsi3.o)
+                              /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/robotfindskitten.o (__aeabi_uidivmod)
+/usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+                              /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/robotfindskitten.o (__aeabi_idivmod)
+/usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
+                              /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivsi3.o) (__aeabi_idiv0)
+
+Discarded input sections
+
+ .text          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(pluginlib_actions.o)
+ .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(pluginlib_actions.o)
+ .bss           0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(pluginlib_actions.o)
+ .text          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(display_text.o)
+ .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(display_text.o)
+ .bss           0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(display_text.o)
+ .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/lib/libsetjmp.a(setjmp.o)
+ .bss           0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/lib/libsetjmp.a(setjmp.o)
+ .data          0x0000000000000000        0x0 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivsi3.o)
+ .bss           0x0000000000000000        0x0 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivsi3.o)
+ .data          0x0000000000000000        0x0 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+ .bss           0x0000000000000000        0x0 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+ .data          0x0000000000000000        0x0 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
+ .bss           0x0000000000000000        0x0 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
+
+Memory Configuration
+
+Name             Origin             Length             Attributes
+PLUGIN_RAM       0x0000000009f60000 0x00000000000a0000
+PLUGIN_IRAM      0x000000000000c000 0x0000000000020000
+*default*        0x0000000000000000 0xffffffffffffffff
+
+Linker script and memory map
+
+LOAD /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/robotfindskitten.o
+LOAD /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/plugin_crt0.o
+LOAD /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a
+LOAD /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/bitmaps/libpluginbitmaps.a
+LOAD /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/lib/libsetjmp.a
+LOAD /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/lib/libfixedpoint.a
+LOAD /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a
+
+.header         0x0000000009f60000       0x1c
+                0x0000000009f60000                _plugin_start_addr = .
+                0x0000000009f60000                plugin_start_addr = .
+ *(.header)
+ .header        0x0000000009f60000       0x1c /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/plugin_crt0.o
+                0x0000000009f60000                __header
+
+.text           0x0000000009f6001c     0x11c4
+ *(.text*)
+ .text          0x0000000009f6001c      0x8a4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/robotfindskitten.o
+                0x0000000009f60138                plugin_start
+ .text          0x0000000009f608c0      0x214 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/plugin_crt0.o
+                0x0000000009f608d8                plugin__start
+                0x0000000009f60a20                rb_atexit
+                0x0000000009f60a40                exit
+                0x0000000009f60a68                _exit
+                0x0000000009f60a7c                exit_on_usb
+ .text.get_context_map
+                0x0000000009f60ad4       0x3c /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(pluginlib_actions.o)
+ .text.pluginlib_getaction
+                0x0000000009f60b10       0x4c /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(pluginlib_actions.o)
+                0x0000000009f60b10                pluginlib_getaction
+ .text.wait_key_press
+                0x0000000009f60b5c       0x5c /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(display_text.o)
+ .text.display_text
+                0x0000000009f60bb8      0x3ac /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(display_text.o)
+                0x0000000009f60bb8                display_text
+ .text          0x0000000009f60f64       0x1c /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/lib/libsetjmp.a(setjmp.o)
+                0x0000000009f60f64                setjmp
+                0x0000000009f60f70                longjmp
+ .text          0x0000000009f60f80      0x114 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivsi3.o)
+                0x0000000009f60f80                __udivsi3
+                0x0000000009f60f80                __aeabi_uidiv
+                0x0000000009f61074                __aeabi_uidivmod
+ .text          0x0000000009f61094      0x148 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+                0x0000000009f61094                __aeabi_idiv
+                0x0000000009f61094                __divsi3
+                0x0000000009f611bc                __aeabi_idivmod
+ .text          0x0000000009f611dc        0x4 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
+                0x0000000009f611dc                __aeabi_ldiv0
+                0x0000000009f611dc                __aeabi_idiv0
+ *(.glue_7)
+ .glue_7        0x0000000009f611e0        0x0 linker stubs
+ *(.glue_7t)
+ .glue_7t       0x0000000009f611e0        0x0 linker stubs
+
+.vfp11_veneer   0x0000000009f611e0        0x0
+ .vfp11_veneer  0x0000000009f611e0        0x0 linker stubs
+
+.v4_bx          0x0000000009f611e0        0x0
+ .v4_bx         0x0000000009f611e0        0x0 linker stubs
+
+.iplt           0x0000000009f611e0        0x0
+ .iplt          0x0000000009f611e0        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/robotfindskitten.o
+
+.rodata         0x0000000009f611e0     0x549c
+ *(.rodata*)
+ .rodata.str1.1
+                0x0000000009f611e0     0x4d28 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/robotfindskitten.o
+                                       0x4d41 (size before relaxing)
+ .rodata        0x0000000009f65f08      0x69c /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/robotfindskitten.o
+                0x0000000009f65f08                colors
+ .rodata.pla_main_ctx
+                0x0000000009f665a4       0xd8 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(pluginlib_actions.o)
+                0x0000000009f665a4                pla_main_ctx
+ .rodata.display_text.str1.1
+                0x0000000009f6667c        0x3 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(display_text.o)
+
+.rel.dyn        0x0000000009f6667c        0x0
+ .rel.iplt      0x0000000009f6667c        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/robotfindskitten.o
+
+.data           0x0000000009f6667c       0xd4
+ *(.data*)
+ .data          0x0000000009f6667c       0xd0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/robotfindskitten.o
+ .data          0x0000000009f6674c        0x4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/plugin_crt0.o
+                0x0000000009f6674c                rb
+
+.igot.plt       0x0000000009f66750        0x0
+ .igot.plt      0x0000000009f66750        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/robotfindskitten.o
+
+/DISCARD/
+ *(.eh_frame)
+
+.bss            0x0000000009f66750      0xa84
+                0x0000000009f66750                plugin_bss_start = .
+                0x0000000009f66750                _plugin_bss_start = .
+ *(.bss*)
+ .bss           0x0000000009f66750      0xa18 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/robotfindskitten.o
+                0x0000000009f66750                exit_rfk
+                0x0000000009f66754                screen
+                0x0000000009f66e94                used_messages
+                0x0000000009f67036                bogus_messages
+                0x0000000009f67060                bogus
+                0x0000000009f67150                robot
+                0x0000000009f6715c                kitten
+ .bss           0x0000000009f67168       0x60 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/plugin_crt0.o
+ .bss.last_context
+                0x0000000009f671c8        0x4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(pluginlib_actions.o)
+ .bss.plugin_context_count
+                0x0000000009f671cc        0x4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(pluginlib_actions.o)
+ .bss.plugin_context_order
+                0x0000000009f671d0        0x4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(pluginlib_actions.o)
+ *(COMMON)
+                0x0000000009f671d4                . = ALIGN (0x4)
+
+.pluginend      0x0000000009f671d4        0x0
+                0x0000000009f671d4                _plugin_end_addr = .
+                0x0000000009f671d4                plugin_end_addr = .
+
+.iram           0x000000000000c000        0x0 load address 0x0000000009f66750
+                0x000000000000c000                iramstart = .
+ *(.icode)
+ *(.irodata)
+ *(.idata)
+                0x000000000000c000                iramend = .
+                0x0000000009f66750                iramcopy = LOADADDR (.iram)
+
+.ibss           0x000000000000c000        0x0
+                0x000000000000c000                iedata = .
+ *(.ibss)
+                0x000000000000c000                . = ALIGN (0x4)
+                0x000000000000c000                iend = .
+                0x0000000009f671d4                loadendaddr = MAX (plugin_end_addr, (LOADADDR (.iram) + SIZEOF (.iram)))
+
+.pluginloadend  0x0000000009f671d4        0x0
+                0x0000000009f671d4                _plugin_load_end_addr = .
+                0x0000000009f671d4                plugin_load_end_addr = .
+
+.comment        0x0000000000000000       0x11
+ *(.comment)
+ .comment       0x0000000000000000       0x11 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/robotfindskitten.o
+                                         0x12 (size before relaxing)
+ .comment       0x0000000000000011       0x12 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/plugin_crt0.o
+ .comment       0x0000000000000011       0x12 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(pluginlib_actions.o)
+ .comment       0x0000000000000011       0x12 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(display_text.o)
+OUTPUT(/home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/robotfindskitten.elf elf32-littlearm)
+LOAD linker stubs
+
+.ARM.attributes
+                0x0000000000000000       0x28
+ .ARM.attributes
+                0x0000000000000000       0x2a /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/robotfindskitten.o
+ .ARM.attributes
+                0x000000000000002a       0x2a /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/plugin_crt0.o
+ .ARM.attributes
+                0x0000000000000054       0x2a /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(pluginlib_actions.o)
+ .ARM.attributes
+                0x000000000000007e       0x2a /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(display_text.o)
+ .ARM.attributes
+                0x00000000000000a8       0x1a /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/lib/libsetjmp.a(setjmp.o)
+ .ARM.attributes
+                0x00000000000000c2       0x1c /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivsi3.o)
+ .ARM.attributes
+                0x00000000000000de       0x1c /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+ .ARM.attributes
+                0x00000000000000fa       0x1c /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
+
+.debug_frame    0x0000000000000000       0x40
+ .debug_frame   0x0000000000000000       0x20 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivsi3.o)
+ .debug_frame   0x0000000000000020       0x20 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+
+.debug_line     0x0000000000000000      0x169
+ .debug_line    0x0000000000000000       0x7e /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivsi3.o)
+ .debug_line    0x000000000000007e       0x8a /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+ .debug_line    0x0000000000000108       0x61 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
+
+.debug_info     0x0000000000000000       0x72
+ .debug_info    0x0000000000000000       0x26 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivsi3.o)
+ .debug_info    0x0000000000000026       0x26 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+ .debug_info    0x000000000000004c       0x26 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
+
+.debug_abbrev   0x0000000000000000       0x3c
+ .debug_abbrev  0x0000000000000000       0x14 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivsi3.o)
+ .debug_abbrev  0x0000000000000014       0x14 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+ .debug_abbrev  0x0000000000000028       0x14 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
+
+.debug_aranges  0x0000000000000000       0x60
+ .debug_aranges
+                0x0000000000000000       0x20 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivsi3.o)
+ .debug_aranges
+                0x0000000000000020       0x20 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+ .debug_aranges
+                0x0000000000000040       0x20 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
+
+.debug_str      0x0000000000000000       0x6c
+ .debug_str     0x0000000000000000       0x6c /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivsi3.o)
+ .debug_str     0x000000000000006c       0x6c /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+ .debug_str     0x000000000000006c       0x6c /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)

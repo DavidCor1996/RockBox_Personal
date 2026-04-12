@@ -1,0 +1,843 @@
+Archive member included to satisfy reference by file (symbol)
+
+/home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libwavpack.a(wputils.o)
+                              /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/wavpack.o (WavpackOpenFileInput)
+/home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libwavpack.a(bits.o)
+                              /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libwavpack.a(wputils.o) (little_endian_to_native)
+/home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libwavpack.a(unpack.o)
+                              /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libwavpack.a(wputils.o) (unpack_init)
+/home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libwavpack.a(pack.o)
+                              /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libwavpack.a(wputils.o) (pack_init)
+/home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libwavpack.a(words.o)
+                              /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libwavpack.a(pack.o) (init_words)
+/home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libwavpack.a(float.o)
+                              /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libwavpack.a(unpack.o) (float_values)
+/home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libwavpack.a(metadata.o)
+                              /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libwavpack.a(unpack.o) (read_metadata_buff)
+/home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+                              /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/wavpack.o (codec_init)
+
+Merging object attributes
+
+
+Merging program properties
+
+Removed property 0xc0000002 to merge /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o (0x3) and /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/wavpack.o (not found)
+Updated property 0xc0010002 (0x1) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o (0x1) and /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtendS.o (0x0)
+Removed property 0xc0000002 to merge /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o (not found) and /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtendS.o (0x3)
+Removed property 0xc0000002 to merge /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o (not found) and /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o (0x3)
+
+Discarded input sections
+
+ .text          0x0000000000000000        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ .data          0x0000000000000000        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ .bss           0x0000000000000000        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ .data          0x0000000000000000        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtbeginS.o
+ .note.gnu.property
+                0x0000000000000000       0x50 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtbeginS.o
+ .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/wavpack.o
+ .note.gnu.property
+                0x0000000000000000       0x30 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/wavpack.o
+ .bss           0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/codec_crt0.o
+ .note.gnu.property
+                0x0000000000000000       0x30 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/codec_crt0.o
+ .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libwavpack.a(wputils.o)
+ .note.gnu.property
+                0x0000000000000000       0x30 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libwavpack.a(wputils.o)
+ .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libwavpack.a(bits.o)
+ .bss           0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libwavpack.a(bits.o)
+ .note.gnu.property
+                0x0000000000000000       0x30 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libwavpack.a(bits.o)
+ .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libwavpack.a(unpack.o)
+ .bss           0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libwavpack.a(unpack.o)
+ .note.gnu.property
+                0x0000000000000000       0x30 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libwavpack.a(unpack.o)
+ .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libwavpack.a(pack.o)
+ .bss           0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libwavpack.a(pack.o)
+ .note.gnu.property
+                0x0000000000000000       0x30 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libwavpack.a(pack.o)
+ .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libwavpack.a(words.o)
+ .bss           0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libwavpack.a(words.o)
+ .note.gnu.property
+                0x0000000000000000       0x30 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libwavpack.a(words.o)
+ .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libwavpack.a(float.o)
+ .bss           0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libwavpack.a(float.o)
+ .note.gnu.property
+                0x0000000000000000       0x30 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libwavpack.a(float.o)
+ .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libwavpack.a(metadata.o)
+ .bss           0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libwavpack.a(metadata.o)
+ .note.gnu.property
+                0x0000000000000000       0x30 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libwavpack.a(metadata.o)
+ .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+ .rodata        0x0000000000000000      0x200 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+ .note.gnu.property
+                0x0000000000000000       0x30 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+ .text          0x0000000000000000        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtendS.o
+ .data          0x0000000000000000        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtendS.o
+ .bss           0x0000000000000000        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtendS.o
+ .note.gnu.property
+                0x0000000000000000       0x50 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtendS.o
+ .text          0x0000000000000000        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
+ .data          0x0000000000000000        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
+ .bss           0x0000000000000000        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
+ .note.gnu.property
+                0x0000000000000000       0x50 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
+
+Memory Configuration
+
+Name             Origin             Length             Attributes
+*default*        0x0000000000000000 0xffffffffffffffff
+
+Linker script and memory map
+
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtbeginS.o
+LOAD /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/wavpack.o
+LOAD /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/codec_crt0.o
+LOAD /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libwavpack.a
+LOAD /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libcodec.a
+LOAD /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/libfixedpoint.a
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/libgcc.a
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/libgcc.a
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/libgcc_s.so
+START GROUP
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/libgcc_s.so.1
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/libgcc.a
+END GROUP
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/libc.so
+START GROUP
+LOAD /usr/lib/libc.so.6
+LOAD /usr/lib/libc_nonshared.a
+LOAD /usr/lib/ld-linux-x86-64.so.2
+END GROUP
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/libgcc.a
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/libgcc_s.so
+START GROUP
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/libgcc_s.so.1
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/libgcc.a
+END GROUP
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtendS.o
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
+                0x00000000000002a8                . = (SEGMENT_START ("text-segment", 0x0) + SIZEOF_HEADERS)
+
+.note.gnu.build-id
+                0x00000000000002a8       0x24
+ *(.note.gnu.build-id)
+ .note.gnu.build-id
+                0x00000000000002a8       0x24 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+
+.hash
+ *(.hash)
+
+.gnu.hash       0x00000000000002d0       0x24
+ *(.gnu.hash)
+ .gnu.hash      0x00000000000002d0       0x24 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+
+.dynsym         0x00000000000002f8       0xc0
+ *(.dynsym)
+ .dynsym        0x00000000000002f8       0xc0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+
+.dynstr         0x00000000000003b8       0x94
+ *(.dynstr)
+ .dynstr        0x00000000000003b8       0x94 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+
+.gnu.version    0x000000000000044c       0x10
+ *(.gnu.version)
+ .gnu.version   0x000000000000044c       0x10 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+
+.gnu.version_d  0x0000000000000460        0x0
+ *(.gnu.version_d)
+ .gnu.version_d
+                0x0000000000000460        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+
+.gnu.version_r  0x0000000000000460       0x30
+ *(.gnu.version_r)
+ .gnu.version_r
+                0x0000000000000460       0x30 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+
+.rela.dyn       0x0000000000000490       0xf0
+ *(.rela.init)
+ *(.rela.text .rela.text.* .rela.gnu.linkonce.t.*)
+ .rela.text     0x0000000000000490        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ *(.rela.fini)
+ *(.rela.rodata .rela.rodata.* .rela.gnu.linkonce.r.*)
+ *(.rela.data .rela.data.* .rela.gnu.linkonce.d.*)
+ .rela.data.rel.local
+                0x0000000000000490       0x18 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ .rela.data.rel.ro
+                0x00000000000004a8       0x48 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ *(.rela.tdata .rela.tdata.* .rela.gnu.linkonce.td.*)
+ *(.rela.tbss .rela.tbss.* .rela.gnu.linkonce.tb.*)
+ *(.rela.ctors)
+ *(.rela.dtors)
+ *(.rela.got)
+ .rela.got      0x00000000000004f0       0x60 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ *(.rela.tls)
+ .rela.tls      0x0000000000000550        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ *(.rela.bss .rela.bss.* .rela.gnu.linkonce.b.*)
+ *(.rela.ldata .rela.ldata.* .rela.gnu.linkonce.l.*)
+ *(.rela.lbss .rela.lbss.* .rela.gnu.linkonce.lb.*)
+ *(.rela.lrodata .rela.lrodata.* .rela.gnu.linkonce.lr.*)
+ *(.rela.ifunc)
+ .rela.ifunc    0x0000000000000550        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ .rela.fini_array
+                0x0000000000000550       0x18 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ .rela.init_array
+                0x0000000000000568       0x18 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+
+.rela.plt       0x0000000000000580       0x30
+ *(.rela.plt)
+ .rela.plt      0x0000000000000580       0x30 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ *(.rela.iplt)
+
+.relr.dyn
+ *(.relr.dyn)
+                0x0000000000001000                . = ALIGN (CONSTANT (MAXPAGESIZE))
+
+.init           0x0000000000001000       0x1b
+ *(SORT_NONE(.init))
+ .init          0x0000000000001000       0x16 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+                0x0000000000001000                _init
+ .init          0x0000000000001016        0x5 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
+
+.plt            0x0000000000001020       0x30
+ *(.plt)
+ .plt           0x0000000000001020       0x30 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ *(.iplt)
+
+.plt.got        0x0000000000001050        0x0
+ *(.plt.got)
+ .plt.got       0x0000000000001050        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+
+.plt.sec
+ *(.plt.sec)
+
+.text           0x0000000000001050     0x49f3
+ *(.text.unlikely .text.*_unlikely .text.unlikely.*)
+ *(.text.exit .text.exit.*)
+ *(.text.startup .text.startup.*)
+ *(.text.hot .text.hot.*)
+ *(SORT_BY_NAME(.text.sorted.*))
+ *(.text .stub .text.* .gnu.linkonce.t.*)
+ .text          0x0000000000001050       0xc9 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtbeginS.o
+ .text          0x0000000000001119      0x28b /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/wavpack.o
+                0x0000000000001141                codec_run
+                0x0000000000001381                codec_main
+ .text          0x00000000000013a4        0x8 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/codec_crt0.o
+                0x00000000000013a4                _start
+                0x00000000000013a7                codec_start
+ .text          0x00000000000013ac      0x788 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libwavpack.a(wputils.o)
+                0x00000000000014f7                WavpackOpenFileInput
+                0x00000000000016a7                WavpackGetMode
+                0x00000000000016f3                WavpackUnpackSamples
+                0x0000000000001895                WavpackGetNumSamples
+                0x00000000000018a6                WavpackGetSampleIndex
+                0x00000000000018b7                WavpackGetNumErrors
+                0x00000000000018c5                WavpackLossyBlocks
+                0x00000000000018d3                WavpackGetSampleRate
+                0x00000000000018e4                WavpackGetNumChannels
+                0x00000000000018f5                WavpackGetBitsPerSample
+                0x0000000000001906                WavpackGetBytesPerSample
+                0x0000000000001917                WavpackGetReducedChannels
+                0x0000000000001932                WavpackOpenFileOutput
+                0x000000000000194f                WavpackSetConfiguration
+                0x0000000000001a6f                WavpackAddWrapper
+                0x0000000000001a7d                WavpackStartBlock
+                0x0000000000001a90                WavpackPackSamples
+                0x0000000000001ac7                WavpackFinishBlock
+                0x0000000000001aed                WavpackUpdateNumSamples
+                0x0000000000001b27                WavpackGetWrapperLocation
+ .text          0x0000000000001b34      0x18c /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libwavpack.a(bits.o)
+                0x0000000000001bb8                bs_open_read
+                0x0000000000001c13                bs_open_write
+                0x0000000000001c35                bs_close_write
+                0x0000000000001cb3                little_endian_to_native
+                0x0000000000001cbe                native_to_little_endian
+ .text          0x0000000000001cc0     0x1a7f /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libwavpack.a(unpack.o)
+                0x0000000000002474                unpack_init
+                0x00000000000025b3                init_wv_bitstream
+                0x0000000000002604                read_decorr_terms
+                0x0000000000002678                read_decorr_weights
+                0x0000000000002728                read_decorr_samples
+                0x0000000000002895                read_int32_info
+                0x00000000000028ca                read_channel_info
+                0x0000000000002912                read_config_info
+                0x000000000000295b                read_sample_rate
+                0x0000000000002992                unpack_samples
+                0x000000000000372f                check_crc_error
+ .text          0x000000000000373f      0xaf1 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libwavpack.a(pack.o)
+                0x000000000000373f                pack_init
+                0x00000000000037f4                pack_start_block
+                0x0000000000003c2e                pack_samples
+                0x0000000000004102                pack_finish_block
+ .text          0x0000000000004230     0x12ad /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libwavpack.a(words.o)
+                0x00000000000042a1                init_words
+                0x00000000000042b1                flush_word
+                0x00000000000046c5                send_words
+                0x00000000000049f6                log2s
+                0x0000000000004a09                exp2s
+                0x0000000000004a47                read_entropy_vars
+                0x0000000000004adf                write_entropy_vars
+                0x0000000000004b71                read_hybrid_profile
+                0x0000000000004c30                get_words
+                0x0000000000005498                store_weight
+                0x00000000000054c9                restore_weight
+ .text          0x00000000000054dd       0x94 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libwavpack.a(float.o)
+                0x00000000000054dd                read_float_info
+                0x0000000000005512                float_values
+ .text          0x0000000000005571      0x2f6 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libwavpack.a(metadata.o)
+                0x0000000000005571                read_metadata_buff
+                0x0000000000005716                process_metadata
+                0x0000000000005774                copy_metadata
+                0x0000000000005860                free_metadata
+ .text          0x0000000000005867      0x1dc /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+                0x0000000000005867                codec_init
+                0x0000000000005890                codec_set_replaygain
+                0x0000000000005903                codec_malloc
+                0x0000000000005939                codec_calloc
+                0x000000000000596b                codec_free
+                0x000000000000596c                codec_realloc
+                0x00000000000059a3                codec_strlen
+                0x00000000000059b3                strcpy
+                0x00000000000059c3                strcat
+                0x00000000000059d3                strcmp
+                0x00000000000059e3                memcpy
+                0x00000000000059f3                memset
+                0x0000000000005a03                memcmp
+                0x0000000000005a13                memchr
+                0x0000000000005a23                memmove
+                0x0000000000005a33                qsort
+ *(.gnu.warning)
+
+.fini           0x0000000000005a44        0xd
+ *(SORT_NONE(.fini))
+ .fini          0x0000000000005a44        0x8 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+                0x0000000000005a44                _fini
+ .fini          0x0000000000005a4c        0x5 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
+                [!provide]                        PROVIDE (__etext = .)
+                [!provide]                        PROVIDE (_etext = .)
+                [!provide]                        PROVIDE (etext = .)
+                0x0000000000006000                . = ALIGN (CONSTANT (MAXPAGESIZE))
+                0x0000000000006000                . = SEGMENT_START ("rodata-segment", (ALIGN (CONSTANT (MAXPAGESIZE)) + (. & (CONSTANT (MAXPAGESIZE) - 0x1))))
+
+.rodata         0x0000000000006000      0x560
+ *(.rodata .rodata.* .gnu.linkonce.r.*)
+ .rodata.str1.1
+                0x0000000000006000       0x51 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libwavpack.a(wputils.o)
+                                         0x3f (size before relaxing)
+ *fill*         0x0000000000006051        0xf 
+ .rodata        0x0000000000006060       0x3c /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libwavpack.a(wputils.o)
+ .rodata.str1.1
+                0x000000000000609c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libwavpack.a(unpack.o)
+                                         0x28 (size before relaxing)
+ *fill*         0x000000000000609c        0x4 
+ .rodata        0x00000000000060a0       0x1b /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libwavpack.a(pack.o)
+ *fill*         0x00000000000060bb        0x5 
+ .rodata        0x00000000000060c0      0x400 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libwavpack.a(words.o)
+ .rodata        0x00000000000064c0       0xa0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libwavpack.a(metadata.o)
+
+.rodata1
+ *(.rodata1)
+
+.eh_frame_hdr   0x0000000000006560      0x2b4
+ *(.eh_frame_hdr)
+ .eh_frame_hdr  0x0000000000006560      0x2b4 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/wavpack.o
+                0x0000000000006560                __GNU_EH_FRAME_HDR
+ *(.eh_frame_entry .eh_frame_entry.*)
+
+.eh_frame       0x0000000000006818      0xacc
+ *(.eh_frame)
+ .eh_frame      0x0000000000006818       0x40 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ .eh_frame      0x0000000000006858        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ .eh_frame      0x0000000000006858       0x90 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/wavpack.o
+                                         0xa8 (size before relaxing)
+ .eh_frame      0x00000000000068e8       0x28 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/codec_crt0.o
+                                         0x40 (size before relaxing)
+ .eh_frame      0x0000000000006910      0x280 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libwavpack.a(wputils.o)
+                                        0x298 (size before relaxing)
+ .eh_frame      0x0000000000006b90       0xd8 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libwavpack.a(bits.o)
+                                         0xf0 (size before relaxing)
+ .eh_frame      0x0000000000006c68      0x1d8 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libwavpack.a(unpack.o)
+                                        0x1f0 (size before relaxing)
+ .eh_frame      0x0000000000006e40      0x108 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libwavpack.a(pack.o)
+                                        0x120 (size before relaxing)
+ .eh_frame      0x0000000000006f48      0x188 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libwavpack.a(words.o)
+                                        0x1a0 (size before relaxing)
+ .eh_frame      0x00000000000070d0       0x28 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libwavpack.a(float.o)
+                                         0x40 (size before relaxing)
+ .eh_frame      0x00000000000070f8       0x90 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libwavpack.a(metadata.o)
+                                         0xa8 (size before relaxing)
+ .eh_frame      0x0000000000007188      0x158 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+                                        0x170 (size before relaxing)
+ .eh_frame      0x00000000000072e0        0x4 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtendS.o
+ *(.eh_frame.*)
+
+.sframe
+ *(.sframe)
+ *(.sframe.*)
+
+.gcc_except_table
+ *(.gcc_except_table .gcc_except_table.*)
+
+.gnu_extab
+ *(.gnu_extab*)
+
+.exception_ranges
+ *(.exception_ranges*)
+
+.note.build-id
+ *(.note.build-id)
+
+.note.GNU-stack
+                0x00000000000072e4        0x0
+ *(.note.GNU-stack)
+ .note.GNU-stack
+                0x00000000000072e4        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ .note.GNU-stack
+                0x00000000000072e4        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtbeginS.o
+ .note.GNU-stack
+                0x00000000000072e4        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/wavpack.o
+ .note.GNU-stack
+                0x00000000000072e4        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/codec_crt0.o
+ .note.GNU-stack
+                0x00000000000072e4        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libwavpack.a(wputils.o)
+ .note.GNU-stack
+                0x00000000000072e4        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libwavpack.a(bits.o)
+ .note.GNU-stack
+                0x00000000000072e4        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libwavpack.a(unpack.o)
+ .note.GNU-stack
+                0x00000000000072e4        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libwavpack.a(pack.o)
+ .note.GNU-stack
+                0x00000000000072e4        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libwavpack.a(words.o)
+ .note.GNU-stack
+                0x00000000000072e4        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libwavpack.a(float.o)
+ .note.GNU-stack
+                0x00000000000072e4        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libwavpack.a(metadata.o)
+ .note.GNU-stack
+                0x00000000000072e4        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+ .note.GNU-stack
+                0x00000000000072e4        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtendS.o
+ .note.GNU-stack
+                0x00000000000072e4        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
+
+.note.gnu.property
+                0x00000000000072e8       0x30
+ *(.note.gnu.property)
+ .note.gnu.property
+                0x00000000000072e8       0x30 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+
+.note.ABI-tag
+ *(.note.ABI-tag)
+
+.note.package
+ *(.note.package)
+
+.note.dlopen
+ *(.note.dlopen)
+
+.note.netbsd.ident
+ *(.note.netbsd.ident)
+
+.note.openbsd.ident
+ *(.note.openbsd.ident)
+                0x0000000000008db0                . = DATA_SEGMENT_ALIGN (CONSTANT (MAXPAGESIZE), CONSTANT (COMMONPAGESIZE))
+
+.eh_frame
+ *(.eh_frame)
+ *(.eh_frame.*)
+
+.sframe
+ *(.sframe)
+ *(.sframe.*)
+
+.gnu_extab
+ *(.gnu_extab)
+
+.gcc_except_table
+ *(.gcc_except_table .gcc_except_table.*)
+
+.exception_ranges
+ *(.exception_ranges*)
+
+.tdata
+ *(.tdata .tdata.* .gnu.linkonce.td.*)
+
+.tbss
+ *(.tbss .tbss.* .gnu.linkonce.tb.*)
+ *(.tcommon)
+
+.preinit_array
+ *(.preinit_array)
+
+.init_array     0x0000000000008db0        0x8
+ *(SORT_BY_INIT_PRIORITY(.init_array.*) SORT_BY_INIT_PRIORITY(.ctors.*))
+ *(.init_array EXCLUDE_FILE(*crtend?.o *crtend.o *crtbegin?.o *crtbegin.o) .ctors)
+ .init_array    0x0000000000008db0        0x8 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtbeginS.o
+
+.fini_array     0x0000000000008db8        0x8
+ *(SORT_BY_INIT_PRIORITY(.fini_array.*) SORT_BY_INIT_PRIORITY(.dtors.*))
+ *(.fini_array EXCLUDE_FILE(*crtend?.o *crtend.o *crtbegin?.o *crtbegin.o) .dtors)
+ .fini_array    0x0000000000008db8        0x8 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtbeginS.o
+
+.ctors
+ *crtbegin.o(.ctors)
+ *crtbegin?.o(.ctors)
+ *(EXCLUDE_FILE(*crtend?.o *crtend.o) .ctors)
+ *(SORT_BY_NAME(.ctors.*))
+ *(.ctors)
+
+.dtors
+ *crtbegin.o(.dtors)
+ *crtbegin?.o(.dtors)
+ *(EXCLUDE_FILE(*crtend?.o *crtend.o) .dtors)
+ *(SORT_BY_NAME(.dtors.*))
+ *(.dtors)
+
+.jcr
+ *(.jcr)
+
+.data.rel.ro    0x0000000000008dc0       0x40
+ *(.data.rel.ro.local* .gnu.linkonce.d.rel.ro.local.*)
+ *(.data.rel.ro .data.rel.ro.* .gnu.linkonce.d.rel.ro.*)
+ .data.rel.ro   0x0000000000008dc0        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ .data.rel.ro   0x0000000000008dc0       0x40 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/wavpack.o
+                0x0000000000008dc0                __header
+
+.dynamic        0x0000000000008e00      0x1c0
+ *(.dynamic)
+ .dynamic       0x0000000000008e00      0x1c0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+                0x0000000000008e00                _DYNAMIC
+
+.got            0x0000000000008fc0       0x20
+ *(.got)
+ .got           0x0000000000008fc0       0x20 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ *(.igot)
+                0x0000000000008fe8                . = DATA_SEGMENT_RELRO_END (., (SIZEOF (.got.plt) >= 0x18)?0x18:0x0)
+
+.got.plt        0x0000000000008fe8       0x28
+ *(.got.plt)
+ .got.plt       0x0000000000008fe8       0x28 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+                0x0000000000008fe8                _GLOBAL_OFFSET_TABLE_
+ *(.igot.plt)
+
+.data           0x0000000000009010       0x10
+ *(.data .data.* .gnu.linkonce.d.*)
+ .data.rel.local
+                0x0000000000009010        0x8 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtbeginS.o
+                0x0000000000009010                __dso_handle
+ .data          0x0000000000009018        0x8 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/codec_crt0.o
+                0x0000000000009018                ci
+
+.tm_clone_table
+                0x0000000000009020        0x0
+ .tm_clone_table
+                0x0000000000009020        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtbeginS.o
+ .tm_clone_table
+                0x0000000000009020        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtendS.o
+
+.data1
+ *(.data1)
+                [!provide]                        PROVIDE (_edata = .)
+                [!provide]                        PROVIDE (edata = .)
+                0x0000000000009020                . = ALIGN (ALIGNOF (NEXT_SECTION))
+                [!provide]                        PROVIDE (__bss_start = .)
+
+.bss            0x0000000000009020     0x4a30
+ *(.dynbss)
+ .dynbss        0x0000000000009020        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ *(.bss .bss.* .gnu.linkonce.b.*)
+ .bss           0x0000000000009020        0x1 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtbeginS.o
+ *fill*         0x0000000000009021       0x1f 
+ .bss           0x0000000000009040     0x4000 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/wavpack.o
+ .bss           0x000000000000d040      0x9f8 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libwavpack.a(wputils.o)
+ .bss           0x000000000000da38       0x18 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+ *(COMMON)
+                0x000000000000da50                . = ALIGN ((. != 0x0)?0x8:0x1)
+
+.lbss
+ *(.dynlbss)
+ *(.lbss .lbss.* .gnu.linkonce.lb.*)
+ *(LARGE_COMMON)
+                0x000000000000da50                . = ALIGN (0x8)
+                0x000000000000da50                . = SEGMENT_START ("ldata-segment", .)
+
+.lrodata
+ *(.lrodata .lrodata.* .gnu.linkonce.lr.*)
+
+.ldata          0x000000000000fa50        0x0
+ *(.ldata .ldata.* .gnu.linkonce.l.*)
+                0x000000000000fa50                . = ALIGN ((. != 0x0)?0x8:0x1)
+                0x000000000000fa50                . = ALIGN (0x8)
+                [!provide]                        PROVIDE (_end = .)
+                [!provide]                        PROVIDE (end = .)
+                0x000000000000fa50                . = DATA_SEGMENT_END (.)
+
+.stab
+ *(.stab)
+
+.stabstr
+ *(.stabstr)
+
+.stab.excl
+ *(.stab.excl)
+
+.stab.exclstr
+ *(.stab.exclstr)
+
+.stab.index
+ *(.stab.index)
+
+.stab.indexstr
+ *(.stab.indexstr)
+
+.comment        0x0000000000000000       0x1b
+ *(.comment)
+ .comment       0x0000000000000000       0x1b /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtbeginS.o
+                                         0x1c (size before relaxing)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/wavpack.o
+                                         0x1c (size before relaxing)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/codec_crt0.o
+                                         0x1c (size before relaxing)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libwavpack.a(wputils.o)
+                                         0x1c (size before relaxing)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libwavpack.a(bits.o)
+                                         0x1c (size before relaxing)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libwavpack.a(unpack.o)
+                                         0x1c (size before relaxing)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libwavpack.a(pack.o)
+                                         0x1c (size before relaxing)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libwavpack.a(words.o)
+                                         0x1c (size before relaxing)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libwavpack.a(float.o)
+                                         0x1c (size before relaxing)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libwavpack.a(metadata.o)
+                                         0x1c (size before relaxing)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+                                         0x1c (size before relaxing)
+ .comment       0x000000000000001b        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtendS.o
+                                         0x1c (size before relaxing)
+
+.gnu.build.attributes
+ *(.gnu.build.attributes .gnu.build.attributes.*)
+
+.debug
+ *(.debug)
+
+.line
+ *(.line)
+
+.debug_srcinfo
+ *(.debug_srcinfo)
+
+.debug_sfnames
+ *(.debug_sfnames)
+
+.debug_aranges  0x0000000000000000      0x1e0
+ *(.debug_aranges)
+ .debug_aranges
+                0x0000000000000000       0x30 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/wavpack.o
+ .debug_aranges
+                0x0000000000000030       0x30 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/codec_crt0.o
+ .debug_aranges
+                0x0000000000000060       0x30 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libwavpack.a(wputils.o)
+ .debug_aranges
+                0x0000000000000090       0x30 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libwavpack.a(bits.o)
+ .debug_aranges
+                0x00000000000000c0       0x30 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libwavpack.a(unpack.o)
+ .debug_aranges
+                0x00000000000000f0       0x30 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libwavpack.a(pack.o)
+ .debug_aranges
+                0x0000000000000120       0x30 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libwavpack.a(words.o)
+ .debug_aranges
+                0x0000000000000150       0x30 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libwavpack.a(float.o)
+ .debug_aranges
+                0x0000000000000180       0x30 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libwavpack.a(metadata.o)
+ .debug_aranges
+                0x00000000000001b0       0x30 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+
+.debug_pubnames
+ *(.debug_pubnames)
+
+.debug_info     0x0000000000000000     0x9dd4
+ *(.debug_info .gnu.linkonce.wi.*)
+ .debug_info    0x0000000000000000     0x1733 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/wavpack.o
+ .debug_info    0x0000000000001733      0xbd7 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/codec_crt0.o
+ .debug_info    0x000000000000230a     0x12db /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libwavpack.a(wputils.o)
+ .debug_info    0x00000000000035e5      0x44a /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libwavpack.a(bits.o)
+ .debug_info    0x0000000000003a2f     0x16da /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libwavpack.a(unpack.o)
+ .debug_info    0x0000000000005109     0x15f5 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libwavpack.a(pack.o)
+ .debug_info    0x00000000000066fe     0x1387 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libwavpack.a(words.o)
+ .debug_info    0x0000000000007a85      0x599 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libwavpack.a(float.o)
+ .debug_info    0x000000000000801e      0xa24 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libwavpack.a(metadata.o)
+ .debug_info    0x0000000000008a42     0x1392 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+
+.debug_abbrev   0x0000000000000000     0x1d7b
+ *(.debug_abbrev)
+ .debug_abbrev  0x0000000000000000      0x338 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/wavpack.o
+ .debug_abbrev  0x0000000000000338      0x1fd /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/codec_crt0.o
+ .debug_abbrev  0x0000000000000535      0x3e3 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libwavpack.a(wputils.o)
+ .debug_abbrev  0x0000000000000918      0x203 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libwavpack.a(bits.o)
+ .debug_abbrev  0x0000000000000b1b      0x414 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libwavpack.a(unpack.o)
+ .debug_abbrev  0x0000000000000f2f      0x43d /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libwavpack.a(pack.o)
+ .debug_abbrev  0x000000000000136c      0x3a3 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libwavpack.a(words.o)
+ .debug_abbrev  0x000000000000170f      0x165 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libwavpack.a(float.o)
+ .debug_abbrev  0x0000000000001874      0x214 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libwavpack.a(metadata.o)
+ .debug_abbrev  0x0000000000001a88      0x2f3 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+
+.debug_line     0x0000000000000000     0x4b10
+ *(.debug_line .debug_line.* .debug_line_end)
+ .debug_line    0x0000000000000000      0x2f8 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/wavpack.o
+ .debug_line    0x00000000000002f8       0xa4 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/codec_crt0.o
+ .debug_line    0x000000000000039c      0x7dd /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libwavpack.a(wputils.o)
+ .debug_line    0x0000000000000b79      0x258 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libwavpack.a(bits.o)
+ .debug_line    0x0000000000000dd1     0x18a6 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libwavpack.a(unpack.o)
+ .debug_line    0x0000000000002677      0xb85 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libwavpack.a(pack.o)
+ .debug_line    0x00000000000031fc     0x1203 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libwavpack.a(words.o)
+ .debug_line    0x00000000000043ff      0x106 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libwavpack.a(float.o)
+ .debug_line    0x0000000000004505      0x35d /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libwavpack.a(metadata.o)
+ .debug_line    0x0000000000004862      0x2ae /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+
+.debug_frame
+ *(.debug_frame)
+
+.debug_str      0x0000000000000000     0x17e6
+ *(.debug_str)
+ .debug_str     0x0000000000000000     0x17e6 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/wavpack.o
+                                       0x1085 (size before relaxing)
+ .debug_str     0x00000000000017e6        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/codec_crt0.o
+                                        0x9eb (size before relaxing)
+ .debug_str     0x00000000000017e6        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libwavpack.a(wputils.o)
+                                        0xad5 (size before relaxing)
+ .debug_str     0x00000000000017e6        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libwavpack.a(bits.o)
+                                        0x29d (size before relaxing)
+ .debug_str     0x00000000000017e6        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libwavpack.a(unpack.o)
+                                        0x741 (size before relaxing)
+ .debug_str     0x00000000000017e6        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libwavpack.a(pack.o)
+                                        0xa13 (size before relaxing)
+ .debug_str     0x00000000000017e6        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libwavpack.a(words.o)
+                                        0x89c (size before relaxing)
+ .debug_str     0x00000000000017e6        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libwavpack.a(float.o)
+                                        0x452 (size before relaxing)
+ .debug_str     0x00000000000017e6        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libwavpack.a(metadata.o)
+                                        0x658 (size before relaxing)
+ .debug_str     0x00000000000017e6        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+                                        0xc30 (size before relaxing)
+
+.debug_loc
+ *(.debug_loc)
+
+.debug_macinfo
+ *(.debug_macinfo)
+
+.debug_weaknames
+ *(.debug_weaknames)
+
+.debug_funcnames
+ *(.debug_funcnames)
+
+.debug_typenames
+ *(.debug_typenames)
+
+.debug_varnames
+ *(.debug_varnames)
+
+.debug_pubtypes
+ *(.debug_pubtypes)
+
+.debug_ranges
+ *(.debug_ranges)
+
+.debug_addr
+ *(.debug_addr)
+
+.debug_line_str
+                0x0000000000000000      0x619
+ *(.debug_line_str)
+ .debug_line_str
+                0x0000000000000000      0x619 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/wavpack.o
+                                        0x351 (size before relaxing)
+ .debug_line_str
+                0x0000000000000619        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/codec_crt0.o
+                                        0x251 (size before relaxing)
+ .debug_line_str
+                0x0000000000000619        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libwavpack.a(wputils.o)
+                                        0x21b (size before relaxing)
+ .debug_line_str
+                0x0000000000000619        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libwavpack.a(bits.o)
+                                        0x17a (size before relaxing)
+ .debug_line_str
+                0x0000000000000619        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libwavpack.a(unpack.o)
+                                        0x189 (size before relaxing)
+ .debug_line_str
+                0x0000000000000619        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libwavpack.a(pack.o)
+                                        0x212 (size before relaxing)
+ .debug_line_str
+                0x0000000000000619        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libwavpack.a(words.o)
+                                        0x215 (size before relaxing)
+ .debug_line_str
+                0x0000000000000619        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libwavpack.a(float.o)
+                                        0x167 (size before relaxing)
+ .debug_line_str
+                0x0000000000000619        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libwavpack.a(metadata.o)
+                                        0x186 (size before relaxing)
+ .debug_line_str
+                0x0000000000000619        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+                                        0x319 (size before relaxing)
+
+.debug_loclists
+                0x0000000000000000     0x3b07
+ *(.debug_loclists)
+ .debug_loclists
+                0x0000000000000000      0x18a /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/wavpack.o
+ .debug_loclists
+                0x000000000000018a       0x1e /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/codec_crt0.o
+ .debug_loclists
+                0x00000000000001a8      0x574 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libwavpack.a(wputils.o)
+ .debug_loclists
+                0x000000000000071c      0x1a7 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libwavpack.a(bits.o)
+ .debug_loclists
+                0x00000000000008c3     0x1634 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libwavpack.a(unpack.o)
+ .debug_loclists
+                0x0000000000001ef7      0x90b /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libwavpack.a(pack.o)
+ .debug_loclists
+                0x0000000000002802      0xb07 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libwavpack.a(words.o)
+ .debug_loclists
+                0x0000000000003309      0x111 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libwavpack.a(float.o)
+ .debug_loclists
+                0x000000000000341a      0x3b8 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libwavpack.a(metadata.o)
+ .debug_loclists
+                0x00000000000037d2      0x335 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+
+.debug_macro
+ *(.debug_macro)
+
+.debug_names
+ *(.debug_names)
+
+.debug_rnglists
+                0x0000000000000000      0x118
+ *(.debug_rnglists)
+ .debug_rnglists
+                0x0000000000000000       0x13 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libwavpack.a(bits.o)
+ .debug_rnglists
+                0x0000000000000013       0x41 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libwavpack.a(unpack.o)
+ .debug_rnglists
+                0x0000000000000054       0x72 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libwavpack.a(pack.o)
+ .debug_rnglists
+                0x00000000000000c6       0x52 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/libwavpack.a(words.o)
+
+.debug_str_offsets
+ *(.debug_str_offsets)
+
+.debug_sup
+ *(.debug_sup)
+
+.gnu.attributes
+ *(.gnu.attributes)
+
+/DISCARD/
+ *(.note.GNU-stack)
+ *(.gnu_debuglink)
+ *(.gnu.lto_*)
+ *(.gnu_object_only)
+OUTPUT(/home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/rbcodec/codecs/wavpack.elf elf64-x86-64)

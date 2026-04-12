@@ -1,0 +1,254 @@
+Archive member included to satisfy reference by file (symbol)
+
+/home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(action_helper.o)
+                              /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/rb_info.o (action_name)
+/home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(button_helper.o)
+                              /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/rb_info.o (get_button_names)
+/home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(printcell_helper.o)
+                              /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/rb_info.o (printcell_enable)
+/home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/libsetjmp.a(setjmp.o)
+                              /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/plugin_crt0.o (setjmp)
+
+Discarded input sections
+
+ .text          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(action_helper.o)
+ .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(action_helper.o)
+ .bss           0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(action_helper.o)
+ .rodata.action_helper_maxbuffer
+                0x0000000000000000        0x4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(action_helper.o)
+ .text          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(button_helper.o)
+ .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(button_helper.o)
+ .bss           0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(button_helper.o)
+ .rodata.button_helper_maxbuffer
+                0x0000000000000000        0x4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(button_helper.o)
+ .text          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(printcell_helper.o)
+ .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(printcell_helper.o)
+ .bss           0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(printcell_helper.o)
+ .text.printcell_get_column_visibility
+                0x0000000000000000       0x38 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(printcell_helper.o)
+ .text.printcell_set_column_visible
+                0x0000000000000000       0x60 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(printcell_helper.o)
+ .text.printcell_get_title_text
+                0x0000000000000000       0x70 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(printcell_helper.o)
+ .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/libsetjmp.a(setjmp.o)
+ .bss           0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/libsetjmp.a(setjmp.o)
+
+Memory Configuration
+
+Name             Origin             Length             Attributes
+PLUGIN_RAM       0x0000000003f00000 0x0000000000100000
+PLUGIN_IRAM      0x000000004000c000 0x0000000000014000
+*default*        0x0000000000000000 0xffffffffffffffff
+
+Linker script and memory map
+
+LOAD /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/rb_info.o
+LOAD /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/plugin_crt0.o
+LOAD /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a
+LOAD /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/bitmaps/libpluginbitmaps.a
+LOAD /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/libsetjmp.a
+LOAD /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/libfixedpoint.a
+LOAD /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a
+
+.header         0x0000000003f00000       0x1c
+                0x0000000003f00000                _plugin_start_addr = .
+                0x0000000003f00000                plugin_start_addr = .
+ *(.header)
+ .header        0x0000000003f00000       0x1c /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/plugin_crt0.o
+                0x0000000003f00000                __header
+
+.text           0x0000000003f0001c     0x2044
+ *(.text*)
+ .text          0x0000000003f0001c      0xd24 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/rb_info.o
+                0x0000000003f007b8                menu_action_cb
+                0x0000000003f00bcc                plugin_start
+ .text          0x0000000003f00d40      0x214 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/plugin_crt0.o
+                0x0000000003f00d58                plugin__start
+                0x0000000003f00ea0                rb_atexit
+                0x0000000003f00ec0                exit
+                0x0000000003f00ee8                _exit
+                0x0000000003f00efc                exit_on_usb
+ .text.action_name
+                0x0000000003f00f54       0x88 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(action_helper.o)
+                0x0000000003f00f54                action_name
+ .text.context_name
+                0x0000000003f00fdc       0xa0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(action_helper.o)
+                0x0000000003f00fdc                context_name
+ .text.get_button_names
+                0x0000000003f0107c       0xd0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(button_helper.o)
+                0x0000000003f0107c                get_button_names
+ .text.parse_dsptext
+                0x0000000003f0114c       0xc0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(printcell_helper.o)
+ .text.draw_selector.isra.0
+                0x0000000003f0120c      0x158 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(printcell_helper.o)
+ .text.printcell_listdraw_fn
+                0x0000000003f01364      0x870 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(printcell_helper.o)
+ .text.printcell_enable
+                0x0000000003f01bd4       0x80 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(printcell_helper.o)
+                0x0000000003f01bd4                printcell_enable
+ .text.printcell_increment_column
+                0x0000000003f01c54       0xa0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(printcell_helper.o)
+                0x0000000003f01c54                printcell_increment_column
+ .text.printcell_get_column_selected
+                0x0000000003f01cf4       0x1c /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(printcell_helper.o)
+                0x0000000003f01cf4                printcell_get_column_selected
+ .text.printcell_set_columns
+                0x0000000003f01d10      0x258 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(printcell_helper.o)
+                0x0000000003f01d10                printcell_set_columns
+ .text.printcell_get_column_text
+                0x0000000003f01f68       0xdc /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(printcell_helper.o)
+                0x0000000003f01f68                printcell_get_column_text
+ .text          0x0000000003f02044       0x1c /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/libsetjmp.a(setjmp.o)
+                0x0000000003f02044                setjmp
+                0x0000000003f02050                longjmp
+ *(.glue_7)
+ .glue_7        0x0000000003f02060        0x0 linker stubs
+ *(.glue_7t)
+ .glue_7t       0x0000000003f02060        0x0 linker stubs
+
+.vfp11_veneer   0x0000000003f02060        0x0
+ .vfp11_veneer  0x0000000003f02060        0x0 linker stubs
+
+.v4_bx          0x0000000003f02060        0x0
+ .v4_bx         0x0000000003f02060        0x0 linker stubs
+
+.iplt           0x0000000003f02060        0x0
+ .iplt          0x0000000003f02060        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/rb_info.o
+
+.rodata         0x0000000003f02060     0x172b
+ *(.rodata*)
+ .rodata.str1.1
+                0x0000000003f02060      0x2e2 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/rb_info.o
+                                        0x2fc (size before relaxing)
+ *fill*         0x0000000003f02342        0x2 
+ .rodata        0x0000000003f02344       0xc4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/rb_info.o
+ .rodata.action_name.str1.1
+                0x0000000003f02408       0x27 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(action_helper.o)
+ .rodata.context_name.str1.1
+                0x0000000003f0242f       0x13 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(action_helper.o)
+ .rodata.action_names
+                0x0000000003f02442      0xce2 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(action_helper.o)
+ .rodata.action_offsets
+                0x0000000003f03124      0x188 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(action_helper.o)
+ .rodata.context_names
+                0x0000000003f032ac      0x174 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(action_helper.o)
+ .rodata.get_button_names.str1.1
+                0x0000000003f03420        0x4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(button_helper.o)
+ .rodata.str1.1
+                0x0000000003f03424      0x217 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(button_helper.o)
+ .rodata        0x0000000003f0363b        0x2 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(button_helper.o)
+ *fill*         0x0000000003f0363d        0x3 
+ .rodata.available_button_count
+                0x0000000003f03640        0x4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(button_helper.o)
+                0x0000000003f03640                available_button_count
+ .rodata.available_buttons
+                0x0000000003f03644        0x4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(button_helper.o)
+                0x0000000003f03644                available_buttons
+ .rodata.buttons
+                0x0000000003f03648      0x108 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(button_helper.o)
+ .rodata.printcell_listdraw_fn.str1.1
+                0x0000000003f03750       0x26 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(printcell_helper.o)
+                                         0x2a (size before relaxing)
+ .rodata.printcell_set_columns.str1.1
+                0x0000000003f03776       0x15 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(printcell_helper.o)
+                                         0x17 (size before relaxing)
+
+.rel.dyn        0x0000000003f0378c        0x0
+ .rel.iplt      0x0000000003f0378c        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/rb_info.o
+
+.data           0x0000000003f0378c       0x8c
+ *(.data*)
+ .data          0x0000000003f0378c       0x84 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/rb_info.o
+ .data          0x0000000003f03810        0x4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/plugin_crt0.o
+                0x0000000003f03810                rb
+ .data.list_sep_color.12540
+                0x0000000003f03814        0x4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(printcell_helper.o)
+
+.igot.plt       0x0000000003f03818        0x0
+ .igot.plt      0x0000000003f03818        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/rb_info.o
+
+.ncdata         0x0000000013f03820        0x0 load address 0x0000000003f03820
+ *(.ncdata*)
+                0x0000000013f03820                . = ALIGN (0x10)
+
+/DISCARD/
+ *(.eh_frame)
+
+.bss            0x0000000003f03818      0x374
+                0x0000000003f03818                plugin_bss_start = .
+                0x0000000003f03818                _plugin_bss_start = .
+ *(.bss*)
+ .bss           0x0000000003f03818       0x74 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/rb_info.o
+ .bss           0x0000000003f0388c       0x60 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/plugin_crt0.o
+ .bss.name_buf  0x0000000003f038ec       0x2e /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(action_helper.o)
+ *fill*         0x0000000003f0391a        0x2 
+ .bss.printcell
+                0x0000000003f0391c      0x14c /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(printcell_helper.o)
+ .bss.printcell_buffer.12498
+                0x0000000003f03a68      0x104 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(printcell_helper.o)
+ .bss.sidx.12499
+                0x0000000003f03b6c       0x20 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(printcell_helper.o)
+ *(COMMON)
+                0x0000000003f03b8c                . = ALIGN (0x4)
+
+.ncbss          0x0000000013f03b90        0x0 load address 0x0000000003f03b90
+ *(.ncbss*)
+                0x0000000013f03b90                . = ALIGN (0x10)
+
+.ncbss_vma      0x0000000003f03b90        0x0
+                0x0000000003f03b90                . = (. + SIZEOF (.ncbss))
+
+.pluginend      0x0000000003f03b8c        0x0
+                0x0000000003f03b8c                _plugin_end_addr = .
+                0x0000000003f03b8c                plugin_end_addr = .
+
+.iram           0x000000004000c000        0x0 load address 0x0000000003f03818
+                0x000000004000c000                iramstart = .
+ *(.icode)
+ *(.irodata)
+ *(.idata)
+                0x000000004000c000                iramend = .
+                0x0000000003f03818                iramcopy = LOADADDR (.iram)
+
+.ibss           0x000000004000c000        0x0
+                0x000000004000c000                iedata = .
+ *(.ibss)
+                0x000000004000c000                . = ALIGN (0x4)
+                0x000000004000c000                iend = .
+                0x0000000003f03b8c                loadendaddr = MAX (plugin_end_addr, (LOADADDR (.iram) + SIZEOF (.iram)))
+
+.pluginloadend  0x0000000003f03b8c        0x0
+                0x0000000003f03b8c                _plugin_load_end_addr = .
+                0x0000000003f03b8c                plugin_load_end_addr = .
+
+.comment        0x0000000000000000       0x11
+ *(.comment)
+ .comment       0x0000000000000000       0x11 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/rb_info.o
+                                         0x12 (size before relaxing)
+ .comment       0x0000000000000011       0x12 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/plugin_crt0.o
+ .comment       0x0000000000000011       0x12 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(action_helper.o)
+ .comment       0x0000000000000011       0x12 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(button_helper.o)
+ .comment       0x0000000000000011       0x12 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(printcell_helper.o)
+                0x0000000000000001                ASSERT ((LOADADDR (.ncdata) == (ADDR (.ncdata) - 0x10000000)), .ncdata has incorrect LMA/VMA address)
+                0x0000000000000001                ASSERT (((LOADADDR (.ncdata) % 0x10) == 0x0), .ncdata incorrectly aligned)
+                0x0000000000000001                ASSERT ((LOADADDR (.ncbss) == (ADDR (.ncbss) - 0x10000000)), .ncbss has incorrect LMA/VMA address)
+                0x0000000000000001                ASSERT (((LOADADDR (.ncbss) % 0x10) == 0x0), .ncbss incorrectly aligned)
+                0x0000000000000001                ASSERT ((ADDR (.ncbss_vma) == LOADADDR (.ncbss)), .ncbss_vma has wrong address)
+                0x0000000000000001                ASSERT ((SIZEOF (.ncbss_vma) == SIZEOF (.ncbss)), .ncbss_vma has wrong size)
+OUTPUT(/home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/rb_info.elf elf32-littlearm)
+LOAD linker stubs
+
+.ARM.attributes
+                0x0000000000000000       0x28
+ .ARM.attributes
+                0x0000000000000000       0x2a /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/rb_info.o
+ .ARM.attributes
+                0x000000000000002a       0x2a /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/plugin_crt0.o
+ .ARM.attributes
+                0x0000000000000054       0x2a /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(action_helper.o)
+ .ARM.attributes
+                0x000000000000007e       0x2a /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(button_helper.o)
+ .ARM.attributes
+                0x00000000000000a8       0x2a /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(printcell_helper.o)
+ .ARM.attributes
+                0x00000000000000d2       0x1a /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/libsetjmp.a(setjmp.o)

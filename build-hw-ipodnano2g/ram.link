@@ -1,0 +1,105 @@
+ENTRY(start)
+OUTPUT_FORMAT(elf32-littlearm)
+OUTPUT_ARCH(arm)
+STARTUP(target/arm/s5l8700/crt0.o)
+MEMORY
+{
+    IRAM : ORIGIN = 0x0, LENGTH = (48*1024)
+    DRAM : ORIGIN = 0x08000000, LENGTH = ((32 * 0x100000) - 0xA0000 - 0x100000)
+}
+SECTIONS
+{
+    loadaddress = 0x08000000;
+    .intvect : {
+        _intvectstart = . ;
+        *(.intvect)
+        _intvectend = _newstart ;
+    } >IRAM AT> DRAM
+    _intvectcopy = LOADADDR(.intvect) ;
+    .text :
+    {
+        _loadaddress = .;
+        _textstart = .;
+        *(.init.text)
+        *(.text*)
+        *(.glue_7)
+        *(.glue_7t)
+        . = ALIGN(0x4);
+    } > DRAM
+    .rodata :
+    {
+        *(.rodata*)
+        . = ALIGN(0x4);
+    } > DRAM
+    .data :
+    {
+        *(.data*)
+        . = ALIGN(0x4);
+    } > DRAM
+    /DISCARD/ :
+    {
+        *(.eh_frame)
+    }
+    .iram :
+    {
+        _iramstart = .;
+        *(.icode*)
+        *(.irodata*)
+        *(.idata*)
+        . = ALIGN(0x4);
+        _iramend = .;
+    } > IRAM AT> DRAM
+    _iramcopy = LOADADDR(.iram) ;
+    .ibss (NOLOAD) :
+    {
+        _iedata = .;
+        *(.qharray)
+        *(.ibss*)
+        . = ALIGN(0x4);
+        _iend = .;
+    } > IRAM
+    .stack (NOLOAD) :
+    {
+       *(.stack)
+       stackbegin = .;
+       _stackbegin = .;
+       . += 0x2000;
+       stackend = .;
+       _stackend = .;
+       _irqstackbegin = .;
+       . += 0x400;
+       _irqstackend = .;
+       _fiqstackbegin = .;
+       . += 0x400;
+       _fiqstackend = .;
+    } > IRAM
+    .bss (NOLOAD) :
+    {
+       _edata = .;
+        *(.bss*)
+        *(COMMON)
+        . = ALIGN(0x4);
+       _end = .;
+    } > DRAM
+    .audiobuf (NOLOAD) :
+    {
+        . = ALIGN(4);
+        _audiobuffer = .;
+        audiobuffer = .;
+    } > DRAM
+    .audiobufend (0x08000000 + ((32 * 0x100000) - 0xA0000 - 0x100000)) (NOLOAD) :
+    {
+        audiobufend = .;
+        _audiobufend = .;
+    } > DRAM
+    .codec ((0x08000000 + ((32 * 0x100000) - 0xA0000 - 0x100000))) (NOLOAD) :
+    {
+        codecbuf = .;
+        _codecbuf = .;
+    } > DRAM
+    .plugin ((0x08000000 + ((32 * 0x100000) - 0xA0000 - 0x100000)) + 0x100000) (NOLOAD) :
+    {
+        _pluginbuf = .;
+        pluginbuf = .;
+    }
+}

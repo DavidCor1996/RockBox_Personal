@@ -1,0 +1,172 @@
+Archive member included to satisfy reference by file (symbol)
+
+/home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(gcc-support.o)
+                              /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/file_picker.o (memset)
+/home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(arg_helper.o)
+                              /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/file_picker.o (string_parse)
+/home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/lib/libsetjmp.a(setjmp.o)
+                              /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/plugin_crt0.o (setjmp)
+
+Discarded input sections
+
+ .text          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(gcc-support.o)
+ .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(gcc-support.o)
+ .bss           0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(gcc-support.o)
+ .text.__div0   0x0000000000000000       0x14 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(gcc-support.o)
+ .text.memmove  0x0000000000000000       0x14 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(gcc-support.o)
+ .text.memcmp   0x0000000000000000       0x14 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(gcc-support.o)
+ .text          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(arg_helper.o)
+ .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(arg_helper.o)
+ .bss           0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(arg_helper.o)
+ .text.char_parse
+                0x0000000000000000       0x30 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(arg_helper.o)
+ .rodata.bool_parse.str1.1
+                0x0000000000000000        0x7 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(arg_helper.o)
+ .text.bool_parse
+                0x0000000000000000       0xdc /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(arg_helper.o)
+ .text.num_parse
+                0x0000000000000000       0x3c /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(arg_helper.o)
+ .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/lib/libsetjmp.a(setjmp.o)
+ .bss           0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/lib/libsetjmp.a(setjmp.o)
+
+Memory Configuration
+
+Name             Origin             Length             Attributes
+PLUGIN_RAM       0x0000000009f60000 0x00000000000a0000
+PLUGIN_IRAM      0x000000000000c000 0x0000000000020000
+*default*        0x0000000000000000 0xffffffffffffffff
+
+Linker script and memory map
+
+LOAD /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/file_picker.o
+LOAD /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/plugin_crt0.o
+LOAD /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a
+LOAD /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/bitmaps/libpluginbitmaps.a
+LOAD /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/lib/libsetjmp.a
+LOAD /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/lib/libfixedpoint.a
+LOAD /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a
+
+.header         0x0000000009f60000       0x1c
+                0x0000000009f60000                _plugin_start_addr = .
+                0x0000000009f60000                plugin_start_addr = .
+ *(.header)
+ .header        0x0000000009f60000       0x1c /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/plugin_crt0.o
+                0x0000000009f60000                __header
+
+.text           0x0000000009f6001c      0xbd8
+ *(.text*)
+ .text          0x0000000009f6001c      0x684 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/file_picker.o
+                0x0000000009f60518                plugin_start
+ .text          0x0000000009f606a0      0x214 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/plugin_crt0.o
+                0x0000000009f606b8                plugin__start
+                0x0000000009f60800                rb_atexit
+                0x0000000009f60820                exit
+                0x0000000009f60848                _exit
+                0x0000000009f6085c                exit_on_usb
+ .text.memcpy   0x0000000009f608b4       0x14 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(gcc-support.o)
+                0x0000000009f608b4                memcpy
+ .text.memset   0x0000000009f608c8       0x14 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(gcc-support.o)
+                0x0000000009f608c8                memset
+ .text.string_parse
+                0x0000000009f608dc       0xe0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(arg_helper.o)
+                0x0000000009f608dc                string_parse
+ .text.longnum_parse
+                0x0000000009f609bc      0x144 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(arg_helper.o)
+                0x0000000009f609bc                longnum_parse
+ .text.argparse
+                0x0000000009f60b00       0xd8 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(arg_helper.o)
+                0x0000000009f60b00                argparse
+ .text          0x0000000009f60bd8       0x1c /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/lib/libsetjmp.a(setjmp.o)
+                0x0000000009f60bd8                setjmp
+                0x0000000009f60be4                longjmp
+ *(.glue_7)
+ .glue_7        0x0000000009f60bf4        0x0 linker stubs
+ *(.glue_7t)
+ .glue_7t       0x0000000009f60bf4        0x0 linker stubs
+
+.vfp11_veneer   0x0000000009f60bf4        0x0
+ .vfp11_veneer  0x0000000009f60bf4        0x0 linker stubs
+
+.v4_bx          0x0000000009f60bf4        0x0
+ .v4_bx         0x0000000009f60bf4        0x0 linker stubs
+
+.iplt           0x0000000009f60bf4        0x0
+ .iplt          0x0000000009f60bf4        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/file_picker.o
+
+.rodata         0x0000000009f60bf4       0x98
+ *(.rodata*)
+ .rodata.str1.1
+                0x0000000009f60bf4       0x95 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/file_picker.o
+                                         0x98 (size before relaxing)
+ .rodata.string_parse.str1.1
+                0x0000000009f60c89        0x3 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(arg_helper.o)
+
+.rel.dyn        0x0000000009f60c8c        0x0
+ .rel.iplt      0x0000000009f60c8c        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/file_picker.o
+
+.data           0x0000000009f60c8c        0x8
+ *(.data*)
+ .data          0x0000000009f60c8c        0x4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/file_picker.o
+ .data          0x0000000009f60c90        0x4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/plugin_crt0.o
+                0x0000000009f60c90                rb
+
+.igot.plt       0x0000000009f60c94        0x0
+ .igot.plt      0x0000000009f60c94        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/file_picker.o
+
+/DISCARD/
+ *(.eh_frame)
+
+.bss            0x0000000009f60c94      0x2f0
+                0x0000000009f60c94                plugin_bss_start = .
+                0x0000000009f60c94                _plugin_bss_start = .
+ *(.bss*)
+ .bss           0x0000000009f60c94      0x290 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/file_picker.o
+ .bss           0x0000000009f60f24       0x60 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/plugin_crt0.o
+ *(COMMON)
+                0x0000000009f60f84                . = ALIGN (0x4)
+
+.pluginend      0x0000000009f60f84        0x0
+                0x0000000009f60f84                _plugin_end_addr = .
+                0x0000000009f60f84                plugin_end_addr = .
+
+.iram           0x000000000000c000        0x0 load address 0x0000000009f60c94
+                0x000000000000c000                iramstart = .
+ *(.icode)
+ *(.irodata)
+ *(.idata)
+                0x000000000000c000                iramend = .
+                0x0000000009f60c94                iramcopy = LOADADDR (.iram)
+
+.ibss           0x000000000000c000        0x0
+                0x000000000000c000                iedata = .
+ *(.ibss)
+                0x000000000000c000                . = ALIGN (0x4)
+                0x000000000000c000                iend = .
+                0x0000000009f60f84                loadendaddr = MAX (plugin_end_addr, (LOADADDR (.iram) + SIZEOF (.iram)))
+
+.pluginloadend  0x0000000009f60f84        0x0
+                0x0000000009f60f84                _plugin_load_end_addr = .
+                0x0000000009f60f84                plugin_load_end_addr = .
+
+.comment        0x0000000000000000       0x11
+ *(.comment)
+ .comment       0x0000000000000000       0x11 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/file_picker.o
+                                         0x12 (size before relaxing)
+ .comment       0x0000000000000011       0x12 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/plugin_crt0.o
+ .comment       0x0000000000000011       0x12 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(gcc-support.o)
+ .comment       0x0000000000000011       0x12 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(arg_helper.o)
+OUTPUT(/home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/file_picker.elf elf32-littlearm)
+LOAD linker stubs
+
+.ARM.attributes
+                0x0000000000000000       0x28
+ .ARM.attributes
+                0x0000000000000000       0x2a /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/file_picker.o
+ .ARM.attributes
+                0x000000000000002a       0x2a /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/plugin_crt0.o
+ .ARM.attributes
+                0x0000000000000054       0x2a /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(gcc-support.o)
+ .ARM.attributes
+                0x000000000000007e       0x2a /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(arg_helper.o)
+ .ARM.attributes
+                0x00000000000000a8       0x1a /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/lib/libsetjmp.a(setjmp.o)

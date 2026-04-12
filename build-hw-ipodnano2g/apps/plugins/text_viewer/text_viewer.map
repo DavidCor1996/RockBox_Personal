@@ -1,0 +1,474 @@
+Archive member included to satisfy reference by file (symbol)
+
+/home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(playback_control.o)
+                              /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/text_viewer/tv_menu.o (playback_control)
+/home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/lib/libsetjmp.a(setjmp.o)
+                              /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/plugin_crt0.o (setjmp)
+/usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+                              /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/text_viewer/tv_display.o (__aeabi_idiv)
+/usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
+                              /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o) (__aeabi_idiv0)
+
+Discarded input sections
+
+ .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/text_viewer/text_viewer.o
+ .bss           0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/text_viewer/text_viewer.o
+ .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/text_viewer/tv_action.o
+ .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/text_viewer/tv_bookmark.o
+ .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/text_viewer/tv_pager.o
+ .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/text_viewer/tv_preferences.o
+ .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/text_viewer/tv_screen_pos.o
+ .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/text_viewer/tv_settings.o
+ .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/text_viewer/tv_text_processor.o
+ .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/text_viewer/tv_text_reader.o
+ .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/text_viewer/tv_window.o
+ .text          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(playback_control.o)
+ .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(playback_control.o)
+ .bss           0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(playback_control.o)
+ .text.playback_control_init
+                0x0000000000000000       0x10 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(playback_control.o)
+ .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/lib/libsetjmp.a(setjmp.o)
+ .bss           0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/lib/libsetjmp.a(setjmp.o)
+ .data          0x0000000000000000        0x0 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+ .bss           0x0000000000000000        0x0 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+ .data          0x0000000000000000        0x0 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
+ .bss           0x0000000000000000        0x0 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
+
+Memory Configuration
+
+Name             Origin             Length             Attributes
+PLUGIN_RAM       0x0000000009f60000 0x00000000000a0000
+PLUGIN_IRAM      0x000000000000c000 0x0000000000020000
+*default*        0x0000000000000000 0xffffffffffffffff
+
+Linker script and memory map
+
+LOAD /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/text_viewer/text_viewer.o
+LOAD /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/text_viewer/tv_action.o
+LOAD /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/text_viewer/tv_bookmark.o
+LOAD /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/text_viewer/tv_display.o
+LOAD /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/text_viewer/tv_menu.o
+LOAD /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/text_viewer/tv_pager.o
+LOAD /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/text_viewer/tv_preferences.o
+LOAD /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/text_viewer/tv_reader.o
+LOAD /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/text_viewer/tv_screen_pos.o
+LOAD /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/text_viewer/tv_settings.o
+LOAD /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/text_viewer/tv_text_processor.o
+LOAD /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/text_viewer/tv_text_reader.o
+LOAD /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/text_viewer/tv_window.o
+LOAD /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/plugin_crt0.o
+LOAD /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a
+LOAD /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/bitmaps/libpluginbitmaps.a
+LOAD /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/lib/libsetjmp.a
+LOAD /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/lib/libfixedpoint.a
+LOAD /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a
+
+.header         0x0000000009f60000       0x1c
+                0x0000000009f60000                _plugin_start_addr = .
+                0x0000000009f60000                plugin_start_addr = .
+ *(.header)
+ .header        0x0000000009f60000       0x1c /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/plugin_crt0.o
+                0x0000000009f60000                __header
+
+.text           0x0000000009f6001c     0x5478
+ *(.text*)
+ .text          0x0000000009f6001c      0x374 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/text_viewer/text_viewer.o
+                0x0000000009f6001c                plugin_start
+ .text          0x0000000009f60390      0x3cc /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/text_viewer/tv_action.o
+                0x0000000009f60390                tv_init_action
+                0x0000000009f603bc                tv_exit
+                0x0000000009f60434                tv_load_file
+                0x0000000009f60458                tv_draw
+                0x0000000009f60490                tv_scroll_up
+                0x0000000009f604f8                tv_scroll_down
+                0x0000000009f60564                tv_scroll_left
+                0x0000000009f605c4                tv_scroll_right
+                0x0000000009f60624                tv_top
+                0x0000000009f60640                tv_bottom
+                0x0000000009f606b4                tv_menu
+                0x0000000009f6073c                tv_add_or_remove_bookmark
+ .text          0x0000000009f6075c      0x65c /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/text_viewer/tv_bookmark.o
+                0x0000000009f60930                tv_init_bookmark
+                0x0000000009f6094c                tv_finalize_bookmark
+                0x0000000009f60950                tv_get_bookmark_positions
+                0x0000000009f60994                tv_toggle_bookmark
+                0x0000000009f60a28                tv_create_system_bookmark
+                0x0000000009f60a8c                tv_select_bookmark
+                0x0000000009f60c40                tv_deserialize_bookmarks
+                0x0000000009f60d28                tv_serialize_bookmarks
+ .text          0x0000000009f60db8      0xb50 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/text_viewer/tv_display.o
+                0x0000000009f610ac                tv_init_scrollbar
+                0x0000000009f610f4                tv_show_bookmarks
+                0x0000000009f61194                tv_update_extra
+                0x0000000009f6135c                tv_set_sbs_title
+                0x0000000009f613ac                tv_end_display
+                0x0000000009f61418                tv_set_layout
+                0x0000000009f615b4                tv_get_drawarea_info
+                0x0000000009f615d8                tv_init_display
+                0x0000000009f6161c                tv_night_mode
+                0x0000000009f61708                tv_draw_text
+                0x0000000009f617f0                tv_start_display
+                0x0000000009f61880                tv_finalize_display
+                0x0000000009f61900                tv_exist_scrollbar
+ .text          0x0000000009f61908      0x6b0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/text_viewer/tv_menu.o
+                0x0000000009f61ecc                tv_display_menu
+ .text          0x0000000009f61fb8      0x70c /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/text_viewer/tv_pager.o
+                0x0000000009f620b4                tv_init_pager
+                0x0000000009f62104                tv_finalize_pager
+                0x0000000009f62114                tv_reset_line_positions
+                0x0000000009f62138                tv_move_next_line
+                0x0000000009f6219c                tv_get_line_positions
+                0x0000000009f621e0                tv_new_page
+                0x0000000009f622e0                tv_convert_fpos
+                0x0000000009f6241c                tv_move_screen
+ .text          0x0000000009f626c4      0x2b0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/text_viewer/tv_preferences.o
+                0x0000000009f626c4                tv_copy_preferences
+                0x0000000009f626e4                tv_set_preferences
+                0x0000000009f62864                tv_compare_preferences
+                0x0000000009f6289c                tv_set_default_preferences
+                0x0000000009f62940                tv_add_preferences_change_listner
+                0x0000000009f62964                tv_change_fontid
+ .text          0x0000000009f62974      0x434 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/text_viewer/tv_reader.o
+                0x0000000009f629bc                tv_get_file_size
+                0x0000000009f629cc                tv_is_eof
+                0x0000000009f629f4                tv_get_current_file_pos
+                0x0000000009f62a0c                tv_get_buffer
+                0x0000000009f62a30                tv_seek
+                0x0000000009f62d20                tv_init_reader
+                0x0000000009f62d80                tv_finalize_reader
+ .text          0x0000000009f62da8       0x3c /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/text_viewer/tv_screen_pos.o
+                0x0000000009f62da8                tv_get_screen_pos
+                0x0000000009f62db8                tv_set_screen_pos
+                0x0000000009f62dc8                tv_copy_screen_pos
+ .text          0x0000000009f62de4     0x1074 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/text_viewer/tv_settings.o
+                0x0000000009f63474                tv_load_global_settings
+                0x0000000009f63564                tv_save_global_settings
+                0x0000000009f63674                tv_load_settings
+                0x0000000009f638b4                tv_save_settings
+ .text          0x0000000009f63e58      0xba8 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/text_viewer/tv_text_processor.o
+                0x0000000009f6426c                tv_create_formed_text
+                0x0000000009f649cc                tv_init_text_processor
+                0x0000000009f649ec                tv_set_creation_conditions
+ .text          0x0000000009f64a00       0xf8 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/text_viewer/tv_text_reader.o
+                0x0000000009f64a00                tv_init_text_reader
+                0x0000000009f64a2c                tv_finalize_text_reader
+                0x0000000009f64a3c                tv_set_read_conditions
+                0x0000000009f64a4c                tv_get_total_text_size
+                0x0000000009f64a5c                tv_get_next_line
+                0x0000000009f64aa8                tv_read_start
+                0x0000000009f64ac8                tv_read_end
+                0x0000000009f64adc                tv_seek_top
+ .text          0x0000000009f64af8      0x388 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/text_viewer/tv_window.o
+                0x0000000009f64b84                tv_update_sbs_title
+                0x0000000009f64bc0                tv_draw_window
+                0x0000000009f64c60                tv_traverse_lines
+                0x0000000009f64d70                tv_init_window
+                0x0000000009f64db0                tv_finalize_window
+                0x0000000009f64dc4                tv_move_window
+ .text          0x0000000009f64e80      0x214 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/plugin_crt0.o
+                0x0000000009f64e98                plugin__start
+                0x0000000009f64fe0                rb_atexit
+                0x0000000009f65000                exit
+                0x0000000009f65028                _exit
+                0x0000000009f6503c                exit_on_usb
+ .text.prevtrack
+                0x0000000009f65094       0x28 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(playback_control.o)
+ .text.stop     0x0000000009f650bc       0x28 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(playback_control.o)
+ .text.nexttrack
+                0x0000000009f650e4       0x28 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(playback_control.o)
+ .text.volume   0x0000000009f6510c       0x4c /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(playback_control.o)
+ .text.shuffle  0x0000000009f65158       0x54 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(playback_control.o)
+ .text.play     0x0000000009f651ac       0x98 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(playback_control.o)
+ .text.repeat_mode
+                0x0000000009f65244       0x98 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(playback_control.o)
+ .text.playback_control
+                0x0000000009f652dc       0x50 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(playback_control.o)
+                0x0000000009f652dc                playback_control
+ .text          0x0000000009f6532c       0x1c /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/lib/libsetjmp.a(setjmp.o)
+                0x0000000009f6532c                setjmp
+                0x0000000009f65338                longjmp
+ .text          0x0000000009f65348      0x148 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+                0x0000000009f65348                __aeabi_idiv
+                0x0000000009f65348                __divsi3
+                0x0000000009f65470                __aeabi_idivmod
+ .text          0x0000000009f65490        0x4 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
+                0x0000000009f65490                __aeabi_ldiv0
+                0x0000000009f65490                __aeabi_idiv0
+ *(.glue_7)
+ .glue_7        0x0000000009f65494        0x0 linker stubs
+ *(.glue_7t)
+ .glue_7t       0x0000000009f65494        0x0 linker stubs
+
+.vfp11_veneer   0x0000000009f65494        0x0
+ .vfp11_veneer  0x0000000009f65494        0x0 linker stubs
+
+.v4_bx          0x0000000009f65494        0x0
+ .v4_bx         0x0000000009f65494        0x0 linker stubs
+
+.iplt           0x0000000009f65494        0x0
+ .iplt          0x0000000009f65494        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/text_viewer/text_viewer.o
+
+.rodata         0x0000000009f65494      0x7e8
+ *(.rodata*)
+ .rodata.str1.1
+                0x0000000009f65494       0x18 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/text_viewer/text_viewer.o
+ .rodata.str1.1
+                0x0000000009f654ac       0x25 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/text_viewer/tv_action.o
+ .rodata.str1.1
+                0x0000000009f654d1       0x7a /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/text_viewer/tv_bookmark.o
+ .rodata.str1.1
+                0x0000000009f6554b       0x33 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/text_viewer/tv_display.o
+                                         0x36 (size before relaxing)
+ .rodata.str1.1
+                0x0000000009f6557e      0x1f2 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/text_viewer/tv_menu.o
+                                        0x20a (size before relaxing)
+ .rodata        0x0000000009f65770      0x2e0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/text_viewer/tv_menu.o
+                0x0000000009f657e0                option_menu
+                0x0000000009f65810                night_mode_item
+                0x0000000009f6582c                indent_spaces_item
+                0x0000000009f65848                font_item
+                0x0000000009f65864                statusbar_item
+                0x0000000009f65880                footer_item
+                0x0000000009f6589c                header_item
+                0x0000000009f658b8                alignment_item
+                0x0000000009f658d4                windows_item
+                0x0000000009f658f0                line_mode_item
+                0x0000000009f6590c                word_wrap_item
+                0x0000000009f65928                encoding_item
+                0x0000000009f65944                scroll_menu
+                0x0000000009f6595c                vertical_scroll_menu
+                0x0000000009f65974                narrow_mode_item
+                0x0000000009f65990                autoscroll_speed_item
+                0x0000000009f659ac                overlap_page_mode_item
+                0x0000000009f659c8                vertical_scroll_mode_item
+                0x0000000009f659e4                vertical_scrollbar_item
+                0x0000000009f65a00                horizontal_scroll_menu
+                0x0000000009f65a18                horizontal_scroll_mode_item
+                0x0000000009f65a34                horizontal_scrollbar_item
+ .rodata.str1.1
+                0x0000000009f65a50       0x35 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/text_viewer/tv_pager.o
+ *fill*         0x0000000009f65a85        0x3 
+ .rodata        0x0000000009f65a88        0x4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/text_viewer/tv_preferences.o
+                0x0000000009f65a88                preferences
+ .rodata.str1.1
+                0x0000000009f65a8c        0x4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/text_viewer/tv_reader.o
+ .rodata.str1.1
+                0x0000000009f65a90       0xc2 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/text_viewer/tv_settings.o
+ .rodata        0x0000000009f65b52       0x36 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/text_viewer/tv_text_processor.o
+ .rodata.volume.str1.1
+                0x0000000009f65b88        0x7 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(playback_control.o)
+ .rodata.shuffle.str1.1
+                0x0000000009f65b8f        0x8 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(playback_control.o)
+ .rodata.repeat_mode.str1.1
+                0x0000000009f65b97        0x7 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(playback_control.o)
+ *fill*         0x0000000009f65b9e        0x2 
+ .rodata.nexttrack_item
+                0x0000000009f65ba0        0xc /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(playback_control.o)
+                0x0000000009f65ba0                nexttrack_item
+ .rodata.nexttrack_item_
+                0x0000000009f65bac        0xc /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(playback_control.o)
+ .rodata.nexttrack_item__
+                0x0000000009f65bb8        0x4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(playback_control.o)
+ .rodata.playback_control_menu
+                0x0000000009f65bbc        0xc /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(playback_control.o)
+                0x0000000009f65bbc                playback_control_menu
+ .rodata.playback_control_menu__
+                0x0000000009f65bc8        0xc /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(playback_control.o)
+ .rodata.playpause_item
+                0x0000000009f65bd4        0xc /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(playback_control.o)
+                0x0000000009f65bd4                playpause_item
+ .rodata.playpause_item_
+                0x0000000009f65be0        0xc /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(playback_control.o)
+ .rodata.playpause_item__
+                0x0000000009f65bec        0x4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(playback_control.o)
+ .rodata.prevtrack_item
+                0x0000000009f65bf0        0xc /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(playback_control.o)
+                0x0000000009f65bf0                prevtrack_item
+ .rodata.prevtrack_item_
+                0x0000000009f65bfc        0xc /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(playback_control.o)
+ .rodata.prevtrack_item__
+                0x0000000009f65c08        0x4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(playback_control.o)
+ .rodata.repeat_mode_item
+                0x0000000009f65c0c        0xc /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(playback_control.o)
+                0x0000000009f65c0c                repeat_mode_item
+ .rodata.repeat_mode_item_
+                0x0000000009f65c18        0xc /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(playback_control.o)
+ .rodata.repeat_mode_item__
+                0x0000000009f65c24        0x4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(playback_control.o)
+ .rodata.shuffle_item
+                0x0000000009f65c28        0xc /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(playback_control.o)
+                0x0000000009f65c28                shuffle_item
+ .rodata.shuffle_item_
+                0x0000000009f65c34        0xc /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(playback_control.o)
+ .rodata.shuffle_item__
+                0x0000000009f65c40        0x4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(playback_control.o)
+ .rodata.stop_item
+                0x0000000009f65c44        0xc /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(playback_control.o)
+                0x0000000009f65c44                stop_item
+ .rodata.stop_item_
+                0x0000000009f65c50        0xc /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(playback_control.o)
+ .rodata.stop_item__
+                0x0000000009f65c5c        0x4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(playback_control.o)
+ .rodata.volume_item
+                0x0000000009f65c60        0xc /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(playback_control.o)
+                0x0000000009f65c60                volume_item
+ .rodata.volume_item_
+                0x0000000009f65c6c        0xc /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(playback_control.o)
+ .rodata.volume_item__
+                0x0000000009f65c78        0x4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(playback_control.o)
+
+.rel.dyn        0x0000000009f65c7c        0x0
+ .rel.iplt      0x0000000009f65c7c        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/text_viewer/text_viewer.o
+
+.data           0x0000000009f65c7c       0x98
+ *(.data*)
+ .data          0x0000000009f65c7c        0x8 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/text_viewer/tv_display.o
+ .data          0x0000000009f65c84       0x6c /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/text_viewer/tv_menu.o
+ .data          0x0000000009f65cf0        0x4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/text_viewer/tv_reader.o
+ .data          0x0000000009f65cf4        0x4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/plugin_crt0.o
+                0x0000000009f65cf4                rb
+ .data.playback_control_menu_
+                0x0000000009f65cf8       0x1c /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(playback_control.o)
+
+.igot.plt       0x0000000009f65d14        0x0
+ .igot.plt      0x0000000009f65d14        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/text_viewer/text_viewer.o
+
+/DISCARD/
+ *(.eh_frame)
+
+.bss            0x0000000009f65d14     0xb064
+                0x0000000009f65d14                plugin_bss_start = .
+                0x0000000009f65d14                _plugin_bss_start = .
+ *(.bss*)
+ .bss           0x0000000009f65d14        0x2 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/text_viewer/tv_action.o
+                0x0000000009f65d14                bookmarks_changed
+                0x0000000009f65d15                scrolled
+ *fill*         0x0000000009f65d16        0x2 
+ .bss           0x0000000009f65d18      0x111 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/text_viewer/tv_bookmark.o
+                0x0000000009f65d18                bookmarks
+ *fill*         0x0000000009f65e29        0x3 
+ .bss           0x0000000009f65e2c       0xc0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/text_viewer/tv_display.o
+ .bss           0x0000000009f65eec      0x2b8 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/text_viewer/tv_menu.o
+ .bss           0x0000000009f661a4     0x9d68 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/text_viewer/tv_pager.o
+ .bss           0x0000000009f6ff0c      0x49d /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/text_viewer/tv_preferences.o
+                0x0000000009f703a8                preferences_changed
+ *fill*         0x0000000009f703a9        0x3 
+ .bss           0x0000000009f703ac       0x20 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/text_viewer/tv_reader.o
+ .bss           0x0000000009f703cc        0x4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/text_viewer/tv_screen_pos.o
+ .bss           0x0000000009f703d0        0x8 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/text_viewer/tv_settings.o
+ .bss           0x0000000009f703d8      0x920 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/text_viewer/tv_text_processor.o
+ .bss           0x0000000009f70cf8        0x8 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/text_viewer/tv_text_reader.o
+ .bss           0x0000000009f70d00       0x14 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/text_viewer/tv_window.o
+ .bss           0x0000000009f70d14       0x60 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/plugin_crt0.o
+ .bss.parentvp  0x0000000009f70d74        0x4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(playback_control.o)
+                0x0000000009f70d74                parentvp
+ *(COMMON)
+                0x0000000009f70d78                . = ALIGN (0x4)
+
+.pluginend      0x0000000009f70d78        0x0
+                0x0000000009f70d78                _plugin_end_addr = .
+                0x0000000009f70d78                plugin_end_addr = .
+
+.iram           0x000000000000c000        0x0 load address 0x0000000009f65d14
+                0x000000000000c000                iramstart = .
+ *(.icode)
+ *(.irodata)
+ *(.idata)
+                0x000000000000c000                iramend = .
+                0x0000000009f65d14                iramcopy = LOADADDR (.iram)
+
+.ibss           0x000000000000c000        0x0
+                0x000000000000c000                iedata = .
+ *(.ibss)
+                0x000000000000c000                . = ALIGN (0x4)
+                0x000000000000c000                iend = .
+                0x0000000009f70d78                loadendaddr = MAX (plugin_end_addr, (LOADADDR (.iram) + SIZEOF (.iram)))
+
+.pluginloadend  0x0000000009f70d78        0x0
+                0x0000000009f70d78                _plugin_load_end_addr = .
+                0x0000000009f70d78                plugin_load_end_addr = .
+
+.comment        0x0000000000000000       0x11
+ *(.comment)
+ .comment       0x0000000000000000       0x11 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/text_viewer/text_viewer.o
+                                         0x12 (size before relaxing)
+ .comment       0x0000000000000011       0x12 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/text_viewer/tv_action.o
+ .comment       0x0000000000000011       0x12 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/text_viewer/tv_bookmark.o
+ .comment       0x0000000000000011       0x12 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/text_viewer/tv_display.o
+ .comment       0x0000000000000011       0x12 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/text_viewer/tv_menu.o
+ .comment       0x0000000000000011       0x12 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/text_viewer/tv_pager.o
+ .comment       0x0000000000000011       0x12 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/text_viewer/tv_preferences.o
+ .comment       0x0000000000000011       0x12 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/text_viewer/tv_reader.o
+ .comment       0x0000000000000011       0x12 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/text_viewer/tv_screen_pos.o
+ .comment       0x0000000000000011       0x12 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/text_viewer/tv_settings.o
+ .comment       0x0000000000000011       0x12 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/text_viewer/tv_text_processor.o
+ .comment       0x0000000000000011       0x12 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/text_viewer/tv_text_reader.o
+ .comment       0x0000000000000011       0x12 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/text_viewer/tv_window.o
+ .comment       0x0000000000000011       0x12 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/plugin_crt0.o
+ .comment       0x0000000000000011       0x12 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(playback_control.o)
+OUTPUT(/home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/text_viewer/text_viewer.elf elf32-littlearm)
+LOAD linker stubs
+
+.ARM.attributes
+                0x0000000000000000       0x28
+ .ARM.attributes
+                0x0000000000000000       0x2a /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/text_viewer/text_viewer.o
+ .ARM.attributes
+                0x000000000000002a       0x2a /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/text_viewer/tv_action.o
+ .ARM.attributes
+                0x0000000000000054       0x2a /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/text_viewer/tv_bookmark.o
+ .ARM.attributes
+                0x000000000000007e       0x2a /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/text_viewer/tv_display.o
+ .ARM.attributes
+                0x00000000000000a8       0x2a /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/text_viewer/tv_menu.o
+ .ARM.attributes
+                0x00000000000000d2       0x2a /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/text_viewer/tv_pager.o
+ .ARM.attributes
+                0x00000000000000fc       0x2a /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/text_viewer/tv_preferences.o
+ .ARM.attributes
+                0x0000000000000126       0x2a /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/text_viewer/tv_reader.o
+ .ARM.attributes
+                0x0000000000000150       0x2a /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/text_viewer/tv_screen_pos.o
+ .ARM.attributes
+                0x000000000000017a       0x2a /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/text_viewer/tv_settings.o
+ .ARM.attributes
+                0x00000000000001a4       0x2a /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/text_viewer/tv_text_processor.o
+ .ARM.attributes
+                0x00000000000001ce       0x2a /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/text_viewer/tv_text_reader.o
+ .ARM.attributes
+                0x00000000000001f8       0x2a /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/text_viewer/tv_window.o
+ .ARM.attributes
+                0x0000000000000222       0x2a /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/plugin_crt0.o
+ .ARM.attributes
+                0x000000000000024c       0x2a /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(playback_control.o)
+ .ARM.attributes
+                0x0000000000000276       0x1a /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/lib/libsetjmp.a(setjmp.o)
+ .ARM.attributes
+                0x0000000000000290       0x1c /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+ .ARM.attributes
+                0x00000000000002ac       0x1c /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
+
+.debug_frame    0x0000000000000000       0x20
+ .debug_frame   0x0000000000000000       0x20 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+
+.debug_line     0x0000000000000000       0xeb
+ .debug_line    0x0000000000000000       0x8a /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+ .debug_line    0x000000000000008a       0x61 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
+
+.debug_info     0x0000000000000000       0x4c
+ .debug_info    0x0000000000000000       0x26 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+ .debug_info    0x0000000000000026       0x26 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
+
+.debug_abbrev   0x0000000000000000       0x28
+ .debug_abbrev  0x0000000000000000       0x14 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+ .debug_abbrev  0x0000000000000014       0x14 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
+
+.debug_aranges  0x0000000000000000       0x40
+ .debug_aranges
+                0x0000000000000000       0x20 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+ .debug_aranges
+                0x0000000000000020       0x20 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
+
+.debug_str      0x0000000000000000       0x6c
+ .debug_str     0x0000000000000000       0x6c /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+ .debug_str     0x000000000000006c       0x6c /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)

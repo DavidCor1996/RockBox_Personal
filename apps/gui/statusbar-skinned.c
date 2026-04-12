@@ -29,7 +29,7 @@
 #include "screen_access.h"
 #include "skin_parser.h"
 #include "skin_buffer.h"
-#include "skin_engine/skin_engine.h"f
+#include "skin_engine/skin_engine.h"
 #include "skin_engine/wps_internals.h"
 #include "viewport.h"
 #include "statusbar.h"

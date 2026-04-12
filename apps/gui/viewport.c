@@ -145,7 +145,7 @@ static void toggle_theme(enum screen_type screen, bool force)
 
         if (LIKELY(after_boot[screen]) && (!was_enabled[screen] || force))
         {
-            if (!sb_skin_theme_owns_fullscreen(screen))
+            if (!viewport_theme_owns_fullscreen(screen))
             {
                 struct viewport deadspace, user;
 

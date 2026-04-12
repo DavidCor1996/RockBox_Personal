@@ -1,0 +1,136 @@
+ENTRY(start)
+OUTPUT_FORMAT(elf32-littlearm)
+OUTPUT_ARCH(arm)
+STARTUP(target/arm/pp/crt0-pp.o)
+MEMORY
+{
+    DRAM : ORIGIN = 0x00000000, LENGTH = (64 * 0x100000) - 0x100000 - 0x100000
+    IRAM : ORIGIN = 0x40000000, LENGTH = 0xc000
+}
+SECTIONS
+{
+    .text :
+    {
+        loadaddress = .;
+        _loadaddress = .;
+        . = ALIGN(0x200);
+        *(.init.text)
+        *(.text*)
+        *(.glue_7)
+        *(.glue_7t)
+        . = ALIGN(0x4);
+    } > DRAM
+    .rodata :
+    {
+        *(.rodata)
+        *(.rodata*)
+        *(.rodata.str1.1)
+        *(.rodata.str1.4)
+        . = ALIGN(0x4);
+    } > DRAM
+    .data :
+    {
+        *(.data*)
+        . = ALIGN(0x4);
+    } > DRAM
+    .ncdata . + 0x10000000 :
+    {
+        . = ALIGN(16);
+        *(.ncdata*)
+        . = ALIGN(16);
+    } AT> DRAM
+    /DISCARD/ :
+    {
+        *(.eh_frame)
+    }
+    .vectors 0x0 :
+    {
+        _vectorsstart = .;
+        KEEP(*(.vectors));
+        _vectorsend = .;
+    } AT> DRAM
+    _vectorscopy = LOADADDR(.vectors);
+    _noloaddram = LOADADDR(.vectors);
+    .ibss 0x40000000 (NOLOAD) :
+    {
+        _iedata = .;
+        *(.qharray)
+        *(.ibss*)
+        . = ALIGN(0x4);
+        _iend = .;
+    } > IRAM
+    .iram _iend :
+    {
+        _iramstart = .;
+        *(.icode*)
+        *(.irodata*)
+        *(.idata*)
+        . = ALIGN(0x4);
+        _iramend = .;
+    } > IRAM AT> DRAM
+    _iramcopy = LOADADDR(.iram);
+    .init (0x00000000 + (64 * 0x100000) - 0x100000 - 0x100000) :
+    {
+        . = ALIGN(4);
+        _initstart = .;
+        *(.init*)
+        _initend = .;
+    } AT> DRAM
+    _initcopy = LOADADDR(.init);
+    .idle_stacks (NOLOAD) :
+    {
+       *(.idle_stacks)
+       . = ALIGN(8);
+       cpu_idlestackbegin = .;
+       . += 0x80;
+       cpu_idlestackend = .;
+       cop_idlestackbegin = .;
+       . += 0x80;
+       cop_idlestackend = .;
+    } > IRAM
+    .stack (NOLOAD) :
+    {
+       *(.stack)
+       stackbegin = .;
+       . += 0x2000;
+       stackend = .;
+    } > IRAM
+    .bss _noloaddram (NOLOAD) :
+    {
+       _edata = .;
+        *(.bss*)
+        *(COMMON)
+        . = ALIGN(0x4);
+    } > DRAM
+    .ncbss . + 0x10000000 (NOLOAD):
+    {
+     . = ALIGN(16);
+        *(.ncbss*)
+     . = ALIGN(16);
+    } AT> DRAM
+    .endaddr . - 0x10000000 (NOLOAD) :
+    {
+        _end = .;
+    } > DRAM
+    .audiobuf _end (NOLOAD) :
+    {
+        _audiobuffer = .;
+        . = ALIGN(0x4);
+        audiobuffer = .;
+    } > DRAM
+    .audiobufend (0x00000000 + (64 * 0x100000) - 0x100000 - 0x100000) (NOLOAD) :
+    {
+        audiobufend_lds = .;
+        _audiobufend = .;
+    } > DRAM
+    .codec (0x00000000 + (64 * 0x100000) - 0x100000 - 0x100000) (NOLOAD) :
+    {
+        codecbuf = .;
+        _codecbuf = .;
+    }
+    .plugin ((0x00000000 + (64 * 0x100000) - 0x100000 - 0x100000) + 0x100000) (NOLOAD) :
+    {
+        _pluginbuf = .;
+        pluginbuf = .;
+    }
+}

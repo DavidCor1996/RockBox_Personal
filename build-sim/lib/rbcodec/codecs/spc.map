@@ -1,0 +1,695 @@
+Archive member included to satisfy reference by file (symbol)
+
+/home/david/Documents/RockBox_Personal-master/build-sim/lib/rbcodec/codecs/libspc.a(spc_cpu.o)
+                              /home/david/Documents/RockBox_Personal-master/build-sim/lib/rbcodec/codecs/spc.o (CPU_Init)
+/home/david/Documents/RockBox_Personal-master/build-sim/lib/rbcodec/codecs/libspc.a(spc_emu.o)
+                              /home/david/Documents/RockBox_Personal-master/build-sim/lib/rbcodec/codecs/libspc.a(spc_cpu.o) (ram)
+/home/david/Documents/RockBox_Personal-master/build-sim/lib/rbcodec/codecs/libspc.a(spc_dsp.o)
+                              /home/david/Documents/RockBox_Personal-master/build-sim/lib/rbcodec/codecs/libspc.a(spc_emu.o) (DSP_write)
+/home/david/Documents/RockBox_Personal-master/build-sim/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+                              /home/david/Documents/RockBox_Personal-master/build-sim/lib/rbcodec/codecs/spc.o (codec_init)
+
+Merging object attributes
+
+
+Merging program properties
+
+Removed property 0xc0000002 to merge /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o (0x3) and /home/david/Documents/RockBox_Personal-master/build-sim/lib/rbcodec/codecs/spc.o (not found)
+Updated property 0xc0010002 (0x1) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o (0x1) and /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtendS.o (0x0)
+Removed property 0xc0000002 to merge /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o (not found) and /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtendS.o (0x3)
+Removed property 0xc0000002 to merge /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o (not found) and /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o (0x3)
+
+Discarded input sections
+
+ .text          0x0000000000000000        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ .data          0x0000000000000000        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ .bss           0x0000000000000000        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ .data          0x0000000000000000        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtbeginS.o
+ .note.gnu.property
+                0x0000000000000000       0x50 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtbeginS.o
+ .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-sim/lib/rbcodec/codecs/spc.o
+ .note.gnu.property
+                0x0000000000000000       0x30 /home/david/Documents/RockBox_Personal-master/build-sim/lib/rbcodec/codecs/spc.o
+ .bss           0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-sim/lib/rbcodec/codecs/codec_crt0.o
+ .note.gnu.property
+                0x0000000000000000       0x30 /home/david/Documents/RockBox_Personal-master/build-sim/lib/rbcodec/codecs/codec_crt0.o
+ .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-sim/lib/rbcodec/codecs/libspc.a(spc_cpu.o)
+ .bss           0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-sim/lib/rbcodec/codecs/libspc.a(spc_cpu.o)
+ .note.gnu.property
+                0x0000000000000000       0x30 /home/david/Documents/RockBox_Personal-master/build-sim/lib/rbcodec/codecs/libspc.a(spc_cpu.o)
+ .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-sim/lib/rbcodec/codecs/libspc.a(spc_emu.o)
+ .note.gnu.property
+                0x0000000000000000       0x30 /home/david/Documents/RockBox_Personal-master/build-sim/lib/rbcodec/codecs/libspc.a(spc_emu.o)
+ .bss           0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-sim/lib/rbcodec/codecs/libspc.a(spc_dsp.o)
+ .note.gnu.property
+                0x0000000000000000       0x30 /home/david/Documents/RockBox_Personal-master/build-sim/lib/rbcodec/codecs/libspc.a(spc_dsp.o)
+ .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-sim/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+ .rodata        0x0000000000000000      0x200 /home/david/Documents/RockBox_Personal-master/build-sim/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+ .note.gnu.property
+                0x0000000000000000       0x30 /home/david/Documents/RockBox_Personal-master/build-sim/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+ .text          0x0000000000000000        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtendS.o
+ .data          0x0000000000000000        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtendS.o
+ .bss           0x0000000000000000        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtendS.o
+ .note.gnu.property
+                0x0000000000000000       0x50 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtendS.o
+ .text          0x0000000000000000        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
+ .data          0x0000000000000000        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
+ .bss           0x0000000000000000        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
+ .note.gnu.property
+                0x0000000000000000       0x50 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
+
+Memory Configuration
+
+Name             Origin             Length             Attributes
+*default*        0x0000000000000000 0xffffffffffffffff
+
+Linker script and memory map
+
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtbeginS.o
+LOAD /home/david/Documents/RockBox_Personal-master/build-sim/lib/rbcodec/codecs/spc.o
+LOAD /home/david/Documents/RockBox_Personal-master/build-sim/lib/rbcodec/codecs/codec_crt0.o
+LOAD /home/david/Documents/RockBox_Personal-master/build-sim/lib/rbcodec/codecs/libspc.a
+LOAD /home/david/Documents/RockBox_Personal-master/build-sim/lib/rbcodec/codecs/libcodec.a
+LOAD /home/david/Documents/RockBox_Personal-master/build-sim/lib/libfixedpoint.a
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/libgcc.a
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/libgcc.a
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/libgcc_s.so
+START GROUP
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/libgcc_s.so.1
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/libgcc.a
+END GROUP
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/libc.so
+START GROUP
+LOAD /usr/lib/libc.so.6
+LOAD /usr/lib/libc_nonshared.a
+LOAD /usr/lib/ld-linux-x86-64.so.2
+END GROUP
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/libgcc.a
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/libgcc_s.so
+START GROUP
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/libgcc_s.so.1
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/libgcc.a
+END GROUP
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtendS.o
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
+                0x00000000000002a8                . = (SEGMENT_START ("text-segment", 0x0) + SIZEOF_HEADERS)
+
+.note.gnu.build-id
+                0x00000000000002a8       0x24
+ *(.note.gnu.build-id)
+ .note.gnu.build-id
+                0x00000000000002a8       0x24 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+
+.hash
+ *(.hash)
+
+.gnu.hash       0x00000000000002d0       0x24
+ *(.gnu.hash)
+ .gnu.hash      0x00000000000002d0       0x24 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+
+.dynsym         0x00000000000002f8       0xa8
+ *(.dynsym)
+ .dynsym        0x00000000000002f8       0xa8 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+
+.dynstr         0x00000000000003a0       0x8f
+ *(.dynstr)
+ .dynstr        0x00000000000003a0       0x8f /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+
+.gnu.version    0x0000000000000430        0xe
+ *(.gnu.version)
+ .gnu.version   0x0000000000000430        0xe /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+
+.gnu.version_d  0x0000000000000440        0x0
+ *(.gnu.version_d)
+ .gnu.version_d
+                0x0000000000000440        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+
+.gnu.version_r  0x0000000000000440       0x30
+ *(.gnu.version_r)
+ .gnu.version_r
+                0x0000000000000440       0x30 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+
+.rela.dyn       0x0000000000000470      0x108
+ *(.rela.init)
+ *(.rela.text .rela.text.* .rela.gnu.linkonce.t.*)
+ .rela.text     0x0000000000000470        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ *(.rela.fini)
+ *(.rela.rodata .rela.rodata.* .rela.gnu.linkonce.r.*)
+ *(.rela.data .rela.data.* .rela.gnu.linkonce.d.*)
+ .rela.data.rel.local
+                0x0000000000000470       0x18 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ .rela.data.rel.ro
+                0x0000000000000488       0x48 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ *(.rela.tdata .rela.tdata.* .rela.gnu.linkonce.td.*)
+ *(.rela.tbss .rela.tbss.* .rela.gnu.linkonce.tb.*)
+ *(.rela.ctors)
+ *(.rela.dtors)
+ *(.rela.got)
+ .rela.got      0x00000000000004d0       0x78 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ *(.rela.tls)
+ .rela.tls      0x0000000000000548        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ *(.rela.bss .rela.bss.* .rela.gnu.linkonce.b.*)
+ *(.rela.ldata .rela.ldata.* .rela.gnu.linkonce.l.*)
+ *(.rela.lbss .rela.lbss.* .rela.gnu.linkonce.lb.*)
+ *(.rela.lrodata .rela.lrodata.* .rela.gnu.linkonce.lr.*)
+ *(.rela.ifunc)
+ .rela.ifunc    0x0000000000000548        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ .rela.fini_array
+                0x0000000000000548       0x18 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ .rela.init_array
+                0x0000000000000560       0x18 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+
+.rela.plt       0x0000000000000578       0x18
+ *(.rela.plt)
+ .rela.plt      0x0000000000000578       0x18 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ *(.rela.iplt)
+
+.relr.dyn
+ *(.relr.dyn)
+                0x0000000000001000                . = ALIGN (CONSTANT (MAXPAGESIZE))
+
+.init           0x0000000000001000       0x1b
+ *(SORT_NONE(.init))
+ .init          0x0000000000001000       0x16 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+                0x0000000000001000                _init
+ .init          0x0000000000001016        0x5 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
+
+.plt            0x0000000000001020       0x20
+ *(.plt)
+ .plt           0x0000000000001020       0x20 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ *(.iplt)
+
+.plt.got        0x0000000000001040        0x0
+ *(.plt.got)
+ .plt.got       0x0000000000001040        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+
+.plt.sec
+ *(.plt.sec)
+
+.text           0x0000000000001040     0x309a
+ *(.text.unlikely .text.*_unlikely .text.unlikely.*)
+ *(.text.exit .text.exit.*)
+ *(.text.startup .text.startup.*)
+ *(.text.hot .text.hot.*)
+ *(SORT_BY_NAME(.text.sorted.*))
+ *(.text .stub .text.* .gnu.linkonce.t.*)
+ .text          0x0000000000001040       0xc9 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtbeginS.o
+ .text          0x0000000000001109      0x731 /home/david/Documents/RockBox_Personal-master/build-sim/lib/rbcodec/codecs/spc.o
+                0x0000000000001109                codec_run
+                0x00000000000017eb                codec_main
+ .text          0x000000000000183a        0x8 /home/david/Documents/RockBox_Personal-master/build-sim/lib/rbcodec/codecs/codec_crt0.o
+                0x000000000000183a                _start
+                0x000000000000183d                codec_start
+ .text          0x0000000000001842     0x1584 /home/david/Documents/RockBox_Personal-master/build-sim/lib/rbcodec/codecs/libspc.a(spc_cpu.o)
+                0x000000000000186d                CPU_run
+                0x0000000000002da7                CPU_Init
+ .text          0x0000000000002dc6      0x667 /home/david/Documents/RockBox_Personal-master/build-sim/lib/rbcodec/codecs/libspc.a(spc_emu.o)
+                0x0000000000002ea6                SPC_Init
+                0x0000000000002f37                SPC_load_spc
+                0x00000000000031a3                SPC_read
+                0x0000000000003239                SPC_write
+                0x000000000000339e                SPC_play
+ .text          0x000000000000342d      0xad1 /home/david/Documents/RockBox_Personal-master/build-sim/lib/rbcodec/codecs/libspc.a(spc_dsp.o)
+                0x0000000000003464                DSP_write
+                0x00000000000034f8                DSP_run_
+                0x0000000000003e7b                DSP_reset
+ .text          0x0000000000003efe      0x1dc /home/david/Documents/RockBox_Personal-master/build-sim/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+                0x0000000000003efe                codec_init
+                0x0000000000003f27                codec_set_replaygain
+                0x0000000000003f9a                codec_malloc
+                0x0000000000003fd0                codec_calloc
+                0x0000000000004002                codec_free
+                0x0000000000004003                codec_realloc
+                0x000000000000403a                codec_strlen
+                0x000000000000404a                strcpy
+                0x000000000000405a                strcat
+                0x000000000000406a                strcmp
+                0x000000000000407a                memcpy
+                0x000000000000408a                memset
+                0x000000000000409a                memcmp
+                0x00000000000040aa                memchr
+                0x00000000000040ba                memmove
+                0x00000000000040ca                qsort
+ *(.gnu.warning)
+
+.fini           0x00000000000040dc        0xd
+ *(SORT_NONE(.fini))
+ .fini          0x00000000000040dc        0x8 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+                0x00000000000040dc                _fini
+ .fini          0x00000000000040e4        0x5 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
+                [!provide]                        PROVIDE (__etext = .)
+                [!provide]                        PROVIDE (_etext = .)
+                [!provide]                        PROVIDE (etext = .)
+                0x0000000000005000                . = ALIGN (CONSTANT (MAXPAGESIZE))
+                0x0000000000005000                . = SEGMENT_START ("rodata-segment", (ALIGN (CONSTANT (MAXPAGESIZE)) + (. & (CONSTANT (MAXPAGESIZE) - 0x1))))
+
+.rodata         0x0000000000005000      0x680
+ *(.rodata .rodata.* .gnu.linkonce.r.*)
+ .rodata.str1.1
+                0x0000000000005000       0xe2 /home/david/Documents/RockBox_Personal-master/build-sim/lib/rbcodec/codecs/spc.o
+                                         0xc6 (size before relaxing)
+ *fill*         0x00000000000050e2       0x1e 
+ .rodata        0x0000000000005100      0x500 /home/david/Documents/RockBox_Personal-master/build-sim/lib/rbcodec/codecs/libspc.a(spc_cpu.o)
+ .rodata.str1.1
+                0x0000000000005600        0x0 /home/david/Documents/RockBox_Personal-master/build-sim/lib/rbcodec/codecs/libspc.a(spc_emu.o)
+                                         0x1c (size before relaxing)
+ .rodata        0x0000000000005600       0x40 /home/david/Documents/RockBox_Personal-master/build-sim/lib/rbcodec/codecs/libspc.a(spc_emu.o)
+ .rodata        0x0000000000005640       0x40 /home/david/Documents/RockBox_Personal-master/build-sim/lib/rbcodec/codecs/libspc.a(spc_dsp.o)
+
+.rodata1
+ *(.rodata1)
+
+.eh_frame_hdr   0x0000000000005680      0x12c
+ *(.eh_frame_hdr)
+ .eh_frame_hdr  0x0000000000005680      0x12c /home/david/Documents/RockBox_Personal-master/build-sim/lib/rbcodec/codecs/spc.o
+                0x0000000000005680                __GNU_EH_FRAME_HDR
+ *(.eh_frame_entry .eh_frame_entry.*)
+
+.eh_frame       0x00000000000057b0      0x494
+ *(.eh_frame)
+ .eh_frame      0x00000000000057b0       0x40 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ .eh_frame      0x00000000000057f0        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ .eh_frame      0x00000000000057f0       0x68 /home/david/Documents/RockBox_Personal-master/build-sim/lib/rbcodec/codecs/spc.o
+                                         0x80 (size before relaxing)
+ .eh_frame      0x0000000000005858       0x28 /home/david/Documents/RockBox_Personal-master/build-sim/lib/rbcodec/codecs/codec_crt0.o
+                                         0x40 (size before relaxing)
+ .eh_frame      0x0000000000005880       0x80 /home/david/Documents/RockBox_Personal-master/build-sim/lib/rbcodec/codecs/libspc.a(spc_cpu.o)
+                                         0x98 (size before relaxing)
+ .eh_frame      0x0000000000005900      0x148 /home/david/Documents/RockBox_Personal-master/build-sim/lib/rbcodec/codecs/libspc.a(spc_emu.o)
+                                        0x160 (size before relaxing)
+ .eh_frame      0x0000000000005a48       0xa0 /home/david/Documents/RockBox_Personal-master/build-sim/lib/rbcodec/codecs/libspc.a(spc_dsp.o)
+                                         0xb8 (size before relaxing)
+ .eh_frame      0x0000000000005ae8      0x158 /home/david/Documents/RockBox_Personal-master/build-sim/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+                                        0x170 (size before relaxing)
+ .eh_frame      0x0000000000005c40        0x4 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtendS.o
+ *(.eh_frame.*)
+
+.sframe
+ *(.sframe)
+ *(.sframe.*)
+
+.gcc_except_table
+ *(.gcc_except_table .gcc_except_table.*)
+
+.gnu_extab
+ *(.gnu_extab*)
+
+.exception_ranges
+ *(.exception_ranges*)
+
+.note.build-id
+ *(.note.build-id)
+
+.note.GNU-stack
+                0x0000000000005c44        0x0
+ *(.note.GNU-stack)
+ .note.GNU-stack
+                0x0000000000005c44        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ .note.GNU-stack
+                0x0000000000005c44        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtbeginS.o
+ .note.GNU-stack
+                0x0000000000005c44        0x0 /home/david/Documents/RockBox_Personal-master/build-sim/lib/rbcodec/codecs/spc.o
+ .note.GNU-stack
+                0x0000000000005c44        0x0 /home/david/Documents/RockBox_Personal-master/build-sim/lib/rbcodec/codecs/codec_crt0.o
+ .note.GNU-stack
+                0x0000000000005c44        0x0 /home/david/Documents/RockBox_Personal-master/build-sim/lib/rbcodec/codecs/libspc.a(spc_cpu.o)
+ .note.GNU-stack
+                0x0000000000005c44        0x0 /home/david/Documents/RockBox_Personal-master/build-sim/lib/rbcodec/codecs/libspc.a(spc_emu.o)
+ .note.GNU-stack
+                0x0000000000005c44        0x0 /home/david/Documents/RockBox_Personal-master/build-sim/lib/rbcodec/codecs/libspc.a(spc_dsp.o)
+ .note.GNU-stack
+                0x0000000000005c44        0x0 /home/david/Documents/RockBox_Personal-master/build-sim/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+ .note.GNU-stack
+                0x0000000000005c44        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtendS.o
+ .note.GNU-stack
+                0x0000000000005c44        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
+
+.note.gnu.property
+                0x0000000000005c48       0x30
+ *(.note.gnu.property)
+ .note.gnu.property
+                0x0000000000005c48       0x30 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+
+.note.ABI-tag
+ *(.note.ABI-tag)
+
+.note.package
+ *(.note.package)
+
+.note.dlopen
+ *(.note.dlopen)
+
+.note.netbsd.ident
+ *(.note.netbsd.ident)
+
+.note.openbsd.ident
+ *(.note.openbsd.ident)
+                0x0000000000006db0                . = DATA_SEGMENT_ALIGN (CONSTANT (MAXPAGESIZE), CONSTANT (COMMONPAGESIZE))
+
+.eh_frame
+ *(.eh_frame)
+ *(.eh_frame.*)
+
+.sframe
+ *(.sframe)
+ *(.sframe.*)
+
+.gnu_extab
+ *(.gnu_extab)
+
+.gcc_except_table
+ *(.gcc_except_table .gcc_except_table.*)
+
+.exception_ranges
+ *(.exception_ranges*)
+
+.tdata
+ *(.tdata .tdata.* .gnu.linkonce.td.*)
+
+.tbss
+ *(.tbss .tbss.* .gnu.linkonce.tb.*)
+ *(.tcommon)
+
+.preinit_array
+ *(.preinit_array)
+
+.init_array     0x0000000000006db0        0x8
+ *(SORT_BY_INIT_PRIORITY(.init_array.*) SORT_BY_INIT_PRIORITY(.ctors.*))
+ *(.init_array EXCLUDE_FILE(*crtend?.o *crtend.o *crtbegin?.o *crtbegin.o) .ctors)
+ .init_array    0x0000000000006db0        0x8 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtbeginS.o
+
+.fini_array     0x0000000000006db8        0x8
+ *(SORT_BY_INIT_PRIORITY(.fini_array.*) SORT_BY_INIT_PRIORITY(.dtors.*))
+ *(.fini_array EXCLUDE_FILE(*crtend?.o *crtend.o *crtbegin?.o *crtbegin.o) .dtors)
+ .fini_array    0x0000000000006db8        0x8 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtbeginS.o
+
+.ctors
+ *crtbegin.o(.ctors)
+ *crtbegin?.o(.ctors)
+ *(EXCLUDE_FILE(*crtend?.o *crtend.o) .ctors)
+ *(SORT_BY_NAME(.ctors.*))
+ *(.ctors)
+
+.dtors
+ *crtbegin.o(.dtors)
+ *crtbegin?.o(.dtors)
+ *(EXCLUDE_FILE(*crtend?.o *crtend.o) .dtors)
+ *(SORT_BY_NAME(.dtors.*))
+ *(.dtors)
+
+.jcr
+ *(.jcr)
+
+.data.rel.ro    0x0000000000006dc0       0x40
+ *(.data.rel.ro.local* .gnu.linkonce.d.rel.ro.local.*)
+ *(.data.rel.ro .data.rel.ro.* .gnu.linkonce.d.rel.ro.*)
+ .data.rel.ro   0x0000000000006dc0        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ .data.rel.ro   0x0000000000006dc0       0x40 /home/david/Documents/RockBox_Personal-master/build-sim/lib/rbcodec/codecs/spc.o
+                0x0000000000006dc0                __header
+
+.dynamic        0x0000000000006e00      0x1c0
+ *(.dynamic)
+ .dynamic       0x0000000000006e00      0x1c0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+                0x0000000000006e00                _DYNAMIC
+
+.got            0x0000000000006fc0       0x28
+ *(.got)
+ .got           0x0000000000006fc0       0x28 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ *(.igot)
+                0x0000000000006fe8                . = DATA_SEGMENT_RELRO_END (., (SIZEOF (.got.plt) >= 0x18)?0x18:0x0)
+
+.got.plt        0x0000000000006fe8       0x20
+ *(.got.plt)
+ .got.plt       0x0000000000006fe8       0x20 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+                0x0000000000006fe8                _GLOBAL_OFFSET_TABLE_
+ *(.igot.plt)
+
+.data           0x0000000000007008      0x410
+ *(.data .data.* .gnu.linkonce.d.*)
+ .data.rel.local
+                0x0000000000007008        0x8 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtbeginS.o
+                0x0000000000007008                __dso_handle
+ .data          0x0000000000007010        0x8 /home/david/Documents/RockBox_Personal-master/build-sim/lib/rbcodec/codecs/codec_crt0.o
+                0x0000000000007010                ci
+ .data          0x0000000000007018      0x400 /home/david/Documents/RockBox_Personal-master/build-sim/lib/rbcodec/codecs/libspc.a(spc_dsp.o)
+
+.tm_clone_table
+                0x0000000000007418        0x0
+ .tm_clone_table
+                0x0000000000007418        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtbeginS.o
+ .tm_clone_table
+                0x0000000000007418        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtendS.o
+
+.data1
+ *(.data1)
+                [!provide]                        PROVIDE (_edata = .)
+                [!provide]                        PROVIDE (edata = .)
+                0x0000000000007418                . = ALIGN (ALIGNOF (NEXT_SECTION))
+                [!provide]                        PROVIDE (__bss_start = .)
+
+.bss            0x0000000000007420    0x12858
+ *(.dynbss)
+ .dynbss        0x0000000000007420        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ *(.bss .bss.* .gnu.linkonce.b.*)
+ .bss           0x0000000000007420        0x1 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtbeginS.o
+ *fill*         0x0000000000007421       0x1f 
+ .bss           0x0000000000007440     0x2618 /home/david/Documents/RockBox_Personal-master/build-sim/lib/rbcodec/codecs/spc.o
+ *fill*         0x0000000000009a58        0x8 
+ .bss           0x0000000000009a60    0x10200 /home/david/Documents/RockBox_Personal-master/build-sim/lib/rbcodec/codecs/libspc.a(spc_emu.o)
+                0x0000000000009a60                ram
+ .bss           0x0000000000019c60       0x18 /home/david/Documents/RockBox_Personal-master/build-sim/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+ *(COMMON)
+                0x0000000000019c78                . = ALIGN ((. != 0x0)?0x8:0x1)
+
+.lbss
+ *(.dynlbss)
+ *(.lbss .lbss.* .gnu.linkonce.lb.*)
+ *(LARGE_COMMON)
+                0x0000000000019c78                . = ALIGN (0x8)
+                0x0000000000019c78                . = SEGMENT_START ("ldata-segment", .)
+
+.lrodata
+ *(.lrodata .lrodata.* .gnu.linkonce.lr.*)
+
+.ldata          0x000000000001bc78        0x0
+ *(.ldata .ldata.* .gnu.linkonce.l.*)
+                0x000000000001bc78                . = ALIGN ((. != 0x0)?0x8:0x1)
+                0x000000000001bc78                . = ALIGN (0x8)
+                [!provide]                        PROVIDE (_end = .)
+                [!provide]                        PROVIDE (end = .)
+                0x000000000001bc78                . = DATA_SEGMENT_END (.)
+
+.stab
+ *(.stab)
+
+.stabstr
+ *(.stabstr)
+
+.stab.excl
+ *(.stab.excl)
+
+.stab.exclstr
+ *(.stab.exclstr)
+
+.stab.index
+ *(.stab.index)
+
+.stab.indexstr
+ *(.stab.indexstr)
+
+.comment        0x0000000000000000       0x1b
+ *(.comment)
+ .comment       0x0000000000000000       0x1b /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtbeginS.o
+                                         0x1c (size before relaxing)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim/lib/rbcodec/codecs/spc.o
+                                         0x1c (size before relaxing)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim/lib/rbcodec/codecs/codec_crt0.o
+                                         0x1c (size before relaxing)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim/lib/rbcodec/codecs/libspc.a(spc_cpu.o)
+                                         0x1c (size before relaxing)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim/lib/rbcodec/codecs/libspc.a(spc_emu.o)
+                                         0x1c (size before relaxing)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim/lib/rbcodec/codecs/libspc.a(spc_dsp.o)
+                                         0x1c (size before relaxing)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+                                         0x1c (size before relaxing)
+ .comment       0x000000000000001b        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtendS.o
+                                         0x1c (size before relaxing)
+
+.gnu.build.attributes
+ *(.gnu.build.attributes .gnu.build.attributes.*)
+
+.debug
+ *(.debug)
+
+.line
+ *(.line)
+
+.debug_srcinfo
+ *(.debug_srcinfo)
+
+.debug_sfnames
+ *(.debug_sfnames)
+
+.debug_aranges  0x0000000000000000      0x120
+ *(.debug_aranges)
+ .debug_aranges
+                0x0000000000000000       0x30 /home/david/Documents/RockBox_Personal-master/build-sim/lib/rbcodec/codecs/spc.o
+ .debug_aranges
+                0x0000000000000030       0x30 /home/david/Documents/RockBox_Personal-master/build-sim/lib/rbcodec/codecs/codec_crt0.o
+ .debug_aranges
+                0x0000000000000060       0x30 /home/david/Documents/RockBox_Personal-master/build-sim/lib/rbcodec/codecs/libspc.a(spc_cpu.o)
+ .debug_aranges
+                0x0000000000000090       0x30 /home/david/Documents/RockBox_Personal-master/build-sim/lib/rbcodec/codecs/libspc.a(spc_emu.o)
+ .debug_aranges
+                0x00000000000000c0       0x30 /home/david/Documents/RockBox_Personal-master/build-sim/lib/rbcodec/codecs/libspc.a(spc_dsp.o)
+ .debug_aranges
+                0x00000000000000f0       0x30 /home/david/Documents/RockBox_Personal-master/build-sim/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+
+.debug_pubnames
+ *(.debug_pubnames)
+
+.debug_info     0x0000000000000000     0xb129
+ *(.debug_info .gnu.linkonce.wi.*)
+ .debug_info    0x0000000000000000     0x1f23 /home/david/Documents/RockBox_Personal-master/build-sim/lib/rbcodec/codecs/spc.o
+ .debug_info    0x0000000000001f23      0xbd7 /home/david/Documents/RockBox_Personal-master/build-sim/lib/rbcodec/codecs/codec_crt0.o
+ .debug_info    0x0000000000002afa     0x2cc0 /home/david/Documents/RockBox_Personal-master/build-sim/lib/rbcodec/codecs/libspc.a(spc_cpu.o)
+ .debug_info    0x00000000000057ba     0x202f /home/david/Documents/RockBox_Personal-master/build-sim/lib/rbcodec/codecs/libspc.a(spc_emu.o)
+ .debug_info    0x00000000000077e9     0x25ae /home/david/Documents/RockBox_Personal-master/build-sim/lib/rbcodec/codecs/libspc.a(spc_dsp.o)
+ .debug_info    0x0000000000009d97     0x1392 /home/david/Documents/RockBox_Personal-master/build-sim/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+
+.debug_abbrev   0x0000000000000000     0x1adc
+ *(.debug_abbrev)
+ .debug_abbrev  0x0000000000000000      0x4e8 /home/david/Documents/RockBox_Personal-master/build-sim/lib/rbcodec/codecs/spc.o
+ .debug_abbrev  0x00000000000004e8      0x1fd /home/david/Documents/RockBox_Personal-master/build-sim/lib/rbcodec/codecs/codec_crt0.o
+ .debug_abbrev  0x00000000000006e5      0x4c6 /home/david/Documents/RockBox_Personal-master/build-sim/lib/rbcodec/codecs/libspc.a(spc_cpu.o)
+ .debug_abbrev  0x0000000000000bab      0x5fd /home/david/Documents/RockBox_Personal-master/build-sim/lib/rbcodec/codecs/libspc.a(spc_emu.o)
+ .debug_abbrev  0x00000000000011a8      0x641 /home/david/Documents/RockBox_Personal-master/build-sim/lib/rbcodec/codecs/libspc.a(spc_dsp.o)
+ .debug_abbrev  0x00000000000017e9      0x2f3 /home/david/Documents/RockBox_Personal-master/build-sim/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+
+.debug_line     0x0000000000000000     0x3687
+ *(.debug_line .debug_line.* .debug_line_end)
+ .debug_line    0x0000000000000000      0x7e5 /home/david/Documents/RockBox_Personal-master/build-sim/lib/rbcodec/codecs/spc.o
+ .debug_line    0x00000000000007e5       0xa4 /home/david/Documents/RockBox_Personal-master/build-sim/lib/rbcodec/codecs/codec_crt0.o
+ .debug_line    0x0000000000000889     0x155e /home/david/Documents/RockBox_Personal-master/build-sim/lib/rbcodec/codecs/libspc.a(spc_cpu.o)
+ .debug_line    0x0000000000001de7      0x767 /home/david/Documents/RockBox_Personal-master/build-sim/lib/rbcodec/codecs/libspc.a(spc_emu.o)
+ .debug_line    0x000000000000254e      0xe8b /home/david/Documents/RockBox_Personal-master/build-sim/lib/rbcodec/codecs/libspc.a(spc_dsp.o)
+ .debug_line    0x00000000000033d9      0x2ae /home/david/Documents/RockBox_Personal-master/build-sim/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+
+.debug_frame
+ *(.debug_frame)
+
+.debug_str      0x0000000000000000     0x1690
+ *(.debug_str)
+ .debug_str     0x0000000000000000     0x1690 /home/david/Documents/RockBox_Personal-master/build-sim/lib/rbcodec/codecs/spc.o
+                                       0x10f5 (size before relaxing)
+ .debug_str     0x0000000000001690        0x0 /home/david/Documents/RockBox_Personal-master/build-sim/lib/rbcodec/codecs/codec_crt0.o
+                                        0x9eb (size before relaxing)
+ .debug_str     0x0000000000001690        0x0 /home/david/Documents/RockBox_Personal-master/build-sim/lib/rbcodec/codecs/libspc.a(spc_cpu.o)
+                                        0xeca (size before relaxing)
+ .debug_str     0x0000000000001690        0x0 /home/david/Documents/RockBox_Personal-master/build-sim/lib/rbcodec/codecs/libspc.a(spc_emu.o)
+                                        0xe55 (size before relaxing)
+ .debug_str     0x0000000000001690        0x0 /home/david/Documents/RockBox_Personal-master/build-sim/lib/rbcodec/codecs/libspc.a(spc_dsp.o)
+                                        0xf01 (size before relaxing)
+ .debug_str     0x0000000000001690        0x0 /home/david/Documents/RockBox_Personal-master/build-sim/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+                                        0xc30 (size before relaxing)
+
+.debug_loc
+ *(.debug_loc)
+
+.debug_macinfo
+ *(.debug_macinfo)
+
+.debug_weaknames
+ *(.debug_weaknames)
+
+.debug_funcnames
+ *(.debug_funcnames)
+
+.debug_typenames
+ *(.debug_typenames)
+
+.debug_varnames
+ *(.debug_varnames)
+
+.debug_pubtypes
+ *(.debug_pubtypes)
+
+.debug_ranges
+ *(.debug_ranges)
+
+.debug_addr
+ *(.debug_addr)
+
+.debug_line_str
+                0x0000000000000000      0x52e
+ *(.debug_line_str)
+ .debug_line_str
+                0x0000000000000000      0x52e /home/david/Documents/RockBox_Personal-master/build-sim/lib/rbcodec/codecs/spc.o
+                                        0x3a1 (size before relaxing)
+ .debug_line_str
+                0x000000000000052e        0x0 /home/david/Documents/RockBox_Personal-master/build-sim/lib/rbcodec/codecs/codec_crt0.o
+                                        0x24b (size before relaxing)
+ .debug_line_str
+                0x000000000000052e        0x0 /home/david/Documents/RockBox_Personal-master/build-sim/lib/rbcodec/codecs/libspc.a(spc_cpu.o)
+                                        0x30d (size before relaxing)
+ .debug_line_str
+                0x000000000000052e        0x0 /home/david/Documents/RockBox_Personal-master/build-sim/lib/rbcodec/codecs/libspc.a(spc_emu.o)
+                                        0x30d (size before relaxing)
+ .debug_line_str
+                0x000000000000052e        0x0 /home/david/Documents/RockBox_Personal-master/build-sim/lib/rbcodec/codecs/libspc.a(spc_dsp.o)
+                                        0x32a (size before relaxing)
+ .debug_line_str
+                0x000000000000052e        0x0 /home/david/Documents/RockBox_Personal-master/build-sim/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+                                        0x313 (size before relaxing)
+
+.debug_loclists
+                0x0000000000000000     0x5e2c
+ *(.debug_loclists)
+ .debug_loclists
+                0x0000000000000000      0x543 /home/david/Documents/RockBox_Personal-master/build-sim/lib/rbcodec/codecs/spc.o
+ .debug_loclists
+                0x0000000000000543       0x1e /home/david/Documents/RockBox_Personal-master/build-sim/lib/rbcodec/codecs/codec_crt0.o
+ .debug_loclists
+                0x0000000000000561     0x2f6d /home/david/Documents/RockBox_Personal-master/build-sim/lib/rbcodec/codecs/libspc.a(spc_cpu.o)
+ .debug_loclists
+                0x00000000000034ce      0xa82 /home/david/Documents/RockBox_Personal-master/build-sim/lib/rbcodec/codecs/libspc.a(spc_emu.o)
+ .debug_loclists
+                0x0000000000003f50     0x1ba7 /home/david/Documents/RockBox_Personal-master/build-sim/lib/rbcodec/codecs/libspc.a(spc_dsp.o)
+ .debug_loclists
+                0x0000000000005af7      0x335 /home/david/Documents/RockBox_Personal-master/build-sim/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+
+.debug_macro
+ *(.debug_macro)
+
+.debug_names
+ *(.debug_names)
+
+.debug_rnglists
+                0x0000000000000000      0x371
+ *(.debug_rnglists)
+ .debug_rnglists
+                0x0000000000000000       0x4e /home/david/Documents/RockBox_Personal-master/build-sim/lib/rbcodec/codecs/spc.o
+ .debug_rnglists
+                0x000000000000004e      0x155 /home/david/Documents/RockBox_Personal-master/build-sim/lib/rbcodec/codecs/libspc.a(spc_cpu.o)
+ .debug_rnglists
+                0x00000000000001a3       0x8f /home/david/Documents/RockBox_Personal-master/build-sim/lib/rbcodec/codecs/libspc.a(spc_emu.o)
+ .debug_rnglists
+                0x0000000000000232      0x13f /home/david/Documents/RockBox_Personal-master/build-sim/lib/rbcodec/codecs/libspc.a(spc_dsp.o)
+
+.debug_str_offsets
+ *(.debug_str_offsets)
+
+.debug_sup
+ *(.debug_sup)
+
+.gnu.attributes
+ *(.gnu.attributes)
+
+/DISCARD/
+ *(.note.GNU-stack)
+ *(.gnu_debuglink)
+ *(.gnu.lto_*)
+ *(.gnu_object_only)
+OUTPUT(/home/david/Documents/RockBox_Personal-master/build-sim/lib/rbcodec/codecs/spc.elf elf64-x86-64)

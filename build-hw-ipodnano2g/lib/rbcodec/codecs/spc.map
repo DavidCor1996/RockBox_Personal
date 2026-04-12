@@ -1,0 +1,342 @@
+Archive member included to satisfy reference by file (symbol)
+
+/home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/lib/rbcodec/codecs/libspc.a(spc_cpu.o)
+                              /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/lib/rbcodec/codecs/spc.o (CPU_Init)
+/home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/lib/rbcodec/codecs/libspc.a(spc_emu.o)
+                              /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/lib/rbcodec/codecs/libspc.a(spc_cpu.o) (ram)
+/home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/lib/rbcodec/codecs/libspc.a(spc_dsp.o)
+                              /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/lib/rbcodec/codecs/libspc.a(spc_emu.o) (DSP_run_)
+/home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+                              /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/lib/rbcodec/codecs/spc.o (codec_init)
+/usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivsi3.o)
+                              /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/lib/rbcodec/codecs/spc.o (__aeabi_uidiv)
+/usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+                              /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/lib/rbcodec/codecs/libspc.a(spc_emu.o) (__aeabi_idiv)
+/usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
+                              /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivsi3.o) (__aeabi_idiv0)
+/usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_aeabi_ldivmod.o)
+                              /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/lib/rbcodec/codecs/spc.o (__aeabi_ldivmod)
+/usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_aeabi_uldivmod.o)
+                              /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/lib/rbcodec/codecs/spc.o (__aeabi_uldivmod)
+/usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivmoddi4.o)
+                              /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_aeabi_ldivmod.o) (__udivmoddi4)
+/usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzdi2.o)
+                              /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivmoddi4.o) (__clzdi2)
+/usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzsi2.o)
+                              /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzdi2.o) (__clzsi2)
+
+Discarded input sections
+
+ .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/lib/rbcodec/codecs/spc.o
+ .bss           0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/lib/rbcodec/codecs/codec_crt0.o
+ .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/lib/rbcodec/codecs/libspc.a(spc_cpu.o)
+ .bss           0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/lib/rbcodec/codecs/libspc.a(spc_cpu.o)
+ .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/lib/rbcodec/codecs/libspc.a(spc_emu.o)
+ .bss           0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/lib/rbcodec/codecs/libspc.a(spc_emu.o)
+ .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/lib/rbcodec/codecs/libspc.a(spc_dsp.o)
+ .bss           0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/lib/rbcodec/codecs/libspc.a(spc_dsp.o)
+ .text          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+ .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+ .text.codec_malloc
+                0x0000000000000000       0x40 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+ .text.codec_calloc
+                0x0000000000000000       0x48 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+ .text.codec_free
+                0x0000000000000000        0x4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+ .text.codec_realloc
+                0x0000000000000000       0x54 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+ .text.codec_strlen
+                0x0000000000000000       0x24 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+ .text.strcpy   0x0000000000000000       0x24 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+ .text.strcat   0x0000000000000000       0x24 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+ .text.strcmp   0x0000000000000000       0x24 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+ .text.memset   0x0000000000000000       0x24 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+ .text.memcmp   0x0000000000000000       0x24 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+ .text.memchr   0x0000000000000000       0x24 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+ .text.memmove  0x0000000000000000       0x24 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+ .text.qsort    0x0000000000000000       0x24 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+ .irodata       0x0000000000000000      0x200 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+ .data          0x0000000000000000        0x0 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivsi3.o)
+ .bss           0x0000000000000000        0x0 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivsi3.o)
+ .data          0x0000000000000000        0x0 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+ .bss           0x0000000000000000        0x0 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+ .data          0x0000000000000000        0x0 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
+ .bss           0x0000000000000000        0x0 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
+ .data          0x0000000000000000        0x0 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_aeabi_ldivmod.o)
+ .bss           0x0000000000000000        0x0 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_aeabi_ldivmod.o)
+ .text          0x0000000000000000       0x3c /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_aeabi_uldivmod.o)
+ .data          0x0000000000000000        0x0 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_aeabi_uldivmod.o)
+ .bss           0x0000000000000000        0x0 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_aeabi_uldivmod.o)
+ .debug_line    0x0000000000000000       0x61 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_aeabi_uldivmod.o)
+ .debug_info    0x0000000000000000       0x26 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_aeabi_uldivmod.o)
+ .debug_abbrev  0x0000000000000000       0x14 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_aeabi_uldivmod.o)
+ .debug_aranges
+                0x0000000000000000       0x20 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_aeabi_uldivmod.o)
+ .debug_str     0x0000000000000000       0x68 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_aeabi_uldivmod.o)
+ .debug_frame   0x0000000000000000       0x2c /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_aeabi_uldivmod.o)
+ .ARM.attributes
+                0x0000000000000000       0x1c /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_aeabi_uldivmod.o)
+ .data          0x0000000000000000        0x0 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivmoddi4.o)
+ .bss           0x0000000000000000        0x0 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivmoddi4.o)
+ .data          0x0000000000000000        0x0 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzdi2.o)
+ .bss           0x0000000000000000        0x0 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzdi2.o)
+ .data          0x0000000000000000        0x0 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzsi2.o)
+ .bss           0x0000000000000000        0x0 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzsi2.o)
+
+Memory Configuration
+
+Name             Origin             Length             Attributes
+PLUGIN_RAM       0x0000000009e60000 0x0000000000100000
+PLUGIN_IRAM      0x000000000000c000 0x0000000000020000
+*default*        0x0000000000000000 0xffffffffffffffff
+
+Linker script and memory map
+
+LOAD /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/lib/rbcodec/codecs/spc.o
+LOAD /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/lib/rbcodec/codecs/codec_crt0.o
+LOAD /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/lib/rbcodec/codecs/libspc.a
+LOAD /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/lib/rbcodec/codecs/libcodec.a
+LOAD /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/lib/libfixedpoint.a
+LOAD /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a
+
+.header         0x0000000009e60000       0x20
+                0x0000000009e60000                _plugin_start_addr = .
+                0x0000000009e60000                plugin_start_addr = .
+ *(.header)
+ .header        0x0000000009e60000       0x20 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/lib/rbcodec/codecs/spc.o
+                0x0000000009e60000                __header
+
+.text           0x0000000009e60020     0x11c8
+ *(.text*)
+ .text          0x0000000009e60020      0x6d4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/lib/rbcodec/codecs/spc.o
+                0x0000000009e60020                codec_run
+                0x0000000009e60678                codec_main
+ .text          0x0000000009e606f4       0xec /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/lib/rbcodec/codecs/codec_crt0.o
+                0x0000000009e606f4                _start
+                0x0000000009e606fc                codec_start
+                0x0000000009e607cc                __div0
+ .text          0x0000000009e607e0       0x30 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/lib/rbcodec/codecs/libspc.a(spc_cpu.o)
+                0x0000000009e607e0                CPU_Init
+ .text          0x0000000009e60810      0x3a0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/lib/rbcodec/codecs/libspc.a(spc_emu.o)
+                0x0000000009e60860                SPC_Init
+                0x0000000009e60908                SPC_load_spc
+ .text          0x0000000009e60bb0       0x9c /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/lib/rbcodec/codecs/libspc.a(spc_dsp.o)
+                0x0000000009e60bb0                DSP_reset
+ .text.codec_init
+                0x0000000009e60c4c       0x40 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+                0x0000000009e60c4c                codec_init
+ .text.codec_set_replaygain
+                0x0000000009e60c8c       0x54 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+                0x0000000009e60c8c                codec_set_replaygain
+ .text.memcpy   0x0000000009e60ce0       0x24 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+                0x0000000009e60ce0                memcpy
+ .text          0x0000000009e60d04      0x114 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivsi3.o)
+                0x0000000009e60d04                __udivsi3
+                0x0000000009e60d04                __aeabi_uidiv
+                0x0000000009e60df8                __aeabi_uidivmod
+ .text          0x0000000009e60e18      0x148 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+                0x0000000009e60e18                __aeabi_idiv
+                0x0000000009e60e18                __divsi3
+                0x0000000009e60f40                __aeabi_idivmod
+ .text          0x0000000009e60f60        0x4 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
+                0x0000000009e60f60                __aeabi_ldiv0
+                0x0000000009e60f60                __aeabi_idiv0
+ .text          0x0000000009e60f64       0xd4 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_aeabi_ldivmod.o)
+                0x0000000009e60f64                __aeabi_ldivmod
+ .text          0x0000000009e61038      0x130 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivmoddi4.o)
+                0x0000000009e61038                __udivmoddi4
+ .text          0x0000000009e61168       0x28 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzdi2.o)
+                0x0000000009e61168                __clzdi2
+ .text          0x0000000009e61190       0x48 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzsi2.o)
+                0x0000000009e61190                __clzsi2
+ .text.__stub   0x0000000009e611d8       0x10 linker stubs
+ *(.glue_7)
+ .glue_7        0x0000000009e611e8        0x0 linker stubs
+ *(.glue_7t)
+ .glue_7t       0x0000000009e611e8        0x0 linker stubs
+
+.vfp11_veneer   0x0000000009e611e8        0x0
+ .vfp11_veneer  0x0000000009e611e8        0x0 linker stubs
+
+.v4_bx          0x0000000009e611e8        0x0
+ .v4_bx         0x0000000009e611e8        0x0 linker stubs
+
+.iplt           0x0000000009e611e8        0x0
+ .iplt          0x0000000009e611e8        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/lib/rbcodec/codecs/spc.o
+
+.rodata         0x0000000009e611e8      0x11c
+ *(.rodata*)
+ .rodata        0x0000000009e611e8      0x100 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/lib/rbcodec/codecs/libspc.a(spc_cpu.o)
+ .rodata.str1.4
+                0x0000000009e612e8       0x1c /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/lib/rbcodec/codecs/libspc.a(spc_emu.o)
+
+.rel.dyn        0x0000000009e61304        0x0
+ .rel.iplt      0x0000000009e61304        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/lib/rbcodec/codecs/spc.o
+
+.data           0x0000000009e61304        0x4
+ *(.data*)
+ .data          0x0000000009e61304        0x4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/lib/rbcodec/codecs/codec_crt0.o
+                0x0000000009e61304                ci
+
+.igot.plt       0x0000000009e61308        0x0
+ .igot.plt      0x0000000009e61308        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/lib/rbcodec/codecs/spc.o
+
+/DISCARD/
+ *(.eh_frame)
+
+.bss            0x0000000009e61308       0xb8
+                0x0000000009e61308                plugin_bss_start = .
+                0x0000000009e61308                _plugin_bss_start = .
+ *(.bss*)
+ .bss           0x0000000009e61308       0xac /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/lib/rbcodec/codecs/spc.o
+ .bss           0x0000000009e613b4        0xc /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+ *(COMMON)
+                0x0000000009e613c0                . = ALIGN (0x4)
+
+.pluginend      0x0000000009e613c0        0x0
+                0x0000000009e613c0                _plugin_end_addr = .
+                0x0000000009e613c0                plugin_end_addr = .
+
+.iram           0x000000000000c000     0x3110 load address 0x0000000009e61308
+                0x000000000000c000                iramstart = .
+ *(.icode)
+ .icode         0x000000000000c000     0x1d60 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/lib/rbcodec/codecs/libspc.a(spc_cpu.o)
+                0x000000000000c034                CPU_run
+ .icode         0x000000000000dd60      0x448 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/lib/rbcodec/codecs/libspc.a(spc_emu.o)
+                0x000000000000de30                SPC_read
+                0x000000000000dee4                SPC_write
+                0x000000000000e0e4                SPC_play
+ .icode         0x000000000000e1a8      0xaf4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/lib/rbcodec/codecs/libspc.a(spc_dsp.o)
+                0x000000000000e214                DSP_run_
+                0x000000000000ec0c                DSP_write
+ *fill*         0x000000000000ec9c        0x4 
+ .icode.__stub  0x000000000000eca0       0x30 linker stubs
+ *(.irodata)
+ .irodata       0x000000000000ecd0       0x40 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/lib/rbcodec/codecs/libspc.a(spc_dsp.o)
+ *(.idata)
+ *fill*         0x000000000000ed10        0x0 
+ .idata         0x000000000000ed10      0x400 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/lib/rbcodec/codecs/libspc.a(spc_dsp.o)
+                0x000000000000f110                iramend = .
+                0x0000000009e61308                iramcopy = LOADADDR (.iram)
+
+.ibss           0x000000000000f180    0x12780 load address 0x0000000009e64500
+                0x000000000000f180                iedata = .
+ *(.ibss)
+ .ibss          0x000000000000f180     0x24b8 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/lib/rbcodec/codecs/spc.o
+ *fill*         0x0000000000011638        0x8 
+ .ibss          0x0000000000011640    0x10200 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/lib/rbcodec/codecs/libspc.a(spc_emu.o)
+                0x0000000000011640                ram
+ *fill*         0x0000000000021840       0x40 
+ .ibss          0x0000000000021880       0x80 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/lib/rbcodec/codecs/libspc.a(spc_dsp.o)
+                0x0000000000021900                . = ALIGN (0x4)
+                0x0000000000021900                iend = .
+                0x0000000009e64418                loadendaddr = MAX (plugin_end_addr, (LOADADDR (.iram) + SIZEOF (.iram)))
+
+.pluginloadend  0x0000000009e64418        0x0
+                0x0000000009e64418                _plugin_load_end_addr = .
+                0x0000000009e64418                plugin_load_end_addr = .
+
+.comment        0x0000000000000000       0x11
+ *(.comment)
+ .comment       0x0000000000000000       0x11 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/lib/rbcodec/codecs/spc.o
+                                         0x12 (size before relaxing)
+ .comment       0x0000000000000011       0x12 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/lib/rbcodec/codecs/codec_crt0.o
+ .comment       0x0000000000000011       0x12 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/lib/rbcodec/codecs/libspc.a(spc_cpu.o)
+ .comment       0x0000000000000011       0x12 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/lib/rbcodec/codecs/libspc.a(spc_emu.o)
+ .comment       0x0000000000000011       0x12 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/lib/rbcodec/codecs/libspc.a(spc_dsp.o)
+ .comment       0x0000000000000011       0x12 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+ .comment       0x0000000000000011       0x12 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivmoddi4.o)
+OUTPUT(/home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/lib/rbcodec/codecs/spc.elf elf32-littlearm)
+LOAD linker stubs
+
+.ARM.attributes
+                0x0000000000000000       0x2a
+ .ARM.attributes
+                0x0000000000000000       0x2a /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/lib/rbcodec/codecs/spc.o
+ .ARM.attributes
+                0x000000000000002a       0x2a /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/lib/rbcodec/codecs/codec_crt0.o
+ .ARM.attributes
+                0x0000000000000054       0x2a /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/lib/rbcodec/codecs/libspc.a(spc_cpu.o)
+ .ARM.attributes
+                0x000000000000007e       0x2a /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/lib/rbcodec/codecs/libspc.a(spc_emu.o)
+ .ARM.attributes
+                0x00000000000000a8       0x2a /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/lib/rbcodec/codecs/libspc.a(spc_dsp.o)
+ .ARM.attributes
+                0x00000000000000d2       0x2a /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+ .ARM.attributes
+                0x00000000000000fc       0x1c /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivsi3.o)
+ .ARM.attributes
+                0x0000000000000118       0x1c /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+ .ARM.attributes
+                0x0000000000000134       0x1c /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
+ .ARM.attributes
+                0x0000000000000150       0x1c /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_aeabi_ldivmod.o)
+ .ARM.attributes
+                0x000000000000016c       0x2a /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivmoddi4.o)
+ .ARM.attributes
+                0x0000000000000196       0x1c /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzdi2.o)
+ .ARM.attributes
+                0x00000000000001b2       0x1c /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzsi2.o)
+
+.debug_frame    0x0000000000000000       0xc4
+ .debug_frame   0x0000000000000000       0x20 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivsi3.o)
+ .debug_frame   0x0000000000000020       0x20 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+ .debug_frame   0x0000000000000040       0x44 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_aeabi_ldivmod.o)
+ .debug_frame   0x0000000000000084       0x40 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivmoddi4.o)
+
+.debug_line     0x0000000000000000      0x4cc
+ .debug_line    0x0000000000000000       0x7e /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivsi3.o)
+ .debug_line    0x000000000000007e       0x8a /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+ .debug_line    0x0000000000000108       0x61 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
+ .debug_line    0x0000000000000169       0x7f /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_aeabi_ldivmod.o)
+ .debug_line    0x00000000000001e8      0x20b /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivmoddi4.o)
+ .debug_line    0x00000000000003f3       0x6b /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzdi2.o)
+ .debug_line    0x000000000000045e       0x6e /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzsi2.o)
+
+.debug_info     0x0000000000000000      0xadf
+ .debug_info    0x0000000000000000       0x26 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivsi3.o)
+ .debug_info    0x0000000000000026       0x26 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+ .debug_info    0x000000000000004c       0x26 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
+ .debug_info    0x0000000000000072       0x26 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_aeabi_ldivmod.o)
+ .debug_info    0x0000000000000098      0x9fb /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivmoddi4.o)
+ .debug_info    0x0000000000000a93       0x26 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzdi2.o)
+ .debug_info    0x0000000000000ab9       0x26 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzsi2.o)
+
+.debug_abbrev   0x0000000000000000      0x1da
+ .debug_abbrev  0x0000000000000000       0x14 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivsi3.o)
+ .debug_abbrev  0x0000000000000014       0x14 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+ .debug_abbrev  0x0000000000000028       0x14 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
+ .debug_abbrev  0x000000000000003c       0x14 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_aeabi_ldivmod.o)
+ .debug_abbrev  0x0000000000000050      0x162 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivmoddi4.o)
+ .debug_abbrev  0x00000000000001b2       0x14 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzdi2.o)
+ .debug_abbrev  0x00000000000001c6       0x14 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzsi2.o)
+
+.debug_aranges  0x0000000000000000       0xe0
+ .debug_aranges
+                0x0000000000000000       0x20 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivsi3.o)
+ .debug_aranges
+                0x0000000000000020       0x20 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+ .debug_aranges
+                0x0000000000000040       0x20 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
+ .debug_aranges
+                0x0000000000000060       0x20 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_aeabi_ldivmod.o)
+ .debug_aranges
+                0x0000000000000080       0x20 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivmoddi4.o)
+ .debug_aranges
+                0x00000000000000a0       0x20 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzdi2.o)
+ .debug_aranges
+                0x00000000000000c0       0x20 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzsi2.o)
+
+.debug_str      0x0000000000000000     0x11d0
+ .debug_str     0x0000000000000000       0x6c /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivsi3.o)
+ .debug_str     0x000000000000006c       0x6c /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+ .debug_str     0x000000000000006c       0x6c /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
+ .debug_str     0x000000000000006c       0x2d /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_aeabi_ldivmod.o)
+                                         0x68 (size before relaxing)
+ .debug_str     0x0000000000000099     0x1137 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivmoddi4.o)
+                                       0x1196 (size before relaxing)
+ .debug_str     0x00000000000011d0       0x6c /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzdi2.o)
+ .debug_str     0x00000000000011d0       0x6c /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzsi2.o)
+
+.debug_loc      0x0000000000000000      0x1e2
+ .debug_loc     0x0000000000000000      0x1e2 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivmoddi4.o)

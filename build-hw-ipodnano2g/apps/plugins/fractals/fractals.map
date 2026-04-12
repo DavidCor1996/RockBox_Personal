@@ -1,0 +1,190 @@
+Archive member included to satisfy reference by file (symbol)
+
+/home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(xlcd_scroll.o)
+                              /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/fractals/fractal.o (xlcd_scroll_left)
+/home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(xlcd_core.o)
+                              /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(xlcd_scroll.o) (get_framebuffer)
+/home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/lib/libsetjmp.a(setjmp.o)
+                              /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/plugin_crt0.o (setjmp)
+
+Discarded input sections
+
+ .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/fractals/fractal.o
+ .bss           0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/fractals/fractal.o
+ .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/fractals/fractal_rect.o
+ .text          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(xlcd_scroll.o)
+ .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(xlcd_scroll.o)
+ .bss           0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(xlcd_scroll.o)
+ .text          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(xlcd_core.o)
+ .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(xlcd_core.o)
+ .bss           0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(xlcd_core.o)
+ .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/lib/libsetjmp.a(setjmp.o)
+ .bss           0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/lib/libsetjmp.a(setjmp.o)
+
+Memory Configuration
+
+Name             Origin             Length             Attributes
+PLUGIN_RAM       0x0000000009f60000 0x00000000000a0000
+PLUGIN_IRAM      0x000000000000c000 0x0000000000020000
+*default*        0x0000000000000000 0xffffffffffffffff
+
+Linker script and memory map
+
+LOAD /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/fractals/fractal.o
+LOAD /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/fractals/fractal_rect.o
+LOAD /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/fractals/mandelbrot_set.o
+LOAD /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/plugin_crt0.o
+LOAD /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a
+LOAD /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/bitmaps/libpluginbitmaps.a
+LOAD /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/lib/libsetjmp.a
+LOAD /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/lib/libfixedpoint.a
+LOAD /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a
+
+.header         0x0000000009f60000       0x1c
+                0x0000000009f60000                _plugin_start_addr = .
+                0x0000000009f60000                plugin_start_addr = .
+ *(.header)
+ .header        0x0000000009f60000       0x1c /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/plugin_crt0.o
+                0x0000000009f60000                __header
+
+.text           0x0000000009f6001c     0x14cc
+ *(.text*)
+ .text          0x0000000009f6001c      0x3a4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/fractals/fractal.o
+                0x0000000009f600dc                plugin_start
+ .text          0x0000000009f603c0      0x2f4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/fractals/fractal_rect.o
+                0x0000000009f60414                rects_queue_init
+                0x0000000009f60438                rects_calc_all
+                0x0000000009f604bc                rects_move_up
+                0x0000000009f60538                rects_move_down
+                0x0000000009f605b8                rects_move_left
+                0x0000000009f60634                rects_move_right
+ .text          0x0000000009f606b4      0x89c /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/fractals/mandelbrot_set.o
+ .text          0x0000000009f60f50      0x214 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/plugin_crt0.o
+                0x0000000009f60f68                plugin__start
+                0x0000000009f610b0                rb_atexit
+                0x0000000009f610d0                exit
+                0x0000000009f610f8                _exit
+                0x0000000009f6110c                exit_on_usb
+ .text.xlcd_scroll_left
+                0x0000000009f61164       0xd0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(xlcd_scroll.o)
+                0x0000000009f61164                xlcd_scroll_left
+ .text.xlcd_scroll_right
+                0x0000000009f61234       0xd0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(xlcd_scroll.o)
+                0x0000000009f61234                xlcd_scroll_right
+ .text.xlcd_scroll_up
+                0x0000000009f61304       0xb4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(xlcd_scroll.o)
+                0x0000000009f61304                xlcd_scroll_up
+ .text.xlcd_scroll_down
+                0x0000000009f613b8       0xb4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(xlcd_scroll.o)
+                0x0000000009f613b8                xlcd_scroll_down
+ .text.get_framebuffer
+                0x0000000009f6146c       0x60 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(xlcd_core.o)
+                0x0000000009f6146c                get_framebuffer
+ .text          0x0000000009f614cc       0x1c /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/lib/libsetjmp.a(setjmp.o)
+                0x0000000009f614cc                setjmp
+                0x0000000009f614d8                longjmp
+ *(.glue_7)
+ .glue_7        0x0000000009f614e8        0x0 linker stubs
+ *(.glue_7t)
+ .glue_7t       0x0000000009f614e8        0x0 linker stubs
+
+.vfp11_veneer   0x0000000009f614e8        0x0
+ .vfp11_veneer  0x0000000009f614e8        0x0 linker stubs
+
+.v4_bx          0x0000000009f614e8        0x0
+ .v4_bx         0x0000000009f614e8        0x0 linker stubs
+
+.iplt           0x0000000009f614e8        0x0
+ .iplt          0x0000000009f614e8        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/fractals/fractal.o
+
+.rel.dyn        0x0000000009f614e8        0x0
+ .rel.iplt      0x0000000009f614e8        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/fractals/fractal.o
+
+.rodata
+ *(.rodata*)
+
+.data           0x0000000009f614e8       0x18
+ *(.data*)
+ .data          0x0000000009f614e8       0x14 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/fractals/mandelbrot_set.o
+                0x0000000009f614e8                mandelbrot_ops
+ .data          0x0000000009f614fc        0x4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/plugin_crt0.o
+                0x0000000009f614fc                rb
+
+.igot.plt       0x0000000009f61500        0x0
+ .igot.plt      0x0000000009f61500        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/fractals/fractal.o
+
+/DISCARD/
+ *(.eh_frame)
+
+.bss            0x0000000009f61500      0x41c
+                0x0000000009f61500                plugin_bss_start = .
+                0x0000000009f61500                _plugin_bss_start = .
+ *(.bss*)
+ .bss           0x0000000009f61500      0x288 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/fractals/fractal_rect.o
+ .bss           0x0000000009f61788      0x134 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/fractals/mandelbrot_set.o
+                0x0000000009f61788                x_max
+                0x0000000009f6178c                x_min
+                0x0000000009f61790                x_step
+                0x0000000009f61794                y_max
+                0x0000000009f61798                y_min
+                0x0000000009f6179c                y_step
+                0x0000000009f617a0                step_log2
+                0x0000000009f617a4                x_delta
+                0x0000000009f617a8                y_delta
+                0x0000000009f617ac                max_iter
+                0x0000000009f617b0                ops
+ .bss           0x0000000009f618bc       0x60 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/plugin_crt0.o
+ *(COMMON)
+                0x0000000009f6191c                . = ALIGN (0x4)
+
+.pluginend      0x0000000009f6191c        0x0
+                0x0000000009f6191c                _plugin_end_addr = .
+                0x0000000009f6191c                plugin_end_addr = .
+
+.iram           0x000000000000c000        0x0 load address 0x0000000009f61500
+                0x000000000000c000                iramstart = .
+ *(.icode)
+ *(.irodata)
+ *(.idata)
+                0x000000000000c000                iramend = .
+                0x0000000009f61500                iramcopy = LOADADDR (.iram)
+
+.ibss           0x000000000000c000        0x0
+                0x000000000000c000                iedata = .
+ *(.ibss)
+                0x000000000000c000                . = ALIGN (0x4)
+                0x000000000000c000                iend = .
+                0x0000000009f6191c                loadendaddr = MAX (plugin_end_addr, (LOADADDR (.iram) + SIZEOF (.iram)))
+
+.pluginloadend  0x0000000009f6191c        0x0
+                0x0000000009f6191c                _plugin_load_end_addr = .
+                0x0000000009f6191c                plugin_load_end_addr = .
+
+.comment        0x0000000000000000       0x11
+ *(.comment)
+ .comment       0x0000000000000000       0x11 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/fractals/fractal.o
+                                         0x12 (size before relaxing)
+ .comment       0x0000000000000011       0x12 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/fractals/fractal_rect.o
+ .comment       0x0000000000000011       0x12 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/fractals/mandelbrot_set.o
+ .comment       0x0000000000000011       0x12 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/plugin_crt0.o
+ .comment       0x0000000000000011       0x12 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(xlcd_scroll.o)
+ .comment       0x0000000000000011       0x12 /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(xlcd_core.o)
+OUTPUT(/home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/fractals/fractals.elf elf32-littlearm)
+LOAD linker stubs
+
+.ARM.attributes
+                0x0000000000000000       0x28
+ .ARM.attributes
+                0x0000000000000000       0x2a /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/fractals/fractal.o
+ .ARM.attributes
+                0x000000000000002a       0x2a /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/fractals/fractal_rect.o
+ .ARM.attributes
+                0x0000000000000054       0x2a /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/fractals/mandelbrot_set.o
+ .ARM.attributes
+                0x000000000000007e       0x2a /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/plugin_crt0.o
+ .ARM.attributes
+                0x00000000000000a8       0x2a /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(xlcd_scroll.o)
+ .ARM.attributes
+                0x00000000000000d2       0x2a /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/apps/plugins/libplugin.a(xlcd_core.o)
+ .ARM.attributes
+                0x00000000000000fc       0x1a /home/david/Documents/RockBox_Personal-master/build-hw-ipodnano2g/lib/libsetjmp.a(setjmp.o)
