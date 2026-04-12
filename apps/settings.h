@@ -646,12 +646,13 @@ struct user_settings
     int lss_color; /* background color for the selector or start color for the gradient */
     int lse_color; /* end color for the selector gradient */
     int lst_color; /* color of the text for the selector */
-    int ipone_charge_wallpaper; /* iPone charge wallpaper mode */
     unsigned char colors_file[MAX_FILENAME+1];
 #ifdef HAVE_ALBUMART
     bool dynamic_colors; /* auto-color from album art */
 #endif
 #endif
+
+    int ipone_charge_wallpaper; /* iPone charge wallpaper mode */
 
     int browser_default;        /* Default browser when accessed from WPS */
 

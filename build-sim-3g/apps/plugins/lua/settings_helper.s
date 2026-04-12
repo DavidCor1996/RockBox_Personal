@@ -529,12 +529,12 @@ main:
 # 0 "" 2
 	.loc 1 136 5 view .LVU106
 # 136 "<stdin>" 1
-	/* "struct user_settings", "ipone_charge_wallpaper" = $1028, $4, "i", $0; */
+	/* "struct user_settings", "backdrop_file" = $1028, $81, "str", $0; */
 
 # 0 "" 2
 	.loc 1 137 5 view .LVU107
 # 137 "<stdin>" 1
-	/* "struct user_settings", "backdrop_file" = $1032, $81, "str", $0; */
+	/* "struct user_settings", "ipone_charge_wallpaper" = $1112, $4, "i", $0; */
 
 # 0 "" 2
 	.loc 1 138 5 view .LVU108
@@ -2892,17 +2892,17 @@ main:
 	.uleb128 0x1
 	.long	.LASF218
 	.byte	0xb
-	.value	0x27f
-	.byte	0x9
-	.long	0x71
+	.value	0x280
+	.byte	0x13
+	.long	0x11fd
 	.value	0x404
 	.uleb128 0x1
 	.long	.LASF219
 	.byte	0xb
-	.value	0x282
-	.byte	0x13
-	.long	0x11fd
-	.value	0x408
+	.value	0x28f
+	.byte	0x9
+	.long	0x71
+	.value	0x458
 	.uleb128 0x1
 	.long	.LASF220
 	.byte	0xb
@@ -4793,7 +4793,7 @@ main:
 	.string	"int_setting"
 .LASF319:
 	.string	"cfg_vals"
-.LASF218:
+.LASF219:
 	.string	"ipone_charge_wallpaper"
 .LASF92:
 	.string	"mp3entry"
@@ -4901,7 +4901,7 @@ main:
 	.string	"encoding"
 .LASF81:
 	.string	"embedded_cuesheet"
-.LASF219:
+.LASF218:
 	.string	"backdrop_file"
 .LASF348:
 	.string	"section_10"

@@ -1001,7 +1001,7 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
                                         0x604 (size before relaxing)
 
 .debug_loclists
-                0x0000000000000000     0x42ab
+                0x0000000000000000     0x42a7
  *(.debug_loclists)
  .debug_loclists
                 0x0000000000000000      0x5b7 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/goban/goban.o
@@ -1012,23 +1012,23 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
  .debug_loclists
                 0x0000000000000ea8       0xef /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/goban/game.o
  .debug_loclists
-                0x0000000000000f97     0x115c /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/goban/sgf.o
+                0x0000000000000f97     0x1158 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/goban/sgf.o
  .debug_loclists
-                0x00000000000020f3      0x243 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/goban/sgf_output.o
+                0x00000000000020ef      0x243 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/goban/sgf_output.o
  .debug_loclists
-                0x0000000000002336      0x763 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/goban/sgf_parse.o
+                0x0000000000002332      0x763 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/goban/sgf_parse.o
  .debug_loclists
-                0x0000000000002a99      0x2eb /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/goban/sgf_storage.o
+                0x0000000000002a95      0x2eb /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/goban/sgf_storage.o
  .debug_loclists
-                0x0000000000002d84      0x68f /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/goban/util.o
+                0x0000000000002d80      0x68f /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/goban/util.o
  .debug_loclists
-                0x0000000000003413       0x9e /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
+                0x000000000000340f       0x9e /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
  .debug_loclists
-                0x00000000000034b1      0x341 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(configfile.o)
+                0x00000000000034ad      0x341 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(configfile.o)
  .debug_loclists
-                0x00000000000037f2       0x84 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(playback_control.o)
+                0x00000000000037ee       0x84 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(playback_control.o)
  .debug_loclists
-                0x0000000000003876      0xa35 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(xlcd_draw.o)
+                0x0000000000003872      0xa35 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(xlcd_draw.o)
 
 .debug_macro
  *(.debug_macro)
