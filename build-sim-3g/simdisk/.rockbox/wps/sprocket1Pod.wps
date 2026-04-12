@@ -1,0 +1,104 @@
+# Theme Name: sprocket1Pod
+# By: Le Khanh Binh <lekhanhbinh2901@gmail.com> 
+# Platform: iPod 1G 2G 3G 4G (160x128, 4 colour grayscale)
+# License: CC-BY-SA 3.0
+# Version: 1.0
+# Last updated: 2026-04-04
+# Original Theme: sprocket by Cam Mendoza (https://github.com/gogi-goji/sprocket-rockbox-theme)
+# Based on a modified version of sprocket, sprocketModern by OlsroFR
+
+# --- INITIALIZATION ---
+%we
+
+%Fl(2,10-Nimbus.fnt)
+%Fl(3,14-Rockbox-Mix.fnt)
+%Fl(4,19-Nimbus.fnt)
+
+%xl(a,repeat-strip.bmp,6,2,4)
+%xl(b,shuffle.bmp,6,2)
+%xl(c,crossfade.bmp,0,0)
+%xl(d,prog-bar-full.bmp,0,0)
+%xl(e,prog-bar-empty.bmp,0,0)
+%xl(f,timer.bmp,0,0)
+%xl(g,vol-bar-full.bmp,0,0)
+%xl(h,vol-bar-empty.bmp,0,0)
+%xl(i,vol-empty.bmp,0,0)
+%xl(j,vol-full.bmp,0,0)
+
+%Vd(POS)%?C<%Vd(CA)%Vd(TICA)|%Vd(TI)>%?mv(2)<%Vd(volume)|%Vd(trackpos)>
+%?mm<%?ps<%Vd(rshuffle)%?xf<|%Vd(mcf)>|%?xf<|%Vd(rcf)>>|%Vd(rrepeat)%?ps<%Vd(mshuffle)%?xf<|%Vd(lcf)>|%?xf<|%Vd(mcf)>>>
+%?bs<%?xf<%?mm<%?ps<%Vd(timerCF_m)|%Vd(timerCF_r)>|%?ps<%Vd(timerCF_l)|%Vd(timerCF_m)>>|%?mm<%?ps<%Vd(tmr_mcf_left)|%Vd(tmr_rcf_left)>|%?ps<%Vd(tmr_lcf_left)|%Vd(tmr_mcf_left)>>>>
+
+# --- PLAYLIST & TRACK INFO VIEWPORTS ---
+# Track Number
+%Vl(POS,4,18,108,14,2)
+%al%s%pp %Sx(of) %pe
+
+# Album Art
+%Vl(CA,4,32,65,65,3)
+%Cl(0,0,65,65,c,c)
+%Cd
+
+# Text (With Album Art)
+%Vl(TICA,73,40,87,70,3)%Vf(0)%Vb(3)
+%al%s%?it<%it|%fn>
+%al%s%?ia<%ia|%?d(2)<%t(10)%Sx(Unknown) %Sx(Artist);%t(10)%d(2)|%Sx(Unknown) %Sx(Artist)>>
+%al%s%?id<%id|%?d(1)<%t(10)%Sx(Unknown) %Sx(Album);%t(10)%d(1)|%Sx(Unknown) %Sx(Album)>>
+
+# Text (Without Album Art)
+%Vl(TI,0,40,160,70,3)%Vf(0)%Vb(3)
+%ac%s%?it<%it|%fn>
+%ac%s%?ia<%ia|%?d(2)<%t(10)%Sx(Unknown) %Sx(Artist);%t(10)%d(2)|%Sx(Unknown) %Sx(Artist)>>
+%ac%s%?id<%id|%?d(1)<%t(10)%Sx(Unknown) %Sx(Album);%t(10)%d(1)|%Sx(Unknown) %Sx(Album)>>
+
+# --- PLAYBACK ICONS VIEWPORTS ---
+%Vl(rrepeat,139,18,17,9,-)%Vf(0)%Vb(3)
+%?mm<|%xd(aa)|%xd(ab)|%xd(ac)|%xd(ad)>
+%Vl(rshuffle,139,18,17,9,-)%Vf(0)%Vb(3)
+%xd(b)
+%Vl(rcf,149,18,7,9,-)%Vf(0)%Vb(3)
+%xd(c)
+%Vl(mshuffle,126,18,17,9,-)%Vf(0)%Vb(3)
+%xd(b)
+%Vl(mcf,136,18,7,9,-)%Vf(0)%Vb(3)
+%xd(c)
+%Vl(lcf,123,18,7,9,-)%Vf(0)%Vb(3)
+%xd(c)
+
+%Vl(tmr_rcf_left,141,18,6,9,-)%Vf(0)%Vb(3)
+%xd(f)
+%Vl(tmr_mcf_left,128,18,6,9,-)%Vf(0)%Vb(3)
+%xd(f)
+%Vl(tmr_lcf_left,115,18,6,9,-)%Vf(0)%Vb(3)
+%xd(f)
+%Vl(timerCF_l,124,18,6,9,-)%Vf(0)%Vb(3)
+%xd(f)
+%Vl(timerCF_m,137,18,6,9,-)%Vf(0)%Vb(3)
+%xd(f)
+%Vl(timerCF_r,150,18,6,9,-)%Vf(0)%Vb(3)
+%xd(f)
+
+# --- BOTTOM BAR VIEWPORTS ---
+# Track Progress Bar
+%Vl(trackpos,6,102,148,8,-)%Vf(0)%Vb(3)
+%pb(0,0,148,8,image,d,backdrop,e)
+
+# Time Elapsed
+%Vl(trackpos,6,115,63,12,2)%Vf(0)%Vb(3)
+%al%s%pc
+
+# Time Remaining
+%Vl(trackpos,91,115,63,12,2)%Vf(0)%Vb(3)
+%ar%s-%pr
+
+# Volume Icons & Bar
+%Vl(volume,6,100,9,12,-)%Vf(0)%Vb(3)
+%xd(i)
+%Vl(volume,19,102,122,8,-)%Vf(0)%Vb(3)
+%pv(0,0,122,8,image,g,backdrop,h)
+%Vl(volume,145,100,9,12,-)%Vf(0)%Vb(3)
+%xd(j)
+
+# Volume Display
+%Vl(volume,55,115,50,12,2)%Vf(0)%Vb(3)
+%ac%pv dB
