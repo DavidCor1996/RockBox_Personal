@@ -26,7 +26,21 @@
 
 
 
-#define MAX_LINE_LEN    256
+/* iPone theme color palette for lyrics display */
+#if (LCD_DEPTH > 1)
+#define IPONE_BG         LCD_RGBPACK(0x10, 0x0C, 0x10) /* deep purple-black background */
+#define IPONE_FG         LCD_RGBPACK(0xF7, 0xF7, 0xFF) /* near-white foreground text */
+#define IPONE_ACTIVE     LCD_RGBPACK(0x9C, 0x79, 0xE7) /* purple accent - sung/active */
+#define IPONE_INACTIVE   LCD_RGBPACK(0x5A, 0x4E, 0x6E) /* muted lavender - upcoming */
+#define IPONE_ACTIVE_BG  LCD_RGBPACK(0x29, 0x20, 0x31) /* dark purple - active line bg */
+#define IPONE_SEPARATOR  LCD_RGBPACK(0x26, 0x22, 0x2F) /* subtle separator line */
+#define IPONE_PROGRESS   LCD_RGBPACK(0x9C, 0x79, 0xE7) /* purple progress bar fill */
+#endif
+
+/* path to the Unicode lyrics font (full CJK/Japanese coverage) */
+#define LRC_FONT_PATH "/.rockbox/fonts/18-Cantarell-Regular.fnt"
+
+#define MAX_LINE_LEN    512  /* Musixmatch Enhanced LRC lines can exceed 256 bytes */
 #define LRC_BUFFER_SIZE 0x3000 /* 12 kiB */
 #if PLUGIN_BUFFER_SIZE >= 0x10000 /* no id3 support for low mem targets */
 /* define this to read lyrics in id3 tag */
@@ -109,6 +123,8 @@ static struct lrc_info {
     enum extention_types type;
     long offset; /* msec */
     off_t offset_file_offset; /* offset of offset tag in file */
+    long last_sync_elapsed; /* id3->elapsed at last audio-engine sync */
+    long last_sync_tick;    /* *rb->current_tick at last audio-engine sync */
     int  nlrcbrpos;
     int  nlrcline;
     struct lrc_line *ll_head, **ll_tail;
@@ -120,6 +136,7 @@ static struct lrc_info {
 } current;
 static char temp_buf[MAX(MAX_LINE_LEN,MAX_PATH)];
 static int uifont = -1;
+static int cjk_font = -1;    /* loaded lyrics font (18-Cantarell-Regular), or -1 */
 static int font_ui_height = 1;
 static struct viewport vp_info[NB_SCREENS];
 static struct viewport vp_lyrics[NB_SCREENS];
@@ -282,6 +299,8 @@ static void reset_current_data(void)
     current.artist = NULL;
     current.offset = 0;
     current.offset_file_offset = -1;
+    current.last_sync_elapsed = 0;
+    current.last_sync_tick    = 0;
     current.nlrcbrpos = 0;
     current.nlrcline = 0;
     current.ll_head = NULL;
@@ -420,7 +439,8 @@ static struct lrc_brpos *calc_brpos(struct lrc_line *lrc_line, int i)
     struct lrc_brpos *lrc_brpos;
     struct lrc_word *lrc_word;
     int nlrcbrpos = 0, max_lrcbrpos;
-    uifont = rb->screens[0]->getuifont();
+    /* use the already-configured uifont — do not re-query getuifont() here,
+     * since we may have loaded a dedicated CJK lyrics font into uifont. */
     struct font* pf = rb->font_get(uifont);
     ucschar_t ch;
     struct snap {
@@ -957,6 +977,37 @@ static bool parse_txt_line(char *line, off_t file_offset)
     return true;
 }
 
+static bool looks_like_utf8(const unsigned char *buf, int len)
+{
+    int i = 0;
+    while (i < len)
+    {
+        if (buf[i] < 0x80)
+            i++;
+        else if ((buf[i] & 0xE0) == 0xC0)
+        {
+            if (i + 1 >= len || (buf[i+1] & 0xC0) != 0x80)
+                return false;
+            i += 2;
+        }
+        else if ((buf[i] & 0xF0) == 0xE0)
+        {
+            if (i + 2 >= len || (buf[i+1] & 0xC0) != 0x80 || (buf[i+2] & 0xC0) != 0x80)
+                return false;
+            i += 3;
+        }
+        else if ((buf[i] & 0xF8) == 0xF0)
+        {
+            if (i + 3 >= len || (buf[i+1] & 0xC0) != 0x80 || (buf[i+2] & 0xC0) != 0x80 || (buf[i+3] & 0xC0) != 0x80)
+                return false;
+            i += 4;
+        }
+        else
+            return false;
+    }
+    return true;
+}
+
 static void load_lrc_file(void)
 {
     char utf8line[MAX_LINE_LEN*3];
@@ -1009,6 +1060,13 @@ static void load_lrc_file(void)
         else
         {
             rb->lseek(fd, 0, SEEK_SET);
+            if (current.type == LRC || current.type == TXT)
+            {
+                int test_read = rb->read(fd, temp_buf, MAX_LINE_LEN);
+                if (test_read > 0 && looks_like_utf8((const unsigned char *)temp_buf, test_read))
+                    encoding = UTF_8;
+                rb->lseek(fd, 0, SEEK_SET);
+            }
         }
 
         if (utf_decode)
@@ -1557,12 +1615,21 @@ static void display_state(void)
         display = rb->screens[i];
         display->set_viewport(&vp_info[i]);
         display->clear_viewport();
+#if (LCD_DEPTH > 1)
+        display->set_foreground(IPONE_FG);
+        display->set_background(IPONE_BG);
+#endif
+        display->setfont(uifont);
         if (info)
             display->puts_scroll(0, 0, info);
         if (str)
         {
             display->set_viewport(&vp_lyrics[i]);
             display->clear_viewport();
+#if (LCD_DEPTH > 1)
+            display->set_foreground(IPONE_FG);
+            display->set_background(IPONE_BG);
+#endif
             display->getstringsize(str, &w, &h);
             if (vp_lyrics[i].width - w < 0)
                 display->puts_scroll(0, vp_lyrics[i].height/font_ui_height/2,
@@ -1579,7 +1646,7 @@ static void display_state(void)
 
 static void display_time(void)
 {
-    rb->snprintf(temp_buf, MAX_LINE_LEN, "%ld:%02ld/%ld:%02ld",
+    rb->snprintf(temp_buf, MAX_LINE_LEN, "%ld:%02ld / %ld:%02ld",
                             current.elapsed/60000, (current.elapsed/1000)%60,
                             current.length/60000, (current.length)/1000%60);
     int y = (prefs.display_title? font_ui_height:0);
@@ -1587,11 +1654,28 @@ static void display_time(void)
     {
         struct screen* display = rb->screens[i];
         display->set_viewport(&vp_info[i]);
+#if (LCD_DEPTH > 1)
+        display->set_foreground(IPONE_FG);
+        display->set_background(IPONE_BG);
+#endif
         display->setfont(FONT_SYSFIXED);
         display->putsxy(0, y, temp_buf);
+        /* progress bar: draw track bg trough then filled portion with accent */
+#if (LCD_DEPTH > 1)
+        display->set_foreground(IPONE_SEPARATOR);
+        display->fillrect(0, y + SYSFONT_HEIGHT + 2,
+                          vp_info[i].width, SYSFONT_HEIGHT - 4);
+        display->set_foreground(IPONE_PROGRESS);
+        int bar_w = (int)((long)vp_info[i].width * current.elapsed / current.length);
+        if (bar_w > 0)
+            display->fillrect(0, y + SYSFONT_HEIGHT + 2,
+                              bar_w, SYSFONT_HEIGHT - 4);
+        display->set_foreground(IPONE_FG);
+#else
         rb->gui_scrollbar_draw(display, 0, y+SYSFONT_HEIGHT+1,
                                vp_info[i].width, SYSFONT_HEIGHT-2,
                                current.length, 0, current.elapsed, HORIZONTAL);
+#endif
         display->update_viewport_rect(0, y, vp_info[i].width, SYSFONT_HEIGHT*2);
         display->setfont(uifont);
         display->set_viewport(NULL);
@@ -1607,7 +1691,7 @@ static inline void set_to_default(struct screen *display)
 #ifdef HAVE_REMOTE_LCD
     if (display->screen_type != SCREEN_REMOTE)
 #endif
-        display->set_foreground(prefs.active_color);
+        display->set_foreground(IPONE_FG);
 #endif
     display->set_drawmode(DRMODE_SOLID);
 }
@@ -1676,12 +1760,25 @@ static int display_lrc_line(struct lrc_line *lrc_line, int ypos, int i)
     }
 
     lrc_brpos = calc_brpos(lrc_line, i);
+
+    /* draw subtle background highlight behind the active lyric line */
+    active_line = active_line || !prefs.active_one_line;
+#if (LCD_DEPTH > 1)
+    if (active_line && lrc_line->width && prefs.active_one_line)
+    {
+        display->set_foreground(IPONE_ACTIVE_BG);
+        display->set_drawmode(DRMODE_SOLID);
+        display->fillrect(0, ypos,
+                          vp_lyrics[i].width,
+                          lrc_line->nline[i] * font_ui_height);
+    }
+#endif
+
     /* initialize line */
     xpos = (vp_lyrics[i].width - lrc_brpos->width)*prefs.align/2;
     count = 0;
     width = 0;
 
-    active_line = active_line || !prefs.active_one_line;
     nword = lrc_line->nword-1;
     lrc_word = lrc_line->words + nword;
     str = lrc_word->word;
@@ -1803,7 +1900,19 @@ static void display_lrcs(void)
         display = rb->screens[i];
         /* display current line at the center of the viewport */
         display->set_viewport(&vp_lyrics[i]);
+#if (LCD_DEPTH > 1)
+        display->set_background(IPONE_BG);
+        display->set_foreground(IPONE_FG);
+#endif
+        display->setfont(uifont);
         display->clear_viewport();
+
+        /* draw a 1-px separator at the very top of the lyrics viewport */
+#if (LCD_DEPTH > 1)
+        display->set_foreground(IPONE_SEPARATOR);
+        display->drawline(0, 0, vp_lyrics[i].width - 1, 0);
+        display->set_foreground(IPONE_FG);
+#endif
 
         struct lrc_line *lrc_line;
         int y, ypos = 0, nblines = vp_lyrics[i].height/font_ui_height;
@@ -1850,7 +1959,18 @@ static void display_lrcs(void)
             lrc_line = lrc_line->next;
         }
         if (!lrc_line && ypos < vp_lyrics[i].height)
-            display->putsxy(0, ypos, "[end]");
+        {
+            /* end-of-lyrics marker */
+#if (LCD_DEPTH > 1)
+            display->set_foreground(IPONE_INACTIVE);
+#endif
+            int w, h;
+            display->getstringsize("- - -", &w, &h);
+            display->putsxy((vp_lyrics[i].width - w)/2, ypos, "- - -");
+#if (LCD_DEPTH > 1)
+            display->set_foreground(IPONE_FG);
+#endif
+        }
 
         display->update_viewport();
         display->set_viewport(NULL);
@@ -2173,8 +2293,8 @@ static void load_or_save_settings(bool save)
     {
         /* initialize setting */
 #if LCD_DEPTH > 1
-        prefs.active_color = rb->lcd_get_foreground();
-        prefs.inactive_color = LCD_LIGHTGRAY;
+        prefs.active_color = IPONE_ACTIVE;     /* purple accent for sung/active lyrics */
+        prefs.inactive_color = IPONE_INACTIVE; /* muted lavender for upcoming lyrics */
 #endif
         prefs.wrap = true;
         prefs.wipe = true;
@@ -2188,7 +2308,7 @@ static void load_or_save_settings(bool save)
         prefs.read_id3 = true;
 #endif
         rb->strcpy(prefs.lrc_directory, "/Lyrics");
-        prefs.encoding = -1; /* default codepage */
+        prefs.encoding = UTF_8; /* default to UTF-8 for Japanese support */
 
         configfile_load(config_file, config, ARRAYLEN(config), 0);
     }
@@ -2652,6 +2772,11 @@ static int lrc_main(void)
     FOR_NB_SCREENS(i)
     {
         rb->viewportmanager_theme_enable(i, prefs.statusbar_on, &vp_info[i]);
+        /* apply iPone palette to both viewports */
+#if (LCD_DEPTH > 1)
+        vp_info[i].fg_pattern   = IPONE_FG;
+        vp_info[i].bg_pattern   = IPONE_BG;
+#endif
         vp_lyrics[i] = vp_info[i];
         vp_lyrics[i].flags &= ~VP_FLAG_ALIGNMENT_MASK;
         vp_lyrics[i].y += h;
@@ -2691,9 +2816,30 @@ static int lrc_main(void)
         {
             if (current.ff_rewind == -1)
             {
-                long di = current.id3->elapsed - current.elapsed;
-                if (di < -250 || di > 0)
+                long di = current.id3->elapsed - current.last_sync_elapsed;
+                if (di < -50 || di > 0)
+                {
+                    /* audio clock updated: record reference for interpolation */
+                    current.last_sync_elapsed = current.id3->elapsed;
+                    current.last_sync_tick    = *rb->current_tick;
+                    current.elapsed           = current.id3->elapsed;
+                }
+                else if (AUDIO_PLAY && !AUDIO_PAUSE)
+                {
+                    /* interpolate between audio-engine updates for smooth
+                     * sub-frame accuracy; clamp to 200 ms ahead of last
+                     * known audio position to avoid runaway */
+                    long interp = current.last_sync_elapsed +
+                        (*rb->current_tick - current.last_sync_tick)
+                        * 1000 / HZ;
+                    if (interp > (long)current.id3->elapsed + 200)
+                        interp = (long)current.id3->elapsed + 200;
+                    current.elapsed = interp;
+                }
+                else
+                {
                     current.elapsed = current.id3->elapsed;
+                }
             }
             else
                 current.elapsed = current.ff_rewind;
@@ -2769,8 +2915,20 @@ enum plugin_status plugin_start(const void* parameter)
     /* initialize settings. */
     load_or_save_settings(false);
 
-    uifont = rb->screens[0]->getuifont();
-    font_ui_height = rb->font_get(uifont)->height;
+    /* try to load a full-Unicode font for lyrics (CJK/Japanese support).
+     * 18-Cantarell-Regular covers 65,469 glyphs via on-demand glyph caching.
+     * fall back to the system UI font if the file is not present. */
+    cjk_font = rb->font_load(LRC_FONT_PATH);
+    if (cjk_font >= 0)
+    {
+        uifont = cjk_font;
+        font_ui_height = rb->font_get(uifont)->height;
+    }
+    else
+    {
+        uifont = rb->screens[0]->getuifont();
+        font_ui_height = rb->font_get(uifont)->height;
+    }
 
     lrc_buffer = rb->plugin_get_buffer(&lrc_buffer_size);
     lrc_buffer = ALIGN_UP(lrc_buffer, 4); /* 4 bytes aligned */
@@ -2828,5 +2986,10 @@ enum plugin_status plugin_start(const void* parameter)
     }
 
     load_or_save_settings(true);
+
+    /* release the dedicated lyrics font if we loaded one */
+    if (cjk_font >= 0)
+        rb->font_unload(cjk_font);
+
     return ret;
 }

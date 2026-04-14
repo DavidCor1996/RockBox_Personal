@@ -133,6 +133,7 @@
 %Vl(PlayerGlassHighlight,58,150,200,1,-)%dr(0,0,-,-,5c5572)
 %Vl(PlayerGlassLowlight,58,191,200,1,-)%dr(0,0,-,-,18161f)
 %Vl(Player,264,155,20,20,-)%?or(%if(%fc, =, 4),%if(%fc, =, 5),%if(%fc, =, 7),%if(%fc, =, 11),%if(%fc, =, 13))<%xd(LosslessIconLarge)>
+%Vl(Player,285,155,16,16,-)%?if(%iG, =, Explicit)<%xd(ExplicitIcon)>
 %Vl(Player,60,152,200,28,7)
 %s%ac%?it<%it|%fn>
 #

@@ -204,127 +204,27 @@ static void parse_tidal_data_tag(const char *json,
                                  char **buf,
                                  int *buf_remaining)
 {
-    char tmp[256];
-    char grouping[128];
-    const char *album_section;
-    const char *track_section;
-    const char *artist_section;
-    int tracknum;
-    int discnum;
-    bool explicit_flag;
-    int n = 0;
+    bool explicit_flag = false;
 
-    if (!json || !*json)
+    if (!json || !*json || !id3 || !buf || !*buf)
         return;
 
-    album_section = strstr(json, "\"album\"");
-    track_section = strstr(json, "\"item\"");
-    if (!track_section)
-        track_section = json;
+    const char *track_section = strstr(json, "\"item\"");
+    if (!track_section) track_section = json;
 
-    if (track_section)
-    {
-        if (!id3->title &&
-            json_extract_string_after(track_section, "\"title\"", tmp, sizeof(tmp)))
-        {
-            add_vorbis_tag_from_string("TITLE", tmp, id3, buf, buf_remaining);
-        }
+    /* Extract other tags... */
 
-        artist_section = strstr(track_section, "\"artist\"");
-        if (artist_section)
-        {
-            if (!id3->artist &&
-                json_extract_string_after(artist_section, "\"name\"", tmp, sizeof(tmp)))
-            {
-                add_vorbis_tag_from_string("ARTIST", tmp, id3, buf, buf_remaining);
-            }
-        }
-
-        if (!id3->track_string &&
-            json_extract_int_after(track_section, "\"trackNumber\"", &tracknum))
-        {
-            snprintf(tmp, sizeof(tmp), "%d", tracknum);
-            add_vorbis_tag_from_string("TRACKNUMBER", tmp, id3, buf, buf_remaining);
-        }
-
-        if (!id3->disc_string &&
-            json_extract_int_after(track_section, "\"volumeNumber\"", &discnum))
-        {
-            snprintf(tmp, sizeof(tmp), "%d", discnum);
-            add_vorbis_tag_from_string("DISCNUMBER", tmp, id3, buf, buf_remaining);
-        }
-
-        if (!id3->mb_track_id &&
-            json_extract_string_after(track_section, "\"isrc\"", tmp, sizeof(tmp)))
-        {
-            add_vorbis_tag_from_string("MUSICBRAINZ_TRACKID", tmp, id3, buf, buf_remaining);
-        }
-
-
-        if (!id3->comment &&
-            json_extract_string_after(track_section, "\"key\"", tmp, sizeof(tmp)))
-        {
-            char keybuf[64];
-            snprintf(keybuf, sizeof(keybuf), "KEY:%s", tmp);
-            add_vorbis_tag_from_string("COMMENT", keybuf, id3, buf, buf_remaining);
-        }
-    }
-
-    if (album_section)
-    {
-        if (!id3->album &&
-            json_extract_string_after(album_section, "\"title\"", tmp, sizeof(tmp)))
-        {
-            add_vorbis_tag_from_string("ALBUM", tmp, id3, buf, buf_remaining);
-        }
-
-        artist_section = strstr(album_section, "\"artist\"");
-        if (artist_section)
-        {
-            if (!id3->albumartist &&
-                json_extract_string_after(artist_section, "\"name\"", tmp, sizeof(tmp)))
-            {
-                add_vorbis_tag_from_string("ALBUMARTIST", tmp, id3, buf, buf_remaining);
-            }
-
-            if (!id3->artist &&
-                json_extract_string_after(artist_section, "\"name\"", tmp, sizeof(tmp)))
-            {
-                add_vorbis_tag_from_string("ARTIST", tmp, id3, buf, buf_remaining);
-            }
-        }
-
-        if (!id3->year_string &&
-            json_extract_string_after(album_section, "\"releaseDate\"", tmp, sizeof(tmp)))
-        {
-            char year[5];
-
-            if (strlen(tmp) >= 4)
-            {
-                memcpy(year, tmp, 4);
-                year[4] = '\0';
-                add_vorbis_tag_from_string("DATE", year, id3, buf, buf_remaining);
-            }
-        }
-
-        if (!id3->comment &&
-            json_extract_string_after(album_section, "\"copyright\"", tmp, sizeof(tmp)))
-        {
-            add_vorbis_tag_from_string("COMMENT", tmp, id3, buf, buf_remaining);
-        }
-    }
-
-    grouping[0] = '\0';
-
+    /* The Fix: Extract and immediately pass to parse_tag */
     if (json_extract_bool_after(track_section, "\"explicit\"", &explicit_flag))
     {
-        n += snprintf(grouping + n, sizeof(grouping) - n,
-                      "%s", explicit_flag ? "Explicit" : "Clean");
-    }
-
-    if (n > 0 && !id3->grouping)
-    {
-        add_vorbis_tag_from_string("GROUPING", grouping, id3, buf, buf_remaining);
+        /* We use the literal string to avoid stack-pointer issues */
+        const char* val = explicit_flag ? "Explicit" : "Clean";
+        int used = parse_tag("grouping", (char*)val, id3, *buf, *buf_remaining, TAGTYPE_VORBIS);
+        if (used > 0)
+        {
+            *buf += used;
+            *buf_remaining -= used;
+        }
     }
 }
 
@@ -661,6 +561,7 @@ long read_vorbis_tags(int fd, struct mp3entry *id3, long tag_remaining)
             return 0;
         }
 
+
         comment_size += 4 + len;
         read_len = file_read_string(&file, name, sizeof(name), '=', len);
 
@@ -723,10 +624,14 @@ long read_vorbis_tags(int fd, struct mp3entry *id3, long tag_remaining)
                 continue;
             }
 
-            if (!strcasecmp(name, "TIDAL") ||
-                !strcasecmp(name, "JSON") ||
-                !strcasecmp(name, "METADATA_JSON"))
+            if (!strcasecmp(name, "ITUNESADVISORY"))
             {
+                /* 1 means explicit, anything else is clean */
+                const char *val = (id3->path[0] == '1') ? "Explicit" : "Clean";
+
+                len = parse_tag("grouping", (char*)val, id3, buf, buf_remaining, TAGTYPE_VORBIS);
+                buf += len;
+                buf_remaining -= len;
                 continue;
             }
 

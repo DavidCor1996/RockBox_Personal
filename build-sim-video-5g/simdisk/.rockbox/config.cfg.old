@@ -1,5 +1,6 @@
-# .cfg file created by rockbox 3965387f5aM-260412 - http://www.rockbox.org
+# .cfg file created by rockbox c20a450c95M-260412 - http://www.rockbox.org
 
+volume: -24
 album art: prefer image file
 statusbar: off
 scrollbar: off
@@ -10,7 +11,7 @@ line selector start color: 292031
 line selector end color: 9c79e7
 line selector text color: fffbff
 gather runtime data: on
-database scan paths: /Music/A Momentary Lapse of Reason - Pink Floyd:/Music/A Question Of Balance - The Moody Blues:/Music/Abbe
+database scan paths: /Music
 tagcache_ram: on
 backlight on button hold: normal
 fms: /.rockbox/wps/iPone.fms
@@ -25,3 +26,4 @@ qs top: -
 qs left: shuffle
 qs right: repeat
 qs bottom: -
+root menu order: pictureflow, database, files, playlists, plugins, shortcuts, settings, 
