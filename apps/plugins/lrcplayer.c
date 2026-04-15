@@ -88,6 +88,7 @@ struct preferences {
     bool wrap;
     bool wipe;
     bool active_one_line;
+    bool focused_layout;    /* iOS Music-style 3-line prev/active/next view */
     int  align; /* 0: left, 1: center, 2: right */
     bool statusbar_on;
     bool display_title;
@@ -1588,24 +1589,24 @@ static void display_state(void)
             str = "No lyrics";
     }
 
-    const char *info = NULL;
+    const char *info_title = NULL;
+    const char *info_artist = NULL;
 
     if (AUDIO_PLAY && prefs.display_title)
     {
         char *title = (current.title? current.title: current.id3->title);
         char *artist = (current.artist? current.artist: current.id3->artist);
 
-        if (artist != NULL && title != NULL)
+        if (title != NULL)
         {
-            rb->snprintf(temp_buf, MAX_LINE_LEN, "%s/%s", title, artist);
-            info = temp_buf;
+            info_title = title;
+            if (artist != NULL)
+                info_artist = artist;
         }
-        else if (title != NULL)
-            info = title;
         else if (current.mp3_file[0] == '/')
-            info = rb->strrchr(current.mp3_file, '/')+1;
+            info_title = rb->strrchr(current.mp3_file, '/')+1;
         else
-            info = "(no info)";
+            info_title = "(no info)";
     }
 
     int w, h;
@@ -1620,8 +1621,10 @@ static void display_state(void)
         display->set_background(IPONE_BG);
 #endif
         display->setfont(uifont);
-        if (info)
-            display->puts_scroll(0, 0, info);
+        if (info_title)
+            display->puts_scroll(0, 0, info_title);
+        if (info_artist)
+            display->puts_scroll(0, 1, info_artist);
         if (str)
         {
             display->set_viewport(&vp_lyrics[i]);
@@ -1649,7 +1652,8 @@ static void display_time(void)
     rb->snprintf(temp_buf, MAX_LINE_LEN, "%ld:%02ld / %ld:%02ld",
                             current.elapsed/60000, (current.elapsed/1000)%60,
                             current.length/60000, (current.length)/1000%60);
-    int y = (prefs.display_title? font_ui_height:0);
+    /* skip past the 2-line title+artist header (or 0 if title is hidden) */
+    int y = (prefs.display_title? 2*font_ui_height:0);
     FOR_NB_SCREENS(i)
     {
         struct screen* display = rb->screens[i];
@@ -1658,26 +1662,25 @@ static void display_time(void)
         display->set_foreground(IPONE_FG);
         display->set_background(IPONE_BG);
 #endif
-        display->setfont(FONT_SYSFIXED);
+        display->setfont(uifont);
         display->putsxy(0, y, temp_buf);
         /* progress bar: draw track bg trough then filled portion with accent */
 #if (LCD_DEPTH > 1)
         display->set_foreground(IPONE_SEPARATOR);
-        display->fillrect(0, y + SYSFONT_HEIGHT + 2,
-                          vp_info[i].width, SYSFONT_HEIGHT - 4);
+        display->fillrect(0, y + font_ui_height + 2,
+                          vp_info[i].width, 4);
         display->set_foreground(IPONE_PROGRESS);
         int bar_w = (int)((long)vp_info[i].width * current.elapsed / current.length);
         if (bar_w > 0)
-            display->fillrect(0, y + SYSFONT_HEIGHT + 2,
-                              bar_w, SYSFONT_HEIGHT - 4);
+            display->fillrect(0, y + font_ui_height + 2,
+                              bar_w, 4);
         display->set_foreground(IPONE_FG);
 #else
-        rb->gui_scrollbar_draw(display, 0, y+SYSFONT_HEIGHT+1,
-                               vp_info[i].width, SYSFONT_HEIGHT-2,
+        rb->gui_scrollbar_draw(display, 0, y+font_ui_height+1,
+                               vp_info[i].width, 4,
                                current.length, 0, current.elapsed, HORIZONTAL);
 #endif
-        display->update_viewport_rect(0, y, vp_info[i].width, SYSFONT_HEIGHT*2);
-        display->setfont(uifont);
+        display->update_viewport_rect(0, y, vp_info[i].width, font_ui_height + 6);
         display->set_viewport(NULL);
     }
 }
@@ -1893,6 +1896,88 @@ static void display_lrcs(void)
     time_end = get_time_start(lrc_center->next);
     rin = current.elapsed - time_start;
     len = time_end - time_start;
+
+    /* -------------------------------------------------------
+     * Focused layout: iOS Music-style prev / active / next
+     * ------------------------------------------------------- */
+    if (prefs.focused_layout)
+    {
+        /* find lrc_prev by walking forward from ll_head */
+        struct lrc_line *lrc_prev = NULL;
+        struct lrc_line *lrc_next = lrc_center->next;
+        if (lrc_center != current.ll_head)
+        {
+            struct lrc_line *p = current.ll_head;
+            while (p && p->next != lrc_center)
+                p = p->next;
+            lrc_prev = p;
+        }
+
+        struct screen *display;
+        FOR_NB_SCREENS(i)
+        {
+            display = rb->screens[i];
+            display->set_viewport(&vp_lyrics[i]);
+#if (LCD_DEPTH > 1)
+            display->set_background(IPONE_BG);
+            display->set_foreground(IPONE_FG);
+#endif
+            display->setfont(uifont);
+            display->clear_viewport();
+
+            /* separator line at very top of lyrics viewport */
+#if (LCD_DEPTH > 1)
+            display->set_foreground(IPONE_SEPARATOR);
+            display->drawline(0, 0, vp_lyrics[i].width - 1, 0);
+            display->set_foreground(IPONE_FG);
+#endif
+
+            int active_h = lrc_center->nline[i] * font_ui_height;
+            int gap      = font_ui_height / 4;
+            int active_y = (vp_lyrics[i].height - active_h) / 2;
+            if (active_y < 0) active_y = 0;
+
+            /* draw active (center) line — wipe + IPONE_ACTIVE_BG */
+            display_lrc_line(lrc_center, active_y, i);
+
+            /* draw prev line if it fits above active */
+            if (lrc_prev)
+            {
+                int prev_h = lrc_prev->nline[i] * font_ui_height;
+                int prev_y = active_y - gap - prev_h;
+                if (prev_y >= 0)
+                    display_lrc_line(lrc_prev, prev_y, i);
+            }
+
+            /* draw next line or end-of-lyrics marker below active */
+            int next_y = active_y + active_h + gap;
+            if (lrc_next)
+            {
+                if (next_y < vp_lyrics[i].height)
+                    display_lrc_line(lrc_next, next_y, i);
+            }
+            else
+            {
+                /* end-of-lyrics marker */
+#if (LCD_DEPTH > 1)
+                display->set_foreground(IPONE_INACTIVE);
+#endif
+                int w, h;
+                display->getstringsize("- - -", &w, &h);
+                if (next_y + h <= vp_lyrics[i].height)
+                    display->putsxy((vp_lyrics[i].width - w) / 2, next_y,
+                                    "- - -");
+#if (LCD_DEPTH > 1)
+                display->set_foreground(IPONE_FG);
+#endif
+            }
+
+            display->update_viewport();
+            display->set_viewport(NULL);
+        }
+        return;
+    }
+    /* end focused layout */
 
     struct screen *display;
     FOR_NB_SCREENS(i)
@@ -2263,6 +2348,8 @@ static void load_or_save_settings(bool save)
     static const char config_file[] = "lrcplayer.cfg";
     static struct configdata config[] = {
 #ifdef HAVE_LCD_COLOR
+        { TYPE_INT, 0, 0xffffff, { .int_p = &prefs.active_color },
+            "active color", NULL },
         { TYPE_INT, 0, 0xffffff, { .int_p = &prefs.inactive_color },
             "inactive color", NULL },
 #endif
@@ -2270,6 +2357,8 @@ static void load_or_save_settings(bool save)
         { TYPE_BOOL, 0, 1, { .bool_p = &prefs.wipe }, "wipe", NULL },
         { TYPE_BOOL, 0, 1, { .bool_p = &prefs.active_one_line },
             "active one line", NULL },
+        { TYPE_BOOL, 0, 1, { .bool_p = &prefs.focused_layout },
+            "focused layout", NULL },
         { TYPE_INT,  0, 2, { .int_p =  &prefs.align }, "align", NULL },
         { TYPE_BOOL, 0, 1, { .bool_p = &prefs.statusbar_on },
             "statusbar on", NULL },
@@ -2299,6 +2388,7 @@ static void load_or_save_settings(bool save)
         prefs.wrap = true;
         prefs.wipe = true;
         prefs.active_one_line = false;
+        prefs.focused_layout = true; /* iOS Music-style 3-line view on by default */
         prefs.align = 1; /* center */
         prefs.statusbar_on = false;
         prefs.display_title = true;
@@ -2327,6 +2417,7 @@ static bool lrc_theme_menu(void)
         LRC_MENU_DISP_TITLE,
         LRC_MENU_DISP_TIME,
 #ifdef HAVE_LCD_COLOR
+        LRC_MENU_ACTIVE_COLOR,
         LRC_MENU_INACTIVE_COLOR,
 #endif
         LRC_MENU_BACKLIGHT,
@@ -2339,6 +2430,7 @@ static bool lrc_theme_menu(void)
                         "Show Statusbar", "Display Title",
                         "Display Time",
 #ifdef HAVE_LCD_COLOR
+                        "Active Colour",
                         "Inactive Colour",
 #endif
                         "Backlight Always On");
@@ -2357,6 +2449,10 @@ static bool lrc_theme_menu(void)
                 usb = rb->set_bool("Display Time", &prefs.display_time);
                 break;
 #ifdef HAVE_LCD_COLOR
+            case LRC_MENU_ACTIVE_COLOR:
+                usb = rb->set_color(NULL, "Active Colour",
+                                    &prefs.active_color, -1);
+                break;
             case LRC_MENU_INACTIVE_COLOR:
                 usb = rb->set_color(NULL, "Inactive Colour",
                                     &prefs.inactive_color, -1);
@@ -2384,6 +2480,7 @@ static bool lrc_display_menu(void)
         LRC_MENU_WIPE,
         LRC_MENU_ALIGN,
         LRC_MENU_LINE_MODE,
+        LRC_MENU_FOCUSED_LAYOUT,
     };
 
     int selected = 0;
@@ -2391,7 +2488,8 @@ static bool lrc_display_menu(void)
 
     MENUITEM_STRINGLIST(menu, "Display Settings", NULL,
                         "Wrap", "Wipe", "Alignment",
-                        "Activate Only Current Line");
+                        "Activate Only Current Line",
+                        "Focused Layout");
 
     struct opt_items align_names[] = {
         {"Left", -1}, {"Centre", -1}, {"Right", -1},
@@ -2414,6 +2512,9 @@ static bool lrc_display_menu(void)
             case LRC_MENU_LINE_MODE:
                 usb = rb->set_bool("Activate Only Current Line",
                                         &prefs.active_one_line);
+                break;
+            case LRC_MENU_FOCUSED_LAYOUT:
+                usb = rb->set_bool("Focused Layout", &prefs.focused_layout);
                 break;
             case MENU_ATTACHED_USB:
                 usb = true;
@@ -2448,7 +2549,7 @@ static bool lrc_lyrics_menu(void)
 #ifdef LRC_SUPPORT_ID3
                         "Read ID3 tag",
 #endif
-                        "Lrc Directry");
+                        "Lrc Directory");
 
     cp_names[0].string = "Use default codepage";
     cp_names[0].voice_id = -1;
@@ -2764,9 +2865,9 @@ static int lrc_main(void)
     long id3_timeout = 0;
     bool update_display_state = true;
 
-    /* y offset of vp_lyrics */
-    int h = (prefs.display_title?font_ui_height:0)+
-            (prefs.display_time?SYSFONT_HEIGHT*2:0);
+    /* y offset of vp_lyrics: title row + artist row + (time text + bar + gap) */
+    int h = (prefs.display_title?2*font_ui_height:0)+
+            (prefs.display_time?font_ui_height+6:0);
 
 
     FOR_NB_SCREENS(i)

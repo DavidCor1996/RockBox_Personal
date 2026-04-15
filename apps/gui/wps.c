@@ -490,7 +490,7 @@ long gui_wps_show(void)
     #endif
     long button = 0;
     bool restore = true, exit = false, bookmark = false, update = false, theme_enabled = true;
-    #ifdef IPOD_NANO2G
+    #ifdef HAS_BUTTON_HOLD
     bool last_hold = button_hold();
     #endif
     long last_left = 0, last_right = 0;
@@ -525,7 +525,7 @@ long gui_wps_show(void)
             theme_enabled = true;
         } else {
             gwps_caption_backlight(state);
-            #ifdef IPOD_NANO2G
+            #ifdef HAS_BUTTON_HOLD
             if (button_hold() != last_hold) { last_hold = button_hold(); skin_request_full_update(WPS); update = true; }
             #endif
             FOR_NB_SCREENS(i) {
