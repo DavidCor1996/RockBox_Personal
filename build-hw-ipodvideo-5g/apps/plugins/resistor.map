@@ -10,10 +10,10 @@ Archive member included to satisfy reference by file (symbol)
                               /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/resistor.o (resistor)
 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/libsetjmp.a(setjmp.o)
                               /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/plugin_crt0.o (setjmp)
-/home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+/usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
                               /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/resistor.o (__aeabi_idiv)
-/home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
-                              /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o) (__aeabi_idiv0)
+/usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
+                              /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o) (__aeabi_idiv0)
 
 Discarded input sections
 
@@ -67,10 +67,10 @@ Discarded input sections
  .bss           0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/bitmaps/libpluginbitmaps.a(resistor.320x240x16.o)
  .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/libsetjmp.a(setjmp.o)
  .bss           0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/libsetjmp.a(setjmp.o)
- .data          0x0000000000000000        0x0 /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
- .bss           0x0000000000000000        0x0 /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
- .data          0x0000000000000000        0x0 /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
- .bss           0x0000000000000000        0x0 /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
+ .data          0x0000000000000000        0x0 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+ .bss           0x0000000000000000        0x0 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+ .data          0x0000000000000000        0x0 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
+ .bss           0x0000000000000000        0x0 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
 
 Memory Configuration
 
@@ -87,7 +87,7 @@ LOAD /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/pl
 LOAD /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/bitmaps/libpluginbitmaps.a
 LOAD /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/libsetjmp.a
 LOAD /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/libfixedpoint.a
-LOAD /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a
+LOAD /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a
 
 .header         0x0000000003f00000       0x1c
                 0x0000000003f00000                _plugin_start_addr = .
@@ -122,11 +122,11 @@ LOAD /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a
  .text          0x0000000003f016cc       0x1c /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/libsetjmp.a(setjmp.o)
                 0x0000000003f016cc                setjmp
                 0x0000000003f016d8                longjmp
- .text          0x0000000003f016e8      0x148 /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+ .text          0x0000000003f016e8      0x148 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
                 0x0000000003f016e8                __aeabi_idiv
                 0x0000000003f016e8                __divsi3
                 0x0000000003f01810                __aeabi_idivmod
- .text          0x0000000003f01830        0x4 /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
+ .text          0x0000000003f01830        0x4 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
                 0x0000000003f01830                __aeabi_ldiv0
                 0x0000000003f01830                __aeabi_idiv0
  *(.glue_7)
@@ -251,31 +251,31 @@ LOAD linker stubs
  .ARM.attributes
                 0x00000000000000fc       0x1a /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/libsetjmp.a(setjmp.o)
  .ARM.attributes
-                0x0000000000000116       0x1c /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+                0x0000000000000116       0x1c /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
  .ARM.attributes
-                0x0000000000000132       0x1c /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
+                0x0000000000000132       0x1c /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
 
 .debug_frame    0x0000000000000000       0x20
- .debug_frame   0x0000000000000000       0x20 /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+ .debug_frame   0x0000000000000000       0x20 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
 
 .debug_line     0x0000000000000000       0xeb
- .debug_line    0x0000000000000000       0x8a /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
- .debug_line    0x000000000000008a       0x61 /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
+ .debug_line    0x0000000000000000       0x8a /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+ .debug_line    0x000000000000008a       0x61 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
 
 .debug_info     0x0000000000000000       0x4c
- .debug_info    0x0000000000000000       0x26 /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
- .debug_info    0x0000000000000026       0x26 /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
+ .debug_info    0x0000000000000000       0x26 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+ .debug_info    0x0000000000000026       0x26 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
 
 .debug_abbrev   0x0000000000000000       0x28
- .debug_abbrev  0x0000000000000000       0x14 /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
- .debug_abbrev  0x0000000000000014       0x14 /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
+ .debug_abbrev  0x0000000000000000       0x14 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+ .debug_abbrev  0x0000000000000014       0x14 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
 
 .debug_aranges  0x0000000000000000       0x40
  .debug_aranges
-                0x0000000000000000       0x20 /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+                0x0000000000000000       0x20 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
  .debug_aranges
-                0x0000000000000020       0x20 /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
+                0x0000000000000020       0x20 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
 
 .debug_str      0x0000000000000000       0x6c
- .debug_str     0x0000000000000000       0x6c /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
- .debug_str     0x000000000000006c       0x6c /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
+ .debug_str     0x0000000000000000       0x6c /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+ .debug_str     0x000000000000006c       0x6c /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)

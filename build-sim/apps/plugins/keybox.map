@@ -525,12 +525,12 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000    0x20130
+.debug_info     0x0000000000000000    0x20136
  *(.debug_info .gnu.linkonce.wi.*)
  .debug_info    0x0000000000000000     0x8fed /home/david/Documents/RockBox_Personal-master/build-sim/apps/plugins/keybox.o
  .debug_info    0x0000000000008fed     0x73d7 /home/david/Documents/RockBox_Personal-master/build-sim/apps/plugins/plugin_crt0.o
  .debug_info    0x00000000000103c4     0x7005 /home/david/Documents/RockBox_Personal-master/build-sim/apps/plugins/libplugin.a(md5.o)
- .debug_info    0x00000000000173c9     0x8d67 /home/david/Documents/RockBox_Personal-master/build-sim/apps/plugins/libplugin.a(playback_control.o)
+ .debug_info    0x00000000000173c9     0x8d6d /home/david/Documents/RockBox_Personal-master/build-sim/apps/plugins/libplugin.a(playback_control.o)
 
 .debug_abbrev   0x0000000000000000     0x1076
  *(.debug_abbrev)
@@ -549,16 +549,16 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0xa57b
+.debug_str      0x0000000000000000     0xa588
  *(.debug_str)
- .debug_str     0x0000000000000000     0xa57b /home/david/Documents/RockBox_Personal-master/build-sim/apps/plugins/keybox.o
+ .debug_str     0x0000000000000000     0xa588 /home/david/Documents/RockBox_Personal-master/build-sim/apps/plugins/keybox.o
                                        0x5f80 (size before relaxing)
- .debug_str     0x000000000000a57b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim/apps/plugins/plugin_crt0.o
+ .debug_str     0x000000000000a588        0x0 /home/david/Documents/RockBox_Personal-master/build-sim/apps/plugins/plugin_crt0.o
                                        0x49e1 (size before relaxing)
- .debug_str     0x000000000000a57b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim/apps/plugins/libplugin.a(md5.o)
+ .debug_str     0x000000000000a588        0x0 /home/david/Documents/RockBox_Personal-master/build-sim/apps/plugins/libplugin.a(md5.o)
                                        0x42c7 (size before relaxing)
- .debug_str     0x000000000000a57b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim/apps/plugins/libplugin.a(playback_control.o)
-                                       0x940a (size before relaxing)
+ .debug_str     0x000000000000a588        0x0 /home/david/Documents/RockBox_Personal-master/build-sim/apps/plugins/libplugin.a(playback_control.o)
+                                       0x9417 (size before relaxing)
 
 .debug_loc
  *(.debug_loc)

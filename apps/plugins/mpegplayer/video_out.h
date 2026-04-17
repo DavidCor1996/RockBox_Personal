@@ -57,6 +57,7 @@ bool vo_init (void);
 bool vo_show (bool show);
 bool vo_is_visible(void);
 void vo_setup (const mpeg2_sequence_t * sequence);
+void vo_set_display_mode(int mode);
 void vo_set_clip_rect(const struct vo_rect *rc);
 bool vo_get_clip_rect(struct vo_rect *rc);
 void vo_dimensions(struct vo_ext *sz);

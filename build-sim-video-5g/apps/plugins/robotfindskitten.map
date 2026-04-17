@@ -513,12 +513,12 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000    0x1fbc6
+.debug_info     0x0000000000000000    0x1fbfe
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0x894f /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/robotfindskitten.o
- .debug_info    0x000000000000894f     0x7c76 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
- .debug_info    0x00000000000105c5     0x7e2c /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_actions.o)
- .debug_info    0x00000000000183f1     0x77d5 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(display_text.o)
+ .debug_info    0x0000000000000000     0x895d /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/robotfindskitten.o
+ .debug_info    0x000000000000895d     0x7c84 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+ .debug_info    0x00000000000105e1     0x7e3a /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_actions.o)
+ .debug_info    0x000000000001841b     0x77e3 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(display_text.o)
 
 .debug_abbrev   0x0000000000000000     0x1041
  *(.debug_abbrev)
@@ -537,16 +537,16 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0x5fad
+.debug_str      0x0000000000000000     0x5fc8
  *(.debug_str)
- .debug_str     0x0000000000000000     0x5fad /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/robotfindskitten.o
-                                       0x646d (size before relaxing)
- .debug_str     0x0000000000005fad        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
-                                       0x5104 (size before relaxing)
- .debug_str     0x0000000000005fad        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_actions.o)
-                                       0x6255 (size before relaxing)
- .debug_str     0x0000000000005fad        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(display_text.o)
-                                       0x488e (size before relaxing)
+ .debug_str     0x0000000000000000     0x5fc8 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/robotfindskitten.o
+                                       0x6488 (size before relaxing)
+ .debug_str     0x0000000000005fc8        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+                                       0x511f (size before relaxing)
+ .debug_str     0x0000000000005fc8        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_actions.o)
+                                       0x6270 (size before relaxing)
+ .debug_str     0x0000000000005fc8        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(display_text.o)
+                                       0x48a9 (size before relaxing)
 
 .debug_loc
  *(.debug_loc)

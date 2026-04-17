@@ -973,30 +973,30 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000    0x1e385
+.debug_info     0x0000000000000000    0x1e5df
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0x1dba /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/vorbis.o
- .debug_info    0x0000000000001dba      0xebd /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/codec_crt0.o
- .debug_info    0x0000000000002c77     0x3d6d /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libtremor.a(vorbisfile.o)
- .debug_info    0x00000000000069e4      0xebd /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libtremor.a(oggmalloc.o)
- .debug_info    0x00000000000078a1     0x1b69 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libtremor.a(block.o)
- .debug_info    0x000000000000940a     0x159e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libtremor.a(framing.o)
- .debug_info    0x000000000000a9a8     0x14e5 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libtremor.a(info.o)
- .debug_info    0x000000000000be8d      0xa4e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libtremor.a(registry.o)
- .debug_info    0x000000000000c8db     0x1bb6 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libtremor.a(res012.o)
- .debug_info    0x000000000000e491     0x135a /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libtremor.a(sharedbook.o)
- .debug_info    0x000000000000f7eb      0xd0c /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libtremor.a(synthesis.o)
- .debug_info    0x00000000000104f7      0x4b2 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libtremor.a(window.o)
- .debug_info    0x00000000000109a9      0x4c7 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libtremor.a(bitwise.o)
- .debug_info    0x0000000000010e70     0x15cc /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libtremor.a(codebook.o)
- .debug_info    0x000000000001243c     0x1bc4 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libtremor.a(floor0.o)
- .debug_info    0x0000000000014000     0x1c2d /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libtremor.a(floor1.o)
- .debug_info    0x0000000000015c2d     0x1896 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libtremor.a(mapping0.o)
- .debug_info    0x00000000000174c3     0x1a7e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libtlsf.a(tlsf.o)
- .debug_info    0x0000000000018f41     0x1658 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
- .debug_info    0x000000000001a599     0x1b44 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libcodec.a(mdct.o)
- .debug_info    0x000000000001c0dd      0x3a3 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libcodec.a(mdct_lookup.o)
- .debug_info    0x000000000001c480     0x1f05 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libcodec.a(fft-ffmpeg.o)
+ .debug_info    0x0000000000000000     0x1dc8 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/vorbis.o
+ .debug_info    0x0000000000001dc8      0xecb /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/codec_crt0.o
+ .debug_info    0x0000000000002c93     0x3d97 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libtremor.a(vorbisfile.o)
+ .debug_info    0x0000000000006a2a      0xecb /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libtremor.a(oggmalloc.o)
+ .debug_info    0x00000000000078f5     0x1b77 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libtremor.a(block.o)
+ .debug_info    0x000000000000946c     0x15ac /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libtremor.a(framing.o)
+ .debug_info    0x000000000000aa18     0x150f /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libtremor.a(info.o)
+ .debug_info    0x000000000000bf27      0xa5c /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libtremor.a(registry.o)
+ .debug_info    0x000000000000c983     0x1be0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libtremor.a(res012.o)
+ .debug_info    0x000000000000e563     0x1384 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libtremor.a(sharedbook.o)
+ .debug_info    0x000000000000f8e7      0xd36 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libtremor.a(synthesis.o)
+ .debug_info    0x000000000001061d      0x4dc /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libtremor.a(window.o)
+ .debug_info    0x0000000000010af9      0x4d5 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libtremor.a(bitwise.o)
+ .debug_info    0x0000000000010fce     0x15f6 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libtremor.a(codebook.o)
+ .debug_info    0x00000000000125c4     0x1bee /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libtremor.a(floor0.o)
+ .debug_info    0x00000000000141b2     0x1c57 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libtremor.a(floor1.o)
+ .debug_info    0x0000000000015e09     0x18c0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libtremor.a(mapping0.o)
+ .debug_info    0x00000000000176c9     0x1a7e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libtlsf.a(tlsf.o)
+ .debug_info    0x0000000000019147     0x1666 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+ .debug_info    0x000000000001a7ad     0x1b52 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libcodec.a(mdct.o)
+ .debug_info    0x000000000001c2ff      0x3b1 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libcodec.a(mdct_lookup.o)
+ .debug_info    0x000000000001c6b0     0x1f2f /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libcodec.a(fft-ffmpeg.o)
 
 .debug_abbrev   0x0000000000000000     0x4a8b
  *(.debug_abbrev)
@@ -1051,52 +1051,52 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0x2e42
+.debug_str      0x0000000000000000     0x2e7e
  *(.debug_str)
- .debug_str     0x0000000000000000     0x2e42 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/vorbis.o
-                                       0x1401 (size before relaxing)
- .debug_str     0x0000000000002e42        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/codec_crt0.o
-                                        0xc9f (size before relaxing)
- .debug_str     0x0000000000002e42        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libtremor.a(vorbisfile.o)
-                                        0xc75 (size before relaxing)
- .debug_str     0x0000000000002e42        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libtremor.a(oggmalloc.o)
-                                        0x851 (size before relaxing)
- .debug_str     0x0000000000002e42        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libtremor.a(block.o)
-                                        0xca4 (size before relaxing)
- .debug_str     0x0000000000002e42        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libtremor.a(framing.o)
-                                        0xa21 (size before relaxing)
- .debug_str     0x0000000000002e42        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libtremor.a(info.o)
-                                        0x797 (size before relaxing)
- .debug_str     0x0000000000002e42        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libtremor.a(registry.o)
-                                        0x969 (size before relaxing)
- .debug_str     0x0000000000002e42        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libtremor.a(res012.o)
-                                        0xceb (size before relaxing)
- .debug_str     0x0000000000002e42        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libtremor.a(sharedbook.o)
-                                        0x4a8 (size before relaxing)
- .debug_str     0x0000000000002e42        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libtremor.a(synthesis.o)
-                                        0x6a7 (size before relaxing)
- .debug_str     0x0000000000002e42        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libtremor.a(window.o)
-                                        0x680 (size before relaxing)
- .debug_str     0x0000000000002e42        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libtremor.a(bitwise.o)
-                                        0x66b (size before relaxing)
- .debug_str     0x0000000000002e42        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libtremor.a(codebook.o)
-                                        0x56c (size before relaxing)
- .debug_str     0x0000000000002e42        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libtremor.a(floor0.o)
-                                        0xcf2 (size before relaxing)
- .debug_str     0x0000000000002e42        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libtremor.a(floor1.o)
-                                        0xcd2 (size before relaxing)
- .debug_str     0x0000000000002e42        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libtremor.a(mapping0.o)
-                                        0xca3 (size before relaxing)
- .debug_str     0x0000000000002e42        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libtlsf.a(tlsf.o)
+ .debug_str     0x0000000000000000     0x2e7e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/vorbis.o
+                                       0x141c (size before relaxing)
+ .debug_str     0x0000000000002e7e        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/codec_crt0.o
+                                        0xcba (size before relaxing)
+ .debug_str     0x0000000000002e7e        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libtremor.a(vorbisfile.o)
+                                        0xcb8 (size before relaxing)
+ .debug_str     0x0000000000002e7e        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libtremor.a(oggmalloc.o)
+                                        0x86c (size before relaxing)
+ .debug_str     0x0000000000002e7e        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libtremor.a(block.o)
+                                        0xcbf (size before relaxing)
+ .debug_str     0x0000000000002e7e        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libtremor.a(framing.o)
+                                        0xa3c (size before relaxing)
+ .debug_str     0x0000000000002e7e        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libtremor.a(info.o)
+                                        0x7da (size before relaxing)
+ .debug_str     0x0000000000002e7e        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libtremor.a(registry.o)
+                                        0x984 (size before relaxing)
+ .debug_str     0x0000000000002e7e        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libtremor.a(res012.o)
+                                        0xd2e (size before relaxing)
+ .debug_str     0x0000000000002e7e        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libtremor.a(sharedbook.o)
+                                        0x4eb (size before relaxing)
+ .debug_str     0x0000000000002e7e        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libtremor.a(synthesis.o)
+                                        0x6ea (size before relaxing)
+ .debug_str     0x0000000000002e7e        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libtremor.a(window.o)
+                                        0x6c3 (size before relaxing)
+ .debug_str     0x0000000000002e7e        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libtremor.a(bitwise.o)
+                                        0x686 (size before relaxing)
+ .debug_str     0x0000000000002e7e        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libtremor.a(codebook.o)
+                                        0x5af (size before relaxing)
+ .debug_str     0x0000000000002e7e        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libtremor.a(floor0.o)
+                                        0xd35 (size before relaxing)
+ .debug_str     0x0000000000002e7e        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libtremor.a(floor1.o)
+                                        0xd15 (size before relaxing)
+ .debug_str     0x0000000000002e7e        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libtremor.a(mapping0.o)
+                                        0xce6 (size before relaxing)
+ .debug_str     0x0000000000002e7e        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libtlsf.a(tlsf.o)
                                         0x410 (size before relaxing)
- .debug_str     0x0000000000002e42        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
-                                        0xebb (size before relaxing)
- .debug_str     0x0000000000002e42        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libcodec.a(mdct.o)
-                                        0x29c (size before relaxing)
- .debug_str     0x0000000000002e42        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libcodec.a(mdct_lookup.o)
-                                        0x64b (size before relaxing)
- .debug_str     0x0000000000002e42        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libcodec.a(fft-ffmpeg.o)
-                                        0x782 (size before relaxing)
+ .debug_str     0x0000000000002e7e        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+                                        0xed6 (size before relaxing)
+ .debug_str     0x0000000000002e7e        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libcodec.a(mdct.o)
+                                        0x2b7 (size before relaxing)
+ .debug_str     0x0000000000002e7e        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libcodec.a(mdct_lookup.o)
+                                        0x666 (size before relaxing)
+ .debug_str     0x0000000000002e7e        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libcodec.a(fft-ffmpeg.o)
+                                        0x7c5 (size before relaxing)
 
 .debug_loc
  *(.debug_loc)
@@ -1196,7 +1196,7 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
                                         0x217 (size before relaxing)
 
 .debug_loclists
-                0x0000000000000000     0xb5f5
+                0x0000000000000000     0xb5f4
  *(.debug_loclists)
  .debug_loclists
                 0x0000000000000000      0x101 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/vorbis.o
@@ -1215,27 +1215,27 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
  .debug_loclists
                 0x000000000000328c      0xc74 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libtremor.a(res012.o)
  .debug_loclists
-                0x0000000000003f00      0xcaa /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libtremor.a(sharedbook.o)
+                0x0000000000003f00      0xca9 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libtremor.a(sharedbook.o)
  .debug_loclists
-                0x0000000000004baa      0x212 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libtremor.a(synthesis.o)
+                0x0000000000004ba9      0x212 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libtremor.a(synthesis.o)
  .debug_loclists
-                0x0000000000004dbc      0x13b /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libtremor.a(bitwise.o)
+                0x0000000000004dbb      0x13b /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libtremor.a(bitwise.o)
  .debug_loclists
-                0x0000000000004ef7     0x193f /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libtremor.a(codebook.o)
+                0x0000000000004ef6     0x193f /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libtremor.a(codebook.o)
  .debug_loclists
-                0x0000000000006836      0xb40 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libtremor.a(floor0.o)
+                0x0000000000006835      0xb40 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libtremor.a(floor0.o)
  .debug_loclists
-                0x0000000000007376      0xf7a /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libtremor.a(floor1.o)
+                0x0000000000007375      0xf7a /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libtremor.a(floor1.o)
  .debug_loclists
-                0x00000000000082f0      0x672 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libtremor.a(mapping0.o)
+                0x00000000000082ef      0x672 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libtremor.a(mapping0.o)
  .debug_loclists
-                0x0000000000008962      0xd69 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libtlsf.a(tlsf.o)
+                0x0000000000008961      0xd69 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libtlsf.a(tlsf.o)
  .debug_loclists
-                0x00000000000096cb      0x335 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+                0x00000000000096ca      0x335 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
  .debug_loclists
-                0x0000000000009a00     0x1054 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libcodec.a(mdct.o)
+                0x00000000000099ff     0x1054 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libcodec.a(mdct.o)
  .debug_loclists
-                0x000000000000aa54      0xba1 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libcodec.a(fft-ffmpeg.o)
+                0x000000000000aa53      0xba1 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libcodec.a(fft-ffmpeg.o)
 
 .debug_macro
  *(.debug_macro)

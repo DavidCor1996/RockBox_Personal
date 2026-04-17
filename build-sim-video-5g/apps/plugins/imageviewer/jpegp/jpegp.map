@@ -531,13 +531,13 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000    0x22cda
+.debug_info     0x0000000000000000    0x22d12
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0x8b65 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/imageviewer/jpegp/jpegp.o
- .debug_info    0x0000000000008b65     0x7b8e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/imageviewer/jpegp/BUFFILEGETC.o
- .debug_info    0x00000000000106f3     0xa985 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/imageviewer/jpegp/jpeg81.o
- .debug_info    0x000000000001b078      0x28c /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/imageviewer/jpegp/idct.o
- .debug_info    0x000000000001b304     0x79d6 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/imageviewer/jpegp/mempool.o
+ .debug_info    0x0000000000000000     0x8b73 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/imageviewer/jpegp/jpegp.o
+ .debug_info    0x0000000000008b73     0x7b9c /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/imageviewer/jpegp/BUFFILEGETC.o
+ .debug_info    0x000000000001070f     0xa993 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/imageviewer/jpegp/jpeg81.o
+ .debug_info    0x000000000001b0a2      0x28c /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/imageviewer/jpegp/idct.o
+ .debug_info    0x000000000001b32e     0x79e4 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/imageviewer/jpegp/mempool.o
 
 .debug_abbrev   0x0000000000000000     0x14cd
  *(.debug_abbrev)
@@ -558,18 +558,18 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0x514e
+.debug_str      0x0000000000000000     0x5169
  *(.debug_str)
- .debug_str     0x0000000000000000     0x514e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/imageviewer/jpegp/jpegp.o
-                                       0x54ca (size before relaxing)
- .debug_str     0x000000000000514e        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/imageviewer/jpegp/BUFFILEGETC.o
-                                       0x4f8d (size before relaxing)
- .debug_str     0x000000000000514e        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/imageviewer/jpegp/jpeg81.o
-                                       0x544a (size before relaxing)
- .debug_str     0x000000000000514e        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/imageviewer/jpegp/idct.o
+ .debug_str     0x0000000000000000     0x5169 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/imageviewer/jpegp/jpegp.o
+                                       0x54e5 (size before relaxing)
+ .debug_str     0x0000000000005169        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/imageviewer/jpegp/BUFFILEGETC.o
+                                       0x4fa8 (size before relaxing)
+ .debug_str     0x0000000000005169        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/imageviewer/jpegp/jpeg81.o
+                                       0x5465 (size before relaxing)
+ .debug_str     0x0000000000005169        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/imageviewer/jpegp/idct.o
                                         0x133 (size before relaxing)
- .debug_str     0x000000000000514e        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/imageviewer/jpegp/mempool.o
-                                       0x4fb8 (size before relaxing)
+ .debug_str     0x0000000000005169        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/imageviewer/jpegp/mempool.o
+                                       0x4fd3 (size before relaxing)
 
 .debug_loc
  *(.debug_loc)

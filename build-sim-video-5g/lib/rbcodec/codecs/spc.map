@@ -550,14 +550,14 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000     0xc200
+.debug_info     0x0000000000000000     0xc254
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0x21f8 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/spc.o
- .debug_info    0x00000000000021f8      0xebd /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/codec_crt0.o
- .debug_info    0x00000000000030b5     0x2f91 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libspc.a(spc_cpu.o)
- .debug_info    0x0000000000006046     0x2300 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libspc.a(spc_emu.o)
- .debug_info    0x0000000000008346     0x2862 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libspc.a(spc_dsp.o)
- .debug_info    0x000000000000aba8     0x1658 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+ .debug_info    0x0000000000000000     0x2206 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/spc.o
+ .debug_info    0x0000000000002206      0xecb /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/codec_crt0.o
+ .debug_info    0x00000000000030d1     0x2f9f /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libspc.a(spc_cpu.o)
+ .debug_info    0x0000000000006070     0x230e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libspc.a(spc_emu.o)
+ .debug_info    0x000000000000837e     0x2870 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libspc.a(spc_dsp.o)
+ .debug_info    0x000000000000abee     0x1666 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
 
 .debug_abbrev   0x0000000000000000     0x1db6
  *(.debug_abbrev)
@@ -580,20 +580,20 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0x1907
+.debug_str      0x0000000000000000     0x1922
  *(.debug_str)
- .debug_str     0x0000000000000000     0x1907 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/spc.o
-                                       0x13ab (size before relaxing)
- .debug_str     0x0000000000001907        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/codec_crt0.o
-                                        0xc9f (size before relaxing)
- .debug_str     0x0000000000001907        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libspc.a(spc_cpu.o)
-                                       0x1160 (size before relaxing)
- .debug_str     0x0000000000001907        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libspc.a(spc_emu.o)
-                                       0x10eb (size before relaxing)
- .debug_str     0x0000000000001907        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libspc.a(spc_dsp.o)
-                                       0x1183 (size before relaxing)
- .debug_str     0x0000000000001907        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
-                                        0xebb (size before relaxing)
+ .debug_str     0x0000000000000000     0x1922 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/spc.o
+                                       0x13c6 (size before relaxing)
+ .debug_str     0x0000000000001922        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/codec_crt0.o
+                                        0xcba (size before relaxing)
+ .debug_str     0x0000000000001922        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libspc.a(spc_cpu.o)
+                                       0x117b (size before relaxing)
+ .debug_str     0x0000000000001922        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libspc.a(spc_emu.o)
+                                       0x1106 (size before relaxing)
+ .debug_str     0x0000000000001922        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libspc.a(spc_dsp.o)
+                                       0x119e (size before relaxing)
+ .debug_str     0x0000000000001922        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+                                        0xed6 (size before relaxing)
 
 .debug_loc
  *(.debug_loc)

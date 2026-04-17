@@ -27,6 +27,8 @@
 #include "video_out.h"
 #include "mpeg_settings.h"
 
+#define VTLOG(...) DEBUGF("mpegplayer-vt: " __VA_ARGS__)
+
 /** Video stream and thread **/
 
 /* Video thread data passed around to its various functions */
@@ -60,9 +62,11 @@ static int video_num_drawn SHAREDBSS_ATTR;
 /* Number skipped since reset */
 static int video_num_skipped SHAREDBSS_ATTR;
 
-/* TODO: Check if 4KB is appropriate - it works for my test streams,
-   so maybe we can reduce it. */
+#if defined(SIMULATOR) || (CONFIG_PLATFORM & PLATFORM_HOSTED)
+#define VIDEO_STACKSIZE (32*1024)
+#else
 #define VIDEO_STACKSIZE (4*1024)
+#endif
 static uint32_t video_stack[VIDEO_STACKSIZE / sizeof(uint32_t)] IBSS_ATTR;
 static struct event_queue video_str_queue SHAREDBSS_ATTR;
 static struct queue_sender_list video_str_queue_send SHAREDBSS_ATTR;
@@ -601,7 +605,9 @@ static void video_thread_msg(struct video_thread_data *td)
 
         case VIDEO_PRINT_FRAME:
         case VIDEO_PRINT_THUMBNAIL:
+            VTLOG("frame_print id=%ld\n", td->ev.id);
             reply = frame_print_handler(td);
+            VTLOG("frame_print done reply=%ld\n", (long)reply);
             break;
 
         case VIDEO_SET_CLIP_RECT:
@@ -610,6 +616,13 @@ static void video_thread_msg(struct video_thread_data *td)
 
         case VIDEO_GET_CLIP_RECT:
             reply = vo_get_clip_rect((struct vo_rect *)td->ev.data);
+            break;
+
+        case VIDEO_SET_DISPLAY_MODE:
+            vo_set_display_mode((int)td->ev.data);
+            if (td->info && td->info->sequence)
+                vo_setup(td->info->sequence);
+            reply = true;
             break;
 
         case VIDEO_GET_SIZE:
@@ -670,7 +683,10 @@ static void video_thread(void)
     struct video_thread_data td;
 
     memset(&td, 0, sizeof (td));
+    VTLOG("video_thread enter self=%u created=%u q=%p\n",
+          rb->thread_self(), video_str.thread, video_str.hdr.q);
     td.mpeg2dec = mpeg2_init();
+    VTLOG("mpeg2_init %s\n", td.mpeg2dec ? "ok" : "failed");
     td.status = STREAM_STOPPED;
     td.state = TSTATE_EOS;
 
@@ -688,6 +704,7 @@ static void video_thread(void)
     }
 
     vo_init();
+    VTLOG("vo_init done\n");
 
     goto message_wait;
 
@@ -700,6 +717,9 @@ static void video_thread(void)
         if (str_have_msg(&video_str))
         {
         message_wait:
+            VTLOG("message_wait self=%u q=%p send=%p\n",
+                  rb->thread_self(), video_str.hdr.q,
+                  video_str.hdr.q ? video_str.hdr.q->send : NULL);
             /* Wait for a message to be queued */
             str_get_msg(&video_str, &td.ev);
 
@@ -1017,8 +1037,13 @@ bool video_thread_init(void)
         video_thread, video_stack, VIDEO_STACKSIZE, 0,
         "mpgvideo" IF_PRIO(,PRIORITY_PLAYBACK) IF_COP(, COP));
 
+    VTLOG("video_thread_init created thread=%u self=%u q=%p\n",
+          video_str.thread, rb->thread_self(), video_str.hdr.q);
+
     rb->queue_enable_queue_send(video_str.hdr.q, &video_str_queue_send,
                                 video_str.thread);
+
+    VTLOG("video_thread_init queue_send enabled owner=%u\n", video_str.thread);
 
     if (video_str.thread == 0)
         return false;
@@ -1056,4 +1081,3 @@ void video_thread_get_stats(struct video_output_stats *s)
     if (now > start)
         s->fps = muldiv_uint32(CLOCK_RATE*100, s->num_drawn, now - start);
 }
-

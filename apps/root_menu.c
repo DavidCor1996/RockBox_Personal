@@ -21,6 +21,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <ctype.h>
 #include "string-extra.h"
 #include "config.h"
 #include "appevents.h"
@@ -79,6 +80,7 @@
 #include "plugin.h"
 #include "filetypes.h"
 #include "disk.h"
+#include "dir.h"
 #if defined(IPOD_NANO2G)
 #include "lcd.h"
 #include "font.h"
@@ -326,6 +328,868 @@ static int browser(void* param)
     return ret_val;
 }
 
+#define VIDEO_BROWSER_MAX_FILES 192
+#define VIDEO_BROWSER_MAX_DEPTH 6
+#define VIDEO_BROWSER_TITLE_MAX 64
+
+struct video_entry
+{
+    char path[MAX_PATH];
+    char title[VIDEO_BROWSER_TITLE_MAX];
+    char format[8];  /* File extension for display (e.g., "MPEG", "MP4") */
+    bool playable;
+    off_t filesize;  /* File size in bytes */
+    time_t mtime;    /* Modification time for sorting */
+    int width;       /* Video width (0 = unknown) */
+    int height;      /* Video height (0 = unknown) */
+    unsigned duration_sec;  /* Duration in seconds (0 = unknown) */
+};
+
+enum video_sort_order
+{
+    VIDEO_SORT_NAME_AZ,     /* Name A-Z */
+    VIDEO_SORT_NAME_ZA,     /* Name Z-A */
+    VIDEO_SORT_DATE_NEW,    /* Newest first */
+    VIDEO_SORT_DATE_OLD,    /* Oldest first */
+    VIDEO_SORT_SIZE_LARGE,  /* Largest first */
+    VIDEO_SORT_SIZE_SMALL,  /* Smallest first */
+};
+
+struct video_browser_state
+{
+    struct video_entry entries[VIDEO_BROWSER_MAX_FILES];
+    int count;
+    int selection;
+    int next_screen;
+    bool truncated;
+    enum video_sort_order sort_order;
+};
+
+static const char * const video_scan_roots[] = {
+    "/Videos",
+    "/Video",
+    "/iPod_Control/Video",
+    "/iPod_Control/Videos",
+    "/iPod_Control/Movies",
+};
+
+static bool is_supported_video_ext(const char *ext)
+{
+    return !strcasecmp(ext, "mpg") || !strcasecmp(ext, "mpeg")
+        || !strcasecmp(ext, "mpv") || !strcasecmp(ext, "m2v");
+}
+
+static bool is_known_video_ext(const char *ext)
+{
+    return is_supported_video_ext(ext)
+        || !strcasecmp(ext, "mp4")
+        || !strcasecmp(ext, "m4v")
+        || !strcasecmp(ext, "mov");
+}
+
+/* Comparison functions for qsort */
+static int video_compare_name_az(const void *a, const void *b)
+{
+    const struct video_entry *va = (const struct video_entry *)a;
+    const struct video_entry *vb = (const struct video_entry *)b;
+    return strcasecmp(va->title, vb->title);
+}
+
+static int video_compare_name_za(const void *a, const void *b)
+{
+    return -video_compare_name_az(a, b);
+}
+
+static int video_compare_date_new(const void *a, const void *b)
+{
+    const struct video_entry *va = (const struct video_entry *)a;
+    const struct video_entry *vb = (const struct video_entry *)b;
+    /* Newer files first (larger mtime first) */
+    if (va->mtime > vb->mtime) return -1;
+    if (va->mtime < vb->mtime) return 1;
+    return 0;
+}
+
+static int video_compare_date_old(const void *a, const void *b)
+{
+    return -video_compare_date_new(a, b);
+}
+
+static int video_compare_size_large(const void *a, const void *b)
+{
+    const struct video_entry *va = (const struct video_entry *)a;
+    const struct video_entry *vb = (const struct video_entry *)b;
+    /* Larger files first */
+    if (va->filesize > vb->filesize) return -1;
+    if (va->filesize < vb->filesize) return 1;
+    return 0;
+}
+
+static int video_compare_size_small(const void *a, const void *b)
+{
+    return -video_compare_size_large(a, b);
+}
+
+/* Sort videos by current sort order */
+static void videos_sort(struct video_browser_state *state)
+{
+    int (*compare_func)(const void *, const void *);
+    
+    if (state->count <= 1)
+        return;
+    
+    switch (state->sort_order)
+    {
+        case VIDEO_SORT_NAME_AZ:
+            compare_func = video_compare_name_az;
+            break;
+        case VIDEO_SORT_NAME_ZA:
+            compare_func = video_compare_name_za;
+            break;
+        case VIDEO_SORT_DATE_NEW:
+            compare_func = video_compare_date_new;
+            break;
+        case VIDEO_SORT_DATE_OLD:
+            compare_func = video_compare_date_old;
+            break;
+        case VIDEO_SORT_SIZE_LARGE:
+            compare_func = video_compare_size_large;
+            break;
+        case VIDEO_SORT_SIZE_SMALL:
+            compare_func = video_compare_size_small;
+            break;
+        default:
+            compare_func = video_compare_name_az;
+            break;
+    }
+    
+    qsort(state->entries, state->count, sizeof(struct video_entry), compare_func);
+}
+
+static const char *video_get_ext(const char *name)
+{
+    const char *ext = strrchr(name, '.');
+
+    if (!ext || !ext[1])
+        return NULL;
+
+    return ext + 1;
+}
+
+static bool videos_is_apple_style_name(const char *name)
+{
+    const char *p;
+
+    if (strncasecmp(name, "M4V", 3))
+        return false;
+
+    p = name + 3;
+
+    if (!*p)
+        return false;
+
+    while (*p)
+    {
+        if (!isdigit((unsigned char)*p))
+            return false;
+
+        p++;
+    }
+
+    return true;
+}
+
+static bool videos_is_apple_path(const char *path)
+{
+    return strstr(path, "/iPod_Control/") != NULL;
+}
+
+/* Remove common junk patterns from video titles */
+static void videos_strip_junk(char *str)
+{
+    char *p, *start, *end;
+    size_t len = strlen(str);
+    
+    /* Remove content in square brackets [2024], [1080p], [x264], etc. */
+    while ((start = strchr(str, '[')) != NULL)
+    {
+        end = strchr(start, ']');
+        if (end)
+        {
+            memmove(start, end + 1, strlen(end + 1) + 1);
+        }
+        else
+            break;
+    }
+    
+    /* Remove content in parentheses (2024), (BluRay), etc. */
+    while ((start = strchr(str, '(')) != NULL)
+    {
+        end = strchr(start, ')');
+        if (end)
+        {
+            memmove(start, end + 1, strlen(end + 1) + 1);
+        }
+        else
+            break;
+    }
+    
+    /* Remove common quality/codec markers that might remain */
+    static const char * const junk_markers[] = {
+        "1080p", "720p", "480p", "360p",
+        "BluRay", "BRRip", "DVDRip", "WEBRip", "HDTV",
+        "x264", "x265", "h264", "h265", "XviD", "DivX",
+        "AAC", "AC3", "MP3",
+        NULL
+    };
+    
+    for (int i = 0; junk_markers[i]; i++)
+    {
+        /* Case-insensitive search */
+        p = str;
+        while (*p)
+        {
+            if (!strncasecmp(p, junk_markers[i], strlen(junk_markers[i])))
+            {
+                /* Check if it's a standalone word (not part of title) */
+                bool is_start = (p == str || !isalnum((unsigned char)p[-1]));
+                bool is_end = !isalnum((unsigned char)p[strlen(junk_markers[i])]);
+                
+                if (is_start && is_end)
+                {
+                    memmove(p, p + strlen(junk_markers[i]),
+                            strlen(p + strlen(junk_markers[i])) + 1);
+                    continue;
+                }
+            }
+            p++;
+        }
+    }
+    
+    /* Trim leading/trailing spaces */
+    p = str;
+    while (isspace((unsigned char)*p))
+        p++;
+    if (p != str)
+        memmove(str, p, strlen(p) + 1);
+    
+    len = strlen(str);
+    while (len > 0 && isspace((unsigned char)str[len - 1]))
+        str[--len] = '\0';
+}
+
+static void videos_simplify_name(const char *name,
+                                 char *title,
+                                 size_t title_len)
+{
+    size_t n = 0;
+    bool prev_space = true;
+    char temp[VIDEO_BROWSER_TITLE_MAX];
+
+    if (title_len == 0)
+        return;
+
+    /* First pass: convert separators to spaces, keep only alphanumeric + spaces */
+    while (*name && n + 1 < title_len)
+    {
+        unsigned char c = (unsigned char)*name++;
+
+        if (isalnum(c))
+        {
+            temp[n++] = c;
+            prev_space = false;
+            continue;
+        }
+
+        /* Convert common separators to spaces */
+        if (c == ' ' || c == '_' || c == '-' || c == '.')
+        {
+            if (!prev_space && n + 1 < title_len)
+            {
+                temp[n++] = ' ';
+                prev_space = true;
+            }
+        }
+        /* Keep brackets and parens for junk detection */
+        else if (c == '[' || c == ']' || c == '(' || c == ')')
+        {
+            if (n + 1 < title_len)
+            {
+                temp[n++] = c;
+                prev_space = false;
+            }
+        }
+    }
+
+    /* Remove trailing space */
+    if (n > 0 && temp[n - 1] == ' ')
+        n--;
+
+    temp[n] = '\0';
+
+    /* Second pass: remove junk patterns */
+    videos_strip_junk(temp);
+
+    /* Final cleanup: normalize multiple spaces */
+    n = 0;
+    prev_space = true;
+    for (const char *p = temp; *p && n + 1 < title_len; p++)
+    {
+        if (isspace((unsigned char)*p))
+        {
+            if (!prev_space)
+            {
+                title[n++] = ' ';
+                prev_space = true;
+            }
+        }
+        else
+        {
+            title[n++] = *p;
+            prev_space = false;
+        }
+    }
+
+    /* Remove trailing space */
+    if (n > 0 && title[n - 1] == ' ')
+        n--;
+
+    title[n] = '\0';
+
+    if (n == 0)
+        strmemccpy(title, "Video", title_len);
+}
+
+static void videos_make_title(const char *path,
+                              char *title,
+                              size_t title_len)
+{
+    char base[VIDEO_BROWSER_TITLE_MAX];
+    const char *name;
+    const char *ext;
+
+    name = strrchr(path, '/');
+    name = (name && name[1]) ? name + 1 : path;
+
+    strmemccpy(base, name, sizeof(base));
+
+    ext = strrchr(base, '.');
+    if (ext != NULL)
+        *(char *)ext = '\0';
+
+    if (videos_is_apple_path(path) && videos_is_apple_style_name(base))
+    {
+        snprintf(title, title_len, "Video %s", base + 3);
+        return;
+    }
+
+    videos_simplify_name(base, title, title_len);
+}
+
+static bool videos_have_path(struct video_browser_state *state,
+                             const char *path)
+{
+    int i;
+
+    for (i = 0; i < state->count; i++)
+    {
+        if (!strcmp(state->entries[i].path, path))
+            return true;
+    }
+
+    return false;
+}
+
+static void videos_add_file(struct video_browser_state *state,
+                            const char *path,
+                            const char *ext,
+                            bool playable,
+                            const struct dirinfo *info)
+{
+    struct video_entry *vid;
+    
+    if (state->count >= VIDEO_BROWSER_MAX_FILES)
+    {
+        state->truncated = true;
+        return;
+    }
+
+    if (videos_have_path(state, path))
+        return;
+
+    vid = &state->entries[state->count];
+    
+    strmemccpy(vid->path, path, sizeof(vid->path));
+    videos_make_title(path, vid->title, sizeof(vid->title));
+    
+    /* Store format for display - normalize extension to uppercase */
+    if (ext)
+    {
+        size_t i;
+        for (i = 0; i < sizeof(vid->format) - 1 && ext[i]; i++)
+            vid->format[i] = toupper((unsigned char)ext[i]);
+        vid->format[i] = '\0';
+    }
+    else
+    {
+        vid->format[0] = '\0';
+    }
+    
+    vid->playable = playable;
+    
+    /* Store file metadata */
+    if (info)
+    {
+        vid->filesize = info->size;
+        vid->mtime = info->mtime;
+    }
+    else
+    {
+        vid->filesize = 0;
+        vid->mtime = 0;
+    }
+    
+    /* Duration and resolution are unknown at scan time */
+    vid->width = 0;
+    vid->height = 0;
+    vid->duration_sec = 0;
+    
+    state->count++;
+}
+
+static void videos_scan_dir(struct video_browser_state *state,
+                            const char *dir,
+                            int depth)
+{
+    DIR *dp;
+    struct dirent *entry;
+
+    if (state->truncated || depth > VIDEO_BROWSER_MAX_DEPTH)
+        return;
+
+    dp = opendir(dir);
+    if (!dp)
+        return;
+
+    while (!state->truncated && (entry = readdir(dp)) != NULL)
+    {
+        struct dirinfo info;
+        const char *ext;
+        char fullpath[MAX_PATH];
+
+        if (!strcmp(entry->d_name, ".") || !strcmp(entry->d_name, ".."))
+            continue;
+
+        info = dir_get_info(dp, entry);
+
+        if (!strcmp(dir, "/"))
+            snprintf(fullpath, sizeof(fullpath), "/%s", entry->d_name);
+        else
+            snprintf(fullpath, sizeof(fullpath), "%s/%s", dir, entry->d_name);
+
+        if (info.attribute & ATTR_DIRECTORY)
+        {
+            videos_scan_dir(state, fullpath, depth + 1);
+            continue;
+        }
+
+        ext = video_get_ext(entry->d_name);
+        if (!ext || !is_known_video_ext(ext))
+            continue;
+
+        videos_add_file(state, fullpath, ext, is_supported_video_ext(ext), &info);
+    }
+
+    closedir(dp);
+}
+
+static const char *videos_get_name(int selected_item,
+                                   void *data,
+                                   char *buffer,
+                                   size_t buffer_len)
+{
+    struct video_browser_state *state = data;
+
+    if (selected_item < 0 || selected_item >= state->count)
+        return "";
+
+    /* Show format indicator for all videos */
+    if (state->entries[selected_item].playable)
+    {
+        if (state->entries[selected_item].format[0])
+        {
+            snprintf(buffer, buffer_len, "%s - %s",
+                     state->entries[selected_item].title,
+                     state->entries[selected_item].format);
+            return buffer;
+        }
+        return state->entries[selected_item].title;
+    }
+
+    /* Unsupported files get more helpful messaging */
+    if (state->entries[selected_item].format[0])
+    {
+        snprintf(buffer, buffer_len, "%s - %s (not supported)",
+                 state->entries[selected_item].title,
+                 state->entries[selected_item].format);
+    }
+    else
+    {
+        snprintf(buffer, buffer_len, "%s (not supported)",
+                 state->entries[selected_item].title);
+    }
+    return buffer;
+}
+
+static enum themable_icons videos_get_icon(int selected_item, void *data)
+{
+    struct video_browser_state *state = data;
+
+    if (selected_item < 0 || selected_item >= state->count)
+        return Icon_NOICON;
+
+    if (state->entries[selected_item].playable)
+        return Icon_file_view_menu;
+
+    return Icon_Questionmark;
+}
+
+/* Current video for preview screen - used by context menu */
+static struct video_entry *current_preview_entry;
+static struct video_browser_state *current_video_browser_state;
+
+/* Sort order change handler - returns ACTION_REDRAW to update display */
+static int video_set_sort_order(enum video_sort_order order)
+{
+    if (!current_video_browser_state)
+        return 0;
+    
+    current_video_browser_state->sort_order = order;
+    videos_sort(current_video_browser_state);
+    
+    return ACTION_REDRAW;  /* Tell simplelist to refresh */
+}
+
+/* Sort menu callbacks */
+static int video_sort_name_az(void)
+{
+    return video_set_sort_order(VIDEO_SORT_NAME_AZ);
+}
+
+static int video_sort_name_za(void)
+{
+    return video_set_sort_order(VIDEO_SORT_NAME_ZA);
+}
+
+static int video_sort_date_new(void)
+{
+    return video_set_sort_order(VIDEO_SORT_DATE_NEW);
+}
+
+static int video_sort_date_old(void)
+{
+    return video_set_sort_order(VIDEO_SORT_DATE_OLD);
+}
+
+static int video_sort_size_large(void)
+{
+    return video_set_sort_order(VIDEO_SORT_SIZE_LARGE);
+}
+
+static int video_sort_size_small(void)
+{
+    return video_set_sort_order(VIDEO_SORT_SIZE_SMALL);
+}
+
+/* Video preview screen - shows metadata and optional thumbnail */
+static int video_preview_screen(void)
+{
+    struct video_entry *entry = current_preview_entry;
+    struct viewport vp;
+    int y = 0;
+    char buf[128];
+    
+    if (!entry)
+        return 0;
+    
+    viewportmanager_theme_enable(SCREEN_MAIN, false, &vp);
+    screens[SCREEN_MAIN].set_viewport(&vp);
+    screens[SCREEN_MAIN].clear_display();
+    
+    /* Title */
+    screens[SCREEN_MAIN].puts_scroll(0, y++, entry->title);
+    y++;  /* blank line */
+    
+    /* Format and status */
+    if (entry->playable)
+    {
+        snprintf(buf, sizeof(buf), "Format: %s (Playable)", entry->format);
+    }
+    else
+    {
+        snprintf(buf, sizeof(buf), "Format: %s (Not supported)", entry->format);
+    }
+    screens[SCREEN_MAIN].puts(0, y++, buf);
+    
+    /* File size */
+    if (entry->filesize > 0)
+    {
+        if (entry->filesize >= 1024*1024)
+            snprintf(buf, sizeof(buf), "Size: %ld MB", 
+                     (long)(entry->filesize / (1024*1024)));
+        else if (entry->filesize >= 1024)
+            snprintf(buf, sizeof(buf), "Size: %ld KB", 
+                     (long)(entry->filesize / 1024));
+        else
+            snprintf(buf, sizeof(buf), "Size: %ld bytes", (long)entry->filesize);
+        screens[SCREEN_MAIN].puts(0, y++, buf);
+    }
+    
+    /* Duration and resolution (if available) */
+    if (entry->width > 0 && entry->height > 0)
+    {
+        snprintf(buf, sizeof(buf), "Resolution: %dx%d", entry->width, entry->height);
+        screens[SCREEN_MAIN].puts(0, y++, buf);
+    }
+    
+    if (entry->duration_sec > 0)
+    {
+        unsigned hours = entry->duration_sec / 3600;
+        unsigned mins = (entry->duration_sec % 3600) / 60;
+        unsigned secs = entry->duration_sec % 60;
+        
+        if (hours > 0)
+            snprintf(buf, sizeof(buf), "Duration: %u:%02u:%02u", hours, mins, secs);
+        else
+            snprintf(buf, sizeof(buf), "Duration: %u:%02u", mins, secs);
+        screens[SCREEN_MAIN].puts(0, y++, buf);
+    }
+    
+    y++;  /* blank line */
+    
+    /* Path (truncated for display) */
+    snprintf(buf, sizeof(buf), "Path: %s", entry->path);
+    screens[SCREEN_MAIN].puts_scroll(0, y++, buf);
+    
+    y++;  /* blank line */
+    
+    /* Instructions */
+    if (entry->playable)
+    {
+        screens[SCREEN_MAIN].puts(0, y++, "CENTER: Play");
+        screens[SCREEN_MAIN].puts(0, y++, "MENU: Return");
+    }
+    else
+    {
+        screens[SCREEN_MAIN].puts(0, y++, "MENU: Return");
+    }
+    
+    screens[SCREEN_MAIN].update();
+    
+    /* Wait for user input */
+    while (true)
+    {
+        int button = get_action(CONTEXT_STD, HZ/4);
+        
+        switch (button)
+        {
+            case ACTION_STD_OK:
+                /* Play video if supported */
+                if (entry->playable)
+                {
+                    viewportmanager_theme_undo(SCREEN_MAIN, false);
+                    filetype_load_plugin("mpegplayer", entry->path);
+                    return 1;  /* Return to browser */
+                }
+                break;
+                
+            case ACTION_STD_CANCEL:
+            case ACTION_STD_MENU:
+                /* Return to browser */
+                viewportmanager_theme_undo(SCREEN_MAIN, false);
+                return 0;
+        }
+    }
+}
+
+/* Menu items for video context menu */
+MENUITEM_FUNCTION(video_preview_item, 0, "Show Preview",
+                  video_preview_screen, NULL, Icon_NOICON);
+
+/* Sort menu items */
+MENUITEM_FUNCTION(video_sort_name_az_item, 0, "Name (A-Z)",
+                  video_sort_name_az, NULL, Icon_NOICON);
+MENUITEM_FUNCTION(video_sort_name_za_item, 0, "Name (Z-A)",
+                  video_sort_name_za, NULL, Icon_NOICON);
+MENUITEM_FUNCTION(video_sort_date_new_item, 0, "Date (Newest First)",
+                  video_sort_date_new, NULL, Icon_NOICON);
+MENUITEM_FUNCTION(video_sort_date_old_item, 0, "Date (Oldest First)",
+                  video_sort_date_old, NULL, Icon_NOICON);
+MENUITEM_FUNCTION(video_sort_size_large_item, 0, "Size (Largest First)",
+                  video_sort_size_large, NULL, Icon_NOICON);
+MENUITEM_FUNCTION(video_sort_size_small_item, 0, "Size (Smallest First)",
+                  video_sort_size_small, NULL, Icon_NOICON);
+
+MAKE_MENU(video_sort_menu, "Sort By", NULL, Icon_NOICON,
+          &video_sort_name_az_item,
+          &video_sort_name_za_item,
+          &video_sort_date_new_item,
+          &video_sort_date_old_item,
+          &video_sort_size_large_item,
+          &video_sort_size_small_item);
+
+MAKE_MENU(video_context_menu_items, "Video Options", NULL, Icon_NOICON,
+          &video_preview_item,
+          &video_sort_menu);
+
+/* Context menu for video entry */
+static int video_context_menu(struct video_entry *entry)
+{
+    int result;
+    
+    current_preview_entry = entry;
+    
+    result = do_menu(&video_context_menu_items, NULL, NULL, false);
+    
+    current_preview_entry = NULL;
+    
+    return result;
+}
+
+static int videos_action_cb(int action, struct gui_synclist *lists)
+{
+    struct video_browser_state *state = lists->data;
+    int selected = gui_synclist_get_sel_pos(lists);
+
+    /* Set global state pointer for sort menu access */
+    current_video_browser_state = state;
+
+    if (action == ACTION_STD_CANCEL)
+    {
+        state->selection = selected;
+        current_video_browser_state = NULL;
+        return action;
+    }
+
+    /* Handle context menu (long press on SELECT) */
+    if (action == ACTION_STD_CONTEXT)
+    {
+        if (selected >= 0 && selected < state->count)
+        {
+            state->selection = selected;
+            video_context_menu(&state->entries[selected]);
+        }
+        current_video_browser_state = NULL;
+        return ACTION_REDRAW;
+    }
+
+    if (action != ACTION_STD_OK)
+    {
+        current_video_browser_state = NULL;
+        return action;
+    }
+
+    if (selected < 0 || selected >= state->count)
+    {
+        current_video_browser_state = NULL;
+        return ACTION_REDRAW;
+    }
+
+    state->selection = selected;
+
+    if (!state->entries[selected].playable)
+    {
+        /* Show helpful message based on format */
+        if (!strcasecmp(state->entries[selected].format, "mp4") ||
+            !strcasecmp(state->entries[selected].format, "m4v"))
+        {
+            splash(HZ * 2, "MP4 not supported - Use MPEG-2 (.mpg)");
+        }
+        else if (!strcasecmp(state->entries[selected].format, "mov"))
+        {
+            splash(HZ * 2, "MOV not supported - Use MPEG-2 (.mpg)");
+        }
+        else
+        {
+            splash(HZ * 2, "Format not supported - Use MPEG-2 (.mpg)");
+        }
+        current_video_browser_state = NULL;
+        return ACTION_REDRAW;
+    }
+
+    switch (filetype_load_plugin("mpegplayer", state->entries[selected].path))
+    {
+        case PLUGIN_GOTO_WPS:
+            state->next_screen = GO_TO_WPS;
+            current_video_browser_state = NULL;
+            return ACTION_STD_CANCEL;
+
+        case PLUGIN_USB_CONNECTED:
+        case PLUGIN_ERROR:
+            state->next_screen = GO_TO_ROOT;
+            current_video_browser_state = NULL;
+            return ACTION_STD_CANCEL;
+
+        default:
+            current_video_browser_state = NULL;
+            return ACTION_REDRAW;
+    }
+}
+
+static int videos_scrn(void* param)
+{
+    static struct video_browser_state state;
+    struct simplelist_info list;
+    bool usb;
+    int i;
+    int ret = GO_TO_PREVIOUS;
+
+    (void)param;
+
+    state.count = 0;
+    state.truncated = false;
+    state.next_screen = GO_TO_PREVIOUS;
+    state.sort_order = VIDEO_SORT_NAME_AZ;  /* Default sort by name A-Z */
+
+    for (i = 0; i < (int)ARRAYLEN(video_scan_roots) && !state.truncated; i++)
+        videos_scan_dir(&state, video_scan_roots[i], 0);
+
+    /* Sort videos by current sort order */
+    if (state.count > 1)
+        videos_sort(&state);
+
+    if (state.count == 0)
+    {
+        splash(HZ * 2, "No videos found");
+        return GO_TO_PREVIOUS;
+    }
+
+    if (state.truncated)
+        splashf(HZ, "Showing first %d videos", VIDEO_BROWSER_MAX_FILES);
+
+    simplelist_info_init(&list, "Videos", state.count, &state);
+    list.get_name = videos_get_name;
+    list.get_icon = global_settings.show_icons ? videos_get_icon : NULL;
+    list.action_callback = videos_action_cb;
+    list.title_icon = Icon_file_view_menu;
+    list.selection = MIN(state.selection, state.count - 1);
+
+    push_current_activity(ACTIVITY_FILEBROWSER);
+    usb = simplelist_show_list(&list);
+    pop_current_activity();
+
+    if (usb)
+        return GO_TO_ROOT;
+
+    if (list.selection >= 0)
+        state.selection = list.selection;
+
+    if (state.next_screen != GO_TO_PREVIOUS)
+        ret = state.next_screen;
+
+    return ret;
+}
+
 #ifdef HAVE_RECORDING
 static int recscrn(void* param)
 {
@@ -498,6 +1362,7 @@ static const struct root_items items[] = {
 #ifdef HAVE_TAGCACHE
     [GO_TO_DBBROWSER] =     { browser, (void*)GO_TO_DBBROWSER, &tagcache_menu },
 #endif
+    [GO_TO_VIDEOS] =        { videos_scrn, NULL, NULL },
     [GO_TO_WPS] =           { wpsscrn, NULL, &playback_settings },
     [GO_TO_MAINMENU] =      { miscscrn, (struct menu_item_ex*)&main_menu_,
                                                             &manage_settings },
@@ -534,6 +1399,8 @@ MENUITEM_RETURNVALUE(shortcut_menu, ID2P(LANG_SHORTCUTS), GO_TO_SHORTCUTMENU,
                         NULL, Icon_Bookmark);
 
 MENUITEM_RETURNVALUE(file_browser, ID2P(LANG_DIR_BROWSER), GO_TO_FILEBROWSER,
+                        NULL, Icon_file_view_menu);
+MENUITEM_RETURNVALUE(videos, "Videos", GO_TO_VIDEOS,
                         NULL, Icon_file_view_menu);
 #ifdef HAVE_TAGCACHE
 MENUITEM_RETURNVALUE(db_browser, "Music", GO_TO_DBBROWSER,
@@ -581,6 +1448,7 @@ static struct menu_table menu_table[] = {
     { "pictureflow", &pictureflow_item },
     { "database", &db_browser },
 #endif
+    { "videos", &videos },
     { "files", &file_browser },
     { "wps", &wps_item },
     { "playlists", &playlists },
@@ -837,6 +1705,8 @@ static const char *root_menu_nano2g_label(const struct menu_item_ex *item)
 #endif
             case GO_TO_FILEBROWSER:
                 return "Files";
+            case GO_TO_VIDEOS:
+                return "Videos";
             case GO_TO_WPS:
                 return audio_status() ? "Playing" : "Resume";
             case GO_TO_MAINMENU:
@@ -873,6 +1743,8 @@ static const char *root_menu_nano2g_glyph(const struct menu_item_ex *item)
 #endif
             case GO_TO_FILEBROWSER:
                 return "F";
+            case GO_TO_VIDEOS:
+                return "V";
             case GO_TO_WPS:
                 return ">";
             case GO_TO_MAINMENU:
@@ -1622,6 +2494,7 @@ void root_menu(void)
             case GO_TO_DBBROWSER:
 #endif
             case GO_TO_FILEBROWSER:
+            case GO_TO_VIDEOS:
             case GO_TO_PLAYLISTS_SCREEN:
                 previous_browser = next_screen;
                 goto load_next_screen;

@@ -691,18 +691,18 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000     0xe4e7
+.debug_info     0x0000000000000000     0xe58f
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0x1f0a /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/ay.o
- .debug_info    0x0000000000001f0a      0xebd /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/codec_crt0.o
- .debug_info    0x0000000000002dc7     0x2dc9 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libay.a(ay_emu.o)
- .debug_info    0x0000000000005b90      0xacf /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libay.a(blip_buffer.o)
- .debug_info    0x000000000000665f     0x13e1 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libay.a(multi_buffer.o)
- .debug_info    0x0000000000007a40      0xe8f /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libay.a(track_filter.o)
- .debug_info    0x00000000000088cf      0x940 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libay.a(z80_cpu.o)
- .debug_info    0x000000000000920f      0xefd /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libay.a(ay_apu.o)
- .debug_info    0x000000000000a10c     0x2d83 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libay.a(ay_cpu.o)
- .debug_info    0x000000000000ce8f     0x1658 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+ .debug_info    0x0000000000000000     0x1f18 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/ay.o
+ .debug_info    0x0000000000001f18      0xecb /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/codec_crt0.o
+ .debug_info    0x0000000000002de3     0x2dd7 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libay.a(ay_emu.o)
+ .debug_info    0x0000000000005bba      0xaf9 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libay.a(blip_buffer.o)
+ .debug_info    0x00000000000066b3     0x13ef /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libay.a(multi_buffer.o)
+ .debug_info    0x0000000000007aa2      0xe9d /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libay.a(track_filter.o)
+ .debug_info    0x000000000000893f      0x94e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libay.a(z80_cpu.o)
+ .debug_info    0x000000000000928d      0xf0b /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libay.a(ay_apu.o)
+ .debug_info    0x000000000000a198     0x2d91 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libay.a(ay_cpu.o)
+ .debug_info    0x000000000000cf29     0x1666 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
 
 .debug_abbrev   0x0000000000000000     0x2837
  *(.debug_abbrev)
@@ -733,28 +733,28 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0x21e2
+.debug_str      0x0000000000000000     0x221e
  *(.debug_str)
- .debug_str     0x0000000000000000     0x21e2 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/ay.o
-                                       0x1174 (size before relaxing)
- .debug_str     0x00000000000021e2        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/codec_crt0.o
-                                        0xc9f (size before relaxing)
- .debug_str     0x00000000000021e2        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libay.a(ay_emu.o)
-                                        0xcff (size before relaxing)
- .debug_str     0x00000000000021e2        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libay.a(blip_buffer.o)
-                                        0x4d6 (size before relaxing)
- .debug_str     0x00000000000021e2        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libay.a(multi_buffer.o)
-                                        0x6c0 (size before relaxing)
- .debug_str     0x00000000000021e2        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libay.a(track_filter.o)
-                                        0x88a (size before relaxing)
- .debug_str     0x00000000000021e2        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libay.a(z80_cpu.o)
-                                        0x73e (size before relaxing)
- .debug_str     0x00000000000021e2        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libay.a(ay_apu.o)
-                                        0x5e9 (size before relaxing)
- .debug_str     0x00000000000021e2        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libay.a(ay_cpu.o)
-                                        0xfff (size before relaxing)
- .debug_str     0x00000000000021e2        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
-                                        0xebb (size before relaxing)
+ .debug_str     0x0000000000000000     0x221e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/ay.o
+                                       0x118f (size before relaxing)
+ .debug_str     0x000000000000221e        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/codec_crt0.o
+                                        0xcba (size before relaxing)
+ .debug_str     0x000000000000221e        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libay.a(ay_emu.o)
+                                        0xd1a (size before relaxing)
+ .debug_str     0x000000000000221e        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libay.a(blip_buffer.o)
+                                        0x519 (size before relaxing)
+ .debug_str     0x000000000000221e        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libay.a(multi_buffer.o)
+                                        0x6db (size before relaxing)
+ .debug_str     0x000000000000221e        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libay.a(track_filter.o)
+                                        0x8a5 (size before relaxing)
+ .debug_str     0x000000000000221e        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libay.a(z80_cpu.o)
+                                        0x759 (size before relaxing)
+ .debug_str     0x000000000000221e        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libay.a(ay_apu.o)
+                                        0x604 (size before relaxing)
+ .debug_str     0x000000000000221e        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libay.a(ay_cpu.o)
+                                       0x101a (size before relaxing)
+ .debug_str     0x000000000000221e        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+                                        0xed6 (size before relaxing)
 
 .debug_loc
  *(.debug_loc)
@@ -818,28 +818,28 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
                                         0x330 (size before relaxing)
 
 .debug_loclists
-                0x0000000000000000     0x7722
+                0x0000000000000000     0x770c
  *(.debug_loclists)
  .debug_loclists
                 0x0000000000000000      0x10c /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/ay.o
  .debug_loclists
                 0x000000000000010c       0x1e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/codec_crt0.o
  .debug_loclists
-                0x000000000000012a     0x1084 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libay.a(ay_emu.o)
+                0x000000000000012a     0x106e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libay.a(ay_emu.o)
  .debug_loclists
-                0x00000000000011ae      0x649 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libay.a(blip_buffer.o)
+                0x0000000000001198      0x649 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libay.a(blip_buffer.o)
  .debug_loclists
-                0x00000000000017f7      0x850 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libay.a(multi_buffer.o)
+                0x00000000000017e1      0x850 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libay.a(multi_buffer.o)
  .debug_loclists
-                0x0000000000002047      0x51b /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libay.a(track_filter.o)
+                0x0000000000002031      0x51b /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libay.a(track_filter.o)
  .debug_loclists
-                0x0000000000002562      0x205 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libay.a(z80_cpu.o)
+                0x000000000000254c      0x205 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libay.a(z80_cpu.o)
  .debug_loclists
-                0x0000000000002767      0x9ef /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libay.a(ay_apu.o)
+                0x0000000000002751      0x9ef /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libay.a(ay_apu.o)
  .debug_loclists
-                0x0000000000003156     0x4297 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libay.a(ay_cpu.o)
+                0x0000000000003140     0x4297 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libay.a(ay_cpu.o)
  .debug_loclists
-                0x00000000000073ed      0x335 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+                0x00000000000073d7      0x335 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
 
 .debug_macro
  *(.debug_macro)

@@ -22,6 +22,7 @@
 
 #include "plugin.h"
 #include "mpegplayer.h"
+#include "mpeg_settings.h"
 
 #define VO_NON_NULL_RECT 0x1
 #define VO_VISIBLE       0x2
@@ -38,6 +39,8 @@ struct vo_data
     int output_y;
     int output_width;
     int output_height;
+    int src_x;
+    int src_y;
     unsigned flags;
     struct vo_rect rc_vid;
     struct vo_rect rc_clip;
@@ -138,6 +141,87 @@ static inline void yuv_blit(uint8_t * const * buf, int src_x, int src_y,
     video_unlock();
 }
 
+void stretch_image_plane(const uint8_t * src, uint8_t *dst, int stride,
+                         int src_w, int src_h, int dst_w, int dst_h);
+
+static bool vo_draw_frame_scaled(uint8_t * const * buf)
+{
+    size_t bufsize;
+    uint8_t *yuv[3];
+    void *mem;
+    int scaled_w;
+    int scaled_h;
+    int crop_x;
+    int crop_y;
+    int uv_w;
+    int uv_h;
+    size_t y_size;
+    size_t uv_size;
+    size_t total;
+
+    if (settings.display_mode != MPEG_VIDEO_DISPLAY_FILL)
+        return false;
+
+    if (vo.display_width >= SCREEN_WIDTH && vo.display_height >= SCREEN_HEIGHT)
+        return false;
+
+    scaled_w = SCREEN_WIDTH;
+    scaled_h = (int)((int64_t)SCREEN_WIDTH * vo.display_height /
+                     vo.display_width);
+
+    if (scaled_h < SCREEN_HEIGHT)
+    {
+        scaled_h = SCREEN_HEIGHT;
+        scaled_w = (int)((int64_t)SCREEN_HEIGHT * vo.display_width /
+                         vo.display_height);
+    }
+
+    scaled_w = (scaled_w + 1) & ~1;
+    scaled_h = (scaled_h + 1) & ~1;
+
+    if (scaled_w < SCREEN_WIDTH || scaled_h < SCREEN_HEIGHT)
+        return false;
+
+    uv_w = scaled_w / 2;
+    uv_h = scaled_h / 2;
+
+    y_size = (size_t)scaled_w * scaled_h;
+    uv_size = (size_t)uv_w * uv_h;
+    total = y_size + 2u * uv_size;
+
+    mem = mpeg2_get_buf(&bufsize);
+
+    if (mem == NULL || bufsize < total)
+        return false;
+
+    yuv[0] = mem;
+    yuv[1] = yuv[0] + y_size;
+    yuv[2] = yuv[1] + uv_size;
+
+    stretch_image_plane(buf[0], yuv[0], vo.image_width,
+                        vo.display_width, vo.display_height,
+                        scaled_w, scaled_h);
+
+    stretch_image_plane(buf[1], yuv[1], vo.image_width / 2,
+                        vo.display_width / 2, vo.display_height / 2,
+                        uv_w, uv_h);
+
+    stretch_image_plane(buf[2], yuv[2], vo.image_width / 2,
+                        vo.display_width / 2, vo.display_height / 2,
+                        uv_w, uv_h);
+
+    crop_x = (scaled_w - SCREEN_WIDTH) / 2;
+    crop_y = (scaled_h - SCREEN_HEIGHT) / 2;
+
+    crop_x &= ~1;
+    crop_y &= ~1;
+
+    yuv_blit(yuv, crop_x, crop_y, scaled_w,
+             0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+
+    return true;
+}
+
 void vo_draw_frame(uint8_t * const * buf)
 {
     if ((vo.flags & (VO_NON_NULL_RECT | VO_VISIBLE)) !=
@@ -153,9 +237,23 @@ void vo_draw_frame(uint8_t * const * buf)
         vo_draw_black(NULL);
         DEBUGF("vo no frame\n");
     }
+    else if (vo_draw_frame_scaled(buf))
+    {
+        /* Scaled fill handled */
+    }
+    else if (vo.src_x < 0 || vo.src_y < 0 ||
+             vo.output_width <= 0 || vo.output_height <= 0 ||
+             vo.src_x + vo.output_width > vo.image_width ||
+             vo.src_y + vo.output_height > vo.image_height)
+    {
+        DEBUGF("vo invalid src/dst sx=%d sy=%d ow=%d oh=%d iw=%d ih=%d\n",
+               vo.src_x, vo.src_y, vo.output_width, vo.output_height,
+               vo.image_width, vo.image_height);
+        vo_draw_black(NULL);
+    }
     else
     {
-        yuv_blit(buf, 0, 0, vo.image_width,
+        yuv_blit(buf, vo.src_x, vo.src_y, vo.image_width,
                  vo.output_x, vo.output_y, vo.output_width,
                  vo.output_height);
     }
@@ -452,6 +550,8 @@ no_thumb_exit:
 
 void vo_setup(const mpeg2_sequence_t * sequence)
 {
+    int scaled_w, scaled_h;
+
     vo.image_width = sequence->width;
     vo.image_height = sequence->height;
     vo.display_width = sequence->display_width;
@@ -462,35 +562,153 @@ void vo_setup(const mpeg2_sequence_t * sequence)
     vo.image_chroma_x = vo.image_width / sequence->chroma_width;
     vo.image_chroma_y = vo.image_height / sequence->chroma_height;
 
-    if (sequence->display_width >= SCREEN_WIDTH)
+    switch (settings.display_mode)
     {
-        vo.rc_vid.l = 0;
-        vo.rc_vid.r = SCREEN_WIDTH;
-    }
-    else
+    default:
+    case MPEG_VIDEO_DISPLAY_FIT:
     {
-        vo.rc_vid.l = (SCREEN_WIDTH - sequence->display_width) / 2;
-#ifdef HAVE_LCD_COLOR
-        vo.rc_vid.l &= ~1;
-#endif
-        vo.rc_vid.r = vo.rc_vid.l + sequence->display_width;
+        int64_t wr = (int64_t)SCREEN_WIDTH * vo.display_height;
+        int64_t hr = (int64_t)SCREEN_HEIGHT * vo.display_width;
+
+        if (wr <= hr)
+        {
+            scaled_w = SCREEN_WIDTH;
+            scaled_h = (int)((int64_t)SCREEN_WIDTH * vo.display_height /
+                             vo.display_width);
+        }
+        else
+        {
+            scaled_h = SCREEN_HEIGHT;
+            scaled_w = (int)((int64_t)SCREEN_HEIGHT * vo.display_width /
+                             vo.display_height);
+        }
+
+        if (vo.display_width > scaled_w)
+            vo.src_x = (vo.display_width - scaled_w) / 2;
+        else
+            vo.src_x = 0;
+
+        if (vo.display_height > scaled_h)
+            vo.src_y = (vo.display_height - scaled_h) / 2;
+        else
+            vo.src_y = 0;
+
+        DEBUGF("FIT mode: source=%dx%d scaled=%dx%d screen=%dx%d\n",
+               vo.display_width, vo.display_height,
+               scaled_w, scaled_h,
+               SCREEN_WIDTH, SCREEN_HEIGHT);
+        break;
     }
 
-    if (sequence->display_height >= SCREEN_HEIGHT)
+    case MPEG_VIDEO_DISPLAY_FILL:
     {
-        vo.rc_vid.t = 0;
-        vo.rc_vid.b = SCREEN_HEIGHT;
+        /* Fill mode: scale video to fill screen (preserving aspect ratio)
+         * with slight overscale to ensure full coverage and visual distinction
+         * from NATIVE mode. Choose the larger dimension to guarantee fill. */
+        int64_t wr = (int64_t)SCREEN_WIDTH * vo.display_height;
+        int64_t hr = (int64_t)SCREEN_HEIGHT * vo.display_width;
+
+        if (wr >= hr)
+        {
+            /* Width-limited: height will exceed screen */
+            scaled_w = SCREEN_WIDTH;
+            scaled_h = (int)((int64_t)SCREEN_WIDTH * vo.display_height /
+                             vo.display_width);
+        }
+        else
+        {
+            /* Height-limited: width will exceed screen */
+            scaled_h = SCREEN_HEIGHT;
+            scaled_w = (int)((int64_t)SCREEN_HEIGHT * vo.display_width /
+                             vo.display_height);
+        }
+
+        /* Apply 5% overscale to create visible distinction and ensure complete
+         * screen coverage even with rounding errors */
+        scaled_w = (scaled_w * 105) / 100;
+        scaled_h = (scaled_h * 105) / 100;
+
+        /* Crop excess video from center */
+        if (vo.display_width > scaled_w)
+            vo.src_x = (vo.display_width - scaled_w) / 2;
+        else
+            vo.src_x = 0;
+
+        if (vo.display_height > scaled_h)
+            vo.src_y = (vo.display_height - scaled_h) / 2;
+        else
+            vo.src_y = 0;
+
+        DEBUGF("FILL mode: source=%dx%d scaled=%dx%d screen=%dx%d\n",
+               vo.display_width, vo.display_height,
+               scaled_w, scaled_h,
+               SCREEN_WIDTH, SCREEN_HEIGHT);
+        break;
     }
-    else
-    {
-        vo.rc_vid.t = (SCREEN_HEIGHT - sequence->display_height) / 2;
+
+    case MPEG_VIDEO_DISPLAY_NATIVE:
+        scaled_w = MIN(vo.display_width, SCREEN_WIDTH);
+        scaled_h = MIN(vo.display_height, SCREEN_HEIGHT);
+
+        if (vo.display_width > SCREEN_WIDTH)
+            vo.src_x = (vo.display_width - SCREEN_WIDTH) / 2;
+        else
+            vo.src_x = 0;
+
+        if (vo.display_height > SCREEN_HEIGHT)
+            vo.src_y = (vo.display_height - SCREEN_HEIGHT) / 2;
+        else
+            vo.src_y = 0;
+
+        DEBUGF("NATIVE mode: source=%dx%d scaled=%dx%d screen=%dx%d\n",
+               vo.display_width, vo.display_height,
+               scaled_w, scaled_h,
+               SCREEN_WIDTH, SCREEN_HEIGHT);
+        break;
+    }
+
+    scaled_w = MIN(scaled_w, vo.display_width - vo.src_x);
+    scaled_h = MIN(scaled_h, vo.display_height - vo.src_y);
+
 #ifdef HAVE_LCD_COLOR
-        vo.rc_vid.t &= ~1;
+    scaled_w &= ~1;
+    scaled_h &= ~1;
+    vo.src_x &= ~1;
+    vo.src_y &= ~1;
 #endif
-        vo.rc_vid.b = vo.rc_vid.t + sequence->display_height;
+
+    if (scaled_w <= 0 || scaled_h <= 0)
+    {
+        vo_rect_clear(&vo.rc_vid);
+        vo.flags &= ~VO_NON_NULL_RECT;
+        return;
     }
+
+    scaled_w = MAX(scaled_w, 2);
+    scaled_h = MAX(scaled_h, 2);
+
+    vo.rc_vid.l = (SCREEN_WIDTH - scaled_w) / 2;
+    vo.rc_vid.t = (SCREEN_HEIGHT - scaled_h) / 2;
+#ifdef HAVE_LCD_COLOR
+    vo.rc_vid.l &= ~1;
+    vo.rc_vid.t &= ~1;
+#endif
+    vo.rc_vid.r = vo.rc_vid.l + scaled_w;
+    vo.rc_vid.b = vo.rc_vid.t + scaled_h;
+
+    DEBUGF("Final output rect: (%d,%d) %dx%d  src_offset=(%d,%d)\n",
+           vo.rc_vid.l, vo.rc_vid.t, scaled_w, scaled_h,
+           vo.src_x, vo.src_y);
 
     vo_set_clip_rect(&vo.rc_clip);
+}
+
+void vo_set_display_mode(int mode)
+{
+    if (mode < 0 || mode >= MPEG_VIDEO_DISPLAY_NUM_MODES)
+        mode = MPEG_VIDEO_DISPLAY_FIT;
+
+    settings.display_mode = mode;
 }
 
 void vo_dimensions(struct vo_ext *sz)

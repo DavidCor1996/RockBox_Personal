@@ -658,18 +658,18 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000     0xa82a
+.debug_info     0x0000000000000000     0xa8b6
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0x1a08 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/wavpack.o
- .debug_info    0x0000000000001a08      0xebd /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/codec_crt0.o
- .debug_info    0x00000000000028c5     0x138a /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libwavpack.a(wputils.o)
- .debug_info    0x0000000000003c4f      0x43c /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libwavpack.a(bits.o)
- .debug_info    0x000000000000408b     0x16cc /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libwavpack.a(unpack.o)
- .debug_info    0x0000000000005757     0x16a4 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libwavpack.a(pack.o)
- .debug_info    0x0000000000006dfb     0x1436 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libwavpack.a(words.o)
- .debug_info    0x0000000000008231      0x58b /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libwavpack.a(float.o)
- .debug_info    0x00000000000087bc      0xa16 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libwavpack.a(metadata.o)
- .debug_info    0x00000000000091d2     0x1658 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+ .debug_info    0x0000000000000000     0x1a16 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/wavpack.o
+ .debug_info    0x0000000000001a16      0xecb /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/codec_crt0.o
+ .debug_info    0x00000000000028e1     0x1398 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libwavpack.a(wputils.o)
+ .debug_info    0x0000000000003c79      0x44a /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libwavpack.a(bits.o)
+ .debug_info    0x00000000000040c3     0x16da /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libwavpack.a(unpack.o)
+ .debug_info    0x000000000000579d     0x16b2 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libwavpack.a(pack.o)
+ .debug_info    0x0000000000006e4f     0x1444 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libwavpack.a(words.o)
+ .debug_info    0x0000000000008293      0x599 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libwavpack.a(float.o)
+ .debug_info    0x000000000000882c      0xa24 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libwavpack.a(metadata.o)
+ .debug_info    0x0000000000009250     0x1666 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
 
 .debug_abbrev   0x0000000000000000     0x1f7b
  *(.debug_abbrev)
@@ -700,28 +700,28 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0x1a5f
+.debug_str      0x0000000000000000     0x1a7a
  *(.debug_str)
- .debug_str     0x0000000000000000     0x1a5f /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/wavpack.o
-                                       0x1340 (size before relaxing)
- .debug_str     0x0000000000001a5f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/codec_crt0.o
-                                        0xc9f (size before relaxing)
- .debug_str     0x0000000000001a5f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libwavpack.a(wputils.o)
-                                        0xc70 (size before relaxing)
- .debug_str     0x0000000000001a5f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libwavpack.a(bits.o)
-                                        0x282 (size before relaxing)
- .debug_str     0x0000000000001a5f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libwavpack.a(unpack.o)
-                                        0x726 (size before relaxing)
- .debug_str     0x0000000000001a5f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libwavpack.a(pack.o)
-                                        0xbae (size before relaxing)
- .debug_str     0x0000000000001a5f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libwavpack.a(words.o)
-                                        0xa37 (size before relaxing)
- .debug_str     0x0000000000001a5f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libwavpack.a(float.o)
-                                        0x437 (size before relaxing)
- .debug_str     0x0000000000001a5f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libwavpack.a(metadata.o)
-                                        0x63d (size before relaxing)
- .debug_str     0x0000000000001a5f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
-                                        0xebb (size before relaxing)
+ .debug_str     0x0000000000000000     0x1a7a /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/wavpack.o
+                                       0x135b (size before relaxing)
+ .debug_str     0x0000000000001a7a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/codec_crt0.o
+                                        0xcba (size before relaxing)
+ .debug_str     0x0000000000001a7a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libwavpack.a(wputils.o)
+                                        0xc8b (size before relaxing)
+ .debug_str     0x0000000000001a7a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libwavpack.a(bits.o)
+                                        0x29d (size before relaxing)
+ .debug_str     0x0000000000001a7a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libwavpack.a(unpack.o)
+                                        0x741 (size before relaxing)
+ .debug_str     0x0000000000001a7a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libwavpack.a(pack.o)
+                                        0xbc9 (size before relaxing)
+ .debug_str     0x0000000000001a7a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libwavpack.a(words.o)
+                                        0xa52 (size before relaxing)
+ .debug_str     0x0000000000001a7a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libwavpack.a(float.o)
+                                        0x452 (size before relaxing)
+ .debug_str     0x0000000000001a7a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libwavpack.a(metadata.o)
+                                        0x658 (size before relaxing)
+ .debug_str     0x0000000000001a7a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+                                        0xed6 (size before relaxing)
 
 .debug_loc
  *(.debug_loc)

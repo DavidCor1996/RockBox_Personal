@@ -34,16 +34,16 @@ export ENABLEDPLUGINS=yes
 export EXTRA_DEFINES=
 export HOSTCC=/usr/bin/gcc
 export HOSTAR=/usr/bin/ar
-export CC=/home/david/.local/rbdev/bin/arm-elf-eabi-gcc
-export CPP=/home/david/.local/rbdev/bin/arm-elf-eabi-cpp
-export LD=/home/david/.local/rbdev/bin/arm-elf-eabi-ld
-export AR=/home/david/.local/rbdev/bin/arm-elf-eabi-gcc-ar
-export AS=/home/david/.local/rbdev/bin/arm-elf-eabi-as
-export OC=/home/david/.local/rbdev/bin/arm-elf-eabi-objcopy
+export CC=/usr/local/bin/arm-elf-eabi-gcc
+export CPP=/usr/local/bin/arm-elf-eabi-cpp
+export LD=/usr/local/bin/arm-elf-eabi-ld
+export AR=/usr/local/bin/arm-elf-eabi-gcc-ar
+export AS=/usr/local/bin/arm-elf-eabi-as
+export OC=/usr/local/bin/arm-elf-eabi-objcopy
 export WINDRES=arm-elf-eabi-windres
 export DLLTOOL=arm-elf-eabi-dlltool
 export DLLWRAP=arm-elf-eabi-dllwrap
-export RANLIB=/home/david/.local/rbdev/bin/arm-elf-eabi-gcc-ranlib
+export RANLIB=/usr/local/bin/arm-elf-eabi-gcc-ranlib
 export PREFIX=
 export PROFILE_OPTS=
 export APP_TYPE=
@@ -83,6 +83,6 @@ export PIPER_MODEL_DIR=
 
 
 
-CONFIGURE_OPTIONS=  --target=$(MODELNAME) --ram=$(MEMORYSIZE) --rbdir=$(RBDIR) --type=N
+CONFIGURE_OPTIONS=    --target=$(MODELNAME) --ram=$(MEMORYSIZE) --rbdir=$(RBDIR) --type=N
 
 include $(TOOLSDIR)/root.make

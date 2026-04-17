@@ -508,12 +508,12 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000    0x2024e
+.debug_info     0x0000000000000000    0x20254
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0xab3c /home/david/Documents/RockBox_Personal-master/build-sim/apps/plugins/lastfm_scrobbler.o
- .debug_info    0x000000000000ab3c     0x73d7 /home/david/Documents/RockBox_Personal-master/build-sim/apps/plugins/plugin_crt0.o
- .debug_info    0x0000000000011f13     0x6e66 /home/david/Documents/RockBox_Personal-master/build-sim/apps/plugins/libplugin.a(gcc-support.o)
- .debug_info    0x0000000000018d79     0x74d5 /home/david/Documents/RockBox_Personal-master/build-sim/apps/plugins/libplugin.a(configfile.o)
+ .debug_info    0x0000000000000000     0xab42 /home/david/Documents/RockBox_Personal-master/build-sim/apps/plugins/lastfm_scrobbler.o
+ .debug_info    0x000000000000ab42     0x73d7 /home/david/Documents/RockBox_Personal-master/build-sim/apps/plugins/plugin_crt0.o
+ .debug_info    0x0000000000011f19     0x6e66 /home/david/Documents/RockBox_Personal-master/build-sim/apps/plugins/libplugin.a(gcc-support.o)
+ .debug_info    0x0000000000018d7f     0x74d5 /home/david/Documents/RockBox_Personal-master/build-sim/apps/plugins/libplugin.a(configfile.o)
 
 .debug_abbrev   0x0000000000000000     0x10e4
  *(.debug_abbrev)
@@ -532,15 +532,15 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0x92aa
+.debug_str      0x0000000000000000     0x92b7
  *(.debug_str)
- .debug_str     0x0000000000000000     0x92aa /home/david/Documents/RockBox_Personal-master/build-sim/apps/plugins/lastfm_scrobbler.o
-                                       0x97e9 (size before relaxing)
- .debug_str     0x00000000000092aa        0x0 /home/david/Documents/RockBox_Personal-master/build-sim/apps/plugins/plugin_crt0.o
+ .debug_str     0x0000000000000000     0x92b7 /home/david/Documents/RockBox_Personal-master/build-sim/apps/plugins/lastfm_scrobbler.o
+                                       0x97f6 (size before relaxing)
+ .debug_str     0x00000000000092b7        0x0 /home/david/Documents/RockBox_Personal-master/build-sim/apps/plugins/plugin_crt0.o
                                        0x49e1 (size before relaxing)
- .debug_str     0x00000000000092aa        0x0 /home/david/Documents/RockBox_Personal-master/build-sim/apps/plugins/libplugin.a(gcc-support.o)
+ .debug_str     0x00000000000092b7        0x0 /home/david/Documents/RockBox_Personal-master/build-sim/apps/plugins/libplugin.a(gcc-support.o)
                                        0x423e (size before relaxing)
- .debug_str     0x00000000000092aa        0x0 /home/david/Documents/RockBox_Personal-master/build-sim/apps/plugins/libplugin.a(configfile.o)
+ .debug_str     0x00000000000092b7        0x0 /home/david/Documents/RockBox_Personal-master/build-sim/apps/plugins/libplugin.a(configfile.o)
                                        0x430d (size before relaxing)
 
 .debug_loc

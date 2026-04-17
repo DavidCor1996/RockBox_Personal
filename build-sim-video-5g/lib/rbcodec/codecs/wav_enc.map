@@ -450,10 +450,10 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000     0x2417
+.debug_info     0x0000000000000000     0x2433
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0x155a /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/wav_enc.o
- .debug_info    0x000000000000155a      0xebd /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/codec_crt0.o
+ .debug_info    0x0000000000000000     0x1568 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/wav_enc.o
+ .debug_info    0x0000000000001568      0xecb /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/codec_crt0.o
 
 .debug_abbrev   0x0000000000000000      0x66c
  *(.debug_abbrev)
@@ -468,12 +468,12 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000      0xf10
+.debug_str      0x0000000000000000      0xf2b
  *(.debug_str)
- .debug_str     0x0000000000000000      0xf10 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/wav_enc.o
-                                       0x1009 (size before relaxing)
- .debug_str     0x0000000000000f10        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/codec_crt0.o
-                                        0xc9f (size before relaxing)
+ .debug_str     0x0000000000000000      0xf2b /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/wav_enc.o
+                                       0x1024 (size before relaxing)
+ .debug_str     0x0000000000000f2b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/codec_crt0.o
+                                        0xcba (size before relaxing)
 
 .debug_loc
  *(.debug_loc)

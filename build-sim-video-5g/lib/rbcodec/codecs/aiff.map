@@ -599,16 +599,16 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000     0x946e
+.debug_info     0x0000000000000000     0x94de
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0x197d /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/aiff.o
- .debug_info    0x000000000000197d      0xebd /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/codec_crt0.o
- .debug_info    0x000000000000283a     0x175d /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libpcm.a(linear_pcm.o)
- .debug_info    0x0000000000003f97     0x12d4 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libpcm.a(itut_g711.o)
- .debug_info    0x000000000000526b     0x121d /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libpcm.a(ieee_float.o)
- .debug_info    0x0000000000006488     0x1379 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libpcm.a(qt_ima_adpcm.o)
- .debug_info    0x0000000000007801      0x615 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libpcm.a(ima_adpcm_common.o)
- .debug_info    0x0000000000007e16     0x1658 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+ .debug_info    0x0000000000000000     0x198b /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/aiff.o
+ .debug_info    0x000000000000198b      0xecb /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/codec_crt0.o
+ .debug_info    0x0000000000002856     0x176b /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libpcm.a(linear_pcm.o)
+ .debug_info    0x0000000000003fc1     0x12e2 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libpcm.a(itut_g711.o)
+ .debug_info    0x00000000000052a3     0x122b /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libpcm.a(ieee_float.o)
+ .debug_info    0x00000000000064ce     0x1387 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libpcm.a(qt_ima_adpcm.o)
+ .debug_info    0x0000000000007855      0x623 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libpcm.a(ima_adpcm_common.o)
+ .debug_info    0x0000000000007e78     0x1666 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
 
 .debug_abbrev   0x0000000000000000     0x181f
  *(.debug_abbrev)
@@ -635,24 +635,24 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0x1466
+.debug_str      0x0000000000000000     0x1481
  *(.debug_str)
- .debug_str     0x0000000000000000     0x1466 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/aiff.o
-                                       0x11dd (size before relaxing)
- .debug_str     0x0000000000001466        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/codec_crt0.o
-                                        0xc9f (size before relaxing)
- .debug_str     0x0000000000001466        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libpcm.a(linear_pcm.o)
-                                        0xea3 (size before relaxing)
- .debug_str     0x0000000000001466        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libpcm.a(itut_g711.o)
-                                        0xe46 (size before relaxing)
- .debug_str     0x0000000000001466        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libpcm.a(ieee_float.o)
-                                        0xde2 (size before relaxing)
- .debug_str     0x0000000000001466        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libpcm.a(qt_ima_adpcm.o)
-                                        0xe7b (size before relaxing)
- .debug_str     0x0000000000001466        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libpcm.a(ima_adpcm_common.o)
-                                        0x760 (size before relaxing)
- .debug_str     0x0000000000001466        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
-                                        0xebb (size before relaxing)
+ .debug_str     0x0000000000000000     0x1481 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/aiff.o
+                                       0x11f8 (size before relaxing)
+ .debug_str     0x0000000000001481        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/codec_crt0.o
+                                        0xcba (size before relaxing)
+ .debug_str     0x0000000000001481        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libpcm.a(linear_pcm.o)
+                                        0xebe (size before relaxing)
+ .debug_str     0x0000000000001481        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libpcm.a(itut_g711.o)
+                                        0xe61 (size before relaxing)
+ .debug_str     0x0000000000001481        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libpcm.a(ieee_float.o)
+                                        0xdfd (size before relaxing)
+ .debug_str     0x0000000000001481        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libpcm.a(qt_ima_adpcm.o)
+                                        0xe96 (size before relaxing)
+ .debug_str     0x0000000000001481        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libpcm.a(ima_adpcm_common.o)
+                                        0x77b (size before relaxing)
+ .debug_str     0x0000000000001481        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+                                        0xed6 (size before relaxing)
 
 .debug_loc
  *(.debug_loc)

@@ -3755,7 +3755,6 @@ static int display_settings_menu(void)
                         ID2P(LANG_ZOOM),
                         ID2P(LANG_SPACING),
                         ID2P(LANG_RESIZE_COVERS),
-                        "Show Statusbar",
                         "Scroll Speed %",
                         "Transition Speed %",
                         "Text Crossfade");
@@ -3813,26 +3812,16 @@ static int display_settings_menu(void)
                                 CONFIG_NUM_ITEMS, CONFIG_VERSION);
                 return -3; /* re-init */
             case 6:
-                old_val = pf_cfg.show_statusbar;
-                rb->set_bool("Show Statusbar", &pf_cfg.show_statusbar);
-                if (old_val != pf_cfg.show_statusbar)
-                {
-                    configfile_save(CONFIG_FILE, config,
-                                    CONFIG_NUM_ITEMS, CONFIG_VERSION);
-                    return -3; /* re-init to recompute layout */
-                }
-                break;
-            case 7:
                 rb->set_int("Scroll Speed %", "", 1,
                             &pf_cfg.scroll_speed,
                             NULL, 25, 100, 400, NULL );
                 break;
-            case 8:
+            case 7:
                 rb->set_int("Transition Speed %", "", 1,
                             &pf_cfg.transition_speed,
                             NULL, 25, 100, 400, NULL );
                 break;
-            case 9:
+            case 8:
                 rb->set_bool("Text Crossfade", &pf_cfg.text_crossfade);
                 break;
             case MENU_ATTACHED_USB:
@@ -4760,6 +4749,9 @@ static bool init(void)
     config_set_defaults(&pf_cfg); /* must appear before configfile_save */
     configfile_load(CONFIG_FILE, config, CONFIG_NUM_ITEMS, CONFIG_VERSION);
 
+    /* Cover Flow is always fullscreen: never draw the status bar here. */
+    pf_cfg.show_statusbar = false;
+
     /* Compute viewport and rendering layout based on show_statusbar setting */
     if (pf_cfg.show_statusbar)
     {
@@ -5180,7 +5172,7 @@ static int pictureflow_main(void)
                 /* Push with new setting (reinit loaded new config) */
                 FOR_NB_SCREENS(i)
                     rb->viewportmanager_theme_enable(i,
-                        pf_cfg.show_statusbar, NULL);
+                        false, NULL);
                 rb->sb_set_persistent_title("Cover Flow", Icon_NOICON, SCREEN_MAIN);
                 rb->lcd_set_viewport(&pf_vp);
 #ifdef HAVE_LCD_COLOR
@@ -5356,7 +5348,7 @@ enum plugin_status plugin_start(const void *parameter)
     {
         /* Push theme state for main loop */
         FOR_NB_SCREENS(i)
-            rb->viewportmanager_theme_enable(i, pf_cfg.show_statusbar, NULL);
+            rb->viewportmanager_theme_enable(i, false, NULL);
         rb->sb_set_persistent_title("Cover Flow", Icon_NOICON, SCREEN_MAIN);
         rb->lcd_set_viewport(&pf_vp);
 #ifdef HAVE_LCD_COLOR

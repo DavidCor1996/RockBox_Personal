@@ -107,6 +107,8 @@
 #include "stream_thread.h"
 #include "stream_mgr.h"
 
+#define MPLOG(...) DEBUGF("mpegplayer: " __VA_ARGS__)
+
 
 /* button definitions */
 #if (CONFIG_KEYPAD == IRIVER_H100_PAD) || (CONFIG_KEYPAD == IRIVER_H300_PAD)
@@ -127,6 +129,7 @@
 #define MPEG_VOLUP      BUTTON_SCROLL_FWD
 #define MPEG_RW         BUTTON_LEFT
 #define MPEG_FF         BUTTON_RIGHT
+#define MPEG_ZOOM       (BUTTON_SELECT | BUTTON_REL)
 
 #elif CONFIG_KEYPAD == IAUDIO_X5M5_PAD
 #define MPEG_MENU       (BUTTON_REC | BUTTON_REL)
@@ -589,10 +592,10 @@ extern const unsigned char mpegplayer_status_icons_12x12x1[];
 extern const unsigned char mpegplayer_status_icons_16x16x1[];
 
 /* Main border areas that contain OSD elements */
-#define OSD_BDR_L 2
-#define OSD_BDR_T 2
-#define OSD_BDR_R 2
-#define OSD_BDR_B 2
+#define OSD_BDR_L 4
+#define OSD_BDR_T 4
+#define OSD_BDR_R 4
+#define OSD_BDR_B 4
 
 struct osd
 {
@@ -622,6 +625,11 @@ struct osd
     unsigned auto_refresh;
     unsigned flags;
     int font;
+    /* iPone WPS slider assets */
+    struct bitmap slider_bg_bmp;
+    struct bitmap slider_knob_bmp;
+    bool slider_bitmaps_loaded;
+    bool use_wps_layout;
 };
 
 struct fps
@@ -640,6 +648,46 @@ struct fps
 
 static struct osd osd;
 static struct fps fps NOCACHEBSS_ATTR; /* Accessed on other processor */
+
+/* Bitmap data buffers for iPone WPS slider assets */
+static fb_data slider_bg_data[242 * 12];   /* SliderThinPurple12.bmp is ~242x12 */
+static fb_data slider_knob_data[12 * 12];  /* PlayerSliderThinPurple12.bmp is ~12x12 */
+
+static void osd_get_wps_slider_layout(uint32_t duration,
+                                      int *time_w, int *bar_x,
+                                      int *bar_w, int *dur_x)
+{
+    uint32_t seconds = duration / TS_SECOND;
+
+    if (seconds >= 36000)
+    {
+        *time_w = 61;
+        *bar_x = 68;
+        *bar_w = 184;
+        *dur_x = 257;
+    }
+    else if (seconds >= 3600)
+    {
+        *time_w = 53;
+        *bar_x = 60;
+        *bar_w = 200;
+        *dur_x = 265;
+    }
+    else if (seconds >= 600)
+    {
+        *time_w = 40;
+        *bar_x = 47;
+        *bar_w = 226;
+        *dur_x = 278;
+    }
+    else
+    {
+        *time_w = 32;
+        *bar_x = 39;
+        *bar_w = 242;
+        *dur_x = 286;
+    }
+}
 
 #ifdef LCD_PORTRAIT
 static fb_data* get_framebuffer(void)
@@ -691,6 +739,9 @@ static void draw_update_rect(int x, int y, int width, int height)
 
 static void draw_clear_area(int x, int y, int width, int height)
 {
+    /* Fail-safe: Never clear full OSD/video area in WPS overlay mode */
+    if (osd.use_wps_layout && x == 0 && y == 0 && width == osd.width && height == osd.height)
+        return;
 #ifdef HAVE_LCD_COLOR
     rb->screen_clear_area(rb->screens[SCREEN_MAIN], __X, __Y, __W, __H);
 #else
@@ -735,23 +786,75 @@ static void draw_vline(int x, int y1, int y2)
 static void draw_scrollbar_draw(int x, int y, int width, int height,
                                 uint32_t min, uint32_t max, uint32_t val)
 {
-    unsigned oldfg = mylcd_get_foreground();
+    /* Use iPone WPS slider bitmaps if loaded */
+    if (osd.slider_bitmaps_loaded)
+    {
+        int bg_width = osd.slider_bg_bmp.width;
+        int bg_height = osd.slider_bg_bmp.height;
+        int knob_width = osd.slider_knob_bmp.width;
+        int knob_height = osd.slider_knob_bmp.height;
+        int draw_y = y + (height - bg_height) / 2;
+        
+        /* Calculate available width for slider movement (drawn width - knob width) */
+        int draw_width = MIN(bg_width, width);
+        int slider_range = draw_width - knob_width;
+        if (slider_range < 0)
+            slider_range = 0;
+        
+        /* Calculate knob position based on playback progress */
+        int knob_pos = 0;
+        if (max > min)
+        {
+            knob_pos = (int)muldiv_uint32(slider_range, val, max - min);
+            if (knob_pos > slider_range)
+                knob_pos = slider_range;
+        }
+        
+#ifdef LCD_LANDSCAPE
+        /* In WPS overlay mode, skip the track bitmap - it covers video.
+         * Only draw the knob to show position without a background. */
+        if (!osd.use_wps_layout)
+        {
+            rb->lcd_bmp_part(&osd.slider_bg_bmp, 0, 0,
+                             x + osd.x, draw_y + osd.y,
+                             draw_width, bg_height);
+        }
 
-    draw_hline(x + 1, x + width - 2, y);
-    draw_hline(x + 1, x + width - 2, y + height - 1);
-    draw_vline(x, y + 1, y + height - 2);
-    draw_vline(x + width - 1, y + 1, y + height - 2);
-
-    val = muldiv_uint32(width - 2, val, max - min);
-    val = MIN(val, (uint32_t)(width - 2));
-
-    draw_fillrect(x + 1, y + 1, val, height - 2);
-
-    mylcd_set_foreground(osd.prog_fillcolor);
-
-    draw_fillrect(x + 1 + val, y + 1, width - 2 - val, height - 2);
-
-    mylcd_set_foreground(oldfg);
+        /* Draw the slider knob at the calculated position */
+        rb->lcd_bmp_part(&osd.slider_knob_bmp, 0, 0,
+                         x + osd.x + knob_pos,
+                         draw_y + osd.y + (bg_height - knob_height) / 2,
+                         knob_width, knob_height);
+#else
+        /* Portrait orientation - need to handle rotation */
+        /* For now, fall back to generic drawing on portrait displays */
+        /* Fall through to generic drawing */
+#endif
+        return;
+    }
+    
+    /* Fall back to original generic drawing - skip all fills in WPS overlay mode */
+    if (osd.use_wps_layout)
+        return;
+    {
+        unsigned oldfg = mylcd_get_foreground();
+        
+        draw_hline(x + 1, x + width - 2, y);
+        draw_hline(x + 1, x + width - 2, y + height - 1);
+        draw_vline(x, y + 1, y + height - 2);
+        draw_vline(x + width - 1, y + 1, y + height - 2);
+        
+        val = muldiv_uint32(width - 2, val, max - min);
+        val = MIN(val, (uint32_t)(width - 2));
+        
+        draw_fillrect(x + 1, y + 1, val, height - 2);
+        
+        mylcd_set_foreground(osd.prog_fillcolor);
+        
+        draw_fillrect(x + 1 + val, y + 1, width - 2 - val, height - 2);
+        
+        mylcd_set_foreground(oldfg);
+    }
 }
 
 static void draw_scrollbar_draw_rect(const struct vo_rect *rc, int min,
@@ -1219,9 +1322,11 @@ static void osd_text_init(void)
     char buf[32];
     int phys;
     int spc_width;
+    uint32_t duration;
 
     draw_setfont(FONT_UI);
 
+    osd.use_wps_layout = false;
     osd.x = 0;
     osd.width = SCREEN_WIDTH;
 
@@ -1230,9 +1335,15 @@ static void osd_text_init(void)
     vo_rect_clear(&osd.prog_rect);
     vo_rect_clear(&osd.vol_rect);
 
-    ts_to_hms(stream_get_duration(), &hms);
+    duration = stream_get_duration();
+    ts_to_hms(duration, &hms);
     hms_format(buf, sizeof (buf), &hms);
-    mylcd_getstringsize(buf, &osd.time_rect.r, &osd.time_rect.b);
+    /* Calculate size for "duration / duration" format (worst case width) */
+    {
+        char temp[64];
+        rb->snprintf(temp, sizeof(temp), "%s / %s", buf, buf);
+        mylcd_getstringsize(temp, &osd.time_rect.r, &osd.time_rect.b);
+    }
 
     /* Choose well-sized bitmap images relative to font height */
     if (osd.time_rect.b < 12) {
@@ -1265,29 +1376,64 @@ static void osd_text_init(void)
     mylcd_getstringsize(" ", &spc_width, NULL);
     mylcd_getstringsize(buf, &osd.vol_rect.r, &osd.vol_rect.b);
 
-    osd.prog_rect.r = SCREEN_WIDTH - OSD_BDR_L - spc_width -
-                           osd.vol_rect.r - OSD_BDR_R;
-    osd.prog_rect.b = 3*osd.stat_rect.b / 4;
-    vo_rect_offset(&osd.prog_rect, osd.time_rect.l,
-                   osd.time_rect.b);
+    if (osd.slider_bitmaps_loaded && osd.slider_bg_bmp.height == 12)
+    {
+        int time_w;
+        int bar_x;
+        int bar_w;
+        int dur_x;
 
-    vo_rect_offset(&osd.stat_rect,
-                   (osd.prog_rect.r + osd.prog_rect.l - osd.stat_rect.r) / 2,
-                   0);
+        /* Match iPone WPS slider layout */
+        osd.use_wps_layout = true;
 
-    vo_rect_offset(&osd.dur_rect,
-                   osd.prog_rect.r - osd.dur_rect.r, 0);
+        osd_get_wps_slider_layout(duration, &time_w, &bar_x, &bar_w, &dur_x);
 
-    vo_rect_offset(&osd.vol_rect, osd.prog_rect.r + spc_width,
-                   (osd.prog_rect.b + osd.prog_rect.t - osd.vol_rect.b) / 2);
+        vo_rect_set_ext(&osd.prog_rect, bar_x, 209,
+                        bar_w,
+                        osd.slider_bg_bmp.height);
 
-    osd.height = OSD_BDR_T + MAX(osd.prog_rect.b, osd.vol_rect.b) -
-                    MIN(osd.time_rect.t, osd.stat_rect.t) + OSD_BDR_B;
+        vo_rect_set_ext(&osd.time_rect, 2, 194,
+                        time_w, osd.time_rect.b);
+
+        vo_rect_set_ext(&osd.dur_rect,
+                        dur_x,
+                        194,
+                        time_w, osd.time_rect.b);
+
+        vo_rect_set_ext(&osd.stat_rect, 11, 3,
+                        osd.stat_rect.r, osd.stat_rect.b);
+
+        vo_rect_clear(&osd.vol_rect);
+
+        osd.height = SCREEN_HEIGHT;
+        osd.y = 0; /* WPS mode: coordinates are absolute, no offset needed */
+    }
+    else
+    {
+        osd.prog_rect.r = SCREEN_WIDTH - OSD_BDR_L - spc_width -
+                               osd.vol_rect.r - OSD_BDR_R;
+        osd.prog_rect.b = osd.stat_rect.b; /* Full icon height for better visibility */
+        vo_rect_offset(&osd.prog_rect, osd.time_rect.l,
+                       osd.time_rect.b);
+
+        vo_rect_offset(&osd.stat_rect,
+                       (osd.prog_rect.r + osd.prog_rect.l - osd.stat_rect.r) / 2,
+                       0);
+
+        vo_rect_offset(&osd.dur_rect,
+                       osd.prog_rect.r - osd.dur_rect.r, 0);
+
+        vo_rect_offset(&osd.vol_rect, osd.prog_rect.r + spc_width,
+                       (osd.prog_rect.b + osd.prog_rect.t - osd.vol_rect.b) / 2);
+
+        osd.height = OSD_BDR_T + MAX(osd.prog_rect.b, osd.vol_rect.b) -
+                        MIN(osd.time_rect.t, osd.stat_rect.t) + OSD_BDR_B;
 
 #ifdef HAVE_LCD_COLOR
-    osd.height = ALIGN_UP(osd.height, 2);
+        osd.height = ALIGN_UP(osd.height, 2);
 #endif
-    osd.y = SCREEN_HEIGHT - osd.height;
+        osd.y = SCREEN_HEIGHT - osd.height;
+    }
 
     draw_setfont(FONT_SYSFIXED);
 }
@@ -1299,9 +1445,9 @@ static void osd_init(void)
     osd.print_delay = 75*HZ/100;
     osd.resume_delay = HZ/2;
 #ifdef HAVE_LCD_COLOR
-    osd.bgcolor = LCD_RGBPACK(0x73, 0x75, 0xbd);
-    osd.fgcolor = LCD_WHITE;
-    osd.prog_fillcolor = LCD_BLACK;
+    osd.bgcolor = LCD_RGBPACK(0x20, 0x20, 0x20);     /* Dark gray background */
+    osd.fgcolor = LCD_RGBPACK(0x00, 0xcc, 0xff);     /* Bright cyan for progress */
+    osd.prog_fillcolor = LCD_RGBPACK(0x40, 0x40, 0x40); /* Medium gray for unfilled */
 #else
     osd.bgcolor = GREY_LIGHTGRAY;
     osd.fgcolor = GREY_BLACK;
@@ -1311,6 +1457,46 @@ static void osd_init(void)
     osd.status = OSD_STATUS_STOPPED;
     osd.auto_refresh = OSD_REFRESH_TIME;
     osd.next_auto_refresh = *rb->current_tick;
+    osd.use_wps_layout = false;
+    
+    /* Load iPone WPS slider bitmaps */
+    osd.slider_bitmaps_loaded = false;
+    
+    /* Setup bitmap structures */
+    osd.slider_bg_bmp.data = (unsigned char *)slider_bg_data;
+    osd.slider_knob_bmp.data = (unsigned char *)slider_knob_data;
+    
+    /* Try to load the slider background bitmap */
+    int ret = rb->read_bmp_file(ROCKBOX_DIR "/wps/iPone/SliderThinPurple12.bmp",
+                                 &osd.slider_bg_bmp,
+                                 sizeof(slider_bg_data),
+                                 FORMAT_NATIVE, NULL);
+    
+    if (ret > 0)
+    {
+        /* Try to load the slider knob bitmap */
+        ret = rb->read_bmp_file(ROCKBOX_DIR "/wps/iPone/PlayerSliderThinPurple12.bmp",
+                                &osd.slider_knob_bmp,
+                                sizeof(slider_knob_data),
+                                FORMAT_NATIVE, NULL);
+        
+        if (ret > 0)
+        {
+            osd.slider_bitmaps_loaded = true;
+            MPLOG("iPone slider assets loaded: bg=%dx%d knob=%dx%d\n",
+                  osd.slider_bg_bmp.width, osd.slider_bg_bmp.height,
+                  osd.slider_knob_bmp.width, osd.slider_knob_bmp.height);
+        }
+        else
+        {
+            MPLOG("Failed to load slider knob (ret=%d)\n", ret);
+        }
+    }
+    else
+    {
+        MPLOG("Failed to load slider background (ret=%d)\n", ret);
+    }
+    
     osd_text_init();
     fps_init();
 }
@@ -1350,6 +1536,15 @@ static void osd_refresh_background(void)
 {
     char buf[32];
     struct hms hms;
+
+    if (osd.use_wps_layout)
+    {
+        /* WPS layout uses transparent background - don't clear anything */
+        /* Just set up the drawing mode for text/graphics */
+        mylcd_set_drawmode(DRMODE_SOLID);
+        vo_rect_set_ext(&osd.update_rect, 0, 0, osd.width, osd.height);
+        return;
+    }
 
     unsigned bg = mylcd_get_background();
     mylcd_set_drawmode(DRMODE_SOLID | DRMODE_INVERSEVID);
@@ -1394,27 +1589,90 @@ static void osd_refresh_background(void)
     /* else don't know the duration */
 }
 
-/* Refresh the current time display + the progress bar */
-static void osd_refresh_time(void)
-{
-    char buf[32];
-    struct hms hms;
+    /* Refresh the current time display + the progress bar */
+    static void osd_refresh_time(void)
+    {
+        char buf[64];
+        char time_str[32];
+        char dur_str[32];
+        struct hms hms;
 
     uint32_t duration = stream_get_duration();
+    uint32_t time = osd.curr_time;
+
+    if (duration == INVALID_TIMESTAMP || duration == 0)
+        duration = 1;
+
+    if (time > duration)
+        time = duration;
 
     draw_scrollbar_draw_rect(&osd.prog_rect, 0, duration,
-                             osd.curr_time);
+                             time);
 
-    ts_to_hms(osd.curr_time, &hms);
-    hms_format(buf, sizeof (buf), &hms);
+    /* Format current time */
+    ts_to_hms(time, &hms);
+    hms_format(time_str, sizeof(time_str), &hms);
+    
+    /* Format total duration */
+    ts_to_hms(duration, &hms);
+    hms_format(dur_str, sizeof(dur_str), &hms);
+    
+    if (osd.use_wps_layout)
+    {
+        int time_w;
+        int dur_w;
+        int time_x;
+        int dur_x;
+        int time_y;
+        int dur_y;
+        
+        /* iPone WPS colors */
+        unsigned fg_color = 0xFFFFFF;      /* White text */
+        unsigned shadow_color = 0x191523;  /* Dark shadow */
+        unsigned glass_shadow = 0x15121b;  /* Glass shadow */
+        unsigned glass_outer = 0x26222f;   /* Glass outer */
+        unsigned glass_inner = 0x2d2936;   /* Glass inner */
+        unsigned glass_highlight = 0x464056; /* Glass highlight */
+        unsigned glass_lowlight = 0x18161f;  /* Glass lowlight */
 
-    draw_clear_area_rect(&osd.time_rect);
-    draw_putsxy_oriented(osd.time_rect.l, osd.time_rect.t, buf);
+        mylcd_getstringsize(time_str, &time_w, NULL);
+        mylcd_getstringsize(dur_str, &dur_w, NULL);
+
+        time_y = osd.time_rect.t + (osd.time_rect.b - osd.time_rect.t - 16) / 2;
+        dur_y = osd.dur_rect.t + (osd.dur_rect.b - osd.dur_rect.t - 16) / 2;
+
+        time_x = osd.time_rect.l + (osd.time_rect.r - osd.time_rect.l) - time_w;
+        dur_x = osd.dur_rect.l;
+
+        /* Draw text shadows first (NO glass card background in WPS overlay) */
+        mylcd_set_foreground(shadow_color);
+        draw_putsxy_oriented(time_x + 1, time_y + 1, time_str);
+        draw_putsxy_oriented(dur_x + 1, dur_y + 1, dur_str);
+
+        /* Draw main text */
+        mylcd_set_foreground(fg_color);
+        draw_putsxy_oriented(time_x, time_y, time_str);
+        draw_putsxy_oriented(dur_x, dur_y, dur_str);
+
+        vo_rect_union(&osd.update_rect, &osd.update_rect,
+                      &osd.time_rect);
+        vo_rect_union(&osd.update_rect, &osd.update_rect,
+                      &osd.dur_rect);
+    }
+    else
+    {
+        /* Combine as "current / total" */
+        rb->snprintf(buf, sizeof(buf), "%s / %s", time_str, dur_str);
+
+        /* Do not clear time_rect in WPS mode! Just draw text. */
+        draw_putsxy_oriented(osd.time_rect.l, osd.time_rect.t, buf);
+
+        vo_rect_union(&osd.update_rect, &osd.update_rect,
+                      &osd.time_rect);
+    }
 
     vo_rect_union(&osd.update_rect, &osd.update_rect,
                   &osd.prog_rect);
-    vo_rect_union(&osd.update_rect, &osd.update_rect,
-                  &osd.time_rect);
 }
 
 /* Refresh the volume display area */
@@ -1430,7 +1688,7 @@ static void osd_refresh_volume(void)
     mylcd_getstringsize(buf, &width, NULL);
 
     /* Right-justified */
-    draw_clear_area_rect(&osd.vol_rect);
+    /* Do not clear vol_rect in WPS mode! Just draw text. */
     draw_putsxy_oriented(osd.vol_rect.r - width, osd.vol_rect.t, buf);
 
     vo_rect_union(&osd.update_rect, &osd.update_rect, &osd.vol_rect);
@@ -1441,43 +1699,75 @@ static void osd_refresh_status(void)
 {
     int icon_size = osd.stat_rect.r - osd.stat_rect.l;
 
-    draw_clear_area_rect(&osd.stat_rect);
-
-#ifdef HAVE_LCD_COLOR
-    /* Draw status icon with a drop shadow */
-    unsigned oldfg = mylcd_get_foreground();
-    int i = 1;
-
-    mylcd_set_foreground(draw_blendcolor(mylcd_get_background(),
-                        MYLCD_BLACK, 96));
-
-    while (1)
+    if (osd.use_wps_layout)
     {
+        /* iPone WPS status icon with pill background */
+        unsigned pill_color = 0x282434;  /* iPone PlayerStatePill color */
+        
+        /* No pill background behind status icon in WPS overlay mode */
+        
+        /* Draw the status icon */
+#ifdef HAVE_LCD_COLOR
+        unsigned oldfg = mylcd_get_foreground();
+        mylcd_set_foreground(0xFFFFFF); /* White icon */
         draw_oriented_mono_bitmap_part(osd.icons,
                                        icon_size*osd.status,
                                        0,
                                        icon_size*OSD_STATUS_COUNT,
-                                       osd.stat_rect.l + osd.x + i,
-                                       osd.stat_rect.t + osd.y + i,
+                                       osd.stat_rect.l + osd.x,
+                                       osd.stat_rect.t + osd.y,
                                        icon_size, icon_size);
-
-        if (--i < 0)
-            break;
-
         mylcd_set_foreground(oldfg);
+#else
+        draw_oriented_mono_bitmap_part(osd.icons,
+                                       icon_size*osd.status,
+                                       0,
+                                       icon_size*OSD_STATUS_COUNT,
+                                       osd.stat_rect.l + osd.x,
+                                       osd.stat_rect.t + osd.y,
+                                       icon_size, icon_size);
+#endif
+    }
+    else
+    {
+        /* Original generic OSD styling */
+        /* Do not clear stat_rect in WPS mode! Only draw icon */
+
+#ifdef HAVE_LCD_COLOR
+        /* Draw status icon with a drop shadow */
+        unsigned oldfg = mylcd_get_foreground();
+        int i = 1;
+
+        mylcd_set_foreground(draw_blendcolor(mylcd_get_background(),
+                            MYLCD_BLACK, 96));
+
+        while (1)
+        {
+            draw_oriented_mono_bitmap_part(osd.icons,
+                                           icon_size*osd.status,
+                                           0,
+                                           icon_size*OSD_STATUS_COUNT,
+                                           osd.stat_rect.l + osd.x + i,
+                                           osd.stat_rect.t + osd.y + i,
+                                           icon_size, icon_size);
+
+            if (--i < 0)
+                break;
+
+            mylcd_set_foreground(oldfg);
+        }
+#else
+        draw_oriented_mono_bitmap_part(osd.icons,
+                                       icon_size*osd.status,
+                                       0,
+                                       icon_size*OSD_STATUS_COUNT,
+                                       osd.stat_rect.l + osd.x,
+                                       osd.stat_rect.t + osd.y,
+                                       icon_size, icon_size);
+#endif
     }
 
     vo_rect_union(&osd.update_rect, &osd.update_rect, &osd.stat_rect);
-#else
-    draw_oriented_mono_bitmap_part(osd.icons,
-                                   icon_size*osd.status,
-                                   0,
-                                   icon_size*OSD_STATUS_COUNT,
-                                   osd.stat_rect.l + osd.x,
-                                   osd.stat_rect.t + osd.y,
-                                   icon_size, icon_size);
-    vo_rect_union(&osd.update_rect, &osd.update_rect, &osd.stat_rect);
-#endif
 }
 
 /* Update the current status which determines which icon is displayed */
@@ -1648,9 +1938,6 @@ static void osd_show(unsigned show)
     }
 
     if (show & OSD_SHOW) {
-        /* Clip away the part of video that is covered */
-        struct vo_rect rc = { 0, 0, SCREEN_WIDTH, osd.y };
-
         osd.flags |= OSD_SHOW;
 
         if (osd.status != OSD_STATUS_PLAYING) {
@@ -1658,7 +1945,14 @@ static void osd_show(unsigned show)
             osd_backlight_brightness_video_mode(true);
         }
 
-        stream_vo_set_clip(&rc);
+        if (osd.use_wps_layout) {
+            /* WPS mode: video plays full-screen, OSD overlays on top - no clipping */
+            stream_vo_set_clip(NULL);
+        } else {
+            /* Clip away the part of video that is covered by the OSD strip */
+            struct vo_rect rc = { 0, 0, SCREEN_WIDTH, osd.y };
+            stream_vo_set_clip(&rc);
+        }
 
         if (!(show & OSD_NODRAW))
             osd_refresh(OSD_REFRESH_ALL);
@@ -1666,11 +1960,19 @@ static void osd_show(unsigned show)
         /* Uncover clipped video area and redraw it */
         osd.flags &= ~OSD_SHOW;
 
-        draw_clear_area(0, 0, osd.width, osd.height);
+        if (!osd.use_wps_layout) {
+            /* Only draw clear background in non-WPS mode */
+            draw_clear_area(0, 0, osd.width, osd.height);
+        }
 
         if (!(show & OSD_NODRAW)) {
             vo_lock();
-            draw_update_rect(0, 0, osd.width, osd.height);
+            if (osd.use_wps_layout) {
+                /* In WPS mode, only update specific areas that were drawn */
+                draw_update_rect(0, 0, osd.width, osd.height);
+            } else {
+                draw_update_rect(0, 0, osd.width, osd.height);
+            }
             vo_unlock();
 
             stream_vo_set_clip(NULL);
@@ -1999,6 +2301,12 @@ static int osd_seek_btn(int btn)
     /* Tell engine to resume at that time */
     stream_seek(time, SEEK_SET);
 
+    if (refresh == OSD_REFRESH_RESUME)
+    {
+        osd_cancel_refresh(OSD_REFRESH_RESUME | OSD_REFRESH_VIDEO);
+        osd_resume();
+    }
+
     return btn;
 }
 
@@ -2308,6 +2616,19 @@ static int button_loop(void)
             break;
             } /* MPEG_PAUSE*: */
 
+#ifdef MPEG_ZOOM
+        case MPEG_ZOOM:
+        {
+            if (settings.display_mode == MPEG_VIDEO_DISPLAY_FILL)
+                settings.display_mode = MPEG_VIDEO_DISPLAY_FIT;
+            else
+                settings.display_mode = MPEG_VIDEO_DISPLAY_FILL;
+
+            stream_vo_set_display_mode(settings.display_mode);
+            break;
+            } /* MPEG_ZOOM: */
+#endif
+
         case MPEG_RW:
 #ifdef MPEG_RW2
         case MPEG_RW2:
@@ -2338,6 +2659,7 @@ static int button_loop(void)
             }
             else if ((button & ~BUTTON_REPEAT) == old_button) {
                 button = osd_seek_btn(old_button);
+                osd_refresh(OSD_REFRESH_TIME);
             }
 
             if (button == ACTION_STD_CANCEL)
@@ -2367,6 +2689,7 @@ static int button_loop(void)
             }
             else if ((button & ~BUTTON_REPEAT) == old_button) {
                 button = osd_seek_btn(old_button);
+                osd_refresh(OSD_REFRESH_TIME);
             }
 
             if (button == ACTION_STD_CANCEL)
@@ -2415,8 +2738,11 @@ enum plugin_status plugin_start(const void* parameter)
     int status = PLUGIN_OK; /* assume success */
     bool quit = false;
 
+    MPLOG("plugin_start enter\n");
+
     if (parameter == NULL) {
         /* No file = GTFO */
+        MPLOG("plugin_start no file parameter\n");
         rb->splash(HZ*2, "No File");
         return PLUGIN_ERROR;
     }
@@ -2431,21 +2757,28 @@ enum plugin_status plugin_start(const void* parameter)
     rb->lcd_update();
 
     rb->strcpy(videofile, (const char*) parameter);
+    MPLOG("target file=%s\n", videofile);
 
+    MPLOG("stream_init begin\n");
     if (stream_init() < STREAM_OK) {
         /* Fatal because this should not fail */
+        MPLOG("stream_init failed\n");
         DEBUGF("Could not initialize streams\n");
         status = PLUGIN_ERROR;
     } else {
+        MPLOG("stream_init ok\n");
         int next_action = VIDEO_STOP;
         bool get_videofile_says = true;
 
         while (!quit)
         {
             init_settings(videofile);
+            MPLOG("init_settings done\n");
 
+            MPLOG("stream_open begin\n");
             int result = stream_open(videofile);
             bool manual_skip = false;
+            MPLOG("stream_open result=%d\n", result);
 
             if (result >= STREAM_OK) {
                 /* start menu */
@@ -2456,12 +2789,16 @@ enum plugin_status plugin_start(const void* parameter)
                 next_action = VIDEO_STOP;
                 if (result != MPEG_START_QUIT) {
                     /* Enter button loop and process UI */
+                    MPLOG("button_loop begin\n");
                     next_action = button_loop();
+                    MPLOG("button_loop end action=%d\n", next_action);
                     manual_skip = next_action & VIDEO_ACTION_MANUAL;
                     next_action &= ~VIDEO_ACTION_MANUAL;
                 }
 
+                MPLOG("stream_close begin\n");
                 stream_close();
+                MPLOG("stream_close done\n");
 
                 rb->lcd_clear_display();
                 rb->lcd_update();
@@ -2474,6 +2811,7 @@ enum plugin_status plugin_start(const void* parameter)
                 const char *errstring;
 
                 DEBUGF("Could not open %s\n", videofile);
+                MPLOG("stream_open failed result=%d\n", result);
                 switch (result)
                 {
                 case STREAM_UNSUPPORTED:
@@ -2570,10 +2908,12 @@ enum plugin_status plugin_start(const void* parameter)
 #endif
 
     stream_exit();
+    MPLOG("stream_exit done\n");
 
     /* Actually handle delayed processing of system events of interest
      * that were captured in other button loops */
     mpeg_sysevent_handle();
+    MPLOG("plugin_start return=%d\n", status);
 
     return status;
 }

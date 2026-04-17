@@ -518,12 +518,12 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000    0x22017
+.debug_info     0x0000000000000000    0x2201d
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0xb340 /home/david/Documents/RockBox_Personal-master/build-sim/apps/plugins/lastfm_scrobbler_viewer.o
- .debug_info    0x000000000000b340     0x73d7 /home/david/Documents/RockBox_Personal-master/build-sim/apps/plugins/plugin_crt0.o
- .debug_info    0x0000000000012717     0x74d5 /home/david/Documents/RockBox_Personal-master/build-sim/apps/plugins/libplugin.a(configfile.o)
- .debug_info    0x0000000000019bec     0x842b /home/david/Documents/RockBox_Personal-master/build-sim/apps/plugins/libplugin.a(printcell_helper.o)
+ .debug_info    0x0000000000000000     0xb346 /home/david/Documents/RockBox_Personal-master/build-sim/apps/plugins/lastfm_scrobbler_viewer.o
+ .debug_info    0x000000000000b346     0x73d7 /home/david/Documents/RockBox_Personal-master/build-sim/apps/plugins/plugin_crt0.o
+ .debug_info    0x000000000001271d     0x74d5 /home/david/Documents/RockBox_Personal-master/build-sim/apps/plugins/libplugin.a(configfile.o)
+ .debug_info    0x0000000000019bf2     0x842b /home/david/Documents/RockBox_Personal-master/build-sim/apps/plugins/libplugin.a(printcell_helper.o)
 
 .debug_abbrev   0x0000000000000000     0x139f
  *(.debug_abbrev)
@@ -542,15 +542,15 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0xab05
+.debug_str      0x0000000000000000     0xab12
  *(.debug_str)
- .debug_str     0x0000000000000000     0xab05 /home/david/Documents/RockBox_Personal-master/build-sim/apps/plugins/lastfm_scrobbler_viewer.o
-                                       0xaddc (size before relaxing)
- .debug_str     0x000000000000ab05        0x0 /home/david/Documents/RockBox_Personal-master/build-sim/apps/plugins/plugin_crt0.o
+ .debug_str     0x0000000000000000     0xab12 /home/david/Documents/RockBox_Personal-master/build-sim/apps/plugins/lastfm_scrobbler_viewer.o
+                                       0xade9 (size before relaxing)
+ .debug_str     0x000000000000ab12        0x0 /home/david/Documents/RockBox_Personal-master/build-sim/apps/plugins/plugin_crt0.o
                                        0x49e1 (size before relaxing)
- .debug_str     0x000000000000ab05        0x0 /home/david/Documents/RockBox_Personal-master/build-sim/apps/plugins/libplugin.a(configfile.o)
+ .debug_str     0x000000000000ab12        0x0 /home/david/Documents/RockBox_Personal-master/build-sim/apps/plugins/libplugin.a(configfile.o)
                                        0x430d (size before relaxing)
- .debug_str     0x000000000000ab05        0x0 /home/david/Documents/RockBox_Personal-master/build-sim/apps/plugins/libplugin.a(printcell_helper.o)
+ .debug_str     0x000000000000ab12        0x0 /home/david/Documents/RockBox_Personal-master/build-sim/apps/plugins/libplugin.a(printcell_helper.o)
                                        0x4c53 (size before relaxing)
 
 .debug_loc

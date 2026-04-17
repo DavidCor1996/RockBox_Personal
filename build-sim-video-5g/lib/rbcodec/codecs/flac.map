@@ -510,12 +510,12 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000     0x64c2
+.debug_info     0x0000000000000000     0x64fa
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0x2134 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/flac.o
- .debug_info    0x0000000000002134      0xebd /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/codec_crt0.o
- .debug_info    0x0000000000002ff1     0x1e79 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libffmpegFLAC.a(decoder.o)
- .debug_info    0x0000000000004e6a     0x1658 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+ .debug_info    0x0000000000000000     0x2142 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/flac.o
+ .debug_info    0x0000000000002142      0xecb /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/codec_crt0.o
+ .debug_info    0x000000000000300d     0x1e87 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libffmpegFLAC.a(decoder.o)
+ .debug_info    0x0000000000004e94     0x1666 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
 
 .debug_abbrev   0x0000000000000000      0xf97
  *(.debug_abbrev)
@@ -534,16 +534,16 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0x154b
+.debug_str      0x0000000000000000     0x1566
  *(.debug_str)
- .debug_str     0x0000000000000000     0x154b /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/flac.o
-                                       0x131c (size before relaxing)
- .debug_str     0x000000000000154b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/codec_crt0.o
-                                        0xc9f (size before relaxing)
- .debug_str     0x000000000000154b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libffmpegFLAC.a(decoder.o)
-                                        0xa8f (size before relaxing)
- .debug_str     0x000000000000154b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
-                                        0xebb (size before relaxing)
+ .debug_str     0x0000000000000000     0x1566 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/flac.o
+                                       0x1337 (size before relaxing)
+ .debug_str     0x0000000000001566        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/codec_crt0.o
+                                        0xcba (size before relaxing)
+ .debug_str     0x0000000000001566        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libffmpegFLAC.a(decoder.o)
+                                        0xaaa (size before relaxing)
+ .debug_str     0x0000000000001566        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+                                        0xed6 (size before relaxing)
 
 .debug_loc
  *(.debug_loc)

@@ -23,6 +23,8 @@
 #include "plugin.h"
 #include "mpegplayer.h"
 
+#define PPLOG(...) DEBUGF("mpegplayer-parser: " __VA_ARGS__)
+
 struct stream_parser str_parser SHAREDBSS_ATTR;
 
 static void parser_init_state(void)
@@ -1084,8 +1086,13 @@ void parser_prepare_streaming(void)
 
 int parser_init_stream(void)
 {
+    PPLOG("parser_init_stream begin\n");
+
     if (disk_buf.in_file < 0)
+    {
+        PPLOG("parser_init_stream no file\n");
         return STREAM_ERROR;
+    }
 
     /* TODO: Actually find which streams are available */
     audio_str.id = MPEG_STREAM_AUDIO_FIRST;
@@ -1112,6 +1119,7 @@ int parser_init_stream(void)
     if (!init_video_info())
     {
         /* Cannot determine video size, etc. */
+        PPLOG("init_video_info failed\n");
         parser_init_state();
         return STREAM_UNSUPPORTED;
     }
@@ -1123,6 +1131,7 @@ int parser_init_stream(void)
         if (!init_times(&video_str) || !check_times(&video_str))
         {
             /* Must have video at least */
+            PPLOG("init/check video times failed\n");
             parser_init_state();
             return STREAM_UNSUPPORTED;
         }
@@ -1187,6 +1196,9 @@ int parser_init_stream(void)
            (unsigned)str_parser.start_pts,
            (unsigned)str_parser.end_pts,
            (unsigned)str_parser.duration);
+
+    PPLOG("parser_init_stream ok format=%d size=%dx%d\n",
+          str_parser.format, str_parser.dims.w, str_parser.dims.h);
 
     return STREAM_OK;
 }

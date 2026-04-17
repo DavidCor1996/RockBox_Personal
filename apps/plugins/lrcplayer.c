@@ -3013,6 +3013,8 @@ enum plugin_status plugin_start(const void* parameter)
 {
     int ret = LRC_GOTO_MAIN;
 
+    rb->button_clear_queue();
+
     /* initialize settings. */
     load_or_save_settings(false);
 

@@ -25,6 +25,8 @@
 #include "codecs/libmad/bit.h"
 #include "codecs/libmad/mad.h"
 
+#define ATLOG(...) DEBUGF("mpegplayer-at: " __VA_ARGS__)
+
 /** Audio stream and thread **/
 struct pts_queue_slot;
 struct audio_thread_data
@@ -688,11 +690,16 @@ static void audio_thread(void)
 /* Initializes the audio thread resources and starts the thread */
 bool audio_thread_init(void)
 {
+    ATLOG("audio_thread_init begin\n");
+
     /* Initialise the encoded audio buffer and its descriptors */
     audio_queue.start = mpeg_malloc(AUDIOBUF_ALLOC_SIZE,
                                     MPEG_ALLOC_AUDIOBUF);
     if (audio_queue.start == NULL)
+    {
+        ATLOG("audio buffer alloc failed\n");
         return false;
+    }
 
     /* Start the audio thread */
     audio_str.hdr.q = &audio_str_queue;
@@ -706,6 +713,8 @@ bool audio_thread_init(void)
 
     /* Wait for thread to initialize */
     str_send_msg(&audio_str, STREAM_NULL, 0);
+
+    ATLOG("audio_thread_init ok thread=%u\n", audio_str.thread);
 
     return true;
 }

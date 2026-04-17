@@ -75,6 +75,6 @@
 #define ROCKBOX_LIBRARY_PATH ""
 
 /* linker feature test macro for validating cross-section references */
-#undef HAVE_NOCROSSREFS_TO
+#define HAVE_NOCROSSREFS_TO
 
 #endif /* __BUILD_AUTOCONF_H */

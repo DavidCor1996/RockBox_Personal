@@ -377,37 +377,37 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
                 0x00000000000040f0                . = ALIGN (ALIGNOF (NEXT_SECTION))
                 [!provide]                        PROVIDE (__bss_start = .)
 
-.bss            0x0000000000004100     0x8d28
+.bss            0x0000000000004100     0xc528
  *(.dynbss)
  .dynbss        0x0000000000004100        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
  *(.bss .bss.* .gnu.linkonce.b.*)
  .bss           0x0000000000004100        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
  .bss           0x0000000000004100        0x1 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtbeginS.o
  *fill*         0x0000000000004101       0x1f 
- .bss           0x0000000000004120     0x8c20 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/test_sampr.o
- .bss           0x000000000000cd40       0xe8 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
- .bss           0x000000000000ce28        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtendS.o
- .bss           0x000000000000ce28        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
+ .bss           0x0000000000004120     0xc420 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/test_sampr.o
+ .bss           0x0000000000010540       0xe8 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+ .bss           0x0000000000010628        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtendS.o
+ .bss           0x0000000000010628        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
  *(COMMON)
-                0x000000000000ce28                . = ALIGN ((. != 0x0)?0x8:0x1)
+                0x0000000000010628                . = ALIGN ((. != 0x0)?0x8:0x1)
 
 .lbss
  *(.dynlbss)
  *(.lbss .lbss.* .gnu.linkonce.lb.*)
  *(LARGE_COMMON)
-                0x000000000000ce28                . = ALIGN (0x8)
-                0x000000000000ce28                . = SEGMENT_START ("ldata-segment", .)
+                0x0000000000010628                . = ALIGN (0x8)
+                0x0000000000010628                . = SEGMENT_START ("ldata-segment", .)
 
 .lrodata
  *(.lrodata .lrodata.* .gnu.linkonce.lr.*)
 
-.ldata          0x000000000000ee28        0x0
+.ldata          0x0000000000012628        0x0
  *(.ldata .ldata.* .gnu.linkonce.l.*)
-                0x000000000000ee28                . = ALIGN ((. != 0x0)?0x8:0x1)
-                0x000000000000ee28                . = ALIGN (0x8)
+                0x0000000000012628                . = ALIGN ((. != 0x0)?0x8:0x1)
+                0x0000000000012628                . = ALIGN (0x8)
                 [!provide]                        PROVIDE (_end = .)
                 [!provide]                        PROVIDE (end = .)
-                0x000000000000ee28                . = DATA_SEGMENT_END (.)
+                0x0000000000012628                . = DATA_SEGMENT_END (.)
 
 .stab
  *(.stab)
@@ -463,10 +463,10 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000     0xfd7d
+.debug_info     0x0000000000000000     0xfd99
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0x8107 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/test_sampr.o
- .debug_info    0x0000000000008107     0x7c76 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+ .debug_info    0x0000000000000000     0x8115 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/test_sampr.o
+ .debug_info    0x0000000000008115     0x7c84 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
 
 .debug_abbrev   0x0000000000000000      0x975
  *(.debug_abbrev)
@@ -481,12 +481,12 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0x4d97
+.debug_str      0x0000000000000000     0x4db2
  *(.debug_str)
- .debug_str     0x0000000000000000     0x4d97 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/test_sampr.o
-                                       0x5331 (size before relaxing)
- .debug_str     0x0000000000004d97        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
-                                       0x5104 (size before relaxing)
+ .debug_str     0x0000000000000000     0x4db2 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/test_sampr.o
+                                       0x534c (size before relaxing)
+ .debug_str     0x0000000000004db2        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+                                       0x511f (size before relaxing)
 
 .debug_loc
  *(.debug_loc)

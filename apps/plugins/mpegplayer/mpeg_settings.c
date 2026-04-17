@@ -406,6 +406,8 @@ struct mpeg_settings settings;
 
 static struct configdata config[] =
 {
+    {TYPE_INT, 0, MPEG_VIDEO_DISPLAY_NUM_MODES - 1,
+     { .int_p = &settings.display_mode }, "Display mode", NULL},
     {TYPE_INT, 0, 2, { .int_p = &settings.showfps }, "Show FPS", NULL},
     {TYPE_INT, 0, 2, { .int_p = &settings.limitfps }, "Limit FPS", NULL},
     {TYPE_INT, 0, 2, { .int_p = &settings.skipframes }, "Skip frames", NULL},
@@ -444,6 +446,12 @@ static const struct opt_items singleall[2] = {
 static const struct opt_items globaloff[2] = {
     { STR(LANG_OFF) },
     { STR(LANG_USE_SOUND_SETTING) },
+};
+
+static const struct opt_items display_modes[MPEG_VIDEO_DISPLAY_NUM_MODES] = {
+    { (const unsigned char *)"Fit", -1 },
+    { (const unsigned char *)"Fill", -1 },
+    { (const unsigned char *)"Native center", -1 },
 };
 
 static void mpeg_settings(void);
@@ -1019,6 +1027,57 @@ static int get_start_time(uint32_t duration)
     return button;
 }
 
+/* Simple Yes/No resume prompt */
+static int show_resume_prompt(uint32_t resume_time, uint32_t duration)
+{
+    int button;
+    char msg[128];
+    unsigned hours, mins, secs;
+    unsigned total_secs = resume_time / TS_SECOND;
+    
+    /* Convert timestamp to hours:minutes:seconds */
+    hours = total_secs / 3600;
+    mins = (total_secs % 3600) / 60;
+    secs = total_secs % 60;
+    
+    /* Create prompt message */
+    if (hours > 0)
+        rb->snprintf(msg, sizeof(msg), "Resume at %u:%02u:%02u?", hours, mins, secs);
+    else
+        rb->snprintf(msg, sizeof(msg), "Resume at %u:%02u?", mins, secs);
+    
+    /* Show prompt */
+    rb->lcd_clear_display();
+    rb->lcd_puts(0, 2, msg);
+    rb->lcd_puts(0, 4, "SELECT: Yes");
+    rb->lcd_puts(0, 5, "MENU: No (restart)");
+    rb->lcd_update();
+    
+    /* Wait for user response */
+    rb->button_clear_queue();
+    while (true)
+    {
+        button = rb->button_get(true);
+        
+        if (button == BUTTON_SELECT || button == (BUTTON_SELECT | BUTTON_REL))
+        {
+            /* Resume */
+            return MPEG_START_RESUME;
+        }
+        else if (button == BUTTON_MENU || button == (BUTTON_MENU | BUTTON_REL))
+        {
+            /* Restart */
+            settings.resume_time = 0;
+            return MPEG_START_RESTART;
+        }
+        else if (button == BUTTON_LEFT || button == BUTTON_RIGHT)
+        {
+            /* Cancel/Quit */
+            return MPEG_START_QUIT;
+        }
+    }
+}
+
 static int show_start_menu(uint32_t duration)
 {
     int selected = 0;
@@ -1083,10 +1142,19 @@ static int show_start_menu(uint32_t duration)
     return result;
 }
 
-/* Return the desired resume action */
+/* Return the desired resume action with smart behavior */
 int mpeg_start_menu(uint32_t duration)
 {
+    uint32_t resume_threshold_low = 3 * TS_SECOND;   /* 3 seconds */
+    uint32_t resume_threshold_high;                  /* 95% of duration */
+    
     mpeg_sysevent_clear();
+
+    /* Calculate 95% threshold */
+    if (duration != INVALID_TIMESTAMP && duration > 0)
+        resume_threshold_high = (duration * 95) / 100;
+    else
+        resume_threshold_high = INVALID_TIMESTAMP;
 
     switch (settings.resume_options)
     {
@@ -1097,10 +1165,53 @@ int mpeg_start_menu(uint32_t duration)
             settings.resume_time = 0;
             return MPEG_START_RESTART;
         }
+        
+        /* Smart resume behavior: auto-skip if too early or too late */
+        if (settings.resume_time < resume_threshold_low)
+        {
+            /* Very beginning - just restart */
+            settings.resume_time = 0;
+            return MPEG_START_RESTART;
+        }
+        
+        if (duration != INVALID_TIMESTAMP && 
+            settings.resume_time >= resume_threshold_high)
+        {
+            /* Near the end - restart from beginning */
+            settings.resume_time = 0;
+            return MPEG_START_RESTART;
+        }
+        
+        /* Show simple Yes/No resume prompt */
+        return show_resume_prompt(settings.resume_time, duration);
+        
     default:
     case MPEG_RESUME_MENU_ALWAYS:
+        /* Still check for smart auto-restart */
+        if (settings.resume_time > 0 && settings.resume_time < resume_threshold_low)
+        {
+            settings.resume_time = 0;
+            return MPEG_START_RESTART;
+        }
+        
+        if (duration != INVALID_TIMESTAMP && 
+            settings.resume_time > 0 &&
+            settings.resume_time >= resume_threshold_high)
+        {
+            settings.resume_time = 0;
+            return MPEG_START_RESTART;
+        }
+        
         return show_start_menu(duration);
+        
     case MPEG_RESUME_ALWAYS:
+        /* Auto-resume, but still respect thresholds */
+        if (settings.resume_time < resume_threshold_low ||
+            (duration != INVALID_TIMESTAMP && settings.resume_time >= resume_threshold_high))
+        {
+            settings.resume_time = 0;
+            return MPEG_START_RESTART;
+        }
         return MPEG_START_SEEK;
     }
 }
@@ -1152,6 +1263,7 @@ static void display_options(void)
 #if MPEG_OPTION_DITHERING_ENABLED
                         ID2P(LANG_DITHERING),
 #endif
+                        "Video display mode",
                         ID2P(LANG_DISPLAY_FPS),
                         ID2P(LANG_LIMIT_FPS),
                         ID2P(LANG_SKIP_FRAMES),
@@ -1169,6 +1281,14 @@ static void display_options(void)
 
         switch (result)
         {
+        case MPEG_OPTION_VIDEO_DISPLAY_MODE:
+            result = settings.display_mode;
+            mpeg_set_option("Video display mode", &result, RB_INT,
+                            display_modes, MPEG_VIDEO_DISPLAY_NUM_MODES, NULL);
+            settings.display_mode = result;
+            stream_vo_set_display_mode(settings.display_mode);
+            break;
+
 #if MPEG_OPTION_DITHERING_ENABLED
         case MPEG_OPTION_DITHERING:
             result = (settings.displayoptions & LCD_YUV_DITHER) ? 1 : 0;
@@ -1362,6 +1482,7 @@ static void mpeg_settings(void)
 void init_settings(const char* filename)
 {
     /* Set the default settings */
+    settings.display_mode = MPEG_VIDEO_DISPLAY_FILL;
     settings.showfps = 0;     /* Do not show FPS */
     settings.limitfps = 1;    /* Limit FPS */
     settings.skipframes = 1;  /* Skip frames */
@@ -1384,8 +1505,14 @@ void init_settings(const char* filename)
                         SETTINGS_MIN_VERSION) < 0)
     {
         /* Generate a new config file with default values */
+        settings.display_mode = MPEG_VIDEO_DISPLAY_FILL;
         configfile_save(SETTINGS_FILENAME, config, ARRAYLEN(config),
                         SETTINGS_VERSION);
+    }
+    else
+    {
+        if (settings.display_mode == MPEG_VIDEO_DISPLAY_FIT)
+            settings.display_mode = MPEG_VIDEO_DISPLAY_FILL;
     }
 
     rb->strlcpy(settings.resume_filename, filename, MAX_PATH);
@@ -1400,6 +1527,14 @@ void init_settings(const char* filename)
 #if MPEG_OPTION_DITHERING_ENABLED
     rb->lcd_yuv_set_options(settings.displayoptions);
 #endif
+
+    if (settings.display_mode < 0 ||
+        settings.display_mode >= MPEG_VIDEO_DISPLAY_NUM_MODES)
+    {
+        settings.display_mode = MPEG_VIDEO_DISPLAY_FIT;
+    }
+
+    stream_vo_set_display_mode(settings.display_mode);
 
     /* Set our audio options */
     sync_audio_settings(false);

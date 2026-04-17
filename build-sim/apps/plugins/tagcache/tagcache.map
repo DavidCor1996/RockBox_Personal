@@ -705,12 +705,12 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000    0x237e5
+.debug_info     0x0000000000000000    0x237eb
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0xe406 /home/david/Documents/RockBox_Personal-master/build-sim/apps/plugins/tagcache/tagcache.o
- .debug_info    0x000000000000e406     0x73d7 /home/david/Documents/RockBox_Personal-master/build-sim/apps/plugins/plugin_crt0.o
- .debug_info    0x00000000000157dd     0x6e66 /home/david/Documents/RockBox_Personal-master/build-sim/apps/plugins/libplugin.a(gcc-support.o)
- .debug_info    0x000000000001c643     0x71a2 /home/david/Documents/RockBox_Personal-master/build-sim/apps/plugins/libplugin.a(helper.o)
+ .debug_info    0x0000000000000000     0xe40c /home/david/Documents/RockBox_Personal-master/build-sim/apps/plugins/tagcache/tagcache.o
+ .debug_info    0x000000000000e40c     0x73d7 /home/david/Documents/RockBox_Personal-master/build-sim/apps/plugins/plugin_crt0.o
+ .debug_info    0x00000000000157e3     0x6e66 /home/david/Documents/RockBox_Personal-master/build-sim/apps/plugins/libplugin.a(gcc-support.o)
+ .debug_info    0x000000000001c649     0x71a2 /home/david/Documents/RockBox_Personal-master/build-sim/apps/plugins/libplugin.a(helper.o)
 
 .debug_abbrev   0x0000000000000000     0x12b8
  *(.debug_abbrev)
@@ -729,15 +729,15 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0xab9f
+.debug_str      0x0000000000000000     0xabac
  *(.debug_str)
- .debug_str     0x0000000000000000     0xab9f /home/david/Documents/RockBox_Personal-master/build-sim/apps/plugins/tagcache/tagcache.o
-                                       0xaff5 (size before relaxing)
- .debug_str     0x000000000000ab9f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim/apps/plugins/plugin_crt0.o
+ .debug_str     0x0000000000000000     0xabac /home/david/Documents/RockBox_Personal-master/build-sim/apps/plugins/tagcache/tagcache.o
+                                       0xb002 (size before relaxing)
+ .debug_str     0x000000000000abac        0x0 /home/david/Documents/RockBox_Personal-master/build-sim/apps/plugins/plugin_crt0.o
                                        0x49e1 (size before relaxing)
- .debug_str     0x000000000000ab9f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim/apps/plugins/libplugin.a(gcc-support.o)
+ .debug_str     0x000000000000abac        0x0 /home/david/Documents/RockBox_Personal-master/build-sim/apps/plugins/libplugin.a(gcc-support.o)
                                        0x423e (size before relaxing)
- .debug_str     0x000000000000ab9f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim/apps/plugins/libplugin.a(helper.o)
+ .debug_str     0x000000000000abac        0x0 /home/david/Documents/RockBox_Personal-master/build-sim/apps/plugins/libplugin.a(helper.o)
                                        0x49e3 (size before relaxing)
 
 .debug_loc

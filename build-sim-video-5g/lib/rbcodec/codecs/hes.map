@@ -720,19 +720,19 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000    0x10652
+.debug_info     0x0000000000000000    0x10708
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0x20d1 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/hes.o
- .debug_info    0x00000000000020d1      0xebd /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/codec_crt0.o
- .debug_info    0x0000000000002f8e     0x3046 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libhes.a(hes_emu.o)
- .debug_info    0x0000000000005fd4      0xacf /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libhes.a(blip_buffer.o)
- .debug_info    0x0000000000006aa3     0x13e1 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libhes.a(multi_buffer.o)
- .debug_info    0x0000000000007e84      0x352 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libhes.a(rom_data.o)
- .debug_info    0x00000000000081d6      0xe8f /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libhes.a(track_filter.o)
- .debug_info    0x0000000000009065     0x19d2 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libhes.a(hes_apu.o)
- .debug_info    0x000000000000aa37     0x15ee /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libhes.a(hes_apu_adpcm.o)
- .debug_info    0x000000000000c025     0x2fd5 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libhes.a(hes_cpu.o)
- .debug_info    0x000000000000effa     0x1658 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+ .debug_info    0x0000000000000000     0x20df /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/hes.o
+ .debug_info    0x00000000000020df      0xecb /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/codec_crt0.o
+ .debug_info    0x0000000000002faa     0x3054 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libhes.a(hes_emu.o)
+ .debug_info    0x0000000000005ffe      0xaf9 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libhes.a(blip_buffer.o)
+ .debug_info    0x0000000000006af7     0x13ef /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libhes.a(multi_buffer.o)
+ .debug_info    0x0000000000007ee6      0x360 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libhes.a(rom_data.o)
+ .debug_info    0x0000000000008246      0xe9d /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libhes.a(track_filter.o)
+ .debug_info    0x00000000000090e3     0x19e0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libhes.a(hes_apu.o)
+ .debug_info    0x000000000000aac3     0x15fc /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libhes.a(hes_apu_adpcm.o)
+ .debug_info    0x000000000000c0bf     0x2fe3 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libhes.a(hes_cpu.o)
+ .debug_info    0x000000000000f0a2     0x1666 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
 
 .debug_abbrev   0x0000000000000000     0x2c72
  *(.debug_abbrev)
@@ -765,30 +765,30 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0x23ae
+.debug_str      0x0000000000000000     0x23ea
  *(.debug_str)
- .debug_str     0x0000000000000000     0x23ae /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/hes.o
-                                       0x122c (size before relaxing)
- .debug_str     0x00000000000023ae        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/codec_crt0.o
-                                        0xc9f (size before relaxing)
- .debug_str     0x00000000000023ae        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libhes.a(hes_emu.o)
-                                        0xea2 (size before relaxing)
- .debug_str     0x00000000000023ae        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libhes.a(blip_buffer.o)
-                                        0x4d6 (size before relaxing)
- .debug_str     0x00000000000023ae        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libhes.a(multi_buffer.o)
-                                        0x6c0 (size before relaxing)
- .debug_str     0x00000000000023ae        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libhes.a(rom_data.o)
-                                        0x26d (size before relaxing)
- .debug_str     0x00000000000023ae        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libhes.a(track_filter.o)
-                                        0x88a (size before relaxing)
- .debug_str     0x00000000000023ae        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libhes.a(hes_apu.o)
-                                        0xaba (size before relaxing)
- .debug_str     0x00000000000023ae        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libhes.a(hes_apu_adpcm.o)
-                                        0xae0 (size before relaxing)
- .debug_str     0x00000000000023ae        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libhes.a(hes_cpu.o)
-                                       0x11f7 (size before relaxing)
- .debug_str     0x00000000000023ae        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
-                                        0xebb (size before relaxing)
+ .debug_str     0x0000000000000000     0x23ea /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/hes.o
+                                       0x1247 (size before relaxing)
+ .debug_str     0x00000000000023ea        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/codec_crt0.o
+                                        0xcba (size before relaxing)
+ .debug_str     0x00000000000023ea        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libhes.a(hes_emu.o)
+                                        0xebd (size before relaxing)
+ .debug_str     0x00000000000023ea        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libhes.a(blip_buffer.o)
+                                        0x519 (size before relaxing)
+ .debug_str     0x00000000000023ea        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libhes.a(multi_buffer.o)
+                                        0x6db (size before relaxing)
+ .debug_str     0x00000000000023ea        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libhes.a(rom_data.o)
+                                        0x288 (size before relaxing)
+ .debug_str     0x00000000000023ea        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libhes.a(track_filter.o)
+                                        0x8a5 (size before relaxing)
+ .debug_str     0x00000000000023ea        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libhes.a(hes_apu.o)
+                                        0xad5 (size before relaxing)
+ .debug_str     0x00000000000023ea        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libhes.a(hes_apu_adpcm.o)
+                                        0xafb (size before relaxing)
+ .debug_str     0x00000000000023ea        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libhes.a(hes_cpu.o)
+                                       0x1212 (size before relaxing)
+ .debug_str     0x00000000000023ea        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+                                        0xed6 (size before relaxing)
 
 .debug_loc
  *(.debug_loc)
@@ -855,7 +855,7 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
                                         0x330 (size before relaxing)
 
 .debug_loclists
-                0x0000000000000000     0x7815
+                0x0000000000000000     0x7820
  *(.debug_loclists)
  .debug_loclists
                 0x0000000000000000      0x12c /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/hes.o
@@ -872,13 +872,13 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
  .debug_loclists
                 0x0000000000002257      0x51b /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libhes.a(track_filter.o)
  .debug_loclists
-                0x0000000000002772      0x898 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libhes.a(hes_apu.o)
+                0x0000000000002772      0x8a3 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libhes.a(hes_apu.o)
  .debug_loclists
-                0x000000000000300a      0x575 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libhes.a(hes_apu_adpcm.o)
+                0x0000000000003015      0x575 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libhes.a(hes_apu_adpcm.o)
  .debug_loclists
-                0x000000000000357f     0x3f61 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libhes.a(hes_cpu.o)
+                0x000000000000358a     0x3f61 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libhes.a(hes_cpu.o)
  .debug_loclists
-                0x00000000000074e0      0x335 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+                0x00000000000074eb      0x335 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
 
 .debug_macro
  *(.debug_macro)

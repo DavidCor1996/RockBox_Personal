@@ -30,7 +30,7 @@ LOAD /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/pl
 LOAD /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/bitmaps/libpluginbitmaps.a
 LOAD /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/libsetjmp.a
 LOAD /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/libfixedpoint.a
-LOAD /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a
+LOAD /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a
 
 .header         0x0000000003f00000       0x1c
                 0x0000000003f00000                _plugin_start_addr = .

@@ -46,7 +46,7 @@ LOAD /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/pl
 LOAD /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/bitmaps/libpluginbitmaps.a
 LOAD /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/libsetjmp.a
 LOAD /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/libfixedpoint.a
-LOAD /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a
+LOAD /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a
 
 .header         0x0000000003f00000       0x1c
                 0x0000000003f00000                _plugin_start_addr = .
@@ -152,7 +152,7 @@ LOAD /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a
  .data          0x0000000003f0337c      0x180 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lastfm_scrobbler_viewer.o
  .data          0x0000000003f034fc        0x4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/plugin_crt0.o
                 0x0000000003f034fc                rb
- .data.list_sep_color.12540
+ .data.list_sep_color.12541
                 0x0000000003f03500        0x4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(printcell_helper.o)
 
 .igot.plt       0x0000000003f03504        0x0
@@ -173,9 +173,9 @@ LOAD /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a
  .bss           0x0000000003f036b4       0x60 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/plugin_crt0.o
  .bss.printcell
                 0x0000000003f03714      0x14c /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(printcell_helper.o)
- .bss.printcell_buffer.12498
+ .bss.printcell_buffer.12499
                 0x0000000003f03860      0x104 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(printcell_helper.o)
- .bss.sidx.12499
+ .bss.sidx.12500
                 0x0000000003f03964       0x20 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(printcell_helper.o)
  *(COMMON)
                 0x0000000003f03984                . = ALIGN (0x4)

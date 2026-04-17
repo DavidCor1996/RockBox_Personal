@@ -106,6 +106,9 @@ bool stream_show_vo(bool show);
 /* Set the visible section of video */
 void stream_vo_set_clip(const struct vo_rect *rc);
 
+/* Set output display mode (fit/fill/native) */
+void stream_vo_set_display_mode(int mode);
+
 /* Return current visible section of video */
 bool stream_vo_get_clip(struct vo_rect *rc);
 

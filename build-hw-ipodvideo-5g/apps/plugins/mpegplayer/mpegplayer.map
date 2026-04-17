@@ -32,22 +32,22 @@ Archive member included to satisfy reference by file (symbol)
                               /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/mpegplayer/mpegplayer.o (mpegplayer_status_icons_16x16x1)
 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/libsetjmp.a(setjmp.o)
                               /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/plugin_crt0.o (setjmp)
-/home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivsi3.o)
+/usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivsi3.o)
                               /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/mpegplayer/libmpeg2/header.o (__aeabi_uidiv)
-/home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+/usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
                               /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/mpegplayer/video_thread.o (__aeabi_idiv)
-/home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
-                              /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivsi3.o) (__aeabi_idiv0)
-/home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_aeabi_ldivmod.o)
-                              /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/mpegplayer/video_thread.o (__aeabi_ldivmod)
-/home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_aeabi_uldivmod.o)
+/usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
+                              /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivsi3.o) (__aeabi_idiv0)
+/usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_aeabi_ldivmod.o)
+                              /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/mpegplayer/video_out_rockbox.o (__aeabi_ldivmod)
+/usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_aeabi_uldivmod.o)
                               /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/mpegplayer/video_thread.o (__aeabi_uldivmod)
-/home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivmoddi4.o)
-                              /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_aeabi_ldivmod.o) (__udivmoddi4)
-/home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzdi2.o)
-                              /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivmoddi4.o) (__clzdi2)
-/home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzsi2.o)
-                              /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzdi2.o) (__clzsi2)
+/usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivmoddi4.o)
+                              /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_aeabi_ldivmod.o) (__udivmoddi4)
+/usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzdi2.o)
+                              /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivmoddi4.o) (__clzdi2)
+/usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzsi2.o)
+                              /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzdi2.o) (__clzsi2)
 
 Discarded input sections
 
@@ -147,32 +147,22 @@ Discarded input sections
  .bss           0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/bitmaps/libpluginbitmaps.a(mpegplayer_status_icons_16x16x1.o)
  .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/libsetjmp.a(setjmp.o)
  .bss           0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/libsetjmp.a(setjmp.o)
- .data          0x0000000000000000        0x0 /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivsi3.o)
- .bss           0x0000000000000000        0x0 /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivsi3.o)
- .data          0x0000000000000000        0x0 /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
- .bss           0x0000000000000000        0x0 /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
- .data          0x0000000000000000        0x0 /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
- .bss           0x0000000000000000        0x0 /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
- .text          0x0000000000000000       0xd4 /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_aeabi_ldivmod.o)
- .data          0x0000000000000000        0x0 /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_aeabi_ldivmod.o)
- .bss           0x0000000000000000        0x0 /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_aeabi_ldivmod.o)
- .debug_line    0x0000000000000000       0x7f /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_aeabi_ldivmod.o)
- .debug_info    0x0000000000000000       0x26 /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_aeabi_ldivmod.o)
- .debug_abbrev  0x0000000000000000       0x14 /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_aeabi_ldivmod.o)
- .debug_aranges
-                0x0000000000000000       0x20 /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_aeabi_ldivmod.o)
- .debug_str     0x0000000000000000       0x68 /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_aeabi_ldivmod.o)
- .debug_frame   0x0000000000000000       0x44 /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_aeabi_ldivmod.o)
- .ARM.attributes
-                0x0000000000000000       0x1c /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_aeabi_ldivmod.o)
- .data          0x0000000000000000        0x0 /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_aeabi_uldivmod.o)
- .bss           0x0000000000000000        0x0 /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_aeabi_uldivmod.o)
- .data          0x0000000000000000        0x0 /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivmoddi4.o)
- .bss           0x0000000000000000        0x0 /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivmoddi4.o)
- .data          0x0000000000000000        0x0 /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzdi2.o)
- .bss           0x0000000000000000        0x0 /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzdi2.o)
- .data          0x0000000000000000        0x0 /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzsi2.o)
- .bss           0x0000000000000000        0x0 /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzsi2.o)
+ .data          0x0000000000000000        0x0 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivsi3.o)
+ .bss           0x0000000000000000        0x0 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivsi3.o)
+ .data          0x0000000000000000        0x0 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+ .bss           0x0000000000000000        0x0 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+ .data          0x0000000000000000        0x0 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
+ .bss           0x0000000000000000        0x0 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
+ .data          0x0000000000000000        0x0 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_aeabi_ldivmod.o)
+ .bss           0x0000000000000000        0x0 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_aeabi_ldivmod.o)
+ .data          0x0000000000000000        0x0 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_aeabi_uldivmod.o)
+ .bss           0x0000000000000000        0x0 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_aeabi_uldivmod.o)
+ .data          0x0000000000000000        0x0 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivmoddi4.o)
+ .bss           0x0000000000000000        0x0 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivmoddi4.o)
+ .data          0x0000000000000000        0x0 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzdi2.o)
+ .bss           0x0000000000000000        0x0 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzdi2.o)
+ .data          0x0000000000000000        0x0 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzsi2.o)
+ .bss           0x0000000000000000        0x0 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzsi2.o)
 
 Memory Configuration
 
@@ -208,7 +198,7 @@ LOAD /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/pl
 LOAD /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/bitmaps/libpluginbitmaps.a
 LOAD /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/libsetjmp.a
 LOAD /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/libfixedpoint.a
-LOAD /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a
+LOAD /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a
 
 .header         0x0000000003f00000       0x1c
                 0x0000000003f00000                _plugin_start_addr = .
@@ -217,7 +207,7 @@ LOAD /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a
  .header        0x0000000003f00000       0x1c /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/plugin_crt0.o
                 0x0000000003f00000                __header
 
-.text           0x0000000003f00020    0x1afd0
+.text           0x0000000003f00020    0x1b338
  *(.text*)
  .text          0x0000000003f00020      0x850 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/mpegplayer/libmpeg2/decode.o
                 0x0000000003f00118                mpeg2_parse_header
@@ -288,366 +278,369 @@ LOAD /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a
                 0x0000000003f0b3d0                codec_malloc
                 0x0000000003f0b440                codec_calloc
                 0x0000000003f0b4b4                codec_free
- .text          0x0000000003f0b4b8      0x93c /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/mpegplayer/video_out_rockbox.o
+ .text          0x0000000003f0b4b8      0xad8 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/mpegplayer/video_out_rockbox.o
                 0x0000000003f0b670                vo_draw_frame
-                0x0000000003f0b704                vo_rect_clear
-                0x0000000003f0b71c                vo_rect_empty
-                0x0000000003f0b720                vo_rect_set_ext
-                0x0000000003f0b73c                vo_rects_intersect
-                0x0000000003f0b740                vo_rect_intersect
-                0x0000000003f0b7d4                vo_rect_union
-                0x0000000003f0b8a4                vo_rect_offset
-                0x0000000003f0b8d8                stretch_image_plane
-                0x0000000003f0b9b4                vo_draw_frame_thumb
-                0x0000000003f0bb80                vo_dimensions
-                0x0000000003f0bb9c                vo_init
-                0x0000000003f0bbf4                vo_show
-                0x0000000003f0bc20                vo_is_visible
-                0x0000000003f0bc38                vo_cleanup
-                0x0000000003f0bc4c                vo_set_clip_rect
-                0x0000000003f0bce4                vo_setup
-                0x0000000003f0bda0                vo_get_clip_rect
-                0x0000000003f0bddc                vo_set_post_draw_callback
-                0x0000000003f0bdec                vo_lock
-                0x0000000003f0bdf0                vo_unlock
- .text          0x0000000003f0bdf4     0x1108 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/mpegplayer/video_thread.o
-                0x0000000003f0cd34                video_thread_init
-                0x0000000003f0ce30                video_thread_exit
-                0x0000000003f0cea0                video_thread_get_stats
- .text          0x0000000003f0cefc      0x6d8 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/mpegplayer/pcm_output.o
-                0x0000000003f0d0cc                pcm_output_get_buffer
-                0x0000000003f0d110                pcm_output_commit_data
-                0x0000000003f0d180                pcm_output_empty
-                0x0000000003f0d1a0                pcm_output_flush
-                0x0000000003f0d238                pcm_output_set_clock
-                0x0000000003f0d27c                pcm_output_get_clock
-                0x0000000003f0d2e4                pcm_output_get_ticks
-                0x0000000003f0d360                pcm_output_play_pause
-                0x0000000003f0d420                pcm_output_stop
-                0x0000000003f0d48c                pcm_output_drain
-                0x0000000003f0d4c8                pcm_output_init
-                0x0000000003f0d584                pcm_output_exit
- .text          0x0000000003f0d5d4      0xc00 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/mpegplayer/audio_thread.o
-                0x0000000003f0e0b4                audio_thread_init
-                0x0000000003f0e170                audio_thread_exit
- .text          0x0000000003f0e1d4     0x100c /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/mpegplayer/disk_buf.o
-                0x0000000003f0e304                disk_buf_is_data_ready
-                0x0000000003f0e3a8                dbuf_l2_init
-                0x0000000003f0e3b4                _disk_buf_getbuffer
-                0x0000000003f0e45c                _disk_buf_getbuffer_l2
-                0x0000000003f0e55c                disk_buf_read
-                0x0000000003f0e61c                disk_buf_lseek
-                0x0000000003f0e6a0                disk_buf_set_streaming_window
-                0x0000000003f0e724                disk_buf_offset2ptr
-                0x0000000003f0e760                disk_buf_close
-                0x0000000003f0e7d4                disk_buf_open
-                0x0000000003f0e86c                disk_buf_send_msg
-                0x0000000003f0e894                disk_buf_prepare_streaming
-                0x0000000003f0e8fc                disk_buf_post_msg
-                0x0000000003f0e924                disk_buf_reply_msg
-                0x0000000003f0efb8                disk_buf_init
-                0x0000000003f0f180                disk_buf_exit
- .text          0x0000000003f0f1e0     0x1350 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/mpegplayer/mpeg_settings.o
-                0x0000000003f0f650                mpeg_backlight_update_brightness
-                0x0000000003f0fa6c                mpeg_start_menu
-                0x0000000003f10340                mpeg_menu
-                0x0000000003f103a4                init_settings
-                0x0000000003f10490                save_settings
- .text          0x0000000003f10530     0x10f8 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/mpegplayer/stream_mgr.o
-                0x0000000003f107c8                str_next_data_not_ready
-                0x0000000003f10844                str_data_notify_received
-                0x0000000003f10874                stream_add_stream
-                0x0000000003f108a8                stream_remove_streams
-                0x0000000003f108d8                move_strl_to_actl
-                0x0000000003f1099c                stream_generate_event
-                0x0000000003f109e0                stream_clear_notify
-                0x0000000003f10a00                stream_show_vo
-                0x0000000003f10a30                stream_vo_is_visible
-                0x0000000003f10a5c                stream_vo_get_size
-                0x0000000003f10ab0                stream_vo_set_clip
-                0x0000000003f10ae8                stream_vo_get_clip
-                0x0000000003f10b30                stream_display_thumb
-                0x0000000003f10b74                stream_draw_frame
-                0x0000000003f10ba4                stream_set_callback
-                0x0000000003f10be4                stream_get_resume_time
-                0x0000000003f10c08                stream_get_seek_time
-                0x0000000003f10dbc                stream_on_open
-                0x0000000003f11228                stream_wait_status
-                0x0000000003f11238                stream_get_window
-                0x0000000003f11290                stream_open
-                0x0000000003f112b4                stream_play
-                0x0000000003f112d8                stream_pause
-                0x0000000003f112fc                stream_resume
-                0x0000000003f11320                stream_stop
-                0x0000000003f11344                stream_seek
-                0x0000000003f11394                stream_close
-                0x0000000003f113b8                stream_init
-                0x0000000003f115b4                stream_exit
- .text          0x0000000003f11628     0x1f74 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/mpegplayer/mpegplayer.o
-                0x0000000003f12a64                plugin_start
- .text          0x0000000003f1359c     0x11d8 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/mpegplayer/mpeg_parser.o
-                0x0000000003f13738                str_initialize
-                0x0000000003f1376c                str_end_of_stream
-                0x0000000003f13d0c                mpeg_parser_scan_start_code
-                0x0000000003f13dd4                mpeg_parser_scan_pes
-                0x0000000003f13e94                mpeg_parser_scan_scr
-                0x0000000003f13fbc                mpeg_parser_scan_pts
-                0x0000000003f14300                parser_prepare_image
-                0x0000000003f14470                parser_seek_time
-                0x0000000003f144a8                parser_prepare_streaming
-                0x0000000003f1458c                parser_init_stream
-                0x0000000003f14750                parser_close_stream
-                0x0000000003f14760                parser_init
- .text          0x0000000003f14774      0x3bc /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/mpegplayer/mpeg_misc.o
-                0x0000000003f14774                stream_scan_init
-                0x0000000003f14788                stream_scan_normalize
-                0x0000000003f147b0                stream_scan_offset
-                0x0000000003f147e0                ts_to_hms
-                0x0000000003f14854                hms_format
-                0x0000000003f148bc                muldiv_uint32
-                0x0000000003f14914                list_is_empty
-                0x0000000003f14924                list_is_member
-                0x0000000003f14954                list_remove_item
-                0x0000000003f14980                list_add_item
-                0x0000000003f149b4                list_clear_all
-                0x0000000003f149d0                list_enum_items
-                0x0000000003f14a2c                mpeg_sysevent_clear
-                0x0000000003f14a40                mpeg_sysevent_set
-                0x0000000003f14a54                mpeg_sysevent
-                0x0000000003f14a64                mpeg_sysevent_callback
-                0x0000000003f14a8c                mpeg_sysevent_handle
-                0x0000000003f14ab4                mpeg_button_get
- .text          0x0000000003f14b30      0x214 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/plugin_crt0.o
-                0x0000000003f14b48                plugin__start
-                0x0000000003f14c90                rb_atexit
-                0x0000000003f14cb0                exit
-                0x0000000003f14cd8                _exit
-                0x0000000003f14cec                exit_on_usb
- .text          0x0000000003f14d44      0x734 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/libmad-mpeg.a(frame.o)
-                0x0000000003f14f7c                mad_header_init
-                0x0000000003f14fa4                mad_header_decode
-                0x0000000003f15350                mad_frame_decode
-                0x0000000003f15420                mad_frame_mute
-                0x0000000003f15460                mad_frame_init
- .text          0x0000000003f15478      0xadc /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/libmad-mpeg.a(layer12.o)
-                0x0000000003f155ac                mad_layer_I
-                0x0000000003f158b8                mad_layer_II
- .text          0x0000000003f15f54     0x2194 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/libmad-mpeg.a(layer3.o)
-                0x0000000003f17a88                mad_layer_III
- .text          0x0000000003f180e8      0x30c /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/libmad-mpeg.a(stream.o)
-                0x0000000003f180e8                mad_stream_init
-                0x0000000003f1813c                mad_stream_buffer
-                0x0000000003f1816c                mad_stream_sync
-                0x0000000003f181e0                mad_stream_errorstr
- .text          0x0000000003f183f4     0x10f8 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/libmad-mpeg.a(synth.o)
-                0x0000000003f183f4                mad_synth_mute
-                0x0000000003f1840c                mad_synth_init
-                0x0000000003f18434                mad_synth_frame
- .text          0x0000000003f194ec      0x964 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/libmad-mpeg.a(imdct_l_arm.o)
-                0x0000000003f194ec                _III_imdct_l
-                0x0000000003f194ec                III_imdct_l
- .text          0x0000000003f19e50      0x3dc /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/libmad-mpeg.a(synth_full_arm.o)
-                0x0000000003f19e50                synth_full_odd_sbsample
-                0x0000000003f19fa8                synth_full_even_sbsample
-                0x0000000003f1a100                III_aliasreduce
-                0x0000000003f1a1d4                III_overlap
- .text          0x0000000003f1a22c      0x1d0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/libmad-mpeg.a(bit.o)
-                0x0000000003f1a22c                mad_bit_init
-                0x0000000003f1a244                mad_bit_length
-                0x0000000003f1a254                mad_bit_nextbyte
-                0x0000000003f1a268                mad_bit_skip
-                0x0000000003f1a278                mad_bit_crc
- .text.memcpy   0x0000000003f1a3fc       0x14 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(gcc-support.o)
-                0x0000000003f1a3fc                memcpy
- .text.memset   0x0000000003f1a410       0x14 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(gcc-support.o)
-                0x0000000003f1a410                memset
- .text.memmove  0x0000000003f1a424       0x14 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(gcc-support.o)
-                0x0000000003f1a424                memmove
+                0x0000000003f0b720                vo_rect_clear
+                0x0000000003f0b738                vo_rect_empty
+                0x0000000003f0b73c                vo_rect_set_ext
+                0x0000000003f0b758                vo_rects_intersect
+                0x0000000003f0b75c                vo_rect_intersect
+                0x0000000003f0b7f0                vo_rect_union
+                0x0000000003f0b8c0                vo_rect_offset
+                0x0000000003f0b8f4                stretch_image_plane
+                0x0000000003f0b9d0                vo_draw_frame_thumb
+                0x0000000003f0bb9c                vo_set_display_mode
+                0x0000000003f0bbb4                vo_dimensions
+                0x0000000003f0bbd0                vo_init
+                0x0000000003f0bc28                vo_show
+                0x0000000003f0bc54                vo_is_visible
+                0x0000000003f0bc6c                vo_cleanup
+                0x0000000003f0bc80                vo_set_clip_rect
+                0x0000000003f0bd18                vo_setup
+                0x0000000003f0bf3c                vo_get_clip_rect
+                0x0000000003f0bf78                vo_set_post_draw_callback
+                0x0000000003f0bf88                vo_lock
+                0x0000000003f0bf8c                vo_unlock
+ .text          0x0000000003f0bf90     0x1108 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/mpegplayer/video_thread.o
+                0x0000000003f0ced0                video_thread_init
+                0x0000000003f0cfcc                video_thread_exit
+                0x0000000003f0d03c                video_thread_get_stats
+ .text          0x0000000003f0d098      0x6d8 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/mpegplayer/pcm_output.o
+                0x0000000003f0d268                pcm_output_get_buffer
+                0x0000000003f0d2ac                pcm_output_commit_data
+                0x0000000003f0d31c                pcm_output_empty
+                0x0000000003f0d33c                pcm_output_flush
+                0x0000000003f0d3d4                pcm_output_set_clock
+                0x0000000003f0d418                pcm_output_get_clock
+                0x0000000003f0d480                pcm_output_get_ticks
+                0x0000000003f0d4fc                pcm_output_play_pause
+                0x0000000003f0d5bc                pcm_output_stop
+                0x0000000003f0d628                pcm_output_drain
+                0x0000000003f0d664                pcm_output_init
+                0x0000000003f0d720                pcm_output_exit
+ .text          0x0000000003f0d770      0xc00 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/mpegplayer/audio_thread.o
+                0x0000000003f0e250                audio_thread_init
+                0x0000000003f0e30c                audio_thread_exit
+ .text          0x0000000003f0e370     0x100c /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/mpegplayer/disk_buf.o
+                0x0000000003f0e4a0                disk_buf_is_data_ready
+                0x0000000003f0e544                dbuf_l2_init
+                0x0000000003f0e550                _disk_buf_getbuffer
+                0x0000000003f0e5f8                _disk_buf_getbuffer_l2
+                0x0000000003f0e6f8                disk_buf_read
+                0x0000000003f0e7b8                disk_buf_lseek
+                0x0000000003f0e83c                disk_buf_set_streaming_window
+                0x0000000003f0e8c0                disk_buf_offset2ptr
+                0x0000000003f0e8fc                disk_buf_close
+                0x0000000003f0e970                disk_buf_open
+                0x0000000003f0ea08                disk_buf_send_msg
+                0x0000000003f0ea30                disk_buf_prepare_streaming
+                0x0000000003f0ea98                disk_buf_post_msg
+                0x0000000003f0eac0                disk_buf_reply_msg
+                0x0000000003f0f154                disk_buf_init
+                0x0000000003f0f31c                disk_buf_exit
+ .text          0x0000000003f0f37c     0x13ac /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/mpegplayer/mpeg_settings.o
+                0x0000000003f0f7ec                mpeg_backlight_update_brightness
+                0x0000000003f0fc44                mpeg_start_menu
+                0x0000000003f10518                mpeg_menu
+                0x0000000003f1057c                init_settings
+                0x0000000003f10688                save_settings
+ .text          0x0000000003f10728     0x115c /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/mpegplayer/stream_mgr.o
+                0x0000000003f109c0                str_next_data_not_ready
+                0x0000000003f10a3c                str_data_notify_received
+                0x0000000003f10a6c                stream_add_stream
+                0x0000000003f10aa0                stream_remove_streams
+                0x0000000003f10ad0                move_strl_to_actl
+                0x0000000003f10b94                stream_generate_event
+                0x0000000003f10bd8                stream_clear_notify
+                0x0000000003f10bf8                stream_show_vo
+                0x0000000003f10c28                stream_vo_is_visible
+                0x0000000003f10c54                stream_vo_get_size
+                0x0000000003f10ca8                stream_vo_set_clip
+                0x0000000003f10ce0                stream_vo_set_display_mode
+                0x0000000003f10d44                stream_vo_get_clip
+                0x0000000003f10d8c                stream_display_thumb
+                0x0000000003f10dd0                stream_draw_frame
+                0x0000000003f10e00                stream_set_callback
+                0x0000000003f10e40                stream_get_resume_time
+                0x0000000003f10e64                stream_get_seek_time
+                0x0000000003f11018                stream_on_open
+                0x0000000003f11484                stream_wait_status
+                0x0000000003f11494                stream_get_window
+                0x0000000003f114ec                stream_open
+                0x0000000003f11510                stream_play
+                0x0000000003f11534                stream_pause
+                0x0000000003f11558                stream_resume
+                0x0000000003f1157c                stream_stop
+                0x0000000003f115a0                stream_seek
+                0x0000000003f115f0                stream_close
+                0x0000000003f11614                stream_init
+                0x0000000003f11810                stream_exit
+ .text          0x0000000003f11884     0x1fac /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/mpegplayer/mpegplayer.o
+                0x0000000003f12cf0                plugin_start
+ .text          0x0000000003f13830     0x11d8 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/mpegplayer/mpeg_parser.o
+                0x0000000003f139cc                str_initialize
+                0x0000000003f13a00                str_end_of_stream
+                0x0000000003f13fa0                mpeg_parser_scan_start_code
+                0x0000000003f14068                mpeg_parser_scan_pes
+                0x0000000003f14128                mpeg_parser_scan_scr
+                0x0000000003f14250                mpeg_parser_scan_pts
+                0x0000000003f14594                parser_prepare_image
+                0x0000000003f14704                parser_seek_time
+                0x0000000003f1473c                parser_prepare_streaming
+                0x0000000003f14820                parser_init_stream
+                0x0000000003f149e4                parser_close_stream
+                0x0000000003f149f4                parser_init
+ .text          0x0000000003f14a08      0x3bc /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/mpegplayer/mpeg_misc.o
+                0x0000000003f14a08                stream_scan_init
+                0x0000000003f14a1c                stream_scan_normalize
+                0x0000000003f14a44                stream_scan_offset
+                0x0000000003f14a74                ts_to_hms
+                0x0000000003f14ae8                hms_format
+                0x0000000003f14b50                muldiv_uint32
+                0x0000000003f14ba8                list_is_empty
+                0x0000000003f14bb8                list_is_member
+                0x0000000003f14be8                list_remove_item
+                0x0000000003f14c14                list_add_item
+                0x0000000003f14c48                list_clear_all
+                0x0000000003f14c64                list_enum_items
+                0x0000000003f14cc0                mpeg_sysevent_clear
+                0x0000000003f14cd4                mpeg_sysevent_set
+                0x0000000003f14ce8                mpeg_sysevent
+                0x0000000003f14cf8                mpeg_sysevent_callback
+                0x0000000003f14d20                mpeg_sysevent_handle
+                0x0000000003f14d48                mpeg_button_get
+ .text          0x0000000003f14dc4      0x214 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/plugin_crt0.o
+                0x0000000003f14ddc                plugin__start
+                0x0000000003f14f24                rb_atexit
+                0x0000000003f14f44                exit
+                0x0000000003f14f6c                _exit
+                0x0000000003f14f80                exit_on_usb
+ .text          0x0000000003f14fd8      0x734 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/libmad-mpeg.a(frame.o)
+                0x0000000003f15210                mad_header_init
+                0x0000000003f15238                mad_header_decode
+                0x0000000003f155e4                mad_frame_decode
+                0x0000000003f156b4                mad_frame_mute
+                0x0000000003f156f4                mad_frame_init
+ .text          0x0000000003f1570c      0xadc /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/libmad-mpeg.a(layer12.o)
+                0x0000000003f15840                mad_layer_I
+                0x0000000003f15b4c                mad_layer_II
+ .text          0x0000000003f161e8     0x2194 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/libmad-mpeg.a(layer3.o)
+                0x0000000003f17d1c                mad_layer_III
+ .text          0x0000000003f1837c      0x30c /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/libmad-mpeg.a(stream.o)
+                0x0000000003f1837c                mad_stream_init
+                0x0000000003f183d0                mad_stream_buffer
+                0x0000000003f18400                mad_stream_sync
+                0x0000000003f18474                mad_stream_errorstr
+ .text          0x0000000003f18688     0x10f8 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/libmad-mpeg.a(synth.o)
+                0x0000000003f18688                mad_synth_mute
+                0x0000000003f186a0                mad_synth_init
+                0x0000000003f186c8                mad_synth_frame
+ .text          0x0000000003f19780      0x964 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/libmad-mpeg.a(imdct_l_arm.o)
+                0x0000000003f19780                _III_imdct_l
+                0x0000000003f19780                III_imdct_l
+ .text          0x0000000003f1a0e4      0x3dc /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/libmad-mpeg.a(synth_full_arm.o)
+                0x0000000003f1a0e4                synth_full_odd_sbsample
+                0x0000000003f1a23c                synth_full_even_sbsample
+                0x0000000003f1a394                III_aliasreduce
+                0x0000000003f1a468                III_overlap
+ .text          0x0000000003f1a4c0      0x1d0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/libmad-mpeg.a(bit.o)
+                0x0000000003f1a4c0                mad_bit_init
+                0x0000000003f1a4d8                mad_bit_length
+                0x0000000003f1a4e8                mad_bit_nextbyte
+                0x0000000003f1a4fc                mad_bit_skip
+                0x0000000003f1a50c                mad_bit_crc
+ .text.memcpy   0x0000000003f1a690       0x14 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(gcc-support.o)
+                0x0000000003f1a690                memcpy
+ .text.memset   0x0000000003f1a6a4       0x14 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(gcc-support.o)
+                0x0000000003f1a6a4                memset
+ .text.memmove  0x0000000003f1a6b8       0x14 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(gcc-support.o)
+                0x0000000003f1a6b8                memmove
  .text.talk_val
-                0x0000000003f1a438       0x28 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(helper.o)
-                0x0000000003f1a438                talk_val
+                0x0000000003f1a6cc       0x28 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(helper.o)
+                0x0000000003f1a6cc                talk_val
  .text.backlight_ignore_timeout
-                0x0000000003f1a460       0x5c /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(helper.o)
-                0x0000000003f1a460                backlight_ignore_timeout
+                0x0000000003f1a6f4       0x5c /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(helper.o)
+                0x0000000003f1a6f4                backlight_ignore_timeout
  .text.backlight_use_settings
-                0x0000000003f1a4bc       0x3c /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(helper.o)
-                0x0000000003f1a4bc                backlight_use_settings
+                0x0000000003f1a750       0x3c /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(helper.o)
+                0x0000000003f1a750                backlight_use_settings
  .text.backlight_brightness_set
-                0x0000000003f1a4f8       0x14 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(helper.o)
-                0x0000000003f1a4f8                backlight_brightness_set
+                0x0000000003f1a78c       0x14 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(helper.o)
+                0x0000000003f1a78c                backlight_brightness_set
  .text.backlight_brightness_use_setting
-                0x0000000003f1a50c       0x1c /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(helper.o)
-                0x0000000003f1a50c                backlight_brightness_use_setting
+                0x0000000003f1a7a0       0x1c /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(helper.o)
+                0x0000000003f1a7a0                backlight_brightness_use_setting
  .text.get_cfg_filename.constprop.0
-                0x0000000003f1a528       0xd8 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(configfile.o)
+                0x0000000003f1a7bc       0xd8 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(configfile.o)
  .text.configfile_save
-                0x0000000003f1a600      0x140 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(configfile.o)
-                0x0000000003f1a600                configfile_save
+                0x0000000003f1a894      0x140 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(configfile.o)
+                0x0000000003f1a894                configfile_save
  .text.configfile_load
-                0x0000000003f1a740      0x228 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(configfile.o)
-                0x0000000003f1a740                configfile_load
+                0x0000000003f1a9d4      0x228 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(configfile.o)
+                0x0000000003f1a9d4                configfile_load
  .text.configfile_get_value
-                0x0000000003f1a968       0xec /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(configfile.o)
-                0x0000000003f1a968                configfile_get_value
+                0x0000000003f1abfc       0xec /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(configfile.o)
+                0x0000000003f1abfc                configfile_get_value
  .text.configfile_update_entry
-                0x0000000003f1aa54      0x13c /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(configfile.o)
-                0x0000000003f1aa54                configfile_update_entry
- .text          0x0000000003f1ab90       0x1c /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/libsetjmp.a(setjmp.o)
-                0x0000000003f1ab90                setjmp
-                0x0000000003f1ab9c                longjmp
- .text          0x0000000003f1abac      0x114 /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivsi3.o)
-                0x0000000003f1abac                __udivsi3
-                0x0000000003f1abac                __aeabi_uidiv
-                0x0000000003f1aca0                __aeabi_uidivmod
- .text          0x0000000003f1acc0      0x148 /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
-                0x0000000003f1acc0                __aeabi_idiv
-                0x0000000003f1acc0                __divsi3
-                0x0000000003f1ade8                __aeabi_idivmod
- .text          0x0000000003f1ae08        0x4 /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
-                0x0000000003f1ae08                __aeabi_ldiv0
-                0x0000000003f1ae08                __aeabi_idiv0
- .text          0x0000000003f1ae0c       0x3c /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_aeabi_uldivmod.o)
-                0x0000000003f1ae0c                __aeabi_uldivmod
- .text          0x0000000003f1ae48      0x130 /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivmoddi4.o)
-                0x0000000003f1ae48                __udivmoddi4
- .text          0x0000000003f1af78       0x28 /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzdi2.o)
-                0x0000000003f1af78                __clzdi2
- .text          0x0000000003f1afa0       0x48 /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzsi2.o)
-                0x0000000003f1afa0                __clzsi2
- .text.__stub   0x0000000003f1afe8        0x8 linker stubs
+                0x0000000003f1ace8      0x13c /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(configfile.o)
+                0x0000000003f1ace8                configfile_update_entry
+ .text          0x0000000003f1ae24       0x1c /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/libsetjmp.a(setjmp.o)
+                0x0000000003f1ae24                setjmp
+                0x0000000003f1ae30                longjmp
+ .text          0x0000000003f1ae40      0x114 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivsi3.o)
+                0x0000000003f1ae40                __udivsi3
+                0x0000000003f1ae40                __aeabi_uidiv
+                0x0000000003f1af34                __aeabi_uidivmod
+ .text          0x0000000003f1af54      0x148 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+                0x0000000003f1af54                __aeabi_idiv
+                0x0000000003f1af54                __divsi3
+                0x0000000003f1b07c                __aeabi_idivmod
+ .text          0x0000000003f1b09c        0x4 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
+                0x0000000003f1b09c                __aeabi_ldiv0
+                0x0000000003f1b09c                __aeabi_idiv0
+ .text          0x0000000003f1b0a0       0xd4 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_aeabi_ldivmod.o)
+                0x0000000003f1b0a0                __aeabi_ldivmod
+ .text          0x0000000003f1b174       0x3c /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_aeabi_uldivmod.o)
+                0x0000000003f1b174                __aeabi_uldivmod
+ .text          0x0000000003f1b1b0      0x130 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivmoddi4.o)
+                0x0000000003f1b1b0                __udivmoddi4
+ .text          0x0000000003f1b2e0       0x28 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzdi2.o)
+                0x0000000003f1b2e0                __clzdi2
+ .text          0x0000000003f1b308       0x48 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzsi2.o)
+                0x0000000003f1b308                __clzsi2
+ .text.__stub   0x0000000003f1b350        0x8 linker stubs
  *(.glue_7)
- .glue_7        0x0000000003f1aff0        0x0 linker stubs
+ .glue_7        0x0000000003f1b358        0x0 linker stubs
  *(.glue_7t)
- .glue_7t       0x0000000003f1aff0        0x0 linker stubs
+ .glue_7t       0x0000000003f1b358        0x0 linker stubs
 
-.vfp11_veneer   0x0000000003f1aff0        0x0
- .vfp11_veneer  0x0000000003f1aff0        0x0 linker stubs
+.vfp11_veneer   0x0000000003f1b358        0x0
+ .vfp11_veneer  0x0000000003f1b358        0x0 linker stubs
 
-.v4_bx          0x0000000003f1aff0        0x0
- .v4_bx         0x0000000003f1aff0        0x0 linker stubs
+.v4_bx          0x0000000003f1b358        0x0
+ .v4_bx         0x0000000003f1b358        0x0 linker stubs
 
-.iplt           0x0000000003f1aff0        0x0
- .iplt          0x0000000003f1aff0        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/mpegplayer/libmpeg2/decode.o
+.iplt           0x0000000003f1b358        0x0
+ .iplt          0x0000000003f1b358        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/mpegplayer/libmpeg2/decode.o
 
-.rodata         0x0000000003f1aff0     0x93e8
+.rodata         0x0000000003f1b358     0x9434
  *(.rodata*)
- .rodata        0x0000000003f1aff0       0x24 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/mpegplayer/libmpeg2/decode.o
- .rodata        0x0000000003f1b014      0x23c /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/mpegplayer/libmpeg2/header.o
-                0x0000000003f1b1d0                default_mpeg2_scan_alt
-                0x0000000003f1b210                default_mpeg2_scan_norm
- .rodata        0x0000000003f1b250       0x40 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/mpegplayer/libmpeg2/motion_comp.o
-                0x0000000003f1b250                mpeg2_mc
+ .rodata        0x0000000003f1b358       0x24 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/mpegplayer/libmpeg2/decode.o
+ .rodata        0x0000000003f1b37c      0x23c /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/mpegplayer/libmpeg2/header.o
+                0x0000000003f1b538                default_mpeg2_scan_alt
+                0x0000000003f1b578                default_mpeg2_scan_norm
+ .rodata        0x0000000003f1b5b8       0x40 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/mpegplayer/libmpeg2/motion_comp.o
+                0x0000000003f1b5b8                mpeg2_mc
  .rodata.str1.1
-                0x0000000003f1b290        0x9 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/mpegplayer/video_thread.o
+                0x0000000003f1b5f8        0x9 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/mpegplayer/video_thread.o
  .rodata.str1.1
-                0x0000000003f1b299        0xa /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/mpegplayer/disk_buf.o
+                0x0000000003f1b601        0xa /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/mpegplayer/disk_buf.o
  .rodata.str1.1
-                0x0000000003f1b2a3       0xea /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/mpegplayer/mpeg_settings.o
-                                         0xed (size before relaxing)
- *fill*         0x0000000003f1b38d        0x3 
- .rodata        0x0000000003f1b390       0xdc /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/mpegplayer/mpeg_settings.o
+                0x0000000003f1b60b      0x121 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/mpegplayer/mpeg_settings.o
+                                        0x124 (size before relaxing)
+ .rodata        0x0000000003f1b72c       0xf4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/mpegplayer/mpeg_settings.o
  .rodata.str1.1
-                0x0000000003f1b46c       0xd9 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/mpegplayer/stream_mgr.o
+                0x0000000003f1b820       0xd9 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/mpegplayer/stream_mgr.o
  .rodata.str1.1
-                0x0000000003f1b545       0x69 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/mpegplayer/mpegplayer.o
- *fill*         0x0000000003f1b5ae        0x2 
- .rodata        0x0000000003f1b5b0       0x10 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/mpegplayer/mpegplayer.o
- .rodata        0x0000000003f1b5c0       0x40 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/mpegplayer/mpeg_parser.o
+                0x0000000003f1b8f9       0x69 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/mpegplayer/mpegplayer.o
+ *fill*         0x0000000003f1b962        0x2 
+ .rodata        0x0000000003f1b964       0x10 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/mpegplayer/mpegplayer.o
+ .rodata        0x0000000003f1b974       0x40 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/mpegplayer/mpeg_parser.o
  .rodata.str1.1
-                0x0000000003f1b600       0x15 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/mpegplayer/mpeg_misc.o
- *fill*         0x0000000003f1b615        0x3 
- .rodata        0x0000000003f1b618      0x144 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/libmad-mpeg.a(frame.o)
- .rodata        0x0000000003f1b75c      0x12e /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/libmad-mpeg.a(layer12.o)
- *fill*         0x0000000003f1b88a        0x2 
- .rodata        0x0000000003f1b88c     0x8456 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/libmad-mpeg.a(layer3.o)
+                0x0000000003f1b9b4       0x15 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/mpegplayer/mpeg_misc.o
+ *fill*         0x0000000003f1b9c9        0x3 
+ .rodata        0x0000000003f1b9cc      0x144 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/libmad-mpeg.a(frame.o)
+ .rodata        0x0000000003f1bb10      0x12e /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/libmad-mpeg.a(layer12.o)
+ *fill*         0x0000000003f1bc3e        0x2 
+ .rodata        0x0000000003f1bc40     0x8456 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/libmad-mpeg.a(layer3.o)
  .rodata.str1.1
-                0x0000000003f23ce2      0x215 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/libmad-mpeg.a(stream.o)
- *fill*         0x0000000003f23ef7        0x1 
- .rodata        0x0000000003f23ef8      0x200 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/libmad-mpeg.a(bit.o)
- .rodata        0x0000000003f240f8      0x108 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/libmad-mpeg.a(huffman.o)
-                0x0000000003f240f8                mad_huff_pair_table
-                0x0000000003f241f8                mad_huff_quad_table
+                0x0000000003f24096      0x215 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/libmad-mpeg.a(stream.o)
+ *fill*         0x0000000003f242ab        0x1 
+ .rodata        0x0000000003f242ac      0x200 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/libmad-mpeg.a(bit.o)
+ .rodata        0x0000000003f244ac      0x108 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/libmad-mpeg.a(huffman.o)
+                0x0000000003f244ac                mad_huff_pair_table
+                0x0000000003f245ac                mad_huff_quad_table
  .rodata.get_cfg_filename.constprop.0.str1.1
-                0x0000000003f24200       0x1d /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(configfile.o)
+                0x0000000003f245b4       0x1d /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(configfile.o)
                                          0x21 (size before relaxing)
  .rodata.configfile_save.str1.1
-                0x0000000003f2421d       0x26 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(configfile.o)
+                0x0000000003f245d1       0x26 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(configfile.o)
  .rodata.configfile_load.str1.1
-                0x0000000003f24243        0xd /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(configfile.o)
- .rodata        0x0000000003f24250       0x40 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/bitmaps/libpluginbitmaps.a(mpegplayer_status_icons_8x8x1.o)
-                0x0000000003f24250                bm_mpegplayer_status_icons_8x8x1
-                0x0000000003f24268                mpegplayer_status_icons_8x8x1
- .rodata        0x0000000003f24290       0x90 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/bitmaps/libpluginbitmaps.a(mpegplayer_status_icons_12x12x1.o)
-                0x0000000003f24290                bm_mpegplayer_status_icons_12x12x1
-                0x0000000003f242a8                mpegplayer_status_icons_12x12x1
- .rodata        0x0000000003f24320       0xb8 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/bitmaps/libpluginbitmaps.a(mpegplayer_status_icons_16x16x1.o)
-                0x0000000003f24320                bm_mpegplayer_status_icons_16x16x1
-                0x0000000003f24338                mpegplayer_status_icons_16x16x1
+                0x0000000003f245f7        0xd /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(configfile.o)
+ .rodata        0x0000000003f24604       0x40 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/bitmaps/libpluginbitmaps.a(mpegplayer_status_icons_8x8x1.o)
+                0x0000000003f24604                bm_mpegplayer_status_icons_8x8x1
+                0x0000000003f2461c                mpegplayer_status_icons_8x8x1
+ .rodata        0x0000000003f24644       0x90 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/bitmaps/libpluginbitmaps.a(mpegplayer_status_icons_12x12x1.o)
+                0x0000000003f24644                bm_mpegplayer_status_icons_12x12x1
+                0x0000000003f2465c                mpegplayer_status_icons_12x12x1
+ .rodata        0x0000000003f246d4       0xb8 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/bitmaps/libpluginbitmaps.a(mpegplayer_status_icons_16x16x1.o)
+                0x0000000003f246d4                bm_mpegplayer_status_icons_16x16x1
+                0x0000000003f246ec                mpegplayer_status_icons_16x16x1
 
-.rel.dyn        0x0000000003f243d8        0x0
- .rel.iplt      0x0000000003f243d8        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/mpegplayer/libmpeg2/decode.o
+.rel.dyn        0x0000000003f2478c        0x0
+ .rel.iplt      0x0000000003f2478c        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/mpegplayer/libmpeg2/decode.o
 
-.data           0x0000000003f243d8      0x17c
+.data           0x0000000003f2478c      0x198
  *(.data*)
- .data          0x0000000003f243d8      0x178 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/mpegplayer/mpeg_settings.o
- .data          0x0000000003f24550        0x4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/plugin_crt0.o
-                0x0000000003f24550                rb
+ .data          0x0000000003f2478c      0x194 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/mpegplayer/mpeg_settings.o
+ .data          0x0000000003f24920        0x4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/plugin_crt0.o
+                0x0000000003f24920                rb
 
-.igot.plt       0x0000000003f24554        0x0
- .igot.plt      0x0000000003f24554        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/mpegplayer/libmpeg2/decode.o
+.igot.plt       0x0000000003f24924        0x0
+ .igot.plt      0x0000000003f24924        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/mpegplayer/libmpeg2/decode.o
 
-.ncdata         0x0000000013f24560        0x0 load address 0x0000000003f24560
+.ncdata         0x0000000013f24930        0x0 load address 0x0000000003f24930
  *(.ncdata*)
-                0x0000000013f24560                . = ALIGN (0x10)
+                0x0000000013f24930                . = ALIGN (0x10)
 
 /DISCARD/
  *(.eh_frame)
 
-.bss            0x0000000003f24560     0x58f8
-                0x0000000003f24560                plugin_bss_start = .
-                0x0000000003f24560                _plugin_bss_start = .
+.bss            0x0000000003f24930     0x590c
+                0x0000000003f24930                plugin_bss_start = .
+                0x0000000003f24930                _plugin_bss_start = .
  *(.bss*)
- .bss           0x0000000003f24560        0xc /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/mpegplayer/alloc.o
- *fill*         0x0000000003f2456c        0x4 
- .bss           0x0000000003f24570       0x50 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/mpegplayer/video_out_rockbox.o
- .bss           0x0000000003f245c0      0x414 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/mpegplayer/pcm_output.o
- .bss           0x0000000003f249d4     0x4120 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/mpegplayer/audio_thread.o
-                0x0000000003f249d4                audio_queue
-                0x0000000003f266f4                sbsample
- .bss           0x0000000003f28af4      0x814 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/mpegplayer/disk_buf.o
- .bss           0x0000000003f29308      0x138 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/mpegplayer/mpeg_settings.o
-                0x0000000003f29308                settings
- .bss           0x0000000003f29440      0x800 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/mpegplayer/stream_mgr.o
- .bss           0x0000000003f29c40      0x1b4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/mpegplayer/mpegplayer.o
- .bss           0x0000000003f29df4        0x4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/mpegplayer/mpeg_misc.o
- .bss           0x0000000003f29df8       0x60 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/plugin_crt0.o
+ .bss           0x0000000003f24930        0xc /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/mpegplayer/alloc.o
+ *fill*         0x0000000003f2493c        0x4 
+ .bss           0x0000000003f24940       0x60 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/mpegplayer/video_out_rockbox.o
+ .bss           0x0000000003f249a0      0x414 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/mpegplayer/pcm_output.o
+ .bss           0x0000000003f24db4     0x4120 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/mpegplayer/audio_thread.o
+                0x0000000003f24db4                audio_queue
+                0x0000000003f26ad4                sbsample
+ .bss           0x0000000003f28ed4      0x814 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/mpegplayer/disk_buf.o
+ .bss           0x0000000003f296e8      0x13c /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/mpegplayer/mpeg_settings.o
+                0x0000000003f296e8                settings
+ .bss           0x0000000003f29824      0x800 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/mpegplayer/stream_mgr.o
+ .bss           0x0000000003f2a024      0x1b4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/mpegplayer/mpegplayer.o
+ .bss           0x0000000003f2a1d8        0x4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/mpegplayer/mpeg_misc.o
+ .bss           0x0000000003f2a1dc       0x60 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/plugin_crt0.o
  *(COMMON)
-                0x0000000003f29e58                . = ALIGN (0x4)
+                0x0000000003f2a23c                . = ALIGN (0x4)
 
-.ncbss          0x0000000013f29e60      0x5c0 load address 0x0000000003f29e60
+.ncbss          0x0000000013f2a240      0x5c0 load address 0x0000000003f2a240
  *(.ncbss*)
- .ncbss         0x0000000013f29e60       0x10 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/mpegplayer/alloc.o
- .ncbss         0x0000000013f29e70       0x18 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/mpegplayer/video_out_rockbox.o
- .ncbss         0x0000000013f29e88       0xf8 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/mpegplayer/video_thread.o
- .ncbss         0x0000000013f29f80       0xf0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/mpegplayer/audio_thread.o
- .ncbss         0x0000000013f2a070      0x158 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/mpegplayer/disk_buf.o
-                0x0000000013f2a088                disk_buf
- .ncbss         0x0000000013f2a1c8      0x170 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/mpegplayer/stream_mgr.o
-                0x0000000013f2a1c8                stream_mgr
- .ncbss         0x0000000013f2a338       0x24 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/mpegplayer/mpegplayer.o
- .ncbss         0x0000000013f2a35c       0xc4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/mpegplayer/mpeg_parser.o
-                0x0000000013f2a35c                str_parser
-                0x0000000013f2a420                . = ALIGN (0x10)
+ .ncbss         0x0000000013f2a240       0x10 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/mpegplayer/alloc.o
+ .ncbss         0x0000000013f2a250       0x18 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/mpegplayer/video_out_rockbox.o
+ .ncbss         0x0000000013f2a268       0xf8 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/mpegplayer/video_thread.o
+ .ncbss         0x0000000013f2a360       0xf0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/mpegplayer/audio_thread.o
+ .ncbss         0x0000000013f2a450      0x158 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/mpegplayer/disk_buf.o
+                0x0000000013f2a468                disk_buf
+ .ncbss         0x0000000013f2a5a8      0x170 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/mpegplayer/stream_mgr.o
+                0x0000000013f2a5a8                stream_mgr
+ .ncbss         0x0000000013f2a718       0x24 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/mpegplayer/mpegplayer.o
+ .ncbss         0x0000000013f2a73c       0xc4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/mpegplayer/mpeg_parser.o
+                0x0000000013f2a73c                str_parser
+                0x0000000013f2a800                . = ALIGN (0x10)
 
-.ncbss_vma      0x0000000003f29e60      0x5c0
-                0x0000000003f2a420                . = (. + SIZEOF (.ncbss))
- *fill*         0x0000000003f29e60      0x5c0 
+.ncbss_vma      0x0000000003f2a240      0x5c0
+                0x0000000003f2a800                . = (. + SIZEOF (.ncbss))
+ *fill*         0x0000000003f2a240      0x5c0 
 
-.pluginend      0x0000000003f2a420        0x0
-                0x0000000003f2a420                _plugin_end_addr = .
-                0x0000000003f2a420                plugin_end_addr = .
+.pluginend      0x0000000003f2a800        0x0
+                0x0000000003f2a800                _plugin_end_addr = .
+                0x0000000003f2a800                plugin_end_addr = .
 
-.iram           0x000000004000c000     0x27de load address 0x0000000003f24560
+.iram           0x000000004000c000     0x27de load address 0x0000000003f24930
                 0x000000004000c000                iramstart = .
  *(.icode)
  .icode         0x000000004000c000       0x80 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/rbcodec/codecs/libmad-mpeg.a(bit.o)
@@ -670,9 +663,9 @@ LOAD /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a
                 0x000000004000e75e                mpeg2_scan_alt
                 0x000000004000e79e                mpeg2_scan_norm
                 0x000000004000e7de                iramend = .
-                0x0000000003f24560                iramcopy = LOADADDR (.iram)
+                0x0000000003f24930                iramcopy = LOADADDR (.iram)
 
-.ibss           0x000000004000e7e0     0x45ec load address 0x0000000003f26d40
+.ibss           0x000000004000e7e0     0x45ec load address 0x0000000003f27110
                 0x000000004000e7e0                iedata = .
  *(.ibss)
  .ibss          0x000000004000e7e0       0x80 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/mpegplayer/libmpeg2/decode.o
@@ -685,11 +678,11 @@ LOAD /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a
  .ibss          0x0000000040012dc0        0xc /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/mpegplayer/disk_buf.o
                 0x0000000040012dcc                . = ALIGN (0x4)
                 0x0000000040012dcc                iend = .
-                0x0000000003f2a420                loadendaddr = MAX (plugin_end_addr, (LOADADDR (.iram) + SIZEOF (.iram)))
+                0x0000000003f2a800                loadendaddr = MAX (plugin_end_addr, (LOADADDR (.iram) + SIZEOF (.iram)))
 
-.pluginloadend  0x0000000003f2a420        0x0
-                0x0000000003f2a420                _plugin_load_end_addr = .
-                0x0000000003f2a420                plugin_load_end_addr = .
+.pluginloadend  0x0000000003f2a800        0x0
+                0x0000000003f2a800                _plugin_load_end_addr = .
+                0x0000000003f2a800                plugin_load_end_addr = .
 
 .comment        0x0000000000000000       0x11
  *(.comment)
@@ -725,7 +718,7 @@ LOAD /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a
  .comment       0x0000000000000011       0x12 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/bitmaps/libpluginbitmaps.a(mpegplayer_status_icons_8x8x1.o)
  .comment       0x0000000000000011       0x12 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/bitmaps/libpluginbitmaps.a(mpegplayer_status_icons_12x12x1.o)
  .comment       0x0000000000000011       0x12 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/bitmaps/libpluginbitmaps.a(mpegplayer_status_icons_16x16x1.o)
- .comment       0x0000000000000011       0x12 /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivmoddi4.o)
+ .comment       0x0000000000000011       0x12 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivmoddi4.o)
                 0x0000000000000001                ASSERT ((LOADADDR (.ncdata) == (ADDR (.ncdata) - 0x10000000)), .ncdata has incorrect LMA/VMA address)
                 0x0000000000000001                ASSERT (((LOADADDR (.ncdata) % 0x10) == 0x0), .ncdata incorrectly aligned)
                 0x0000000000000001                ASSERT ((LOADADDR (.ncbss) == (ADDR (.ncbss) - 0x10000000)), .ncbss has incorrect LMA/VMA address)
@@ -810,79 +803,88 @@ LOAD linker stubs
  .ARM.attributes
                 0x000000000000057e       0x1a /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/libsetjmp.a(setjmp.o)
  .ARM.attributes
-                0x0000000000000598       0x1c /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivsi3.o)
+                0x0000000000000598       0x1c /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivsi3.o)
  .ARM.attributes
-                0x00000000000005b4       0x1c /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+                0x00000000000005b4       0x1c /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
  .ARM.attributes
-                0x00000000000005d0       0x1c /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
+                0x00000000000005d0       0x1c /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
  .ARM.attributes
-                0x00000000000005ec       0x1c /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_aeabi_uldivmod.o)
+                0x00000000000005ec       0x1c /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_aeabi_ldivmod.o)
  .ARM.attributes
-                0x0000000000000608       0x2a /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivmoddi4.o)
+                0x0000000000000608       0x1c /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_aeabi_uldivmod.o)
  .ARM.attributes
-                0x0000000000000632       0x1c /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzdi2.o)
+                0x0000000000000624       0x2a /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivmoddi4.o)
  .ARM.attributes
-                0x000000000000064e       0x1c /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzsi2.o)
+                0x000000000000064e       0x1c /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzdi2.o)
+ .ARM.attributes
+                0x000000000000066a       0x1c /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzsi2.o)
 
-.debug_frame    0x0000000000000000       0xac
- .debug_frame   0x0000000000000000       0x20 /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivsi3.o)
- .debug_frame   0x0000000000000020       0x20 /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
- .debug_frame   0x0000000000000040       0x2c /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_aeabi_uldivmod.o)
- .debug_frame   0x000000000000006c       0x40 /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivmoddi4.o)
+.debug_frame    0x0000000000000000       0xf0
+ .debug_frame   0x0000000000000000       0x20 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivsi3.o)
+ .debug_frame   0x0000000000000020       0x20 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+ .debug_frame   0x0000000000000040       0x44 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_aeabi_ldivmod.o)
+ .debug_frame   0x0000000000000084       0x2c /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_aeabi_uldivmod.o)
+ .debug_frame   0x00000000000000b0       0x40 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivmoddi4.o)
 
-.debug_line     0x0000000000000000      0x4ae
- .debug_line    0x0000000000000000       0x7e /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivsi3.o)
- .debug_line    0x000000000000007e       0x8a /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
- .debug_line    0x0000000000000108       0x61 /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
- .debug_line    0x0000000000000169       0x61 /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_aeabi_uldivmod.o)
- .debug_line    0x00000000000001ca      0x20b /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivmoddi4.o)
- .debug_line    0x00000000000003d5       0x6b /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzdi2.o)
- .debug_line    0x0000000000000440       0x6e /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzsi2.o)
+.debug_line     0x0000000000000000      0x52d
+ .debug_line    0x0000000000000000       0x7e /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivsi3.o)
+ .debug_line    0x000000000000007e       0x8a /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+ .debug_line    0x0000000000000108       0x61 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
+ .debug_line    0x0000000000000169       0x7f /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_aeabi_ldivmod.o)
+ .debug_line    0x00000000000001e8       0x61 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_aeabi_uldivmod.o)
+ .debug_line    0x0000000000000249      0x20b /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivmoddi4.o)
+ .debug_line    0x0000000000000454       0x6b /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzdi2.o)
+ .debug_line    0x00000000000004bf       0x6e /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzsi2.o)
 
-.debug_info     0x0000000000000000      0xadf
- .debug_info    0x0000000000000000       0x26 /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivsi3.o)
- .debug_info    0x0000000000000026       0x26 /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
- .debug_info    0x000000000000004c       0x26 /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
- .debug_info    0x0000000000000072       0x26 /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_aeabi_uldivmod.o)
- .debug_info    0x0000000000000098      0x9fb /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivmoddi4.o)
- .debug_info    0x0000000000000a93       0x26 /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzdi2.o)
- .debug_info    0x0000000000000ab9       0x26 /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzsi2.o)
+.debug_info     0x0000000000000000      0xb05
+ .debug_info    0x0000000000000000       0x26 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivsi3.o)
+ .debug_info    0x0000000000000026       0x26 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+ .debug_info    0x000000000000004c       0x26 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
+ .debug_info    0x0000000000000072       0x26 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_aeabi_ldivmod.o)
+ .debug_info    0x0000000000000098       0x26 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_aeabi_uldivmod.o)
+ .debug_info    0x00000000000000be      0x9fb /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivmoddi4.o)
+ .debug_info    0x0000000000000ab9       0x26 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzdi2.o)
+ .debug_info    0x0000000000000adf       0x26 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzsi2.o)
 
-.debug_abbrev   0x0000000000000000      0x1da
- .debug_abbrev  0x0000000000000000       0x14 /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivsi3.o)
- .debug_abbrev  0x0000000000000014       0x14 /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
- .debug_abbrev  0x0000000000000028       0x14 /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
- .debug_abbrev  0x000000000000003c       0x14 /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_aeabi_uldivmod.o)
- .debug_abbrev  0x0000000000000050      0x162 /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivmoddi4.o)
- .debug_abbrev  0x00000000000001b2       0x14 /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzdi2.o)
- .debug_abbrev  0x00000000000001c6       0x14 /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzsi2.o)
+.debug_abbrev   0x0000000000000000      0x1ee
+ .debug_abbrev  0x0000000000000000       0x14 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivsi3.o)
+ .debug_abbrev  0x0000000000000014       0x14 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+ .debug_abbrev  0x0000000000000028       0x14 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
+ .debug_abbrev  0x000000000000003c       0x14 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_aeabi_ldivmod.o)
+ .debug_abbrev  0x0000000000000050       0x14 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_aeabi_uldivmod.o)
+ .debug_abbrev  0x0000000000000064      0x162 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivmoddi4.o)
+ .debug_abbrev  0x00000000000001c6       0x14 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzdi2.o)
+ .debug_abbrev  0x00000000000001da       0x14 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzsi2.o)
 
-.debug_aranges  0x0000000000000000       0xe0
+.debug_aranges  0x0000000000000000      0x100
  .debug_aranges
-                0x0000000000000000       0x20 /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivsi3.o)
+                0x0000000000000000       0x20 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivsi3.o)
  .debug_aranges
-                0x0000000000000020       0x20 /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+                0x0000000000000020       0x20 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
  .debug_aranges
-                0x0000000000000040       0x20 /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
+                0x0000000000000040       0x20 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
  .debug_aranges
-                0x0000000000000060       0x20 /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_aeabi_uldivmod.o)
+                0x0000000000000060       0x20 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_aeabi_ldivmod.o)
  .debug_aranges
-                0x0000000000000080       0x20 /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivmoddi4.o)
+                0x0000000000000080       0x20 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_aeabi_uldivmod.o)
  .debug_aranges
-                0x00000000000000a0       0x20 /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzdi2.o)
+                0x00000000000000a0       0x20 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivmoddi4.o)
  .debug_aranges
-                0x00000000000000c0       0x20 /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzsi2.o)
+                0x00000000000000c0       0x20 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzdi2.o)
+ .debug_aranges
+                0x00000000000000e0       0x20 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzsi2.o)
 
 .debug_str      0x0000000000000000     0x11d0
- .debug_str     0x0000000000000000       0x6c /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivsi3.o)
- .debug_str     0x000000000000006c       0x6c /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
- .debug_str     0x000000000000006c       0x6c /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
- .debug_str     0x000000000000006c       0x2d /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_aeabi_uldivmod.o)
+ .debug_str     0x0000000000000000       0x6c /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivsi3.o)
+ .debug_str     0x000000000000006c       0x6c /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+ .debug_str     0x000000000000006c       0x6c /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
+ .debug_str     0x000000000000006c       0x2d /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_aeabi_ldivmod.o)
                                          0x68 (size before relaxing)
- .debug_str     0x0000000000000099     0x1137 /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivmoddi4.o)
+ .debug_str     0x0000000000000099       0x68 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_aeabi_uldivmod.o)
+ .debug_str     0x0000000000000099     0x1137 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivmoddi4.o)
                                        0x1196 (size before relaxing)
- .debug_str     0x00000000000011d0       0x6c /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzdi2.o)
- .debug_str     0x00000000000011d0       0x6c /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzsi2.o)
+ .debug_str     0x00000000000011d0       0x6c /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzdi2.o)
+ .debug_str     0x00000000000011d0       0x6c /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzsi2.o)
 
 .debug_loc      0x0000000000000000      0x1e2
- .debug_loc     0x0000000000000000      0x1e2 /home/david/.local/rbdev/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivmoddi4.o)
+ .debug_loc     0x0000000000000000      0x1e2 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivmoddi4.o)

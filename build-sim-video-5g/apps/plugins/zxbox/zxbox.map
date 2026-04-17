@@ -1937,40 +1937,40 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000    0x8911f
+.debug_info     0x0000000000000000    0x892a7
  *(.debug_info .gnu.linkonce.wi.*)
  .debug_info    0x0000000000000000      0x36d /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/zxbox/compr.o
- .debug_info    0x000000000000036d     0x7634 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/zxbox/helpers.o
- .debug_info    0x00000000000079a1     0x7995 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/zxbox/interf.o
- .debug_info    0x000000000000f336       0xb1 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/zxbox/keynames.o
- .debug_info    0x000000000000f3e7       0x6d /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/zxbox/loadim.o
- .debug_info    0x000000000000f454     0x7a4c /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/zxbox/zxmisc.o
- .debug_info    0x0000000000016ea0       0x70 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/zxbox/rom_imag.o
- .debug_info    0x0000000000016f10     0x9817 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/zxbox/snapshot.o
- .debug_info    0x0000000000020727     0x7c60 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/zxbox/spconf.o
- .debug_info    0x0000000000028387      0x44f /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/zxbox/spect.o
- .debug_info    0x00000000000287d6     0x105c /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/zxbox/spkey.o
- .debug_info    0x0000000000029832     0x8b07 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/zxbox/spmain.o
- .debug_info    0x0000000000032339      0xa59 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/zxbox/spperif.o
- .debug_info    0x0000000000032d92      0x9d3 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/zxbox/spscr.o
- .debug_info    0x0000000000033765      0x523 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/zxbox/spsound.o
- .debug_info    0x0000000000033c88     0x8876 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/zxbox/sptape.o
- .debug_info    0x000000000003c4fe     0x7979 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/zxbox/sptiming.o
- .debug_info    0x0000000000043e77     0x9fd0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/zxbox/tapefile.o
- .debug_info    0x000000000004de47     0x7bc7 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/zxbox/z80.o
- .debug_info    0x0000000000055a0e     0x145e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/zxbox/z80_op1.o
- .debug_info    0x0000000000056e6c     0x13d1 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/zxbox/z80_op2.o
- .debug_info    0x000000000005823d     0x280a /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/zxbox/z80_op3.o
- .debug_info    0x000000000005aa47     0x1852 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/zxbox/z80_op4.o
- .debug_info    0x000000000005c299     0x1390 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/zxbox/z80_op5.o
- .debug_info    0x000000000005d629     0x2760 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/zxbox/z80_op6.o
- .debug_info    0x000000000005fd89      0x8cc /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/zxbox/z80_step.o
- .debug_info    0x0000000000060655     0x1c0d /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/zxbox/z80optab.o
- .debug_info    0x0000000000062262     0x7cb3 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/zxbox/zxbox.o
- .debug_info    0x0000000000069f15     0x7e5b /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/zxbox/zxbox_keyb.o
- .debug_info    0x0000000000071d70     0x7a83 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/zxbox/zxvid_16bpp.o
- .debug_info    0x00000000000797f3     0x7c76 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
- .debug_info    0x0000000000081469     0x7cb6 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(configfile.o)
+ .debug_info    0x000000000000036d     0x7642 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/zxbox/helpers.o
+ .debug_info    0x00000000000079af     0x79a3 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/zxbox/interf.o
+ .debug_info    0x000000000000f352       0xb1 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/zxbox/keynames.o
+ .debug_info    0x000000000000f403       0x6d /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/zxbox/loadim.o
+ .debug_info    0x000000000000f470     0x7a5a /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/zxbox/zxmisc.o
+ .debug_info    0x0000000000016eca       0x70 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/zxbox/rom_imag.o
+ .debug_info    0x0000000000016f3a     0x9825 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/zxbox/snapshot.o
+ .debug_info    0x000000000002075f     0x7c6e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/zxbox/spconf.o
+ .debug_info    0x00000000000283cd      0x45d /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/zxbox/spect.o
+ .debug_info    0x000000000002882a     0x106a /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/zxbox/spkey.o
+ .debug_info    0x0000000000029894     0x8b15 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/zxbox/spmain.o
+ .debug_info    0x00000000000323a9      0xa67 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/zxbox/spperif.o
+ .debug_info    0x0000000000032e10      0x9e1 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/zxbox/spscr.o
+ .debug_info    0x00000000000337f1      0x531 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/zxbox/spsound.o
+ .debug_info    0x0000000000033d22     0x8884 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/zxbox/sptape.o
+ .debug_info    0x000000000003c5a6     0x7987 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/zxbox/sptiming.o
+ .debug_info    0x0000000000043f2d     0x9fde /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/zxbox/tapefile.o
+ .debug_info    0x000000000004df0b     0x7bd5 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/zxbox/z80.o
+ .debug_info    0x0000000000055ae0     0x146c /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/zxbox/z80_op1.o
+ .debug_info    0x0000000000056f4c     0x13df /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/zxbox/z80_op2.o
+ .debug_info    0x000000000005832b     0x2818 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/zxbox/z80_op3.o
+ .debug_info    0x000000000005ab43     0x1860 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/zxbox/z80_op4.o
+ .debug_info    0x000000000005c3a3     0x139e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/zxbox/z80_op5.o
+ .debug_info    0x000000000005d741     0x276e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/zxbox/z80_op6.o
+ .debug_info    0x000000000005feaf      0x8da /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/zxbox/z80_step.o
+ .debug_info    0x0000000000060789     0x1c1b /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/zxbox/z80optab.o
+ .debug_info    0x00000000000623a4     0x7cc1 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/zxbox/zxbox.o
+ .debug_info    0x000000000006a065     0x7e69 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/zxbox/zxbox_keyb.o
+ .debug_info    0x0000000000071ece     0x7a91 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/zxbox/zxvid_16bpp.o
+ .debug_info    0x000000000007995f     0x7c84 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+ .debug_info    0x00000000000815e3     0x7cc4 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(configfile.o)
 
 .debug_abbrev   0x0000000000000000     0x5dec
  *(.debug_abbrev)
@@ -2045,72 +2045,72 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0x8802
+.debug_str      0x0000000000000000     0x881d
  *(.debug_str)
- .debug_str     0x0000000000000000     0x8802 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/zxbox/compr.o
+ .debug_str     0x0000000000000000     0x881d /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/zxbox/compr.o
                                         0x10e (size before relaxing)
- .debug_str     0x0000000000008802        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/zxbox/helpers.o
-                                       0x4812 (size before relaxing)
- .debug_str     0x0000000000008802        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/zxbox/interf.o
-                                       0x4fb5 (size before relaxing)
- .debug_str     0x0000000000008802        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/zxbox/keynames.o
+ .debug_str     0x000000000000881d        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/zxbox/helpers.o
+                                       0x482d (size before relaxing)
+ .debug_str     0x000000000000881d        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/zxbox/interf.o
+                                       0x4fd0 (size before relaxing)
+ .debug_str     0x000000000000881d        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/zxbox/keynames.o
                                         0x16f (size before relaxing)
- .debug_str     0x0000000000008802        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/zxbox/loadim.o
+ .debug_str     0x000000000000881d        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/zxbox/loadim.o
                                         0x117 (size before relaxing)
- .debug_str     0x0000000000008802        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/zxbox/zxmisc.o
-                                       0x4898 (size before relaxing)
- .debug_str     0x0000000000008802        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/zxbox/rom_imag.o
+ .debug_str     0x000000000000881d        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/zxbox/zxmisc.o
+                                       0x48b3 (size before relaxing)
+ .debug_str     0x000000000000881d        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/zxbox/rom_imag.o
                                         0x11b (size before relaxing)
- .debug_str     0x0000000000008802        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/zxbox/snapshot.o
-                                       0x52e2 (size before relaxing)
- .debug_str     0x0000000000008802        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/zxbox/spconf.o
-                                       0x5063 (size before relaxing)
- .debug_str     0x0000000000008802        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/zxbox/spect.o
-                                        0x303 (size before relaxing)
- .debug_str     0x0000000000008802        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/zxbox/spkey.o
-                                        0xc90 (size before relaxing)
- .debug_str     0x0000000000008802        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/zxbox/spmain.o
-                                       0x54f1 (size before relaxing)
- .debug_str     0x0000000000008802        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/zxbox/spperif.o
-                                        0xb2d (size before relaxing)
- .debug_str     0x0000000000008802        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/zxbox/spscr.o
-                                        0xb0e (size before relaxing)
- .debug_str     0x0000000000008802        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/zxbox/spsound.o
-                                        0x985 (size before relaxing)
- .debug_str     0x0000000000008802        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/zxbox/sptape.o
-                                       0x52e6 (size before relaxing)
- .debug_str     0x0000000000008802        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/zxbox/sptiming.o
-                                       0x4f97 (size before relaxing)
- .debug_str     0x0000000000008802        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/zxbox/tapefile.o
-                                       0x52ae (size before relaxing)
- .debug_str     0x0000000000008802        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/zxbox/z80.o
-                                       0x506e (size before relaxing)
- .debug_str     0x0000000000008802        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/zxbox/z80_op1.o
-                                        0x7df (size before relaxing)
- .debug_str     0x0000000000008802        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/zxbox/z80_op2.o
-                                        0x985 (size before relaxing)
- .debug_str     0x0000000000008802        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/zxbox/z80_op3.o
-                                        0x837 (size before relaxing)
- .debug_str     0x0000000000008802        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/zxbox/z80_op4.o
-                                        0x661 (size before relaxing)
- .debug_str     0x0000000000008802        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/zxbox/z80_op5.o
-                                        0x5b5 (size before relaxing)
- .debug_str     0x0000000000008802        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/zxbox/z80_op6.o
-                                        0xfed (size before relaxing)
- .debug_str     0x0000000000008802        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/zxbox/z80_step.o
-                                        0xa35 (size before relaxing)
- .debug_str     0x0000000000008802        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/zxbox/z80optab.o
-                                       0x31b4 (size before relaxing)
- .debug_str     0x0000000000008802        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/zxbox/zxbox.o
-                                       0x51b3 (size before relaxing)
- .debug_str     0x0000000000008802        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/zxbox/zxbox_keyb.o
-                                       0x507c (size before relaxing)
- .debug_str     0x0000000000008802        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/zxbox/zxvid_16bpp.o
-                                       0x5056 (size before relaxing)
- .debug_str     0x0000000000008802        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
-                                       0x5104 (size before relaxing)
- .debug_str     0x0000000000008802        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(configfile.o)
-                                       0x487a (size before relaxing)
+ .debug_str     0x000000000000881d        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/zxbox/snapshot.o
+                                       0x52fd (size before relaxing)
+ .debug_str     0x000000000000881d        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/zxbox/spconf.o
+                                       0x507e (size before relaxing)
+ .debug_str     0x000000000000881d        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/zxbox/spect.o
+                                        0x31e (size before relaxing)
+ .debug_str     0x000000000000881d        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/zxbox/spkey.o
+                                        0xcab (size before relaxing)
+ .debug_str     0x000000000000881d        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/zxbox/spmain.o
+                                       0x550c (size before relaxing)
+ .debug_str     0x000000000000881d        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/zxbox/spperif.o
+                                        0xb48 (size before relaxing)
+ .debug_str     0x000000000000881d        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/zxbox/spscr.o
+                                        0xb29 (size before relaxing)
+ .debug_str     0x000000000000881d        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/zxbox/spsound.o
+                                        0x9a0 (size before relaxing)
+ .debug_str     0x000000000000881d        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/zxbox/sptape.o
+                                       0x5301 (size before relaxing)
+ .debug_str     0x000000000000881d        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/zxbox/sptiming.o
+                                       0x4fb2 (size before relaxing)
+ .debug_str     0x000000000000881d        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/zxbox/tapefile.o
+                                       0x52c9 (size before relaxing)
+ .debug_str     0x000000000000881d        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/zxbox/z80.o
+                                       0x5089 (size before relaxing)
+ .debug_str     0x000000000000881d        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/zxbox/z80_op1.o
+                                        0x7fa (size before relaxing)
+ .debug_str     0x000000000000881d        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/zxbox/z80_op2.o
+                                        0x9a0 (size before relaxing)
+ .debug_str     0x000000000000881d        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/zxbox/z80_op3.o
+                                        0x852 (size before relaxing)
+ .debug_str     0x000000000000881d        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/zxbox/z80_op4.o
+                                        0x67c (size before relaxing)
+ .debug_str     0x000000000000881d        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/zxbox/z80_op5.o
+                                        0x5d0 (size before relaxing)
+ .debug_str     0x000000000000881d        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/zxbox/z80_op6.o
+                                       0x1008 (size before relaxing)
+ .debug_str     0x000000000000881d        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/zxbox/z80_step.o
+                                        0xa50 (size before relaxing)
+ .debug_str     0x000000000000881d        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/zxbox/z80optab.o
+                                       0x31cf (size before relaxing)
+ .debug_str     0x000000000000881d        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/zxbox/zxbox.o
+                                       0x51ce (size before relaxing)
+ .debug_str     0x000000000000881d        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/zxbox/zxbox_keyb.o
+                                       0x5097 (size before relaxing)
+ .debug_str     0x000000000000881d        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/zxbox/zxvid_16bpp.o
+                                       0x5071 (size before relaxing)
+ .debug_str     0x000000000000881d        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+                                       0x511f (size before relaxing)
+ .debug_str     0x000000000000881d        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(configfile.o)
+                                       0x4895 (size before relaxing)
 
 .debug_loc
  *(.debug_loc)

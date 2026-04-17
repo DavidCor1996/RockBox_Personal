@@ -479,11 +479,11 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000    0x19e14
+.debug_info     0x0000000000000000    0x19e3e
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0x86f5 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/imageviewer/jpeg/jpeg.o
- .debug_info    0x00000000000086f5     0x9059 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/imageviewer/jpeg/jpeg_decoder.o
- .debug_info    0x000000000001174e     0x86c6 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/imageviewer/jpeg/yuv2rgb.o
+ .debug_info    0x0000000000000000     0x8703 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/imageviewer/jpeg/jpeg.o
+ .debug_info    0x0000000000008703     0x9067 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/imageviewer/jpeg/jpeg_decoder.o
+ .debug_info    0x000000000001176a     0x86d4 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/imageviewer/jpeg/yuv2rgb.o
 
 .debug_abbrev   0x0000000000000000      0xf27
  *(.debug_abbrev)
@@ -500,14 +500,14 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0x5170
+.debug_str      0x0000000000000000     0x518b
  *(.debug_str)
- .debug_str     0x0000000000000000     0x5170 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/imageviewer/jpeg/jpeg.o
-                                       0x543e (size before relaxing)
- .debug_str     0x0000000000005170        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/imageviewer/jpeg/jpeg_decoder.o
-                                       0x539d (size before relaxing)
- .debug_str     0x0000000000005170        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/imageviewer/jpeg/yuv2rgb.o
-                                       0x515b (size before relaxing)
+ .debug_str     0x0000000000000000     0x518b /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/imageviewer/jpeg/jpeg.o
+                                       0x5459 (size before relaxing)
+ .debug_str     0x000000000000518b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/imageviewer/jpeg/jpeg_decoder.o
+                                       0x53b8 (size before relaxing)
+ .debug_str     0x000000000000518b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/imageviewer/jpeg/yuv2rgb.o
+                                       0x5176 (size before relaxing)
 
 .debug_loc
  *(.debug_loc)

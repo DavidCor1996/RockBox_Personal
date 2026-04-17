@@ -548,13 +548,13 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000    0x29a99
+.debug_info     0x0000000000000000    0x29aeb
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0x88b9 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/snake.o
- .debug_info    0x00000000000088b9     0x7c76 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
- .debug_info    0x000000000001052f     0x7cb6 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(configfile.o)
- .debug_info    0x00000000000181e5     0x98e5 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(playback_control.o)
- .debug_info    0x0000000000021aca     0x7fcf /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(highscore.o)
+ .debug_info    0x0000000000000000     0x88cd /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/snake.o
+ .debug_info    0x00000000000088cd     0x7c84 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+ .debug_info    0x0000000000010551     0x7cc4 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(configfile.o)
+ .debug_info    0x0000000000018215     0x98f9 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(playback_control.o)
+ .debug_info    0x0000000000021b0e     0x7fdd /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(highscore.o)
 
 .debug_abbrev   0x0000000000000000     0x14d5
  *(.debug_abbrev)
@@ -575,18 +575,18 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0xb2de
+.debug_str      0x0000000000000000     0xb306
  *(.debug_str)
- .debug_str     0x0000000000000000     0xb2de /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/snake.o
-                                       0x65f7 (size before relaxing)
- .debug_str     0x000000000000b2de        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
-                                       0x5104 (size before relaxing)
- .debug_str     0x000000000000b2de        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(configfile.o)
-                                       0x487a (size before relaxing)
- .debug_str     0x000000000000b2de        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(playback_control.o)
-                                       0xa367 (size before relaxing)
- .debug_str     0x000000000000b2de        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(highscore.o)
-                                       0x500b (size before relaxing)
+ .debug_str     0x0000000000000000     0xb306 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/snake.o
+                                       0x661f (size before relaxing)
+ .debug_str     0x000000000000b306        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+                                       0x511f (size before relaxing)
+ .debug_str     0x000000000000b306        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(configfile.o)
+                                       0x4895 (size before relaxing)
+ .debug_str     0x000000000000b306        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(playback_control.o)
+                                       0xa38f (size before relaxing)
+ .debug_str     0x000000000000b306        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(highscore.o)
+                                       0x5026 (size before relaxing)
 
 .debug_loc
  *(.debug_loc)

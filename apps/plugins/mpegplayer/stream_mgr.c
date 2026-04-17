@@ -25,6 +25,8 @@
 #include "lib/grey.h"
 #include "mpeg_settings.h"
 
+#define SMLOG(...) DEBUGF("mpegplayer-sm: " __VA_ARGS__)
+
 #ifndef HAVE_LCD_COLOR
 GREY_INFO_STRUCT_IRAM
 #endif
@@ -375,6 +377,8 @@ void stream_on_open(const char *filename)
 {
     int err = STREAM_ERROR;
 
+    SMLOG("stream_on_open begin file=%s\n", filename ? filename : "<null>");
+
     stream_mgr_lock();
 
     trigger_cpu_boost();
@@ -382,14 +386,21 @@ void stream_on_open(const char *filename)
     /* Open the video file */
     if (disk_buf_open(filename) >= 0)
     {
+        SMLOG("disk_buf_open ok\n");
         /* Initialize the parser */
         err = parser_init_stream();
+        SMLOG("parser_init_stream result=%d\n", err);
 
         if (err >= STREAM_OK)
         {
             /* File ok - save the opened filename */
             stream_mgr.filename = filename;
+            SMLOG("stream_on_open success\n");
         }
+    }
+    else
+    {
+        SMLOG("disk_buf_open failed\n");
     }
 
     /* If error - cleanup */
@@ -400,6 +411,7 @@ void stream_on_open(const char *filename)
 
     stream_mgr_unlock();
 
+    SMLOG("stream_on_open reply=%d\n", err);
     stream_mgr_reply_msg(err);
 }
 
@@ -769,6 +781,32 @@ void stream_vo_set_clip(const struct vo_rect *rc)
     stream_mgr_unlock();
 }
 
+void stream_vo_set_display_mode(int mode)
+{
+    stream_mgr_lock();
+
+    if (video_str.thread != 0)
+        send_video_msg(VIDEO_SET_DISPLAY_MODE, mode);
+    else
+        vo_set_display_mode(mode);
+
+    if (video_str.thread != 0 && disk_buf.in_file >= 0)
+    {
+        if (send_video_msg(VIDEO_GET_CLIP_RECT,
+                           (intptr_t)&stream_mgr.parms.rc))
+        {
+            send_video_msg(VIDEO_SET_CLIP_RECT,
+                           (intptr_t)&stream_mgr.parms.rc);
+        }
+        else
+        {
+            send_video_msg(VIDEO_SET_CLIP_RECT, (intptr_t)NULL);
+        }
+    }
+
+    stream_mgr_unlock();
+}
+
 bool stream_vo_get_clip(struct vo_rect *rc)
 {
     bool retval;
@@ -1058,6 +1096,8 @@ int stream_init(void)
     void *mem;
     size_t memsize;
 
+    SMLOG("stream_init enter\n");
+
     stream_mgr.status = STREAM_STOPPED;
     stream_mgr_init_state();
 
@@ -1099,6 +1139,7 @@ int stream_init(void)
     if (stream_mgr.thread == 0)
     {
         rb->splash(HZ, "Could not create stream manager thread!");
+        SMLOG("stream manager thread create failed\n");
         return STREAM_ERROR;
     }
 
@@ -1109,34 +1150,42 @@ int stream_init(void)
     if (!mpeg_alloc_init(mem, memsize))
     {
         rb->splash(HZ, "Out of memory in stream_init");
+        SMLOG("mpeg_alloc_init failed\n");
     }
     /* These inits use the allocator */
     else if (!pcm_output_init())
     {
         rb->splash(HZ, "Could not initialize PCM!");
+        SMLOG("pcm_output_init failed\n");
     }
     else if (!audio_thread_init())
     {
         rb->splash(HZ, "Cannot create audio thread!");
+        SMLOG("audio_thread_init failed\n");
     }
     else if (!video_thread_init())
     {
         rb->splash(HZ, "Cannot create video thread!");
+        SMLOG("video_thread_init failed\n");
     }
     /* Disk buffer takes max allotment of what's left so it must be last */
     else if (!disk_buf_init())
     {
         rb->splash(HZ, "Cannot create buffering thread!");
+        SMLOG("disk_buf_init failed\n");
     }
     else if (!parser_init())
     {
         rb->splash(HZ, "Parser init failed!");
+        SMLOG("parser_init failed\n");
     }
     else
     {
+        SMLOG("stream_init ok\n");
         return STREAM_OK;
     }
 
+    SMLOG("stream_init return error\n");
     return STREAM_ERROR;
 }
 

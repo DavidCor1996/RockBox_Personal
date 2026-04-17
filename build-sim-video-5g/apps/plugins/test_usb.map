@@ -377,40 +377,40 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
                 0x0000000000004078                . = ALIGN (ALIGNOF (NEXT_SECTION))
                 [!provide]                        PROVIDE (__bss_start = .)
 
-.bss            0x0000000000004080     0x6a68
+.bss            0x0000000000004080     0xa268
  *(.dynbss)
  .dynbss        0x0000000000004080        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
  *(.bss .bss.* .gnu.linkonce.b.*)
  .bss           0x0000000000004080        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
  .bss           0x0000000000004080        0x1 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtbeginS.o
  *fill*         0x0000000000004081       0x1f 
- .bss           0x00000000000040a0     0x6960 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/test_usb.o
+ .bss           0x00000000000040a0     0xa160 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/test_usb.o
                 0x00000000000040a0                thread_id
                 0x00000000000040c0                queue
                 0x0000000000004200                stack
- .bss           0x000000000000aa00       0xe8 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
- .bss           0x000000000000aae8        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtendS.o
- .bss           0x000000000000aae8        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
+ .bss           0x000000000000e200       0xe8 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+ .bss           0x000000000000e2e8        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtendS.o
+ .bss           0x000000000000e2e8        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
  *(COMMON)
-                0x000000000000aae8                . = ALIGN ((. != 0x0)?0x8:0x1)
+                0x000000000000e2e8                . = ALIGN ((. != 0x0)?0x8:0x1)
 
 .lbss
  *(.dynlbss)
  *(.lbss .lbss.* .gnu.linkonce.lb.*)
  *(LARGE_COMMON)
-                0x000000000000aae8                . = ALIGN (0x8)
-                0x000000000000aae8                . = SEGMENT_START ("ldata-segment", .)
+                0x000000000000e2e8                . = ALIGN (0x8)
+                0x000000000000e2e8                . = SEGMENT_START ("ldata-segment", .)
 
 .lrodata
  *(.lrodata .lrodata.* .gnu.linkonce.lr.*)
 
-.ldata          0x000000000000cae8        0x0
+.ldata          0x00000000000102e8        0x0
  *(.ldata .ldata.* .gnu.linkonce.l.*)
-                0x000000000000cae8                . = ALIGN ((. != 0x0)?0x8:0x1)
-                0x000000000000cae8                . = ALIGN (0x8)
+                0x00000000000102e8                . = ALIGN ((. != 0x0)?0x8:0x1)
+                0x00000000000102e8                . = ALIGN (0x8)
                 [!provide]                        PROVIDE (_end = .)
                 [!provide]                        PROVIDE (end = .)
-                0x000000000000cae8                . = DATA_SEGMENT_END (.)
+                0x00000000000102e8                . = DATA_SEGMENT_END (.)
 
 .stab
  *(.stab)
@@ -466,10 +466,10 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000     0xf95f
+.debug_info     0x0000000000000000     0xf97b
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0x7ce9 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/test_usb.o
- .debug_info    0x0000000000007ce9     0x7c76 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+ .debug_info    0x0000000000000000     0x7cf7 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/test_usb.o
+ .debug_info    0x0000000000007cf7     0x7c84 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
 
 .debug_abbrev   0x0000000000000000      0x810
  *(.debug_abbrev)
@@ -484,12 +484,12 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0x4b9e
+.debug_str      0x0000000000000000     0x4bb9
  *(.debug_str)
- .debug_str     0x0000000000000000     0x4b9e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/test_usb.o
-                                       0x5112 (size before relaxing)
- .debug_str     0x0000000000004b9e        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
-                                       0x5104 (size before relaxing)
+ .debug_str     0x0000000000000000     0x4bb9 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/test_usb.o
+                                       0x512d (size before relaxing)
+ .debug_str     0x0000000000004bb9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+                                       0x511f (size before relaxing)
 
 .debug_loc
  *(.debug_loc)

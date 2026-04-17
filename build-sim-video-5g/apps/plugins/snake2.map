@@ -625,17 +625,17 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000    0x2332d
+.debug_info     0x0000000000000000    0x23371
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0x97b4 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/snake2.o
- .debug_info    0x00000000000097b4     0x7c76 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
- .debug_info    0x000000000001142a     0x98e5 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(playback_control.o)
- .debug_info    0x000000000001ad0f     0x7fcf /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(highscore.o)
- .debug_info    0x0000000000022cde      0x143 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_header1.320x240x16.o)
- .debug_info    0x0000000000022e21      0x143 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_header2.320x240x16.o)
- .debug_info    0x0000000000022f64      0x143 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_left.320x240x16.o)
- .debug_info    0x00000000000230a7      0x143 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_right.320x240x16.o)
- .debug_info    0x00000000000231ea      0x143 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_bottom.320x240x16.o)
+ .debug_info    0x0000000000000000     0x97c8 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/snake2.o
+ .debug_info    0x00000000000097c8     0x7c84 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+ .debug_info    0x000000000001144c     0x98f9 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(playback_control.o)
+ .debug_info    0x000000000001ad45     0x7fdd /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(highscore.o)
+ .debug_info    0x0000000000022d22      0x143 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_header1.320x240x16.o)
+ .debug_info    0x0000000000022e65      0x143 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_header2.320x240x16.o)
+ .debug_info    0x0000000000022fa8      0x143 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_left.320x240x16.o)
+ .debug_info    0x00000000000230eb      0x143 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_right.320x240x16.o)
+ .debug_info    0x000000000002322e      0x143 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_bottom.320x240x16.o)
 
 .debug_abbrev   0x0000000000000000     0x14f9
  *(.debug_abbrev)
@@ -664,25 +664,25 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0xa3bb
+.debug_str      0x0000000000000000     0xa3e3
  *(.debug_str)
- .debug_str     0x0000000000000000     0xa3bb /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/snake2.o
-                                       0x5692 (size before relaxing)
- .debug_str     0x000000000000a3bb        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
-                                       0x5104 (size before relaxing)
- .debug_str     0x000000000000a3bb        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(playback_control.o)
-                                       0xa367 (size before relaxing)
- .debug_str     0x000000000000a3bb        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(highscore.o)
-                                       0x500b (size before relaxing)
- .debug_str     0x000000000000a3bb        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_header1.320x240x16.o)
+ .debug_str     0x0000000000000000     0xa3e3 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/snake2.o
+                                       0x56ba (size before relaxing)
+ .debug_str     0x000000000000a3e3        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+                                       0x511f (size before relaxing)
+ .debug_str     0x000000000000a3e3        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(playback_control.o)
+                                       0xa38f (size before relaxing)
+ .debug_str     0x000000000000a3e3        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(highscore.o)
+                                       0x5026 (size before relaxing)
+ .debug_str     0x000000000000a3e3        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_header1.320x240x16.o)
                                         0x170 (size before relaxing)
- .debug_str     0x000000000000a3bb        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_header2.320x240x16.o)
+ .debug_str     0x000000000000a3e3        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_header2.320x240x16.o)
                                         0x170 (size before relaxing)
- .debug_str     0x000000000000a3bb        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_left.320x240x16.o)
+ .debug_str     0x000000000000a3e3        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_left.320x240x16.o)
                                         0x16a (size before relaxing)
- .debug_str     0x000000000000a3bb        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_right.320x240x16.o)
+ .debug_str     0x000000000000a3e3        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_right.320x240x16.o)
                                         0x16c (size before relaxing)
- .debug_str     0x000000000000a3bb        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_bottom.320x240x16.o)
+ .debug_str     0x000000000000a3e3        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_bottom.320x240x16.o)
                                         0x16e (size before relaxing)
 
 .debug_loc

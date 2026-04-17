@@ -108,6 +108,7 @@ enum stream_message
     VIDEO_PRINT_THUMBNAIL,    /* Print a thumbnail of the current position */
     VIDEO_SET_CLIP_RECT,      /* Set the visible video area */
     VIDEO_GET_CLIP_RECT,      /* Return the visible video area */
+    VIDEO_SET_DISPLAY_MODE,   /* Set fit/fill/native video mode */
     VIDEO_SET_POST_FRAME_CALLBACK, /* Set a callback after frame is drawn */
     STREAM_MESSAGE_LAST,
 };

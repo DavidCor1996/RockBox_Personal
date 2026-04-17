@@ -1,7 +1,7 @@
 
 #include "plugin.h"
 
-#define SETTINGS_VERSION 5
+#define SETTINGS_VERSION 6
 #define SETTINGS_MIN_VERSION 1
 #define SETTINGS_FILENAME "mpegplayer.cfg"
 
@@ -21,12 +21,21 @@ enum mpeg_option_id
 #if MPEG_OPTION_DITHERING_ENABLED
     MPEG_OPTION_DITHERING,
 #endif
+    MPEG_OPTION_VIDEO_DISPLAY_MODE,
     MPEG_OPTION_DISPLAY_FPS,
     MPEG_OPTION_LIMIT_FPS,
     MPEG_OPTION_SKIP_FRAMES,
 #ifdef HAVE_BACKLIGHT_BRIGHTNESS
     MPEG_OPTION_BACKLIGHT_BRIGHTNESS,
 #endif
+};
+
+enum mpeg_video_display_mode
+{
+    MPEG_VIDEO_DISPLAY_FIT = 0,
+    MPEG_VIDEO_DISPLAY_FILL,
+    MPEG_VIDEO_DISPLAY_NATIVE,
+    MPEG_VIDEO_DISPLAY_NUM_MODES,
 };
 
 enum mpeg_audio_option_id
@@ -74,6 +83,7 @@ enum mpeg_menu_id
 };
 
 struct mpeg_settings {
+    int display_mode;          /* fit, fill, native center */
     int showfps;               /* flag to display fps */
     int limitfps;              /* flag to limit fps */
     int skipframes;            /* flag to skip frames */

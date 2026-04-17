@@ -936,27 +936,27 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000    0x1e7a5
+.debug_info     0x0000000000000000    0x1e8e7
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0x2b10 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/nsf.o
- .debug_info    0x0000000000002b10      0xebd /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/codec_crt0.o
- .debug_info    0x00000000000039cd     0x625f /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libnsf.a(nsf_emu.o)
- .debug_info    0x0000000000009c2c     0x24e3 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libnsf.a(nsfe_info.o)
- .debug_info    0x000000000000c10f      0xacf /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libnsf.a(blip_buffer.o)
- .debug_info    0x000000000000cbde     0x13e1 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libnsf.a(multi_buffer.o)
- .debug_info    0x000000000000dfbf      0x352 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libnsf.a(rom_data.o)
- .debug_info    0x000000000000e311      0xe8f /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libnsf.a(track_filter.o)
- .debug_info    0x000000000000f1a0     0x1819 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libnsf.a(nes_apu.o)
- .debug_info    0x00000000000109b9      0x3ee /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libnsf.a(nes_cpu.o)
- .debug_info    0x0000000000010da7      0xd9a /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libnsf.a(nes_fds_apu.o)
- .debug_info    0x0000000000011b41      0xb54 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libnsf.a(nes_fme7_apu.o)
- .debug_info    0x0000000000012695      0xa71 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libnsf.a(nes_namco_apu.o)
- .debug_info    0x0000000000013106     0x1e25 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libnsf.a(nes_oscs.o)
- .debug_info    0x0000000000014f2b      0xdc6 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libnsf.a(nes_vrc6_apu.o)
- .debug_info    0x0000000000015cf1      0xea6 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libnsf.a(nes_vrc7_apu.o)
- .debug_info    0x0000000000016b97     0x37f5 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libnsf.a(nsf_cpu.o)
- .debug_info    0x000000000001a38c     0x2dc1 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libemu2413.a(emu2413.o)
- .debug_info    0x000000000001d14d     0x1658 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+ .debug_info    0x0000000000000000     0x2b1e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/nsf.o
+ .debug_info    0x0000000000002b1e      0xecb /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/codec_crt0.o
+ .debug_info    0x00000000000039e9     0x626d /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libnsf.a(nsf_emu.o)
+ .debug_info    0x0000000000009c56     0x24f1 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libnsf.a(nsfe_info.o)
+ .debug_info    0x000000000000c147      0xaf9 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libnsf.a(blip_buffer.o)
+ .debug_info    0x000000000000cc40     0x13ef /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libnsf.a(multi_buffer.o)
+ .debug_info    0x000000000000e02f      0x360 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libnsf.a(rom_data.o)
+ .debug_info    0x000000000000e38f      0xe9d /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libnsf.a(track_filter.o)
+ .debug_info    0x000000000000f22c     0x1827 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libnsf.a(nes_apu.o)
+ .debug_info    0x0000000000010a53      0x3fc /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libnsf.a(nes_cpu.o)
+ .debug_info    0x0000000000010e4f      0xda8 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libnsf.a(nes_fds_apu.o)
+ .debug_info    0x0000000000011bf7      0xb62 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libnsf.a(nes_fme7_apu.o)
+ .debug_info    0x0000000000012759      0xa7f /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libnsf.a(nes_namco_apu.o)
+ .debug_info    0x00000000000131d8     0x1e33 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libnsf.a(nes_oscs.o)
+ .debug_info    0x000000000001500b      0xdd4 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libnsf.a(nes_vrc6_apu.o)
+ .debug_info    0x0000000000015ddf      0xeb4 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libnsf.a(nes_vrc7_apu.o)
+ .debug_info    0x0000000000016c93     0x3803 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libnsf.a(nsf_cpu.o)
+ .debug_info    0x000000000001a496     0x2deb /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libemu2413.a(emu2413.o)
+ .debug_info    0x000000000001d281     0x1666 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
 
 .debug_abbrev   0x0000000000000000     0x47ed
  *(.debug_abbrev)
@@ -1005,46 +1005,46 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0x366b
+.debug_str      0x0000000000000000     0x36a7
  *(.debug_str)
- .debug_str     0x0000000000000000     0x366b /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/nsf.o
-                                       0x16f7 (size before relaxing)
- .debug_str     0x000000000000366b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/codec_crt0.o
-                                        0xc9f (size before relaxing)
- .debug_str     0x000000000000366b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libnsf.a(nsf_emu.o)
-                                       0x17ef (size before relaxing)
- .debug_str     0x000000000000366b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libnsf.a(nsfe_info.o)
-                                        0xe91 (size before relaxing)
- .debug_str     0x000000000000366b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libnsf.a(blip_buffer.o)
-                                        0x4d6 (size before relaxing)
- .debug_str     0x000000000000366b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libnsf.a(multi_buffer.o)
-                                        0x6c0 (size before relaxing)
- .debug_str     0x000000000000366b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libnsf.a(rom_data.o)
-                                        0x26d (size before relaxing)
- .debug_str     0x000000000000366b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libnsf.a(track_filter.o)
-                                        0x88a (size before relaxing)
- .debug_str     0x000000000000366b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libnsf.a(nes_apu.o)
-                                        0x7de (size before relaxing)
- .debug_str     0x000000000000366b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libnsf.a(nes_cpu.o)
-                                        0x2bc (size before relaxing)
- .debug_str     0x000000000000366b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libnsf.a(nes_fds_apu.o)
-                                        0x624 (size before relaxing)
- .debug_str     0x000000000000366b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libnsf.a(nes_fme7_apu.o)
-                                        0x4aa (size before relaxing)
- .debug_str     0x000000000000366b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libnsf.a(nes_namco_apu.o)
-                                        0x4e4 (size before relaxing)
- .debug_str     0x000000000000366b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libnsf.a(nes_oscs.o)
-                                        0x857 (size before relaxing)
- .debug_str     0x000000000000366b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libnsf.a(nes_vrc6_apu.o)
-                                        0x4b8 (size before relaxing)
- .debug_str     0x000000000000366b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libnsf.a(nes_vrc7_apu.o)
-                                        0x64d (size before relaxing)
- .debug_str     0x000000000000366b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libnsf.a(nsf_cpu.o)
-                                       0x15cd (size before relaxing)
- .debug_str     0x000000000000366b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libemu2413.a(emu2413.o)
-                                        0xcd8 (size before relaxing)
- .debug_str     0x000000000000366b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
-                                        0xebb (size before relaxing)
+ .debug_str     0x0000000000000000     0x36a7 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/nsf.o
+                                       0x1712 (size before relaxing)
+ .debug_str     0x00000000000036a7        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/codec_crt0.o
+                                        0xcba (size before relaxing)
+ .debug_str     0x00000000000036a7        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libnsf.a(nsf_emu.o)
+                                       0x180a (size before relaxing)
+ .debug_str     0x00000000000036a7        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libnsf.a(nsfe_info.o)
+                                        0xeac (size before relaxing)
+ .debug_str     0x00000000000036a7        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libnsf.a(blip_buffer.o)
+                                        0x519 (size before relaxing)
+ .debug_str     0x00000000000036a7        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libnsf.a(multi_buffer.o)
+                                        0x6db (size before relaxing)
+ .debug_str     0x00000000000036a7        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libnsf.a(rom_data.o)
+                                        0x288 (size before relaxing)
+ .debug_str     0x00000000000036a7        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libnsf.a(track_filter.o)
+                                        0x8a5 (size before relaxing)
+ .debug_str     0x00000000000036a7        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libnsf.a(nes_apu.o)
+                                        0x7f9 (size before relaxing)
+ .debug_str     0x00000000000036a7        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libnsf.a(nes_cpu.o)
+                                        0x2d7 (size before relaxing)
+ .debug_str     0x00000000000036a7        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libnsf.a(nes_fds_apu.o)
+                                        0x63f (size before relaxing)
+ .debug_str     0x00000000000036a7        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libnsf.a(nes_fme7_apu.o)
+                                        0x4c5 (size before relaxing)
+ .debug_str     0x00000000000036a7        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libnsf.a(nes_namco_apu.o)
+                                        0x4ff (size before relaxing)
+ .debug_str     0x00000000000036a7        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libnsf.a(nes_oscs.o)
+                                        0x872 (size before relaxing)
+ .debug_str     0x00000000000036a7        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libnsf.a(nes_vrc6_apu.o)
+                                        0x4d3 (size before relaxing)
+ .debug_str     0x00000000000036a7        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libnsf.a(nes_vrc7_apu.o)
+                                        0x668 (size before relaxing)
+ .debug_str     0x00000000000036a7        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libnsf.a(nsf_cpu.o)
+                                       0x15e8 (size before relaxing)
+ .debug_str     0x00000000000036a7        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libemu2413.a(emu2413.o)
+                                        0xd1b (size before relaxing)
+ .debug_str     0x00000000000036a7        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+                                        0xed6 (size before relaxing)
 
 .debug_loc
  *(.debug_loc)
@@ -1135,7 +1135,7 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
                                         0x330 (size before relaxing)
 
 .debug_loclists
-                0x0000000000000000     0xceee
+                0x0000000000000000     0xcefd
  *(.debug_loclists)
  .debug_loclists
                 0x0000000000000000      0x10c /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/nsf.o
@@ -1172,9 +1172,9 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
  .debug_loclists
                 0x0000000000006fb7     0x443e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libnsf.a(nsf_cpu.o)
  .debug_loclists
-                0x000000000000b3f5     0x17c4 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libemu2413.a(emu2413.o)
+                0x000000000000b3f5     0x17d3 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libemu2413.a(emu2413.o)
  .debug_loclists
-                0x000000000000cbb9      0x335 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+                0x000000000000cbc8      0x335 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
 
 .debug_macro
  *(.debug_macro)

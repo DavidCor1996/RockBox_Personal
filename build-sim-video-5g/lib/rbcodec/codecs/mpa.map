@@ -672,21 +672,21 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000     0xdcc8
+.debug_info     0x0000000000000000     0xde0d
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0x2379 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/mpa.o
- .debug_info    0x0000000000002379      0xebd /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/codec_crt0.o
- .debug_info    0x0000000000003236     0x102a /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libmad.a(frame.o)
- .debug_info    0x0000000000004260      0xff9 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libmad.a(layer12.o)
- .debug_info    0x0000000000005259     0x31fe /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libmad.a(layer3.o)
- .debug_info    0x0000000000008457      0x438 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libmad.a(stream.o)
- .debug_info    0x000000000000888f     0x1bbd /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libmad.a(synth.o)
- .debug_info    0x000000000000a44c      0x626 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libmad.a(bit.o)
- .debug_info    0x000000000000aa72      0x796 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libmad.a(huffman.o)
- .debug_info    0x000000000000b208     0x1468 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libasf.a(asf.o)
- .debug_info    0x000000000000c670     0x1658 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+ .debug_info    0x0000000000000000     0x2387 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/mpa.o
+ .debug_info    0x0000000000002387      0xecb /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/codec_crt0.o
+ .debug_info    0x0000000000003252     0x1038 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libmad.a(frame.o)
+ .debug_info    0x000000000000428a     0x1007 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libmad.a(layer12.o)
+ .debug_info    0x0000000000005291     0x320c /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libmad.a(layer3.o)
+ .debug_info    0x000000000000849d      0x446 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libmad.a(stream.o)
+ .debug_info    0x00000000000088e3     0x1bcb /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libmad.a(synth.o)
+ .debug_info    0x000000000000a4ae      0x6df /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libmad.a(bit.o)
+ .debug_info    0x000000000000ab8d      0x7a4 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libmad.a(huffman.o)
+ .debug_info    0x000000000000b331     0x1476 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libasf.a(asf.o)
+ .debug_info    0x000000000000c7a7     0x1666 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
 
-.debug_abbrev   0x0000000000000000     0x2377
+.debug_abbrev   0x0000000000000000     0x23d2
  *(.debug_abbrev)
  .debug_abbrev  0x0000000000000000      0x590 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/mpa.o
  .debug_abbrev  0x0000000000000590      0x287 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/codec_crt0.o
@@ -695,12 +695,12 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
  .debug_abbrev  0x0000000000000ec3      0x4ce /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libmad.a(layer3.o)
  .debug_abbrev  0x0000000000001391      0x1c7 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libmad.a(stream.o)
  .debug_abbrev  0x0000000000001558      0x387 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libmad.a(synth.o)
- .debug_abbrev  0x00000000000018df      0x1fe /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libmad.a(bit.o)
- .debug_abbrev  0x0000000000001add      0x1a7 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libmad.a(huffman.o)
- .debug_abbrev  0x0000000000001c84      0x374 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libasf.a(asf.o)
- .debug_abbrev  0x0000000000001ff8      0x37f /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+ .debug_abbrev  0x00000000000018df      0x259 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libmad.a(bit.o)
+ .debug_abbrev  0x0000000000001b38      0x1a7 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libmad.a(huffman.o)
+ .debug_abbrev  0x0000000000001cdf      0x374 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libasf.a(asf.o)
+ .debug_abbrev  0x0000000000002053      0x37f /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
 
-.debug_line     0x0000000000000000     0x66da
+.debug_line     0x0000000000000000     0x6733
  *(.debug_line .debug_line.* .debug_line_end)
  .debug_line    0x0000000000000000      0xa4e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/mpa.o
  .debug_line    0x0000000000000a4e       0xa9 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/codec_crt0.o
@@ -709,38 +709,38 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
  .debug_line    0x0000000000001d1f     0x29e6 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libmad.a(layer3.o)
  .debug_line    0x0000000000004705      0x21b /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libmad.a(stream.o)
  .debug_line    0x0000000000004920     0x1105 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libmad.a(synth.o)
- .debug_line    0x0000000000005a25      0x2d4 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libmad.a(bit.o)
- .debug_line    0x0000000000005cf9       0x51 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libmad.a(huffman.o)
- .debug_line    0x0000000000005d4a      0x6dd /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libasf.a(asf.o)
- .debug_line    0x0000000000006427      0x2b3 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+ .debug_line    0x0000000000005a25      0x32d /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libmad.a(bit.o)
+ .debug_line    0x0000000000005d52       0x51 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libmad.a(huffman.o)
+ .debug_line    0x0000000000005da3      0x6dd /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libasf.a(asf.o)
+ .debug_line    0x0000000000006480      0x2b3 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
 
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0x249b
+.debug_str      0x0000000000000000     0x24c2
  *(.debug_str)
- .debug_str     0x0000000000000000     0x249b /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/mpa.o
-                                       0x1837 (size before relaxing)
- .debug_str     0x000000000000249b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/codec_crt0.o
-                                        0xc9f (size before relaxing)
- .debug_str     0x000000000000249b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libmad.a(frame.o)
-                                        0xca0 (size before relaxing)
- .debug_str     0x000000000000249b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libmad.a(layer12.o)
-                                        0xc66 (size before relaxing)
- .debug_str     0x000000000000249b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libmad.a(layer3.o)
-                                       0x11b3 (size before relaxing)
- .debug_str     0x000000000000249b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libmad.a(stream.o)
-                                        0x439 (size before relaxing)
- .debug_str     0x000000000000249b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libmad.a(synth.o)
-                                        0xb05 (size before relaxing)
- .debug_str     0x000000000000249b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libmad.a(bit.o)
-                                        0x6b9 (size before relaxing)
- .debug_str     0x000000000000249b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libmad.a(huffman.o)
-                                        0x722 (size before relaxing)
- .debug_str     0x000000000000249b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libasf.a(asf.o)
-                                        0xac5 (size before relaxing)
- .debug_str     0x000000000000249b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
-                                        0xebb (size before relaxing)
+ .debug_str     0x0000000000000000     0x24c2 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/mpa.o
+                                       0x1852 (size before relaxing)
+ .debug_str     0x00000000000024c2        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/codec_crt0.o
+                                        0xcba (size before relaxing)
+ .debug_str     0x00000000000024c2        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libmad.a(frame.o)
+                                        0xcbb (size before relaxing)
+ .debug_str     0x00000000000024c2        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libmad.a(layer12.o)
+                                        0xc81 (size before relaxing)
+ .debug_str     0x00000000000024c2        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libmad.a(layer3.o)
+                                       0x11ce (size before relaxing)
+ .debug_str     0x00000000000024c2        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libmad.a(stream.o)
+                                        0x454 (size before relaxing)
+ .debug_str     0x00000000000024c2        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libmad.a(synth.o)
+                                        0xb20 (size before relaxing)
+ .debug_str     0x00000000000024c2        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libmad.a(bit.o)
+                                        0x6e5 (size before relaxing)
+ .debug_str     0x00000000000024c2        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libmad.a(huffman.o)
+                                        0x73d (size before relaxing)
+ .debug_str     0x00000000000024c2        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libasf.a(asf.o)
+                                        0xae0 (size before relaxing)
+ .debug_str     0x00000000000024c2        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+                                        0xed6 (size before relaxing)
 
 .debug_loc
  *(.debug_loc)
@@ -770,44 +770,44 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
  *(.debug_addr)
 
 .debug_line_str
-                0x0000000000000000      0x72f
+                0x0000000000000000      0x73a
  *(.debug_line_str)
  .debug_line_str
-                0x0000000000000000      0x72f /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/mpa.o
+                0x0000000000000000      0x73a /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/mpa.o
                                         0x3d5 (size before relaxing)
  .debug_line_str
-                0x000000000000072f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/codec_crt0.o
+                0x000000000000073a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/codec_crt0.o
                                         0x268 (size before relaxing)
  .debug_line_str
-                0x000000000000072f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libmad.a(frame.o)
+                0x000000000000073a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libmad.a(frame.o)
                                         0x241 (size before relaxing)
  .debug_line_str
-                0x000000000000072f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libmad.a(layer12.o)
+                0x000000000000073a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libmad.a(layer12.o)
                                         0x21e (size before relaxing)
  .debug_line_str
-                0x000000000000072f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libmad.a(layer3.o)
+                0x000000000000073a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libmad.a(layer3.o)
                                         0x23b (size before relaxing)
  .debug_line_str
-                0x000000000000072f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libmad.a(stream.o)
+                0x000000000000073a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libmad.a(stream.o)
                                         0x165 (size before relaxing)
  .debug_line_str
-                0x000000000000072f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libmad.a(synth.o)
+                0x000000000000073a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libmad.a(synth.o)
                                         0x227 (size before relaxing)
  .debug_line_str
-                0x000000000000072f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libmad.a(bit.o)
-                                        0x24b (size before relaxing)
+                0x000000000000073a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libmad.a(bit.o)
+                                        0x256 (size before relaxing)
  .debug_line_str
-                0x000000000000072f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libmad.a(huffman.o)
+                0x000000000000073a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libmad.a(huffman.o)
                                         0x1d2 (size before relaxing)
  .debug_line_str
-                0x000000000000072f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libasf.a(asf.o)
+                0x000000000000073a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libasf.a(asf.o)
                                         0x303 (size before relaxing)
  .debug_line_str
-                0x000000000000072f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+                0x000000000000073a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
                                         0x330 (size before relaxing)
 
 .debug_loclists
-                0x0000000000000000    0x16e0c
+                0x0000000000000000    0x16e30
  *(.debug_loclists)
  .debug_loclists
                 0x0000000000000000      0x6e8 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/mpa.o
@@ -824,11 +824,11 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
  .debug_loclists
                 0x000000000001278c     0x37bc /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libmad.a(synth.o)
  .debug_loclists
-                0x0000000000015f48      0x27f /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libmad.a(bit.o)
+                0x0000000000015f48      0x2a3 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libmad.a(bit.o)
  .debug_loclists
-                0x00000000000161c7      0x910 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libasf.a(asf.o)
+                0x00000000000161eb      0x910 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libasf.a(asf.o)
  .debug_loclists
-                0x0000000000016ad7      0x335 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+                0x0000000000016afb      0x335 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
 
 .debug_macro
  *(.debug_macro)
@@ -837,7 +837,7 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
  *(.debug_names)
 
 .debug_rnglists
-                0x0000000000000000      0x31a
+                0x0000000000000000      0x328
  *(.debug_rnglists)
  .debug_rnglists
                 0x0000000000000000       0x6e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/mpa.o
@@ -850,9 +850,9 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
  .debug_rnglists
                 0x00000000000002a7       0x2c /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libmad.a(synth.o)
  .debug_rnglists
-                0x00000000000002d3       0x30 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libmad.a(bit.o)
+                0x00000000000002d3       0x3e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libmad.a(bit.o)
  .debug_rnglists
-                0x0000000000000303       0x17 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libasf.a(asf.o)
+                0x0000000000000311       0x17 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libasf.a(asf.o)
 
 .debug_str_offsets
  *(.debug_str_offsets)

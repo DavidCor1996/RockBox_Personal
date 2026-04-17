@@ -612,15 +612,15 @@ main:
 
 @ 0 "" 2
 @ 180 "<stdin>" 1
-	/* "struct user_settings", "ipone_charge_wallpaper" = #1388, #4, "i", #0; */
+	/* "struct user_settings", "colors_file" = #1388, #33, "str", #0; */
 
 @ 0 "" 2
 @ 181 "<stdin>" 1
-	/* "struct user_settings", "colors_file" = #1392, #33, "str", #0; */
+	/* "struct user_settings", "dynamic_colors" = #1421, #1, "b", #0; */
 
 @ 0 "" 2
 @ 182 "<stdin>" 1
-	/* "struct user_settings", "dynamic_colors" = #1425, #1, "b", #0; */
+	/* "struct user_settings", "ipone_charge_wallpaper" = #1424, #4, "i", #0; */
 
 @ 0 "" 2
 @ 183 "<stdin>" 1
