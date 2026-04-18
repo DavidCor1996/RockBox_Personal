@@ -79,6 +79,18 @@ minishcap_room_links_house_bedroom.240x160x24.bmp
 minishcap_room_links_house_entrance.240x160x24.bmp
 minishcap_room_links_house_smith.240x160x24.bmp
 
+/* nightcity */
+#if defined(HAVE_LCD_COLOR) && (LCD_WIDTH >= 320) && (LCD_HEIGHT >= 240)
+nightcity_title.320x96x24.bmp
+nightcity_citycard.62x70x24.bmp
+nightcity_ghostcard.62x70x24.bmp
+nightcity_cliniccard.62x70x24.bmp
+nightcity_boardcard.62x70x24.bmp
+nightcity_convoycard.62x70x24.bmp
+nightcity_relaycard.62x70x24.bmp
+nightcity_faces.238x34x24.bmp
+#endif
+
 /* Brickmania */
 #ifdef HAVE_LCD_COLOR
 #if LCD_WIDTH >= 112

@@ -10,10 +10,10 @@
   - engine/save flow lives in `apps/plugins/nightcity/engine.c`
   - UI and input handling live in `apps/plugins/nightcity/ui.c`
   - encounters live in `apps/plugins/nightcity/encounter.c`
-- Current presentation assets are Rockbox-native and code-driven:
-  - animated scene panels
-  - speaker glyphs
-  - ambient skyline / clinic / relay / convoy motion
+- Current presentation assets are Rockbox-native and compact:
+  - compiled bitmap title card, scene cards, and portrait strip for color 320x240 targets
+  - code-drawn fallback panels and glyphs for lower-capability builds
+  - ambient skyline / clinic / relay / convoy motion layered behind scene cards
   - glitch transitions between story nodes
 - Prioritizes stable text-heavy play over graphics-heavy ambition.
 - Uses Rockbox plugin actions so clickwheel hardware and the SDL simulator share the same control logic.
@@ -65,16 +65,20 @@ Then browse to:
 
 ## Testing notes
 
-Initial expected checks:
+Current verified checks:
 
-- plugin builds cleanly in `build-sim-video-5g`
-- plugin launches from the simulator without immediate crash
-- title menu renders
-- animated scene panels and transitions render in the story UI
-- lifepath selection works
-- dialogue pages and choice menus respond to wheel navigation
-- encounters resolve without invalid state
-- return-to-title and continue both work with the checkpoint save
+- plugin builds in `build-sim-video-5g` after the bitmap asset pack was added
+- `nightcity.rock` links successfully for the iPod Video / 5G simulator target
+- install step stages the updated plugin into `build-sim-video-5g/simdisk`
+- basic launch was previously confirmed in the simulator
+
+Recommended manual regression pass after asset changes:
+
+- verify the title card renders cleanly at 320x240
+- verify scene cards change with story context and do not overwrite dialogue text
+- verify portrait strip alignment for each speaker slot
+- verify glitch transitions still return cleanly to dialogue choice input
+- verify stats/inventory and encounter screens still recover correctly after backing out
 
 ## Follow-up recommendations
 

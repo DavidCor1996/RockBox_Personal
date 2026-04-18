@@ -6,6 +6,20 @@
 
 static const struct button_mapping *plugin_contexts[] = { pla_main_ctx };
 
+#if defined(HAVE_LCD_COLOR) && (LCD_WIDTH >= 320) && (LCD_HEIGHT >= 240)
+#include "pluginbitmaps/nightcity_title.h"
+#include "pluginbitmaps/nightcity_citycard.h"
+#include "pluginbitmaps/nightcity_ghostcard.h"
+#include "pluginbitmaps/nightcity_cliniccard.h"
+#include "pluginbitmaps/nightcity_boardcard.h"
+#include "pluginbitmaps/nightcity_convoycard.h"
+#include "pluginbitmaps/nightcity_relaycard.h"
+#include "pluginbitmaps/nightcity_faces.h"
+#define NIGHTCITY_USE_BITMAP_ASSETS 1
+#else
+#define NIGHTCITY_USE_BITMAP_ASSETS 0
+#endif
+
 #if LCD_DEPTH > 1
 #define NC_BG LCD_RGBPACK(0x08, 0x0b, 0x12)
 #define NC_PANEL LCD_RGBPACK(0x11, 0x17, 0x23)
@@ -312,6 +326,10 @@ static void draw_title_background(void)
     rb->lcd_set_foreground(NC_TEXT);
 #endif
 
+#if NIGHTCITY_USE_BITMAP_ASSETS
+    rb->lcd_bitmap(nightcity_title, 0, 18, BMPWIDTH_nightcity_title, BMPHEIGHT_nightcity_title);
+#endif
+
     rb->lcd_putsxy(18, 26, "NIGHTCITY");
 #if LCD_DEPTH > 1
     rb->lcd_set_foreground(NC_CYAN);
@@ -367,6 +385,7 @@ static enum speaker_glyph detect_speaker_glyph(const char *speaker)
     return GLYPH_VESPER;
 }
 
+#if !NIGHTCITY_USE_BITMAP_ASSETS
 static void draw_city_asset(int x, int y, int w, int h, int tick)
 {
     int i;
@@ -540,38 +559,73 @@ static void draw_speaker_glyph(int x, int y, enum speaker_glyph glyph, int tick)
 
     rb->lcd_set_foreground(NC_TEXT);
 }
+#endif
 
 static void draw_scene_asset_panel(const struct nc_node *node)
 {
     int asset_x = LCD_WIDTH - 78;
     int asset_y = 48;
-    int tick = *rb->current_tick;
     enum scene_theme theme = detect_scene_theme(node);
     enum speaker_glyph glyph = detect_speaker_glyph(node->speaker);
 
     switch (theme)
     {
         case SCENE_THEME_GHOST:
+#if NIGHTCITY_USE_BITMAP_ASSETS
+            rb->lcd_bitmap(nightcity_ghostcard, asset_x, asset_y,
+                           BMPWIDTH_nightcity_ghostcard, BMPHEIGHT_nightcity_ghostcard);
+#else
             draw_ghost_asset(asset_x, asset_y, 62, 70, tick);
+#endif
             break;
         case SCENE_THEME_CLINIC:
+#if NIGHTCITY_USE_BITMAP_ASSETS
+            rb->lcd_bitmap(nightcity_cliniccard, asset_x, asset_y,
+                           BMPWIDTH_nightcity_cliniccard, BMPHEIGHT_nightcity_cliniccard);
+#else
             draw_clinic_asset(asset_x, asset_y, 62, 70, tick);
+#endif
             break;
         case SCENE_THEME_BOARDROOM:
+#if NIGHTCITY_USE_BITMAP_ASSETS
+            rb->lcd_bitmap(nightcity_boardcard, asset_x, asset_y,
+                           BMPWIDTH_nightcity_boardcard, BMPHEIGHT_nightcity_boardcard);
+#else
             draw_boardroom_asset(asset_x, asset_y, 62, 70, tick);
+#endif
             break;
         case SCENE_THEME_CONVOY:
+#if NIGHTCITY_USE_BITMAP_ASSETS
+            rb->lcd_bitmap(nightcity_convoycard, asset_x, asset_y,
+                           BMPWIDTH_nightcity_convoycard, BMPHEIGHT_nightcity_convoycard);
+#else
             draw_convoy_asset(asset_x, asset_y, 62, 70, tick);
+#endif
             break;
         case SCENE_THEME_RELAY:
+#if NIGHTCITY_USE_BITMAP_ASSETS
+            rb->lcd_bitmap(nightcity_relaycard, asset_x, asset_y,
+                           BMPWIDTH_nightcity_relaycard, BMPHEIGHT_nightcity_relaycard);
+#else
             draw_relay_asset(asset_x, asset_y, 62, 70, tick);
+#endif
             break;
         default:
+#if NIGHTCITY_USE_BITMAP_ASSETS
+            rb->lcd_bitmap(nightcity_citycard, asset_x, asset_y,
+                           BMPWIDTH_nightcity_citycard, BMPHEIGHT_nightcity_citycard);
+#else
             draw_city_asset(asset_x, asset_y, 62, 70, tick);
+#endif
             break;
     }
 
+#if NIGHTCITY_USE_BITMAP_ASSETS
+    rb->lcd_bitmap_part(nightcity_faces, glyph * 34, 0, BMPWIDTH_nightcity_faces,
+                        asset_x + 14, asset_y + 18, 34, 34);
+#else
     draw_speaker_glyph(asset_x + 14, asset_y + 18, glyph, tick);
+#endif
     nc_ui_box(asset_x, asset_y + 78, 62, 22, false);
 #if LCD_DEPTH > 1
     rb->lcd_set_foreground(NC_MUTED);
