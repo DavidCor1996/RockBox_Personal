@@ -11,13 +11,15 @@
   - UI and input handling live in `apps/plugins/nightcity/ui.c`
   - encounters live in `apps/plugins/nightcity/encounter.c`
 - Current presentation assets are Rockbox-native and compact:
-  - compiled bitmap title card, scene cards, and portrait strip for color 320x240 targets
+  - compiled bitmap title card, scene cards, and a larger cast/profile portrait atlas for color 320x240 targets
+  - visible cast portraits for Vesper, Juno, Mira, Rook, Sable, Kade, hostile speakers, and Nyra
+  - three creator-driven protagonist profile portraits that appear in story scenes
   - added Nyra portrait art and an afterglow rooftop scene card
   - dedicated threat cards for encounters, a deck module strip, and ending banner art
   - code-drawn fallback panels and glyphs for lower-capability builds
   - full-width animated scene banners for story beats, with ambient skyline / clinic / relay / convoy motion
   - a dedicated afterglow/full-moon animation theme for Nyra's early and rooftop scenes
-  - a full-screen animated scene intro when a run enters story content
+  - a full-screen animated scene intro when a run enters story content, now with a larger animated speaker portrait
   - an auto-shuffled background radio pass from the active Rockbox playlist when story scenes begin
   - optional "radio bleed" overlays that surface the currently playing shuffled track in-scene
   - small original synth/beep stings for the title screen and afterglow scenes when no music is already playing
@@ -31,7 +33,7 @@
 - Center / `Return` or keypad `5`: confirm, advance, choose
 - Left / `Left` or keypad `4`: open stats and inventory
 - Menu / `Backspace`, `Insert`, `Escape`, or keypad `.`: pause / back
-- New game flow: choose lifepath, then choose gender
+- New game flow: choose lifepath, then choose gender, then choose an operator profile
 
 Simulator keyboard references come from `uisimulator/buttonmap/ipod.c`.
 
@@ -75,9 +77,11 @@ Then browse to:
 
 Current verified checks:
 
-- `nightcity.rock` links successfully for the iPod Video / 5G simulator target after the gender/Nyra/audio pass
+- `nightcity.rock` links successfully for both the iPod Video / 5G simulator and hardware targets after the portrait/creator pass
 - updated build was copied into `build-sim-video-5g/simdisk/.rockbox/rocks/games/nightcity.rock`
-- basic launch was previously confirmed in the simulator
+- simulator startup was re-verified with `build-sim-video-5g/rockboxui --zoom 1 --nobackground --root simdisk`
+- updated hardware build was copied to `/.rockbox/rocks/games/nightcity.rock` on the mounted iPod
+- confirm handling now uses select-release only inside `nightcity` to avoid clickwheel double-advance
 
 Recommended manual regression pass after asset changes:
 
@@ -85,10 +89,13 @@ Recommended manual regression pass after asset changes:
 - verify animated story banners change with scene context and do not overwrite dialogue text
 - verify the initial full-screen story intro plays once at run start and returns cleanly to the scene UI
 - verify the new gender picker appears after lifepath selection and saves correctly
+- verify the new operator profile picker shows the portrait preview and applies the intended stat bonus
+- verify Vesper uses the chosen creator portrait during player-spoken scenes
 - verify Nyra's `Afterhours` intro scene appears before loadout and the femme-only romance option gates correctly
 - verify the rooftop/broadcast scene uses the full-moon afterglow animation theme
-- verify portrait strip alignment for each speaker slot
+- verify large cast portraits stay aligned in both the regular story view and the cinematic scene intro
 - verify long choice labels wrap cleanly without clipping the selector
+- verify a single center-button press only advances once on clickwheel hardware and in the simulator
 - verify encounter threat cards and status chips render without overlapping logs or actions
 - verify deck screen cyberware strip and stat meters stay readable on simulator and device
 - verify each ending banner maps to the intended ending text

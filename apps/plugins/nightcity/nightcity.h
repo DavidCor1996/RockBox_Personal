@@ -18,7 +18,7 @@
 
 #define NC_SAVE_FILE PLUGIN_GAMES_DATA_DIR "/nightcity.sav"
 #define NC_SAVE_MAGIC "NCITY01"
-#define NC_SAVE_VERSION 2
+#define NC_SAVE_VERSION 3
 
 #define NC_MAX_WRAP_LINES 48
 #define NC_MAX_LINE_CHARS 96
@@ -46,6 +46,14 @@ enum nc_gender
     NC_GENDER_MASC,
     NC_GENDER_FEMME,
     NC_GENDER_NONBINARY,
+};
+
+enum nc_profile
+{
+    NC_PROFILE_NONE = 0,
+    NC_PROFILE_RAZOR,
+    NC_PROFILE_VELVET,
+    NC_PROFILE_DRIFT,
 };
 
 enum nc_node_kind
@@ -193,6 +201,7 @@ struct nc_game_state
     int current_node_id;
     enum nc_lifepath lifepath;
     enum nc_gender gender;
+    enum nc_profile profile;
     int street_cred;
     int corp_heat;
     int humanity;
@@ -216,6 +225,7 @@ struct nc_visible_choice
 
 const char *nc_lifepath_name(enum nc_lifepath lifepath);
 const char *nc_gender_name(enum nc_gender gender);
+const char *nc_profile_name(enum nc_profile profile);
 const char *nc_cyberware_name(unsigned item);
 
 enum plugin_status nc_engine_run(void);
@@ -231,10 +241,12 @@ void nc_ui_box(int x, int y, int w, int h, bool selected);
 void nc_ui_meter(int x, int y, int w, int value, int max_value, bool danger);
 void nc_ui_update(void);
 void nc_ui_transition(void);
-void nc_ui_story_intro(const struct nc_node *node);
+void nc_ui_story_intro(const struct nc_game_state *state,
+                       const struct nc_node *node);
 int nc_ui_run_title(bool has_continue);
 enum nc_lifepath nc_ui_choose_lifepath(void);
 enum nc_gender nc_ui_choose_gender(void);
+enum nc_profile nc_ui_choose_profile(void);
 void nc_ui_show_help(void);
 void nc_ui_show_panel(const struct nc_game_state *state);
 enum nc_pause_result nc_ui_run_pause_menu(void);

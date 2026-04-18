@@ -72,7 +72,6 @@ int nc_run_encounter(struct nc_game_state *state, const struct nc_enemy *enemy)
             case PLA_SCROLL_FWD_REPEAT:
                 selection = (selection + 1) % ARRAYLEN(actions);
                 continue;
-            case PLA_SELECT:
             case PLA_SELECT_REL:
                 break;
             default:

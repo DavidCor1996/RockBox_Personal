@@ -701,11 +701,27 @@ const char *nc_cyberware_name(unsigned item)
     }
 }
 
+const char *nc_profile_name(enum nc_profile profile)
+{
+    switch (profile)
+    {
+        case NC_PROFILE_RAZOR:
+            return "Razor";
+        case NC_PROFILE_VELVET:
+            return "Velvet";
+        case NC_PROFILE_DRIFT:
+            return "Drift";
+        default:
+            return "";
+    }
+}
+
 void nc_story_start_run(struct nc_game_state *state, enum nc_lifepath lifepath)
 {
     rb->memset(state, 0, sizeof(*state));
     state->lifepath = lifepath;
     state->gender = NC_GENDER_NONE;
+    state->profile = NC_PROFILE_NONE;
     state->street_cred = 1;
     state->corp_heat = 1;
     state->humanity = 5;

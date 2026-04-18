@@ -188,6 +188,32 @@ static void start_radio_shuffle_once(bool *radio_started)
     rb->playlist_start(0, 0, 0);
 }
 
+static void apply_profile_bonus(struct nc_game_state *state, enum nc_profile profile)
+{
+    state->profile = profile;
+
+    switch (profile)
+    {
+        case NC_PROFILE_RAZOR:
+            state->street_cred += 1;
+            state->max_health += 2;
+            state->health += 2;
+            break;
+        case NC_PROFILE_VELVET:
+            state->credits += 20;
+            state->humanity += 1;
+            state->corp_heat += 1;
+            break;
+        case NC_PROFILE_DRIFT:
+            state->ghost_sync += 1;
+            state->scrap += 1;
+            state->stims += 1;
+            break;
+        default:
+            break;
+    }
+}
+
 static void enter_node(struct nc_game_state *state, int node_id)
 {
     const struct nc_node *node;
@@ -244,7 +270,7 @@ static int run_story_loop(struct nc_game_state *state)
             if (node->kind == NC_NODE_SCENE)
             {
                 start_radio_shuffle_once(&radio_started);
-                nc_ui_story_intro(node);
+                nc_ui_story_intro(state, node);
             }
             displayed_node_id = node->id;
         }
@@ -335,12 +361,17 @@ static int start_new_game(struct nc_game_state *state)
 {
     enum nc_lifepath lifepath = nc_ui_choose_lifepath();
     enum nc_gender gender;
+    enum nc_profile profile;
 
     if (lifepath == NC_LIFEPATH_NONE)
         return 0;
 
     gender = nc_ui_choose_gender();
     if (gender == NC_GENDER_NONE)
+        return 0;
+
+    profile = nc_ui_choose_profile();
+    if (profile == NC_PROFILE_NONE)
         return 0;
 
     nc_story_start_run(state, lifepath);
@@ -351,6 +382,7 @@ static int start_new_game(struct nc_game_state *state)
         state->flags |= NC_FLAG_GENDER_FEMME;
     else if (gender == NC_GENDER_NONBINARY)
         state->flags |= NC_FLAG_GENDER_NONBINARY;
+    apply_profile_bonus(state, profile);
     clamp_state(state);
     enter_node(state, state->current_node_id);
     return run_story_loop(state);

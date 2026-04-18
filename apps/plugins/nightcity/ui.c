@@ -15,7 +15,7 @@ static const struct button_mapping *plugin_contexts[] = { pla_main_ctx };
 #include "pluginbitmaps/nightcity_convoycard.h"
 #include "pluginbitmaps/nightcity_relaycard.h"
 #include "pluginbitmaps/nightcity_afterglowcard.h"
-#include "pluginbitmaps/nightcity_faces.h"
+#include "pluginbitmaps/nightcity_portraits.h"
 #include "pluginbitmaps/nightcity_sentinel.h"
 #include "pluginbitmaps/nightcity_aegis.h"
 #include "pluginbitmaps/nightcity_modules.h"
@@ -39,6 +39,10 @@ static const struct button_mapping *plugin_contexts[] = { pla_main_ctx };
 
 static int font_height;
 static int font_width;
+
+#define NC_PORTRAIT_W 72
+#define NC_PORTRAIT_H 96
+#define NC_SCENE_PORTRAIT_H 72
 
 struct menu_screen
 {
@@ -79,6 +83,21 @@ enum ending_card
     ENDING_CARD_CORP,
     ENDING_CARD_GHOST,
     ENDING_CARD_COST,
+};
+
+enum portrait_id
+{
+    PORTRAIT_VESPER = 0,
+    PORTRAIT_JUNO,
+    PORTRAIT_MIRA,
+    PORTRAIT_SABLE,
+    PORTRAIT_ROOK,
+    PORTRAIT_KADE,
+    PORTRAIT_HOSTILE,
+    PORTRAIT_NYRA,
+    PORTRAIT_PROFILE_RAZOR,
+    PORTRAIT_PROFILE_VELVET,
+    PORTRAIT_PROFILE_DRIFT,
 };
 
 static void set_colors(void)
@@ -385,25 +404,44 @@ static enum scene_theme detect_scene_theme(const struct nc_node *node)
     return SCENE_THEME_CITY;
 }
 
-static enum speaker_glyph detect_speaker_glyph(const char *speaker)
+static enum portrait_id detect_profile_portrait(const struct nc_game_state *state)
+{
+    if (state == NULL)
+        return PORTRAIT_VESPER;
+
+    switch (state->profile)
+    {
+        case NC_PROFILE_RAZOR:
+            return PORTRAIT_PROFILE_RAZOR;
+        case NC_PROFILE_VELVET:
+            return PORTRAIT_PROFILE_VELVET;
+        case NC_PROFILE_DRIFT:
+            return PORTRAIT_PROFILE_DRIFT;
+        default:
+            return PORTRAIT_VESPER;
+    }
+}
+
+static enum portrait_id detect_portrait(const struct nc_game_state *state,
+                                        const char *speaker)
 {
     if (speaker == NULL)
-        return GLYPH_VESPER;
+        return detect_profile_portrait(state);
     if (rb->strcasestr(speaker, "Juno") != NULL)
-        return GLYPH_JUNO;
+        return PORTRAIT_JUNO;
     if (rb->strcasestr(speaker, "Mira") != NULL)
-        return GLYPH_MIRA;
+        return PORTRAIT_MIRA;
     if (rb->strcasestr(speaker, "Sable") != NULL)
-        return GLYPH_SABLE;
+        return PORTRAIT_SABLE;
     if (rb->strcasestr(speaker, "Rook") != NULL)
-        return GLYPH_ROOK;
+        return PORTRAIT_ROOK;
     if (rb->strcasestr(speaker, "Kade") != NULL)
-        return GLYPH_KADE;
+        return PORTRAIT_KADE;
     if (rb->strcasestr(speaker, "Nyra") != NULL)
-        return GLYPH_NYRA;
+        return PORTRAIT_NYRA;
     if (rb->strcasestr(speaker, "Sentinel") != NULL || rb->strcasestr(speaker, "Unknown") != NULL)
-        return GLYPH_HOSTILE;
-    return GLYPH_VESPER;
+        return PORTRAIT_HOSTILE;
+    return detect_profile_portrait(state);
 }
 
 static enum ending_card detect_ending_card(const struct nc_node *node)
@@ -935,94 +973,60 @@ static void play_afterglow_sting(void)
     rb->beep_play(698, 130, 850);
 }
 
-static void draw_scene_asset_panel(const struct nc_node *node)
+static void draw_portrait_frame(int x, int y, int w, int h, bool accent_magenta)
 {
-    int asset_x = 18;
-    int asset_y = 48;
-    int portrait_x = LCD_WIDTH - 56;
-    int portrait_y = 66;
-    int label_x = 88;
-    int label_y = 60;
+    nc_ui_box(x, y, w, h, false);
+#if LCD_DEPTH > 1
+    rb->lcd_set_foreground(accent_magenta ? NC_MAGENTA : NC_CYAN);
+    rb->lcd_drawrect(x + 3, y + 3, w - 6, h - 6);
+    rb->lcd_set_foreground(NC_TEXT);
+#endif
+}
+
+static void draw_bitmap_portrait(int x, int y,
+                                 enum portrait_id portrait,
+                                 int src_y,
+                                 int height)
+{
+#if NIGHTCITY_USE_BITMAP_ASSETS
+    rb->lcd_bitmap_part(nightcity_portraits, portrait * NC_PORTRAIT_W, src_y,
+                        BMPWIDTH_nightcity_portraits, x, y, NC_PORTRAIT_W, height);
+#else
+    enum speaker_glyph glyph = (portrait == PORTRAIT_HOSTILE) ? GLYPH_HOSTILE :
+                               (portrait == PORTRAIT_NYRA) ? GLYPH_NYRA :
+                               (portrait == PORTRAIT_JUNO) ? GLYPH_JUNO :
+                               (portrait == PORTRAIT_MIRA) ? GLYPH_MIRA :
+                               (portrait == PORTRAIT_SABLE) ? GLYPH_SABLE :
+                               (portrait == PORTRAIT_ROOK) ? GLYPH_ROOK :
+                               (portrait == PORTRAIT_KADE) ? GLYPH_KADE :
+                               GLYPH_VESPER;
+    draw_speaker_glyph(x + (NC_PORTRAIT_W - 34) / 2,
+                       y + (height - 34) / 2,
+                       glyph,
+                       *rb->current_tick);
+#endif
+}
+
+static void draw_scene_asset_panel(const struct nc_game_state *state,
+                                   const struct nc_node *node)
+{
+    int portrait_x = LCD_WIDTH - 86;
+    int portrait_y = 44;
+    int label_x = 20;
+    int label_y = 56;
     enum scene_theme theme = detect_scene_theme(node);
-    enum speaker_glyph glyph = detect_speaker_glyph(node->speaker);
-#if !NIGHTCITY_USE_BITMAP_ASSETS
-    int tick = *rb->current_tick;
-#endif
+    enum portrait_id portrait = detect_portrait(state, node->speaker);
 
-    draw_scene_panorama(theme, 12, 46, LCD_WIDTH - 24, 74, *rb->current_tick);
-    switch (theme)
-    {
-        case SCENE_THEME_GHOST:
-#if NIGHTCITY_USE_BITMAP_ASSETS
-            rb->lcd_bitmap(nightcity_ghostcard, asset_x, asset_y,
-                           BMPWIDTH_nightcity_ghostcard, BMPHEIGHT_nightcity_ghostcard);
-#else
-            draw_ghost_asset(asset_x, asset_y, 62, 70, tick);
-#endif
-            break;
-        case SCENE_THEME_CLINIC:
-#if NIGHTCITY_USE_BITMAP_ASSETS
-            rb->lcd_bitmap(nightcity_cliniccard, asset_x, asset_y,
-                           BMPWIDTH_nightcity_cliniccard, BMPHEIGHT_nightcity_cliniccard);
-#else
-            draw_clinic_asset(asset_x, asset_y, 62, 70, tick);
-#endif
-            break;
-        case SCENE_THEME_BOARDROOM:
-#if NIGHTCITY_USE_BITMAP_ASSETS
-            rb->lcd_bitmap(nightcity_boardcard, asset_x, asset_y,
-                           BMPWIDTH_nightcity_boardcard, BMPHEIGHT_nightcity_boardcard);
-#else
-            draw_boardroom_asset(asset_x, asset_y, 62, 70, tick);
-#endif
-            break;
-        case SCENE_THEME_CONVOY:
-#if NIGHTCITY_USE_BITMAP_ASSETS
-            rb->lcd_bitmap(nightcity_convoycard, asset_x, asset_y,
-                           BMPWIDTH_nightcity_convoycard, BMPHEIGHT_nightcity_convoycard);
-#else
-            draw_convoy_asset(asset_x, asset_y, 62, 70, tick);
-#endif
-            break;
-        case SCENE_THEME_RELAY:
-#if NIGHTCITY_USE_BITMAP_ASSETS
-            rb->lcd_bitmap(nightcity_relaycard, asset_x, asset_y,
-                           BMPWIDTH_nightcity_relaycard, BMPHEIGHT_nightcity_relaycard);
-#else
-            draw_relay_asset(asset_x, asset_y, 62, 70, tick);
-#endif
-            break;
-        case SCENE_THEME_AFTERGLOW:
-#if NIGHTCITY_USE_BITMAP_ASSETS
-            rb->lcd_bitmap(nightcity_afterglowcard, asset_x, asset_y,
-                           BMPWIDTH_nightcity_afterglowcard, BMPHEIGHT_nightcity_afterglowcard);
-#else
-            draw_city_asset(asset_x, asset_y, 62, 70, tick);
-#endif
-            break;
-        default:
-#if NIGHTCITY_USE_BITMAP_ASSETS
-            rb->lcd_bitmap(nightcity_citycard, asset_x, asset_y,
-                           BMPWIDTH_nightcity_citycard, BMPHEIGHT_nightcity_citycard);
-#else
-            draw_city_asset(asset_x, asset_y, 62, 70, tick);
-#endif
-            break;
-    }
-
-    nc_ui_box(label_x, label_y, 124, 22, false);
-    nc_ui_box(label_x, label_y + 26, 124, 22, false);
-#if NIGHTCITY_USE_BITMAP_ASSETS
-    rb->lcd_bitmap_part(nightcity_faces, glyph * 34, 0, BMPWIDTH_nightcity_faces,
-                        portrait_x, portrait_y, 34, 34);
-#else
-    draw_speaker_glyph(portrait_x, portrait_y, glyph, tick);
-#endif
+    draw_scene_panorama(theme, 12, 44, 206, 66, *rb->current_tick);
+    draw_portrait_frame(portrait_x, portrait_y, 80, 80, theme == SCENE_THEME_AFTERGLOW);
+    draw_bitmap_portrait(portrait_x + 4, portrait_y + 4, portrait, 12, NC_SCENE_PORTRAIT_H);
+    nc_ui_box(label_x, label_y, 126, 18, false);
+    nc_ui_box(label_x, label_y + 22, 104, 18, false);
 #if LCD_DEPTH > 1
     rb->lcd_set_foreground(NC_MUTED);
 #endif
-    rb->lcd_putsxy(label_x + 8, label_y + 6, node->speaker);
-    rb->lcd_putsxy(label_x + 8, label_y + 32, scene_theme_label(theme));
+    rb->lcd_putsxy(label_x + 6, label_y + 4, node->speaker);
+    rb->lcd_putsxy(label_x + 6, label_y + 26, scene_theme_label(theme));
 #if LCD_DEPTH > 1
     rb->lcd_set_foreground(NC_TEXT);
 #endif
@@ -1100,7 +1104,9 @@ void nc_ui_draw_encounter(const struct nc_game_state *state,
 #endif
     nc_ui_box(asset_x, asset_y + 68, 106, 40, false);
 #if NIGHTCITY_USE_BITMAP_ASSETS
-    rb->lcd_bitmap_part(nightcity_faces, GLYPH_HOSTILE * 34, 0, BMPWIDTH_nightcity_faces,
+    rb->lcd_bitmap_part(nightcity_portraits,
+                        PORTRAIT_HOSTILE * NC_PORTRAIT_W + 19, 16,
+                        BMPWIDTH_nightcity_portraits,
                         asset_x + 8, asset_y + 14, 34, 34);
 #endif
 #if LCD_DEPTH > 1
@@ -1185,7 +1191,6 @@ static int run_menu(const struct menu_screen *screen)
             case PLA_SCROLL_FWD_REPEAT:
                 selection = (selection + 1) % screen->count;
                 break;
-            case PLA_SELECT:
             case PLA_SELECT_REL:
                 return selection;
             case PLA_UP:
@@ -1329,6 +1334,75 @@ enum nc_gender nc_ui_choose_gender(void)
     }
 }
 
+enum nc_profile nc_ui_choose_profile(void)
+{
+    static const char *items[] =
+    {
+        "Razor",
+        "Velvet",
+        "Drift",
+    };
+    static const char *descriptions[] =
+    {
+        "Punk cut. +1 Street Cred, +2 Health.",
+        "Polished lie. +20 Credits, +1 Humanity, +1 Heat.",
+        "Runner hood. +1 Ghost Sync, +1 Scrap, +1 Stim.",
+    };
+    static const enum portrait_id portraits[] =
+    {
+        PORTRAIT_PROFILE_RAZOR,
+        PORTRAIT_PROFILE_VELVET,
+        PORTRAIT_PROFILE_DRIFT,
+    };
+    unsigned selection = 0;
+
+    while (1)
+    {
+        unsigned i;
+        int y = 62;
+
+        nc_ui_frame("New Game", "Build your operator");
+        draw_portrait_frame(214, 42, 92, 110, selection == 1);
+        draw_bitmap_portrait(224, 49, portraits[selection], 0, NC_PORTRAIT_H);
+
+        for (i = 0; i < ARRAYLEN(items); ++i)
+        {
+            nc_ui_box(16, y - 3, 176, font_height + 8, i == selection);
+            rb->lcd_putsxy(26, y, items[i]);
+            y += font_height + 14;
+        }
+
+#if LCD_DEPTH > 1
+        rb->lcd_set_foreground(NC_MUTED);
+#endif
+        rb->lcd_putsxy(214, 158, "Operator profile");
+        rb->lcd_putsxy(16, LCD_HEIGHT - 56, descriptions[selection]);
+#if LCD_DEPTH > 1
+        rb->lcd_set_foreground(NC_TEXT);
+#endif
+        nc_ui_footer("Wheel", "Select", "Menu");
+        nc_ui_update();
+
+        switch (nc_ui_input(HZ / 8))
+        {
+            case PLA_SCROLL_BACK:
+            case PLA_SCROLL_BACK_REPEAT:
+                selection = (selection + ARRAYLEN(items) - 1) % ARRAYLEN(items);
+                break;
+            case PLA_SCROLL_FWD:
+            case PLA_SCROLL_FWD_REPEAT:
+                selection = (selection + 1) % ARRAYLEN(items);
+                break;
+            case PLA_SELECT_REL:
+                return (enum nc_profile)(selection + 1);
+            case PLA_UP:
+            case PLA_CANCEL:
+            case PLA_EXIT:
+                return NC_PROFILE_NONE;
+        }
+    }
+}
+
 static void show_text_screen(const char *title, const char *subtitle, const char *text)
 {
     char lines[NC_MAX_WRAP_LINES][NC_MAX_LINE_CHARS];
@@ -1378,7 +1452,6 @@ static void show_text_screen(const char *title, const char *subtitle, const char
                     ++page;
                 break;
             case PLA_UP:
-            case PLA_SELECT:
             case PLA_SELECT_REL:
             case PLA_CANCEL:
             case PLA_EXIT:
@@ -1401,6 +1474,9 @@ void nc_ui_show_help(void)
         "Center: confirm, advance dialogue, pick actions.\n"
         "Left: open stats and inventory during story or encounters.\n"
         "Menu / cancel: pause menu or back out of info screens.\n\n"
+        "Creator\n"
+        "New Game lets you choose a lifepath, gender, and operator profile.\n"
+        "Operator profiles add small stat bonuses and change Vesper's portrait.\n\n"
         "Systems\n"
         "Street Cred unlocks bolder options.\n"
         "Corp Heat raises corporate pressure and some encounter damage.\n"
@@ -1415,15 +1491,16 @@ void nc_ui_show_help(void)
 void nc_ui_show_panel(const struct nc_game_state *state)
 {
     char buf[48];
-    char subtitle[48];
+    char subtitle[64];
 
     while (1)
     {
         int y = 52;
 
-        rb->snprintf(subtitle, sizeof(subtitle), "%s | %s",
+        rb->snprintf(subtitle, sizeof(subtitle), "%s | %s | %s",
                      nc_lifepath_name(state->lifepath),
-                     nc_gender_name(state->gender));
+                     nc_gender_name(state->gender),
+                     nc_profile_name(state->profile));
         nc_ui_frame("Deck", subtitle);
         draw_deck_asset_panel(state);
         draw_stat_line(14, y, "Street Cred:", state->street_cred); y += font_height + 6;
@@ -1452,7 +1529,6 @@ void nc_ui_show_panel(const struct nc_game_state *state)
         switch (nc_ui_input(HZ / 8))
         {
             case PLA_UP:
-            case PLA_SELECT:
             case PLA_SELECT_REL:
             case PLA_CANCEL:
             case PLA_EXIT:
@@ -1508,17 +1584,15 @@ int nc_ui_run_scene(const struct nc_game_state *state,
     int page_count = (line_count + lines_per_page - 1) / lines_per_page;
     int choice_index = 0;
 
-    (void)state;
-
     while (1)
     {
         int i;
         int start = page * lines_per_page;
-        int y = 130;
+        int y = 122;
 
         nc_ui_frame(node->title, node->speaker);
-        draw_scene_asset_panel(node);
-        nc_ui_box(12, 124, LCD_WIDTH - 24, (page + 1 == page_count && choice_count > 0) ? 58 : 82, false);
+        draw_scene_asset_panel(state, node);
+        nc_ui_box(12, 116, LCD_WIDTH - 24, (page + 1 == page_count && choice_count > 0) ? 58 : 88, false);
 
         for (i = 0; i < lines_per_page && (start + i) < line_count; ++i)
         {
@@ -1528,7 +1602,7 @@ int nc_ui_run_scene(const struct nc_game_state *state,
 
         if (page + 1 == page_count && choice_count > 0)
         {
-            int panel_y = 186;
+            int panel_y = 184;
             int panel_height = 32;
             char counter[12];
 
@@ -1570,7 +1644,6 @@ int nc_ui_run_scene(const struct nc_game_state *state,
                 else if (page + 1 < page_count)
                     ++page;
                 break;
-            case PLA_SELECT:
             case PLA_SELECT_REL:
                 if (page + 1 < page_count)
                     ++page;
@@ -1606,57 +1679,60 @@ void nc_ui_transition(void)
     }
 }
 
-void nc_ui_story_intro(const struct nc_node *node)
+void nc_ui_story_intro(const struct nc_game_state *state,
+                       const struct nc_node *node)
 {
     enum scene_theme theme = detect_scene_theme(node);
-    enum speaker_glyph glyph = detect_speaker_glyph(node->speaker);
+    enum portrait_id portrait = detect_portrait(state, node->speaker);
     char title[NC_MAX_LINE_CHARS];
     char artist[NC_MAX_LINE_CHARS];
+    char radio_line[NC_MAX_LINE_CHARS];
     bool show_radio = scene_uses_radio(theme) &&
                       get_now_playing_lines(title, sizeof(title), artist, sizeof(artist));
     int frame;
 
+    if (show_radio)
+        rb->snprintf(radio_line, sizeof(radio_line), "%s / %s", title, artist);
+
     if (theme == SCENE_THEME_AFTERGLOW)
         play_afterglow_sting();
 
-    for (frame = 0; frame < 8; ++frame)
+    for (frame = 0; frame < 6; ++frame)
     {
-        int matte = ((7 - frame) * LCD_HEIGHT) / 14;
-        int pulse = 18 + frame * 6;
+        int matte = ((5 - frame) * LCD_HEIGHT) / 18;
+        int pulse = 14 + frame * 8;
+        int portrait_x = 222 + (5 - frame) * 10;
 
         draw_scene_panorama(theme, 0, 0, LCD_WIDTH, LCD_HEIGHT, *rb->current_tick + frame * 3);
 
-#if NIGHTCITY_USE_BITMAP_ASSETS
-        rb->lcd_bitmap_part(nightcity_faces, glyph * 34, 0, BMPWIDTH_nightcity_faces,
-                            LCD_WIDTH - 68, 26, 34, 34);
-#endif
+        draw_portrait_frame(portrait_x - 8, 16, 90, 110, theme == SCENE_THEME_AFTERGLOW);
+        draw_bitmap_portrait(portrait_x, 23, portrait, 0, NC_PORTRAIT_H);
 
-        nc_ui_box(18, 24, LCD_WIDTH - 108, 26, false);
-        nc_ui_box(18, 56, LCD_WIDTH - 108, 30, false);
-        rb->lcd_putsxy(26, 31, node->title);
+        nc_ui_box(14, 20, 194, 20, false);
+        nc_ui_box(14, 44, 194, 20, false);
+        rb->lcd_putsxy(20, 26, node->title);
 #if LCD_DEPTH > 1
         rb->lcd_set_foreground(NC_MUTED);
 #endif
-        rb->lcd_putsxy(26, 63, node->speaker);
+        rb->lcd_putsxy(20, 50, node->speaker);
 #if LCD_DEPTH > 1
         rb->lcd_set_foreground(NC_TEXT);
         rb->lcd_set_foreground((frame & 1) ? NC_MAGENTA : NC_CYAN);
-        rb->lcd_fillrect(18, LCD_HEIGHT - 60, pulse, 4);
+        rb->lcd_fillrect(14, LCD_HEIGHT - 48, pulse, 3);
         rb->lcd_set_foreground(NC_TEXT);
 #endif
 
         if (show_radio)
         {
-            nc_ui_box(18, LCD_HEIGHT - 92, LCD_WIDTH - 36, 26, false);
+            nc_ui_box(14, LCD_HEIGHT - 78, LCD_WIDTH - 28, 20, false);
 #if LCD_DEPTH > 1
             rb->lcd_set_foreground(NC_MUTED);
 #endif
-            rb->lcd_putsxy(26, LCD_HEIGHT - 86, "Radio bleed");
+            rb->lcd_putsxy(20, LCD_HEIGHT - 74, "Radio");
 #if LCD_DEPTH > 1
             rb->lcd_set_foreground(NC_TEXT);
 #endif
-            rb->lcd_putsxy(110, LCD_HEIGHT - 86, title);
-            rb->lcd_putsxy(110, LCD_HEIGHT - 74, artist);
+            rb->lcd_putsxy(64, LCD_HEIGHT - 74, radio_line);
         }
 
 #if LCD_DEPTH > 1
@@ -1666,10 +1742,10 @@ void nc_ui_story_intro(const struct nc_node *node)
         rb->lcd_set_foreground(NC_TEXT);
 #endif
         rb->lcd_update();
-        rb->sleep(HZ / 24);
+        rb->sleep(HZ / 28);
     }
 
-    rb->sleep(HZ / 8);
+    rb->sleep(HZ / 12);
 }
 
 void nc_ui_show_ending(const struct nc_game_state *state,
@@ -1755,7 +1831,6 @@ void nc_ui_show_ending(const struct nc_game_state *state,
                     ++page;
                 break;
             case PLA_UP:
-            case PLA_SELECT:
             case PLA_SELECT_REL:
             case PLA_CANCEL:
             case PLA_EXIT:
