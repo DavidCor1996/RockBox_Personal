@@ -14,6 +14,7 @@ static const struct button_mapping *plugin_contexts[] = { pla_main_ctx };
 #include "pluginbitmaps/nightcity_boardcard.h"
 #include "pluginbitmaps/nightcity_convoycard.h"
 #include "pluginbitmaps/nightcity_relaycard.h"
+#include "pluginbitmaps/nightcity_afterglowcard.h"
 #include "pluginbitmaps/nightcity_faces.h"
 #include "pluginbitmaps/nightcity_sentinel.h"
 #include "pluginbitmaps/nightcity_aegis.h"
@@ -57,6 +58,7 @@ enum scene_theme
     SCENE_THEME_BOARDROOM,
     SCENE_THEME_CONVOY,
     SCENE_THEME_RELAY,
+    SCENE_THEME_AFTERGLOW,
 };
 
 enum speaker_glyph
@@ -68,6 +70,7 @@ enum speaker_glyph
     GLYPH_ROOK,
     GLYPH_KADE,
     GLYPH_HOSTILE,
+    GLYPH_NYRA,
 };
 
 enum ending_card
@@ -370,6 +373,10 @@ static enum scene_theme detect_scene_theme(const struct nc_node *node)
     if (rb->strcasestr(node->speaker, "Kade") != NULL ||
         rb->strcasestr(node->title, "Private") != NULL)
         return SCENE_THEME_BOARDROOM;
+    if (rb->strcasestr(node->speaker, "Nyra") != NULL ||
+        rb->strcasestr(node->title, "Afterhours") != NULL ||
+        rb->strcasestr(node->title, "Broadcast") != NULL)
+        return SCENE_THEME_AFTERGLOW;
     if (rb->strcasestr(node->title, "Salt") != NULL ||
         rb->strcasestr(node->title, "Convoy") != NULL)
         return SCENE_THEME_CONVOY;
@@ -392,6 +399,8 @@ static enum speaker_glyph detect_speaker_glyph(const char *speaker)
         return GLYPH_ROOK;
     if (rb->strcasestr(speaker, "Kade") != NULL)
         return GLYPH_KADE;
+    if (rb->strcasestr(speaker, "Nyra") != NULL)
+        return GLYPH_NYRA;
     if (rb->strcasestr(speaker, "Sentinel") != NULL || rb->strcasestr(speaker, "Unknown") != NULL)
         return GLYPH_HOSTILE;
     return GLYPH_VESPER;
@@ -580,6 +589,15 @@ static void draw_speaker_glyph(int x, int y, enum speaker_glyph glyph, int tick)
             rb->lcd_set_foreground(NC_RED);
             rb->lcd_fillrect(x + 15, y + 15, 4, 4);
             break;
+        case GLYPH_NYRA:
+            rb->lcd_drawline(x + 9, y + 24, x + 15, y + 9);
+            rb->lcd_drawline(x + 15, y + 9, x + 25, y + 12);
+            rb->lcd_drawline(x + 11, y + 24, x + 24, y + 24);
+            rb->lcd_set_foreground(NC_MAGENTA);
+            rb->lcd_fillrect(x + 19, y + 7, 7, 4);
+            rb->lcd_set_foreground(NC_CYAN);
+            rb->lcd_fillrect(x + 8 + (tick / 4) % 10, y + 27, 6, 3);
+            break;
         default:
             rb->lcd_drawrect(x + 10, y + 8, 14, 12);
             rb->lcd_drawline(x + 8, y + 26, x + 17, y + 20);
@@ -708,6 +726,8 @@ static const char *scene_theme_label(enum scene_theme theme)
             return "Salt lane";
         case SCENE_THEME_RELAY:
             return "Relay surge";
+        case SCENE_THEME_AFTERGLOW:
+            return "Afterglow";
         default:
             return "Night grid";
     }
@@ -779,6 +799,23 @@ static void draw_scene_panorama(enum scene_theme theme, int x, int y, int w, int
             for (i = 0; i < 5; ++i)
                 rb->lcd_fillrect(x + 28 + ((tick / 2) + i * 52) % (w - 56), y + 10 + (i * 9) % (h - 20), 4, 4);
             break;
+        case SCENE_THEME_AFTERGLOW:
+            rb->lcd_set_foreground(NC_CYAN);
+            rb->lcd_drawrect(x + w - 66, y + 8, 20, 20);
+            rb->lcd_set_foreground(NC_MUTED);
+            rb->lcd_drawline(x + 24, y + h - 8, x + w / 2, y + 18);
+            rb->lcd_drawline(x + w - 24, y + h - 8, x + w / 2, y + 18);
+            rb->lcd_set_foreground(NC_MAGENTA);
+            for (i = 0; i < 5; ++i)
+            {
+                int glow_y = y + 10 + ((tick / 2) + i * 9) % (h - 18);
+                rb->lcd_fillrect(x + 18 + i * 34, glow_y, 20, 3);
+            }
+            rb->lcd_set_foreground(NC_CYAN);
+            for (i = 0; i < 6; ++i)
+                rb->lcd_fillrect(x + 30 + ((tick / 3) + i * 44) % (w - 60),
+                                 y + h - 20 - (i % 3) * 10, 6, 6);
+            break;
         default:
             rb->lcd_set_foreground(NC_MUTED);
             for (i = 0; i < 15; ++i)
@@ -801,6 +838,101 @@ static void draw_scene_panorama(enum scene_theme theme, int x, int y, int w, int
     (void)theme;
     (void)tick;
 #endif
+}
+
+static int wrap_choice_label(const char *label,
+                             char lines[][NC_MAX_LINE_CHARS], int max_lines)
+{
+    int count = nc_ui_wrap_text(label, LCD_WIDTH - 52, lines, max_lines);
+
+    if (count == max_lines && lines[max_lines - 1][0] != '\0')
+    {
+        int len = rb->strlen(lines[max_lines - 1]);
+        if (len > 3)
+        {
+            lines[max_lines - 1][len - 3] = '.';
+            lines[max_lines - 1][len - 2] = '.';
+            lines[max_lines - 1][len - 1] = '.';
+        }
+    }
+    return count;
+}
+
+static int draw_choice_row(int y, const char *label, bool selected)
+{
+    char lines[2][NC_MAX_LINE_CHARS];
+    int wrapped = wrap_choice_label(label, lines, ARRAYLEN(lines));
+    int height = 8 + wrapped * (font_height + 1);
+    int i;
+
+    if (selected)
+        nc_ui_box(18, y - 2, LCD_WIDTH - 36, height, true);
+
+    for (i = 0; i < wrapped; ++i)
+        rb->lcd_putsxy(24, y + i * (font_height + 1), lines[i]);
+
+    return height;
+}
+
+static bool get_now_playing_lines(char *title, size_t title_size,
+                                  char *artist, size_t artist_size)
+{
+    const struct mp3entry *track;
+    const char *base;
+
+    if ((rb->audio_status() & AUDIO_STATUS_PLAY) != AUDIO_STATUS_PLAY)
+        return false;
+
+    track = rb->audio_current_track();
+    if (track == NULL)
+        return false;
+
+    if (track->title != NULL && track->title[0] != '\0')
+        rb->strlcpy(title, track->title, title_size);
+    else
+    {
+        base = rb->strrchr(track->path, '/');
+        rb->strlcpy(title, base != NULL ? base + 1 : track->path, title_size);
+    }
+
+    if (track->artist != NULL && track->artist[0] != '\0')
+        rb->strlcpy(artist, track->artist, artist_size);
+    else
+        rb->strlcpy(artist, "Local signal", artist_size);
+
+    return true;
+}
+
+static bool scene_uses_radio(enum scene_theme theme)
+{
+    return theme == SCENE_THEME_CITY ||
+           theme == SCENE_THEME_AFTERGLOW ||
+           theme == SCENE_THEME_CONVOY ||
+           theme == SCENE_THEME_BOARDROOM;
+}
+
+static void play_title_sting(void)
+{
+    if ((rb->audio_status() & AUDIO_STATUS_PLAY) == AUDIO_STATUS_PLAY)
+        return;
+
+    rb->beep_play(392, 80, 900);
+    rb->sleep(HZ / 30);
+    rb->beep_play(523, 90, 950);
+    rb->sleep(HZ / 28);
+    rb->beep_play(659, 120, 1000);
+}
+
+static void play_afterglow_sting(void)
+{
+    if ((rb->audio_status() & AUDIO_STATUS_PLAY) == AUDIO_STATUS_PLAY)
+        return;
+
+    rb->beep_play(440, 70, 700);
+    rb->sleep(HZ / 32);
+    rb->beep_play(554, 90, 780);
+    rb->sleep(HZ / 28);
+    rb->beep_play(698, 130, 850);
 }
 
 static void draw_scene_asset_panel(const struct nc_node *node)
@@ -858,6 +990,14 @@ static void draw_scene_asset_panel(const struct nc_node *node)
                            BMPWIDTH_nightcity_relaycard, BMPHEIGHT_nightcity_relaycard);
 #else
             draw_relay_asset(asset_x, asset_y, 62, 70, tick);
+#endif
+            break;
+        case SCENE_THEME_AFTERGLOW:
+#if NIGHTCITY_USE_BITMAP_ASSETS
+            rb->lcd_bitmap(nightcity_afterglowcard, asset_x, asset_y,
+                           BMPWIDTH_nightcity_afterglowcard, BMPHEIGHT_nightcity_afterglowcard);
+#else
+            draw_city_asset(asset_x, asset_y, 62, 70, tick);
 #endif
             break;
         default:
@@ -1089,6 +1229,8 @@ int nc_ui_run_title(bool has_continue)
     struct menu_screen screen;
     int result;
 
+    play_title_sting();
+
     screen.title = NULL;
     screen.subtitle = NULL;
     screen.allow_cancel = false;
@@ -1146,6 +1288,44 @@ enum nc_lifepath nc_ui_choose_lifepath(void)
             return NC_LIFEPATH_NOMAD;
         default:
             return NC_LIFEPATH_NONE;
+    }
+}
+
+enum nc_gender nc_ui_choose_gender(void)
+{
+    static const char *items[] =
+    {
+        "Woman",
+        "Man",
+        "Nonbinary",
+    };
+    static const char *descriptions[] =
+    {
+        "Unlocks Nyra's punk rooftop romance route.",
+        "Runs the same core story with different deck identity.",
+        "Runs the same core story with different deck identity.",
+    };
+    struct menu_screen screen;
+    int result;
+
+    screen.title = "New Game";
+    screen.subtitle = "Choose your gender";
+    screen.items = items;
+    screen.descriptions = descriptions;
+    screen.count = ARRAYLEN(items);
+    screen.allow_cancel = true;
+
+    result = run_menu(&screen);
+    switch (result)
+    {
+        case 0:
+            return NC_GENDER_FEMME;
+        case 1:
+            return NC_GENDER_MASC;
+        case 2:
+            return NC_GENDER_NONBINARY;
+        default:
+            return NC_GENDER_NONE;
     }
 }
 
@@ -1235,12 +1415,16 @@ void nc_ui_show_help(void)
 void nc_ui_show_panel(const struct nc_game_state *state)
 {
     char buf[48];
+    char subtitle[48];
 
     while (1)
     {
         int y = 52;
 
-        nc_ui_frame("Deck", nc_lifepath_name(state->lifepath));
+        rb->snprintf(subtitle, sizeof(subtitle), "%s | %s",
+                     nc_lifepath_name(state->lifepath),
+                     nc_gender_name(state->gender));
+        nc_ui_frame("Deck", subtitle);
         draw_deck_asset_panel(state);
         draw_stat_line(14, y, "Street Cred:", state->street_cred); y += font_height + 6;
         nc_ui_meter(14, y, 84, state->street_cred, NC_STAT_MAX, false); y += 14;
@@ -1334,7 +1518,7 @@ int nc_ui_run_scene(const struct nc_game_state *state,
 
         nc_ui_frame(node->title, node->speaker);
         draw_scene_asset_panel(node);
-        nc_ui_box(12, 124, LCD_WIDTH - 24, (page + 1 == page_count && choice_count > 0) ? 48 : 82, false);
+        nc_ui_box(12, 124, LCD_WIDTH - 24, (page + 1 == page_count && choice_count > 0) ? 58 : 82, false);
 
         for (i = 0; i < lines_per_page && (start + i) < line_count; ++i)
         {
@@ -1344,22 +1528,20 @@ int nc_ui_run_scene(const struct nc_game_state *state,
 
         if (page + 1 == page_count && choice_count > 0)
         {
-            int panel_y = 176;
-            int top = choice_index > 1 ? choice_index - 1 : 0;
+            int panel_y = 186;
+            int panel_height = 32;
+            char counter[12];
 
-            if (top + 3 > choice_count)
-                top = MAX(0, choice_count - 3);
-
-            nc_ui_box(12, panel_y, LCD_WIDTH - 24, 38, false);
-            for (i = 0; i < 3 && (top + i) < choice_count; ++i)
-            {
-                bool selected = (top + i) == choice_index;
-                int row_y = panel_y + 6 + i * (font_height + 2);
-                if (selected)
-                    nc_ui_box(18, row_y - 2, LCD_WIDTH - 36, font_height + 4, true);
-                rb->lcd_putsxy(24, row_y,
-                               choices[top + i].choice->label);
-            }
+            nc_ui_box(12, panel_y, LCD_WIDTH - 24, panel_height, false);
+            draw_choice_row(panel_y + 4, choices[choice_index].choice->label, true);
+            rb->snprintf(counter, sizeof(counter), "%d/%d", choice_index + 1, choice_count);
+#if LCD_DEPTH > 1
+            rb->lcd_set_foreground(NC_MUTED);
+#endif
+            rb->lcd_putsxy(LCD_WIDTH - 12 - rb->strlen(counter) * font_width, panel_y - 12, counter);
+#if LCD_DEPTH > 1
+            rb->lcd_set_foreground(NC_TEXT);
+#endif
         }
 
         nc_ui_footer("Deck", (page + 1 < page_count) ? "More" :
@@ -1424,11 +1606,78 @@ void nc_ui_transition(void)
     }
 }
 
+void nc_ui_story_intro(const struct nc_node *node)
+{
+    enum scene_theme theme = detect_scene_theme(node);
+    enum speaker_glyph glyph = detect_speaker_glyph(node->speaker);
+    char title[NC_MAX_LINE_CHARS];
+    char artist[NC_MAX_LINE_CHARS];
+    bool show_radio = scene_uses_radio(theme) &&
+                      get_now_playing_lines(title, sizeof(title), artist, sizeof(artist));
+    int frame;
+
+    if (theme == SCENE_THEME_AFTERGLOW)
+        play_afterglow_sting();
+
+    for (frame = 0; frame < 8; ++frame)
+    {
+        int matte = ((7 - frame) * LCD_HEIGHT) / 14;
+        int pulse = 18 + frame * 6;
+
+        draw_scene_panorama(theme, 0, 0, LCD_WIDTH, LCD_HEIGHT, *rb->current_tick + frame * 3);
+
+#if NIGHTCITY_USE_BITMAP_ASSETS
+        rb->lcd_bitmap_part(nightcity_faces, glyph * 34, 0, BMPWIDTH_nightcity_faces,
+                            LCD_WIDTH - 68, 26, 34, 34);
+#endif
+
+        nc_ui_box(18, 24, LCD_WIDTH - 108, 26, false);
+        nc_ui_box(18, 56, LCD_WIDTH - 108, 30, false);
+        rb->lcd_putsxy(26, 31, node->title);
+#if LCD_DEPTH > 1
+        rb->lcd_set_foreground(NC_MUTED);
+#endif
+        rb->lcd_putsxy(26, 63, node->speaker);
+#if LCD_DEPTH > 1
+        rb->lcd_set_foreground(NC_TEXT);
+        rb->lcd_set_foreground((frame & 1) ? NC_MAGENTA : NC_CYAN);
+        rb->lcd_fillrect(18, LCD_HEIGHT - 60, pulse, 4);
+        rb->lcd_set_foreground(NC_TEXT);
+#endif
+
+        if (show_radio)
+        {
+            nc_ui_box(18, LCD_HEIGHT - 92, LCD_WIDTH - 36, 26, false);
+#if LCD_DEPTH > 1
+            rb->lcd_set_foreground(NC_MUTED);
+#endif
+            rb->lcd_putsxy(26, LCD_HEIGHT - 86, "Radio bleed");
+#if LCD_DEPTH > 1
+            rb->lcd_set_foreground(NC_TEXT);
+#endif
+            rb->lcd_putsxy(110, LCD_HEIGHT - 86, title);
+            rb->lcd_putsxy(110, LCD_HEIGHT - 74, artist);
+        }
+
+#if LCD_DEPTH > 1
+        rb->lcd_set_foreground(NC_BG);
+        rb->lcd_fillrect(0, 0, LCD_WIDTH, matte);
+        rb->lcd_fillrect(0, LCD_HEIGHT - matte, LCD_WIDTH, matte);
+        rb->lcd_set_foreground(NC_TEXT);
+#endif
+        rb->lcd_update();
+        rb->sleep(HZ / 24);
+    }
+
+    rb->sleep(HZ / 8);
+}
+
 void nc_ui_show_ending(const struct nc_game_state *state,
                        const struct nc_node *node)
 {
     char lines[NC_MAX_WRAP_LINES][NC_MAX_LINE_CHARS];
     char subtitle[48];
+    char tag_line[64];
     int line_count;
     int page = 0;
     int page_count;
@@ -1436,6 +1685,10 @@ void nc_ui_show_ending(const struct nc_game_state *state,
 
     rb->snprintf(subtitle, sizeof(subtitle), "%s | Humanity %d | Ghost %d",
                  nc_lifepath_name(state->lifepath), state->humanity, state->ghost_sync);
+    if (state->flags & NC_FLAG_ROMANCE_NYRA)
+        rb->snprintf(tag_line, sizeof(tag_line), "Nyra stayed in the signal.");
+    else
+        tag_line[0] = '\0';
     line_count = nc_ui_wrap_text(node->text, LCD_WIDTH - 28, lines, ARRAYLEN(lines));
     page_count = (line_count + 5) / 6;
 
@@ -1461,6 +1714,8 @@ void nc_ui_show_ending(const struct nc_game_state *state,
                                card == ENDING_CARD_CORP ? "A cleaner lie won the board." :
                                card == ENDING_CARD_GHOST ? "You became the last transmission." :
                                "You lived, but the night stayed in you.");
+        if (tag_line[0] != '\0')
+            rb->lcd_putsxy(104, 88, tag_line);
 #if LCD_DEPTH > 1
         rb->lcd_set_foreground(NC_TEXT);
 #endif

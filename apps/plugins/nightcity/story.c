@@ -10,6 +10,7 @@ enum
     NC_NODE_CORPO_INTRO = 110,
     NC_NODE_NOMAD_INTRO = 120,
     NC_NODE_CREW_BAR = 130,
+    NC_NODE_AFTERHOURS = 135,
     NC_NODE_PREP = 140,
     NC_NODE_APPROACH = 150,
     NC_NODE_VAULT = 160,
@@ -92,30 +93,59 @@ static const struct nc_choice crew_bar_choices[] =
 {
     {
         "Streetkid: blanket the docks with gutter lookouts.",
-        NC_NODE_PREP,
+        NC_NODE_AFTERHOURS,
         { NC_ANY_MIN, NC_ANY_MIN, NC_ANY_MIN, NC_ANY_MIN, NC_ANY_MIN, NC_ANY_MAX,
           NC_LIFEPATH_STREETKID, 0, 0, 0 },
         { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, NC_FLAG_DOCK_COVER, 0, 0 }
     },
     {
         "Corpo: ask Mira for badge architecture and audit paths.",
-        NC_NODE_PREP,
+        NC_NODE_AFTERHOURS,
         { NC_ANY_MIN, NC_ANY_MIN, NC_ANY_MIN, NC_ANY_MIN, NC_ANY_MIN, NC_ANY_MAX,
           NC_LIFEPATH_CORPO, 0, 0, 0 },
         { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, NC_FLAG_BADGE_SCHEMA, 0, 0 }
     },
     {
         "Nomad: map the freight coolant line under the skyport.",
-        NC_NODE_PREP,
+        NC_NODE_AFTERHOURS,
         { NC_ANY_MIN, NC_ANY_MIN, NC_ANY_MIN, NC_ANY_MIN, NC_ANY_MIN, NC_ANY_MAX,
           NC_LIFEPATH_NOMAD, 0, 0, 0 },
         { 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, NC_FLAG_TUNNEL_MAP, 0, 0 }
     },
     {
         "Take the advance and keep prep simple.",
-        NC_NODE_PREP,
+        NC_NODE_AFTERHOURS,
         COND_ANY,
         { 0, 0, 0, 0, 20, 0, 0, 0, 0, 0, 0, 0, 0 }
+    },
+};
+
+static const struct nc_choice afterhours_choices[] =
+{
+    {
+        "Woman: lean into Nyra Venn's pirate booth and flirt through the static.",
+        NC_NODE_PREP,
+        { NC_ANY_MIN, NC_ANY_MIN, NC_ANY_MIN, NC_ANY_MIN, NC_ANY_MIN, NC_ANY_MAX,
+          NC_LIFEPATH_NONE, NC_FLAG_GENDER_FEMME, 0, 0 },
+        { 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, NC_FLAG_SPARK_NYRA, 0, 0 }
+    },
+    {
+        "Trade clinic stories with Mira while the room cools off.",
+        NC_NODE_PREP,
+        COND_ANY,
+        { 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, NC_FLAG_SPARK_MIRA, 0, 0 }
+    },
+    {
+        "Take the balcony with Rook and talk roads, exits, and fear.",
+        NC_NODE_PREP,
+        COND_ANY,
+        { 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, NC_FLAG_SPARK_ROOK, 0, 0 }
+    },
+    {
+        "Skip the chemistry. Go straight to loadout.",
+        NC_NODE_PREP,
+        COND_ANY,
+        EFFECT_NONE
     },
 };
 
@@ -331,6 +361,13 @@ static const struct nc_choice broadcast_choices[] =
         COND_ANY,
         { 1, 1, -1, 1, 0, 0, 0, 0, 0, 0, NC_FLAG_REBEL_PLAN, 0, 0 }
     },
+    {
+        "Woman: stay on the rooftop with Nyra after the burst and make it real.",
+        NC_NODE_FINAL_PREP,
+        { NC_ANY_MIN, NC_ANY_MIN, NC_ANY_MIN, NC_ANY_MIN, NC_ANY_MIN, NC_ANY_MAX,
+          NC_LIFEPATH_NONE, NC_FLAG_SPARK_NYRA | NC_FLAG_GENDER_FEMME, 0, 0 },
+        { 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, NC_FLAG_REBEL_PLAN | NC_FLAG_ROMANCE_NYRA, 0, 0 }
+    },
 };
 
 static const struct nc_choice corp_meet_choices[] =
@@ -464,6 +501,14 @@ static const struct nc_node nodes[] =
         crew_bar_choices, ARRAYLEN(crew_bar_choices), -1, -1, 0, EFFECT_NONE
     },
     {
+        NC_NODE_AFTERHOURS, NC_NODE_SCENE,
+        "Act I // Afterhours", "Nyra Venn",
+        "Past the briefing tables, the Coil Room opens into a balcony packed with hacked speakers, wet chrome jackets, and too much voltage for the wiring. "
+        "Nyra Venn is crouched over a pirate-radio deck with one side of her head shaved, magenta fiber threaded through the rest, combat boots up on the rail like the city owes her a better skyline.\n\n"
+        "\"Juno says you bite back,\" Nyra says without looking up. \"Good. I hate dead-eyed mercs.\"",
+        afterhours_choices, ARRAYLEN(afterhours_choices), -1, -1, 0, EFFECT_NONE
+    },
+    {
         NC_NODE_PREP, NC_NODE_SCENE,
         "Act I // Loadout", "Dr. Mira Sorn",
         "Mira unfolds a foam case of bargain chrome and field meds. "
@@ -539,9 +584,10 @@ static const struct nc_node nodes[] =
     },
     {
         NC_NODE_BROADCAST, NC_NODE_SCENE,
-        "Act III // Rainstack Broadcast", "Sable Echo",
-        "You climb a lattice of rusted service ladders above the flood market and splice into a pirate broadcaster with a skyline view of every lie in the district.\n\n"
-        "\"Truth is just ammo unless you aim it,\" Sable says.",
+        "Act III // Rainstack Broadcast", "Nyra Venn",
+        "You climb a lattice of rusted service ladders above the flood market and find Nyra already there, jacket covered in anarch patches, pirate deck wired into a jury-rigged antenna crown. "
+        "Rain beads off the magenta edge-lighting she stitched into her collar while the whole district glows below like a circuit board with a knife in it.\n\n"
+        "\"Truth is just ammo unless you aim it,\" Nyra says, passing you one earcup. Sable laughs somewhere behind your eyes like static approving static.",
         broadcast_choices, ARRAYLEN(broadcast_choices), -1, -1, 0, EFFECT_NONE
     },
     {
@@ -625,6 +671,21 @@ const char *nc_lifepath_name(enum nc_lifepath lifepath)
     }
 }
 
+const char *nc_gender_name(enum nc_gender gender)
+{
+    switch (gender)
+    {
+        case NC_GENDER_MASC:
+            return "Man";
+        case NC_GENDER_FEMME:
+            return "Woman";
+        case NC_GENDER_NONBINARY:
+            return "Nonbinary";
+        default:
+            return "Unset";
+    }
+}
+
 const char *nc_cyberware_name(unsigned item)
 {
     switch (item)
@@ -644,6 +705,7 @@ void nc_story_start_run(struct nc_game_state *state, enum nc_lifepath lifepath)
 {
     rb->memset(state, 0, sizeof(*state));
     state->lifepath = lifepath;
+    state->gender = NC_GENDER_NONE;
     state->street_cred = 1;
     state->corp_heat = 1;
     state->humanity = 5;

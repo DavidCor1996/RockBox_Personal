@@ -175,11 +175,23 @@ static int build_visible_choices(const struct nc_game_state *state,
     return visible;
 }
 
+static void start_radio_shuffle_once(bool *radio_started)
+{
+    if (*radio_started)
+        return;
+
+    *radio_started = true;
+    if (rb->playlist_amount() <= 0)
+        return;
+
+    rb->playlist_shuffle(*rb->current_tick, -1);
+    rb->playlist_start(0, 0, 0);
+}
+
 static void enter_node(struct nc_game_state *state, int node_id)
 {
     const struct nc_node *node;
 
-    nc_ui_transition();
     state->current_node_id = node_id;
     node = nc_story_get_node(node_id);
     if (node != NULL)
@@ -211,6 +223,8 @@ static int run_pause_menu(struct nc_game_state *state)
 static int run_story_loop(struct nc_game_state *state)
 {
     struct nc_visible_choice visible_choices[NC_MAX_VISIBLE_CHOICES];
+    int displayed_node_id = -1;
+    bool radio_started = false;
 
     while (1)
     {
@@ -222,6 +236,17 @@ static int run_story_loop(struct nc_game_state *state)
         {
             nc_ui_flash_message("nightcity", "Story node missing.", HZ * 2);
             return 1;
+        }
+
+        if (node->id != displayed_node_id)
+        {
+            nc_ui_transition();
+            if (node->kind == NC_NODE_SCENE)
+            {
+                start_radio_shuffle_once(&radio_started);
+                nc_ui_story_intro(node);
+            }
+            displayed_node_id = node->id;
         }
 
         if (node->kind == NC_NODE_ENDING)
@@ -309,13 +334,25 @@ static int run_story_loop(struct nc_game_state *state)
 static int start_new_game(struct nc_game_state *state)
 {
     enum nc_lifepath lifepath = nc_ui_choose_lifepath();
+    enum nc_gender gender;
 
     if (lifepath == NC_LIFEPATH_NONE)
         return 0;
 
+    gender = nc_ui_choose_gender();
+    if (gender == NC_GENDER_NONE)
+        return 0;
+
     nc_story_start_run(state, lifepath);
+    state->gender = gender;
+    if (gender == NC_GENDER_MASC)
+        state->flags |= NC_FLAG_GENDER_MASC;
+    else if (gender == NC_GENDER_FEMME)
+        state->flags |= NC_FLAG_GENDER_FEMME;
+    else if (gender == NC_GENDER_NONBINARY)
+        state->flags |= NC_FLAG_GENDER_NONBINARY;
     clamp_state(state);
-    save_write(state);
+    enter_node(state, state->current_node_id);
     return run_story_loop(state);
 }
 

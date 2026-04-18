@@ -18,7 +18,7 @@
 
 #define NC_SAVE_FILE PLUGIN_GAMES_DATA_DIR "/nightcity.sav"
 #define NC_SAVE_MAGIC "NCITY01"
-#define NC_SAVE_VERSION 1
+#define NC_SAVE_VERSION 2
 
 #define NC_MAX_WRAP_LINES 48
 #define NC_MAX_LINE_CHARS 96
@@ -38,6 +38,14 @@ enum nc_lifepath
     NC_LIFEPATH_STREETKID,
     NC_LIFEPATH_CORPO,
     NC_LIFEPATH_NOMAD,
+};
+
+enum nc_gender
+{
+    NC_GENDER_NONE = 0,
+    NC_GENDER_MASC,
+    NC_GENDER_FEMME,
+    NC_GENDER_NONBINARY,
 };
 
 enum nc_node_kind
@@ -92,6 +100,17 @@ enum nc_story_flag
     NC_FLAG_END_CORP      = 1u << 14,
     NC_FLAG_END_GHOST     = 1u << 15,
     NC_FLAG_END_ESCAPE    = 1u << 16,
+    NC_FLAG_SPARK_MIRA    = 1u << 17,
+    NC_FLAG_SPARK_ROOK    = 1u << 18,
+    NC_FLAG_SPARK_JUNO    = 1u << 19,
+    NC_FLAG_ROMANCE_MIRA  = 1u << 20,
+    NC_FLAG_ROMANCE_ROOK  = 1u << 21,
+    NC_FLAG_ROMANCE_JUNO  = 1u << 22,
+    NC_FLAG_SPARK_NYRA    = 1u << 23,
+    NC_FLAG_ROMANCE_NYRA  = 1u << 24,
+    NC_FLAG_GENDER_MASC   = 1u << 25,
+    NC_FLAG_GENDER_FEMME  = 1u << 26,
+    NC_FLAG_GENDER_NONBINARY = 1u << 27,
 };
 
 enum nc_cyberware
@@ -173,6 +192,7 @@ struct nc_game_state
 {
     int current_node_id;
     enum nc_lifepath lifepath;
+    enum nc_gender gender;
     int street_cred;
     int corp_heat;
     int humanity;
@@ -195,6 +215,7 @@ struct nc_visible_choice
 };
 
 const char *nc_lifepath_name(enum nc_lifepath lifepath);
+const char *nc_gender_name(enum nc_gender gender);
 const char *nc_cyberware_name(unsigned item);
 
 enum plugin_status nc_engine_run(void);
@@ -210,8 +231,10 @@ void nc_ui_box(int x, int y, int w, int h, bool selected);
 void nc_ui_meter(int x, int y, int w, int value, int max_value, bool danger);
 void nc_ui_update(void);
 void nc_ui_transition(void);
+void nc_ui_story_intro(const struct nc_node *node);
 int nc_ui_run_title(bool has_continue);
 enum nc_lifepath nc_ui_choose_lifepath(void);
+enum nc_gender nc_ui_choose_gender(void);
 void nc_ui_show_help(void);
 void nc_ui_show_panel(const struct nc_game_state *state);
 enum nc_pause_result nc_ui_run_pause_menu(void);
