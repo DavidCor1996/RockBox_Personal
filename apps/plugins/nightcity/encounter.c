@@ -34,7 +34,6 @@ int nc_run_encounter(struct nc_game_state *state, const struct nc_enemy *enemy)
     int enemy_hp;
     int selection = 0;
     int stim_turns = 0;
-    int line_height;
     bool defending = false;
 
     if (enemy == NULL)
@@ -43,7 +42,6 @@ int nc_run_encounter(struct nc_game_state *state, const struct nc_enemy *enemy)
     rb->strlcpy(log_lines[0], enemy->intro, NC_MAX_LINE_CHARS);
     log_lines[1][0] = '\0';
     log_lines[2][0] = '\0';
-    rb->font_getstringsize("M", NULL, &line_height, FONT_UI);
 
     player_hp = state->health;
     enemy_hp = enemy->max_health;
@@ -52,37 +50,11 @@ int nc_run_encounter(struct nc_game_state *state, const struct nc_enemy *enemy)
 
     while (1)
     {
-        int i;
-        int y = 88;
         char buf[64];
 
-        nc_ui_frame("Encounter", enemy->name);
-        rb->snprintf(buf, sizeof(buf), "HP %d/%d", player_hp, state->max_health);
-        rb->lcd_putsxy(14, 52, buf);
-        nc_ui_meter(76, 54, 98, player_hp, state->max_health, player_hp < state->max_health / 3);
-
-        rb->snprintf(buf, sizeof(buf), "%s %d/%d", enemy->name, enemy_hp, enemy->max_health);
-        rb->lcd_putsxy(14, 66, buf);
-        nc_ui_meter(156, 68, 146, enemy_hp, enemy->max_health, false);
-
-        for (i = 0; i < NC_MAX_LOG_LINES; ++i)
-        {
-            if (log_lines[i][0] != '\0')
-                rb->lcd_putsxy(14, y + i * (line_height + 2), log_lines[i]);
-        }
-
-        nc_ui_box(12, LCD_HEIGHT - 104, LCD_WIDTH - 24, 78, false);
-        for (i = 0; i < (int)ARRAYLEN(actions); ++i)
-        {
-            bool selected = (i == selection);
-            int row_y = LCD_HEIGHT - 96 + i * (line_height + 4);
-            if (selected)
-                nc_ui_box(18, row_y - 2, LCD_WIDTH - 36, line_height + 6, true);
-            rb->lcd_putsxy(26, row_y, actions[i]);
-        }
-
-        nc_ui_footer("Deck", "Act", "Menu");
-        nc_ui_update();
+        nc_ui_draw_encounter(state, enemy, player_hp, enemy_hp,
+                             (const char (*)[NC_MAX_LINE_CHARS])log_lines,
+                             selection, defending, stim_turns);
 
         switch (nc_ui_input(TIMEOUT_BLOCK))
         {

@@ -15,6 +15,10 @@ static const struct button_mapping *plugin_contexts[] = { pla_main_ctx };
 #include "pluginbitmaps/nightcity_convoycard.h"
 #include "pluginbitmaps/nightcity_relaycard.h"
 #include "pluginbitmaps/nightcity_faces.h"
+#include "pluginbitmaps/nightcity_sentinel.h"
+#include "pluginbitmaps/nightcity_aegis.h"
+#include "pluginbitmaps/nightcity_modules.h"
+#include "pluginbitmaps/nightcity_endings.h"
 #define NIGHTCITY_USE_BITMAP_ASSETS 1
 #else
 #define NIGHTCITY_USE_BITMAP_ASSETS 0
@@ -64,6 +68,14 @@ enum speaker_glyph
     GLYPH_ROOK,
     GLYPH_KADE,
     GLYPH_HOSTILE,
+};
+
+enum ending_card
+{
+    ENDING_CARD_REBEL = 0,
+    ENDING_CARD_CORP,
+    ENDING_CARD_GHOST,
+    ENDING_CARD_COST,
 };
 
 static void set_colors(void)
@@ -385,6 +397,26 @@ static enum speaker_glyph detect_speaker_glyph(const char *speaker)
     return GLYPH_VESPER;
 }
 
+static enum ending_card detect_ending_card(const struct nc_node *node)
+{
+    if (node == NULL || node->title == NULL)
+        return ENDING_CARD_COST;
+    if (rb->strcasestr(node->title, "Neon Rebellion") != NULL)
+        return ENDING_CARD_REBEL;
+    if (rb->strcasestr(node->title, "Boardroom Truce") != NULL)
+        return ENDING_CARD_CORP;
+    if (rb->strcasestr(node->title, "Ghostfire") != NULL)
+        return ENDING_CARD_GHOST;
+    return ENDING_CARD_COST;
+}
+
+static bool is_aegis_enemy(const struct nc_enemy *enemy)
+{
+    return enemy != NULL &&
+           enemy->name != NULL &&
+           rb->strcasestr(enemy->name, "Aegis") != NULL;
+}
+
 #if !NIGHTCITY_USE_BITMAP_ASSETS
 static void draw_city_asset(int x, int y, int w, int h, int tick)
 {
@@ -559,6 +591,107 @@ static void draw_speaker_glyph(int x, int y, enum speaker_glyph glyph, int tick)
 
     rb->lcd_set_foreground(NC_TEXT);
 }
+
+static void draw_threat_asset(int x, int y, bool aegis, int tick)
+{
+    rb->lcd_set_foreground(NC_PANEL);
+    rb->lcd_fillrect(x, y, 106, 64);
+    rb->lcd_set_foreground(aegis ? NC_MAGENTA : NC_CYAN);
+    rb->lcd_drawrect(x, y, 106, 64);
+    rb->lcd_drawrect(x + 4, y + 4, 98, 56);
+    if (aegis)
+    {
+        rb->lcd_set_foreground(NC_MUTED);
+        rb->lcd_fillrect(x + 40, y + 16, 26, 20);
+        rb->lcd_fillrect(x + 46, y + 38, 14, 12);
+        rb->lcd_set_foreground(NC_CYAN);
+        rb->lcd_drawline(x + 34, y + 56, x + 48, y + 40);
+        rb->lcd_drawline(x + 72, y + 56, x + 58, y + 40);
+        rb->lcd_drawline(x + 44, y + 16, x + 36, y + 8);
+        rb->lcd_drawline(x + 62, y + 16, x + 70, y + 8);
+        rb->lcd_set_foreground(NC_RED);
+        rb->lcd_fillrect(x + 45 + (tick / 4) % 8, y + 27, 12, 3);
+    }
+    else
+    {
+        rb->lcd_set_foreground(NC_CYAN);
+        rb->lcd_drawline(x + 18, y + 44, x + 50, y + 20);
+        rb->lcd_drawline(x + 88, y + 44, x + 56, y + 20);
+        rb->lcd_drawellipse(x + 53, y + 30, 18, 10);
+        rb->lcd_set_foreground(NC_MAGENTA);
+        rb->lcd_drawline(x + 20 + (tick / 3) % 56, y + 14, x + 12 + (tick / 3) % 56, y + 52);
+        rb->lcd_set_foreground(NC_GREEN);
+        rb->lcd_fillrect(x + 32, y + 48, 42, 3);
+    }
+    rb->lcd_set_foreground(NC_TEXT);
+}
+
+static void draw_deck_modules(int x, int y, const struct nc_game_state *state)
+{
+    int i;
+    const unsigned items[] =
+    {
+        NC_CYBER_COMBAT_RIG,
+        NC_CYBER_GHOSTWALL,
+        NC_CYBER_SOCIAL,
+    };
+
+    for (i = 0; i < 3; ++i)
+    {
+        nc_ui_box(x + i * 32, y, 30, 34, (state->cyberware & items[i]) != 0);
+        if ((state->cyberware & items[i]) == 0)
+        {
+#if LCD_DEPTH > 1
+            rb->lcd_set_foreground(NC_BG);
+            rb->lcd_fillrect(x + i * 32 + 4, y + 4, 22, 26);
+            rb->lcd_set_foreground(NC_MUTED);
+            rb->lcd_drawline(x + i * 32 + 4, y + 30, x + i * 32 + 26, y + 4);
+            rb->lcd_set_foreground(NC_TEXT);
+#endif
+        }
+    }
+}
+
+static void draw_ending_banner(int x, int y, enum ending_card card, int tick)
+{
+    nc_ui_box(x, y, 68, 56, false);
+    switch (card)
+    {
+        case ENDING_CARD_REBEL:
+            rb->lcd_set_foreground(NC_CYAN);
+            rb->lcd_fillrect(x + 10, y + 32, 10, 14);
+            rb->lcd_fillrect(x + 25, y + 22, 10, 24);
+            rb->lcd_fillrect(x + 40, y + 14, 10, 32);
+            rb->lcd_set_foreground(NC_MAGENTA);
+            rb->lcd_drawline(x + 8, y + 18, x + 58, y + 18);
+            break;
+        case ENDING_CARD_CORP:
+            rb->lcd_set_foreground(NC_MAGENTA);
+            rb->lcd_fillrect(x + 12, y + 14, 44, 22);
+            rb->lcd_set_foreground(NC_CYAN);
+            rb->lcd_drawrect(x + 16, y + 18, 36, 14);
+            break;
+        case ENDING_CARD_GHOST:
+            rb->lcd_set_foreground(NC_MAGENTA);
+            rb->lcd_drawellipse(x + 34, y + 28, 16, 16);
+            rb->lcd_set_foreground(NC_CYAN);
+            rb->lcd_drawline(x + 12, y + 42, x + 56, y + 14);
+            rb->lcd_drawline(x + 12, y + 14, x + 56, y + 42);
+            rb->lcd_set_foreground(NC_GREEN);
+            rb->lcd_fillrect(x + 32, y + 24 + (tick / 4) % 6, 4, 4);
+            break;
+        default:
+            rb->lcd_set_foreground(NC_CYAN);
+            rb->lcd_drawline(x + 10, y + 42, x + 34, y + 16);
+            rb->lcd_drawline(x + 58, y + 42, x + 34, y + 16);
+            rb->lcd_set_foreground(NC_MAGENTA);
+            rb->lcd_fillrect(x + 24, y + 34, 20, 4);
+            rb->lcd_set_foreground(NC_GREEN);
+            rb->lcd_fillrect(x + 18, y + 44, 32, 3);
+            break;
+    }
+    rb->lcd_set_foreground(NC_TEXT);
+}
 #endif
 
 static void draw_scene_asset_panel(const struct nc_node *node)
@@ -567,6 +700,9 @@ static void draw_scene_asset_panel(const struct nc_node *node)
     int asset_y = 48;
     enum scene_theme theme = detect_scene_theme(node);
     enum speaker_glyph glyph = detect_speaker_glyph(node->speaker);
+#if !NIGHTCITY_USE_BITMAP_ASSETS
+    int tick = *rb->current_tick;
+#endif
 
     switch (theme)
     {
@@ -634,6 +770,116 @@ static void draw_scene_asset_panel(const struct nc_node *node)
 #if LCD_DEPTH > 1
     rb->lcd_set_foreground(NC_TEXT);
 #endif
+}
+
+static void draw_deck_asset_panel(const struct nc_game_state *state)
+{
+    int x = LCD_WIDTH - 110;
+    int y = 52;
+
+    nc_ui_box(x, y, 98, 82, false);
+#if NIGHTCITY_USE_BITMAP_ASSETS
+    rb->lcd_bitmap(nightcity_modules, x + 1, y + 6,
+                   BMPWIDTH_nightcity_modules, BMPHEIGHT_nightcity_modules);
+#else
+    draw_deck_modules(x + 2, y + 6, state);
+#endif
+
+#if LCD_DEPTH > 1
+    rb->lcd_set_foreground(NC_MUTED);
+#endif
+    rb->lcd_putsxy(x + 8, y + 46, "Chrome");
+    rb->lcd_putsxy(x + 8, y + 58, (state->cyberware & NC_CYBER_COMBAT_RIG) ? "Rig  online" : "Rig  dark");
+    rb->lcd_putsxy(x + 8, y + 68, (state->cyberware & NC_CYBER_GHOSTWALL) ? "Ghost online" : "Ghost dark");
+    rb->lcd_putsxy(x + 8, y + 78, (state->cyberware & NC_CYBER_SOCIAL) ? "Spoof online" : "Spoof dark");
+#if LCD_DEPTH > 1
+    rb->lcd_set_foreground(NC_TEXT);
+#endif
+}
+
+void nc_ui_draw_encounter(const struct nc_game_state *state,
+                          const struct nc_enemy *enemy,
+                          int player_hp,
+                          int enemy_hp,
+                          const char log_lines[][NC_MAX_LINE_CHARS],
+                          int selection,
+                          bool defending,
+                          int stim_turns)
+{
+    static const char *actions[] =
+    {
+        "Attack",
+        "Hack",
+        "Defend",
+        "Medkit",
+        "Stim",
+    };
+    int i;
+    int line_height;
+    int y = 126;
+    char buf[64];
+    int asset_x = LCD_WIDTH - 122;
+    int asset_y = 48;
+
+    rb->font_getstringsize("M", NULL, &line_height, FONT_UI);
+    nc_ui_frame("Encounter", enemy->name);
+
+    nc_ui_box(12, 48, 166, 28, false);
+    rb->snprintf(buf, sizeof(buf), "Vesper %d/%d", player_hp, state->max_health);
+    rb->lcd_putsxy(18, 54, buf);
+    nc_ui_meter(94, 56, 76, player_hp, state->max_health, player_hp < state->max_health / 3);
+
+    nc_ui_box(12, 80, 166, 28, false);
+    rb->snprintf(buf, sizeof(buf), "%s %d/%d", enemy->name, enemy_hp, enemy->max_health);
+    rb->lcd_putsxy(18, 86, buf);
+    nc_ui_meter(94, 88, 76, enemy_hp, enemy->max_health, enemy_hp <= enemy->max_health / 3);
+
+#if NIGHTCITY_USE_BITMAP_ASSETS
+    rb->lcd_bitmap(is_aegis_enemy(enemy) ? nightcity_aegis : nightcity_sentinel,
+                   asset_x, asset_y,
+                   is_aegis_enemy(enemy) ? BMPWIDTH_nightcity_aegis : BMPWIDTH_nightcity_sentinel,
+                   is_aegis_enemy(enemy) ? BMPHEIGHT_nightcity_aegis : BMPHEIGHT_nightcity_sentinel);
+#else
+    draw_threat_asset(asset_x, asset_y, is_aegis_enemy(enemy), *rb->current_tick);
+#endif
+    nc_ui_box(asset_x, asset_y + 68, 106, 40, false);
+#if NIGHTCITY_USE_BITMAP_ASSETS
+    rb->lcd_bitmap_part(nightcity_faces, GLYPH_HOSTILE * 34, 0, BMPWIDTH_nightcity_faces,
+                        asset_x + 8, asset_y + 14, 34, 34);
+#endif
+#if LCD_DEPTH > 1
+    rb->lcd_set_foreground(NC_MUTED);
+#endif
+    rb->lcd_putsxy(asset_x + 48, asset_y + 76, is_aegis_enemy(enemy) ? "FRAME" : "DRONE");
+    rb->lcd_putsxy(asset_x + 8, asset_y + 90, defending ? "Shielded" : "Open lane");
+    if (stim_turns > 0)
+        rb->snprintf(buf, sizeof(buf), "Stim x%d", stim_turns);
+    else
+        rb->strlcpy(buf, "Stim cold", sizeof(buf));
+    rb->lcd_putsxy(asset_x + 8, asset_y + 100, buf);
+#if LCD_DEPTH > 1
+    rb->lcd_set_foreground(NC_TEXT);
+#endif
+
+    nc_ui_box(12, 116, LCD_WIDTH - 146, 52, false);
+    for (i = 0; i < NC_MAX_LOG_LINES; ++i)
+    {
+        if (log_lines[i][0] != '\0')
+            rb->lcd_putsxy(18, y + i * (line_height + 2), log_lines[i]);
+    }
+
+    nc_ui_box(12, LCD_HEIGHT - 104, LCD_WIDTH - 24, 78, false);
+    for (i = 0; i < (int)ARRAYLEN(actions); ++i)
+    {
+        bool selected = (i == selection);
+        int row_y = LCD_HEIGHT - 96 + i * (line_height + 4);
+        if (selected)
+            nc_ui_box(18, row_y - 2, LCD_WIDTH - 36, line_height + 6, true);
+        rb->lcd_putsxy(26, row_y, actions[i]);
+    }
+
+    nc_ui_footer("Deck", "Act", "Menu");
+    nc_ui_update();
 }
 
 static int run_menu(const struct menu_screen *screen)
@@ -879,10 +1125,15 @@ void nc_ui_show_panel(const struct nc_game_state *state)
         int y = 52;
 
         nc_ui_frame("Deck", nc_lifepath_name(state->lifepath));
+        draw_deck_asset_panel(state);
         draw_stat_line(14, y, "Street Cred:", state->street_cred); y += font_height + 6;
+        nc_ui_meter(14, y, 84, state->street_cred, NC_STAT_MAX, false); y += 14;
         draw_stat_line(14, y, "Corp Heat:", state->corp_heat); y += font_height + 6;
+        nc_ui_meter(14, y, 84, state->corp_heat, NC_STAT_MAX, state->corp_heat >= 6); y += 14;
         draw_stat_line(14, y, "Humanity:", state->humanity); y += font_height + 6;
+        nc_ui_meter(14, y, 84, state->humanity, NC_STAT_MAX, state->humanity <= 2); y += 14;
         draw_stat_line(14, y, "Ghost Sync:", state->ghost_sync); y += font_height + 6;
+        nc_ui_meter(14, y, 84, state->ghost_sync, NC_STAT_MAX, state->ghost_sync >= 6); y += 14;
         draw_stat_line(14, y, "Credits:", state->credits); y += font_height + 6;
         draw_stat_line(14, y, "Health:", state->health); y += font_height + 12;
 
@@ -891,16 +1142,9 @@ void nc_ui_show_panel(const struct nc_game_state *state)
         rb->lcd_putsxy(14, y, buf);
         y += font_height + 10;
 
-        rb->lcd_putsxy(14, y, "Cyberware");
+        rb->lcd_putsxy(14, y, "Auto-checkpointed at each story node.");
         y += font_height + 4;
-        rb->lcd_putsxy(22, y, (state->cyberware & NC_CYBER_COMBAT_RIG) ? "Reflex Loop" : "-");
-        y += font_height + 4;
-        rb->lcd_putsxy(22, y, (state->cyberware & NC_CYBER_GHOSTWALL) ? "Ghostwall Filter" : "-");
-        y += font_height + 4;
-        rb->lcd_putsxy(22, y, (state->cyberware & NC_CYBER_SOCIAL) ? "Velvet Spoof" : "-");
-        y += font_height + 10;
-
-        rb->lcd_putsxy(14, y, "Checkpointed automatically.");
+        rb->lcd_putsxy(14, y, "Left opens this deck during scenes or fights.");
 
         nc_ui_footer(NULL, "Back", "Menu");
         nc_ui_update();
@@ -1065,11 +1309,90 @@ void nc_ui_transition(void)
 void nc_ui_show_ending(const struct nc_game_state *state,
                        const struct nc_node *node)
 {
+    char lines[NC_MAX_WRAP_LINES][NC_MAX_LINE_CHARS];
     char subtitle[48];
+    int line_count;
+    int page = 0;
+    int page_count;
+    enum ending_card card = detect_ending_card(node);
 
     rb->snprintf(subtitle, sizeof(subtitle), "%s | Humanity %d | Ghost %d",
                  nc_lifepath_name(state->lifepath), state->humanity, state->ghost_sync);
-    show_text_screen(node->title, subtitle, node->text);
+    line_count = nc_ui_wrap_text(node->text, LCD_WIDTH - 28, lines, ARRAYLEN(lines));
+    page_count = (line_count + 5) / 6;
+
+    while (1)
+    {
+        int i;
+        int start = page * 6;
+        int y = 112;
+
+        nc_ui_frame(node->title, subtitle);
+        nc_ui_box(22, 48, 276, 60, false);
+#if NIGHTCITY_USE_BITMAP_ASSETS
+        rb->lcd_bitmap_part(nightcity_endings, card * 68, 0, BMPWIDTH_nightcity_endings,
+                            24, 50, 68, 56);
+#else
+        draw_ending_banner(24, 50, card, *rb->current_tick);
+#endif
+#if LCD_DEPTH > 1
+        rb->lcd_set_foreground(NC_MUTED);
+#endif
+        rb->lcd_putsxy(104, 60, "Final Signal");
+        rb->lcd_putsxy(104, 74, card == ENDING_CARD_REBEL ? "City turned against the tower." :
+                               card == ENDING_CARD_CORP ? "A cleaner lie won the board." :
+                               card == ENDING_CARD_GHOST ? "You became the last transmission." :
+                               "You lived, but the night stayed in you.");
+#if LCD_DEPTH > 1
+        rb->lcd_set_foreground(NC_TEXT);
+#endif
+
+        for (i = 0; i < 6 && (start + i) < line_count; ++i)
+        {
+            rb->lcd_putsxy(14, y, lines[start + i]);
+            y += font_height + 4;
+        }
+
+        if (page_count > 1)
+        {
+            char counter[16];
+            rb->snprintf(counter, sizeof(counter), "%d/%d", page + 1, page_count);
+#if LCD_DEPTH > 1
+            rb->lcd_set_foreground(NC_MUTED);
+#endif
+            rb->lcd_putsxy(LCD_WIDTH - 12 - rb->strlen(counter) * font_width, y + 2, counter);
+#if LCD_DEPTH > 1
+            rb->lcd_set_foreground(NC_TEXT);
+#endif
+        }
+
+        nc_ui_footer("Wheel", page + 1 < page_count ? "More" : "Back", "Menu");
+        nc_ui_update();
+
+        switch (nc_ui_input(HZ / 8))
+        {
+            case PLA_SCROLL_BACK:
+            case PLA_SCROLL_BACK_REPEAT:
+                if (page > 0)
+                    --page;
+                break;
+            case PLA_SCROLL_FWD:
+            case PLA_SCROLL_FWD_REPEAT:
+                if (page + 1 < page_count)
+                    ++page;
+                break;
+            case PLA_UP:
+            case PLA_SELECT:
+            case PLA_SELECT_REL:
+            case PLA_CANCEL:
+            case PLA_EXIT:
+                if (page + 1 < page_count)
+                    ++page;
+                else
+                    return;
+                break;
+        }
+    }
 }
 
 void nc_ui_flash_message(const char *title, const char *text, int ticks)

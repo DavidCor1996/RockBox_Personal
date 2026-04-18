@@ -219,6 +219,14 @@ int nc_ui_run_scene(const struct nc_game_state *state,
                     const struct nc_node *node,
                     const struct nc_visible_choice *choices,
                     int choice_count);
+void nc_ui_draw_encounter(const struct nc_game_state *state,
+                          const struct nc_enemy *enemy,
+                          int player_hp,
+                          int enemy_hp,
+                          const char log_lines[][NC_MAX_LINE_CHARS],
+                          int selection,
+                          bool defending,
+                          int stim_turns);
 void nc_ui_show_ending(const struct nc_game_state *state,
                        const struct nc_node *node);
 void nc_ui_flash_message(const char *title, const char *text, int ticks);
