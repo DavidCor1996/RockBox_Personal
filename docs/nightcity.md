@@ -14,7 +14,7 @@
   - compiled bitmap title card, scene cards, and portrait strip for color 320x240 targets
   - dedicated threat cards for encounters, a deck module strip, and ending banner art
   - code-drawn fallback panels and glyphs for lower-capability builds
-  - ambient skyline / clinic / relay / convoy motion layered behind scene cards
+  - full-width animated scene banners for story beats, with ambient skyline / clinic / relay / convoy motion
   - glitch transitions between story nodes
 - Prioritizes stable text-heavy play over graphics-heavy ambition.
 - Uses Rockbox plugin actions so clickwheel hardware and the SDL simulator share the same control logic.
@@ -76,7 +76,7 @@ Current verified checks:
 Recommended manual regression pass after asset changes:
 
 - verify the title card renders cleanly at 320x240
-- verify scene cards change with story context and do not overwrite dialogue text
+- verify animated story banners change with scene context and do not overwrite dialogue text
 - verify portrait strip alignment for each speaker slot
 - verify encounter threat cards and status chips render without overlapping logs or actions
 - verify deck screen cyberware strip and stat meters stay readable on simulator and device

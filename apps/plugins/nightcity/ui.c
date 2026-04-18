@@ -694,16 +694,130 @@ static void draw_ending_banner(int x, int y, enum ending_card card, int tick)
 }
 #endif
 
+static const char *scene_theme_label(enum scene_theme theme)
+{
+    switch (theme)
+    {
+        case SCENE_THEME_GHOST:
+            return "Ghost bleed";
+        case SCENE_THEME_CLINIC:
+            return "Clinic feed";
+        case SCENE_THEME_BOARDROOM:
+            return "Board trace";
+        case SCENE_THEME_CONVOY:
+            return "Salt lane";
+        case SCENE_THEME_RELAY:
+            return "Relay surge";
+        default:
+            return "Night grid";
+    }
+}
+
+static void draw_scene_panorama(enum scene_theme theme, int x, int y, int w, int h, int tick)
+{
+    int i;
+
+    nc_ui_box(x, y, w, h, false);
+#if LCD_DEPTH > 1
+    rb->lcd_set_foreground(NC_PANEL_ALT);
+    rb->lcd_fillrect(x + 1, y + 1, w - 2, h - 2);
+    switch (theme)
+    {
+        case SCENE_THEME_GHOST:
+            rb->lcd_set_foreground(NC_MAGENTA);
+            for (i = 0; i < h - 8; i += 6)
+                rb->lcd_fillrect(x + 8 + ((tick / 2) + i * 7) % (w - 24), y + 4 + i, 28, 2);
+            rb->lcd_set_foreground(NC_CYAN);
+            for (i = 0; i < w - 20; i += 12)
+                rb->lcd_drawline(x + i, y + h / 2, x + i + 10, y + h / 2 + (((tick / 2) + i) % 14) - 7);
+            break;
+        case SCENE_THEME_CLINIC:
+            rb->lcd_set_foreground(NC_MUTED);
+            for (i = 0; i < w; i += 16)
+                rb->lcd_vline(x + i, y + 2, y + h - 4);
+            for (i = 0; i < h; i += 14)
+                rb->lcd_hline(x + 2, x + w - 4, y + i);
+            rb->lcd_set_foreground(NC_GREEN);
+            rb->lcd_fillrect(x + 6, y + 10 + (tick / 2) % (h - 20), w - 12, 4);
+            rb->lcd_set_foreground(NC_CYAN);
+            for (i = 0; i < w - 20; i += 18)
+                rb->lcd_drawline(x + i, y + h / 2, x + i + 6, y + h / 2 - 6);
+            break;
+        case SCENE_THEME_BOARDROOM:
+            rb->lcd_set_foreground(NC_MUTED);
+            for (i = 0; i < 6; ++i)
+                rb->lcd_fillrect(x + 18 + i * 42, y + 4, 16, h - 8);
+            rb->lcd_set_foreground(NC_MAGENTA);
+            rb->lcd_fillrect(x + 12, y + 16, w - 24, 6);
+            rb->lcd_set_foreground(NC_CYAN);
+            for (i = 0; i < 4; ++i)
+                rb->lcd_fillrect(x + 22 + ((tick / 3) + i * 58) % (w - 44), y + 36 + (i & 1) * 12, 24, 4);
+            break;
+        case SCENE_THEME_CONVOY:
+            rb->lcd_set_foreground(NC_MUTED);
+            rb->lcd_drawline(x + 24, y + h - 6, x + w / 2, y + 8);
+            rb->lcd_drawline(x + w - 24, y + h - 6, x + w / 2, y + 8);
+            rb->lcd_set_foreground(NC_CYAN);
+            for (i = 0; i < 5; ++i)
+            {
+                int dash_y = y + 14 + ((tick / 2) + i * 12) % (h - 22);
+                rb->lcd_fillrect(x + w / 2 - 3, dash_y, 6, 6);
+            }
+            rb->lcd_set_foreground(NC_MAGENTA);
+            rb->lcd_fillrect(x + 36, y + h - 22, 26, 10);
+            rb->lcd_fillrect(x + w - 62, y + h - 22, 26, 10);
+            break;
+        case SCENE_THEME_RELAY:
+            rb->lcd_set_foreground(NC_MAGENTA);
+            for (i = 0; i < 4; ++i)
+            {
+                int pad = 12 + i * 10 + ((tick / 5 + i) % 4);
+                rb->lcd_drawrect(x + pad, y + pad / 2, w - pad * 2, h - pad);
+            }
+            rb->lcd_set_foreground(NC_CYAN);
+            rb->lcd_fillrect(x + w / 2 - 3, y + h / 2 - 3, 6, 6);
+            for (i = 0; i < 5; ++i)
+                rb->lcd_fillrect(x + 28 + ((tick / 2) + i * 52) % (w - 56), y + 10 + (i * 9) % (h - 20), 4, 4);
+            break;
+        default:
+            rb->lcd_set_foreground(NC_MUTED);
+            for (i = 0; i < 15; ++i)
+            {
+                int bx = x + 10 + i * 18;
+                int bh = 14 + ((i * 9 + tick / 4) % 28);
+                rb->lcd_fillrect(bx, y + h - bh - 4, 10, bh);
+            }
+            rb->lcd_set_foreground(NC_CYAN);
+            for (i = 0; i < 12; ++i)
+                rb->lcd_drawline(x + 8 + ((tick / 2) + i * 24) % (w - 16), y + 6,
+                                 x + 2 + ((tick / 2) + i * 24) % (w - 16), y + h - 8);
+            rb->lcd_set_foreground(NC_MAGENTA);
+            rb->lcd_fillrect(x + 40, y + 12, 66, 6);
+            rb->lcd_fillrect(x + w - 116, y + 28, 52, 5);
+            break;
+    }
+    rb->lcd_set_foreground(NC_TEXT);
+#else
+    (void)theme;
+    (void)tick;
+#endif
+}
+
 static void draw_scene_asset_panel(const struct nc_node *node)
 {
-    int asset_x = LCD_WIDTH - 78;
+    int asset_x = 18;
     int asset_y = 48;
+    int portrait_x = LCD_WIDTH - 56;
+    int portrait_y = 66;
+    int label_x = 88;
+    int label_y = 60;
     enum scene_theme theme = detect_scene_theme(node);
     enum speaker_glyph glyph = detect_speaker_glyph(node->speaker);
 #if !NIGHTCITY_USE_BITMAP_ASSETS
     int tick = *rb->current_tick;
 #endif
 
+    draw_scene_panorama(theme, 12, 46, LCD_WIDTH - 24, 74, *rb->current_tick);
     switch (theme)
     {
         case SCENE_THEME_GHOST:
@@ -756,17 +870,19 @@ static void draw_scene_asset_panel(const struct nc_node *node)
             break;
     }
 
+    nc_ui_box(label_x, label_y, 124, 22, false);
+    nc_ui_box(label_x, label_y + 26, 124, 22, false);
 #if NIGHTCITY_USE_BITMAP_ASSETS
     rb->lcd_bitmap_part(nightcity_faces, glyph * 34, 0, BMPWIDTH_nightcity_faces,
-                        asset_x + 14, asset_y + 18, 34, 34);
+                        portrait_x, portrait_y, 34, 34);
 #else
-    draw_speaker_glyph(asset_x + 14, asset_y + 18, glyph, tick);
+    draw_speaker_glyph(portrait_x, portrait_y, glyph, tick);
 #endif
-    nc_ui_box(asset_x, asset_y + 78, 62, 22, false);
 #if LCD_DEPTH > 1
     rb->lcd_set_foreground(NC_MUTED);
 #endif
-    rb->lcd_putsxy(asset_x + 8, asset_y + 84, "SCENE");
+    rb->lcd_putsxy(label_x + 8, label_y + 6, node->speaker);
+    rb->lcd_putsxy(label_x + 8, label_y + 32, scene_theme_label(theme));
 #if LCD_DEPTH > 1
     rb->lcd_set_foreground(NC_TEXT);
 #endif
@@ -1202,9 +1318,10 @@ int nc_ui_run_scene(const struct nc_game_state *state,
                     int choice_count)
 {
     char lines[NC_MAX_WRAP_LINES][NC_MAX_LINE_CHARS];
-    int line_count = nc_ui_wrap_text(node->text, LCD_WIDTH - 110, lines, ARRAYLEN(lines));
+    int lines_per_page = choice_count > 0 ? 4 : 6;
+    int line_count = nc_ui_wrap_text(node->text, LCD_WIDTH - 28, lines, ARRAYLEN(lines));
     int page = 0;
-    int page_count = (line_count + NC_TEXT_PAGE_LINES - 1) / NC_TEXT_PAGE_LINES;
+    int page_count = (line_count + lines_per_page - 1) / lines_per_page;
     int choice_index = 0;
 
     (void)state;
@@ -1212,13 +1329,14 @@ int nc_ui_run_scene(const struct nc_game_state *state,
     while (1)
     {
         int i;
-        int start = page * NC_TEXT_PAGE_LINES;
-        int y = 52;
+        int start = page * lines_per_page;
+        int y = 130;
 
         nc_ui_frame(node->title, node->speaker);
         draw_scene_asset_panel(node);
+        nc_ui_box(12, 124, LCD_WIDTH - 24, (page + 1 == page_count && choice_count > 0) ? 48 : 82, false);
 
-        for (i = 0; i < NC_TEXT_PAGE_LINES && (start + i) < line_count; ++i)
+        for (i = 0; i < lines_per_page && (start + i) < line_count; ++i)
         {
             rb->lcd_putsxy(14, y, lines[start + i]);
             y += font_height + 4;
@@ -1226,20 +1344,20 @@ int nc_ui_run_scene(const struct nc_game_state *state,
 
         if (page + 1 == page_count && choice_count > 0)
         {
-            int panel_y = LCD_HEIGHT - 92;
-            int top = choice_index > 2 ? choice_index - 2 : 0;
+            int panel_y = 176;
+            int top = choice_index > 1 ? choice_index - 1 : 0;
 
-            if (top + 4 > choice_count)
-                top = MAX(0, choice_count - 4);
+            if (top + 3 > choice_count)
+                top = MAX(0, choice_count - 3);
 
-            nc_ui_box(12, panel_y, LCD_WIDTH - 24, 66, false);
-            for (i = 0; i < 4 && (top + i) < choice_count; ++i)
+            nc_ui_box(12, panel_y, LCD_WIDTH - 24, 38, false);
+            for (i = 0; i < 3 && (top + i) < choice_count; ++i)
             {
                 bool selected = (top + i) == choice_index;
+                int row_y = panel_y + 6 + i * (font_height + 2);
                 if (selected)
-                    nc_ui_box(18, panel_y + 7 + i * (font_height + 6),
-                              LCD_WIDTH - 36, font_height + 6, true);
-                rb->lcd_putsxy(24, panel_y + 10 + i * (font_height + 6),
+                    nc_ui_box(18, row_y - 2, LCD_WIDTH - 36, font_height + 4, true);
+                rb->lcd_putsxy(24, row_y,
                                choices[top + i].choice->label);
             }
         }
