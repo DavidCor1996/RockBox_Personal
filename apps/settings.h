@@ -296,6 +296,7 @@ void sound_settings_apply(void);
  * skin buffer is reset properly
  */
 void settings_apply_skins(void);
+void ipone_lock_wallpaper_apply(void);
 
 void settings_apply(bool read_disk);
 void settings_apply_pm_range(void);
@@ -653,6 +654,7 @@ struct user_settings
 #endif
 
     int ipone_charge_wallpaper; /* iPone charge wallpaper mode */
+    int ipone_lock_wallpaper;   /* iPone lock wallpaper mode */
 
     int browser_default;        /* Default browser when accessed from WPS */
 

@@ -1,0 +1,212 @@
+"""Video thumbnail extraction and disk cache management."""
+
+import hashlib
+import os
+import shutil
+import subprocess
+from pathlib import Path
+
+from PIL import Image
+
+
+_VIDEO_POSTER_FILENAMES = (
+    "poster.jpg", "poster.png", "Poster.jpg", "Poster.png",
+    "movie.jpg", "movie.png", "Movie.jpg", "Movie.png",
+    "season-poster.jpg", "season-poster.png",
+    "season01-poster.jpg", "season01-poster.png",
+    "season1-poster.jpg", "season1-poster.png",
+    "show.jpg", "show.png",
+)
+
+
+class VideoThumbnailService:
+    """Generate and cache poster thumbnails for local video files."""
+
+    def __init__(self, cache_root, config=None, artwork_manager=None):
+        self._cache_dir = os.path.join(cache_root, "video_thumbs")
+        self._config = config
+        self._artwork = artwork_manager
+        os.makedirs(self._cache_dir, exist_ok=True)
+        self._ffmpeg = shutil.which("ffmpeg") or ""
+
+    @property
+    def is_available(self):
+        return bool(self._ffmpeg)
+
+    def thumbnail_path(self, track, size=232):
+        path = str((track or {}).get("file_path") or "")
+        if not path or not os.path.isfile(path):
+            return ""
+
+        try:
+            stat = os.stat(path)
+        except OSError:
+            return ""
+
+        duration = float((track or {}).get("duration") or 0.0)
+        width = max(int(size), 96)
+        height = int(width * 1.5)
+        local_poster = self._find_local_poster(track)
+        if local_poster:
+            poster_mtime = os.stat(local_poster).st_mtime
+        else:
+            poster_mtime = 0
+
+        online_poster = self._online_poster_path(track)
+        if online_poster:
+            poster_mtime = os.stat(online_poster).st_mtime
+
+        cache_key = hashlib.md5(
+            f"{path}|{stat.st_mtime}|{stat.st_size}|{width}|{height}|{local_poster}|{online_poster}|{poster_mtime}".encode("utf-8")
+        ).hexdigest()
+        target = os.path.join(self._cache_dir, f"{cache_key}.jpg")
+        if os.path.exists(target):
+            return target
+
+        if local_poster:
+            self._render_poster(local_poster, target, width, height)
+            return target if os.path.exists(target) else ""
+
+        if online_poster:
+            self._render_poster(online_poster, target, width, height)
+            return target if os.path.exists(target) else ""
+
+        if not self._ffmpeg:
+            return ""
+
+        temp_frame = os.path.join(self._cache_dir, f"{cache_key}.src.jpg")
+        if not self._extract_frame(path, temp_frame, duration):
+            return ""
+        try:
+            self._render_poster(temp_frame, target, width, height)
+        finally:
+            try:
+                os.remove(temp_frame)
+            except OSError:
+                pass
+        return target if os.path.exists(target) else ""
+
+    def _online_poster_path(self, track):
+        if not self._artwork:
+            return ""
+        video_info = self._video_info(track)
+        return self._artwork.get_video_poster(video_info, size="thumb", allow_online=False)
+
+    @staticmethod
+    def _video_info(track):
+        track = dict(track or {})
+        tracks = list(track.get("_video_tracks") or [track])
+        first = tracks[0] if tracks else track
+        video_kind = str(first.get("video_kind") or "movie")
+        if video_kind == "show":
+            album = str(first.get("show_title") or first.get("artist") or "Unknown Show")
+            artist = str(first.get("album") or (f"Season {first.get('season_number')}" if first.get("season_number") else ""))
+            scope = "show"
+        else:
+            album = str(first.get("title") or first.get("album") or "Untitled Video")
+            artist = str(first.get("artist") or first.get("album_artist") or "")
+            scope = video_kind
+        return {
+            "group_key": str(first.get("video_group_key") or first.get("file_path") or album),
+            "album": album,
+            "artist": artist,
+            "tracks": tracks,
+            "media_type": "video",
+            "video_kind": video_kind,
+            "video_scope": scope,
+        }
+
+    def _find_local_poster(self, track):
+        path_text = str((track or {}).get("file_path") or "")
+        if not path_text:
+            return ""
+        path = Path(path_text)
+        scope = str((track or {}).get("_video_scope") or "")
+        season_number = int((track or {}).get("season_number") or 0)
+        show_title = str((track or {}).get("show_title") or "").strip()
+
+        candidates = []
+        stem_variants = (
+            f"{path.stem}.jpg",
+            f"{path.stem}.png",
+        )
+        for name in stem_variants:
+            candidates.append(path.with_name(name))
+
+        current_dir = path.parent
+        parent_dir = current_dir.parent if current_dir.parent != current_dir else current_dir
+        search_dirs = [current_dir]
+        if scope == "show":
+            if season_number and parent_dir not in search_dirs:
+                search_dirs.append(parent_dir)
+            grandparent = parent_dir.parent if parent_dir.parent != parent_dir else parent_dir
+            if show_title and grandparent not in search_dirs:
+                search_dirs.append(grandparent)
+        else:
+            if season_number and parent_dir not in search_dirs:
+                search_dirs.append(parent_dir)
+
+        season_specific = []
+        if season_number:
+            season_specific.extend(
+                [
+                    f"season{season_number:02d}-poster.jpg",
+                    f"season{season_number:02d}-poster.png",
+                    f"season{season_number}-poster.jpg",
+                    f"season{season_number}-poster.png",
+                ]
+            )
+
+        for directory in search_dirs:
+            for name in season_specific + list(_VIDEO_POSTER_FILENAMES):
+                candidates.append(directory / name)
+
+        seen = set()
+        for candidate in candidates:
+            text = str(candidate)
+            if text in seen:
+                continue
+            seen.add(text)
+            if candidate.is_file():
+                return text
+        return ""
+
+    def _extract_frame(self, source_path, target_path, duration):
+        seek_seconds = max(1.0, min(duration * 0.1 if duration > 0 else 5.0, 30.0))
+        command = [
+            self._ffmpeg,
+            "-hide_banner",
+            "-loglevel",
+            "error",
+            "-y",
+            "-ss",
+            f"{seek_seconds:.2f}",
+            "-i",
+            source_path,
+            "-frames:v",
+            "1",
+            target_path,
+        ]
+        try:
+            result = subprocess.run(command, check=False, capture_output=True, text=True)
+        except OSError:
+            return False
+        return result.returncode == 0 and os.path.exists(target_path)
+
+    @staticmethod
+    def _render_poster(source_path, target_path, width, height):
+        with Image.open(source_path) as frame:
+            frame = frame.convert("RGB")
+            source_ratio = frame.width / max(frame.height, 1)
+            target_ratio = width / max(height, 1)
+            if source_ratio > target_ratio:
+                scaled_height = height
+                scaled_width = int(height * source_ratio)
+            else:
+                scaled_width = width
+                scaled_height = int(width / max(source_ratio, 0.01))
+            frame = frame.resize((scaled_width, scaled_height), Image.LANCZOS)
+            left = max((scaled_width - width) // 2, 0)
+            top = max((scaled_height - height) // 2, 0)
+            canvas = frame.crop((left, top, left + width, top + height))
+            canvas.save(target_path, "JPEG", quality=88)

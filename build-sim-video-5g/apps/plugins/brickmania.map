@@ -765,23 +765,23 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000    0x3af4d
+.debug_info     0x0000000000000000    0x3afb6
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0xa0bb /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/brickmania.o
- .debug_info    0x000000000000a0bb     0x7c84 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
- .debug_info    0x0000000000011d3f     0x7a7f /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(helper.o)
- .debug_info    0x00000000000197be     0x7cc4 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(configfile.o)
- .debug_info    0x0000000000021482     0x98f9 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(playback_control.o)
- .debug_info    0x000000000002ad7b     0x7fdd /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(highscore.o)
- .debug_info    0x0000000000032d58     0x77e3 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(display_text.o)
- .debug_info    0x000000000003a53b      0x143 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(brickmania_gameover.112x54x16.o)
- .debug_info    0x000000000003a67e      0x141 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(brickmania_ball.5x5x16.o)
- .debug_info    0x000000000003a7bf      0x143 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(brickmania_bricks.320x240x16.o)
- .debug_info    0x000000000003a902      0x142 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(brickmania_pads.320x240x16.o)
- .debug_info    0x000000000003aa44      0x142 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(brickmania_short_pads.320x240x16.o)
- .debug_info    0x000000000003ab86      0x142 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(brickmania_long_pads.320x240x16.o)
- .debug_info    0x000000000003acc8      0x143 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(brickmania_break.320x240x16.o)
- .debug_info    0x000000000003ae0b      0x142 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(brickmania_powerups.320x240x16.o)
+ .debug_info    0x0000000000000000     0xa0ca /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/brickmania.o
+ .debug_info    0x000000000000a0ca     0x7c93 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+ .debug_info    0x0000000000011d5d     0x7a8e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(helper.o)
+ .debug_info    0x00000000000197eb     0x7cd3 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(configfile.o)
+ .debug_info    0x00000000000214be     0x9908 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(playback_control.o)
+ .debug_info    0x000000000002adc6     0x7fec /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(highscore.o)
+ .debug_info    0x0000000000032db2     0x77f2 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(display_text.o)
+ .debug_info    0x000000000003a5a4      0x143 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(brickmania_gameover.112x54x16.o)
+ .debug_info    0x000000000003a6e7      0x141 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(brickmania_ball.5x5x16.o)
+ .debug_info    0x000000000003a828      0x143 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(brickmania_bricks.320x240x16.o)
+ .debug_info    0x000000000003a96b      0x142 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(brickmania_pads.320x240x16.o)
+ .debug_info    0x000000000003aaad      0x142 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(brickmania_short_pads.320x240x16.o)
+ .debug_info    0x000000000003abef      0x142 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(brickmania_long_pads.320x240x16.o)
+ .debug_info    0x000000000003ad31      0x143 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(brickmania_break.320x240x16.o)
+ .debug_info    0x000000000003ae74      0x142 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(brickmania_powerups.320x240x16.o)
 
 .debug_abbrev   0x0000000000000000     0x229a
  *(.debug_abbrev)
@@ -822,37 +822,37 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0xb9ce
+.debug_str      0x0000000000000000     0xb9e3
  *(.debug_str)
- .debug_str     0x0000000000000000     0xb9ce /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/brickmania.o
-                                       0x6a9f (size before relaxing)
- .debug_str     0x000000000000b9ce        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
-                                       0x511f (size before relaxing)
- .debug_str     0x000000000000b9ce        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(helper.o)
-                                       0x5116 (size before relaxing)
- .debug_str     0x000000000000b9ce        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(configfile.o)
-                                       0x4895 (size before relaxing)
- .debug_str     0x000000000000b9ce        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(playback_control.o)
-                                       0xa38f (size before relaxing)
- .debug_str     0x000000000000b9ce        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(highscore.o)
-                                       0x5026 (size before relaxing)
- .debug_str     0x000000000000b9ce        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(display_text.o)
-                                       0x48a9 (size before relaxing)
- .debug_str     0x000000000000b9ce        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(brickmania_gameover.112x54x16.o)
+ .debug_str     0x0000000000000000     0xb9e3 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/brickmania.o
+                                       0x6ab4 (size before relaxing)
+ .debug_str     0x000000000000b9e3        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+                                       0x5134 (size before relaxing)
+ .debug_str     0x000000000000b9e3        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(helper.o)
+                                       0x512b (size before relaxing)
+ .debug_str     0x000000000000b9e3        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(configfile.o)
+                                       0x48aa (size before relaxing)
+ .debug_str     0x000000000000b9e3        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(playback_control.o)
+                                       0xa3a4 (size before relaxing)
+ .debug_str     0x000000000000b9e3        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(highscore.o)
+                                       0x503b (size before relaxing)
+ .debug_str     0x000000000000b9e3        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(display_text.o)
+                                       0x48be (size before relaxing)
+ .debug_str     0x000000000000b9e3        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(brickmania_gameover.112x54x16.o)
                                         0x17a (size before relaxing)
- .debug_str     0x000000000000b9ce        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(brickmania_ball.5x5x16.o)
+ .debug_str     0x000000000000b9e3        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(brickmania_ball.5x5x16.o)
                                         0x172 (size before relaxing)
- .debug_str     0x000000000000b9ce        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(brickmania_bricks.320x240x16.o)
+ .debug_str     0x000000000000b9e3        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(brickmania_bricks.320x240x16.o)
                                         0x176 (size before relaxing)
- .debug_str     0x000000000000b9ce        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(brickmania_pads.320x240x16.o)
+ .debug_str     0x000000000000b9e3        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(brickmania_pads.320x240x16.o)
                                         0x172 (size before relaxing)
- .debug_str     0x000000000000b9ce        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(brickmania_short_pads.320x240x16.o)
+ .debug_str     0x000000000000b9e3        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(brickmania_short_pads.320x240x16.o)
                                         0x17e (size before relaxing)
- .debug_str     0x000000000000b9ce        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(brickmania_long_pads.320x240x16.o)
+ .debug_str     0x000000000000b9e3        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(brickmania_long_pads.320x240x16.o)
                                         0x17c (size before relaxing)
- .debug_str     0x000000000000b9ce        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(brickmania_break.320x240x16.o)
+ .debug_str     0x000000000000b9e3        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(brickmania_break.320x240x16.o)
                                         0x174 (size before relaxing)
- .debug_str     0x000000000000b9ce        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(brickmania_powerups.320x240x16.o)
+ .debug_str     0x000000000000b9e3        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(brickmania_powerups.320x240x16.o)
                                         0x17a (size before relaxing)
 
 .debug_loc

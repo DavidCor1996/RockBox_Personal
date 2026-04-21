@@ -624,690 +624,694 @@ main:
 
 @ 0 "" 2
 @ 183 "<stdin>" 1
-	/* "struct user_settings", "browser_default" = #1428, #4, "i", #0; */
+	/* "struct user_settings", "ipone_lock_wallpaper" = #1428, #4, "i", #0; */
 
 @ 0 "" 2
 @ 184 "<stdin>" 1
-	/* "struct user_settings", "repeat_mode" = #1432, #4, "i", #0; */
+	/* "struct user_settings", "browser_default" = #1432, #4, "i", #0; */
 
 @ 0 "" 2
 @ 185 "<stdin>" 1
-	/* "struct user_settings", "next_folder" = #1436, #4, "i", #0; */
+	/* "struct user_settings", "repeat_mode" = #1436, #4, "i", #0; */
 
 @ 0 "" 2
 @ 186 "<stdin>" 1
-	/* "struct user_settings", "constrain_next_folder" = #1440, #1, "b", #0; */
+	/* "struct user_settings", "next_folder" = #1440, #4, "i", #0; */
 
 @ 0 "" 2
 @ 187 "<stdin>" 1
-	/* "struct user_settings", "recursive_dir_insert" = #1444, #4, "i", #0; */
+	/* "struct user_settings", "constrain_next_folder" = #1444, #1, "b", #0; */
 
 @ 0 "" 2
 @ 188 "<stdin>" 1
-	/* "struct user_settings", "fade_on_stop" = #1448, #1, "b", #0; */
+	/* "struct user_settings", "recursive_dir_insert" = #1448, #4, "i", #0; */
 
 @ 0 "" 2
 @ 189 "<stdin>" 1
-	/* "struct user_settings", "playlist_shuffle" = #1449, #1, "b", #0; */
+	/* "struct user_settings", "fade_on_stop" = #1452, #1, "b", #0; */
 
 @ 0 "" 2
 @ 190 "<stdin>" 1
-	/* "struct user_settings", "warnon_erase_dynplaylist" = #1450, #1, "b", #0; */
+	/* "struct user_settings", "playlist_shuffle" = #1453, #1, "b", #0; */
 
 @ 0 "" 2
 @ 191 "<stdin>" 1
-	/* "struct user_settings", "keep_current_track_on_replace_playlist" = #1451, #1, "b", #0; */
+	/* "struct user_settings", "warnon_erase_dynplaylist" = #1454, #1, "b", #0; */
 
 @ 0 "" 2
 @ 192 "<stdin>" 1
-	/* "struct user_settings", "show_shuffled_adding_options" = #1452, #1, "b", #0; */
+	/* "struct user_settings", "keep_current_track_on_replace_playlist" = #1455, #1, "b", #0; */
 
 @ 0 "" 2
 @ 193 "<stdin>" 1
-	/* "struct user_settings", "show_queue_options" = #1456, #4, "i", #0; */
+	/* "struct user_settings", "show_shuffled_adding_options" = #1456, #1, "b", #0; */
 
 @ 0 "" 2
 @ 194 "<stdin>" 1
-	/* "struct user_settings", "album_art" = #1460, #4, "i", #0; */
+	/* "struct user_settings", "show_queue_options" = #1460, #4, "i", #0; */
 
 @ 0 "" 2
 @ 195 "<stdin>" 1
-	/* "struct user_settings", "rewind_across_tracks" = #1464, #1, "b", #0; */
+	/* "struct user_settings", "album_art" = #1464, #4, "i", #0; */
 
 @ 0 "" 2
 @ 196 "<stdin>" 1
-	/* "struct user_settings", "playlist_viewer_icons" = #1465, #1, "b", #0; */
+	/* "struct user_settings", "rewind_across_tracks" = #1468, #1, "b", #0; */
 
 @ 0 "" 2
 @ 197 "<stdin>" 1
-	/* "struct user_settings", "playlist_viewer_indices" = #1466, #1, "b", #0; */
+	/* "struct user_settings", "playlist_viewer_icons" = #1469, #1, "b", #0; */
 
 @ 0 "" 2
 @ 198 "<stdin>" 1
-	/* "struct user_settings", "playlist_viewer_track_display" = #1468, #4, "i", #0; */
+	/* "struct user_settings", "playlist_viewer_indices" = #1470, #1, "b", #0; */
 
 @ 0 "" 2
 @ 199 "<stdin>" 1
-	/* "struct user_settings", "talk_menu" = #1472, #1, "b", #0; */
+	/* "struct user_settings", "playlist_viewer_track_display" = #1472, #4, "i", #0; */
 
 @ 0 "" 2
 @ 200 "<stdin>" 1
-	/* "struct user_settings", "talk_dir" = #1476, #4, "i", #0; */
+	/* "struct user_settings", "talk_menu" = #1476, #1, "b", #0; */
 
 @ 0 "" 2
 @ 201 "<stdin>" 1
-	/* "struct user_settings", "talk_dir_clip" = #1480, #1, "b", #0; */
+	/* "struct user_settings", "talk_dir" = #1480, #4, "i", #0; */
 
 @ 0 "" 2
 @ 202 "<stdin>" 1
-	/* "struct user_settings", "talk_file" = #1484, #4, "i", #0; */
+	/* "struct user_settings", "talk_dir_clip" = #1484, #1, "b", #0; */
 
 @ 0 "" 2
 @ 203 "<stdin>" 1
-	/* "struct user_settings", "talk_file_clip" = #1488, #1, "b", #0; */
+	/* "struct user_settings", "talk_file" = #1488, #4, "i", #0; */
 
 @ 0 "" 2
 @ 204 "<stdin>" 1
-	/* "struct user_settings", "talk_filetype" = #1489, #1, "b", #0; */
+	/* "struct user_settings", "talk_file_clip" = #1492, #1, "b", #0; */
 
 @ 0 "" 2
 @ 205 "<stdin>" 1
-	/* "struct user_settings", "talk_battery_level" = #1490, #1, "b", #0; */
+	/* "struct user_settings", "talk_filetype" = #1493, #1, "b", #0; */
 
 @ 0 "" 2
 @ 206 "<stdin>" 1
-	/* "struct user_settings", "talk_mixer_amp" = #1492, #4, "i", #0; */
+	/* "struct user_settings", "talk_battery_level" = #1494, #1, "b", #0; */
 
 @ 0 "" 2
 @ 207 "<stdin>" 1
-	/* "struct user_settings", "sort_case" = #1496, #1, "b", #0; */
+	/* "struct user_settings", "talk_mixer_amp" = #1496, #4, "i", #0; */
 
 @ 0 "" 2
 @ 208 "<stdin>" 1
-	/* "struct user_settings", "sort_dir" = #1500, #4, "i", #0; */
+	/* "struct user_settings", "sort_case" = #1500, #1, "b", #0; */
 
 @ 0 "" 2
 @ 209 "<stdin>" 1
-	/* "struct user_settings", "sort_file" = #1504, #4, "i", #0; */
+	/* "struct user_settings", "sort_dir" = #1504, #4, "i", #0; */
 
 @ 0 "" 2
 @ 210 "<stdin>" 1
-	/* "struct user_settings", "sort_playlists" = #1508, #4, "i", #0; */
+	/* "struct user_settings", "sort_file" = #1508, #4, "i", #0; */
 
 @ 0 "" 2
 @ 211 "<stdin>" 1
-	/* "struct user_settings", "interpret_numbers" = #1512, #4, "i", #0; */
+	/* "struct user_settings", "sort_playlists" = #1512, #4, "i", #0; */
 
 @ 0 "" 2
 @ 212 "<stdin>" 1
-	/* "struct user_settings", "poweroff" = #1516, #4, "i", #0; */
+	/* "struct user_settings", "interpret_numbers" = #1516, #4, "i", #0; */
 
 @ 0 "" 2
 @ 213 "<stdin>" 1
-	/* "struct user_settings", "battery_capacity" = #1520, #4, "i", #0; */
+	/* "struct user_settings", "poweroff" = #1520, #4, "i", #0; */
 
 @ 0 "" 2
 @ 214 "<stdin>" 1
-	/* "struct user_settings", "usb_charging" = #1524, #4, "i", #0; */
+	/* "struct user_settings", "battery_capacity" = #1524, #4, "i", #0; */
 
 @ 0 "" 2
 @ 215 "<stdin>" 1
-	/* "struct user_settings", "cursor_style" = #1528, #4, "i", #0; */
+	/* "struct user_settings", "usb_charging" = #1528, #4, "i", #0; */
 
 @ 0 "" 2
 @ 216 "<stdin>" 1
-	/* "struct user_settings", "screen_scroll_step" = #1532, #4, "i", #0; */
+	/* "struct user_settings", "cursor_style" = #1532, #4, "i", #0; */
 
 @ 0 "" 2
 @ 217 "<stdin>" 1
-	/* "struct user_settings", "show_path_in_browser" = #1536, #4, "i", #0; */
+	/* "struct user_settings", "screen_scroll_step" = #1536, #4, "i", #0; */
 
 @ 0 "" 2
 @ 218 "<stdin>" 1
-	/* "struct user_settings", "offset_out_of_view" = #1540, #1, "b", #0; */
+	/* "struct user_settings", "show_path_in_browser" = #1540, #4, "i", #0; */
 
 @ 0 "" 2
 @ 219 "<stdin>" 1
-	/* "struct user_settings", "disable_mainmenu_scrolling" = #1541, #1, "b", #0; */
+	/* "struct user_settings", "offset_out_of_view" = #1544, #1, "b", #0; */
 
 @ 0 "" 2
 @ 220 "<stdin>" 1
-	/* "struct user_settings", "icon_file" = #1542, #33, "str", #0; */
+	/* "struct user_settings", "disable_mainmenu_scrolling" = #1545, #1, "b", #0; */
 
 @ 0 "" 2
 @ 221 "<stdin>" 1
-	/* "struct user_settings", "viewers_icon_file" = #1575, #33, "str", #0; */
+	/* "struct user_settings", "icon_file" = #1546, #33, "str", #0; */
 
 @ 0 "" 2
 @ 222 "<stdin>" 1
-	/* "struct user_settings", "font_file" = #1608, #33, "str", #0; */
+	/* "struct user_settings", "viewers_icon_file" = #1579, #33, "str", #0; */
 
 @ 0 "" 2
 @ 223 "<stdin>" 1
-	/* "struct user_settings", "glyphs_to_cache" = #1644, #4, "i", #0; */
+	/* "struct user_settings", "font_file" = #1612, #33, "str", #0; */
 
 @ 0 "" 2
 @ 224 "<stdin>" 1
-	/* "struct user_settings", "kbd_file" = #1648, #33, "str", #0; */
+	/* "struct user_settings", "glyphs_to_cache" = #1648, #4, "i", #0; */
 
 @ 0 "" 2
 @ 225 "<stdin>" 1
-	/* "struct user_settings", "backlight_timeout" = #1684, #4, "i", #0; */
+	/* "struct user_settings", "kbd_file" = #1652, #33, "str", #0; */
 
 @ 0 "" 2
 @ 226 "<stdin>" 1
-	/* "struct user_settings", "caption_backlight" = #1688, #1, "b", #0; */
+	/* "struct user_settings", "backlight_timeout" = #1688, #4, "i", #0; */
 
 @ 0 "" 2
 @ 227 "<stdin>" 1
-	/* "struct user_settings", "bl_filter_first_keypress" = #1689, #1, "b", #0; */
+	/* "struct user_settings", "caption_backlight" = #1692, #1, "b", #0; */
 
 @ 0 "" 2
 @ 228 "<stdin>" 1
-	/* "struct user_settings", "backlight_timeout_plugged" = #1692, #4, "i", #0; */
+	/* "struct user_settings", "bl_filter_first_keypress" = #1693, #1, "b", #0; */
 
 @ 0 "" 2
 @ 229 "<stdin>" 1
-	/* "struct user_settings", "bl_selective_actions" = #1696, #1, "b", #0; */
+	/* "struct user_settings", "backlight_timeout_plugged" = #1696, #4, "i", #0; */
 
 @ 0 "" 2
 @ 230 "<stdin>" 1
-	/* "struct user_settings", "bl_selective_actions_mask" = #1700, #4, "i", #0; */
+	/* "struct user_settings", "bl_selective_actions" = #1700, #1, "b", #0; */
 
 @ 0 "" 2
 @ 231 "<stdin>" 1
-	/* "struct user_settings", "backlight_on_button_hold" = #1704, #4, "i", #0; */
+	/* "struct user_settings", "bl_selective_actions_mask" = #1704, #4, "i", #0; */
 
 @ 0 "" 2
 @ 232 "<stdin>" 1
-	/* "struct user_settings", "lcd_sleep_after_backlight_off" = #1708, #4, "i", #0; */
+	/* "struct user_settings", "backlight_on_button_hold" = #1708, #4, "i", #0; */
 
 @ 0 "" 2
 @ 233 "<stdin>" 1
-	/* "struct user_settings", "backlight_fade_in" = #1712, #4, "i", #0; */
+	/* "struct user_settings", "lcd_sleep_after_backlight_off" = #1712, #4, "i", #0; */
 
 @ 0 "" 2
 @ 234 "<stdin>" 1
-	/* "struct user_settings", "backlight_fade_out" = #1716, #4, "i", #0; */
+	/* "struct user_settings", "backlight_fade_in" = #1716, #4, "i", #0; */
 
 @ 0 "" 2
 @ 235 "<stdin>" 1
-	/* "struct user_settings", "brightness" = #1720, #4, "i", #0; */
+	/* "struct user_settings", "backlight_fade_out" = #1720, #4, "i", #0; */
 
 @ 0 "" 2
 @ 236 "<stdin>" 1
-	/* "struct user_settings", "serial_bitrate" = #1724, #4, "i", #0; */
+	/* "struct user_settings", "brightness" = #1724, #4, "i", #0; */
 
 @ 0 "" 2
 @ 237 "<stdin>" 1
-	/* "struct user_settings", "accessory_supply" = #1728, #1, "b", #0; */
+	/* "struct user_settings", "serial_bitrate" = #1728, #4, "i", #0; */
 
 @ 0 "" 2
 @ 238 "<stdin>" 1
-	/* "struct user_settings", "lineout_active" = #1729, #1, "b", #0; */
+	/* "struct user_settings", "accessory_supply" = #1732, #1, "b", #0; */
 
 @ 0 "" 2
 @ 239 "<stdin>" 1
-	/* "struct user_settings", "prevent_skip" = #1730, #1, "b", #0; */
+	/* "struct user_settings", "lineout_active" = #1733, #1, "b", #0; */
 
 @ 0 "" 2
 @ 240 "<stdin>" 1
-	/* "struct user_settings", "pitch_mode_semitone" = #1731, #1, "b", #0; */
+	/* "struct user_settings", "prevent_skip" = #1734, #1, "b", #0; */
 
 @ 0 "" 2
 @ 241 "<stdin>" 1
-	/* "struct user_settings", "pitch_mode_timestretch" = #1732, #1, "b", #0; */
+	/* "struct user_settings", "pitch_mode_semitone" = #1735, #1, "b", #0; */
 
 @ 0 "" 2
 @ 242 "<stdin>" 1
-	/* "struct user_settings", "usb_hid" = #1733, #1, "b", #0; */
+	/* "struct user_settings", "pitch_mode_timestretch" = #1736, #1, "b", #0; */
 
 @ 0 "" 2
 @ 243 "<stdin>" 1
-	/* "struct user_settings", "usb_keypad_mode" = #1736, #4, "i", #0; */
+	/* "struct user_settings", "usb_hid" = #1737, #1, "b", #0; */
 
 @ 0 "" 2
 @ 244 "<stdin>" 1
-	/* "struct user_settings", "usb_audio" = #1740, #4, "i", #0; */
+	/* "struct user_settings", "usb_keypad_mode" = #1740, #4, "i", #0; */
 
 @ 0 "" 2
 @ 245 "<stdin>" 1
-	/* "struct user_settings", "ui_vp_config" = #1744, #64, "str", #0; */
+	/* "struct user_settings", "usb_audio" = #1744, #4, "i", #0; */
 
 @ 0 "" 2
 @ 246 "<stdin>" 1
-	/* "struct user_settings", "compressor_settings" = #1808, #24, "s_compressor_settings", #0; */
+	/* "struct user_settings", "ui_vp_config" = #1748, #64, "str", #0; */
 
 @ 0 "" 2
 @ 247 "<stdin>" 1
-	/* "struct user_settings", "sleeptimer_duration" = #1832, #4, "i", #0; */
+	/* "struct user_settings", "compressor_settings" = #1812, #24, "s_compressor_settings", #0; */
 
 @ 0 "" 2
 @ 248 "<stdin>" 1
-	/* "struct user_settings", "sleeptimer_on_startup" = #1836, #1, "b", #0; */
+	/* "struct user_settings", "sleeptimer_duration" = #1836, #4, "i", #0; */
 
 @ 0 "" 2
 @ 249 "<stdin>" 1
-	/* "struct user_settings", "keypress_restarts_sleeptimer" = #1837, #1, "b", #0; */
+	/* "struct user_settings", "sleeptimer_on_startup" = #1840, #1, "b", #0; */
 
 @ 0 "" 2
 @ 250 "<stdin>" 1
-	/* "struct user_settings", "show_shutdown_message" = #1838, #1, "b", #0; */
+	/* "struct user_settings", "keypress_restarts_sleeptimer" = #1841, #1, "b", #0; */
 
 @ 0 "" 2
 @ 251 "<stdin>" 1
-	/* "struct user_settings", "morse_input" = #1839, #1, "b", #0; */
+	/* "struct user_settings", "show_shutdown_message" = #1842, #1, "b", #0; */
 
 @ 0 "" 2
 @ 252 "<stdin>" 1
-	/* "struct user_settings", "hotkey_wps" = #1840, #4, "i", #0; */
+	/* "struct user_settings", "morse_input" = #1843, #1, "b", #0; */
 
 @ 0 "" 2
 @ 253 "<stdin>" 1
-	/* "struct user_settings", "hotkey_tree" = #1844, #4, "i", #0; */
+	/* "struct user_settings", "hotkey_wps" = #1844, #4, "i", #0; */
 
 @ 0 "" 2
 @ 254 "<stdin>" 1
-	/* "struct user_settings", "resume_rewind" = #1848, #4, "i", #0; */
+	/* "struct user_settings", "hotkey_tree" = #1848, #4, "i", #0; */
 
 @ 0 "" 2
 @ 255 "<stdin>" 1
-	/* "struct user_settings", "keyclick_hardware" = #1852, #1, "b", #0; */
+	/* "struct user_settings", "resume_rewind" = #1852, #4, "i", #0; */
 
 @ 0 "" 2
 @ 256 "<stdin>" 1
-	/* "struct user_settings", "start_directory" = #1853, #81, "str", #0; */
+	/* "struct user_settings", "keyclick_hardware" = #1856, #1, "b", #0; */
 
 @ 0 "" 2
 @ 257 "<stdin>" 1
-	/* "struct user_settings", "root_menu_customized" = #1934, #1, "b", #0; */
+	/* "struct user_settings", "start_directory" = #1857, #81, "str", #0; */
 
 @ 0 "" 2
 @ 258 "<stdin>" 1
-	/* "struct user_settings", "shortcuts_replaces_qs" = #1935, #1, "b", #0; */
+	/* "struct user_settings", "root_menu_customized" = #1938, #1, "b", #0; */
 
 @ 0 "" 2
 @ 259 "<stdin>" 1
-	/* "struct user_settings", "play_frequency" = #1936, #4, "i", #0; */
+	/* "struct user_settings", "shortcuts_replaces_qs" = #1939, #1, "b", #0; */
 
 @ 0 "" 2
 @ 260 "<stdin>" 1
-	/* "struct user_settings", "volume_limit" = #1940, #4, "i", #0; */
+	/* "struct user_settings", "play_frequency" = #1940, #4, "i", #0; */
 
 @ 0 "" 2
 @ 261 "<stdin>" 1
-	/* "struct user_settings", "volume_adjust_mode" = #1944, #4, "i", #0; */
+	/* "struct user_settings", "volume_limit" = #1944, #4, "i", #0; */
 
 @ 0 "" 2
 @ 262 "<stdin>" 1
-	/* "struct user_settings", "volume_adjust_norm_steps" = #1948, #4, "i", #0; */
+	/* "struct user_settings", "volume_adjust_mode" = #1948, #4, "i", #0; */
 
 @ 0 "" 2
 @ 263 "<stdin>" 1
-	/* "struct user_settings", "surround_enabled" = #1952, #4, "i", #0; */
+	/* "struct user_settings", "volume_adjust_norm_steps" = #1952, #4, "i", #0; */
 
 @ 0 "" 2
 @ 264 "<stdin>" 1
-	/* "struct user_settings", "surround_balance" = #1956, #4, "i", #0; */
+	/* "struct user_settings", "surround_enabled" = #1956, #4, "i", #0; */
 
 @ 0 "" 2
 @ 265 "<stdin>" 1
-	/* "struct user_settings", "surround_fx1" = #1960, #4, "i", #0; */
+	/* "struct user_settings", "surround_balance" = #1960, #4, "i", #0; */
 
 @ 0 "" 2
 @ 266 "<stdin>" 1
-	/* "struct user_settings", "surround_fx2" = #1964, #4, "i", #0; */
+	/* "struct user_settings", "surround_fx1" = #1964, #4, "i", #0; */
 
 @ 0 "" 2
 @ 267 "<stdin>" 1
-	/* "struct user_settings", "surround_method2" = #1968, #1, "b", #0; */
+	/* "struct user_settings", "surround_fx2" = #1968, #4, "i", #0; */
 
 @ 0 "" 2
 @ 268 "<stdin>" 1
-	/* "struct user_settings", "surround_mix" = #1972, #4, "i", #0; */
+	/* "struct user_settings", "surround_method2" = #1972, #1, "b", #0; */
 
 @ 0 "" 2
 @ 269 "<stdin>" 1
-	/* "struct user_settings", "pbe" = #1976, #4, "i", #0; */
+	/* "struct user_settings", "surround_mix" = #1976, #4, "i", #0; */
 
 @ 0 "" 2
 @ 270 "<stdin>" 1
-	/* "struct user_settings", "pbe_precut" = #1980, #4, "i", #0; */
+	/* "struct user_settings", "pbe" = #1980, #4, "i", #0; */
 
 @ 0 "" 2
 @ 271 "<stdin>" 1
-	/* "struct user_settings", "afr_enabled" = #1984, #4, "i", #0; */
+	/* "struct user_settings", "pbe_precut" = #1984, #4, "i", #0; */
 
 @ 0 "" 2
 @ 272 "<stdin>" 1
-	/* "struct user_settings", "usb_mode" = #1988, #4, "i", #0; */
+	/* "struct user_settings", "afr_enabled" = #1988, #4, "i", #0; */
 
 @ 0 "" 2
 @ 273 "<stdin>" 1
-	/* "struct user_settings", "clear_settings_on_hold" = #1992, #1, "b", #0; */
+	/* "struct user_settings", "usb_mode" = #1992, #4, "i", #0; */
 
 @ 0 "" 2
 @ 274 "<stdin>" 1
-	/* "struct user_settings", "playback_log" = #1993, #1, "b", #0; */
+	/* "struct user_settings", "clear_settings_on_hold" = #1996, #1, "b", #0; */
 
 @ 0 "" 2
-@ 276 "<stdin>" 1
-	/* "struct replaygain_settings", "noclip" = #0, #1, "b", #0; */
+@ 275 "<stdin>" 1
+	/* "struct user_settings", "playback_log" = #1997, #1, "b", #0; */
 
 @ 0 "" 2
 @ 277 "<stdin>" 1
-	/* "struct replaygain_settings", "type" = #4, #4, "i", #0; */
+	/* "struct replaygain_settings", "noclip" = #0, #1, "b", #0; */
 
 @ 0 "" 2
 @ 278 "<stdin>" 1
+	/* "struct replaygain_settings", "type" = #4, #4, "i", #0; */
+
+@ 0 "" 2
+@ 279 "<stdin>" 1
 	/* "struct replaygain_settings", "preamp" = #8, #4, "i", #0; */
 
 @ 0 "" 2
-@ 280 "<stdin>" 1
+@ 281 "<stdin>" 1
 	/* "struct eq_band_setting", "cutoff" = #0, #4, "i", #0; */
 
 @ 0 "" 2
-@ 281 "<stdin>" 1
+@ 282 "<stdin>" 1
 	/* "struct eq_band_setting", "q" = #4, #4, "i", #0; */
 
 @ 0 "" 2
-@ 282 "<stdin>" 1
+@ 283 "<stdin>" 1
 	/* "struct eq_band_setting", "gain" = #8, #4, "i", #0; */
 
 @ 0 "" 2
-@ 284 "<stdin>" 1
+@ 285 "<stdin>" 1
 	/* "struct compressor_settings", "threshold" = #0, #4, "i", #0; */
 
 @ 0 "" 2
-@ 285 "<stdin>" 1
+@ 286 "<stdin>" 1
 	/* "struct compressor_settings", "makeup_gain" = #4, #4, "i", #0; */
 
 @ 0 "" 2
-@ 286 "<stdin>" 1
+@ 287 "<stdin>" 1
 	/* "struct compressor_settings", "ratio" = #8, #4, "i", #0; */
 
 @ 0 "" 2
-@ 287 "<stdin>" 1
+@ 288 "<stdin>" 1
 	/* "struct compressor_settings", "knee" = #12, #4, "i", #0; */
 
 @ 0 "" 2
-@ 288 "<stdin>" 1
+@ 289 "<stdin>" 1
 	/* "struct compressor_settings", "release_time" = #16, #4, "i", #0; */
 
 @ 0 "" 2
-@ 289 "<stdin>" 1
+@ 290 "<stdin>" 1
 	/* "struct compressor_settings", "attack_time" = #20, #4, "i", #0; */
 
 @ 0 "" 2
-@ 291 "<stdin>" 1
+@ 292 "<stdin>" 1
 	/* "struct mp3_enc_config", "bitrate" = #0, #4, "u_l", #0; */
 
 @ 0 "" 2
-@ 293 "<stdin>" 1
+@ 294 "<stdin>" 1
 	/* "struct mp3entry", "path" = #0, #260, "str", #0; */
 
 @ 0 "" 2
-@ 294 "<stdin>" 1
+@ 295 "<stdin>" 1
 	/* "struct mp3entry", "title" = #260, #4, "ptr_char", #0; */
 
 @ 0 "" 2
-@ 295 "<stdin>" 1
+@ 296 "<stdin>" 1
 	/* "struct mp3entry", "artist" = #264, #4, "ptr_char", #0; */
 
 @ 0 "" 2
-@ 296 "<stdin>" 1
+@ 297 "<stdin>" 1
 	/* "struct mp3entry", "album" = #268, #4, "ptr_char", #0; */
 
 @ 0 "" 2
-@ 297 "<stdin>" 1
+@ 298 "<stdin>" 1
 	/* "struct mp3entry", "genre_string" = #272, #4, "ptr_char", #0; */
 
 @ 0 "" 2
-@ 298 "<stdin>" 1
+@ 299 "<stdin>" 1
 	/* "struct mp3entry", "disc_string" = #276, #4, "ptr_char", #0; */
 
 @ 0 "" 2
-@ 299 "<stdin>" 1
+@ 300 "<stdin>" 1
 	/* "struct mp3entry", "track_string" = #280, #4, "ptr_char", #0; */
 
 @ 0 "" 2
-@ 300 "<stdin>" 1
+@ 301 "<stdin>" 1
 	/* "struct mp3entry", "year_string" = #284, #4, "ptr_char", #0; */
 
 @ 0 "" 2
-@ 301 "<stdin>" 1
+@ 302 "<stdin>" 1
 	/* "struct mp3entry", "composer" = #288, #4, "ptr_char", #0; */
 
 @ 0 "" 2
-@ 302 "<stdin>" 1
+@ 303 "<stdin>" 1
 	/* "struct mp3entry", "comment" = #292, #4, "ptr_char", #0; */
 
 @ 0 "" 2
-@ 303 "<stdin>" 1
+@ 304 "<stdin>" 1
 	/* "struct mp3entry", "albumartist" = #296, #4, "ptr_char", #0; */
 
 @ 0 "" 2
-@ 304 "<stdin>" 1
+@ 305 "<stdin>" 1
 	/* "struct mp3entry", "grouping" = #300, #4, "ptr_char", #0; */
 
 @ 0 "" 2
-@ 305 "<stdin>" 1
+@ 306 "<stdin>" 1
 	/* "struct mp3entry", "discnum" = #304, #4, "i", #0; */
 
 @ 0 "" 2
-@ 306 "<stdin>" 1
+@ 307 "<stdin>" 1
 	/* "struct mp3entry", "tracknum" = #308, #4, "i", #0; */
 
 @ 0 "" 2
-@ 307 "<stdin>" 1
+@ 308 "<stdin>" 1
 	/* "struct mp3entry", "layer" = #312, #4, "i", #0; */
 
 @ 0 "" 2
-@ 308 "<stdin>" 1
+@ 309 "<stdin>" 1
 	/* "struct mp3entry", "year" = #316, #4, "i", #0; */
 
 @ 0 "" 2
-@ 309 "<stdin>" 1
+@ 310 "<stdin>" 1
 	/* "struct mp3entry", "id3version" = #320, #1, "u_c", #0; */
 
 @ 0 "" 2
-@ 310 "<stdin>" 1
+@ 311 "<stdin>" 1
 	/* "struct mp3entry", "codectype" = #324, #4, "u_i", #0; */
 
 @ 0 "" 2
-@ 311 "<stdin>" 1
+@ 312 "<stdin>" 1
 	/* "struct mp3entry", "bitrate" = #328, #4, "u_i", #0; */
 
 @ 0 "" 2
-@ 312 "<stdin>" 1
+@ 313 "<stdin>" 1
 	/* "struct mp3entry", "frequency" = #332, #4, "u_l", #0; */
 
 @ 0 "" 2
-@ 313 "<stdin>" 1
+@ 314 "<stdin>" 1
 	/* "struct mp3entry", "id3v2len" = #336, #4, "u_l", #0; */
 
 @ 0 "" 2
-@ 314 "<stdin>" 1
+@ 315 "<stdin>" 1
 	/* "struct mp3entry", "id3v1len" = #340, #4, "u_l", #0; */
 
 @ 0 "" 2
-@ 315 "<stdin>" 1
+@ 316 "<stdin>" 1
 	/* "struct mp3entry", "first_frame_offset" = #344, #4, "u_l", #0; */
 
 @ 0 "" 2
-@ 316 "<stdin>" 1
+@ 317 "<stdin>" 1
 	/* "struct mp3entry", "filesize" = #348, #4, "u_l", #0; */
 
 @ 0 "" 2
-@ 317 "<stdin>" 1
+@ 318 "<stdin>" 1
 	/* "struct mp3entry", "length" = #352, #4, "u_l", #0; */
 
 @ 0 "" 2
-@ 318 "<stdin>" 1
+@ 319 "<stdin>" 1
 	/* "struct mp3entry", "elapsed" = #356, #4, "u_l", #0; */
 
 @ 0 "" 2
-@ 319 "<stdin>" 1
+@ 320 "<stdin>" 1
 	/* "struct mp3entry", "lead_trim" = #360, #4, "i", #0; */
 
 @ 0 "" 2
-@ 320 "<stdin>" 1
+@ 321 "<stdin>" 1
 	/* "struct mp3entry", "tail_trim" = #364, #4, "i", #0; */
 
 @ 0 "" 2
-@ 321 "<stdin>" 1
+@ 322 "<stdin>" 1
 	/* "struct mp3entry", "samples" = #368, #8, "u_llong", #0; */
 
 @ 0 "" 2
-@ 322 "<stdin>" 1
+@ 323 "<stdin>" 1
 	/* "struct mp3entry", "frame_count" = #376, #4, "u_l", #0; */
 
 @ 0 "" 2
-@ 323 "<stdin>" 1
+@ 324 "<stdin>" 1
 	/* "struct mp3entry", "bytesperframe" = #380, #4, "u_l", #0; */
 
 @ 0 "" 2
-@ 324 "<stdin>" 1
+@ 325 "<stdin>" 1
 	/* "struct mp3entry", "vbr" = #384, #1, "b", #0; */
 
 @ 0 "" 2
-@ 325 "<stdin>" 1
+@ 326 "<stdin>" 1
 	/* "struct mp3entry", "has_toc" = #385, #1, "b", #0; */
 
 @ 0 "" 2
-@ 326 "<stdin>" 1
+@ 327 "<stdin>" 1
 	/* "struct mp3entry", "toc" = #386, #100, "str", #0; */
 
 @ 0 "" 2
-@ 327 "<stdin>" 1
+@ 328 "<stdin>" 1
 	/* "struct mp3entry", "needs_upsampling_correction" = #486, #1, "b", #0; */
 
 @ 0 "" 2
-@ 328 "<stdin>" 1
+@ 329 "<stdin>" 1
 	/* "struct mp3entry", "id3v2buf" = #487, #1800, "str", #0; */
 
 @ 0 "" 2
-@ 329 "<stdin>" 1
+@ 330 "<stdin>" 1
 	/* "struct mp3entry", "id3v1buf" = #2287, #368, "str", #0; */
 
 @ 0 "" 2
-@ 330 "<stdin>" 1
+@ 331 "<stdin>" 1
 	/* "struct mp3entry", "offset" = #2656, #4, "u_l", #0; */
 
 @ 0 "" 2
-@ 331 "<stdin>" 1
+@ 332 "<stdin>" 1
 	/* "struct mp3entry", "index" = #2660, #4, "i", #0; */
 
 @ 0 "" 2
-@ 332 "<stdin>" 1
+@ 333 "<stdin>" 1
 	/* "struct mp3entry", "skip_resume_adjustments" = #2664, #1, "b", #0; */
 
 @ 0 "" 2
-@ 333 "<stdin>" 1
+@ 334 "<stdin>" 1
 	/* "struct mp3entry", "autoresumable" = #2665, #1, "u_c", #0; */
 
 @ 0 "" 2
-@ 334 "<stdin>" 1
+@ 335 "<stdin>" 1
 	/* "struct mp3entry", "tagcache_idx" = #2668, #4, "l", #0; */
 
 @ 0 "" 2
-@ 335 "<stdin>" 1
+@ 336 "<stdin>" 1
 	/* "struct mp3entry", "rating" = #2672, #4, "i", #0; */
 
 @ 0 "" 2
-@ 336 "<stdin>" 1
+@ 337 "<stdin>" 1
 	/* "struct mp3entry", "score" = #2676, #4, "i", #0; */
 
 @ 0 "" 2
-@ 337 "<stdin>" 1
+@ 338 "<stdin>" 1
 	/* "struct mp3entry", "playcount" = #2680, #4, "l", #0; */
 
 @ 0 "" 2
-@ 338 "<stdin>" 1
+@ 339 "<stdin>" 1
 	/* "struct mp3entry", "lastplayed" = #2684, #4, "l", #0; */
 
 @ 0 "" 2
-@ 339 "<stdin>" 1
+@ 340 "<stdin>" 1
 	/* "struct mp3entry", "playtime" = #2688, #4, "l", #0; */
 
 @ 0 "" 2
-@ 340 "<stdin>" 1
+@ 341 "<stdin>" 1
 	/* "struct mp3entry", "track_level" = #2692, #4, "l", #0; */
 
 @ 0 "" 2
-@ 341 "<stdin>" 1
+@ 342 "<stdin>" 1
 	/* "struct mp3entry", "album_level" = #2696, #4, "l", #0; */
 
 @ 0 "" 2
-@ 342 "<stdin>" 1
+@ 343 "<stdin>" 1
 	/* "struct mp3entry", "track_gain" = #2700, #4, "l", #0; */
 
 @ 0 "" 2
-@ 343 "<stdin>" 1
+@ 344 "<stdin>" 1
 	/* "struct mp3entry", "album_gain" = #2704, #4, "l", #0; */
 
 @ 0 "" 2
-@ 344 "<stdin>" 1
+@ 345 "<stdin>" 1
 	/* "struct mp3entry", "track_peak" = #2708, #4, "l", #0; */
 
 @ 0 "" 2
-@ 345 "<stdin>" 1
+@ 346 "<stdin>" 1
 	/* "struct mp3entry", "album_peak" = #2712, #4, "l", #0; */
 
 @ 0 "" 2
-@ 346 "<stdin>" 1
+@ 347 "<stdin>" 1
 	/* "struct mp3entry", "has_embedded_albumart" = #2716, #1, "b", #0; */
 
 @ 0 "" 2
-@ 347 "<stdin>" 1
+@ 348 "<stdin>" 1
 	/* "struct mp3entry", "albumart" = #2720, #12, "s_mp3_albumart", #0; */
 
 @ 0 "" 2
-@ 348 "<stdin>" 1
+@ 349 "<stdin>" 1
 	/* "struct mp3entry", "has_embedded_cuesheet" = #2732, #1, "b", #0; */
 
 @ 0 "" 2
-@ 349 "<stdin>" 1
+@ 350 "<stdin>" 1
 	/* "struct mp3entry", "embedded_cuesheet" = #2736, #12, "s_embedded_cuesheet", #0; */
 
 @ 0 "" 2
-@ 350 "<stdin>" 1
+@ 351 "<stdin>" 1
 	/* "struct mp3entry", "cuesheet" = #2748, #4, "ptr_s_cuesheet", #0; */
 
 @ 0 "" 2
-@ 351 "<stdin>" 1
+@ 352 "<stdin>" 1
 	/* "struct mp3entry", "mb_track_id" = #2752, #4, "ptr_char", #0; */
 
 @ 0 "" 2
-@ 352 "<stdin>" 1
+@ 353 "<stdin>" 1
 	/* "struct mp3entry", "is_asf_stream" = #2756, #1, "b", #0; */
 
 @ 0 "" 2
-@ 353 "<stdin>" 1
+@ 354 "<stdin>" 1
 	/* "struct mp3entry", "has_video" = #2757, #1, "b", #0; */
 
 @ 0 "" 2
-@ 355 "<stdin>" 1
+@ 356 "<stdin>" 1
 	/* "struct mp3_albumart", "type" = #0, #1, "e_mp3_aa_type", #0; */
 
 @ 0 "" 2
-@ 356 "<stdin>" 1
+@ 357 "<stdin>" 1
 	/* "struct mp3_albumart", "size" = #4, #4, "i", #0; */
 
 @ 0 "" 2
-@ 357 "<stdin>" 1
+@ 358 "<stdin>" 1
 	/* "struct mp3_albumart", "pos" = #8, #4, "off_t", #0; */
 
 @ 0 "" 2
-@ 359 "<stdin>" 1
+@ 360 "<stdin>" 1
 	/* "struct embedded_cuesheet", "size" = #0, #4, "i", #0; */
 
 @ 0 "" 2
-@ 360 "<stdin>" 1
+@ 361 "<stdin>" 1
 	/* "struct embedded_cuesheet", "pos" = #4, #4, "off_t", #0; */
 
 @ 0 "" 2
-@ 361 "<stdin>" 1
+@ 362 "<stdin>" 1
 	/* "struct embedded_cuesheet", "encoding" = #8, #1, "e_character_encoding", #0; */
 
 @ 0 "" 2

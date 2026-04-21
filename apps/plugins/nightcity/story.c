@@ -19,9 +19,11 @@ enum
     NC_NODE_SAFEHOUSE = 190,
     NC_NODE_SAFEHOUSE_BROKEN = 195,
     NC_NODE_SHADE = 200,
+    NC_NODE_DEAD_CHANNEL = 210,
     NC_NODE_CROSSROADS = 220,
     NC_NODE_CLINIC = 230,
     NC_NODE_BROADCAST = 240,
+    NC_NODE_ROOFTOP = 245,
     NC_NODE_CORP_MEET = 250,
     NC_NODE_CONVOY = 260,
     NC_NODE_FINAL_PREP = 270,
@@ -140,6 +142,12 @@ static const struct nc_choice afterhours_choices[] =
         NC_NODE_PREP,
         COND_ANY,
         { 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, NC_FLAG_SPARK_ROOK, 0, 0 }
+    },
+    {
+        "Circle back to Juno and watch how carefully she lies.",
+        NC_NODE_PREP,
+        COND_ANY,
+        { 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, NC_FLAG_SPARK_JUNO, 0, 0 }
     },
     {
         "Skip the chemistry. Go straight to loadout.",
@@ -267,22 +275,51 @@ static const struct nc_choice shade_choices[] =
 {
     {
         "Hear Sable out. Maybe the ghost knows the board.",
-        NC_NODE_CROSSROADS,
+        NC_NODE_DEAD_CHANNEL,
         COND_ANY,
         { 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 }
     },
     {
         "Ask Mira for blockers and keep the ghost behind glass.",
-        NC_NODE_CROSSROADS,
+        NC_NODE_DEAD_CHANNEL,
         COND_ANY,
         { 0, 0, -1, -1, 0, 2, 0, 0, 0, 0, NC_FLAG_BLOCKERS, 0, 0 }
     },
     {
         "Ping the old corp channel and bait a private meeting.",
-        NC_NODE_CROSSROADS,
+        NC_NODE_DEAD_CHANNEL,
         { NC_ANY_MIN, NC_ANY_MIN, NC_ANY_MIN, NC_ANY_MIN, NC_ANY_MIN, NC_ANY_MAX,
           NC_LIFEPATH_NONE, NC_FLAG_CORP_CONTACT, 0, 0 },
         { 0, 1, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }
+    },
+};
+
+static const struct nc_choice dead_channel_choices[] =
+{
+    {
+        "Hold the line and make Juno explain the sellout.",
+        NC_NODE_CROSSROADS,
+        COND_ANY,
+        { 1, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }
+    },
+    {
+        "Trace the burner and rip a relay key from her panic.",
+        NC_NODE_CROSSROADS,
+        COND_ANY,
+        { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, NC_FLAG_MASTER_KEY, 0, 0 }
+    },
+    {
+        "Spark route: admit her voice still gets under your skin.",
+        NC_NODE_CROSSROADS,
+        { NC_ANY_MIN, NC_ANY_MIN, NC_ANY_MIN, NC_ANY_MIN, NC_ANY_MIN, NC_ANY_MAX,
+          NC_LIFEPATH_NONE, NC_FLAG_SPARK_JUNO, 0, 0 },
+        { 0, -1, -1, 0, 20, 0, 0, 0, 0, 0, NC_FLAG_ROMANCE_JUNO | NC_FLAG_CORP_CONTACT, 0, 0 }
+    },
+    {
+        "Kill the channel and keep the anger useful.",
+        NC_NODE_CROSSROADS,
+        COND_ANY,
+        { 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }
     },
 };
 
@@ -339,6 +376,13 @@ static const struct nc_choice clinic_choices[] =
           NC_LIFEPATH_NONE, NC_FLAG_SAVED_ROOK, 0, 0 },
         { 0, 0, 1, 0, 0, 5, 0, 1, 0, 0, 0, 0, 0 }
     },
+    {
+        "Spark route: stay by Mira's side and let it stop being clinical.",
+        NC_NODE_FINAL_PREP,
+        { NC_ANY_MIN, NC_ANY_MIN, NC_ANY_MIN, NC_ANY_MIN, NC_ANY_MIN, NC_ANY_MAX,
+          NC_LIFEPATH_NONE, NC_FLAG_SPARK_MIRA, 0, 0 },
+        { 0, 0, 2, -1, 0, 6, 0, 0, 0, 0, NC_FLAG_ROMANCE_MIRA, 0, 0 }
+    },
 };
 
 static const struct nc_choice broadcast_choices[] =
@@ -363,7 +407,7 @@ static const struct nc_choice broadcast_choices[] =
     },
     {
         "Woman: stay on the rooftop with Nyra after the burst and make it real.",
-        NC_NODE_FINAL_PREP,
+        NC_NODE_ROOFTOP,
         { NC_ANY_MIN, NC_ANY_MIN, NC_ANY_MIN, NC_ANY_MIN, NC_ANY_MIN, NC_ANY_MAX,
           NC_LIFEPATH_NONE, NC_FLAG_SPARK_NYRA | NC_FLAG_GENDER_FEMME, 0, 0 },
         { 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, NC_FLAG_REBEL_PLAN | NC_FLAG_ROMANCE_NYRA, 0, 0 }
@@ -411,6 +455,13 @@ static const struct nc_choice convoy_choices[] =
         NC_NODE_FINAL_PREP,
         COND_ANY,
         { 0, -1, 0, 0, 0, 3, 0, 0, 1, -1, NC_FLAG_ESCAPE_ROUTE, 0, 0 }
+    },
+    {
+        "Spark route: climb into Rook's cab and make the road mean more.",
+        NC_NODE_FINAL_PREP,
+        { NC_ANY_MIN, NC_ANY_MIN, NC_ANY_MIN, NC_ANY_MIN, NC_ANY_MIN, NC_ANY_MAX,
+          NC_LIFEPATH_NONE, NC_FLAG_SPARK_ROOK, 0, 0 },
+        { 0, 0, 1, 0, 0, 2, 0, 0, 0, 0, NC_FLAG_ESCAPE_ROUTE | NC_FLAG_ROMANCE_ROOK, 0, 0 }
     },
 };
 
@@ -569,6 +620,13 @@ static const struct nc_node nodes[] =
         shade_choices, ARRAYLEN(shade_choices), -1, -1, 0, EFFECT_NONE
     },
     {
+        NC_NODE_DEAD_CHANNEL, NC_NODE_SCENE,
+        "Act III // Dead Channel", "Juno Vale",
+        "A burner comm rattles across Mira's workbench before anyone admits hearing it. Juno's face comes through in strips of packet loss, lipstick perfect, nerves less so.\n\n"
+        "\"Solace moved the board under me,\" she says. \"I sold you to survive exactly long enough to hate myself for it. If you're still breathing, make that expensive.\"",
+        dead_channel_choices, ARRAYLEN(dead_channel_choices), -1, -1, 0, EFFECT_NONE
+    },
+    {
         NC_NODE_CROSSROADS, NC_NODE_SCENE,
         "Act III // Choose Your Angle", "Vesper",
         "Every route out of this mess points somewhere ugly: a clinic for stabilizers, a broadcast stack for the ledger, a corporate back room, or a convoy lane leading into the dark salt roads.\n\n"
@@ -589,6 +647,13 @@ static const struct nc_node nodes[] =
         "Rain beads off the magenta edge-lighting she stitched into her collar while the whole district glows below like a circuit board with a knife in it.\n\n"
         "\"Truth is just ammo unless you aim it,\" Nyra says, passing you one earcup. Sable laughs somewhere behind your eyes like static approving static.",
         broadcast_choices, ARRAYLEN(broadcast_choices), -1, -1, 0, EFFECT_NONE
+    },
+    {
+        NC_NODE_ROOFTOP, NC_NODE_SCENE,
+        "Act III // Rooftop Afterglow", "Nyra Venn",
+        "The burst rolls outward in pirate-color waves and the district starts shouting back at the tower. Nyra kills the monitor feed, steps close enough that the rain on her lashes catches the moonlight, and for a breath the whole city feels held below the rail.\n\n"
+        "\"If this all caves in tomorrow, I still wanted one honest night in it,\" she says. You kiss her with the full moon hanging over the flood market and the pirate rig humming like it finally found the right frequency.",
+        NULL, 0, NC_NODE_FINAL_PREP, -1, 0, EFFECT_NONE
     },
     {
         NC_NODE_CORP_MEET, NC_NODE_SCENE,

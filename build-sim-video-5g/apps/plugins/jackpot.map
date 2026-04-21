@@ -523,13 +523,13 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000    0x19003
+.debug_info     0x0000000000000000    0x19030
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0x8635 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/jackpot.o
- .debug_info    0x0000000000008635     0x7c84 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
- .debug_info    0x00000000000102b9     0x7e3a /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_actions.o)
- .debug_info    0x00000000000180f3      0xdcd /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(picture.o)
- .debug_info    0x0000000000018ec0      0x143 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(jackpot_slots.30x420x1.o)
+ .debug_info    0x0000000000000000     0x8644 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/jackpot.o
+ .debug_info    0x0000000000008644     0x7c93 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+ .debug_info    0x00000000000102d7     0x7e49 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_actions.o)
+ .debug_info    0x0000000000018120      0xdcd /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(picture.o)
+ .debug_info    0x0000000000018eed      0x143 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(jackpot_slots.30x420x1.o)
 
 .debug_abbrev   0x0000000000000000      0xf9a
  *(.debug_abbrev)
@@ -550,17 +550,17 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0x602d
+.debug_str      0x0000000000000000     0x6042
  *(.debug_str)
- .debug_str     0x0000000000000000     0x602d /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/jackpot.o
-                                       0x646b (size before relaxing)
- .debug_str     0x000000000000602d        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
-                                       0x511f (size before relaxing)
- .debug_str     0x000000000000602d        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_actions.o)
-                                       0x6270 (size before relaxing)
- .debug_str     0x000000000000602d        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(picture.o)
+ .debug_str     0x0000000000000000     0x6042 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/jackpot.o
+                                       0x6480 (size before relaxing)
+ .debug_str     0x0000000000006042        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+                                       0x5134 (size before relaxing)
+ .debug_str     0x0000000000006042        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_actions.o)
+                                       0x6285 (size before relaxing)
+ .debug_str     0x0000000000006042        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(picture.o)
                                         0x7a2 (size before relaxing)
- .debug_str     0x000000000000602d        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(jackpot_slots.30x420x1.o)
+ .debug_str     0x0000000000006042        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(jackpot_slots.30x420x1.o)
                                         0x16e (size before relaxing)
 
 .debug_loc

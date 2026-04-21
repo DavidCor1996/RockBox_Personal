@@ -39,6 +39,7 @@ struct ram
     byte ibank[8][4096];
     byte (*sbank)[8192];
     int loaded;
+    int dirty;
 };
 
 extern struct mbc mbc;

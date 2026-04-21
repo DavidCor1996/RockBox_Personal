@@ -309,6 +309,7 @@ static inline pix_t pf_color_mix(int brightness)
 #define EMPTY_SLIDE CACHE_PREFIX "/emptyslide.pfraw"
 #define EMPTY_SLIDE_BMP PLUGIN_DEMOS_DIR "/pictureflow_emptyslide.bmp"
 #define SPLASH_BMP PLUGIN_DEMOS_DIR "/pictureflow_splash.bmp"
+#define SPLASH_BG_BMP PLUGIN_DEMOS_DIR "/pictureflow_loading_bg.bmp"
 
 /* Ordered Bayer dithering for 24-bit to RGB565 conversion */
 #ifdef HAVE_LCD_COLOR
@@ -2187,6 +2188,8 @@ static bool get_albumart_for_index_from_db(const int slide_index, char *buf,
 static void draw_splashscreen(unsigned char * buf_tmp, size_t buf_tmp_size)
 {
     struct screen* display = rb->screens[SCREEN_MAIN];
+    struct bitmap background;
+    int bg_ret;
 #if FB_DATA_SZ > 1
     ALIGN_BUFFER(buf_tmp, buf_tmp_size, sizeof(fb_data));
 #endif
@@ -2200,8 +2203,12 @@ static void draw_splashscreen(unsigned char * buf_tmp, size_t buf_tmp_size)
 #endif
         .data = buf_tmp
     };
-    int ret = rb->read_bmp_file(SPLASH_BMP, &logo, buf_tmp_size,
-                                FORMAT_NATIVE, NULL);
+    background.width = LCD_WIDTH;
+    background.height = LCD_HEIGHT;
+    background.data = buf_tmp;
+    background.format = FORMAT_NATIVE;
+    bg_ret = rb->read_bmp_file(SPLASH_BG_BMP, &background, buf_tmp_size,
+                               FORMAT_NATIVE, NULL);
 #if LCD_DEPTH > 1
 #ifdef HAVE_LCD_COLOR
     rb->lcd_set_background(pf_bg_color);
@@ -2214,6 +2221,12 @@ static void draw_splashscreen(unsigned char * buf_tmp, size_t buf_tmp_size)
     rb->lcd_set_drawmode(PICTUREFLOW_DRMODE);
 #endif
     rb->lcd_clear_display();
+
+    if (bg_ret > 0)
+        display->bitmap(background.data, 0, 0, background.width, background.height);
+
+    int ret = rb->read_bmp_file(SPLASH_BMP, &logo, buf_tmp_size,
+                                FORMAT_NATIVE, NULL);
 
     if (ret > 0)
     {

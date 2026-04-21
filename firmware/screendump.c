@@ -27,6 +27,7 @@
 #include "general.h"
 #include "lcd.h"
 #include "stdlib.h"
+#include "stdio.h"
 #include "string.h"
 #include "system.h"
 
@@ -103,6 +104,10 @@ void screen_dump(void)
 {
     int fd, y;
     char filename[MAX_PATH];
+#ifdef SIMULATOR
+    char tmp_filename[MAX_PATH];
+    const char *preview_path = getenv("ROCKPOD_SIM_PREVIEW_BMP");
+#endif
 
     fb_data *src;
 #if LCD_DEPTH == 1
@@ -123,14 +128,24 @@ void screen_dump(void)
     unsigned char linebuf[DUMP_BMP_LINESIZE * 3];
 #endif
 
-#if CONFIG_RTC
-    create_datetime_filename(filename, HOME_DIR, "dump ", ".bmp", false);
-#else
-    create_numbered_filename(filename, HOME_DIR, "dump_", ".bmp", 4
-                             IF_CNFN_NUM_(, NULL));
+#ifdef SIMULATOR
+    if (preview_path && *preview_path)
+    {
+        snprintf(filename, sizeof(filename), "%s", preview_path);
+        snprintf(tmp_filename, sizeof(tmp_filename), "%s.tmp.bmp", preview_path);
+        fd = creat(tmp_filename, 0666);
+    }
+    else
 #endif
-
-    fd = creat(filename, 0666);
+    {
+#if CONFIG_RTC
+        create_datetime_filename(filename, HOME_DIR, "dump ", ".bmp", false);
+#else
+        create_numbered_filename(filename, HOME_DIR, "dump_", ".bmp", 4
+                                 IF_CNFN_NUM_(, NULL));
+#endif
+        fd = creat(filename, 0666);
+    }
     if (fd < 0)
         return;
 
@@ -255,6 +270,13 @@ void screen_dump(void)
         }
     }
     close(fd);
+#ifdef SIMULATOR
+    if (preview_path && *preview_path)
+    {
+        remove(filename);
+        rename(tmp_filename, filename);
+    }
+#endif
 }
 
 void screen_dump_set_hook(void (*hook)(int fh))

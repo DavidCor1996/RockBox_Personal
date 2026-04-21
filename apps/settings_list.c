@@ -431,6 +431,8 @@ static const char graphic_numeric[] = "graphic,numeric";
 
 #if (CONFIG_PLATFORM & PLATFORM_ANDROID)
 #define DEFAULT_TAGCACHE_SCAN_PATHS "/sdcard"
+#elif defined(IPOD_VIDEO) && !defined(SIMULATOR)
+#define DEFAULT_TAGCACHE_SCAN_PATHS "/Music"
 #else
 #define DEFAULT_TAGCACHE_SCAN_PATHS "/"
 #endif
@@ -902,6 +904,14 @@ static void start_in_callback(int var)
         open_plugin_browse(ID2P(LANG_START_SCREEN));
 }
 
+#define IPONE_WPS_DIR           WPS_DIR "/iPone"
+void ipone_lock_wallpaper_apply(void)
+{
+    /* Disabled for now: live and boot-time lock wallpaper switching both
+       destabilized the iPone theme renderer on device. Keep the API stub so
+       the menu setting can remain without affecting theme startup. */
+}
+
 /* volume limiter */
 static void volume_limit_load_from_cfg(void* var, char*value)
 {
@@ -1229,6 +1239,12 @@ const struct settings_list settings[] = {
                    "ipone charge wallpaper",
                    "rotate,image1,image2,image3,image4", NULL, 5,
                    "Rotate", "Image 1", "Image 2", "Image 3", "Image 4"),
+    CHOICE_SETTING(F_CB_ON_SELECT_ONLY|F_CB_ONLY_IF_CHANGED,
+                   ipone_lock_wallpaper, -1, 1,
+                   "ipone lock wallpaper",
+                   "shuffle,current,thisone,newone,anotherone,latestone,freshone",
+                   NULL, 7,
+                   "Shuffle", "Original", "Besties", "Portrait 1", "Portrait 2", "Portrait 3", "Portrait 4"),
     CHOICE_SETTING(0, timeformat, LANG_TIMEFORMAT, 0,
         "time format", "24hour,12hour", NULL, 2,
         ID2P(LANG_24_HOUR_CLOCK), ID2P(LANG_12_HOUR_CLOCK)),

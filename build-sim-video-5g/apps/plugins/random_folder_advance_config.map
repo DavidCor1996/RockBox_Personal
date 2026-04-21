@@ -462,10 +462,10 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000    0x12e5d
+.debug_info     0x0000000000000000    0x12e7b
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0xb1d9 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/random_folder_advance_config.o
- .debug_info    0x000000000000b1d9     0x7c84 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+ .debug_info    0x0000000000000000     0xb1e8 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/random_folder_advance_config.o
+ .debug_info    0x000000000000b1e8     0x7c93 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
 
 .debug_abbrev   0x0000000000000000      0x99c
  *(.debug_abbrev)
@@ -480,12 +480,12 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0xb2b1
+.debug_str      0x0000000000000000     0xb2c6
  *(.debug_str)
- .debug_str     0x0000000000000000     0xb2b1 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/random_folder_advance_config.o
-                                       0xb130 (size before relaxing)
- .debug_str     0x000000000000b2b1        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
-                                       0x511f (size before relaxing)
+ .debug_str     0x0000000000000000     0xb2c6 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/random_folder_advance_config.o
+                                       0xb145 (size before relaxing)
+ .debug_str     0x000000000000b2c6        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+                                       0x5134 (size before relaxing)
 
 .debug_loc
  *(.debug_loc)

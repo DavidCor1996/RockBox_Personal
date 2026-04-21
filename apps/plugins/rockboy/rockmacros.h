@@ -27,6 +27,7 @@
 void *my_malloc(size_t size);
 
 extern int shut,cleanshut;
+extern bool rockboy_return_to_launcher;
 void vid_init(void);
 void vid_begin(void);
 void die(char *message, ...);
@@ -34,6 +35,7 @@ void doevents(void) ICODE_ATTR;
 void ev_poll(void);
 int do_user_menu(void);
 void setvidmode(void);
+void rockboy_apply_performance_preset(int preset);
 #if defined(HAVE_LCD_COLOR)
 void set_pal(void);
 #else
@@ -87,11 +89,25 @@ struct options {
    int rotate;
    int pal;
    int dirty;
+   int control_preset;
+   int performance_preset;
+   int profile;
 };
 
 extern bool plugbuf;
 
 extern struct options options;
 #define savedir ROCKBOX_DIR "/rockboy"
+
+enum rockboy_control_preset {
+    ROCKBOY_CTRL_CLASSIC = 0,
+    ROCKBOY_CTRL_IPOD5G = 1,
+};
+
+enum rockboy_performance_preset {
+    ROCKBOY_PERF_BALANCED = 0,
+    ROCKBOY_PERF_PERFORMANCE = 1,
+    ROCKBOY_PERF_QUALITY = 2,
+};
 
 #endif

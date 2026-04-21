@@ -5051,6 +5051,10 @@ void do_tagcache_build(const char *path[])
 {
     struct tagcache_header header;
     bool ret;
+    static const char *default_path[] = { PATH_ROOTSTR, NULL };
+
+    if (!path || !path[0])
+        path = default_path;
 
     str_setlen(curpath, 0);
     data_size = 0;
@@ -5219,6 +5223,11 @@ void tagcache_build(void)
     strmemccpy(str, global_settings.tagcache_scan_paths, sizeof(str));
 
     int res = split_string(str, ':', vect, MAX_STATIC_ROOTS);
+    if (res == 0 || vect[0] == NULL)
+    {
+        vect[0] = (char *)PATH_ROOTSTR;
+        res = 1;
+    }
     vect[res] = NULL;
 
     do_tagcache_build((const char**)vect);

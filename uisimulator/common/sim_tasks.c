@@ -30,6 +30,7 @@
 #include "usb.h"
 #include "mv.h"
 #include "ata_idle_notify.h"
+#include <stdlib.h>
 
 #ifdef WIN32
 #include <windows.h>
@@ -40,6 +41,8 @@ static long sim_thread_stack[DEFAULT_STACK_SIZE/sizeof(long)];
             /* stack isn't actually used in the sim */
 static const char sim_thread_name[] = "sim";
 static struct event_queue sim_queue;
+static long preview_dump_interval = 0;
+static long preview_dump_last_tick = 0;
 
 /* possible events for the sim thread */
 enum {
@@ -61,13 +64,20 @@ void sim_thread(void)
     struct queue_event ev;
     long last_broadcast_tick = current_tick;
     int num_acks_to_expect = 0;
+    long queue_timeout = preview_dump_interval > 0 ? HZ/5 : 5*HZ;
 
     while (1)
     {
-        queue_wait_w_tmo(&sim_queue, &ev, 5*HZ);
+        queue_wait_w_tmo(&sim_queue, &ev, queue_timeout);
         switch(ev.id)
         {
             case SYS_TIMEOUT:
+                if (preview_dump_interval > 0 &&
+                    TIME_AFTER(current_tick, preview_dump_last_tick + preview_dump_interval))
+                {
+                    screen_dump();
+                    preview_dump_last_tick = current_tick;
+                }
                 call_storage_idle_notifys(false);
                 break;
 
@@ -134,6 +144,21 @@ void sim_thread(void)
 
 void sim_tasks_init(void)
 {
+    const char *preview_path = getenv("ROCKPOD_SIM_PREVIEW_BMP");
+    if (preview_path && *preview_path)
+    {
+        const char *interval = getenv("ROCKPOD_SIM_PREVIEW_INTERVAL_MS");
+        long interval_ms = interval && *interval ? strtol(interval, NULL, 10) : 200;
+        if (interval_ms < 16)
+            interval_ms = 16;
+        if (interval_ms > 5000)
+            interval_ms = 5000;
+        preview_dump_interval = HZ * interval_ms / 1000;
+        if (preview_dump_interval < 1)
+            preview_dump_interval = 1;
+        preview_dump_last_tick = 0;
+    }
+
     queue_init(&sim_queue, false);
 
     create_thread(sim_thread, sim_thread_stack, sizeof(sim_thread_stack), 0,

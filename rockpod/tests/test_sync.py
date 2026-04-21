@@ -1,0 +1,1251 @@
+"""Tests for the sync engine — plan building, path construction, file copying."""
+
+import os
+import shutil
+import sys
+import tempfile
+
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+
+import pytest
+
+from app.config import Config
+from app.database import Database
+from services.device_detector import DeviceDetector, DeviceInfo, create_mock_device
+from services.sync_engine import (
+    SyncEngine,
+    SyncPlan,
+    SyncWorker,
+    _clear_device_trash,
+    build_device_path,
+    _sanitize_filename,
+)
+
+
+# ---------------------------------------------------------------------------
+# Helpers
+# ---------------------------------------------------------------------------
+
+def _insert_track(db, title, artist, album, **kw):
+    """Insert a track into the DB and return its row dict."""
+    data = {
+        "file_path": kw.get("file_path", f"/music/{artist}/{album}/{title}.mp3"),
+        "file_hash": kw.get("file_hash", ""),
+        "file_size": kw.get("file_size", 5_000_000),
+        "title": title,
+        "artist": artist,
+        "album": album,
+        "album_artist": kw.get("album_artist", artist),
+        "genre": kw.get("genre", "Rock"),
+        "year": kw.get("year", 2020),
+        "track_number": kw.get("track_number", 1),
+        "disc_number": kw.get("disc_number", 1),
+        "duration": kw.get("duration", 240.0),
+        "bitrate": kw.get("bitrate", 320),
+        "codec": kw.get("codec", "mp3"),
+        "metadata_hash": kw.get("metadata_hash", "abc123"),
+        "artwork_hash": kw.get("artwork_hash", ""),
+        "synced_to_device": kw.get("synced_to_device", 0),
+        "device_path": kw.get("device_path", None),
+        "last_synced_metadata_hash": kw.get("last_synced_metadata_hash", ""),
+        "last_synced_file_hash": kw.get("last_synced_file_hash", ""),
+    }
+    db.upsert_track(data)
+    db.commit()
+    row = db.get_track_by_path(data["file_path"])
+    return row
+
+
+def _insert_device_track(db, title, artist, album, device_path, **kw):
+    """Insert a device track."""
+    data = {
+        "device_id": kw.get("device_id", "mock"),
+        "device_path": device_path,
+        "file_size": kw.get("file_size", 5_000_000),
+        "title": title,
+        "artist": artist,
+        "album": album,
+        "album_artist": kw.get("album_artist", artist),
+        "genre": kw.get("genre", "Rock"),
+        "year": kw.get("year", 2020),
+        "track_number": kw.get("track_number", 1),
+        "disc_number": kw.get("disc_number", 1),
+        "duration": kw.get("duration", 240.0),
+        "bitrate": kw.get("bitrate", 320),
+        "codec": kw.get("codec", "mp3"),
+        "metadata_hash": kw.get("metadata_hash", "abc123"),
+        "local_track_id": kw.get("local_track_id", None),
+        "file_hash": kw.get("file_hash", ""),
+    }
+    db.upsert_device_track(data)
+    db.commit()
+
+
+# ---------------------------------------------------------------------------
+# Fixtures
+# ---------------------------------------------------------------------------
+
+@pytest.fixture
+def env():
+    """Create a temporary environment with config, db, mock device, and source files."""
+    tmp = tempfile.mkdtemp(prefix="rockpod_sync_test_")
+    cfg_path = os.path.join(tmp, "config.json")
+    config = Config(cfg_path)
+    config.music_dir = os.path.join(tmp, "Music")
+    config.db_path = os.path.join(tmp, "library.db")
+    config.cache_dir = os.path.join(tmp, "cache")
+    config.artwork_cache_dir = os.path.join(tmp, "cache", "artwork")
+    config.mock_device_enabled = True
+    config.mock_device_path = os.path.join(tmp, "mock_ipod")
+    config.ensure_dirs()
+    os.makedirs(config.music_dir, exist_ok=True)
+
+    create_mock_device(config.mock_device_path)
+
+    db = Database(config.db_path)
+
+    yield {
+        "tmp": tmp,
+        "config": config,
+        "db": db,
+        "device_path": config.mock_device_path,
+    }
+
+    db.close()
+    shutil.rmtree(tmp, ignore_errors=True)
+
+
+def _make_source_file(env_dict, artist, album, title, ext=".mp3", size=1024):
+    """Create a real file on disk and return its path."""
+    path = os.path.join(env_dict["tmp"], "Music", artist, album, f"{title}{ext}")
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path, "wb") as f:
+        f.write(os.urandom(size))
+    return path
+
+
+# ===========================================================================
+# Tests: _sanitize_filename
+# ===========================================================================
+
+class TestSanitizeFilename:
+    def test_empty_returns_unknown(self):
+        assert _sanitize_filename("") == "Unknown"
+        assert _sanitize_filename(None) == "Unknown"
+
+    def test_forbidden_chars_replaced(self):
+        assert _sanitize_filename('A<B>C:D"E') == "A_B_C_D_E"
+        assert _sanitize_filename("a|b?c*d") == "a_b_c_d"
+
+    def test_whitespace_collapsed(self):
+        assert _sanitize_filename("  foo   bar  ") == "foo bar"
+
+    def test_length_capped(self):
+        long_name = "x" * 300
+        result = _sanitize_filename(long_name)
+        assert len(result) <= 200
+
+
+# ===========================================================================
+# Tests: build_device_path
+# ===========================================================================
+
+class TestBuildDevicePath:
+    def test_default_templates(self):
+        row = {
+            "album_artist": "Pink Floyd",
+            "artist": "Pink Floyd",
+            "album": "The Dark Side of the Moon",
+            "title": "Breathe",
+            "track_number": 2,
+            "disc_number": 1,
+            "file_path": "/music/breathe.flac",
+        }
+        result = build_device_path(
+            row,
+            "Music/{album_artist}/{album}",
+            "{track_number:02d} - {title}{ext}",
+        )
+        assert result == os.path.join(
+            "Music", "Pink Floyd", "The Dark Side of the Moon", "02 - Breathe.flac"
+        )
+
+    def test_missing_album_artist_falls_back_to_artist(self):
+        row = {
+            "album_artist": "",
+            "artist": "Radiohead",
+            "album": "OK Computer",
+            "title": "Airbag",
+            "track_number": 1,
+            "disc_number": 1,
+            "file_path": "/music/airbag.mp3",
+        }
+        result = build_device_path(
+            row,
+            "Music/{album_artist}/{album}",
+            "{track_number:02d} - {title}{ext}",
+        )
+        assert "Radiohead" in result
+
+    def test_missing_everything_gives_sane_defaults(self):
+        row = {
+            "album_artist": "",
+            "artist": "",
+            "album": "",
+            "title": "",
+            "track_number": None,
+            "disc_number": None,
+            "file_path": "",
+        }
+        result = build_device_path(
+            row,
+            "Music/{album_artist}/{album}",
+            "{track_number:02d} - {title}{ext}",
+        )
+        assert "Unknown" in result
+
+    def test_special_chars_sanitized(self):
+        row = {
+            "album_artist": 'AC/DC',
+            "artist": 'AC/DC',
+            "album": 'Back in Black: Deluxe',
+            "title": 'Shoot to "Thrill"',
+            "track_number": 3,
+            "disc_number": 1,
+            "file_path": "/music/track.mp3",
+        }
+        result = build_device_path(
+            row,
+            "Music/{album_artist}/{album}",
+            "{track_number:02d} - {title}{ext}",
+        )
+        # Should not contain forbidden FAT32 chars
+        for c in '<>:"/\\|?*':
+            # The path separator is allowed (/), but the file and dir components
+            # should not have them.
+            parts = result.split(os.sep)
+            for part in parts:
+                if c == os.sep:
+                    continue
+                assert c not in part, f"Forbidden char '{c}' in path component '{part}'"
+
+
+# ===========================================================================
+# Tests: SyncPlan
+# ===========================================================================
+
+class TestSyncPlan:
+    def test_empty_plan(self):
+        plan = SyncPlan()
+        assert plan.total_operations == 0
+        assert plan.copy_count == 0
+        assert plan.resync_count == 0
+        assert "Nothing to sync" in plan.summary()
+
+    def test_plan_with_copies(self):
+        plan = SyncPlan()
+        plan.to_copy.append(({"title": "A"}, "Music/A/B/01 - A.mp3"))
+        plan.to_copy.append(({"title": "B"}, "Music/A/B/02 - B.mp3"))
+        plan.total_bytes = 10 * 1024 * 1024
+
+        assert plan.total_operations == 2
+        assert plan.copy_count == 2
+        assert "2 new tracks" in plan.summary()
+        assert "10.0 MB" in plan.summary()
+
+    def test_plan_with_resyncs(self):
+        plan = SyncPlan()
+        plan.to_resync.append(({"title": "C"}, "old/path.mp3", "new/path.mp3"))
+
+        assert plan.resync_count == 1
+        assert "1 tracks to update" in plan.summary()
+
+    def test_plan_with_deletes(self):
+        plan = SyncPlan()
+        plan.to_delete.append("Music/Old/orphan.mp3")
+
+        assert plan.total_operations == 1
+        assert "orphaned" in plan.summary()
+
+
+# ===========================================================================
+# Tests: SyncWorker._copy_file
+# ===========================================================================
+
+class TestSyncWorkerCopy:
+    def test_copy_creates_dest_directories(self, env):
+        src = _make_source_file(env, "Art", "Alb", "Track01")
+        dest = os.path.join(env["device_path"], "Music", "Art", "Alb", "01 - Track01.mp3")
+
+        plan = SyncPlan()
+        worker = SyncWorker(plan, env["device_path"], env["config"].db_path)
+        result, stats = worker._copy_file(src, dest)
+
+        assert result is True
+        assert stats["read_seconds"] >= 0.0
+        assert stats["write_seconds"] >= 0.0
+        assert os.path.isfile(dest)
+        # Verify file content matches
+        with open(src, "rb") as f:
+            src_data = f.read()
+        with open(dest, "rb") as f:
+            dest_data = f.read()
+        assert src_data == dest_data
+
+    def test_copy_missing_source_returns_false(self, env):
+        plan = SyncPlan()
+        worker = SyncWorker(plan, env["device_path"], env["config"].db_path)
+        result, _stats = worker._copy_file("/nonexistent/file.mp3", "/tmp/out.mp3")
+        assert result is False
+
+    def test_copy_overwrites_existing(self, env):
+        src = _make_source_file(env, "Art", "Alb", "Song", size=2048)
+        dest = os.path.join(env["device_path"], "Music", "Art", "Alb", "Song.mp3")
+        os.makedirs(os.path.dirname(dest), exist_ok=True)
+        with open(dest, "wb") as f:
+            f.write(b"old data")
+
+        plan = SyncPlan()
+        worker = SyncWorker(plan, env["device_path"], env["config"].db_path)
+        result, _stats = worker._copy_file(src, dest)
+
+        assert result is True
+        assert os.path.getsize(dest) == 2048
+
+    def test_no_temp_file_left_on_success(self, env):
+        src = _make_source_file(env, "Art", "Alb", "Clean")
+        dest = os.path.join(env["device_path"], "Music", "Art", "Alb", "Clean.mp3")
+
+        plan = SyncPlan()
+        worker = SyncWorker(plan, env["device_path"], env["config"].db_path)
+        worker._copy_file(src, dest)
+
+        tmp_file = dest + ".rockpod_tmp"
+        assert not os.path.exists(tmp_file)
+
+
+# ===========================================================================
+# Tests: SyncWorker.run  (new tracks)
+# ===========================================================================
+
+class TestSyncWorkerRun:
+    def test_copies_new_tracks(self, env):
+        src = _make_source_file(env, "Art", "Alb", "NewSong")
+        rel_path = "Music/Art/Alb/01 - NewSong.mp3"
+        row = {
+            "id": 1,
+            "file_path": src,
+            "title": "NewSong",
+            "artist": "Art",
+            "album": "Alb",
+            "metadata_hash": "mh1",
+            "file_hash": "fh1",
+        }
+
+        plan = SyncPlan()
+        plan.to_copy.append((row, rel_path))
+
+        worker = SyncWorker(plan, env["device_path"], env["config"].db_path)
+
+        results = {}
+
+        def on_finish(copied, failed, skipped):
+            results["copied"] = copied
+            results["failed"] = failed
+            results["skipped"] = skipped
+
+        worker.finished.connect(on_finish)
+        worker.run()
+
+        assert results["copied"] == 1
+        assert results["failed"] == 0
+        dest = os.path.join(env["device_path"], rel_path)
+        assert os.path.isfile(dest)
+
+    def test_resync_replaces_old_file(self, env):
+        src = _make_source_file(env, "Art", "Alb", "Updated", size=4096)
+        old_rel = "Music/Art/OldAlb/01 - Updated.mp3"
+        new_rel = "Music/Art/Alb/01 - Updated.mp3"
+
+        # Place a file at the old location
+        old_full = os.path.join(env["device_path"], old_rel)
+        os.makedirs(os.path.dirname(old_full), exist_ok=True)
+        with open(old_full, "wb") as f:
+            f.write(b"old version")
+        old_lrc = os.path.splitext(old_full)[0] + ".lrc"
+        with open(old_lrc, "w", encoding="utf-8") as f:
+            f.write("lyrics")
+
+        row = {
+            "id": 2,
+            "file_path": src,
+            "title": "Updated",
+            "artist": "Art",
+            "album": "Alb",
+            "metadata_hash": "mh2",
+            "file_hash": "fh2",
+        }
+
+        plan = SyncPlan()
+        plan.to_resync.append((row, old_rel, new_rel))
+
+        worker = SyncWorker(plan, env["device_path"], env["config"].db_path)
+
+        results = {}
+        worker.finished.connect(lambda c, f, s: results.update(copied=c, failed=f, skipped=s))
+        worker.run()
+
+        assert results["copied"] == 1
+        # Old file should be removed
+        assert not os.path.isfile(old_full)
+        assert not os.path.isfile(old_lrc)
+        # New file should exist with correct size
+        new_full = os.path.join(env["device_path"], new_rel)
+        assert os.path.isfile(new_full)
+        assert os.path.getsize(new_full) == 4096
+
+    def test_resync_keeps_old_file_when_new_copy_fails(self, env, monkeypatch):
+        src = _make_source_file(env, "Art", "Alb", "UpdatedFail", size=4096)
+        old_rel = "Music/Art/OldAlb/01 - UpdatedFail.mp3"
+        new_rel = "Music/Art/Alb/01 - UpdatedFail.mp3"
+
+        old_full = os.path.join(env["device_path"], old_rel)
+        os.makedirs(os.path.dirname(old_full), exist_ok=True)
+        with open(old_full, "wb") as f:
+            f.write(b"old version")
+        old_lrc = os.path.splitext(old_full)[0] + ".lrc"
+        with open(old_lrc, "w", encoding="utf-8") as f:
+            f.write("lyrics")
+
+        row = {
+            "id": 22,
+            "file_path": src,
+            "title": "UpdatedFail",
+            "artist": "Art",
+            "album": "Alb",
+            "metadata_hash": "mh22",
+            "file_hash": "fh22",
+        }
+        plan = SyncPlan()
+        plan.to_resync.append((row, old_rel, new_rel))
+
+        worker = SyncWorker(plan, env["device_path"], env["config"].db_path)
+        monkeypatch.setattr(worker, "_copy_file", lambda src, dest, created_dirs=None: (False, {}))
+
+        results = {}
+        worker.finished.connect(lambda c, f, s: results.update(copied=c, failed=f, skipped=s))
+        worker.run()
+
+        assert results["copied"] == 0
+        assert results["failed"] == 1
+        assert os.path.isfile(old_full)
+        assert os.path.isfile(old_lrc)
+        assert not os.path.exists(os.path.join(env["device_path"], new_rel))
+
+    def test_cancel_stops_early(self, env):
+        """Cancelling before run starts should emit cancelled and not copy."""
+        plan = SyncPlan()
+        for i in range(5):
+            src = _make_source_file(env, "Art", "Alb", f"Track{i}")
+            plan.to_copy.append((
+                {"id": i + 1, "file_path": src, "title": f"Track{i}",
+                 "metadata_hash": "", "file_hash": ""},
+                f"Music/Art/Alb/Track{i}.mp3",
+            ))
+
+        worker = SyncWorker(plan, env["device_path"], env["config"].db_path)
+        worker.cancel()  # cancel immediately
+
+        cancelled_flag = []
+        worker.cancelled.connect(lambda: cancelled_flag.append(True))
+        worker.run()
+
+        assert len(cancelled_flag) == 1
+
+    def test_updates_db_after_copy(self, env):
+        """After a successful copy, mark_synced should be called on the DB."""
+        src = _make_source_file(env, "Art", "Alb", "DBTest")
+        _insert_track(env["db"], "DBTest", "Art", "Alb",
+                       file_path=src, metadata_hash="mh_db", file_hash="fh_db")
+        row = dict(env["db"].get_track_by_path(src))
+
+        plan = SyncPlan()
+        rel = "Music/Art/Alb/01 - DBTest.mp3"
+        plan.to_copy.append((row, rel))
+
+        worker = SyncWorker(plan, env["device_path"], env["config"].db_path)
+        worker.run()
+
+        updated = env["db"].get_track_by_id(row["id"])
+        assert updated["synced_to_device"] == 1
+        assert updated["device_path"] == rel
+        assert updated["last_synced_metadata_hash"] == "mh_db"
+        assert updated["last_synced_file_hash"] == "fh_db"
+
+    def test_deletes_duplicate_files_queued_in_plan(self, env):
+        rel_path = "Music/Art/Alb/01 - Duplicate.mp3"
+        full_path = os.path.join(env["device_path"], rel_path)
+        os.makedirs(os.path.dirname(full_path), exist_ok=True)
+        with open(full_path, "wb") as handle:
+            handle.write(b"duplicate")
+        lrc_path = os.path.splitext(full_path)[0] + ".lrc"
+        with open(lrc_path, "w", encoding="utf-8") as handle:
+            handle.write("lyrics")
+
+        plan = SyncPlan()
+        plan.to_delete.append(rel_path)
+
+        worker = SyncWorker(plan, env["device_path"], env["config"].db_path)
+        results = {}
+        worker.finished.connect(lambda c, f, s: results.update(copied=c, failed=f, skipped=s))
+        worker.run()
+
+        assert results["failed"] == 0
+        assert not os.path.exists(full_path)
+        assert not os.path.exists(lrc_path)
+
+    def test_worker_records_execution_profile(self, env):
+        src = _make_source_file(env, "Art", "Alb", "Profiled")
+        row = {
+            "id": 7,
+            "file_path": src,
+            "title": "Profiled",
+            "artist": "Art",
+            "album": "Alb",
+            "metadata_hash": "mh7",
+            "file_hash": "fh7",
+        }
+        plan = SyncPlan()
+        plan.plan_profile = {"build_seconds": 0.01, "artwork_generation_seconds": 0.0}
+        plan.to_copy.append((row, "Music/Art/Alb/01 - Profiled.mp3"))
+        worker = SyncWorker(plan, env["device_path"], env["config"].db_path)
+        worker.run()
+
+        assert plan.execution_profile["total_seconds"] >= 0.0
+        assert plan.execution_profile["track_copy_seconds"] >= 0.0
+        assert plan.execution_profile["db_finalize_seconds"] >= 0.0
+
+    def test_worker_clears_device_trash(self, env):
+        trash_dir = os.path.join(env["device_path"], ".Trash-1000", "files", "Old Album")
+        os.makedirs(trash_dir, exist_ok=True)
+        with open(os.path.join(trash_dir, "01 - stale.mp3"), "wb") as handle:
+            handle.write(b"stale")
+
+        plan = SyncPlan()
+        worker = SyncWorker(plan, env["device_path"], env["config"].db_path)
+        results = {}
+        worker.finished.connect(lambda c, f, s: results.update(copied=c, failed=f, skipped=s))
+        worker.run()
+
+        assert results["failed"] == 0
+        assert not os.path.exists(os.path.join(env["device_path"], ".Trash-1000"))
+
+
+class TestSyncTrashHelpers:
+    def test_clear_device_trash_removes_root_trash_dirs(self, env):
+        trash_root = os.path.join(env["device_path"], ".Trash-1000")
+        os.makedirs(os.path.join(trash_root, "files"), exist_ok=True)
+        kept_dir = os.path.join(env["device_path"], "Music")
+        os.makedirs(kept_dir, exist_ok=True)
+
+        removed = _clear_device_trash(env["device_path"])
+
+        assert trash_root in removed
+        assert not os.path.exists(trash_root)
+        assert os.path.isdir(kept_dir)
+
+
+# ===========================================================================
+# Tests: SyncEngine.build_sync_plan (integration with matcher)
+# ===========================================================================
+
+class TestSyncEnginePlan:
+    def _make_engine(self, env):
+        config = env["config"]
+        db = env["db"]
+        detector = DeviceDetector(config)
+        # Manually set the device instead of polling
+        device = DeviceInfo(env["device_path"])
+        device.name = "Test iPod"
+        device.is_rockbox = True
+        detector._current_device = device
+        return SyncEngine(db, config, detector)
+
+    def test_plan_no_device(self, env):
+        """Plan with no device connected should report an error."""
+        config = env["config"]
+        db = env["db"]
+        detector = DeviceDetector(config)
+        detector._current_device = None
+        engine = SyncEngine(db, config, detector)
+
+        plan = engine.build_sync_plan()
+        assert len(plan.errors) > 0
+        assert "No device" in plan.errors[0]
+
+    def test_plan_empty_library(self, env):
+        """Empty library should produce an empty plan."""
+        engine = self._make_engine(env)
+        plan = engine.build_sync_plan()
+
+        assert plan.total_operations == 0
+
+    def test_plan_new_tracks_detected(self, env):
+        """Tracks in library but not on device should appear in to_copy."""
+        src = _make_source_file(env, "Art", "Alb", "NewTrack")
+        _insert_track(env["db"], "NewTrack", "Art", "Alb",
+                       file_path=src, metadata_hash="unique_hash_1")
+
+        engine = self._make_engine(env)
+        plan = engine.build_sync_plan()
+
+        assert plan.copy_count >= 1
+        titles = [dict(r)["title"] if hasattr(r, "keys") else r["title"]
+                  for r, _ in plan.to_copy]
+        assert "NewTrack" in titles
+
+    def test_plan_matched_track_not_copied(self, env):
+        """A track that already matches a device track should not be in to_copy."""
+        src = _make_source_file(env, "Art", "Alb", "Existing")
+        _insert_track(env["db"], "Existing", "Art", "Alb",
+                       file_path=src, metadata_hash="same_hash")
+
+        engine = self._make_engine(env)
+        device_key = engine.set_current_device(engine._device_detector.current_device)
+        _insert_device_track(env["db"], "Existing", "Art", "Alb",
+                              "Music/Art/Alb/01 - Existing.mp3",
+                              device_id=device_key,
+                              metadata_hash="same_hash")
+
+        plan = engine.build_sync_plan()
+
+        copy_titles = [dict(r)["title"] if hasattr(r, "keys") else r["title"]
+                       for r, _ in plan.to_copy]
+        assert "Existing" not in copy_titles
+        assert plan.up_to_date_count == 1
+
+    def test_plan_marks_extra_device_duplicates_for_deletion(self, env):
+        src = _make_source_file(env, "Art", "Alb", "Existing")
+        local = _insert_track(env["db"], "Existing", "Art", "Alb", file_path=src, metadata_hash="same_hash")
+
+        engine = self._make_engine(env)
+        engine.set_current_device(engine._device_detector.current_device)
+        _insert_device_track(
+            env["db"],
+            "Existing",
+            "Art",
+            "Alb",
+            "Music/Art/Alb/01 - Existing.mp3",
+            device_id=engine.current_device_key,
+            metadata_hash="same_hash",
+            local_track_id=local["id"],
+        )
+        _insert_device_track(
+            env["db"],
+            "Existing",
+            "Art",
+            "Alb",
+            "Music/Art/Alb/01 - Existing (2).mp3",
+            device_id=engine.current_device_key,
+            metadata_hash="same_hash_variant",
+        )
+        engine.load_cached_device_inventory(engine.current_device_key)
+
+        plan = engine.build_sync_plan()
+
+        assert plan.copy_count == 0
+        assert plan.resync_count == 0
+        assert plan.to_delete == ["Music/Art/Alb/01 - Existing (2).mp3"]
+
+    def test_plan_matches_different_filename_without_duplicate(self, env):
+        """Matching must use metadata identity, not matching filenames."""
+        src = _make_source_file(env, "Art", "Alb", "Local Filename")
+        _insert_track(env["db"], "Same Track", "Art", "Alb",
+                       file_path=src, metadata_hash="new_hash")
+
+        engine = self._make_engine(env)
+        device_key = engine.set_current_device(engine._device_detector.current_device)
+        _insert_device_track(env["db"], "Same Track", "Art", "Alb",
+                              "Music/Art/Alb/01 - Totally Different.mp3",
+                              device_id=device_key,
+                              metadata_hash="new_hash")
+
+        plan = engine.build_sync_plan()
+
+        assert plan.copy_count == 0
+        assert plan.resync_count == 0
+        assert plan.up_to_date_count == 1
+
+    def test_plan_resync_on_metadata_change(self, env):
+        """A matched track with changed metadata_hash should appear in to_resync."""
+        src = _make_source_file(env, "Art", "Alb", "Changed")
+        _insert_track(env["db"], "Changed", "Art", "Alb",
+                       file_path=src, metadata_hash="new_meta_hash",
+                       synced_to_device=1,
+                       last_synced_metadata_hash="old_meta_hash")
+
+        engine = self._make_engine(env)
+        device_key = engine.set_current_device(engine._device_detector.current_device)
+        # Device track has old hash — matcher will match by metadata fields
+        # (artist+album+title+duration), but needs_resync detects the hash
+        # divergence on the local track.
+        _insert_device_track(env["db"], "Changed", "Art", "Alb",
+                              "Music/Art/Alb/01 - Changed.mp3",
+                              device_id=device_key,
+                              metadata_hash="old_meta_hash",
+                              local_track_id=None)
+
+        # Ensure resync is enabled
+        env["config"].resync_metadata_changes = True
+        plan = engine.build_sync_plan()
+
+        resync_titles = [dict(r)["title"] if hasattr(r, "keys") else r["title"]
+                         for r, _, _ in plan.to_resync]
+        assert "Changed" in resync_titles
+
+    def test_not_on_device_detection_uses_current_device_index(self, env):
+        src_a = _make_source_file(env, "Art", "Alb", "OnDevice")
+        src_b = _make_source_file(env, "Art", "Alb", "Missing")
+        _insert_track(env["db"], "OnDevice", "Art", "Alb",
+                       file_path=src_a, metadata_hash="on_hash")
+        _insert_track(env["db"], "Missing", "Art", "Alb",
+                       file_path=src_b, metadata_hash="missing_hash")
+        engine = self._make_engine(env)
+        device_key = engine.set_current_device(engine._device_detector.current_device)
+        _insert_device_track(env["db"], "OnDevice", "Art", "Alb",
+                              "Music/Other/Name.mp3", device_id=device_key, metadata_hash="on_hash")
+
+        missing = engine.get_not_on_device_tracks()
+
+        assert [dict(row)["title"] for row in missing] == ["Missing"]
+
+    def test_not_on_device_detection_ignores_other_cached_devices_when_no_current_key(self, env):
+        src = _make_source_file(env, "Art", "Alb", "LocalOnly")
+        _insert_track(env["db"], "LocalOnly", "Art", "Alb", file_path=src, metadata_hash="local_hash")
+        _insert_device_track(
+            env["db"],
+            "OtherDeviceSong",
+            "Art",
+            "Alb",
+            "Music/Art/Alb/01 - Other.mp3",
+            device_id="other-device",
+            metadata_hash="other_hash",
+        )
+
+        detector = DeviceDetector(env["config"])
+        detector._current_device = None
+        engine = SyncEngine(env["db"], env["config"], detector)
+
+        assert engine.get_device_tracks() == []
+        assert engine.get_not_on_device_tracks() == []
+
+    def test_sync_status_counts_fall_back_when_device_links_are_missing(self, env):
+        src_a = _make_source_file(env, "Art", "Alb", "OnDevice")
+        src_b = _make_source_file(env, "Art", "Alb", "Missing")
+        _insert_track(env["db"], "OnDevice", "Art", "Alb", file_path=src_a, metadata_hash="on_hash")
+        _insert_track(env["db"], "Missing", "Art", "Alb", file_path=src_b, metadata_hash="missing_hash")
+        engine = self._make_engine(env)
+        device_key = engine.set_current_device(engine._device_detector.current_device)
+        _insert_device_track(
+            env["db"],
+            "OnDevice",
+            "Art",
+            "Alb",
+            "Music/Art/Alb/01 - OnDevice.mp3",
+            device_id=device_key,
+            metadata_hash="on_hash",
+            local_track_id=None,
+        )
+        engine.load_cached_device_inventory(device_key)
+        counts = engine.get_sync_status_counts()
+
+        assert counts["missing"] == 1
+
+    def test_unscanned_device_inventory_does_not_report_library_as_missing(self, env):
+        src = _make_source_file(env, "Art", "Alb", "Song")
+        _insert_track(env["db"], "Song", "Art", "Alb", file_path=src, metadata_hash="song_hash")
+        device_media = os.path.join(env["device_path"], "Music", "Art", "Alb", "01 - Song.mp3")
+        os.makedirs(os.path.dirname(device_media), exist_ok=True)
+        with open(device_media, "wb") as handle:
+            handle.write(b"device-audio")
+
+        engine = self._make_engine(env)
+        engine.set_current_device(engine._device_detector.current_device)
+
+        counts = engine.get_sync_status_counts()
+
+        assert counts == {"missing": 0, "resync": 0}
+        assert engine.device_inventory_has_local_links() is False
+        assert engine.get_not_on_device_tracks() == []
+
+    def test_build_sync_plan_scans_device_when_inventory_has_never_been_verified(self, env, monkeypatch):
+        src = _make_source_file(env, "Art", "Alb", "Existing")
+        _insert_track(env["db"], "Existing", "Art", "Alb", file_path=src, metadata_hash="same_hash")
+        device_media = os.path.join(env["device_path"], "Music", "Art", "Alb", "01 - Existing.mp3")
+        os.makedirs(os.path.dirname(device_media), exist_ok=True)
+        with open(device_media, "wb") as handle:
+            handle.write(b"device-audio")
+
+        engine = self._make_engine(env)
+        engine.set_current_device(engine._device_detector.current_device)
+        scans = []
+
+        def fake_scan(force_full=False):
+            scans.append(force_full)
+            _insert_device_track(
+                env["db"],
+                "Existing",
+                "Art",
+                "Alb",
+                "Music/Art/Alb/01 - Existing.mp3",
+                device_id=engine.current_device_key,
+                metadata_hash="same_hash",
+            )
+            env["db"].mark_device_scanned(engine.current_device_key)
+            env["db"].commit()
+            engine.load_cached_device_inventory()
+            return 1
+
+        monkeypatch.setattr(engine, "scan_device", fake_scan)
+
+        plan = engine.build_sync_plan()
+
+        assert scans == [False]
+        assert plan.copy_count == 0
+        assert plan.up_to_date_count == 1
+
+    def test_build_sync_plan_scans_when_rockbox_db_is_newer_than_cached_scan(self, env, monkeypatch):
+        src = _make_source_file(env, "Art", "Alb", "Existing")
+        _insert_track(env["db"], "Existing", "Art", "Alb", file_path=src, metadata_hash="same_hash")
+
+        engine = self._make_engine(env)
+        engine.set_current_device(engine._device_detector.current_device)
+        env["db"].mark_device_scanned(engine.current_device_key)
+        env["db"].commit()
+        engine.load_cached_device_inventory()
+        scans = []
+
+        monkeypatch.setattr(
+            "services.sync_engine.detect_rockbox_database_state",
+            lambda device, row=None: {
+                "database_present": True,
+                "database_latest_mtime": "2099-01-01T00:00:00",
+            },
+        )
+
+        def fake_scan(force_full=False):
+            scans.append(force_full)
+            _insert_device_track(
+                env["db"],
+                "Existing",
+                "Art",
+                "Alb",
+                "Music/Art/Alb/01 - Existing.mp3",
+                device_id=engine.current_device_key,
+                metadata_hash="same_hash",
+            )
+            env["db"].mark_device_scanned(engine.current_device_key)
+            env["db"].commit()
+            engine.load_cached_device_inventory()
+            return 1
+
+        monkeypatch.setattr(engine, "scan_device", fake_scan)
+
+        plan = engine.build_sync_plan()
+
+        assert scans == [False]
+        assert plan.copy_count == 0
+        assert plan.up_to_date_count == 1
+
+    def test_missing_mount_path_does_not_report_full_library_as_missing(self, env):
+        src = _make_source_file(env, "Art", "Alb", "Song")
+        _insert_track(env["db"], "Song", "Art", "Alb", file_path=src, metadata_hash="song_hash")
+
+        engine = self._make_engine(env)
+        engine.set_current_device(engine._device_detector.current_device)
+        shutil.rmtree(env["device_path"])
+
+        counts = engine.get_sync_status_counts()
+        plan = engine.build_sync_plan()
+
+        assert counts == {"missing": 0, "resync": 0}
+        assert plan.total_operations == 0
+        assert "Device mount path is unavailable" in plan.errors
+
+    def test_plan_generates_unique_paths_for_collisions(self, env):
+        src_a = _make_source_file(env, "Art", "Alb", "CollisionA")
+        src_b = _make_source_file(env, "Art", "Alb", "CollisionB")
+        _insert_track(env["db"], "Same Title", "Art", "Alb",
+                       file_path=src_a, metadata_hash="hash_a")
+        _insert_track(env["db"], "Same Title", "Art", "Alb",
+                       file_path=src_b, metadata_hash="hash_b")
+
+        engine = self._make_engine(env)
+        plan = engine.build_sync_plan()
+        paths = [path for _row, path in plan.to_copy]
+
+        assert len(paths) == 2
+        assert len(set(paths)) == 2
+
+    def test_plan_replaces_unlinked_device_file_at_same_target_path(self, env):
+        src = _make_source_file(env, "Art", "Alb", "Existing")
+        _insert_track(
+            env["db"],
+            "Existing",
+            "Art",
+            "Alb",
+            file_path=src,
+            metadata_hash="local_hash",
+            track_number=1,
+        )
+
+        engine = self._make_engine(env)
+        device_key = engine.set_current_device(engine._device_detector.current_device)
+        _insert_device_track(
+            env["db"],
+            "01 - Existing",
+            "",
+            "",
+            "Music/Art/Alb/01 - Existing.mp3",
+            device_id=device_key,
+            metadata_hash="broken_hash",
+            local_track_id=None,
+            track_number=None,
+            album_artist="",
+        )
+
+        plan = engine.build_sync_plan()
+
+        assert plan.copy_count == 0
+        assert plan.resync_count == 1
+        assert plan.to_resync[0][1:] == (
+            "Music/Art/Alb/01 - Existing.mp3",
+            "Music/Art/Alb/01 - Existing.mp3",
+        )
+
+    def test_force_full_recopy_everything(self, env):
+        """Force full mode should re-copy every library track."""
+        for i in range(3):
+            src = _make_source_file(env, "Art", "Alb", f"Force{i}")
+            _insert_track(env["db"], f"Force{i}", "Art", "Alb",
+                           file_path=src, metadata_hash=f"fh{i}")
+
+        engine = self._make_engine(env)
+        plan = engine.build_sync_plan(force_full=True)
+
+        assert plan.copy_count + plan.resync_count == 3
+
+    def test_plan_selected_tracks_only(self, env):
+        """Passing track_ids should limit the plan to those tracks."""
+        ids = []
+        for i in range(4):
+            src = _make_source_file(env, "Art", "Alb", f"Sel{i}")
+            row = _insert_track(env["db"], f"Sel{i}", "Art", "Alb",
+                                 file_path=src, metadata_hash=f"sel{i}")
+            ids.append(row["id"])
+
+        engine = self._make_engine(env)
+        plan = engine.build_sync_plan(track_ids={ids[0], ids[2]}, force_full=True)
+
+        assert plan.copy_count + plan.resync_count == 2
+
+
+# ===========================================================================
+# Tests: SyncEngine.scan_device
+# ===========================================================================
+
+class TestScanDevice:
+    def _make_engine(self, env):
+        config = env["config"]
+        db = env["db"]
+        detector = DeviceDetector(config)
+        device = DeviceInfo(env["device_path"])
+        device.name = "Test iPod"
+        device.is_rockbox = True
+        detector._current_device = device
+        return SyncEngine(db, config, detector)
+
+    def test_scan_empty_device(self, env):
+        engine = self._make_engine(env)
+        count = engine.scan_device()
+        assert count == 0
+
+    def test_scan_no_device_returns_zero(self, env):
+        config = env["config"]
+        db = env["db"]
+        detector = DeviceDetector(config)
+        detector._current_device = None
+        engine = SyncEngine(db, config, detector)
+        assert engine.scan_device() == 0
+
+    def test_scan_device_uses_cache_for_unchanged_files(self, env, monkeypatch):
+        from models.track import Track
+        from services import sync_engine
+
+        engine = self._make_engine(env)
+        full_path = os.path.join(env["device_path"], "Music", "Art", "Alb", "Cached.mp3")
+        os.makedirs(os.path.dirname(full_path), exist_ok=True)
+        with open(full_path, "wb") as f:
+            f.write(b"device-audio")
+
+        reads = []
+
+        def fake_read_metadata(path):
+            reads.append(path)
+            stat = os.stat(path)
+            return Track(
+                file_path=path,
+                title="Cached",
+                artist="Art",
+                album="Alb",
+                duration=120.0,
+                file_size=stat.st_size,
+                metadata_hash="cached_hash",
+            )
+
+        monkeypatch.setattr(sync_engine, "read_metadata", fake_read_metadata)
+
+        assert engine.scan_device() == 1
+        assert engine.scan_device() == 1
+        assert reads == [full_path]
+
+    def test_scan_device_hashes_only_in_strict_mode(self, env, monkeypatch):
+        from models.track import Track
+        from services import sync_engine
+
+        full_path = os.path.join(env["device_path"], "Music", "Art", "Alb", "HashMe.mp3")
+        os.makedirs(os.path.dirname(full_path), exist_ok=True)
+        with open(full_path, "wb") as f:
+            f.write(b"device-audio")
+
+        def fake_read_metadata(path):
+            stat = os.stat(path)
+            return Track(
+                file_path=path,
+                title="HashMe",
+                artist="Art",
+                album="Alb",
+                duration=120.0,
+                file_size=stat.st_size,
+                metadata_hash="hash_me_meta",
+            )
+
+        hash_calls = []
+        monkeypatch.setattr(sync_engine, "read_metadata", fake_read_metadata)
+        monkeypatch.setattr(
+            sync_engine,
+            "compute_file_hash",
+            lambda path: hash_calls.append(path) or "device_file_hash",
+        )
+
+        env["config"].duplicate_strictness = "metadata_only"
+        engine = self._make_engine(env)
+        assert engine.scan_device() == 1
+        assert hash_calls == []
+
+        env["config"].duplicate_strictness = "metadata_and_hash"
+        assert engine.scan_device() == 1
+        assert hash_calls == [full_path]
+        assert env["db"].get_all_device_tracks()[0]["file_hash"] == "device_file_hash"
+
+    def test_build_sync_plan_profiles_timing(self, env):
+        src = _make_source_file(env, "Art", "Alb", "PlanProfile")
+        _insert_track(env["db"], "PlanProfile", "Art", "Alb",
+                       file_path=src, metadata_hash="profile_hash")
+
+        engine = self._make_engine(env)
+        plan = engine.build_sync_plan()
+
+        assert plan.plan_profile["build_seconds"] >= 0.0
+        assert plan.plan_profile["local_fetch_seconds"] >= 0.0
+        assert plan.plan_profile["device_fetch_seconds"] >= 0.0
+        assert plan.plan_profile["artwork_generation_seconds"] >= 0.0
+
+
+# ===========================================================================
+# Tests: SyncEngine.delete_device_track
+# ===========================================================================
+
+class TestDeleteDeviceTrack:
+    def _make_engine(self, env):
+        config = env["config"]
+        db = env["db"]
+        detector = DeviceDetector(config)
+        device = DeviceInfo(env["device_path"])
+        device.name = "Test iPod"
+        device.is_rockbox = True
+        detector._current_device = device
+        return SyncEngine(db, config, detector)
+
+    def test_delete_removes_file_and_db_row(self, env):
+        engine = self._make_engine(env)
+
+        # Put a file on the "device"
+        rel_path = "Music/Art/Alb/01 - Track.mp3"
+        full_path = os.path.join(env["device_path"], rel_path)
+        os.makedirs(os.path.dirname(full_path), exist_ok=True)
+        with open(full_path, "wb") as f:
+            f.write(b"data")
+        lrc_path = os.path.splitext(full_path)[0] + ".lrc"
+        with open(lrc_path, "w", encoding="utf-8") as f:
+            f.write("lyrics")
+
+        _insert_device_track(env["db"], "Track", "Art", "Alb", rel_path)
+        env["db"].commit()
+
+        dev_rows = env["db"].get_all_device_tracks()
+        assert len(dev_rows) == 1
+        dev_row = dev_rows[0]
+
+        ok, msg = engine.delete_device_track(dev_row)
+        assert ok is True
+        assert not os.path.isfile(full_path)
+        assert not os.path.isfile(lrc_path)
+        assert len(env["db"].get_all_device_tracks()) == 0
+
+    def test_delete_no_device_returns_error(self, env):
+        config = env["config"]
+        db = env["db"]
+        detector = DeviceDetector(config)
+        detector._current_device = None
+        engine = SyncEngine(db, config, detector)
+
+        ok, msg = engine.delete_device_track({"id": 1, "device_path": "x"})
+        assert ok is False
+        assert "No device" in msg
+
+
+class TestDuplicateDeviceCleanup:
+    def _make_engine(self, env):
+        config = env["config"]
+        db = env["db"]
+        detector = DeviceDetector(config)
+        device = DeviceInfo(env["device_path"])
+        device.name = "Test iPod"
+        device.is_rockbox = True
+        detector._current_device = device
+        engine = SyncEngine(db, config, detector)
+        engine.set_current_device(device)
+        return engine
+
+    def test_find_and_remove_duplicate_device_tracks(self, env):
+        src = _make_source_file(env, "Art", "Alb", "Duped")
+        local = _insert_track(
+            env["db"],
+            "Duped",
+            "Art",
+            "Alb",
+            file_path=src,
+            metadata_hash="dup_hash",
+            synced_to_device=1,
+            device_path="Music/Art/Alb/01 - Duped.mp3",
+        )
+        for rel in ("Music/Art/Alb/01 - Duped.mp3", "Music/Art/Alb/01 - Duped (2).mp3"):
+            full = os.path.join(env["device_path"], rel)
+            os.makedirs(os.path.dirname(full), exist_ok=True)
+            with open(full, "wb") as handle:
+                handle.write(b"audio")
+            with open(os.path.splitext(full)[0] + ".lrc", "w", encoding="utf-8") as handle:
+                handle.write("lyrics")
+
+        engine = self._make_engine(env)
+        _insert_device_track(
+            env["db"],
+            "Duped",
+            "Art",
+            "Alb",
+            "Music/Art/Alb/01 - Duped.mp3",
+            device_id=engine.current_device_key,
+            metadata_hash="dup_hash",
+            local_track_id=local["id"],
+        )
+        _insert_device_track(
+            env["db"],
+            "Duped",
+            "Art",
+            "Alb",
+            "Music/Art/Alb/01 - Duped (2).mp3",
+            device_id=engine.current_device_key,
+            metadata_hash="dup_hash",
+        )
+        engine.load_cached_device_inventory(engine.current_device_key)
+        duplicates = engine.find_duplicate_device_tracks()
+
+        assert len(duplicates) == 1
+        assert len(duplicates[0]["remove"]) == 1
+        assert duplicates[0]["remove"][0]["device_path"].endswith("(2).mp3")
+
+        result = engine.remove_duplicate_device_tracks()
+
+        assert result["success"] is True
+        assert result["deleted"] == ["Music/Art/Alb/01 - Duped (2).mp3"]
+        assert os.path.isfile(os.path.join(env["device_path"], "Music/Art/Alb/01 - Duped.mp3"))
+        assert not os.path.exists(os.path.join(env["device_path"], "Music/Art/Alb/01 - Duped (2).mp3"))
+        assert not os.path.exists(os.path.join(env["device_path"], "Music/Art/Alb/01 - Duped (2).lrc"))
+        remaining = env["db"].get_all_device_tracks(engine.current_device_key)
+        assert len(remaining) == 1
+        assert remaining[0]["local_track_id"] == local["id"]
+
+    def test_apply_successful_sync_removes_deleted_duplicate_rows(self, env):
+        src = _make_source_file(env, "Art", "Alb", "Duped")
+        local = _insert_track(
+            env["db"],
+            "Duped",
+            "Art",
+            "Alb",
+            file_path=src,
+            metadata_hash="dup_hash",
+            synced_to_device=1,
+            device_path="Music/Art/Alb/01 - Duped.mp3",
+        )
+
+        engine = self._make_engine(env)
+        _insert_device_track(
+            env["db"],
+            "Duped",
+            "Art",
+            "Alb",
+            "Music/Art/Alb/01 - Duped.mp3",
+            device_id=engine.current_device_key,
+            metadata_hash="dup_hash",
+            local_track_id=local["id"],
+        )
+        _insert_device_track(
+            env["db"],
+            "Duped",
+            "Art",
+            "Alb",
+            "Music/Art/Alb/01 - Duped (2).mp3",
+            device_id=engine.current_device_key,
+            metadata_hash="dup_hash_variant",
+        )
+        engine.load_cached_device_inventory(engine.current_device_key)
+
+        plan = SyncPlan()
+        plan.to_delete.append("Music/Art/Alb/01 - Duped (2).mp3")
+        engine.apply_successful_sync_to_cache(plan)
+
+        remaining = env["db"].get_all_device_tracks(engine.current_device_key)
+        assert [row["device_path"] for row in remaining] == ["Music/Art/Alb/01 - Duped.mp3"]
+        assert remaining[0]["local_track_id"] == local["id"]
+
+    def test_duplicate_cleanup_respects_intentional_local_duplicates(self, env):
+        src_a = _make_source_file(env, "Art", "Alb", "Same A")
+        src_b = _make_source_file(env, "Art", "Alb", "Same B")
+        local_a = _insert_track(env["db"], "Same", "Art", "Alb", file_path=src_a, metadata_hash="same_hash_a", track_number=1)
+        local_b = _insert_track(env["db"], "Same", "Art", "Alb", file_path=src_b, metadata_hash="same_hash_b", track_number=1)
+
+        rel_a = "Music/Art/Alb/01 - Same.mp3"
+        rel_b = "Music/Art/Alb/01 - Same (2).mp3"
+        for rel in (rel_a, rel_b):
+            full = os.path.join(env["device_path"], rel)
+            os.makedirs(os.path.dirname(full), exist_ok=True)
+            with open(full, "wb") as handle:
+                handle.write(b"audio")
+
+        engine = self._make_engine(env)
+        _insert_device_track(env["db"], "Same", "Art", "Alb", rel_a, device_id=engine.current_device_key, metadata_hash="same_hash_a", local_track_id=local_a["id"])
+        _insert_device_track(env["db"], "Same", "Art", "Alb", rel_b, device_id=engine.current_device_key, metadata_hash="same_hash_b", local_track_id=local_b["id"])
+        engine.load_cached_device_inventory(engine.current_device_key)
+
+        assert engine.find_duplicate_device_tracks() == []

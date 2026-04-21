@@ -242,7 +242,7 @@ LOAD /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a
  .header        0x0000000003f00000       0x1c /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/plugin_crt0.o
                 0x0000000003f00000                __header
 
-.text           0x0000000003f00020    0x1d74c
+.text           0x0000000003f00020    0x1d744
  *(.text*)
  .text          0x0000000003f00020     0x1550 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/lauxlib.o
                 0x0000000003f0028c                luaL_where
@@ -535,297 +535,297 @@ LOAD /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a
                 0x0000000003f14ab4                filetol
                 0x0000000003f14bf0                get_plugin_action
  *fill*         0x0000000003f14c0c        0x4 
- .text          0x0000000003f14c10     0x1598 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/rocklib.o
-                0x0000000003f16120                luaopen_rock
- .text          0x0000000003f161a8     0x27a0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/rocklib_img.o
-                0x0000000003f188dc                luaopen_rock_img
- .text          0x0000000003f18948      0x1cc /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/tlsf_helper.o
-                0x0000000003f189bc                rock_get_allocated_bytes
-                0x0000000003f189d0                rock_get_unused_bytes
-                0x0000000003f18a1c                get_new_area
- .text          0x0000000003f18b14       0x64 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/strpbrk.o
-                0x0000000003f18b14                strpbrk_n
-                0x0000000003f18b6c                strpbrk
- .text          0x0000000003f18b78      0x760 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/rocklua.o
-                0x0000000003f18fe8                browse_scripts
-                0x0000000003f19080                plugin_start
- .text          0x0000000003f192d8      0x3e0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/luadir.o
-                0x0000000003f195e4                luaopen_luadir
- .text          0x0000000003f196b8      0xb6c /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/rocklib_events.o
-                0x0000000003f1a194                luaopen_rockevents
- .text          0x0000000003f1a224     0x1830 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/rocklib_aux.o
- .text          0x0000000003f1ba54      0x214 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/plugin_crt0.o
-                0x0000000003f1ba6c                plugin__start
-                0x0000000003f1bbb4                rb_atexit
-                0x0000000003f1bbd4                exit
-                0x0000000003f1bbfc                _exit
-                0x0000000003f1bc10                exit_on_usb
- .text.ls_bit   0x0000000003f1bc68       0x44 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/libtlsf.a(tlsf.o)
- .text.ms_bit   0x0000000003f1bcac       0x3c /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/libtlsf.a(tlsf.o)
- .text.set_bit  0x0000000003f1bce8       0x1c /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/libtlsf.a(tlsf.o)
+ .text          0x0000000003f14c10     0x1590 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/rocklib.o
+                0x0000000003f16118                luaopen_rock
+ .text          0x0000000003f161a0     0x27a0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/rocklib_img.o
+                0x0000000003f188d4                luaopen_rock_img
+ .text          0x0000000003f18940      0x1cc /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/tlsf_helper.o
+                0x0000000003f189b4                rock_get_allocated_bytes
+                0x0000000003f189c8                rock_get_unused_bytes
+                0x0000000003f18a14                get_new_area
+ .text          0x0000000003f18b0c       0x64 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/strpbrk.o
+                0x0000000003f18b0c                strpbrk_n
+                0x0000000003f18b64                strpbrk
+ .text          0x0000000003f18b70      0x760 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/rocklua.o
+                0x0000000003f18fe0                browse_scripts
+                0x0000000003f19078                plugin_start
+ .text          0x0000000003f192d0      0x3e0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/luadir.o
+                0x0000000003f195dc                luaopen_luadir
+ .text          0x0000000003f196b0      0xb6c /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/rocklib_events.o
+                0x0000000003f1a18c                luaopen_rockevents
+ .text          0x0000000003f1a21c     0x1830 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/rocklib_aux.o
+ .text          0x0000000003f1ba4c      0x214 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/plugin_crt0.o
+                0x0000000003f1ba64                plugin__start
+                0x0000000003f1bbac                rb_atexit
+                0x0000000003f1bbcc                exit
+                0x0000000003f1bbf4                _exit
+                0x0000000003f1bc08                exit_on_usb
+ .text.ls_bit   0x0000000003f1bc60       0x44 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/libtlsf.a(tlsf.o)
+ .text.ms_bit   0x0000000003f1bca4       0x3c /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/libtlsf.a(tlsf.o)
+ .text.set_bit  0x0000000003f1bce0       0x1c /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/libtlsf.a(tlsf.o)
  .text.clear_bit
-                0x0000000003f1bd04       0x1c /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/libtlsf.a(tlsf.o)
+                0x0000000003f1bcfc       0x1c /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/libtlsf.a(tlsf.o)
  .text.MAPPING_SEARCH
-                0x0000000003f1bd20       0x90 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/libtlsf.a(tlsf.o)
+                0x0000000003f1bd18       0x90 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/libtlsf.a(tlsf.o)
  .text.FIND_SUITABLE_BLOCK
-                0x0000000003f1bdb0       0x78 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/libtlsf.a(tlsf.o)
+                0x0000000003f1bda8       0x78 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/libtlsf.a(tlsf.o)
  .text.process_area
-                0x0000000003f1be28       0x60 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/libtlsf.a(tlsf.o)
+                0x0000000003f1be20       0x60 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/libtlsf.a(tlsf.o)
  .text.MAPPING_INSERT
-                0x0000000003f1be88       0x54 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/libtlsf.a(tlsf.o)
- .text.panicf   0x0000000003f1bedc        0x8 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/libtlsf.a(tlsf.o)
-                0x0000000003f1bedc                panicf
- .text.free_ex  0x0000000003f1bee4      0x290 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/libtlsf.a(tlsf.o)
-                0x0000000003f1bee4                free_ex
+                0x0000000003f1be80       0x54 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/libtlsf.a(tlsf.o)
+ .text.panicf   0x0000000003f1bed4        0x8 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/libtlsf.a(tlsf.o)
+                0x0000000003f1bed4                panicf
+ .text.free_ex  0x0000000003f1bedc      0x290 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/libtlsf.a(tlsf.o)
+                0x0000000003f1bedc                free_ex
  .text.init_memory_pool
-                0x0000000003f1c174       0xc8 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/libtlsf.a(tlsf.o)
-                0x0000000003f1c174                init_memory_pool
+                0x0000000003f1c16c       0xc8 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/libtlsf.a(tlsf.o)
+                0x0000000003f1c16c                init_memory_pool
  .text.add_new_area
-                0x0000000003f1c23c      0x158 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/libtlsf.a(tlsf.o)
-                0x0000000003f1c23c                add_new_area
+                0x0000000003f1c234      0x158 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/libtlsf.a(tlsf.o)
+                0x0000000003f1c234                add_new_area
  .text.malloc_ex
-                0x0000000003f1c394      0x254 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/libtlsf.a(tlsf.o)
-                0x0000000003f1c394                malloc_ex
+                0x0000000003f1c38c      0x254 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/libtlsf.a(tlsf.o)
+                0x0000000003f1c38c                malloc_ex
  .text.tlsf_malloc
-                0x0000000003f1c5e8       0x70 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/libtlsf.a(tlsf.o)
-                0x0000000003f1c5e8                tlsf_malloc
+                0x0000000003f1c5e0       0x70 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/libtlsf.a(tlsf.o)
+                0x0000000003f1c5e0                tlsf_malloc
  .text.tlsf_free
-                0x0000000003f1c658       0x10 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/libtlsf.a(tlsf.o)
-                0x0000000003f1c658                tlsf_free
+                0x0000000003f1c650       0x10 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/libtlsf.a(tlsf.o)
+                0x0000000003f1c650                tlsf_free
  .text.realloc_ex
-                0x0000000003f1c668      0x3b0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/libtlsf.a(tlsf.o)
-                0x0000000003f1c668                realloc_ex
+                0x0000000003f1c660      0x3b0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/libtlsf.a(tlsf.o)
+                0x0000000003f1c660                realloc_ex
  .text.tlsf_realloc
-                0x0000000003f1ca18       0x1c /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/libtlsf.a(tlsf.o)
-                0x0000000003f1ca18                tlsf_realloc
- .text.memcpy   0x0000000003f1ca34       0x14 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(gcc-support.o)
-                0x0000000003f1ca34                memcpy
- .text.memset   0x0000000003f1ca48       0x14 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(gcc-support.o)
-                0x0000000003f1ca48                memset
- .text.memcmp   0x0000000003f1ca5c       0x14 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(gcc-support.o)
-                0x0000000003f1ca5c                memcmp
+                0x0000000003f1ca10       0x1c /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/libtlsf.a(tlsf.o)
+                0x0000000003f1ca10                tlsf_realloc
+ .text.memcpy   0x0000000003f1ca2c       0x14 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(gcc-support.o)
+                0x0000000003f1ca2c                memcpy
+ .text.memset   0x0000000003f1ca40       0x14 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(gcc-support.o)
+                0x0000000003f1ca40                memset
+ .text.memcmp   0x0000000003f1ca54       0x14 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(gcc-support.o)
+                0x0000000003f1ca54                memcmp
  .text.get_context_map
-                0x0000000003f1ca70       0x3c /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(pluginlib_actions.o)
+                0x0000000003f1ca68       0x3c /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(pluginlib_actions.o)
  .text.pluginlib_getaction
-                0x0000000003f1caac       0x4c /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(pluginlib_actions.o)
-                0x0000000003f1caac                pluginlib_getaction
+                0x0000000003f1caa4       0x4c /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(pluginlib_actions.o)
+                0x0000000003f1caa4                pluginlib_getaction
  .text.backlight_force_on
-                0x0000000003f1caf8       0x34 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(helper.o)
-                0x0000000003f1caf8                backlight_force_on
+                0x0000000003f1caf0       0x34 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(helper.o)
+                0x0000000003f1caf0                backlight_force_on
  .text.backlight_use_settings
-                0x0000000003f1cb2c       0x3c /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(helper.o)
-                0x0000000003f1cb2c                backlight_use_settings
+                0x0000000003f1cb24       0x3c /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(helper.o)
+                0x0000000003f1cb24                backlight_use_settings
  .text.backlight_brightness_set
-                0x0000000003f1cb68       0x14 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(helper.o)
-                0x0000000003f1cb68                backlight_brightness_set
+                0x0000000003f1cb60       0x14 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(helper.o)
+                0x0000000003f1cb60                backlight_brightness_set
  .text.backlight_brightness_use_setting
-                0x0000000003f1cb7c       0x1c /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(helper.o)
-                0x0000000003f1cb7c                backlight_brightness_use_setting
- .text.strncpy  0x0000000003f1cb98       0x3c /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(strncpy.o)
-                0x0000000003f1cb98                strncpy
- .text          0x0000000003f1cbd4       0x1c /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/libsetjmp.a(setjmp.o)
-                0x0000000003f1cbd4                setjmp
-                0x0000000003f1cbe0                longjmp
- .text          0x0000000003f1cbf0      0x114 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivsi3.o)
-                0x0000000003f1cbf0                __udivsi3
-                0x0000000003f1cbf0                __aeabi_uidiv
-                0x0000000003f1cce4                __aeabi_uidivmod
- .text          0x0000000003f1cd04      0x148 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
-                0x0000000003f1cd04                __aeabi_idiv
-                0x0000000003f1cd04                __divsi3
-                0x0000000003f1ce2c                __aeabi_idivmod
- .text          0x0000000003f1ce4c        0x4 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
-                0x0000000003f1ce4c                __aeabi_ldiv0
-                0x0000000003f1ce4c                __aeabi_idiv0
- .text          0x0000000003f1ce50      0x424 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_arm_addsubdf3.o)
-                0x0000000003f1ce50                __aeabi_drsub
-                0x0000000003f1ce58                __aeabi_dsub
-                0x0000000003f1ce58                __subdf3
-                0x0000000003f1ce5c                __adddf3
-                0x0000000003f1ce5c                __aeabi_dadd
-                0x0000000003f1d16c                __aeabi_ui2d
-                0x0000000003f1d16c                __floatunsidf
-                0x0000000003f1d190                __floatsidf
-                0x0000000003f1d190                __aeabi_i2d
-                0x0000000003f1d1b8                __extendsfdf2
-                0x0000000003f1d1b8                __aeabi_f2d
-                0x0000000003f1d200                __aeabi_ul2d
-                0x0000000003f1d200                __floatundidf
-                0x0000000003f1d214                __floatdidf
-                0x0000000003f1d214                __aeabi_l2d
- .text          0x0000000003f1d274      0x49c /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_arm_muldivdf3.o)
-                0x0000000003f1d274                __aeabi_dmul
-                0x0000000003f1d274                __muldf3
-                0x0000000003f1d504                __aeabi_ddiv
-                0x0000000003f1d504                __divdf3
- .text          0x0000000003f1d710       0x5c /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_arm_fixdfsi.o)
-                0x0000000003f1d710                __fixdfsi
-                0x0000000003f1d710                __aeabi_d2iz
+                0x0000000003f1cb74       0x1c /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(helper.o)
+                0x0000000003f1cb74                backlight_brightness_use_setting
+ .text.strncpy  0x0000000003f1cb90       0x3c /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(strncpy.o)
+                0x0000000003f1cb90                strncpy
+ .text          0x0000000003f1cbcc       0x1c /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/libsetjmp.a(setjmp.o)
+                0x0000000003f1cbcc                setjmp
+                0x0000000003f1cbd8                longjmp
+ .text          0x0000000003f1cbe8      0x114 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivsi3.o)
+                0x0000000003f1cbe8                __udivsi3
+                0x0000000003f1cbe8                __aeabi_uidiv
+                0x0000000003f1ccdc                __aeabi_uidivmod
+ .text          0x0000000003f1ccfc      0x148 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+                0x0000000003f1ccfc                __aeabi_idiv
+                0x0000000003f1ccfc                __divsi3
+                0x0000000003f1ce24                __aeabi_idivmod
+ .text          0x0000000003f1ce44        0x4 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
+                0x0000000003f1ce44                __aeabi_ldiv0
+                0x0000000003f1ce44                __aeabi_idiv0
+ .text          0x0000000003f1ce48      0x424 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_arm_addsubdf3.o)
+                0x0000000003f1ce48                __aeabi_drsub
+                0x0000000003f1ce50                __aeabi_dsub
+                0x0000000003f1ce50                __subdf3
+                0x0000000003f1ce54                __adddf3
+                0x0000000003f1ce54                __aeabi_dadd
+                0x0000000003f1d164                __aeabi_ui2d
+                0x0000000003f1d164                __floatunsidf
+                0x0000000003f1d188                __floatsidf
+                0x0000000003f1d188                __aeabi_i2d
+                0x0000000003f1d1b0                __extendsfdf2
+                0x0000000003f1d1b0                __aeabi_f2d
+                0x0000000003f1d1f8                __aeabi_ul2d
+                0x0000000003f1d1f8                __floatundidf
+                0x0000000003f1d20c                __floatdidf
+                0x0000000003f1d20c                __aeabi_l2d
+ .text          0x0000000003f1d26c      0x49c /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_arm_muldivdf3.o)
+                0x0000000003f1d26c                __aeabi_dmul
+                0x0000000003f1d26c                __muldf3
+                0x0000000003f1d4fc                __aeabi_ddiv
+                0x0000000003f1d4fc                __divdf3
+ .text          0x0000000003f1d708       0x5c /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_arm_fixdfsi.o)
+                0x0000000003f1d708                __fixdfsi
+                0x0000000003f1d708                __aeabi_d2iz
  *(.glue_7)
- .glue_7        0x0000000003f1d76c        0x0 linker stubs
+ .glue_7        0x0000000003f1d764        0x0 linker stubs
  *(.glue_7t)
- .glue_7t       0x0000000003f1d76c        0x0 linker stubs
+ .glue_7t       0x0000000003f1d764        0x0 linker stubs
 
-.vfp11_veneer   0x0000000003f1d76c        0x0
- .vfp11_veneer  0x0000000003f1d76c        0x0 linker stubs
+.vfp11_veneer   0x0000000003f1d764        0x0
+ .vfp11_veneer  0x0000000003f1d764        0x0 linker stubs
 
-.v4_bx          0x0000000003f1d76c        0x0
- .v4_bx         0x0000000003f1d76c        0x0 linker stubs
+.v4_bx          0x0000000003f1d764        0x0
+ .v4_bx         0x0000000003f1d764        0x0 linker stubs
 
-.iplt           0x0000000003f1d76c        0x0
- .iplt          0x0000000003f1d76c        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/lauxlib.o
+.iplt           0x0000000003f1d764        0x0
+ .iplt          0x0000000003f1d764        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/lauxlib.o
 
-.rodata         0x0000000003f1d76c     0x3590
+.rodata         0x0000000003f1d764     0x3590
  *(.rodata*)
  .rodata.str1.1
-                0x0000000003f1d76c      0x18b /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/lauxlib.o
+                0x0000000003f1d764      0x18b /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/lauxlib.o
                                         0x1a6 (size before relaxing)
- *fill*         0x0000000003f1d8f7        0x1 
- .rodata        0x0000000003f1d8f8       0x28 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/lauxlib.o
+ *fill*         0x0000000003f1d8ef        0x1 
+ .rodata        0x0000000003f1d8f0       0x28 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/lauxlib.o
  .rodata.str1.1
-                0x0000000003f1d920       0x20 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/lapi.o
+                0x0000000003f1d918       0x20 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/lapi.o
                                          0x23 (size before relaxing)
  .rodata.str1.1
-                0x0000000003f1d940      0x32e /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/lbaselib.o
+                0x0000000003f1d938      0x32e /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/lbaselib.o
                                         0x3a6 (size before relaxing)
- *fill*         0x0000000003f1dc6e        0x2 
- .rodata        0x0000000003f1dc70      0x154 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/lbaselib.o
+ *fill*         0x0000000003f1dc66        0x2 
+ .rodata        0x0000000003f1dc68      0x154 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/lbaselib.o
  .rodata.str1.1
-                0x0000000003f1ddc4       0x2b /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/lbitlib.o
+                0x0000000003f1ddbc       0x2b /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/lbitlib.o
                                          0x32 (size before relaxing)
- *fill*         0x0000000003f1ddef        0x1 
- .rodata        0x0000000003f1ddf0       0x40 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/lbitlib.o
+ *fill*         0x0000000003f1dde7        0x1 
+ .rodata        0x0000000003f1dde8       0x40 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/lbitlib.o
  .rodata.str1.1
-                0x0000000003f1de30       0x74 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/lcode.o
+                0x0000000003f1de28       0x74 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/lcode.o
  .rodata.str1.1
-                0x0000000003f1dea4       0xf2 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/ldebug.o
+                0x0000000003f1de9c       0xf2 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/ldebug.o
                                          0xfc (size before relaxing)
  .rodata.str1.1
-                0x0000000003f1df96       0x94 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/ldo.o
+                0x0000000003f1df8e       0x94 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/ldo.o
                                          0xa8 (size before relaxing)
  .rodata.str1.1
-                0x0000000003f1e02a       0x94 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/ldump.o
+                0x0000000003f1e022       0x94 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/ldump.o
                                          0x18 (size before relaxing)
  .rodata.str1.1
-                0x0000000003f1e02a       0xef /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/liolib.o
+                0x0000000003f1e022       0xef /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/liolib.o
                                         0x14a (size before relaxing)
- *fill*         0x0000000003f1e119        0x3 
- .rodata        0x0000000003f1e11c       0xac /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/liolib.o
+ *fill*         0x0000000003f1e111        0x3 
+ .rodata        0x0000000003f1e114       0xac /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/liolib.o
  .rodata.str1.1
-                0x0000000003f1e1c8      0x142 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/llex.o
+                0x0000000003f1e1c0      0x142 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/llex.o
                                         0x184 (size before relaxing)
- *fill*         0x0000000003f1e30a        0x2 
- .rodata        0x0000000003f1e30c       0x80 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/llex.o
-                0x0000000003f1e30c                luaX_tokens
+ *fill*         0x0000000003f1e302        0x2 
+ .rodata        0x0000000003f1e304       0x80 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/llex.o
+                0x0000000003f1e304                luaX_tokens
  .rodata.str1.1
-                0x0000000003f1e38c       0x78 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/lmathlib.o
- .rodata        0x0000000003f1e404       0x58 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/lmathlib.o
+                0x0000000003f1e384       0x78 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/lmathlib.o
+ .rodata        0x0000000003f1e3fc       0x58 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/lmathlib.o
  .rodata.str1.1
-                0x0000000003f1e45c       0x27 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/lmem.o
+                0x0000000003f1e454       0x27 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/lmem.o
  .rodata.str1.1
-                0x0000000003f1e483      0x1ee /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/loadlib.o
+                0x0000000003f1e47b      0x1ee /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/loadlib.o
                                         0x22a (size before relaxing)
- *fill*         0x0000000003f1e671        0x3 
- .rodata        0x0000000003f1e674       0x38 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/loadlib.o
+ *fill*         0x0000000003f1e669        0x3 
+ .rodata        0x0000000003f1e66c       0x38 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/loadlib.o
  .rodata.str1.1
-                0x0000000003f1e6ac       0x16 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/lobject.o
+                0x0000000003f1e6a4       0x16 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/lobject.o
                                          0x1e (size before relaxing)
- *fill*         0x0000000003f1e6c2        0x2 
- .rodata        0x0000000003f1e6c4      0x108 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/lobject.o
-                0x0000000003f1e7c4                luaO_nilobject_
+ *fill*         0x0000000003f1e6ba        0x2 
+ .rodata        0x0000000003f1e6bc      0x108 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/lobject.o
+                0x0000000003f1e7bc                luaO_nilobject_
  .rodata.str1.1
-                0x0000000003f1e7cc       0xe2 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/lopcodes.o
+                0x0000000003f1e7c4       0xe2 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/lopcodes.o
                                          0xf2 (size before relaxing)
- *fill*         0x0000000003f1e8ae        0x2 
- .rodata        0x0000000003f1e8b0       0xc4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/lopcodes.o
-                0x0000000003f1e8b0                luaP_opmodes
-                0x0000000003f1e8d8                luaP_opnames
+ *fill*         0x0000000003f1e8a6        0x2 
+ .rodata        0x0000000003f1e8a8       0xc4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/lopcodes.o
+                0x0000000003f1e8a8                luaP_opmodes
+                0x0000000003f1e8d0                luaP_opnames
  .rodata.str1.1
-                0x0000000003f1e974       0x5c /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/loslib.o
+                0x0000000003f1e96c       0x5c /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/loslib.o
                                          0x74 (size before relaxing)
- .rodata        0x0000000003f1e9d0       0x30 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/loslib.o
+ .rodata        0x0000000003f1e9c8       0x30 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/loslib.o
  .rodata.str1.1
-                0x0000000003f1ea00      0x21b /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/lparser.o
+                0x0000000003f1e9f8      0x21b /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/lparser.o
                                         0x244 (size before relaxing)
- .rodata        0x0000000003f1ec1b       0x1e /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/lparser.o
+ .rodata        0x0000000003f1ec13       0x1e /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/lparser.o
  .rodata.str1.1
-                0x0000000003f1ec39       0x12 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/lstate.o
+                0x0000000003f1ec31       0x12 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/lstate.o
  .rodata.str1.1
-                0x0000000003f1ec39      0x23d /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/lstrlib.o
+                0x0000000003f1ec31      0x23d /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/lstrlib.o
                                         0x272 (size before relaxing)
- *fill*         0x0000000003f1ee76        0x2 
- .rodata        0x0000000003f1ee78       0x80 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/lstrlib.o
+ *fill*         0x0000000003f1ee6e        0x2 
+ .rodata        0x0000000003f1ee70       0x80 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/lstrlib.o
  .rodata.str1.1
-                0x0000000003f1eef8       0x29 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/ltable.o
+                0x0000000003f1eef0       0x29 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/ltable.o
                                          0x38 (size before relaxing)
- *fill*         0x0000000003f1ef21        0x3 
- .rodata        0x0000000003f1ef24       0x14 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/ltable.o
+ *fill*         0x0000000003f1ef19        0x3 
+ .rodata        0x0000000003f1ef1c       0x14 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/ltable.o
  .rodata.str1.1
-                0x0000000003f1ef38       0xbd /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/ltablib.o
+                0x0000000003f1ef30       0xbd /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/ltablib.o
                                          0xd2 (size before relaxing)
- *fill*         0x0000000003f1eff5        0x3 
- .rodata        0x0000000003f1eff8       0x50 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/ltablib.o
+ *fill*         0x0000000003f1efed        0x3 
+ .rodata        0x0000000003f1eff0       0x50 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/ltablib.o
  .rodata.str1.1
-                0x0000000003f1f048       0x70 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/ltm.o
+                0x0000000003f1f040       0x70 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/ltm.o
                                          0xb3 (size before relaxing)
- .rodata        0x0000000003f1f0b8       0x70 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/ltm.o
-                0x0000000003f1f0fc                luaT_typenames
+ .rodata        0x0000000003f1f0b0       0x70 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/ltm.o
+                0x0000000003f1f0f4                luaT_typenames
  .rodata.str1.1
-                0x0000000003f1f128       0x1c /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/lundump.o
+                0x0000000003f1f120       0x1c /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/lundump.o
  .rodata.str1.1
-                0x0000000003f1f144       0xc2 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/lvm.o
+                0x0000000003f1f13c       0xc2 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/lvm.o
                                          0xcc (size before relaxing)
  .rodata.str1.1
-                0x0000000003f1f206       0x27 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/rockaux.o
+                0x0000000003f1f1fe       0x27 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/rockaux.o
                                          0x29 (size before relaxing)
  .rodata.str1.1
-                0x0000000003f1f22d      0x2ca /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/rocklib.o
+                0x0000000003f1f225      0x2ca /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/rocklib.o
                                         0x34f (size before relaxing)
- *fill*         0x0000000003f1f4f7        0x1 
- .rodata        0x0000000003f1f4f8      0x1b0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/rocklib.o
+ *fill*         0x0000000003f1f4ef        0x1 
+ .rodata        0x0000000003f1f4f0      0x1b0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/rocklib.o
  .rodata.str1.1
-                0x0000000003f1f6a8      0x350 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/rocklib_img.o
+                0x0000000003f1f6a0      0x350 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/rocklib_img.o
                                         0x3b4 (size before relaxing)
- .rodata        0x0000000003f1f9f8      0x1a8 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/rocklib_img.o
+ .rodata        0x0000000003f1f9f0      0x1a8 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/rocklib_img.o
  .rodata.str1.1
-                0x0000000003f1fba0      0x114 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/rocklua.o
+                0x0000000003f1fb98      0x114 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/rocklua.o
                                         0x146 (size before relaxing)
- .rodata        0x0000000003f1fcb4       0x68 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/rocklua.o
+ .rodata        0x0000000003f1fcac       0x68 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/rocklua.o
  .rodata.str1.1
-                0x0000000003f1fd1c       0x4e /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/luadir.o
+                0x0000000003f1fd14       0x4e /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/luadir.o
                                          0x7b (size before relaxing)
- *fill*         0x0000000003f1fd6a        0x2 
- .rodata        0x0000000003f1fd6c       0x20 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/luadir.o
+ *fill*         0x0000000003f1fd62        0x2 
+ .rodata        0x0000000003f1fd64       0x20 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/luadir.o
  .rodata.str1.1
-                0x0000000003f1fd8c       0x64 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/rocklib_events.o
+                0x0000000003f1fd84       0x64 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/rocklib_events.o
                                          0x86 (size before relaxing)
- .rodata        0x0000000003f1fdf0       0x4c /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/rocklib_events.o
+ .rodata        0x0000000003f1fde8       0x4c /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/rocklib_events.o
  .rodata.str1.1
-                0x0000000003f1fe3c      0x63c /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/rocklib_aux.o
+                0x0000000003f1fe34      0x63c /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/rocklib_aux.o
                                         0x64c (size before relaxing)
- .rodata        0x0000000003f20478      0x308 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/rocklib_aux.o
-                0x0000000003f20478                rocklib_aux
+ .rodata        0x0000000003f20470      0x308 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/rocklib_aux.o
+                0x0000000003f20470                rocklib_aux
  .rodata.str1.1
-                0x0000000003f20780       0xa2 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/libtlsf.a(tlsf.o)
- *fill*         0x0000000003f20822        0x2 
- .rodata        0x0000000003f20824      0x400 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/libtlsf.a(tlsf.o)
+                0x0000000003f20778       0xa2 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/libtlsf.a(tlsf.o)
+ *fill*         0x0000000003f2081a        0x2 
+ .rodata        0x0000000003f2081c      0x400 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/libtlsf.a(tlsf.o)
  .rodata.pla_main_ctx
-                0x0000000003f20c24       0xd8 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(pluginlib_actions.o)
-                0x0000000003f20c24                pla_main_ctx
+                0x0000000003f20c1c       0xd8 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(pluginlib_actions.o)
+                0x0000000003f20c1c                pla_main_ctx
 
-.rel.dyn        0x0000000003f20cfc        0x0
- .rel.iplt      0x0000000003f20cfc        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/lauxlib.o
+.rel.dyn        0x0000000003f20cf4        0x0
+ .rel.iplt      0x0000000003f20cf4        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/lauxlib.o
 
-.data           0x0000000003f20cfc       0x34
+.data           0x0000000003f20cf4       0x34
  *(.data*)
- .data          0x0000000003f20cfc        0x4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/rockaux.o
- .data          0x0000000003f20d00        0x4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/rocklib.o
- .data          0x0000000003f20d04       0x28 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/rocklib_img.o
- .data          0x0000000003f20d2c        0x4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/plugin_crt0.o
-                0x0000000003f20d2c                rb
+ .data          0x0000000003f20cf4        0x4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/rockaux.o
+ .data          0x0000000003f20cf8        0x4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/rocklib.o
+ .data          0x0000000003f20cfc       0x28 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/rocklib_img.o
+ .data          0x0000000003f20d24        0x4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/plugin_crt0.o
+                0x0000000003f20d24                rb
 
-.igot.plt       0x0000000003f20d30        0x0
- .igot.plt      0x0000000003f20d30        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/lauxlib.o
+.igot.plt       0x0000000003f20d28        0x0
+ .igot.plt      0x0000000003f20d28        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/lauxlib.o
 
 .ncdata         0x0000000013f20d30        0x0 load address 0x0000000003f20d30
  *(.ncdata*)
@@ -834,61 +834,61 @@ LOAD /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a
 /DISCARD/
  *(.eh_frame)
 
-.bss            0x0000000003f20d30      0x258
-                0x0000000003f20d30                plugin_bss_start = .
-                0x0000000003f20d30                _plugin_bss_start = .
+.bss            0x0000000003f20d28      0x258
+                0x0000000003f20d28                plugin_bss_start = .
+                0x0000000003f20d28                _plugin_bss_start = .
  *(.bss*)
- .bss           0x0000000003f20d30        0x8 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/lua_user.o
- .bss           0x0000000003f20d38       0x24 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/rockaux.o
-                0x0000000003f20d58                errno
- .bss           0x0000000003f20d5c        0x4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/rocklib.o
- .bss           0x0000000003f20d60       0x64 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/rocklib_img.o
- .bss           0x0000000003f20dc4       0x10 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/tlsf_helper.o
- .bss           0x0000000003f20dd4      0x10c /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/rocklua.o
- .bss           0x0000000003f20ee0       0x38 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/rocklib_events.o
- .bss           0x0000000003f20f18       0x60 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/plugin_crt0.o
- .bss           0x0000000003f20f78        0x4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/libtlsf.a(tlsf.o)
+ .bss           0x0000000003f20d28        0x8 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/lua_user.o
+ .bss           0x0000000003f20d30       0x24 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/rockaux.o
+                0x0000000003f20d50                errno
+ .bss           0x0000000003f20d54        0x4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/rocklib.o
+ .bss           0x0000000003f20d58       0x64 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/rocklib_img.o
+ .bss           0x0000000003f20dbc       0x10 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/tlsf_helper.o
+ .bss           0x0000000003f20dcc      0x10c /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/rocklua.o
+ .bss           0x0000000003f20ed8       0x38 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/rocklib_events.o
+ .bss           0x0000000003f20f10       0x60 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/plugin_crt0.o
+ .bss           0x0000000003f20f70        0x4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/libtlsf.a(tlsf.o)
  .bss.last_context
-                0x0000000003f20f7c        0x4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(pluginlib_actions.o)
+                0x0000000003f20f74        0x4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(pluginlib_actions.o)
  .bss.plugin_context_count
-                0x0000000003f20f80        0x4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(pluginlib_actions.o)
+                0x0000000003f20f78        0x4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(pluginlib_actions.o)
  .bss.plugin_context_order
-                0x0000000003f20f84        0x4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(pluginlib_actions.o)
+                0x0000000003f20f7c        0x4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(pluginlib_actions.o)
  *(COMMON)
-                0x0000000003f20f88                . = ALIGN (0x4)
+                0x0000000003f20f80                . = ALIGN (0x4)
 
-.ncbss          0x0000000013f20f90       0x20 load address 0x0000000003f20f90
+.ncbss          0x0000000013f20f80       0x20 load address 0x0000000003f20f80
  *(.ncbss*)
- .ncbss         0x0000000013f20f90       0x18 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/rocklib_events.o
-                0x0000000013f20fb0                . = ALIGN (0x10)
- *fill*         0x0000000013f20fa8        0x8 
+ .ncbss         0x0000000013f20f80       0x18 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/lua/rocklib_events.o
+                0x0000000013f20fa0                . = ALIGN (0x10)
+ *fill*         0x0000000013f20f98        0x8 
 
-.ncbss_vma      0x0000000003f20f90       0x20
-                0x0000000003f20fb0                . = (. + SIZEOF (.ncbss))
- *fill*         0x0000000003f20f90       0x20 
+.ncbss_vma      0x0000000003f20f80       0x20
+                0x0000000003f20fa0                . = (. + SIZEOF (.ncbss))
+ *fill*         0x0000000003f20f80       0x20 
 
-.pluginend      0x0000000003f20fb0        0x0
-                0x0000000003f20fb0                _plugin_end_addr = .
-                0x0000000003f20fb0                plugin_end_addr = .
+.pluginend      0x0000000003f20fa0        0x0
+                0x0000000003f20fa0                _plugin_end_addr = .
+                0x0000000003f20fa0                plugin_end_addr = .
 
-.iram           0x000000004000c000        0x0 load address 0x0000000003f20d30
+.iram           0x000000004000c000        0x0 load address 0x0000000003f20d28
                 0x000000004000c000                iramstart = .
  *(.icode)
  *(.irodata)
  *(.idata)
                 0x000000004000c000                iramend = .
-                0x0000000003f20d30                iramcopy = LOADADDR (.iram)
+                0x0000000003f20d28                iramcopy = LOADADDR (.iram)
 
 .ibss           0x000000004000c000        0x0
                 0x000000004000c000                iedata = .
  *(.ibss)
                 0x000000004000c000                . = ALIGN (0x4)
                 0x000000004000c000                iend = .
-                0x0000000003f20fb0                loadendaddr = MAX (plugin_end_addr, (LOADADDR (.iram) + SIZEOF (.iram)))
+                0x0000000003f20fa0                loadendaddr = MAX (plugin_end_addr, (LOADADDR (.iram) + SIZEOF (.iram)))
 
-.pluginloadend  0x0000000003f20fb0        0x0
-                0x0000000003f20fb0                _plugin_load_end_addr = .
-                0x0000000003f20fb0                plugin_load_end_addr = .
+.pluginloadend  0x0000000003f20fa0        0x0
+                0x0000000003f20fa0                _plugin_load_end_addr = .
+                0x0000000003f20fa0                plugin_load_end_addr = .
 
 .comment        0x0000000000000000       0x11
  *(.comment)

@@ -1,0 +1,48 @@
+{
+  "name": "RockPod Default",
+  "description": "Built-in recreated iTunes 2007 fallback theme.",
+  "fallback_behavior": "per_asset",
+  "assets": {
+    "branding_title": "branding/title.png",
+    "toolbar_sync": "toolbar/sync.png",
+    "toolbar_refresh": "toolbar/refresh.png",
+    "toolbar_new_playlist": "toolbar/new_playlist.png",
+    "playback_previous": "playback/previous.png",
+    "playback_play": "playback/play.png",
+    "playback_pause": "playback/pause.png",
+    "playback_next": "playback/next.png",
+    "sidebar_music": "sidebar/music.png",
+    "sidebar_artists": "sidebar/artists.png",
+    "sidebar_albums": "sidebar/albums.png",
+    "sidebar_genres": "sidebar/genres.png",
+    "sidebar_playlist": "sidebar/playlist.png",
+    "sidebar_device": "sidebar/device.png",
+    "chrome_texture": "chrome/toolbar_texture.png",
+    "search_field_left": "toolbar/search_left.png",
+    "search_field_middle": "toolbar/search_middle.png",
+    "search_field_right": "toolbar/search_right.png",
+    "table_header_texture": "table/header.png",
+    "table_selection_texture": "table/selection.png",
+    "sidebar_selection_texture": "sidebar/selection.png",
+    "statusbar_texture": "statusbar/background.png",
+    "statusbar_divider": "statusbar/divider.png",
+    "storagebar_frame": "statusbar/storage_frame.png",
+    "device_summary_header": "device/summary_header.png",
+    "device_summary_sidebar_icon": "device/ipod_icon.png",
+    "album_placeholder": "artwork/album_placeholder.png",
+    "album_frame": "artwork/album_frame.png"
+  },
+  "colors": {
+    "selection_blue_top": "#9db1cb",
+    "selection_blue_bottom": "#7089ab",
+    "toolbar_top": "#d8d8d8",
+    "toolbar_bottom": "#adadad",
+    "sidebar_top": "#e3e7ed",
+    "sidebar_bottom": "#c9cfd7"
+  },
+  "metrics": {
+    "toolbar_height": 44,
+    "sidebar_row_height": 17,
+    "table_row_height": 18
+  }
+}

@@ -1459,6 +1459,13 @@ const char *get_token_value(struct gui_wps *gwps,
                 return NULL;
 #endif
         case SKIN_TOKEN_BUTTON_VOLUME:
+#ifdef HAS_BUTTON_HOLD
+            if (button_hold())
+                return NULL;
+#else
+            if (is_keys_locked())
+                return NULL;
+#endif
             if (global_status.last_volume_change &&
                 TIME_BEFORE(current_tick, global_status.last_volume_change +
                                           token->value.i))

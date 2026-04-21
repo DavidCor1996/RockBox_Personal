@@ -13,6 +13,7 @@
 #include "pcm.h"
 #include "emu.h"
 #include "loader.h"
+#include "profiler.h"
 
 #define SLOT_COUNT  50
 #define DESC_SIZE   20
@@ -381,6 +382,25 @@ static void do_opt_menu(void)
         { "20 Max", -1 },
     };
 
+    static const struct opt_items performance[] = {
+        { "Balanced", -1 },
+        { "Performance", -1 },
+        { "Quality", -1 },
+    };
+
+    static const struct opt_items profile[] = {
+        { "Off", -1 },
+        { "Overlay", -1 },
+        { "Overlay + Log", -1 },
+    };
+
+#if CONFIG_KEYPAD == IPOD_4G_PAD && defined(IPOD_VIDEO)
+    static const struct opt_items controls[] = {
+        { "Classic Wheel", -1 },
+        { "5G D-Pad", -1 },
+    };
+#endif
+
 #ifdef HAVE_LCD_COLOR
     static const struct opt_items rotate[] = {
         { "No rotation", -1 },
@@ -418,8 +438,12 @@ static void do_opt_menu(void)
 #endif
 
     MENUITEM_STRINGLIST(menu, "Options", NULL,
-                        "Max Frameskip", "Autosave", "Sound", "Volume",
-                        "Stats", "Set Keys (Buggy)",
+                        "Performance", "Max Frameskip", "Autosave", "Sound",
+                        "Volume", "Stats", "Profile",
+#if CONFIG_KEYPAD == IPOD_4G_PAD && defined(IPOD_VIDEO)
+                        "Controls",
+#endif
+                        "Set Keys (Buggy)",
 #ifdef HAVE_LCD_COLOR
                         "Screen Size", "Screen Rotate", "Set Palette",
 #endif
@@ -436,39 +460,71 @@ static void do_opt_menu(void)
 
         switch (result)
         {
-            case 0: /* Frameskip */
+            case 0: /* Performance */
+                rb->set_option("Performance", &options.performance_preset, RB_INT,
+                               performance, 3, NULL );
+                rockboy_apply_performance_preset(options.performance_preset);
+                if (options.sound)
+                    sound_dirty();
+                setvidmode();
+                break;
+            case 1: /* Frameskip */
                 rb->set_option("Max Frameskip", &options.maxskip, RB_INT, frameskip,
                     sizeof(frameskip)/sizeof(*frameskip), NULL );
                 break;
-            case 1: /* Autosave */
+            case 2: /* Autosave */
                 rb->set_option("Autosave", &options.autosave, RB_INT, onoff, 2, NULL );
                 break;
-            case 2: /* Sound */
+            case 3: /* Sound */
                 if(options.sound>1) options.sound=1;
                 rb->set_option("Sound", &options.sound, RB_INT, onoff, 2, NULL );
                 if(options.sound) sound_dirty();
                 break;
-            case 3: /* Volume */
+            case 4: /* Volume */
                 rb->option_screen((struct settings_list*)vol, parentvp, false, "Volume");
                 break;
-            case 4: /* Stats */
+            case 5: /* Stats */
                 rb->set_option("Stats", &options.showstats, RB_INT, stats, 3, NULL );
                 break;
-            case 5: /* Keys */
+            case 6: /* Profile */
+                rb->set_option("Profile", &options.profile, RB_INT, profile, 3, NULL );
+                rockboy_profile_reset();
+                break;
+#if CONFIG_KEYPAD == IPOD_4G_PAD && defined(IPOD_VIDEO)
+            case 7: /* Controls */
+                rb->set_option("Controls", &options.control_preset, RB_INT,
+                               controls, 2, NULL );
+                break;
+            case 8: /* Keys */
+#else
+            case 7: /* Keys */
+#endif
                 setupkeys();
                 break;
 #ifdef HAVE_LCD_COLOR
-            case 6: /* Screen Size */
+#if CONFIG_KEYPAD == IPOD_4G_PAD && defined(IPOD_VIDEO)
+            case 9: /* Screen Size */
+#else
+            case 8: /* Screen Size */
+#endif
                 rb->set_option("Screen Size", &options.scaling, RB_INT, scaling,
                     sizeof(scaling)/sizeof(*scaling), NULL );
                 setvidmode();
                 break;
-            case 7: /* Screen rotate */
+#if CONFIG_KEYPAD == IPOD_4G_PAD && defined(IPOD_VIDEO)
+            case 10: /* Screen rotate */
+#else
+            case 9: /* Screen rotate */
+#endif
                 rb->set_option("Screen Rotate", &options.rotate, RB_INT, rotate,
                     sizeof(rotate)/sizeof(*rotate), NULL );
                 setvidmode();
                 break;
-            case 8: /* Palette */
+#if CONFIG_KEYPAD == IPOD_4G_PAD && defined(IPOD_VIDEO)
+            case 11: /* Palette */
+#else
+            case 10: /* Palette */
+#endif
                 rb->set_option("Set Palette", &options.pal, RB_INT, palette, 17, NULL );
                 set_pal();
                 break;

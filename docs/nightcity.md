@@ -24,6 +24,11 @@
   - optional "radio bleed" overlays that surface the currently playing shuffled track in-scene
   - small original synth/beep stings for the title screen and afterglow scenes when no music is already playing
   - glitch transitions between story nodes
+- Story expansion now includes recurring cast payoffs instead of one-off introductions:
+  - Juno returns in a new `Dead Channel` interlude after the Sable reveal
+  - Nyra's femme-only path now leads into a dedicated `Rooftop Afterglow` scene instead of ending at a single choice line
+  - Mira and Rook now have route-specific relationship choices during the clinic and convoy branches
+  - ending cards surface relationship-specific tag lines for Nyra, Mira, Rook, and Juno
 - Prioritizes stable text-heavy play over graphics-heavy ambition.
 - Uses Rockbox plugin actions so clickwheel hardware and the SDL simulator share the same control logic.
 
@@ -77,7 +82,7 @@ Then browse to:
 
 Current verified checks:
 
-- `nightcity.rock` links successfully for both the iPod Video / 5G simulator and hardware targets after the portrait/creator pass
+- `nightcity.rock` links successfully for both the iPod Video / 5G simulator and hardware targets after the cast/romance expansion pass
 - updated build was copied into `build-sim-video-5g/simdisk/.rockbox/rocks/games/nightcity.rock`
 - simulator startup was re-verified with `build-sim-video-5g/rockboxui --zoom 1 --nobackground --root simdisk`
 - updated hardware build was copied to `/.rockbox/rocks/games/nightcity.rock` on the mounted iPod
@@ -91,8 +96,10 @@ Recommended manual regression pass after asset changes:
 - verify the new gender picker appears after lifepath selection and saves correctly
 - verify the new operator profile picker shows the portrait preview and applies the intended stat bonus
 - verify Vesper uses the chosen creator portrait during player-spoken scenes
+- verify Juno's `Dead Channel` scene appears after the Sable conversation and before the route crossroads
 - verify Nyra's `Afterhours` intro scene appears before loadout and the femme-only romance option gates correctly
-- verify the rooftop/broadcast scene uses the full-moon afterglow animation theme
+- verify the rooftop/broadcast path uses the full-moon afterglow animation theme and reaches the dedicated `Rooftop Afterglow` follow-up scene
+- verify Mira and Rook spark routes unlock their new clinic/convoy relationship choices
 - verify large cast portraits stay aligned in both the regular story view and the cinematic scene intro
 - verify long choice labels wrap cleanly without clipping the selector
 - verify a single center-button press only advances once on clickwheel hardware and in the simulator
@@ -108,6 +115,7 @@ Recommended manual regression pass after asset changes:
 ## Follow-up recommendations
 
 - Add a richer optional mid-game encounter branch
+- Add more route-specific scene art or animated overlays for Mira/Rook/Juno to match Nyra's stronger cinematic treatment
 - Add a compact mission log panel if the story grows
 - Add tiny UI sounds only if simulator and device testing show no instability
 - Consider a small manual entry once the story structure settles

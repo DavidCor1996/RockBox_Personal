@@ -6,6 +6,7 @@
 #include "lcd-gb.h"
 #include "rtc-gb.h"
 #include "save.h"
+#include "profiler.h"
 #include "sound.h"
 #include "loader.h"
 
@@ -232,6 +233,7 @@ static int sram_load(void)
     if (fd<0) return -1;
     read(fd,ram.sbank, 8192*mbc.ramsize);
     close(fd);
+    ram.dirty = 0;
     
     return 0;
 }
@@ -240,14 +242,19 @@ static int sram_load(void)
 static int sram_save(void)
 {
     int fd;
+    unsigned long save_start;
 
     /* If we crash before we ever loaded sram, DO NOT SAVE! */
-    if (!mbc.batt || !ram.loaded || !mbc.ramsize)
+    if (!mbc.batt || !ram.loaded || !mbc.ramsize || !ram.dirty)
         return -1;
+
+    save_start = *rb->current_tick;
     fd = open(sramfile, O_WRONLY|O_CREAT|O_TRUNC, 0666);
     if (fd<0) return -1;
     write(fd,ram.sbank, 8192*mbc.ramsize);
     close(fd);
+    ram.dirty = 0;
+    rockboy_profile_add(ROCKBOY_TIME_SAVE, *rb->current_tick - save_start);
     
     return 0;
 }
@@ -255,10 +262,13 @@ static int sram_save(void)
 static void rtc_save(void)
 {
     int fd;
-    if (!rtc.batt) return;
+    unsigned long save_start = *rb->current_tick;
+    if (!rtc.batt || !rtc.dirty) return;
     if ((fd = open(rtcfile, O_WRONLY|O_CREAT|O_TRUNC, 0666))<0) return;
     rtc_save_internal(fd);
     close(fd);
+    rtc.dirty = 0;
+    rockboy_profile_add(ROCKBOY_TIME_SAVE, *rb->current_tick - save_start);
 }
 
 static void rtc_load(void)
@@ -268,15 +278,18 @@ static void rtc_load(void)
     if ((fd = open(rtcfile, O_RDONLY))<0) return;
     rtc_load_internal(fd);
     close(fd);
+    rtc.dirty = 0;
 }
 
 void sn_save(void)
 {
-    int fd;    
+    int fd;
+    unsigned long save_start = *rb->current_tick;
     if ((fd = open(snfile, O_WRONLY | O_CREAT, 0666)) < 0)
         return;
     savestate(fd);
     close(fd);
+    rockboy_profile_add(ROCKBOY_TIME_SAVE, *rb->current_tick - save_start);
 }
 
 void sn_load(void)

@@ -28,31 +28,43 @@ void rtc_latch(byte b)
 
 void rtc_write(byte b)
 {
+    int old;
+
     /* printf("write %02X: %02X (%d)\n", rtc.sel, b, b); */
     if (!(rtc.sel & 8)) return;
     switch (rtc.sel & 7)
     {
     case 0:
+        old = rtc.s;
         rtc.s = rtc.regs[0] = b;
         while (rtc.s >= 60) rtc.s -= 60;
+        rtc.dirty |= (rtc.s != old);
         break;
     case 1:
+        old = rtc.m;
         rtc.m = rtc.regs[1] = b;
         while (rtc.m >= 60) rtc.m -= 60;
+        rtc.dirty |= (rtc.m != old);
         break;
     case 2:
+        old = rtc.h;
         rtc.h = rtc.regs[2] = b;
         while (rtc.h >= 24) rtc.h -= 24;
+        rtc.dirty |= (rtc.h != old);
         break;
     case 3:
+        old = rtc.d;
         rtc.regs[3] = b;
         rtc.d = (rtc.d & 0x100) | b;
+        rtc.dirty |= (rtc.d != old);
         break;
     case 4:
+        old = rtc.d | (rtc.stop << 16) | (rtc.carry << 17);
         rtc.regs[4] = b;
         rtc.d = (rtc.d & 0xff) | ((b&1)<<9);
         rtc.stop = (b>>6)&1;
         rtc.carry = (b>>7)&1;
+        rtc.dirty |= ((rtc.d | (rtc.stop << 16) | (rtc.carry << 17)) != old);
         break;
     }
 }
@@ -117,7 +129,6 @@ void rtc_load_internal(int fd)
     while (rt-- > 0) rtc_tick();
 
 }
-
 
 
 

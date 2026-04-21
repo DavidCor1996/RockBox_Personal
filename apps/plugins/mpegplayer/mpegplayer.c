@@ -107,6 +107,15 @@
 #include "stream_thread.h"
 #include "stream_mgr.h"
 
+#if defined(HAVE_LCD_COLOR) && (LCD_WIDTH >= 320) && (LCD_HEIGHT >= 240)
+#include "pluginbitmaps/ipodtiktok_header.h"
+#include "pluginbitmaps/ipodtiktok_scrim.h"
+#include "pluginbitmaps/ipodtiktok_heart.h"
+#define IPODTIKTOK_USE_BITMAP_ASSETS 1
+#else
+#define IPODTIKTOK_USE_BITMAP_ASSETS 0
+#endif
+
 #define MPLOG(...) DEBUGF("mpegplayer: " __VA_ARGS__)
 
 
@@ -591,6 +600,16 @@ extern const unsigned char mpegplayer_status_icons_8x8x1[];
 extern const unsigned char mpegplayer_status_icons_12x12x1[];
 extern const unsigned char mpegplayer_status_icons_16x16x1[];
 
+#if IPODTIKTOK_USE_BITMAP_ASSETS
+#define FEED_HEADER_HEIGHT      BMPHEIGHT_ipodtiktok_header
+#define FEED_SCRIM_HEIGHT       BMPHEIGHT_ipodtiktok_scrim
+#define FEED_HEART_SIZE         BMPWIDTH_ipodtiktok_heart
+#else
+#define FEED_HEADER_HEIGHT      28
+#define FEED_SCRIM_HEIGHT       80
+#define FEED_HEART_SIZE         28
+#endif
+
 /* Main border areas that contain OSD elements */
 #define OSD_BDR_L 4
 #define OSD_BDR_T 4
@@ -649,6 +668,37 @@ struct fps
 static struct osd osd;
 static struct fps fps NOCACHEBSS_ATTR; /* Accessed on other processor */
 
+#define IPODTIKTOK_PARAM_PREFIX "-ipodtiktok:"
+#define FEED_MAX_ITEMS          64
+#define FEED_ID_LEN             32
+#define FEED_TITLE_LEN          64
+#define FEED_SELECT_WINDOW      (HZ / 3)
+#define FEED_SKIP_COOLDOWN      (HZ * 2)
+
+struct feed_item
+{
+    char id[FEED_ID_LEN];
+    char title[FEED_TITLE_LEN];
+    char path[MAX_PATH];
+    bool liked;
+};
+
+struct feed_state
+{
+    bool active;
+    char feed_path[MAX_PATH];
+    char likes_path[MAX_PATH];
+    char state_path[MAX_PATH];
+    struct feed_item items[FEED_MAX_ITEMS];
+    int count;
+    int index;
+    bool select_pending;
+    long select_deadline;
+    long skip_cooldown_until;
+};
+
+static struct feed_state feed;
+
 /* Bitmap data buffers for iPone WPS slider assets */
 static fb_data slider_bg_data[242 * 12];   /* SliderThinPurple12.bmp is ~242x12 */
 static fb_data slider_knob_data[12 * 12];  /* PlayerSliderThinPurple12.bmp is ~12x12 */
@@ -698,6 +748,395 @@ static fb_data* get_framebuffer(void)
 #endif
 
 static void osd_show(unsigned show);
+static void osd_refresh(int hint);
+
+static void feed_reset(void)
+{
+    rb->memset(&feed, 0, sizeof(feed));
+}
+
+static char *feed_trim(char *text)
+{
+    char *end;
+
+    while (*text == ' ' || *text == '\t' || *text == '\r' || *text == '\n')
+        text++;
+
+    end = text + rb->strlen(text);
+    while (end > text)
+    {
+        char ch = end[-1];
+
+        if (ch != ' ' && ch != '\t' && ch != '\r' && ch != '\n')
+            break;
+
+        end--;
+    }
+
+    *end = '\0';
+    return text;
+}
+
+static void feed_make_sibling_path(const char *base, const char *name,
+                                   char *out, size_t out_size)
+{
+    char dir[MAX_PATH];
+    char *slash;
+
+    rb->strlcpy(dir, base, sizeof(dir));
+    slash = rb->strrchr(dir, '/');
+    if (slash != NULL)
+        slash[1] = '\0';
+    else
+        dir[0] = '\0';
+
+    rb->snprintf(out, out_size, "%s%s", dir, name);
+}
+
+static void feed_default_id_from_path(const char *path, int ordinal,
+                                      char *out, size_t out_size)
+{
+    const char *name = rb->strrchr(path, '/');
+    const char *ext;
+    size_t i = 0;
+
+    name = (name != NULL && name[1] != '\0') ? name + 1 : path;
+    ext = rb->strrchr(name, '.');
+
+    while (name[i] != '\0' && &name[i] != ext && i + 1 < out_size)
+    {
+        char ch = name[i];
+
+        if ((ch >= 'a' && ch <= 'z') ||
+            (ch >= 'A' && ch <= 'Z') ||
+            (ch >= '0' && ch <= '9'))
+        {
+            out[i] = ch;
+        }
+        else
+        {
+            out[i] = '_';
+        }
+
+        i++;
+    }
+
+    out[i] = '\0';
+
+    if (out[0] == '\0')
+        rb->snprintf(out, out_size, "clip%d", ordinal + 1);
+}
+
+static void feed_default_title_from_path(const char *path, int ordinal,
+                                         char *out, size_t out_size)
+{
+    const char *name = rb->strrchr(path, '/');
+    const char *ext;
+    size_t i = 0;
+    bool prev_space = true;
+
+    name = (name != NULL && name[1] != '\0') ? name + 1 : path;
+    ext = rb->strrchr(name, '.');
+
+    while (*name != '\0' && name != ext && i + 1 < out_size)
+    {
+        char ch = *name++;
+
+        if ((ch >= 'a' && ch <= 'z') ||
+            (ch >= 'A' && ch <= 'Z') ||
+            (ch >= '0' && ch <= '9'))
+        {
+            out[i++] = ch;
+            prev_space = false;
+        }
+        else if (!prev_space)
+        {
+            out[i++] = ' ';
+            prev_space = true;
+        }
+    }
+
+    if (i > 0 && out[i - 1] == ' ')
+        i--;
+
+    out[i] = '\0';
+
+    if (out[0] == '\0')
+        rb->snprintf(out, out_size, "Clip %d", ordinal + 1);
+}
+
+static void feed_load_likes(void)
+{
+    int fd;
+    char line[128];
+    int len;
+    int i;
+
+    fd = rb->open(feed.likes_path, O_RDONLY);
+    if (fd < 0)
+        return;
+
+    while ((len = rb->read_line(fd, line, sizeof(line))) > 0)
+    {
+        char *key = feed_trim(line);
+
+        if (*key == '\0')
+            continue;
+
+        for (i = 0; i < feed.count; i++)
+        {
+            if (!rb->strcmp(feed.items[i].id, key) ||
+                !rb->strcmp(feed.items[i].path, key))
+            {
+                feed.items[i].liked = true;
+                break;
+            }
+        }
+    }
+
+    rb->close(fd);
+}
+
+static void feed_save_likes(void)
+{
+    int fd;
+    int i;
+
+    fd = rb->open(feed.likes_path, O_WRONLY | O_CREAT | O_TRUNC, 0666);
+    if (fd < 0)
+        return;
+
+    for (i = 0; i < feed.count; i++)
+    {
+        if (feed.items[i].liked)
+            rb->fdprintf(fd, "%s\n", feed.items[i].id);
+    }
+
+    rb->close(fd);
+}
+
+static void feed_load_state(void)
+{
+    int fd;
+    char line[32];
+    int len;
+    int index;
+
+    fd = rb->open(feed.state_path, O_RDONLY);
+    if (fd < 0)
+        return;
+
+    len = rb->read_line(fd, line, sizeof(line));
+    rb->close(fd);
+    if (len <= 0)
+        return;
+
+    index = rb->atoi(line);
+    if (index >= 0 && index < feed.count)
+        feed.index = index;
+}
+
+static void feed_save_state(void)
+{
+    int fd;
+
+    fd = rb->open(feed.state_path, O_WRONLY | O_CREAT | O_TRUNC, 0666);
+    if (fd < 0)
+        return;
+
+    rb->fdprintf(fd, "%d\n", feed.index);
+    rb->close(fd);
+}
+
+static bool feed_add_item(const char *id, const char *title, const char *path)
+{
+    struct feed_item *item;
+
+    if (feed.count >= FEED_MAX_ITEMS || !rb->file_exists(path))
+        return false;
+
+    item = &feed.items[feed.count];
+
+    if (id != NULL && *id != '\0')
+        rb->strlcpy(item->id, id, sizeof(item->id));
+    else
+        feed_default_id_from_path(path, feed.count, item->id, sizeof(item->id));
+
+    if (title != NULL && *title != '\0')
+        rb->strlcpy(item->title, title, sizeof(item->title));
+    else
+        feed_default_title_from_path(path, feed.count, item->title,
+                                     sizeof(item->title));
+
+    rb->strlcpy(item->path, path, sizeof(item->path));
+    feed.count++;
+    return true;
+}
+
+static bool feed_parse_file(const char *path)
+{
+    int fd;
+    char line[2 * MAX_PATH];
+    int len;
+
+    fd = rb->open(path, O_RDONLY);
+    if (fd < 0)
+        return false;
+
+    while ((len = rb->read_line(fd, line, sizeof(line))) > 0)
+    {
+        char *id;
+        char *title;
+        char *clip_path;
+        char *next;
+
+        id = feed_trim(line);
+        if (*id == '\0' || *id == '#')
+            continue;
+
+        if (!rb->strcmp(id, "id\ttitle\tpath"))
+            continue;
+
+        next = rb->strchr(id, '\t');
+        if (next == NULL)
+            continue;
+        *next++ = '\0';
+
+        title = next;
+        next = rb->strchr(title, '\t');
+        if (next == NULL)
+            continue;
+        *next++ = '\0';
+
+        clip_path = feed_trim(next);
+        title = feed_trim(title);
+        id = feed_trim(id);
+
+        if (!feed_add_item(id, title, clip_path))
+            continue;
+    }
+
+    rb->close(fd);
+    return feed.count > 0;
+}
+
+static bool feed_init_from_path(const char *path, char *videofile,
+                                size_t videofile_size)
+{
+    feed_reset();
+    feed.active = true;
+    rb->strlcpy(feed.feed_path, path, sizeof(feed.feed_path));
+    feed_make_sibling_path(path, ".ipodtiktok_likes.dat", feed.likes_path,
+                           sizeof(feed.likes_path));
+    feed_make_sibling_path(path, ".ipodtiktok_state.dat", feed.state_path,
+                           sizeof(feed.state_path));
+
+    if (!feed_parse_file(path))
+        return false;
+
+    feed_load_likes();
+    feed_load_state();
+
+    if (feed.index < 0 || feed.index >= feed.count)
+        feed.index = 0;
+
+    feed.skip_cooldown_until = 0;
+    rb->strlcpy(videofile, feed.items[feed.index].path, videofile_size);
+    return true;
+}
+
+static bool feed_get_next_file(int direction, char *videofile, size_t bufsize)
+{
+    int next = feed.index + (direction == VIDEO_PREV ? -1 : 1);
+
+    if (!feed.active || next < 0 || next >= feed.count)
+        return false;
+
+    feed.index = next;
+    feed_save_state();
+    rb->strlcpy(videofile, feed.items[feed.index].path, bufsize);
+    return true;
+}
+
+static bool feed_skip_allowed(void)
+{
+    long tick = *rb->current_tick;
+
+    if (TIME_BEFORE(tick, feed.skip_cooldown_until))
+        return false;
+
+    feed.skip_cooldown_until = tick + FEED_SKIP_COOLDOWN;
+    return true;
+}
+
+static void feed_toggle_like(void)
+{
+    struct feed_item *item;
+
+    if (!feed.active || feed.index < 0 || feed.index >= feed.count)
+        return;
+
+    item = &feed.items[feed.index];
+    item->liked = !item->liked;
+    feed_save_likes();
+}
+
+static void feed_toggle_zoom(void)
+{
+    if (!feed.active)
+        return;
+
+    if (settings.display_mode == MPEG_VIDEO_DISPLAY_FILL)
+        settings.display_mode = MPEG_VIDEO_DISPLAY_FIT;
+    else
+        settings.display_mode = MPEG_VIDEO_DISPLAY_FILL;
+
+    stream_vo_set_display_mode(settings.display_mode);
+    osd_refresh(OSD_REFRESH_TIME);
+}
+
+static void feed_resolve_select_timeout(void)
+{
+    if (!feed.select_pending)
+        return;
+
+    if (TIME_BEFORE(*rb->current_tick, feed.select_deadline))
+        return;
+
+    feed.select_pending = false;
+    feed_toggle_zoom();
+}
+
+static void feed_cancel_pending_select(void)
+{
+    feed.select_pending = false;
+}
+
+static void feed_format_label(char *buf, size_t buf_size,
+                              const char *src, int max_width)
+{
+    int width;
+
+    rb->strlcpy(buf, src, buf_size);
+    mylcd_getstringsize(buf, &width, NULL);
+    if (width <= max_width)
+        return;
+
+    while (buf[0] != '\0')
+    {
+        size_t text_len = rb->strlen(buf);
+
+        if (text_len > 3)
+        {
+            buf[text_len - 1] = '\0';
+            rb->strlcpy(&buf[text_len - 4], "...", 4);
+        }
+
+        mylcd_getstringsize(buf, &width, NULL);
+        if (width <= max_width || text_len <= 4)
+            return;
+    }
+}
 
 #ifdef LCD_LANDSCAPE
     #define __X (x + osd.x)
@@ -752,10 +1191,12 @@ static void draw_clear_area(int x, int y, int width, int height)
 #endif
 }
 
+#if !IPODTIKTOK_USE_BITMAP_ASSETS
 static void draw_clear_area_rect(const struct vo_rect *rc)
 {
     draw_clear_area(rc->l, rc->t, rc->r - rc->l, rc->b - rc->t);
 }
+#endif
 
 static void draw_fillrect(int x, int y, int width, int height)
 {
@@ -1376,6 +1817,35 @@ static void osd_text_init(void)
     mylcd_getstringsize(" ", &spc_width, NULL);
     mylcd_getstringsize(buf, &osd.vol_rect.r, &osd.vol_rect.b);
 
+    if (feed.active)
+    {
+        int bottom_top = SCREEN_HEIGHT - FEED_SCRIM_HEIGHT;
+        int title_h = osd.time_rect.b;
+
+        osd.use_wps_layout = true;
+        vo_rect_set_ext(&osd.stat_rect, 0, 0, SCREEN_WIDTH, FEED_HEADER_HEIGHT);
+        vo_rect_set_ext(&osd.dur_rect,
+                        SCREEN_WIDTH - 52,
+                        12,
+                        40, title_h);
+        vo_rect_set_ext(&osd.time_rect,
+                        14,
+                        bottom_top + 28,
+                        SCREEN_WIDTH - 96,
+                        title_h);
+        vo_rect_set_ext(&osd.vol_rect,
+                        SCREEN_WIDTH - FEED_HEART_SIZE - 14,
+                        bottom_top + 8,
+                        FEED_HEART_SIZE,
+                        FEED_HEART_SIZE + title_h + 4);
+        vo_rect_set_ext(&osd.prog_rect, 0, SCREEN_HEIGHT - 3, SCREEN_WIDTH, 3);
+
+        osd.height = SCREEN_HEIGHT;
+        osd.y = 0;
+        draw_setfont(FONT_SYSFIXED);
+        return;
+    }
+
     if (osd.slider_bitmaps_loaded && osd.slider_bg_bmp.height == 12)
     {
         int time_w;
@@ -1441,7 +1911,7 @@ static void osd_text_init(void)
 static void osd_init(void)
 {
     osd.flags = 0;
-    osd.show_for = HZ*4;
+    osd.show_for = feed.active ? HZ * 60 * 60 : HZ * 4;
     osd.print_delay = 75*HZ/100;
     osd.resume_delay = HZ/2;
 #ifdef HAVE_LCD_COLOR
@@ -1537,6 +2007,28 @@ static void osd_refresh_background(void)
     char buf[32];
     struct hms hms;
 
+    if (feed.active)
+    {
+#if IPODTIKTOK_USE_BITMAP_ASSETS
+        rb->lcd_bitmap(ipodtiktok_header, 0, 0,
+                       BMPWIDTH_ipodtiktok_header,
+                       BMPHEIGHT_ipodtiktok_header);
+        rb->lcd_bitmap(ipodtiktok_scrim, 0,
+                       SCREEN_HEIGHT - BMPHEIGHT_ipodtiktok_scrim,
+                       BMPWIDTH_ipodtiktok_scrim,
+                       BMPHEIGHT_ipodtiktok_scrim);
+#else
+        mylcd_set_drawmode(DRMODE_SOLID);
+        mylcd_set_foreground(LCD_RGBPACK(0x08, 0x08, 0x0d));
+        draw_fillrect(0, 0, SCREEN_WIDTH, FEED_HEADER_HEIGHT);
+        mylcd_set_foreground(LCD_RGBPACK(0x06, 0x06, 0x09));
+        draw_fillrect(0, SCREEN_HEIGHT - FEED_SCRIM_HEIGHT,
+                      SCREEN_WIDTH, FEED_SCRIM_HEIGHT);
+#endif
+        vo_rect_set_ext(&osd.update_rect, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+        return;
+    }
+
     if (osd.use_wps_layout)
     {
         /* WPS layout uses transparent background - don't clear anything */
@@ -1605,6 +2097,73 @@ static void osd_refresh_background(void)
 
     if (time > duration)
         time = duration;
+
+    if (feed.active)
+    {
+        int counter_w = 0;
+        char title_buf[FEED_TITLE_LEN + 8];
+
+#if IPODTIKTOK_USE_BITMAP_ASSETS
+        rb->lcd_bitmap_part(ipodtiktok_scrim,
+                            osd.time_rect.l,
+                            osd.time_rect.t - (SCREEN_HEIGHT - BMPHEIGHT_ipodtiktok_scrim),
+                            BMPWIDTH_ipodtiktok_scrim,
+                            osd.time_rect.l,
+                            osd.time_rect.t,
+                            osd.time_rect.r - osd.time_rect.l,
+                            osd.time_rect.b - osd.time_rect.t + 2);
+        rb->lcd_bitmap_part(ipodtiktok_header,
+                            osd.dur_rect.l,
+                            osd.dur_rect.t,
+                            BMPWIDTH_ipodtiktok_header,
+                            osd.dur_rect.l,
+                            osd.dur_rect.t,
+                            osd.dur_rect.r - osd.dur_rect.l,
+                            osd.dur_rect.b - osd.dur_rect.t);
+        rb->lcd_bitmap_part(ipodtiktok_scrim,
+                            0,
+                            BMPHEIGHT_ipodtiktok_scrim - (osd.prog_rect.b - osd.prog_rect.t),
+                            BMPWIDTH_ipodtiktok_scrim,
+                            0,
+                            osd.prog_rect.t,
+                            osd.prog_rect.r - osd.prog_rect.l,
+                            osd.prog_rect.b - osd.prog_rect.t);
+#else
+        draw_clear_area_rect(&osd.time_rect);
+        draw_clear_area_rect(&osd.dur_rect);
+        draw_clear_area_rect(&osd.prog_rect);
+#endif
+
+        if (feed.index >= 0 && feed.index < feed.count)
+        {
+            rb->snprintf(buf, sizeof(buf), "%d/%d", feed.index + 1, feed.count);
+            mylcd_getstringsize(buf, &counter_w, NULL);
+            mylcd_set_foreground(LCD_RGBPACK(0xff, 0xff, 0xff));
+            draw_putsxy_oriented(osd.dur_rect.r - counter_w, osd.dur_rect.t, buf);
+
+            feed_format_label(title_buf, sizeof(title_buf),
+                              feed.items[feed.index].title,
+                              osd.time_rect.r - osd.time_rect.l);
+            mylcd_set_foreground(LCD_RGBPACK(0xff, 0xff, 0xff));
+            draw_putsxy_oriented(osd.time_rect.l, osd.time_rect.t, title_buf);
+        }
+
+        mylcd_set_foreground(LCD_RGBPACK(0x34, 0x34, 0x3d));
+        draw_fillrect(osd.prog_rect.l, osd.prog_rect.t,
+                      osd.prog_rect.r - osd.prog_rect.l,
+                      osd.prog_rect.b - osd.prog_rect.t);
+        mylcd_set_foreground(LCD_RGBPACK(0xff, 0x4d, 0x6d));
+        draw_fillrect(osd.prog_rect.l, osd.prog_rect.t,
+                      (duration > 0) ?
+                      (int)muldiv_uint32(osd.prog_rect.r - osd.prog_rect.l,
+                                         time, duration) : 0,
+                      osd.prog_rect.b - osd.prog_rect.t);
+
+        vo_rect_union(&osd.update_rect, &osd.update_rect, &osd.time_rect);
+        vo_rect_union(&osd.update_rect, &osd.update_rect, &osd.dur_rect);
+        vo_rect_union(&osd.update_rect, &osd.update_rect, &osd.prog_rect);
+        return;
+    }
 
     draw_scrollbar_draw_rect(&osd.prog_rect, 0, duration,
                              time);
@@ -1681,6 +2240,43 @@ static void osd_refresh_volume(void)
     char buf[32];
     int width;
 
+    if (feed.active)
+    {
+        int heart_x = osd.vol_rect.l;
+        int heart_y = osd.vol_rect.t;
+
+#if IPODTIKTOK_USE_BITMAP_ASSETS
+        rb->lcd_bitmap_part(ipodtiktok_scrim,
+                            heart_x,
+                            MAX(0, heart_y - (SCREEN_HEIGHT - BMPHEIGHT_ipodtiktok_scrim)),
+                            BMPWIDTH_ipodtiktok_scrim,
+                            heart_x,
+                            MAX(heart_y, SCREEN_HEIGHT - BMPHEIGHT_ipodtiktok_scrim),
+                            FEED_HEART_SIZE,
+                            MIN(FEED_HEART_SIZE + osd.time_rect.b + 4,
+                                SCREEN_HEIGHT - MAX(heart_y, SCREEN_HEIGHT - BMPHEIGHT_ipodtiktok_scrim)));
+        rb->lcd_bitmap(ipodtiktok_heart, heart_x, heart_y,
+                       BMPWIDTH_ipodtiktok_heart,
+                       BMPHEIGHT_ipodtiktok_heart);
+#else
+        draw_clear_area_rect(&osd.vol_rect);
+#endif
+
+        if (feed.index >= 0 && feed.index < feed.count &&
+            feed.items[feed.index].liked)
+        {
+            rb->strlcpy(buf, "LIKED", sizeof(buf));
+            mylcd_getstringsize(buf, &width, NULL);
+            mylcd_set_foreground(LCD_RGBPACK(0xff, 0xff, 0xff));
+            draw_putsxy_oriented(heart_x + (FEED_HEART_SIZE - width) / 2,
+                                 heart_y + FEED_HEART_SIZE + 4,
+                                 buf);
+        }
+
+        vo_rect_union(&osd.update_rect, &osd.update_rect, &osd.vol_rect);
+        return;
+    }
+
     int volume = rb->global_status->volume;
     rb->snprintf(buf, sizeof (buf), "%d%s",
                  rb->sound_val2phys(SOUND_VOLUME, volume),
@@ -1698,6 +2294,46 @@ static void osd_refresh_volume(void)
 static void osd_refresh_status(void)
 {
     int icon_size = osd.stat_rect.r - osd.stat_rect.l;
+
+    if (feed.active)
+    {
+        const char *left = "Following";
+        const char *right = "For You";
+        int left_w;
+        int right_w;
+        int sep_w;
+        int baseline_y = 12;
+        int for_you_x;
+        int following_x;
+        int sep_x;
+
+#if IPODTIKTOK_USE_BITMAP_ASSETS
+        rb->lcd_bitmap_part(ipodtiktok_header, 0, 0,
+                            BMPWIDTH_ipodtiktok_header,
+                            0, 0,
+                            BMPWIDTH_ipodtiktok_header,
+                            BMPHEIGHT_ipodtiktok_header);
+#endif
+
+        mylcd_getstringsize(left, &left_w, NULL);
+        mylcd_getstringsize(right, &right_w, NULL);
+        mylcd_getstringsize("|", &sep_w, NULL);
+
+        for_you_x = SCREEN_WIDTH / 2 - right_w / 2;
+        sep_x = for_you_x - 12;
+        following_x = sep_x - sep_w - 12 - left_w;
+
+        mylcd_set_foreground(LCD_RGBPACK(0xb0, 0xb5, 0xc0));
+        draw_putsxy_oriented(following_x, baseline_y, left);
+        draw_putsxy_oriented(sep_x, baseline_y, "|");
+        mylcd_set_foreground(LCD_RGBPACK(0xff, 0xff, 0xff));
+        draw_putsxy_oriented(for_you_x, baseline_y, right);
+        mylcd_set_foreground(LCD_RGBPACK(0xff, 0x4d, 0x6d));
+        draw_fillrect(for_you_x + right_w / 2 - 18, baseline_y + osd.time_rect.b + 1, 36, 2);
+
+        vo_rect_union(&osd.update_rect, &osd.update_rect, &osd.stat_rect);
+        return;
+    }
 
     if (osd.use_wps_layout)
     {
@@ -2440,7 +3076,8 @@ static void osd_handle_phone_plug(bool inserted)
 
 static int button_loop(void)
 {
-    int next_action = (settings.play_mode == 0) ? VIDEO_STOP : VIDEO_NEXT;
+    int next_action = feed.active ? VIDEO_STOP :
+                      ((settings.play_mode == 0) ? VIDEO_STOP : VIDEO_NEXT);
 
     rb->lcd_setfont(FONT_SYSFIXED);
 #ifdef HAVE_LCD_COLOR
@@ -2462,15 +3099,27 @@ static int button_loop(void)
         return VIDEO_STOP;
     }
 
+    if (feed.active)
+        osd_show(OSD_SHOW);
+
     /* Gently poll the video player for EOS and handle UI */
     while (stream_status() != STREAM_STOPPED)
     {
         int button = mpeg_button_get(OSD_MIN_UPDATE_INTERVAL/2);
 
+        if (feed.active && button != BUTTON_NONE
+#ifdef MPEG_ZOOM
+            && button != MPEG_ZOOM
+#endif
+           )
+            feed_cancel_pending_select();
+
         switch (button)
         {
         case BUTTON_NONE:
         {
+            if (feed.active)
+                feed_resolve_select_timeout();
             osd_refresh(OSD_REFRESH_DEFAULT);
             continue;
             } /* BUTTON_NONE: */
@@ -2495,6 +3144,16 @@ static int button_loop(void)
         case MPEG_RC_VOLUP|BUTTON_REPEAT:
 #endif
         {
+            if (feed.active)
+            {
+                if (feed_skip_allowed())
+                {
+                    osd_stop();
+                    next_action = VIDEO_NEXT | VIDEO_ACTION_MANUAL;
+                }
+                break;
+            }
+
             osd_set_volume(+1);
             break;
             } /* MPEG_VOLUP*: */
@@ -2510,6 +3169,16 @@ static int button_loop(void)
         case MPEG_RC_VOLDOWN|BUTTON_REPEAT:
 #endif
         {
+            if (feed.active)
+            {
+                if (feed_skip_allowed())
+                {
+                    osd_stop();
+                    next_action = VIDEO_PREV | VIDEO_ACTION_MANUAL;
+                }
+                break;
+            }
+
             osd_set_volume(-1);
             break;
             } /* MPEG_VOLDOWN*: */
@@ -2519,6 +3188,13 @@ static int button_loop(void)
         case MPEG_RC_MENU:
 #endif
         {
+            if (feed.active)
+            {
+                next_action = VIDEO_STOP;
+                osd_stop();
+                break;
+            }
+
             int state = osd_halt(); /* save previous state */
             int result;
 
@@ -2619,6 +3295,28 @@ static int button_loop(void)
 #ifdef MPEG_ZOOM
         case MPEG_ZOOM:
         {
+            if (feed.active)
+            {
+                if (feed.select_pending &&
+                    !TIME_BEFORE(*rb->current_tick, feed.select_deadline))
+                {
+                    feed.select_pending = false;
+                    feed_toggle_zoom();
+                }
+                else if (feed.select_pending)
+                {
+                    feed.select_pending = false;
+                    feed_toggle_like();
+                    osd_refresh(OSD_REFRESH_VOLUME);
+                }
+                else
+                {
+                    feed.select_pending = true;
+                    feed.select_deadline = *rb->current_tick + FEED_SELECT_WINDOW;
+                }
+                break;
+            }
+
             if (settings.display_mode == MPEG_VIDEO_DISPLAY_FILL)
                 settings.display_mode = MPEG_VIDEO_DISPLAY_FIT;
             else
@@ -2747,6 +3445,8 @@ enum plugin_status plugin_start(const void* parameter)
         return PLUGIN_ERROR;
     }
 
+    feed_reset();
+
 #ifdef HAVE_LCD_COLOR
     rb->lcd_set_backdrop(NULL);
     rb->lcd_set_foreground(LCD_WHITE);
@@ -2756,7 +3456,23 @@ enum plugin_status plugin_start(const void* parameter)
     rb->lcd_clear_display();
     rb->lcd_update();
 
-    rb->strcpy(videofile, (const char*) parameter);
+    if (!rb->strncmp((const char *)parameter, IPODTIKTOK_PARAM_PREFIX,
+                     sizeof(IPODTIKTOK_PARAM_PREFIX) - 1))
+    {
+        const char *feed_path = (const char *)parameter +
+                                sizeof(IPODTIKTOK_PARAM_PREFIX) - 1;
+
+        if (!feed_init_from_path(feed_path, videofile, sizeof(videofile)))
+        {
+            rb->splash(HZ * 2, "iPodTikTok feed missing");
+            return PLUGIN_ERROR;
+        }
+    }
+    else
+    {
+        rb->strlcpy(videofile, (const char*) parameter, sizeof(videofile));
+    }
+
     MPLOG("target file=%s\n", videofile);
 
     MPLOG("stream_init begin\n");
@@ -2773,6 +3489,17 @@ enum plugin_status plugin_start(const void* parameter)
         while (!quit)
         {
             init_settings(videofile);
+
+            if (feed.active)
+            {
+                settings.display_mode = MPEG_VIDEO_DISPLAY_FIT;
+                settings.play_mode = 0;
+                settings.resume_options = MPEG_RESUME_RESTART;
+                settings.resume_time = 0;
+                stream_vo_set_display_mode(settings.display_mode);
+                feed_save_state();
+            }
+
             MPLOG("init_settings done\n");
 
             MPLOG("stream_open begin\n");
@@ -2781,10 +3508,17 @@ enum plugin_status plugin_start(const void* parameter)
             MPLOG("stream_open result=%d\n", result);
 
             if (result >= STREAM_OK) {
-                /* start menu */
-                rb->lcd_clear_display();
-                rb->lcd_update();
-                result = mpeg_start_menu(stream_get_duration());
+                if (feed.active)
+                {
+                    result = MPEG_START_RESTART;
+                }
+                else
+                {
+                    /* start menu */
+                    rb->lcd_clear_display();
+                    rb->lcd_update();
+                    result = mpeg_start_menu(stream_get_duration());
+                }
 
                 next_action = VIDEO_STOP;
                 if (result != MPEG_START_QUIT) {
@@ -2803,7 +3537,8 @@ enum plugin_status plugin_start(const void* parameter)
                 rb->lcd_clear_display();
                 rb->lcd_update();
 
-                save_settings();
+                if (!feed.active)
+                    save_settings();
             } else {
                 /* Problem with file; display message about it - not
                  * considered a plugin error */
@@ -2842,7 +3577,7 @@ enum plugin_status plugin_start(const void* parameter)
                         break;
 
                     case BUTTON_NONE:
-                        if (settings.play_mode != 0) {
+                        if (feed.active || settings.play_mode != 0) {
                             if (next_action == VIDEO_STOP) {
                                 /* Default to next file */
                                 next_action = VIDEO_NEXT;
@@ -2867,8 +3602,9 @@ enum plugin_status plugin_start(const void* parameter)
             {
             case VIDEO_NEXT:
             {
-                get_videofile_says = get_videofile(VIDEO_NEXT, videofile,
-                                                   sizeof(videofile));
+                get_videofile_says = feed.active ?
+                    feed_get_next_file(VIDEO_NEXT, videofile, sizeof(videofile)) :
+                    get_videofile(VIDEO_NEXT, videofile, sizeof(videofile));
                 /* quit after finished the last videofile */
                 quit = !get_videofile_says;
 
@@ -2882,8 +3618,9 @@ enum plugin_status plugin_start(const void* parameter)
                 }
             case VIDEO_PREV:
             {
-                get_videofile_says = get_videofile(VIDEO_PREV, videofile,
-                                                   sizeof(videofile));
+                get_videofile_says = feed.active ?
+                    feed_get_next_file(VIDEO_PREV, videofile, sizeof(videofile)) :
+                    get_videofile(VIDEO_PREV, videofile, sizeof(videofile));
                 /* if there is no previous file, play the same videofile */
 
                 if (manual_skip)

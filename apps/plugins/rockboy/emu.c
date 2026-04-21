@@ -9,6 +9,7 @@
 #include "rtc-gb.h"
 #include "pcm.h"
 #include "emu.h"
+#include "profiler.h"
 
 /*
  * emu_reset is called to initialize the state of the emulated
@@ -48,6 +49,8 @@ void emu_run(void)
 
     while(!shut)
     {
+        unsigned long frame_start = *rb->current_tick;
+
         cpu_emulate(2280);
         while (R_LY > 0 && R_LY < 144)
             emu_step();
@@ -56,8 +59,11 @@ void emu_run(void)
 
         if (options.sound || !plugbuf)
 		{
+            unsigned long audio_start = *rb->current_tick;
             sound_mix();
             rockboy_pcm_submit();
+            rockboy_profile_add(ROCKBOY_TIME_AUDIO,
+                                *rb->current_tick - audio_start);
 		}
 
         doevents();
@@ -92,6 +98,9 @@ void emu_run(void)
                 frames=0;
                 timehun=*rb->current_tick;
             }
+
+        rockboy_profile_add(ROCKBOY_TIME_FRAME,
+                            *rb->current_tick - frame_start);
     }
 
 #ifdef HAVE_ADJUSTABLE_CPU_FREQ

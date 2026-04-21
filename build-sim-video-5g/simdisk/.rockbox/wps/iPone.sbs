@@ -56,17 +56,22 @@
 
 %V(134,5,25,11,-)
 %?if(%cs, =, 21)<|%?mh<|%?bp<%?bc<%t(1.0)%xd(Ba);%t(1.0)%xd(Bb)|%xd(Bc)>|%?bl<%xd(Bd)|%xd(Bd)|%xd(Be)|%xd(Bf)|%xd(Bg)|%xd(Bh)|%xd(Bi)|%xd(Bj)|%xd(Bk)|%xd(Bl)|%xd(Bm)|%xd(Bn)|%xd(Bo)|%xd(Bp)|%xd(Bq)|%xd(Br)|%xd(Bs)|%xd(Bt)|%xd(Bu)|%xd(Bv)|%xd(Bw)|%xd(Bx)||>>>>
-%?if(%cs, =, 21)<|%?mh<|%?it<%Vd(NowPlayingBadge)|>>> 
+%?if(%cs, =, 21)<|%?mh<|%?Lt<%?it<%Vd(NowPlayingBadge)|>|>>>> 
 %?if(%cs, =, 21)<%Vd(USB)|%?mh<|%?if(%cs, =, 1)<%Vd(ScrollReminder)>>>
 
+%Vl(NormalMetaShadow,164,191,150,36,-)%?Lt<%?it<%dr(0,0,-,-,17131D)|>|>
+%Vl(NormalMetaOuter,162,189,150,36,-)%?Lt<%?it<%dr(0,0,-,-,2A2431)|>|>
+%Vl(NormalMetaInner,163,190,148,34,-)%?Lt<%?it<%dr(0,0,-,-,322B3B)|>|>
+%Vl(NormalMetaHighlight,163,190,148,1,-)%?Lt<%?it<%dr(0,0,-,-,514A67)|>|>
+%Vl(NormalMetaLowlight,163,223,148,1,-)%?Lt<%?it<%dr(0,0,-,-,201C26)|>|>
 %Vl(normalShadow1,167,195,146,14,2)%Vf(191523)
-%s%al%?it<%?ia<%ia|%?iA<%iA|%d(1)>>|>
+%?Lt<%s%ac%?it<%?ia<%ia|%?iA<%iA|%d(1)>>|>|>
 %Vl(normal,166,194,146,14,2)%Vf(FFFFFF)
-%s%al%?it<%?ia<%ia|%?iA<%iA|%d(1)>>|>
+%?Lt<%s%ac%?it<%?ia<%ia|%?iA<%iA|%d(1)>>|>|>
 %Vl(normalShadow2,167,211,146,14,2)%Vf(191523)
-%s%al%?it<%?id<%id|%d(2)>|>
+%?Lt<%s%ac%?it<%?id<%id|%d(2)>|>|>
 %Vl(normal,166,210,146,14,2)%Vf(FFFFFF)
-%s%al%?it<%?id<%id|%d(2)>|>
+%?Lt<%s%ac%?it<%?id<%id|%d(2)>|>|>
 %Vl(radio,163,158,154,24,2)%Vf(FFFFFF)
 %ac%tf Mhz
 %Vl(radio,163,187,154,14,2)%Vf(FFFFFF)

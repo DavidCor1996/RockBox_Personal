@@ -1436,6 +1436,23 @@ MENUITEM_RETURNVALUE(bookmarks, ID2P(LANG_BOOKMARK_MENU_RECENT_BOOKMARKS),
                         Icon_Bookmark);
 MENUITEM_RETURNVALUE(playlists, ID2P(LANG_PLAYLISTS), GO_TO_PLAYLISTS_SCREEN,
                      NULL, Icon_Playlist);
+#if defined(HAVE_LCD_COLOR) && (LCD_WIDTH >= 220)
+static int load_plugin_path_screen(const char *path, const char *param);
+
+static int launch_gameboy_browser(void* param)
+{
+    (void)param;
+    return load_plugin_path_screen(PLUGIN_GAMES_DIR "/rockboy_launcher.rock", NULL);
+}
+MENUITEM_FUNCTION(gameboy_browser, MENU_FUNC_CHECK_RETVAL,
+                  ID2P(LANG_PLUGIN_GAMES), launch_gameboy_browser,
+                  NULL, Icon_Folder);
+#else
+static const struct browse_folder_info gameboy_folder = {"/gameboy/", SHOW_ALL};
+MENUITEM_FUNCTION_W_PARAM(gameboy_browser, MENU_FUNC_CHECK_RETVAL,
+                          ID2P(LANG_PLUGIN_GAMES), browse_folder,
+                          (void *)&gameboy_folder, NULL, Icon_Folder);
+#endif
 MENUITEM_RETURNVALUE(system_menu_, ID2P(LANG_SYSTEM), GO_TO_SYSTEM_SCREEN,
                      NULL, Icon_System_menu);
 
@@ -1449,6 +1466,7 @@ static struct menu_table menu_table[] = {
     { "database", &db_browser },
 #endif
     { "videos", &videos },
+    { "games", &gameboy_browser },
     { "files", &file_browser },
     { "wps", &wps_item },
     { "playlists", &playlists },
@@ -1486,6 +1504,8 @@ void root_menu_load_from_cfg(void* setting, char *value)
     char *next = value, *start, *end;
     unsigned int menu_item_count = 0, i;
     bool main_menu_added = false;
+    bool games_added = false;
+    int insert_at = -1;
 
     if (*value == '-')
     {
@@ -1515,9 +1535,26 @@ void root_menu_load_from_cfg(void* setting, char *value)
                 root_menu__[menu_item_count++] = (struct menu_item_ex *)menu_table[i].item;
                 if (menu_table[i].item == &menu_)
                     main_menu_added = true;
+                if (menu_table[i].item == &gameboy_browser)
+                    games_added = true;
+                if (menu_table[i].item == &videos
+#ifdef HAVE_TAGCACHE
+                    || menu_table[i].item == &db_browser
+#endif
+                   )
+                    insert_at = (int)menu_item_count;
                 break;
             }
         }
+    }
+    if (!games_added)
+    {
+        if (insert_at < 0 || (unsigned)insert_at > menu_item_count)
+            insert_at = menu_item_count;
+        for (i = menu_item_count; i > (unsigned)insert_at; i--)
+            root_menu__[i] = root_menu__[i - 1];
+        root_menu__[insert_at] = (struct menu_item_ex *)&gameboy_browser;
+        menu_item_count++;
     }
     if (!main_menu_added)
         root_menu__[menu_item_count++] = (struct menu_item_ex *)&menu_;
@@ -2347,6 +2384,56 @@ static int load_plugin_screen(char *key)
         }
         break;
     } /*while */
+    return ret_val;
+}
+
+static int load_plugin_path_screen(const char *path, const char *param)
+{
+    int ret_val = PLUGIN_ERROR;
+    int loops = 100;
+    int old_previous = last_screen;
+    int old_global = global_status.last_screen;
+    const char *next_path = path;
+    const char *next_param = param;
+
+    last_screen = next_screen;
+    global_status.last_screen = (char)next_screen;
+
+    while (loops-- > 0 && next_path)
+    {
+        int ret = plugin_load(next_path, next_param);
+        struct open_plugin_entry_t *op_entry = open_plugin_get_entry();
+
+        if (ret == PLUGIN_GOTO_PLUGIN)
+        {
+            next_path = op_entry->path;
+            next_param = op_entry->param[0] ? op_entry->param : NULL;
+            continue;
+        }
+
+        if (ret == PLUGIN_USB_CONNECTED || ret == PLUGIN_ERROR)
+            ret_val = GO_TO_ROOT;
+        else if (ret == PLUGIN_GOTO_WPS)
+            ret_val = GO_TO_WPS;
+        else
+        {
+            if (ret == PLUGIN_GOTO_ROOT)
+                ret_val = GO_TO_ROOT;
+            else
+                ret_val = GO_TO_PREVIOUS;
+            if (ret == PLUGIN_OK && old_global == GO_TO_WPS && !audio_status())
+                ret_val = GO_TO_ROOT;
+            last_screen = (old_previous == next_screen || old_global == GO_TO_ROOT)
+                ? GO_TO_ROOT : old_previous;
+            if (last_screen == GO_TO_ROOT)
+                global_status.last_screen = GO_TO_ROOT;
+        }
+
+        op_entry->hash = 0;
+        op_entry->lang_id = LANG_PREVIOUS_SCREEN;
+        break;
+    }
+
     return ret_val;
 }
 

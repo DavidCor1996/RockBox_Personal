@@ -137,6 +137,11 @@ pixel-painter.lua
 amaze.c
 #endif
 
+#if defined(HAVE_LCD_COLOR) && (LCD_WIDTH >= 220)
+rockboy_launcher.c
+ipodtiktok.c
+#endif
+
 rockblox1d.c
 brickmania.c
 calendar.c

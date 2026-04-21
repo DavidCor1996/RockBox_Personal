@@ -19,6 +19,10 @@
  ****************************************************************************/
 
 #include <SDL.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <strings.h>
 #include "sim-ui-defines.h"
 #include "window-sdl.h"
 #include "lcd-sdl.h"
@@ -42,6 +46,80 @@ static SDL_Surface  *picture_surface;
 static bool new_gui_texture_needed = true;
 static bool window_adjustment_needed;
 double display_zoom = 1;
+static bool rockpod_preview_enabled;
+static bool rockpod_preview_hidden;
+static Uint32 rockpod_preview_interval_ms;
+static Uint32 rockpod_preview_last_ticks;
+static char rockpod_preview_path[MAX_PATH];
+
+static void rockpod_preview_configure(void)
+{
+    const char *path = getenv("ROCKPOD_SIM_PREVIEW_BMP");
+    if (!path || !*path)
+    {
+        rockpod_preview_enabled = false;
+        rockpod_preview_path[0] = '\0';
+        return;
+    }
+
+    snprintf(rockpod_preview_path, sizeof(rockpod_preview_path), "%s", path);
+    rockpod_preview_enabled = true;
+    rockpod_preview_hidden = false;
+    rockpod_preview_last_ticks = 0;
+    rockpod_preview_interval_ms = 250;
+
+    const char *interval = getenv("ROCKPOD_SIM_PREVIEW_INTERVAL_MS");
+    if (interval && *interval)
+    {
+        long value = strtol(interval, NULL, 10);
+        if (value >= 16 && value <= 5000)
+            rockpod_preview_interval_ms = (Uint32)value;
+    }
+
+    const char *hidden = getenv("ROCKPOD_SIM_HIDDEN");
+    if (hidden && (!strcmp(hidden, "1") || !strcasecmp(hidden, "true") || !strcasecmp(hidden, "yes")))
+        rockpod_preview_hidden = true;
+}
+
+static void rockpod_preview_capture_if_needed(void)
+{
+    if (!rockpod_preview_enabled || !rockpod_preview_path[0])
+        return;
+
+    Uint32 now = SDL_GetTicks();
+    if (rockpod_preview_last_ticks && now - rockpod_preview_last_ticks < rockpod_preview_interval_ms)
+        return;
+
+    int width = 0;
+    int height = 0;
+    if (SDL_GetRendererOutputSize(sdlRenderer, &width, &height) != 0 || width <= 0 || height <= 0)
+        return;
+
+    SDL_Surface *frame = SDL_CreateRGBSurfaceWithFormat(0, width, height, 32, SDL_PIXELFORMAT_ARGB8888);
+    if (frame == NULL)
+        return;
+
+    if (SDL_RenderReadPixels(sdlRenderer, NULL, SDL_PIXELFORMAT_ARGB8888, frame->pixels, frame->pitch) != 0)
+    {
+        SDL_FreeSurface(frame);
+        return;
+    }
+
+    char tmp_path[MAX_PATH];
+    snprintf(tmp_path, sizeof(tmp_path), "%s.tmp.bmp", rockpod_preview_path);
+    if (SDL_SaveBMP(frame, tmp_path) == 0)
+    {
+        remove(rockpod_preview_path);
+        rename(tmp_path, rockpod_preview_path);
+        rockpod_preview_last_ticks = now;
+    }
+    else
+    {
+        remove(tmp_path);
+    }
+
+    SDL_FreeSurface(frame);
+}
 
 static void get_window_dimensions(int *w, int *h)
 {
@@ -157,12 +235,11 @@ void sdl_window_render(void)
             SDL_DestroyTexture(gui_texture);
         rebuild_gui_texture();
     }
-    else
-    {
-        SDL_RenderClear(sdlRenderer);
-        SDL_RenderCopy(sdlRenderer, gui_texture, NULL, NULL);
-        SDL_RenderPresent(sdlRenderer);
-    }
+
+    SDL_RenderClear(sdlRenderer);
+    SDL_RenderCopy(sdlRenderer, gui_texture, NULL, NULL);
+    SDL_RenderPresent(sdlRenderer);
+    rockpod_preview_capture_if_needed();
 }
 
 bool sdl_window_adjust(void)
@@ -212,6 +289,8 @@ void sdl_window_setup(void)
     int depth = LCD_DEPTH < 8 ? 16 : LCD_DEPTH;
     Uint32 flags = 0;
 
+    rockpod_preview_configure();
+
 #if 0
     /* Fullscreen mode might be desired */
     flags |= SDL_WINDOW_FULLSCREEN;
@@ -219,6 +298,8 @@ void sdl_window_setup(void)
     if (display_zoom == 1)
         flags |= SDL_WINDOW_RESIZABLE;
 #endif
+    if (rockpod_preview_hidden)
+        flags |= SDL_WINDOW_HIDDEN;
 
     if (!(picture_surface = SDL_LoadBMP("UI256.bmp")))
         background = false;

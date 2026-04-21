@@ -1745,18 +1745,18 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000    0x4695a
+.debug_info     0x0000000000000000    0x469b4
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0x9105 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pacbox/arcade.o
- .debug_info    0x0000000000009105     0x9296 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pacbox/pacbox.o
- .debug_info    0x000000000001239b      0xb48 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pacbox/hardware.o
- .debug_info    0x0000000000012ee3    0x14568 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pacbox/z80.o
- .debug_info    0x000000000002744b      0x94e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pacbox/wsg3.o
- .debug_info    0x0000000000027d99      0x1a5 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pacbox/pacbox_lcd.o
- .debug_info    0x0000000000027f3e     0x7c84 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
- .debug_info    0x000000000002fbc2     0x7655 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
- .debug_info    0x0000000000037217     0x7a7f /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(helper.o)
- .debug_info    0x000000000003ec96     0x7cc4 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(configfile.o)
+ .debug_info    0x0000000000000000     0x9114 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pacbox/arcade.o
+ .debug_info    0x0000000000009114     0x92a5 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pacbox/pacbox.o
+ .debug_info    0x00000000000123b9      0xb48 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pacbox/hardware.o
+ .debug_info    0x0000000000012f01    0x14568 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pacbox/z80.o
+ .debug_info    0x0000000000027469      0x94e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pacbox/wsg3.o
+ .debug_info    0x0000000000027db7      0x1a5 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pacbox/pacbox_lcd.o
+ .debug_info    0x0000000000027f5c     0x7c93 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+ .debug_info    0x000000000002fbef     0x7664 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
+ .debug_info    0x0000000000037253     0x7a8e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(helper.o)
+ .debug_info    0x000000000003ece1     0x7cd3 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(configfile.o)
 
 .debug_abbrev   0x0000000000000000     0x27df
  *(.debug_abbrev)
@@ -1787,28 +1787,28 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0x8e10
+.debug_str      0x0000000000000000     0x8e25
  *(.debug_str)
- .debug_str     0x0000000000000000     0x8e10 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pacbox/arcade.o
-                                       0x5682 (size before relaxing)
- .debug_str     0x0000000000008e10        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pacbox/pacbox.o
-                                       0x5839 (size before relaxing)
- .debug_str     0x0000000000008e10        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pacbox/hardware.o
+ .debug_str     0x0000000000000000     0x8e25 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pacbox/arcade.o
+                                       0x5697 (size before relaxing)
+ .debug_str     0x0000000000008e25        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pacbox/pacbox.o
+                                       0x584e (size before relaxing)
+ .debug_str     0x0000000000008e25        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pacbox/hardware.o
                                         0xafb (size before relaxing)
- .debug_str     0x0000000000008e10        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pacbox/z80.o
+ .debug_str     0x0000000000008e25        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pacbox/z80.o
                                        0x3f29 (size before relaxing)
- .debug_str     0x0000000000008e10        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pacbox/wsg3.o
+ .debug_str     0x0000000000008e25        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pacbox/wsg3.o
                                         0xa42 (size before relaxing)
- .debug_str     0x0000000000008e10        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pacbox/pacbox_lcd.o
+ .debug_str     0x0000000000008e25        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pacbox/pacbox_lcd.o
                                         0x232 (size before relaxing)
- .debug_str     0x0000000000008e10        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
-                                       0x511f (size before relaxing)
- .debug_str     0x0000000000008e10        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
-                                       0x47c6 (size before relaxing)
- .debug_str     0x0000000000008e10        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(helper.o)
-                                       0x5116 (size before relaxing)
- .debug_str     0x0000000000008e10        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(configfile.o)
-                                       0x4895 (size before relaxing)
+ .debug_str     0x0000000000008e25        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+                                       0x5134 (size before relaxing)
+ .debug_str     0x0000000000008e25        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
+                                       0x47db (size before relaxing)
+ .debug_str     0x0000000000008e25        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(helper.o)
+                                       0x512b (size before relaxing)
+ .debug_str     0x0000000000008e25        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(configfile.o)
+                                       0x48aa (size before relaxing)
 
 .debug_loc
  *(.debug_loc)

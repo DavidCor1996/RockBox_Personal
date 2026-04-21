@@ -7,6 +7,7 @@
 struct rtc
 {
     int batt;
+    int dirty;
     int sel;
     int latch;
     int d, h, m, s, t;

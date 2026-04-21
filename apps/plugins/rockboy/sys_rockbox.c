@@ -25,6 +25,7 @@
 #include "lcd-gb.h"
 #include "hw.h"
 #include "config.h"
+#include "profiler.h"
 
 #if CONFIG_KEYPAD == SANSA_E200_PAD || CONFIG_KEYPAD == SANSA_FUZE_PAD
 #define ROCKBOY_SCROLLWHEEL
@@ -39,7 +40,7 @@ extern int debug_trace;
 #ifdef HAVE_WHEEL_POSITION
 static int oldwheel = -1, wheel;
 
-static int wheelmap[8] = {
+static const byte wheelmap_classic[8] = {
     PAD_UP,     /* Top */
     PAD_A,      /* Top-right */
     PAD_RIGHT,  /* Right */
@@ -49,6 +50,37 @@ static int wheelmap[8] = {
     PAD_LEFT,   /* Left */
     PAD_B       /* Top-left */
 };
+
+static const byte wheelmap_ipod5g[8] = {
+    PAD_UP,
+    PAD_UP | PAD_RIGHT,
+    PAD_RIGHT,
+    PAD_DOWN | PAD_RIGHT,
+    PAD_DOWN,
+    PAD_DOWN | PAD_LEFT,
+    PAD_LEFT,
+    PAD_UP | PAD_LEFT
+};
+#endif
+
+#ifdef HAVE_WHEEL_POSITION
+static void post_masked_event(event_t *ev, byte mask)
+{
+    static const byte pads[] = {
+        PAD_UP, PAD_DOWN, PAD_LEFT, PAD_RIGHT,
+        PAD_A, PAD_B, PAD_START, PAD_SELECT
+    };
+    int i;
+
+    for (i = 0; i < (int)(sizeof(pads) / sizeof(pads[0])); i++)
+    {
+        if (mask & pads[i])
+        {
+            ev->code = pads[i];
+            ev_postevent(ev);
+        }
+    }
+}
 #endif
 
 void ev_poll(void)
@@ -105,30 +137,70 @@ void ev_poll(void)
     }
 
     if ( wheel != oldwheel ) {
+        const byte *wheelmap =
+            (options.control_preset == ROCKBOY_CTRL_IPOD5G) ?
+            wheelmap_ipod5g : wheelmap_classic;
+
         if (oldwheel >= 0) {
             ev.type = EV_RELEASE;
-            ev.code = wheelmap[oldwheel];
-            ev_postevent(&ev);
+            post_masked_event(&ev, wheelmap[oldwheel]);
         }
 
         if (wheel >= 0) {
             ev.type = EV_PRESS;
-            ev.code = wheelmap[wheel];
-            ev_postevent(&ev);
+            post_masked_event(&ev, wheelmap[wheel]);
         }
     }
 
     oldwheel = wheel;
     if(released) {
         ev.type = EV_RELEASE;
-        if ( released & (~BUTTON_SELECT) ) { ev.code=PAD_B; ev_postevent(&ev); }
-        if ( released & BUTTON_SELECT ) { ev.code=PAD_A; ev_postevent(&ev); }
+        if (options.control_preset == ROCKBOY_CTRL_IPOD5G) {
+            if (released & BUTTON_SELECT) {
+                ev.code = PAD_A;
+                ev_postevent(&ev);
+            }
+            if (released & BUTTON_LEFT) {
+                ev.code = PAD_B;
+                ev_postevent(&ev);
+            }
+            if (released & BUTTON_RIGHT) {
+                ev.code = PAD_SELECT;
+                ev_postevent(&ev);
+            }
+            if (released & BUTTON_MENU) {
+                ev.code = PAD_START;
+                ev_postevent(&ev);
+            }
+        } else if (released & BUTTON_SELECT) {
+            ev.code = PAD_SELECT;
+            ev_postevent(&ev);
+        }
     }
     if(pressed) { /* button press */
         ev.type = EV_PRESS;
-        if ( pressed & (~BUTTON_SELECT) ) { ev.code=PAD_B; ev_postevent(&ev); }
-        if ( pressed & BUTTON_SELECT ) { ev.code=PAD_A; ev_postevent(&ev); }
-    }    
+        if (options.control_preset == ROCKBOY_CTRL_IPOD5G) {
+            if (pressed & BUTTON_SELECT) {
+                ev.code = PAD_A;
+                ev_postevent(&ev);
+            }
+            if (pressed & BUTTON_LEFT) {
+                ev.code = PAD_B;
+                ev_postevent(&ev);
+            }
+            if (pressed & BUTTON_RIGHT) {
+                ev.code = PAD_SELECT;
+                ev_postevent(&ev);
+            }
+            if (pressed & BUTTON_MENU) {
+                ev.code = PAD_START;
+                ev_postevent(&ev);
+            }
+        } else if (pressed & BUTTON_SELECT) {
+            ev.code = PAD_SELECT;
+            ev_postevent(&ev);
+        }
+    }
 #else
     if(released) {
         ev.type = EV_RELEASE;
@@ -213,7 +285,16 @@ void ev_poll(void)
         }
 #endif
 #if CONFIG_KEYPAD == IPOD_4G_PAD
-        if(rb->button_hold()) {
+        static bool hold_to_exit_armed;
+        bool hold_now = rb->button_hold();
+
+        if (hold_now && !hold_to_exit_armed && rockboy_return_to_launcher) {
+            die("");
+            cleanshut=1;
+        }
+        hold_to_exit_armed = hold_now;
+
+        if(hold_now && !rockboy_return_to_launcher) {
 #else
         if(pressed & options.MENU) {
 #endif
@@ -254,6 +335,7 @@ void vid_begin(void)
 void vid_init(void)
 {
     fb.enabled=1;
+    rockboy_profile_reset();
 
 #if !defined(HAVE_LCD_COLOR)
     fb.mode=3;

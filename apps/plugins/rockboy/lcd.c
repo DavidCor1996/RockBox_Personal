@@ -5,6 +5,7 @@
 #include "mem.h"
 #include "lcd-gb.h"
 #include "fb.h"
+#include "profiler.h"
 #ifdef HAVE_LCD_COLOR
 #include "palette-presets.h"
 #endif
@@ -869,6 +870,8 @@ void setvidmode(void)
 
 void lcd_refreshline(void)
 {
+    unsigned long render_start = *rb->current_tick;
+
     if (!(R_LCDC & 0x80))
         return; /* should not happen... */
 
@@ -941,6 +944,7 @@ void lcd_refreshline(void)
     /*  Universal Scaling pulled from PrBoom and modified for rockboy  */
 
     static int hpt IDATA_ATTR=0x8000;
+    unsigned long scale_start = *rb->current_tick;
 
     while((hpt>>16)<L+1)
     {
@@ -966,36 +970,53 @@ void lcd_refreshline(void)
         }
         vdest+=sremain;
     }
+    rockboy_profile_add(ROCKBOY_TIME_SCALE, *rb->current_tick - scale_start);
 
     if(L==143)
     {
+        unsigned long blit_start = *rb->current_tick;
         if(options.showstats)
         {
             if(options.showstats==1) {
                 rb->lcd_putsxyf(0,LCD_HEIGHT-10," %d %d ",
                         options.fps, options.frameskip);
             } else {
-                rb->lcd_putsxyf(0,LCD_HEIGHT-10," FPS: %d Frameskip: %d ",
-                        options.fps, options.frameskip);
+                const struct rockboy_profile_totals *p =
+                    rockboy_profile_get_totals();
+                unsigned long frame_avg = p->samples[ROCKBOY_TIME_FRAME] ?
+                    p->total[ROCKBOY_TIME_FRAME] / p->samples[ROCKBOY_TIME_FRAME] : 0;
+                unsigned long render_avg = p->samples[ROCKBOY_TIME_RENDER] ?
+                    p->total[ROCKBOY_TIME_RENDER] / p->samples[ROCKBOY_TIME_RENDER] : 0;
+                unsigned long audio_avg = p->samples[ROCKBOY_TIME_AUDIO] ?
+                    p->total[ROCKBOY_TIME_AUDIO] / p->samples[ROCKBOY_TIME_AUDIO] : 0;
+                rb->lcd_putsxyf(0, LCD_HEIGHT-20, " FPS:%d FS:%d ",
+                                options.fps, options.frameskip);
+                rb->lcd_putsxyf(0, LCD_HEIGHT-10, " F:%lu R:%lu A:%lu ",
+                                frame_avg, render_avg, audio_avg);
             }
-            rb->lcd_update_rect(0,LCD_HEIGHT-10, LCD_WIDTH, 10);
+            rb->lcd_update_rect(0,
+                                LCD_HEIGHT - (options.showstats == 1 ? 10 : 20),
+                                LCD_WIDTH,
+                                options.showstats == 1 ? 10 : 20);
         }
 
         hpt=0x8000;
 
 #if defined(HAVE_LCD_MODES) && (HAVE_LCD_MODES & LCD_MODE_PAL256)
-        if(options.scaling==3) {
+        if(options.scaling >= 2) {
             rb->lcd_blit_pal256((unsigned char*)lcd_fb,(LCD_WIDTH-160)/2, (LCD_HEIGHT-144)/2, (LCD_WIDTH-160)/2, (LCD_HEIGHT-144)/2, 160, 144);
         } else {
             rb->lcd_blit_pal256((unsigned char*)lcd_fb,0,0,0,0,LCD_WIDTH,LCD_HEIGHT);
         }
 #else
-        if(options.scaling==3) {
+        if(options.scaling >= 2) {
             rb->lcd_update_rect( (LCD_WIDTH-160)/2, (LCD_HEIGHT-144)/2, 160, 144);
         } else {
             rb->lcd_update();
         }
 #endif
+        rockboy_profile_add(ROCKBOY_TIME_BLIT, *rb->current_tick - blit_start);
+        rockboy_profile_frame_rendered();
     }
 
 #endif
@@ -1005,6 +1026,8 @@ void lcd_refreshline(void)
 #elif LCD_DEPTH == 2
     scanline_ind = (scanline_ind+1) % 4;
 #endif
+
+    rockboy_profile_add(ROCKBOY_TIME_RENDER, *rb->current_tick - render_start);
 }
 
 #ifdef HAVE_LCD_COLOR

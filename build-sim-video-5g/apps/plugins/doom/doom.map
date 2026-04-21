@@ -3454,7 +3454,7 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000   0x1c3ef9
+.debug_info     0x0000000000000000   0x1c40bb
  *(.debug_info .gnu.linkonce.wi.*)
  .debug_info    0x0000000000000000      0xd6d /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/../../../firmware/libc/sscanf.o
  .debug_info    0x0000000000000d6d     0x2daa /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/info.o
@@ -3462,67 +3462,67 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
  .debug_info    0x0000000000003b9f     0x2c58 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/doomstat.o
  .debug_info    0x00000000000067f7      0x4d1 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/dstrings.o
  .debug_info    0x0000000000006cc8      0x886 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/tables.o
- .debug_info    0x000000000000754e     0xc24f /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/f_finale.o
- .debug_info    0x000000000001379d     0x2fdf /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/f_wipe.o
- .debug_info    0x000000000001677c     0x2bc1 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/d_net.o
- .debug_info    0x000000000001933d     0x2600 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/d_items.o
- .debug_info    0x000000000001b93d     0xf3c1 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/g_game.o
- .debug_info    0x000000000002acfe     0xde7a /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/m_menu.o
- .debug_info    0x0000000000038b78     0x78ca /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/m_argv.o
- .debug_info    0x0000000000040442      0x185 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/m_cheat.o
- .debug_info    0x00000000000405c7     0x2a2e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/m_random.o
- .debug_info    0x0000000000042ff5     0xd490 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/am_map.o
- .debug_info    0x0000000000050485     0x46df /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/p_ceilng.o
- .debug_info    0x0000000000054b64     0x2132 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/p_doors.o
- .debug_info    0x0000000000056c96     0x2dd6 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/p_genlin.o
- .debug_info    0x0000000000059a6c     0x8fd3 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/p_enemy.o
- .debug_info    0x0000000000062a3f     0x242d /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/p_floor.o
- .debug_info    0x0000000000064e6c     0x4d9b /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/p_inter.o
- .debug_info    0x0000000000069c07     0x1b23 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/p_lights.o
- .debug_info    0x000000000006b72a     0x72c4 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/p_map.o
- .debug_info    0x00000000000729ee     0x4ae2 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/p_maputl.o
- .debug_info    0x00000000000774d0     0x4b24 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/p_plats.o
- .debug_info    0x000000000007bff4     0x5143 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/p_pspr.o
- .debug_info    0x0000000000081137     0xd339 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/p_setup.o
- .debug_info    0x000000000008e470     0x40e2 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/p_sight.o
- .debug_info    0x0000000000092552     0xef97 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/p_spec.o
- .debug_info    0x00000000000a14e9     0x515d /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/p_switch.o
- .debug_info    0x00000000000a6646     0xc9ce /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/p_mobj.o
- .debug_info    0x00000000000b3014     0x1fbc /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/p_telept.o
- .debug_info    0x00000000000b4fd0     0x3842 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/p_tick.o
- .debug_info    0x00000000000b8812     0x57fb /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/p_saveg.o
- .debug_info    0x00000000000be00d     0x3ca9 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/p_user.o
- .debug_info    0x00000000000c1cb6     0xb57a /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/r_bsp.o
- .debug_info    0x00000000000cd230     0xcf0c /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/r_data.o
- .debug_info    0x00000000000da13c     0x351d /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/r_draw.o
- .debug_info    0x00000000000dd659     0x4860 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/r_main.o
- .debug_info    0x00000000000e1eb9     0xb82d /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/r_plane.o
- .debug_info    0x00000000000ed6e6     0x4b4b /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/r_segs.o
- .debug_info    0x00000000000f2231      0x4c1 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/r_sky.o
- .debug_info    0x00000000000f26f2     0xc45d /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/r_things.o
- .debug_info    0x00000000000feb4f     0xe63e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/wi_stuff.o
- .debug_info    0x000000000010d18d     0xb404 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/v_video.o
- .debug_info    0x0000000000118591     0x305d /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/st_lib.o
- .debug_info    0x000000000011b5ee     0xca5d /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/st_stuff.o
- .debug_info    0x000000000012804b     0xd5e6 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/hu_stuff.o
- .debug_info    0x0000000000135631     0x16fe /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/hu_lib.o
- .debug_info    0x0000000000136d2f     0xc25a /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/s_sound.o
- .debug_info    0x0000000000142f89     0x7be3 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/z_zone.o
- .debug_info    0x000000000014ab6c     0x7873 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/z_bmalloc.o
- .debug_info    0x00000000001523df      0x841 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/sounds.o
- .debug_info    0x0000000000152c20     0xc655 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/d_main.o
- .debug_info    0x000000000015f275     0xb3fe /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/m_misc.o
- .debug_info    0x000000000016a673      0x13b /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/m_bbox.o
- .debug_info    0x000000000016a7ae     0x770b /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/i_system.o
- .debug_info    0x0000000000171eb9     0xacc6 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/i_sound.o
- .debug_info    0x000000000017cb7f     0xa38e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/i_video.o
- .debug_info    0x0000000000186f0d     0xaea7 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/w_wad.o
- .debug_info    0x0000000000191db4     0xb41e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/rockdoom.o
- .debug_info    0x000000000019d1d2     0xfea5 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/d_deh.o
- .debug_info    0x00000000001ad077     0x7c84 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
- .debug_info    0x00000000001b4cfb     0x7655 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
- .debug_info    0x00000000001bc350     0x7a7f /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(helper.o)
- .debug_info    0x00000000001c3dcf      0x12a /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(strncpy.o)
+ .debug_info    0x000000000000754e     0xc25e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/f_finale.o
+ .debug_info    0x00000000000137ac     0x2fdf /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/f_wipe.o
+ .debug_info    0x000000000001678b     0x2bc1 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/d_net.o
+ .debug_info    0x000000000001934c     0x2600 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/d_items.o
+ .debug_info    0x000000000001b94c     0xf3d0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/g_game.o
+ .debug_info    0x000000000002ad1c     0xde89 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/m_menu.o
+ .debug_info    0x0000000000038ba5     0x78d9 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/m_argv.o
+ .debug_info    0x000000000004047e      0x185 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/m_cheat.o
+ .debug_info    0x0000000000040603     0x2a2e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/m_random.o
+ .debug_info    0x0000000000043031     0xd49f /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/am_map.o
+ .debug_info    0x00000000000504d0     0x46df /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/p_ceilng.o
+ .debug_info    0x0000000000054baf     0x2132 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/p_doors.o
+ .debug_info    0x0000000000056ce1     0x2dd6 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/p_genlin.o
+ .debug_info    0x0000000000059ab7     0x8fd3 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/p_enemy.o
+ .debug_info    0x0000000000062a8a     0x242d /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/p_floor.o
+ .debug_info    0x0000000000064eb7     0x4d9b /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/p_inter.o
+ .debug_info    0x0000000000069c52     0x1b23 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/p_lights.o
+ .debug_info    0x000000000006b775     0x72c4 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/p_map.o
+ .debug_info    0x0000000000072a39     0x4ae2 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/p_maputl.o
+ .debug_info    0x000000000007751b     0x4b24 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/p_plats.o
+ .debug_info    0x000000000007c03f     0x5143 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/p_pspr.o
+ .debug_info    0x0000000000081182     0xd348 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/p_setup.o
+ .debug_info    0x000000000008e4ca     0x40e2 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/p_sight.o
+ .debug_info    0x00000000000925ac     0xefa6 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/p_spec.o
+ .debug_info    0x00000000000a1552     0x515d /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/p_switch.o
+ .debug_info    0x00000000000a66af     0xc9dd /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/p_mobj.o
+ .debug_info    0x00000000000b308c     0x1fbc /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/p_telept.o
+ .debug_info    0x00000000000b5048     0x3842 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/p_tick.o
+ .debug_info    0x00000000000b888a     0x57fb /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/p_saveg.o
+ .debug_info    0x00000000000be085     0x3ca9 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/p_user.o
+ .debug_info    0x00000000000c1d2e     0xb589 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/r_bsp.o
+ .debug_info    0x00000000000cd2b7     0xcf1b /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/r_data.o
+ .debug_info    0x00000000000da1d2     0x351d /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/r_draw.o
+ .debug_info    0x00000000000dd6ef     0x4860 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/r_main.o
+ .debug_info    0x00000000000e1f4f     0xb83c /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/r_plane.o
+ .debug_info    0x00000000000ed78b     0x4b4b /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/r_segs.o
+ .debug_info    0x00000000000f22d6      0x4c1 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/r_sky.o
+ .debug_info    0x00000000000f2797     0xc46c /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/r_things.o
+ .debug_info    0x00000000000fec03     0xe64d /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/wi_stuff.o
+ .debug_info    0x000000000010d250     0xb413 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/v_video.o
+ .debug_info    0x0000000000118663     0x305d /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/st_lib.o
+ .debug_info    0x000000000011b6c0     0xca6c /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/st_stuff.o
+ .debug_info    0x000000000012812c     0xd5f5 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/hu_stuff.o
+ .debug_info    0x0000000000135721     0x16fe /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/hu_lib.o
+ .debug_info    0x0000000000136e1f     0xc269 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/s_sound.o
+ .debug_info    0x0000000000143088     0x7bf2 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/z_zone.o
+ .debug_info    0x000000000014ac7a     0x7882 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/z_bmalloc.o
+ .debug_info    0x00000000001524fc      0x841 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/sounds.o
+ .debug_info    0x0000000000152d3d     0xc664 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/d_main.o
+ .debug_info    0x000000000015f3a1     0xb40d /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/m_misc.o
+ .debug_info    0x000000000016a7ae      0x13b /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/m_bbox.o
+ .debug_info    0x000000000016a8e9     0x771a /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/i_system.o
+ .debug_info    0x0000000000172003     0xacd5 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/i_sound.o
+ .debug_info    0x000000000017ccd8     0xa39d /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/i_video.o
+ .debug_info    0x0000000000187075     0xaeb6 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/w_wad.o
+ .debug_info    0x0000000000191f2b     0xb42d /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/rockdoom.o
+ .debug_info    0x000000000019d358     0xfeb4 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/d_deh.o
+ .debug_info    0x00000000001ad20c     0x7c93 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+ .debug_info    0x00000000001b4e9f     0x7664 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
+ .debug_info    0x00000000001bc503     0x7a8e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(helper.o)
+ .debug_info    0x00000000001c3f91      0x12a /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(strncpy.o)
 
 .debug_abbrev   0x0000000000000000    0x127f4
  *(.debug_abbrev)
@@ -3594,7 +3594,7 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
  .debug_abbrev  0x0000000000012391      0x3c2 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(helper.o)
  .debug_abbrev  0x0000000000012753       0xa1 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(strncpy.o)
 
-.debug_line     0x0000000000000000    0x3c864
+.debug_line     0x0000000000000000    0x3c863
  *(.debug_line .debug_line.* .debug_line_end)
  .debug_line    0x0000000000000000      0xa1e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/../../../firmware/libc/sscanf.o
  .debug_line    0x0000000000000a1e       0x80 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/info.o
@@ -3651,157 +3651,157 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
  .debug_line    0x0000000000035cab      0x338 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/z_bmalloc.o
  .debug_line    0x0000000000035fe3       0x71 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/sounds.o
  .debug_line    0x0000000000036054      0xdec /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/d_main.o
- .debug_line    0x0000000000036e40      0x645 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/m_misc.o
- .debug_line    0x0000000000037485       0xac /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/m_bbox.o
- .debug_line    0x0000000000037531      0x264 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/i_system.o
- .debug_line    0x0000000000037795      0x84a /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/i_sound.o
- .debug_line    0x0000000000037fdf      0x69e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/i_video.o
- .debug_line    0x000000000003867d      0xc53 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/w_wad.o
- .debug_line    0x00000000000392d0      0xa99 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/rockdoom.o
- .debug_line    0x0000000000039d69     0x22fc /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/d_deh.o
- .debug_line    0x000000000003c065      0x2bd /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
- .debug_line    0x000000000003c322      0x1eb /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
- .debug_line    0x000000000003c50d      0x2b4 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(helper.o)
- .debug_line    0x000000000003c7c1       0xa3 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(strncpy.o)
+ .debug_line    0x0000000000036e40      0x644 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/m_misc.o
+ .debug_line    0x0000000000037484       0xac /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/m_bbox.o
+ .debug_line    0x0000000000037530      0x264 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/i_system.o
+ .debug_line    0x0000000000037794      0x84a /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/i_sound.o
+ .debug_line    0x0000000000037fde      0x69e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/i_video.o
+ .debug_line    0x000000000003867c      0xc53 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/w_wad.o
+ .debug_line    0x00000000000392cf      0xa99 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/rockdoom.o
+ .debug_line    0x0000000000039d68     0x22fc /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/d_deh.o
+ .debug_line    0x000000000003c064      0x2bd /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+ .debug_line    0x000000000003c321      0x1eb /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
+ .debug_line    0x000000000003c50c      0x2b4 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(helper.o)
+ .debug_line    0x000000000003c7c0       0xa3 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(strncpy.o)
 
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000    0x13bfa
+.debug_str      0x0000000000000000    0x13c0f
  *(.debug_str)
- .debug_str     0x0000000000000000    0x13bfa /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/../../../firmware/libc/sscanf.o
+ .debug_str     0x0000000000000000    0x13c0f /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/../../../firmware/libc/sscanf.o
                                         0x247 (size before relaxing)
- .debug_str     0x0000000000013bfa        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/info.o
+ .debug_str     0x0000000000013c0f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/info.o
                                        0x49b4 (size before relaxing)
- .debug_str     0x0000000000013bfa        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/doomdef.o
+ .debug_str     0x0000000000013c0f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/doomdef.o
                                         0x199 (size before relaxing)
- .debug_str     0x0000000000013bfa        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/doomstat.o
+ .debug_str     0x0000000000013c0f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/doomstat.o
                                        0x47a4 (size before relaxing)
- .debug_str     0x0000000000013bfa        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/dstrings.o
+ .debug_str     0x0000000000013c0f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/dstrings.o
                                         0x947 (size before relaxing)
- .debug_str     0x0000000000013bfa        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/tables.o
+ .debug_str     0x0000000000013c0f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/tables.o
                                         0xa11 (size before relaxing)
- .debug_str     0x0000000000013bfa        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/f_finale.o
-                                       0xa0b2 (size before relaxing)
- .debug_str     0x0000000000013bfa        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/f_wipe.o
+ .debug_str     0x0000000000013c0f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/f_finale.o
+                                       0xa0c7 (size before relaxing)
+ .debug_str     0x0000000000013c0f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/f_wipe.o
                                        0x4653 (size before relaxing)
- .debug_str     0x0000000000013bfa        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/d_net.o
+ .debug_str     0x0000000000013c0f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/d_net.o
                                        0x456d (size before relaxing)
- .debug_str     0x0000000000013bfa        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/d_items.o
+ .debug_str     0x0000000000013c0f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/d_items.o
                                        0x4146 (size before relaxing)
- .debug_str     0x0000000000013bfa        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/g_game.o
-                                       0xaf4f (size before relaxing)
- .debug_str     0x0000000000013bfa        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/m_menu.o
-                                       0xa189 (size before relaxing)
- .debug_str     0x0000000000013bfa        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/m_argv.o
-                                       0x4f98 (size before relaxing)
- .debug_str     0x0000000000013bfa        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/m_cheat.o
+ .debug_str     0x0000000000013c0f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/g_game.o
+                                       0xaf64 (size before relaxing)
+ .debug_str     0x0000000000013c0f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/m_menu.o
+                                       0xa19e (size before relaxing)
+ .debug_str     0x0000000000013c0f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/m_argv.o
+                                       0x4fad (size before relaxing)
+ .debug_str     0x0000000000013c0f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/m_cheat.o
                                         0x160 (size before relaxing)
- .debug_str     0x0000000000013bfa        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/m_random.o
+ .debug_str     0x0000000000013c0f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/m_random.o
                                        0x47c0 (size before relaxing)
- .debug_str     0x0000000000013bfa        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/am_map.o
-                                       0x99c5 (size before relaxing)
- .debug_str     0x0000000000013bfa        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/p_ceilng.o
+ .debug_str     0x0000000000013c0f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/am_map.o
+                                       0x99da (size before relaxing)
+ .debug_str     0x0000000000013c0f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/p_ceilng.o
                                        0x5210 (size before relaxing)
- .debug_str     0x0000000000013bfa        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/p_doors.o
+ .debug_str     0x0000000000013c0f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/p_doors.o
                                        0x1372 (size before relaxing)
- .debug_str     0x0000000000013bfa        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/p_genlin.o
+ .debug_str     0x0000000000013c0f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/p_genlin.o
                                        0x1c84 (size before relaxing)
- .debug_str     0x0000000000013bfa        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/p_enemy.o
+ .debug_str     0x0000000000013c0f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/p_enemy.o
                                        0x6206 (size before relaxing)
- .debug_str     0x0000000000013bfa        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/p_floor.o
+ .debug_str     0x0000000000013c0f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/p_floor.o
                                        0x1556 (size before relaxing)
- .debug_str     0x0000000000013bfa        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/p_inter.o
+ .debug_str     0x0000000000013c0f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/p_inter.o
                                        0x597c (size before relaxing)
- .debug_str     0x0000000000013bfa        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/p_lights.o
+ .debug_str     0x0000000000013c0f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/p_lights.o
                                         0xf70 (size before relaxing)
- .debug_str     0x0000000000013bfa        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/p_map.o
+ .debug_str     0x0000000000013c0f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/p_map.o
                                        0x5bc6 (size before relaxing)
- .debug_str     0x0000000000013bfa        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/p_maputl.o
+ .debug_str     0x0000000000013c0f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/p_maputl.o
                                        0x4f3a (size before relaxing)
- .debug_str     0x0000000000013bfa        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/p_plats.o
+ .debug_str     0x0000000000013c0f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/p_plats.o
                                        0x54d2 (size before relaxing)
- .debug_str     0x0000000000013bfa        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/p_pspr.o
+ .debug_str     0x0000000000013c0f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/p_pspr.o
                                        0x5763 (size before relaxing)
- .debug_str     0x0000000000013bfa        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/p_setup.o
-                                       0x9908 (size before relaxing)
- .debug_str     0x0000000000013bfa        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/p_sight.o
+ .debug_str     0x0000000000013c0f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/p_setup.o
+                                       0x991d (size before relaxing)
+ .debug_str     0x0000000000013c0f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/p_sight.o
                                        0x4d7d (size before relaxing)
- .debug_str     0x0000000000013bfa        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/p_spec.o
-                                       0xa8bb (size before relaxing)
- .debug_str     0x0000000000013bfa        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/p_switch.o
+ .debug_str     0x0000000000013c0f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/p_spec.o
+                                       0xa8d0 (size before relaxing)
+ .debug_str     0x0000000000013c0f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/p_switch.o
                                        0x5820 (size before relaxing)
- .debug_str     0x0000000000013bfa        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/p_mobj.o
-                                       0x9ecf (size before relaxing)
- .debug_str     0x0000000000013bfa        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/p_telept.o
+ .debug_str     0x0000000000013c0f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/p_mobj.o
+                                       0x9ee4 (size before relaxing)
+ .debug_str     0x0000000000013c0f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/p_telept.o
                                        0x16ae (size before relaxing)
- .debug_str     0x0000000000013bfa        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/p_tick.o
+ .debug_str     0x0000000000013c0f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/p_tick.o
                                        0x4bcb (size before relaxing)
- .debug_str     0x0000000000013bfa        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/p_saveg.o
+ .debug_str     0x0000000000013c0f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/p_saveg.o
                                        0x54a0 (size before relaxing)
- .debug_str     0x0000000000013bfa        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/p_user.o
+ .debug_str     0x0000000000013c0f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/p_user.o
                                        0x4da3 (size before relaxing)
- .debug_str     0x0000000000013bfa        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/r_bsp.o
-                                       0x9400 (size before relaxing)
- .debug_str     0x0000000000013bfa        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/r_data.o
-                                       0x9715 (size before relaxing)
- .debug_str     0x0000000000013bfa        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/r_draw.o
+ .debug_str     0x0000000000013c0f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/r_bsp.o
+                                       0x9415 (size before relaxing)
+ .debug_str     0x0000000000013c0f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/r_data.o
+                                       0x972a (size before relaxing)
+ .debug_str     0x0000000000013c0f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/r_draw.o
                                        0x4776 (size before relaxing)
- .debug_str     0x0000000000013bfa        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/r_main.o
+ .debug_str     0x0000000000013c0f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/r_main.o
                                        0x4ed1 (size before relaxing)
- .debug_str     0x0000000000013bfa        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/r_plane.o
-                                       0x9474 (size before relaxing)
- .debug_str     0x0000000000013bfa        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/r_segs.o
+ .debug_str     0x0000000000013c0f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/r_plane.o
+                                       0x9489 (size before relaxing)
+ .debug_str     0x0000000000013c0f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/r_segs.o
                                        0x50f2 (size before relaxing)
- .debug_str     0x0000000000013bfa        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/r_sky.o
+ .debug_str     0x0000000000013c0f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/r_sky.o
                                         0x959 (size before relaxing)
- .debug_str     0x0000000000013bfa        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/r_things.o
-                                       0x9778 (size before relaxing)
- .debug_str     0x0000000000013bfa        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/wi_stuff.o
-                                       0xa467 (size before relaxing)
- .debug_str     0x0000000000013bfa        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/v_video.o
-                                       0x8b7b (size before relaxing)
- .debug_str     0x0000000000013bfa        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/st_lib.o
+ .debug_str     0x0000000000013c0f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/r_things.o
+                                       0x978d (size before relaxing)
+ .debug_str     0x0000000000013c0f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/wi_stuff.o
+                                       0xa47c (size before relaxing)
+ .debug_str     0x0000000000013c0f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/v_video.o
+                                       0x8b90 (size before relaxing)
+ .debug_str     0x0000000000013c0f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/st_lib.o
                                        0x452b (size before relaxing)
- .debug_str     0x0000000000013bfa        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/st_stuff.o
-                                       0x9acd (size before relaxing)
- .debug_str     0x0000000000013bfa        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/hu_stuff.o
-                                       0x9e89 (size before relaxing)
- .debug_str     0x0000000000013bfa        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/hu_lib.o
+ .debug_str     0x0000000000013c0f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/st_stuff.o
+                                       0x9ae2 (size before relaxing)
+ .debug_str     0x0000000000013c0f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/hu_stuff.o
+                                       0x9e9e (size before relaxing)
+ .debug_str     0x0000000000013c0f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/hu_lib.o
                                         0x5dd (size before relaxing)
- .debug_str     0x0000000000013bfa        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/s_sound.o
-                                       0xa008 (size before relaxing)
- .debug_str     0x0000000000013bfa        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/z_zone.o
-                                       0x494a (size before relaxing)
- .debug_str     0x0000000000013bfa        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/z_bmalloc.o
-                                       0x48ac (size before relaxing)
- .debug_str     0x0000000000013bfa        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/sounds.o
+ .debug_str     0x0000000000013c0f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/s_sound.o
+                                       0xa01d (size before relaxing)
+ .debug_str     0x0000000000013c0f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/z_zone.o
+                                       0x495f (size before relaxing)
+ .debug_str     0x0000000000013c0f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/z_bmalloc.o
+                                       0x48c1 (size before relaxing)
+ .debug_str     0x0000000000013c0f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/sounds.o
                                         0xe37 (size before relaxing)
- .debug_str     0x0000000000013bfa        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/d_main.o
-                                       0x9c82 (size before relaxing)
- .debug_str     0x0000000000013bfa        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/m_misc.o
-                                       0x9c4e (size before relaxing)
- .debug_str     0x0000000000013bfa        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/m_bbox.o
+ .debug_str     0x0000000000013c0f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/d_main.o
+                                       0x9c97 (size before relaxing)
+ .debug_str     0x0000000000013c0f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/m_misc.o
+                                       0x9c63 (size before relaxing)
+ .debug_str     0x0000000000013c0f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/m_bbox.o
                                         0x1d9 (size before relaxing)
- .debug_str     0x0000000000013bfa        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/i_system.o
-                                       0x48d0 (size before relaxing)
- .debug_str     0x0000000000013bfa        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/i_sound.o
-                                       0x9298 (size before relaxing)
- .debug_str     0x0000000000013bfa        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/i_video.o
-                                       0x8b86 (size before relaxing)
- .debug_str     0x0000000000013bfa        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/w_wad.o
-                                       0x8c52 (size before relaxing)
- .debug_str     0x0000000000013bfa        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/rockdoom.o
-                                       0xa1b5 (size before relaxing)
- .debug_str     0x0000000000013bfa        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/d_deh.o
-                                       0xab1c (size before relaxing)
- .debug_str     0x0000000000013bfa        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
-                                       0x511f (size before relaxing)
- .debug_str     0x0000000000013bfa        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
-                                       0x47c6 (size before relaxing)
- .debug_str     0x0000000000013bfa        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(helper.o)
-                                       0x5116 (size before relaxing)
- .debug_str     0x0000000000013bfa        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(strncpy.o)
+ .debug_str     0x0000000000013c0f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/i_system.o
+                                       0x48e5 (size before relaxing)
+ .debug_str     0x0000000000013c0f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/i_sound.o
+                                       0x92ad (size before relaxing)
+ .debug_str     0x0000000000013c0f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/i_video.o
+                                       0x8b9b (size before relaxing)
+ .debug_str     0x0000000000013c0f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/w_wad.o
+                                       0x8c67 (size before relaxing)
+ .debug_str     0x0000000000013c0f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/rockdoom.o
+                                       0xa1ca (size before relaxing)
+ .debug_str     0x0000000000013c0f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/doom/d_deh.o
+                                       0xab31 (size before relaxing)
+ .debug_str     0x0000000000013c0f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+                                       0x5134 (size before relaxing)
+ .debug_str     0x0000000000013c0f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
+                                       0x47db (size before relaxing)
+ .debug_str     0x0000000000013c0f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(helper.o)
+                                       0x512b (size before relaxing)
+ .debug_str     0x0000000000013c0f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(strncpy.o)
                                         0x19c (size before relaxing)
 
 .debug_loc

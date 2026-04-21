@@ -12,6 +12,22 @@
 *~
 .cache
 
+# RockPod local-only personal iTunes theme assets
+/rockpod/assets/theme_itunes_personal/*
+!/rockpod/assets/theme_itunes_personal/README.md
+!/rockpod/assets/theme_itunes_personal/theme.example.json
+!/rockpod/assets/theme_itunes_personal/branding/
+!/rockpod/assets/theme_itunes_personal/chrome/
+!/rockpod/assets/theme_itunes_personal/toolbar/
+!/rockpod/assets/theme_itunes_personal/sidebar/
+!/rockpod/assets/theme_itunes_personal/playback/
+!/rockpod/assets/theme_itunes_personal/table/
+!/rockpod/assets/theme_itunes_personal/statusbar/
+!/rockpod/assets/theme_itunes_personal/device/
+!/rockpod/assets/theme_itunes_personal/icons/
+!/rockpod/assets/theme_itunes_personal/artwork/
+!/rockpod/assets/theme_itunes_personal/**/.gitkeep
+
 __pycache__
 .DS_STORE
 

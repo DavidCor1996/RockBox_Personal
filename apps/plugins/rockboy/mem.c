@@ -462,7 +462,11 @@ void mem_write(int a, byte b)
             rtc_write(b);
             break;
         }
-        ram.sbank[mbc.rambank][a & 0x1FFF] = b;
+        if (ram.sbank[mbc.rambank][a & 0x1FFF] != b)
+        {
+            ram.sbank[mbc.rambank][a & 0x1FFF] = b;
+            ram.dirty = 1;
+        }
         break;
     case 0xC:
         if ((a & 0xF000) == 0xC000)

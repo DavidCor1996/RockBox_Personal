@@ -526,7 +526,12 @@ long gui_wps_show(void)
         } else {
             gwps_caption_backlight(state);
             #ifdef HAS_BUTTON_HOLD
-            if (button_hold() != last_hold) { last_hold = button_hold(); skin_request_full_update(WPS); update = true; }
+            if (button_hold() != last_hold) {
+                last_hold = button_hold();
+                global_status.last_volume_change = 0;
+                skin_request_full_update(WPS);
+                update = true;
+            }
             #endif
             FOR_NB_SCREENS(i) {
                 #if defined(HAVE_LCD_ENABLE) || defined(HAVE_LCD_SLEEP)
@@ -596,11 +601,6 @@ long gui_wps_show(void)
             case ACTION_WPS_VOLUP:
             case ACTION_WPS_VOLDOWN:
                 adjust_volume(button == ACTION_WPS_VOLUP ? 1 : -1);
-
-                /* THE FIX: Manually poke the global status tick */
-                global_status.last_volume_change = current_tick;
-
-                FOR_NB_SCREENS(i) skin_update(WPS, i, SKIN_REFRESH_NON_STATIC);
                 update = true; break;
 
             case ACTION_WPS_SEEKFWD:

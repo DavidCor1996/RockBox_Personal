@@ -26,9 +26,13 @@
 #include "emu.h"
 #include "hw.h"
 #include "pcm.h"
+#include "profiler.h"
 
 int shut,cleanshut;
 char *errormsg;
+bool rockboy_return_to_launcher;
+
+#define ROCKBOY_LAUNCHER_PATH PLUGIN_GAMES_DIR "/rockboy_launcher.rock"
 
 #define optionname "options"
 
@@ -56,32 +60,8 @@ void *my_malloc(size_t size)
     return alloc;
 }
 
-static void setoptions (void)
+static void rockboy_set_default_options(void)
 {
-    int fd;
-    DIR* dir;
-    char optionsave[sizeof(savedir)+sizeof(optionname)];
-
-    dir=rb->opendir(savedir);
-    if(!dir)
-        rb->mkdir(savedir);
-    else
-        rb->closedir(dir);
-
-    snprintf(optionsave, sizeof(optionsave), "%s/%s", savedir, optionname);
-
-    fd = open(optionsave, O_RDONLY);
-
-    int optionssize = sizeof(options);
-    int filesize = 0;
-    if(fd >= 0)
-        filesize = rb->filesize(fd);
-
-    /* don't read the option file if the size
-     * is not as expected to avoid crash */
-    if(fd < 0 || filesize!=optionssize)
-    {
-    /* no options to read, set defaults */
 #ifdef HAVE_TOUCHSCREEN
         options.LEFT    = BUTTON_MIDLEFT;
         options.RIGHT   = BUTTON_MIDRIGHT;
@@ -514,6 +494,7 @@ static void setoptions (void)
 #endif
 #endif
 
+        options.frameskip = 0;
         options.maxskip=4;
         options.fps=0;
         options.showstats=0;
@@ -523,10 +504,103 @@ static void setoptions (void)
         options.scaling=1;
 #endif
         options.sound=1;
+        options.autosave = 0;
+        options.rotate = 0;
         options.pal=0;
+        options.dirty = 0;
+        options.control_preset = ROCKBOY_CTRL_CLASSIC;
+        options.performance_preset = ROCKBOY_PERF_BALANCED;
+        options.profile = ROCKBOY_PROFILE_OFF;
+}
+
+void rockboy_apply_performance_preset(int preset)
+{
+    options.performance_preset = preset;
+
+#if CONFIG_KEYPAD == IPOD_4G_PAD && defined(IPOD_VIDEO)
+    switch (preset)
+    {
+        case ROCKBOY_PERF_PERFORMANCE:
+            options.maxskip = 3;
+            options.sound = 0;
+            options.scaling = 2;
+            break;
+        case ROCKBOY_PERF_QUALITY:
+            options.maxskip = 1;
+            options.sound = 1;
+            options.scaling = 1;
+            break;
+        default:
+            options.maxskip = 2;
+            options.sound = 1;
+            options.scaling = 2;
+            break;
+    }
+#else
+    (void)preset;
+#endif
+}
+
+static void setoptions (void)
+{
+    int fd;
+    DIR* dir;
+    char optionsave[sizeof(savedir)+sizeof(optionname)];
+    size_t bytes;
+
+    dir=rb->opendir(savedir);
+    if(!dir)
+        rb->mkdir(savedir);
+    else
+        rb->closedir(dir);
+
+    snprintf(optionsave, sizeof(optionsave), "%s/%s", savedir, optionname);
+
+    fd = open(optionsave, O_RDONLY);
+
+    int optionssize = sizeof(options);
+    int filesize = 0;
+    if(fd >= 0)
+        filesize = rb->filesize(fd);
+
+    /* don't read the option file if the size
+     * is not as expected to avoid crash */
+    if(fd < 0 || filesize<=0)
+    {
+        rockboy_set_default_options();
+#if CONFIG_KEYPAD == IPOD_4G_PAD && defined(IPOD_VIDEO)
+        options.control_preset = ROCKBOY_CTRL_IPOD5G;
+        rockboy_apply_performance_preset(ROCKBOY_PERF_BALANCED);
+#endif
     }
     else
-        read(fd,&options, sizeof(options));
+    {
+        rockboy_set_default_options();
+        bytes = filesize < optionssize ? filesize : optionssize;
+        read(fd,&options, bytes);
+
+        if (filesize < (int)sizeof(struct options))
+        {
+#if CONFIG_KEYPAD == IPOD_4G_PAD && defined(IPOD_VIDEO)
+            if (options.control_preset != ROCKBOY_CTRL_IPOD5G)
+                options.control_preset = ROCKBOY_CTRL_IPOD5G;
+            if (options.performance_preset > ROCKBOY_PERF_QUALITY)
+                rockboy_apply_performance_preset(ROCKBOY_PERF_BALANCED);
+#endif
+            if (options.profile > ROCKBOY_PROFILE_OVERLAY_AND_LOG)
+                options.profile = ROCKBOY_PROFILE_OFF;
+        }
+    }
+
+    if (options.performance_preset < ROCKBOY_PERF_BALANCED ||
+        options.performance_preset > ROCKBOY_PERF_QUALITY)
+        options.performance_preset = ROCKBOY_PERF_BALANCED;
+    if (options.control_preset < ROCKBOY_CTRL_CLASSIC ||
+        options.control_preset > ROCKBOY_CTRL_IPOD5G)
+        options.control_preset = ROCKBOY_CTRL_CLASSIC;
+    if (options.profile < ROCKBOY_PROFILE_OFF ||
+        options.profile > ROCKBOY_PROFILE_OVERLAY_AND_LOG)
+        options.profile = ROCKBOY_PROFILE_OFF;
 
     close(fd);
 }
@@ -586,6 +660,10 @@ static int gnuboy_main(const char *rom)
 /* this is the plugin entry point */
 enum plugin_status plugin_start(const void* parameter)
 {
+    char launcher_rom[MAX_PATH];
+    const char *rom_path = parameter;
+    bool return_to_launcher = false;
+
     rb->lcd_setfont(FONT_SYSFIXED);
 
     rb->lcd_clear_display();
@@ -614,6 +692,15 @@ enum plugin_status plugin_start(const void* parameter)
         audio_buffer_free = plugin_start_addr - (unsigned char *)audio_bufferbase;
 #endif
     setoptions();
+    rockboy_profile_reset();
+
+    if (rom_path[0] == '@')
+    {
+        snprintf(launcher_rom, sizeof(launcher_rom), "/%s", rom_path + 1);
+        rom_path = launcher_rom;
+        return_to_launcher = true;
+    }
+    rockboy_return_to_launcher = return_to_launcher;
 
     shut=0;
     cleanshut=0;
@@ -629,7 +716,7 @@ enum plugin_status plugin_start(const void* parameter)
     /* ignore backlight time out */
     backlight_ignore_timeout();
 
-    gnuboy_main(parameter);
+    gnuboy_main(rom_path);
 
 #ifdef HAVE_WHEEL_POSITION
     rb->wheel_send_events(true);
@@ -646,15 +733,23 @@ enum plugin_status plugin_start(const void* parameter)
 
     if(shut&&!cleanshut)
     {
+        rockboy_return_to_launcher = false;
         rb->splash(HZ/2, errormsg);
         return PLUGIN_ERROR;
     }
 
     rb->splash(HZ/2, "Closing Rockboy");
 
-    savesettings();
+    if (cleanshut && options.autosave)
+        sn_save();
 
+    savesettings();
     cleanup();
+    rockboy_profile_log_summary(rom_path);
+    rockboy_return_to_launcher = false;
+
+    if (return_to_launcher)
+        return rb->plugin_open(ROCKBOY_LAUNCHER_PATH, NULL);
 
     return PLUGIN_OK;
 }

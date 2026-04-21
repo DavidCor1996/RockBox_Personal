@@ -3,6 +3,7 @@
  ***************************************************************************/
 
 #include "nightcity.h"
+#include "nc_audio.h"
 
 static const struct button_mapping *plugin_contexts[] = { pla_main_ctx };
 
@@ -15,6 +16,8 @@ static const struct button_mapping *plugin_contexts[] = { pla_main_ctx };
 #include "pluginbitmaps/nightcity_convoycard.h"
 #include "pluginbitmaps/nightcity_relaycard.h"
 #include "pluginbitmaps/nightcity_afterglowcard.h"
+#include "pluginbitmaps/nightcity_panorama.h"
+#include "pluginbitmaps/nightcity_glitch.h"
 #include "pluginbitmaps/nightcity_portraits.h"
 #include "pluginbitmaps/nightcity_sentinel.h"
 #include "pluginbitmaps/nightcity_aegis.h"
@@ -35,14 +38,38 @@ static const struct button_mapping *plugin_contexts[] = { pla_main_ctx };
 #define NC_TEXT LCD_RGBPACK(0xe8, 0xef, 0xf7)
 #define NC_MUTED LCD_RGBPACK(0x7f, 0x8b, 0x9b)
 #define NC_GREEN LCD_RGBPACK(0x57, 0xd6, 0x9a)
+#else
+#define NC_BG 0
+#define NC_PANEL 0
+#define NC_PANEL_ALT 0
+#define NC_CYAN 0
+#define NC_MAGENTA 0
+#define NC_RED 0
+#define NC_TEXT 0
+#define NC_MUTED 0
+#define NC_GREEN 0
 #endif
 
 static int font_height;
 static int font_width;
 
+static void fit_text_to_width(const char *text, int max_width,
+                              char *out, size_t out_size);
+static void put_text_box_left(int x, int y, int max_width,
+                              const char *text, long color);
+static void put_text_box_right(int right_x, int y, int max_width,
+                               const char *text, long color);
+static void put_text_box_center(int center_x, int y, int max_width,
+                                const char *text, long color);
+
 #define NC_PORTRAIT_W 72
 #define NC_PORTRAIT_H 96
 #define NC_SCENE_PORTRAIT_H 72
+#define NC_PANORAMA_W 240
+#define NC_PANORAMA_VIEW_W 206
+#define NC_PANORAMA_H 66
+#define NC_GLITCH_W 320
+#define NC_GLITCH_H 32
 
 struct menu_screen
 {
@@ -144,8 +171,9 @@ void nc_ui_fill_background(void)
 
 void nc_ui_frame(const char *title, const char *subtitle)
 {
-    int title_w;
-    int title_h;
+    char subtitle_buf[NC_MAX_LINE_CHARS];
+    int subtitle_w = 0;
+    int title_max_w;
 
     nc_ui_fill_background();
 
@@ -158,19 +186,15 @@ void nc_ui_frame(const char *title, const char *subtitle)
     rb->lcd_set_foreground(NC_TEXT);
 #endif
 
-    rb->font_getstringsize(title, &title_w, &title_h, FONT_UI);
-    rb->lcd_putsxy(12, 15, title);
-
     if (subtitle != NULL && subtitle[0] != '\0')
     {
-#if LCD_DEPTH > 1
-        rb->lcd_set_foreground(NC_MUTED);
-#endif
-        rb->lcd_putsxy(LCD_WIDTH - 12 - rb->strlen(subtitle) * font_width, 15, subtitle);
-#if LCD_DEPTH > 1
-        rb->lcd_set_foreground(NC_TEXT);
-#endif
+        fit_text_to_width(subtitle, LCD_WIDTH / 2 - 24, subtitle_buf, sizeof(subtitle_buf));
+        rb->font_getstringsize(subtitle_buf, &subtitle_w, NULL, FONT_UI);
+        put_text_box_right(LCD_WIDTH - 12, 15, LCD_WIDTH / 2 - 24, subtitle_buf, NC_MUTED);
     }
+
+    title_max_w = LCD_WIDTH - 24 - (subtitle_w > 0 ? subtitle_w + 16 : 0);
+    put_text_box_left(12, 15, title_max_w, title, NC_TEXT);
 }
 
 void nc_ui_box(int x, int y, int w, int h, bool selected)
@@ -214,17 +238,11 @@ void nc_ui_footer(const char *left, const char *center, const char *right)
 #endif
 
     if (left != NULL)
-        rb->lcd_putsxy(8, y, left);
+        put_text_box_left(8, y, 92, left, NC_TEXT);
     if (center != NULL)
-    {
-        int w = rb->strlen(center) * font_width;
-        rb->lcd_putsxy((LCD_WIDTH - w) / 2, y, center);
-    }
+        put_text_box_center(LCD_WIDTH / 2, y, 104, center, NC_TEXT);
     if (right != NULL)
-    {
-        int w = rb->strlen(right) * font_width;
-        rb->lcd_putsxy(LCD_WIDTH - 8 - w, y, right);
-    }
+        put_text_box_right(LCD_WIDTH - 8, y, 92, right, NC_TEXT);
 }
 
 void nc_ui_update(void)
@@ -239,6 +257,122 @@ static int append_line(char lines[][NC_MAX_LINE_CHARS], int max_lines,
         return count;
     rb->strlcpy(lines[count], line, NC_MAX_LINE_CHARS);
     return count + 1;
+}
+
+static void fit_text_to_width(const char *text, int max_width,
+                              char *out, size_t out_size)
+{
+    int width = 0;
+    size_t len;
+
+    if (text == NULL || out_size == 0)
+        return;
+
+    rb->strlcpy(out, text, out_size);
+    rb->font_getstringsize(out, &width, NULL, FONT_UI);
+    if (width <= max_width)
+        return;
+
+    rb->strlcpy(out, text, out_size);
+    len = rb->strlen(out);
+    while (len > 3)
+    {
+        out[len - 3] = '.';
+        out[len - 2] = '.';
+        out[len - 1] = '.';
+        out[len] = '\0';
+        rb->font_getstringsize(out, &width, NULL, FONT_UI);
+        if (width <= max_width)
+            return;
+        --len;
+        out[len] = '\0';
+    }
+
+    rb->strlcpy(out, "...", out_size);
+}
+
+static void draw_text_backdrop(int x, int y, int width)
+{
+#if LCD_DEPTH > 1
+    int box_x = MAX(0, x - 4);
+    int box_y = MAX(0, y - 2);
+    int box_w = MIN(LCD_WIDTH - box_x, width + 8);
+    int box_h = font_height + 4;
+
+    if (box_w <= 0 || box_h <= 0)
+        return;
+
+    rb->lcd_set_foreground(NC_BG);
+    rb->lcd_fillrect(box_x, box_y, box_w, box_h);
+    rb->lcd_set_foreground(NC_PANEL_ALT);
+    rb->lcd_drawrect(box_x, box_y, box_w, box_h);
+    rb->lcd_set_foreground(NC_TEXT);
+#else
+    (void)x;
+    (void)y;
+    (void)width;
+#endif
+}
+
+static void put_text_box_left(int x, int y, int max_width, const char *text, long color)
+{
+    char fitted[NC_MAX_LINE_CHARS];
+    int width = 0;
+
+    fit_text_to_width(text, max_width, fitted, sizeof(fitted));
+    rb->font_getstringsize(fitted, &width, NULL, FONT_UI);
+    draw_text_backdrop(x, y, width);
+#if LCD_DEPTH > 1
+    rb->lcd_set_foreground(color);
+#else
+    (void)color;
+#endif
+    rb->lcd_putsxy(x, y, fitted);
+#if LCD_DEPTH > 1
+    rb->lcd_set_foreground(NC_TEXT);
+#endif
+}
+
+static void put_text_box_right(int right_x, int y, int max_width, const char *text, long color)
+{
+    char fitted[NC_MAX_LINE_CHARS];
+    int width = 0;
+    int x;
+
+    fit_text_to_width(text, max_width, fitted, sizeof(fitted));
+    rb->font_getstringsize(fitted, &width, NULL, FONT_UI);
+    x = MAX(0, right_x - width);
+    draw_text_backdrop(x, y, width);
+#if LCD_DEPTH > 1
+    rb->lcd_set_foreground(color);
+#else
+    (void)color;
+#endif
+    rb->lcd_putsxy(x, y, fitted);
+#if LCD_DEPTH > 1
+    rb->lcd_set_foreground(NC_TEXT);
+#endif
+}
+
+static void put_text_box_center(int center_x, int y, int max_width, const char *text, long color)
+{
+    char fitted[NC_MAX_LINE_CHARS];
+    int width = 0;
+    int x;
+
+    fit_text_to_width(text, max_width, fitted, sizeof(fitted));
+    rb->font_getstringsize(fitted, &width, NULL, FONT_UI);
+    x = MAX(0, center_x - width / 2);
+    draw_text_backdrop(x, y, width);
+#if LCD_DEPTH > 1
+    rb->lcd_set_foreground(color);
+#else
+    (void)color;
+#endif
+    rb->lcd_putsxy(x, y, fitted);
+#if LCD_DEPTH > 1
+    rb->lcd_set_foreground(NC_TEXT);
+#endif
 }
 
 int nc_ui_wrap_text(const char *text, int width,
@@ -364,18 +498,9 @@ static void draw_title_background(void)
     rb->lcd_bitmap(nightcity_title, 0, 18, BMPWIDTH_nightcity_title, BMPHEIGHT_nightcity_title);
 #endif
 
-    rb->lcd_putsxy(18, 26, "NIGHTCITY");
-#if LCD_DEPTH > 1
-    rb->lcd_set_foreground(NC_CYAN);
-#endif
-    rb->lcd_putsxy(18, 42, "portable mercenary fiction");
-#if LCD_DEPTH > 1
-    rb->lcd_set_foreground(NC_MUTED);
-#endif
-    rb->lcd_putsxy(18, 58, "for iPod Video / 5G clickwheel");
-#if LCD_DEPTH > 1
-    rb->lcd_set_foreground(NC_TEXT);
-#endif
+    put_text_box_left(18, 26, 180, "NIGHTCITY", NC_TEXT);
+    put_text_box_left(18, 42, 220, "portable mercenary fiction", NC_CYAN);
+    put_text_box_left(18, 58, 220, "for iPod Video / 5G clickwheel", NC_MUTED);
 }
 
 static enum scene_theme detect_scene_theme(const struct nc_node *node)
@@ -748,7 +873,21 @@ static void draw_ending_banner(int x, int y, enum ending_card card, int tick)
     }
     rb->lcd_set_foreground(NC_TEXT);
 }
+
 #endif
+
+static const char *ending_relationship_tag(const struct nc_game_state *state)
+{
+    if (state->flags & NC_FLAG_ROMANCE_NYRA)
+        return "Nyra kept the rooftop frequency alive.";
+    if (state->flags & NC_FLAG_ROMANCE_MIRA)
+        return "Mira kept your scar human.";
+    if (state->flags & NC_FLAG_ROMANCE_ROOK)
+        return "Rook kept a seat warm past the city.";
+    if (state->flags & NC_FLAG_ROMANCE_JUNO)
+        return "Juno left you one honest lie.";
+    return NULL;
+}
 
 static const char *scene_theme_label(enum scene_theme theme)
 {
@@ -771,12 +910,42 @@ static const char *scene_theme_label(enum scene_theme theme)
     }
 }
 
+static int ping_pong_offset(int tick, int range)
+{
+    int period;
+    int phase;
+
+    if (range <= 0)
+        return 0;
+
+    period = range * 2;
+    if (period <= 0)
+        return 0;
+
+    phase = tick % period;
+    return phase <= range ? phase : period - phase;
+}
+
 static void draw_scene_panorama(enum scene_theme theme, int x, int y, int w, int h, int tick)
 {
     int i;
 
     nc_ui_box(x, y, w, h, false);
 #if LCD_DEPTH > 1
+#if NIGHTCITY_USE_BITMAP_ASSETS
+    if (w == NC_PANORAMA_VIEW_W && h == NC_PANORAMA_H)
+    {
+        int scroll = ping_pong_offset(tick / 3, NC_PANORAMA_W - NC_PANORAMA_VIEW_W);
+        rb->lcd_bitmap_part(nightcity_panorama,
+                            theme * NC_PANORAMA_W + scroll, 0,
+                            BMPWIDTH_nightcity_panorama,
+                            x, y, NC_PANORAMA_VIEW_W, NC_PANORAMA_H);
+        rb->lcd_set_foreground(theme == SCENE_THEME_AFTERGLOW ? NC_MAGENTA : NC_CYAN);
+        rb->lcd_drawrect(x + 1, y + 1, w - 2, h - 2);
+        rb->lcd_set_foreground(NC_TEXT);
+        return;
+    }
+#endif
     rb->lcd_set_foreground(NC_PANEL_ALT);
     rb->lcd_fillrect(x + 1, y + 1, w - 2, h - 2);
     switch (theme)
@@ -907,9 +1076,38 @@ static int draw_choice_row(int y, const char *label, bool selected)
         nc_ui_box(18, y - 2, LCD_WIDTH - 36, height, true);
 
     for (i = 0; i < wrapped; ++i)
-        rb->lcd_putsxy(24, y + i * (font_height + 1), lines[i]);
+        put_text_box_left(24, y + i * (font_height + 1), LCD_WIDTH - 56, lines[i], NC_TEXT);
 
     return height;
+}
+
+static void draw_choice_browser(const struct nc_visible_choice *choices,
+                                int choice_count, int choice_index)
+{
+    int panel_y = 116;
+    int panel_h = 98;
+    int counter_y = panel_y + 6;
+    int first_choice = MAX(0, choice_index - 1);
+    int y;
+    int shown = 0;
+    char counter[12];
+    int i;
+
+    if (choice_count <= 0)
+        return;
+
+    if (first_choice > MAX(0, choice_count - 2))
+        first_choice = MAX(0, choice_count - 2);
+
+    nc_ui_box(12, panel_y, LCD_WIDTH - 24, panel_h, false);
+    put_text_box_left(18, counter_y, 120, "Choose your move", NC_MUTED);
+
+    rb->snprintf(counter, sizeof(counter), "%d/%d", choice_index + 1, choice_count);
+    put_text_box_right(LCD_WIDTH - 18, counter_y, 40, counter, NC_MUTED);
+
+    y = panel_y + 24;
+    for (i = first_choice; i < choice_count && shown < 2; ++i, ++shown)
+        y += draw_choice_row(y, choices[i].choice->label, i == choice_index) + 6;
 }
 
 static bool get_now_playing_lines(char *title, size_t title_size,
@@ -949,28 +1147,40 @@ static bool scene_uses_radio(enum scene_theme theme)
            theme == SCENE_THEME_BOARDROOM;
 }
 
-static void play_title_sting(void)
+static void play_menu_move_sfx(void)
 {
-    if ((rb->audio_status() & AUDIO_STATUS_PLAY) == AUDIO_STATUS_PLAY)
+    static long last_tick = 0;
+
+    if ((*rb->current_tick - last_tick) < HZ / 18)
         return;
 
-    rb->beep_play(392, 80, 900);
-    rb->sleep(HZ / 30);
-    rb->beep_play(523, 90, 950);
-    rb->sleep(HZ / 28);
-    rb->beep_play(659, 120, 1000);
+    last_tick = *rb->current_tick;
+    nc_audio_play(NC_SOUND_MOVE);
+}
+
+static void play_confirm_sfx(void)
+{
+    nc_audio_play(NC_SOUND_CONFIRM);
+}
+
+static void play_back_sfx(void)
+{
+    nc_audio_play(NC_SOUND_BACK);
+}
+
+static void play_transition_sfx(void)
+{
+    nc_audio_play(NC_SOUND_TRANSITION);
+}
+
+static void play_title_sting(void)
+{
+    nc_audio_play(NC_SOUND_TITLE);
 }
 
 static void play_afterglow_sting(void)
 {
-    if ((rb->audio_status() & AUDIO_STATUS_PLAY) == AUDIO_STATUS_PLAY)
-        return;
-
-    rb->beep_play(440, 70, 700);
-    rb->sleep(HZ / 32);
-    rb->beep_play(554, 90, 780);
-    rb->sleep(HZ / 28);
-    rb->beep_play(698, 130, 850);
+    nc_audio_play(NC_SOUND_AFTERGLOW);
 }
 
 static void draw_portrait_frame(int x, int y, int w, int h, bool accent_magenta)
@@ -1025,8 +1235,8 @@ static void draw_scene_asset_panel(const struct nc_game_state *state,
 #if LCD_DEPTH > 1
     rb->lcd_set_foreground(NC_MUTED);
 #endif
-    rb->lcd_putsxy(label_x + 6, label_y + 4, node->speaker);
-    rb->lcd_putsxy(label_x + 6, label_y + 26, scene_theme_label(theme));
+    put_text_box_left(label_x + 6, label_y + 4, 114, node->speaker, NC_MUTED);
+    put_text_box_left(label_x + 6, label_y + 26, 92, scene_theme_label(theme), NC_MUTED);
 #if LCD_DEPTH > 1
     rb->lcd_set_foreground(NC_TEXT);
 #endif
@@ -1048,10 +1258,16 @@ static void draw_deck_asset_panel(const struct nc_game_state *state)
 #if LCD_DEPTH > 1
     rb->lcd_set_foreground(NC_MUTED);
 #endif
-    rb->lcd_putsxy(x + 8, y + 46, "Chrome");
-    rb->lcd_putsxy(x + 8, y + 58, (state->cyberware & NC_CYBER_COMBAT_RIG) ? "Rig  online" : "Rig  dark");
-    rb->lcd_putsxy(x + 8, y + 68, (state->cyberware & NC_CYBER_GHOSTWALL) ? "Ghost online" : "Ghost dark");
-    rb->lcd_putsxy(x + 8, y + 78, (state->cyberware & NC_CYBER_SOCIAL) ? "Spoof online" : "Spoof dark");
+    put_text_box_left(x + 8, y + 46, 82, "Chrome", NC_MUTED);
+    put_text_box_left(x + 8, y + 58, 82,
+                      (state->cyberware & NC_CYBER_COMBAT_RIG) ? "Rig online" : "Rig dark",
+                      NC_MUTED);
+    put_text_box_left(x + 8, y + 68, 82,
+                      (state->cyberware & NC_CYBER_GHOSTWALL) ? "Ghost online" : "Ghost dark",
+                      NC_MUTED);
+    put_text_box_left(x + 8, y + 78, 82,
+                      (state->cyberware & NC_CYBER_SOCIAL) ? "Spoof online" : "Spoof dark",
+                      NC_MUTED);
 #if LCD_DEPTH > 1
     rb->lcd_set_foreground(NC_TEXT);
 #endif
@@ -1086,12 +1302,12 @@ void nc_ui_draw_encounter(const struct nc_game_state *state,
 
     nc_ui_box(12, 48, 166, 28, false);
     rb->snprintf(buf, sizeof(buf), "Vesper %d/%d", player_hp, state->max_health);
-    rb->lcd_putsxy(18, 54, buf);
+    put_text_box_left(18, 54, 70, buf, NC_TEXT);
     nc_ui_meter(94, 56, 76, player_hp, state->max_health, player_hp < state->max_health / 3);
 
     nc_ui_box(12, 80, 166, 28, false);
     rb->snprintf(buf, sizeof(buf), "%s %d/%d", enemy->name, enemy_hp, enemy->max_health);
-    rb->lcd_putsxy(18, 86, buf);
+    put_text_box_left(18, 86, 70, buf, NC_TEXT);
     nc_ui_meter(94, 88, 76, enemy_hp, enemy->max_health, enemy_hp <= enemy->max_health / 3);
 
 #if NIGHTCITY_USE_BITMAP_ASSETS
@@ -1112,13 +1328,13 @@ void nc_ui_draw_encounter(const struct nc_game_state *state,
 #if LCD_DEPTH > 1
     rb->lcd_set_foreground(NC_MUTED);
 #endif
-    rb->lcd_putsxy(asset_x + 48, asset_y + 76, is_aegis_enemy(enemy) ? "FRAME" : "DRONE");
-    rb->lcd_putsxy(asset_x + 8, asset_y + 90, defending ? "Shielded" : "Open lane");
+    put_text_box_left(asset_x + 48, asset_y + 76, 50, is_aegis_enemy(enemy) ? "FRAME" : "DRONE", NC_MUTED);
+    put_text_box_left(asset_x + 8, asset_y + 90, 90, defending ? "Shielded" : "Open lane", NC_MUTED);
     if (stim_turns > 0)
         rb->snprintf(buf, sizeof(buf), "Stim x%d", stim_turns);
     else
         rb->strlcpy(buf, "Stim cold", sizeof(buf));
-    rb->lcd_putsxy(asset_x + 8, asset_y + 100, buf);
+    put_text_box_left(asset_x + 8, asset_y + 100, 90, buf, NC_MUTED);
 #if LCD_DEPTH > 1
     rb->lcd_set_foreground(NC_TEXT);
 #endif
@@ -1127,7 +1343,7 @@ void nc_ui_draw_encounter(const struct nc_game_state *state,
     for (i = 0; i < NC_MAX_LOG_LINES; ++i)
     {
         if (log_lines[i][0] != '\0')
-            rb->lcd_putsxy(18, y + i * (line_height + 2), log_lines[i]);
+            put_text_box_left(18, y + i * (line_height + 2), LCD_WIDTH - 152, log_lines[i], NC_TEXT);
     }
 
     nc_ui_box(12, LCD_HEIGHT - 104, LCD_WIDTH - 24, 78, false);
@@ -1137,7 +1353,7 @@ void nc_ui_draw_encounter(const struct nc_game_state *state,
         int row_y = LCD_HEIGHT - 96 + i * (line_height + 4);
         if (selected)
             nc_ui_box(18, row_y - 2, LCD_WIDTH - 36, line_height + 6, true);
-        rb->lcd_putsxy(26, row_y, actions[i]);
+        put_text_box_left(26, row_y, LCD_WIDTH - 52, actions[i], NC_TEXT);
     }
 
     nc_ui_footer("Deck", "Act", "Menu");
@@ -1162,7 +1378,7 @@ static int run_menu(const struct menu_screen *screen)
         for (i = 0; i < screen->count; ++i)
         {
             nc_ui_box(18, y - 3, LCD_WIDTH - 36, font_height + 8, i == selection);
-            rb->lcd_putsxy(28, y, screen->items[i]);
+            put_text_box_left(28, y, LCD_WIDTH - 56, screen->items[i], NC_TEXT);
             y += font_height + 14;
         }
 
@@ -1171,7 +1387,8 @@ static int run_menu(const struct menu_screen *screen)
 #if LCD_DEPTH > 1
             rb->lcd_set_foreground(NC_MUTED);
 #endif
-            rb->lcd_putsxy(18, LCD_HEIGHT - 56, screen->descriptions[selection]);
+            put_text_box_left(18, LCD_HEIGHT - 56, LCD_WIDTH - 36,
+                              screen->descriptions[selection], NC_MUTED);
 #if LCD_DEPTH > 1
             rb->lcd_set_foreground(NC_TEXT);
 #endif
@@ -1186,18 +1403,24 @@ static int run_menu(const struct menu_screen *screen)
             case PLA_SCROLL_BACK:
             case PLA_SCROLL_BACK_REPEAT:
                 selection = (selection + screen->count - 1) % screen->count;
+                play_menu_move_sfx();
                 break;
             case PLA_SCROLL_FWD:
             case PLA_SCROLL_FWD_REPEAT:
                 selection = (selection + 1) % screen->count;
+                play_menu_move_sfx();
                 break;
             case PLA_SELECT_REL:
+                play_confirm_sfx();
                 return selection;
             case PLA_UP:
             case PLA_CANCEL:
             case PLA_EXIT:
                 if (screen->allow_cancel)
+                {
+                    play_back_sfx();
                     return -1;
+                }
                 break;
         }
     }
@@ -1368,15 +1591,15 @@ enum nc_profile nc_ui_choose_profile(void)
         for (i = 0; i < ARRAYLEN(items); ++i)
         {
             nc_ui_box(16, y - 3, 176, font_height + 8, i == selection);
-            rb->lcd_putsxy(26, y, items[i]);
+            put_text_box_left(26, y, 156, items[i], NC_TEXT);
             y += font_height + 14;
         }
 
 #if LCD_DEPTH > 1
         rb->lcd_set_foreground(NC_MUTED);
 #endif
-        rb->lcd_putsxy(214, 158, "Operator profile");
-        rb->lcd_putsxy(16, LCD_HEIGHT - 56, descriptions[selection]);
+        put_text_box_left(214, 158, 92, "Operator profile", NC_MUTED);
+        put_text_box_left(16, LCD_HEIGHT - 56, LCD_WIDTH - 32, descriptions[selection], NC_MUTED);
 #if LCD_DEPTH > 1
         rb->lcd_set_foreground(NC_TEXT);
 #endif
@@ -1388,16 +1611,20 @@ enum nc_profile nc_ui_choose_profile(void)
             case PLA_SCROLL_BACK:
             case PLA_SCROLL_BACK_REPEAT:
                 selection = (selection + ARRAYLEN(items) - 1) % ARRAYLEN(items);
+                play_menu_move_sfx();
                 break;
             case PLA_SCROLL_FWD:
             case PLA_SCROLL_FWD_REPEAT:
                 selection = (selection + 1) % ARRAYLEN(items);
+                play_menu_move_sfx();
                 break;
             case PLA_SELECT_REL:
+                play_confirm_sfx();
                 return (enum nc_profile)(selection + 1);
             case PLA_UP:
             case PLA_CANCEL:
             case PLA_EXIT:
+                play_back_sfx();
                 return NC_PROFILE_NONE;
         }
     }
@@ -1419,7 +1646,7 @@ static void show_text_screen(const char *title, const char *subtitle, const char
         nc_ui_frame(title, subtitle);
         for (i = 0; i < NC_TEXT_PAGE_LINES && (start + i) < line_count; ++i)
         {
-            rb->lcd_putsxy(14, y, lines[start + i]);
+            put_text_box_left(14, y, LCD_WIDTH - 28, lines[start + i], NC_TEXT);
             y += font_height + 4;
         }
 
@@ -1430,7 +1657,7 @@ static void show_text_screen(const char *title, const char *subtitle, const char
 #if LCD_DEPTH > 1
             rb->lcd_set_foreground(NC_MUTED);
 #endif
-            rb->lcd_putsxy(LCD_WIDTH - 12 - rb->strlen(counter) * font_width, y + 4, counter);
+            put_text_box_right(LCD_WIDTH - 12, y + 4, 40, counter, NC_MUTED);
 #if LCD_DEPTH > 1
             rb->lcd_set_foreground(NC_TEXT);
 #endif
@@ -1444,21 +1671,33 @@ static void show_text_screen(const char *title, const char *subtitle, const char
             case PLA_SCROLL_BACK:
             case PLA_SCROLL_BACK_REPEAT:
                 if (page > 0)
+                {
                     --page;
+                    play_menu_move_sfx();
+                }
                 break;
             case PLA_SCROLL_FWD:
             case PLA_SCROLL_FWD_REPEAT:
                 if (page + 1 < page_count)
+                {
                     ++page;
+                    play_menu_move_sfx();
+                }
                 break;
             case PLA_UP:
             case PLA_SELECT_REL:
             case PLA_CANCEL:
             case PLA_EXIT:
                 if (page + 1 < page_count)
+                {
                     ++page;
+                    play_confirm_sfx();
+                }
                 else
+                {
+                    play_back_sfx();
                     return;
+                }
                 break;
         }
     }
@@ -1516,12 +1755,12 @@ void nc_ui_show_panel(const struct nc_game_state *state)
 
         rb->snprintf(buf, sizeof(buf), "Medkits %d  Stims %d  Scrap %d",
                      state->medkits, state->stims, state->scrap);
-        rb->lcd_putsxy(14, y, buf);
+        put_text_box_left(14, y, LCD_WIDTH - 132, buf, NC_TEXT);
         y += font_height + 10;
 
-        rb->lcd_putsxy(14, y, "Auto-checkpointed at each story node.");
+        put_text_box_left(14, y, LCD_WIDTH - 28, "Auto-checkpointed at each story node.", NC_TEXT);
         y += font_height + 4;
-        rb->lcd_putsxy(14, y, "Left opens this deck during scenes or fights.");
+        put_text_box_left(14, y, LCD_WIDTH - 28, "Left opens this deck during scenes or fights.", NC_TEXT);
 
         nc_ui_footer(NULL, "Back", "Menu");
         nc_ui_update();
@@ -1533,6 +1772,7 @@ void nc_ui_show_panel(const struct nc_game_state *state)
             case PLA_CANCEL:
             case PLA_EXIT:
             case PLA_LEFT:
+                play_back_sfx();
                 return;
         }
     }
@@ -1578,79 +1818,119 @@ int nc_ui_run_scene(const struct nc_game_state *state,
                     int choice_count)
 {
     char lines[NC_MAX_WRAP_LINES][NC_MAX_LINE_CHARS];
-    int lines_per_page = choice_count > 0 ? 4 : 6;
+    enum scene_view_mode
+    {
+        SCENE_VIEW_TEXT = 0,
+        SCENE_VIEW_CHOICES,
+    };
+    int lines_per_page = 6;
     int line_count = nc_ui_wrap_text(node->text, LCD_WIDTH - 28, lines, ARRAYLEN(lines));
     int page = 0;
     int page_count = (line_count + lines_per_page - 1) / lines_per_page;
     int choice_index = 0;
+    enum scene_view_mode view_mode = SCENE_VIEW_TEXT;
+
+    if (page_count < 1)
+        page_count = 1;
 
     while (1)
     {
-        int i;
-        int start = page * lines_per_page;
-        int y = 122;
-
         nc_ui_frame(node->title, node->speaker);
         draw_scene_asset_panel(state, node);
-        nc_ui_box(12, 116, LCD_WIDTH - 24, (page + 1 == page_count && choice_count > 0) ? 58 : 88, false);
-
-        for (i = 0; i < lines_per_page && (start + i) < line_count; ++i)
+        if (view_mode == SCENE_VIEW_TEXT)
         {
-            rb->lcd_putsxy(14, y, lines[start + i]);
-            y += font_height + 4;
+            int i;
+            int start = page * lines_per_page;
+            int y = 122;
+            char counter[16];
+
+            nc_ui_box(12, 116, LCD_WIDTH - 24, 88, false);
+
+            for (i = 0; i < lines_per_page && (start + i) < line_count; ++i)
+            {
+                put_text_box_left(14, y, LCD_WIDTH - 28, lines[start + i], NC_TEXT);
+                y += font_height + 4;
+            }
+
+            rb->snprintf(counter, sizeof(counter), "%d/%d", page + 1, page_count);
+            put_text_box_right(LCD_WIDTH - 18, 120, 40, counter, NC_MUTED);
+
+            if (page + 1 == page_count && choice_count > 0)
+                put_text_box_left(18, 190, LCD_WIDTH - 36, "Center opens choices.", NC_MUTED);
+
+            nc_ui_footer("Deck", (page + 1 < page_count) ? "More" :
+                         (choice_count > 0 ? "Choices" : "Advance"), "Menu");
+        }
+        else
+        {
+            draw_choice_browser(choices, choice_count, choice_index);
+            nc_ui_footer("Story", "Confirm", "Menu");
         }
 
-        if (page + 1 == page_count && choice_count > 0)
-        {
-            int panel_y = 184;
-            int panel_height = 32;
-            char counter[12];
-
-            nc_ui_box(12, panel_y, LCD_WIDTH - 24, panel_height, false);
-            draw_choice_row(panel_y + 4, choices[choice_index].choice->label, true);
-            rb->snprintf(counter, sizeof(counter), "%d/%d", choice_index + 1, choice_count);
-#if LCD_DEPTH > 1
-            rb->lcd_set_foreground(NC_MUTED);
-#endif
-            rb->lcd_putsxy(LCD_WIDTH - 12 - rb->strlen(counter) * font_width, panel_y - 12, counter);
-#if LCD_DEPTH > 1
-            rb->lcd_set_foreground(NC_TEXT);
-#endif
-        }
-
-        nc_ui_footer("Deck", (page + 1 < page_count) ? "More" :
-                     (choice_count > 0 ? "Choose" : "Advance"), "Menu");
         nc_ui_update();
 
         switch (nc_ui_input(HZ / 8))
         {
             case PLA_LEFT:
+                play_back_sfx();
+                if (view_mode == SCENE_VIEW_CHOICES)
+                {
+                    view_mode = SCENE_VIEW_TEXT;
+                    break;
+                }
                 return NC_SCENE_PANEL;
             case PLA_UP:
             case PLA_CANCEL:
             case PLA_EXIT:
+                play_back_sfx();
                 return NC_SCENE_MENU;
             case PLA_SCROLL_BACK:
             case PLA_SCROLL_BACK_REPEAT:
-                if (page + 1 == page_count && choice_count > 0)
+                if (view_mode == SCENE_VIEW_CHOICES && choice_count > 0)
+                {
                     choice_index = (choice_index + choice_count - 1) % choice_count;
+                    play_menu_move_sfx();
+                }
                 else if (page > 0)
+                {
                     --page;
+                    play_menu_move_sfx();
+                }
                 break;
             case PLA_SCROLL_FWD:
             case PLA_SCROLL_FWD_REPEAT:
-                if (page + 1 == page_count && choice_count > 0)
+                if (view_mode == SCENE_VIEW_CHOICES && choice_count > 0)
+                {
                     choice_index = (choice_index + 1) % choice_count;
+                    play_menu_move_sfx();
+                }
                 else if (page + 1 < page_count)
+                {
                     ++page;
+                    play_menu_move_sfx();
+                }
                 break;
             case PLA_SELECT_REL:
-                if (page + 1 < page_count)
-                    ++page;
-                else if (choice_count > 0)
+                if (view_mode == SCENE_VIEW_CHOICES && choice_count > 0)
+                {
+                    play_confirm_sfx();
                     return choice_index;
+                }
+                if (page + 1 < page_count)
+                {
+                    ++page;
+                    play_confirm_sfx();
+                }
+                else if (choice_count > 0)
+                {
+                    play_confirm_sfx();
+                    view_mode = SCENE_VIEW_CHOICES;
+                }
                 else
+                {
+                    play_confirm_sfx();
                     return NC_SCENE_NEXT;
+                }
                 break;
         }
     }
@@ -1660,18 +1940,30 @@ void nc_ui_transition(void)
 {
     int frame;
 
+    play_transition_sfx();
+
     for (frame = 0; frame < 4; ++frame)
     {
         int i;
 
         nc_ui_fill_background();
 #if LCD_DEPTH > 1
+#if NIGHTCITY_USE_BITMAP_ASSETS
+        for (i = 0; i < 7; ++i)
+        {
+            int y = (frame * 16 + i * 34) % LCD_HEIGHT;
+            rb->lcd_bitmap_part(nightcity_glitch, frame * NC_GLITCH_W, 0,
+                                BMPWIDTH_nightcity_glitch,
+                                0, y, NC_GLITCH_W, MIN(NC_GLITCH_H, LCD_HEIGHT - y));
+        }
+#else
         rb->lcd_set_foreground((frame & 1) ? NC_MAGENTA : NC_CYAN);
         for (i = 0; i < 8; ++i)
         {
             int y = (frame * 18 + i * 26) % LCD_HEIGHT;
             rb->lcd_fillrect(0, y, LCD_WIDTH, 5);
         }
+#endif
         rb->lcd_set_foreground(NC_TEXT);
 #endif
         rb->lcd_update();
@@ -1710,13 +2002,9 @@ void nc_ui_story_intro(const struct nc_game_state *state,
 
         nc_ui_box(14, 20, 194, 20, false);
         nc_ui_box(14, 44, 194, 20, false);
-        rb->lcd_putsxy(20, 26, node->title);
+        put_text_box_left(20, 26, 182, node->title, NC_TEXT);
+        put_text_box_left(20, 50, 182, node->speaker, NC_MUTED);
 #if LCD_DEPTH > 1
-        rb->lcd_set_foreground(NC_MUTED);
-#endif
-        rb->lcd_putsxy(20, 50, node->speaker);
-#if LCD_DEPTH > 1
-        rb->lcd_set_foreground(NC_TEXT);
         rb->lcd_set_foreground((frame & 1) ? NC_MAGENTA : NC_CYAN);
         rb->lcd_fillrect(14, LCD_HEIGHT - 48, pulse, 3);
         rb->lcd_set_foreground(NC_TEXT);
@@ -1728,11 +2016,8 @@ void nc_ui_story_intro(const struct nc_game_state *state,
 #if LCD_DEPTH > 1
             rb->lcd_set_foreground(NC_MUTED);
 #endif
-            rb->lcd_putsxy(20, LCD_HEIGHT - 74, "Radio");
-#if LCD_DEPTH > 1
-            rb->lcd_set_foreground(NC_TEXT);
-#endif
-            rb->lcd_putsxy(64, LCD_HEIGHT - 74, radio_line);
+            put_text_box_left(20, LCD_HEIGHT - 74, 38, "Radio", NC_MUTED);
+            put_text_box_left(64, LCD_HEIGHT - 74, LCD_WIDTH - 98, radio_line, NC_TEXT);
         }
 
 #if LCD_DEPTH > 1
@@ -1761,8 +2046,8 @@ void nc_ui_show_ending(const struct nc_game_state *state,
 
     rb->snprintf(subtitle, sizeof(subtitle), "%s | Humanity %d | Ghost %d",
                  nc_lifepath_name(state->lifepath), state->humanity, state->ghost_sync);
-    if (state->flags & NC_FLAG_ROMANCE_NYRA)
-        rb->snprintf(tag_line, sizeof(tag_line), "Nyra stayed in the signal.");
+    if (ending_relationship_tag(state) != NULL)
+        rb->snprintf(tag_line, sizeof(tag_line), "%s", ending_relationship_tag(state));
     else
         tag_line[0] = '\0';
     line_count = nc_ui_wrap_text(node->text, LCD_WIDTH - 28, lines, ARRAYLEN(lines));
@@ -1785,20 +2070,22 @@ void nc_ui_show_ending(const struct nc_game_state *state,
 #if LCD_DEPTH > 1
         rb->lcd_set_foreground(NC_MUTED);
 #endif
-        rb->lcd_putsxy(104, 60, "Final Signal");
-        rb->lcd_putsxy(104, 74, card == ENDING_CARD_REBEL ? "City turned against the tower." :
-                               card == ENDING_CARD_CORP ? "A cleaner lie won the board." :
-                               card == ENDING_CARD_GHOST ? "You became the last transmission." :
-                               "You lived, but the night stayed in you.");
+        put_text_box_left(104, 60, 180, "Final Signal", NC_MUTED);
+        put_text_box_left(104, 74, 180,
+                          card == ENDING_CARD_REBEL ? "City turned against the tower." :
+                          card == ENDING_CARD_CORP ? "A cleaner lie won the board." :
+                          card == ENDING_CARD_GHOST ? "You became the last transmission." :
+                          "You lived, but the night stayed in you.",
+                          NC_MUTED);
         if (tag_line[0] != '\0')
-            rb->lcd_putsxy(104, 88, tag_line);
+            put_text_box_left(104, 88, 180, tag_line, NC_MUTED);
 #if LCD_DEPTH > 1
         rb->lcd_set_foreground(NC_TEXT);
 #endif
 
         for (i = 0; i < 6 && (start + i) < line_count; ++i)
         {
-            rb->lcd_putsxy(14, y, lines[start + i]);
+            put_text_box_left(14, y, LCD_WIDTH - 28, lines[start + i], NC_TEXT);
             y += font_height + 4;
         }
 
@@ -1809,7 +2096,7 @@ void nc_ui_show_ending(const struct nc_game_state *state,
 #if LCD_DEPTH > 1
             rb->lcd_set_foreground(NC_MUTED);
 #endif
-            rb->lcd_putsxy(LCD_WIDTH - 12 - rb->strlen(counter) * font_width, y + 2, counter);
+            put_text_box_right(LCD_WIDTH - 12, y + 2, 40, counter, NC_MUTED);
 #if LCD_DEPTH > 1
             rb->lcd_set_foreground(NC_TEXT);
 #endif
@@ -1823,21 +2110,33 @@ void nc_ui_show_ending(const struct nc_game_state *state,
             case PLA_SCROLL_BACK:
             case PLA_SCROLL_BACK_REPEAT:
                 if (page > 0)
+                {
                     --page;
+                    play_menu_move_sfx();
+                }
                 break;
             case PLA_SCROLL_FWD:
             case PLA_SCROLL_FWD_REPEAT:
                 if (page + 1 < page_count)
+                {
                     ++page;
+                    play_menu_move_sfx();
+                }
                 break;
             case PLA_UP:
             case PLA_SELECT_REL:
             case PLA_CANCEL:
             case PLA_EXIT:
                 if (page + 1 < page_count)
+                {
                     ++page;
+                    play_confirm_sfx();
+                }
                 else
+                {
+                    play_back_sfx();
                     return;
+                }
                 break;
         }
     }
