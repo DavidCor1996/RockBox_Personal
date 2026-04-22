@@ -1436,6 +1436,7 @@ MENUITEM_RETURNVALUE(bookmarks, ID2P(LANG_BOOKMARK_MENU_RECENT_BOOKMARKS),
                         Icon_Bookmark);
 MENUITEM_RETURNVALUE(playlists, ID2P(LANG_PLAYLISTS), GO_TO_PLAYLISTS_SCREEN,
                      NULL, Icon_Playlist);
+static const struct browse_folder_info gameboy_folder = {"/gameboy/", SHOW_ALL};
 #if defined(HAVE_LCD_COLOR) && (LCD_WIDTH >= 220)
 static int load_plugin_path_screen(const char *path, const char *param);
 
@@ -1444,14 +1445,41 @@ static int launch_gameboy_browser(void* param)
     (void)param;
     return load_plugin_path_screen(PLUGIN_GAMES_DIR "/rockboy_launcher.rock", NULL);
 }
+
+static int browse_gameboy_roms(void* param)
+{
+    (void)param;
+    return browse_folder((void *)&gameboy_folder);
+}
+
+static int launch_podemon_go(void* param)
+{
+    (void)param;
+    return load_plugin_path_screen(PLUGIN_GAMES_DIR "/pocketcatch.rock", NULL);
+}
+
+MENUITEM_FUNCTION(gameboy_coverflow_item, MENU_FUNC_CHECK_RETVAL,
+                  "Game Cover Flow", launch_gameboy_browser,
+                  NULL, Icon_NOICON);
+MENUITEM_FUNCTION(gameboy_files_item, MENU_FUNC_CHECK_RETVAL,
+                  "Browse ROM Files", browse_gameboy_roms,
+                  NULL, Icon_NOICON);
+MAKE_MENU(gameboy_context_menu, "Games", NULL, Icon_NOICON,
+          &gameboy_coverflow_item, &gameboy_files_item);
+
 MENUITEM_FUNCTION(gameboy_browser, MENU_FUNC_CHECK_RETVAL,
                   ID2P(LANG_PLUGIN_GAMES), launch_gameboy_browser,
                   NULL, Icon_Folder);
+MENUITEM_FUNCTION(podemon_go_item, MENU_FUNC_CHECK_RETVAL,
+                  "Podemon Go", launch_podemon_go,
+                  NULL, Icon_Plugin);
 #else
-static const struct browse_folder_info gameboy_folder = {"/gameboy/", SHOW_ALL};
 MENUITEM_FUNCTION_W_PARAM(gameboy_browser, MENU_FUNC_CHECK_RETVAL,
                           ID2P(LANG_PLUGIN_GAMES), browse_folder,
                           (void *)&gameboy_folder, NULL, Icon_Folder);
+MENUITEM_FUNCTION(podemon_go_item, MENU_FUNC_CHECK_RETVAL,
+                  "Podemon Go", launch_podemon_go,
+                  NULL, Icon_Plugin);
 #endif
 MENUITEM_RETURNVALUE(system_menu_, ID2P(LANG_SYSTEM), GO_TO_SYSTEM_SCREEN,
                      NULL, Icon_System_menu);
@@ -1467,6 +1495,7 @@ static struct menu_table menu_table[] = {
 #endif
     { "videos", &videos },
     { "games", &gameboy_browser },
+    { "podemon_go", &podemon_go_item },
     { "files", &file_browser },
     { "wps", &wps_item },
     { "playlists", &playlists },
@@ -1585,6 +1614,7 @@ char* root_menu_write_to_cfg(void* setting, char*buf, int buf_len)
 void root_menu_set_default(void* setting, void* defaultval)
 {
     unsigned i;
+    unsigned count = 0;
     (void)defaultval;
 
     root_menu_.flags = MENU_HAS_DESC | MT_MENU;
@@ -1593,9 +1623,12 @@ void root_menu_set_default(void* setting, void* defaultval)
 
     for (i=0; i<MAX_MENU_ITEMS; i++)
     {
-        root_menu__[i] = (struct menu_item_ex *)menu_table[i].item;
+        if (menu_table[i].item == &podemon_go_item)
+            continue;
+
+        root_menu__[count++] = (struct menu_item_ex *)menu_table[i].item;
     }
-    root_menu_.flags |= MENU_ITEM_COUNT(MAX_MENU_ITEMS);
+    root_menu_.flags |= MENU_ITEM_COUNT(count);
     *(bool*)setting = false;
 }
 
@@ -2312,6 +2345,12 @@ static int load_context_screen(int selection)
     {
         context_menu = &system_menu;
     }
+#if defined(HAVE_LCD_COLOR) && (LCD_WIDTH >= 220)
+    else if (root_menu__[selection] == &gameboy_browser)
+    {
+        context_menu = &gameboy_context_menu;
+    }
+#endif
 
     if (context_menu)
         retval = do_menu(context_menu, NULL, NULL, false);

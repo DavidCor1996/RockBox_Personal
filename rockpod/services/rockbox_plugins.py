@@ -7,11 +7,11 @@ import os
 
 PLUGIN_OVERRIDES = {
     "pocketcatch": {
-        "display_name": "PocketCatch",
+        "display_name": "Podemon Go",
         "status": "experimental",
         "category": "games",
         "custom": True,
-        "summary": "Monster-catching prototype with external pack support.",
+        "summary": "Pokemon Go-style catch prototype for the click wheel.",
         "docs": [
             "apps/plugins/POCKETCATCH_PLAN.md",
             "apps/plugins/POCKETCATCH_ASSET_PACK_SPEC.md",

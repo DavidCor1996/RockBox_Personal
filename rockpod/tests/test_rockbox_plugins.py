@@ -61,7 +61,7 @@ def test_plugin_discovery_and_custom_priority(tmp_dir):
 
     assert plugins[0]["id"] in {"minishcap", "pocketcatch", "pocketcatch_simple"}
     pocket = next(item for item in plugins if item["id"] == "pocketcatch")
-    assert pocket["display_name"] == "PocketCatch"
+    assert pocket["display_name"] == "Podemon Go"
     assert pocket["status"] == "experimental"
     assert pocket["category"] == "games"
     assert pocket["binary_exists"] is True
