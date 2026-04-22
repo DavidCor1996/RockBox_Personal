@@ -135,7 +135,10 @@ static bool house_block_walkable(unsigned char block_id)
         case 1:
         case 2:
         case 7:
+        case 11:
+        case 9:
         case 8:
+        case 17:
         case 15:
             return true;
 
@@ -335,43 +338,52 @@ static void maybe_move_spawn(struct pc_world_state *world, struct pc_world_spawn
     }
 }
 
-static void player_tile_pos(const struct pc_world_state *world, int *tile_x, int *tile_y)
+static void player_metatile_pos(const struct pc_world_state *world,
+                                int *tile_x, int *tile_y)
 {
     int foot_x = world->player_x - world->origin_x;
     int foot_y = (world->player_y + 7) - world->origin_y;
-    int step = scene_subtile_px();
+    int step = PC_WORLD_TILE_SIZE / 2;
 
     *tile_x = foot_x / step;
     *tile_y = foot_y / step;
 }
 
-static void maybe_handle_transition(struct pc_world_state *world, bool moved)
+static bool player_in_metatile_zone(const struct pc_world_state *world,
+                                    int min_x, int max_x,
+                                    int min_y, int max_y)
 {
     int tile_x;
     int tile_y;
 
+    player_metatile_pos(world, &tile_x, &tile_y);
+    return tile_x >= min_x && tile_x <= max_x &&
+           tile_y >= min_y && tile_y <= max_y;
+}
+
+static void maybe_handle_transition(struct pc_world_state *world, bool moved)
+{
     if (!moved)
         return;
-
-    player_tile_pos(world, &tile_x, &tile_y);
 
     switch (world->scene)
     {
         case PC_WORLD_SCENE_PALLET:
-            if (tile_x == 5 && tile_y == 5 && world->heading == PC_HEADING_N)
+            if (player_in_metatile_zone(world, 5, 5, 5, 5) &&
+                world->heading == PC_HEADING_N)
                 transition_to_scene(world, PC_WORLD_SCENE_HOUSE_1F, 2, 6, PC_HEADING_N);
             break;
 
         case PC_WORLD_SCENE_HOUSE_1F:
-            if ((tile_x == 2 || tile_x == 3) && tile_y == 7 &&
+            if (player_in_metatile_zone(world, 2, 3, 7, 7) &&
                 world->heading == PC_HEADING_S)
                 transition_to_scene(world, PC_WORLD_SCENE_PALLET, 5, 6, PC_HEADING_S);
-            else if (tile_x == 7 && tile_y == 1)
+            else if (player_in_metatile_zone(world, 7, 7, 1, 1))
                 transition_to_scene(world, PC_WORLD_SCENE_HOUSE_2F, 6, 2, PC_HEADING_N);
             break;
 
         case PC_WORLD_SCENE_HOUSE_2F:
-            if (tile_x == 7 && tile_y == 1)
+            if (player_in_metatile_zone(world, 7, 7, 1, 1))
                 transition_to_scene(world, PC_WORLD_SCENE_HOUSE_1F, 6, 2, PC_HEADING_S);
             break;
     }
