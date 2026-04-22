@@ -78,7 +78,8 @@ void pc_physics_build_throw(struct pc_throw_state *throw_state,
                          (request->signed_spin >= 0 ? 1 : -1) * (overspin_error / 2);
     if (request->signed_spin == 0)
         throw_state->end_x = PC_TARGET_X;
-    throw_state->end_y = target_y + power_error / 2;
+    throw_state->end_x += request->release_bias_x;
+    throw_state->end_y = target_y + power_error / 2 + request->release_bias_y;
     throw_state->curve_px = MAX(-34, MIN(34, curve_px));
     throw_state->arc_height = 40 + power_score / 3;
     throw_state->duration_frames = MAX(12, 22 - (request->release_velocity / 2));

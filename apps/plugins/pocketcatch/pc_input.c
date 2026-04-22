@@ -64,6 +64,16 @@ static bool wheel_release_detected(const struct pc_input_state *input, long now)
     return idle_ticks >= PC_WHEEL_RELEASE_TICKS;
 }
 
+static void compute_release_bias(int spin_phase, int *bias_x, int *bias_y)
+{
+    static const signed char bias_table_x[8] = { 4, 3, 0, -3, -4, -3, 0, 3 };
+    static const signed char bias_table_y[8] = { 0, 2, 4, 2, 0, -2, -4, -2 };
+    int sector = (spin_phase >> 5) & 7;
+
+    *bias_x = bias_table_x[sector];
+    *bias_y = bias_table_y[sector];
+}
+
 void pc_input_reset(struct pc_input_state *input)
 {
     rb->memset(input, 0, sizeof(*input));
@@ -115,6 +125,9 @@ void pc_input_snapshot_throw(const struct pc_input_state *input, long now,
     request->wheel_events = input->wheel_events;
     request->spin_phase = input->spin_phase;
     request->spin_velocity = spin_velocity;
+    compute_release_bias(request->spin_phase,
+                         &request->release_bias_x,
+                         &request->release_bias_y);
 }
 
 void pc_input_handle_event(struct pc_input_state *input, long event, long now,

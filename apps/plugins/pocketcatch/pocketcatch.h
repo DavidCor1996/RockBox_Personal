@@ -23,15 +23,15 @@
 #define PC_BALL_MAX_BYTES      (PC_BALL_MAX_W * PC_BALL_MAX_H * sizeof(fb_data))
 #define PC_BALL_SPIN_FRAMES    4
 #ifdef SIMULATOR
-#define PC_WORLD_CREATURE_MAX_W 32
-#define PC_WORLD_CREATURE_MAX_H 32
-#define PC_WORLD_TRAINER_MAX_W  40
-#define PC_WORLD_TRAINER_MAX_H  40
-#else
 #define PC_WORLD_CREATURE_MAX_W 28
 #define PC_WORLD_CREATURE_MAX_H 28
-#define PC_WORLD_TRAINER_MAX_W  36
-#define PC_WORLD_TRAINER_MAX_H  36
+#define PC_WORLD_TRAINER_MAX_W  26
+#define PC_WORLD_TRAINER_MAX_H  26
+#else
+#define PC_WORLD_CREATURE_MAX_W 24
+#define PC_WORLD_CREATURE_MAX_H 24
+#define PC_WORLD_TRAINER_MAX_W  22
+#define PC_WORLD_TRAINER_MAX_H  22
 #endif
 #define PC_WORLD_CREATURE_BYTES (PC_WORLD_CREATURE_MAX_W * PC_WORLD_CREATURE_MAX_H * sizeof(fb_data))
 #define PC_WORLD_TRAINER_BYTES  (PC_WORLD_TRAINER_MAX_W * PC_WORLD_TRAINER_MAX_H * sizeof(fb_data))
@@ -50,11 +50,11 @@
 #define PC_TARGET_Y            94
 #define PC_GROUND_Y            (LCD_HEIGHT - 54)
 #define PC_CREATURE_BASE_Y     146
-#define PC_WORLD_TILE_SIZE     30
+#define PC_WORLD_TILE_SIZE     32
 #define PC_WORLD_W             10
 #define PC_WORLD_H             9
-#define PC_WORLD_ORIGIN_X      ((LCD_WIDTH - (PC_WORLD_W * PC_WORLD_TILE_SIZE)) / 2)
-#define PC_WORLD_ORIGIN_Y      (-18)
+#define PC_WORLD_ORIGIN_X      0
+#define PC_WORLD_ORIGIN_Y      (-28)
 #define PC_WORLD_MAX_SPAWNS    4
 #define PC_WORLD_STEP_PX       4
 #define PC_WORLD_WALK_FRAMES   3
@@ -162,6 +162,8 @@ struct pc_throw_request {
     int wheel_events;
     int spin_phase;
     int spin_velocity;
+    int release_bias_x;
+    int release_bias_y;
 };
 
 struct pc_throw_state {
