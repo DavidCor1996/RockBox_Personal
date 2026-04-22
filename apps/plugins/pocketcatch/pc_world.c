@@ -1,14 +1,7 @@
 #include "pocketcatch.h"
 
-/*
- * Pallet Town block layout sourced from pret/pokered:
- * maps/PalletTown.blk (10x9 blocks), plus object positions from
- * data/maps/objects/PalletTown.asm.
- *
- * We render these original block ids with a lightweight in-plugin
- * renderer instead of loading a large bitmap, which keeps the iPod
- * build stable while still using the real Gen 1 map layout.
- */
+#define PC_HOUSE_MAP_W 4
+#define PC_HOUSE_MAP_H 4
 
 static const unsigned char pc_pallet_blocks[PC_WORLD_H][PC_WORLD_W] = {
     { 0x52, 0x4f, 0x52, 0x52, 0x4f, 0x0b, 0x50, 0x52, 0x52, 0x50 },
@@ -20,6 +13,24 @@ static const unsigned char pc_pallet_blocks[PC_WORLD_H][PC_WORLD_W] = {
     { 0x4e, 0x01, 0x01, 0x01, 0x01, 0x77, 0x56, 0x77, 0x31, 0x4d },
     { 0x4e, 0x0a, 0x1d, 0x1e, 0x31, 0x74, 0x74, 0x0a, 0x31, 0x4d },
     { 0x50, 0x0a, 0x65, 0x64, 0x61, 0x61, 0x61, 0x61, 0x61, 0x4f },
+};
+
+static const unsigned char pc_reds_house_1f_blocks[PC_HOUSE_MAP_H][PC_HOUSE_MAP_W] = {
+    { 4,  9,  5,  7 },
+    { 15, 15, 15, 15 },
+    { 15, 1,  2,  15 },
+    { 15, 11, 15, 15 },
+};
+
+static const unsigned char pc_reds_house_2f_blocks[PC_HOUSE_MAP_H][PC_HOUSE_MAP_W] = {
+    { 16, 17, 5,  8  },
+    { 15, 15, 15, 15 },
+    { 15, 13, 15, 15 },
+    { 12, 15, 15, 18 },
+};
+
+static const unsigned char pc_outside_respawn_blocks[PC_WORLD_MAX_SPAWNS][2] = {
+    { 1, 3 }, { 5, 3 }, { 8, 3 }, { 4, 6 }
 };
 
 static fb_data pc_world_trainer_pixels[4][PC_WORLD_WALK_FRAMES]
@@ -42,27 +53,49 @@ static void set_banner(struct pc_world_state *world,
     rb->strlcpy(world->banner.line2, line2, sizeof(world->banner.line2));
 }
 
-static int block_screen_x(int block_x)
+static int scene_subtile_px(void)
 {
-    return PC_WORLD_ORIGIN_X + block_x * PC_WORLD_TILE_SIZE;
+    return PC_WORLD_TILE_SIZE / 4;
 }
 
-static int block_screen_y(int block_y)
+static int block_screen_x(const struct pc_world_state *world, int block_x)
 {
-    return PC_WORLD_ORIGIN_Y + block_y * PC_WORLD_TILE_SIZE;
+    return world->origin_x + block_x * PC_WORLD_TILE_SIZE;
 }
 
-static int block_center_x(int block_x)
+static int block_screen_y(const struct pc_world_state *world, int block_y)
 {
-    return block_screen_x(block_x) + PC_WORLD_TILE_SIZE / 2;
+    return world->origin_y + block_y * PC_WORLD_TILE_SIZE;
 }
 
-static int block_center_y(int block_y)
+static int block_center_x(const struct pc_world_state *world, int block_x)
 {
-    return block_screen_y(block_y) + PC_WORLD_TILE_SIZE / 2;
+    return block_screen_x(world, block_x) + PC_WORLD_TILE_SIZE / 2;
 }
 
-static bool block_walkable(unsigned char block_id)
+static int block_center_y(const struct pc_world_state *world, int block_y)
+{
+    return block_screen_y(world, block_y) + PC_WORLD_TILE_SIZE / 2;
+}
+
+static int subtile_center_x(const struct pc_world_state *world, int tile_x)
+{
+    return world->origin_x + tile_x * scene_subtile_px() + scene_subtile_px() / 2;
+}
+
+static int subtile_center_y(const struct pc_world_state *world, int tile_y)
+{
+    return world->origin_y + tile_y * scene_subtile_px() + scene_subtile_px() / 2;
+}
+
+static void set_player_to_subtile(struct pc_world_state *world,
+                                  int tile_x, int tile_y)
+{
+    world->player_x = subtile_center_x(world, tile_x);
+    world->player_y = subtile_center_y(world, tile_y) - 7;
+}
+
+static bool outside_block_walkable(unsigned char block_id)
 {
     switch (block_id)
     {
@@ -95,24 +128,45 @@ static bool block_walkable(unsigned char block_id)
     }
 }
 
+static bool house_block_walkable(unsigned char block_id)
+{
+    switch (block_id)
+    {
+        case 1:
+        case 2:
+        case 7:
+        case 8:
+        case 15:
+            return true;
+
+        default:
+            return false;
+    }
+}
+
+static bool block_walkable(const struct pc_world_state *world, unsigned char block_id)
+{
+    if (world->scene == PC_WORLD_SCENE_PALLET)
+        return outside_block_walkable(block_id);
+    return house_block_walkable(block_id);
+}
+
 static bool point_walkable(const struct pc_world_state *world, int x, int y)
 {
-    int local_x = x - PC_WORLD_ORIGIN_X;
-    int local_y = y - PC_WORLD_ORIGIN_Y;
+    int local_x = x - world->origin_x;
+    int local_y = y - world->origin_y;
     int tx;
     int ty;
-
-    (void)world;
 
     if (local_x < 0 || local_y < 0)
         return false;
 
     tx = local_x / PC_WORLD_TILE_SIZE;
     ty = local_y / PC_WORLD_TILE_SIZE;
-    if (tx < 0 || ty < 0 || tx >= PC_WORLD_W || ty >= PC_WORLD_H)
+    if (tx < 0 || ty < 0 || tx >= world->map_w || ty >= world->map_h)
         return false;
 
-    return block_walkable(world->tiles[ty][tx]);
+    return block_walkable(world, world->tiles[ty][tx]);
 }
 
 static bool player_walkable(const struct pc_world_state *world, int x, int y)
@@ -152,22 +206,73 @@ static void init_assets(struct pc_world_state *world)
     }
 }
 
-static void build_pallet_layout(struct pc_world_state *world)
+static void load_scene_data(struct pc_world_state *world, enum pc_world_scene scene)
 {
     int x;
     int y;
 
-    for (y = 0; y < PC_WORLD_H; ++y)
-    {
-        for (x = 0; x < PC_WORLD_W; ++x)
-            world->tiles[y][x] = pc_pallet_blocks[y][x];
-    }
+    world->scene = scene;
+    world->map_dirty = true;
 
-    /* Start just outside the player's house door. */
-    world->home_x = block_center_x(3);
-    world->home_y = block_center_y(3) + 4;
-    world->spawn_x = world->home_x;
-    world->spawn_y = world->home_y;
+    rb->memset(world->tiles, 0, sizeof(world->tiles));
+
+    switch (scene)
+    {
+        case PC_WORLD_SCENE_PALLET:
+            world->map_w = PC_WORLD_W;
+            world->map_h = PC_WORLD_H;
+            world->origin_x = PC_WORLD_ORIGIN_X;
+            world->origin_y = PC_WORLD_ORIGIN_Y;
+            for (y = 0; y < PC_WORLD_H; ++y)
+            {
+                for (x = 0; x < PC_WORLD_W; ++x)
+                    world->tiles[y][x] = pc_pallet_blocks[y][x];
+            }
+            world->home_x = subtile_center_x(world, 5);
+            world->home_y = subtile_center_y(world, 6) - 7;
+            set_banner(world, "Pallet Town", "Walk into Pokemon, enter your house");
+            break;
+
+        case PC_WORLD_SCENE_HOUSE_1F:
+            world->map_w = PC_HOUSE_MAP_W;
+            world->map_h = PC_HOUSE_MAP_H;
+            world->origin_x = (LCD_WIDTH - (PC_HOUSE_MAP_W * PC_WORLD_TILE_SIZE)) / 2;
+            world->origin_y = (LCD_HEIGHT - (PC_HOUSE_MAP_H * PC_WORLD_TILE_SIZE)) / 2;
+            for (y = 0; y < PC_HOUSE_MAP_H; ++y)
+            {
+                for (x = 0; x < PC_HOUSE_MAP_W; ++x)
+                    world->tiles[y][x] = pc_reds_house_1f_blocks[y][x];
+            }
+            set_banner(world, "Red's House 1F", "Stairs up, door out");
+            break;
+
+        case PC_WORLD_SCENE_HOUSE_2F:
+        default:
+            world->map_w = PC_HOUSE_MAP_W;
+            world->map_h = PC_HOUSE_MAP_H;
+            world->origin_x = (LCD_WIDTH - (PC_HOUSE_MAP_W * PC_WORLD_TILE_SIZE)) / 2;
+            world->origin_y = (LCD_HEIGHT - (PC_HOUSE_MAP_H * PC_WORLD_TILE_SIZE)) / 2;
+            for (y = 0; y < PC_HOUSE_MAP_H; ++y)
+            {
+                for (x = 0; x < PC_HOUSE_MAP_W; ++x)
+                    world->tiles[y][x] = pc_reds_house_2f_blocks[y][x];
+            }
+            set_banner(world, "Red's Room", "Start here, head downstairs");
+            break;
+    }
+}
+
+static void transition_to_scene(struct pc_world_state *world,
+                                enum pc_world_scene scene,
+                                int tile_x, int tile_y,
+                                enum pc_heading heading)
+{
+    load_scene_data(world, scene);
+    set_player_to_subtile(world, tile_x, tile_y);
+    world->heading = heading;
+    world->moving = false;
+    world->walk_frame = 1;
+    world->walk_tick = 0;
 }
 
 static void place_spawn(struct pc_world_state *world, int slot,
@@ -179,8 +284,8 @@ static void place_spawn(struct pc_world_state *world, int slot,
     spawn->species_index = species_index % MAX(1, pc_assets_get_creature_count());
     if (spawn->species_index < 0)
         spawn->species_index += pc_assets_get_creature_count();
-    spawn->x = block_center_x(block_x);
-    spawn->y = block_center_y(block_y) + 3;
+    spawn->x = block_center_x(world, block_x);
+    spawn->y = block_center_y(world, block_y) + 3;
     spawn->step = 0;
     spawn->dir_x = (slot & 1) ? 1 : -1;
     spawn->dir_y = 0;
@@ -230,19 +335,57 @@ static void maybe_move_spawn(struct pc_world_state *world, struct pc_world_spawn
     }
 }
 
+static void player_tile_pos(const struct pc_world_state *world, int *tile_x, int *tile_y)
+{
+    int foot_x = world->player_x - world->origin_x;
+    int foot_y = (world->player_y + 7) - world->origin_y;
+    int step = scene_subtile_px();
+
+    *tile_x = foot_x / step;
+    *tile_y = foot_y / step;
+}
+
+static void maybe_handle_transition(struct pc_world_state *world, bool moved)
+{
+    int tile_x;
+    int tile_y;
+
+    if (!moved)
+        return;
+
+    player_tile_pos(world, &tile_x, &tile_y);
+
+    switch (world->scene)
+    {
+        case PC_WORLD_SCENE_PALLET:
+            if (tile_x == 5 && tile_y == 5 && world->heading == PC_HEADING_N)
+                transition_to_scene(world, PC_WORLD_SCENE_HOUSE_1F, 2, 6, PC_HEADING_N);
+            break;
+
+        case PC_WORLD_SCENE_HOUSE_1F:
+            if ((tile_x == 2 || tile_x == 3) && tile_y == 7 &&
+                world->heading == PC_HEADING_S)
+                transition_to_scene(world, PC_WORLD_SCENE_PALLET, 5, 6, PC_HEADING_S);
+            else if (tile_x == 7 && tile_y == 1)
+                transition_to_scene(world, PC_WORLD_SCENE_HOUSE_2F, 6, 2, PC_HEADING_N);
+            break;
+
+        case PC_WORLD_SCENE_HOUSE_2F:
+            if (tile_x == 7 && tile_y == 1)
+                transition_to_scene(world, PC_WORLD_SCENE_HOUSE_1F, 6, 2, PC_HEADING_S);
+            break;
+    }
+}
+
 void pc_world_init(struct pc_world_state *world)
 {
     rb->memset(world, 0, sizeof(*world));
     init_assets(world);
-    build_pallet_layout(world);
-    world->player_x = world->spawn_x;
-    world->player_y = world->spawn_y;
-    world->heading = PC_HEADING_S;
-    world->walk_frame = 1;
+    load_scene_data(world, PC_WORLD_SCENE_PALLET);
+    init_spawns(world);
+    transition_to_scene(world, PC_WORLD_SCENE_HOUSE_2F, 4, 6, PC_HEADING_S);
     world->last_encounter_slot = -1;
     world->pending_species_index = -1;
-    init_spawns(world);
-    set_banner(world, "Pallet Town", "Red map layout, exits blocked");
 }
 
 void pc_world_teardown(struct pc_world_state *world)
@@ -296,6 +439,9 @@ void pc_world_update(struct pc_world_state *world, const struct pc_world_command
         world->player_x = next_x;
         world->player_y = next_y;
     }
+
+    maybe_handle_transition(world, moved);
+
     world->moving = moved;
     if (world->moving)
     {
@@ -308,6 +454,9 @@ void pc_world_update(struct pc_world_state *world, const struct pc_world_command
         world->walk_tick = 0;
         world->walk_frame = 1;
     }
+
+    if (world->scene != PC_WORLD_SCENE_PALLET)
+        return;
 
     for (i = 0; i < PC_WORLD_MAX_SPAWNS; ++i)
     {
@@ -350,26 +499,26 @@ void pc_world_finish_encounter(struct pc_world_state *world,
     world->pending_encounter = false;
     world->pending_species_index = -1;
 
+    if (world->scene != PC_WORLD_SCENE_PALLET)
+        return;
+
     if (world->last_encounter_slot >= 0 &&
         world->last_encounter_slot < PC_WORLD_MAX_SPAWNS)
     {
         int next_species = species_index;
-        static const unsigned char respawn_blocks[PC_WORLD_MAX_SPAWNS][2] = {
-            { 1, 3 }, { 5, 3 }, { 8, 3 }, { 4, 6 }
-        };
 
         if (outcome == PC_CATCH_OUTCOME_CAUGHT && count > 0)
             next_species = rb->rand() % count;
 
         place_spawn(world,
                     world->last_encounter_slot,
-                    respawn_blocks[world->last_encounter_slot][0],
-                    respawn_blocks[world->last_encounter_slot][1],
+                    pc_outside_respawn_blocks[world->last_encounter_slot][0],
+                    pc_outside_respawn_blocks[world->last_encounter_slot][1],
                     next_species);
     }
 
     if (outcome == PC_CATCH_OUTCOME_CAUGHT)
-        set_banner(world, "Caught it", "Keep exploring Pallet Town");
+        set_banner(world, "Caught it", "Head home or keep exploring");
     else
         set_banner(world, "It broke out", "Walk into it again to retry");
 }

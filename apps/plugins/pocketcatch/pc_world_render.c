@@ -75,14 +75,14 @@ static void fill_capsule(int x, int y, int w, int h, fb_data color)
     xlcd_fillcircle(x + w - radius - 1, y + radius, radius);
 }
 
-static int tile_screen_x(int tx)
+static int block_screen_x(const struct pc_world_state *world, int tx)
 {
-    return PC_WORLD_ORIGIN_X + tx * PC_WORLD_TILE_SIZE;
+    return world->origin_x + tx * PC_WORLD_TILE_SIZE;
 }
 
-static int tile_screen_y(int ty)
+static int block_screen_y(const struct pc_world_state *world, int ty)
 {
-    return PC_WORLD_ORIGIN_Y + ty * PC_WORLD_TILE_SIZE;
+    return world->origin_y + ty * PC_WORLD_TILE_SIZE;
 }
 
 static void draw_spawn(const struct pc_world_state *world, int index)
@@ -111,18 +111,6 @@ static void draw_spawn(const struct pc_world_state *world, int index)
     }
 }
 
-static void draw_home_marker(const struct pc_world_state *world)
-{
-    int x = world->home_x - 18;
-    int y = world->home_y - 28;
-
-    if (x < -36 || x > LCD_WIDTH || y < -12 || y > LCD_HEIGHT)
-        return;
-
-    fill_capsule(x, y, 36, 12, LCD_RGBPACK(0xff, 0xf0, 0xb0));
-    draw_text_small(world->home_x - 11, world->home_y - 24, PC_GB_DEEP, "HOME");
-}
-
 static void cache_fill(fb_data color)
 {
     int i;
@@ -138,12 +126,13 @@ static void cache_put_pixel(int x, int y, fb_data color)
     pc_world_bg_cache[y * LCD_WIDTH + x] = color;
 }
 
-static void blit_tile_to_cache(unsigned char tile_id, int dst_x, int dst_y)
+static void blit_tile_to_cache(const unsigned char tiles[][8][8], int tile_count,
+                               unsigned char tile_id, int dst_x, int dst_y)
 {
     int py;
     int px;
 
-    if (tile_id >= PC_RED_TILE_COUNT)
+    if (tile_id >= tile_count)
         return;
 
     for (py = 0; py < 8; ++py)
@@ -151,7 +140,7 @@ static void blit_tile_to_cache(unsigned char tile_id, int dst_x, int dst_y)
         for (px = 0; px < 8; ++px)
         {
             cache_put_pixel(dst_x + px, dst_y + py,
-                            pc_gb_palette[pc_red_overworld_tiles[tile_id][py][px]]);
+                            pc_gb_palette[tiles[tile_id][py][px]]);
         }
     }
 }
@@ -162,25 +151,45 @@ static void build_world_cache(const struct pc_world_state *world)
     int bx;
     int sub_y;
     int sub_x;
+    const unsigned char (*tiles)[8][8];
+    const unsigned char (*blocks)[4][4];
+    int tile_count;
+    int block_count;
 
     cache_fill(PC_GB_LIGHT);
 
-    for (by = 0; by < PC_WORLD_H; ++by)
+    if (world->scene == PC_WORLD_SCENE_PALLET)
     {
-        for (bx = 0; bx < PC_WORLD_W; ++bx)
+        tiles = pc_red_overworld_tiles;
+        blocks = pc_red_overworld_blocks;
+        tile_count = PC_RED_TILE_COUNT;
+        block_count = PC_RED_BLOCK_COUNT;
+    }
+    else
+    {
+        tiles = pc_red_house_tiles;
+        blocks = pc_red_house_blocks;
+        tile_count = PC_RED_HOUSE_TILE_COUNT;
+        block_count = PC_RED_HOUSE_BLOCK_COUNT;
+    }
+
+    for (by = 0; by < world->map_h; ++by)
+    {
+        for (bx = 0; bx < world->map_w; ++bx)
         {
             unsigned char block_id = world->tiles[by][bx];
-            int base_x = tile_screen_x(bx);
-            int base_y = tile_screen_y(by);
+            int base_x = block_screen_x(world, bx);
+            int base_y = block_screen_y(world, by);
 
-            if (block_id >= PC_RED_BLOCK_COUNT)
+            if (block_id >= block_count)
                 continue;
 
             for (sub_y = 0; sub_y < 4; ++sub_y)
             {
                 for (sub_x = 0; sub_x < 4; ++sub_x)
                 {
-                    blit_tile_to_cache(pc_red_overworld_blocks[block_id][sub_y][sub_x],
+                    blit_tile_to_cache(tiles, tile_count,
+                                       blocks[block_id][sub_y][sub_x],
                                        base_x + sub_x * 8,
                                        base_y + sub_y * 8);
                 }
@@ -193,8 +202,11 @@ static void build_world_cache(const struct pc_world_state *world)
 
 static void draw_map(const struct pc_world_state *world)
 {
-    if (!pc_world_bg_ready || world->frame == 0)
+    if (!pc_world_bg_ready || world->map_dirty)
+    {
         build_world_cache(world);
+        ((struct pc_world_state *)world)->map_dirty = false;
+    }
 
     rb->lcd_bitmap(pc_world_bg_cache, 0, 0, LCD_WIDTH, LCD_HEIGHT);
 }
@@ -298,9 +310,11 @@ void pc_world_render_frame(const struct pc_world_state *world)
     int i;
 
     draw_map(world);
-    draw_home_marker(world);
-    for (i = 0; i < PC_WORLD_MAX_SPAWNS; ++i)
-        draw_spawn(world, i);
+    if (world->scene == PC_WORLD_SCENE_PALLET)
+    {
+        for (i = 0; i < PC_WORLD_MAX_SPAWNS; ++i)
+            draw_spawn(world, i);
+    }
     draw_player(world);
     draw_banner(world);
     draw_hud();

@@ -245,6 +245,12 @@ struct pc_world_spawn {
     int dir_y;
 };
 
+enum pc_world_scene {
+    PC_WORLD_SCENE_PALLET = 0,
+    PC_WORLD_SCENE_HOUSE_1F,
+    PC_WORLD_SCENE_HOUSE_2F
+};
+
 struct pc_world_command {
     bool exit_requested;
     int move_x;
@@ -264,12 +270,18 @@ struct pc_world_state {
     int spawn_y;
     int home_x;
     int home_y;
+    int map_w;
+    int map_h;
+    int origin_x;
+    int origin_y;
     int heading;
     int walk_frame;
     int walk_tick;
     int last_encounter_slot;
     int pending_species_index;
+    enum pc_world_scene scene;
     bool moving;
+    bool map_dirty;
     bool pending_encounter;
     struct pc_message banner;
     unsigned char tiles[PC_WORLD_H][PC_WORLD_W];
