@@ -92,12 +92,14 @@ static int scene_subtile_px(void)
 
 static int block_screen_x(const struct pc_world_state *world, int block_x)
 {
-    return world->origin_x + block_x * PC_WORLD_TILE_SIZE;
+    (void)world;
+    return block_x * PC_WORLD_TILE_SIZE;
 }
 
 static int block_screen_y(const struct pc_world_state *world, int block_y)
 {
-    return world->origin_y + block_y * PC_WORLD_TILE_SIZE;
+    (void)world;
+    return block_y * PC_WORLD_TILE_SIZE;
 }
 
 static int block_center_x(const struct pc_world_state *world, int block_x)
@@ -112,12 +114,14 @@ static int block_center_y(const struct pc_world_state *world, int block_y)
 
 static int subtile_center_x(const struct pc_world_state *world, int tile_x)
 {
-    return world->origin_x + tile_x * scene_subtile_px() + scene_subtile_px() / 2;
+    (void)world;
+    return tile_x * scene_subtile_px() + scene_subtile_px() / 2;
 }
 
 static int subtile_center_y(const struct pc_world_state *world, int tile_y)
 {
-    return world->origin_y + tile_y * scene_subtile_px() + scene_subtile_px() / 2;
+    (void)world;
+    return tile_y * scene_subtile_px() + scene_subtile_px() / 2;
 }
 
 static void set_player_to_subtile(struct pc_world_state *world,
@@ -132,8 +136,8 @@ static void set_player_to_metatile(struct pc_world_state *world,
 {
     int step = PC_WORLD_TILE_SIZE / 2;
 
-    world->player_x = world->origin_x + tile_x * step + step / 2;
-    world->player_y = world->origin_y + tile_y * step + step / 2 - 7;
+    world->player_x = tile_x * step + step / 2;
+    world->player_y = tile_y * step + step / 2 - 7;
 }
 
 static bool outdoor_scene(enum pc_world_scene scene)
@@ -152,7 +156,6 @@ static bool outside_block_walkable(unsigned char block_id)
         case 0x50:
         case 0x4d:
         case 0x4e:
-        case 0x0b:
         case 0x0a:
         case 0x38:
         case 0x39:
@@ -168,6 +171,7 @@ static bool outside_block_walkable(unsigned char block_id)
         case 0x1e:
         case 0x65:
         case 0x64:
+        case 0x61:
         case 0x62:
         case 0x63:
         case 0x67:
@@ -214,16 +218,14 @@ static bool block_walkable(const struct pc_world_state *world, unsigned char blo
 
 static bool point_walkable(const struct pc_world_state *world, int x, int y)
 {
-    int local_x = x - world->origin_x;
-    int local_y = y - world->origin_y;
     int tx;
     int ty;
 
-    if (local_x < 0 || local_y < 0)
+    if (x < 0 || y < 0)
         return false;
 
-    tx = local_x / PC_WORLD_TILE_SIZE;
-    ty = local_y / PC_WORLD_TILE_SIZE;
+    tx = x / PC_WORLD_TILE_SIZE;
+    ty = y / PC_WORLD_TILE_SIZE;
     if (tx < 0 || ty < 0 || tx >= world->map_w || ty >= world->map_h)
         return false;
 
@@ -349,6 +351,8 @@ static void load_scene_data(struct pc_world_state *world, enum pc_world_scene sc
     }
 }
 
+static void update_camera(struct pc_world_state *world, bool snap);
+
 static void transition_to_scene(struct pc_world_state *world,
                                 enum pc_world_scene scene,
                                 int tile_x, int tile_y,
@@ -373,6 +377,10 @@ static void transition_to_scene_metatile(struct pc_world_state *world,
     world->moving = false;
     world->walk_frame = 1;
     world->walk_tick = 0;
+    world->step_dx = 0;
+    world->step_dy = 0;
+    world->step_remaining = 0;
+    update_camera(world, true);
 }
 
 static const unsigned char (*scene_respawn_blocks(enum pc_world_scene scene))[2]
@@ -485,8 +493,8 @@ static void maybe_move_spawn(struct pc_world_state *world, struct pc_world_spawn
 static void player_metatile_pos(const struct pc_world_state *world,
                                 int *tile_x, int *tile_y)
 {
-    int foot_x = world->player_x - world->origin_x;
-    int foot_y = (world->player_y + 7) - world->origin_y;
+    int foot_x = world->player_x;
+    int foot_y = world->player_y + 7;
     int step = PC_WORLD_TILE_SIZE / 2;
 
     *tile_x = foot_x / step;
@@ -505,6 +513,78 @@ static bool player_in_metatile_zone(const struct pc_world_state *world,
            tile_y >= min_y && tile_y <= max_y;
 }
 
+static void player_block_pos(const struct pc_world_state *world,
+                             int *block_x, int *block_y)
+{
+    int foot_x = world->player_x;
+    int foot_y = world->player_y + 7;
+
+    *block_x = foot_x / PC_WORLD_TILE_SIZE;
+    *block_y = foot_y / PC_WORLD_TILE_SIZE;
+}
+
+static int clampi(int value, int min_value, int max_value)
+{
+    if (value < min_value)
+        return min_value;
+    if (value > max_value)
+        return max_value;
+    return value;
+}
+
+static void update_camera(struct pc_world_state *world, bool snap)
+{
+    int target_x;
+    int target_y;
+    int min_x;
+    int min_y;
+    int next_x;
+    int next_y;
+
+    if (!outdoor_scene(world->scene))
+    {
+        int indoor_x = (LCD_WIDTH - (world->map_w * PC_WORLD_TILE_SIZE)) / 2;
+        int indoor_y = (LCD_HEIGHT - (world->map_h * PC_WORLD_TILE_SIZE)) / 2;
+
+        if (world->origin_x != indoor_x || world->origin_y != indoor_y)
+            world->map_dirty = true;
+        world->origin_x = indoor_x;
+        world->origin_y = indoor_y;
+        return;
+    }
+
+    min_x = LCD_WIDTH - world->map_w * PC_WORLD_TILE_SIZE;
+    min_y = LCD_HEIGHT - world->map_h * PC_WORLD_TILE_SIZE;
+    target_x = clampi((LCD_WIDTH / 2) - world->player_x, min_x, 0);
+    target_y = clampi((LCD_HEIGHT / 2) - (world->player_y + 7), min_y, 0);
+
+    if (snap)
+    {
+        next_x = target_x;
+        next_y = target_y;
+    }
+    else
+    {
+        next_x = world->origin_x;
+        next_y = world->origin_y;
+
+        if (next_x < target_x)
+            next_x = MIN(next_x + PC_WORLD_STEP_PX, target_x);
+        else if (next_x > target_x)
+            next_x = MAX(next_x - PC_WORLD_STEP_PX, target_x);
+
+        if (next_y < target_y)
+            next_y = MIN(next_y + PC_WORLD_STEP_PX, target_y);
+        else if (next_y > target_y)
+            next_y = MAX(next_y - PC_WORLD_STEP_PX, target_y);
+    }
+
+    if (world->origin_x != next_x || world->origin_y != next_y)
+        world->map_dirty = true;
+    world->origin_x = next_x;
+    world->origin_y = next_y;
+}
+
 static int walk_frame_for_tick(int tick)
 {
     static const unsigned char cycle[4] = { 0, 1, 2, 1 };
@@ -514,33 +594,31 @@ static int walk_frame_for_tick(int tick)
 
 static void maybe_handle_transition(struct pc_world_state *world, bool moved)
 {
+    int block_x;
+    int block_y;
+
     if (!moved)
         return;
+
+    player_block_pos(world, &block_x, &block_y);
 
     switch (world->scene)
     {
         case PC_WORLD_SCENE_PALLET:
             if (player_in_metatile_zone(world, 5, 5, 5, 5) &&
                 world->heading == PC_HEADING_N)
-                transition_to_scene(world, PC_WORLD_SCENE_HOUSE_1F, 2, 6, PC_HEADING_N);
-            else if (player_in_metatile_zone(world, 8, 11, 2, 3) &&
+                transition_to_scene_metatile(world, PC_WORLD_SCENE_HOUSE_1F, 2, 6, PC_HEADING_N);
+            else if (block_y == 1 && block_x == 5 &&
                      world->heading == PC_HEADING_N)
             {
                 transition_to_scene_metatile(world, PC_WORLD_SCENE_ROUTE1_SOUTH,
                                              10, 13, PC_HEADING_N);
                 init_spawns(world);
             }
-            else if (player_in_metatile_zone(world, 8, 15, 13, 15) &&
-                     world->heading == PC_HEADING_S)
-            {
-                transition_to_scene_metatile(world, PC_WORLD_SCENE_ROUTE21_NORTH,
-                                             5, 4, PC_HEADING_S);
-                init_spawns(world);
-            }
             break;
 
         case PC_WORLD_SCENE_ROUTE1_SOUTH:
-            if (player_in_metatile_zone(world, 8, 11, 13, 15) &&
+            if (block_y == (world->map_h - 2) && block_x == 5 &&
                 world->heading == PC_HEADING_S)
             {
                 transition_to_scene_metatile(world, PC_WORLD_SCENE_PALLET,
@@ -550,26 +628,19 @@ static void maybe_handle_transition(struct pc_world_state *world, bool moved)
             break;
 
         case PC_WORLD_SCENE_ROUTE21_NORTH:
-            if (player_in_metatile_zone(world, 8, 15, 2, 4) &&
-                world->heading == PC_HEADING_N)
-            {
-                transition_to_scene_metatile(world, PC_WORLD_SCENE_PALLET,
-                                             10, 12, PC_HEADING_N);
-                init_spawns(world);
-            }
             break;
 
         case PC_WORLD_SCENE_HOUSE_1F:
             if (player_in_metatile_zone(world, 2, 3, 7, 7) &&
                 world->heading == PC_HEADING_S)
-                transition_to_scene(world, PC_WORLD_SCENE_PALLET, 5, 6, PC_HEADING_S);
+                transition_to_scene_metatile(world, PC_WORLD_SCENE_PALLET, 5, 7, PC_HEADING_S);
             else if (player_in_metatile_zone(world, 7, 7, 1, 1))
-                transition_to_scene(world, PC_WORLD_SCENE_HOUSE_2F, 6, 2, PC_HEADING_N);
+                transition_to_scene_metatile(world, PC_WORLD_SCENE_HOUSE_2F, 6, 3, PC_HEADING_N);
             break;
 
         case PC_WORLD_SCENE_HOUSE_2F:
             if (player_in_metatile_zone(world, 7, 7, 1, 1))
-                transition_to_scene(world, PC_WORLD_SCENE_HOUSE_1F, 6, 2, PC_HEADING_S);
+                transition_to_scene_metatile(world, PC_WORLD_SCENE_HOUSE_1F, 6, 3, PC_HEADING_S);
             break;
     }
 }
@@ -580,9 +651,10 @@ void pc_world_init(struct pc_world_state *world)
     init_assets(world);
     load_scene_data(world, PC_WORLD_SCENE_PALLET);
     init_spawns(world);
-    transition_to_scene(world, PC_WORLD_SCENE_HOUSE_2F, 4, 6, PC_HEADING_S);
+    transition_to_scene_metatile(world, PC_WORLD_SCENE_HOUSE_2F, 4, 6, PC_HEADING_S);
     world->last_encounter_slot = -1;
     world->pending_species_index = -1;
+    update_camera(world, true);
 }
 
 void pc_world_teardown(struct pc_world_state *world)
@@ -609,37 +681,75 @@ void pc_world_update(struct pc_world_state *world, const struct pc_world_command
 
     world->frame++;
 
-    if (command->move_x < 0)
+    if (world->step_remaining > 0)
     {
-        next_x -= PC_WORLD_STEP_PX;
-        world->heading = PC_HEADING_W;
+        next_x += world->step_dx * PC_WORLD_STEP_PX;
+        next_y += world->step_dy * PC_WORLD_STEP_PX;
+        world->step_remaining -= PC_WORLD_STEP_PX;
+        moved = true;
+
+        if (world->step_remaining <= 0)
+        {
+            world->step_remaining = 0;
+            world->step_dx = 0;
+            world->step_dy = 0;
+        }
     }
-    else if (command->move_x > 0)
+    else
     {
-        next_x += PC_WORLD_STEP_PX;
-        world->heading = PC_HEADING_E;
-    }
-    else if (command->move_y < 0)
-    {
-        next_y -= PC_WORLD_STEP_PX;
-        world->heading = PC_HEADING_N;
-    }
-    else if (command->move_y > 0)
-    {
-        next_y += PC_WORLD_STEP_PX;
-        world->heading = PC_HEADING_S;
+        int try_dx = 0;
+        int try_dy = 0;
+        int step_px = PC_WORLD_TILE_SIZE / 2;
+
+        if (command->move_x < 0)
+        {
+            try_dx = -1;
+            world->heading = PC_HEADING_W;
+        }
+        else if (command->move_x > 0)
+        {
+            try_dx = 1;
+            world->heading = PC_HEADING_E;
+        }
+        else if (command->move_y < 0)
+        {
+            try_dy = -1;
+            world->heading = PC_HEADING_N;
+        }
+        else if (command->move_y > 0)
+        {
+            try_dy = 1;
+            world->heading = PC_HEADING_S;
+        }
+
+        if (try_dx != 0 || try_dy != 0)
+        {
+            int target_x = world->player_x + try_dx * step_px;
+            int target_y = world->player_y + try_dy * step_px;
+
+            if (player_walkable(world, target_x, target_y))
+            {
+                world->step_dx = try_dx;
+                world->step_dy = try_dy;
+                world->step_remaining = step_px;
+                next_x += world->step_dx * PC_WORLD_STEP_PX;
+                next_y += world->step_dy * PC_WORLD_STEP_PX;
+                world->step_remaining -= PC_WORLD_STEP_PX;
+                moved = true;
+            }
+        }
     }
 
-    if (player_walkable(world, next_x, next_y))
+    if (moved)
     {
-        moved = (next_x != world->player_x) || (next_y != world->player_y);
         world->player_x = next_x;
         world->player_y = next_y;
     }
 
     maybe_handle_transition(world, moved);
+    update_camera(world, false);
 
-    world->moving = moved;
+    world->moving = moved || world->step_remaining > 0;
     if (world->moving)
     {
         world->walk_tick++;

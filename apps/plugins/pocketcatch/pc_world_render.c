@@ -96,25 +96,29 @@ static void draw_spawn(const struct pc_world_state *world, int index)
 {
     const struct pc_world_spawn *spawn = &world->spawns[index];
     const struct pc_creature_def *creature;
+    int screen_x;
+    int screen_y;
 
     if (!spawn->active)
         return;
 
+    screen_x = world->origin_x + spawn->x;
+    screen_y = world->origin_y + spawn->y;
     creature = pc_assets_get_creature(spawn->species_index);
     if (world->assets.creature[index].loaded)
     {
         rb->lcd_bitmap_transparent((const fb_data *)world->assets.creature[index].bmp.data,
-                                   spawn->x - world->assets.creature[index].bmp.width / 2,
-                                   spawn->y - world->assets.creature[index].bmp.height / 2,
+                                   screen_x - world->assets.creature[index].bmp.width / 2,
+                                   screen_y - world->assets.creature[index].bmp.height / 2,
                                    world->assets.creature[index].bmp.width,
                                    world->assets.creature[index].bmp.height);
     }
     else if (creature != NULL)
     {
         rb->lcd_set_foreground(creature->primary);
-        xlcd_fillcircle(spawn->x, spawn->y, 8);
+        xlcd_fillcircle(screen_x, screen_y, 8);
         rb->lcd_set_foreground(creature->accent);
-        rb->lcd_fillrect(spawn->x - 4, spawn->y - 2, 8, 4);
+        rb->lcd_fillrect(screen_x - 4, screen_y - 2, 8, 4);
     }
 }
 
@@ -273,16 +277,18 @@ static void draw_player(const struct pc_world_state *world)
         &world->assets.trainer[world->heading][world->walk_frame];
     const unsigned char (*frame)[16];
     bool flip_x;
-    int x = world->player_x - 8;
-    int y = world->player_y - 9;
+    int screen_x = world->origin_x + world->player_x;
+    int screen_y = world->origin_y + world->player_y;
+    int x = screen_x - 8;
+    int y = screen_y - 9;
 
-    fill_capsule(world->player_x - 7, world->player_y + 7, 14, 3,
+    fill_capsule(screen_x - 7, screen_y + 7, 14, 3,
                  LCD_RGBPACK(0x60, 0x70, 0x58));
     if (trainer->loaded)
     {
         rb->lcd_bitmap_transparent((const fb_data *)trainer->bmp.data,
-                                   world->player_x - trainer->bmp.width / 2,
-                                   world->player_y - trainer->bmp.height + 10,
+                                   screen_x - trainer->bmp.width / 2,
+                                   screen_y - trainer->bmp.height + 10,
                                    trainer->bmp.width,
                                    trainer->bmp.height);
         return;
