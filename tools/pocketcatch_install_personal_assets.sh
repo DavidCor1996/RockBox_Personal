@@ -14,27 +14,45 @@ if [ "$#" -lt 1 ]; then
     exit 1
 fi
 
-species_ids=(1 4 7 10 16 19 25 35 52 54 63 92 129 133)
+species_ids=(1 4 7 10 13 16 19 21 25 29 32 35 39 43 52 54 58 60 63 66 69 74 79 81 92 96 104 111 118 120 129 133)
 species_names=(
     "Bulbasaur"
     "Charmander"
     "Squirtle"
     "Caterpie"
+    "Weedle"
     "Pidgey"
     "Rattata"
+    "Spearow"
     "Pikachu"
+    "NidoranF"
+    "NidoranM"
     "Clefairy"
+    "Jigglypuff"
+    "Oddish"
     "Meowth"
     "Psyduck"
+    "Growlithe"
+    "Poliwag"
     "Abra"
+    "Machop"
+    "Bellsprout"
+    "Geodude"
+    "Slowpoke"
+    "Magnemite"
     "Gastly"
+    "Drowzee"
+    "Cubone"
+    "Rhyhorn"
+    "Goldeen"
+    "Staryu"
     "Magikarp"
     "Eevee"
 )
-species_rates=(0.62 0.47 0.38 0.78 0.73 0.76 0.54 0.52 0.64 0.71 0.43 0.56 0.91 0.48)
-species_ids+=(152 155 158 163 179 194)
-species_names+=("Chikorita" "Cyndaquil" "Totodile" "Hoothoot" "Mareep" "Wooper")
-species_rates+=(0.54 0.45 0.43 0.62 0.56 0.68)
+species_rates=(0.62 0.47 0.38 0.78 0.76 0.73 0.76 0.72 0.54 0.62 0.62 0.52 0.60 0.70 0.64 0.71 0.50 0.70 0.43 0.65 0.69 0.71 0.72 0.60 0.56 0.67 0.69 0.45 0.72 0.70 0.91 0.48)
+species_ids+=(152 155 158 161 163 167 172 179 183 194 200)
+species_names+=("Chikorita" "Cyndaquil" "Totodile" "Sentret" "Hoothoot" "Spinarak" "Pichu" "Mareep" "Marill" "Wooper" "Misdreavus")
+species_rates+=(0.54 0.45 0.43 0.71 0.62 0.70 0.69 0.56 0.69 0.68 0.45)
 
 if command -v magick >/dev/null 2>&1; then
     IM_CMD=(magick)

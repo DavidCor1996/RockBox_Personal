@@ -40,6 +40,13 @@ static const struct pc_creature_def pc_creatures[] = {
         LCD_RGBPACK(0xd9, 0x4a, 0x44)
     },
     {
+        13, "Weedle", "creature_013", 760,
+        24, 20, 54, 54, -9,
+        LCD_RGBPACK(0xd7, 0xb5, 0x59),
+        LCD_RGBPACK(0xf6, 0xe6, 0x9a),
+        LCD_RGBPACK(0x8a, 0x4d, 0x2b)
+    },
+    {
         16, "Pidgey", "creature_016", 730,
         24, 20, 54, 54, -9,
         LCD_RGBPACK(0xc8, 0xb1, 0x73),
@@ -54,6 +61,13 @@ static const struct pc_creature_def pc_creatures[] = {
         LCD_RGBPACK(0x69, 0x49, 0x8d)
     },
     {
+        21, "Spearow", "creature_021", 720,
+        24, 20, 54, 54, -9,
+        LCD_RGBPACK(0xb8, 0x7a, 0x52),
+        LCD_RGBPACK(0xf6, 0xd7, 0x9e),
+        LCD_RGBPACK(0x64, 0x37, 0x22)
+    },
+    {
         25, "Pikachu", "creature_025", 540,
         25, 21, 56, 56, -10,
         LCD_RGBPACK(0xfa, 0xda, 0x4a),
@@ -61,11 +75,39 @@ static const struct pc_creature_def pc_creatures[] = {
         LCD_RGBPACK(0x7d, 0x47, 0x1d)
     },
     {
+        29, "NidoranF", "creature_029", 620,
+        24, 20, 54, 54, -9,
+        LCD_RGBPACK(0x76, 0xc8, 0xd9),
+        LCD_RGBPACK(0xc9, 0xf0, 0xfa),
+        LCD_RGBPACK(0x36, 0x66, 0x8b)
+    },
+    {
+        32, "NidoranM", "creature_032", 620,
+        24, 20, 54, 54, -9,
+        LCD_RGBPACK(0xb9, 0x8a, 0xf0),
+        LCD_RGBPACK(0xe9, 0xd6, 0xff),
+        LCD_RGBPACK(0x5f, 0x45, 0x8f)
+    },
+    {
         35, "Clefairy", "creature_035", 520,
         25, 21, 56, 56, -10,
         LCD_RGBPACK(0xf4, 0xbf, 0xd3),
         LCD_RGBPACK(0xff, 0xe8, 0xf1),
         LCD_RGBPACK(0xbe, 0x62, 0x83)
+    },
+    {
+        39, "Jigglypuff", "creature_039", 600,
+        25, 21, 56, 56, -10,
+        LCD_RGBPACK(0xf4, 0xc5, 0xe4),
+        LCD_RGBPACK(0xff, 0xeb, 0xf8),
+        LCD_RGBPACK(0x9c, 0x58, 0x81)
+    },
+    {
+        43, "Oddish", "creature_043", 700,
+        24, 20, 54, 54, -9,
+        LCD_RGBPACK(0x4b, 0x76, 0xdb),
+        LCD_RGBPACK(0x8d, 0xc5, 0x6a),
+        LCD_RGBPACK(0x28, 0x3c, 0x7e)
     },
     {
         52, "Meowth", "creature_052", 640,
@@ -82,6 +124,20 @@ static const struct pc_creature_def pc_creatures[] = {
         LCD_RGBPACK(0x7a, 0x53, 0x18)
     },
     {
+        58, "Growlithe", "creature_058", 500,
+        25, 21, 56, 56, -10,
+        LCD_RGBPACK(0xf7, 0x94, 0x42),
+        LCD_RGBPACK(0xff, 0xde, 0xb0),
+        LCD_RGBPACK(0x5e, 0x2e, 0x17)
+    },
+    {
+        60, "Poliwag", "creature_060", 700,
+        24, 20, 54, 54, -9,
+        LCD_RGBPACK(0x67, 0xb9, 0xff),
+        LCD_RGBPACK(0xd5, 0xf0, 0xff),
+        LCD_RGBPACK(0x24, 0x53, 0x90)
+    },
+    {
         63, "Abra", "creature_063", 430,
         24, 20, 54, 54, -9,
         LCD_RGBPACK(0xe2, 0xb8, 0x43),
@@ -89,11 +145,81 @@ static const struct pc_creature_def pc_creatures[] = {
         LCD_RGBPACK(0x76, 0x4d, 0x11)
     },
     {
+        66, "Machop", "creature_066", 650,
+        25, 21, 56, 56, -10,
+        LCD_RGBPACK(0x9c, 0xa7, 0xc4),
+        LCD_RGBPACK(0xd7, 0xdf, 0xf1),
+        LCD_RGBPACK(0x4a, 0x57, 0x76)
+    },
+    {
+        69, "Bellsprout", "creature_069", 690,
+        24, 20, 54, 54, -9,
+        LCD_RGBPACK(0xe1, 0xd1, 0x57),
+        LCD_RGBPACK(0x8f, 0xc8, 0x5c),
+        LCD_RGBPACK(0x7d, 0x51, 0x2b)
+    },
+    {
+        74, "Geodude", "creature_074", 710,
+        25, 21, 56, 56, -10,
+        LCD_RGBPACK(0xa5, 0x96, 0x86),
+        LCD_RGBPACK(0xd6, 0xc8, 0xb7),
+        LCD_RGBPACK(0x62, 0x55, 0x49)
+    },
+    {
+        79, "Slowpoke", "creature_079", 720,
+        25, 21, 56, 56, -10,
+        LCD_RGBPACK(0xf0, 0xa3, 0xb7),
+        LCD_RGBPACK(0xff, 0xe0, 0xea),
+        LCD_RGBPACK(0x9e, 0x60, 0x7a)
+    },
+    {
+        81, "Magnemite", "creature_081", 600,
+        24, 20, 54, 54, -9,
+        LCD_RGBPACK(0xbd, 0xd1, 0xdf),
+        LCD_RGBPACK(0xf1, 0xf8, 0xff),
+        LCD_RGBPACK(0x6d, 0x7b, 0x89)
+    },
+    {
         92, "Gastly", "creature_092", 560,
         25, 21, 56, 56, -10,
         LCD_RGBPACK(0x78, 0x5f, 0xd1),
         LCD_RGBPACK(0xc4, 0xba, 0xff),
         LCD_RGBPACK(0x33, 0x2b, 0x74)
+    },
+    {
+        96, "Drowzee", "creature_096", 670,
+        24, 20, 54, 54, -9,
+        LCD_RGBPACK(0xe0, 0xcc, 0x4f),
+        LCD_RGBPACK(0xc1, 0x8f, 0x54),
+        LCD_RGBPACK(0x66, 0x4a, 0x25)
+    },
+    {
+        104, "Cubone", "creature_104", 690,
+        24, 20, 54, 54, -9,
+        LCD_RGBPACK(0xc2, 0xb9, 0x96),
+        LCD_RGBPACK(0xf2, 0xeb, 0xd1),
+        LCD_RGBPACK(0x7a, 0x63, 0x45)
+    },
+    {
+        111, "Rhyhorn", "creature_111", 450,
+        25, 21, 56, 56, -10,
+        LCD_RGBPACK(0xb5, 0xb0, 0xc8),
+        LCD_RGBPACK(0xdf, 0xdc, 0xee),
+        LCD_RGBPACK(0x6e, 0x69, 0x84)
+    },
+    {
+        118, "Goldeen", "creature_118", 720,
+        24, 20, 54, 54, -9,
+        LCD_RGBPACK(0xf5, 0x92, 0x47),
+        LCD_RGBPACK(0xff, 0xea, 0xd0),
+        LCD_RGBPACK(0x69, 0x44, 0x28)
+    },
+    {
+        120, "Staryu", "creature_120", 700,
+        24, 20, 54, 54, -9,
+        LCD_RGBPACK(0xc0, 0x8a, 0x52),
+        LCD_RGBPACK(0xe8, 0x65, 0x66),
+        LCD_RGBPACK(0x76, 0x48, 0x20)
     },
     {
         129, "Magikarp", "creature_129", 910,
@@ -108,6 +234,83 @@ static const struct pc_creature_def pc_creatures[] = {
         LCD_RGBPACK(0xb8, 0x82, 0x4d),
         LCD_RGBPACK(0xf4, 0xe1, 0xc0),
         LCD_RGBPACK(0x5f, 0x38, 0x1e)
+    },
+    {
+        152, "Chikorita", "creature_152", 540,
+        24, 20, 54, 54, -9,
+        LCD_RGBPACK(0xa8, 0xdd, 0x76),
+        LCD_RGBPACK(0xe6, 0xf7, 0xbf),
+        LCD_RGBPACK(0x3e, 0x74, 0x2f)
+    },
+    {
+        155, "Cyndaquil", "creature_155", 450,
+        24, 20, 54, 54, -9,
+        LCD_RGBPACK(0x74, 0xa1, 0xd9),
+        LCD_RGBPACK(0xff, 0xd9, 0x83),
+        LCD_RGBPACK(0xd3, 0x53, 0x1f)
+    },
+    {
+        158, "Totodile", "creature_158", 430,
+        24, 20, 54, 54, -9,
+        LCD_RGBPACK(0x5e, 0xc2, 0xe8),
+        LCD_RGBPACK(0xd6, 0xf8, 0xff),
+        LCD_RGBPACK(0xd5, 0x4d, 0x3f)
+    },
+    {
+        161, "Sentret", "creature_161", 710,
+        24, 20, 54, 54, -9,
+        LCD_RGBPACK(0xb4, 0x82, 0x5b),
+        LCD_RGBPACK(0xee, 0xd7, 0xb2),
+        LCD_RGBPACK(0x66, 0x3e, 0x1f)
+    },
+    {
+        163, "Hoothoot", "creature_163", 620,
+        24, 20, 54, 54, -9,
+        LCD_RGBPACK(0xa8, 0x66, 0x42),
+        LCD_RGBPACK(0xf2, 0xde, 0x9f),
+        LCD_RGBPACK(0x55, 0x31, 0x1d)
+    },
+    {
+        167, "Spinarak", "creature_167", 700,
+        24, 20, 54, 54, -9,
+        LCD_RGBPACK(0x5b, 0xc9, 0x56),
+        LCD_RGBPACK(0xb6, 0xf0, 0xa2),
+        LCD_RGBPACK(0x94, 0x2f, 0x3f)
+    },
+    {
+        172, "Pichu", "creature_172", 690,
+        24, 20, 54, 54, -9,
+        LCD_RGBPACK(0xfa, 0xdf, 0x57),
+        LCD_RGBPACK(0xff, 0xf2, 0xad),
+        LCD_RGBPACK(0x6f, 0x49, 0x1f)
+    },
+    {
+        179, "Mareep", "creature_179", 560,
+        24, 20, 54, 54, -9,
+        LCD_RGBPACK(0xca, 0xec, 0xf0),
+        LCD_RGBPACK(0xff, 0xea, 0x8f),
+        LCD_RGBPACK(0x4c, 0x86, 0xd7)
+    },
+    {
+        183, "Marill", "creature_183", 690,
+        24, 20, 54, 54, -9,
+        LCD_RGBPACK(0x6d, 0xbf, 0xf2),
+        LCD_RGBPACK(0xf9, 0xfb, 0xff),
+        LCD_RGBPACK(0x2f, 0x65, 0xa5)
+    },
+    {
+        194, "Wooper", "creature_194", 680,
+        24, 20, 54, 54, -9,
+        LCD_RGBPACK(0x7f, 0xd5, 0xf2),
+        LCD_RGBPACK(0xc9, 0xf5, 0xff),
+        LCD_RGBPACK(0x7e, 0x46, 0xb4)
+    },
+    {
+        200, "Misdreavus", "creature_200", 450,
+        24, 20, 54, 54, -9,
+        LCD_RGBPACK(0x82, 0x77, 0xd6),
+        LCD_RGBPACK(0xf0, 0x73, 0x5d),
+        LCD_RGBPACK(0x42, 0x31, 0x7a)
     },
 };
 

@@ -247,6 +247,8 @@ struct pc_world_spawn {
 
 enum pc_world_scene {
     PC_WORLD_SCENE_PALLET = 0,
+    PC_WORLD_SCENE_ROUTE1_SOUTH,
+    PC_WORLD_SCENE_ROUTE21_NORTH,
     PC_WORLD_SCENE_HOUSE_1F,
     PC_WORLD_SCENE_HOUSE_2F
 };
@@ -277,6 +279,7 @@ struct pc_world_state {
     int heading;
     int walk_frame;
     int walk_tick;
+    int encounter_cooldown;
     int last_encounter_slot;
     int pending_species_index;
     enum pc_world_scene scene;

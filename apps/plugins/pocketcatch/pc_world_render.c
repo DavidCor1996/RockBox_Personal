@@ -85,6 +85,13 @@ static int block_screen_y(const struct pc_world_state *world, int ty)
     return world->origin_y + ty * PC_WORLD_TILE_SIZE;
 }
 
+static bool outdoor_scene(enum pc_world_scene scene)
+{
+    return scene == PC_WORLD_SCENE_PALLET ||
+           scene == PC_WORLD_SCENE_ROUTE1_SOUTH ||
+           scene == PC_WORLD_SCENE_ROUTE21_NORTH;
+}
+
 static void draw_spawn(const struct pc_world_state *world, int index)
 {
     const struct pc_world_spawn *spawn = &world->spawns[index];
@@ -158,7 +165,7 @@ static void build_world_cache(const struct pc_world_state *world)
 
     cache_fill(PC_GB_LIGHT);
 
-    if (world->scene == PC_WORLD_SCENE_PALLET)
+    if (outdoor_scene(world->scene))
     {
         tiles = pc_red_overworld_tiles;
         blocks = pc_red_overworld_blocks;
@@ -310,7 +317,7 @@ void pc_world_render_frame(const struct pc_world_state *world)
     int i;
 
     draw_map(world);
-    if (world->scene == PC_WORLD_SCENE_PALLET)
+    if (outdoor_scene(world->scene))
     {
         for (i = 0; i < PC_WORLD_MAX_SPAWNS; ++i)
             draw_spawn(world, i);

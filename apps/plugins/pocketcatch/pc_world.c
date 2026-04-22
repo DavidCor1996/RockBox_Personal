@@ -15,6 +15,30 @@ static const unsigned char pc_pallet_blocks[PC_WORLD_H][PC_WORLD_W] = {
     { 0x50, 0x0a, 0x65, 0x64, 0x61, 0x61, 0x61, 0x61, 0x61, 0x4f },
 };
 
+static const unsigned char pc_route1_south_blocks[PC_WORLD_H][PC_WORLD_W] = {
+    { 0x0a, 0x4d, 0x2f, 0x1a, 0x2f, 0x07, 0x07, 0x07, 0x07, 0x4e },
+    { 0x0a, 0x4d, 0x0a, 0x31, 0x31, 0x31, 0x31, 0x31, 0x31, 0x4e },
+    { 0x0a, 0x4d, 0x6f, 0x6f, 0x6f, 0x6f, 0x0b, 0x0b, 0x1a, 0x4e },
+    { 0x0a, 0x4d, 0x0a, 0x0a, 0x74, 0x74, 0x0b, 0x0b, 0x31, 0x4e },
+    { 0x0a, 0x4d, 0x1a, 0x31, 0x08, 0x1a, 0x1a, 0x1a, 0x1a, 0x4e },
+    { 0x0a, 0x6e, 0x0a, 0x0b, 0x0b, 0x31, 0x0a, 0x0b, 0x0b, 0x6d },
+    { 0x0a, 0x6e, 0x0b, 0x0b, 0x74, 0x31, 0x0b, 0x0b, 0x74, 0x6d },
+    { 0x0a, 0x6e, 0x51, 0x51, 0x63, 0x0b, 0x62, 0x51, 0x51, 0x6d },
+    { 0x0a, 0x6e, 0x0a, 0x0a, 0x4d, 0x0b, 0x4e, 0x0a, 0x0a, 0x6d },
+};
+
+static const unsigned char pc_route21_north_blocks[PC_WORLD_H][PC_WORLD_W] = {
+    { 0x51, 0x63, 0x65, 0x64, 0x51, 0x51, 0x51, 0x62, 0x51, 0x51 },
+    { 0x0a, 0x4d, 0x65, 0x64, 0x0a, 0x74, 0x74, 0x4e, 0x0a, 0x0a },
+    { 0x74, 0x4d, 0x65, 0x64, 0x0b, 0x0b, 0x0b, 0x4e, 0x74, 0x0a },
+    { 0x74, 0x4d, 0x65, 0x64, 0x0b, 0x0b, 0x0b, 0x4e, 0x0a, 0x0a },
+    { 0x74, 0x4d, 0x65, 0x64, 0x0b, 0x0b, 0x0b, 0x4e, 0x0a, 0x0a },
+    { 0x74, 0x4d, 0x65, 0x2d, 0x1f, 0x1f, 0x1f, 0x67, 0x1f, 0x1f },
+    { 0x52, 0x4f, 0x65, 0x43, 0x43, 0x43, 0x43, 0x18, 0x43, 0x43 },
+    { 0x67, 0x1f, 0x2e, 0x43, 0x43, 0x43, 0x43, 0x14, 0x6b, 0x6b },
+    { 0x18, 0x43, 0x43, 0x43, 0x43, 0x43, 0x43, 0x43, 0x43, 0x19 },
+};
+
 static const unsigned char pc_reds_house_1f_blocks[PC_HOUSE_MAP_H][PC_HOUSE_MAP_W] = {
     { 4,  9,  5,  7 },
     { 15, 15, 15, 15 },
@@ -31,6 +55,14 @@ static const unsigned char pc_reds_house_2f_blocks[PC_HOUSE_MAP_H][PC_HOUSE_MAP_
 
 static const unsigned char pc_outside_respawn_blocks[PC_WORLD_MAX_SPAWNS][2] = {
     { 1, 3 }, { 5, 3 }, { 8, 3 }, { 4, 6 }
+};
+
+static const unsigned char pc_route1_respawn_blocks[PC_WORLD_MAX_SPAWNS][2] = {
+    { 4, 1 }, { 5, 3 }, { 4, 5 }, { 5, 7 }
+};
+
+static const unsigned char pc_route21_respawn_blocks[PC_WORLD_MAX_SPAWNS][2] = {
+    { 5, 1 }, { 4, 2 }, { 5, 3 }, { 4, 4 }
 };
 
 static fb_data pc_world_trainer_pixels[4][PC_WORLD_WALK_FRAMES]
@@ -95,6 +127,22 @@ static void set_player_to_subtile(struct pc_world_state *world,
     world->player_y = subtile_center_y(world, tile_y) - 7;
 }
 
+static void set_player_to_metatile(struct pc_world_state *world,
+                                   int tile_x, int tile_y)
+{
+    int step = PC_WORLD_TILE_SIZE / 2;
+
+    world->player_x = world->origin_x + tile_x * step + step / 2;
+    world->player_y = world->origin_y + tile_y * step + step / 2 - 7;
+}
+
+static bool outdoor_scene(enum pc_world_scene scene)
+{
+    return scene == PC_WORLD_SCENE_PALLET ||
+           scene == PC_WORLD_SCENE_ROUTE1_SOUTH ||
+           scene == PC_WORLD_SCENE_ROUTE21_NORTH;
+}
+
 static bool outside_block_walkable(unsigned char block_id)
 {
     switch (block_id)
@@ -120,7 +168,17 @@ static bool outside_block_walkable(unsigned char block_id)
         case 0x1e:
         case 0x65:
         case 0x64:
-        case 0x61:
+        case 0x62:
+        case 0x63:
+        case 0x67:
+        case 0x6b:
+        case 0x6d:
+        case 0x6e:
+        case 0x6f:
+        case 0x43:
+        case 0x18:
+        case 0x19:
+        case 0x1f:
             return false;
 
         default:
@@ -149,7 +207,7 @@ static bool house_block_walkable(unsigned char block_id)
 
 static bool block_walkable(const struct pc_world_state *world, unsigned char block_id)
 {
-    if (world->scene == PC_WORLD_SCENE_PALLET)
+    if (outdoor_scene(world->scene))
         return outside_block_walkable(block_id);
     return house_block_walkable(block_id);
 }
@@ -233,7 +291,33 @@ static void load_scene_data(struct pc_world_state *world, enum pc_world_scene sc
             }
             world->home_x = subtile_center_x(world, 5);
             world->home_y = subtile_center_y(world, 6) - 7;
-            set_banner(world, "Pallet Town", "Walk into Pokemon, enter your house");
+            set_banner(world, "Pallet Town", "North to Route 1, south to Route 21");
+            break;
+
+        case PC_WORLD_SCENE_ROUTE1_SOUTH:
+            world->map_w = PC_WORLD_W;
+            world->map_h = PC_WORLD_H;
+            world->origin_x = PC_WORLD_ORIGIN_X;
+            world->origin_y = PC_WORLD_ORIGIN_Y;
+            for (y = 0; y < PC_WORLD_H; ++y)
+            {
+                for (x = 0; x < PC_WORLD_W; ++x)
+                    world->tiles[y][x] = pc_route1_south_blocks[y][x];
+            }
+            set_banner(world, "Route 1", "North to Viridian, south to Pallet");
+            break;
+
+        case PC_WORLD_SCENE_ROUTE21_NORTH:
+            world->map_w = PC_WORLD_W;
+            world->map_h = PC_WORLD_H;
+            world->origin_x = PC_WORLD_ORIGIN_X;
+            world->origin_y = PC_WORLD_ORIGIN_Y;
+            for (y = 0; y < PC_WORLD_H; ++y)
+            {
+                for (x = 0; x < PC_WORLD_W; ++x)
+                    world->tiles[y][x] = pc_route21_north_blocks[y][x];
+            }
+            set_banner(world, "Route 21", "Northern waters off Pallet");
             break;
 
         case PC_WORLD_SCENE_HOUSE_1F:
@@ -278,6 +362,43 @@ static void transition_to_scene(struct pc_world_state *world,
     world->walk_tick = 0;
 }
 
+static void transition_to_scene_metatile(struct pc_world_state *world,
+                                         enum pc_world_scene scene,
+                                         int tile_x, int tile_y,
+                                         enum pc_heading heading)
+{
+    load_scene_data(world, scene);
+    set_player_to_metatile(world, tile_x, tile_y);
+    world->heading = heading;
+    world->moving = false;
+    world->walk_frame = 1;
+    world->walk_tick = 0;
+}
+
+static const unsigned char (*scene_respawn_blocks(enum pc_world_scene scene))[2]
+{
+    switch (scene)
+    {
+        case PC_WORLD_SCENE_ROUTE1_SOUTH:
+            return pc_route1_respawn_blocks;
+
+        case PC_WORLD_SCENE_ROUTE21_NORTH:
+            return pc_route21_respawn_blocks;
+
+        case PC_WORLD_SCENE_PALLET:
+        default:
+            return pc_outside_respawn_blocks;
+    }
+}
+
+static void clear_spawns(struct pc_world_state *world)
+{
+    int i;
+
+    for (i = 0; i < PC_WORLD_MAX_SPAWNS; ++i)
+        world->spawns[i].active = false;
+}
+
 static void place_spawn(struct pc_world_state *world, int slot,
                         int block_x, int block_y, int species_index)
 {
@@ -297,10 +418,33 @@ static void place_spawn(struct pc_world_state *world, int slot,
 
 static void init_spawns(struct pc_world_state *world)
 {
-    place_spawn(world, 0, 1, 3, 0);
-    place_spawn(world, 1, 5, 3, 6);
-    place_spawn(world, 2, 8, 3, 3);
-    place_spawn(world, 3, 4, 6, 9);
+    const unsigned char (*respawns)[2];
+
+    clear_spawns(world);
+    if (!outdoor_scene(world->scene))
+        return;
+
+    respawns = scene_respawn_blocks(world->scene);
+    switch (world->scene)
+    {
+        case PC_WORLD_SCENE_ROUTE1_SOUTH:
+            place_spawn(world, 0, respawns[0][0], respawns[0][1], 16);
+            place_spawn(world, 1, respawns[1][0], respawns[1][1], 19);
+            place_spawn(world, 2, respawns[2][0], respawns[2][1], 25);
+            place_spawn(world, 3, respawns[3][0], respawns[3][1], 32);
+            break;
+
+        case PC_WORLD_SCENE_ROUTE21_NORTH:
+            break;
+
+        case PC_WORLD_SCENE_PALLET:
+        default:
+            place_spawn(world, 0, respawns[0][0], respawns[0][1], 0);
+            place_spawn(world, 1, respawns[1][0], respawns[1][1], 6);
+            place_spawn(world, 2, respawns[2][0], respawns[2][1], 3);
+            place_spawn(world, 3, respawns[3][0], respawns[3][1], 9);
+            break;
+    }
 }
 
 static void maybe_move_spawn(struct pc_world_state *world, struct pc_world_spawn *spawn)
@@ -361,6 +505,13 @@ static bool player_in_metatile_zone(const struct pc_world_state *world,
            tile_y >= min_y && tile_y <= max_y;
 }
 
+static int walk_frame_for_tick(int tick)
+{
+    static const unsigned char cycle[4] = { 0, 1, 2, 1 };
+
+    return cycle[(tick / 2) & 3];
+}
+
 static void maybe_handle_transition(struct pc_world_state *world, bool moved)
 {
     if (!moved)
@@ -372,6 +523,40 @@ static void maybe_handle_transition(struct pc_world_state *world, bool moved)
             if (player_in_metatile_zone(world, 5, 5, 5, 5) &&
                 world->heading == PC_HEADING_N)
                 transition_to_scene(world, PC_WORLD_SCENE_HOUSE_1F, 2, 6, PC_HEADING_N);
+            else if (player_in_metatile_zone(world, 8, 11, 2, 3) &&
+                     world->heading == PC_HEADING_N)
+            {
+                transition_to_scene_metatile(world, PC_WORLD_SCENE_ROUTE1_SOUTH,
+                                             10, 13, PC_HEADING_N);
+                init_spawns(world);
+            }
+            else if (player_in_metatile_zone(world, 8, 15, 13, 15) &&
+                     world->heading == PC_HEADING_S)
+            {
+                transition_to_scene_metatile(world, PC_WORLD_SCENE_ROUTE21_NORTH,
+                                             5, 4, PC_HEADING_S);
+                init_spawns(world);
+            }
+            break;
+
+        case PC_WORLD_SCENE_ROUTE1_SOUTH:
+            if (player_in_metatile_zone(world, 8, 11, 13, 15) &&
+                world->heading == PC_HEADING_S)
+            {
+                transition_to_scene_metatile(world, PC_WORLD_SCENE_PALLET,
+                                             10, 4, PC_HEADING_S);
+                init_spawns(world);
+            }
+            break;
+
+        case PC_WORLD_SCENE_ROUTE21_NORTH:
+            if (player_in_metatile_zone(world, 8, 15, 2, 4) &&
+                world->heading == PC_HEADING_N)
+            {
+                transition_to_scene_metatile(world, PC_WORLD_SCENE_PALLET,
+                                             10, 12, PC_HEADING_N);
+                init_spawns(world);
+            }
             break;
 
         case PC_WORLD_SCENE_HOUSE_1F:
@@ -458,8 +643,7 @@ void pc_world_update(struct pc_world_state *world, const struct pc_world_command
     if (world->moving)
     {
         world->walk_tick++;
-        if ((world->walk_tick % 4) == 0)
-            world->walk_frame = (world->walk_frame + 1) % PC_WORLD_WALK_FRAMES;
+        world->walk_frame = walk_frame_for_tick(world->walk_tick);
     }
     else
     {
@@ -467,8 +651,11 @@ void pc_world_update(struct pc_world_state *world, const struct pc_world_command
         world->walk_frame = 1;
     }
 
-    if (world->scene != PC_WORLD_SCENE_PALLET)
+    if (!outdoor_scene(world->scene))
         return;
+
+    if (world->encounter_cooldown > 0)
+        world->encounter_cooldown--;
 
     for (i = 0; i < PC_WORLD_MAX_SPAWNS; ++i)
     {
@@ -477,7 +664,7 @@ void pc_world_update(struct pc_world_state *world, const struct pc_world_command
         int dy;
 
         maybe_move_spawn(world, spawn);
-        if (!spawn->active || world->pending_encounter)
+        if (!spawn->active || world->pending_encounter || world->encounter_cooldown > 0)
             continue;
 
         dx = world->player_x - spawn->x;
@@ -511,23 +698,34 @@ void pc_world_finish_encounter(struct pc_world_state *world,
     world->pending_encounter = false;
     world->pending_species_index = -1;
 
-    if (world->scene != PC_WORLD_SCENE_PALLET)
+    if (!outdoor_scene(world->scene))
         return;
 
     if (world->last_encounter_slot >= 0 &&
         world->last_encounter_slot < PC_WORLD_MAX_SPAWNS)
     {
         int next_species = species_index;
+        int respawn_index = world->last_encounter_slot;
 
         if (outcome == PC_CATCH_OUTCOME_CAUGHT && count > 0)
             next_species = rb->rand() % count;
 
-        place_spawn(world,
-                    world->last_encounter_slot,
-                    pc_outside_respawn_blocks[world->last_encounter_slot][0],
-                    pc_outside_respawn_blocks[world->last_encounter_slot][1],
-                    next_species);
+        {
+            const unsigned char (*respawns)[2] = scene_respawn_blocks(world->scene);
+
+            if (outdoor_scene(world->scene))
+                respawn_index = (respawn_index + 1 + (world->frame % (PC_WORLD_MAX_SPAWNS - 1)))
+                                % PC_WORLD_MAX_SPAWNS;
+
+            place_spawn(world,
+                        world->last_encounter_slot,
+                        respawns[respawn_index][0],
+                        respawns[respawn_index][1],
+                        next_species);
+        }
     }
+
+    world->encounter_cooldown = 18;
 
     if (outcome == PC_CATCH_OUTCOME_CAUGHT)
         set_banner(world, "Caught it", "Head home or keep exploring");
