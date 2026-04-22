@@ -67,6 +67,7 @@ static void reset_encounter(struct pc_encounter_state *state)
     state->last_catch_chance = 0;
     state->breakout_after_shake = 0;
     state->shake_offset = 0;
+    state->finished = false;
     reset_ring(&state->ring);
     set_intro_banner(state);
 }
@@ -106,6 +107,23 @@ void pc_state_init(struct pc_encounter_state *state, bool simulator_debug)
     state->simulator_debug = simulator_debug;
     pc_assets_init(&state->assets);
     state->species_index = pick_random_species_index(-1);
+    reset_encounter(state);
+}
+
+void pc_state_begin(struct pc_encounter_state *state, int species_index)
+{
+    int count = pc_assets_get_creature_count();
+
+    if (count <= 0)
+        species_index = 0;
+    else
+    {
+        species_index %= count;
+        if (species_index < 0)
+            species_index += count;
+    }
+
+    state->species_index = species_index;
     reset_encounter(state);
 }
 
@@ -283,18 +301,14 @@ void pc_state_update(struct pc_encounter_state *state,
         case PC_PHASE_BROKE_OUT:
             if (state->phase_frame >= PC_RESULT_HOLD_FRAMES)
             {
-                state->phase = PC_PHASE_RESULT;
-                state->phase_frame = 0;
-                if (state->phase == PC_PHASE_RESULT && state->outcome == PC_CATCH_OUTCOME_CAUGHT)
-                    set_banner(state, "Caught!", "Spin for next encounter");
+                state->finished = true;
             }
             break;
 
         case PC_PHASE_RESULT:
             if (command->start_grab || state->phase_frame >= PC_AUTO_RESET_FRAMES)
             {
-                state->phase = PC_PHASE_RESET_NEXT;
-                state->phase_frame = 0;
+                state->finished = true;
             }
             break;
 

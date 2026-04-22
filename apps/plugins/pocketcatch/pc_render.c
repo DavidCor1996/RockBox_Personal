@@ -19,6 +19,28 @@
 
 static fb_data pc_background_cache[LCD_WIDTH * LCD_HEIGHT];
 static bool pc_background_cache_ready;
+static int pc_background_time_mode = -1;
+
+enum pc_time_mode {
+    PC_TIME_DAY = 0,
+    PC_TIME_SUNSET,
+    PC_TIME_NIGHT,
+    PC_TIME_DAWN
+};
+
+static int current_time_mode(void)
+{
+    struct tm *tm = rb->get_time();
+    int hour = tm ? tm->tm_hour : 12;
+
+    if (hour >= 6 && hour < 17)
+        return PC_TIME_DAY;
+    if (hour >= 17 && hour < 20)
+        return PC_TIME_SUNSET;
+    if (hour >= 20 || hour < 5)
+        return PC_TIME_NIGHT;
+    return PC_TIME_DAWN;
+}
 
 static fb_data mix_color(fb_data a, fb_data b, int t, int max_t)
 {
@@ -132,15 +154,50 @@ static void fill_circle_cache(int cx, int cy, int radius, fb_data color)
 
 static void ensure_background_cache(void)
 {
+    fb_data sky_top = PC_SKY_TOP;
+    fb_data sky_bottom = PC_SKY_BOTTOM;
+    fb_data field_top = PC_FIELD_TOP;
+    fb_data field_bottom = PC_FIELD_BOTTOM;
+    fb_data sun = LCD_RGBPACK(0xff, 0xf6, 0xce);
+    fb_data cloud = LCD_RGBPACK(0xff, 0xff, 0xff);
     int y;
+    int mode = current_time_mode();
 
-    if (pc_background_cache_ready)
+    if (pc_background_cache_ready && pc_background_time_mode == mode)
         return;
+
+    if (mode == PC_TIME_SUNSET)
+    {
+        sky_top = LCD_RGBPACK(0xf8, 0xc0, 0x7a);
+        sky_bottom = LCD_RGBPACK(0xdf, 0x85, 0x7e);
+        field_top = LCD_RGBPACK(0x88, 0xb5, 0x63);
+        field_bottom = LCD_RGBPACK(0x4a, 0x76, 0x46);
+        sun = LCD_RGBPACK(0xff, 0xdc, 0x88);
+        cloud = LCD_RGBPACK(0xff, 0xe9, 0xd8);
+    }
+    else if (mode == PC_TIME_NIGHT)
+    {
+        sky_top = LCD_RGBPACK(0x1a, 0x26, 0x4d);
+        sky_bottom = LCD_RGBPACK(0x2f, 0x49, 0x78);
+        field_top = LCD_RGBPACK(0x4e, 0x72, 0x5d);
+        field_bottom = LCD_RGBPACK(0x2d, 0x47, 0x38);
+        sun = LCD_RGBPACK(0xe8, 0xf1, 0xff);
+        cloud = LCD_RGBPACK(0x9f, 0xb2, 0xd7);
+    }
+    else if (mode == PC_TIME_DAWN)
+    {
+        sky_top = LCD_RGBPACK(0xd8, 0xc7, 0xf3);
+        sky_bottom = LCD_RGBPACK(0xf5, 0xc6, 0xd6);
+        field_top = LCD_RGBPACK(0x8c, 0xc4, 0x84);
+        field_bottom = LCD_RGBPACK(0x55, 0x8d, 0x59);
+        sun = LCD_RGBPACK(0xff, 0xec, 0xb3);
+        cloud = LCD_RGBPACK(0xff, 0xf7, 0xff);
+    }
 
     for (y = 0; y < PC_GROUND_Y; ++y)
     {
         int x;
-        fb_data color = mix_color(PC_SKY_TOP, PC_SKY_BOTTOM, y, PC_GROUND_Y);
+        fb_data color = mix_color(sky_top, sky_bottom, y, PC_GROUND_Y);
 
         for (x = 0; x < LCD_WIDTH; ++x)
             pc_background_cache[y * LCD_WIDTH + x] = color;
@@ -149,7 +206,7 @@ static void ensure_background_cache(void)
     for (y = PC_GROUND_Y; y < LCD_HEIGHT; ++y)
     {
         int x;
-        fb_data color = mix_color(PC_FIELD_TOP, PC_FIELD_BOTTOM,
+        fb_data color = mix_color(field_top, field_bottom,
                                   y - PC_GROUND_Y,
                                   MAX(1, LCD_HEIGHT - PC_GROUND_Y));
 
@@ -157,24 +214,17 @@ static void ensure_background_cache(void)
             pc_background_cache[y * LCD_WIDTH + x] = color;
     }
 
-    fill_circle_cache(58, 48, 24, LCD_RGBPACK(0xff, 0xf6, 0xce));
-    fill_circle_cache(46, 40, 11, LCD_RGBPACK(0xff, 0xff, 0xff));
-    fill_circle_cache(58, 34, 14, LCD_RGBPACK(0xff, 0xff, 0xff));
-    fill_circle_cache(76, 40, 10, LCD_RGBPACK(0xff, 0xff, 0xff));
+    fill_circle_cache(58, 48, 24, sun);
+    fill_circle_cache(46, 40, 11, cloud);
+    fill_circle_cache(58, 34, 14, cloud);
+    fill_circle_cache(76, 40, 10, cloud);
     pc_background_cache_ready = true;
+    pc_background_time_mode = mode;
 }
 
 static void draw_background(const struct pc_encounter_state *state)
 {
-    if (state->assets.background.loaded)
-    {
-        rb->lcd_bitmap((const fb_data *)state->assets.background.bmp.data,
-                       0, 0,
-                       state->assets.background.bmp.width,
-                       state->assets.background.bmp.height);
-        return;
-    }
-
+    (void)state;
     ensure_background_cache();
     rb->lcd_bitmap(pc_background_cache, 0, 0, LCD_WIDTH, LCD_HEIGHT);
 }
@@ -226,6 +276,21 @@ static void draw_creature(const struct pc_encounter_state *state)
     }
 
     draw_creature_fallback(state, bob);
+}
+
+static bool creature_visible(const struct pc_encounter_state *state)
+{
+    switch (state->phase)
+    {
+        case PC_PHASE_HIT_RESOLVE:
+        case PC_PHASE_SHAKE_1:
+        case PC_PHASE_SHAKE_2:
+        case PC_PHASE_SHAKE_3:
+        case PC_PHASE_CAUGHT:
+            return false;
+        default:
+            return true;
+    }
 }
 
 static fb_data ring_color_for_radius(const struct pc_ring_state *ring)
@@ -545,7 +610,8 @@ void pc_render_frame(const struct pc_encounter_state *state)
 {
     draw_background(state);
     draw_shadow();
-    draw_creature(state);
+    if (creature_visible(state))
+        draw_creature(state);
     if (state->phase <= PC_PHASE_BALL_THROWN)
         draw_target_ring(state);
     draw_preview_path(state);

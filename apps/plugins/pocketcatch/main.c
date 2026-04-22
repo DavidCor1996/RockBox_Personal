@@ -1,18 +1,25 @@
 #include "pocketcatch.h"
 
+static struct pc_game_state pc_game;
+
 static enum plugin_status run_pocketcatch(void)
 {
-    struct pc_encounter_state state;
     enum plugin_status status = PLUGIN_OK;
+    bool simulator_debug =
+#ifdef SIMULATOR
+        true;
+#else
+        false;
+#endif
 
-    pc_state_init(&state, true);
+    rb->memset(&pc_game, 0, sizeof(pc_game));
+    pc_game.mode = PC_MODE_WORLD;
+    pc_world_init(&pc_game.world);
+    pc_state_init(&pc_game.encounter, simulator_debug);
 
     while (true)
     {
-        struct pc_input_command command;
-        struct pc_throw_request throw_request;
         long event = rb->button_get_w_tmo(PC_FRAME_TICKS);
-        long now = *rb->current_tick;
 
         if (event == SYS_USB_CONNECTED ||
             rb->default_event_handler(event) == SYS_USB_CONNECTED)
@@ -21,17 +28,48 @@ static enum plugin_status run_pocketcatch(void)
             break;
         }
 
-        pc_input_handle_event(&state.input, event, now, &command, &throw_request);
-        pc_input_animate(&state.input, now);
-        pc_state_update(&state, &command, &throw_request);
+        if (pc_game.mode == PC_MODE_WORLD)
+        {
+            struct pc_world_command command;
 
-        if (command.exit_requested)
-            break;
+            pc_world_input_handle_event(event, &command);
+            if (command.exit_requested)
+                break;
 
-        pc_render_frame(&state);
+            pc_world_update(&pc_game.world, &command);
+            if (pc_game.world.pending_encounter)
+            {
+                pc_state_begin(&pc_game.encounter, pc_game.world.pending_species_index);
+                pc_game.mode = PC_MODE_ENCOUNTER;
+            }
+            pc_world_render_frame(&pc_game.world);
+        }
+        else
+        {
+            struct pc_input_command command;
+            struct pc_throw_request throw_request;
+            long now = *rb->current_tick;
+
+            pc_input_handle_event(&pc_game.encounter.input, event, now, &command, &throw_request);
+            pc_input_animate(&pc_game.encounter.input, now);
+            pc_state_update(&pc_game.encounter, &command, &throw_request);
+
+            if (command.exit_requested)
+                break;
+
+            pc_render_frame(&pc_game.encounter);
+            if (pc_game.encounter.finished)
+            {
+                pc_world_finish_encounter(&pc_game.world,
+                                          pc_game.encounter.outcome,
+                                          pc_game.encounter.species_index);
+                pc_game.mode = PC_MODE_WORLD;
+            }
+        }
     }
 
-    pc_assets_teardown(&state.assets);
+    pc_world_teardown(&pc_game.world);
+    pc_assets_teardown(&pc_game.encounter.assets);
     return status;
 }
 

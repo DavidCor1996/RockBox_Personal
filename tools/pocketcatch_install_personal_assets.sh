@@ -1,8 +1,16 @@
 #!/usr/bin/env bash
 set -euo pipefail
+shopt -s nullglob
+
+profile="sim"
+
+if [ "${1:-}" = "--hw" ]; then
+    profile="hw"
+    shift
+fi
 
 if [ "$#" -lt 1 ]; then
-    echo "usage: $0 <asset-root> [asset-root...]" >&2
+    echo "usage: $0 [--hw] <asset-root> [asset-root...]" >&2
     exit 1
 fi
 
@@ -24,6 +32,27 @@ species_names=(
     "Eevee"
 )
 species_rates=(0.62 0.47 0.38 0.78 0.73 0.76 0.54 0.52 0.64 0.71 0.43 0.56 0.91 0.48)
+species_ids+=(152 155 158 163 179 194)
+species_names+=("Chikorita" "Cyndaquil" "Totodile" "Hoothoot" "Mareep" "Wooper")
+species_rates+=(0.54 0.45 0.43 0.62 0.56 0.68)
+
+if command -v magick >/dev/null 2>&1; then
+    IM_CMD=(magick)
+else
+    IM_CMD=(convert)
+fi
+
+if [ "$profile" = "hw" ]; then
+    CREATURE_SIZE="64x64"
+    BALL_SIZE="32x32"
+    TRAINER_SIZE="32x32"
+    MENU_SIZE="48x48"
+else
+    CREATURE_SIZE="88x88"
+    BALL_SIZE="40x40"
+    TRAINER_SIZE="40x40"
+    MENU_SIZE="72x72"
+fi
 
 tmp_dir="$(mktemp -d /tmp/pocketcatch-assets-XXXXXX)"
 cleanup() {
@@ -37,12 +66,18 @@ fetch_png() {
     curl -fsSL "$url" -o "$output"
 }
 
+fetch_optional_png() {
+    local url="$1"
+    local output="$2"
+    curl -fsSL "$url" -o "$output" 2>/dev/null || return 1
+}
+
 png_to_bmp() {
     local input_png="$1"
     local output_bmp="$2"
     local size="$3"
     shift 3
-    magick "$input_png" \
+    "${IM_CMD[@]}" "$input_png" \
         -filter point \
         -resize "$size" \
         "$@" \
@@ -59,8 +94,8 @@ write_pack_json() {
     {
         cat <<'EOF'
 {
-  "pack_name": "Podemon Go Personal FireRed",
-  "version": "0.2.0",
+  "pack_name": "Podemon Go Personal Johto Pack",
+  "version": "0.3.0",
   "target": "rockbox-pocketcatch",
   "author": "local-user",
   "screen_mode": "auto",
@@ -103,37 +138,205 @@ EOF
     } > "$pack_root/pack.json"
 }
 
+extract_frames() {
+    local input_png="$1"
+    local prefix="$2"
+
+    rm -f "${prefix}"_*.png
+    "${IM_CMD[@]}" "$input_png" -coalesce "${prefix}_%02d.png" >/dev/null 2>&1
+}
+
+install_walk_frames() {
+    local source_png="$1"
+    local fallback_png="$2"
+    local output_prefix="$3"
+    local extra_arg="${4:-}"
+    local frames=()
+    local idx0=0
+    local idx1=0
+    local idx2=0
+
+    if [ -f "$source_png" ]; then
+        extract_frames "$source_png" "$tmp_dir/frame"
+        frames=("$tmp_dir"/frame_*.png)
+    fi
+
+    if [ "${#frames[@]}" -gt 0 ]; then
+        idx1=$(( ${#frames[@]} > 1 ? 1 : 0 ))
+        idx2=$(( ${#frames[@]} > 2 ? 2 : idx1 ))
+        if [ -n "$extra_arg" ]; then
+            png_to_bmp "${frames[$idx0]}" "${output_prefix}_0.bmp" "$TRAINER_SIZE" "$extra_arg"
+            png_to_bmp "${frames[$idx1]}" "${output_prefix}_1.bmp" "$TRAINER_SIZE" "$extra_arg"
+            png_to_bmp "${frames[$idx2]}" "${output_prefix}_2.bmp" "$TRAINER_SIZE" "$extra_arg"
+        else
+            png_to_bmp "${frames[$idx0]}" "${output_prefix}_0.bmp" "$TRAINER_SIZE"
+            png_to_bmp "${frames[$idx1]}" "${output_prefix}_1.bmp" "$TRAINER_SIZE"
+            png_to_bmp "${frames[$idx2]}" "${output_prefix}_2.bmp" "$TRAINER_SIZE"
+        fi
+        return
+    fi
+
+    if [ -n "$extra_arg" ]; then
+        png_to_bmp "$fallback_png" "${output_prefix}_0.bmp" "$TRAINER_SIZE" "$extra_arg"
+        png_to_bmp "$fallback_png" "${output_prefix}_1.bmp" "$TRAINER_SIZE" "$extra_arg"
+        png_to_bmp "$fallback_png" "${output_prefix}_2.bmp" "$TRAINER_SIZE" "$extra_arg"
+    else
+        png_to_bmp "$fallback_png" "${output_prefix}_0.bmp" "$TRAINER_SIZE"
+        png_to_bmp "$fallback_png" "${output_prefix}_1.bmp" "$TRAINER_SIZE"
+        png_to_bmp "$fallback_png" "${output_prefix}_2.bmp" "$TRAINER_SIZE"
+    fi
+}
+
+install_frlg_sheet_frames() {
+    local source_png="$1"
+    local output_prefix="$2"
+    local idx_a="$3"
+    local idx_stand="$4"
+    local idx_b="$5"
+    local extra_arg="${6:-}"
+    local crop_a="$tmp_dir/$(basename "$output_prefix")_a.png"
+    local crop_stand="$tmp_dir/$(basename "$output_prefix")_stand.png"
+    local crop_b="$tmp_dir/$(basename "$output_prefix")_b.png"
+
+    "${IM_CMD[@]}" "$source_png" -crop "16x32+$((idx_a * 16))+0" +repage "$crop_a"
+    "${IM_CMD[@]}" "$source_png" -crop "16x32+$((idx_stand * 16))+0" +repage "$crop_stand"
+    "${IM_CMD[@]}" "$source_png" -crop "16x32+$((idx_b * 16))+0" +repage "$crop_b"
+
+    if [ -n "$extra_arg" ]; then
+        png_to_bmp "$crop_a" "${output_prefix}_0.bmp" "$TRAINER_SIZE" "$extra_arg"
+        png_to_bmp "$crop_stand" "${output_prefix}_1.bmp" "$TRAINER_SIZE" "$extra_arg"
+        png_to_bmp "$crop_b" "${output_prefix}_2.bmp" "$TRAINER_SIZE" "$extra_arg"
+    else
+        png_to_bmp "$crop_a" "${output_prefix}_0.bmp" "$TRAINER_SIZE"
+        png_to_bmp "$crop_stand" "${output_prefix}_1.bmp" "$TRAINER_SIZE"
+        png_to_bmp "$crop_b" "${output_prefix}_2.bmp" "$TRAINER_SIZE"
+    fi
+}
+
 for species_id in "${species_ids[@]}"; do
-    fetch_png \
-        "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-iii/firered-leafgreen/${species_id}.png" \
-        "$tmp_dir/${species_id}.png"
+    if [ "$species_id" -le 151 ]; then
+        fetch_png \
+            "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-iii/firered-leafgreen/${species_id}.png" \
+            "$tmp_dir/${species_id}.png"
+    else
+        fetch_png \
+            "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-iv/heartgold-soulsilver/${species_id}.png" \
+            "$tmp_dir/${species_id}.png"
+    fi
 done
 
 fetch_png \
     "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png" \
     "$tmp_dir/pokeball.png"
 
+fetch_png \
+    "https://archives.bulbagarden.net/wiki/Special:Redirect/file/Ethan_OD.png" \
+    "$tmp_dir/ethan_od.png"
+fetch_png \
+    "https://archives.bulbagarden.net/wiki/Special:Redirect/file/Lyra_OD.png" \
+    "$tmp_dir/lyra_od.png"
+fetch_png \
+    "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HGSS_Ethan_Back.png" \
+    "$tmp_dir/ethan_back.png"
+fetch_png \
+    "https://archives.bulbagarden.net/wiki/Special:Redirect/file/HGSS_Lyra_Back.png" \
+    "$tmp_dir/lyra_back.png"
+fetch_png \
+    "https://archives.bulbagarden.net/wiki/Special:Redirect/file/Spr_FRLG_Red.png" \
+    "$tmp_dir/red_menu.png"
+fetch_png \
+    "https://archives.bulbagarden.net/wiki/Special:Redirect/file/Spr_FRLG_Leaf.png" \
+    "$tmp_dir/leaf_menu.png"
+fetch_png \
+    "https://raw.githubusercontent.com/pret/pokefirered/master/graphics/object_events/pics/people/green_normal.png" \
+    "$tmp_dir/leaf_frlg_walk_sheet.png"
+fetch_png \
+    "https://archives.bulbagarden.net/wiki/Special:Redirect/file/New_Bark_Town_HGSS.png" \
+    "$tmp_dir/new_bark_town_hgss.png"
+
+fetch_optional_png \
+    "https://archives.bulbagarden.net/wiki/Special:Redirect/file/Ethanwalkdown.png" \
+    "$tmp_dir/ethan_walk_s.png" || true
+fetch_optional_png \
+    "https://archives.bulbagarden.net/wiki/Special:Redirect/file/Ethanwalkup.png" \
+    "$tmp_dir/ethan_walk_n.png" || true
+fetch_optional_png \
+    "https://archives.bulbagarden.net/wiki/Special:Redirect/file/Ethanwalkright.png" \
+    "$tmp_dir/ethan_walk_e.png" || true
+fetch_optional_png \
+    "https://archives.bulbagarden.net/wiki/Special:Redirect/file/Ethanwalkleft.png" \
+    "$tmp_dir/ethan_walk_w.png" || true
+fetch_optional_png \
+    "https://archives.bulbagarden.net/wiki/Special:Redirect/file/Lyrawalkdown.png" \
+    "$tmp_dir/lyra_walk_s.png" || true
+fetch_optional_png \
+    "https://archives.bulbagarden.net/wiki/Special:Redirect/file/Lyrawalkup.png" \
+    "$tmp_dir/lyra_walk_n.png" || true
+fetch_optional_png \
+    "https://archives.bulbagarden.net/wiki/Special:Redirect/file/Lyrawalkright.png" \
+    "$tmp_dir/lyra_walk_e.png" || true
+fetch_optional_png \
+    "https://archives.bulbagarden.net/wiki/Special:Redirect/file/Lyrawalkleft.png" \
+    "$tmp_dir/lyra_walk_w.png" || true
+
 for dest_root in "$@"; do
     mkdir -p "$dest_root/sprites/creatures"
     mkdir -p "$dest_root/sprites/balls"
+    mkdir -p "$dest_root/sprites/trainers"
     mkdir -p "$dest_root/sprites/ui"
     mkdir -p "$dest_root/backgrounds"
 
     for species_id in "${species_ids[@]}"; do
         png_to_bmp "$tmp_dir/${species_id}.png" \
             "$dest_root/sprites/creatures/$(printf 'creature_%03d_idle_0.bmp' "$species_id")" \
-            "88x88"
+            "$CREATURE_SIZE"
     done
 
-    png_to_bmp "$tmp_dir/pokeball.png" "$dest_root/sprites/balls/ball_default_idle_0.bmp" "40x40"
-    png_to_bmp "$tmp_dir/pokeball.png" "$dest_root/sprites/balls/ball_default_spin_0.bmp" "40x40" \
+    png_to_bmp "$tmp_dir/pokeball.png" "$dest_root/sprites/balls/ball_default_idle_0.bmp" "$BALL_SIZE"
+    png_to_bmp "$tmp_dir/pokeball.png" "$dest_root/sprites/balls/ball_default_spin_0.bmp" "$BALL_SIZE" \
         -virtual-pixel transparent -distort SRT 18
-    png_to_bmp "$tmp_dir/pokeball.png" "$dest_root/sprites/balls/ball_default_spin_1.bmp" "40x40" \
+    png_to_bmp "$tmp_dir/pokeball.png" "$dest_root/sprites/balls/ball_default_spin_1.bmp" "$BALL_SIZE" \
         -virtual-pixel transparent -distort SRT 36
-    png_to_bmp "$tmp_dir/pokeball.png" "$dest_root/sprites/balls/ball_default_spin_2.bmp" "40x40" \
+    png_to_bmp "$tmp_dir/pokeball.png" "$dest_root/sprites/balls/ball_default_spin_2.bmp" "$BALL_SIZE" \
         -virtual-pixel transparent -distort SRT 54
-    png_to_bmp "$tmp_dir/pokeball.png" "$dest_root/sprites/balls/ball_default_spin_3.bmp" "40x40" \
+    png_to_bmp "$tmp_dir/pokeball.png" "$dest_root/sprites/balls/ball_default_spin_3.bmp" "$BALL_SIZE" \
         -virtual-pixel transparent -distort SRT 72
+
+    png_to_bmp "$tmp_dir/ethan_od.png" "$dest_root/sprites/trainers/ethan_od.bmp" "$TRAINER_SIZE"
+    png_to_bmp "$tmp_dir/lyra_od.png" "$dest_root/sprites/trainers/lyra_od.bmp" "$TRAINER_SIZE"
+    png_to_bmp "$tmp_dir/ethan_back.png" "$dest_root/sprites/trainers/ethan_back.bmp" "$TRAINER_SIZE"
+    png_to_bmp "$tmp_dir/lyra_back.png" "$dest_root/sprites/trainers/lyra_back.bmp" "$TRAINER_SIZE"
+    png_to_bmp "$tmp_dir/red_menu.png" "$dest_root/sprites/trainers/red_menu.bmp" "$MENU_SIZE"
+    png_to_bmp "$tmp_dir/leaf_menu.png" "$dest_root/sprites/trainers/leaf_menu.bmp" "$MENU_SIZE"
+    png_to_bmp "$tmp_dir/new_bark_town_hgss.png" \
+        "$dest_root/backgrounds/new_bark_town_hgss.bmp" "493x397>"
+
+    install_frlg_sheet_frames "$tmp_dir/leaf_frlg_walk_sheet.png" \
+        "$dest_root/sprites/trainers/leaf_walk_s" 3 0 4
+    install_frlg_sheet_frames "$tmp_dir/leaf_frlg_walk_sheet.png" \
+        "$dest_root/sprites/trainers/leaf_walk_n" 5 1 6
+    install_frlg_sheet_frames "$tmp_dir/leaf_frlg_walk_sheet.png" \
+        "$dest_root/sprites/trainers/leaf_walk_w" 7 2 8
+    install_frlg_sheet_frames "$tmp_dir/leaf_frlg_walk_sheet.png" \
+        "$dest_root/sprites/trainers/leaf_walk_e" 7 2 8 -flop
+
+    install_walk_frames "$tmp_dir/ethan_walk_s.png" "$tmp_dir/ethan_od.png" \
+        "$dest_root/sprites/trainers/ethan_walk_s"
+    install_walk_frames "$tmp_dir/ethan_walk_n.png" "$tmp_dir/ethan_back.png" \
+        "$dest_root/sprites/trainers/ethan_walk_n"
+    install_walk_frames "$tmp_dir/ethan_walk_e.png" "$tmp_dir/ethan_od.png" \
+        "$dest_root/sprites/trainers/ethan_walk_e"
+    install_walk_frames "$tmp_dir/ethan_walk_w.png" "$tmp_dir/ethan_od.png" \
+        "$dest_root/sprites/trainers/ethan_walk_w" -flop
+
+    install_walk_frames "$tmp_dir/lyra_walk_s.png" "$tmp_dir/lyra_od.png" \
+        "$dest_root/sprites/trainers/lyra_walk_s"
+    install_walk_frames "$tmp_dir/lyra_walk_n.png" "$tmp_dir/lyra_back.png" \
+        "$dest_root/sprites/trainers/lyra_walk_n"
+    install_walk_frames "$tmp_dir/lyra_walk_e.png" "$tmp_dir/lyra_od.png" \
+        "$dest_root/sprites/trainers/lyra_walk_e"
+    install_walk_frames "$tmp_dir/lyra_walk_w.png" "$tmp_dir/lyra_od.png" \
+        "$dest_root/sprites/trainers/lyra_walk_w" -flop
 
     write_pack_json "$dest_root"
     echo "installed assets to $dest_root"

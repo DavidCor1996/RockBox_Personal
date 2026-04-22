@@ -22,10 +22,23 @@
 #define PC_BALL_MAX_H          48
 #define PC_BALL_MAX_BYTES      (PC_BALL_MAX_W * PC_BALL_MAX_H * sizeof(fb_data))
 #define PC_BALL_SPIN_FRAMES    4
+#ifdef SIMULATOR
+#define PC_WORLD_CREATURE_MAX_W 32
+#define PC_WORLD_CREATURE_MAX_H 32
+#define PC_WORLD_TRAINER_MAX_W  40
+#define PC_WORLD_TRAINER_MAX_H  40
+#else
+#define PC_WORLD_CREATURE_MAX_W 28
+#define PC_WORLD_CREATURE_MAX_H 28
+#define PC_WORLD_TRAINER_MAX_W  36
+#define PC_WORLD_TRAINER_MAX_H  36
+#endif
+#define PC_WORLD_CREATURE_BYTES (PC_WORLD_CREATURE_MAX_W * PC_WORLD_CREATURE_MAX_H * sizeof(fb_data))
+#define PC_WORLD_TRAINER_BYTES  (PC_WORLD_TRAINER_MAX_W * PC_WORLD_TRAINER_MAX_H * sizeof(fb_data))
 
 #define PC_BANNER_LINE_CHARS   48
-#define PC_RESULT_HOLD_FRAMES  24
-#define PC_AUTO_RESET_FRAMES   72
+#define PC_RESULT_HOLD_FRAMES  14
+#define PC_AUTO_RESET_FRAMES   18
 #define PC_INTRO_FRAMES        28
 #define PC_HIT_FRAMES          8
 #define PC_SHAKE_FRAMES        10
@@ -37,6 +50,14 @@
 #define PC_TARGET_Y            94
 #define PC_GROUND_Y            (LCD_HEIGHT - 54)
 #define PC_CREATURE_BASE_Y     146
+#define PC_WORLD_TILE_SIZE     30
+#define PC_WORLD_W             10
+#define PC_WORLD_H             9
+#define PC_WORLD_ORIGIN_X      ((LCD_WIDTH - (PC_WORLD_W * PC_WORLD_TILE_SIZE)) / 2)
+#define PC_WORLD_ORIGIN_Y      (-18)
+#define PC_WORLD_MAX_SPAWNS    4
+#define PC_WORLD_STEP_PX       4
+#define PC_WORLD_WALK_FRAMES   3
 
 enum pc_phase {
     PC_PHASE_INTRO = 0,
@@ -51,6 +72,18 @@ enum pc_phase {
     PC_PHASE_BROKE_OUT,
     PC_PHASE_RESULT,
     PC_PHASE_RESET_NEXT
+};
+
+enum pc_game_mode {
+    PC_MODE_WORLD = 0,
+    PC_MODE_ENCOUNTER
+};
+
+enum pc_heading {
+    PC_HEADING_N = 0,
+    PC_HEADING_E,
+    PC_HEADING_S,
+    PC_HEADING_W
 };
 
 enum pc_throw_tier {
@@ -197,6 +230,55 @@ struct pc_encounter_state {
     enum pc_throw_tier last_tier;
     enum pc_catch_outcome outcome;
     int last_catch_chance;
+    bool finished;
+};
+
+struct pc_world_spawn {
+    bool active;
+    int species_index;
+    int x;
+    int y;
+    int step;
+    int dir_x;
+    int dir_y;
+};
+
+struct pc_world_command {
+    bool exit_requested;
+    int move_x;
+    int move_y;
+};
+
+struct pc_world_assets {
+    struct pc_asset_bitmap trainer[4][PC_WORLD_WALK_FRAMES];
+    struct pc_asset_bitmap creature[PC_WORLD_MAX_SPAWNS];
+};
+
+struct pc_world_state {
+    int frame;
+    int player_x;
+    int player_y;
+    int spawn_x;
+    int spawn_y;
+    int home_x;
+    int home_y;
+    int heading;
+    int walk_frame;
+    int walk_tick;
+    int last_encounter_slot;
+    int pending_species_index;
+    bool moving;
+    bool pending_encounter;
+    struct pc_message banner;
+    unsigned char tiles[PC_WORLD_H][PC_WORLD_W];
+    struct pc_world_assets assets;
+    struct pc_world_spawn spawns[PC_WORLD_MAX_SPAWNS];
+};
+
+struct pc_game_state {
+    enum pc_game_mode mode;
+    struct pc_world_state world;
+    struct pc_encounter_state encounter;
 };
 
 void pc_assets_init(struct pc_asset_provider *assets);
@@ -204,6 +286,9 @@ void pc_assets_teardown(struct pc_asset_provider *assets);
 const struct pc_creature_def *pc_assets_select_creature(struct pc_asset_provider *assets,
                                                         int species_index);
 int pc_assets_get_creature_count(void);
+const struct pc_creature_def *pc_assets_get_creature(int species_index);
+bool pc_assets_load_world_creature(struct pc_asset_bitmap *asset, int species_index);
+bool pc_assets_load_world_trainer(struct pc_asset_bitmap *asset, int heading, int frame);
 const char *pc_assets_source_label(const struct pc_asset_provider *assets);
 
 void pc_input_reset(struct pc_input_state *input);
@@ -229,11 +314,21 @@ enum pc_catch_outcome pc_catch_roll(const struct pc_creature_def *creature,
 const char *pc_throw_tier_label(enum pc_throw_tier tier);
 
 void pc_state_init(struct pc_encounter_state *state, bool simulator_debug);
+void pc_state_begin(struct pc_encounter_state *state, int species_index);
 void pc_state_cycle_species(struct pc_encounter_state *state, int delta);
 void pc_state_update(struct pc_encounter_state *state,
                      const struct pc_input_command *command,
                      const struct pc_throw_request *throw_request);
 
 void pc_render_frame(const struct pc_encounter_state *state);
+
+void pc_world_init(struct pc_world_state *world);
+void pc_world_teardown(struct pc_world_state *world);
+void pc_world_input_handle_event(long event, struct pc_world_command *command);
+void pc_world_update(struct pc_world_state *world, const struct pc_world_command *command);
+void pc_world_finish_encounter(struct pc_world_state *world,
+                               enum pc_catch_outcome outcome,
+                               int species_index);
+void pc_world_render_frame(const struct pc_world_state *world);
 
 #endif
