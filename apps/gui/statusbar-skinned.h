@@ -53,6 +53,7 @@ int sb_touch_to_button(int context);
 #endif
 
 int sb_get_backdrop(enum screen_type screen);
+bool sb_skin_theme_owns_fullscreen(enum screen_type screen);
 void sb_process(enum screen_type screen, struct wps_data *data, bool preprocess);
 
 void do_sbs_update_callback(unsigned short id, void *param);

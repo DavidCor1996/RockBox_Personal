@@ -10,12 +10,33 @@ void pc_world_input_handle_event(long event, struct pc_world_command *command)
         return;
     }
 
-    if ((event & BUTTON_LEFT) && !(event & BUTTON_REL))
-        command->move_x = -1;
-    else if ((event & BUTTON_RIGHT) && !(event & BUTTON_REL))
-        command->move_x = 1;
-    else if ((event & BUTTON_MENU) && !(event & BUTTON_REL))
-        command->move_y = -1;
-    else if ((event & BUTTON_PLAY) && !(event & BUTTON_REL))
-        command->move_y = 1;
+    if ((event & BUTTON_SELECT) && (event & BUTTON_REPEAT))
+    {
+        command->menu_requested = true;
+        return;
+    }
+
+    if ((event & BUTTON_SELECT) && !(event & (BUTTON_REPEAT | BUTTON_REL)))
+    {
+        command->confirm = true;
+        return;
+    }
+
+    if ((event & BUTTON_LEFT) && !(event & (BUTTON_REPEAT | BUTTON_REL)))
+    {
+        command->nav_x = -1;
+        command->back = true;
+    }
+    else if ((event & BUTTON_RIGHT) && !(event & (BUTTON_REPEAT | BUTTON_REL)))
+    {
+        command->nav_x = 1;
+    }
+    else if ((event & BUTTON_MENU) && !(event & (BUTTON_REPEAT | BUTTON_REL)))
+    {
+        command->nav_y = -1;
+    }
+    else if ((event & BUTTON_PLAY) && !(event & (BUTTON_REPEAT | BUTTON_REL)))
+    {
+        command->nav_y = 1;
+    }
 }

@@ -1,0 +1,255 @@
+Archive member included to satisfy reference by file (symbol)
+
+/home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(gcc-support.o)
+                              /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/keybox.o (memset)
+/home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(md5.o)
+                              /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/keybox.o (InitMD5)
+/home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(playback_control.o)
+                              /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/keybox.o (playback_control)
+/home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/lib/libsetjmp.a(setjmp.o)
+                              /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/plugin_crt0.o (setjmp)
+
+Discarded input sections
+
+ .text          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(gcc-support.o)
+ .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(gcc-support.o)
+ .bss           0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(gcc-support.o)
+ .text.__div0   0x0000000000000000       0x14 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(gcc-support.o)
+ .text.memcpy   0x0000000000000000       0x14 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(gcc-support.o)
+ .text.memmove  0x0000000000000000       0x14 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(gcc-support.o)
+ .text.memcmp   0x0000000000000000       0x14 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(gcc-support.o)
+ .text          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(md5.o)
+ .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(md5.o)
+ .bss           0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(md5.o)
+ .rodata.psz_md5_hash.str1.1
+                0x0000000000000000       0x11 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(md5.o)
+ .text.psz_md5_hash
+                0x0000000000000000       0x78 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(md5.o)
+ .text          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(playback_control.o)
+ .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(playback_control.o)
+ .bss           0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(playback_control.o)
+ .text.playback_control_init
+                0x0000000000000000       0x10 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(playback_control.o)
+ .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/lib/libsetjmp.a(setjmp.o)
+ .bss           0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/lib/libsetjmp.a(setjmp.o)
+
+Memory Configuration
+
+Name             Origin             Length             Attributes
+PLUGIN_RAM       0x0000000009dfc000 0x0000000000200000
+PLUGIN_IRAM      0x000000000000c000 0x0000000000014000
+*default*        0x0000000000000000 0xffffffffffffffff
+
+Linker script and memory map
+
+LOAD /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/keybox.o
+LOAD /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/plugin_crt0.o
+LOAD /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a
+LOAD /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/bitmaps/libpluginbitmaps.a
+LOAD /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/lib/libsetjmp.a
+LOAD /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/lib/libfixedpoint.a
+LOAD /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a
+
+.header         0x0000000009dfc000       0x1c
+                0x0000000009dfc000                _plugin_start_addr = .
+                0x0000000009dfc000                plugin_start_addr = .
+ *(.header)
+ .header        0x0000000009dfc000       0x1c /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/plugin_crt0.o
+                0x0000000009dfc000                __header
+
+.text           0x0000000009dfc01c     0x1f88
+ *(.text*)
+ .text          0x0000000009dfc01c      0xf38 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/keybox.o
+                0x0000000009dfc1ec                plugin_start
+ .text          0x0000000009dfcf54      0x1e0 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/plugin_crt0.o
+                0x0000000009dfcf6c                plugin__start
+                0x0000000009dfd098                rb_atexit
+                0x0000000009dfd0b8                exit
+                0x0000000009dfd0d4                _exit
+                0x0000000009dfd0e8                exit_on_usb
+ .text.memset   0x0000000009dfd134       0x14 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(gcc-support.o)
+                0x0000000009dfd134                memset
+ .text.DigestMD5
+                0x0000000009dfd148      0xa14 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(md5.o)
+ .text.InitMD5  0x0000000009dfdb5c       0x60 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(md5.o)
+                0x0000000009dfdb5c                InitMD5
+ .text.AddMD5   0x0000000009dfdbbc       0xf4 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(md5.o)
+                0x0000000009dfdbbc                AddMD5
+ .text.EndMD5   0x0000000009dfdcb0       0x8c /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(md5.o)
+                0x0000000009dfdcb0                EndMD5
+ .text.prevtrack
+                0x0000000009dfdd3c       0x20 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(playback_control.o)
+ .text.stop     0x0000000009dfdd5c       0x20 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(playback_control.o)
+ .text.nexttrack
+                0x0000000009dfdd7c       0x20 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(playback_control.o)
+ .text.volume   0x0000000009dfdd9c       0x48 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(playback_control.o)
+ .text.shuffle  0x0000000009dfdde4       0x50 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(playback_control.o)
+ .text.play     0x0000000009dfde34       0x84 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(playback_control.o)
+ .text.repeat_mode
+                0x0000000009dfdeb8       0x88 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(playback_control.o)
+ .text.playback_control
+                0x0000000009dfdf40       0x48 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(playback_control.o)
+                0x0000000009dfdf40                playback_control
+ .text          0x0000000009dfdf88       0x1c /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/lib/libsetjmp.a(setjmp.o)
+                0x0000000009dfdf88                setjmp
+                0x0000000009dfdf94                longjmp
+ *(.glue_7)
+ .glue_7        0x0000000009dfdfa4        0x0 linker stubs
+ *(.glue_7t)
+ .glue_7t       0x0000000009dfdfa4        0x0 linker stubs
+
+.vfp11_veneer   0x0000000009dfdfa4        0x0
+ .vfp11_veneer  0x0000000009dfdfa4        0x0 linker stubs
+
+.v4_bx          0x0000000009dfdfa4        0x0
+ .v4_bx         0x0000000009dfdfa4        0x0 linker stubs
+
+.iplt           0x0000000009dfdfa4        0x0
+ .iplt          0x0000000009dfdfa4        0x0 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/keybox.o
+
+.rodata         0x0000000009dfdfa4      0x2c0
+ *(.rodata*)
+ .rodata.str1.1
+                0x0000000009dfdfa4      0x18a /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/keybox.o
+                                        0x194 (size before relaxing)
+ *fill*         0x0000000009dfe12e        0x2 
+ .rodata        0x0000000009dfe130       0x40 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/keybox.o
+ .rodata.volume.str1.1
+                0x0000000009dfe170        0x7 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(playback_control.o)
+ .rodata.shuffle.str1.1
+                0x0000000009dfe177        0x8 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(playback_control.o)
+ .rodata.repeat_mode.str1.1
+                0x0000000009dfe17f        0x7 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(playback_control.o)
+ *fill*         0x0000000009dfe186        0x2 
+ .rodata.nexttrack_item
+                0x0000000009dfe188        0xc /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(playback_control.o)
+                0x0000000009dfe188                nexttrack_item
+ .rodata.nexttrack_item_
+                0x0000000009dfe194        0xc /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(playback_control.o)
+ .rodata.nexttrack_item__
+                0x0000000009dfe1a0        0x4 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(playback_control.o)
+ .rodata.playback_control_menu
+                0x0000000009dfe1a4        0xc /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(playback_control.o)
+                0x0000000009dfe1a4                playback_control_menu
+ .rodata.playback_control_menu__
+                0x0000000009dfe1b0        0xc /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(playback_control.o)
+ .rodata.playpause_item
+                0x0000000009dfe1bc        0xc /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(playback_control.o)
+                0x0000000009dfe1bc                playpause_item
+ .rodata.playpause_item_
+                0x0000000009dfe1c8        0xc /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(playback_control.o)
+ .rodata.playpause_item__
+                0x0000000009dfe1d4        0x4 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(playback_control.o)
+ .rodata.prevtrack_item
+                0x0000000009dfe1d8        0xc /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(playback_control.o)
+                0x0000000009dfe1d8                prevtrack_item
+ .rodata.prevtrack_item_
+                0x0000000009dfe1e4        0xc /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(playback_control.o)
+ .rodata.prevtrack_item__
+                0x0000000009dfe1f0        0x4 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(playback_control.o)
+ .rodata.repeat_mode_item
+                0x0000000009dfe1f4        0xc /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(playback_control.o)
+                0x0000000009dfe1f4                repeat_mode_item
+ .rodata.repeat_mode_item_
+                0x0000000009dfe200        0xc /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(playback_control.o)
+ .rodata.repeat_mode_item__
+                0x0000000009dfe20c        0x4 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(playback_control.o)
+ .rodata.shuffle_item
+                0x0000000009dfe210        0xc /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(playback_control.o)
+                0x0000000009dfe210                shuffle_item
+ .rodata.shuffle_item_
+                0x0000000009dfe21c        0xc /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(playback_control.o)
+ .rodata.shuffle_item__
+                0x0000000009dfe228        0x4 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(playback_control.o)
+ .rodata.stop_item
+                0x0000000009dfe22c        0xc /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(playback_control.o)
+                0x0000000009dfe22c                stop_item
+ .rodata.stop_item_
+                0x0000000009dfe238        0xc /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(playback_control.o)
+ .rodata.stop_item__
+                0x0000000009dfe244        0x4 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(playback_control.o)
+ .rodata.volume_item
+                0x0000000009dfe248        0xc /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(playback_control.o)
+                0x0000000009dfe248                volume_item
+ .rodata.volume_item_
+                0x0000000009dfe254        0xc /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(playback_control.o)
+ .rodata.volume_item__
+                0x0000000009dfe260        0x4 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(playback_control.o)
+
+.rel.dyn        0x0000000009dfe264        0x0
+ .rel.iplt      0x0000000009dfe264        0x0 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/keybox.o
+
+.data           0x0000000009dfe264       0x54
+ *(.data*)
+ .data          0x0000000009dfe264       0x34 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/keybox.o
+ .data          0x0000000009dfe298        0x4 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/plugin_crt0.o
+                0x0000000009dfe298                rb
+ .data.playback_control_menu_
+                0x0000000009dfe29c       0x1c /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(playback_control.o)
+
+.igot.plt       0x0000000009dfe2b8        0x0
+ .igot.plt      0x0000000009dfe2b8        0x0 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/keybox.o
+
+/DISCARD/
+ *(.eh_frame)
+
+.bss            0x0000000009dfe2b8     0x4f7c
+                0x0000000009dfe2b8                plugin_bss_start = .
+                0x0000000009dfe2b8                _plugin_bss_start = .
+ *(.bss*)
+ .bss           0x0000000009dfe2b8     0x4f18 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/keybox.o
+                0x0000000009e00a64                pw_list
+ .bss           0x0000000009e031d0       0x60 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/plugin_crt0.o
+ .bss.parentvp  0x0000000009e03230        0x4 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(playback_control.o)
+                0x0000000009e03230                parentvp
+ *(COMMON)
+                0x0000000009e03234                . = ALIGN (0x4)
+
+.pluginend      0x0000000009e03234        0x0
+                0x0000000009e03234                _plugin_end_addr = .
+                0x0000000009e03234                plugin_end_addr = .
+
+.iram           0x000000000000c000        0x0 load address 0x0000000009dfe2b8
+                0x000000000000c000                iramstart = .
+ *(.icode)
+ *(.irodata)
+ *(.idata)
+                0x000000000000c000                iramend = .
+                0x0000000009dfe2b8                iramcopy = LOADADDR (.iram)
+
+.ibss           0x000000000000c000        0x0
+                0x000000000000c000                iedata = .
+ *(.ibss)
+                0x000000000000c000                . = ALIGN (0x4)
+                0x000000000000c000                iend = .
+                0x0000000009e03234                loadendaddr = MAX (plugin_end_addr, (LOADADDR (.iram) + SIZEOF (.iram)))
+
+.pluginloadend  0x0000000009e03234        0x0
+                0x0000000009e03234                _plugin_load_end_addr = .
+                0x0000000009e03234                plugin_load_end_addr = .
+
+.comment        0x0000000000000000       0x11
+ *(.comment)
+ .comment       0x0000000000000000       0x11 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/keybox.o
+                                         0x12 (size before relaxing)
+ .comment       0x0000000000000011       0x12 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/plugin_crt0.o
+ .comment       0x0000000000000011       0x12 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(gcc-support.o)
+ .comment       0x0000000000000011       0x12 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(md5.o)
+ .comment       0x0000000000000011       0x12 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(playback_control.o)
+OUTPUT(/home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/keybox.elf elf32-littlearm)
+LOAD linker stubs
+
+.ARM.attributes
+                0x0000000000000000       0x2a
+ .ARM.attributes
+                0x0000000000000000       0x2c /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/keybox.o
+ .ARM.attributes
+                0x000000000000002c       0x2c /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/plugin_crt0.o
+ .ARM.attributes
+                0x0000000000000058       0x2c /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(gcc-support.o)
+ .ARM.attributes
+                0x0000000000000084       0x2c /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(md5.o)
+ .ARM.attributes
+                0x00000000000000b0       0x2c /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(playback_control.o)
+ .ARM.attributes
+                0x00000000000000dc       0x1c /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/lib/libsetjmp.a(setjmp.o)

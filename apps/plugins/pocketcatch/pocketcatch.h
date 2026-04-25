@@ -24,19 +24,19 @@
 #define PC_BALL_MAX_BYTES      (PC_BALL_MAX_W * PC_BALL_MAX_H * sizeof(fb_data))
 #define PC_BALL_SPIN_FRAMES    4
 #ifdef SIMULATOR
-#define PC_WORLD_CREATURE_MAX_W 32
-#define PC_WORLD_CREATURE_MAX_H 32
+#define PC_WORLD_CREATURE_MAX_W 36
+#define PC_WORLD_CREATURE_MAX_H 36
 #define PC_WORLD_TRAINER_MAX_W  30
 #define PC_WORLD_TRAINER_MAX_H  30
 #else
-#define PC_WORLD_CREATURE_MAX_W 28
-#define PC_WORLD_CREATURE_MAX_H 28
+#define PC_WORLD_CREATURE_MAX_W 32
+#define PC_WORLD_CREATURE_MAX_H 32
 #define PC_WORLD_TRAINER_MAX_W  28
 #define PC_WORLD_TRAINER_MAX_H  28
 #endif
 #define PC_WORLD_CREATURE_BYTES (PC_WORLD_CREATURE_MAX_W * PC_WORLD_CREATURE_MAX_H * sizeof(fb_data))
 #define PC_WORLD_TRAINER_BYTES  (PC_WORLD_TRAINER_MAX_W * PC_WORLD_TRAINER_MAX_H * sizeof(fb_data))
-#define PC_POKEDEX_MAX         64
+#define PC_POKEDEX_MAX         128
 
 #define PC_BANNER_LINE_CHARS   48
 #define PC_RESULT_HOLD_FRAMES  14
@@ -58,7 +58,7 @@
 #define PC_WORLD_ORIGIN_X      0
 #define PC_WORLD_ORIGIN_Y      (-28)
 #define PC_WORLD_MAX_SPAWNS    4
-#define PC_WORLD_STEP_PX       2
+#define PC_WORLD_STEP_PX       4
 #define PC_WORLD_WALK_FRAMES   3
 
 enum pc_phase {
@@ -250,9 +250,13 @@ struct pc_world_spawn {
 enum pc_world_scene {
     PC_WORLD_SCENE_PALLET = 0,
     PC_WORLD_SCENE_ROUTE1_SOUTH,
+    PC_WORLD_SCENE_VIRIDIAN_SOUTH,
+    PC_WORLD_SCENE_ROUTE2_SOUTH,
     PC_WORLD_SCENE_ROUTE21_NORTH,
+    PC_WORLD_SCENE_VIRIDIAN_MART,
     PC_WORLD_SCENE_HOUSE_1F,
-    PC_WORLD_SCENE_HOUSE_2F
+    PC_WORLD_SCENE_HOUSE_2F,
+    PC_WORLD_SCENE_OAKS_LAB
 };
 
 enum pc_world_view {
@@ -269,6 +273,10 @@ struct pc_world_command {
     bool back;
     int move_x;
     int move_y;
+    int hold_x;
+    int hold_y;
+    int release_x;
+    int release_y;
     int nav_x;
     int nav_y;
 };
@@ -294,6 +302,10 @@ struct pc_world_state {
     int heading;
     int walk_frame;
     int walk_tick;
+    int held_move_x;
+    int held_move_y;
+    int wheel_touch_x;
+    int wheel_touch_y;
     int step_dx;
     int step_dy;
     int step_remaining;
@@ -314,6 +326,7 @@ struct pc_world_state {
     struct pc_message detail;
     unsigned char tiles[PC_WORLD_H][PC_WORLD_W];
     unsigned short caught_counts[PC_POKEDEX_MAX];
+    unsigned short family_candy[PC_POKEDEX_MAX];
     struct pc_world_assets assets;
     struct pc_world_spawn spawns[PC_WORLD_MAX_SPAWNS];
 };
@@ -329,7 +342,13 @@ void pc_assets_teardown(struct pc_asset_provider *assets);
 const struct pc_creature_def *pc_assets_select_creature(struct pc_asset_provider *assets,
                                                         int species_index);
 int pc_assets_get_creature_count(void);
+int pc_assets_get_total_creature_count(void);
 const struct pc_creature_def *pc_assets_get_creature(int species_index);
+int pc_assets_find_species_index(int species_id);
+int pc_assets_get_family_index(int species_index);
+int pc_assets_get_evolution_target(int species_index);
+int pc_assets_get_evolution_cost(int species_index);
+int pc_assets_get_catch_candy(int species_index);
 bool pc_assets_load_world_creature(struct pc_asset_bitmap *asset, int species_index);
 bool pc_assets_load_world_trainer(struct pc_asset_bitmap *asset, int heading, int frame);
 const char *pc_assets_source_label(const struct pc_asset_provider *assets);

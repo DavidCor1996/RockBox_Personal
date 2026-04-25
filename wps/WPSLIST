@@ -104,6 +104,42 @@ backlight on button hold: on
 </theme>
 
 <theme>
+Name: iPone_nano3g
+Authors: iPone nano 3G port by local build, based on iPone/iClassic work
+WPS: yes
+SBS: yes
+FMS: yes
+RWPS: no
+RSBS: no
+RFMS: no
+
+<main>
+wps.320x240x(16|24|32): iPone_nano3g.wps
+sbs.320x240x(16|24|32): iPone_nano3g.sbs
+fms.320x240x(16|24|32): iPone_nano3g.fms
+font.320x240x(16|24|32): 15-Adobe-Helvetica.fnt
+backdrop: -
+background color: 100F16
+foreground color: F7F4FA
+line selector start color: 2B2234
+line selector end color: 9D7AE6
+line selector text color: FCF9FF
+list separator color: 1A1621
+selector type: bar (gradient)
+scrollbar: off
+show icons: on
+statusbar: off
+ui viewport: -
+iconset: icons/iPone_nano3g.bmp
+viewers iconset: -
+battery display: graphic
+album art: prefer image file
+filetype colours: -
+backlight on button hold: normal
+</main>
+</theme>
+
+<theme>
 Name: cabbiev2
 # Real name of the creator of the WPS
 Authors: Johannes Voggenthaler, Apoo Maha, Marc Guay, Alex Vanderpol, Jerry Lange, Keith Perri, Mark Fawcus, and Marianne Arnold with support from Rockbox developers and forums. Based on Cabbie by Yohann Misquitta.

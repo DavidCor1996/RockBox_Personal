@@ -1,0 +1,60 @@
+
+Memory Configuration
+
+Name             Origin             Length             Attributes
+IRAM             0x0000000022000000 0x0000000000001000 xrw
+*default*        0x0000000000000000 0xffffffffffffffff
+
+Linker script and memory map
+
+LOAD /tmp/cc6Y6x76.o
+                0x0000000022000000                . = ORIGIN (IRAM)
+
+.text           0x0000000022000000       0x18
+ *(.text)
+ .text          0x0000000022000000       0x18 /tmp/cc6Y6x76.o
+                0x0000000022000000                _start
+ *(.text*)
+ *(.rodata*)
+
+.glue_7         0x0000000022000018        0x0
+ .glue_7        0x0000000022000018        0x0 linker stubs
+
+.glue_7t        0x0000000022000018        0x0
+ .glue_7t       0x0000000022000018        0x0 linker stubs
+
+.vfp11_veneer   0x0000000022000018        0x0
+ .vfp11_veneer  0x0000000022000018        0x0 linker stubs
+
+.v4_bx          0x0000000022000018        0x0
+ .v4_bx         0x0000000022000018        0x0 linker stubs
+
+.iplt           0x0000000022000018        0x0
+ .iplt          0x0000000022000018        0x0 /tmp/cc6Y6x76.o
+
+.rel.dyn        0x0000000022000018        0x0
+ .rel.iplt      0x0000000022000018        0x0 /tmp/cc6Y6x76.o
+
+.data           0x0000000022000018        0x4
+ *(.data*)
+ .data          0x0000000022000018        0x4 /tmp/cc6Y6x76.o
+
+.igot.plt       0x000000002200001c        0x0
+ .igot.plt      0x000000002200001c        0x0 /tmp/cc6Y6x76.o
+
+.bss            0x000000002200001c        0x0
+ *(.bss*)
+ .bss           0x000000002200001c        0x0 /tmp/cc6Y6x76.o
+ *(COMMON)
+
+/DISCARD/
+ *(.comment)
+ *(.note*)
+ *(.eh_frame*)
+OUTPUT(ram-mutate-loop-n3g.elf elf32-littlearm)
+LOAD linker stubs
+
+.ARM.attributes
+                0x0000000000000000       0x22
+ .ARM.attributes
+                0x0000000000000000       0x22 /tmp/cc6Y6x76.o

@@ -22,6 +22,7 @@
 #include "config.h"
 
 #include "lcd-s5l8702.h"
+#include "bringup-nano3g.h"
 #ifdef BOOTLOADER
 #include "piezo.h"
 #endif
@@ -374,6 +375,8 @@ struct lcd_info_rec* lcd_target_get_info(void)
     int type = LCD_TYPE_UNKNOWN;
     int retry = 3;
 
+    nano3g_boottrace_log("lcd detect start");
+
     while (retry--)
     {
         lcd_read_display_id(LCD_MPUIFACE_PAR9, &lcd_id[0]);         // TODO?: MPUIFACE_PAR9
@@ -392,6 +395,7 @@ struct lcd_info_rec* lcd_target_get_info(void)
 
         if (type != LCD_TYPE_UNKNOWN)
         {
+            nano3g_boottrace_log("lcd detect ok");
             lcd_info.lcd_type = type;
             //lcd_info.mpuiface = LCD_MPUIFACE_PAR9;
 #if defined(HAVE_LCD_SLEEP) || defined(HAVE_LCD_SHUTDOWN)
@@ -407,13 +411,7 @@ struct lcd_info_rec* lcd_target_get_info(void)
         }
     }
 
-#ifdef BOOTLOADER
-    while (1) {
-        uint16_t fatal[] = { 3000,500,500, 0 };
-        piezo_seq(fatal);
-    }
-#else
-    /* should not happen */
-    while (1);    // TODO?: what to do? poweroff?
-#endif
+    nano3g_boottrace_log("lcd detect fail");
+    nano3g_failsafe_halt("unknown LCD panel");
+    return &lcd_info;
 }

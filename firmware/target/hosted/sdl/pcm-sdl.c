@@ -79,6 +79,114 @@ static SDL_AudioSpec obtained;
 static SDL_AudioCVT cvt;
 static int audio_locked = 0;
 static SDL_mutex *audio_lock;
+static bool sdl_audio_opened = false;
+static bool sdl_audio_simulated = false;
+static bool sim_pcm_playing = false;
+static bool sim_thread_exit = false;
+static SDL_Thread *sim_thread = NULL;
+static size_t sim_total_bytes = 0;
+static unsigned long sim_last_report_ms = 0;
+
+#define SIM_PCM_TICK_MS 10
+
+static void pcm_simulated_consume(size_t bytes)
+{
+    bool new_buffer = false;
+    const size_t req_bytes = bytes;
+
+    while (bytes > 0)
+    {
+        if (pcm_data_size == 0)
+        {
+            new_buffer = pcm_play_dma_complete_callback(PCM_DMAST_OK, &pcm_data,
+                                                        &pcm_data_size);
+            if (!new_buffer)
+                break;
+        }
+
+        if (new_buffer)
+        {
+            pcm_play_dma_status_callback(PCM_DMAST_STARTED);
+            new_buffer = false;
+        }
+
+        size_t consumed = MIN(bytes, pcm_data_size);
+        pcm_data += consumed;
+        pcm_data_size -= consumed;
+        bytes -= consumed;
+    }
+
+    sim_total_bytes += req_bytes - bytes;
+
+    if (pcm_sampr > 0 && pcm_sample_bytes > 0)
+    {
+        size_t bytes_per_sec = (size_t)pcm_sampr * pcm_sample_bytes;
+        unsigned long elapsed_ms = (unsigned long)((sim_total_bytes * 1000) /
+                                                   bytes_per_sec);
+
+        if (elapsed_ms >= sim_last_report_ms + 1000)
+        {
+            sim_last_report_ms = elapsed_ms;
+            printf("pcm-sdl(sim): elapsed=%lums bytes=%zu\n",
+                   elapsed_ms, sim_total_bytes);
+        }
+    }
+}
+
+static int sdl_pcm_simulator_thread(void *unused)
+{
+    (void)unused;
+
+    while (!sim_thread_exit)
+    {
+        SDL_Delay(SIM_PCM_TICK_MS);
+
+        if (!sim_pcm_playing)
+            continue;
+
+        pcm_play_lock();
+
+        size_t bytes_per_tick = ((size_t)pcm_sampr * pcm_sample_bytes *
+                                 SIM_PCM_TICK_MS) / 1000;
+        if (bytes_per_tick == 0)
+            bytes_per_tick = pcm_sample_bytes;
+
+        pcm_simulated_consume(bytes_per_tick);
+
+        pcm_play_unlock();
+    }
+
+    return 0;
+}
+
+static void pcm_sdl_shutdown(void)
+{
+    sim_pcm_playing = false;
+    sim_thread_exit = true;
+
+    if (sim_thread)
+    {
+        SDL_WaitThread(sim_thread, NULL);
+        sim_thread = NULL;
+    }
+
+#if SDL_MAJOR_VERSION > 1
+    if (pcm_devid)
+    {
+        SDL_CloseAudioDevice(pcm_devid);
+        pcm_devid = 0;
+    }
+#else
+    if (sdl_audio_opened)
+        SDL_CloseAudio();
+#endif
+
+    if (audio_lock)
+    {
+        SDL_DestroyMutex(audio_lock);
+        audio_lock = NULL;
+    }
+}
 
 void pcm_play_lock(void)
 {
@@ -111,6 +219,8 @@ static void pcm_dma_apply_settings_nolock(void)
     if (pcm_devid)
         SDL_CloseAudioDevice(pcm_devid);
 
+    pcm_devid = 0;
+
     /* pulseaudio seems to be happier with smaller buffers */
     if (!strcmp("pulseaudio", SDL_GetCurrentAudioDriver()))
         wanted_spec.samples = MIX_FRAME_SAMPLES;
@@ -118,13 +228,23 @@ static void pcm_dma_apply_settings_nolock(void)
 
     /* Open the audio device and start playing sound! */
 #if SDL_MAJOR_VERSION > 1
-    if((pcm_devid = SDL_OpenAudioDevice(audiodev, 0, &wanted_spec, &obtained, SDL_AUDIO_ALLOW_SAMPLES_CHANGE)) == 0) {
+    if((pcm_devid = SDL_OpenAudioDevice(audiodev, 0, &wanted_spec, &obtained,
+                                        SDL_AUDIO_ALLOW_SAMPLES_CHANGE)) == 0) {
 #else
     if(SDL_OpenAudio(&wanted_spec, &obtained) < 0) {
 #endif
-        panicf("Unable to open audio: %s", SDL_GetError());
+        DEBUGF("SDL audio open failed, using simulated PCM sink: %s\n",
+               SDL_GetError());
+        logf("pcm-sdl: sim sink enabled");
+        sdl_audio_opened = false;
+        sdl_audio_simulated = true;
+        pcm_channel_bytes = 2;
+        pcm_sample_bytes = 4;
         return;
     }
+
+    sdl_audio_opened = true;
+    sdl_audio_simulated = false;
 
     switch (obtained.format)
     {
@@ -172,6 +292,19 @@ void pcm_play_dma_start(const void *addr, size_t size)
 {
     pcm_data = addr;
     pcm_data_size = size;
+    sim_total_bytes = 0;
+    sim_last_report_ms = 0;
+
+    logf("pcm-sdl: dma start size=%zu sim=%d", size, sdl_audio_simulated ? 1 : 0);
+
+    if (sdl_audio_simulated)
+    {
+        sim_pcm_playing = true;
+        return;
+    }
+
+    if (!sdl_audio_opened)
+        return;
 
 #if SDL_MAJOR_VERSION > 1
     SDL_PauseAudioDevice(pcm_devid, 0);
@@ -182,12 +315,23 @@ void pcm_play_dma_start(const void *addr, size_t size)
 
 void pcm_play_dma_stop(void)
 {
+    logf("pcm-sdl: dma stop");
+
+    sim_total_bytes = 0;
+    sim_last_report_ms = 0;
+
+    sim_pcm_playing = false;
+
+    if (!sdl_audio_opened)
+        goto debug_close;
+
 #if SDL_MAJOR_VERSION > 1
     SDL_PauseAudioDevice(pcm_devid, 1);
 #else
     SDL_PauseAudio(1);
 #endif
 
+debug_close:
 #ifdef DEBUG
     if (udata.debug != NULL) {
         fclose(udata.debug);
@@ -425,6 +569,21 @@ void pcm_play_dma_init(void)
         panicf("Could not create audio_lock");
         return;
     }
+
+    sdl_audio_opened = false;
+    sdl_audio_simulated = false;
+    sim_pcm_playing = false;
+    sim_thread_exit = false;
+
+    sim_thread = SDL_CreateThread(sdl_pcm_simulator_thread,
+                                  "pcm-sdl-sim", NULL);
+    if (!sim_thread)
+    {
+        panicf("Could not create pcm-sdl sim thread");
+        return;
+    }
+
+    atexit(pcm_sdl_shutdown);
 
 #ifdef DEBUG
     udata.debug = NULL;

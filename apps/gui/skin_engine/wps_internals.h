@@ -180,6 +180,7 @@ struct gradient_config {
 #define VP_DRAW_HIDEABLE    0x1
 #define VP_DRAW_HIDDEN      0x2
 #define VP_DRAW_WASHIDDEN   0x4
+#define VP_DRAW_ACTIVE      0x10
 /* these are never drawn, nor cleared, i.e. just ignored */
 #define VP_NEVER_VISIBLE    0x8
 #ifndef __PCTOOL__

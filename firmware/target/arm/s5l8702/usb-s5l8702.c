@@ -30,6 +30,7 @@
 #include "s5l87xx.h"
 #include "clocking-s5l8702.h"
 #include "usb-designware.h"
+#include "ipodnano3g/bringup-nano3g.h"
 
 
 const struct usb_dw_config usb_dw_config =
@@ -51,6 +52,11 @@ const struct usb_dw_config usb_dw_config =
 
 void usb_dw_target_enable_clocks()
 {
+#if defined(IPOD_NANO3G)
+    if (nano3g_safe_mode_enabled())
+        return;
+#endif
+
     clockgate_enable(CLOCKGATE_USBOTG, true);
     clockgate_enable(CLOCKGATE_USBPHY, true);
 
@@ -69,6 +75,11 @@ void usb_dw_target_enable_clocks()
 
 void usb_dw_target_disable_clocks()
 {
+#if defined(IPOD_NANO3G)
+    if (nano3g_safe_mode_enabled())
+        return;
+#endif
+
 #if (CONFIG_CPU == S5L8702)
     OPHYPWR = 0xf;  /* PHY: Power down */
     udelay(10);
@@ -86,11 +97,21 @@ void usb_dw_target_disable_clocks()
 
 void usb_dw_target_enable_irq()
 {
+#if defined(IPOD_NANO3G)
+    if (nano3g_safe_mode_enabled())
+        return;
+#endif
+
     VICINTENABLE(IRQ_USB_FUNC >> 5) = 1 << (IRQ_USB_FUNC & 0x1f);
 }
 
 void usb_dw_target_disable_irq()
 {
+#if defined(IPOD_NANO3G)
+    if (nano3g_safe_mode_enabled())
+        return;
+#endif
+
     VICINTENCLEAR(IRQ_USB_FUNC >> 5) = 1 << (IRQ_USB_FUNC & 0x1f);
 }
 
@@ -104,6 +125,11 @@ static int usb_status = USB_EXTRACTED;
 void usb_enable(bool on)
 {
 #ifdef HAVE_USBSTACK
+#if defined(IPOD_NANO3G)
+    if (nano3g_safe_mode_enabled())
+        return;
+#endif
+
     if (on) usb_core_init();
     else usb_core_exit();
 #else
@@ -134,6 +160,14 @@ void usb_remove_int(void)
 
 void usb_init_device(void)
 {
+#if defined(IPOD_NANO3G)
+    if (nano3g_safe_mode_enabled())
+    {
+        usb_status = USB_EXTRACTED;
+        return;
+    }
+#endif
+
     /* Power up the core clocks to allow writing
        to some registers needed to power it down */
     usb_dw_target_disable_irq();

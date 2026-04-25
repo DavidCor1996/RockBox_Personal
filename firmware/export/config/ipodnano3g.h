@@ -4,6 +4,10 @@
 
 #define IPOD_ARCH 1
 
+/* Nano 3G hardware bring-up guard:
+ * keep all target-specific hardware writes disabled until explicitly lifted. */
+#define NAN03G_SAFE_BRINGUP 1
+
 /* For Rolo and boot loader */
 #define MODEL_NUMBER 117
 
@@ -124,8 +128,7 @@
 
 // TODO
 /* define this if you have a real-time clock */
-//#define CONFIG_RTC RTC_NANO3G
-#define CONFIG_RTC  0
+#define CONFIG_RTC RTC_NANO3G
 
 /* Define if the device can wake from an RTC alarm */
 //#define HAVE_RTC_ALARM
@@ -153,7 +156,10 @@
 #define CODEC_SIZE 0x100000
 
 /* The number of bytes reserved for loadable plugins */
-#define PLUGIN_BUFFER_SIZE 0x80000
+/* Raised from 0x80000 to 0x200000: Nano 3G has 32 MB RAM (same as iPod 6G);
+ * 512 KB was too small for cdogs.rock (~668 KB data). 2 MB is conservative
+ * and leaves ~29 MB for the audio buffer. */
+#define PLUGIN_BUFFER_SIZE 0x200000
 
 // TODO: actually these are the nano2g defines
 #define BATTERY_CAPACITY_DEFAULT 400 /* default battery capacity */

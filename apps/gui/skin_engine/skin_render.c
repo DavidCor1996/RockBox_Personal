@@ -198,7 +198,7 @@ static bool do_non_text_tags(struct gui_wps *gwps, struct skin_draw_info *info,
         case SKIN_TOKEN_VIEWPORT_ENABLE:
         {
             char *label = SKINOFFSETTOPTR(skin_buffer, token->value.data);
-            char temp = VP_DRAW_HIDEABLE;
+            char temp = VP_DRAW_HIDEABLE | VP_DRAW_ACTIVE;
             struct skin_element *viewport = SKINOFFSETTOPTR(skin_buffer, gwps->data->tree);
             while (viewport)
             {
@@ -509,7 +509,7 @@ static void do_tags_in_hidden_conditional(struct skin_element* branch,
                             gwps->display->clear_viewport();
                             gwps->display->set_viewport_ex(&info->skin_vp->vp, VP_FLAG_VP_SET_CLEAN);
 #endif
-                            skin_viewport->hidden_flags |= VP_DRAW_HIDDEN;
+                            skin_viewport->hidden_flags = VP_DRAW_HIDEABLE | VP_DRAW_HIDDEN;
                         }
                     }
                 }
@@ -992,6 +992,15 @@ void skin_render(struct gui_wps *gwps, unsigned refresh_mode)
          viewport;
          viewport = SKINOFFSETTOPTR(skin_buffer, viewport->next))
     {
+        skin_viewport = SKINOFFSETTOPTR(skin_buffer, viewport->data);
+        if (skin_viewport && (skin_viewport->hidden_flags & VP_DRAW_HIDEABLE))
+            skin_viewport->hidden_flags &= ~VP_DRAW_ACTIVE;
+    }
+
+    for (viewport = SKINOFFSETTOPTR(skin_buffer, data->tree);
+         viewport;
+         viewport = SKINOFFSETTOPTR(skin_buffer, viewport->next))
+    {
 
         /* SETUP */
         skin_viewport = SKINOFFSETTOPTR(skin_buffer, viewport->data);
@@ -1025,6 +1034,35 @@ void skin_render(struct gui_wps *gwps, unsigned refresh_mode)
         {   /* don't draw anything into this one */
             vp_refresh_mode = 0;
         }
+        else if ((skin_viewport->hidden_flags & VP_DRAW_HIDEABLE) &&
+                 !(skin_viewport->hidden_flags & VP_DRAW_ACTIVE))
+        {
+#if (LCD_DEPTH > 1) || (defined(HAVE_REMOTE_LCD) && (LCD_REMOTE_DEPTH > 1))
+            if (skin_viewport->output_to_backdrop_buffer)
+            {
+                skin_backdrop_set_buffer(data->backdrop_id, skin_viewport);
+                skin_backdrop_show(-1);
+            }
+#endif
+            if (!(skin_viewport->hidden_flags & VP_DRAW_HIDDEN))
+            {
+                display->set_viewport_ex(&skin_viewport->vp, VP_FLAG_VP_SET_CLEAN);
+#if defined(HAVE_ALBUMART) && defined(HAVE_LCD_COLOR)
+                skin_viewport->vp.bg_pattern =
+                    dynamic_colors_resolve(skin_viewport->dc_orig_bg);
+#endif
+                display->clear_viewport();
+            }
+#if (LCD_DEPTH > 1) || (defined(HAVE_REMOTE_LCD) && (LCD_REMOTE_DEPTH > 1))
+            if (skin_viewport->output_to_backdrop_buffer)
+            {
+                skin_backdrop_set_buffer(-1, skin_viewport);
+                skin_backdrop_show(data->backdrop_id);
+            }
+#endif
+            skin_viewport->hidden_flags = VP_DRAW_HIDEABLE | VP_DRAW_HIDDEN;
+            continue;
+        }
         else if ((skin_viewport->hidden_flags&VP_DRAW_HIDDEN))
         {
             skin_viewport->hidden_flags |= VP_DRAW_WASHIDDEN;
@@ -1033,7 +1071,7 @@ void skin_render(struct gui_wps *gwps, unsigned refresh_mode)
         else if ((skin_viewport->hidden_flags & vp_is_appearing) == vp_is_appearing)
         {
             vp_refresh_mode = SKIN_REFRESH_ALL;
-            skin_viewport->hidden_flags = VP_DRAW_HIDEABLE;
+            skin_viewport->hidden_flags = VP_DRAW_HIDEABLE | VP_DRAW_ACTIVE;
         }
 
         display->set_viewport_ex(&skin_viewport->vp, VP_FLAG_VP_SET_CLEAN);

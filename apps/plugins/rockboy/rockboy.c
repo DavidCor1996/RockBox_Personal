@@ -34,7 +34,7 @@ bool rockboy_return_to_launcher;
 
 #define ROCKBOY_LAUNCHER_PATH PLUGIN_GAMES_DIR "/rockboy_launcher.rock"
 
-#define optionname "options"
+#define optionname ROCKBOY_OPTIONS_FILE
 
 void die(char *message, ...)
 {
@@ -511,6 +511,10 @@ static void rockboy_set_default_options(void)
         options.control_preset = ROCKBOY_CTRL_CLASSIC;
         options.performance_preset = ROCKBOY_PERF_BALANCED;
         options.profile = ROCKBOY_PROFILE_OFF;
+
+#if CONFIG_KEYPAD == IPOD_4G_PAD && defined(IPOD_VIDEO)
+        options.autosave = 1;
+#endif
 }
 
 void rockboy_apply_performance_preset(int preset)

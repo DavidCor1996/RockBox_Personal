@@ -14,7 +14,7 @@ if [ "$#" -lt 1 ]; then
     exit 1
 fi
 
-species_ids=(1 4 7 10 13 16 19 21 25 29 32 35 39 43 52 54 58 60 63 66 69 74 79 81 92 96 104 111 118 120 129 133)
+species_ids=(1 4 7 10 13 16 19 21 23 25 27 29 32 35 39 41 43 46 48 52 54 58 60 63 66 69 74 79 81 84 92 96 98 104 109 111 113 116 118 120 123 129 133)
 species_names=(
     "Bulbasaur"
     "Charmander"
@@ -24,12 +24,17 @@ species_names=(
     "Pidgey"
     "Rattata"
     "Spearow"
+    "Ekans"
     "Pikachu"
+    "Sandshrew"
     "NidoranF"
     "NidoranM"
     "Clefairy"
     "Jigglypuff"
+    "Zubat"
     "Oddish"
+    "Paras"
+    "Venonat"
     "Meowth"
     "Psyduck"
     "Growlithe"
@@ -40,19 +45,33 @@ species_names=(
     "Geodude"
     "Slowpoke"
     "Magnemite"
+    "Doduo"
     "Gastly"
     "Drowzee"
+    "Krabby"
     "Cubone"
+    "Koffing"
     "Rhyhorn"
+    "Chansey"
+    "Horsea"
     "Goldeen"
     "Staryu"
+    "Scyther"
     "Magikarp"
     "Eevee"
 )
-species_rates=(0.62 0.47 0.38 0.78 0.76 0.73 0.76 0.72 0.54 0.62 0.62 0.52 0.60 0.70 0.64 0.71 0.50 0.70 0.43 0.65 0.69 0.71 0.72 0.60 0.56 0.67 0.69 0.45 0.72 0.70 0.91 0.48)
-species_ids+=(152 155 158 161 163 167 172 179 183 194 200)
-species_names+=("Chikorita" "Cyndaquil" "Totodile" "Sentret" "Hoothoot" "Spinarak" "Pichu" "Mareep" "Marill" "Wooper" "Misdreavus")
-species_rates+=(0.54 0.45 0.43 0.71 0.62 0.70 0.69 0.56 0.69 0.68 0.45)
+species_rates=(0.62 0.47 0.38 0.78 0.76 0.73 0.76 0.72 0.64 0.54 0.68 0.62 0.62 0.52 0.60 0.72 0.70 0.68 0.66 0.64 0.71 0.50 0.70 0.43 0.65 0.69 0.71 0.72 0.60 0.72 0.56 0.67 0.72 0.69 0.58 0.45 0.30 0.72 0.72 0.70 0.48 0.91 0.48)
+species_ids+=(152 155 158 161 163 165 167 170 172 177 179 183 187 190 194 200 218)
+species_names+=("Chikorita" "Cyndaquil" "Totodile" "Sentret" "Hoothoot" "Ledyba" "Spinarak" "Chinchou" "Pichu" "Natu" "Mareep" "Marill" "Hoppip" "Aipom" "Wooper" "Misdreavus" "Slugma")
+species_rates+=(0.54 0.45 0.43 0.71 0.62 0.66 0.70 0.62 0.69 0.68 0.56 0.69 0.72 0.62 0.68 0.45 0.58)
+extra_species_ids=(2 3 5 6 8 9 11 12 14 15 17 18 20 22 24 26 28 30 31 33 34 36 40 44 45 47 49 53 55 59 61 62 70 71 97 99 105 110 112 119 121 130 153 154 156 157 159 160 162 164 166 168 171 178 180 181 184 188 189 195 219)
+extra_species_names=("Ivysaur" "Venusaur" "Charmeleon" "Charizard" "Wartortle" "Blastoise" "Metapod" "Butterfree" "Kakuna" "Beedrill" "Pidgeotto" "Pidgeot" "Raticate" "Fearow" "Arbok" "Raichu" "Sandslash" "Nidorina" "Nidoqueen" "Nidorino" "Nidoking" "Clefable" "Wigglytuff" "Gloom" "Vileplume" "Parasect" "Venomoth" "Persian" "Golduck" "Arcanine" "Poliwhirl" "Poliwrath" "Weepinbell" "Victreebel" "Hypno" "Kingler" "Marowak" "Weezing" "Rhydon" "Seaking" "Starmie" "Gyarados" "Bayleef" "Meganium" "Quilava" "Typhlosion" "Croconaw" "Feraligatr" "Furret" "Noctowl" "Ledian" "Ariados" "Lanturn" "Xatu" "Flaaffy" "Ampharos" "Azumarill" "Skiploom" "Jumpluff" "Quagsire" "Magcargo")
+
+for i in "${!extra_species_ids[@]}"; do
+    species_ids+=("${extra_species_ids[$i]}")
+    species_names+=("${extra_species_names[$i]}")
+    species_rates+=(0.36)
+done
 
 if command -v magick >/dev/null 2>&1; then
     IM_CMD=(magick)

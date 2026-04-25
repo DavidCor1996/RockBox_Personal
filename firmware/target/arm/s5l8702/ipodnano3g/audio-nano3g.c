@@ -22,6 +22,37 @@
 #include "cpu.h"
 #include "audio.h"
 #include "sound.h"
+#include "logf.h"
+
+/*
+ * Nano 3G playback output scaffold.
+ *
+ * These hooks intentionally avoid touching hardware registers until the real
+ * DAC/power/clock path is confirmed on device. They are called by the shared
+ * S5L8702 PCM driver for Nano 3G builds only.
+ */
+void ipodnano3g_audio_output_init(void)
+{
+    logf("nano3g audio scaffold: init");
+}
+
+void ipodnano3g_audio_output_start(const void *addr, size_t size)
+{
+    (void)addr;
+    (void)size;
+    logf("nano3g audio scaffold: start");
+}
+
+void ipodnano3g_audio_output_stop(void)
+{
+    logf("nano3g audio scaffold: stop");
+}
+
+void ipodnano3g_audio_output_submit(const void *addr, size_t size)
+{
+    (void)addr;
+    (void)size;
+}
 
 
 #if INPUT_SRC_CAPS != 0

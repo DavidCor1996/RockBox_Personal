@@ -23,6 +23,7 @@
  ****************************************************************************/
 
 #include "config.h"
+#include "sim_tasks.h"
 #include "kernel.h"
 #include "screendump.h"
 #include "thread.h"
@@ -30,7 +31,6 @@
 #include "usb.h"
 #include "mv.h"
 #include "ata_idle_notify.h"
-#include <stdlib.h>
 
 #ifdef WIN32
 #include <windows.h>
@@ -41,8 +41,6 @@ static long sim_thread_stack[DEFAULT_STACK_SIZE/sizeof(long)];
             /* stack isn't actually used in the sim */
 static const char sim_thread_name[] = "sim";
 static struct event_queue sim_queue;
-static long preview_dump_interval = 0;
-static long preview_dump_last_tick = 0;
 
 /* possible events for the sim thread */
 enum {
@@ -64,20 +62,13 @@ void sim_thread(void)
     struct queue_event ev;
     long last_broadcast_tick = current_tick;
     int num_acks_to_expect = 0;
-    long queue_timeout = preview_dump_interval > 0 ? HZ/5 : 5*HZ;
 
     while (1)
     {
-        queue_wait_w_tmo(&sim_queue, &ev, queue_timeout);
+        queue_wait_w_tmo(&sim_queue, &ev, 5*HZ);
         switch(ev.id)
         {
             case SYS_TIMEOUT:
-                if (preview_dump_interval > 0 &&
-                    TIME_AFTER(current_tick, preview_dump_last_tick + preview_dump_interval))
-                {
-                    screen_dump();
-                    preview_dump_last_tick = current_tick;
-                }
                 call_storage_idle_notifys(false);
                 break;
 
@@ -144,20 +135,7 @@ void sim_thread(void)
 
 void sim_tasks_init(void)
 {
-    const char *preview_path = getenv("ROCKPOD_SIM_PREVIEW_BMP");
-    if (preview_path && *preview_path)
-    {
-        const char *interval = getenv("ROCKPOD_SIM_PREVIEW_INTERVAL_MS");
-        long interval_ms = interval && *interval ? strtol(interval, NULL, 10) : 200;
-        if (interval_ms < 16)
-            interval_ms = 16;
-        if (interval_ms > 5000)
-            interval_ms = 5000;
-        preview_dump_interval = HZ * interval_ms / 1000;
-        if (preview_dump_interval < 1)
-            preview_dump_interval = 1;
-        preview_dump_last_tick = 0;
-    }
+    sim_power_set_usb_online(false);
 
     queue_init(&sim_queue, false);
 
@@ -197,18 +175,79 @@ void sim_trigger_lo(bool inserted)
 #endif
 
 static bool is_usb_inserted;
-void sim_trigger_usb(bool inserted)
+static bool is_usb_host_connected;
+static bool is_usb_powered_only;
+
+bool sim_usb_inserted(void)
 {
-    int usbmode = -1;
-    if (inserted)
+    return is_usb_inserted;
+}
+
+bool sim_usb_powered_only(void)
+{
+    return is_usb_powered_only;
+}
+
+void sim_trigger_usb_powered_only(bool enabled)
+{
+    int usbmode;
+
+    if (is_usb_powered_only == enabled)
+        return;
+
+    is_usb_powered_only = enabled;
+
+    if (!is_usb_inserted)
+        return;
+
+    if (enabled)
     {
+        if (is_usb_host_connected)
+        {
+            send_event(SYS_EVENT_USB_EXTRACTED, NULL);
+            queue_post(&sim_queue, SIM_USB_EXTRACTED, 0);
+            is_usb_host_connected = false;
+        }
+    }
+    else
+    {
+        usbmode = USB_MODE_MASS_STORAGE;
         send_event(SYS_EVENT_USB_INSERTED, &usbmode);
         queue_post(&sim_queue, SIM_USB_INSERTED, 0);
+        is_usb_host_connected = true;
+    }
+}
+
+void sim_trigger_usb(bool inserted)
+{
+    int usbmode;
+
+    sim_power_set_usb_online(inserted);
+
+    if (!inserted)
+        is_usb_powered_only = false;
+
+    if (inserted)
+    {
+        usbmode = is_usb_powered_only ? USB_MODE_CHARGE : USB_MODE_MASS_STORAGE;
+
+        send_event(SYS_EVENT_USB_INSERTED, &usbmode);
+        if (!is_usb_powered_only)
+        {
+            queue_post(&sim_queue, SIM_USB_INSERTED, 0);
+            is_usb_host_connected = true;
+        }
+        else
+        {
+            is_usb_host_connected = false;
+        }
     }
     else
     {
         send_event(SYS_EVENT_USB_EXTRACTED, NULL);
-        queue_post(&sim_queue, SIM_USB_EXTRACTED, 0);
+        if (is_usb_host_connected)
+            queue_post(&sim_queue, SIM_USB_EXTRACTED, 0);
+        is_usb_host_connected = false;
         DEBUGF("USB %s.\n", inserted ? "inserted":"removed");
     }
     is_usb_inserted = inserted;

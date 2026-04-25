@@ -28,6 +28,13 @@ def _normalize_games_target_dir(value, default_value="gameboy"):
     return text
 
 
+def _normalize_clock_position(value):
+    text = str(value or "").strip().lower()
+    if text == "left":
+        return "left"
+    return "center"
+
+
 class RockboxProfileStore:
     """Persist Rockbox deployment profiles inside the app config."""
 
@@ -116,6 +123,7 @@ class RockboxProfileStore:
                 "source_repo_path": repo_root,
                 "selected_theme": "iPone",
                 "backup_location": os.path.join(backup_root, "ipod_320x240"),
+                "lockscreen_clock_position": "center",
             },
             {
                 "id": "ipod_nano2g",
@@ -126,6 +134,7 @@ class RockboxProfileStore:
                 "source_repo_path": repo_root,
                 "selected_theme": "iPone_nano2g",
                 "backup_location": os.path.join(backup_root, "ipod_nano2g"),
+                "lockscreen_clock_position": "center",
             },
         ]
 
@@ -156,6 +165,7 @@ class RockboxProfileStore:
             "source_repo_path": source_repo_path,
             "selected_theme": selected_theme,
             "backup_location": os.path.abspath(backup_location),
+            "lockscreen_clock_position": _normalize_clock_position(item.get("lockscreen_clock_position")),
             "simulator_target": str(item.get("simulator_target") or "").strip(),
             "simulator_binary_path": str(item.get("simulator_binary_path") or "").strip(),
             "simulator_simdisk_path": str(item.get("simulator_simdisk_path") or "").strip(),

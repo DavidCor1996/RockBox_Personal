@@ -19,8 +19,37 @@
  *
  ****************************************************************************/
 
+/*
+ * iPod Nano 3G NAND driver — STUB (hardware not yet implemented)
+ *
+ * Architecture notes (do not implement without hardware access):
+ *
+ *  - The S5L8702 NAND Flash Controller (FMC) base address is NOT defined in
+ *    s5l87xx.h.  On S5L8700 the FMC is at 0x3C200000, but on S5L8702 that
+ *    address is the clickwheel controller (WHEEL_BASE).  The real S5L8702
+ *    FMC base must be determined by OF reverse-engineering or hardware
+ *    probing before any register access can be written.
+ *
+ *  - No Flash Translation Layer (FTL) exists for S5L8702.  The only Rockbox
+ *    FTL for Apple NAND targets is ftl-nano2g.c (S5L8700).  A new FTL must
+ *    be written or adapted once the FMC base and register layout are known.
+ *
+ *  - The Nano 4G (also S5L8702) has an identical stub; neither target has
+ *    a working NAND driver.
+ *
+ *  - nand_read_sectors() returns zero-filled sectors (success) so behaviour
+ *    is deterministic while the driver remains stubbed. nand_write_sectors()
+ *    returns -1 to gate writes until hardware support exists.
+ *
+ *  - nand_event() uses storage_event_default_handler() so the storage
+ *    thread's idle-notification fires at most once (after ~3 s of
+ *    inactivity) rather than every 500 ms as it would with an empty stub.
+ */
+
 #include "mv.h"
 #include "storage.h"
+#include <stdbool.h>
+#include <string.h>
 
 int nand_init(void)
 {
@@ -47,36 +76,41 @@ int nand_flush(void)
 int nand_read_sectors(IF_MD(int drive,) sector_t start, int incount,
                      void* inbuf)
 {
-    // TODO
 #ifdef HAVE_MULTIDRIVE
     (void) drive;
 #endif
+
+    if (incount < 0 || (incount > 0 && inbuf == NULL))
+        return -1;
+
+    if (inbuf != NULL && incount > 0)
+        memset(inbuf, 0, (size_t)incount * SECTOR_SIZE);
+
     (void) start;
-    (void) incount;
-    (void) inbuf;
     return 0;
 }
 
 int nand_write_sectors(IF_MD(int drive,) sector_t start, int count,
                       const void* outbuf)
 {
-    // TODO
 #ifdef HAVE_MULTIDRIVE
     (void) drive;
 #endif
     (void) start;
     (void) count;
     (void) outbuf;
+    return -1;
+}
+
+long nand_last_disk_activity(void)
+{
     return 0;
 }
 
 int nand_event(long id, intptr_t data)
 {
-    // TODO
-    (void) id;
-    (void) data;
-
-    return 0;
+    return storage_event_default_handler(id, data, nand_last_disk_activity(),
+                                         STORAGE_NAND);
 }
 
 #ifdef STORAGE_GET_INFO
@@ -91,8 +125,9 @@ void nand_get_info(IF_MD(int drive,) struct storage_info *info)
 }
 #endif
 
-long nand_last_disk_activity(void)
+/* nand_get_ssd_mode: backlight.c calls storage_get_ssd_mode() unconditionally
+ * for STORAGE_NAND targets; return false until real NAND driver is implemented. */
+bool nand_get_ssd_mode(void)
 {
-    // TODO
-    return 0;
+    return false;
 }

@@ -54,11 +54,13 @@
 #endif
 #include "crc32.h"
 #include "logf.h"
+#if CONFIG_RTC
+#include "rtc.h"
+#endif
 #if (CONFIG_PLATFORM & PLATFORM_NATIVE)
 #include "disk.h"
 #include "adc.h"
 #include "usb.h"
-#include "rtc.h"
 #include "storage.h"
 #include "fs_defines.h"
 #include "eeprom_24cxx.h"
@@ -86,6 +88,7 @@
 #include "pcmbuf.h"
 #include "buffering.h"
 #include "playback.h"
+#include "metadata.h"
 #if defined(HAVE_SPDIF_OUT) || defined(HAVE_SPDIF_IN)
 #include "spdif.h"
 #endif
@@ -138,6 +141,10 @@
 
 #if defined(IPOD_6G) && !defined(SIMULATOR)
 #include "norboot-target.h"
+#endif
+
+#ifdef SIMULATOR
+#include "sim_tasks.h"
 #endif
 
 #if defined(IPOD_ACCESSORY_PROTOCOL)
@@ -514,6 +521,215 @@ static bool dbg_buffering_thread(void)
     return false;
 #undef STR_DATAREM
 }
+
+static const char *dbg_audio_state_name(int status)
+{
+    if (status & AUDIO_STATUS_RECORD)
+        return (status & AUDIO_STATUS_PAUSE) ? "RECORD-PAUSED" : "RECORD";
+
+    if (status & AUDIO_STATUS_PLAY)
+        return (status & AUDIO_STATUS_PAUSE) ? "PAUSED" : "PLAYING";
+
+    return "STOPPED";
+}
+
+static bool dbg_audio_playback_screen(void)
+{
+    bool done = false;
+
+    FOR_NB_SCREENS(i)
+        screens[i].setfont(FONT_SYSFIXED);
+
+    while (!done)
+    {
+        int button = get_action(CONTEXT_STD, HZ/5);
+        int status = audio_status();
+
+        switch (button)
+        {
+            case ACTION_STD_NEXT:
+                audio_next();
+                break;
+            case ACTION_STD_PREV:
+                audio_prev();
+                break;
+            case ACTION_STD_OK:
+                if (status & AUDIO_STATUS_PLAY)
+                {
+                    if (status & AUDIO_STATUS_PAUSE)
+                        audio_resume();
+                    else
+                        audio_pause();
+                }
+                break;
+            case ACTION_STD_CONTEXT:
+                audio_stop();
+                break;
+            case ACTION_STD_CANCEL:
+                done = true;
+                break;
+        }
+
+        status = audio_status();
+        struct mp3entry *id3 = audio_current_track();
+        const char *track = "<none>";
+        unsigned long elapsed = 0;
+        unsigned long length = 0;
+
+        if (id3)
+        {
+            if (id3->title && id3->title[0])
+                track = id3->title;
+            else if (id3->path[0])
+                track = id3->path;
+
+            elapsed = id3->elapsed;
+            length = id3->length;
+        }
+
+        size_t bufsize = pcmbuf_get_bufsize();
+        size_t bufused = bufsize - pcmbuf_free();
+        unsigned int bufpct = (bufsize > 0) ? (unsigned int)((bufused * 100) / bufsize) : 0;
+
+        FOR_NB_SCREENS(i)
+        {
+            int line = 0;
+
+            screens[i].clear_display();
+            screens[i].putsf(0, line++, "state: %s", dbg_audio_state_name(status));
+            screens[i].putsf(0, line++, "track: %.40s", track);
+            screens[i].putsf(0, line++, "time: %lu / %lu ms", elapsed, length);
+            screens[i].putsf(0, line++, "pcmbuf: %lu/%lu (%u%%)",
+                             (unsigned long)bufused, (unsigned long)bufsize, bufpct);
+            screens[i].putsf(0, line++, "tracks: %u", audio_track_count());
+            screens[i].putsf(0, line++, "OK=Pause/Resume");
+            screens[i].putsf(0, line++, "NEXT/PREV=Track");
+            screens[i].putsf(0, line++, "CONTEXT=Stop");
+            screens[i].update();
+        }
+    }
+
+    FOR_NB_SCREENS(i)
+        screens[i].setfont(FONT_UI);
+
+    return false;
+}
+
+#if defined(IPOD_NANO3G) || defined(SIMULATOR)
+static bool dbg_power_state_screen(void)
+{
+    bool done = false;
+
+    FOR_NB_SCREENS(i)
+        screens[i].setfont(FONT_SYSFIXED);
+
+    while (!done)
+    {
+        int button = get_action(CONTEXT_STD, HZ/5);
+
+#ifdef SIMULATOR
+        switch (button)
+        {
+            case ACTION_STD_OK:
+                sim_trigger_usb(!sim_power_usb_online());
+                break;
+            case ACTION_STD_NEXT:
+                sim_power_set_main_online(!sim_power_main_online());
+                break;
+            case ACTION_STD_PREV:
+                sim_power_set_charge_enabled(!sim_power_charge_enabled());
+                break;
+            case ACTION_STD_CONTEXT:
+                sim_power_set_sleeping(!sim_power_sleeping());
+                break;
+            case ACTION_STD_MENU:
+                sim_trigger_usb_powered_only(!sim_usb_powered_only());
+                break;
+            case ACTION_STD_CANCEL:
+                done = true;
+                break;
+        }
+#else
+        if (button == ACTION_STD_CANCEL)
+            done = true;
+#endif
+
+#if CONFIG_CHARGING
+        unsigned int inputs = power_input_status();
+#else
+        unsigned int inputs = 0;
+#endif
+
+        int line;
+
+        FOR_NB_SCREENS(i)
+        {
+            line = 0;
+
+            screens[i].clear_display();
+            screens[i].putsf(0, line++, "power flags: 0x%03x", inputs);
+#if CONFIG_CHARGING
+            screens[i].putsf(0, line++, "main=%s usb=%s",
+                             (inputs & POWER_INPUT_MAIN) ? "on" : "off",
+                             (inputs & POWER_INPUT_USB) ? "on" : "off");
+            screens[i].putsf(0, line++, "charger=%s",
+                             (inputs & POWER_INPUT_CHARGER) ? "present" : "none");
+#if CONFIG_CHARGING >= CHARGING_MONITOR
+            screens[i].putsf(0, line++, "charging=%s",
+                             charging_state() ? "active" : "inactive");
+#endif
+#else
+            screens[i].putsf(0, line++, "charger support: none");
+#endif
+#if (CONFIG_BATTERY_MEASURE & VOLTAGE_MEASURE)
+            {
+                int mv = battery_voltage();
+                screens[i].putsf(0, line++, "battery: %d.%03d V", mv / 1000, mv % 1000);
+            }
+#endif
+#if (CONFIG_BATTERY_MEASURE & PERCENTAGE_MEASURE)
+            screens[i].putsf(0, line++, "battery level: %d%%", battery_level());
+#endif
+            screens[i].putsf(0, line++, "sleep timer: %s",
+                             get_sleep_timer_active() ? "active" : "off");
+            if (get_sleep_timer_active())
+                screens[i].putsf(0, line++, "sleep left: %d s", get_sleep_timer());
+
+#if CONFIG_RTC
+            {
+                struct tm now;
+                if (rtc_read_datetime(&now) == 0)
+                {
+                    screens[i].putsf(0, line++, "rtc: %04d-%02d-%02d %02d:%02d:%02d",
+                                     now.tm_year + 1900, now.tm_mon + 1, now.tm_mday,
+                                     now.tm_hour, now.tm_min, now.tm_sec);
+                }
+            }
+#else
+            screens[i].putsf(0, line++, "rtc: disabled");
+#endif
+
+#ifdef SIMULATOR
+            screens[i].putsf(0, line++, "sim main=%s charge=%s sleep=%s",
+                             sim_power_main_online() ? "on" : "off",
+                             sim_power_charge_enabled() ? "on" : "off",
+                             sim_power_sleeping() ? "on" : "off");
+            screens[i].putsf(0, line++, "sim usb host=%s",
+                             sim_usb_powered_only() ? "charge-only" : "storage");
+            screens[i].putsf(0, line++, "OK USB  NEXT Main");
+            screens[i].putsf(0, line++, "PREV Chg  CONTEXT Sleep");
+            screens[i].putsf(0, line++, "MENU HostMode");
+#endif
+            screens[i].update();
+        }
+    }
+
+    FOR_NB_SCREENS(i)
+        screens[i].setfont(FONT_UI);
+
+    return false;
+}
+#endif
 
 #ifdef BUFLIB_DEBUG_PRINT
 static const char* bf_getname(int selected_item, void *data,
@@ -2911,6 +3127,10 @@ static const struct {
         { "View database info", dbg_tagcache_info },
 #endif
         { "View buffering thread", dbg_buffering_thread },
+        { "Audio playback screen", dbg_audio_playback_screen },
+#if defined(IPOD_NANO3G) || defined(SIMULATOR)
+        { "Power state screen", dbg_power_state_screen },
+#endif
 #ifdef PM_DEBUG
         { "pm histogram", peak_meter_histogram},
 #endif /* PM_DEBUG */

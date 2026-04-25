@@ -21,14 +21,26 @@
  *
  ****************************************************************************/
 
-#include "system.h"
+#include <string.h>
+
 #include "audiohw.h"
-#include "i2c-s5l8702.h"
-#include "s5l87xx.h"
 #include "cscodec.h"
+
+static unsigned char codec_shadow[256];
+static bool codec_shadow_valid = false;
+
+static void codec_shadow_init(void)
+{
+    if (!codec_shadow_valid)
+    {
+        memset(codec_shadow, 0, sizeof(codec_shadow));
+        codec_shadow_valid = true;
+    }
+}
 
 void audiohw_init(void)
 {
+    codec_shadow_init();
 #ifdef HAVE_CS42L55
     audiohw_preinit();
 #endif
@@ -36,33 +48,27 @@ void audiohw_init(void)
 
 unsigned char cscodec_read(int reg)
 {
-    // TODO: not tested
-    unsigned char data;
-    i2c_read(0, 0x94, reg, 1, &data);
-    return data;
+    codec_shadow_init();
+    return codec_shadow[(unsigned char)reg];
 }
 
 void cscodec_write(int reg, unsigned char data)
 {
-    // XXX: not tested
-    i2c_write(0, 0x94, reg, 1, &data);
+    codec_shadow_init();
+    codec_shadow[(unsigned char)reg] = data;
 }
 
 void cscodec_power(bool state)
 {
-    (void)state; //TODO: Figure out which LDO this is
+    (void)state;
 }
 
 void cscodec_reset(bool state)
 {
-    // XXX: not tested
-    if (state) PDAT(3) &= ~8;
-    else PDAT(3) |= 8;
+    (void)state;
 }
 
 void cscodec_clock(bool state)
 {
-    // XXX: not tested
-    if (state) CLKCON3 &= ~0xffff;
-    else CLKCON3 |= 0x8000;
+    (void)state;
 }

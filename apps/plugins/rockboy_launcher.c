@@ -15,6 +15,7 @@
 #include "lib/pluginlib_actions.h"
 #include "lib/pluginlib_bmp.h"
 #include "lib/read_image.h"
+#include "rockboy/settings.h"
 #include <ctype.h>
 
 #define ROCKBOY_LAUNCHER_DIR  PLUGIN_GAMES_DATA_DIR "/rockboy_launcher"
@@ -22,7 +23,6 @@
 #define ROCKBOY_STATE_PATH    ROCKBOY_LAUNCHER_DIR "/state.dat"
 #define ROCKBOY_PLUGIN_PATH   VIEWERS_DIR "/rockboy.rock"
 #define ROCKBOY_ROM_DIR       "/gameboy"
-#define ROCKBOY_SAVE_DIR      ROCKBOX_DIR "/rockboy"
 #define ROCKBOY_LOADING_BACKGROUND_BMP ROCKBOY_LAUNCHER_DIR "/loading_bg.bmp"
 #define ROCKBOY_FALLBACK_COVER_BMP PLUGIN_DEMOS_DIR "/pictureflow_emptyslide.bmp"
 #define ROCKBOY_LOADING_BAR_HEIGHT 22
@@ -58,6 +58,18 @@ enum flow_pose {
     FLOW_OFF_RIGHT = 3
 };
 
+enum launcher_sort_mode {
+    SORT_TITLE = 0,
+    SORT_FAVORITES_FIRST,
+    SORT_SAVES_FIRST,
+};
+
+enum launcher_filter_mode {
+    FILTER_ALL = 0,
+    FILTER_FAVORITES,
+    FILTER_SAVED,
+};
+
 struct game_entry {
     char title[MAX_ENTRY_TITLE];
     char rom_path[MAX_PATH];
@@ -86,8 +98,11 @@ struct launcher_state {
     struct game_entry *entries;
     int entry_capacity;
     int entry_count;
+    int total_count;
     int selected;
     bool used_index;
+    int sort_mode;
+    int filter_mode;
 
     int line_height;
     int cover_box_x;
@@ -134,7 +149,10 @@ static void warm_cover_cache_step(int budget);
 static enum plugin_status launcher_context_menu(void);
 static void draw_loading_splashscreen(void);
 static void draw_loading_progress(int step, int count, const char *msg);
-static void warm_visible_cover_cache_with_progress(const char *msg);
+static void load_selected_cover_with_progress(const char *msg);
+static bool entry_matches_filter(const struct game_entry *entry);
+static void apply_launcher_filter(void);
+static bool reload_game_library_with_current_modes(void);
 
 #if (CONFIG_KEYPAD == IPOD_1G2G_PAD) || \
     (CONFIG_KEYPAD == IPOD_3G_PAD) || \
@@ -291,6 +309,290 @@ static bool ensure_launcher_dir(void)
     return rb->mkdir(ROCKBOY_LAUNCHER_DIR) >= 0;
 }
 
+#if CONFIG_KEYPAD == IPOD_4G_PAD && defined(IPOD_VIDEO)
+static bool ensure_rockboy_save_dir(void)
+{
+    DIR *dir;
+
+    dir = rb->opendir(ROCKBOY_SAVE_DIR);
+    if (dir)
+    {
+        rb->closedir(dir);
+        return true;
+    }
+
+    return rb->mkdir(ROCKBOY_SAVE_DIR) >= 0;
+}
+
+static void launcher_apply_performance_preset(struct options *options, int preset)
+{
+    options->performance_preset = preset;
+
+    switch (preset)
+    {
+        case ROCKBOY_PERF_PERFORMANCE:
+            options->maxskip = 3;
+            options->sound = 0;
+            options->scaling = 2;
+            break;
+        case ROCKBOY_PERF_QUALITY:
+            options->maxskip = 1;
+            options->sound = 1;
+            options->scaling = 1;
+            break;
+        default:
+            options->maxskip = 2;
+            options->sound = 1;
+            options->scaling = 2;
+            break;
+    }
+}
+
+static void launcher_set_default_rockboy_options(struct options *options)
+{
+    rb->memset(options, 0, sizeof(*options));
+    options->sound = 1;
+    options->autosave = 1;
+    options->control_preset = ROCKBOY_CTRL_IPOD5G;
+    launcher_apply_performance_preset(options, ROCKBOY_PERF_BALANCED);
+}
+
+static void sanitize_rockboy_options(struct options *options)
+{
+    if (options->performance_preset < ROCKBOY_PERF_BALANCED ||
+        options->performance_preset > ROCKBOY_PERF_QUALITY)
+    {
+        launcher_apply_performance_preset(options, ROCKBOY_PERF_BALANCED);
+    }
+
+    if (options->autosave < 0 || options->autosave > 1)
+        options->autosave = 1;
+    if (options->sound < 0 || options->sound > 1)
+        options->sound = 1;
+    if (options->maxskip < 0)
+        options->maxskip = 0;
+    if (options->maxskip > 20)
+        options->maxskip = 20;
+    if (options->control_preset < ROCKBOY_CTRL_CLASSIC ||
+        options->control_preset > ROCKBOY_CTRL_IPOD5G)
+    {
+        options->control_preset = ROCKBOY_CTRL_IPOD5G;
+    }
+}
+
+static bool load_rockboy_options(struct options *options)
+{
+    int fd;
+    int filesize;
+    size_t bytes;
+    char options_path[MAX_PATH];
+
+    launcher_set_default_rockboy_options(options);
+
+    rb->snprintf(options_path, sizeof(options_path), "%s/%s",
+                 ROCKBOY_SAVE_DIR, ROCKBOY_OPTIONS_FILE);
+    fd = rb->open(options_path, O_RDONLY);
+    if (fd < 0)
+    {
+        sanitize_rockboy_options(options);
+        return true;
+    }
+
+    filesize = rb->filesize(fd);
+    if (filesize > 0)
+    {
+        bytes = filesize < (int)sizeof(*options) ? (size_t)filesize : sizeof(*options);
+        rb->read(fd, options, bytes);
+    }
+    rb->close(fd);
+
+    sanitize_rockboy_options(options);
+    return true;
+}
+
+static bool save_rockboy_options(struct options *options)
+{
+    int fd;
+    char options_path[MAX_PATH];
+
+    if (!ensure_rockboy_save_dir())
+        return false;
+
+    options->dirty = 0;
+    rb->snprintf(options_path, sizeof(options_path), "%s/%s",
+                 ROCKBOY_SAVE_DIR, ROCKBOY_OPTIONS_FILE);
+    fd = rb->open(options_path, O_WRONLY | O_CREAT | O_TRUNC, 0666);
+    if (fd < 0)
+        return false;
+
+    if (rb->write(fd, options, sizeof(*options)) != (ssize_t)sizeof(*options))
+    {
+        rb->close(fd);
+        return false;
+    }
+
+    rb->close(fd);
+    return true;
+}
+
+static enum plugin_status launcher_rockboy_settings_menu(void)
+{
+    struct options options;
+    int selection = 0;
+    int result;
+    bool changed = false;
+
+    static const struct opt_items performance[] = {
+        { "Balanced", -1 },
+        { "Performance", -1 },
+        { "Quality", -1 },
+    };
+
+    static const struct opt_items frameskip[] = {
+        { "0 Max", -1 },  { "1 Max", -1 },  { "2 Max", -1 },
+        { "3 Max", -1 },  { "4 Max", -1 },  { "5 Max", -1 },
+        { "6 Max", -1 },  { "7 Max", -1 },  { "8 Max", -1 },
+        { "9 Max", -1 },  { "10 Max", -1 }, { "11 Max", -1 },
+        { "12 Max", -1 }, { "13 Max", -1 }, { "14 Max", -1 },
+        { "15 Max", -1 }, { "16 Max", -1 }, { "17 Max", -1 },
+        { "18 Max", -1 }, { "19 Max", -1 }, { "20 Max", -1 },
+    };
+
+    static const struct opt_items onoff[] = {
+        { "Off", -1 },
+        { "On", -1 },
+    };
+
+    static const struct opt_items controls[] = {
+        { "Classic Wheel", -1 },
+        { "5G D-Pad", -1 },
+    };
+
+    static const struct opt_items rotate[] = {
+        { "No rotation", -1 },
+        { "Rotate Right", -1 },
+        { "Rotate Left", -1 },
+    };
+
+    static const struct opt_items scaling[] = {
+        { "Scaled", -1 },
+        { "Scaled - Maintain Ratio", -1 },
+        { "Unscaled", -1 },
+    };
+
+    static const struct opt_items palette[] = {
+        { "Brown (Default)", -1 },
+        { "Gray", -1 },
+        { "Light Gray", -1 },
+        { "Multi-Color 1", -1 },
+        { "Multi-Color 2", -1 },
+        { "Adventure Island", -1 },
+        { "Adventure Island 2", -1 },
+        { "Balloon Kid", -1 },
+        { "Batman", -1 },
+        { "Batman: Return of Joker", -1 },
+        { "Bionic Commando", -1 },
+        { "Castlvania Adventure", -1 },
+        { "Donkey Kong Land", -1 },
+        { "Dr. Mario", -1 },
+        { "Kirby", -1 },
+        { "Metroid", -1 },
+        { "Zelda", -1 },
+    };
+
+    MENUITEM_STRINGLIST(menu, "Rockboy Settings", NULL,
+                        "Performance", "Max Frameskip",
+                        "Autosave", "Sound", "Controls",
+                        "Screen Size", "Screen Rotate", "Set Palette",
+                        "Back");
+
+    if (!load_rockboy_options(&options))
+        return PLUGIN_OK;
+
+    while (true)
+    {
+        int previous;
+
+        result = rb->do_menu(&menu, &selection, NULL, false);
+        switch (result)
+        {
+            case 0:
+                previous = options.performance_preset;
+                rb->set_option("Performance", &options.performance_preset, RB_INT,
+                               performance, ARRAYLEN(performance), NULL);
+                if (previous != options.performance_preset)
+                {
+                    launcher_apply_performance_preset(&options,
+                                                      options.performance_preset);
+                    changed = true;
+                }
+                break;
+
+            case 1:
+                previous = options.maxskip;
+                rb->set_option("Max Frameskip", &options.maxskip, RB_INT,
+                               frameskip, ARRAYLEN(frameskip), NULL);
+                changed |= previous != options.maxskip;
+                break;
+
+            case 2:
+                previous = options.autosave;
+                rb->set_option("Autosave", &options.autosave, RB_INT,
+                               onoff, ARRAYLEN(onoff), NULL);
+                changed |= previous != options.autosave;
+                break;
+
+            case 3:
+                previous = options.sound;
+                rb->set_option("Sound", &options.sound, RB_INT,
+                               onoff, ARRAYLEN(onoff), NULL);
+                changed |= previous != options.sound;
+                break;
+
+            case 4:
+                previous = options.control_preset;
+                rb->set_option("Controls", &options.control_preset, RB_INT,
+                               controls, ARRAYLEN(controls), NULL);
+                changed |= previous != options.control_preset;
+                break;
+
+            case 5:
+                previous = options.scaling;
+                rb->set_option("Screen Size", &options.scaling, RB_INT,
+                               scaling, ARRAYLEN(scaling), NULL);
+                changed |= previous != options.scaling;
+                break;
+
+            case 6:
+                previous = options.rotate;
+                rb->set_option("Screen Rotate", &options.rotate, RB_INT,
+                               rotate, ARRAYLEN(rotate), NULL);
+                changed |= previous != options.rotate;
+                break;
+
+            case 7:
+                previous = options.pal;
+                rb->set_option("Set Palette", &options.pal, RB_INT,
+                               palette, ARRAYLEN(palette), NULL);
+                changed |= previous != options.pal;
+                break;
+
+            case 8:
+            default:
+                rb->button_clear_queue();
+                if (!changed)
+                    return PLUGIN_OK;
+                if (!save_rockboy_options(&options))
+                    rb->splash(HZ * 2, "Could not save Rockboy settings");
+                return PLUGIN_OK;
+
+            case MENU_ATTACHED_USB:
+                return PLUGIN_USB_CONNECTED;
+        }
+    }
+}
+#endif
+
 static void save_launcher_state(const char *rom_path)
 {
     int fd;
@@ -402,6 +704,42 @@ static void prime_game_metadata(void)
     {
         launcher.entries[i].has_save = game_has_local_save(&launcher.entries[i]) ? 1 : 0;
     }
+}
+
+static bool entry_matches_filter(const struct game_entry *entry)
+{
+    switch (launcher.filter_mode)
+    {
+        case FILTER_FAVORITES:
+            return (entry->flags & FLAG_FAVORITE) != 0;
+        case FILTER_SAVED:
+            return entry->has_save > 0;
+        default:
+            return true;
+    }
+}
+
+static void apply_launcher_filter(void)
+{
+    int read_index;
+    int write_index;
+
+    launcher.total_count = launcher.entry_count;
+    if (launcher.filter_mode == FILTER_ALL)
+        return;
+
+    write_index = 0;
+    for (read_index = 0; read_index < launcher.entry_count; read_index++)
+    {
+        if (!entry_matches_filter(&launcher.entries[read_index]))
+            continue;
+
+        if (write_index != read_index)
+            launcher.entries[write_index] = launcher.entries[read_index];
+        write_index++;
+    }
+
+    launcher.entry_count = write_index;
 }
 
 static void add_game_entry(const char *title, const char *rom_path,
@@ -626,6 +964,23 @@ static int compare_entries(const void *a, const void *b)
 {
     const struct game_entry *left = a;
     const struct game_entry *right = b;
+
+    switch (launcher.sort_mode)
+    {
+        case SORT_FAVORITES_FIRST:
+            if (!!(left->flags & FLAG_FAVORITE) != !!(right->flags & FLAG_FAVORITE))
+                return (right->flags & FLAG_FAVORITE) ? 1 : -1;
+            break;
+
+        case SORT_SAVES_FIRST:
+            if ((left->has_save > 0) != (right->has_save > 0))
+                return (right->has_save > 0) ? 1 : -1;
+            break;
+
+        default:
+            break;
+    }
+
     return rb->strcasecmp(left->title, right->title);
 }
 
@@ -678,6 +1033,7 @@ static void clear_cover_cache(void)
 static void reset_entry_list(void)
 {
     launcher.entry_count = 0;
+    launcher.total_count = 0;
     launcher.selected = 0;
     launcher.used_index = false;
     if (launcher.entries && launcher.entry_capacity > 0)
@@ -781,6 +1137,23 @@ static int cover_pose_height(enum flow_pose pose, const struct cover_slot *slot)
             return (slot->bitmap.height * 56) / 100;
         default:
             return slot->bitmap.height;
+    }
+}
+
+static int placeholder_pose_height(enum flow_pose pose)
+{
+    switch (pose)
+    {
+        case FLOW_LEFT:
+        case FLOW_RIGHT:
+            return (launcher.cover_box_h * 82) / 100;
+        case FLOW_FAR_LEFT:
+        case FLOW_FAR_RIGHT:
+        case FLOW_OFF_LEFT:
+        case FLOW_OFF_RIGHT:
+            return (launcher.cover_box_h * 68) / 100;
+        default:
+            return launcher.cover_box_h;
     }
 }
 
@@ -1006,14 +1379,14 @@ static bool load_game_library(void)
     if (!launcher.used_index)
         scan_rom_dir(ROCKBOY_ROM_DIR, 0);
 
+    prime_game_metadata();
+    apply_launcher_filter();
     if (launcher.entry_count > 1)
     {
         rb->qsort(launcher.entries, launcher.entry_count,
                   sizeof(struct game_entry), compare_entries);
     }
-
     restore_selection();
-    prime_game_metadata();
     return launcher.entry_count > 0;
 }
 
@@ -1026,16 +1399,25 @@ static bool reload_game_library(void)
     if (!launcher.used_index)
         scan_rom_dir(ROCKBOY_ROM_DIR, 0);
 
+    prime_game_metadata();
+    apply_launcher_filter();
     if (launcher.entry_count > 1)
     {
         rb->qsort(launcher.entries, launcher.entry_count,
                   sizeof(struct game_entry), compare_entries);
     }
-
     restore_selection();
-    prime_game_metadata();
     warm_cover_cache();
     return launcher.entry_count > 0;
+}
+
+static bool reload_game_library_with_current_modes(void)
+{
+    if (!reload_game_library())
+        return false;
+
+    load_selected_cover_with_progress("Preparing Covers");
+    return true;
 }
 
 static void truncate_to_width(const char *src, char *dst, size_t dst_size, int max_width)
@@ -1364,7 +1746,9 @@ static void draw_loading_splashscreen(void)
 static struct bitmap *prepare_cover_pose_bitmap(struct cover_slot *slot,
                                                 int crop_w, int draw_w, int draw_h)
 {
-    (void)crop_w;
+    struct bitmap source_bitmap;
+    int crop_x;
+    size_t crop_bytes;
 
     if (!slot || !slot->loaded || draw_w <= 0 || draw_h <= 0 || crop_w <= 0)
         return NULL;
@@ -1379,11 +1763,36 @@ static struct bitmap *prepare_cover_pose_bitmap(struct cover_slot *slot,
     if ((size_t)draw_w * draw_h * sizeof(fb_data) > launcher.posed_bytes)
         return &slot->bitmap;
 
+    source_bitmap = slot->bitmap;
+    if (crop_w < slot->bitmap.width)
+    {
+        fb_data *src;
+        fb_data *dst;
+        int row;
+
+        crop_x = (slot->bitmap.width - crop_w) / 2;
+        crop_bytes = (size_t)crop_w * slot->bitmap.height * sizeof(fb_data);
+        if (crop_bytes > launcher.decode_scratch_bytes)
+            return &slot->bitmap;
+
+        src = (fb_data *)slot->bitmap.data;
+        dst = launcher.decode_scratch_data;
+        for (row = 0; row < slot->bitmap.height; row++)
+        {
+            rb->memcpy(&dst[row * crop_w],
+                       &src[row * slot->bitmap.width + crop_x],
+                       (size_t)crop_w * sizeof(fb_data));
+        }
+
+        source_bitmap.width = crop_w;
+        source_bitmap.data = (unsigned char *)launcher.decode_scratch_data;
+    }
+
     launcher.posed_bitmap.width = draw_w;
     launcher.posed_bitmap.height = draw_h;
     launcher.posed_bitmap.format = FORMAT_NATIVE;
     launcher.posed_bitmap.data = (unsigned char *)launcher.posed_data;
-    smooth_resize_bitmap(&slot->bitmap, &launcher.posed_bitmap);
+    smooth_resize_bitmap(&source_bitmap, &launcher.posed_bitmap);
     return &launcher.posed_bitmap;
 }
 
@@ -1439,30 +1848,14 @@ static void draw_loading_progress(int step, int count, const char *msg)
     rb->yield();
 }
 
-static void warm_visible_cover_cache_with_progress(const char *msg)
+static void load_selected_cover_with_progress(const char *msg)
 {
-    int start;
-    int end;
-    int count;
-    int i;
-
     if (launcher.entry_count <= 0)
         return;
 
-    start = launcher.selected - COVER_CACHE_RADIUS;
-    end = launcher.selected + COVER_CACHE_RADIUS;
-    if (start < 0)
-        start = 0;
-    if (end >= launcher.entry_count)
-        end = launcher.entry_count - 1;
-
-    count = end - start + 1;
-    draw_loading_progress(0, count, msg);
-    for (i = start; i <= end; i++)
-    {
-        get_cover_slot(i);
-        draw_loading_progress((i - start) + 1, count, NULL);
-    }
+    draw_loading_progress(0, 1, msg);
+    get_cover_slot(launcher.selected);
+    draw_loading_progress(1, 1, NULL);
     request_cover_cache_warm();
 }
 
@@ -1491,17 +1884,39 @@ static void draw_flow_cover_pose(const struct game_entry *entry, struct cover_sl
     int reflection_alpha;
     struct bitmap *draw_bitmap;
 
+    progress = ease_flow_progress(progress);
+    draw_w = interpolate_value(
+        cover_pose_width(from_pose, launcher.cover_box_w),
+        cover_pose_width(to_pose, launcher.cover_box_w),
+        progress
+    );
+    draw_h = interpolate_value(
+        placeholder_pose_height(from_pose),
+        placeholder_pose_height(to_pose),
+        progress
+    );
+    if (draw_w <= 0)
+        draw_w = 1;
+    if (draw_h <= 0)
+        draw_h = 1;
+    draw_x = interpolate_value(
+        cover_pose_draw_x(from_pose, draw_w),
+        cover_pose_draw_x(to_pose, draw_w),
+        progress
+    );
+    draw_y = interpolate_value(
+        cover_pose_draw_y(from_pose, draw_h),
+        cover_pose_draw_y(to_pose, draw_h),
+        progress
+    );
+
     if (!slot || !slot->loaded)
     {
         draw_cover_placeholder(entry,
-                               launcher.cover_box_x,
-                               launcher.cover_box_y,
-                               launcher.cover_box_w,
-                               launcher.cover_box_h);
+                               draw_x, draw_y, draw_w, draw_h);
         return;
     }
 
-    progress = ease_flow_progress(progress);
     focus = interpolate_value(pose_focus(from_pose), pose_focus(to_pose), progress);
     crop_w = cover_crop_width(slot, focus);
     draw_w = interpolate_value(
@@ -1554,15 +1969,33 @@ static void draw_entry_details(struct game_entry *entry)
     char title[MAX_ENTRY_TITLE];
     char meta_line[96];
     char publisher[MAX_ENTRY_PUBLISHER];
+    char badges[48];
+    char status[32];
     int y;
     int text_w;
     int margin;
     y = launcher.detail_y;
     margin = 8;
 
-    rb->snprintf(line, sizeof(line), "%d / %d", launcher.selected + 1, launcher.entry_count);
+    if (launcher.total_count > launcher.entry_count)
+        rb->snprintf(line, sizeof(line), "%d / %d (%d total)",
+                     launcher.selected + 1, launcher.entry_count, launcher.total_count);
+    else
+        rb->snprintf(line, sizeof(line), "%d / %d", launcher.selected + 1, launcher.entry_count);
     rb->lcd_getstringsize(line, &text_w, NULL);
     rb->lcd_putsxy(launcher.vp.width - margin - text_w, 0, line);
+
+    badges[0] = '\0';
+    if (entry->has_save > 0)
+        rb->strlcpy(badges, "SAVE", sizeof(badges));
+    if (entry->flags & FLAG_FAVORITE)
+    {
+        if (badges[0] != '\0')
+            rb->strlcat(badges, "  ", sizeof(badges));
+        rb->strlcat(badges, "FAV", sizeof(badges));
+    }
+    if (badges[0] != '\0')
+        rb->lcd_putsxy(margin, 0, badges);
 
     truncate_to_width(entry->title, title, sizeof(title), launcher.detail_w);
     rb->lcd_getstringsize(title, &text_w, NULL);
@@ -1581,6 +2014,20 @@ static void draw_entry_details(struct game_entry *entry)
         truncate_to_width(meta_line, line, sizeof(line), launcher.detail_w);
         rb->lcd_getstringsize(line, &text_w, NULL);
         rb->lcd_putsxy((launcher.vp.width - text_w) / 2, y + launcher.line_height, line);
+    }
+    else if (entry->has_save > 0 || (entry->flags & FLAG_FAVORITE))
+    {
+        status[0] = '\0';
+        if (entry->has_save > 0)
+            rb->strlcpy(status, "Save available", sizeof(status));
+        if (entry->flags & FLAG_FAVORITE)
+        {
+            if (status[0] != '\0')
+                rb->strlcat(status, "  ", sizeof(status));
+            rb->strlcat(status, "Favorite", sizeof(status));
+        }
+        rb->lcd_getstringsize(status, &text_w, NULL);
+        rb->lcd_putsxy((launcher.vp.width - text_w) / 2, y + launcher.line_height, status);
     }
 
     if (entry->publisher[0] != '\0')
@@ -1825,7 +2272,28 @@ static enum plugin_status launcher_context_menu(void)
 {
     int selection = 0;
     int result;
+    int previous_mode;
+    bool changed;
+
+    static const struct opt_items sort_modes[] = {
+        { "Title (A-Z)", -1 },
+        { "Favorites First", -1 },
+        { "Saves First", -1 },
+    };
+
+    static const struct opt_items filter_modes[] = {
+        { "All Games", -1 },
+        { "Favorites Only", -1 },
+        { "Saved Games", -1 },
+    };
+
     MENUITEM_STRINGLIST(menu, "Games", NULL,
+                        "Play Game",
+#if CONFIG_KEYPAD == IPOD_4G_PAD && defined(IPOD_VIDEO)
+                        "Rockboy Settings",
+#endif
+                        "Sort Games",
+                        "Filter Games",
                         "Refresh Covers",
                         "Refresh Library",
                         "Exit Games");
@@ -1835,11 +2303,54 @@ static enum plugin_status launcher_context_menu(void)
     switch (result)
     {
         case 0:
-            clear_cover_cache();
-            warm_visible_cover_cache_with_progress("Preparing Covers");
+            return launch_selected_game();
+
+#if CONFIG_KEYPAD == IPOD_4G_PAD && defined(IPOD_VIDEO)
+        case 1:
+        {
+            enum plugin_status status = launcher_rockboy_settings_menu();
+            if (status == PLUGIN_USB_CONNECTED)
+                return status;
+            return PLUGIN_OK;
+        }
+
+        case 2:
+            previous_mode = launcher.sort_mode;
+            rb->set_option("Sort Games", &launcher.sort_mode, RB_INT,
+                           sort_modes, ARRAYLEN(sort_modes), NULL);
+            if (previous_mode != launcher.sort_mode)
+            {
+                save_launcher_state(launcher.entries[launcher.selected].rom_path);
+                if (!reload_game_library_with_current_modes())
+                    return draw_empty_library();
+            }
             return PLUGIN_OK;
 
-        case 1:
+        case 3:
+            previous_mode = launcher.filter_mode;
+            rb->set_option("Filter Games", &launcher.filter_mode, RB_INT,
+                           filter_modes, ARRAYLEN(filter_modes), NULL);
+            if (previous_mode != launcher.filter_mode)
+            {
+                changed = false;
+                if (launcher.entry_count > 0)
+                {
+                    save_launcher_state(launcher.entries[launcher.selected].rom_path);
+                    changed = true;
+                }
+                if (!reload_game_library_with_current_modes())
+                    return draw_empty_library();
+                if (!changed)
+                    rb->button_clear_queue();
+            }
+            return PLUGIN_OK;
+
+        case 4:
+            clear_cover_cache();
+            load_selected_cover_with_progress("Preparing Covers");
+            return PLUGIN_OK;
+
+        case 5:
             draw_loading_progress(0, 3, "Refreshing Library");
             if (!reload_game_library())
             {
@@ -1847,12 +2358,58 @@ static enum plugin_status launcher_context_menu(void)
                 return PLUGIN_ERROR;
             }
             draw_loading_progress(2, 3, "Refreshing Library");
-            warm_visible_cover_cache_with_progress("Preparing Covers");
+            load_selected_cover_with_progress("Preparing Covers");
+            return PLUGIN_OK;
+
+        case 6:
+            save_launcher_state(launcher.entries[launcher.selected].rom_path);
+            return PLUGIN_ERROR;
+#else
+        case 1:
+            previous_mode = launcher.sort_mode;
+            rb->set_option("Sort Games", &launcher.sort_mode, RB_INT,
+                           sort_modes, ARRAYLEN(sort_modes), NULL);
+            if (previous_mode != launcher.sort_mode)
+            {
+                save_launcher_state(launcher.entries[launcher.selected].rom_path);
+                if (!reload_game_library_with_current_modes())
+                    return draw_empty_library();
+            }
             return PLUGIN_OK;
 
         case 2:
+            previous_mode = launcher.filter_mode;
+            rb->set_option("Filter Games", &launcher.filter_mode, RB_INT,
+                           filter_modes, ARRAYLEN(filter_modes), NULL);
+            if (previous_mode != launcher.filter_mode)
+            {
+                if (launcher.entry_count > 0)
+                    save_launcher_state(launcher.entries[launcher.selected].rom_path);
+                if (!reload_game_library_with_current_modes())
+                    return draw_empty_library();
+            }
+            return PLUGIN_OK;
+
+        case 3:
+            clear_cover_cache();
+            load_selected_cover_with_progress("Preparing Covers");
+            return PLUGIN_OK;
+
+        case 4:
+            draw_loading_progress(0, 3, "Refreshing Library");
+            if (!reload_game_library())
+            {
+                draw_empty_library();
+                return PLUGIN_ERROR;
+            }
+            draw_loading_progress(2, 3, "Refreshing Library");
+            load_selected_cover_with_progress("Preparing Covers");
+            return PLUGIN_OK;
+
+        case 5:
             save_launcher_state(launcher.entries[launcher.selected].rom_path);
             return PLUGIN_ERROR;
+#endif
 
         case MENU_ATTACHED_USB:
             return PLUGIN_USB_CONNECTED;
@@ -1930,6 +2487,6 @@ enum plugin_status plugin_start(const void *parameter)
     if (!load_game_library())
         return draw_empty_library();
 
-    warm_visible_cover_cache_with_progress("Preparing Covers");
+    load_selected_cover_with_progress("Preparing Covers");
     return launcher_run();
 }

@@ -25,6 +25,7 @@
 #include "backlight.h"
 #include "backlight-target.h"
 #include "pmu-target.h"
+#include "bringup-nano3g.h"
 
 #ifdef HAVE_LCD_SLEEP
 #include "lcd.h"
@@ -34,12 +35,18 @@
 // TODO: test
 void backlight_hw_brightness(int brightness)
 {
+    if (nano3g_safe_mode_enabled())
+        return;
+
     pmu_write(D1671_REG_LEDCTL,
         (pmu_read(D1671_REG_LEDCTL) & ~D1671_LEDCTL_OUT_MASK) | (brightness>>1));
 }
 
 void backlight_hw_on(void)
 {
+    if (nano3g_safe_mode_enabled())
+        return;
+
 #ifdef HAVE_LCD_SLEEP
     if (!lcd_active())
         lcd_awake();
@@ -50,6 +57,9 @@ void backlight_hw_on(void)
 
 void backlight_hw_off(void)
 {
+    if (nano3g_safe_mode_enabled())
+        return;
+
     pmu_write(D1671_REG_LEDCTL,
             (pmu_read(D1671_REG_LEDCTL) & ~D1671_LEDCTL_ENABLE));
 }

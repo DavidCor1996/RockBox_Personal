@@ -38,6 +38,7 @@
 #include "dma-s5l8702.h"
 #include "lcd-s5l8702.h"
 #include "lcd-target.h"
+#include "ipodnano3g/bringup-nano3g.h"
 
 
 // TODO TODO TODO: HAVE_LCD_ENABLE
@@ -564,6 +565,18 @@ void lcd_init_device(void)
 {
     mutex_init(&lcd_mutex);
 
+#if defined(IPOD_NANO3G)
+    nano3g_boottrace_log("lcd_init_device");
+
+    if (nano3g_safe_mode_enabled())
+    {
+        lcd_ispowered = false;
+        nano3g_boottrace_enable_lcd(false);
+        nano3g_boottrace_log("lcd init skipped (safe)");
+        return;
+    }
+#endif
+
     lcd_target_enable_clocks(true);
 #if defined(IPOD_6G) || defined(IPOD_NANO3G)
     LCD_PHTIME = 0x33;
@@ -612,4 +625,9 @@ void lcd_init_device(void)
 #endif
 
     lcd_ispowered = true;
+
+#if defined(IPOD_NANO3G)
+    nano3g_boottrace_enable_lcd(true);
+    nano3g_boottrace_log("lcd_init_device done");
+#endif
 }

@@ -1152,7 +1152,11 @@ void sys_disk_mode(void)
 
 enum shutdown_type sys_get_reboot_type(void)
 {
+#ifndef BOOTLOADER
     return requested_reboot_type;
+#else
+    return SHUTDOWN_REBOOT;
+#endif
 }
 
 void cancel_shutdown(void)

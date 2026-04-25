@@ -429,6 +429,10 @@ static void show_sim_help(void)
     HELPTXT(USB_KEY, "toggle USB");
     HELPTXT(SDLK_F11, "plug USB");
     HELPTXT(SDLK_F12, "unplug USB");
+    HELPTXT(SDLK_F10, "toggle USB host mode");
+    HELPTXT(SDLK_F6, "toggle main charger");
+    HELPTXT(SDLK_F7, "toggle charging");
+    HELPTXT(SDLK_F8, "toggle sleep state");
 
 #ifdef HAVE_HEADPHONE_DETECTION
     HELPTXT(SDLK_p, "toggle headphone");
@@ -478,7 +482,6 @@ strlcat(helptext, "Note: If you don't have a keypad\n" \
 static void button_event(int key, bool pressed)
 {
     int new_btn = 0;
-    static bool usb_connected = false;
     switch (key)
     {
 #ifdef SIMULATOR
@@ -526,31 +529,51 @@ static void button_event(int key, bool pressed)
 #endif
         return;
     case SDLK_c:
-        if (!pressed && usb_connected)
+        if (!pressed && sim_power_usb_online())
         {
-            usb_connected = false;
-            sim_trigger_usb(usb_connected);
+            sim_trigger_usb(false);
         }
         return;
     case USB_KEY:
         if (!pressed)
         {
-            usb_connected = !usb_connected;
-            sim_trigger_usb(usb_connected);
+            sim_trigger_usb(!sim_power_usb_online());
         }
         return;
     case SDLK_F11:
-        if (!pressed && !usb_connected)
+        if (!pressed && !sim_power_usb_online())
         {
-            usb_connected = true;
-            sim_trigger_usb(usb_connected);
+            sim_trigger_usb(true);
         }
         return;
     case SDLK_F12:
-        if (!pressed && usb_connected)
+        if (!pressed && sim_power_usb_online())
         {
-            usb_connected = false;
-            sim_trigger_usb(usb_connected);
+            sim_trigger_usb(false);
+        }
+        return;
+    case SDLK_F10:
+        if (!pressed)
+        {
+            sim_trigger_usb_powered_only(!sim_usb_powered_only());
+        }
+        return;
+    case SDLK_F6:
+        if (!pressed)
+        {
+            sim_power_set_main_online(!sim_power_main_online());
+        }
+        return;
+    case SDLK_F7:
+        if (!pressed)
+        {
+            sim_power_set_charge_enabled(!sim_power_charge_enabled());
+        }
+        return;
+    case SDLK_F8:
+        if (!pressed)
+        {
+            sim_power_set_sleeping(!sim_power_sleeping());
         }
         return;
 #ifdef HAVE_HEADPHONE_DETECTION

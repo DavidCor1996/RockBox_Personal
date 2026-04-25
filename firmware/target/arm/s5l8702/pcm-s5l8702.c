@@ -31,6 +31,14 @@
 #include "pcm_sampr.h"
 #include "pcm-target.h"
 #include "dma-s5l8702.h"
+#include "ipodnano3g/bringup-nano3g.h"
+
+#ifdef IPOD_NANO3G
+void ipodnano3g_audio_output_init(void);
+void ipodnano3g_audio_output_start(const void *addr, size_t size);
+void ipodnano3g_audio_output_stop(void);
+void ipodnano3g_audio_output_submit(const void *addr, size_t size);
+#endif
 
 /* DMA configuration */
 
@@ -92,6 +100,11 @@ size_t pcm_remaining;
 /* Mask the DMA interrupt */
 void pcm_play_lock(void)
 {
+#ifdef IPOD_NANO3G
+    if (nano3g_safe_mode_enabled())
+        return;
+#endif
+
     if (locked++ == 0)
         dmac_ch_lock_int(&dma_play_ch);
 }
@@ -99,6 +112,11 @@ void pcm_play_lock(void)
 /* Unmask the DMA interrupt if enabled */
 void pcm_play_unlock(void)
 {
+#ifdef IPOD_NANO3G
+    if (nano3g_safe_mode_enabled())
+        return;
+#endif
+
     if (--locked == 0)
         dmac_ch_unlock_int(&dma_play_ch);
 }
@@ -136,10 +154,16 @@ static void dma_play_callback(void *cb_data)
     /* first part */
     play_queue_dma((void*)dataptr, chunksize,
                 (void*)dataptr + chunksize + lastsize); /* cb_data */
+#ifdef IPOD_NANO3G
+    ipodnano3g_audio_output_submit(dataptr, chunksize);
+#endif
 
     /* second part */
     memcpy(dblbuf[active_dblbuf], dataptr + chunksize, lastsize);
     play_queue_dma(dblbuf[active_dblbuf], lastsize, NULL);
+#ifdef IPOD_NANO3G
+    ipodnano3g_audio_output_submit(dblbuf[active_dblbuf], lastsize);
+#endif
     active_dblbuf ^= 1;
 
     pcm_play_dma_status_callback(PCM_DMAST_STARTED);
@@ -147,6 +171,16 @@ static void dma_play_callback(void *cb_data)
 
 void pcm_play_dma_start(const void* addr, size_t size)
 {
+#ifdef IPOD_NANO3G
+    if (nano3g_safe_mode_enabled())
+    {
+        (void)addr;
+        (void)size;
+        nano3g_boottrace_log("pcm start skipped (safe)");
+        return;
+    }
+#endif
+
     if (pcm_dma_start_inhibit)
         return;
 
@@ -158,13 +192,30 @@ void pcm_play_dma_start(const void* addr, size_t size)
 
     pcm_remaining = size;
     I2STXCOM = 0xe;
+#ifdef IPOD_NANO3G
+    ipodnano3g_audio_output_start(addr, size);
+#endif
     dma_play_callback((void*)addr);
 }
 
 void pcm_play_dma_stop(void)
 {
+#ifdef IPOD_NANO3G
+    if (nano3g_safe_mode_enabled())
+    {
+        pcm_remaining = 0;
+        ipodnano3g_audio_output_stop();
+        nano3g_boottrace_log("pcm stop skipped (safe)");
+        return;
+    }
+#endif
+
     dmac_ch_stop(&dma_play_ch);
     I2STXCOM = 0xa;
+
+#ifdef IPOD_NANO3G
+    ipodnano3g_audio_output_stop();
+#endif
 
     /* gate I2S clock to save power when idle */
     I2SCLKCON = 0;
@@ -177,6 +228,11 @@ void pcm_play_dma_stop(void)
 /* set the configured PCM frequency */
 void pcm_dma_apply_settings(void)
 {
+#ifdef IPOD_NANO3G
+    if (nano3g_safe_mode_enabled())
+        return;
+#endif
+
     static uint16_t last_clkcon3l = 0;
     uint16_t clkcon3l;
     int fsel;
@@ -214,12 +270,25 @@ void pcm_dma_apply_settings(void)
 
 void pcm_play_dma_init(void)
 {
+#ifdef IPOD_NANO3G
+    if (nano3g_safe_mode_enabled())
+    {
+        ipodnano3g_audio_output_init();
+        nano3g_boottrace_log("pcm init skipped (safe)");
+        return;
+    }
+#endif
+
     PWRCON(1) &= ~(1 << 7);
 
     dmac_ch_init(&dma_play_ch, &dma_play_ch_cfg);
 
     I2STXCON = 0xb100019;
     I2SCLKCON = 1;
+
+#ifdef IPOD_NANO3G
+    ipodnano3g_audio_output_init();
+#endif
 
     audiohw_preinit();
     pcm_dma_apply_settings();
@@ -362,6 +431,11 @@ void pcm_rec_unlock(void)
 
 void pcm_rec_dma_stop(void)
 {
+#ifdef IPOD_NANO3G
+    if (nano3g_safe_mode_enabled())
+        return;
+#endif
+
     if (!pcm_rec_initialized)
         return;
 
@@ -372,6 +446,15 @@ void pcm_rec_dma_stop(void)
 
 void pcm_rec_dma_start(void *addr, size_t size)
 {
+#ifdef IPOD_NANO3G
+    if (nano3g_safe_mode_enabled())
+    {
+        (void)addr;
+        (void)size;
+        return;
+    }
+#endif
+
     SIZE_PANIC(size);
 
     pcm_rec_dma_stop();
@@ -395,6 +478,11 @@ void pcm_rec_dma_close(void)
 
 void pcm_rec_dma_init(void)
 {
+#ifdef IPOD_NANO3G
+    if (nano3g_safe_mode_enabled())
+        return;
+#endif
+
     if (pcm_rec_initialized)
         return;
 

@@ -33,6 +33,25 @@ CHARGE_PATTERNS = (
     re.compile(r"^charge-wallpaper.*\.(png|bmp|jpg|jpeg)$", re.I),
 )
 
+LOCKSCREEN_CLOCK_POSITIONS = {"center", "left"}
+
+LOCKSCREEN_TIME_CENTER = "%Vl(iPoneLockscreen,0,55,-,60,4)%Vf(FFFFFF)%ac%cl:%cM %cP"
+LOCKSCREEN_TIME_LEFT_V1 = "%Vl(iPoneLockscreen,18,55,152,60,4)%Vf(FFFFFF)%al%cl:%cM %cP"
+LOCKSCREEN_TIME_LEFT_V2 = "%Vl(iPoneLockscreen,14,50,156,60,4)%Vf(FFFFFF)%al%cl:%cM %cP"
+
+LOCKSCREEN_DATE_CENTER = (
+    "%Vl(iPoneLockscreen,0,120,-,20,3)%Vf(FFFFFF)%ac"
+    "%?if(%ss(0,7,%St(lang)), =, english)<%?cu<Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday>|%ca> "
+    "%?or(%if(%ss(0,7,%St(lang)), =, chinese),%if(%St(lang), =, magyar),%if(%St(lang), =, lietuviu),"
+    "%if(%St(lang), =, japanese),%if(%St(lang), =, korean))<%cb %cd|%?if(%St(lang), =, english-us)<%cb %cd|%cd %cb>>"
+)
+LOCKSCREEN_DATE_LEFT_V2 = (
+    "%Vl(iPoneLockscreen,14,106,190,20,3)%Vf(FFFFFF)%al"
+    "%?if(%ss(0,7,%St(lang)), =, english)<%?cu<Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday>|%ca> "
+    "%?or(%if(%ss(0,7,%St(lang)), =, chinese),%if(%St(lang), =, magyar),%if(%St(lang), =, lietuviu),"
+    "%if(%St(lang), =, japanese),%if(%St(lang), =, korean))<%cb %cd|%?if(%St(lang), =, english-us)<%cb %cd|%cd %cb>>"
+)
+
 
 def _clean_label(name: str) -> str:
     stem = os.path.splitext(os.path.basename(name))[0]
@@ -143,7 +162,13 @@ class IPoneWallpaperService:
         os.remove(source_abs)
         return True
 
-    def build_apply_bundle(self, profile: Dict, lock_source: str = "", charge_source: str = "") -> Dict:
+    def build_apply_bundle(
+        self,
+        profile: Dict,
+        lock_source: str = "",
+        charge_source: str = "",
+        clock_position: str = "",
+    ) -> Dict:
         asset_dir = self._asset_dir(profile)
         assets = []
         if lock_source:
@@ -171,14 +196,37 @@ class IPoneWallpaperService:
                     f".rockbox/wps/{asset_dir}/ChargeWallpaper.bmp",
                 )
             )
+        assets.extend(self._clock_layout_assets(profile, clock_position))
         if not assets:
-            raise ValueError("No wallpaper selected")
+            raise ValueError("No wallpaper or supported clock layout changes selected")
         return {
             "id": "ipone_wallpapers",
             "name": "iPone Wallpapers",
             "assets": assets,
             "preview_path": os.path.abspath(lock_source or charge_source),
         }
+
+    def _clock_layout_assets(self, profile: Dict, clock_position: str) -> List[Dict]:
+        normalized = self._normalize_clock_position(clock_position or profile.get("lockscreen_clock_position"))
+        repo_root = os.path.abspath(profile.get("source_repo_path") or "")
+        targets = self._clock_layout_targets(profile, repo_root)
+        if not targets:
+            return []
+        staged_root = os.path.join(repo_root, "rockpod", ".wallpaper_clock", str(profile.get("id") or "default"))
+        os.makedirs(staged_root, exist_ok=True)
+        assets = []
+        for source_rel, destination_rel in targets:
+            source_abs = self._clock_layout_source_path(profile, repo_root, source_rel, destination_rel)
+            asset_source = os.path.join(staged_root, os.path.basename(source_rel))
+            self._render_clock_layout(source_abs, asset_source, normalized)
+            assets.append(
+                self._asset_record(
+                    "lockscreen_clock_layout",
+                    asset_source,
+                    destination_rel,
+                )
+            )
+        return assets
 
     def _append_candidate(self, items: List[Dict], seen: set, source_abs: str, origin: str, label: str = ""):
         deploy_abs = self._deployable_path(source_abs)
@@ -262,6 +310,80 @@ class IPoneWallpaperService:
         if "nano2g" in theme or str(profile.get("screen_resolution") or "") == "176x132":
             return "iPone_nano2g"
         return "iPone"
+
+    @staticmethod
+    def _clock_layout_targets(profile: Dict, repo_root: str):
+        theme = str(profile.get("selected_theme") or "").strip().lower()
+        resolution = str(profile.get("screen_resolution") or "").strip()
+        if resolution != "320x240" or "nano2g" in theme:
+            return []
+        candidates = [
+            ("wps/iPone.sbs", ".rockbox/wps/iPone.sbs"),
+            ("wps/iPone_optimized.sbs", ".rockbox/wps/iPone_optimized.sbs"),
+        ]
+        mount_path = os.path.abspath(profile.get("device_mount_path") or "")
+        targets = []
+        for source_rel, destination_rel in candidates:
+            if mount_path:
+                device_abs = os.path.join(mount_path, destination_rel.lstrip("/"))
+                if os.path.isfile(device_abs):
+                    targets.append((source_rel, destination_rel))
+            elif os.path.isfile(os.path.join(repo_root, source_rel)):
+                targets.append((source_rel, destination_rel))
+        return targets
+
+    @staticmethod
+    def _clock_layout_source_path(profile: Dict, repo_root: str, source_rel: str, destination_rel: str) -> str:
+        mount_path = os.path.abspath(profile.get("device_mount_path") or "")
+        if mount_path:
+            device_abs = os.path.join(mount_path, destination_rel.lstrip("/"))
+            if os.path.isfile(device_abs):
+                return device_abs
+        return os.path.join(repo_root, source_rel)
+
+    @staticmethod
+    def _normalize_clock_position(value: str) -> str:
+        text = str(value or "").strip().lower()
+        if text in LOCKSCREEN_CLOCK_POSITIONS:
+            return text
+        return "center"
+
+    @staticmethod
+    def _render_clock_layout(source_path: str, dest_path: str, clock_position: str):
+        try:
+            with open(source_path, "r", encoding="utf-8") as handle:
+                content = handle.read()
+        except OSError as exc:
+            raise ValueError(f"Unreadable SBS layout: {source_path}") from exc
+
+        time_variants = (
+            LOCKSCREEN_TIME_CENTER,
+            LOCKSCREEN_TIME_LEFT_V1,
+            LOCKSCREEN_TIME_LEFT_V2,
+        )
+        date_variants = (
+            LOCKSCREEN_DATE_CENTER,
+            LOCKSCREEN_DATE_LEFT_V2,
+        )
+        if not any(item in content for item in time_variants) or not any(item in content for item in date_variants):
+            raise ValueError(f"Unsupported SBS layout: {source_path}")
+
+        if clock_position == "left":
+            updated = IPoneWallpaperService._replace_first(content, time_variants, LOCKSCREEN_TIME_LEFT_V2)
+            updated = IPoneWallpaperService._replace_first(updated, date_variants, LOCKSCREEN_DATE_LEFT_V2)
+        else:
+            updated = IPoneWallpaperService._replace_first(content, time_variants, LOCKSCREEN_TIME_CENTER)
+            updated = IPoneWallpaperService._replace_first(updated, date_variants, LOCKSCREEN_DATE_CENTER)
+        os.makedirs(os.path.dirname(dest_path), exist_ok=True)
+        with open(dest_path, "w", encoding="utf-8") as handle:
+            handle.write(updated)
+
+    @staticmethod
+    def _replace_first(content: str, candidates, replacement: str) -> str:
+        for candidate in candidates:
+            if candidate in content:
+                return content.replace(candidate, replacement, 1)
+        return content
 
     @staticmethod
     def _unique_generated_name(generated_dir: str, prefix: str, stem: str) -> str:

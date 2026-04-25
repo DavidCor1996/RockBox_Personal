@@ -1,0 +1,237 @@
+Archive member included to satisfy reference by file (symbol)
+
+/home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(action_helper.o)
+                              /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/rb_info.o (action_name)
+/home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(button_helper.o)
+                              /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/rb_info.o (get_button_names)
+/home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(printcell_helper.o)
+                              /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/rb_info.o (printcell_enable)
+/home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/lib/libsetjmp.a(setjmp.o)
+                              /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/plugin_crt0.o (setjmp)
+
+Discarded input sections
+
+ .text          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(action_helper.o)
+ .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(action_helper.o)
+ .bss           0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(action_helper.o)
+ .rodata.action_helper_maxbuffer
+                0x0000000000000000        0x4 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(action_helper.o)
+ .text          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(button_helper.o)
+ .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(button_helper.o)
+ .bss           0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(button_helper.o)
+ .rodata.button_helper_maxbuffer
+                0x0000000000000000        0x4 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(button_helper.o)
+ .text          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(printcell_helper.o)
+ .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(printcell_helper.o)
+ .bss           0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(printcell_helper.o)
+ .text.printcell_get_column_visibility
+                0x0000000000000000       0x38 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(printcell_helper.o)
+ .text.printcell_set_column_visible
+                0x0000000000000000       0x60 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(printcell_helper.o)
+ .text.printcell_get_title_text
+                0x0000000000000000       0x6c /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(printcell_helper.o)
+ .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/lib/libsetjmp.a(setjmp.o)
+ .bss           0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/lib/libsetjmp.a(setjmp.o)
+
+Memory Configuration
+
+Name             Origin             Length             Attributes
+PLUGIN_RAM       0x0000000009dfc000 0x0000000000200000
+PLUGIN_IRAM      0x000000000000c000 0x0000000000014000
+*default*        0x0000000000000000 0xffffffffffffffff
+
+Linker script and memory map
+
+LOAD /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/rb_info.o
+LOAD /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/plugin_crt0.o
+LOAD /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a
+LOAD /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/bitmaps/libpluginbitmaps.a
+LOAD /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/lib/libsetjmp.a
+LOAD /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/lib/libfixedpoint.a
+LOAD /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a
+
+.header         0x0000000009dfc000       0x1c
+                0x0000000009dfc000                _plugin_start_addr = .
+                0x0000000009dfc000                plugin_start_addr = .
+ *(.header)
+ .header        0x0000000009dfc000       0x1c /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/plugin_crt0.o
+                0x0000000009dfc000                __header
+
+.text           0x0000000009dfc01c     0x1f18
+ *(.text*)
+ .text          0x0000000009dfc01c      0xcbc /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/rb_info.o
+                0x0000000009dfc784                menu_action_cb
+                0x0000000009dfcb78                plugin_start
+ .text          0x0000000009dfccd8      0x1e0 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/plugin_crt0.o
+                0x0000000009dfccf0                plugin__start
+                0x0000000009dfce1c                rb_atexit
+                0x0000000009dfce3c                exit
+                0x0000000009dfce58                _exit
+                0x0000000009dfce6c                exit_on_usb
+ .text.action_name
+                0x0000000009dfceb8       0x7c /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(action_helper.o)
+                0x0000000009dfceb8                action_name
+ .text.context_name
+                0x0000000009dfcf34       0x98 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(action_helper.o)
+                0x0000000009dfcf34                context_name
+ .text.get_button_names
+                0x0000000009dfcfcc       0xc4 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(button_helper.o)
+                0x0000000009dfcfcc                get_button_names
+ .text.parse_dsptext
+                0x0000000009dfd090       0xb8 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(printcell_helper.o)
+ .text.draw_selector.isra.0
+                0x0000000009dfd148      0x140 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(printcell_helper.o)
+ .text.printcell_listdraw_fn
+                0x0000000009dfd288      0x848 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(printcell_helper.o)
+ .text.printcell_enable
+                0x0000000009dfdad0       0x80 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(printcell_helper.o)
+                0x0000000009dfdad0                printcell_enable
+ .text.printcell_increment_column
+                0x0000000009dfdb50       0x94 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(printcell_helper.o)
+                0x0000000009dfdb50                printcell_increment_column
+ .text.printcell_get_column_selected
+                0x0000000009dfdbe4       0x1c /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(printcell_helper.o)
+                0x0000000009dfdbe4                printcell_get_column_selected
+ .text.printcell_set_columns
+                0x0000000009dfdc00      0x244 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(printcell_helper.o)
+                0x0000000009dfdc00                printcell_set_columns
+ .text.printcell_get_column_text
+                0x0000000009dfde44       0xd4 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(printcell_helper.o)
+                0x0000000009dfde44                printcell_get_column_text
+ .text          0x0000000009dfdf18       0x1c /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/lib/libsetjmp.a(setjmp.o)
+                0x0000000009dfdf18                setjmp
+                0x0000000009dfdf24                longjmp
+ *(.glue_7)
+ .glue_7        0x0000000009dfdf34        0x0 linker stubs
+ *(.glue_7t)
+ .glue_7t       0x0000000009dfdf34        0x0 linker stubs
+
+.vfp11_veneer   0x0000000009dfdf34        0x0
+ .vfp11_veneer  0x0000000009dfdf34        0x0 linker stubs
+
+.v4_bx          0x0000000009dfdf34        0x0
+ .v4_bx         0x0000000009dfdf34        0x0 linker stubs
+
+.iplt           0x0000000009dfdf34        0x0
+ .iplt          0x0000000009dfdf34        0x0 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/rb_info.o
+
+.rodata         0x0000000009dfdf34     0x172b
+ *(.rodata*)
+ .rodata.str1.1
+                0x0000000009dfdf34      0x2e2 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/rb_info.o
+                                        0x2fc (size before relaxing)
+ *fill*         0x0000000009dfe216        0x2 
+ .rodata        0x0000000009dfe218       0xc4 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/rb_info.o
+ .rodata.action_name.str1.1
+                0x0000000009dfe2dc       0x27 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(action_helper.o)
+ .rodata.context_name.str1.1
+                0x0000000009dfe303       0x13 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(action_helper.o)
+ .rodata.action_names
+                0x0000000009dfe316      0xce2 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(action_helper.o)
+ .rodata.action_offsets
+                0x0000000009dfeff8      0x188 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(action_helper.o)
+ .rodata.context_names
+                0x0000000009dff180      0x174 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(action_helper.o)
+ .rodata.get_button_names.str1.1
+                0x0000000009dff2f4        0x4 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(button_helper.o)
+ .rodata.str1.1
+                0x0000000009dff2f8      0x217 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(button_helper.o)
+ .rodata        0x0000000009dff50f        0x2 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(button_helper.o)
+ *fill*         0x0000000009dff511        0x3 
+ .rodata.available_button_count
+                0x0000000009dff514        0x4 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(button_helper.o)
+                0x0000000009dff514                available_button_count
+ .rodata.available_buttons
+                0x0000000009dff518        0x4 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(button_helper.o)
+                0x0000000009dff518                available_buttons
+ .rodata.buttons
+                0x0000000009dff51c      0x108 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(button_helper.o)
+ .rodata.printcell_listdraw_fn.str1.1
+                0x0000000009dff624       0x26 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(printcell_helper.o)
+                                         0x2a (size before relaxing)
+ .rodata.printcell_set_columns.str1.1
+                0x0000000009dff64a       0x15 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(printcell_helper.o)
+                                         0x17 (size before relaxing)
+
+.rel.dyn        0x0000000009dff660        0x0
+ .rel.iplt      0x0000000009dff660        0x0 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/rb_info.o
+
+.data           0x0000000009dff660       0x8c
+ *(.data*)
+ .data          0x0000000009dff660       0x84 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/rb_info.o
+ .data          0x0000000009dff6e4        0x4 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/plugin_crt0.o
+                0x0000000009dff6e4                rb
+ .data.list_sep_color.12407
+                0x0000000009dff6e8        0x4 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(printcell_helper.o)
+
+.igot.plt       0x0000000009dff6ec        0x0
+ .igot.plt      0x0000000009dff6ec        0x0 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/rb_info.o
+
+/DISCARD/
+ *(.eh_frame)
+
+.bss            0x0000000009dff6ec      0x374
+                0x0000000009dff6ec                plugin_bss_start = .
+                0x0000000009dff6ec                _plugin_bss_start = .
+ *(.bss*)
+ .bss           0x0000000009dff6ec       0x74 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/rb_info.o
+ .bss           0x0000000009dff760       0x60 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/plugin_crt0.o
+ .bss.name_buf  0x0000000009dff7c0       0x2e /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(action_helper.o)
+ *fill*         0x0000000009dff7ee        0x2 
+ .bss.printcell
+                0x0000000009dff7f0      0x14c /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(printcell_helper.o)
+ .bss.printcell_buffer.12365
+                0x0000000009dff93c      0x104 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(printcell_helper.o)
+ .bss.sidx.12366
+                0x0000000009dffa40       0x20 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(printcell_helper.o)
+ *(COMMON)
+                0x0000000009dffa60                . = ALIGN (0x4)
+
+.pluginend      0x0000000009dffa60        0x0
+                0x0000000009dffa60                _plugin_end_addr = .
+                0x0000000009dffa60                plugin_end_addr = .
+
+.iram           0x000000000000c000        0x0 load address 0x0000000009dff6ec
+                0x000000000000c000                iramstart = .
+ *(.icode)
+ *(.irodata)
+ *(.idata)
+                0x000000000000c000                iramend = .
+                0x0000000009dff6ec                iramcopy = LOADADDR (.iram)
+
+.ibss           0x000000000000c000        0x0
+                0x000000000000c000                iedata = .
+ *(.ibss)
+                0x000000000000c000                . = ALIGN (0x4)
+                0x000000000000c000                iend = .
+                0x0000000009dffa60                loadendaddr = MAX (plugin_end_addr, (LOADADDR (.iram) + SIZEOF (.iram)))
+
+.pluginloadend  0x0000000009dffa60        0x0
+                0x0000000009dffa60                _plugin_load_end_addr = .
+                0x0000000009dffa60                plugin_load_end_addr = .
+
+.comment        0x0000000000000000       0x11
+ *(.comment)
+ .comment       0x0000000000000000       0x11 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/rb_info.o
+                                         0x12 (size before relaxing)
+ .comment       0x0000000000000011       0x12 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/plugin_crt0.o
+ .comment       0x0000000000000011       0x12 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(action_helper.o)
+ .comment       0x0000000000000011       0x12 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(button_helper.o)
+ .comment       0x0000000000000011       0x12 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(printcell_helper.o)
+OUTPUT(/home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/rb_info.elf elf32-littlearm)
+LOAD linker stubs
+
+.ARM.attributes
+                0x0000000000000000       0x2a
+ .ARM.attributes
+                0x0000000000000000       0x2c /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/rb_info.o
+ .ARM.attributes
+                0x000000000000002c       0x2c /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/plugin_crt0.o
+ .ARM.attributes
+                0x0000000000000058       0x2c /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(action_helper.o)
+ .ARM.attributes
+                0x0000000000000084       0x2c /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(button_helper.o)
+ .ARM.attributes
+                0x00000000000000b0       0x2c /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(printcell_helper.o)
+ .ARM.attributes
+                0x00000000000000dc       0x1c /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/lib/libsetjmp.a(setjmp.o)

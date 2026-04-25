@@ -1,0 +1,439 @@
+Archive member included to satisfy reference by file (symbol)
+
+/home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+                              /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/lib/rbcodec/codecs/adx.o (codec_init)
+/home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/lib/libfixedpoint.a(fixedpoint.o)
+                              /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/lib/rbcodec/codecs/adx.o (fp_sincos)
+/usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+                              /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/lib/rbcodec/codecs/adx.o (__aeabi_idiv)
+/usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
+                              /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o) (__aeabi_idiv0)
+/usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_arm_addsubdf3.o)
+                              /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/lib/rbcodec/codecs/adx.o (__aeabi_dsub)
+/usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_aeabi_ldivmod.o)
+                              /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/lib/rbcodec/codecs/adx.o (__aeabi_ldivmod)
+/usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_aeabi_uldivmod.o)
+                              /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/lib/rbcodec/codecs/adx.o (__aeabi_uldivmod)
+/usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_fixdfdi.o)
+                              /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/lib/rbcodec/codecs/adx.o (__aeabi_d2lz)
+/usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_fixunsdfdi.o)
+                              /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_fixdfdi.o) (__aeabi_d2ulz)
+/usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivmoddi4.o)
+                              /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_aeabi_ldivmod.o) (__udivmoddi4)
+/usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_arm_muldf3.o)
+                              /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_fixunsdfdi.o) (__aeabi_dmul)
+/usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_arm_cmpdf2.o)
+                              /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_fixdfdi.o) (__aeabi_dcmplt)
+/usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_arm_fixunsdfsi.o)
+                              /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_fixunsdfdi.o) (__aeabi_d2uiz)
+/usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzdi2.o)
+                              /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivmoddi4.o) (__clzdi2)
+/usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzsi2.o)
+                              /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzdi2.o) (__clzsi2)
+
+Discarded input sections
+
+ .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/lib/rbcodec/codecs/adx.o
+ .bss           0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/lib/rbcodec/codecs/adx.o
+ .bss           0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/lib/rbcodec/codecs/codec_crt0.o
+ .text          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+ .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+ .text.codec_malloc
+                0x0000000000000000       0x40 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+ .text.codec_calloc
+                0x0000000000000000       0x40 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+ .text.codec_free
+                0x0000000000000000        0x4 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+ .text.codec_realloc
+                0x0000000000000000       0x4c /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+ .text.codec_strlen
+                0x0000000000000000       0x1c /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+ .text.strcpy   0x0000000000000000       0x1c /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+ .text.strcat   0x0000000000000000       0x1c /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+ .text.strcmp   0x0000000000000000       0x1c /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+ .text.memcpy   0x0000000000000000       0x1c /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+ .text.memset   0x0000000000000000       0x1c /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+ .text.memchr   0x0000000000000000       0x1c /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+ .text.memmove  0x0000000000000000       0x1c /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+ .text.qsort    0x0000000000000000       0x1c /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+ .irodata       0x0000000000000000      0x200 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+ .text          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/lib/libfixedpoint.a(fixedpoint.o)
+ .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/lib/libfixedpoint.a(fixedpoint.o)
+ .bss           0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/lib/libfixedpoint.a(fixedpoint.o)
+ .text.ipow     0x0000000000000000       0x44 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/lib/libfixedpoint.a(fixedpoint.o)
+ .text.fp14_sin
+                0x0000000000000000       0x58 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/lib/libfixedpoint.a(fixedpoint.o)
+ .text.fp14_cos
+                0x0000000000000000       0x70 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/lib/libfixedpoint.a(fixedpoint.o)
+ .text.fp16_log
+                0x0000000000000000       0xd4 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/lib/libfixedpoint.a(fixedpoint.o)
+ .text.fp16_exp
+                0x0000000000000000      0x100 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/lib/libfixedpoint.a(fixedpoint.o)
+ .text.fp_exp10
+                0x0000000000000000      0x1cc /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/lib/libfixedpoint.a(fixedpoint.o)
+ .text.fp_log10
+                0x0000000000000000       0xb4 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/lib/libfixedpoint.a(fixedpoint.o)
+ .text.fp_decibels
+                0x0000000000000000       0x30 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/lib/libfixedpoint.a(fixedpoint.o)
+ .text.fp_factor
+                0x0000000000000000       0x44 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/lib/libfixedpoint.a(fixedpoint.o)
+ .rodata.sin_table
+                0x0000000000000000       0xb6 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/lib/libfixedpoint.a(fixedpoint.o)
+ .data          0x0000000000000000        0x0 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+ .bss           0x0000000000000000        0x0 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+ .data          0x0000000000000000        0x0 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
+ .bss           0x0000000000000000        0x0 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
+ .data          0x0000000000000000        0x0 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_arm_addsubdf3.o)
+ .bss           0x0000000000000000        0x0 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_arm_addsubdf3.o)
+ .data          0x0000000000000000        0x0 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_aeabi_ldivmod.o)
+ .bss           0x0000000000000000        0x0 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_aeabi_ldivmod.o)
+ .data          0x0000000000000000        0x0 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_aeabi_uldivmod.o)
+ .bss           0x0000000000000000        0x0 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_aeabi_uldivmod.o)
+ .data          0x0000000000000000        0x0 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_fixdfdi.o)
+ .bss           0x0000000000000000        0x0 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_fixdfdi.o)
+ .data          0x0000000000000000        0x0 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_fixunsdfdi.o)
+ .bss           0x0000000000000000        0x0 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_fixunsdfdi.o)
+ .data          0x0000000000000000        0x0 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivmoddi4.o)
+ .bss           0x0000000000000000        0x0 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivmoddi4.o)
+ .data          0x0000000000000000        0x0 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_arm_muldf3.o)
+ .bss           0x0000000000000000        0x0 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_arm_muldf3.o)
+ .data          0x0000000000000000        0x0 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_arm_cmpdf2.o)
+ .bss           0x0000000000000000        0x0 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_arm_cmpdf2.o)
+ .data          0x0000000000000000        0x0 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_arm_fixunsdfsi.o)
+ .bss           0x0000000000000000        0x0 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_arm_fixunsdfsi.o)
+ .data          0x0000000000000000        0x0 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzdi2.o)
+ .bss           0x0000000000000000        0x0 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzdi2.o)
+ .data          0x0000000000000000        0x0 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzsi2.o)
+ .bss           0x0000000000000000        0x0 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzsi2.o)
+
+Memory Configuration
+
+Name             Origin             Length             Attributes
+PLUGIN_RAM       0x0000000009cfc000 0x0000000000100000
+PLUGIN_IRAM      0x000000000000c000 0x0000000000014000
+*default*        0x0000000000000000 0xffffffffffffffff
+
+Linker script and memory map
+
+LOAD /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/lib/rbcodec/codecs/adx.o
+LOAD /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/lib/rbcodec/codecs/codec_crt0.o
+LOAD /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/lib/rbcodec/codecs/libcodec.a
+LOAD /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/lib/libfixedpoint.a
+LOAD /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a
+
+.header         0x0000000009cfc000       0x20
+                0x0000000009cfc000                _plugin_start_addr = .
+                0x0000000009cfc000                plugin_start_addr = .
+ *(.header)
+ .header        0x0000000009cfc000       0x20 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/lib/rbcodec/codecs/adx.o
+                0x0000000009cfc000                __header
+
+.text           0x0000000009cfc020     0x19c8
+ *(.text*)
+ .text          0x0000000009cfc020      0xa20 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/lib/rbcodec/codecs/adx.o
+                0x0000000009cfc020                codec_run
+                0x0000000009cfca08                codec_main
+ .text          0x0000000009cfca40       0xd4 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/lib/rbcodec/codecs/codec_crt0.o
+                0x0000000009cfca40                _start
+                0x0000000009cfca48                codec_start
+                0x0000000009cfcb00                __div0
+ .text.codec_init
+                0x0000000009cfcb14       0x38 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+                0x0000000009cfcb14                codec_init
+ .text.codec_set_replaygain
+                0x0000000009cfcb4c       0x4c /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+                0x0000000009cfcb4c                codec_set_replaygain
+ .text.memcmp   0x0000000009cfcb98       0x1c /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+                0x0000000009cfcb98                memcmp
+ .text.fp_sincos
+                0x0000000009cfcbb4       0x84 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/lib/libfixedpoint.a(fixedpoint.o)
+                0x0000000009cfcbb4                fp_sincos
+ .text.fp_sqrt  0x0000000009cfcc38       0xc0 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/lib/libfixedpoint.a(fixedpoint.o)
+                0x0000000009cfcc38                fp_sqrt
+ .text          0x0000000009cfccf8      0x148 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+                0x0000000009cfccf8                __aeabi_idiv
+                0x0000000009cfccf8                __divsi3
+                0x0000000009cfce20                __aeabi_idivmod
+ .text          0x0000000009cfce40        0x4 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
+                0x0000000009cfce40                __aeabi_ldiv0
+                0x0000000009cfce40                __aeabi_idiv0
+ .text          0x0000000009cfce44      0x424 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_arm_addsubdf3.o)
+                0x0000000009cfce44                __aeabi_drsub
+                0x0000000009cfce4c                __aeabi_dsub
+                0x0000000009cfce4c                __subdf3
+                0x0000000009cfce50                __adddf3
+                0x0000000009cfce50                __aeabi_dadd
+                0x0000000009cfd160                __aeabi_ui2d
+                0x0000000009cfd160                __floatunsidf
+                0x0000000009cfd184                __floatsidf
+                0x0000000009cfd184                __aeabi_i2d
+                0x0000000009cfd1ac                __extendsfdf2
+                0x0000000009cfd1ac                __aeabi_f2d
+                0x0000000009cfd1f4                __aeabi_ul2d
+                0x0000000009cfd1f4                __floatundidf
+                0x0000000009cfd208                __floatdidf
+                0x0000000009cfd208                __aeabi_l2d
+ .text          0x0000000009cfd268       0xd4 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_aeabi_ldivmod.o)
+                0x0000000009cfd268                __aeabi_ldivmod
+ .text          0x0000000009cfd33c       0x3c /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_aeabi_uldivmod.o)
+                0x0000000009cfd33c                __aeabi_uldivmod
+ .text          0x0000000009cfd378       0x4c /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_fixdfdi.o)
+                0x0000000009cfd378                __aeabi_d2lz
+                0x0000000009cfd378                __fixdfdi
+ .text          0x0000000009cfd3c4       0x5c /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_fixunsdfdi.o)
+                0x0000000009cfd3c4                __aeabi_d2ulz
+                0x0000000009cfd3c4                __fixunsdfdi
+ .text          0x0000000009cfd420      0x130 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivmoddi4.o)
+                0x0000000009cfd420                __udivmoddi4
+ .text          0x0000000009cfd550      0x290 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_arm_muldf3.o)
+                0x0000000009cfd550                __aeabi_dmul
+                0x0000000009cfd550                __muldf3
+ .text          0x0000000009cfd7e0      0x144 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_arm_cmpdf2.o)
+                0x0000000009cfd7e0                __gtdf2
+                0x0000000009cfd7e0                __gedf2
+                0x0000000009cfd7e8                __ltdf2
+                0x0000000009cfd7e8                __ledf2
+                0x0000000009cfd7f0                __cmpdf2
+                0x0000000009cfd7f0                __eqdf2
+                0x0000000009cfd7f0                __nedf2
+                0x0000000009cfd878                __aeabi_cdrcmple
+                0x0000000009cfd894                __aeabi_cdcmple
+                0x0000000009cfd894                __aeabi_cdcmpeq
+                0x0000000009cfd8ac                __aeabi_dcmpeq
+                0x0000000009cfd8c4                __aeabi_dcmplt
+                0x0000000009cfd8dc                __aeabi_dcmple
+                0x0000000009cfd8f4                __aeabi_dcmpge
+                0x0000000009cfd90c                __aeabi_dcmpgt
+ .text          0x0000000009cfd924       0x54 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_arm_fixunsdfsi.o)
+                0x0000000009cfd924                __fixunsdfsi
+                0x0000000009cfd924                __aeabi_d2uiz
+ .text          0x0000000009cfd978       0x28 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzdi2.o)
+                0x0000000009cfd978                __clzdi2
+ .text          0x0000000009cfd9a0       0x48 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzsi2.o)
+                0x0000000009cfd9a0                __clzsi2
+ *(.glue_7)
+ .glue_7        0x0000000009cfd9e8        0x0 linker stubs
+ *(.glue_7t)
+ .glue_7t       0x0000000009cfd9e8        0x0 linker stubs
+
+.vfp11_veneer   0x0000000009cfd9e8        0x0
+ .vfp11_veneer  0x0000000009cfd9e8        0x0 linker stubs
+
+.v4_bx          0x0000000009cfd9e8        0x0
+ .v4_bx         0x0000000009cfd9e8        0x0 linker stubs
+
+.iplt           0x0000000009cfd9e8        0x0
+ .iplt          0x0000000009cfd9e8        0x0 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/lib/rbcodec/codecs/adx.o
+
+.rodata         0x0000000009cfd9e8       0x88
+ *(.rodata*)
+ .rodata.str1.1
+                0x0000000009cfd9e8        0x8 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/lib/rbcodec/codecs/adx.o
+ .rodata.atan_table
+                0x0000000009cfd9f0       0x80 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/lib/libfixedpoint.a(fixedpoint.o)
+
+.rel.dyn        0x0000000009cfda70        0x0
+ .rel.iplt      0x0000000009cfda70        0x0 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/lib/rbcodec/codecs/adx.o
+
+.data           0x0000000009cfda70        0x4
+ *(.data*)
+ .data          0x0000000009cfda70        0x4 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/lib/rbcodec/codecs/codec_crt0.o
+                0x0000000009cfda70                ci
+
+.igot.plt       0x0000000009cfda74        0x0
+ .igot.plt      0x0000000009cfda74        0x0 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/lib/rbcodec/codecs/adx.o
+
+/DISCARD/
+ *(.eh_frame)
+
+.bss            0x0000000009cfda74        0xc
+                0x0000000009cfda74                plugin_bss_start = .
+                0x0000000009cfda74                _plugin_bss_start = .
+ *(.bss*)
+ .bss           0x0000000009cfda74        0xc /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+ *(COMMON)
+                0x0000000009cfda80                . = ALIGN (0x4)
+
+.pluginend      0x0000000009cfda80        0x0
+                0x0000000009cfda80                _plugin_end_addr = .
+                0x0000000009cfda80                plugin_end_addr = .
+
+.iram           0x000000000000c000        0x0 load address 0x0000000009cfda74
+                0x000000000000c000                iramstart = .
+ *(.icode)
+ *(.irodata)
+ *(.idata)
+                0x000000000000c000                iramend = .
+                0x0000000009cfda74                iramcopy = LOADADDR (.iram)
+
+.ibss           0x000000000000c000     0x1000
+                0x000000000000c000                iedata = .
+ *(.ibss)
+ .ibss          0x000000000000c000     0x1000 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/lib/rbcodec/codecs/adx.o
+                0x000000000000d000                . = ALIGN (0x4)
+                0x000000000000d000                iend = .
+                0x0000000009cfda80                loadendaddr = MAX (plugin_end_addr, (LOADADDR (.iram) + SIZEOF (.iram)))
+
+.pluginloadend  0x0000000009cfda80        0x0
+                0x0000000009cfda80                _plugin_load_end_addr = .
+                0x0000000009cfda80                plugin_load_end_addr = .
+
+.comment        0x0000000000000000       0x11
+ *(.comment)
+ .comment       0x0000000000000000       0x11 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/lib/rbcodec/codecs/adx.o
+                                         0x12 (size before relaxing)
+ .comment       0x0000000000000011       0x12 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/lib/rbcodec/codecs/codec_crt0.o
+ .comment       0x0000000000000011       0x12 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+ .comment       0x0000000000000011       0x12 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/lib/libfixedpoint.a(fixedpoint.o)
+ .comment       0x0000000000000011       0x12 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_fixdfdi.o)
+ .comment       0x0000000000000011       0x12 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_fixunsdfdi.o)
+ .comment       0x0000000000000011       0x12 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivmoddi4.o)
+OUTPUT(/home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/lib/rbcodec/codecs/adx.elf elf32-littlearm)
+LOAD linker stubs
+
+.ARM.attributes
+                0x0000000000000000       0x2c
+ .ARM.attributes
+                0x0000000000000000       0x2c /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/lib/rbcodec/codecs/adx.o
+ .ARM.attributes
+                0x000000000000002c       0x2c /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/lib/rbcodec/codecs/codec_crt0.o
+ .ARM.attributes
+                0x0000000000000058       0x2c /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+ .ARM.attributes
+                0x0000000000000084       0x2c /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/lib/libfixedpoint.a(fixedpoint.o)
+ .ARM.attributes
+                0x00000000000000b0       0x1c /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+ .ARM.attributes
+                0x00000000000000cc       0x1c /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
+ .ARM.attributes
+                0x00000000000000e8       0x1c /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_arm_addsubdf3.o)
+ .ARM.attributes
+                0x0000000000000104       0x1c /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_aeabi_ldivmod.o)
+ .ARM.attributes
+                0x0000000000000120       0x1c /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_aeabi_uldivmod.o)
+ .ARM.attributes
+                0x000000000000013c       0x2a /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_fixdfdi.o)
+ .ARM.attributes
+                0x0000000000000166       0x2a /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_fixunsdfdi.o)
+ .ARM.attributes
+                0x0000000000000190       0x2a /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivmoddi4.o)
+ .ARM.attributes
+                0x00000000000001ba       0x1c /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_arm_muldf3.o)
+ .ARM.attributes
+                0x00000000000001d6       0x1c /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_arm_cmpdf2.o)
+ .ARM.attributes
+                0x00000000000001f2       0x1c /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_arm_fixunsdfsi.o)
+ .ARM.attributes
+                0x000000000000020e       0x1c /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzdi2.o)
+ .ARM.attributes
+                0x000000000000022a       0x1c /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzsi2.o)
+
+.debug_frame    0x0000000000000000      0x304
+ .debug_frame   0x0000000000000000       0x20 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+ .debug_frame   0x0000000000000020       0xac /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_arm_addsubdf3.o)
+ .debug_frame   0x00000000000000cc       0x44 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_aeabi_ldivmod.o)
+ .debug_frame   0x0000000000000110       0x2c /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_aeabi_uldivmod.o)
+ .debug_frame   0x000000000000013c       0x3c /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_fixdfdi.o)
+ .debug_frame   0x0000000000000178       0x34 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_fixunsdfdi.o)
+ .debug_frame   0x00000000000001ac       0x40 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivmoddi4.o)
+ .debug_frame   0x00000000000001ec       0x30 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_arm_muldf3.o)
+ .debug_frame   0x000000000000021c       0xc4 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_arm_cmpdf2.o)
+ .debug_frame   0x00000000000002e0       0x24 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_arm_fixunsdfsi.o)
+
+.debug_line     0x0000000000000000      0xaa4
+ .debug_line    0x0000000000000000       0x8a /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+ .debug_line    0x000000000000008a       0x61 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
+ .debug_line    0x00000000000000eb      0x170 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_arm_addsubdf3.o)
+ .debug_line    0x000000000000025b       0x7f /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_aeabi_ldivmod.o)
+ .debug_line    0x00000000000002da       0x61 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_aeabi_uldivmod.o)
+ .debug_line    0x000000000000033b      0x134 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_fixdfdi.o)
+ .debug_line    0x000000000000046f      0x12d /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_fixunsdfdi.o)
+ .debug_line    0x000000000000059c      0x20b /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivmoddi4.o)
+ .debug_line    0x00000000000007a7       0xfc /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_arm_muldf3.o)
+ .debug_line    0x00000000000008a3       0xb2 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_arm_cmpdf2.o)
+ .debug_line    0x0000000000000955       0x76 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_arm_fixunsdfsi.o)
+ .debug_line    0x00000000000009cb       0x6b /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzdi2.o)
+ .debug_line    0x0000000000000a36       0x6e /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzsi2.o)
+
+.debug_info     0x0000000000000000     0x1e5e
+ .debug_info    0x0000000000000000       0x26 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+ .debug_info    0x0000000000000026       0x26 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
+ .debug_info    0x000000000000004c       0x26 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_arm_addsubdf3.o)
+ .debug_info    0x0000000000000072       0x26 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_aeabi_ldivmod.o)
+ .debug_info    0x0000000000000098       0x26 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_aeabi_uldivmod.o)
+ .debug_info    0x00000000000000be      0x968 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_fixdfdi.o)
+ .debug_info    0x0000000000000a26      0x97f /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_fixunsdfdi.o)
+ .debug_info    0x00000000000013a5      0x9fb /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivmoddi4.o)
+ .debug_info    0x0000000000001da0       0x26 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_arm_muldf3.o)
+ .debug_info    0x0000000000001dc6       0x26 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_arm_cmpdf2.o)
+ .debug_info    0x0000000000001dec       0x26 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_arm_fixunsdfsi.o)
+ .debug_info    0x0000000000001e12       0x26 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzdi2.o)
+ .debug_info    0x0000000000001e38       0x26 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzsi2.o)
+
+.debug_abbrev   0x0000000000000000      0x4d4
+ .debug_abbrev  0x0000000000000000       0x14 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+ .debug_abbrev  0x0000000000000014       0x14 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
+ .debug_abbrev  0x0000000000000028       0x14 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_arm_addsubdf3.o)
+ .debug_abbrev  0x000000000000003c       0x14 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_aeabi_ldivmod.o)
+ .debug_abbrev  0x0000000000000050       0x14 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_aeabi_uldivmod.o)
+ .debug_abbrev  0x0000000000000064      0x15b /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_fixdfdi.o)
+ .debug_abbrev  0x00000000000001bf      0x14f /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_fixunsdfdi.o)
+ .debug_abbrev  0x000000000000030e      0x162 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivmoddi4.o)
+ .debug_abbrev  0x0000000000000470       0x14 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_arm_muldf3.o)
+ .debug_abbrev  0x0000000000000484       0x14 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_arm_cmpdf2.o)
+ .debug_abbrev  0x0000000000000498       0x14 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_arm_fixunsdfsi.o)
+ .debug_abbrev  0x00000000000004ac       0x14 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzdi2.o)
+ .debug_abbrev  0x00000000000004c0       0x14 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzsi2.o)
+
+.debug_aranges  0x0000000000000000      0x1a0
+ .debug_aranges
+                0x0000000000000000       0x20 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+ .debug_aranges
+                0x0000000000000020       0x20 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
+ .debug_aranges
+                0x0000000000000040       0x20 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_arm_addsubdf3.o)
+ .debug_aranges
+                0x0000000000000060       0x20 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_aeabi_ldivmod.o)
+ .debug_aranges
+                0x0000000000000080       0x20 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_aeabi_uldivmod.o)
+ .debug_aranges
+                0x00000000000000a0       0x20 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_fixdfdi.o)
+ .debug_aranges
+                0x00000000000000c0       0x20 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_fixunsdfdi.o)
+ .debug_aranges
+                0x00000000000000e0       0x20 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivmoddi4.o)
+ .debug_aranges
+                0x0000000000000100       0x20 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_arm_muldf3.o)
+ .debug_aranges
+                0x0000000000000120       0x20 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_arm_cmpdf2.o)
+ .debug_aranges
+                0x0000000000000140       0x20 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_arm_fixunsdfsi.o)
+ .debug_aranges
+                0x0000000000000160       0x20 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzdi2.o)
+ .debug_aranges
+                0x0000000000000180       0x20 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzsi2.o)
+
+.debug_str      0x0000000000000000     0x12cc
+ .debug_str     0x0000000000000000       0x6c /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+ .debug_str     0x000000000000006c       0x6c /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
+ .debug_str     0x000000000000006c       0x32 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_arm_addsubdf3.o)
+                                         0x6d (size before relaxing)
+ .debug_str     0x000000000000009e       0x2d /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_aeabi_ldivmod.o)
+                                         0x68 (size before relaxing)
+ .debug_str     0x00000000000000cb       0x68 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_aeabi_uldivmod.o)
+ .debug_str     0x00000000000000cb     0x111d /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_fixdfdi.o)
+                                       0x1183 (size before relaxing)
+ .debug_str     0x00000000000011e8       0x10 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_fixunsdfdi.o)
+                                       0x1174 (size before relaxing)
+ .debug_str     0x00000000000011f8       0xd4 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivmoddi4.o)
+                                       0x1196 (size before relaxing)
+ .debug_str     0x00000000000012cc       0x6d /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_arm_muldf3.o)
+ .debug_str     0x00000000000012cc       0x6d /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_arm_cmpdf2.o)
+ .debug_str     0x00000000000012cc       0x6d /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_arm_fixunsdfsi.o)
+ .debug_str     0x00000000000012cc       0x6c /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzdi2.o)
+ .debug_str     0x00000000000012cc       0x6c /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzsi2.o)
+
+.debug_loc      0x0000000000000000      0x2bb
+ .debug_loc     0x0000000000000000       0x2c /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_fixdfdi.o)
+ .debug_loc     0x000000000000002c       0xad /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_fixunsdfdi.o)
+ .debug_loc     0x00000000000000d9      0x1e2 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivmoddi4.o)

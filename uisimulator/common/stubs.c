@@ -30,6 +30,7 @@
 #include "lcd.h"
 
 #include "power.h"
+#include "sim_tasks.h"
 
 #include "ata.h" /* for volume definitions */
 
@@ -193,7 +194,7 @@ bool spdif_powered(void)
 #ifdef HAVE_USB_POWER
 bool usb_powered_only(void)
 {
-    return false;
+    return sim_usb_powered_only();
 }
 
 bool usb_charging_enable(bool on)
@@ -206,7 +207,7 @@ bool usb_charging_enable(bool on)
 #ifndef USB_NONE
 bool usb_inserted(void)
 {
-    return false;
+    return sim_usb_inserted();
 }
 #endif
 

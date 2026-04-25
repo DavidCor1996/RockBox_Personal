@@ -22,6 +22,7 @@
 #include "system.h"
 #include "kernel.h"
 #include "piezo.h"
+#include "bringup-nano3g.h"
 
 static unsigned int duration;
 static bool beeping;
@@ -41,6 +42,9 @@ static void piezo_gpio_enable(bool enable)
 
 static void piezo_start(unsigned short cycles, unsigned short periods)
 {
+    if (nano3g_safe_mode_enabled())
+        return;
+
 #ifndef SIMULATOR
     duration = periods;
     beeping = 1;
@@ -63,6 +67,12 @@ static void piezo_start(unsigned short cycles, unsigned short periods)
 
 void piezo_stop(void)
 {
+    if (nano3g_safe_mode_enabled())
+    {
+        beeping = 0;
+        return;
+    }
+
 #ifndef SIMULATOR
     beeping = 0;
     TACMD = (1 << 1);   /* TA_CLR */
@@ -104,6 +114,9 @@ void piezo_button_beep(bool beep, bool force)
 #ifdef BOOTLOADER
 void piezo_tone(uint32_t period /*uS*/, int32_t duration /*ms*/)
 {
+    if (nano3g_safe_mode_enabled())
+        return;
+
     int32_t stop = USEC_TIMER + duration*1000;
     uint32_t level = 0;
 

@@ -2,9 +2,19 @@
 
 static struct pc_game_state pc_game;
 
+static void set_world_wheel_mode(bool world_mode)
+{
+#ifdef HAVE_WHEEL_POSITION
+    rb->wheel_send_events(!world_mode);
+#else
+    (void)world_mode;
+#endif
+}
+
 static enum plugin_status run_pocketcatch(void)
 {
     enum plugin_status status = PLUGIN_OK;
+    bool world_wheel_mode = false;
     bool simulator_debug =
 #ifdef SIMULATOR
         true;
@@ -16,6 +26,8 @@ static enum plugin_status run_pocketcatch(void)
     pc_game.mode = PC_MODE_WORLD;
     pc_world_init(&pc_game.world);
     pc_state_init(&pc_game.encounter, simulator_debug);
+    set_world_wheel_mode(true);
+    world_wheel_mode = true;
 
     while (true)
     {
@@ -28,15 +40,27 @@ static enum plugin_status run_pocketcatch(void)
             break;
         }
 
+        rb->backlight_on();
+
+        if (pc_game.mode == PC_MODE_WORLD && !world_wheel_mode)
+        {
+            set_world_wheel_mode(true);
+            world_wheel_mode = true;
+        }
+        else if (pc_game.mode == PC_MODE_ENCOUNTER && world_wheel_mode)
+        {
+            set_world_wheel_mode(false);
+            world_wheel_mode = false;
+        }
+
         if (pc_game.mode == PC_MODE_WORLD)
         {
             struct pc_world_command command;
 
             pc_world_input_handle_event(event, &command);
-            if (command.exit_requested)
-                break;
-
             pc_world_update(&pc_game.world, &command);
+            if (pc_game.world.quit_requested)
+                break;
             if (pc_game.world.pending_encounter)
             {
                 pc_state_begin(&pc_game.encounter, pc_game.world.pending_species_index);
@@ -68,6 +92,7 @@ static enum plugin_status run_pocketcatch(void)
         }
     }
 
+    set_world_wheel_mode(false);
     pc_world_teardown(&pc_game.world);
     pc_assets_teardown(&pc_game.encounter.assets);
     return status;

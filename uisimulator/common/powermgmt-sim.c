@@ -35,71 +35,82 @@
 /* Number of millivolts to charge the battery every second */
 #define BATT_CHARGE_STEP (BATT_DISCHARGE_STEP * 2)
 #if CONFIG_CHARGING >= CHARGING_MONITOR
-/* Number of seconds to externally power before discharging again */
-#define POWER_AFTER_CHARGE_TICKS (8 * HZ)
+/* Lower battery discharge while simulated sleep is active. */
+#define BATT_SLEEP_DISCHARGE_STEP (BATT_DISCHARGE_STEP / 4)
 #endif
 
 static bool charging = false;
+static bool sim_usb_online = false;
+static bool sim_main_online = false;
+static bool sim_charge_enabled = true;
+static bool sim_sleeping = false;
 static unsigned int batt_millivolts = BATT_MAXMVOLT;
 static unsigned int batt_percent = 100;
 static unsigned int batt_runtime = BATT_MAXRUNTIME;
 static unsigned int batt_current = 0;
 
-void powermgmt_init_target(void) {}
+void powermgmt_init_target(void)
+{
+    sim_usb_online = false;
+    sim_main_online = false;
+    sim_charge_enabled = true;
+    sim_sleeping = false;
+}
 
 static void battery_status_update(void)
 {
     /* Delay next battery update until tick */
     static long update_after_tick = 0;
-#if CONFIG_CHARGING >= CHARGING_MONITOR
-    /* When greater than 0, the tick to unplug the external power at */
-    static unsigned int ext_power_until_tick = 0;
-#endif
+    bool ext_power;
+    unsigned int discharge_step;
 
     if(TIME_BEFORE(current_tick, update_after_tick))
         return;
 
     update_after_tick = current_tick + HZ;
 
+    ext_power = sim_usb_online || sim_main_online;
+
 #if CONFIG_CHARGING >= CHARGING_MONITOR
-    /* Handle period of being externally powered */
-    if (ext_power_until_tick > 0) {
-        if (TIME_AFTER(current_tick, ext_power_until_tick)) {
-            /* Pretend the charger was disconnected */
-            charger_input_state = CHARGER_UNPLUGGED;
-            ext_power_until_tick = 0;
-        }
-        return;
-    }
+    charging = ext_power && sim_charge_enabled && batt_millivolts < BATT_MAXMVOLT;
+#else
+    charging = ext_power && sim_charge_enabled;
 #endif
 
-    if (charging) {
+    if (charging)
+    {
         batt_millivolts += BATT_CHARGE_STEP;
-        if (batt_millivolts >= BATT_MAXMVOLT) {
-            charging = false;
-#if CONFIG_CHARGING >= CHARGING_MONITOR
-            /* Keep external power until tick */
-            ext_power_until_tick = current_tick + POWER_AFTER_CHARGE_TICKS;
-#elif CONFIG_CHARGING
-            /* Pretend the charger was disconnected */
-            charger_input_state = CHARGER_UNPLUGGED;
-#endif
-        }
-    } else {
-        batt_millivolts -= BATT_DISCHARGE_STEP;
-        if (batt_millivolts <= BATT_MINMVOLT) {
-            charging = true;
-#if CONFIG_CHARGING
-            /* Pretend the charger was connected */
-            charger_input_state = CHARGER_PLUGGED;
-#endif
-        }
     }
+    else if (!ext_power)
+    {
+        discharge_step = BATT_DISCHARGE_STEP;
+#if CONFIG_CHARGING >= CHARGING_MONITOR
+        if (sim_sleeping && BATT_SLEEP_DISCHARGE_STEP > 0)
+            discharge_step = BATT_SLEEP_DISCHARGE_STEP;
+#endif
+        if (discharge_step == 0)
+            discharge_step = 1;
+
+        if (batt_millivolts > discharge_step)
+            batt_millivolts -= discharge_step;
+        else
+            batt_millivolts = BATT_MINMVOLT;
+    }
+
+    if (batt_millivolts > BATT_MAXMVOLT)
+        batt_millivolts = BATT_MAXMVOLT;
+    if (batt_millivolts < BATT_MINMVOLT)
+        batt_millivolts = BATT_MINMVOLT;
 
     batt_percent = ((float) (batt_millivolts - BATT_MINMVOLT) / (BATT_MAXMVOLT - BATT_MINMVOLT)) * 100;
     batt_runtime = batt_percent * BATT_MAXRUNTIME;
-    /* current is completely bogus... */
-    batt_current = charging ? BATT_CHARGE_STEP : BATT_DISCHARGE_STEP;
+    if (charging)
+        batt_current = BATT_CHARGE_STEP;
+    else if (!ext_power)
+        batt_current = sim_sleeping && BATT_SLEEP_DISCHARGE_STEP > 0
+            ? BATT_SLEEP_DISCHARGE_STEP : BATT_DISCHARGE_STEP;
+    else
+        batt_current = 0;
 }
 
 unsigned short battery_level_disksafe = 3200;
@@ -146,8 +157,20 @@ int _battery_current(void)
 #if CONFIG_CHARGING
 unsigned int power_input_status(void)
 {
-    unsigned int status = charger_input_state >= CHARGER_PLUGGED
-            ? POWER_INPUT_CHARGER : POWER_INPUT_NONE;
+    unsigned int status = POWER_INPUT_NONE;
+
+    if (sim_main_online)
+        status |= POWER_INPUT_MAIN;
+    if (sim_usb_online)
+        status |= POWER_INPUT_USB;
+
+    if (sim_charge_enabled)
+    {
+        if (sim_main_online)
+            status |= POWER_INPUT_MAIN_CHARGER;
+        if (sim_usb_online)
+            status |= POWER_INPUT_USB_CHARGER;
+    }
 
 #ifdef HAVE_BATTERY_SWITCH
     status |= POWER_INPUT_BATTERY;
@@ -158,9 +181,50 @@ unsigned int power_input_status(void)
 
 bool charging_state(void)
 {
+    battery_status_update();
     return charging;
 }
 #endif
+
+void sim_power_set_usb_online(bool online)
+{
+    sim_usb_online = online;
+}
+
+bool sim_power_usb_online(void)
+{
+    return sim_usb_online;
+}
+
+void sim_power_set_main_online(bool online)
+{
+    sim_main_online = online;
+}
+
+bool sim_power_main_online(void)
+{
+    return sim_main_online;
+}
+
+void sim_power_set_charge_enabled(bool enabled)
+{
+    sim_charge_enabled = enabled;
+}
+
+bool sim_power_charge_enabled(void)
+{
+    return sim_charge_enabled;
+}
+
+void sim_power_set_sleeping(bool sleeping)
+{
+    sim_sleeping = sleeping;
+}
+
+bool sim_power_sleeping(void)
+{
+    return sim_sleeping;
+}
 
 #ifdef HAVE_ACCESSORY_SUPPLY
 void accessory_supply_set(bool enable)

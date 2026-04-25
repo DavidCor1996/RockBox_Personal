@@ -30,6 +30,8 @@
 #include "dma-s5l8702.h"
 #include "clocking-s5l8702.h"
 
+#include "ipodnano3g/bringup-nano3g.h"
+
 #define default_interrupt(name) \
   extern __attribute__((weak,alias("UIRQ"))) void name (void)
 
@@ -217,6 +219,10 @@ static void vic_init(void)
 
 void system_init(void)
 {
+#if defined(IPOD_NANO3G)
+    nano3g_boottrace_log("system_init");
+#endif
+
     /*
      * Bootloader seems to give a blank screen when IRAM1 is disabled
      * - FW 10/13/19
@@ -265,6 +271,12 @@ void system_reboot(void)
 
 void system_exception_wait(void)
 {
+#if defined(IPOD_NANO3G)
+    nano3g_boottrace_log("system_exception_wait");
+    if (nano3g_safe_mode_enabled())
+        nano3g_failsafe_halt("system_exception_wait");
+#endif
+
 //    post_mortem_stub();
     while(1);
 }
@@ -586,6 +598,11 @@ static void miu_preinit(bool selfrefreshing)
 /* Preliminary HW initialization */
 void system_preinit(void)
 {
+#if defined(IPOD_NANO3G)
+    nano3g_boottrace_reset();
+    nano3g_boottrace_log("system_preinit");
+#endif
+
     bool hibernated;        // TODO: hibernated -> resuming, or perhaps better warmboot
 #if CONFIG_CPU == S5L8720
     uint32_t boot_config;
@@ -601,8 +618,17 @@ void system_preinit(void)
 #endif
 
     syscon_preinit();
+#if defined(IPOD_NANO3G)
+    nano3g_boottrace_log("syscon_preinit");
+#endif
     gpio_preinit();
+#if defined(IPOD_NANO3G)
+    nano3g_boottrace_log("gpio_preinit");
+#endif
     i2c_preinit(0);
+#if defined(IPOD_NANO3G)
+    nano3g_boottrace_log("i2c_preinit");
+#endif
 
 #if CONFIG_CPU == S5L8720
     /* TBC: store boot config into a PMU memory register */
@@ -610,9 +636,19 @@ void system_preinit(void)
 #endif
     hibernated = pmu_is_hibernated();
 
+#if defined(IPOD_NANO3G)
+    nano3g_boottrace_log(hibernated ? "warmboot" : "coldboot");
+#endif
+
     pmu_preinit();
+#if defined(IPOD_NANO3G)
+    nano3g_boottrace_log("pmu_preinit done");
+#endif
 
     miu_preinit(hibernated);
+#if defined(IPOD_NANO3G)
+    nano3g_boottrace_log("miu_preinit done");
+#endif
 }
 
 #endif /* BOOTLOADER */

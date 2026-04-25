@@ -1,5 +1,7 @@
 #include "pocketcatch.h"
 #include "pc_red_gfx.h"
+#include "pc_red_dojo_gfx.h"
+#include "pc_red_pokecenter_gfx.h"
 #include "lib/xlcd.h"
 
 #define PC_GB_LIGHT    LCD_RGBPACK(0xe0, 0xf8, 0xd0)
@@ -15,7 +17,10 @@ static const fb_data pc_gb_palette[4] = {
     PC_GB_LIGHT,
 };
 
-static fb_data pc_world_bg_cache[LCD_WIDTH * LCD_HEIGHT];
+#define PC_WORLD_CACHE_W (PC_WORLD_W * PC_WORLD_TILE_SIZE)
+#define PC_WORLD_CACHE_H (PC_WORLD_H * PC_WORLD_TILE_SIZE)
+
+static fb_data pc_world_bg_cache[PC_WORLD_CACHE_W * PC_WORLD_CACHE_H];
 static bool pc_world_bg_ready;
 
 static void draw_text_small(int x, int y, fb_data color, const char *text)
@@ -89,6 +94,8 @@ static bool outdoor_scene(enum pc_world_scene scene)
 {
     return scene == PC_WORLD_SCENE_PALLET ||
            scene == PC_WORLD_SCENE_ROUTE1_SOUTH ||
+           scene == PC_WORLD_SCENE_VIRIDIAN_SOUTH ||
+           scene == PC_WORLD_SCENE_ROUTE2_SOUTH ||
            scene == PC_WORLD_SCENE_ROUTE21_NORTH;
 }
 
@@ -98,6 +105,7 @@ static void draw_spawn(const struct pc_world_state *world, int index)
     const struct pc_creature_def *creature;
     int screen_x;
     int screen_y;
+    int shadow_w = 12;
 
     if (!spawn->active)
         return;
@@ -105,6 +113,12 @@ static void draw_spawn(const struct pc_world_state *world, int index)
     screen_x = world->origin_x + spawn->x;
     screen_y = world->origin_y + spawn->y;
     creature = pc_assets_get_creature(spawn->species_index);
+    if (world->assets.creature[index].loaded)
+        shadow_w = MAX(12, world->assets.creature[index].bmp.width / 2);
+
+    fill_capsule(screen_x - shadow_w / 2, screen_y + 7,
+                 shadow_w, 4, LCD_RGBPACK(0x60, 0x70, 0x58));
+
     if (world->assets.creature[index].loaded)
     {
         rb->lcd_bitmap_transparent((const fb_data *)world->assets.creature[index].bmp.data,
@@ -116,9 +130,9 @@ static void draw_spawn(const struct pc_world_state *world, int index)
     else if (creature != NULL)
     {
         rb->lcd_set_foreground(creature->primary);
-        xlcd_fillcircle(screen_x, screen_y, 8);
+        xlcd_fillcircle(screen_x, screen_y, 10);
         rb->lcd_set_foreground(creature->accent);
-        rb->lcd_fillrect(screen_x - 4, screen_y - 2, 8, 4);
+        rb->lcd_fillrect(screen_x - 5, screen_y - 2, 10, 4);
     }
 }
 
@@ -126,15 +140,15 @@ static void cache_fill(fb_data color)
 {
     int i;
 
-    for (i = 0; i < LCD_WIDTH * LCD_HEIGHT; ++i)
+    for (i = 0; i < PC_WORLD_CACHE_W * PC_WORLD_CACHE_H; ++i)
         pc_world_bg_cache[i] = color;
 }
 
 static void cache_put_pixel(int x, int y, fb_data color)
 {
-    if ((unsigned)x >= LCD_WIDTH || (unsigned)y >= LCD_HEIGHT)
+    if ((unsigned)x >= PC_WORLD_CACHE_W || (unsigned)y >= PC_WORLD_CACHE_H)
         return;
-    pc_world_bg_cache[y * LCD_WIDTH + x] = color;
+    pc_world_bg_cache[y * PC_WORLD_CACHE_W + x] = color;
 }
 
 static void blit_tile_to_cache(const unsigned char tiles[][8][8], int tile_count,
@@ -176,6 +190,20 @@ static void build_world_cache(const struct pc_world_state *world)
         tile_count = PC_RED_TILE_COUNT;
         block_count = PC_RED_BLOCK_COUNT;
     }
+    else if (world->scene == PC_WORLD_SCENE_OAKS_LAB)
+    {
+        tiles = pc_red_dojo_tiles;
+        blocks = pc_red_dojo_blocks;
+        tile_count = PC_RED_DOJO_TILE_COUNT;
+        block_count = PC_RED_DOJO_BLOCK_COUNT;
+    }
+    else if (world->scene == PC_WORLD_SCENE_VIRIDIAN_MART)
+    {
+        tiles = pc_red_pokecenter_tiles;
+        blocks = pc_red_pokecenter_blocks;
+        tile_count = PC_RED_POKECENTER_TILE_COUNT;
+        block_count = PC_RED_POKECENTER_BLOCK_COUNT;
+    }
     else
     {
         tiles = pc_red_house_tiles;
@@ -189,8 +217,8 @@ static void build_world_cache(const struct pc_world_state *world)
         for (bx = 0; bx < world->map_w; ++bx)
         {
             unsigned char block_id = world->tiles[by][bx];
-            int base_x = block_screen_x(world, bx);
-            int base_y = block_screen_y(world, by);
+            int base_x = bx * PC_WORLD_TILE_SIZE;
+            int base_y = by * PC_WORLD_TILE_SIZE;
 
             if (block_id >= block_count)
                 continue;
@@ -213,13 +241,36 @@ static void build_world_cache(const struct pc_world_state *world)
 
 static void draw_map(const struct pc_world_state *world)
 {
+    int map_px_w = world->map_w * PC_WORLD_TILE_SIZE;
+    int map_px_h = world->map_h * PC_WORLD_TILE_SIZE;
+
     if (!pc_world_bg_ready || world->map_dirty)
     {
         build_world_cache(world);
         ((struct pc_world_state *)world)->map_dirty = false;
     }
 
-    rb->lcd_bitmap(pc_world_bg_cache, 0, 0, LCD_WIDTH, LCD_HEIGHT);
+    rb->lcd_set_background(PC_GB_LIGHT);
+    rb->lcd_clear_display();
+
+    if (outdoor_scene(world->scene))
+    {
+        rb->lcd_bitmap_part(pc_world_bg_cache,
+                            -world->origin_x,
+                            -world->origin_y,
+                            PC_WORLD_CACHE_W,
+                            0, 0,
+                            LCD_WIDTH, LCD_HEIGHT);
+    }
+    else
+    {
+        rb->lcd_bitmap_part(pc_world_bg_cache,
+                            0, 0,
+                            PC_WORLD_CACHE_W,
+                            world->origin_x,
+                            world->origin_y,
+                            map_px_w, map_px_h);
+    }
 }
 
 static const unsigned char (*select_player_frame(const struct pc_world_state *world,
@@ -298,6 +349,62 @@ static void draw_player(const struct pc_world_state *world)
     draw_red_sprite(frame, x, y, flip_x);
 }
 
+static void draw_static_red_npc(const struct pc_world_state *world,
+                                int metatile_x, int metatile_y,
+                                enum pc_heading heading)
+{
+    const unsigned char (*frame)[16];
+    bool flip_x;
+    int step = PC_WORLD_TILE_SIZE / 2;
+    int screen_x = world->origin_x + metatile_x * step + step / 2;
+    int screen_y = world->origin_y + metatile_y * step + step / 2 - 7;
+
+    switch (heading)
+    {
+        case PC_HEADING_N:
+            flip_x = false;
+            frame = pc_red_player_frames[1];
+            break;
+
+        case PC_HEADING_E:
+            flip_x = true;
+            frame = pc_red_player_frames[2];
+            break;
+
+        case PC_HEADING_W:
+            flip_x = false;
+            frame = pc_red_player_frames[2];
+            break;
+
+        case PC_HEADING_S:
+        default:
+            flip_x = false;
+            frame = pc_red_player_frames[0];
+            break;
+    }
+
+    fill_capsule(screen_x - 7, screen_y + 7, 14, 3,
+                 LCD_RGBPACK(0x60, 0x70, 0x58));
+    draw_red_sprite(frame, screen_x - 8, screen_y - 9, flip_x);
+}
+
+static void draw_scene_npcs(const struct pc_world_state *world)
+{
+    if (world->scene == PC_WORLD_SCENE_OAKS_LAB)
+    {
+        draw_static_red_npc(world, 4, 3, PC_HEADING_E);
+        draw_static_red_npc(world, 6, 3, PC_HEADING_W);
+        return;
+    }
+
+    if (world->scene == PC_WORLD_SCENE_VIRIDIAN_MART)
+    {
+        draw_static_red_npc(world, 0, 5, PC_HEADING_E);
+        draw_static_red_npc(world, 3, 3, PC_HEADING_S);
+        draw_static_red_npc(world, 5, 5, PC_HEADING_N);
+    }
+}
+
 static void draw_banner(const struct pc_world_state *world)
 {
     char line1[PC_BANNER_LINE_CHARS];
@@ -312,10 +419,163 @@ static void draw_hud(void)
     char hud[PC_BANNER_LINE_CHARS];
 
     fit_text_small(hud, sizeof(hud),
-                   "Hold dir to walk   Menu+Select exits",
+                   "Hold Select menu   Menu+Select exits",
                    LCD_WIDTH - 50);
     fill_capsule(20, LCD_HEIGHT - 16, LCD_WIDTH - 40, 12, PC_GB_PANEL);
     draw_text_small(28, LCD_HEIGHT - 13, PC_GB_DEEP, hud);
+}
+
+static void fill_rect_outline(int x, int y, int w, int h,
+                              fb_data fill, fb_data outline)
+{
+    rb->lcd_set_foreground(fill);
+    rb->lcd_fillrect(x, y, w, h);
+    rb->lcd_set_foreground(outline);
+    rb->lcd_drawrect(x, y, w, h);
+}
+
+static int count_caught_species(const struct pc_world_state *world)
+{
+    int i;
+    int total = 0;
+
+    for (i = 0; i < PC_POKEDEX_MAX; ++i)
+    {
+        if (world->caught_counts[i] > 0)
+            total++;
+    }
+    return total;
+}
+
+static void draw_notice(const struct pc_world_state *world)
+{
+    if (world->notice_frames <= 0 || world->detail.line1[0] == '\0')
+        return;
+
+    fill_capsule(18, 24, LCD_WIDTH - 36, 16, PC_GB_PANEL);
+    draw_text_small(26, 28, PC_GB_DEEP, world->detail.line1);
+}
+
+static void draw_menu_overlay(const struct pc_world_state *world)
+{
+    static const char *const items[] = {
+        "Resume", "Backpack", "Pokedex", "Save Game", "Quit"
+    };
+    int x = 52;
+    int y = 34;
+    int i;
+
+    fill_rect_outline(x, y, LCD_WIDTH - 104, 126, PC_GB_PANEL, PC_GB_DEEP);
+    draw_text_small(x + 36, y + 10, PC_GB_DEEP, "PAUSE");
+    for (i = 0; i < 5; ++i)
+    {
+        int row_y = y + 28 + i * 18;
+
+        if (i == world->menu_index)
+            fill_rect_outline(x + 10, row_y - 2, LCD_WIDTH - 124, 14, PC_GB_MID, PC_GB_DEEP);
+        draw_text_small(x + 18, row_y, PC_GB_DEEP, items[i]);
+    }
+    if (world->detail.line2[0] != '\0')
+        draw_text_small(x + 10, y + 108, PC_GB_DEEP, world->detail.line2);
+}
+
+static void draw_bag_overlay(const struct pc_world_state *world)
+{
+    int x = 22;
+    int y = 24;
+    int shown = 0;
+    int i;
+    char count_text[16];
+
+    fill_rect_outline(x, y, LCD_WIDTH - 44, LCD_HEIGHT - 48, PC_GB_PANEL, PC_GB_DEEP);
+    draw_text_small(x + 10, y + 8, PC_GB_DEEP, "BACKPACK");
+    if (count_caught_species(world) == 0)
+    {
+        draw_text_small(x + 10, y + 28, PC_GB_DEEP, "No Pokemon caught yet");
+        return;
+    }
+
+    for (i = 0; i < PC_POKEDEX_MAX && shown < 5; ++i)
+    {
+        const struct pc_creature_def *creature;
+        int row_y;
+
+        if (world->caught_counts[i] == 0)
+            continue;
+
+        creature = pc_assets_get_creature(i);
+        if (creature == NULL)
+            continue;
+
+        row_y = y + 26 + shown * 16;
+        if (i == world->bag_index)
+            fill_rect_outline(x + 8, row_y - 2, LCD_WIDTH - 60, 14, PC_GB_MID, PC_GB_DEEP);
+        draw_text_small(x + 14, row_y, PC_GB_DEEP, creature->name);
+        rb->snprintf(count_text, sizeof(count_text), "x%u", world->caught_counts[i]);
+        draw_text_small(LCD_WIDTH - 58, row_y, PC_GB_DEEP, count_text);
+        shown++;
+    }
+    draw_text_small(x + 10, y + 110, PC_GB_DEEP, "Menu/Play scroll");
+    draw_text_small(x + 10, y + 124, PC_GB_DEEP, "Left back");
+}
+
+static void draw_pokedex_overlay(const struct pc_world_state *world)
+{
+    const struct pc_creature_def *creature = pc_assets_get_creature(world->dex_index);
+    int family = pc_assets_get_family_index(world->dex_index);
+    int evolve_target = pc_assets_get_evolution_target(world->dex_index);
+    int evolve_cost = pc_assets_get_evolution_cost(world->dex_index);
+    unsigned candy = 0;
+    int x = 18;
+    int y = 18;
+    char line[PC_BANNER_LINE_CHARS];
+
+    fill_rect_outline(x, y, LCD_WIDTH - 36, LCD_HEIGHT - 36, PC_GB_DEEP, PC_GB_MID);
+    fill_rect_outline(x + 8, y + 8, LCD_WIDTH - 52, LCD_HEIGHT - 52, PC_GB_LIGHT, PC_GB_DEEP);
+    fill_rect_outline(x + 14, y + 18, 86, 86, PC_GB_PANEL, PC_GB_DEEP);
+    fill_rect_outline(x + 108, y + 18, 84, 86, PC_GB_PANEL, PC_GB_DEEP);
+    draw_text_small(x + 120, y + 26, PC_GB_DEEP, "POKEDEX");
+    if (creature == NULL)
+        return;
+
+    if (world->assets.dex_creature.loaded)
+    {
+        rb->lcd_bitmap_transparent((const fb_data *)world->assets.dex_creature.bmp.data,
+                                   x + 22,
+                                   y + 28,
+                                   world->assets.dex_creature.bmp.width,
+                                   world->assets.dex_creature.bmp.height);
+    }
+    rb->snprintf(line, sizeof(line), "#%03d", creature->species_id);
+    draw_text_small(x + 120, y + 44, PC_GB_DEEP, line);
+    fit_text_small(line, sizeof(line), creature->name, 70);
+    draw_text_small(x + 120, y + 58, PC_GB_DEEP, line);
+    if (world->dex_index < PC_POKEDEX_MAX && world->caught_counts[world->dex_index] > 0)
+        rb->snprintf(line, sizeof(line), "Caught %u", world->caught_counts[world->dex_index]);
+    else
+        rb->snprintf(line, sizeof(line), "Uncaught");
+    draw_text_small(x + 120, y + 74, PC_GB_DEEP, line);
+    if (family >= 0 && family < PC_POKEDEX_MAX)
+        candy = world->family_candy[family];
+    rb->snprintf(line, sizeof(line), "Candy %u", candy);
+    draw_text_small(x + 120, y + 88, PC_GB_DEEP, line);
+    if (evolve_target >= 0 && evolve_cost > 0)
+    {
+        const struct pc_creature_def *next = pc_assets_get_creature(evolve_target);
+
+        if (next != NULL)
+            rb->snprintf(line, sizeof(line), "Evolve %s %d", next->name, evolve_cost);
+        else
+            rb->snprintf(line, sizeof(line), "Evolve %d candy", evolve_cost);
+    }
+    else
+    {
+        rb->snprintf(line, sizeof(line), "No evolve");
+    }
+    fit_text_small(line, sizeof(line), line, 70);
+    draw_text_small(x + 120, y + 100, PC_GB_DEEP, line);
+    draw_text_small(x + 22, y + 118, PC_GB_DEEP, "Menu/Play or Left/Right scroll");
+    draw_text_small(x + 22, y + 132, PC_GB_DEEP, "Select evolve  Left back");
 }
 
 void pc_world_render_frame(const struct pc_world_state *world)
@@ -328,8 +588,17 @@ void pc_world_render_frame(const struct pc_world_state *world)
         for (i = 0; i < PC_WORLD_MAX_SPAWNS; ++i)
             draw_spawn(world, i);
     }
+    draw_scene_npcs(world);
     draw_player(world);
     draw_banner(world);
-    draw_hud();
+    if (world->view == PC_WORLD_VIEW_MENU)
+        draw_menu_overlay(world);
+    else if (world->view == PC_WORLD_VIEW_BAG)
+        draw_bag_overlay(world);
+    else if (world->view == PC_WORLD_VIEW_POKEDEX)
+        draw_pokedex_overlay(world);
+    else
+        draw_hud();
+    draw_notice(world);
     rb->lcd_update();
 }

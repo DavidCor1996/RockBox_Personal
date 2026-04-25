@@ -402,6 +402,7 @@ class MainWindow(QMainWindow):
         self._ipone_wallpapers.apply_requested.connect(self._apply_ipone_wallpapers)
         self._ipone_wallpapers.import_requested.connect(self._import_ipone_wallpaper)
         self._ipone_wallpapers.remove_requested.connect(self._remove_ipone_wallpaper)
+        self._ipone_wallpapers.clock_position_changed.connect(self._on_ipone_wallpaper_clock_position_changed)
         self._theme_designer.profile_selected.connect(self._on_theme_designer_profile_selected)
         self._theme_designer.variant_selected.connect(self._on_theme_designer_variant_selected)
         self._theme_designer.preview_changed.connect(self._on_theme_designer_preview_changed)
@@ -2758,8 +2759,17 @@ class MainWindow(QMainWindow):
         self._ipone_wallpapers.set_profiles(profiles, selected_id)
         profile = self._rockbox_profiles.current_profile()
         if not profile:
+            self._ipone_wallpapers.set_clock_position("center", supported=False)
             self._ipone_wallpapers.set_candidates([], [])
             return
+        supports_clock_position = (
+            str(profile.get("screen_resolution") or "").strip() == "320x240"
+            and "nano2g" not in str(profile.get("selected_theme") or "").strip().lower()
+        )
+        self._ipone_wallpapers.set_clock_position(
+            profile.get("lockscreen_clock_position", "center"),
+            supported=supports_clock_position,
+        )
         candidates = self._ipone_wallpapers_service.list_candidates(
             profile["source_repo_path"],
             profile,
@@ -2779,6 +2789,13 @@ class MainWindow(QMainWindow):
         self._refresh_game_manager()
         self._refresh_simulator_panel()
 
+    def _on_ipone_wallpaper_clock_position_changed(self, value):
+        profile = self._rockbox_profiles.current_profile()
+        if not profile:
+            return
+        profile["lockscreen_clock_position"] = "left" if str(value or "").strip().lower() == "left" else "center"
+        self._rockbox_profiles.save_profile(profile)
+
     def _apply_ipone_wallpapers(self, selection):
         profile = self._rockbox_profiles.current_profile()
         if not profile:
@@ -2786,14 +2803,15 @@ class MainWindow(QMainWindow):
             return
         lock_source = str(selection.get("lock_source") or "").strip()
         charge_source = str(selection.get("charge_source") or "").strip()
-        if not lock_source and not charge_source:
-            self._status_bar.set_left_text("No wallpaper selected")
-            return
+        clock_position = str(
+            selection.get("clock_position") or profile.get("lockscreen_clock_position") or "center"
+        ).strip().lower()
         try:
             bundle = self._ipone_wallpapers_service.build_apply_bundle(
                 profile,
                 lock_source=lock_source,
                 charge_source=charge_source,
+                clock_position=clock_position,
             )
             diff = self._rockbox_deploy.build_diff(profile, bundle)
         except ValueError as exc:
@@ -2812,6 +2830,8 @@ class MainWindow(QMainWindow):
             lines.extend(["", f"Lockscreen: {os.path.basename(lock_source)}"])
         if charge_source:
             lines.extend(["", f"Charge: {os.path.basename(charge_source)}"])
+        if any(item["kind"] == "lockscreen_clock_layout" for item in diff["items"]):
+            lines.extend(["", f"Lockscreen Clock: {'Left' if clock_position == 'left' else 'Centered'}"])
         prompt = QMessageBox(self)
         prompt.setWindowTitle("Apply Wallpapers")
         prompt.setText("\n".join(lines))

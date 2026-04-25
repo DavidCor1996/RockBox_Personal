@@ -26,15 +26,25 @@
 #include "panic.h"
 #include "pmu-target.h"
 #include "usb_core.h"   /* for usb_charging_maxcurrent_change */
+#include "bringup-nano3g.h"
 
 void power_init(void)
 {
+    nano3g_boottrace_log("power_init");
+
     pmu_init();
-    pmu_set_usblimit(false);  /* limit to 100mA */
+
+    if (!nano3g_safe_mode_enabled())
+        pmu_set_usblimit(false);  /* limit to 100mA */
 }
 
 void power_off(void)
 {
+    nano3g_boottrace_log("power_off");
+
+    if (nano3g_safe_mode_enabled())
+        nano3g_failsafe_halt("power_off in safe bringup");
+
     pmu_enter_standby();
     while(1);
 }
@@ -44,6 +54,9 @@ void power_off(void)
 #ifdef HAVE_USB_CHARGING_ENABLE
 void usb_charging_maxcurrent_change(int maxcurrent)
 {
+    if (nano3g_safe_mode_enabled())
+        return;
+
     bool fast_charge = (maxcurrent >= 500);
     pmu_set_usblimit(fast_charge);
 }
@@ -61,7 +74,9 @@ unsigned int power_input_status(void)
 
 bool charging_state(void)
 {
-    // TODO
-    return false;
+    /* Hardware charge-status signal is still unknown on Nano 3G.
+     * Keep a conservative scaffold: report charging whenever an
+     * external charging-capable source is present. */
+    return (power_input_status() & POWER_INPUT_CHARGER) != 0;
 }
 #endif /* CONFIG_CHARGING */

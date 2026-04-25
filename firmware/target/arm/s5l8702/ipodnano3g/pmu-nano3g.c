@@ -27,6 +27,7 @@
 #include "adc-target.h"
 #include "i2c-s5l8702.h"
 #include "gpio-s5l8702.h"
+#include "bringup-nano3g.h"
 
 
 int pmu_read_multiple(int address, int count, unsigned char* buffer)
@@ -36,6 +37,9 @@ int pmu_read_multiple(int address, int count, unsigned char* buffer)
 
 int pmu_write_multiple(int address, int count, unsigned char* buffer)
 {
+    if (nano3g_safe_mode_enabled())
+        return 0;
+
     return i2c_write(0, 0xe6, address, count, buffer);
 }
 
@@ -101,6 +105,12 @@ void pmu_set_wake_condition(unsigned char condition)
 
 void pmu_enter_standby(void)
 {
+    if (nano3g_safe_mode_enabled())
+    {
+        nano3g_boottrace_log("pmu standby blocked");
+        return;
+    }
+
     pmu_write(D1671_REG_SYSCTRLA, D1671_SYSCTRLA_GOSTDBY);
 }
 
@@ -115,14 +125,12 @@ void pmu_set_cpu_voltage(bool high)
 #if (CONFIG_RTC == RTC_NANO3G)
 void pmu_read_rtc(unsigned char* buffer)
 {
-    // TODO
-    (void) buffer;
+    pmu_read_multiple(D1671_REG_RTCSEC, 7, buffer);
 }
 
 void pmu_write_rtc(unsigned char* buffer)
 {
-    // TODO
-    (void) buffer;
+    pmu_write_multiple(D1671_REG_RTCSEC, 7, buffer);
 }
 #endif
 
@@ -277,6 +285,8 @@ static void NORETURN_ATTR pmu_thread(void)
 /* main init */
 void pmu_init(void)
 {
+    nano3g_boottrace_log("pmu_init");
+
     mutex_init(&pmu_adc_mutex);
     queue_init(&pmu_queue, false);
 
@@ -318,6 +328,9 @@ int pmu_rd_multiple(int address, int count, unsigned char* buffer)
 
 int pmu_wr_multiple(int address, int count, unsigned char* buffer)
 {
+    if (nano3g_safe_mode_enabled())
+        return 0;
+
     return i2c_wr(0, 0xe6, address, count, buffer);
 }
 
@@ -335,6 +348,8 @@ int pmu_wr(int address, unsigned char val)
 
 void pmu_preinit(void)
 {
+    nano3g_boottrace_log("pmu_preinit");
+
     // TBC: LDOs ???
     pmu_wr(0x1b, 0x14);
     pmu_wr(0x16, 0x14);

@@ -151,6 +151,17 @@ struct button_map bm[] = {
     { SDLK_KP_PLUS,   115, 412, 27, "Down" },
     { SDLK_KP_8,        67, 303, 28, "Scroll Back" },
     { SDLK_KP_2,       163, 303, 27, "Scroll Fwd" },
+#elif defined (IPOD_NANO3G)
+    /* iPod Nano 3G — 320x240 landscape LCD, portrait body.
+     * BMP: 380x500. LCD at (30,20). Clickwheel centre: (190,390) outer r=90.
+     * Coords: x, y, radius */
+    { SDLK_KP_5,        190, 390, 28, "Select" },
+    { SDLK_KP_4,        100, 390, 28, "Left" },
+    { SDLK_KP_6,        280, 390, 28, "Right" },
+    { SDLK_KP_PERIOD,   190, 300, 26, "Menu" },
+    { SDLK_KP_PLUS,     190, 472, 26, "Play" },
+    { SDLK_KP_8,        130, 335, 28, "Scroll Back" },
+    { SDLK_KP_2,        255, 335, 28, "Scroll Fwd" },
 #endif
     { 0, 0, 0 , 0, "None" }
 };

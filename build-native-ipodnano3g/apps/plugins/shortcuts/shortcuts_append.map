@@ -1,0 +1,157 @@
+Archive member included to satisfy reference by file (symbol)
+
+/home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/lib/libsetjmp.a(setjmp.o)
+                              /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/plugin_crt0.o (setjmp)
+
+Discarded input sections
+
+ .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/shortcuts/shortcuts_common.o
+ .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/shortcuts/shortcuts_append.o
+ .bss           0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/shortcuts/shortcuts_append.o
+ .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/lib/libsetjmp.a(setjmp.o)
+ .bss           0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/lib/libsetjmp.a(setjmp.o)
+
+Memory Configuration
+
+Name             Origin             Length             Attributes
+PLUGIN_RAM       0x0000000009dfc000 0x0000000000200000
+PLUGIN_IRAM      0x000000000000c000 0x0000000000014000
+*default*        0x0000000000000000 0xffffffffffffffff
+
+Linker script and memory map
+
+LOAD /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/shortcuts/shortcuts_common.o
+LOAD /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/shortcuts/shortcuts_append.o
+LOAD /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/plugin_crt0.o
+LOAD /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a
+LOAD /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/bitmaps/libpluginbitmaps.a
+LOAD /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/lib/libsetjmp.a
+LOAD /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/lib/libfixedpoint.a
+LOAD /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a
+
+.header         0x0000000009dfc000       0x1c
+                0x0000000009dfc000                _plugin_start_addr = .
+                0x0000000009dfc000                plugin_start_addr = .
+ *(.header)
+ .header        0x0000000009dfc000       0x1c /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/plugin_crt0.o
+                0x0000000009dfc000                __header
+
+.text           0x0000000009dfc01c      0xb38
+ *(.text*)
+ .text          0x0000000009dfc01c      0x774 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/shortcuts/shortcuts_common.o
+                0x0000000009dfc01c                allocate_memory
+                0x0000000009dfc044                init_sc_file
+                0x0000000009dfc074                append_entry
+                0x0000000009dfc0c8                remove_entry
+                0x0000000009dfc140                is_valid_index
+                0x0000000009dfc164                starts_with
+                0x0000000009dfc1d0                last_segments
+                0x0000000009dfc274                parse_entry_content
+                0x0000000009dfc348                parse_name_value
+                0x0000000009dfc46c                is_control
+                0x0000000009dfc49c                load_sc_file
+                0x0000000009dfc61c                write_int_instruction_to_file
+                0x0000000009dfc660                write_entry_to_file
+                0x0000000009dfc6dc                dump_sc_file
+ .text          0x0000000009dfc790      0x1c8 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/shortcuts/shortcuts_append.o
+                0x0000000009dfc858                plugin_start
+ .text          0x0000000009dfc958      0x1e0 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/plugin_crt0.o
+                0x0000000009dfc970                plugin__start
+                0x0000000009dfca9c                rb_atexit
+                0x0000000009dfcabc                exit
+                0x0000000009dfcad8                _exit
+                0x0000000009dfcaec                exit_on_usb
+ .text          0x0000000009dfcb38       0x1c /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/lib/libsetjmp.a(setjmp.o)
+                0x0000000009dfcb38                setjmp
+                0x0000000009dfcb44                longjmp
+ *(.glue_7)
+ .glue_7        0x0000000009dfcb54        0x0 linker stubs
+ *(.glue_7t)
+ .glue_7t       0x0000000009dfcb54        0x0 linker stubs
+
+.vfp11_veneer   0x0000000009dfcb54        0x0
+ .vfp11_veneer  0x0000000009dfcb54        0x0 linker stubs
+
+.v4_bx          0x0000000009dfcb54        0x0
+ .v4_bx         0x0000000009dfcb54        0x0 linker stubs
+
+.iplt           0x0000000009dfcb54        0x0
+ .iplt          0x0000000009dfcb54        0x0 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/shortcuts/shortcuts_common.o
+
+.rodata         0x0000000009dfcb54      0x13a
+ *(.rodata*)
+ .rodata.str1.1
+                0x0000000009dfcb54       0xc4 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/shortcuts/shortcuts_common.o
+                                         0xc9 (size before relaxing)
+ .rodata.str1.1
+                0x0000000009dfcc18       0x76 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/shortcuts/shortcuts_append.o
+                                         0x78 (size before relaxing)
+
+.rel.dyn        0x0000000009dfcc90        0x0
+ .rel.iplt      0x0000000009dfcc90        0x0 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/shortcuts/shortcuts_common.o
+
+.data           0x0000000009dfcc90        0x4
+ *(.data*)
+ .data          0x0000000009dfcc90        0x4 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/plugin_crt0.o
+                0x0000000009dfcc90                rb
+
+.igot.plt       0x0000000009dfcc94        0x0
+ .igot.plt      0x0000000009dfcc94        0x0 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/shortcuts/shortcuts_common.o
+
+/DISCARD/
+ *(.eh_frame)
+
+.bss            0x0000000009dfcc94       0x78
+                0x0000000009dfcc94                plugin_bss_start = .
+                0x0000000009dfcc94                _plugin_bss_start = .
+ *(.bss*)
+ .bss           0x0000000009dfcc94       0x18 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/shortcuts/shortcuts_common.o
+                0x0000000009dfcc94                sc_file
+                0x0000000009dfcca4                memory_bufsize
+                0x0000000009dfcca8                memory_buf
+ .bss           0x0000000009dfccac       0x60 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/plugin_crt0.o
+ *(COMMON)
+                0x0000000009dfcd0c                . = ALIGN (0x4)
+
+.pluginend      0x0000000009dfcd0c        0x0
+                0x0000000009dfcd0c                _plugin_end_addr = .
+                0x0000000009dfcd0c                plugin_end_addr = .
+
+.iram           0x000000000000c000        0x0 load address 0x0000000009dfcc94
+                0x000000000000c000                iramstart = .
+ *(.icode)
+ *(.irodata)
+ *(.idata)
+                0x000000000000c000                iramend = .
+                0x0000000009dfcc94                iramcopy = LOADADDR (.iram)
+
+.ibss           0x000000000000c000        0x0
+                0x000000000000c000                iedata = .
+ *(.ibss)
+                0x000000000000c000                . = ALIGN (0x4)
+                0x000000000000c000                iend = .
+                0x0000000009dfcd0c                loadendaddr = MAX (plugin_end_addr, (LOADADDR (.iram) + SIZEOF (.iram)))
+
+.pluginloadend  0x0000000009dfcd0c        0x0
+                0x0000000009dfcd0c                _plugin_load_end_addr = .
+                0x0000000009dfcd0c                plugin_load_end_addr = .
+
+.comment        0x0000000000000000       0x11
+ *(.comment)
+ .comment       0x0000000000000000       0x11 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/shortcuts/shortcuts_common.o
+                                         0x12 (size before relaxing)
+ .comment       0x0000000000000011       0x12 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/shortcuts/shortcuts_append.o
+ .comment       0x0000000000000011       0x12 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/plugin_crt0.o
+OUTPUT(/home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/shortcuts/shortcuts_append.elf elf32-littlearm)
+LOAD linker stubs
+
+.ARM.attributes
+                0x0000000000000000       0x2a
+ .ARM.attributes
+                0x0000000000000000       0x2c /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/shortcuts/shortcuts_common.o
+ .ARM.attributes
+                0x000000000000002c       0x2c /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/shortcuts/shortcuts_append.o
+ .ARM.attributes
+                0x0000000000000058       0x2c /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/plugin_crt0.o
+ .ARM.attributes
+                0x0000000000000084       0x1c /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/lib/libsetjmp.a(setjmp.o)
