@@ -31,7 +31,7 @@ updates = {
     "selector type": "pointer",
     "statusbar": "off",
     "show icons": "off",
-    "ui viewport": "12,30,56,88",
+    "ui viewport": "12,32,56,84",
     "background color": "0",
     "foreground color": "3",
     "line selector start color": "1",

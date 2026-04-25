@@ -4,6 +4,17 @@
 #include "plugin.h"
 #include "lib/pluginlib_bmp.h"
 
+#ifndef HAVE_LCD_COLOR
+#ifndef LCD_RGBPACK
+#define PC_MONO_LUMA(r, g, b) (((r) * 30 + (g) * 59 + (b) * 11) / 100)
+#define LCD_RGBPACK(r, g, b) \
+    ((fb_data)(PC_MONO_LUMA((r), (g), (b)) >= 224 ? LCD_WHITE : \
+               PC_MONO_LUMA((r), (g), (b)) >= 160 ? LCD_LIGHTGRAY : \
+               PC_MONO_LUMA((r), (g), (b)) >= 96 ? LCD_DARKGRAY : \
+               LCD_BLACK))
+#endif
+#endif
+
 #define PC_FRAME_HZ            25
 #define PC_FRAME_TICKS         MAX(1, HZ / PC_FRAME_HZ)
 #define PC_ABS(x)              ((x) < 0 ? -(x) : (x))
@@ -273,7 +284,12 @@ enum pc_world_scene {
     PC_WORLD_SCENE_VIRIDIAN_MART,
     PC_WORLD_SCENE_HOUSE_1F,
     PC_WORLD_SCENE_HOUSE_2F,
-    PC_WORLD_SCENE_OAKS_LAB
+    PC_WORLD_SCENE_OAKS_LAB,
+    PC_WORLD_SCENE_BLUES_HOUSE,
+    PC_WORLD_SCENE_VIRIDIAN_POKECENTER,
+    PC_WORLD_SCENE_VIRIDIAN_SCHOOL_HOUSE,
+    PC_WORLD_SCENE_VIRIDIAN_NICKNAME_HOUSE,
+    PC_WORLD_SCENE_VIRIDIAN_GYM
 };
 
 enum pc_world_view {

@@ -1,16 +1,5 @@
 #include "pocketcatch.h"
 
-#ifndef HAVE_LCD_COLOR
-#ifndef LCD_RGBPACK
-#define PC_MONO_LUMA(r, g, b) (((r) * 30 + (g) * 59 + (b) * 11) / 100)
-#define LCD_RGBPACK(r, g, b) \
-    ((fb_data)(PC_MONO_LUMA((r), (g), (b)) >= 224 ? LCD_WHITE : \
-               PC_MONO_LUMA((r), (g), (b)) >= 160 ? LCD_LIGHTGRAY : \
-               PC_MONO_LUMA((r), (g), (b)) >= 96 ? LCD_DARKGRAY : \
-               LCD_BLACK))
-#endif
-#endif
-
 static fb_data pc_background_pixels[LCD_WIDTH * LCD_HEIGHT];
 static fb_data pc_creature_pixels[PC_CREATURE_MAX_W * PC_CREATURE_MAX_H];
 static fb_data pc_resize_pixels[PC_CREATURE_MAX_W * PC_CREATURE_MAX_H];
@@ -1003,6 +992,9 @@ void pc_assets_init(struct pc_asset_provider *assets)
             clear_bitmap(&assets->ball_spin[i]);
     }
 
+#ifndef HAVE_LCD_COLOR
+    return;
+#else
     if (load_first_matching_bitmap_exact(&assets->background,
                                          LCD_WIDTH, LCD_HEIGHT,
                                          build_background_path))
@@ -1022,6 +1014,7 @@ void pc_assets_init(struct pc_asset_provider *assets)
                 assets->source = PC_ASSET_SOURCE_PACK_V0;
         }
     }
+#endif
 }
 
 void pc_assets_teardown(struct pc_asset_provider *assets)
@@ -1055,6 +1048,7 @@ const struct pc_creature_def *pc_assets_select_creature(struct pc_asset_provider
     assets->active_creature = creature;
     clear_bitmap(&assets->creature);
 
+#ifdef HAVE_LCD_COLOR
     if (load_first_matching_creature(&assets->creature, creature))
     {
         assets->source = PC_ASSET_SOURCE_PACK_V0;
@@ -1063,6 +1057,9 @@ const struct pc_creature_def *pc_assets_select_creature(struct pc_asset_provider
     {
         assets->source = PC_ASSET_SOURCE_BUILTIN;
     }
+#else
+    assets->source = PC_ASSET_SOURCE_BUILTIN;
+#endif
 
     return creature;
 }
@@ -1189,6 +1186,10 @@ static bool load_world_creature_uncached(struct pc_asset_bitmap *asset, int spec
     if (asset == NULL || asset->pixels == NULL || creature == NULL)
         return false;
 
+#ifndef HAVE_LCD_COLOR
+    clear_bitmap(asset);
+    return false;
+#else
     rb->memset(&source, 0, sizeof(source));
     source.pixels = pc_resize_pixels;
     source.capacity = sizeof(pc_resize_pixels);
@@ -1216,6 +1217,7 @@ static bool load_world_creature_uncached(struct pc_asset_bitmap *asset, int spec
     asset->external = true;
     rb->strlcpy(asset->path, source.path, sizeof(asset->path));
     return true;
+#endif
 }
 
 bool pc_assets_load_world_creature(struct pc_asset_bitmap *asset, int species_index)
@@ -1287,6 +1289,12 @@ bool pc_assets_load_named_world_trainer(struct pc_asset_bitmap *asset, const cha
     if (asset == NULL || asset->pixels == NULL || trainer_name == NULL)
         return false;
 
+#ifndef HAVE_LCD_COLOR
+    (void)heading;
+    (void)frame;
+    clear_bitmap(asset);
+    return false;
+#else
     rb->memset(&source, 0, sizeof(source));
     source.pixels = pc_resize_pixels;
     source.capacity = sizeof(pc_resize_pixels);
@@ -1325,6 +1333,7 @@ bool pc_assets_load_named_world_trainer(struct pc_asset_bitmap *asset, const cha
 
     clear_bitmap(asset);
     return false;
+#endif
 }
 
 bool pc_assets_load_world_trainer(struct pc_asset_bitmap *asset, int heading, int frame)

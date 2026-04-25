@@ -29,6 +29,17 @@ static fb_data pc_encounter_trainer_pixels[PC_WORLD_TRAINER_BYTES / sizeof(fb_da
 static struct pc_asset_bitmap pc_encounter_trainer_asset;
 static bool pc_encounter_trainer_attempted;
 
+static void draw_asset_bitmap(const struct bitmap *bmp, int x, int y)
+{
+#ifdef HAVE_LCD_COLOR
+    rb->lcd_bitmap_transparent((const fb_data *)bmp->data, x, y,
+                               bmp->width, bmp->height);
+#else
+    rb->lcd_bitmap_part((const fb_data *)bmp->data, 0, 0, bmp->width,
+                        x, y, bmp->width, bmp->height);
+#endif
+}
+
 static void clear_encounter_trainer_asset(void)
 {
     pc_encounter_trainer_asset.bmp.data = NULL;
@@ -62,6 +73,7 @@ static int current_time_mode(void)
 
 static fb_data mix_color(fb_data a, fb_data b, int t, int max_t)
 {
+#ifdef HAVE_LCD_COLOR
     int ar = RGB_UNPACK_RED(a);
     int ag = RGB_UNPACK_GREEN(a);
     int ab = RGB_UNPACK_BLUE(a);
@@ -73,6 +85,15 @@ static fb_data mix_color(fb_data a, fb_data b, int t, int max_t)
     int bl = ab + ((bb - ab) * t) / max_t;
 
     return LCD_RGBPACK(r, g, bl);
+#else
+    int mixed = a + ((b - a) * t) / max_t;
+
+    if (mixed < LCD_BLACK)
+        mixed = LCD_BLACK;
+    if (mixed > LCD_WHITE)
+        mixed = LCD_WHITE;
+    return (fb_data)mixed;
+#endif
 }
 
 static int wrap_phase(int phase, int period)
@@ -336,11 +357,9 @@ static void draw_trainer_accent(void)
     trainer = ensure_encounter_trainer_asset();
     if (trainer != NULL && trainer->loaded)
     {
-        rb->lcd_bitmap_transparent((const fb_data *)trainer->bmp.data,
-                                   x + 18 - trainer->bmp.width / 2,
-                                   y + 30 - trainer->bmp.height,
-                                   trainer->bmp.width,
-                                   trainer->bmp.height);
+        draw_asset_bitmap(&trainer->bmp,
+                          x + 18 - trainer->bmp.width / 2,
+                          y + 30 - trainer->bmp.height);
         return;
     }
 
@@ -380,10 +399,7 @@ static void draw_creature(const struct pc_encounter_state *state)
         int x = PC_TARGET_X - state->assets.creature.bmp.width / 2;
         int y = PC_CREATURE_BASE_Y - state->assets.creature.bmp.height + bob;
 
-        rb->lcd_bitmap_transparent((const fb_data *)state->assets.creature.bmp.data,
-                                   x, y,
-                                   state->assets.creature.bmp.width,
-                                   state->assets.creature.bmp.height);
+        draw_asset_bitmap(&state->assets.creature.bmp, x, y);
         return;
     }
 
@@ -569,10 +585,7 @@ static void draw_ball(const struct pc_encounter_state *state)
         int draw_x = x - ball_bitmap->bmp.width / 2;
         int draw_y = y - ball_bitmap->bmp.height / 2;
 
-        rb->lcd_bitmap_transparent((const fb_data *)ball_bitmap->bmp.data,
-                                   draw_x, draw_y,
-                                   ball_bitmap->bmp.width,
-                                   ball_bitmap->bmp.height);
+        draw_asset_bitmap(&ball_bitmap->bmp, draw_x, draw_y);
         radius = MIN(ball_bitmap->bmp.width, ball_bitmap->bmp.height) / 2;
         draw_ball_spin_overlay(x, y, radius, spin_phase, spin_velocity);
         return;

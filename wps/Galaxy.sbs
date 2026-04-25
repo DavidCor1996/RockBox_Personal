@@ -9,37 +9,46 @@
 %?bp<%xd(C)|%?mh<%xd(A)|%xd(S)>>
 %V(0,0,-,-,-)
 
-%Vi(-,12,30,56,88,1)%Vf(000000)%Vb(FFFFFF)
-%Lb(GalaxyMenuItem,56,10)
+%Vi(-,12,32,56,84,1)%Vf(000000)%Vb(FFFFFF)
+%Lb(GalaxyMenuItem,56,12)
 
 %?bp<%Vd(ChargeTop)%Vd(ChargeClock)%Vd(ChargeMeta)|%?mh<%Vd(LockTop)%Vd(LockClock)%Vd(LockDate)%Vd(LockCard)|%Vd(ThemeLabel)%Vd(Clock)%Vd(Date)%Vd(NowLabel)%Vd(NowTitle)%Vd(NowState)>>
 
-%Vl(GalaxyMenuItem,0,0,56,10,1)
-%?Lc<%dr(28,1,26,8,000000)|>
+%Vl(GalaxyMenuItem,0,0,56,12,1)
+%?Lc<%dr(26,1,28,10,000000)|>
 %Vf(000000)
 %s%LT
 
-%Vl(ThemeLabel,80,6,32,10,1)
-%Vf(FFFFFF)
+%Vl(ThemeLabelPlate,80,5,28,12,1)
+%dr(0,0,28,12,FFFFFF)
+
+%Vl(ClockPlate,112,5,36,12,1)
+%dr(0,0,36,12,FFFFFF)
+
+%Vl(DatePlate,84,22,64,12,1)
+%dr(0,0,64,12,DDDDDD)
+
+%Vl(ThemeLabel,80,7,28,10,1)
+%Vf(000000)
 %al%?Lt<%?if(%Lt, =, Rockbox)<iPod|%Lt>|iPod>
 
-%Vl(Clock,104,6,44,10,1)
-%Vf(FFFFFF)
+%Vl(Clock,112,7,36,10,1)
+%Vf(000000)
 %ar%?cc<%cl:%cM|--:-->
 
-%Vl(Date,82,24,66,8,1)
-%Vf(FFFFFF)
+%Vl(Date,84,24,64,10,1)
+%Vf(000000)
 %ac%?cu<Sun|Mon|Tue|Wed|Thu|Fri|Sat> %cb %cd
 
-%Vl(NowLabel,84,70,64,8,1)
+%Vl(NowLabel,84,66,64,10,1)
 %Vf(FFFFFF)
 %acNOW
 
-%Vl(NowTitle,84,84,64,12,1)
+%Vl(NowTitle,82,80,66,14,1)
 %Vf(FFFFFF)
 %s%al%?it<%it|%?Lt<%Lt|Music>>
 
-%Vl(NowState,84,104,64,8,1)
+%Vl(NowState,84,102,64,10,1)
 %Vf(FFFFFF)
 %ac%?mp<Stopped|Playing|Paused|Seeking|Seeking|Recording|Paused|Radio|Radio>
 

@@ -15,8 +15,12 @@
 #define PC_ROUTE21_MAP_H 45
 #define PC_HOUSE_MAP_W    4
 #define PC_HOUSE_MAP_H    4
+#define PC_POKECENTER_MAP_W 7
+#define PC_POKECENTER_MAP_H 4
 #define PC_LAB_MAP_W      5
 #define PC_LAB_MAP_H      6
+#define PC_GYM_MAP_W      9
+#define PC_GYM_MAP_H     10
 
 static const unsigned char pc_pallet_blocks[PC_PALLET_MAP_H][PC_PALLET_MAP_W] = {
     { 0x52, 0x4f, 0x52, 0x52, 0x4f, 0x0b, 0x50, 0x52, 0x52, 0x50 },
@@ -187,6 +191,47 @@ static const unsigned char pc_viridian_mart_blocks[PC_HOUSE_MAP_H][PC_HOUSE_MAP_
     { 0x16, 0x0f, 0x14, 0x14 },
     { 0x18, 0x19, 0x15, 0x15 },
     { 0x17, 0x1a, 0x0b, 0x0f },
+};
+
+static const unsigned char pc_blues_house_blocks[PC_HOUSE_MAP_H][PC_HOUSE_MAP_W] = {
+    { 0x04, 0x14, 0x05, 0x09 },
+    { 0x15, 0x01, 0x02, 0x15 },
+    { 0x15, 0x12, 0x13, 0x15 },
+    { 0x06, 0x0b, 0x15, 0x07 },
+};
+
+static const unsigned char pc_viridian_pokecenter_blocks[PC_POKECENTER_MAP_H][PC_POKECENTER_MAP_W] = {
+    { 0x20, 0x10, 0x01, 0x02, 0x0c, 0x0d, 0x0d },
+    { 0x21, 0x04, 0x05, 0x07, 0x07, 0x22, 0x23 },
+    { 0x08, 0x0f, 0x0f, 0x0f, 0x0f, 0x0f, 0x1b },
+    { 0x0e, 0x0a, 0x0b, 0x0e, 0x0f, 0x0f, 0x0e },
+};
+
+static const unsigned char pc_viridian_school_house_blocks[PC_HOUSE_MAP_H][PC_HOUSE_MAP_W] = {
+    { 0x05, 0x18, 0x19, 0x09 },
+    { 0x15, 0x14, 0x15, 0x15 },
+    { 0x15, 0x18, 0x19, 0x15 },
+    { 0x06, 0x0b, 0x15, 0x07 },
+};
+
+static const unsigned char pc_viridian_nickname_house_blocks[PC_HOUSE_MAP_H][PC_HOUSE_MAP_W] = {
+    { 0x04, 0x14, 0x05, 0x09 },
+    { 0x15, 0x01, 0x02, 0x15 },
+    { 0x15, 0x12, 0x13, 0x15 },
+    { 0x06, 0x0b, 0x15, 0x07 },
+};
+
+static const unsigned char pc_viridian_gym_blocks[PC_GYM_MAP_H][PC_GYM_MAP_W] = {
+    { 0x49, 0x01, 0x4a, 0x01, 0x01, 0x5f, 0x01, 0x01, 0x01 },
+    { 0x5d, 0x4b, 0x05, 0x51, 0x64, 0x56, 0x63, 0x46, 0x46 },
+    { 0x5e, 0x5c, 0x52, 0x46, 0x4e, 0x53, 0x54, 0x55, 0x05 },
+    { 0x05, 0x4c, 0x05, 0x61, 0x05, 0x60, 0x4c, 0x55, 0x48 },
+    { 0x48, 0x5b, 0x4c, 0x05, 0x40, 0x44, 0x4c, 0x4c, 0x05 },
+    { 0x05, 0x05, 0x4d, 0x4c, 0x05, 0x05, 0x2c, 0x55, 0x4c },
+    { 0x05, 0x05, 0x05, 0x51, 0x60, 0x47, 0x05, 0x2c, 0x58 },
+    { 0x48, 0x48, 0x48, 0x5a, 0x05, 0x62, 0x05, 0x43, 0x45 },
+    { 0x57, 0x46, 0x46, 0x46, 0x59, 0x32, 0x05, 0x31, 0x40 },
+    { 0x05, 0x05, 0x41, 0x05, 0x05, 0x42, 0x05, 0x04, 0x05 },
 };
 
 static const unsigned char pc_outside_respawn_blocks[PC_WORLD_MAX_SPAWNS][2] = {
@@ -673,14 +718,16 @@ static void select_collision_tileset(enum pc_world_scene scene,
         *passable_tiles = pc_overworld_passable_tiles;
         *passable_count = ARRAYLEN(pc_overworld_passable_tiles);
     }
-    else if (scene == PC_WORLD_SCENE_OAKS_LAB)
+    else if (scene == PC_WORLD_SCENE_OAKS_LAB ||
+             scene == PC_WORLD_SCENE_VIRIDIAN_GYM)
     {
         *blocks = pc_red_dojo_blocks;
         *block_count = PC_RED_DOJO_BLOCK_COUNT;
         *passable_tiles = pc_lab_passable_tiles;
         *passable_count = ARRAYLEN(pc_lab_passable_tiles);
     }
-    else if (scene == PC_WORLD_SCENE_VIRIDIAN_MART)
+    else if (scene == PC_WORLD_SCENE_VIRIDIAN_MART ||
+             scene == PC_WORLD_SCENE_VIRIDIAN_POKECENTER)
     {
         *blocks = pc_red_pokecenter_blocks;
         *block_count = PC_RED_POKECENTER_BLOCK_COUNT;
@@ -794,18 +841,31 @@ static bool warp_entry_walkable(const struct pc_world_state *world,
     {
         case PC_WORLD_SCENE_PALLET:
             return move_dy < 0 &&
-                   ((metatile_x == 5 && metatile_y == 5) ||
-                    (metatile_x == 12 && metatile_y == 11));
+                   ((metatile_y == 5 &&
+                     ((metatile_x >= 5 && metatile_x <= 6) ||
+                      (metatile_x >= 13 && metatile_x <= 14))) ||
+                    (metatile_y == 11 &&
+                     metatile_x >= 12 && metatile_x <= 13));
 
         case PC_WORLD_SCENE_VIRIDIAN_SOUTH:
             return move_dy < 0 &&
-                   metatile_y == 19 &&
-                   metatile_x >= 29 && metatile_x <= 30;
+                   ((metatile_y == 25 && metatile_x >= 23 && metatile_x <= 24) ||
+                    (metatile_y == 19 && metatile_x >= 29 && metatile_x <= 30) ||
+                    (metatile_y == 15 && metatile_x >= 21 && metatile_x <= 22) ||
+                    (metatile_y == 9 && metatile_x >= 21 && metatile_x <= 22) ||
+                    (metatile_y == 7 && metatile_x >= 32 && metatile_x <= 33));
 
         case PC_WORLD_SCENE_VIRIDIAN_MART:
             return move_dy > 0 &&
                    metatile_y == 7 &&
                    metatile_x >= 3 && metatile_x <= 4;
+
+        case PC_WORLD_SCENE_BLUES_HOUSE:
+        case PC_WORLD_SCENE_VIRIDIAN_SCHOOL_HOUSE:
+        case PC_WORLD_SCENE_VIRIDIAN_NICKNAME_HOUSE:
+            return move_dy > 0 &&
+                   metatile_y == 7 &&
+                   metatile_x >= 2 && metatile_x <= 3;
 
         case PC_WORLD_SCENE_HOUSE_1F:
             if (move_dy > 0 &&
@@ -826,6 +886,16 @@ static bool warp_entry_walkable(const struct pc_world_state *world,
             return move_dy > 0 &&
                    metatile_y == 11 &&
                    metatile_x >= 4 && metatile_x <= 5;
+
+        case PC_WORLD_SCENE_VIRIDIAN_POKECENTER:
+            return move_dy > 0 &&
+                   metatile_y == 7 &&
+                   metatile_x >= 3 && metatile_x <= 4;
+
+        case PC_WORLD_SCENE_VIRIDIAN_GYM:
+            return move_dy > 0 &&
+                   metatile_y == 17 &&
+                   metatile_x >= 16 && metatile_x <= 17;
 
         default:
             return false;
@@ -1016,6 +1086,46 @@ static void load_scene_data(struct pc_world_state *world, enum pc_world_scene sc
             set_banner(world, "Viridian Mart", "Select talks to clerk");
             break;
 
+        case PC_WORLD_SCENE_BLUES_HOUSE:
+            world->map_w = PC_HOUSE_MAP_W;
+            world->map_h = PC_HOUSE_MAP_H;
+            world->origin_x = (LCD_WIDTH - (PC_HOUSE_MAP_W * PC_WORLD_TILE_SIZE)) / 2;
+            world->origin_y = (LCD_HEIGHT - (PC_HOUSE_MAP_H * PC_WORLD_TILE_SIZE)) / 2;
+            copy_block_rows(world->tiles, 0, &pc_blues_house_blocks[0][0],
+                            PC_HOUSE_MAP_H, PC_HOUSE_MAP_W);
+            set_banner(world, "Blue's House", "Daisy keeps the town map handy");
+            break;
+
+        case PC_WORLD_SCENE_VIRIDIAN_POKECENTER:
+            world->map_w = PC_POKECENTER_MAP_W;
+            world->map_h = PC_POKECENTER_MAP_H;
+            world->origin_x = (LCD_WIDTH - (PC_POKECENTER_MAP_W * PC_WORLD_TILE_SIZE)) / 2;
+            world->origin_y = (LCD_HEIGHT - (PC_POKECENTER_MAP_H * PC_WORLD_TILE_SIZE)) / 2;
+            copy_block_rows(world->tiles, 0, &pc_viridian_pokecenter_blocks[0][0],
+                            PC_POKECENTER_MAP_H, PC_POKECENTER_MAP_W);
+            set_banner(world, "Viridian Pokecenter", "Heal up before Route 2");
+            break;
+
+        case PC_WORLD_SCENE_VIRIDIAN_SCHOOL_HOUSE:
+            world->map_w = PC_HOUSE_MAP_W;
+            world->map_h = PC_HOUSE_MAP_H;
+            world->origin_x = (LCD_WIDTH - (PC_HOUSE_MAP_W * PC_WORLD_TILE_SIZE)) / 2;
+            world->origin_y = (LCD_HEIGHT - (PC_HOUSE_MAP_H * PC_WORLD_TILE_SIZE)) / 2;
+            copy_block_rows(world->tiles, 0, &pc_viridian_school_house_blocks[0][0],
+                            PC_HOUSE_MAP_H, PC_HOUSE_MAP_W);
+            set_banner(world, "Trainer School", "Local kids are studying");
+            break;
+
+        case PC_WORLD_SCENE_VIRIDIAN_NICKNAME_HOUSE:
+            world->map_w = PC_HOUSE_MAP_W;
+            world->map_h = PC_HOUSE_MAP_H;
+            world->origin_x = (LCD_WIDTH - (PC_HOUSE_MAP_W * PC_WORLD_TILE_SIZE)) / 2;
+            world->origin_y = (LCD_HEIGHT - (PC_HOUSE_MAP_H * PC_WORLD_TILE_SIZE)) / 2;
+            copy_block_rows(world->tiles, 0, &pc_viridian_nickname_house_blocks[0][0],
+                            PC_HOUSE_MAP_H, PC_HOUSE_MAP_W);
+            set_banner(world, "Nickname House", "A Spearow chatters inside");
+            break;
+
         case PC_WORLD_SCENE_OAKS_LAB:
             world->map_w = PC_LAB_MAP_W;
             world->map_h = PC_LAB_MAP_H;
@@ -1024,6 +1134,16 @@ static void load_scene_data(struct pc_world_state *world, enum pc_world_scene sc
             copy_block_rows(world->tiles, 0, &pc_oaks_lab_blocks[0][0],
                             PC_LAB_MAP_H, PC_LAB_MAP_W);
             set_banner(world, "Oak's Lab", "Two trainers are battling");
+            break;
+
+        case PC_WORLD_SCENE_VIRIDIAN_GYM:
+            world->map_w = PC_GYM_MAP_W;
+            world->map_h = PC_GYM_MAP_H;
+            world->origin_x = (LCD_WIDTH - (PC_GYM_MAP_W * PC_WORLD_TILE_SIZE)) / 2;
+            world->origin_y = (LCD_HEIGHT - (PC_GYM_MAP_H * PC_WORLD_TILE_SIZE)) / 2;
+            copy_block_rows(world->tiles, 0, &pc_viridian_gym_blocks[0][0],
+                            PC_GYM_MAP_H, PC_GYM_MAP_W);
+            set_banner(world, "Viridian Gym", "Giovanni's arena is open");
             break;
 
         case PC_WORLD_SCENE_HOUSE_1F:
@@ -1277,6 +1397,31 @@ static void reset_player_to_safe_scene_position(struct pc_world_state *world)
             world->heading = PC_HEADING_N;
             break;
 
+        case PC_WORLD_SCENE_BLUES_HOUSE:
+            set_player_to_metatile(world, 2, 6);
+            world->heading = PC_HEADING_N;
+            break;
+
+        case PC_WORLD_SCENE_VIRIDIAN_POKECENTER:
+            set_player_to_metatile(world, 3, 6);
+            world->heading = PC_HEADING_N;
+            break;
+
+        case PC_WORLD_SCENE_VIRIDIAN_SCHOOL_HOUSE:
+            set_player_to_metatile(world, 2, 6);
+            world->heading = PC_HEADING_N;
+            break;
+
+        case PC_WORLD_SCENE_VIRIDIAN_NICKNAME_HOUSE:
+            set_player_to_metatile(world, 2, 6);
+            world->heading = PC_HEADING_N;
+            break;
+
+        case PC_WORLD_SCENE_VIRIDIAN_GYM:
+            set_player_to_metatile(world, 16, 16);
+            world->heading = PC_HEADING_N;
+            break;
+
         case PC_WORLD_SCENE_PALLET:
         default:
             set_player_to_block(world, 5, 7, PC_HEADING_S);
@@ -1308,7 +1453,7 @@ static bool pc_world_try_load(struct pc_world_state *world)
         rb->memcpy(&record_v1, &record, sizeof(record_v1));
         if (record_v1.magic != PC_SAVE_MAGIC ||
             record_v1.version != 1 ||
-            record_v1.scene < 0 || record_v1.scene > PC_WORLD_SCENE_OAKS_LAB)
+            record_v1.scene < 0 || record_v1.scene > PC_WORLD_SCENE_VIRIDIAN_GYM)
         {
             return false;
         }
@@ -1338,7 +1483,7 @@ static bool pc_world_try_load(struct pc_world_state *world)
         rb->memcpy(&record_v4, &record, sizeof(record_v4));
         if (record_v4.magic != PC_SAVE_MAGIC ||
             record_v4.version < 2 || record_v4.version > 4 ||
-            record_v4.scene < 0 || record_v4.scene > PC_WORLD_SCENE_OAKS_LAB)
+            record_v4.scene < 0 || record_v4.scene > PC_WORLD_SCENE_VIRIDIAN_GYM)
         {
             return false;
         }
@@ -1364,7 +1509,7 @@ static bool pc_world_try_load(struct pc_world_state *world)
     {
         if (record.magic != PC_SAVE_MAGIC ||
             record.version < 5 || record.version > PC_SAVE_VERSION ||
-            record.scene < 0 || record.scene > PC_WORLD_SCENE_OAKS_LAB)
+            record.scene < 0 || record.scene > PC_WORLD_SCENE_VIRIDIAN_GYM)
         {
             return false;
         }
@@ -1755,6 +1900,8 @@ static enum pc_heading heading_for_input(int dx, int dy)
 
 static void update_camera(struct pc_world_state *world, bool snap)
 {
+    int map_px_w = world->map_w * PC_WORLD_TILE_SIZE;
+    int map_px_h = world->map_h * PC_WORLD_TILE_SIZE;
     int target_x;
     int target_y;
     int min_x;
@@ -1764,11 +1911,18 @@ static void update_camera(struct pc_world_state *world, bool snap)
 
     if (!outdoor_scene(world->scene))
     {
-        int indoor_x = (LCD_WIDTH - (world->map_w * PC_WORLD_TILE_SIZE)) / 2;
-        int indoor_y = (LCD_HEIGHT - (world->map_h * PC_WORLD_TILE_SIZE)) / 2;
+        if (map_px_w <= LCD_WIDTH)
+            world->origin_x = (LCD_WIDTH - map_px_w) / 2;
+        else
+            world->origin_x = clampi((LCD_WIDTH / 2) - world->player_x,
+                                     LCD_WIDTH - map_px_w, 0);
 
-        world->origin_x = indoor_x;
-        world->origin_y = indoor_y;
+        if (map_px_h <= LCD_HEIGHT)
+            world->origin_y = (LCD_HEIGHT - map_px_h) / 2;
+        else
+            world->origin_y = clampi((LCD_HEIGHT / 2) -
+                                     (world->player_y + PC_WORLD_FOOT_Y_OFFSET),
+                                     LCD_HEIGHT - map_px_h, 0);
         return;
     }
 
@@ -1826,6 +1980,9 @@ static void maybe_handle_transition(struct pc_world_state *world, bool moved)
             if (player_in_metatile_zone(world, 5, 5, 5, 5) &&
                 world->heading == PC_HEADING_N)
                 transition_to_scene_metatile(world, PC_WORLD_SCENE_HOUSE_1F, 2, 6, PC_HEADING_N);
+            else if (player_in_metatile_zone(world, 13, 14, 5, 5) &&
+                     world->heading == PC_HEADING_N)
+                transition_to_scene_metatile(world, PC_WORLD_SCENE_BLUES_HOUSE, 2, 6, PC_HEADING_N);
             else if (player_in_metatile_zone(world, 12, 12, 11, 11) &&
                      world->heading == PC_HEADING_N)
                 transition_to_scene_metatile(world, PC_WORLD_SCENE_OAKS_LAB, 4, 10, PC_HEADING_N);
@@ -1855,10 +2012,34 @@ static void maybe_handle_transition(struct pc_world_state *world, bool moved)
             break;
 
         case PC_WORLD_SCENE_VIRIDIAN_SOUTH:
-            if (player_in_metatile_zone(world, 29, 30, 19, 19) &&
+            if (player_in_metatile_zone(world, 23, 24, 25, 25) &&
+                world->heading == PC_HEADING_N)
+            {
+                transition_to_scene_metatile(world, PC_WORLD_SCENE_VIRIDIAN_POKECENTER,
+                                             3, 6, PC_HEADING_N);
+            }
+            else if (player_in_metatile_zone(world, 29, 30, 19, 19) &&
                 world->heading == PC_HEADING_N)
             {
                 transition_to_scene_metatile(world, PC_WORLD_SCENE_VIRIDIAN_MART, 3, 6, PC_HEADING_N);
+            }
+            else if (player_in_metatile_zone(world, 21, 22, 15, 15) &&
+                     world->heading == PC_HEADING_N)
+            {
+                transition_to_scene_metatile(world, PC_WORLD_SCENE_VIRIDIAN_SCHOOL_HOUSE,
+                                             2, 6, PC_HEADING_N);
+            }
+            else if (player_in_metatile_zone(world, 21, 22, 9, 9) &&
+                     world->heading == PC_HEADING_N)
+            {
+                transition_to_scene_metatile(world, PC_WORLD_SCENE_VIRIDIAN_NICKNAME_HOUSE,
+                                             2, 6, PC_HEADING_N);
+            }
+            else if (player_in_metatile_zone(world, 32, 33, 7, 7) &&
+                     world->heading == PC_HEADING_N)
+            {
+                transition_to_scene_metatile(world, PC_WORLD_SCENE_VIRIDIAN_GYM,
+                                             16, 16, PC_HEADING_N);
             }
             else if (block_y >= (world->map_h - 2) && block_x >= 9 && block_x <= 10 &&
                 world->heading == PC_HEADING_S)
@@ -1908,6 +2089,16 @@ static void maybe_handle_transition(struct pc_world_state *world, bool moved)
             }
             break;
 
+        case PC_WORLD_SCENE_BLUES_HOUSE:
+            if (player_in_metatile_zone(world, 2, 3, 7, 7) &&
+                world->heading == PC_HEADING_S)
+            {
+                transition_to_scene_metatile(world, PC_WORLD_SCENE_PALLET,
+                                             13, 5, PC_HEADING_S);
+                init_spawns(world);
+            }
+            break;
+
         case PC_WORLD_SCENE_HOUSE_1F:
             if (player_in_metatile_zone(world, 2, 3, 7, 7) &&
                 world->heading == PC_HEADING_S)
@@ -1928,6 +2119,46 @@ static void maybe_handle_transition(struct pc_world_state *world, bool moved)
             {
                 transition_to_scene_metatile(world, PC_WORLD_SCENE_PALLET,
                                              12, 11, PC_HEADING_S);
+                init_spawns(world);
+            }
+            break;
+
+        case PC_WORLD_SCENE_VIRIDIAN_POKECENTER:
+            if (player_in_metatile_zone(world, 3, 4, 7, 7) &&
+                world->heading == PC_HEADING_S)
+            {
+                transition_to_scene_metatile(world, PC_WORLD_SCENE_VIRIDIAN_SOUTH,
+                                             23, 25, PC_HEADING_S);
+                init_spawns(world);
+            }
+            break;
+
+        case PC_WORLD_SCENE_VIRIDIAN_SCHOOL_HOUSE:
+            if (player_in_metatile_zone(world, 2, 3, 7, 7) &&
+                world->heading == PC_HEADING_S)
+            {
+                transition_to_scene_metatile(world, PC_WORLD_SCENE_VIRIDIAN_SOUTH,
+                                             21, 15, PC_HEADING_S);
+                init_spawns(world);
+            }
+            break;
+
+        case PC_WORLD_SCENE_VIRIDIAN_NICKNAME_HOUSE:
+            if (player_in_metatile_zone(world, 2, 3, 7, 7) &&
+                world->heading == PC_HEADING_S)
+            {
+                transition_to_scene_metatile(world, PC_WORLD_SCENE_VIRIDIAN_SOUTH,
+                                             21, 9, PC_HEADING_S);
+                init_spawns(world);
+            }
+            break;
+
+        case PC_WORLD_SCENE_VIRIDIAN_GYM:
+            if (player_in_metatile_zone(world, 16, 17, 17, 17) &&
+                world->heading == PC_HEADING_S)
+            {
+                transition_to_scene_metatile(world, PC_WORLD_SCENE_VIRIDIAN_SOUTH,
+                                             32, 7, PC_HEADING_S);
                 init_spawns(world);
             }
             break;
