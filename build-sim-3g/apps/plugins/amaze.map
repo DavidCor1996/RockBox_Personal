@@ -585,13 +585,13 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000    0x1a91e
+.debug_info     0x0000000000000000    0x1a94b
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0xbd64 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/amaze.o
- .debug_info    0x000000000000bd64     0x73d7 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
- .debug_info    0x000000000001313b     0x758d /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(pluginlib_actions.o)
- .debug_info    0x000000000001a6c8      0x12b /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(amaze_tiles_7.7x7x2.o)
- .debug_info    0x000000000001a7f3      0x12b /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(amaze_tiles_5.5x5x2.o)
+ .debug_info    0x0000000000000000     0xbd73 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/amaze.o
+ .debug_info    0x000000000000bd73     0x73e6 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
+ .debug_info    0x0000000000013159     0x759c /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(pluginlib_actions.o)
+ .debug_info    0x000000000001a6f5      0x12b /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(amaze_tiles_7.7x7x2.o)
+ .debug_info    0x000000000001a820      0x12b /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(amaze_tiles_5.5x5x2.o)
 
 .debug_abbrev   0x0000000000000000      0xf25
  *(.debug_abbrev)
@@ -612,17 +612,17 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0xa40c
+.debug_str      0x0000000000000000     0xa421
  *(.debug_str)
- .debug_str     0x0000000000000000     0xa40c /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/amaze.o
-                                       0xa8a9 (size before relaxing)
- .debug_str     0x000000000000a40c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
-                                       0x49e1 (size before relaxing)
- .debug_str     0x000000000000a40c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(pluginlib_actions.o)
-                                       0x5b32 (size before relaxing)
- .debug_str     0x000000000000a40c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(amaze_tiles_7.7x7x2.o)
+ .debug_str     0x0000000000000000     0xa421 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/amaze.o
+                                       0xa8be (size before relaxing)
+ .debug_str     0x000000000000a421        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
+                                       0x49f6 (size before relaxing)
+ .debug_str     0x000000000000a421        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(pluginlib_actions.o)
+                                       0x5b47 (size before relaxing)
+ .debug_str     0x000000000000a421        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(amaze_tiles_7.7x7x2.o)
                                         0x14e (size before relaxing)
- .debug_str     0x000000000000a40c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(amaze_tiles_5.5x5x2.o)
+ .debug_str     0x000000000000a421        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(amaze_tiles_5.5x5x2.o)
                                         0x14e (size before relaxing)
 
 .debug_loc

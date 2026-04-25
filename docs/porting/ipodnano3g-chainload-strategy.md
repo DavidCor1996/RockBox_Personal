@@ -1,5 +1,48 @@
 # iPod Nano 3G RetailOS chainload strategy
 
+## 2026-04-25 Reconciliation note
+
+The current local Nano 3G `wInd3x` state is now an **experimental staged
+branch**, not the earlier simpler two-patch `defanged WTF` state.
+
+Important correction:
+
+- some earlier notes describe Nano 3G chainload in terms of only:
+  - `0x1990`
+  - `0x19b8`
+  - and later a single loader-stub site at `0x19ac`
+- the actual current local file
+  - `/tmp/wInd3x/pkg/cfw/defang_wtf.go`
+  now contains a much broader staged patch set:
+  - many restored original branches/calls in the `0x1758..0x24c8` range
+  - active local loader/readiness stubs
+  - UART bypass
+  - multiple marker/probe stubs in free WTF body space
+
+So current hardware results must be interpreted as results from this
+**experimental local Nano 3G patch branch**, not from the earlier minimal
+defanged-WTF model alone.
+
+Also important:
+
+- discovering that the device is a **MacPod** rather than a **WinPod** does
+  **not** explain the current failures
+- the failures we are hitting are still in the
+  `BootROM -> WTF -> RetailOS handoff` path, before normal filesystem/partition
+  ownership matters
+
+MacPod/WinPod may matter later for:
+
+- repartition/restore behavior
+- FAT32 vs HFS+ expectations
+- mass-storage/update flows after a successful OS boot
+
+But it does not explain:
+
+- raw DFU payload black-screen behavior
+- WTF staying at `05ac:1242`
+- `cfw run` never reaching RetailOS UI
+
 ## 2026-04-24 RetailOS hook target discovery
 
 ### Core finding
@@ -257,6 +300,129 @@ The black-screen chainload result is best explained as:
 ### Minimal fix to try next
 
 Do **not** change RetailOS first.
+
+## 2026-04-25 Consolidated current-state strategy
+
+### What is now firmly ruled out
+
+These are no longer the highest-value explanations for the black screen:
+
+1. “RetailOS never reaches late startup”
+   - false
+   - late startup/runtime checkpoints through `0x22002f60`, `0x22002f70`,
+     `0x22002f94`, `0x22002fb4`, `0x22002fc8`, `0x22005024`, and `0x22005e24`
+     were all reached in controlled runs
+
+2. “The panel just needs one more obvious PMU/backlight write”
+   - false in the simple sense
+   - we forced:
+     - LCD init
+     - panel preamble
+     - panel worker
+     - pipeline start
+     - framebuffer fills
+     - PMU enable paths
+     - direct `LEDCTL`
+     - `CHCTL + LEDCTL`
+   - all preserved the post-escape signature and still showed a black screen
+
+3. “The late Apple callback/ownership chain is what drops USB”
+   - false
+   - bypasses/loops at:
+     - `0x22002fc4`
+     - `0x22002f9c`
+     - `0x22002f98`
+     - `0x22002f54`
+     - `0x22002e94`
+     - dispatch feeder into `0x22002e8c`
+     - CP15/state stage `0x22002d78`
+     - feeder `0x22002788`
+     - earlier call `0x22002774`
+     all still ended with the same USB disappearance
+
+### What is now most likely true
+
+1. The dominant boundary is not “OSOS display init”.
+   - the important split is earlier than the late runtime/display code
+   - USB disappearance is already committed before the entire
+     `0x22002d78..0x22005e24` region we spent time on
+
+2. The main blocker is observability.
+   - we can reach deep code
+   - we can even replace later code with loops
+   - but the device still disappears from USB and the screen stays black
+   - so we lack a live channel that distinguishes “executed our code” from
+     “same terminal host state”
+
+3. Direct execution is the right strategic pivot.
+   - a custom payload at `0x08000800` is now built and runnable
+   - that path avoids Apple OSOS entirely after WTF handoff
+   - the first payload still produced the same host signature, so it is not yet
+     execution proof, but it is the right architecture for the next phase
+
+### Direct payload status
+
+Prepared direct payload:
+
+- entry: `0x08000800`
+- stack: `0x2203f000`
+- actions:
+  - disable IRQ/FIQ
+  - write marker block to `0x2203f100`
+  - loop forever
+
+Payload intent:
+
+- separate “Apple OSOS is black” from “we can directly control the CPU after
+  WTF handoff”
+
+Observed host result:
+
+- same post-escape class as OSOS-based runs:
+  - upload succeeds
+  - timeout waiting for WTF
+  - Nano disappears from USB
+
+Interpretation:
+
+- direct payload execution is plausible but not yet externally proven
+- direct payload work remains higher-value than more RetailOS display patching
+
+### Current overall progress
+
+Completed:
+
+- preserved-service68 recovery path
+- deep OSOS startup/runtime reachability mapping
+- multiple display/panel/PMU/framebuffer forcing passes
+- runtime/vtable investigation through `0x22005e24`
+- upstream USB-loss narrowing into pre-display startup/context code
+- first direct `0x08000800` custom payload build and run
+
+Current best statement:
+
+- Nano 3G control almost certainly reaches either direct payload code or very
+  close to it after WTF handoff
+- but we do not yet have a reliable proof channel after the device leaves USB
+  and before recovery
+
+### Recommended next steps
+
+1. Stop further late OSOS display/backlight patching.
+   - it is now low-value relative to what is already proven
+
+2. Keep working on the direct payload path.
+   - it is cleaner than Apple OSOS for control proof
+   - it removes ambiguity about Apple runtime state and ownership
+
+3. Focus on one of these two goals:
+   - an earlier handoff split before `0x22002774`
+   - or a direct-payload side effect that is host-visible without relying on
+     post-reboot RAM recovery
+
+4. Prefer proving execution over proving display.
+   - once direct execution is proven with a custom payload, display work can be
+     revisited from a simpler base
 
 The next fix should be in Nano 3G defanged WTF:
 

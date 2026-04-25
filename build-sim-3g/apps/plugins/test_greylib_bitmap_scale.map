@@ -609,15 +609,15 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000    0x2ddc7
+.debug_info     0x0000000000000000    0x2de21
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0x78dc /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/test_greylib_bitmap_scale.o
- .debug_info    0x00000000000078dc     0x73d7 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
- .debug_info    0x000000000000ecb3     0x758d /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(pluginlib_actions.o)
- .debug_info    0x0000000000016240     0x792b /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(grey_core.o)
- .debug_info    0x000000000001db6b     0x84a3 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(grey_draw.o)
- .debug_info    0x000000000002600e     0x7689 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(grey_parm.o)
- .debug_info    0x000000000002d697      0x730 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/libfixedpoint.a(fixedpoint.o)
+ .debug_info    0x0000000000000000     0x78eb /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/test_greylib_bitmap_scale.o
+ .debug_info    0x00000000000078eb     0x73e6 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
+ .debug_info    0x000000000000ecd1     0x759c /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(pluginlib_actions.o)
+ .debug_info    0x000000000001626d     0x793a /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(grey_core.o)
+ .debug_info    0x000000000001dba7     0x84b2 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(grey_draw.o)
+ .debug_info    0x0000000000026059     0x7698 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(grey_parm.o)
+ .debug_info    0x000000000002d6f1      0x730 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/libfixedpoint.a(fixedpoint.o)
 
 .debug_abbrev   0x0000000000000000     0x1a82
  *(.debug_abbrev)
@@ -642,21 +642,21 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0x5d84
+.debug_str      0x0000000000000000     0x5d99
  *(.debug_str)
- .debug_str     0x0000000000000000     0x5d84 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/test_greylib_bitmap_scale.o
-                                       0x5c9d (size before relaxing)
- .debug_str     0x0000000000005d84        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
-                                       0x49e1 (size before relaxing)
- .debug_str     0x0000000000005d84        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(pluginlib_actions.o)
-                                       0x5b32 (size before relaxing)
- .debug_str     0x0000000000005d84        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(grey_core.o)
-                                       0x4a2e (size before relaxing)
- .debug_str     0x0000000000005d84        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(grey_draw.o)
-                                       0x4b2b (size before relaxing)
- .debug_str     0x0000000000005d84        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(grey_parm.o)
-                                       0x4a3d (size before relaxing)
- .debug_str     0x0000000000005d84        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/libfixedpoint.a(fixedpoint.o)
+ .debug_str     0x0000000000000000     0x5d99 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/test_greylib_bitmap_scale.o
+                                       0x5cb2 (size before relaxing)
+ .debug_str     0x0000000000005d99        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
+                                       0x49f6 (size before relaxing)
+ .debug_str     0x0000000000005d99        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(pluginlib_actions.o)
+                                       0x5b47 (size before relaxing)
+ .debug_str     0x0000000000005d99        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(grey_core.o)
+                                       0x4a43 (size before relaxing)
+ .debug_str     0x0000000000005d99        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(grey_draw.o)
+                                       0x4b40 (size before relaxing)
+ .debug_str     0x0000000000005d99        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(grey_parm.o)
+                                       0x4a52 (size before relaxing)
+ .debug_str     0x0000000000005d99        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/libfixedpoint.a(fixedpoint.o)
                                         0x285 (size before relaxing)
 
 .debug_loc

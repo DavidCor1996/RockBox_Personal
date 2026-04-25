@@ -523,12 +523,12 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000    0x18007
+.debug_info     0x0000000000000000    0x1803a
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0x7d9d /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/minesweeper.o
- .debug_info    0x0000000000007d9d     0x73d7 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
- .debug_info    0x000000000000f174     0x8d67 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(playback_control.o)
- .debug_info    0x0000000000017edb      0x12c /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(minesweeper_tiles.12x12x2.o)
+ .debug_info    0x0000000000000000     0x7dac /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/minesweeper.o
+ .debug_info    0x0000000000007dac     0x73e6 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
+ .debug_info    0x000000000000f192     0x8d7c /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(playback_control.o)
+ .debug_info    0x0000000000017f0e      0x12c /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(minesweeper_tiles.12x12x2.o)
 
 .debug_abbrev   0x0000000000000000      0xd83
  *(.debug_abbrev)
@@ -547,15 +547,15 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0x9241
+.debug_str      0x0000000000000000     0x9263
  *(.debug_str)
- .debug_str     0x0000000000000000     0x9241 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/minesweeper.o
-                                       0x4ba9 (size before relaxing)
- .debug_str     0x0000000000009241        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
-                                       0x49e1 (size before relaxing)
- .debug_str     0x0000000000009241        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(playback_control.o)
-                                       0x940a (size before relaxing)
- .debug_str     0x0000000000009241        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(minesweeper_tiles.12x12x2.o)
+ .debug_str     0x0000000000000000     0x9263 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/minesweeper.o
+                                       0x4bbe (size before relaxing)
+ .debug_str     0x0000000000009263        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
+                                       0x49f6 (size before relaxing)
+ .debug_str     0x0000000000009263        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(playback_control.o)
+                                       0x942c (size before relaxing)
+ .debug_str     0x0000000000009263        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(minesweeper_tiles.12x12x2.o)
                                         0x156 (size before relaxing)
 
 .debug_loc

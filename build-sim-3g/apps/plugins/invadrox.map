@@ -767,23 +767,23 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000    0x25d5d
+.debug_info     0x0000000000000000    0x25da8
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0x86d1 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/invadrox.o
- .debug_info    0x00000000000086d1     0x73d7 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
- .debug_info    0x000000000000faa8     0x6e66 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(gcc-support.o)
- .debug_info    0x000000000001690e     0x71a2 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(helper.o)
- .debug_info    0x000000000001dab0     0x771f /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(highscore.o)
- .debug_info    0x00000000000251cf      0x109 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(invadrox_fire.6x6x1.o)
- .debug_info    0x00000000000252d8      0x12b /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(invadrox_aliens.16x15x16.o)
- .debug_info    0x0000000000025403      0x12b /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(invadrox_alien_explode.10x5x16.o)
- .debug_info    0x000000000002552e      0x12b /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(invadrox_ships.10x15x2.o)
- .debug_info    0x0000000000025659      0x12b /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(invadrox_bombs.9x30x16.o)
- .debug_info    0x0000000000025784      0x12b /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(invadrox_shield.15x10x2.o)
- .debug_info    0x00000000000258af      0x12b /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(invadrox_ufo.11x5x2.o)
- .debug_info    0x00000000000259da      0x12b /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(invadrox_ufo_explode.14x5x2.o)
- .debug_info    0x0000000000025b05      0x12b /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(invadrox_numbers.40x5x16.o)
- .debug_info    0x0000000000025c30      0x12d /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(invadrox_background.160x128x16.o)
+ .debug_info    0x0000000000000000     0x86e0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/invadrox.o
+ .debug_info    0x00000000000086e0     0x73e6 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
+ .debug_info    0x000000000000fac6     0x6e75 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(gcc-support.o)
+ .debug_info    0x000000000001693b     0x71b1 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(helper.o)
+ .debug_info    0x000000000001daec     0x772e /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(highscore.o)
+ .debug_info    0x000000000002521a      0x109 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(invadrox_fire.6x6x1.o)
+ .debug_info    0x0000000000025323      0x12b /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(invadrox_aliens.16x15x16.o)
+ .debug_info    0x000000000002544e      0x12b /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(invadrox_alien_explode.10x5x16.o)
+ .debug_info    0x0000000000025579      0x12b /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(invadrox_ships.10x15x2.o)
+ .debug_info    0x00000000000256a4      0x12b /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(invadrox_bombs.9x30x16.o)
+ .debug_info    0x00000000000257cf      0x12b /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(invadrox_shield.15x10x2.o)
+ .debug_info    0x00000000000258fa      0x12b /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(invadrox_ufo.11x5x2.o)
+ .debug_info    0x0000000000025a25      0x12b /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(invadrox_ufo_explode.14x5x2.o)
+ .debug_info    0x0000000000025b50      0x12b /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(invadrox_numbers.40x5x16.o)
+ .debug_info    0x0000000000025c7b      0x12d /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(invadrox_background.160x128x16.o)
 
 .debug_abbrev   0x0000000000000000     0x1a6f
  *(.debug_abbrev)
@@ -824,37 +824,37 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0x4a40
+.debug_str      0x0000000000000000     0x4a55
  *(.debug_str)
- .debug_str     0x0000000000000000     0x4a40 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/invadrox.o
-                                       0x4d21 (size before relaxing)
- .debug_str     0x0000000000004a40        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
-                                       0x49e1 (size before relaxing)
- .debug_str     0x0000000000004a40        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(gcc-support.o)
-                                       0x423e (size before relaxing)
- .debug_str     0x0000000000004a40        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(helper.o)
-                                       0x49e3 (size before relaxing)
- .debug_str     0x0000000000004a40        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(highscore.o)
-                                       0x48e8 (size before relaxing)
- .debug_str     0x0000000000004a40        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(invadrox_fire.6x6x1.o)
+ .debug_str     0x0000000000000000     0x4a55 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/invadrox.o
+                                       0x4d36 (size before relaxing)
+ .debug_str     0x0000000000004a55        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
+                                       0x49f6 (size before relaxing)
+ .debug_str     0x0000000000004a55        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(gcc-support.o)
+                                       0x4253 (size before relaxing)
+ .debug_str     0x0000000000004a55        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(helper.o)
+                                       0x49f8 (size before relaxing)
+ .debug_str     0x0000000000004a55        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(highscore.o)
+                                       0x48fd (size before relaxing)
+ .debug_str     0x0000000000004a55        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(invadrox_fire.6x6x1.o)
                                         0x129 (size before relaxing)
- .debug_str     0x0000000000004a40        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(invadrox_aliens.16x15x16.o)
+ .debug_str     0x0000000000004a55        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(invadrox_aliens.16x15x16.o)
                                         0x152 (size before relaxing)
- .debug_str     0x0000000000004a40        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(invadrox_alien_explode.10x5x16.o)
+ .debug_str     0x0000000000004a55        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(invadrox_alien_explode.10x5x16.o)
                                         0x160 (size before relaxing)
- .debug_str     0x0000000000004a40        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(invadrox_ships.10x15x2.o)
+ .debug_str     0x0000000000004a55        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(invadrox_ships.10x15x2.o)
                                         0x150 (size before relaxing)
- .debug_str     0x0000000000004a40        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(invadrox_bombs.9x30x16.o)
+ .debug_str     0x0000000000004a55        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(invadrox_bombs.9x30x16.o)
                                         0x150 (size before relaxing)
- .debug_str     0x0000000000004a40        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(invadrox_shield.15x10x2.o)
+ .debug_str     0x0000000000004a55        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(invadrox_shield.15x10x2.o)
                                         0x152 (size before relaxing)
- .debug_str     0x0000000000004a40        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(invadrox_ufo.11x5x2.o)
+ .debug_str     0x0000000000004a55        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(invadrox_ufo.11x5x2.o)
                                         0x14c (size before relaxing)
- .debug_str     0x0000000000004a40        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(invadrox_ufo_explode.14x5x2.o)
+ .debug_str     0x0000000000004a55        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(invadrox_ufo_explode.14x5x2.o)
                                         0x15c (size before relaxing)
- .debug_str     0x0000000000004a40        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(invadrox_numbers.40x5x16.o)
+ .debug_str     0x0000000000004a55        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(invadrox_numbers.40x5x16.o)
                                         0x154 (size before relaxing)
- .debug_str     0x0000000000004a40        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(invadrox_background.160x128x16.o)
+ .debug_str     0x0000000000004a55        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(invadrox_background.160x128x16.o)
                                         0x15a (size before relaxing)
 
 .debug_loc

@@ -1,9 +1,35 @@
 #include "pocketcatch.h"
 
+#ifndef HAVE_LCD_COLOR
+#ifndef LCD_RGBPACK
+#define PC_MONO_LUMA(r, g, b) (((r) * 30 + (g) * 59 + (b) * 11) / 100)
+#define LCD_RGBPACK(r, g, b) \
+    ((fb_data)(PC_MONO_LUMA((r), (g), (b)) >= 224 ? LCD_WHITE : \
+               PC_MONO_LUMA((r), (g), (b)) >= 160 ? LCD_LIGHTGRAY : \
+               PC_MONO_LUMA((r), (g), (b)) >= 96 ? LCD_DARKGRAY : \
+               LCD_BLACK))
+#endif
+#endif
+
 static fb_data pc_background_pixels[LCD_WIDTH * LCD_HEIGHT];
 static fb_data pc_creature_pixels[PC_CREATURE_MAX_W * PC_CREATURE_MAX_H];
 static fb_data pc_resize_pixels[PC_CREATURE_MAX_W * PC_CREATURE_MAX_H];
 static fb_data pc_ball_pixels[(PC_BALL_SPIN_FRAMES + 1) * PC_BALL_MAX_W * PC_BALL_MAX_H];
+
+#define PC_WORLD_CREATURE_CACHE_SLOTS 4
+
+struct pc_world_creature_cache_entry {
+    bool loaded;
+    int species_index;
+    unsigned long stamp;
+    struct bitmap bmp;
+    char path[MAX_PATH];
+    fb_data pixels[PC_WORLD_CREATURE_MAX_W * PC_WORLD_CREATURE_MAX_H];
+};
+
+static struct pc_world_creature_cache_entry
+    pc_world_creature_cache[PC_WORLD_CREATURE_CACHE_SLOTS];
+static unsigned long pc_world_creature_cache_stamp;
 
 static const char *const pc_asset_roots[] = {
     PC_ASSET_ROOT,
@@ -751,6 +777,35 @@ static void clear_bitmap(struct pc_asset_bitmap *asset)
     asset->path[0] = '\0';
 }
 
+static bool copy_world_bitmap(struct pc_asset_bitmap *asset,
+                              const struct bitmap *bmp,
+                              const char *path,
+                              bool external)
+{
+    size_t bytes;
+
+    if (asset == NULL || asset->pixels == NULL || bmp == NULL ||
+        bmp->width <= 0 || bmp->height <= 0)
+    {
+        return false;
+    }
+
+    bytes = (size_t)bmp->width * (size_t)bmp->height * sizeof(fb_data);
+    if ((int)bytes > asset->capacity)
+        return false;
+
+    clear_bitmap(asset);
+    asset->bmp.data = (char *)asset->pixels;
+    asset->bmp.width = bmp->width;
+    asset->bmp.height = bmp->height;
+    rb->memcpy(asset->pixels, bmp->data, bytes);
+    asset->loaded = true;
+    asset->external = external;
+    if (path != NULL)
+        rb->strlcpy(asset->path, path, sizeof(asset->path));
+    return true;
+}
+
 static bool load_bitmap_exact(struct pc_asset_bitmap *asset, const char *path,
                               int expected_w, int expected_h)
 {
@@ -1124,39 +1179,7 @@ int pc_assets_get_catch_candy(int species_index)
     return 3;
 }
 
-static bool load_scaled_bitmap_with_path(struct pc_asset_bitmap *asset,
-                                         const char *path,
-                                         int dest_w, int dest_h)
-{
-    struct pc_asset_bitmap source;
-
-    if (asset == NULL || asset->pixels == NULL)
-        return false;
-
-    rb->memset(&source, 0, sizeof(source));
-    source.pixels = pc_resize_pixels;
-    source.capacity = sizeof(pc_resize_pixels);
-
-    if (!rb->file_exists(path) ||
-        !load_bitmap_flexible(&source, path, PC_CREATURE_MAX_W, PC_CREATURE_MAX_H))
-    {
-        clear_bitmap(asset);
-        return false;
-    }
-
-    clear_bitmap(asset);
-    asset->bmp.data = (char *)asset->pixels;
-    asset->bmp.width = dest_w;
-    asset->bmp.height = dest_h;
-    simple_resize_bitmap(&source.bmp, &asset->bmp);
-    asset->loaded = true;
-    asset->external = true;
-    rb->strlcpy(asset->path, path, sizeof(asset->path));
-    return true;
-
-}
-
-bool pc_assets_load_world_creature(struct pc_asset_bitmap *asset, int species_index)
+static bool load_world_creature_uncached(struct pc_asset_bitmap *asset, int species_index)
 {
     struct pc_asset_bitmap source;
     const struct pc_creature_def *creature = pc_assets_get_creature(species_index);
@@ -1195,26 +1218,124 @@ bool pc_assets_load_world_creature(struct pc_asset_bitmap *asset, int species_in
     return true;
 }
 
-bool pc_assets_load_world_trainer(struct pc_asset_bitmap *asset, int heading, int frame)
+bool pc_assets_load_world_creature(struct pc_asset_bitmap *asset, int species_index)
+{
+    struct pc_world_creature_cache_entry *cache = NULL;
+    struct pc_asset_bitmap cached_asset;
+    int i;
+
+    if (asset == NULL || asset->pixels == NULL)
+        return false;
+
+    for (i = 0; i < PC_WORLD_CREATURE_CACHE_SLOTS; ++i)
+    {
+        if (pc_world_creature_cache[i].loaded &&
+            pc_world_creature_cache[i].species_index == species_index)
+        {
+            pc_world_creature_cache[i].stamp = ++pc_world_creature_cache_stamp;
+            return copy_world_bitmap(asset,
+                                     &pc_world_creature_cache[i].bmp,
+                                     pc_world_creature_cache[i].path,
+                                     true);
+        }
+    }
+
+    for (i = 0; i < PC_WORLD_CREATURE_CACHE_SLOTS; ++i)
+    {
+        if (!pc_world_creature_cache[i].loaded)
+        {
+            cache = &pc_world_creature_cache[i];
+            break;
+        }
+    }
+
+    if (cache == NULL)
+    {
+        cache = &pc_world_creature_cache[0];
+        for (i = 1; i < PC_WORLD_CREATURE_CACHE_SLOTS; ++i)
+        {
+            if (pc_world_creature_cache[i].stamp < cache->stamp)
+                cache = &pc_world_creature_cache[i];
+        }
+    }
+
+    rb->memset(cache, 0, sizeof(*cache));
+    rb->memset(&cached_asset, 0, sizeof(cached_asset));
+    cached_asset.pixels = cache->pixels;
+    cached_asset.capacity = sizeof(cache->pixels);
+    if (!load_world_creature_uncached(&cached_asset, species_index))
+        return false;
+
+    cache->bmp = cached_asset.bmp;
+    cache->loaded = cached_asset.loaded;
+    rb->strlcpy(cache->path, cached_asset.path, sizeof(cache->path));
+    cache->loaded = true;
+    cache->species_index = species_index;
+    cache->stamp = ++pc_world_creature_cache_stamp;
+    return copy_world_bitmap(asset, &cache->bmp, cache->path, true);
+}
+
+bool pc_assets_load_named_world_trainer(struct pc_asset_bitmap *asset, const char *trainer_name,
+                                        int heading, int frame)
 {
     char path[MAX_PATH];
-    static const char *const trainer_names[] = { "leaf", "lyra" };
+    struct pc_asset_bitmap source;
+    int dest_w;
+    int dest_h;
     int i;
-    int j;
+
+    if (asset == NULL || asset->pixels == NULL || trainer_name == NULL)
+        return false;
+
+    rb->memset(&source, 0, sizeof(source));
+    source.pixels = pc_resize_pixels;
+    source.capacity = sizeof(pc_resize_pixels);
 
     for (i = 0; i < (int)ARRAYLEN(pc_asset_roots); ++i)
     {
-        for (j = 0; j < (int)ARRAYLEN(trainer_names); ++j)
+        build_trainer_path(path, sizeof(path), pc_asset_roots[i],
+                           trainer_name, heading, frame);
+        if (!rb->file_exists(path) ||
+            !load_bitmap_flexible(&source, path,
+                                  PC_WORLD_TRAINER_MAX_W,
+                                  PC_WORLD_TRAINER_MAX_H))
         {
-            build_trainer_path(path, sizeof(path), pc_asset_roots[i],
-                               trainer_names[j], heading, frame);
-            if (load_scaled_bitmap_with_path(asset, path,
-                                             PC_WORLD_TRAINER_MAX_W,
-                                             PC_WORLD_TRAINER_MAX_H))
-            {
-                return true;
-            }
+            continue;
         }
+
+        dest_w = PC_WORLD_TRAINER_MAX_W;
+        dest_h = source.bmp.height * dest_w / MAX(1, source.bmp.width);
+        if (dest_h > PC_WORLD_TRAINER_MAX_H)
+        {
+            dest_h = PC_WORLD_TRAINER_MAX_H;
+            dest_w = source.bmp.width * dest_h / MAX(1, source.bmp.height);
+        }
+
+        clear_bitmap(asset);
+        asset->bmp.data = (char *)asset->pixels;
+        asset->bmp.width = MAX(1, dest_w);
+        asset->bmp.height = MAX(1, dest_h);
+        simple_resize_bitmap(&source.bmp, &asset->bmp);
+        asset->loaded = true;
+        asset->external = true;
+        rb->strlcpy(asset->path, path, sizeof(asset->path));
+        if (asset->loaded)
+            return true;
+    }
+
+    clear_bitmap(asset);
+    return false;
+}
+
+bool pc_assets_load_world_trainer(struct pc_asset_bitmap *asset, int heading, int frame)
+{
+    static const char *const trainer_names[] = { "leaf", "lyra" };
+    int i;
+
+    for (i = 0; i < (int)ARRAYLEN(trainer_names); ++i)
+    {
+        if (pc_assets_load_named_world_trainer(asset, trainer_names[i], heading, frame))
+            return true;
     }
 
     clear_bitmap(asset);

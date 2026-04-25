@@ -511,12 +511,12 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000    0x1d95e
+.debug_info     0x0000000000000000    0x1d99a
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0x8066 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/robotfindskitten.o
- .debug_info    0x0000000000008066     0x73d7 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
- .debug_info    0x000000000000f43d     0x758d /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(pluginlib_actions.o)
- .debug_info    0x00000000000169ca     0x6f94 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(display_text.o)
+ .debug_info    0x0000000000000000     0x8075 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/robotfindskitten.o
+ .debug_info    0x0000000000008075     0x73e6 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
+ .debug_info    0x000000000000f45b     0x759c /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(pluginlib_actions.o)
+ .debug_info    0x00000000000169f7     0x6fa3 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(display_text.o)
 
 .debug_abbrev   0x0000000000000000      0xf06
  *(.debug_abbrev)
@@ -535,16 +535,16 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0x589a
+.debug_str      0x0000000000000000     0x58af
  *(.debug_str)
- .debug_str     0x0000000000000000     0x589a /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/robotfindskitten.o
-                                       0x5d4a (size before relaxing)
- .debug_str     0x000000000000589a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
-                                       0x49e1 (size before relaxing)
- .debug_str     0x000000000000589a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(pluginlib_actions.o)
-                                       0x5b32 (size before relaxing)
- .debug_str     0x000000000000589a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(display_text.o)
-                                       0x42d9 (size before relaxing)
+ .debug_str     0x0000000000000000     0x58af /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/robotfindskitten.o
+                                       0x5d5f (size before relaxing)
+ .debug_str     0x00000000000058af        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
+                                       0x49f6 (size before relaxing)
+ .debug_str     0x00000000000058af        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(pluginlib_actions.o)
+                                       0x5b47 (size before relaxing)
+ .debug_str     0x00000000000058af        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(display_text.o)
+                                       0x42ee (size before relaxing)
 
 .debug_loc
  *(.debug_loc)

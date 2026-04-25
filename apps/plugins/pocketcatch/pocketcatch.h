@@ -13,7 +13,7 @@
 #define PC_BG_PATH             PC_ASSET_ROOT "/backgrounds/scene_day_layer0.bmp"
 #define PC_BALL_PATH           PC_ASSET_ROOT "/sprites/balls/ball_default_idle_0.bmp"
 #define PC_PACK_JSON_PATH      PC_ASSET_ROOT "/pack.json"
-#define PC_SAVE_PATH           PC_ASSET_ROOT "/save.dat"
+#define PC_SAVE_PATH           PC_ASSET_ROOT_ALT "/save.dat"
 
 #define PC_BG_MAX_BYTES        (LCD_WIDTH * LCD_HEIGHT * sizeof(fb_data))
 #define PC_CREATURE_MAX_W      112
@@ -23,16 +23,29 @@
 #define PC_BALL_MAX_H          48
 #define PC_BALL_MAX_BYTES      (PC_BALL_MAX_W * PC_BALL_MAX_H * sizeof(fb_data))
 #define PC_BALL_SPIN_FRAMES    4
+#define PC_WORLD_PIXEL_SCALE   2
+#define PC_WORLD_SCALE(px)     ((px) * PC_WORLD_PIXEL_SCALE)
+#define PC_WORLD_SUBTILE_SIZE  PC_WORLD_SCALE(8)
+#define PC_WORLD_TILE_SIZE     PC_WORLD_SCALE(32)
+#define PC_WORLD_STEP_PX       PC_WORLD_SCALE(4)
+#define PC_WORLD_FOOT_Y_OFFSET PC_WORLD_SCALE(7)
+#define PC_WORLD_SPAWN_Y_OFFSET PC_WORLD_SCALE(3)
+#define PC_WORLD_SPAWN_FOOT_Y_OFFSET PC_WORLD_SCALE(6)
+#define PC_WORLD_ENCOUNTER_RADIUS PC_WORLD_SCALE(14)
+#define PC_WORLD_SAFE_PLAYER_RADIUS PC_WORLD_SCALE(28)
+#define PC_WORLD_SAFE_SPAWN_RADIUS PC_WORLD_SCALE(20)
+#define PC_WORLD_SPAWN_MOVE_PX  PC_WORLD_PIXEL_SCALE
+
 #ifdef SIMULATOR
-#define PC_WORLD_CREATURE_MAX_W 36
-#define PC_WORLD_CREATURE_MAX_H 36
-#define PC_WORLD_TRAINER_MAX_W  30
-#define PC_WORLD_TRAINER_MAX_H  30
+#define PC_WORLD_CREATURE_MAX_W PC_WORLD_SCALE(24)
+#define PC_WORLD_CREATURE_MAX_H PC_WORLD_SCALE(24)
+#define PC_WORLD_TRAINER_MAX_W  PC_WORLD_SCALE(18)
+#define PC_WORLD_TRAINER_MAX_H  PC_WORLD_SCALE(20)
 #else
-#define PC_WORLD_CREATURE_MAX_W 32
-#define PC_WORLD_CREATURE_MAX_H 32
-#define PC_WORLD_TRAINER_MAX_W  28
-#define PC_WORLD_TRAINER_MAX_H  28
+#define PC_WORLD_CREATURE_MAX_W PC_WORLD_SCALE(24)
+#define PC_WORLD_CREATURE_MAX_H PC_WORLD_SCALE(24)
+#define PC_WORLD_TRAINER_MAX_W  PC_WORLD_SCALE(18)
+#define PC_WORLD_TRAINER_MAX_H  PC_WORLD_SCALE(20)
 #endif
 #define PC_WORLD_CREATURE_BYTES (PC_WORLD_CREATURE_MAX_W * PC_WORLD_CREATURE_MAX_H * sizeof(fb_data))
 #define PC_WORLD_TRAINER_BYTES  (PC_WORLD_TRAINER_MAX_W * PC_WORLD_TRAINER_MAX_H * sizeof(fb_data))
@@ -52,13 +65,13 @@
 #define PC_TARGET_Y            94
 #define PC_GROUND_Y            (LCD_HEIGHT - 54)
 #define PC_CREATURE_BASE_Y     146
-#define PC_WORLD_TILE_SIZE     32
 #define PC_WORLD_W             10
 #define PC_WORLD_H             9
+#define PC_WORLD_MAP_MAX_W     20
+#define PC_WORLD_MAP_MAX_H     45
 #define PC_WORLD_ORIGIN_X      0
 #define PC_WORLD_ORIGIN_Y      (-28)
 #define PC_WORLD_MAX_SPAWNS    4
-#define PC_WORLD_STEP_PX       4
 #define PC_WORLD_WALK_FRAMES   3
 
 enum pc_phase {
@@ -240,11 +253,15 @@ struct pc_encounter_state {
 struct pc_world_spawn {
     bool active;
     int species_index;
+    int home_block_x;
+    int home_block_y;
     int x;
     int y;
     int step;
     int dir_x;
     int dir_y;
+    int respawn_frames;
+    int lifetime_frames;
 };
 
 enum pc_world_scene {
@@ -263,7 +280,14 @@ enum pc_world_view {
     PC_WORLD_VIEW_MAP = 0,
     PC_WORLD_VIEW_MENU,
     PC_WORLD_VIEW_BAG,
-    PC_WORLD_VIEW_POKEDEX
+    PC_WORLD_VIEW_POKEDEX,
+    PC_WORLD_VIEW_MART,
+    PC_WORLD_VIEW_MART_ASSIGN
+};
+
+enum pc_field_ability {
+    PC_FIELD_ABILITY_SURF = 0,
+    PC_FIELD_ABILITY_COUNT
 };
 
 struct pc_world_command {
@@ -313,9 +337,13 @@ struct pc_world_state {
     int last_encounter_slot;
     int pending_species_index;
     int menu_index;
+    int mart_index;
+    int mart_assign_index;
     int bag_index;
     int dex_index;
     int notice_frames;
+    int outdoor_region;
+    int travel_steps;
     enum pc_world_scene scene;
     enum pc_world_view view;
     bool moving;
@@ -324,9 +352,13 @@ struct pc_world_state {
     bool quit_requested;
     struct pc_message banner;
     struct pc_message detail;
-    unsigned char tiles[PC_WORLD_H][PC_WORLD_W];
+    unsigned char tiles[PC_WORLD_MAP_MAX_H][PC_WORLD_MAP_MAX_W];
+    unsigned short pokeballs;
+    unsigned short money;
     unsigned short caught_counts[PC_POKEDEX_MAX];
     unsigned short family_candy[PC_POKEDEX_MAX];
+    signed short ability_species[PC_FIELD_ABILITY_COUNT];
+    unsigned char ability_owned[PC_FIELD_ABILITY_COUNT];
     struct pc_world_assets assets;
     struct pc_world_spawn spawns[PC_WORLD_MAX_SPAWNS];
 };
@@ -351,6 +383,8 @@ int pc_assets_get_evolution_cost(int species_index);
 int pc_assets_get_catch_candy(int species_index);
 bool pc_assets_load_world_creature(struct pc_asset_bitmap *asset, int species_index);
 bool pc_assets_load_world_trainer(struct pc_asset_bitmap *asset, int heading, int frame);
+bool pc_assets_load_named_world_trainer(struct pc_asset_bitmap *asset, const char *trainer_name,
+                                        int heading, int frame);
 const char *pc_assets_source_label(const struct pc_asset_provider *assets);
 
 void pc_input_reset(struct pc_input_state *input);
@@ -392,6 +426,7 @@ bool pc_world_save(struct pc_world_state *world);
 void pc_world_finish_encounter(struct pc_world_state *world,
                                enum pc_catch_outcome outcome,
                                int species_index);
+void pc_world_cancel_encounter(struct pc_world_state *world);
 void pc_world_render_frame(const struct pc_world_state *world);
 
 #endif

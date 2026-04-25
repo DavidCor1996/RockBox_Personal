@@ -548,13 +548,13 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000    0x26d33
+.debug_info     0x0000000000000000    0x26d8a
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0x8001 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/snake.o
- .debug_info    0x0000000000008001     0x73d7 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
- .debug_info    0x000000000000f3d8     0x74d5 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(configfile.o)
- .debug_info    0x00000000000168ad     0x8d67 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(playback_control.o)
- .debug_info    0x000000000001f614     0x771f /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(highscore.o)
+ .debug_info    0x0000000000000000     0x8016 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/snake.o
+ .debug_info    0x0000000000008016     0x73e6 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
+ .debug_info    0x000000000000f3fc     0x74e4 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(configfile.o)
+ .debug_info    0x00000000000168e0     0x8d7c /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(playback_control.o)
+ .debug_info    0x000000000001f65c     0x772e /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(highscore.o)
 
 .debug_abbrev   0x0000000000000000     0x134c
  *(.debug_abbrev)
@@ -575,18 +575,18 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0xa3fa
+.debug_str      0x0000000000000000     0xa41c
  *(.debug_str)
- .debug_str     0x0000000000000000     0xa3fa /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/snake.o
-                                       0x5ebb (size before relaxing)
- .debug_str     0x000000000000a3fa        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
-                                       0x49e1 (size before relaxing)
- .debug_str     0x000000000000a3fa        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(configfile.o)
-                                       0x430d (size before relaxing)
- .debug_str     0x000000000000a3fa        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(playback_control.o)
-                                       0x940a (size before relaxing)
- .debug_str     0x000000000000a3fa        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(highscore.o)
-                                       0x48e8 (size before relaxing)
+ .debug_str     0x0000000000000000     0xa41c /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/snake.o
+                                       0x5edd (size before relaxing)
+ .debug_str     0x000000000000a41c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
+                                       0x49f6 (size before relaxing)
+ .debug_str     0x000000000000a41c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(configfile.o)
+                                       0x4322 (size before relaxing)
+ .debug_str     0x000000000000a41c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(playback_control.o)
+                                       0x942c (size before relaxing)
+ .debug_str     0x000000000000a41c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(highscore.o)
+                                       0x48fd (size before relaxing)
 
 .debug_loc
  *(.debug_loc)

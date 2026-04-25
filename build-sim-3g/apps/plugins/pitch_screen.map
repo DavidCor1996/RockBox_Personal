@@ -500,12 +500,12 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000    0x1f7f9
+.debug_info     0x0000000000000000    0x1f835
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0xa44a /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/pitch_screen.o
- .debug_info    0x000000000000a44a     0x73d7 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
- .debug_info    0x0000000000011821     0x6d7a /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(icon_helper.o)
- .debug_info    0x000000000001859b     0x725e /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(arg_helper.o)
+ .debug_info    0x0000000000000000     0xa459 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/pitch_screen.o
+ .debug_info    0x000000000000a459     0x73e6 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
+ .debug_info    0x000000000001183f     0x6d89 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(icon_helper.o)
+ .debug_info    0x00000000000185c8     0x726d /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(arg_helper.o)
 
 .debug_abbrev   0x0000000000000000     0x1018
  *(.debug_abbrev)
@@ -524,16 +524,16 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0xa55d
+.debug_str      0x0000000000000000     0xa572
  *(.debug_str)
- .debug_str     0x0000000000000000     0xa55d /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/pitch_screen.o
-                                       0xaa5d (size before relaxing)
- .debug_str     0x000000000000a55d        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
-                                       0x49e1 (size before relaxing)
- .debug_str     0x000000000000a55d        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(icon_helper.o)
-                                       0x42a9 (size before relaxing)
- .debug_str     0x000000000000a55d        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(arg_helper.o)
-                                       0x43ba (size before relaxing)
+ .debug_str     0x0000000000000000     0xa572 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/pitch_screen.o
+                                       0xaa72 (size before relaxing)
+ .debug_str     0x000000000000a572        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
+                                       0x49f6 (size before relaxing)
+ .debug_str     0x000000000000a572        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(icon_helper.o)
+                                       0x42be (size before relaxing)
+ .debug_str     0x000000000000a572        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(arg_helper.o)
+                                       0x43cf (size before relaxing)
 
 .debug_loc
  *(.debug_loc)

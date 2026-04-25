@@ -27,7 +27,7 @@
 
 
 /* iPone theme color palette for lyrics display */
-#if (LCD_DEPTH > 1)
+#ifdef HAVE_LCD_COLOR
 #define IPONE_BG         LCD_RGBPACK(0x10, 0x0C, 0x10) /* deep purple-black background */
 #define IPONE_FG         LCD_RGBPACK(0xF7, 0xF7, 0xFF) /* near-white foreground text */
 #define IPONE_ACTIVE     LCD_RGBPACK(0x9C, 0x79, 0xE7) /* purple accent - sung/active */
@@ -35,6 +35,14 @@
 #define IPONE_ACTIVE_BG  LCD_RGBPACK(0x29, 0x20, 0x31) /* dark purple - active line bg */
 #define IPONE_SEPARATOR  LCD_RGBPACK(0x26, 0x22, 0x2F) /* subtle separator line */
 #define IPONE_PROGRESS   LCD_RGBPACK(0x9C, 0x79, 0xE7) /* purple progress bar fill */
+#else
+#define IPONE_BG         LCD_WHITE
+#define IPONE_FG         LCD_BLACK
+#define IPONE_ACTIVE     LCD_BLACK
+#define IPONE_INACTIVE   LCD_DARKGRAY
+#define IPONE_ACTIVE_BG  LCD_LIGHTGRAY
+#define IPONE_SEPARATOR  LCD_DARKGRAY
+#define IPONE_PROGRESS   LCD_BLACK
 #endif
 
 /* path to the Unicode lyrics font (full CJK/Japanese coverage) */

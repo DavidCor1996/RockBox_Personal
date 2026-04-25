@@ -3172,7 +3172,15 @@ static inline pix_t fade_color(pix_t c, unsigned a)
  * unlike lcd_fillrect(DRMODE_SOLID) which fills with fg_pattern. */
 static void pf_clear_display(void)
 {
+#if CONFIG_KEYPAD == IPOD_3G_PAD
+    rb->lcd_set_viewport(NULL);
+    rb->lcd_set_background(LCD_BLACK);
+    rb->lcd_set_foreground(LCD_WHITE);
+    rb->lcd_clear_display();
+    rb->lcd_set_viewport(&pf_vp);
+#else
     rb->screens[SCREEN_MAIN]->clear_viewport();
+#endif
 }
 
 static void render_slide(struct slide_data *slide, const int alpha)
@@ -5364,6 +5372,10 @@ enum plugin_status plugin_start(const void *parameter)
             rb->viewportmanager_theme_enable(i, false, NULL);
         rb->sb_set_persistent_title("Cover Flow", Icon_NOICON, SCREEN_MAIN);
         rb->lcd_set_viewport(&pf_vp);
+#if CONFIG_KEYPAD == IPOD_3G_PAD
+        rb->lcd_set_background(LCD_BLACK);
+        rb->lcd_set_foreground(LCD_WHITE);
+#endif
 #ifdef HAVE_LCD_COLOR
         mylcd_set_background(pf_bg_color);
         mylcd_set_foreground(pf_fg_color);

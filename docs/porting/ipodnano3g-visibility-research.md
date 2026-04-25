@@ -1,5 +1,36 @@
 # iPod Nano 3G Visibility Research
 
+## 2026-04-25 Reconciliation note
+
+Current Nano 3G visibility/chainload results must be read with one correction:
+
+- the active local `/tmp/wInd3x/pkg/cfw/defang_wtf.go` is now an experimental
+  staged patch stack
+- it is no longer just the earlier minimal Nano 3G defanger state described in
+  some older notes
+
+Active local Nano 3G patch categories now include:
+
+- restored original WTF control-flow edges
+- local readiness stub
+- local loader callback stub
+- local UART immediate-return bypass
+- marker/probe stubs in free WTF body space
+
+That means the current black-screen / WTF-stuck results reflect:
+
+- a later experimental Nano 3G handoff branch
+
+and should not be over-attributed to the earlier simpler `0x1990` / `0x19b8`
+story alone.
+
+MacPod note:
+
+- the device being a **MacPod** instead of a **WinPod** does not explain the
+  current visibility failures
+- those failures are still occurring before RetailOS/UI/filesystem behavior is
+  reached
+
 Date: 2026-04-23
 Scope: first safe execution visibility signal after confirmed DFU takeover
 

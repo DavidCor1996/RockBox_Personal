@@ -67,6 +67,42 @@ def test_build_apply_bundle_targets_active_ipone_wallpapers(tmp_dir):
     assert ".rockbox/wps/iPone/ChargeWallpaper.bmp" in destinations
 
 
+def test_build_apply_bundle_targets_ipone_3g_wallpapers(tmp_dir):
+    repo_root = os.path.join(tmp_dir, "repo")
+    lock_source = os.path.join(repo_root, "rockpod", "generated", "lockscreen-3g.bmp")
+    charge_source = os.path.join(repo_root, "rockpod", "generated", "charge-wallpaper-3g.bmp")
+    _write_bmp(lock_source, 160, 128, "#BBBBBB")
+    _write_bmp(charge_source, 160, 128, "#777777")
+
+    service = IPoneWallpaperService()
+    profile = _profile(repo_root, "160x128")
+    profile["selected_theme"] = "iPone_3g"
+    bundle = service.build_apply_bundle(profile, lock_source=lock_source, charge_source=charge_source)
+
+    destinations = {item["destination_rel"] for item in bundle["assets"]}
+    assert ".rockbox/wps/iPone_3g/Wallpaper.bmp" in destinations
+    assert ".rockbox/wps/iPone_3g/WallpaperCurrent.bmp" in destinations
+    assert ".rockbox/wps/iPone_3g/ChargeWallpaper.bmp" in destinations
+
+
+def test_build_apply_bundle_targets_galaxy_wallpapers(tmp_dir):
+    repo_root = os.path.join(tmp_dir, "repo")
+    lock_source = os.path.join(repo_root, "rockpod", "generated", "lockscreen-galaxy.bmp")
+    charge_source = os.path.join(repo_root, "rockpod", "generated", "charge-wallpaper-galaxy.bmp")
+    _write_bmp(lock_source, 160, 128, "#BBBBBB")
+    _write_bmp(charge_source, 160, 128, "#777777")
+
+    service = IPoneWallpaperService()
+    profile = _profile(repo_root, "160x128")
+    profile["selected_theme"] = "Galaxy"
+    bundle = service.build_apply_bundle(profile, lock_source=lock_source, charge_source=charge_source)
+
+    destinations = {item["destination_rel"] for item in bundle["assets"]}
+    assert ".rockbox/wps/Galaxy/Wallpaper.bmp" in destinations
+    assert ".rockbox/wps/Galaxy/WallpaperCurrent.bmp" in destinations
+    assert ".rockbox/wps/Galaxy/ChargeWallpaper.bmp" in destinations
+
+
 def test_import_candidate_converts_to_profile_sized_bmp(tmp_dir):
     repo_root = os.path.join(tmp_dir, "repo")
     source = os.path.join(tmp_dir, "source.png")

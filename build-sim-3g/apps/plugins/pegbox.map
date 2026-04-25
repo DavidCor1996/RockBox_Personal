@@ -583,15 +583,15 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000    0x268e9
+.debug_info     0x0000000000000000    0x26940
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0x80eb /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/pegbox.o
- .debug_info    0x00000000000080eb     0x73d7 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
- .debug_info    0x000000000000f4c2     0x74d5 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(configfile.o)
- .debug_info    0x0000000000016997     0x8d67 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(playback_control.o)
- .debug_info    0x000000000001f6fe     0x6f94 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(display_text.o)
- .debug_info    0x0000000000026692      0x12b /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(pegbox_pieces.12x12x2.o)
- .debug_info    0x00000000000267bd      0x12c /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(pegbox_header.160x24x2.o)
+ .debug_info    0x0000000000000000     0x8100 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/pegbox.o
+ .debug_info    0x0000000000008100     0x73e6 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
+ .debug_info    0x000000000000f4e6     0x74e4 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(configfile.o)
+ .debug_info    0x00000000000169ca     0x8d7c /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(playback_control.o)
+ .debug_info    0x000000000001f746     0x6fa3 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(display_text.o)
+ .debug_info    0x00000000000266e9      0x12b /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(pegbox_pieces.12x12x2.o)
+ .debug_info    0x0000000000026814      0x12c /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(pegbox_header.160x24x2.o)
 
 .debug_abbrev   0x0000000000000000     0x14a3
  *(.debug_abbrev)
@@ -616,21 +616,21 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0xa562
+.debug_str      0x0000000000000000     0xa584
  *(.debug_str)
- .debug_str     0x0000000000000000     0xa562 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/pegbox.o
-                                       0x5f41 (size before relaxing)
- .debug_str     0x000000000000a562        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
-                                       0x49e1 (size before relaxing)
- .debug_str     0x000000000000a562        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(configfile.o)
-                                       0x430d (size before relaxing)
- .debug_str     0x000000000000a562        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(playback_control.o)
-                                       0x940a (size before relaxing)
- .debug_str     0x000000000000a562        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(display_text.o)
-                                       0x42d9 (size before relaxing)
- .debug_str     0x000000000000a562        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(pegbox_pieces.12x12x2.o)
+ .debug_str     0x0000000000000000     0xa584 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/pegbox.o
+                                       0x5f63 (size before relaxing)
+ .debug_str     0x000000000000a584        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
+                                       0x49f6 (size before relaxing)
+ .debug_str     0x000000000000a584        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(configfile.o)
+                                       0x4322 (size before relaxing)
+ .debug_str     0x000000000000a584        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(playback_control.o)
+                                       0x942c (size before relaxing)
+ .debug_str     0x000000000000a584        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(display_text.o)
+                                       0x42ee (size before relaxing)
+ .debug_str     0x000000000000a584        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(pegbox_pieces.12x12x2.o)
                                         0x14e (size before relaxing)
- .debug_str     0x000000000000a562        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(pegbox_header.160x24x2.o)
+ .debug_str     0x000000000000a584        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(pegbox_header.160x24x2.o)
                                         0x14e (size before relaxing)
 
 .debug_loc

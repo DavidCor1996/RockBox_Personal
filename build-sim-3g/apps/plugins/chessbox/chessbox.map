@@ -847,15 +847,15 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000    0x30cf0
+.debug_info     0x0000000000000000    0x30d41
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0xa7f2 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/chessbox/chessbox.o
- .debug_info    0x000000000000a7f2     0xb6a7 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/chessbox/gnuchess.o
- .debug_info    0x0000000000015e99       0x57 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/chessbox/opening.o
- .debug_info    0x0000000000015ef0     0xab95 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/chessbox/chessbox_pgn.o
- .debug_info    0x0000000000020a85     0x73d7 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
- .debug_info    0x0000000000027e5c     0x8d67 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(playback_control.o)
- .debug_info    0x0000000000030bc3      0x12d /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(chessbox_pieces.128x128x2.o)
+ .debug_info    0x0000000000000000     0xa801 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/chessbox/chessbox.o
+ .debug_info    0x000000000000a801     0xb6b6 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/chessbox/gnuchess.o
+ .debug_info    0x0000000000015eb7       0x57 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/chessbox/opening.o
+ .debug_info    0x0000000000015f0e     0xaba4 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/chessbox/chessbox_pgn.o
+ .debug_info    0x0000000000020ab2     0x73e6 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
+ .debug_info    0x0000000000027e98     0x8d7c /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(playback_control.o)
+ .debug_info    0x0000000000030c14      0x12d /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(chessbox_pieces.128x128x2.o)
 
 .debug_abbrev   0x0000000000000000     0x1ad7
  *(.debug_abbrev)
@@ -880,21 +880,21 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0xb15d
+.debug_str      0x0000000000000000     0xb17f
  *(.debug_str)
- .debug_str     0x0000000000000000     0xb15d /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/chessbox/chessbox.o
-                                       0x9602 (size before relaxing)
- .debug_str     0x000000000000b15d        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/chessbox/gnuchess.o
-                                       0x501b (size before relaxing)
- .debug_str     0x000000000000b15d        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/chessbox/opening.o
+ .debug_str     0x0000000000000000     0xb17f /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/chessbox/chessbox.o
+                                       0x9617 (size before relaxing)
+ .debug_str     0x000000000000b17f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/chessbox/gnuchess.o
+                                       0x5030 (size before relaxing)
+ .debug_str     0x000000000000b17f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/chessbox/opening.o
                                          0xeb (size before relaxing)
- .debug_str     0x000000000000b15d        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/chessbox/chessbox_pgn.o
-                                       0xa854 (size before relaxing)
- .debug_str     0x000000000000b15d        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
-                                       0x49e1 (size before relaxing)
- .debug_str     0x000000000000b15d        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(playback_control.o)
-                                       0x940a (size before relaxing)
- .debug_str     0x000000000000b15d        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(chessbox_pieces.128x128x2.o)
+ .debug_str     0x000000000000b17f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/chessbox/chessbox_pgn.o
+                                       0xa869 (size before relaxing)
+ .debug_str     0x000000000000b17f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
+                                       0x49f6 (size before relaxing)
+ .debug_str     0x000000000000b17f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(playback_control.o)
+                                       0x942c (size before relaxing)
+ .debug_str     0x000000000000b17f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(chessbox_pieces.128x128x2.o)
                                         0x152 (size before relaxing)
 
 .debug_loc
@@ -950,18 +950,18 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
                                         0x217 (size before relaxing)
 
 .debug_loclists
-                0x0000000000000000     0x6b80
+                0x0000000000000000     0x6b75
  *(.debug_loclists)
  .debug_loclists
                 0x0000000000000000      0xb2d /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/chessbox/chessbox.o
  .debug_loclists
-                0x0000000000000b2d     0x4629 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/chessbox/gnuchess.o
+                0x0000000000000b2d     0x461e /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/chessbox/gnuchess.o
  .debug_loclists
-                0x0000000000005156     0x1908 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/chessbox/chessbox_pgn.o
+                0x000000000000514b     0x1908 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/chessbox/chessbox_pgn.o
  .debug_loclists
-                0x0000000000006a5e       0x9e /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
+                0x0000000000006a53       0x9e /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
  .debug_loclists
-                0x0000000000006afc       0x84 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(playback_control.o)
+                0x0000000000006af1       0x84 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(playback_control.o)
 
 .debug_macro
  *(.debug_macro)

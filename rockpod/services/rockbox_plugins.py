@@ -222,7 +222,9 @@ class RockboxPluginService:
             return (simulator_target or {}).get("build_dir", "")
         model = str(profile.get("target_device_model", "")).lower()
         resolution = str(profile.get("screen_resolution", "")).strip()
-        if "nano" in model or resolution == "176x132":
+        if "ipod 3g" in model or resolution == "160x128":
+            preferred = ["build-hw-ipod3g", "build-hw-ipodvideo", "build-hw-ipodvideo-5g"]
+        elif "nano" in model or resolution == "176x132":
             preferred = ["build-hw-ipodnano2g"]
         elif "video" in model or "5g" in model:
             preferred = ["build-hw-ipodvideo-5g", "build-hw-ipodvideo"]

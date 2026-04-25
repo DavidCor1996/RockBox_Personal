@@ -547,13 +547,13 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000    0x26a69
+.debug_info     0x0000000000000000    0x26aba
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0x7ec9 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/dice.o
- .debug_info    0x0000000000007ec9     0x73d7 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
- .debug_info    0x000000000000f2a0     0x758d /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(pluginlib_actions.o)
- .debug_info    0x000000000001682d     0x74d5 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(configfile.o)
- .debug_info    0x000000000001dd02     0x8d67 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(playback_control.o)
+ .debug_info    0x0000000000000000     0x7ed8 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/dice.o
+ .debug_info    0x0000000000007ed8     0x73e6 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
+ .debug_info    0x000000000000f2be     0x759c /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(pluginlib_actions.o)
+ .debug_info    0x000000000001685a     0x74e4 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(configfile.o)
+ .debug_info    0x000000000001dd3e     0x8d7c /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(playback_control.o)
 
 .debug_abbrev   0x0000000000000000     0x12d7
  *(.debug_abbrev)
@@ -574,18 +574,18 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0xa4e5
+.debug_str      0x0000000000000000     0xa507
  *(.debug_str)
- .debug_str     0x0000000000000000     0xa4e5 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/dice.o
-                                       0x5e52 (size before relaxing)
- .debug_str     0x000000000000a4e5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
-                                       0x49e1 (size before relaxing)
- .debug_str     0x000000000000a4e5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(pluginlib_actions.o)
-                                       0x5b32 (size before relaxing)
- .debug_str     0x000000000000a4e5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(configfile.o)
-                                       0x430d (size before relaxing)
- .debug_str     0x000000000000a4e5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(playback_control.o)
-                                       0x940a (size before relaxing)
+ .debug_str     0x0000000000000000     0xa507 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/dice.o
+                                       0x5e67 (size before relaxing)
+ .debug_str     0x000000000000a507        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
+                                       0x49f6 (size before relaxing)
+ .debug_str     0x000000000000a507        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(pluginlib_actions.o)
+                                       0x5b47 (size before relaxing)
+ .debug_str     0x000000000000a507        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(configfile.o)
+                                       0x4322 (size before relaxing)
+ .debug_str     0x000000000000a507        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(playback_control.o)
+                                       0x942c (size before relaxing)
 
 .debug_loc
  *(.debug_loc)

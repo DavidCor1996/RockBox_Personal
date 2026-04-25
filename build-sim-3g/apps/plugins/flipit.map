@@ -500,12 +500,12 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000     0xed13
+.debug_info     0x0000000000000000     0xed31
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0x7707 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/flipit.o
- .debug_info    0x0000000000007707     0x73d7 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
- .debug_info    0x000000000000eade      0x109 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(flipit_cursor.28x28x1.o)
- .debug_info    0x000000000000ebe7      0x12c /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(flipit_tokens.28x56x2.o)
+ .debug_info    0x0000000000000000     0x7716 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/flipit.o
+ .debug_info    0x0000000000007716     0x73e6 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
+ .debug_info    0x000000000000eafc      0x109 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(flipit_cursor.28x28x1.o)
+ .debug_info    0x000000000000ec05      0x12c /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(flipit_tokens.28x56x2.o)
 
 .debug_abbrev   0x0000000000000000      0x96d
  *(.debug_abbrev)
@@ -524,15 +524,15 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0x4557
+.debug_str      0x0000000000000000     0x456c
  *(.debug_str)
- .debug_str     0x0000000000000000     0x4557 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/flipit.o
-                                       0x49ad (size before relaxing)
- .debug_str     0x0000000000004557        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
-                                       0x49e1 (size before relaxing)
- .debug_str     0x0000000000004557        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(flipit_cursor.28x28x1.o)
+ .debug_str     0x0000000000000000     0x456c /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/flipit.o
+                                       0x49c2 (size before relaxing)
+ .debug_str     0x000000000000456c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
+                                       0x49f6 (size before relaxing)
+ .debug_str     0x000000000000456c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(flipit_cursor.28x28x1.o)
                                         0x129 (size before relaxing)
- .debug_str     0x0000000000004557        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(flipit_tokens.28x56x2.o)
+ .debug_str     0x000000000000456c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(flipit_tokens.28x56x2.o)
                                         0x14e (size before relaxing)
 
 .debug_loc

@@ -908,31 +908,31 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000    0x60043
+.debug_info     0x0000000000000000    0x600fd
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0x7ae3 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/clock/clock.o
- .debug_info    0x0000000000007ae3      0x544 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/clock/clock_bitmaps.o
- .debug_info    0x0000000000008027     0x6e43 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/clock/clock_bitmap_strings.o
- .debug_info    0x000000000000ee6a     0x6ee3 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/clock/clock_counter.o
- .debug_info    0x0000000000015d4d     0x7160 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/clock/clock_draw.o
- .debug_info    0x000000000001cead     0x7c71 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/clock/clock_draw_analog.o
- .debug_info    0x0000000000024b1e     0x1153 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/clock/clock_draw_binary.o
- .debug_info    0x0000000000025c71     0x76ac /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/clock/clock_draw_digital.o
- .debug_info    0x000000000002d31d     0x8f89 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/clock/clock_menu.o
- .debug_info    0x00000000000362a6     0x926c /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/clock/clock_settings.o
- .debug_info    0x000000000003f512     0x73d7 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
- .debug_info    0x00000000000468e9     0x758d /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(pluginlib_actions.o)
- .debug_info    0x000000000004de76     0x8d67 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(playback_control.o)
- .debug_info    0x0000000000056bdd      0xd47 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(picture.o)
- .debug_info    0x0000000000057924     0x77b7 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(xlcd_draw.o)
- .debug_info    0x000000000005f0db      0x12c /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(clock_binary.160x128x2.o)
- .debug_info    0x000000000005f207      0x12d /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(clock_digits.160x128x2.o)
- .debug_info    0x000000000005f334      0x12c /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(clock_smalldigits.160x128x2.o)
- .debug_info    0x000000000005f460      0x12d /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(clock_segments.160x128x2.o)
- .debug_info    0x000000000005f58d      0x12c /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(clock_smallsegments.160x128x2.o)
- .debug_info    0x000000000005f6b9      0x12d /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(clock_logo.160x128x2.o)
- .debug_info    0x000000000005f7e6      0x12d /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(clock_messages.160x128x2.o)
- .debug_info    0x000000000005f913      0x730 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/libfixedpoint.a(fixedpoint.o)
+ .debug_info    0x0000000000000000     0x7af2 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/clock/clock.o
+ .debug_info    0x0000000000007af2      0x544 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/clock/clock_bitmaps.o
+ .debug_info    0x0000000000008036     0x6e52 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/clock/clock_bitmap_strings.o
+ .debug_info    0x000000000000ee88     0x6ef2 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/clock/clock_counter.o
+ .debug_info    0x0000000000015d7a     0x716f /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/clock/clock_draw.o
+ .debug_info    0x000000000001cee9     0x7c80 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/clock/clock_draw_analog.o
+ .debug_info    0x0000000000024b69     0x1153 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/clock/clock_draw_binary.o
+ .debug_info    0x0000000000025cbc     0x76bb /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/clock/clock_draw_digital.o
+ .debug_info    0x000000000002d377     0x8f98 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/clock/clock_menu.o
+ .debug_info    0x000000000003630f     0x927b /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/clock/clock_settings.o
+ .debug_info    0x000000000003f58a     0x73e6 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
+ .debug_info    0x0000000000046970     0x759c /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(pluginlib_actions.o)
+ .debug_info    0x000000000004df0c     0x8d7c /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(playback_control.o)
+ .debug_info    0x0000000000056c88      0xd47 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(picture.o)
+ .debug_info    0x00000000000579cf     0x77c6 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(xlcd_draw.o)
+ .debug_info    0x000000000005f195      0x12c /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(clock_binary.160x128x2.o)
+ .debug_info    0x000000000005f2c1      0x12d /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(clock_digits.160x128x2.o)
+ .debug_info    0x000000000005f3ee      0x12c /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(clock_smalldigits.160x128x2.o)
+ .debug_info    0x000000000005f51a      0x12d /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(clock_segments.160x128x2.o)
+ .debug_info    0x000000000005f647      0x12c /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(clock_smallsegments.160x128x2.o)
+ .debug_info    0x000000000005f773      0x12d /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(clock_logo.160x128x2.o)
+ .debug_info    0x000000000005f8a0      0x12d /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(clock_messages.160x128x2.o)
+ .debug_info    0x000000000005f9cd      0x730 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/libfixedpoint.a(fixedpoint.o)
 
 .debug_abbrev   0x0000000000000000     0x39c5
  *(.debug_abbrev)
@@ -989,53 +989,53 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0xacd3
+.debug_str      0x0000000000000000     0xacf5
  *(.debug_str)
- .debug_str     0x0000000000000000     0xacd3 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/clock/clock.o
-                                       0x5ddb (size before relaxing)
- .debug_str     0x000000000000acd3        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/clock/clock_bitmaps.o
+ .debug_str     0x0000000000000000     0xacf5 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/clock/clock.o
+                                       0x5df0 (size before relaxing)
+ .debug_str     0x000000000000acf5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/clock/clock_bitmaps.o
                                         0x81a (size before relaxing)
- .debug_str     0x000000000000acd3        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/clock/clock_bitmap_strings.o
-                                       0x428a (size before relaxing)
- .debug_str     0x000000000000acd3        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/clock/clock_counter.o
-                                       0x4314 (size before relaxing)
- .debug_str     0x000000000000acd3        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/clock/clock_draw.o
-                                       0x443c (size before relaxing)
- .debug_str     0x000000000000acd3        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/clock/clock_draw_analog.o
-                                       0x4575 (size before relaxing)
- .debug_str     0x000000000000acd3        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/clock/clock_draw_binary.o
+ .debug_str     0x000000000000acf5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/clock/clock_bitmap_strings.o
+                                       0x429f (size before relaxing)
+ .debug_str     0x000000000000acf5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/clock/clock_counter.o
+                                       0x4329 (size before relaxing)
+ .debug_str     0x000000000000acf5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/clock/clock_draw.o
+                                       0x4451 (size before relaxing)
+ .debug_str     0x000000000000acf5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/clock/clock_draw_analog.o
+                                       0x458a (size before relaxing)
+ .debug_str     0x000000000000acf5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/clock/clock_draw_binary.o
                                         0xde8 (size before relaxing)
- .debug_str     0x000000000000acd3        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/clock/clock_draw_digital.o
-                                       0x4a8a (size before relaxing)
- .debug_str     0x000000000000acd3        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/clock/clock_menu.o
-                                       0x92db (size before relaxing)
- .debug_str     0x000000000000acd3        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/clock/clock_settings.o
-                                       0x93ab (size before relaxing)
- .debug_str     0x000000000000acd3        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
-                                       0x49e1 (size before relaxing)
- .debug_str     0x000000000000acd3        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(pluginlib_actions.o)
-                                       0x5b32 (size before relaxing)
- .debug_str     0x000000000000acd3        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(playback_control.o)
-                                       0x940a (size before relaxing)
- .debug_str     0x000000000000acd3        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(picture.o)
+ .debug_str     0x000000000000acf5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/clock/clock_draw_digital.o
+                                       0x4a9f (size before relaxing)
+ .debug_str     0x000000000000acf5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/clock/clock_menu.o
+                                       0x92f0 (size before relaxing)
+ .debug_str     0x000000000000acf5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/clock/clock_settings.o
+                                       0x93c0 (size before relaxing)
+ .debug_str     0x000000000000acf5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
+                                       0x49f6 (size before relaxing)
+ .debug_str     0x000000000000acf5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(pluginlib_actions.o)
+                                       0x5b47 (size before relaxing)
+ .debug_str     0x000000000000acf5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(playback_control.o)
+                                       0x942c (size before relaxing)
+ .debug_str     0x000000000000acf5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(picture.o)
                                         0x76c (size before relaxing)
- .debug_str     0x000000000000acd3        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(xlcd_draw.o)
-                                       0x4375 (size before relaxing)
- .debug_str     0x000000000000acd3        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(clock_binary.160x128x2.o)
+ .debug_str     0x000000000000acf5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(xlcd_draw.o)
+                                       0x438a (size before relaxing)
+ .debug_str     0x000000000000acf5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(clock_binary.160x128x2.o)
                                         0x14c (size before relaxing)
- .debug_str     0x000000000000acd3        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(clock_digits.160x128x2.o)
+ .debug_str     0x000000000000acf5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(clock_digits.160x128x2.o)
                                         0x14c (size before relaxing)
- .debug_str     0x000000000000acd3        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(clock_smalldigits.160x128x2.o)
+ .debug_str     0x000000000000acf5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(clock_smalldigits.160x128x2.o)
                                         0x156 (size before relaxing)
- .debug_str     0x000000000000acd3        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(clock_segments.160x128x2.o)
+ .debug_str     0x000000000000acf5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(clock_segments.160x128x2.o)
                                         0x150 (size before relaxing)
- .debug_str     0x000000000000acd3        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(clock_smallsegments.160x128x2.o)
+ .debug_str     0x000000000000acf5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(clock_smallsegments.160x128x2.o)
                                         0x15a (size before relaxing)
- .debug_str     0x000000000000acd3        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(clock_logo.160x128x2.o)
+ .debug_str     0x000000000000acf5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(clock_logo.160x128x2.o)
                                         0x148 (size before relaxing)
- .debug_str     0x000000000000acd3        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(clock_messages.160x128x2.o)
+ .debug_str     0x000000000000acf5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(clock_messages.160x128x2.o)
                                         0x150 (size before relaxing)
- .debug_str     0x000000000000acd3        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/libfixedpoint.a(fixedpoint.o)
+ .debug_str     0x000000000000acf5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/libfixedpoint.a(fixedpoint.o)
                                         0x285 (size before relaxing)
 
 .debug_loc

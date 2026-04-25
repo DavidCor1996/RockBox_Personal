@@ -16,6 +16,7 @@ from services.rockbox_themes import RockboxThemeService
 
 BASE_THEME_BY_RESOLUTION = {
     "320x240": "iPone",
+    "160x128": "Galaxy",
     "176x132": "iPone_nano2g",
 }
 
@@ -63,6 +64,32 @@ WALLPAPER_TARGETS = {
             "ChargeWallpaperFourth.bmp",
         ],
     },
+    "iPone_3g": {
+        "main": [
+            "Wallpaper.bmp",
+            "WallpaperAlt.bmp",
+            "wpsbackdrop-160x128x2.bmp",
+        ],
+        "charging": [
+            "ChargeWallpaper.bmp",
+            "ChargeWallpaperAlt.bmp",
+            "ChargeWallpaperThird.bmp",
+            "ChargeWallpaperFourth.bmp",
+        ],
+    },
+    "Galaxy": {
+        "main": [
+            "Wallpaper.bmp",
+            "WallpaperAlt.bmp",
+            "wpsbackdrop-160x128x2.bmp",
+        ],
+        "charging": [
+            "ChargeWallpaper.bmp",
+            "ChargeWallpaperAlt.bmp",
+            "ChargeWallpaperThird.bmp",
+            "ChargeWallpaperFourth.bmp",
+        ],
+    },
 }
 
 PREVIEW_BACKDROP_TARGETS = {
@@ -76,6 +103,14 @@ PREVIEW_BACKDROP_TARGETS = {
         "wps/iPone_nano2g/wpsbackdrop-176x132x16.bmp",
         "wps/iPone_nano2g/Wallpaper.bmp",
     ],
+    "iPone_3g": [
+        "wps/iPone_3g/wpsbackdrop-160x128x2.bmp",
+        "wps/iPone_3g/Wallpaper.bmp",
+    ],
+    "Galaxy": [
+        "wps/Galaxy/wpsbackdrop-160x128x2.bmp",
+        "wps/Galaxy/Wallpaper.bmp",
+    ],
 }
 
 SOLID_BACKGROUND_TARGETS = {
@@ -86,6 +121,14 @@ SOLID_BACKGROUND_TARGETS = {
     "iPone_nano2g": {
         "main": WALLPAPER_TARGETS["iPone_nano2g"]["main"],
         "charging": WALLPAPER_TARGETS["iPone_nano2g"]["charging"],
+    },
+    "iPone_3g": {
+        "main": WALLPAPER_TARGETS["iPone_3g"]["main"],
+        "charging": WALLPAPER_TARGETS["iPone_3g"]["charging"],
+    },
+    "Galaxy": {
+        "main": WALLPAPER_TARGETS["Galaxy"]["main"],
+        "charging": WALLPAPER_TARGETS["Galaxy"]["charging"],
     },
 }
 

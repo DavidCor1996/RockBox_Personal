@@ -43,6 +43,9 @@
 #endif
 #include "panic.h"
 #include "debug.h"
+#include "fs_defines.h"
+#include "strlcpy.h"
+#include "strlcat.h"
 
 #if defined(RG_NANO) && !defined(SIMULATOR)
 #include <signal.h>
@@ -65,8 +68,48 @@ bool            debug_buttons = false;
 
 bool            sim_alarm_wakeup = false;
 const char     *sim_root_dir = SIMULATOR_DEFAULT_ROOT;
+static char     sim_root_buf[MAX_PATH];
+static bool     sim_root_override = false;
 
 static SDL_Thread *evt_thread = NULL;
+
+static void sdl_set_default_sim_root(const char *argv0)
+{
+    char exe_path[MAX_PATH];
+    const char *slash = NULL;
+
+    if (sim_root_override || !argv0 || !*argv0)
+        return;
+
+#ifdef __unix__
+    if (!realpath(argv0, exe_path))
+#endif
+    {
+        strlcpy(exe_path, argv0, sizeof(exe_path));
+    }
+
+    slash = strrchr(exe_path, '/');
+#ifdef _WIN32
+    {
+        const char *backslash = strrchr(exe_path, '\\');
+        if (backslash && (!slash || backslash > slash))
+            slash = backslash;
+    }
+#endif
+
+    if (!slash)
+        return;
+
+    sim_root_buf[0] = '\0';
+    if ((size_t)(slash - exe_path) >= sizeof(sim_root_buf))
+        return;
+
+    memcpy(sim_root_buf, exe_path, (size_t)(slash - exe_path));
+    sim_root_buf[slash - exe_path] = '\0';
+    strlcat(sim_root_buf, "/", sizeof(sim_root_buf));
+    strlcat(sim_root_buf, SIMULATOR_DEFAULT_ROOT, sizeof(sim_root_buf));
+    sim_root_dir = sim_root_buf;
+}
 
 #ifdef DEBUG
 bool debug_audio = false;
@@ -329,6 +372,9 @@ int hostfs_flush(void)
 void sys_handle_argv(int argc, char *argv[])
 {
     if (argc >= 1)
+        sdl_set_default_sim_root(argv[0]);
+
+    if (argc >= 1)
     {
         int x;
         for (x = 1; x < argc; x++)
@@ -381,6 +427,7 @@ void sys_handle_argv(int argc, char *argv[])
                 if (x < argc)
                 {
                     sim_root_dir = argv[x];
+                    sim_root_override = true;
                     printf("Root directory: %s\n", sim_root_dir);
                 }
             }

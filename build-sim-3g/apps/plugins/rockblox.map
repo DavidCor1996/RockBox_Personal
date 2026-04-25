@@ -605,15 +605,15 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000    0x2e853
+.debug_info     0x0000000000000000    0x2e8b9
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0x8d93 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/rockblox.o
- .debug_info    0x0000000000008d93     0x73d7 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
- .debug_info    0x000000000001016a     0x71a2 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(helper.o)
- .debug_info    0x000000000001730c     0x8d67 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(playback_control.o)
- .debug_info    0x0000000000020073     0x771f /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(highscore.o)
- .debug_info    0x0000000000027792     0x6f94 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(display_text.o)
- .debug_info    0x000000000002e726      0x12d /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(rockblox_background.160x128x2.o)
+ .debug_info    0x0000000000000000     0x8da8 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/rockblox.o
+ .debug_info    0x0000000000008da8     0x73e6 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
+ .debug_info    0x000000000001018e     0x71b1 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(helper.o)
+ .debug_info    0x000000000001733f     0x8d7c /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(playback_control.o)
+ .debug_info    0x00000000000200bb     0x772e /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(highscore.o)
+ .debug_info    0x00000000000277e9     0x6fa3 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(display_text.o)
+ .debug_info    0x000000000002e78c      0x12d /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(rockblox_background.160x128x2.o)
 
 .debug_abbrev   0x0000000000000000     0x17f8
  *(.debug_abbrev)
@@ -638,21 +638,21 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0xa6f2
+.debug_str      0x0000000000000000     0xa714
  *(.debug_str)
- .debug_str     0x0000000000000000     0xa6f2 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/rockblox.o
-                                       0x5fd7 (size before relaxing)
- .debug_str     0x000000000000a6f2        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
-                                       0x49e1 (size before relaxing)
- .debug_str     0x000000000000a6f2        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(helper.o)
-                                       0x49e3 (size before relaxing)
- .debug_str     0x000000000000a6f2        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(playback_control.o)
-                                       0x940a (size before relaxing)
- .debug_str     0x000000000000a6f2        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(highscore.o)
-                                       0x48e8 (size before relaxing)
- .debug_str     0x000000000000a6f2        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(display_text.o)
-                                       0x42d9 (size before relaxing)
- .debug_str     0x000000000000a6f2        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(rockblox_background.160x128x2.o)
+ .debug_str     0x0000000000000000     0xa714 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/rockblox.o
+                                       0x5ff9 (size before relaxing)
+ .debug_str     0x000000000000a714        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
+                                       0x49f6 (size before relaxing)
+ .debug_str     0x000000000000a714        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(helper.o)
+                                       0x49f8 (size before relaxing)
+ .debug_str     0x000000000000a714        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(playback_control.o)
+                                       0x942c (size before relaxing)
+ .debug_str     0x000000000000a714        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(highscore.o)
+                                       0x48fd (size before relaxing)
+ .debug_str     0x000000000000a714        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(display_text.o)
+                                       0x42ee (size before relaxing)
+ .debug_str     0x000000000000a714        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(rockblox_background.160x128x2.o)
                                         0x15a (size before relaxing)
 
 .debug_loc

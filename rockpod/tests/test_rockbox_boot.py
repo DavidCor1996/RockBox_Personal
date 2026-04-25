@@ -65,6 +65,29 @@ def test_boot_preview_generation(tmp_dir):
     assert preview.height() == 132
 
 
+def test_boot_validation_supports_160x128_profiles(tmp_dir):
+    repo_root = os.path.join(tmp_dir, "repo")
+    os.makedirs(repo_root, exist_ok=True)
+    _config, store = _make_store(tmp_dir, repo_root)
+    profile = store.current_profile()
+    profile["source_repo_path"] = repo_root
+    profile["screen_resolution"] = "160x128"
+    profile = store.save_profile(profile)
+
+    valid_path = os.path.join(tmp_dir, "boot-3g-valid.png")
+    invalid_path = os.path.join(tmp_dir, "boot-3g-invalid.png")
+    _write_image(valid_path, 160, 128)
+    _write_image(invalid_path, 160, 120)
+
+    service = RockboxBootService()
+    valid = service.validate_image(valid_path, profile)
+    invalid = service.validate_image(invalid_path, profile)
+
+    assert valid["valid"] is True
+    assert invalid["valid"] is False
+    assert "Expected 160x128" in invalid["message"]
+
+
 def test_boot_deploy_diff_generation_device_and_simulator(tmp_dir):
     repo_root = os.path.join(tmp_dir, "repo")
     os.makedirs(repo_root, exist_ok=True)

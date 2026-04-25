@@ -513,12 +513,12 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000    0x167c3
+.debug_info     0x0000000000000000    0x167f0
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0x811e /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/credits.o
- .debug_info    0x000000000000811e     0x73d7 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
- .debug_info    0x000000000000f4f5     0x71a2 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(helper.o)
- .debug_info    0x0000000000016697      0x12c /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(creditslogo.160x53x2.o)
+ .debug_info    0x0000000000000000     0x812d /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/credits.o
+ .debug_info    0x000000000000812d     0x73e6 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
+ .debug_info    0x000000000000f513     0x71b1 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(helper.o)
+ .debug_info    0x00000000000166c4      0x12c /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(creditslogo.160x53x2.o)
 
 .debug_abbrev   0x0000000000000000      0xc5a
  *(.debug_abbrev)
@@ -537,15 +537,15 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0x5ab5
+.debug_str      0x0000000000000000     0x5aca
  *(.debug_str)
- .debug_str     0x0000000000000000     0x5ab5 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/credits.o
-                                       0x5db1 (size before relaxing)
- .debug_str     0x0000000000005ab5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
-                                       0x49e1 (size before relaxing)
- .debug_str     0x0000000000005ab5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(helper.o)
-                                       0x49e3 (size before relaxing)
- .debug_str     0x0000000000005ab5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(creditslogo.160x53x2.o)
+ .debug_str     0x0000000000000000     0x5aca /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/credits.o
+                                       0x5dc6 (size before relaxing)
+ .debug_str     0x0000000000005aca        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
+                                       0x49f6 (size before relaxing)
+ .debug_str     0x0000000000005aca        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(helper.o)
+                                       0x49f8 (size before relaxing)
+ .debug_str     0x0000000000005aca        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(creditslogo.160x53x2.o)
                                         0x14a (size before relaxing)
 
 .debug_loc

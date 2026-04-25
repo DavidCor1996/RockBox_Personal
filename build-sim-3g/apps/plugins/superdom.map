@@ -577,14 +577,14 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000    0x29741
+.debug_info     0x0000000000000000    0x29798
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0xafd9 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/superdom.o
- .debug_info    0x000000000000afd9     0x73d7 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
- .debug_info    0x00000000000123b0     0x758d /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(pluginlib_actions.o)
- .debug_info    0x000000000001993d     0x8d67 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(playback_control.o)
- .debug_info    0x00000000000226a4     0x6f94 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(display_text.o)
- .debug_info    0x0000000000029638      0x109 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(superdom_boarditems.160x128x1.o)
+ .debug_info    0x0000000000000000     0xafee /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/superdom.o
+ .debug_info    0x000000000000afee     0x73e6 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
+ .debug_info    0x00000000000123d4     0x759c /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(pluginlib_actions.o)
+ .debug_info    0x0000000000019970     0x8d7c /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(playback_control.o)
+ .debug_info    0x00000000000226ec     0x6fa3 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(display_text.o)
+ .debug_info    0x000000000002968f      0x109 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(superdom_boarditems.160x128x1.o)
 
 .debug_abbrev   0x0000000000000000     0x143e
  *(.debug_abbrev)
@@ -607,19 +607,19 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0xa97a
+.debug_str      0x0000000000000000     0xa99c
  *(.debug_str)
- .debug_str     0x0000000000000000     0xa97a /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/superdom.o
-                                       0x641c (size before relaxing)
- .debug_str     0x000000000000a97a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
-                                       0x49e1 (size before relaxing)
- .debug_str     0x000000000000a97a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(pluginlib_actions.o)
-                                       0x5b32 (size before relaxing)
- .debug_str     0x000000000000a97a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(playback_control.o)
-                                       0x940a (size before relaxing)
- .debug_str     0x000000000000a97a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(display_text.o)
-                                       0x42d9 (size before relaxing)
- .debug_str     0x000000000000a97a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(superdom_boarditems.160x128x1.o)
+ .debug_str     0x0000000000000000     0xa99c /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/superdom.o
+                                       0x643e (size before relaxing)
+ .debug_str     0x000000000000a99c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
+                                       0x49f6 (size before relaxing)
+ .debug_str     0x000000000000a99c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(pluginlib_actions.o)
+                                       0x5b47 (size before relaxing)
+ .debug_str     0x000000000000a99c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(playback_control.o)
+                                       0x942c (size before relaxing)
+ .debug_str     0x000000000000a99c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(display_text.o)
+                                       0x42ee (size before relaxing)
+ .debug_str     0x000000000000a99c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(superdom_boarditems.160x128x1.o)
                                         0x135 (size before relaxing)
 
 .debug_loc

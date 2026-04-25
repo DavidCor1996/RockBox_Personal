@@ -26,6 +26,14 @@ BOOT_SPECS = {
             "wps/iPone_nano2g/BootLogo.bmp",
         ],
     },
+    "160x128": {
+        "name": "iPod 3G Boot Splash",
+        "width": 160,
+        "height": 128,
+        "default_candidates": [
+            "apps/bitmaps/native/rockboxlogo.160x53x2.bmp",
+        ],
+    },
 }
 
 

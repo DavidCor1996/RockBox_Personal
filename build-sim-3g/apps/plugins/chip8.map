@@ -458,10 +458,10 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000     0xf6db
+.debug_info     0x0000000000000000     0xf6f9
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0x8304 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/chip8.o
- .debug_info    0x0000000000008304     0x73d7 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
+ .debug_info    0x0000000000000000     0x8313 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/chip8.o
+ .debug_info    0x0000000000008313     0x73e6 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
 
 .debug_abbrev   0x0000000000000000      0x929
  *(.debug_abbrev)
@@ -476,12 +476,12 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0x4687
+.debug_str      0x0000000000000000     0x469c
  *(.debug_str)
- .debug_str     0x0000000000000000     0x4687 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/chip8.o
-                                       0x4bd5 (size before relaxing)
- .debug_str     0x0000000000004687        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
-                                       0x49e1 (size before relaxing)
+ .debug_str     0x0000000000000000     0x469c /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/chip8.o
+                                       0x4bea (size before relaxing)
+ .debug_str     0x000000000000469c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
+                                       0x49f6 (size before relaxing)
 
 .debug_loc
  *(.debug_loc)

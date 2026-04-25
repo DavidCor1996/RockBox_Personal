@@ -486,11 +486,11 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000    0x16009
+.debug_info     0x0000000000000000    0x16036
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0x7a90 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/maze.o
- .debug_info    0x0000000000007a90     0x73d7 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
- .debug_info    0x000000000000ee67     0x71a2 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(helper.o)
+ .debug_info    0x0000000000000000     0x7a9f /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/maze.o
+ .debug_info    0x0000000000007a9f     0x73e6 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
+ .debug_info    0x000000000000ee85     0x71b1 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(helper.o)
 
 .debug_abbrev   0x0000000000000000      0xc40
  *(.debug_abbrev)
@@ -507,14 +507,14 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0x46df
+.debug_str      0x0000000000000000     0x46f4
  *(.debug_str)
- .debug_str     0x0000000000000000     0x46df /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/maze.o
-                                       0x44e3 (size before relaxing)
- .debug_str     0x00000000000046df        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
-                                       0x49e1 (size before relaxing)
- .debug_str     0x00000000000046df        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(helper.o)
-                                       0x49e3 (size before relaxing)
+ .debug_str     0x0000000000000000     0x46f4 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/maze.o
+                                       0x44f8 (size before relaxing)
+ .debug_str     0x00000000000046f4        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
+                                       0x49f6 (size before relaxing)
+ .debug_str     0x00000000000046f4        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(helper.o)
+                                       0x49f8 (size before relaxing)
 
 .debug_loc
  *(.debug_loc)

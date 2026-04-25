@@ -1477,9 +1477,8 @@ MENUITEM_FUNCTION(podemon_go_item, MENU_FUNC_CHECK_RETVAL,
 MENUITEM_FUNCTION_W_PARAM(gameboy_browser, MENU_FUNC_CHECK_RETVAL,
                           ID2P(LANG_PLUGIN_GAMES), browse_folder,
                           (void *)&gameboy_folder, NULL, Icon_Folder);
-MENUITEM_FUNCTION(podemon_go_item, MENU_FUNC_CHECK_RETVAL,
-                  "Podemon Go", launch_podemon_go,
-                  NULL, Icon_Plugin);
+MENUITEM_RETURNVALUE(podemon_go_item, "Podemon Go", GO_TO_ROOT,
+                     NULL, Icon_Plugin);
 #endif
 MENUITEM_RETURNVALUE(system_menu_, ID2P(LANG_SYSTEM), GO_TO_SYSTEM_SCREEN,
                      NULL, Icon_System_menu);

@@ -598,15 +598,15 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000    0x28111
+.debug_info     0x0000000000000000    0x28168
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0x96c8 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/blackjack.o
- .debug_info    0x00000000000096c8     0x73d7 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
- .debug_info    0x0000000000010a9f     0x8d67 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(playback_control.o)
- .debug_info    0x0000000000019806     0x771f /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(highscore.o)
- .debug_info    0x0000000000020f25     0x6f94 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(display_text.o)
- .debug_info    0x0000000000027eb9      0x12b /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(card_back.18x23x2.o)
- .debug_info    0x0000000000027fe4      0x12d /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(card_deck.234x92x2.o)
+ .debug_info    0x0000000000000000     0x96dd /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/blackjack.o
+ .debug_info    0x00000000000096dd     0x73e6 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
+ .debug_info    0x0000000000010ac3     0x8d7c /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(playback_control.o)
+ .debug_info    0x000000000001983f     0x772e /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(highscore.o)
+ .debug_info    0x0000000000020f6d     0x6fa3 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(display_text.o)
+ .debug_info    0x0000000000027f10      0x12b /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(card_back.18x23x2.o)
+ .debug_info    0x000000000002803b      0x12d /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(card_deck.234x92x2.o)
 
 .debug_abbrev   0x0000000000000000     0x1504
  *(.debug_abbrev)
@@ -631,21 +631,21 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0xa671
+.debug_str      0x0000000000000000     0xa693
  *(.debug_str)
- .debug_str     0x0000000000000000     0xa671 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/blackjack.o
-                                       0x60da (size before relaxing)
- .debug_str     0x000000000000a671        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
-                                       0x49e1 (size before relaxing)
- .debug_str     0x000000000000a671        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(playback_control.o)
-                                       0x940a (size before relaxing)
- .debug_str     0x000000000000a671        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(highscore.o)
-                                       0x48e8 (size before relaxing)
- .debug_str     0x000000000000a671        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(display_text.o)
-                                       0x42d9 (size before relaxing)
- .debug_str     0x000000000000a671        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(card_back.18x23x2.o)
+ .debug_str     0x0000000000000000     0xa693 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/blackjack.o
+                                       0x60fc (size before relaxing)
+ .debug_str     0x000000000000a693        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
+                                       0x49f6 (size before relaxing)
+ .debug_str     0x000000000000a693        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(playback_control.o)
+                                       0x942c (size before relaxing)
+ .debug_str     0x000000000000a693        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(highscore.o)
+                                       0x48fd (size before relaxing)
+ .debug_str     0x000000000000a693        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(display_text.o)
+                                       0x42ee (size before relaxing)
+ .debug_str     0x000000000000a693        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(card_back.18x23x2.o)
                                         0x146 (size before relaxing)
- .debug_str     0x000000000000a671        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(card_deck.234x92x2.o)
+ .debug_str     0x000000000000a693        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(card_deck.234x92x2.o)
                                         0x146 (size before relaxing)
 
 .debug_loc

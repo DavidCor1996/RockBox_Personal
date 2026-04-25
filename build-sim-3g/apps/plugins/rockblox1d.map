@@ -478,11 +478,11 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000    0x16288
+.debug_info     0x0000000000000000    0x162b5
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0x7924 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/rockblox1d.o
- .debug_info    0x0000000000007924     0x73d7 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
- .debug_info    0x000000000000ecfb     0x758d /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(pluginlib_actions.o)
+ .debug_info    0x0000000000000000     0x7933 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/rockblox1d.o
+ .debug_info    0x0000000000007933     0x73e6 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
+ .debug_info    0x000000000000ed19     0x759c /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(pluginlib_actions.o)
 
 .debug_abbrev   0x0000000000000000      0xab4
  *(.debug_abbrev)
@@ -499,14 +499,14 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0x5738
+.debug_str      0x0000000000000000     0x574d
  *(.debug_str)
- .debug_str     0x0000000000000000     0x5738 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/rockblox1d.o
-                                       0x5c11 (size before relaxing)
- .debug_str     0x0000000000005738        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
-                                       0x49e1 (size before relaxing)
- .debug_str     0x0000000000005738        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(pluginlib_actions.o)
-                                       0x5b32 (size before relaxing)
+ .debug_str     0x0000000000000000     0x574d /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/rockblox1d.o
+                                       0x5c26 (size before relaxing)
+ .debug_str     0x000000000000574d        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
+                                       0x49f6 (size before relaxing)
+ .debug_str     0x000000000000574d        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(pluginlib_actions.o)
+                                       0x5b47 (size before relaxing)
 
 .debug_loc
  *(.debug_loc)

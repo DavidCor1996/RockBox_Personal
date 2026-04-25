@@ -27,6 +27,7 @@
 #include "appevents.h"
 #include "screens.h"
 #include "screen_access.h"
+#include "lcd.h"
 #include "skin_parser.h"
 #include "skin_buffer.h"
 #include "skin_engine/skin_engine.h"
@@ -40,6 +41,7 @@
 #include "icons.h"
 #include "option_select.h"
 #include "string-extra.h"
+#include "timefuncs.h"
 #ifdef HAVE_TOUCHSCREEN
 #include "sound.h"
 #include "misc.h"
@@ -56,6 +58,15 @@ static char sbs_persistent_title[NB_SCREENS][80];
 static enum themable_icons sbs_icon[NB_SCREENS];
 static bool sbs_loaded[NB_SCREENS] = { false };
 static bool sbs_fullscreen_ui[NB_SCREENS] = { false };
+
+bool sb_skin_is_ipod3g_galaxy_theme(void)
+{
+#if CONFIG_KEYPAD == IPOD_3G_PAD
+    return strstr((const char *)global_settings.sbs_file, "Galaxy") != NULL;
+#else
+    return false;
+#endif
+}
 
 bool sb_skin_theme_owns_fullscreen(enum screen_type screen)
 {
@@ -164,6 +175,31 @@ void sb_set_info_vp(enum screen_type screen, OFFSETTYPE(char*) label)
     infovp_label[screen] = label;
 }
 
+static void adjust_ipod3g_menu_vp(enum screen_type screen, struct viewport *vp)
+{
+#if CONFIG_KEYPAD == IPOD_3G_PAD
+    if (!vp || screen != SCREEN_MAIN)
+        return;
+
+    /* Galaxy-style 3G menu panes are narrow, centered left-column UI
+     * viewports. Inset the actual list area inside the decorative frame so
+     * rows scroll within the box instead of touching or overrunning it. */
+    if (vp->x >= 10 && vp->y >= 30 && vp->width <= 60 && vp->height <= 60)
+    {
+        vp->x += 2;
+        if (vp->width > 4)
+            vp->width -= 4;
+
+        vp->y += 2;
+        if (vp->height > 12)
+            vp->height -= 12;
+    }
+#else
+    (void)screen;
+    (void)vp;
+#endif
+}
+
 struct viewport *sb_skin_get_info_vp(enum screen_type screen)
 {
     if (sbs_loaded[screen] == false)
@@ -190,6 +226,7 @@ struct viewport *sb_skin_get_info_vp(enum screen_type screen)
         return NULL;
     if (vp->parsed_fontid == 1)
         vp->vp.font = screens[screen].getuifont();
+    adjust_ipod3g_menu_vp(screen, &vp->vp);
     return &vp->vp;
 }
 
@@ -249,6 +286,40 @@ void sb_skin_update(enum screen_type screen, bool force)
             if (force)
                 skin_request_full_update(CUSTOM_STATUSBAR);
             skin_update(CUSTOM_STATUSBAR, screen, SKIN_REFRESH_NON_STATIC);
+
+#if CONFIG_KEYPAD == IPOD_3G_PAD
+            if (screen == SCREEN_MAIN && sb_skin_is_ipod3g_galaxy_theme())
+            {
+                const struct tm *tm = get_time();
+                char timebuf[16];
+                const unsigned char *brand_top = (const unsigned char *)"David's";
+                const unsigned char *brand_bottom = (const unsigned char *)"iPod";
+                int hour = tm ? tm->tm_hour : 0;
+                int minute = tm ? tm->tm_min : 0;
+                int width = 0, height = 0;
+                int brand_top_w = 0, brand_top_h = 0;
+                int brand_bottom_w = 0, brand_bottom_h = 0;
+
+                if (hour == 0)
+                    hour = 12;
+                else if (hour > 12)
+                    hour -= 12;
+
+                snprintf(timebuf, sizeof(timebuf), "%d:%02d", hour, minute);
+
+                lcd_setfont(FONT_UI);
+                lcd_set_foreground(LCD_WHITE);
+                lcd_set_background(LCD_BLACK);
+                lcd_putsxy(80, 6, (const unsigned char *)"iPod");
+                font_getstringsize((const unsigned char *)timebuf, &width, &height, FONT_UI);
+                lcd_putsxy(148 - width, 6, (const unsigned char *)timebuf);
+                font_getstringsize(brand_top, &brand_top_w, &brand_top_h, FONT_UI);
+                font_getstringsize(brand_bottom, &brand_bottom_w, &brand_bottom_h, FONT_UI);
+                lcd_putsxy(111 - (brand_top_w / 2), 50, brand_top);
+                lcd_putsxy(111 - (brand_bottom_w / 2), 66, brand_bottom);
+                lcd_update_rect(74, 6, 78, 72);
+            }
+#endif
         }
         next_update[i] = current_tick + update_delay; /* don't update too often */
     }

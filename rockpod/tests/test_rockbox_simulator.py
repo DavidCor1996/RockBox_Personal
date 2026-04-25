@@ -43,6 +43,7 @@ def _make_sim_target(repo_root, name="build-sim-video-5g"):
 def test_simulator_target_discovery(tmp_dir):
     repo_root = os.path.join(tmp_dir, "repo")
     build_dir, simdisk = _make_sim_target(repo_root, "build-sim-video-5g")
+    _make_sim_target(repo_root, "build-sim-3g")
     _make_sim_target(repo_root, "build-sim-nano2g")
     os.makedirs(os.path.join(repo_root, "build-sim-bad"), exist_ok=True)
 
@@ -50,12 +51,15 @@ def test_simulator_target_discovery(tmp_dir):
     targets = service.discover_targets(repo_root)
 
     ids = {item["id"] for item in targets}
-    assert ids == {"build-sim-nano2g", "build-sim-video-5g"}
+    assert ids == {"build-sim-3g", "build-sim-nano2g", "build-sim-video-5g"}
     video = next(item for item in targets if item["id"] == "build-sim-video-5g")
     assert video["binary_path"] == os.path.join(build_dir, "rockboxui")
     assert video["simdisk_path"] == simdisk
     assert video["rockbox_root"] == os.path.join(simdisk, ".rockbox")
     assert video["screen_resolution"] == "320x240"
+    classic3g = next(item for item in targets if item["id"] == "build-sim-3g")
+    assert classic3g["screen_resolution"] == "160x128"
+    assert classic3g["device_model"] == "iPod 3G"
     nano = next(item for item in targets if item["id"] == "build-sim-nano2g")
     assert nano["screen_resolution"] == "176x132"
 

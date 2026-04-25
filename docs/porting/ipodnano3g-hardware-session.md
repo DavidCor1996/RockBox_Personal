@@ -4,6 +4,30 @@ Date: 2026-04-23
 Host timezone: America/Halifax
 Repo: `/home/david/Documents/RockBox_Personal-master`
 
+## 2026-04-25 Reconciliation Note
+
+The current local Nano 3G `wInd3x` patch state has drifted well beyond the
+earlier simple two-patch `defanged WTF` model.
+
+As of this review, `/tmp/wInd3x/pkg/cfw/defang_wtf.go` contains a broad
+experimental/staged Nano 3G patch stack, including:
+
+- many restored original control-flow sites in WTF
+- an active local loader callback stub
+- an active local readiness stub
+- an active UART immediate-return patch
+- multiple marker/probe stubs in free WTF body space
+
+So recent chainload results should be interpreted as results from this local
+experimental branch, not from only the early `0x1990` / `0x19b8` bypasses.
+
+MacPod note:
+
+- the device being a MacPod rather than a WinPod does not explain the current
+  DFU/WTF/chainload failures
+- those failures still occur before normal filesystem or partition format
+  differences become relevant
+
 ## Session Goals
 
 1. Validate host tooling and DFU detection.
@@ -7489,6 +7513,63 @@ Recovery status:
 
 - pending manual DFU recovery confirmation
 
+## 2026-04-25 Single hardware run with late-chain `0x22005e24` plain-loop probe
+
+- pre-run DFU was clean:
+  - `05ac:1223`
+  - DFU state `2`
+- tested image:
+  - `/tmp/n3g-osos-work/n3g-osos-cfw-late-chain-5e24-plainloop-n3g.dfu`
+- patch intent:
+  - hook `0x22005e24`
+  - branch directly to a local `b .` stub at `0x2200d6e8`
+  - remove `0x22002138` entirely and test whether the helper itself changes the
+    late USB terminal state
+- host result:
+  - exploit completed
+  - defanged WTF upload completed
+  - `wInd3x` timed out waiting for WTF:
+    - `device did not switch to WTF mode: context deadline exceeded`
+  - post-run `lsusb` showed no Nano at all
+  - post-run `mks5lboot --dfuscan` showed:
+    - no DFU device present
+- screen result:
+  - pending user observation
+
+Classification:
+
+- **LATE_CHAIN_5E24_PLAINLOOP_POST_ESCAPE_SIGNATURE**
+
+Recovery status:
+
+- pending manual DFU recovery confirmation
+
+## 2026-04-25 Single hardware run with late-chain `0x22005e24` marker
+
+- pre-run DFU was clean:
+  - `05ac:1223`
+  - DFU state `2`
+- tested image:
+  - `/tmp/n3g-osos-work/n3g-osos-cfw-late-chain-5e24-marker-n3g.dfu`
+- host result:
+  - exploit completed
+  - defanged WTF upload completed
+  - `wInd3x` timed out waiting for WTF:
+    - `device did not switch to WTF mode: context deadline exceeded`
+  - post-run `lsusb` showed no Nano at all
+  - post-run `mks5lboot --dfuscan` showed:
+    - no DFU device present
+- screen result:
+  - pending user observation
+
+Classification:
+
+- **LATE_CHAIN_5E24_REACHED**
+
+Recovery status:
+
+- pending manual DFU recovery confirmation
+
 ## 2026-04-25 Single hardware run with dispatch-table seed patch for slot (1,0)
 
 - pre-run DFU was clean:
@@ -10558,3 +10639,166 @@ Classification:
 Recovery status:
 
 - pending manual DFU recovery confirmation
+
+## 2026-04-25 Consolidated documentation pass
+
+### Overall host-side signature
+
+Across the later Nano 3G runs in this session, the dominant host-side outcome
+has stabilized to one class:
+
+- clean DFU start:
+  - `05ac:1223`
+  - DFU state `2`
+- exploit completed
+- defanged WTF upload completed
+- `wInd3x` timed out waiting for WTF:
+  - `device did not switch to WTF mode: context deadline exceeded`
+- after the run:
+  - the Nano disappeared from USB entirely
+  - `mks5lboot --dfuscan` showed no DFU device
+- manual recovery to clean DFU state `2` remained possible after reset
+
+Observed screen behavior stayed constant:
+
+- black screen
+- no Apple logo
+- no backlight
+- no flicker
+- no text
+- no visible reset loop
+
+### Major classes of tests completed
+
+#### 1. Late startup / runtime reachability
+
+Confirmed reached:
+
+- `0x22002f60`
+- `0x22002f70`
+- `0x22002f74`
+- `0x22002f78`
+- `0x22002f7c`
+- `0x22002f84`
+- `0x22002f88`
+- `0x22002f90`
+- `0x22002f94`
+- `0x22002fb4`
+- `0x22002fc8`
+- `0x22005024`
+- `0x22005e24`
+
+Meaning:
+
+- Apple OSOS does execute deeply into late startup and runtime object dispatch.
+- The black screen is not explained by “never reached late startup”.
+
+#### 2. Display / panel / PMU forcing
+
+Tested without visible effect:
+
+- high-level visibility wrapper
+- corrected late display-gate callback patch
+- LCD init `0x220044c4`
+- panel preamble `0x220045b0`
+- panel worker `0x220049b0`
+- PMU enable branch `0x22003078(1)`
+- direct PMU write block `0x220054b0`
+- direct PMU bit path `0x220054f8`
+- pipeline-start wrapper `0x220085c8`
+- framebuffer white fill at `0x08a3a20c`
+- framebuffer white fill at `0x08a3ac90`
+- direct Apple PMU `LEDCTL (0x20) = 0x90`
+- `CHCTL (0x21) = 0x5c` then `LEDCTL (0x20) = 0x90`
+
+Meaning:
+
+- display MMIO, PMU writes, and framebuffer writes were all exercised without
+  producing visible output.
+- the missing visible step is not a simple Rockbox-style backlight prerequisite.
+
+#### 3. Dispatch / runtime-object work
+
+Confirmed:
+
+- dispatch-table seed at `0x2200f880` was not enough to change behavior
+- `0x22005e24` capture hook was reached
+- the late runtime/object chain is real, but no usable late-phase observability
+  channel was recovered
+
+Meaning:
+
+- the likely final display method is hidden behind runtime object/vtable state
+  we still cannot extract through a host-visible channel.
+
+#### 4. USB-loss boundary narrowing
+
+Bypasses / loops that did **not** change the terminal USB-loss class:
+
+- `0x22002fc4`
+- `0x22002f9c`
+- `0x22002f98`
+- `0x22002f54`
+- `0x22002e94`
+- dispatch feeder `0x22025db8 -> 0x22002e8c`
+- CP15/state stage entry `0x22002d78`
+- feeder into that stage `0x22002788`
+- earlier upstream call `0x22002774`
+- bare local loop replacing `0x22005e24`
+
+Meaning:
+
+- USB disappearance is not caused by the late ownership/display/runtime chain.
+- it is committed earlier than the tested startup regions above, or is already a
+  consequence of the BootROM -> post-WTF handoff itself.
+
+#### 5. Direct payload test, bypassing Apple OSOS
+
+Prepared and run:
+
+- direct custom payload at `0x08000800`
+- payload actions:
+  - disable IRQ/FIQ
+  - set stack to `0x2203f000`
+  - write marker block to `0x2203f100`
+  - loop forever
+
+Observed result:
+
+- same post-escape USB-loss signature as the OSOS-based runs
+- still black screen with no visible output
+
+Meaning:
+
+- the post-WTF terminal USB behavior is not unique to Apple OSOS
+- direct code execution is plausible, but not yet proven through an observable
+  channel
+
+### Current overall progress
+
+Strongly established:
+
+- preserved-service68 baseline was the right path to get beyond the old
+  DFU-resident stall
+- Nano 3G does execute well beyond WTF into later code paths
+- Apple OSOS late display/runtime stages are genuinely reached
+- direct non-OSOS payload execution at `0x08000800` is now prepared and run
+
+Still not established:
+
+- a host-visible or screen-visible proof that the direct payload executed
+- a reliable late-phase observability channel after the device leaves DFU/USB
+- the exact pre-`0x22002774` handoff that commits the device to “USB disappears”
+
+### Next steps
+
+1. Stop spending time on late OSOS display forcing. That area is now low-value.
+2. Treat the real blocker as observability and early handoff behavior.
+3. Continue upstream from the `0x22002774..0x22002794` sequence into its caller
+   and feeder.
+4. Prefer proving direct payload execution with a new observable effect rather
+   than more Apple display/backlight patches.
+5. If possible, pivot from “screen output” to:
+   - a stable early USB-preserving state
+   - or a distinct pre-OSOS terminal class
+   - or an immediately provable RAM/USB-side effect from the direct payload

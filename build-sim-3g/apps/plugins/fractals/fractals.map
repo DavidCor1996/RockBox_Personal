@@ -652,17 +652,17 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000    0x3582a
+.debug_info     0x0000000000000000    0x35893
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0x764c /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/fractals/fractal.o
- .debug_info    0x000000000000764c      0x7da /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/fractals/fractal_rect.o
- .debug_info    0x0000000000007e26     0x76a3 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/fractals/mandelbrot_set.o
- .debug_info    0x000000000000f4c9     0x73d7 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
- .debug_info    0x00000000000168a0     0x792b /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(grey_core.o)
- .debug_info    0x000000000001e1cb     0x84a3 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(grey_draw.o)
- .debug_info    0x000000000002666e     0x7689 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(grey_parm.o)
- .debug_info    0x000000000002dcf7     0x7403 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(grey_scroll.o)
- .debug_info    0x00000000000350fa      0x730 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/libfixedpoint.a(fixedpoint.o)
+ .debug_info    0x0000000000000000     0x765b /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/fractals/fractal.o
+ .debug_info    0x000000000000765b      0x7da /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/fractals/fractal_rect.o
+ .debug_info    0x0000000000007e35     0x76b2 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/fractals/mandelbrot_set.o
+ .debug_info    0x000000000000f4e7     0x73e6 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
+ .debug_info    0x00000000000168cd     0x793a /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(grey_core.o)
+ .debug_info    0x000000000001e207     0x84b2 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(grey_draw.o)
+ .debug_info    0x00000000000266b9     0x7698 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(grey_parm.o)
+ .debug_info    0x000000000002dd51     0x7412 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(grey_scroll.o)
+ .debug_info    0x0000000000035163      0x730 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/libfixedpoint.a(fixedpoint.o)
 
 .debug_abbrev   0x0000000000000000     0x2261
  *(.debug_abbrev)
@@ -691,25 +691,25 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0x4ccf
+.debug_str      0x0000000000000000     0x4ce4
  *(.debug_str)
- .debug_str     0x0000000000000000     0x4ccf /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/fractals/fractal.o
-                                       0x4aba (size before relaxing)
- .debug_str     0x0000000000004ccf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/fractals/fractal_rect.o
+ .debug_str     0x0000000000000000     0x4ce4 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/fractals/fractal.o
+                                       0x4acf (size before relaxing)
+ .debug_str     0x0000000000004ce4        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/fractals/fractal_rect.o
                                         0x82f (size before relaxing)
- .debug_str     0x0000000000004ccf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/fractals/mandelbrot_set.o
-                                       0x49f0 (size before relaxing)
- .debug_str     0x0000000000004ccf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
-                                       0x49e1 (size before relaxing)
- .debug_str     0x0000000000004ccf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(grey_core.o)
-                                       0x4a2e (size before relaxing)
- .debug_str     0x0000000000004ccf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(grey_draw.o)
-                                       0x4b2b (size before relaxing)
- .debug_str     0x0000000000004ccf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(grey_parm.o)
-                                       0x4a3d (size before relaxing)
- .debug_str     0x0000000000004ccf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(grey_scroll.o)
-                                       0x439c (size before relaxing)
- .debug_str     0x0000000000004ccf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/libfixedpoint.a(fixedpoint.o)
+ .debug_str     0x0000000000004ce4        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/fractals/mandelbrot_set.o
+                                       0x4a05 (size before relaxing)
+ .debug_str     0x0000000000004ce4        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
+                                       0x49f6 (size before relaxing)
+ .debug_str     0x0000000000004ce4        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(grey_core.o)
+                                       0x4a43 (size before relaxing)
+ .debug_str     0x0000000000004ce4        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(grey_draw.o)
+                                       0x4b40 (size before relaxing)
+ .debug_str     0x0000000000004ce4        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(grey_parm.o)
+                                       0x4a52 (size before relaxing)
+ .debug_str     0x0000000000004ce4        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(grey_scroll.o)
+                                       0x43b1 (size before relaxing)
+ .debug_str     0x0000000000004ce4        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/libfixedpoint.a(fixedpoint.o)
                                         0x285 (size before relaxing)
 
 .debug_loc

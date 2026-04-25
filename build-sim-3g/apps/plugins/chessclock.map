@@ -503,11 +503,11 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000    0x17bb5
+.debug_info     0x0000000000000000    0x17bee
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0x7a77 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/chessclock.o
- .debug_info    0x0000000000007a77     0x73d7 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
- .debug_info    0x000000000000ee4e     0x8d67 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(playback_control.o)
+ .debug_info    0x0000000000000000     0x7a8c /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/chessclock.o
+ .debug_info    0x0000000000007a8c     0x73e6 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
+ .debug_info    0x000000000000ee72     0x8d7c /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(playback_control.o)
 
 .debug_abbrev   0x0000000000000000      0xc2c
  *(.debug_abbrev)
@@ -524,14 +524,14 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0x9033
+.debug_str      0x0000000000000000     0x9055
  *(.debug_str)
- .debug_str     0x0000000000000000     0x9033 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/chessclock.o
-                                       0x4bcc (size before relaxing)
- .debug_str     0x0000000000009033        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
-                                       0x49e1 (size before relaxing)
- .debug_str     0x0000000000009033        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(playback_control.o)
-                                       0x940a (size before relaxing)
+ .debug_str     0x0000000000000000     0x9055 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/chessclock.o
+                                       0x4bee (size before relaxing)
+ .debug_str     0x0000000000009055        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
+                                       0x49f6 (size before relaxing)
+ .debug_str     0x0000000000009055        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(playback_control.o)
+                                       0x942c (size before relaxing)
 
 .debug_loc
  *(.debug_loc)

@@ -536,13 +536,13 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000    0x26c1c
+.debug_info     0x0000000000000000    0x26c67
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0xa2b0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/rocklife.o
- .debug_info    0x000000000000a2b0     0x73d7 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
- .debug_info    0x0000000000011687     0x6e66 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(gcc-support.o)
- .debug_info    0x00000000000184ed     0x758d /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(pluginlib_actions.o)
- .debug_info    0x000000000001fa7a     0x71a2 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(helper.o)
+ .debug_info    0x0000000000000000     0xa2bf /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/rocklife.o
+ .debug_info    0x000000000000a2bf     0x73e6 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
+ .debug_info    0x00000000000116a5     0x6e75 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(gcc-support.o)
+ .debug_info    0x000000000001851a     0x759c /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(pluginlib_actions.o)
+ .debug_info    0x000000000001fab6     0x71b1 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(helper.o)
 
 .debug_abbrev   0x0000000000000000     0x1289
  *(.debug_abbrev)
@@ -563,18 +563,18 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0x5922
+.debug_str      0x0000000000000000     0x5937
  *(.debug_str)
- .debug_str     0x0000000000000000     0x5922 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/rocklife.o
-                                       0x5cba (size before relaxing)
- .debug_str     0x0000000000005922        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
-                                       0x49e1 (size before relaxing)
- .debug_str     0x0000000000005922        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(gcc-support.o)
-                                       0x423e (size before relaxing)
- .debug_str     0x0000000000005922        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(pluginlib_actions.o)
-                                       0x5b32 (size before relaxing)
- .debug_str     0x0000000000005922        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(helper.o)
-                                       0x49e3 (size before relaxing)
+ .debug_str     0x0000000000000000     0x5937 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/rocklife.o
+                                       0x5ccf (size before relaxing)
+ .debug_str     0x0000000000005937        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
+                                       0x49f6 (size before relaxing)
+ .debug_str     0x0000000000005937        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(gcc-support.o)
+                                       0x4253 (size before relaxing)
+ .debug_str     0x0000000000005937        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(pluginlib_actions.o)
+                                       0x5b47 (size before relaxing)
+ .debug_str     0x0000000000005937        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(helper.o)
+                                       0x49f8 (size before relaxing)
 
 .debug_loc
  *(.debug_loc)

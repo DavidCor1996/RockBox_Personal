@@ -452,10 +452,10 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000     0x74e5
+.debug_info     0x0000000000000000     0x74f4
  *(.debug_info .gnu.linkonce.wi.*)
  .debug_info    0x0000000000000000      0x10e /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/pocketcatch_simple.o
- .debug_info    0x000000000000010e     0x73d7 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
+ .debug_info    0x000000000000010e     0x73e6 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
 
 .debug_abbrev   0x0000000000000000      0x489
  *(.debug_abbrev)
@@ -470,12 +470,12 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0x438e
+.debug_str      0x0000000000000000     0x43a3
  *(.debug_str)
- .debug_str     0x0000000000000000     0x438e /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/pocketcatch_simple.o
+ .debug_str     0x0000000000000000     0x43a3 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/pocketcatch_simple.o
                                         0x206 (size before relaxing)
- .debug_str     0x000000000000438e        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
-                                       0x49e1 (size before relaxing)
+ .debug_str     0x00000000000043a3        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
+                                       0x49f6 (size before relaxing)
 
 .debug_loc
  *(.debug_loc)

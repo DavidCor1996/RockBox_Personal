@@ -466,10 +466,10 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000     0xe821
+.debug_info     0x0000000000000000     0xe83f
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0x744a /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/test_usb.o
- .debug_info    0x000000000000744a     0x73d7 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
+ .debug_info    0x0000000000000000     0x7459 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/test_usb.o
+ .debug_info    0x0000000000007459     0x73e6 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
 
 .debug_abbrev   0x0000000000000000      0x776
  *(.debug_abbrev)
@@ -484,12 +484,12 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0x44c4
+.debug_str      0x0000000000000000     0x44d9
  *(.debug_str)
- .debug_str     0x0000000000000000     0x44c4 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/test_usb.o
-                                       0x49ef (size before relaxing)
- .debug_str     0x00000000000044c4        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
-                                       0x49e1 (size before relaxing)
+ .debug_str     0x0000000000000000     0x44d9 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/test_usb.o
+                                       0x4a04 (size before relaxing)
+ .debug_str     0x00000000000044d9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
+                                       0x49f6 (size before relaxing)
 
 .debug_loc
  *(.debug_loc)

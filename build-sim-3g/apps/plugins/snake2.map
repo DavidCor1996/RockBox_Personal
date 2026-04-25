@@ -625,17 +625,17 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000    0x20d0d
+.debug_info     0x0000000000000000    0x20d55
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0x8ed6 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/snake2.o
- .debug_info    0x0000000000008ed6     0x73d7 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
- .debug_info    0x00000000000102ad     0x8d67 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(playback_control.o)
- .debug_info    0x0000000000019014     0x771f /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(highscore.o)
- .debug_info    0x0000000000020733      0x12c /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_header1.160x128x2.o)
- .debug_info    0x000000000002085f      0x12c /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_header2.160x128x2.o)
- .debug_info    0x000000000002098b      0x12b /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_left.160x128x2.o)
- .debug_info    0x0000000000020ab6      0x12b /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_right.160x128x2.o)
- .debug_info    0x0000000000020be1      0x12c /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_bottom.160x128x2.o)
+ .debug_info    0x0000000000000000     0x8eeb /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/snake2.o
+ .debug_info    0x0000000000008eeb     0x73e6 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
+ .debug_info    0x00000000000102d1     0x8d7c /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(playback_control.o)
+ .debug_info    0x000000000001904d     0x772e /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(highscore.o)
+ .debug_info    0x000000000002077b      0x12c /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_header1.160x128x2.o)
+ .debug_info    0x00000000000208a7      0x12c /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_header2.160x128x2.o)
+ .debug_info    0x00000000000209d3      0x12b /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_left.160x128x2.o)
+ .debug_info    0x0000000000020afe      0x12b /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_right.160x128x2.o)
+ .debug_info    0x0000000000020c29      0x12c /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_bottom.160x128x2.o)
 
 .debug_abbrev   0x0000000000000000     0x13c1
  *(.debug_abbrev)
@@ -664,25 +664,25 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0x94d7
+.debug_str      0x0000000000000000     0x94f9
  *(.debug_str)
- .debug_str     0x0000000000000000     0x94d7 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/snake2.o
-                                       0x4f56 (size before relaxing)
- .debug_str     0x00000000000094d7        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
-                                       0x49e1 (size before relaxing)
- .debug_str     0x00000000000094d7        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(playback_control.o)
-                                       0x940a (size before relaxing)
- .debug_str     0x00000000000094d7        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(highscore.o)
-                                       0x48e8 (size before relaxing)
- .debug_str     0x00000000000094d7        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_header1.160x128x2.o)
+ .debug_str     0x0000000000000000     0x94f9 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/snake2.o
+                                       0x4f78 (size before relaxing)
+ .debug_str     0x00000000000094f9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
+                                       0x49f6 (size before relaxing)
+ .debug_str     0x00000000000094f9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(playback_control.o)
+                                       0x942c (size before relaxing)
+ .debug_str     0x00000000000094f9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(highscore.o)
+                                       0x48fd (size before relaxing)
+ .debug_str     0x00000000000094f9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_header1.160x128x2.o)
                                         0x150 (size before relaxing)
- .debug_str     0x00000000000094d7        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_header2.160x128x2.o)
+ .debug_str     0x00000000000094f9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_header2.160x128x2.o)
                                         0x150 (size before relaxing)
- .debug_str     0x00000000000094d7        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_left.160x128x2.o)
+ .debug_str     0x00000000000094f9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_left.160x128x2.o)
                                         0x14a (size before relaxing)
- .debug_str     0x00000000000094d7        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_right.160x128x2.o)
+ .debug_str     0x00000000000094f9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_right.160x128x2.o)
                                         0x14c (size before relaxing)
- .debug_str     0x00000000000094d7        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_bottom.160x128x2.o)
+ .debug_str     0x00000000000094f9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_bottom.160x128x2.o)
                                         0x14e (size before relaxing)
 
 .debug_loc

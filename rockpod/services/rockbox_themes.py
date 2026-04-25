@@ -67,6 +67,44 @@ THEME_DEFINITIONS = {
             "wps/iPone_nano2g/BootLogo.bmp",
         ],
     },
+    "Galaxy": {
+        "name": "Galaxy",
+        "description": "Modern monochrome split-screen stack for the 160x128 iPod 3G.",
+        "resolutions": ["160x128"],
+        "assets": [
+            {"kind": "cfg", "source": "themes/Galaxy.cfg", "destination": ".rockbox/themes/Galaxy.cfg"},
+            {"kind": "wps", "source": "wps/Galaxy.wps", "destination": ".rockbox/wps/Galaxy.wps"},
+            {"kind": "sbs", "source": "wps/Galaxy.sbs", "destination": ".rockbox/wps/Galaxy.sbs"},
+            {"kind": "fms", "source": "wps/Galaxy.fms", "destination": ".rockbox/wps/Galaxy.fms"},
+            {"kind": "iconset", "source": "icons/tango_icons.12x12.bmp", "destination": ".rockbox/icons/tango_icons.12x12.bmp"},
+            {"kind": "font", "source": "fonts/12-Adobe-Helvetica.fnt", "destination": ".rockbox/fonts/12-Adobe-Helvetica.fnt"},
+            {"kind": "wps_assets", "source": "wps/Galaxy", "destination": ".rockbox/wps/Galaxy", "recursive": True},
+        ],
+        "preview_candidates": [
+            "wps/Galaxy/MenuBackdrop.bmp",
+            "wps/Galaxy/Wallpaper.bmp",
+            "wps/Galaxy/wpsbackdrop-160x128x2.bmp",
+        ],
+    },
+    "iPone_3g": {
+        "name": "iPone 3G",
+        "description": "Monochrome iPone stack for the 160x128 iPod 3G.",
+        "resolutions": ["160x128"],
+        "assets": [
+            {"kind": "cfg", "source": "themes/iPone_3g.cfg", "destination": ".rockbox/themes/iPone_3g.cfg"},
+            {"kind": "wps", "source": "wps/iPone_3g.wps", "destination": ".rockbox/wps/iPone_3g.wps"},
+            {"kind": "sbs", "source": "wps/iPone_3g.sbs", "destination": ".rockbox/wps/iPone_3g.sbs"},
+            {"kind": "fms", "source": "wps/iPone_3g.fms", "destination": ".rockbox/wps/iPone_3g.fms"},
+            {"kind": "iconset", "source": "icons/tango_icons.12x12.bmp", "destination": ".rockbox/icons/tango_icons.12x12.bmp"},
+            {"kind": "font", "source": "fonts/12-Adobe-Helvetica.fnt", "destination": ".rockbox/fonts/12-Adobe-Helvetica.fnt"},
+            {"kind": "wps_assets", "source": "wps/iPone_3g", "destination": ".rockbox/wps/iPone_3g", "recursive": True},
+        ],
+        "preview_candidates": [
+            "wps/iPone_3g/Wallpaper.bmp",
+            "wps/iPone_3g/wpsbackdrop-160x128x2.bmp",
+            "wps/iPone_3g/ChargeWallpaper.bmp",
+        ],
+    },
 }
 
 

@@ -41,7 +41,7 @@ static void update_ring(struct pc_encounter_state *state)
 
 static int pick_random_species_index(int current_index)
 {
-    int count = pc_assets_get_creature_count();
+    int count = pc_assets_get_total_creature_count();
     int next_index;
 
     if (count <= 1)
@@ -112,7 +112,7 @@ void pc_state_init(struct pc_encounter_state *state, bool simulator_debug)
 
 void pc_state_begin(struct pc_encounter_state *state, int species_index)
 {
-    int count = pc_assets_get_creature_count();
+    int count = pc_assets_get_total_creature_count();
 
     if (count <= 0)
         species_index = 0;
@@ -129,7 +129,7 @@ void pc_state_begin(struct pc_encounter_state *state, int species_index)
 
 void pc_state_cycle_species(struct pc_encounter_state *state, int delta)
 {
-    int count = pc_assets_get_creature_count();
+    int count = pc_assets_get_total_creature_count();
 
     if (count <= 0)
         return;

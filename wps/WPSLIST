@@ -55,7 +55,7 @@ font: -
 statusbar: top
 foreground color: 000000
 background color: B6C6E5
-selector type: bar (inverse)
+selector type: pointer
 ui viewport: -
 </main>
 
@@ -136,6 +136,80 @@ battery display: graphic
 album art: prefer image file
 filetype colours: -
 backlight on button hold: normal
+</main>
+</theme>
+
+<theme>
+Name: Galaxy
+Authors: local build, inspired by monochrome SprocketModern / sprocketAR1S work
+WPS: yes
+SBS: yes
+FMS: yes
+RWPS: no
+RSBS: no
+RFMS: no
+
+<main>
+wps.160x128x2: Galaxy.wps
+sbs.160x128x2: Galaxy.sbs
+fms.160x128x2: Galaxy.fms
+font.160x128x2: 12-Adobe-Helvetica.fnt
+backdrop: wps/Galaxy/MenuBackdrop.bmp
+background color: 0
+foreground color: 3
+line selector start color: 1
+line selector end color: 1
+line selector text color: 3
+list separator color: 2
+selector type: pointer
+scrollbar: off
+show icons: off
+statusbar: off
+ui viewport: 12,30,56,88
+iconset: icons/tango_small_mono.bmp
+viewers iconset: icons/tango_small_viewers_mono.bmp
+battery display: graphic
+volume display: numeric
+album art: prefer image file
+filetype colours: -
+backlight on button hold: on
+</main>
+</theme>
+
+<theme>
+Name: iPone_3g
+Authors: iPone monochrome port by local build, based on iPone/cabbiev2 work
+WPS: yes
+SBS: yes
+FMS: yes
+RWPS: no
+RSBS: no
+RFMS: no
+
+<main>
+wps.160x128x2: iPone_3g.wps
+sbs.160x128x2: iPone_3g.sbs
+fms.160x128x2: iPone_3g.fms
+font.160x128x2: 12-Adobe-Helvetica.fnt
+backdrop: wps/iPone_3g/MenuBackdrop.bmp
+background color: 3
+foreground color: 0
+line selector start color: 1
+line selector end color: 2
+line selector text color: 0
+list separator color: 2
+selector type: bar (inverse)
+scrollbar: off
+show icons: off
+statusbar: off
+ui viewport: 7,25,62,78
+iconset: icons/tango_small_mono.bmp
+viewers iconset: icons/tango_small_viewers_mono.bmp
+battery display: graphic
+volume display: numeric
+album art: prefer image file
+filetype colours: -
+backlight on button hold: on
 </main>
 </theme>
 

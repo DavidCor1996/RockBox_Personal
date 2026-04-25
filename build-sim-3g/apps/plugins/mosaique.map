@@ -475,11 +475,11 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000    0x16009
+.debug_info     0x0000000000000000    0x16036
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0x76a5 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/mosaique.o
- .debug_info    0x00000000000076a5     0x73d7 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
- .debug_info    0x000000000000ea7c     0x758d /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(pluginlib_actions.o)
+ .debug_info    0x0000000000000000     0x76b4 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/mosaique.o
+ .debug_info    0x00000000000076b4     0x73e6 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
+ .debug_info    0x000000000000ea9a     0x759c /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(pluginlib_actions.o)
 
 .debug_abbrev   0x0000000000000000      0xa2f
  *(.debug_abbrev)
@@ -496,14 +496,14 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0x56a6
+.debug_str      0x0000000000000000     0x56bb
  *(.debug_str)
- .debug_str     0x0000000000000000     0x56a6 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/mosaique.o
-                                       0x5b85 (size before relaxing)
- .debug_str     0x00000000000056a6        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
-                                       0x49e1 (size before relaxing)
- .debug_str     0x00000000000056a6        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(pluginlib_actions.o)
-                                       0x5b32 (size before relaxing)
+ .debug_str     0x0000000000000000     0x56bb /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/mosaique.o
+                                       0x5b9a (size before relaxing)
+ .debug_str     0x00000000000056bb        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
+                                       0x49f6 (size before relaxing)
+ .debug_str     0x00000000000056bb        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(pluginlib_actions.o)
+                                       0x5b47 (size before relaxing)
 
 .debug_loc
  *(.debug_loc)

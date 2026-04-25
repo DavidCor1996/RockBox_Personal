@@ -511,12 +511,12 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000    0x16af6
+.debug_info     0x0000000000000000    0x16b23
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0x7838 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/cube.o
- .debug_info    0x0000000000007838     0x73d7 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
- .debug_info    0x000000000000ec0f     0x77b7 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(xlcd_draw.o)
- .debug_info    0x00000000000163c6      0x730 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/libfixedpoint.a(fixedpoint.o)
+ .debug_info    0x0000000000000000     0x7847 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/cube.o
+ .debug_info    0x0000000000007847     0x73e6 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
+ .debug_info    0x000000000000ec2d     0x77c6 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(xlcd_draw.o)
+ .debug_info    0x00000000000163f3      0x730 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/libfixedpoint.a(fixedpoint.o)
 
 .debug_abbrev   0x0000000000000000      0xdf4
  *(.debug_abbrev)
@@ -535,15 +535,15 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0x4736
+.debug_str      0x0000000000000000     0x474b
  *(.debug_str)
- .debug_str     0x0000000000000000     0x4736 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/cube.o
-                                       0x4a57 (size before relaxing)
- .debug_str     0x0000000000004736        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
-                                       0x49e1 (size before relaxing)
- .debug_str     0x0000000000004736        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(xlcd_draw.o)
-                                       0x4375 (size before relaxing)
- .debug_str     0x0000000000004736        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/libfixedpoint.a(fixedpoint.o)
+ .debug_str     0x0000000000000000     0x474b /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/cube.o
+                                       0x4a6c (size before relaxing)
+ .debug_str     0x000000000000474b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
+                                       0x49f6 (size before relaxing)
+ .debug_str     0x000000000000474b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(xlcd_draw.o)
+                                       0x438a (size before relaxing)
+ .debug_str     0x000000000000474b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/libfixedpoint.a(fixedpoint.o)
                                         0x285 (size before relaxing)
 
 .debug_loc

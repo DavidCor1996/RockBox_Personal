@@ -502,12 +502,12 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000    0x15edb
+.debug_info     0x0000000000000000    0x15f08
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0x7c71 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/sliding_puzzle.o
- .debug_info    0x0000000000007c71     0x73d7 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
- .debug_info    0x000000000000f048     0x6d66 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(read_image.o)
- .debug_info    0x0000000000015dae      0x12d /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(sliding_puzzle.128x128x2.o)
+ .debug_info    0x0000000000000000     0x7c80 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/sliding_puzzle.o
+ .debug_info    0x0000000000007c80     0x73e6 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
+ .debug_info    0x000000000000f066     0x6d75 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(read_image.o)
+ .debug_info    0x0000000000015ddb      0x12d /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(sliding_puzzle.128x128x2.o)
 
 .debug_abbrev   0x0000000000000000      0xbda
  *(.debug_abbrev)
@@ -526,15 +526,15 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0x4664
+.debug_str      0x0000000000000000     0x4679
  *(.debug_str)
- .debug_str     0x0000000000000000     0x4664 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/sliding_puzzle.o
-                                       0x4ac9 (size before relaxing)
- .debug_str     0x0000000000004664        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
-                                       0x49e1 (size before relaxing)
- .debug_str     0x0000000000004664        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(read_image.o)
-                                       0x4261 (size before relaxing)
- .debug_str     0x0000000000004664        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(sliding_puzzle.128x128x2.o)
+ .debug_str     0x0000000000000000     0x4679 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/sliding_puzzle.o
+                                       0x4ade (size before relaxing)
+ .debug_str     0x0000000000004679        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
+                                       0x49f6 (size before relaxing)
+ .debug_str     0x0000000000004679        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(read_image.o)
+                                       0x4276 (size before relaxing)
+ .debug_str     0x0000000000004679        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(sliding_puzzle.128x128x2.o)
                                         0x150 (size before relaxing)
 
 .debug_loc

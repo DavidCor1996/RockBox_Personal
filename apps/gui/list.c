@@ -103,6 +103,11 @@ static int list_nb_lines(struct gui_synclist *list, enum screen_type screen)
 
 bool list_display_title(struct gui_synclist *list, enum screen_type screen)
 {
+#if CONFIG_KEYPAD == IPOD_3G_PAD
+    if (screen == SCREEN_MAIN && sb_skin_is_ipod3g_galaxy_theme())
+        return false;
+#endif
+
     return list->title != NULL &&
         !sb_set_title_text(list->title, list->title_icon, screen) &&
         list_nb_lines(list, screen) > 2;
@@ -132,6 +137,14 @@ void list_init_item_height(struct gui_synclist *list, enum screen_type screen)
         list->line_height[screen] = line_height + global_settings.list_line_padding;
 #else
     list->line_height[screen] = line_height;
+#endif
+
+#if CONFIG_KEYPAD == IPOD_3G_PAD
+    /* The 3G monochrome menu font renders extremely dense in themed panes.
+     * Keep a practical minimum row height so lists scroll inside constrained
+     * viewports instead of visually overrunning the frame. */
+    if (screen == SCREEN_MAIN && list->line_height[screen] < 8)
+        list->line_height[screen] = 8;
 #endif
 }
 

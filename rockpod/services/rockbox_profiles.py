@@ -126,6 +126,17 @@ class RockboxProfileStore:
                 "lockscreen_clock_position": "center",
             },
             {
+                "id": "ipod_3g",
+                "name": "iPod 3G",
+                "device_mount_path": "",
+                "target_device_model": "iPod 3G",
+                "screen_resolution": "160x128",
+                "source_repo_path": repo_root,
+                "selected_theme": "Galaxy",
+                "backup_location": os.path.join(backup_root, "ipod_3g"),
+                "lockscreen_clock_position": "center",
+            },
+            {
                 "id": "ipod_nano2g",
                 "name": "iPod nano 2G",
                 "device_mount_path": "",
@@ -184,6 +195,8 @@ class RockboxProfileStore:
     def _guess_resolution(device_model, selected_theme):
         model = str(device_model or "").lower()
         theme = str(selected_theme or "").lower()
+        if "ipod 3g" in model or theme in {"ipone_3g", "galaxy"}:
+            return "160x128"
         if "nano" in model or "nano2g" in theme:
             return "176x132"
         return "320x240"

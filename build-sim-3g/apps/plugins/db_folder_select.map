@@ -483,11 +483,11 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000    0x1820c
+.debug_info     0x0000000000000000    0x18239
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0x9fcf /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/db_folder_select.o
- .debug_info    0x0000000000009fcf     0x73d7 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
- .debug_info    0x00000000000113a6     0x6e66 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(gcc-support.o)
+ .debug_info    0x0000000000000000     0x9fde /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/db_folder_select.o
+ .debug_info    0x0000000000009fde     0x73e6 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
+ .debug_info    0x00000000000113c4     0x6e75 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(gcc-support.o)
 
 .debug_abbrev   0x0000000000000000      0xc97
  *(.debug_abbrev)
@@ -504,14 +504,14 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0x9f49
+.debug_str      0x0000000000000000     0x9f5e
  *(.debug_str)
- .debug_str     0x0000000000000000     0x9f49 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/db_folder_select.o
-                                       0xa4fe (size before relaxing)
- .debug_str     0x0000000000009f49        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
-                                       0x49e1 (size before relaxing)
- .debug_str     0x0000000000009f49        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(gcc-support.o)
-                                       0x423e (size before relaxing)
+ .debug_str     0x0000000000000000     0x9f5e /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/db_folder_select.o
+                                       0xa513 (size before relaxing)
+ .debug_str     0x0000000000009f5e        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
+                                       0x49f6 (size before relaxing)
+ .debug_str     0x0000000000009f5e        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(gcc-support.o)
+                                       0x4253 (size before relaxing)
 
 .debug_loc
  *(.debug_loc)

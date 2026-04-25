@@ -79,7 +79,11 @@ static enum plugin_status run_pocketcatch(void)
             pc_state_update(&pc_game.encounter, &command, &throw_request);
 
             if (command.exit_requested)
-                break;
+            {
+                pc_world_cancel_encounter(&pc_game.world);
+                pc_game.mode = PC_MODE_WORLD;
+                continue;
+            }
 
             pc_render_frame(&pc_game.encounter);
             if (pc_game.encounter.finished)
@@ -91,6 +95,9 @@ static enum plugin_status run_pocketcatch(void)
             }
         }
     }
+
+    if (status == PLUGIN_OK)
+        pc_world_save(&pc_game.world);
 
     set_world_wheel_mode(false);
     pc_world_teardown(&pc_game.world);

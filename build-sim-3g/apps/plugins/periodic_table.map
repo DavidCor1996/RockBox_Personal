@@ -483,11 +483,11 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000    0x16c06
+.debug_info     0x0000000000000000    0x16c33
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0x82a2 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/periodic_table.o
- .debug_info    0x00000000000082a2     0x73d7 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
- .debug_info    0x000000000000f679     0x758d /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(pluginlib_actions.o)
+ .debug_info    0x0000000000000000     0x82b1 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/periodic_table.o
+ .debug_info    0x00000000000082b1     0x73e6 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
+ .debug_info    0x000000000000f697     0x759c /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(pluginlib_actions.o)
 
 .debug_abbrev   0x0000000000000000      0xb8b
  *(.debug_abbrev)
@@ -504,14 +504,14 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0x581f
+.debug_str      0x0000000000000000     0x5834
  *(.debug_str)
- .debug_str     0x0000000000000000     0x581f /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/periodic_table.o
-                                       0x5d10 (size before relaxing)
- .debug_str     0x000000000000581f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
-                                       0x49e1 (size before relaxing)
- .debug_str     0x000000000000581f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(pluginlib_actions.o)
-                                       0x5b32 (size before relaxing)
+ .debug_str     0x0000000000000000     0x5834 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/periodic_table.o
+                                       0x5d25 (size before relaxing)
+ .debug_str     0x0000000000005834        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
+                                       0x49f6 (size before relaxing)
+ .debug_str     0x0000000000005834        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(pluginlib_actions.o)
+                                       0x5b47 (size before relaxing)
 
 .debug_loc
  *(.debug_loc)

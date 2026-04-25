@@ -1,25 +1,43 @@
 #include "pocketcatch.h"
+#include "pc_red_gfx.h"
 #include "lib/xlcd.h"
 
-#define PC_SKY_TOP          LCD_RGBPACK(0xf5, 0xf3, 0xe8)
-#define PC_SKY_BOTTOM       LCD_RGBPACK(0xb8, 0xe5, 0xf2)
-#define PC_FIELD_TOP        LCD_RGBPACK(0x8d, 0xca, 0x81)
-#define PC_FIELD_BOTTOM     LCD_RGBPACK(0x4c, 0x8c, 0x50)
-#define PC_PANEL_BG         LCD_RGBPACK(0xf8, 0xfb, 0xff)
-#define PC_PANEL_TEXT       LCD_RGBPACK(0x1f, 0x2e, 0x3d)
-#define PC_PANEL_SUB        LCD_RGBPACK(0x5f, 0x71, 0x81)
-#define PC_DOCK_BG          LCD_RGBPACK(0xee, 0xf3, 0xf8)
-#define PC_DOCK_LINE        LCD_RGBPACK(0xa7, 0xb8, 0xc5)
-#define PC_RING_LARGE       LCD_RGBPACK(0xf3, 0xa7, 0x49)
-#define PC_RING_MEDIUM      LCD_RGBPACK(0xf0, 0xcd, 0x56)
-#define PC_RING_SMALL       LCD_RGBPACK(0x51, 0xc9, 0x7d)
-#define PC_HIT_FLASH        LCD_RGBPACK(0xff, 0xff, 0xff)
-#define PC_SHADOW           LCD_RGBPACK(0x67, 0x7b, 0x72)
-#define PC_ACCENT           LCD_RGBPACK(0x34, 0x4c, 0x63)
+#define PC_GB_LIGHT         LCD_RGBPACK(0xe0, 0xf8, 0xd0)
+#define PC_GB_MID           LCD_RGBPACK(0x88, 0xc0, 0x70)
+#define PC_GB_DARK          LCD_RGBPACK(0x34, 0x68, 0x56)
+#define PC_GB_DEEP          LCD_RGBPACK(0x08, 0x18, 0x20)
+#define PC_SKY_TOP          PC_GB_LIGHT
+#define PC_SKY_BOTTOM       LCD_RGBPACK(0xc6, 0xe8, 0xb0)
+#define PC_FIELD_TOP        LCD_RGBPACK(0xa8, 0xd8, 0x7a)
+#define PC_FIELD_BOTTOM     PC_GB_MID
+#define PC_PANEL_BG         PC_GB_LIGHT
+#define PC_PANEL_TEXT       PC_GB_DEEP
+#define PC_PANEL_SUB        PC_GB_DARK
+#define PC_DOCK_BG          PC_GB_LIGHT
+#define PC_DOCK_LINE        PC_GB_DEEP
+#define PC_RING_LARGE       PC_GB_DEEP
+#define PC_RING_MEDIUM      PC_GB_DARK
+#define PC_RING_SMALL       PC_GB_MID
+#define PC_HIT_FLASH        LCD_WHITE
+#define PC_SHADOW           PC_GB_DARK
+#define PC_ACCENT           PC_GB_DEEP
 
 static fb_data pc_background_cache[LCD_WIDTH * LCD_HEIGHT];
 static bool pc_background_cache_ready;
 static int pc_background_time_mode = -1;
+static fb_data pc_encounter_trainer_pixels[PC_WORLD_TRAINER_BYTES / sizeof(fb_data)];
+static struct pc_asset_bitmap pc_encounter_trainer_asset;
+static bool pc_encounter_trainer_attempted;
+
+static void clear_encounter_trainer_asset(void)
+{
+    pc_encounter_trainer_asset.bmp.data = NULL;
+    pc_encounter_trainer_asset.bmp.width = 0;
+    pc_encounter_trainer_asset.bmp.height = 0;
+    pc_encounter_trainer_asset.loaded = false;
+    pc_encounter_trainer_asset.external = false;
+    pc_encounter_trainer_asset.path[0] = '\0';
+}
 
 enum pc_time_mode {
     PC_TIME_DAY = 0,
@@ -76,8 +94,15 @@ static void draw_text_fg(int x, int y, fb_data color, const char *text)
     rb->lcd_set_drawmode(old_mode);
 }
 
-static void fit_text_to_width(char *buffer, size_t buffer_size,
-                              const char *text, int max_width)
+static void draw_text_fixed(int x, int y, fb_data color, const char *text)
+{
+    rb->lcd_setfont(FONT_SYSFIXED);
+    draw_text_fg(x, y, color, text);
+    rb->lcd_setfont(FONT_UI);
+}
+
+static void fit_text_to_width_font(char *buffer, size_t buffer_size,
+                                   const char *text, int max_width, int font)
 {
     static const char ellipsis[] = "...";
     int text_width;
@@ -85,17 +110,17 @@ static void fit_text_to_width(char *buffer, size_t buffer_size,
     size_t len;
 
     rb->strlcpy(buffer, text, buffer_size);
-    rb->font_getstringsize(buffer, &text_width, NULL, FONT_UI);
+    rb->font_getstringsize(buffer, &text_width, NULL, font);
     if (text_width <= max_width)
         return;
 
-    rb->font_getstringsize(ellipsis, &ellipsis_width, NULL, FONT_UI);
+    rb->font_getstringsize(ellipsis, &ellipsis_width, NULL, font);
     len = rb->strlen(buffer);
 
     while (len > 0)
     {
         buffer[--len] = '\0';
-        rb->font_getstringsize(buffer, &text_width, NULL, FONT_UI);
+        rb->font_getstringsize(buffer, &text_width, NULL, font);
         if (text_width + ellipsis_width <= max_width)
         {
             rb->strlcat(buffer, ellipsis, buffer_size);
@@ -114,16 +139,6 @@ static void fill_capsule(int x, int y, int w, int h, fb_data color)
     rb->lcd_fillrect(x + radius, y, w - 2 * radius, h);
     xlcd_fillcircle(x + radius, y + radius, radius);
     xlcd_fillcircle(x + w - radius - 1, y + radius, radius);
-}
-
-static void draw_capsule_outline(int x, int y, int w, int h, fb_data color)
-{
-    int radius = h / 2;
-
-    rb->lcd_set_foreground(color);
-    rb->lcd_drawrect(x + radius, y, w - 2 * radius, h);
-    xlcd_drawcircle(x + radius, y + radius, radius);
-    xlcd_drawcircle(x + w - radius - 1, y + radius, radius);
 }
 
 static void fill_circle_cache(int cx, int cy, int radius, fb_data color)
@@ -152,6 +167,71 @@ static void fill_circle_cache(int cx, int cy, int radius, fb_data color)
     }
 }
 
+static void draw_red_sprite_scaled(const unsigned char frame[16][16],
+                                   int x, int y, int scale, bool flip_x)
+{
+    int py;
+    int px;
+    int sy;
+    int sx;
+
+    for (py = 0; py < 16; ++py)
+    {
+        for (px = 0; px < 16; ++px)
+        {
+            int src_x = flip_x ? (15 - px) : px;
+            unsigned char shade = frame[py][src_x];
+            fb_data color;
+
+            if (shade == 3)
+                continue;
+
+            switch (shade)
+            {
+                case 0:
+                    color = PC_GB_DEEP;
+                    break;
+                case 1:
+                    color = PC_GB_DARK;
+                    break;
+                default:
+                    color = PC_GB_MID;
+                    break;
+            }
+
+            rb->lcd_set_foreground(color);
+            for (sy = 0; sy < scale; ++sy)
+            {
+                for (sx = 0; sx < scale; ++sx)
+                {
+                    rb->lcd_drawpixel(x + px * scale + sx,
+                                      y + py * scale + sy);
+                }
+            }
+        }
+    }
+}
+
+static const struct pc_asset_bitmap *ensure_encounter_trainer_asset(void)
+{
+    if (pc_encounter_trainer_asset.loaded)
+        return &pc_encounter_trainer_asset;
+
+    if (pc_encounter_trainer_attempted)
+        return NULL;
+
+    pc_encounter_trainer_attempted = true;
+    rb->memset(&pc_encounter_trainer_asset, 0, sizeof(pc_encounter_trainer_asset));
+    pc_encounter_trainer_asset.pixels = pc_encounter_trainer_pixels;
+    pc_encounter_trainer_asset.capacity = sizeof(pc_encounter_trainer_pixels);
+    clear_encounter_trainer_asset();
+    if (pc_assets_load_world_trainer(&pc_encounter_trainer_asset, PC_HEADING_N, 1))
+        return &pc_encounter_trainer_asset;
+
+    clear_encounter_trainer_asset();
+    return NULL;
+}
+
 static void ensure_background_cache(void)
 {
     fb_data sky_top = PC_SKY_TOP;
@@ -168,30 +248,30 @@ static void ensure_background_cache(void)
 
     if (mode == PC_TIME_SUNSET)
     {
-        sky_top = LCD_RGBPACK(0xf8, 0xc0, 0x7a);
-        sky_bottom = LCD_RGBPACK(0xdf, 0x85, 0x7e);
-        field_top = LCD_RGBPACK(0x88, 0xb5, 0x63);
-        field_bottom = LCD_RGBPACK(0x4a, 0x76, 0x46);
-        sun = LCD_RGBPACK(0xff, 0xdc, 0x88);
-        cloud = LCD_RGBPACK(0xff, 0xe9, 0xd8);
+        sky_top = LCD_RGBPACK(0xd8, 0xf0, 0xb8);
+        sky_bottom = LCD_RGBPACK(0xb8, 0xd8, 0x90);
+        field_top = LCD_RGBPACK(0x90, 0xc8, 0x72);
+        field_bottom = PC_GB_MID;
+        sun = PC_GB_LIGHT;
+        cloud = LCD_RGBPACK(0xc8, 0xe8, 0xa8);
     }
     else if (mode == PC_TIME_NIGHT)
     {
-        sky_top = LCD_RGBPACK(0x1a, 0x26, 0x4d);
-        sky_bottom = LCD_RGBPACK(0x2f, 0x49, 0x78);
-        field_top = LCD_RGBPACK(0x4e, 0x72, 0x5d);
-        field_bottom = LCD_RGBPACK(0x2d, 0x47, 0x38);
-        sun = LCD_RGBPACK(0xe8, 0xf1, 0xff);
-        cloud = LCD_RGBPACK(0x9f, 0xb2, 0xd7);
+        sky_top = LCD_RGBPACK(0x7c, 0xa8, 0x70);
+        sky_bottom = LCD_RGBPACK(0x4f, 0x7a, 0x53);
+        field_top = LCD_RGBPACK(0x3f, 0x64, 0x4b);
+        field_bottom = PC_GB_DEEP;
+        sun = PC_GB_LIGHT;
+        cloud = PC_GB_MID;
     }
     else if (mode == PC_TIME_DAWN)
     {
-        sky_top = LCD_RGBPACK(0xd8, 0xc7, 0xf3);
-        sky_bottom = LCD_RGBPACK(0xf5, 0xc6, 0xd6);
-        field_top = LCD_RGBPACK(0x8c, 0xc4, 0x84);
-        field_bottom = LCD_RGBPACK(0x55, 0x8d, 0x59);
-        sun = LCD_RGBPACK(0xff, 0xec, 0xb3);
-        cloud = LCD_RGBPACK(0xff, 0xf7, 0xff);
+        sky_top = LCD_RGBPACK(0xe8, 0xf8, 0xc8);
+        sky_bottom = LCD_RGBPACK(0xc8, 0xe0, 0xa0);
+        field_top = LCD_RGBPACK(0xa0, 0xd0, 0x76);
+        field_bottom = PC_GB_MID;
+        sun = PC_GB_LIGHT;
+        cloud = LCD_RGBPACK(0xd0, 0xe8, 0xb0);
     }
 
     for (y = 0; y < PC_GROUND_Y; ++y)
@@ -214,10 +294,10 @@ static void ensure_background_cache(void)
             pc_background_cache[y * LCD_WIDTH + x] = color;
     }
 
-    fill_circle_cache(58, 48, 24, sun);
-    fill_circle_cache(46, 40, 11, cloud);
-    fill_circle_cache(58, 34, 14, cloud);
-    fill_circle_cache(76, 40, 10, cloud);
+    fill_circle_cache(58, 48, 18, sun);
+    fill_circle_cache(46, 40, 8, cloud);
+    fill_circle_cache(58, 34, 10, cloud);
+    fill_circle_cache(74, 40, 8, cloud);
     pc_background_cache_ready = true;
     pc_background_time_mode = mode;
 }
@@ -233,6 +313,38 @@ static void draw_shadow(void)
 {
     rb->lcd_set_foreground(PC_SHADOW);
     fill_capsule(PC_TARGET_X - 42, PC_GROUND_Y - 4, 84, 16, PC_SHADOW);
+}
+
+static void draw_window_frame(int x, int y, int w, int h)
+{
+    rb->lcd_set_foreground(PC_PANEL_BG);
+    rb->lcd_fillrect(x, y, w, h);
+
+    rb->lcd_set_foreground(PC_GB_DEEP);
+    rb->lcd_drawrect(x, y, w, h);
+    rb->lcd_drawrect(x + 2, y + 2, w - 4, h - 4);
+}
+
+static void draw_trainer_accent(void)
+{
+    const struct pc_asset_bitmap *trainer;
+    int x = 16;
+    int y = PC_GROUND_Y - 30;
+
+    rb->lcd_set_foreground(PC_GB_DEEP);
+    rb->lcd_fillrect(x - 1, y + 28, 36, 4);
+    trainer = ensure_encounter_trainer_asset();
+    if (trainer != NULL && trainer->loaded)
+    {
+        rb->lcd_bitmap_transparent((const fb_data *)trainer->bmp.data,
+                                   x + 18 - trainer->bmp.width / 2,
+                                   y + 30 - trainer->bmp.height,
+                                   trainer->bmp.width,
+                                   trainer->bmp.height);
+        return;
+    }
+
+    draw_red_sprite_scaled(pc_red_player_frames[1], x, y, 2, false);
 }
 
 static void draw_creature_fallback(const struct pc_encounter_state *state, int bob)
@@ -504,84 +616,83 @@ static void draw_banner(const struct pc_encounter_state *state)
 {
     char line1[PC_BANNER_LINE_CHARS];
     char line2[PC_BANNER_LINE_CHARS];
-    int banner_x = 18;
-    int banner_y = 12;
-    int banner_w = LCD_WIDTH - 36;
-    int banner_h = 34;
+    int banner_x = 10;
+    int banner_y = 10;
+    int banner_w = LCD_WIDTH - 20;
+    int banner_h = 28;
     int line1_w;
     int line2_w;
     int line_h;
 
-    rb->font_getstringsize("Ag", NULL, &line_h, FONT_UI);
-    fill_capsule(banner_x, banner_y, banner_w, banner_h, PC_PANEL_BG);
-    draw_capsule_outline(banner_x, banner_y, banner_w, banner_h, LCD_RGBPACK(0xd0, 0xda, 0xe4));
+    rb->font_getstringsize("AG", NULL, &line_h, FONT_SYSFIXED);
+    draw_window_frame(banner_x, banner_y, banner_w, banner_h);
 
-    fit_text_to_width(line1, sizeof(line1), state->banner.line1, banner_w - 24);
-    fit_text_to_width(line2, sizeof(line2), state->banner.line2, banner_w - 24);
-    rb->font_getstringsize(line1, &line1_w, NULL, FONT_UI);
-    rb->font_getstringsize(line2, &line2_w, NULL, FONT_UI);
+    fit_text_to_width_font(line1, sizeof(line1), state->banner.line1,
+                           banner_w - 12, FONT_SYSFIXED);
+    fit_text_to_width_font(line2, sizeof(line2), state->banner.line2,
+                           banner_w - 12, FONT_SYSFIXED);
+    rb->font_getstringsize(line1, &line1_w, NULL, FONT_SYSFIXED);
+    rb->font_getstringsize(line2, &line2_w, NULL, FONT_SYSFIXED);
 
-    draw_text_fg(banner_x + (banner_w - line1_w) / 2, banner_y + 7,
-                 PC_PANEL_TEXT, line1);
-    draw_text_fg(banner_x + (banner_w - line2_w) / 2, banner_y + 7 + line_h,
-                 PC_PANEL_SUB, line2);
+    draw_text_fixed(banner_x + (banner_w - line1_w) / 2, banner_y + 5,
+                    PC_PANEL_TEXT, line1);
+    draw_text_fixed(banner_x + (banner_w - line2_w) / 2, banner_y + 6 + line_h,
+                    PC_PANEL_SUB, line2);
 }
 
 static void draw_bottom_hud(const struct pc_encounter_state *state)
 {
-    char left[40];
-    char right[40];
-    char left_fit[40];
-    char right_fit[40];
-    int h = 28;
+    char line1[48];
+    char line2[48];
+    char line1_fit[48];
+    char line2_fit[48];
+    int h = 32;
     int y = LCD_HEIGHT - h - 8;
-    int left_w = 120;
-    int right_w = 152;
-    int text_w;
+    int x = 8;
+    int w = LCD_WIDTH - 16;
+    int text_y = y + 5;
+    int line_h;
 
-    fill_capsule(14, y, left_w, h, PC_DOCK_BG);
-    fill_capsule(LCD_WIDTH - right_w - 14, y, right_w, h, PC_DOCK_BG);
-    draw_capsule_outline(14, y, left_w, h, PC_DOCK_LINE);
-    draw_capsule_outline(LCD_WIDTH - right_w - 14, y, right_w, h, PC_DOCK_LINE);
+    draw_window_frame(x, y, w, h);
+    rb->font_getstringsize("AG", NULL, &line_h, FONT_SYSFIXED);
 
     if (state->phase == PC_PHASE_BALL_HELD)
     {
-        rb->snprintf(left, sizeof(left), "Spin %+d  Vel %d",
+        rb->snprintf(line1, sizeof(line1), "SPIN %+d  VEL %d",
                      state->input.signed_spin, state->input.release_velocity);
-        rb->snprintf(right, sizeof(right), "Target %s  %s",
+        rb->snprintf(line2, sizeof(line2), "TARGET %s  %s",
                      pc_throw_tier_label(state->last_tier),
                      pc_assets_source_label(&state->assets));
     }
     else if (state->phase == PC_PHASE_BALL_THROWN)
     {
-        rb->snprintf(left, sizeof(left), "Power %d  Curve %d",
+        rb->snprintf(line1, sizeof(line1), "POWER %d  CURVE %d",
                      state->throw_state.power_score,
                      state->throw_state.curve_px);
-        rb->snprintf(right, sizeof(right), "%s  Catch %d.%d%%",
+        rb->snprintf(line2, sizeof(line2), "%s  CATCH %d.%d%%",
                      pc_throw_tier_label(state->throw_state.tier),
                      state->last_catch_chance / 10,
                      state->last_catch_chance % 10);
     }
     else
     {
-        rb->snprintf(left, sizeof(left), "%s", state->creature->name);
-        rb->snprintf(right, sizeof(right), "%s%s",
+        rb->snprintf(line1, sizeof(line1), "%s", state->creature->name);
+        rb->snprintf(line2, sizeof(line2), "%s%s",
                      pc_assets_source_label(&state->assets),
 #ifdef SIMULATOR
-                     "  L/R species"
+                     "  L/R SPECIES"
 #else
                      ""
 #endif
                      );
     }
 
-    fit_text_to_width(left_fit, sizeof(left_fit), left, left_w - 18);
-    fit_text_to_width(right_fit, sizeof(right_fit), right, right_w - 18);
-    rb->font_getstringsize(left_fit, &text_w, NULL, FONT_UI);
-    draw_text_fg(20, y + 8, PC_PANEL_TEXT, left_fit);
-    rb->font_getstringsize(right_fit, &text_w, NULL, FONT_UI);
-    draw_text_fg(LCD_WIDTH - right_w - 4 + (right_w - text_w) / 2, y + 8,
-                 PC_PANEL_TEXT, right_fit);
+    fit_text_to_width_font(line1_fit, sizeof(line1_fit), line1,
+                           w - 12, FONT_SYSFIXED);
+    fit_text_to_width_font(line2_fit, sizeof(line2_fit), line2,
+                           w - 12, FONT_SYSFIXED);
+    draw_text_fixed(x + 6, text_y, PC_PANEL_TEXT, line1_fit);
+    draw_text_fixed(x + 6, text_y + line_h, PC_PANEL_SUB, line2_fit);
 }
 
 static void draw_result_fx(const struct pc_encounter_state *state)
@@ -610,6 +721,7 @@ void pc_render_frame(const struct pc_encounter_state *state)
 {
     draw_background(state);
     draw_shadow();
+    draw_trainer_accent();
     if (creature_visible(state))
         draw_creature(state);
     if (state->phase <= PC_PHASE_BALL_THROWN)

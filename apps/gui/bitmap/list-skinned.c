@@ -132,16 +132,22 @@ bool skinlist_is_selected_item(void)
 int skinlist_get_line_count(enum screen_type screen, struct gui_synclist *list)
 {
     struct viewport *parent = (list->parent[screen]);
+    int item_height;
     if (!skinlist_is_configured(screen, list))
         return -1;
+    item_height = listcfg[screen]->height;
+#if CONFIG_KEYPAD == IPOD_3G_PAD
+    if (screen == SCREEN_MAIN && item_height < 10)
+        item_height = 10;
+#endif
     if (listcfg[screen]->tile == true)
     {
-        int rows = (parent->height / listcfg[screen]->height);
+        int rows = (parent->height / item_height);
         int cols = (parent->width / listcfg[screen]->width);
         return rows*cols;
     }
     else
-        return  (parent->height / listcfg[screen]->height);
+        return  (parent->height / item_height);
 }
 
 static int current_item;

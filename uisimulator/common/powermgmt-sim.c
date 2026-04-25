@@ -107,8 +107,14 @@ static void battery_status_update(void)
     if (charging)
         batt_current = BATT_CHARGE_STEP;
     else if (!ext_power)
+    {
+#if CONFIG_CHARGING >= CHARGING_MONITOR
         batt_current = sim_sleeping && BATT_SLEEP_DISCHARGE_STEP > 0
             ? BATT_SLEEP_DISCHARGE_STEP : BATT_DISCHARGE_STEP;
+#else
+        batt_current = BATT_DISCHARGE_STEP;
+#endif
+    }
     else
         batt_current = 0;
 }

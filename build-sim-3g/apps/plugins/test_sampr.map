@@ -463,10 +463,10 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000     0xebc1
+.debug_info     0x0000000000000000     0xebdf
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0x77ea /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/test_sampr.o
- .debug_info    0x00000000000077ea     0x73d7 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
+ .debug_info    0x0000000000000000     0x77f9 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/test_sampr.o
+ .debug_info    0x00000000000077f9     0x73e6 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
 
 .debug_abbrev   0x0000000000000000      0x8db
  *(.debug_abbrev)
@@ -481,12 +481,12 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0x45f1
+.debug_str      0x0000000000000000     0x4606
  *(.debug_str)
- .debug_str     0x0000000000000000     0x45f1 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/test_sampr.o
-                                       0x4b42 (size before relaxing)
- .debug_str     0x00000000000045f1        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
-                                       0x49e1 (size before relaxing)
+ .debug_str     0x0000000000000000     0x4606 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/test_sampr.o
+                                       0x4b57 (size before relaxing)
+ .debug_str     0x0000000000004606        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
+                                       0x49f6 (size before relaxing)
 
 .debug_loc
  *(.debug_loc)

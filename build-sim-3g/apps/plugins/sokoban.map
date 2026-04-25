@@ -522,12 +522,12 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000    0x18de1
+.debug_info     0x0000000000000000    0x18e14
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0x8b78 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/sokoban.o
- .debug_info    0x0000000000008b78     0x73d7 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
- .debug_info    0x000000000000ff4f     0x8d67 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(playback_control.o)
- .debug_info    0x0000000000018cb6      0x12b /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(sokoban_tiles.6x6x2.o)
+ .debug_info    0x0000000000000000     0x8b87 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/sokoban.o
+ .debug_info    0x0000000000008b87     0x73e6 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
+ .debug_info    0x000000000000ff6d     0x8d7c /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(playback_control.o)
+ .debug_info    0x0000000000018ce9      0x12b /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(sokoban_tiles.6x6x2.o)
 
 .debug_abbrev   0x0000000000000000      0xda6
  *(.debug_abbrev)
@@ -546,15 +546,15 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0x92e5
+.debug_str      0x0000000000000000     0x9307
  *(.debug_str)
- .debug_str     0x0000000000000000     0x92e5 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/sokoban.o
-                                       0x4c88 (size before relaxing)
- .debug_str     0x00000000000092e5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
-                                       0x49e1 (size before relaxing)
- .debug_str     0x00000000000092e5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(playback_control.o)
-                                       0x940a (size before relaxing)
- .debug_str     0x00000000000092e5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(sokoban_tiles.6x6x2.o)
+ .debug_str     0x0000000000000000     0x9307 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/sokoban.o
+                                       0x4c9d (size before relaxing)
+ .debug_str     0x0000000000009307        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
+                                       0x49f6 (size before relaxing)
+ .debug_str     0x0000000000009307        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(playback_control.o)
+                                       0x942c (size before relaxing)
+ .debug_str     0x0000000000009307        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(sokoban_tiles.6x6x2.o)
                                         0x14e (size before relaxing)
 
 .debug_loc

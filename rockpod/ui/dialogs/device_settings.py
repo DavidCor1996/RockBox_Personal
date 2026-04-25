@@ -67,6 +67,55 @@ class DeviceSettingsDialog(QDialog):
         self._sync_playlists.setChecked(bool(self._config.get_effective("sync_playlists_to_device", device=device, default=True)))
         options_layout.addRow("", self._sync_playlists)
 
+        self._convert_audio = QCheckBox("Convert audio for this iPod during sync")
+        self._convert_audio.setChecked(bool(self._config.get_effective("convert_audio_for_device", device=device, default=False)))
+        options_layout.addRow("", self._convert_audio)
+
+        self._audio_conversion_mode = QComboBox()
+        self._audio_conversion_mode.addItems(
+            [
+                "Unsupported or lossless only",
+                "Above bitrate limit only",
+                "Unsupported/lossless or above limit",
+                "Always convert",
+            ]
+        )
+        conversion_mode_map = {
+            "unsupported_or_lossless": 0,
+            "above_bitrate_limit": 1,
+            "unsupported_lossless_or_above_limit": 2,
+            "always": 3,
+        }
+        self._audio_conversion_mode.setCurrentIndex(
+            conversion_mode_map.get(
+                self._config.get_effective("audio_conversion_mode", device=device, default="unsupported_or_lossless"),
+                0,
+            )
+        )
+        options_layout.addRow("Audio Conversion:", self._audio_conversion_mode)
+
+        self._audio_conversion_codec = QComboBox()
+        self._audio_conversion_codec.addItems(["MP3", "AAC (.m4a)"])
+        codec_map = {"mp3": 0, "aac": 1, "m4a": 1}
+        self._audio_conversion_codec.setCurrentIndex(
+            codec_map.get(
+                str(self._config.get_effective("audio_conversion_codec", device=device, default="mp3") or "mp3").strip().lower(),
+                0,
+            )
+        )
+        options_layout.addRow("Converted Codec:", self._audio_conversion_codec)
+
+        self._audio_conversion_bitrate = QComboBox()
+        self._audio_conversion_bitrate.addItems(["128 kbps", "160 kbps", "192 kbps"])
+        bitrate_map = {128: 0, 160: 1, 192: 2}
+        self._audio_conversion_bitrate.setCurrentIndex(
+            bitrate_map.get(
+                int(self._config.get_effective("audio_conversion_bitrate_kbps", device=device, default=160) or 160),
+                1,
+            )
+        )
+        options_layout.addRow("Converted Bitrate:", self._audio_conversion_bitrate)
+
         self._auto_rebuild = QCheckBox("Auto rebuild Rockbox database after sync")
         self._auto_rebuild.setChecked(bool(self._config.get_effective("auto_rebuild_rockbox_database_after_sync", device=device, default=False)))
         options_layout.addRow("", self._auto_rebuild)
@@ -133,6 +182,27 @@ class DeviceSettingsDialog(QDialog):
         self._resync_meta.setChecked(bool(self._config.get("resync_metadata_changes", True)))
         self._copy_artwork.setChecked(bool(self._config.get("copy_artwork_to_device", True)))
         self._sync_playlists.setChecked(bool(self._config.get("sync_playlists_to_device", True)))
+        self._convert_audio.setChecked(bool(self._config.get("convert_audio_for_device", False)))
+        self._audio_conversion_mode.setCurrentIndex(
+            {
+                "unsupported_or_lossless": 0,
+                "above_bitrate_limit": 1,
+                "unsupported_lossless_or_above_limit": 2,
+                "always": 3,
+            }.get(self._config.get("audio_conversion_mode", "unsupported_or_lossless"), 0)
+        )
+        self._audio_conversion_codec.setCurrentIndex(
+            {"mp3": 0, "aac": 1, "m4a": 1}.get(
+                str(self._config.get("audio_conversion_codec", "mp3") or "mp3").strip().lower(),
+                0,
+            )
+        )
+        self._audio_conversion_bitrate.setCurrentIndex(
+            {128: 0, 160: 1, 192: 2}.get(
+                int(self._config.get("audio_conversion_bitrate_kbps", 160) or 160),
+                1,
+            )
+        )
         self._auto_rebuild.setChecked(bool(self._config.get("auto_rebuild_rockbox_database_after_sync", False)))
         self._verify_background.setChecked(bool(self._config.get("verify_device_in_background", False)))
         self._rockbox_db_mode.setCurrentIndex(
@@ -152,6 +222,18 @@ class DeviceSettingsDialog(QDialog):
             "resync_metadata_changes": self._resync_meta.isChecked(),
             "copy_artwork_to_device": self._copy_artwork.isChecked(),
             "sync_playlists_to_device": self._sync_playlists.isChecked(),
+            "convert_audio_for_device": self._convert_audio.isChecked(),
+            "audio_conversion_mode": {
+                0: "unsupported_or_lossless",
+                1: "above_bitrate_limit",
+                2: "unsupported_lossless_or_above_limit",
+                3: "always",
+            }.get(self._audio_conversion_mode.currentIndex(), "unsupported_or_lossless"),
+            "audio_conversion_codec": {0: "mp3", 1: "aac"}.get(self._audio_conversion_codec.currentIndex(), "mp3"),
+            "audio_conversion_bitrate_kbps": {0: 128, 1: 160, 2: 192}.get(
+                self._audio_conversion_bitrate.currentIndex(),
+                160,
+            ),
             "auto_rebuild_rockbox_database_after_sync": self._auto_rebuild.isChecked(),
             "verify_device_in_background": self._verify_background.isChecked(),
             "rockbox_database_update_mode": {0: "passive", 1: "assisted", 2: "active"}.get(

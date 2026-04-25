@@ -33,10 +33,22 @@ def test_theme_filtering_by_resolution(tmp_dir):
     service = RockboxThemeService()
 
     desktop = service.list_themes(_repo_root(), "320x240")
+    classic3g = service.list_themes(_repo_root(), "160x128")
     nano = service.list_themes(_repo_root(), "176x132")
 
     assert {item["id"] for item in desktop} == {"iPone", "iPone_optimized"}
+    assert {item["id"] for item in classic3g} == {"Galaxy", "iPone_3g"}
     assert {item["id"] for item in nano} == {"iPone_nano2g"}
+
+
+def test_default_profiles_include_ipod_3g(tmp_dir):
+    _config, store = _make_store(tmp_dir)
+
+    profiles = {item["id"]: item for item in store.profiles()}
+
+    assert "ipod-3g" in profiles
+    assert profiles["ipod-3g"]["screen_resolution"] == "160x128"
+    assert profiles["ipod-3g"]["selected_theme"] == "Galaxy"
 
 
 def test_deterministic_ipone_stack_contents():

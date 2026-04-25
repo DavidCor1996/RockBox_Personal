@@ -569,14 +569,14 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000    0x27717
+.debug_info     0x0000000000000000    0x2776e
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0x8df9 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/jewels.o
- .debug_info    0x0000000000008df9     0x73d7 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
- .debug_info    0x00000000000101d0     0x8d67 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(playback_control.o)
- .debug_info    0x0000000000018f37     0x771f /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(highscore.o)
- .debug_info    0x0000000000020656     0x6f94 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(display_text.o)
- .debug_info    0x00000000000275ea      0x12d /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(jewels.160x128x2.o)
+ .debug_info    0x0000000000000000     0x8e0e /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/jewels.o
+ .debug_info    0x0000000000008e0e     0x73e6 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
+ .debug_info    0x00000000000101f4     0x8d7c /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(playback_control.o)
+ .debug_info    0x0000000000018f70     0x772e /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(highscore.o)
+ .debug_info    0x000000000002069e     0x6fa3 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(display_text.o)
+ .debug_info    0x0000000000027641      0x12d /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(jewels.160x128x2.o)
 
 .debug_abbrev   0x0000000000000000     0x13ee
  *(.debug_abbrev)
@@ -599,19 +599,19 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0xa5b6
+.debug_str      0x0000000000000000     0xa5d8
  *(.debug_str)
- .debug_str     0x0000000000000000     0xa5b6 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/jewels.o
-                                       0x5fd6 (size before relaxing)
- .debug_str     0x000000000000a5b6        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
-                                       0x49e1 (size before relaxing)
- .debug_str     0x000000000000a5b6        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(playback_control.o)
-                                       0x940a (size before relaxing)
- .debug_str     0x000000000000a5b6        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(highscore.o)
-                                       0x48e8 (size before relaxing)
- .debug_str     0x000000000000a5b6        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(display_text.o)
-                                       0x42d9 (size before relaxing)
- .debug_str     0x000000000000a5b6        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(jewels.160x128x2.o)
+ .debug_str     0x0000000000000000     0xa5d8 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/jewels.o
+                                       0x5ff8 (size before relaxing)
+ .debug_str     0x000000000000a5d8        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
+                                       0x49f6 (size before relaxing)
+ .debug_str     0x000000000000a5d8        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(playback_control.o)
+                                       0x942c (size before relaxing)
+ .debug_str     0x000000000000a5d8        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(highscore.o)
+                                       0x48fd (size before relaxing)
+ .debug_str     0x000000000000a5d8        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(display_text.o)
+                                       0x42ee (size before relaxing)
+ .debug_str     0x000000000000a5d8        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(jewels.160x128x2.o)
                                         0x140 (size before relaxing)
 
 .debug_loc

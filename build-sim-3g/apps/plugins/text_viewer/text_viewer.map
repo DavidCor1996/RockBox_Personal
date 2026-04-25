@@ -821,23 +821,23 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000    0x6a1af
+.debug_info     0x0000000000000000    0x6a27e
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0x8aff /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/text_viewer/text_viewer.o
- .debug_info    0x0000000000008aff     0x7840 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/text_viewer/tv_action.o
- .debug_info    0x000000000001033f     0x97d4 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/text_viewer/tv_bookmark.o
- .debug_info    0x0000000000019b13     0x7d52 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/text_viewer/tv_display.o
- .debug_info    0x0000000000021865     0x9bc4 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/text_viewer/tv_menu.o
- .debug_info    0x000000000002b429     0x7ace /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/text_viewer/tv_pager.o
- .debug_info    0x0000000000032ef7     0x74da /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/text_viewer/tv_preferences.o
- .debug_info    0x000000000003a3d1     0x75cd /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/text_viewer/tv_reader.o
- .debug_info    0x000000000004199e      0x47d /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/text_viewer/tv_screen_pos.o
- .debug_info    0x0000000000041e1b     0x83e3 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/text_viewer/tv_settings.o
- .debug_info    0x000000000004a1fe     0x7e10 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/text_viewer/tv_text_processor.o
- .debug_info    0x000000000005200e      0x7ae /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/text_viewer/tv_text_reader.o
- .debug_info    0x00000000000527bc     0x78b5 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/text_viewer/tv_window.o
- .debug_info    0x000000000005a071     0x73d7 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
- .debug_info    0x0000000000061448     0x8d67 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(playback_control.o)
+ .debug_info    0x0000000000000000     0x8b0e /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/text_viewer/text_viewer.o
+ .debug_info    0x0000000000008b0e     0x784f /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/text_viewer/tv_action.o
+ .debug_info    0x000000000001035d     0x97e3 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/text_viewer/tv_bookmark.o
+ .debug_info    0x0000000000019b40     0x7d61 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/text_viewer/tv_display.o
+ .debug_info    0x00000000000218a1     0x9bd9 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/text_viewer/tv_menu.o
+ .debug_info    0x000000000002b47a     0x7add /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/text_viewer/tv_pager.o
+ .debug_info    0x0000000000032f57     0x74e9 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/text_viewer/tv_preferences.o
+ .debug_info    0x000000000003a440     0x75dc /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/text_viewer/tv_reader.o
+ .debug_info    0x0000000000041a1c      0x47d /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/text_viewer/tv_screen_pos.o
+ .debug_info    0x0000000000041e99     0x83f2 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/text_viewer/tv_settings.o
+ .debug_info    0x000000000004a28b     0x7e1f /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/text_viewer/tv_text_processor.o
+ .debug_info    0x00000000000520aa      0x7ae /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/text_viewer/tv_text_reader.o
+ .debug_info    0x0000000000052858     0x78c4 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/text_viewer/tv_window.o
+ .debug_info    0x000000000005a11c     0x73e6 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
+ .debug_info    0x0000000000061502     0x8d7c /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(playback_control.o)
 
 .debug_abbrev   0x0000000000000000     0x3d9d
  *(.debug_abbrev)
@@ -878,38 +878,38 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0xbb98
+.debug_str      0x0000000000000000     0xbbba
  *(.debug_str)
- .debug_str     0x0000000000000000     0xbb98 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/text_viewer/text_viewer.o
-                                       0x8e90 (size before relaxing)
- .debug_str     0x000000000000bb98        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/text_viewer/tv_action.o
-                                       0x4cd7 (size before relaxing)
- .debug_str     0x000000000000bb98        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/text_viewer/tv_bookmark.o
-                                       0xa5b1 (size before relaxing)
- .debug_str     0x000000000000bb98        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/text_viewer/tv_display.o
-                                       0x4cff (size before relaxing)
- .debug_str     0x000000000000bb98        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/text_viewer/tv_menu.o
-                                       0x9d2a (size before relaxing)
- .debug_str     0x000000000000bb98        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/text_viewer/tv_pager.o
-                                       0x4bcb (size before relaxing)
- .debug_str     0x000000000000bb98        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/text_viewer/tv_preferences.o
-                                       0x4ae3 (size before relaxing)
- .debug_str     0x000000000000bb98        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/text_viewer/tv_reader.o
-                                       0x4b5a (size before relaxing)
- .debug_str     0x000000000000bb98        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/text_viewer/tv_screen_pos.o
+ .debug_str     0x0000000000000000     0xbbba /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/text_viewer/text_viewer.o
+                                       0x8ea5 (size before relaxing)
+ .debug_str     0x000000000000bbba        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/text_viewer/tv_action.o
+                                       0x4cec (size before relaxing)
+ .debug_str     0x000000000000bbba        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/text_viewer/tv_bookmark.o
+                                       0xa5c6 (size before relaxing)
+ .debug_str     0x000000000000bbba        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/text_viewer/tv_display.o
+                                       0x4d14 (size before relaxing)
+ .debug_str     0x000000000000bbba        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/text_viewer/tv_menu.o
+                                       0x9d4c (size before relaxing)
+ .debug_str     0x000000000000bbba        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/text_viewer/tv_pager.o
+                                       0x4be0 (size before relaxing)
+ .debug_str     0x000000000000bbba        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/text_viewer/tv_preferences.o
+                                       0x4af8 (size before relaxing)
+ .debug_str     0x000000000000bbba        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/text_viewer/tv_reader.o
+                                       0x4b6f (size before relaxing)
+ .debug_str     0x000000000000bbba        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/text_viewer/tv_screen_pos.o
                                         0x7bb (size before relaxing)
- .debug_str     0x000000000000bb98        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/text_viewer/tv_settings.o
-                                       0x4b5d (size before relaxing)
- .debug_str     0x000000000000bb98        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/text_viewer/tv_text_processor.o
-                                       0x4d87 (size before relaxing)
- .debug_str     0x000000000000bb98        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/text_viewer/tv_text_reader.o
+ .debug_str     0x000000000000bbba        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/text_viewer/tv_settings.o
+                                       0x4b72 (size before relaxing)
+ .debug_str     0x000000000000bbba        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/text_viewer/tv_text_processor.o
+                                       0x4d9c (size before relaxing)
+ .debug_str     0x000000000000bbba        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/text_viewer/tv_text_reader.o
                                         0x935 (size before relaxing)
- .debug_str     0x000000000000bb98        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/text_viewer/tv_window.o
-                                       0x4cba (size before relaxing)
- .debug_str     0x000000000000bb98        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
-                                       0x49e1 (size before relaxing)
- .debug_str     0x000000000000bb98        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(playback_control.o)
-                                       0x940a (size before relaxing)
+ .debug_str     0x000000000000bbba        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/text_viewer/tv_window.o
+                                       0x4ccf (size before relaxing)
+ .debug_str     0x000000000000bbba        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
+                                       0x49f6 (size before relaxing)
+ .debug_str     0x000000000000bbba        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(playback_control.o)
+                                       0x942c (size before relaxing)
 
 .debug_loc
  *(.debug_loc)

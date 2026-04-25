@@ -229,6 +229,24 @@ class TestBuildDevicePath:
                     continue
                 assert c not in part, f"Forbidden char '{c}' in path component '{part}'"
 
+    def test_sync_output_ext_overrides_source_extension(self):
+        row = {
+            "album_artist": "Pink Floyd",
+            "artist": "Pink Floyd",
+            "album": "Wish You Were Here",
+            "title": "Shine On",
+            "track_number": 1,
+            "disc_number": 1,
+            "file_path": "/music/shine_on.flac",
+            "sync_output_ext": ".mp3",
+        }
+        result = build_device_path(
+            row,
+            "Music/{album_artist}/{album}",
+            "{track_number:02d} - {title}{ext}",
+        )
+        assert result.endswith(os.path.join("Wish You Were Here", "01 - Shine On.mp3"))
+
 
 # ===========================================================================
 # Tests: SyncPlan
@@ -361,6 +379,39 @@ class TestSyncWorkerRun:
         assert results["failed"] == 0
         dest = os.path.join(env["device_path"], rel_path)
         assert os.path.isfile(dest)
+
+    def test_copies_from_sync_source_path_when_present(self, env):
+        src = _make_source_file(env, "Art", "Alb", "OriginalLossless", ext=".flac", size=1024)
+        cached = os.path.join(env["tmp"], "cache", "device_transcodes", "mock", "OriginalLossless.mp3")
+        os.makedirs(os.path.dirname(cached), exist_ok=True)
+        with open(cached, "wb") as handle:
+            handle.write(b"transcoded-mp3-data")
+
+        rel_path = "Music/Art/Alb/01 - OriginalLossless.mp3"
+        row = {
+            "id": 11,
+            "file_path": src,
+            "sync_source_path": cached,
+            "sync_output_ext": ".mp3",
+            "title": "OriginalLossless",
+            "artist": "Art",
+            "album": "Alb",
+            "metadata_hash": "mh_sync",
+            "file_hash": "fh_sync",
+        }
+
+        plan = SyncPlan()
+        plan.to_copy.append((row, rel_path))
+
+        worker = SyncWorker(plan, env["device_path"], env["config"].db_path)
+        worker.run()
+
+        dest = os.path.join(env["device_path"], rel_path)
+        assert os.path.isfile(dest)
+        with open(dest, "rb") as handle:
+            assert handle.read() == b"transcoded-mp3-data"
+        with open(src, "rb") as handle:
+            assert handle.read() != b"transcoded-mp3-data"
 
     def test_resync_replaces_old_file(self, env):
         src = _make_source_file(env, "Art", "Alb", "Updated", size=4096)
@@ -603,6 +654,54 @@ class TestSyncEnginePlan:
         titles = [dict(r)["title"] if hasattr(r, "keys") else r["title"]
                   for r, _ in plan.to_copy]
         assert "NewTrack" in titles
+
+    def test_plan_uses_transcoded_extension_when_audio_conversion_enabled(self, env, monkeypatch):
+        src = _make_source_file(env, "Art", "Alb", "Lossless", ext=".flac")
+        _insert_track(
+            env["db"],
+            "Lossless",
+            "Art",
+            "Alb",
+            file_path=src,
+            metadata_hash="src_meta",
+            file_hash="src_file",
+            codec="FLAC",
+            bitrate=950,
+        )
+        env["config"].set("convert_audio_for_device", True)
+        env["config"].set("audio_conversion_mode", "unsupported_or_lossless")
+        env["config"].set("audio_conversion_codec", "mp3")
+        env["config"].set("audio_conversion_bitrate_kbps", 160)
+
+        engine = self._make_engine(env)
+
+        def fake_prepare(track_row, device_key, settings):
+            row = dict(track_row)
+            row.update(
+                {
+                    "sync_source_path": os.path.join(env["tmp"], "cache", "device_transcodes", "mock", "Lossless.mp3"),
+                    "sync_output_ext": ".mp3",
+                    "sync_transcoded": True,
+                    "bitrate": 160,
+                    "codec": "MP3",
+                    "file_size": 123456,
+                    "file_hash": "transcoded_file_hash",
+                    "metadata_hash": "transcoded_meta_hash",
+                }
+            )
+            return row, {"converted": True, "cache_path": row["sync_source_path"], "reason": "transcoded"}
+
+        monkeypatch.setattr(engine._audio_transcoder, "prepare_track_for_sync", fake_prepare)
+
+        plan = engine.build_sync_plan()
+
+        assert plan.transcode_count == 1
+        assert plan.copy_count == 1
+        row, rel_path = plan.to_copy[0]
+        assert dict(row)["sync_source_path"].endswith("Lossless.mp3")
+        assert rel_path.endswith(".mp3")
+        assert dict(row)["metadata_hash"] == "transcoded_meta_hash"
+        assert dict(row)["file_hash"] == "transcoded_file_hash"
 
     def test_plan_matched_track_not_copied(self, env):
         """A track that already matches a device track should not be in to_copy."""

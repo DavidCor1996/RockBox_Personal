@@ -15,6 +15,8 @@ _PREVIEW_AUDIO_EXTENSIONS = (".flac", ".mp3", ".ogg", ".wav", ".m4a", ".aac", ".
 
 def _guess_resolution(name):
     lowered = str(name or "").lower()
+    if "build-sim-3g" in lowered or "ipod3g" in lowered:
+        return "160x128"
     if "nano2g" in lowered:
         return "176x132"
     return "320x240"
@@ -44,7 +46,11 @@ class RockboxSimulatorService:
                     "simdisk_path": simdisk,
                     "rockbox_root": simdisk_rb,
                     "screen_resolution": _guess_resolution(target_id),
-                    "device_model": "iPod nano 2G" if "nano2g" in target_id.lower() else "iPod Classic / Video",
+                    "device_model": (
+                        "iPod 3G"
+                        if ("build-sim-3g" in target_id.lower() or "ipod3g" in target_id.lower())
+                        else ("iPod nano 2G" if "nano2g" in target_id.lower() else "iPod Classic / Video")
+                    ),
                 }
             )
         return targets

@@ -100,8 +100,46 @@ def _make_repo(repo_root):
     ):
         _write_bmp(os.path.join(repo_root, "wps", "iPone_nano2g", name), 176, 132, "#333333")
 
+    _write_text(
+        os.path.join(repo_root, "themes", "Galaxy.cfg"),
+        "\n".join(
+            [
+                "wps: /.rockbox/wps/Galaxy.wps",
+                "sbs: /.rockbox/wps/Galaxy.sbs",
+                "fms: /.rockbox/wps/Galaxy.fms",
+                "background color: FFFFFF",
+                "foreground color: 000000",
+                "font: /.rockbox/fonts/12-Adobe-Helvetica.fnt",
+                "line selector start color: E0E0E0",
+                "line selector end color: B0B0B0",
+                "line selector text color: 000000",
+                "list separator color: 808080",
+                "",
+            ]
+        ),
+    )
+    _write_text(os.path.join(repo_root, "wps", "Galaxy.wps"), "%wd\n")
+    _write_text(os.path.join(repo_root, "wps", "Galaxy.sbs"), "%wd\n")
+    _write_text(os.path.join(repo_root, "wps", "Galaxy.fms"), "%wd\n")
+    for name in (
+        "Wallpaper.bmp",
+        "WallpaperAlt.bmp",
+        "ChargeWallpaper.bmp",
+        "ChargeWallpaperAlt.bmp",
+        "ChargeWallpaperThird.bmp",
+        "ChargeWallpaperFourth.bmp",
+        "wpsbackdrop-160x128x2.bmp",
+    ):
+        _write_bmp(os.path.join(repo_root, "wps", "Galaxy", name), 160, 128, "#BBBBBB")
+
 
 def _profile(repo_root, resolution="320x240"):
+    if resolution == "160x128":
+        theme = "Galaxy"
+    elif resolution == "320x240":
+        theme = "iPone"
+    else:
+        theme = "iPone_nano2g"
     return {
         "id": f"profile-{resolution}",
         "name": f"Profile {resolution}",
@@ -109,7 +147,7 @@ def _profile(repo_root, resolution="320x240"):
         "source_repo_path": repo_root,
         "device_mount_path": "",
         "backup_location": os.path.join(repo_root, ".backups", resolution),
-        "selected_theme": "iPone" if resolution == "320x240" else "iPone_nano2g",
+        "selected_theme": theme,
     }
 
 
@@ -198,6 +236,20 @@ def test_preview_state_generation_is_profile_aware(tmp_dir):
     assert preview["height"] == 132
     assert preview["menu_backdrop_path"].endswith("wps/iPone_nano2g/wpsbackdrop-176x132x16.bmp")
     assert preview["preview_modes"] == ["simulator"]
+
+
+def test_preview_state_generation_supports_galaxy(tmp_dir):
+    repo_root = os.path.join(tmp_dir, "repo")
+    _make_repo(repo_root)
+    service = ThemeDesignerService()
+
+    variant = service.new_variant(repo_root, _profile(repo_root, "160x128"), "Classic")
+    preview = service.build_preview_state(repo_root, _profile(repo_root, "160x128"), variant)
+
+    assert preview["base_theme_id"] == "Galaxy"
+    assert preview["width"] == 160
+    assert preview["height"] == 128
+    assert preview["menu_backdrop_path"].endswith("wps/Galaxy/wpsbackdrop-160x128x2.bmp")
 
 
 def test_generated_bundle_deploys_with_existing_deploy_flow(tmp_dir):
@@ -510,5 +562,5 @@ def test_x11_simulator_mode_prefers_embedded_surface_when_xdotool_exists(monkeyp
     widget._preview_mode.setCurrentIndex(widget._preview_mode.findData("simulator"))
 
     assert widget._preview_stack.currentWidget() is widget._preview
-    assert widget.current_variant_data()["preview_screen"] == "wps"
+    assert widget.current_variant_data()["preview_screen"] == "sbs"
     widget.deleteLater()

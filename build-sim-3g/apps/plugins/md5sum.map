@@ -480,11 +480,11 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000    0x17f5b
+.debug_info     0x0000000000000000    0x17f88
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0x9b7f /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/md5sum.o
- .debug_info    0x0000000000009b7f     0x73d7 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
- .debug_info    0x0000000000010f56     0x7005 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(md5.o)
+ .debug_info    0x0000000000000000     0x9b8e /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/md5sum.o
+ .debug_info    0x0000000000009b8e     0x73e6 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
+ .debug_info    0x0000000000010f74     0x7014 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(md5.o)
 
 .debug_abbrev   0x0000000000000000      0xc0f
  *(.debug_abbrev)
@@ -501,14 +501,14 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0xa02e
+.debug_str      0x0000000000000000     0xa043
  *(.debug_str)
- .debug_str     0x0000000000000000     0xa02e /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/md5sum.o
-                                       0xa564 (size before relaxing)
- .debug_str     0x000000000000a02e        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
-                                       0x49e1 (size before relaxing)
- .debug_str     0x000000000000a02e        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(md5.o)
-                                       0x42c7 (size before relaxing)
+ .debug_str     0x0000000000000000     0xa043 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/md5sum.o
+                                       0xa579 (size before relaxing)
+ .debug_str     0x000000000000a043        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
+                                       0x49f6 (size before relaxing)
+ .debug_str     0x000000000000a043        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(md5.o)
+                                       0x42dc (size before relaxing)
 
 .debug_loc
  *(.debug_loc)

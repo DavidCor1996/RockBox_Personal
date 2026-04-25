@@ -79,6 +79,10 @@ DEVICE_OVERRIDE_KEYS = frozenset(
         "device_music_template",
         "device_file_template",
         "verify_device_in_background",
+        "convert_audio_for_device",
+        "audio_conversion_mode",
+        "audio_conversion_codec",
+        "audio_conversion_bitrate_kbps",
     }
 )
 
@@ -106,6 +110,10 @@ class Config:
         "duration_match_tolerance_seconds": 2.0,
         "copy_artwork_to_device": True,
         "sync_playlists_to_device": True,
+        "convert_audio_for_device": False,
+        "audio_conversion_mode": "unsupported_or_lossless",
+        "audio_conversion_codec": "mp3",
+        "audio_conversion_bitrate_kbps": 160,
         "enable_online_artwork_lookup": False,
         "prefer_local_artwork": True,
         "fetch_hires_online_artwork": True,

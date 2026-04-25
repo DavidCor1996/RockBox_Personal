@@ -522,13 +522,13 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000    0x1755b
+.debug_info     0x0000000000000000    0x17588
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0x7d83 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/jackpot.o
- .debug_info    0x0000000000007d83     0x73d7 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
- .debug_info    0x000000000000f15a     0x758d /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(pluginlib_actions.o)
- .debug_info    0x00000000000166e7      0xd47 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(picture.o)
- .debug_info    0x000000000001742e      0x12d /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(jackpot_slots.30x420x1.o)
+ .debug_info    0x0000000000000000     0x7d92 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/jackpot.o
+ .debug_info    0x0000000000007d92     0x73e6 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
+ .debug_info    0x000000000000f178     0x759c /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(pluginlib_actions.o)
+ .debug_info    0x0000000000016714      0xd47 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(picture.o)
+ .debug_info    0x000000000001745b      0x12d /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(jackpot_slots.30x420x1.o)
 
 .debug_abbrev   0x0000000000000000      0xeab
  *(.debug_abbrev)
@@ -549,17 +549,17 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0x5938
+.debug_str      0x0000000000000000     0x594d
  *(.debug_str)
- .debug_str     0x0000000000000000     0x5938 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/jackpot.o
-                                       0x5d2d (size before relaxing)
- .debug_str     0x0000000000005938        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
-                                       0x49e1 (size before relaxing)
- .debug_str     0x0000000000005938        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(pluginlib_actions.o)
-                                       0x5b32 (size before relaxing)
- .debug_str     0x0000000000005938        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(picture.o)
+ .debug_str     0x0000000000000000     0x594d /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/jackpot.o
+                                       0x5d42 (size before relaxing)
+ .debug_str     0x000000000000594d        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
+                                       0x49f6 (size before relaxing)
+ .debug_str     0x000000000000594d        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(pluginlib_actions.o)
+                                       0x5b47 (size before relaxing)
+ .debug_str     0x000000000000594d        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(picture.o)
                                         0x76c (size before relaxing)
- .debug_str     0x0000000000005938        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(jackpot_slots.30x420x1.o)
+ .debug_str     0x000000000000594d        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/bitmaps/libpluginbitmaps.a(jackpot_slots.30x420x1.o)
                                         0x14e (size before relaxing)
 
 .debug_loc

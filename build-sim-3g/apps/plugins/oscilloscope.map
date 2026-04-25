@@ -755,20 +755,20 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000    0x54f4b
+.debug_info     0x0000000000000000    0x54ff0
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0x9e75 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/oscilloscope.o
- .debug_info    0x0000000000009e75     0x73d7 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
- .debug_info    0x000000000001124c     0x6e66 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(gcc-support.o)
- .debug_info    0x00000000000180b2     0x71a2 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(helper.o)
- .debug_info    0x000000000001f254     0x74d5 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(configfile.o)
- .debug_info    0x0000000000026729     0x8dc4 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(osd.o)
- .debug_info    0x000000000002f4ed     0x71f0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(xlcd_scroll.o)
- .debug_info    0x00000000000366dd     0x792b /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(grey_core.o)
- .debug_info    0x000000000003e008     0x84a3 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(grey_draw.o)
- .debug_info    0x00000000000464ab     0x7689 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(grey_parm.o)
- .debug_info    0x000000000004db34     0x6ce7 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(xlcd_core.o)
- .debug_info    0x000000000005481b      0x730 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/libfixedpoint.a(fixedpoint.o)
+ .debug_info    0x0000000000000000     0x9e84 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/oscilloscope.o
+ .debug_info    0x0000000000009e84     0x73e6 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
+ .debug_info    0x000000000001126a     0x6e75 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(gcc-support.o)
+ .debug_info    0x00000000000180df     0x71b1 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(helper.o)
+ .debug_info    0x000000000001f290     0x74e4 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(configfile.o)
+ .debug_info    0x0000000000026774     0x8dd3 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(osd.o)
+ .debug_info    0x000000000002f547     0x71ff /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(xlcd_scroll.o)
+ .debug_info    0x0000000000036746     0x793a /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(grey_core.o)
+ .debug_info    0x000000000003e080     0x84b2 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(grey_draw.o)
+ .debug_info    0x0000000000046532     0x7698 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(grey_parm.o)
+ .debug_info    0x000000000004dbca     0x6cf6 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(xlcd_core.o)
+ .debug_info    0x00000000000548c0      0x730 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/libfixedpoint.a(fixedpoint.o)
 
 .debug_abbrev   0x0000000000000000     0x3018
  *(.debug_abbrev)
@@ -803,31 +803,31 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0x576c
+.debug_str      0x0000000000000000     0x5781
  *(.debug_str)
- .debug_str     0x0000000000000000     0x576c /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/oscilloscope.o
-                                       0x51c4 (size before relaxing)
- .debug_str     0x000000000000576c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
-                                       0x49e1 (size before relaxing)
- .debug_str     0x000000000000576c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(gcc-support.o)
-                                       0x423e (size before relaxing)
- .debug_str     0x000000000000576c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(helper.o)
-                                       0x49e3 (size before relaxing)
- .debug_str     0x000000000000576c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(configfile.o)
-                                       0x430d (size before relaxing)
- .debug_str     0x000000000000576c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(osd.o)
-                                       0x4eb6 (size before relaxing)
- .debug_str     0x000000000000576c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(xlcd_scroll.o)
-                                       0x42d4 (size before relaxing)
- .debug_str     0x000000000000576c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(grey_core.o)
-                                       0x4a2e (size before relaxing)
- .debug_str     0x000000000000576c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(grey_draw.o)
-                                       0x4b2b (size before relaxing)
- .debug_str     0x000000000000576c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(grey_parm.o)
-                                       0x4a3d (size before relaxing)
- .debug_str     0x000000000000576c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(xlcd_core.o)
-                                       0x4251 (size before relaxing)
- .debug_str     0x000000000000576c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/libfixedpoint.a(fixedpoint.o)
+ .debug_str     0x0000000000000000     0x5781 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/oscilloscope.o
+                                       0x51d9 (size before relaxing)
+ .debug_str     0x0000000000005781        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
+                                       0x49f6 (size before relaxing)
+ .debug_str     0x0000000000005781        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(gcc-support.o)
+                                       0x4253 (size before relaxing)
+ .debug_str     0x0000000000005781        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(helper.o)
+                                       0x49f8 (size before relaxing)
+ .debug_str     0x0000000000005781        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(configfile.o)
+                                       0x4322 (size before relaxing)
+ .debug_str     0x0000000000005781        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(osd.o)
+                                       0x4ecb (size before relaxing)
+ .debug_str     0x0000000000005781        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(xlcd_scroll.o)
+                                       0x42e9 (size before relaxing)
+ .debug_str     0x0000000000005781        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(grey_core.o)
+                                       0x4a43 (size before relaxing)
+ .debug_str     0x0000000000005781        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(grey_draw.o)
+                                       0x4b40 (size before relaxing)
+ .debug_str     0x0000000000005781        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(grey_parm.o)
+                                       0x4a52 (size before relaxing)
+ .debug_str     0x0000000000005781        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/libplugin.a(xlcd_core.o)
+                                       0x4266 (size before relaxing)
+ .debug_str     0x0000000000005781        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/lib/libfixedpoint.a(fixedpoint.o)
                                         0x285 (size before relaxing)
 
 .debug_loc

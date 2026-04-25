@@ -1,5 +1,49 @@
 # iPod Nano 3G Bring-up Notes
 
+## 2026-04-25 Progress-doc reconciliation
+
+Reviewed the current notes against the actual local Nano 3G `wInd3x` source.
+
+Correction:
+
+- the local file
+  - `/tmp/wInd3x/pkg/cfw/defang_wtf.go`
+  is no longer a small two-patch Nano 3G defanger
+- it is currently a broad staged/experimental branch with:
+  - many restored original control-flow sites
+  - an active loader callback stub
+  - an active readiness stub
+  - an active UART immediate-return patch
+  - additional marker/probe stubs in free WTF body space
+
+Therefore current hardware results should be read as:
+
+- outcomes from an experimental local Nano 3G WTF patch branch
+
+not simply:
+
+- stock Nano 3G `wInd3x` behavior
+- or only the early `0x1990` / `0x19b8` patch pair
+
+MacPod note:
+
+- realizing the device is a **MacPod** rather than a **WinPod** does **not**
+  currently explain the observed failures
+- all confirmed blockers so far happen before normal filesystem/partition
+  handling would matter
+
+MacPod/WinPod is still relevant later for:
+
+- restore/repartition workflows
+- HFS+ vs FAT32 expectations
+- mass-storage/update behavior after successful boot
+
+But it is not the current root cause for:
+
+- DFU payload black-screen behavior
+- WTF-mode stalls at `05ac:1242`
+- `cfw run` failing to reach RetailOS UI
+
 ## Current Safe Boundary
 
 - Simulator support and safe-mode hardware scaffolding are already in-tree.

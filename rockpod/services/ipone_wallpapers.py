@@ -307,6 +307,10 @@ class IPoneWallpaperService:
     @staticmethod
     def _asset_dir(profile: Dict) -> str:
         theme = str(profile.get("selected_theme") or "").strip().lower()
+        if theme == "galaxy":
+            return "Galaxy"
+        if theme == "ipone_3g" or str(profile.get("screen_resolution") or "") == "160x128":
+            return "iPone_3g"
         if "nano2g" in theme or str(profile.get("screen_resolution") or "") == "176x132":
             return "iPone_nano2g"
         return "iPone"

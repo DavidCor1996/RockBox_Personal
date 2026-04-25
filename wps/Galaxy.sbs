@@ -1,0 +1,76 @@
+# Galaxy - SBS
+%wd
+%xl(S,MenuBackdrop.bmp)
+%xl(W,Wallpaper.bmp)
+%xl(A,WallpaperAlt.bmp)
+%xl(C,ChargeWallpaper.bmp)
+
+%V(0,0,-,-,1)%VB
+%?bp<%xd(C)|%?mh<%xd(A)|%xd(S)>>
+%V(0,0,-,-,-)
+
+%Vi(-,12,30,56,88,1)%Vf(000000)%Vb(FFFFFF)
+%Lb(GalaxyMenuItem,56,10)
+
+%?bp<%Vd(ChargeTop)%Vd(ChargeClock)%Vd(ChargeMeta)|%?mh<%Vd(LockTop)%Vd(LockClock)%Vd(LockDate)%Vd(LockCard)|%Vd(ThemeLabel)%Vd(Clock)%Vd(Date)%Vd(NowLabel)%Vd(NowTitle)%Vd(NowState)>>
+
+%Vl(GalaxyMenuItem,0,0,56,10,1)
+%?Lc<%dr(28,1,26,8,000000)|>
+%Vf(000000)
+%s%LT
+
+%Vl(ThemeLabel,80,6,32,10,1)
+%Vf(FFFFFF)
+%al%?Lt<%?if(%Lt, =, Rockbox)<iPod|%Lt>|iPod>
+
+%Vl(Clock,104,6,44,10,1)
+%Vf(FFFFFF)
+%ar%?cc<%cl:%cM|--:-->
+
+%Vl(Date,82,24,66,8,1)
+%Vf(FFFFFF)
+%ac%?cu<Sun|Mon|Tue|Wed|Thu|Fri|Sat> %cb %cd
+
+%Vl(NowLabel,84,70,64,8,1)
+%Vf(FFFFFF)
+%acNOW
+
+%Vl(NowTitle,84,84,64,12,1)
+%Vf(FFFFFF)
+%s%al%?it<%it|%?Lt<%Lt|Music>>
+
+%Vl(NowState,84,104,64,8,1)
+%Vf(FFFFFF)
+%ac%?mp<Stopped|Playing|Paused|Seeking|Seeking|Recording|Paused|Radio|Radio>
+
+%Vl(LockTop,8,6,144,10,1)
+%Vf(000000)
+%alGalaxy%ar%?bp<Chg|%bl%%>
+
+%Vl(LockClock,0,28,160,22,1)
+%Vf(000000)
+%ac%?cc<%cl:%cM %cP|--:-->
+
+%Vl(LockDate,0,52,160,10,1)
+%Vf(000000)
+%ac%?cu<Sun|Mon|Tue|Wed|Thu|Fri|Sat> %cb %cd
+
+%Vl(LockCard,24,84,112,18,1)
+%Vf(FFFFFF)
+%ac%?it<%it|Now Playing>
+
+%Vl(LockCard,24,96,112,8,1)
+%Vf(FFFFFF)
+%s%ac%?ia<%ia|%?iA<%iA|Library>>
+
+%Vl(ChargeTop,0,14,160,10,1)
+%Vf(000000)
+%acCharging
+
+%Vl(ChargeClock,0,34,160,24,1)
+%Vf(000000)
+%ac%?cc<%cl:%cM %cP|--:-->
+
+%Vl(ChargeMeta,0,82,160,10,1)
+%Vf(000000)
+%acBattery %bl%%

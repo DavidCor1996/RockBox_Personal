@@ -455,10 +455,10 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000     0xecf2
+.debug_info     0x0000000000000000     0xed10
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0x791b /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/stopwatch.o
- .debug_info    0x000000000000791b     0x73d7 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
+ .debug_info    0x0000000000000000     0x792a /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/stopwatch.o
+ .debug_info    0x000000000000792a     0x73e6 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
 
 .debug_abbrev   0x0000000000000000      0x7cd
  *(.debug_abbrev)
@@ -473,12 +473,12 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0x44ed
+.debug_str      0x0000000000000000     0x4502
  *(.debug_str)
- .debug_str     0x0000000000000000     0x44ed /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/stopwatch.o
-                                       0x4a39 (size before relaxing)
- .debug_str     0x00000000000044ed        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
-                                       0x49e1 (size before relaxing)
+ .debug_str     0x0000000000000000     0x4502 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/stopwatch.o
+                                       0x4a4e (size before relaxing)
+ .debug_str     0x0000000000004502        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
+                                       0x49f6 (size before relaxing)
 
 .debug_loc
  *(.debug_loc)

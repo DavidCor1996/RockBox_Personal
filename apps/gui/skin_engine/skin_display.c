@@ -759,6 +759,15 @@ bool skin_has_sbs(struct gui_wps *gwps)
         draw = data->show_sb_on_wps;
     else if (statusbar_position(gwps->display->screen_type) != STATUSBAR_OFF)
         draw = true;
+
+#if CONFIG_KEYPAD == IPOD_3G_PAD
+    /* The iPod 3G themes in this fork use SBS-driven split layouts with the
+     * regular statusbar disabled. If a valid SBS UI viewport exists, treat the
+     * SBS as active so menu/status rendering does not silently fall back to
+     * the plain non-themed path. */
+    if (!draw && sb_skin_get_info_vp(gwps->display->screen_type) != NULL)
+        draw = true;
+#endif
     return draw;
 }
 

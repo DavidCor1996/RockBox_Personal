@@ -457,10 +457,10 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000     0xf3c1
+.debug_info     0x0000000000000000     0xf3df
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0x7fea /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/wavview.o
- .debug_info    0x0000000000007fea     0x73d7 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
+ .debug_info    0x0000000000000000     0x7ff9 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/wavview.o
+ .debug_info    0x0000000000007ff9     0x73e6 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
 
 .debug_abbrev   0x0000000000000000      0x7f6
  *(.debug_abbrev)
@@ -475,12 +475,12 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0x5911
+.debug_str      0x0000000000000000     0x5926
  *(.debug_str)
- .debug_str     0x0000000000000000     0x5911 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/wavview.o
-                                       0x5e72 (size before relaxing)
- .debug_str     0x0000000000005911        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
-                                       0x49e1 (size before relaxing)
+ .debug_str     0x0000000000000000     0x5926 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/wavview.o
+                                       0x5e87 (size before relaxing)
+ .debug_str     0x0000000000005926        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-3g/apps/plugins/plugin_crt0.o
+                                       0x49f6 (size before relaxing)
 
 .debug_loc
  *(.debug_loc)

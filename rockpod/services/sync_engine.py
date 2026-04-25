@@ -21,6 +21,7 @@ from pathlib import Path
 from PySide6.QtCore import QObject, Signal, QThread, Slot, Qt
 
 from app.database import Database
+from services.audio_transcode import AudioSyncTranscoder
 from services.rockbox_device import detect_rockbox_database_state
 from services.metadata_reader import read_metadata, compute_file_hash, CODEC_MAP, VIDEO_EXTENSIONS
 from services.track_matcher import TrackMatcher
@@ -90,7 +91,7 @@ def build_device_path(track_row, dir_template, file_template):
     album_artist = _sanitize_filename(d.get("album_artist") or d.get("artist") or "Unknown Artist")
     album = _sanitize_filename(d.get("album") or "Unknown Album")
     title = _sanitize_filename(d.get("title") or "Unknown")
-    ext = Path(d.get("file_path", "")).suffix or ".mp3"
+    ext = d.get("sync_output_ext") or Path(d.get("file_path", "")).suffix or ".mp3"
     tn = d.get("track_number")
     dn = d.get("disc_number", 1) or 1
 
@@ -168,6 +169,7 @@ class SyncPlan:
         self.to_delete = []     # list of device_paths to remove (orphaned)
         self.up_to_date = []    # list of MatchResult already present on device
         self.total_bytes = 0
+        self.transcode_count = 0
         self.errors = []
         self.plan_profile = {}
         self.execution_profile = {}
@@ -200,6 +202,8 @@ class SyncPlan:
             parts.append(f"{len(self.up_to_date)} tracks already up to date")
         if self.to_delete:
             parts.append(f"{len(self.to_delete)} orphaned tracks on device")
+        if self.transcode_count:
+            parts.append(f"{self.transcode_count} tracks converted for device sync")
         mb = self.total_bytes / (1024 * 1024)
         if mb > 0:
             parts.append(f"{mb:.1f} MB to transfer")
@@ -261,9 +265,9 @@ class SyncWorker(QObject):
                     return
 
                 row = dict(track_row) if hasattr(track_row, "keys") else track_row
-                src = row.get("file_path", "")
+                src = row.get("sync_source_path") or row.get("file_path", "")
                 dest = os.path.join(self._device_mount, rel_path)
-                desc = f"Copying tracks: {os.path.basename(src)}"
+                desc = f"Copying tracks: {os.path.basename(row.get('file_path', '') or src)}"
                 self.progress.emit(i + 1, total, desc)
 
                 copy_started = time.perf_counter()
@@ -294,8 +298,8 @@ class SyncWorker(QObject):
                     return
 
                 row = dict(track_row) if hasattr(track_row, "keys") else track_row
-                src = row.get("file_path", "")
-                desc = f"Copying tracks: {os.path.basename(src)}"
+                src = row.get("sync_source_path") or row.get("file_path", "")
+                desc = f"Copying tracks: {os.path.basename(row.get('file_path', '') or src)}"
                 self.progress.emit(offset + i + 1, total, desc)
 
                 dest = os.path.join(self._device_mount, new_rel_path)
@@ -520,6 +524,9 @@ class SyncEngine(QObject):
         self._config = config
         self._device_detector = device_detector
         self._artwork_manager = artwork_manager
+        self._audio_transcoder = AudioSyncTranscoder(
+            os.path.join(self._config.cache_dir, "device_transcodes")
+        )
         self._thread = None
         self._worker = None
         self._device_tracks = []
@@ -654,6 +661,7 @@ class SyncEngine(QObject):
             "local_fetch_seconds": 0.0,
             "device_fetch_seconds": 0.0,
             "match_seconds": 0.0,
+            "audio_prepare_seconds": 0.0,
             "artwork_generation_seconds": 0.0,
         }
 
@@ -665,6 +673,12 @@ class SyncEngine(QObject):
             local_tracks = self._db.get_all_tracks()
         stage_times["local_fetch_seconds"] = time.perf_counter() - stage_start
         all_local_tracks = local_tracks if not track_ids else self._db.get_all_tracks()
+
+        stage_start = time.perf_counter()
+        local_tracks, transcode_errors, transcode_count = self._prepare_tracks_for_sync(local_tracks)
+        stage_times["audio_prepare_seconds"] = time.perf_counter() - stage_start
+        plan.errors.extend(transcode_errors)
+        plan.transcode_count = transcode_count
 
         stage_start = time.perf_counter()
         device_tracks = self.get_device_tracks()
@@ -776,10 +790,11 @@ class SyncEngine(QObject):
             "build_seconds": time.perf_counter() - t0,
         }
         logger.info(
-            "Sync plan timing: total=%.3fs local_fetch=%.3fs device_fetch=%.3fs match=%.3fs artwork=%.3fs "
+            "Sync plan timing: total=%.3fs local_fetch=%.3fs audio_prepare=%.3fs device_fetch=%.3fs match=%.3fs artwork=%.3fs "
             "ops(copy=%d,resync=%d,artwork=%d,delete=%d,up_to_date=%d)",
             plan.plan_profile["build_seconds"],
             stage_times["local_fetch_seconds"],
+            stage_times["audio_prepare_seconds"],
             stage_times["device_fetch_seconds"],
             stage_times["match_seconds"],
             stage_times["artwork_generation_seconds"],
@@ -874,6 +889,9 @@ class SyncEngine(QObject):
             return {"missing": 0, "resync": 0}
         if self._device_inventory_needs_scan():
             return {"missing": 0, "resync": 0}
+        if self._audio_conversion_enabled():
+            plan = self.build_sync_plan()
+            return {"missing": plan.copy_count, "resync": plan.resync_count}
         device_tracks = self.get_device_tracks()
         if not device_tracks:
             return self._db.get_sync_status_counts(
@@ -899,6 +917,47 @@ class SyncEngine(QObject):
             )
             resync = row["cnt"] if row else 0
         return {"missing": missing, "resync": resync}
+
+    def _audio_conversion_enabled(self):
+        return bool(self._config_value("convert_audio_for_device", False))
+
+    def _audio_conversion_settings(self):
+        return {
+            "enabled": self._audio_conversion_enabled(),
+            "mode": self._config_value("audio_conversion_mode", "unsupported_or_lossless"),
+            "target_codec": self._config_value("audio_conversion_codec", "mp3"),
+            "target_bitrate_kbps": self._config_value("audio_conversion_bitrate_kbps", 160),
+        }
+
+    def _prepare_tracks_for_sync(self, rows):
+        settings = self._audio_conversion_settings()
+        if not settings["enabled"]:
+            return [dict(row) if hasattr(row, "keys") else dict(row) for row in rows], [], 0
+
+        prepared = []
+        errors = []
+        transcode_count = 0
+        for row in rows:
+            item = dict(row) if hasattr(row, "keys") else dict(row)
+            if str(item.get("media_type") or "audio") != "audio":
+                prepared.append(item)
+                continue
+            try:
+                sync_row, info = self._audio_transcoder.prepare_track_for_sync(
+                    item,
+                    self._current_device_key or "device",
+                    settings,
+                )
+            except RuntimeError as exc:
+                title = item.get("title") or os.path.basename(str(item.get("file_path") or "track"))
+                message = f"{title}: {exc}"
+                errors.append(message)
+                logger.warning("Skipping sync for %s", message)
+                continue
+            if info.get("converted"):
+                transcode_count += 1
+            prepared.append(sync_row)
+        return prepared, errors, transcode_count
 
     def _unique_device_path(self, rel_path, used_paths, allow_existing=""):
         """Avoid path collisions while preserving the configured folder layout."""
