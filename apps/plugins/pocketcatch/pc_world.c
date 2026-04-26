@@ -371,6 +371,13 @@ static fb_data pc_world_dex_pixels[PC_WORLD_CREATURE_MAX_W * PC_WORLD_CREATURE_M
 #define PC_POKESTOP_MAX_BALLS 6
 #define PC_POKESTOP_MIN_MONEY 8
 #define PC_POKESTOP_MAX_MONEY 18
+#define PC_STARTUP_ENCOUNTER_COOLDOWN 24
+#define PC_STARTUP_ENCOUNTER_GRACE_STEPS 2
+#define PC_POKESTOP_ENCOUNTER_COOLDOWN (PC_FRAME_HZ * 3)
+#define PC_POKESTOP_ENCOUNTER_GRACE_STEPS 3
+#define PC_POST_ENCOUNTER_COOLDOWN (PC_FRAME_HZ * 5)
+#define PC_POST_ENCOUNTER_GRACE_STEPS 4
+#define PC_LOCAL_ENCOUNTER_CLEAR_RADIUS (PC_WORLD_SAFE_PLAYER_RADIUS + PC_WORLD_TILE_SIZE)
 
 struct pc_spawn_entry {
     int species_id;
@@ -530,6 +537,17 @@ struct pc_save_record_v1 {
     unsigned short caught_counts[64];
 };
 
+union pc_save_scratch {
+    struct pc_save_record current;
+    struct pc_save_record_v11 v11;
+    struct pc_save_record_v10 v10;
+    struct pc_save_record_v9 v9;
+    struct pc_save_record_v8 v8;
+    struct pc_save_record_v7 v7;
+    struct pc_save_record_v4 v4;
+    struct pc_save_record_v1 v1;
+};
+
 enum pc_outdoor_region {
     PC_OUTDOOR_REGION_ROUTE2 = 0,
     PC_OUTDOOR_REGION_FOREST,
@@ -586,6 +604,7 @@ static void player_block_pos(const struct pc_world_state *world,
                              int *block_x, int *block_y);
 static void init_spawns(struct pc_world_state *world);
 static bool outdoor_scene(enum pc_world_scene scene);
+static void load_scene_data(struct pc_world_state *world, enum pc_world_scene scene);
 bool pc_world_save(struct pc_world_state *world);
 static int clampi(int value, int min_value, int max_value);
 static int find_species_with_mode(const struct pc_world_state *world,
@@ -1060,6 +1079,47 @@ static void sanitize_player_trainer(struct pc_world_state *world)
     }
     if (!world->owned_trainers[world->player_trainer])
         world->player_trainer = 0;
+}
+
+static void apply_encounter_grace(struct pc_world_state *world,
+                                  int grace_steps,
+                                  int cooldown_frames)
+{
+    if (world == NULL)
+        return;
+
+    world->encounter_armed = false;
+    world->encounter_grace_steps = MAX(world->encounter_grace_steps, grace_steps);
+    world->encounter_cooldown = MAX(world->encounter_cooldown, cooldown_frames);
+}
+
+static void reset_transient_world_state(struct pc_world_state *world)
+{
+    world->pending_encounter = false;
+    world->pending_species_index = -1;
+    world->last_encounter_slot = -1;
+    world->moving = false;
+    world->step_dx = 0;
+    world->step_dy = 0;
+    world->step_remaining = 0;
+    world->held_move_x = 0;
+    world->held_move_y = 0;
+    world->walk_tick = 0;
+    world->walk_frame = 1;
+    world->encounter_grace_steps = 0;
+    apply_encounter_grace(world,
+                          PC_STARTUP_ENCOUNTER_GRACE_STEPS,
+                          PC_STARTUP_ENCOUNTER_COOLDOWN);
+}
+
+static void clear_pending_encounter_state(struct pc_world_state *world)
+{
+    if (world == NULL)
+        return;
+
+    world->pending_encounter = false;
+    world->pending_species_index = -1;
+    world->last_encounter_slot = -1;
 }
 
 int pc_world_player_trainer_count(void)
@@ -2981,14 +3041,7 @@ static void reset_player_to_safe_scene_position(struct pc_world_state *world)
 
 static bool pc_world_try_load(struct pc_world_state *world)
 {
-    struct pc_save_record record;
-    struct pc_save_record_v11 record_v11;
-    struct pc_save_record_v10 record_v10;
-    struct pc_save_record_v9 record_v9;
-    struct pc_save_record_v8 record_v8;
-    struct pc_save_record_v7 record_v7;
-    struct pc_save_record_v4 record_v4;
-    struct pc_save_record_v1 record_v1;
+    static union pc_save_scratch savebuf;
     enum pc_world_scene scene;
     bool migrated_save = false;
     bool legacy_outdoor_layout = false;
@@ -3001,30 +3054,31 @@ static bool pc_world_try_load(struct pc_world_state *world)
     if (fd < 0)
         return false;
 
-    got = rb->read(fd, &record, sizeof(record));
+    rb->memset(&savebuf, 0, sizeof(savebuf));
+    got = rb->read(fd, &savebuf, sizeof(savebuf));
     rb->close(fd);
-    if (got == (ssize_t)sizeof(record_v1))
+    if (got == (ssize_t)sizeof(savebuf.v1))
     {
-        rb->memcpy(&record_v1, &record, sizeof(record_v1));
-        if (record_v1.magic != PC_SAVE_MAGIC ||
-            record_v1.version != 1 ||
-            record_v1.scene < 0 || record_v1.scene > PC_WORLD_SCENE_MAX)
+        if (savebuf.v1.magic != PC_SAVE_MAGIC ||
+            savebuf.v1.version != 1 ||
+            savebuf.v1.scene < 0 || savebuf.v1.scene > PC_WORLD_SCENE_MAX)
         {
             return false;
         }
 
-        scene = (enum pc_world_scene)record_v1.scene;
-        world->player_x = record_v1.player_x;
-        world->player_y = record_v1.player_y;
+        scene = (enum pc_world_scene)savebuf.v1.scene;
+        world->player_x = savebuf.v1.player_x;
+        world->player_y = savebuf.v1.player_y;
         scale_legacy_player_position(world);
         legacy_outdoor_layout = true;
         scene = migrate_legacy_outdoor_position(world, scene);
         migrated_save = true;
         load_scene_data(world, scene);
-        world->heading = record_v1.heading;
+        world->heading = savebuf.v1.heading;
         rb->memset(world->caught_counts, 0, sizeof(world->caught_counts));
         rb->memset(world->family_candy, 0, sizeof(world->family_candy));
-        rb->memcpy(world->caught_counts, record_v1.caught_counts, sizeof(record_v1.caught_counts));
+        rb->memcpy(world->caught_counts, savebuf.v1.caught_counts,
+                   sizeof(savebuf.v1.caught_counts));
         for (i = 0; i < 64; ++i)
         {
             int family = pc_assets_get_family_index(i);
@@ -3033,217 +3087,217 @@ static bool pc_world_try_load(struct pc_world_state *world)
                 world->family_candy[family] += world->caught_counts[i] * 3;
         }
     }
-    else if (got == (ssize_t)sizeof(record_v4))
+    else if (got == (ssize_t)sizeof(savebuf.v4))
     {
-        rb->memcpy(&record_v4, &record, sizeof(record_v4));
-        if (record_v4.magic != PC_SAVE_MAGIC ||
-            record_v4.version < 2 || record_v4.version > 4 ||
-            record_v4.scene < 0 || record_v4.scene > PC_WORLD_SCENE_MAX)
+        if (savebuf.v4.magic != PC_SAVE_MAGIC ||
+            savebuf.v4.version < 2 || savebuf.v4.version > 4 ||
+            savebuf.v4.scene < 0 || savebuf.v4.scene > PC_WORLD_SCENE_MAX)
         {
             return false;
         }
 
-        scene = (enum pc_world_scene)record_v4.scene;
-        world->player_x = record_v4.player_x;
-        world->player_y = record_v4.player_y;
-        if (record_v4.version < 6)
+        scene = (enum pc_world_scene)savebuf.v4.scene;
+        world->player_x = savebuf.v4.player_x;
+        world->player_y = savebuf.v4.player_y;
+        if (savebuf.v4.version < 6)
         {
             legacy_outdoor_layout = true;
             scene = migrate_legacy_outdoor_position(world, scene);
             migrated_save = true;
         }
-        if (record_v4.version < PC_SAFE_RESET_VERSION)
+        if (savebuf.v4.version < PC_SAFE_RESET_VERSION)
             needs_safe_outdoor_reset = true;
         load_scene_data(world, scene);
-        world->heading = record_v4.heading;
-        rb->memcpy(world->caught_counts, record_v4.caught_counts, sizeof(world->caught_counts));
-        rb->memcpy(world->family_candy, record_v4.family_candy, sizeof(world->family_candy));
+        world->heading = savebuf.v4.heading;
+        rb->memcpy(world->caught_counts, savebuf.v4.caught_counts, sizeof(world->caught_counts));
+        rb->memcpy(world->family_candy, savebuf.v4.family_candy, sizeof(world->family_candy));
         init_progress_defaults(world);
     }
-    else if (got == (ssize_t)sizeof(record_v7))
+    else if (got == (ssize_t)sizeof(savebuf.v7))
     {
-        rb->memcpy(&record_v7, &record, sizeof(record_v7));
-        if (record_v7.magic != PC_SAVE_MAGIC ||
-            record_v7.version < 5 || record_v7.version > 7 ||
-            record_v7.scene < 0 || record_v7.scene > PC_WORLD_SCENE_MAX)
+        if (savebuf.v7.magic != PC_SAVE_MAGIC ||
+            savebuf.v7.version < 5 || savebuf.v7.version > 7 ||
+            savebuf.v7.scene < 0 || savebuf.v7.scene > PC_WORLD_SCENE_MAX)
         {
             return false;
         }
 
-        scene = (enum pc_world_scene)record_v7.scene;
-        world->player_x = record_v7.player_x;
-        world->player_y = record_v7.player_y;
-        if (record_v7.version < 6)
+        scene = (enum pc_world_scene)savebuf.v7.scene;
+        world->player_x = savebuf.v7.player_x;
+        world->player_y = savebuf.v7.player_y;
+        if (savebuf.v7.version < 6)
         {
             legacy_outdoor_layout = true;
             scene = migrate_legacy_outdoor_position(world, scene);
             migrated_save = true;
         }
-        if (record_v7.version < PC_SAFE_RESET_VERSION)
+        if (savebuf.v7.version < PC_SAFE_RESET_VERSION)
             needs_safe_outdoor_reset = true;
         load_scene_data(world, scene);
-        world->heading = record_v7.heading;
-        world->travel_steps = record_v7.travel_steps;
-        world->pokeballs = record_v7.pokeballs;
-        world->money = record_v7.money;
-        rb->memcpy(world->caught_counts, record_v7.caught_counts, sizeof(world->caught_counts));
-        rb->memcpy(world->family_candy, record_v7.family_candy, sizeof(world->family_candy));
+        world->heading = savebuf.v7.heading;
+        world->travel_steps = savebuf.v7.travel_steps;
+        world->pokeballs = savebuf.v7.pokeballs;
+        world->money = savebuf.v7.money;
+        rb->memcpy(world->caught_counts, savebuf.v7.caught_counts, sizeof(world->caught_counts));
+        rb->memcpy(world->family_candy, savebuf.v7.family_candy, sizeof(world->family_candy));
         init_progress_defaults(world);
-        world->travel_steps = record_v7.travel_steps;
-        world->pokeballs = record_v7.pokeballs;
-        world->money = record_v7.money;
-        world->ability_species[PC_FIELD_ABILITY_SURF] = record_v7.ability_species[0];
-        world->ability_owned[PC_FIELD_ABILITY_SURF] = record_v7.ability_owned[0];
+        world->travel_steps = savebuf.v7.travel_steps;
+        world->pokeballs = savebuf.v7.pokeballs;
+        world->money = savebuf.v7.money;
+        world->ability_species[PC_FIELD_ABILITY_SURF] = savebuf.v7.ability_species[0];
+        world->ability_owned[PC_FIELD_ABILITY_SURF] = savebuf.v7.ability_owned[0];
     }
-    else if (got == (ssize_t)sizeof(record_v8))
+    else if (got == (ssize_t)sizeof(savebuf.v8))
     {
-        rb->memcpy(&record_v8, &record, sizeof(record_v8));
-        if (record_v8.magic != PC_SAVE_MAGIC ||
-            record_v8.version != 8 ||
-            record_v8.scene < 0 || record_v8.scene > PC_WORLD_SCENE_MAX)
+        if (savebuf.v8.magic != PC_SAVE_MAGIC ||
+            savebuf.v8.version != 8 ||
+            savebuf.v8.scene < 0 || savebuf.v8.scene > PC_WORLD_SCENE_MAX)
         {
             return false;
         }
 
-        scene = (enum pc_world_scene)record_v8.scene;
-        world->player_x = record_v8.player_x;
-        world->player_y = record_v8.player_y;
-        if (record_v8.version < PC_SAFE_RESET_VERSION)
+        scene = (enum pc_world_scene)savebuf.v8.scene;
+        world->player_x = savebuf.v8.player_x;
+        world->player_y = savebuf.v8.player_y;
+        if (savebuf.v8.version < PC_SAFE_RESET_VERSION)
             needs_safe_outdoor_reset = true;
         load_scene_data(world, scene);
-        world->heading = record_v8.heading;
-        world->travel_steps = record_v8.travel_steps;
-        world->pokeballs = record_v8.pokeballs;
-        world->money = record_v8.money;
+        world->heading = savebuf.v8.heading;
+        world->travel_steps = savebuf.v8.travel_steps;
+        world->pokeballs = savebuf.v8.pokeballs;
+        world->money = savebuf.v8.money;
         world->secret_collected_bits = 0;
         rb->memset(world->pokestop_cooldowns, 0, sizeof(world->pokestop_cooldowns));
-        rb->memcpy(world->caught_counts, record_v8.caught_counts, sizeof(world->caught_counts));
-        rb->memcpy(world->family_candy, record_v8.family_candy, sizeof(world->family_candy));
-        rb->memcpy(world->ability_species, record_v8.ability_species, sizeof(world->ability_species));
-        rb->memcpy(world->ability_owned, record_v8.ability_owned, sizeof(world->ability_owned));
-    }
-    else if (got == (ssize_t)sizeof(record_v9))
-    {
-        rb->memcpy(&record_v9, &record, sizeof(record_v9));
-        if (record_v9.magic != PC_SAVE_MAGIC ||
-            record_v9.version != 9 ||
-            record_v9.scene < 0 || record_v9.scene > PC_WORLD_SCENE_MAX)
-        {
-            return false;
-        }
-
-        scene = (enum pc_world_scene)record_v9.scene;
-        world->player_x = record_v9.player_x;
-        world->player_y = record_v9.player_y;
-        if (record_v9.version < PC_SAFE_RESET_VERSION)
-            needs_safe_outdoor_reset = true;
-        load_scene_data(world, scene);
-        world->heading = record_v9.heading;
-        world->travel_steps = record_v9.travel_steps;
-        world->pokeballs = record_v9.pokeballs;
-        world->money = record_v9.money;
-        world->secret_collected_bits = record_v9.secret_collected_bits;
-        rb->memset(world->pokestop_cooldowns, 0, sizeof(world->pokestop_cooldowns));
-        rb->memcpy(world->caught_counts, record_v9.caught_counts, sizeof(world->caught_counts));
-        rb->memcpy(world->family_candy, record_v9.family_candy, sizeof(world->family_candy));
-        rb->memcpy(world->ability_species, record_v9.ability_species, sizeof(world->ability_species));
-        rb->memcpy(world->ability_owned, record_v9.ability_owned, sizeof(world->ability_owned));
-    }
-    else if (got == (ssize_t)sizeof(record_v10))
-    {
-        rb->memcpy(&record_v10, &record, sizeof(record_v10));
-        if (record_v10.magic != PC_SAVE_MAGIC ||
-            record_v10.version != 10 ||
-            record_v10.scene < 0 || record_v10.scene > PC_WORLD_SCENE_MAX)
-        {
-            return false;
-        }
-
-        scene = (enum pc_world_scene)record_v10.scene;
-        world->player_x = record_v10.player_x;
-        world->player_y = record_v10.player_y;
-        if (record_v10.version < PC_SAFE_RESET_VERSION)
-            needs_safe_outdoor_reset = true;
-        load_scene_data(world, scene);
-        world->heading = record_v10.heading;
-        world->travel_steps = record_v10.travel_steps;
-        world->pokeballs = record_v10.pokeballs;
-        world->money = record_v10.money;
-        world->secret_collected_bits = record_v10.secret_collected_bits;
-        rb->memcpy(world->pokestop_cooldowns, record_v10.pokestop_cooldowns,
-                   sizeof(world->pokestop_cooldowns));
-        rb->memcpy(world->caught_counts, record_v10.caught_counts, sizeof(world->caught_counts));
-        rb->memcpy(world->family_candy, record_v10.family_candy, sizeof(world->family_candy));
-        rb->memcpy(world->ability_species, record_v10.ability_species,
+        rb->memcpy(world->caught_counts, savebuf.v8.caught_counts, sizeof(world->caught_counts));
+        rb->memcpy(world->family_candy, savebuf.v8.family_candy, sizeof(world->family_candy));
+        rb->memcpy(world->ability_species, savebuf.v8.ability_species,
                    sizeof(world->ability_species));
-        rb->memcpy(world->ability_owned, record_v10.ability_owned, sizeof(world->ability_owned));
+        rb->memcpy(world->ability_owned, savebuf.v8.ability_owned, sizeof(world->ability_owned));
+    }
+    else if (got == (ssize_t)sizeof(savebuf.v9))
+    {
+        if (savebuf.v9.magic != PC_SAVE_MAGIC ||
+            savebuf.v9.version != 9 ||
+            savebuf.v9.scene < 0 || savebuf.v9.scene > PC_WORLD_SCENE_MAX)
+        {
+            return false;
+        }
+
+        scene = (enum pc_world_scene)savebuf.v9.scene;
+        world->player_x = savebuf.v9.player_x;
+        world->player_y = savebuf.v9.player_y;
+        if (savebuf.v9.version < PC_SAFE_RESET_VERSION)
+            needs_safe_outdoor_reset = true;
+        load_scene_data(world, scene);
+        world->heading = savebuf.v9.heading;
+        world->travel_steps = savebuf.v9.travel_steps;
+        world->pokeballs = savebuf.v9.pokeballs;
+        world->money = savebuf.v9.money;
+        world->secret_collected_bits = savebuf.v9.secret_collected_bits;
+        rb->memset(world->pokestop_cooldowns, 0, sizeof(world->pokestop_cooldowns));
+        rb->memcpy(world->caught_counts, savebuf.v9.caught_counts, sizeof(world->caught_counts));
+        rb->memcpy(world->family_candy, savebuf.v9.family_candy, sizeof(world->family_candy));
+        rb->memcpy(world->ability_species, savebuf.v9.ability_species,
+                   sizeof(world->ability_species));
+        rb->memcpy(world->ability_owned, savebuf.v9.ability_owned, sizeof(world->ability_owned));
+    }
+    else if (got == (ssize_t)sizeof(savebuf.v10))
+    {
+        if (savebuf.v10.magic != PC_SAVE_MAGIC ||
+            savebuf.v10.version != 10 ||
+            savebuf.v10.scene < 0 || savebuf.v10.scene > PC_WORLD_SCENE_MAX)
+        {
+            return false;
+        }
+
+        scene = (enum pc_world_scene)savebuf.v10.scene;
+        world->player_x = savebuf.v10.player_x;
+        world->player_y = savebuf.v10.player_y;
+        if (savebuf.v10.version < PC_SAFE_RESET_VERSION)
+            needs_safe_outdoor_reset = true;
+        load_scene_data(world, scene);
+        world->heading = savebuf.v10.heading;
+        world->travel_steps = savebuf.v10.travel_steps;
+        world->pokeballs = savebuf.v10.pokeballs;
+        world->money = savebuf.v10.money;
+        world->secret_collected_bits = savebuf.v10.secret_collected_bits;
+        rb->memcpy(world->pokestop_cooldowns, savebuf.v10.pokestop_cooldowns,
+                   sizeof(world->pokestop_cooldowns));
+        rb->memcpy(world->caught_counts, savebuf.v10.caught_counts, sizeof(world->caught_counts));
+        rb->memcpy(world->family_candy, savebuf.v10.family_candy, sizeof(world->family_candy));
+        rb->memcpy(world->ability_species, savebuf.v10.ability_species,
+                   sizeof(world->ability_species));
+        rb->memcpy(world->ability_owned, savebuf.v10.ability_owned, sizeof(world->ability_owned));
         world->buddy_species = -1;
         world->buddy_steps = 0;
     }
-    else if (got == (ssize_t)sizeof(record_v11))
+    else if (got == (ssize_t)sizeof(savebuf.v11))
     {
-        rb->memcpy(&record_v11, &record, sizeof(record_v11));
-        if (record_v11.magic != PC_SAVE_MAGIC ||
-            record_v11.version != 11 ||
-            record_v11.scene < 0 || record_v11.scene > PC_WORLD_SCENE_MAX)
+        if (savebuf.v11.magic != PC_SAVE_MAGIC ||
+            savebuf.v11.version != 11 ||
+            savebuf.v11.scene < 0 || savebuf.v11.scene > PC_WORLD_SCENE_MAX)
         {
             return false;
         }
 
-        scene = (enum pc_world_scene)record_v11.scene;
-        world->player_x = record_v11.player_x;
-        world->player_y = record_v11.player_y;
-        if (record_v11.version < PC_SAFE_RESET_VERSION)
+        scene = (enum pc_world_scene)savebuf.v11.scene;
+        world->player_x = savebuf.v11.player_x;
+        world->player_y = savebuf.v11.player_y;
+        if (savebuf.v11.version < PC_SAFE_RESET_VERSION)
             needs_safe_outdoor_reset = true;
         load_scene_data(world, scene);
-        world->heading = record_v11.heading;
-        world->travel_steps = record_v11.travel_steps;
-        world->buddy_species = record_v11.buddy_species;
-        world->buddy_steps = record_v11.buddy_steps;
-        world->pokeballs = record_v11.pokeballs;
-        world->money = record_v11.money;
-        world->secret_collected_bits = record_v11.secret_collected_bits;
+        world->heading = savebuf.v11.heading;
+        world->travel_steps = savebuf.v11.travel_steps;
+        world->buddy_species = savebuf.v11.buddy_species;
+        world->buddy_steps = savebuf.v11.buddy_steps;
+        world->pokeballs = savebuf.v11.pokeballs;
+        world->money = savebuf.v11.money;
+        world->secret_collected_bits = savebuf.v11.secret_collected_bits;
         world->player_trainer = 0;
         world->owned_trainers[0] = 1;
-        rb->memcpy(world->pokestop_cooldowns, record_v11.pokestop_cooldowns,
+        rb->memcpy(world->pokestop_cooldowns, savebuf.v11.pokestop_cooldowns,
                    sizeof(world->pokestop_cooldowns));
-        rb->memcpy(world->caught_counts, record_v11.caught_counts, sizeof(world->caught_counts));
-        rb->memcpy(world->family_candy, record_v11.family_candy, sizeof(world->family_candy));
-        rb->memcpy(world->ability_species, record_v11.ability_species,
+        rb->memcpy(world->caught_counts, savebuf.v11.caught_counts, sizeof(world->caught_counts));
+        rb->memcpy(world->family_candy, savebuf.v11.family_candy, sizeof(world->family_candy));
+        rb->memcpy(world->ability_species, savebuf.v11.ability_species,
                    sizeof(world->ability_species));
-        rb->memcpy(world->ability_owned, record_v11.ability_owned, sizeof(world->ability_owned));
+        rb->memcpy(world->ability_owned, savebuf.v11.ability_owned, sizeof(world->ability_owned));
     }
-    else if (got == (ssize_t)sizeof(record))
+    else if (got == (ssize_t)sizeof(savebuf.current))
     {
-        if (record.magic != PC_SAVE_MAGIC ||
-            record.version != 12 ||
-            record.scene < 0 || record.scene > PC_WORLD_SCENE_MAX)
+        if (savebuf.current.magic != PC_SAVE_MAGIC ||
+            savebuf.current.version != 12 ||
+            savebuf.current.scene < 0 || savebuf.current.scene > PC_WORLD_SCENE_MAX)
         {
             return false;
         }
 
-        scene = (enum pc_world_scene)record.scene;
-        world->player_x = record.player_x;
-        world->player_y = record.player_y;
-        if (record.version < PC_SAFE_RESET_VERSION)
+        scene = (enum pc_world_scene)savebuf.current.scene;
+        world->player_x = savebuf.current.player_x;
+        world->player_y = savebuf.current.player_y;
+        if (savebuf.current.version < PC_SAFE_RESET_VERSION)
             needs_safe_outdoor_reset = true;
         load_scene_data(world, scene);
-        world->heading = record.heading;
-        world->travel_steps = record.travel_steps;
-        world->buddy_species = record.buddy_species;
-        world->buddy_steps = record.buddy_steps;
-        world->pokeballs = record.pokeballs;
-        world->money = record.money;
-        world->secret_collected_bits = record.secret_collected_bits;
-        world->player_trainer = record.player_trainer;
-        rb->memcpy(world->owned_trainers, record.owned_trainers, sizeof(world->owned_trainers));
-        rb->memcpy(world->pokestop_cooldowns, record.pokestop_cooldowns,
+        world->heading = savebuf.current.heading;
+        world->travel_steps = savebuf.current.travel_steps;
+        world->buddy_species = savebuf.current.buddy_species;
+        world->buddy_steps = savebuf.current.buddy_steps;
+        world->pokeballs = savebuf.current.pokeballs;
+        world->money = savebuf.current.money;
+        world->secret_collected_bits = savebuf.current.secret_collected_bits;
+        world->player_trainer = savebuf.current.player_trainer;
+        rb->memcpy(world->owned_trainers, savebuf.current.owned_trainers,
+                   sizeof(world->owned_trainers));
+        rb->memcpy(world->pokestop_cooldowns, savebuf.current.pokestop_cooldowns,
                    sizeof(world->pokestop_cooldowns));
-        rb->memcpy(world->caught_counts, record.caught_counts, sizeof(world->caught_counts));
-        rb->memcpy(world->family_candy, record.family_candy, sizeof(world->family_candy));
-        rb->memcpy(world->ability_species, record.ability_species,
+        rb->memcpy(world->caught_counts, savebuf.current.caught_counts,
+                   sizeof(world->caught_counts));
+        rb->memcpy(world->family_candy, savebuf.current.family_candy,
+                   sizeof(world->family_candy));
+        rb->memcpy(world->ability_species, savebuf.current.ability_species,
                    sizeof(world->ability_species));
-        rb->memcpy(world->ability_owned, record.ability_owned, sizeof(world->ability_owned));
+        rb->memcpy(world->ability_owned, savebuf.current.ability_owned,
+                   sizeof(world->ability_owned));
     }
     else
     {
@@ -3255,6 +3309,7 @@ static bool pc_world_try_load(struct pc_world_state *world)
     sanitize_field_abilities(world);
     sanitize_buddy(world);
     sanitize_player_trainer(world);
+    reset_transient_world_state(world);
     reload_player_trainer_assets(world);
     world->dex_index = find_species_with_mode(world, 0, 1, true);
     if (world->dex_index < 0)
@@ -3461,7 +3516,7 @@ static void init_spawns(struct pc_world_state *world)
     for (i = 0; i < PC_WORLD_MAX_SPAWNS; ++i)
         configure_spawn_slot(world, i, respawns[i][0], respawns[i][1]);
 
-    world->encounter_cooldown = MAX(world->encounter_cooldown, 12);
+    apply_encounter_grace(world, 1, 12);
 }
 
 static void maybe_move_spawn(struct pc_world_state *world, struct pc_world_spawn *spawn)
@@ -3482,6 +3537,44 @@ static void deactivate_spawn_slot(struct pc_world_state *world, int slot)
     spawn->dir_x = 0;
     spawn->dir_y = 0;
     clear_bitmap(&world->assets.creature[slot]);
+}
+
+static void suppress_local_encounters(struct pc_world_state *world,
+                                      int radius_px,
+                                      int grace_steps,
+                                      int cooldown_frames)
+{
+    int i;
+    int radius_sq;
+
+    if (world == NULL)
+        return;
+
+    clear_pending_encounter_state(world);
+    apply_encounter_grace(world, grace_steps, cooldown_frames);
+
+    if (!outdoor_scene(world->scene))
+        return;
+
+    radius_sq = radius_px * radius_px;
+    for (i = 0; i < PC_WORLD_MAX_SPAWNS; ++i)
+    {
+        struct pc_world_spawn *spawn = &world->spawns[i];
+        int spawn_x = spawn->active ? spawn->x : block_center_x(world, spawn->home_block_x);
+        int spawn_y = spawn->active ? spawn->y
+                                    : block_center_y(world, spawn->home_block_y) +
+                                      PC_WORLD_SPAWN_Y_OFFSET;
+        int dx = world->player_x - spawn_x;
+        int dy = world->player_y - spawn_y;
+
+        if (radius_px > 0 && dx * dx + dy * dy > radius_sq)
+            continue;
+
+        if (spawn->active)
+            deactivate_spawn_slot(world, i);
+
+        spawn->respawn_frames = MAX(spawn->respawn_frames, random_spawn_delay() + 8);
+    }
 }
 
 static void maybe_activate_spawn_slot(struct pc_world_state *world, int slot)
@@ -3682,6 +3775,10 @@ static void close_pokestop_overlay(struct pc_world_state *world)
     world->pokestop_reward_balls = 0;
     world->pokestop_reward_money = 0;
     world->pokestop_spun = false;
+    suppress_local_encounters(world,
+                              -1,
+                              PC_POKESTOP_ENCOUNTER_GRACE_STEPS,
+                              PC_POKESTOP_ENCOUNTER_COOLDOWN);
 }
 
 static void open_pokestop_overlay(struct pc_world_state *world, int index)
@@ -3702,6 +3799,10 @@ static void open_pokestop_overlay(struct pc_world_state *world, int index)
     world->pokestop_reward_balls = 0;
     world->pokestop_reward_money = 0;
     world->pokestop_spun = false;
+    suppress_local_encounters(world,
+                              -1,
+                              PC_POKESTOP_ENCOUNTER_GRACE_STEPS,
+                              PC_POKESTOP_ENCOUNTER_COOLDOWN);
 }
 
 static void grant_pokestop_rewards(struct pc_world_state *world)
@@ -4891,6 +4992,7 @@ void pc_world_init(struct pc_world_state *world)
         world->dex_index = 0;
     if (world->bag_index < 0)
         world->bag_index = world->dex_index;
+    reset_transient_world_state(world);
     update_camera(world, true);
 }
 
@@ -5733,6 +5835,8 @@ void pc_world_update(struct pc_world_state *world, const struct pc_world_command
     int next_y = world->player_y;
     bool moved = false;
     bool completed_step = false;
+    bool encounter_check_step = false;
+    bool allow_encounter_check = false;
     bool spawn_region_active = false;
     int i;
 
@@ -5933,7 +6037,18 @@ void pc_world_update(struct pc_world_state *world, const struct pc_world_command
         tick_pokestop_cooldowns(world);
         world->travel_steps++;
         award_buddy_progress(world, 1);
+        if (world->encounter_grace_steps > 0)
+        {
+            world->encounter_grace_steps--;
+            encounter_check_step = false;
+        }
+        else
+        {
+            encounter_check_step = true;
+        }
     }
+
+    allow_encounter_check = moved || completed_step;
 
     if (spawn_region_active && completed_step)
     {
@@ -5954,7 +6069,9 @@ void pc_world_update(struct pc_world_state *world, const struct pc_world_command
             }
         }
 
-        if ((world->frame & 1) == 0)
+        if ((world->frame & 1) == 0 &&
+            world->encounter_grace_steps <= 0 &&
+            world->encounter_cooldown <= 0)
         {
             for (i = 0; i < PC_WORLD_MAX_SPAWNS; ++i)
                 maybe_activate_spawn_slot(world, i);
@@ -5964,7 +6081,7 @@ void pc_world_update(struct pc_world_state *world, const struct pc_world_command
     if (world->encounter_cooldown > 0)
         world->encounter_cooldown--;
 
-    if (!spawn_region_active)
+    if (!spawn_region_active || !allow_encounter_check || !encounter_check_step)
         return;
 
     for (i = 0; i < PC_WORLD_MAX_SPAWNS; ++i)
@@ -6013,8 +6130,7 @@ void pc_world_finish_encounter(struct pc_world_state *world,
 
     species_index = clamp_species_index(species_index);
 
-    world->pending_encounter = false;
-    world->pending_species_index = -1;
+    reset_transient_world_state(world);
 
     if (!outdoor_scene(world->scene))
         return;
@@ -6022,15 +6138,11 @@ void pc_world_finish_encounter(struct pc_world_state *world,
     if (world->pokeballs > 0)
         world->pokeballs--;
 
-    if (world->last_encounter_slot >= 0 &&
-        world->last_encounter_slot < PC_WORLD_MAX_SPAWNS)
-    {
-        deactivate_spawn_slot(world, world->last_encounter_slot);
-        world->spawns[world->last_encounter_slot].respawn_frames +=
-            outcome == PC_CATCH_OUTCOME_CAUGHT ? 2 : 0;
-    }
-
-    world->encounter_cooldown = 18;
+    init_spawns(world);
+    suppress_local_encounters(world,
+                              -1,
+                              PC_POST_ENCOUNTER_GRACE_STEPS,
+                              PC_POST_ENCOUNTER_COOLDOWN);
     if (outcome == PC_CATCH_OUTCOME_CAUGHT && species_index < PC_POKEDEX_MAX)
     {
         world->caught_counts[species_index]++;
@@ -6054,14 +6166,13 @@ void pc_world_cancel_encounter(struct pc_world_state *world)
     if (world == NULL)
         return;
 
-    world->pending_encounter = false;
-    world->pending_species_index = -1;
-    if (world->last_encounter_slot >= 0 &&
-        world->last_encounter_slot < PC_WORLD_MAX_SPAWNS)
-    {
-        deactivate_spawn_slot(world, world->last_encounter_slot);
-    }
-    world->encounter_cooldown = MAX(world->encounter_cooldown, 12);
+    reset_transient_world_state(world);
+    if (outdoor_scene(world->scene))
+        init_spawns(world);
+    suppress_local_encounters(world,
+                              -1,
+                              PC_POST_ENCOUNTER_GRACE_STEPS,
+                              PC_POST_ENCOUNTER_COOLDOWN);
     set_notice(world, "Encounter skipped", "Keep walking to look around");
     pc_world_save(world);
 }

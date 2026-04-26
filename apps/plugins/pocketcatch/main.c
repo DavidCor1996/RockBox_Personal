@@ -32,6 +32,9 @@ static enum plugin_status run_pocketcatch(void)
     while (true)
     {
         long event = rb->button_get_w_tmo(PC_FRAME_TICKS);
+        bool hard_quit = (event & BUTTON_MENU) &&
+                         (event & BUTTON_SELECT) &&
+                         !(event & (BUTTON_REPEAT | BUTTON_REL));
 
         if (event == SYS_USB_CONNECTED ||
             rb->default_event_handler(event) == SYS_USB_CONNECTED)
@@ -41,6 +44,12 @@ static enum plugin_status run_pocketcatch(void)
         }
 
         rb->backlight_on();
+
+        if (hard_quit)
+        {
+            pc_game.world.quit_requested = true;
+            break;
+        }
 
         if (pc_game.mode == PC_MODE_WORLD && !world_wheel_mode)
         {

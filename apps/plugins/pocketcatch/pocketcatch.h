@@ -403,6 +403,7 @@ struct pc_world_state {
     int step_dy;
     int step_remaining;
     int encounter_cooldown;
+    int encounter_grace_steps;
     int last_encounter_slot;
     int pending_species_index;
     int menu_index;
@@ -429,6 +430,7 @@ struct pc_world_state {
     enum pc_world_view view;
     bool moving;
     bool map_dirty;
+    bool encounter_armed;
     bool pending_encounter;
     bool quit_requested;
     bool pokestop_spun;

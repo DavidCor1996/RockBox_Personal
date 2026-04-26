@@ -1051,6 +1051,20 @@ static void draw_cached_tile(unsigned char tile_id, int screen_x, int screen_y)
                         width, height);
 }
 
+static int normalize_tileset_tile_id(unsigned char raw_tile_id, int tile_count)
+{
+    int tile_id = raw_tile_id;
+
+    /* Interior blocksets use signed BG tile numbering for tiles in the 0x80-0xff range. */
+    if (tile_id >= 0x80)
+        tile_id -= 0x80;
+
+    if (tile_id < 0 || tile_id >= tile_count || tile_id >= PC_WORLD_TILESET_MAX)
+        return -1;
+
+    return tile_id;
+}
+
 static void draw_map(const struct pc_world_state *world)
 {
     const unsigned char (*tiles)[8][8];
@@ -1102,7 +1116,13 @@ static void draw_map(const struct pc_world_state *world)
             {
                 for (sub_x = 0; sub_x < 4; ++sub_x)
                 {
-                    draw_cached_tile(blocks[block_id][sub_y][sub_x],
+                    int tile_id = normalize_tileset_tile_id(
+                        blocks[block_id][sub_y][sub_x], tile_count);
+
+                    if (tile_id < 0)
+                        continue;
+
+                    draw_cached_tile((unsigned char)tile_id,
                                      block_x + sub_x * PC_WORLD_SUBTILE_SIZE,
                                      block_y + sub_y * PC_WORLD_SUBTILE_SIZE);
                 }
