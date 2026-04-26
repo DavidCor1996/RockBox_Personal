@@ -68,6 +68,23 @@ bool sb_skin_is_ipod3g_galaxy_theme(void)
 #endif
 }
 
+#if CONFIG_KEYPAD == IPOD_3G_PAD
+static void sb_ipod3g_galaxy_draw_right_pane(void)
+{
+    lcd_set_foreground(LCD_DARKGRAY);
+    lcd_vline(72, 0, LCD_HEIGHT - 1);
+    lcd_set_foreground(LCD_BLACK);
+    lcd_fillrect(73, 0, LCD_WIDTH - 73, LCD_HEIGHT);
+
+    lcd_set_foreground(LCD_WHITE);
+    lcd_fillrect(80, 5, 28, 12);
+    lcd_fillrect(112, 5, 36, 12);
+
+    lcd_set_foreground(LCD_LIGHTGRAY);
+    lcd_fillrect(84, 22, 64, 12);
+}
+#endif
+
 bool sb_skin_theme_owns_fullscreen(enum screen_type screen)
 {
     return sbs_loaded[screen] && sbs_fullscreen_ui[screen];
@@ -274,6 +291,10 @@ void sb_skin_update(enum screen_type screen, bool force)
         }
     }
 #endif
+#if CONFIG_KEYPAD == IPOD_3G_PAD
+    if (screen == SCREEN_MAIN && sb_skin_is_ipod3g_galaxy_theme())
+        force = true;
+#endif
     if (TIME_AFTER(current_tick, next_update[i]) || force || force_waiting)
     {
         force_waiting = false;
@@ -307,6 +328,7 @@ void sb_skin_update(enum screen_type screen, bool force)
 
                 snprintf(timebuf, sizeof(timebuf), "%d:%02d", hour, minute);
 
+                sb_ipod3g_galaxy_draw_right_pane();
                 lcd_setfont(FONT_UI);
                 lcd_set_foreground(LCD_WHITE);
                 lcd_set_background(LCD_BLACK);
@@ -317,7 +339,7 @@ void sb_skin_update(enum screen_type screen, bool force)
                 font_getstringsize(brand_bottom, &brand_bottom_w, &brand_bottom_h, FONT_UI);
                 lcd_putsxy(111 - (brand_top_w / 2), 50, brand_top);
                 lcd_putsxy(111 - (brand_bottom_w / 2), 66, brand_bottom);
-                lcd_update_rect(74, 6, 78, 72);
+                lcd_update_rect(73, 0, LCD_WIDTH - 73, LCD_HEIGHT);
             }
 #endif
         }

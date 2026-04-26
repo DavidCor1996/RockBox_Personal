@@ -25,6 +25,9 @@
 #define PC_BALL_PATH           PC_ASSET_ROOT "/sprites/balls/ball_default_idle_0.bmp"
 #define PC_PACK_JSON_PATH      PC_ASSET_ROOT "/pack.json"
 #define PC_SAVE_PATH           PC_ASSET_ROOT_ALT "/save.dat"
+#define PC_MUSIC_ROOT_PATH     "/Music"
+#define PC_MUSIC_HISTORY_PATH  PC_ASSET_ROOT_ALT "/music_history.dat"
+#define PC_MUSIC_UNLOCKS_PATH  PC_ASSET_ROOT_ALT "/unlocked_songs.dat"
 
 #define PC_BG_MAX_BYTES        (LCD_WIDTH * LCD_HEIGHT * sizeof(fb_data))
 #define PC_CREATURE_MAX_W      112
@@ -71,11 +74,19 @@
 #define PC_WHEEL_RELEASE_TICKS MAX(1, HZ / 7)
 
 #define PC_BALL_HOME_X         (LCD_WIDTH / 2)
+#ifdef HAVE_LCD_COLOR
 #define PC_BALL_HOME_Y         (LCD_HEIGHT - 36)
 #define PC_TARGET_X            (LCD_WIDTH / 2)
 #define PC_TARGET_Y            94
 #define PC_GROUND_Y            (LCD_HEIGHT - 54)
 #define PC_CREATURE_BASE_Y     146
+#else
+#define PC_BALL_HOME_Y         (LCD_HEIGHT - 18)
+#define PC_TARGET_X            (LCD_WIDTH / 2)
+#define PC_TARGET_Y            54
+#define PC_GROUND_Y            (LCD_HEIGHT - 28)
+#define PC_CREATURE_BASE_Y     86
+#endif
 #define PC_WORLD_W             10
 #define PC_WORLD_H             9
 #define PC_WORLD_MAP_MAX_W     20
@@ -84,6 +95,10 @@
 #define PC_WORLD_ORIGIN_Y      (-28)
 #define PC_WORLD_MAX_SPAWNS    4
 #define PC_WORLD_WALK_FRAMES   3
+#define PC_WORLD_SECRET_COUNT  8
+#define PC_WORLD_POKESTOP_COUNT 10
+#define PC_POKESTOP_SPIN_TARGET 84
+#define PC_BUDDY_CANDY_STEPS   48
 
 enum pc_phase {
     PC_PHASE_INTRO = 0,
@@ -289,7 +304,18 @@ enum pc_world_scene {
     PC_WORLD_SCENE_VIRIDIAN_POKECENTER,
     PC_WORLD_SCENE_VIRIDIAN_SCHOOL_HOUSE,
     PC_WORLD_SCENE_VIRIDIAN_NICKNAME_HOUSE,
-    PC_WORLD_SCENE_VIRIDIAN_GYM
+    PC_WORLD_SCENE_VIRIDIAN_GYM,
+    PC_WORLD_SCENE_ROUTE2_GATE,
+    PC_WORLD_SCENE_ROUTE2_TRADE_HOUSE,
+    PC_WORLD_SCENE_VIRIDIAN_FOREST_SOUTH_GATE,
+    PC_WORLD_SCENE_VIRIDIAN_FOREST,
+    PC_WORLD_SCENE_VIRIDIAN_FOREST_NORTH_GATE,
+    PC_WORLD_SCENE_PEWTER,
+    PC_WORLD_SCENE_PEWTER_GYM,
+    PC_WORLD_SCENE_PEWTER_MART,
+    PC_WORLD_SCENE_PEWTER_NIDORAN_HOUSE,
+    PC_WORLD_SCENE_PEWTER_SPEECH_HOUSE,
+    PC_WORLD_SCENE_PEWTER_POKECENTER
 };
 
 enum pc_world_view {
@@ -298,11 +324,16 @@ enum pc_world_view {
     PC_WORLD_VIEW_BAG,
     PC_WORLD_VIEW_POKEDEX,
     PC_WORLD_VIEW_MART,
-    PC_WORLD_VIEW_MART_ASSIGN
+    PC_WORLD_VIEW_SONGS,
+    PC_WORLD_VIEW_BUDDY,
+    PC_WORLD_VIEW_FIELD_MOVES,
+    PC_WORLD_VIEW_FIELD_ASSIGN,
+    PC_WORLD_VIEW_POKESTOP
 };
 
 enum pc_field_ability {
     PC_FIELD_ABILITY_SURF = 0,
+    PC_FIELD_ABILITY_CUT,
     PC_FIELD_ABILITY_COUNT
 };
 
@@ -355,22 +386,36 @@ struct pc_world_state {
     int menu_index;
     int mart_index;
     int mart_assign_index;
+    int field_index;
+    int song_index;
     int bag_index;
+    int buddy_index;
     int dex_index;
     int notice_frames;
     int outdoor_region;
     int travel_steps;
+    int buddy_species;
+    int buddy_steps;
+    int pokestop_index;
+    int pokestop_spin_progress;
+    int pokestop_spin_angle;
+    int pokestop_last_wheel_angle;
+    int pokestop_reward_balls;
+    int pokestop_reward_money;
     enum pc_world_scene scene;
     enum pc_world_view view;
     bool moving;
     bool map_dirty;
     bool pending_encounter;
     bool quit_requested;
+    bool pokestop_spun;
     struct pc_message banner;
     struct pc_message detail;
     unsigned char tiles[PC_WORLD_MAP_MAX_H][PC_WORLD_MAP_MAX_W];
     unsigned short pokeballs;
     unsigned short money;
+    unsigned int secret_collected_bits;
+    unsigned short pokestop_cooldowns[PC_WORLD_POKESTOP_COUNT];
     unsigned short caught_counts[PC_POKEDEX_MAX];
     unsigned short family_candy[PC_POKEDEX_MAX];
     signed short ability_species[PC_FIELD_ABILITY_COUNT];
@@ -443,6 +488,15 @@ void pc_world_finish_encounter(struct pc_world_state *world,
                                enum pc_catch_outcome outcome,
                                int species_index);
 void pc_world_cancel_encounter(struct pc_world_state *world);
+int pc_world_song_count(void);
+bool pc_world_song_name(int index, char *buffer, size_t buffer_size);
+bool pc_world_secret_draw_info(const struct pc_world_state *world, int index,
+                               int *metatile_x, int *metatile_y);
+bool pc_world_pokestop_draw_info(const struct pc_world_state *world, int index,
+                                 int *metatile_x, int *metatile_y, bool *ready);
+int pc_world_nearby_count(const struct pc_world_state *world);
+bool pc_world_nearby_name(const struct pc_world_state *world, int index,
+                          char *buffer, size_t buffer_size);
 void pc_world_render_frame(const struct pc_world_state *world);
 
 #endif

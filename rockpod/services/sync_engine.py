@@ -25,7 +25,7 @@ from services.audio_transcode import AudioSyncTranscoder
 from services.rockbox_device import detect_rockbox_database_state
 from services.metadata_reader import read_metadata, compute_file_hash, CODEC_MAP, VIDEO_EXTENSIONS
 from services.track_matcher import TrackMatcher
-from services.device_inventory import device_record_from_info, verify_device_inventory
+from services.device_inventory import device_music_roots, device_record_from_info, verify_device_inventory
 
 logger = logging.getLogger(__name__)
 COPY_CHUNK_SIZE = 4 * 1024 * 1024
@@ -615,24 +615,29 @@ class SyncEngine(QObject):
 
     @staticmethod
     def _device_has_indexable_media_on_disk(device):
-        mount_path = str(getattr(device, "mount_path", "") or "").strip()
-        if not mount_path or not os.path.isdir(mount_path):
+        roots = device_music_roots(device)
+        if not roots:
             return False
-        for root, dirs, files in os.walk(mount_path):
-            dirs[:] = [name for name in dirs if not name.startswith(".rockbox")]
-            for name in files:
-                ext = os.path.splitext(name)[1].lower()
-                if ext in AUDIO_EXTENSIONS:
-                    return True
+        for scan_root in roots:
+            for root, dirs, files in os.walk(scan_root):
+                dirs[:] = [name for name in dirs if not name.startswith(".")]
+                for name in files:
+                    ext = os.path.splitext(name)[1].lower()
+                    if ext in AUDIO_EXTENSIONS:
+                        return True
         return False
 
-    def build_sync_plan(self, track_ids=None, force_full=False):
+    def build_sync_plan(self, track_ids=None, force_full=False, status_callback=None):
         """Analyze what needs to be synced and return a SyncPlan.
 
         Args:
             track_ids: optional set of track IDs to sync (None = all missing)
             force_full: if True, re-copy everything regardless of match state
         """
+        def emit_status(message):
+            if status_callback:
+                status_callback(str(message or "").strip())
+
         t0 = time.perf_counter()
         device = self._device_detector.current_device
         if not device:
@@ -648,7 +653,11 @@ class SyncEngine(QObject):
 
         if self._device_inventory_needs_scan():
             logger.info("Device inventory missing for %s; scanning before sync planning", self._current_device_key)
-            self.scan_device(force_full=False)
+            emit_status("Scanning device contents...")
+            if status_callback:
+                self.scan_device(force_full=False, status_callback=status_callback)
+            else:
+                self.scan_device(force_full=False)
 
         plan = SyncPlan()
         self._ensure_current_device_key()
@@ -667,6 +676,7 @@ class SyncEngine(QObject):
 
         # Get local and device tracks
         stage_start = time.perf_counter()
+        emit_status("Loading library tracks...")
         if track_ids:
             local_tracks = self._db.get_tracks_by_ids(track_ids)
         else:
@@ -675,12 +685,14 @@ class SyncEngine(QObject):
         all_local_tracks = local_tracks if not track_ids else self._db.get_all_tracks()
 
         stage_start = time.perf_counter()
+        emit_status("Preparing tracks for device sync...")
         local_tracks, transcode_errors, transcode_count = self._prepare_tracks_for_sync(local_tracks)
         stage_times["audio_prepare_seconds"] = time.perf_counter() - stage_start
         plan.errors.extend(transcode_errors)
         plan.transcode_count = transcode_count
 
         stage_start = time.perf_counter()
+        emit_status("Loading cached iPod inventory...")
         device_tracks = self.get_device_tracks()
         stage_times["device_fetch_seconds"] = time.perf_counter() - stage_start
 
@@ -700,6 +712,7 @@ class SyncEngine(QObject):
         else:
             # Normal mode: use matcher
             stage_start = time.perf_counter()
+            emit_status("Matching library against iPod...")
             matcher = self._matcher()
             matched, unmatched, orphaned, resync_list = matcher.match_all(
                 local_tracks, device_tracks
@@ -783,6 +796,7 @@ class SyncEngine(QObject):
                     plan.to_delete.append(rel_path)
 
         stage_start = time.perf_counter()
+        emit_status("Planning artwork sync...")
         self._populate_artwork_sync_plan(plan, matched, local_tracks)
         stage_times["artwork_generation_seconds"] = time.perf_counter() - stage_start
         plan.plan_profile = {
@@ -819,9 +833,12 @@ class SyncEngine(QObject):
         """Return whether the cached device inventory can answer match-based counts cheaply."""
         if self._device_inventory_needs_scan():
             return False
+        device_row = self._db.get_device_by_key(self._current_device_key) if self._current_device_key else None
         device_tracks = self._device_tracks
         if not device_tracks:
-            return True
+            if not device_row:
+                return False
+            return bool(dict(device_row).get("last_scan_at"))
         return all(dict(track).get("local_track_id") for track in device_tracks)
 
     def set_current_device(self, device):
@@ -972,7 +989,7 @@ class SyncEngine(QObject):
             candidate = f"{root} ({counter}){ext}"
         return candidate
 
-    def scan_device(self, force_full=False):
+    def scan_device(self, force_full=False, status_callback=None):
         """Verify the current device inventory and refresh the cached index."""
         device = self._device_detector.current_device
         if not device:
@@ -987,6 +1004,7 @@ class SyncEngine(QObject):
             read_metadata,
             compute_file_hash,
             self._config_value("duration_match_tolerance_seconds", 2.0),
+            status_callback=status_callback,
         )
         self._current_device_key = summary.get("device_key", self._current_device_key)
         self.load_cached_device_inventory()
@@ -1370,3 +1388,116 @@ class SyncEngine(QObject):
             -len(path),
             path,
         )
+
+
+class _PlanningDeviceDetector:
+    def __init__(self, device):
+        self.current_device = device
+
+    @property
+    def is_connected(self):
+        return self.current_device is not None
+
+
+class SyncPlanWorker(QObject):
+    finished = Signal(object)
+    error = Signal(str)
+    status = Signal(str)
+
+    def __init__(self, db_path, config, device, artwork_cache_dir, track_ids=None, force_full=False):
+        super().__init__()
+        self._db_path = db_path
+        self._config = config
+        self._device = device
+        self._artwork_cache_dir = artwork_cache_dir
+        self._track_ids = set(track_ids) if track_ids else None
+        self._force_full = force_full
+
+    @Slot()
+    def run(self):
+        db = None
+        artwork = None
+        try:
+            from services.artwork_manager import ArtworkManager
+
+            db = Database(self._db_path, initialize=False)
+            artwork = ArtworkManager(self._artwork_cache_dir, self._config)
+            detector = _PlanningDeviceDetector(self._device)
+            engine = SyncEngine(db, self._config, detector, artwork)
+            with db.write_lock():
+                plan = engine.build_sync_plan(
+                    track_ids=self._track_ids,
+                    force_full=self._force_full,
+                    status_callback=self.status.emit,
+                )
+            self.finished.emit(plan)
+        except Exception as exc:
+            logger.exception("Sync planning failed")
+            self.error.emit(str(exc))
+        finally:
+            if artwork:
+                artwork.shutdown()
+            if db:
+                db.close()
+
+
+class SyncPlanBuilder(QObject):
+    finished = Signal(object)
+    error = Signal(str)
+    status = Signal(str)
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self._thread = None
+        self._worker = None
+
+    @property
+    def is_running(self):
+        return self._thread is not None and self._thread.isRunning()
+
+    def start(self, db_path, config, device, artwork_cache_dir, track_ids=None, force_full=False):
+        if self.is_running:
+            return False
+        self._thread = QThread()
+        self._worker = SyncPlanWorker(
+            db_path,
+            config,
+            device,
+            artwork_cache_dir,
+            track_ids=track_ids,
+            force_full=force_full,
+        )
+        self._worker.moveToThread(self._thread)
+        self._thread.started.connect(self._worker.run)
+        self._worker.finished.connect(self._on_finished, Qt.QueuedConnection)
+        self._worker.error.connect(self._on_error, Qt.QueuedConnection)
+        self._worker.status.connect(self.status, Qt.QueuedConnection)
+        self._thread.start()
+        return True
+
+    @Slot(object)
+    def _on_finished(self, plan):
+        self._cleanup()
+        self.finished.emit(plan)
+
+    @Slot(str)
+    def _on_error(self, message):
+        self._cleanup()
+        self.error.emit(message)
+
+    def _cleanup(self):
+        if self._thread:
+            self._thread.quit()
+            self._thread.wait(3000)
+        if self._worker:
+            try:
+                self._worker.deleteLater()
+            except RuntimeError:
+                pass
+        if self._thread:
+            try:
+                self._thread.deleteLater()
+            except RuntimeError:
+                pass
+        self._worker = None
+        self._thread = None

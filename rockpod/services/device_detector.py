@@ -331,15 +331,22 @@ class DeviceDetector(QObject):
 
     def _probe_mount_path(self, mount_path):
         mount_path = os.path.normpath(str(mount_path or ""))
-        if not mount_path or not os.path.isdir(mount_path):
+        try:
+            is_dir = bool(mount_path) and os.path.isdir(mount_path)
+        except OSError:
+            return None
+        if not is_dir:
             return None
         for marker in ROCKBOX_MARKERS:
-            if os.path.exists(os.path.join(mount_path, marker)):
-                return {
-                    "mount_path": mount_path,
-                    "signature": f"mount:{os.path.realpath(mount_path)}",
-                    "mode": "scan",
-                }
+            try:
+                if os.path.exists(os.path.join(mount_path, marker)):
+                    return {
+                        "mount_path": mount_path,
+                        "signature": f"mount:{os.path.realpath(mount_path)}",
+                        "mode": "scan",
+                    }
+            except OSError:
+                return None
         return None
 
     def _build_device_info(self, candidate):
@@ -356,27 +363,38 @@ class DeviceDetector(QObject):
     def _scan_mount_points(self):
         """Scan common mount paths for a Rockbox device using cheap marker checks."""
         for base in MOUNT_SCAN_PATHS:
-            if not os.path.isdir(base):
+            try:
+                if not os.path.isdir(base):
+                    continue
+            except OSError:
                 continue
             try:
                 entries = os.listdir(base)
-            except PermissionError:
+            except OSError:
                 continue
             for entry in entries:
                 candidate = os.path.join(base, entry)
-                if os.path.isdir(candidate):
-                    found = self._probe_mount_path(candidate)
-                    if found:
-                        return found
-                    try:
-                        for sub in os.listdir(candidate):
-                            sub_path = os.path.join(candidate, sub)
-                            if os.path.isdir(sub_path):
-                                found = self._probe_mount_path(sub_path)
-                                if found:
-                                    return found
-                    except PermissionError:
+                try:
+                    if not os.path.isdir(candidate):
                         continue
+                except OSError:
+                    continue
+                found = self._probe_mount_path(candidate)
+                if found:
+                    return found
+                try:
+                    for sub in os.listdir(candidate):
+                        sub_path = os.path.join(candidate, sub)
+                        try:
+                            if not os.path.isdir(sub_path):
+                                continue
+                        except OSError:
+                            continue
+                        found = self._probe_mount_path(sub_path)
+                        if found:
+                            return found
+                except OSError:
+                    continue
         return None
 
     def eject_device(self):

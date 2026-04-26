@@ -847,13 +847,13 @@ Discarded input sections
                 0x0000000000000000       0x20 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/puzzles/src/penrose.o
  .rodata.CSWTCH.387
                 0x0000000000000000       0x64 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/puzzles/src/penrose.o
- .rodata.acute_post_edge.14021
+ .rodata.acute_post_edge.14031
                 0x0000000000000000       0x30 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/puzzles/src/penrose.o
- .rodata.invphi.14120
+ .rodata.invphi.14130
                 0x0000000000000000       0x10 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/puzzles/src/penrose.o
- .rodata.obtuse_post_edge.14022
+ .rodata.obtuse_post_edge.14032
                 0x0000000000000000       0x30 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/puzzles/src/penrose.o
- .rodata.phi.14119
+ .rodata.phi.14129
                 0x0000000000000000       0x10 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/puzzles/src/penrose.o
  .ARM.attributes
                 0x0000000000000000       0x2a /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/puzzles/src/penrose.o
@@ -2287,17 +2287,17 @@ LOAD /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a
                 0x0000000003f14bb0      0x2da /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/puzzles/rockbox.o
                                         0x2ea (size before relaxing)
  *fill*         0x0000000003f14e8a        0x2 
- .rodata.menu.14411
+ .rodata.menu.14413
                 0x0000000003f14e8c        0xc /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/puzzles/rockbox.o
- .rodata.menu.14470
+ .rodata.menu.14472
                 0x0000000003f14e98        0xc /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/puzzles/rockbox.o
- .rodata.menu.14638
+ .rodata.menu.14640
                 0x0000000003f14ea4        0xc /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/puzzles/rockbox.o
- .rodata.menu__.14410
+ .rodata.menu__.14412
                 0x0000000003f14eb0        0xc /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/puzzles/rockbox.o
- .rodata.menu__.14469
+ .rodata.menu__.14471
                 0x0000000003f14ebc        0xc /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/puzzles/rockbox.o
- .rodata.menu__.14637
+ .rodata.menu__.14639
                 0x0000000003f14ec8        0xc /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/puzzles/rockbox.o
  .rodata.rb_drawing
                 0x0000000003f14ed4       0x68 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/puzzles/rockbox.o
@@ -2306,7 +2306,7 @@ LOAD /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a
                 0x0000000003f14f3c        0xf /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/puzzles/rbwrappers.o
                                          0x13 (size before relaxing)
  *fill*         0x0000000003f14f4b        0x1 
- .rodata.basefix.13767
+ .rodata.basefix.13769
                 0x0000000003f14f4c       0x22 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/puzzles/rbwrappers.o
  *fill*         0x0000000003f14f6e        0x2 
  .rodata.smalloc.str1.4
@@ -2414,9 +2414,9 @@ LOAD /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a
                 0x0000000003f16164       0x10 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/puzzles/src/misc.o
  .rodata.CSWTCH.82
                 0x0000000003f16174       0x10 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/puzzles/src/misc.o
- .rodata.black.13596
+ .rodata.black.13606
                 0x0000000003f16184        0xc /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/puzzles/src/misc.o
- .rodata.white.13597
+ .rodata.white.13607
                 0x0000000003f16190        0xc /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/puzzles/src/misc.o
  .rodata.random_upto.str1.4
                 0x0000000003f1619c       0x7a /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/puzzles/src/random.o
@@ -2505,42 +2505,42 @@ LOAD /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a
  *fill*         0x0000000003f16945        0x3 
  .data.access_counter
                 0x0000000003f16948        0x4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/puzzles/rockbox.o
- .data.allow_repeats.14542
+ .data.allow_repeats.14544
                 0x0000000003f1694c        0x8 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/puzzles/rockbox.o
  .data.cur_font
                 0x0000000003f16954        0x4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/puzzles/rockbox.o
- .data.def.14352
+ .data.def.14354
                 0x0000000003f16958        0xa /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/puzzles/rockbox.o
  *fill*         0x0000000003f16962        0x2 
- .data.falling_edge.14541
+ .data.falling_edge.14543
                 0x0000000003f16964        0x8 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/puzzles/rockbox.o
- .data.force_center_games.14547
+ .data.force_center_games.14549
                 0x0000000003f1696c        0x8 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/puzzles/rockbox.o
- .data.menu_.14409
+ .data.menu_.14411
                 0x0000000003f16974       0x40 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/puzzles/rockbox.o
- .data.menu_.14468
+ .data.menu_.14470
                 0x0000000003f169b4       0x40 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/puzzles/rockbox.o
- .data.menu_.14636
+ .data.menu_.14638
                 0x0000000003f169f4       0x28 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/puzzles/rockbox.o
- .data.mouse_games.14544
+ .data.mouse_games.14546
                 0x0000000003f16a1c        0xc /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/puzzles/rockbox.o
- .data.no_rclick_on_hold.14543
+ .data.no_rclick_on_hold.14545
                 0x0000000003f16a28       0x14 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/puzzles/rockbox.o
- .data.number_chooser_games.14546
+ .data.number_chooser_games.14548
                 0x0000000003f16a3c       0x20 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/puzzles/rockbox.o
- .data.shortcuts_ok.14173
+ .data.shortcuts_ok.14175
                 0x0000000003f16a5c        0x1 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/puzzles/rockbox.o
  *fill*         0x0000000003f16a5d        0x3 
- .data.sticky_mouse_games.14545
+ .data.sticky_mouse_games.14547
                 0x0000000003f16a60       0x10 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/puzzles/rockbox.o
  .data.thread   0x0000000003f16a70        0x4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/puzzles/rockbox.o
  .data.ud_d     0x0000000003f16a74        0x4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/puzzles/rockbox.o
  .data.ud_r     0x0000000003f16a78        0x4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/puzzles/rockbox.o
- .data.v.14152  0x0000000003f16a7c        0x4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/puzzles/rockbox.o
+ .data.v.14154  0x0000000003f16a7c        0x4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/puzzles/rockbox.o
  .data.view_mode
                 0x0000000003f16a80        0x1 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/puzzles/rockbox.o
  *fill*         0x0000000003f16a81        0x3 
- .data.want_spacebar.14540
+ .data.want_spacebar.14542
                 0x0000000003f16a84       0x48 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/puzzles/rockbox.o
  .data.zoom_x   0x0000000003f16acc        0x4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/puzzles/rockbox.o
  .data.zoom_y   0x0000000003f16ad0        0x4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/puzzles/rockbox.o
@@ -2587,7 +2587,7 @@ LOAD /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a
                 0x0000000003f16b44                giant_buffer
  .bss.giant_buffer_len
                 0x0000000003f16b48        0x4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/puzzles/rockbox.o
- .bss.held_count.14151
+ .bss.held_count.14153
                 0x0000000003f16b4c        0x4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/puzzles/rockbox.o
  .bss.help_times
                 0x0000000003f16b50        0x4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/puzzles/rockbox.o
@@ -2624,7 +2624,7 @@ LOAD /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a
  .bss.titlebar  0x0000000003f16bb0        0x4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/puzzles/rockbox.o
  .bss.ud_l      0x0000000003f16bb4        0x4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/puzzles/rockbox.o
  .bss.ud_u      0x0000000003f16bb8        0x4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/puzzles/rockbox.o
- .bss.what.14113
+ .bss.what.14115
                 0x0000000003f16bbc        0x1 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/puzzles/rockbox.o
  *fill*         0x0000000003f16bbd        0x3 
  .bss.zoom_clipd

@@ -290,6 +290,21 @@ fetch_png \
 fetch_png \
     "https://archives.bulbagarden.net/wiki/Special:Redirect/file/New_Bark_Town_HGSS.png" \
     "$tmp_dir/new_bark_town_hgss.png"
+fetch_png \
+    "https://archives.bulbagarden.net/wiki/Special:Redirect/file/Clear_icon_SwSh.png" \
+    "$tmp_dir/weather_clear.png"
+fetch_png \
+    "https://archives.bulbagarden.net/wiki/Special:Redirect/file/Cloudy_icon_SwSh.png" \
+    "$tmp_dir/weather_cloudy.png"
+fetch_png \
+    "https://archives.bulbagarden.net/wiki/Special:Redirect/file/Rain_icon_SwSh.png" \
+    "$tmp_dir/weather_rain.png"
+fetch_png \
+    "https://archives.bulbagarden.net/wiki/Special:Redirect/file/Fog_icon_SwSh.png" \
+    "$tmp_dir/weather_fog.png"
+fetch_png \
+    "https://archives.bulbagarden.net/wiki/Special:Redirect/file/Sandstorm_icon_SwSh.png" \
+    "$tmp_dir/weather_sand.png"
 
 fetch_optional_png \
     "https://archives.bulbagarden.net/wiki/Special:Redirect/file/Ethanwalkdown.png" \
@@ -347,6 +362,16 @@ for dest_root in "$@"; do
     png_to_bmp "$tmp_dir/leaf_menu.png" "$dest_root/sprites/trainers/leaf_menu.bmp" "$MENU_SIZE"
     png_to_bmp "$tmp_dir/new_bark_town_hgss.png" \
         "$dest_root/backgrounds/new_bark_town_hgss.bmp" "493x397>"
+    png_to_bmp "$tmp_dir/weather_clear.png" \
+        "$dest_root/sprites/ui/weather_clear.bmp" "18x18"
+    png_to_bmp "$tmp_dir/weather_cloudy.png" \
+        "$dest_root/sprites/ui/weather_cloudy.bmp" "18x18"
+    png_to_bmp "$tmp_dir/weather_rain.png" \
+        "$dest_root/sprites/ui/weather_rain.bmp" "18x18"
+    png_to_bmp "$tmp_dir/weather_fog.png" \
+        "$dest_root/sprites/ui/weather_fog.bmp" "18x18"
+    png_to_bmp "$tmp_dir/weather_sand.png" \
+        "$dest_root/sprites/ui/weather_sand.bmp" "18x18"
 
     install_frlg_sheet_frames "$tmp_dir/leaf_frlg_walk_sheet.png" \
         "$dest_root/sprites/trainers/leaf_walk_s" 3 0 4

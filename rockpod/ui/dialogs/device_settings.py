@@ -22,6 +22,30 @@ class DeviceSettingsDialog(QDialog):
 
     settings_saved = Signal(dict)
 
+    @staticmethod
+    def _section_label(text):
+        label = QLabel(str(text or "").strip())
+        label.setStyleSheet("font-weight: bold; margin-top: 6px;")
+        return label
+
+    @staticmethod
+    def _helper_label(text):
+        label = QLabel(str(text or "").strip())
+        label.setWordWrap(True)
+        label.setStyleSheet("color: palette(mid); margin-left: 22px;")
+        return label
+
+    def _add_checkbox_row(self, layout, checkbox, description=""):
+        layout.addRow("", checkbox)
+        if description:
+            layout.addRow("", self._helper_label(description))
+
+    def _update_audio_conversion_controls(self):
+        enabled = self._convert_audio.isChecked()
+        self._audio_conversion_mode.setEnabled(enabled)
+        self._audio_conversion_codec.setEnabled(enabled)
+        self._audio_conversion_bitrate.setEnabled(enabled)
+
     def __init__(self, config, device, default_name="iPod", parent=None):
         super().__init__(parent)
         self.setWindowTitle("Device Settings")
@@ -51,25 +75,47 @@ class DeviceSettingsDialog(QDialog):
         self._display_name.setPlaceholderText(self._default_name)
         options_layout.addRow("Display Name:", self._display_name)
 
-        self._auto_sync = QCheckBox("Automatically sync when this iPod is connected")
+        options_layout.addRow("", self._section_label("Sync Behavior"))
+
+        self._auto_sync = QCheckBox("Sync automatically when this iPod connects")
         self._auto_sync.setChecked(bool(self._config.get_effective("auto_sync_on_connect", device=device, default=False)))
-        options_layout.addRow("", self._auto_sync)
+        self._add_checkbox_row(
+            options_layout,
+            self._auto_sync,
+            "Starts a sync as soon as this device is detected.",
+        )
 
-        self._resync_meta = QCheckBox("Resync metadata changes")
+        self._resync_meta = QCheckBox("Update tracks when tags or file content changes")
         self._resync_meta.setChecked(bool(self._config.get_effective("resync_metadata_changes", device=device, default=True)))
-        options_layout.addRow("", self._resync_meta)
+        self._add_checkbox_row(
+            options_layout,
+            self._resync_meta,
+            "Re-copy tracks when metadata, hashes, or renamed output paths no longer match the device copy.",
+        )
 
-        self._copy_artwork = QCheckBox("Copy artwork to device")
+        self._copy_artwork = QCheckBox("Copy album artwork to the iPod")
         self._copy_artwork.setChecked(bool(self._config.get_effective("copy_artwork_to_device", device=device, default=True)))
-        options_layout.addRow("", self._copy_artwork)
+        self._add_checkbox_row(
+            options_layout,
+            self._copy_artwork,
+            "Exports device-ready cover art alongside synced music.",
+        )
 
-        self._sync_playlists = QCheckBox("Sync playlists to device as Rockbox .m3u8 files")
+        self._sync_playlists = QCheckBox("Export playlists as Rockbox .m3u8 files")
         self._sync_playlists.setChecked(bool(self._config.get_effective("sync_playlists_to_device", device=device, default=True)))
-        options_layout.addRow("", self._sync_playlists)
+        self._add_checkbox_row(
+            options_layout,
+            self._sync_playlists,
+            "Writes managed playlist files so Rockbox can browse the same playlists as the desktop library.",
+        )
 
-        self._convert_audio = QCheckBox("Convert audio for this iPod during sync")
+        self._convert_audio = QCheckBox("Convert audio during sync")
         self._convert_audio.setChecked(bool(self._config.get_effective("convert_audio_for_device", device=device, default=False)))
-        options_layout.addRow("", self._convert_audio)
+        self._add_checkbox_row(
+            options_layout,
+            self._convert_audio,
+            "Creates sync-only converted copies for this device. Your local library files stay unchanged.",
+        )
 
         self._audio_conversion_mode = QComboBox()
         self._audio_conversion_mode.addItems(
@@ -115,14 +161,26 @@ class DeviceSettingsDialog(QDialog):
             )
         )
         options_layout.addRow("Converted Bitrate:", self._audio_conversion_bitrate)
+        self._convert_audio.toggled.connect(self._update_audio_conversion_controls)
+        self._update_audio_conversion_controls()
 
-        self._auto_rebuild = QCheckBox("Auto rebuild Rockbox database after sync")
+        options_layout.addRow("", self._section_label("Maintenance"))
+
+        self._auto_rebuild = QCheckBox("Rebuild the Rockbox database after sync")
         self._auto_rebuild.setChecked(bool(self._config.get_effective("auto_rebuild_rockbox_database_after_sync", device=device, default=False)))
-        options_layout.addRow("", self._auto_rebuild)
+        self._add_checkbox_row(
+            options_layout,
+            self._auto_rebuild,
+            "Refreshes Rockbox's tag database so new music appears on-device without a manual rebuild.",
+        )
 
-        self._verify_background = QCheckBox("Verify device contents in background")
+        self._verify_background = QCheckBox("Verify device contents in the background")
         self._verify_background.setChecked(bool(self._config.get_effective("verify_device_in_background", device=device, default=False)))
-        options_layout.addRow("", self._verify_background)
+        self._add_checkbox_row(
+            options_layout,
+            self._verify_background,
+            "Checks the device index after connection without blocking the main window.",
+        )
 
         self._rockbox_db_mode = QComboBox()
         self._rockbox_db_mode.addItems(["Passive", "Assisted", "Active"])
@@ -203,6 +261,7 @@ class DeviceSettingsDialog(QDialog):
                 1,
             )
         )
+        self._update_audio_conversion_controls()
         self._auto_rebuild.setChecked(bool(self._config.get("auto_rebuild_rockbox_database_after_sync", False)))
         self._verify_background.setChecked(bool(self._config.get("verify_device_in_background", False)))
         self._rockbox_db_mode.setCurrentIndex(

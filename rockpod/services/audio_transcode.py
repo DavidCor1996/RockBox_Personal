@@ -177,7 +177,7 @@ class AudioSyncTranscoder:
             return
 
         os.makedirs(os.path.dirname(cache_path), exist_ok=True)
-        tmp_path = cache_path + ".tmp"
+        tmp_path = self._temporary_output_path(cache_path)
         if os.path.exists(tmp_path):
             os.remove(tmp_path)
 
@@ -210,6 +210,13 @@ class AudioSyncTranscoder:
 
         os.replace(tmp_path, cache_path)
         logger.info("Prepared sync transcode: %s -> %s", source_path, cache_path)
+
+    @staticmethod
+    def _temporary_output_path(cache_path: str) -> str:
+        root, ext = os.path.splitext(cache_path)
+        if ext:
+            return f"{root}.tmp{ext}"
+        return cache_path + ".tmp"
 
     @staticmethod
     def _build_ffmpeg_command(ffmpeg_bin: str, source_path: str, target_path: str, target_codec: str, target_bitrate: int):

@@ -146,6 +146,33 @@ class TestSanitizeFilename:
         assert len(result) <= 200
 
 
+class TestDeviceMediaDetection:
+    def test_device_has_indexable_media_on_disk_uses_music_roots(self, env):
+        device = DeviceInfo(env["device_path"])
+
+        stray = os.path.join(env["device_path"], "LooseTrack.flac")
+        with open(stray, "wb") as handle:
+            handle.write(b"x" * 16)
+
+        assert SyncEngine._device_has_indexable_media_on_disk(device) is False
+
+        music_track = os.path.join(env["device_path"], "Music", "Artist", "Album", "01 - Track.flac")
+        os.makedirs(os.path.dirname(music_track), exist_ok=True)
+        with open(music_track, "wb") as handle:
+            handle.write(b"x" * 16)
+
+        assert SyncEngine._device_has_indexable_media_on_disk(device) is True
+
+    def test_device_inventory_has_local_links_false_for_unverified_empty_device(self, env):
+        detector = DeviceDetector(env["config"])
+        detector._current_device = DeviceInfo(env["device_path"])
+        engine = SyncEngine(env["db"], env["config"], detector)
+        engine.set_current_device(detector.current_device)
+
+        assert engine.get_device_tracks() == []
+        assert engine.device_inventory_has_local_links() is False
+
+
 # ===========================================================================
 # Tests: build_device_path
 # ===========================================================================

@@ -10,7 +10,7 @@ from PySide6.QtWidgets import (
     QApplication, QMessageBox, QInputDialog, QMenu, QStackedWidget, QFileDialog,
     QProgressDialog,
 )
-from PySide6.QtCore import Qt, QTimer, Slot
+from PySide6.QtCore import QEventLoop, Qt, QTimer, Slot
 from PySide6.QtGui import QAction, QIcon
 
 from app.config import Config
@@ -28,7 +28,7 @@ from services.device_detector import DeviceDetector, create_mock_device
 from services.device_inventory import DeviceInventoryVerifier, device_record_from_info
 from services.android_media import AndroidMediaImporter, discover_android_sources
 from services.playback import PlaybackService, STATE_STOPPED
-from services.sync_engine import SyncEngine
+from services.sync_engine import SyncEngine, SyncPlanBuilder
 from services.theme_assets import ThemeAssetManager
 from services.video_thumbnails import VideoThumbnailService
 from services.smart_playlists import ensure_default_smart_playlists, evaluate_playlist
@@ -183,8 +183,6 @@ class MainWindow(QMainWindow):
         # off-screen Rockbox panels. Those paths can touch slow removable
         # storage and make startup feel hung if they run synchronously here.
         QTimer.singleShot(0, self._device_detector.start_polling)
-        QTimer.singleShot(150, self._refresh_nonvisible_rockbox_panels)
-
         # Auto-refresh on startup if configured. This loads the DB first and
         # only parses files that are new or changed.
         if self._config.scan_on_startup:
@@ -2004,14 +2002,12 @@ class MainWindow(QMainWindow):
         self._device_verification_running = False
         self._status_bar.set_left_text(f"Using cached device inventory ({cached} tracks)")
         self._update_status_bar()
-        self._update_sync_status()
-        self._refresh_playlists()
+        self._refresh_device_playlists()
         if self._current_view in ("device_music", "device_not_on_ipod"):
             self._refresh_view()
         if self._current_view == "device_root":
             self._update_device_summary()
         self._refresh_current_rockbox_panel()
-        QTimer.singleShot(0, self._refresh_nonvisible_rockbox_panels)
 
         # Only verify in the background if the user enabled it explicitly.
         if self._device_config_value("verify_device_in_background", False):
@@ -2039,11 +2035,10 @@ class MainWindow(QMainWindow):
             self._status_bar.set_left_text("")
         self._update_status_bar()
         self._refresh_view()
-        self._refresh_playlists()
+        self._refresh_device_playlists()
         if self._current_view == "device_root":
             self._update_device_summary()
         self._refresh_current_rockbox_panel()
-        QTimer.singleShot(0, self._refresh_nonvisible_rockbox_panels)
 
     def _refresh_current_rockbox_panel(self):
         if self._current_view == "rockbox_themes":
@@ -2060,21 +2055,6 @@ class MainWindow(QMainWindow):
             self._refresh_game_manager()
         elif self._current_view == "rockbox_simulator":
             self._refresh_simulator_panel()
-
-    def _refresh_nonvisible_rockbox_panels(self):
-        refreshers = [
-            ("rockbox_themes", self._refresh_theme_hub),
-            ("rockbox_wallpapers", self._refresh_ipone_wallpapers),
-            ("rockbox_theme_designer", self._refresh_theme_designer),
-            ("rockbox_boot", self._refresh_boot_manager),
-            ("rockbox_plugins", self._refresh_plugin_manager),
-            ("rockbox_games", self._refresh_game_manager),
-            ("rockbox_simulator", self._refresh_simulator_panel),
-        ]
-        for view_id, refresher in refreshers:
-            if self._current_view == view_id:
-                continue
-            refresher()
 
     def _on_device_space_update(self, device):
         device_key = self._sync_engine.current_device_key
@@ -2350,8 +2330,9 @@ class MainWindow(QMainWindow):
             QMessageBox.warning(self, "No Device", "No Rockbox device is connected.")
             return
 
-        self._status_bar.set_left_text("Planning sync...")
-        plan = self._sync_engine.build_sync_plan()
+        plan = self._build_sync_plan_with_feedback()
+        if plan is None:
+            return
         if plan.total_operations == 0 and not plan.errors:
             self._status_bar.set_left_text("Up to date")
             return
@@ -2370,8 +2351,9 @@ class MainWindow(QMainWindow):
             QMessageBox.warning(self, "No Device", "No Rockbox device is connected.")
             return
 
-        self._status_bar.set_left_text("Planning sync...")
-        plan = self._sync_engine.build_sync_plan(track_ids=track_ids)
+        plan = self._build_sync_plan_with_feedback(track_ids=track_ids)
+        if plan is None:
+            return
         if plan.total_operations == 0:
             self._status_bar.set_left_text("Selected tracks are already synced")
             return
@@ -2381,6 +2363,51 @@ class MainWindow(QMainWindow):
         dialog.sync_confirmed.connect(lambda: self._execute_sync(plan, dialog))
         dialog.sync_cancelled.connect(lambda: self._sync_engine.cancel_sync())
         dialog.exec()
+
+    def _build_sync_plan_with_feedback(self, track_ids=None):
+        self._status_bar.set_left_text("Planning sync...")
+
+        progress = QProgressDialog("Comparing your library with the iPod...", None, 0, 0, self)
+        progress.setWindowTitle("Planning Sync")
+        progress.setWindowModality(Qt.WindowModal)
+        progress.setMinimumDuration(0)
+        progress.setAutoClose(False)
+        progress.setAutoReset(False)
+        progress.setCancelButton(None)
+        progress.setValue(0)
+        progress.setLabelText("Loading library tracks...")
+
+        planner = SyncPlanBuilder(self)
+        loop = QEventLoop(self)
+        result = {"plan": None, "error": ""}
+
+        planner.status.connect(progress.setLabelText)
+        planner.finished.connect(lambda plan: result.update({"plan": plan}))
+        planner.error.connect(lambda message: result.update({"error": message}))
+        planner.finished.connect(loop.quit)
+        planner.error.connect(loop.quit)
+
+        started = planner.start(
+            self._config.db_path,
+            self._config,
+            self._device_detector.current_device,
+            self._config.artwork_cache_dir,
+            track_ids=track_ids,
+        )
+        if not started:
+            progress.close()
+            QMessageBox.warning(self, "Planning Busy", "Sync planning is already in progress.")
+            return None
+
+        progress.show()
+        loop.exec()
+        progress.close()
+
+        if result["error"]:
+            self._status_bar.set_left_text("Sync planning failed")
+            QMessageBox.warning(self, "Sync Planning Failed", result["error"])
+            return None
+        return result["plan"]
 
     def _execute_sync(self, plan, dialog):
         self._sync_dialog = dialog

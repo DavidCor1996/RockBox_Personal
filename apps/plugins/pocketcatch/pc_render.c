@@ -346,6 +346,31 @@ static void draw_window_frame(int x, int y, int w, int h)
     rb->lcd_drawrect(x + 2, y + 2, w - 4, h - 4);
 }
 
+static void draw_missing_asset_box(int x, int y, int w, int h,
+                                   const char *line1, const char *line2)
+{
+    int line_h;
+    int line1_w = 0;
+    int line2_w = 0;
+
+    draw_window_frame(x, y, w, h);
+    rb->font_getstringsize("AG", NULL, &line_h, FONT_SYSFIXED);
+    if (line1 != NULL && line1[0] != '\0')
+    {
+        rb->font_getstringsize(line1, &line1_w, NULL, FONT_SYSFIXED);
+        draw_text_fixed(x + (w - line1_w) / 2,
+                        y + h / 2 - line_h + 1,
+                        PC_PANEL_TEXT, line1);
+    }
+    if (line2 != NULL && line2[0] != '\0')
+    {
+        rb->font_getstringsize(line2, &line2_w, NULL, FONT_SYSFIXED);
+        draw_text_fixed(x + (w - line2_w) / 2,
+                        y + h / 2 + 1,
+                        PC_PANEL_SUB, line2);
+    }
+}
+
 static void draw_trainer_accent(void)
 {
     const struct pc_asset_bitmap *trainer;
@@ -366,30 +391,6 @@ static void draw_trainer_accent(void)
     draw_red_sprite_scaled(pc_red_player_frames[1], x, y, 2, false);
 }
 
-static void draw_creature_fallback(const struct pc_encounter_state *state, int bob)
-{
-    int x = PC_TARGET_X - state->creature->sprite_w / 2;
-    int y = PC_CREATURE_BASE_Y - state->creature->sprite_h + bob;
-    int center_x = x + state->creature->sprite_w / 2;
-    int head_y = y + 20;
-
-    rb->lcd_set_foreground(state->creature->primary);
-    xlcd_fillcircle(center_x, head_y, 20);
-    rb->lcd_fillrect(x + 12, y + 22, state->creature->sprite_w - 24, 24);
-    rb->lcd_fillrect(x + 18, y + 42, 8, 12);
-    rb->lcd_fillrect(x + state->creature->sprite_w - 26, y + 42, 8, 12);
-
-    rb->lcd_set_foreground(state->creature->secondary);
-    xlcd_fillcircle(center_x - 14, head_y - 14, 10);
-    xlcd_fillcircle(center_x + 14, head_y - 14, 10);
-    rb->lcd_fillrect(center_x - 10, y + 36, 20, 8);
-
-    rb->lcd_set_foreground(state->creature->accent);
-    rb->lcd_fillrect(center_x - 10, y + 16, 6, 4);
-    rb->lcd_fillrect(center_x + 4, y + 16, 6, 4);
-    rb->lcd_fillrect(center_x - 6, y + 28, 12, 4);
-}
-
 static void draw_creature(const struct pc_encounter_state *state)
 {
     int bob = ((state->total_frames / 4) & 1) ? 1 : -1;
@@ -403,7 +404,10 @@ static void draw_creature(const struct pc_encounter_state *state)
         return;
     }
 
-    draw_creature_fallback(state, bob);
+    draw_missing_asset_box(PC_TARGET_X - 34,
+                           PC_CREATURE_BASE_Y - 60 + bob,
+                           68, 48,
+                           "NO", "SPRITE");
 }
 
 static bool creature_visible(const struct pc_encounter_state *state)
@@ -445,23 +449,6 @@ static void draw_target_ring(const struct pc_encounter_state *state)
     xlcd_drawcircle(cx, cy, MAX(6, state->ring.radius - 3));
     rb->lcd_drawline(cx - 4, cy, cx + 4, cy);
     rb->lcd_drawline(cx, cy - 4, cx, cy + 4);
-}
-
-static void draw_ball_fallback(int x, int y, int wobble)
-{
-    int radius = 14;
-
-    rb->lcd_set_foreground(LCD_RGBPACK(0xff, 0xff, 0xff));
-    xlcd_fillcircle(x, y, radius);
-    rb->lcd_set_foreground(LCD_RGBPACK(0xe8, 0x48, 0x48));
-    rb->lcd_fillrect(x - radius, y - radius, radius * 2, radius);
-    rb->lcd_set_foreground(LCD_BLACK);
-    rb->lcd_fillrect(x - radius, y - 1, radius * 2, 3);
-    rb->lcd_set_foreground(LCD_WHITE);
-    xlcd_fillcircle(x + wobble * 2, y, 5);
-    rb->lcd_set_foreground(LCD_BLACK);
-    xlcd_drawcircle(x, y, radius);
-    xlcd_drawcircle(x + wobble * 2, y, 5);
 }
 
 static void draw_ball_spin_overlay(int x, int y, int radius,
@@ -545,7 +532,6 @@ static void draw_ball(const struct pc_encounter_state *state)
 {
     int x = PC_BALL_HOME_X;
     int y = PC_BALL_HOME_Y;
-    int wobble = ((state->total_frames / 2) & 1) ? -1 : 1;
     int spin_phase = 0;
     int spin_velocity = 0;
     int radius = 14;
@@ -554,7 +540,6 @@ static void draw_ball(const struct pc_encounter_state *state)
     if (state->phase == PC_PHASE_BALL_HELD)
     {
         y -= 16;
-        wobble = state->input.signed_spin > 0 ? 2 : (state->input.signed_spin < 0 ? -2 : wobble);
         spin_phase = state->input.spin_phase;
         spin_velocity = ball_visual_spin_velocity(state, state->input.spin_velocity);
         if (spin_velocity != 0)
@@ -568,7 +553,6 @@ static void draw_ball(const struct pc_encounter_state *state)
     {
         x = state->throw_state.x;
         y = state->throw_state.y;
-        wobble = state->throw_state.curve_bonus ? 2 : wobble;
         spin_phase = state->throw_state.spin_phase;
         spin_velocity = ball_visual_spin_velocity(state, state->throw_state.spin_velocity);
     }
@@ -576,7 +560,6 @@ static void draw_ball(const struct pc_encounter_state *state)
     {
         x = PC_TARGET_X + state->shake_offset;
         y = PC_GROUND_Y - 4;
-        wobble = 0;
     }
 
     ball_bitmap = select_ball_bitmap(state, spin_phase, spin_velocity);
@@ -591,7 +574,7 @@ static void draw_ball(const struct pc_encounter_state *state)
         return;
     }
 
-    draw_ball_fallback(x, y, wobble);
+    draw_missing_asset_box(x - 16, y - 10, 32, 20, "NO", "BALL");
     draw_ball_spin_overlay(x, y, radius, spin_phase, spin_velocity);
 }
 

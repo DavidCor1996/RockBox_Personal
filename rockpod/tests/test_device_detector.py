@@ -194,3 +194,41 @@ def test_probe_mount_path_normalizes_trailing_slash(config):
 
     assert result is not None
     assert result["mount_path"] == os.path.normpath(config.mock_device_path)
+
+
+def test_scan_mount_points_ignores_io_errors_and_finds_valid_device(config, monkeypatch):
+    config.mock_device_enabled = False
+    detector = DeviceDetector(config)
+
+    broken = "/run/media/david/Media"
+    good_parent = "/run/media/david"
+    good_device = "/run/media/david/IPOD"
+
+    def fake_isdir(path):
+        normalized = os.path.normpath(path)
+        if normalized in {"/run/media", good_parent, good_device}:
+            return True
+        if normalized == broken:
+            raise OSError("Input/output error")
+        return False
+
+    def fake_listdir(path):
+        normalized = os.path.normpath(path)
+        if normalized == "/run/media":
+            return ["david"]
+        if normalized == good_parent:
+            return ["Media", "IPOD"]
+        if normalized == broken:
+            raise OSError("Input/output error")
+        return []
+
+    def fake_probe(path):
+        return _candidate(good_device) if os.path.normpath(path) == good_device else None
+
+    monkeypatch.setattr("services.device_detector.os.path.isdir", fake_isdir)
+    monkeypatch.setattr("services.device_detector.os.listdir", fake_listdir)
+    monkeypatch.setattr(detector, "_probe_mount_path", fake_probe)
+
+    result = detector._scan_mount_points()
+
+    assert result == _candidate(good_device)

@@ -1436,10 +1436,20 @@ MENUITEM_RETURNVALUE(bookmarks, ID2P(LANG_BOOKMARK_MENU_RECENT_BOOKMARKS),
                         Icon_Bookmark);
 MENUITEM_RETURNVALUE(playlists, ID2P(LANG_PLAYLISTS), GO_TO_PLAYLISTS_SCREEN,
                      NULL, Icon_Playlist);
-static const struct browse_folder_info gameboy_folder = {"/gameboy/", SHOW_ALL};
-#if defined(HAVE_LCD_COLOR) && (LCD_WIDTH >= 220)
 static int load_plugin_path_screen(const char *path, const char *param);
 
+static int launch_photos_plugin(void *param)
+{
+    (void)param;
+    return load_plugin_path_screen(PLUGIN_APPS_DIR "/photos.rock", NULL);
+}
+
+MENUITEM_FUNCTION(photos_item, MENU_FUNC_CHECK_RETVAL,
+                  "Photos", launch_photos_plugin,
+                  NULL, Icon_Folder);
+
+static const struct browse_folder_info gameboy_folder = {"/gameboy/", SHOW_ALL};
+#if defined(HAVE_LCD_COLOR) && (LCD_WIDTH >= 220)
 static int launch_gameboy_browser(void* param)
 {
     (void)param;
@@ -1493,6 +1503,7 @@ static struct menu_table menu_table[] = {
     { "database", &db_browser },
 #endif
     { "videos", &videos },
+    { "photos", &photos_item },
     { "games", &gameboy_browser },
     { "podemon_go", &podemon_go_item },
     { "files", &file_browser },
@@ -1533,6 +1544,7 @@ void root_menu_load_from_cfg(void* setting, char *value)
     unsigned int menu_item_count = 0, i;
     bool main_menu_added = false;
     bool games_added = false;
+    bool photos_added = false;
     int insert_at = -1;
 
     if (*value == '-')
@@ -1565,6 +1577,8 @@ void root_menu_load_from_cfg(void* setting, char *value)
                     main_menu_added = true;
                 if (menu_table[i].item == &gameboy_browser)
                     games_added = true;
+                if (menu_table[i].item == &photos_item)
+                    photos_added = true;
                 if (menu_table[i].item == &videos
 #ifdef HAVE_TAGCACHE
                     || menu_table[i].item == &db_browser
@@ -1582,6 +1596,15 @@ void root_menu_load_from_cfg(void* setting, char *value)
         for (i = menu_item_count; i > (unsigned)insert_at; i--)
             root_menu__[i] = root_menu__[i - 1];
         root_menu__[insert_at] = (struct menu_item_ex *)&gameboy_browser;
+        menu_item_count++;
+    }
+    if (!photos_added)
+    {
+        if (insert_at < 0 || (unsigned)insert_at > menu_item_count)
+            insert_at = menu_item_count;
+        for (i = menu_item_count; i > (unsigned)insert_at; i--)
+            root_menu__[i] = root_menu__[i - 1];
+        root_menu__[insert_at] = (struct menu_item_ex *)&photos_item;
         menu_item_count++;
     }
     if (!main_menu_added)
@@ -1795,6 +1818,9 @@ static const char *root_menu_nano2g_label(const struct menu_item_ex *item)
         }
     }
 
+    if (item == &photos_item)
+        return "Photos";
+
     return "Menu";
 }
 
@@ -1832,6 +1858,9 @@ static const char *root_menu_nano2g_glyph(const struct menu_item_ex *item)
 #endif
         }
     }
+
+    if (item == &photos_item)
+        return "P";
 
     return ".";
 }
