@@ -50,6 +50,12 @@ static void clear_encounter_trainer_asset(void)
     pc_encounter_trainer_asset.path[0] = '\0';
 }
 
+void pc_render_reset_trainer_asset(void)
+{
+    pc_encounter_trainer_attempted = false;
+    clear_encounter_trainer_asset();
+}
+
 enum pc_time_mode {
     PC_TIME_DAY = 0,
     PC_TIME_SUNSET,

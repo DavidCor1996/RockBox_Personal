@@ -45,6 +45,30 @@ TILESETS = [
         "png": "reds_house.png",
         "bst": "reds_house.bst",
     },
+    {
+        "comment": "Cavern assets.",
+        "prefix": "pc_red_cavern",
+        "tile_macro": "PC_RED_CAVERN_TILE_COUNT",
+        "block_macro": "PC_RED_CAVERN_BLOCK_COUNT",
+        "png": "cavern.png",
+        "bst": "cavern.bst",
+    },
+    {
+        "comment": "Club assets.",
+        "prefix": "pc_red_club",
+        "tile_macro": "PC_RED_CLUB_TILE_COUNT",
+        "block_macro": "PC_RED_CLUB_BLOCK_COUNT",
+        "png": "club.png",
+        "bst": "club.bst",
+    },
+    {
+        "comment": "Ship assets.",
+        "prefix": "pc_red_ship",
+        "tile_macro": "PC_RED_SHIP_TILE_COUNT",
+        "block_macro": "PC_RED_SHIP_BLOCK_COUNT",
+        "png": "ship.png",
+        "bst": "ship.bst",
+    },
 ]
 
 
@@ -59,7 +83,9 @@ MAPS = [
     ("pc_viridian_nickname_house_blocks", "ViridianNicknameHouse.blk", 4, 4),
     ("pc_viridian_gym_blocks", "ViridianGym.blk", 9, 10),
     ("pc_route2_gate_blocks", "Route2Gate.blk", 4, 5),
+    ("pc_route22_gate_blocks", "Route22Gate.blk", 4, 5),
     ("pc_route2_trade_house_blocks", "Route2TradeHouse.blk", 4, 4),
+    ("pc_route22_blocks", "Route22.blk", 9, 20),
     ("pc_forest_south_gate_blocks", "ViridianForestSouthGate.blk", 4, 5),
     ("pc_forest_north_gate_blocks", "ViridianForestNorthGate.blk", 4, 5),
     ("pc_viridian_forest_blocks", "ViridianForest.blk", 24, 17),
@@ -69,6 +95,22 @@ MAPS = [
     ("pc_pewter_nidoran_house_blocks", "PewterNidoranHouse.blk", 4, 4),
     ("pc_pewter_speech_house_blocks", "PewterSpeechHouse.blk", 4, 4),
     ("pc_pewter_pokecenter_blocks", "PewterPokecenter.blk", 4, 7),
+    ("pc_museum_1f_blocks", "Museum1F.blk", 4, 10),
+    ("pc_museum_2f_blocks", "Museum2F.blk", 4, 7),
+    ("pc_route3_blocks", "Route3.blk", 9, 35),
+    ("pc_route4_blocks", "Route4.blk", 9, 45),
+    ("pc_mt_moon_pokecenter_blocks", "MtMoonPokecenter.blk", 4, 7),
+    ("pc_mt_moon_1f_blocks", "MtMoon1F.blk", 18, 20),
+    ("pc_mt_moon_b1f_blocks", "MtMoonB1F.blk", 14, 14),
+    ("pc_mt_moon_b2f_blocks", "MtMoonB2F.blk", 18, 20),
+    ("pc_cerulean_blocks", "CeruleanCity.blk", 18, 20),
+    ("pc_cerulean_traded_house_blocks", "CeruleanTradeHouse.blk", 4, 4),
+    ("pc_cerulean_pokecenter_blocks", "CeruleanPokecenter.blk", 4, 7),
+    ("pc_cerulean_gym_blocks", "CeruleanGym.blk", 7, 5),
+    ("pc_bike_shop_blocks", "BikeShop.blk", 4, 4),
+    ("pc_cerulean_mart_blocks", "CeruleanMart.blk", 4, 4),
+    ("pc_cerulean_trashed_house_blocks", "CeruleanTrashedHouse.blk", 4, 4),
+    ("pc_cerulean_badge_house_blocks", "CeruleanBadgeHouse.blk", 4, 4),
 ]
 
 
@@ -169,8 +211,8 @@ def generate_gfx_header(import_dir: Path, out_path: Path) -> None:
     ]
 
     for spec in TILESETS:
-        tiles = image_to_tiles(import_dir / spec["png"])
-        blocks = bst_to_blocks(import_dir / spec["bst"])
+        tiles = image_to_tiles(resolve_import_path(import_dir, spec["png"]))
+        blocks = bst_to_blocks(resolve_import_path(import_dir, spec["bst"]))
         lines.append(f"/* {spec['comment']} */")
         lines.append(f"#define {spec['tile_macro']} {len(tiles)}")
         lines.append(f"#define {spec['block_macro']} {len(blocks)}")
@@ -202,7 +244,7 @@ def generate_maps_header(import_dir: Path, out_path: Path) -> None:
     ]
 
     for name, filename, rows, cols in MAPS:
-        grid = blk_to_rows(import_dir / filename, rows, cols)
+        grid = blk_to_rows(resolve_import_path(import_dir, filename), rows, cols)
         lines.append(
             f"static const unsigned char {name}[{rows}][{cols}] = {{"
         )
@@ -234,6 +276,19 @@ def parse_args() -> argparse.Namespace:
         default=ROOT / "apps/plugins/pocketcatch/pc_red_maps.h",
     )
     return parser.parse_args()
+
+
+def resolve_import_path(import_dir: Path, filename: str) -> Path:
+    direct = import_dir / filename
+    if direct.exists():
+        return direct
+
+    for subdir in ("gfx/tilesets", "gfx/blocksets", "maps"):
+        candidate = import_dir / subdir / filename
+        if candidate.exists():
+            return candidate
+
+    return direct
 
 
 def main() -> int:

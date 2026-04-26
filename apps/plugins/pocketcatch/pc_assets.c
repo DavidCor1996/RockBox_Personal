@@ -25,6 +25,8 @@ static const char *const pc_asset_roots[] = {
     PC_ASSET_ROOT_ALT,
 };
 
+static char pc_player_trainer_name[24] = "leaf";
+
 static const struct pc_creature_def pc_creatures[] = {
     {
         1, "Bulbasaur", "creature_001", 620,
@@ -1338,7 +1340,9 @@ bool pc_assets_load_named_world_trainer(struct pc_asset_bitmap *asset, const cha
 
 bool pc_assets_load_world_trainer(struct pc_asset_bitmap *asset, int heading, int frame)
 {
-    static const char *const trainer_names[] = { "leaf", "lyra" };
+    static const char *const trainer_names[] = {
+        pc_player_trainer_name, "leaf", "red", "ethan", "kris", "brendan", "may", "lyra"
+    };
     int i;
 
     for (i = 0; i < (int)ARRAYLEN(trainer_names); ++i)
@@ -1349,6 +1353,14 @@ bool pc_assets_load_world_trainer(struct pc_asset_bitmap *asset, int heading, in
 
     clear_bitmap(asset);
     return false;
+}
+
+void pc_assets_set_player_trainer_name(const char *trainer_name)
+{
+    if (trainer_name == NULL || trainer_name[0] == '\0')
+        rb->strlcpy(pc_player_trainer_name, "leaf", sizeof(pc_player_trainer_name));
+    else
+        rb->strlcpy(pc_player_trainer_name, trainer_name, sizeof(pc_player_trainer_name));
 }
 
 const char *pc_assets_source_label(const struct pc_asset_provider *assets)

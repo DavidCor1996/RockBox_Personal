@@ -330,6 +330,63 @@ fetch_optional_png \
 fetch_optional_png \
     "https://archives.bulbagarden.net/wiki/Special:Redirect/file/Lyrawalkleft.png" \
     "$tmp_dir/lyra_walk_w.png" || true
+fetch_optional_png \
+    "https://archives.bulbagarden.net/wiki/Special:Redirect/file/RedRGBwalkdown.png" \
+    "$tmp_dir/red_walk_s.png" || true
+fetch_optional_png \
+    "https://archives.bulbagarden.net/wiki/Special:Redirect/file/RedRGBwalkup.png" \
+    "$tmp_dir/red_walk_n.png" || true
+fetch_optional_png \
+    "https://archives.bulbagarden.net/wiki/Special:Redirect/file/RedRGBwalkright.png" \
+    "$tmp_dir/red_walk_e.png" || true
+fetch_optional_png \
+    "https://archives.bulbagarden.net/wiki/Special:Redirect/file/RedRGBwalkleft.png" \
+    "$tmp_dir/red_walk_w.png" || true
+fetch_optional_png \
+    "https://archives.bulbagarden.net/wiki/Special:Redirect/file/Kris_OD.png" \
+    "$tmp_dir/kris_od.png" || true
+fetch_optional_png \
+    "https://archives.bulbagarden.net/wiki/Special:Redirect/file/Kriswalkdown.png" \
+    "$tmp_dir/kris_walk_s.png" || true
+fetch_optional_png \
+    "https://archives.bulbagarden.net/wiki/Special:Redirect/file/Kriswalkup.png" \
+    "$tmp_dir/kris_walk_n.png" || true
+fetch_optional_png \
+    "https://archives.bulbagarden.net/wiki/Special:Redirect/file/Kriswalkright.png" \
+    "$tmp_dir/kris_walk_e.png" || true
+fetch_optional_png \
+    "https://archives.bulbagarden.net/wiki/Special:Redirect/file/Kriswalkleft.png" \
+    "$tmp_dir/kris_walk_w.png" || true
+fetch_optional_png \
+    "https://archives.bulbagarden.net/wiki/Special:Redirect/file/Brendan_OD.png" \
+    "$tmp_dir/brendan_od.png" || true
+fetch_optional_png \
+    "https://archives.bulbagarden.net/wiki/Special:Redirect/file/Brendanwalkdown.png" \
+    "$tmp_dir/brendan_walk_s.png" || true
+fetch_optional_png \
+    "https://archives.bulbagarden.net/wiki/Special:Redirect/file/Brendanwalkup.png" \
+    "$tmp_dir/brendan_walk_n.png" || true
+fetch_optional_png \
+    "https://archives.bulbagarden.net/wiki/Special:Redirect/file/Brendanwalkright.png" \
+    "$tmp_dir/brendan_walk_e.png" || true
+fetch_optional_png \
+    "https://archives.bulbagarden.net/wiki/Special:Redirect/file/Brendanwalkleft.png" \
+    "$tmp_dir/brendan_walk_w.png" || true
+fetch_optional_png \
+    "https://archives.bulbagarden.net/wiki/Special:Redirect/file/May_OD.png" \
+    "$tmp_dir/may_od.png" || true
+fetch_optional_png \
+    "https://archives.bulbagarden.net/wiki/Special:Redirect/file/Maywalkdown.png" \
+    "$tmp_dir/may_walk_s.png" || true
+fetch_optional_png \
+    "https://archives.bulbagarden.net/wiki/Special:Redirect/file/Maywalkup.png" \
+    "$tmp_dir/may_walk_n.png" || true
+fetch_optional_png \
+    "https://archives.bulbagarden.net/wiki/Special:Redirect/file/Maywalkright.png" \
+    "$tmp_dir/may_walk_e.png" || true
+fetch_optional_png \
+    "https://archives.bulbagarden.net/wiki/Special:Redirect/file/Maywalkleft.png" \
+    "$tmp_dir/may_walk_w.png" || true
 
 for dest_root in "$@"; do
     mkdir -p "$dest_root/sprites/creatures"
@@ -399,6 +456,50 @@ for dest_root in "$@"; do
         "$dest_root/sprites/trainers/lyra_walk_e"
     install_walk_frames "$tmp_dir/lyra_walk_w.png" "$tmp_dir/lyra_od.png" \
         "$dest_root/sprites/trainers/lyra_walk_w" -flop
+
+    if [ -f "$tmp_dir/red_walk_s.png" ]; then
+        install_walk_frames "$tmp_dir/red_walk_s.png" "$tmp_dir/red_walk_s.png" \
+            "$dest_root/sprites/trainers/red_walk_s"
+        install_walk_frames "$tmp_dir/red_walk_n.png" "$tmp_dir/red_walk_s.png" \
+            "$dest_root/sprites/trainers/red_walk_n"
+        install_walk_frames "$tmp_dir/red_walk_e.png" "$tmp_dir/red_walk_s.png" \
+            "$dest_root/sprites/trainers/red_walk_e"
+        install_walk_frames "$tmp_dir/red_walk_w.png" "$tmp_dir/red_walk_s.png" \
+            "$dest_root/sprites/trainers/red_walk_w"
+    fi
+
+    if [ -f "$tmp_dir/kris_od.png" ]; then
+        install_walk_frames "$tmp_dir/kris_walk_s.png" "$tmp_dir/kris_od.png" \
+            "$dest_root/sprites/trainers/kris_walk_s"
+        install_walk_frames "$tmp_dir/kris_walk_n.png" "$tmp_dir/kris_od.png" \
+            "$dest_root/sprites/trainers/kris_walk_n"
+        install_walk_frames "$tmp_dir/kris_walk_e.png" "$tmp_dir/kris_od.png" \
+            "$dest_root/sprites/trainers/kris_walk_e"
+        install_walk_frames "$tmp_dir/kris_walk_w.png" "$tmp_dir/kris_od.png" \
+            "$dest_root/sprites/trainers/kris_walk_w"
+    fi
+
+    if [ -f "$tmp_dir/brendan_od.png" ]; then
+        install_walk_frames "$tmp_dir/brendan_walk_s.png" "$tmp_dir/brendan_od.png" \
+            "$dest_root/sprites/trainers/brendan_walk_s"
+        install_walk_frames "$tmp_dir/brendan_walk_n.png" "$tmp_dir/brendan_od.png" \
+            "$dest_root/sprites/trainers/brendan_walk_n"
+        install_walk_frames "$tmp_dir/brendan_walk_e.png" "$tmp_dir/brendan_od.png" \
+            "$dest_root/sprites/trainers/brendan_walk_e"
+        install_walk_frames "$tmp_dir/brendan_walk_w.png" "$tmp_dir/brendan_od.png" \
+            "$dest_root/sprites/trainers/brendan_walk_w"
+    fi
+
+    if [ -f "$tmp_dir/may_od.png" ]; then
+        install_walk_frames "$tmp_dir/may_walk_s.png" "$tmp_dir/may_od.png" \
+            "$dest_root/sprites/trainers/may_walk_s"
+        install_walk_frames "$tmp_dir/may_walk_n.png" "$tmp_dir/may_od.png" \
+            "$dest_root/sprites/trainers/may_walk_n"
+        install_walk_frames "$tmp_dir/may_walk_e.png" "$tmp_dir/may_od.png" \
+            "$dest_root/sprites/trainers/may_walk_e"
+        install_walk_frames "$tmp_dir/may_walk_w.png" "$tmp_dir/may_od.png" \
+            "$dest_root/sprites/trainers/may_walk_w"
+    fi
 
     write_pack_json "$dest_root"
     echo "installed assets to $dest_root"

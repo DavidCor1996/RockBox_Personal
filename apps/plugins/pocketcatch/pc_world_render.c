@@ -506,7 +506,10 @@ enum pc_scene_tileset_group {
     PC_SCENE_TILESET_GYM,
     PC_SCENE_TILESET_FOREST,
     PC_SCENE_TILESET_GATE,
-    PC_SCENE_TILESET_LAB
+    PC_SCENE_TILESET_LAB,
+    PC_SCENE_TILESET_CAVERN,
+    PC_SCENE_TILESET_CLUB,
+    PC_SCENE_TILESET_SHIP
 };
 
 static enum pc_scene_tileset_group scene_tileset_group(enum pc_world_scene scene)
@@ -523,28 +526,48 @@ static enum pc_scene_tileset_group scene_tileset_group(enum pc_world_scene scene
         case PC_WORLD_SCENE_ROUTE2_TRADE_HOUSE:
         case PC_WORLD_SCENE_PEWTER_NIDORAN_HOUSE:
         case PC_WORLD_SCENE_PEWTER_SPEECH_HOUSE:
+        case PC_WORLD_SCENE_CERULEAN_TRADE_HOUSE:
+        case PC_WORLD_SCENE_CERULEAN_TRASHED_HOUSE:
             return PC_SCENE_TILESET_HOUSE;
 
         case PC_WORLD_SCENE_VIRIDIAN_MART:
         case PC_WORLD_SCENE_VIRIDIAN_POKECENTER:
         case PC_WORLD_SCENE_PEWTER_MART:
         case PC_WORLD_SCENE_PEWTER_POKECENTER:
+        case PC_WORLD_SCENE_MT_MOON_POKECENTER:
+        case PC_WORLD_SCENE_CERULEAN_MART:
+        case PC_WORLD_SCENE_CERULEAN_POKECENTER:
             return PC_SCENE_TILESET_POKECENTER;
 
         case PC_WORLD_SCENE_VIRIDIAN_GYM:
         case PC_WORLD_SCENE_PEWTER_GYM:
+        case PC_WORLD_SCENE_CERULEAN_GYM:
             return PC_SCENE_TILESET_GYM;
 
         case PC_WORLD_SCENE_VIRIDIAN_FOREST:
             return PC_SCENE_TILESET_FOREST;
 
         case PC_WORLD_SCENE_ROUTE2_GATE:
+        case PC_WORLD_SCENE_ROUTE22_GATE:
         case PC_WORLD_SCENE_VIRIDIAN_FOREST_SOUTH_GATE:
         case PC_WORLD_SCENE_VIRIDIAN_FOREST_NORTH_GATE:
+        case PC_WORLD_SCENE_MUSEUM_1F:
+        case PC_WORLD_SCENE_MUSEUM_2F:
             return PC_SCENE_TILESET_GATE;
 
         case PC_WORLD_SCENE_OAKS_LAB:
             return PC_SCENE_TILESET_LAB;
+
+        case PC_WORLD_SCENE_MT_MOON_1F:
+        case PC_WORLD_SCENE_MT_MOON_B1F:
+        case PC_WORLD_SCENE_MT_MOON_B2F:
+            return PC_SCENE_TILESET_CAVERN;
+
+        case PC_WORLD_SCENE_BIKE_SHOP:
+            return PC_SCENE_TILESET_CLUB;
+
+        case PC_WORLD_SCENE_CERULEAN_BADGE_HOUSE:
+            return PC_SCENE_TILESET_SHIP;
 
         case PC_WORLD_SCENE_PALLET:
         case PC_WORLD_SCENE_ROUTE1_SOUTH:
@@ -552,6 +575,10 @@ static enum pc_scene_tileset_group scene_tileset_group(enum pc_world_scene scene
         case PC_WORLD_SCENE_ROUTE2_SOUTH:
         case PC_WORLD_SCENE_ROUTE21_NORTH:
         case PC_WORLD_SCENE_PEWTER:
+        case PC_WORLD_SCENE_ROUTE3:
+        case PC_WORLD_SCENE_ROUTE4:
+        case PC_WORLD_SCENE_ROUTE22:
+        case PC_WORLD_SCENE_CERULEAN:
         default:
             return PC_SCENE_TILESET_OVERWORLD;
     }
@@ -645,19 +672,23 @@ static void draw_pokestop(const struct pc_world_state *world, int index)
     int step = PC_WORLD_TILE_SIZE / 2;
     int screen_x;
     int screen_y;
+    int pulse = wrapped_phase(world->frame + index * 3, 18);
+    int halo = 9 + (pulse < 9 ? pulse / 3 : (18 - pulse) / 3);
     fb_data ring;
     fb_data accent;
+    fb_data glow;
 
     if (!pc_world_pokestop_draw_info(world, index, &metatile_x, &metatile_y, &ready))
         return;
 
     ring = ready ? LCD_RGBPACK(0x58, 0xbd, 0xe5) : LCD_RGBPACK(0x8d, 0x79, 0xb9);
     accent = ready ? LCD_RGBPACK(0xd9, 0xf7, 0xff) : LCD_RGBPACK(0xc8, 0xbf, 0xda);
+    glow = ready ? LCD_RGBPACK(0xb9, 0xf2, 0xff) : LCD_RGBPACK(0xd8, 0xc9, 0xee);
     screen_x = world->origin_x + metatile_x * step + step / 2;
     screen_y = world->origin_y + metatile_y * step + step / 2 - PC_WORLD_SCALE(2);
 
-    if (screen_x < -PC_WORLD_SCALE(12) || screen_x > LCD_WIDTH + PC_WORLD_SCALE(12) ||
-        screen_y < -PC_WORLD_SCALE(12) || screen_y > LCD_HEIGHT + PC_WORLD_SCALE(12))
+    if (screen_x < -PC_WORLD_SCALE(16) || screen_x > LCD_WIDTH + PC_WORLD_SCALE(16) ||
+        screen_y < -PC_WORLD_SCALE(16) || screen_y > LCD_HEIGHT + PC_WORLD_SCALE(16))
     {
         return;
     }
@@ -667,19 +698,24 @@ static void draw_pokestop(const struct pc_world_state *world, int index)
                  PC_WORLD_SCALE(16),
                  PC_WORLD_SCALE(3),
                  LCD_RGBPACK(0x60, 0x70, 0x58));
+    rb->lcd_set_foreground(glow);
+    xlcd_drawcircle(screen_x, screen_y - 3, halo);
     rb->lcd_set_foreground(LCD_RGBPACK(0x6a, 0x92, 0xb8));
-    rb->lcd_fillrect(screen_x - 2, screen_y + 2, 4, 11);
+    rb->lcd_fillrect(screen_x - 3, screen_y + 2, 6, 12);
     rb->lcd_set_foreground(ring);
-    xlcd_drawcircle(screen_x, screen_y - 3, 8);
-    xlcd_drawcircle(screen_x, screen_y - 3, 9);
+    xlcd_fillcircle(screen_x, screen_y - 3, 10);
+    rb->lcd_set_foreground(PC_GB_PANEL);
+    xlcd_fillcircle(screen_x, screen_y - 3, 7);
     rb->lcd_set_foreground(accent);
-    rb->lcd_fillrect(screen_x - 5, screen_y - 8, 10, 10);
+    rb->lcd_fillrect(screen_x - 6, screen_y - 9, 12, 12);
     rb->lcd_set_foreground(ring);
-    rb->lcd_drawrect(screen_x - 5, screen_y - 8, 10, 10);
-    rb->lcd_drawline(screen_x - 5, screen_y - 8, screen_x, screen_y - 12);
-    rb->lcd_drawline(screen_x + 4, screen_y - 8, screen_x, screen_y - 12);
-    rb->lcd_drawline(screen_x - 5, screen_y + 1, screen_x, screen_y + 5);
-    rb->lcd_drawline(screen_x + 4, screen_y + 1, screen_x, screen_y + 5);
+    rb->lcd_drawrect(screen_x - 6, screen_y - 9, 12, 12);
+    rb->lcd_drawline(screen_x - 6, screen_y - 9, screen_x, screen_y - 14);
+    rb->lcd_drawline(screen_x + 5, screen_y - 9, screen_x, screen_y - 14);
+    rb->lcd_drawline(screen_x - 6, screen_y + 2, screen_x, screen_y + 7);
+    rb->lcd_drawline(screen_x + 5, screen_y + 2, screen_x, screen_y + 7);
+    rb->lcd_set_foreground(ring);
+    xlcd_drawcircle(screen_x, screen_y - 3, 11);
 }
 
 static void draw_pokestop_overlay(const struct pc_world_state *world)
@@ -687,12 +723,12 @@ static void draw_pokestop_overlay(const struct pc_world_state *world)
     const struct pc_asset_bitmap *ball = ensure_ui_ball_asset();
     static const signed char orbit_x[8] = { 0, 8, 12, 8, 0, -8, -12, -8 };
     static const signed char orbit_y[8] = { -12, -8, 0, 8, 12, 8, 0, -8 };
-    int x = 14;
-    int y = 8;
-    int w = LCD_WIDTH - 28;
-    int h = LCD_HEIGHT - 16;
+    int x = 10;
+    int y = 6;
+    int w = LCD_WIDTH - 20;
+    int h = LCD_HEIGHT - 12;
     int center_x = x + w / 2;
-    int center_y = y + 58;
+    int center_y = y + 64;
     int phase = wrapped_phase(world->pokestop_spin_angle / 18, 8);
     int slot_x = center_x + orbit_x[phase];
     int slot_y = center_y + orbit_y[phase];
@@ -702,66 +738,75 @@ static void draw_pokestop_overlay(const struct pc_world_state *world)
     char line[32];
 
     draw_flat_panel(x, y, w, h, PC_GB_PANEL, PC_GB_DEEP,
-                    world->pokestop_spun ? LCD_RGBPACK(0x98, 0x8d, 0xbe)
-                                         : LCD_RGBPACK(0x7a, 0xcf, 0xe9));
-    draw_flat_panel(x + 10, y + 10, w - 20, 20, PC_GB_LIGHT, PC_GB_DEEP,
-                    world->pokestop_spun ? LCD_RGBPACK(0xd6, 0xce, 0xe8)
-                                         : LCD_RGBPACK(0xc8, 0xf4, 0xff));
-    draw_text_small(x + 18, y + 16, PC_GB_DEEP, "POKESTOP");
-    draw_text_small(x + 88, y + 16, PC_GB_DARK,
+                    world->pokestop_spun ? LCD_RGBPACK(0xa2, 0x97, 0xc5)
+                                         : LCD_RGBPACK(0x68, 0xc8, 0xf1));
+    draw_flat_panel(x + 8, y + 8, w - 16, 24, PC_GB_LIGHT, PC_GB_DEEP,
+                    world->pokestop_spun ? LCD_RGBPACK(0xe2, 0xdb, 0xf1)
+                                         : LCD_RGBPACK(0xd7, 0xf7, 0xff));
+    draw_text_small(x + 16, y + 16, PC_GB_DEEP, "POKESTOP");
+    draw_flat_panel(x + w - 64, y + 11, 46, 16, PC_GB_PANEL, PC_GB_DEEP,
+                    world->pokestop_spun ? LCD_RGBPACK(0xb1, 0x9c, 0xd7)
+                                         : LCD_RGBPACK(0x8c, 0xe1, 0xff));
+    draw_text_small(x + w - 56, y + 16, PC_GB_DEEP,
+                    world->pokestop_spun ? "SPUN" : "READY");
+    draw_text_small(x + 16, y + 38, PC_GB_DARK,
                     world->pokestop_spun ? "Supplies collected" : "Spin the photo disc");
 
     rb->lcd_set_foreground(LCD_RGBPACK(0x6a, 0x92, 0xb8));
-    rb->lcd_fillrect(center_x - 5, center_y + 8, 10, 34);
+    rb->lcd_fillrect(center_x - 6, center_y + 12, 12, 34);
+    fill_capsule(center_x - 18, center_y + 44, 36, 6, LCD_RGBPACK(0x70, 0x82, 0x76));
     rb->lcd_set_foreground(world->pokestop_spun ? LCD_RGBPACK(0x8d, 0x79, 0xb9)
                                                 : LCD_RGBPACK(0x58, 0xbd, 0xe5));
-    xlcd_fillcircle(center_x, center_y, 30);
+    xlcd_fillcircle(center_x, center_y, 34);
     rb->lcd_set_foreground(PC_GB_PANEL);
-    xlcd_fillcircle(center_x, center_y, 22);
+    xlcd_fillcircle(center_x, center_y, 26);
     rb->lcd_set_foreground(world->pokestop_spun ? LCD_RGBPACK(0xc6, 0xbb, 0xde)
                                                 : LCD_RGBPACK(0xa8, 0xee, 0xff));
-    xlcd_fillcircle(center_x, center_y, 14);
+    xlcd_fillcircle(center_x, center_y, 18);
     rb->lcd_set_foreground(world->pokestop_spun ? LCD_RGBPACK(0xe0, 0xd8, 0xf0)
                                                 : LCD_RGBPACK(0xa8, 0xee, 0xff));
-    rb->lcd_fillrect(slot_x - 10, slot_y - 10, 20, 20);
+    rb->lcd_fillrect(slot_x - 11, slot_y - 11, 22, 22);
     rb->lcd_set_foreground(LCD_RGBPACK(0x58, 0xbd, 0xe5));
-    rb->lcd_drawrect(slot_x - 10, slot_y - 10, 20, 20);
-    rb->lcd_drawline(slot_x - 10, slot_y - 10, slot_x, slot_y - 18);
-    rb->lcd_drawline(slot_x + 9, slot_y - 10, slot_x, slot_y - 18);
-    rb->lcd_drawline(slot_x - 10, slot_y + 9, slot_x, slot_y + 17);
-    rb->lcd_drawline(slot_x + 9, slot_y + 9, slot_x, slot_y + 17);
+    rb->lcd_drawrect(slot_x - 11, slot_y - 11, 22, 22);
+    rb->lcd_drawline(slot_x - 11, slot_y - 11, slot_x, slot_y - 20);
+    rb->lcd_drawline(slot_x + 10, slot_y - 11, slot_x, slot_y - 20);
+    rb->lcd_drawline(slot_x - 11, slot_y + 10, slot_x, slot_y + 19);
+    rb->lcd_drawline(slot_x + 10, slot_y + 10, slot_x, slot_y + 19);
     rb->lcd_set_foreground(LCD_RGBPACK(0x58, 0xbd, 0xe5));
-    xlcd_drawcircle(center_x, center_y, 32);
-    xlcd_drawcircle(center_x, center_y, 34 + (pulse < 8 ? 0 : 1));
+    xlcd_drawcircle(center_x, center_y, 37);
+    xlcd_drawcircle(center_x, center_y, 40 + (pulse < 8 ? 0 : 1));
 
-    draw_text_small(x + 18, y + 108, PC_GB_DEEP, "SPIN");
-    fill_rect_outline(x + 18, y + 118, w - 36, 12, PC_GB_LIGHT, PC_GB_DEEP);
+    draw_text_small(x + 16, y + 116, PC_GB_DEEP, "SPIN");
+    fill_rect_outline(x + 16, y + 126, w - 32, 12, PC_GB_LIGHT, PC_GB_DEEP);
     rb->lcd_set_foreground(world->pokestop_spun ? LCD_RGBPACK(0x98, 0x8d, 0xbe)
                                                 : LCD_RGBPACK(0x58, 0xbd, 0xe5));
-    rb->lcd_fillrect(x + 20, y + 120, MAX(0, progress_w), 8);
+    rb->lcd_fillrect(x + 18, y + 128, MAX(0, progress_w), 8);
     rb->snprintf(line, sizeof(line), "%d / %d",
                  MIN(world->pokestop_spin_progress, PC_POKESTOP_SPIN_TARGET),
                  PC_POKESTOP_SPIN_TARGET);
-    draw_text_small(center_x - 24, y + 134, PC_GB_DEEP, line);
+    draw_text_small(center_x - 24, y + 142, PC_GB_DEEP, line);
 
     if (world->pokestop_spun)
     {
-        draw_text_small(x + 18, y + 150, PC_GB_DEEP, "SUPPLIES");
-        draw_flat_panel(x + 18, y + 162, 70, 26, PC_GB_LIGHT, PC_GB_DEEP, PC_GB_MID);
-        draw_flat_panel(x + 96, y + 162, 70, 26, PC_GB_LIGHT, PC_GB_DEEP, PC_GB_MID);
+        draw_text_small(x + 16, y + 156, PC_GB_DEEP, "SUPPLIES");
+        draw_flat_panel(x + 16, y + 166, 74, 28, PC_GB_LIGHT, PC_GB_DEEP, PC_GB_MID);
+        draw_flat_panel(x + 98, y + 166, 74, 28, PC_GB_LIGHT, PC_GB_DEEP, PC_GB_MID);
         if (ball != NULL)
-            draw_asset_bitmap(&ball->bmp, x + 28, y + 168);
+            draw_asset_bitmap(&ball->bmp, x + 28, y + 173);
+        draw_text_small(x + 48, y + 171, PC_GB_DARK, "BALLS");
         rb->snprintf(line, sizeof(line), "x%d", world->pokestop_reward_balls);
-        draw_text_small(x + 50, y + 171, PC_GB_DEEP, line);
+        draw_text_small(x + 48, y + 181, PC_GB_DEEP, line);
+        draw_text_small(x + 112, y + 171, PC_GB_DARK, "COINS");
         rb->snprintf(line, sizeof(line), "$%d", world->pokestop_reward_money);
-        draw_text_small(x + 118, y + 171, PC_GB_DEEP, line);
-        draw_text_small(x + 24, y + 192, PC_GB_DARK, "Select close  Left back");
+        draw_text_small(x + 112, y + 181, PC_GB_DEEP, line);
+        draw_text_small(x + 18, y + 199, PC_GB_DARK, "Select close  Left back");
     }
     else
     {
-        draw_text_small(x + 18, y + 152, PC_GB_DARK, "Rotate the clickwheel until the bar fills");
-        draw_text_small(x + 18, y + 166, PC_GB_DARK, "A cleaner spin gives a small supply bonus");
-        draw_text_small(x + 18, y + 186, PC_GB_DARK, "Left back");
+        draw_flat_panel(x + 16, y + 156, w - 32, 34, PC_GB_LIGHT, PC_GB_DEEP, PC_GB_MID);
+        draw_text_small(x + 24, y + 166, PC_GB_DARK, "Rotate the clickwheel until the bar fills");
+        draw_text_small(x + 24, y + 178, PC_GB_DARK, "A cleaner spin gives a small supply bonus");
+        draw_text_small(x + 24, y + 194, PC_GB_DARK, "Left back");
     }
 }
 
@@ -911,6 +956,27 @@ static void select_tileset(enum pc_world_scene scene,
             *blocks = pc_red_lab_blocks;
             *tile_count = PC_RED_LAB_TILE_COUNT;
             *block_count = PC_RED_LAB_BLOCK_COUNT;
+            break;
+
+        case PC_SCENE_TILESET_CAVERN:
+            *tiles = pc_red_cavern_tiles;
+            *blocks = pc_red_cavern_blocks;
+            *tile_count = PC_RED_CAVERN_TILE_COUNT;
+            *block_count = PC_RED_CAVERN_BLOCK_COUNT;
+            break;
+
+        case PC_SCENE_TILESET_CLUB:
+            *tiles = pc_red_club_tiles;
+            *blocks = pc_red_club_blocks;
+            *tile_count = PC_RED_CLUB_TILE_COUNT;
+            *block_count = PC_RED_CLUB_BLOCK_COUNT;
+            break;
+
+        case PC_SCENE_TILESET_SHIP:
+            *tiles = pc_red_ship_tiles;
+            *blocks = pc_red_ship_blocks;
+            *tile_count = PC_RED_SHIP_TILE_COUNT;
+            *block_count = PC_RED_SHIP_BLOCK_COUNT;
             break;
 
         case PC_SCENE_TILESET_OVERWORLD:
@@ -1339,6 +1405,45 @@ static void draw_scene_npcs(const struct pc_world_state *world)
         return;
     }
 
+    if (world->scene == PC_WORLD_SCENE_ROUTE3)
+    {
+        draw_static_named_trainer_npc(world, 0, 10, 6, PC_HEADING_E);
+        draw_static_named_trainer_npc(world, 0, 14, 4, PC_HEADING_S);
+        draw_static_named_trainer_npc(world, 1, 16, 9, PC_HEADING_W);
+        draw_static_named_trainer_npc(world, 0, 19, 5, PC_HEADING_S);
+        draw_static_named_trainer_npc(world, 1, 23, 4, PC_HEADING_W);
+        draw_static_named_trainer_npc(world, 0, 22, 9, PC_HEADING_W);
+        draw_static_named_trainer_npc(world, 0, 24, 6, PC_HEADING_E);
+        draw_static_named_trainer_npc(world, 1, 33, 10, PC_HEADING_N);
+        return;
+    }
+
+    if (world->scene == PC_WORLD_SCENE_ROUTE4)
+    {
+        draw_static_named_trainer_npc(world, 1, 9, 8, PC_HEADING_S);
+        draw_static_named_trainer_npc(world, 1, 63, 3, PC_HEADING_E);
+        return;
+    }
+
+    if (world->scene == PC_WORLD_SCENE_ROUTE22)
+    {
+        draw_static_named_trainer_npc(world, 0, 2, 5, PC_HEADING_E);
+        draw_static_named_trainer_npc(world, 1, 13, 5, PC_HEADING_W);
+        return;
+    }
+
+    if (world->scene == PC_WORLD_SCENE_CERULEAN)
+    {
+        draw_static_named_trainer_npc(world, 0, 31, 20, PC_HEADING_S);
+        draw_static_named_trainer_npc(world, 0, 15, 18, PC_HEADING_S);
+        draw_static_named_trainer_npc(world, 0, 9, 21, PC_HEADING_W);
+        draw_static_named_trainer_npc(world, 2, 28, 12, PC_HEADING_S);
+        draw_static_named_trainer_npc(world, 1, 29, 26, PC_HEADING_W);
+        draw_static_named_trainer_npc(world, 1, 9, 27, PC_HEADING_W);
+        draw_static_named_trainer_npc(world, 0, 4, 12, PC_HEADING_S);
+        return;
+    }
+
     if (world->scene == PC_WORLD_SCENE_OAKS_LAB)
     {
         draw_static_red_npc(world, 4, 3, PC_HEADING_E);
@@ -1384,6 +1489,25 @@ static void draw_scene_npcs(const struct pc_world_state *world)
         draw_static_named_trainer_npc(world, 0, 11, 7, PC_HEADING_W);
         draw_static_named_trainer_npc(world, 2, 1, 3, PC_HEADING_S);
         draw_static_named_trainer_npc(world, 0, 11, 2, PC_HEADING_S);
+        return;
+    }
+
+    if (world->scene == PC_WORLD_SCENE_MUSEUM_1F)
+    {
+        draw_static_named_trainer_npc(world, 0, 12, 4, PC_HEADING_W);
+        draw_static_named_trainer_npc(world, 2, 1, 4, PC_HEADING_S);
+        draw_static_named_trainer_npc(world, 0, 15, 2, PC_HEADING_S);
+        draw_static_named_trainer_npc(world, 0, 17, 4, PC_HEADING_S);
+        return;
+    }
+
+    if (world->scene == PC_WORLD_SCENE_MUSEUM_2F)
+    {
+        draw_static_named_trainer_npc(world, 0, 1, 7, PC_HEADING_W);
+        draw_static_named_trainer_npc(world, 0, 0, 5, PC_HEADING_S);
+        draw_static_named_trainer_npc(world, 0, 7, 5, PC_HEADING_S);
+        draw_static_named_trainer_npc(world, 1, 11, 5, PC_HEADING_S);
+        draw_static_named_trainer_npc(world, 2, 12, 5, PC_HEADING_S);
         return;
     }
 
@@ -1463,6 +1587,83 @@ static void draw_scene_npcs(const struct pc_world_state *world)
         draw_static_named_trainer_npc(world, 2, 4, 1, PC_HEADING_S);
         draw_static_named_trainer_npc(world, 1, 3, 6, PC_HEADING_E);
         draw_static_named_trainer_npc(world, 0, 7, 10, PC_HEADING_S);
+        return;
+    }
+
+    if (world->scene == PC_WORLD_SCENE_MT_MOON_POKECENTER)
+    {
+        draw_static_named_trainer_npc(world, 1, 3, 1, PC_HEADING_S);
+        draw_static_named_trainer_npc(world, 0, 4, 3, PC_HEADING_N);
+        draw_static_named_trainer_npc(world, 0, 7, 3, PC_HEADING_N);
+        draw_static_named_trainer_npc(world, 0, 10, 6, PC_HEADING_W);
+        draw_static_named_trainer_npc(world, 1, 11, 2, PC_HEADING_S);
+        return;
+    }
+
+    if (world->scene == PC_WORLD_SCENE_MT_MOON_1F)
+    {
+        draw_static_named_trainer_npc(world, 0, 5, 6, PC_HEADING_S);
+        draw_static_named_trainer_npc(world, 0, 12, 16, PC_HEADING_E);
+        draw_static_named_trainer_npc(world, 1, 30, 4, PC_HEADING_S);
+        draw_static_named_trainer_npc(world, 2, 24, 31, PC_HEADING_N);
+        draw_static_named_trainer_npc(world, 1, 16, 23, PC_HEADING_S);
+        draw_static_named_trainer_npc(world, 0, 7, 22, PC_HEADING_S);
+        draw_static_named_trainer_npc(world, 0, 30, 27, PC_HEADING_E);
+        return;
+    }
+
+    if (world->scene == PC_WORLD_SCENE_MT_MOON_B2F)
+    {
+        draw_static_named_trainer_npc(world, 2, 12, 8, PC_HEADING_E);
+        draw_static_named_trainer_npc(world, 0, 11, 16, PC_HEADING_S);
+        draw_static_named_trainer_npc(world, 0, 15, 22, PC_HEADING_S);
+        draw_static_named_trainer_npc(world, 0, 29, 11, PC_HEADING_N);
+        draw_static_named_trainer_npc(world, 0, 29, 17, PC_HEADING_W);
+        return;
+    }
+
+    if (world->scene == PC_WORLD_SCENE_CERULEAN_POKECENTER)
+    {
+        draw_static_named_trainer_npc(world, 1, 3, 1, PC_HEADING_S);
+        draw_static_named_trainer_npc(world, 0, 10, 5, PC_HEADING_S);
+        draw_static_named_trainer_npc(world, 0, 4, 3, PC_HEADING_S);
+        draw_static_named_trainer_npc(world, 1, 11, 2, PC_HEADING_S);
+        return;
+    }
+
+    if (world->scene == PC_WORLD_SCENE_CERULEAN_MART)
+    {
+        draw_static_named_trainer_npc(world, 0, 0, 5, PC_HEADING_E);
+        draw_static_named_trainer_npc(world, 0, 3, 4, PC_HEADING_S);
+        draw_static_named_trainer_npc(world, 1, 6, 2, PC_HEADING_W);
+        return;
+    }
+
+    if (world->scene == PC_WORLD_SCENE_CERULEAN_TRADE_HOUSE)
+    {
+        draw_static_named_trainer_npc(world, 1, 5, 4, PC_HEADING_W);
+        draw_static_named_trainer_npc(world, 2, 1, 2, PC_HEADING_S);
+        return;
+    }
+
+    if (world->scene == PC_WORLD_SCENE_CERULEAN_TRASHED_HOUSE)
+    {
+        draw_static_named_trainer_npc(world, 0, 2, 1, PC_HEADING_S);
+        draw_static_named_trainer_npc(world, 1, 5, 6, PC_HEADING_W);
+        return;
+    }
+
+    if (world->scene == PC_WORLD_SCENE_CERULEAN_BADGE_HOUSE)
+    {
+        draw_static_named_trainer_npc(world, 0, 5, 3, PC_HEADING_E);
+        return;
+    }
+
+    if (world->scene == PC_WORLD_SCENE_BIKE_SHOP)
+    {
+        draw_static_named_trainer_npc(world, 0, 6, 2, PC_HEADING_W);
+        draw_static_named_trainer_npc(world, 1, 5, 6, PC_HEADING_S);
+        draw_static_named_trainer_npc(world, 0, 1, 3, PC_HEADING_N);
     }
 }
 
@@ -1514,9 +1715,9 @@ static void draw_hud(const struct pc_world_state *world)
     char hint[48];
     int nearby_count = pc_world_nearby_count(world);
     int nearby_index = nearby_count > 0 ? (world->frame / (PC_FRAME_HZ * 2)) % nearby_count : 0;
-    int money_x = LCD_WIDTH - 74;
-    int balls_x = LCD_WIDTH - 140;
-    int weather_x = LCD_WIDTH - 140;
+    int money_x = LCD_WIDTH - 80;
+    int balls_x = LCD_WIDTH - 148;
+    int weather_x = LCD_WIDTH - 148;
 
     if (world->buddy_species >= 0 && world->buddy_species < PC_POKEDEX_MAX &&
         world->caught_counts[world->buddy_species] > 0)
@@ -1551,21 +1752,21 @@ static void draw_hud(const struct pc_world_state *world)
     else
         nearby_text[0] = '\0';
 
-    draw_flat_panel(balls_x, 8, 58, 18, PC_GB_PANEL, PC_GB_DEEP, PC_GB_MID);
+    draw_flat_panel(balls_x, 8, 62, 18, PC_GB_PANEL, PC_GB_DEEP, LCD_RGBPACK(0xb8, 0xe9, 0xff));
     if (ball != NULL)
         draw_asset_bitmap(&ball->bmp, balls_x + 4, 10);
     else
         draw_missing_asset_panel(balls_x + 4, 10, 14, 14, "");
     draw_text_small(ball != NULL ? balls_x + 22 : balls_x + 10, 13, PC_GB_DEEP, balls);
 
-    draw_flat_panel(money_x, 8, 66, 18, PC_GB_PANEL, PC_GB_DEEP, PC_GB_MID);
+    draw_flat_panel(money_x, 8, 72, 18, PC_GB_PANEL, PC_GB_DEEP, LCD_RGBPACK(0xc8, 0xef, 0xc0));
     draw_text_small(money_x + 10, 13, PC_GB_DEEP, money);
 
     if (outdoor_scene(world->scene))
     {
         fit_text_small(weather_text, sizeof(weather_text), weather_text,
                        weather_icon != NULL ? 88 : 110);
-        draw_flat_panel(weather_x, 30, 132, 16, PC_GB_PANEL, PC_GB_DEEP, PC_GB_MID);
+        draw_flat_panel(weather_x, 30, 138, 16, PC_GB_PANEL, PC_GB_DEEP, LCD_RGBPACK(0xdf, 0xf4, 0xff));
         if (weather_icon != NULL)
             draw_asset_bitmap(&weather_icon->bmp, weather_x + 6, 29);
         draw_text_small(weather_icon != NULL ? weather_x + 28 : weather_x + 10,
@@ -1577,7 +1778,7 @@ static void draw_hud(const struct pc_world_state *world)
         char buddy_text[40];
         char buddy_name[32];
 
-        draw_flat_panel(8, 32, 118, 18, PC_GB_PANEL, PC_GB_DEEP, PC_GB_MID);
+        draw_flat_panel(8, 32, 122, 18, PC_GB_PANEL, PC_GB_DEEP, LCD_RGBPACK(0xf2, 0xec, 0xd8));
         if (buddy_asset != NULL && buddy_asset->loaded)
             draw_asset_bitmap(&buddy_asset->bmp, 12, 30);
         fit_text_small(buddy_name, sizeof(buddy_name), buddy_creature->name, 58);
@@ -1589,19 +1790,20 @@ static void draw_hud(const struct pc_world_state *world)
 
     if (nearby_text[0] != '\0')
     {
-        draw_flat_panel(18, LCD_HEIGHT - 36, 128, 14, PC_GB_PANEL, PC_GB_DEEP, PC_GB_MID);
+        draw_flat_panel(12, LCD_HEIGHT - 38, 136, 16, PC_GB_PANEL, PC_GB_DEEP,
+                        LCD_RGBPACK(0xf0, 0xf7, 0xe0));
         fit_text_small(nearby_text, sizeof(nearby_text), nearby_text, 112);
-        draw_text_small(26, LCD_HEIGHT - 32, PC_GB_DARK, nearby_text);
-        draw_flat_panel(152, LCD_HEIGHT - 36, LCD_WIDTH - 170, 14,
-                        PC_GB_PANEL, PC_GB_DEEP, PC_GB_MID);
-        fit_text_small(hint, sizeof(hint), hint, LCD_WIDTH - 186);
+        draw_text_small(22, LCD_HEIGHT - 32, PC_GB_DARK, nearby_text);
+        draw_flat_panel(152, LCD_HEIGHT - 38, LCD_WIDTH - 164, 16,
+                        PC_GB_PANEL, PC_GB_DEEP, LCD_RGBPACK(0xd7, 0xf7, 0xff));
+        fit_text_small(hint, sizeof(hint), hint, LCD_WIDTH - 182);
         draw_text_small(160, LCD_HEIGHT - 32, PC_GB_DARK, hint);
     }
     else
     {
-        draw_flat_panel(18, LCD_HEIGHT - 20, LCD_WIDTH - 36, 14,
-                        PC_GB_PANEL, PC_GB_DEEP, PC_GB_MID);
-        draw_text_small(28, LCD_HEIGHT - 16, PC_GB_DARK, hint);
+        draw_flat_panel(12, LCD_HEIGHT - 22, LCD_WIDTH - 24, 16,
+                        PC_GB_PANEL, PC_GB_DEEP, LCD_RGBPACK(0xd7, 0xf7, 0xff));
+        draw_text_small(22, LCD_HEIGHT - 16, PC_GB_DARK, hint);
     }
 }
 
@@ -1844,42 +2046,114 @@ static void draw_pokedex_overlay(const struct pc_world_state *world)
     draw_text_small(x + 22, y + 132, PC_GB_DEEP, "Select evolve  Left back");
 }
 
+static const char *mart_category_label(int category)
+{
+    static const char *const labels[PC_MART_CATEGORY_COUNT] = {
+        "ITEMS", "HMS", "LOOKS"
+    };
+
+    if (category < 0 || category >= PC_MART_CATEGORY_COUNT)
+        return labels[0];
+    return labels[category];
+}
+
+static int mart_category_item_count_for_draw(int category)
+{
+    switch (category)
+    {
+        case 0:
+            return 1;
+
+        case 1:
+            return PC_FIELD_ABILITY_COUNT;
+
+        case 2:
+            return pc_world_player_trainer_count();
+
+        default:
+            return 1;
+    }
+}
+
 static void draw_mart_overlay(const struct pc_world_state *world)
 {
-    static const char *const items[] = {
-        "Poke Ball x10", "HM03 Surf", "HM01 Cut", "Leave"
-    };
-    int x = 28;
-    int y = 26;
+    int x = 20;
+    int y = 18;
+    int w = LCD_WIDTH - 40;
+    int h = LCD_HEIGHT - 36;
+    int tab_w = (w - 24) / PC_MART_CATEGORY_COUNT;
+    int count = mart_category_item_count_for_draw(world->mart_category);
     int i;
     char line[PC_BANNER_LINE_CHARS];
 
-    fill_rect_outline(x, y, LCD_WIDTH - 56, LCD_HEIGHT - 52, PC_GB_PANEL, PC_GB_DEEP);
-    draw_text_small(x + 10, y + 8, PC_GB_DEEP, "VIRIDIAN MART");
-    rb->snprintf(line, sizeof(line), "$%u   Balls %u", world->money, world->pokeballs);
+    fill_rect_outline(x, y, w, h, PC_GB_PANEL, PC_GB_DEEP);
+    draw_text_small(x + 10, y + 8, PC_GB_DEEP, "POKEMART");
+    rb->snprintf(line, sizeof(line), "$%u  Balls %u/%u", world->money,
+                 world->pokeballs, (unsigned)1000);
     draw_text_small(x + 10, y + 22, PC_GB_DEEP, line);
 
-    for (i = 0; i < (int)ARRAYLEN(items); ++i)
+    for (i = 0; i < PC_MART_CATEGORY_COUNT; ++i)
     {
-        int row_y = y + 42 + i * 18;
+        int tab_x = x + 8 + i * tab_w;
 
-        if (i == world->mart_index)
-            fill_rect_outline(x + 8, row_y - 2, LCD_WIDTH - 72, 14, PC_GB_MID, PC_GB_DEEP);
-        draw_text_small(x + 14, row_y, PC_GB_DEEP, items[i]);
-
-        if (i == 0)
-            draw_text_small(LCD_WIDTH - 82, row_y, PC_GB_DEEP, "$20");
-        else if (i == 1)
-            draw_text_small(LCD_WIDTH - 82, row_y, PC_GB_DEEP,
-                            world->ability_owned[PC_FIELD_ABILITY_SURF] ? "OWND" : "$80");
-        else if (i == 2)
-            draw_text_small(LCD_WIDTH - 82, row_y, PC_GB_DEEP,
-                            world->ability_owned[PC_FIELD_ABILITY_CUT] ? "OWND" : "$60");
+        if (i == world->mart_category)
+            fill_rect_outline(tab_x, y + 38, tab_w - 4, 16, PC_GB_MID, PC_GB_DEEP);
+        draw_text_small(tab_x + 8, y + 42, PC_GB_DEEP, mart_category_label(i));
     }
 
-    draw_text_small(x + 10, y + 118, PC_GB_DEEP, "Buy HMs here, assign them in menu");
-    draw_text_small(x + 10, y + 132, PC_GB_DEEP, "Menu/Play scroll  Select buy");
-    draw_text_small(x + 10, y + 146, PC_GB_DEEP, "Left back");
+    for (i = 0; i < count; ++i)
+    {
+        int row_y = y + 64 + i * 16;
+        const char *name = "";
+        const char *tag = "";
+
+        if (i == world->mart_index)
+            fill_rect_outline(x + 8, row_y - 2, w - 16, 14, PC_GB_MID, PC_GB_DEEP);
+
+        if (world->mart_category == 0)
+        {
+            name = "Poke Ball x10";
+            tag = "$90";
+        }
+        else if (world->mart_category == 1)
+        {
+            if (i == 0)
+            {
+                name = "HM03 Surf";
+                tag = world->ability_owned[PC_FIELD_ABILITY_SURF] ? "OWND" : "$80";
+            }
+            else
+            {
+                name = "HM01 Cut";
+                tag = world->ability_owned[PC_FIELD_ABILITY_CUT] ? "OWND" : "$60";
+            }
+        }
+        else
+        {
+            name = pc_world_player_trainer_name(i);
+            if (world->player_trainer == i)
+                tag = "ON";
+            else if (world->owned_trainers[i])
+                tag = "USE";
+            else
+            {
+                rb->snprintf(line, sizeof(line), "$%d", pc_world_player_trainer_cost(i));
+                tag = line;
+            }
+        }
+
+        draw_text_small(x + 14, row_y, PC_GB_DEEP, name);
+        draw_text_small(x + w - 54, row_y, PC_GB_DEEP, tag);
+    }
+
+    if (world->mart_category == 0)
+        draw_text_small(x + 10, y + 138, PC_GB_DEEP, "Pokeballs cost more but stops pay out");
+    else if (world->mart_category == 1)
+        draw_text_small(x + 10, y + 138, PC_GB_DEEP, "Buy HMs here, assign them in menu");
+    else
+        draw_text_small(x + 10, y + 138, PC_GB_DEEP, "Buy or equip trainer looks");
+    draw_text_small(x + 10, y + 152, PC_GB_DEEP, "Left/Right tabs  Menu/Play scroll");
+    draw_text_small(x + 10, y + 166, PC_GB_DEEP, "Select buy/use  Left back");
 }
 
 static void draw_field_moves_overlay(const struct pc_world_state *world)

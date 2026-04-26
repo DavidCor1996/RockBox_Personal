@@ -89,8 +89,8 @@
 #endif
 #define PC_WORLD_W             10
 #define PC_WORLD_H             9
-#define PC_WORLD_MAP_MAX_W     20
-#define PC_WORLD_MAP_MAX_H     45
+#define PC_WORLD_MAP_MAX_W     50
+#define PC_WORLD_MAP_MAX_H     72
 #define PC_WORLD_ORIGIN_X      0
 #define PC_WORLD_ORIGIN_Y      (-28)
 #define PC_WORLD_MAX_SPAWNS    4
@@ -99,6 +99,8 @@
 #define PC_WORLD_POKESTOP_COUNT 10
 #define PC_POKESTOP_SPIN_TARGET 84
 #define PC_BUDDY_CANDY_STEPS   48
+#define PC_MART_CATEGORY_COUNT 3
+#define PC_PLAYER_TRAINER_COUNT 6
 
 enum pc_phase {
     PC_PHASE_INTRO = 0,
@@ -305,6 +307,8 @@ enum pc_world_scene {
     PC_WORLD_SCENE_VIRIDIAN_SCHOOL_HOUSE,
     PC_WORLD_SCENE_VIRIDIAN_NICKNAME_HOUSE,
     PC_WORLD_SCENE_VIRIDIAN_GYM,
+    PC_WORLD_SCENE_ROUTE22,
+    PC_WORLD_SCENE_ROUTE22_GATE,
     PC_WORLD_SCENE_ROUTE2_GATE,
     PC_WORLD_SCENE_ROUTE2_TRADE_HOUSE,
     PC_WORLD_SCENE_VIRIDIAN_FOREST_SOUTH_GATE,
@@ -315,8 +319,26 @@ enum pc_world_scene {
     PC_WORLD_SCENE_PEWTER_MART,
     PC_WORLD_SCENE_PEWTER_NIDORAN_HOUSE,
     PC_WORLD_SCENE_PEWTER_SPEECH_HOUSE,
-    PC_WORLD_SCENE_PEWTER_POKECENTER
+    PC_WORLD_SCENE_PEWTER_POKECENTER,
+    PC_WORLD_SCENE_MUSEUM_1F,
+    PC_WORLD_SCENE_MUSEUM_2F,
+    PC_WORLD_SCENE_ROUTE3,
+    PC_WORLD_SCENE_ROUTE4,
+    PC_WORLD_SCENE_MT_MOON_POKECENTER,
+    PC_WORLD_SCENE_MT_MOON_1F,
+    PC_WORLD_SCENE_MT_MOON_B1F,
+    PC_WORLD_SCENE_MT_MOON_B2F,
+    PC_WORLD_SCENE_CERULEAN,
+    PC_WORLD_SCENE_CERULEAN_TRADE_HOUSE,
+    PC_WORLD_SCENE_CERULEAN_POKECENTER,
+    PC_WORLD_SCENE_CERULEAN_GYM,
+    PC_WORLD_SCENE_BIKE_SHOP,
+    PC_WORLD_SCENE_CERULEAN_MART,
+    PC_WORLD_SCENE_CERULEAN_TRASHED_HOUSE,
+    PC_WORLD_SCENE_CERULEAN_BADGE_HOUSE
 };
+
+#define PC_WORLD_SCENE_MAX PC_WORLD_SCENE_CERULEAN_BADGE_HOUSE
 
 enum pc_world_view {
     PC_WORLD_VIEW_MAP = 0,
@@ -384,6 +406,7 @@ struct pc_world_state {
     int last_encounter_slot;
     int pending_species_index;
     int menu_index;
+    int mart_category;
     int mart_index;
     int mart_assign_index;
     int field_index;
@@ -415,11 +438,13 @@ struct pc_world_state {
     unsigned short pokeballs;
     unsigned short money;
     unsigned int secret_collected_bits;
+    signed char player_trainer;
     unsigned short pokestop_cooldowns[PC_WORLD_POKESTOP_COUNT];
     unsigned short caught_counts[PC_POKEDEX_MAX];
     unsigned short family_candy[PC_POKEDEX_MAX];
     signed short ability_species[PC_FIELD_ABILITY_COUNT];
     unsigned char ability_owned[PC_FIELD_ABILITY_COUNT];
+    unsigned char owned_trainers[PC_PLAYER_TRAINER_COUNT];
     struct pc_world_assets assets;
     struct pc_world_spawn spawns[PC_WORLD_MAX_SPAWNS];
 };
@@ -446,6 +471,7 @@ bool pc_assets_load_world_creature(struct pc_asset_bitmap *asset, int species_in
 bool pc_assets_load_world_trainer(struct pc_asset_bitmap *asset, int heading, int frame);
 bool pc_assets_load_named_world_trainer(struct pc_asset_bitmap *asset, const char *trainer_name,
                                         int heading, int frame);
+void pc_assets_set_player_trainer_name(const char *trainer_name);
 const char *pc_assets_source_label(const struct pc_asset_provider *assets);
 
 void pc_input_reset(struct pc_input_state *input);
@@ -478,6 +504,7 @@ void pc_state_update(struct pc_encounter_state *state,
                      const struct pc_throw_request *throw_request);
 
 void pc_render_frame(const struct pc_encounter_state *state);
+void pc_render_reset_trainer_asset(void);
 
 void pc_world_init(struct pc_world_state *world);
 void pc_world_teardown(struct pc_world_state *world);
@@ -497,6 +524,9 @@ bool pc_world_pokestop_draw_info(const struct pc_world_state *world, int index,
 int pc_world_nearby_count(const struct pc_world_state *world);
 bool pc_world_nearby_name(const struct pc_world_state *world, int index,
                           char *buffer, size_t buffer_size);
+int pc_world_player_trainer_count(void);
+const char *pc_world_player_trainer_name(int index);
+int pc_world_player_trainer_cost(int index);
 void pc_world_render_frame(const struct pc_world_state *world);
 
 #endif
