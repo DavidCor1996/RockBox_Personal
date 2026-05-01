@@ -5,6 +5,12 @@
 
 static struct rockboy_profile_totals totals;
 
+static unsigned long avg_ticks(const struct rockboy_profile_totals *p,
+                               enum rockboy_profile_counter which)
+{
+    return p->samples[which] ? p->total[which] / p->samples[which] : 0;
+}
+
 void rockboy_profile_reset(void)
 {
     memset(&totals, 0, sizeof(totals));
@@ -25,6 +31,18 @@ void rockboy_profile_frame_rendered(void)
 {
     if (rockboy_profile_is_enabled())
         totals.rendered_frames++;
+}
+
+void rockboy_profile_frame_skipped(void)
+{
+    if (rockboy_profile_is_enabled())
+        totals.skipped_frames++;
+}
+
+void rockboy_profile_pcm_underrun(void)
+{
+    if (rockboy_profile_is_enabled())
+        totals.pcm_underruns++;
 }
 
 const struct rockboy_profile_totals *rockboy_profile_get_totals(void)
@@ -53,21 +71,33 @@ void rockboy_profile_log_summary(const char *rom_path)
         return;
 
     fdprintf(fd,
-             "rom=%s frames=%lu frame_avg_ticks=%lu render_avg_ticks=%lu "
-             "scale_avg_ticks=%lu blit_avg_ticks=%lu audio_avg_ticks=%lu "
-             "save_total_ticks=%lu\n",
+             "rom=%s rendered_frames=%lu skipped_frames=%lu "
+             "frame_avg_ticks=%lu frame_peak_ticks=%lu "
+             "cpu_avg_ticks=%lu cpu_peak_ticks=%lu "
+             "lcd_render_avg_ticks=%lu lcd_render_peak_ticks=%lu "
+             "scale_avg_ticks=%lu scale_peak_ticks=%lu "
+             "blit_avg_ticks=%lu blit_peak_ticks=%lu "
+             "audio_mix_avg_ticks=%lu audio_mix_peak_ticks=%lu "
+             "pcm_wait_avg_ticks=%lu pcm_wait_peak_ticks=%lu "
+             "pcm_underruns=%lu save_total_ticks=%lu\n",
              rom_path ? rom_path : "<unknown>",
              p->rendered_frames,
-             p->samples[ROCKBOY_TIME_FRAME] ?
-                 p->total[ROCKBOY_TIME_FRAME] / p->samples[ROCKBOY_TIME_FRAME] : 0,
-             p->samples[ROCKBOY_TIME_RENDER] ?
-                 p->total[ROCKBOY_TIME_RENDER] / p->samples[ROCKBOY_TIME_RENDER] : 0,
-             p->samples[ROCKBOY_TIME_SCALE] ?
-                 p->total[ROCKBOY_TIME_SCALE] / p->samples[ROCKBOY_TIME_SCALE] : 0,
-             p->samples[ROCKBOY_TIME_BLIT] ?
-                 p->total[ROCKBOY_TIME_BLIT] / p->samples[ROCKBOY_TIME_BLIT] : 0,
-             p->samples[ROCKBOY_TIME_AUDIO] ?
-                 p->total[ROCKBOY_TIME_AUDIO] / p->samples[ROCKBOY_TIME_AUDIO] : 0,
+             p->skipped_frames,
+             avg_ticks(p, ROCKBOY_TIME_FRAME),
+             p->peak[ROCKBOY_TIME_FRAME],
+             avg_ticks(p, ROCKBOY_TIME_CPU),
+             p->peak[ROCKBOY_TIME_CPU],
+             avg_ticks(p, ROCKBOY_TIME_RENDER),
+             p->peak[ROCKBOY_TIME_RENDER],
+             avg_ticks(p, ROCKBOY_TIME_SCALE),
+             p->peak[ROCKBOY_TIME_SCALE],
+             avg_ticks(p, ROCKBOY_TIME_BLIT),
+             p->peak[ROCKBOY_TIME_BLIT],
+             avg_ticks(p, ROCKBOY_TIME_AUDIO_MIX),
+             p->peak[ROCKBOY_TIME_AUDIO_MIX],
+             avg_ticks(p, ROCKBOY_TIME_PCM_WAIT),
+             p->peak[ROCKBOY_TIME_PCM_WAIT],
+             p->pcm_underruns,
              p->total[ROCKBOY_TIME_SAVE]);
     close(fd);
 }

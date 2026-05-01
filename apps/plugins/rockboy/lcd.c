@@ -987,8 +987,9 @@ void lcd_refreshline(void)
                     p->total[ROCKBOY_TIME_FRAME] / p->samples[ROCKBOY_TIME_FRAME] : 0;
                 unsigned long render_avg = p->samples[ROCKBOY_TIME_RENDER] ?
                     p->total[ROCKBOY_TIME_RENDER] / p->samples[ROCKBOY_TIME_RENDER] : 0;
-                unsigned long audio_avg = p->samples[ROCKBOY_TIME_AUDIO] ?
-                    p->total[ROCKBOY_TIME_AUDIO] / p->samples[ROCKBOY_TIME_AUDIO] : 0;
+                unsigned long audio_avg = p->samples[ROCKBOY_TIME_AUDIO_MIX] ?
+                    p->total[ROCKBOY_TIME_AUDIO_MIX] /
+                    p->samples[ROCKBOY_TIME_AUDIO_MIX] : 0;
                 rb->lcd_putsxyf(0, LCD_HEIGHT-20, " FPS:%d FS:%d ",
                                 options.fps, options.frameskip);
                 rb->lcd_putsxyf(0, LCD_HEIGHT-10, " F:%lu R:%lu A:%lu ",

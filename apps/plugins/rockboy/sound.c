@@ -113,7 +113,7 @@ struct snd snd IBSS_ATTR;
 #define SOUND_MAGIC_2 0x30000000
 #define NOISE_MAGIC 5
 
-static void gbSoundChannel1(int *r, int *l)
+static void gbSoundChannel1(int *r, int *l, int balance, int quality)
 {
     int vol = S1.envol;
 
@@ -121,147 +121,152 @@ static void gbSoundChannel1(int *r, int *l)
 
     int value = 0;
 
-    if(S1.on && (S1.len || !S1.cont))
+    if(!S1.on)
+        return;
+
+    if(S1.len || !S1.cont)
     {
-        S1.pos += snd.quality*S1.skip;
+        S1.pos += quality*S1.skip;
         S1.pos &= 0x1fffffff;
 
         value = ((signed char)S1.wave[S1.pos>>24]) * vol;
     }
 
-    if (snd.balance & 1) *r += value;
-    if (snd.balance & 16) *l += value;
+    if (balance & 1) *r += value;
+    if (balance & 16) *l += value;
 
-    if(S1.on)
+    if(S1.len) 
     {
-        if(S1.len) 
-        {
-            S1.len-=snd.quality;
+        S1.len-=quality;
 
-            if(S1.len <=0 && S1.cont) 
+        if(S1.len <=0 && S1.cont) 
+        {
+            R_NR52 &= 0xfe;
+            S1.on = 0;
+        }
+    }
+
+    if(S1.enlen)
+    {
+        S1.enlen-=quality;
+
+        if(S1.enlen<=0) 
+        {
+            if(S1.endir)
             {
-                R_NR52 &= 0xfe;
+                if(S1.envol < 15)
+                    S1.envol++;
+            }
+            else 
+            {
+                if(S1.envol)
+                    S1.envol--;
+            }
+
+            S1.enlen += S1.enlenreload;
+        }
+    }
+
+    if(S1.swlen)
+    {
+        S1.swlen-=quality;
+
+        if(S1.swlen<=0)
+        {
+            freq = (((int)(R_NR14&7) << 8) | R_NR13);
+
+            int updown = 1;
+    
+            if(S1.swdir)
+                updown = -1;
+
+            int newfreq = 0;
+            if(S1.swsteps)
+            {
+                newfreq = freq + updown * freq / BIT_N(S1.swsteps);
+                if(newfreq == freq)
+                    newfreq = 0;
+            }
+            else
+                newfreq = freq;
+
+            if(newfreq < 0)
+            {
+                S1.swlen += S1.swlenreload;
+            }
+            else if(newfreq > 2047)
+            {
+                S1.swlen = 0;
                 S1.on = 0;
-            }
-        }
-
-        if(S1.enlen)
-        {
-            S1.enlen-=snd.quality;
-
-            if(S1.enlen<=0) 
+                R_NR52 &= 0xfe;
+            } 
+            else 
             {
-                if(S1.endir)
-                {
-                    if(S1.envol < 15)
-                        S1.envol++;
-                }
-                else 
-                {
-                    if(S1.envol)
-                        S1.envol--;
-                }
+                S1.swlen += S1.swlenreload;
+                S1.skip = SOUND_MAGIC/(2048 - newfreq);
 
-                S1.enlen += S1.enlenreload;
-            }
-        }
-
-        if(S1.swlen)
-        {
-            S1.swlen-=snd.quality;
-
-            if(S1.swlen<=0)
-            {
-                freq = (((int)(R_NR14&7) << 8) | R_NR13);
-
-                int updown = 1;
-        
-                if(S1.swdir)
-                    updown = -1;
-
-                int newfreq = 0;
-                if(S1.swsteps)
-                {
-                    newfreq = freq + updown * freq / BIT_N(S1.swsteps);
-                    if(newfreq == freq)
-                        newfreq = 0;
-                }
-                else
-                    newfreq = freq;
-
-                if(newfreq < 0)
-                {
-                    S1.swlen += S1.swlenreload;
-                }
-                else if(newfreq > 2047)
-                {
-                    S1.swlen = 0;
-                    S1.on = 0;
-                    R_NR52 &= 0xfe;
-                } 
-                else 
-                {
-                    S1.swlen += S1.swlenreload;
-                    S1.skip = SOUND_MAGIC/(2048 - newfreq);
-
-                    R_NR13 = newfreq & 0xff;
-                    R_NR14 = (R_NR14 & 0xf8) |((newfreq >> 8) & 7);
-                }
+                R_NR13 = newfreq & 0xff;
+                R_NR14 = (R_NR14 & 0xf8) |((newfreq >> 8) & 7);
             }
         }
     }
 }
 
-static void gbSoundChannel2(int *r, int *l)
+static void gbSoundChannel2(int *r, int *l, int balance, int quality)
 {
     int vol = S2.envol;
   
     int value = 0;
+
+    if(!S2.on)
+        return;
     
-    if(S2.on && (S2.len || !S2.cont))
+    if(S2.len || !S2.cont)
     {
-        S2.pos += snd.quality*S2.skip;
+        S2.pos += quality*S2.skip;
         S2.pos &= 0x1fffffff;
     
         value = ((signed char)S2.wave[S2.pos>>24]) * vol;
     }
 
-    if (snd.balance & 2) *r += value;
-    if (snd.balance & 32) *l += value;
+    if (balance & 2) *r += value;
+    if (balance & 32) *l += value;
 
-    if(S2.on) {
-        if(S2.len) {
-            S2.len-=snd.quality;
-            
-            if(S2.len <= 0 && S2.cont) {
-                R_NR52 &= 0xfd;
-                S2.on = 0;
-            }
-        }
+    if(S2.len) {
+        S2.len-=quality;
         
-        if(S2.enlen) {
-            S2.enlen-=snd.quality;
-          
-            if(S2.enlen <= 0) {
-                if(S2.endir) {
-                    if(S2.envol < 15)
-                        S2.envol++;
-                } else {
-                    if(S2.envol)
-                        S2.envol--;
-                }
-                S2.enlen += S2.enlenreload;
+        if(S2.len <= 0 && S2.cont) {
+            R_NR52 &= 0xfd;
+            S2.on = 0;
+        }
+    }
+    
+    if(S2.enlen) {
+        S2.enlen-=quality;
+      
+        if(S2.enlen <= 0) {
+            if(S2.endir) {
+                if(S2.envol < 15)
+                    S2.envol++;
+            } else {
+                if(S2.envol)
+                    S2.envol--;
             }
+            S2.enlen += S2.enlenreload;
         }
     }
 }
 
-static void gbSoundChannel3(int *r, int *l)
+static void gbSoundChannel3(int *r, int *l, int balance, int quality)
 {
     int s;
-    if (S3.on && (S3.len || !S3.cont))
+
+    if(!S3.on)
+        return;
+
+    if (S3.len || !S3.cont)
     {
-        S3.pos += S3.skip*snd.quality;
+        S3.pos += S3.skip*quality;
         S3.pos &= 0x1fffffff;
         s=ram.hi[0x30 + (S3.pos>>25)];
         if (S3.pos & 0x01000000)
@@ -286,36 +291,36 @@ static void gbSoundChannel3(int *r, int *l)
                 break;
         }
 
-        if (snd.balance & 4) *r += s;
-        if (snd.balance & 64) *l += s;
+        if (balance & 4) *r += s;
+        if (balance & 64) *l += s;
     }
 
-    if(S3.on)
+    if(S3.len)
     {
-        if(S3.len)
+        S3.len-=quality;
+        if(S3.len<=0 && S3.cont)
         {
-            S3.len-=snd.quality;
-            if(S3.len<=0 && S3.cont)
-            {
-                R_NR52 &= 0xFB;
-                S3.on=0;
-            }
+            R_NR52 &= 0xFB;
+            S3.on=0;
         }
     }
 }
 
-static void gbSoundChannel4(int *r, int *l)
+static void gbSoundChannel4(int *r, int *l, int balance, int quality)
 {
     int vol = S4.envol;
   
     int value = 0;
+
+    if(!S4.on)
+        return;
   
     if(S4.clock <= 0x0c)
     {
-        if(S4.on && (S4.len || !S4.cont))
+        if(S4.len || !S4.cont)
         {
-            S4.pos += snd.quality*S4.skip;
-            S4.shiftpos += snd.quality*S4.shiftskip;
+            S4.pos += quality*S4.skip;
+            S4.shiftpos += quality*S4.shiftskip;
       
             if(S4.nsteps)
             {
@@ -346,36 +351,34 @@ static void gbSoundChannel4(int *r, int *l)
         }
     }
   
-    if (snd.balance & 8) *r += value;
-    if (snd.balance & 128) *l += value;
+    if (balance & 8) *r += value;
+    if (balance & 128) *l += value;
   
-    if(S4.on) {
-        if(S4.len) {
-            S4.len-=snd.quality;
-            
-            if(S4.len <= 0 && S4.cont) {
-                R_NR52 &= 0xfd;
-                S4.on = 0;
-            }
-        }
+    if(S4.len) {
+        S4.len-=quality;
         
-        if(S4.enlen) {
-            S4.enlen-=snd.quality;
-            
-            if(S4.enlen <= 0)
+        if(S4.len <= 0 && S4.cont) {
+            R_NR52 &= 0xfd;
+            S4.on = 0;
+        }
+    }
+    
+    if(S4.enlen) {
+        S4.enlen-=quality;
+        
+        if(S4.enlen <= 0)
+        {
+            if(S4.endir)
             {
-                if(S4.endir)
-                {
-                    if(S4.envol < 15)
-                        S4.envol++;
-                } 
-                else 
-                {
-                    if(S4.envol)
-                        S4.envol--;
-                }
-                S4.enlen += S4.enlenreload;
+                if(S4.envol < 15)
+                    S4.envol++;
+            } 
+            else 
+            {
+                if(S4.envol)
+                    S4.envol--;
             }
+            S4.enlen += S4.enlenreload;
         }
     }
 }
@@ -383,30 +386,45 @@ static void gbSoundChannel4(int *r, int *l)
 void sound_mix(void)
 {
     int l, r;
+    int balance;
+    int quality;
+    int left_gain;
+    int right_gain;
+    int digital_left;
+    int digital_right;
+    bool digital;
 
     if (!RATE || cpu.snd < RATE) return;
+
+    balance = snd.balance;
+    quality = snd.quality;
+    left_gain = snd.level1 * 60;
+    right_gain = snd.level2 * 60;
+    digital_left = snd.level1 << 8;
+    digital_right = snd.level2 << 8;
+    digital = snd.gbDigitalSound;
 
     for (; cpu.snd >= RATE; cpu.snd -= RATE)
     {
         l = r = 0;
 
-        gbSoundChannel1(&r,&l);
+        gbSoundChannel1(&r, &l, balance, quality);
 
-        gbSoundChannel2(&r,&l);
+        gbSoundChannel2(&r, &l, balance, quality);
 
-        gbSoundChannel3(&r,&l);
+        gbSoundChannel3(&r, &l, balance, quality);
 
-        gbSoundChannel4(&r,&l);
+        gbSoundChannel4(&r, &l, balance, quality);
 
-        if(snd.gbDigitalSound)
+        if(digital)
         {
-            l = snd.level1<<8;
-            r = snd.level2<<8;
+            l = digital_left;
+            r = digital_right;
         }
         else
         {
-            l *= snd.level1*60;
-            r *= snd.level2*60;
+            l *= left_gain;
+            r *= right_gain;
         }
 
         if(l > 32767)

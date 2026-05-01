@@ -324,6 +324,7 @@ void vid_begin(void)
     {
         skip++;
         fb.enabled=0;
+        rockboy_profile_frame_skipped();
     }
     else
     {
