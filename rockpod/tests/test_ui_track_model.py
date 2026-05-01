@@ -5,12 +5,15 @@ import sys
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-from PySide6.QtCore import Qt
+from PySide6.QtCore import QPoint, Qt, QTimer
 from PySide6.QtWidgets import QApplication
 from PIL import Image
 
+from services.device_detector import DeviceDetector
+from services.library_scanner import LibraryScanner
 from services.artwork_manager import ArtworkManager
-from ui.library_views import AlbumGridView
+from ui.library_views import AlbumGridView, GroupedTrackView
+from ui.main_window import MainWindow
 from ui.track_table import COLUMNS, TrackTable, TrackTableModel
 
 
@@ -152,3 +155,38 @@ def test_album_grid_uses_larger_album_tiles(tmp_dir):
 
     assert view._grid.iconSize().width() >= 112
     assert view._grid.gridSize().width() >= 160
+
+
+def test_grouped_track_view_proxies_selection_and_context_menu():
+    app = QApplication.instance() or QApplication([])
+    view = GroupedTrackView("Artists")
+    view.set_groups({
+        "Artist": [
+            {"id": 1, "title": "One", "artist": "Artist"},
+            {"id": 2, "title": "Two", "artist": "Artist"},
+        ]
+    })
+
+    view.select_track_ids({2})
+
+    captured = []
+    view.track_context_requested.connect(lambda global_pos: captured.append(global_pos))
+    view._on_track_context_menu(QPoint(1, 1))
+
+    assert view.get_selected_track_ids() == {2}
+    assert [track["title"] for track in view.get_selected_tracks()] == ["Two"]
+    assert len(captured) == 1
+
+
+def test_main_window_uses_grouped_view_as_active_track_table_in_artists_mode(config, monkeypatch):
+    app = QApplication.instance() or QApplication([])
+    monkeypatch.setattr(DeviceDetector, "start_polling", lambda self: None)
+    monkeypatch.setattr(QTimer, "singleShot", lambda *args, **kwargs: None)
+    monkeypatch.setattr(LibraryScanner, "start_scan", lambda self, force_full=False: None)
+
+    window = MainWindow(config)
+    try:
+        window._current_view = "library_artists"
+        assert window._active_track_table() is window._artist_view
+    finally:
+        window.close()

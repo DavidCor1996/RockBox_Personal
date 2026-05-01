@@ -407,6 +407,62 @@ class TestSyncWorkerRun:
         dest = os.path.join(env["device_path"], rel_path)
         assert os.path.isfile(dest)
 
+    def test_copies_local_lrc_sidecar_with_track(self, env):
+        src = _make_source_file(env, "Art", "Alb", "TimedSong")
+        with open(os.path.splitext(src)[0] + ".lrc", "w", encoding="utf-8") as f:
+            f.write("[00:01.00]<00:01.10>Hello")
+
+        rel_path = "Music/Art/Alb/01 - TimedSong.mp3"
+        row = {
+            "id": 101,
+            "file_path": src,
+            "title": "TimedSong",
+            "artist": "Art",
+            "album": "Alb",
+            "metadata_hash": "mh101",
+            "file_hash": "fh101",
+        }
+
+        plan = SyncPlan()
+        plan.to_copy.append((row, rel_path))
+
+        worker = SyncWorker(plan, env["device_path"], env["config"].db_path)
+        worker.run()
+
+        dest_lrc = os.path.join(env["device_path"], "Music/Art/Alb/01 - TimedSong.lrc")
+        assert os.path.isfile(dest_lrc)
+        with open(dest_lrc, "r", encoding="utf-8") as f:
+            assert f.read() == "[00:01.00]<00:01.10>Hello"
+
+    def test_resync_removes_stale_lrc_when_local_sidecar_is_missing(self, env):
+        src = _make_source_file(env, "Art", "Alb", "NoLyrics")
+        rel_path = "Music/Art/Alb/01 - NoLyrics.mp3"
+        dest = os.path.join(env["device_path"], rel_path)
+        os.makedirs(os.path.dirname(dest), exist_ok=True)
+        with open(dest, "wb") as f:
+            f.write(b"old audio")
+        with open(os.path.splitext(dest)[0] + ".lrc", "w", encoding="utf-8") as f:
+            f.write("[00:01.00]stale")
+
+        row = {
+            "id": 102,
+            "file_path": src,
+            "title": "NoLyrics",
+            "artist": "Art",
+            "album": "Alb",
+            "metadata_hash": "mh102",
+            "file_hash": "fh102",
+        }
+
+        plan = SyncPlan()
+        plan.to_resync.append((row, rel_path, rel_path))
+
+        worker = SyncWorker(plan, env["device_path"], env["config"].db_path)
+        worker.run()
+
+        assert os.path.isfile(dest)
+        assert not os.path.exists(os.path.splitext(dest)[0] + ".lrc")
+
     def test_copies_from_sync_source_path_when_present(self, env):
         src = _make_source_file(env, "Art", "Alb", "OriginalLossless", ext=".flac", size=1024)
         cached = os.path.join(env["tmp"], "cache", "device_transcodes", "mock", "OriginalLossless.mp3")
@@ -828,6 +884,62 @@ class TestSyncEnginePlan:
         resync_titles = [dict(r)["title"] if hasattr(r, "keys") else r["title"]
                          for r, _, _ in plan.to_resync]
         assert "Changed" in resync_titles
+
+    def test_plan_reason_counts_include_update_breakdown(self, env, monkeypatch):
+        src = _make_source_file(env, "Art", "Alb", "Changed", ext=".flac")
+        local = _insert_track(
+            env["db"],
+            "Changed",
+            "Art",
+            "Alb",
+            file_path=src,
+            codec="flac",
+            metadata_hash="new_meta_hash",
+            file_hash="new_file_hash",
+            synced_to_device=1,
+            last_synced_metadata_hash="old_meta_hash",
+            last_synced_file_hash="old_file_hash",
+        )
+
+        engine = self._make_engine(env)
+        device_key = engine.set_current_device(engine._device_detector.current_device)
+        _insert_device_track(
+            env["db"],
+            "Changed",
+            "Art",
+            "Alb",
+            "Music/Old/Path/Changed.mp3",
+            device_id=device_key,
+            metadata_hash="old_meta_hash",
+            file_hash="old_file_hash",
+            local_track_id=local["id"],
+        )
+        env["config"].set("convert_audio_for_device", True)
+        env["config"].set("audio_conversion_mode", "unsupported_or_lossless")
+        env["config"].set("audio_conversion_codec", "mp3")
+
+        def fake_prepare(track_row, device_key, settings):
+            row = dict(track_row)
+            row.update(
+                {
+                    "sync_source_path": os.path.join(env["tmp"], "cache", "device_transcodes", "mock", "Changed.mp3"),
+                    "sync_output_ext": ".mp3",
+                    "sync_transcoded": True,
+                    "codec": "MP3",
+                    "file_hash": "new_file_hash",
+                    "metadata_hash": "new_meta_hash",
+                }
+            )
+            return row, {"converted": True, "cache_path": row["sync_source_path"], "reason": "transcoded"}
+
+        monkeypatch.setattr(engine._audio_transcoder, "prepare_track_for_sync", fake_prepare)
+
+        plan = engine.build_sync_plan()
+
+        assert plan.update_reason_counts["conversion required"] == 1
+        assert plan.update_reason_counts["metadata changed"] == 1
+        assert plan.update_reason_counts["file changed"] == 1
+        assert plan.update_reason_counts["path changed"] == 1
 
     def test_not_on_device_detection_uses_current_device_index(self, env):
         src_a = _make_source_file(env, "Art", "Alb", "OnDevice")

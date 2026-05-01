@@ -28,26 +28,6 @@ THEME_DEFINITIONS = {
             "icons/iPone.bmp",
         ],
     },
-    "iPone_optimized": {
-        "name": "iPone Optimized",
-        "description": "Performance-tuned iPone stack for 320x240 iPods.",
-        "resolutions": ["320x240"],
-        "assets": [
-            {"kind": "cfg", "source": "themes/iPone_optimized.cfg", "destination": ".rockbox/themes/iPone_optimized.cfg"},
-            {"kind": "wps", "source": "wps/iPone_optimized.wps", "destination": ".rockbox/wps/iPone_optimized.wps"},
-            {"kind": "sbs", "source": "wps/iPone_optimized.sbs", "destination": ".rockbox/wps/iPone_optimized.sbs"},
-            {"kind": "fms", "source": "wps/iPone.fms", "destination": ".rockbox/wps/iPone.fms"},
-            {"kind": "backdrop", "source": "backdrops/iPone_bd.bmp", "destination": ".rockbox/backdrops/iPone_bd.bmp"},
-            {"kind": "iconset", "source": "icons/iPone.bmp", "destination": ".rockbox/icons/iPone.bmp"},
-            {"kind": "font", "source": "fonts/24 iLike.fnt", "destination": ".rockbox/fonts/24 iLike.fnt"},
-            {"kind": "wps_assets", "source": "wps/iPone", "destination": ".rockbox/wps/iPone", "recursive": True},
-        ],
-        "preview_candidates": [
-            "wps/iPone/Wallpaper.bmp",
-            "wps/iPone/SbsBackdrop.bmp",
-            "backdrops/iPone_bd.bmp",
-        ],
-    },
     "iPone_nano2g": {
         "name": "iPone Nano 2G",
         "description": "Compact iPone port for the 176x132 nano 2G.",

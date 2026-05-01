@@ -6,6 +6,8 @@ import logging
 import threading
 from contextlib import contextmanager
 
+from models.track import compute_metadata_hash
+
 logger = logging.getLogger(__name__)
 
 SCHEMA_VERSION = 8
@@ -696,8 +698,66 @@ class Database:
 
     def update_track_metadata(self, track_id, updates):
         """Update specific fields on a track."""
-        parts = ", ".join([f"{k} = ?" for k in updates.keys()])
-        vals = list(updates.values()) + [track_id]
+        editable_fields = {
+            "title",
+            "artist",
+            "album",
+            "album_artist",
+            "show_title",
+            "genre",
+            "year",
+            "season_number",
+            "episode_number",
+            "track_number",
+            "track_total",
+            "disc_number",
+            "disc_total",
+            "composer",
+            "comment",
+            "compilation",
+            "rating",
+            "play_count",
+            "last_played",
+            "date_added",
+            "video_kind",
+        }
+        metadata_hash_fields = {
+            "title",
+            "artist",
+            "album",
+            "album_artist",
+            "genre",
+            "year",
+            "track_number",
+            "disc_number",
+            "composer",
+        }
+        sanitized = {key: value for key, value in (updates or {}).items() if key in editable_fields}
+        if not sanitized:
+            return
+
+        if metadata_hash_fields.intersection(sanitized):
+            row = self.get_track_by_id(track_id)
+            if row is not None:
+                merged = dict(row)
+                merged.update(sanitized)
+                sanitized["metadata_hash"] = compute_metadata_hash(
+                    merged.get("title", ""),
+                    merged.get("artist", ""),
+                    merged.get("album", ""),
+                    merged.get("album_artist", ""),
+                    merged.get("track_number"),
+                    merged.get("disc_number"),
+                    merged.get("genre", ""),
+                    merged.get("year"),
+                    merged.get("composer", ""),
+                    merged.get("duration", 0.0),
+                    merged.get("bitrate", 0),
+                    merged.get("codec", ""),
+                )
+
+        parts = ", ".join([f"{k} = ?" for k in sanitized.keys()])
+        vals = list(sanitized.values()) + [track_id]
         self.execute(f"UPDATE tracks SET {parts} WHERE id = ?", tuple(vals))
 
     # ---- Playlist operations ----

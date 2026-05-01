@@ -1,0 +1,58 @@
+ASxxxx Assembler V02.00 + NoICE + SDCC mods  (GameBoy)                  Page 1
+Hexadecimal [32-Bits]
+
+Symbol Table
+
+    .__.$$$.                                                    =   00002710 L
+    .__.ABS.                                                    =   00000000 G
+    .__.CPU.                                                    =   00000000 L
+    .__.H$L.                                                    =   00000000 L
+    ___sdcc_bcall_ehl                                               ******** GX
+  8 ___str_0                                                        00000043 R
+  8 ___str_1                                                        0000004D R
+  8 ___str_10                                                       000002AE R
+  8 ___str_11                                                       000002B8 R
+  8 ___str_12                                                       000002BD R
+  8 ___str_2                                                        0000005C R
+  8 ___str_3                                                        00000068 R
+  8 ___str_4                                                        0000023A R
+  8 ___str_5                                                        00000244 R
+  8 ___str_6                                                        0000027C R
+  8 ___str_7                                                        00000289 R
+  8 ___str_8                                                        00000293 R
+  8 ___str_9                                                        000002A2 R
+    _dt_audio_get_home_record                                       ******** GX
+    _dt_audio_play_sfx                                              ******** GX
+    _dt_audio_set_home_record                                       ******** GX
+    _dt_audio_sync                                                  ******** GX
+  8 _dt_home_record_menu                                            0000006F GR
+  8 _dt_record_from_media                                           00000000 GR
+  8 _dt_record_name                                                 0000001D GR
+    _menu_screen                                                    ******** GX
+    _show_message                                                   ******** GX
+    b_dt_audio_get_home_record                                      ******** GX
+    b_dt_audio_play_sfx                                             ******** GX
+    b_dt_audio_set_home_record                                      ******** GX
+    b_dt_audio_sync                                                 ******** GX
+    b_dt_home_record_menu                                       =   000000FF G
+    b_dt_record_from_media                                      =   000000FF G
+    b_dt_record_name                                            =   000000FF G
+
+
+ASxxxx Assembler V02.00 + NoICE + SDCC mods  (GameBoy)                  Page 2
+Hexadecimal [32-Bits]
+
+Area Table
+
+   0 _CODE                                      size        0   flags    0
+   1 _HRAM                                      size        0   flags    0
+   2 _DATA                                      size        0   flags    0
+   3 _INITIALIZED                               size        0   flags    0
+   4 _DABS                                      size        0   flags    8
+   5 _HOME                                      size        0   flags    0
+   6 _GSINIT                                    size        0   flags    0
+   7 _GSFINAL                                   size        0   flags    0
+   8 _CODE_255                                  size      2D1   flags    0
+   9 _INITIALIZER                               size        0   flags    0
+   A _CABS                                      size        0   flags    8
+

@@ -24,6 +24,7 @@ from app.database import Database
 from services.audio_transcode import AudioSyncTranscoder
 from services.rockbox_device import detect_rockbox_database_state
 from services.metadata_reader import read_metadata, compute_file_hash, CODEC_MAP, VIDEO_EXTENSIONS
+from services.reconciliation import summarize_unmatched_tracks
 from services.track_matcher import TrackMatcher
 from services.device_inventory import device_music_roots, device_record_from_info, verify_device_inventory
 
@@ -47,6 +48,42 @@ def _sanitize_filename(name, max_len=200):
     if len(name) > max_len:
         name = name[:max_len].rstrip()
     return name or "Unknown"
+
+
+def _bump_reason(reason_counts, reason):
+    if not reason:
+        return
+    reason_counts[reason] = reason_counts.get(reason, 0) + 1
+
+
+def _sync_update_reasons(row, device_row=None, old_dev_path="", new_rel_path=""):
+    local = dict(row) if hasattr(row, "keys") else dict(row or {})
+    device = dict(device_row) if hasattr(device_row, "keys") else dict(device_row or {})
+    reasons = []
+
+    if local.get("sync_transcoded"):
+        reasons.append("conversion required")
+
+    local_mh = str(local.get("metadata_hash") or "").strip()
+    device_mh = str(device.get("metadata_hash") or "").strip()
+    last_synced_mh = str(local.get("last_synced_metadata_hash") or "").strip()
+    if (local_mh and device_mh and local_mh != device_mh) or (
+        local_mh and last_synced_mh and local_mh != last_synced_mh
+    ):
+        reasons.append("metadata changed")
+
+    local_fh = str(local.get("file_hash") or "").strip()
+    device_fh = str(device.get("file_hash") or "").strip()
+    last_synced_fh = str(local.get("last_synced_file_hash") or "").strip()
+    if (local_fh and device_fh and local_fh != device_fh) or (
+        local_fh and last_synced_fh and local_fh != last_synced_fh
+    ):
+        reasons.append("file changed")
+
+    if old_dev_path and new_rel_path and old_dev_path != new_rel_path:
+        reasons.append("path changed")
+
+    return reasons
 
 
 def _dedupe_normalize(value):
@@ -139,6 +176,14 @@ def _remove_audio_with_sidecars(path):
     return removed
 
 
+def _source_lyrics_sidecar_path(track_row):
+    row = dict(track_row) if hasattr(track_row, "keys") else dict(track_row or {})
+    source_path = str(row.get("file_path") or "").strip()
+    if not source_path:
+        return ""
+    return str(Path(source_path).with_suffix(".lrc"))
+
+
 def _clear_device_trash(device_mount):
     """Remove desktop trash folders from the device root so Rockbox does not index them."""
     removed = []
@@ -173,6 +218,8 @@ class SyncPlan:
         self.errors = []
         self.plan_profile = {}
         self.execution_profile = {}
+        self.copy_reason_counts = {}
+        self.update_reason_counts = {}
 
     @property
     def total_operations(self):
@@ -282,6 +329,7 @@ class SyncWorker(QObject):
                 if ok:
                     copied += 1
                     self.file_copied.emit(src, dest)
+                    self._sync_lyrics_sidecar(row, dest, created_dirs)
                     tid = row.get("id")
                     if tid:
                         mh = row.get("metadata_hash", "")
@@ -315,6 +363,7 @@ class SyncWorker(QObject):
                 if ok:
                     copied += 1
                     self.file_copied.emit(src, dest)
+                    self._sync_lyrics_sidecar(row, dest, created_dirs)
                     if old_dev_path and old_dev_path != new_rel_path:
                         old_full = os.path.join(self._device_mount, old_dev_path)
                         try:
@@ -499,6 +548,20 @@ class SyncWorker(QObject):
             self.file_error.emit(src, str(e))
             logger.error("Failed to copy %s -> %s: %s", src, dest, e)
             return False, stats
+
+    def _sync_lyrics_sidecar(self, track_row, audio_dest, created_dirs=None):
+        """Mirror a local .lrc sidecar to the device next to the synced audio file."""
+        source_sidecar = _source_lyrics_sidecar_path(track_row)
+        dest_sidecar = os.path.splitext(audio_dest)[0] + ".lrc"
+        if source_sidecar and os.path.isfile(source_sidecar):
+            self._copy_file(source_sidecar, dest_sidecar, created_dirs)
+            return
+        if os.path.exists(dest_sidecar):
+            try:
+                os.remove(dest_sidecar)
+            except OSError as exc:
+                self.file_error.emit(dest_sidecar, str(exc))
+                logger.warning("Failed to remove stale lyrics sidecar %s: %s", dest_sidecar, exc)
 
 
 class SyncEngine(QObject):
@@ -695,6 +758,8 @@ class SyncEngine(QObject):
         emit_status("Loading cached iPod inventory...")
         device_tracks = self.get_device_tracks()
         stage_times["device_fetch_seconds"] = time.perf_counter() - stage_start
+        copy_reason_counts = {}
+        update_reason_counts = {}
 
         matched = []
         resync_list = []
@@ -706,8 +771,14 @@ class SyncEngine(QObject):
                 old_dev = row.get("device_path", "")
                 if old_dev:
                     plan.to_resync.append((row, old_dev, rel_path))
+                    for reason in _sync_update_reasons(row, old_dev_path=old_dev, new_rel_path=rel_path):
+                        _bump_reason(update_reason_counts, reason)
+                    _bump_reason(update_reason_counts, "force full resync")
                 else:
                     plan.to_copy.append((row, rel_path))
+                    _bump_reason(copy_reason_counts, "force full resync")
+                    if row.get("sync_transcoded"):
+                        _bump_reason(copy_reason_counts, "conversion required")
                 plan.total_bytes += row.get("file_size", 0)
         else:
             # Normal mode: use matcher
@@ -743,6 +814,13 @@ class SyncEngine(QObject):
                 ):
                     used_paths.add(desired_rel_path)
                     plan.to_resync.append((row, desired_rel_path, desired_rel_path))
+                    for reason in _sync_update_reasons(
+                        row,
+                        device_row=existing_row,
+                        old_dev_path=desired_rel_path,
+                        new_rel_path=desired_rel_path,
+                    ):
+                        _bump_reason(update_reason_counts, reason)
                 else:
                     rel_path = self._unique_device_path(
                         desired_rel_path,
@@ -750,6 +828,12 @@ class SyncEngine(QObject):
                     )
                     used_paths.add(rel_path)
                     plan.to_copy.append((row, rel_path))
+                    _bump_reason(
+                        copy_reason_counts,
+                        matcher.explain_unmatched(row, device_tracks),
+                    )
+                    if row.get("sync_transcoded"):
+                        _bump_reason(copy_reason_counts, "conversion required")
                 plan.total_bytes += row.get("file_size", 0) if isinstance(row, dict) else 0
 
             # Tracks needing resync due to metadata/content changes
@@ -765,6 +849,13 @@ class SyncEngine(QObject):
                     )
                     used_paths.add(rel_path)
                     plan.to_resync.append((row, old_dev, rel_path))
+                    for reason in _sync_update_reasons(
+                        row,
+                        device_row=device_row,
+                        old_dev_path=old_dev,
+                        new_rel_path=rel_path,
+                    ):
+                        _bump_reason(update_reason_counts, reason)
                     plan.total_bytes += row.get("file_size", 0) if isinstance(row, dict) else 0
 
             resync_ids = {id(result) for result in resync_list}
@@ -803,6 +894,8 @@ class SyncEngine(QObject):
             **stage_times,
             "build_seconds": time.perf_counter() - t0,
         }
+        plan.copy_reason_counts = copy_reason_counts
+        plan.update_reason_counts = update_reason_counts
         logger.info(
             "Sync plan timing: total=%.3fs local_fetch=%.3fs audio_prepare=%.3fs device_fetch=%.3fs match=%.3fs artwork=%.3fs "
             "ops(copy=%d,resync=%d,artwork=%d,delete=%d,up_to_date=%d)",
@@ -840,6 +933,12 @@ class SyncEngine(QObject):
                 return False
             return bool(dict(device_row).get("last_scan_at"))
         return all(dict(track).get("local_track_id") for track in device_tracks)
+
+    def device_inventory_is_verified(self):
+        """Return whether the current device inventory has been scanned into the cache."""
+        if not self._ensure_current_device_key():
+            return False
+        return not self._device_inventory_needs_scan()
 
     def set_current_device(self, device):
         """Select a connected device and load its cached inventory from SQLite."""
@@ -898,6 +997,27 @@ class SyncEngine(QObject):
             local_tracks, device_tracks
         )
         return [result.local_track for result in unmatched]
+
+    def get_not_on_device_reason_counts(self, track_ids=None):
+        """Return grouped reasons explaining why local tracks are not on the device."""
+        if not self._ensure_current_device_key():
+            return {}
+        if self._device_mount_unavailable():
+            return {}
+        if self._device_inventory_needs_scan():
+            return {}
+
+        missing_tracks = self.get_not_on_device_tracks(track_ids=track_ids)
+        if not missing_tracks:
+            return {}
+
+        summary = summarize_unmatched_tracks(
+            missing_tracks,
+            self.get_device_tracks(),
+            matcher=self._matcher(),
+            sample_limit=0,
+        )
+        return summary["reason_counts"]
 
     def get_sync_status_counts(self):
         if not self._ensure_current_device_key():

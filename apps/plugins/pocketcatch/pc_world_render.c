@@ -22,6 +22,8 @@ static const fb_data pc_gb_palette[4] = {
 #define PC_WORLD_TILE_CACHE_PIXELS (PC_WORLD_SUBTILE_SIZE * PC_WORLD_SUBTILE_SIZE)
 #define PC_WORLD_NPC_TRAINERS 3
 #define PC_BAG_ROWS 5
+#define PC_BAG_ROW_H 18
+#define PC_BAG_ICON_SIZE 14
 #define PC_UI_BALL_SIZE 14
 #define PC_UI_WEATHER_SIZE 18
 
@@ -67,6 +69,34 @@ static void draw_asset_bitmap(const struct bitmap *bmp, int x, int y)
     rb->lcd_bitmap_part((const fb_data *)bmp->data, 0, 0, bmp->width,
                         x, y, bmp->width, bmp->height);
 #endif
+}
+
+static void draw_asset_bitmap_fit(const struct bitmap *bmp, int x, int y, int w, int h)
+{
+    const fb_data *src;
+    int dx;
+    int dy;
+
+    if (bmp == NULL || bmp->data == NULL || w <= 0 || h <= 0)
+        return;
+
+    src = (const fb_data *)bmp->data;
+    for (dy = 0; dy < h; ++dy)
+    {
+        int src_y = dy * bmp->height / MAX(1, h);
+
+        for (dx = 0; dx < w; ++dx)
+        {
+            fb_data pixel;
+            int src_x = dx * bmp->width / MAX(1, w);
+
+            pixel = src[src_y * bmp->width + src_x];
+            if (pixel == TRANSPARENT_COLOR)
+                continue;
+            rb->lcd_set_foreground(pixel);
+            rb->lcd_drawpixel(x + dx, y + dy);
+        }
+    }
 }
 
 static const struct pc_asset_bitmap *ensure_npc_trainer_asset(int trainer_index,
@@ -477,6 +507,11 @@ static void draw_flat_panel(int x, int y, int w, int h,
     rb->lcd_drawrect(x, y, w, h);
 }
 
+static bool rect_visible(int x, int y, int w, int h)
+{
+    return !(x >= LCD_WIDTH || y >= LCD_HEIGHT || x + w <= 0 || y + h <= 0);
+}
+
 static int block_screen_x(const struct pc_world_state *world, int tx)
 {
     return world->origin_x + tx * PC_WORLD_TILE_SIZE;
@@ -495,7 +530,13 @@ static bool outdoor_scene(enum pc_world_scene scene)
            scene == PC_WORLD_SCENE_ROUTE2_SOUTH ||
            scene == PC_WORLD_SCENE_ROUTE21_NORTH ||
            scene == PC_WORLD_SCENE_VIRIDIAN_FOREST ||
-           scene == PC_WORLD_SCENE_PEWTER;
+           scene == PC_WORLD_SCENE_PEWTER ||
+           scene == PC_WORLD_SCENE_ROUTE22 ||
+           scene == PC_WORLD_SCENE_ROUTE3 ||
+           scene == PC_WORLD_SCENE_ROUTE4 ||
+           scene == PC_WORLD_SCENE_CERULEAN ||
+           scene == PC_WORLD_SCENE_ROUTE24 ||
+           scene == PC_WORLD_SCENE_ROUTE25;
 }
 
 enum pc_scene_tileset_group {
@@ -528,6 +569,7 @@ static enum pc_scene_tileset_group scene_tileset_group(enum pc_world_scene scene
         case PC_WORLD_SCENE_PEWTER_SPEECH_HOUSE:
         case PC_WORLD_SCENE_CERULEAN_TRADE_HOUSE:
         case PC_WORLD_SCENE_CERULEAN_TRASHED_HOUSE:
+        case PC_WORLD_SCENE_BILLS_HOUSE:
             return PC_SCENE_TILESET_HOUSE;
 
         case PC_WORLD_SCENE_VIRIDIAN_MART:
@@ -579,6 +621,8 @@ static enum pc_scene_tileset_group scene_tileset_group(enum pc_world_scene scene
         case PC_WORLD_SCENE_ROUTE4:
         case PC_WORLD_SCENE_ROUTE22:
         case PC_WORLD_SCENE_CERULEAN:
+        case PC_WORLD_SCENE_ROUTE24:
+        case PC_WORLD_SCENE_ROUTE25:
         default:
             return PC_SCENE_TILESET_OVERWORLD;
     }
@@ -591,6 +635,8 @@ static void draw_spawn(const struct pc_world_state *world, int index)
     int screen_x;
     int screen_y;
     int shadow_w = PC_WORLD_SCALE(12);
+    int sprite_w = PC_WORLD_SCALE(24);
+    int sprite_h = PC_WORLD_SCALE(24);
 
     if (!spawn->active)
         return;
@@ -599,7 +645,23 @@ static void draw_spawn(const struct pc_world_state *world, int index)
     screen_y = world->origin_y + spawn->y;
     creature = pc_assets_get_creature(spawn->species_index);
     if (world->assets.creature[index].loaded)
+    {
         shadow_w = MAX(PC_WORLD_SCALE(12), world->assets.creature[index].bmp.width / 2);
+        sprite_w = world->assets.creature[index].bmp.width;
+        sprite_h = world->assets.creature[index].bmp.height;
+    }
+    else if (creature != NULL)
+    {
+        sprite_w = PC_WORLD_SCALE(MAX(18, creature->sprite_w));
+        sprite_h = PC_WORLD_SCALE(MAX(18, creature->sprite_h));
+    }
+
+    if (!rect_visible(screen_x - sprite_w / 2,
+                      screen_y - sprite_h / 2,
+                      sprite_w, sprite_h + PC_WORLD_FOOT_Y_OFFSET + PC_WORLD_SCALE(4)))
+    {
+        return;
+    }
 
     fill_capsule(screen_x - shadow_w / 2,
                  screen_y + PC_WORLD_FOOT_Y_OFFSET,
@@ -816,7 +878,7 @@ static void draw_weather_overlay(const struct pc_world_state *world)
     enum pc_world_weather weather = current_world_weather(world);
     int i;
 
-    if (!outdoor_scene(world->scene))
+    if (!outdoor_scene(world->scene) || world->view != PC_WORLD_VIEW_MAP)
         return;
 
     if (time_mode == PC_WORLD_TIME_NIGHT)
@@ -1464,6 +1526,32 @@ static void draw_scene_npcs(const struct pc_world_state *world)
         return;
     }
 
+    if (world->scene == PC_WORLD_SCENE_ROUTE24)
+    {
+        draw_static_named_trainer_npc(world, 0, 11, 15, PC_HEADING_W);
+        draw_static_named_trainer_npc(world, 0, 5, 20, PC_HEADING_N);
+        draw_static_named_trainer_npc(world, 0, 11, 19, PC_HEADING_W);
+        draw_static_named_trainer_npc(world, 1, 10, 22, PC_HEADING_E);
+        draw_static_named_trainer_npc(world, 0, 11, 25, PC_HEADING_W);
+        draw_static_named_trainer_npc(world, 1, 10, 28, PC_HEADING_E);
+        draw_static_named_trainer_npc(world, 0, 11, 31, PC_HEADING_W);
+        return;
+    }
+
+    if (world->scene == PC_WORLD_SCENE_ROUTE25)
+    {
+        draw_static_named_trainer_npc(world, 0, 14, 2, PC_HEADING_S);
+        draw_static_named_trainer_npc(world, 0, 18, 5, PC_HEADING_N);
+        draw_static_named_trainer_npc(world, 0, 24, 4, PC_HEADING_S);
+        draw_static_named_trainer_npc(world, 1, 18, 8, PC_HEADING_E);
+        draw_static_named_trainer_npc(world, 0, 32, 3, PC_HEADING_W);
+        draw_static_named_trainer_npc(world, 1, 37, 4, PC_HEADING_S);
+        draw_static_named_trainer_npc(world, 2, 8, 4, PC_HEADING_E);
+        draw_static_named_trainer_npc(world, 2, 23, 9, PC_HEADING_N);
+        draw_static_named_trainer_npc(world, 2, 13, 7, PC_HEADING_E);
+        return;
+    }
+
     if (world->scene == PC_WORLD_SCENE_OAKS_LAB)
     {
         draw_static_red_npc(world, 4, 3, PC_HEADING_E);
@@ -1679,6 +1767,12 @@ static void draw_scene_npcs(const struct pc_world_state *world)
         return;
     }
 
+    if (world->scene == PC_WORLD_SCENE_BILLS_HOUSE)
+    {
+        draw_static_named_trainer_npc(world, 0, 4, 4, PC_HEADING_S);
+        return;
+    }
+
     if (world->scene == PC_WORLD_SCENE_BIKE_SHOP)
     {
         draw_static_named_trainer_npc(world, 0, 6, 2, PC_HEADING_W);
@@ -1733,11 +1827,15 @@ static void draw_hud(const struct pc_world_state *world)
     char weather_text[32];
     char nearby_text[48];
     char hint[48];
+    char nearby_fitted[48];
     int nearby_count = pc_world_nearby_count(world);
     int nearby_index = nearby_count > 0 ? (world->frame / (PC_FRAME_HZ * 2)) % nearby_count : 0;
     int money_x = LCD_WIDTH - 80;
     int balls_x = LCD_WIDTH - 148;
     int weather_x = LCD_WIDTH - 148;
+    int bottom_x = 12;
+    int bottom_y = LCD_HEIGHT - 22;
+    int bottom_w = LCD_WIDTH - 24;
 
     if (world->buddy_species >= 0 && world->buddy_species < PC_POKEDEX_MAX &&
         world->caught_counts[world->buddy_species] > 0)
@@ -1754,7 +1852,9 @@ static void draw_hud(const struct pc_world_state *world)
 
     if (outdoor_scene(world->scene))
         rb->snprintf(hint, sizeof(hint), "Select stop/item  Hold Select menu");
-    else if (world->scene == PC_WORLD_SCENE_VIRIDIAN_MART)
+    else if (world->scene == PC_WORLD_SCENE_VIRIDIAN_MART ||
+             world->scene == PC_WORLD_SCENE_PEWTER_MART ||
+             world->scene == PC_WORLD_SCENE_CERULEAN_MART)
         rb->snprintf(hint, sizeof(hint), "Press Select to talk");
     else
         rb->snprintf(hint, sizeof(hint), "Hold Select for menu");
@@ -1810,20 +1910,25 @@ static void draw_hud(const struct pc_world_state *world)
 
     if (nearby_text[0] != '\0')
     {
-        draw_flat_panel(12, LCD_HEIGHT - 38, 136, 16, PC_GB_PANEL, PC_GB_DEEP,
-                        LCD_RGBPACK(0xf0, 0xf7, 0xe0));
-        fit_text_small(nearby_text, sizeof(nearby_text), nearby_text, 112);
-        draw_text_small(22, LCD_HEIGHT - 32, PC_GB_DARK, nearby_text);
-        draw_flat_panel(152, LCD_HEIGHT - 38, LCD_WIDTH - 164, 16,
+        int nearby_w = MIN(120, MAX(94, LCD_WIDTH / 3));
+
+        bottom_y = LCD_HEIGHT - 38;
+        draw_flat_panel(bottom_x, bottom_y, bottom_w, 16,
                         PC_GB_PANEL, PC_GB_DEEP, LCD_RGBPACK(0xd7, 0xf7, 0xff));
-        fit_text_small(hint, sizeof(hint), hint, LCD_WIDTH - 182);
-        draw_text_small(160, LCD_HEIGHT - 32, PC_GB_DARK, hint);
+        fit_text_small(nearby_fitted, sizeof(nearby_fitted), nearby_text, nearby_w - 18);
+        fill_capsule(bottom_x + 6, bottom_y + 2, nearby_w, 12, LCD_RGBPACK(0xf0, 0xf7, 0xe0));
+        draw_text_small(bottom_x + 14, bottom_y + 6, PC_GB_DARK, nearby_fitted);
+        rb->lcd_set_foreground(PC_GB_MID);
+        rb->lcd_drawline(bottom_x + nearby_w + 12, bottom_y + 3,
+                         bottom_x + nearby_w + 12, bottom_y + 12);
+        fit_text_small(hint, sizeof(hint), hint, bottom_w - nearby_w - 26);
+        draw_text_small(bottom_x + nearby_w + 20, bottom_y + 6, PC_GB_DARK, hint);
     }
     else
     {
-        draw_flat_panel(12, LCD_HEIGHT - 22, LCD_WIDTH - 24, 16,
+        draw_flat_panel(bottom_x, bottom_y, bottom_w, 16,
                         PC_GB_PANEL, PC_GB_DEEP, LCD_RGBPACK(0xd7, 0xf7, 0xff));
-        draw_text_small(22, LCD_HEIGHT - 16, PC_GB_DARK, hint);
+        draw_text_small(bottom_x + 10, bottom_y + 6, PC_GB_DARK, hint);
     }
 }
 
@@ -1985,14 +2090,15 @@ static void draw_bag_overlay(const struct pc_world_state *world)
         if (creature == NULL)
             continue;
 
-        row_y = y + 26 + shown * 16;
+        row_y = y + 26 + shown * PC_BAG_ROW_H;
         if (i == world->bag_index)
-            fill_rect_outline(x + 8, row_y - 2, LCD_WIDTH - 60, 14, PC_GB_MID, PC_GB_DEEP);
+            fill_rect_outline(x + 8, row_y - 2, LCD_WIDTH - 60, 16, PC_GB_MID, PC_GB_DEEP);
         asset = ensure_bag_row_asset(shown, i);
         if (asset != NULL && asset->loaded)
-            draw_asset_bitmap(&asset->bmp, x + 10, row_y - 5);
+            draw_asset_bitmap_fit(&asset->bmp, x + 10, row_y - 1,
+                                  PC_BAG_ICON_SIZE, PC_BAG_ICON_SIZE);
         else
-            draw_missing_asset_panel(x + 10, row_y - 2, 18, 12, "");
+            draw_missing_asset_panel(x + 10, row_y - 1, PC_BAG_ICON_SIZE, PC_BAG_ICON_SIZE, "");
         draw_text_small(x + 34, row_y, PC_GB_DEEP, creature->name);
         if (i == world->buddy_species)
             draw_text_small(LCD_WIDTH - 92, row_y, PC_GB_DARK, "BUDDY");
@@ -2000,8 +2106,8 @@ static void draw_bag_overlay(const struct pc_world_state *world)
         draw_text_small(LCD_WIDTH - 58, row_y, PC_GB_DEEP, count_text);
         shown++;
     }
-    draw_text_small(x + 10, y + 110, PC_GB_DEEP, "Menu/Play scroll");
-    draw_text_small(x + 10, y + 124, PC_GB_DEEP, "Left back");
+    draw_text_small(x + 10, y + 120, PC_GB_DEEP, "Menu/Play scroll");
+    draw_text_small(x + 10, y + 134, PC_GB_DEEP, "Left back");
 }
 
 static void draw_pokedex_overlay(const struct pc_world_state *world)
@@ -2103,8 +2209,21 @@ static void draw_mart_overlay(const struct pc_world_state *world)
     int h = LCD_HEIGHT - 36;
     int tab_w = (w - 24) / PC_MART_CATEGORY_COUNT;
     int count = mart_category_item_count_for_draw(world->mart_category);
+    int visible_rows = 5;
+    int start_index = 0;
+    int end_index;
     int i;
     char line[PC_BANNER_LINE_CHARS];
+
+    if (count > visible_rows)
+    {
+        start_index = world->mart_index - visible_rows / 2;
+        if (start_index < 0)
+            start_index = 0;
+        if (start_index > count - visible_rows)
+            start_index = count - visible_rows;
+    }
+    end_index = MIN(count, start_index + visible_rows);
 
     fill_rect_outline(x, y, w, h, PC_GB_PANEL, PC_GB_DEEP);
     draw_text_small(x + 10, y + 8, PC_GB_DEEP, "POKEMART");
@@ -2121,9 +2240,9 @@ static void draw_mart_overlay(const struct pc_world_state *world)
         draw_text_small(tab_x + 8, y + 42, PC_GB_DEEP, mart_category_label(i));
     }
 
-    for (i = 0; i < count; ++i)
+    for (i = start_index; i < end_index; ++i)
     {
-        int row_y = y + 64 + i * 16;
+        int row_y = y + 64 + (i - start_index) * 16;
         const char *name = "";
         const char *tag = "";
 
@@ -2151,7 +2270,9 @@ static void draw_mart_overlay(const struct pc_world_state *world)
         else
         {
             name = pc_world_player_trainer_name(i);
-            if (world->player_trainer == i)
+            if (!pc_world_player_trainer_assets_available(i))
+                tag = "MISS";
+            else if (world->player_trainer == i)
                 tag = "ON";
             else if (world->owned_trainers[i])
                 tag = "USE";
@@ -2164,6 +2285,14 @@ static void draw_mart_overlay(const struct pc_world_state *world)
 
         draw_text_small(x + 14, row_y, PC_GB_DEEP, name);
         draw_text_small(x + w - 54, row_y, PC_GB_DEEP, tag);
+    }
+
+    if (count > visible_rows)
+    {
+        if (start_index > 0)
+            draw_text_small(x + w - 20, y + 56, PC_GB_DARK, "^");
+        if (end_index < count)
+            draw_text_small(x + w - 20, y + 132, PC_GB_DARK, "v");
     }
 
     if (world->mart_category == 0)
@@ -2316,21 +2445,22 @@ static void draw_buddy_overlay(const struct pc_world_state *world)
         if (creature == NULL)
             continue;
 
-        row_y = y + 62 + shown * 16;
+        row_y = y + 62 + shown * PC_BAG_ROW_H;
         if (i == world->buddy_index)
-            fill_rect_outline(x + 8, row_y - 2, LCD_WIDTH - 56, 14, PC_GB_MID, PC_GB_DEEP);
+            fill_rect_outline(x + 8, row_y - 2, LCD_WIDTH - 56, 16, PC_GB_MID, PC_GB_DEEP);
         asset = ensure_bag_row_asset(shown, i);
         if (asset != NULL && asset->loaded)
-            draw_asset_bitmap(&asset->bmp, x + 10, row_y - 5);
+            draw_asset_bitmap_fit(&asset->bmp, x + 10, row_y - 1,
+                                  PC_BAG_ICON_SIZE, PC_BAG_ICON_SIZE);
         else
-            draw_missing_asset_panel(x + 10, row_y - 2, 18, 12, "");
+            draw_missing_asset_panel(x + 10, row_y - 1, PC_BAG_ICON_SIZE, PC_BAG_ICON_SIZE, "");
         draw_text_small(x + 34, row_y, PC_GB_DEEP, creature->name);
         if (i == world->buddy_species)
             draw_text_small(LCD_WIDTH - 68, row_y, PC_GB_DARK, "ON");
         shown++;
     }
 
-    draw_text_small(x + 10, y + 130, PC_GB_DEEP, "Select assign/toggle  Left back");
+    draw_text_small(x + 10, y + 138, PC_GB_DEEP, "Select assign/toggle  Left back");
 }
 
 static void draw_field_assign_overlay(const struct pc_world_state *world)

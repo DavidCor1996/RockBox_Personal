@@ -1,6 +1,46 @@
 """Diagnostic reconciliation reports for local vs device inventories."""
 
+from collections import defaultdict
+
 from services.track_matcher import TrackMatcher
+
+
+def summarize_unmatched_tracks(
+    local_tracks,
+    device_tracks,
+    matcher=None,
+    strictness="metadata_and_hash",
+    duration_tolerance=2.0,
+    sample_limit=25,
+):
+    """Group already-unmatched local tracks by the reason they missed the device."""
+    matcher = matcher or TrackMatcher(strictness, duration_tolerance)
+    unmatched_rows = [dict(row) for row in (local_tracks or [])]
+    device_rows = [dict(row) for row in (device_tracks or [])]
+
+    reason_counts = defaultdict(int)
+    examples = []
+    for row in unmatched_rows:
+        reason = matcher.explain_unmatched(row, device_rows)
+        reason_counts[reason] += 1
+        if len(examples) < sample_limit:
+            examples.append(
+                {
+                    "title": row.get("title", ""),
+                    "artist": row.get("artist", ""),
+                    "album": row.get("album", ""),
+                    "file_path": row.get("file_path", ""),
+                    "reason": reason,
+                }
+            )
+
+    return {
+        "unmatched_count": len(unmatched_rows),
+        "reason_counts": dict(
+            sorted(reason_counts.items(), key=lambda item: (-item[1], item[0]))
+        ),
+        "examples": examples,
+    }
 
 
 def build_reconciliation_report(
@@ -18,19 +58,12 @@ def build_reconciliation_report(
     ]
     matcher = TrackMatcher(strictness, duration_tolerance)
     matched, unmatched, orphaned, resync = matcher.match_all(local_tracks, device_tracks)
-
-    examples = []
-    for result in unmatched[:sample_limit]:
-        row = dict(result.local_track)
-        examples.append(
-            {
-                "title": row.get("title", ""),
-                "artist": row.get("artist", ""),
-                "album": row.get("album", ""),
-                "file_path": row.get("file_path", ""),
-                "reason": matcher.explain_unmatched(row, device_tracks),
-            }
-        )
+    unmatched_summary = summarize_unmatched_tracks(
+        [dict(result.local_track) for result in unmatched],
+        device_tracks,
+        matcher=matcher,
+        sample_limit=sample_limit,
+    )
 
     return {
         "local_track_count": len(local_tracks),
@@ -39,7 +72,8 @@ def build_reconciliation_report(
         "unmatched_count": len(unmatched),
         "orphaned_count": len(orphaned),
         "resync_count": len(resync),
-        "unmatched_examples": examples,
+        "unmatched_reason_counts": unmatched_summary["reason_counts"],
+        "unmatched_examples": unmatched_summary["examples"],
         "skipped_device_files": list(skipped or [])[:sample_limit],
     }
 
@@ -127,7 +161,7 @@ def build_missing_tag_report(
     }
 
 
-def format_reconciliation_report(report):
+def format_reconciliation_report(report, sync_plan=None):
     """Format a reconciliation report for terminal/debug output."""
     lines = [
         "RockPod reconciliation report",
@@ -139,7 +173,33 @@ def format_reconciliation_report(report):
         f"Resync needed: {report['resync_count']}",
     ]
 
+    if sync_plan is not None:
+        lines.append(f"Planned copies: {len(sync_plan.to_copy)}")
+        lines.append(f"Planned updates: {len(sync_plan.to_resync)}")
+
     examples = report.get("unmatched_examples") or []
+    reason_counts = report.get("unmatched_reason_counts") or {}
+    if reason_counts:
+        lines.append("")
+        lines.append("Not on iPod reasons:")
+        for reason, count in reason_counts.items():
+            lines.append(f"- {reason}: {count}")
+
+    if sync_plan is not None:
+        copy_reason_counts = getattr(sync_plan, "copy_reason_counts", {}) or {}
+        if copy_reason_counts:
+            lines.append("")
+            lines.append("Sync copy reasons:")
+            for reason, count in copy_reason_counts.items():
+                lines.append(f"- {reason}: {count}")
+
+        update_reason_counts = getattr(sync_plan, "update_reason_counts", {}) or {}
+        if update_reason_counts:
+            lines.append("")
+            lines.append("Sync update reasons:")
+            for reason, count in update_reason_counts.items():
+                lines.append(f"- {reason}: {count}")
+
     if examples:
         lines.append("")
         lines.append("Unmatched examples:")

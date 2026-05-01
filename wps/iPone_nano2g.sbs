@@ -1,16 +1,19 @@
 # iPone Nano 2G SBS
-%xl(Wallpaper,Wallpaper.bmp)
-%xd(Wallpaper)
+%xl(MenuBackdrop,wpsbackdrop-176x132x16.bmp)
+%xd(MenuBackdrop)
 
-%Vi(-,0,16,-,-,1)
+%Vi(UiListFull,0,16,176,116,1)%Vf(F7F4FA)%Vb(100F16)
+%Vi(UiListMini,0,60,176,72,1)%Vf(F7F4FA)%Vb(100F16)
+%Vi(UiLocked,0,16,1,1,1)%Vf(100F16)%Vb(100F16)
+%?mh<%VI(UiLocked)|%?mp<%VI(UiListFull)|%VI(UiListMini)|%VI(UiListFull)|%VI(UiListFull)|%VI(UiListFull)|%VI(UiListFull)|%VI(UiListFull)|%VI(UiListFull)|%VI(UiListFull)>>
 
 # Compact top bar for menus
 %Vl(TopBar,0,0,-,16,1)%Vf(F7F4FA)%Vb(100F16)
 %dr(0,0,-,-,100F16)
 %dr(0,15,-,1,6D5A9E)
-%Vl(TopLeft,5,2,42,12,1)%Vf(EDE7F8)%aliPod
-%Vl(TopCenter,52,2,72,12,1)%Vf(BDAEE0)%ac%?cc<%cl:%cM|--:-->
-%Vl(TopRight,126,2,45,12,1)%Vf(EDE7F8)%ar%?bp<Chg|%bl%%>
+%Vl(TopLeft,5,2,38,12,1)%Vf(EDE7F8)%aliPod
+%Vl(TopCenter,45,2,88,12,1)%Vf(BDAEE0)%ac%?cc<%cl:%cM %cP|--:-->
+%Vl(TopRight,135,2,36,12,1)%Vf(EDE7F8)%ar%?bp<Chg|%bl%%>
 
 # Compact miniplayer
 %Vl(MiniBg,0,16,-,44,1)%Vb(000000)
@@ -25,3 +28,4 @@
 %Vl(MiniTitle,46,20,124,15,1)%Vf(FFFFFF)%s%al%?it<%it|%fn>
 %Vl(MiniArtist,46,36,124,12,1)%Vf(CFC3E4)%s%al%?ia<%ia|%?iA<%iA|%?d(2)<%d(2)|%(root%)>>>
 %Vl(MiniStatus,46,49,124,10,1)%Vf(9D7AE6)%al%?mp<Stopped|Playing|Paused|Forward|Rewind|Recording|Paused|Radio|Radio>
+%?mh<|%?mp<|%Vd(MiniBg)%Vd(MiniMatte)%Vd(MiniArt)%Vd(MiniTitle)%Vd(MiniArtist)%Vd(MiniStatus)|||||||>>

@@ -1,0 +1,64 @@
+{
+  "name": "legacy_zeroslackr",
+  "canvas": {
+    "width": 320,
+    "height": 240
+  },
+  "palette": {
+    "background": "#201829",
+    "panel": "#2c2238",
+    "panel_border": "#4d3d63",
+    "separator": "#5b4b71",
+    "header_top": "#392d49",
+    "header_bottom": "#281d35",
+    "header_text": "#f3ebff",
+    "menu_text": "#f0e9ff",
+    "menu_muted": "#baadd3",
+    "highlight_top": "#7059a7",
+    "highlight_bottom": "#3d2d67",
+    "highlight_text": "#ffffff",
+    "preview_title": "#f0e9ff",
+    "preview_text": "#d1c6e6",
+    "preview_subtle": "#9f92ba",
+    "accent": "#9b7eff"
+  },
+  "layout": {
+    "header_height": 22,
+    "menu_x": 8,
+    "menu_y": 30,
+    "menu_width": 132,
+    "menu_height": 198,
+    "menu_padding_x": 11,
+    "menu_item_height": 24,
+    "menu_item_gap": 4,
+    "preview_x": 154,
+    "preview_y": 30,
+    "preview_width": 158,
+    "preview_height": 198,
+    "preview_art_x": 178,
+    "preview_art_y": 52,
+    "preview_art_width": 110,
+    "preview_art_height": 110,
+    "footer_y": 214
+  },
+  "fonts": {
+    "title_family": "DejaVu Sans",
+    "title_weight": "bold",
+    "title_size": 12,
+    "menu_family": "DejaVu Sans",
+    "menu_weight": "bold",
+    "menu_size": 13,
+    "body_family": "DejaVu Sans",
+    "body_weight": "normal",
+    "body_size": 11,
+    "small_family": "DejaVu Sans",
+    "small_weight": "normal",
+    "small_size": 10
+  },
+  "assets": {
+    "reference_background": "assets/classic_6g/backgrounds/iClassic_bg.bmp",
+    "reference_menu": "assets/classic_6g/mockups/reference-rockbox/menu-iClassic_v1.0_Menu.png",
+    "reference_wps": "assets/classic_6g/mockups/reference-rockbox/wps-iClassic_v1.0_WPS.png",
+    "reference_fms": "assets/classic_6g/mockups/reference-rockbox/3-iClassic_v1.0_FMS.png"
+  }
+}

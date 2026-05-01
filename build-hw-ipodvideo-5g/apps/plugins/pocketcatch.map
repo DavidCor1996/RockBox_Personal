@@ -22,7 +22,6 @@ Archive member included to satisfy reference by file (symbol)
 Discarded input sections
 
  .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/pocketcatch/main.o
- .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/pocketcatch/pc_assets.o
  .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/pocketcatch/pc_catch.o
  .bss           0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/pocketcatch/pc_catch.o
  .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/pocketcatch/pc_input.o
@@ -154,198 +153,205 @@ LOAD /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a
  .header        0x0000000003f00000       0x1c /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/plugin_crt0.o
                 0x0000000003f00000                __header
 
-.text           0x0000000003f0001c     0xe774
+.text           0x0000000003f0001c    0x120d0
  *(.text*)
- .text          0x0000000003f0001c      0x2bc /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/pocketcatch/main.o
+ .text          0x0000000003f0001c      0x2d8 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/pocketcatch/main.o
                 0x0000000003f00034                plugin_start
- .text          0x0000000003f002d8      0xe8c /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/pocketcatch/pc_assets.o
-                0x0000000003f009ac                pc_assets_init
-                0x0000000003f00af4                pc_assets_teardown
-                0x0000000003f00b54                pc_assets_select_creature
-                0x0000000003f00bd0                pc_assets_get_creature_count
-                0x0000000003f00bd8                pc_assets_get_total_creature_count
-                0x0000000003f00be0                pc_assets_get_creature
-                0x0000000003f00c1c                pc_assets_find_species_index
-                0x0000000003f00c60                pc_assets_get_family_index
-                0x0000000003f00cc8                pc_assets_get_evolution_target
-                0x0000000003f00d30                pc_assets_get_evolution_cost
-                0x0000000003f00d88                pc_assets_get_catch_candy
-                0x0000000003f00d90                pc_assets_load_world_creature
-                0x0000000003f010a4                pc_assets_load_named_world_trainer
-                0x0000000003f010d8                pc_assets_load_world_trainer
-                0x0000000003f01140                pc_assets_source_label
- .text          0x0000000003f01164      0x134 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/pocketcatch/pc_catch.o
-                0x0000000003f01164                pc_catch_roll
-                0x0000000003f01270                pc_throw_tier_label
- .text          0x0000000003f01298      0x308 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/pocketcatch/pc_input.o
-                0x0000000003f012b4                pc_input_reset
-                0x0000000003f012d0                pc_input_animate
-                0x0000000003f01318                pc_input_snapshot_throw
-                0x0000000003f01410                pc_input_handle_event
- .text          0x0000000003f015a0      0x3cc /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/pocketcatch/pc_physics.o
-                0x0000000003f015a0                pc_physics_build_throw
-                0x0000000003f01880                pc_physics_update_throw
- .text          0x0000000003f0196c     0x1400 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/pocketcatch/pc_render.o
-                0x0000000003f020ac                pc_render_frame
- .text          0x0000000003f02d6c      0x79c /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/pocketcatch/pc_state.o
-                0x0000000003f02fdc                pc_state_init
-                0x0000000003f03030                pc_state_begin
-                0x0000000003f03070                pc_state_cycle_species
-                0x0000000003f030b8                pc_state_update
- .text          0x0000000003f03508     0x6730 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/pocketcatch/pc_world.o
-                0x0000000003f05ad8                pc_world_song_count
-                0x0000000003f05ae8                pc_world_song_name
-                0x0000000003f05b6c                pc_world_nearby_count
-                0x0000000003f05bf4                pc_world_nearby_name
-                0x0000000003f05cf0                pc_world_save
-                0x0000000003f07930                pc_world_secret_draw_info
-                0x0000000003f079c0                pc_world_pokestop_draw_info
-                0x0000000003f07a60                pc_world_init
-                0x0000000003f07c60                pc_world_teardown
-                0x0000000003f07cd8                pc_world_update
-                0x0000000003f09a3c                pc_world_finish_encounter
-                0x0000000003f09b9c                pc_world_cancel_encounter
- .text          0x0000000003f09c38      0x1a4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/pocketcatch/pc_world_input.o
-                0x0000000003f09c38                pc_world_input_handle_event
- .text          0x0000000003f09ddc     0x4294 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/pocketcatch/pc_world_render.o
-                0x0000000003f0b444                pc_world_render_frame
- .text          0x0000000003f0e070      0x214 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/plugin_crt0.o
-                0x0000000003f0e088                plugin__start
-                0x0000000003f0e1d0                rb_atexit
-                0x0000000003f0e1f0                exit
-                0x0000000003f0e218                _exit
-                0x0000000003f0e22c                exit_on_usb
+ .text          0x0000000003f002f4      0xeb8 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/pocketcatch/pc_assets.o
+                0x0000000003f009c8                pc_assets_init
+                0x0000000003f00b10                pc_assets_teardown
+                0x0000000003f00b70                pc_assets_select_creature
+                0x0000000003f00bec                pc_assets_get_creature_count
+                0x0000000003f00bf4                pc_assets_get_total_creature_count
+                0x0000000003f00bfc                pc_assets_get_creature
+                0x0000000003f00c38                pc_assets_find_species_index
+                0x0000000003f00c7c                pc_assets_get_family_index
+                0x0000000003f00ce4                pc_assets_get_evolution_target
+                0x0000000003f00d4c                pc_assets_get_evolution_cost
+                0x0000000003f00da4                pc_assets_get_catch_candy
+                0x0000000003f00dac                pc_assets_load_world_creature
+                0x0000000003f010c0                pc_assets_load_named_world_trainer
+                0x0000000003f010f4                pc_assets_load_world_trainer
+                0x0000000003f01148                pc_assets_set_player_trainer_name
+                0x0000000003f01188                pc_assets_source_label
+ .text          0x0000000003f011ac      0x134 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/pocketcatch/pc_catch.o
+                0x0000000003f011ac                pc_catch_roll
+                0x0000000003f012b8                pc_throw_tier_label
+ .text          0x0000000003f012e0      0x308 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/pocketcatch/pc_input.o
+                0x0000000003f012fc                pc_input_reset
+                0x0000000003f01318                pc_input_animate
+                0x0000000003f01360                pc_input_snapshot_throw
+                0x0000000003f01458                pc_input_handle_event
+ .text          0x0000000003f015e8      0x3cc /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/pocketcatch/pc_physics.o
+                0x0000000003f015e8                pc_physics_build_throw
+                0x0000000003f018c8                pc_physics_update_throw
+ .text          0x0000000003f019b4     0x1414 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/pocketcatch/pc_render.o
+                0x0000000003f020f4                pc_render_reset_trainer_asset
+                0x0000000003f02108                pc_render_frame
+ .text          0x0000000003f02dc8      0x79c /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/pocketcatch/pc_state.o
+                0x0000000003f03038                pc_state_init
+                0x0000000003f0308c                pc_state_begin
+                0x0000000003f030cc                pc_state_cycle_species
+                0x0000000003f03114                pc_state_update
+ .text          0x0000000003f03564     0x9220 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/pocketcatch/pc_world.o
+                0x0000000003f067d8                pc_world_song_count
+                0x0000000003f067e8                pc_world_song_name
+                0x0000000003f0686c                pc_world_player_trainer_count
+                0x0000000003f06874                pc_world_player_trainer_name
+                0x0000000003f06894                pc_world_player_trainer_cost
+                0x0000000003f068b4                pc_world_player_trainer_assets_available
+                0x0000000003f068b8                pc_world_nearby_count
+                0x0000000003f06940                pc_world_nearby_name
+                0x0000000003f06a3c                pc_world_save
+                0x0000000003f0708c                pc_world_secret_draw_info
+                0x0000000003f0711c                pc_world_pokestop_draw_info
+                0x0000000003f071c0                pc_world_init
+                0x0000000003f080e4                pc_world_teardown
+                0x0000000003f08148                pc_world_update
+                0x0000000003f0c628                pc_world_finish_encounter
+                0x0000000003f0c724                pc_world_cancel_encounter
+ .text          0x0000000003f0c784      0x1a4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/pocketcatch/pc_world_input.o
+                0x0000000003f0c784                pc_world_input_handle_event
+ .text          0x0000000003f0c928     0x50a4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/pocketcatch/pc_world_render.o
+                0x0000000003f0efc8                pc_world_render_frame
+ .text          0x0000000003f119cc      0x214 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/plugin_crt0.o
+                0x0000000003f119e4                plugin__start
+                0x0000000003f11b2c                rb_atexit
+                0x0000000003f11b4c                exit
+                0x0000000003f11b74                _exit
+                0x0000000003f11b88                exit_on_usb
  .text.xlcd_fillcircle_screen
-                0x0000000003f0e284      0x180 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(xlcd_draw.o)
-                0x0000000003f0e284                xlcd_fillcircle_screen
+                0x0000000003f11be0      0x180 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(xlcd_draw.o)
+                0x0000000003f11be0                xlcd_fillcircle_screen
  .text.xlcd_fillcircle
-                0x0000000003f0e404       0x20 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(xlcd_draw.o)
-                0x0000000003f0e404                xlcd_fillcircle
+                0x0000000003f11d60       0x20 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(xlcd_draw.o)
+                0x0000000003f11d60                xlcd_fillcircle
  .text.xlcd_drawcircle_screen
-                0x0000000003f0e424      0x12c /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(xlcd_draw.o)
-                0x0000000003f0e424                xlcd_drawcircle_screen
+                0x0000000003f11d80      0x12c /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(xlcd_draw.o)
+                0x0000000003f11d80                xlcd_drawcircle_screen
  .text.xlcd_drawcircle
-                0x0000000003f0e550       0x20 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(xlcd_draw.o)
-                0x0000000003f0e550                xlcd_drawcircle
+                0x0000000003f11eac       0x20 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(xlcd_draw.o)
+                0x0000000003f11eac                xlcd_drawcircle
  .text.simple_resize_bitmap
-                0x0000000003f0e570       0xb8 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(pluginlib_bmp.o)
-                0x0000000003f0e570                simple_resize_bitmap
- .text          0x0000000003f0e628       0x1c /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/libsetjmp.a(setjmp.o)
-                0x0000000003f0e628                setjmp
-                0x0000000003f0e634                longjmp
- .text          0x0000000003f0e644      0x148 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
-                0x0000000003f0e644                __aeabi_idiv
-                0x0000000003f0e644                __divsi3
-                0x0000000003f0e76c                __aeabi_idivmod
- .text          0x0000000003f0e78c        0x4 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
-                0x0000000003f0e78c                __aeabi_ldiv0
-                0x0000000003f0e78c                __aeabi_idiv0
+                0x0000000003f11ecc       0xb8 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(pluginlib_bmp.o)
+                0x0000000003f11ecc                simple_resize_bitmap
+ .text          0x0000000003f11f84       0x1c /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/libsetjmp.a(setjmp.o)
+                0x0000000003f11f84                setjmp
+                0x0000000003f11f90                longjmp
+ .text          0x0000000003f11fa0      0x148 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+                0x0000000003f11fa0                __aeabi_idiv
+                0x0000000003f11fa0                __divsi3
+                0x0000000003f120c8                __aeabi_idivmod
+ .text          0x0000000003f120e8        0x4 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
+                0x0000000003f120e8                __aeabi_ldiv0
+                0x0000000003f120e8                __aeabi_idiv0
  *(.glue_7)
- .glue_7        0x0000000003f0e790        0x0 linker stubs
+ .glue_7        0x0000000003f120ec        0x0 linker stubs
  *(.glue_7t)
- .glue_7t       0x0000000003f0e790        0x0 linker stubs
+ .glue_7t       0x0000000003f120ec        0x0 linker stubs
 
-.vfp11_veneer   0x0000000003f0e790        0x0
- .vfp11_veneer  0x0000000003f0e790        0x0 linker stubs
+.vfp11_veneer   0x0000000003f120ec        0x0
+ .vfp11_veneer  0x0000000003f120ec        0x0 linker stubs
 
-.v4_bx          0x0000000003f0e790        0x0
- .v4_bx         0x0000000003f0e790        0x0 linker stubs
+.v4_bx          0x0000000003f120ec        0x0
+ .v4_bx         0x0000000003f120ec        0x0 linker stubs
 
-.iplt           0x0000000003f0e790        0x0
- .iplt          0x0000000003f0e790        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/pocketcatch/main.o
+.iplt           0x0000000003f120ec        0x0
+ .iplt          0x0000000003f120ec        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/pocketcatch/main.o
 
-.rodata         0x0000000003f0e790    0x15820
+.rodata         0x0000000003f120ec    0x1c850
  *(.rodata*)
  .rodata.str1.1
-                0x0000000003f0e790      0xb36 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/pocketcatch/pc_assets.o
-                                        0xb3e (size before relaxing)
- *fill*         0x0000000003f0f2c6        0x2 
- .rodata        0x0000000003f0f2c8     0x1b94 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/pocketcatch/pc_assets.o
+                0x0000000003f120ec      0xb4d /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/pocketcatch/pc_assets.o
+                                        0xb59 (size before relaxing)
+ *fill*         0x0000000003f12c39        0x3 
+ .rodata        0x0000000003f12c3c     0x1bb4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/pocketcatch/pc_assets.o
  .rodata.str1.1
-                0x0000000003f10e5c       0x1e /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/pocketcatch/pc_catch.o
- *fill*         0x0000000003f10e7a        0x2 
- .rodata        0x0000000003f10e7c       0x14 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/pocketcatch/pc_catch.o
- .rodata        0x0000000003f10e90       0x10 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/pocketcatch/pc_input.o
+                0x0000000003f147f0       0x1e /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/pocketcatch/pc_catch.o
+ *fill*         0x0000000003f1480e        0x2 
+ .rodata        0x0000000003f14810       0x14 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/pocketcatch/pc_catch.o
+ .rodata        0x0000000003f14824       0x10 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/pocketcatch/pc_input.o
  .rodata.str1.1
-                0x0000000003f10ea0       0x54 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/pocketcatch/pc_render.o
+                0x0000000003f14834       0x54 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/pocketcatch/pc_render.o
                                          0x5f (size before relaxing)
- .rodata        0x0000000003f10ef4      0x604 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/pocketcatch/pc_render.o
+ .rodata        0x0000000003f14888      0x604 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/pocketcatch/pc_render.o
  .rodata.str1.1
-                0x0000000003f114f8      0x15a /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/pocketcatch/pc_state.o
+                0x0000000003f14e8c      0x15a /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/pocketcatch/pc_state.o
                                         0x15e (size before relaxing)
  .rodata.str1.1
-                0x0000000003f11652      0x98d /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/pocketcatch/pc_world.o
-                                        0xa00 (size before relaxing)
- *fill*         0x0000000003f11fdf        0x1 
- .rodata        0x0000000003f11fe0     0x34e8 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/pocketcatch/pc_world.o
+                0x0000000003f14fe6      0xe20 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/pocketcatch/pc_world.o
+                                        0xf0f (size before relaxing)
+ *fill*         0x0000000003f15e06        0x2 
+ .rodata        0x0000000003f15e08     0x51a8 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/pocketcatch/pc_world.o
  .rodata.str1.1
-                0x0000000003f154c8      0x4ac /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/pocketcatch/pc_world_render.o
-                                        0x5df (size before relaxing)
- .rodata        0x0000000003f15974     0xe63c /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/pocketcatch/pc_world_render.o
+                0x0000000003f1afb0      0x51c /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/pocketcatch/pc_world_render.o
+                                        0x66a (size before relaxing)
+ .rodata        0x0000000003f1b4cc    0x13470 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/pocketcatch/pc_world_render.o
 
-.rel.dyn        0x0000000003f23fb0        0x0
- .rel.iplt      0x0000000003f23fb0        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/pocketcatch/main.o
+.rel.dyn        0x0000000003f2e93c        0x0
+ .rel.iplt      0x0000000003f2e93c        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/pocketcatch/main.o
 
-.data           0x0000000003f23fb0       0x20
+.data           0x0000000003f2e93c       0x38
  *(.data*)
- .data          0x0000000003f23fb0        0x4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/pocketcatch/pc_render.o
- .data          0x0000000003f23fb4       0x18 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/pocketcatch/pc_world_render.o
- .data          0x0000000003f23fcc        0x4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/plugin_crt0.o
-                0x0000000003f23fcc                rb
+ .data          0x0000000003f2e93c       0x18 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/pocketcatch/pc_assets.o
+ .data          0x0000000003f2e954        0x4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/pocketcatch/pc_render.o
+ .data          0x0000000003f2e958       0x18 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/pocketcatch/pc_world_render.o
+ .data          0x0000000003f2e970        0x4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/plugin_crt0.o
+                0x0000000003f2e970                rb
 
-.igot.plt       0x0000000003f23fd0        0x0
- .igot.plt      0x0000000003f23fd0        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/pocketcatch/main.o
+.igot.plt       0x0000000003f2e974        0x0
+ .igot.plt      0x0000000003f2e974        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/pocketcatch/main.o
 
-.ncdata         0x0000000013f23fd0        0x0 load address 0x0000000003f23fd0
+.ncdata         0x0000000013f2e980        0x0 load address 0x0000000003f2e980
  *(.ncdata*)
-                0x0000000013f23fd0                . = ALIGN (0x10)
+                0x0000000013f2e980                . = ALIGN (0x10)
 
 /DISCARD/
  *(.eh_frame)
 
-.bss            0x0000000003f23fd0    0xab5e4
-                0x0000000003f23fd0                plugin_bss_start = .
-                0x0000000003f23fd0                _plugin_bss_start = .
+.bss            0x0000000003f2e974    0xb1074
+                0x0000000003f2e974                plugin_bss_start = .
+                0x0000000003f2e974                _plugin_bss_start = .
  *(.bss*)
- .bss           0x0000000003f23fd0     0x24b0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/pocketcatch/main.o
- .bss           0x0000000003f26480    0x3c2a4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/pocketcatch/pc_assets.o
- .bss           0x0000000003f62724    0x2646a /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/pocketcatch/pc_render.o
- *fill*         0x0000000003f88b8e        0x2 
- .bss           0x0000000003f88b90    0x16304 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/pocketcatch/pc_world.o
- .bss           0x0000000003f9ee94    0x306c0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/pocketcatch/pc_world_render.o
- .bss           0x0000000003fcf554       0x60 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/plugin_crt0.o
+ .bss           0x0000000003f2e974     0x34c8 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/pocketcatch/main.o
+ .bss           0x0000000003f31e3c    0x3c2a4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/pocketcatch/pc_assets.o
+ .bss           0x0000000003f6e0e0    0x2646a /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/pocketcatch/pc_render.o
+ *fill*         0x0000000003f9454a        0x2 
+ .bss           0x0000000003f9454c    0x1ad7c /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/pocketcatch/pc_world.o
+ .bss           0x0000000003faf2c8    0x306c0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/pocketcatch/pc_world_render.o
+ .bss           0x0000000003fdf988       0x60 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/plugin_crt0.o
  *(COMMON)
-                0x0000000003fcf5b4                . = ALIGN (0x4)
+                0x0000000003fdf9e8                . = ALIGN (0x4)
 
-.ncbss          0x0000000013fcf5c0        0x0 load address 0x0000000003fcf5c0
+.ncbss          0x0000000013fdf9f0        0x0 load address 0x0000000003fdf9f0
  *(.ncbss*)
-                0x0000000013fcf5c0                . = ALIGN (0x10)
+                0x0000000013fdf9f0                . = ALIGN (0x10)
 
-.ncbss_vma      0x0000000003fcf5c0        0x0
-                0x0000000003fcf5c0                . = (. + SIZEOF (.ncbss))
+.ncbss_vma      0x0000000003fdf9f0        0x0
+                0x0000000003fdf9f0                . = (. + SIZEOF (.ncbss))
 
-.pluginend      0x0000000003fcf5b4        0x0
-                0x0000000003fcf5b4                _plugin_end_addr = .
-                0x0000000003fcf5b4                plugin_end_addr = .
+.pluginend      0x0000000003fdf9e8        0x0
+                0x0000000003fdf9e8                _plugin_end_addr = .
+                0x0000000003fdf9e8                plugin_end_addr = .
 
-.iram           0x000000004000c000        0x0 load address 0x0000000003f23fd0
+.iram           0x000000004000c000        0x0 load address 0x0000000003f2e974
                 0x000000004000c000                iramstart = .
  *(.icode)
  *(.irodata)
  *(.idata)
                 0x000000004000c000                iramend = .
-                0x0000000003f23fd0                iramcopy = LOADADDR (.iram)
+                0x0000000003f2e974                iramcopy = LOADADDR (.iram)
 
 .ibss           0x000000004000c000        0x0
                 0x000000004000c000                iedata = .
  *(.ibss)
                 0x000000004000c000                . = ALIGN (0x4)
                 0x000000004000c000                iend = .
-                0x0000000003fcf5b4                loadendaddr = MAX (plugin_end_addr, (LOADADDR (.iram) + SIZEOF (.iram)))
+                0x0000000003fdf9e8                loadendaddr = MAX (plugin_end_addr, (LOADADDR (.iram) + SIZEOF (.iram)))
 
-.pluginloadend  0x0000000003fcf5b4        0x0
-                0x0000000003fcf5b4                _plugin_load_end_addr = .
-                0x0000000003fcf5b4                plugin_load_end_addr = .
+.pluginloadend  0x0000000003fdf9e8        0x0
+                0x0000000003fdf9e8                _plugin_load_end_addr = .
+                0x0000000003fdf9e8                plugin_load_end_addr = .
 
 .comment        0x0000000000000000       0x11
  *(.comment)

@@ -1,0 +1,871 @@
+{
+  "pack_name": "Podemon Go Personal Johto Pack",
+  "version": "0.3.0",
+  "target": "rockbox-pocketcatch",
+  "author": "local-user",
+  "screen_mode": "auto",
+  "creatures": [
+    {
+      "id": 1,
+      "name": "Bulbasaur",
+      "base_capture_rate": 0.62,
+      "sprite_prefix": "creature_001",
+      "anim": { "idle_frames": 1, "hit_frames": 1, "catch_frames": 1 }
+    },
+    {
+      "id": 4,
+      "name": "Charmander",
+      "base_capture_rate": 0.47,
+      "sprite_prefix": "creature_004",
+      "anim": { "idle_frames": 1, "hit_frames": 1, "catch_frames": 1 }
+    },
+    {
+      "id": 7,
+      "name": "Squirtle",
+      "base_capture_rate": 0.38,
+      "sprite_prefix": "creature_007",
+      "anim": { "idle_frames": 1, "hit_frames": 1, "catch_frames": 1 }
+    },
+    {
+      "id": 10,
+      "name": "Caterpie",
+      "base_capture_rate": 0.78,
+      "sprite_prefix": "creature_010",
+      "anim": { "idle_frames": 1, "hit_frames": 1, "catch_frames": 1 }
+    },
+    {
+      "id": 13,
+      "name": "Weedle",
+      "base_capture_rate": 0.76,
+      "sprite_prefix": "creature_013",
+      "anim": { "idle_frames": 1, "hit_frames": 1, "catch_frames": 1 }
+    },
+    {
+      "id": 16,
+      "name": "Pidgey",
+      "base_capture_rate": 0.73,
+      "sprite_prefix": "creature_016",
+      "anim": { "idle_frames": 1, "hit_frames": 1, "catch_frames": 1 }
+    },
+    {
+      "id": 19,
+      "name": "Rattata",
+      "base_capture_rate": 0.76,
+      "sprite_prefix": "creature_019",
+      "anim": { "idle_frames": 1, "hit_frames": 1, "catch_frames": 1 }
+    },
+    {
+      "id": 21,
+      "name": "Spearow",
+      "base_capture_rate": 0.72,
+      "sprite_prefix": "creature_021",
+      "anim": { "idle_frames": 1, "hit_frames": 1, "catch_frames": 1 }
+    },
+    {
+      "id": 23,
+      "name": "Ekans",
+      "base_capture_rate": 0.64,
+      "sprite_prefix": "creature_023",
+      "anim": { "idle_frames": 1, "hit_frames": 1, "catch_frames": 1 }
+    },
+    {
+      "id": 25,
+      "name": "Pikachu",
+      "base_capture_rate": 0.54,
+      "sprite_prefix": "creature_025",
+      "anim": { "idle_frames": 1, "hit_frames": 1, "catch_frames": 1 }
+    },
+    {
+      "id": 27,
+      "name": "Sandshrew",
+      "base_capture_rate": 0.68,
+      "sprite_prefix": "creature_027",
+      "anim": { "idle_frames": 1, "hit_frames": 1, "catch_frames": 1 }
+    },
+    {
+      "id": 29,
+      "name": "NidoranF",
+      "base_capture_rate": 0.62,
+      "sprite_prefix": "creature_029",
+      "anim": { "idle_frames": 1, "hit_frames": 1, "catch_frames": 1 }
+    },
+    {
+      "id": 32,
+      "name": "NidoranM",
+      "base_capture_rate": 0.62,
+      "sprite_prefix": "creature_032",
+      "anim": { "idle_frames": 1, "hit_frames": 1, "catch_frames": 1 }
+    },
+    {
+      "id": 35,
+      "name": "Clefairy",
+      "base_capture_rate": 0.52,
+      "sprite_prefix": "creature_035",
+      "anim": { "idle_frames": 1, "hit_frames": 1, "catch_frames": 1 }
+    },
+    {
+      "id": 39,
+      "name": "Jigglypuff",
+      "base_capture_rate": 0.60,
+      "sprite_prefix": "creature_039",
+      "anim": { "idle_frames": 1, "hit_frames": 1, "catch_frames": 1 }
+    },
+    {
+      "id": 41,
+      "name": "Zubat",
+      "base_capture_rate": 0.72,
+      "sprite_prefix": "creature_041",
+      "anim": { "idle_frames": 1, "hit_frames": 1, "catch_frames": 1 }
+    },
+    {
+      "id": 43,
+      "name": "Oddish",
+      "base_capture_rate": 0.70,
+      "sprite_prefix": "creature_043",
+      "anim": { "idle_frames": 1, "hit_frames": 1, "catch_frames": 1 }
+    },
+    {
+      "id": 46,
+      "name": "Paras",
+      "base_capture_rate": 0.68,
+      "sprite_prefix": "creature_046",
+      "anim": { "idle_frames": 1, "hit_frames": 1, "catch_frames": 1 }
+    },
+    {
+      "id": 48,
+      "name": "Venonat",
+      "base_capture_rate": 0.66,
+      "sprite_prefix": "creature_048",
+      "anim": { "idle_frames": 1, "hit_frames": 1, "catch_frames": 1 }
+    },
+    {
+      "id": 52,
+      "name": "Meowth",
+      "base_capture_rate": 0.64,
+      "sprite_prefix": "creature_052",
+      "anim": { "idle_frames": 1, "hit_frames": 1, "catch_frames": 1 }
+    },
+    {
+      "id": 54,
+      "name": "Psyduck",
+      "base_capture_rate": 0.71,
+      "sprite_prefix": "creature_054",
+      "anim": { "idle_frames": 1, "hit_frames": 1, "catch_frames": 1 }
+    },
+    {
+      "id": 58,
+      "name": "Growlithe",
+      "base_capture_rate": 0.50,
+      "sprite_prefix": "creature_058",
+      "anim": { "idle_frames": 1, "hit_frames": 1, "catch_frames": 1 }
+    },
+    {
+      "id": 60,
+      "name": "Poliwag",
+      "base_capture_rate": 0.70,
+      "sprite_prefix": "creature_060",
+      "anim": { "idle_frames": 1, "hit_frames": 1, "catch_frames": 1 }
+    },
+    {
+      "id": 63,
+      "name": "Abra",
+      "base_capture_rate": 0.43,
+      "sprite_prefix": "creature_063",
+      "anim": { "idle_frames": 1, "hit_frames": 1, "catch_frames": 1 }
+    },
+    {
+      "id": 66,
+      "name": "Machop",
+      "base_capture_rate": 0.65,
+      "sprite_prefix": "creature_066",
+      "anim": { "idle_frames": 1, "hit_frames": 1, "catch_frames": 1 }
+    },
+    {
+      "id": 69,
+      "name": "Bellsprout",
+      "base_capture_rate": 0.69,
+      "sprite_prefix": "creature_069",
+      "anim": { "idle_frames": 1, "hit_frames": 1, "catch_frames": 1 }
+    },
+    {
+      "id": 74,
+      "name": "Geodude",
+      "base_capture_rate": 0.71,
+      "sprite_prefix": "creature_074",
+      "anim": { "idle_frames": 1, "hit_frames": 1, "catch_frames": 1 }
+    },
+    {
+      "id": 79,
+      "name": "Slowpoke",
+      "base_capture_rate": 0.72,
+      "sprite_prefix": "creature_079",
+      "anim": { "idle_frames": 1, "hit_frames": 1, "catch_frames": 1 }
+    },
+    {
+      "id": 81,
+      "name": "Magnemite",
+      "base_capture_rate": 0.60,
+      "sprite_prefix": "creature_081",
+      "anim": { "idle_frames": 1, "hit_frames": 1, "catch_frames": 1 }
+    },
+    {
+      "id": 84,
+      "name": "Doduo",
+      "base_capture_rate": 0.72,
+      "sprite_prefix": "creature_084",
+      "anim": { "idle_frames": 1, "hit_frames": 1, "catch_frames": 1 }
+    },
+    {
+      "id": 92,
+      "name": "Gastly",
+      "base_capture_rate": 0.56,
+      "sprite_prefix": "creature_092",
+      "anim": { "idle_frames": 1, "hit_frames": 1, "catch_frames": 1 }
+    },
+    {
+      "id": 96,
+      "name": "Drowzee",
+      "base_capture_rate": 0.67,
+      "sprite_prefix": "creature_096",
+      "anim": { "idle_frames": 1, "hit_frames": 1, "catch_frames": 1 }
+    },
+    {
+      "id": 98,
+      "name": "Krabby",
+      "base_capture_rate": 0.72,
+      "sprite_prefix": "creature_098",
+      "anim": { "idle_frames": 1, "hit_frames": 1, "catch_frames": 1 }
+    },
+    {
+      "id": 104,
+      "name": "Cubone",
+      "base_capture_rate": 0.69,
+      "sprite_prefix": "creature_104",
+      "anim": { "idle_frames": 1, "hit_frames": 1, "catch_frames": 1 }
+    },
+    {
+      "id": 109,
+      "name": "Koffing",
+      "base_capture_rate": 0.58,
+      "sprite_prefix": "creature_109",
+      "anim": { "idle_frames": 1, "hit_frames": 1, "catch_frames": 1 }
+    },
+    {
+      "id": 111,
+      "name": "Rhyhorn",
+      "base_capture_rate": 0.45,
+      "sprite_prefix": "creature_111",
+      "anim": { "idle_frames": 1, "hit_frames": 1, "catch_frames": 1 }
+    },
+    {
+      "id": 113,
+      "name": "Chansey",
+      "base_capture_rate": 0.30,
+      "sprite_prefix": "creature_113",
+      "anim": { "idle_frames": 1, "hit_frames": 1, "catch_frames": 1 }
+    },
+    {
+      "id": 116,
+      "name": "Horsea",
+      "base_capture_rate": 0.72,
+      "sprite_prefix": "creature_116",
+      "anim": { "idle_frames": 1, "hit_frames": 1, "catch_frames": 1 }
+    },
+    {
+      "id": 118,
+      "name": "Goldeen",
+      "base_capture_rate": 0.72,
+      "sprite_prefix": "creature_118",
+      "anim": { "idle_frames": 1, "hit_frames": 1, "catch_frames": 1 }
+    },
+    {
+      "id": 120,
+      "name": "Staryu",
+      "base_capture_rate": 0.70,
+      "sprite_prefix": "creature_120",
+      "anim": { "idle_frames": 1, "hit_frames": 1, "catch_frames": 1 }
+    },
+    {
+      "id": 123,
+      "name": "Scyther",
+      "base_capture_rate": 0.48,
+      "sprite_prefix": "creature_123",
+      "anim": { "idle_frames": 1, "hit_frames": 1, "catch_frames": 1 }
+    },
+    {
+      "id": 129,
+      "name": "Magikarp",
+      "base_capture_rate": 0.91,
+      "sprite_prefix": "creature_129",
+      "anim": { "idle_frames": 1, "hit_frames": 1, "catch_frames": 1 }
+    },
+    {
+      "id": 133,
+      "name": "Eevee",
+      "base_capture_rate": 0.48,
+      "sprite_prefix": "creature_133",
+      "anim": { "idle_frames": 1, "hit_frames": 1, "catch_frames": 1 }
+    },
+    {
+      "id": 152,
+      "name": "Chikorita",
+      "base_capture_rate": 0.54,
+      "sprite_prefix": "creature_152",
+      "anim": { "idle_frames": 1, "hit_frames": 1, "catch_frames": 1 }
+    },
+    {
+      "id": 155,
+      "name": "Cyndaquil",
+      "base_capture_rate": 0.45,
+      "sprite_prefix": "creature_155",
+      "anim": { "idle_frames": 1, "hit_frames": 1, "catch_frames": 1 }
+    },
+    {
+      "id": 158,
+      "name": "Totodile",
+      "base_capture_rate": 0.43,
+      "sprite_prefix": "creature_158",
+      "anim": { "idle_frames": 1, "hit_frames": 1, "catch_frames": 1 }
+    },
+    {
+      "id": 161,
+      "name": "Sentret",
+      "base_capture_rate": 0.71,
+      "sprite_prefix": "creature_161",
+      "anim": { "idle_frames": 1, "hit_frames": 1, "catch_frames": 1 }
+    },
+    {
+      "id": 163,
+      "name": "Hoothoot",
+      "base_capture_rate": 0.62,
+      "sprite_prefix": "creature_163",
+      "anim": { "idle_frames": 1, "hit_frames": 1, "catch_frames": 1 }
+    },
+    {
+      "id": 165,
+      "name": "Ledyba",
+      "base_capture_rate": 0.66,
+      "sprite_prefix": "creature_165",
+      "anim": { "idle_frames": 1, "hit_frames": 1, "catch_frames": 1 }
+    },
+    {
+      "id": 167,
+      "name": "Spinarak",
+      "base_capture_rate": 0.70,
+      "sprite_prefix": "creature_167",
+      "anim": { "idle_frames": 1, "hit_frames": 1, "catch_frames": 1 }
+    },
+    {
+      "id": 170,
+      "name": "Chinchou",
+      "base_capture_rate": 0.62,
+      "sprite_prefix": "creature_170",
+      "anim": { "idle_frames": 1, "hit_frames": 1, "catch_frames": 1 }
+    },
+    {
+      "id": 172,
+      "name": "Pichu",
+      "base_capture_rate": 0.69,
+      "sprite_prefix": "creature_172",
+      "anim": { "idle_frames": 1, "hit_frames": 1, "catch_frames": 1 }
+    },
+    {
+      "id": 177,
+      "name": "Natu",
+      "base_capture_rate": 0.68,
+      "sprite_prefix": "creature_177",
+      "anim": { "idle_frames": 1, "hit_frames": 1, "catch_frames": 1 }
+    },
+    {
+      "id": 179,
+      "name": "Mareep",
+      "base_capture_rate": 0.56,
+      "sprite_prefix": "creature_179",
+      "anim": { "idle_frames": 1, "hit_frames": 1, "catch_frames": 1 }
+    },
+    {
+      "id": 183,
+      "name": "Marill",
+      "base_capture_rate": 0.69,
+      "sprite_prefix": "creature_183",
+      "anim": { "idle_frames": 1, "hit_frames": 1, "catch_frames": 1 }
+    },
+    {
+      "id": 187,
+      "name": "Hoppip",
+      "base_capture_rate": 0.72,
+      "sprite_prefix": "creature_187",
+      "anim": { "idle_frames": 1, "hit_frames": 1, "catch_frames": 1 }
+    },
+    {
+      "id": 190,
+      "name": "Aipom",
+      "base_capture_rate": 0.62,
+      "sprite_prefix": "creature_190",
+      "anim": { "idle_frames": 1, "hit_frames": 1, "catch_frames": 1 }
+    },
+    {
+      "id": 194,
+      "name": "Wooper",
+      "base_capture_rate": 0.68,
+      "sprite_prefix": "creature_194",
+      "anim": { "idle_frames": 1, "hit_frames": 1, "catch_frames": 1 }
+    },
+    {
+      "id": 200,
+      "name": "Misdreavus",
+      "base_capture_rate": 0.45,
+      "sprite_prefix": "creature_200",
+      "anim": { "idle_frames": 1, "hit_frames": 1, "catch_frames": 1 }
+    },
+    {
+      "id": 218,
+      "name": "Slugma",
+      "base_capture_rate": 0.58,
+      "sprite_prefix": "creature_218",
+      "anim": { "idle_frames": 1, "hit_frames": 1, "catch_frames": 1 }
+    },
+    {
+      "id": 2,
+      "name": "Ivysaur",
+      "base_capture_rate": 0.36,
+      "sprite_prefix": "creature_002",
+      "anim": { "idle_frames": 1, "hit_frames": 1, "catch_frames": 1 }
+    },
+    {
+      "id": 3,
+      "name": "Venusaur",
+      "base_capture_rate": 0.36,
+      "sprite_prefix": "creature_003",
+      "anim": { "idle_frames": 1, "hit_frames": 1, "catch_frames": 1 }
+    },
+    {
+      "id": 5,
+      "name": "Charmeleon",
+      "base_capture_rate": 0.36,
+      "sprite_prefix": "creature_005",
+      "anim": { "idle_frames": 1, "hit_frames": 1, "catch_frames": 1 }
+    },
+    {
+      "id": 6,
+      "name": "Charizard",
+      "base_capture_rate": 0.36,
+      "sprite_prefix": "creature_006",
+      "anim": { "idle_frames": 1, "hit_frames": 1, "catch_frames": 1 }
+    },
+    {
+      "id": 8,
+      "name": "Wartortle",
+      "base_capture_rate": 0.36,
+      "sprite_prefix": "creature_008",
+      "anim": { "idle_frames": 1, "hit_frames": 1, "catch_frames": 1 }
+    },
+    {
+      "id": 9,
+      "name": "Blastoise",
+      "base_capture_rate": 0.36,
+      "sprite_prefix": "creature_009",
+      "anim": { "idle_frames": 1, "hit_frames": 1, "catch_frames": 1 }
+    },
+    {
+      "id": 11,
+      "name": "Metapod",
+      "base_capture_rate": 0.36,
+      "sprite_prefix": "creature_011",
+      "anim": { "idle_frames": 1, "hit_frames": 1, "catch_frames": 1 }
+    },
+    {
+      "id": 12,
+      "name": "Butterfree",
+      "base_capture_rate": 0.36,
+      "sprite_prefix": "creature_012",
+      "anim": { "idle_frames": 1, "hit_frames": 1, "catch_frames": 1 }
+    },
+    {
+      "id": 14,
+      "name": "Kakuna",
+      "base_capture_rate": 0.36,
+      "sprite_prefix": "creature_014",
+      "anim": { "idle_frames": 1, "hit_frames": 1, "catch_frames": 1 }
+    },
+    {
+      "id": 15,
+      "name": "Beedrill",
+      "base_capture_rate": 0.36,
+      "sprite_prefix": "creature_015",
+      "anim": { "idle_frames": 1, "hit_frames": 1, "catch_frames": 1 }
+    },
+    {
+      "id": 17,
+      "name": "Pidgeotto",
+      "base_capture_rate": 0.36,
+      "sprite_prefix": "creature_017",
+      "anim": { "idle_frames": 1, "hit_frames": 1, "catch_frames": 1 }
+    },
+    {
+      "id": 18,
+      "name": "Pidgeot",
+      "base_capture_rate": 0.36,
+      "sprite_prefix": "creature_018",
+      "anim": { "idle_frames": 1, "hit_frames": 1, "catch_frames": 1 }
+    },
+    {
+      "id": 20,
+      "name": "Raticate",
+      "base_capture_rate": 0.36,
+      "sprite_prefix": "creature_020",
+      "anim": { "idle_frames": 1, "hit_frames": 1, "catch_frames": 1 }
+    },
+    {
+      "id": 22,
+      "name": "Fearow",
+      "base_capture_rate": 0.36,
+      "sprite_prefix": "creature_022",
+      "anim": { "idle_frames": 1, "hit_frames": 1, "catch_frames": 1 }
+    },
+    {
+      "id": 24,
+      "name": "Arbok",
+      "base_capture_rate": 0.36,
+      "sprite_prefix": "creature_024",
+      "anim": { "idle_frames": 1, "hit_frames": 1, "catch_frames": 1 }
+    },
+    {
+      "id": 26,
+      "name": "Raichu",
+      "base_capture_rate": 0.36,
+      "sprite_prefix": "creature_026",
+      "anim": { "idle_frames": 1, "hit_frames": 1, "catch_frames": 1 }
+    },
+    {
+      "id": 28,
+      "name": "Sandslash",
+      "base_capture_rate": 0.36,
+      "sprite_prefix": "creature_028",
+      "anim": { "idle_frames": 1, "hit_frames": 1, "catch_frames": 1 }
+    },
+    {
+      "id": 30,
+      "name": "Nidorina",
+      "base_capture_rate": 0.36,
+      "sprite_prefix": "creature_030",
+      "anim": { "idle_frames": 1, "hit_frames": 1, "catch_frames": 1 }
+    },
+    {
+      "id": 31,
+      "name": "Nidoqueen",
+      "base_capture_rate": 0.36,
+      "sprite_prefix": "creature_031",
+      "anim": { "idle_frames": 1, "hit_frames": 1, "catch_frames": 1 }
+    },
+    {
+      "id": 33,
+      "name": "Nidorino",
+      "base_capture_rate": 0.36,
+      "sprite_prefix": "creature_033",
+      "anim": { "idle_frames": 1, "hit_frames": 1, "catch_frames": 1 }
+    },
+    {
+      "id": 34,
+      "name": "Nidoking",
+      "base_capture_rate": 0.36,
+      "sprite_prefix": "creature_034",
+      "anim": { "idle_frames": 1, "hit_frames": 1, "catch_frames": 1 }
+    },
+    {
+      "id": 36,
+      "name": "Clefable",
+      "base_capture_rate": 0.36,
+      "sprite_prefix": "creature_036",
+      "anim": { "idle_frames": 1, "hit_frames": 1, "catch_frames": 1 }
+    },
+    {
+      "id": 40,
+      "name": "Wigglytuff",
+      "base_capture_rate": 0.36,
+      "sprite_prefix": "creature_040",
+      "anim": { "idle_frames": 1, "hit_frames": 1, "catch_frames": 1 }
+    },
+    {
+      "id": 44,
+      "name": "Gloom",
+      "base_capture_rate": 0.36,
+      "sprite_prefix": "creature_044",
+      "anim": { "idle_frames": 1, "hit_frames": 1, "catch_frames": 1 }
+    },
+    {
+      "id": 45,
+      "name": "Vileplume",
+      "base_capture_rate": 0.36,
+      "sprite_prefix": "creature_045",
+      "anim": { "idle_frames": 1, "hit_frames": 1, "catch_frames": 1 }
+    },
+    {
+      "id": 47,
+      "name": "Parasect",
+      "base_capture_rate": 0.36,
+      "sprite_prefix": "creature_047",
+      "anim": { "idle_frames": 1, "hit_frames": 1, "catch_frames": 1 }
+    },
+    {
+      "id": 49,
+      "name": "Venomoth",
+      "base_capture_rate": 0.36,
+      "sprite_prefix": "creature_049",
+      "anim": { "idle_frames": 1, "hit_frames": 1, "catch_frames": 1 }
+    },
+    {
+      "id": 53,
+      "name": "Persian",
+      "base_capture_rate": 0.36,
+      "sprite_prefix": "creature_053",
+      "anim": { "idle_frames": 1, "hit_frames": 1, "catch_frames": 1 }
+    },
+    {
+      "id": 55,
+      "name": "Golduck",
+      "base_capture_rate": 0.36,
+      "sprite_prefix": "creature_055",
+      "anim": { "idle_frames": 1, "hit_frames": 1, "catch_frames": 1 }
+    },
+    {
+      "id": 59,
+      "name": "Arcanine",
+      "base_capture_rate": 0.36,
+      "sprite_prefix": "creature_059",
+      "anim": { "idle_frames": 1, "hit_frames": 1, "catch_frames": 1 }
+    },
+    {
+      "id": 61,
+      "name": "Poliwhirl",
+      "base_capture_rate": 0.36,
+      "sprite_prefix": "creature_061",
+      "anim": { "idle_frames": 1, "hit_frames": 1, "catch_frames": 1 }
+    },
+    {
+      "id": 62,
+      "name": "Poliwrath",
+      "base_capture_rate": 0.36,
+      "sprite_prefix": "creature_062",
+      "anim": { "idle_frames": 1, "hit_frames": 1, "catch_frames": 1 }
+    },
+    {
+      "id": 70,
+      "name": "Weepinbell",
+      "base_capture_rate": 0.36,
+      "sprite_prefix": "creature_070",
+      "anim": { "idle_frames": 1, "hit_frames": 1, "catch_frames": 1 }
+    },
+    {
+      "id": 71,
+      "name": "Victreebel",
+      "base_capture_rate": 0.36,
+      "sprite_prefix": "creature_071",
+      "anim": { "idle_frames": 1, "hit_frames": 1, "catch_frames": 1 }
+    },
+    {
+      "id": 97,
+      "name": "Hypno",
+      "base_capture_rate": 0.36,
+      "sprite_prefix": "creature_097",
+      "anim": { "idle_frames": 1, "hit_frames": 1, "catch_frames": 1 }
+    },
+    {
+      "id": 99,
+      "name": "Kingler",
+      "base_capture_rate": 0.36,
+      "sprite_prefix": "creature_099",
+      "anim": { "idle_frames": 1, "hit_frames": 1, "catch_frames": 1 }
+    },
+    {
+      "id": 105,
+      "name": "Marowak",
+      "base_capture_rate": 0.36,
+      "sprite_prefix": "creature_105",
+      "anim": { "idle_frames": 1, "hit_frames": 1, "catch_frames": 1 }
+    },
+    {
+      "id": 110,
+      "name": "Weezing",
+      "base_capture_rate": 0.36,
+      "sprite_prefix": "creature_110",
+      "anim": { "idle_frames": 1, "hit_frames": 1, "catch_frames": 1 }
+    },
+    {
+      "id": 112,
+      "name": "Rhydon",
+      "base_capture_rate": 0.36,
+      "sprite_prefix": "creature_112",
+      "anim": { "idle_frames": 1, "hit_frames": 1, "catch_frames": 1 }
+    },
+    {
+      "id": 119,
+      "name": "Seaking",
+      "base_capture_rate": 0.36,
+      "sprite_prefix": "creature_119",
+      "anim": { "idle_frames": 1, "hit_frames": 1, "catch_frames": 1 }
+    },
+    {
+      "id": 121,
+      "name": "Starmie",
+      "base_capture_rate": 0.36,
+      "sprite_prefix": "creature_121",
+      "anim": { "idle_frames": 1, "hit_frames": 1, "catch_frames": 1 }
+    },
+    {
+      "id": 130,
+      "name": "Gyarados",
+      "base_capture_rate": 0.36,
+      "sprite_prefix": "creature_130",
+      "anim": { "idle_frames": 1, "hit_frames": 1, "catch_frames": 1 }
+    },
+    {
+      "id": 153,
+      "name": "Bayleef",
+      "base_capture_rate": 0.36,
+      "sprite_prefix": "creature_153",
+      "anim": { "idle_frames": 1, "hit_frames": 1, "catch_frames": 1 }
+    },
+    {
+      "id": 154,
+      "name": "Meganium",
+      "base_capture_rate": 0.36,
+      "sprite_prefix": "creature_154",
+      "anim": { "idle_frames": 1, "hit_frames": 1, "catch_frames": 1 }
+    },
+    {
+      "id": 156,
+      "name": "Quilava",
+      "base_capture_rate": 0.36,
+      "sprite_prefix": "creature_156",
+      "anim": { "idle_frames": 1, "hit_frames": 1, "catch_frames": 1 }
+    },
+    {
+      "id": 157,
+      "name": "Typhlosion",
+      "base_capture_rate": 0.36,
+      "sprite_prefix": "creature_157",
+      "anim": { "idle_frames": 1, "hit_frames": 1, "catch_frames": 1 }
+    },
+    {
+      "id": 159,
+      "name": "Croconaw",
+      "base_capture_rate": 0.36,
+      "sprite_prefix": "creature_159",
+      "anim": { "idle_frames": 1, "hit_frames": 1, "catch_frames": 1 }
+    },
+    {
+      "id": 160,
+      "name": "Feraligatr",
+      "base_capture_rate": 0.36,
+      "sprite_prefix": "creature_160",
+      "anim": { "idle_frames": 1, "hit_frames": 1, "catch_frames": 1 }
+    },
+    {
+      "id": 162,
+      "name": "Furret",
+      "base_capture_rate": 0.36,
+      "sprite_prefix": "creature_162",
+      "anim": { "idle_frames": 1, "hit_frames": 1, "catch_frames": 1 }
+    },
+    {
+      "id": 164,
+      "name": "Noctowl",
+      "base_capture_rate": 0.36,
+      "sprite_prefix": "creature_164",
+      "anim": { "idle_frames": 1, "hit_frames": 1, "catch_frames": 1 }
+    },
+    {
+      "id": 166,
+      "name": "Ledian",
+      "base_capture_rate": 0.36,
+      "sprite_prefix": "creature_166",
+      "anim": { "idle_frames": 1, "hit_frames": 1, "catch_frames": 1 }
+    },
+    {
+      "id": 168,
+      "name": "Ariados",
+      "base_capture_rate": 0.36,
+      "sprite_prefix": "creature_168",
+      "anim": { "idle_frames": 1, "hit_frames": 1, "catch_frames": 1 }
+    },
+    {
+      "id": 171,
+      "name": "Lanturn",
+      "base_capture_rate": 0.36,
+      "sprite_prefix": "creature_171",
+      "anim": { "idle_frames": 1, "hit_frames": 1, "catch_frames": 1 }
+    },
+    {
+      "id": 178,
+      "name": "Xatu",
+      "base_capture_rate": 0.36,
+      "sprite_prefix": "creature_178",
+      "anim": { "idle_frames": 1, "hit_frames": 1, "catch_frames": 1 }
+    },
+    {
+      "id": 180,
+      "name": "Flaaffy",
+      "base_capture_rate": 0.36,
+      "sprite_prefix": "creature_180",
+      "anim": { "idle_frames": 1, "hit_frames": 1, "catch_frames": 1 }
+    },
+    {
+      "id": 181,
+      "name": "Ampharos",
+      "base_capture_rate": 0.36,
+      "sprite_prefix": "creature_181",
+      "anim": { "idle_frames": 1, "hit_frames": 1, "catch_frames": 1 }
+    },
+    {
+      "id": 184,
+      "name": "Azumarill",
+      "base_capture_rate": 0.36,
+      "sprite_prefix": "creature_184",
+      "anim": { "idle_frames": 1, "hit_frames": 1, "catch_frames": 1 }
+    },
+    {
+      "id": 188,
+      "name": "Skiploom",
+      "base_capture_rate": 0.36,
+      "sprite_prefix": "creature_188",
+      "anim": { "idle_frames": 1, "hit_frames": 1, "catch_frames": 1 }
+    },
+    {
+      "id": 189,
+      "name": "Jumpluff",
+      "base_capture_rate": 0.36,
+      "sprite_prefix": "creature_189",
+      "anim": { "idle_frames": 1, "hit_frames": 1, "catch_frames": 1 }
+    },
+    {
+      "id": 195,
+      "name": "Quagsire",
+      "base_capture_rate": 0.36,
+      "sprite_prefix": "creature_195",
+      "anim": { "idle_frames": 1, "hit_frames": 1, "catch_frames": 1 }
+    },
+    {
+      "id": 219,
+      "name": "Magcargo",
+      "base_capture_rate": 0.36,
+      "sprite_prefix": "creature_219",
+      "anim": { "idle_frames": 1, "hit_frames": 1, "catch_frames": 1 }
+    }
+  ],
+  "balls": [
+    {
+      "id": "default",
+      "name": "Poke Ball",
+      "curve_bonus": 0.10,
+      "catch_bonus": 1.00,
+      "sprite_prefix": "ball_default",
+      "spin_frames": 4
+    }
+  ],
+  "scene": {
+    "bg_prefix": "scene_day",
+    "ring_radius_px": 18,
+    "target_y_px": 42
+  }
+}

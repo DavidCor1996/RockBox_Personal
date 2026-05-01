@@ -1,0 +1,446 @@
+ASxxxx Assembler V02.00 + NoICE + SDCC mods  (GameBoy)                  Page 1
+Hexadecimal [32-Bits]
+
+Symbol Table
+
+    .__.$$$.                                                    =   00002710 L
+    .__.ABS.                                                    =   00000000 G
+    .__.CPU.                                                    =   00000000 L
+    .__.H$L.                                                    =   00000000 L
+    _BGP_REG                                                        ******** GX
+    _LCDC_REG                                                       ******** GX
+    _OBP0_REG                                                       ******** GX
+    _OBP1_REG                                                       ******** GX
+    ___bank_iona_rooftop                                            ******** GX
+    ___bank_luma_lane_apartment                                     ******** GX
+    ___bank_luma_lane_district_v2                                   ******** GX
+    ___bank_needle_and_neon_records                                 ******** GX
+    ___bank_rook_repair_tech                                        ******** GX
+    ___bank_soma_ramen                                              ******** GX
+    ___bank_southline_overpass                                      ******** GX
+    ___bank_startup_bimpson_productions_a                           ******** GX
+    ___bank_startup_dialtone_title_a                                ******** GX
+    ___bank_startup_dialtone_title_b                                ******** GX
+    ___bank_startup_scott_stinks_a                                  ******** GX
+    ___sdcc_bcall_ehl                                               ******** GX
+  0 ___str_0                                                        00000B95 R
+  0 ___str_1                                                        00000BAA R
+  0 ___str_10                                                       00000E58 R
+  0 ___str_100                                                      00001937 R
+  0 ___str_101                                                      0000196E R
+  0 ___str_102                                                      00001A10 R
+  0 ___str_103                                                      00001A20 R
+  0 ___str_104                                                      00001A2F R
+  0 ___str_105                                                      00001A3F R
+  0 ___str_106                                                      00001A4E R
+  0 ___str_107                                                      00001A54 R
+  0 ___str_108                                                      00001A62 R
+  0 ___str_109                                                      00001A6E R
+  0 ___str_11                                                       00000E6B R
+  0 ___str_110                                                      00001A73 R
+  0 ___str_111                                                      00001A97 R
+  0 ___str_112                                                      00001AB7 R
+  0 ___str_113                                                      00001ADA R
+  0 ___str_114                                                      00001B47 R
+  0 ___str_115                                                      00001B56 R
+  0 ___str_116                                                      00001B66 R
+  0 ___str_117                                                      00001B72 R
+  0 ___str_118                                                      00001B78 R
+  0 ___str_119                                                      00001B84 R
+  0 ___str_12                                                       00000ED3 R
+  0 ___str_120                                                      00001B93 R
+  0 ___str_121                                                      00001B98 R
+  0 ___str_122                                                      00001BBF R
+  0 ___str_123                                                      00001C1B R
+  0 ___str_124                                                      00001C2A R
+  0 ___str_125                                                      00001C39 R
+  0 ___str_126                                                      00001C3F R
+  0 ___str_127                                                      00001C44 R
+  0 ___str_128                                                      00001C52 R
+  0 ___str_129                                                      00001C7A R
+ASxxxx Assembler V02.00 + NoICE + SDCC mods  (GameBoy)                  Page 2
+Hexadecimal [32-Bits]
+
+Symbol Table
+
+  0 ___str_13                                                       00000EDA R
+  0 ___str_130                                                      00001DD2 R
+  0 ___str_131                                                      00001DD7 R
+  0 ___str_132                                                      00001DE4 R
+  0 ___str_133                                                      00001E1A R
+  0 ___str_134                                                      00001E54 R
+  0 ___str_135                                                      00001E59 R
+  0 ___str_136                                                      00001E90 R
+  0 ___str_137                                                      00001E95 R
+  0 ___str_138                                                      00001ED4 R
+  0 ___str_139                                                      00001ED8 R
+  0 ___str_14                                                       00000EDF R
+  0 ___str_140                                                      00001F13 R
+  0 ___str_141                                                      0000238D R
+  0 ___str_142                                                      00002392 R
+  0 ___str_143                                                      000023C8 R
+  0 ___str_144                                                      000023D5 R
+  0 ___str_145                                                      00002603 R
+  0 ___str_146                                                      0000260C R
+  0 ___str_147                                                      00002642 R
+  0 ___str_148                                                      0000264F R
+  0 ___str_149                                                      00002655 R
+  0 ___str_15                                                       00000EE5 R
+  0 ___str_150                                                      00002688 R
+  0 ___str_151                                                      0000268D R
+  0 ___str_152                                                      000026C0 R
+  0 ___str_153                                                      000026CA R
+  0 ___str_154                                                      000026F1 R
+  0 ___str_155                                                      00002700 R
+  0 ___str_156                                                      00002735 R
+  0 ___str_157                                                      0000273B R
+  0 ___str_158                                                      00002781 R
+  0 ___str_159                                                      00002787 R
+  0 ___str_16                                                       00000EEA R
+  0 ___str_160                                                      000027BA R
+  0 ___str_161                                                      000027C0 R
+  0 ___str_162                                                      000027FA R
+  0 ___str_163                                                      00002802 R
+  0 ___str_164                                                      00002848 R
+  0 ___str_165                                                      00002852 R
+  0 ___str_166                                                      00002B1F R
+  0 ___str_167                                                      00002B27 R
+  0 ___str_168                                                      00002B8A R
+  0 ___str_17                                                       00000EEF R
+  0 ___str_18                                                       00000F13 R
+  0 ___str_19                                                       00000F18 R
+  0 ___str_2                                                        00000C25 R
+  0 ___str_20                                                       00000F1E R
+  0 ___str_21                                                       00000F23 R
+  0 ___str_22                                                       00001129 R
+  0 ___str_23                                                       00001130 R
+  0 ___str_24                                                       00001137 R
+  0 ___str_25                                                       00001145 R
+  0 ___str_26                                                       00001153 R
+  0 ___str_27                                                       00001162 R
+ASxxxx Assembler V02.00 + NoICE + SDCC mods  (GameBoy)                  Page 3
+Hexadecimal [32-Bits]
+
+Symbol Table
+
+  0 ___str_28                                                       0000116F R
+  0 ___str_29                                                       0000117E R
+  0 ___str_3                                                        00000D6B R
+  0 ___str_30                                                       0000118B R
+  0 ___str_31                                                       0000119A R
+  0 ___str_32                                                       000011A7 R
+  0 ___str_33                                                       000011B6 R
+  0 ___str_34                                                       000011C9 R
+  0 ___str_35                                                       000011DA R
+  0 ___str_36                                                       0000120B R
+  0 ___str_37                                                       00001218 R
+  0 ___str_38                                                       0000122A R
+  0 ___str_39                                                       00001239 R
+  0 ___str_4                                                        00000D6D R
+  0 ___str_40                                                       00001241 R
+  0 ___str_41                                                       00001266 R
+  0 ___str_42                                                       0000126D R
+  0 ___str_43                                                       00001276 R
+  0 ___str_44                                                       00001278 R
+  0 ___str_45                                                       00001281 R
+  0 ___str_46                                                       0000128A R
+  0 ___str_47                                                       000012BA R
+  0 ___str_48                                                       000012DD R
+  0 ___str_49                                                       000012E2 R
+  0 ___str_5                                                        00000D70 R
+  0 ___str_50                                                       00001331 R
+  0 ___str_51                                                       0000135F R
+  0 ___str_52                                                       0000136F R
+  0 ___str_53                                                       0000137E R
+  0 ___str_54                                                       00001383 R
+  0 ___str_55                                                       0000138B R
+  0 ___str_56                                                       00001464 R
+  0 ___str_57                                                       0000146B R
+  0 ___str_58                                                       00001472 R
+  0 ___str_59                                                       00001479 R
+  0 ___str_6                                                        00000E48 R
+  0 ___str_60                                                       0000147E R
+  0 ___str_61                                                       00001484 R
+  0 ___str_62                                                       0000148B R
+  0 ___str_63                                                       00001490 R
+  0 ___str_64                                                       00001496 R
+  0 ___str_65                                                       0000149B R
+  0 ___str_66                                                       000014A0 R
+  0 ___str_67                                                       000014A6 R
+  0 ___str_68                                                       000014B7 R
+  0 ___str_69                                                       000014C4 R
+  0 ___str_7                                                        00000E4D R
+  0 ___str_70                                                       000014C9 R
+  0 ___str_71                                                       000014E8 R
+  0 ___str_72                                                       0000152C R
+  0 ___str_73                                                       00001533 R
+  0 ___str_74                                                       00001538 R
+  0 ___str_75                                                       0000153E R
+  0 ___str_76                                                       00001543 R
+  0 ___str_77                                                       0000154B R
+ASxxxx Assembler V02.00 + NoICE + SDCC mods  (GameBoy)                  Page 4
+Hexadecimal [32-Bits]
+
+Symbol Table
+
+  0 ___str_78                                                       00001551 R
+  0 ___str_79                                                       000015C8 R
+  0 ___str_8                                                        00000E53 R
+  0 ___str_80                                                       0000162F R
+  0 ___str_81                                                       00001644 R
+  0 ___str_82                                                       00001651 R
+  0 ___str_83                                                       000016BC R
+  0 ___str_84                                                       000016DC R
+  0 ___str_85                                                       000016E9 R
+  0 ___str_86                                                       000017C7 R
+  0 ___str_87                                                       000017D5 R
+  0 ___str_88                                                       000017DB R
+  0 ___str_89                                                       000017E9 R
+  0 ___str_9                                                        00000E56 R
+  0 ___str_90                                                       000017F8 R
+  0 ___str_91                                                       000017FF R
+  0 ___str_92                                                       00001811 R
+  0 ___str_93                                                       00001818 R
+  0 ___str_94                                                       0000184A R
+  0 ___str_95                                                       0000188F R
+  0 ___str_96                                                       0000189C R
+  0 ___str_97                                                       000018AC R
+  0 ___str_98                                                       000018E5 R
+  0 ___str_99                                                       00001925 R
+    __cpu                                                           ******** GX
+    __current_bank                                                  ******** GX
+    __divuchar                                                      ******** GX
+    __divuint                                                       ******** GX
+    __moduchar                                                      ******** GX
+    __moduint                                                       ******** GX
+    __muluschar                                                     ******** GX
+  0 _add_item                                                       0000011C R
+  0 _animate_step                                                   000021F9 R
+    _apartment_decor_tiles                                          ******** GX
+  0 _apartment_overlay_tile                                         00000709 R
+  0 _apply_palette                                                  000001D6 R
+  0 _assign_daily_task                                              00000D96 R
+  0 _begin_display_reload                                           0000019D R
+    _bg_tiles                                                       ******** GX
+  0 _buy_item                                                       000015D5 R
+  0 _buy_ride                                                       0000166D R
+  0 _check_door                                                     000021AB R
+    _cls                                                            ******** GX
+  2 _credits                                                        00000006 R
+  0 _current_ride_level                                             000003FA R
+  0 _current_room_palettes                                          0000078A R
+  0 _current_room_tile_count                                        000003BC R
+  0 _current_sprite_tile_base                                       000003F7 R
+  0 _current_sprite_tile_count                                      0000044F R
+  0 _current_task                                                   00000D83 R
+  2 _day_count                                                      00000007 R
+  0 _decor_name                                                     00000E9D R
+  0 _decor_screen                                                   0000139E R
+  0 _decor_screen_decor_items_10000_563                             00001456 R
+  0 _decor_screen_slot_items_10000_563                              0000144E R
+ASxxxx Assembler V02.00 + NoICE + SDCC mods  (GameBoy)                  Page 5
+Hexadecimal [32-Bits]
+
+Symbol Table
+
+  2 _decor_slots                                                    0000000C R
+  0 _decor_tile                                                     000000E1 R
+    _display_off                                                    ******** GX
+    _doors                                                          ******** GX
+  0 _draw_text                                                      00000948 R
+  0 _draw_text_xy                                                   00000999 R
+  0 _draw_traffic_sprites                                           000004F9 R
+  0 _draw_u8                                                        000009AD R
+  0 _draw_world_sprites                                             000005A3 R
+    _dt_audio_get_home_record                                       ******** GX
+    _dt_audio_init                                                  ******** GX
+    _dt_audio_play_sfx                                              ******** GX
+    _dt_audio_play_title_theme                                      ******** GX
+    _dt_audio_set_home_record                                       ******** GX
+    _dt_audio_stop_music                                            ******** GX
+    _dt_audio_sync                                                  ******** GX
+    _dt_audio_update                                                ******** GX
+    _dt_home_record_menu                                            ******** GX
+    _dt_init_assets                                                 ******** GX
+    _dt_record_from_media                                           ******** GX
+    _dt_record_name                                                 ******** GX
+  0 _enter_room                                                     00002188 R
+  2 _facing                                                         00000005 R
+  0 _finish_display_reload                                          000001B6 R
+    _font_ibm                                                       ******** GX
+    _font_init                                                      ******** GX
+    _font_load                                                      ******** GX
+    _font_set                                                       ******** GX
+  2 _frame_clock                                                    00000011 R
+  0 _give_item_message                                              000015B4 R
+    _gotoxy                                                         ******** GX
+  0 _has_item                                                       00000110 R
+  0 _help_screen                                                    000012CF R
+  0 _hide_actor                                                     0000046A R
+  0 _hotspot_at                                                     00001FF0 R
+    _hotspots                                                       ******** GX
+  0 _interact_hotspot                                               0000232E R
+  2 _inventory                                                      0000000A R
+  0 _inventory_screen                                               00000F28 R
+  0 _invert_dmg_palette_reg                                         00000122 R
+    _iona_rooftop_map                                               ******** GX
+    _iona_rooftop_palettes                                          ******** GX
+    _iona_rooftop_tiles                                             ******** GX
+  0 _is_solid                                                       00002133 R
+    _joypad                                                         ******** GX
+  0 _load_room                                                      00000687 R
+    _luma_lane_apartment_map                                        ******** GX
+    _luma_lane_apartment_palettes                                   ******** GX
+    _luma_lane_apartment_tiles                                      ******** GX
+    _luma_lane_district_v2_map                                      ******** GX
+    _luma_lane_district_v2_palettes                                 ******** GX
+    _luma_lane_district_v2_tiles                                    ******** GX
+  0 _main                                                           00002911 GR
+  2 _map_buffer                                                     00000012 R
+  2 _media                                                          0000000B R
+ASxxxx Assembler V02.00 + NoICE + SDCC mods  (GameBoy)                  Page 6
+Hexadecimal [32-Bits]
+
+Symbol Table
+
+  0 _menu_screen                                                    00000C28 GR
+  0 _mina_shop                                                      000019A4 R
+  0 _mina_shop_items_10000_624                                      00001A06 R
+  0 _movement_repeat_delay                                          00000429 R
+  0 _movement_repeat_interval                                       00000444 R
+  0 _movement_step_frames                                           0000040C R
+    _needle_and_neon_records_map                                    ******** GX
+    _needle_and_neon_records_palettes                               ******** GX
+    _needle_and_neon_records_tiles                                  ******** GX
+  0 _npc_at                                                         00001F52 R
+  0 _npc_blocks                                                     00001FAB R
+  0 _npc_dialogue                                                   00001CA3 R
+    _npcs                                                           ******** GX
+  0 _options_screen                                                 0000133E R
+  0 _options_screen_items_10000_559                                 00001359 R
+  0 _overlay_apartment_decor                                        00000738 R
+  0 _overlay_apartment_decor_slot_x_10000_417                       00000784 R
+  0 _overlay_apartment_decor_slot_y_10000_417                       00000787 R
+  2 _palette_mood                                                   00000010 R
+  0 _pause_menu                                                     000014F5 R
+  0 _pause_menu_items_10000_582                                     00001522 R
+  0 _player_frame_base                                              00000395 R
+  2 _player_x                                                       00000003 R
+  2 _player_y                                                       00000004 R
+  0 _position_is_walkable                                           00002093 R
+    _posx                                                           ******** GX
+    _posy                                                           ******** GX
+  0 _print_footer                                                   00000B79 R
+  0 _print_task_summary                                             00000DE4 R
+    _rROMB0                                                         ******** GX
+  0 _render_banked_room                                             000007CD R
+  0 _render_room                                                    000008A4 R
+  0 _reward_task                                                    00001560 R
+  2 _ride_level                                                     0000000F R
+  0 _ride_name                                                      00000EF5 R
+    _rook_repair_tech_map                                           ******** GX
+    _rook_repair_tech_palettes                                      ******** GX
+    _rook_repair_tech_tiles                                         ******** GX
+  0 _rook_shop                                                      00001B01 R
+  0 _rook_shop_items_10000_630                                      00001B3F R
+  0 _room_fallback_position                                         0000203D R
+  2 _room_id                                                        00000002 R
+    _room_maps                                                      ******** GX
+  0 _sanitize_player_position                                       000020C9 R
+    _set_bkg_data                                                   ******** GX
+    _set_bkg_palette                                                ******** GX
+    _set_bkg_tiles                                                  ******** GX
+  0 _set_inverted_bkg_palette                                       00000155 R
+  0 _set_quad_sprite                                                0000021D R
+  0 _set_single_sprite                                              000004A4 R
+    _set_sprite_data                                                ******** GX
+    _setchar                                                        ******** GX
+  0 _setup_new_game                                                 00000DAC R
+    _shadow_OAM                                                     ******** GX
+  0 _show_banked_image_card                                         00000A35 R
+ASxxxx Assembler V02.00 + NoICE + SDCC mods  (GameBoy)                  Page 7
+Hexadecimal [32-Bits]
+
+Symbol Table
+
+  0 _show_bimpson_card                                              00000B23 R
+  0 _show_company_card                                              00000AC0 R
+  0 _show_message                                                   00000BBF GR
+  0 _show_title                                                     0000288F R
+    _soma_ramen_map                                                 ******** GX
+    _soma_ramen_palettes                                            ******** GX
+    _soma_ramen_tiles                                               ******** GX
+  0 _soma_shop                                                      00001BDE R
+  0 _soma_shop_items_10000_635                                      00001C15 R
+    _southline_overpass_map                                         ******** GX
+    _southline_overpass_palettes                                    ******** GX
+    _southline_overpass_tiles                                       ******** GX
+    _sprite_tiles                                                   ******** GX
+  0 _stamp_apartment_decor                                          00000644 R
+  0 _stamp_apartment_decor_slot_x_10000_401                         00000681 R
+  0 _stamp_apartment_decor_slot_y_10000_401                         00000684 R
+    _startup_bimpson_productions_a_map                              ******** GX
+    _startup_bimpson_productions_a_palettes                         ******** GX
+    _startup_bimpson_productions_a_tiles                            ******** GX
+    _startup_dialtone_title_a_map                                   ******** GX
+    _startup_dialtone_title_a_palettes                              ******** GX
+    _startup_dialtone_title_a_tiles                                 ******** GX
+    _startup_dialtone_title_b_map                                   ******** GX
+    _startup_dialtone_title_b_palettes                              ******** GX
+    _startup_dialtone_title_b_tiles                                 ******** GX
+    _startup_scott_stinks_a_map                                     ******** GX
+    _startup_scott_stinks_a_palettes                                ******** GX
+    _startup_scott_stinks_a_tiles                                   ******** GX
+  2 _task_done                                                      00000009 R
+  2 _task_id                                                        00000008 R
+    _tasks                                                          ******** GX
+  0 _tile_for_char                                                  00000000 R
+  0 _tile_to_sprite_x                                               00000211 R
+  0 _tile_to_sprite_y                                               00000217 R
+  0 _traffic_tile                                                   000004CB R
+  0 _try_interact                                                   00002419 R
+  0 _try_move                                                       0000227A R
+  2 _ui_font                                                        00000000 R
+  0 _use_text_screen                                                00000916 R
+  0 _vehicle_shop                                                   00001705 R
+  0 _vehicle_shop_bike_items_10000_606                              000017BB R
+  0 _vehicle_shop_moto_items_10000_606                              000017C3 R
+  0 _vehicle_shop_scooter_items_10000_606                           000017BF R
+    _vsync                                                          ******** GX
+  0 _wait_card_input                                                00000A9D R
+    _waitpadup                                                      ******** GX
+    b_dt_audio_get_home_record                                      ******** GX
+    b_dt_audio_init                                                 ******** GX
+    b_dt_audio_play_sfx                                             ******** GX
+    b_dt_audio_play_title_theme                                     ******** GX
+    b_dt_audio_set_home_record                                      ******** GX
+    b_dt_audio_stop_music                                           ******** GX
+    b_dt_audio_sync                                                 ******** GX
+    b_dt_audio_update                                               ******** GX
+    b_dt_home_record_menu                                           ******** GX
+ASxxxx Assembler V02.00 + NoICE + SDCC mods  (GameBoy)                  Page 8
+Hexadecimal [32-Bits]
+
+Symbol Table
+
+    b_dt_init_assets                                                ******** GX
+    b_dt_record_from_media                                          ******** GX
+    b_dt_record_name                                                ******** GX
+
+
+ASxxxx Assembler V02.00 + NoICE + SDCC mods  (GameBoy)                  Page 9
+Hexadecimal [32-Bits]
+
+Area Table
+
+   0 _CODE                                      size     2B96   flags    0
+   1 _HRAM                                      size        0   flags    0
+   2 _DATA                                      size      17A   flags    0
+   3 _INITIALIZED                               size        0   flags    0
+   4 _DABS                                      size        0   flags    8
+   5 _HOME                                      size        0   flags    0
+   6 _GSINIT                                    size        0   flags    0
+   7 _GSFINAL                                   size        0   flags    0
+   8 _INITIALIZER                               size        0   flags    0
+   9 _CABS                                      size        0   flags    8
+

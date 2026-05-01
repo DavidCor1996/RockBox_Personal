@@ -19,13 +19,13 @@ def test_profile_persistence(tmp_dir):
     config, store = _make_store(tmp_dir)
     profile = store.current_profile()
     profile["device_mount_path"] = "/tmp/ipod-test"
-    profile["selected_theme"] = "iPone_optimized"
+    profile["selected_theme"] = "iPone"
     store.save_profile(profile)
 
     reloaded = RockboxProfileStore(Config(config._path), _repo_root())
     current = reloaded.current_profile()
     assert current["device_mount_path"] == "/tmp/ipod-test"
-    assert current["selected_theme"] == "iPone_optimized"
+    assert current["selected_theme"] == "iPone"
 
 
 def test_theme_filtering_by_resolution(tmp_dir):
@@ -36,7 +36,7 @@ def test_theme_filtering_by_resolution(tmp_dir):
     classic3g = service.list_themes(_repo_root(), "160x128")
     nano = service.list_themes(_repo_root(), "176x132")
 
-    assert {item["id"] for item in desktop} == {"iPone", "iPone_optimized"}
+    assert {item["id"] for item in desktop} == {"iPone"}
     assert {item["id"] for item in classic3g} == {"Galaxy", "iPone_3g"}
     assert {item["id"] for item in nano} == {"iPone_nano2g"}
 

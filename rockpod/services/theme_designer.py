@@ -704,7 +704,7 @@ class ThemeDesignerService:
         return os.path.join(self._variants_dir(repo_root), f"{variant_id}.json")
 
     def _apply_template_color_overrides(self, path, base_theme_id, stage_root):
-        if str(base_theme_id or "").strip() not in {"iPone", "iPone_optimized"}:
+        if str(base_theme_id or "").strip() != "iPone":
             return
 
         theme_cfg_path = os.path.join(stage_root, "themes")

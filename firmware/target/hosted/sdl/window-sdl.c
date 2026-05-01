@@ -23,11 +23,14 @@
 #include <stdlib.h>
 #include <string.h>
 #include <strings.h>
+#include <unistd.h>
 #include "sim-ui-defines.h"
 #include "window-sdl.h"
 #include "lcd-sdl.h"
 #include "misc.h"
 #include "panic.h"
+#include "sim_tasks.h"
+#include "screendump.h"
 
 extern SDL_Surface *lcd_surface;
 #ifdef HAVE_REMOTE_LCD
@@ -51,9 +54,21 @@ static bool rockpod_preview_hidden;
 static Uint32 rockpod_preview_interval_ms;
 static Uint32 rockpod_preview_last_ticks;
 static char rockpod_preview_path[MAX_PATH];
+static bool rockpod_auto_dump_once;
+static bool rockpod_auto_dump_done;
+static Uint32 rockpod_auto_dump_after_ticks;
+static const char rockpod_auto_dump_flagfile[] = "tmp/cherryblossom-sim-autodump.flag";
 
 static void rockpod_preview_configure(void)
 {
+    const char *auto_dump = getenv("ROCKPOD_SIM_AUTO_DUMP_ONCE");
+    rockpod_auto_dump_once = auto_dump &&
+        (!strcmp(auto_dump, "1") || !strcasecmp(auto_dump, "true") || !strcasecmp(auto_dump, "yes"));
+    rockpod_auto_dump_done = false;
+    rockpod_auto_dump_after_ticks = 1500;
+    if (!rockpod_auto_dump_once && access(rockpod_auto_dump_flagfile, F_OK) == 0)
+        rockpod_auto_dump_once = true;
+
     const char *path = getenv("ROCKPOD_SIM_PREVIEW_BMP");
     if (!path || !*path)
     {
@@ -79,6 +94,14 @@ static void rockpod_preview_configure(void)
     const char *hidden = getenv("ROCKPOD_SIM_HIDDEN");
     if (hidden && (!strcmp(hidden, "1") || !strcasecmp(hidden, "true") || !strcasecmp(hidden, "yes")))
         rockpod_preview_hidden = true;
+
+    const char *delay_ms = getenv("ROCKPOD_SIM_AUTO_DUMP_DELAY_MS");
+    if (delay_ms && *delay_ms)
+    {
+        long value = strtol(delay_ms, NULL, 10);
+        if (value >= 0 && value <= 30000)
+            rockpod_auto_dump_after_ticks = (Uint32)value;
+    }
 }
 
 static void rockpod_preview_capture_if_needed(void)
@@ -239,6 +262,14 @@ void sdl_window_render(void)
     SDL_RenderClear(sdlRenderer);
     SDL_RenderCopy(sdlRenderer, gui_texture, NULL, NULL);
     SDL_RenderPresent(sdlRenderer);
+
+    if (rockpod_auto_dump_once && !rockpod_auto_dump_done &&
+        SDL_GetTicks() >= rockpod_auto_dump_after_ticks)
+    {
+        rockpod_auto_dump_done = true;
+        screen_dump();
+    }
+
     rockpod_preview_capture_if_needed();
 }
 

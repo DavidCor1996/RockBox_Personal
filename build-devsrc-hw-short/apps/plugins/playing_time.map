@@ -1,0 +1,277 @@
+Archive member included to satisfy reference by file (symbol)
+
+/home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/libsetjmp.a(setjmp.o)
+                              /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/apps/plugins/plugin_crt0.o (setjmp)
+/usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivsi3.o)
+                              /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/apps/plugins/playing_time.o (__aeabi_uidiv)
+/usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+                              /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/apps/plugins/playing_time.o (__aeabi_idiv)
+/usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
+                              /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivsi3.o) (__aeabi_idiv0)
+/usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_aeabi_uldivmod.o)
+                              /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/apps/plugins/playing_time.o (__aeabi_uldivmod)
+/usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivmoddi4.o)
+                              /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_aeabi_uldivmod.o) (__udivmoddi4)
+/usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzdi2.o)
+                              /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivmoddi4.o) (__clzdi2)
+/usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzsi2.o)
+                              /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzdi2.o) (__clzsi2)
+
+Discarded input sections
+
+ .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/apps/plugins/playing_time.o
+ .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/libsetjmp.a(setjmp.o)
+ .bss           0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/libsetjmp.a(setjmp.o)
+ .data          0x0000000000000000        0x0 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivsi3.o)
+ .bss           0x0000000000000000        0x0 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivsi3.o)
+ .data          0x0000000000000000        0x0 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+ .bss           0x0000000000000000        0x0 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+ .data          0x0000000000000000        0x0 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
+ .bss           0x0000000000000000        0x0 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
+ .data          0x0000000000000000        0x0 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_aeabi_uldivmod.o)
+ .bss           0x0000000000000000        0x0 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_aeabi_uldivmod.o)
+ .data          0x0000000000000000        0x0 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivmoddi4.o)
+ .bss           0x0000000000000000        0x0 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivmoddi4.o)
+ .data          0x0000000000000000        0x0 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzdi2.o)
+ .bss           0x0000000000000000        0x0 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzdi2.o)
+ .data          0x0000000000000000        0x0 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzsi2.o)
+ .bss           0x0000000000000000        0x0 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzsi2.o)
+
+Memory Configuration
+
+Name             Origin             Length             Attributes
+PLUGIN_RAM       0x0000000003f00000 0x0000000000100000
+PLUGIN_IRAM      0x000000004000c000 0x0000000000014000
+*default*        0x0000000000000000 0xffffffffffffffff
+
+Linker script and memory map
+
+LOAD /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/apps/plugins/playing_time.o
+LOAD /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/apps/plugins/plugin_crt0.o
+LOAD /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/apps/plugins/libplugin.a
+LOAD /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/apps/plugins/bitmaps/libpluginbitmaps.a
+LOAD /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/libsetjmp.a
+LOAD /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/libfixedpoint.a
+LOAD /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a
+
+.header         0x0000000003f00000       0x1c
+                0x0000000003f00000                _plugin_start_addr = .
+                0x0000000003f00000                plugin_start_addr = .
+ *(.header)
+ .header        0x0000000003f00000       0x1c /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/apps/plugins/plugin_crt0.o
+                0x0000000003f00000                __header
+
+.text           0x0000000003f0001c     0x18d0
+ *(.text*)
+ .text          0x0000000003f0001c     0x1264 /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/apps/plugins/playing_time.o
+                0x0000000003f011d0                plugin_start
+ .text          0x0000000003f01280      0x214 /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/apps/plugins/plugin_crt0.o
+                0x0000000003f01298                plugin__start
+                0x0000000003f013e0                rb_atexit
+                0x0000000003f01400                exit
+                0x0000000003f01428                _exit
+                0x0000000003f0143c                exit_on_usb
+ .text          0x0000000003f01494       0x1c /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/libsetjmp.a(setjmp.o)
+                0x0000000003f01494                setjmp
+                0x0000000003f014a0                longjmp
+ .text          0x0000000003f014b0      0x114 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivsi3.o)
+                0x0000000003f014b0                __udivsi3
+                0x0000000003f014b0                __aeabi_uidiv
+                0x0000000003f015a4                __aeabi_uidivmod
+ .text          0x0000000003f015c4      0x148 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+                0x0000000003f015c4                __aeabi_idiv
+                0x0000000003f015c4                __divsi3
+                0x0000000003f016ec                __aeabi_idivmod
+ .text          0x0000000003f0170c        0x4 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
+                0x0000000003f0170c                __aeabi_ldiv0
+                0x0000000003f0170c                __aeabi_idiv0
+ .text          0x0000000003f01710       0x3c /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_aeabi_uldivmod.o)
+                0x0000000003f01710                __aeabi_uldivmod
+ .text          0x0000000003f0174c      0x130 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivmoddi4.o)
+                0x0000000003f0174c                __udivmoddi4
+ .text          0x0000000003f0187c       0x28 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzdi2.o)
+                0x0000000003f0187c                __clzdi2
+ .text          0x0000000003f018a4       0x48 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzsi2.o)
+                0x0000000003f018a4                __clzsi2
+ *(.glue_7)
+ .glue_7        0x0000000003f018ec        0x0 linker stubs
+ *(.glue_7t)
+ .glue_7t       0x0000000003f018ec        0x0 linker stubs
+
+.vfp11_veneer   0x0000000003f018ec        0x0
+ .vfp11_veneer  0x0000000003f018ec        0x0 linker stubs
+
+.v4_bx          0x0000000003f018ec        0x0
+ .v4_bx         0x0000000003f018ec        0x0 linker stubs
+
+.iplt           0x0000000003f018ec        0x0
+ .iplt          0x0000000003f018ec        0x0 /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/apps/plugins/playing_time.o
+
+.rodata         0x0000000003f018ec       0xa0
+ *(.rodata*)
+ .rodata.str1.1
+                0x0000000003f018ec       0x5b /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/apps/plugins/playing_time.o
+                                         0x65 (size before relaxing)
+ *fill*         0x0000000003f01947        0x1 
+ .rodata        0x0000000003f01948       0x44 /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/apps/plugins/playing_time.o
+                0x0000000003f01958                menu_items
+                0x0000000003f01978                byte_units
+                0x0000000003f01988                kibyte_units
+
+.rel.dyn        0x0000000003f0198c        0x0
+ .rel.iplt      0x0000000003f0198c        0x0 /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/apps/plugins/playing_time.o
+
+.data           0x0000000003f0198c        0x4
+ *(.data*)
+ .data          0x0000000003f0198c        0x4 /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/apps/plugins/plugin_crt0.o
+                0x0000000003f0198c                rb
+
+.igot.plt       0x0000000003f01990        0x0
+ .igot.plt      0x0000000003f01990        0x0 /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/apps/plugins/playing_time.o
+
+.ncdata         0x0000000013f01990        0x0 load address 0x0000000003f01990
+ *(.ncdata*)
+                0x0000000013f01990                . = ALIGN (0x10)
+
+/DISCARD/
+ *(.eh_frame)
+
+.bss            0x0000000003f01990      0xd4c
+                0x0000000003f01990                plugin_bss_start = .
+                0x0000000003f01990                _plugin_bss_start = .
+ *(.bss*)
+ .bss           0x0000000003f01990      0xcec /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/apps/plugins/playing_time.o
+ .bss           0x0000000003f0267c       0x60 /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/apps/plugins/plugin_crt0.o
+ *(COMMON)
+                0x0000000003f026dc                . = ALIGN (0x4)
+
+.ncbss          0x0000000013f026e0        0x0 load address 0x0000000003f026e0
+ *(.ncbss*)
+                0x0000000013f026e0                . = ALIGN (0x10)
+
+.ncbss_vma      0x0000000003f026e0        0x0
+                0x0000000003f026e0                . = (. + SIZEOF (.ncbss))
+
+.pluginend      0x0000000003f026dc        0x0
+                0x0000000003f026dc                _plugin_end_addr = .
+                0x0000000003f026dc                plugin_end_addr = .
+
+.iram           0x000000004000c000        0x0 load address 0x0000000003f01990
+                0x000000004000c000                iramstart = .
+ *(.icode)
+ *(.irodata)
+ *(.idata)
+                0x000000004000c000                iramend = .
+                0x0000000003f01990                iramcopy = LOADADDR (.iram)
+
+.ibss           0x000000004000c000        0x0
+                0x000000004000c000                iedata = .
+ *(.ibss)
+                0x000000004000c000                . = ALIGN (0x4)
+                0x000000004000c000                iend = .
+                0x0000000003f026dc                loadendaddr = MAX (plugin_end_addr, (LOADADDR (.iram) + SIZEOF (.iram)))
+
+.pluginloadend  0x0000000003f026dc        0x0
+                0x0000000003f026dc                _plugin_load_end_addr = .
+                0x0000000003f026dc                plugin_load_end_addr = .
+
+.comment        0x0000000000000000       0x11
+ *(.comment)
+ .comment       0x0000000000000000       0x11 /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/apps/plugins/playing_time.o
+                                         0x12 (size before relaxing)
+ .comment       0x0000000000000011       0x12 /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/apps/plugins/plugin_crt0.o
+ .comment       0x0000000000000011       0x12 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivmoddi4.o)
+                0x0000000000000001                ASSERT ((LOADADDR (.ncdata) == (ADDR (.ncdata) - 0x10000000)), .ncdata has incorrect LMA/VMA address)
+                0x0000000000000001                ASSERT (((LOADADDR (.ncdata) % 0x10) == 0x0), .ncdata incorrectly aligned)
+                0x0000000000000001                ASSERT ((LOADADDR (.ncbss) == (ADDR (.ncbss) - 0x10000000)), .ncbss has incorrect LMA/VMA address)
+                0x0000000000000001                ASSERT (((LOADADDR (.ncbss) % 0x10) == 0x0), .ncbss incorrectly aligned)
+                0x0000000000000001                ASSERT ((ADDR (.ncbss_vma) == LOADADDR (.ncbss)), .ncbss_vma has wrong address)
+                0x0000000000000001                ASSERT ((SIZEOF (.ncbss_vma) == SIZEOF (.ncbss)), .ncbss_vma has wrong size)
+OUTPUT(/home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/apps/plugins/playing_time.elf elf32-littlearm)
+LOAD linker stubs
+
+.ARM.attributes
+                0x0000000000000000       0x28
+ .ARM.attributes
+                0x0000000000000000       0x2a /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/apps/plugins/playing_time.o
+ .ARM.attributes
+                0x000000000000002a       0x2a /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/apps/plugins/plugin_crt0.o
+ .ARM.attributes
+                0x0000000000000054       0x1a /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/libsetjmp.a(setjmp.o)
+ .ARM.attributes
+                0x000000000000006e       0x1c /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivsi3.o)
+ .ARM.attributes
+                0x000000000000008a       0x1c /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+ .ARM.attributes
+                0x00000000000000a6       0x1c /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
+ .ARM.attributes
+                0x00000000000000c2       0x1c /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_aeabi_uldivmod.o)
+ .ARM.attributes
+                0x00000000000000de       0x2a /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivmoddi4.o)
+ .ARM.attributes
+                0x0000000000000108       0x1c /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzdi2.o)
+ .ARM.attributes
+                0x0000000000000124       0x1c /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzsi2.o)
+
+.debug_frame    0x0000000000000000       0xac
+ .debug_frame   0x0000000000000000       0x20 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivsi3.o)
+ .debug_frame   0x0000000000000020       0x20 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+ .debug_frame   0x0000000000000040       0x2c /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_aeabi_uldivmod.o)
+ .debug_frame   0x000000000000006c       0x40 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivmoddi4.o)
+
+.debug_line     0x0000000000000000      0x4ae
+ .debug_line    0x0000000000000000       0x7e /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivsi3.o)
+ .debug_line    0x000000000000007e       0x8a /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+ .debug_line    0x0000000000000108       0x61 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
+ .debug_line    0x0000000000000169       0x61 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_aeabi_uldivmod.o)
+ .debug_line    0x00000000000001ca      0x20b /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivmoddi4.o)
+ .debug_line    0x00000000000003d5       0x6b /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzdi2.o)
+ .debug_line    0x0000000000000440       0x6e /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzsi2.o)
+
+.debug_info     0x0000000000000000      0xadf
+ .debug_info    0x0000000000000000       0x26 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivsi3.o)
+ .debug_info    0x0000000000000026       0x26 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+ .debug_info    0x000000000000004c       0x26 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
+ .debug_info    0x0000000000000072       0x26 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_aeabi_uldivmod.o)
+ .debug_info    0x0000000000000098      0x9fb /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivmoddi4.o)
+ .debug_info    0x0000000000000a93       0x26 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzdi2.o)
+ .debug_info    0x0000000000000ab9       0x26 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzsi2.o)
+
+.debug_abbrev   0x0000000000000000      0x1da
+ .debug_abbrev  0x0000000000000000       0x14 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivsi3.o)
+ .debug_abbrev  0x0000000000000014       0x14 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+ .debug_abbrev  0x0000000000000028       0x14 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
+ .debug_abbrev  0x000000000000003c       0x14 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_aeabi_uldivmod.o)
+ .debug_abbrev  0x0000000000000050      0x162 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivmoddi4.o)
+ .debug_abbrev  0x00000000000001b2       0x14 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzdi2.o)
+ .debug_abbrev  0x00000000000001c6       0x14 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzsi2.o)
+
+.debug_aranges  0x0000000000000000       0xe0
+ .debug_aranges
+                0x0000000000000000       0x20 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivsi3.o)
+ .debug_aranges
+                0x0000000000000020       0x20 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+ .debug_aranges
+                0x0000000000000040       0x20 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
+ .debug_aranges
+                0x0000000000000060       0x20 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_aeabi_uldivmod.o)
+ .debug_aranges
+                0x0000000000000080       0x20 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivmoddi4.o)
+ .debug_aranges
+                0x00000000000000a0       0x20 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzdi2.o)
+ .debug_aranges
+                0x00000000000000c0       0x20 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzsi2.o)
+
+.debug_str      0x0000000000000000     0x11d0
+ .debug_str     0x0000000000000000       0x6c /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivsi3.o)
+ .debug_str     0x000000000000006c       0x6c /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+ .debug_str     0x000000000000006c       0x6c /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
+ .debug_str     0x000000000000006c       0x2d /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_aeabi_uldivmod.o)
+                                         0x68 (size before relaxing)
+ .debug_str     0x0000000000000099     0x1137 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivmoddi4.o)
+                                       0x1196 (size before relaxing)
+ .debug_str     0x00000000000011d0       0x6c /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzdi2.o)
+ .debug_str     0x00000000000011d0       0x6c /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzsi2.o)
+
+.debug_loc      0x0000000000000000      0x1e2
+ .debug_loc     0x0000000000000000      0x1e2 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivmoddi4.o)

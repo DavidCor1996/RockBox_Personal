@@ -483,11 +483,11 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000    0x18dac
+.debug_info     0x0000000000000000    0x18dd9
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0xa471 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/db_folder_select.o
- .debug_info    0x000000000000a471     0x7768 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/plugin_crt0.o
- .debug_info    0x0000000000011bd9     0x71d3 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/libplugin.a(gcc-support.o)
+ .debug_info    0x0000000000000000     0xa480 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/db_folder_select.o
+ .debug_info    0x000000000000a480     0x7777 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/plugin_crt0.o
+ .debug_info    0x0000000000011bf7     0x71e2 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/libplugin.a(gcc-support.o)
 
 .debug_abbrev   0x0000000000000000      0xc97
  *(.debug_abbrev)
@@ -504,14 +504,14 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0xa455
+.debug_str      0x0000000000000000     0xa46a
  *(.debug_str)
- .debug_str     0x0000000000000000     0xa455 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/db_folder_select.o
-                                       0xaa4d (size before relaxing)
- .debug_str     0x000000000000a455        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/plugin_crt0.o
-                                       0x4c33 (size before relaxing)
- .debug_str     0x000000000000a455        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/libplugin.a(gcc-support.o)
-                                       0x444e (size before relaxing)
+ .debug_str     0x0000000000000000     0xa46a /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/db_folder_select.o
+                                       0xaa62 (size before relaxing)
+ .debug_str     0x000000000000a46a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/plugin_crt0.o
+                                       0x4c48 (size before relaxing)
+ .debug_str     0x000000000000a46a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-nano2g/apps/plugins/libplugin.a(gcc-support.o)
+                                       0x4463 (size before relaxing)
 
 .debug_loc
  *(.debug_loc)

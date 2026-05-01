@@ -170,31 +170,30 @@ class IPoneWallpaperService:
         clock_position: str = "",
     ) -> Dict:
         asset_dir = self._asset_dir(profile)
+        repo_root = os.path.abspath(profile.get("source_repo_path") or "")
         assets = []
         if lock_source:
-            lock_abs = os.path.abspath(lock_source)
+            lock_abs = self._normalized_apply_source(repo_root, profile, "lock", lock_source)
+            lock_destinations = [
+                f".rockbox/wps/{asset_dir}/Wallpaper.bmp",
+                f".rockbox/wps/{asset_dir}/WallpaperCurrent.bmp",
+            ]
+            lock_destinations.extend(self._legacy_destinations(profile, "lock"))
             assets.extend(
                 [
-                    self._asset_record(
-                        "lock_wallpaper",
-                        lock_abs,
-                        f".rockbox/wps/{asset_dir}/Wallpaper.bmp",
-                    ),
-                    self._asset_record(
-                        "lock_wallpaper",
-                        lock_abs,
-                        f".rockbox/wps/{asset_dir}/WallpaperCurrent.bmp",
-                    ),
+                    self._asset_record("lock_wallpaper", lock_abs, destination_rel)
+                    for destination_rel in lock_destinations
                 ]
             )
         if charge_source:
-            charge_abs = os.path.abspath(charge_source)
-            assets.append(
-                self._asset_record(
-                    "charge_wallpaper",
-                    charge_abs,
-                    f".rockbox/wps/{asset_dir}/ChargeWallpaper.bmp",
-                )
+            charge_abs = self._normalized_apply_source(repo_root, profile, "charge", charge_source)
+            charge_destinations = [f".rockbox/wps/{asset_dir}/ChargeWallpaper.bmp"]
+            charge_destinations.extend(self._legacy_destinations(profile, "charge"))
+            assets.extend(
+                [
+                    self._asset_record("charge_wallpaper", charge_abs, destination_rel)
+                    for destination_rel in charge_destinations
+                ]
             )
         assets.extend(self._clock_layout_assets(profile, clock_position))
         if not assets:
@@ -228,7 +227,14 @@ class IPoneWallpaperService:
             )
         return assets
 
-    def _append_candidate(self, items: List[Dict], seen: set, source_abs: str, origin: str, label: str = ""):
+    def _append_candidate(
+        self,
+        items: List[Dict],
+        seen: set,
+        source_abs: str,
+        origin: str,
+        label: str = "",
+    ):
         deploy_abs = self._deployable_path(source_abs)
         if not os.path.isfile(deploy_abs):
             return
@@ -237,6 +243,7 @@ class IPoneWallpaperService:
             return
         seen.add(key)
         preview_abs = self._previewable_path(source_abs)
+        width, height = self._image_size(preview_abs)
         items.append(
             {
                 "id": key,
@@ -245,6 +252,8 @@ class IPoneWallpaperService:
                 "preview_path": preview_abs,
                 "origin": origin,
                 "removable": origin == "generated",
+                "width": width,
+                "height": height,
             }
         )
 
@@ -316,6 +325,17 @@ class IPoneWallpaperService:
         return "iPone"
 
     @staticmethod
+    def _legacy_destinations(profile: Dict, kind: str) -> List[str]:
+        resolution = str(profile.get("screen_resolution") or "").strip()
+        if resolution != "176x132":
+            return []
+        if kind == "lock":
+            return [".rockbox/wps/Wallpaper.bmp"]
+        if kind == "charge":
+            return [".rockbox/wps/ChargeWallpaper.bmp"]
+        return []
+
+    @staticmethod
     def _clock_layout_targets(profile: Dict, repo_root: str):
         theme = str(profile.get("selected_theme") or "").strip().lower()
         resolution = str(profile.get("screen_resolution") or "").strip()
@@ -323,7 +343,6 @@ class IPoneWallpaperService:
             return []
         candidates = [
             ("wps/iPone.sbs", ".rockbox/wps/iPone.sbs"),
-            ("wps/iPone_optimized.sbs", ".rockbox/wps/iPone_optimized.sbs"),
         ]
         mount_path = os.path.abspath(profile.get("device_mount_path") or "")
         targets = []
@@ -412,3 +431,20 @@ class IPoneWallpaperService:
         rendered = ImageOps.fit(image, (width, height), Image.Resampling.LANCZOS)
         os.makedirs(os.path.dirname(dest_path), exist_ok=True)
         rendered.save(dest_path, "BMP")
+
+    @staticmethod
+    def _image_size(source_path: str):
+        try:
+            with Image.open(source_path) as img:
+                return img.size
+        except (OSError, UnidentifiedImageError):
+            return (0, 0)
+
+    def _normalized_apply_source(self, repo_root: str, profile: Dict, kind: str, source_path: str) -> str:
+        source_abs = os.path.abspath(source_path)
+        staged_root = os.path.join(repo_root, "rockpod", ".wallpaper_apply", str(profile.get("id") or "default"))
+        os.makedirs(staged_root, exist_ok=True)
+        prefix = "lockscreen" if kind == "lock" else "charge-wallpaper"
+        dest_abs = os.path.join(staged_root, f"{prefix}-normalized.bmp")
+        self._render_bmp(source_abs, dest_abs, str(profile.get("screen_resolution") or "320x240"))
+        return dest_abs

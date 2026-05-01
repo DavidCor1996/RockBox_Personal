@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.backends._legacy:_Backend"
+
+[project]
+name = "rockpod"
+version = "0.1.0"
+description = "iTunes 7-era music manager for Rockbox iPods"
+requires-python = ">=3.10"
+dependencies = [
+    "PySide6>=6.5.0",
+    "mutagen>=1.47.0",
+    "Pillow>=10.0.0",
+    "watchdog>=3.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-qt>=4.2.0",
+]
+
+[project.scripts]
+rockpod = "main:main"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

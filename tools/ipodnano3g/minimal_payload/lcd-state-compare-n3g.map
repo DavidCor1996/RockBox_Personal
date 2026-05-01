@@ -1,0 +1,91 @@
+
+Memory Configuration
+
+Name             Origin             Length             Attributes
+IRAM             0x0000000022000000 0x0000000000010000 xrw
+*default*        0x0000000000000000 0xffffffffffffffff
+
+Linker script and memory map
+
+LOAD /tmp/ccfSrFbW.o
+
+.text.entry     0x0000000022000000      0x124
+ *(.text.entry)
+ .text.entry    0x0000000022000000      0x124 /tmp/ccfSrFbW.o
+                0x0000000022000000                _start
+
+.text.stub_02f04
+                0x0000000022002f04        0x4
+ *(.text.stub_02f04)
+ .text.stub_02f04
+                0x0000000022002f04        0x4 /tmp/ccfSrFbW.o
+                0x0000000022002f04                apple_02f04
+
+.apple_00648_0208c
+                0x0000000022000648     0x1a44
+ *(.apple_00648_0208c)
+ .apple_00648_0208c
+                0x0000000022000648     0x1a44 /tmp/ccfSrFbW.o
+                0x0000000022000648                apple_00648
+
+.apple_03890_04ddc
+                0x0000000022003890     0x154c
+ *(.apple_03890_04ddc)
+ .apple_03890_04ddc
+                0x0000000022003890     0x154c /tmp/ccfSrFbW.o
+                0x0000000022003890                apple_03890
+
+.glue_7         0x0000000022004ddc        0x0
+ .glue_7        0x0000000022004ddc        0x0 linker stubs
+
+.glue_7t        0x0000000022004ddc        0x0
+ .glue_7t       0x0000000022004ddc        0x0 linker stubs
+
+.vfp11_veneer   0x0000000022004ddc        0x0
+ .vfp11_veneer  0x0000000022004ddc        0x0 linker stubs
+
+.v4_bx          0x0000000022004ddc        0x0
+ .v4_bx         0x0000000022004ddc        0x0 linker stubs
+
+.text           0x0000000022004ddc        0x0
+ .text          0x0000000022004ddc        0x0 /tmp/ccfSrFbW.o
+
+.iplt           0x0000000022004ddc        0x0
+ .iplt          0x0000000022004ddc        0x0 /tmp/ccfSrFbW.o
+
+.apple_data_07000
+                0x0000000022007000      0x830
+ *(.apple_data_07000)
+ .apple_data_07000
+                0x0000000022007000      0x830 /tmp/ccfSrFbW.o
+                0x0000000022007000                apple_data_07000
+
+.apple_zero_07830
+                0x0000000022007830      0x7d0
+ *(.apple_zero_07830)
+ .apple_zero_07830
+                0x0000000022007830      0x7d0 /tmp/ccfSrFbW.o
+
+.rel.dyn        0x0000000022008000        0x0
+ .rel.iplt      0x0000000022008000        0x0 /tmp/ccfSrFbW.o
+
+.data           0x0000000022008000        0x0
+ .data          0x0000000022008000        0x0 /tmp/ccfSrFbW.o
+
+.igot.plt       0x0000000022008000        0x0
+ .igot.plt      0x0000000022008000        0x0 /tmp/ccfSrFbW.o
+
+.bss            0x0000000022008000        0x0
+ .bss           0x0000000022008000        0x0 /tmp/ccfSrFbW.o
+
+/DISCARD/
+ *(.comment)
+ *(.note*)
+ *(.eh_frame*)
+OUTPUT(lcd-state-compare-n3g.elf elf32-littlearm)
+LOAD linker stubs
+
+.ARM.attributes
+                0x0000000000000000       0x22
+ .ARM.attributes
+                0x0000000000000000       0x22 /tmp/ccfSrFbW.o

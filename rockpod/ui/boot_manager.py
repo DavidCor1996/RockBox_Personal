@@ -123,7 +123,7 @@ class BootManagerWidget(QWidget):
         if preview_path:
             px = QPixmap(preview_path)
             if not px.isNull():
-                self._preview.setPixmap(px)
+                self._preview.setPixmap(px.scaled(340, 240, Qt.KeepAspectRatio, Qt.SmoothTransformation))
                 self._preview.setText("")
             else:
                 self._preview.setPixmap(QPixmap())

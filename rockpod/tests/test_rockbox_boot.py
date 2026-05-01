@@ -20,6 +20,12 @@ def _write_image(path, width, height, color=0xFF335577):
     assert image.save(path)
 
 
+def _write_bytes(path, data=b"rockbox"):
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path, "wb") as handle:
+        handle.write(data)
+
+
 def test_boot_image_validation(tmp_dir):
     repo_root = os.path.join(tmp_dir, "repo")
     os.makedirs(repo_root, exist_ok=True)
@@ -39,8 +45,9 @@ def test_boot_image_validation(tmp_dir):
     invalid = service.validate_image(invalid_path, profile)
 
     assert valid["valid"] is True
-    assert invalid["valid"] is False
-    assert "Expected 320x240" in invalid["message"]
+    assert invalid["valid"] is True
+    assert invalid["requires_resize"] is True
+    assert "Will scale 300x240 to 320x240" in invalid["message"]
 
 
 def test_boot_preview_generation(tmp_dir):
@@ -65,6 +72,50 @@ def test_boot_preview_generation(tmp_dir):
     assert preview.height() == 132
 
 
+def test_boot_preview_cache_path_changes_per_source_image(tmp_dir):
+    repo_root = os.path.join(tmp_dir, "repo")
+    os.makedirs(repo_root, exist_ok=True)
+    _config, store = _make_store(tmp_dir, repo_root)
+    profile = store.current_profile()
+    profile["source_repo_path"] = repo_root
+    profile["screen_resolution"] = "320x240"
+    profile = store.save_profile(profile)
+
+    first_path = os.path.join(tmp_dir, "boot-preview-a.png")
+    second_path = os.path.join(tmp_dir, "boot-preview-b.png")
+    _write_image(first_path, 320, 240, 0xFF112233)
+    _write_image(second_path, 320, 240, 0xFF445566)
+
+    service = RockboxBootService()
+    first = service.generate_preview(first_path, profile, os.path.join(tmp_dir, "cache"))
+    second = service.generate_preview(second_path, profile, os.path.join(tmp_dir, "cache"))
+
+    assert first["success"] is True
+    assert second["success"] is True
+    assert first["preview_path"] != second["preview_path"]
+
+
+def test_boot_preview_falls_back_to_source_image_when_png_write_fails(tmp_dir, monkeypatch):
+    repo_root = os.path.join(tmp_dir, "repo")
+    os.makedirs(repo_root, exist_ok=True)
+    _config, store = _make_store(tmp_dir, repo_root)
+    profile = store.current_profile()
+    profile["source_repo_path"] = repo_root
+    profile["screen_resolution"] = "176x132"
+    profile = store.save_profile(profile)
+
+    image_path = os.path.join(tmp_dir, "boot-preview-fallback.png")
+    _write_image(image_path, 176, 132)
+
+    monkeypatch.setattr(QImage, "save", lambda self, *_args, **_kwargs: False)
+
+    service = RockboxBootService()
+    result = service.generate_preview(image_path, profile, os.path.join(tmp_dir, "cache"))
+
+    assert result["success"] is True
+    assert result["preview_path"] == os.path.abspath(image_path)
+
+
 def test_boot_validation_supports_160x128_profiles(tmp_dir):
     repo_root = os.path.join(tmp_dir, "repo")
     os.makedirs(repo_root, exist_ok=True)
@@ -84,57 +135,558 @@ def test_boot_validation_supports_160x128_profiles(tmp_dir):
     invalid = service.validate_image(invalid_path, profile)
 
     assert valid["valid"] is True
-    assert invalid["valid"] is False
-    assert "Expected 160x128" in invalid["message"]
+    assert invalid["valid"] is True
+    assert invalid["requires_resize"] is True
+    assert "Will scale 160x120 to 160x128" in invalid["message"]
 
 
-def test_boot_deploy_diff_generation_device_and_simulator(tmp_dir):
+def test_boot_preview_generation_scales_mismatched_source(tmp_dir):
     repo_root = os.path.join(tmp_dir, "repo")
     os.makedirs(repo_root, exist_ok=True)
     _config, store = _make_store(tmp_dir, repo_root)
-    device_mount = os.path.join(tmp_dir, "device")
-    simdisk = os.path.join(tmp_dir, "build-sim", "simdisk")
-    os.makedirs(device_mount, exist_ok=True)
-    os.makedirs(simdisk, exist_ok=True)
+    profile = store.current_profile()
+    profile["source_repo_path"] = repo_root
+    profile["screen_resolution"] = "160x128"
+    profile = store.save_profile(profile)
+
+    image_path = os.path.join(tmp_dir, "boot-preview-source-wide.png")
+    _write_image(image_path, 240, 120)
+
+    service = RockboxBootService()
+    result = service.generate_preview(image_path, profile, os.path.join(tmp_dir, "cache"))
+
+    assert result["success"] is True
+    preview = QImage(result["preview_path"])
+    assert preview.width() == 160
+    assert preview.height() == 128
+
+
+def test_boot_bundle_generation_scales_mismatched_source(tmp_dir):
+    repo_root = os.path.join(tmp_dir, "repo")
+    os.makedirs(repo_root, exist_ok=True)
+    _config, store = _make_store(tmp_dir, repo_root)
+    profile = store.current_profile()
+    profile["source_repo_path"] = repo_root
+    profile["screen_resolution"] = "320x240"
+    profile = store.save_profile(profile)
+
+    image_path = os.path.join(tmp_dir, "boot-bundle-source-tall.png")
+    _write_image(image_path, 300, 400)
+
+    service = RockboxBootService()
+    bundle = service.build_bundle(profile, image_path, os.path.join(tmp_dir, "staging"))
+
+    assert bundle["assets"]
+    rendered = QImage(bundle["assets"][0]["source_abs"])
+    assert rendered.width() == 320
+    assert rendered.height() == 240
+
+
+def test_boot_source_bundle_targets_repo_assets_for_device(tmp_dir):
+    repo_root = os.path.join(tmp_dir, "repo")
+    os.makedirs(repo_root, exist_ok=True)
+    _config, store = _make_store(tmp_dir, repo_root)
 
     profile = store.current_profile()
     profile["source_repo_path"] = repo_root
-    profile["device_mount_path"] = device_mount
-    profile["screen_resolution"] = "320x240"
-    profile["simulator_simdisk_path"] = simdisk
-    profile["simulator_target"] = "build-sim"
+    profile["screen_resolution"] = "176x132"
     profile = store.save_profile(profile)
 
     image_path = os.path.join(tmp_dir, "boot-device.png")
-    _write_image(image_path, 320, 240)
+    _write_image(image_path, 176, 132)
 
     boot = RockboxBootService()
     deploy = RockboxDeployService()
-    bundle = boot.build_bundle(profile, image_path, os.path.join(tmp_dir, "staging"))
+    bundle = boot.build_source_bundle(profile, image_path, os.path.join(tmp_dir, "staging"))
+    diff = deploy.build_diff(boot.source_profile(profile), bundle)
 
-    device_profile = boot.deploy_profile(profile, "device")
-    diff_device = deploy.build_diff(device_profile, bundle)
-    assert diff_device["summary"]["add"] == 1
-    assert diff_device["items"][0]["destination_abs"].startswith(
-        os.path.join(device_mount, ".rockbox", "rockpod", "boot", "branding")
+    assert diff["summary"]["add"] == 2
+    assert {
+        item["destination_rel"] for item in diff["items"]
+    } == {
+        "apps/bitmaps/native/rockboxlogo.176x54x16.bmp",
+        "wps/iPone_nano2g/BootLogo.bmp",
+    }
+    assert all(item["destination_abs"].startswith(repo_root) for item in diff["items"])
+
+
+def test_boot_rebuild_firmware_uses_expected_build_dir(tmp_dir):
+    repo_root = os.path.join(tmp_dir, "repo")
+    build_dir = os.path.join(repo_root, "build-hw-ipodnano2g")
+    os.makedirs(build_dir, exist_ok=True)
+    _config, store = _make_store(tmp_dir, repo_root)
+
+    profile = store.current_profile()
+    profile["source_repo_path"] = repo_root
+    profile["screen_resolution"] = "176x132"
+    profile = store.save_profile(profile)
+
+    calls = []
+
+    def fake_run(command, check, capture_output, text):
+        calls.append(command)
+        _write_bytes(os.path.join(build_dir, "rockbox.ipod"))
+        class _Result:
+            returncode = 0
+            stdout = "ok"
+            stderr = ""
+        return _Result()
+
+    boot = RockboxBootService()
+    result = boot.rebuild_firmware(profile, runner=fake_run)
+
+    assert result["success"] is True
+    assert result["artifact_path"] == os.path.join(build_dir, "rockbox.ipod")
+    assert calls == [["make", "-C", build_dir, "-j4", os.path.join(build_dir, "rockbox.ipod")]]
+
+
+def test_boot_firmware_bundle_targets_rockbox_ipod(tmp_dir):
+    artifact = os.path.join(tmp_dir, "rockbox.ipod")
+    _write_bytes(artifact)
+
+    bundle = RockboxBootService().build_firmware_bundle(artifact)
+
+    assert bundle["assets"][0]["destination_rel"] == "rockbox.ipod"
+    assert bundle["assets"][0]["source_abs"] == os.path.abspath(artifact)
+
+
+def test_nano2g_bootloader_requirements_report_encrypted_install(tmp_dir):
+    repo_root = os.path.join(tmp_dir, "repo")
+    os.makedirs(repo_root, exist_ok=True)
+    _config, store = _make_store(tmp_dir, repo_root)
+
+    profile = store.current_profile()
+    profile["source_repo_path"] = repo_root
+    profile["screen_resolution"] = "176x132"
+    profile = store.save_profile(profile)
+
+    requirements = RockboxBootService().bootloader_requirements(profile)
+
+    assert requirements["required"] is True
+    assert requirements["install_supported"] is False
+    assert requirements["output_name"] == "bootloader-ipodnano2g.ipod"
+    assert requirements["install_name"] == "bootloader-ipodnano2g.ipodx"
+    assert ".ipodx" in requirements["message"]
+
+
+def test_boot_rebuild_bootloader_configures_missing_build_tree(tmp_dir):
+    repo_root = os.path.join(tmp_dir, "repo")
+    os.makedirs(os.path.join(repo_root, "tools"), exist_ok=True)
+    _write_bytes(os.path.join(repo_root, "tools", "configure"), b"#!/bin/sh\n")
+    _config, store = _make_store(tmp_dir, repo_root)
+
+    profile = store.current_profile()
+    profile["source_repo_path"] = repo_root
+    profile["screen_resolution"] = "176x132"
+    profile = store.save_profile(profile)
+
+    calls = []
+    build_dir = os.path.join(repo_root, "build-bootloader-ipodnano2g")
+    artifact = os.path.join(build_dir, "bootloader-ipodnano2g.ipod")
+
+    def fake_run(command, check, capture_output, text, cwd=None):
+        calls.append({"command": command, "cwd": cwd})
+
+        class _Result:
+            returncode = 0
+            stdout = "ok"
+            stderr = ""
+
+        if command[0].endswith("configure"):
+            with open(os.path.join(cwd, "Makefile"), "w", encoding="utf-8") as handle:
+                handle.write("all:\n")
+        elif command[0] == "make":
+            _write_bytes(artifact)
+        return _Result()
+
+    boot = RockboxBootService()
+    result = boot.rebuild_bootloader(profile, runner=fake_run)
+
+    assert result["success"] is True
+    assert result["artifact_path"] == artifact
+    assert calls[0]["command"] == [
+        os.path.join(repo_root, "tools", "configure"),
+        "--target=ipodnano2g",
+        "--type=b",
+    ]
+    assert calls[0]["cwd"] == build_dir
+    assert calls[1]["command"] == ["make", "-C", build_dir, "-j4"]
+
+
+def test_nano2g_bootloader_stage_bundle_stages_marker_and_repairs_legacy_startup_files(tmp_dir):
+    repo_root = os.path.join(tmp_dir, "repo")
+    mount_root = os.path.join(tmp_dir, "device")
+    build_dir = os.path.join(repo_root, "build-hw-ipodnano2g")
+    os.makedirs(os.path.join(mount_root, ".rockbox", "rocks"), exist_ok=True)
+    os.makedirs(os.path.join(build_dir, "apps", "plugins"), exist_ok=True)
+    _write_bytes(os.path.join(build_dir, "apps", "plugins", "crypt_firmware.rock"))
+    artifact = os.path.join(build_dir, "bootloader-ipodnano2g.ipod")
+    _write_bytes(artifact, b"nano2g bootloader")
+    _config, store = _make_store(tmp_dir, repo_root)
+
+    profile = store.current_profile()
+    profile["source_repo_path"] = repo_root
+    profile["device_mount_path"] = mount_root
+    profile["screen_resolution"] = "176x132"
+    profile = store.save_profile(profile)
+
+    boot = RockboxBootService()
+    boot.save_bootloader_stage_metadata(
+        profile,
+        {
+            "original_config": 'volume: -20\nstart in screen: root\nopenplugin: "Start Screen", "old", "/bad", "/bad"\n',
+            "original_plugin_dat_exists": True,
+            "original_plugin_dat_base64": "QUJD",
+        },
+    )
+    bundle, metadata = boot.build_bootloader_stage_bundle(profile, artifact, os.path.join(tmp_dir, "staging"))
+
+    config_asset = next(asset for asset in bundle["assets"] if asset["kind"] == "bootloader_restore_config")
+    with open(config_asset["source_abs"], "r", encoding="utf-8") as handle:
+        assert handle.read() == 'volume: -20\nstart in screen: root\nopenplugin: "Start Screen", "old", "/bad", "/bad"\n'
+    plugin_dat_asset = next(asset for asset in bundle["assets"] if asset["kind"] == "bootloader_restore_plugin_dat")
+    with open(plugin_dat_asset["source_abs"], "rb") as handle:
+        assert handle.read() == b"ABC"
+    marker_asset = next(asset for asset in bundle["assets"] if asset["kind"] == "bootloader_stage_marker")
+    with open(marker_asset["source_abs"], "r", encoding="utf-8") as handle:
+        assert handle.read() == "pending\n"
+
+    assert metadata["artifact_sha256"] == boot._hash_file(artifact)
+    assert metadata["marker_rel"] == ".rockbox/rockpod/boot/nano2g-encrypt-pending"
+    assert metadata["original_plugin_dat_exists"] is True
+
+
+def test_nano2g_bootloader_restore_bundle_restores_plugin_dat_or_removes_when_absent(tmp_dir):
+    repo_root = os.path.join(tmp_dir, "repo")
+    _config, store = _make_store(tmp_dir, repo_root)
+    profile = store.current_profile()
+    profile["source_repo_path"] = repo_root
+    profile["device_mount_path"] = os.path.join(tmp_dir, "device")
+    profile["screen_resolution"] = "176x132"
+    profile = store.save_profile(profile)
+
+    boot = RockboxBootService()
+    boot.save_bootloader_stage_metadata(
+        profile,
+        {
+            "original_config": "volume: -20\n",
+            "original_plugin_dat_exists": True,
+            "original_plugin_dat_base64": "QUJD",
+        },
+    )
+    bundle = boot.build_bootloader_restore_config_bundle(profile, os.path.join(tmp_dir, "restore"))
+    plugin_asset = next(asset for asset in bundle["assets"] if asset["kind"] == "bootloader_restore_plugin_dat")
+    with open(plugin_asset["source_abs"], "rb") as handle:
+        assert handle.read() == b"ABC"
+
+    boot.save_bootloader_stage_metadata(
+        profile,
+        {
+            "original_config": "volume: -20\n",
+            "original_plugin_dat_exists": False,
+            "original_plugin_dat_base64": "",
+        },
+    )
+    bundle = boot.build_bootloader_restore_config_bundle(profile, os.path.join(tmp_dir, "restore2"))
+    plugin_asset = next(asset for asset in bundle["assets"] if asset["kind"] == "bootloader_restore_plugin_dat")
+    assert plugin_asset["action"] == "remove"
+
+
+def test_nano2g_bootloader_stage_bundle_restores_config_without_plugin_dat_backup(tmp_dir):
+    repo_root = os.path.join(tmp_dir, "repo")
+    mount_root = os.path.join(tmp_dir, "device")
+    build_dir = os.path.join(repo_root, "build-hw-ipodnano2g")
+    os.makedirs(os.path.join(build_dir, "apps", "plugins"), exist_ok=True)
+    _write_bytes(os.path.join(build_dir, "apps", "plugins", "crypt_firmware.rock"))
+    artifact = os.path.join(build_dir, "bootloader-ipodnano2g.ipod")
+    _write_bytes(artifact, b"nano2g bootloader")
+    _config, store = _make_store(tmp_dir, repo_root)
+
+    profile = store.current_profile()
+    profile["source_repo_path"] = repo_root
+    profile["device_mount_path"] = mount_root
+    profile["screen_resolution"] = "176x132"
+    profile = store.save_profile(profile)
+
+    boot = RockboxBootService()
+    boot.save_bootloader_stage_metadata(
+        profile,
+        {
+            "original_config": "volume: -23\n",
+            "original_plugin_dat_exists": False,
+        },
+    )
+    bundle, _metadata = boot.build_bootloader_stage_bundle(profile, artifact, os.path.join(tmp_dir, "staging"))
+
+    config_asset = next(asset for asset in bundle["assets"] if asset["kind"] == "bootloader_restore_config")
+    plugin_asset = next(asset for asset in bundle["assets"] if asset["kind"] == "bootloader_restore_plugin_dat")
+    with open(config_asset["source_abs"], "r", encoding="utf-8") as handle:
+        assert handle.read() == "volume: -23\n"
+    assert plugin_asset["action"] == "remove"
+
+
+def test_nano2g_bootloader_stage_status_tracks_encrypted_output_and_hash(tmp_dir):
+    repo_root = os.path.join(tmp_dir, "repo")
+    mount_root = os.path.join(tmp_dir, "device")
+    os.makedirs(os.path.join(mount_root, ".rockbox"), exist_ok=True)
+    os.makedirs(os.path.join(mount_root, ".rockbox", "rockpod", "boot"), exist_ok=True)
+    _config, store = _make_store(tmp_dir, repo_root)
+
+    artifact = os.path.join(tmp_dir, "bootloader-ipodnano2g.ipod")
+    _write_bytes(artifact, b"plain bootloader")
+    _write_bytes(os.path.join(mount_root, ".rockbox", "b.ipod"), b"plain bootloader")
+    _write_bytes(os.path.join(mount_root, ".rockbox", "b.ipodx"), b"encrypted bootloader")
+    _write_bytes(os.path.join(mount_root, ".rockbox", "rockpod", "boot", "nano2g-encrypt-pending"), b"pending\n")
+
+    profile = store.current_profile()
+    profile["source_repo_path"] = repo_root
+    profile["device_mount_path"] = mount_root
+    profile["screen_resolution"] = "176x132"
+    profile = store.save_profile(profile)
+
+    boot = RockboxBootService()
+    boot.save_bootloader_stage_metadata(
+        profile,
+        {
+            "artifact_sha256": boot._hash_file(artifact),
+            "original_config": "volume: -20\n",
+        },
     )
 
-    sim_target = {"simdisk_path": simdisk}
-    sim_profile = boot.deploy_profile(profile, "simulator", sim_target)
-    diff_sim = deploy.build_diff(sim_profile, bundle)
-    assert diff_sim["summary"]["add"] == 1
-    assert diff_sim["items"][0]["destination_abs"].startswith(
-        os.path.join(simdisk, ".rockbox", "rockpod", "boot", "branding")
+    status = boot.bootloader_stage_status(profile, artifact)
+
+    assert status["plain_staged"] is True
+    assert status["encrypted_ready"] is True
+    assert status["marker_present"] is True
+    assert status["stage_pending"] is False
+    assert status["metadata_present"] is True
+    assert status["staged_input_matches_metadata"] is True
+    assert status["current_artifact_matches"] is True
+
+
+def test_nano2g_bootloader_stage_ready_for_install_accepts_matching_staged_input(tmp_dir):
+    repo_root = os.path.join(tmp_dir, "repo")
+    mount_root = os.path.join(tmp_dir, "device")
+    os.makedirs(os.path.join(mount_root, ".rockbox", "rockpod", "boot"), exist_ok=True)
+    artifact = os.path.join(tmp_dir, "bootloader-ipodnano2g.ipod")
+    staged_input = os.path.join(mount_root, ".rockbox", "b.ipod")
+    encrypted_output = os.path.join(mount_root, ".rockbox", "b.ipodx")
+    _write_bytes(artifact, b"new plain bootloader")
+    _write_bytes(staged_input, b"old staged bootloader")
+    _write_bytes(encrypted_output, b"encrypted bootloader")
+    _config, store = _make_store(tmp_dir, repo_root)
+
+    profile = store.current_profile()
+    profile["source_repo_path"] = repo_root
+    profile["device_mount_path"] = mount_root
+    profile["screen_resolution"] = "176x132"
+    profile = store.save_profile(profile)
+
+    boot = RockboxBootService()
+    boot.save_bootloader_stage_metadata(
+        profile,
+        {
+            "artifact_sha256": boot._hash_file(staged_input),
+            "original_config": "volume: -20\n",
+        },
     )
+
+    status = boot.bootloader_stage_status(profile, artifact)
+
+    assert status["encrypted_ready"] is True
+    assert status["staged_input_matches_metadata"] is True
+    assert status["current_artifact_matches"] is False
+    assert boot.bootloader_stage_ready_for_install(profile, artifact) is True
+
+
+def test_resolve_disk_nodes_uses_mount_source_and_parent_disk(tmp_dir):
+    repo_root = os.path.join(tmp_dir, "repo")
+    mount_root = os.path.join(tmp_dir, "device")
+    os.makedirs(mount_root, exist_ok=True)
+    _config, store = _make_store(tmp_dir, repo_root)
+
+    profile = store.current_profile()
+    profile["source_repo_path"] = repo_root
+    profile["device_mount_path"] = mount_root
+    profile["screen_resolution"] = "176x132"
+    profile = store.save_profile(profile)
+
+    calls = []
+
+    def fake_run(command, check, capture_output, text):
+        calls.append(command)
+        class _Result:
+            returncode = 0
+            stdout = ""
+            stderr = ""
+        result = _Result()
+        if command[:2] == ["findmnt", "-no"]:
+            result.stdout = "/dev/sda2\n"
+        elif command[:3] == ["lsblk", "-no", "PKNAME"]:
+            result.stdout = "sda\n"
+        return result
+
+    result = RockboxBootService().resolve_disk_nodes(profile, runner=fake_run)
+
+    assert result["success"] is True
+    assert result["partition_path"] == "/dev/sda2"
+    assert result["disk_path"] == "/dev/sda"
+    assert calls == [
+        ["findmnt", "-no", "SOURCE", mount_root],
+        ["lsblk", "-no", "PKNAME", "/dev/sda2"],
+    ]
+
+
+def test_install_encrypted_bootloader_unmounts_installs_and_remounts(tmp_dir):
+    repo_root = os.path.join(tmp_dir, "repo")
+    mount_root = os.path.join(tmp_dir, "device")
+    tool_dir = os.path.join(repo_root, "utils", "ipodpatcher")
+    os.makedirs(tool_dir, exist_ok=True)
+    os.makedirs(mount_root, exist_ok=True)
+    binary_path = os.path.join(tool_dir, "ipodpatcher")
+    _write_bytes(binary_path, b"#!/bin/sh\n")
+    os.chmod(binary_path, 0o755)
+    encrypted_path = os.path.join(tmp_dir, "bootloader-ipodnano2g.ipodx")
+    _write_bytes(encrypted_path, b"encrypted bootloader")
+    _config, store = _make_store(tmp_dir, repo_root)
+
+    profile = store.current_profile()
+    profile["source_repo_path"] = repo_root
+    profile["device_mount_path"] = mount_root
+    profile["screen_resolution"] = "176x132"
+    profile = store.save_profile(profile)
+
+    calls = []
+
+    def fake_run(command, check, capture_output, text):
+        calls.append(command)
+        class _Result:
+            returncode = 0
+            stdout = ""
+            stderr = ""
+        result = _Result()
+        if command[:2] == ["findmnt", "-no"]:
+            result.stdout = "/dev/sda2\n"
+        elif command[:3] == ["lsblk", "-no", "PKNAME"]:
+            result.stdout = "sda\n"
+        elif command[:2] == ["udisksctl", "unmount"]:
+            result.stdout = "Unmounted /dev/sda2\n"
+        elif command[0] == "pkexec":
+            result.stdout = "[INFO] Bootloader added\n"
+        elif command[:2] == ["udisksctl", "mount"]:
+            result.stdout = "Mounted /dev/sda2\n"
+        return result
+
+    result = RockboxBootService().install_encrypted_bootloader(profile, encrypted_path, runner=fake_run)
+
+    assert result["success"] is True
+    assert calls == [
+        ["findmnt", "-no", "SOURCE", mount_root],
+        ["lsblk", "-no", "PKNAME", "/dev/sda2"],
+        ["udisksctl", "unmount", "-b", "/dev/sda2"],
+        ["pkexec", binary_path, "/dev/sda", "-a", encrypted_path],
+        ["udisksctl", "mount", "-b", "/dev/sda2"],
+    ]
+
+
+def test_install_encrypted_bootloader_copies_input_off_mount_before_unmount(tmp_dir):
+    repo_root = os.path.join(tmp_dir, "repo")
+    mount_root = os.path.join(tmp_dir, "device")
+    rockbox_root = os.path.join(mount_root, ".rockbox")
+    tool_dir = os.path.join(repo_root, "utils", "ipodpatcher")
+    os.makedirs(tool_dir, exist_ok=True)
+    os.makedirs(rockbox_root, exist_ok=True)
+    binary_path = os.path.join(tool_dir, "ipodpatcher")
+    _write_bytes(binary_path, b"#!/bin/sh\n")
+    os.chmod(binary_path, 0o755)
+    encrypted_path = os.path.join(rockbox_root, "b.ipodx")
+    _write_bytes(encrypted_path, b"encrypted bootloader")
+    _config, store = _make_store(tmp_dir, repo_root)
+
+    profile = store.current_profile()
+    profile["source_repo_path"] = repo_root
+    profile["device_mount_path"] = mount_root
+    profile["screen_resolution"] = "176x132"
+    profile = store.save_profile(profile)
+
+    calls = []
+
+    def fake_run(command, check, capture_output, text):
+        calls.append(command)
+        class _Result:
+            returncode = 0
+            stdout = ""
+            stderr = ""
+        result = _Result()
+        if command[:2] == ["findmnt", "-no"]:
+            result.stdout = "/dev/sda2\n"
+        elif command[:3] == ["lsblk", "-no", "PKNAME"]:
+            result.stdout = "sda\n"
+        elif command[:2] == ["udisksctl", "unmount"]:
+            result.stdout = "Unmounted /dev/sda2\n"
+        elif command[0] == "pkexec":
+            result.stdout = "[INFO] Bootloader added\n"
+            assert command[4] != encrypted_path
+            assert os.path.isfile(command[4])
+        elif command[:2] == ["udisksctl", "mount"]:
+            result.stdout = "Mounted /dev/sda2\n"
+        return result
+
+    result = RockboxBootService().install_encrypted_bootloader(profile, encrypted_path, runner=fake_run)
+
+    assert result["success"] is True
+    assert calls[3][0:4] == ["pkexec", binary_path, "/dev/sda", "-a"]
+
+
+def test_install_encrypted_bootloader_treats_ipodpatcher_err_output_as_failure(tmp_dir):
+    repo_root = os.path.join(tmp_dir, "repo")
+    mount_root = os.path.join(tmp_dir, "device")
+    tool_dir = os.path.join(repo_root, "utils", "ipodpatcher")
+    os.makedirs(tool_dir, exist_ok=True)
+    os.makedirs(mount_root, exist_ok=True)
+    binary_path = os.path.join(tool_dir, "ipodpatcher")
+    _write_bytes(binary_path, b"#!/bin/sh\n")
+    os.chmod(binary_path, 0o755)
+    encrypted_path = os.path.join(tmp_dir, "bootloader-ipodnano2g.ipodx")
+    _write_bytes(encrypted_path, b"encrypted bootloader")
+    _config, store = _make_store(tmp_dir, repo_root)
+
+    profile = store.current_profile()
+    profile["source_repo_path"] = repo_root
+    profile["device_mount_path"] = mount_root
+    profile["screen_resolution"] = "176x132"
+    profile = store.save_profile(profile)
+
+    def fake_run(command, check, capture_output, text):
+        class _Result:
+            returncode = 0
+            stdout = ""
+            stderr = ""
+        result = _Result()
+        if command[:2] == ["findmnt", "-no"]:
+            result.stdout = "/dev/sda2\n"
+        elif command[:3] == ["lsblk", "-no", "PKNAME"]:
+            result.stdout = "sda\n"
+        elif command[:2] == ["udisksctl", "unmount"]:
+            result.stdout = "Unmounted /dev/sda2\n"
+        elif command[0] == "pkexec":
+            result.stderr = "[ERR] --add-bootloader failed.\n"
+        elif command[:2] == ["udisksctl", "mount"]:
+            result.stdout = "Mounted /dev/sda2\n"
+        return result
+
+    result = RockboxBootService().install_encrypted_bootloader(profile, encrypted_path, runner=fake_run)
+
+    assert result["success"] is False
+    assert result["message"] == "ipodpatcher failed to install the encrypted bootloader"
 
 
 def test_boot_backup_and_restore_preserves_unrelated_files(tmp_dir):
     repo_root = os.path.join(tmp_dir, "repo")
     os.makedirs(repo_root, exist_ok=True)
     _config, store = _make_store(tmp_dir, repo_root)
-    device_mount = os.path.join(tmp_dir, "device")
-    staged_boot = os.path.join(device_mount, ".rockbox", "rockpod", "boot", "branding", "320x240", "boot-logo.bmp")
-    unrelated = os.path.join(device_mount, ".rockbox", "playlists", "keep.m3u8")
+    staged_boot = os.path.join(repo_root, "apps", "bitmaps", "native", "rockboxlogo.320x98x16.bmp")
+    unrelated = os.path.join(repo_root, "wps", "keep.wps")
     _write_image(staged_boot, 320, 240, 0xFF112233)
     os.makedirs(os.path.dirname(unrelated), exist_ok=True)
     with open(unrelated, "w", encoding="utf-8") as handle:
@@ -142,7 +694,6 @@ def test_boot_backup_and_restore_preserves_unrelated_files(tmp_dir):
 
     profile = store.current_profile()
     profile["source_repo_path"] = repo_root
-    profile["device_mount_path"] = device_mount
     profile["screen_resolution"] = "320x240"
     profile = store.save_profile(profile)
 
@@ -151,8 +702,8 @@ def test_boot_backup_and_restore_preserves_unrelated_files(tmp_dir):
 
     boot = RockboxBootService()
     deploy = RockboxDeployService()
-    bundle = boot.build_bundle(profile, image_path, os.path.join(tmp_dir, "staging"))
-    deploy_profile = boot.deploy_profile(profile, "device")
+    bundle = boot.build_source_bundle(profile, image_path, os.path.join(tmp_dir, "staging"))
+    deploy_profile = boot.source_profile(profile)
     diff = deploy.build_diff(deploy_profile, bundle)
     assert diff["items"][0]["status"] == "overwrite"
 

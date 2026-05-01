@@ -826,6 +826,55 @@ class TestIncrementalLibraryRefresh:
         assert row["season_number"] == 1
         assert row["episode_number"] == 2
 
+    def test_video_rows_cached_as_audio_are_reread_and_reclassified(self, config, db, monkeypatch):
+        from services import library_scanner
+        from services.library_scanner import LibraryScanner
+
+        video_path = os.path.join(config.video_dir, "TV Shows", "The Show", "Season 1", "S01E02 - Pilot.mkv")
+        stat = self._write_file(video_path, b"video")
+        db.upsert_track({
+            "file_path": video_path,
+            "title": "Pilot",
+            "artist": "Unknown Artist",
+            "album": "Unknown Album",
+            "media_type": "audio",
+            "file_size": stat.st_size,
+            "last_modified": stat.st_mtime,
+            "metadata_hash": "legacy-audio-video",
+        })
+        db.commit()
+
+        def fake_read_metadata_details(filepath):
+            track = Track(
+                file_path=filepath,
+                media_type="video",
+                title="Pilot",
+                show_title="The Show",
+                season_number=1,
+                episode_number=2,
+                track_number=2,
+                album="Season 1",
+                album_artist="The Show",
+                artist="The Show",
+                video_kind="show",
+                file_size=os.path.getsize(filepath),
+                last_modified=os.stat(filepath).st_mtime,
+                metadata_hash="fixed-video-meta",
+            )
+            return track, {"parsed_ok": True, "warnings": []}
+
+        monkeypatch.setattr(library_scanner, "read_metadata_details", fake_read_metadata_details)
+
+        scanner = LibraryScanner(db, config)
+        assert scanner.scan_sync() == 1
+
+        row = db.get_track_by_path(video_path)
+        assert row["media_type"] == "video"
+        assert row["video_kind"] == "show"
+        assert row["show_title"] == "The Show"
+        assert row["season_number"] == 1
+        assert row["episode_number"] == 2
+
     def test_legacy_video_rows_in_tv_folders_are_reread_when_misclassified_as_movie(self, config, db, monkeypatch):
         from services import library_scanner
         from services.library_scanner import LibraryScanner

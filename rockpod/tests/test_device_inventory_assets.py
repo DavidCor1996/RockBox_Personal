@@ -412,6 +412,106 @@ def test_opening_not_on_ipod_view_defers_when_connected_cache_is_unlinked(config
         window.close()
 
 
+def test_opening_not_on_ipod_view_uses_verified_partial_inventory(config, db, monkeypatch):
+    app = QApplication.instance() or QApplication([])
+    on_device = _insert_local_track(db, title="On Device", metadata_hash="same")
+    _insert_local_track(db, title="Missing", metadata_hash="missing")
+    device = _device(config.mock_device_path)
+    key = db.upsert_device(device_record_from_info(device))["stable_device_key"]
+    db.mark_device_scanned(key)
+    db.upsert_device_track(
+        {
+            "device_id": key,
+            "device_path": "Music/Artist/Album/01 - On Device.mp3",
+            "title": "On Device",
+            "artist": "Artist",
+            "album": "Album",
+            "album_artist": "Artist",
+            "duration": 120.0,
+            "file_size": 100,
+            "metadata_hash": "same",
+            "local_track_id": on_device["id"],
+        }
+    )
+    db.upsert_device_track(
+        {
+            "device_id": key,
+            "device_path": "Music/Artist/Album/02 - Device Only.mp3",
+            "title": "Device Only",
+            "artist": "Artist",
+            "album": "Album",
+            "album_artist": "Artist",
+            "duration": 120.0,
+            "file_size": 100,
+            "metadata_hash": "other",
+            "local_track_id": None,
+        }
+    )
+    db.commit()
+
+    monkeypatch.setattr(DeviceDetector, "start_polling", lambda self: None)
+    monkeypatch.setattr(QTimer, "singleShot", lambda *args, **kwargs: None)
+    monkeypatch.setattr(LibraryScanner, "start_scan", lambda self, force_full=False: None)
+
+    window = MainWindow(config)
+    try:
+        window._device_detector._current_device = device
+        window._sync_engine._current_device_key = key
+        window._sync_engine.load_cached_device_inventory(key)
+        monkeypatch.setattr(
+            window,
+            "_scan_device",
+            lambda: (_ for _ in ()).throw(AssertionError("verified inventory should load directly")),
+        )
+
+        window._on_sidebar_selection("device", "device_not_on_ipod")
+        tracks = window._tracks_for_current_view(include_search=False)
+
+        assert [dict(row)["title"] for row in tracks] == ["Missing"]
+    finally:
+        window.close()
+
+
+def test_not_on_ipod_view_status_shows_reason_breakdown(config, db, monkeypatch):
+    app = QApplication.instance() or QApplication([])
+    _insert_local_track(db, title="Missing", metadata_hash="missing")
+    device = _device(config.mock_device_path)
+    key = db.upsert_device(device_record_from_info(device))["stable_device_key"]
+    db.mark_device_scanned(key)
+    db.upsert_device_track(
+        {
+            "device_id": key,
+            "device_path": "Music/Artist/Album/01 - Other.mp3",
+            "title": "Other",
+            "artist": "Artist",
+            "album": "Album",
+            "album_artist": "Artist",
+            "duration": 120.0,
+            "file_size": 100,
+            "metadata_hash": "other",
+            "local_track_id": None,
+        }
+    )
+    db.commit()
+
+    monkeypatch.setattr(DeviceDetector, "start_polling", lambda self: None)
+    monkeypatch.setattr(QTimer, "singleShot", lambda *args, **kwargs: None)
+    monkeypatch.setattr(LibraryScanner, "start_scan", lambda self, force_full=False: None)
+
+    window = MainWindow(config)
+    try:
+        window._sync_engine._current_device_key = key
+        window._sync_engine.load_cached_device_inventory(key)
+
+        window._on_sidebar_selection("device", "device_not_on_ipod")
+
+        status = window._status_bar._left_label.text()
+        assert "Not on iPod: 1 track" in status
+        assert "title mismatch 1" in status
+    finally:
+        window.close()
+
+
 def test_connect_does_not_auto_verify_when_disabled(config, db, monkeypatch):
     app = QApplication.instance() or QApplication([])
     device = _device(config.mock_device_path)

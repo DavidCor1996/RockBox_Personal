@@ -550,18 +550,6 @@ Discarded input sections
  .text          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(clocking-s5l8702.o)
  .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(clocking-s5l8702.o)
  .bss           0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(clocking-s5l8702.o)
- .text.pll_get_cfg_freq
-                0x0000000000000000       0xc0 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(clocking-s5l8702.o)
- .text.pll_get_out_freq
-                0x0000000000000000       0x34 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(clocking-s5l8702.o)
- .text.soc_get_oscsel_freq
-                0x0000000000000000       0x20 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(clocking-s5l8702.o)
- .text.cg16_get_freq
-                0x0000000000000000       0x64 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(clocking-s5l8702.o)
- .text.soc_get_system_divs
-                0x0000000000000000       0x80 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(clocking-s5l8702.o)
- .text.get_system_freqs
-                0x0000000000000000       0x78 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(clocking-s5l8702.o)
  .text.soc_get_hsdiv
                 0x0000000000000000       0x18 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(clocking-s5l8702.o)
  .text.set_clocking_level
@@ -1242,9 +1230,9 @@ LOAD /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/l
 LOAD /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/lib/libarm_support.a
 LOAD /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a
                 0x0000000022020800                _movestart = LOADADDR (.text)
-                0x000000002202fa80                _moveend = (LOADADDR (.data) + SIZEOF (.data))
+                0x000000002202fe20                _moveend = (LOADADDR (.data) + SIZEOF (.data))
 
-.text           0x0000000022020800     0xc640
+.text           0x0000000022020800     0xc9cc
  *(.intvect)
  .intvect       0x0000000022020800       0x94 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/target/arm/s5l8702/crt0.o
                 0x0000000022020800                start
@@ -1805,932 +1793,953 @@ LOAD /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a
  .text.dma_init
                 0x0000000022025f0c       0x38 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(dma-s5l8702.o)
                 0x0000000022025f0c                dma_init
+ .text.pll_get_cfg_freq
+                0x0000000022025f44       0xc0 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(clocking-s5l8702.o)
+                0x0000000022025f44                pll_get_cfg_freq
+ .text.pll_get_out_freq
+                0x0000000022026004       0x34 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(clocking-s5l8702.o)
+                0x0000000022026004                pll_get_out_freq
+ .text.soc_get_oscsel_freq
+                0x0000000022026038       0x20 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(clocking-s5l8702.o)
+                0x0000000022026038                soc_get_oscsel_freq
+ .text.cg16_get_freq
+                0x0000000022026058       0x64 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(clocking-s5l8702.o)
+                0x0000000022026058                cg16_get_freq
  .text.soc_set_system_divs
-                0x0000000022025f44       0x8c /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(clocking-s5l8702.o)
-                0x0000000022025f44                soc_set_system_divs
+                0x00000000220260bc       0x8c /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(clocking-s5l8702.o)
+                0x00000000220260bc                soc_set_system_divs
+ .text.soc_get_system_divs
+                0x0000000022026148       0x80 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(clocking-s5l8702.o)
+                0x0000000022026148                soc_get_system_divs
+ .text.get_system_freqs
+                0x00000000220261c8       0x78 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(clocking-s5l8702.o)
+                0x00000000220261c8                get_system_freqs
  .text.soc_set_hsdiv
-                0x0000000022025fd0       0x14 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(clocking-s5l8702.o)
-                0x0000000022025fd0                soc_set_hsdiv
+                0x0000000022026240       0x14 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(clocking-s5l8702.o)
+                0x0000000022026240                soc_set_hsdiv
  .text.clocking_init
-                0x0000000022025fe4       0x44 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(clocking-s5l8702.o)
-                0x0000000022025fe4                clocking_init
+                0x0000000022026254       0x44 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(clocking-s5l8702.o)
+                0x0000000022026254                clocking_init
  .text.clockgate_enable
-                0x0000000022026028       0xb8 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(clocking-s5l8702.o)
-                0x0000000022026028                clockgate_enable
+                0x0000000022026298       0xb8 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(clocking-s5l8702.o)
+                0x0000000022026298                clockgate_enable
  .text.pll_config
-                0x00000000220260e0      0x10c /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(clocking-s5l8702.o)
-                0x00000000220260e0                pll_config
+                0x0000000022026350      0x10c /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(clocking-s5l8702.o)
+                0x0000000022026350                pll_config
  .text.pll_onoff
-                0x00000000220261ec       0xa0 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(clocking-s5l8702.o)
-                0x00000000220261ec                pll_onoff
+                0x000000002202645c       0xa0 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(clocking-s5l8702.o)
+                0x000000002202645c                pll_onoff
  .text.cg16_config
-                0x000000002202628c       0x70 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(clocking-s5l8702.o)
-                0x000000002202628c                cg16_config
+                0x00000000220264fc       0x70 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(clocking-s5l8702.o)
+                0x00000000220264fc                cg16_config
  .text.usec_timer_init
-                0x00000000220262fc       0x70 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(clocking-s5l8702.o)
-                0x00000000220262fc                usec_timer_init
+                0x000000002202656c       0x70 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(clocking-s5l8702.o)
+                0x000000002202656c                usec_timer_init
  .text.spi_wait_ready
-                0x000000002202636c       0x40 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(spi-s5l8702.o)
+                0x00000000220265dc       0x40 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(spi-s5l8702.o)
  .text.spi_clkdiv
-                0x00000000220263ac       0x10 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(spi-s5l8702.o)
-                0x00000000220263ac                spi_clkdiv
+                0x000000002202661c       0x10 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(spi-s5l8702.o)
+                0x000000002202661c                spi_clkdiv
  .text.spi_init
-                0x00000000220263bc       0x98 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(spi-s5l8702.o)
-                0x00000000220263bc                spi_init
- .text.spi_ce   0x0000000022026454       0x50 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(spi-s5l8702.o)
-                0x0000000022026454                spi_ce
+                0x000000002202662c       0x98 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(spi-s5l8702.o)
+                0x000000002202662c                spi_init
+ .text.spi_ce   0x00000000220266c4       0x50 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(spi-s5l8702.o)
+                0x00000000220266c4                spi_ce
  .text.spi_prepare
-                0x00000000220264a4      0x144 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(spi-s5l8702.o)
-                0x00000000220264a4                spi_prepare
+                0x0000000022026714      0x144 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(spi-s5l8702.o)
+                0x0000000022026714                spi_prepare
  .text.spi_release
-                0x00000000220265e8       0x20 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(spi-s5l8702.o)
-                0x00000000220265e8                spi_release
+                0x0000000022026858       0x20 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(spi-s5l8702.o)
+                0x0000000022026858                spi_release
  .text.spi_write
-                0x0000000022026608       0xd8 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(spi-s5l8702.o)
-                0x0000000022026608                spi_write
+                0x0000000022026878       0xd8 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(spi-s5l8702.o)
+                0x0000000022026878                spi_write
  .text.spi_read
-                0x00000000220266e0       0xc4 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(spi-s5l8702.o)
-                0x00000000220266e0                spi_read
+                0x0000000022026950       0xc4 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(spi-s5l8702.o)
+                0x0000000022026950                spi_read
  .text.get_uint32le
-                0x00000000220267a4       0x20 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(norboot-s5l8702.o)
+                0x0000000022026a14       0x20 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(norboot-s5l8702.o)
  .text.bootflash_wait_ready
-                0x00000000220267c4       0x50 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(norboot-s5l8702.o)
+                0x0000000022026a34       0x50 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(norboot-s5l8702.o)
  .text.bootflash_init
-                0x0000000022026814       0x20 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(norboot-s5l8702.o)
-                0x0000000022026814                bootflash_init
+                0x0000000022026a84       0x20 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(norboot-s5l8702.o)
+                0x0000000022026a84                bootflash_init
  .text.bootflash_close
-                0x0000000022026834        0x8 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(norboot-s5l8702.o)
-                0x0000000022026834                bootflash_close
+                0x0000000022026aa4        0x8 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(norboot-s5l8702.o)
+                0x0000000022026aa4                bootflash_close
  .text.bootflash_read
-                0x000000002202683c       0x8c /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(norboot-s5l8702.o)
-                0x000000002202683c                bootflash_read
+                0x0000000022026aac       0x8c /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(norboot-s5l8702.o)
+                0x0000000022026aac                bootflash_read
  .text.syscfg_read
-                0x00000000220268c8       0xa4 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(norboot-s5l8702.o)
-                0x00000000220268c8                syscfg_read
+                0x0000000022026b38       0xa4 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(norboot-s5l8702.o)
+                0x0000000022026b38                syscfg_read
  .text.im3_nor_sz
-                0x000000002202696c       0x20 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(norboot-s5l8702.o)
-                0x000000002202696c                im3_nor_sz
+                0x0000000022026bdc       0x20 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(norboot-s5l8702.o)
+                0x0000000022026bdc                im3_nor_sz
  .text.im3_read
-                0x000000002202698c      0x144 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(norboot-s5l8702.o)
-                0x000000002202698c                im3_read
+                0x0000000022026bfc      0x144 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(norboot-s5l8702.o)
+                0x0000000022026bfc                im3_read
+ .text.udelay   0x0000000022026d40       0x24 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(lcd-s5l8702.o)
  .text.s5l_lcd_run_seq8
-                0x0000000022026ad0       0x4c /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(lcd-s5l8702.o)
+                0x0000000022026d64       0x4c /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(lcd-s5l8702.o)
+ .text.nano3g_dump_display_state.isra.0
+                0x0000000022026db0       0x34 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(lcd-s5l8702.o)
  .text.lcd_active
-                0x0000000022026b1c       0x10 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(lcd-s5l8702.o)
-                0x0000000022026b1c                lcd_active
+                0x0000000022026de4       0x10 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(lcd-s5l8702.o)
+                0x0000000022026de4                lcd_active
  .text.lcd_awake
-                0x0000000022026b2c       0x84 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(lcd-s5l8702.o)
-                0x0000000022026b2c                lcd_awake
+                0x0000000022026df4       0x84 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(lcd-s5l8702.o)
+                0x0000000022026df4                lcd_awake
  .text.lcd_read_display_id
-                0x0000000022026bb0       0x74 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(lcd-s5l8702.o)
-                0x0000000022026bb0                lcd_read_display_id
+                0x0000000022026e78       0x74 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(lcd-s5l8702.o)
+                0x0000000022026e78                lcd_read_display_id
  .text.lcd_init_device
-                0x0000000022026c24      0x134 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(lcd-s5l8702.o)
-                0x0000000022026c24                lcd_init_device
+                0x0000000022026eec      0x1f8 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(lcd-s5l8702.o)
+                0x0000000022026eec                lcd_init_device
  .text.nano3g_boottrace_reset
-                0x0000000022026d58       0x50 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(bringup-nano3g.o)
-                0x0000000022026d58                nano3g_boottrace_reset
+                0x00000000220270e4       0x50 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(bringup-nano3g.o)
+                0x00000000220270e4                nano3g_boottrace_reset
  .text.nano3g_boottrace_log
-                0x0000000022026da8       0xac /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(bringup-nano3g.o)
-                0x0000000022026da8                nano3g_boottrace_log
+                0x0000000022027134       0xac /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(bringup-nano3g.o)
+                0x0000000022027134                nano3g_boottrace_log
  .text.nano3g_boottrace_enable_lcd
-                0x0000000022026e54       0x10 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(bringup-nano3g.o)
-                0x0000000022026e54                nano3g_boottrace_enable_lcd
+                0x00000000220271e0       0x10 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(bringup-nano3g.o)
+                0x00000000220271e0                nano3g_boottrace_enable_lcd
  .text.nano3g_boottrace_get
-                0x0000000022026e64       0x5c /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(bringup-nano3g.o)
-                0x0000000022026e64                nano3g_boottrace_get
+                0x00000000220271f0       0x5c /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(bringup-nano3g.o)
+                0x00000000220271f0                nano3g_boottrace_get
  .text.nano3g_safe_mode_enabled
-                0x0000000022026ec0        0x8 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(bringup-nano3g.o)
-                0x0000000022026ec0                nano3g_safe_mode_enabled
+                0x000000002202724c        0x8 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(bringup-nano3g.o)
+                0x000000002202724c                nano3g_safe_mode_enabled
  .text.nano3g_failsafe_halt
-                0x0000000022026ec8       0xf8 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(bringup-nano3g.o)
-                0x0000000022026ec8                nano3g_failsafe_halt
+                0x0000000022027254       0xf8 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(bringup-nano3g.o)
+                0x0000000022027254                nano3g_failsafe_halt
  .text.lcd_target_get_info
-                0x0000000022026fc0       0xf8 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(lcd-nano3g.o)
-                0x0000000022026fc0                lcd_target_get_info
+                0x000000002202734c       0xf8 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(lcd-nano3g.o)
+                0x000000002202734c                lcd_target_get_info
  .text.backlight_hw_brightness
-                0x00000000220270b8       0x34 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(backlight-nano3g.o)
-                0x00000000220270b8                backlight_hw_brightness
+                0x0000000022027444       0x34 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(backlight-nano3g.o)
+                0x0000000022027444                backlight_hw_brightness
  .text.backlight_hw_on
-                0x00000000220270ec       0x40 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(backlight-nano3g.o)
-                0x00000000220270ec                backlight_hw_on
+                0x0000000022027478       0x40 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(backlight-nano3g.o)
+                0x0000000022027478                backlight_hw_on
  .text.backlight_hw_init
-                0x000000002202712c       0x18 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(backlight-nano3g.o)
-                0x000000002202712c                backlight_hw_init
+                0x00000000220274b8       0x18 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(backlight-nano3g.o)
+                0x00000000220274b8                backlight_hw_init
  .text.pmu_eint_isr
-                0x0000000022027144       0x20 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(pmu-nano3g.o)
+                0x00000000220274d0       0x20 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(pmu-nano3g.o)
  .text.pmu_read_multiple
-                0x0000000022027164       0x24 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(pmu-nano3g.o)
-                0x0000000022027164                pmu_read_multiple
+                0x00000000220274f0       0x24 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(pmu-nano3g.o)
+                0x00000000220274f0                pmu_read_multiple
  .text.pmu_read_inputs
-                0x0000000022027188       0x60 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(pmu-nano3g.o)
+                0x0000000022027514       0x60 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(pmu-nano3g.o)
  .text.pmu_write_multiple
-                0x00000000220271e8       0x3c /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(pmu-nano3g.o)
-                0x00000000220271e8                pmu_write_multiple
+                0x0000000022027574       0x3c /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(pmu-nano3g.o)
+                0x0000000022027574                pmu_write_multiple
  .text.pmu_thread
-                0x0000000022027224       0x58 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(pmu-nano3g.o)
+                0x00000000220275b0       0x58 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(pmu-nano3g.o)
  .text.pmu_read
-                0x000000002202727c       0x1c /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(pmu-nano3g.o)
-                0x000000002202727c                pmu_read
+                0x0000000022027608       0x1c /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(pmu-nano3g.o)
+                0x0000000022027608                pmu_read
  .text.pmu_write
-                0x0000000022027298       0x1c /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(pmu-nano3g.o)
-                0x0000000022027298                pmu_write
+                0x0000000022027624       0x1c /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(pmu-nano3g.o)
+                0x0000000022027624                pmu_write
  .text.pmu_enter_standby
-                0x00000000220272b4       0x30 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(pmu-nano3g.o)
-                0x00000000220272b4                pmu_enter_standby
+                0x0000000022027640       0x30 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(pmu-nano3g.o)
+                0x0000000022027640                pmu_enter_standby
  .text.pmu_read_rtc
-                0x00000000220272e4       0x10 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(pmu-nano3g.o)
-                0x00000000220272e4                pmu_read_rtc
+                0x0000000022027670       0x10 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(pmu-nano3g.o)
+                0x0000000022027670                pmu_read_rtc
  .text.pmu_set_usblimit
-                0x00000000220272f4       0x24 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(pmu-nano3g.o)
-                0x00000000220272f4                pmu_set_usblimit
+                0x0000000022027680       0x24 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(pmu-nano3g.o)
+                0x0000000022027680                pmu_set_usblimit
  .text.pmu_holdswitch_locked
-                0x0000000022027318       0x10 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(pmu-nano3g.o)
-                0x0000000022027318                pmu_holdswitch_locked
+                0x00000000220276a4       0x10 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(pmu-nano3g.o)
+                0x00000000220276a4                pmu_holdswitch_locked
  .text.pmu_init
-                0x0000000022027328       0xa4 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(pmu-nano3g.o)
-                0x0000000022027328                pmu_init
+                0x00000000220276b4       0xa4 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(pmu-nano3g.o)
+                0x00000000220276b4                pmu_init
  .text.pmu_rd_multiple
-                0x00000000220273cc       0x24 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(pmu-nano3g.o)
-                0x00000000220273cc                pmu_rd_multiple
+                0x0000000022027758       0x24 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(pmu-nano3g.o)
+                0x0000000022027758                pmu_rd_multiple
  .text.pmu_wr_multiple
-                0x00000000220273f0       0x3c /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(pmu-nano3g.o)
-                0x00000000220273f0                pmu_wr_multiple
- .text.pmu_rd   0x000000002202742c       0x1c /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(pmu-nano3g.o)
-                0x000000002202742c                pmu_rd
- .text.pmu_wr   0x0000000022027448       0x1c /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(pmu-nano3g.o)
-                0x0000000022027448                pmu_wr
+                0x000000002202777c       0x3c /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(pmu-nano3g.o)
+                0x000000002202777c                pmu_wr_multiple
+ .text.pmu_rd   0x00000000220277b8       0x1c /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(pmu-nano3g.o)
+                0x00000000220277b8                pmu_rd
+ .text.pmu_wr   0x00000000220277d4       0x1c /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(pmu-nano3g.o)
+                0x00000000220277d4                pmu_wr
  .text.pmu_preinit
-                0x0000000022027464       0xe0 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(pmu-nano3g.o)
-                0x0000000022027464                pmu_preinit
+                0x00000000220277f0       0xe0 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(pmu-nano3g.o)
+                0x00000000220277f0                pmu_preinit
  .text.pmu_is_hibernated
-                0x0000000022027544       0x18 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(pmu-nano3g.o)
-                0x0000000022027544                pmu_is_hibernated
+                0x00000000220278d0       0x18 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(pmu-nano3g.o)
+                0x00000000220278d0                pmu_is_hibernated
  .text.power_init
-                0x000000002202755c       0x28 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(power-nano3g.o)
-                0x000000002202755c                power_init
+                0x00000000220278e8       0x28 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(power-nano3g.o)
+                0x00000000220278e8                power_init
  .text.power_off
-                0x0000000022027584       0x30 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(power-nano3g.o)
-                0x0000000022027584                power_off
+                0x0000000022027910       0x30 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(power-nano3g.o)
+                0x0000000022027910                power_off
  .text.nand_init
-                0x00000000220275b4        0x8 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(nand-nano3g.o)
-                0x00000000220275b4                nand_init
+                0x0000000022027940        0x8 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(nand-nano3g.o)
+                0x0000000022027940                nand_init
  .text.nand_read_sectors
-                0x00000000220275bc       0x68 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(nand-nano3g.o)
-                0x00000000220275bc                nand_read_sectors
+                0x0000000022027948       0x68 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(nand-nano3g.o)
+                0x0000000022027948                nand_read_sectors
  .text.nand_write_sectors
-                0x0000000022027624        0x8 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(nand-nano3g.o)
-                0x0000000022027624                nand_write_sectors
+                0x00000000220279b0        0x8 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(nand-nano3g.o)
+                0x00000000220279b0                nand_write_sectors
  .text.nand_event
-                0x000000002202762c       0x58 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(nand-nano3g.o)
-                0x000000002202762c                nand_event
+                0x00000000220279b8       0x58 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(nand-nano3g.o)
+                0x00000000220279b8                nand_event
  .text.nand_get_info
-                0x0000000022027684       0x28 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(nand-nano3g.o)
-                0x0000000022027684                nand_get_info
+                0x0000000022027a10       0x28 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(nand-nano3g.o)
+                0x0000000022027a10                nand_get_info
  .text.mrsw_init
-                0x00000000220276ac       0x18 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(mrsw_lock.o)
-                0x00000000220276ac                mrsw_init
+                0x0000000022027a38       0x18 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(mrsw_lock.o)
+                0x0000000022027a38                mrsw_init
  .text.mrsw_read_acquire
-                0x00000000220276c4       0x98 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(mrsw_lock.o)
-                0x00000000220276c4                mrsw_read_acquire
+                0x0000000022027a50       0x98 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(mrsw_lock.o)
+                0x0000000022027a50                mrsw_read_acquire
  .text.mrsw_read_release
-                0x000000002202775c       0x74 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(mrsw_lock.o)
-                0x000000002202775c                mrsw_read_release
+                0x0000000022027ae8       0x74 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(mrsw_lock.o)
+                0x0000000022027ae8                mrsw_read_release
  .text.mrsw_write_acquire
-                0x00000000220277d0       0x9c /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(mrsw_lock.o)
-                0x00000000220277d0                mrsw_write_acquire
+                0x0000000022027b5c       0x9c /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(mrsw_lock.o)
+                0x0000000022027b5c                mrsw_write_acquire
  .text.mrsw_write_release
-                0x000000002202786c       0xa8 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(mrsw_lock.o)
-                0x000000002202786c                mrsw_write_release
+                0x0000000022027bf8       0xa8 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(mrsw_lock.o)
+                0x0000000022027bf8                mrsw_write_release
  .text.mutex_init
-                0x0000000022027914       0x18 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(mutex.o)
-                0x0000000022027914                mutex_init
+                0x0000000022027ca0       0x18 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(mutex.o)
+                0x0000000022027ca0                mutex_init
  .text.mutex_lock
-                0x000000002202792c       0x8c /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(mutex.o)
-                0x000000002202792c                mutex_lock
+                0x0000000022027cb8       0x8c /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(mutex.o)
+                0x0000000022027cb8                mutex_lock
  .text.mutex_unlock
-                0x00000000220279b8       0x5c /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(mutex.o)
-                0x00000000220279b8                mutex_unlock
+                0x0000000022027d44       0x5c /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(mutex.o)
+                0x0000000022027d44                mutex_unlock
  .text.disable_interrupt_save.constprop.0
-                0x0000000022027a14       0x10 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(queue.o)
+                0x0000000022027da0       0x10 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(queue.o)
  .text.queue_init
-                0x0000000022027a24       0x6c /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(queue.o)
-                0x0000000022027a24                queue_init
+                0x0000000022027db0       0x6c /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(queue.o)
+                0x0000000022027db0                queue_init
  .text.queue_wait_w_tmo
-                0x0000000022027a90      0x11c /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(queue.o)
-                0x0000000022027a90                queue_wait_w_tmo
+                0x0000000022027e1c      0x11c /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(queue.o)
+                0x0000000022027e1c                queue_wait_w_tmo
  .text.queue_post
-                0x0000000022027bac       0x4c /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(queue.o)
-                0x0000000022027bac                queue_post
+                0x0000000022027f38       0x4c /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(queue.o)
+                0x0000000022027f38                queue_post
  .text.queue_remove_from_head
-                0x0000000022027bf8       0x4c /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(queue.o)
-                0x0000000022027bf8                queue_remove_from_head
+                0x0000000022027f84       0x4c /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(queue.o)
+                0x0000000022027f84                queue_remove_from_head
  .text.queue_empty
-                0x0000000022027c44       0x18 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(queue.o)
-                0x0000000022027c44                queue_empty
+                0x0000000022027fd0       0x18 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(queue.o)
+                0x0000000022027fd0                queue_empty
  .text.init_queues
-                0x0000000022027c5c        0x4 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(queue.o)
-                0x0000000022027c5c                init_queues
+                0x0000000022027fe8        0x4 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(queue.o)
+                0x0000000022027fe8                init_queues
  .text.semaphore_init
-                0x0000000022027c60       0x18 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(semaphore.o)
-                0x0000000022027c60                semaphore_init
+                0x0000000022027fec       0x18 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(semaphore.o)
+                0x0000000022027fec                semaphore_init
  .text.semaphore_wait
-                0x0000000022027c78       0xd0 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(semaphore.o)
-                0x0000000022027c78                semaphore_wait
+                0x0000000022028004       0xd0 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(semaphore.o)
+                0x0000000022028004                semaphore_wait
  .text.semaphore_release
-                0x0000000022027d48       0x4c /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(semaphore.o)
-                0x0000000022027d48                semaphore_release
+                0x00000000220280d4       0x4c /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(semaphore.o)
+                0x00000000220280d4                semaphore_release
  .text.thread_panicf.constprop.0
-                0x0000000022027d94       0x34 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(thread.o)
+                0x0000000022028120       0x34 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(thread.o)
  .text.thread_stkov
-                0x0000000022027dc8        0x8 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(thread.o)
+                0x0000000022028154        0x8 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(thread.o)
  .text.disable_interrupt.constprop.0
-                0x0000000022027dd0       0x10 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(thread.o)
+                0x000000002202815c       0x10 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(thread.o)
  .text.enable_interrupt.constprop.0
-                0x0000000022027de0       0x10 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(thread.o)
+                0x000000002202816c       0x10 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(thread.o)
  .text.check_tmo_expired_inner.constprop.0
-                0x0000000022027df0       0xd8 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(thread.o)
+                0x000000002202817c       0xd8 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(thread.o)
  .text.core_schedule_wakeup
-                0x0000000022027ec8       0x24 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(thread.o)
+                0x0000000022028254       0x24 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(thread.o)
  .text.wakeup_thread_
-                0x0000000022027eec       0x68 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(thread.o)
-                0x0000000022027eec                wakeup_thread_
+                0x0000000022028278       0x68 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(thread.o)
+                0x0000000022028278                wakeup_thread_
  .text.switch_thread
-                0x0000000022027f54       0xc4 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(thread.o)
-                0x0000000022027f54                switch_thread
+                0x00000000220282e0       0xc4 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(thread.o)
+                0x00000000220282e0                switch_thread
  .text.sleep_thread
-                0x0000000022028018       0x78 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(thread.o)
-                0x0000000022028018                sleep_thread
+                0x00000000220283a4       0x78 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(thread.o)
+                0x00000000220283a4                sleep_thread
  .text.block_thread_
-                0x0000000022028090       0x84 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(thread.o)
-                0x0000000022028090                block_thread_
+                0x000000002202841c       0x84 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(thread.o)
+                0x000000002202841c                block_thread_
  .text.create_thread
-                0x0000000022028114       0xe0 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(thread.o)
-                0x0000000022028114                create_thread
+                0x00000000220284a0       0xe0 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(thread.o)
+                0x00000000220284a0                create_thread
  .text.thread_exit_final
-                0x00000000220281f4       0x2c /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(thread.o)
+                0x0000000022028580       0x2c /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(thread.o)
  .text.thread_exit
-                0x0000000022028220       0x54 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(thread.o)
-                0x0000000022028220                thread_exit
+                0x00000000220285ac       0x54 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(thread.o)
+                0x00000000220285ac                thread_exit
  .text.start_thread
-                0x0000000022028274       0x1c /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(thread.o)
+                0x0000000022028600       0x1c /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(thread.o)
  .text.init_threads
-                0x0000000022028290       0x88 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(thread.o)
-                0x0000000022028290                init_threads
+                0x000000002202861c       0x88 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(thread.o)
+                0x000000002202861c                init_threads
  .text.thread_alloc_init
-                0x0000000022028318       0x6c /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(thread-common.o)
-                0x0000000022028318                thread_alloc_init
+                0x00000000220286a4       0x6c /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(thread-common.o)
+                0x00000000220286a4                thread_alloc_init
  .text.thread_alloc
-                0x0000000022028384       0x4c /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(thread-common.o)
-                0x0000000022028384                thread_alloc
+                0x0000000022028710       0x4c /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(thread-common.o)
+                0x0000000022028710                thread_alloc
  .text.thread_free
-                0x00000000220283d0       0x2c /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(thread-common.o)
-                0x00000000220283d0                thread_free
+                0x000000002202875c       0x2c /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(thread-common.o)
+                0x000000002202875c                thread_free
  .text.new_thread_id
-                0x00000000220283fc       0x18 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(thread-common.o)
-                0x00000000220283fc                new_thread_id
+                0x0000000022028788       0x18 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(thread-common.o)
+                0x0000000022028788                new_thread_id
  .text.wait_queue_wake
-                0x0000000022028414       0x34 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(thread-common.o)
-                0x0000000022028414                wait_queue_wake
- .text.sleep    0x0000000022028448       0x20 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(thread-common.o)
-                0x0000000022028448                sleep
- .text.yield    0x0000000022028468        0x4 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(thread-common.o)
-                0x0000000022028468                yield
+                0x00000000220287a0       0x34 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(thread-common.o)
+                0x00000000220287a0                wait_queue_wake
+ .text.sleep    0x00000000220287d4       0x20 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(thread-common.o)
+                0x00000000220287d4                sleep
+ .text.yield    0x00000000220287f4        0x4 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(thread-common.o)
+                0x00000000220287f4                yield
  .text.format_thread_name
-                0x000000002202846c       0x54 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(thread-common.o)
-                0x000000002202846c                format_thread_name
+                0x00000000220287f8       0x54 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(thread-common.o)
+                0x00000000220287f8                format_thread_name
  .text.tick_add_task
-                0x00000000220284c0       0x50 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(tick.o)
-                0x00000000220284c0                tick_add_task
+                0x000000002202884c       0x50 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(tick.o)
+                0x000000002202884c                tick_add_task
  .text.tick_remove_task
-                0x0000000022028510       0x28 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(tick.o)
-                0x0000000022028510                tick_remove_task
+                0x000000002202889c       0x28 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(tick.o)
+                0x000000002202889c                tick_remove_task
  .text.init_tick
-                0x0000000022028538        0x8 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(tick.o)
-                0x0000000022028538                init_tick
+                0x00000000220288c4        0x8 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(tick.o)
+                0x00000000220288c4                init_tick
  .text.timeout_cancel
-                0x0000000022028540       0x4c /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(timeout.o)
-                0x0000000022028540                timeout_cancel
+                0x00000000220288cc       0x4c /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(timeout.o)
+                0x00000000220288cc                timeout_cancel
  .text.timeout_tick
-                0x000000002202858c       0x60 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(timeout.o)
+                0x0000000022028918       0x60 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(timeout.o)
  .text.timeout_register
-                0x00000000220285ec       0x94 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(timeout.o)
-                0x00000000220285ec                timeout_register
+                0x0000000022028978       0x94 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(timeout.o)
+                0x0000000022028978                timeout_register
  .text.send_event
-                0x0000000022028680       0x7c /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(events.o)
-                0x0000000022028680                send_event
+                0x0000000022028a0c       0x7c /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(events.o)
+                0x0000000022028a0c                send_event
  .text.find_array_ptr
-                0x00000000220286fc       0x18 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(general.o)
-                0x00000000220286fc                find_array_ptr
+                0x0000000022028a88       0x18 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(general.o)
+                0x0000000022028a88                find_array_ptr
  .text.remove_array_ptr
-                0x0000000022028714       0x34 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(general.o)
-                0x0000000022028714                remove_array_ptr
+                0x0000000022028aa0       0x34 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(general.o)
+                0x0000000022028aa0                remove_array_ptr
  .text.set_sleep_timer
-                0x0000000022028748       0x50 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(powermgmt.o)
+                0x0000000022028ad4       0x50 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(powermgmt.o)
  .text.reset_poweroff_timer
-                0x0000000022028798       0x44 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(powermgmt.o)
-                0x0000000022028798                reset_poweroff_timer
+                0x0000000022028b24       0x44 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(powermgmt.o)
+                0x0000000022028b24                reset_poweroff_timer
  .text.sys_poweroff
-                0x00000000220287dc        0x4 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(powermgmt.o)
-                0x00000000220287dc                sys_poweroff
- .text.panicf   0x00000000220287e0        0xc /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(panic.o)
-                0x00000000220287e0                panicf
+                0x0000000022028b68        0x4 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(powermgmt.o)
+                0x0000000022028b68                sys_poweroff
+ .text.panicf   0x0000000022028b6c        0xc /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(panic.o)
+                0x0000000022028b6c                panicf
  .text.panicf_f
-                0x00000000220287ec       0xf8 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(panic.o)
-                0x00000000220287ec                panicf_f
+                0x0000000022028b78       0xf8 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(panic.o)
+                0x0000000022028b78                panicf_f
  .text.__bitarray_clear_bit
-                0x00000000220288e4       0x1c /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(disk_cache.o)
+                0x0000000022028c70       0x1c /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(disk_cache.o)
  .text.cache_discard_entry
-                0x0000000022028900       0x3c /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(disk_cache.o)
+                0x0000000022028c8c       0x3c /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(disk_cache.o)
  .text.dc_cache_probe
-                0x000000002202893c      0x1b4 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(disk_cache.o)
-                0x000000002202893c                dc_cache_probe
+                0x0000000022028cc8      0x1b4 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(disk_cache.o)
+                0x0000000022028cc8                dc_cache_probe
  .text.dc_dirty_buf
-                0x0000000022028af0       0x38 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(disk_cache.o)
-                0x0000000022028af0                dc_dirty_buf
+                0x0000000022028e7c       0x38 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(disk_cache.o)
+                0x0000000022028e7c                dc_dirty_buf
  .text.dc_discard_buf
-                0x0000000022028b28       0x34 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(disk_cache.o)
-                0x0000000022028b28                dc_discard_buf
+                0x0000000022028eb4       0x34 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(disk_cache.o)
+                0x0000000022028eb4                dc_discard_buf
  .text.dc_commit_all
-                0x0000000022028b5c       0x8c /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(disk_cache.o)
-                0x0000000022028b5c                dc_commit_all
+                0x0000000022028ee8       0x8c /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(disk_cache.o)
+                0x0000000022028ee8                dc_commit_all
  .text.dc_discard_all
-                0x0000000022028be8       0x84 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(disk_cache.o)
-                0x0000000022028be8                dc_discard_all
+                0x0000000022028f74       0x84 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(disk_cache.o)
+                0x0000000022028f74                dc_discard_all
  .text.dc_get_buffer
-                0x0000000022028c6c       0xa0 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(disk_cache.o)
-                0x0000000022028c6c                dc_get_buffer
+                0x0000000022028ff8       0xa0 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(disk_cache.o)
+                0x0000000022028ff8                dc_get_buffer
  .text.dc_release_buffer
-                0x0000000022028d0c       0x60 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(disk_cache.o)
-                0x0000000022028d0c                dc_release_buffer
- .text.dc_init  0x0000000022028d6c       0x4c /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(disk_cache.o)
-                0x0000000022028d6c                dc_init
+                0x0000000022029098       0x60 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(disk_cache.o)
+                0x0000000022029098                dc_release_buffer
+ .text.dc_init  0x00000000220290f8       0x4c /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(disk_cache.o)
+                0x00000000220290f8                dc_init
  .text.parse_short_direntry
-                0x0000000022028db8      0x134 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(fat.o)
+                0x0000000022029144      0x134 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(fat.o)
  .text.longent_char_next
-                0x0000000022028eec       0x30 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(fat.o)
+                0x0000000022029278       0x30 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(fat.o)
  .text.dc_lock_cache
-                0x0000000022028f1c        0xc /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(fat.o)
+                0x00000000220292a8        0xc /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(fat.o)
  .text.dc_unlock_cache
-                0x0000000022028f28        0xc /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(fat.o)
+                0x00000000220292b4        0xc /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(fat.o)
  .text.randomize_dos_name
-                0x0000000022028f34       0x9c /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(fat.o)
+                0x00000000220292c0       0x9c /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(fat.o)
  .text.char2dos
-                0x0000000022028fd0       0x94 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(fat.o)
+                0x000000002202935c       0x94 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(fat.o)
  .text.fatlong_parse_start.isra.0
-                0x0000000022029064        0xc /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(fat.o)
+                0x00000000220293f0        0xc /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(fat.o)
  .text.cache_sector.isra.0
-                0x0000000022029070       0x5c /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(fat.o)
+                0x00000000220293fc       0x5c /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(fat.o)
  .text.transfer.constprop.0
-                0x00000000220290cc       0x7c /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(fat.o)
+                0x0000000022029458       0x7c /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(fat.o)
  .text.fat_time.constprop.0
-                0x0000000022029148       0x78 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(fat.o)
+                0x00000000220294d4       0x78 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(fat.o)
  .text.update_fat_entry32.constprop.0
-                0x00000000220291c0       0xd4 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(fat.o)
+                0x000000002202954c       0xd4 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(fat.o)
  .text.get_next_cluster32.constprop.0
-                0x0000000022029294       0x5c /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(fat.o)
+                0x0000000022029620       0x5c /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(fat.o)
  .text.next_write_cluster.constprop.0
-                0x00000000220292f0      0x108 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(fat.o)
+                0x000000002202967c      0x108 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(fat.o)
  .text.free_cluster_chain.constprop.0
-                0x00000000220293f8       0x6c /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(fat.o)
+                0x0000000022029784       0x6c /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(fat.o)
  .text.cluster2sec.constprop.0
-                0x0000000022029464       0x2c /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(fat.o)
+                0x00000000220297f0       0x2c /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(fat.o)
  .text.fat_extend_dir.constprop.0
-                0x0000000022029490       0xdc /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(fat.o)
+                0x000000002202981c       0xdc /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(fat.o)
  .text.update_fsinfo32.constprop.0
-                0x000000002202956c       0x68 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(fat.o)
+                0x00000000220298f8       0x68 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(fat.o)
  .text.cache_commit.constprop.0
-                0x00000000220295d4       0x18 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(fat.o)
+                0x0000000022029960       0x18 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(fat.o)
  .text.dc_writeback_callback
-                0x00000000220295ec       0x88 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(fat.o)
-                0x00000000220295ec                dc_writeback_callback
+                0x0000000022029978       0x88 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(fat.o)
+                0x0000000022029978                dc_writeback_callback
  .text.fat_dir_is_parent
-                0x0000000022029674       0x20 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(fat.o)
-                0x0000000022029674                fat_dir_is_parent
+                0x0000000022029a00       0x20 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(fat.o)
+                0x0000000022029a00                fat_dir_is_parent
  .text.fat_file_is_same
-                0x0000000022029694       0x3c /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(fat.o)
-                0x0000000022029694                fat_file_is_same
+                0x0000000022029a20       0x3c /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(fat.o)
+                0x0000000022029a20                fat_file_is_same
  .text.fat_open
-                0x00000000220296d0       0x40 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(fat.o)
-                0x00000000220296d0                fat_open
+                0x0000000022029a5c       0x40 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(fat.o)
+                0x0000000022029a5c                fat_open
  .text.fat_open_rootdir
-                0x0000000022029710       0x34 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(fat.o)
-                0x0000000022029710                fat_open_rootdir
+                0x0000000022029a9c       0x34 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(fat.o)
+                0x0000000022029a9c                fat_open_rootdir
  .text.fat_query_sectornum
-                0x0000000022029744       0x2c /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(fat.o)
-                0x0000000022029744                fat_query_sectornum
+                0x0000000022029ad0       0x2c /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(fat.o)
+                0x0000000022029ad0                fat_query_sectornum
  .text.fat_readwrite
-                0x0000000022029770      0x260 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(fat.o)
-                0x0000000022029770                fat_readwrite
+                0x0000000022029afc      0x260 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(fat.o)
+                0x0000000022029afc                fat_readwrite
  .text.fat_rewind
-                0x00000000220299d0       0x28 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(fat.o)
-                0x00000000220299d0                fat_rewind
+                0x0000000022029d5c       0x28 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(fat.o)
+                0x0000000022029d5c                fat_rewind
  .text.fat_filestr_init
-                0x00000000220299f8        0x8 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(fat.o)
-                0x00000000220299f8                fat_filestr_init
+                0x0000000022029d84        0x8 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(fat.o)
+                0x0000000022029d84                fat_filestr_init
  .text.fat_seek_to_stream
-                0x0000000022029a00       0x2c /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(fat.o)
-                0x0000000022029a00                fat_seek_to_stream
+                0x0000000022029d8c       0x2c /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(fat.o)
+                0x0000000022029d8c                fat_seek_to_stream
  .text.fat_seek
-                0x0000000022029a2c       0xdc /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(fat.o)
-                0x0000000022029a2c                fat_seek
+                0x0000000022029db8       0xdc /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(fat.o)
+                0x0000000022029db8                fat_seek
  .text.cache_direntry.constprop.0
-                0x0000000022029b08       0x8c /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(fat.o)
+                0x0000000022029e94       0x8c /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(fat.o)
  .text.add_dir_entry.constprop.0
-                0x0000000022029b94      0x6e8 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(fat.o)
+                0x0000000022029f20      0x6e8 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(fat.o)
  .text.fat_create_file
-                0x000000002202a27c      0x1fc /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(fat.o)
-                0x000000002202a27c                fat_create_file
+                0x000000002202a608      0x1fc /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(fat.o)
+                0x000000002202a608                fat_create_file
  .text.free_direntries.constprop.0
-                0x000000002202a478       0xb4 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(fat.o)
+                0x000000002202a804       0xb4 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(fat.o)
  .text.fat_remove
-                0x000000002202a52c       0xb0 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(fat.o)
-                0x000000002202a52c                fat_remove
+                0x000000002202a8b8       0xb0 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(fat.o)
+                0x000000002202a8b8                fat_remove
  .text.fat_truncate
-                0x000000002202a5dc       0x78 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(fat.o)
-                0x000000002202a5dc                fat_truncate
+                0x000000002202a968       0x78 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(fat.o)
+                0x000000002202a968                fat_truncate
  .text.fat_rewinddir
-                0x000000002202a654       0x14 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(fat.o)
-                0x000000002202a654                fat_rewinddir
+                0x000000002202a9e0       0x14 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(fat.o)
+                0x000000002202a9e0                fat_rewinddir
  .text.fat_recalc_free
-                0x000000002202a668       0xb4 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(fat.o)
-                0x000000002202a668                fat_recalc_free
+                0x000000002202a9f4       0xb4 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(fat.o)
+                0x000000002202a9f4                fat_recalc_free
  .text.fat_mount
-                0x000000002202a71c      0x310 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(fat.o)
-                0x000000002202a71c                fat_mount
+                0x000000002202aaa8      0x310 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(fat.o)
+                0x000000002202aaa8                fat_mount
  .text.fat_empty_fat_direntry
-                0x000000002202aa2c       0x30 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(fat.o)
-                0x000000002202aa2c                fat_empty_fat_direntry
+                0x000000002202adb8       0x30 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(fat.o)
+                0x000000002202adb8                fat_empty_fat_direntry
  .text.fat_closewrite
-                0x000000002202aa5c      0x17c /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(fat.o)
-                0x000000002202aa5c                fat_closewrite
+                0x000000002202ade8      0x17c /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(fat.o)
+                0x000000002202ade8                fat_closewrite
  .text.fat_readdir
-                0x000000002202abd8      0x35c /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(fat.o)
-                0x000000002202abd8                fat_readdir
+                0x000000002202af64      0x35c /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(fat.o)
+                0x000000002202af64                fat_readdir
  .text.fat_init
-                0x000000002202af34       0x24 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(fat.o)
-                0x000000002202af34                fat_init
+                0x000000002202b2c0       0x24 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(fat.o)
+                0x000000002202b2c0                fat_init
  .text.get_time
-                0x000000002202af58       0x78 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(timefuncs.o)
-                0x000000002202af58                get_time
+                0x000000002202b2e4       0x78 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(timefuncs.o)
+                0x000000002202b2e4                get_time
  .text.set_day_of_week
-                0x000000002202afd0       0x78 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(timefuncs.o)
-                0x000000002202afd0                set_day_of_week
+                0x000000002202b35c       0x78 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(timefuncs.o)
+                0x000000002202b35c                set_day_of_week
  .text.set_day_of_year
-                0x000000002202b048       0x80 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(timefuncs.o)
-                0x000000002202b048                set_day_of_year
+                0x000000002202b3d4       0x80 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(timefuncs.o)
+                0x000000002202b3d4                set_day_of_year
  .text.utf8encode_internal
-                0x000000002202b0c8       0x58 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(unicode.o)
+                0x000000002202b454       0x58 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(unicode.o)
  .text.utf8encode
-                0x000000002202b120       0x24 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(unicode.o)
-                0x000000002202b120                utf8encode
+                0x000000002202b4ac       0x24 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(unicode.o)
+                0x000000002202b4ac                utf8encode
  .text.utf8decode
-                0x000000002202b144       0xc4 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(unicode.o)
-                0x000000002202b144                utf8decode
+                0x000000002202b4d0       0xc4 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(unicode.o)
+                0x000000002202b4d0                utf8decode
  .text.utf16len_utf8
-                0x000000002202b208       0x30 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(unicode.o)
-                0x000000002202b208                utf16len_utf8
- .text.memcmp   0x000000002202b238       0x48 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(memcmp.o)
-                0x000000002202b238                memcmp
- .text.strncmp  0x000000002202b280       0x4c /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(strncmp.o)
-                0x000000002202b280                strncmp
- .text.strrchr  0x000000002202b2cc       0x40 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(strrchr.o)
-                0x000000002202b2cc                strrchr
+                0x000000002202b594       0x30 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(unicode.o)
+                0x000000002202b594                utf16len_utf8
+ .text.memcmp   0x000000002202b5c4       0x48 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(memcmp.o)
+                0x000000002202b5c4                memcmp
+ .text.strncmp  0x000000002202b60c       0x4c /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(strncmp.o)
+                0x000000002202b60c                strncmp
+ .text.strrchr  0x000000002202b658       0x40 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(strrchr.o)
+                0x000000002202b658                strrchr
  .text.scroll_init
-                0x000000002202b30c        0x4 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(scroll_engine.o)
-                0x000000002202b30c                scroll_init
+                0x000000002202b698        0x4 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(scroll_engine.o)
+                0x000000002202b698                scroll_init
  .text.bidi_l2v
-                0x000000002202b310       0x4c /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(bidi.o)
-                0x000000002202b310                bidi_l2v
+                0x000000002202b69c       0x4c /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(bidi.o)
+                0x000000002202b69c                bidi_l2v
  .text.INT_TIMERB
-                0x000000002202b35c       0x48 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(kernel-s5l8702.o)
-                0x000000002202b35c                INT_TIMERB
+                0x000000002202b6e8       0x48 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(kernel-s5l8702.o)
+                0x000000002202b6e8                INT_TIMERB
  .text.tick_start
-                0x000000002202b3a4       0x38 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(kernel-s5l8702.o)
-                0x000000002202b3a4                tick_start
+                0x000000002202b730       0x38 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(kernel-s5l8702.o)
+                0x000000002202b730                tick_start
  .text.dmac_open
-                0x000000002202b3dc       0x78 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(pl080.o)
-                0x000000002202b3dc                dmac_open
+                0x000000002202b768       0x78 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(pl080.o)
+                0x000000002202b768                dmac_open
  .text.dmac_ch_init
-                0x000000002202b454      0x108 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(pl080.o)
-                0x000000002202b454                dmac_ch_init
+                0x000000002202b7e0      0x108 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(pl080.o)
+                0x000000002202b7e0                dmac_ch_init
  .text.dmac_ch_running
-                0x000000002202b55c       0x24 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(pl080.o)
-                0x000000002202b55c                dmac_ch_running
+                0x000000002202b8e8       0x24 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(pl080.o)
+                0x000000002202b8e8                dmac_ch_running
  .text.hwkeyaes
-                0x000000002202b580       0xb0 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(crypto-s5l8702.o)
-                0x000000002202b580                hwkeyaes
- .text.sha1     0x000000002202b630      0x1c0 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(crypto-s5l8702.o)
-                0x000000002202b630                sha1
+                0x000000002202b90c       0xb0 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(crypto-s5l8702.o)
+                0x000000002202b90c                hwkeyaes
+ .text.sha1     0x000000002202b9bc      0x1c0 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(crypto-s5l8702.o)
+                0x000000002202b9bc                sha1
  .text.im3_sign
-                0x000000002202b7f0       0x4c /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(crypto-s5l8702.o)
-                0x000000002202b7f0                im3_sign
+                0x000000002202bb7c       0x4c /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(crypto-s5l8702.o)
+                0x000000002202bb7c                im3_sign
  .text.im3_crypt
-                0x000000002202b83c       0x60 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(crypto-s5l8702.o)
-                0x000000002202b83c                im3_crypt
+                0x000000002202bbc8       0x60 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(crypto-s5l8702.o)
+                0x000000002202bbc8                im3_crypt
  .text.rtc_read_datetime
-                0x000000002202b89c       0x90 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(rtc-nano3g.o)
-                0x000000002202b89c                rtc_read_datetime
+                0x000000002202bc28       0x90 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(rtc-nano3g.o)
+                0x000000002202bc28                rtc_read_datetime
  .text.CliReadB
-                0x000000002202b92c        0x4 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/lib/libunwarminder.a(backtrace-unwarminder.o)
+                0x000000002202bcb8        0x4 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/lib/libunwarminder.a(backtrace-unwarminder.o)
  .text.CliReadH
-                0x000000002202b930        0x4 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/lib/libunwarminder.a(backtrace-unwarminder.o)
+                0x000000002202bcbc        0x4 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/lib/libunwarminder.a(backtrace-unwarminder.o)
  .text.CliReadW
-                0x000000002202b934        0x4 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/lib/libunwarminder.a(backtrace-unwarminder.o)
+                0x000000002202bcc0        0x4 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/lib/libunwarminder.a(backtrace-unwarminder.o)
  .text.CliReport
-                0x000000002202b938       0x48 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/lib/libunwarminder.a(backtrace-unwarminder.o)
+                0x000000002202bcc4       0x48 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/lib/libunwarminder.a(backtrace-unwarminder.o)
  .text.rb_backtrace
-                0x000000002202b980       0x90 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/lib/libunwarminder.a(backtrace-unwarminder.o)
-                0x000000002202b980                rb_backtrace
+                0x000000002202bd0c       0x90 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/lib/libunwarminder.a(backtrace-unwarminder.o)
+                0x000000002202bd0c                rb_backtrace
  .text.UnwindStart
-                0x000000002202ba10       0x48 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/lib/libunwarminder.a(unwarminder.o)
-                0x000000002202ba10                UnwindStart
+                0x000000002202bd9c       0x48 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/lib/libunwarminder.a(unwarminder.o)
+                0x000000002202bd9c                UnwindStart
  .text.UnwStartThumb
-                0x000000002202ba58      0x75c /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/lib/libunwarminder.a(unwarm_thumb.o)
-                0x000000002202ba58                UnwStartThumb
+                0x000000002202bde4      0x75c /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/lib/libunwarminder.a(unwarm_thumb.o)
+                0x000000002202bde4                UnwStartThumb
  .text.safe_read8
-                0x000000002202c1b4       0x34 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/lib/libunwarminder.a(safe_read.o)
-                0x000000002202c1b4                safe_read8
+                0x000000002202c540       0x34 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/lib/libunwarminder.a(safe_read.o)
+                0x000000002202c540                safe_read8
  .text.safe_read16
-                0x000000002202c1e8       0x34 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/lib/libunwarminder.a(safe_read.o)
-                0x000000002202c1e8                safe_read16
+                0x000000002202c574       0x34 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/lib/libunwarminder.a(safe_read.o)
+                0x000000002202c574                safe_read16
  .text.safe_read32
-                0x000000002202c21c       0x34 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/lib/libunwarminder.a(safe_read.o)
-                0x000000002202c21c                safe_read32
+                0x000000002202c5a8       0x34 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/lib/libunwarminder.a(safe_read.o)
+                0x000000002202c5a8                safe_read32
  .text.data_abort_handler
-                0x000000002202c250       0x58 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/lib/libunwarminder.a(safe_read.o)
-                0x000000002202c250                data_abort_handler
- .text          0x000000002202c2a8       0x34 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/lib/libunwarminder.a(get_sp.o)
-                0x000000002202c2a8                __get_sp
+                0x000000002202c5dc       0x58 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/lib/libunwarminder.a(safe_read.o)
+                0x000000002202c5dc                data_abort_handler
+ .text          0x000000002202c634       0x34 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/lib/libunwarminder.a(get_sp.o)
+                0x000000002202c634                __get_sp
  .text.UnwStartArm
-                0x000000002202c2dc      0x6a0 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/lib/libunwarminder.a(unwarm_arm.o)
-                0x000000002202c2dc                UnwStartArm
+                0x000000002202c668      0x6a0 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/lib/libunwarminder.a(unwarm_arm.o)
+                0x000000002202c668                UnwStartArm
  .text.UnwInvalidateRegisterFile
-                0x000000002202c97c       0x1c /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/lib/libunwarminder.a(unwarm.o)
-                0x000000002202c97c                UnwInvalidateRegisterFile
+                0x000000002202cd08       0x1c /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/lib/libunwarminder.a(unwarm.o)
+                0x000000002202cd08                UnwInvalidateRegisterFile
  .text.UnwInitState
-                0x000000002202c998       0x48 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/lib/libunwarminder.a(unwarm.o)
-                0x000000002202c998                UnwInitState
+                0x000000002202cd24       0x48 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/lib/libunwarminder.a(unwarm.o)
+                0x000000002202cd24                UnwInitState
  .text.UnwReportRetAddr
-                0x000000002202c9e0       0x10 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/lib/libunwarminder.a(unwarm.o)
-                0x000000002202c9e0                UnwReportRetAddr
+                0x000000002202cd6c       0x10 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/lib/libunwarminder.a(unwarm.o)
+                0x000000002202cd6c                UnwReportRetAddr
  .text.UnwMemWriteRegister
-                0x000000002202c9f0       0x18 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/lib/libunwarminder.a(unwarm.o)
-                0x000000002202c9f0                UnwMemWriteRegister
+                0x000000002202cd7c       0x18 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/lib/libunwarminder.a(unwarm.o)
+                0x000000002202cd7c                UnwMemWriteRegister
  .text.UnwMemReadRegister
-                0x000000002202ca08       0x64 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/lib/libunwarminder.a(unwarm.o)
-                0x000000002202ca08                UnwMemReadRegister
+                0x000000002202cd94       0x64 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/lib/libunwarminder.a(unwarm.o)
+                0x000000002202cd94                UnwMemReadRegister
  .text.memHashIndex
-                0x000000002202ca6c       0x7c /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/lib/libunwarminder.a(unwarmmem.o)
+                0x000000002202cdf8       0x7c /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/lib/libunwarminder.a(unwarmmem.o)
  .text.UnwMemHashRead
-                0x000000002202cae8       0x74 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/lib/libunwarminder.a(unwarmmem.o)
-                0x000000002202cae8                UnwMemHashRead
+                0x000000002202ce74       0x74 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/lib/libunwarminder.a(unwarmmem.o)
+                0x000000002202ce74                UnwMemHashRead
  .text.UnwMemHashWrite
-                0x000000002202cb5c       0x78 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/lib/libunwarminder.a(unwarmmem.o)
-                0x000000002202cb5c                UnwMemHashWrite
+                0x000000002202cee8       0x78 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/lib/libunwarminder.a(unwarmmem.o)
+                0x000000002202cee8                UnwMemHashWrite
  .text.UnwMemHashGC
-                0x000000002202cbd4       0x54 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/lib/libunwarminder.a(unwarmmem.o)
-                0x000000002202cbd4                UnwMemHashGC
- .text          0x000000002202cc28      0x218 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/lib/libarm_support.a(support-arm.o)
-                0x000000002202cc38                __aeabi_uidiv
-                0x000000002202cc38                __aeabi_uidivmod
-                0x000000002202ccfc                __aeabi_idiv
-                0x000000002202ccfc                __aeabi_idivmod
+                0x000000002202cf60       0x54 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/lib/libunwarminder.a(unwarmmem.o)
+                0x000000002202cf60                UnwMemHashGC
+ .text          0x000000002202cfb4      0x218 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/lib/libarm_support.a(support-arm.o)
+                0x000000002202cfc4                __aeabi_uidiv
+                0x000000002202cfc4                __aeabi_uidivmod
+                0x000000002202d088                __aeabi_idiv
+                0x000000002202d088                __aeabi_idivmod
  *(.glue_7*)
- .glue_7        0x000000002202ce40        0x0 linker stubs
- .glue_7t       0x000000002202ce40        0x0 linker stubs
+ .glue_7        0x000000002202d1cc        0x0 linker stubs
+ .glue_7t       0x000000002202d1cc        0x0 linker stubs
 
-.vfp11_veneer   0x000000002202ce40        0x0
- .vfp11_veneer  0x000000002202ce40        0x0 linker stubs
+.vfp11_veneer   0x000000002202d1cc        0x0
+ .vfp11_veneer  0x000000002202d1cc        0x0 linker stubs
 
-.v4_bx          0x000000002202ce40        0x0
- .v4_bx         0x000000002202ce40        0x0 linker stubs
+.v4_bx          0x000000002202d1cc        0x0
+ .v4_bx         0x000000002202d1cc        0x0 linker stubs
 
-.iplt           0x000000002202ce40        0x0
- .iplt          0x000000002202ce40        0x0 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/target/arm/s5l8702/crt0.o
+.iplt           0x000000002202d1cc        0x0
+ .iplt          0x000000002202d1cc        0x0 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/target/arm/s5l8702/crt0.o
 
-.rodata         0x000000002202ce40     0x11b4
+.rodata         0x000000002202d1cc     0x11b4
  *(.rodata*)
  .rodata.hexdigit
-                0x000000002202ce40       0x11 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/bootloader/format.o
+                0x000000002202d1cc       0x11 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/bootloader/format.o
  .rodata.fatal_error.str1.1
-                0x000000002202ce51       0x95 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/bootloader/ipod-s5l87xx.o
+                0x000000002202d1dd       0x95 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/bootloader/ipod-s5l87xx.o
  .rodata.main.str1.1
-                0x000000002202cee6      0x104 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/bootloader/ipod-s5l87xx.o
+                0x000000002202d272      0x104 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/bootloader/ipod-s5l87xx.o
  .rodata.load_firmware.str1.1
-                0x000000002202cfea        0xd /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(rb-loader.o)
+                0x000000002202d376        0xd /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(rb-loader.o)
                                          0x11 (size before relaxing)
  .rodata.rbversion
-                0x000000002202cff7       0x13 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(version.o)
-                0x000000002202cff7                rbversion
+                0x000000002202d383       0x13 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(version.o)
+                0x000000002202d383                rbversion
  .rodata.loader_strerror.str1.1
-                0x000000002202d00a        0xe /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(loader_strerror.o)
+                0x000000002202d396        0xe /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(loader_strerror.o)
  .rodata.str1.1
-                0x000000002202d018       0x85 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(loader_strerror.o)
- *fill*         0x000000002202d09d        0x3 
+                0x000000002202d3a4       0x85 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(loader_strerror.o)
+ *fill*         0x000000002202d429        0x3 
  .rodata.CSWTCH.1
-                0x000000002202d0a0       0x20 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(loader_strerror.o)
+                0x000000002202d42c       0x20 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(loader_strerror.o)
  .rodata.file_cache_alloc.str1.1
-                0x000000002202d0c0       0x17 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(file_internal.o)
+                0x000000002202d44c       0x17 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(file_internal.o)
  .rodata.volume_onmount_internal.str1.1
-                0x000000002202d0d7        0x2 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(disk.o)
+                0x000000002202d463        0x2 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(disk.o)
  .rodata.path_append_ex.str1.1
-                0x000000002202d0d9        0x2 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(pathfuncs.o)
+                0x000000002202d465        0x2 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(pathfuncs.o)
                                           0x1 (size before relaxing)
  .rodata.root_mount_path.str1.1
-                0x000000002202d0d9        0x2 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(rb_namespace.o)
+                0x000000002202d465        0x2 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(rb_namespace.o)
  .rodata._ctype_
-                0x000000002202d0d9      0x101 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(ctype.o)
-                0x000000002202d0d9                _ctype_
+                0x000000002202d465      0x101 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(ctype.o)
+                0x000000002202d465                _ctype_
  .rodata.lcd_puts.str1.1
-                0x000000002202d1da        0x2 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(lcd-16bit.o)
- *fill*         0x000000002202d1da        0x2 
+                0x000000002202d566        0x2 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(lcd-16bit.o)
+ *fill*         0x000000002202d566        0x2 
  .rodata.lcd_fastpixelfuncs_backdrop
-                0x000000002202d1dc       0x20 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(lcd-16bit.o)
-                0x000000002202d1dc                lcd_fastpixelfuncs_backdrop
+                0x000000002202d568       0x20 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(lcd-16bit.o)
+                0x000000002202d568                lcd_fastpixelfuncs_backdrop
  .rodata.lcd_fastpixelfuncs_bgcolor
-                0x000000002202d1fc       0x20 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(lcd-16bit.o)
-                0x000000002202d1fc                lcd_fastpixelfuncs_bgcolor
+                0x000000002202d588       0x20 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(lcd-16bit.o)
+                0x000000002202d588                lcd_fastpixelfuncs_bgcolor
  .rodata.storage_thread_name
-                0x000000002202d21c        0x6 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(storage.o)
+                0x000000002202d5a8        0x6 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(storage.o)
  .rodata.UIE.str1.1
-                0x000000002202d222       0x38 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(system-arm-classic.o)
+                0x000000002202d5ae       0x38 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(system-arm-classic.o)
  .rodata.str1.1
-                0x000000002202d25a       0x43 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(system-arm-classic.o)
- *fill*         0x000000002202d29d        0x3 
+                0x000000002202d5e6       0x43 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(system-arm-classic.o)
+ *fill*         0x000000002202d629        0x3 
  .rodata.uiename
-                0x000000002202d2a0       0x14 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(system-arm-classic.o)
+                0x000000002202d62c       0x14 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(system-arm-classic.o)
  .rodata.UIRQ.str1.1
-                0x000000002202d2b4       0x12 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(system-s5l8702.o)
+                0x000000002202d640       0x12 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(system-s5l8702.o)
  .rodata.system_init.str1.1
-                0x000000002202d2c6        0xc /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(system-s5l8702.o)
+                0x000000002202d652        0xc /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(system-s5l8702.o)
  .rodata.system_exception_wait.str1.1
-                0x000000002202d2d2       0x16 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(system-s5l8702.o)
+                0x000000002202d65e       0x16 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(system-s5l8702.o)
  .rodata.system_preinit.str1.1
-                0x000000002202d2e8       0x6b /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(system-s5l8702.o)
+                0x000000002202d674       0x6b /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(system-s5l8702.o)
  .rodata.clk_modes
-                0x000000002202d353        0x4 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(system-s5l8702.o)
- *fill*         0x000000002202d357        0x1 
+                0x000000002202d6df        0x4 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(system-s5l8702.o)
+ *fill*         0x000000002202d6e3        0x1 
  .rodata.irqvector
-                0x000000002202d358      0x100 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(system-s5l8702.o)
+                0x000000002202d6e4      0x100 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(system-s5l8702.o)
  .rodata.eint_register.str1.1
-                0x000000002202d458       0x19 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(gpio-s5l8702.o)
+                0x000000002202d7e4       0x19 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(gpio-s5l8702.o)
  .rodata.__func__.3923
-                0x000000002202d471        0xe /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(gpio-s5l8702.o)
- *fill*         0x000000002202d47f        0x1 
+                0x000000002202d7fd        0xe /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(gpio-s5l8702.o)
+ *fill*         0x000000002202d80b        0x1 
  .rodata.gpio_data
-                0x000000002202d480       0x40 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(gpio-s5l8702.o)
+                0x000000002202d80c       0x40 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(gpio-s5l8702.o)
  .rodata.im3_read.str1.1
-                0x000000002202d4c0        0x5 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(norboot-s5l8702.o)
+                0x000000002202d84c        0x5 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(norboot-s5l8702.o)
  .rodata.lcd_init_device.str1.1
-                0x000000002202d4c5       0x3d /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(lcd-s5l8702.o)
+                0x000000002202d851       0x3d /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(lcd-s5l8702.o)
  .rodata.nano3g_boottrace_log.str1.1
-                0x000000002202d502        0x7 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(bringup-nano3g.o)
+                0x000000002202d88e        0x7 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(bringup-nano3g.o)
  .rodata.nano3g_boottrace_get.str1.1
-                0x000000002202d509        0x1 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(bringup-nano3g.o)
+                0x000000002202d895        0x1 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(bringup-nano3g.o)
  .rodata.nano3g_failsafe_halt.str1.1
-                0x000000002202d509       0x32 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(bringup-nano3g.o)
+                0x000000002202d895       0x32 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(bringup-nano3g.o)
  .rodata.lcd_target_get_info.str1.1
-                0x000000002202d53b       0x41 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(lcd-nano3g.o)
+                0x000000002202d8c7       0x41 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(lcd-nano3g.o)
  .rodata.lcd_awake_seq_01234
-                0x000000002202d57c        0xb /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(lcd-nano3g.o)
+                0x000000002202d908        0xb /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(lcd-nano3g.o)
  .rodata.lcd_init_seq_0
-                0x000000002202d587       0xae /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(lcd-nano3g.o)
+                0x000000002202d913       0xae /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(lcd-nano3g.o)
  .rodata.lcd_init_seq_1
-                0x000000002202d635       0xa8 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(lcd-nano3g.o)
+                0x000000002202d9c1       0xa8 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(lcd-nano3g.o)
  .rodata.lcd_init_seq_2
-                0x000000002202d6dd       0xa7 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(lcd-nano3g.o)
+                0x000000002202da69       0xa7 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(lcd-nano3g.o)
  .rodata.lcd_init_seq_3
-                0x000000002202d784       0xae /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(lcd-nano3g.o)
+                0x000000002202db10       0xae /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(lcd-nano3g.o)
  .rodata.lcd_init_seq_4
-                0x000000002202d832       0xb0 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(lcd-nano3g.o)
+                0x000000002202dbbe       0xb0 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(lcd-nano3g.o)
  .rodata.lcd_sleep_seq_03
-                0x000000002202d8e2        0x9 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(lcd-nano3g.o)
+                0x000000002202dc6e        0x9 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(lcd-nano3g.o)
  .rodata.lcd_sleep_seq_1
-                0x000000002202d8eb        0x9 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(lcd-nano3g.o)
+                0x000000002202dc77        0x9 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(lcd-nano3g.o)
  .rodata.lcd_sleep_seq_2
-                0x000000002202d8f4        0x7 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(lcd-nano3g.o)
+                0x000000002202dc80        0x7 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(lcd-nano3g.o)
  .rodata.lcd_sleep_seq_4
-                0x000000002202d8fb        0x4 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(lcd-nano3g.o)
- *fill*         0x000000002202d8ff        0x1 
+                0x000000002202dc87        0x4 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(lcd-nano3g.o)
+ *fill*         0x000000002202dc8b        0x1 
  .rodata.seq_awake_by_type
-                0x000000002202d900       0x14 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(lcd-nano3g.o)
+                0x000000002202dc8c       0x14 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(lcd-nano3g.o)
  .rodata.seq_init_by_type
-                0x000000002202d914       0x14 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(lcd-nano3g.o)
+                0x000000002202dca0       0x14 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(lcd-nano3g.o)
  .rodata.seq_sleep_by_type
-                0x000000002202d928       0x14 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(lcd-nano3g.o)
+                0x000000002202dcb4       0x14 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(lcd-nano3g.o)
  .rodata.pmu_thread.str1.1
-                0x000000002202d93c        0x3 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(pmu-nano3g.o)
+                0x000000002202dcc8        0x3 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(pmu-nano3g.o)
  .rodata.pmu_enter_standby.str1.1
-                0x000000002202d93f       0x14 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(pmu-nano3g.o)
+                0x000000002202dccb       0x14 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(pmu-nano3g.o)
  .rodata.pmu_init.str1.1
-                0x000000002202d953        0xd /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(pmu-nano3g.o)
+                0x000000002202dcdf        0xd /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(pmu-nano3g.o)
  .rodata.pmu_preinit.str1.1
-                0x000000002202d960        0xf /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(pmu-nano3g.o)
+                0x000000002202dcec        0xf /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(pmu-nano3g.o)
  .rodata.power_init.str1.1
-                0x000000002202d96f        0xb /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(power-nano3g.o)
+                0x000000002202dcfb        0xb /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(power-nano3g.o)
  .rodata.power_off.str1.1
-                0x000000002202d97a       0x24 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(power-nano3g.o)
+                0x000000002202dd06       0x24 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(power-nano3g.o)
  .rodata.nand_get_info.str1.1
-                0x000000002202d99e        0x1 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(nand-nano3g.o)
+                0x000000002202dd2a        0x1 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(nand-nano3g.o)
  .rodata.mrsw_read_acquire.str1.1
-                0x000000002202d99e       0x2c /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(mrsw_lock.o)
+                0x000000002202dd2a       0x2c /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(mrsw_lock.o)
  .rodata.__func__.4557
-                0x000000002202d9ca       0x12 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(mrsw_lock.o)
+                0x000000002202dd56       0x12 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(mrsw_lock.o)
  .rodata.__func__.4578
-                0x000000002202d9dc       0x13 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(mrsw_lock.o)
+                0x000000002202dd68       0x13 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(mrsw_lock.o)
  .rodata.mutex_lock.str1.1
-                0x000000002202d9ef       0x2c /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(mutex.o)
+                0x000000002202dd7b       0x2c /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(mutex.o)
  .rodata.__func__.4441
-                0x000000002202d9ef        0xb /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(mutex.o)
+                0x000000002202dd7b        0xb /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(mutex.o)
  .rodata.queue_init.str1.1
-                0x000000002202d9fa       0x1a /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(queue.o)
+                0x000000002202dd86       0x1a /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(queue.o)
  .rodata.queue_wait.str1.1
-                0x000000002202da14       0x2c /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(queue.o)
+                0x000000002202dda0       0x2c /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(queue.o)
  .rodata.__func__.4606
-                0x000000002202da14       0x11 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(queue.o)
+                0x000000002202dda0       0x11 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(queue.o)
  .rodata.semaphore_wait.str1.1
-                0x000000002202da25       0x2c /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(semaphore.o)
+                0x000000002202ddb1       0x2c /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(semaphore.o)
  .rodata.__func__.4447
-                0x000000002202da25        0xf /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(semaphore.o)
+                0x000000002202ddb1        0xf /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(semaphore.o)
  .rodata.thread_panicf.constprop.0.str1.1
-                0x000000002202da34        0xc /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(thread.o)
+                0x000000002202ddc0        0xc /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(thread.o)
  .rodata.format_thread_name.str1.1
-                0x000000002202da40        0x8 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(thread-common.o)
+                0x000000002202ddcc        0x8 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(thread-common.o)
                                           0xc (size before relaxing)
  .rodata.__main_thread_name_str
-                0x000000002202da48        0x5 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(thread-common.o)
-                0x000000002202da48                __main_thread_name_str
+                0x000000002202ddd4        0x5 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(thread-common.o)
+                0x000000002202ddd4                __main_thread_name_str
  .rodata.tick_add_task.str1.1
-                0x000000002202da4d       0x25 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(tick.o)
+                0x000000002202ddd9       0x25 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(tick.o)
  .rodata._font_bits
-                0x000000002202da72      0x240 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(sysfont.o)
+                0x000000002202ddfe      0x240 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(sysfont.o)
  .rodata._sysfont_offset
-                0x000000002202dcb2       0xfe /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(sysfont.o)
+                0x000000002202e03e       0xfe /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(sysfont.o)
  .rodata.sysfont
-                0x000000002202ddb0       0x7c /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(sysfont.o)
-                0x000000002202ddb0                sysfont
+                0x000000002202e13c       0x7c /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(sysfont.o)
+                0x000000002202e13c                sysfont
  .rodata.panicf_f.str1.1
-                0x000000002202de2c       0x1d /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(panic.o)
+                0x000000002202e1b8       0x1d /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(panic.o)
  .rodata.randomize_dos_name.str1.1
-                0x000000002202de49        0x4 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(fat.o)
+                0x000000002202e1d5        0x4 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(fat.o)
  .rodata.transfer.constprop.0.str1.1
-                0x000000002202de4d       0x2f /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(fat.o)
+                0x000000002202e1d9       0x2f /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(fat.o)
  .rodata.update_fat_entry32.constprop.0.str1.1
-                0x000000002202de7c       0x41 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(fat.o)
+                0x000000002202e208       0x41 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(fat.o)
  .rodata.dc_writeback_callback.str1.1
-                0x000000002202debd       0x2f /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(fat.o)
+                0x000000002202e249       0x2f /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(fat.o)
  .rodata.add_dir_entry.constprop.0.str1.1
-                0x000000002202deec       0x3b /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(fat.o)
+                0x000000002202e278       0x3b /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(fat.o)
  .rodata.fat_create_file.str1.1
-                0x000000002202df27       0x3b /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(fat.o)
+                0x000000002202e2b3       0x3b /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(fat.o)
                                           0x5 (size before relaxing)
  .rodata.fat_closewrite.str1.1
-                0x000000002202df27       0x25 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(fat.o)
+                0x000000002202e2b3       0x25 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(fat.o)
  .rodata.__func__.5201
-                0x000000002202df4c       0x16 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(fat.o)
+                0x000000002202e2d8       0x16 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(fat.o)
  .rodata.invalid_chars_tbl.5280
-                0x000000002202df62       0x13 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(fat.o)
+                0x000000002202e2ee       0x13 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(fat.o)
  .rodata.remove_chars_tbl.5243
-                0x000000002202df75        0x3 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(fat.o)
+                0x000000002202e301        0x3 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(fat.o)
  .rodata.replace_chars_tbl.5244
-                0x000000002202df78        0xb /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(fat.o)
+                0x000000002202e304        0xb /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(fat.o)
  .rodata.mo.4366
-                0x000000002202df83        0xc /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(timefuncs.o)
+                0x000000002202e30f        0xc /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(timefuncs.o)
  .rodata.utf8comp
-                0x000000002202df8f        0x6 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(unicode.o)
+                0x000000002202e31b        0x6 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(unicode.o)
  .rodata.str1.1
-                0x000000002202df95       0x28 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(pl080.o)
+                0x000000002202e321       0x28 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(pl080.o)
  .rodata.CliReport.str1.1
-                0x000000002202dfbd        0xd /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/lib/libunwarminder.a(backtrace-unwarminder.o)
+                0x000000002202e349        0xd /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/lib/libunwarminder.a(backtrace-unwarminder.o)
  .rodata.rb_backtrace.str1.1
-                0x000000002202dfca       0x17 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/lib/libunwarminder.a(backtrace-unwarminder.o)
- *fill*         0x000000002202dfe1        0x3 
+                0x000000002202e356       0x17 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/lib/libunwarminder.a(backtrace-unwarminder.o)
+ *fill*         0x000000002202e36d        0x3 
  .rodata.cliCallbacks
-                0x000000002202dfe4       0x10 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/lib/libunwarminder.a(backtrace-unwarminder.o)
-                0x000000002202dfe4                cliCallbacks
-                0x000000002202dff4                . = ALIGN (0x4)
+                0x000000002202e370       0x10 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/lib/libunwarminder.a(backtrace-unwarminder.o)
+                0x000000002202e370                cliCallbacks
+                0x000000002202e380                . = ALIGN (0x4)
 
-.rel.dyn        0x000000002202dff4        0x0
- .rel.iplt      0x000000002202dff4        0x0 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/target/arm/s5l8702/crt0.o
+.rel.dyn        0x000000002202e380        0x0
+ .rel.iplt      0x000000002202e380        0x0 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/target/arm/s5l8702/crt0.o
 
-.data           0x000000002202e000     0x1a80
-                0x000000002202e000                _datastart = .
+.data           0x000000002202e380     0x1aa0
+                0x000000002202e380                _datastart = .
  *(.irodata*)
  *(.icode*)
- .icode         0x000000002202e000      0x2a8 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(memcpy.o)
-                0x000000002202e000                mempcpy
-                0x000000002202e00c                memcpy
- .icode         0x000000002202e2a8       0x20 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(strlen.o)
-                0x000000002202e2a8                strlen
- .icode         0x000000002202e2c8      0xa44 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(lcd-16bit.o)
-                0x000000002202e7a0                lcd_alpha_bitmap_part
-                0x000000002202e7ec                lcd_mono_bitmap_part
-                0x000000002202ea98                lcd_bitmap_part
-                0x000000002202eb64                lcd_bitmap_transparent_part
-                0x000000002202ec50                lcd_bmp_part
-                0x000000002202ecdc                lcd_bmp
+ .icode         0x000000002202e380      0x2a8 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(memcpy.o)
+                0x000000002202e380                mempcpy
+                0x000000002202e38c                memcpy
+ .icode         0x000000002202e628       0x20 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(strlen.o)
+                0x000000002202e628                strlen
+ .icode         0x000000002202e648      0xa44 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(lcd-16bit.o)
+                0x000000002202eb20                lcd_alpha_bitmap_part
+                0x000000002202eb6c                lcd_mono_bitmap_part
+                0x000000002202ee18                lcd_bitmap_part
+                0x000000002202eee4                lcd_bitmap_transparent_part
+                0x000000002202efd0                lcd_bmp_part
+                0x000000002202f05c                lcd_bmp
  .icode.commit_discard_dcache
-                0x000000002202ed0c       0x14 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(mmu-arm.o)
-                0x000000002202ed0c                commit_discard_dcache
+                0x000000002202f08c       0x14 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(mmu-arm.o)
+                0x000000002202f08c                commit_discard_dcache
  .icode.commit_discard_idcache
-                0x000000002202ed20       0x10 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(mmu-arm.o)
-                0x000000002202ed20                commit_discard_idcache
- .icode         0x000000002202ed30       0xf8 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(system-s5l8702.o)
-                0x000000002202ed30                INT_TIMER32
-                0x000000002202edac                INT_TIMER
- .icode         0x000000002202ee28       0xc0 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(gpio-s5l8702.o)
-                0x000000002202eec0                INT_EXT0
-                0x000000002202eec8                INT_EXT1
-                0x000000002202eed0                INT_EXT2
-                0x000000002202eed8                INT_EXT3
-                0x000000002202eee0                INT_EXT6
- .icode         0x000000002202eee8       0x18 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(dma-s5l8702.o)
-                0x000000002202eee8                INT_DMAC0
-                0x000000002202eef4                INT_DMAC1
- .icode         0x000000002202ef00      0x380 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(lcd-s5l8702.o)
-                0x000000002202f0a8                lcd_update_rect
-                0x000000002202f170                lcd_update
-                0x000000002202f184                lcd_blit_yuv
- .icode         0x000000002202f280      0x220 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(lcd-asm-s5l8702.o)
-                0x000000002202f280                lcd_write_yuv420_lines
- .icode         0x000000002202f4a0       0x7c /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(memset16.o)
-                0x000000002202f4a0                memset16
- .icode         0x000000002202f51c       0xac /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(memset.o)
-                0x000000002202f53c                memset
- .icode         0x000000002202f5c8      0x390 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(pl080.o)
-                0x000000002202f690                dmac_callback
-                0x000000002202f754                dmac_ch_queue_2d
+                0x000000002202f0a0       0x10 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(mmu-arm.o)
+                0x000000002202f0a0                commit_discard_idcache
+ .icode         0x000000002202f0b0       0xf8 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(system-s5l8702.o)
+                0x000000002202f0b0                INT_TIMER32
+                0x000000002202f12c                INT_TIMER
+ .icode         0x000000002202f1a8       0xc0 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(gpio-s5l8702.o)
+                0x000000002202f240                INT_EXT0
+                0x000000002202f248                INT_EXT1
+                0x000000002202f250                INT_EXT2
+                0x000000002202f258                INT_EXT3
+                0x000000002202f260                INT_EXT6
+ .icode         0x000000002202f268       0x18 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(dma-s5l8702.o)
+                0x000000002202f268                INT_DMAC0
+                0x000000002202f274                INT_DMAC1
+ .icode         0x000000002202f280      0x3a0 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(lcd-s5l8702.o)
+                0x000000002202f448                lcd_update_rect
+                0x000000002202f510                lcd_update
+                0x000000002202f524                lcd_blit_yuv
+ .icode         0x000000002202f620      0x220 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(lcd-asm-s5l8702.o)
+                0x000000002202f620                lcd_write_yuv420_lines
+ .icode         0x000000002202f840       0x7c /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(memset16.o)
+                0x000000002202f840                memset16
+ .icode         0x000000002202f8bc       0xac /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(memset.o)
+                0x000000002202f8dc                memset
+ .icode         0x000000002202f968      0x390 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(pl080.o)
+                0x000000002202fa30                dmac_callback
+                0x000000002202faf4                dmac_ch_queue_2d
  *(.idata*)
- .idata         0x000000002202f958        0x8 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(lcd-16bit.o)
-                0x000000002202f958                lcd_current_viewport
- .idata         0x000000002202f960        0x4 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(gpio-s5l8702.o)
- .idata         0x000000002202f964        0x8 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(lcd-s5l8702.o)
+ .idata         0x000000002202fcf8        0x8 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(lcd-16bit.o)
+                0x000000002202fcf8                lcd_current_viewport
+ .idata         0x000000002202fd00        0x4 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(gpio-s5l8702.o)
+ .idata         0x000000002202fd04        0x8 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(lcd-s5l8702.o)
  *(.data*)
  .data.default_vp
-                0x000000002202f96c       0x28 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(lcd-16bit.o)
+                0x000000002202fd0c       0x28 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(lcd-16bit.o)
  .data.lcd_fastpixelfuncs
-                0x000000002202f994        0x4 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(lcd-16bit.o)
-                0x000000002202f994                lcd_fastpixelfuncs
+                0x000000002202fd34        0x4 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(lcd-16bit.o)
+                0x000000002202fd34                lcd_fastpixelfuncs
  .data.lcd_framebuffer_default
-                0x000000002202f998       0x10 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(lcd-16bit.o)
-                0x000000002202f998                lcd_framebuffer_default
+                0x000000002202fd38       0x10 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(lcd-16bit.o)
+                0x000000002202fd38                lcd_framebuffer_default
  .data.enable_sw_poweroff
-                0x000000002202f9a8        0x1 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(button.o)
- *fill*         0x000000002202f9a9        0x3 
+                0x000000002202fd48        0x1 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(button.o)
+ *fill*         0x000000002202fd49        0x3 
  .data.repeat_speed.4900
-                0x000000002202f9ac        0x4 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(button.o)
+                0x000000002202fd4c        0x4 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(button.o)
  .data.old_wheel_value
-                0x000000002202f9b0        0x4 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(button-clickwheel.o)
-                0x000000002202f9b0                old_wheel_value
+                0x000000002202fd50        0x4 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(button-clickwheel.o)
+                0x000000002202fd50                old_wheel_value
  .data.send_events
-                0x000000002202f9b4        0x1 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(button-clickwheel.o)
- *fill*         0x000000002202f9b5        0x3 
+                0x000000002202fd54        0x1 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(button-clickwheel.o)
+ *fill*         0x000000002202fd55        0x3 
  .data.wheel_position
-                0x000000002202f9b8        0x4 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(button-clickwheel.o)
+                0x000000002202fd58        0x4 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(button-clickwheel.o)
  .data.s5l8702_dmac0
-                0x000000002202f9bc       0x2c /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(dma-s5l8702.o)
-                0x000000002202f9bc                s5l8702_dmac0
+                0x000000002202fd5c       0x2c /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(dma-s5l8702.o)
+                0x000000002202fd5c                s5l8702_dmac0
  .data.s5l8702_dmac1
-                0x000000002202f9e8       0x2c /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(dma-s5l8702.o)
-                0x000000002202f9e8                s5l8702_dmac1
+                0x000000002202fd88       0x2c /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(dma-s5l8702.o)
+                0x000000002202fd88                s5l8702_dmac1
  .data.cur_level
-                0x000000002202fa14        0x4 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(clocking-s5l8702.o)
-                0x000000002202fa14                cur_level
- .data.clkdiv   0x000000002202fa18        0xc /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(spi-s5l8702.o)
+                0x000000002202fdb4        0x4 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(clocking-s5l8702.o)
+                0x000000002202fdb4                cur_level
+ .data.clkdiv   0x000000002202fdb8        0xc /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(spi-s5l8702.o)
  .data.lcd_dma_ch
-                0x000000002202fa24       0x3c /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(lcd-s5l8702.o)
+                0x000000002202fdc4       0x3c /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(lcd-s5l8702.o)
  .data.lcd_dma_ch_cfg
-                0x000000002202fa60        0xe /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(lcd-s5l8702.o)
- *fill*         0x000000002202fa6e        0x2 
+                0x000000002202fe00        0xe /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(lcd-s5l8702.o)
+ *fill*         0x000000002202fe0e        0x2 
  .data.pmu_eint
-                0x000000002202fa70        0x8 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(pmu-nano3g.o)
+                0x000000002202fe10        0x8 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(pmu-nano3g.o)
  .data.slept_at.4325
-                0x000000002202fa78        0x4 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(nand-nano3g.o)
- .data          0x000000002202fa7c        0x4 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/lib/libunwarminder.a(safe_read.o)
+                0x000000002202fe18        0x4 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(nand-nano3g.o)
+ .data          0x000000002202fe1c        0x4 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/lib/libunwarminder.a(safe_read.o)
  *(.ncdata*)
-                0x000000002202fa80                . = ALIGN (0x20)
-                0x000000002202fa80                _dataend = .
+                0x000000002202fe20                . = ALIGN (0x20)
+                0x000000002202fe20                _dataend = .
 
-.igot.plt       0x000000002202fa80        0x0
- .igot.plt      0x000000002202fa80        0x0 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/target/arm/s5l8702/crt0.o
+.igot.plt       0x000000002202fe20        0x0
+ .igot.plt      0x000000002202fe20        0x0 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/target/arm/s5l8702/crt0.o
 
-.stack          0x000000002202fa80     0x2800
+.stack          0x000000002202fe20     0x2800
  *(.stack)
-                0x000000002202fa80                _stackbegin = .
-                0x000000002202fa80                stackbegin = .
-                0x0000000022031a80                . = (. + 0x2000)
- *fill*         0x000000002202fa80     0x2000 
-                0x0000000022031a80                _stackend = .
-                0x0000000022031a80                stackend = .
-                0x0000000022031a80                _irqstackbegin = .
-                0x0000000022031e80                . = (. + 0x400)
- *fill*         0x0000000022031a80      0x400 
-                0x0000000022031e80                _irqstackend = .
-                0x0000000022031e80                _fiqstackbegin = .
-                0x0000000022032280                . = (. + 0x400)
- *fill*         0x0000000022031e80      0x400 
-                0x0000000022032280                _fiqstackend = .
+                0x000000002202fe20                _stackbegin = .
+                0x000000002202fe20                stackbegin = .
+                0x0000000022031e20                . = (. + 0x2000)
+ *fill*         0x000000002202fe20     0x2000 
+                0x0000000022031e20                _stackend = .
+                0x0000000022031e20                stackend = .
+                0x0000000022031e20                _irqstackbegin = .
+                0x0000000022032220                . = (. + 0x400)
+ *fill*         0x0000000022031e20      0x400 
+                0x0000000022032220                _irqstackend = .
+                0x0000000022032220                _fiqstackbegin = .
+                0x0000000022032620                . = (. + 0x400)
+ *fill*         0x0000000022032220      0x400 
+                0x0000000022032620                _fiqstackend = .
 
 .bss            0x0000000008800000    0x6ffa0
                 0x0000000008800000                _edata = .
@@ -2854,60 +2863,63 @@ LOAD /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a
                 0x000000000884d728        0x4 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(lcd-s5l8702.o)
  .bss.lcd_type  0x000000000884d72c        0x4 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(lcd-s5l8702.o)
                 0x000000000884d72c                lcd_type
+ .bss.nano3g_first_frame_logged
+                0x000000000884d730        0x1 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(lcd-s5l8702.o)
  .bss.boottrace
-                0x000000000884d730      0x600 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(bringup-nano3g.o)
+                0x000000000884d731      0x600 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(bringup-nano3g.o)
+ *fill*         0x000000000884dd31        0x3 
  .bss.boottrace_head
-                0x000000000884dd30        0x4 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(bringup-nano3g.o)
+                0x000000000884dd34        0x4 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(bringup-nano3g.o)
  .bss.boottrace_lcd_enabled
-                0x000000000884dd34        0x1 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(bringup-nano3g.o)
- *fill*         0x000000000884dd35        0x3 
+                0x000000000884dd38        0x1 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(bringup-nano3g.o)
+ *fill*         0x000000000884dd39        0x3 
  .bss.boottrace_size
-                0x000000000884dd38        0x4 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(bringup-nano3g.o)
- .bss.lcd_id    0x000000000884dd3c        0x4 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(lcd-nano3g.o)
-                0x000000000884dd3c                lcd_id
- .bss.lcd_info  0x000000000884dd40       0x10 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(lcd-nano3g.o)
- .bss.ints_msk  0x000000000884dd50        0x2 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(pmu-nano3g.o)
- *fill*         0x000000000884dd52        0x2 
+                0x000000000884dd3c        0x4 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(bringup-nano3g.o)
+ .bss.lcd_id    0x000000000884dd40        0x4 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(lcd-nano3g.o)
+                0x000000000884dd40                lcd_id
+ .bss.lcd_info  0x000000000884dd44       0x10 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(lcd-nano3g.o)
+ .bss.ints_msk  0x000000000884dd54        0x2 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(pmu-nano3g.o)
+ *fill*         0x000000000884dd56        0x2 
  .bss.pmu_adc_mutex
-                0x000000000884dd54       0x10 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(pmu-nano3g.o)
+                0x000000000884dd58       0x10 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(pmu-nano3g.o)
  .bss.pmu_input_firewire
-                0x000000000884dd64        0x4 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(pmu-nano3g.o)
- .bss.pmu_input_holdswitch
                 0x000000000884dd68        0x4 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(pmu-nano3g.o)
+ .bss.pmu_input_holdswitch
+                0x000000000884dd6c        0x4 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(pmu-nano3g.o)
  .bss.pmu_queue
-                0x000000000884dd6c       0x90 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(pmu-nano3g.o)
+                0x000000000884dd70       0x90 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(pmu-nano3g.o)
  .bss.pmu_thread_stack
-                0x000000000884ddfc      0x200 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(pmu-nano3g.o)
+                0x000000000884de00      0x200 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(pmu-nano3g.o)
  .bss.usb_status
-                0x000000000884dffc        0x4 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(pmu-nano3g.o)
+                0x000000000884e000        0x4 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(pmu-nano3g.o)
  .bss.all_queues
-                0x000000000884e000       0x84 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(queue.o)
+                0x000000000884e004       0x84 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(queue.o)
  .bss.name.4736
-                0x000000000884e084       0x20 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(thread.o)
+                0x000000000884e088       0x20 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(thread.o)
  .bss.threadalloc
-                0x000000000884e0a4        0x4 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(thread-common.o)
+                0x000000000884e0a8        0x4 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(thread-common.o)
  .bss.current_tick
-                0x000000000884e0a8        0x4 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(tick.o)
-                0x000000000884e0a8                current_tick
+                0x000000000884e0ac        0x4 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(tick.o)
+                0x000000000884e0ac                current_tick
  .bss.tick_funcs
-                0x000000000884e0ac       0x24 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(tick.o)
-                0x000000000884e0ac                tick_funcs
- .bss.tmo_list  0x000000000884e0d0       0x24 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(timeout.o)
- .bss.events    0x000000000884e0f4      0x150 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(events.o)
+                0x000000000884e0b0       0x24 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(tick.o)
+                0x000000000884e0b0                tick_funcs
+ .bss.tmo_list  0x000000000884e0d4       0x24 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(timeout.o)
+ .bss.events    0x000000000884e0f8      0x150 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(events.o)
  .bss.invalid_userdata
-                0x000000000884e244        0x4 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(events.o)
+                0x000000000884e248        0x4 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(events.o)
  .bss.sleeptimer_active
-                0x000000000884e248        0x1 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(powermgmt.o)
- *fill*         0x000000000884e249        0x3 
+                0x000000000884e24c        0x1 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(powermgmt.o)
+ *fill*         0x000000000884e24d        0x3 
  .bss.sleeptimer_duration
-                0x000000000884e24c        0x4 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(powermgmt.o)
- .bss.sleeptimer_endtick
                 0x000000000884e250        0x4 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(powermgmt.o)
+ .bss.sleeptimer_endtick
+                0x000000000884e254        0x4 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(powermgmt.o)
  .bss.sleeptimer_key_restarts
-                0x000000000884e254        0x1 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(powermgmt.o)
+                0x000000000884e258        0x1 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(powermgmt.o)
  .bss.panic_buf
-                0x000000000884e255       0x80 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(panic.o)
- *fill*         0x000000000884e2d5        0xb 
+                0x000000000884e259       0x80 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(panic.o)
+ *fill*         0x000000000884e2d9        0x7 
  .bss.cache_buffer
                 0x000000000884e2e0    0x20000 /home/david/Documents/RockBox_Personal-master/build-bootloader-ipodnano3g/firmware/libfirmware.a(disk_cache.o)
  .bss.cache_entry

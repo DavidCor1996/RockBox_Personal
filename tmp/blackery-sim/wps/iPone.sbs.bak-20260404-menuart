@@ -1,0 +1,106 @@
+# Theme: iPone (Dark Mode)
+%wd
+%T(0,0,140,19,menu)
+%T(0,0,140,19,&cancel)
+%T(172,5,136,60,prev)
+%T(172,5,136,60,&rwd)
+%T(172,175,136,60,next)
+%T(172,175,136,60,&ffwd)
+%T(172,90,136,60,select)
+%T(172,90,136,60,&cancel)
+%Fl(2,14-Adobe-Helvetica-Bold.fnt)
+%Fl(3,16-Adobe-Helvetica-Bold.fnt)
+%Fl(4,35-Adobe-Helvetica-Bold.fnt)
+%?C<%Vd(a)|%?mp<%Vd(normal)|%Vd(normal)|%Vd(normal)|%Vd(normal)|%Vd(normal)|%Vd(normal)|%Vd(normal)|%Vd(radio)|%Vd(radio)>>
+%Cl(0,0,240,240,c,c)
+%Vl(a,120,0,200,240,-)
+%Cd
+%Vl(a,120,0,40,240,-)
+
+# Main UI Viewport - White text on Black (iClassic-style)
+%Vi(-,0,19,160,221,1)%Vf(FFFFFF)%Vb(000000)
+%V(0,0,-,-,-)
+
+%?cs<%Vd(t)|%Vd(n)|%Vd(n)|%Vd(n)|%Vd(n)>
+%Vl(t,6,3,114,14,2)%Vf(FFFFFF)
+%s%al%?if(%Li, =, 0)<|%?if(%Li, <=, 32)<%Lt|%?if(%Li, =, 33)<%?if(%Tp, =, 1)<Cowon D2|iPod>|>>>
+%Vl(n,4,3,114,14,2)%Vf(FFFFFF)
+%s%al%?cs<%Lt||%Sx(Recording)|%Sx(FM Radio)|%Lt|%Lt|%Lt|%Lt|%Lt||%Sx(Pitch)|%Sx(Setting chooser)|%Sx(Playlist Catalogue)|%Sx(Plugin)|%Sx(Context)|%Sx(System Info)|%Sx(Time and Date)|%Sx(Bookmarks)|%Sx(Shortcuts)|%Sx(Track Info)>
+
+%xl(B,Battery.bmp,0,0,24)
+%xl(LsWallpaper,Wallpaper.bmp)
+%xl(LsStyle,LockscreenStyle.bmp)
+%xl(AodStyle,AlwaysOnDisplayStyle.bmp)
+%V(134,4,25,11,-)
+%?bp<%?bc<%t(1.0)%xd(Ba);%t(1.0)%xd(Bb)|%xd(Bc)>|%?bl<%xd(Bd)|%xd(Bd)|%xd(Be)|%xd(Bf)|%xd(Bg)|%xd(Bh)|%xd(Bi)|%xd(Bj)|%xd(Bk)|%xd(Bl)|%xd(Bm)|%xd(Bn)|%xd(Bo)|%xd(Bp)|%xd(Bq)|%xd(Br)|%xd(Bs)|%xd(Bt)|%xd(Bu)|%xd(Bv)|%xd(Bw)|%xd(Bx)||>>
+%xl(h,Hold Icon.bmp,0,1)
+%xl(P,Playing Status.bmp,0,0,4)
+%V(118,3,16,13,-)
+%?mh<%xd(h)|%?mp<|%xd(Pa)|%xd(Pb)|%xd(Pc)|%xd(Pd)|%xd(Pa)|%xd(Pb)|%xd(Pa)|%xd(Pb)>>
+
+%t(6)%ac%?fn<%?ia<%ia|%?d(2)<%d(2)|>>|>;
+%t(6)%s%ac%?it<%it|%?fn<%fn|>>;%t(12)%ac%?it<%it|%?fn<%fn|>>
+
+%Vl(normal,163,187,154,14,2)%Vf(FFFFFF)
+%t(6)%ac%?fn<%?ia<%ia|%?d(2)<%d(2)|>>|>;%t(6)%s%ac%?fn<%?ia<%ia|%?d(2)<%d(2)|>>|>;%t(6)%ac%?fn<%?ia<%ia|%?d(2)<%d(2)|>>|>
+%Vl(normal,163,203,154,14,2)%Vf(FFFFFF)
+%t(12)%ac%?fn<%?id<%id|%?d(1)<%d(1)|>>|>;%t(6)%s%ac%?fn<%?id<%id|%?d(1)<%d(1)|>>|>
+%Vl(radio,163,158,154,24,1)%Vf(FFFFFF)
+%ac%tf Mhz
+%Vl(radio,163,187,154,14,2)%Vf(FFFFFF)
+%t(6)%s%ac%?Tn<%Tn|%?ty<%ty|%?tt<Tuned|tune>>>;%t(6)%ac%?Tn<%Tn|%?ty<%ty|%?tt<Tuned|tune>>>
+%Vl(radio,163,203,154,14,2)%Vf(FFFFFF)
+%t(6)%ac%?tz<%tz|Signal: %?tr<Faint/No Signal|Weak|Fair|Strong|Very Strong>>;%t(6)%s%ac%?tz<%tz|Signal: %?tr<Faint/No Signal|Weak|Fair|Strong|Very Strong>>
+
+#------------ Lockscreen / Always On Display ------------#
+# Uses the "backlight on button hold" setting:
+# - normal/on: Lockscreen (dark)
+# - off: Always On Display (light, for backlight-off readability)
+%Vl(iPoneLockscreen,0,0,-,-,-)%Vf(FFFFFF)%Vb(000000)
+%dr(0,0,320,240,2b193a)
+%xd(LsWallpaper)
+%Vl(iPoneLockscreen,12,10,16,16,-)%xd(h)
+%Vl(iPoneLockscreen,32,8,60,16,2)%Vf(FFFFFF)%alHOLD
+%Vl(iPoneLockscreen,287,10,25,11,-)
+%?bp<%?bc<%t(1.0)%xd(Ba);%t(1.0)%xd(Bb)|%xd(Bc)>|%?bl<%xd(Bd)|%xd(Bd)|%xd(Be)|%xd(Bf)|%xd(Bg)|%xd(Bh)|%xd(Bi)|%xd(Bj)|%xd(Bk)|%xd(Bl)|%xd(Bm)|%xd(Bn)|%xd(Bo)|%xd(Bp)|%xd(Bq)|%xd(Br)|%xd(Bs)|%xd(Bt)|%xd(Bu)|%xd(Bv)|%xd(Bw)|%xd(Bx)||>>
+%Vl(iPoneLockscreen,242,8,44,16,2)%Vf(FFFFFF)%ar%bl%%
+%Vl(iPoneLockscreen,0,55,-,60,4)%Vf(FFFFFF)%ac%cl:%cM %cP
+%Vl(iPoneLockscreen,0,120,-,20,3)%Vf(FFFFFF)%ac%?if(%ss(0,7,%St(lang)), =, english)<%?cu<Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday>|%ca> %?or(%if(%ss(0,7,%St(lang)), =, chinese),%if(%St(lang), =, magyar),%if(%St(lang), =, lietuviu),%if(%St(lang), =, japanese),%if(%St(lang), =, korean))<%cb %cd|%?if(%St(lang), =, english-us)<%cb %cd|%cd %cb>>
+%Vl(iPoneLockscreen,0,160,-,18,2)%Vf(FFFFFF)%ac%?mp<%?it<%it|%fn>|>
+%Vl(iPoneLockscreen,0,180,-,18,2)%Vf(FFFFFF)%ac%?mp<%?ia<%ia|%d(1)>|>
+%Vl(iPoneLockscreen,10,220,150,14,2)%Vf(FFFFFF)%alScroll to Start
+
+%Vl(iPoneAOD,0,0,-,-,-)%Vf(000000)%Vb(FFFFFF)
+%dr(0,0,320,240,FFFFFF)
+%Vl(iPoneAOD,12,10,16,16,-)%Vf(000000)%xd(h)
+%Vl(iPoneAOD,32,8,60,16,2)%Vf(000000)%alHOLD
+%Vl(iPoneAOD,287,10,25,11,-)%Vf(000000)
+%?bp<%?bc<%t(1.0)%xd(Ba);%t(1.0)%xd(Bb)|%xd(Bc)>|%?bl<%xd(Bd)|%xd(Bd)|%xd(Be)|%xd(Bf)|%xd(Bg)|%xd(Bh)|%xd(Bi)|%xd(Bj)|%xd(Bk)|%xd(Bl)|%xd(Bm)|%xd(Bn)|%xd(Bo)|%xd(Bp)|%xd(Bq)|%xd(Br)|%xd(Bs)|%xd(Bt)|%xd(Bu)|%xd(Bv)|%xd(Bw)|%xd(Bx)||>>
+%Vl(iPoneAOD,242,8,44,16,2)%Vf(000000)%ar%bl%%
+%Vl(iPoneAOD,0,55,-,60,4)%Vf(000000)%ac%cl:%cM %cP
+%Vl(iPoneAOD,0,120,-,20,3)%Vf(000000)%ac%?if(%ss(0,7,%St(lang)), =, english)<%?cu<Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday>|%ca> %?or(%if(%ss(0,7,%St(lang)), =, chinese),%if(%St(lang), =, magyar),%if(%St(lang), =, lietuviu),%if(%St(lang), =, japanese),%if(%St(lang), =, korean))<%cb %cd|%?if(%St(lang), =, english-us)<%cb %cd|%cd %cb>>
+%Vl(iPoneAOD,0,160,-,18,2)%Vf(000000)%ac%?mp<%?it<%it|%fn>|>
+%Vl(iPoneAOD,0,180,-,18,2)%Vf(000000)%ac%?mp<%?ia<%ia|%d(1)>|>
+%Vl(iPoneAOD,10,220,150,14,2)%Vf(000000)%alScroll to Start
+
+#------------ Settings Preview (adwaitapod-style) ------------#
+# Show a preview panel when adjusting "Backlight on Hold/Lock".
+%Vl(iPoneHoldCfgPanel,0,0,-,-,-)
+%dr(160,19,160,221,000000)
+%?if(%St(backlight on button hold), =, off)<%dr(176,68,129,44,333333)%dr(176,128,129,44,186DBD)|%dr(176,68,129,44,186DBD)%dr(176,128,129,44,333333)>
+%dr(178,70,125,40,000000)%dr(178,130,125,40,000000)
+%Vl(iPoneHoldCfgTitle,160,23,160,18,2)%Vf(FFFFFF)%ac%Lt
+%Vl(iPoneHoldCfgInfo1,160,46,160,14,2)%Vf(AAAAAA)%acNormal/On: Lockscreen
+%Vl(iPoneHoldCfgInfo2,160,60,160,14,2)%Vf(AAAAAA)%acOff: Always On Display
+%Vl(iPoneHoldCfgLsImg,178,70,125,40,-)%xd(LsStyle)
+%Vl(iPoneHoldCfgAodImg,178,130,125,40,-)%xd(AodStyle)
+%Vl(iPoneHoldCfgLsLbl,160,112,160,14,2)%Vf(FFFFFF)%acLockscreen
+%Vl(iPoneHoldCfgAodLbl,160,172,160,14,2)%Vf(FFFFFF)%acAlways On Display
+%Vl(iPoneHoldCfgMode,160,206,160,14,2)%Vf(AAAAAA)%acMode: %St(backlight on button hold)
+
+# Draw config preview on Settings screen.
+%?or(%if(%Lt, =, %Sx(Backlight on Hold)),%if(%Lt, =, %Sx(Backlight on Button Hold)),%if(%Lt, =, %Sx(Backlight on Lock)))<%Vd(iPoneHoldCfgPanel)%Vd(iPoneHoldCfgTitle)%Vd(iPoneHoldCfgInfo1)%Vd(iPoneHoldCfgInfo2)%Vd(iPoneHoldCfgLsImg)%Vd(iPoneHoldCfgAodImg)%Vd(iPoneHoldCfgLsLbl)%Vd(iPoneHoldCfgAodLbl)%Vd(iPoneHoldCfgMode)|>
+
+# Draw the hold overlay last so it sits on top of everything else.
+%V(0,0,-,-,-)
+%?mh<%?if(%St(backlight on button hold), =, off)<%Vd(iPoneAOD)|%Vd(iPoneLockscreen)>|>

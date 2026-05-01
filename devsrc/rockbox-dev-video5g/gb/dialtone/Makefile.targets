@@ -1,0 +1,5 @@
+gb:
+	$(MAKE) EXT=gb build/gb/dialtone.gb
+
+gb-clean:
+	rm -f obj/gb/* build/gb/*

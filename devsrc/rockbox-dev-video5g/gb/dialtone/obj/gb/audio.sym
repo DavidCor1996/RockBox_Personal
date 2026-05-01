@@ -1,0 +1,77 @@
+ASxxxx Assembler V02.00 + NoICE + SDCC mods  (GameBoy)                  Page 1
+Hexadecimal [32-Bits]
+
+Symbol Table
+
+    .__.$$$.                                                    =   00002710 L
+    .__.ABS.                                                    =   00000000 G
+    .__.CPU.                                                    =   00000000 L
+    .__.H$L.                                                    =   00000000 L
+    _NR10_REG                                                       ******** GX
+    _NR11_REG                                                       ******** GX
+    _NR12_REG                                                       ******** GX
+    _NR13_REG                                                       ******** GX
+    _NR14_REG                                                       ******** GX
+    _NR21_REG                                                       ******** GX
+    _NR22_REG                                                       ******** GX
+    _NR23_REG                                                       ******** GX
+    _NR24_REG                                                       ******** GX
+    _NR41_REG                                                       ******** GX
+    _NR42_REG                                                       ******** GX
+    _NR43_REG                                                       ******** GX
+    _NR44_REG                                                       ******** GX
+    _NR50_REG                                                       ******** GX
+    _NR51_REG                                                       ******** GX
+    _NR52_REG                                                       ******** GX
+    ___memcpy                                                       ******** GX
+    ___sdcc_bcall_ehl                                               ******** GX
+  2 _current_track                                                  00000001 R
+  8 _dt_audio_get_home_record                                       000002E8 GR
+  8 _dt_audio_init                                                  0000019C GR
+  8 _dt_audio_play_sfx                                              0000023E GR
+  8 _dt_audio_play_title_theme                                      000002B9 GR
+  8 _dt_audio_set_home_record                                       000002DA GR
+  8 _dt_audio_stop_music                                            000002CC GR
+  8 _dt_audio_sync                                                  000002EC GR
+  8 _dt_audio_update                                                000001B9 GR
+  2 _home_record                                                    00000000 R
+  2 _note_frames_left                                               00000003 R
+  8 _note_freqs                                                     00000024 R
+  2 _note_index                                                     00000002 R
+  8 _play_music_note                                                00000145 R
+  8 _play_noise_sfx                                                 0000018D R
+  8 _play_pulse_sfx                                                 00000174 R
+  8 _rain_loop_track                                                00000064 R
+  8 _rooftop_set_track                                              000000AC R
+  8 _stop_music_channel                                             0000013E R
+  8 _title_theme_track                                              000000CE R
+  8 _track_duty                                                     00000100 R
+  8 _track_envelope                                                 0000011F R
+  8 _track_for_record                                               00000000 R
+  8 _vending_dreams_track                                           00000086 R
+    b_dt_audio_get_home_record                                  =   000000FF G
+    b_dt_audio_init                                             =   000000FF G
+    b_dt_audio_play_sfx                                         =   000000FF G
+    b_dt_audio_play_title_theme                                 =   000000FF G
+    b_dt_audio_set_home_record                                  =   000000FF G
+    b_dt_audio_stop_music                                       =   000000FF G
+    b_dt_audio_sync                                             =   000000FF G
+    b_dt_audio_update                                           =   000000FF G
+
+ASxxxx Assembler V02.00 + NoICE + SDCC mods  (GameBoy)                  Page 2
+Hexadecimal [32-Bits]
+
+Area Table
+
+   0 _CODE                                      size        0   flags    0
+   1 _HRAM                                      size        0   flags    0
+   2 _DATA                                      size        4   flags    0
+   3 _INITIALIZED                               size        0   flags    0
+   4 _DABS                                      size        0   flags    8
+   5 _HOME                                      size        0   flags    0
+   6 _GSINIT                                    size        0   flags    0
+   7 _GSFINAL                                   size        0   flags    0
+   8 _CODE_255                                  size      316   flags    0
+   9 _INITIALIZER                               size        0   flags    0
+   A _CABS                                      size        0   flags    8
+

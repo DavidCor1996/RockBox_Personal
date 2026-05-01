@@ -40,9 +40,9 @@ class MetadataEditor(QDialog):
         info_tab = self._build_info_tab()
         tabs.addTab(info_tab, "Info")
 
-        # Sorting tab
-        sorting_tab = self._build_sorting_tab()
-        tabs.addTab(sorting_tab, "Sorting")
+        # Details tab
+        details_tab = self._build_details_tab()
+        tabs.addTab(details_tab, "Details")
 
         # Button box
         btn_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
@@ -211,20 +211,32 @@ class MetadataEditor(QDialog):
 
         return w
 
-    def _build_sorting_tab(self):
+    def _build_details_tab(self):
         w = QWidget()
         layout = QFormLayout(w)
         layout.setSpacing(6)
 
         info = QLabel(
-            "Sorting fields allow you to override the default sort order.\n"
-            "Leave blank to use the standard field values."
+            "Library metadata can be edited here. Technical file properties stay read-only."
         )
         info.setWordWrap(True)
         layout.addRow(info)
 
-        # For now, just show the file path and basic metadata
+        self._play_count_spin = QSpinBox()
+        self._play_count_spin.setRange(0, 999999)
+        self._play_count_spin.setValue(int(self._track.get("play_count") or 0))
+        layout.addRow("Play Count:", self._play_count_spin)
+
+        self._last_played_edit = QLineEdit(str(self._track.get("last_played", "") or ""))
+        self._last_played_edit.setPlaceholderText("YYYY-MM-DD HH:MM:SS")
+        layout.addRow("Last Played:", self._last_played_edit)
+
+        self._date_added_edit = QLineEdit(str(self._track.get("date_added", "") or ""))
+        self._date_added_edit.setPlaceholderText("YYYY-MM-DD HH:MM:SS")
+        layout.addRow("Date Added:", self._date_added_edit)
+
         layout.addRow("File:", QLabel(str(self._track.get("file_path", ""))))
+        layout.addRow("Device Path:", QLabel(str(self._track.get("device_path", "") or "")))
         layout.addRow("Codec:", QLabel(str(self._track.get("codec", ""))))
 
         br = self._track.get("bitrate", 0)
@@ -232,6 +244,14 @@ class MetadataEditor(QDialog):
 
         sr = self._track.get("sample_rate", 0)
         layout.addRow("Sample Rate:", QLabel(f"{sr} Hz" if sr else ""))
+
+        channels = self._track.get("channels", 0)
+        layout.addRow("Channels:", QLabel(str(channels or "")))
+
+        dur = self._track.get("duration", 0) or 0
+        mins = int(dur) // 60
+        secs = int(dur) % 60
+        layout.addRow("Duration:", QLabel(f"{mins}:{secs:02d}" if dur else ""))
 
         fs = self._track.get("file_size", 0) or 0
         mb = fs / (1024 * 1024)
@@ -249,6 +269,8 @@ class MetadataEditor(QDialog):
             ("genre", self._genre_edit),
             ("composer", self._composer_edit),
             ("comment", self._comment_edit),
+            ("last_played", self._last_played_edit),
+            ("date_added", self._date_added_edit),
         ]:
             new_val = widget.text()
             old_val = str(self._track.get(field, "") or "")
@@ -276,6 +298,7 @@ class MetadataEditor(QDialog):
             ("disc_number", self._disc_num_spin),
             ("disc_total", self._disc_total_spin),
             ("rating", self._rating_spin),
+            ("play_count", self._play_count_spin),
         ]:
             new_val = widget.value()
             old_val = int(self._track.get(field) or 0)

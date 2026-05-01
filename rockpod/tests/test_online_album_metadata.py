@@ -58,9 +58,19 @@ def test_fetch_album_metadata_combines_album_details_and_lyrics(monkeypatch):
                     },
                 ]
             }
+        if base_url == "https://lrclib.net/api/search":
+            params = params or {}
+            if params.get("track_name") == "Song One":
+                return [
+                    {
+                        "trackName": "Song One",
+                        "artistName": "Test Artist",
+                        "syncedLyrics": "[00:01.00]<00:01.10>lyrics one",
+                        "plainLyrics": "lyrics one",
+                    }
+                ]
+            return []
         if base_url.startswith("https://api.lyrics.ovh/v1/"):
-            if base_url.endswith("/Song%20One"):
-                return {"lyrics": "lyrics one"}
             return {}
         raise AssertionError(f"unexpected URL: {base_url}")
 
@@ -75,7 +85,7 @@ def test_fetch_album_metadata_combines_album_details_and_lyrics(monkeypatch):
     assert result["track_count"] == 2
     assert result["artwork_url"] == "https://example.com/1200x1200bb.jpg"
     assert len(result["tracks"]) == 2
-    assert result["tracks"][0]["lyrics"] == "lyrics one"
+    assert result["tracks"][0]["lyrics"] == "[00:01.00]<00:01.10>lyrics one"
     assert result["tracks"][1]["lyrics"] == ""
 
 
@@ -131,6 +141,8 @@ def test_fetch_album_metadata_splits_artist_album_combo_when_artist_missing(monk
                     },
                 ]
             }
+        if base_url == "https://lrclib.net/api/search":
+            return []
         if base_url.startswith("https://api.lyrics.ovh/v1/"):
             return {}
         raise AssertionError(f"unexpected URL: {base_url}")
@@ -243,3 +255,69 @@ def test_fetch_album_metadata_returns_partial_result_when_lookup_has_no_data(mon
     assert result["source"] == "itunes_search_partial"
     assert result["track_count"] == 11
     assert result["tracks"] == []
+
+
+def test_fetch_track_lyrics_prefers_synced_lrc_from_lrclib(monkeypatch):
+    lookup = ITunesAlbumMetadataLookup(storefront="us", min_interval_seconds=0.0)
+
+    def fake_get_json(base_url, params=None, timeout=None, return_empty_on_404=False):
+        if base_url == "https://lrclib.net/api/search":
+            return [
+                {
+                    "trackName": "Song One",
+                    "artistName": "Test Artist",
+                    "syncedLyrics": "[00:01.00]<00:01.10>Hello",
+                    "plainLyrics": "Hello",
+                }
+            ]
+        if base_url.startswith("https://api.lyrics.ovh/v1/"):
+            return {"lyrics": "plain fallback"}
+        raise AssertionError(f"unexpected URL: {base_url}")
+
+    monkeypatch.setattr(lookup, "_get_json", fake_get_json)
+
+    assert lookup.fetch_track_lyrics("Test Artist", "Song One") == "[00:01.00]<00:01.10>Hello"
+    detail = lookup.fetch_track_lyrics_detail("Test Artist", "Song One")
+    assert detail["timed"] is True
+    assert detail["per_word"] is True
+    assert detail["source"] == "lrclib"
+
+
+def test_fetch_track_lyrics_detail_marks_line_timed_without_per_word(monkeypatch):
+    lookup = ITunesAlbumMetadataLookup(storefront="us", min_interval_seconds=0.0)
+
+    def fake_get_json(base_url, params=None, timeout=None, return_empty_on_404=False):
+        if base_url == "https://lrclib.net/api/search":
+            return [
+                {
+                    "trackName": "Song One",
+                    "artistName": "Test Artist",
+                    "syncedLyrics": "[00:01.00]Hello world",
+                    "plainLyrics": "Hello world",
+                }
+            ]
+        if base_url.startswith("https://api.lyrics.ovh/v1/"):
+            return {}
+        raise AssertionError(f"unexpected URL: {base_url}")
+
+    monkeypatch.setattr(lookup, "_get_json", fake_get_json)
+
+    detail = lookup.fetch_track_lyrics_detail("Test Artist", "Song One")
+
+    assert detail["timed"] is True
+    assert detail["per_word"] is False
+
+
+def test_fetch_track_lyrics_falls_back_to_lyrics_ovh_when_lrclib_has_no_match(monkeypatch):
+    lookup = ITunesAlbumMetadataLookup(storefront="us", min_interval_seconds=0.0)
+
+    def fake_get_json(base_url, params=None, timeout=None, return_empty_on_404=False):
+        if base_url == "https://lrclib.net/api/search":
+            return []
+        if base_url.startswith("https://api.lyrics.ovh/v1/"):
+            return {"lyrics": "plain fallback"}
+        raise AssertionError(f"unexpected URL: {base_url}")
+
+    monkeypatch.setattr(lookup, "_get_json", fake_get_json)
+
+    assert lookup.fetch_track_lyrics("Test Artist", "Song One") == "plain fallback"

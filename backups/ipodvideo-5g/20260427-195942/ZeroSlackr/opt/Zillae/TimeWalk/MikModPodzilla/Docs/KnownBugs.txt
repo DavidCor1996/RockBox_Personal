@@ -1,0 +1,24 @@
+
+Known Bugs and Issues: (2005-04-04)
+
+The position display is off by a little bit.  This is due to latency
+between when we query the engine for its play position, and where
+the audio buffers are currently playing.
+
+Sometimes, Pause/Play doesn't work right.  It will sometimes unpause
+immediately, it will sometimes pause, but not mute the audio.
+
+Sometimes Track Forward/Backward skip a song, and go two forward or 
+two backwards.
+
+The screen doesn't display anything while loading.
+    - i want it to display the credits and mikmod version and such.
+
+The Position indicators are off by a little bit:
+    - the upper one sometimes overlaps the end of the container
+    - the lower one never seems to get to the last position
+    -- I think I just need to rewrite this section of code
+
+There's no way to adjust the system volume, only the mikmod volume.
+
+Playlists of one track loop indefinitely.

@@ -72,6 +72,20 @@ def _clean_lookup_value(value, preserve_punctuation=False):
     return value.strip()
 
 
+_TIMED_LYRICS_RE = re.compile(
+    r"(?:\[\d{1,2}:\d{2}(?:[.:]\d{1,3})?\])|(?:<\d{1,2}:\d{2}(?:[.:]\d{1,3})?>)"
+)
+_WORD_TIMED_LYRICS_RE = re.compile(r"<\d{1,2}:\d{2}(?:[.:]\d{1,3})?>")
+
+
+def lyrics_text_has_timestamps(text):
+    return bool(_TIMED_LYRICS_RE.search(str(text or "")))
+
+
+def lyrics_text_has_word_timestamps(text):
+    return bool(_WORD_TIMED_LYRICS_RE.search(str(text or "")))
+
+
 class ITunesAlbumMetadataLookup:
     """Thin client for online album metadata and lyrics discovery."""
 
@@ -154,13 +168,82 @@ class ITunesAlbumMetadataLookup:
         }
 
     def fetch_track_lyrics(self, artist_name, title):
+        return self.fetch_track_lyrics_detail(artist_name, title)["lyrics"]
+
+    def fetch_track_lyrics_detail(self, artist_name, title):
         artist_name = str(artist_name or "").strip()
         title = str(title or "").strip()
         if not artist_name or not title:
+            return {"lyrics": "", "timed": False, "per_word": False, "source": ""}
+        last_error = None
+        for fetcher in (self._fetch_lrclib_lyrics, self._fetch_lyrics_ovh):
+            try:
+                lyrics, source = fetcher(artist_name, title)
+            except OnlineAlbumMetadataNetworkError as exc:
+                last_error = exc
+                continue
+            if lyrics:
+                return {
+                    "lyrics": lyrics,
+                    "timed": lyrics_text_has_timestamps(lyrics),
+                    "per_word": lyrics_text_has_word_timestamps(lyrics),
+                    "source": source,
+                }
+        if last_error is not None:
+            raise last_error
+        return {"lyrics": "", "timed": False, "per_word": False, "source": ""}
+
+    def _fetch_lrclib_lyrics(self, artist_name, title):
+        data = self._get_json(
+            "https://lrclib.net/api/search",
+            params={
+                "artist_name": artist_name,
+                "track_name": title,
+            },
+            timeout=self.lyrics_timeout,
+            return_empty_on_404=True,
+        )
+        if not isinstance(data, list):
             return ""
+
+        want_artist = _normalize(artist_name)
+        want_title = _normalize(title)
+        best_synced = ""
+        best_plain = ""
+        best_score = -1
+
+        for item in data:
+            if not isinstance(item, dict):
+                continue
+            item_title = _normalize(item.get("trackName", ""))
+            item_artist = _normalize(item.get("artistName", ""))
+            if not item_title:
+                continue
+            score = 0
+            if item_title == want_title:
+                score += 70
+            elif want_title and want_title in item_title:
+                score += 35
+            if item_artist == want_artist:
+                score += 30
+            elif want_artist and (want_artist in item_artist or item_artist in want_artist):
+                score += 15
+            synced = str(item.get("syncedLyrics") or "").strip()
+            plain = str(item.get("plainLyrics") or "").strip()
+            if synced:
+                score += 5
+            if score <= best_score:
+                continue
+            best_score = score
+            best_synced = synced
+            best_plain = plain
+
+        return (best_synced or best_plain), "lrclib"
+
+    def _fetch_lyrics_ovh(self, artist_name, title):
         url = f"https://api.lyrics.ovh/v1/{quote(artist_name, safe='')}/{quote(title, safe='')}"
         data = self._get_json(url, timeout=self.lyrics_timeout, return_empty_on_404=True)
-        return str((data or {}).get("lyrics") or "").strip()
+        return str((data or {}).get("lyrics") or "").strip(), "lyrics.ovh"
 
     def _search_album(self, album_title, artist_name, limit=8):
         for candidate_album, candidate_artist in self._lookup_variants(album_title, artist_name):

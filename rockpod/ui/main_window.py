@@ -2,6 +2,7 @@
 
 import logging
 import os
+import shutil
 import time
 from datetime import datetime
 
@@ -16,6 +17,12 @@ from PySide6.QtGui import QAction, QIcon
 from app.config import Config
 from app.database import Database
 from services.library_scanner import LibraryScanner
+from services.metadata_reader import read_metadata_details, compute_file_hash
+from services.metadata_writer import (
+    FILE_TAG_METADATA_FIELDS,
+    MetadataWriteError,
+    write_track_metadata_to_file,
+)
 from services.reconciliation import (
     build_reconciliation_report,
     build_missing_tag_report,
@@ -311,6 +318,8 @@ class MainWindow(QMainWindow):
         file_menu.addAction("Force Full Rescan", self._force_full_rescan)
         file_menu.addAction("View Last Scan Report", self._show_last_scan_report)
         file_menu.addAction("View Missing FLAC/AIFF Tags", self._show_missing_tag_report)
+        file_menu.addAction("Write Library Metadata Back to Files...", self._write_library_metadata_back_to_files)
+        file_menu.addAction("Fetch Timed Lyrics for Library...", self._fetch_library_timed_lyrics)
         file_menu.addAction("Fetch Missing Artwork", self._refresh_missing_artwork)
         file_menu.addAction("New Playlist...", self._new_playlist, "Ctrl+N")
         file_menu.addSeparator()
@@ -385,11 +394,14 @@ class MainWindow(QMainWindow):
         # Library browser views
         self._artist_view.track_double_clicked.connect(self._on_track_double_click)
         self._artist_view.selection_changed.connect(self._on_track_selection_changed)
+        self._artist_view.track_context_requested.connect(self._show_track_context_menu)
         self._album_view.track_double_clicked.connect(self._on_track_double_click)
         self._album_view.selection_changed.connect(self._on_track_selection_changed)
         self._album_view.album_context_requested.connect(self._on_album_context_menu)
+        self._album_view.track_context_requested.connect(self._show_track_context_menu)
         self._genre_view.track_double_clicked.connect(self._on_track_double_click)
         self._genre_view.selection_changed.connect(self._on_track_selection_changed)
+        self._genre_view.track_context_requested.connect(self._show_track_context_menu)
         self._theme_hub.profile_selected.connect(self._on_theme_profile_selected)
         self._theme_hub.profile_saved.connect(self._on_theme_profile_saved)
         self._theme_hub.theme_selected.connect(self._on_theme_selected)
@@ -674,6 +686,12 @@ class MainWindow(QMainWindow):
     def _active_track_table(self):
         if self._current_view == "library_videos":
             return self._video_view
+        if self._current_view == "library_artists":
+            return self._artist_view
+        if self._current_view == "library_albums":
+            return self._album_view
+        if self._current_view == "library_genres":
+            return self._genre_view
         return self._track_table
 
     def _active_track_selection_ids(self):
@@ -712,7 +730,7 @@ class MainWindow(QMainWindow):
             if self._device_verification_running:
                 self._status_bar.set_left_text("Verifying device inventory...")
                 tracks = []
-            elif not self._sync_engine.device_inventory_has_local_links():
+            elif not self._sync_engine.device_inventory_is_verified():
                 if self._device_detector.is_connected:
                     self._status_bar.set_left_text("Preparing Not on iPod view...")
                     self._scan_device()
@@ -825,6 +843,37 @@ class MainWindow(QMainWindow):
             summary["duration"],
             summary["size"],
             item_label=self._current_status_item_label(),
+        )
+        if self._current_view == "device_not_on_ipod":
+            self._status_bar.set_left_text(self._not_on_ipod_status_text(tracks))
+
+    def _not_on_ipod_status_text(self, tracks):
+        if self._device_verification_running:
+            return "Verifying device inventory..."
+        if not self._sync_engine.device_inventory_is_verified():
+            if self._device_detector.is_connected:
+                return "Preparing Not on iPod view..."
+            return "Refresh the connected iPod to load missing tracks"
+
+        normalized = normalize_tracks_for_ui(tracks)
+        if not normalized:
+            return "All library tracks are already on iPod"
+
+        track_ids = [track.get("id") for track in normalized if track.get("id")]
+        reason_counts = self._sync_engine.get_not_on_device_reason_counts(
+            track_ids=track_ids or None
+        )
+        if not reason_counts:
+            return f"Not on iPod: {len(normalized)} track{'s' if len(normalized) != 1 else ''}"
+
+        parts = []
+        for reason, count in list(reason_counts.items())[:3]:
+            parts.append(f"{reason} {count}")
+        if len(reason_counts) > 3:
+            parts.append(f"+{len(reason_counts) - 3} more")
+        return (
+            f"Not on iPod: {len(normalized)} track{'s' if len(normalized) != 1 else ''}"
+            f" · {' · '.join(parts)}"
         )
 
     def _on_search(self, text):
@@ -1228,12 +1277,302 @@ class MainWindow(QMainWindow):
         editor.metadata_saved.connect(self._on_metadata_saved)
         editor.exec()
 
+    @staticmethod
+    def _merge_track_row_from_file(existing_row, scanned_track):
+        merged = dict(existing_row)
+        scanned = dict(scanned_track or {})
+        for field in (
+            "media_type",
+            "video_kind",
+            "file_size",
+            "last_modified",
+            "title",
+            "artist",
+            "album",
+            "album_artist",
+            "show_title",
+            "genre",
+            "year",
+            "season_number",
+            "episode_number",
+            "track_number",
+            "track_total",
+            "disc_number",
+            "disc_total",
+            "duration",
+            "bitrate",
+            "sample_rate",
+            "channels",
+            "codec",
+            "composer",
+            "comment",
+            "compilation",
+            "has_embedded_artwork",
+            "metadata_hash",
+            "artwork_hash",
+        ):
+            if field in scanned:
+                merged[field] = scanned.get(field)
+        merged["file_path"] = existing_row.get("file_path", "")
+        merged["file_hash"] = compute_file_hash(merged["file_path"])
+        merged.pop("id", None)
+        return merged
+
+    def _rewrite_track_row_from_file(self, existing_row, file_updates):
+        write_track_metadata_to_file(existing_row.get("file_path", ""), file_updates)
+        scanned_track, _scan_info = read_metadata_details(existing_row.get("file_path", ""))
+        merged = self._merge_track_row_from_file(existing_row, scanned_track.to_dict())
+        self._db.upsert_track(merged)
+        refreshed = self._db.get_track_by_path(existing_row.get("file_path", ""))
+        return dict(refreshed) if refreshed is not None else dict(existing_row)
+
     def _on_metadata_saved(self, track_id, updates):
         if updates:
-            self._db.update_track_metadata(track_id, updates)
-            self._db.commit()
+            row = self._db.get_track_by_id(track_id)
+            if row is None:
+                return
+
+            existing = dict(row)
+            file_updates = {k: v for k, v in updates.items() if k in FILE_TAG_METADATA_FIELDS}
+            library_updates = {k: v for k, v in updates.items() if k not in FILE_TAG_METADATA_FIELDS}
+
+            try:
+                if file_updates:
+                    existing = self._rewrite_track_row_from_file(existing, file_updates)
+                if library_updates:
+                    self._db.update_track_metadata(track_id, library_updates)
+                self._db.commit()
+            except MetadataWriteError as exc:
+                QMessageBox.warning(
+                    self,
+                    "Could Not Save Tags",
+                    f"Could not write metadata to the media file.\n\n{exc}",
+                )
+                self._status_bar.set_left_text("Metadata write failed")
+                return
+
             self._refresh_view()
+            self._status_bar.set_left_text("Metadata saved")
             logger.info("Updated metadata for track %d: %s", track_id, list(updates.keys()))
+
+    def _write_library_metadata_back_to_files(self):
+        reply = QMessageBox.question(
+            self,
+            "Write Library Metadata Back to Files",
+            "Push RockPod's current library metadata back into the source media files for the whole library?\n\n"
+            "This updates supported file formats in place and refreshes RockPod from what was actually saved.",
+            QMessageBox.Yes | QMessageBox.No,
+            QMessageBox.Yes,
+        )
+        if reply != QMessageBox.Yes:
+            return
+
+        rows = [dict(row) for row in self._db.get_all_tracks(media_type=None)]
+        if not rows:
+            QMessageBox.information(self, "Write Library Metadata Back to Files", "No tracks are in the library.")
+            return
+
+        progress = QProgressDialog(
+            "Writing library metadata back to media files...",
+            "Cancel",
+            0,
+            len(rows),
+            self,
+        )
+        progress.setWindowTitle("Write Library Metadata Back to Files")
+        progress.setMinimumDuration(0)
+        progress.setWindowModality(Qt.WindowModal)
+        progress.setAutoClose(False)
+        progress.setAutoReset(False)
+        progress.show()
+
+        updated = 0
+        unsupported = 0
+        failed = []
+        cancelled = False
+
+        try:
+            for index, row in enumerate(rows, start=1):
+                file_path = row.get("file_path", "")
+                progress.setValue(index - 1)
+                progress.setLabelText(
+                    f"Writing metadata for {os.path.basename(file_path) or file_path or 'track'}"
+                )
+                QApplication.processEvents()
+                if progress.wasCanceled():
+                    cancelled = True
+                    break
+
+                try:
+                    self._rewrite_track_row_from_file(row, row)
+                    updated += 1
+                except MetadataWriteError as exc:
+                    message = str(exc)
+                    if "not supported yet" in message:
+                        unsupported += 1
+                    else:
+                        failed.append((file_path, message))
+            self._db.commit()
+        finally:
+            progress.setValue(len(rows) if not cancelled else min(progress.value(), len(rows)))
+            progress.close()
+            progress.deleteLater()
+
+        self._refresh_view()
+
+        lines = [f"Updated files: {updated}"]
+        if unsupported:
+            lines.append(f"Unsupported formats: {unsupported}")
+        if failed:
+            lines.append(f"Failed writes: {len(failed)}")
+        if cancelled:
+            lines.append("Operation cancelled before all tracks were processed.")
+        if failed:
+            sample = failed[:8]
+            details = "\n".join(f"{path}: {message}" for path, message in sample)
+            if len(failed) > len(sample):
+                details += f"\n...and {len(failed) - len(sample)} more"
+            lines.append("")
+            lines.append(details)
+
+        self._status_bar.set_left_text(
+            "Library metadata backfill cancelled" if cancelled else "Library metadata backfill finished"
+        )
+        QMessageBox.information(self, "Write Library Metadata Back to Files", "\n".join(lines))
+
+    @staticmethod
+    def _write_lyrics_sidecar(file_path, lyrics_text):
+        sidecar = os.path.splitext(str(file_path or ""))[0] + ".lrc"
+        os.makedirs(os.path.dirname(sidecar) or ".", exist_ok=True)
+        with open(sidecar, "w", encoding="utf-8") as handle:
+            handle.write(str(lyrics_text or "").strip())
+        return sidecar
+
+    def _mirror_lyrics_sidecar_to_connected_device(self, row, local_sidecar):
+        device = self._device_detector.current_device
+        device_rel = str(row.get("device_path") or "").strip()
+        mount_path = str(getattr(device, "mount_path", "") or "").strip() if device else ""
+        if not mount_path or not device_rel:
+            return False
+        device_sidecar = os.path.splitext(os.path.join(mount_path, device_rel))[0] + ".lrc"
+        os.makedirs(os.path.dirname(device_sidecar), exist_ok=True)
+        shutil.copyfile(local_sidecar, device_sidecar)
+        return True
+
+    def _fetch_library_timed_lyrics(self):
+        reply = QMessageBox.question(
+            self,
+            "Fetch Timed Lyrics for Library",
+            "Fetch timed lyrics for every audio track in the library and save them as .lrc sidecars beside the source files?\n\n"
+            "Per-word lyrics are preferred. If per-word timing is unavailable, line-timed lyrics are saved instead. Plain unsynced lyrics are not saved.",
+            QMessageBox.Yes | QMessageBox.No,
+            QMessageBox.Yes,
+        )
+        if reply != QMessageBox.Yes:
+            return
+
+        rows = [dict(row) for row in self._db.get_all_tracks(media_type="audio")]
+        if not rows:
+            QMessageBox.information(self, "Fetch Timed Lyrics for Library", "No audio tracks are in the library.")
+            return
+
+        lookup = self._album_metadata_fetcher._lookup_client
+        progress = QProgressDialog(
+            "Fetching timed lyrics...",
+            "Cancel",
+            0,
+            len(rows),
+            self,
+        )
+        progress.setWindowTitle("Fetch Timed Lyrics for Library")
+        progress.setMinimumDuration(0)
+        progress.setWindowModality(Qt.WindowModal)
+        progress.setAutoClose(False)
+        progress.setAutoReset(False)
+        progress.show()
+
+        saved = 0
+        per_word_saved = 0
+        line_timed_saved = 0
+        mirrored = 0
+        plain_only = 0
+        missing_metadata = 0
+        not_found = 0
+        failed = []
+        cancelled = False
+
+        try:
+            for index, row in enumerate(rows, start=1):
+                file_path = row.get("file_path", "")
+                title = str(row.get("title") or "").strip()
+                artist = str(row.get("artist") or row.get("album_artist") or "").strip()
+                progress.setValue(index - 1)
+                progress.setLabelText(
+                    f"Fetching lyrics for {os.path.basename(file_path) or title or 'track'}"
+                )
+                QApplication.processEvents()
+                if progress.wasCanceled():
+                    cancelled = True
+                    break
+
+                if not file_path or not title or not artist:
+                    missing_metadata += 1
+                    continue
+
+                try:
+                    detail = lookup.fetch_track_lyrics_detail(artist, title)
+                    lyrics_text = str(detail.get("lyrics") or "").strip()
+                    if not lyrics_text:
+                        not_found += 1
+                        continue
+                    if not detail.get("timed"):
+                        plain_only += 1
+                        continue
+                    sidecar = self._write_lyrics_sidecar(file_path, lyrics_text)
+                    saved += 1
+                    if detail.get("per_word"):
+                        per_word_saved += 1
+                    else:
+                        line_timed_saved += 1
+                    if row.get("synced_to_device") and row.get("device_path"):
+                        if self._mirror_lyrics_sidecar_to_connected_device(row, sidecar):
+                            mirrored += 1
+                except Exception as exc:
+                    failed.append((file_path, str(exc)))
+        finally:
+            progress.setValue(len(rows) if not cancelled else min(progress.value(), len(rows)))
+            progress.close()
+            progress.deleteLater()
+
+        lines = [f"Timed lyrics saved: {saved}"]
+        if per_word_saved:
+            lines.append(f"Per-word timed: {per_word_saved}")
+        if line_timed_saved:
+            lines.append(f"Line-timed fallback: {line_timed_saved}")
+        if mirrored:
+            lines.append(f"Mirrored to connected iPod: {mirrored}")
+        if plain_only:
+            lines.append(f"Plain lyrics only (not saved): {plain_only}")
+        if not_found:
+            lines.append(f"No lyrics found: {not_found}")
+        if missing_metadata:
+            lines.append(f"Missing artist/title metadata: {missing_metadata}")
+        if failed:
+            lines.append(f"Failed fetches: {len(failed)}")
+        if cancelled:
+            lines.append("Operation cancelled before all tracks were processed.")
+        if failed:
+            sample = failed[:8]
+            details = "\n".join(f"{path}: {message}" for path, message in sample)
+            if len(failed) > len(sample):
+                details += f"\n...and {len(failed) - len(sample)} more"
+            lines.append("")
+            lines.append(details)
+
+        self._status_bar.set_left_text(
+            "Timed lyrics fetch cancelled" if cancelled else "Timed lyrics fetch finished"
+        )
+        QMessageBox.information(self, "Fetch Timed Lyrics for Library", "\n".join(lines))
 
     def _select_all(self):
         self._active_track_table().selectAll()
@@ -2195,10 +2534,11 @@ class MainWindow(QMainWindow):
             self._device_config_value("duration_match_tolerance_seconds", 2.0),
             sample_limit=25,
         )
+        sync_plan = self._sync_engine.build_sync_plan()
         box = QMessageBox(self)
         box.setWindowTitle("Device Diff")
         box.setIcon(QMessageBox.Information)
-        box.setText(format_reconciliation_report(report))
+        box.setText(format_reconciliation_report(report, sync_plan=sync_plan))
         box.exec()
 
     def _remove_duplicate_device_tracks(self):
@@ -2877,11 +3217,36 @@ class MainWindow(QMainWindow):
         message = f"Copied {result['copied_count']} files\nBackup: {result['backup_dir']}"
         if result["failures"]:
             message += "\n\nFailures:\n" + "\n".join(result["failures"][:8])
+        elif str(profile.get("screen_resolution") or "").strip() == "176x132":
+            firmware_result = self._rebuild_and_deploy_runtime_firmware(profile)
+            if firmware_result["success"]:
+                message += "\n\nRebuilt and deployed rockbox.ipod for nano2g runtime changes."
+            else:
+                message += f"\n\nFirmware rebuild/deploy failed:\n{firmware_result['message']}"
         QMessageBox.information(self, "Wallpaper Apply Result", message)
         self._status_bar.set_left_text(
             "Wallpapers applied" if result["success"] else "Wallpaper apply completed with errors"
         )
         self._refresh_ipone_wallpapers()
+
+    def _rebuild_and_deploy_runtime_firmware(self, profile):
+        build = self._rockbox_boot.rebuild_firmware(profile)
+        if not build["success"]:
+            details = "\n".join(part for part in (build.get("stderr", ""), build.get("stdout", "")) if part.strip())
+            return {
+                "success": False,
+                "message": details[:4000] if details else build["message"],
+            }
+        try:
+            bundle = self._rockbox_boot.build_firmware_bundle(build["artifact_path"])
+            deploy_profile = self._rockbox_boot.deploy_profile(profile, "device")
+            diff = self._rockbox_deploy.build_diff(deploy_profile, bundle)
+            result = self._rockbox_deploy.apply_diff(deploy_profile, diff)
+        except ValueError as exc:
+            return {"success": False, "message": str(exc)}
+        if not result["success"]:
+            return {"success": False, "message": "\n".join(result["failures"][:8])}
+        return {"success": True, "message": "", "copied_count": result["copied_count"]}
 
     def _import_ipone_wallpaper(self, kind, source_path):
         profile = self._rockbox_profiles.current_profile()
@@ -3447,25 +3812,36 @@ class MainWindow(QMainWindow):
             )
             preview_path = preview.get("preview_path", "")
         sim_target = self._simulator_target_by_id(profile.get("simulator_target"))
-        deploy_profile = self._rockbox_boot.deploy_profile(profile, self._current_boot_target_mode, sim_target)
-        destination_rel = f".rockbox/rockpod/boot/branding/{profile['screen_resolution']}/boot-logo.bmp"
+        destination_rel = "rockbox.ipod"
         diff = None
         if validation["valid"]:
             try:
-                bundle = self._rockbox_boot.build_bundle(
-                    profile,
-                    image_path,
-                    os.path.join(self._config.cache_dir, "boot_staging"),
-                )
-                diff = self._rockbox_deploy.build_diff(deploy_profile, bundle)
+                if self._current_boot_target_mode == "device":
+                    bundle = self._rockbox_boot.build_source_bundle(
+                        profile,
+                        image_path,
+                        os.path.join(self._config.cache_dir, "boot_staging"),
+                    )
+                    diff = self._rockbox_deploy.build_diff(self._rockbox_boot.source_profile(profile), bundle)
+                    destination_rel = "repo boot assets -> rockbox.ipod"
+                else:
+                    deploy_profile = self._rockbox_boot.deploy_profile(profile, self._current_boot_target_mode, sim_target)
+                    destination_rel = f".rockbox/rockpod/boot/branding/{profile['screen_resolution']}/boot-logo.bmp"
+                    bundle = self._rockbox_boot.build_bundle(
+                        profile,
+                        image_path,
+                        os.path.join(self._config.cache_dir, "boot_staging"),
+                    )
+                    diff = self._rockbox_deploy.build_diff(deploy_profile, bundle)
             except (ValueError, OSError):
                 diff = None
+        status_message = validation["message"]
         self._current_boot_diff = diff
         self._boot_manager.set_details(
             image_path,
             f"{spec['width']}x{spec['height']}",
             destination_rel,
-            validation["message"],
+            status_message,
             preview_path,
             diff["summary"] if diff else None,
         )
@@ -3520,6 +3896,40 @@ class MainWindow(QMainWindow):
         if not profile or not self._current_boot_diff:
             self._status_bar.set_left_text("No boot branding deploy available")
             return
+        if self._current_boot_target_mode == "device":
+            source_result = self._rockbox_deploy.apply_diff(
+                self._rockbox_boot.source_profile(profile),
+                self._current_boot_diff,
+            )
+            if not source_result["success"]:
+                self._status_bar.set_left_text("Boot branding source update failed")
+                QMessageBox.warning(self, "Boot Branding Failed", "\n".join(source_result["failures"]))
+                self._refresh_boot_manager()
+                return
+            firmware_result = self._rebuild_and_deploy_runtime_firmware(profile)
+            if not firmware_result["success"]:
+                self._status_bar.set_left_text("Boot branding build failed")
+                QMessageBox.warning(self, "Boot Branding Failed", firmware_result["message"])
+                self._refresh_boot_manager()
+                return
+
+            source_note = ""
+            if source_result["copied_count"] == 0:
+                source_note = "No boot source files changed; the rendered boot assets already matched.\n"
+
+            self._status_bar.set_left_text("Boot branding rebuilt and deployed")
+            QMessageBox.information(
+                self,
+                "Boot Branding Updated",
+                (
+                    f"{source_note}"
+                    f"Updated {source_result['copied_count']} boot source files\n"
+                    f"Copied {firmware_result.get('copied_count', 0)} firmware file(s)\n"
+                    f"Rebuilt and deployed rockbox.ipod to {profile['device_mount_path']}"
+                ),
+            )
+            self._refresh_boot_manager()
+            return
         sim_target = self._simulator_target_by_id(profile.get("simulator_target"))
         deploy_profile = self._rockbox_boot.deploy_profile(profile, self._current_boot_target_mode, sim_target)
         result = self._rockbox_deploy.apply_diff(deploy_profile, self._current_boot_diff)
@@ -3538,6 +3948,26 @@ class MainWindow(QMainWindow):
     def _restore_boot_backup(self):
         profile = self._rockbox_profiles.current_profile()
         if not profile:
+            return
+        if self._current_boot_target_mode == "device":
+            result = self._rockbox_deploy.restore_latest_backup(self._rockbox_boot.source_profile(profile))
+            if result["success"]:
+                firmware_result = self._rebuild_and_deploy_runtime_firmware(profile)
+                if not firmware_result["success"]:
+                    self._status_bar.set_left_text("Boot branding restore build failed")
+                    QMessageBox.warning(self, "Restore Failed", firmware_result["message"])
+                    self._refresh_boot_manager()
+                    return
+                self._status_bar.set_left_text("Restored boot branding and redeployed firmware")
+                QMessageBox.information(
+                    self,
+                    "Boot Branding Restored",
+                    f"Restored {result['restored_count']} source files and redeployed rockbox.ipod",
+                )
+            else:
+                self._status_bar.set_left_text("Boot branding restore failed")
+                QMessageBox.warning(self, "Restore Failed", "\n".join(result["failures"]))
+            self._refresh_boot_manager()
             return
         sim_target = self._simulator_target_by_id(profile.get("simulator_target"))
         deploy_profile = self._rockbox_boot.deploy_profile(profile, self._current_boot_target_mode, sim_target)

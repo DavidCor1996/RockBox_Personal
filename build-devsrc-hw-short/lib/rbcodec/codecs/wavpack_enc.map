@@ -1,0 +1,360 @@
+Archive member included to satisfy reference by file (symbol)
+
+/home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/libwavpack.a(wputils.o)
+                              /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/wavpack_enc.o (WavpackOpenFileOutput)
+/home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/libwavpack.a(bits.o)
+                              /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/libwavpack.a(wputils.o) (little_endian_to_native)
+/home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/libwavpack.a(unpack.o)
+                              /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/libwavpack.a(wputils.o) (unpack_init)
+/home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/libwavpack.a(pack.o)
+                              /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/libwavpack.a(wputils.o) (pack_init)
+/home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/libwavpack.a(words.o)
+                              /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/libwavpack.a(pack.o) (init_words)
+/home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/libwavpack.a(arm.o)
+                              /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/libwavpack.a(unpack.o) (decorr_stereo_pass_cont_arm)
+/home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/libwavpack.a(arml.o)
+                              /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/libwavpack.a(unpack.o) (decorr_stereo_pass_cont_arml)
+/home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/libwavpack.a(float.o)
+                              /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/libwavpack.a(unpack.o) (float_values)
+/home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/libwavpack.a(metadata.o)
+                              /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/libwavpack.a(unpack.o) (read_metadata_buff)
+/home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+                              /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/wavpack_enc.o (codec_init)
+/usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivsi3.o)
+                              /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/libwavpack.a(words.o) (__aeabi_uidiv)
+/usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
+                              /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivsi3.o) (__aeabi_idiv0)
+
+Discarded input sections
+
+ .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/wavpack_enc.o
+ .bss           0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/codec_crt0.o
+ .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/libwavpack.a(wputils.o)
+ .bss           0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/libwavpack.a(wputils.o)
+ .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/libwavpack.a(bits.o)
+ .bss           0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/libwavpack.a(bits.o)
+ .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/libwavpack.a(unpack.o)
+ .bss           0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/libwavpack.a(unpack.o)
+ .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/libwavpack.a(pack.o)
+ .bss           0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/libwavpack.a(pack.o)
+ .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/libwavpack.a(words.o)
+ .bss           0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/libwavpack.a(words.o)
+ .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/libwavpack.a(arm.o)
+ .bss           0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/libwavpack.a(arm.o)
+ .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/libwavpack.a(arml.o)
+ .bss           0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/libwavpack.a(arml.o)
+ .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/libwavpack.a(float.o)
+ .bss           0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/libwavpack.a(float.o)
+ .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/libwavpack.a(metadata.o)
+ .bss           0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/libwavpack.a(metadata.o)
+ .text          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+ .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+ .text.codec_set_replaygain
+                0x0000000000000000       0x54 /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+ .text.codec_malloc
+                0x0000000000000000       0x40 /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+ .text.codec_calloc
+                0x0000000000000000       0x48 /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+ .text.codec_free
+                0x0000000000000000        0x4 /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+ .text.codec_realloc
+                0x0000000000000000       0x54 /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+ .text.codec_strlen
+                0x0000000000000000       0x24 /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+ .text.strcpy   0x0000000000000000       0x24 /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+ .text.strcat   0x0000000000000000       0x24 /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+ .text.strcmp   0x0000000000000000       0x24 /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+ .text.memcmp   0x0000000000000000       0x24 /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+ .text.memchr   0x0000000000000000       0x24 /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+ .text.memmove  0x0000000000000000       0x24 /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+ .text.qsort    0x0000000000000000       0x24 /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+ .irodata       0x0000000000000000      0x200 /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+ .data          0x0000000000000000        0x0 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivsi3.o)
+ .bss           0x0000000000000000        0x0 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivsi3.o)
+ .data          0x0000000000000000        0x0 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
+ .bss           0x0000000000000000        0x0 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
+
+Memory Configuration
+
+Name             Origin             Length             Attributes
+PLUGIN_RAM       0x0000000003e00000 0x0000000000100000
+PLUGIN_IRAM      0x000000004000c000 0x0000000000014000
+*default*        0x0000000000000000 0xffffffffffffffff
+
+Linker script and memory map
+
+LOAD /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/wavpack_enc.o
+LOAD /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/codec_crt0.o
+LOAD /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/libwavpack.a
+LOAD /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/libcodec.a
+LOAD /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/libfixedpoint.a
+LOAD /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a
+
+.header         0x0000000003e00000       0x24
+                0x0000000003e00000                _plugin_start_addr = .
+                0x0000000003e00000                plugin_start_addr = .
+ *(.header)
+ .header        0x0000000003e00000       0x24 /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/wavpack_enc.o
+                0x0000000003e00000                __header
+
+.text           0x0000000003e00024     0x7334
+ *(.text*)
+ .text          0x0000000003e00024      0x2f4 /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/wavpack_enc.o
+                0x0000000003e00058                codec_run
+                0x0000000003e002f4                codec_main
+ .text          0x0000000003e00318       0xec /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/codec_crt0.o
+                0x0000000003e00318                _start
+                0x0000000003e00320                codec_start
+                0x0000000003e003f0                __div0
+ .text          0x0000000003e00404      0xa38 /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/libwavpack.a(wputils.o)
+                0x0000000003e0055c                WavpackOpenFileInput
+                0x0000000003e00740                WavpackGetMode
+                0x0000000003e0079c                WavpackUnpackSamples
+                0x0000000003e00a48                WavpackGetNumSamples
+                0x0000000003e00a58                WavpackGetSampleIndex
+                0x0000000003e00a68                WavpackGetNumErrors
+                0x0000000003e00a74                WavpackLossyBlocks
+                0x0000000003e00a80                WavpackGetSampleRate
+                0x0000000003e00a94                WavpackGetNumChannels
+                0x0000000003e00aa4                WavpackGetBitsPerSample
+                0x0000000003e00ab4                WavpackGetBytesPerSample
+                0x0000000003e00ac4                WavpackGetReducedChannels
+                0x0000000003e00ae4                WavpackOpenFileOutput
+                0x0000000003e00b10                WavpackSetConfiguration
+                0x0000000003e00d48                WavpackAddWrapper
+                0x0000000003e00d54                WavpackStartBlock
+                0x0000000003e00d6c                WavpackPackSamples
+                0x0000000003e00dbc                WavpackFinishBlock
+                0x0000000003e00dec                WavpackUpdateNumSamples
+                0x0000000003e00e28                WavpackGetWrapperLocation
+ .text          0x0000000003e00e3c      0x268 /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/libwavpack.a(bits.o)
+                0x0000000003e00f08                bs_open_read
+                0x0000000003e00f60                bs_open_write
+                0x0000000003e00f8c                bs_close_write
+                0x0000000003e0106c                little_endian_to_native
+                0x0000000003e01088                native_to_little_endian
+ .text          0x0000000003e010a4     0x1a60 /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/libwavpack.a(unpack.o)
+                0x0000000003e01b24                unpack_init
+                0x0000000003e01c78                init_wv_bitstream
+                0x0000000003e01cf8                read_decorr_terms
+                0x0000000003e01db4                read_decorr_weights
+                0x0000000003e01e90                read_decorr_samples
+                0x0000000003e020ec                read_int32_info
+                0x0000000003e02130                read_channel_info
+                0x0000000003e021a0                read_config_info
+                0x0000000003e021e4                read_sample_rate
+                0x0000000003e0221c                unpack_samples
+                0x0000000003e02af0                check_crc_error
+ .text          0x0000000003e02b04      0xe08 /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/libwavpack.a(pack.o)
+                0x0000000003e02b04                pack_init
+                0x0000000003e02c88                pack_start_block
+                0x0000000003e03094                pack_samples
+                0x0000000003e03724                pack_finish_block
+ .text          0x0000000003e0390c     0x2b24 /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/libwavpack.a(words.o)
+                0x0000000003e0390c                init_words
+                0x0000000003e03928                read_entropy_vars
+                0x0000000003e03a6c                write_entropy_vars
+                0x0000000003e03dcc                read_hybrid_profile
+                0x0000000003e03fb0                get_words
+                0x0000000003e050c0                flush_word
+                0x0000000003e057a0                send_words
+                0x0000000003e06254                log2s
+                0x0000000003e06378                exp2s
+                0x0000000003e063d8                store_weight
+                0x0000000003e0641c                restore_weight
+ .text          0x0000000003e06430      0x3fc /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/libwavpack.a(arm.o)
+                0x0000000003e06430                decorr_stereo_pass_cont_arm
+ .text          0x0000000003e0682c      0x460 /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/libwavpack.a(arml.o)
+                0x0000000003e0682c                decorr_stereo_pass_cont_arml
+ .text          0x0000000003e06c8c       0xe4 /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/libwavpack.a(float.o)
+                0x0000000003e06c8c                read_float_info
+                0x0000000003e06cd0                float_values
+ .text          0x0000000003e06d70      0x448 /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/libwavpack.a(metadata.o)
+                0x0000000003e06d70                read_metadata_buff
+                0x0000000003e06f44                process_metadata
+                0x0000000003e0706c                copy_metadata
+                0x0000000003e071ac                free_metadata
+ .text.codec_init
+                0x0000000003e071b8       0x40 /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+                0x0000000003e071b8                codec_init
+ .text.memcpy   0x0000000003e071f8       0x24 /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+                0x0000000003e071f8                memcpy
+ .text.memset   0x0000000003e0721c       0x24 /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+                0x0000000003e0721c                memset
+ .text          0x0000000003e07240      0x114 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivsi3.o)
+                0x0000000003e07240                __udivsi3
+                0x0000000003e07240                __aeabi_uidiv
+                0x0000000003e07334                __aeabi_uidivmod
+ .text          0x0000000003e07354        0x4 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
+                0x0000000003e07354                __aeabi_ldiv0
+                0x0000000003e07354                __aeabi_idiv0
+ *(.glue_7)
+ .glue_7        0x0000000003e07358        0x0 linker stubs
+ *(.glue_7t)
+ .glue_7t       0x0000000003e07358        0x0 linker stubs
+
+.vfp11_veneer   0x0000000003e07358        0x0
+ .vfp11_veneer  0x0000000003e07358        0x0 linker stubs
+
+.v4_bx          0x0000000003e07358        0x0
+ .v4_bx         0x0000000003e07358        0x0 linker stubs
+
+.iplt           0x0000000003e07358        0x0
+ .iplt          0x0000000003e07358        0x0 /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/wavpack_enc.o
+
+.rodata         0x0000000003e07358      0x1f0
+ *(.rodata*)
+ .rodata        0x0000000003e07358       0x3a /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/wavpack_enc.o
+ *fill*         0x0000000003e07392        0x2 
+ .rodata.str1.4
+                0x0000000003e07394       0x46 /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/libwavpack.a(wputils.o)
+ *fill*         0x0000000003e073da        0x2 
+ .rodata        0x0000000003e073dc       0x3c /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/libwavpack.a(wputils.o)
+ .rodata.str1.4
+                0x0000000003e07418       0x12 /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/libwavpack.a(unpack.o)
+                                         0x2a (size before relaxing)
+ *fill*         0x0000000003e0742a        0x2 
+ .rodata        0x0000000003e0742c       0x1a /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/libwavpack.a(pack.o)
+ *fill*         0x0000000003e07446        0x2 
+ .rodata        0x0000000003e07448      0x100 /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/libwavpack.a(words.o)
+
+.data           0x0000000003e07548        0x4
+ *(.data*)
+ .data          0x0000000003e07548        0x4 /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/codec_crt0.o
+                0x0000000003e07548                ci
+
+.igot.plt       0x0000000003e0754c        0x0
+ .igot.plt      0x0000000003e0754c        0x0 /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/wavpack_enc.o
+
+.ncdata         0x0000000013e07550        0x0 load address 0x0000000003e07550
+ *(.ncdata*)
+                0x0000000013e07550                . = ALIGN (0x10)
+
+/DISCARD/
+ *(.eh_frame)
+
+.bss            0x0000000003e0754c       0x10
+                0x0000000003e0754c                plugin_bss_start = .
+                0x0000000003e0754c                _plugin_bss_start = .
+ *(.bss*)
+ .bss           0x0000000003e0754c        0x4 /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/wavpack_enc.o
+ .bss           0x0000000003e07550        0xc /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+ *(COMMON)
+                0x0000000003e0755c                . = ALIGN (0x4)
+
+.ncbss          0x0000000013e07560        0x0 load address 0x0000000003e07560
+ *(.ncbss*)
+                0x0000000013e07560                . = ALIGN (0x10)
+
+.ncbss_vma      0x0000000003e07560        0x0
+                0x0000000003e07560                . = (. + SIZEOF (.ncbss))
+
+.pluginend      0x0000000003e0755c        0x0
+                0x0000000003e0755c                _plugin_end_addr = .
+                0x0000000003e0755c                plugin_end_addr = .
+
+.iram           0x000000004000c000      0x6e0 load address 0x0000000003e0754c
+                0x000000004000c000                iramstart = .
+ *(.icode)
+ .icode         0x000000004000c000      0x3b0 /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/wavpack_enc.o
+                0x000000004000c000                enc_callback
+ .icode.__stub  0x000000004000c3b0       0x30 linker stubs
+ *(.irodata)
+ .irodata       0x000000004000c3e0      0x300 /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/libwavpack.a(words.o)
+ *(.idata)
+                0x000000004000c6e0                iramend = .
+                0x0000000003e0754c                iramcopy = LOADADDR (.iram)
+
+.rel.dyn        0x000000004000c6e0        0x0 load address 0x0000000003e07c2c
+ .rel.iplt      0x000000004000c6e0        0x0 /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/wavpack_enc.o
+
+.ibss           0x000000004000c6e0     0xfc68 load address 0x0000000003e07c30
+                0x000000004000c6e0                iedata = .
+ *(.ibss)
+ .ibss          0x000000004000c6e0     0xf2a0 /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/wavpack_enc.o
+ .ibss          0x000000004001b980      0x9c8 /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/libwavpack.a(wputils.o)
+                0x000000004001c348                . = ALIGN (0x4)
+                0x000000004001c348                iend = .
+                0x0000000003e07c2c                loadendaddr = MAX (plugin_end_addr, (LOADADDR (.iram) + SIZEOF (.iram)))
+
+.pluginloadend  0x0000000003e07c2c        0x0
+                0x0000000003e07c2c                _plugin_load_end_addr = .
+                0x0000000003e07c2c                plugin_load_end_addr = .
+
+.comment        0x0000000000000000       0x11
+ *(.comment)
+ .comment       0x0000000000000000       0x11 /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/wavpack_enc.o
+                                         0x12 (size before relaxing)
+ .comment       0x0000000000000011       0x12 /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/codec_crt0.o
+ .comment       0x0000000000000011       0x12 /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/libwavpack.a(wputils.o)
+ .comment       0x0000000000000011       0x12 /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/libwavpack.a(bits.o)
+ .comment       0x0000000000000011       0x12 /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/libwavpack.a(unpack.o)
+ .comment       0x0000000000000011       0x12 /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/libwavpack.a(pack.o)
+ .comment       0x0000000000000011       0x12 /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/libwavpack.a(words.o)
+ .comment       0x0000000000000011       0x12 /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/libwavpack.a(float.o)
+ .comment       0x0000000000000011       0x12 /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/libwavpack.a(metadata.o)
+ .comment       0x0000000000000011       0x12 /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+                0x0000000000000001                ASSERT ((LOADADDR (.ncdata) == (ADDR (.ncdata) - 0x10000000)), .ncdata has incorrect LMA/VMA address)
+                0x0000000000000001                ASSERT (((LOADADDR (.ncdata) % 0x10) == 0x0), .ncdata incorrectly aligned)
+                0x0000000000000001                ASSERT ((LOADADDR (.ncbss) == (ADDR (.ncbss) - 0x10000000)), .ncbss has incorrect LMA/VMA address)
+                0x0000000000000001                ASSERT (((LOADADDR (.ncbss) % 0x10) == 0x0), .ncbss incorrectly aligned)
+                0x0000000000000001                ASSERT ((ADDR (.ncbss_vma) == LOADADDR (.ncbss)), .ncbss_vma has wrong address)
+                0x0000000000000001                ASSERT ((SIZEOF (.ncbss_vma) == SIZEOF (.ncbss)), .ncbss_vma has wrong size)
+OUTPUT(/home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/wavpack_enc.elf elf32-littlearm)
+LOAD linker stubs
+
+.ARM.attributes
+                0x0000000000000000       0x28
+ .ARM.attributes
+                0x0000000000000000       0x2a /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/wavpack_enc.o
+ .ARM.attributes
+                0x000000000000002a       0x2a /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/codec_crt0.o
+ .ARM.attributes
+                0x0000000000000054       0x2a /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/libwavpack.a(wputils.o)
+ .ARM.attributes
+                0x000000000000007e       0x2a /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/libwavpack.a(bits.o)
+ .ARM.attributes
+                0x00000000000000a8       0x2a /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/libwavpack.a(unpack.o)
+ .ARM.attributes
+                0x00000000000000d2       0x2a /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/libwavpack.a(pack.o)
+ .ARM.attributes
+                0x00000000000000fc       0x2a /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/libwavpack.a(words.o)
+ .ARM.attributes
+                0x0000000000000126       0x1a /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/libwavpack.a(arm.o)
+ .ARM.attributes
+                0x0000000000000140       0x1a /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/libwavpack.a(arml.o)
+ .ARM.attributes
+                0x000000000000015a       0x2a /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/libwavpack.a(float.o)
+ .ARM.attributes
+                0x0000000000000184       0x2a /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/libwavpack.a(metadata.o)
+ .ARM.attributes
+                0x00000000000001ae       0x2a /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+ .ARM.attributes
+                0x00000000000001d8       0x1c /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivsi3.o)
+ .ARM.attributes
+                0x00000000000001f4       0x1c /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
+
+.debug_frame    0x0000000000000000       0x20
+ .debug_frame   0x0000000000000000       0x20 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivsi3.o)
+
+.debug_line     0x0000000000000000       0xdf
+ .debug_line    0x0000000000000000       0x7e /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivsi3.o)
+ .debug_line    0x000000000000007e       0x61 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
+
+.debug_info     0x0000000000000000       0x4c
+ .debug_info    0x0000000000000000       0x26 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivsi3.o)
+ .debug_info    0x0000000000000026       0x26 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
+
+.debug_abbrev   0x0000000000000000       0x28
+ .debug_abbrev  0x0000000000000000       0x14 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivsi3.o)
+ .debug_abbrev  0x0000000000000014       0x14 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
+
+.debug_aranges  0x0000000000000000       0x40
+ .debug_aranges
+                0x0000000000000000       0x20 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivsi3.o)
+ .debug_aranges
+                0x0000000000000020       0x20 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
+
+.debug_str      0x0000000000000000       0x6c
+ .debug_str     0x0000000000000000       0x6c /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivsi3.o)
+ .debug_str     0x000000000000006c       0x6c /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)

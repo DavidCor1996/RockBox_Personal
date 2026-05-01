@@ -766,7 +766,14 @@ def _apply_video_path_fallback(track, filepath):
 
 
 def read_lyrics(filepath, mutagen_file_func=None):
-    """Read plain-text lyrics from a file when available."""
+    """Read lyrics from a sidecar or embedded tags when available."""
+    try:
+        sidecar = Path(str(filepath)).with_suffix(".lrc")
+        if sidecar.is_file():
+            return sidecar.read_text(encoding="utf-8-sig").strip()
+    except OSError as exc:
+        logger.debug("Lyrics sidecar read failed for %s: %s", filepath, exc)
+
     ext = Path(str(filepath)).suffix.lower()
     mutagen_file_func = mutagen_file_func or mutagen.File
     try:

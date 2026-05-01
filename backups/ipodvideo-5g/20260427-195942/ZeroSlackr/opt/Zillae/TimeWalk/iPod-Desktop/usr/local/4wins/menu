@@ -1,0 +1,30 @@
+system=zurück
+	location=1
+	image=usr/local/4wins/images/back.gif
+	image:selected=usr/local/4wins/images/back_selected.gif
+	end-system
+image=usr/local/4wins/images/new_game.gif
+image:selected=usr/local/4wins/images/new_game_selected.gif
+menu=neues Spiel
+	system=Mensch gegen Mensch
+		location=2
+		image=usr/local/4wins/images/2_humans.gif
+		image:selected=usr/local/4wins/images/2_humans_selected.gif
+		end-system
+	system=Mensch gegen Computer
+		location=4
+		image=usr/local/4wins/images/human_iPod.gif
+		image:selected=usr/local/4wins/images/human_iPod_selected.gif
+		end-system
+	system=Computer gegen Mensch
+		location=5
+		image=usr/local/4wins/images/iPod_human.gif
+		image:selected=usr/local/4wins/images/iPod_human_selected.gif
+		end-system
+	end-menu
+system=Beenden
+	location=3
+	image=usr/local/4wins/images/quit.gif
+	image:selected=usr/local/4wins/images/quit_selected.gif
+	end-system
+	

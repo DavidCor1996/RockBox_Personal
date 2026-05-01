@@ -1,0 +1,19 @@
+テキストビューアでutf-8の日本語テキストを表示出来ます。
+itunesDBのアーティスト名や曲名等の日本語を表示出来ます。
+ファイルブラウザでhfs+の日本語ファイル名も表示出来るそうです。
+fat32の場合、カーネルビルドの際.configファイルを
+	・CONFIG_NLS_CODEPAGE_932=y
+	・CONFIG_NLS_DEFAULT="cp932"
+とし、/etc/rcのfat32パーティションをマウントするところを
+	mount -t vfat -o utf8=1 /dev/hda2 /hp
+としたらある程度日本語ファイル名を表示出来ました。
+
+
+unifont.fntはユニコードフォントです。
+efont-unicode-bdf-0.4.2/b12.bdfをmicrowindowsの
+convbdfで変換して作りました。
+
+efont-unicode-bdfは以下にあります。
+http://openlab.jp/efont/unicode/
+
+convbdfはmicrowindows/src/fontsにあります。

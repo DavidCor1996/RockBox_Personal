@@ -5,7 +5,7 @@ import sys
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from models.track import Track, compute_metadata_hash, compute_artwork_hash
-from services.metadata_reader import read_metadata_details
+from services.metadata_reader import read_metadata_details, read_lyrics
 
 
 class TestMetadataHash:
@@ -477,6 +477,18 @@ class TestMetadataReaderDiagnostics:
         assert track.track_number == 1
         assert track.video_kind == "show"
         assert "basic metadata only" in info["warnings"]
+
+    def test_read_lyrics_prefers_local_lrc_sidecar(self, monkeypatch, tmp_dir):
+        path = os.path.join(tmp_dir, "Song.mp3")
+        with open(path, "wb") as f:
+            f.write(b"audio")
+        sidecar = os.path.splitext(path)[0] + ".lrc"
+        with open(sidecar, "w", encoding="utf-8") as f:
+            f.write("[00:01.00]<00:01.10>Hello")
+
+        monkeypatch.setattr("services.metadata_reader.mutagen.File", lambda _path: None)
+
+        assert read_lyrics(path) == "[00:01.00]<00:01.10>Hello"
 
     def test_media_drive_package_folder_infers_clean_show_title(self, tmp_dir):
         path = os.path.join(

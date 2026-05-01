@@ -1,0 +1,13 @@
+# Rockboy launcher index
+# Format:
+# title<TAB>rom_path<TAB>cover_path<TAB>favorite<TAB>save_hint<TAB>year<TAB>genre<TAB>publisher<TAB>developer<TAB>description
+#
+# Notes:
+# - rom_path and cover_path may be absolute, or relative to this file.
+# - favorite accepts 1/0, true/false, yes/no.
+# - save_hint is optional and only used as a hint when local save files are absent.
+# - year, genre, publisher, developer, and description are optional metadata fields.
+# - Pre-sized BMP or JPEG covers are recommended for iPod Video 5G performance.
+
+Pokemon Blue	/gameboy/Pokemon Blue.gb	covers/pokemon-blue.bmp	1	1	1996	Role-playing video game	Nintendo	Game Freak	Game Boy launch-era monster RPG.
+Tetris	/gameboy/Tetris.gb	covers/tetris.bmp	0	0	1989	Puzzle video game	Nintendo	Nintendo	Tile-matching puzzle classic.

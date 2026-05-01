@@ -1,0 +1,49 @@
+
+Memory Configuration
+
+Name             Origin             Length             Attributes
+IRAM             0x0000000022000000 0x0000000000001000 xrw
+*default*        0x0000000000000000 0xffffffffffffffff
+
+Linker script and memory map
+
+LOAD /tmp/ccZJzwQD.o
+                0x0000000022000000                . = ORIGIN (IRAM)
+
+.text           0x0000000022000000       0x48
+ *(.text)
+ .text          0x0000000022000000       0x48 /tmp/ccZJzwQD.o
+                0x0000000022000000                _start
+                0x0000000022000020                entry_offset_0x20
+ *(.text*)
+ *(.rodata*)
+
+.data           0x0000000022000048        0x0
+ .data          0x0000000022000048        0x0 /tmp/ccZJzwQD.o
+
+.glue_7         0x0000000022000048        0x0
+ .glue_7        0x0000000022000048        0x0 linker stubs
+
+.glue_7t        0x0000000022000048        0x0
+ .glue_7t       0x0000000022000048        0x0 linker stubs
+
+.vfp11_veneer   0x0000000022000048        0x0
+ .vfp11_veneer  0x0000000022000048        0x0 linker stubs
+
+.v4_bx          0x0000000022000048        0x0
+ .v4_bx         0x0000000022000048        0x0 linker stubs
+
+.bss            0x0000000022000048        0x0
+ .bss           0x0000000022000048        0x0 /tmp/ccZJzwQD.o
+
+/DISCARD/
+ *(.comment)
+ *(.note*)
+ *(.eh_frame*)
+OUTPUT(entry-offset-control-n3g.elf elf32-littlearm)
+LOAD linker stubs
+
+.ARM.attributes
+                0x0000000000000000       0x22
+ .ARM.attributes
+                0x0000000000000000       0x22 /tmp/ccZJzwQD.o

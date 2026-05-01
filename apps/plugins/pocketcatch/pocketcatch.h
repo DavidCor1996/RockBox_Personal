@@ -93,14 +93,17 @@
 #define PC_WORLD_MAP_MAX_H     72
 #define PC_WORLD_ORIGIN_X      0
 #define PC_WORLD_ORIGIN_Y      (-28)
-#define PC_WORLD_MAX_SPAWNS    4
+#define PC_WORLD_MAX_SPAWNS    8
 #define PC_WORLD_WALK_FRAMES   3
 #define PC_WORLD_SECRET_COUNT  8
-#define PC_WORLD_POKESTOP_COUNT 10
+#define PC_WORLD_POKESTOP_COUNT 31
+#define PC_WORLD_POKESTOP_COUNT_V12 10
+#define PC_WORLD_POKESTOP_COUNT_V13 18
 #define PC_POKESTOP_SPIN_TARGET 84
 #define PC_BUDDY_CANDY_STEPS   48
 #define PC_MART_CATEGORY_COUNT 3
-#define PC_PLAYER_TRAINER_COUNT 6
+#define PC_PLAYER_TRAINER_COUNT_V14 6
+#define PC_PLAYER_TRAINER_COUNT 7
 
 enum pc_phase {
     PC_PHASE_INTRO = 0,
@@ -335,10 +338,13 @@ enum pc_world_scene {
     PC_WORLD_SCENE_BIKE_SHOP,
     PC_WORLD_SCENE_CERULEAN_MART,
     PC_WORLD_SCENE_CERULEAN_TRASHED_HOUSE,
-    PC_WORLD_SCENE_CERULEAN_BADGE_HOUSE
+    PC_WORLD_SCENE_CERULEAN_BADGE_HOUSE,
+    PC_WORLD_SCENE_ROUTE24,
+    PC_WORLD_SCENE_ROUTE25,
+    PC_WORLD_SCENE_BILLS_HOUSE
 };
 
-#define PC_WORLD_SCENE_MAX PC_WORLD_SCENE_CERULEAN_BADGE_HOUSE
+#define PC_WORLD_SCENE_MAX PC_WORLD_SCENE_BILLS_HOUSE
 
 enum pc_world_view {
     PC_WORLD_VIEW_MAP = 0,
@@ -529,6 +535,7 @@ bool pc_world_nearby_name(const struct pc_world_state *world, int index,
 int pc_world_player_trainer_count(void);
 const char *pc_world_player_trainer_name(int index);
 int pc_world_player_trainer_cost(int index);
+bool pc_world_player_trainer_assets_available(int index);
 void pc_world_render_frame(const struct pc_world_state *world);
 
 #endif

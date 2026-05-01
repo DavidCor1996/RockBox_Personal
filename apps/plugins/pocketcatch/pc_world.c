@@ -51,6 +51,10 @@
 #define PC_MT_MOON_B2F_MAP_H 18
 #define PC_CERULEAN_MAP_W 20
 #define PC_CERULEAN_MAP_H 18
+#define PC_ROUTE24_MAP_W 10
+#define PC_ROUTE24_MAP_H 18
+#define PC_ROUTE25_MAP_W 30
+#define PC_ROUTE25_MAP_H 9
 #define PC_SMALL_GYM_MAP_W 5
 #define PC_SMALL_GYM_MAP_H 7
 #define PC_MUSIC_HISTORY_MAX 256
@@ -198,47 +202,55 @@ static const unsigned char pc_route21_blocks[PC_ROUTE21_MAP_H][PC_ROUTE21_MAP_W]
 };
 
 static const unsigned char pc_outside_respawn_blocks[PC_WORLD_MAX_SPAWNS][2] = {
-    { 3, 3 }, { 6, 3 }, { 3, 6 }, { 6, 6 }
+    { 3, 3 }, { 6, 3 }, { 3, 6 }, { 6, 6 }, { 4, 4 }, { 5, 5 }, { 2, 5 }, { 7, 4 }
 };
 
 static const unsigned char pc_route1_respawn_blocks[PC_WORLD_MAX_SPAWNS][2] = {
-    { 5, 10 }, { 4, 12 }, { 5, 14 }, { 4, 16 }
+    { 5, 10 }, { 4, 12 }, { 5, 14 }, { 4, 16 }, { 7, 8 }, { 2, 15 }, { 7, 18 }, { 2, 22 }
 };
 
 static const unsigned char pc_viridian_respawn_blocks[PC_WORLD_MAX_SPAWNS][2] = {
-    { 9, 10 }, { 10, 12 }, { 6, 14 }, { 14, 14 }
+    { 9, 10 }, { 10, 12 }, { 6, 14 }, { 14, 14 }, { 8, 7 }, { 16, 9 }, { 12, 6 }, { 4, 10 }
 };
 
 static const unsigned char pc_route2_respawn_blocks[PC_WORLD_MAX_SPAWNS][2] = {
-    { 4, 6 }, { 5, 12 }, { 4, 24 }, { 5, 33 }
+    { 4, 6 }, { 5, 12 }, { 4, 24 }, { 5, 33 }, { 2, 18 }, { 7, 28 }, { 7, 6 }, { 2, 30 }
 };
 
 static const unsigned char pc_route21_respawn_blocks[PC_WORLD_MAX_SPAWNS][2] = {
-    { 4, 8 }, { 5, 14 }, { 4, 24 }, { 5, 34 }
+    { 4, 8 }, { 5, 14 }, { 4, 24 }, { 5, 34 }, { 2, 20 }, { 7, 38 }, { 7, 10 }, { 2, 30 }
 };
 
 static const unsigned char pc_forest_respawn_blocks[PC_WORLD_MAX_SPAWNS][2] = {
-    { 8, 21 }, { 13, 16 }, { 8, 10 }, { 3, 7 }
+    { 8, 21 }, { 13, 16 }, { 8, 10 }, { 3, 7 }, { 5, 15 }, { 11, 5 }, { 14, 10 }, { 5, 20 }
 };
 
 static const unsigned char pc_pewter_respawn_blocks[PC_WORLD_MAX_SPAWNS][2] = {
-    { 9, 14 }, { 7, 11 }, { 12, 9 }, { 14, 6 }
+    { 9, 14 }, { 7, 11 }, { 12, 9 }, { 14, 6 }, { 16, 12 }, { 5, 7 }, { 18, 8 }, { 4, 13 }
 };
 
 static const unsigned char pc_route22_respawn_blocks[PC_WORLD_MAX_SPAWNS][2] = {
-    { 5, 4 }, { 8, 5 }, { 12, 5 }, { 16, 4 }
+    { 5, 4 }, { 8, 5 }, { 12, 5 }, { 16, 4 }, { 3, 6 }, { 14, 6 }, { 10, 2 }, { 18, 5 }
 };
 
 static const unsigned char pc_route3_respawn_blocks[PC_WORLD_MAX_SPAWNS][2] = {
-    { 7, 2 }, { 11, 2 }, { 18, 2 }, { 30, 4 }
+    { 7, 2 }, { 11, 2 }, { 18, 2 }, { 30, 4 }, { 14, 4 }, { 24, 3 }, { 34, 3 }, { 27, 6 }
 };
 
 static const unsigned char pc_route4_respawn_blocks[PC_WORLD_MAX_SPAWNS][2] = {
-    { 20, 1 }, { 26, 1 }, { 31, 1 }, { 36, 1 }
+    { 15, 1 }, { 20, 1 }, { 26, 1 }, { 31, 1 }, { 36, 1 }, { 40, 1 }, { 10, 2 }, { 43, 4 }
 };
 
 static const unsigned char pc_cerulean_respawn_blocks[PC_WORLD_MAX_SPAWNS][2] = {
-    { 8, 14 }, { 10, 12 }, { 14, 10 }, { 6, 8 }
+    { 8, 14 }, { 10, 12 }, { 14, 10 }, { 6, 8 }, { 12, 7 }, { 16, 13 }, { 18, 9 }, { 5, 15 }
+};
+
+static const unsigned char pc_route24_respawn_blocks[PC_WORLD_MAX_SPAWNS][2] = {
+    { 7, 2 }, { 2, 5 }, { 2, 9 }, { 2, 12 }, { 2, 15 }, { 4, 4 }, { 7, 8 }, { 6, 14 }
+};
+
+static const unsigned char pc_route25_respawn_blocks[PC_WORLD_MAX_SPAWNS][2] = {
+    { 7, 1 }, { 12, 1 }, { 17, 1 }, { 22, 1 }, { 9, 4 }, { 24, 4 }, { 28, 2 }, { 18, 5 }
 };
 
 static const char *const pc_reds_house_1f_walk_mask[8] = {
@@ -289,14 +301,35 @@ static const struct pc_world_secret_item pc_world_secret_items[PC_WORLD_SECRET_C
 static const struct pc_world_pokestop pc_world_pokestops[PC_WORLD_POKESTOP_COUNT] = {
     { PC_WORLD_SCENE_PALLET, 10, 11 },
     { PC_WORLD_SCENE_ROUTE1_SOUTH, 10, 16 },
+    { PC_WORLD_SCENE_ROUTE1_SOUTH, 14, 28 },
     { PC_WORLD_SCENE_VIRIDIAN_SOUTH, 17, 13 },
     { PC_WORLD_SCENE_VIRIDIAN_SOUTH, 28, 10 },
+    { PC_WORLD_SCENE_VIRIDIAN_SOUTH, 23, 24 },
+    { PC_WORLD_SCENE_ROUTE22, 15, 10 },
+    { PC_WORLD_SCENE_ROUTE22, 27, 8 },
     { PC_WORLD_SCENE_ROUTE2_SOUTH, 6, 8 },
+    { PC_WORLD_SCENE_ROUTE2_SOUTH, 7, 24 },
     { PC_WORLD_SCENE_VIRIDIAN_FOREST, 16, 39 },
     { PC_WORLD_SCENE_VIRIDIAN_FOREST, 28, 19 },
+    { PC_WORLD_SCENE_VIRIDIAN_FOREST, 9, 11 },
     { PC_WORLD_SCENE_PEWTER, 11, 14 },
     { PC_WORLD_SCENE_PEWTER, 20, 20 },
     { PC_WORLD_SCENE_PEWTER, 33, 16 },
+    { PC_WORLD_SCENE_PEWTER, 27, 10 },
+    { PC_WORLD_SCENE_ROUTE3, 20, 5 },
+    { PC_WORLD_SCENE_ROUTE3, 50, 7 },
+    { PC_WORLD_SCENE_ROUTE3, 34, 5 },
+    { PC_WORLD_SCENE_ROUTE4, 22, 3 },
+    { PC_WORLD_SCENE_ROUTE4, 60, 3 },
+    { PC_WORLD_SCENE_ROUTE4, 80, 4 },
+    { PC_WORLD_SCENE_CERULEAN, 14, 15 },
+    { PC_WORLD_SCENE_CERULEAN, 28, 11 },
+    { PC_WORLD_SCENE_ROUTE24, 10, 16 },
+    { PC_WORLD_SCENE_ROUTE24, 8, 8 },
+    { PC_WORLD_SCENE_ROUTE25, 34, 4 },
+    { PC_WORLD_SCENE_ROUTE25, 54, 4 },
+    { PC_WORLD_SCENE_ROUTE25, 22, 6 },
+    { PC_WORLD_SCENE_BILLS_HOUSE, 4, 5 },
 };
 
 static const unsigned char pc_overworld_passable_tiles[] = {
@@ -345,6 +378,38 @@ static const unsigned char pc_ship_passable_tiles[] = {
     0x04, 0x0d, 0x17, 0x1d, 0x1e, 0x23, 0x34, 0x37, 0x39, 0x4a
 };
 
+static const unsigned char pc_cut_tree_block_swaps[][2] = {
+    {0x32, 0x6d},
+    {0x33, 0x6c},
+    {0x34, 0x6f},
+    {0x35, 0x4c},
+    {0x60, 0x6e},
+    {0x0b, 0x0a},
+    {0x3c, 0x35},
+    {0x3f, 0x35},
+    {0x3d, 0x36},
+};
+
+struct pc_pair_collision_rule {
+    int tileset_id;
+    unsigned char tile_a;
+    unsigned char tile_b;
+};
+
+static const struct pc_pair_collision_rule pc_pair_collision_land_rules[] = {
+    {17, 0x20, 0x05},
+    {17, 0x41, 0x05},
+    {3, 0x30, 0x2e},
+    {17, 0x2a, 0x05},
+    {17, 0x05, 0x21},
+    {3, 0x52, 0x2e},
+    {3, 0x55, 0x2e},
+    {3, 0x56, 0x2e},
+    {3, 0x20, 0x2e},
+    {3, 0x5e, 0x2e},
+    {3, 0x5f, 0x2e},
+};
+
 static fb_data pc_world_trainer_pixels[4][PC_WORLD_WALK_FRAMES]
                                       [PC_WORLD_TRAINER_MAX_W * PC_WORLD_TRAINER_MAX_H];
 static fb_data pc_world_creature_pixels[PC_WORLD_MAX_SPAWNS]
@@ -352,7 +417,7 @@ static fb_data pc_world_creature_pixels[PC_WORLD_MAX_SPAWNS]
 static fb_data pc_world_dex_pixels[PC_WORLD_CREATURE_MAX_W * PC_WORLD_CREATURE_MAX_H];
 
 #define PC_SAVE_MAGIC 0x5043474f
-#define PC_SAVE_VERSION 12
+#define PC_SAVE_VERSION 15
 #define PC_SAFE_RESET_VERSION 9
 #define PC_MENU_ITEMS 8
 #define PC_START_POKEBALLS 100
@@ -361,11 +426,11 @@ static fb_data pc_world_dex_pixels[PC_WORLD_CREATURE_MAX_W * PC_WORLD_CREATURE_M
 #define PC_MART_POKEBALL_COST 90
 #define PC_MART_SURF_COST 80
 #define PC_MART_CUT_COST 60
-#define PC_WORLD_VISIBLE_SPAWNS_MAX 4
-#define PC_WORLD_SPAWN_RESPAWN_MIN 10
-#define PC_WORLD_SPAWN_RESPAWN_MAX 28
-#define PC_WORLD_SPAWN_LIFETIME_MIN 35
-#define PC_WORLD_SPAWN_LIFETIME_MAX 90
+#define PC_WORLD_VISIBLE_SPAWNS_MAX 6
+#define PC_WORLD_SPAWN_RESPAWN_MIN 6
+#define PC_WORLD_SPAWN_RESPAWN_MAX 16
+#define PC_WORLD_SPAWN_LIFETIME_MIN 48
+#define PC_WORLD_SPAWN_LIFETIME_MAX 120
 #define PC_POKESTOP_COOLDOWN_STEPS 72
 #define PC_POKESTOP_MIN_BALLS 3
 #define PC_POKESTOP_MAX_BALLS 6
@@ -403,6 +468,7 @@ static const struct pc_player_trainer_def pc_player_trainers[PC_PLAYER_TRAINER_C
     { "kris", "Kris", 220 },
     { "brendan", "Brendan", 260 },
     { "may", "May", 260 },
+    { "lyra", "Lyra", 260 },
 };
 
 static enum pc_outdoor_region current_outdoor_region(const struct pc_world_state *world);
@@ -462,7 +528,7 @@ struct pc_save_record_v10 {
     unsigned short pokeballs;
     unsigned short money;
     unsigned int secret_collected_bits;
-    unsigned short pokestop_cooldowns[PC_WORLD_POKESTOP_COUNT];
+    unsigned short pokestop_cooldowns[PC_WORLD_POKESTOP_COUNT_V12];
     unsigned short caught_counts[PC_POKEDEX_MAX];
     unsigned short family_candy[PC_POKEDEX_MAX];
     signed short ability_species[PC_FIELD_ABILITY_COUNT];
@@ -482,6 +548,72 @@ struct pc_save_record_v11 {
     unsigned short pokeballs;
     unsigned short money;
     unsigned int secret_collected_bits;
+    unsigned short pokestop_cooldowns[PC_WORLD_POKESTOP_COUNT_V12];
+    unsigned short caught_counts[PC_POKEDEX_MAX];
+    unsigned short family_candy[PC_POKEDEX_MAX];
+    signed short ability_species[PC_FIELD_ABILITY_COUNT];
+    unsigned char ability_owned[PC_FIELD_ABILITY_COUNT];
+};
+
+struct pc_save_record_v12 {
+    int magic;
+    int version;
+    int scene;
+    int player_x;
+    int player_y;
+    int heading;
+    int travel_steps;
+    int buddy_species;
+    int buddy_steps;
+    unsigned short pokeballs;
+    unsigned short money;
+    unsigned int secret_collected_bits;
+    signed char player_trainer;
+    unsigned char owned_trainers[PC_PLAYER_TRAINER_COUNT_V14];
+    unsigned short pokestop_cooldowns[PC_WORLD_POKESTOP_COUNT_V12];
+    unsigned short caught_counts[PC_POKEDEX_MAX];
+    unsigned short family_candy[PC_POKEDEX_MAX];
+    signed short ability_species[PC_FIELD_ABILITY_COUNT];
+    unsigned char ability_owned[PC_FIELD_ABILITY_COUNT];
+};
+
+struct pc_save_record_v13 {
+    int magic;
+    int version;
+    int scene;
+    int player_x;
+    int player_y;
+    int heading;
+    int travel_steps;
+    int buddy_species;
+    int buddy_steps;
+    unsigned short pokeballs;
+    unsigned short money;
+    unsigned int secret_collected_bits;
+    signed char player_trainer;
+    unsigned char owned_trainers[PC_PLAYER_TRAINER_COUNT_V14];
+    unsigned short pokestop_cooldowns[PC_WORLD_POKESTOP_COUNT_V13];
+    unsigned short caught_counts[PC_POKEDEX_MAX];
+    unsigned short family_candy[PC_POKEDEX_MAX];
+    signed short ability_species[PC_FIELD_ABILITY_COUNT];
+    unsigned char ability_owned[PC_FIELD_ABILITY_COUNT];
+};
+
+struct pc_save_record_v14 {
+    int magic;
+    int version;
+    int scene;
+    int player_x;
+    int player_y;
+    int heading;
+    int travel_steps;
+    int buddy_species;
+    int buddy_steps;
+    unsigned short pokeballs;
+    unsigned short money;
+    unsigned int secret_collected_bits;
+    signed char player_trainer;
+    unsigned char owned_trainers[PC_PLAYER_TRAINER_COUNT_V14];
     unsigned short pokestop_cooldowns[PC_WORLD_POKESTOP_COUNT];
     unsigned short caught_counts[PC_POKEDEX_MAX];
     unsigned short family_candy[PC_POKEDEX_MAX];
@@ -539,6 +671,9 @@ struct pc_save_record_v1 {
 
 union pc_save_scratch {
     struct pc_save_record current;
+    struct pc_save_record_v14 v14;
+    struct pc_save_record_v13 v13;
+    struct pc_save_record_v12 v12;
     struct pc_save_record_v11 v11;
     struct pc_save_record_v10 v10;
     struct pc_save_record_v9 v9;
@@ -559,7 +694,9 @@ enum pc_outdoor_region {
     PC_OUTDOOR_REGION_PEWTER,
     PC_OUTDOOR_REGION_ROUTE3,
     PC_OUTDOOR_REGION_ROUTE4,
-    PC_OUTDOOR_REGION_CERULEAN
+    PC_OUTDOOR_REGION_CERULEAN,
+    PC_OUTDOOR_REGION_ROUTE24,
+    PC_OUTDOOR_REGION_ROUTE25
 };
 
 static const struct pc_spawn_entry pc_empty_spawn_table[] = {
@@ -567,36 +704,41 @@ static const struct pc_spawn_entry pc_empty_spawn_table[] = {
 };
 
 static const struct pc_spawn_entry pc_route1_spawn_table[] = {
-    { 16, 18 }, { 19, 16 }, { 21, 14 }, { 29, 10 }, { 32, 10 }, { 43, 8 },
-    { 69, 7 }, { 10, 6 }, { 13, 6 }, { 25, 3 }, { 39, 2 }
+    { 16, 20 }, { 19, 18 }, { 21, 10 }, { 29, 8 }
 };
 
 static const struct pc_spawn_entry pc_route22_spawn_table[] = {
-    { 16, 16 }, { 19, 14 }, { 21, 12 }, { 29, 10 }, { 32, 10 }, { 56, 14 },
-    { 43, 8 }, { 10, 6 }, { 13, 6 }, { 39, 4 }
+    { 19, 14 }, { 32, 12 }, { 29, 12 }, { 21, 11 }, { 16, 10 }, { 56, 8 }, { 23, 6 }, { 39, 5 }
 };
 
 static const struct pc_spawn_entry pc_route2_spawn_table[] = {
-    { 10, 18 }, { 13, 18 }, { 16, 12 }, { 19, 10 }, { 21, 8 }, { 29, 7 },
-    { 32, 7 }, { 43, 6 }, { 69, 6 }, { 25, 4 }, { 44, 2 }, { 70, 2 }
+    { 19, 16 }, { 16, 14 }, { 13, 12 }, { 10, 12 }, { 29, 10 }, { 32, 10 }, { 43, 8 }, { 69, 8 }
 };
 
 static const struct pc_spawn_entry pc_forest_spawn_table[] = {
-    { 10, 20 }, { 13, 20 }, { 11, 12 }, { 14, 12 }, { 16, 10 }, { 25, 4 }
+    { 13, 18 }, { 10, 16 }, { 14, 15 }, { 11, 13 }, { 25, 8 }, { 16, 6 }
 };
 
 static const struct pc_spawn_entry pc_route21_spawn_table[] = {
-    { 7, 6 }, { 54, 12 }, { 60, 18 }, { 61, 6 }, { 79, 14 }, { 118, 12 },
-    { 119, 6 }, { 120, 10 }, { 121, 5 }, { 129, 12 }, { 130, 4 }, { 183, 5 },
-    { 184, 4 }, { 194, 4 }, { 195, 3 }
+    { 7, 6 }, { 54, 14 }, { 60, 16 }, { 61, 8 }, { 79, 12 }, { 118, 12 },
+    { 119, 8 }, { 120, 10 }, { 121, 6 }, { 129, 10 }, { 130, 5 }, { 183, 5 },
+    { 184, 4 }, { 194, 4 }, { 195, 4 }
 };
 
 static const struct pc_spawn_entry pc_route3_spawn_table[] = {
-    { 16, 16 }, { 21, 18 }, { 39, 10 }
+    { 21, 18 }, { 16, 16 }, { 39, 12 }, { 19, 10 }, { 23, 8 }
 };
 
 static const struct pc_spawn_entry pc_route4_spawn_table[] = {
-    { 19, 12 }, { 21, 12 }, { 23, 16 }
+    { 23, 16 }, { 19, 14 }, { 21, 14 }, { 16, 12 }, { 56, 8 }
+};
+
+static const struct pc_spawn_entry pc_route24_spawn_table[] = {
+    { 43, 16 }, { 16, 14 }, { 63, 12 }, { 13, 10 }, { 14, 9 }, { 10, 8 }, { 19, 7 }, { 25, 5 }
+};
+
+static const struct pc_spawn_entry pc_route25_spawn_table[] = {
+    { 43, 16 }, { 16, 14 }, { 63, 12 }, { 13, 10 }, { 14, 9 }, { 11, 7 }, { 10, 7 }, { 25, 6 }, { 19, 5 }
 };
 
 
@@ -1029,6 +1171,65 @@ static int clamp_player_trainer_index(int index)
     return index;
 }
 
+static void build_player_trainer_asset_path(char *buffer, size_t buffer_size,
+                                            const char *root,
+                                            const char *trainer_name,
+                                            int heading, int frame)
+{
+    static const char *const dirs[] = { "n", "e", "s", "w" };
+    int safe_heading = heading;
+    int safe_frame = frame;
+
+    if (safe_heading < 0 || safe_heading >= 4)
+        safe_heading = PC_HEADING_S;
+    if (safe_frame < 0 || safe_frame >= PC_WORLD_WALK_FRAMES)
+        safe_frame = 1;
+
+    rb->snprintf(buffer, buffer_size, "%s/sprites/trainers/%s_walk_%s_%d.bmp",
+                 root, trainer_name, dirs[safe_heading], safe_frame);
+}
+
+static bool trainer_asset_exists_in_any_root(const char *trainer_name,
+                                             int heading, int frame)
+{
+    static const char *const roots[] = {
+        PC_ASSET_ROOT,
+        PC_ASSET_ROOT_ALT,
+    };
+    char path[MAX_PATH];
+    size_t i;
+
+    for (i = 0; i < ARRAYLEN(roots); ++i)
+    {
+        build_player_trainer_asset_path(path, sizeof(path), roots[i],
+                                        trainer_name, heading, frame);
+        if (rb->file_exists(path))
+            return true;
+    }
+
+    return false;
+}
+
+static bool player_trainer_assets_available(int trainer_index)
+{
+    const char *trainer_name;
+    int heading;
+    int frame;
+
+    trainer_index = clamp_player_trainer_index(trainer_index);
+    trainer_name = pc_player_trainers[trainer_index].asset_name;
+    for (heading = 0; heading < 4; ++heading)
+    {
+        for (frame = 0; frame < PC_WORLD_WALK_FRAMES; ++frame)
+        {
+            if (!trainer_asset_exists_in_any_root(trainer_name, heading, frame))
+                return false;
+        }
+    }
+
+    return true;
+}
+
 static void apply_player_trainer_choice(const struct pc_world_state *world)
 {
     int index = clamp_player_trainer_index(world->player_trainer);
@@ -1078,6 +1279,8 @@ static void sanitize_player_trainer(struct pc_world_state *world)
         world->owned_trainers[i] = world->owned_trainers[i] ? 1 : 0;
     }
     if (!world->owned_trainers[world->player_trainer])
+        world->player_trainer = 0;
+    if (!player_trainer_assets_available(world->player_trainer))
         world->player_trainer = 0;
 }
 
@@ -1139,6 +1342,10 @@ int pc_world_player_trainer_cost(int index)
     return pc_player_trainers[index].cost;
 }
 
+bool pc_world_player_trainer_assets_available(int index)
+{
+    return player_trainer_assets_available(index);
+}
 
 static const char *field_ability_name(enum pc_field_ability ability)
 {
@@ -1350,6 +1557,14 @@ static const struct pc_spawn_entry *spawn_table_for_region(enum pc_outdoor_regio
             *count = 0;
             return pc_empty_spawn_table;
 
+        case PC_OUTDOOR_REGION_ROUTE24:
+            *count = ARRAYLEN(pc_route24_spawn_table);
+            return pc_route24_spawn_table;
+
+        case PC_OUTDOOR_REGION_ROUTE25:
+            *count = ARRAYLEN(pc_route25_spawn_table);
+            return pc_route25_spawn_table;
+
         case PC_OUTDOOR_REGION_PALLET:
         default:
             *count = 0;
@@ -1443,6 +1658,12 @@ static enum pc_outdoor_region current_outdoor_region(const struct pc_world_state
 
         case PC_WORLD_SCENE_CERULEAN:
             return PC_OUTDOOR_REGION_CERULEAN;
+
+        case PC_WORLD_SCENE_ROUTE24:
+            return PC_OUTDOOR_REGION_ROUTE24;
+
+        case PC_WORLD_SCENE_ROUTE25:
+            return PC_OUTDOOR_REGION_ROUTE25;
 
         default:
             return PC_OUTDOOR_REGION_PALLET;
@@ -1564,6 +1785,14 @@ static void refresh_outdoor_region_state(struct pc_world_state *world, bool forc
             set_banner(world, "Cerulean City", "Misty's city beside Route 4");
             break;
 
+        case PC_OUTDOOR_REGION_ROUTE24:
+            set_banner(world, "Route 24", "Nugget Bridge north of Cerulean");
+            break;
+
+        case PC_OUTDOOR_REGION_ROUTE25:
+            set_banner(world, "Route 25", "Bill's cape stretches east");
+            break;
+
         case PC_OUTDOOR_REGION_PALLET:
         default:
             set_banner(world, "Pallet Town", "North to Route 1, south to Route 21");
@@ -1626,6 +1855,33 @@ enum pc_scene_tileset_group {
     PC_SCENE_TILESET_SHIP
 };
 
+enum pc_red_tileset_id {
+    PC_RED_TILESET_OVERWORLD = 0,
+    PC_RED_TILESET_REDS_HOUSE_1 = 1,
+    PC_RED_TILESET_MART = 2,
+    PC_RED_TILESET_FOREST = 3,
+    PC_RED_TILESET_REDS_HOUSE_2 = 4,
+    PC_RED_TILESET_DOJO = 5,
+    PC_RED_TILESET_POKECENTER = 6,
+    PC_RED_TILESET_GYM = 7,
+    PC_RED_TILESET_HOUSE = 8,
+    PC_RED_TILESET_FOREST_GATE = 9,
+    PC_RED_TILESET_MUSEUM = 10,
+    PC_RED_TILESET_UNDERGROUND = 11,
+    PC_RED_TILESET_GATE = 12,
+    PC_RED_TILESET_SHIP = 13,
+    PC_RED_TILESET_SHIP_PORT = 14,
+    PC_RED_TILESET_CEMETERY = 15,
+    PC_RED_TILESET_INTERIOR = 16,
+    PC_RED_TILESET_CAVERN = 17,
+    PC_RED_TILESET_LOBBY = 18,
+    PC_RED_TILESET_MANSION = 19,
+    PC_RED_TILESET_LAB = 20,
+    PC_RED_TILESET_CLUB = 21,
+    PC_RED_TILESET_FACILITY = 22,
+    PC_RED_TILESET_PLATEAU = 23,
+};
+
 static enum pc_scene_tileset_group scene_tileset_group(enum pc_world_scene scene)
 {
     switch (scene)
@@ -1642,6 +1898,7 @@ static enum pc_scene_tileset_group scene_tileset_group(enum pc_world_scene scene
         case PC_WORLD_SCENE_PEWTER_SPEECH_HOUSE:
         case PC_WORLD_SCENE_CERULEAN_TRADE_HOUSE:
         case PC_WORLD_SCENE_CERULEAN_TRASHED_HOUSE:
+        case PC_WORLD_SCENE_BILLS_HOUSE:
             return PC_SCENE_TILESET_HOUSE;
 
         case PC_WORLD_SCENE_VIRIDIAN_MART:
@@ -1693,8 +1950,93 @@ static enum pc_scene_tileset_group scene_tileset_group(enum pc_world_scene scene
         case PC_WORLD_SCENE_ROUTE3:
         case PC_WORLD_SCENE_ROUTE4:
         case PC_WORLD_SCENE_CERULEAN:
+        case PC_WORLD_SCENE_ROUTE24:
+        case PC_WORLD_SCENE_ROUTE25:
         default:
             return PC_SCENE_TILESET_OVERWORLD;
+    }
+}
+
+static int scene_red_tileset_id(enum pc_world_scene scene)
+{
+    switch (scene)
+    {
+        case PC_WORLD_SCENE_HOUSE_1F:
+            return PC_RED_TILESET_REDS_HOUSE_1;
+
+        case PC_WORLD_SCENE_HOUSE_2F:
+            return PC_RED_TILESET_REDS_HOUSE_2;
+
+        case PC_WORLD_SCENE_VIRIDIAN_MART:
+        case PC_WORLD_SCENE_PEWTER_MART:
+        case PC_WORLD_SCENE_CERULEAN_MART:
+            return PC_RED_TILESET_MART;
+
+        case PC_WORLD_SCENE_VIRIDIAN_FOREST:
+            return PC_RED_TILESET_FOREST;
+
+        case PC_WORLD_SCENE_VIRIDIAN_POKECENTER:
+        case PC_WORLD_SCENE_PEWTER_POKECENTER:
+        case PC_WORLD_SCENE_MT_MOON_POKECENTER:
+        case PC_WORLD_SCENE_CERULEAN_POKECENTER:
+            return PC_RED_TILESET_POKECENTER;
+
+        case PC_WORLD_SCENE_VIRIDIAN_GYM:
+        case PC_WORLD_SCENE_PEWTER_GYM:
+        case PC_WORLD_SCENE_CERULEAN_GYM:
+            return PC_RED_TILESET_GYM;
+
+        case PC_WORLD_SCENE_BLUES_HOUSE:
+        case PC_WORLD_SCENE_VIRIDIAN_SCHOOL_HOUSE:
+        case PC_WORLD_SCENE_VIRIDIAN_NICKNAME_HOUSE:
+        case PC_WORLD_SCENE_ROUTE2_TRADE_HOUSE:
+        case PC_WORLD_SCENE_PEWTER_NIDORAN_HOUSE:
+        case PC_WORLD_SCENE_PEWTER_SPEECH_HOUSE:
+        case PC_WORLD_SCENE_CERULEAN_TRADE_HOUSE:
+        case PC_WORLD_SCENE_CERULEAN_TRASHED_HOUSE:
+        case PC_WORLD_SCENE_BILLS_HOUSE:
+            return PC_RED_TILESET_HOUSE;
+
+        case PC_WORLD_SCENE_ROUTE2_GATE:
+        case PC_WORLD_SCENE_VIRIDIAN_FOREST_SOUTH_GATE:
+        case PC_WORLD_SCENE_VIRIDIAN_FOREST_NORTH_GATE:
+            return PC_RED_TILESET_FOREST_GATE;
+
+        case PC_WORLD_SCENE_MUSEUM_1F:
+        case PC_WORLD_SCENE_MUSEUM_2F:
+            return PC_RED_TILESET_MUSEUM;
+
+        case PC_WORLD_SCENE_ROUTE22_GATE:
+            return PC_RED_TILESET_GATE;
+
+        case PC_WORLD_SCENE_CERULEAN_BADGE_HOUSE:
+            return PC_RED_TILESET_SHIP;
+
+        case PC_WORLD_SCENE_MT_MOON_1F:
+        case PC_WORLD_SCENE_MT_MOON_B1F:
+        case PC_WORLD_SCENE_MT_MOON_B2F:
+            return PC_RED_TILESET_CAVERN;
+
+        case PC_WORLD_SCENE_OAKS_LAB:
+            return PC_RED_TILESET_LAB;
+
+        case PC_WORLD_SCENE_BIKE_SHOP:
+            return PC_RED_TILESET_CLUB;
+
+        case PC_WORLD_SCENE_PALLET:
+        case PC_WORLD_SCENE_ROUTE1_SOUTH:
+        case PC_WORLD_SCENE_VIRIDIAN_SOUTH:
+        case PC_WORLD_SCENE_ROUTE22:
+        case PC_WORLD_SCENE_ROUTE2_SOUTH:
+        case PC_WORLD_SCENE_ROUTE21_NORTH:
+        case PC_WORLD_SCENE_PEWTER:
+        case PC_WORLD_SCENE_ROUTE3:
+        case PC_WORLD_SCENE_ROUTE4:
+        case PC_WORLD_SCENE_CERULEAN:
+        case PC_WORLD_SCENE_ROUTE24:
+        case PC_WORLD_SCENE_ROUTE25:
+        default:
+            return PC_RED_TILESET_OVERWORLD;
     }
 }
 
@@ -1807,7 +2149,9 @@ static bool outdoor_scene(enum pc_world_scene scene)
            scene == PC_WORLD_SCENE_PEWTER ||
            scene == PC_WORLD_SCENE_ROUTE3 ||
            scene == PC_WORLD_SCENE_ROUTE4 ||
-           scene == PC_WORLD_SCENE_CERULEAN;
+           scene == PC_WORLD_SCENE_CERULEAN ||
+           scene == PC_WORLD_SCENE_ROUTE24 ||
+           scene == PC_WORLD_SCENE_ROUTE25;
 }
 
 static bool scene_tile_passable(const struct pc_world_state *world,
@@ -1866,20 +2210,14 @@ static int scene_walkable_override(const struct pc_world_state *world,
     return mask[metatile_y][metatile_x] == '.' ? 1 : 0;
 }
 
+static bool metatile_collision_tile(const struct pc_world_state *world,
+                                    int metatile_x, int metatile_y,
+                                    unsigned char *tile);
+
 static bool metatile_walkable(const struct pc_world_state *world,
                               int metatile_x, int metatile_y)
 {
-    const unsigned char (*blocks)[4][4];
-    const unsigned char *passable_tiles;
-    size_t passable_count;
-    int block_count;
-    int block_x;
-    int block_y;
-    int cell_x;
-    int cell_y;
-    unsigned char block_id;
-    unsigned char tile_left;
-    unsigned char tile_right;
+    unsigned char collision_tile;
 
     if (metatile_x < 0 || metatile_y < 0 ||
         metatile_x >= world->map_w * 2 || metatile_y >= world->map_h * 2)
@@ -1899,6 +2237,54 @@ static bool metatile_walkable(const struct pc_world_state *world,
             break;
     }
 
+    if (!metatile_collision_tile(world, metatile_x, metatile_y, &collision_tile))
+        return false;
+
+    return scene_tile_passable(world, collision_tile);
+}
+
+static bool tile_pair_collision_matches(unsigned char current_tile,
+                                        unsigned char next_tile,
+                                        const struct pc_pair_collision_rule *rules,
+                                        size_t rule_count,
+                                        int tileset_id)
+{
+    size_t i;
+
+    for (i = 0; i < rule_count; ++i)
+    {
+        if (rules[i].tileset_id != tileset_id)
+            continue;
+        if ((rules[i].tile_a == current_tile && rules[i].tile_b == next_tile) ||
+            (rules[i].tile_b == current_tile && rules[i].tile_a == next_tile))
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+static bool metatile_collision_tile(const struct pc_world_state *world,
+                                    int metatile_x, int metatile_y,
+                                    unsigned char *tile)
+{
+    const unsigned char (*blocks)[4][4];
+    const unsigned char *passable_tiles;
+    size_t passable_count;
+    int block_count;
+    int block_x;
+    int block_y;
+    int cell_x;
+    int cell_y;
+    unsigned char block_id;
+
+    if (metatile_x < 0 || metatile_y < 0 ||
+        metatile_x >= world->map_w * 2 || metatile_y >= world->map_h * 2)
+    {
+        return false;
+    }
+
     select_collision_tileset(world->scene, &blocks, &block_count,
                              &passable_tiles, &passable_count);
     (void)passable_tiles;
@@ -1912,10 +2298,40 @@ static bool metatile_walkable(const struct pc_world_state *world,
     if (block_id >= block_count)
         return false;
 
-    tile_left = blocks[block_id][cell_y + 1][cell_x];
-    tile_right = blocks[block_id][cell_y + 1][cell_x + 1];
-    return scene_tile_passable(world, tile_left) &&
-           scene_tile_passable(world, tile_right);
+    if (tile != NULL)
+        *tile = blocks[block_id][cell_y + 1][cell_x];
+    return true;
+}
+
+static bool metatile_pair_collision(const struct pc_world_state *world,
+                                    int current_metatile_x, int current_metatile_y,
+                                    int next_metatile_x, int next_metatile_y,
+                                    int move_dx, int move_dy)
+{
+    int tileset_id = scene_red_tileset_id(world->scene);
+    unsigned char current_tile;
+    unsigned char next_tile;
+    (void)move_dx;
+    (void)move_dy;
+
+    if (tileset_id != PC_RED_TILESET_FOREST &&
+        tileset_id != PC_RED_TILESET_CAVERN)
+    {
+        return false;
+    }
+
+    if (!metatile_collision_tile(world, current_metatile_x, current_metatile_y,
+                                 &current_tile) ||
+        !metatile_collision_tile(world, next_metatile_x, next_metatile_y,
+                                 &next_tile))
+    {
+        return true;
+    }
+
+    return tile_pair_collision_matches(current_tile, next_tile,
+                                       pc_pair_collision_land_rules,
+                                       ARRAYLEN(pc_pair_collision_land_rules),
+                                       tileset_id);
 }
 
 static bool warp_entry_walkable(const struct pc_world_state *world,
@@ -1983,6 +2399,11 @@ static bool warp_entry_walkable(const struct pc_world_state *world,
                     (metatile_y == 25 && (metatile_x == 13 || metatile_x == 25)) ||
                     (metatile_y == 9 && (metatile_x == 27 || metatile_x == 9)));
 
+        case PC_WORLD_SCENE_ROUTE25:
+            return move_dy < 0 &&
+                   metatile_y == 3 &&
+                   metatile_x == 45;
+
         case PC_WORLD_SCENE_VIRIDIAN_MART:
             return move_dy > 0 &&
                    metatile_y == 7 &&
@@ -2005,6 +2426,7 @@ static bool warp_entry_walkable(const struct pc_world_state *world,
         case PC_WORLD_SCENE_PEWTER_SPEECH_HOUSE:
         case PC_WORLD_SCENE_CERULEAN_TRADE_HOUSE:
         case PC_WORLD_SCENE_CERULEAN_TRASHED_HOUSE:
+        case PC_WORLD_SCENE_BILLS_HOUSE:
         case PC_WORLD_SCENE_BIKE_SHOP:
             return move_dy > 0 &&
                    metatile_y == 7 &&
@@ -2147,15 +2569,20 @@ static bool player_step_allowed(const struct pc_world_state *world,
                                 int move_dx, int move_dy)
 {
     int step = PC_WORLD_TILE_SIZE / 2;
-    int foot_y = y + PC_WORLD_FOOT_Y_OFFSET;
+    int current_tile_x = world->player_x / step;
+    int current_tile_y = (world->player_y + PC_WORLD_FOOT_Y_OFFSET) / step;
     int metatile_x;
     int metatile_y;
 
-    if (point_walkable(world, x, foot_y))
-        return true;
-
     metatile_x = x / step;
-    metatile_y = foot_y / step;
+    metatile_y = (y + PC_WORLD_FOOT_Y_OFFSET) / step;
+    if (metatile_walkable(world, metatile_x, metatile_y) &&
+        !metatile_pair_collision(world, current_tile_x, current_tile_y,
+                                 metatile_x, metatile_y, move_dx, move_dy))
+    {
+        return true;
+    }
+
     return warp_entry_walkable(world, metatile_x, metatile_y, move_dx, move_dy);
 }
 
@@ -2389,6 +2816,26 @@ static void load_scene_data(struct pc_world_state *world, enum pc_world_scene sc
             set_banner(world, "Cerulean City", "Misty's city beside Route 4");
             break;
 
+        case PC_WORLD_SCENE_ROUTE24:
+            world->map_w = PC_ROUTE24_MAP_W;
+            world->map_h = PC_ROUTE24_MAP_H;
+            world->origin_x = PC_WORLD_ORIGIN_X;
+            world->origin_y = PC_WORLD_ORIGIN_Y;
+            copy_block_rows(world->tiles, 0, &pc_route24_blocks[0][0],
+                            PC_ROUTE24_MAP_H, PC_ROUTE24_MAP_W);
+            set_banner(world, "Route 24", "Nugget Bridge climbs north from Cerulean");
+            break;
+
+        case PC_WORLD_SCENE_ROUTE25:
+            world->map_w = PC_ROUTE25_MAP_W;
+            world->map_h = PC_ROUTE25_MAP_H;
+            world->origin_x = PC_WORLD_ORIGIN_X;
+            world->origin_y = PC_WORLD_ORIGIN_Y;
+            copy_block_rows(world->tiles, 0, &pc_route25_blocks[0][0],
+                            PC_ROUTE25_MAP_H, PC_ROUTE25_MAP_W);
+            set_banner(world, "Route 25", "Bill's cape stretches over the sea");
+            break;
+
         case PC_WORLD_SCENE_ROUTE21_NORTH:
             world->map_w = PC_ROUTE21_MAP_W;
             world->map_h = PC_ROUTE21_MAP_H;
@@ -2487,6 +2934,16 @@ static void load_scene_data(struct pc_world_state *world, enum pc_world_scene sc
             copy_block_rows(world->tiles, 0, &pc_cerulean_badge_house_blocks[0][0],
                             PC_HOUSE_MAP_H, PC_HOUSE_MAP_W);
             set_banner(world, "Badge House", "A rear shortcut opens into the city");
+            break;
+
+        case PC_WORLD_SCENE_BILLS_HOUSE:
+            world->map_w = PC_HOUSE_MAP_W;
+            world->map_h = PC_HOUSE_MAP_H;
+            world->origin_x = (LCD_WIDTH - (PC_HOUSE_MAP_W * PC_WORLD_TILE_SIZE)) / 2;
+            world->origin_y = (LCD_HEIGHT - (PC_HOUSE_MAP_H * PC_WORLD_TILE_SIZE)) / 2;
+            copy_block_rows(world->tiles, 0, &pc_bills_house_blocks[0][0],
+                            PC_HOUSE_MAP_H, PC_HOUSE_MAP_W);
+            set_banner(world, "Bill's House", "A famous collector lives on the cape");
             break;
 
         case PC_WORLD_SCENE_VIRIDIAN_POKECENTER:
@@ -2726,6 +3183,12 @@ static const unsigned char (*scene_respawn_blocks(const struct pc_world_state *w
         case PC_WORLD_SCENE_CERULEAN:
             return pc_cerulean_respawn_blocks;
 
+        case PC_WORLD_SCENE_ROUTE24:
+            return pc_route24_respawn_blocks;
+
+        case PC_WORLD_SCENE_ROUTE25:
+            return pc_route25_respawn_blocks;
+
         case PC_WORLD_SCENE_PALLET:
         default:
             return pc_outside_respawn_blocks;
@@ -2904,6 +3367,14 @@ static void reset_player_to_safe_scene_position(struct pc_world_state *world)
             set_player_to_block(world, 10, 14, PC_HEADING_S);
             break;
 
+        case PC_WORLD_SCENE_ROUTE24:
+            set_player_to_block(world, 5, 15, PC_HEADING_S);
+            break;
+
+        case PC_WORLD_SCENE_ROUTE25:
+            set_player_to_block(world, 6, 4, PC_HEADING_E);
+            break;
+
         case PC_WORLD_SCENE_ROUTE21_NORTH:
             set_player_to_block(world, 4, 8, PC_HEADING_S);
             break;
@@ -3012,6 +3483,11 @@ static void reset_player_to_safe_scene_position(struct pc_world_state *world)
             break;
 
         case PC_WORLD_SCENE_CERULEAN_BADGE_HOUSE:
+            set_player_to_metatile(world, 2, 6);
+            world->heading = PC_HEADING_N;
+            break;
+
+        case PC_WORLD_SCENE_BILLS_HOUSE:
             set_player_to_metatile(world, 2, 6);
             world->heading = PC_HEADING_N;
             break;
@@ -3221,8 +3697,9 @@ static bool pc_world_try_load(struct pc_world_state *world)
         world->pokeballs = savebuf.v10.pokeballs;
         world->money = savebuf.v10.money;
         world->secret_collected_bits = savebuf.v10.secret_collected_bits;
+        rb->memset(world->pokestop_cooldowns, 0, sizeof(world->pokestop_cooldowns));
         rb->memcpy(world->pokestop_cooldowns, savebuf.v10.pokestop_cooldowns,
-                   sizeof(world->pokestop_cooldowns));
+                   sizeof(savebuf.v10.pokestop_cooldowns));
         rb->memcpy(world->caught_counts, savebuf.v10.caught_counts, sizeof(world->caught_counts));
         rb->memcpy(world->family_candy, savebuf.v10.family_candy, sizeof(world->family_candy));
         rb->memcpy(world->ability_species, savebuf.v10.ability_species,
@@ -3255,18 +3732,132 @@ static bool pc_world_try_load(struct pc_world_state *world)
         world->secret_collected_bits = savebuf.v11.secret_collected_bits;
         world->player_trainer = 0;
         world->owned_trainers[0] = 1;
+        rb->memset(world->pokestop_cooldowns, 0, sizeof(world->pokestop_cooldowns));
         rb->memcpy(world->pokestop_cooldowns, savebuf.v11.pokestop_cooldowns,
-                   sizeof(world->pokestop_cooldowns));
+                   sizeof(savebuf.v11.pokestop_cooldowns));
         rb->memcpy(world->caught_counts, savebuf.v11.caught_counts, sizeof(world->caught_counts));
         rb->memcpy(world->family_candy, savebuf.v11.family_candy, sizeof(world->family_candy));
         rb->memcpy(world->ability_species, savebuf.v11.ability_species,
                    sizeof(world->ability_species));
         rb->memcpy(world->ability_owned, savebuf.v11.ability_owned, sizeof(world->ability_owned));
     }
+    else if (got == (ssize_t)sizeof(savebuf.v12))
+    {
+        if (savebuf.v12.magic != PC_SAVE_MAGIC ||
+            savebuf.v12.version != 12 ||
+            savebuf.v12.scene < 0 || savebuf.v12.scene > PC_WORLD_SCENE_MAX)
+        {
+            return false;
+        }
+
+        scene = (enum pc_world_scene)savebuf.v12.scene;
+        world->player_x = savebuf.v12.player_x;
+        world->player_y = savebuf.v12.player_y;
+        if (savebuf.v12.version < PC_SAFE_RESET_VERSION)
+            needs_safe_outdoor_reset = true;
+        load_scene_data(world, scene);
+        world->heading = savebuf.v12.heading;
+        world->travel_steps = savebuf.v12.travel_steps;
+        world->buddy_species = savebuf.v12.buddy_species;
+        world->buddy_steps = savebuf.v12.buddy_steps;
+        world->pokeballs = savebuf.v12.pokeballs;
+        world->money = savebuf.v12.money;
+        world->secret_collected_bits = savebuf.v12.secret_collected_bits;
+        world->player_trainer = savebuf.v12.player_trainer;
+        rb->memset(world->owned_trainers, 0, sizeof(world->owned_trainers));
+        rb->memcpy(world->owned_trainers, savebuf.v12.owned_trainers,
+                   sizeof(savebuf.v12.owned_trainers));
+        rb->memset(world->pokestop_cooldowns, 0, sizeof(world->pokestop_cooldowns));
+        rb->memcpy(world->pokestop_cooldowns, savebuf.v12.pokestop_cooldowns,
+                   sizeof(savebuf.v12.pokestop_cooldowns));
+        rb->memcpy(world->caught_counts, savebuf.v12.caught_counts,
+                   sizeof(world->caught_counts));
+        rb->memcpy(world->family_candy, savebuf.v12.family_candy,
+                   sizeof(world->family_candy));
+        rb->memcpy(world->ability_species, savebuf.v12.ability_species,
+                   sizeof(world->ability_species));
+        rb->memcpy(world->ability_owned, savebuf.v12.ability_owned,
+                   sizeof(world->ability_owned));
+    }
+    else if (got == (ssize_t)sizeof(savebuf.v13))
+    {
+        if (savebuf.v13.magic != PC_SAVE_MAGIC ||
+            savebuf.v13.version != 13 ||
+            savebuf.v13.scene < 0 || savebuf.v13.scene > PC_WORLD_SCENE_MAX)
+        {
+            return false;
+        }
+
+        scene = (enum pc_world_scene)savebuf.v13.scene;
+        world->player_x = savebuf.v13.player_x;
+        world->player_y = savebuf.v13.player_y;
+        if (savebuf.v13.version < PC_SAFE_RESET_VERSION)
+            needs_safe_outdoor_reset = true;
+        load_scene_data(world, scene);
+        world->heading = savebuf.v13.heading;
+        world->travel_steps = savebuf.v13.travel_steps;
+        world->buddy_species = savebuf.v13.buddy_species;
+        world->buddy_steps = savebuf.v13.buddy_steps;
+        world->pokeballs = savebuf.v13.pokeballs;
+        world->money = savebuf.v13.money;
+        world->secret_collected_bits = savebuf.v13.secret_collected_bits;
+        world->player_trainer = savebuf.v13.player_trainer;
+        rb->memset(world->owned_trainers, 0, sizeof(world->owned_trainers));
+        rb->memcpy(world->owned_trainers, savebuf.v13.owned_trainers,
+                   sizeof(savebuf.v13.owned_trainers));
+        rb->memset(world->pokestop_cooldowns, 0, sizeof(world->pokestop_cooldowns));
+        rb->memcpy(world->pokestop_cooldowns, savebuf.v13.pokestop_cooldowns,
+                   sizeof(savebuf.v13.pokestop_cooldowns));
+        rb->memcpy(world->caught_counts, savebuf.v13.caught_counts,
+                   sizeof(world->caught_counts));
+        rb->memcpy(world->family_candy, savebuf.v13.family_candy,
+                   sizeof(world->family_candy));
+        rb->memcpy(world->ability_species, savebuf.v13.ability_species,
+                   sizeof(world->ability_species));
+        rb->memcpy(world->ability_owned, savebuf.v13.ability_owned,
+                   sizeof(world->ability_owned));
+    }
+    else if (got == (ssize_t)sizeof(savebuf.v14))
+    {
+        if (savebuf.v14.magic != PC_SAVE_MAGIC ||
+            savebuf.v14.version != 14 ||
+            savebuf.v14.scene < 0 || savebuf.v14.scene > PC_WORLD_SCENE_MAX)
+        {
+            return false;
+        }
+
+        scene = (enum pc_world_scene)savebuf.v14.scene;
+        world->player_x = savebuf.v14.player_x;
+        world->player_y = savebuf.v14.player_y;
+        if (savebuf.v14.version < PC_SAFE_RESET_VERSION)
+            needs_safe_outdoor_reset = true;
+        load_scene_data(world, scene);
+        world->heading = savebuf.v14.heading;
+        world->travel_steps = savebuf.v14.travel_steps;
+        world->buddy_species = savebuf.v14.buddy_species;
+        world->buddy_steps = savebuf.v14.buddy_steps;
+        world->pokeballs = savebuf.v14.pokeballs;
+        world->money = savebuf.v14.money;
+        world->secret_collected_bits = savebuf.v14.secret_collected_bits;
+        world->player_trainer = savebuf.v14.player_trainer;
+        rb->memset(world->owned_trainers, 0, sizeof(world->owned_trainers));
+        rb->memcpy(world->owned_trainers, savebuf.v14.owned_trainers,
+                   sizeof(savebuf.v14.owned_trainers));
+        rb->memcpy(world->pokestop_cooldowns, savebuf.v14.pokestop_cooldowns,
+                   sizeof(world->pokestop_cooldowns));
+        rb->memcpy(world->caught_counts, savebuf.v14.caught_counts,
+                   sizeof(world->caught_counts));
+        rb->memcpy(world->family_candy, savebuf.v14.family_candy,
+                   sizeof(world->family_candy));
+        rb->memcpy(world->ability_species, savebuf.v14.ability_species,
+                   sizeof(world->ability_species));
+        rb->memcpy(world->ability_owned, savebuf.v14.ability_owned,
+                   sizeof(world->ability_owned));
+    }
     else if (got == (ssize_t)sizeof(savebuf.current))
     {
         if (savebuf.current.magic != PC_SAVE_MAGIC ||
-            savebuf.current.version != 12 ||
+            savebuf.current.version != 15 ||
             savebuf.current.scene < 0 || savebuf.current.scene > PC_WORLD_SCENE_MAX)
         {
             return false;
@@ -3934,7 +4525,12 @@ static bool cuttable_block_info(const struct pc_world_state *world,
                                 int block_x, int block_y,
                                 unsigned char *replacement_block)
 {
+    int target_metatile_x;
+    int target_metatile_y;
+    int tileset_id;
+    unsigned char target_tile;
     unsigned char block_id;
+    size_t i;
 
     if (block_x < 0 || block_y < 0 ||
         block_x >= world->map_w || block_y >= world->map_h)
@@ -3943,13 +4539,38 @@ static bool cuttable_block_info(const struct pc_world_state *world,
     }
 
     block_id = world->tiles[block_y][block_x];
-    if (world->scene == PC_WORLD_SCENE_ROUTE2_SOUTH &&
-        block_id == 0x0f &&
-        (((block_x >= 4 && block_x <= 6) && (block_y >= 8 && block_y <= 10)) ||
-         ((block_x >= 3 && block_x <= 5) && block_y == 27)))
+    tileset_id = scene_red_tileset_id(world->scene);
+    facing_metatile_pos(world, &target_metatile_x, &target_metatile_y);
+    if (target_metatile_x / 2 != block_x || target_metatile_y / 2 != block_y)
+        return false;
+
+    if (!metatile_collision_tile(world, target_metatile_x, target_metatile_y,
+                                 &target_tile))
     {
+        return false;
+    }
+
+    if (tileset_id == PC_RED_TILESET_GYM)
+    {
+        if (target_tile != 0x50)
+            return false;
+    }
+    else if (tileset_id == PC_RED_TILESET_OVERWORLD)
+    {
+        if (target_tile != 0x3d && target_tile != 0x52)
+            return false;
+    }
+    else
+    {
+        return false;
+    }
+
+    for (i = 0; i < ARRAYLEN(pc_cut_tree_block_swaps); ++i)
+    {
+        if (pc_cut_tree_block_swaps[i][0] != block_id)
+            continue;
         if (replacement_block != NULL)
-            *replacement_block = 0x0a;
+            *replacement_block = pc_cut_tree_block_swaps[i][1];
         return true;
     }
 
@@ -4654,10 +5275,50 @@ static void maybe_handle_transition(struct pc_world_state *world, bool moved)
                 transition_to_scene_metatile(world, PC_WORLD_SCENE_CERULEAN_BADGE_HOUSE,
                                              2, 1, PC_HEADING_S);
             }
+            else if (block_y <= 1 && block_x >= 5 && block_x < (5 + PC_ROUTE24_MAP_W) &&
+                     world->heading == PC_HEADING_N)
+            {
+                transition_to_scene_block(world, PC_WORLD_SCENE_ROUTE24,
+                                          block_x - 5, PC_ROUTE24_MAP_H - 2, PC_HEADING_N);
+                init_spawns(world);
+            }
             else if (block_x <= 1 && world->heading == PC_HEADING_W)
             {
                 transition_to_scene_block(world, PC_WORLD_SCENE_ROUTE4,
                                           PC_ROUTE4_MAP_W - 2, block_y - 4, PC_HEADING_W);
+                init_spawns(world);
+            }
+            break;
+
+        case PC_WORLD_SCENE_ROUTE24:
+            if (block_y >= (world->map_h - 2) && block_x >= 0 && block_x < PC_ROUTE24_MAP_W &&
+                world->heading == PC_HEADING_S)
+            {
+                transition_to_scene_block(world, PC_WORLD_SCENE_CERULEAN,
+                                          block_x + 5, 1, PC_HEADING_S);
+                init_spawns(world);
+            }
+            else if (block_x >= (world->map_w - 2) && block_y < PC_ROUTE25_MAP_H &&
+                     world->heading == PC_HEADING_E)
+            {
+                transition_to_scene_block(world, PC_WORLD_SCENE_ROUTE25,
+                                          1, block_y, PC_HEADING_E);
+                init_spawns(world);
+            }
+            break;
+
+        case PC_WORLD_SCENE_ROUTE25:
+            if (player_in_metatile_zone(world, 45, 45, 3, 3) &&
+                world->heading == PC_HEADING_N)
+            {
+                transition_to_scene_metatile(world, PC_WORLD_SCENE_BILLS_HOUSE,
+                                             2, 6, PC_HEADING_N);
+            }
+            else if (block_x <= 1 && block_y < PC_ROUTE24_MAP_H &&
+                     world->heading == PC_HEADING_W)
+            {
+                transition_to_scene_block(world, PC_WORLD_SCENE_ROUTE24,
+                                          PC_ROUTE24_MAP_W - 2, block_y, PC_HEADING_W);
                 init_spawns(world);
             }
             break;
@@ -4842,14 +5503,14 @@ static void maybe_handle_transition(struct pc_world_state *world, bool moved)
             break;
 
         case PC_WORLD_SCENE_ROUTE2_GATE:
-            if (player_in_metatile_zone(world, 4, 5, 0, 0) &&
+            if (player_in_metatile_zone(world, 3, 5, 0, 0) &&
                 world->heading == PC_HEADING_N)
             {
                 transition_to_scene_metatile(world, PC_WORLD_SCENE_ROUTE2_SOUTH,
                                              16, 35, PC_HEADING_N);
                 init_spawns(world);
             }
-            else if (player_in_metatile_zone(world, 4, 5, 7, 7) &&
+            else if (player_in_metatile_zone(world, 3, 5, 7, 7) &&
                      world->heading == PC_HEADING_S)
             {
                 transition_to_scene_metatile(world, PC_WORLD_SCENE_ROUTE2_SOUTH,
@@ -4859,7 +5520,14 @@ static void maybe_handle_transition(struct pc_world_state *world, bool moved)
             break;
 
         case PC_WORLD_SCENE_ROUTE22_GATE:
-            if (player_in_metatile_zone(world, 4, 5, 7, 7) &&
+            if (player_in_metatile_zone(world, 3, 5, 0, 0) &&
+                world->heading == PC_HEADING_N)
+            {
+                transition_to_scene_metatile(world, PC_WORLD_SCENE_ROUTE22,
+                                             8, 1, PC_HEADING_N);
+                init_spawns(world);
+            }
+            else if (player_in_metatile_zone(world, 3, 5, 7, 7) &&
                 world->heading == PC_HEADING_S)
             {
                 transition_to_scene_metatile(world, PC_WORLD_SCENE_ROUTE22,
@@ -4869,14 +5537,14 @@ static void maybe_handle_transition(struct pc_world_state *world, bool moved)
             break;
 
         case PC_WORLD_SCENE_VIRIDIAN_FOREST_SOUTH_GATE:
-            if (player_in_metatile_zone(world, 4, 5, 0, 0) &&
+            if (player_in_metatile_zone(world, 3, 5, 0, 0) &&
                 world->heading == PC_HEADING_N)
             {
                 transition_to_scene_metatile(world, PC_WORLD_SCENE_VIRIDIAN_FOREST,
                                              16, 46, PC_HEADING_N);
                 init_spawns(world);
             }
-            else if (player_in_metatile_zone(world, 4, 5, 7, 7) &&
+            else if (player_in_metatile_zone(world, 3, 5, 7, 7) &&
                      world->heading == PC_HEADING_S)
             {
                 transition_to_scene_metatile(world, PC_WORLD_SCENE_ROUTE2_SOUTH,
@@ -4886,14 +5554,14 @@ static void maybe_handle_transition(struct pc_world_state *world, bool moved)
             break;
 
         case PC_WORLD_SCENE_VIRIDIAN_FOREST_NORTH_GATE:
-            if (player_in_metatile_zone(world, 4, 5, 0, 0) &&
+            if (player_in_metatile_zone(world, 3, 5, 0, 0) &&
                 world->heading == PC_HEADING_N)
             {
                 transition_to_scene_metatile(world, PC_WORLD_SCENE_ROUTE2_SOUTH,
-                                             3, 11, PC_HEADING_N);
+                                             3, 7, PC_HEADING_N);
                 init_spawns(world);
             }
-            else if (player_in_metatile_zone(world, 4, 5, 7, 7) &&
+            else if (player_in_metatile_zone(world, 3, 5, 7, 7) &&
                      world->heading == PC_HEADING_S)
             {
                 transition_to_scene_metatile(world, PC_WORLD_SCENE_VIRIDIAN_FOREST,
@@ -4962,6 +5630,16 @@ static void maybe_handle_transition(struct pc_world_state *world, bool moved)
             {
                 transition_to_scene_metatile(world, PC_WORLD_SCENE_CERULEAN,
                                              9, 9, PC_HEADING_N);
+                init_spawns(world);
+            }
+            break;
+
+        case PC_WORLD_SCENE_BILLS_HOUSE:
+            if (player_in_metatile_zone(world, 2, 3, 7, 7) &&
+                world->heading == PC_HEADING_S)
+            {
+                transition_to_scene_metatile(world, PC_WORLD_SCENE_ROUTE25,
+                                             45, 4, PC_HEADING_S);
                 init_spawns(world);
             }
             break;
@@ -5227,6 +5905,12 @@ static bool buy_or_equip_player_trainer(struct pc_world_state *world, int traine
     trainer_index = clamp_player_trainer_index(trainer_index);
     trainer = &pc_player_trainers[trainer_index];
 
+    if (!player_trainer_assets_available(trainer_index))
+    {
+        set_notice(world, "Look unavailable", "Missing trainer art on device");
+        return false;
+    }
+
     if (!world->owned_trainers[trainer_index])
     {
         if (world->money < trainer->cost)
@@ -5245,12 +5929,14 @@ static bool buy_or_equip_player_trainer(struct pc_world_state *world, int traine
         return false;
     }
 
+    world->owned_trainers[trainer_index] = 1;
     world->player_trainer = trainer_index;
+    apply_player_trainer_choice(world);
     sanitize_player_trainer(world);
     reload_player_trainer_assets(world);
+    pc_world_save(world);
     rb->snprintf(line2, sizeof(line2), "%s look equipped", trainer->display_name);
     set_notice(world, "Trainer changed", line2);
-    pc_world_save(world);
     return true;
 }
 

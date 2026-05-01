@@ -1,0 +1,540 @@
+                                      1 ;--------------------------------------------------------
+                                      2 ; File Created by SDCC : free open source ISO C Compiler
+                                      3 ; Version 4.5.1 #15267 (Linux)
+                                      4 ;--------------------------------------------------------
+                                      5 	.module music_menu
+                                      6 	
+                                      7 ;--------------------------------------------------------
+                                      8 ; Public variables in this module
+                                      9 ;--------------------------------------------------------
+                                     10 	.globl _menu_screen
+                                     11 	.globl _show_message
+                                     12 	.globl b_dt_audio_sync
+                                     13 	.globl _dt_audio_sync
+                                     14 	.globl b_dt_audio_get_home_record
+                                     15 	.globl _dt_audio_get_home_record
+                                     16 	.globl b_dt_audio_set_home_record
+                                     17 	.globl _dt_audio_set_home_record
+                                     18 	.globl b_dt_audio_play_sfx
+                                     19 	.globl _dt_audio_play_sfx
+                                     20 	.globl b_dt_record_from_media
+                                     21 	.globl _dt_record_from_media
+                                     22 	.globl b_dt_record_name
+                                     23 	.globl _dt_record_name
+                                     24 	.globl b_dt_home_record_menu
+                                     25 	.globl _dt_home_record_menu
+                                     26 ;--------------------------------------------------------
+                                     27 ; special function registers
+                                     28 ;--------------------------------------------------------
+                                     29 	.area _HRAM
+                                     30 ;--------------------------------------------------------
+                                     31 ; ram data
+                                     32 ;--------------------------------------------------------
+                                     33 	.area _DATA
+                                     34 ;--------------------------------------------------------
+                                     35 ; ram data
+                                     36 ;--------------------------------------------------------
+                                     37 	.area _INITIALIZED
+                                     38 ;--------------------------------------------------------
+                                     39 ; absolute external ram data
+                                     40 ;--------------------------------------------------------
+                                     41 	.area _DABS (ABS)
+                                     42 ;--------------------------------------------------------
+                                     43 ; global & static initialisations
+                                     44 ;--------------------------------------------------------
+                                     45 	.area _HOME
+                                     46 	.area _GSINIT
+                                     47 	.area _GSFINAL
+                                     48 	.area _GSINIT
+                                     49 ;--------------------------------------------------------
+                                     50 ; Home
+                                     51 ;--------------------------------------------------------
+                                     52 	.area _HOME
+                                     53 	.area _HOME
+                                     54 ;--------------------------------------------------------
+                                     55 ; code
+                                     56 ;--------------------------------------------------------
+                                     57 	.area _CODE_255
+                                     58 ;src/music_menu.c:9: uint8_t dt_record_from_media(uint8_t media_flag) BANKED {
+                                     59 ;	---------------------------------
+                                     60 ; Function dt_record_from_media
+                                     61 ; ---------------------------------
+                         000000FF    62 	b_dt_record_from_media	= 255
+    00000000                         63 _dt_record_from_media::
+                                     64 ;src/music_menu.c:10: if (media_flag == 0x01u) return RECORD_RAIN_LOOP;
+    00000000 F8 06            [12]   65 	ldhl	sp,	#6
+    00000002 7E               [ 8]   66 	ld	a, (hl)
+    00000003 3D               [ 4]   67 	dec	a
+    00000004 20 03            [12]   68 	jr	NZ, 00102$
+    00000006 3E 01            [ 8]   69 	ld	a, #0x01
+    00000008 C9               [16]   70 	ret
+    00000009                         71 00102$:
+                                     72 ;src/music_menu.c:11: if (media_flag == 0x02u) return RECORD_VENDING_DREAMS;
+    00000009 F8 06            [12]   73 	ldhl	sp,	#6
+    0000000B 7E               [ 8]   74 	ld	a, (hl)
+    0000000C D6 02            [ 8]   75 	sub	a, #0x02
+    0000000E 20 03            [12]   76 	jr	NZ, 00104$
+    00000010 3E 02            [ 8]   77 	ld	a, #0x02
+    00000012 C9               [16]   78 	ret
+    00000013                         79 00104$:
+                                     80 ;src/music_menu.c:12: if (media_flag == 0x04u) return RECORD_ROOFTOP_SET;
+    00000013 F8 06            [12]   81 	ldhl	sp,	#6
+    00000015 7E               [ 8]   82 	ld	a, (hl)
+    00000016 D6 04            [ 8]   83 	sub	a, #0x04
+                                     84 ;src/music_menu.c:13: return RECORD_NONE;
+    00000018 3E 03            [ 8]   85 	ld	a, #0x03
+    0000001A C8               [20]   86 	ret	Z
+    0000001B AF               [ 4]   87 	xor	a, a
+                                     88 ;src/music_menu.c:14: }
+    0000001C C9               [16]   89 	ret
+                                     90 ;src/music_menu.c:16: const char *dt_record_name(uint8_t record_id) BANKED {
+                                     91 ;	---------------------------------
+                                     92 ; Function dt_record_name
+                                     93 ; ---------------------------------
+                         000000FF    94 	b_dt_record_name	= 255
+    0000001D                         95 _dt_record_name::
+                                     96 ;src/music_menu.c:17: switch (record_id) {
+    0000001D F8 06            [12]   97 	ldhl	sp,	#6
+    0000001F 7E               [ 8]   98 	ld	a, (hl)
+    00000020 3D               [ 4]   99 	dec	a
+    00000021 28 10            [12]  100 	jr	Z, 00101$
+    00000023 F8 06            [12]  101 	ldhl	sp,	#6
+    00000025 7E               [ 8]  102 	ld	a, (hl)
+    00000026 D6 02            [ 8]  103 	sub	a, #0x02
+    00000028 28 0D            [12]  104 	jr	Z, 00102$
+    0000002A F8 06            [12]  105 	ldhl	sp,	#6
+    0000002C 7E               [ 8]  106 	ld	a, (hl)
+    0000002D D6 03            [ 8]  107 	sub	a, #0x03
+    0000002F 28 0A            [12]  108 	jr	Z, 00103$
+    00000031 18 0C            [12]  109 	jr	00104$
+                                    110 ;src/music_menu.c:18: case RECORD_RAIN_LOOP: return "Rain Loop";
+    00000033                        111 00101$:
+    00000033 01r43r00         [12]  112 	ld	bc, #___str_0
+    00000036 C9               [16]  113 	ret
+                                    114 ;src/music_menu.c:19: case RECORD_VENDING_DREAMS: return "Vending Dreams";
+    00000037                        115 00102$:
+    00000037 01r4Dr00         [12]  116 	ld	bc, #___str_1
+    0000003A C9               [16]  117 	ret
+                                    118 ;src/music_menu.c:20: case RECORD_ROOFTOP_SET: return "Rooftop Set";
+    0000003B                        119 00103$:
+    0000003B 01r5Cr00         [12]  120 	ld	bc, #___str_2
+    0000003E C9               [16]  121 	ret
+                                    122 ;src/music_menu.c:21: default: return "Silent";
+    0000003F                        123 00104$:
+    0000003F 01r68r00         [12]  124 	ld	bc, #___str_3
+                                    125 ;src/music_menu.c:22: }
+                                    126 ;src/music_menu.c:23: }
+    00000042 C9               [16]  127 	ret
+    00000043                        128 ___str_0:
+    00000043 52 61 69 6E 20 4C 6F   129 	.ascii "Rain Loop"
+             6F 70
+    0000004C 00                     130 	.db 0x00
+    0000004D                        131 ___str_1:
+    0000004D 56 65 6E 64 69 6E 67   132 	.ascii "Vending Dreams"
+             20 44 72 65 61 6D 73
+    0000005B 00                     133 	.db 0x00
+    0000005C                        134 ___str_2:
+    0000005C 52 6F 6F 66 74 6F 70   135 	.ascii "Rooftop Set"
+             20 53 65 74
+    00000067 00                     136 	.db 0x00
+    00000068                        137 ___str_3:
+    00000068 53 69 6C 65 6E 74      138 	.ascii "Silent"
+    0000006E 00                     139 	.db 0x00
+                                    140 ;src/music_menu.c:25: void dt_home_record_menu(uint8_t media, uint8_t room_id) BANKED {
+                                    141 ;	---------------------------------
+                                    142 ; Function dt_home_record_menu
+                                    143 ; ---------------------------------
+                         000000FF   144 	b_dt_home_record_menu	= 255
+    0000006F                        145 _dt_home_record_menu::
+    0000006F E8 EB            [16]  146 	add	sp, #-21
+                                    147 ;src/music_menu.c:28: uint8_t count = 0u;
+    00000071 F8 14            [12]  148 	ldhl	sp,	#20
+    00000073 36 00            [12]  149 	ld	(hl), #0x00
+                                    150 ;src/music_menu.c:29: uint8_t selected = 0u;
+    00000075 F8 0F            [12]  151 	ldhl	sp,	#15
+    00000077 36 00            [12]  152 	ld	(hl), #0x00
+                                    153 ;src/music_menu.c:32: if (media == 0u) {
+    00000079 F8 1B            [12]  154 	ldhl	sp,	#27
+    0000007B 7E               [ 8]  155 	ld	a, (hl)
+    0000007C B7               [ 4]  156 	or	a, a
+    0000007D 20 10            [12]  157 	jr	NZ, 00102$
+                                    158 ;src/music_menu.c:33: show_message("HOME DECK", "No records yet.\nFinish favors to bring home tiny songs.", "SELECT CLOSE");
+    0000007F 11r7Cr02         [12]  159 	ld	de, #___str_6
+    00000082 D5               [16]  160 	push	de
+    00000083 01r44r02         [12]  161 	ld	bc, #___str_5
+    00000086 11r3Ar02         [12]  162 	ld	de, #___str_4
+    00000089 CDr00r00         [24]  163 	call	_show_message
+                                    164 ;src/music_menu.c:34: return;
+    0000008C C3r37r02         [16]  165 	jp	00119$
+    0000008F                        166 00102$:
+                                    167 ;src/music_menu.c:37: if (media & 0x01u) {
+    0000008F F8 1B            [12]  168 	ldhl	sp,	#27
+    00000091 7E               [ 8]  169 	ld	a, (hl)
+    00000092 F8 13            [12]  170 	ldhl	sp,	#19
+    00000094 77               [ 8]  171 	ld	(hl), a
+    00000095 E5               [16]  172 	push	hl
+    00000096 CB 46            [12]  173 	bit	0, (hl)
+    00000098 E1               [12]  174 	pop	hl
+    00000099 28 1E            [12]  175 	jr	Z, 00106$
+                                    176 ;src/music_menu.c:38: items[count] = "Rain Loop";
+    0000009B F8 00            [12]  177 	ldhl	sp,	#0
+    0000009D 3Er89            [ 8]  178 	ld	a, #<(___str_7)
+    0000009F 22               [ 8]  179 	ld	(hl+), a
+    000000A0 36s02            [12]  180 	ld	(hl), #>(___str_7)
+                                    181 ;src/music_menu.c:39: values[count] = RECORD_RAIN_LOOP;
+    000000A2 F8 0A            [12]  182 	ldhl	sp,	#10
+    000000A4 36 01            [12]  183 	ld	(hl), #0x01
+                                    184 ;src/music_menu.c:40: if (dt_audio_get_home_record() == RECORD_RAIN_LOOP) selected = count;
+    000000A6 1Er00            [ 8]  185 	ld	e, #b_dt_audio_get_home_record
+    000000A8 21r00r00         [12]  186 	ld	hl, #_dt_audio_get_home_record
+    000000AB CDr00r00         [24]  187 	call	___sdcc_bcall_ehl
+    000000AE 3D               [ 4]  188 	dec	a
+    000000AF 20 04            [12]  189 	jr	NZ, 00104$
+    000000B1 F8 0F            [12]  190 	ldhl	sp,	#15
+    000000B3 36 00            [12]  191 	ld	(hl), #0x00
+    000000B5                        192 00104$:
+                                    193 ;src/music_menu.c:41: ++count;
+    000000B5 F8 14            [12]  194 	ldhl	sp,	#20
+    000000B7 36 01            [12]  195 	ld	(hl), #0x01
+    000000B9                        196 00106$:
+                                    197 ;src/music_menu.c:43: if (media & 0x02u) {
+    000000B9 E5               [16]  198 	push	hl
+    000000BA F8 15            [12]  199 	ldhl	sp,	#21
+    000000BC CB 4E            [12]  200 	bit	1, (hl)
+    000000BE E1               [12]  201 	pop	hl
+    000000BF 28 37            [12]  202 	jr	Z, 00110$
+                                    203 ;src/music_menu.c:44: items[count] = "Vending Dreams";
+    000000C1 F8 00            [12]  204 	ldhl	sp,	#0
+    000000C3 4D               [ 4]  205 	ld	c, l
+    000000C4 44               [ 4]  206 	ld	b, h
+    000000C5 F8 14            [12]  207 	ldhl	sp,	#20
+    000000C7 5E               [ 8]  208 	ld	e, (hl)
+    000000C8 AF               [ 4]  209 	xor	a, a
+    000000C9 6B               [ 4]  210 	ld	l, e
+    000000CA 67               [ 4]  211 	ld	h, a
+    000000CB 29               [ 8]  212 	add	hl, hl
+    000000CC 09               [ 8]  213 	add	hl, bc
+    000000CD 4D               [ 4]  214 	ld	c, l
+    000000CE 44               [ 4]  215 	ld	b, h
+    000000CF 36r93            [12]  216 	ld	(hl), #<(___str_8)
+    000000D1 03               [ 8]  217 	inc	bc
+    000000D2 3Es02            [ 8]  218 	ld	a, #>(___str_8)
+    000000D4 02               [ 8]  219 	ld	(bc), a
+                                    220 ;src/music_menu.c:45: values[count] = RECORD_VENDING_DREAMS;
+    000000D5 F8 0A            [12]  221 	ldhl	sp,	#10
+    000000D7 4D               [ 4]  222 	ld	c, l
+    000000D8 44               [ 4]  223 	ld	b, h
+    000000D9 F8 14            [12]  224 	ldhl	sp,	#20
+    000000DB 6E               [ 8]  225 	ld	l, (hl)
+    000000DC 26 00            [ 8]  226 	ld	h, #0x00
+    000000DE 09               [ 8]  227 	add	hl, bc
+    000000DF 4D               [ 4]  228 	ld	c, l
+    000000E0 44               [ 4]  229 	ld	b, h
+    000000E1 36 02            [12]  230 	ld	(hl), #0x02
+                                    231 ;src/music_menu.c:46: if (dt_audio_get_home_record() == RECORD_VENDING_DREAMS) selected = count;
+    000000E3 1Er00            [ 8]  232 	ld	e, #b_dt_audio_get_home_record
+    000000E5 21r00r00         [12]  233 	ld	hl, #_dt_audio_get_home_record
+    000000E8 CDr00r00         [24]  234 	call	___sdcc_bcall_ehl
+    000000EB D6 02            [ 8]  235 	sub	a, #0x02
+    000000ED 20 06            [12]  236 	jr	NZ, 00108$
+    000000EF F8 14            [12]  237 	ldhl	sp,	#20
+    000000F1 7E               [ 8]  238 	ld	a, (hl)
+    000000F2 F8 0F            [12]  239 	ldhl	sp,	#15
+    000000F4 77               [ 8]  240 	ld	(hl), a
+    000000F5                        241 00108$:
+                                    242 ;src/music_menu.c:47: ++count;
+    000000F5 F8 14            [12]  243 	ldhl	sp,	#20
+    000000F7 34               [12]  244 	inc	(hl)
+    000000F8                        245 00110$:
+                                    246 ;src/music_menu.c:49: if (media & 0x04u) {
+    000000F8 E5               [16]  247 	push	hl
+    000000F9 F8 15            [12]  248 	ldhl	sp,	#21
+    000000FB CB 56            [12]  249 	bit	2, (hl)
+    000000FD E1               [12]  250 	pop	hl
+    000000FE 28 54            [12]  251 	jr	Z, 00114$
+                                    252 ;src/music_menu.c:50: items[count] = "Rooftop Set";
+    00000100 F8 14            [12]  253 	ldhl	sp,	#20
+    00000102 3A               [ 8]  254 	ld	a, (hl-)
+    00000103 2B               [ 8]  255 	dec	hl
+    00000104 22               [ 8]  256 	ld	(hl+), a
+    00000105 AF               [ 4]  257 	xor	a, a
+    00000106 32               [ 8]  258 	ld	(hl-), a
+    00000107 3A               [ 8]  259 	ld	a, (hl-)
+    00000108 2B               [ 8]  260 	dec	hl
+    00000109 22               [ 8]  261 	ld	(hl+), a
+    0000010A AF               [ 4]  262 	xor	a, a
+    0000010B 32               [ 8]  263 	ld	(hl-), a
+    0000010C CB 26            [16]  264 	sla	(hl)
+    0000010E 23               [ 8]  265 	inc	hl
+    0000010F CB 16            [16]  266 	rl	(hl)
+    00000111 E5               [16]  267 	push	hl
+    00000112 21 02 00         [12]  268 	ld	hl, #2
+    00000115 39               [ 8]  269 	add	hl, sp
+    00000116 5D               [ 4]  270 	ld	e, l
+    00000117 54               [ 4]  271 	ld	d, h
+    00000118 E1               [12]  272 	pop	hl
+    00000119 F8 10            [12]  273 	ldhl	sp,	#16
+    0000011B 2A               [ 8]  274 	ld	a,	(hl+)
+    0000011C 66               [ 8]  275 	ld	h, (hl)
+    0000011D 6F               [ 4]  276 	ld	l, a
+    0000011E 19               [ 8]  277 	add	hl, de
+    0000011F E5               [16]  278 	push	hl
+    00000120 7D               [ 4]  279 	ld	a, l
+    00000121 F8 14            [12]  280 	ldhl	sp,	#20
+    00000123 77               [ 8]  281 	ld	(hl), a
+    00000124 E1               [12]  282 	pop	hl
+    00000125 7C               [ 4]  283 	ld	a, h
+    00000126 F8 13            [12]  284 	ldhl	sp,	#19
+    00000128 32               [ 8]  285 	ld	(hl-), a
+    00000129 2A               [ 8]  286 	ld	a, (hl+)
+    0000012A 66               [ 8]  287 	ld	h, (hl)
+    0000012B 6F               [ 4]  288 	ld	l, a
+    0000012C 3ErA2            [ 8]  289 	ld	a, #<(___str_9)
+    0000012E 22               [ 8]  290 	ld	(hl+), a
+    0000012F 36s02            [12]  291 	ld	(hl), #>(___str_9)
+                                    292 ;src/music_menu.c:51: values[count] = RECORD_ROOFTOP_SET;
+    00000131 F8 0A            [12]  293 	ldhl	sp,	#10
+    00000133 4D               [ 4]  294 	ld	c, l
+    00000134 44               [ 4]  295 	ld	b, h
+    00000135 F8 14            [12]  296 	ldhl	sp,	#20
+    00000137 6E               [ 8]  297 	ld	l, (hl)
+    00000138 26 00            [ 8]  298 	ld	h, #0x00
+    0000013A 09               [ 8]  299 	add	hl, bc
+    0000013B 4D               [ 4]  300 	ld	c, l
+    0000013C 44               [ 4]  301 	ld	b, h
+    0000013D 36 03            [12]  302 	ld	(hl), #0x03
+                                    303 ;src/music_menu.c:52: if (dt_audio_get_home_record() == RECORD_ROOFTOP_SET) selected = count;
+    0000013F 1Er00            [ 8]  304 	ld	e, #b_dt_audio_get_home_record
+    00000141 21r00r00         [12]  305 	ld	hl, #_dt_audio_get_home_record
+    00000144 CDr00r00         [24]  306 	call	___sdcc_bcall_ehl
+    00000147 D6 03            [ 8]  307 	sub	a, #0x03
+    00000149 20 06            [12]  308 	jr	NZ, 00112$
+    0000014B F8 14            [12]  309 	ldhl	sp,	#20
+    0000014D 7E               [ 8]  310 	ld	a, (hl)
+    0000014E F8 0F            [12]  311 	ldhl	sp,	#15
+    00000150 77               [ 8]  312 	ld	(hl), a
+    00000151                        313 00112$:
+                                    314 ;src/music_menu.c:53: ++count;
+    00000151 F8 14            [12]  315 	ldhl	sp,	#20
+    00000153 34               [12]  316 	inc	(hl)
+    00000154                        317 00114$:
+                                    318 ;src/music_menu.c:56: items[count] = "Stop Deck";
+    00000154 F8 14            [12]  319 	ldhl	sp,	#20
+    00000156 4E               [ 8]  320 	ld	c, (hl)
+    00000157 AF               [ 4]  321 	xor	a, a
+    00000158 47               [ 4]  322 	ld	b, a
+    00000159 CB 21            [ 8]  323 	sla	c
+    0000015B CB 10            [ 8]  324 	rl	b
+    0000015D 21 00 00         [12]  325 	ld	hl, #0
+    00000160 39               [ 8]  326 	add	hl, sp
+    00000161 09               [ 8]  327 	add	hl, bc
+    00000162 4D               [ 4]  328 	ld	c, l
+    00000163 44               [ 4]  329 	ld	b, h
+    00000164 36rAE            [12]  330 	ld	(hl), #<(___str_10)
+    00000166 03               [ 8]  331 	inc	bc
+    00000167 3Es02            [ 8]  332 	ld	a, #>(___str_10)
+    00000169 02               [ 8]  333 	ld	(bc), a
+                                    334 ;src/music_menu.c:57: values[count] = RECORD_NONE;
+    0000016A E5               [16]  335 	push	hl
+    0000016B 21 0C 00         [12]  336 	ld	hl, #12
+    0000016E 39               [ 8]  337 	add	hl, sp
+    0000016F 5D               [ 4]  338 	ld	e, l
+    00000170 54               [ 4]  339 	ld	d, h
+    00000171 E1               [12]  340 	pop	hl
+    00000172 F8 14            [12]  341 	ldhl	sp,	#20
+    00000174 6E               [ 8]  342 	ld	l, (hl)
+    00000175 26 00            [ 8]  343 	ld	h, #0x00
+    00000177 19               [ 8]  344 	add	hl, de
+    00000178 4D               [ 4]  345 	ld	c, l
+    00000179 44               [ 4]  346 	ld	b, h
+    0000017A AF               [ 4]  347 	xor	a, a
+    0000017B 02               [ 8]  348 	ld	(bc), a
+                                    349 ;src/music_menu.c:58: if (dt_audio_get_home_record() == RECORD_NONE) selected = count;
+    0000017C 1Er00            [ 8]  350 	ld	e, #b_dt_audio_get_home_record
+    0000017E 21r00r00         [12]  351 	ld	hl, #_dt_audio_get_home_record
+    00000181 CDr00r00         [24]  352 	call	___sdcc_bcall_ehl
+    00000184 B7               [ 4]  353 	or	a, a
+    00000185 20 06            [12]  354 	jr	NZ, 00116$
+    00000187 F8 14            [12]  355 	ldhl	sp,	#20
+    00000189 7E               [ 8]  356 	ld	a, (hl)
+    0000018A F8 0F            [12]  357 	ldhl	sp,	#15
+    0000018C 77               [ 8]  358 	ld	(hl), a
+    0000018D                        359 00116$:
+                                    360 ;src/music_menu.c:59: ++count;
+    0000018D F8 14            [12]  361 	ldhl	sp,	#20
+    0000018F 34               [12]  362 	inc	(hl)
+                                    363 ;src/music_menu.c:61: items[count] = "Back";
+    00000190 7E               [ 8]  364 	ld	a, (hl)
+    00000191 16 00            [ 8]  365 	ld	d, #0x00
+    00000193 87               [ 4]  366 	add	a, a
+    00000194 CB 12            [ 8]  367 	rl	d
+    00000196 5F               [ 4]  368 	ld	e, a
+    00000197 21 00 00         [12]  369 	ld	hl, #0
+    0000019A 39               [ 8]  370 	add	hl, sp
+    0000019B 19               [ 8]  371 	add	hl, de
+    0000019C E5               [16]  372 	push	hl
+    0000019D 7D               [ 4]  373 	ld	a, l
+    0000019E F8 14            [12]  374 	ldhl	sp,	#20
+    000001A0 77               [ 8]  375 	ld	(hl), a
+    000001A1 E1               [12]  376 	pop	hl
+    000001A2 7C               [ 4]  377 	ld	a, h
+    000001A3 F8 13            [12]  378 	ldhl	sp,	#19
+    000001A5 32               [ 8]  379 	ld	(hl-), a
+    000001A6 2A               [ 8]  380 	ld	a, (hl+)
+    000001A7 66               [ 8]  381 	ld	h, (hl)
+    000001A8 6F               [ 4]  382 	ld	l, a
+    000001A9 3ErB8            [ 8]  383 	ld	a, #<(___str_11)
+    000001AB 22               [ 8]  384 	ld	(hl+), a
+    000001AC 36s02            [12]  385 	ld	(hl), #>(___str_11)
+                                    386 ;src/music_menu.c:62: values[count] = 0xFFu;
+    000001AE E5               [16]  387 	push	hl
+    000001AF 21 0C 00         [12]  388 	ld	hl, #12
+    000001B2 39               [ 8]  389 	add	hl, sp
+    000001B3 5D               [ 4]  390 	ld	e, l
+    000001B4 54               [ 4]  391 	ld	d, h
+    000001B5 E1               [12]  392 	pop	hl
+    000001B6 F8 14            [12]  393 	ldhl	sp,	#20
+    000001B8 6E               [ 8]  394 	ld	l, (hl)
+    000001B9 26 00            [ 8]  395 	ld	h, #0x00
+    000001BB 19               [ 8]  396 	add	hl, de
+    000001BC E5               [16]  397 	push	hl
+    000001BD 7D               [ 4]  398 	ld	a, l
+    000001BE F8 14            [12]  399 	ldhl	sp,	#20
+    000001C0 77               [ 8]  400 	ld	(hl), a
+    000001C1 E1               [12]  401 	pop	hl
+    000001C2 7C               [ 4]  402 	ld	a, h
+    000001C3 F8 13            [12]  403 	ldhl	sp,	#19
+    000001C5 32               [ 8]  404 	ld	(hl-), a
+    000001C6 2A               [ 8]  405 	ld	a, (hl+)
+    000001C7 66               [ 8]  406 	ld	h, (hl)
+    000001C8 6F               [ 4]  407 	ld	l, a
+    000001C9 36 FF            [12]  408 	ld	(hl), #0xff
+                                    409 ;src/music_menu.c:63: ++count;
+    000001CB F8 14            [12]  410 	ldhl	sp,	#20
+    000001CD 34               [12]  411 	inc	(hl)
+                                    412 ;src/music_menu.c:65: choice = menu_screen("HOME DECK", "Load a found record", items, count, selected);
+    000001CE F8 0F            [12]  413 	ldhl	sp,	#15
+    000001D0 7E               [ 8]  414 	ld	a, (hl)
+    000001D1 F5               [16]  415 	push	af
+    000001D2 33               [ 8]  416 	inc	sp
+    000001D3 F8 15            [12]  417 	ldhl	sp,	#21
+    000001D5 7E               [ 8]  418 	ld	a, (hl)
+    000001D6 F5               [16]  419 	push	af
+    000001D7 33               [ 8]  420 	inc	sp
+    000001D8 21 02 00         [12]  421 	ld	hl, #2
+    000001DB 39               [ 8]  422 	add	hl, sp
+    000001DC E5               [16]  423 	push	hl
+    000001DD 01rBDr02         [12]  424 	ld	bc, #___str_12
+    000001E0 11r3Ar02         [12]  425 	ld	de, #___str_4
+    000001E3 CDr00r00         [24]  426 	call	_menu_screen
+                                    427 ;src/music_menu.c:66: if (values[choice] == 0xFFu) {
+    000001E6 5F               [ 4]  428 	ld	e, a
+    000001E7 16 00            [ 8]  429 	ld	d, #0x00
+    000001E9 21 0A 00         [12]  430 	ld	hl, #10
+    000001EC 39               [ 8]  431 	add	hl, sp
+    000001ED 19               [ 8]  432 	add	hl, de
+    000001EE E5               [16]  433 	push	hl
+    000001EF 7D               [ 4]  434 	ld	a, l
+    000001F0 F8 15            [12]  435 	ldhl	sp,	#21
+    000001F2 77               [ 8]  436 	ld	(hl), a
+    000001F3 E1               [12]  437 	pop	hl
+    000001F4 7C               [ 4]  438 	ld	a, h
+    000001F5 F8 14            [12]  439 	ldhl	sp,	#20
+    000001F7 32               [ 8]  440 	ld	(hl-), a
+    000001F8 2A               [ 8]  441 	ld	a, (hl+)
+    000001F9 5F               [ 4]  442 	ld	e, a
+    000001FA 3A               [ 8]  443 	ld	a, (hl-)
+    000001FB 2B               [ 8]  444 	dec	hl
+    000001FC 57               [ 4]  445 	ld	d, a
+    000001FD 1A               [ 8]  446 	ld	a, (de)
+    000001FE 77               [ 8]  447 	ld	(hl), a
+    000001FF 3C               [ 4]  448 	inc	a
+    00000200 28 35            [12]  449 	jr	Z, 00119$
+                                    450 ;src/music_menu.c:67: return;
+                                    451 ;src/music_menu.c:70: dt_audio_set_home_record(values[choice]);
+    00000202 F8 12            [12]  452 	ldhl	sp,	#18
+    00000204 7E               [ 8]  453 	ld	a, (hl)
+    00000205 F5               [16]  454 	push	af
+    00000206 33               [ 8]  455 	inc	sp
+    00000207 1Er00            [ 8]  456 	ld	e, #b_dt_audio_set_home_record
+    00000209 21r00r00         [12]  457 	ld	hl, #_dt_audio_set_home_record
+    0000020C CDr00r00         [24]  458 	call	___sdcc_bcall_ehl
+    0000020F 33               [ 8]  459 	inc	sp
+                                    460 ;src/music_menu.c:71: dt_audio_sync(room_id);
+    00000210 F8 1C            [12]  461 	ldhl	sp,	#28
+    00000212 7E               [ 8]  462 	ld	a, (hl)
+    00000213 F5               [16]  463 	push	af
+    00000214 33               [ 8]  464 	inc	sp
+    00000215 1Er00            [ 8]  465 	ld	e, #b_dt_audio_sync
+    00000217 21r00r00         [12]  466 	ld	hl, #_dt_audio_sync
+    0000021A CDr00r00         [24]  467 	call	___sdcc_bcall_ehl
+    0000021D 33               [ 8]  468 	inc	sp
+                                    469 ;src/music_menu.c:72: dt_audio_play_sfx((values[choice] == RECORD_NONE) ? SFX_CANCEL : SFX_CONFIRM);
+    0000021E F8 13            [12]  470 	ldhl	sp,#19
+    00000220 2A               [ 8]  471 	ld	a, (hl+)
+    00000221 5F               [ 4]  472 	ld	e, a
+    00000222 56               [ 8]  473 	ld	d, (hl)
+    00000223 1A               [ 8]  474 	ld	a, (de)
+    00000224 77               [ 8]  475 	ld	(hl), a
+    00000225 B7               [ 4]  476 	or	a, a
+    00000226 3E 02            [ 8]  477 	ld	a, #0x02
+    00000228 28 02            [12]  478 	jr	Z, 00122$
+    0000022A 3E 01            [ 8]  479 	ld	a, #0x01
+    0000022C                        480 00122$:
+    0000022C F5               [16]  481 	push	af
+    0000022D 33               [ 8]  482 	inc	sp
+    0000022E 1Er00            [ 8]  483 	ld	e, #b_dt_audio_play_sfx
+    00000230 21r00r00         [12]  484 	ld	hl, #_dt_audio_play_sfx
+    00000233 CDr00r00         [24]  485 	call	___sdcc_bcall_ehl
+    00000236 33               [ 8]  486 	inc	sp
+    00000237                        487 00119$:
+                                    488 ;src/music_menu.c:73: }
+    00000237 E8 15            [16]  489 	add	sp, #21
+    00000239 C9               [16]  490 	ret
+    0000023A                        491 ___str_4:
+    0000023A 48 4F 4D 45 20 44 45   492 	.ascii "HOME DECK"
+             43 4B
+    00000243 00                     493 	.db 0x00
+    00000244                        494 ___str_5:
+    00000244 4E 6F 20 72 65 63 6F   495 	.ascii "No records yet."
+             72 64 73 20 79 65 74
+             2E
+    00000253 0A                     496 	.db 0x0a
+    00000254 46 69 6E 69 73 68 20   497 	.ascii "Finish favors to bring home tiny songs."
+             66 61 76 6F 72 73 20
+             74 6F 20 62 72 69 6E
+             67 20 68 6F 6D 65 20
+             74 69 6E 79 20 73 6F
+             6E 67 73 2E
+    0000027B 00                     498 	.db 0x00
+    0000027C                        499 ___str_6:
+    0000027C 53 45 4C 45 43 54 20   500 	.ascii "SELECT CLOSE"
+             43 4C 4F 53 45
+    00000288 00                     501 	.db 0x00
+    00000289                        502 ___str_7:
+    00000289 52 61 69 6E 20 4C 6F   503 	.ascii "Rain Loop"
+             6F 70
+    00000292 00                     504 	.db 0x00
+    00000293                        505 ___str_8:
+    00000293 56 65 6E 64 69 6E 67   506 	.ascii "Vending Dreams"
+             20 44 72 65 61 6D 73
+    000002A1 00                     507 	.db 0x00
+    000002A2                        508 ___str_9:
+    000002A2 52 6F 6F 66 74 6F 70   509 	.ascii "Rooftop Set"
+             20 53 65 74
+    000002AD 00                     510 	.db 0x00
+    000002AE                        511 ___str_10:
+    000002AE 53 74 6F 70 20 44 65   512 	.ascii "Stop Deck"
+             63 6B
+    000002B7 00                     513 	.db 0x00
+    000002B8                        514 ___str_11:
+    000002B8 42 61 63 6B            515 	.ascii "Back"
+    000002BC 00                     516 	.db 0x00
+    000002BD                        517 ___str_12:
+    000002BD 4C 6F 61 64 20 61 20   518 	.ascii "Load a found record"
+             66 6F 75 6E 64 20 72
+             65 63 6F 72 64
+    000002D0 00                     519 	.db 0x00
+                                    520 	.area _CODE_255
+                                    521 	.area _INITIALIZER
+                                    522 	.area _CABS (ABS)

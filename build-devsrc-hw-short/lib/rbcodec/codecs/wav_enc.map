@@ -1,0 +1,133 @@
+
+Discarded input sections
+
+ .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/wav_enc.o
+ .bss           0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/codec_crt0.o
+
+Memory Configuration
+
+Name             Origin             Length             Attributes
+PLUGIN_RAM       0x0000000003e00000 0x0000000000100000
+PLUGIN_IRAM      0x000000004000c000 0x0000000000014000
+*default*        0x0000000000000000 0xffffffffffffffff
+
+Linker script and memory map
+
+LOAD /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/wav_enc.o
+LOAD /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/codec_crt0.o
+LOAD /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/libcodec.a
+LOAD /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/libfixedpoint.a
+LOAD /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a
+
+.header         0x0000000003e00000       0x24
+                0x0000000003e00000                _plugin_start_addr = .
+                0x0000000003e00000                plugin_start_addr = .
+ *(.header)
+ .header        0x0000000003e00000       0x24 /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/wav_enc.o
+                0x0000000003e00000                __header
+
+.text           0x0000000003e00024       0xf4
+ *(.text*)
+ .text          0x0000000003e00024        0x8 /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/wav_enc.o
+                0x0000000003e00024                codec_main
+ .text          0x0000000003e0002c       0xec /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/codec_crt0.o
+                0x0000000003e0002c                _start
+                0x0000000003e00034                codec_start
+                0x0000000003e00104                __div0
+ *(.glue_7)
+ .glue_7        0x0000000003e00118        0x0 linker stubs
+ *(.glue_7t)
+ .glue_7t       0x0000000003e00118        0x0 linker stubs
+
+.vfp11_veneer   0x0000000003e00118        0x0
+ .vfp11_veneer  0x0000000003e00118        0x0 linker stubs
+
+.v4_bx          0x0000000003e00118        0x0
+ .v4_bx         0x0000000003e00118        0x0 linker stubs
+
+.iplt           0x0000000003e00118        0x0
+ .iplt          0x0000000003e00118        0x0 /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/wav_enc.o
+
+.rodata         0x0000000003e00118       0x2c
+ *(.rodata*)
+ .rodata        0x0000000003e00118       0x2c /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/wav_enc.o
+
+.data           0x0000000003e00144        0x4
+ *(.data*)
+ .data          0x0000000003e00144        0x4 /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/codec_crt0.o
+                0x0000000003e00144                ci
+
+.igot.plt       0x0000000003e00148        0x0
+ .igot.plt      0x0000000003e00148        0x0 /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/wav_enc.o
+
+.ncdata         0x0000000013e00150        0x0 load address 0x0000000003e00150
+ *(.ncdata*)
+                0x0000000013e00150                . = ALIGN (0x10)
+
+/DISCARD/
+ *(.eh_frame)
+
+.bss            0x0000000003e00148       0x10
+                0x0000000003e00148                plugin_bss_start = .
+                0x0000000003e00148                _plugin_bss_start = .
+ *(.bss*)
+ .bss           0x0000000003e00148       0x10 /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/wav_enc.o
+ *(COMMON)
+                0x0000000003e00158                . = ALIGN (0x4)
+
+.ncbss          0x0000000013e00160        0x0 load address 0x0000000003e00160
+ *(.ncbss*)
+                0x0000000013e00160                . = ALIGN (0x10)
+
+.ncbss_vma      0x0000000003e00160        0x0
+                0x0000000003e00160                . = (. + SIZEOF (.ncbss))
+
+.pluginend      0x0000000003e00158        0x0
+                0x0000000003e00158                _plugin_end_addr = .
+                0x0000000003e00158                plugin_end_addr = .
+
+.iram           0x000000004000c000      0x2cc load address 0x0000000003e00148
+                0x000000004000c000                iramstart = .
+ *(.icode)
+ .icode         0x000000004000c000      0x2cc /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/wav_enc.o
+                0x000000004000c000                codec_run
+                0x000000004000c0d0                enc_callback
+ *(.irodata)
+ *(.idata)
+                0x000000004000c2cc                iramend = .
+                0x0000000003e00148                iramcopy = LOADADDR (.iram)
+
+.rel.dyn        0x000000004000c2cc        0x0 load address 0x0000000003e00414
+ .rel.iplt      0x000000004000c2cc        0x0 /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/wav_enc.o
+
+.ibss           0x000000004000c2cc        0x0
+                0x000000004000c2cc                iedata = .
+ *(.ibss)
+                0x000000004000c2cc                . = ALIGN (0x4)
+                0x000000004000c2cc                iend = .
+                0x0000000003e00414                loadendaddr = MAX (plugin_end_addr, (LOADADDR (.iram) + SIZEOF (.iram)))
+
+.pluginloadend  0x0000000003e00414        0x0
+                0x0000000003e00414                _plugin_load_end_addr = .
+                0x0000000003e00414                plugin_load_end_addr = .
+
+.comment        0x0000000000000000       0x11
+ *(.comment)
+ .comment       0x0000000000000000       0x11 /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/wav_enc.o
+                                         0x12 (size before relaxing)
+ .comment       0x0000000000000011       0x12 /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/codec_crt0.o
+                0x0000000000000001                ASSERT ((LOADADDR (.ncdata) == (ADDR (.ncdata) - 0x10000000)), .ncdata has incorrect LMA/VMA address)
+                0x0000000000000001                ASSERT (((LOADADDR (.ncdata) % 0x10) == 0x0), .ncdata incorrectly aligned)
+                0x0000000000000001                ASSERT ((LOADADDR (.ncbss) == (ADDR (.ncbss) - 0x10000000)), .ncbss has incorrect LMA/VMA address)
+                0x0000000000000001                ASSERT (((LOADADDR (.ncbss) % 0x10) == 0x0), .ncbss incorrectly aligned)
+                0x0000000000000001                ASSERT ((ADDR (.ncbss_vma) == LOADADDR (.ncbss)), .ncbss_vma has wrong address)
+                0x0000000000000001                ASSERT ((SIZEOF (.ncbss_vma) == SIZEOF (.ncbss)), .ncbss_vma has wrong size)
+OUTPUT(/home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/wav_enc.elf elf32-littlearm)
+LOAD linker stubs
+
+.ARM.attributes
+                0x0000000000000000       0x2a
+ .ARM.attributes
+                0x0000000000000000       0x2a /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/wav_enc.o
+ .ARM.attributes
+                0x000000000000002a       0x2a /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/rbcodec/codecs/codec_crt0.o

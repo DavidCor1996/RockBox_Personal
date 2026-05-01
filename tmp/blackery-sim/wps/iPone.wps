@@ -1,0 +1,84 @@
+#-------------------------------------------------------------------
+# Adwaitapod - version 3.4 (The Overly Fixed Edition)
+#-------------------------------------------------------------------
+%wd
+%Fl(3,16-Cantarell-Regular.fnt,11)
+%Fl(4,18-Cantarell-Regular.fnt)
+%Fl(5,18-Cantarell-Bold.fnt)
+%Fl(6,20-Cantarell-Regular.fnt)
+%Fl(7,20-Cantarell-Bold.fnt)
+%Fl(8,66-Cantarell-Light.fnt,16)
+
+#-- Icons --#
+%xl(PlayIcon,PlayStatus.bmp,9)
+%xl(PlayIconTop,PlayStatusPurple.bmp,9)
+%xl(SleepIcon,SleepStatus.bmp,2,1)
+%xl(SleepIconAOD,SleepStatusAOD.bmp,2,1)
+%xl(HoldIcon,HoldStatus.bmp,2,1)
+%xl(L,LoadingStatus.bmp,12)
+%xl(I,LoadingStatusAOD.bmp,12)
+%xl(B,Battery.bmp,0,0,24)
+%xl(ShuffleIconSmall,ShuffleStatusSmall.bmp,2)
+%xl(RepeatIconSmall,RepeatStatusSmall.bmp,5)
+%xl(LosslessIconLarge,LosslessIconLock.bmp)
+%xl(ExplicitIcon,ExplicitIcon.bmp)
+
+#-- Assets --#
+%xl(PlayerFallback,PlayerFallback.bmp,87,6)
+%xl(VolumeBackdrop,VolumeBackdrop.bmp)
+%xl(VolumeIcons,VolumePromptIcons.bmp,4)
+%xl(VolumeSliderPurple,VolumeSliderPurple.bmp)
+%xl(VolumeSliderEndPurple,VolumeSliderEndPurple.bmp)
+%xl(VolumeSliderBackdropPurple,VolumeSliderBackdropPurple.bmp)
+%xl(Lockscreen,Wallpaper.bmp)
+%xl(AODBackdrop,AODBackdrop.bmp)
+%xl(NotificationMusic,NotifMusic.bmp,14,12)
+%xl(LockPlayIconLarge,NotifPlayIconLock.bmp,2)
+
+#------------ Background Layer ------------#
+%V(0,0,-,-,-)%Vb(1f1f24)%VB
+%Cl(91,10,138,138,1)
+%?if(%St(battery display), =, graphic)<%?mh<%?if(%St(backlight on button hold), =, off)<%xd(AODBackdrop)%dr(0,0,-,-)|%?bp<%xd(ChargeWallpaper)%?mp<|%xd(NotificationBackdrop)>|%xd(Lockscreen)%?mp<|%xd(NotificationBackdrop)>>>|%dr(0,0,-,-,1f1f24)%dr(95,14,138,138,0b0b0d)%Cd(1)%?C(1)<|%xd(PlayerFallback)>>|%dr(0,0,-,-,1f1f24)%dr(95,14,138,138,0b0b0d)%Cd(1)%?C(1)<|%xd(PlayerFallback)>>
+
+#------------ Foreground Logic Viewport ------------#
+%V(0,0,-,-,-)
+# 1. Overlay Layer Call (Force render order)
+%?if(%St(backlight on button hold), !=, off)<%?mh<%Vd(LockscreenStyle)>>
+%?if(%St(backlight on button hold), =, off)<%?mh<%Vd(AlwaysOnDisplay)>>>
+
+# 2. Base Player UI
+%Vd(PlayerUI)%?mv(1.5)<|%Vd(SongInfo)>
+
+# 3. Dynamic Progress Sliders
+%?if(%pt, >=, 36000)<%Vd(PT6)|%?if(%pt, >=, 3600)<%Vd(PT5)|%?if(%pt, >=, 600)<%Vd(PT4)|%Vd(PT3)>>>
+
+# 4. THE VOLUME POP-UP (Must be called inside the main 0,0 viewport)
+%?mv(1.5)<%Vd(VCard)%Vd(VIcon)%Vd(VBar)|>
+
+#------------ Virtual Viewport Definitions ------------#
+
+# -- VOLUME ELEMENTS --
+%Vl(VCard,70,110,180,45,-)%xd(VolumeBackdrop)
+%Vl(VIcon,84,122,24,21,-)%?if(%pv, =, -90)<%xd(VolumeIcons,1)>%?and(%if(%pv, <=, -60),%if(%pv, >, -90))<%xd(VolumeIcons,2)>%?and(%if(%pv, <=, -30),%if(%pv, >, -60))<%xd(VolumeIcons,3)>%?if(%pv, >, -30)<%xd(VolumeIcons,4)>
+%Vl(VBar,116,130,117,5,-)%?if(%pv, =, -90)<%xd(VolumeSliderBackdropPurple)|%pv(0,0,117,5,VolumeSliderPurple.bmp,slider,VolumeSliderEndPurple,backdrop,VolumeSliderBackdropPurple)>
+
+# -- PLAYER ELEMENTS --
+%Vl(PlayerUI,12,4,16,16,-)%xd(PlayIconTop,%mp)
+%Vl(PlayerUI,34,4,16,16,-)%?mh<%xd(HoldIcon,%mh)|%xd(SleepIcon,%bs)>
+%Vl(PlayerUI,291,4,25,11,-)%?bp<|%?bl<%xd(Bd)|%xd(Bd)|%xd(Be)|%xd(Bf)|%xd(Bg)|%xd(Bh)|%xd(Bi)|%xd(Bj)|%xd(Bk)|%xd(Bl)|%xd(Bm)|%xd(Bn)|%xd(Bo)|%xd(Bp)|%xd(Bq)|%xd(Br)|%xd(Bs)|%xd(Bt)|%xd(Bu)|%xd(Bv)|%xd(Bw)|%xd(Bx)||>>
+%Vl(PlayerUI,91,10,138,138,-)
+%Vl(PlayerUI,60,152,200,28,7)%s%ac%?it<%it|%fn>
+%Vl(SongInfo,60,173,200,21,6)%s%ac%ia
+%Vl(PlayerUI,264,155,20,20,-)%?or(%if(%fc, =, 4),%if(%fc, =, 13))<%xd(LosslessIconLarge)>
+%Vl(PlayerUI,288,153,24,24,-)%?if(%IG, =, Explicit)<%xd(ExplicitIcon)>
+%Vl(PlayerUI,18,221,14,12,-)%xd(ShuffleIconSmall,%ps)
+%Vl(PlayerUI,288,220,15,14,-)%xd(RepeatIconSmall,%mm)
+
+# -- PROGRESS BAR VARIANTS --
+%Vl(PT3,2,194,32,16,3)%ar%pc
+%Vl(PT3,39,210,242,10,-)%pb(0,0,242,10,SliderThinPurple.bmp,slider,PlayerSliderThinPurple,backdrop,SliderBackdropThinPurple3Digits)
+%Vl(PT3,286,194,32,16,3)%al%pt
+
+# -- LOCKSCREEN & AOD --
+%Vl(LockscreenStyle,0,0,-,-,-)%xd(Lockscreen)
+%Vl(AlwaysOnDisplay,0,0,-,-,-)%xd(AODBackdrop)%V(0,32,-,55,8)%Vf(000000)%ac%cl:%cM %cP

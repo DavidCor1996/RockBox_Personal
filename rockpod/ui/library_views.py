@@ -118,6 +118,7 @@ class GroupedTrackView(QWidget):
     group_selected = Signal(str)
     track_double_clicked = Signal(object)
     selection_changed = Signal(list)
+    track_context_requested = Signal(object)
 
     def __init__(self, title, parent=None):
         super().__init__(parent)
@@ -145,9 +146,11 @@ class GroupedTrackView(QWidget):
         self._track_model = TrackTableModel()
         self._track_table = TrackTable()
         self._track_table.setModel(self._track_model)
+        self._track_table.setContextMenuPolicy(Qt.CustomContextMenu)
         self._track_table.track_double_clicked.connect(self.track_double_clicked)
         self._track_table.track_activated.connect(self.track_double_clicked)
         self._track_table.selection_changed.connect(self.selection_changed)
+        self._track_table.customContextMenuRequested.connect(self._on_track_context_menu)
         splitter.addWidget(self._track_table)
         splitter.setSizes([205, 760])
         self._splitter = splitter
@@ -206,6 +209,21 @@ class GroupedTrackView(QWidget):
     def set_current_track_id(self, track_id):
         self._track_model.set_current_track_id(track_id)
 
+    def get_selected_tracks(self):
+        return self._track_table.get_selected_tracks()
+
+    def get_selected_track_ids(self):
+        return self._track_table.get_selected_track_ids()
+
+    def select_track_ids(self, track_ids):
+        self._track_table.select_track_ids(track_ids)
+
+    def selectAll(self):
+        self._track_table.selectAll()
+
+    def _on_track_context_menu(self, pos):
+        self.track_context_requested.emit(self._track_table.viewport().mapToGlobal(pos))
+
 
 class AlbumGridView(QWidget):
     """Album artwork grid with a track list for the selected album."""
@@ -214,6 +232,7 @@ class AlbumGridView(QWidget):
     album_context_requested = Signal(object, object)
     track_double_clicked = Signal(object)
     selection_changed = Signal(list)
+    track_context_requested = Signal(object)
 
     def __init__(self, artwork_manager, parent=None):
         super().__init__(parent)
@@ -255,9 +274,11 @@ class AlbumGridView(QWidget):
         self._track_model.set_artwork_manager(artwork_manager)
         self._track_table = TrackTable()
         self._track_table.setModel(self._track_model)
+        self._track_table.setContextMenuPolicy(Qt.CustomContextMenu)
         self._track_table.track_double_clicked.connect(self.track_double_clicked)
         self._track_table.track_activated.connect(self.track_double_clicked)
         self._track_table.selection_changed.connect(self.selection_changed)
+        self._track_table.customContextMenuRequested.connect(self._on_track_context_menu)
         splitter.addWidget(self._track_table)
         splitter.setSizes([330, 260])
         self._splitter = splitter
@@ -334,6 +355,18 @@ class AlbumGridView(QWidget):
     def set_current_track_id(self, track_id):
         self._track_model.set_current_track_id(track_id)
 
+    def get_selected_tracks(self):
+        return self._track_table.get_selected_tracks()
+
+    def get_selected_track_ids(self):
+        return self._track_table.get_selected_track_ids()
+
+    def select_track_ids(self, track_ids):
+        self._track_table.select_track_ids(track_ids)
+
+    def selectAll(self):
+        self._track_table.selectAll()
+
     def _on_album_double_clicked(self, item):
         if item:
             self._splitter.setSizes([150, 470])
@@ -348,6 +381,9 @@ class AlbumGridView(QWidget):
         if album is None:
             return
         self.album_context_requested.emit(album, self._grid.viewport().mapToGlobal(pos))
+
+    def _on_track_context_menu(self, pos):
+        self.track_context_requested.emit(self._track_table.viewport().mapToGlobal(pos))
 
 
 def group_tracks_by_artist(tracks):

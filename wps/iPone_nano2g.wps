@@ -1,76 +1,66 @@
 # iPone Nano 2G - WPS
 %wd
 
-%V(0,0,-,-,1)%Vb(000000)
-%dr(0,0,-,-,000000)
+%xl(Wallpaper,Wallpaper.bmp)
+%xl(ChargeWallpaper,ChargeWallpaper.bmp)
 
-%xl(A,lock-176x132x16.bmp,0,0,2)
-%xl(B,battery-176x132x16.bmp,0,0,10)
-%xl(C,volume-176x132x16.bmp,0,0,10)
-%xl(D,shuffle-176x132x16.bmp,0,0)
-%xl(E,repeat-176x132x16.bmp,0,0,4)
-%xl(F,playmode-176x132x16.bmp,0,0,5)
+%?mh<%Vd(LockBackdrop)%Vd(LockTop)|%Vd(Backdrop)%Vd(TopBar)%Vd(AlbumCard)%Vd(AlbumMatte)%Vd(AlbumArt)%Vd(MetaCard)%Vd(Title)%Vd(Artist)%Vd(Album)%Vd(Status)%Vd(ProgressCard)%Vd(Progress)%Vd(TimeRow)%Vd(Footer)>
 
-%?mh<%Vd(LockArt)%Vd(LockShade)%Vd(LockTop)%Vd(LockClock)%Vd(LockMusic)|%Vd(AlbumMatte)%Vd(AlbumArt)%Vd(Title)%Vd(Artist)%Vd(Album)%Vd(Progress)%Vd(HoldIcon)%Vd(BatteryIcon)%Vd(VolumeIcon)%Vd(ShuffleIcon)%Vd(RepeatIcon)%Vd(PlayIcon)%Vd(Time)>
+# Main backdrop
+%Vl(Backdrop,0,0,-,-,1)%Vf(F7F4FA)%Vb(100F16)
+%dr(0,0,-,-,100F16)
+%dr(0,0,-,17,2B1A44)
+%dr(0,18,-,1,6D5A9E)
+%dr(0,104,-,28,0B0712)
 
-# Progress bar
-%Vl(Progress,8,84,160,8,-)
-%pb(0,0,160,8,pb-176x132x16.bmp)
+%Vl(TopBar,8,4,40,12,1)%Vf(EDE7F8)%aliPod
+%Vl(TopBar,60,4,56,12,1)%Vf(BDAEE0)%ac%pc
+%Vl(TopBar,124,4,44,12,1)%Vf(EDE7F8)%ar%?bp<Chg|%bl%%>
 
-# Playback icons
-%Vl(HoldIcon,65,114,13,12,-)
-%?mh<%xd(Aa)|%xd(Ab)>
+%Vl(AlbumCard,8,27,60,60,-)
+%dr(0,0,-,-,2A2431)
+%dr(0,0,-,1,6D5A9E)
 
-%Vl(BatteryIcon,83,115,16,10,-)
-%?bp<%?bc<%xd(Ba)|%xd(Bb)>|%?bl<|%xd(Bc)|%xd(Bd)|%xd(Be)|%xd(Bf)|%xd(Bg)|%xd(Bh)|%xd(Bi)|%xd(Bj)>>
-%Vl(VolumeIcon,102,115,13,10,-)
-%?pv<%xd(Ca)|%xd(Cb)|%xd(Cc)|%xd(Cd)|%xd(Ce)|%xd(Cf)|%xd(Cg)|%xd(Ch)|%xd(Ci)|%xd(Cj)>
+%Vl(AlbumMatte,11,30,54,54,-)
+%dr(0,0,-,-,16111D)
+%dr(1,1,52,52,241D2D)
 
-%Vl(ShuffleIcon,120,114,15,10,-)
-%?ps<%xd(D)>
-
-%Vl(RepeatIcon,139,110,11,18,-)
-%?mm<|%xd(Ea)|%xd(Eb)|%xd(Ec)|%xd(Ed)>
-
-%Vl(PlayIcon,156,112,10,14,-)
-%?mp<%xd(Fa)|%xd(Fb)|%xd(Fc)|%xd(Fd)|%xd(Fe)>
-
-# Time
-%Vl(Time,8,96,160,14,1)
-%al%pc%ac%?Sr<%pe %Sx(of) %pp|%pp %Sx(of) %pe>%ar%pr
-
-# Album art
-%Vl(AlbumMatte,7,14,59,59,-)
-%dr(0,0,-,-,111111)
-%dr(1,1,57,57,252329)
-%Vl(AlbumArt,9,16,55,55,-)
-%Cl(0,0,55,55,c,c,1)
+%Vl(AlbumArt,12,31,52,52,-)
+%Cl(0,0,52,52,c,c,1)
 %Cd(1)
 
-%Vl(Title,68,16,105,20,-)
+%Vl(MetaCard,76,27,92,60,-)
+%dr(0,0,-,-,2A2431)
+%dr(0,0,-,1,6D5A9E)
+
+%Vl(Title,82,33,80,16,1)%Vf(FFFFFF)
 %s%al%?it<%it|%fn>
 
-%Vl(Artist,68,38,105,16,-)
-%s%al%?ia<%ia|%?iA<%iA|%?d(2)<%d(2)|%(root%)>>>
+%Vl(Artist,82,48,80,12,1)%Vf(CFC3E4)
+%s%al%?ia<%ia|%?iA<%iA|Unknown Artist>>
 
-%Vl(Album,68,56,105,16,-)
-%s%al%?id<%id|%?d(1)<%d(1)|%(root%)>>
+%Vl(Album,82,61,80,12,1)%Vf(BDAEE0)
+%s%al%?id<%id|%?d(1)<%d(1)|Music>>
 
-# Lockscreen
-%Vl(LockArt,22,0,132,132,-)
-%Cl(0,0,132,132,c,c,3)
-%Cd
+%Vl(Status,82,74,80,10,1)
+%?mp<%Vf(9D7AE6)%alPLAY|%Vf(D8C7FF)%alPAUSE|%Vf(7A718A)%alSTOP|%Vf(9D7AE6)%alSEEK|%Vf(9D7AE6)%alSEEK>
 
-%Vl(LockShade,0,0,176,132,-)
-%dr(0,0,-,22,000000)
-%dr(0,92,-,40,000000)
+%Vl(ProgressCard,8,92,160,28,-)
+%dr(0,0,-,-,1B1228)
+%dr(0,0,-,1,6D5A9E)
 
-%Vl(LockTop,8,5,160,13,1)%Vf(FFFFFF)
-%aliPod%ac%?cc<%cl:%cM|--:-->%ar%?bp<Chg|%bl%%>
+%Vl(Progress,16,98,144,8,-)
+%pb(0,0,144,8,pb-176x132x16.bmp)
 
-%Vl(LockClock,0,28,176,34,1)%Vf(FFFFFF)
-%ac%cl:%cM %cp
+%Vl(TimeRow,16,108,144,10,1)%Vf(CFC3E4)
+%al%pc%ac%?Sr<%pe of %pp|%pp of %pe>%ar%pr
 
-%Vl(LockMusic,8,96,160,30,1)%Vf(FFFFFF)
-%s%ac%?it<%it|%fn>
-%Vf(CFC3E4)%s%ac%?ia<%ia|%?iA<%iA|%?d(2)<%d(2)|%(root%)>>>
+%Vl(Footer,8,122,160,8,1)%Vf(9D7AE6)
+%alVol %pv%ac%?ps<Shuffle|>%ar%?bp<Charging|>
+
+# Hold lockscreen
+%Vl(LockBackdrop,0,0,-,-,1)%Vf(F7F4FA)%Vb(100F16)
+%?bp<%xd(ChargeWallpaper)|%xd(Wallpaper)>
+
+%Vl(LockTop,8,6,72,12,1)%Vf(F7F4FA)%alHOLD
+%Vl(LockTop,80,6,88,12,1)%Vf(F7F4FA)%ar%?bp<CHG|%bl%%>

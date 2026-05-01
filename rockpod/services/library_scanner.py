@@ -465,6 +465,11 @@ class LibraryScanWorker(QObject):
                 to_read.append(filepath)
                 continue
 
+            classified_media_type = _classify_media_type(filepath)
+            if classified_media_type and row.get("media_type") != classified_media_type:
+                to_read.append(filepath)
+                continue
+
             if row.get("media_type") == "video":
                 if not row.get("video_kind"):
                     to_read.append(filepath)

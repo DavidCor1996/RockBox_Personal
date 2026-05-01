@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="240" viewBox="0 0 320 240">
+  <defs>
+    <linearGradient id="bggrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#201829"/>
+      <stop offset="100%" stop-color="#ececec"/>
+    </linearGradient>
+    <linearGradient id="headergrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#392d49"/>
+      <stop offset="100%" stop-color="#281d35"/>
+    </linearGradient>
+    <linearGradient id="selgrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#7059a7"/>
+      <stop offset="100%" stop-color="#3d2d67"/>
+    </linearGradient>
+  </defs>
+
+  <rect x="0" y="0" width="320" height="240" fill="url(#bggrad)"/>
+  <image href="file:///home/david/Documents/RockBox_Personal-master/assets/classic_6g/backgrounds/iClassic_bg.bmp" x="0" y="0" width="320" height="240" opacity="0.18"/>
+
+  <rect x="0" y="0" width="320" height="22" fill="url(#headergrad)"/>
+  <line x1="0" y1="22" x2="320" y2="22" stroke="#5b4b71" stroke-width="1"/>
+
+  <rect x="8" y="30" width="132" height="198" fill="#2c2238" opacity="0.9"/>
+  <line x1="133" y1="30" x2="133" y2="240" stroke="#5b4b71" stroke-width="1"/>
+
+  <rect x="154" y="30" width="158" height="198" rx="8" ry="8"
+        fill="#2c2238" stroke="#4d3d63" stroke-width="1"/>
+  <rect x="178" y="52" width="110" height="110" rx="10" ry="10"
+        fill="#fcfcfc" stroke="#4d3d63" stroke-width="1"/>
+  <image href="file:///home/david/Documents/RockBox_Personal-master/assets/classic_6g/mockups/reference-rockbox/menu-iClassic_v1.0_Menu.png" x="184" y="58" width="98" height="98" preserveAspectRatio="xMidYMid slice"/>
+  <rect x="184" y="58" width="98" height="98" fill="#ffffff" opacity="0.08"/>
+
+  <text x="8" y="13" font-family="DejaVu Sans" font-size="12" font-weight="bold" fill="#f3ebff">Music</text>
+  <text x="235" y="13" font-family="DejaVu Sans" font-size="10" fill="#f3ebff">11:28 PM</text>
+
+  <rect x="284" y="4" width="20" height="9" rx="2" ry="2" fill="none" stroke="#f3ebff" stroke-width="1"/>
+  <rect x="305" y="6" width="2" height="5" rx="1" ry="1" fill="#f3ebff"/>
+  <rect x="286" y="6" width="15" height="5" rx="1" ry="1" fill="#9b7eff"/>
+  <polygon points="210,5 217,9 210,13" fill="#9b7eff"/>
+
+  <text x="19" y="38" font-family="DejaVu Sans" font-size="13" font-weight="bold" fill="#f0e9ff">Back</text><rect x="12" y="52" rx="4" ry="4" width="124" height="24" fill="url(#selgrad)"/><text x="19" y="66" font-family="DejaVu Sans" font-size="13" font-weight="bold" fill="#ffffff">Artists</text><text x="19" y="94" font-family="DejaVu Sans" font-size="13" font-weight="bold" fill="#f0e9ff">Albums</text><text x="19" y="122" font-family="DejaVu Sans" font-size="13" font-weight="bold" fill="#f0e9ff">Songs</text><text x="19" y="150" font-family="DejaVu Sans" font-size="13" font-weight="bold" fill="#f0e9ff">Playlists</text>
+
+  <text x="164" y="50" font-family="DejaVu Sans" font-size="13" font-weight="bold" fill="#f0e9ff">Music</text>
+  <line x1="164" y1="58" x2="302" y2="58" stroke="#5b4b71" stroke-width="1"/>
+  <text x="164" y="74" font-family="DejaVu Sans" font-size="10" fill="#9f92ba">Safe stub screen</text>
+  <text x="164" y="214" font-family="DejaVu Sans" font-size="10" fill="#9f92ba">Library hooks later</text>
+  <text x="164" y="186" font-family="DejaVu Sans" font-size="11" fill="#d1c6e6">Library and playback stay</text><text x="164" y="200" font-family="DejaVu Sans" font-size="11" fill="#d1c6e6">untouched in this milestone.</text><text x="164" y="214" font-family="DejaVu Sans" font-size="11" fill="#d1c6e6">This screen is a shell-only</text><text x="164" y="228" font-family="DejaVu Sans" font-size="11" fill="#d1c6e6">stub using Classic layout</text><text x="164" y="242" font-family="DejaVu Sans" font-size="11" fill="#d1c6e6">proportions.</text><text x="164" y="256" font-family="DejaVu Sans" font-size="11" fill="#d1c6e6">No audio or database rewrite</text><text x="164" y="270" font-family="DejaVu Sans" font-size="11" fill="#d1c6e6">yet.</text>
+</svg>

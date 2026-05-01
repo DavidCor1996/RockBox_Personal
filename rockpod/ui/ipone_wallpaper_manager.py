@@ -131,6 +131,7 @@ class _WallpaperPane(QFrame):
         self._remove_btn.setEnabled(removable)
         self._detail.setText(
             f"Source: {candidate.get('origin', 'custom').title()}\n"
+            f"Size: {candidate.get('width', 0)}x{candidate.get('height', 0)}\n"
             f"{candidate.get('source_path', '')}\n"
             f"Removable: {'Yes' if removable else 'No'}"
         )

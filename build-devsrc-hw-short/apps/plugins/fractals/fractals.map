@@ -1,0 +1,251 @@
+Archive member included to satisfy reference by file (symbol)
+
+/home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/apps/plugins/libplugin.a(xlcd_scroll.o)
+                              /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/apps/plugins/fractals/fractal.o (xlcd_scroll_left)
+/home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/apps/plugins/libplugin.a(xlcd_core.o)
+                              /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/apps/plugins/libplugin.a(xlcd_scroll.o) (get_framebuffer)
+/home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/libsetjmp.a(setjmp.o)
+                              /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/apps/plugins/plugin_crt0.o (setjmp)
+/usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+                              /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/apps/plugins/fractals/mandelbrot_set.o (__aeabi_idiv)
+/usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
+                              /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o) (__aeabi_idiv0)
+
+Discarded input sections
+
+ .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/apps/plugins/fractals/fractal.o
+ .bss           0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/apps/plugins/fractals/fractal.o
+ .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/apps/plugins/fractals/fractal_rect.o
+ .text          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/apps/plugins/libplugin.a(xlcd_scroll.o)
+ .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/apps/plugins/libplugin.a(xlcd_scroll.o)
+ .bss           0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/apps/plugins/libplugin.a(xlcd_scroll.o)
+ .text          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/apps/plugins/libplugin.a(xlcd_core.o)
+ .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/apps/plugins/libplugin.a(xlcd_core.o)
+ .bss           0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/apps/plugins/libplugin.a(xlcd_core.o)
+ .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/libsetjmp.a(setjmp.o)
+ .bss           0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/libsetjmp.a(setjmp.o)
+ .data          0x0000000000000000        0x0 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+ .bss           0x0000000000000000        0x0 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+ .data          0x0000000000000000        0x0 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
+ .bss           0x0000000000000000        0x0 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
+
+Memory Configuration
+
+Name             Origin             Length             Attributes
+PLUGIN_RAM       0x0000000003f00000 0x0000000000100000
+PLUGIN_IRAM      0x000000004000c000 0x0000000000014000
+*default*        0x0000000000000000 0xffffffffffffffff
+
+Linker script and memory map
+
+LOAD /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/apps/plugins/fractals/fractal.o
+LOAD /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/apps/plugins/fractals/fractal_rect.o
+LOAD /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/apps/plugins/fractals/mandelbrot_set.o
+LOAD /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/apps/plugins/plugin_crt0.o
+LOAD /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/apps/plugins/libplugin.a
+LOAD /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/apps/plugins/bitmaps/libpluginbitmaps.a
+LOAD /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/libsetjmp.a
+LOAD /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/libfixedpoint.a
+LOAD /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a
+
+.header         0x0000000003f00000       0x1c
+                0x0000000003f00000                _plugin_start_addr = .
+                0x0000000003f00000                plugin_start_addr = .
+ *(.header)
+ .header        0x0000000003f00000       0x1c /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/apps/plugins/plugin_crt0.o
+                0x0000000003f00000                __header
+
+.text           0x0000000003f0001c     0x1604
+ *(.text*)
+ .text          0x0000000003f0001c      0x3a4 /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/apps/plugins/fractals/fractal.o
+                0x0000000003f000dc                plugin_start
+ .text          0x0000000003f003c0      0x2f4 /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/apps/plugins/fractals/fractal_rect.o
+                0x0000000003f00414                rects_queue_init
+                0x0000000003f00438                rects_calc_all
+                0x0000000003f004bc                rects_move_up
+                0x0000000003f00538                rects_move_down
+                0x0000000003f005b8                rects_move_left
+                0x0000000003f00634                rects_move_right
+ .text          0x0000000003f006b4      0x890 /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/apps/plugins/fractals/mandelbrot_set.o
+ .text          0x0000000003f00f44      0x214 /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/apps/plugins/plugin_crt0.o
+                0x0000000003f00f5c                plugin__start
+                0x0000000003f010a4                rb_atexit
+                0x0000000003f010c4                exit
+                0x0000000003f010ec                _exit
+                0x0000000003f01100                exit_on_usb
+ .text.xlcd_scroll_left
+                0x0000000003f01158       0xcc /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/apps/plugins/libplugin.a(xlcd_scroll.o)
+                0x0000000003f01158                xlcd_scroll_left
+ .text.xlcd_scroll_right
+                0x0000000003f01224       0xcc /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/apps/plugins/libplugin.a(xlcd_scroll.o)
+                0x0000000003f01224                xlcd_scroll_right
+ .text.xlcd_scroll_up
+                0x0000000003f012f0       0xb4 /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/apps/plugins/libplugin.a(xlcd_scroll.o)
+                0x0000000003f012f0                xlcd_scroll_up
+ .text.xlcd_scroll_down
+                0x0000000003f013a4       0xb4 /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/apps/plugins/libplugin.a(xlcd_scroll.o)
+                0x0000000003f013a4                xlcd_scroll_down
+ .text.get_framebuffer
+                0x0000000003f01458       0x60 /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/apps/plugins/libplugin.a(xlcd_core.o)
+                0x0000000003f01458                get_framebuffer
+ .text          0x0000000003f014b8       0x1c /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/libsetjmp.a(setjmp.o)
+                0x0000000003f014b8                setjmp
+                0x0000000003f014c4                longjmp
+ .text          0x0000000003f014d4      0x148 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+                0x0000000003f014d4                __aeabi_idiv
+                0x0000000003f014d4                __divsi3
+                0x0000000003f015fc                __aeabi_idivmod
+ .text          0x0000000003f0161c        0x4 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
+                0x0000000003f0161c                __aeabi_ldiv0
+                0x0000000003f0161c                __aeabi_idiv0
+ *(.glue_7)
+ .glue_7        0x0000000003f01620        0x0 linker stubs
+ *(.glue_7t)
+ .glue_7t       0x0000000003f01620        0x0 linker stubs
+
+.vfp11_veneer   0x0000000003f01620        0x0
+ .vfp11_veneer  0x0000000003f01620        0x0 linker stubs
+
+.v4_bx          0x0000000003f01620        0x0
+ .v4_bx         0x0000000003f01620        0x0 linker stubs
+
+.iplt           0x0000000003f01620        0x0
+ .iplt          0x0000000003f01620        0x0 /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/apps/plugins/fractals/fractal.o
+
+.rel.dyn        0x0000000003f01620        0x0
+ .rel.iplt      0x0000000003f01620        0x0 /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/apps/plugins/fractals/fractal.o
+
+.rodata
+ *(.rodata*)
+
+.data           0x0000000003f01620       0x18
+ *(.data*)
+ .data          0x0000000003f01620       0x14 /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/apps/plugins/fractals/mandelbrot_set.o
+                0x0000000003f01620                mandelbrot_ops
+ .data          0x0000000003f01634        0x4 /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/apps/plugins/plugin_crt0.o
+                0x0000000003f01634                rb
+
+.igot.plt       0x0000000003f01638        0x0
+ .igot.plt      0x0000000003f01638        0x0 /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/apps/plugins/fractals/fractal.o
+
+.ncdata         0x0000000013f01640        0x0 load address 0x0000000003f01640
+ *(.ncdata*)
+                0x0000000013f01640                . = ALIGN (0x10)
+
+/DISCARD/
+ *(.eh_frame)
+
+.bss            0x0000000003f01638      0x4f4
+                0x0000000003f01638                plugin_bss_start = .
+                0x0000000003f01638                _plugin_bss_start = .
+ *(.bss*)
+ .bss           0x0000000003f01638      0x288 /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/apps/plugins/fractals/fractal_rect.o
+ .bss           0x0000000003f018c0      0x20c /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/apps/plugins/fractals/mandelbrot_set.o
+                0x0000000003f018c0                x_max
+                0x0000000003f018c4                x_min
+                0x0000000003f018c8                x_step
+                0x0000000003f018cc                y_max
+                0x0000000003f018d0                y_min
+                0x0000000003f018d4                y_step
+                0x0000000003f018d8                step_log2
+                0x0000000003f018dc                x_delta
+                0x0000000003f018e0                y_delta
+                0x0000000003f018e4                max_iter
+                0x0000000003f018e8                ops
+ .bss           0x0000000003f01acc       0x60 /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/apps/plugins/plugin_crt0.o
+ *(COMMON)
+                0x0000000003f01b2c                . = ALIGN (0x4)
+
+.ncbss          0x0000000013f01b30        0x0 load address 0x0000000003f01b30
+ *(.ncbss*)
+                0x0000000013f01b30                . = ALIGN (0x10)
+
+.ncbss_vma      0x0000000003f01b30        0x0
+                0x0000000003f01b30                . = (. + SIZEOF (.ncbss))
+
+.pluginend      0x0000000003f01b2c        0x0
+                0x0000000003f01b2c                _plugin_end_addr = .
+                0x0000000003f01b2c                plugin_end_addr = .
+
+.iram           0x000000004000c000        0x0 load address 0x0000000003f01638
+                0x000000004000c000                iramstart = .
+ *(.icode)
+ *(.irodata)
+ *(.idata)
+                0x000000004000c000                iramend = .
+                0x0000000003f01638                iramcopy = LOADADDR (.iram)
+
+.ibss           0x000000004000c000        0x0
+                0x000000004000c000                iedata = .
+ *(.ibss)
+                0x000000004000c000                . = ALIGN (0x4)
+                0x000000004000c000                iend = .
+                0x0000000003f01b2c                loadendaddr = MAX (plugin_end_addr, (LOADADDR (.iram) + SIZEOF (.iram)))
+
+.pluginloadend  0x0000000003f01b2c        0x0
+                0x0000000003f01b2c                _plugin_load_end_addr = .
+                0x0000000003f01b2c                plugin_load_end_addr = .
+
+.comment        0x0000000000000000       0x11
+ *(.comment)
+ .comment       0x0000000000000000       0x11 /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/apps/plugins/fractals/fractal.o
+                                         0x12 (size before relaxing)
+ .comment       0x0000000000000011       0x12 /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/apps/plugins/fractals/fractal_rect.o
+ .comment       0x0000000000000011       0x12 /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/apps/plugins/fractals/mandelbrot_set.o
+ .comment       0x0000000000000011       0x12 /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/apps/plugins/plugin_crt0.o
+ .comment       0x0000000000000011       0x12 /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/apps/plugins/libplugin.a(xlcd_scroll.o)
+ .comment       0x0000000000000011       0x12 /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/apps/plugins/libplugin.a(xlcd_core.o)
+                0x0000000000000001                ASSERT ((LOADADDR (.ncdata) == (ADDR (.ncdata) - 0x10000000)), .ncdata has incorrect LMA/VMA address)
+                0x0000000000000001                ASSERT (((LOADADDR (.ncdata) % 0x10) == 0x0), .ncdata incorrectly aligned)
+                0x0000000000000001                ASSERT ((LOADADDR (.ncbss) == (ADDR (.ncbss) - 0x10000000)), .ncbss has incorrect LMA/VMA address)
+                0x0000000000000001                ASSERT (((LOADADDR (.ncbss) % 0x10) == 0x0), .ncbss incorrectly aligned)
+                0x0000000000000001                ASSERT ((ADDR (.ncbss_vma) == LOADADDR (.ncbss)), .ncbss_vma has wrong address)
+                0x0000000000000001                ASSERT ((SIZEOF (.ncbss_vma) == SIZEOF (.ncbss)), .ncbss_vma has wrong size)
+OUTPUT(/home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/apps/plugins/fractals/fractals.elf elf32-littlearm)
+LOAD linker stubs
+
+.ARM.attributes
+                0x0000000000000000       0x28
+ .ARM.attributes
+                0x0000000000000000       0x2a /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/apps/plugins/fractals/fractal.o
+ .ARM.attributes
+                0x000000000000002a       0x2a /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/apps/plugins/fractals/fractal_rect.o
+ .ARM.attributes
+                0x0000000000000054       0x2a /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/apps/plugins/fractals/mandelbrot_set.o
+ .ARM.attributes
+                0x000000000000007e       0x2a /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/apps/plugins/plugin_crt0.o
+ .ARM.attributes
+                0x00000000000000a8       0x2a /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/apps/plugins/libplugin.a(xlcd_scroll.o)
+ .ARM.attributes
+                0x00000000000000d2       0x2a /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/apps/plugins/libplugin.a(xlcd_core.o)
+ .ARM.attributes
+                0x00000000000000fc       0x1a /home/david/Documents/RockBox_Personal-master/build-devsrc-hw-short/lib/libsetjmp.a(setjmp.o)
+ .ARM.attributes
+                0x0000000000000116       0x1c /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+ .ARM.attributes
+                0x0000000000000132       0x1c /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
+
+.debug_frame    0x0000000000000000       0x20
+ .debug_frame   0x0000000000000000       0x20 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+
+.debug_line     0x0000000000000000       0xeb
+ .debug_line    0x0000000000000000       0x8a /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+ .debug_line    0x000000000000008a       0x61 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
+
+.debug_info     0x0000000000000000       0x4c
+ .debug_info    0x0000000000000000       0x26 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+ .debug_info    0x0000000000000026       0x26 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
+
+.debug_abbrev   0x0000000000000000       0x28
+ .debug_abbrev  0x0000000000000000       0x14 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+ .debug_abbrev  0x0000000000000014       0x14 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
+
+.debug_aranges  0x0000000000000000       0x40
+ .debug_aranges
+                0x0000000000000000       0x20 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+ .debug_aranges
+                0x0000000000000020       0x20 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
+
+.debug_str      0x0000000000000000       0x6c
+ .debug_str     0x0000000000000000       0x6c /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+ .debug_str     0x000000000000006c       0x6c /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)

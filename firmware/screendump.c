@@ -106,6 +106,7 @@ void screen_dump(void)
     char filename[MAX_PATH];
 #ifdef SIMULATOR
     char tmp_filename[MAX_PATH];
+    const char *dump_path = getenv("ROCKPOD_SIM_DUMP_BMP");
     const char *preview_path = getenv("ROCKPOD_SIM_PREVIEW_BMP");
 #endif
 
@@ -129,7 +130,13 @@ void screen_dump(void)
 #endif
 
 #ifdef SIMULATOR
-    if (preview_path && *preview_path)
+    if (dump_path && *dump_path)
+    {
+        snprintf(filename, sizeof(filename), "%s", dump_path);
+        snprintf(tmp_filename, sizeof(tmp_filename), "%s.tmp.bmp", dump_path);
+        fd = creat(tmp_filename, 0666);
+    }
+    else if (preview_path && *preview_path)
     {
         snprintf(filename, sizeof(filename), "%s", preview_path);
         snprintf(tmp_filename, sizeof(tmp_filename), "%s.tmp.bmp", preview_path);
@@ -271,7 +278,7 @@ void screen_dump(void)
     }
     close(fd);
 #ifdef SIMULATOR
-    if (preview_path && *preview_path)
+    if ((dump_path && *dump_path) || (preview_path && *preview_path))
     {
         remove(filename);
         rename(tmp_filename, filename);

@@ -42,6 +42,15 @@
 #include "statusbar-skinned.h"
 #include "skin_engine/skin_albumart_color.h"
 
+static bool list_is_ipodvideo_iclassic_theme(void)
+{
+#if CONFIG_KEYPAD == IPOD_4G_PAD
+    return strstr((const char *)global_settings.sbs_file, "iClassic") != NULL;
+#else
+    return false;
+#endif
+}
+
 /* The minimum number of pending button events in queue before starting
  * to limit list drawing interval.
  */
@@ -501,6 +510,18 @@ void gui_synclist_set_viewport_defaults(struct viewport *vp,
                                         enum screen_type screen)
 {
     viewport_set_defaults(vp, screen);
+
+    if (screen == SCREEN_MAIN && list_is_ipodvideo_iclassic_theme())
+    {
+        /* Keep the legacy iPone path untouched. Only iClassic gets a forced
+         * left-pane menu viewport so its selector stays inside the Apple-style
+         * frame instead of spanning the full screen. */
+        vp->x = 0;
+        vp->y = 16;
+        vp->width = 144;
+        vp->height = 224;
+        return;
+    }
 
     /* Give default list screens a little breathing room below the status bar
      * without affecting custom parent viewports supplied by callers. */
