@@ -33,6 +33,7 @@
 #define MAX_ENTRY_YEAR        8
 #define MAX_ENTRY_GENRE       32
 #define MAX_ENTRY_PUBLISHER   48
+#define MAX_ENTRY_DEVELOPER   48
 #define MIN_ENTRY_CAPACITY    16
 #define MAX_SCAN_DEPTH        6
 
@@ -78,6 +79,7 @@ struct game_entry {
     char year[MAX_ENTRY_YEAR];
     char genre[MAX_ENTRY_GENRE];
     char publisher[MAX_ENTRY_PUBLISHER];
+    char developer[MAX_ENTRY_DEVELOPER];
     unsigned char flags;
     unsigned char save_hint;
     signed char has_save;
@@ -745,7 +747,8 @@ static void apply_launcher_filter(void)
 static void add_game_entry(const char *title, const char *rom_path,
                            const char *cover_path, unsigned char flags,
                            unsigned char save_hint, const char *year,
-                           const char *genre, const char *publisher)
+                           const char *genre, const char *publisher,
+                           const char *developer)
 {
     struct game_entry *entry;
 
@@ -771,6 +774,8 @@ static void add_game_entry(const char *title, const char *rom_path,
         rb->strlcpy(entry->genre, genre, sizeof(entry->genre));
     if (publisher && *publisher)
         rb->strlcpy(entry->publisher, publisher, sizeof(entry->publisher));
+    if (developer && *developer)
+        rb->strlcpy(entry->developer, developer, sizeof(entry->developer));
 
     entry->flags = flags;
     entry->save_hint = save_hint;
@@ -828,7 +833,7 @@ static void scan_rom_dir(const char *dir_path, int depth)
         {
             char cover[MAX_PATH];
             detect_sidecar_cover(child, cover, sizeof(cover));
-            add_game_entry(NULL, child, cover, 0, SAVE_HINT_UNKNOWN, "", "", "");
+            add_game_entry(NULL, child, cover, 0, SAVE_HINT_UNKNOWN, "", "", "", "");
         }
     }
 
@@ -863,6 +868,7 @@ static bool load_games_from_index(void)
         char *year;
         char *genre;
         char *publisher;
+        char *developer;
         char *cursor;
         char *next;
         char resolved_rom[MAX_PATH];
@@ -897,6 +903,7 @@ static bool load_games_from_index(void)
         year = "";
         genre = "";
         publisher = "";
+        developer = "";
         if (next)
         {
             *next++ = '\0';
@@ -923,7 +930,13 @@ static bool load_games_from_index(void)
                             publisher = next;
                             next = rb->strchr(next, '\t');
                             if (next)
-                                *next = '\0';
+                            {
+                                *next++ = '\0';
+                                developer = next;
+                                next = rb->strchr(next, '\t');
+                                if (next)
+                                    *next = '\0';
+                            }
                         }
                     }
                 }
@@ -938,6 +951,7 @@ static bool load_games_from_index(void)
         year = trim_whitespace(year);
         genre = trim_whitespace(genre);
         publisher = trim_whitespace(publisher);
+        developer = trim_whitespace(developer);
 
         make_path_absolute(index_dir, rom_path, resolved_rom, sizeof(resolved_rom));
         make_path_absolute(index_dir, cover_path, resolved_cover, sizeof(resolved_cover));
@@ -953,7 +967,7 @@ static bool load_games_from_index(void)
             flags |= FLAG_FAVORITE;
 
         add_game_entry(title, resolved_rom, resolved_cover, flags,
-                       parse_save_hint(save_hint), year, genre, publisher);
+                       parse_save_hint(save_hint), year, genre, publisher, developer);
     }
 
     rb->close(fd);
@@ -1968,7 +1982,7 @@ static void draw_entry_details(struct game_entry *entry)
     char line[96];
     char title[MAX_ENTRY_TITLE];
     char meta_line[96];
-    char publisher[MAX_ENTRY_PUBLISHER];
+    char maker_line[96];
     char badges[48];
     char status[32];
     int y;
@@ -2030,12 +2044,28 @@ static void draw_entry_details(struct game_entry *entry)
         rb->lcd_putsxy((launcher.vp.width - text_w) / 2, y + launcher.line_height, status);
     }
 
-    if (entry->publisher[0] != '\0')
+    maker_line[0] = '\0';
+    if (entry->publisher[0] != '\0' && entry->developer[0] != '\0' &&
+        rb->strcmp(entry->publisher, entry->developer))
     {
-        truncate_to_width(entry->publisher, publisher, sizeof(publisher), launcher.detail_w);
-        rb->lcd_getstringsize(publisher, &text_w, NULL);
+        rb->snprintf(maker_line, sizeof(maker_line), "%s / %s",
+                     entry->publisher, entry->developer);
+    }
+    else if (entry->publisher[0] != '\0')
+    {
+        rb->strlcpy(maker_line, entry->publisher, sizeof(maker_line));
+    }
+    else if (entry->developer[0] != '\0')
+    {
+        rb->strlcpy(maker_line, entry->developer, sizeof(maker_line));
+    }
+
+    if (maker_line[0] != '\0')
+    {
+        truncate_to_width(maker_line, line, sizeof(line), launcher.detail_w);
+        rb->lcd_getstringsize(line, &text_w, NULL);
         rb->lcd_putsxy((launcher.vp.width - text_w) / 2,
-                       y + launcher.line_height * 2, publisher);
+                       y + launcher.line_height * 2, line);
     }
 }
 

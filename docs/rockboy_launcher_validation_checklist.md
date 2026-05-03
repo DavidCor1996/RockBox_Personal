@@ -15,6 +15,7 @@ Checks:
 - Enter `Games` and confirm the dedicated launcher opens instead of a plain file tree.
 - Scroll through at least 10 entries and verify list movement remains responsive with no obvious input lag or redraw stalls.
 - Confirm the selected game title updates on each move and the cover pane refreshes to the newly selected item.
+- In indexed mode, confirm year/genre and publisher/developer metadata appear when provided and truncate cleanly.
 - Confirm missing covers show the placeholder card instead of blank or corrupted graphics.
 - Launch a ROM with the center/select button and verify Rockboy opens directly without an intermediate file picker.
 - Exit Rockboy and confirm control returns to the launcher with the prior selection still highlighted.

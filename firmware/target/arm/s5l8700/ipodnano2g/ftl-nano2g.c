@@ -31,6 +31,13 @@
 #include "panic.h"
 #include "debug.h"
 
+#if defined(IPOD_NANO3G) && defined(BOOTLOADER)
+extern int printf(const char *format, ...);
+#define FTL_PROGRESS(...) do { printf(__VA_ARGS__); } while (0)
+#else
+#define FTL_PROGRESS(...) do { } while (0)
+#endif
+
 
 
 #define FTL_COPYBUF_SIZE 32
@@ -424,6 +431,1152 @@ static uint32_t ppb;
                        - ftl_nand_type->userblocks - 0x17) */
 static uint32_t syshyperblocks;
 
+#if defined(IPOD_NANO3G) && defined(BOOTLOADER)
+static uint32_t n3g_best_meta_score;
+static uint32_t n3g_best_meta_bank;
+static uint32_t n3g_best_meta_block;
+static uint32_t n3g_best_meta_page;
+static uint32_t n3g_first_structured_seen;
+static uint32_t n3g_ctx_trace_compact;
+
+static uint32_t ftl_has_devinfo(void);
+static uint32_t ftl_vfl_open(void);
+static uint32_t ftl_open(void);
+
+#define N3G_RECON_BANK 0
+#define N3G_RECON_BLOCK 8190
+#define N3G_RECON_PAGE_COUNT 4
+#define N3G_RECON_ONLY 1
+#define N3G_DECODE_CLASSIFY_ONLY 1
+#define N3G_ACTIVE_DECODE_MODE 4
+#define N3G_BASE_PROBE_COMPACT 1
+#define N3G_DEVINFO_SCAN_BLOCK_LIMIT 96
+#define N3G_VFL_SCAN_BLOCK_LIMIT 64
+
+static uint32_t ftl_n3g_meta_score(const uint32_t* data,
+                                   const union ftl_spare_data_type* spare)
+{
+    uint32_t i, score = 0;
+
+    for (i = 0; i < 16; i++)
+        if (data[i] != 0xffffffff && data[i] != 0)
+            score++;
+
+    if (memcmp(data, "DEVICEINFOSIGN\0", 0x10) == 0)
+        score += 64;
+    if (memcmp((const uint8_t*)data + 0x18, "BBT", 3) == 0)
+        score += 32;
+
+    if (spare != NULL)
+    {
+        if (spare->meta.usn != 0 && spare->meta.usn != 0xffffffff)
+            score += 4;
+        if (spare->meta.idx != 0xffff)
+            score += 2;
+        switch (spare->meta.type)
+        {
+            case 0x40:
+            case 0x41:
+            case 0x43:
+            case 0x44:
+            case 0x46:
+            case 0x47:
+            case 0x80:
+                score += 8;
+                break;
+        }
+    }
+
+    return score;
+}
+
+static uint32_t ftl_n3g_page_structure_score(const uint32_t* data)
+{
+    uint32_t i, nonff = 0, nonzero = 0, small = 0, blockish = 0, pageish = 0;
+    uint32_t total_pages = (uint32_t)ftl_nand_type->blocks
+                         * ftl_nand_type->pagesperblock;
+
+    for (i = 0; i < 128; i++)
+    {
+        uint32_t v = data[i];
+        if (v != 0xffffffff)
+            nonff++;
+        if (v != 0)
+            nonzero++;
+        if (v > 0 && v < 0x10000)
+            small++;
+        if (v > 0 && v < ftl_nand_type->blocks)
+            blockish++;
+        if (v > 0 && v < total_pages)
+            pageish++;
+    }
+
+    return nonff + nonzero + small + blockish + pageish;
+}
+
+static uint32_t ftl_n3g_page_class(const uint32_t* data)
+{
+    uint32_t i, all_zero = 1, all_ff = 1;
+
+    for (i = 0; i < 128; i++)
+    {
+        if (data[i] != 0)
+            all_zero = 0;
+        if (data[i] != 0xffffffff)
+            all_ff = 0;
+    }
+
+    if (all_zero)
+        return 0;
+    if (all_ff)
+        return 1;
+    return 2;
+}
+
+static uint32_t ftl_n3g_decode_mapping_entry(uint32_t entry, uint32_t mode,
+                                             uint32_t *bank, uint32_t *block,
+                                             uint32_t *pageoff, uint32_t *page)
+{
+    uint32_t total_pages = (uint32_t)ftl_nand_type->blocks
+                         * ftl_nand_type->pagesperblock;
+    uint32_t pages_per_block = ftl_nand_type->pagesperblock;
+
+    *bank = N3G_RECON_BANK;
+    *block = 0xffffffff;
+    *pageoff = 0;
+    *page = 0xffffffff;
+
+    if (mode == 0)
+    {
+        *block = entry >> 16;
+        *pageoff = entry & 0xffff;
+        if (*block < ftl_nand_type->blocks && *pageoff < pages_per_block)
+            *page = *block * pages_per_block + *pageoff;
+    }
+    else if (mode == 1)
+    {
+        *bank = entry >> 30;
+        *block = (entry >> 7) & 0x7fffff;
+        *pageoff = entry & 0x7f;
+        if (*bank < ftl_banks && *block < ftl_nand_type->blocks)
+            *page = *block * pages_per_block + *pageoff;
+    }
+    else if (mode == 2)
+    {
+        *bank = entry & 3;
+        *block = entry >> 9;
+        *pageoff = (entry >> 2) & 0x7f;
+        if (*bank < ftl_banks && *block < ftl_nand_type->blocks)
+            *page = *block * pages_per_block + *pageoff;
+    }
+    else if (mode == 3)
+    {
+        if (entry < total_pages)
+            *page = entry;
+    }
+    else if (mode == 4)
+    {
+        *bank = entry & 3;
+        *page = entry >> 2;
+    }
+    else if (mode == 5)
+    {
+        if ((entry & 0x7ff) == 0)
+            *page = entry >> 11;
+    }
+    else if (mode == 6)
+    {
+        *block = entry;
+        if (*block < ftl_nand_type->blocks)
+            *page = *block * pages_per_block;
+    }
+    else
+    {
+        *block = entry >> 8;
+        *pageoff = entry & 0x7f;
+        if (*block < ftl_nand_type->blocks)
+            *page = *block * pages_per_block + *pageoff;
+    }
+
+    if (*bank >= ftl_banks || *page >= total_pages)
+        return 1;
+
+    return 0;
+}
+
+static uint32_t ftl_n3g_mbr_part_start(const uint8_t* bytes, uint32_t part)
+{
+    uint32_t off = 446 + part * 16 + 8;
+    return bytes[off] | (bytes[off + 1] << 8) | (bytes[off + 2] << 16)
+         | (bytes[off + 3] << 24);
+}
+
+static uint32_t ftl_n3g_mbr_part_size(const uint8_t* bytes, uint32_t part)
+{
+    uint32_t off = 446 + part * 16 + 12;
+    return bytes[off] | (bytes[off + 1] << 8) | (bytes[off + 2] << 16)
+         | (bytes[off + 3] << 24);
+}
+
+static int ftl_n3g_is_win_part_type(uint8_t type)
+{
+    return type == 0x0b || type == 0x0c || type == 0x0e
+        || type == 0x0f || type == 0x07;
+}
+
+static int ftl_n3g_read_phys_page0(uint32_t phys, uint32_t total_pages,
+                                   uint32_t total_global_pages,
+                                   uint32_t *sig0, uint32_t *sig510,
+                                   uint32_t first[4])
+{
+    uint32_t read_bank;
+    uint32_t read_page;
+    uint32_t rc;
+    uint8_t* bytes = (uint8_t*)ftl_buffer;
+
+    if (phys >= total_global_pages)
+        return -1;
+
+    read_bank = phys / total_pages;
+    read_page = phys % total_pages;
+    if (read_bank >= ftl_banks || read_page >= total_pages)
+        return -2;
+
+    rc = nand_read_page(read_bank, read_page, ftl_buffer,
+                        &ftl_sparebuffer[0], 1, 0);
+    if (rc != 0)
+        return -3;
+
+    *sig0 = bytes[0] | (bytes[1] << 8);
+    *sig510 = bytes[510] | (bytes[511] << 8);
+    first[0] = ((uint32_t*)bytes)[0];
+    first[1] = ((uint32_t*)bytes)[1];
+    first[2] = ((uint32_t*)bytes)[2];
+    first[3] = ((uint32_t*)bytes)[3];
+    return 0;
+}
+
+static void ftl_n3g_targeted_meta_decode(const uint32_t pages[],
+                                         uint32_t recon_data[][128])
+{
+    uint32_t i;
+    uint32_t ret;
+    uint8_t* bytes = (uint8_t*)ftl_buffer;
+
+    (void)pages;
+    (void)recon_data;
+
+    n3g_ctx_trace_compact = 1;
+
+    FTL_PROGRESS("N3G_CTX_TRACE_START");
+    FTL_PROGRESS("N3G_CTX_GEOM banks=%lu blocks=%u user=%u ppb=%lu sys=%lu pb=%u",
+                 (unsigned long)ftl_banks, ftl_nand_type->blocks,
+                 ftl_nand_type->userblocks, (unsigned long)ppb,
+                 (unsigned long)syshyperblocks,
+                 ftl_nand_type->pagesperblock);
+
+    if (!ftl_has_devinfo())
+    {
+        FTL_PROGRESS("N3G_CTX_DEVINFO_FAIL");
+        return;
+    }
+
+    FTL_PROGRESS("N3G_CTX_DEVINFO_OK");
+
+    ret = ftl_vfl_open();
+    FTL_PROGRESS("N3G_VFL_OPEN rc=%lu", (unsigned long)ret);
+    if (ret != 0)
+        return;
+
+    for (i = 0; i < ftl_banks; i++)
+    {
+        FTL_PROGRESS("N3G_VFL_CXT bank=%lu usn=%08lx upd=%08lx active=%u next=%u",
+                     (unsigned long)i, (unsigned long)ftl_vfl_cxt[i].usn,
+                     (unsigned long)ftl_vfl_cxt[i].updatecount,
+                     ftl_vfl_cxt[i].activecxtblock,
+                     ftl_vfl_cxt[i].nextcxtpage);
+        FTL_PROGRESS("N3G_VFL_CTRL bank=%lu ctrl=%04x %04x %04x vfl=%04x %04x %04x %04x",
+                     (unsigned long)i,
+                     ftl_vfl_cxt[i].ftlctrlblocks[0],
+                     ftl_vfl_cxt[i].ftlctrlblocks[1],
+                     ftl_vfl_cxt[i].ftlctrlblocks[2],
+                     ftl_vfl_cxt[i].vflcxtblocks[0],
+                     ftl_vfl_cxt[i].vflcxtblocks[1],
+                     ftl_vfl_cxt[i].vflcxtblocks[2],
+                     ftl_vfl_cxt[i].vflcxtblocks[3]);
+    }
+
+    ret = ftl_open();
+    FTL_PROGRESS("N3G_FTL_OPEN rc=%lu", (unsigned long)ret);
+    if (ret != 0)
+        return;
+
+    FTL_PROGRESS("N3G_FTL_CXT usn=%08lx next=%08lx ctrlpage=%08lx clean=%08lx",
+                 (unsigned long)ftl_cxt.usn,
+                 (unsigned long)ftl_cxt.nextblockusn,
+                 (unsigned long)ftl_cxt.ftlctrlpage,
+                 (unsigned long)ftl_cxt.clean_flag);
+    FTL_PROGRESS("N3G_FTL_CTRL %04x %04x %04x map0=%08lx map1=%08lx",
+                 ftl_cxt.ftlctrlblocks[0], ftl_cxt.ftlctrlblocks[1],
+                 ftl_cxt.ftlctrlblocks[2],
+                 (unsigned long)ftl_cxt.ftl_map_pages[0],
+                 (unsigned long)ftl_cxt.ftl_map_pages[1]);
+
+    FTL_PROGRESS("N3G_FTL_MAP0 %04x %04x %04x %04x %04x %04x %04x %04x",
+                 ftl_map[0], ftl_map[1], ftl_map[2], ftl_map[3],
+                 ftl_map[4], ftl_map[5], ftl_map[6], ftl_map[7]);
+
+    ret = ftl_read(0, 1, ftl_buffer);
+    FTL_PROGRESS("N3G_SECTOR0_FTL rc=%ld sig=%02x%02x first=%08lx %08lx %08lx %08lx",
+                 (long)ret, bytes[510], bytes[511],
+                 (unsigned long)((uint32_t*)bytes)[0],
+                 (unsigned long)((uint32_t*)bytes)[1],
+                 (unsigned long)((uint32_t*)bytes)[2],
+                 (unsigned long)((uint32_t*)bytes)[3]);
+
+    if (bytes[510] == 0x55 && bytes[511] == 0xaa)
+    {
+        FTL_PROGRESS("N3G_WINPOD_MBR_FOUND type0=%02x start0=%lu size0=%lu",
+                     bytes[450],
+                     (unsigned long)ftl_n3g_mbr_part_start(bytes, 0),
+                     (unsigned long)ftl_n3g_mbr_part_size(bytes, 0));
+        FTL_PROGRESS("N3G_PART1 type=%02x start=%lu size=%lu",
+                     bytes[466],
+                     (unsigned long)ftl_n3g_mbr_part_start(bytes, 1),
+                     (unsigned long)ftl_n3g_mbr_part_size(bytes, 1));
+    }
+    else if (bytes[0] == 'E' && bytes[1] == 'R')
+    {
+        FTL_PROGRESS("N3G_MACPOD_DRIVER_DESC_FOUND");
+    }
+    else
+    {
+        FTL_PROGRESS("N3G_NO_BOOT_SIGNATURE_FOUND");
+    }
+}
+
+static void ftl_n3g_dump_meta_candidate(uint32_t bank, uint32_t block,
+                                        uint32_t page, uint32_t pagenum,
+                                        const void* databuffer,
+                                        const union ftl_spare_data_type* spare)
+{
+    const uint32_t* data = (const uint32_t*)databuffer;
+    uint32_t score = ftl_n3g_meta_score(data, spare);
+    uint32_t devsig = (memcmp(databuffer, "DEVICEINFOSIGN\0", 0x10) == 0);
+    uint32_t bbtsig = (memcmp((const uint8_t*)databuffer + 0x18, "BBT", 3) == 0);
+
+    FTL_PROGRESS("META_CAND b=%lu p=%lu w0=%08lx w1=%08lx w2=%08lx w3=%08lx sig=%lu aux=%lu",
+                 (unsigned long)block, (unsigned long)pagenum,
+                 (unsigned long)data[0], (unsigned long)data[1],
+                 (unsigned long)data[2], (unsigned long)data[3],
+                 (unsigned long)devsig, (unsigned long)bbtsig);
+    FTL_PROGRESS("META_CAND4 b=%lu p=%lu w4=%08lx w5=%08lx w6=%08lx w7=%08lx",
+                 (unsigned long)block, (unsigned long)pagenum,
+                 (unsigned long)data[4], (unsigned long)data[5],
+                 (unsigned long)data[6], (unsigned long)data[7]);
+    FTL_PROGRESS("META_CAND8 b=%lu p=%lu w8=%08lx w9=%08lx w10=%08lx w11=%08lx",
+                 (unsigned long)block, (unsigned long)pagenum,
+                 (unsigned long)data[8], (unsigned long)data[9],
+                 (unsigned long)data[10], (unsigned long)data[11]);
+    FTL_PROGRESS("META_CAND12 b=%lu p=%lu w12=%08lx w13=%08lx w14=%08lx w15=%08lx",
+                 (unsigned long)block, (unsigned long)pagenum,
+                 (unsigned long)data[12], (unsigned long)data[13],
+                 (unsigned long)data[14], (unsigned long)data[15]);
+
+    if (spare != NULL)
+    {
+        const uint32_t* oob = (const uint32_t*)spare;
+        FTL_PROGRESS("META_OOB bank=%lu b=%lu p=%lu o0=%08lx o1=%08lx o2=%08lx o3=%08lx",
+                     (unsigned long)bank, (unsigned long)block,
+                     (unsigned long)pagenum, (unsigned long)oob[0],
+                     (unsigned long)oob[1], (unsigned long)oob[2],
+                     (unsigned long)oob[3]);
+        FTL_PROGRESS("META_SCORE bank=%lu b=%lu pp=%lu abs=%lu type=%02x usn=%08lx idx=%04x score=%lu",
+                     (unsigned long)bank, (unsigned long)block,
+                     (unsigned long)page, (unsigned long)pagenum,
+                     spare->meta.type, (unsigned long)spare->meta.usn,
+                     spare->meta.idx, (unsigned long)score);
+    }
+    else
+    {
+        FTL_PROGRESS("META_SCORE bank=%lu b=%lu pp=%lu abs=%lu score=%lu no_oob",
+                     (unsigned long)bank, (unsigned long)block,
+                     (unsigned long)page, (unsigned long)pagenum,
+                     (unsigned long)score);
+    }
+
+    if (score != 0 && n3g_first_structured_seen == 0)
+    {
+        n3g_first_structured_seen = 1;
+        FTL_PROGRESS("FIRST_STRUCTURED_METADATA_PAGE bank=%lu b=%lu p=%lu score=%lu",
+                     (unsigned long)bank, (unsigned long)block,
+                     (unsigned long)pagenum, (unsigned long)score);
+    }
+
+    if (score > n3g_best_meta_score)
+    {
+        n3g_best_meta_score = score;
+        n3g_best_meta_bank = bank;
+        n3g_best_meta_block = block;
+        n3g_best_meta_page = pagenum;
+        FTL_PROGRESS("NANO3G_SIGNATURE_GUESS bank=%lu b=%lu p=%lu score=%lu sig=%lu aux=%lu",
+                     (unsigned long)n3g_best_meta_bank,
+                     (unsigned long)n3g_best_meta_block,
+                     (unsigned long)n3g_best_meta_page,
+                     (unsigned long)n3g_best_meta_score,
+                     (unsigned long)devsig, (unsigned long)bbtsig);
+        FTL_PROGRESS("NEXT_FTL_PARSE_PATCH inspect best candidate bank=%lu b=%lu p=%lu",
+                     (unsigned long)n3g_best_meta_bank,
+                     (unsigned long)n3g_best_meta_block,
+                     (unsigned long)n3g_best_meta_page);
+    }
+}
+
+static void ftl_n3g_dump_reconstruction_pages(void)
+{
+    static const uint32_t pages[N3G_RECON_PAGE_COUNT] =
+    {
+        1048443, 1048444, 1048445, 1048446
+    };
+    static uint32_t recon_data[N3G_RECON_PAGE_COUNT][128];
+    static union ftl_spare_data_type recon_spare[N3G_RECON_PAGE_COUNT];
+    uint32_t pageidx, wordidx;
+    uint32_t class_by_word[128];
+
+    ftl_n3g_targeted_meta_decode(pages, recon_data);
+    return;
+
+    FTL_PROGRESS("FIRST_STRUCTURED_METADATA_PAGE bank=%lu b=%lu p=%lu",
+                 (unsigned long)N3G_RECON_BANK,
+                 (unsigned long)N3G_RECON_BLOCK,
+                 (unsigned long)pages[0]);
+    FTL_PROGRESS("FIELD_LAYOUT_MAP cls 1=ff 2=zero 3=const 4=inc1 5=stride 6=small 7=table");
+    FTL_PROGRESS("HEADER_PATTERN compare p1048443-p1048445");
+    FTL_PROGRESS("MAPPING_STRUCTURE_GUESS scan nonempty table-like runs");
+
+    for (pageidx = 0; pageidx < N3G_RECON_PAGE_COUNT; pageidx++)
+    {
+        uint32_t pagenum = pages[pageidx];
+        uint32_t page = pagenum - (N3G_RECON_BLOCK * ftl_nand_type->pagesperblock);
+        uint32_t rc = nand_read_page(N3G_RECON_BANK, pagenum, ftl_buffer,
+                                     &recon_spare[pageidx], 1, 0);
+        const uint32_t* data = (const uint32_t*)ftl_buffer;
+        const uint32_t* oob = (const uint32_t*)&recon_spare[pageidx];
+
+        FTL_PROGRESS("META_FULL_PAGE bank=%lu b=%lu pp=%lu abs=%lu rc=%08lx",
+                     (unsigned long)N3G_RECON_BANK,
+                     (unsigned long)N3G_RECON_BLOCK,
+                     (unsigned long)page, (unsigned long)pagenum,
+                     (unsigned long)rc);
+        FTL_PROGRESS("META_FULL_OOB abs=%lu o0=%08lx o1=%08lx o2=%08lx o3=%08lx",
+                     (unsigned long)pagenum, (unsigned long)oob[0],
+                     (unsigned long)oob[1], (unsigned long)oob[2],
+                     (unsigned long)oob[3]);
+        FTL_PROGRESS("META_FULL_OOB2 abs=%lu o4=%08lx o5=%08lx o6=%08lx o7=%08lx type=%02x usn=%08lx idx=%04x",
+                     (unsigned long)pagenum, (unsigned long)oob[4],
+                     (unsigned long)oob[5], (unsigned long)oob[6],
+                     (unsigned long)oob[7], recon_spare[pageidx].meta.type,
+                     (unsigned long)recon_spare[pageidx].meta.usn,
+                     recon_spare[pageidx].meta.idx);
+
+        for (wordidx = 0; wordidx < 128; wordidx += 4)
+        {
+            recon_data[pageidx][wordidx + 0] = data[wordidx + 0];
+            recon_data[pageidx][wordidx + 1] = data[wordidx + 1];
+            recon_data[pageidx][wordidx + 2] = data[wordidx + 2];
+            recon_data[pageidx][wordidx + 3] = data[wordidx + 3];
+#if !N3G_BASE_PROBE_COMPACT
+            FTL_PROGRESS("META512 abs=%lu off=%03lx %08lx %08lx %08lx %08lx",
+                         (unsigned long)pagenum,
+                         (unsigned long)(wordidx * 4),
+                         (unsigned long)data[wordidx + 0],
+                         (unsigned long)data[wordidx + 1],
+                         (unsigned long)data[wordidx + 2],
+                         (unsigned long)data[wordidx + 3]);
+#endif
+        }
+    }
+
+    ftl_n3g_targeted_meta_decode(pages, recon_data);
+    return;
+
+    for (wordidx = 0; wordidx < 128; wordidx++)
+    {
+        uint32_t total_pages = (uint32_t)ftl_nand_type->blocks
+                             * ftl_nand_type->pagesperblock;
+        uint32_t a = recon_data[0][wordidx];
+        uint32_t b = recon_data[1][wordidx];
+        uint32_t c = recon_data[2][wordidx];
+        uint32_t cls;
+
+        if (a == 0xffffffff && b == 0xffffffff && c == 0xffffffff)
+            cls = 1;
+        else if (a == 0 && b == 0 && c == 0)
+            cls = 2;
+        else if (a == b && b == c)
+            cls = 3;
+        else if (b == a + 1 && c == b + 1)
+            cls = 4;
+        else if ((b - a) == (c - b) && (b - a) != 0)
+            cls = 5;
+        else if (((a ^ b) | (b ^ c)) < 0x10000)
+            cls = 6;
+        else
+            cls = 7;
+
+        class_by_word[wordidx] = cls;
+
+        if (wordidx < 16)
+        {
+            FTL_PROGRESS("HEADER_WORD off=%03lx cls=%lu %08lx %08lx %08lx",
+                         (unsigned long)(wordidx * 4), (unsigned long)cls,
+                         (unsigned long)a, (unsigned long)b,
+                         (unsigned long)c);
+        }
+
+        if (cls == 4 || cls == 5)
+        {
+            FTL_PROGRESS("SEQUENCE_FIELD off=%03lx cls=%lu stride=%08lx values=%08lx,%08lx,%08lx",
+                         (unsigned long)(wordidx * 4), (unsigned long)cls,
+                         (unsigned long)(b - a), (unsigned long)a,
+                         (unsigned long)b, (unsigned long)c);
+        }
+
+        if (a < ftl_nand_type->blocks && b < ftl_nand_type->blocks
+         && c < ftl_nand_type->blocks && (a | b | c) != 0)
+        {
+            FTL_PROGRESS("BLOCK_INDEX_CANDIDATE off=%03lx %lu %lu %lu",
+                         (unsigned long)(wordidx * 4),
+                         (unsigned long)a, (unsigned long)b,
+                         (unsigned long)c);
+        }
+        else if (a < total_pages
+              && b < total_pages
+              && c < total_pages
+              && (a | b | c) != 0)
+        {
+            FTL_PROGRESS("PAGE_INDEX_CANDIDATE off=%03lx %lu %lu %lu",
+                         (unsigned long)(wordidx * 4),
+                         (unsigned long)a, (unsigned long)b,
+                         (unsigned long)c);
+        }
+    }
+
+    {
+        uint32_t start = 0;
+        uint32_t best_start = 0xffffffff;
+        uint32_t best_len = 0;
+        while (start < 128)
+        {
+            uint32_t cls = class_by_word[start];
+            uint32_t end = start + 1;
+            while (end < 128 && class_by_word[end] == cls)
+                end++;
+
+            FTL_PROGRESS("FIELD_LAYOUT_MAP off=%03lx-%03lx cls=%lu",
+                         (unsigned long)(start * 4),
+                         (unsigned long)((end * 4) - 4),
+                         (unsigned long)cls);
+
+            if (start >= 16 && cls >= 3 && cls <= 7 && (end - start) > best_len)
+            {
+                best_start = start;
+                best_len = end - start;
+            }
+
+            start = end;
+        }
+
+        FTL_PROGRESS("HEADER_CANDIDATE off=000 len=040 first=%08lx %08lx %08lx %08lx",
+                     (unsigned long)recon_data[0][0],
+                     (unsigned long)recon_data[0][1],
+                     (unsigned long)recon_data[0][2],
+                     (unsigned long)recon_data[0][3]);
+
+        if (best_start != 0xffffffff)
+        {
+            FTL_PROGRESS("MAPPING_TABLE_OFFSET off=%03lx len=%lu cls=%lu",
+                         (unsigned long)(best_start * 4),
+                         (unsigned long)(best_len * 4),
+                         (unsigned long)class_by_word[best_start]);
+        }
+        else
+        {
+            FTL_PROGRESS("MAPPING_TABLE_OFFSET not_found");
+        }
+    }
+
+    FTL_PROGRESS("NEXT_PARSE_FUNCTION parse_n3g_meta_stage2 bank=%lu block=%lu pages=123-126",
+                 (unsigned long)N3G_RECON_BANK,
+                 (unsigned long)N3G_RECON_BLOCK);
+
+    {
+        uint32_t total_pages = (uint32_t)ftl_nand_type->blocks
+                             * ftl_nand_type->pagesperblock;
+        uint32_t pages_per_block = ftl_nand_type->pagesperblock;
+        uint32_t ptr_page[128];
+        uint32_t ptr_bank[128];
+        uint32_t ptr_src_mask[128];
+        uint32_t ptr_src_off[128];
+        uint32_t ptr_value[128];
+        uint32_t ptr_kind[128];
+        uint32_t ptr_align[128];
+        uint32_t ptr_count = 0;
+        uint32_t best_score = 0;
+        uint32_t best_idx = 0xffffffff;
+
+        for (pageidx = 0; pageidx < N3G_RECON_PAGE_COUNT; pageidx++)
+        {
+            for (wordidx = 0; wordidx < 128; wordidx++)
+            {
+                uint32_t v = recon_data[pageidx][wordidx];
+                uint32_t seen_mask = 0;
+                uint32_t repeat, k;
+                uint32_t bank, target;
+
+                if (v == 0 || v == 0xffffffff)
+                    continue;
+
+                for (repeat = 0; repeat < N3G_RECON_PAGE_COUNT; repeat++)
+                {
+                    for (k = 0; k < 128; k++)
+                    {
+                        if (recon_data[repeat][k] == v)
+                        {
+                            seen_mask |= 1u << repeat;
+                            break;
+                        }
+                    }
+                }
+
+                if (seen_mask == (1u << pageidx)
+                 && (v & (pages_per_block - 1)) != 0
+                 && (v >= ftl_nand_type->blocks))
+                    continue;
+
+                if (v < total_pages)
+                {
+                    if (ptr_count >= 128)
+                        break;
+                    ptr_bank[ptr_count] = N3G_RECON_BANK;
+                    ptr_page[ptr_count] = v;
+                    ptr_kind[ptr_count] = 0;
+                    ptr_src_mask[ptr_count] = seen_mask;
+                    ptr_src_off[ptr_count] = wordidx * 4;
+                    ptr_align[ptr_count] = (v & (pages_per_block - 1)) == 0;
+                    ptr_value[ptr_count++] = v;
+                }
+
+                bank = v & 3;
+                target = v >> 2;
+                if (bank < ftl_banks && target < total_pages && target > 0
+                 && ptr_count < 128)
+                {
+                    ptr_bank[ptr_count] = bank;
+                    ptr_page[ptr_count] = target;
+                    ptr_kind[ptr_count] = 1;
+                    ptr_src_mask[ptr_count] = seen_mask;
+                    ptr_src_off[ptr_count] = wordidx * 4;
+                    ptr_align[ptr_count] = (target & (pages_per_block - 1)) == 0;
+                    ptr_value[ptr_count++] = v;
+                }
+
+                if (v < ftl_nand_type->blocks && ptr_count < 128)
+                {
+                    ptr_bank[ptr_count] = N3G_RECON_BANK;
+                    ptr_page[ptr_count] = v * pages_per_block;
+                    ptr_kind[ptr_count] = 2;
+                    ptr_src_mask[ptr_count] = seen_mask;
+                    ptr_src_off[ptr_count] = wordidx * 4;
+                    ptr_align[ptr_count] = 1;
+                    ptr_value[ptr_count++] = v;
+                }
+
+                bank = v & 3;
+                target = v >> 2;
+                if (bank < ftl_banks && target < ftl_nand_type->blocks
+                 && target > 0 && ptr_count < 128)
+                {
+                    ptr_bank[ptr_count] = bank;
+                    ptr_page[ptr_count] = target * pages_per_block;
+                    ptr_kind[ptr_count] = 3;
+                    ptr_src_mask[ptr_count] = seen_mask;
+                    ptr_src_off[ptr_count] = wordidx * 4;
+                    ptr_align[ptr_count] = 1;
+                    ptr_value[ptr_count++] = v;
+                }
+            }
+        }
+
+#if N3G_DECODE_CLASSIFY_ONLY
+        (void)ptr_src_off;
+        (void)ptr_value;
+        (void)ptr_kind;
+#endif
+        FTL_PROGRESS("METADATA_POINTER_FIELDS count=%lu", (unsigned long)ptr_count);
+#if !N3G_DECODE_CLASSIFY_ONLY
+        for (wordidx = 0; wordidx < ptr_count && wordidx < 64; wordidx++)
+        {
+            FTL_PROGRESS("POINTER_FIELD_VALUES idx=%lu val=%08lx kind=%lu mask=%lx off=%03lx align=%lu bank=%lu page=%lu",
+                         (unsigned long)wordidx,
+                         (unsigned long)ptr_value[wordidx],
+                         (unsigned long)ptr_kind[wordidx],
+                         (unsigned long)ptr_src_mask[wordidx],
+                         (unsigned long)ptr_src_off[wordidx],
+                         (unsigned long)ptr_align[wordidx],
+                         (unsigned long)ptr_bank[wordidx],
+                         (unsigned long)ptr_page[wordidx]);
+        }
+#endif
+
+        for (wordidx = 0; wordidx < ptr_count; wordidx++)
+        {
+            uint32_t rc;
+            uint32_t score = 0;
+            uint32_t* data = (uint32_t*)ftl_buffer;
+
+            if (ptr_src_mask[wordidx] == 0 || ptr_bank[wordidx] >= ftl_banks
+             || ptr_page[wordidx] >= total_pages)
+                continue;
+
+            rc = nand_read_page(ptr_bank[wordidx], ptr_page[wordidx],
+                                ftl_buffer, &ftl_sparebuffer[0], 1, 0);
+            if (rc == 0)
+                score = ftl_n3g_page_structure_score(data);
+            if (ptr_align[wordidx])
+                score += 32;
+            if (ptr_src_mask[wordidx] == 0xf)
+                score += 64;
+            else if ((ptr_src_mask[wordidx] & (ptr_src_mask[wordidx] - 1)) != 0)
+                score += 24;
+
+#if !N3G_DECODE_CLASSIFY_ONLY
+            FTL_PROGRESS("MAPPING_BLOCK_CANDIDATES idx=%lu mask=%lx off=%03lx val=%08lx kind=%lu align=%lu bank=%lu page=%lu rc=%08lx score=%lu",
+                         (unsigned long)wordidx,
+                         (unsigned long)ptr_src_mask[wordidx],
+                         (unsigned long)ptr_src_off[wordidx],
+                         (unsigned long)ptr_value[wordidx],
+                         (unsigned long)ptr_kind[wordidx],
+                         (unsigned long)ptr_align[wordidx],
+                         (unsigned long)ptr_bank[wordidx],
+                         (unsigned long)ptr_page[wordidx],
+                         (unsigned long)rc, (unsigned long)score);
+
+            if (rc == 0)
+            {
+                FTL_PROGRESS("CAND128 idx=%lu off=000 %08lx %08lx %08lx %08lx",
+                             (unsigned long)wordidx,
+                             (unsigned long)data[0],
+                             (unsigned long)data[1],
+                             (unsigned long)data[2],
+                             (unsigned long)data[3]);
+                FTL_PROGRESS("CAND128 idx=%lu off=010 %08lx %08lx %08lx %08lx",
+                             (unsigned long)wordidx,
+                             (unsigned long)data[4],
+                             (unsigned long)data[5],
+                             (unsigned long)data[6],
+                             (unsigned long)data[7]);
+                FTL_PROGRESS("CAND128 idx=%lu off=020 %08lx %08lx %08lx %08lx",
+                             (unsigned long)wordidx,
+                             (unsigned long)data[8],
+                             (unsigned long)data[9],
+                             (unsigned long)data[10],
+                             (unsigned long)data[11]);
+                FTL_PROGRESS("CAND128 idx=%lu off=030 %08lx %08lx %08lx %08lx",
+                             (unsigned long)wordidx,
+                             (unsigned long)data[12],
+                             (unsigned long)data[13],
+                             (unsigned long)data[14],
+                             (unsigned long)data[15]);
+                FTL_PROGRESS("CAND128 idx=%lu off=040 %08lx %08lx %08lx %08lx",
+                             (unsigned long)wordidx,
+                             (unsigned long)data[16],
+                             (unsigned long)data[17],
+                             (unsigned long)data[18],
+                             (unsigned long)data[19]);
+                FTL_PROGRESS("CAND128 idx=%lu off=050 %08lx %08lx %08lx %08lx",
+                             (unsigned long)wordidx,
+                             (unsigned long)data[20],
+                             (unsigned long)data[21],
+                             (unsigned long)data[22],
+                             (unsigned long)data[23]);
+                FTL_PROGRESS("CAND128 idx=%lu off=060 %08lx %08lx %08lx %08lx",
+                             (unsigned long)wordidx,
+                             (unsigned long)data[24],
+                             (unsigned long)data[25],
+                             (unsigned long)data[26],
+                             (unsigned long)data[27]);
+                FTL_PROGRESS("CAND128 idx=%lu off=070 %08lx %08lx %08lx %08lx",
+                             (unsigned long)wordidx,
+                             (unsigned long)data[28],
+                             (unsigned long)data[29],
+                             (unsigned long)data[30],
+                             (unsigned long)data[31]);
+            }
+#endif
+
+            if (score > best_score)
+            {
+                best_score = score;
+                best_idx = wordidx;
+            }
+        }
+
+        if (best_idx != 0xffffffff)
+        {
+            static uint32_t map_words[128];
+            uint32_t rc, i;
+            uint32_t map_valid = 0;
+            uint32_t map_zero = 0;
+            uint32_t map_erased = 0;
+            uint32_t map_err = 0;
+            uint32_t first_valid_entry = 0xffffffff;
+            uint32_t first_valid_bank = 0xffffffff;
+            uint32_t first_valid_page = 0xffffffff;
+
+            FTL_PROGRESS("FIRST_MAPPING_PAGE idx=%lu bank=%lu page=%lu score=%lu",
+                         (unsigned long)best_idx,
+                         (unsigned long)ptr_bank[best_idx],
+                         (unsigned long)ptr_page[best_idx],
+                         (unsigned long)best_score);
+            FTL_PROGRESS("FIRST_NON_METADATA_STRUCTURED_PAGE idx=%lu bank=%lu page=%lu score=%lu",
+                         (unsigned long)best_idx,
+                         (unsigned long)ptr_bank[best_idx],
+                         (unsigned long)ptr_page[best_idx],
+                         (unsigned long)best_score);
+            FTL_PROGRESS("CONFIRMED_MAPPING_REGION pending validate entries");
+
+            rc = nand_read_page(ptr_bank[best_idx], ptr_page[best_idx],
+                                ftl_buffer, &ftl_sparebuffer[0], 1, 0);
+            for (i = 0; i < 128; i++)
+                map_words[i] = ((uint32_t*)ftl_buffer)[i];
+
+            FTL_PROGRESS("RAW_MAPPING_ENTRIES page=%lu bank=%lu rc=%08lx",
+                         (unsigned long)ptr_page[best_idx],
+                         (unsigned long)ptr_bank[best_idx],
+                         (unsigned long)rc);
+            for (i = 0; i < 32; i += 4)
+            {
+                FTL_PROGRESS("RAW_MAPPING_ENTRIES idx=%lu %08lx %08lx %08lx %08lx",
+                             (unsigned long)i,
+                             (unsigned long)map_words[i + 0],
+                             (unsigned long)map_words[i + 1],
+                             (unsigned long)map_words[i + 2],
+                             (unsigned long)map_words[i + 3]);
+            }
+
+            FTL_PROGRESS("BEST_DECODE_MODE_USED mode=%lu",
+                         (unsigned long)N3G_ACTIVE_DECODE_MODE);
+
+            for (i = 0; i < 128; i++)
+            {
+                uint32_t entry = map_words[i];
+                uint32_t bank, block, pageoff, page;
+                uint32_t cls;
+                uint32_t* data = (uint32_t*)ftl_buffer;
+
+                if (entry == 0 || entry == 0xffffffff
+                 || ftl_n3g_decode_mapping_entry(entry, N3G_ACTIVE_DECODE_MODE,
+                                                 &bank, &block, &pageoff,
+                                                 &page) != 0)
+                {
+                    map_err++;
+                    continue;
+                }
+
+                rc = nand_read_page(bank, page, ftl_buffer,
+                                    &ftl_sparebuffer[0], 1, 0);
+                if (rc != 0)
+                {
+                    map_err++;
+                    continue;
+                }
+
+                cls = ftl_n3g_page_class(data);
+                if (cls == 0)
+                    map_zero++;
+                else if (cls == 1)
+                    map_erased++;
+                else
+                {
+                    map_valid++;
+                    if (first_valid_entry == 0xffffffff)
+                    {
+                        first_valid_entry = i;
+                        first_valid_bank = bank;
+                        first_valid_page = page;
+                    }
+                }
+            }
+
+            FTL_PROGRESS("LOGICAL_TO_PHYSICAL_MAP entries=128 valid=%lu zero=%lu erased=%lu err=%lu",
+                         (unsigned long)map_valid, (unsigned long)map_zero,
+                         (unsigned long)map_erased, (unsigned long)map_err);
+
+            if (first_valid_entry != 0xffffffff)
+            {
+                FTL_PROGRESS("FIRST_VALID_PHYSICAL_PAGE entry=%lu bank=%lu page=%lu",
+                             (unsigned long)first_valid_entry,
+                             (unsigned long)first_valid_bank,
+                             (unsigned long)first_valid_page);
+                FTL_PROGRESS("CONFIRMED_MAPPING_FORMAT mode=%lu",
+                             (unsigned long)N3G_ACTIVE_DECODE_MODE);
+            }
+            else
+            {
+                FTL_PROGRESS("FIRST_VALID_PHYSICAL_PAGE not_found");
+                FTL_PROGRESS("NO_VALID_FORMAT");
+            }
+
+            for (i = 0; i < 16; i++)
+            {
+                uint32_t entry = map_words[i];
+                uint32_t bank, block, pageoff, page;
+
+                if (map_words[i] != 0 && map_words[i] != 0xffffffff
+                 && ftl_n3g_decode_mapping_entry(entry, N3G_ACTIVE_DECODE_MODE,
+                                                 &bank, &block, &pageoff,
+                                                 &page) == 0)
+                    FTL_PROGRESS("MAP_ENTRY_DECODE lsec=%lu raw=%08lx bank=%lu block=%lu po=%lu page=%lu",
+                                 (unsigned long)i, (unsigned long)entry,
+                                 (unsigned long)bank, (unsigned long)block,
+                                 (unsigned long)pageoff,
+                                 (unsigned long)page);
+            }
+
+            {
+                static uint32_t second_map_words[128];
+                uint32_t found_decode = 0xffffffff;
+                uint32_t found_bank = 0xffffffff;
+                uint32_t found_block = 0xffffffff;
+                uint32_t found_pageoff = 0xffffffff;
+                uint32_t found_page = 0xffffffff;
+                uint32_t found_rc = 0xffffffff;
+                uint32_t* data = (uint32_t*)ftl_buffer;
+                uint8_t* bytes = (uint8_t*)ftl_buffer;
+                uint32_t entry = map_words[0];
+                uint32_t mapping_bank = entry & 3;
+                uint32_t mapping_index = entry >> 2;
+                uint32_t entries_per_page = 128;
+                uint32_t inner_index = mapping_index % entries_per_page;
+                uint32_t base_candidates[12];
+                uint32_t base_count = 0;
+
+                FTL_PROGRESS("BEST_DECODE_MODE_USED mode=%lu",
+                             (unsigned long)N3G_ACTIVE_DECODE_MODE);
+                FTL_PROGRESS("SECOND_LEVEL_LOOKUP lsec=0 raw=%08lx bank=%lu mapping_index=%lu inner=%lu",
+                             (unsigned long)entry,
+                             (unsigned long)mapping_bank,
+                             (unsigned long)mapping_index,
+                             (unsigned long)inner_index);
+
+                base_candidates[base_count++] = pages[0];
+                base_candidates[base_count++] = pages[1];
+                base_candidates[base_count++] = pages[2];
+                base_candidates[base_count++] = pages[3];
+                base_candidates[base_count++] =
+                    (N3G_RECON_BLOCK + 1) * ftl_nand_type->pagesperblock
+                    + ftl_nand_type->pagesperblock - 4;
+                base_candidates[base_count++] =
+                    (N3G_RECON_BLOCK + 1) * ftl_nand_type->pagesperblock
+                    + ftl_nand_type->pagesperblock - 3;
+                base_candidates[base_count++] =
+                    (N3G_RECON_BLOCK + 1) * ftl_nand_type->pagesperblock
+                    + ftl_nand_type->pagesperblock - 2;
+                base_candidates[base_count++] =
+                    (N3G_RECON_BLOCK + 1) * ftl_nand_type->pagesperblock
+                    + ftl_nand_type->pagesperblock - 1;
+                base_candidates[base_count++] = ptr_page[best_idx];
+                base_candidates[base_count++] = ptr_page[best_idx] + 1;
+                base_candidates[base_count++] =
+                    ptr_page[best_idx] & ~(ftl_nand_type->pagesperblock - 1);
+                base_candidates[base_count++] =
+                    (ptr_page[best_idx] & ~(ftl_nand_type->pagesperblock - 1))
+                    + ftl_nand_type->pagesperblock - 4;
+
+                for (uint32_t base_i = 0;
+                     found_decode == 0xffffffff && base_i < base_count;
+                     base_i++)
+                {
+                    uint32_t base = base_candidates[base_i];
+                    uint32_t second_page = base
+                                         + (mapping_index / entries_per_page);
+                    uint32_t inner_entry = 0;
+
+                    if (base_i != 0)
+                    {
+                        uint32_t prev = 0;
+                        while (prev < base_i && base_candidates[prev] != base)
+                            prev++;
+                        if (prev != base_i)
+                            continue;
+                    }
+
+                    rc = 0xffffffff;
+                    if (entry != 0 && entry != 0xffffffff
+                     && mapping_bank < ftl_banks)
+                        rc = nand_read_page(mapping_bank, second_page,
+                                            second_map_words,
+                                            &ftl_sparebuffer[0], 1, 0);
+
+                    if (rc == 0)
+                        inner_entry = second_map_words[inner_index];
+
+                    FTL_PROGRESS("SECOND_LEVEL_BASE_TRY base=%lu mapping_index=%lu second_page=%lu inner=%08lx rc=%08lx",
+                                 (unsigned long)base,
+                                 (unsigned long)mapping_index,
+                                 (unsigned long)second_page,
+                                 (unsigned long)inner_entry,
+                                 (unsigned long)rc);
+
+                    for (uint32_t decode = 0; rc == 0 && decode < 8; decode++)
+                    {
+                        uint32_t bank, block, pageoff, decoded_page;
+                        uint32_t phys_page = 0xffffffff;
+                        uint32_t read_rc;
+
+                        if (inner_entry == 0 || inner_entry == 0xffffffff
+                         || ftl_n3g_decode_mapping_entry(inner_entry, decode,
+                                                         &bank, &block, &pageoff,
+                                                         &decoded_page) != 0)
+                            continue;
+
+                        if (block < ftl_nand_type->blocks
+                         && pageoff < ftl_nand_type->pagesperblock)
+                            phys_page = block * ftl_nand_type->pagesperblock
+                                      + pageoff;
+                        else if (decoded_page < (uint32_t)ftl_nand_type->blocks
+                                             * ftl_nand_type->pagesperblock)
+                        {
+                            phys_page = decoded_page;
+                            block = decoded_page / ftl_nand_type->pagesperblock;
+                            pageoff = decoded_page & (ftl_nand_type->pagesperblock - 1);
+                        }
+
+                        if (phys_page >= (uint32_t)ftl_nand_type->blocks
+                                      * ftl_nand_type->pagesperblock)
+                            continue;
+
+                        read_rc = nand_read_page(bank, phys_page, ftl_buffer,
+                                                 &ftl_sparebuffer[0], 1, 0);
+                        FTL_PROGRESS("INNER_DECODE_ATTEMPT mode=%lu block=%lu page=%lu phys=%lu sig=%02x%02x rc=%08lx",
+                                     (unsigned long)decode,
+                                     (unsigned long)block,
+                                     (unsigned long)pageoff,
+                                     (unsigned long)phys_page,
+                                     bytes[510], bytes[511],
+                                     (unsigned long)read_rc);
+
+                        if (read_rc == 0 && bytes[510] == 0x55
+                         && bytes[511] == 0xaa)
+                        {
+                            found_decode = decode;
+                            found_bank = bank;
+                            found_block = block;
+                            found_pageoff = pageoff;
+                            found_page = phys_page;
+                            found_rc = read_rc;
+                            FTL_PROGRESS("FOUND_VALID_MBR base=%lu mode=%lu logical_sector=0 mapping_index=%lu block=%lu page=%lu phys=%lu",
+                                         (unsigned long)base,
+                                         (unsigned long)found_decode,
+                                         (unsigned long)mapping_index,
+                                         (unsigned long)found_block,
+                                         (unsigned long)found_pageoff,
+                                         (unsigned long)found_page);
+                            break;
+                        }
+                    }
+                }
+
+                if (found_decode != 0xffffffff)
+                {
+                    uint32_t nonempty = 0;
+                    for (wordidx = 0; wordidx < 128; wordidx++)
+                        if (data[wordidx] != 0 && data[wordidx] != 0xffffffff)
+                            nonempty++;
+
+                    FTL_PROGRESS("SECTOR0_DATA mode=%lu bank=%lu block=%lu page=%lu phys_page=%lu rc=%08lx nonempty=%lu sig=%02x%02x",
+                                 (unsigned long)found_decode,
+                                 (unsigned long)found_bank,
+                                 (unsigned long)found_block,
+                                 (unsigned long)found_pageoff,
+                                 (unsigned long)found_page,
+                                 (unsigned long)found_rc,
+                                 (unsigned long)nonempty,
+                                 bytes[510], bytes[511]);
+                    FTL_PROGRESS("SECTOR0_DATA off=000 %08lx %08lx %08lx %08lx",
+                                 (unsigned long)data[0],
+                                 (unsigned long)data[1],
+                                 (unsigned long)data[2],
+                                 (unsigned long)data[3]);
+                    FTL_PROGRESS("SECTOR0_DATA off=010 %08lx %08lx %08lx %08lx",
+                                 (unsigned long)data[4],
+                                 (unsigned long)data[5],
+                                 (unsigned long)data[6],
+                                 (unsigned long)data[7]);
+                    FTL_PROGRESS("SECTOR0_DATA off=020 %08lx %08lx %08lx %08lx",
+                                 (unsigned long)data[8],
+                                 (unsigned long)data[9],
+                                 (unsigned long)data[10],
+                                 (unsigned long)data[11]);
+                    FTL_PROGRESS("SECTOR0_DATA off=030 %08lx %08lx %08lx %08lx",
+                                 (unsigned long)data[12],
+                                 (unsigned long)data[13],
+                                 (unsigned long)data[14],
+                                 (unsigned long)data[15]);
+                    FTL_PROGRESS("MBR_FOUND");
+                    for (i = 0; i < 4; i++)
+                    {
+                        uint32_t off = 446 + i * 16;
+                        FTL_PROGRESS("PARTITION_TABLE idx=%lu %02x %02x%02x%02x type=%02x %02x%02x%02x lba=%08lx sectors=%08lx",
+                                     (unsigned long)i, bytes[off],
+                                     bytes[off + 1], bytes[off + 2],
+                                     bytes[off + 3], bytes[off + 4],
+                                     bytes[off + 5], bytes[off + 6],
+                                     bytes[off + 7],
+                                     (unsigned long)(bytes[off + 8]
+                                      | (bytes[off + 9] << 8)
+                                      | (bytes[off + 10] << 16)
+                                      | (bytes[off + 11] << 24)),
+                                     (unsigned long)(bytes[off + 12]
+                                      | (bytes[off + 13] << 8)
+                                      | (bytes[off + 14] << 16)
+                                      | (bytes[off + 15] << 24)));
+                    }
+                }
+                else
+                {
+                    FTL_PROGRESS("MBR_NOT_FOUND second_level_base_probe");
+                }
+            }
+        }
+        else
+        {
+            FTL_PROGRESS("FIRST_MAPPING_PAGE not_found");
+            FTL_PROGRESS("FIRST_NON_METADATA_STRUCTURED_PAGE not_found");
+            FTL_PROGRESS("CONFIRMED_MAPPING_REGION no");
+        }
+    }
+}
+#else
+static inline void ftl_n3g_dump_meta_candidate(uint32_t bank, uint32_t block,
+                                               uint32_t page, uint32_t pagenum,
+                                               const void* databuffer,
+                                               const union ftl_spare_data_type* spare)
+{
+    (void)bank;
+    (void)block;
+    (void)page;
+    (void)pagenum;
+    (void)databuffer;
+    (void)spare;
+}
+
+static inline void ftl_n3g_dump_reconstruction_pages(void)
+{
+}
+#endif
+
 
 
 /* Finds a device info page for the specified bank and returns its number.
@@ -434,8 +1587,27 @@ static uint32_t ftl_find_devinfo(uint32_t bank)
     uint32_t lowestBlock = ftl_nand_type->blocks
                          - (ftl_nand_type->blocks / 10);
     uint32_t block, page, pagenum;
+    FTL_PROGRESS("N3G_DEVINFO_SCAN bank=%lu from=%lu",
+                 (unsigned long)bank, (unsigned long)lowestBlock);
     for (block = ftl_nand_type->blocks - 1; block >= lowestBlock; block--)
     {
+        uint32_t scanned = ftl_nand_type->blocks - 1 - block;
+
+        if (n3g_ctx_trace_compact && scanned >= N3G_DEVINFO_SCAN_BLOCK_LIMIT)
+        {
+            FTL_PROGRESS("N3G_DEVINFO_TIMEOUT bank=%lu scanned=%lu",
+                         (unsigned long)bank, (unsigned long)scanned);
+            break;
+        }
+        if (n3g_ctx_trace_compact && (scanned & 0x1f) == 0)
+            FTL_PROGRESS("N3G_DEVINFO_PROGRESS bank=%lu scanned=%lu block=%lu",
+                         (unsigned long)bank, (unsigned long)scanned,
+                         (unsigned long)block);
+        if (!n3g_ctx_trace_compact
+         && ((ftl_nand_type->blocks - 1 - block) & 0xf) == 0)
+            FTL_PROGRESS("FTL_SCAN_PROGRESS b%lu p%lu",
+                         (unsigned long)block,
+                         (unsigned long)(block * ftl_nand_type->pagesperblock));
         page = ftl_nand_type->pagesperblock - 8;
         for (; page < ftl_nand_type->pagesperblock; page++)
         {
@@ -443,10 +1615,27 @@ static uint32_t ftl_find_devinfo(uint32_t bank)
             if ((nand_read_page(bank, pagenum, ftl_buffer,
                                 &ftl_sparebuffer[0], 1, 0) & 0x11F) != 0)
                 continue;
+            if (!n3g_ctx_trace_compact)
+            {
+                FTL_PROGRESS("METADATA_SIGNATURE_RESULTS b%lu p%lu %08lx %08lx",
+                             (unsigned long)block, (unsigned long)page,
+                             (unsigned long)((uint32_t *)ftl_buffer)[0],
+                             (unsigned long)((uint32_t *)ftl_buffer)[1]);
+                ftl_n3g_dump_meta_candidate(bank, block, page, pagenum,
+                                            ftl_buffer, &ftl_sparebuffer[0]);
+            }
             if (memcmp(ftl_buffer, "DEVICEINFOSIGN\0", 0x10) == 0)
+            {
+                FTL_PROGRESS("FIRST_VALID_BLOCK devinfo b%lu p%lu",
+                             (unsigned long)block, (unsigned long)pagenum);
                 return pagenum;
+            }
+            if (!n3g_ctx_trace_compact)
+                FTL_PROGRESS("METADATA_SIGNATURE_RESULTS mismatch b%lu p%lu",
+                             (unsigned long)block, (unsigned long)pagenum);
         }
     }
+    FTL_PROGRESS("INIT_FAIL no devinfo bank %lu", (unsigned long)bank);
     return 0;
 }
 
@@ -467,15 +1656,36 @@ static uint32_t ftl_load_bbt(uint32_t bank, uint8_t* bbt)
     uint32_t i, j;
     uint32_t pagebase, page = ftl_find_devinfo(bank), page2;
     uint32_t unk1, unk2, unk3;
-    if (page == 0) return 1;
+    if (page == 0)
+    {
+        FTL_PROGRESS("ftl bbt no devinfo b%lu", (unsigned long)bank);
+        return 1;
+    }
     pagebase = page & ~(ftl_nand_type->pagesperblock - 1);
+    FTL_PROGRESS("ftl bbt bank %lu base %lu",
+                 (unsigned long)bank, (unsigned long)pagebase);
     if ((nand_read_page(bank, page, ftl_buffer,
-                        NULL, 1, 0) & 0x11F) != 0) return 1;
-    if (memcmp(&ftl_buffer[0x18], "BBT", 4) != 0) return 1;
+                        NULL, 1, 0) & 0x11F) != 0)
+    {
+        FTL_PROGRESS("ftl bbt page read fail b%lu p%lu",
+                     (unsigned long)bank, (unsigned long)page);
+        return 1;
+    }
+    FTL_PROGRESS("ftl bbt sig %02x%02x%02x%02x",
+                 ftl_buffer[0x18], ftl_buffer[0x19],
+                 ftl_buffer[0x1a], ftl_buffer[0x1b]);
+    if (memcmp(&ftl_buffer[0x18], "BBT", 4) != 0)
+    {
+        FTL_PROGRESS("ftl bbt sig mismatch b%lu", (unsigned long)bank);
+        return 1;
+    }
     unk1 = ((uint16_t*)ftl_buffer)[0x10];
     unk2 = ((uint16_t*)ftl_buffer)[0x11];
     unk3 = ((uint16_t*)ftl_buffer)[((uint32_t*)ftl_buffer)[4] * 6 + 10]
          + ((uint16_t*)ftl_buffer)[((uint32_t*)ftl_buffer)[4] * 6 + 11];
+    FTL_PROGRESS("ftl bbt refs %lu %lu %lu",
+                 (unsigned long)unk1, (unsigned long)unk2,
+                 (unsigned long)unk3);
     for (i = 0; i < unk1; i++)
     {
         for (j = 0; ; j++)
@@ -483,14 +1693,22 @@ static uint32_t ftl_load_bbt(uint32_t bank, uint8_t* bbt)
             page2 = unk2 + i + unk3 * j;
             if (page2 >= (uint32_t)(ftl_nand_type->pagesperblock - 8))
                 break;
+            if (((i + j) & 0xf) == 0)
+                FTL_PROGRESS("ftl bbt scan b%lu p%lu",
+                             (unsigned long)bank,
+                             (unsigned long)(pagebase + page2));
             if ((nand_read_page(bank, pagebase + page2, ftl_buffer,
                                 NULL, 1, 0) & 0x11F) == 0)
             {
                 memcpy(bbt, ftl_buffer, 0x410);
+                FTL_PROGRESS("ftl bbt found b%lu p%lu",
+                             (unsigned long)bank,
+                             (unsigned long)(pagebase + page2));
                 return 0;
             }
         }
     }
+    FTL_PROGRESS("ftl bbt not found b%lu", (unsigned long)bank);
     return 1;
 }
 
@@ -669,15 +1887,31 @@ static uint32_t ftl_vfl_read_page(uint32_t bank, uint32_t block,
                                   union ftl_spare_data_type* sparebuffer)
 {
     uint32_t i;
+    FTL_PROGRESS("ftl vfl chk b%lu blk%lu sp%lu",
+                 (unsigned long)bank, (unsigned long)block,
+                 (unsigned long)startpage);
     for (i = 0; i < 8; i++)
     {
         uint32_t page = block * ftl_nand_type->pagesperblock
                       + startpage + i;
         if ((nand_read_page(bank, page, databuffer,
                             sparebuffer, 1, 1) & 0x11F) == 0)
+        {
+            ftl_n3g_dump_meta_candidate(bank, block, startpage + i,
+                                        page, databuffer, sparebuffer);
+            FTL_PROGRESS("ftl vfl meta b%lu p%lu t%02x f8%02x usn%08lx",
+                         (unsigned long)bank, (unsigned long)page,
+                         sparebuffer->meta.type, sparebuffer->meta.field_8,
+                         (unsigned long)sparebuffer->meta.usn);
             if (sparebuffer->meta.field_8 == 0
              && sparebuffer->meta.type == 0x80)
+            {
+                FTL_PROGRESS("ftl vfl valid b%lu blk%lu p%lu",
+                             (unsigned long)bank, (unsigned long)block,
+                             (unsigned long)page);
                 return 0;
+            }
+        }
     }
     return 1;
 }
@@ -1037,6 +2271,9 @@ static uint32_t ftl_vfl_open(void)
     uint8_t bbt[0x410];
 #endif
 
+    FTL_PROGRESS("N3G_VFL_SCAN banks=%lu sys=%lu ppb=%lu",
+                 (unsigned long)ftl_banks,
+                 (unsigned long)syshyperblocks, (unsigned long)ppb);
     for (i = 0; i < ftl_banks; i++)
 #ifndef FTL_READONLY
         if (ftl_load_bbt(i, ftl_bbt[i]) == 0)
@@ -1044,7 +2281,23 @@ static uint32_t ftl_vfl_open(void)
         if (ftl_load_bbt(i, bbt) == 0)
 #endif
         {
+            FTL_PROGRESS("N3G_BBT_OK bank=%lu", (unsigned long)i);
             for (j = 1; j <= syshyperblocks; j++)
+            {
+                if (n3g_ctx_trace_compact && j > N3G_VFL_SCAN_BLOCK_LIMIT)
+                {
+                    FTL_PROGRESS("N3G_VFL_TIMEOUT bank=%lu scanned=%lu",
+                                 (unsigned long)i,
+                                 (unsigned long)(j - 1));
+                    break;
+                }
+                if (n3g_ctx_trace_compact && (j & 0x0f) == 1)
+                    FTL_PROGRESS("N3G_VFL_PROGRESS bank=%lu block=%lu",
+                                 (unsigned long)i, (unsigned long)j);
+                if (!n3g_ctx_trace_compact && (j & 0xf) == 0)
+                    FTL_PROGRESS("FTL_SCAN_PROGRESS vfl bank %lu blk %lu page %lu",
+                                 (unsigned long)i, (unsigned long)j,
+                                 (unsigned long)(j * ftl_nand_type->pagesperblock));
 #ifndef FTL_READONLY
                 if (ftl_is_good_block(ftl_bbt[i], j) != 0)
 #else
@@ -1073,6 +2326,7 @@ static uint32_t ftl_vfl_open(void)
                         {
                             DEBUGF("FTL: No VFL CXT block found on bank %u!\n",
                                    (unsigned)i);
+                            FTL_PROGRESS("N3G_VFL_CXT_FAIL bank=%lu", (unsigned long)i);
                             return 1;
                         }
                         last = 0;
@@ -1092,22 +2346,40 @@ static uint32_t ftl_vfl_open(void)
                                         "on bank %u failed!?", (unsigned)i);
                             //return 1;
                         memcpy(&ftl_vfl_cxt[i], ftl_buffer, 0x800);
-                        if (ftl_vfl_verify_checksum(i) != 0) return 1;
+                        if (ftl_vfl_verify_checksum(i) != 0)
+                        {
+                            FTL_PROGRESS("N3G_VFL_CKSUM_FAIL bank=%lu",
+                                         (unsigned long)i);
+                            return 1;
+                        }
+                        FTL_PROGRESS("N3G_VFL_FOUND bank=%lu ctrl=%04x %04x %04x",
+                                     (unsigned long)i,
+                                     ftl_vfl_cxt[i].ftlctrlblocks[0],
+                                     ftl_vfl_cxt[i].ftlctrlblocks[1],
+                                     ftl_vfl_cxt[i].ftlctrlblocks[2]);
 #ifndef FTL_READONLY
                         if (ftl_vfl_usn < ftl_vfl_cxt[i].usn)
                             ftl_vfl_usn = ftl_vfl_cxt[i].usn;
 #endif
                         break;
                     }
+            }
         }
         else
         {
             DEBUGF("FTL: Couldn't load bank %u lowlevel BBT!\n", (unsigned)i);
+            FTL_PROGRESS("N3G_BBT_FAIL bank=%lu", (unsigned long)i);
             return 1;
         }
     cxt = ftl_vfl_get_newest_cxt();
+    if (cxt == NULL)
+    {
+        FTL_PROGRESS("N3G_VFL_NEWEST_FAIL");
+        return 1;
+    }
     for (i = 0; i < ftl_banks; i++)
         memcpy(ftl_vfl_cxt[i].ftlctrlblocks, cxt->ftlctrlblocks, 6);
+    FTL_PROGRESS("N3G_VFL_OPEN_OK");
     return 0;
 }
 
@@ -1119,14 +2391,33 @@ static uint32_t ftl_open(void)
     uint32_t ret;
     struct ftl_vfl_cxt_type* cxt = ftl_vfl_get_newest_cxt();
 
+    FTL_PROGRESS("ftl open ctrl %04x %04x %04x",
+                 cxt->ftlctrlblocks[0],
+                 cxt->ftlctrlblocks[1],
+                 cxt->ftlctrlblocks[2]);
     uint32_t ftlcxtblock = 0xffffffff;
     uint32_t minusn = 0xffffffff;
     for (i = 0; i < 3; i++)
     {
+        FTL_PROGRESS("ftl cxt cand %lu vb %u",
+                     (unsigned long)i, cxt->ftlctrlblocks[i]);
         ret = ftl_vfl_read(ppb * cxt->ftlctrlblocks[i],
                            ftl_buffer, &ftl_sparebuffer[0], 1, 0);
-        if ((ret &= 0x11F) != 0) continue;
-        if (ftl_sparebuffer[0].meta.type - 0x43 > 4) continue;
+        if ((ret &= 0x11F) != 0)
+        {
+            FTL_PROGRESS("ftl cxt cand read fail ret %08lx",
+                         (unsigned long)ret);
+            continue;
+        }
+        FTL_PROGRESS("ftl cxt sig type %02x usn %08lx",
+                     ftl_sparebuffer[0].meta.type,
+                     (unsigned long)ftl_sparebuffer[0].meta.usn);
+        if (ftl_sparebuffer[0].meta.type - 0x43 > 4)
+        {
+            FTL_PROGRESS("ftl cxt sig mismatch type %02x",
+                         ftl_sparebuffer[0].meta.type);
+            continue;
+        }
         if (ftlcxtblock != 0xffffffff && ftl_sparebuffer[0].meta.usn >= minusn)
             continue;
         minusn = ftl_sparebuffer[0].meta.usn;
@@ -1136,13 +2427,18 @@ static uint32_t ftl_open(void)
     if (ftlcxtblock == 0xffffffff)
     {
         DEBUGF("FTL: Couldn't find readable FTL CXT block!\n");
+        FTL_PROGRESS("ftl no readable cxt");
         return 1;
     }
 
     DEBUGF("FTL: Found FTL context block: vBlock %d\n", ftlcxtblock);
+    FTL_PROGRESS("FIRST_VALID_BLOCK ftlcxt %lu", (unsigned long)ftlcxtblock);
     uint32_t ftlcxtfound = 0;
     for (i = ftl_nand_type->pagesperblock * ftl_banks - 1; i > 0; i--)
     {
+        if (!n3g_ctx_trace_compact && (i & 0xf) == 0)
+            FTL_PROGRESS("ftl cxt page scan %lu",
+                         (unsigned long)(ppb * ftlcxtblock + i));
         ret = ftl_vfl_read(ppb * ftlcxtblock + i,
                            ftl_buffer, &ftl_sparebuffer[0], 1, 0);
         if ((ret & 0x11F) != 0) continue;
@@ -1150,12 +2446,17 @@ static uint32_t ftl_open(void)
         {
             memcpy(&ftl_cxt, ftl_buffer, 0x28C);
             ftlcxtfound = 1;
+            FTL_PROGRESS("ftl cxt page found i%lu usn %08lx",
+                         (unsigned long)i,
+                         (unsigned long)ftl_sparebuffer[0].meta.usn);
             break;
         }
         else
         {
             /* This will trip if there was an unclean unmount before. */
             DEBUGF("FTL: Unclean shutdown before!\n");
+            FTL_PROGRESS("ftl cxt type mismatch %02x at i%lu",
+                         ftl_sparebuffer[0].meta.type, (unsigned long)i);
 #ifdef FTL_FORCEMOUNT
             DEBUGF("FTL: Forcing mount nevertheless...\n");
 #else
@@ -1167,19 +2468,26 @@ static uint32_t ftl_open(void)
     if (ftlcxtfound == 0)
     {
         DEBUGF("FTL: Couldn't find FTL CXT page!\n");
+        FTL_PROGRESS("ftl cxt page not found");
         return 1;
     }
 
     DEBUGF("FTL: Successfully read FTL context block\n");
+    FTL_PROGRESS("ftl cxt ok map0 %08lx",
+                 (unsigned long)ftl_cxt.ftl_map_pages[0]);
     uint32_t pagestoread = ftl_nand_type->userblocks >> 10;
     if ((ftl_nand_type->userblocks & 0x1FF) != 0) pagestoread++;
 
     for (i = 0; i < pagestoread; i++)
     {
+        FTL_PROGRESS("ftl map page %lu vp %08lx",
+                     (unsigned long)i,
+                     (unsigned long)ftl_cxt.ftl_map_pages[i]);
         if ((ftl_vfl_read(ftl_cxt.ftl_map_pages[i],
                           ftl_buffer, &ftl_sparebuffer[0], 1, 1) & 0x11F) != 0)
         {
             DEBUGF("FTL: Failed to read block map page %u\n", (unsigned)i);
+            FTL_PROGRESS("ftl map read fail %lu", (unsigned long)i);
             return 1;
         }
 
@@ -1189,6 +2497,18 @@ static uint32_t ftl_open(void)
 
         memcpy(&ftl_map[i << 10], ftl_buffer, toread);
     }
+
+    uint32_t map_nonempty = 0;
+    for (i = 0; i < ftl_nand_type->userblocks; i++)
+        if (ftl_map[i] != 0 && ftl_map[i] != 0xffff)
+        {
+            map_nonempty = 1;
+            break;
+        }
+    FTL_PROGRESS("FTL_SCAN_PROGRESS map built first %04x %04x nonempty %lu",
+                 ftl_map[0], ftl_map[1], (unsigned long)map_nonempty);
+    if (!map_nonempty)
+        FTL_PROGRESS("INIT_FAIL map empty");
 
 #ifndef FTL_READONLY
     pagestoread = (ftl_nand_type->userblocks + 23) >> 10;
@@ -2156,27 +3476,54 @@ uint32_t ftl_sync(void)
    which will just do nothing if everything was already clean. */
 uint32_t ftl_init(void)
 {
+    FTL_PROGRESS("FTL_SCAN_PROGRESS init start");
+    FTL_PROGRESS("INIT_STARTED_CONFIRMED");
+    FTL_PROGRESS("CLASSIC_6G7G_FTL_COMPARISON classic=ATA_CEATA no_nand_vfl");
+    FTL_PROGRESS("NANO2G_VS_CLASSIC_MATCH_SCORE nano2g=whimory classic=ata score=0");
+    FTL_PROGRESS("BEST_NANO3G_METADATA_FORMAT_GUESS pending");
     mutex_init(&ftl_mtx);
     uint32_t i;
     if (nand_device_init() != 0) //return 1;
         panicf("FTL: Lowlevel NAND driver init failed!");
+    FTL_PROGRESS("ftl nand init ok");
     ftl_banks = 0;
     for (i = 0; i < 4; i++)
         if (nand_get_device_type(i) != 0) ftl_banks = i + 1;
     ftl_nand_type = nand_get_device_type(0);
     ppb = ftl_nand_type->pagesperblock * ftl_banks;
     syshyperblocks = ftl_nand_type->blocks - ftl_nand_type->userblocks - 0x17;
+    FTL_PROGRESS("ftl geom banks %lu blocks %u user %u ppb %lu sys %lu",
+                 (unsigned long)ftl_banks, ftl_nand_type->blocks,
+                 ftl_nand_type->userblocks, (unsigned long)ppb,
+                 (unsigned long)syshyperblocks);
+    ftl_n3g_dump_reconstruction_pages();
+#if defined(IPOD_NANO3G) && defined(BOOTLOADER) && N3G_RECON_ONLY
+    FTL_PROGRESS("INIT_FAIL recon_only");
+    return -1;
+#endif
 
     if (!ftl_has_devinfo())
     {
         DEBUGF("FTL: No DEVICEINFO found!\n");
+        FTL_PROGRESS("ftl init fail no devinfo");
         return -1;
     }
+    FTL_PROGRESS("ftl devinfo all banks ok");
     if (ftl_vfl_open() == 0)
+    {
+        FTL_PROGRESS("ftl vfl ok");
         if (ftl_open() == 0)
+        {
+            FTL_PROGRESS("INIT_SUCCESS");
             return 0;
+        }
+        FTL_PROGRESS("INIT_FAIL ftl open");
+    }
+    else
+        FTL_PROGRESS("INIT_FAIL vfl");
 
     DEBUGF("FTL: Initialization failed!\n");
+    FTL_PROGRESS("INIT_FAIL");
 
     return -2;
 }

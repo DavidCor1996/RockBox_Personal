@@ -4,9 +4,15 @@
 
 #define IPOD_ARCH 1
 
-/* Nano 3G hardware bring-up guard:
- * keep all target-specific hardware writes disabled until explicitly lifted. */
+/* Nano 3G hardware bring-up guard.
+ * Keep the application firmware guarded, but allow bootloader LCD/backlight
+ * bring-up tests to touch target hardware.
+ */
+#ifdef BOOTLOADER
+#define NAN03G_SAFE_BRINGUP 0
+#else
 #define NAN03G_SAFE_BRINGUP 1
+#endif
 
 /* For Rolo and boot loader */
 #define MODEL_NUMBER 117

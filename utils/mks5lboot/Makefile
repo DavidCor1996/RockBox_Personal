@@ -10,7 +10,7 @@ CFLAGS += -Wall -Wextra
 OUTPUT = mks5lboot
 
 # inputs for lib
-LIBSOURCES := dualboot.c mkdfu.c ipoddfu.c
+LIBSOURCES := dualboot.c nano3g_dualboot.c mkdfu.c ipoddfu.c
 # inputs for binary only
 SOURCES := $(LIBSOURCES) main.c
 # dependencies for binary

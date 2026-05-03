@@ -40,6 +40,9 @@
 #include "lcd-s5l8702.h"
 #include "lcd-target.h"
 #include "ipodnano3g/bringup-nano3g.h"
+#if defined(IPOD_NANO3G) && defined(BOOTLOADER)
+#include "piezo.h"
+#endif
 
 
 // TODO TODO TODO: HAVE_LCD_ENABLE
@@ -146,9 +149,14 @@ static uint32_t lcd_frame_mode IDATA_ATTR;
 /* One single transfer at once, needed LLIs:
  *   screen_size / (DMAC_LLI_MAX_COUNT << swidth) =
  *   (320*240*2) / (4095*2) = 19
+ * Nano 3G sends RGB565 as two LCD_WR byte transfers, so it needs 38 LLIs.
  */
 #define LCD_DMA_TSKBUF_SZ   1   /* N tasks, MUST be pow2 */
+#if defined(IPOD_NANO3G)
+#define LCD_DMA_LLIBUF_SZ   64  /* N LLIs, MUST be pow2 */
+#else
 #define LCD_DMA_LLIBUF_SZ   32  /* N LLIs, MUST be pow2 */
+#endif
 
 static struct dmac_tsk lcd_dma_tskbuf[LCD_DMA_TSKBUF_SZ];
 static struct dmac_lli volatile \
@@ -175,8 +183,13 @@ static struct dmac_ch_cfg lcd_dma_ch_cfg =
     .dstperi = S5L8702_DMAC0_PERI_LCD_WR,
     .sbsize  = DMACCxCONTROL_BSIZE_1,
     .dbsize  = DMACCxCONTROL_BSIZE_1,
+#if defined(IPOD_NANO3G)
+    .swidth  = DMACCxCONTROL_WIDTH_8,
+    .dwidth  = DMACCxCONTROL_WIDTH_8,
+#else
     .swidth  = DMACCxCONTROL_WIDTH_16,
     .dwidth  = DMACCxCONTROL_WIDTH_16,
+#endif
     .sbus    = DMAC_MASTER_AHB1,
     .dbus    = DMAC_MASTER_AHB1,
     .sinc    = DMACCxCONTROL_INC_ENABLE,
@@ -256,6 +269,10 @@ static void lcd_target_enable_clocks(bool enable)
 
 #ifndef NANO3G_LCD_FORCE_CLCD_LINECNT_TEST
 #define NANO3G_LCD_FORCE_CLCD_LINECNT_TEST 0
+#endif
+
+#ifndef NANO3G_LCD_FRAME_MODE_OVERRIDE
+#define NANO3G_LCD_FRAME_MODE_OVERRIDE LCD_MODE_P8b
 #endif
 
 static uint32_t nano3g_last_lcd_reg;
@@ -351,7 +368,7 @@ static void nano3g_dump_display_state(const char *stage)
 #endif
 }
 
-#ifdef BOOTLOADER
+#if defined(BOOTLOADER) && !defined(IPOD_NANO3G)
 static void nano3g_probe_clcd_status(const char *stage)
 {
     uint32_t first = LCDCON2;
@@ -617,10 +634,59 @@ static inline void nano3g_force_clcd_linecnt_test(const char *stage)
 
 /*** LCD controller - low level functions ***/
 
+#if defined(IPOD_NANO3G) && defined(BOOTLOADER)
+static void nano3g_lcd_wait_fail(unsigned code)
+{
+    while (1)
+    {
+        for (unsigned i = 0; i < code; i++)
+        {
+            piezo_tone(2800, 70);
+            udelay(70000);
+        }
+        udelay(500000);
+    }
+}
+
+static void nano3g_lcd_wait_status_set(uint32_t mask, unsigned code)
+{
+    unsigned timeout = 1000000;
+
+    while (!(LCD_STATUS & mask))
+    {
+        if (--timeout == 0)
+            nano3g_lcd_wait_fail(code);
+    }
+}
+
+static void nano3g_lcd_wait_status_clear(uint32_t mask, unsigned code)
+{
+    unsigned timeout = 1000000;
+
+    while (LCD_STATUS & mask)
+    {
+        if (--timeout == 0)
+            nano3g_lcd_wait_fail(code);
+    }
+}
+#else
+static inline void nano3g_lcd_wait_status_set(uint32_t mask, unsigned code)
+{
+    (void)code;
+    while (!(LCD_STATUS & mask));
+}
+
+static inline void nano3g_lcd_wait_status_clear(uint32_t mask, unsigned code)
+{
+    (void)code;
+    while (LCD_STATUS & mask);
+}
+#endif
+
 static void s5l_lcd_write_config(uint32_t config) ICODE_ATTR;
 static void s5l_lcd_write_config(uint32_t config)
 {
-    while (!(LCD_STATUS & 0x2));
+    nano3g_lcd_wait_status_set(0x2, 1);
     udelay(1);
     nano3g_record_lcd_write(LCD_BASE, config);
     LCD_CON = config;
@@ -629,7 +695,7 @@ static void s5l_lcd_write_config(uint32_t config)
 static void s5l_lcd_write_cmd(uint16_t cmd) ICODE_ATTR;
 static void s5l_lcd_write_cmd(uint16_t cmd)
 {
-    while (LCD_STATUS & 0x10);
+    nano3g_lcd_wait_status_clear(0x10, 2);
     nano3g_record_lcd_write(LCD_BASE + 0x04, cmd);
     LCD_WCMD = cmd;
 }
@@ -637,7 +703,7 @@ static void s5l_lcd_write_cmd(uint16_t cmd)
 static void s5l_lcd_write_data(uint16_t data) ICODE_ATTR;
 static void s5l_lcd_write_data(uint16_t data)
 {
-    while (LCD_STATUS & 0x10);
+    nano3g_lcd_wait_status_clear(0x10, 3);
     nano3g_record_lcd_write(LCD_BASE + 0x40, data);
     LCD_WDATA = data;
 }
@@ -778,6 +844,22 @@ static void displaylcd_setup(int x, int y, int width, int height)
     }
 }
 
+#if defined(IPOD_NANO3G)
+static void nano3g_lcd_pack_rgb565_hi_lo(uint16_t *buf, int pixels)
+{
+    uint8_t *out = (uint8_t *)buf;
+
+    for (int i = 0; i < pixels; i++)
+    {
+        uint16_t rgb = buf[i];
+
+        out[i * 2] = rgb >> 8;
+        out[i * 2 + 1] = rgb & 0xff;
+    }
+}
+#endif
+
+static void displaylcd_wait_dma(void) ICODE_ATTR;
 static void displaylcd_dma(int pixels) ICODE_ATTR;
 static void displaylcd_dma(int pixels)
 {
@@ -791,8 +873,15 @@ static void displaylcd_dma(int pixels)
     }
 #endif
 
+#if defined(IPOD_NANO3G)
     dmac_ch_queue(&lcd_dma_ch, lcd_dblbuf,
             (void*)S5L8702_DADDR_PERI_LCD_WR, pixels*2, NULL);
+    displaylcd_wait_dma();
+    udelay(1000);
+#else
+    dmac_ch_queue(&lcd_dma_ch, lcd_dblbuf,
+            (void*)S5L8702_DADDR_PERI_LCD_WR, pixels*2, NULL);
+#endif
 
 #if defined(IPOD_NANO3G)
     if (!nano3g_first_frame_logged)
@@ -846,6 +935,9 @@ void lcd_update_rect(int x, int y, int width, int height)
             } while (--height);
         }
 
+#if defined(IPOD_NANO3G)
+        nano3g_lcd_pack_rgb565_hi_lo(lcd_dblbuf[0], pixels);
+#endif
         displaylcd_dma(pixels);
     }
     mutex_unlock(&lcd_mutex);
@@ -896,6 +988,9 @@ void lcd_blit_yuv(unsigned char * const src[3],
             out += width << 1;
         } while (--height);
 
+#if defined(IPOD_NANO3G)
+        nano3g_lcd_pack_rgb565_hi_lo(lcd_dblbuf[0], pixels);
+#endif
         displaylcd_dma(pixels);
     }
     mutex_unlock(&lcd_mutex);
@@ -1050,6 +1145,10 @@ void lcd_init_device(void)
     else /* LCD_MPUIFACE_SERIAL */
         lcd_frame_mode = LCD_MODE_S9;
 
+#if defined(IPOD_NANO3G) && NANO3G_LCD_FRAME_MODE_OVERRIDE
+    lcd_frame_mode = NANO3G_LCD_FRAME_MODE_OVERRIDE;
+#endif
+
     s5l_lcd_set_command_mode();
 
     /* Configure DMA channel */                             // TODO: this right after mutex_init()
@@ -1058,6 +1157,7 @@ void lcd_init_device(void)
 #ifdef BOOTLOADER
     lcd_run_seq(lcd_info->seq_init);
     nano3g_dump_display_state("panel-init-done");
+#if !defined(IPOD_NANO3G)
     nano3g_probe_clcd_status("panel-init-done");
     nano3g_force_clcd_timing("panel-init-done");
     nano3g_force_clcd_con1_only("panel-init-done");
@@ -1068,6 +1168,7 @@ void lcd_init_device(void)
     nano3g_dump_display_state("post-force-test");
     nano3g_probe_clcd_status("post-force-test");
     nano3g_force_clcd_linecnt_test("post-force-test");
+#endif
 #endif
 
     lcd_ispowered = true;

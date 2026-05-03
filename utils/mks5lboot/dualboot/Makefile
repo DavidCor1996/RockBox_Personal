@@ -28,8 +28,9 @@ LINKFILE = dualboot.lds
 # 1) add x to the list in TARGETS
 # 2) create a variable named OPT_x of the form:
 #    OPT_x=target specific defines
-TARGETS = ipod6g
+TARGETS = ipod6g ipodnano3g
 OPT_ipod6g = -DIPOD_6G -DMEMORYSIZE=64
+OPT_ipodnano3g = -DIPOD_NANO3G -DMEMORYSIZE=32
 
 LOADERS = install uninstall
 OPT_install =
@@ -52,6 +53,7 @@ $(foreach l, $(LOADERS), $(foreach t, $(TARGETS),\
 	$(eval SRC_$(l)_$(t) = $(addprefix $(FW8702)/$(t)/, $(subst -.,-$(subst ipod,,$(t)).,$(SRCTARGET))))))
 
 INCLUDES += -I. -I.. -I$(FIRMDIR) -I$(FWARM) -I$(FW8702)
+INCLUDES += -I$(ROOTDIR)/build-bootloader-ipodnano3g
 INCLUDES += $(addprefix -I$(FIRMDIR)/, export include libc/include kernel/include)
 # target/loader specific includes
 $(foreach l,$(LOADERS),$(foreach t,$(TARGETS),$(eval INC_$(l)_$(t) = -I$(FW8702)/$(t))))

@@ -60,6 +60,92 @@
 #include "norboot-target.h"
 #endif
 
+#ifdef IPOD_NANO3G
+#define N3G_PAGE_SCAN_COUNT 12
+
+struct nano3g_nand_direct_diag
+{
+    uint32_t stat0;
+    uint32_t stat1;
+    uint32_t id;
+    int32_t id_rc;
+    int32_t page_rc;
+    int32_t spare_rc;
+    uint32_t page0;
+    uint32_t page1;
+    uint32_t spare0;
+    uint32_t spare1;
+    uint32_t csum1;
+    uint32_t csum1_calc;
+    uint32_t csum2;
+    uint32_t csum2_calc;
+    uint32_t pcon8;
+    uint32_t pcon9;
+    uint32_t pcon10;
+    uint32_t stat_reset;
+    int32_t reset_rc;
+    uint32_t gpiocmd;
+    uint32_t pwr0;
+    uint32_t pwr1;
+    uint32_t clk1;
+    int32_t page_status_rc;
+    int32_t page_xfer_rc;
+    uint32_t xfer_stat;
+    uint32_t xfer_ctrl0;
+    uint32_t xfer_ctrl1;
+    uint32_t xfer_addr2;
+    uint32_t xfer_dnum;
+    uint32_t read_stat_cmd0;
+    uint32_t read_stat_addr;
+    uint32_t read_stat_cmd30;
+    uint32_t read_stat_cmd70;
+    uint32_t read_stat_wait;
+    uint32_t read_stat_post0;
+    int32_t read_post0_rc;
+    uint32_t scratch_addr;
+    uint32_t scratch0;
+    uint32_t scratch1;
+    uint32_t test_bank;
+    uint32_t test_ctrl0;
+    uint32_t misc_before;
+    uint32_t misc_after;
+    uint32_t misc_force;
+    uint32_t misc_mode;
+    uint32_t scratch_words[16];
+    uint32_t page_imm_words[16];
+    uint32_t scan_pattern;
+    uint32_t scan_count;
+    uint32_t scan_hits[8];
+    uint32_t scan_dumps[4][16];
+    uint32_t dataw0;
+    uint32_t dataw1;
+    uint32_t read_addr0;
+    uint32_t read_addr1;
+    uint32_t read_anum;
+    uint32_t ctrl_before_read0;
+    uint32_t ctrl_before_addr;
+    uint32_t ctrl_before_read30;
+    uint32_t ctrl_before_copy;
+    uint32_t stat_before_copy;
+    uint32_t source_sweep[9][2];
+    uint32_t q78_trace[4][3];
+    uint32_t dump_pages[N3G_PAGE_SCAN_COUNT];
+    int32_t dump_rc[N3G_PAGE_SCAN_COUNT];
+    uint32_t dump_sig510[N3G_PAGE_SCAN_COUNT];
+    uint32_t dump_non_ff[N3G_PAGE_SCAN_COUNT];
+    uint32_t dump_words[N3G_PAGE_SCAN_COUNT][16];
+    uint32_t first_non_ff_page;
+    uint32_t first_mbr_page;
+    int32_t sector0_rc;
+    int32_t sector0_init_rc;
+    uint32_t sector0_sig510;
+    uint32_t sector0_non_ff;
+    uint32_t sector0_words[128];
+};
+
+extern void nano3g_nand_direct_diag(struct nano3g_nand_direct_diag *diag);
+#endif
+
 
 #define ERR_RB      0
 #define ERR_OF      1
@@ -851,6 +937,131 @@ void main(void)
     printf("Version: %s", rbversion);
 
     backlight_init(); /* Turns on the backlight */
+
+#ifdef IPOD_NANO3G
+    struct nano3g_nand_direct_diag ndiag;
+    nano3g_nand_direct_diag(&ndiag);
+    printf("DID rc %ld id %08lx", (long)ndiag.id_rc,
+           (unsigned long)ndiag.id);
+    printf("rst rc %ld st %08lx", (long)ndiag.reset_rc,
+           (unsigned long)ndiag.stat_reset);
+    printf("p80 rc %ld sp %ld", (long)ndiag.page_rc,
+           (long)ndiag.spare_rc);
+    printf("bk %lu c %08lx", (unsigned long)ndiag.test_bank,
+           (unsigned long)ndiag.test_ctrl0);
+    printf("mx %08lx %08lx", (unsigned long)ndiag.misc_before,
+           (unsigned long)ndiag.misc_after);
+    printf("mf %lu mm %lu", (unsigned long)ndiag.misc_force,
+           (unsigned long)ndiag.misc_mode);
+    printf("sr %ld xr %ld", (long)ndiag.page_status_rc,
+           (long)ndiag.page_xfer_rc);
+    printf("rs %08lx %08lx %08lx", (unsigned long)ndiag.read_stat_cmd0,
+           (unsigned long)ndiag.read_stat_addr,
+           (unsigned long)ndiag.read_stat_cmd30);
+    printf("ss %08lx %08lx", (unsigned long)ndiag.read_stat_cmd70,
+           (unsigned long)ndiag.read_stat_wait);
+    printf("rz %ld %08lx", (long)ndiag.read_post0_rc,
+           (unsigned long)ndiag.read_stat_post0);
+    printf("sa %08lx", (unsigned long)ndiag.scratch_addr);
+    printf("dw %08lx %08lx", (unsigned long)ndiag.dataw0,
+           (unsigned long)ndiag.dataw1);
+    printf("sw %08lx %08lx", (unsigned long)ndiag.scratch0,
+           (unsigned long)ndiag.scratch1);
+    printf("ad %08lx %08lx an %08lx", (unsigned long)ndiag.read_addr0,
+           (unsigned long)ndiag.read_addr1,
+           (unsigned long)ndiag.read_anum);
+    printf("ct %08lx %08lx %08lx", (unsigned long)ndiag.ctrl_before_read0,
+           (unsigned long)ndiag.ctrl_before_addr,
+           (unsigned long)ndiag.ctrl_before_read30);
+    printf("cc %08lx st %08lx", (unsigned long)ndiag.ctrl_before_copy,
+           (unsigned long)ndiag.stat_before_copy);
+    static const unsigned sweep_offs[9] =
+        { 0x60, 0x64, 0x68, 0x6c, 0x70, 0x74, 0x78, 0x7c, 0x80 };
+    for (int i = 0; i < 9; i++)
+    {
+        printf("q%02x %08lx %08lx", sweep_offs[i],
+               (unsigned long)ndiag.source_sweep[i][0],
+               (unsigned long)ndiag.source_sweep[i][1]);
+    }
+    printf("q78b %08lx %08lx %08lx",
+           (unsigned long)ndiag.q78_trace[0][0],
+           (unsigned long)ndiag.q78_trace[0][1],
+           (unsigned long)ndiag.q78_trace[0][2]);
+    printf("q78t %08lx %08lx %08lx",
+           (unsigned long)ndiag.q78_trace[1][0],
+           (unsigned long)ndiag.q78_trace[1][1],
+           (unsigned long)ndiag.q78_trace[1][2]);
+    printf("q7816 %08lx %08lx %08lx",
+           (unsigned long)ndiag.q78_trace[2][0],
+           (unsigned long)ndiag.q78_trace[2][1],
+           (unsigned long)ndiag.q78_trace[2][2]);
+    printf("q7832 %08lx %08lx %08lx",
+           (unsigned long)ndiag.q78_trace[3][0],
+           (unsigned long)ndiag.q78_trace[3][1],
+           (unsigned long)ndiag.q78_trace[3][2]);
+    for (int i = 0; i < 16; i += 4)
+    {
+        printf("s%02d %08lx %08lx %08lx %08lx", i,
+               (unsigned long)ndiag.scratch_words[i],
+               (unsigned long)ndiag.scratch_words[i + 1],
+               (unsigned long)ndiag.scratch_words[i + 2],
+               (unsigned long)ndiag.scratch_words[i + 3]);
+    }
+    for (int i = 0; i < 16; i += 4)
+    {
+        printf("i%02d %08lx %08lx %08lx %08lx", i,
+               (unsigned long)ndiag.page_imm_words[i],
+               (unsigned long)ndiag.page_imm_words[i + 1],
+               (unsigned long)ndiag.page_imm_words[i + 2],
+               (unsigned long)ndiag.page_imm_words[i + 3]);
+    }
+    for (int p = 0; p < N3G_PAGE_SCAN_COUNT; p++)
+    {
+        printf("pg%lu rc %ld nf %lu sig %08lx",
+               (unsigned long)ndiag.dump_pages[p],
+               (long)ndiag.dump_rc[p],
+               (unsigned long)ndiag.dump_non_ff[p],
+               (unsigned long)ndiag.dump_sig510[p]);
+        for (int i = 0; i < 16; i += 4)
+        {
+            printf("pg%lu.%02d %08lx %08lx %08lx %08lx",
+                   (unsigned long)ndiag.dump_pages[p], i,
+                   (unsigned long)ndiag.dump_words[p][i],
+                   (unsigned long)ndiag.dump_words[p][i + 1],
+                   (unsigned long)ndiag.dump_words[p][i + 2],
+                   (unsigned long)ndiag.dump_words[p][i + 3]);
+        }
+    }
+    printf("first_nf %08lx mbr %08lx",
+           (unsigned long)ndiag.first_non_ff_page,
+           (unsigned long)ndiag.first_mbr_page);
+    printf("sec0 rc %ld init %ld nf %lu sig %08lx",
+           (long)ndiag.sector0_rc,
+           (long)ndiag.sector0_init_rc,
+           (unsigned long)ndiag.sector0_non_ff,
+           (unsigned long)ndiag.sector0_sig510);
+    for (int i = 0; i < 128; i += 4)
+    {
+        printf("sec0.%03d %08lx %08lx %08lx %08lx", i,
+               (unsigned long)ndiag.sector0_words[i],
+               (unsigned long)ndiag.sector0_words[i + 1],
+               (unsigned long)ndiag.sector0_words[i + 2],
+               (unsigned long)ndiag.sector0_words[i + 3]);
+    }
+    printf("p80 %08lx %08lx", (unsigned long)ndiag.page0,
+           (unsigned long)ndiag.page1);
+    printf("sp %08lx %08lx", (unsigned long)ndiag.spare0,
+           (unsigned long)ndiag.spare1);
+    printf("xst %08lx", (unsigned long)ndiag.xfer_stat);
+    printf("xc %08lx %08lx", (unsigned long)ndiag.xfer_ctrl0,
+           (unsigned long)ndiag.xfer_ctrl1);
+    printf("xa %08lx dn %08lx", (unsigned long)ndiag.xfer_addr2,
+           (unsigned long)ndiag.xfer_dnum);
+    printf("pwr %08lx %08lx", (unsigned long)ndiag.pwr0,
+           (unsigned long)ndiag.pwr1);
+    printf("clk1 %08lx", (unsigned long)ndiag.clk1);
+    sleep(HZ * 8);
+#endif
 
 #ifdef S5L87XX_DEVELOPMENT_BOOTLOADER
     line++;

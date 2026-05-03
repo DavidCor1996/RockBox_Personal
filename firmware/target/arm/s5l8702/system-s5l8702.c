@@ -127,7 +127,6 @@ enum {
     CLK_UNBOOST = N_CLK_MODES - 1,
 };
 
-
 void INT_TIMER(void) ICODE_ATTR;
 void INT_TIMER()
 {
@@ -599,8 +598,12 @@ static void miu_preinit(bool selfrefreshing)
 void system_preinit(void)
 {
 #if defined(IPOD_NANO3G)
+#if defined(BOOTLOADER)
+    /* BSS is not initialized yet; avoid boottrace storage in bootloader. */
+#else /* BOOTLOADER */
     nano3g_boottrace_reset();
     nano3g_boottrace_log("system_preinit");
+#endif /* BOOTLOADER */
 #endif
 
     bool hibernated;        // TODO: hibernated -> resuming, or perhaps better warmboot
@@ -619,15 +622,24 @@ void system_preinit(void)
 
     syscon_preinit();
 #if defined(IPOD_NANO3G)
+#if defined(BOOTLOADER)
+#else /* BOOTLOADER */
     nano3g_boottrace_log("syscon_preinit");
+#endif /* BOOTLOADER */
 #endif
     gpio_preinit();
 #if defined(IPOD_NANO3G)
+#if defined(BOOTLOADER)
+#else /* BOOTLOADER */
     nano3g_boottrace_log("gpio_preinit");
+#endif /* BOOTLOADER */
 #endif
     i2c_preinit(0);
 #if defined(IPOD_NANO3G)
+#if defined(BOOTLOADER)
+#else /* BOOTLOADER */
     nano3g_boottrace_log("i2c_preinit");
+#endif /* BOOTLOADER */
 #endif
 
 #if CONFIG_CPU == S5L8720
@@ -637,17 +649,26 @@ void system_preinit(void)
     hibernated = pmu_is_hibernated();
 
 #if defined(IPOD_NANO3G)
+#if defined(BOOTLOADER)
+#else /* BOOTLOADER */
     nano3g_boottrace_log(hibernated ? "warmboot" : "coldboot");
+#endif /* BOOTLOADER */
 #endif
 
     pmu_preinit();
 #if defined(IPOD_NANO3G)
+#if defined(BOOTLOADER)
+#else /* BOOTLOADER */
     nano3g_boottrace_log("pmu_preinit done");
+#endif /* BOOTLOADER */
 #endif
 
     miu_preinit(hibernated);
 #if defined(IPOD_NANO3G)
+#if defined(BOOTLOADER)
+#else /* BOOTLOADER */
     nano3g_boottrace_log("miu_preinit done");
+#endif /* BOOTLOADER */
 #endif
 }
 

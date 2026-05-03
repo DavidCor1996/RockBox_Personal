@@ -19,6 +19,7 @@
  *
  ****************************************************************************/
 #include <stdint.h>
+#include <stdbool.h>
 #include <string.h>
 
 #include "config.h"
@@ -30,6 +31,13 @@
 #include "spi-s5l8702.h"
 #include "norboot-target.h"
 #include "piezo.h"
+
+#ifdef IPOD_NANO3G
+bool nano3g_safe_mode_enabled(void)
+{
+    return false;
+}
+#endif
 
 /* How it works:
  *
@@ -125,6 +133,10 @@ static unsigned char of_sha[][SIGN_SZ] = {
 
 static int identify_fw(struct Im3Info *hinfo)
 {
+#ifdef IPOD_NANO3G
+    (void)hinfo;
+    return 0;
+#else
     unsigned char hash[SIGN_SZ];
     int of;
 
@@ -137,6 +149,7 @@ static int identify_fw(struct Im3Info *hinfo)
             break;
 
     return of;
+#endif
 }
 
 #ifdef DUALBOOT_UNINSTALL
