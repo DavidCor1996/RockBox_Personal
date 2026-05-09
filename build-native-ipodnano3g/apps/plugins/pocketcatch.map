@@ -22,7 +22,6 @@ Archive member included to satisfy reference by file (symbol)
 Discarded input sections
 
  .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/pocketcatch/main.o
- .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/pocketcatch/pc_assets.o
  .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/pocketcatch/pc_catch.o
  .bss           0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/pocketcatch/pc_catch.o
  .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/pocketcatch/pc_input.o
@@ -34,7 +33,6 @@ Discarded input sections
  .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/pocketcatch/pc_world.o
  .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/pocketcatch/pc_world_input.o
  .bss           0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/pocketcatch/pc_world_input.o
- .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/pocketcatch/pc_world_render.o
  .text          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(xlcd_draw.o)
  .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(xlcd_draw.o)
  .bss           0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(xlcd_draw.o)
@@ -155,178 +153,194 @@ LOAD /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a
  .header        0x0000000009dfc000       0x1c /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/plugin_crt0.o
                 0x0000000009dfc000                __header
 
-.text           0x0000000009dfc01c     0x697c
+.text           0x0000000009dfc01c    0x118d8
  *(.text*)
- .text          0x0000000009dfc01c      0x270 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/pocketcatch/main.o
+ .text          0x0000000009dfc01c      0x2b0 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/pocketcatch/main.o
                 0x0000000009dfc034                plugin_start
- .text          0x0000000009dfc28c      0xa6c /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/pocketcatch/pc_assets.o
-                0x0000000009dfc660                pc_assets_init
-                0x0000000009dfc7a0                pc_assets_teardown
-                0x0000000009dfc7fc                pc_assets_select_creature
-                0x0000000009dfc874                pc_assets_get_creature_count
-                0x0000000009dfc87c                pc_assets_get_total_creature_count
-                0x0000000009dfc884                pc_assets_get_creature
-                0x0000000009dfc8bc                pc_assets_find_species_index
-                0x0000000009dfc8fc                pc_assets_get_family_index
-                0x0000000009dfc960                pc_assets_get_evolution_target
-                0x0000000009dfc9c4                pc_assets_get_evolution_cost
-                0x0000000009dfca18                pc_assets_get_catch_candy
-                0x0000000009dfca20                pc_assets_load_world_creature
-                0x0000000009dfcb5c                pc_assets_load_world_trainer
-                0x0000000009dfccd4                pc_assets_source_label
- .text          0x0000000009dfccf8      0x128 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/pocketcatch/pc_catch.o
-                0x0000000009dfccf8                pc_catch_roll
-                0x0000000009dfcdf8                pc_throw_tier_label
- .text          0x0000000009dfce20      0x2fc /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/pocketcatch/pc_input.o
-                0x0000000009dfce3c                pc_input_reset
-                0x0000000009dfce58                pc_input_animate
-                0x0000000009dfcea0                pc_input_snapshot_throw
-                0x0000000009dfcf94                pc_input_handle_event
- .text          0x0000000009dfd11c      0x3c4 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/pocketcatch/pc_physics.o
-                0x0000000009dfd11c                pc_physics_build_throw
-                0x0000000009dfd3f8                pc_physics_update_throw
- .text          0x0000000009dfd4e0     0x13a4 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/pocketcatch/pc_render.o
-                0x0000000009dfda90                pc_render_frame
- .text          0x0000000009dfe884      0x768 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/pocketcatch/pc_state.o
-                0x0000000009dfead8                pc_state_init
-                0x0000000009dfeb28                pc_state_begin
-                0x0000000009dfeb68                pc_state_cycle_species
-                0x0000000009dfeba8                pc_state_update
- .text          0x0000000009dfefec     0x22e0 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/pocketcatch/pc_world.o
-                0x0000000009e002e0                pc_world_save
-                0x0000000009e003dc                pc_world_init
-                0x0000000009e005a8                pc_world_teardown
-                0x0000000009e00618                pc_world_update
-                0x0000000009e0110c                pc_world_finish_encounter
- .text          0x0000000009e012cc       0xfc /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/pocketcatch/pc_world_input.o
-                0x0000000009e012cc                pc_world_input_handle_event
- .text          0x0000000009e013c8      0xf30 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/pocketcatch/pc_world_render.o
-                0x0000000009e01760                pc_world_render_frame
- .text          0x0000000009e022f8      0x1e0 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/plugin_crt0.o
-                0x0000000009e02310                plugin__start
-                0x0000000009e0243c                rb_atexit
-                0x0000000009e0245c                exit
-                0x0000000009e02478                _exit
-                0x0000000009e0248c                exit_on_usb
+ .text          0x0000000009dfc2cc      0xe14 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/pocketcatch/pc_assets.o
+                0x0000000009dfc938                pc_assets_init
+                0x0000000009dfca78                pc_assets_teardown
+                0x0000000009dfcad4                pc_assets_select_creature
+                0x0000000009dfcb4c                pc_assets_get_creature_count
+                0x0000000009dfcb54                pc_assets_get_total_creature_count
+                0x0000000009dfcb5c                pc_assets_get_creature
+                0x0000000009dfcb94                pc_assets_find_species_index
+                0x0000000009dfcbd4                pc_assets_get_family_index
+                0x0000000009dfcc38                pc_assets_get_evolution_target
+                0x0000000009dfcc9c                pc_assets_get_evolution_cost
+                0x0000000009dfccf0                pc_assets_get_catch_candy
+                0x0000000009dfccf8                pc_assets_load_world_creature
+                0x0000000009dfcff4                pc_assets_load_named_world_trainer
+                0x0000000009dfd02c                pc_assets_load_world_trainer
+                0x0000000009dfd07c                pc_assets_set_player_trainer_name
+                0x0000000009dfd0bc                pc_assets_source_label
+ .text          0x0000000009dfd0e0      0x128 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/pocketcatch/pc_catch.o
+                0x0000000009dfd0e0                pc_catch_roll
+                0x0000000009dfd1e0                pc_throw_tier_label
+ .text          0x0000000009dfd208      0x2fc /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/pocketcatch/pc_input.o
+                0x0000000009dfd224                pc_input_reset
+                0x0000000009dfd240                pc_input_animate
+                0x0000000009dfd288                pc_input_snapshot_throw
+                0x0000000009dfd37c                pc_input_handle_event
+ .text          0x0000000009dfd504      0x3c4 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/pocketcatch/pc_physics.o
+                0x0000000009dfd504                pc_physics_build_throw
+                0x0000000009dfd7e0                pc_physics_update_throw
+ .text          0x0000000009dfd8c8     0x1300 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/pocketcatch/pc_render.o
+                0x0000000009dfdf74                pc_render_reset_trainer_asset
+                0x0000000009dfdf88                pc_render_frame
+ .text          0x0000000009dfebc8      0x768 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/pocketcatch/pc_state.o
+                0x0000000009dfee1c                pc_state_init
+                0x0000000009dfee6c                pc_state_begin
+                0x0000000009dfeeac                pc_state_cycle_species
+                0x0000000009dfeeec                pc_state_update
+ .text          0x0000000009dff330     0x8ef0 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/pocketcatch/pc_world.o
+                0x0000000009e02400                pc_world_song_count
+                0x0000000009e02410                pc_world_song_name
+                0x0000000009e0248c                pc_world_player_trainer_count
+                0x0000000009e02494                pc_world_player_trainer_name
+                0x0000000009e024b4                pc_world_player_trainer_cost
+                0x0000000009e024d4                pc_world_player_trainer_assets_available
+                0x0000000009e024d8                pc_world_nearby_count
+                0x0000000009e0255c                pc_world_nearby_name
+                0x0000000009e02650                pc_world_save
+                0x0000000009e02c50                pc_world_secret_draw_info
+                0x0000000009e02cdc                pc_world_pokestop_draw_info
+                0x0000000009e02d80                pc_world_init
+                0x0000000009e03bd4                pc_world_teardown
+                0x0000000009e03c38                pc_world_update
+                0x0000000009e080d0                pc_world_finish_encounter
+                0x0000000009e081c4                pc_world_cancel_encounter
+ .text          0x0000000009e08220      0x1a8 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/pocketcatch/pc_world_input.o
+                0x0000000009e08220                pc_world_input_handle_event
+ .text          0x0000000009e083c8     0x4e8c /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/pocketcatch/pc_world_render.o
+                0x0000000009e0a954                pc_world_render_frame
+ .text          0x0000000009e0d254      0x1e0 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/plugin_crt0.o
+                0x0000000009e0d26c                plugin__start
+                0x0000000009e0d398                rb_atexit
+                0x0000000009e0d3b8                exit
+                0x0000000009e0d3d4                _exit
+                0x0000000009e0d3e8                exit_on_usb
  .text.xlcd_fillcircle_screen
-                0x0000000009e024d8      0x15c /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(xlcd_draw.o)
-                0x0000000009e024d8                xlcd_fillcircle_screen
+                0x0000000009e0d434      0x15c /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(xlcd_draw.o)
+                0x0000000009e0d434                xlcd_fillcircle_screen
  .text.xlcd_fillcircle
-                0x0000000009e02634       0x20 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(xlcd_draw.o)
-                0x0000000009e02634                xlcd_fillcircle
+                0x0000000009e0d590       0x20 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(xlcd_draw.o)
+                0x0000000009e0d590                xlcd_fillcircle
  .text.xlcd_drawcircle_screen
-                0x0000000009e02654      0x108 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(xlcd_draw.o)
-                0x0000000009e02654                xlcd_drawcircle_screen
+                0x0000000009e0d5b0      0x108 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(xlcd_draw.o)
+                0x0000000009e0d5b0                xlcd_drawcircle_screen
  .text.xlcd_drawcircle
-                0x0000000009e0275c       0x20 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(xlcd_draw.o)
-                0x0000000009e0275c                xlcd_drawcircle
+                0x0000000009e0d6b8       0x20 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(xlcd_draw.o)
+                0x0000000009e0d6b8                xlcd_drawcircle
  .text.simple_resize_bitmap
-                0x0000000009e0277c       0xb4 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(pluginlib_bmp.o)
-                0x0000000009e0277c                simple_resize_bitmap
- .text          0x0000000009e02830       0x1c /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/lib/libsetjmp.a(setjmp.o)
-                0x0000000009e02830                setjmp
-                0x0000000009e0283c                longjmp
- .text          0x0000000009e0284c      0x148 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
-                0x0000000009e0284c                __aeabi_idiv
-                0x0000000009e0284c                __divsi3
-                0x0000000009e02974                __aeabi_idivmod
- .text          0x0000000009e02994        0x4 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
-                0x0000000009e02994                __aeabi_ldiv0
-                0x0000000009e02994                __aeabi_idiv0
+                0x0000000009e0d6d8       0xb4 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(pluginlib_bmp.o)
+                0x0000000009e0d6d8                simple_resize_bitmap
+ .text          0x0000000009e0d78c       0x1c /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/lib/libsetjmp.a(setjmp.o)
+                0x0000000009e0d78c                setjmp
+                0x0000000009e0d798                longjmp
+ .text          0x0000000009e0d7a8      0x148 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+                0x0000000009e0d7a8                __aeabi_idiv
+                0x0000000009e0d7a8                __divsi3
+                0x0000000009e0d8d0                __aeabi_idivmod
+ .text          0x0000000009e0d8f0        0x4 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
+                0x0000000009e0d8f0                __aeabi_ldiv0
+                0x0000000009e0d8f0                __aeabi_idiv0
  *(.glue_7)
- .glue_7        0x0000000009e02998        0x0 linker stubs
+ .glue_7        0x0000000009e0d8f4        0x0 linker stubs
  *(.glue_7t)
- .glue_7t       0x0000000009e02998        0x0 linker stubs
+ .glue_7t       0x0000000009e0d8f4        0x0 linker stubs
 
-.vfp11_veneer   0x0000000009e02998        0x0
- .vfp11_veneer  0x0000000009e02998        0x0 linker stubs
+.vfp11_veneer   0x0000000009e0d8f4        0x0
+ .vfp11_veneer  0x0000000009e0d8f4        0x0 linker stubs
 
-.v4_bx          0x0000000009e02998        0x0
- .v4_bx         0x0000000009e02998        0x0 linker stubs
+.v4_bx          0x0000000009e0d8f4        0x0
+ .v4_bx         0x0000000009e0d8f4        0x0 linker stubs
 
-.iplt           0x0000000009e02998        0x0
- .iplt          0x0000000009e02998        0x0 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/pocketcatch/main.o
+.iplt           0x0000000009e0d8f4        0x0
+ .iplt          0x0000000009e0d8f4        0x0 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/pocketcatch/main.o
 
-.rodata         0x0000000009e02998     0xa3bc
+.rodata         0x0000000009e0d8f4    0x1c850
  *(.rodata*)
  .rodata.str1.1
-                0x0000000009e02998      0xb36 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/pocketcatch/pc_assets.o
-                                        0xb3e (size before relaxing)
- *fill*         0x0000000009e034ce        0x2 
- .rodata        0x0000000009e034d0     0x1b9c /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/pocketcatch/pc_assets.o
+                0x0000000009e0d8f4      0xb4d /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/pocketcatch/pc_assets.o
+                                        0xb59 (size before relaxing)
+ *fill*         0x0000000009e0e441        0x3 
+ .rodata        0x0000000009e0e444     0x1bb4 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/pocketcatch/pc_assets.o
  .rodata.str1.1
-                0x0000000009e0506c       0x1e /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/pocketcatch/pc_catch.o
- *fill*         0x0000000009e0508a        0x2 
- .rodata        0x0000000009e0508c       0x14 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/pocketcatch/pc_catch.o
- .rodata        0x0000000009e050a0       0x10 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/pocketcatch/pc_input.o
+                0x0000000009e0fff8       0x1e /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/pocketcatch/pc_catch.o
+ *fill*         0x0000000009e10016        0x2 
+ .rodata        0x0000000009e10018       0x14 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/pocketcatch/pc_catch.o
+ .rodata        0x0000000009e1002c       0x10 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/pocketcatch/pc_input.o
  .rodata.str1.1
-                0x0000000009e050b0       0x4c /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/pocketcatch/pc_render.o
-                                         0x50 (size before relaxing)
- .rodata        0x0000000009e050fc        0x4 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/pocketcatch/pc_render.o
+                0x0000000009e1003c       0x54 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/pocketcatch/pc_render.o
+                                         0x5f (size before relaxing)
+ .rodata        0x0000000009e10090      0x604 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/pocketcatch/pc_render.o
  .rodata.str1.1
-                0x0000000009e05100      0x15a /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/pocketcatch/pc_state.o
+                0x0000000009e10694      0x15a /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/pocketcatch/pc_state.o
                                         0x15e (size before relaxing)
  .rodata.str1.1
-                0x0000000009e0525a      0x2f9 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/pocketcatch/pc_world.o
-                                        0x321 (size before relaxing)
- *fill*         0x0000000009e05553        0x1 
- .rodata        0x0000000009e05554      0x230 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/pocketcatch/pc_world.o
+                0x0000000009e107ee      0xe20 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/pocketcatch/pc_world.o
+                                        0xf0f (size before relaxing)
+ *fill*         0x0000000009e1160e        0x2 
+ .rodata        0x0000000009e11610     0x51a8 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/pocketcatch/pc_world.o
  .rodata.str1.1
-                0x0000000009e05784       0xdb /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/pocketcatch/pc_world_render.o
-                                        0x119 (size before relaxing)
- *fill*         0x0000000009e0585f        0x1 
- .rodata        0x0000000009e05860     0x74f4 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/pocketcatch/pc_world_render.o
+                0x0000000009e167b8      0x51c /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/pocketcatch/pc_world_render.o
+                                        0x66a (size before relaxing)
+ .rodata        0x0000000009e16cd4    0x13470 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/pocketcatch/pc_world_render.o
 
-.rel.dyn        0x0000000009e0cd54        0x0
- .rel.iplt      0x0000000009e0cd54        0x0 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/pocketcatch/main.o
+.rel.dyn        0x0000000009e2a144        0x0
+ .rel.iplt      0x0000000009e2a144        0x0 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/pocketcatch/main.o
 
-.data           0x0000000009e0cd54        0x8
+.data           0x0000000009e2a144       0x38
  *(.data*)
- .data          0x0000000009e0cd54        0x4 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/pocketcatch/pc_render.o
- .data          0x0000000009e0cd58        0x4 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/plugin_crt0.o
-                0x0000000009e0cd58                rb
+ .data          0x0000000009e2a144       0x18 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/pocketcatch/pc_assets.o
+ .data          0x0000000009e2a15c        0x4 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/pocketcatch/pc_render.o
+ .data          0x0000000009e2a160       0x18 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/pocketcatch/pc_world_render.o
+ .data          0x0000000009e2a178        0x4 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/plugin_crt0.o
+                0x0000000009e2a178                rb
 
-.igot.plt       0x0000000009e0cd5c        0x0
- .igot.plt      0x0000000009e0cd5c        0x0 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/pocketcatch/main.o
+.igot.plt       0x0000000009e2a17c        0x0
+ .igot.plt      0x0000000009e2a17c        0x0 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/pocketcatch/main.o
 
 /DISCARD/
  *(.eh_frame)
 
-.bss            0x0000000009e0cd5c    0x930c8
-                0x0000000009e0cd5c                plugin_bss_start = .
-                0x0000000009e0cd5c                _plugin_bss_start = .
+.bss            0x0000000009e2a17c    0xb1074
+                0x0000000009e2a17c                plugin_bss_start = .
+                0x0000000009e2a17c                _plugin_bss_start = .
  *(.bss*)
- .bss           0x0000000009e0cd5c     0x20e4 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/pocketcatch/main.o
- .bss           0x0000000009e0ee40    0x37600 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/pocketcatch/pc_assets.o
- .bss           0x0000000009e46440    0x25802 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/pocketcatch/pc_render.o
- .bss           0x0000000009e6bc42     0x7180 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/pocketcatch/pc_world.o
- .bss           0x0000000009e72dc2    0x2d002 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/pocketcatch/pc_world_render.o
- .bss           0x0000000009e9fdc4       0x60 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/plugin_crt0.o
+ .bss           0x0000000009e2a17c     0x34c8 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/pocketcatch/main.o
+ .bss           0x0000000009e2d644    0x3c2a4 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/pocketcatch/pc_assets.o
+ .bss           0x0000000009e698e8    0x2646a /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/pocketcatch/pc_render.o
+ *fill*         0x0000000009e8fd52        0x2 
+ .bss           0x0000000009e8fd54    0x1ad7c /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/pocketcatch/pc_world.o
+ .bss           0x0000000009eaaad0    0x306c0 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/pocketcatch/pc_world_render.o
+ .bss           0x0000000009edb190       0x60 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/plugin_crt0.o
  *(COMMON)
-                0x0000000009e9fe24                . = ALIGN (0x4)
+                0x0000000009edb1f0                . = ALIGN (0x4)
 
-.pluginend      0x0000000009e9fe24        0x0
-                0x0000000009e9fe24                _plugin_end_addr = .
-                0x0000000009e9fe24                plugin_end_addr = .
+.pluginend      0x0000000009edb1f0        0x0
+                0x0000000009edb1f0                _plugin_end_addr = .
+                0x0000000009edb1f0                plugin_end_addr = .
 
-.iram           0x000000000000c000        0x0 load address 0x0000000009e0cd5c
+.iram           0x000000000000c000        0x0 load address 0x0000000009e2a17c
                 0x000000000000c000                iramstart = .
  *(.icode)
  *(.irodata)
  *(.idata)
                 0x000000000000c000                iramend = .
-                0x0000000009e0cd5c                iramcopy = LOADADDR (.iram)
+                0x0000000009e2a17c                iramcopy = LOADADDR (.iram)
 
 .ibss           0x000000000000c000        0x0
                 0x000000000000c000                iedata = .
  *(.ibss)
                 0x000000000000c000                . = ALIGN (0x4)
                 0x000000000000c000                iend = .
-                0x0000000009e9fe24                loadendaddr = MAX (plugin_end_addr, (LOADADDR (.iram) + SIZEOF (.iram)))
+                0x0000000009edb1f0                loadendaddr = MAX (plugin_end_addr, (LOADADDR (.iram) + SIZEOF (.iram)))
 
-.pluginloadend  0x0000000009e9fe24        0x0
-                0x0000000009e9fe24                _plugin_load_end_addr = .
-                0x0000000009e9fe24                plugin_load_end_addr = .
+.pluginloadend  0x0000000009edb1f0        0x0
+                0x0000000009edb1f0                _plugin_load_end_addr = .
+                0x0000000009edb1f0                plugin_load_end_addr = .
 
 .comment        0x0000000000000000       0x11
  *(.comment)

@@ -200,6 +200,7 @@ class RockboxBootService:
                     "exists": True,
                     "size": os.path.getsize(rendered_path),
                     "preview_path": validation["path"],
+                    "preserve_metadata": False,
                 }
             )
         return {
@@ -230,7 +231,7 @@ class RockboxBootService:
 
     def firmware_build_dir(self, profile):
         repo_root = os.path.abspath(profile["source_repo_path"])
-        for name in self.profile_spec(profile).get("build_dirs", []):
+        for name in self._preferred_build_dirs(profile):
             candidate = os.path.join(repo_root, name)
             if os.path.isdir(candidate):
                 return candidate
@@ -290,6 +291,70 @@ class RockboxBootService:
             "stdout": result.stdout,
             "stderr": result.stderr,
             "message": "" if success else "Firmware rebuild failed",
+        }
+
+    def full_install_firmware(self, profile, runner=None, progress_callback=None):
+        build_dir = self.firmware_build_dir(profile)
+        mount_path = os.path.abspath(profile.get("device_mount_path") or "")
+        if not build_dir:
+            return {
+                "success": False,
+                "artifact_path": "",
+                "build_dir": "",
+                "stdout": "",
+                "stderr": "",
+                "message": "No Rockbox build directory found for this profile",
+            }
+        if not mount_path or not os.path.isdir(mount_path):
+            return {
+                "success": False,
+                "artifact_path": "",
+                "build_dir": build_dir,
+                "stdout": "",
+                "stderr": "",
+                "message": "Mounted device path does not exist",
+            }
+
+        artifact_path = os.path.join(build_dir, "rockbox.ipod")
+        build_command = ["make", "-C", build_dir, "-j4", artifact_path]
+        install_command = ["make", "-C", build_dir, f"PREFIX={mount_path}", "fullinstall"]
+
+        build = self._run_progress_command(
+            build_command,
+            runner=runner,
+            progress_callback=progress_callback,
+            progress_current=1,
+            progress_total=2,
+            progress_label="Building rockbox.ipod",
+        )
+        if build.returncode != 0 or not os.path.isfile(artifact_path):
+            return {
+                "success": False,
+                "artifact_path": "",
+                "build_dir": build_dir,
+                "stdout": build.stdout,
+                "stderr": build.stderr,
+                "message": "Firmware rebuild failed",
+            }
+
+        install = self._run_progress_command(
+            install_command,
+            runner=runner,
+            progress_callback=progress_callback,
+            progress_current=2,
+            progress_total=2,
+            progress_label="Full installing Rockbox to iPod",
+        )
+        success = install.returncode == 0
+        stdout = "\n".join(part for part in (build.stdout, install.stdout) if part.strip())
+        stderr = "\n".join(part for part in (build.stderr, install.stderr) if part.strip())
+        return {
+            "success": success,
+            "artifact_path": artifact_path if success else "",
+            "build_dir": build_dir,
+            "stdout": stdout,
+            "stderr": stderr,
+            "message": "" if success else "Rockbox full install failed",
         }
 
     def rebuild_bootloader(self, profile, runner=None):
@@ -373,6 +438,29 @@ class RockboxBootService:
                 }
             ],
         }
+
+    def invalidate_firmware_boot_assets(self, profile):
+        build_dir = self.firmware_build_dir(profile)
+        if not build_dir:
+            return []
+
+        removed = []
+        for rel_path in self.profile_spec(profile).get("default_candidates", []):
+            rel_without_ext, _ext = os.path.splitext(rel_path)
+            for suffix in (".c", ".o"):
+                candidate = os.path.join(build_dir, rel_without_ext + suffix)
+                if self._remove_file(candidate):
+                    removed.append(candidate)
+
+        for header in ("bitmaps/rockboxlogo.h",):
+            candidate = os.path.join(build_dir, header)
+            if self._remove_file(candidate):
+                removed.append(candidate)
+
+        artifact = self.firmware_output_path(profile)
+        if self._remove_file(artifact):
+            removed.append(artifact)
+        return removed
 
     def crypto_plugin_artifact_path(self, profile):
         build_dir = self.firmware_build_dir(profile)
@@ -911,6 +999,15 @@ class RockboxBootService:
                 return size.width(), size.height()
         return spec["width"], spec["height"]
 
+    def _preferred_build_dirs(self, profile):
+        model = str(profile.get("target_device_model") or "").strip().lower()
+        resolution = str(profile.get("screen_resolution") or "").strip()
+        if resolution == "320x240":
+            if "6g" in model or ("classic" in model and "video" not in model):
+                return ["build-hw-ipod6g", "build-hw-ipodvideo-5g", "build-hw-ipodvideo"]
+            return ["build-hw-ipodvideo-5g", "build-hw-ipodvideo", "build-hw-ipod6g"]
+        return list(self.profile_spec(profile).get("build_dirs", []))
+
     @staticmethod
     def _hash_file(path):
         if not path or not os.path.isfile(path):
@@ -923,6 +1020,53 @@ class RockboxBootService:
                     break
                 digest.update(chunk)
         return digest.hexdigest()
+
+    @staticmethod
+    def _remove_file(path):
+        if not path:
+            return False
+        try:
+            os.remove(path)
+            return True
+        except OSError:
+            return False
+
+    @staticmethod
+    def _run_progress_command(command, runner=None, progress_callback=None, progress_current=0, progress_total=0, progress_label=""):
+        if progress_callback:
+            progress_callback(progress_current, progress_total, progress_label)
+        if runner is not None:
+            result = runner(
+                command,
+                check=False,
+                capture_output=True,
+                text=True,
+            )
+            if progress_callback:
+                progress_callback(progress_current, progress_total, progress_label)
+            return result
+
+        process = subprocess.Popen(
+            command,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
+            bufsize=1,
+        )
+        stdout_parts = []
+        if process.stdout is not None:
+            for line in process.stdout:
+                stdout_parts.append(line)
+                label = line.strip() or progress_label
+                if progress_callback:
+                    progress_callback(progress_current, progress_total, label[:160])
+        returncode = process.wait()
+        return subprocess.CompletedProcess(
+            command,
+            returncode,
+            stdout="".join(stdout_parts),
+            stderr="",
+        )
 
     @staticmethod
     def _invalid(spec, message):

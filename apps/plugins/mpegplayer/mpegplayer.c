@@ -672,8 +672,9 @@ static struct fps fps NOCACHEBSS_ATTR; /* Accessed on other processor */
 #define FEED_MAX_ITEMS          64
 #define FEED_ID_LEN             32
 #define FEED_TITLE_LEN          64
-#define FEED_SELECT_WINDOW      (HZ / 3)
 #define FEED_SKIP_COOLDOWN      (HZ * 2)
+#define FEED_MENU_HOLD_TIME     (HZ * 2)
+#define FEED_LIKE_ANIM_TIME     (HZ * 3 / 4)
 
 struct feed_item
 {
@@ -692,9 +693,9 @@ struct feed_state
     struct feed_item items[FEED_MAX_ITEMS];
     int count;
     int index;
-    bool select_pending;
-    long select_deadline;
     long skip_cooldown_until;
+    long like_anim_until;
+    bool ui_visible;
 };
 
 static struct feed_state feed;
@@ -749,10 +750,13 @@ static fb_data* get_framebuffer(void)
 
 static void osd_show(unsigned show);
 static void osd_refresh(int hint);
+static void fps_update_post_frame_callback(void);
+static void feed_post_frame_callback(void);
 
 static void feed_reset(void)
 {
     rb->memset(&feed, 0, sizeof(feed));
+    feed.ui_visible = true;
 }
 
 static char *feed_trim(char *text)
@@ -952,8 +956,11 @@ static bool feed_add_item(const char *id, const char *title, const char *path)
 {
     struct feed_item *item;
 
-    if (feed.count >= FEED_MAX_ITEMS || !rb->file_exists(path))
+    if (feed.count >= FEED_MAX_ITEMS)
         return false;
+
+    if (!rb->file_exists(path))
+        return true;
 
     item = &feed.items[feed.count];
 
@@ -1049,8 +1056,13 @@ static bool feed_get_next_file(int direction, char *videofile, size_t bufsize)
 {
     int next = feed.index + (direction == VIDEO_PREV ? -1 : 1);
 
-    if (!feed.active || next < 0 || next >= feed.count)
+    if (!feed.active || feed.count <= 0)
         return false;
+
+    if (next < 0)
+        next = feed.count - 1;
+    else if (next >= feed.count)
+        next = 0;
 
     feed.index = next;
     feed_save_state();
@@ -1069,7 +1081,7 @@ static bool feed_skip_allowed(void)
     return true;
 }
 
-static void feed_toggle_like(void)
+static void feed_like_current(void)
 {
     struct feed_item *item;
 
@@ -1077,39 +1089,16 @@ static void feed_toggle_like(void)
         return;
 
     item = &feed.items[feed.index];
-    item->liked = !item->liked;
-    feed_save_likes();
-}
+    if (!item->liked)
+    {
+        item->liked = true;
+        feed_save_likes();
+    }
 
-static void feed_toggle_zoom(void)
-{
-    if (!feed.active)
-        return;
-
-    if (settings.display_mode == MPEG_VIDEO_DISPLAY_FILL)
-        settings.display_mode = MPEG_VIDEO_DISPLAY_FIT;
-    else
-        settings.display_mode = MPEG_VIDEO_DISPLAY_FILL;
-
-    stream_vo_set_display_mode(settings.display_mode);
-    osd_refresh(OSD_REFRESH_TIME);
-}
-
-static void feed_resolve_select_timeout(void)
-{
-    if (!feed.select_pending)
-        return;
-
-    if (TIME_BEFORE(*rb->current_tick, feed.select_deadline))
-        return;
-
-    feed.select_pending = false;
-    feed_toggle_zoom();
-}
-
-static void feed_cancel_pending_select(void)
-{
-    feed.select_pending = false;
+    feed.like_anim_until = *rb->current_tick + FEED_LIKE_ANIM_TIME;
+    fps_update_post_frame_callback();
+    if (feed.ui_visible)
+        osd_refresh(OSD_REFRESH_VOLUME);
 }
 
 static void feed_format_label(char *buf, size_t buf_size,
@@ -1638,6 +1627,34 @@ static void fps_post_frame_callback(void)
     vo_unlock();
 }
 
+static void feed_post_frame_callback(void)
+{
+    int heart_x;
+    int heart_y;
+
+    if (!feed.active || !TIME_BEFORE(*rb->current_tick, feed.like_anim_until))
+        return;
+
+    heart_x = (SCREEN_WIDTH - FEED_HEART_SIZE) / 2;
+    heart_y = (SCREEN_HEIGHT - FEED_HEART_SIZE) / 2;
+
+    vo_lock();
+#if IPODTIKTOK_USE_BITMAP_ASSETS
+    rb->lcd_bitmap(ipodtiktok_heart, heart_x, heart_y,
+                   BMPWIDTH_ipodtiktok_heart,
+                   BMPHEIGHT_ipodtiktok_heart);
+#else
+    {
+        unsigned oldfg = mylcd_get_foreground();
+        mylcd_set_foreground(LCD_RGBPACK(0xff, 0x4d, 0x6d));
+        draw_fillrect(heart_x, heart_y, FEED_HEART_SIZE, FEED_HEART_SIZE);
+        mylcd_set_foreground(oldfg);
+    }
+#endif
+    draw_update_rect(heart_x, heart_y, FEED_HEART_SIZE, FEED_HEART_SIZE);
+    vo_unlock();
+}
+
 /* Set up to have the callback only update the intersection of the video
  * rectangle and the FPS text rectangle - if they don't intersect, then
  * the callback is set to NULL */
@@ -1645,7 +1662,10 @@ static void fps_update_post_frame_callback(void)
 {
     void (*cb)(void) = NULL;
 
-    if (settings.showfps) {
+    if (feed.active) {
+        cb = feed_post_frame_callback;
+    }
+    else if (settings.showfps) {
         struct vo_rect cliprect;
 
         if (stream_vo_get_clip(&cliprect)) {
@@ -2581,7 +2601,12 @@ static void osd_show(unsigned show)
             osd_backlight_brightness_video_mode(true);
         }
 
-        if (osd.use_wps_layout) {
+        if (feed.active) {
+            struct vo_rect rc = { 0, FEED_HEADER_HEIGHT,
+                                  SCREEN_WIDTH,
+                                  SCREEN_HEIGHT - FEED_SCRIM_HEIGHT };
+            stream_vo_set_clip(&rc);
+        } else if (osd.use_wps_layout) {
             /* WPS mode: video plays full-screen, OSD overlays on top - no clipping */
             stream_vo_set_clip(NULL);
         } else {
@@ -3076,8 +3101,11 @@ static void osd_handle_phone_plug(bool inserted)
 
 static int button_loop(void)
 {
-    int next_action = feed.active ? VIDEO_STOP :
+    int next_action = feed.active ? VIDEO_NEXT :
                       ((settings.play_mode == 0) ? VIDEO_STOP : VIDEO_NEXT);
+    bool feed_menu_pending = false;
+    bool feed_menu_long_done = false;
+    long feed_menu_deadline = 0;
 
     rb->lcd_setfont(FONT_SYSFIXED);
 #ifdef HAVE_LCD_COLOR
@@ -3099,7 +3127,7 @@ static int button_loop(void)
         return VIDEO_STOP;
     }
 
-    if (feed.active)
+    if (feed.active && feed.ui_visible)
         osd_show(OSD_SHOW);
 
     /* Gently poll the video player for EOS and handle UI */
@@ -3107,19 +3135,17 @@ static int button_loop(void)
     {
         int button = mpeg_button_get(OSD_MIN_UPDATE_INTERVAL/2);
 
-        if (feed.active && button != BUTTON_NONE
-#ifdef MPEG_ZOOM
-            && button != MPEG_ZOOM
-#endif
-           )
-            feed_cancel_pending_select();
-
         switch (button)
         {
         case BUTTON_NONE:
         {
-            if (feed.active)
-                feed_resolve_select_timeout();
+            if (feed.active && feed_menu_pending && !feed_menu_long_done &&
+                !TIME_BEFORE(*rb->current_tick, feed_menu_deadline))
+            {
+                feed_menu_long_done = true;
+                feed.ui_visible = !feed.ui_visible;
+                osd_show(feed.ui_visible ? OSD_SHOW : OSD_HIDE);
+            }
             osd_refresh(OSD_REFRESH_DEFAULT);
             continue;
             } /* BUTTON_NONE: */
@@ -3184,14 +3210,52 @@ static int button_loop(void)
             } /* MPEG_VOLDOWN*: */
 
         case MPEG_MENU:
+#if (MPEG_MENU & BUTTON_REL) == 0
+        case MPEG_MENU | BUTTON_REPEAT:
+        case MPEG_MENU | BUTTON_REL:
+#endif
 #ifdef MPEG_RC_MENU
         case MPEG_RC_MENU:
 #endif
         {
             if (feed.active)
             {
-                next_action = VIDEO_STOP;
-                osd_stop();
+                if (button == MPEG_MENU)
+                {
+                    feed_menu_pending = true;
+                    feed_menu_long_done = false;
+                    feed_menu_deadline = *rb->current_tick + FEED_MENU_HOLD_TIME;
+                }
+#if (MPEG_MENU & BUTTON_REL) == 0
+                else if (button == (MPEG_MENU | BUTTON_REPEAT))
+                {
+                    if (!feed_menu_pending)
+                    {
+                        feed_menu_pending = true;
+                        feed_menu_long_done = false;
+                        feed_menu_deadline = *rb->current_tick + FEED_MENU_HOLD_TIME;
+                    }
+
+                    if (!feed_menu_long_done &&
+                        !TIME_BEFORE(*rb->current_tick, feed_menu_deadline))
+                    {
+                        feed_menu_long_done = true;
+                        feed.ui_visible = !feed.ui_visible;
+                        osd_show(feed.ui_visible ? OSD_SHOW : OSD_HIDE);
+                    }
+                }
+                else if (button == (MPEG_MENU | BUTTON_REL))
+                {
+                    if (feed_menu_pending && !feed_menu_long_done)
+                    {
+                        next_action = VIDEO_STOP;
+                        osd_stop();
+                    }
+
+                    feed_menu_pending = false;
+                    feed_menu_long_done = false;
+                }
+#endif
                 break;
             }
 
@@ -3297,23 +3361,7 @@ static int button_loop(void)
         {
             if (feed.active)
             {
-                if (feed.select_pending &&
-                    !TIME_BEFORE(*rb->current_tick, feed.select_deadline))
-                {
-                    feed.select_pending = false;
-                    feed_toggle_zoom();
-                }
-                else if (feed.select_pending)
-                {
-                    feed.select_pending = false;
-                    feed_toggle_like();
-                    osd_refresh(OSD_REFRESH_VOLUME);
-                }
-                else
-                {
-                    feed.select_pending = true;
-                    feed.select_deadline = *rb->current_tick + FEED_SELECT_WINDOW;
-                }
+                feed_like_current();
                 break;
             }
 

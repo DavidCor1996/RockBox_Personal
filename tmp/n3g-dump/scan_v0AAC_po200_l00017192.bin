@@ -1,0 +1,32 @@
+F)
+%?Lt<%s%ac%?it<%?id<%id|%d(2)>|>|>
+%Vl(radio,163,158,154,24,2)%Vf(FFFFFF)
+%ac%tf Mhz
+%Vl(radio,163,187,154,14,2)%Vf(FFFFFF)
+%t(6)%s%ac%?Tn<%Tn|%?ty<%ty|%?tt<Tuned|tune>>>;%t(6)%ac%?Tn<%Tn|%?ty<%ty|%?tt<Tuned|tune>>>
+%Vl(radio,163,203,154,14,2)%Vf(FFFFFF)
+%t(6)%ac%?tz<%tz|Signal: %?tr<Faint/No Signal|Weak|Fair|Strong|Very Strong>>;%t(6)%s%ac%?tz<%tz|Signal: %?tr<Faint/No Signal|Weak|Fair|Strong|Very Strong>>
+%Vl(NowPlayingBadge,191,174,98,16,-)%dr(0,0,-,-,292334)
+%Vl(NowPlayingBadge,194,175,10,12,-)%?mp<|%xd(LockPlayIcon,1)|%xd(LockPlayIcon,2)|||||%xd(LockPlayIcon,1)|%xd(LockPlayIcon,2)>
+%Vl(NowPlayingBadge,208,174,76,14,2)%Vf(D4CAE4)%alNow Playing
+%Vi(USB,0,0,1,1,2)
+
+#------------ Lockscreen / Always On Display ------------#
+# Uses the "backlight on button hold" setting:
+# - normal/on: Lockscreen (dark)
+# - off: Always On Display (light, for backlight-off readability)
+%Vl(ScrollReminder,20,30,120,145,7)%Vf(3584e4)%alO
+%Vl(ScrollReminder,21,185,134,20,4)%Vf(BDBABD)%alScroll to Continue
+
+%Vl(iPoneLockscreen,0,0,-,-,-)
+%Vl(iPoneLockscreen,12,10,16,16,-)%xd(h)
+%Vl(iPoneLockscreen,32,8,60,16,2)%Vf(FFFFFF)%alHOLD
+%Vl(iPoneLockscreen,287,10,25,11,-)
+%?bp<|%?bl<%xd(Bd)|%xd(Bd)|%xd(Be)|%xd(Bf)|%xd(Bg)|%xd(Bh)|%xd(Bi)|%xd(Bj)|%xd(Bk)|%xd(Bl)|%xd(Bm)|%xd(Bn)|%xd(Bo)|%xd(Bp)|%xd(Bq)|%xd(Br)|%xd(Bs)|%xd(Bt)|%xd(Bu)|%xd(Bv)|%xd(Bw)|%xd(Bx)||>>
+%Vl(iPoneLockscreen,242,8,44,16,2)%Vf(FFFFFF)%ar%bl%%
+%Vl(iPoneLockscreen,0,55,-,60,4)%Vf(FFFFFF)%ac%?cc<%cl:%cM %cP|--:-->
+%Vl(iPoneLockscreen,0,120,-,20,3)%Vf(FFFFFF)%ac%?if(%ss(0,7,%St(lang)), =, english)<%?cu<Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday>|%ca> %?or(%if(%ss(0,7,%St(lang)), =, chinese),%if(%St(lang), =, magyar),%if(%St(lang), =, lietuviu),%if(%St(lang), =, japanese),%if(%St(lang), =, korean))<%cb %cd|%?if(%St(lang), =, english-us)<%cb %cd|%cd %cb>>
+%Vl(LockCardShadow,25,162,246,50,-)%dr(0,0,-,-,1B1722)
+%Vl(LockCardOuter,22,159,248,52,-)%dr(0,0,-,-,2A2431)
+%Vl(LockCardInner,24,161,244,48,-)%dr(0,0,-,-,322B3B)
+%Vl(LockCardHighlight,24,161,244,1,-)%dr(0,0,-,

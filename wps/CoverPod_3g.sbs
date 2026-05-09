@@ -1,0 +1,81 @@
+# CoverPod 3G - SBS
+%wd
+%Fl(2,12-Adobe-Helvetica.fnt)
+%xl(W,Wallpaper.bmp)
+%xl(A,WallpaperAlt.bmp)
+%xl(C,ChargeWallpaper.bmp)
+
+%?bp<%Vd(ChargeBackdrop)|%?mh<%Vd(LockBackdrop)|%Vd(MenuBackdrop)>>
+
+%Vi(-,8,30,144,88,-)%Vf(0)%Vb(3)
+
+%?bp<%Vd(ChargeTop)%Vd(ChargeClock)%Vd(ChargeMeta)|%?mh<%Vd(LockScrim)%Vd(LockTop)%Vd(LockClock)%Vd(LockDate)%Vd(LockCard)|%Vd(HeaderBar)%Vd(Brand)%Vd(Clock)%Vd(Battery)%Vd(MenuPanel)>>
+
+%Vl(MenuBackdrop,0,0,160,128,-)
+%dr(0,0,-,-,3)
+
+%Vl(MenuPanel,4,26,152,98,-)
+%dr(0,0,-,-,3)
+%dr(0,0,-,1,0)
+%dr(0,97,-,1,0)
+%dr(0,0,1,-,0)
+%dr(151,0,1,-,0)
+
+%Vl(LockBackdrop,0,0,160,128,-)
+%xd(A)
+
+%Vl(ChargeBackdrop,0,0,160,128,-)
+%xd(C)
+
+%Vl(HeaderBar,0,0,160,24,-)
+%dr(0,0,-,-,0)
+%dr(0,23,-,1,2)
+
+%Vl(Brand,8,7,72,11,2)
+%Vf(3)
+%alCoverPod
+
+%Vl(Clock,74,7,44,11,2)
+%Vf(2)
+%ac%?cc<%cl:%cM|-->
+
+%Vl(Battery,118,7,34,11,2)
+%Vf(3)
+%ar%?bp<Chg|%bl%%>
+
+%Vl(LockScrim,0,0,160,128,-)
+%dr(0,0,-,20,3)
+
+%Vl(LockTop,8,6,144,12,2)
+%Vf(0)
+%alCoverPod%ar%?bp<Chg|%bl%%>
+
+%Vl(LockClock,0,28,160,24,2)
+%Vf(0)
+%ac%?cc<%cl:%cM %cP|--:-->
+
+%Vl(LockDate,0,52,160,10,2)
+%Vf(1)
+%ac%?cu<Sun|Mon|Tue|Wed|Thu|Fri|Sat> %cb %cd
+
+%Vl(LockCard,18,84,124,30,2)
+%dr(0,0,-,-,0)
+%dr(1,1,122,28,2)
+%Vl(LockCard,24,90,112,10,2)
+%Vf(0)
+%s%ac%?it<%it|Now Playing>
+%Vl(LockCard,24,102,112,10,2)
+%Vf(1)
+%s%ac%?ia<%ia|%?iA<%iA|iPod 3G>>
+
+%Vl(ChargeTop,0,14,160,10,2)
+%Vf(0)
+%acCharging
+
+%Vl(ChargeClock,0,34,160,24,2)
+%Vf(0)
+%ac%?cc<%cl:%cM %cP|--:-->
+
+%Vl(ChargeMeta,0,62,160,10,2)
+%Vf(1)
+%acBattery %bl%%

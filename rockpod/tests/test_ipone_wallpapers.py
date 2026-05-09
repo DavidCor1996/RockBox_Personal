@@ -96,6 +96,33 @@ def test_build_apply_bundle_targets_active_ipone_wallpapers(tmp_dir):
     assert ".rockbox/wps/iPone/ChargeWallpaper.bmp" in destinations
 
 
+def test_build_apply_bundle_targets_blackery_wallpapers(tmp_dir):
+    repo_root = os.path.join(tmp_dir, "repo")
+    lock_source = os.path.join(repo_root, "rockpod", "generated", "lockscreen-blackery.bmp")
+    charge_source = os.path.join(repo_root, "rockpod", "generated", "charge-wallpaper-blackery.bmp")
+    _write_bmp(os.path.join(repo_root, "wps", "Blackery", "Wallpaper.bmp"))
+    _write_bmp(os.path.join(repo_root, "wps", "Blackery", "ChargeWallpaper.bmp"))
+    _write_bmp(lock_source)
+    _write_bmp(charge_source)
+
+    service = IPoneWallpaperService()
+    profile = _profile(repo_root)
+    profile["selected_theme"] = "Blackery"
+
+    candidates = service.list_candidates(repo_root, profile)
+    lock_names = {os.path.basename(item["source_path"]) for item in candidates["lock"]}
+    charge_names = {os.path.basename(item["source_path"]) for item in candidates["charge"]}
+    assert "Wallpaper.bmp" in lock_names
+    assert "ChargeWallpaper.bmp" in charge_names
+
+    bundle = service.build_apply_bundle(profile, lock_source=lock_source, charge_source=charge_source)
+
+    destinations = {item["destination_rel"] for item in bundle["assets"]}
+    assert ".rockbox/wps/Blackery/Wallpaper.bmp" in destinations
+    assert ".rockbox/wps/Blackery/WallpaperCurrent.bmp" in destinations
+    assert ".rockbox/wps/Blackery/ChargeWallpaper.bmp" in destinations
+
+
 def test_build_apply_bundle_targets_ipone_nano2g_wallpapers(tmp_dir):
     repo_root = os.path.join(tmp_dir, "repo")
     lock_source = os.path.join(repo_root, "rockpod", "generated", "lockscreen-nano2g.bmp")
@@ -189,6 +216,23 @@ def test_build_apply_bundle_targets_ipone_3g_wallpapers(tmp_dir):
     assert ".rockbox/wps/iPone_3g/ChargeWallpaper.bmp" in destinations
 
 
+def test_build_apply_bundle_defaults_160x128_to_coverpod_wallpapers(tmp_dir):
+    repo_root = os.path.join(tmp_dir, "repo")
+    lock_source = os.path.join(repo_root, "rockpod", "generated", "lockscreen-coverpod.bmp")
+    charge_source = os.path.join(repo_root, "rockpod", "generated", "charge-wallpaper-coverpod.bmp")
+    _write_bmp(lock_source, 160, 128, "#BBBBBB")
+    _write_bmp(charge_source, 160, 128, "#777777")
+
+    service = IPoneWallpaperService()
+    profile = _profile(repo_root, "160x128")
+    bundle = service.build_apply_bundle(profile, lock_source=lock_source, charge_source=charge_source)
+
+    destinations = {item["destination_rel"] for item in bundle["assets"]}
+    assert ".rockbox/wps/CoverPod_3g/Wallpaper.bmp" in destinations
+    assert ".rockbox/wps/CoverPod_3g/WallpaperCurrent.bmp" in destinations
+    assert ".rockbox/wps/CoverPod_3g/ChargeWallpaper.bmp" in destinations
+
+
 def test_build_apply_bundle_targets_galaxy_wallpapers(tmp_dir):
     repo_root = os.path.join(tmp_dir, "repo")
     lock_source = os.path.join(repo_root, "rockpod", "generated", "lockscreen-galaxy.bmp")
@@ -205,6 +249,26 @@ def test_build_apply_bundle_targets_galaxy_wallpapers(tmp_dir):
     assert ".rockbox/wps/Galaxy/Wallpaper.bmp" in destinations
     assert ".rockbox/wps/Galaxy/WallpaperCurrent.bmp" in destinations
     assert ".rockbox/wps/Galaxy/ChargeWallpaper.bmp" in destinations
+
+
+def test_160x128_import_uses_four_greyscale_levels(tmp_dir):
+    repo_root = os.path.join(tmp_dir, "repo")
+    source = os.path.join(tmp_dir, "gradient.png")
+    os.makedirs(os.path.dirname(source), exist_ok=True)
+    image = Image.new("RGB", (320, 128))
+    for x in range(320):
+        value = int(255 * x / 319)
+        for y in range(128):
+            image.putpixel((x, y), (value, value, value))
+    image.save(source, "PNG")
+
+    service = IPoneWallpaperService()
+    item = service.import_candidate(repo_root, _profile(repo_root, "160x128"), "lock", source)
+
+    with Image.open(item["source_path"]) as rendered:
+        colors = {color for _count, color in rendered.convert("RGB").getcolors(maxcolors=1024)}
+
+    assert colors == {(0, 0, 0), (85, 85, 85), (170, 170, 170), (255, 255, 255)}
 
 
 def test_import_candidate_converts_to_profile_sized_bmp(tmp_dir):
@@ -253,6 +317,13 @@ def test_wallpaper_widget_preserves_selection_across_candidate_refreshes():
             ],
             "p1",
         )
+        widget.set_themes(
+            [
+                {"id": "iPone", "name": "iPone"},
+                {"id": "Blackery", "name": "Blackery"},
+            ],
+            "Blackery",
+        )
         widget.set_candidates(
             [
                 {"id": "lock-a", "label": "Lock A", "source_path": "/tmp/lock-a.bmp", "preview_path": "", "removable": True},
@@ -285,7 +356,34 @@ def test_wallpaper_widget_preserves_selection_across_candidate_refreshes():
         )
 
         assert widget.current_profile_id() == "p1"
+        assert widget.current_theme_id() == "Blackery"
+        assert widget.current_selection()["theme_id"] == "Blackery"
         assert widget._lock_pane.current_candidate()["id"] == "lock-b"
         assert widget._charge_pane.current_candidate()["id"] == "charge-b"
+    finally:
+        widget.close()
+
+
+def test_wallpaper_widget_theme_selection_follows_profile_refresh():
+    app = QApplication.instance() or QApplication([])
+    widget = IPoneWallpaperManagerWidget()
+    try:
+        widget.set_themes(
+            [
+                {"id": "iPone", "name": "iPone"},
+                {"id": "Blackery", "name": "Blackery"},
+            ],
+            "Blackery",
+        )
+        assert widget.current_theme_id() == "Blackery"
+
+        widget.set_themes(
+            [
+                {"id": "iPone", "name": "iPone"},
+                {"id": "Blackery", "name": "Blackery"},
+            ],
+            "iPone",
+        )
+        assert widget.current_theme_id() == "iPone"
     finally:
         widget.close()

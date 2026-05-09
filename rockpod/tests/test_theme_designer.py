@@ -132,10 +132,42 @@ def _make_repo(repo_root):
     ):
         _write_bmp(os.path.join(repo_root, "wps", "Galaxy", name), 160, 128, "#BBBBBB")
 
+    _write_text(
+        os.path.join(repo_root, "themes", "CoverPod_3g.cfg"),
+        "\n".join(
+            [
+                "wps: /.rockbox/wps/CoverPod_3g.wps",
+                "sbs: /.rockbox/wps/CoverPod_3g.sbs",
+                "fms: /.rockbox/wps/CoverPod_3g.fms",
+                "background color: FFFFFF",
+                "foreground color: 000000",
+                "font: /.rockbox/fonts/12-Adobe-Helvetica.fnt",
+                "line selector start color: E0E0E0",
+                "line selector end color: B0B0B0",
+                "line selector text color: 000000",
+                "list separator color: 808080",
+                "",
+            ]
+        ),
+    )
+    _write_text(os.path.join(repo_root, "wps", "CoverPod_3g.wps"), "%wd\n")
+    _write_text(os.path.join(repo_root, "wps", "CoverPod_3g.sbs"), "%wd\n")
+    _write_text(os.path.join(repo_root, "wps", "CoverPod_3g.fms"), "%wd\n")
+    for name in (
+        "Wallpaper.bmp",
+        "WallpaperAlt.bmp",
+        "ChargeWallpaper.bmp",
+        "ChargeWallpaperAlt.bmp",
+        "ChargeWallpaperThird.bmp",
+        "ChargeWallpaperFourth.bmp",
+        "wpsbackdrop-160x128x2.bmp",
+    ):
+        _write_bmp(os.path.join(repo_root, "wps", "CoverPod_3g", name), 160, 128, "#BBBBBB")
+
 
 def _profile(repo_root, resolution="320x240"):
     if resolution == "160x128":
-        theme = "Galaxy"
+        theme = "CoverPod_3g"
     elif resolution == "320x240":
         theme = "iPone"
     else:
@@ -238,7 +270,7 @@ def test_preview_state_generation_is_profile_aware(tmp_dir):
     assert preview["preview_modes"] == ["simulator"]
 
 
-def test_preview_state_generation_supports_galaxy(tmp_dir):
+def test_preview_state_generation_supports_coverpod_3g(tmp_dir):
     repo_root = os.path.join(tmp_dir, "repo")
     _make_repo(repo_root)
     service = ThemeDesignerService()
@@ -246,10 +278,10 @@ def test_preview_state_generation_supports_galaxy(tmp_dir):
     variant = service.new_variant(repo_root, _profile(repo_root, "160x128"), "Classic")
     preview = service.build_preview_state(repo_root, _profile(repo_root, "160x128"), variant)
 
-    assert preview["base_theme_id"] == "Galaxy"
+    assert preview["base_theme_id"] == "CoverPod_3g"
     assert preview["width"] == 160
     assert preview["height"] == 128
-    assert preview["menu_backdrop_path"].endswith("wps/Galaxy/wpsbackdrop-160x128x2.bmp")
+    assert preview["menu_backdrop_path"].endswith("wps/CoverPod_3g/wpsbackdrop-160x128x2.bmp")
 
 
 def test_generated_bundle_deploys_with_existing_deploy_flow(tmp_dir):

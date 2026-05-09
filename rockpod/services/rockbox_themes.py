@@ -7,6 +7,27 @@ from copy import deepcopy
 
 
 THEME_DEFINITIONS = {
+    "Blackery": {
+        "name": "Blackery",
+        "description": "Modern dark teal Blackery stack for 320x240 iPods.",
+        "resolutions": ["320x240"],
+        "assets": [
+            {"kind": "cfg", "source": "themes/Blackery.cfg", "destination": ".rockbox/themes/Blackery.cfg"},
+            {"kind": "wps", "source": "wps/Blackery.wps", "destination": ".rockbox/wps/Blackery.wps"},
+            {"kind": "sbs", "source": "wps/Blackery.sbs", "destination": ".rockbox/wps/Blackery.sbs"},
+            {"kind": "fms", "source": "wps/Blackery.fms", "destination": ".rockbox/wps/Blackery.fms"},
+            {"kind": "backdrop", "source": "backdrops/Blackery_bd.bmp", "destination": ".rockbox/backdrops/Blackery_bd.bmp"},
+            {"kind": "iconset", "source": "icons/Blackery.bmp", "destination": ".rockbox/icons/Blackery.bmp"},
+            {"kind": "font", "source": "fonts/24 iLike.fnt", "destination": ".rockbox/fonts/24 iLike.fnt"},
+            {"kind": "wps_assets", "source": "wps/Blackery", "destination": ".rockbox/wps/Blackery", "recursive": True},
+        ],
+        "preview_candidates": [
+            "wps/Blackery/Wallpaper.bmp",
+            "wps/Blackery/SbsBackdrop.bmp",
+            "backdrops/Blackery_bd.bmp",
+            "icons/Blackery.bmp",
+        ],
+    },
     "iPone": {
         "name": "iPone",
         "description": "Dark-mode iPone stack for 320x240 iPods.",
@@ -26,6 +47,34 @@ THEME_DEFINITIONS = {
             "wps/iPone/SbsBackdrop.bmp",
             "backdrops/iPone_bd.bmp",
             "icons/iPone.bmp",
+        ],
+    },
+    "SpringPod3": {
+        "name": "SpringPod3",
+        "description": "iOS 3-inspired Aqua stack for iPod Video 5G / 5.5G only.",
+        "resolutions": ["320x240"],
+        "compatible_device_models": [
+            "iPod Video 5G",
+            "iPod Video 5.5G",
+            "ipodvideo",
+            "ipodvideo64mb",
+            "build-sim-video-5g",
+        ],
+        "assets": [
+            {"kind": "cfg", "source": "themes/SpringPod3.cfg", "destination": ".rockbox/themes/SpringPod3.cfg"},
+            {"kind": "wps", "source": "wps/SpringPod3.wps", "destination": ".rockbox/wps/SpringPod3.wps"},
+            {"kind": "sbs", "source": "wps/SpringPod3.sbs", "destination": ".rockbox/wps/SpringPod3.sbs"},
+            {"kind": "fms", "source": "wps/SpringPod3.fms", "destination": ".rockbox/wps/SpringPod3.fms"},
+            {"kind": "backdrop", "source": "backdrops/SpringPod3_bd.bmp", "destination": ".rockbox/backdrops/SpringPod3_bd.bmp"},
+            {"kind": "iconset", "source": "icons/SpringPod3.bmp", "destination": ".rockbox/icons/SpringPod3.bmp"},
+            {"kind": "font", "source": "fonts/24 iLike.fnt", "destination": ".rockbox/fonts/24 iLike.fnt"},
+            {"kind": "wps_assets", "source": "wps/SpringPod3", "destination": ".rockbox/wps/SpringPod3", "recursive": True},
+        ],
+        "preview_candidates": [
+            "wps/SpringPod3/Wallpaper.bmp",
+            "wps/SpringPod3/SpringPod3_bd.bmp",
+            "backdrops/SpringPod3_bd.bmp",
+            "icons/SpringPod3.bmp",
         ],
     },
     "iPone_nano2g": {
@@ -56,7 +105,7 @@ THEME_DEFINITIONS = {
             {"kind": "wps", "source": "wps/Galaxy.wps", "destination": ".rockbox/wps/Galaxy.wps"},
             {"kind": "sbs", "source": "wps/Galaxy.sbs", "destination": ".rockbox/wps/Galaxy.sbs"},
             {"kind": "fms", "source": "wps/Galaxy.fms", "destination": ".rockbox/wps/Galaxy.fms"},
-            {"kind": "iconset", "source": "icons/tango_icons.12x12.bmp", "destination": ".rockbox/icons/tango_icons.12x12.bmp"},
+            {"kind": "iconset", "source": "icons/tango_small_mono.bmp", "destination": ".rockbox/icons/tango_small_mono.bmp"},
             {"kind": "font", "source": "fonts/12-Adobe-Helvetica.fnt", "destination": ".rockbox/fonts/12-Adobe-Helvetica.fnt"},
             {"kind": "wps_assets", "source": "wps/Galaxy", "destination": ".rockbox/wps/Galaxy", "recursive": True},
         ],
@@ -64,6 +113,25 @@ THEME_DEFINITIONS = {
             "wps/Galaxy/MenuBackdrop.bmp",
             "wps/Galaxy/Wallpaper.bmp",
             "wps/Galaxy/wpsbackdrop-160x128x2.bmp",
+        ],
+    },
+    "CoverPod_3g": {
+        "name": "CoverPod 3G",
+        "description": "CoverMax-derived four-shade greyscale stack for the 160x128 iPod 3G.",
+        "resolutions": ["160x128"],
+        "assets": [
+            {"kind": "cfg", "source": "themes/CoverPod_3g.cfg", "destination": ".rockbox/themes/CoverPod_3g.cfg"},
+            {"kind": "wps", "source": "wps/CoverPod_3g.wps", "destination": ".rockbox/wps/CoverPod_3g.wps"},
+            {"kind": "sbs", "source": "wps/CoverPod_3g.sbs", "destination": ".rockbox/wps/CoverPod_3g.sbs"},
+            {"kind": "fms", "source": "wps/CoverPod_3g.fms", "destination": ".rockbox/wps/CoverPod_3g.fms"},
+            {"kind": "iconset", "source": "icons/tango_icons.12x12.bmp", "destination": ".rockbox/icons/tango_icons.12x12.bmp"},
+            {"kind": "font", "source": "fonts/12-Adobe-Helvetica.fnt", "destination": ".rockbox/fonts/12-Adobe-Helvetica.fnt"},
+            {"kind": "wps_assets", "source": "wps/CoverPod_3g", "destination": ".rockbox/wps/CoverPod_3g", "recursive": True},
+        ],
+        "preview_candidates": [
+            "wps/CoverPod_3g/Wallpaper.bmp",
+            "wps/CoverPod_3g/wpsbackdrop-160x128x2.bmp",
+            "wps/CoverPod_3g/ChargeWallpaper.bmp",
         ],
     },
     "iPone_3g": {
@@ -91,11 +159,13 @@ THEME_DEFINITIONS = {
 class RockboxThemeService:
     """Expose deterministic theme stacks and completeness information."""
 
-    def list_themes(self, source_repo_path, screen_resolution=""):
+    def list_themes(self, source_repo_path, screen_resolution="", target_device_model=""):
         resolution = str(screen_resolution or "").strip()
         result = []
         for theme_id, definition in THEME_DEFINITIONS.items():
             if resolution and definition["resolutions"] and resolution not in definition["resolutions"]:
+                continue
+            if not self._is_compatible_with_model(definition, target_device_model):
                 continue
             info = self.inspect_theme(theme_id, source_repo_path)
             result.append({
@@ -140,6 +210,7 @@ class RockboxThemeService:
             "preview_path": preview_path,
             "assets": assets,
             "resolutions": list(definition.get("resolutions", [])),
+            "compatible_device_models": list(definition.get("compatible_device_models", [])),
         }
 
     def bundle_for_theme(self, theme_id, source_repo_path):
@@ -191,3 +262,14 @@ class RockboxThemeService:
             "size": size,
             "preview_path": os.path.abspath(source_abs) if exists else "",
         }
+
+    @staticmethod
+    def _is_compatible_with_model(definition, target_device_model):
+        compatible = [str(item or "").strip().lower() for item in definition.get("compatible_device_models", [])]
+        compatible = [item for item in compatible if item]
+        if not compatible:
+            return True
+        model = str(target_device_model or "").strip().lower()
+        if not model:
+            return False
+        return any(item in model for item in compatible)

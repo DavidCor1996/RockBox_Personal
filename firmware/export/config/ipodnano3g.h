@@ -98,8 +98,13 @@
    needs to do cleanup on shutdown */
 #define HAVE_STORAGE_FLUSH
 
-/* The NAND flash has 2048-byte sectors, and is our only storage */
-#define SECTOR_SIZE 2048
+/*
+ * Nano 3G NAND pages are 2048 bytes, but the Whimory/FTL path exposes the
+ * restored WinPod volume in 512-byte logical sectors.  The FTL reader handles
+ * the page/slice translation internally; Rockbox's disk/FAT layer must see the
+ * same 512-byte sector units used by the MBR partition table.
+ */
+#define SECTOR_SIZE 512
 
 /* LCD dimensions */
 #define LCD_WIDTH  320

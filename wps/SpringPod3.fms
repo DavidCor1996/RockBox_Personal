@@ -1,0 +1,53 @@
+# Theme: SpringPod3
+# iOS 3-style FM screen for iPod Video 5G / 5.5G.
+%wd
+%T(0,0,140,19,menu)
+%T(0,0,140,19,&cancel)
+%T(0,200,58,25,prev)
+%T(0,200,58,25,&rwd)
+%T(262,200,58,25,next)
+%T(262,200,58,25,&ffwd)
+%T(58,206,204,23,progressbar)
+
+%Fl(2,14-Adobe-Helvetica-Bold.fnt)
+%Fl(3,16-Adobe-Helvetica-Bold.fnt)
+%Fl(4,35-Adobe-Helvetica-Bold.fnt)
+%Fl(5,18-Adobe-Helvetica-Bold.fnt)
+
+%xl(FmsBg,FmsBackdrop.bmp)
+%xl(Lockscreen,Wallpaper.bmp)
+%xl(ChargeWallpaper,ChargeWallpaper.bmp)
+%xl(B,Battery.bmp,0,0,24)
+%xl(P,Playing Status.bmp,0,0,4)
+%xl(S,Stereo Icon.bmp,0,0)
+%xl(h,Hold Icon.bmp,0,1)
+%xl(SliderBlue,SliderThinPurple12.bmp)
+%xl(SliderKnob,PlayerSliderThinPurple12.bmp)
+%xl(SliderBack,SliderBackdropThinPurple12.bmp)
+
+%V(0,0,-,-,-)
+%?mh<%?bp<%xd(ChargeWallpaper)|%xd(Lockscreen)>|%xd(FmsBg)>
+%?mh<%Vd(LockStatus)%Vd(LockClock)%Vd(LockDate)%Vd(LockRadio)|%Vd(Status)%Vd(Nav)%Vd(Tuner)%Vd(Station)%Vd(Signal)%Vd(Control)%Vd(Bottom)>
+
+%Vl(Status,8,4,80,12,2)%Vf(FFFFFF)%aliPod
+%Vl(Status,135,4,50,12,2)%Vf(FFFFFF)%ac%cl:%cM
+%Vl(Status,244,3,16,13,-)%?mp<|%xd(Pa)|%xd(Pb)|%xd(Pc)|%xd(Pd)|||%xd(Pa)|%xd(Pb)>
+%Vl(Status,287,4,25,11,-)
+%?bp<%?bc<%t(1.0)%xd(Ba);%t(1.0)%xd(Bb)|%xd(Bc)>|%?bl<%xd(Bd)|%xd(Bd)|%xd(Be)|%xd(Bf)|%xd(Bg)|%xd(Bh)|%xd(Bi)|%xd(Bj)|%xd(Bk)|%xd(Bl)|%xd(Bm)|%xd(Bn)|%xd(Bo)|%xd(Bp)|%xd(Bq)|%xd(Br)|%xd(Bs)|%xd(Bt)|%xd(Bu)|%xd(Bv)|%xd(Bw)|%xd(Bx)||>>
+
+%Vl(Nav,0,25,320,18,3)%Vf(FFFFFF)%acFM Radio
+%Vl(Tuner,32,70,256,38,4)%Vf(111111)%ac%tf MHz
+%Vl(Station,32,121,256,18,3)%Vf(555D67)%s%ac%?Tn<%Tn|%?ty<%ty|%?tt<Tuned|Tune>>>
+%Vl(Signal,32,154,220,18,3)%Vf(555D67)%s%al%?tz<%tz|Signal: %?tr<Faint/No Signal|Weak|Fair|Strong|Very Strong>>
+%Vl(Signal,266,154,17,14,-)%?ts<%xd(S)|>
+%Vl(Control,98,193,124,18,3)%Vf(2E6DB4)%ac%?tm<Scan|Preset %Ti of %Tc>
+%Vl(Bottom,39,218,242,12,-)%?mv(1.2)<%pv(0,0,242,12,SliderThinPurple12.bmp,slider,PlayerSliderThinPurple12,backdrop,SliderBackdropThinPurple12)|%pb(0,0,242,12,SliderThinPurple12.bmp,slider,PlayerSliderThinPurple12,backdrop,SliderBackdropThinPurple12)>
+
+%Vl(LockStatus,8,4,80,12,2)%Vf(FFFFFF)%aliPod
+%Vl(LockStatus,92,4,40,12,2)%Vf(FFFFFF)%?mh<%xd(h)>
+%Vl(LockStatus,287,4,25,11,-)
+%?bp<%?bc<%t(1.0)%xd(Ba);%t(1.0)%xd(Bb)|%xd(Bc)>|%?bl<%xd(Bd)|%xd(Bd)|%xd(Be)|%xd(Bf)|%xd(Bg)|%xd(Bh)|%xd(Bi)|%xd(Bj)|%xd(Bk)|%xd(Bl)|%xd(Bm)|%xd(Bn)|%xd(Bo)|%xd(Bp)|%xd(Bq)|%xd(Br)|%xd(Bs)|%xd(Bt)|%xd(Bu)|%xd(Bv)|%xd(Bw)|%xd(Bx)||>>
+%Vl(LockClock,0,52,320,54,4)%Vf(FFFFFF)%ac%cl:%cM %cP
+%Vl(LockDate,0,111,320,20,3)%Vf(FFFFFF)%ac%?cu<Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday>
+%Vl(LockRadio,0,160,320,18,2)%Vf(FFFFFF)%s%ac%?Tn<%Tn|FM Radio>
+%Vl(LockRadio,0,180,320,18,2)%Vf(CFD8E6)%s%ac%tf MHz

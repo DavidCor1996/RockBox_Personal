@@ -55,7 +55,7 @@
 %Vl(n,58,3,58,14,2)%Vf(C9F1E0)
 %s%al%?cs<%?if(%Lt, =, Rockbox)<iPod|%Lt>||%Sx(Recording)|%Sx(FM Radio)|%?if(%Lt, =, Rockbox)<iPod|%Lt>|%?if(%Lt, =, Rockbox)<iPod|%Lt>|%?if(%Lt, =, Rockbox)<iPod|%Lt>|%?if(%Lt, =, Rockbox)<iPod|%Lt>|%?if(%Lt, =, Rockbox)<iPod|%Lt>||%Sx(Pitch)|%Sx(Setting chooser)|%Sx(Playlist Catalogue)|%Sx(Plugin)|%Sx(Context)|%Sx(System Info)|%Sx(Time and Date)|%Sx(Bookmarks)|%Sx(Shortcuts)|%Sx(Track Info)>
 
-%V(0,0,1,1,-)
+%V(116,5,25,11,-)
 %?if(%cs, =, 21)<|%?mh<|%?bp<%?bc<%t(1.0)%xd(Ba);%t(1.0)%xd(Bb)|%xd(Bc)>|%?bl<%xd(Bd)|%xd(Bd)|%xd(Be)|%xd(Bf)|%xd(Bg)|%xd(Bh)|%xd(Bi)|%xd(Bj)|%xd(Bk)|%xd(Bl)|%xd(Bm)|%xd(Bn)|%xd(Bo)|%xd(Bp)|%xd(Bq)|%xd(Br)|%xd(Bs)|%xd(Bt)|%xd(Bu)|%xd(Bv)|%xd(Bw)|%xd(Bx)||>>>>
 %?if(%cs, =, 21)<|%?mh<|%?Lt<%?it<%Vd(NowPlayingBadge)|>|>>>> 
 %?if(%cs, =, 21)<%Vd(USB)|%?mh<|%?or(%if(%cs, =, 1),%if(%cs, =, 5),%if(%cs, =, 6),%if(%cs, =, 7),%if(%cs, =, 8),%if(%cs, =, 9),%if(%cs, =, 12),%if(%cs, =, 13),%if(%cs, =, 15),%if(%cs, =, 16),%if(%cs, =, 17),%if(%cs, =, 18),%if(%cs, =, 19),%if(%cs, =, 20))<%Vd(ScrollReminder)>>>

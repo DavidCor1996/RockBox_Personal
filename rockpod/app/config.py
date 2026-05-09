@@ -43,6 +43,7 @@ DEFAULT_DB_PATH = str(Path.home() / ".rockpod" / "library.db")
 DEFAULT_CACHE_DIR = str(Path.home() / ".rockpod" / "cache")
 DEFAULT_ARTWORK_CACHE = str(Path.home() / ".rockpod" / "cache" / "artwork")
 DEFAULT_GAMES_LIBRARY_DIR = str(Path.home() / "Documents" / "Gameboy")
+DEFAULT_PHOTOS_LIBRARY_DIR = str(Path.home() / "Pictures")
 
 SUPPORTED_FORMATS = {
     ".mp3", ".flac", ".ogg", ".m4a", ".aac", ".alac",
@@ -129,6 +130,9 @@ class Config:
         "games_library_path": DEFAULT_GAMES_LIBRARY_DIR,
         "games_device_target_dir": "gameboy",
         "games_simulator_target_dir": "gameboy",
+        "photos_library_path": DEFAULT_PHOTOS_LIBRARY_DIR,
+        "photos_device_target_dir": "Photos",
+        "photos_simulator_target_dir": "Photos",
         "android_source_path": "",
         "android_import_device_dir": "Videos/Android Phone",
         "android_import_include_photos": True,

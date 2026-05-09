@@ -67,7 +67,46 @@ ui viewport: -
 </theme>
 
 <theme>
+Name: iPone
+Targets: ipodvideo ipod6g
+Authors: iPone dark-mode mod by local build, based on iClassic/adwaitapod work
+WPS: yes
+SBS: yes
+FMS: yes
+RWPS: no
+RSBS: no
+RFMS: no
+
+<main>
+wps.320x240x(16|24|32): iPone.wps
+sbs.320x240x(16|24|32): iPone.sbs
+fms.320x240x(16|24|32): iPone.fms
+font.320x240x(16|24|32): 24 iLike.fnt
+backdrop: -
+background color: 100F16
+foreground color: F7F4FA
+line selector start color: 2B2234
+line selector end color: 9D7AE6
+line selector text color: FCF9FF
+list separator color: 1A1621
+selector type: bar (gradient)
+scrollbar: off
+show icons: on
+statusbar: off
+ui viewport: -
+list separator height: 1
+iconset: icons/iPone.bmp
+viewers iconset: -
+battery display: graphic
+album art: prefer image file
+filetype colours: -
+backlight on button hold: normal
+</main>
+</theme>
+
+<theme>
 Name: iPone_nano2g
+Targets: ipodnano2g
 Authors: iPone port by local build, based on iPone/iClassic work
 WPS: yes
 SBS: yes
@@ -106,6 +145,7 @@ backlight on button hold: on
 
 <theme>
 Name: iPone_nano3g
+Targets: ipodnano3g
 Authors: iPone nano 3G port by local build, based on iPone/iClassic work
 WPS: yes
 SBS: yes
@@ -142,6 +182,7 @@ backlight on button hold: normal
 
 <theme>
 Name: Galaxy
+Targets: ipod3g
 Authors: local build, inspired by monochrome SprocketModern / sprocketAR1S work
 WPS: yes
 SBS: yes
@@ -179,6 +220,7 @@ backlight on button hold: on
 
 <theme>
 Name: iPone_3g
+Targets: ipod3g
 Authors: iPone monochrome port by local build, based on iPone/cabbiev2 work
 WPS: yes
 SBS: yes

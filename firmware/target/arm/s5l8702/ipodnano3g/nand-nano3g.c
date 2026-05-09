@@ -52,9 +52,17 @@
 #include "s5l87xx.h"
 #include "clocking-s5l8702.h"
 #include "cpucache-arm.h"
+#include "pmu-target.h"
 #include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
+
+#if defined(IPOD_NANO3G) && defined(BOOTLOADER)
+extern int printf(const char *format, ...);
+#define N3G_NAND_DEBUG(...) do { } while (0)
+#else
+#define N3G_NAND_DEBUG(...) do { } while (0)
+#endif
 
 #define N3G_FMC_BASE        0x38a00000
 #define N3G_FMCTRL0         (*(volatile uint32_t *)(N3G_FMC_BASE + 0x00))
@@ -80,10 +88,32 @@
 #define N3G_PLATFORM_MISC   (*(volatile uint32_t *)(0x39300000 + 0x3c))
 #define N3G_TEST_BANK       0u
 #define N3G_MISC_MODE_FORCE 1u
-#define N3G_MISC_MODE_VALUE 0x1u
+#define N3G_MISC_MODE_VALUE 0x0u
 #define N3G_PAGE_SCAN_COUNT 12
 #define N3G_NAND_BANKS      4
-#define N3G_NAND_TYPE_INDEX 0
+
+#define N3G_ROM_CLOCKGATE_ENABLE ((void (*)(uint32_t))0x2000147c)
+#define N3G_ROM_NAND_GPIO_SETUP  ((void (*)(uint32_t))0x20001830)
+#define N3G_ROM_NAND_RESET       ((int (*)(uint32_t, uint32_t))0x200096e4)
+#define N3G_ROM_NAND_READ_PAGE   ((int (*)(uint32_t, uint32_t, uint32_t, void *, void *))0x20009910)
+#define N3G_ROM_DISABLE_ICACHE   ((void (*)(void))0x20000418)
+#define N3G_ROM_EXTRA_ADDR       ((uint32_t *)0x22000000)
+#define N3G_ROM_DATA_ADDR        ((uint32_t *)0x22000100)
+#define N3G_ROM_DATA_SIZE        0x800
+#define N3G_ROM_EXTRA_SIZE       0x40
+#define N3G_FMCSTAT_BANK_READY(bank) (0x1000u << (bank))
+
+volatile uint32_t nano3g_nand_entry_diag[10] =
+{
+    0x4e334745, /* "N3GE" */
+    0xffffffff, 0, 0, 0, 0, 0, 0, 0, 0
+};
+
+volatile uint32_t nano3g_nand_stage_diag[39] =
+{
+    [0] = 0x4e334753, /* "N3GS" */
+    [3] = 0xffffffff
+};
 
 struct nano3g_nand_direct_diag
 {
@@ -165,6 +195,34 @@ struct nano3g_nand_direct_diag
     uint32_t sector0_words[128];
 };
 
+struct nano3g_nand_reg_diag
+{
+    uint32_t fmctrl0;
+    uint32_t fmctrl1;
+    uint32_t fmcmd;
+    uint32_t fmaddr0;
+    uint32_t fmaddr1;
+    uint32_t fmaddr2;
+    uint32_t fmanum;
+    uint32_t fmdnum;
+    uint32_t fmcstat;
+    uint32_t fmstage0;
+    uint32_t fmstage1;
+    uint32_t fmstage2;
+    uint32_t fmstagecmd;
+    uint32_t fmstagectrl;
+    uint32_t pwr0;
+    uint32_t pwr1;
+    uint32_t clkcon1;
+    uint32_t pcon7;
+    uint32_t pcon8;
+    uint32_t pcon9;
+    uint32_t pcon10;
+    uint32_t pcon11;
+    uint32_t gpiocmd;
+    uint32_t misc;
+};
+
 struct nand_device_info_type
 {
     uint32_t id;
@@ -187,6 +245,16 @@ static uint32_t nano3g_sparebuf[0x10] STORAGE_ALIGN_ATTR;
 static uint32_t nano3g_sector0buf[0x200] STORAGE_ALIGN_ATTR;
 static int n3g_ftl_init_done;
 static int32_t n3g_ftl_init_rc = 0x7fffffff;
+static uint32_t n3g_rom_bank_init_mask;
+static uint32_t n3g_rom_bank_tried_mask;
+static uint32_t n3g_rom_icache_disabled;
+static int n3g_rom_bank_init_rc[N3G_NAND_BANKS];
+static int32_t n3g_diag_last_init_rc = 0x7fffffff;
+static int32_t n3g_diag_last_rom_rc = 0x7fffffff;
+static uint32_t n3g_diag_last_bank;
+static uint32_t n3g_diag_last_page;
+static uint32_t n3g_diag_last_reset_stat;
+static uint32_t n3g_diag_last_fail_stage;
 static int n3g_last_page_status_rc;
 static int n3g_last_page_xfer_rc;
 static uint32_t n3g_last_xfer_stat;
@@ -222,16 +290,40 @@ static uint32_t n3g_ctrl_before_copy;
 static uint32_t n3g_stat_before_copy;
 static uint32_t n3g_source_sweep[9][2];
 static uint32_t n3g_q78_trace[4][3];
+static uint32_t n3g_stage_spare[3];
+static const struct nand_device_info_type *n3g_selected_nand_type;
+static int n3g_selected_nand_type_done;
 
 static const struct nand_device_info_type n3g_nand_deviceinfotable[] =
 {
-    /* 4-bank 8 GiB layout used by the Nano 2G Whimory FTL. */
+    /*
+     * Real Nano 3G Micron ID observed from DFU/wInd3x:
+     * raw bytes 2c d5 d5 a5, little-endian id 0xa5d5d52c.
+     * This row matches the existing Nano 2G Whimory table entry for the
+     * same chip ID.
+     */
+    {0xA5D5D52C, 8192, 7744, 0x80, 7, 3, 2, 2, 1},
+    /* Older guessed Samsung-style candidates kept only as fallbacks. */
     {0xA555D5AD, 8192, 7744, 0x80, 7, 3, 2, 3, 2},
-    /* 4-bank 4 GiB fallback candidate; switch index after sector0 diag if needed. */
     {0xA514D3AD, 4096, 3872, 0x80, 7, 3, 2, 3, 2},
 };
 
 static int n3g_reset_bank_idx(uint32_t bank, uint32_t *stat);
+static const struct nand_device_info_type *n3g_select_nand_type(void);
+static int n3g_read_id_exact(uint32_t *id);
+static int n3g_read_id_current_state(uint32_t *id);
+static int n3g_read_id_ctrl0(uint32_t bank, uint32_t ctrl0, uint32_t *id);
+static int n3g_read_id_gpio_profile(uint32_t bank, uint32_t profile,
+                                    uint32_t ctrl0, uint32_t *id);
+static int n3g_read_id_clock_profile(uint32_t bank, uint32_t profile,
+                                     uint32_t *id, uint32_t *clk_before,
+                                     uint32_t *clk_during,
+                                     uint32_t *clk_after);
+static int n3g_read_id_cp15_profile(uint32_t bank, uint32_t *id,
+                                    uint32_t *cp_before,
+                                    uint32_t *cp_during,
+                                    uint32_t *cp_after);
+static void n3g_fmc_setup_bank_profile(uint32_t bank, uint32_t profile);
 static int n3g_issue_read_bank(uint32_t bank, uint32_t page, uint32_t offset);
 static int n3g_internal_page_xfer_bank(uint32_t bank, uint32_t *buf);
 static int n3g_read_page_bootrom_xfer_bank(uint32_t bank, uint32_t page,
@@ -239,6 +331,8 @@ static int n3g_read_page_bootrom_xfer_bank(uint32_t bank, uint32_t page,
 static int n3g_read_page_exact_bank(uint32_t bank, uint32_t page,
                                     uint32_t offset, uint32_t *buf,
                                     uint32_t words);
+static void n3g_extract_stage_spare(void);
+static void n3g_copy_stage_spare(uint32_t *spare);
 
 static uint32_t n3g_mbr_sig510(const uint32_t *buf)
 {
@@ -300,6 +394,22 @@ static int n3g_wait(uint32_t mask)
     return 0;
 }
 
+static int n3g_wait_no_clear(uint32_t mask)
+{
+    unsigned timeout = USEC_TIMER + 50000;
+
+    while ((N3G_FMCSTAT & mask) != mask)
+        if (TIME_AFTER(USEC_TIMER, timeout))
+            return -1;
+
+    return 0;
+}
+
+static void n3g_ack_data_ready(void)
+{
+    N3G_FMCSTAT = 0x8;
+}
+
 static int n3g_wait_long(uint32_t mask)
 {
     unsigned timeout = USEC_TIMER + 500000;
@@ -347,14 +457,52 @@ static int n3g_wait_ready(uint32_t *stat)
     return 0;
 }
 
+static void n3g_gpio_setup_profile(uint32_t profile)
+{
+    switch (profile)
+    {
+    default:
+    case 0:
+        /* Current Nano3G BootROM-helper reconstruction. */
+        PCON(8) = 0x22222222;
+        PCON(9) = (PCON(9) & ~0x000f000fu) | 0x00020002u;
+        PCON(10) = (PCON(10) & 0xffff0000u) | 0x00002222u;
+        break;
+    case 1:
+        /* S5L8702 6G CE-ATA storage mux profile. */
+        PCON(8) = 0x33333333;
+        PCON(9) = (PCON(9) & ~0x000000ffu) | 0x00000033u;
+        PCON(11) |= 0xfu;
+        break;
+    case 2:
+        /* S5L8702 6G parallel ATA storage mux profile. */
+        PCON(7) = 0x44444444;
+        PCON(8) = 0x44444444;
+        PCON(9) = 0x44444444;
+        PCON(10) = (PCON(10) & ~0xffffu) | 0x4444u;
+        break;
+    case 3:
+        /* Extended alt-2 NAND-style profile across the adjacent groups. */
+        PCON(7) = 0x22222222;
+        PCON(8) = 0x22222222;
+        PCON(9) = 0x22222222;
+        PCON(10) = (PCON(10) & ~0xffffu) | 0x2222u;
+        PCON(11) |= 0xfu;
+        break;
+    case 4:
+        /* Minimal alt-2 data/command profile with explicit low group cleanup. */
+        PCON(7) = 0;
+        PCON(8) = 0x22222222;
+        PCON(9) = (PCON(9) & ~0x000f000fu) | 0x00020002u;
+        PCON(10) = (PCON(10) & ~0xffffu) | 0x2222u;
+        PCON(11) &= ~0xfu;
+        break;
+    }
+}
+
 static void n3g_gpio_setup(void)
 {
-    /* Exact BootROM NAND GPIO mux helper for argument 0. */
-    PCON(8) = 0x22222222;
-
-    PCON(9) = (PCON(9) & ~0x000f000fu) | 0x00020002u;
-
-    PCON(10) = (PCON(10) & 0xffff0000u) | 0x00002222u;
+    n3g_gpio_setup_profile(0);
 }
 
 static void n3g_fmc_setup(void)
@@ -368,11 +516,10 @@ static void n3g_fmc_setup(void)
 
     n3g_gpio_setup();
     /*
-     * The working ROM/wInd3x NAND path leaves more clock gates open than
-     * Rockbox. Only enable additional gates here; do not mask anything off.
+     * DFU state capture shows the working BootROM path does not require the
+     * old broad power-mask clear. Preserve existing gates and only ensure the
+     * NAND clocks themselves are enabled.
      */
-    PWRCON(0) &= ~0xdff81405u;
-    PWRCON(1) &= ~0x00026028u;
     clockgate_enable(CLOCKGATE_NAND, true);
     clockgate_enable(CLOCKGATE_NANDECC, true);
     N3G_FMCTRL0 = n3g_fmctrl0_active();
@@ -381,6 +528,11 @@ static void n3g_fmc_setup(void)
 
 static void n3g_fmc_setup_bank(uint32_t bank)
 {
+    n3g_fmc_setup_bank_profile(bank, 0);
+}
+
+static void n3g_fmc_setup_bank_profile(uint32_t bank, uint32_t profile)
+{
     n3g_misc_before = N3G_PLATFORM_MISC;
     if (N3G_MISC_MODE_FORCE)
         N3G_PLATFORM_MISC = (n3g_misc_before & ~0x7u) | N3G_MISC_MODE_VALUE;
@@ -388,17 +540,110 @@ static void n3g_fmc_setup_bank(uint32_t bank)
         N3G_PLATFORM_MISC = n3g_misc_before | N3G_MISC_MODE_VALUE;
     n3g_misc_after = N3G_PLATFORM_MISC;
 
-    n3g_gpio_setup();
+    n3g_gpio_setup_profile(profile);
     /*
-     * The working ROM/wInd3x NAND path leaves more clock gates open than
-     * Rockbox. Only enable additional gates here; do not mask anything off.
+     * DFU state capture shows the working BootROM path does not require the
+     * old broad power-mask clear. Preserve existing gates and only ensure the
+     * NAND clocks themselves are enabled.
      */
-    PWRCON(0) &= ~0xdff81405u;
-    PWRCON(1) &= ~0x00026028u;
     clockgate_enable(CLOCKGATE_NAND, true);
     clockgate_enable(CLOCKGATE_NANDECC, true);
     N3G_FMCTRL0 = n3g_fmctrl0_active_bank(bank);
     N3G_FMCTRL1 = 0x1c0;
+}
+
+static int n3g_rom_init_bank(uint32_t bank)
+{
+    int rc;
+    uint32_t stat = 0;
+
+    N3G_NAND_DEBUG("N3G_INIT_BANK_START bank=%lu", (unsigned long)bank);
+    if (bank >= N3G_NAND_BANKS)
+        return -1;
+    if (n3g_rom_bank_init_mask & (1u << bank))
+        return 0;
+    if (n3g_rom_bank_tried_mask & (1u << bank))
+        return n3g_rom_bank_init_rc[bank];
+
+    if (!n3g_rom_icache_disabled)
+    {
+        /*
+         * wInd3x disables I-cache before executing tiny DFU payloads, but the
+         * BootROM helper can hang when called from the relocated Rockbox
+         * bootloader context. Leave Rockbox's cache state alone here.
+         */
+        N3G_NAND_DEBUG("N3G_INIT_DISABLE_ICACHE_SKIP");
+        n3g_rom_icache_disabled = 1;
+    }
+
+    N3G_NAND_DEBUG("N3G_INIT_CLOCKS_SKIP");
+    N3G_NAND_DEBUG("N3G_INIT_GPIO_SKIP");
+    N3G_NAND_DEBUG("N3G_INIT_RESET_LOCAL");
+
+    /*
+     * The BootROM reset helper can block when called from the loaded
+     * bootloader context. Use the local register-level setup/reset here,
+     * then call only the BootROM page read helper for the data phase.
+     */
+    n3g_rom_bank_tried_mask |= 1u << bank;
+    rc = n3g_reset_bank_idx(bank, &stat);
+    n3g_diag_last_reset_stat = stat;
+    N3G_NAND_DEBUG("N3G_INIT_RESET_DONE rc=%ld", (long)rc);
+    n3g_rom_bank_init_rc[bank] = rc;
+    if (rc == 0)
+        n3g_rom_bank_init_mask |= 1u << bank;
+
+    return rc;
+}
+
+static int n3g_rom_read_page_bank(uint32_t bank, uint32_t page,
+                                  uint32_t *data, uint32_t *extra)
+{
+    int rc;
+    int init_rc;
+    uint32_t *rom_data = N3G_ROM_DATA_ADDR;
+    uint32_t *rom_extra = N3G_ROM_EXTRA_ADDR;
+
+    n3g_diag_last_bank = bank;
+    n3g_diag_last_page = page;
+    n3g_diag_last_rom_rc = 0x7fffffff;
+    n3g_diag_last_fail_stage = 0;
+
+    init_rc = n3g_rom_init_bank(bank);
+    n3g_diag_last_init_rc = init_rc;
+    if (init_rc != 0)
+    {
+        n3g_diag_last_fail_stage = 1;
+        return -1;
+    }
+
+    /*
+     * Match wInd3x's Nano 3G BootROM NAND call convention exactly:
+     * spare/OOB at 0x22000000 and page data at 0x22000100.
+     */
+    memset(rom_data, 0, N3G_ROM_DATA_SIZE);
+    memset(rom_extra, 0, N3G_ROM_EXTRA_SIZE);
+    commit_discard_dcache_range(rom_data, N3G_ROM_DATA_SIZE);
+    commit_discard_dcache_range(rom_extra, N3G_ROM_EXTRA_SIZE);
+
+    N3G_NAND_DEBUG("N3G_ROM_READ_CALL bank=%lu page=%lu",
+                   (unsigned long)bank, (unsigned long)page);
+    rc = N3G_ROM_NAND_READ_PAGE(0, bank, page, rom_data, rom_extra);
+    n3g_diag_last_rom_rc = rc;
+    N3G_NAND_DEBUG("N3G_ROM_READ_DONE rc=%ld", (long)rc);
+
+    if (rc != 0)
+    {
+        n3g_diag_last_fail_stage = 2;
+        return rc;
+    }
+
+    if (data != NULL)
+        memcpy(data, rom_data, N3G_ROM_DATA_SIZE);
+    if (extra != NULL)
+        memcpy(extra, rom_extra, N3G_ROM_EXTRA_SIZE);
+
+    return 0;
 }
 
 static int n3g_reset_bank(uint32_t *stat)
@@ -406,22 +651,260 @@ static int n3g_reset_bank(uint32_t *stat)
     return n3g_reset_bank_idx(N3G_TEST_BANK, stat);
 }
 
+int32_t nano3g_nand_diag_last_init_rc(void)
+{
+    return n3g_diag_last_init_rc;
+}
+
+int32_t nano3g_nand_diag_last_rom_rc(void)
+{
+    return n3g_diag_last_rom_rc;
+}
+
+uint32_t nano3g_nand_diag_last_bank(void)
+{
+    return n3g_diag_last_bank;
+}
+
+uint32_t nano3g_nand_diag_last_page(void)
+{
+    return n3g_diag_last_page;
+}
+
+uint32_t nano3g_nand_diag_last_reset_stat(void)
+{
+    return n3g_diag_last_reset_stat;
+}
+
+uint32_t nano3g_nand_diag_last_fail_stage(void)
+{
+    return n3g_diag_last_fail_stage;
+}
+
+int32_t nano3g_nand_diag_read_id(uint32_t *id)
+{
+    int32_t rc;
+
+    *id = 0;
+    rc = n3g_read_id_exact(id);
+    n3g_diag_last_rom_rc = rc;
+    return rc;
+}
+
+int32_t nano3g_nand_diag_read_id_current(uint32_t *id)
+{
+    int32_t rc;
+
+    n3g_diag_last_bank = N3G_TEST_BANK;
+    n3g_diag_last_page = 0;
+    n3g_diag_last_init_rc = 0x7fffffff;
+    n3g_diag_last_rom_rc = 0x7fffffff;
+    n3g_diag_last_fail_stage = 0;
+
+    rc = n3g_read_id_current_state(id);
+    n3g_diag_last_rom_rc = rc;
+    if (rc != 0)
+        n3g_diag_last_fail_stage = 2;
+
+    return rc;
+}
+
+int32_t nano3g_nand_diag_read_id_variant(uint32_t bank, uint32_t variant,
+                                         uint32_t *ctrl0, uint32_t *id)
+{
+    static const uint32_t timing[][2] =
+    {
+        {4, 3},
+        {3, 2},
+        {7, 7},
+        {2, 2},
+    };
+    uint32_t t = variant & 3u;
+    uint32_t bankbit;
+
+    if ((variant & 4u) != 0)
+        bankbit = 1u << bank;
+    else
+        bankbit = 1u << (bank + 1);
+
+    *ctrl0 = (timing[t][0] << 16) | (timing[t][1] << 12)
+           | (1u << 11) | bankbit | 1u;
+    *id = 0;
+    return n3g_read_id_ctrl0(bank, *ctrl0, id);
+}
+
+int32_t nano3g_nand_diag_gpio_id_variant(uint32_t bank, uint32_t variant,
+                                         uint32_t *ctrl0, uint32_t *id,
+                                         uint32_t *pcon7, uint32_t *pcon8,
+                                         uint32_t *pcon9, uint32_t *pcon10,
+                                         uint32_t *pcon11)
+{
+    *ctrl0 = n3g_fmctrl0_active_bank(bank);
+    *id = 0;
+    int32_t rc = n3g_read_id_gpio_profile(bank, variant, *ctrl0, id);
+
+    *pcon7 = PCON(7);
+    *pcon8 = PCON(8);
+    *pcon9 = PCON(9);
+    *pcon10 = PCON(10);
+    *pcon11 = PCON(11);
+    return rc;
+}
+
+int32_t nano3g_nand_diag_clock_id_variant(uint32_t bank, uint32_t variant,
+                                          uint32_t *id,
+                                          uint32_t *clk_before,
+                                          uint32_t *clk_during,
+                                          uint32_t *clk_after)
+{
+    if (variant >= 4)
+        return -1;
+
+    return n3g_read_id_clock_profile(bank, variant, id, clk_before,
+                                     clk_during, clk_after);
+}
+
+int32_t nano3g_nand_diag_cp15_id(uint32_t bank, uint32_t *id,
+                                 uint32_t *cp_before,
+                                 uint32_t *cp_during,
+                                 uint32_t *cp_after)
+{
+    return n3g_read_id_cp15_profile(bank, id, cp_before, cp_during,
+                                    cp_after);
+}
+
+int32_t nano3g_nand_diag_pmu_id_variant(uint32_t variant, uint32_t *pmu10,
+                                        uint32_t *pmu15, uint32_t *id)
+{
+    static const uint8_t pmu10_values[] =
+    {
+        0x08,
+        0x18,
+        0x10,
+        0x38,
+        0x00,
+    };
+    uint8_t old10 = pmu_rd(0x10);
+    uint8_t old15 = pmu_rd(0x15);
+    uint8_t val10;
+    int32_t rc;
+
+    if (variant >= ARRAYLEN(pmu10_values))
+        return -1;
+
+    val10 = (old10 & 0xc7u) | pmu10_values[variant];
+    pmu_wr(0x15, 0x14);
+    pmu_wr(0x10, val10);
+    sleep(HZ / 20);
+
+    *pmu10 = pmu_rd(0x10);
+    *pmu15 = pmu_rd(0x15);
+    *id = 0;
+    rc = n3g_read_id_exact(id);
+
+    pmu_wr(0x15, old15);
+    pmu_wr(0x10, old10);
+    return rc;
+}
+
+int32_t nano3g_nand_diag_init_only(uint32_t bank)
+{
+    int32_t rc;
+
+    n3g_diag_last_bank = bank;
+    n3g_diag_last_page = 0;
+    n3g_diag_last_rom_rc = 0x7fffffff;
+    n3g_diag_last_fail_stage = 0;
+    rc = n3g_rom_init_bank(bank);
+    n3g_diag_last_init_rc = rc;
+    if (rc != 0)
+        n3g_diag_last_fail_stage = 1;
+
+    return rc;
+}
+
+int32_t nano3g_nand_diag_local_read(uint32_t bank, uint32_t page,
+                                    uint32_t offset, uint32_t *buf,
+                                    uint32_t words)
+{
+    int32_t rc;
+    int32_t init_rc;
+
+    n3g_diag_last_bank = bank;
+    n3g_diag_last_page = page;
+    n3g_diag_last_rom_rc = 0x7fffffff;
+    n3g_diag_last_fail_stage = 0;
+
+    init_rc = n3g_rom_init_bank(bank);
+    n3g_diag_last_init_rc = init_rc;
+    if (init_rc != 0)
+    {
+        n3g_diag_last_fail_stage = 1;
+        return init_rc;
+    }
+
+    rc = n3g_read_page_exact_bank(bank, page, offset, buf, words);
+    n3g_diag_last_rom_rc = rc;
+    if (rc != 0)
+        n3g_diag_last_fail_stage = 3;
+
+    return rc;
+}
+
+int32_t nano3g_nand_diag_rom_read(uint32_t bank, uint32_t page,
+                                  uint32_t *data, uint32_t *extra)
+{
+    return n3g_rom_read_page_bank(bank, page, data, extra);
+}
+
+void nano3g_nand_diag_regs(struct nano3g_nand_reg_diag *diag)
+{
+    diag->fmctrl0 = N3G_FMCTRL0;
+    diag->fmctrl1 = N3G_FMCTRL1;
+    diag->fmcmd = N3G_FMCMD;
+    diag->fmaddr0 = N3G_FMADDR0;
+    diag->fmaddr1 = N3G_FMADDR1;
+    diag->fmaddr2 = N3G_FMADDR2;
+    diag->fmanum = N3G_FMANUM;
+    diag->fmdnum = N3G_FMDNUM;
+    diag->fmcstat = N3G_FMCSTAT;
+    diag->fmstage0 = N3G_FMSTAGE0;
+    diag->fmstage1 = N3G_FMSTAGE1;
+    diag->fmstage2 = N3G_FMSTAGE2;
+    diag->fmstagecmd = N3G_FMSTAGECMD;
+    diag->fmstagectrl = N3G_FMSTAGECTRL;
+    diag->pwr0 = PWRCON(0);
+    diag->pwr1 = PWRCON(1);
+    diag->clkcon1 = CLKCON1;
+    diag->pcon7 = PCON(7);
+    diag->pcon8 = PCON(8);
+    diag->pcon9 = PCON(9);
+    diag->pcon10 = PCON(10);
+    diag->pcon11 = PCON(11);
+    diag->gpiocmd = GPIOCMD;
+    diag->misc = N3G_PLATFORM_MISC;
+}
+
 static int n3g_reset_bank_idx(uint32_t bank, uint32_t *stat)
 {
+    N3G_NAND_DEBUG("N3G_RESET_SETUP_BANK");
     n3g_fmc_setup_bank(bank);
+    N3G_NAND_DEBUG("N3G_RESET_CMD_FF");
     N3G_FMCTRL0 = n3g_fmctrl0_active_bank(bank);
     N3G_FMCMD = 0xff;
     if (n3g_wait(0x2) != 0)
         return -1;
 
+    N3G_NAND_DEBUG("N3G_RESET_STATUS_70");
     N3G_FMCTRL1 = 0x001000e0;
     N3G_FMADDR2 = 1;
     N3G_FMCMD = 0x70;
     if (n3g_wait(0x2) != 0)
         return -2;
 
+    N3G_NAND_DEBUG("N3G_RESET_WAIT_READY");
     N3G_FMCTRL1 = 0x2a;
-    if (n3g_wait_long(0x800000) != 0)
+    if (n3g_wait_long(N3G_FMCSTAT_BANK_READY(bank)) != 0)
     {
         *stat = N3G_FMCSTAT;
         N3G_FMADDR2 = 0;
@@ -429,20 +912,23 @@ static int n3g_reset_bank_idx(uint32_t bank, uint32_t *stat)
         return -3;
     }
 
-    N3G_FMCSTAT = 0x800000;
+    N3G_FMCSTAT = N3G_FMCSTAT_BANK_READY(bank);
     N3G_FMADDR2 = 0;
     N3G_FMCTRL1 = 0xe0;
     *stat = N3G_FMCSTAT;
+    N3G_NAND_DEBUG("N3G_RESET_OK");
     return 0;
 }
 
 static int n3g_read_fifo(uint32_t *buf, uint32_t words)
 {
+    n3g_ack_data_ready();
+
     N3G_FMDNUM = words * 4 - 1;
     N3G_FMADDR2 = 1;
     N3G_FMCTRL1 = 0x1c2;
 
-    if (n3g_wait(0x8) != 0)
+    if (n3g_wait_no_clear(0x8) != 0)
         return -1;
 
     N3G_FMADDR2 = 0x100;
@@ -451,7 +937,136 @@ static int n3g_read_fifo(uint32_t *buf, uint32_t words)
     for (uint32_t i = 0; i < words; i++)
         buf[i] = N3G_FMFIFO;
 
+    n3g_ack_data_ready();
     return 0;
+}
+
+static int n3g_entry_wait(uint32_t mask, uint32_t clear, uint32_t *seen)
+{
+    uint32_t stat = 0;
+
+    for (uint32_t i = 0; i < 0x100000; i++)
+    {
+        stat = N3G_FMCSTAT;
+        if ((stat & mask) == mask)
+        {
+            if (clear)
+                N3G_FMCSTAT = mask;
+            *seen = stat;
+            return 0;
+        }
+    }
+
+    *seen = stat;
+    return -1;
+}
+
+static int n3g_entry_read_id(uint32_t *id, uint32_t *last_stat)
+{
+    *id = 0;
+    n3g_ack_data_ready();
+
+    N3G_FMCMD = 0x90;
+    if (n3g_entry_wait(0x2, 1, last_stat) != 0)
+        return -1;
+
+    N3G_FMANUM = 0;
+    N3G_FMADDR0 = 0;
+    N3G_FMCTRL1 = 1;
+    if (n3g_entry_wait(0x4, 1, last_stat) != 0)
+        return -2;
+
+    N3G_FMDNUM = 7;
+    N3G_FMADDR2 = 1;
+    N3G_FMCTRL1 = 0x1c2;
+    if (n3g_entry_wait(0x8, 0, last_stat) != 0)
+        return -3;
+
+    N3G_FMADDR2 = 0x100;
+    N3G_FMCTRL1 = 0x340;
+    *id = N3G_FMFIFO;
+    n3g_ack_data_ready();
+    return 0;
+}
+
+static void n3g_entry_min_setup(void)
+{
+    PCON(8) = 0x22222222;
+    PCON(9) = (PCON(9) & ~0x000f000fu) | 0x00020002u;
+    PCON(10) = (PCON(10) & 0xffff0000u) | 0x00002222u;
+    PWRCON(0) &= ~((1u << CLOCKGATE_NAND) | (1u << CLOCKGATE_NANDECC));
+    N3G_PLATFORM_MISC = (N3G_PLATFORM_MISC & ~0x7u) | N3G_MISC_MODE_VALUE;
+    N3G_FMCTRL0 = n3g_fmctrl0_active_bank(0);
+}
+
+void nano3g_nand_entry_diag_run(void)
+{
+    uint32_t id0 = 0;
+    uint32_t id1 = 0;
+    uint32_t stat0 = 0;
+    uint32_t stat1 = 0;
+    int rc0;
+    int rc1;
+
+    nano3g_nand_entry_diag[1] = 0xeeee0001;
+    nano3g_nand_entry_diag[2] = N3G_FMCTRL0;
+    nano3g_nand_entry_diag[3] = N3G_FMCSTAT;
+
+    rc0 = n3g_entry_read_id(&id0, &stat0);
+
+    n3g_entry_min_setup();
+    rc1 = n3g_entry_read_id(&id1, &stat1);
+
+    nano3g_nand_entry_diag[1] = 0xeeee0002;
+    nano3g_nand_entry_diag[2] = id0;
+    nano3g_nand_entry_diag[3] = id1;
+    nano3g_nand_entry_diag[4] = (uint32_t)rc0;
+    nano3g_nand_entry_diag[5] = (uint32_t)rc1;
+    nano3g_nand_entry_diag[6] = stat0;
+    nano3g_nand_entry_diag[7] = stat1;
+    nano3g_nand_entry_diag[8] = N3G_FMCTRL0;
+    nano3g_nand_entry_diag[9] = N3G_FMCSTAT;
+}
+
+void nano3g_nand_entry_diag_get(uint32_t *out, uint32_t words)
+{
+    uint32_t limit = words < 10 ? words : 10;
+
+    for (uint32_t i = 0; i < limit; i++)
+        out[i] = nano3g_nand_entry_diag[i];
+}
+
+void nano3g_nand_stage_diag_run(uint32_t stage)
+{
+    uint32_t id = 0;
+    uint32_t stat = 0;
+    int rc;
+
+    if (stage >= 16)
+        return;
+
+    n3g_entry_min_setup();
+    rc = n3g_entry_read_id(&id, &stat);
+
+    nano3g_nand_stage_diag[1] |= 1u << stage;
+    if (rc == 0 && id != 0)
+        nano3g_nand_stage_diag[2] |= 1u << stage;
+    else if (nano3g_nand_stage_diag[3] == 0xffffffffu)
+        nano3g_nand_stage_diag[3] = stage;
+
+    nano3g_nand_stage_diag[4] = id;
+    nano3g_nand_stage_diag[5] = (uint32_t)rc;
+    nano3g_nand_stage_diag[6] = stat;
+    nano3g_nand_stage_diag[7 + stage] = id;
+    nano3g_nand_stage_diag[17 + stage] = (uint32_t)rc;
+}
+
+void nano3g_nand_stage_diag_get(uint32_t *out, uint32_t words)
+{
+    uint32_t limit = words < 39 ? words : 39;
+
+    for (uint32_t i = 0; i < limit; i++)
+        out[i] = nano3g_nand_stage_diag[i];
 }
 
 static int n3g_wait_read_status(void)
@@ -475,6 +1090,38 @@ static int n3g_wait_read_status(void)
 static int n3g_read_id_exact(uint32_t *id)
 {
     n3g_fmc_setup();
+    return n3g_read_id_ctrl0(N3G_TEST_BANK, N3G_FMCTRL0, id);
+}
+
+static const struct nand_device_info_type *n3g_select_nand_type(void)
+{
+    uint32_t id = 0;
+
+    if (n3g_selected_nand_type_done)
+        return n3g_selected_nand_type;
+
+    n3g_selected_nand_type_done = 1;
+    if (n3g_read_id_exact(&id) == 0)
+    {
+        for (uint32_t i = 0; i < ARRAYLEN(n3g_nand_deviceinfotable); i++)
+        {
+            if (n3g_nand_deviceinfotable[i].id == id)
+            {
+                n3g_selected_nand_type = &n3g_nand_deviceinfotable[i];
+                return n3g_selected_nand_type;
+            }
+        }
+    }
+
+    n3g_selected_nand_type = &n3g_nand_deviceinfotable[0];
+    return n3g_selected_nand_type;
+}
+
+static int n3g_read_id_current_state(uint32_t *id)
+{
+    *id = 0;
+    n3g_ack_data_ready();
+
     N3G_FMCMD = 0x90;
     if (n3g_wait(0x2) != 0)
         return -1;
@@ -488,12 +1135,146 @@ static int n3g_read_id_exact(uint32_t *id)
     N3G_FMDNUM = 7;
     N3G_FMADDR2 = 1;
     N3G_FMCTRL1 = 0x1c2;
-    if (n3g_wait(0x8) != 0)
+    if (n3g_wait_no_clear(0x8) != 0)
         return -3;
 
     N3G_FMADDR2 = 0x100;
     N3G_FMCTRL1 = 0x340;
     *id = N3G_FMFIFO;
+    n3g_ack_data_ready();
+    return 0;
+}
+
+static int n3g_read_id_gpio_profile(uint32_t bank, uint32_t profile,
+                                    uint32_t ctrl0, uint32_t *id)
+{
+    n3g_fmc_setup_bank_profile(bank, profile);
+    N3G_FMCTRL0 = ctrl0;
+    n3g_ack_data_ready();
+    N3G_FMCMD = 0x90;
+    if (n3g_wait(0x2) != 0)
+        return -1;
+
+    N3G_FMANUM = 0;
+    N3G_FMADDR0 = 0;
+    N3G_FMCTRL1 = 1;
+    if (n3g_wait(0x4) != 0)
+        return -2;
+
+    N3G_FMDNUM = 7;
+    N3G_FMADDR2 = 1;
+    N3G_FMCTRL1 = 0x1c2;
+    if (n3g_wait_no_clear(0x8) != 0)
+        return -3;
+
+    N3G_FMADDR2 = 0x100;
+    N3G_FMCTRL1 = 0x340;
+    *id = N3G_FMFIFO;
+    n3g_ack_data_ready();
+    return 0;
+}
+
+static int n3g_read_id_clock_profile(uint32_t bank, uint32_t profile,
+                                     uint32_t *id, uint32_t *clk_before,
+                                     uint32_t *clk_during,
+                                     uint32_t *clk_after)
+{
+    uint32_t old_clkcon1 = CLKCON1;
+    int rc;
+
+    *id = 0;
+    *clk_before = old_clkcon1;
+
+    switch (profile)
+    {
+    case 0:
+        soc_set_system_divs(2, 4, 2);  /* approximate BootROM 108/54/27 */
+        break;
+    case 1:
+        soc_set_system_divs(1, 4, 2);  /* keep CPU fast, halve H/P */
+        break;
+    case 2:
+        soc_set_system_divs(2, 2, 2);  /* halve CPU, current H/P shape */
+        break;
+    default:
+        soc_set_system_divs(1, 2, 4);  /* current H, slower PClk */
+        break;
+    }
+
+    *clk_during = CLKCON1;
+    rc = n3g_read_id_ctrl0(bank, n3g_fmctrl0_active_bank(bank), id);
+
+    CLKCON1 = old_clkcon1;
+    while ((CLKCON1 >> 8) != (old_clkcon1 >> 8));
+    *clk_after = CLKCON1;
+    return rc;
+}
+
+static inline uint32_t n3g_cp15_control_read(void)
+{
+    uint32_t v;
+
+    asm volatile("mrc p15, 0, %0, c1, c0, 0" : "=r"(v));
+    return v;
+}
+
+static inline void n3g_cp15_control_write(uint32_t v)
+{
+    asm volatile("mcr p15, 0, %0, c1, c0, 0\n"
+                 "nop\n"
+                 "nop\n"
+                 "nop\n"
+                 "nop\n" : : "r"(v) : "memory");
+}
+
+static int n3g_read_id_cp15_profile(uint32_t bank, uint32_t *id,
+                                    uint32_t *cp_before,
+                                    uint32_t *cp_during,
+                                    uint32_t *cp_after)
+{
+    uint32_t old_ctl = n3g_cp15_control_read();
+    uint32_t new_ctl = old_ctl & ~((1u << 2) | (1u << 12));
+    int rc;
+
+    *id = 0;
+    *cp_before = old_ctl;
+    commit_discard_dcache_range(id, sizeof(*id));
+
+    n3g_cp15_control_write(new_ctl);
+    *cp_during = n3g_cp15_control_read();
+    rc = n3g_read_id_ctrl0(bank, n3g_fmctrl0_active_bank(bank), id);
+    n3g_cp15_control_write(old_ctl);
+
+    discard_dcache_range(id, sizeof(*id));
+    *cp_after = n3g_cp15_control_read();
+    return rc;
+}
+
+static int n3g_read_id_ctrl0(uint32_t bank, uint32_t ctrl0, uint32_t *id)
+{
+    n3g_fmc_setup_bank(bank);
+    N3G_FMCTRL0 = ctrl0;
+    n3g_ack_data_ready();
+    N3G_FMCMD = 0x90;
+    if (n3g_wait(0x2) != 0)
+        return -1;
+
+    N3G_FMANUM = 0;
+    N3G_FMADDR0 = 0;
+    N3G_FMCTRL1 = 1;
+    if (n3g_wait(0x4) != 0)
+        return -2;
+
+    N3G_FMDNUM = 7;
+    N3G_FMADDR2 = 1;
+    N3G_FMCTRL1 = 0x1c2;
+    if (n3g_wait_no_clear(0x8) != 0)
+        return -3;
+
+    N3G_FMADDR2 = 0x100;
+    N3G_FMCTRL1 = 0x340;
+    *id = N3G_FMFIFO;
+    n3g_ack_data_ready();
     return 0;
 }
 
@@ -556,15 +1337,17 @@ static int n3g_internal_page_xfer_bank(uint32_t bank, uint32_t *buf)
         N3G_FMADDR2 = 1u << (phase + 4);
         N3G_FMADDR6 = (i >= 2) ? 0x10 : 0;
         N3G_FMCTRL1 = 0x32;
-        if (n3g_wait(0x8) != 0)
+        if (n3g_wait_no_clear(0x8) != 0)
             return -1;
+        N3G_FMCSTAT = 0x8;
 
         N3G_FMDNUM = 0x1ff;
         N3G_FMADDR2 = 1u << phase;
         N3G_FMADDR6 = 0;
         N3G_FMCTRL1 = 0x22;
-        if (n3g_wait(0x8) != 0)
+        if (n3g_wait_no_clear(0x8) != 0)
             return -2;
+        N3G_FMCSTAT = 0x8;
 
         N3G_FMDATAW0 = (uint32_t)(dma_scratch + i * 0x200);
         N3G_FMDATAW1 = 7;
@@ -588,8 +1371,7 @@ static int n3g_internal_page_xfer_bank(uint32_t bank, uint32_t *buf)
         }
     }
 
-    N3G_FMCTRL0 = n3g_fmctrl0_idle_bank(bank);
-    discard_dcache_range(dma_scratch, 0x800);
+    n3g_extract_stage_spare();
 
     volatile uint32_t q78_sink = 0;
     for (int i = 0; i < 16; i++)
@@ -633,6 +1415,8 @@ static int n3g_internal_page_xfer_bank(uint32_t bank, uint32_t *buf)
     n3g_last_xfer_ctrl1 = N3G_FMCTRL1;
     n3g_last_xfer_addr2 = N3G_FMADDR2;
     n3g_last_xfer_dnum = N3G_FMDNUM;
+    N3G_FMCTRL0 = n3g_fmctrl0_idle_bank(bank);
+    discard_dcache_range(dma_scratch, 0x800);
     return 0;
 }
 
@@ -715,6 +1499,28 @@ static int n3g_read_page_exact_bank(uint32_t bank, uint32_t page,
     if (offset == 0 && words == 0x200)
         return n3g_read_page_bootrom_xfer_bank(bank, page, buf);
 
+    if (offset == 0x800 && words <= 0x10)
+    {
+        uint32_t spare[0x10];
+        int rc = n3g_read_page_bootrom_xfer_bank(bank, page, nano3g_pagebuf);
+        if (rc != 0)
+            return rc;
+
+        /*
+         * Stage spare can be stale/zero on a standalone OOB-only diagnostic
+         * read immediately after controller setup. A second identical page
+         * transfer makes the stage registers match the spare data returned by
+         * the normal body+spare nand_read_page() path.
+         */
+        rc = n3g_read_page_bootrom_xfer_bank(bank, page, nano3g_pagebuf);
+        if (rc != 0)
+            return rc;
+
+        n3g_copy_stage_spare(spare);
+        memcpy(buf, spare, words * sizeof(*buf));
+        return 0;
+    }
+
     int rc = n3g_issue_read_bank(bank, page, offset);
     if (rc != 0)
         return rc;
@@ -723,6 +1529,44 @@ static int n3g_read_page_exact_bank(uint32_t bank, uint32_t page,
         return -4;
 
     return 0;
+}
+
+static void n3g_copy_stage_spare(uint32_t *spare)
+{
+    /*
+     * Nano 3G BootROM page reads expose the Whimory spare metadata through
+     * the FMC stage registers after the data transfer, not through NAND
+     * column 0x800. Only the first three words are meaningful here.
+     */
+    spare[0] = n3g_stage_spare[0];
+    spare[1] = n3g_stage_spare[1];
+    spare[2] = n3g_stage_spare[2];
+    for (uint32_t i = 3; i < 0x10; i++)
+        spare[i] = 0xffffffffu;
+}
+
+static void n3g_extract_stage_spare(void)
+{
+    unsigned timeout;
+
+    N3G_FMSTAGECMD = 0x5140;
+    N3G_FMSTAGECTRL = 2;
+
+    timeout = USEC_TIMER + 50000;
+    while (N3G_FMSTAGECTRL & 2)
+    {
+        if (TIME_AFTER(USEC_TIMER, timeout))
+        {
+            n3g_stage_spare[0] = 0;
+            n3g_stage_spare[1] = 0;
+            n3g_stage_spare[2] = 0;
+            return;
+        }
+    }
+
+    n3g_stage_spare[0] = N3G_FMSTAGE0;
+    n3g_stage_spare[1] = N3G_FMSTAGE1;
+    n3g_stage_spare[2] = N3G_FMSTAGE2;
 }
 
 static bool n3g_page_empty(const uint32_t *data, const uint32_t *spare)
@@ -749,18 +1593,6 @@ static int n3g_ensure_ftl(void)
     }
 
     return n3g_ftl_init_rc;
-}
-
-static int n3g_read_sector0(uint32_t *buf)
-{
-    int rc;
-
-    memset(buf, 0, 0x800);
-    rc = n3g_ensure_ftl();
-    if (rc != 0)
-        return rc;
-
-    return (int32_t)ftl_read(0, 1, buf);
 }
 
 void nano3g_nand_direct_diag(struct nano3g_nand_direct_diag *diag)
@@ -805,12 +1637,10 @@ void nano3g_nand_direct_diag(struct nano3g_nand_direct_diag *diag)
 
     diag->page_rc = n3g_read_page_exact(0x80, 0, nano3g_pagebuf, 0x200);
 
-    diag->sector0_rc = n3g_read_sector0(nano3g_sector0buf);
-    diag->sector0_init_rc = n3g_ftl_init_rc;
-    diag->sector0_sig510 = n3g_mbr_sig510(nano3g_sector0buf);
-    diag->sector0_non_ff = n3g_page_has_non_ff(nano3g_sector0buf) ? 1 : 0;
-    for (int i = 0; i < 128; i++)
-        diag->sector0_words[i] = nano3g_sector0buf[i];
+    diag->sector0_rc = -1;
+    diag->sector0_init_rc = -1;
+    diag->sector0_sig510 = 0;
+    diag->sector0_non_ff = 0;
 
     diag->stat1 = N3G_FMCSTAT;
     diag->id_rc = n3g_read_id_exact(&diag->id);
@@ -947,24 +1777,20 @@ uint32_t nand_read_page(uint32_t bank, uint32_t page, void* databuffer,
 
     if (databuffer != NULL && ((uint32_t)databuffer & 0xf))
         data = local_data;
+    if (data == NULL)
+        data = local_data;
     if (sparebuffer != NULL && ((uint32_t)sparebuffer & 0xf))
         spare = local_spare;
 
-    if (databuffer != NULL)
-    {
-        if (n3g_read_page_exact_bank(bank, page, 0, data, 0x200) != 0)
-            return 1;
-        if (data != databuffer)
-            memcpy(databuffer, data, 0x800);
-    }
-
+    if (n3g_read_page_bootrom_xfer_bank(bank, page, data) != 0)
+        return 1;
     if (sparebuffer != NULL)
-    {
-        if (n3g_read_page_exact_bank(bank, page, 0x800, spare, 0x10) != 0)
-            return 1;
-        if (spare != sparebuffer)
-            memcpy(sparebuffer, spare, 0x40);
-    }
+        n3g_copy_stage_spare(spare);
+
+    if (databuffer != NULL && data != databuffer)
+        memcpy(databuffer, data, 0x800);
+    if (sparebuffer != NULL && spare != sparebuffer)
+        memcpy(sparebuffer, spare, 0x40);
 
     if (checkempty && n3g_page_empty(databuffer, sparebuffer))
         rc |= 2;
@@ -1002,7 +1828,7 @@ const struct nand_device_info_type* nand_get_device_type(uint32_t bank)
     if (bank >= N3G_NAND_BANKS)
         return NULL;
 
-    return &n3g_nand_deviceinfotable[N3G_NAND_TYPE_INDEX];
+    return n3g_select_nand_type();
 }
 
 uint32_t nand_reset(uint32_t bank)
@@ -1012,18 +1838,23 @@ uint32_t nand_reset(uint32_t bank)
     if (bank >= N3G_NAND_BANKS)
         return 1;
 
+    if (n3g_rom_init_bank(bank) == 0)
+        return 0;
+
     return n3g_reset_bank_idx(bank, &stat) == 0 ? 0 : 1;
 }
 
 int nand_device_init(void)
 {
-    uint32_t stat;
-
-    n3g_fmc_setup();
+#if defined(IPOD_NANO3G) && defined(BOOTLOADER)
+    N3G_NAND_DEBUG("N3G_NAND_DEVICE_INIT_SKIP");
+    return 0;
+#else
     for (uint32_t bank = 0; bank < N3G_NAND_BANKS; bank++)
-        n3g_reset_bank_idx(bank, &stat);
+        n3g_rom_init_bank(bank);
 
     return 0;
+#endif
 }
 
 uint32_t nand_write_page(uint32_t bank, uint32_t page, void* databuffer,
@@ -1103,6 +1934,14 @@ void nand_get_info(IF_MD(int drive,) struct storage_info *info)
     IF_MD((void)drive);
     info->sector_size = SECTOR_SIZE;
     info->num_sectors = 0;
+#if defined(IPOD_NANO3G) && defined(BOOTLOADER)
+    if (n3g_ensure_ftl() == 0)
+    {
+        const struct nand_device_info_type *type = n3g_select_nand_type();
+        info->num_sectors = (sector_t)type->userblocks
+                           * type->pagesperblock * N3G_NAND_BANKS;
+    }
+#endif
     info->vendor = "";
     info->product = "";
     info->revision = "";

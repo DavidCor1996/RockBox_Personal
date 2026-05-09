@@ -102,6 +102,7 @@ class Sidebar(QWidget):
     ROCKBOX_BOOT = "rockbox_boot"
     ROCKBOX_PLUGINS = "rockbox_plugins"
     ROCKBOX_GAMES = "rockbox_games"
+    ROCKBOX_PHOTOS = "rockbox_photos"
     ROCKBOX_BROWSER = "rockbox_browser"
     ROCKBOX_SIMULATOR = "rockbox_simulator"
 
@@ -217,6 +218,10 @@ class Sidebar(QWidget):
         self._games_item = self._add_item(
             self._rockbox_header, "Games", self.ROCKBOX_GAMES,
             _make_icon("#7f9a67", "music")
+        )
+        self._photos_item = self._add_item(
+            self._rockbox_header, "Photos", self.ROCKBOX_PHOTOS,
+            _make_icon("#8c9f6f", "album")
         )
         self._browser_item = self._add_item(
             self._rockbox_header, "Store", self.ROCKBOX_BROWSER,

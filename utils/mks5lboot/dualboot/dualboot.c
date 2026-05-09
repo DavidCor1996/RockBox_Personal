@@ -173,15 +173,29 @@ void main(void)
         goto bye; /* no FW found */
     }
 
+    bl_nor_sz = im3_nor_sz(hinfo);
+#ifdef IPOD_NANO3G
+    /*
+     * Nano 3G support does not currently identify OF/RB hashes, so the
+     * generic identify_fw() path treats every valid IM3 as non-Rockbox and
+     * exits without uninstalling.  The dual-boot installer stores the original
+     * NOR boot image immediately after the Rockbox IM3; for Nano 3G recovery,
+     * accept that adjacent valid image as the restore source.
+     */
+#else
     if (identify_fw(hinfo) != FW_RB) {
         status = happy;
         goto bye; /* RB bootloader not installed, nothing to do */
     }
 
     /* if found FW is a RB bootloader, OF should start just behind it */
-    bl_nor_sz = im3_nor_sz(hinfo);
+#endif
     if ((im3_read(NORBOOT_OFF + bl_nor_sz, hinfo, fw_addr) != 0)
+#ifndef IPOD_NANO3G
                             || (identify_fw(hinfo) == FW_RB)) {
+#else
+                            ) {
+#endif
         status = sad;
         goto bye; /* OF not found */
     }
@@ -271,6 +285,27 @@ void main(void)
             goto bye; /* OF not found, use iTunes to restore */
         }
     }
+#ifdef IPOD_NANO3G
+    else {
+        /*
+         * Nano 3G has no OF/RB hash identification yet.  If we are updating an
+         * already dual-booted device, a valid backup IM3 should sit immediately
+         * after the primary Rockbox image.  Prefer that adjacent backup over the
+         * primary image; otherwise repeated installs preserve Rockbox as "OF"
+         * and overwrite the real Apple boot image.
+         */
+        struct Im3Info primary_hinfo = *hinfo;
+        int nor_offset = NORBOOT_OFF + im3_nor_sz(&primary_hinfo);
+        if (im3_read(nor_offset, hinfo, fw_addr) != 0) {
+            *hinfo = primary_hinfo;
+            fw_addr = (void*)hinfo + IM3HDR_SZ;
+            if (im3_read(NORBOOT_OFF, hinfo, fw_addr) != 0) {
+                status = sad;
+                goto bye;
+            }
+        }
+    }
+#endif
 
     bl_nor_sz = im3_nor_sz(&bl_hinfo);
     /* safety check - verify we are not going to overwrite useful data */

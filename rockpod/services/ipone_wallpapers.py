@@ -8,6 +8,8 @@ from typing import Dict, List
 
 from PIL import Image, ImageOps, UnidentifiedImageError
 
+from services.greyscale_images import render_2bpp_greyscale, should_render_2bpp_greyscale
+
 LOCK_DEFAULTS = [
     "Wallpaper.bmp",
     "WallpaperAlt.bmp",
@@ -316,10 +318,16 @@ class IPoneWallpaperService:
     @staticmethod
     def _asset_dir(profile: Dict) -> str:
         theme = str(profile.get("selected_theme") or "").strip().lower()
+        if theme == "blackery":
+            return "Blackery"
         if theme == "galaxy":
             return "Galaxy"
-        if theme == "ipone_3g" or str(profile.get("screen_resolution") or "") == "160x128":
+        if theme == "coverpod_3g":
+            return "CoverPod_3g"
+        if theme == "ipone_3g":
             return "iPone_3g"
+        if str(profile.get("screen_resolution") or "") == "160x128":
+            return "CoverPod_3g"
         if "nano2g" in theme or str(profile.get("screen_resolution") or "") == "176x132":
             return "iPone_nano2g"
         return "iPone"
@@ -429,6 +437,8 @@ class IPoneWallpaperService:
         except (OSError, UnidentifiedImageError) as exc:
             raise ValueError(f"Unreadable wallpaper: {source_path}") from exc
         rendered = ImageOps.fit(image, (width, height), Image.Resampling.LANCZOS)
+        if should_render_2bpp_greyscale(resolution):
+            rendered = render_2bpp_greyscale(rendered)
         os.makedirs(os.path.dirname(dest_path), exist_ok=True)
         rendered.save(dest_path, "BMP")
 

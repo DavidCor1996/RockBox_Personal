@@ -32,6 +32,15 @@
 
 #include "ipodnano3g/bringup-nano3g.h"
 
+#if defined(IPOD_NANO3G) && defined(BOOTLOADER)
+#define N3G_PRESERVE_ROM_CLOCKS 1
+#define N3G_SKIP_PMU_PREINIT 1
+extern void nano3g_nand_stage_diag_run(uint32_t stage);
+#else
+#define N3G_PRESERVE_ROM_CLOCKS 0
+#define N3G_SKIP_PMU_PREINIT 0
+#endif
+
 #define default_interrupt(name) \
   extern __attribute__((weak,alias("UIRQ"))) void name (void)
 
@@ -231,7 +240,9 @@ void system_init(void)
     clockgate_enable(CLOCKGATE_SM1, false);
 #endif
 
+#if !N3G_PRESERVE_ROM_CLOCKS
     clocking_init(clk_modes, 0);
+#endif
 #ifndef BOOTLOADER
     gpio_preinit();
     i2c_preinit(0);
@@ -620,7 +631,14 @@ void system_preinit(void)
     boot_config = PDAT3 >> 2;
 #endif
 
+#if N3G_PRESERVE_ROM_CLOCKS
+    CLKCON0 &= ~CLKCON0_SDR_DISABLE_BIT;
+#else
     syscon_preinit();
+#endif
+#if defined(IPOD_NANO3G) && defined(BOOTLOADER)
+    nano3g_nand_stage_diag_run(10);
+#endif
 #if defined(IPOD_NANO3G)
 #if defined(BOOTLOADER)
 #else /* BOOTLOADER */
@@ -628,6 +646,9 @@ void system_preinit(void)
 #endif /* BOOTLOADER */
 #endif
     gpio_preinit();
+#if defined(IPOD_NANO3G) && defined(BOOTLOADER)
+    nano3g_nand_stage_diag_run(11);
+#endif
 #if defined(IPOD_NANO3G)
 #if defined(BOOTLOADER)
 #else /* BOOTLOADER */
@@ -635,6 +656,9 @@ void system_preinit(void)
 #endif /* BOOTLOADER */
 #endif
     i2c_preinit(0);
+#if defined(IPOD_NANO3G) && defined(BOOTLOADER)
+    nano3g_nand_stage_diag_run(12);
+#endif
 #if defined(IPOD_NANO3G)
 #if defined(BOOTLOADER)
 #else /* BOOTLOADER */
@@ -647,6 +671,9 @@ void system_preinit(void)
     pmu_wr(0x7f, boot_config);
 #endif
     hibernated = pmu_is_hibernated();
+#if defined(IPOD_NANO3G) && defined(BOOTLOADER)
+    nano3g_nand_stage_diag_run(13);
+#endif
 
 #if defined(IPOD_NANO3G)
 #if defined(BOOTLOADER)
@@ -655,7 +682,12 @@ void system_preinit(void)
 #endif /* BOOTLOADER */
 #endif
 
+#if !N3G_SKIP_PMU_PREINIT
     pmu_preinit();
+#endif
+#if defined(IPOD_NANO3G) && defined(BOOTLOADER)
+    nano3g_nand_stage_diag_run(14);
+#endif
 #if defined(IPOD_NANO3G)
 #if defined(BOOTLOADER)
 #else /* BOOTLOADER */
@@ -664,6 +696,9 @@ void system_preinit(void)
 #endif
 
     miu_preinit(hibernated);
+#if defined(IPOD_NANO3G) && defined(BOOTLOADER)
+    nano3g_nand_stage_diag_run(15);
+#endif
 #if defined(IPOD_NANO3G)
 #if defined(BOOTLOADER)
 #else /* BOOTLOADER */

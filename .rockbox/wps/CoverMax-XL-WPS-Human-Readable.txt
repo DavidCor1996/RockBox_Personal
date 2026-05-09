@@ -1,0 +1,560 @@
+# ┌──────────────────────────────────────────────────────────────────────────┐
+# │   ___                 __  __            __  ___      __      _____  ___  │
+# │  / __|_____ _____ _ _|  \/  |__ ___ ____\ \/ / |     \ \    / / _ \/ __| │
+# │ | (__/ _ \ V / -_) '_| |\/| / _` \ \ /___>  <| |__    \ \/\/ /|  _/\__ \ │
+# │  \___\___/\_/\___|_| |_|  |_\__,_/_\_\  /_/\_\____|    \_/\_/ |_|  |___/ │
+# │                                                                          │
+# │                                                                          │
+# │   Rev. 6                                           by Christian Soffke   │
+# │   2023-01-02                                                  CC-BY-SA   │
+# │                                                                          │
+# │   ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓   │
+# │   ┃                                                                  ┃   │
+# │   ┃ Uses original icons as well as icons from the following themes:  ┃   │
+# │   ┃                                                                  ┃   │
+# │   ┃         ipodVOL by xameius, submitted by Stephen Carroll         ┃   │
+# │   ┃   (Battery Status, Hold Indicator, Player Status, Repeat Mode,   ┃   │
+# │   ┃                     modified Speaker Icons)                      ┃   │
+# │   ┃                                                                  ┃   │
+# │   ┃          ChicagoUnified by Brendan Riera (Shuffle Icon)          ┃   │
+# │   ┃                                                                  ┃   │
+# │   ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛   │
+# │                                                                          │
+# └──────────────────────────────────────────────────────────────────────────┘
+#
+#     To generate a valid SBS or WPS from this file, execute the piece of
+#     AppleScript on the bottom. It will do the following things for you:
+#
+#        1. Remove AppleScript code from this file
+#           (everything that comes after this line:)
+#               "# --- End of Rockbox theme. Beginning of AppleScript ---"
+#        3. Insert text blocks that were previously defined,
+#           and replace variables if necessary
+#        4. Remove all linefeeds
+#        5. Remove all tabs
+#        6. Remove every line that starts with the "#" character
+#
+#
+
+#	Load needed fonts
+
+%Fl(2,10-Nimbus.fnt)
+%Fl(3,14-Nimbus.fnt)
+
+#	Preload icons
+
+%xl(R,repeatMode.bmp,
+	0,0,4)
+%xl(S,shuffle.bmp,
+	15,1)
+
+%xl(B,batteryStatus.bmp,
+	0,2,6)
+
+%xl(C,batteryChargingStatus.bmp,
+	0,2,5)
+
+%xl(P,playerStatus.bmp,
+	0,2,4)
+	
+%xl(H,holdSlider.bmp,
+	0,0)
+
+# Disable SBS
+%wd
+
+# ---------
+# Logic:
+# ---------
+
+# 	Display Cover Art / Hold
+
+%?mh<%Vd(hold)%?C<%Vd(cover)>|%?C<%Vd(cover)>>
+
+
+#	Display volume bar while volume is being adjusted
+#	Display time elapsed/remaining while fast forwarding or rewinding
+
+%?mv(0.5)<
+	%Vd(volBar)
+	%Vd(progressBarLight)
+	%Vd(title)
+
+define-block:battery
+	%?if(%St(battery display), =, numeric)
+	<
+		%Vd(battLevel)
+	|
+		%Vd(battIcon)
+	>
+end-block:battery
+
+|
+	%Vd(progressBar)
+	
+	%?if(%mp,<,4)
+	<
+insert-block:battery
+		%Vd(title)
+		%?or(
+			%if(%mm, >,1),
+      		%if(%ps, =, s)
+		)
+		<
+			%Vd(artistEtcShort)
+			%Vd(repeatShuffle)
+		|
+			%Vd(artistEtc)
+		>
+	|
+		%Vd(elapsed)
+		%Vd(remaining)
+	>
+>
+
+%Vd(playerStatus)
+
+%?bs<%Vd(timerText)>
+
+# ---------------------------
+# Viewports:
+# ---------------------------
+
+# Hold Slider Icon
+%Vl(hold,0,0,10,12,-)
+%Vf(0)%Vb(3)
+%xd(H)
+
+# Sleep Timer remaining time
+%Vl(timerText,
+	50,0,60,14,3)
+
+	%Vf(3)
+	%Vb(0)
+	%ac
+	%bs
+
+
+# 	Volume Bar 
+%Vl(volBar,
+	0,121,-,7,-)
+	%pv(0,0,-,7, noborder)
+
+
+
+# Battery level
+%Vl(battLevel,-21,97,21,12,2)%Vf(0)%Vb(3)
+%?or(
+	%if(%bl, =, 100),
+	%if(%bl, =, 99)
+)
+<
+	%acCGD
+|
+	%ac%bl%%
+>
+
+
+# Battery Icon
+# First entry in %bl is used when the battery level isn’t known,
+# then goes from 0 to n for battery level == 100
+
+%Vl(battIcon,
+	-23,95,23,12,-)
+
+	%?bp<
+		%?bl<
+			%xd(Ca)
+		|
+			%xd(Ca)
+		|
+			%xd(Ca)
+		|
+			%xd(Cb)
+		|
+			%xd(Cb)
+		|
+			%xd(Cb)
+		|
+			%xd(Cb)
+		|
+			%xd(Cc)
+		|
+			%xd(Cc)
+		|
+			%xd(Cc)
+		|
+			%xd(Cc)
+		|
+			%xd(Cc)
+		|
+			%xd(Cc)
+		|
+			%xd(Cd)
+		|
+			%xd(Cd)
+		|
+			%xd(Cd)
+		|
+			%xd(Cd)
+		|
+			%xd(Cd)
+		|
+			%xd(Cd)
+		|
+			%xd(Cd)
+		|
+			%xd(Ce)
+		|
+			%xd(Ce)
+		>
+	|
+		%?bl<
+			%xd(Bb)
+		|
+			%xd(Bb)
+		|
+			%xd(Bb)
+		|
+			%xd(Bc)
+		|
+			%xd(Bc)
+		|
+			%xd(Bc)
+		|
+			%xd(Bc)
+		|
+			%xd(Bd)
+		|
+			%xd(Bd)
+		|
+			%xd(Bd)
+		|
+			%xd(Bd)
+		|
+			%xd(Bd)
+		|
+			%xd(Bd)
+		|
+			%xd(Be)
+		|
+			%xd(Be)
+		|
+			%xd(Be)
+		|
+			%xd(Be)
+		|
+			%xd(Be)
+		|
+			%xd(Be)
+		|
+			%xd(Be)
+		|
+			%xd(Bf)
+		|
+			%xd(Bf)
+		>
+	>
+
+
+
+
+
+%Vl(playerStatus,0,95,9,12,-)
+	%?mp<
+# Stop
+
+	|
+# Play
+		%xd(Pa)
+	|
+# Pause
+		%xd(Pb)
+	|
+# Fast Forward, 
+# Rewind, 
+# Recording, 
+# Recording paused, 
+# FM Radio playing, 
+# FM Radio muted
+
+	>
+
+
+
+# --------------------------------------
+# -------- Progress Indicators   -------
+# --------------------------------------
+
+%Vl(progressBar,
+	0,91,-,2,-)
+	%pb(0,0,-,2, noborder)
+
+%Vl(progressBarLight,
+	0,91,-,2,-)
+	%Vf(2)
+	%Vb(3)
+	%pb(0,0,-,2, noborder)
+
+
+
+%Vl(elapsed,
+	2,95,80,10,2)
+	%al
+	%pc
+
+%Vl(remaining,
+	-80,95,78,10,2)
+	%ar
+	-%pr
+
+# --------------------------------------
+# -----------  Song Info   -------------
+# -------------------------------------- 
+
+%Vl(cover,0,0,160,90,-)
+%Cl(0,0,160,160,c,t)
+%Cd
+
+%Vl(title,13,95,123,14,3)
+%?mp<
+	
+|
+	%s
+|
+	
+|
+	%s
+>
+%al
+%?it<%it|%fn>
+
+
+
+
+# 	Composer if available (display only for Classical music) & Artist 
+#	& Album 
+
+%Vl(artistEtc,0,111,160,14,3)
+define-block:artistetc
+%?mp<
+	
+|
+	%s
+|
+	
+|
+	%s
+>
+
+%al
+%?mv(3)<
+	%pp 
+	%Sx(of) 
+	%pe - 
+	%pt
+|
+	%?if(%ig,=,Classical)<
+		%?ic<
+			By %ic - 
+		>
+		%ia
+		%?id<
+			 %(%id%)
+		>
+	|
+		%ia
+		%?id<
+			 %(%id%)
+		>
+	>
+>
+end-block:artistetc
+
+# If Repeat or Shuffle is enabled:
+
+%Vl(artistEtcShort,0,111,-26,14,3)
+insert-block:artistetc
+
+
+# Repeat
+%Vl(repeatShuffle,-24,113,24,9,-)%Vf(0)%Vb(3)
+%?mm<|%xd(Ra)|%xd(Rb)|%xd(Rc)|%xd(Rd)>
+%?if(%ps, =, s)<%xd(S)|>
+
+
+# --- End of Rockbox theme. Beginning of AppleScript ---
+set theFile to choose file
+set theText to read theFile
+set theOutput to ""
+set theLines to textItems(theText, {"
+"})
+set blocks to {}
+set currentBlocks to {}
+set fullyDefinedBlocks to {}
+set blockContent to {}
+set blockVariables to {}
+
+repeat with aLine in theLines
+	set aLine to aLine as text
+	
+	if (aLine is "# --- End of Rockbox theme. Beginning of AppleScript ---") then exit repeat
+	if ((aLine is not "") ¬
+		and (aLine is not "(*") and (aLine is not "*)") ¬
+		and ((aLine does not start with "#"))) then
+		
+		if (aLine) starts with "define-block:" then
+			set blockInfo to textItems(aLine, {"define-block:", "(variable:", ")"})
+			
+			if item 2 of blockInfo is not "" then
+				set blockName to (item 2 of blockInfo) as text
+			else
+				error "Block name is missing from definition"
+			end if
+			
+			if blocks does not contain blockName then
+				copy blockName to the end of blocks
+				copy blockName to the end of currentBlocks
+				set blockContent to blockContent & {""}
+				
+				if length of blockInfo > 2 and item 3 of blockInfo is not "" then
+					copy item 3 of blockInfo to the end of blockVariables
+				else
+					copy "" to the end of blockVariables
+				end if
+			else
+				error "Block is defined multiple times"
+			end if
+			
+		else if (aLine) starts with "end-block:" then
+			set blockInfo to textItems(aLine, {"end-block:", "(variable:", ")"})
+			
+			if item 2 of blockInfo is not "" then
+				set blockName to item 2 of blockInfo
+			else
+				error "Block name is missing from end-block"
+			end if
+			
+			if currentBlocks does not contain blockName then
+				error "The name for end block " & blockName & " has not been previously defined"
+			end if
+			
+			set currentBlocks to removeBlock(blockName, currentBlocks)
+			copy blockName to the end of fullyDefinedBlocks
+			
+		else if (aLine) starts with "insert-block:" then
+			set blockInfo to textItems(aLine, {"insert-block:", "(variable:", ")"})
+			
+			if item 2 of blockInfo is not "" then
+				set blockName to item 2 of blockInfo
+			else
+				error "Block name is missing from insert-block instruction"
+			end if
+			
+			
+			if fullyDefinedBlocks does not contain blockName then
+				error "Attempt to insert block that was not previously defined: " & blockName
+			end if
+			
+			set replacementVariable to ""
+			if length of blockInfo > 2 and item 3 of blockInfo is not "" then
+				set replacementVariable to item 3 of blockInfo
+			end if
+			
+			
+			
+			set contentToInsert to getBlockContent(blockName, blocks, blockContent, blockVariables, replacementVariable)
+			set theOutput to theOutput & contentToInsert
+			
+			repeat with i from 1 to length of blocks
+				if ((item i of blocks) as text) is in currentBlocks then
+					set item i of blockContent to (item i of blockContent) & contentToInsert
+				end if
+			end repeat
+		else
+			set theItems to textItems(aLine, {"	"})
+			
+			repeat with anItem in theItems
+				set theOutput to theOutput & anItem
+				
+				repeat with i from 1 to length of blocks
+					if ((item i of blocks) as text) is in currentBlocks then
+						set item i of blockContent to (item i of blockContent) & anItem
+					end if
+				end repeat
+			end repeat
+		end if
+	end if
+end repeat
+
+if length of currentBlocks ≠ 0 then error "Not all blocks have been closed"
+writeToFile(theOutput, choose file name)
+return "All done"
+
+on getBlockContent(blockName, blocks, blockContent, blockVariables, replacementVariable)
+	repeat with i from 1 to length of blocks
+		if item i of blocks is blockName then
+			if replacementVariable is "" and item i of blockVariables is "" then
+				return item i of blockContent
+			else
+				if item i of blockVariables is "" then error
+				
+				return replaceIn(item i of blockContent, item i of blockVariables, replacementVariable)
+			end if
+		end if
+	end repeat
+end getBlockContent
+
+on replaceIn(content, replace, replaceWith)
+	set newDelims to {replaceWith}
+	
+	set theItems to textItems(content, {replace})
+	
+	set currentDelims to text item delimiters
+	try
+		set text item delimiters to newDelims
+		set newContent to theItems as text
+	on error
+		set text item delimiters to currentDelims
+		error
+	end try
+	set text item delimiters to currentDelims
+	
+	return newContent
+end replaceIn
+
+on removeBlock(blockName, currentBlocks)
+	set newBlocks to {}
+	repeat with anItem in currentBlocks
+		if anItem as text is not blockName then copy anItem as text to the end of newBlocks
+	end repeat
+	return newBlocks
+end removeBlock
+
+on textItems(theText, delimiters)
+	set currentDelims to text item delimiters
+	try
+		set text item delimiters to delimiters
+		set theItems to (text items of theText)
+	on error
+		set text item delimiters to currentDelims
+	end try
+	set text item delimiters to currentDelims
+	
+	return theItems
+end textItems
+
+on writeToFile(theData, theFile)
+	try
+		set fileAccess to open for access file (theFile as text) with write permission
+		set eof of fileAccess to 0
+		write theData to fileAccess starting at eof as «class utf8»
+		close access fileAccess
+		return true
+	on error
+		try
+			close access fileAccess
+		end try
+		return false
+	end try
+end writeToFile

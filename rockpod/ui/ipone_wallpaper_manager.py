@@ -1,4 +1,4 @@
-"""Dedicated iPone wallpaper picker with previews."""
+"""Dedicated Rockbox theme wallpaper picker with previews."""
 
 from __future__ import annotations
 
@@ -138,9 +138,10 @@ class _WallpaperPane(QFrame):
 
 
 class IPoneWallpaperManagerWidget(QWidget):
-    """Manage active iPone lock and charge wallpapers on the mounted device."""
+    """Manage active theme lock and charge wallpapers on the mounted device."""
 
     profile_selected = Signal(str)
+    theme_selected = Signal(str)
     apply_requested = Signal(dict)
     import_requested = Signal(str, str)
     remove_requested = Signal(str, dict)
@@ -149,6 +150,7 @@ class IPoneWallpaperManagerWidget(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         self._profiles = {}
+        self._themes = {}
 
         layout = QVBoxLayout(self)
         layout.setContentsMargins(12, 10, 12, 10)
@@ -162,6 +164,10 @@ class IPoneWallpaperManagerWidget(QWidget):
         self._profile_combo = QComboBox()
         self._profile_combo.currentIndexChanged.connect(self._emit_profile_selected)
         header_layout.addWidget(self._profile_combo, 1)
+        header_layout.addWidget(QLabel("Theme:"))
+        self._theme_combo = QComboBox()
+        self._theme_combo.currentIndexChanged.connect(self._emit_theme_selected)
+        header_layout.addWidget(self._theme_combo, 1)
         header_layout.addWidget(QLabel("Lockscreen Clock:"))
         self._clock_position_combo = QComboBox()
         self._clock_position_combo.addItem("Centered", "center")
@@ -174,7 +180,7 @@ class IPoneWallpaperManagerWidget(QWidget):
         layout.addWidget(header)
 
         self._summary = QLabel(
-            "Pick a lock wallpaper and a charge wallpaper, choose the lockscreen clock position, then apply to the mounted iPod."
+            "Pick a theme, a lock wallpaper, and a charge wallpaper, then apply them to the mounted iPod."
         )
         self._summary.setWordWrap(True)
         self._summary.setObjectName("theme_hub_status")
@@ -215,14 +221,33 @@ class IPoneWallpaperManagerWidget(QWidget):
         self._lock_pane.set_candidates(lock_items)
         self._charge_pane.set_candidates(charge_items)
 
+    def set_themes(self, themes, selected_theme_id):
+        self._themes = {item["id"]: item for item in themes}
+        self._theme_combo.blockSignals(True)
+        self._theme_combo.clear()
+        selected_index = 0
+        for index, theme in enumerate(themes):
+            label = theme.get("name") or theme["id"]
+            self._theme_combo.addItem(label, theme["id"])
+            if theme["id"] == selected_theme_id:
+                selected_index = index
+        if themes:
+            self._theme_combo.setCurrentIndex(selected_index)
+        self._theme_combo.blockSignals(False)
+        self._theme_combo.setEnabled(bool(themes))
+
     def current_profile_id(self):
         return self._profile_combo.currentData() or ""
+
+    def current_theme_id(self):
+        return self._theme_combo.currentData() or ""
 
     def current_selection(self):
         lock = self._lock_pane.current_candidate()
         charge = self._charge_pane.current_candidate()
         return {
             "profile_id": self.current_profile_id(),
+            "theme_id": self.current_theme_id(),
             "lock_source": lock.get("source_path", "") if lock else "",
             "charge_source": charge.get("source_path", "") if charge else "",
             "clock_position": self.current_clock_position(),
@@ -246,6 +271,11 @@ class IPoneWallpaperManagerWidget(QWidget):
         profile_id = self.current_profile_id()
         if profile_id:
             self.profile_selected.emit(profile_id)
+
+    def _emit_theme_selected(self):
+        theme_id = self.current_theme_id()
+        if theme_id:
+            self.theme_selected.emit(theme_id)
 
     def _emit_apply_lock(self):
         selection = self.current_selection()

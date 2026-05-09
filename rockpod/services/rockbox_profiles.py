@@ -132,7 +132,7 @@ class RockboxProfileStore:
                 "target_device_model": "iPod 3G",
                 "screen_resolution": "160x128",
                 "source_repo_path": repo_root,
-                "selected_theme": "Galaxy",
+                "selected_theme": "CoverPod_3g",
                 "backup_location": os.path.join(backup_root, "ipod_3g"),
                 "lockscreen_clock_position": "center",
             },
@@ -184,6 +184,17 @@ class RockboxProfileStore:
                 item.get("simulator_screenshot_dir") or os.path.join(source_repo_path, "simshots")
             ),
             "boot_image_path": str(item.get("boot_image_path") or "").strip(),
+            "photos_library_path": os.path.abspath(
+                str(item.get("photos_library_path") or self._config.get("photos_library_path", "")).strip()
+            ),
+            "photos_device_target_dir": str(
+                item.get("photos_device_target_dir")
+                or self._config.get("photos_device_target_dir", "Photos")
+            ).strip() or "Photos",
+            "photos_simulator_target_dir": str(
+                item.get("photos_simulator_target_dir")
+                or self._config.get("photos_simulator_target_dir", "Photos")
+            ).strip() or "Photos",
             "games_library_path": os.path.abspath(
                 str(item.get("games_library_path") or self._config.get("games_library_path", "")).strip()
             ),

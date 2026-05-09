@@ -16,15 +16,15 @@ Merging object attributes
 
 Merging program properties
 
-Removed property 0xc0000002 to merge /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o (0x3) and /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/main.o (not found)
-Updated property 0xc0010002 (0x1) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o (0x1) and /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtendS.o (0x0)
-Removed property 0xc0000002 to merge /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o (not found) and /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtendS.o (0x3)
-Removed property 0xc0000002 to merge /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o (not found) and /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o (0x3)
+Removed property 0xc0000002 to merge /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o (0x3) and /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/main.o (not found)
+Updated property 0xc0010002 (0x1) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o (0x1) and /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtendS.o (0x0)
+Removed property 0xc0000002 to merge /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o (not found) and /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtendS.o (0x3)
+Removed property 0xc0000002 to merge /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o (not found) and /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o (0x3)
 
 Discarded input sections
 
  .note.gnu.property
-                0x0000000000000000       0x50 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtbeginS.o
+                0x0000000000000000       0x50 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtbeginS.o
  .note.gnu.property
                 0x0000000000000000       0x30 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/main.o
  .note.gnu.property
@@ -58,9 +58,9 @@ Discarded input sections
  .note.gnu.property
                 0x0000000000000000       0x30 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(xlcd_core.o)
  .note.gnu.property
-                0x0000000000000000       0x50 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtendS.o
+                0x0000000000000000       0x50 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtendS.o
  .note.gnu.property
-                0x0000000000000000       0x50 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
+                0x0000000000000000       0x50 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
 
 Memory Configuration
 
@@ -69,8 +69,8 @@ Name             Origin             Length             Attributes
 
 Linker script and memory map
 
-LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
-LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtbeginS.o
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtbeginS.o
 LOAD /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/main.o
 LOAD /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_assets.o
 LOAD /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_catch.o
@@ -85,99 +85,103 @@ LOAD /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugi
 LOAD /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a
 LOAD /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a
 LOAD /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libfixedpoint.a
-LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/libgcc.a
-LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/libgcc.a
-LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/libgcc_s.so
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/libgcc.a
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/libgcc.a
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/libgcc_s_asneeded.so
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/libgcc_s.so
 START GROUP
-LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/libgcc_s.so.1
-LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/libgcc.a
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/libgcc_s.so.1
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/libgcc.a
 END GROUP
-LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/libc.so
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/libatomic_asneeded.so
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/libatomic.so
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/libc.so
 START GROUP
 LOAD /usr/lib/libc.so.6
 LOAD /usr/lib/libc_nonshared.a
 LOAD /usr/lib/ld-linux-x86-64.so.2
 END GROUP
-LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/libgcc.a
-LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/libgcc_s.so
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/libgcc.a
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/libgcc_s_asneeded.so
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/libgcc_s.so
 START GROUP
-LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/libgcc_s.so.1
-LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/libgcc.a
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/libgcc_s.so.1
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/libgcc.a
 END GROUP
-LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtendS.o
-LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtendS.o
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
                 0x00000000000002a8                . = (SEGMENT_START ("text-segment", 0x0) + SIZEOF_HEADERS)
 
 .note.gnu.build-id
                 0x00000000000002a8       0x24
  *(.note.gnu.build-id)
  .note.gnu.build-id
-                0x00000000000002a8       0x24 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+                0x00000000000002a8       0x24 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
 
 .hash
  *(.hash)
 
 .gnu.hash       0x00000000000002d0       0x24
  *(.gnu.hash)
- .gnu.hash      0x00000000000002d0       0x24 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ .gnu.hash      0x00000000000002d0       0x24 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
 
 .dynsym         0x00000000000002f8       0xd8
  *(.dynsym)
- .dynsym        0x00000000000002f8       0xd8 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ .dynsym        0x00000000000002f8       0xd8 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
 
 .dynstr         0x00000000000003d0       0x9f
  *(.dynstr)
- .dynstr        0x00000000000003d0       0x9f /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ .dynstr        0x00000000000003d0       0x9f /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
 
 .gnu.version    0x0000000000000470       0x12
  *(.gnu.version)
- .gnu.version   0x0000000000000470       0x12 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ .gnu.version   0x0000000000000470       0x12 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
 
 .gnu.version_d  0x0000000000000488        0x0
  *(.gnu.version_d)
  .gnu.version_d
-                0x0000000000000488        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+                0x0000000000000488        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
 
 .gnu.version_r  0x0000000000000488       0x30
  *(.gnu.version_r)
  .gnu.version_r
-                0x0000000000000488       0x30 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+                0x0000000000000488       0x30 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
 
-.rela.dyn       0x00000000000004b8     0x1de8
+.rela.dyn       0x00000000000004b8     0x1ea8
  *(.rela.init)
  *(.rela.text .rela.text.* .rela.gnu.linkonce.t.*)
- .rela.text     0x00000000000004b8        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ .rela.text     0x00000000000004b8        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
  *(.rela.fini)
  *(.rela.rodata .rela.rodata.* .rela.gnu.linkonce.r.*)
  *(.rela.data .rela.data.* .rela.gnu.linkonce.d.*)
  .rela.data.rel.local
-                0x00000000000004b8       0x18 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+                0x00000000000004b8       0x18 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
  .rela.data.rel.ro.local
-                0x00000000000004d0     0x1ce0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+                0x00000000000004d0     0x1da0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
  .rela.data.rel.ro
-                0x00000000000021b0       0x60 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+                0x0000000000002270       0x60 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
  *(.rela.tdata .rela.tdata.* .rela.gnu.linkonce.td.*)
  *(.rela.tbss .rela.tbss.* .rela.gnu.linkonce.tb.*)
  *(.rela.ctors)
  *(.rela.dtors)
  *(.rela.got)
- .rela.got      0x0000000000002210       0x60 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ .rela.got      0x00000000000022d0       0x60 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
  *(.rela.tls)
- .rela.tls      0x0000000000002270        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ .rela.tls      0x0000000000002330        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
  *(.rela.bss .rela.bss.* .rela.gnu.linkonce.b.*)
  *(.rela.ldata .rela.ldata.* .rela.gnu.linkonce.l.*)
  *(.rela.lbss .rela.lbss.* .rela.gnu.linkonce.lb.*)
  *(.rela.lrodata .rela.lrodata.* .rela.gnu.linkonce.lr.*)
  *(.rela.ifunc)
- .rela.ifunc    0x0000000000002270        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ .rela.ifunc    0x0000000000002330        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
  .rela.fini_array
-                0x0000000000002270       0x18 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+                0x0000000000002330       0x18 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
  .rela.init_array
-                0x0000000000002288       0x18 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+                0x0000000000002348       0x18 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
 
-.rela.plt       0x00000000000022a0       0x48
+.rela.plt       0x0000000000002360       0x48
  *(.rela.plt)
- .rela.plt      0x00000000000022a0       0x48 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ .rela.plt      0x0000000000002360       0x48 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
  *(.rela.iplt)
 
 .relr.dyn
@@ -186,222 +190,226 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 
 .init           0x0000000000003000       0x1b
  *(SORT_NONE(.init))
- .init          0x0000000000003000       0x16 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ .init          0x0000000000003000       0x16 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
                 0x0000000000003000                _init
- .init          0x0000000000003016        0x5 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
+ .init          0x0000000000003016        0x5 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
 
 .plt            0x0000000000003020       0x40
  *(.plt)
- .plt           0x0000000000003020       0x40 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ .plt           0x0000000000003020       0x40 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
  *(.iplt)
 
 .plt.got        0x0000000000003060        0x0
  *(.plt.got)
- .plt.got       0x0000000000003060        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ .plt.got       0x0000000000003060        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
 
 .plt.sec
  *(.plt.sec)
 
-.text           0x0000000000003060    0x12963
+.text           0x0000000000003060    0x126e7
  *(.text.unlikely .text.*_unlikely .text.unlikely.*)
  *(.text.exit .text.exit.*)
  *(.text.startup .text.startup.*)
  *(.text.hot .text.hot.*)
  *(SORT_BY_NAME(.text.sorted.*))
  *(.text .stub .text.* .gnu.linkonce.t.*)
- .text          0x0000000000003060        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
- .text          0x0000000000003060       0xc9 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtbeginS.o
- .text          0x0000000000003129      0x25f /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/main.o
+ .text          0x0000000000003060        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
+ .text          0x0000000000003060       0xc9 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtbeginS.o
+ .text          0x0000000000003129      0x25d /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/main.o
                 0x0000000000003129                plugin_start
- .text          0x0000000000003388      0xdab /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_assets.o
-                0x0000000000003876                pc_assets_init
-                0x00000000000039dc                pc_assets_teardown
-                0x0000000000003a38                pc_assets_select_creature
-                0x0000000000003aac                pc_assets_get_creature_count
-                0x0000000000003ab2                pc_assets_get_total_creature_count
-                0x0000000000003ab8                pc_assets_get_creature
-                0x0000000000003af2                pc_assets_find_species_index
-                0x0000000000003b12                pc_assets_get_family_index
-                0x0000000000003b2d                pc_assets_get_evolution_target
-                0x0000000000003b4d                pc_assets_get_evolution_cost
-                0x0000000000003b67                pc_assets_get_catch_candy
-                0x0000000000003b6d                pc_assets_load_world_creature
-                0x0000000000003e7b                pc_assets_load_named_world_trainer
-                0x0000000000004097                pc_assets_load_world_trainer
-                0x00000000000040ec                pc_assets_set_player_trainer_name
-                0x000000000000411f                pc_assets_source_label
- .text          0x0000000000004133      0x132 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_catch.o
-                0x0000000000004133                pc_catch_roll
-                0x0000000000004223                pc_throw_tier_label
- .text          0x0000000000004265      0x2b3 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_input.o
-                0x000000000000427f                pc_input_reset
-                0x0000000000004299                pc_input_animate
-                0x00000000000042c0                pc_input_snapshot_throw
-                0x000000000000439c                pc_input_handle_event
- .text          0x0000000000004518      0x309 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_physics.o
-                0x0000000000004518                pc_physics_build_throw
-                0x0000000000004775                pc_physics_update_throw
- .text          0x0000000000004821     0x127f /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_render.o
-                0x0000000000004eae                pc_render_reset_trainer_asset
-                0x0000000000004eba                pc_render_frame
- .text          0x0000000000005aa0      0x763 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_state.o
-                0x0000000000005cda                pc_state_init
-                0x0000000000005d21                pc_state_begin
-                0x0000000000005d4f                pc_state_cycle_species
-                0x0000000000005d82                pc_state_update
- .text          0x0000000000006203     0x8685 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_world.o
-                0x00000000000099fc                pc_world_song_count
-                0x0000000000009a03                pc_world_song_name
-                0x0000000000009a6f                pc_world_player_trainer_count
-                0x0000000000009a75                pc_world_player_trainer_name
-                0x0000000000009a91                pc_world_player_trainer_cost
-                0x0000000000009aac                pc_world_nearby_count
-                0x0000000000009b24                pc_world_nearby_name
-                0x0000000000009bf9                pc_world_save
-                0x000000000000a1da                pc_world_secret_draw_info
-                0x000000000000a22e                pc_world_pokestop_draw_info
-                0x000000000000a28b                pc_world_init
-                0x000000000000b0ef                pc_world_teardown
-                0x000000000000b163                pc_world_update
-                0x000000000000e757                pc_world_finish_encounter
-                0x000000000000e831                pc_world_cancel_encounter
- .text          0x000000000000e888      0x148 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_world_input.o
-                0x000000000000e888                pc_world_input_handle_event
- .text          0x000000000000e9d0     0x4d01 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_world_render.o
-                0x0000000000010a68                pc_world_render_frame
- .text          0x00000000000136d1       0xe3 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
-                0x00000000000136e0                plugin__start
-                0x0000000000013734                rb_atexit
-                0x000000000001374d                exit
-                0x0000000000013766                _exit
-                0x0000000000013775                exit_on_usb
- .text          0x00000000000137b4      0x7b6 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(xlcd_draw.o)
-                0x00000000000137b4                xlcd_filltriangle_screen
-                0x0000000000013afb                xlcd_filltriangle
-                0x0000000000013b2a                xlcd_fillcircle_screen
-                0x0000000000013c7d                xlcd_fillcircle
-                0x0000000000013c9b                xlcd_drawcircle_screen
-                0x0000000000013d95                xlcd_drawcircle
-                0x0000000000013db3                xlcd_color_bitmap_part
-                0x0000000000013f52                xlcd_color_bitmap
- .text          0x0000000000013f6a      0xe6d /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_bmp.o)
-                0x00000000000142aa                output_row_8_native
-                0x00000000000143b1                save_bmp_file
-                0x00000000000145ba                simple_resize_bitmap
-                0x000000000001465f                read_bmp_fd
-                0x0000000000014d4a                read_bmp_file
- .text          0x0000000000014dd7       0x40 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
-                0x0000000000014dd7                memcpy
-                0x0000000000014de7                memset
-                0x0000000000014df7                memmove
-                0x0000000000014e07                memcmp
- .text          0x0000000000014e17      0xb6e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_resize.o)
-                0x00000000000152dc                get_size_native
-                0x0000000000015515                recalc_dimension
-                0x000000000001558d                resize_on_load
- .text          0x0000000000015985       0x3e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(xlcd_core.o)
-                0x0000000000015985                get_framebuffer
- .text          0x00000000000159c3        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtendS.o
- .text          0x00000000000159c3        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
+ .text          0x0000000000003386      0xd7f /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_assets.o
+                0x0000000000003a53                pc_assets_init
+                0x0000000000003bb9                pc_assets_teardown
+                0x0000000000003c15                pc_assets_select_creature
+                0x0000000000003c87                pc_assets_get_creature_count
+                0x0000000000003c8d                pc_assets_get_total_creature_count
+                0x0000000000003c93                pc_assets_get_creature
+                0x0000000000003cce                pc_assets_find_species_index
+                0x0000000000003cec                pc_assets_get_family_index
+                0x0000000000003d09                pc_assets_get_evolution_target
+                0x0000000000003d29                pc_assets_get_evolution_cost
+                0x0000000000003d43                pc_assets_get_catch_candy
+                0x0000000000003d49                pc_assets_load_world_creature
+                0x000000000000404e                pc_assets_load_named_world_trainer
+                0x0000000000004067                pc_assets_load_world_trainer
+                0x00000000000040bc                pc_assets_set_player_trainer_name
+                0x00000000000040ef                pc_assets_source_label
+ .text          0x0000000000004105      0x131 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_catch.o
+                0x0000000000004105                pc_catch_roll
+                0x00000000000041f3                pc_throw_tier_label
+ .text          0x0000000000004236      0x2c2 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_input.o
+                0x0000000000004250                pc_input_reset
+                0x000000000000426a                pc_input_animate
+                0x0000000000004291                pc_input_snapshot_throw
+                0x0000000000004378                pc_input_handle_event
+ .text          0x00000000000044f8      0x303 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_physics.o
+                0x00000000000044f8                pc_physics_build_throw
+                0x000000000000474f                pc_physics_update_throw
+ .text          0x00000000000047fb     0x12a0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_render.o
+                0x0000000000004e80                pc_render_reset_trainer_asset
+                0x0000000000004e8c                pc_render_frame
+ .text          0x0000000000005a9b      0x752 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_state.o
+                0x0000000000005cd0                pc_state_init
+                0x0000000000005d17                pc_state_begin
+                0x0000000000005d46                pc_state_cycle_species
+                0x0000000000005d7c                pc_state_update
+ .text          0x00000000000061ed     0x8397 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_world.o
+                0x0000000000009858                pc_world_song_count
+                0x000000000000985f                pc_world_song_name
+                0x00000000000098ca                pc_world_player_trainer_count
+                0x00000000000098d0                pc_world_player_trainer_name
+                0x00000000000098e9                pc_world_player_trainer_cost
+                0x0000000000009901                pc_world_player_trainer_assets_available
+                0x0000000000009906                pc_world_nearby_count
+                0x0000000000009986                pc_world_nearby_name
+                0x0000000000009a66                pc_world_save
+                0x000000000000a08b                pc_world_secret_draw_info
+                0x000000000000a0dc                pc_world_pokestop_draw_info
+                0x000000000000a136                pc_world_init
+                0x000000000000afdf                pc_world_teardown
+                0x000000000000b053                pc_world_update
+                0x000000000000e453                pc_world_finish_encounter
+                0x000000000000e52d                pc_world_cancel_encounter
+ .text          0x000000000000e584      0x148 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_world_input.o
+                0x000000000000e584                pc_world_input_handle_event
+ .text          0x000000000000e6cc     0x4d66 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_world_render.o
+                0x0000000000010a17                pc_world_render_frame
+ .text          0x0000000000013432       0xe3 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+                0x0000000000013441                plugin__start
+                0x0000000000013495                rb_atexit
+                0x00000000000134ae                exit
+                0x00000000000134c7                _exit
+                0x00000000000134d6                exit_on_usb
+ .text          0x0000000000013515      0x7db /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(xlcd_draw.o)
+                0x0000000000013515                xlcd_filltriangle_screen
+                0x000000000001385c                xlcd_filltriangle
+                0x000000000001388b                xlcd_fillcircle_screen
+                0x00000000000139de                xlcd_fillcircle
+                0x00000000000139fc                xlcd_drawcircle_screen
+                0x0000000000013af6                xlcd_drawcircle
+                0x0000000000013b14                xlcd_color_bitmap_part
+                0x0000000000013cd8                xlcd_color_bitmap
+ .text          0x0000000000013cf0      0xe81 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_bmp.o)
+                0x0000000000014030                output_row_8_native
+                0x0000000000014139                save_bmp_file
+                0x0000000000014334                simple_resize_bitmap
+                0x00000000000143d9                read_bmp_fd
+                0x0000000000014ae4                read_bmp_file
+ .text          0x0000000000014b71       0x40 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
+                0x0000000000014b71                memcpy
+                0x0000000000014b81                memset
+                0x0000000000014b91                memmove
+                0x0000000000014ba1                memcmp
+ .text          0x0000000000014bb1      0xb58 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_resize.o)
+                0x000000000001507d                get_size_native
+                0x00000000000152b6                recalc_dimension
+                0x000000000001532e                resize_on_load
+ .text          0x0000000000015709       0x3e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(xlcd_core.o)
+                0x0000000000015709                get_framebuffer
+ .text          0x0000000000015747        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtendS.o
+ .text          0x0000000000015747        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
  *(.gnu.warning)
 
-.fini           0x00000000000159c4        0xd
+.fini           0x0000000000015748        0xd
  *(SORT_NONE(.fini))
- .fini          0x00000000000159c4        0x8 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
-                0x00000000000159c4                _fini
- .fini          0x00000000000159cc        0x5 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
+ .fini          0x0000000000015748        0x8 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
+                0x0000000000015748                _fini
+ .fini          0x0000000000015750        0x5 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
                 [!provide]                        PROVIDE (__etext = .)
                 [!provide]                        PROVIDE (_etext = .)
                 [!provide]                        PROVIDE (etext = .)
                 0x0000000000016000                . = ALIGN (CONSTANT (MAXPAGESIZE))
                 0x0000000000016000                . = SEGMENT_START ("rodata-segment", (ALIGN (CONSTANT (MAXPAGESIZE)) + (. & (CONSTANT (MAXPAGESIZE) - 0x1))))
 
-.rodata         0x0000000000016000    0x1bcc0
+.rodata         0x0000000000016000    0x1bd00
  *(.rodata .rodata.* .gnu.linkonce.r.*)
  .rodata.str1.1
-                0x0000000000016000     0x2187 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_assets.o
+                0x0000000000016000     0x21c4 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_assets.o
                                         0xb59 (size before relaxing)
- *fill*         0x0000000000018187       0x19 
- .rodata        0x00000000000181a0      0x6b0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_assets.o
+ *fill*         0x00000000000181c4       0x1c 
+ .rodata        0x00000000000181e0      0x6b0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_assets.o
  .rodata.str1.1
-                0x0000000000018850        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_catch.o
+                0x0000000000018890        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_catch.o
                                          0x1e (size before relaxing)
- .rodata        0x0000000000018850        0x3 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_catch.o
- *fill*         0x0000000000018853        0x5 
- .rodata        0x0000000000018858       0x10 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_input.o
+ .rodata.cst4   0x0000000000018890        0xc /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_catch.o
+                                          0x4 (size before relaxing)
+ *fill*         0x000000000001889c        0x4 
+ .rodata        0x00000000000188a0       0x10 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_input.o
  .rodata.str1.1
-                0x0000000000018868        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_render.o
+                0x00000000000188b0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_render.o
                                          0x6c (size before relaxing)
- *fill*         0x0000000000018868       0x18 
- .rodata        0x0000000000018880      0x620 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_render.o
+ *fill*         0x00000000000188b0       0x10 
+ .rodata        0x00000000000188c0      0x620 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_render.o
  .rodata.str1.1
-                0x0000000000018ea0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_state.o
+                0x0000000000018ee0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_state.o
                                         0x15e (size before relaxing)
- .rodata        0x0000000000018ea0       0x30 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_state.o
+ .rodata        0x0000000000018ee0       0x30 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_state.o
  .rodata.str1.1
-                0x0000000000018ed0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_world.o
-                                        0xe86 (size before relaxing)
- *fill*         0x0000000000018ed0       0x10 
- .rodata        0x0000000000018ee0     0x5800 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_world.o
+                0x0000000000018f10        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_world.o
+                                        0xf0f (size before relaxing)
+ *fill*         0x0000000000018f10       0x10 
+ .rodata        0x0000000000018f20     0x5800 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_world.o
+ .rodata.cst4   0x000000000001e720        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_world.o
+                                          0x8 (size before relaxing)
  .rodata.str1.1
-                0x000000000001e6e0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_world_render.o
-                                        0x661 (size before relaxing)
- .rodata        0x000000000001e6e0    0x13580 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_world_render.o
+                0x000000000001e720        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_world_render.o
+                                        0x66a (size before relaxing)
+ .rodata        0x000000000001e720    0x13580 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_world_render.o
  .rodata.str1.1
-                0x0000000000031c60        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_bmp.o)
+                0x0000000000031ca0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_bmp.o)
                                         0x124 (size before relaxing)
- .rodata        0x0000000000031c60       0x60 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_bmp.o)
-                0x0000000000031c60                dither_table
+ .rodata        0x0000000000031ca0       0x60 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_bmp.o)
+                0x0000000000031ca0                dither_table
  .rodata.str1.1
-                0x0000000000031cc0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_resize.o)
+                0x0000000000031d00        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_resize.o)
                                          0x3d (size before relaxing)
 
 .rodata1
  *(.rodata1)
 
-.eh_frame_hdr   0x0000000000031cc0      0x64c
+.eh_frame_hdr   0x0000000000031d00      0x684
  *(.eh_frame_hdr)
- .eh_frame_hdr  0x0000000000031cc0      0x64c /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/main.o
-                0x0000000000031cc0                __GNU_EH_FRAME_HDR
+ .eh_frame_hdr  0x0000000000031d00      0x684 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/main.o
+                0x0000000000031d00                __GNU_EH_FRAME_HDR
  *(.eh_frame_entry .eh_frame_entry.*)
 
-.eh_frame       0x0000000000032310     0x2540
+.eh_frame       0x0000000000032388     0x2608
  *(.eh_frame)
- .eh_frame      0x0000000000032310       0x40 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
- .eh_frame      0x0000000000032350        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
- .eh_frame      0x0000000000032350       0x48 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/main.o
-                                         0x60 (size before relaxing)
- .eh_frame      0x0000000000032398      0x460 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_assets.o
-                                        0x478 (size before relaxing)
- .eh_frame      0x00000000000327f8       0x50 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_catch.o
+ .eh_frame      0x0000000000032388       0x40 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
+ .eh_frame      0x00000000000323c8        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
+ .eh_frame      0x00000000000323c8       0x38 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/main.o
+                                         0x50 (size before relaxing)
+ .eh_frame      0x0000000000032400      0x450 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_assets.o
+                                        0x468 (size before relaxing)
+ .eh_frame      0x0000000000032850       0x50 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_catch.o
                                          0x68 (size before relaxing)
- .eh_frame      0x0000000000032848       0xb8 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_input.o
+ .eh_frame      0x00000000000328a0       0xb8 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_input.o
                                          0xd0 (size before relaxing)
- .eh_frame      0x0000000000032900       0x60 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_physics.o
+ .eh_frame      0x0000000000032958       0x60 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_physics.o
                                          0x78 (size before relaxing)
- .eh_frame      0x0000000000032960      0x210 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_render.o
-                                        0x228 (size before relaxing)
- .eh_frame      0x0000000000032b70      0x1b0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_state.o
-                                        0x1c8 (size before relaxing)
- .eh_frame      0x0000000000032d20      0xf10 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_world.o
-                                        0xf28 (size before relaxing)
- .eh_frame      0x0000000000033c30       0x30 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_world_input.o
+ .eh_frame      0x00000000000329b8      0x208 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_render.o
+                                        0x220 (size before relaxing)
+ .eh_frame      0x0000000000032bc0      0x198 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_state.o
+                                        0x1b0 (size before relaxing)
+ .eh_frame      0x0000000000032d58      0xeb8 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_world.o
+                                        0xed0 (size before relaxing)
+ .eh_frame      0x0000000000033c10       0x30 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_world_input.o
                                          0x48 (size before relaxing)
- .eh_frame      0x0000000000033c60      0x608 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_world_render.o
-                                        0x620 (size before relaxing)
- .eh_frame      0x0000000000034268       0x88 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+ .eh_frame      0x0000000000033c40      0x768 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_world_render.o
+                                        0x780 (size before relaxing)
+ .eh_frame      0x00000000000343a8       0x88 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
                                          0xa0 (size before relaxing)
- .eh_frame      0x00000000000342f0      0x190 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(xlcd_draw.o)
+ .eh_frame      0x0000000000034430      0x190 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(xlcd_draw.o)
                                         0x1a8 (size before relaxing)
- .eh_frame      0x0000000000034480      0x1d8 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_bmp.o)
+ .eh_frame      0x00000000000345c0      0x1d8 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_bmp.o)
                                         0x1f0 (size before relaxing)
- .eh_frame      0x0000000000034658       0x50 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
+ .eh_frame      0x0000000000034798       0x50 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
                                          0x68 (size before relaxing)
- .eh_frame      0x00000000000346a8      0x190 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_resize.o)
+ .eh_frame      0x00000000000347e8      0x190 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_resize.o)
                                         0x1a8 (size before relaxing)
- .eh_frame      0x0000000000034838       0x14 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(xlcd_core.o)
+ .eh_frame      0x0000000000034978       0x14 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(xlcd_core.o)
                                          0x30 (size before relaxing)
- .eh_frame      0x000000000003484c        0x4 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtendS.o
+ .eh_frame      0x000000000003498c        0x4 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtendS.o
  *(.eh_frame.*)
 
 .sframe
@@ -421,54 +429,54 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
  *(.note.build-id)
 
 .note.GNU-stack
-                0x0000000000034850        0x0
+                0x0000000000034990        0x0
  *(.note.GNU-stack)
  .note.GNU-stack
-                0x0000000000034850        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+                0x0000000000034990        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
  .note.GNU-stack
-                0x0000000000034850        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtbeginS.o
+                0x0000000000034990        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtbeginS.o
  .note.GNU-stack
-                0x0000000000034850        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/main.o
+                0x0000000000034990        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/main.o
  .note.GNU-stack
-                0x0000000000034850        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_assets.o
+                0x0000000000034990        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_assets.o
  .note.GNU-stack
-                0x0000000000034850        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_catch.o
+                0x0000000000034990        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_catch.o
  .note.GNU-stack
-                0x0000000000034850        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_input.o
+                0x0000000000034990        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_input.o
  .note.GNU-stack
-                0x0000000000034850        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_physics.o
+                0x0000000000034990        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_physics.o
  .note.GNU-stack
-                0x0000000000034850        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_render.o
+                0x0000000000034990        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_render.o
  .note.GNU-stack
-                0x0000000000034850        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_state.o
+                0x0000000000034990        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_state.o
  .note.GNU-stack
-                0x0000000000034850        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_world.o
+                0x0000000000034990        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_world.o
  .note.GNU-stack
-                0x0000000000034850        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_world_input.o
+                0x0000000000034990        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_world_input.o
  .note.GNU-stack
-                0x0000000000034850        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_world_render.o
+                0x0000000000034990        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_world_render.o
  .note.GNU-stack
-                0x0000000000034850        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+                0x0000000000034990        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
  .note.GNU-stack
-                0x0000000000034850        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(xlcd_draw.o)
+                0x0000000000034990        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(xlcd_draw.o)
  .note.GNU-stack
-                0x0000000000034850        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_bmp.o)
+                0x0000000000034990        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_bmp.o)
  .note.GNU-stack
-                0x0000000000034850        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
+                0x0000000000034990        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
  .note.GNU-stack
-                0x0000000000034850        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_resize.o)
+                0x0000000000034990        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_resize.o)
  .note.GNU-stack
-                0x0000000000034850        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(xlcd_core.o)
+                0x0000000000034990        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(xlcd_core.o)
  .note.GNU-stack
-                0x0000000000034850        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtendS.o
+                0x0000000000034990        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtendS.o
  .note.GNU-stack
-                0x0000000000034850        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
+                0x0000000000034990        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
 
 .note.gnu.property
-                0x0000000000034850       0x30
+                0x0000000000034990       0x30
  *(.note.gnu.property)
  .note.gnu.property
-                0x0000000000034850       0x30 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+                0x0000000000034990       0x30 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
 
 .note.ABI-tag
  *(.note.ABI-tag)
@@ -484,7 +492,7 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 
 .note.openbsd.ident
  *(.note.openbsd.ident)
-                0x00000000000350b0                . = DATA_SEGMENT_ALIGN (CONSTANT (MAXPAGESIZE), CONSTANT (COMMONPAGESIZE))
+                0x0000000000035050                . = DATA_SEGMENT_ALIGN (CONSTANT (MAXPAGESIZE), CONSTANT (COMMONPAGESIZE))
 
 .eh_frame
  *(.eh_frame)
@@ -513,15 +521,15 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .preinit_array
  *(.preinit_array)
 
-.init_array     0x00000000000350b0        0x8
+.init_array     0x0000000000035050        0x8
  *(SORT_BY_INIT_PRIORITY(.init_array.*) SORT_BY_INIT_PRIORITY(.ctors.*))
  *(.init_array EXCLUDE_FILE(*crtend?.o *crtend.o *crtbegin?.o *crtbegin.o) .ctors)
- .init_array    0x00000000000350b0        0x8 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtbeginS.o
+ .init_array    0x0000000000035050        0x8 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtbeginS.o
 
-.fini_array     0x00000000000350b8        0x8
+.fini_array     0x0000000000035058        0x8
  *(SORT_BY_INIT_PRIORITY(.fini_array.*) SORT_BY_INIT_PRIORITY(.dtors.*))
  *(.fini_array EXCLUDE_FILE(*crtend?.o *crtend.o *crtbegin?.o *crtbegin.o) .dtors)
- .fini_array    0x00000000000350b8        0x8 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtbeginS.o
+ .fini_array    0x0000000000035058        0x8 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtbeginS.o
 
 .ctors
  *crtbegin.o(.ctors)
@@ -540,13 +548,13 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .jcr
  *(.jcr)
 
-.data.rel.ro    0x00000000000350c0     0x1d40
+.data.rel.ro    0x0000000000035060     0x1da0
  *(.data.rel.ro.local* .gnu.linkonce.d.rel.ro.local.*)
  .data.rel.ro.local
-                0x00000000000350c0     0x1af0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_assets.o
- *fill*         0x0000000000036bb0       0x10 
+                0x0000000000035060     0x1af0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_assets.o
+ *fill*         0x0000000000036b50       0x10 
  .data.rel.ro.local
-                0x0000000000036bc0      0x160 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_world.o
+                0x0000000000036b60      0x1c0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_world.o
  .data.rel.ro.local
                 0x0000000000036d20       0x78 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_world_render.o
  *fill*         0x0000000000036d98        0x8 
@@ -554,34 +562,34 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
                 0x0000000000036da0       0x38 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
                 0x0000000000036da0                __header
  *(.data.rel.ro .data.rel.ro.* .gnu.linkonce.d.rel.ro.*)
- .data.rel.ro   0x0000000000036dd8        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ .data.rel.ro   0x0000000000036dd8        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
  *fill*         0x0000000000036dd8        0x8 
  .data.rel.ro   0x0000000000036de0       0x20 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_resize.o)
                 0x0000000000036de0                format_native
 
 .dynamic        0x0000000000036e00      0x1c0
  *(.dynamic)
- .dynamic       0x0000000000036e00      0x1c0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ .dynamic       0x0000000000036e00      0x1c0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
                 0x0000000000036e00                _DYNAMIC
 
 .got            0x0000000000036fc0       0x20
  *(.got)
- .got           0x0000000000036fc0       0x20 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ .got           0x0000000000036fc0       0x20 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
  *(.igot)
                 0x0000000000036fe8                . = DATA_SEGMENT_RELRO_END (., (SIZEOF (.got.plt) >= 0x18)?0x18:0x0)
 
 .got.plt        0x0000000000036fe8       0x30
  *(.got.plt)
- .got.plt       0x0000000000036fe8       0x30 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ .got.plt       0x0000000000036fe8       0x30 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
                 0x0000000000036fe8                _GLOBAL_OFFSET_TABLE_
  *(.igot.plt)
 
 .data           0x0000000000037020       0x50
  *(.data .data.* .gnu.linkonce.d.*)
- .data          0x0000000000037020        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
- .data          0x0000000000037020        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtbeginS.o
+ .data          0x0000000000037020        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
+ .data          0x0000000000037020        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtbeginS.o
  .data.rel.local
-                0x0000000000037020        0x8 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtbeginS.o
+                0x0000000000037020        0x8 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtbeginS.o
                 0x0000000000037020                __dso_handle
  .data          0x0000000000037028        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/main.o
  *fill*         0x0000000000037028        0x8 
@@ -602,15 +610,15 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
  .data          0x0000000000037070        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
  .data          0x0000000000037070        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_resize.o)
  .data          0x0000000000037070        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(xlcd_core.o)
- .data          0x0000000000037070        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtendS.o
- .data          0x0000000000037070        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
+ .data          0x0000000000037070        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtendS.o
+ .data          0x0000000000037070        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
 
 .tm_clone_table
                 0x0000000000037070        0x0
  .tm_clone_table
-                0x0000000000037070        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtbeginS.o
+                0x0000000000037070        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtbeginS.o
  .tm_clone_table
-                0x0000000000037070        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtendS.o
+                0x0000000000037070        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtendS.o
 
 .data1
  *(.data1)
@@ -621,13 +629,12 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 
 .bss            0x0000000000037080    0xb19c8
  *(.dynbss)
- .dynbss        0x0000000000037080        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ .dynbss        0x0000000000037080        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
  *(.bss .bss.* .gnu.linkonce.b.*)
- .bss           0x0000000000037080        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
- .bss           0x0000000000037080        0x1 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtbeginS.o
+ .bss           0x0000000000037080        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
+ .bss           0x0000000000037080        0x1 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtbeginS.o
  *fill*         0x0000000000037081       0x1f 
- .bss           0x00000000000370a0     0x3798 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/main.o
- *fill*         0x000000000003a838        0x8 
+ .bss           0x00000000000370a0     0x37a0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/main.o
  .bss           0x000000000003a840    0x3c320 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_assets.o
  .bss           0x0000000000076b60        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_catch.o
  .bss           0x0000000000076b60        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_input.o
@@ -643,8 +650,8 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
  .bss           0x00000000000e8a48        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
  .bss           0x00000000000e8a48        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_resize.o)
  .bss           0x00000000000e8a48        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(xlcd_core.o)
- .bss           0x00000000000e8a48        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtendS.o
- .bss           0x00000000000e8a48        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
+ .bss           0x00000000000e8a48        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtendS.o
+ .bss           0x00000000000e8a48        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
  *(COMMON)
                 0x00000000000e8a48                . = ALIGN ((. != 0x0)?0x8:0x1)
 
@@ -686,7 +693,7 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 
 .comment        0x0000000000000000       0x1b
  *(.comment)
- .comment       0x0000000000000000       0x1b /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtbeginS.o
+ .comment       0x0000000000000000       0x1b /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtbeginS.o
                                          0x1c (size before relaxing)
  .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/main.o
                                          0x1c (size before relaxing)
@@ -720,7 +727,7 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
                                          0x1c (size before relaxing)
  .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(xlcd_core.o)
                                          0x1c (size before relaxing)
- .comment       0x000000000000001b        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtendS.o
+ .comment       0x000000000000001b        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtendS.o
                                          0x1c (size before relaxing)
 
 .gnu.build.attributes
@@ -776,99 +783,99 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000    0xad00e
+.debug_info     0x0000000000000000    0xad75b
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0x8cf9 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/main.o
- .debug_info    0x0000000000008cf9     0x934b /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_assets.o
- .debug_info    0x0000000000012044     0x77e8 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_catch.o
- .debug_info    0x000000000001982c     0x7c79 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_input.o
- .debug_info    0x00000000000214a5     0x7b9c /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_physics.o
- .debug_info    0x0000000000029041     0xdd9d /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_render.o
- .debug_info    0x0000000000036dde     0x83f5 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_state.o
- .debug_info    0x000000000003f1d3    0x26755 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_world.o
- .debug_info    0x0000000000065928     0x75a4 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_world_input.o
- .debug_info    0x000000000006cecc    0x106f6 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_world_render.o
- .debug_info    0x000000000007d5c2     0x7c93 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
- .debug_info    0x0000000000085255     0x824c /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(xlcd_draw.o)
- .debug_info    0x000000000008d4a1     0x89f7 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_bmp.o)
- .debug_info    0x0000000000095e98     0x7664 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
- .debug_info    0x000000000009d4fc     0x862d /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_resize.o)
- .debug_info    0x00000000000a5b29     0x74e5 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(xlcd_core.o)
+ .debug_info    0x0000000000000000     0x8cfa /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/main.o
+ .debug_info    0x0000000000008cfa     0x9426 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_assets.o
+ .debug_info    0x0000000000012120     0x77e8 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_catch.o
+ .debug_info    0x0000000000019908     0x7c79 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_input.o
+ .debug_info    0x0000000000021581     0x7b9c /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_physics.o
+ .debug_info    0x000000000002911d     0xdd6c /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_render.o
+ .debug_info    0x0000000000036e89     0x83fd /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_state.o
+ .debug_info    0x000000000003f286    0x268fc /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_world.o
+ .debug_info    0x0000000000065b82     0x75a4 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_world_input.o
+ .debug_info    0x000000000006d126    0x10be4 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_world_render.o
+ .debug_info    0x000000000007dd0a     0x7c93 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+ .debug_info    0x000000000008599d     0x8247 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(xlcd_draw.o)
+ .debug_info    0x000000000008dbe4     0x89e7 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_bmp.o)
+ .debug_info    0x00000000000965cb     0x7664 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
+ .debug_info    0x000000000009dc2f     0x8647 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_resize.o)
+ .debug_info    0x00000000000a6276     0x74e5 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(xlcd_core.o)
 
-.debug_abbrev   0x0000000000000000     0x4e21
+.debug_abbrev   0x0000000000000000     0x4e5b
  *(.debug_abbrev)
  .debug_abbrev  0x0000000000000000      0x430 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/main.o
- .debug_abbrev  0x0000000000000430      0x59c /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_assets.o
- .debug_abbrev  0x00000000000009cc      0x354 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_catch.o
- .debug_abbrev  0x0000000000000d20      0x46a /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_input.o
- .debug_abbrev  0x000000000000118a      0x3dc /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_physics.o
- .debug_abbrev  0x0000000000001566      0x72c /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_render.o
- .debug_abbrev  0x0000000000001c92      0x491 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_state.o
- .debug_abbrev  0x0000000000002123      0x7d6 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_world.o
- .debug_abbrev  0x00000000000028f9      0x2db /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_world_input.o
- .debug_abbrev  0x0000000000002bd4      0x7c6 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_world_render.o
- .debug_abbrev  0x000000000000339a      0x442 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
- .debug_abbrev  0x00000000000037dc      0x4de /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(xlcd_draw.o)
- .debug_abbrev  0x0000000000003cba      0x58e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_bmp.o)
- .debug_abbrev  0x0000000000004248      0x310 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
- .debug_abbrev  0x0000000000004558      0x5d8 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_resize.o)
- .debug_abbrev  0x0000000000004b30      0x2f1 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(xlcd_core.o)
+ .debug_abbrev  0x0000000000000430      0x5cd /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_assets.o
+ .debug_abbrev  0x00000000000009fd      0x354 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_catch.o
+ .debug_abbrev  0x0000000000000d51      0x46a /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_input.o
+ .debug_abbrev  0x00000000000011bb      0x3dc /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_physics.o
+ .debug_abbrev  0x0000000000001597      0x737 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_render.o
+ .debug_abbrev  0x0000000000001cce      0x491 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_state.o
+ .debug_abbrev  0x000000000000215f      0x824 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_world.o
+ .debug_abbrev  0x0000000000002983      0x2db /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_world_input.o
+ .debug_abbrev  0x0000000000002c5e      0x785 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_world_render.o
+ .debug_abbrev  0x00000000000033e3      0x442 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+ .debug_abbrev  0x0000000000003825      0x4cd /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(xlcd_draw.o)
+ .debug_abbrev  0x0000000000003cf2      0x58e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_bmp.o)
+ .debug_abbrev  0x0000000000004280      0x310 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
+ .debug_abbrev  0x0000000000004590      0x5da /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_resize.o)
+ .debug_abbrev  0x0000000000004b6a      0x2f1 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(xlcd_core.o)
 
-.debug_line     0x0000000000000000     0xefaf
+.debug_line     0x0000000000000000     0xf507
  *(.debug_line .debug_line.* .debug_line_end)
- .debug_line    0x0000000000000000      0x2d7 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/main.o
- .debug_line    0x00000000000002d7      0xd1d /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_assets.o
- .debug_line    0x0000000000000ff4      0x2a1 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_catch.o
- .debug_line    0x0000000000001295      0x51f /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_input.o
- .debug_line    0x00000000000017b4      0x4c7 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_physics.o
- .debug_line    0x0000000000001c7b     0x1030 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_render.o
- .debug_line    0x0000000000002cab      0x76e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_state.o
- .debug_line    0x0000000000003419     0x60d8 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_world.o
- .debug_line    0x00000000000094f1      0x309 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_world_input.o
- .debug_line    0x00000000000097fa     0x2c38 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_world_render.o
- .debug_line    0x000000000000c432      0x2bd /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
- .debug_line    0x000000000000c6ef      0x800 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(xlcd_draw.o)
- .debug_line    0x000000000000ceef      0xeae /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_bmp.o)
- .debug_line    0x000000000000dd9d      0x1eb /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
- .debug_line    0x000000000000df88      0xe51 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_resize.o)
- .debug_line    0x000000000000edd9      0x1d6 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(xlcd_core.o)
+ .debug_line    0x0000000000000000      0x2da /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/main.o
+ .debug_line    0x00000000000002da      0xd6f /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_assets.o
+ .debug_line    0x0000000000001049      0x2ae /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_catch.o
+ .debug_line    0x00000000000012f7      0x519 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_input.o
+ .debug_line    0x0000000000001810      0x4d5 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_physics.o
+ .debug_line    0x0000000000001ce5     0x1020 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_render.o
+ .debug_line    0x0000000000002d05      0x751 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_state.o
+ .debug_line    0x0000000000003456     0x63cf /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_world.o
+ .debug_line    0x0000000000009825      0x309 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_world_input.o
+ .debug_line    0x0000000000009b2e     0x2e90 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_world_render.o
+ .debug_line    0x000000000000c9be      0x2bd /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+ .debug_line    0x000000000000cc7b      0x801 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(xlcd_draw.o)
+ .debug_line    0x000000000000d47c      0xe76 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_bmp.o)
+ .debug_line    0x000000000000e2f2      0x1eb /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
+ .debug_line    0x000000000000e4dd      0xe54 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_resize.o)
+ .debug_line    0x000000000000f331      0x1d6 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(xlcd_core.o)
 
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0x985c
+.debug_str      0x0000000000000000     0x97bd
  *(.debug_str)
- .debug_str     0x0000000000000000     0x985c /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/main.o
+ .debug_str     0x0000000000000000     0x97bd /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/main.o
                                        0x62cb (size before relaxing)
- .debug_str     0x000000000000985c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_assets.o
+ .debug_str     0x00000000000097bd        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_assets.o
                                        0x56a8 (size before relaxing)
- .debug_str     0x000000000000985c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_catch.o
+ .debug_str     0x00000000000097bd        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_catch.o
                                        0x4a8b (size before relaxing)
- .debug_str     0x000000000000985c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_input.o
+ .debug_str     0x00000000000097bd        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_input.o
                                        0x4a7c (size before relaxing)
- .debug_str     0x000000000000985c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_physics.o
+ .debug_str     0x00000000000097bd        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_physics.o
                                        0x4b46 (size before relaxing)
- .debug_str     0x000000000000985c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_render.o
+ .debug_str     0x00000000000097bd        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_render.o
                                        0x53d0 (size before relaxing)
- .debug_str     0x000000000000985c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_state.o
+ .debug_str     0x00000000000097bd        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_state.o
                                        0x4fa0 (size before relaxing)
- .debug_str     0x000000000000985c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_world.o
-                                       0x7cbf (size before relaxing)
- .debug_str     0x000000000000985c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_world_input.o
+ .debug_str     0x00000000000097bd        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_world.o
+                                       0x7c33 (size before relaxing)
+ .debug_str     0x00000000000097bd        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_world_input.o
                                        0x4878 (size before relaxing)
- .debug_str     0x000000000000985c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_world_render.o
-                                       0x6a81 (size before relaxing)
- .debug_str     0x000000000000985c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+ .debug_str     0x00000000000097bd        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_world_render.o
+                                       0x6acd (size before relaxing)
+ .debug_str     0x00000000000097bd        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
                                        0x5134 (size before relaxing)
- .debug_str     0x000000000000985c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(xlcd_draw.o)
+ .debug_str     0x00000000000097bd        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(xlcd_draw.o)
                                        0x499a (size before relaxing)
- .debug_str     0x000000000000985c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_bmp.o)
+ .debug_str     0x00000000000097bd        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_bmp.o)
                                        0x52b5 (size before relaxing)
- .debug_str     0x000000000000985c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
+ .debug_str     0x00000000000097bd        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
                                        0x47db (size before relaxing)
- .debug_str     0x000000000000985c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_resize.o)
+ .debug_str     0x00000000000097bd        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_resize.o)
                                        0x519a (size before relaxing)
- .debug_str     0x000000000000985c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(xlcd_core.o)
+ .debug_str     0x00000000000097bd        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(xlcd_core.o)
                                        0x47ee (size before relaxing)
 
 .debug_loc
@@ -899,92 +906,92 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
  *(.debug_addr)
 
 .debug_line_str
-                0x0000000000000000      0xc67
+                0x0000000000000000      0xc31
  *(.debug_line_str)
  .debug_line_str
-                0x0000000000000000      0xc67 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/main.o
+                0x0000000000000000      0xc31 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/main.o
                                         0x650 (size before relaxing)
  .debug_line_str
-                0x0000000000000c67        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_assets.o
+                0x0000000000000c31        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_assets.o
                                         0x6ae (size before relaxing)
  .debug_line_str
-                0x0000000000000c67        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_catch.o
+                0x0000000000000c31        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_catch.o
                                         0x642 (size before relaxing)
  .debug_line_str
-                0x0000000000000c67        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_input.o
+                0x0000000000000c31        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_input.o
                                         0x642 (size before relaxing)
  .debug_line_str
-                0x0000000000000c67        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_physics.o
+                0x0000000000000c31        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_physics.o
                                         0x648 (size before relaxing)
  .debug_line_str
-                0x0000000000000c67        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_render.o
+                0x0000000000000c31        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_render.o
                                         0x698 (size before relaxing)
  .debug_line_str
-                0x0000000000000c67        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_state.o
+                0x0000000000000c31        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_state.o
                                         0x642 (size before relaxing)
  .debug_line_str
-                0x0000000000000c67        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_world.o
-                                        0x684 (size before relaxing)
+                0x0000000000000c31        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_world.o
+                                        0x69a (size before relaxing)
  .debug_line_str
-                0x0000000000000c67        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_world_input.o
+                0x0000000000000c31        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_world_input.o
                                         0x654 (size before relaxing)
  .debug_line_str
-                0x0000000000000c67        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_world_render.o
-                                        0x6eb (size before relaxing)
+                0x0000000000000c31        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_world_render.o
+                                        0x701 (size before relaxing)
  .debug_line_str
-                0x0000000000000c67        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+                0x0000000000000c31        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
                                         0x693 (size before relaxing)
  .debug_line_str
-                0x0000000000000c67        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(xlcd_draw.o)
+                0x0000000000000c31        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(xlcd_draw.o)
                                         0x62e (size before relaxing)
  .debug_line_str
-                0x0000000000000c67        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_bmp.o)
+                0x0000000000000c31        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_bmp.o)
                                         0x65c (size before relaxing)
  .debug_line_str
-                0x0000000000000c67        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
+                0x0000000000000c31        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
                                         0x636 (size before relaxing)
  .debug_line_str
-                0x0000000000000c67        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_resize.o)
+                0x0000000000000c31        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_resize.o)
                                         0x6a8 (size before relaxing)
  .debug_line_str
-                0x0000000000000c67        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(xlcd_core.o)
+                0x0000000000000c31        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(xlcd_core.o)
                                         0x627 (size before relaxing)
 
 .debug_loclists
-                0x0000000000000000     0xf52b
+                0x0000000000000000     0xf884
  *(.debug_loclists)
  .debug_loclists
-                0x0000000000000000       0x89 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/main.o
+                0x0000000000000000       0x76 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/main.o
  .debug_loclists
-                0x0000000000000089      0xb83 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_assets.o
+                0x0000000000000076      0xc04 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_assets.o
  .debug_loclists
-                0x0000000000000c0c       0xbe /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_catch.o
+                0x0000000000000c7a       0xf2 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_catch.o
  .debug_loclists
-                0x0000000000000cca      0x3dc /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_input.o
+                0x0000000000000d6c      0x3a2 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_input.o
  .debug_loclists
-                0x00000000000010a6      0x2be /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_physics.o
+                0x000000000000110e      0x2be /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_physics.o
  .debug_loclists
-                0x0000000000001364     0x137b /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_render.o
+                0x00000000000013cc     0x1366 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_render.o
  .debug_loclists
-                0x00000000000026df      0x56b /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_state.o
+                0x0000000000002732      0x57e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_state.o
  .debug_loclists
-                0x0000000000002c4a     0x5a7f /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_world.o
+                0x0000000000002cb0     0x55ed /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_world.o
  .debug_loclists
-                0x00000000000086c9       0x44 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_world_input.o
+                0x000000000000829d       0x44 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_world_input.o
  .debug_loclists
-                0x000000000000870d     0x2d82 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_world_render.o
+                0x00000000000082e1     0x333f /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_world_render.o
  .debug_loclists
-                0x000000000000b48f       0x9e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+                0x000000000000b620       0x9e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
  .debug_loclists
-                0x000000000000b52d      0xcd3 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(xlcd_draw.o)
+                0x000000000000b6be      0xd9f /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(xlcd_draw.o)
  .debug_loclists
-                0x000000000000c200     0x108a /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_bmp.o)
+                0x000000000000c45d     0x103e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_bmp.o)
  .debug_loclists
-                0x000000000000d28a       0xe4 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
+                0x000000000000d49b       0xe4 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
  .debug_loclists
-                0x000000000000d36e     0x2188 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_resize.o)
+                0x000000000000d57f     0x22d0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_resize.o)
  .debug_loclists
-                0x000000000000f4f6       0x35 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(xlcd_core.o)
+                0x000000000000f84f       0x35 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(xlcd_core.o)
 
 .debug_macro
  *(.debug_macro)
@@ -993,30 +1000,30 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
  *(.debug_names)
 
 .debug_rnglists
-                0x0000000000000000      0xaa7
+                0x0000000000000000      0xada
  *(.debug_rnglists)
  .debug_rnglists
                 0x0000000000000000       0x17 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/main.o
  .debug_rnglists
-                0x0000000000000017       0x47 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_assets.o
+                0x0000000000000017       0x32 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_assets.o
  .debug_rnglists
-                0x000000000000005e       0x41 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_input.o
+                0x0000000000000049       0x41 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_input.o
  .debug_rnglists
-                0x000000000000009f       0x32 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_physics.o
+                0x000000000000008a       0x32 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_physics.o
  .debug_rnglists
-                0x00000000000000d1      0x10e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_render.o
+                0x00000000000000bc       0xd9 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_render.o
  .debug_rnglists
-                0x00000000000001df       0x4a /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_state.o
+                0x0000000000000195       0x45 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_state.o
  .debug_rnglists
-                0x0000000000000229      0x47d /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_world.o
+                0x00000000000001da      0x4fc /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_world.o
  .debug_rnglists
-                0x00000000000006a6      0x284 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_world_render.o
+                0x00000000000006d6      0x2a4 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pocketcatch/pc_world_render.o
  .debug_rnglists
-                0x000000000000092a       0x2c /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(xlcd_draw.o)
+                0x000000000000097a       0x37 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(xlcd_draw.o)
  .debug_rnglists
-                0x0000000000000956       0x6d /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_bmp.o)
+                0x00000000000009b1       0x74 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_bmp.o)
  .debug_rnglists
-                0x00000000000009c3       0xe4 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_resize.o)
+                0x0000000000000a25       0xb5 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_resize.o)
 
 .debug_str_offsets
  *(.debug_str_offsets)

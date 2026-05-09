@@ -159,7 +159,8 @@ void iap_handlepkt_mode2(const unsigned int len, const unsigned char *buf)
                 if(buf[2] & 16)
                     REMOTE_BUTTON(BUTTON_RC_LEFT);
             }
-            else if(len >= 4 && buf[3] != 0)
+
+            if(len >= 4 && buf[3] != 0)
             {
                 if(buf[3] & 1) /* play */
                 {
@@ -190,7 +191,8 @@ void iap_handlepkt_mode2(const unsigned int len, const unsigned char *buf)
                     }
                 }
             }
-            else if(len >= 5 && buf[4] != 0)
+
+            if(len >= 5 && buf[4] != 0)
             {
                 if(buf[4] & 1) /* repeat */
                 {
@@ -225,7 +227,8 @@ void iap_handlepkt_mode2(const unsigned int len, const unsigned char *buf)
                 if(buf[4] & 128) /* select */
                     REMOTE_BUTTON(BUTTON_RC_SELECT);
             }
-            else if(len >= 6 && buf[5] != 0)
+
+            if(len >= 6 && buf[5] != 0)
             {
                 if(buf[5] & 1) /* up */
                     REMOTE_BUTTON(BUTTON_RC_UP);

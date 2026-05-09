@@ -11,7 +11,7 @@ from PySide6.QtWidgets import (
     QApplication, QMessageBox, QInputDialog, QMenu, QStackedWidget, QFileDialog,
     QProgressDialog,
 )
-from PySide6.QtCore import QEventLoop, Qt, QTimer, Slot
+from PySide6.QtCore import QEventLoop, QProcess, Qt, QTimer, Slot
 from PySide6.QtGui import QAction, QIcon
 
 from app.config import Config
@@ -48,6 +48,7 @@ from services.rockbox_device import (
 from services.rockbox_deploy import RockboxDeployService
 from services.rockbox_boot import RockboxBootService
 from services.rockbox_games import RockboxGameService
+from services.rockbox_photos import RockboxPhotoService
 from services.ipone_wallpapers import IPoneWallpaperService
 from services.rockbox_profiles import RockboxProfileStore
 from services.rockbox_plugins import RockboxPluginService
@@ -72,6 +73,7 @@ from ui.track_adapter import normalize_track_for_ui, normalize_tracks_for_ui
 from ui.simulator_panel import SimulatorPanel
 from ui.plugin_manager import PluginManagerWidget
 from ui.game_manager import GameManagerWidget
+from ui.photo_manager import PhotoManagerWidget
 from ui.ipone_wallpaper_manager import IPoneWallpaperManagerWidget
 from ui.web_browser import BrowserPanel
 from ui.boot_manager import BootManagerWidget
@@ -122,6 +124,7 @@ class MainWindow(QMainWindow):
         self._rockbox_deploy = RockboxDeployService()
         self._rockbox_boot = RockboxBootService()
         self._rockbox_games = RockboxGameService()
+        self._rockbox_photos = RockboxPhotoService()
         self._ipone_wallpapers_service = IPoneWallpaperService()
         self._rockbox_plugins = RockboxPluginService()
         self._rockbox_simulator = RockboxSimulatorService()
@@ -160,6 +163,8 @@ class MainWindow(QMainWindow):
         self._current_plugin_id = ""
         self._current_game_diff = None
         self._current_game_target_mode = "device"
+        self._current_photo_diff = None
+        self._current_photo_target_mode = "device"
         self._current_simulator_diff = None
         self._simulator_targets = []
         self._rockbox_db_update_started_at = None
@@ -269,6 +274,7 @@ class MainWindow(QMainWindow):
         self._boot_manager = BootManagerWidget()
         self._plugin_manager = PluginManagerWidget()
         self._game_manager = GameManagerWidget()
+        self._photo_manager = PhotoManagerWidget()
         self._browser_panel = BrowserPanel()
         self._simulator_panel = SimulatorPanel()
         self._device_summary.set_options(
@@ -292,6 +298,7 @@ class MainWindow(QMainWindow):
         self._content_stack.addWidget(self._boot_manager)
         self._content_stack.addWidget(self._plugin_manager)
         self._content_stack.addWidget(self._game_manager)
+        self._content_stack.addWidget(self._photo_manager)
         self._content_stack.addWidget(self._browser_panel)
         self._content_stack.addWidget(self._simulator_panel)
         content_layout.addWidget(self._content_stack)
@@ -409,6 +416,7 @@ class MainWindow(QMainWindow):
         self._theme_hub.restore_requested.connect(self._restore_theme_backup)
         self._theme_hub.use_connected_device_requested.connect(self._use_connected_device_for_profile)
         self._ipone_wallpapers.profile_selected.connect(self._on_ipone_wallpaper_profile_selected)
+        self._ipone_wallpapers.theme_selected.connect(self._on_ipone_wallpaper_theme_selected)
         self._ipone_wallpapers.apply_requested.connect(self._apply_ipone_wallpapers)
         self._ipone_wallpapers.import_requested.connect(self._import_ipone_wallpaper)
         self._ipone_wallpapers.remove_requested.connect(self._remove_ipone_wallpaper)
@@ -450,6 +458,14 @@ class MainWindow(QMainWindow):
         self._game_manager.fetch_metadata_requested.connect(self._fetch_selected_game_metadata)
         self._game_manager.optimize_cover_requested.connect(self._optimize_selected_game_cover)
         self._game_manager.launch_simulator_requested.connect(self._launch_selected_game_in_simulator)
+        self._photo_manager.profile_selected.connect(self._on_photo_profile_selected)
+        self._photo_manager.target_mode_selected.connect(self._on_photo_target_mode_selected)
+        self._photo_manager.choose_library_requested.connect(self._choose_photo_library)
+        self._photo_manager.refresh_requested.connect(self._refresh_photo_manager)
+        self._photo_manager.selection_changed.connect(self._on_photo_selection_changed)
+        self._photo_manager.dry_run_requested.connect(self._dry_run_photo_sync)
+        self._photo_manager.sync_requested.connect(self._sync_selected_photos)
+        self._photo_manager.remove_requested.connect(self._remove_selected_photos)
         self._browser_panel.open_external_requested.connect(self._open_browser_external)
         self._simulator_panel.profile_selected.connect(self._on_simulator_profile_selected)
         self._simulator_panel.simulator_selected.connect(self._on_simulator_target_selected)
@@ -753,6 +769,8 @@ class MainWindow(QMainWindow):
             tracks = []
         elif self._current_view == "rockbox_games":
             tracks = []
+        elif self._current_view == "rockbox_photos":
+            tracks = []
         elif self._current_view == "rockbox_browser":
             tracks = []
         elif self._current_view == "rockbox_simulator":
@@ -903,6 +921,7 @@ class MainWindow(QMainWindow):
             "rockbox_boot": "Boot / Branding",
             "rockbox_plugins": "Plugins",
             "rockbox_games": "Games",
+            "rockbox_photos": "Photos",
             "rockbox_browser": "Store",
             "rockbox_simulator": "Simulator",
             "device_root": "Device",
@@ -1067,6 +1086,9 @@ class MainWindow(QMainWindow):
         elif self._current_view == "rockbox_games":
             self._content_stack.setCurrentWidget(self._game_manager)
             self._refresh_game_manager()
+        elif self._current_view == "rockbox_photos":
+            self._content_stack.setCurrentWidget(self._photo_manager)
+            self._refresh_photo_manager()
         elif self._current_view == "rockbox_browser":
             self._content_stack.setCurrentWidget(self._browser_panel)
             self._refresh_browser_panel()
@@ -2392,6 +2414,8 @@ class MainWindow(QMainWindow):
             self._refresh_plugin_manager()
         elif self._current_view == "rockbox_games":
             self._refresh_game_manager()
+        elif self._current_view == "rockbox_photos":
+            self._refresh_photo_manager()
         elif self._current_view == "rockbox_simulator":
             self._refresh_simulator_panel()
 
@@ -3127,19 +3151,34 @@ class MainWindow(QMainWindow):
         profile = self._rockbox_profiles.current_profile()
         if not profile:
             self._ipone_wallpapers.set_clock_position("center", supported=False)
+            self._ipone_wallpapers.set_themes([], "")
             self._ipone_wallpapers.set_candidates([], [])
             return
+        themes = self._rockbox_themes.list_themes(
+            profile["source_repo_path"],
+            profile["screen_resolution"],
+            profile.get("target_device_model", ""),
+        )
+        selected_theme = profile.get("selected_theme") or (themes[0]["id"] if themes else "")
+        if themes and not any(item["id"] == selected_theme for item in themes):
+            selected_theme = themes[0]["id"]
+            profile["selected_theme"] = selected_theme
+            self._rockbox_profiles.save_profile(profile)
+        self._ipone_wallpapers.set_themes(themes, selected_theme)
+        wallpaper_profile = dict(profile)
+        if selected_theme:
+            wallpaper_profile["selected_theme"] = selected_theme
         supports_clock_position = (
-            str(profile.get("screen_resolution") or "").strip() == "320x240"
-            and "nano2g" not in str(profile.get("selected_theme") or "").strip().lower()
+            str(wallpaper_profile.get("screen_resolution") or "").strip() == "320x240"
+            and "nano2g" not in str(wallpaper_profile.get("selected_theme") or "").strip().lower()
         )
         self._ipone_wallpapers.set_clock_position(
-            profile.get("lockscreen_clock_position", "center"),
+            wallpaper_profile.get("lockscreen_clock_position", "center"),
             supported=supports_clock_position,
         )
         candidates = self._ipone_wallpapers_service.list_candidates(
-            profile["source_repo_path"],
-            profile,
+            wallpaper_profile["source_repo_path"],
+            wallpaper_profile,
         )
         self._ipone_wallpapers.set_candidates(
             candidates.get("lock", []),
@@ -3148,6 +3187,20 @@ class MainWindow(QMainWindow):
 
     def _on_ipone_wallpaper_profile_selected(self, profile_id):
         self._rockbox_profiles.set_selected_profile(profile_id)
+        self._refresh_theme_hub()
+        self._refresh_ipone_wallpapers()
+        self._refresh_theme_designer()
+        self._refresh_boot_manager()
+        self._refresh_plugin_manager()
+        self._refresh_game_manager()
+        self._refresh_simulator_panel()
+
+    def _on_ipone_wallpaper_theme_selected(self, theme_id):
+        profile = self._rockbox_profiles.current_profile()
+        if not profile:
+            return
+        profile["selected_theme"] = theme_id
+        self._rockbox_profiles.save_profile(profile)
         self._refresh_theme_hub()
         self._refresh_ipone_wallpapers()
         self._refresh_theme_designer()
@@ -3170,6 +3223,10 @@ class MainWindow(QMainWindow):
             return
         lock_source = str(selection.get("lock_source") or "").strip()
         charge_source = str(selection.get("charge_source") or "").strip()
+        theme_id = str(selection.get("theme_id") or "").strip()
+        if theme_id and theme_id != profile.get("selected_theme"):
+            profile["selected_theme"] = theme_id
+            self._rockbox_profiles.save_profile(profile)
         clock_position = str(
             selection.get("clock_position") or profile.get("lockscreen_clock_position") or "center"
         ).strip().lower()
@@ -3187,7 +3244,7 @@ class MainWindow(QMainWindow):
 
         summary = diff["summary"]
         lines = [
-            f"Apply wallpapers to {profile['name']}?",
+            f"Apply wallpapers to {profile['name']} ({profile.get('selected_theme', 'theme')})?",
             "",
             f"Add {summary['add']} files",
             f"Overwrite {summary['overwrite']} files",
@@ -3277,7 +3334,7 @@ class MainWindow(QMainWindow):
         if not source_path:
             return
         if not candidate.get("removable"):
-            QMessageBox.information(self, "Remove Wallpaper", "Built-in iPone wallpapers cannot be removed.")
+            QMessageBox.information(self, "Remove Wallpaper", "Built-in theme wallpapers cannot be removed.")
             return
         reply = QMessageBox.question(
             self,
@@ -3313,6 +3370,7 @@ class MainWindow(QMainWindow):
         themes = self._rockbox_themes.list_themes(
             profile["source_repo_path"],
             profile["screen_resolution"],
+            profile.get("target_device_model", ""),
         )
         if not themes:
             self._current_theme_diff = None
@@ -3322,6 +3380,8 @@ class MainWindow(QMainWindow):
         selected_theme = profile.get("selected_theme") or themes[0]["id"]
         if not any(item["id"] == selected_theme for item in themes):
             selected_theme = themes[0]["id"]
+            profile["selected_theme"] = selected_theme
+            self._rockbox_profiles.save_profile(profile)
         self._theme_hub.set_themes(themes, selected_theme)
         self._set_theme_details(profile, selected_theme)
 
@@ -3823,7 +3883,7 @@ class MainWindow(QMainWindow):
                         os.path.join(self._config.cache_dir, "boot_staging"),
                     )
                     diff = self._rockbox_deploy.build_diff(self._rockbox_boot.source_profile(profile), bundle)
-                    destination_rel = "repo boot assets -> rockbox.ipod"
+                    destination_rel = "repo boot assets -> make fullinstall"
                 else:
                     deploy_profile = self._rockbox_boot.deploy_profile(profile, self._current_boot_target_mode, sim_target)
                     destination_rel = f".rockbox/rockpod/boot/branding/{profile['screen_resolution']}/boot-logo.bmp"
@@ -3891,46 +3951,158 @@ class MainWindow(QMainWindow):
             ),
         )
 
+    def _show_boot_progress(self, title, label, total=4):
+        progress = QProgressDialog(label, None, 0, max(total, 1), self)
+        progress.setWindowTitle(title)
+        progress.setWindowModality(Qt.WindowModal)
+        progress.setMinimumDuration(0)
+        progress.setAutoClose(False)
+        progress.setAutoReset(False)
+        progress.setCancelButton(None)
+        progress.setValue(0)
+        progress.show()
+        QApplication.processEvents()
+        return progress
+
+    def _update_boot_progress(self, progress, current, total, label, busy=False):
+        if progress is not None:
+            if busy:
+                progress.setRange(0, 0)
+            else:
+                progress.setRange(0, max(total, 1))
+                progress.setValue(min(max(current, 0), max(total, 1)))
+            progress.setLabelText(label or "Updating Rockbox boot branding...")
+        if label:
+            self._status_bar.set_left_text(label)
+        QApplication.processEvents()
+
+    def _close_boot_progress(self, progress):
+        if progress is not None:
+            progress.close()
+            progress.deleteLater()
+            QApplication.processEvents()
+
+    def _run_boot_process(self, command, progress, label):
+        self._update_boot_progress(progress, 0, 0, label, busy=True)
+        process = QProcess(self)
+        process.setProcessChannelMode(QProcess.MergedChannels)
+        output_parts = []
+
+        def read_output():
+            data = bytes(process.readAllStandardOutput()).decode("utf-8", "replace")
+            if not data:
+                return
+            output_parts.append(data)
+            lines = [line.strip() for line in data.splitlines() if line.strip()]
+            if lines:
+                self._update_boot_progress(progress, 0, 0, lines[-1][:160], busy=True)
+
+        loop = QEventLoop(self)
+        process.readyReadStandardOutput.connect(read_output)
+        process.finished.connect(lambda _code, _status: loop.quit())
+        process.errorOccurred.connect(lambda _error: loop.quit())
+        process.start(command[0], command[1:])
+        if not process.waitForStarted(3000):
+            return {
+                "returncode": 127,
+                "stdout": "".join(output_parts),
+                "stderr": process.errorString(),
+            }
+        loop.exec()
+        read_output()
+        return {
+            "returncode": process.exitCode(),
+            "stdout": "".join(output_parts),
+            "stderr": process.errorString() if process.exitStatus() != QProcess.NormalExit else "",
+        }
+
+    def _full_install_runtime_firmware(self, profile, progress=None):
+        build_dir = self._rockbox_boot.firmware_build_dir(profile)
+        mount_path = os.path.abspath(profile.get("device_mount_path") or "")
+        if not build_dir:
+            return {"success": False, "artifact_path": "", "message": "No Rockbox build directory found for this profile"}
+        if not mount_path or not os.path.isdir(mount_path):
+            return {"success": False, "artifact_path": "", "message": "Mounted device path does not exist"}
+
+        artifact_path = os.path.join(build_dir, "rockbox.ipod")
+        build = self._run_boot_process(
+            ["make", "-C", build_dir, "-j4", artifact_path],
+            progress,
+            "Building rockbox.ipod...",
+        )
+        if build["returncode"] != 0 or not os.path.isfile(artifact_path):
+            details = "\n".join(part for part in (build.get("stderr", ""), build.get("stdout", "")) if part.strip())
+            return {
+                "success": False,
+                "artifact_path": "",
+                "message": details[:4000] if details else "Firmware rebuild failed",
+            }
+
+        install = self._run_boot_process(
+            ["make", "-C", build_dir, f"PREFIX={mount_path}", "fullinstall"],
+            progress,
+            "Installing full Rockbox setup to iPod...",
+        )
+        if install["returncode"] != 0:
+            details = "\n".join(part for part in (install.get("stderr", ""), install.get("stdout", "")) if part.strip())
+            return {
+                "success": False,
+                "artifact_path": "",
+                "message": details[:4000] if details else "Rockbox full install failed",
+            }
+        self._update_boot_progress(progress, 4, 4, "Full install complete")
+        return {"success": True, "artifact_path": artifact_path, "message": ""}
+
     def _apply_boot_deploy(self):
         profile = self._rockbox_profiles.current_profile()
         if not profile or not self._current_boot_diff:
             self._status_bar.set_left_text("No boot branding deploy available")
             return
+        sim_target = self._simulator_target_by_id(profile.get("simulator_target"))
         if self._current_boot_target_mode == "device":
-            source_result = self._rockbox_deploy.apply_diff(
-                self._rockbox_boot.source_profile(profile),
-                self._current_boot_diff,
+            progress = self._show_boot_progress(
+                "Apply Boot Branding",
+                "Updating local Rockbox boot image sources...",
             )
-            if not source_result["success"]:
-                self._status_bar.set_left_text("Boot branding source update failed")
-                QMessageBox.warning(self, "Boot Branding Failed", "\n".join(source_result["failures"]))
-                self._refresh_boot_manager()
-                return
-            firmware_result = self._rebuild_and_deploy_runtime_firmware(profile)
-            if not firmware_result["success"]:
-                self._status_bar.set_left_text("Boot branding build failed")
-                QMessageBox.warning(self, "Boot Branding Failed", firmware_result["message"])
-                self._refresh_boot_manager()
-                return
+            try:
+                self._update_boot_progress(progress, 1, 4, "Updating local Rockbox boot image sources...")
+                source_result = self._rockbox_deploy.apply_diff(
+                    self._rockbox_boot.source_profile(profile),
+                    self._current_boot_diff,
+                )
+                if not source_result["success"]:
+                    self._status_bar.set_left_text("Boot branding source update failed")
+                    QMessageBox.warning(self, "Boot Branding Failed", "\n".join(source_result["failures"]))
+                    self._refresh_boot_manager()
+                    return
+                self._update_boot_progress(progress, 2, 4, "Invalidating generated boot image outputs...")
+                self._rockbox_boot.invalidate_firmware_boot_assets(profile)
+                firmware_result = self._full_install_runtime_firmware(profile, progress)
+                if not firmware_result["success"]:
+                    self._status_bar.set_left_text("Boot branding full install failed")
+                    QMessageBox.warning(self, "Boot Branding Failed", firmware_result["message"])
+                    self._refresh_boot_manager()
+                    return
+            finally:
+                self._close_boot_progress(progress)
 
             source_note = ""
             if source_result["copied_count"] == 0:
                 source_note = "No boot source files changed; the rendered boot assets already matched.\n"
 
-            self._status_bar.set_left_text("Boot branding rebuilt and deployed")
+            self._status_bar.set_left_text("Boot branding rebuilt and full installed")
             QMessageBox.information(
                 self,
                 "Boot Branding Updated",
                 (
                     f"{source_note}"
                     f"Updated {source_result['copied_count']} boot source files\n"
-                    f"Copied {firmware_result.get('copied_count', 0)} firmware file(s)\n"
-                    f"Rebuilt and deployed rockbox.ipod to {profile['device_mount_path']}"
+                    f"Built {os.path.basename(firmware_result.get('artifact_path') or 'rockbox.ipod')}\n"
+                    f"Ran fullinstall to {profile['device_mount_path']}"
                 ),
             )
             self._refresh_boot_manager()
             return
-        sim_target = self._simulator_target_by_id(profile.get("simulator_target"))
         deploy_profile = self._rockbox_boot.deploy_profile(profile, self._current_boot_target_mode, sim_target)
         result = self._rockbox_deploy.apply_diff(deploy_profile, self._current_boot_diff)
         if result["success"]:
@@ -3949,27 +4121,37 @@ class MainWindow(QMainWindow):
         profile = self._rockbox_profiles.current_profile()
         if not profile:
             return
+        sim_target = self._simulator_target_by_id(profile.get("simulator_target"))
         if self._current_boot_target_mode == "device":
             result = self._rockbox_deploy.restore_latest_backup(self._rockbox_boot.source_profile(profile))
             if result["success"]:
-                firmware_result = self._rebuild_and_deploy_runtime_firmware(profile)
-                if not firmware_result["success"]:
-                    self._status_bar.set_left_text("Boot branding restore build failed")
-                    QMessageBox.warning(self, "Restore Failed", firmware_result["message"])
-                    self._refresh_boot_manager()
-                    return
-                self._status_bar.set_left_text("Restored boot branding and redeployed firmware")
+                progress = self._show_boot_progress(
+                    "Restore Boot Branding",
+                    "Invalidating generated boot image outputs...",
+                    total=3,
+                )
+                try:
+                    self._update_boot_progress(progress, 1, 3, "Invalidating generated boot image outputs...")
+                    self._rockbox_boot.invalidate_firmware_boot_assets(profile)
+                    firmware_result = self._full_install_runtime_firmware(profile, progress)
+                    if not firmware_result["success"]:
+                        self._status_bar.set_left_text("Boot branding restore full install failed")
+                        QMessageBox.warning(self, "Restore Failed", firmware_result["message"])
+                        self._refresh_boot_manager()
+                        return
+                finally:
+                    self._close_boot_progress(progress)
+                self._status_bar.set_left_text("Restored boot branding and full installed Rockbox")
                 QMessageBox.information(
                     self,
                     "Boot Branding Restored",
-                    f"Restored {result['restored_count']} source files and redeployed rockbox.ipod",
+                    f"Restored {result['restored_count']} source files and ran fullinstall",
                 )
             else:
                 self._status_bar.set_left_text("Boot branding restore failed")
                 QMessageBox.warning(self, "Restore Failed", "\n".join(result["failures"]))
             self._refresh_boot_manager()
             return
-        sim_target = self._simulator_target_by_id(profile.get("simulator_target"))
         deploy_profile = self._rockbox_boot.deploy_profile(profile, self._current_boot_target_mode, sim_target)
         result = self._rockbox_deploy.restore_latest_backup(deploy_profile)
         if result["success"]:
@@ -3983,6 +4165,149 @@ class MainWindow(QMainWindow):
             self._status_bar.set_left_text("Boot branding restore failed")
             QMessageBox.warning(self, "Restore Failed", "\n".join(result["failures"]))
         self._refresh_boot_manager()
+
+    # ═══════════════════════════════════════════════════════════════
+    # Rockbox photos
+    # ═══════════════════════════════════════════════════════════════
+
+    def _refresh_photo_manager(self):
+        if not self._simulator_targets:
+            self._simulator_targets = self._rockbox_simulator.discover_targets(self._repo_root)
+        profiles = self._rockbox_profiles.profiles()
+        selected_id = self._rockbox_profiles.selected_profile_id()
+        self._photo_manager.set_profiles(profiles, selected_id)
+        profile = self._rockbox_profiles.current_profile()
+        if not profile:
+            self._current_photo_diff = None
+            self._photo_manager.set_photos([])
+            self._photo_manager.set_selection_details([])
+            return
+        sim_target = self._simulator_target_by_id(profile.get("simulator_target")) if self._simulator_targets else None
+        self._photo_manager.set_targets(
+            self._current_photo_target_mode,
+            bool(profile.get("device_mount_path")),
+            bool(sim_target or profile.get("simulator_simdisk_path")),
+        )
+        target_mode = self._photo_manager.current_target_mode()
+        target_root = self._rockbox_photos.target_root(profile, target_mode, sim_target)
+        photos = self._rockbox_photos.list_photos(profile, sim_target)
+        selected_ids = [photo["id"] for photo in self._photo_manager.selected_photos()]
+        self._photo_manager.set_library_state(
+            profile.get("photos_library_path", ""),
+            target_root,
+            f"{len(photos)} photos indexed",
+        )
+        self._photo_manager.set_photos(photos, selected_ids)
+        self._on_photo_selection_changed()
+
+    def _on_photo_profile_selected(self, profile_id):
+        self._rockbox_profiles.set_selected_profile(profile_id)
+        self._refresh_theme_hub()
+        self._refresh_boot_manager()
+        self._refresh_plugin_manager()
+        self._refresh_game_manager()
+        self._refresh_photo_manager()
+        self._refresh_simulator_panel()
+        self._refresh_browser_panel()
+
+    def _on_photo_target_mode_selected(self, target_mode):
+        self._current_photo_target_mode = target_mode or "device"
+        self._refresh_photo_manager()
+
+    def _choose_photo_library(self):
+        profile = self._rockbox_profiles.current_profile()
+        if not profile:
+            return
+        path = QFileDialog.getExistingDirectory(
+            self,
+            "Choose Photo Folder",
+            profile.get("photos_library_path") or self._config.get("photos_library_path", ""),
+        )
+        if not path:
+            return
+        profile["photos_library_path"] = path
+        self._rockbox_profiles.save_profile(profile)
+        self._refresh_photo_manager()
+
+    def _on_photo_selection_changed(self):
+        profile = self._rockbox_profiles.current_profile()
+        photos = self._photo_manager.selected_photos()
+        if not profile or not photos:
+            self._current_photo_diff = None
+            self._photo_manager.set_selection_details([], None)
+            return
+        sim_target = self._simulator_target_by_id(profile.get("simulator_target"))
+        deploy_profile = self._rockbox_photos.deploy_profile(profile, self._current_photo_target_mode, sim_target)
+        bundle = self._rockbox_photos.build_sync_bundle(profile, photos, self._current_photo_target_mode)
+        try:
+            diff = self._rockbox_deploy.build_diff(deploy_profile, bundle)
+        except ValueError:
+            diff = None
+        self._current_photo_diff = diff
+        self._photo_manager.set_selection_details(photos, diff["summary"] if diff else None)
+
+    def _dry_run_photo_sync(self):
+        if not self._current_photo_diff:
+            self._status_bar.set_left_text("No photo sync diff available")
+            return
+        summary = self._current_photo_diff["summary"]
+        QMessageBox.information(
+            self,
+            "Photo Sync Dry Run",
+            "\n".join(
+                [
+                    f"Add: {summary['add']}",
+                    f"Overwrite: {summary['overwrite']}",
+                    f"Remove: {summary.get('remove', 0)}",
+                    f"Unchanged: {summary['unchanged']}",
+                    f"Missing: {summary['missing_source']}",
+                ]
+            ),
+        )
+
+    def _sync_selected_photos(self):
+        profile = self._rockbox_profiles.current_profile()
+        photos = self._photo_manager.selected_photos()
+        if not profile or not photos or not self._current_photo_diff:
+            self._status_bar.set_left_text("No selected photos to sync")
+            return
+        sim_target = self._simulator_target_by_id(profile.get("simulator_target"))
+        deploy_profile = self._rockbox_photos.deploy_profile(profile, self._current_photo_target_mode, sim_target)
+        result = self._rockbox_deploy.apply_diff(deploy_profile, self._current_photo_diff)
+        if result["success"]:
+            self._status_bar.set_left_text(f"Photos synced: {result['copied_count']} files")
+            QMessageBox.information(
+                self,
+                "Photos Synced",
+                f"Copied {result['copied_count']} files\nBackup: {result['backup_dir']}",
+            )
+        else:
+            self._status_bar.set_left_text("Photo sync failed")
+            QMessageBox.warning(self, "Photo Sync Failed", "\n".join(result["failures"]))
+        self._refresh_photo_manager()
+
+    def _remove_selected_photos(self):
+        profile = self._rockbox_profiles.current_profile()
+        photos = self._photo_manager.selected_photos()
+        if not profile or not photos:
+            self._status_bar.set_left_text("No selected photos to remove")
+            return
+        sim_target = self._simulator_target_by_id(profile.get("simulator_target"))
+        deploy_profile = self._rockbox_photos.deploy_profile(profile, self._current_photo_target_mode, sim_target)
+        bundle = self._rockbox_photos.build_remove_bundle(profile, photos, self._current_photo_target_mode)
+        diff = self._rockbox_deploy.build_diff(deploy_profile, bundle)
+        result = self._rockbox_deploy.apply_diff(deploy_profile, diff)
+        if result["success"]:
+            self._status_bar.set_left_text(f"Photos removed: {result['copied_count']} files")
+            QMessageBox.information(
+                self,
+                "Photos Removed",
+                f"Removed {result['copied_count']} photo file(s)\nBackup: {result['backup_dir']}",
+            )
+        else:
+            self._status_bar.set_left_text("Photo remove failed")
+            QMessageBox.warning(self, "Photo Remove Failed", "\n".join(result["failures"]))
+        self._refresh_photo_manager()
 
     # ═══════════════════════════════════════════════════════════════
     # Rockboy games

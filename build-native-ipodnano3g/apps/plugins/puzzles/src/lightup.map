@@ -761,9 +761,9 @@ Discarded input sections
                 0x0000000000000000       0x5e /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/puzzles/src/misc.o
  .text.n_times_root_k
                 0x0000000000000000      0x13c /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/puzzles/src/misc.o
- .rodata.black.13465
+ .rodata.black.13467
                 0x0000000000000000        0xc /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/puzzles/src/misc.o
- .rodata.white.13466
+ .rodata.white.13468
                 0x0000000000000000        0xc /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/puzzles/src/misc.o
  .text          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/puzzles/src/penrose.o
  .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/puzzles/src/penrose.o
@@ -834,13 +834,13 @@ Discarded input sections
                 0x0000000000000000       0x20 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/puzzles/src/penrose.o
  .rodata.CSWTCH.387
                 0x0000000000000000       0x64 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/puzzles/src/penrose.o
- .rodata.acute_post_edge.13890
+ .rodata.acute_post_edge.13892
                 0x0000000000000000       0x30 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/puzzles/src/penrose.o
- .rodata.invphi.13989
+ .rodata.invphi.13991
                 0x0000000000000000       0x10 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/puzzles/src/penrose.o
- .rodata.obtuse_post_edge.13891
+ .rodata.obtuse_post_edge.13893
                 0x0000000000000000       0x30 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/puzzles/src/penrose.o
- .rodata.phi.13988
+ .rodata.phi.13990
                 0x0000000000000000       0x10 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/puzzles/src/penrose.o
  .ARM.attributes
                 0x0000000000000000       0x2c /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/puzzles/src/penrose.o
@@ -2346,17 +2346,17 @@ LOAD /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a
  .rodata.str1.4
                 0x0000000009e11d0c      0x2ea /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/puzzles/rockbox.o
  *fill*         0x0000000009e11ff6        0x2 
- .rodata.menu.14272
+ .rodata.menu.14274
                 0x0000000009e11ff8        0xc /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/puzzles/rockbox.o
- .rodata.menu.14331
+ .rodata.menu.14333
                 0x0000000009e12004        0xc /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/puzzles/rockbox.o
- .rodata.menu.14499
+ .rodata.menu.14501
                 0x0000000009e12010        0xc /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/puzzles/rockbox.o
- .rodata.menu__.14271
+ .rodata.menu__.14273
                 0x0000000009e1201c        0xc /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/puzzles/rockbox.o
- .rodata.menu__.14330
+ .rodata.menu__.14332
                 0x0000000009e12028        0xc /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/puzzles/rockbox.o
- .rodata.menu__.14498
+ .rodata.menu__.14500
                 0x0000000009e12034        0xc /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/puzzles/rockbox.o
  .rodata.rb_drawing
                 0x0000000009e12040       0x68 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/puzzles/rockbox.o
@@ -2365,7 +2365,7 @@ LOAD /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a
                 0x0000000009e120a8        0xf /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/puzzles/rbwrappers.o
                                          0x13 (size before relaxing)
  *fill*         0x0000000009e120b7        0x1 
- .rodata.basefix.13628
+ .rodata.basefix.13630
                 0x0000000009e120b8       0x22 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/puzzles/rbwrappers.o
  *fill*         0x0000000009e120da        0x2 
  .rodata.smalloc.str1.4
@@ -2556,7 +2556,7 @@ LOAD /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a
 
 .data           0x0000000009e13b14      0x1e4
  *(.data*)
- .data.draw_blobs_when_lit.14209
+ .data.draw_blobs_when_lit.14211
                 0x0000000009e13b14        0x4 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/puzzles/src/lightup.o
  .data.help_text_style
                 0x0000000009e13b18       0x28 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/puzzles/help/lightup.o
@@ -2566,42 +2566,42 @@ LOAD /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a
  *fill*         0x0000000009e13b41        0x3 
  .data.access_counter
                 0x0000000009e13b44        0x4 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/puzzles/rockbox.o
- .data.allow_repeats.14403
+ .data.allow_repeats.14405
                 0x0000000009e13b48        0x8 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/puzzles/rockbox.o
  .data.cur_font
                 0x0000000009e13b50        0x4 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/puzzles/rockbox.o
- .data.def.14213
+ .data.def.14215
                 0x0000000009e13b54        0xa /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/puzzles/rockbox.o
  *fill*         0x0000000009e13b5e        0x2 
- .data.falling_edge.14402
+ .data.falling_edge.14404
                 0x0000000009e13b60        0x8 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/puzzles/rockbox.o
- .data.force_center_games.14408
+ .data.force_center_games.14410
                 0x0000000009e13b68        0x8 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/puzzles/rockbox.o
- .data.menu_.14270
+ .data.menu_.14272
                 0x0000000009e13b70       0x40 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/puzzles/rockbox.o
- .data.menu_.14329
+ .data.menu_.14331
                 0x0000000009e13bb0       0x40 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/puzzles/rockbox.o
- .data.menu_.14497
+ .data.menu_.14499
                 0x0000000009e13bf0       0x28 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/puzzles/rockbox.o
- .data.mouse_games.14405
+ .data.mouse_games.14407
                 0x0000000009e13c18        0xc /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/puzzles/rockbox.o
- .data.no_rclick_on_hold.14404
+ .data.no_rclick_on_hold.14406
                 0x0000000009e13c24       0x14 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/puzzles/rockbox.o
- .data.number_chooser_games.14407
+ .data.number_chooser_games.14409
                 0x0000000009e13c38       0x20 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/puzzles/rockbox.o
- .data.shortcuts_ok.14034
+ .data.shortcuts_ok.14036
                 0x0000000009e13c58        0x1 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/puzzles/rockbox.o
  *fill*         0x0000000009e13c59        0x3 
- .data.sticky_mouse_games.14406
+ .data.sticky_mouse_games.14408
                 0x0000000009e13c5c       0x10 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/puzzles/rockbox.o
  .data.thread   0x0000000009e13c6c        0x4 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/puzzles/rockbox.o
  .data.ud_d     0x0000000009e13c70        0x4 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/puzzles/rockbox.o
  .data.ud_r     0x0000000009e13c74        0x4 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/puzzles/rockbox.o
- .data.v.14013  0x0000000009e13c78        0x4 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/puzzles/rockbox.o
+ .data.v.14015  0x0000000009e13c78        0x4 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/puzzles/rockbox.o
  .data.view_mode
                 0x0000000009e13c7c        0x1 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/puzzles/rockbox.o
  *fill*         0x0000000009e13c7d        0x3 
- .data.want_spacebar.14401
+ .data.want_spacebar.14403
                 0x0000000009e13c80       0x48 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/puzzles/rockbox.o
  .data.zoom_x   0x0000000009e13cc8        0x4 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/puzzles/rockbox.o
  .data.zoom_y   0x0000000009e13ccc        0x4 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/puzzles/rockbox.o
@@ -2627,7 +2627,7 @@ LOAD /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a
                 0x0000000009e13cf8                plugin_bss_start = .
                 0x0000000009e13cf8                _plugin_bss_start = .
  *(.bss*)
- .bss.initialised.14208
+ .bss.initialised.14210
                 0x0000000009e13cf8        0x1 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/puzzles/src/lightup.o
  *fill*         0x0000000009e13cf9        0x3 
  .bss.clip_rect
@@ -2647,7 +2647,7 @@ LOAD /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a
                 0x0000000009e13d44                giant_buffer
  .bss.giant_buffer_len
                 0x0000000009e13d48        0x4 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/puzzles/rockbox.o
- .bss.held_count.14012
+ .bss.held_count.14014
                 0x0000000009e13d4c        0x4 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/puzzles/rockbox.o
  .bss.help_times
                 0x0000000009e13d50        0x4 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/puzzles/rockbox.o
@@ -2684,7 +2684,7 @@ LOAD /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a
  .bss.titlebar  0x0000000009e13db0        0x4 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/puzzles/rockbox.o
  .bss.ud_l      0x0000000009e13db4        0x4 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/puzzles/rockbox.o
  .bss.ud_u      0x0000000009e13db8        0x4 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/puzzles/rockbox.o
- .bss.what.13974
+ .bss.what.13976
                 0x0000000009e13dbc        0x1 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/puzzles/rockbox.o
  *fill*         0x0000000009e13dbd        0x3 
  .bss.zoom_clipd

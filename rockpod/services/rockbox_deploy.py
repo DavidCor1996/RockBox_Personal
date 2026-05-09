@@ -16,6 +16,7 @@ class RockboxDeployService:
     """Build diffs, apply theme bundles, and restore backups."""
 
     def build_diff(self, profile, theme_bundle):
+        self._validate_theme_compatibility(profile, theme_bundle)
         mount_path = os.path.abspath(profile.get("device_mount_path") or "")
         if not mount_path or not os.path.isdir(mount_path):
             raise ValueError("Profile mount path does not exist")
@@ -49,6 +50,7 @@ class RockboxDeployService:
                     "status": status,
                     "source_exists": source_exists,
                     "destination_exists": exists_on_device,
+                    "preserve_metadata": bool(asset.get("preserve_metadata", True)),
                 }
             )
 
@@ -108,7 +110,11 @@ class RockboxDeployService:
                         os.remove(dest_abs)
                 else:
                     os.makedirs(os.path.dirname(dest_abs), exist_ok=True)
-                    shutil.copy2(item["source_abs"], dest_abs)
+                    if item.get("preserve_metadata", True):
+                        shutil.copy2(item["source_abs"], dest_abs)
+                    else:
+                        shutil.copyfile(item["source_abs"], dest_abs)
+                        os.utime(dest_abs, None)
                     if not self._same_file(item["source_abs"], dest_abs):
                         raise OSError("verification mismatch after copy")
                 copied += 1
@@ -188,3 +194,19 @@ class RockboxDeployService:
                     break
                 digest.update(chunk)
         return digest.hexdigest()
+
+    @staticmethod
+    def _validate_theme_compatibility(profile, theme_bundle):
+        compatible = [
+            str(item or "").strip().lower()
+            for item in theme_bundle.get("compatible_device_models", [])
+        ]
+        compatible = [item for item in compatible if item]
+        if not compatible:
+            return
+        model = str(profile.get("target_device_model") or "").strip().lower()
+        if model and any(item in model for item in compatible):
+            return
+        theme_id = theme_bundle.get("id") or "theme"
+        allowed = ", ".join(theme_bundle.get("compatible_device_models", []))
+        raise ValueError(f"{theme_id} can only be deployed to: {allowed}")

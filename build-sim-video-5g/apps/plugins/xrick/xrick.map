@@ -10,57 +10,58 @@ Merging object attributes
 
 Merging program properties
 
-Removed property 0xc0000002 to merge /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o (0x3) and /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/control.o (not found)
-Updated property 0xc0010002 (0x1) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o (0x1) and /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/devtools.o (0x0)
-Updated property 0xc0010001 (0x9) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o (0x1) and /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/e_bomb.o (0x9)
-Updated property 0xc0010001 (0x9) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o (0x9) and /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/e_bonus.o (0x1)
-Updated property 0xc0010001 (0x9) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o (0x9) and /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/e_box.o (0x1)
-Updated property 0xc0010001 (0x9) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o (0x9) and /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/e_bullet.o (0x1)
-Updated property 0xc0010001 (0x9) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o (0x9) and /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/e_rick.o (0x1)
-Updated property 0xc0010001 (0x9) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o (0x9) and /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/e_sbonus.o (0x1)
-Updated property 0xc0010001 (0x9) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o (0x9) and /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/game.o (0x1)
-Updated property 0xc0010001 (0x9) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o (0x9) and /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/maps.o (0x1)
-Updated property 0xc0010001 (0x9) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o (0x9) and /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/rects.o (0x1)
-Updated property 0xc0010001 (0x9) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o (0x9) and /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/res_magic.o (0x1)
-Updated property 0xc0010002 (0x1) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o (0x1) and /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/res_magic.o (0x0)
-Updated property 0xc0010001 (0x9) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o (0x9) and /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_gameover.o (0x1)
-Updated property 0xc0010001 (0x9) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o (0x9) and /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_getname.o (0x1)
-Updated property 0xc0010001 (0x9) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o (0x9) and /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_imain.o (0x1)
-Updated property 0xc0010001 (0x9) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o (0x9) and /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_imap.o (0x1)
-Updated property 0xc0010001 (0x9) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o (0x9) and /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_pause.o (0x1)
-Updated property 0xc0010001 (0x9) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o (0x9) and /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_xrick.o (0x1)
-Updated property 0xc0010001 (0x9) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o (0x9) and /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scroller.o (0x1)
-Updated property 0xc0010001 (0x9) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o (0x9) and /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/util.o (0x1)
-Updated property 0xc0010001 (0x9) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o (0x9) and /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/data/img.o (0x1)
-Updated property 0xc0010002 (0x1) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o (0x1) and /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/data/img.o (0x0)
-Updated property 0xc0010001 (0x9) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o (0x9) and /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/data/pics.o (0x1)
-Updated property 0xc0010002 (0x1) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o (0x1) and /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/data/pics.o (0x0)
-Updated property 0xc0010001 (0x9) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o (0x9) and /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/data/sounds.o (0x1)
-Updated property 0xc0010002 (0x1) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o (0x1) and /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/data/sounds.o (0x0)
-Updated property 0xc0010001 (0x9) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o (0x9) and /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/data/sprites.o (0x1)
-Updated property 0xc0010002 (0x1) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o (0x1) and /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/data/sprites.o (0x0)
-Updated property 0xc0010001 (0x9) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o (0x9) and /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/data/tiles.o (0x1)
-Updated property 0xc0010002 (0x1) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o (0x1) and /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/data/tiles.o (0x0)
-Updated property 0xc0010001 (0x9) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o (0x9) and /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/main_rockbox.o (0x1)
-Updated property 0xc0010001 (0x9) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o (0x9) and /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysarg_rockbox.o (0x1)
-Updated property 0xc0010001 (0x9) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o (0x9) and /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysevt_rockbox.o (0x1)
-Updated property 0xc0010001 (0x9) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o (0x9) and /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysfile_rockbox.o (0x1)
-Updated property 0xc0010001 (0x9) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o (0x9) and /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysmem_rockbox.o (0x1)
-Updated property 0xc0010001 (0x9) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o (0x9) and /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysmenu_rockbox.o (0x1)
-Updated property 0xc0010001 (0x9) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o (0x9) and /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysvid_rockbox.o (0x1)
-Updated property 0xc0010001 (0x9) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o (0x9) and /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o (0x1)
-Updated property 0xc0010001 (0x9) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o (0x9) and /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o) (0x1)
-Updated property 0xc0010001 (0x9) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o (0x9) and /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(helper.o) (0x1)
-Updated property 0xc0010001 (0x9) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o (0x9) and /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtendS.o (0x1)
-Updated property 0xc0010002 (0x1) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o (0x1) and /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtendS.o (0x0)
-Removed property 0xc0000002 to merge /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o (not found) and /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtendS.o (0x3)
-Updated property 0xc0010001 (0x9) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o (0x9) and /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o (0x1)
-Removed property 0xc0000002 to merge /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o (not found) and /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o (0x3)
+Removed property 0xc0000002 to merge /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o (0x3) and /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/control.o (not found)
+Updated property 0xc0010002 (0x1) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o (0x1) and /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/devtools.o (0x0)
+Updated property 0xc0010001 (0x9) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o (0x1) and /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/e_bomb.o (0x9)
+Updated property 0xc0010001 (0x9) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o (0x9) and /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/e_bonus.o (0x1)
+Updated property 0xc0010001 (0x9) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o (0x9) and /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/e_box.o (0x1)
+Updated property 0xc0010001 (0x9) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o (0x9) and /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/e_bullet.o (0x1)
+Updated property 0xc0010001 (0x9) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o (0x9) and /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/e_rick.o (0x1)
+Updated property 0xc0010001 (0x9) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o (0x9) and /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/e_sbonus.o (0x1)
+Updated property 0xc0010001 (0x9) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o (0x9) and /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/game.o (0x1)
+Updated property 0xc0010001 (0x9) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o (0x9) and /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/maps.o (0x1)
+Updated property 0xc0010001 (0x9) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o (0x9) and /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/rects.o (0x1)
+Updated property 0xc0010001 (0x9) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o (0x9) and /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/res_magic.o (0x1)
+Updated property 0xc0010002 (0x1) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o (0x1) and /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/res_magic.o (0x0)
+Updated property 0xc0010001 (0x9) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o (0x9) and /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_gameover.o (0x1)
+Updated property 0xc0010001 (0x9) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o (0x9) and /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_getname.o (0x1)
+Updated property 0xc0010001 (0x9) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o (0x9) and /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_imain.o (0x1)
+Updated property 0xc0010001 (0x9) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o (0x9) and /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_imap.o (0x1)
+Updated property 0xc0010001 (0x9) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o (0x9) and /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_pause.o (0x1)
+Updated property 0xc0010001 (0x9) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o (0x9) and /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_xrick.o (0x1)
+Updated property 0xc0010001 (0x9) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o (0x9) and /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scroller.o (0x1)
+Updated property 0xc0010001 (0x9) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o (0x9) and /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/util.o (0x1)
+Updated property 0xc0010001 (0x9) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o (0x9) and /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/data/img.o (0x1)
+Updated property 0xc0010002 (0x1) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o (0x1) and /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/data/img.o (0x0)
+Updated property 0xc0010001 (0x9) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o (0x9) and /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/data/pics.o (0x1)
+Updated property 0xc0010002 (0x1) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o (0x1) and /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/data/pics.o (0x0)
+Updated property 0xc0010001 (0x9) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o (0x9) and /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/data/sounds.o (0x1)
+Updated property 0xc0010002 (0x1) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o (0x1) and /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/data/sounds.o (0x0)
+Updated property 0xc0010001 (0x9) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o (0x9) and /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/data/sprites.o (0x1)
+Updated property 0xc0010002 (0x1) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o (0x1) and /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/data/sprites.o (0x0)
+Updated property 0xc0010001 (0x9) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o (0x9) and /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/data/tiles.o (0x1)
+Updated property 0xc0010002 (0x1) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o (0x1) and /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/data/tiles.o (0x0)
+Updated property 0xc0010001 (0x9) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o (0x9) and /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/main_rockbox.o (0x1)
+Updated property 0xc0010001 (0x9) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o (0x9) and /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysarg_rockbox.o (0x1)
+Updated property 0xc0010001 (0x9) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o (0x9) and /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysevt_rockbox.o (0x1)
+Updated property 0xc0010001 (0x9) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o (0x9) and /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysfile_rockbox.o (0x1)
+Updated property 0xc0010001 (0x9) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o (0x9) and /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysmem_rockbox.o (0x1)
+Updated property 0xc0010001 (0x9) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o (0x9) and /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysmenu_rockbox.o (0x1)
+Updated property 0xc0010001 (0x9) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o (0x9) and /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/syssnd_rockbox.o (0x1)
+Updated property 0xc0010001 (0x9) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o (0x9) and /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysvid_rockbox.o (0x1)
+Updated property 0xc0010001 (0x9) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o (0x9) and /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o (0x1)
+Updated property 0xc0010001 (0x9) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o (0x9) and /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o) (0x1)
+Updated property 0xc0010001 (0x9) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o (0x9) and /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(helper.o) (0x1)
+Updated property 0xc0010001 (0x9) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o (0x9) and /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtendS.o (0x1)
+Updated property 0xc0010002 (0x1) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o (0x1) and /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtendS.o (0x0)
+Removed property 0xc0000002 to merge /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o (not found) and /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtendS.o (0x3)
+Updated property 0xc0010001 (0x9) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o (0x9) and /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o (0x1)
+Removed property 0xc0000002 to merge /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o (not found) and /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o (0x3)
 
 Discarded input sections
 
  .note.gnu.property
-                0x0000000000000000       0x50 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtbeginS.o
+                0x0000000000000000       0x50 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtbeginS.o
  .note.gnu.property
                 0x0000000000000000       0x30 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/control.o
  .note.gnu.property
@@ -144,9 +145,9 @@ Discarded input sections
  .note.gnu.property
                 0x0000000000000000       0x30 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(helper.o)
  .note.gnu.property
-                0x0000000000000000       0x50 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtendS.o
+                0x0000000000000000       0x50 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtendS.o
  .note.gnu.property
-                0x0000000000000000       0x50 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
+                0x0000000000000000       0x50 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
 
 Memory Configuration
 
@@ -155,8 +156,8 @@ Name             Origin             Length             Attributes
 
 Linker script and memory map
 
-LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
-LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtbeginS.o
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtbeginS.o
 LOAD /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/control.o
 LOAD /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/devtools.o
 LOAD /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/draw.o
@@ -199,99 +200,103 @@ LOAD /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugi
 LOAD /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a
 LOAD /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a
 LOAD /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libfixedpoint.a
-LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/libgcc.a
-LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/libgcc.a
-LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/libgcc_s.so
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/libgcc.a
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/libgcc.a
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/libgcc_s_asneeded.so
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/libgcc_s.so
 START GROUP
-LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/libgcc_s.so.1
-LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/libgcc.a
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/libgcc_s.so.1
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/libgcc.a
 END GROUP
-LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/libc.so
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/libatomic_asneeded.so
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/libatomic.so
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/libc.so
 START GROUP
 LOAD /usr/lib/libc.so.6
 LOAD /usr/lib/libc_nonshared.a
 LOAD /usr/lib/ld-linux-x86-64.so.2
 END GROUP
-LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/libgcc.a
-LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/libgcc_s.so
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/libgcc.a
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/libgcc_s_asneeded.so
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/libgcc_s.so
 START GROUP
-LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/libgcc_s.so.1
-LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/libgcc.a
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/libgcc_s.so.1
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/libgcc.a
 END GROUP
-LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtendS.o
-LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtendS.o
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
                 0x00000000000002a8                . = (SEGMENT_START ("text-segment", 0x0) + SIZEOF_HEADERS)
 
 .note.gnu.build-id
                 0x00000000000002a8       0x24
  *(.note.gnu.build-id)
  .note.gnu.build-id
-                0x00000000000002a8       0x24 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+                0x00000000000002a8       0x24 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
 
 .hash
  *(.hash)
 
 .gnu.hash       0x00000000000002d0       0x24
  *(.gnu.hash)
- .gnu.hash      0x00000000000002d0       0x24 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ .gnu.hash      0x00000000000002d0       0x24 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
 
 .dynsym         0x00000000000002f8       0xf0
  *(.dynsym)
- .dynsym        0x00000000000002f8       0xf0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ .dynsym        0x00000000000002f8       0xf0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
 
 .dynstr         0x00000000000003e8       0xa3
  *(.dynstr)
- .dynstr        0x00000000000003e8       0xa3 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ .dynstr        0x00000000000003e8       0xa3 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
 
 .gnu.version    0x000000000000048c       0x14
  *(.gnu.version)
- .gnu.version   0x000000000000048c       0x14 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ .gnu.version   0x000000000000048c       0x14 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
 
 .gnu.version_d  0x00000000000004a0        0x0
  *(.gnu.version_d)
  .gnu.version_d
-                0x00000000000004a0        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+                0x00000000000004a0        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
 
 .gnu.version_r  0x00000000000004a0       0x30
  *(.gnu.version_r)
  .gnu.version_r
-                0x00000000000004a0       0x30 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+                0x00000000000004a0       0x30 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
 
 .rela.dyn       0x00000000000004d0      0x5a0
  *(.rela.init)
  *(.rela.text .rela.text.* .rela.gnu.linkonce.t.*)
- .rela.text     0x00000000000004d0        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ .rela.text     0x00000000000004d0        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
  *(.rela.fini)
  *(.rela.rodata .rela.rodata.* .rela.gnu.linkonce.r.*)
  *(.rela.data .rela.data.* .rela.gnu.linkonce.d.*)
  .rela.data.rel.local
-                0x00000000000004d0       0xd8 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+                0x00000000000004d0       0xd8 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
  .rela.data.rel
-                0x00000000000005a8      0x228 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+                0x00000000000005a8      0x228 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
  .rela.data.rel.ro.local
-                0x00000000000007d0      0x1e0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+                0x00000000000007d0      0x1e0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
  *(.rela.tdata .rela.tdata.* .rela.gnu.linkonce.td.*)
  *(.rela.tbss .rela.tbss.* .rela.gnu.linkonce.tb.*)
  *(.rela.ctors)
  *(.rela.dtors)
  *(.rela.got)
- .rela.got      0x00000000000009b0       0x90 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ .rela.got      0x00000000000009b0       0x90 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
  *(.rela.tls)
- .rela.tls      0x0000000000000a40        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ .rela.tls      0x0000000000000a40        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
  *(.rela.bss .rela.bss.* .rela.gnu.linkonce.b.*)
  *(.rela.ldata .rela.ldata.* .rela.gnu.linkonce.l.*)
  *(.rela.lbss .rela.lbss.* .rela.gnu.linkonce.lb.*)
  *(.rela.lrodata .rela.lrodata.* .rela.gnu.linkonce.lr.*)
  *(.rela.ifunc)
- .rela.ifunc    0x0000000000000a40        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ .rela.ifunc    0x0000000000000a40        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
  .rela.fini_array
-                0x0000000000000a40       0x18 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+                0x0000000000000a40       0x18 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
  .rela.init_array
-                0x0000000000000a58       0x18 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+                0x0000000000000a58       0x18 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
 
 .rela.plt       0x0000000000000a70       0x60
  *(.rela.plt)
- .rela.plt      0x0000000000000a70       0x60 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ .rela.plt      0x0000000000000a70       0x60 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
  *(.rela.iplt)
 
 .relr.dyn
@@ -300,31 +305,31 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 
 .init           0x0000000000001000       0x1b
  *(SORT_NONE(.init))
- .init          0x0000000000001000       0x16 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ .init          0x0000000000001000       0x16 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
                 0x0000000000001000                _init
- .init          0x0000000000001016        0x5 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
+ .init          0x0000000000001016        0x5 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
 
 .plt            0x0000000000001020       0x50
  *(.plt)
- .plt           0x0000000000001020       0x50 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ .plt           0x0000000000001020       0x50 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
  *(.iplt)
 
 .plt.got        0x0000000000001070        0x0
  *(.plt.got)
- .plt.got       0x0000000000001070        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ .plt.got       0x0000000000001070        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
 
 .plt.sec
  *(.plt.sec)
 
-.text           0x0000000000001080     0xf55e
+.text           0x0000000000001080     0xf81e
  *(.text.unlikely .text.*_unlikely .text.unlikely.*)
  *(.text.exit .text.exit.*)
  *(.text.startup .text.startup.*)
  *(.text.hot .text.hot.*)
  *(SORT_BY_NAME(.text.sorted.*))
  *(.text .stub .text.* .gnu.linkonce.t.*)
- .text          0x0000000000001080        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
- .text          0x0000000000001080       0xc9 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtbeginS.o
+ .text          0x0000000000001080        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
+ .text          0x0000000000001080       0xc9 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtbeginS.o
  *fill*         0x0000000000001149        0x7 
  .text          0x0000000000001150       0x29 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/control.o
                 0x0000000000001150                control_test
@@ -415,160 +420,160 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
                 0x00000000000057b0                rects_new
  .text          0x000000000000580f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/res_magic.o
  *fill*         0x000000000000580f       0x31 
- .text          0x0000000000005840     0x78c9 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/resources.o
-                0x0000000000007bf0                mz_adler32
-                0x0000000000007da0                mz_crc32
-                0x0000000000008d90                mz_free
-                0x0000000000008da0                tinfl_decompress
-                0x000000000000b100                tinfl_decompress_mem_to_heap
-                0x000000000000b1b0                tinfl_decompress_mem_to_mem
-                0x000000000000b240                tinfl_decompress_mem_to_callback
-                0x000000000000b250                tdefl_compress
-                0x000000000000c6a0                tdefl_compress_buffer
-                0x000000000000c6c0                tdefl_init
-                0x000000000000c7f0                tdefl_get_prev_return_status
-                0x000000000000c800                tdefl_get_adler32
-                0x000000000000c810                tdefl_compress_mem_to_output
-                0x000000000000c820                tdefl_compress_mem_to_heap
-                0x000000000000c870                tdefl_compress_mem_to_mem
-                0x000000000000c8b0                tdefl_write_image_to_png_file_in_memory_ex
-                0x000000000000c8c0                tdefl_write_image_to_png_file_in_memory
-                0x000000000000c8d0                resources_load
-                0x000000000000cbb0                resources_unload
- *fill*         0x000000000000d109        0x7 
- .text          0x000000000000d110      0x19d /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_gameover.o
-                0x000000000000d110                screen_gameover
- *fill*         0x000000000000d2ad       0x13 
- .text          0x000000000000d2c0      0x7e0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_getname.o
-                0x000000000000d390                screen_getname
- .text          0x000000000000daa0      0x35c /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_imain.o
-                0x000000000000daa0                screen_introMain
- *fill*         0x000000000000ddfc        0x4 
- .text          0x000000000000de00      0x582 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_imap.o
-                0x000000000000e050                screen_introMap
- *fill*         0x000000000000e382        0xe 
- .text          0x000000000000e390       0x69 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_pause.o
-                0x000000000000e390                screen_pause
- *fill*         0x000000000000e3f9        0x7 
- .text          0x000000000000e400      0x11a /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_xrick.o
-                0x000000000000e400                screen_xrick
- *fill*         0x000000000000e51a        0x6 
- .text          0x000000000000e520      0x2fe /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scroller.o
-                0x000000000000e520                scroll_up
-                0x000000000000e6a0                scroll_down
- *fill*         0x000000000000e81e        0x2 
- .text          0x000000000000e820      0x3f6 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/util.o
-                0x000000000000e820                u_fboxtest
-                0x000000000000e870                u_boxtest
-                0x000000000000e8e0                u_envtest
-                0x000000000000eb60                u_trigbox
-                0x000000000000ebe0                u_strdup
- .text          0x000000000000ec16        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/data/img.o
- .text          0x000000000000ec16        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/data/pics.o
- .text          0x000000000000ec16        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/data/sounds.o
- .text          0x000000000000ec16        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/data/sprites.o
- .text          0x000000000000ec16        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/data/tiles.o
- *fill*         0x000000000000ec16        0xa 
- .text          0x000000000000ec20       0x61 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/main_rockbox.o
-                0x000000000000ec20                plugin_start
- *fill*         0x000000000000ec81        0xf 
- .text          0x000000000000ec90       0x10 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysarg_rockbox.o
-                0x000000000000ec90                sysarg_init
- .text          0x000000000000eca0      0x105 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysevt_rockbox.o
-                0x000000000000eca0                sysevt_poll
-                0x000000000000eda0                sysevt_wait
- *fill*         0x000000000000eda5        0xb 
- .text          0x000000000000edb0      0x160 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysfile_rockbox.o
-                0x000000000000edb0                sysfile_setRootPath
-                0x000000000000edd0                sysfile_clearRootPath
-                0x000000000000edf0                sysfile_open
-                0x000000000000eeb0                sysfile_read
-                0x000000000000eee0                sysfile_seek
-                0x000000000000ef00                sysfile_close
- .text          0x000000000000ef10      0x16c /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysmem_rockbox.o
-                0x000000000000ef10                sysmem_init
-                0x000000000000ef80                sysmem_shutdown
-                0x000000000000efe0                sysmem_push
-                0x000000000000f040                sysmem_pop
- *fill*         0x000000000000f07c        0x4 
- .text          0x000000000000f080      0x1a4 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysmenu_rockbox.o
-                0x000000000000f110                sysmenu_exec
- *fill*         0x000000000000f224       0x1c 
- .text          0x000000000000f240      0x6c9 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/syssnd_rockbox.o
-                0x000000000000f2b0                syssnd_update
-                0x000000000000f4e0                syssnd_init
-                0x000000000000f5c0                syssnd_shutdown
-                0x000000000000f620                syssnd_pauseAll
-                0x000000000000f680                syssnd_stop
-                0x000000000000f6c0                syssnd_stopAll
-                0x000000000000f6f0                syssnd_load
-                0x000000000000f7e0                syssnd_play
-                0x000000000000f8c0                syssnd_unload
- *fill*         0x000000000000f909        0x7 
- .text          0x000000000000f910      0x705 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/system_rockbox.o
-                0x000000000000f910                sys_error
-                0x000000000000fa40                sys_printf
-                0x000000000000fb50                sys_snprintf
-                0x000000000000fc10                sys_strlen
-                0x000000000000fc20                sys_gettime
-                0x000000000000fc60                sys_yield
-                0x000000000000fc70                sys_init
-                0x000000000000fce0                sys_shutdown
-                0x000000000000fd00                sys_cacheData
-                0x000000000000fe90                sys_uncacheData
- *fill*         0x0000000000010015       0x2b 
- .text          0x0000000000010040      0x361 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysvid_rockbox.o
-                0x0000000000010040                sysvid_setPalette
-                0x00000000000100c0                sysvid_setGamePalette
-                0x0000000000010140                sysvid_update
-                0x00000000000102a0                sysvid_clear
-                0x00000000000102d0                sysvid_init
-                0x0000000000010370                sysvid_shutdown
- .text          0x00000000000103a1       0xe3 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
-                0x00000000000103b0                plugin__start
-                0x0000000000010404                rb_atexit
-                0x000000000001041d                exit
-                0x0000000000010436                _exit
-                0x0000000000010445                exit_on_usb
- .text          0x0000000000010484       0x40 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
-                0x0000000000010484                memcpy
-                0x0000000000010494                memset
-                0x00000000000104a4                memmove
-                0x00000000000104b4                memcmp
- .text          0x00000000000104c4      0x11a /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(helper.o)
-                0x00000000000104c4                talk_val
-                0x00000000000104dc                backlight_force_on
-                0x00000000000104fe                backlight_ignore_timeout
-                0x000000000001053c                backlight_use_settings
-                0x000000000001056e                sw_poweroff_disable
-                0x0000000000010594                sw_poweroff_restore
-                0x00000000000105ab                remote_backlight_force_on
-                0x00000000000105ac                remote_backlight_ignore_timeout
-                0x00000000000105ad                remote_backlight_use_settings
-                0x00000000000105ae                buttonlight_force_on
-                0x00000000000105af                buttonlight_force_off
-                0x00000000000105b0                buttonlight_ignore_timeout
-                0x00000000000105b1                buttonlight_use_settings
-                0x00000000000105b2                backlight_brightness_set
-                0x00000000000105c2                backlight_brightness_use_setting
-                0x00000000000105dc                buttonlight_brightness_set
-                0x00000000000105dd                buttonlight_brightness_use_setting
- .text          0x00000000000105de        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtendS.o
- .text          0x00000000000105de        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
+ .text          0x0000000000005840     0x7b9d /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/resources.o
+                0x0000000000008ad0                mz_adler32
+                0x0000000000008c80                mz_crc32
+                0x0000000000008f10                mz_free
+                0x0000000000008f20                tinfl_decompress
+                0x000000000000b240                tinfl_decompress_mem_to_heap
+                0x000000000000b2f0                tinfl_decompress_mem_to_mem
+                0x000000000000b380                tinfl_decompress_mem_to_callback
+                0x000000000000b390                tdefl_compress
+                0x000000000000c880                tdefl_compress_buffer
+                0x000000000000c8a0                tdefl_init
+                0x000000000000c9c0                tdefl_get_prev_return_status
+                0x000000000000c9d0                tdefl_get_adler32
+                0x000000000000c9e0                tdefl_compress_mem_to_output
+                0x000000000000c9f0                tdefl_compress_mem_to_heap
+                0x000000000000ca40                tdefl_compress_mem_to_mem
+                0x000000000000ca80                tdefl_write_image_to_png_file_in_memory_ex
+                0x000000000000ca90                tdefl_write_image_to_png_file_in_memory
+                0x000000000000caa0                resources_load
+                0x000000000000ce50                resources_unload
+ *fill*         0x000000000000d3dd        0x3 
+ .text          0x000000000000d3e0      0x19d /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_gameover.o
+                0x000000000000d3e0                screen_gameover
+ *fill*         0x000000000000d57d        0x3 
+ .text          0x000000000000d580      0x7e0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_getname.o
+                0x000000000000d650                screen_getname
+ .text          0x000000000000dd60      0x35c /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_imain.o
+                0x000000000000dd60                screen_introMain
+ *fill*         0x000000000000e0bc        0x4 
+ .text          0x000000000000e0c0      0x582 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_imap.o
+                0x000000000000e310                screen_introMap
+ *fill*         0x000000000000e642        0xe 
+ .text          0x000000000000e650       0x69 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_pause.o
+                0x000000000000e650                screen_pause
+ *fill*         0x000000000000e6b9        0x7 
+ .text          0x000000000000e6c0      0x11a /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_xrick.o
+                0x000000000000e6c0                screen_xrick
+ *fill*         0x000000000000e7da        0x6 
+ .text          0x000000000000e7e0      0x2fe /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scroller.o
+                0x000000000000e7e0                scroll_up
+                0x000000000000e960                scroll_down
+ *fill*         0x000000000000eade        0x2 
+ .text          0x000000000000eae0      0x3f6 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/util.o
+                0x000000000000eae0                u_fboxtest
+                0x000000000000eb30                u_boxtest
+                0x000000000000eba0                u_envtest
+                0x000000000000ee20                u_trigbox
+                0x000000000000eea0                u_strdup
+ .text          0x000000000000eed6        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/data/img.o
+ .text          0x000000000000eed6        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/data/pics.o
+ .text          0x000000000000eed6        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/data/sounds.o
+ .text          0x000000000000eed6        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/data/sprites.o
+ .text          0x000000000000eed6        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/data/tiles.o
+ *fill*         0x000000000000eed6        0xa 
+ .text          0x000000000000eee0       0x61 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/main_rockbox.o
+                0x000000000000eee0                plugin_start
+ *fill*         0x000000000000ef41        0xf 
+ .text          0x000000000000ef50       0x10 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysarg_rockbox.o
+                0x000000000000ef50                sysarg_init
+ .text          0x000000000000ef60      0x105 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysevt_rockbox.o
+                0x000000000000ef60                sysevt_poll
+                0x000000000000f060                sysevt_wait
+ *fill*         0x000000000000f065        0xb 
+ .text          0x000000000000f070      0x170 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysfile_rockbox.o
+                0x000000000000f070                sysfile_setRootPath
+                0x000000000000f090                sysfile_clearRootPath
+                0x000000000000f0b0                sysfile_open
+                0x000000000000f180                sysfile_read
+                0x000000000000f1b0                sysfile_seek
+                0x000000000000f1d0                sysfile_close
+ .text          0x000000000000f1e0      0x16c /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysmem_rockbox.o
+                0x000000000000f1e0                sysmem_init
+                0x000000000000f250                sysmem_shutdown
+                0x000000000000f2b0                sysmem_push
+                0x000000000000f310                sysmem_pop
+ *fill*         0x000000000000f34c        0x4 
+ .text          0x000000000000f350      0x1a4 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysmenu_rockbox.o
+                0x000000000000f3e0                sysmenu_exec
+ *fill*         0x000000000000f4f4        0xc 
+ .text          0x000000000000f500      0x6c9 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/syssnd_rockbox.o
+                0x000000000000f570                syssnd_update
+                0x000000000000f7b0                syssnd_init
+                0x000000000000f890                syssnd_shutdown
+                0x000000000000f8f0                syssnd_pauseAll
+                0x000000000000f950                syssnd_stop
+                0x000000000000f990                syssnd_stopAll
+                0x000000000000f9c0                syssnd_load
+                0x000000000000fab0                syssnd_play
+                0x000000000000fb80                syssnd_unload
+ *fill*         0x000000000000fbc9        0x7 
+ .text          0x000000000000fbd0      0x6f5 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/system_rockbox.o
+                0x000000000000fbd0                sys_error
+                0x000000000000fcf0                sys_printf
+                0x000000000000fe00                sys_snprintf
+                0x000000000000fec0                sys_strlen
+                0x000000000000fed0                sys_gettime
+                0x000000000000ff10                sys_yield
+                0x000000000000ff20                sys_init
+                0x000000000000ff90                sys_shutdown
+                0x000000000000ffb0                sys_cacheData
+                0x0000000000010140                sys_uncacheData
+ *fill*         0x00000000000102c5       0x3b 
+ .text          0x0000000000010300      0x361 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysvid_rockbox.o
+                0x0000000000010300                sysvid_setPalette
+                0x0000000000010380                sysvid_setGamePalette
+                0x0000000000010400                sysvid_update
+                0x0000000000010560                sysvid_clear
+                0x0000000000010590                sysvid_init
+                0x0000000000010630                sysvid_shutdown
+ .text          0x0000000000010661       0xe3 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+                0x0000000000010670                plugin__start
+                0x00000000000106c4                rb_atexit
+                0x00000000000106dd                exit
+                0x00000000000106f6                _exit
+                0x0000000000010705                exit_on_usb
+ .text          0x0000000000010744       0x40 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
+                0x0000000000010744                memcpy
+                0x0000000000010754                memset
+                0x0000000000010764                memmove
+                0x0000000000010774                memcmp
+ .text          0x0000000000010784      0x11a /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(helper.o)
+                0x0000000000010784                talk_val
+                0x000000000001079c                backlight_force_on
+                0x00000000000107be                backlight_ignore_timeout
+                0x00000000000107fc                backlight_use_settings
+                0x000000000001082e                sw_poweroff_disable
+                0x0000000000010854                sw_poweroff_restore
+                0x000000000001086b                remote_backlight_force_on
+                0x000000000001086c                remote_backlight_ignore_timeout
+                0x000000000001086d                remote_backlight_use_settings
+                0x000000000001086e                buttonlight_force_on
+                0x000000000001086f                buttonlight_force_off
+                0x0000000000010870                buttonlight_ignore_timeout
+                0x0000000000010871                buttonlight_use_settings
+                0x0000000000010872                backlight_brightness_set
+                0x0000000000010882                backlight_brightness_use_setting
+                0x000000000001089c                buttonlight_brightness_set
+                0x000000000001089d                buttonlight_brightness_use_setting
+ .text          0x000000000001089e        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtendS.o
+ .text          0x000000000001089e        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
  *(.gnu.warning)
 
-.fini           0x00000000000105e0        0xd
+.fini           0x00000000000108a0        0xd
  *(SORT_NONE(.fini))
- .fini          0x00000000000105e0        0x8 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
-                0x00000000000105e0                _fini
- .fini          0x00000000000105e8        0x5 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
+ .fini          0x00000000000108a0        0x8 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
+                0x00000000000108a0                _fini
+ .fini          0x00000000000108a8        0x5 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
                 [!provide]                        PROVIDE (__etext = .)
                 [!provide]                        PROVIDE (_etext = .)
                 [!provide]                        PROVIDE (etext = .)
                 0x0000000000011000                . = ALIGN (CONSTANT (MAXPAGESIZE))
                 0x0000000000011000                . = SEGMENT_START ("rodata-segment", (ALIGN (CONSTANT (MAXPAGESIZE)) + (. & (CONSTANT (MAXPAGESIZE) - 0x1))))
 
-.rodata         0x0000000000011000     0x137a
+.rodata         0x0000000000011000     0x1362
  *(.rodata .rodata.* .gnu.linkonce.r.*)
  .rodata        0x0000000000011000       0x10 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/draw.o
                 0x0000000000011000                draw_SCREENRECT
@@ -590,135 +595,131 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
                                         0x22e (size before relaxing)
  *fill*         0x00000000000115c8       0x18 
  .rodata        0x00000000000115e0      0xd00 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/resources.o
- .rodata.cst8   0x00000000000122e0       0x18 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/resources.o
-                                         0x10 (size before relaxing)
- *fill*         0x00000000000122f8        0x8 
- .rodata.cst16  0x0000000000012300       0x20 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/resources.o
+ .rodata.cst16  0x00000000000122e0       0x20 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/resources.o
  .rodata.str1.1
-                0x0000000000012320        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_getname.o
+                0x0000000000012300        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_getname.o
                                          0x26 (size before relaxing)
- .rodata        0x0000000000012320       0x20 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_getname.o
- .rodata.cst8   0x0000000000012340        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_getname.o
-                                          0x8 (size before relaxing)
+ .rodata        0x0000000000012300       0x20 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_getname.o
+ .rodata.cst8   0x0000000000012320        0x8 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_getname.o
  .rodata.str1.1
-                0x0000000000012340        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_imain.o
+                0x0000000000012328        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_imain.o
                                          0x11 (size before relaxing)
- .rodata        0x0000000000012340       0x1c /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_imain.o
- .rodata.cst2   0x000000000001235c        0x2 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_imain.o
- *fill*         0x000000000001235e        0x2 
- .rodata        0x0000000000012360       0x19 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_imap.o
+ .rodata        0x0000000000012328       0x1c /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_imain.o
+ .rodata.cst2   0x0000000000012344        0x2 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_imain.o
+ *fill*         0x0000000000012346        0x2 
+ .rodata        0x0000000000012348       0x19 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_imap.o
  .rodata.str1.1
-                0x0000000000012379        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysfile_rockbox.o
+                0x0000000000012361        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysfile_rockbox.o
                                          0x17 (size before relaxing)
  .rodata.str1.8
-                0x0000000000012379        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysfile_rockbox.o
+                0x0000000000012361        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysfile_rockbox.o
                                          0x3a (size before relaxing)
  .rodata.str1.8
-                0x0000000000012379        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysmem_rockbox.o
+                0x0000000000012361        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysmem_rockbox.o
                                          0x94 (size before relaxing)
  .rodata.str1.8
-                0x0000000000012379        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysmenu_rockbox.o
+                0x0000000000012361        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysmenu_rockbox.o
                                          0x4a (size before relaxing)
  .rodata.str1.1
-                0x0000000000012379        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysmenu_rockbox.o
+                0x0000000000012361        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysmenu_rockbox.o
                                          0x83 (size before relaxing)
  .rodata.str1.8
-                0x0000000000012379        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/syssnd_rockbox.o
+                0x0000000000012361        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/syssnd_rockbox.o
                                          0x59 (size before relaxing)
  .rodata.str1.1
-                0x0000000000012379        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/syssnd_rockbox.o
+                0x0000000000012361        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/syssnd_rockbox.o
                                          0x34 (size before relaxing)
- .rodata        0x0000000000012379        0x1 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/syssnd_rockbox.o
-                0x0000000000012379                syssnd_period
+ .rodata        0x0000000000012361        0x1 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/syssnd_rockbox.o
+                0x0000000000012361                syssnd_period
  .rodata.str1.1
-                0x000000000001237a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/system_rockbox.o
+                0x0000000000012362        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/system_rockbox.o
                                           0xe (size before relaxing)
  .rodata.str1.8
-                0x000000000001237a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysvid_rockbox.o
+                0x0000000000012362        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysvid_rockbox.o
                                          0x28 (size before relaxing)
 
 .rodata1
  *(.rodata1)
 
-.eh_frame_hdr   0x000000000001237c      0x5bc
+.eh_frame_hdr   0x0000000000012364      0x5bc
  *(.eh_frame_hdr)
- .eh_frame_hdr  0x000000000001237c      0x5bc /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/control.o
-                0x000000000001237c                __GNU_EH_FRAME_HDR
+ .eh_frame_hdr  0x0000000000012364      0x5bc /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/control.o
+                0x0000000000012364                __GNU_EH_FRAME_HDR
  *(.eh_frame_entry .eh_frame_entry.*)
 
-.eh_frame       0x0000000000012938     0x19cc
+.eh_frame       0x0000000000012920     0x1a44
  *(.eh_frame)
- .eh_frame      0x0000000000012938       0x40 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
- .eh_frame      0x0000000000012978        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
- .eh_frame      0x0000000000012978       0x40 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/control.o
+ .eh_frame      0x0000000000012920       0x40 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
+ .eh_frame      0x0000000000012960        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
+ .eh_frame      0x0000000000012960       0x40 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/control.o
                                          0x58 (size before relaxing)
- .eh_frame      0x00000000000129b8      0x1e8 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/draw.o
+ .eh_frame      0x00000000000129a0      0x1e8 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/draw.o
                                         0x200 (size before relaxing)
- .eh_frame      0x0000000000012ba0       0x58 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/e_bomb.o
+ .eh_frame      0x0000000000012b88       0x58 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/e_bomb.o
                                          0x70 (size before relaxing)
- .eh_frame      0x0000000000012bf8       0x20 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/e_bonus.o
+ .eh_frame      0x0000000000012be0       0x20 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/e_bonus.o
                                          0x38 (size before relaxing)
- .eh_frame      0x0000000000012c18       0x48 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/e_box.o
+ .eh_frame      0x0000000000012c00       0x48 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/e_box.o
                                          0x60 (size before relaxing)
- .eh_frame      0x0000000000012c60       0x28 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/e_bullet.o
+ .eh_frame      0x0000000000012c48       0x28 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/e_bullet.o
                                          0x40 (size before relaxing)
- .eh_frame      0x0000000000012c88       0xf0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/e_rick.o
+ .eh_frame      0x0000000000012c70       0xf0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/e_rick.o
                                         0x108 (size before relaxing)
- .eh_frame      0x0000000000012d78       0x50 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/e_sbonus.o
+ .eh_frame      0x0000000000012d60       0x50 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/e_sbonus.o
                                          0x68 (size before relaxing)
- .eh_frame      0x0000000000012dc8      0x218 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/e_them.o
+ .eh_frame      0x0000000000012db0      0x218 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/e_them.o
                                         0x230 (size before relaxing)
- .eh_frame      0x0000000000012fe0      0x128 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/ents.o
+ .eh_frame      0x0000000000012fc8      0x128 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/ents.o
                                         0x140 (size before relaxing)
- .eh_frame      0x0000000000013108       0xc0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/game.o
+ .eh_frame      0x00000000000130f0       0xc0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/game.o
                                          0xd8 (size before relaxing)
- .eh_frame      0x00000000000131c8       0x90 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/maps.o
+ .eh_frame      0x00000000000131b0       0x90 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/maps.o
                                          0xa8 (size before relaxing)
- .eh_frame      0x0000000000013258       0x58 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/rects.o
+ .eh_frame      0x0000000000013240       0x58 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/rects.o
                                          0x70 (size before relaxing)
- .eh_frame      0x00000000000132b0      0x5f0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/resources.o
-                                        0x608 (size before relaxing)
- .eh_frame      0x00000000000138a0       0x28 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_gameover.o
+ .eh_frame      0x0000000000013298      0x670 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/resources.o
+                                        0x688 (size before relaxing)
+ .eh_frame      0x0000000000013908       0x28 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_gameover.o
                                          0x40 (size before relaxing)
- .eh_frame      0x00000000000138c8       0x90 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_getname.o
+ .eh_frame      0x0000000000013930       0x90 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_getname.o
                                          0xa8 (size before relaxing)
- .eh_frame      0x0000000000013958       0x38 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_imain.o
+ .eh_frame      0x00000000000139c0       0x38 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_imain.o
                                          0x50 (size before relaxing)
- .eh_frame      0x0000000000013990       0xa8 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_imap.o
+ .eh_frame      0x00000000000139f8       0xa8 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_imap.o
                                          0xc0 (size before relaxing)
- .eh_frame      0x0000000000013a38       0x20 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_pause.o
+ .eh_frame      0x0000000000013aa0       0x20 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_pause.o
                                          0x38 (size before relaxing)
- .eh_frame      0x0000000000013a58       0x20 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_xrick.o
+ .eh_frame      0x0000000000013ac0       0x20 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_xrick.o
                                          0x38 (size before relaxing)
- .eh_frame      0x0000000000013a78       0x48 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scroller.o
+ .eh_frame      0x0000000000013ae0       0x48 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scroller.o
                                          0x60 (size before relaxing)
- .eh_frame      0x0000000000013ac0       0xb8 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/util.o
+ .eh_frame      0x0000000000013b28       0xb8 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/util.o
                                          0xd0 (size before relaxing)
- .eh_frame      0x0000000000013b78       0x20 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/main_rockbox.o
+ .eh_frame      0x0000000000013be0       0x20 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/main_rockbox.o
                                          0x38 (size before relaxing)
- .eh_frame      0x0000000000013b98       0x18 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysarg_rockbox.o
+ .eh_frame      0x0000000000013c00       0x18 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysarg_rockbox.o
                                          0x30 (size before relaxing)
- .eh_frame      0x0000000000013bb0       0x48 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysevt_rockbox.o
+ .eh_frame      0x0000000000013c18       0x48 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysevt_rockbox.o
                                          0x60 (size before relaxing)
- .eh_frame      0x0000000000013bf8       0xc8 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysfile_rockbox.o
+ .eh_frame      0x0000000000013c60       0xc8 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysfile_rockbox.o
                                          0xe0 (size before relaxing)
- .eh_frame      0x0000000000013cc0       0x60 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysmem_rockbox.o
+ .eh_frame      0x0000000000013d28       0x60 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysmem_rockbox.o
                                          0x78 (size before relaxing)
- .eh_frame      0x0000000000013d20       0x50 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysmenu_rockbox.o
+ .eh_frame      0x0000000000013d88       0x50 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysmenu_rockbox.o
                                          0x68 (size before relaxing)
- .eh_frame      0x0000000000013d70      0x150 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/syssnd_rockbox.o
+ .eh_frame      0x0000000000013dd8      0x150 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/syssnd_rockbox.o
                                         0x168 (size before relaxing)
- .eh_frame      0x0000000000013ec0      0x128 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/system_rockbox.o
-                                        0x140 (size before relaxing)
- .eh_frame      0x0000000000013fe8       0xc8 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysvid_rockbox.o
-                                         0xe0 (size before relaxing)
- .eh_frame      0x00000000000140b0       0x88 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+ .eh_frame      0x0000000000013f28      0x118 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/system_rockbox.o
+                                        0x130 (size before relaxing)
+ .eh_frame      0x0000000000014040       0xd0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysvid_rockbox.o
+                                         0xe8 (size before relaxing)
+ .eh_frame      0x0000000000014110       0x88 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
                                          0xa0 (size before relaxing)
- .eh_frame      0x0000000000014138       0x50 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
+ .eh_frame      0x0000000000014198       0x50 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
                                          0x68 (size before relaxing)
- .eh_frame      0x0000000000014188      0x178 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(helper.o)
+ .eh_frame      0x00000000000141e8      0x178 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(helper.o)
                                         0x190 (size before relaxing)
- .eh_frame      0x0000000000014300        0x4 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtendS.o
+ .eh_frame      0x0000000000014360        0x4 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtendS.o
  *(.eh_frame.*)
 
 .sframe
@@ -738,104 +739,104 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
  *(.note.build-id)
 
 .note.GNU-stack
-                0x0000000000014304        0x0
+                0x0000000000014364        0x0
  *(.note.GNU-stack)
  .note.GNU-stack
-                0x0000000000014304        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+                0x0000000000014364        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
  .note.GNU-stack
-                0x0000000000014304        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtbeginS.o
+                0x0000000000014364        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtbeginS.o
  .note.GNU-stack
-                0x0000000000014304        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/control.o
+                0x0000000000014364        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/control.o
  .note.GNU-stack
-                0x0000000000014304        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/devtools.o
+                0x0000000000014364        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/devtools.o
  .note.GNU-stack
-                0x0000000000014304        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/draw.o
+                0x0000000000014364        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/draw.o
  .note.GNU-stack
-                0x0000000000014304        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/e_bomb.o
+                0x0000000000014364        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/e_bomb.o
  .note.GNU-stack
-                0x0000000000014304        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/e_bonus.o
+                0x0000000000014364        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/e_bonus.o
  .note.GNU-stack
-                0x0000000000014304        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/e_box.o
+                0x0000000000014364        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/e_box.o
  .note.GNU-stack
-                0x0000000000014304        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/e_bullet.o
+                0x0000000000014364        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/e_bullet.o
  .note.GNU-stack
-                0x0000000000014304        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/e_rick.o
+                0x0000000000014364        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/e_rick.o
  .note.GNU-stack
-                0x0000000000014304        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/e_sbonus.o
+                0x0000000000014364        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/e_sbonus.o
  .note.GNU-stack
-                0x0000000000014304        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/e_them.o
+                0x0000000000014364        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/e_them.o
  .note.GNU-stack
-                0x0000000000014304        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/ents.o
+                0x0000000000014364        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/ents.o
  .note.GNU-stack
-                0x0000000000014304        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/game.o
+                0x0000000000014364        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/game.o
  .note.GNU-stack
-                0x0000000000014304        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/maps.o
+                0x0000000000014364        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/maps.o
  .note.GNU-stack
-                0x0000000000014304        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/rects.o
+                0x0000000000014364        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/rects.o
  .note.GNU-stack
-                0x0000000000014304        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/res_magic.o
+                0x0000000000014364        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/res_magic.o
  .note.GNU-stack
-                0x0000000000014304        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/resources.o
+                0x0000000000014364        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/resources.o
  .note.GNU-stack
-                0x0000000000014304        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_gameover.o
+                0x0000000000014364        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_gameover.o
  .note.GNU-stack
-                0x0000000000014304        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_getname.o
+                0x0000000000014364        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_getname.o
  .note.GNU-stack
-                0x0000000000014304        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_imain.o
+                0x0000000000014364        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_imain.o
  .note.GNU-stack
-                0x0000000000014304        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_imap.o
+                0x0000000000014364        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_imap.o
  .note.GNU-stack
-                0x0000000000014304        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_pause.o
+                0x0000000000014364        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_pause.o
  .note.GNU-stack
-                0x0000000000014304        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_xrick.o
+                0x0000000000014364        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_xrick.o
  .note.GNU-stack
-                0x0000000000014304        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scroller.o
+                0x0000000000014364        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scroller.o
  .note.GNU-stack
-                0x0000000000014304        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/util.o
+                0x0000000000014364        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/util.o
  .note.GNU-stack
-                0x0000000000014304        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/data/img.o
+                0x0000000000014364        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/data/img.o
  .note.GNU-stack
-                0x0000000000014304        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/data/pics.o
+                0x0000000000014364        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/data/pics.o
  .note.GNU-stack
-                0x0000000000014304        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/data/sounds.o
+                0x0000000000014364        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/data/sounds.o
  .note.GNU-stack
-                0x0000000000014304        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/data/sprites.o
+                0x0000000000014364        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/data/sprites.o
  .note.GNU-stack
-                0x0000000000014304        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/data/tiles.o
+                0x0000000000014364        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/data/tiles.o
  .note.GNU-stack
-                0x0000000000014304        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/main_rockbox.o
+                0x0000000000014364        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/main_rockbox.o
  .note.GNU-stack
-                0x0000000000014304        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysarg_rockbox.o
+                0x0000000000014364        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysarg_rockbox.o
  .note.GNU-stack
-                0x0000000000014304        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysevt_rockbox.o
+                0x0000000000014364        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysevt_rockbox.o
  .note.GNU-stack
-                0x0000000000014304        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysfile_rockbox.o
+                0x0000000000014364        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysfile_rockbox.o
  .note.GNU-stack
-                0x0000000000014304        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysmem_rockbox.o
+                0x0000000000014364        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysmem_rockbox.o
  .note.GNU-stack
-                0x0000000000014304        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysmenu_rockbox.o
+                0x0000000000014364        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysmenu_rockbox.o
  .note.GNU-stack
-                0x0000000000014304        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/syssnd_rockbox.o
+                0x0000000000014364        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/syssnd_rockbox.o
  .note.GNU-stack
-                0x0000000000014304        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/system_rockbox.o
+                0x0000000000014364        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/system_rockbox.o
  .note.GNU-stack
-                0x0000000000014304        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysvid_rockbox.o
+                0x0000000000014364        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysvid_rockbox.o
  .note.GNU-stack
-                0x0000000000014304        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+                0x0000000000014364        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
  .note.GNU-stack
-                0x0000000000014304        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
+                0x0000000000014364        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
  .note.GNU-stack
-                0x0000000000014304        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(helper.o)
+                0x0000000000014364        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(helper.o)
  .note.GNU-stack
-                0x0000000000014304        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtendS.o
+                0x0000000000014364        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtendS.o
  .note.GNU-stack
-                0x0000000000014304        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
+                0x0000000000014364        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
 
 .note.gnu.property
-                0x0000000000014308       0x30
+                0x0000000000014368       0x30
  *(.note.gnu.property)
  .note.gnu.property
-                0x0000000000014308       0x30 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+                0x0000000000014368       0x30 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
 
 .note.ABI-tag
  *(.note.ABI-tag)
@@ -883,12 +884,12 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .init_array     0x0000000000015c10        0x8
  *(SORT_BY_INIT_PRIORITY(.init_array.*) SORT_BY_INIT_PRIORITY(.ctors.*))
  *(.init_array EXCLUDE_FILE(*crtend?.o *crtend.o *crtbegin?.o *crtbegin.o) .ctors)
- .init_array    0x0000000000015c10        0x8 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtbeginS.o
+ .init_array    0x0000000000015c10        0x8 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtbeginS.o
 
 .fini_array     0x0000000000015c18        0x8
  *(SORT_BY_INIT_PRIORITY(.fini_array.*) SORT_BY_INIT_PRIORITY(.dtors.*))
  *(.fini_array EXCLUDE_FILE(*crtend?.o *crtend.o *crtbegin?.o *crtbegin.o) .dtors)
- .fini_array    0x0000000000015c18        0x8 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtbeginS.o
+ .fini_array    0x0000000000015c18        0x8 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtbeginS.o
 
 .ctors
  *crtbegin.o(.ctors)
@@ -920,31 +921,31 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
                 0x0000000000015dc0       0x38 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
                 0x0000000000015dc0                __header
  *(.data.rel.ro .data.rel.ro.* .gnu.linkonce.d.rel.ro.*)
- .data.rel.ro   0x0000000000015df8        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ .data.rel.ro   0x0000000000015df8        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
 
 .dynamic        0x0000000000015df8      0x1c0
  *(.dynamic)
- .dynamic       0x0000000000015df8      0x1c0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ .dynamic       0x0000000000015df8      0x1c0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
                 0x0000000000015df8                _DYNAMIC
 
 .got            0x0000000000015fb8       0x30
  *(.got)
- .got           0x0000000000015fb8       0x30 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ .got           0x0000000000015fb8       0x30 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
  *(.igot)
                 0x0000000000015fe8                . = DATA_SEGMENT_RELRO_END (., (SIZEOF (.got.plt) >= 0x18)?0x18:0x0)
 
 .got.plt        0x0000000000015fe8       0x38
  *(.got.plt)
- .got.plt       0x0000000000015fe8       0x38 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ .got.plt       0x0000000000015fe8       0x38 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
                 0x0000000000015fe8                _GLOBAL_OFFSET_TABLE_
  *(.igot.plt)
 
 .data           0x0000000000016020      0x341
  *(.data .data.* .gnu.linkonce.d.*)
- .data          0x0000000000016020        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
- .data          0x0000000000016020        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtbeginS.o
+ .data          0x0000000000016020        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
+ .data          0x0000000000016020        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtbeginS.o
  .data.rel.local
-                0x0000000000016020        0x8 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtbeginS.o
+                0x0000000000016020        0x8 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtbeginS.o
                 0x0000000000016020                __dso_handle
  .data          0x0000000000016028        0x1 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/control.o
                 0x0000000000016028                control_active
@@ -1003,15 +1004,15 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
                 0x0000000000016358                rb
  .data          0x0000000000016360        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
  .data          0x0000000000016360        0x1 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(helper.o)
- .data          0x0000000000016361        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtendS.o
- .data          0x0000000000016361        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
+ .data          0x0000000000016361        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtendS.o
+ .data          0x0000000000016361        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
 
 .tm_clone_table
                 0x0000000000016368        0x0
  .tm_clone_table
-                0x0000000000016368        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtbeginS.o
+                0x0000000000016368        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtbeginS.o
  .tm_clone_table
-                0x0000000000016368        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtendS.o
+                0x0000000000016368        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtendS.o
 
 .data1
  *(.data1)
@@ -1022,10 +1023,10 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 
 .bss            0x0000000000016380     0x50a8
  *(.dynbss)
- .dynbss        0x0000000000016380        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ .dynbss        0x0000000000016380        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
  *(.bss .bss.* .gnu.linkonce.b.*)
- .bss           0x0000000000016380        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
- .bss           0x0000000000016380        0x1 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtbeginS.o
+ .bss           0x0000000000016380        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
+ .bss           0x0000000000016380        0x1 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtbeginS.o
  *fill*         0x0000000000016381        0x3 
  .bss           0x0000000000016384        0x4 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/control.o
                 0x0000000000016384                control_status
@@ -1184,8 +1185,8 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
  .bss           0x000000000001b340       0xe8 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
  .bss           0x000000000001b428        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
  .bss           0x000000000001b428        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(helper.o)
- .bss           0x000000000001b428        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtendS.o
- .bss           0x000000000001b428        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
+ .bss           0x000000000001b428        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtendS.o
+ .bss           0x000000000001b428        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
  *(COMMON)
                 0x000000000001b428                . = ALIGN ((. != 0x0)?0x8:0x1)
 
@@ -1225,93 +1226,93 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .stab.indexstr
  *(.stab.indexstr)
 
-.comment        0x0000000000000000       0x1b
+.comment        0x0000000000000000       0x36
  *(.comment)
- .comment       0x0000000000000000       0x1b /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtbeginS.o
+ .comment       0x0000000000000000       0x36 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtbeginS.o
                                          0x1c (size before relaxing)
- .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/control.o
+ .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/control.o
                                          0x1c (size before relaxing)
- .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/devtools.o
+ .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/devtools.o
                                          0x1c (size before relaxing)
- .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/draw.o
+ .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/draw.o
                                          0x1c (size before relaxing)
- .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/e_bomb.o
+ .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/e_bomb.o
                                          0x1c (size before relaxing)
- .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/e_bonus.o
+ .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/e_bonus.o
                                          0x1c (size before relaxing)
- .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/e_box.o
+ .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/e_box.o
                                          0x1c (size before relaxing)
- .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/e_bullet.o
+ .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/e_bullet.o
                                          0x1c (size before relaxing)
- .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/e_rick.o
+ .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/e_rick.o
                                          0x1c (size before relaxing)
- .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/e_sbonus.o
+ .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/e_sbonus.o
                                          0x1c (size before relaxing)
- .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/e_them.o
+ .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/e_them.o
                                          0x1c (size before relaxing)
- .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/ents.o
+ .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/ents.o
                                          0x1c (size before relaxing)
- .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/game.o
+ .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/game.o
                                          0x1c (size before relaxing)
- .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/maps.o
+ .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/maps.o
                                          0x1c (size before relaxing)
- .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/rects.o
+ .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/rects.o
                                          0x1c (size before relaxing)
- .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/res_magic.o
+ .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/res_magic.o
                                          0x1c (size before relaxing)
- .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/resources.o
+ .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/resources.o
                                          0x1c (size before relaxing)
- .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_gameover.o
+ .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_gameover.o
                                          0x1c (size before relaxing)
- .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_getname.o
+ .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_getname.o
                                          0x1c (size before relaxing)
- .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_imain.o
+ .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_imain.o
                                          0x1c (size before relaxing)
- .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_imap.o
+ .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_imap.o
                                          0x1c (size before relaxing)
- .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_pause.o
+ .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_pause.o
                                          0x1c (size before relaxing)
- .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_xrick.o
+ .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_xrick.o
                                          0x1c (size before relaxing)
- .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scroller.o
+ .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scroller.o
                                          0x1c (size before relaxing)
- .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/util.o
+ .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/util.o
                                          0x1c (size before relaxing)
- .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/data/img.o
+ .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/data/img.o
                                          0x1c (size before relaxing)
- .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/data/pics.o
+ .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/data/pics.o
                                          0x1c (size before relaxing)
- .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/data/sounds.o
+ .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/data/sounds.o
                                          0x1c (size before relaxing)
- .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/data/sprites.o
+ .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/data/sprites.o
                                          0x1c (size before relaxing)
- .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/data/tiles.o
+ .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/data/tiles.o
                                          0x1c (size before relaxing)
- .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/main_rockbox.o
+ .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/main_rockbox.o
                                          0x1c (size before relaxing)
- .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysarg_rockbox.o
+ .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysarg_rockbox.o
                                          0x1c (size before relaxing)
- .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysevt_rockbox.o
+ .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysevt_rockbox.o
                                          0x1c (size before relaxing)
- .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysfile_rockbox.o
+ .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysfile_rockbox.o
                                          0x1c (size before relaxing)
- .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysmem_rockbox.o
+ .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysmem_rockbox.o
                                          0x1c (size before relaxing)
- .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysmenu_rockbox.o
+ .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysmenu_rockbox.o
                                          0x1c (size before relaxing)
- .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/syssnd_rockbox.o
+ .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/syssnd_rockbox.o
                                          0x1c (size before relaxing)
- .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/system_rockbox.o
+ .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/system_rockbox.o
                                          0x1c (size before relaxing)
- .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysvid_rockbox.o
+ .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysvid_rockbox.o
                                          0x1c (size before relaxing)
- .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+ .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
                                          0x1c (size before relaxing)
- .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
+ .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
                                          0x1c (size before relaxing)
- .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(helper.o)
+ .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(helper.o)
                                          0x1c (size before relaxing)
- .comment       0x000000000000001b        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtendS.o
+ .comment       0x0000000000000036        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtendS.o
                                          0x1c (size before relaxing)
 
 .gnu.build.attributes
@@ -1415,7 +1416,7 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000    0x63b62
+.debug_info     0x0000000000000000    0x63c10
  *(.debug_info .gnu.linkonce.wi.*)
  .debug_info    0x0000000000000000      0x17f /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/control.o
  .debug_info    0x000000000000017f     0x1022 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/draw.o
@@ -1431,34 +1432,34 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
  .debug_info    0x0000000000006c5f      0x9c6 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/maps.o
  .debug_info    0x0000000000007625      0x236 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/rects.o
  .debug_info    0x000000000000785b       0xce /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/res_magic.o
- .debug_info    0x0000000000007929     0x733c /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/resources.o
- .debug_info    0x000000000000ec65      0x43c /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_gameover.o
- .debug_info    0x000000000000f0a1      0xb1b /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_getname.o
- .debug_info    0x000000000000fbbc      0x68d /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_imain.o
- .debug_info    0x0000000000010249      0xa90 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_imap.o
- .debug_info    0x0000000000010cd9      0x20e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_pause.o
- .debug_info    0x0000000000010ee7      0x638 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_xrick.o
- .debug_info    0x000000000001151f      0x502 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scroller.o
- .debug_info    0x0000000000011a21      0x627 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/util.o
- .debug_info    0x0000000000012048      0x173 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/data/img.o
- .debug_info    0x00000000000121bb      0x14c /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/data/pics.o
- .debug_info    0x0000000000012307      0x344 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/data/sounds.o
- .debug_info    0x000000000001264b      0x109 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/data/sprites.o
- .debug_info    0x0000000000012754       0xfd /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/data/tiles.o
- .debug_info    0x0000000000012851      0x1c7 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/main_rockbox.o
- .debug_info    0x0000000000012a18      0x173 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysarg_rockbox.o
- .debug_info    0x0000000000012b8b     0x78bf /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysevt_rockbox.o
- .debug_info    0x000000000001a44a     0x7bea /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysfile_rockbox.o
- .debug_info    0x0000000000022034     0x7a5e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysmem_rockbox.o
- .debug_info    0x0000000000029a92     0x9a9a /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysmenu_rockbox.o
- .debug_info    0x000000000003352c     0x81d8 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/syssnd_rockbox.o
- .debug_info    0x000000000003b704     0x995d /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/system_rockbox.o
- .debug_info    0x0000000000045061     0x7d7c /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysvid_rockbox.o
- .debug_info    0x000000000004cddd     0x7c93 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
- .debug_info    0x0000000000054a70     0x7664 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
- .debug_info    0x000000000005c0d4     0x7a8e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(helper.o)
+ .debug_info    0x0000000000007929     0x73e7 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/resources.o
+ .debug_info    0x000000000000ed10      0x43c /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_gameover.o
+ .debug_info    0x000000000000f14c      0xb1b /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_getname.o
+ .debug_info    0x000000000000fc67      0x68d /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_imain.o
+ .debug_info    0x00000000000102f4      0xa90 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_imap.o
+ .debug_info    0x0000000000010d84      0x20e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_pause.o
+ .debug_info    0x0000000000010f92      0x638 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_xrick.o
+ .debug_info    0x00000000000115ca      0x502 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scroller.o
+ .debug_info    0x0000000000011acc      0x627 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/util.o
+ .debug_info    0x00000000000120f3      0x173 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/data/img.o
+ .debug_info    0x0000000000012266      0x14c /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/data/pics.o
+ .debug_info    0x00000000000123b2      0x344 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/data/sounds.o
+ .debug_info    0x00000000000126f6      0x109 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/data/sprites.o
+ .debug_info    0x00000000000127ff       0xfd /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/data/tiles.o
+ .debug_info    0x00000000000128fc      0x1c7 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/main_rockbox.o
+ .debug_info    0x0000000000012ac3      0x173 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysarg_rockbox.o
+ .debug_info    0x0000000000012c36     0x78bf /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysevt_rockbox.o
+ .debug_info    0x000000000001a4f5     0x7bea /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysfile_rockbox.o
+ .debug_info    0x00000000000220df     0x7a5e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysmem_rockbox.o
+ .debug_info    0x0000000000029b3d     0x9a9a /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysmenu_rockbox.o
+ .debug_info    0x00000000000335d7     0x81e6 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/syssnd_rockbox.o
+ .debug_info    0x000000000003b7bd     0x9955 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/system_rockbox.o
+ .debug_info    0x0000000000045112     0x7d7c /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysvid_rockbox.o
+ .debug_info    0x000000000004ce8e     0x7c93 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+ .debug_info    0x0000000000054b21     0x7664 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
+ .debug_info    0x000000000005c185     0x7a8b /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(helper.o)
 
-.debug_abbrev   0x0000000000000000     0x6151
+.debug_abbrev   0x0000000000000000     0x6152
  *(.debug_abbrev)
  .debug_abbrev  0x0000000000000000       0xd7 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/control.o
  .debug_abbrev  0x00000000000000d7      0x34e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/draw.o
@@ -1474,34 +1475,34 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
  .debug_abbrev  0x0000000000001804      0x243 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/maps.o
  .debug_abbrev  0x0000000000001a47      0x16f /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/rects.o
  .debug_abbrev  0x0000000000001bb6       0x9b /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/res_magic.o
- .debug_abbrev  0x0000000000001c51      0x650 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/resources.o
- .debug_abbrev  0x00000000000022a1      0x1d6 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_gameover.o
- .debug_abbrev  0x0000000000002477      0x27e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_getname.o
- .debug_abbrev  0x00000000000026f5      0x213 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_imain.o
- .debug_abbrev  0x0000000000002908      0x2f4 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_imap.o
- .debug_abbrev  0x0000000000002bfc      0x11d /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_pause.o
- .debug_abbrev  0x0000000000002d19      0x1c2 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_xrick.o
- .debug_abbrev  0x0000000000002edb      0x18a /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scroller.o
- .debug_abbrev  0x0000000000003065      0x1e4 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/util.o
- .debug_abbrev  0x0000000000003249       0xa7 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/data/img.o
- .debug_abbrev  0x00000000000032f0       0x97 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/data/pics.o
- .debug_abbrev  0x0000000000003387       0xd7 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/data/sounds.o
- .debug_abbrev  0x000000000000345e       0x9f /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/data/sprites.o
- .debug_abbrev  0x00000000000034fd       0x9f /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/data/tiles.o
- .debug_abbrev  0x000000000000359c      0x11b /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/main_rockbox.o
- .debug_abbrev  0x00000000000036b7       0xab /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysarg_rockbox.o
- .debug_abbrev  0x0000000000003762      0x413 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysevt_rockbox.o
- .debug_abbrev  0x0000000000003b75      0x423 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysfile_rockbox.o
- .debug_abbrev  0x0000000000003f98      0x385 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysmem_rockbox.o
- .debug_abbrev  0x000000000000431d      0x4a6 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysmenu_rockbox.o
- .debug_abbrev  0x00000000000047c3      0x5a1 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/syssnd_rockbox.o
- .debug_abbrev  0x0000000000004d64      0x43f /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/system_rockbox.o
- .debug_abbrev  0x00000000000051a3      0x49a /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysvid_rockbox.o
- .debug_abbrev  0x000000000000563d      0x442 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
- .debug_abbrev  0x0000000000005a7f      0x310 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
- .debug_abbrev  0x0000000000005d8f      0x3c2 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(helper.o)
+ .debug_abbrev  0x0000000000001c51      0x656 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/resources.o
+ .debug_abbrev  0x00000000000022a7      0x1d6 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_gameover.o
+ .debug_abbrev  0x000000000000247d      0x27e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_getname.o
+ .debug_abbrev  0x00000000000026fb      0x213 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_imain.o
+ .debug_abbrev  0x000000000000290e      0x2f4 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_imap.o
+ .debug_abbrev  0x0000000000002c02      0x11d /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_pause.o
+ .debug_abbrev  0x0000000000002d1f      0x1c2 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_xrick.o
+ .debug_abbrev  0x0000000000002ee1      0x18a /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scroller.o
+ .debug_abbrev  0x000000000000306b      0x1e4 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/util.o
+ .debug_abbrev  0x000000000000324f       0xa7 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/data/img.o
+ .debug_abbrev  0x00000000000032f6       0x97 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/data/pics.o
+ .debug_abbrev  0x000000000000338d       0xd7 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/data/sounds.o
+ .debug_abbrev  0x0000000000003464       0x9f /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/data/sprites.o
+ .debug_abbrev  0x0000000000003503       0x9f /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/data/tiles.o
+ .debug_abbrev  0x00000000000035a2      0x11b /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/main_rockbox.o
+ .debug_abbrev  0x00000000000036bd       0xab /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysarg_rockbox.o
+ .debug_abbrev  0x0000000000003768      0x413 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysevt_rockbox.o
+ .debug_abbrev  0x0000000000003b7b      0x423 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysfile_rockbox.o
+ .debug_abbrev  0x0000000000003f9e      0x385 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysmem_rockbox.o
+ .debug_abbrev  0x0000000000004323      0x4a6 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysmenu_rockbox.o
+ .debug_abbrev  0x00000000000047c9      0x5a1 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/syssnd_rockbox.o
+ .debug_abbrev  0x0000000000004d6a      0x43a /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/system_rockbox.o
+ .debug_abbrev  0x00000000000051a4      0x49a /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysvid_rockbox.o
+ .debug_abbrev  0x000000000000563e      0x442 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+ .debug_abbrev  0x0000000000005a80      0x310 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
+ .debug_abbrev  0x0000000000005d90      0x3c2 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(helper.o)
 
-.debug_line     0x0000000000000000    0x10523
+.debug_line     0x0000000000000000    0x10c4b
  *(.debug_line .debug_line.* .debug_line_end)
  .debug_line    0x0000000000000000       0x7e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/control.o
  .debug_line    0x000000000000007e        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/devtools.o
@@ -1518,119 +1519,119 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
  .debug_line    0x000000000000439c      0x40c /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/maps.o
  .debug_line    0x00000000000047a8       0xda /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/rects.o
  .debug_line    0x0000000000004882       0x5b /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/res_magic.o
- .debug_line    0x00000000000048dd     0x787e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/resources.o
- .debug_line    0x000000000000c15b      0x229 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_gameover.o
- .debug_line    0x000000000000c384      0x96b /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_getname.o
- .debug_line    0x000000000000ccef      0x3be /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_imain.o
- .debug_line    0x000000000000d0ad      0x55d /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_imap.o
- .debug_line    0x000000000000d60a       0xb8 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_pause.o
- .debug_line    0x000000000000d6c2      0x18f /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_xrick.o
- .debug_line    0x000000000000d851      0x342 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scroller.o
- .debug_line    0x000000000000db93      0x3bf /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/util.o
- .debug_line    0x000000000000df52       0x56 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/data/img.o
- .debug_line    0x000000000000dfa8       0x56 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/data/pics.o
- .debug_line    0x000000000000dffe       0x56 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/data/sounds.o
- .debug_line    0x000000000000e054       0x5f /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/data/sprites.o
- .debug_line    0x000000000000e0b3       0x5f /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/data/tiles.o
- .debug_line    0x000000000000e112       0xa9 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/main_rockbox.o
- .debug_line    0x000000000000e1bb       0x70 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysarg_rockbox.o
- .debug_line    0x000000000000e22b      0x31f /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysevt_rockbox.o
- .debug_line    0x000000000000e54a      0x2c4 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysfile_rockbox.o
- .debug_line    0x000000000000e80e      0x303 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysmem_rockbox.o
- .debug_line    0x000000000000eb11      0x36b /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysmenu_rockbox.o
- .debug_line    0x000000000000ee7c      0x755 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/syssnd_rockbox.o
- .debug_line    0x000000000000f5d1      0x36d /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/system_rockbox.o
- .debug_line    0x000000000000f93e      0x489 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysvid_rockbox.o
- .debug_line    0x000000000000fdc7      0x2bd /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
- .debug_line    0x0000000000010084      0x1eb /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
- .debug_line    0x000000000001026f      0x2b4 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(helper.o)
+ .debug_line    0x00000000000048dd     0x7f6b /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/resources.o
+ .debug_line    0x000000000000c848      0x229 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_gameover.o
+ .debug_line    0x000000000000ca71      0x96b /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_getname.o
+ .debug_line    0x000000000000d3dc      0x3be /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_imain.o
+ .debug_line    0x000000000000d79a      0x55d /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_imap.o
+ .debug_line    0x000000000000dcf7       0xb8 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_pause.o
+ .debug_line    0x000000000000ddaf      0x18f /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_xrick.o
+ .debug_line    0x000000000000df3e      0x342 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scroller.o
+ .debug_line    0x000000000000e280      0x3bf /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/util.o
+ .debug_line    0x000000000000e63f       0x56 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/data/img.o
+ .debug_line    0x000000000000e695       0x56 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/data/pics.o
+ .debug_line    0x000000000000e6eb       0x56 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/data/sounds.o
+ .debug_line    0x000000000000e741       0x5f /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/data/sprites.o
+ .debug_line    0x000000000000e7a0       0x5f /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/data/tiles.o
+ .debug_line    0x000000000000e7ff       0xa9 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/main_rockbox.o
+ .debug_line    0x000000000000e8a8       0x70 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysarg_rockbox.o
+ .debug_line    0x000000000000e918      0x323 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysevt_rockbox.o
+ .debug_line    0x000000000000ec3b      0x2c3 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysfile_rockbox.o
+ .debug_line    0x000000000000eefe      0x303 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysmem_rockbox.o
+ .debug_line    0x000000000000f201      0x378 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysmenu_rockbox.o
+ .debug_line    0x000000000000f579      0x77a /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/syssnd_rockbox.o
+ .debug_line    0x000000000000fcf3      0x368 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/system_rockbox.o
+ .debug_line    0x000000000001005b      0x494 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysvid_rockbox.o
+ .debug_line    0x00000000000104ef      0x2bd /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+ .debug_line    0x00000000000107ac      0x1eb /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
+ .debug_line    0x0000000000010997      0x2b4 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(helper.o)
 
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0xcf25
+.debug_str      0x0000000000000000     0xcfe9
  *(.debug_str)
- .debug_str     0x0000000000000000     0xcf25 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/control.o
+ .debug_str     0x0000000000000000     0xcfe9 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/control.o
                                         0x1e4 (size before relaxing)
- .debug_str     0x000000000000cf25        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/devtools.o
+ .debug_str     0x000000000000cfe9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/devtools.o
                                          0xc4 (size before relaxing)
- .debug_str     0x000000000000cf25        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/draw.o
+ .debug_str     0x000000000000cfe9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/draw.o
                                         0x4c6 (size before relaxing)
- .debug_str     0x000000000000cf25        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/e_bomb.o
+ .debug_str     0x000000000000cfe9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/e_bomb.o
                                         0x302 (size before relaxing)
- .debug_str     0x000000000000cf25        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/e_bonus.o
+ .debug_str     0x000000000000cfe9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/e_bonus.o
                                         0x2a7 (size before relaxing)
- .debug_str     0x000000000000cf25        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/e_box.o
+ .debug_str     0x000000000000cfe9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/e_box.o
                                         0x3b2 (size before relaxing)
- .debug_str     0x000000000000cf25        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/e_bullet.o
+ .debug_str     0x000000000000cfe9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/e_bullet.o
                                         0x2ed (size before relaxing)
- .debug_str     0x000000000000cf25        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/e_rick.o
+ .debug_str     0x000000000000cfe9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/e_rick.o
                                         0x571 (size before relaxing)
- .debug_str     0x000000000000cf25        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/e_sbonus.o
+ .debug_str     0x000000000000cfe9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/e_sbonus.o
                                         0x311 (size before relaxing)
- .debug_str     0x000000000000cf25        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/e_them.o
+ .debug_str     0x000000000000cfe9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/e_them.o
                                         0x544 (size before relaxing)
- .debug_str     0x000000000000cf25        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/ents.o
+ .debug_str     0x000000000000cfe9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/ents.o
                                         0x614 (size before relaxing)
- .debug_str     0x000000000000cf25        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/game.o
+ .debug_str     0x000000000000cfe9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/game.o
                                         0x927 (size before relaxing)
- .debug_str     0x000000000000cf25        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/maps.o
+ .debug_str     0x000000000000cfe9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/maps.o
                                         0x4cf (size before relaxing)
- .debug_str     0x000000000000cf25        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/rects.o
+ .debug_str     0x000000000000cfe9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/rects.o
                                         0x1ba (size before relaxing)
- .debug_str     0x000000000000cf25        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/res_magic.o
+ .debug_str     0x000000000000cfe9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/res_magic.o
                                         0x15b (size before relaxing)
- .debug_str     0x000000000000cf25        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/resources.o
+ .debug_str     0x000000000000cfe9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/resources.o
                                        0x2cb8 (size before relaxing)
- .debug_str     0x000000000000cf25        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_gameover.o
+ .debug_str     0x000000000000cfe9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_gameover.o
                                         0x329 (size before relaxing)
- .debug_str     0x000000000000cf25        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_getname.o
+ .debug_str     0x000000000000cfe9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_getname.o
                                         0x387 (size before relaxing)
- .debug_str     0x000000000000cf25        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_imain.o
+ .debug_str     0x000000000000cfe9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_imain.o
                                         0x39d (size before relaxing)
- .debug_str     0x000000000000cf25        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_imap.o
+ .debug_str     0x000000000000cfe9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_imap.o
                                         0x425 (size before relaxing)
- .debug_str     0x000000000000cf25        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_pause.o
+ .debug_str     0x000000000000cfe9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_pause.o
                                         0x209 (size before relaxing)
- .debug_str     0x000000000000cf25        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_xrick.o
+ .debug_str     0x000000000000cfe9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_xrick.o
                                         0x44b (size before relaxing)
- .debug_str     0x000000000000cf25        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scroller.o
+ .debug_str     0x000000000000cfe9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scroller.o
                                         0x2ea (size before relaxing)
- .debug_str     0x000000000000cf25        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/util.o
+ .debug_str     0x000000000000cfe9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/util.o
                                         0x2f9 (size before relaxing)
- .debug_str     0x000000000000cf25        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/data/img.o
+ .debug_str     0x000000000000cfe9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/data/img.o
                                         0x1a0 (size before relaxing)
- .debug_str     0x000000000000cf25        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/data/pics.o
+ .debug_str     0x000000000000cfe9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/data/pics.o
                                         0x194 (size before relaxing)
- .debug_str     0x000000000000cf25        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/data/sounds.o
+ .debug_str     0x000000000000cfe9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/data/sounds.o
                                         0x26a (size before relaxing)
- .debug_str     0x000000000000cf25        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/data/sprites.o
+ .debug_str     0x000000000000cfe9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/data/sprites.o
                                         0x1a0 (size before relaxing)
- .debug_str     0x000000000000cf25        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/data/tiles.o
+ .debug_str     0x000000000000cfe9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/data/tiles.o
                                         0x175 (size before relaxing)
- .debug_str     0x000000000000cf25        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/main_rockbox.o
+ .debug_str     0x000000000000cfe9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/main_rockbox.o
                                         0x24b (size before relaxing)
- .debug_str     0x000000000000cf25        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysarg_rockbox.o
+ .debug_str     0x000000000000cfe9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysarg_rockbox.o
                                         0x1d8 (size before relaxing)
- .debug_str     0x000000000000cf25        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysevt_rockbox.o
+ .debug_str     0x000000000000cfe9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysevt_rockbox.o
                                        0x48e2 (size before relaxing)
- .debug_str     0x000000000000cf25        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysfile_rockbox.o
+ .debug_str     0x000000000000cfe9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysfile_rockbox.o
                                        0x504e (size before relaxing)
- .debug_str     0x000000000000cf25        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysmem_rockbox.o
+ .debug_str     0x000000000000cfe9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysmem_rockbox.o
                                        0x5043 (size before relaxing)
- .debug_str     0x000000000000cf25        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysmenu_rockbox.o
+ .debug_str     0x000000000000cfe9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysmenu_rockbox.o
                                        0xa37f (size before relaxing)
- .debug_str     0x000000000000cf25        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/syssnd_rockbox.o
+ .debug_str     0x000000000000cfe9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/syssnd_rockbox.o
                                        0x5281 (size before relaxing)
- .debug_str     0x000000000000cf25        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/system_rockbox.o
+ .debug_str     0x000000000000cfe9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/system_rockbox.o
                                        0x9ad9 (size before relaxing)
- .debug_str     0x000000000000cf25        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysvid_rockbox.o
+ .debug_str     0x000000000000cfe9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysvid_rockbox.o
                                        0x5152 (size before relaxing)
- .debug_str     0x000000000000cf25        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+ .debug_str     0x000000000000cfe9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
                                        0x5134 (size before relaxing)
- .debug_str     0x000000000000cf25        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
+ .debug_str     0x000000000000cfe9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
                                        0x47db (size before relaxing)
- .debug_str     0x000000000000cf25        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(helper.o)
+ .debug_str     0x000000000000cfe9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(helper.o)
                                        0x512b (size before relaxing)
 
 .debug_loc
@@ -1661,134 +1662,134 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
  *(.debug_addr)
 
 .debug_line_str
-                0x0000000000000000     0x14df
+                0x0000000000000000     0x150f
  *(.debug_line_str)
  .debug_line_str
-                0x0000000000000000     0x14df /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/control.o
+                0x0000000000000000     0x150f /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/control.o
                                         0x12c (size before relaxing)
  .debug_line_str
-                0x00000000000014df        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/devtools.o
+                0x000000000000150f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/devtools.o
                                          0x8d (size before relaxing)
  .debug_line_str
-                0x00000000000014df        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/draw.o
+                0x000000000000150f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/draw.o
                                         0x273 (size before relaxing)
  .debug_line_str
-                0x00000000000014df        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/e_bomb.o
+                0x000000000000150f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/e_bomb.o
                                         0x21d (size before relaxing)
  .debug_line_str
-                0x00000000000014df        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/e_bonus.o
+                0x000000000000150f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/e_bonus.o
                                         0x225 (size before relaxing)
  .debug_line_str
-                0x00000000000014df        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/e_box.o
+                0x000000000000150f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/e_box.o
                                         0x23a (size before relaxing)
  .debug_line_str
-                0x00000000000014df        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/e_bullet.o
+                0x000000000000150f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/e_bullet.o
                                         0x22a (size before relaxing)
  .debug_line_str
-                0x00000000000014df        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/e_rick.o
+                0x000000000000150f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/e_rick.o
                                         0x240 (size before relaxing)
  .debug_line_str
-                0x00000000000014df        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/e_sbonus.o
+                0x000000000000150f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/e_sbonus.o
                                         0x231 (size before relaxing)
  .debug_line_str
-                0x00000000000014df        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/e_them.o
+                0x000000000000150f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/e_them.o
                                         0x246 (size before relaxing)
  .debug_line_str
-                0x00000000000014df        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/ents.o
+                0x000000000000150f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/ents.o
                                         0x2b5 (size before relaxing)
  .debug_line_str
-                0x00000000000014df        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/game.o
+                0x000000000000150f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/game.o
                                         0x298 (size before relaxing)
  .debug_line_str
-                0x00000000000014df        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/maps.o
+                0x000000000000150f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/maps.o
                                         0x26b (size before relaxing)
  .debug_line_str
-                0x00000000000014df        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/rects.o
+                0x000000000000150f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/rects.o
                                         0x1e5 (size before relaxing)
  .debug_line_str
-                0x00000000000014df        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/res_magic.o
+                0x000000000000150f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/res_magic.o
                                         0x1bd (size before relaxing)
  .debug_line_str
-                0x00000000000014df        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/resources.o
+                0x000000000000150f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/resources.o
                                         0x46c (size before relaxing)
  .debug_line_str
-                0x00000000000014df        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_gameover.o
+                0x000000000000150f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_gameover.o
                                         0x240 (size before relaxing)
  .debug_line_str
-                0x00000000000014df        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_getname.o
+                0x000000000000150f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_getname.o
                                         0x26f (size before relaxing)
  .debug_line_str
-                0x00000000000014df        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_imain.o
+                0x000000000000150f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_imain.o
                                         0x277 (size before relaxing)
  .debug_line_str
-                0x00000000000014df        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_imap.o
+                0x000000000000150f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_imap.o
                                         0x23b (size before relaxing)
  .debug_line_str
-                0x00000000000014df        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_pause.o
+                0x000000000000150f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_pause.o
                                         0x1ce (size before relaxing)
  .debug_line_str
-                0x00000000000014df        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_xrick.o
+                0x000000000000150f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_xrick.o
                                         0x276 (size before relaxing)
  .debug_line_str
-                0x00000000000014df        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scroller.o
+                0x000000000000150f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scroller.o
                                         0x225 (size before relaxing)
  .debug_line_str
-                0x00000000000014df        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/util.o
+                0x000000000000150f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/util.o
                                         0x21c (size before relaxing)
  .debug_line_str
-                0x00000000000014df        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/data/img.o
+                0x000000000000150f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/data/img.o
                                         0x1a5 (size before relaxing)
  .debug_line_str
-                0x00000000000014df        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/data/pics.o
+                0x000000000000150f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/data/pics.o
                                         0x1a9 (size before relaxing)
  .debug_line_str
-                0x00000000000014df        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/data/sounds.o
+                0x000000000000150f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/data/sounds.o
                                         0x1b1 (size before relaxing)
  .debug_line_str
-                0x00000000000014df        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/data/sprites.o
+                0x000000000000150f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/data/sprites.o
                                         0x1ee (size before relaxing)
  .debug_line_str
-                0x00000000000014df        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/data/tiles.o
+                0x000000000000150f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/data/tiles.o
                                         0x1e6 (size before relaxing)
  .debug_line_str
-                0x00000000000014df        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/main_rockbox.o
+                0x000000000000150f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/main_rockbox.o
                                         0x1cc (size before relaxing)
  .debug_line_str
-                0x00000000000014df        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysarg_rockbox.o
+                0x000000000000150f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysarg_rockbox.o
                                         0x19d (size before relaxing)
  .debug_line_str
-                0x00000000000014df        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysevt_rockbox.o
+                0x000000000000150f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysevt_rockbox.o
                                         0x6ac (size before relaxing)
  .debug_line_str
-                0x00000000000014df        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysfile_rockbox.o
+                0x000000000000150f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysfile_rockbox.o
                                         0x705 (size before relaxing)
  .debug_line_str
-                0x00000000000014df        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysmem_rockbox.o
+                0x000000000000150f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysmem_rockbox.o
                                         0x6c8 (size before relaxing)
  .debug_line_str
-                0x00000000000014df        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysmenu_rockbox.o
+                0x000000000000150f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysmenu_rockbox.o
                                         0x738 (size before relaxing)
  .debug_line_str
-                0x00000000000014df        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/syssnd_rockbox.o
+                0x000000000000150f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/syssnd_rockbox.o
                                         0x6e1 (size before relaxing)
  .debug_line_str
-                0x00000000000014df        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/system_rockbox.o
+                0x000000000000150f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/system_rockbox.o
                                         0x6d4 (size before relaxing)
  .debug_line_str
-                0x00000000000014df        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysvid_rockbox.o
+                0x000000000000150f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysvid_rockbox.o
                                         0x766 (size before relaxing)
  .debug_line_str
-                0x00000000000014df        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+                0x000000000000150f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
                                         0x693 (size before relaxing)
  .debug_line_str
-                0x00000000000014df        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
+                0x000000000000150f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
                                         0x636 (size before relaxing)
  .debug_line_str
-                0x00000000000014df        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(helper.o)
+                0x000000000000150f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(helper.o)
                                         0x638 (size before relaxing)
 
 .debug_loclists
-                0x0000000000000000     0xd48e
+                0x0000000000000000     0xca53
  *(.debug_loclists)
  .debug_loclists
                 0x0000000000000000       0x30 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/control.o
@@ -1817,45 +1818,45 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
  .debug_loclists
                 0x0000000000001ea5       0xce /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/rects.o
  .debug_loclists
-                0x0000000000001f73     0x9e94 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/resources.o
+                0x0000000000001f73     0x945d /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/resources.o
  .debug_loclists
-                0x000000000000be07       0x46 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_gameover.o
+                0x000000000000b3d0       0x46 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_gameover.o
  .debug_loclists
-                0x000000000000be4d      0x217 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_getname.o
+                0x000000000000b416      0x217 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_getname.o
  .debug_loclists
-                0x000000000000c064       0x91 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_imain.o
+                0x000000000000b62d       0x91 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_imain.o
  .debug_loclists
-                0x000000000000c0f5      0x193 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_imap.o
+                0x000000000000b6be      0x193 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_imap.o
  .debug_loclists
-                0x000000000000c288       0x2f /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_pause.o
+                0x000000000000b851       0x2f /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_pause.o
  .debug_loclists
-                0x000000000000c2b7       0x2a /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_xrick.o
+                0x000000000000b880       0x2a /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_xrick.o
  .debug_loclists
-                0x000000000000c2e1       0x85 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scroller.o
+                0x000000000000b8aa       0x85 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scroller.o
  .debug_loclists
-                0x000000000000c366      0x2e8 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/util.o
+                0x000000000000b92f      0x2e8 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/util.o
  .debug_loclists
-                0x000000000000c64e       0x35 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/main_rockbox.o
+                0x000000000000bc17       0x35 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/main_rockbox.o
  .debug_loclists
-                0x000000000000c683       0xfd /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysevt_rockbox.o
+                0x000000000000bc4c       0xfd /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysevt_rockbox.o
  .debug_loclists
-                0x000000000000c780      0x19d /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysfile_rockbox.o
+                0x000000000000bd49      0x18b /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysfile_rockbox.o
  .debug_loclists
-                0x000000000000c91d       0x9f /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysmem_rockbox.o
+                0x000000000000bed4       0x9f /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysmem_rockbox.o
  .debug_loclists
-                0x000000000000c9bc      0x159 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysmenu_rockbox.o
+                0x000000000000bf73      0x159 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysmenu_rockbox.o
  .debug_loclists
-                0x000000000000cb15      0x3ae /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/syssnd_rockbox.o
+                0x000000000000c0cc      0x3c6 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/syssnd_rockbox.o
  .debug_loclists
-                0x000000000000cec3       0xd7 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/system_rockbox.o
+                0x000000000000c492       0xcd /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/system_rockbox.o
  .debug_loclists
-                0x000000000000cf9a      0x313 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysvid_rockbox.o
+                0x000000000000c55f      0x313 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysvid_rockbox.o
  .debug_loclists
-                0x000000000000d2ad       0x9e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+                0x000000000000c872       0x9e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
  .debug_loclists
-                0x000000000000d34b       0xe4 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
+                0x000000000000c910       0xe4 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
  .debug_loclists
-                0x000000000000d42f       0x5f /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(helper.o)
+                0x000000000000c9f4       0x5f /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(helper.o)
 
 .debug_macro
  *(.debug_macro)
@@ -1864,7 +1865,7 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
  *(.debug_names)
 
 .debug_rnglists
-                0x0000000000000000     0x1396
+                0x0000000000000000     0x13b2
  *(.debug_rnglists)
  .debug_rnglists
                 0x0000000000000000       0xb7 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/draw.o
@@ -1881,25 +1882,25 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
  .debug_rnglists
                 0x00000000000002f9       0x1c /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/maps.o
  .debug_rnglists
-                0x0000000000000315      0xe13 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/resources.o
+                0x0000000000000315      0xe34 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/resources.o
  .debug_rnglists
-                0x0000000000001128       0x35 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_gameover.o
+                0x0000000000001149       0x35 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_gameover.o
  .debug_rnglists
-                0x000000000000115d       0xb1 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_getname.o
+                0x000000000000117e       0xb1 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_getname.o
  .debug_rnglists
-                0x000000000000120e       0x5a /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_imain.o
+                0x000000000000122f       0x5a /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_imain.o
  .debug_rnglists
-                0x0000000000001268       0x5c /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_imap.o
+                0x0000000000001289       0x5c /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_imap.o
  .debug_rnglists
-                0x00000000000012c4       0x18 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_xrick.o
+                0x00000000000012e5       0x18 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/scr_xrick.o
  .debug_rnglists
-                0x00000000000012dc       0x2c /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysevt_rockbox.o
+                0x00000000000012fd       0x2c /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysevt_rockbox.o
  .debug_rnglists
-                0x0000000000001308       0x27 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysmenu_rockbox.o
+                0x0000000000001329       0x27 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysmenu_rockbox.o
  .debug_rnglists
-                0x000000000000132f       0x50 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/syssnd_rockbox.o
+                0x0000000000001350       0x4b /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/syssnd_rockbox.o
  .debug_rnglists
-                0x000000000000137f       0x17 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysvid_rockbox.o
+                0x000000000000139b       0x17 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xrick/system/sysvid_rockbox.o
 
 .debug_str_offsets
  *(.debug_str_offsets)

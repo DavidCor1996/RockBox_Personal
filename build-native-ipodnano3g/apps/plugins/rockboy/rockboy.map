@@ -30,6 +30,7 @@ Discarded input sections
  .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/rockboy/loader.o
  .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/rockboy/mem.o
  .bss           0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/rockboy/menu.o
+ .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/rockboy/rbsound.o
  .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/rockboy/rockboy.o
  .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/rockboy/profiler.o
  .data          0x0000000000000000        0x0 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/rockboy/rtc.o
@@ -126,239 +127,236 @@ LOAD /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a
  .header        0x0000000009dfc000       0x1c /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/plugin_crt0.o
                 0x0000000009dfc000                __header
 
-.text           0x0000000009dfc020     0xa9d0
+.text           0x0000000009dfc020     0xabf8
  *(.text*)
- .text          0x0000000009dfc020      0x4d4 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/rockboy/../../../firmware/libc/sscanf.o
-                0x0000000009dfc160                sscanf
- .text          0x0000000009dfc4f4     0x3f5c /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/rockboy/cpu.o
-                0x0000000009dfc5c4                cpu_reset
-                0x0000000009dfc63c                cpu_timers
-                0x0000000009dfc69c                cpu_emulate
- .text          0x0000000009e00450      0x220 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/rockboy/emu.o
-                0x0000000009e00450                emu_reset
-                0x0000000009e0046c                emu_run
- .text          0x0000000009e00670       0x9c /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/rockboy/events.o
-                0x0000000009e00670                ev_postevent
-                0x0000000009e006b8                ev_getevent
- .text          0x0000000009e0070c      0x140 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/rockboy/fastmem.o
-                0x0000000009e0070c                readb
-                0x0000000009e00734                writeb
-                0x0000000009e00764                readw
-                0x0000000009e007cc                writew
-                0x0000000009e0083c                readhi
-                0x0000000009e00844                writehi
- .text          0x0000000009e0084c      0x380 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/rockboy/hw.o
-                0x0000000009e0084c                hw_interrupt
-                0x0000000009e008b4                hw_dma
-                0x0000000009e008ec                hw_hdma
-                0x0000000009e009a8                hw_hdma_cmd
-                0x0000000009e00a9c                pad_refresh
-                0x0000000009e00b24                pad_set
-                0x0000000009e00b60                hw_reset
- .text          0x0000000009e00bcc     0x1384 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/rockboy/lcd.o
-                0x0000000009e00c70                lcd_begin
-                0x0000000009e00d50                setvidmode
-                0x0000000009e00e44                lcd_refreshline
-                0x0000000009e01d44                pal_write
-                0x0000000009e01d68                pal_write_dmg
-                0x0000000009e01df0                vram_dirty
-                0x0000000009e01e1c                pal_dirty
-                0x0000000009e01e94                set_pal
-                0x0000000009e01ec8                vram_write
-                0x0000000009e01f18                lcd_reset
- .text          0x0000000009e01f50      0x2e0 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/rockboy/lcdc.o
-                0x0000000009e01f50                stat_trigger
-                0x0000000009e01ff8                lcdc_change
-                0x0000000009e02040                lcdc_trans
- .text          0x0000000009e02230      0x5c0 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/rockboy/loader.o
-                0x0000000009e02234                sn_save
-                0x0000000009e022a4                sn_load
-                0x0000000009e022f0                cleanup
-                0x0000000009e0243c                loader_init
- .text          0x0000000009e027f0      0xc88 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/rockboy/mem.o
-                0x0000000009e027f0                mem_updatemap
-                0x0000000009e02984                mem_write
-                0x0000000009e03158                mem_read
-                0x0000000009e03458                mbc_reset
- .text          0x0000000009e03478      0x98c /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/rockboy/menu.o
-                0x0000000009e03958                do_user_menu
- .text          0x0000000009e03e04      0x244 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/rockboy/rbsound.o
-                0x0000000009e03e64                rockboy_pcm_init
-                0x0000000009e03f44                rockboy_pcm_close
-                0x0000000009e03fa0                rockboy_pcm_submit
- .text          0x0000000009e04048      0x53c /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/rockboy/rockboy.o
-                0x0000000009e040c8                die
-                0x0000000009e040ec                my_malloc
-                0x0000000009e04124                rockboy_apply_performance_preset
-                0x0000000009e04134                plugin_start
- .text          0x0000000009e04584      0x244 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/rockboy/profiler.o
-                0x0000000009e04584                rockboy_profile_reset
-                0x0000000009e045a8                rockboy_profile_add
-                0x0000000009e04608                rockboy_profile_frame_rendered
-                0x0000000009e04630                rockboy_profile_get_totals
-                0x0000000009e0463c                rockboy_profile_is_enabled
-                0x0000000009e04654                rockboy_profile_log_summary
- .text          0x0000000009e047c8      0x478 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/rockboy/rtc.o
-                0x0000000009e047c8                rtc_latch
-                0x0000000009e0482c                rtc_write
-                0x0000000009e04970                rtc_tick
-                0x0000000009e04a14                rtc_save_internal
-                0x0000000009e04a98                rtc_load_internal
- .text          0x0000000009e04c40      0x4c4 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/rockboy/save.o
-                0x0000000009e04c40                loadstate
-                0x0000000009e04ec0                savestate
- .text          0x0000000009e05104     0x1038 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/rockboy/sound.o
-                0x0000000009e05104                sound_mix
-                0x0000000009e05794                sound_read
-                0x0000000009e057c4                sound_write
-                0x0000000009e05e14                sound_reset
-                0x0000000009e0603c                sound_dirty
- .text          0x0000000009e0613c      0x39c /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/rockboy/sys_rockbox.o
-                0x0000000009e0617c                ev_poll
-                0x0000000009e06480                vid_begin
-                0x0000000009e064c4                vid_init
- .text          0x0000000009e064d8      0x1e0 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/plugin_crt0.o
-                0x0000000009e064f0                plugin__start
-                0x0000000009e0661c                rb_atexit
-                0x0000000009e0663c                exit
-                0x0000000009e06658                _exit
-                0x0000000009e0666c                exit_on_usb
- .text.memcpy   0x0000000009e066b8       0x14 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(gcc-support.o)
-                0x0000000009e066b8                memcpy
- .text.memcmp   0x0000000009e066cc       0x14 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(gcc-support.o)
-                0x0000000009e066cc                memcmp
+ .text          0x0000000009dfc020      0x3c8 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/rockboy/../../../firmware/libc/sscanf.o
+                0x0000000009dfc1a0                sscanf
+ .text          0x0000000009dfc3e8     0x3f5c /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/rockboy/cpu.o
+                0x0000000009dfc4b8                cpu_reset
+                0x0000000009dfc530                cpu_timers
+                0x0000000009dfc590                cpu_emulate
+ .text          0x0000000009e00344      0x330 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/rockboy/emu.o
+                0x0000000009e003a4                emu_reset
+                0x0000000009e003c0                emu_run
+ .text          0x0000000009e00674       0x9c /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/rockboy/events.o
+                0x0000000009e00674                ev_postevent
+                0x0000000009e006bc                ev_getevent
+ .text          0x0000000009e00710      0x140 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/rockboy/fastmem.o
+                0x0000000009e00710                readb
+                0x0000000009e00738                writeb
+                0x0000000009e00768                readw
+                0x0000000009e007d0                writew
+                0x0000000009e00840                readhi
+                0x0000000009e00848                writehi
+ .text          0x0000000009e00850      0x380 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/rockboy/hw.o
+                0x0000000009e00850                hw_interrupt
+                0x0000000009e008b8                hw_dma
+                0x0000000009e008f0                hw_hdma
+                0x0000000009e009ac                hw_hdma_cmd
+                0x0000000009e00aa0                pad_refresh
+                0x0000000009e00b28                pad_set
+                0x0000000009e00b64                hw_reset
+ .text          0x0000000009e00bd0     0x1384 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/rockboy/lcd.o
+                0x0000000009e00c74                lcd_begin
+                0x0000000009e00d54                setvidmode
+                0x0000000009e00e48                lcd_refreshline
+                0x0000000009e01d48                pal_write
+                0x0000000009e01d6c                pal_write_dmg
+                0x0000000009e01df4                vram_dirty
+                0x0000000009e01e20                pal_dirty
+                0x0000000009e01e98                set_pal
+                0x0000000009e01ecc                vram_write
+                0x0000000009e01f1c                lcd_reset
+ .text          0x0000000009e01f54      0x2e0 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/rockboy/lcdc.o
+                0x0000000009e01f54                stat_trigger
+                0x0000000009e01ffc                lcdc_change
+                0x0000000009e02044                lcdc_trans
+ .text          0x0000000009e02234      0x5c0 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/rockboy/loader.o
+                0x0000000009e02238                sn_save
+                0x0000000009e022a8                sn_load
+                0x0000000009e022f4                cleanup
+                0x0000000009e02440                loader_init
+ .text          0x0000000009e027f4      0xc88 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/rockboy/mem.o
+                0x0000000009e027f4                mem_updatemap
+                0x0000000009e02988                mem_write
+                0x0000000009e0315c                mem_read
+                0x0000000009e0345c                mbc_reset
+ .text          0x0000000009e0347c      0x98c /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/rockboy/menu.o
+                0x0000000009e0395c                do_user_menu
+ .text          0x0000000009e03e08      0x33c /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/rockboy/rbsound.o
+                0x0000000009e03eb0                rockboy_pcm_init
+                0x0000000009e03fcc                rockboy_pcm_close
+                0x0000000009e04038                rockboy_pcm_submit
+ .text          0x0000000009e04144      0x53c /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/rockboy/rockboy.o
+                0x0000000009e041c4                die
+                0x0000000009e041e8                my_malloc
+                0x0000000009e04220                rockboy_apply_performance_preset
+                0x0000000009e04230                plugin_start
+ .text          0x0000000009e04680      0x36c /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/rockboy/profiler.o
+                0x0000000009e04680                rockboy_profile_reset
+                0x0000000009e046a4                rockboy_profile_add
+                0x0000000009e04704                rockboy_profile_frame_rendered
+                0x0000000009e0472c                rockboy_profile_frame_skipped
+                0x0000000009e04754                rockboy_profile_pcm_underrun
+                0x0000000009e0477c                rockboy_profile_get_totals
+                0x0000000009e04788                rockboy_profile_is_enabled
+                0x0000000009e047a0                rockboy_profile_log_summary
+ .text          0x0000000009e049ec      0x478 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/rockboy/rtc.o
+                0x0000000009e049ec                rtc_latch
+                0x0000000009e04a50                rtc_write
+                0x0000000009e04b94                rtc_tick
+                0x0000000009e04c38                rtc_save_internal
+                0x0000000009e04cbc                rtc_load_internal
+ .text          0x0000000009e04e64      0x4c4 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/rockboy/save.o
+                0x0000000009e04e64                loadstate
+                0x0000000009e050e4                savestate
+ .text          0x0000000009e05328     0x1034 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/rockboy/sound.o
+                0x0000000009e05328                sound_mix
+                0x0000000009e059b4                sound_read
+                0x0000000009e059e4                sound_write
+                0x0000000009e06034                sound_reset
+                0x0000000009e0625c                sound_dirty
+ .text          0x0000000009e0635c      0x3a4 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/rockboy/sys_rockbox.o
+                0x0000000009e0639c                ev_poll
+                0x0000000009e066a0                vid_begin
+                0x0000000009e066ec                vid_init
+ .text          0x0000000009e06700      0x1e0 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/plugin_crt0.o
+                0x0000000009e06718                plugin__start
+                0x0000000009e06844                rb_atexit
+                0x0000000009e06864                exit
+                0x0000000009e06880                _exit
+                0x0000000009e06894                exit_on_usb
+ .text.memcpy   0x0000000009e068e0       0x14 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(gcc-support.o)
+                0x0000000009e068e0                memcpy
+ .text.memcmp   0x0000000009e068f4       0x14 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(gcc-support.o)
+                0x0000000009e068f4                memcmp
  .text.backlight_ignore_timeout
-                0x0000000009e066e0       0x54 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(helper.o)
-                0x0000000009e066e0                backlight_ignore_timeout
+                0x0000000009e06908       0x54 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(helper.o)
+                0x0000000009e06908                backlight_ignore_timeout
  .text.backlight_use_settings
-                0x0000000009e06734       0x38 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(helper.o)
-                0x0000000009e06734                backlight_use_settings
- .text          0x0000000009e0676c       0x1c /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/lib/libsetjmp.a(setjmp.o)
-                0x0000000009e0676c                setjmp
-                0x0000000009e06778                longjmp
- .text          0x0000000009e06788      0x114 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivsi3.o)
-                0x0000000009e06788                __udivsi3
-                0x0000000009e06788                __aeabi_uidiv
-                0x0000000009e0687c                __aeabi_uidivmod
- .text          0x0000000009e0689c      0x148 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
-                0x0000000009e0689c                __aeabi_idiv
-                0x0000000009e0689c                __divsi3
-                0x0000000009e069c4                __aeabi_idivmod
- .text          0x0000000009e069e4        0x4 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
-                0x0000000009e069e4                __aeabi_ldiv0
-                0x0000000009e069e4                __aeabi_idiv0
- .text.__stub   0x0000000009e069e8        0x8 linker stubs
+                0x0000000009e0695c       0x38 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(helper.o)
+                0x0000000009e0695c                backlight_use_settings
+ .text          0x0000000009e06994       0x1c /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/lib/libsetjmp.a(setjmp.o)
+                0x0000000009e06994                setjmp
+                0x0000000009e069a0                longjmp
+ .text          0x0000000009e069b0      0x114 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivsi3.o)
+                0x0000000009e069b0                __udivsi3
+                0x0000000009e069b0                __aeabi_uidiv
+                0x0000000009e06aa4                __aeabi_uidivmod
+ .text          0x0000000009e06ac4      0x148 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+                0x0000000009e06ac4                __aeabi_idiv
+                0x0000000009e06ac4                __divsi3
+                0x0000000009e06bec                __aeabi_idivmod
+ .text          0x0000000009e06c0c        0x4 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
+                0x0000000009e06c0c                __aeabi_ldiv0
+                0x0000000009e06c0c                __aeabi_idiv0
+ .text.__stub   0x0000000009e06c10        0x8 linker stubs
  *(.glue_7)
- .glue_7        0x0000000009e069f0        0x0 linker stubs
+ .glue_7        0x0000000009e06c18        0x0 linker stubs
  *(.glue_7t)
- .glue_7t       0x0000000009e069f0        0x0 linker stubs
+ .glue_7t       0x0000000009e06c18        0x0 linker stubs
 
-.vfp11_veneer   0x0000000009e069f0        0x0
- .vfp11_veneer  0x0000000009e069f0        0x0 linker stubs
+.vfp11_veneer   0x0000000009e06c18        0x0
+ .vfp11_veneer  0x0000000009e06c18        0x0 linker stubs
 
-.v4_bx          0x0000000009e069f0        0x0
- .v4_bx         0x0000000009e069f0        0x0 linker stubs
+.v4_bx          0x0000000009e06c18        0x0
+ .v4_bx         0x0000000009e06c18        0x0 linker stubs
 
-.iplt           0x0000000009e069f0        0x0
- .iplt          0x0000000009e069f0        0x0 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/rockboy/../../../firmware/libc/sscanf.o
+.iplt           0x0000000009e06c18        0x0
+ .iplt          0x0000000009e06c18        0x0 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/rockboy/cpu.o
 
-.rodata         0x0000000009e069f0      0xc50
+.rodata         0x0000000009e06c18      0xd4b
  *(.rodata*)
  .rodata.str1.1
-                0x0000000009e069f0       0x37 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/rockboy/cpu.o
+                0x0000000009e06c18       0x37 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/rockboy/cpu.o
  .rodata.str1.1
-                0x0000000009e06a27       0x2b /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/rockboy/lcd.o
- *fill*         0x0000000009e06a52        0x2 
- .rodata        0x0000000009e06a54       0x10 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/rockboy/lcdc.o
+                0x0000000009e06c4f       0x2b /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/rockboy/lcd.o
+ *fill*         0x0000000009e06c7a        0x2 
+ .rodata        0x0000000009e06c7c       0x10 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/rockboy/lcdc.o
  .rodata.str1.1
-                0x0000000009e06a64       0xa3 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/rockboy/loader.o
- *fill*         0x0000000009e06b07        0x1 
- .rodata        0x0000000009e06b08      0x475 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/rockboy/loader.o
+                0x0000000009e06c8c       0xa3 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/rockboy/loader.o
+ *fill*         0x0000000009e06d2f        0x1 
+ .rodata        0x0000000009e06d30      0x475 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/rockboy/loader.o
  .rodata.str1.1
-                0x0000000009e06f7d      0x2ea /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/rockboy/menu.o
+                0x0000000009e071a5      0x2ea /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/rockboy/menu.o
                                         0x345 (size before relaxing)
- *fill*         0x0000000009e07267        0x1 
- .rodata        0x0000000009e07268      0x1e8 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/rockboy/menu.o
+ *fill*         0x0000000009e0748f        0x1 
+ .rodata        0x0000000009e07490      0x1e8 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/rockboy/menu.o
  .rodata.str1.1
-                0x0000000009e07450       0x9a /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/rockboy/rockboy.o
+                0x0000000009e07678       0x9a /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/rockboy/rockboy.o
                                          0xb6 (size before relaxing)
  .rodata.str1.1
-                0x0000000009e074ea       0xa5 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/rockboy/profiler.o
-                                         0xb7 (size before relaxing)
+                0x0000000009e07712      0x1a0 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/rockboy/profiler.o
+                                        0x1b2 (size before relaxing)
  .rodata.str1.1
-                0x0000000009e0758f       0x19 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/rockboy/rtc.o
- .rodata        0x0000000009e075a8       0x80 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/rockboy/sound.o
+                0x0000000009e078b2       0x19 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/rockboy/rtc.o
+ .rodata        0x0000000009e078cb       0x80 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/rockboy/sound.o
  .rodata.str1.1
-                0x0000000009e07628       0x19 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/rockboy/sys_rockbox.o
+                0x0000000009e0794b       0x19 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/rockboy/sys_rockbox.o
                                           0x1 (size before relaxing)
- .rodata        0x0000000009e07628       0x18 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/rockboy/sys_rockbox.o
+ .rodata        0x0000000009e0794b       0x18 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/rockboy/sys_rockbox.o
 
-.rel.dyn        0x0000000009e07640        0x0
- .rel.iplt      0x0000000009e07640        0x0 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/rockboy/../../../firmware/libc/sscanf.o
+.rel.dyn        0x0000000009e07964        0x0
+ .rel.iplt      0x0000000009e07964        0x0 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/rockboy/cpu.o
 
-.data           0x0000000009e07640      0xb14
+.data           0x0000000009e07964      0xb10
  *(.data*)
- .data          0x0000000009e07640      0x540 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/rockboy/lcd.o
-                0x0000000009e07740                palettes
- .data          0x0000000009e07b80       0x40 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/rockboy/menu.o
- .data          0x0000000009e07bc0        0x1 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/rockboy/rbsound.o
-                0x0000000009e07bc0                doneplay
- *fill*         0x0000000009e07bc1        0x3 
- .data          0x0000000009e07bc4      0x588 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/rockboy/save.o
-                0x0000000009e07bc4                svars
- .data          0x0000000009e0814c        0x4 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/rockboy/sys_rockbox.o
- .data          0x0000000009e08150        0x4 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/plugin_crt0.o
-                0x0000000009e08150                rb
+ .data          0x0000000009e07964      0x540 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/rockboy/lcd.o
+                0x0000000009e07a64                palettes
+ .data          0x0000000009e07ea4       0x40 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/rockboy/menu.o
+ .data          0x0000000009e07ee4      0x588 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/rockboy/save.o
+                0x0000000009e07ee4                svars
+ .data          0x0000000009e0846c        0x4 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/rockboy/sys_rockbox.o
+ .data          0x0000000009e08470        0x4 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/plugin_crt0.o
+                0x0000000009e08470                rb
 
-.igot.plt       0x0000000009e08154        0x0
- .igot.plt      0x0000000009e08154        0x0 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/rockboy/../../../firmware/libc/sscanf.o
+.igot.plt       0x0000000009e08474        0x0
+ .igot.plt      0x0000000009e08474        0x0 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/rockboy/cpu.o
 
 /DISCARD/
  *(.eh_frame)
 
-.bss            0x0000000009e08154    0x4d248
-                0x0000000009e08154                plugin_bss_start = .
-                0x0000000009e08154                _plugin_bss_start = .
+.bss            0x0000000009e08474    0x4d274
+                0x0000000009e08474                plugin_bss_start = .
+                0x0000000009e08474                _plugin_bss_start = .
  *(.bss*)
- .bss           0x0000000009e08154        0x1 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/rockboy/cpu.o
-                0x0000000009e08154                plugbuf
- *fill*         0x0000000009e08155        0x3 
- .bss           0x0000000009e08158      0x108 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/rockboy/events.o
- .bss           0x0000000009e08260    0x446c8 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/rockboy/lcd.o
-                0x0000000009e08260                vdest
-                0x0000000009e08264                anydirty
-                0x0000000009e08265                patdirty
-                0x0000000009e087a8                patpix
-                0x0000000009e487a8                lcd
- .bss           0x0000000009e4c928      0x7d4 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/rockboy/loader.o
- .bss           0x0000000009e4d0fc     0x810c /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/rockboy/mem.o
-                0x0000000009e4d0fc                ram
- .bss           0x0000000009e55208        0xa /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/rockboy/rbsound.o
-                0x0000000009e55211                bufnum
- *fill*         0x0000000009e55212        0x2 
- .bss           0x0000000009e55214       0x74 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/rockboy/rockboy.o
-                0x0000000009e55214                options
-                0x0000000009e5526c                shut
-                0x0000000009e55270                errormsg
-                0x0000000009e55274                audio_buffer_free
-                0x0000000009e55278                audio_bufferpointer
-                0x0000000009e5527c                audio_bufferbase
-                0x0000000009e55280                rockboy_return_to_launcher
-                0x0000000009e55284                cleanshut
- .bss           0x0000000009e55288       0x4c /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/rockboy/profiler.o
- .bss           0x0000000009e552d4       0x34 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/rockboy/rtc.o
-                0x0000000009e552d4                rtc
- .bss           0x0000000009e55308       0x24 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/rockboy/save.o
- .bss           0x0000000009e5532c       0x10 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/rockboy/sys_rockbox.o
- .bss           0x0000000009e5533c       0x60 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/plugin_crt0.o
+ .bss           0x0000000009e08474        0x1 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/rockboy/cpu.o
+                0x0000000009e08474                plugbuf
+ *fill*         0x0000000009e08475        0x3 
+ .bss           0x0000000009e08478      0x108 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/rockboy/events.o
+ .bss           0x0000000009e08580    0x446c8 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/rockboy/lcd.o
+                0x0000000009e08580                vdest
+                0x0000000009e08584                anydirty
+                0x0000000009e08585                patdirty
+                0x0000000009e08ac8                patpix
+                0x0000000009e48ac8                lcd
+ .bss           0x0000000009e4cc48      0x7d4 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/rockboy/loader.o
+ .bss           0x0000000009e4d41c     0x810c /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/rockboy/mem.o
+                0x0000000009e4d41c                ram
+ .bss           0x0000000009e55528       0x18 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/rockboy/rbsound.o
+ .bss           0x0000000009e55540       0x74 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/rockboy/rockboy.o
+                0x0000000009e55540                options
+                0x0000000009e55598                shut
+                0x0000000009e5559c                errormsg
+                0x0000000009e555a0                audio_buffer_free
+                0x0000000009e555a4                audio_bufferpointer
+                0x0000000009e555a8                audio_bufferbase
+                0x0000000009e555ac                rockboy_return_to_launcher
+                0x0000000009e555b0                cleanshut
+ .bss           0x0000000009e555b4       0x6c /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/rockboy/profiler.o
+ .bss           0x0000000009e55620       0x34 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/rockboy/rtc.o
+                0x0000000009e55620                rtc
+ .bss           0x0000000009e55654       0x24 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/rockboy/save.o
+ .bss           0x0000000009e55678       0x10 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/rockboy/sys_rockbox.o
+ .bss           0x0000000009e55688       0x60 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/plugin_crt0.o
  *(COMMON)
-                0x0000000009e5539c                . = ALIGN (0x4)
+                0x0000000009e556e8                . = ALIGN (0x4)
 
-.pluginend      0x0000000009e5539c        0x0
-                0x0000000009e5539c                _plugin_end_addr = .
-                0x0000000009e5539c                plugin_end_addr = .
+.pluginend      0x0000000009e556e8        0x0
+                0x0000000009e556e8                _plugin_end_addr = .
+                0x0000000009e556e8                plugin_end_addr = .
 
-.iram           0x000000000000c000     0x161c load address 0x0000000009e08154
+.iram           0x000000000000c000     0x161c load address 0x0000000009e08474
                 0x000000000000c000                iramstart = .
  *(.icode)
  .icode         0x000000000000c000       0x44 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/rockboy/rockboy.o
@@ -379,9 +377,9 @@ LOAD /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a
                 0x000000000000d610                swidth
                 0x000000000000d614                sremain
                 0x000000000000d61c                iramend = .
-                0x0000000009e08154                iramcopy = LOADADDR (.iram)
+                0x0000000009e08474                iramcopy = LOADADDR (.iram)
 
-.ibss           0x000000000000d61c      0x808 load address 0x0000000009e09770
+.ibss           0x000000000000d61c      0x808 load address 0x0000000009e09a90
                 0x000000000000d61c                iedata = .
  *(.ibss)
  .ibss          0x000000000000d61c       0x43 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/rockboy/cpu.o
@@ -402,11 +400,11 @@ LOAD /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a
                 0x000000000000de20                fb
                 0x000000000000de24                . = ALIGN (0x4)
                 0x000000000000de24                iend = .
-                0x0000000009e5539c                loadendaddr = MAX (plugin_end_addr, (LOADADDR (.iram) + SIZEOF (.iram)))
+                0x0000000009e556e8                loadendaddr = MAX (plugin_end_addr, (LOADADDR (.iram) + SIZEOF (.iram)))
 
-.pluginloadend  0x0000000009e5539c        0x0
-                0x0000000009e5539c                _plugin_load_end_addr = .
-                0x0000000009e5539c                plugin_load_end_addr = .
+.pluginloadend  0x0000000009e556e8        0x0
+                0x0000000009e556e8                _plugin_load_end_addr = .
+                0x0000000009e556e8                plugin_load_end_addr = .
 
 .comment        0x0000000000000000       0x11
  *(.comment)

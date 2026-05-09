@@ -208,6 +208,31 @@ def test_boot_source_bundle_targets_repo_assets_for_device(tmp_dir):
         "wps/iPone_nano2g/BootLogo.bmp",
     }
     assert all(item["destination_abs"].startswith(repo_root) for item in diff["items"])
+    assert all(asset["preserve_metadata"] is False for asset in bundle["assets"])
+
+
+def test_boot_source_deploy_uses_fresh_destination_timestamp(tmp_dir):
+    repo_root = os.path.join(tmp_dir, "repo")
+    os.makedirs(repo_root, exist_ok=True)
+    _config, store = _make_store(tmp_dir, repo_root)
+
+    profile = store.current_profile()
+    profile["source_repo_path"] = repo_root
+    profile["screen_resolution"] = "320x240"
+    profile = store.save_profile(profile)
+
+    image_path = os.path.join(tmp_dir, "boot-device.png")
+    _write_image(image_path, 320, 240)
+
+    boot = RockboxBootService()
+    deploy = RockboxDeployService()
+    bundle = boot.build_source_bundle(profile, image_path, os.path.join(tmp_dir, "staging"))
+    os.utime(bundle["assets"][0]["source_abs"], (1, 1))
+    diff = deploy.build_diff(boot.source_profile(profile), bundle)
+    result = deploy.apply_diff(boot.source_profile(profile), diff)
+
+    assert result["success"] is True
+    assert os.path.getmtime(diff["items"][0]["destination_abs"]) > 1
 
 
 def test_boot_rebuild_firmware_uses_expected_build_dir(tmp_dir):
@@ -238,6 +263,113 @@ def test_boot_rebuild_firmware_uses_expected_build_dir(tmp_dir):
     assert result["success"] is True
     assert result["artifact_path"] == os.path.join(build_dir, "rockbox.ipod")
     assert calls == [["make", "-C", build_dir, "-j4", os.path.join(build_dir, "rockbox.ipod")]]
+
+
+def test_boot_firmware_build_dir_prefers_video_for_ambiguous_320x240_profile(tmp_dir):
+    repo_root = os.path.join(tmp_dir, "repo")
+    video_dir = os.path.join(repo_root, "build-hw-ipodvideo-5g")
+    classic_dir = os.path.join(repo_root, "build-hw-ipod6g")
+    os.makedirs(video_dir, exist_ok=True)
+    os.makedirs(classic_dir, exist_ok=True)
+    _config, store = _make_store(tmp_dir, repo_root)
+
+    profile = store.current_profile()
+    profile["source_repo_path"] = repo_root
+    profile["target_device_model"] = "iPod Classic / Video"
+    profile["screen_resolution"] = "320x240"
+    profile = store.save_profile(profile)
+
+    assert RockboxBootService().firmware_build_dir(profile) == video_dir
+
+
+def test_boot_firmware_build_dir_uses_6g_for_classic_profile(tmp_dir):
+    repo_root = os.path.join(tmp_dir, "repo")
+    video_dir = os.path.join(repo_root, "build-hw-ipodvideo-5g")
+    classic_dir = os.path.join(repo_root, "build-hw-ipod6g")
+    os.makedirs(video_dir, exist_ok=True)
+    os.makedirs(classic_dir, exist_ok=True)
+    _config, store = _make_store(tmp_dir, repo_root)
+
+    profile = store.current_profile()
+    profile["source_repo_path"] = repo_root
+    profile["target_device_model"] = "iPod Classic 6G"
+    profile["screen_resolution"] = "320x240"
+    profile = store.save_profile(profile)
+
+    assert RockboxBootService().firmware_build_dir(profile) == classic_dir
+
+
+def test_boot_full_install_builds_and_runs_rockbox_fullinstall(tmp_dir):
+    repo_root = os.path.join(tmp_dir, "repo")
+    build_dir = os.path.join(repo_root, "build-hw-ipodvideo-5g")
+    mount_root = os.path.join(tmp_dir, "device")
+    os.makedirs(build_dir, exist_ok=True)
+    os.makedirs(mount_root, exist_ok=True)
+    _config, store = _make_store(tmp_dir, repo_root)
+
+    profile = store.current_profile()
+    profile["source_repo_path"] = repo_root
+    profile["device_mount_path"] = mount_root
+    profile["screen_resolution"] = "320x240"
+    profile = store.save_profile(profile)
+
+    calls = []
+    progress = []
+    artifact = os.path.join(build_dir, "rockbox.ipod")
+
+    def fake_run(command, check, capture_output, text):
+        calls.append(command)
+        if command[:2] == ["make", "-C"] and command[-1] == artifact:
+            _write_bytes(artifact)
+
+        class _Result:
+            returncode = 0
+            stdout = "ok"
+            stderr = ""
+
+        return _Result()
+
+    result = RockboxBootService().full_install_firmware(
+        profile,
+        runner=fake_run,
+        progress_callback=lambda current, total, label: progress.append((current, total, label)),
+    )
+
+    assert result["success"] is True
+    assert result["artifact_path"] == artifact
+    assert calls == [
+        ["make", "-C", build_dir, "-j4", artifact],
+        ["make", "-C", build_dir, f"PREFIX={mount_root}", "fullinstall"],
+    ]
+    assert progress[0] == (1, 2, "Building rockbox.ipod")
+    assert progress[-1] == (2, 2, "Full installing Rockbox to iPod")
+
+
+def test_invalidate_firmware_boot_assets_removes_stale_generated_outputs(tmp_dir):
+    repo_root = os.path.join(tmp_dir, "repo")
+    build_dir = os.path.join(repo_root, "build-hw-ipodvideo-5g")
+    generated_c = os.path.join(build_dir, "apps", "bitmaps", "native", "rockboxlogo.320x98x16.c")
+    generated_o = os.path.join(build_dir, "apps", "bitmaps", "native", "rockboxlogo.320x98x16.o")
+    generated_h = os.path.join(build_dir, "bitmaps", "rockboxlogo.h")
+    firmware = os.path.join(build_dir, "rockbox.ipod")
+    unrelated = os.path.join(build_dir, "apps", "bitmaps", "native", "usblogo.176x48x16.c")
+    for path in (generated_c, generated_o, generated_h, firmware, unrelated):
+        _write_bytes(path)
+    _config, store = _make_store(tmp_dir, repo_root)
+
+    profile = store.current_profile()
+    profile["source_repo_path"] = repo_root
+    profile["screen_resolution"] = "320x240"
+    profile = store.save_profile(profile)
+
+    removed = RockboxBootService().invalidate_firmware_boot_assets(profile)
+
+    assert set(removed) == {generated_c, generated_o, generated_h, firmware}
+    assert not os.path.exists(generated_c)
+    assert not os.path.exists(generated_o)
+    assert not os.path.exists(generated_h)
+    assert not os.path.exists(firmware)
+    assert os.path.isfile(unrelated)
 
 
 def test_boot_firmware_bundle_targets_rockbox_ipod(tmp_dir):

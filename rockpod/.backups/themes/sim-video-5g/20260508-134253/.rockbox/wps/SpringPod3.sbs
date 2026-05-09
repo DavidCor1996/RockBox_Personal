@@ -1,0 +1,75 @@
+# Theme: SpringPod3
+# iOS 3-style system bar for iPod Video 5G / 5.5G.
+%wd
+%T(0,0,140,19,menu)
+%T(0,0,140,19,&cancel)
+%T(172,5,136,60,prev)
+%T(172,5,136,60,&rwd)
+%T(172,175,136,60,next)
+%T(172,175,136,60,&ffwd)
+%T(172,90,136,60,select)
+%T(172,90,136,60,&cancel)
+
+%Fl(2,14-Adobe-Helvetica-Bold.fnt)
+%Fl(3,16-Adobe-Helvetica-Bold.fnt)
+%Fl(4,35-Adobe-Helvetica-Bold.fnt)
+%Fl(5,18-Adobe-Helvetica-Bold.fnt)
+%Fl(6,24-Adobe-Helvetica-Bold.fnt)
+
+%xl(SbsBg,SbsBackdrop.bmp)
+%xl(Lockscreen,Wallpaper.bmp)
+%xl(ChargeWallpaper,ChargeWallpaper.bmp)
+%xl(B,Battery.bmp,0,0,24)
+%xl(P,Playing Status.bmp,0,0,4)
+%xl(h,Hold Icon.bmp,0,1)
+%xl(NotificationMusic,NotifMusic.bmp,14,12)
+%xl(LockPlayIcon,NotifPlayIcon.bmp,2)
+
+# Keep Rockbox's stock list paint hidden; the SpringBoard is stable bitmap
+# chrome plus lightweight selected-item overlays from %LT.
+%Vi(UiMenu,0,24,1,1,3)%Vf(000000)%Vb(000000)
+%Vi(UiLocked,0,24,1,1,3)%Vf(000000)%Vb(000000)
+%?mh<%VI(UiLocked)|%VI(UiMenu)>
+
+%V(0,0,-,-,-)
+%?mh<%?bp<%xd(ChargeWallpaper)|%xd(Lockscreen)>|%xd(SbsBg)>
+%?mh<%Vd(LockStatus)%Vd(LockClock)%Vd(LockDate)%?mp<|%Vd(LockCard)>|%Vd(Status)%Vd(Selection)%Vd(SelectionText)>
+%?mh<|%?if(%LT, =, Files)<%Vd(FocusFiles)|>>
+%?mh<|%?if(%LT, =, Database)<%Vd(FocusMusic)|>>
+%?mh<|%?if(%LT, =, Now Playing)<%Vd(FocusMusic)|>>
+%?mh<|%?if(%LT, =, Resume Playback)<%Vd(FocusMusic)|>>
+%?mh<|%?if(%LT, =, Playlists)<%Vd(FocusMusic)|>>
+%?mh<|%?if(%LT, =, Videos)<%Vd(FocusVideos)|>>
+%?mh<|%?if(%LT, =, Pictures)<%Vd(FocusPhotos)|>>
+%?mh<|%?if(%LT, =, Photos)<%Vd(FocusPhotos)|>>
+%?mh<|%?if(%LT, =, FM Radio)<%Vd(FocusRadio)|>>
+%?mh<|%?if(%LT, =, Recording)<%Vd(FocusRadio)|>>
+%?mh<|%?if(%LT, =, Settings)<%Vd(FocusSettings)|>>
+%?mh<|%?if(%LT, =, Plugins)<%Vd(FocusPlugins)|>>
+%?mh<|%?if(%LT, =, System)<%Vd(FocusSystem)|>>
+
+%Vl(Status,8,4,80,12,2)%Vf(FFFFFF)%aliPod
+%Vl(Status,135,4,50,12,2)%Vf(FFFFFF)%ac%cl:%cM
+%Vl(Status,244,3,16,13,-)%?mp<|%xd(Pa)|%xd(Pb)|%xd(Pc)|%xd(Pd)|||%xd(Pa)|%xd(Pb)>
+%Vl(Status,287,4,25,11,-)
+%?bp<%?bc<%t(1.0)%xd(Ba);%t(1.0)%xd(Bb)|%xd(Bc)>|%?bl<%xd(Bd)|%xd(Bd)|%xd(Be)|%xd(Bf)|%xd(Bg)|%xd(Bh)|%xd(Bi)|%xd(Bj)|%xd(Bk)|%xd(Bl)|%xd(Bm)|%xd(Bn)|%xd(Bo)|%xd(Bp)|%xd(Bq)|%xd(Br)|%xd(Bs)|%xd(Bt)|%xd(Bu)|%xd(Bv)|%xd(Bw)|%xd(Bx)||>>
+
+%Vl(Selection,70,157,180,15,-)%dr(0,0,-,-,155EAF)%dr(0,0,-,1,FFFFFF)
+%Vl(SelectionText,76,158,168,13,2)%Vf(FFFFFF)%s%ac%?LT<%LT|Music>
+%Vl(FocusMusic,16,26,60,69,-)%dr(0,0,60,2,2F9BFF)%dr(0,0,2,66,2F9BFF)%dr(58,0,2,66,2F9BFF)%dr(0,64,60,2,2F9BFF)%dr(3,3,54,2,FFFFFF)%dr(8,55,44,13,155EAF)
+%Vl(FocusVideos,92,26,60,69,-)%dr(0,0,60,2,2F9BFF)%dr(0,0,2,66,2F9BFF)%dr(58,0,2,66,2F9BFF)%dr(0,64,60,2,2F9BFF)%dr(3,3,54,2,FFFFFF)%dr(8,55,44,13,155EAF)
+%Vl(FocusPhotos,168,26,60,69,-)%dr(0,0,60,2,2F9BFF)%dr(0,0,2,66,2F9BFF)%dr(58,0,2,66,2F9BFF)%dr(0,64,60,2,2F9BFF)%dr(3,3,54,2,FFFFFF)%dr(8,55,44,13,155EAF)
+%Vl(FocusRadio,244,26,60,69,-)%dr(0,0,60,2,2F9BFF)%dr(0,0,2,66,2F9BFF)%dr(58,0,2,66,2F9BFF)%dr(0,64,60,2,2F9BFF)%dr(3,3,54,2,FFFFFF)%dr(8,55,44,13,155EAF)
+%Vl(FocusSettings,16,93,60,69,-)%dr(0,0,60,2,2F9BFF)%dr(0,0,2,66,2F9BFF)%dr(58,0,2,66,2F9BFF)%dr(0,64,60,2,2F9BFF)%dr(3,3,54,2,FFFFFF)%dr(8,55,44,13,155EAF)
+%Vl(FocusFiles,92,93,60,69,-)%dr(0,0,60,2,2F9BFF)%dr(0,0,2,66,2F9BFF)%dr(58,0,2,66,2F9BFF)%dr(0,64,60,2,2F9BFF)%dr(3,3,54,2,FFFFFF)%dr(8,55,44,13,155EAF)
+%Vl(FocusPlugins,168,93,60,69,-)%dr(0,0,60,2,2F9BFF)%dr(0,0,2,66,2F9BFF)%dr(58,0,2,66,2F9BFF)%dr(0,64,60,2,2F9BFF)%dr(3,3,54,2,FFFFFF)%dr(8,55,44,13,155EAF)
+%Vl(FocusSystem,244,93,60,69,-)%dr(0,0,60,2,2F9BFF)%dr(0,0,2,66,2F9BFF)%dr(58,0,2,66,2F9BFF)%dr(0,64,60,2,2F9BFF)%dr(3,3,54,2,FFFFFF)%dr(8,55,44,13,155EAF)
+
+%Vl(LockStatus,8,4,80,12,2)%Vf(FFFFFF)%aliPod
+%Vl(LockStatus,92,4,40,12,2)%Vf(FFFFFF)%?mh<%xd(h)>
+%Vl(LockStatus,287,4,25,11,-)
+%?bp<%?bc<%t(1.0)%xd(Ba);%t(1.0)%xd(Bb)|%xd(Bc)>|%?bl<%xd(Bd)|%xd(Bd)|%xd(Be)|%xd(Bf)|%xd(Bg)|%xd(Bh)|%xd(Bi)|%xd(Bj)|%xd(Bk)|%xd(Bl)|%xd(Bm)|%xd(Bn)|%xd(Bo)|%xd(Bp)|%xd(Bq)|%xd(Br)|%xd(Bs)|%xd(Bt)|%xd(Bu)|%xd(Bv)|%xd(Bw)|%xd(Bx)||>>
+%Vl(LockClock,0,52,320,54,4)%Vf(FFFFFF)%ac%cl:%cM %cP
+%Vl(LockDate,0,111,320,20,3)%Vf(FFFFFF)%ac%?cu<Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday>
+%Vl(LockCardTitle,74,160,172,18,2)%Vf(FFFFFF)%s%ac%?it<%it|%fn>
+%Vl(LockCardSub,88,182,144,18,2)%Vf(CFD8E6)%s%ac%?ia<%ia|%d(1)>

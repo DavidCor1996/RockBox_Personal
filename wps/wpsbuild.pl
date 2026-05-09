@@ -11,6 +11,7 @@
 use strict;
 use Getopt::Long qw(:config pass_through);	# pass_through so not confused by -DTYPE_STUFF
 use IPC::Open2;
+use File::Copy qw(copy);
 
 my $ROOT="..";
 my $wpsdir;
@@ -37,6 +38,7 @@ my $cppdef = $target;
 # These parameters are filled in as we parse wpslist
 my $req_t;
 my $theme;
+my $targets;
 my $has_wps;
 my $wps;
 my $has_rwps;
@@ -171,7 +173,7 @@ sub copybackdrop
     #copy the backdrop file into the build dir
     if ($backdrop ne '') {
         my $dst = normalize($backdrop);
-        system("cp $ROOT/$backdrop $tempdir/$dst");
+        copy("$ROOT/$backdrop", "$tempdir/$dst");
     }
 }
 
@@ -182,7 +184,12 @@ sub copythemefont
 
     $o =~ s/\.fnt/\.bdf/;
     mkdir "$tempdir/fonts";
-    system("$ROOT/tools/convbdf -f -o \"$tempdir/fonts/$_[0]\" \"$ROOT/fonts/$o\" ");
+    if (-e "$ROOT/fonts/$o") {
+        system("$ROOT/tools/convbdf -f -o \"$tempdir/fonts/$_[0]\" \"$ROOT/fonts/$o\" ");
+    }
+    elsif (-e "$ROOT/fonts/$_[0]") {
+        copy("$ROOT/fonts/$_[0]", "$tempdir/fonts/$_[0]");
+    }
 }
 
 sub copythemeicon
@@ -192,7 +199,7 @@ sub copythemeicon
     if ($i ne "-") {
         my $tempicon = $tempdir . "/" . $i;
         $tempicon =~ /\/.*icons\/(.*)/i;
-        system("cp $ROOT/icons/$1 $tempicon");
+        copy("$ROOT/icons/$1", $tempicon);
     }
 }
 
@@ -229,7 +236,7 @@ sub copywps
         foreach my $ext (keys %skinfiles) {
             next unless ($skinfiles{$ext});
             $file = $skinfiles{$ext};
-            system("cp $dir/$file $tempdir/wps/$theme.$ext");
+            copy("$dir/$file", "$tempdir/wps/$theme.$ext");
             open(SKIN, "$dir/$file");
             while (<SKIN>) {
                 $filelist[$#filelist + 1] = $1 if (/[\(,]([^,]*?.bmp)[\),]/);
@@ -240,7 +247,7 @@ sub copywps
         if ($#filelist >= 0) {
             if (-e "$dir/$theme") {
                 foreach $file (uniq(@filelist)) {
-                    system("cp $dir/$theme/$file $tempdir/wps/$theme/");
+                    copy("$dir/$theme/$file", "$tempdir/wps/$theme/$file");
                 }
             }
             else {
@@ -395,6 +402,20 @@ sub check_skinfile {
     return '';
 }
 
+sub target_matches {
+    my ($allowed) = @_;
+    return 1 unless defined($allowed) && $allowed ne "";
+
+    my $current = lc($modelname || "");
+    foreach my $candidate (split(/[,\s]+/, $allowed)) {
+        $candidate =~ s/^\s+|\s+$//g;
+        next if $candidate eq "";
+        return 1 if lc($candidate) eq $current;
+    }
+
+    return 0;
+}
+
 
 # Infer WPS (etc.) filename from the the if it wasnt given
 $wpslist =~ /(.*)WPSLIST/;
@@ -419,6 +440,7 @@ while(<WPS>) {
     if($l =~ /^ *<theme>/i) {
         # undef is a unary operator (!)
         undef $theme;
+        undef $targets;
         undef $has_wps;
         undef $has_rwps;
         undef $has_sbs;
@@ -459,6 +481,9 @@ while(<WPS>) {
     }
     elsif($l =~ /^Name: *(.*)/i) {
         $theme = $1;
+    }
+    elsif($l =~ /^Targets?: *(.*)/i) {
+        $targets = $1;
     }
     elsif($l =~ /^Authors: *(.*)/i) {
         $author = $1;
@@ -587,6 +612,8 @@ while(<WPS>) {
         }
     }
     elsif($l =~ /^ *<\/theme>/i) {
+        next unless target_matches($targets);
+
         # for each wps,sbs,fms (+ remote variants) check if <theme>[.<model>].wps
         # exists if no filename was specified in WPSLIST
         my $req_skin;

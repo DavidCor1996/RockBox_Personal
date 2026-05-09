@@ -216,8 +216,8 @@ static bool vo_draw_frame_scaled(uint8_t * const * buf)
     crop_x &= ~1;
     crop_y &= ~1;
 
-    yuv_blit(yuv, crop_x, crop_y, scaled_w,
-             0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+    yuv_blit(yuv, crop_x + vo.output_x, crop_y + vo.output_y, scaled_w,
+             vo.output_x, vo.output_y, vo.output_width, vo.output_height);
 
     return true;
 }

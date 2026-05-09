@@ -11,12 +11,13 @@ from copy import deepcopy
 
 from PIL import Image, ImageColor, ImageOps, UnidentifiedImageError
 
+from services.greyscale_images import render_2bpp_greyscale, should_render_2bpp_greyscale
 from services.rockbox_themes import RockboxThemeService
 
 
 BASE_THEME_BY_RESOLUTION = {
     "320x240": "iPone",
-    "160x128": "Galaxy",
+    "160x128": "CoverPod_3g",
     "176x132": "iPone_nano2g",
 }
 
@@ -32,6 +33,25 @@ DEFAULT_COLORS = {
 }
 
 WALLPAPER_TARGETS = {
+    "Blackery": {
+        "main": [
+            "Wallpaper.bmp",
+            "WallpaperAlt.bmp",
+            "WallpaperThird.bmp",
+            "WallpaperFourth.bmp",
+            "WallpaperFifth.bmp",
+            "WallpaperSixth.bmp",
+            "iPone_bg.bmp",
+            "iPone_bd.bmp",
+            "SbsBackdrop.bmp",
+        ],
+        "charging": [
+            "ChargeWallpaper.bmp",
+            "ChargeWallpaperAlt.bmp",
+            "ChargeWallpaperThird.bmp",
+            "ChargeWallpaperFourth.bmp",
+        ],
+    },
     "iPone": {
         "main": [
             "Wallpaper.bmp",
@@ -77,6 +97,19 @@ WALLPAPER_TARGETS = {
             "ChargeWallpaperFourth.bmp",
         ],
     },
+    "CoverPod_3g": {
+        "main": [
+            "Wallpaper.bmp",
+            "WallpaperAlt.bmp",
+            "wpsbackdrop-160x128x2.bmp",
+        ],
+        "charging": [
+            "ChargeWallpaper.bmp",
+            "ChargeWallpaperAlt.bmp",
+            "ChargeWallpaperThird.bmp",
+            "ChargeWallpaperFourth.bmp",
+        ],
+    },
     "Galaxy": {
         "main": [
             "Wallpaper.bmp",
@@ -93,6 +126,12 @@ WALLPAPER_TARGETS = {
 }
 
 PREVIEW_BACKDROP_TARGETS = {
+    "Blackery": [
+        "backdrops/Blackery_bd.bmp",
+        "wps/Blackery/SbsBackdrop.bmp",
+        "wps/Blackery/iPone_bd.bmp",
+        "wps/Blackery/iPone_bg.bmp",
+    ],
     "iPone": [
         "backdrops/iPone_bd.bmp",
         "wps/iPone/SbsBackdrop.bmp",
@@ -107,6 +146,10 @@ PREVIEW_BACKDROP_TARGETS = {
         "wps/iPone_3g/wpsbackdrop-160x128x2.bmp",
         "wps/iPone_3g/Wallpaper.bmp",
     ],
+    "CoverPod_3g": [
+        "wps/CoverPod_3g/wpsbackdrop-160x128x2.bmp",
+        "wps/CoverPod_3g/Wallpaper.bmp",
+    ],
     "Galaxy": [
         "wps/Galaxy/wpsbackdrop-160x128x2.bmp",
         "wps/Galaxy/Wallpaper.bmp",
@@ -114,6 +157,10 @@ PREVIEW_BACKDROP_TARGETS = {
 }
 
 SOLID_BACKGROUND_TARGETS = {
+    "Blackery": {
+        "main": WALLPAPER_TARGETS["Blackery"]["main"],
+        "charging": WALLPAPER_TARGETS["Blackery"]["charging"],
+    },
     "iPone": {
         "main": WALLPAPER_TARGETS["iPone"]["main"],
         "charging": WALLPAPER_TARGETS["iPone"]["charging"],
@@ -125,6 +172,10 @@ SOLID_BACKGROUND_TARGETS = {
     "iPone_3g": {
         "main": WALLPAPER_TARGETS["iPone_3g"]["main"],
         "charging": WALLPAPER_TARGETS["iPone_3g"]["charging"],
+    },
+    "CoverPod_3g": {
+        "main": WALLPAPER_TARGETS["CoverPod_3g"]["main"],
+        "charging": WALLPAPER_TARGETS["CoverPod_3g"]["charging"],
     },
     "Galaxy": {
         "main": WALLPAPER_TARGETS["Galaxy"]["main"],
@@ -679,12 +730,16 @@ class ThemeDesignerService:
             top = max(0, (resized.height - height) // 2)
             rendered = resized.crop((left, top, left + width, top + height))
 
+        if should_render_2bpp_greyscale(resolution):
+            rendered = render_2bpp_greyscale(rendered)
         os.makedirs(os.path.dirname(dest_path), exist_ok=True)
         rendered.save(dest_path, "BMP")
 
     def _render_solid_image(self, dest_path, resolution, fill_hex):
         width, height = _fit_size(resolution)
         image = Image.new("RGB", (width, height), ImageColor.getrgb(f"#{_ensure_hex(fill_hex, '000000')}"))
+        if should_render_2bpp_greyscale(resolution):
+            image = render_2bpp_greyscale(image)
         os.makedirs(os.path.dirname(dest_path), exist_ok=True)
         image.save(dest_path, "BMP")
 

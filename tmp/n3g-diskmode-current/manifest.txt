@@ -1,0 +1,16 @@
+file=disk_lba0_512.bin bytes=512
+mbr_sig=AA55 p0t=0B p0st=0000003F p0sz=000E7F81
+file=part_lba0_boot.bin bytes=4096
+bpb_sig=AA55 bps=4096 spc=1 rs=32 nf=2 fatsz=927 root=2 fsinfo=1 backup=6
+file=part_lba1_fsinfo.bin bytes=4096
+probe=part_lba1_fsinfo.bin lba=00000001
+file=part_lba6_backup.bin bytes=4096
+probe=part_lba6_backup.bin lba=00000006
+file=part_lba_fat1.bin bytes=4096
+probe=part_lba_fat1.bin lba=00000020
+file=part_lba_fat2.bin bytes=4096
+probe=part_lba_fat2.bin lba=000003BF
+file=part_lba_root.bin bytes=4096
+probe=part_lba_root.bin lba=0000075E
+file=part_lba_root_next.bin bytes=4096
+probe=part_lba_root_next.bin lba=0000075F

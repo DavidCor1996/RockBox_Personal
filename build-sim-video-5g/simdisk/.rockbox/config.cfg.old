@@ -1,25 +1,26 @@
-# .cfg file created by rockbox 207f64395eM-260418 - http://www.rockbox.org
+# .cfg file created by rockbox 75e4c4dcdeM-260428 - http://www.rockbox.org
 
 volume: -1
 album art: prefer image file
 statusbar: off
 scrollbar: off
-list separator color: 181421
-foreground color: f7f7ff
-background color: 100c10
-line selector start color: 292031
-line selector end color: 9c79e7
-line selector text color: fffbff
+list separator height: 1
+list separator color: B7BAC0
+foreground color: 1F2630
+background color: D7D9DE
+line selector start color: 6DB7FF
+line selector end color: 1B74D1
+line selector text color: ffffff
 gather runtime data: on
 database scan paths: /Music
 tagcache_ram: on
 backlight on button hold: normal
-fms: /.rockbox/wps/iPone.fms
-font: /.rockbox/fonts/16-GNU-Unifont.fnt
-wps: /.rockbox/wps/iPone.wps
-sbs: /.rockbox/wps/iPone.sbs
-backdrop: -
-iconset: /.rockbox/icons/iPone.bmp
+fms: /.rockbox/wps/SpringPod3.fms
+font: /.rockbox/fonts/24 iLike.fnt
+wps: /.rockbox/wps/SpringPod3.wps
+sbs: /.rockbox/wps/SpringPod3.sbs
+backdrop: /.rockbox/backdrops/SpringPod3_bd.bmp
+iconset: /.rockbox/icons/SpringPod3.bmp
 viewers iconset: -
 dynamic colors: off
 keyclick repeats: on
@@ -27,4 +28,5 @@ qs top: -
 qs left: shuffle
 qs right: repeat
 qs bottom: -
-root menu order: pictureflow, database, files, videos, playlists, plugins, shortcuts, settings, games, 
+root menu order: pictureflow, database, files, videos, photos, playlists, plugins, shortcuts, settings, games, podemon_go, system_menu, 
+start in screen: root

@@ -1603,7 +1603,7 @@ main:
 	.file 3 "/usr/include/bits/stdint-intn.h"
 	.file 4 "/usr/include/bits/stdint-uintn.h"
 	.file 5 "/usr/include/sys/types.h"
-	.file 6 "/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/include/stddef.h"
+	.file 6 "/usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/include/stddef.h"
 	.file 7 "/home/david/Documents/RockBox_Personal-master/lib/rbcodec/metadata/metadata.h"
 	.file 8 "/home/david/Documents/RockBox_Personal-master/firmware/export/enc_base.h"
 	.file 9 "/home/david/Documents/RockBox_Personal-master/lib/rbcodec/dsp/compressor.h"
@@ -5244,6 +5244,8 @@ main:
 	.string	"crossfeed_cross_gain"
 .LASF184:
 	.string	"rec_trigger_mode"
+.LASF397:
+	.string	"GNU C99 16.1.1 20260430 -mtune=generic -march=x86-64 -g -Os -std=gnu99 -funit-at-a-time -fno-delete-null-pointer-checks -fno-strict-overflow -fno-common -fno-builtin"
 .LASF385:
 	.string	"is_changed"
 .LASF36:
@@ -5658,8 +5660,6 @@ main:
 	.string	"size"
 .LASF256:
 	.string	"fg_color"
-.LASF397:
-	.string	"GNU C99 15.2.1 20260209 -mtune=generic -march=x86-64 -g -Os -std=gnu99 -funit-at-a-time -fno-delete-null-pointer-checks -fno-strict-overflow -fno-common -fno-builtin"
 .LASF383:
 	.string	"load_from_cfg"
 .LASF333:
@@ -5999,5 +5999,5 @@ main:
 	.string	"<stdin>"
 .LASF1:
 	.string	"/home/david/Documents/RockBox_Personal-master/build-sim-video-5g"
-	.ident	"GCC: (GNU) 15.2.1 20260209"
+	.ident	"GCC: (GNU) 16.1.1 20260430"
 	.section	.note.GNU-stack,"",@progbits

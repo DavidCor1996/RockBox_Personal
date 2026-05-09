@@ -33,11 +33,15 @@ def test_theme_filtering_by_resolution(tmp_dir):
     service = RockboxThemeService()
 
     desktop = service.list_themes(_repo_root(), "320x240")
+    video5g = service.list_themes(_repo_root(), "320x240", "iPod Video 5G")
+    classic6g = service.list_themes(_repo_root(), "320x240", "iPod Classic 6G")
     classic3g = service.list_themes(_repo_root(), "160x128")
     nano = service.list_themes(_repo_root(), "176x132")
 
-    assert {item["id"] for item in desktop} == {"iPone"}
-    assert {item["id"] for item in classic3g} == {"Galaxy", "iPone_3g"}
+    assert {item["id"] for item in desktop} == {"Blackery", "iPone"}
+    assert {item["id"] for item in video5g} == {"Blackery", "iPone", "SpringPod3"}
+    assert {item["id"] for item in classic6g} == {"Blackery", "iPone"}
+    assert {item["id"] for item in classic3g} == {"Galaxy", "CoverPod_3g", "iPone_3g"}
     assert {item["id"] for item in nano} == {"iPone_nano2g"}
 
 
@@ -48,7 +52,7 @@ def test_default_profiles_include_ipod_3g(tmp_dir):
 
     assert "ipod-3g" in profiles
     assert profiles["ipod-3g"]["screen_resolution"] == "160x128"
-    assert profiles["ipod-3g"]["selected_theme"] == "Galaxy"
+    assert profiles["ipod-3g"]["selected_theme"] == "CoverPod_3g"
 
 
 def test_deterministic_ipone_stack_contents():
@@ -64,6 +68,45 @@ def test_deterministic_ipone_stack_contents():
     assert "icons/iPone.bmp" in rels
     assert "fonts/24 iLike.fnt" in rels
     assert any(path.startswith("wps/iPone/") for path in rels)
+
+
+def test_springpod3_stack_is_ipod_video_only():
+    service = RockboxThemeService()
+    bundle = service.bundle_for_theme("SpringPod3", _repo_root())
+    rels = {item["source_rel"] for item in bundle["assets"]}
+
+    assert "themes/SpringPod3.cfg" in rels
+    assert "wps/SpringPod3.wps" in rels
+    assert "wps/SpringPod3.sbs" in rels
+    assert "wps/SpringPod3.fms" in rels
+    assert "backdrops/SpringPod3_bd.bmp" in rels
+    assert "icons/SpringPod3.bmp" in rels
+    assert "fonts/24 iLike.fnt" in rels
+    assert any(path.startswith("wps/SpringPod3/") for path in rels)
+    assert "iPod Video 5G" in bundle["compatible_device_models"]
+
+
+def test_springpod3_deploy_rejects_non_5g_320x240_devices(tmp_dir):
+    _config, store = _make_store(tmp_dir)
+    mount_path = os.path.join(tmp_dir, "device")
+    os.makedirs(mount_path, exist_ok=True)
+    profile = store.current_profile()
+    profile["device_mount_path"] = mount_path
+    profile["target_device_model"] = "iPod Classic 6G"
+    profile["selected_theme"] = "SpringPod3"
+    profile["backup_location"] = os.path.join(tmp_dir, ".backups", profile["id"])
+    profile = store.save_profile(profile)
+
+    theme_service = RockboxThemeService()
+    deploy_service = RockboxDeployService()
+    bundle = theme_service.bundle_for_theme("SpringPod3", _repo_root())
+
+    try:
+        deploy_service.build_diff(profile, bundle)
+    except ValueError as exc:
+        assert "SpringPod3 can only be deployed" in str(exc)
+    else:
+        raise AssertionError("SpringPod3 deployed to non-5G profile")
 
 
 def test_deploy_diff_generation_and_repeat_apply(tmp_dir):

@@ -81,10 +81,12 @@
 #include "filetypes.h"
 #include "disk.h"
 #include "dir.h"
-#if defined(IPOD_NANO2G)
+#if defined(IPOD_NANO2G) || defined(IPOD_VIDEO)
 #include "lcd.h"
 #include "font.h"
 #include "timefuncs.h"
+#endif
+#if defined(IPOD_NANO2G)
 
 #define ROCKPOD_NANO2G_BOOTLOADER_STAGE_MARKER ROCKBOX_DIR "/rockpod/boot/nano2g-encrypt-pending"
 #define ROCKPOD_NANO2G_BOOTLOADER_STAGE_INPUT ROCKBOX_DIR "/b.ipod"
@@ -2353,6 +2355,469 @@ static int root_menu_nano2g_dashboard(int *selectedp)
 }
 #endif /* IPOD_NANO2G */
 
+#if defined(IPOD_VIDEO)
+#define VIDEO_HOME_BG           LCD_RGBPACK(0, 0, 0)
+#define VIDEO_HOME_STATUS       LCD_RGBPACK(6, 6, 8)
+#define VIDEO_HOME_SHELF_TOP    LCD_RGBPACK(242, 244, 247)
+#define VIDEO_HOME_SHELF_MID    LCD_RGBPACK(45, 48, 54)
+#define VIDEO_HOME_SHELF_DARK   LCD_RGBPACK(8, 10, 14)
+#define VIDEO_HOME_BLUE         LCD_RGBPACK(21, 94, 175)
+#define VIDEO_HOME_BLUE_2       LCD_RGBPACK(47, 155, 255)
+#define VIDEO_HOME_TEXT         LCD_RGBPACK(255, 255, 255)
+#define VIDEO_HOME_DIM          LCD_RGBPACK(184, 190, 198)
+#define VIDEO_HOME_ORANGE       LCD_RGBPACK(233, 124, 24)
+#define VIDEO_HOME_YELLOW       LCD_RGBPACK(245, 204, 99)
+#define VIDEO_HOME_STEEL        LCD_RGBPACK(88, 101, 117)
+#define VIDEO_HOME_GRAY         LCD_RGBPACK(133, 141, 152)
+#define VIDEO_HOME_BROWN        LCD_RGBPACK(131, 84, 49)
+
+static int root_menu_video_count(void)
+{
+    return MENU_GET_COUNT(root_menu_.flags);
+}
+
+static bool root_menu_video_enabled(void)
+{
+    return strstr((const char *)global_settings.sbs_file, "SpringPod3") ||
+           strstr((const char *)global_settings.wps_file, "SpringPod3");
+}
+
+static void root_menu_video_puts_fit(int x, int y, int width,
+                                     const char *text, bool center)
+{
+    char buf[64];
+    int w, h, len;
+
+    if (!text || !text[0])
+        return;
+
+    strmemccpy(buf, text, sizeof(buf));
+    len = strlen(buf);
+    lcd_getstringsize((const unsigned char *)buf, &w, &h);
+    while (len > 1 && w > width)
+    {
+        buf[--len] = '\0';
+        lcd_getstringsize((const unsigned char *)buf, &w, &h);
+    }
+
+    if (center && w < width)
+        x += (width - w) / 2;
+
+    lcd_putsxy(x, y, (const unsigned char *)buf);
+}
+
+static void root_menu_video_fill_roundish(int x, int y, int w, int h,
+                                          unsigned color)
+{
+    lcd_set_foreground(color);
+    lcd_fillrect(x + 2, y, w - 4, h);
+    lcd_fillrect(x + 1, y + 1, w - 2, h - 2);
+    lcd_fillrect(x, y + 2, w, h - 4);
+}
+
+static void root_menu_video_time12(char *buf, size_t buf_size,
+                                   const struct tm *tm)
+{
+    int hour;
+
+    if (!tm || !valid_time(tm))
+    {
+        snprintf(buf, buf_size, "--:--");
+        return;
+    }
+
+    hour = tm->tm_hour % 12;
+    if (hour == 0)
+        hour = 12;
+
+    snprintf(buf, buf_size, "%d:%02d%c", hour, tm->tm_min,
+             tm->tm_hour < 12 ? 'a' : 'p');
+}
+
+static const char *root_menu_video_label(const struct menu_item_ex *item)
+{
+    if ((item->flags & MENU_TYPE_MASK) == MT_RETURN_VALUE)
+    {
+        switch (item->value)
+        {
+#ifdef HAVE_TAGCACHE
+            case GO_TO_DBBROWSER:
+                return "Music";
+            case GO_TO_PICTUREFLOW:
+                return "Covers";
+#endif
+            case GO_TO_FILEBROWSER:
+                return "Files";
+            case GO_TO_VIDEOS:
+                return "Videos";
+            case GO_TO_WPS:
+                return audio_status() ? "Playing" : "Resume";
+            case GO_TO_MAINMENU:
+                return "Settings";
+            case GO_TO_BROWSEPLUGINS:
+                return "Plugins";
+            case GO_TO_PLAYLISTS_SCREEN:
+                return "Playlists";
+            case GO_TO_SYSTEM_SCREEN:
+                return "System";
+            case GO_TO_SHORTCUTMENU:
+                return "Shortcuts";
+#if CONFIG_TUNER
+            case GO_TO_FM:
+                return "Radio";
+#endif
+        }
+    }
+
+    if (item == &photos_item)
+        return "Photos";
+    if (item == &gameboy_browser)
+        return "Games";
+    if (item == &podemon_go_item)
+        return "Podemon";
+
+    return "Menu";
+}
+
+static int root_menu_video_kind(const struct menu_item_ex *item)
+{
+    if ((item->flags & MENU_TYPE_MASK) == MT_RETURN_VALUE)
+    {
+        switch (item->value)
+        {
+#ifdef HAVE_TAGCACHE
+            case GO_TO_DBBROWSER:
+                return 1;
+            case GO_TO_PICTUREFLOW:
+                return 0;
+#endif
+            case GO_TO_FILEBROWSER:
+                return 2;
+            case GO_TO_VIDEOS:
+                return 3;
+            case GO_TO_PLAYLISTS_SCREEN:
+                return 5;
+            case GO_TO_BROWSEPLUGINS:
+                return 6;
+            case GO_TO_SHORTCUTMENU:
+                return 7;
+            case GO_TO_MAINMENU:
+                return 8;
+            case GO_TO_SYSTEM_SCREEN:
+                return 11;
+#if CONFIG_TUNER
+            case GO_TO_FM:
+                return 7;
+#endif
+        }
+    }
+
+    if (item == &photos_item)
+        return 4;
+    if (item == &gameboy_browser)
+        return 9;
+    if (item == &podemon_go_item)
+        return 10;
+
+    return 11;
+}
+
+static void root_menu_video_draw_music_glyph(int x, int y)
+{
+    lcd_set_foreground(VIDEO_HOME_TEXT);
+    lcd_fillrect(x + 24, y + 10, 5, 20);
+    lcd_fillrect(x + 28, y + 10, 14, 4);
+    lcd_fillrect(x + 38, y + 14, 4, 15);
+    lcd_fillrect(x + 10, y + 29, 13, 10);
+    lcd_fillrect(x + 32, y + 29, 13, 10);
+}
+
+static void root_menu_video_draw_icon(int x, int y, int kind)
+{
+    unsigned base = VIDEO_HOME_GRAY;
+
+    switch (kind)
+    {
+        case 0: base = LCD_RGBPACK(31, 42, 56); break;
+        case 1: base = VIDEO_HOME_ORANGE; break;
+        case 2: base = LCD_RGBPACK(215, 155, 40); break;
+        case 3: base = LCD_RGBPACK(32, 35, 40); break;
+        case 4: base = LCD_RGBPACK(244, 244, 244); break;
+        case 5: base = LCD_RGBPACK(79, 122, 192); break;
+        case 6: base = VIDEO_HOME_BROWN; break;
+        case 7: base = LCD_RGBPACK(39, 125, 208); break;
+        case 8: base = VIDEO_HOME_GRAY; break;
+        case 9: base = LCD_RGBPACK(78, 135, 213); break;
+        case 10: base = LCD_RGBPACK(150, 158, 168); break;
+        case 11: base = LCD_RGBPACK(52, 57, 64); break;
+    }
+
+    root_menu_video_fill_roundish(x, y, 44, 44, base);
+    lcd_set_foreground(LCD_RGBPACK(255, 255, 255));
+    lcd_fillrect(x + 4, y + 3, 36, 3);
+
+    switch (kind)
+    {
+        case 0:
+            lcd_set_foreground(VIDEO_HOME_TEXT);
+            lcd_fillrect(x + 20, y + 8, 5, 28);
+            lcd_fillrect(x + 10, y + 18, 24, 5);
+            break;
+        case 1:
+            lcd_set_foreground(VIDEO_HOME_YELLOW);
+            lcd_fillrect(x + 3, y + 4, 38, 13);
+            root_menu_video_draw_music_glyph(x, y);
+            break;
+        case 2:
+            lcd_set_foreground(VIDEO_HOME_YELLOW);
+            lcd_fillrect(x + 4, y + 14, 36, 23);
+            lcd_fillrect(x + 5, y + 10, 18, 6);
+            break;
+        case 3:
+            lcd_set_foreground(LCD_RGBPACK(242, 244, 247));
+            lcd_fillrect(x + 4, y + 7, 36, 8);
+            lcd_set_foreground(LCD_RGBPACK(29, 122, 209));
+            lcd_fillrect(x + 5, y + 18, 34, 21);
+            break;
+        case 4:
+            lcd_set_foreground(LCD_RGBPACK(75, 164, 223));
+            lcd_fillrect(x + 12, y + 12, 20, 20);
+            break;
+        case 5:
+            lcd_set_foreground(LCD_RGBPACK(220, 232, 255));
+            lcd_fillrect(x + 9, y + 9, 26, 27);
+            lcd_set_foreground(base);
+            lcd_fillrect(x + 13, y + 15, 18, 2);
+            lcd_fillrect(x + 13, y + 22, 18, 2);
+            lcd_fillrect(x + 13, y + 29, 14, 2);
+            break;
+        case 6:
+            lcd_set_foreground(LCD_RGBPACK(211, 173, 117));
+            lcd_fillrect(x + 11, y + 13, 22, 22);
+            break;
+        case 7:
+            lcd_set_foreground(LCD_RGBPACK(105, 183, 255));
+            lcd_fillrect(x + 3, y + 4, 38, 13);
+            lcd_set_foreground(VIDEO_HOME_TEXT);
+            lcd_fillrect(x + 13, y + 22, 18, 10);
+            break;
+        case 8:
+            lcd_set_foreground(VIDEO_HOME_TEXT);
+            lcd_fillrect(x + 13, y + 16, 18, 18);
+            break;
+        case 9:
+            lcd_set_foreground(LCD_RGBPACK(155, 198, 255));
+            lcd_fillrect(x + 12, y + 10, 20, 24);
+            lcd_set_foreground(VIDEO_HOME_TEXT);
+            lcd_fillrect(x + 14, y + 27, 4, 4);
+            lcd_fillrect(x + 26, y + 27, 4, 4);
+            break;
+        case 10:
+            lcd_set_foreground(VIDEO_HOME_TEXT);
+            lcd_fillrect(x + 12, y + 15, 20, 18);
+            lcd_fillrect(x + 8, y + 21, 28, 8);
+            break;
+        case 11:
+            lcd_set_foreground(LCD_RGBPACK(207, 213, 220));
+            lcd_fillrect(x + 12, y + 12, 20, 20);
+            lcd_set_foreground(LCD_RGBPACK(134, 143, 153));
+            lcd_fillrect(x + 17, y + 17, 10, 10);
+            break;
+    }
+}
+
+static void root_menu_video_draw_status(void)
+{
+    char buf[24];
+    struct tm *tm = get_time();
+    int batt = battery_level();
+
+    lcd_setfont(FONT_SYSFIXED);
+    lcd_set_foreground(VIDEO_HOME_TEXT);
+    root_menu_video_puts_fit(8, 4, 80, "iPod", false);
+
+    lcd_set_foreground(VIDEO_HOME_DIM);
+    root_menu_video_time12(buf, sizeof(buf), tm);
+    root_menu_video_puts_fit(140, 4, 48, buf, true);
+
+    snprintf(buf, sizeof(buf), "%s%d%%", charger_inserted() ? "+" : "", batt);
+    lcd_set_foreground(VIDEO_HOME_TEXT);
+    root_menu_video_puts_fit(264, 4, 48, buf, false);
+}
+
+static void root_menu_video_draw_home(int selected)
+{
+    static const int xs[4] = {24, 100, 176, 252};
+    static const int ys[3] = {34, 101, 181};
+    int count = root_menu_video_count();
+    int i;
+
+    lcd_set_viewport(NULL);
+    lcd_set_drawmode(DRMODE_SOLID);
+    lcd_set_background(VIDEO_HOME_BG);
+    lcd_clear_display();
+
+    lcd_set_foreground(VIDEO_HOME_STATUS);
+    lcd_fillrect(0, 0, LCD_WIDTH, 20);
+
+    lcd_set_foreground(LCD_RGBPACK(8, 8, 10));
+    lcd_fillrect(0, 84, LCD_WIDTH, 2);
+    lcd_fillrect(0, 151, LCD_WIDTH, 2);
+
+    lcd_set_foreground(LCD_RGBPACK(0, 0, 0));
+    lcd_fillrect(0, 174, LCD_WIDTH, 66);
+    root_menu_video_fill_roundish(12, 176, 296, 62, VIDEO_HOME_SHELF_MID);
+    root_menu_video_fill_roundish(14, 184, 292, 56, VIDEO_HOME_SHELF_DARK);
+    root_menu_video_fill_roundish(18, 176, 284, 9, VIDEO_HOME_SHELF_TOP);
+
+    root_menu_video_draw_status();
+
+    for (i = 0; i < count && i < 12; i++)
+    {
+        const struct menu_item_ex *item = root_menu__[i];
+        int col = i % 4;
+        int row = i / 4;
+        int x = xs[col];
+        int y = ys[row];
+        bool is_selected = i == selected;
+
+        if (is_selected)
+        {
+            root_menu_video_fill_roundish(x - 8, y - 8, 60, 63, VIDEO_HOME_BLUE);
+            lcd_set_foreground(VIDEO_HOME_TEXT);
+            lcd_drawrect(x - 6, y - 6, 56, 59);
+        }
+
+        root_menu_video_draw_icon(x, y, root_menu_video_kind(item));
+        lcd_setfont(FONT_SYSFIXED);
+        lcd_set_foreground(VIDEO_HOME_TEXT);
+        root_menu_video_puts_fit(x - 10, y + 48, 64,
+                                 root_menu_video_label(item), true);
+    }
+
+    lcd_set_foreground(VIDEO_HOME_TEXT);
+    lcd_fillrect(152, 162, 4, 4);
+    lcd_set_foreground(LCD_RGBPACK(110, 116, 126));
+    lcd_fillrect(160, 162, 4, 4);
+    lcd_fillrect(168, 162, 4, 4);
+
+    if (selected >= 0 && selected < count)
+    {
+        root_menu_video_fill_roundish(82, 20, 156, 13, VIDEO_HOME_BLUE);
+        lcd_set_foreground(VIDEO_HOME_TEXT);
+        root_menu_video_puts_fit(102, 20, 128,
+                                 root_menu_video_label(root_menu__[selected]), true);
+    }
+
+    lcd_update();
+}
+
+static int root_menu_video_launch_selected(int selected)
+{
+    const struct menu_item_ex *item = root_menu__[selected];
+    int type = item->flags & MENU_TYPE_MASK;
+
+    if (type == MT_RETURN_VALUE)
+        return item->value;
+
+    if (type == MT_FUNCTION_CALL_W_PARAM)
+    {
+        int ret = item->function_param->function_w_param(item->function_param->param);
+        if ((item->flags & MENU_FUNC_CHECK_RETVAL) && ret != 0)
+            return ret;
+        return GO_TO_ROOT;
+    }
+
+    if (type == MT_FUNCTION_CALL)
+    {
+        int ret = item->function->function();
+        if ((item->flags & MENU_FUNC_CHECK_RETVAL) && ret != 0)
+            return ret;
+        return GO_TO_ROOT;
+    }
+
+    if (type == MT_MENU)
+        return do_menu(item, NULL, NULL, false);
+
+    return GO_TO_ROOT;
+}
+
+static int root_menu_video_dashboard(int *selectedp)
+{
+    int selected = MAX(0, MIN(*selectedp, root_menu_video_count() - 1));
+    bool redraw = true;
+
+    viewportmanager_theme_enable(SCREEN_MAIN, false, NULL);
+    button_clear_queue();
+
+    while (true)
+    {
+        int action;
+        int count = root_menu_video_count();
+
+        if (count <= 0)
+        {
+            viewportmanager_theme_undo(SCREEN_MAIN, false);
+            return GO_TO_ROOT;
+        }
+
+        selected = MAX(0, MIN(selected, count - 1));
+        if (redraw)
+        {
+            root_menu_video_draw_home(selected);
+            redraw = false;
+        }
+
+        action = get_action(CONTEXT_TREE, HZ/5);
+        switch (action)
+        {
+            case ACTION_STD_PREV:
+            case ACTION_STD_PREVREPEAT:
+                selected = selected <= 0 ? count - 1 : selected - 1;
+                redraw = true;
+                break;
+
+            case ACTION_STD_NEXT:
+            case ACTION_STD_NEXTREPEAT:
+                selected = selected >= count - 1 ? 0 : selected + 1;
+                redraw = true;
+                break;
+
+            case ACTION_STD_OK:
+                *selectedp = selected;
+                viewportmanager_theme_undo(SCREEN_MAIN, false);
+                return root_menu_video_launch_selected(selected);
+
+            case ACTION_STD_CONTEXT:
+                *selectedp = selected;
+                viewportmanager_theme_undo(SCREEN_MAIN, false);
+                return GO_TO_ROOTITEM_CONTEXT;
+
+            case ACTION_TREE_WPS:
+                *selectedp = selected;
+                viewportmanager_theme_undo(SCREEN_MAIN, false);
+                return GO_TO_WPS;
+
+            case ACTION_TREE_POWER_MENU:
+                root_menu_open_power_menu();
+                redraw = true;
+                button_clear_queue();
+                break;
+
+            case ACTION_STD_MENU:
+                *selectedp = selected;
+                viewportmanager_theme_undo(SCREEN_MAIN, false);
+                return GO_TO_MAINMENU;
+
+            case ACTION_STD_CANCEL:
+                *selectedp = selected;
+                viewportmanager_theme_undo(SCREEN_MAIN, false);
+                return GO_TO_PREVIOUS;
+        }
+    }
+}
+#endif /* IPOD_VIDEO */
+
 static int get_selection(int last_screen)
 {
     int i;
@@ -2718,6 +3183,11 @@ void root_menu(void)
 
 #if defined(IPOD_NANO2G)
                 next_screen = root_menu_nano2g_dashboard(&selected);
+#elif defined(IPOD_VIDEO)
+                if (root_menu_video_enabled())
+                    next_screen = root_menu_video_dashboard(&selected);
+                else
+                    next_screen = do_menu(&root_menu_, &selected, NULL, false);
 #else
                 next_screen = do_menu(&root_menu_, &selected, NULL, false);
 #endif

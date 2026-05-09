@@ -6,12 +6,12 @@ SIMDISK="$ROOT/build-sim-3g/simdisk/.rockbox"
 
 mkdir -p "$SIMDISK/themes" "$SIMDISK/wps"
 
-cp -a "$ROOT/themes/Galaxy.cfg" "$SIMDISK/themes/Galaxy.cfg"
-cp -a "$ROOT/wps/Galaxy.wps" "$SIMDISK/wps/Galaxy.wps"
-cp -a "$ROOT/wps/Galaxy.sbs" "$SIMDISK/wps/Galaxy.sbs"
-cp -a "$ROOT/wps/Galaxy.fms" "$SIMDISK/wps/Galaxy.fms"
-rm -rf "$SIMDISK/wps/Galaxy"
-cp -a "$ROOT/wps/Galaxy" "$SIMDISK/wps/Galaxy"
+cp -a "$ROOT/themes/CoverPod_3g.cfg" "$SIMDISK/themes/CoverPod_3g.cfg"
+cp -a "$ROOT/wps/CoverPod_3g.wps" "$SIMDISK/wps/CoverPod_3g.wps"
+cp -a "$ROOT/wps/CoverPod_3g.sbs" "$SIMDISK/wps/CoverPod_3g.sbs"
+cp -a "$ROOT/wps/CoverPod_3g.fms" "$SIMDISK/wps/CoverPod_3g.fms"
+rm -rf "$SIMDISK/wps/CoverPod_3g"
+cp -a "$ROOT/wps/CoverPod_3g" "$SIMDISK/wps/CoverPod_3g"
 
 python3 - "$SIMDISK/config.cfg" <<'PY'
 import sys
@@ -21,21 +21,21 @@ path = Path(sys.argv[1])
 text = path.read_text(encoding="utf-8", errors="replace").splitlines()
 updates = {
     "font": "/.rockbox/fonts/12-Adobe-Helvetica.fnt",
-    "wps": "/.rockbox/wps/Galaxy.wps",
-    "sbs": "/.rockbox/wps/Galaxy.sbs",
-    "fms": "/.rockbox/wps/Galaxy.fms",
-    "theme": "/.rockbox/themes/Galaxy.cfg",
+    "wps": "/.rockbox/wps/CoverPod_3g.wps",
+    "sbs": "/.rockbox/wps/CoverPod_3g.sbs",
+    "fms": "/.rockbox/wps/CoverPod_3g.fms",
+    "theme": "/.rockbox/themes/CoverPod_3g.cfg",
     "iconset": "/.rockbox/icons/tango_small_mono.bmp",
     "viewers iconset": "/.rockbox/icons/tango_small_viewers_mono.bmp",
-    "backdrop": "/.rockbox/wps/Galaxy/MenuBackdrop.bmp",
-    "selector type": "pointer",
+    "backdrop": "-",
+    "selector type": "bar (inverse)",
     "statusbar": "off",
     "show icons": "off",
-    "ui viewport": "12,32,56,84",
-    "background color": "0",
-    "foreground color": "3",
-    "line selector start color": "1",
-    "line selector end color": "1",
+    "ui viewport": "8,30,144,88",
+    "background color": "3",
+    "foreground color": "0",
+    "line selector start color": "0",
+    "line selector end color": "0",
     "line selector text color": "3",
     "list separator color": "2",
     "backlight on button hold": "on",
@@ -63,6 +63,6 @@ for key, value in updates.items():
 path.write_text("\n".join(output) + "\n", encoding="utf-8")
 PY
 
-echo "Prepared build-sim-3g for Galaxy preview."
+echo "Prepared build-sim-3g for CoverPod 3G preview."
 echo "Launch with:"
 echo "  cd \"$ROOT/build-sim-3g\" && ./rockboxui --nobackground --root simdisk"

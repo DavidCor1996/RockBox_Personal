@@ -1,0 +1,81 @@
+# CoverPod 3G - WPS
+%wd
+%Fl(2,12-Adobe-Helvetica.fnt)
+%X(wpsbackdrop-160x128x2.bmp)
+
+%xl(A,lock-160x128x2.bmp,0,0,2)
+%xl(B,battery-160x128x2.bmp,0,0,10)
+%xl(C,volume-160x128x2.bmp,0,0,10)
+%xl(D,shuffle-160x128x2.bmp,0,0)
+%xl(E,repeat-160x128x2.bmp,0,0,4)
+%xl(F,playmode-160x128x2.bmp,0,0,5)
+%xl(W,Wallpaper.bmp)
+%xl(Q,ChargeWallpaper.bmp)
+
+%Vl(Base,0,0,160,128,-)
+%dr(0,0,-,-,3)
+
+%?mh<%Vd(LockBackdrop)%Vd(LockTop)%Vd(LockClock)%Vd(LockCard)|%Vd(TopStatus)%Vd(NoArt)%Vd(Title)%Vd(Artist)%Vd(Album)%Vd(Progress)%Vd(BottomStatus)%Vd(BottomTime)%Vd(BottomMeta)%Vd(BottomRemain)%Vd(Battery)%Vd(Volume)%Vd(Shuffle)%Vd(Repeat)>
+
+%Vl(TopStatus,6,5,148,11,2)
+%Vf(0)
+%al%?mp<Stop|Play|Pause|Seek|Seek|Rec|Pause|Radio|Radio>
+%ac%?if(%St(battery display), =, numeric)<%bl%%|%?bp<CHG|%bl%%>>
+%ar%?mh<Hold|%?cc<%cl:%cM|-->>
+
+%Vl(NoArt,8,18,144,56,-)
+%dr(0,0,-,-,2)
+%dr(2,2,140,52,3)
+%Vl(NoArt,18,34,124,14,2)
+%Vf(1)
+%s%acCoverPod
+
+%Vl(Title,12,20,136,16,2)
+%Vf(0)
+%s%ac%?it<%it|%fn>
+
+%Vl(Artist,12,42,136,13,2)
+%Vf(1)
+%s%ac%?ia<%ia|%?iA<%iA|Unknown Artist>>
+
+%Vl(Album,12,58,136,13,2)
+%Vf(1)
+%s%ac%?id<%id|%?d(1)<%d(1)|Library>>
+
+%Vl(Progress,8,98,144,8,-)
+%pb(0,0,144,8,pb-160x128x2.bmp)
+
+%Vl(BottomStatus,8,112,144,12,-)
+%Vf(0)
+%Vl(BottomTime,8,113,43,10,2)%Vf(0)%al%pc
+%Vl(BottomMeta,52,113,56,10,2)%Vf(0)%ac%?Sr<%pe/%pp|%pp/%pe>
+%Vl(BottomRemain,109,113,43,10,2)%Vf(0)%ar-%pr
+%Vl(BottomIcons,8,112,144,12,-)
+%?or(%if(%mm, >, 1),%if(%ps, =, s))<%Vd(Shuffle)%Vd(Repeat)|>
+%Vl(Battery,8,112,17,10,-)
+%?bp<%?bc<%xd(Ba)|%xd(Bb)>|%?bl<|%xd(Bc)|%xd(Bd)|%xd(Be)|%xd(Bf)|%xd(Bg)|%xd(Bh)|%xd(Bi)|%xd(Bj)>>
+%Vl(Volume,28,112,16,11,-)
+%?pv<%xd(Ca)|%xd(Cb)|%xd(Cc)|%xd(Cd)|%xd(Ce)|%xd(Cf)|%xd(Cg)|%xd(Ch)|%xd(Ci)|%xd(Cj)>
+%Vl(Shuffle,112,114,16,9,-)
+%?ps<%xd(D)>
+%Vl(Repeat,135,111,12,14,-)
+%?mm<|%xd(Ea)|%xd(Eb)|%xd(Ec)|%xd(Ed)>
+
+%Vl(LockBackdrop,0,0,160,128,-)
+%?bp<%xd(Q)|%xd(W)>
+
+%Vl(LockTop,8,6,144,12,2)%Vf(0)
+%alCoverPod%ar%?bp<Chg|%bl%%>
+
+%Vl(LockClock,0,28,160,28,2)%Vf(0)
+%ac%?cc<%cl:%cM %cP|--:-->
+
+%Vl(LockCard,18,84,124,30,2)
+%dr(0,0,-,-,0)
+%dr(1,1,122,28,2)
+%Vl(LockCard,24,90,112,10,2)
+%Vf(0)
+%s%ac%?it<%it|Now Playing>
+%Vl(LockCard,24,102,112,10,2)
+%Vf(1)
+%s%ac%?ia<%ia|%?iA<%iA|iPod 3G>>

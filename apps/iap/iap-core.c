@@ -115,6 +115,23 @@ bool iap_btnrepeat = false, iap_btnshuffle = false;
 static long thread_stack[(DEFAULT_STACK_SIZE*6)/sizeof(long)];
 static struct event_queue iap_queue;
 
+#define IAP_TRACE_ENTRIES 16
+#define IAP_TRACE_DATA_LEN 16
+
+struct iap_trace_entry {
+    unsigned int seq;
+    long tick;
+    char dir;
+    uint16_t len;
+    unsigned char data[IAP_TRACE_DATA_LEN];
+};
+
+static struct iap_trace_entry iap_trace[IAP_TRACE_ENTRIES];
+static unsigned int iap_trace_head;
+static unsigned int iap_trace_count;
+static unsigned int iap_trace_seq;
+static bool iap_trace_paused;
+
 /* These are pointer used to manage a dynamically allocated buffer which
  * will hold both the RX and TX side of things.
  *
@@ -261,6 +278,73 @@ uint32_t get_u32(const unsigned char *buf)
 uint16_t get_u16(const unsigned char *buf)
 {
     return (buf[0] << 8) | buf[1];
+}
+
+static void iap_trace_packet(char dir, const unsigned char *data, int len)
+{
+    int level;
+    struct iap_trace_entry *entry;
+    int copylen = MIN(len, IAP_TRACE_DATA_LEN);
+
+    if (iap_trace_paused)
+        return;
+
+    level = disable_irq_save();
+
+    entry = &iap_trace[iap_trace_head];
+    entry->seq = ++iap_trace_seq;
+    entry->tick = current_tick;
+    entry->dir = dir;
+    entry->len = len;
+    if (copylen > 0)
+        memcpy(entry->data, data, copylen);
+    if (copylen < IAP_TRACE_DATA_LEN)
+        memset(entry->data + copylen, 0, IAP_TRACE_DATA_LEN - copylen);
+
+    iap_trace_head = (iap_trace_head + 1) % IAP_TRACE_ENTRIES;
+    if (iap_trace_count < IAP_TRACE_ENTRIES)
+        iap_trace_count++;
+
+    restore_irq(level);
+}
+
+static void iap_trace_clear(void)
+{
+    int level = disable_irq_save();
+
+    iap_trace_head = 0;
+    iap_trace_count = 0;
+    iap_trace_seq = 0;
+    memset(iap_trace, 0, sizeof(iap_trace));
+
+    restore_irq(level);
+}
+
+static void iap_trace_hex(char *buf, size_t bufsz,
+                          const struct iap_trace_entry *entry)
+{
+    static const char hex[] = "0123456789ABCDEF";
+    size_t i;
+    size_t out = 0;
+    size_t len = MIN(entry->len, IAP_TRACE_DATA_LEN);
+
+    for (i = 0; i < len && out + 3 < bufsz; i++)
+    {
+        if (i > 0)
+            buf[out++] = ' ';
+        buf[out++] = hex[(entry->data[i] >> 4) & 0x0f];
+        buf[out++] = hex[entry->data[i] & 0x0f];
+    }
+
+    if (entry->len > IAP_TRACE_DATA_LEN && out + 4 < bufsz)
+    {
+        buf[out++] = ' ';
+        buf[out++] = '.';
+        buf[out++] = '.';
+        buf[out++] = '.';
+    }
+
+    buf[out] = '\0';
 }
 
 #if defined(LOGF_ENABLE) && defined(ROCKBOX_HAS_LOGF)
@@ -619,6 +703,7 @@ void iap_send_tx(void)
 #if defined(LOGF_ENABLE) && defined(ROCKBOX_HAS_LOGF)
     logf("T: %s", hexstring(txstart+3, (iap_txnext - txstart)-3));
 #endif
+    iap_trace_packet('T', iap_txpayload, txlen);
     iap_transport_send(txstart, (iap_txnext - txstart) + 1);
 }
 
@@ -1418,6 +1503,7 @@ void iap_handlepkt(void)
 #if defined(LOGF_ENABLE) && defined(ROCKBOX_HAS_LOGF)
     logf("R: %s", hexstring(iap_rxstart+2, (length)));
 #endif
+    iap_trace_packet('R', iap_rxstart+2, length);
 
     if (length != 0) {
         unsigned char mode = *(iap_rxstart+2);
@@ -1572,23 +1658,66 @@ bool dbg_iap(void)
 
     while (1)
     {
-        if (action_userabort(HZ/10))
-            break;
+        int action = get_action(CONTEXT_STD, HZ/10);
+        int line = 0;
+        int max_lines = LCD_HEIGHT / font_get(FONT_SYSFIXED)->height;
+        unsigned int count;
+        unsigned int head;
+        unsigned int i;
+        bool paused;
+        int level;
+
+        switch (action)
+        {
+            case ACTION_STD_CANCEL:
+                lcd_setfont(FONT_UI);
+                return false;
+
+            case ACTION_STD_OK:
+                iap_trace_paused = !iap_trace_paused;
+                break;
+
+            case ACTION_STD_CONTEXT:
+                iap_trace_clear();
+                break;
+        }
 
         lcd_clear_display();
 
         /* show internal state of IAP subsystem */
-        lcd_putsf(0, 0, "auth: %d acc: %d", device.auth.state, device.accinfo);
-        lcd_putsf(0, 1, "lin: %08x", device.lingoes);
-        lcd_putsf(0, 2, "notif: %08x", device.notifications);
-        lcd_putsf(0, 3, "cap: %08x/%08x", device.capabilities, device.capabilities_queried);
+        lcd_putsf(0, line++, "auth:%d acc:%d if:%d",
+                  device.auth.state, device.accinfo, interface_state);
+        lcd_putsf(0, line++, "lin:%08x notif:%08x",
+                  device.lingoes, device.notifications);
+        lcd_putsf(0, line++, "cap:%08x/%08x",
+                  device.capabilities, device.capabilities_queried);
 
-        // frame_state.state
-        // serial state
+        level = disable_irq_save();
+        count = iap_trace_count;
+        head = iap_trace_head;
+        paused = iap_trace_paused;
+        restore_irq(level);
+
+        if (line < max_lines)
+            lcd_putsf(0, line++, "trace:%s n:%u ok:hold ctx:clr",
+                      paused ? "hold" : "run", count);
+
+        for (i = 0; i < count && line < max_lines; i++)
+        {
+            struct iap_trace_entry entry;
+            char hexbuf[IAP_TRACE_DATA_LEN * 3 + 4];
+            unsigned int index = (head + IAP_TRACE_ENTRIES - 1 - i)
+                               % IAP_TRACE_ENTRIES;
+
+            level = disable_irq_save();
+            entry = iap_trace[index];
+            restore_irq(level);
+
+            iap_trace_hex(hexbuf, sizeof(hexbuf), &entry);
+            lcd_putsf(0, line++, "%03u %c %u %s",
+                      entry.seq, entry.dir, entry.len, hexbuf);
+        }
 
         lcd_update();
     }
-
-    lcd_setfont(FONT_UI);
-    return false;
 }

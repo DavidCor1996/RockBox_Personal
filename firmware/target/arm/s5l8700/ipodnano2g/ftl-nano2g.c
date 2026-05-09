@@ -372,6 +372,101 @@ uint32_t ftl_banks;
 /* Block map, used vor pBlock to vBlock mapping */
 static uint16_t ftl_map[0x2000];
 
+#if defined(IPOD_NANO3G) && defined(BOOTLOADER)
+static int n3g_direct_map_mount;
+static uint32_t n3g_direct_map_count;
+static uint32_t n3g_direct_map_min_lblock;
+static uint32_t n3g_direct_map_max_lblock;
+static uint32_t n3g_direct_map_loaded_entries;
+static uint32_t n3g_direct_sector_base;
+static uint32_t n3g_direct_sector_scale;
+static uint16_t n3g_direct_l0_vblock[0x200];
+static uint16_t n3g_direct_l0_page[0x200];
+static uint32_t n3g_direct_l0_cache[0x400];
+static uint16_t n3g_direct_probe_map[0x400];
+static uint8_t n3g_direct_pagebuf[0x800];
+static uint32_t n3g_direct_mbr_valid;
+static uint32_t n3g_direct_mbr_j;
+static uint32_t n3g_direct_mbr_v;
+static uint32_t n3g_direct_mbr_po;
+static uint8_t n3g_direct_mbr[0x800];
+static uint32_t n3g_direct_boot_valid;
+static uint32_t n3g_direct_boot_lpn;
+static uint16_t n3g_direct_boot_vblock;
+static uint16_t n3g_direct_boot_page;
+static uint32_t n3g_direct_boot_slot;
+static int32_t n3g_direct_boot_shift;
+static uint32_t n3g_direct_fsinfo_valid;
+static uint32_t n3g_direct_fsinfo_lpn;
+
+struct n3g_direct_read_trace
+{
+    uint32_t j;
+    uint32_t v;
+    uint32_t lookup;
+    uint32_t l0;
+    uint32_t span;
+    uint32_t delta;
+    uint32_t po;
+    uint32_t slot;
+    uint32_t bank;
+    uint32_t pb;
+    uint32_t pp;
+    const char *reason;
+};
+
+struct n3g_direct_covering_entry
+{
+    uint32_t j;
+    uint32_t v;
+    uint32_t l0;
+    uint32_t delta;
+    uint32_t po;
+    uint32_t slot;
+};
+
+static uint32_t ftl_n3g_wmount_map_lpn0(uint32_t j, uint32_t *lpn0);
+static uint32_t n3g_wmount_rd_best_valid;
+static const char *n3g_wmount_rd_best_tag;
+static uint32_t n3g_wmount_rd_best_j;
+static uint32_t n3g_wmount_rd_best_v;
+static uint32_t n3g_wmount_rd_best_l0;
+static uint32_t n3g_wmount_rd_best_po;
+static uint32_t n3g_wmount_rd_best_slot;
+static uint32_t n3g_wmount_rd_best_sig;
+static uint32_t n3g_wmount_rd_best_reason;
+static uint32_t n3g_wmount_rd_best_bps;
+static uint32_t n3g_wmount_rd_best_fat;
+static uint32_t n3g_wmount_rd_best_type;
+static uint32_t n3g_wmount_rd_best_oob_lpn;
+static uint32_t n3g_wmount_rd_best_score;
+static uint32_t n3g_wmount_rd_hits;
+static uint32_t n3g_wmount_rd_rej_zero;
+static uint32_t n3g_wmount_rd_rej_sig;
+static uint32_t n3g_wmount_rd_rej_fat;
+static uint32_t n3g_wmount_rd_rej_bpb;
+
+struct n3g_wmount_target
+{
+    const char *name;
+    uint32_t lpn;
+    uint32_t slot;
+};
+
+struct n3g_wmount_map_candidate
+{
+    uint32_t block;
+    uint32_t page;
+    uint32_t usn;
+    uint32_t score;
+    uint32_t mbr_j;
+    uint32_t mbr_po;
+    uint32_t mbr_slot;
+    uint32_t part_start;
+    uint32_t part_size;
+};
+#endif
+
 /* VFL context for each bank */
 static struct ftl_vfl_cxt_type ftl_vfl_cxt[4];
 
@@ -431,6 +526,19 @@ static uint32_t ppb;
                        - ftl_nand_type->userblocks - 0x17) */
 static uint32_t syshyperblocks;
 
+#if !(defined(IPOD_NANO3G) && defined(BOOTLOADER))
+#define N3G_DEVINFO_SCAN_BLOCK_LIMIT 128
+#define N3G_VFL_SCAN_BLOCK_LIMIT 64
+static const uint32_t n3g_ctx_trace_compact = 0;
+static const char* ftl_n3g_devinfo_marker(const void* databuffer,
+                                          const union ftl_spare_data_type* spare)
+{
+    (void)databuffer;
+    (void)spare;
+    return NULL;
+}
+#endif
+
 #if defined(IPOD_NANO3G) && defined(BOOTLOADER)
 static uint32_t n3g_best_meta_score;
 static uint32_t n3g_best_meta_bank;
@@ -442,6 +550,81 @@ static uint32_t n3g_ctx_trace_compact;
 static uint32_t ftl_has_devinfo(void);
 static uint32_t ftl_vfl_open(void);
 static uint32_t ftl_open(void);
+#if defined(IPOD_NANO3G) && defined(BOOTLOADER)
+struct nano3g_nand_reg_diag
+{
+    uint32_t fmctrl0;
+    uint32_t fmctrl1;
+    uint32_t fmcmd;
+    uint32_t fmaddr0;
+    uint32_t fmaddr1;
+    uint32_t fmaddr2;
+    uint32_t fmanum;
+    uint32_t fmdnum;
+    uint32_t fmcstat;
+    uint32_t fmstage0;
+    uint32_t fmstage1;
+    uint32_t fmstage2;
+    uint32_t fmstagecmd;
+    uint32_t fmstagectrl;
+    uint32_t pwr0;
+    uint32_t pwr1;
+    uint32_t clkcon1;
+    uint32_t pcon7;
+    uint32_t pcon8;
+    uint32_t pcon9;
+    uint32_t pcon10;
+    uint32_t pcon11;
+    uint32_t gpiocmd;
+    uint32_t misc;
+};
+
+extern int32_t nano3g_nand_diag_last_init_rc(void);
+extern int32_t nano3g_nand_diag_last_rom_rc(void);
+extern uint32_t nano3g_nand_diag_last_bank(void);
+extern uint32_t nano3g_nand_diag_last_page(void);
+extern uint32_t nano3g_nand_diag_last_reset_stat(void);
+extern uint32_t nano3g_nand_diag_last_fail_stage(void);
+extern int32_t nano3g_nand_diag_init_only(uint32_t bank);
+extern int32_t nano3g_nand_diag_read_id(uint32_t *id);
+extern int32_t nano3g_nand_diag_read_id_current(uint32_t *id);
+extern int32_t nano3g_nand_diag_read_id_variant(uint32_t bank,
+                                                uint32_t variant,
+                                                uint32_t *ctrl0,
+                                                uint32_t *id);
+extern int32_t nano3g_nand_diag_gpio_id_variant(uint32_t bank,
+                                                uint32_t variant,
+                                                uint32_t *ctrl0,
+                                                uint32_t *id,
+                                                uint32_t *pcon7,
+                                                uint32_t *pcon8,
+                                                uint32_t *pcon9,
+                                                uint32_t *pcon10,
+                                                uint32_t *pcon11);
+extern int32_t nano3g_nand_diag_clock_id_variant(uint32_t bank,
+                                                 uint32_t variant,
+                                                 uint32_t *id,
+                                                 uint32_t *clk_before,
+                                                 uint32_t *clk_during,
+                                                 uint32_t *clk_after);
+extern int32_t nano3g_nand_diag_cp15_id(uint32_t bank,
+                                        uint32_t *id,
+                                        uint32_t *cp_before,
+                                        uint32_t *cp_during,
+                                        uint32_t *cp_after);
+extern int32_t nano3g_nand_diag_pmu_id_variant(uint32_t variant,
+                                               uint32_t *pmu10,
+                                               uint32_t *pmu15,
+                                               uint32_t *id);
+extern int32_t nano3g_nand_diag_local_read(uint32_t bank, uint32_t page,
+                                           uint32_t offset, uint32_t *buf,
+                                           uint32_t words);
+extern int32_t nano3g_nand_diag_rom_read(uint32_t bank, uint32_t page,
+                                         uint32_t *data, uint32_t *extra);
+extern void nano3g_nand_diag_regs(struct nano3g_nand_reg_diag *diag);
+extern void nano3g_nand_entry_diag_get(uint32_t *out, uint32_t words);
+extern void nano3g_nand_stage_diag_get(uint32_t *out, uint32_t words);
+#endif
 
 #define N3G_RECON_BANK 0
 #define N3G_RECON_BLOCK 8190
@@ -450,8 +633,28 @@ static uint32_t ftl_open(void);
 #define N3G_DECODE_CLASSIFY_ONLY 1
 #define N3G_ACTIVE_DECODE_MODE 4
 #define N3G_BASE_PROBE_COMPACT 1
-#define N3G_DEVINFO_SCAN_BLOCK_LIMIT 96
+#define N3G_SCREEN_COMPACT 1
+#define N3G_DEVINFO_SCAN_BLOCK_LIMIT 128
 #define N3G_VFL_SCAN_BLOCK_LIMIT 64
+#define N3G_OOB_SCAN_MAX_READS 2048
+#define N3G_OOB_SCAN_MAX_HITS 64
+#define N3G_OOB_SCAN_PROGRESS 128
+#define N3G_OOB_SCAN_PAGES_PER_BLOCK 4
+
+static const char* ftl_n3g_devinfo_marker(const void* databuffer,
+                                          const union ftl_spare_data_type* spare)
+{
+    const uint8_t* bytes = (const uint8_t*)databuffer;
+
+    if (memcmp(databuffer, "DEVICEINFOSIGN\0", 0x10) == 0)
+        return "DEVICEINFOSIGN";
+    if (memcmp(bytes + 0x18, "BBT", 3) == 0)
+        return "BBT";
+    if (spare != NULL && spare->meta.type == 0x80)
+        return "VFL_CXT";
+
+    return NULL;
+}
 
 static uint32_t ftl_n3g_meta_score(const uint32_t* data,
                                    const union ftl_spare_data_type* spare)
@@ -479,6 +682,7 @@ static uint32_t ftl_n3g_meta_score(const uint32_t* data,
             case 0x41:
             case 0x43:
             case 0x44:
+            case 0x45:
             case 0x46:
             case 0x47:
             case 0x80:
@@ -488,6 +692,7343 @@ static uint32_t ftl_n3g_meta_score(const uint32_t* data,
     }
 
     return score;
+}
+
+static void ftl_n3g_sanity_count(const uint8_t *data, uint32_t count,
+                                 uint32_t *nonzero, uint32_t *ff,
+                                 uint32_t *nontrivial)
+{
+    uint32_t i;
+
+    *nonzero = 0;
+    *ff = 0;
+    *nontrivial = 0;
+    for (i = 0; i < count; i++)
+    {
+        if (data[i] != 0)
+            (*nonzero)++;
+        if (data[i] == 0xff)
+            (*ff)++;
+        if (data[i] != 0 && data[i] != 0xff)
+            (*nontrivial)++;
+    }
+}
+
+static int ftl_n3g_known_oob_type(uint8_t type)
+{
+    switch (type)
+    {
+    case 0x40:
+    case 0x41:
+    case 0x43:
+    case 0x44:
+    case 0x45:
+    case 0x46:
+    case 0x47:
+    case 0x80:
+        return 1;
+    default:
+        return 0;
+    }
+}
+
+static uint32_t ftl_n3g_oob_count_index(uint8_t type)
+{
+    switch (type)
+    {
+    case 0x40: return 0;
+    case 0x41: return 1;
+    case 0x43: return 2;
+    case 0x44: return 3;
+    case 0x45: return 4;
+    case 0x46: return 5;
+    case 0x47: return 6;
+    case 0x80: return 7;
+    default: return 8;
+    }
+}
+
+static void ftl_n3g_oob_type_scan(void)
+{
+#if defined(IPOD_NANO3G) && defined(BOOTLOADER)
+    static const uint8_t known_types[] = { 0x40, 0x41, 0x43, 0x44,
+                                           0x45, 0x46, 0x47, 0x80 };
+    uint32_t counts[8] = { 0 };
+    uint32_t pagesperblock = ftl_nand_type->pagesperblock;
+    uint32_t blocks = ftl_nand_type->blocks;
+    uint32_t scanned = 0;
+    uint32_t hits = 0;
+    uint32_t ftl_ctx_hits = 0;
+    uint32_t ftl_map_hits = 0;
+    uint32_t ctx_bank = 0xffffffffu;
+    uint32_t ctx_block = 0xffffffffu;
+    uint32_t ctx_abs = 0xffffffffu;
+
+    FTL_PROGRESS("N3G_OOB_SCAN_START banks=%lu from=%lu max=%lu",
+                 (unsigned long)ftl_banks,
+                 (unsigned long)(blocks - 1),
+                 (unsigned long)N3G_OOB_SCAN_MAX_READS);
+
+    for (uint32_t block = blocks; block > 0
+         && scanned < N3G_OOB_SCAN_MAX_READS
+         && hits < N3G_OOB_SCAN_MAX_HITS; block--)
+    {
+        uint32_t blk = block - 1;
+        for (uint32_t pageidx = 0; pageidx < N3G_OOB_SCAN_PAGES_PER_BLOCK
+             && scanned < N3G_OOB_SCAN_MAX_READS
+             && hits < N3G_OOB_SCAN_MAX_HITS; pageidx++)
+        {
+            uint32_t page = blk * pagesperblock + pageidx;
+
+            for (uint32_t bank = 0; bank < ftl_banks
+                 && scanned < N3G_OOB_SCAN_MAX_READS
+                 && hits < N3G_OOB_SCAN_MAX_HITS; bank++)
+            {
+                int32_t rc;
+                uint8_t type;
+                uint32_t *oob;
+                uint32_t usn;
+
+                if ((scanned % N3G_OOB_SCAN_PROGRESS) == 0)
+                    FTL_PROGRESS("N3G_OOB_SCAN_PROGRESS block=%lu",
+                                 (unsigned long)blk);
+
+                memset(&ftl_sparebuffer[0], 0, sizeof(ftl_sparebuffer[0]));
+                rc = nano3g_nand_diag_local_read(bank, page, 0x800,
+                                                 (uint32_t *)&ftl_sparebuffer[0],
+                                                 0x10);
+                scanned++;
+                if (rc != 0)
+                    continue;
+
+                type = ftl_sparebuffer[0].meta.type;
+                if (!ftl_n3g_known_oob_type(type))
+                    continue;
+
+                counts[ftl_n3g_oob_count_index(type)]++;
+                oob = (uint32_t *)&ftl_sparebuffer[0];
+                usn = (type == 0x40 || type == 0x41)
+                    ? ftl_sparebuffer[0].user.usn
+                    : ftl_sparebuffer[0].meta.usn;
+
+                FTL_PROGRESS("N3G_OOB_TYPE_HIT abs=%lu bank=%lu block=%lu page=%lu type=%02lx usn=%08lx first=%08lx,%08lx",
+                             (unsigned long)page, (unsigned long)bank,
+                             (unsigned long)blk, (unsigned long)pageidx,
+                             (unsigned long)type, (unsigned long)usn,
+                             (unsigned long)oob[0], (unsigned long)oob[1]);
+                hits++;
+
+                if (type == 0x43)
+                {
+                    ftl_ctx_hits++;
+                    if (ctx_block == 0xffffffffu)
+                    {
+                        ctx_bank = bank;
+                        ctx_block = blk;
+                        ctx_abs = page;
+                    }
+                    FTL_PROGRESS("N3G_FTL_CTX_CANDIDATE abs=%lu",
+                                 (unsigned long)page);
+                }
+                else if (type == 0x44)
+                {
+                    ftl_map_hits++;
+                    FTL_PROGRESS("N3G_FTL_MAP_CANDIDATE abs=%lu",
+                                 (unsigned long)page);
+                }
+            }
+        }
+    }
+
+    for (uint32_t i = 0; i < ARRAYLEN(known_types); i++)
+        FTL_PROGRESS("N3G_OOB_TYPE_COUNT type=%02lx count=%lu",
+                     (unsigned long)known_types[i],
+                     (unsigned long)counts[i]);
+
+    if (ctx_block != 0xffffffffu)
+        FTL_PROGRESS("N3G_OOB_CONTEXT_CANDIDATE bank=%lu block=%lu abs=%lu hits=%lu maps=%lu",
+                     (unsigned long)ctx_bank, (unsigned long)ctx_block,
+                     (unsigned long)ctx_abs, (unsigned long)ftl_ctx_hits,
+                     (unsigned long)ftl_map_hits);
+    else
+        FTL_PROGRESS("N3G_OOB_CONTEXT_NOT_FOUND");
+
+    FTL_PROGRESS("N3G_OOB_SCAN_DONE");
+#endif
+}
+
+static void ftl_n3g_oob_path_probe(void)
+{
+#if defined(IPOD_NANO3G) && defined(BOOTLOADER)
+    static const uint32_t pages[] = { 0, 1, 128, 1024 };
+    uint32_t body[16] STORAGE_ALIGN_ATTR;
+    uint32_t spare[16] STORAGE_ALIGN_ATTR;
+    uint32_t body_nonzero;
+    uint32_t body_ff;
+    uint32_t body_nontrivial;
+    uint32_t oob_nonzero;
+    uint32_t oob_ff;
+    uint32_t oob_nontrivial;
+
+    FTL_PROGRESS("N3G_OOB_PATH_START");
+    for (uint32_t bank = 0; bank < ftl_banks; bank++)
+    {
+        uint32_t body_hits = 0;
+        uint32_t oob_hits = 0;
+        uint32_t body_fail = 0;
+        uint32_t oob_fail = 0;
+        uint32_t first_body = 0xffffffffu;
+        uint32_t first_oob = 0xffffffffu;
+        uint32_t last_o0 = 0;
+        uint32_t last_o1 = 0;
+
+        for (uint32_t i = 0; i < ARRAYLEN(pages); i++)
+        {
+            int32_t body_rc;
+            int32_t oob_rc;
+
+            memset(body, 0, sizeof(body));
+            memset(spare, 0, sizeof(spare));
+            body_rc = nano3g_nand_diag_local_read(bank, pages[i], 0,
+                                                  body, ARRAYLEN(body));
+            oob_rc = nano3g_nand_diag_local_read(bank, pages[i], 0x800,
+                                                 spare, ARRAYLEN(spare));
+            ftl_n3g_sanity_count((const uint8_t *)body, sizeof(body),
+                                 &body_nonzero, &body_ff,
+                                 &body_nontrivial);
+            ftl_n3g_sanity_count((const uint8_t *)spare, sizeof(spare),
+                                 &oob_nonzero, &oob_ff,
+                                 &oob_nontrivial);
+
+            if (body_rc != 0)
+                body_fail++;
+            if (oob_rc != 0)
+                oob_fail++;
+            if (body_nontrivial != 0)
+            {
+                body_hits++;
+                if (first_body == 0xffffffffu)
+                    first_body = pages[i];
+            }
+            if (oob_nontrivial != 0)
+            {
+                oob_hits++;
+                if (first_oob == 0xffffffffu)
+                    first_oob = pages[i];
+                last_o0 = spare[0];
+                last_o1 = spare[1];
+            }
+        }
+        FTL_PROGRESS("N3G_OOB_PATH_BANK b=%lu bh=%lu oh=%lu bf=%lu of=%lu",
+                     (unsigned long)bank, (unsigned long)body_hits,
+                     (unsigned long)oob_hits, (unsigned long)body_fail,
+                     (unsigned long)oob_fail);
+        FTL_PROGRESS("N3G_OOB_PATH_FIRST b=%lu bp=%lu op=%lu o0=%08lx o1=%08lx",
+                     (unsigned long)bank, (unsigned long)first_body,
+                     (unsigned long)first_oob, (unsigned long)last_o0,
+                     (unsigned long)last_o1);
+    }
+    FTL_PROGRESS("N3G_OOB_PATH_DONE");
+#endif
+}
+
+static void ftl_n3g_oob_layout_probe(void)
+{
+#if defined(IPOD_NANO3G) && defined(BOOTLOADER)
+    static const uint32_t pages[] = { 0, 1 };
+    uint32_t spare[16] STORAGE_ALIGN_ATTR;
+    uint32_t bank_limit = ftl_banks < 2 ? ftl_banks : 2;
+
+    FTL_PROGRESS("N3G_OOB_LAYOUT_START");
+    FTL_PROGRESS("N3G_OOB_STAGE_REGISTER_SPARE");
+    for (uint32_t bank = 0; bank < bank_limit; bank++)
+    {
+        uint32_t sample_page = 0xffffffffu;
+        uint32_t sample_word0 = 0;
+        uint32_t sample_word1 = 0;
+        uint32_t sample_word2 = 0;
+        uint32_t sample_word3 = 0;
+        uint32_t read_ok = 0;
+        uint32_t read_fail = 0;
+        uint32_t type_mask = 0;
+        uint32_t type_pos = 0xffffffffu;
+        uint32_t type_val = 0;
+
+        for (uint32_t i = 0; i < ARRAYLEN(pages); i++)
+        {
+            uint32_t nonzero;
+            uint32_t ff;
+            uint32_t nontrivial;
+            uint8_t *bytes = (uint8_t *)spare;
+
+            memset(spare, 0, sizeof(spare));
+            if (nano3g_nand_diag_local_read(bank, pages[i], 0x800,
+                                            spare, ARRAYLEN(spare)) != 0)
+            {
+                read_fail++;
+                continue;
+            }
+            read_ok++;
+
+            ftl_n3g_sanity_count(bytes, sizeof(spare), &nonzero, &ff,
+                                 &nontrivial);
+            if (nontrivial == 0)
+                continue;
+
+            if (sample_page == 0xffffffffu)
+            {
+                sample_page = pages[i];
+                sample_word0 = spare[0];
+                sample_word1 = spare[1];
+                sample_word2 = spare[2];
+                sample_word3 = spare[3];
+            }
+
+            for (uint32_t off = 0; off < sizeof(spare); off++)
+            {
+                if (ftl_n3g_known_oob_type(bytes[off]))
+                {
+                    type_mask |= 1u << (off & 31);
+                    if (type_pos == 0xffffffffu)
+                    {
+                        type_pos = off;
+                        type_val = bytes[off];
+                    }
+                }
+            }
+        }
+
+        FTL_PROGRESS("N3G_OOB_LAYOUT b=%lu ok=%lu fail=%lu p=%lu",
+                     (unsigned long)bank, (unsigned long)read_ok,
+                     (unsigned long)read_fail,
+                     (unsigned long)sample_page);
+        FTL_PROGRESS("N3G_OOB_TYPE b=%lu tpos=%lu t=%02lx mask=%08lx",
+                     (unsigned long)bank, (unsigned long)type_pos,
+                     (unsigned long)type_val,
+                     (unsigned long)type_mask);
+        FTL_PROGRESS("N3G_OOB_WORDS b=%lu w0=%08lx w1=%08lx w2=%08lx w3=%08lx",
+                     (unsigned long)bank, (unsigned long)sample_word0,
+                     (unsigned long)sample_word1,
+                     (unsigned long)sample_word2,
+                     (unsigned long)sample_word3);
+    }
+    static const struct
+    {
+        uint32_t block;
+        uint32_t pageoff;
+        uint32_t expect;
+    } known[] =
+    {
+        { 6916, 0, 0x44 },
+        { 2820, 3, 0x43 },
+        { 2820, 0, 0x46 },
+    };
+
+    for (uint32_t i = 0; i < ARRAYLEN(known); i++)
+    {
+        uint32_t page = known[i].block * ftl_nand_type->pagesperblock
+                      + known[i].pageoff;
+        uint32_t rc;
+        uint8_t *bytes = (uint8_t *)spare;
+
+        memset(spare, 0, sizeof(spare));
+        rc = nano3g_nand_diag_local_read(0, page, 0x800, spare,
+                                         ARRAYLEN(spare));
+        FTL_PROGRESS("N3G_OOB_KNOWN blk=%lu po=%lu rc=%lu t=%02lx exp=%02lx",
+                     (unsigned long)known[i].block,
+                     (unsigned long)known[i].pageoff,
+                     (unsigned long)rc,
+                     (unsigned long)bytes[9],
+                     (unsigned long)known[i].expect);
+        FTL_PROGRESS("N3G_OOB_KWORDS w0=%08lx w1=%08lx w2=%08lx",
+                     (unsigned long)spare[0],
+                     (unsigned long)spare[1],
+                     (unsigned long)spare[2]);
+    }
+    FTL_PROGRESS("N3G_OOB_LAYOUT_DONE result=stage_registers");
+#endif
+}
+
+static void ftl_n3g_current_meta_probe(void)
+{
+#if defined(IPOD_NANO3G) && defined(BOOTLOADER)
+    static const uint32_t starts[] = { 7167, 3071 };
+    static const uint8_t wanted[] = { 0x43, 0x44, 0x46 };
+    uint32_t counts[3] = { 0 };
+    uint32_t found_blk[3] = { 0xffffffffu, 0xffffffffu, 0xffffffffu };
+    uint32_t found_page[3] = { 0xffffffffu, 0xffffffffu, 0xffffffffu };
+    uint32_t found_usn[3] = { 0, 0, 0 };
+    uint32_t spare[16] STORAGE_ALIGN_ATTR;
+    uint32_t scans = 0;
+
+    FTL_PROGRESS("N3G_META_LOCATE_START");
+    for (uint32_t range = 0; range < ARRAYLEN(starts); range++)
+    {
+        for (uint32_t n = 0; n < 512; n++)
+        {
+            uint32_t block = starts[range] - n;
+            if ((n & 0x7f) == 0)
+                FTL_PROGRESS("N3G_META_LOCATE_PROGRESS block=%lu",
+                             (unsigned long)block);
+
+            for (uint32_t pageoff = 0; pageoff < 4; pageoff++)
+            {
+                uint32_t page = block * ftl_nand_type->pagesperblock
+                              + pageoff;
+
+                memset(spare, 0, sizeof(spare));
+                if (nano3g_nand_diag_local_read(0, page, 0x800, spare,
+                                                ARRAYLEN(spare)) != 0)
+                    continue;
+                scans++;
+
+                uint8_t type = ((uint8_t *)spare)[9];
+                for (uint32_t i = 0; i < ARRAYLEN(wanted); i++)
+                {
+                    if (type != wanted[i])
+                        continue;
+
+                    counts[i]++;
+                    if (found_blk[i] == 0xffffffffu
+                     || spare[0] < found_usn[i])
+                    {
+                        found_blk[i] = block;
+                        found_page[i] = pageoff;
+                        found_usn[i] = spare[0];
+                    }
+                    FTL_PROGRESS("N3G_META_HIT type=%02lx block=%lu page=%lu usn=%08lx w1=%08lx w2=%08lx",
+                                 (unsigned long)type,
+                                 (unsigned long)block,
+                                 (unsigned long)pageoff,
+                                 (unsigned long)spare[0],
+                                 (unsigned long)spare[1],
+                                 (unsigned long)spare[2]);
+                }
+            }
+        }
+    }
+
+    for (uint32_t i = 0; i < ARRAYLEN(wanted); i++)
+        FTL_PROGRESS("N3G_META_BEST t=%02lx b=%lu p=%lu u=%08lx n=%lu",
+                     (unsigned long)wanted[i],
+                     (unsigned long)found_blk[i],
+                     (unsigned long)found_page[i],
+                     (unsigned long)found_usn[i],
+                     (unsigned long)counts[i]);
+
+    if (found_blk[0] != 0xffffffffu)
+    {
+        uint32_t page = found_blk[0] * ftl_nand_type->pagesperblock
+                      + found_page[0];
+        memset(ftl_buffer, 0, 0x800);
+        if (nano3g_nand_diag_local_read(0, page, 0,
+                                        (uint32_t *)ftl_buffer,
+                                        0x800 / sizeof(uint32_t)) == 0)
+        {
+            const uint32_t *body = (const uint32_t *)ftl_buffer;
+            uint32_t freecount = body[2] & 0xffffu;
+            uint32_t nextfreeidx = body[2] >> 16;
+            FTL_PROGRESS("N3G_CTX b=%lu p=%lu u=%08lx nx=%08lx f=%lu i=%lu",
+                         (unsigned long)found_blk[0],
+                         (unsigned long)found_page[0],
+                         (unsigned long)body[0],
+                         (unsigned long)body[1],
+                         (unsigned long)freecount,
+                         (unsigned long)nextfreeidx);
+
+            const struct ftl_cxt_type *cxt =
+                (const struct ftl_cxt_type *)ftl_buffer;
+            FTL_PROGRESS("N3G_CXT_MAP0 %08lx,%08lx,%08lx,%08lx",
+                         (unsigned long)cxt->ftl_map_pages[0],
+                         (unsigned long)cxt->ftl_map_pages[1],
+                         (unsigned long)cxt->ftl_map_pages[2],
+                         (unsigned long)cxt->ftl_map_pages[3]);
+            FTL_PROGRESS("N3G_CXT_MAP1 %08lx,%08lx,%08lx,%08lx",
+                         (unsigned long)cxt->ftl_map_pages[4],
+                         (unsigned long)cxt->ftl_map_pages[5],
+                         (unsigned long)cxt->ftl_map_pages[6],
+                         (unsigned long)cxt->ftl_map_pages[7]);
+            FTL_PROGRESS("N3G_CXT_ERA0 %08lx,%08lx,%08lx,%08lx",
+                         (unsigned long)cxt->ftl_erasectr_pages[0],
+                         (unsigned long)cxt->ftl_erasectr_pages[1],
+                         (unsigned long)cxt->ftl_erasectr_pages[2],
+                         (unsigned long)cxt->ftl_erasectr_pages[3]);
+            FTL_PROGRESS("N3G_CXT_CTL %04x,%04x,%04x cp=%08lx cl=%08lx",
+                         cxt->ftlctrlblocks[0],
+                         cxt->ftlctrlblocks[1],
+                         cxt->ftlctrlblocks[2],
+                         (unsigned long)cxt->ftlctrlpage,
+                         (unsigned long)cxt->clean_flag);
+
+            uint32_t refs[96];
+            uint32_t ref_offs[96];
+            uint32_t ref_count = 0;
+            uint32_t ref_hits = 0;
+            uint32_t map_enc = (found_blk[1] * 2) << 8;
+            uint32_t map_seen = 0;
+            for (uint32_t j = 0; j < 0x800 / sizeof(uint32_t); j++)
+            {
+                uint32_t raw = body[j];
+                uint32_t pageoff = raw & 0xffu;
+                uint32_t encblock = raw >> 8;
+                int dup = 0;
+
+                if (raw == map_enc)
+                    map_seen = 1;
+
+                if (raw == 0 || raw == 0xffffffffu)
+                    continue;
+                if ((raw & 0xff000000u) != 0)
+                    continue;
+                if (pageoff >= ftl_nand_type->pagesperblock)
+                    continue;
+                if ((encblock & 1) != 0)
+                    continue;
+                if ((encblock >> 1) >= ftl_nand_type->blocks)
+                    continue;
+
+                for (uint32_t k = 0; k < ref_count; k++)
+                    if (refs[k] == raw)
+                    {
+                        dup = 1;
+                        break;
+                    }
+                if (dup)
+                    continue;
+
+                refs[ref_count] = raw;
+                ref_offs[ref_count] = j * sizeof(uint32_t);
+                ref_count++;
+                if (ref_count == ARRAYLEN(refs))
+                    break;
+            }
+
+            FTL_PROGRESS("N3G_REFSCAN n=%lu map=%08lx seen=%lu",
+                         (unsigned long)ref_count,
+                         (unsigned long)map_enc,
+                         (unsigned long)map_seen);
+
+            for (uint32_t j = 0; j < ref_count; j++)
+            {
+                uint32_t raw = refs[j];
+                uint32_t block = raw >> 9;
+                uint32_t pageoff = raw & 0xffu;
+                uint32_t page = block * ftl_nand_type->pagesperblock
+                              + pageoff;
+                uint8_t *sbytes = (uint8_t *)spare;
+                uint32_t idx;
+                uint32_t type;
+
+                memset(spare, 0, sizeof(spare));
+                if (nano3g_nand_diag_local_read(0, page, 0x800, spare,
+                                                ARRAYLEN(spare)) != 0)
+                {
+                    FTL_PROGRESS("N3G_REF o=%03lx r=%08lx b=%lu p=%lu rc=bad",
+                                 (unsigned long)ref_offs[j],
+                                 (unsigned long)raw,
+                                 (unsigned long)block,
+                                 (unsigned long)pageoff);
+                    continue;
+                }
+
+                idx = sbytes[4] | ((uint32_t)sbytes[5] << 8);
+                type = sbytes[9];
+                if (!((type >= 0x43 && type <= 0x47) || type == 0x80))
+                    continue;
+
+                FTL_PROGRESS("N3G_REF_HIT o=%03lx r=%08lx b=%lu p=%lu t=%02lx ix=%04lx",
+                             (unsigned long)ref_offs[j],
+                             (unsigned long)raw,
+                             (unsigned long)block,
+                             (unsigned long)pageoff,
+                             (unsigned long)type,
+                             (unsigned long)idx);
+                ref_hits++;
+                if (ref_hits >= 16)
+                    break;
+            }
+        }
+    }
+
+    if (found_blk[1] != 0xffffffffu)
+    {
+        uint32_t page = found_blk[1] * ftl_nand_type->pagesperblock
+                      + found_page[1];
+        memset(ftl_buffer, 0, 0x800);
+        if (nano3g_nand_diag_local_read(0, page, 0,
+                                        (uint32_t *)ftl_buffer,
+                                        0x800 / sizeof(uint32_t)) == 0)
+        {
+            const uint16_t *map = (const uint16_t *)ftl_buffer;
+            uint32_t min = 0xffffu;
+            uint32_t max = 0;
+            uint32_t zero = 0;
+            uint32_t ff = 0;
+
+            for (uint32_t j = 0; j < 0x800 / sizeof(uint16_t); j++)
+            {
+                uint32_t v = map[j];
+                if (v < min)
+                    min = v;
+                if (v > max)
+                    max = v;
+                if (v == 0)
+                    zero++;
+                if (v == 0xffffu)
+                    ff++;
+            }
+
+            FTL_PROGRESS("N3G_MAP b=%lu p=%lu mn=%04lx mx=%04lx z=%lu ff=%lu e=%04x,%04x",
+                         (unsigned long)found_blk[1],
+                         (unsigned long)found_page[1],
+                         (unsigned long)min,
+                         (unsigned long)max,
+                         (unsigned long)zero,
+                         (unsigned long)ff,
+                         map[0],
+                         map[1]);
+
+            uint32_t map_user = 0;
+            uint32_t map_eq = 0;
+            uint32_t map_low = 0;
+            uint32_t min_lb = 0xffffffffu;
+            uint32_t min_j = 0xffffffffu;
+            uint32_t min_v = 0xffffffffu;
+            uint32_t min_lpn = 0xffffffffu;
+            uint32_t lpn0_j = 0xffffffffu;
+            uint32_t lpn0_v = 0xffffffffu;
+            uint32_t low_js[8];
+            uint32_t low_vs[8];
+            uint32_t low_count = 0;
+
+            for (uint32_t j = 0; j < 0x800 / sizeof(uint16_t); j++)
+            {
+                uint32_t vblock = map[j];
+                uint32_t abspage = (vblock + syshyperblocks) * ppb;
+                uint32_t bank = abspage % ftl_banks;
+                uint32_t block = abspage
+                               / (ftl_nand_type->pagesperblock * ftl_banks);
+                uint32_t pageoff = (abspage / ftl_banks)
+                                 % ftl_nand_type->pagesperblock;
+                uint32_t physpage = block * ftl_nand_type->pagesperblock
+                                  + pageoff;
+                uint8_t *sbytes = (uint8_t *)spare;
+
+                memset(spare, 0, sizeof(spare));
+                if (nano3g_nand_diag_local_read(bank, physpage, 0x800,
+                                                spare, ARRAYLEN(spare)) != 0)
+                {
+                    if (j < 8)
+                        FTL_PROGRESS("N3G_MAPT i=%lu v=%04x rc=bad",
+                                     (unsigned long)j, map[j]);
+                    continue;
+                }
+
+                if (j < 2)
+                    FTL_PROGRESS("N3G_MAPT i=%lu v=%04x bk=%lu pb=%lu p=%lu t=%02x l=%08lx",
+                                 (unsigned long)j,
+                                 map[j],
+                                 (unsigned long)bank,
+                                 (unsigned long)block,
+                                 (unsigned long)pageoff,
+                                 sbytes[9],
+                                 (unsigned long)spare[0]);
+
+                if (sbytes[9] != 0x40 && sbytes[9] != 0x41)
+                    continue;
+
+                uint32_t lpn = spare[0];
+                uint32_t lb = lpn / ppb;
+                uint32_t po = lpn % ppb;
+                map_user++;
+
+                if (lb == j)
+                    map_eq++;
+
+                if (lb < min_lb)
+                {
+                    min_lb = lb;
+                    min_j = j;
+                    min_v = vblock;
+                    min_lpn = lpn;
+                }
+
+                if (lb == 0 && lpn0_j == 0xffffffffu)
+                {
+                    lpn0_j = j;
+                    lpn0_v = vblock;
+                }
+
+                if (lb < 16 && map_low < 4)
+                {
+                    FTL_PROGRESS("N3G_MAPLOW j=%lu v=%04x lb=%lu po=%lu l=%08lx",
+                                 (unsigned long)j,
+                                 map[j],
+                                 (unsigned long)lb,
+                                 (unsigned long)po,
+                                 (unsigned long)lpn);
+                    map_low++;
+                }
+
+                if (lb < 16 && low_count < ARRAYLEN(low_vs))
+                {
+                    int dup = 0;
+                    for (uint32_t k = 0; k < low_count; k++)
+                        if (low_vs[k] == vblock)
+                        {
+                            dup = 1;
+                            break;
+                        }
+                    if (!dup)
+                    {
+                        low_js[low_count] = j;
+                        low_vs[low_count] = vblock;
+                        low_count++;
+                    }
+                }
+            }
+
+            FTL_PROGRESS("N3G_MAPSCAN u=%lu eq=%lu minlb=%lu j=%lu v=%04lx l=%08lx",
+                         (unsigned long)map_user,
+                         (unsigned long)map_eq,
+                         (unsigned long)min_lb,
+                         (unsigned long)min_j,
+                         (unsigned long)min_v,
+                         (unsigned long)min_lpn);
+            FTL_PROGRESS("N3G_MAPLPN0 j=%lu v=%04lx",
+                         (unsigned long)lpn0_j,
+                         (unsigned long)lpn0_v);
+
+            if (0 && low_count != 0)
+            {
+                uint32_t low_hits = 0;
+                uint32_t best_lpn = 0xffffffffu;
+                uint32_t best_j = 0xffffffffu;
+                uint32_t best_v = 0xffffffffu;
+                uint32_t best_po = 0xffffffffu;
+                uint32_t best_sig = 0xffffu;
+                uint32_t best_w0 = 0xffffffffu;
+
+                FTL_PROGRESS("N3G_LFIND cand=%lu", (unsigned long)low_count);
+
+                for (uint32_t c = 0; c < low_count; c++)
+                {
+                    for (uint32_t po = 0; po < ppb; po++)
+                    {
+                        uint32_t abspage = (low_vs[c] + syshyperblocks) * ppb + po;
+                        uint32_t bank = abspage % ftl_banks;
+                        uint32_t block = abspage
+                                       / (ftl_nand_type->pagesperblock * ftl_banks);
+                        uint32_t pageoff = (abspage / ftl_banks)
+                                         % ftl_nand_type->pagesperblock;
+                        uint32_t physpage = block * ftl_nand_type->pagesperblock
+                                          + pageoff;
+                        uint8_t *sbytes = (uint8_t *)spare;
+                        uint32_t lpn;
+                        uint32_t sig = 0xffffu;
+                        uint32_t w0 = 0xffffffffu;
+
+                        memset(spare, 0, sizeof(spare));
+                        if (nano3g_nand_diag_local_read(bank, physpage, 0x800,
+                                                        spare, ARRAYLEN(spare)) != 0)
+                            continue;
+                        if (sbytes[9] != 0x40 && sbytes[9] != 0x41)
+                            continue;
+
+                        lpn = spare[0];
+                        if (lpn >= 0x2000)
+                            continue;
+
+                        if (lpn < best_lpn)
+                        {
+                            best_lpn = lpn;
+                            best_j = low_js[c];
+                            best_v = low_vs[c];
+                            best_po = po;
+                        }
+
+                        if (lpn < 64 || lpn == 0)
+                        {
+                            memset(ftl_buffer, 0, 0x800);
+                            if (nano3g_nand_diag_local_read(bank, physpage, 0,
+                                                            (uint32_t *)ftl_buffer,
+                                                            0x800 / sizeof(uint32_t)) == 0)
+                            {
+                                const uint8_t *body = (const uint8_t *)ftl_buffer;
+                                sig = body[0x1fe] | ((uint32_t)body[0x1ff] << 8);
+                                w0 = ((const uint32_t *)ftl_buffer)[0];
+                            }
+
+                            if (lpn < best_lpn || lpn == best_lpn)
+                            {
+                                best_sig = sig;
+                                best_w0 = w0;
+                            }
+
+                            FTL_PROGRESS("N3G_LHIT j=%lu v=%04lx po=%lu l=%08lx s=%04lx",
+                                         (unsigned long)low_js[c],
+                                         (unsigned long)low_vs[c],
+                                         (unsigned long)po,
+                                         (unsigned long)lpn,
+                                         (unsigned long)sig);
+                            low_hits++;
+                            if (sig == 0xaa55u)
+                                FTL_PROGRESS("N3G_MBR j=%lu v=%04lx po=%lu l=%08lx",
+                                             (unsigned long)low_js[c],
+                                             (unsigned long)low_vs[c],
+                                             (unsigned long)po,
+                                             (unsigned long)lpn);
+                            if (low_hits >= 16)
+                                goto low_scan_done;
+                        }
+                    }
+                }
+
+low_scan_done:
+                FTL_PROGRESS("N3G_LBEST l=%08lx j=%lu v=%04lx po=%lu s=%04lx w=%08lx",
+                             (unsigned long)best_lpn,
+                             (unsigned long)best_j,
+                             (unsigned long)best_v,
+                             (unsigned long)best_po,
+                             (unsigned long)best_sig,
+                             (unsigned long)best_w0);
+                FTL_PROGRESS("N3G_LFIND_DONE hits=%lu", (unsigned long)low_hits);
+            }
+
+            uint32_t cand_blocks[4];
+            uint32_t cand_block_count = 0;
+            if (found_blk[0] != 0xffffffffu)
+            {
+                cand_blocks[cand_block_count++] = found_blk[0];
+                if (found_blk[0] + 1 < ftl_nand_type->blocks)
+                    cand_blocks[cand_block_count++] = found_blk[0] + 1;
+            }
+            if (found_blk[1] != 0xffffffffu)
+            {
+                cand_blocks[cand_block_count++] = found_blk[1];
+                if (found_blk[1] + 1 < ftl_nand_type->blocks)
+                    cand_blocks[cand_block_count++] = found_blk[1] + 1;
+            }
+
+            uint32_t seg_printed = 0;
+            uint32_t seg_best_lpn = 0xffffffffu;
+            uint32_t seg_best_blk = 0xffffffffu;
+            uint32_t seg_best_po = 0xffffffffu;
+            uint32_t seg_best_j = 0xffffffffu;
+            uint32_t seg_best_v = 0xffffffffu;
+            FTL_PROGRESS("N3G_SEGSCAN_START");
+
+            for (uint32_t cb = 0; cb < cand_block_count; cb++)
+            {
+                uint32_t mblk = cand_blocks[cb];
+                int dup_block = 0;
+                for (uint32_t prev = 0; prev < cb; prev++)
+                    if (cand_blocks[prev] == mblk)
+                    {
+                        dup_block = 1;
+                        break;
+                    }
+                if (dup_block)
+                    continue;
+
+                for (uint32_t mpo = 0; mpo < 32; mpo++)
+                {
+                    uint32_t mpage = mblk * ftl_nand_type->pagesperblock + mpo;
+                    uint8_t *msp = (uint8_t *)spare;
+                    uint32_t mtype;
+                    uint32_t midx;
+                    uint32_t muser = 0;
+                    uint32_t mlpn = 0xffffffffu;
+                    uint32_t mj = 0xffffffffu;
+                    uint32_t mv = 0xffffffffu;
+
+                    memset(spare, 0, sizeof(spare));
+                    if (nano3g_nand_diag_local_read(0, mpage, 0x800,
+                                                    spare, ARRAYLEN(spare)) != 0)
+                        continue;
+
+                    mtype = msp[9];
+                    if (mtype != 0x44 && mtype != 0x45)
+                        continue;
+                    midx = msp[4] | ((uint32_t)msp[5] << 8);
+
+                    memset(ftl_buffer, 0, 0x800);
+                    if (nano3g_nand_diag_local_read(0, mpage, 0,
+                                                    (uint32_t *)ftl_buffer,
+                                                    0x800 / sizeof(uint32_t)) != 0)
+                        continue;
+
+                    const uint16_t *smap = (const uint16_t *)ftl_buffer;
+                    for (uint32_t sj = 0; sj < 0x800 / sizeof(uint16_t); sj++)
+                    {
+                        uint32_t sv = smap[sj];
+                        uint32_t abspage;
+                        uint32_t bank;
+                        uint32_t block;
+                        uint32_t pageoff;
+                        uint32_t physpage;
+                        uint8_t *usp = (uint8_t *)spare;
+
+                        if (sv == 0 || sv == 0xffffu)
+                            continue;
+                        abspage = (sv + syshyperblocks) * ppb;
+                        bank = abspage % ftl_banks;
+                        block = abspage
+                              / (ftl_nand_type->pagesperblock * ftl_banks);
+                        pageoff = (abspage / ftl_banks)
+                                % ftl_nand_type->pagesperblock;
+                        physpage = block * ftl_nand_type->pagesperblock
+                                 + pageoff;
+
+                        memset(spare, 0, sizeof(spare));
+                        if (nano3g_nand_diag_local_read(bank, physpage, 0x800,
+                                                        spare, ARRAYLEN(spare)) != 0)
+                            continue;
+                        if (usp[9] != 0x40 && usp[9] != 0x41)
+                            continue;
+                        muser++;
+                        if (spare[0] < mlpn)
+                        {
+                            mlpn = spare[0];
+                            mj = sj;
+                            mv = sv;
+                        }
+                    }
+
+                    FTL_PROGRESS("N3G_SEGMAP t=%02lx b=%lu p=%lu ix=%04lx u=%lu min=%08lx j=%lu v=%04lx",
+                                 (unsigned long)mtype,
+                                 (unsigned long)mblk,
+                                 (unsigned long)mpo,
+                                 (unsigned long)midx,
+                                 (unsigned long)muser,
+                                 (unsigned long)mlpn,
+                                 (unsigned long)mj,
+                                 (unsigned long)mv);
+
+                    if (mlpn < seg_best_lpn)
+                    {
+                        seg_best_lpn = mlpn;
+                        seg_best_blk = mblk;
+                        seg_best_po = mpo;
+                        seg_best_j = mj;
+                        seg_best_v = mv;
+                    }
+
+                    seg_printed++;
+                    if (seg_printed >= 8)
+                        goto seg_scan_done;
+                }
+            }
+
+seg_scan_done:
+            FTL_PROGRESS("N3G_SEGBEST l=%08lx b=%lu p=%lu j=%lu v=%04lx",
+                         (unsigned long)seg_best_lpn,
+                         (unsigned long)seg_best_blk,
+                         (unsigned long)seg_best_po,
+                         (unsigned long)seg_best_j,
+                         (unsigned long)seg_best_v);
+        }
+    }
+
+    if (found_blk[2] != 0xffffffffu)
+    {
+        uint32_t page = found_blk[2] * ftl_nand_type->pagesperblock
+                      + found_page[2];
+        memset(ftl_buffer, 0, 0x800);
+        if (nano3g_nand_diag_local_read(0, page, 0,
+                                        (uint32_t *)ftl_buffer,
+                                        4) == 0)
+        {
+            const uint32_t *body = (const uint32_t *)ftl_buffer;
+            FTL_PROGRESS("N3G_ERS b=%lu p=%lu w=%08lx,%08lx,%08lx",
+                         (unsigned long)found_blk[2],
+                         (unsigned long)found_page[2],
+                         (unsigned long)body[0],
+                         (unsigned long)body[1],
+                         (unsigned long)body[2]);
+        }
+    }
+
+    FTL_PROGRESS("N3G_META_LOCATE_DONE scans=%lu", (unsigned long)scans);
+#endif
+}
+
+static void ftl_n3g_segment_sig_probe(void)
+{
+#if defined(IPOD_NANO3G) && defined(BOOTLOADER)
+    static const uint32_t blocks[] = { 2820, 2821, 6916, 6917 };
+    uint32_t spare[16] STORAGE_ALIGN_ATTR;
+    uint32_t best_lpn = 0xffffffffu;
+    uint32_t best_blk = 0xffffffffu;
+    uint32_t best_po = 0xffffffffu;
+    uint32_t best_idx = 0xffffffffu;
+    uint32_t best_v = 0xffffffffu;
+    uint32_t best_bank = 0xffffffffu;
+    uint32_t best_physpage = 0xffffffffu;
+    uint32_t printed = 0;
+
+    FTL_PROGRESS("N3G_SEG2_START");
+
+    for (uint32_t bi = 0; bi < ARRAYLEN(blocks); bi++)
+    {
+        uint32_t mblk = blocks[bi];
+        for (uint32_t mpo = 0; mpo < 4; mpo++)
+        {
+            uint32_t mpage = mblk * ftl_nand_type->pagesperblock + mpo;
+            uint8_t *msp = (uint8_t *)spare;
+            uint32_t mtype;
+            uint32_t midx;
+            uint32_t muser = 0;
+            uint32_t mlpn = 0xffffffffu;
+            uint32_t mj = 0xffffffffu;
+            uint32_t mv = 0xffffffffu;
+            uint32_t mbank = 0xffffffffu;
+            uint32_t mphyspage = 0xffffffffu;
+
+            memset(spare, 0, sizeof(spare));
+            if (nano3g_nand_diag_local_read(0, mpage, 0x800,
+                                            spare, ARRAYLEN(spare)) != 0)
+                continue;
+
+            mtype = msp[9];
+            if (mtype != 0x44 && mtype != 0x45)
+                continue;
+            midx = msp[4] | ((uint32_t)msp[5] << 8);
+
+            memset(ftl_buffer, 0, 0x800);
+            if (nano3g_nand_diag_local_read(0, mpage, 0,
+                                            (uint32_t *)ftl_buffer,
+                                            0x800 / sizeof(uint32_t)) != 0)
+                continue;
+
+            const uint16_t *smap = (const uint16_t *)ftl_buffer;
+            for (uint32_t sj = 0; sj < 0x800 / sizeof(uint16_t); sj++)
+            {
+                uint32_t sv = smap[sj];
+                uint32_t abspage;
+                uint32_t bank;
+                uint32_t block;
+                uint32_t pageoff;
+                uint32_t physpage;
+                uint8_t *usp = (uint8_t *)spare;
+
+                if (sv == 0 || sv == 0xffffu)
+                    continue;
+
+                abspage = (sv + syshyperblocks) * ppb;
+                bank = abspage % ftl_banks;
+                block = abspage / (ftl_nand_type->pagesperblock * ftl_banks);
+                pageoff = (abspage / ftl_banks) % ftl_nand_type->pagesperblock;
+                physpage = block * ftl_nand_type->pagesperblock + pageoff;
+
+                memset(spare, 0, sizeof(spare));
+                if (nano3g_nand_diag_local_read(bank, physpage, 0x800,
+                                                spare, ARRAYLEN(spare)) != 0)
+                    continue;
+                if (usp[9] != 0x40 && usp[9] != 0x41)
+                    continue;
+
+                muser++;
+                if (spare[0] < mlpn)
+                {
+                    mlpn = spare[0];
+                    mj = sj;
+                    mv = sv;
+                    mbank = bank;
+                    mphyspage = physpage;
+                }
+            }
+
+            FTL_PROGRESS("N3G_SEG2 t=%02lx b=%lu p=%lu ix=%04lx u=%lu min=%08lx j=%lu v=%04lx",
+                         (unsigned long)mtype,
+                         (unsigned long)mblk,
+                         (unsigned long)mpo,
+                         (unsigned long)midx,
+                         (unsigned long)muser,
+                         (unsigned long)mlpn,
+                         (unsigned long)mj,
+                         (unsigned long)mv);
+
+            if (mlpn < best_lpn)
+            {
+                best_lpn = mlpn;
+                best_blk = mblk;
+                best_po = mpo;
+                best_idx = mj;
+                best_v = mv;
+                best_bank = mbank;
+                best_physpage = mphyspage;
+            }
+
+            printed++;
+            if (printed >= 8)
+                goto seg2_done;
+        }
+    }
+
+seg2_done:
+    FTL_PROGRESS("N3G_SEG2_BEST l=%08lx b=%lu p=%lu j=%lu v=%04lx",
+                 (unsigned long)best_lpn,
+                 (unsigned long)best_blk,
+                 (unsigned long)best_po,
+                 (unsigned long)best_idx,
+                 (unsigned long)best_v);
+
+    if (best_physpage != 0xffffffffu)
+    {
+        uint32_t sig = 0xffffu;
+        uint32_t w0 = 0xffffffffu;
+        uint32_t w1 = 0xffffffffu;
+
+        memset(ftl_buffer, 0, 0x800);
+        if (nano3g_nand_diag_local_read(best_bank, best_physpage, 0,
+                                        (uint32_t *)ftl_buffer,
+                                        0x800 / sizeof(uint32_t)) == 0)
+        {
+            const uint8_t *body = (const uint8_t *)ftl_buffer;
+            sig = body[0x1fe] | ((uint32_t)body[0x1ff] << 8);
+            w0 = ((const uint32_t *)ftl_buffer)[0];
+            w1 = ((const uint32_t *)ftl_buffer)[1];
+        }
+
+        FTL_PROGRESS("N3G_SEG2_BODY l=%08lx sig=%04lx w=%08lx,%08lx",
+                     (unsigned long)best_lpn,
+                     (unsigned long)sig,
+                     (unsigned long)w0,
+                     (unsigned long)w1);
+    }
+
+    FTL_PROGRESS("N3G_SEG2_DONE");
+#endif
+}
+
+static void ftl_n3g_direct_map_probe(void)
+{
+#if defined(IPOD_NANO3G) && defined(BOOTLOADER)
+    uint32_t spare[16] STORAGE_ALIGN_ATTR;
+    uint32_t mpage = 6916 * ftl_nand_type->pagesperblock;
+    uint32_t users = 0;
+    uint32_t min_lpn = 0xffffffffu;
+    uint32_t min_j = 0xffffffffu;
+    uint32_t min_v = 0xffffffffu;
+    uint32_t min_bank = 0xffffffffu;
+    uint32_t min_physpage = 0xffffffffu;
+    uint32_t zero_found = 0;
+    uint32_t zero_j = 0xffffffffu;
+    uint32_t zero_v = 0xffffffffu;
+    uint32_t zero_bank = 0xffffffffu;
+    uint32_t zero_physpage = 0xffffffffu;
+    uint32_t low_vs[8];
+    uint32_t low_count = 0;
+    uint8_t *sbytes = (uint8_t *)spare;
+
+    FTL_PROGRESS("N3G_DMAP_START");
+
+    memset(spare, 0, sizeof(spare));
+    if (nano3g_nand_diag_local_read(0, mpage, 0x800,
+                                    spare, ARRAYLEN(spare)) != 0)
+    {
+        FTL_PROGRESS("N3G_DMAP_OOB_FAIL");
+        FTL_PROGRESS("N3G_DMAP_DONE");
+        return;
+    }
+
+    FTL_PROGRESS("N3G_DMAP_OOB t=%02x ix=%04x u=%08lx",
+                 sbytes[9],
+                 sbytes[4] | ((uint32_t)sbytes[5] << 8),
+                 (unsigned long)spare[0]);
+
+    memset(ftl_buffer, 0, 0x800);
+    if (nano3g_nand_diag_local_read(0, mpage, 0,
+                                    (uint32_t *)ftl_buffer,
+                                    0x800 / sizeof(uint32_t)) != 0)
+    {
+        FTL_PROGRESS("N3G_DMAP_BODY_FAIL");
+        FTL_PROGRESS("N3G_DMAP_DONE");
+        return;
+    }
+
+    const uint16_t *map = (const uint16_t *)ftl_buffer;
+    for (uint32_t j = 0; j < 0x800 / sizeof(uint16_t); j++)
+    {
+        uint32_t v = map[j];
+        uint32_t abspage;
+        uint32_t bank;
+        uint32_t block;
+        uint32_t pageoff;
+        uint32_t physpage;
+        uint32_t lpn;
+
+        if (v == 0 || v == 0xffffu)
+            continue;
+
+        abspage = (v + syshyperblocks) * ppb;
+        bank = abspage % ftl_banks;
+        block = abspage / (ftl_nand_type->pagesperblock * ftl_banks);
+        pageoff = (abspage / ftl_banks) % ftl_nand_type->pagesperblock;
+        physpage = block * ftl_nand_type->pagesperblock + pageoff;
+
+        memset(spare, 0, sizeof(spare));
+        if (nano3g_nand_diag_local_read(bank, physpage, 0x800,
+                                        spare, ARRAYLEN(spare)) != 0)
+            continue;
+        if (sbytes[9] != 0x40 && sbytes[9] != 0x41)
+            continue;
+
+        lpn = spare[0];
+        users++;
+        if (lpn < min_lpn)
+        {
+            min_lpn = lpn;
+            min_j = j;
+            min_v = v;
+            min_bank = bank;
+            min_physpage = physpage;
+        }
+        if (lpn == 0 && zero_found == 0)
+        {
+            zero_found = 1;
+            zero_j = j;
+            zero_v = v;
+            zero_bank = bank;
+            zero_physpage = physpage;
+        }
+        if (lpn < 0x2000 && low_count < ARRAYLEN(low_vs))
+        {
+            int dup = 0;
+            for (uint32_t k = 0; k < low_count; k++)
+                if (low_vs[k] == v)
+                {
+                    dup = 1;
+                    break;
+                }
+            if (!dup)
+                low_vs[low_count++] = v;
+        }
+    }
+
+    FTL_PROGRESS("N3G_DMAP_SUM u=%lu min=%08lx mj=%lu mv=%04lx z=%lu zj=%lu zv=%04lx",
+                 (unsigned long)users,
+                 (unsigned long)min_lpn,
+                 (unsigned long)min_j,
+                 (unsigned long)min_v,
+                 (unsigned long)zero_found,
+                 (unsigned long)zero_j,
+                 (unsigned long)zero_v);
+
+    if (min_physpage != 0xffffffffu)
+    {
+        uint32_t sig = 0xffffu;
+        uint32_t w0 = 0xffffffffu;
+        uint32_t w1 = 0xffffffffu;
+        memset(ftl_buffer, 0, 0x800);
+        if (nano3g_nand_diag_local_read(min_bank, min_physpage, 0,
+                                        (uint32_t *)ftl_buffer,
+                                        0x800 / sizeof(uint32_t)) == 0)
+        {
+            const uint8_t *body = (const uint8_t *)ftl_buffer;
+            sig = body[0x1fe] | ((uint32_t)body[0x1ff] << 8);
+            w0 = ((const uint32_t *)ftl_buffer)[0];
+            w1 = ((const uint32_t *)ftl_buffer)[1];
+        }
+        FTL_PROGRESS("N3G_DMIN l=%08lx sig=%04lx w=%08lx,%08lx",
+                     (unsigned long)min_lpn,
+                     (unsigned long)sig,
+                     (unsigned long)w0,
+                     (unsigned long)w1);
+    }
+
+    if (zero_found)
+    {
+        uint32_t sig = 0xffffu;
+        uint32_t w0 = 0xffffffffu;
+        uint32_t w1 = 0xffffffffu;
+        memset(ftl_buffer, 0, 0x800);
+        if (nano3g_nand_diag_local_read(zero_bank, zero_physpage, 0,
+                                        (uint32_t *)ftl_buffer,
+                                        0x800 / sizeof(uint32_t)) == 0)
+        {
+            const uint8_t *body = (const uint8_t *)ftl_buffer;
+            sig = body[0x1fe] | ((uint32_t)body[0x1ff] << 8);
+            w0 = ((const uint32_t *)ftl_buffer)[0];
+            w1 = ((const uint32_t *)ftl_buffer)[1];
+        }
+        FTL_PROGRESS("N3G_DZERO sig=%04lx w=%08lx,%08lx",
+                     (unsigned long)sig,
+                     (unsigned long)w0,
+                     (unsigned long)w1);
+    }
+
+    if (low_count != 0)
+    {
+        uint32_t printed = 0;
+        uint32_t best_lpn = 0xffffffffu;
+        uint32_t best_v = 0xffffffffu;
+        uint32_t best_po = 0xffffffffu;
+        uint32_t best_bank = 0xffffffffu;
+        uint32_t best_physpage = 0xffffffffu;
+        uint32_t exact0_v = 0xffffffffu;
+        uint32_t exact0_po = 0xffffffffu;
+        uint32_t exact0_bank = 0xffffffffu;
+        uint32_t exact0_physpage = 0xffffffffu;
+
+        FTL_PROGRESS("N3G_DLOW_START n=%lu", (unsigned long)low_count);
+
+        for (uint32_t c = 0; c < low_count; c++)
+        {
+            uint32_t v = low_vs[c];
+            uint32_t vmin = 0xffffffffu;
+            uint32_t vpo = 0xffffffffu;
+            uint32_t vusers = 0;
+            uint32_t vlow = 0;
+            uint32_t vbank = 0xffffffffu;
+            uint32_t vphyspage = 0xffffffffu;
+
+            for (uint32_t po = 0; po < ppb; po++)
+            {
+                uint32_t abspage = (v + syshyperblocks) * ppb + po;
+                uint32_t bank = abspage % ftl_banks;
+                uint32_t block = abspage
+                               / (ftl_nand_type->pagesperblock * ftl_banks);
+                uint32_t pageoff = (abspage / ftl_banks)
+                                 % ftl_nand_type->pagesperblock;
+                uint32_t physpage = block * ftl_nand_type->pagesperblock
+                                  + pageoff;
+                uint32_t lpn;
+
+                memset(spare, 0, sizeof(spare));
+                if (nano3g_nand_diag_local_read(bank, physpage, 0x800,
+                                                spare, ARRAYLEN(spare)) != 0)
+                    continue;
+                if (sbytes[9] != 0x40 && sbytes[9] != 0x41)
+                    continue;
+
+                lpn = spare[0];
+                vusers++;
+                if (lpn < 0x2000)
+                    vlow++;
+
+                if (lpn < vmin)
+                {
+                    vmin = lpn;
+                    vpo = po;
+                    vbank = bank;
+                    vphyspage = physpage;
+                }
+                if (lpn < best_lpn)
+                {
+                    best_lpn = lpn;
+                    best_v = v;
+                    best_po = po;
+                    best_bank = bank;
+                    best_physpage = physpage;
+                }
+                if (lpn == 0 && exact0_v == 0xffffffffu)
+                {
+                    exact0_v = v;
+                    exact0_po = po;
+                    exact0_bank = bank;
+                    exact0_physpage = physpage;
+                }
+                if (0 && lpn < 0x1000 && printed < 12)
+                {
+                    FTL_PROGRESS("N3G_DLOW_HIT v=%04lx po=%lu l=%08lx",
+                                 (unsigned long)v,
+                                 (unsigned long)po,
+                                 (unsigned long)lpn);
+                    printed++;
+                }
+            }
+
+            FTL_PROGRESS("N3G_DLOW_V v=%04lx u=%lu lo=%lu min=%08lx po=%lu",
+                         (unsigned long)v,
+                         (unsigned long)vusers,
+                         (unsigned long)vlow,
+                         (unsigned long)vmin,
+                         (unsigned long)vpo);
+
+            if (vphyspage != 0xffffffffu && vlow != 0)
+            {
+                uint32_t sig = 0xffffu;
+                uint32_t w0 = 0xffffffffu;
+                memset(ftl_buffer, 0, 0x800);
+                if (nano3g_nand_diag_local_read(vbank, vphyspage, 0,
+                                                (uint32_t *)ftl_buffer,
+                                                0x800 / sizeof(uint32_t)) == 0)
+                {
+                    const uint8_t *body = (const uint8_t *)ftl_buffer;
+                    sig = body[0x1fe] | ((uint32_t)body[0x1ff] << 8);
+                    w0 = ((const uint32_t *)ftl_buffer)[0];
+                }
+                FTL_PROGRESS("N3G_DLOW_MIN v=%04lx l=%08lx s=%04lx w=%08lx",
+                             (unsigned long)v,
+                             (unsigned long)vmin,
+                             (unsigned long)sig,
+                             (unsigned long)w0);
+            }
+        }
+
+        FTL_PROGRESS("N3G_DLOW_BEST l=%08lx v=%04lx po=%lu z=%lu",
+                     (unsigned long)best_lpn,
+                     (unsigned long)best_v,
+                     (unsigned long)best_po,
+                     (unsigned long)(exact0_v != 0xffffffffu));
+
+        if (best_physpage != 0xffffffffu)
+        {
+            uint32_t sig = 0xffffu;
+            uint32_t w0 = 0xffffffffu;
+            memset(ftl_buffer, 0, 0x800);
+            if (nano3g_nand_diag_local_read(best_bank, best_physpage, 0,
+                                            (uint32_t *)ftl_buffer,
+                                            0x800 / sizeof(uint32_t)) == 0)
+            {
+                const uint8_t *body = (const uint8_t *)ftl_buffer;
+                sig = body[0x1fe] | ((uint32_t)body[0x1ff] << 8);
+                w0 = ((const uint32_t *)ftl_buffer)[0];
+            }
+            FTL_PROGRESS("N3G_DLOW_BODY l=%08lx sig=%04lx w=%08lx",
+                         (unsigned long)best_lpn,
+                         (unsigned long)sig,
+                         (unsigned long)w0);
+        }
+
+        if (exact0_physpage != 0xffffffffu)
+        {
+            uint32_t sig = 0xffffu;
+            uint32_t w0 = 0xffffffffu;
+            memset(ftl_buffer, 0, 0x800);
+            if (nano3g_nand_diag_local_read(exact0_bank, exact0_physpage, 0,
+                                            (uint32_t *)ftl_buffer,
+                                            0x800 / sizeof(uint32_t)) == 0)
+            {
+                const uint8_t *body = (const uint8_t *)ftl_buffer;
+                sig = body[0x1fe] | ((uint32_t)body[0x1ff] << 8);
+                w0 = ((const uint32_t *)ftl_buffer)[0];
+            }
+            FTL_PROGRESS("N3G_DLOW_ZERO v=%04lx po=%lu sig=%04lx w=%08lx",
+                         (unsigned long)exact0_v,
+                         (unsigned long)exact0_po,
+                         (unsigned long)sig,
+                         (unsigned long)w0);
+        }
+
+        uint32_t bs_hits = 0;
+        FTL_PROGRESS("N3G_DBOOT4_START");
+        for (uint32_t c = 0; c < low_count; c++)
+        {
+            uint32_t v = low_vs[c];
+            for (uint32_t po = 0; po < ppb; po++)
+            {
+                uint32_t abspage = (v + syshyperblocks) * ppb + po;
+                uint32_t bank = abspage % ftl_banks;
+                uint32_t block = abspage
+                               / (ftl_nand_type->pagesperblock * ftl_banks);
+                uint32_t pageoff = (abspage / ftl_banks)
+                                 % ftl_nand_type->pagesperblock;
+                uint32_t physpage = block * ftl_nand_type->pagesperblock
+                                  + pageoff;
+                uint32_t lpn;
+                uint32_t sig;
+                const uint8_t *body;
+
+                memset(spare, 0, sizeof(spare));
+                if (nano3g_nand_diag_local_read(bank, physpage, 0x800,
+                                                spare, ARRAYLEN(spare)) != 0)
+                    continue;
+                if (sbytes[9] != 0x40 && sbytes[9] != 0x41)
+                    continue;
+
+                lpn = spare[0];
+                if (lpn >= 0x2000)
+                    continue;
+
+                memset(ftl_buffer, 0, 0x800);
+                if (nano3g_nand_diag_local_read(bank, physpage, 0,
+                                                (uint32_t *)ftl_buffer,
+                                                0x800 / sizeof(uint32_t)) != 0)
+                    continue;
+
+                body = (const uint8_t *)ftl_buffer;
+                for (uint32_t q = 0; q < 4; q++)
+                {
+                    uint32_t off = q << 9;
+                    uint32_t tag = 0;
+                    sig = body[off + 0x1fe]
+                        | ((uint32_t)body[off + 0x1ff] << 8);
+
+                    if (memcmp(&body[off + 3], "MSDOS", 5) == 0)
+                        tag = 1;
+                    else if (memcmp(&body[off + 0x36], "FAT", 3) == 0)
+                        tag = 2;
+                    else if (memcmp(&body[off + 0x52], "FAT", 3) == 0)
+                        tag = 3;
+                    else if (q == 0 && memcmp(&body[0], "EFI PART", 8) == 0)
+                        tag = 4;
+
+                    if (sig == 0xaa55u || tag != 0)
+                    {
+                        FTL_PROGRESS("N3G_DBOOT4 v=%04lx po=%lu l=%08lx q=%lu sig=%04lx tag=%lu w=%08lx",
+                                     (unsigned long)v,
+                                     (unsigned long)po,
+                                     (unsigned long)lpn,
+                                     (unsigned long)q,
+                                     (unsigned long)sig,
+                                     (unsigned long)tag,
+                                     (unsigned long)((const uint32_t *)
+                                         &body[off])[0]);
+                        bs_hits++;
+                        if (bs_hits >= 8)
+                            goto dboot_done;
+                    }
+                }
+            }
+        }
+
+dboot_done:
+        FTL_PROGRESS("N3G_DBOOT4_DONE hits=%lu", (unsigned long)bs_hits);
+    }
+
+    FTL_PROGRESS("N3G_DMAP_DONE");
+#endif
+}
+
+static void ftl_n3g_body_path_probe(void)
+{
+#if defined(IPOD_NANO3G) && defined(BOOTLOADER)
+    static uint32_t rom_body[0x200] STORAGE_ALIGN_ATTR;
+    static uint32_t rom_extra[0x40] STORAGE_ALIGN_ATTR;
+    uint32_t spare[16] STORAGE_ALIGN_ATTR;
+    uint32_t v = 0x01d3u;
+    uint32_t po = 0;
+    uint32_t abspage = (v + syshyperblocks) * ppb + po;
+    uint32_t bank = abspage % ftl_banks;
+    uint32_t block = abspage / (ftl_nand_type->pagesperblock * ftl_banks);
+    uint32_t pageoff = (abspage / ftl_banks) % ftl_nand_type->pagesperblock;
+    uint32_t physpage = block * ftl_nand_type->pagesperblock + pageoff;
+    uint32_t local_rc;
+    uint32_t fifo_rc;
+    uint32_t nand_rc;
+    uint32_t oob0_rc;
+    uint32_t oob_rc;
+    uint32_t rom_rc;
+    uint32_t diff = 0;
+    uint32_t body_nonzero = 0;
+    uint32_t fifo_nonzero = 0;
+    uint32_t nand_nonzero = 0;
+    uint32_t fifo_words[16] STORAGE_ALIGN_ATTR;
+    uint32_t nand_body[0x200] STORAGE_ALIGN_ATTR;
+    union ftl_spare_data_type nand_spare STORAGE_ALIGN_ATTR;
+    uint32_t sig_l[4];
+    uint32_t sig_r[4];
+    uint8_t *sbytes = (uint8_t *)spare;
+
+    FTL_PROGRESS("N3G_CMP_START");
+    FTL_PROGRESS("N3G_CMP_PAGE v=%04lx po=%lu b=%lu pb=%lu pp=%lu",
+                 (unsigned long)v,
+                 (unsigned long)po,
+                 (unsigned long)bank,
+                 (unsigned long)block,
+                 (unsigned long)physpage);
+
+    memset(ftl_buffer, 0, 0x800);
+    memset(spare, 0, sizeof(spare));
+    memset(rom_body, 0, sizeof(rom_body));
+    memset(rom_extra, 0, sizeof(rom_extra));
+
+    FTL_PROGRESS("N3G_CMP_BEFORE_OOB0");
+    oob0_rc = nano3g_nand_diag_local_read(bank, physpage, 0x800,
+                                          spare, ARRAYLEN(spare));
+    FTL_PROGRESS("N3G_CMP_AFTER_OOB0 rc=%lu t=%02x l=%08lx x=%08lx,%08lx,%08lx",
+                 (unsigned long)oob0_rc,
+                 sbytes[9],
+                 (unsigned long)spare[0],
+                 (unsigned long)spare[0],
+                 (unsigned long)spare[1],
+                 (unsigned long)spare[2]);
+
+    FTL_PROGRESS("N3G_CMP_BEFORE_LOCAL");
+    local_rc = nano3g_nand_diag_local_read(bank, physpage, 0,
+                                           (uint32_t *)ftl_buffer,
+                                           0x800 / sizeof(uint32_t));
+    FTL_PROGRESS("N3G_CMP_AFTER_LOCAL rc=%lu w=%08lx,%08lx",
+                 (unsigned long)local_rc,
+                 (unsigned long)((const uint32_t *)ftl_buffer)[0],
+                 (unsigned long)((const uint32_t *)ftl_buffer)[1]);
+    for (uint32_t i = 0; i < 0x800; i++)
+        if (ftl_buffer[i] != 0)
+            body_nonzero++;
+
+    memset(fifo_words, 0, sizeof(fifo_words));
+    FTL_PROGRESS("N3G_CMP_BEFORE_FIFO");
+    fifo_rc = nano3g_nand_diag_local_read(bank, physpage, 0,
+                                          fifo_words, ARRAYLEN(fifo_words));
+    for (uint32_t i = 0; i < sizeof(fifo_words); i++)
+        if (((const uint8_t *)fifo_words)[i] != 0)
+            fifo_nonzero++;
+    FTL_PROGRESS("N3G_CMP_AFTER_FIFO rc=%lu w=%08lx,%08lx nz=%lu",
+                 (unsigned long)fifo_rc,
+                 (unsigned long)fifo_words[0],
+                 (unsigned long)fifo_words[1],
+                 (unsigned long)fifo_nonzero);
+
+    memset(nand_body, 0, sizeof(nand_body));
+    memset(&nand_spare, 0, sizeof(nand_spare));
+    FTL_PROGRESS("N3G_CMP_BEFORE_NAND");
+    nand_rc = nand_read_page(bank, physpage, nand_body, &nand_spare, 1, 0);
+    for (uint32_t i = 0; i < sizeof(nand_body); i++)
+        if (((const uint8_t *)nand_body)[i] != 0)
+            nand_nonzero++;
+    FTL_PROGRESS("N3G_CMP_AFTER_NAND rc=%lu w=%08lx,%08lx nz=%lu t=%02x l=%08lx",
+                 (unsigned long)nand_rc,
+                 (unsigned long)nand_body[0],
+                 (unsigned long)nand_body[1],
+                 (unsigned long)nand_nonzero,
+                 nand_spare.user.type,
+                 (unsigned long)nand_spare.user.lpn);
+
+    FTL_PROGRESS("N3G_CMP_BEFORE_OOB");
+    oob_rc = nano3g_nand_diag_local_read(bank, physpage, 0x800,
+                                         spare, ARRAYLEN(spare));
+    FTL_PROGRESS("N3G_CMP_AFTER_OOB rc=%lu t=%02x l=%08lx",
+                 (unsigned long)oob_rc,
+                 sbytes[9],
+                 (unsigned long)spare[0]);
+
+    /*
+     * The BootROM helper may hang from the loaded bootloader context for this
+     * user page. Keep this build local-only so it always reports a verdict.
+     */
+    rom_rc = 0xffffffffu;
+
+    diff = 0xffffffffu;
+
+    for (uint32_t q = 0; q < 4; q++)
+    {
+        const uint8_t *lb = (const uint8_t *)ftl_buffer;
+        const uint8_t *rb = (const uint8_t *)rom_body;
+        uint32_t off = q << 9;
+        sig_l[q] = lb[off + 0x1fe] | ((uint32_t)lb[off + 0x1ff] << 8);
+        sig_r[q] = rb[off + 0x1fe] | ((uint32_t)rb[off + 0x1ff] << 8);
+    }
+
+    FTL_PROGRESS("N3G_CMP_RC local=%lu o0=%lu o1=%lu diff=%lu nz=%lu",
+                 (unsigned long)local_rc,
+                 (unsigned long)oob0_rc,
+                 (unsigned long)oob_rc,
+                 (unsigned long)diff,
+                 (unsigned long)body_nonzero);
+    FTL_PROGRESS("N3G_CMP_OOB t=%02x l=%08lx x=%08lx,%08lx,%08lx",
+                 sbytes[9],
+                 (unsigned long)spare[0],
+                 (unsigned long)rom_extra[0],
+                 (unsigned long)rom_extra[1],
+                 (unsigned long)rom_extra[2]);
+    FTL_PROGRESS("N3G_CMP_L w=%08lx,%08lx sig=%04lx,%04lx,%04lx,%04lx",
+                 (unsigned long)((const uint32_t *)ftl_buffer)[0],
+                 (unsigned long)((const uint32_t *)ftl_buffer)[1],
+                 (unsigned long)sig_l[0],
+                 (unsigned long)sig_l[1],
+                 (unsigned long)sig_l[2],
+                 (unsigned long)sig_l[3]);
+    FTL_PROGRESS("N3G_CMP_R w=%08lx,%08lx sig=%04lx,%04lx,%04lx,%04lx",
+                 (unsigned long)rom_body[0],
+                 (unsigned long)rom_body[1],
+                 (unsigned long)sig_r[0],
+                 (unsigned long)sig_r[1],
+                 (unsigned long)sig_r[2],
+                 (unsigned long)sig_r[3]);
+    FTL_PROGRESS("N3G_CMP_DONE");
+#endif
+}
+
+static void ftl_n3g_map_search_probe(void)
+{
+#if defined(IPOD_NANO3G) && defined(BOOTLOADER)
+    static const uint32_t starts[] = { 7167, 3071 };
+    uint32_t spare[16] STORAGE_ALIGN_ATTR;
+    uint32_t hits = 0;
+    uint32_t scans = 0;
+
+    FTL_PROGRESS("N3G_MSEARCH_START");
+
+    for (uint32_t range = 0; range < ARRAYLEN(starts); range++)
+    {
+        for (uint32_t n = 0; n < 2048; n++)
+        {
+            uint32_t block = starts[range] - n;
+            uint32_t page = block * ftl_nand_type->pagesperblock;
+            uint8_t *sbytes = (uint8_t *)spare;
+
+            if ((n & 0x1ff) == 0)
+                FTL_PROGRESS("N3G_MSEARCH_PROG b=%lu",
+                             (unsigned long)block);
+
+            memset(spare, 0, sizeof(spare));
+            if (nano3g_nand_diag_local_read(0, page, 0x800,
+                                            spare, ARRAYLEN(spare)) != 0)
+                continue;
+            scans++;
+
+            if (sbytes[9] != 0x44)
+                continue;
+
+            uint32_t idx = sbytes[4] | ((uint32_t)sbytes[5] << 8);
+            uint32_t users = 0;
+            uint32_t min_lpn = 0xffffffffu;
+            uint32_t min_j = 0xffffffffu;
+            uint32_t min_v = 0xffffffffu;
+            uint32_t max_lpn = 0;
+
+            memset(ftl_buffer, 0, 0x800);
+            if (nano3g_nand_diag_local_read(0, page, 0,
+                                            (uint32_t *)ftl_buffer,
+                                            0x800 / sizeof(uint32_t)) != 0)
+            {
+                FTL_PROGRESS("N3G_MHIT b=%lu ix=%04lx body=bad",
+                             (unsigned long)block,
+                             (unsigned long)idx);
+                continue;
+            }
+
+            const uint16_t *map = (const uint16_t *)ftl_buffer;
+            for (uint32_t j = 0; j < 0x800 / sizeof(uint16_t); j++)
+            {
+                uint32_t v = map[j];
+                uint32_t abspage;
+                uint32_t bank;
+                uint32_t pblock;
+                uint32_t pageoff;
+                uint32_t physpage;
+
+                if (v == 0 || v == 0xffffu)
+                    continue;
+
+                abspage = (v + syshyperblocks) * ppb;
+                bank = abspage % ftl_banks;
+                pblock = abspage / (ftl_nand_type->pagesperblock * ftl_banks);
+                pageoff = (abspage / ftl_banks) % ftl_nand_type->pagesperblock;
+                physpage = pblock * ftl_nand_type->pagesperblock + pageoff;
+
+                memset(&ftl_sparebuffer[0], 0, sizeof(ftl_sparebuffer[0]));
+                if (nand_read_page(bank, physpage, NULL, &ftl_sparebuffer[0],
+                                   1, 0) != 0)
+                    continue;
+                if (ftl_sparebuffer[0].user.type != 0x40
+                 && ftl_sparebuffer[0].user.type != 0x41)
+                    continue;
+
+                users++;
+                if (ftl_sparebuffer[0].user.lpn < min_lpn)
+                {
+                    min_lpn = ftl_sparebuffer[0].user.lpn;
+                    min_j = j;
+                    min_v = v;
+                }
+                if (ftl_sparebuffer[0].user.lpn > max_lpn)
+                    max_lpn = ftl_sparebuffer[0].user.lpn;
+            }
+
+            FTL_PROGRESS("N3G_MHIT b=%lu ix=%04lx u=%lu mn=%08lx mx=%08lx j=%lu v=%04lx",
+                         (unsigned long)block,
+                         (unsigned long)idx,
+                         (unsigned long)users,
+                         (unsigned long)min_lpn,
+                         (unsigned long)max_lpn,
+                         (unsigned long)min_j,
+                         (unsigned long)min_v);
+            hits++;
+            if (hits >= 8)
+                goto msearch_done;
+        }
+    }
+
+msearch_done:
+    FTL_PROGRESS("N3G_MSEARCH_DONE scans=%lu hits=%lu",
+                 (unsigned long)scans,
+                 (unsigned long)hits);
+#endif
+}
+
+#if defined(IPOD_NANO3G) && defined(BOOTLOADER)
+static void ftl_n3g_decode_page(uint32_t vblock, uint32_t page,
+                                uint32_t *bank, uint32_t *physpage)
+{
+    vblock &= 0x0fffu;
+    uint32_t abspage = (vblock + syshyperblocks) * ppb + page;
+    uint32_t pblock;
+    uint32_t pageoff;
+
+    *bank = abspage % ftl_banks;
+    pblock = abspage / (ftl_nand_type->pagesperblock * ftl_banks);
+    pageoff = (abspage / ftl_banks) % ftl_nand_type->pagesperblock;
+    *physpage = pblock * ftl_nand_type->pagesperblock + pageoff;
+}
+
+static int ftl_n3g_direct_trace_lba(uint32_t lba)
+{
+    return lba == 0 || lba == 1 || lba == 0x3fu || lba == 0xa07cu
+        || lba == 0xa07eu || lba == 0xa080u;
+}
+
+static void ftl_n3g_direct_trace_init(struct n3g_direct_read_trace *trace)
+{
+    trace->j = 0xffffffffu;
+    trace->v = 0xffffu;
+    trace->lookup = 0xffffffffu;
+    trace->l0 = 0xffffffffu;
+    trace->span = 0;
+    trace->delta = 0xffffffffu;
+    trace->po = 0xffffffffu;
+    trace->slot = 0xffffffffu;
+    trace->bank = 0xffffffffu;
+    trace->pb = 0xffffffffu;
+    trace->pp = 0xffffffffu;
+    trace->reason = "init";
+}
+
+static uint32_t ftl_n3g_direct_cached_lpn0(uint32_t j, uint32_t *lpn0)
+{
+    uint32_t rc;
+
+    if (j < ARRAYLEN(n3g_direct_l0_cache))
+    {
+        if (n3g_direct_l0_cache[j] == 0xfffffffeu)
+            return -1;
+        if (n3g_direct_l0_cache[j] != 0xffffffffu)
+        {
+            *lpn0 = n3g_direct_l0_cache[j];
+            return 0;
+        }
+    }
+
+    rc = ftl_n3g_wmount_map_lpn0(j, lpn0);
+    if (j < ARRAYLEN(n3g_direct_l0_cache))
+        n3g_direct_l0_cache[j] = rc == 0 ? *lpn0 : 0xfffffffeu;
+    return rc;
+}
+
+static uint32_t ftl_n3g_direct_find_entry_covering_lba(
+        uint32_t lpn, struct n3g_direct_covering_entry *entry)
+{
+    uint32_t found = 0;
+
+    entry->j = 0xffffffffu;
+    entry->v = 0xffffu;
+    entry->l0 = 0xffffffffu;
+    entry->delta = 0xffffffffu;
+    entry->po = 0xffffffffu;
+    entry->slot = 0xffffffffu;
+
+    for (uint32_t j = 0; j < n3g_direct_map_loaded_entries; j++)
+    {
+        uint32_t v;
+        uint32_t l0;
+        uint32_t delta;
+
+        if (j >= ARRAYLEN(ftl_map))
+            break;
+        v = ftl_map[j];
+        if (v == 0 || v == 0xffffu)
+            continue;
+        if (ftl_n3g_direct_cached_lpn0(j, &l0) != 0)
+            continue;
+        if (lpn < l0)
+            continue;
+        delta = lpn - l0;
+        if (delta >= ppb * 4)
+            continue;
+        if (found && l0 <= entry->l0)
+            continue;
+
+        found = 1;
+        entry->j = j;
+        entry->v = v;
+        entry->l0 = l0;
+        entry->delta = delta;
+        entry->po = (delta >> 1) & ~3u;
+        entry->slot = 0;
+    }
+
+    return found ? 0 : (uint32_t)-1;
+}
+
+static uint32_t ftl_n3g_direct_read_512(uint32_t lpn, uint8_t *out,
+                                        struct n3g_direct_read_trace *trace)
+{
+    struct n3g_direct_covering_entry entry;
+    uint32_t bank;
+    uint32_t physpage;
+    uint32_t expected_lpn;
+    uint32_t ret;
+
+    if (trace != NULL)
+        ftl_n3g_direct_trace_init(trace);
+
+    if (ftl_n3g_direct_find_entry_covering_lba(lpn, &entry) != 0)
+    {
+        memset(out, 0, 0x200);
+        if (trace != NULL)
+            trace->reason = "nocover";
+        return -6;
+    }
+
+    ftl_n3g_decode_page(entry.v, entry.po, &bank, &physpage);
+    if (trace != NULL)
+    {
+        trace->j = entry.j;
+        trace->v = entry.v;
+        trace->lookup = lpn;
+        trace->l0 = entry.l0;
+        trace->span = ppb * 4;
+        trace->delta = entry.delta;
+        trace->po = entry.po;
+        trace->slot = entry.slot;
+        trace->bank = bank;
+        trace->pb = physpage / ftl_nand_type->pagesperblock;
+        trace->pp = physpage % ftl_nand_type->pagesperblock;
+        trace->reason = "try";
+    }
+
+    memset(&ftl_sparebuffer[0], 0, sizeof(ftl_sparebuffer[0]));
+    ret = nand_read_page(bank, physpage, n3g_direct_pagebuf,
+                         &ftl_sparebuffer[0], 1, 0);
+    if (ret != 0)
+    {
+        memset(out, 0, 0x200);
+        if (trace != NULL)
+            trace->reason = "read";
+        return -6;
+    }
+    if (ftl_sparebuffer[0].user.type != 0x40
+     && ftl_sparebuffer[0].user.type != 0x41)
+    {
+        memset(out, 0, 0x200);
+        if (trace != NULL)
+            trace->reason = "type";
+        return -6;
+    }
+    expected_lpn = ftl_sparebuffer[0].user.lpn;
+    if (lpn < expected_lpn || lpn > expected_lpn + 6
+     || ((lpn - expected_lpn) & 1))
+    {
+        memset(out, 0, 0x200);
+        if (trace != NULL)
+            trace->reason = "lpn";
+        return -6;
+    }
+    entry.slot = (lpn - expected_lpn) >> 1;
+    if (trace != NULL)
+        trace->slot = entry.slot;
+
+    memcpy(out, n3g_direct_pagebuf + entry.slot * 0x200, 0x200);
+    if (trace != NULL)
+        trace->reason = "ok";
+    return 0;
+}
+
+static uint32_t ftl_n3g_direct_read(uint32_t sector, uint32_t count,
+                                    void *buffer)
+{
+    uint32_t error = 0;
+
+    if (sector + count > ftl_nand_type->userblocks * ppb)
+        return -2;
+    if (count == 0)
+        return 0;
+
+    mutex_lock(&ftl_mtx);
+
+    for (uint32_t i = 0; i < count; i++)
+    {
+        uint32_t host_lpn = sector + i;
+        uint32_t lpn = n3g_direct_sector_base + host_lpn * n3g_direct_sector_scale;
+        uint8_t *out = &((uint8_t *)buffer)[i << 9];
+        struct n3g_direct_read_trace trace;
+        uint32_t rc = 0;
+
+        if (n3g_direct_mbr_valid && host_lpn == 0)
+        {
+            memcpy(out, n3g_direct_mbr, 0x200);
+            if (ftl_n3g_direct_trace_lba(host_lpn))
+                FTL_PROGRESS("N3G_READ lba=%08lx rc=0 j=MBR v=---- po=0 s1=0 pb=---- pp=---- reason=mbr",
+                             (unsigned long)host_lpn);
+            continue;
+        }
+
+        if (n3g_direct_fsinfo_valid && host_lpn == n3g_direct_fsinfo_lpn)
+        {
+            memset(out, 0, 0x200);
+            out[0] = 0x52;
+            out[1] = 0x52;
+            out[2] = 0x61;
+            out[3] = 0x41;
+            out[0x1e4] = 0x72;
+            out[0x1e5] = 0x72;
+            out[0x1e6] = 0x41;
+            out[0x1e7] = 0x61;
+            out[0x1e8] = 0x00;
+            out[0x1e9] = 0x00;
+            out[0x1ea] = 0x00;
+            out[0x1eb] = 0x00;
+            out[0x1ec] = 0x02;
+            out[0x1ed] = 0x00;
+            out[0x1ee] = 0x00;
+            out[0x1ef] = 0x00;
+            out[0x1fc] = 0x00;
+            out[0x1fd] = 0x00;
+            out[0x1fe] = 0x55;
+            out[0x1ff] = 0xaa;
+            continue;
+        }
+
+        ftl_n3g_direct_trace_init(&trace);
+        if (n3g_direct_boot_valid && host_lpn == n3g_direct_boot_lpn)
+        {
+            uint32_t bank;
+            uint32_t physpage;
+
+            ftl_n3g_decode_page(n3g_direct_boot_vblock,
+                                n3g_direct_boot_page,
+                                &bank, &physpage);
+            memset(&ftl_sparebuffer[0], 0, sizeof(ftl_sparebuffer[0]));
+            rc = nand_read_page(bank, physpage, n3g_direct_pagebuf,
+                                &ftl_sparebuffer[0], 1, 0);
+            if (rc == 0)
+                memcpy(out, n3g_direct_pagebuf
+                            + n3g_direct_boot_slot * 0x200, 0x200);
+            trace.j = 0xffffffffu;
+            trace.v = n3g_direct_boot_vblock;
+            trace.po = n3g_direct_boot_page;
+            trace.slot = n3g_direct_boot_slot;
+            trace.lookup = lpn;
+            trace.reason = rc == 0 ? "boot" : "bootread";
+        }
+        else
+            rc = ftl_n3g_direct_read_512(lpn, out, &trace);
+
+        if (rc != 0)
+        {
+            memset(out, 0, 0x200);
+            error = rc;
+        }
+
+        if (ftl_n3g_direct_trace_lba(host_lpn))
+        {
+            FTL_PROGRESS("N3G_READ lba=%08lx key=%08lx rc=%ld j=%lu v=%04lx l0=%08lx span=%lu d=%lu po=%lu s1=%lu reason=%s",
+                         (unsigned long)host_lpn,
+                         (unsigned long)trace.lookup,
+                         (long)(int32_t)rc,
+                         (unsigned long)trace.j,
+                         (unsigned long)trace.v,
+                         (unsigned long)trace.l0,
+                         (unsigned long)trace.span,
+                         (unsigned long)trace.delta,
+                         (unsigned long)trace.po,
+                         (unsigned long)trace.slot,
+                         trace.reason);
+            FTL_PROGRESS("N3G_READ_PHY lba=%08lx pb=%lu pp=%lu bank=%lu",
+                         (unsigned long)host_lpn,
+                         (unsigned long)trace.pb,
+                         (unsigned long)trace.pp,
+                         (unsigned long)trace.bank);
+        }
+    }
+
+    mutex_unlock(&ftl_mtx);
+    return error;
+}
+
+static uint32_t ftl_n3g_wmount_probe_target(const struct n3g_wmount_target *target,
+                                            uint32_t *out_j,
+                                            uint32_t *out_po,
+                                            uint32_t *out_v,
+                                            uint32_t *out_sig,
+                                            uint32_t *out_bps,
+                                            uint32_t *out_fat)
+{
+    uint32_t po = target->lpn % ppb;
+    uint32_t lblock = target->lpn / ppb;
+
+    *out_j = 0xffffffffu;
+    *out_po = po;
+    *out_v = 0xffffu;
+    *out_sig = 0;
+    *out_bps = 0;
+    *out_fat = 0;
+
+    for (uint32_t pass = 0; pass < 2; pass++)
+    {
+        uint32_t start = 0;
+        uint32_t end = n3g_direct_map_loaded_entries;
+
+        if (pass == 0)
+        {
+            if (lblock >= ARRAYLEN(ftl_map))
+                continue;
+            start = lblock;
+            end = lblock + 1;
+        }
+
+        for (uint32_t j = start; j < end; j++)
+        {
+            uint32_t v = ftl_map[j];
+            uint32_t bank;
+            uint32_t physpage;
+            uint32_t rc;
+            uint8_t *b = (uint8_t *)ftl_buffer;
+            uint16_t *h = (uint16_t *)ftl_buffer;
+            uint32_t off = target->slot * 0x200;
+
+            if (v == 0 || v == 0xffffu)
+                continue;
+
+            ftl_n3g_decode_page(v, po, &bank, &physpage);
+            memset(ftl_buffer, 0, sizeof(ftl_buffer));
+            memset(&ftl_sparebuffer[0], 0, sizeof(ftl_sparebuffer[0]));
+            rc = nand_read_page(bank, physpage, ftl_buffer,
+                                &ftl_sparebuffer[0], 1, 0);
+            if (rc != 0 || (ftl_sparebuffer[0].user.type != 0x40
+                         && ftl_sparebuffer[0].user.type != 0x41)
+             || ftl_sparebuffer[0].user.lpn != target->lpn)
+                continue;
+
+            *out_j = j;
+            *out_po = po;
+            *out_v = v;
+            *out_sig = h[(off + 0x1fe) >> 1];
+            *out_bps = (uint32_t)b[off + 0x0b]
+                     | ((uint32_t)b[off + 0x0c] << 8);
+            *out_fat = ((b[off + 0x36] == 'F'
+                      && b[off + 0x37] == 'A'
+                      && b[off + 0x38] == 'T')
+                     || (b[off + 0x52] == 'F'
+                      && b[off + 0x53] == 'A'
+                      && b[off + 0x54] == 'T'));
+            return 0;
+        }
+    }
+
+    return -1;
+}
+
+static uint32_t ftl_n3g_wmount_bpb_reason(const uint8_t *s,
+                                          uint32_t part_size,
+                                          uint32_t *bps_out,
+                                          uint32_t *spc_out,
+                                          uint32_t *rsvd_out,
+                                          uint32_t *nfats_out,
+                                          uint32_t *total_out,
+                                          uint32_t *fat_out)
+{
+    uint32_t bps = (uint32_t)s[0x0b] | ((uint32_t)s[0x0c] << 8);
+    uint32_t spc = s[0x0d];
+    uint32_t rsvd = (uint32_t)s[0x0e] | ((uint32_t)s[0x0f] << 8);
+    uint32_t nfats = s[0x10];
+    uint32_t total16 = (uint32_t)s[0x13] | ((uint32_t)s[0x14] << 8);
+    uint32_t total32 = (uint32_t)s[0x20]
+                     | ((uint32_t)s[0x21] << 8)
+                     | ((uint32_t)s[0x22] << 16)
+                     | ((uint32_t)s[0x23] << 24);
+    uint32_t total = total16 != 0 ? total16 : total32;
+    uint32_t fatsz16 = (uint32_t)s[0x16] | ((uint32_t)s[0x17] << 8);
+    uint32_t fatsz32 = (uint32_t)s[0x24]
+                     | ((uint32_t)s[0x25] << 8)
+                     | ((uint32_t)s[0x26] << 16)
+                     | ((uint32_t)s[0x27] << 24);
+    uint32_t rootclus = (uint32_t)s[0x2c]
+                      | ((uint32_t)s[0x2d] << 8)
+                      | ((uint32_t)s[0x2e] << 16)
+                      | ((uint32_t)s[0x2f] << 24);
+    uint32_t fat = ((s[0x36] == 'F' && s[0x37] == 'A' && s[0x38] == 'T')
+                 || (s[0x52] == 'F' && s[0x53] == 'A' && s[0x54] == 'T'));
+    uint32_t reason = 0;
+
+    if (s[0] != 0xeb && s[0] != 0xe9)
+        reason |= 0x001;
+    if (bps != 512 && bps != 1024 && bps != 2048 && bps != 4096)
+        reason |= 0x002;
+    if (spc == 0 || (spc & (spc - 1)) != 0)
+        reason |= 0x004;
+    if (rsvd == 0)
+        reason |= 0x008;
+    if (nfats == 0 || nfats > 4)
+        reason |= 0x010;
+    if (nfats != 2)
+        reason |= 0x020;
+    if (total == 0)
+        reason |= 0x040;
+    else if (part_size != 0 && (total + 0x1000 < part_size
+             || total > part_size + 0x1000))
+        reason |= 0x080;
+    if (!fat)
+        reason |= 0x100;
+    if (fatsz16 == 0 && fatsz32 == 0)
+        reason |= 0x200;
+    if (fatsz16 == 0 && rootclus < 2)
+        reason |= 0x400;
+
+    *bps_out = bps;
+    *spc_out = spc;
+    *rsvd_out = rsvd;
+    *nfats_out = nfats;
+    *total_out = total;
+    *fat_out = fat;
+    return reason;
+}
+
+static uint32_t ftl_n3g_wmount_score_map_body(uint16_t *body,
+                                              struct n3g_wmount_map_candidate *cand,
+                                              uint8_t *mbr_page)
+{
+    uint32_t best_score = 0;
+
+    cand->mbr_j = 0xffffffffu;
+    cand->mbr_po = 0xffffffffu;
+    cand->mbr_slot = 0xffffffffu;
+    cand->part_start = 0;
+    cand->part_size = 0;
+
+    for (uint32_t j = 976; j < 992; j++)
+    {
+        uint32_t v = body[j];
+
+        if (v == 0 || v == 0xffffu)
+            continue;
+
+        for (uint32_t po = 0; po < 4; po++)
+        {
+            uint32_t bank;
+            uint32_t physpage;
+            uint32_t rc;
+            uint8_t *b = (uint8_t *)ftl_buffer;
+            uint16_t *h = (uint16_t *)ftl_buffer;
+
+            ftl_n3g_decode_page(v, po, &bank, &physpage);
+            memset(ftl_buffer, 0, sizeof(ftl_buffer));
+            memset(&ftl_sparebuffer[0], 0, sizeof(ftl_sparebuffer[0]));
+            rc = nand_read_page(bank, physpage, ftl_buffer,
+                                &ftl_sparebuffer[0], 1, 0);
+            if (rc != 0 || ftl_sparebuffer[0].user.lpn != 0)
+                continue;
+
+            for (uint32_t slot = 0; slot < 4; slot++)
+            {
+                uint32_t off = slot * 0x200;
+
+                if (h[(off + 0x1fe) >> 1] != 0xaa55)
+                    continue;
+
+                uint32_t score = 1;
+                uint32_t start0 = (uint32_t)b[off + 0x1be + 8]
+                                | ((uint32_t)b[off + 0x1be + 9] << 8)
+                                | ((uint32_t)b[off + 0x1be + 10] << 16)
+                                | ((uint32_t)b[off + 0x1be + 11] << 24);
+                uint32_t size0 = (uint32_t)b[off + 0x1be + 12]
+                               | ((uint32_t)b[off + 0x1be + 13] << 8)
+                               | ((uint32_t)b[off + 0x1be + 14] << 16)
+                               | ((uint32_t)b[off + 0x1be + 15] << 24);
+                uint8_t type0 = b[off + 0x1be + 4];
+
+                if (type0 == 0x0c || type0 == 0x0b)
+                    score += 4;
+                if (start0 == 0xa07eu)
+                    score += 8;
+                if (size0 == 0x000e7f81u)
+                    score += 4;
+                if (score <= best_score)
+                    continue;
+
+                best_score = score;
+                cand->mbr_j = j;
+                cand->mbr_po = po;
+                cand->mbr_slot = slot;
+                cand->part_start = start0;
+                cand->part_size = size0;
+                memcpy(mbr_page, b + off, 0x200);
+                memset(mbr_page + 0x200, 0, 0x600);
+            }
+        }
+    }
+
+    cand->score = best_score;
+    return best_score;
+}
+
+static uint32_t ftl_n3g_wmount_find_map_cluster(uint8_t *mbr_page,
+                                                struct n3g_wmount_map_candidate *best)
+{
+    static const uint32_t ranges[][2] =
+    {
+        { 7168, 5632 },
+        { 3072, 1024 },
+    };
+    uint32_t scanned = 0;
+    uint32_t hits = 0;
+    uint32_t printed = 0;
+
+    memset(best, 0, sizeof(*best));
+    best->block = 6916;
+    best->page = 0;
+    best->usn = 0;
+    best->score = 0;
+
+    for (uint32_t ri = 0; ri < ARRAYLEN(ranges); ri++)
+    {
+        for (uint32_t block = ranges[ri][0]; block > ranges[ri][1]; block--)
+        {
+            uint32_t blk = block - 1;
+
+            if ((scanned & 0x3ff) == 0)
+                FTL_PROGRESS("N3G_WMOUNT_MSCAN b=%lu",
+                             (unsigned long)blk);
+
+            for (uint32_t page = 0; page < 4; page++)
+            {
+                uint32_t physpage = blk * ftl_nand_type->pagesperblock + page;
+                struct n3g_wmount_map_candidate cand;
+
+                scanned++;
+                memset(&ftl_sparebuffer[0], 0, sizeof(ftl_sparebuffer[0]));
+                if (nano3g_nand_diag_local_read(0, physpage, 0x800,
+                                                (uint32_t *)&ftl_sparebuffer[0],
+                                                0x10) != 0)
+                    continue;
+                if (ftl_sparebuffer[0].meta.type != 0x44
+                 || ftl_sparebuffer[0].meta.idx != 0)
+                    continue;
+
+                memset(n3g_direct_probe_map, 0xff, sizeof(n3g_direct_probe_map));
+                if (nano3g_nand_diag_local_read(0, physpage, 0,
+                                                (uint32_t *)n3g_direct_probe_map,
+                                                sizeof(n3g_direct_probe_map)
+                                                / sizeof(uint32_t)) != 0)
+                    continue;
+
+                cand.block = blk;
+                cand.page = page;
+                cand.usn = ftl_sparebuffer[0].meta.usn;
+                ftl_n3g_wmount_score_map_body(n3g_direct_probe_map,
+                                              &cand, mbr_page);
+                hits++;
+                if (cand.score != 0 && printed < 8)
+                {
+                    FTL_PROGRESS("N3G_WMOUNT_MCAND b=%lu p=%lu u=%08lx sc=%lu j=%lu po=%lu st=%08lx sz=%08lx",
+                                 (unsigned long)cand.block,
+                                 (unsigned long)cand.page,
+                                 (unsigned long)cand.usn,
+                                 (unsigned long)cand.score,
+                                 (unsigned long)cand.mbr_j,
+                                 (unsigned long)cand.mbr_po,
+                                 (unsigned long)cand.part_start,
+                                 (unsigned long)cand.part_size);
+                    printed++;
+                }
+
+                if (cand.score > best->score
+                 || (cand.score == best->score && cand.score != 0
+                  && cand.usn > best->usn))
+                    *best = cand;
+            }
+        }
+    }
+
+    FTL_PROGRESS("N3G_WMOUNT_MSEL b=%lu p=%lu u=%08lx sc=%lu hits=%lu scan=%lu",
+                 (unsigned long)best->block,
+                 (unsigned long)best->page,
+                 (unsigned long)best->usn,
+                 (unsigned long)best->score,
+                 (unsigned long)hits,
+                 (unsigned long)scanned);
+    return best->score != 0 ? 0 : 1;
+}
+
+static uint32_t ftl_n3g_wmount_load_map_pages(uint32_t map_block,
+                                              uint32_t map_usn)
+{
+    uint32_t pages_found = 0;
+    uint32_t max_idx = 0;
+
+    n3g_direct_map_loaded_entries = 0x400;
+
+    for (uint32_t block = map_block; block < map_block + 4; block++)
+    {
+        for (uint32_t page = 0; page < ftl_nand_type->pagesperblock; page++)
+        {
+            uint32_t physpage = block * ftl_nand_type->pagesperblock + page;
+            uint32_t idx;
+
+            memset(&ftl_sparebuffer[0], 0, sizeof(ftl_sparebuffer[0]));
+            if (nano3g_nand_diag_local_read(0, physpage, 0x800,
+                                            (uint32_t *)&ftl_sparebuffer[0],
+                                            0x10) != 0)
+                continue;
+
+            if ((ftl_sparebuffer[0].meta.type != 0x44
+              && ftl_sparebuffer[0].meta.type != 0x45)
+             || ftl_sparebuffer[0].meta.usn != map_usn)
+                continue;
+
+            idx = ftl_sparebuffer[0].meta.idx;
+            if (idx >= 8)
+                continue;
+
+            memset(ftl_buffer, 0, sizeof(ftl_buffer));
+            if (nano3g_nand_diag_local_read(0, physpage, 0,
+                                            (uint32_t *)ftl_buffer,
+                                            0x800 / sizeof(uint32_t)) != 0)
+                continue;
+
+            uint16_t *h = (uint16_t *)ftl_buffer;
+            uint32_t nz = 0;
+            uint32_t ff = 0;
+
+            for (uint32_t i = 0; i < 0x400; i++)
+            {
+                if (h[i] != 0)
+                    nz++;
+                if (h[i] == 0xffffu)
+                    ff++;
+            }
+
+            if (ftl_sparebuffer[0].meta.type == 0x44)
+            {
+                memcpy(&ftl_map[idx << 10], ftl_buffer, 0x800);
+                pages_found++;
+                if (idx > max_idx)
+                    max_idx = idx;
+            }
+
+            FTL_PROGRESS("N3G_WMOUNT_MPAGE t=%02x i=%lu b=%lu p=%lu nz=%lu ff=%lu",
+                         ftl_sparebuffer[0].meta.type,
+                         (unsigned long)idx,
+                         (unsigned long)block,
+                         (unsigned long)page,
+                         (unsigned long)nz,
+                         (unsigned long)ff);
+        }
+    }
+
+    if (pages_found != 0)
+        n3g_direct_map_loaded_entries = (max_idx + 1) << 10;
+
+    FTL_PROGRESS("N3G_WMOUNT_MLOAD n=%lu max=%lu ent=%lu",
+                 (unsigned long)pages_found,
+                 (unsigned long)max_idx,
+                 (unsigned long)n3g_direct_map_loaded_entries);
+    if (pages_found != 0)
+    {
+        uint32_t valid = 0;
+
+        for (uint32_t i = 0; i < n3g_direct_map_loaded_entries; i++)
+            if (ftl_map[i] != 0 && ftl_map[i] != 0xffffu)
+                valid++;
+
+        FTL_PROGRESS("N3G_WMOUNT_MVALID idxmax=%lu valid=%lu",
+                     (unsigned long)max_idx,
+                     (unsigned long)valid);
+    }
+    return pages_found;
+}
+
+static uint32_t ftl_n3g_wmount_probe_map_body(uint16_t *body,
+                                              uint32_t logical_base,
+                                              const struct n3g_wmount_target *targets,
+                                              uint32_t target_count,
+                                              uint32_t host_lpn,
+                                              uint32_t part_size,
+                                              uint32_t *fat_j,
+                                              uint32_t *fat_po)
+{
+    for (uint32_t ti = 0; ti < target_count; ti++)
+    {
+        uint32_t po = targets[ti].lpn % ppb;
+        uint32_t off = targets[ti].slot * 0x200;
+
+        for (uint32_t j = 0; j < 0x400; j++)
+        {
+            uint32_t v = body[j];
+            uint32_t bank;
+            uint32_t physpage;
+            uint32_t rc;
+            uint8_t *b = (uint8_t *)ftl_buffer;
+            uint16_t *h = (uint16_t *)ftl_buffer;
+
+            if (v == 0 || v == 0xffffu)
+                continue;
+
+            ftl_n3g_decode_page(v, po, &bank, &physpage);
+            memset(ftl_buffer, 0, sizeof(ftl_buffer));
+            memset(&ftl_sparebuffer[0], 0, sizeof(ftl_sparebuffer[0]));
+            rc = nand_read_page(bank, physpage, ftl_buffer,
+                                &ftl_sparebuffer[0], 1, 0);
+            if (rc != 0 || (ftl_sparebuffer[0].user.type != 0x40
+                         && ftl_sparebuffer[0].user.type != 0x41)
+             || ftl_sparebuffer[0].user.lpn != targets[ti].lpn)
+                continue;
+
+            uint32_t sig = h[(off + 0x1fe) >> 1];
+            uint32_t bps;
+            uint32_t spc;
+            uint32_t rsvd;
+            uint32_t nfats;
+            uint32_t total;
+            uint32_t fat;
+            uint32_t reason = ftl_n3g_wmount_bpb_reason(b + off,
+                                    part_size, &bps, &spc, &rsvd,
+                                    &nfats, &total, &fat);
+
+            FTL_PROGRESS("N3G_WMOUNT_LHIT %s j=%lu v=%04lx po=%lu sl=%lu sig=%04lx r=%03lx fat=%lu",
+                         targets[ti].name,
+                         (unsigned long)(logical_base + j),
+                         (unsigned long)v,
+                         (unsigned long)po,
+                         (unsigned long)targets[ti].slot,
+                         (unsigned long)sig,
+                         (unsigned long)reason,
+                         (unsigned long)fat);
+
+            if (sig == 0xaa55 && fat && (reason & ~0x020u) == 0)
+            {
+                n3g_direct_boot_valid = 1;
+                n3g_direct_boot_lpn = host_lpn;
+                n3g_direct_boot_vblock = v;
+                n3g_direct_boot_page = po;
+                n3g_direct_boot_slot = targets[ti].slot;
+                *fat_j = logical_base + j;
+                *fat_po = po;
+                FTL_PROGRESS("N3G_WMOUNT_LMAP %s j=%lu v=%04lx po=%lu sl=%lu",
+                             targets[ti].name,
+                             (unsigned long)(logical_base + j),
+                             (unsigned long)v,
+                             (unsigned long)po,
+                             (unsigned long)targets[ti].slot);
+                return 1;
+            }
+        }
+    }
+
+    return 0;
+}
+
+static uint32_t ftl_n3g_wmount_scan_maplogs(uint32_t map_block,
+                                            uint32_t map_usn,
+                                            const struct n3g_wmount_target *targets,
+                                            uint32_t target_count,
+                                            uint32_t host_lpn,
+                                            uint32_t part_size,
+                                            uint32_t *fat_j,
+                                            uint32_t *fat_po)
+{
+    uint32_t pages = 0;
+    uint32_t hits = 0;
+
+    for (uint32_t block = map_block; block < map_block + 4; block++)
+    {
+        for (uint32_t page = 0; page < 8; page++)
+        {
+            uint32_t physpage = block * ftl_nand_type->pagesperblock + page;
+            uint32_t type;
+            uint32_t idx;
+
+            memset(&ftl_sparebuffer[0], 0, sizeof(ftl_sparebuffer[0]));
+            if (nano3g_nand_diag_local_read(0, physpage, 0x800,
+                                            (uint32_t *)&ftl_sparebuffer[0],
+                                            0x10) != 0)
+                continue;
+
+            type = ftl_sparebuffer[0].meta.type;
+            idx = ftl_sparebuffer[0].meta.idx;
+            if ((type != 0x44 && type != 0x45)
+             || ftl_sparebuffer[0].meta.usn != map_usn)
+                continue;
+
+            memset(n3g_direct_probe_map, 0xff, sizeof(n3g_direct_probe_map));
+            if (nano3g_nand_diag_local_read(0, physpage, 0,
+                                            (uint32_t *)n3g_direct_probe_map,
+                                            sizeof(n3g_direct_probe_map)
+                                            / sizeof(uint32_t)) != 0)
+                continue;
+
+            pages++;
+            if (ftl_n3g_wmount_probe_map_body(n3g_direct_probe_map,
+                                              idx << 10, targets,
+                                              target_count, host_lpn,
+                                              part_size,
+                                              fat_j, fat_po) != 0)
+            {
+                hits++;
+                FTL_PROGRESS("N3G_WMOUNT_LDONE pages=%lu hit=1",
+                             (unsigned long)pages);
+                return 1;
+            }
+        }
+    }
+
+    FTL_PROGRESS("N3G_WMOUNT_LDONE pages=%lu hit=%lu",
+                 (unsigned long)pages,
+                 (unsigned long)hits);
+    return 0;
+}
+
+static void ftl_n3g_wmount_dump_map_window(const char *tag,
+                                           uint32_t center)
+{
+    uint32_t start = center > 4 ? center - 4 : 0;
+    uint32_t end = center + 4;
+
+    if (n3g_direct_map_loaded_entries == 0)
+        return;
+    if (end >= n3g_direct_map_loaded_entries)
+        end = n3g_direct_map_loaded_entries - 1;
+
+    for (uint32_t j = start; j <= end; j++)
+    {
+        uint32_t v = ftl_map[j];
+        uint32_t lpn0 = 0xffffffffu;
+        uint32_t t = 0xffu;
+
+        if (v != 0 && v != 0xffffu)
+        {
+            uint32_t bank;
+            uint32_t physpage;
+
+            ftl_n3g_decode_page(v, 0, &bank, &physpage);
+            memset(&ftl_sparebuffer[0], 0, sizeof(ftl_sparebuffer[0]));
+            if (nand_read_page(bank, physpage, NULL,
+                               &ftl_sparebuffer[0], 1, 0) == 0)
+            {
+                t = ftl_sparebuffer[0].user.type;
+                lpn0 = ftl_sparebuffer[0].user.lpn;
+            }
+        }
+
+        FTL_PROGRESS("N3G_WMOUNT_MENT %s j=%lu v=%04lx t=%02lx l0=%08lx",
+                     tag, (unsigned long)j, (unsigned long)v,
+                     (unsigned long)t, (unsigned long)lpn0);
+    }
+}
+
+static uint32_t ftl_n3g_wmount_map_lpn0(uint32_t j, uint32_t *lpn0)
+{
+    uint32_t v;
+    uint32_t bank;
+    uint32_t physpage;
+
+    *lpn0 = 0xffffffffu;
+    if (j >= n3g_direct_map_loaded_entries)
+        return -1;
+
+    v = ftl_map[j];
+    if (v == 0 || v == 0xffffu)
+        return -1;
+
+    ftl_n3g_decode_page(v, 0, &bank, &physpage);
+    memset(&ftl_sparebuffer[0], 0, sizeof(ftl_sparebuffer[0]));
+    if (nand_read_page(bank, physpage, NULL, &ftl_sparebuffer[0], 1, 0) != 0)
+        return -1;
+    if (ftl_sparebuffer[0].user.type != 0x40
+     && ftl_sparebuffer[0].user.type != 0x41)
+        return -1;
+
+    *lpn0 = ftl_sparebuffer[0].user.lpn;
+    return 0;
+}
+
+static uint32_t ftl_n3g_wmount_known_bad_j(uint32_t j)
+{
+    return j == 61 || j == 462;
+}
+
+static uint32_t ftl_n3g_wmount_try_known_backup(uint32_t host_lpn,
+                                                uint32_t part_size,
+                                                uint32_t *fat_j,
+                                                uint32_t *fat_po)
+{
+    const uint16_t backup_vblock = 0x0aac;
+    const uint32_t backup_page = 68;
+    const uint32_t backup_slot = 0;
+    uint32_t bank;
+    uint32_t physpage;
+    uint32_t rc;
+    uint8_t *b = (uint8_t *)ftl_buffer;
+    uint16_t *h = (uint16_t *)ftl_buffer;
+    uint32_t bps;
+    uint32_t spc;
+    uint32_t rsvd;
+    uint32_t nfats;
+    uint32_t total;
+    uint32_t fat;
+    uint32_t reason;
+    uint32_t raw_off = backup_slot * 0x200;
+    uint32_t raw_sig;
+    uint32_t raw_bps;
+    uint32_t raw_fs0;
+    uint32_t raw_fs1;
+
+    ftl_n3g_decode_page(backup_vblock, backup_page, &bank, &physpage);
+    memset(ftl_buffer, 0, sizeof(ftl_buffer));
+    memset(&ftl_sparebuffer[0], 0, sizeof(ftl_sparebuffer[0]));
+    rc = nand_read_page(bank, physpage, ftl_buffer,
+                        &ftl_sparebuffer[0], 1, 0);
+    reason = ftl_n3g_wmount_bpb_reason(b + backup_slot * 0x200,
+                                       part_size, &bps, &spc, &rsvd,
+                                       &nfats, &total, &fat);
+    raw_sig = (uint32_t)b[raw_off + 0x1fe]
+            | ((uint32_t)b[raw_off + 0x1ff] << 8);
+    raw_bps = (uint32_t)b[raw_off + 0x0b]
+            | ((uint32_t)b[raw_off + 0x0c] << 8);
+    raw_fs0 = (uint32_t)b[raw_off + 0x52]
+            | ((uint32_t)b[raw_off + 0x53] << 8)
+            | ((uint32_t)b[raw_off + 0x54] << 16)
+            | ((uint32_t)b[raw_off + 0x55] << 24);
+    raw_fs1 = (uint32_t)b[raw_off + 0x56]
+            | ((uint32_t)b[raw_off + 0x57] << 8)
+            | ((uint32_t)b[raw_off + 0x58] << 16)
+            | ((uint32_t)b[raw_off + 0x59] << 24);
+
+    FTL_PROGRESS("N3G_WMOUNT_BKTRY backup=0 v=%04lx po=%lu s1=%lu rc=%lu t=%02x l=%08lx sig=%04x bps=%lu",
+                 (unsigned long)backup_vblock,
+                 (unsigned long)backup_page,
+                 (unsigned long)backup_slot,
+                 (unsigned long)rc,
+                 ftl_sparebuffer[0].user.type,
+                 (unsigned long)ftl_sparebuffer[0].user.lpn,
+                 (unsigned long)raw_sig,
+                 (unsigned long)raw_bps);
+    FTL_PROGRESS("N3G_WMOUNT_BKVAL sig=%04lx bps=%lu spc=%lu rs=%lu nf=%lu fat=%lu r=%03lx",
+                 (unsigned long)raw_sig,
+                 (unsigned long)raw_bps,
+                 (unsigned long)spc,
+                 (unsigned long)rsvd,
+                 (unsigned long)nfats,
+                 (unsigned long)fat,
+                 (unsigned long)reason);
+    FTL_PROGRESS("N3G_WMOUNT_BKFS fs=%08lx,%08lx",
+                 (unsigned long)raw_fs0,
+                 (unsigned long)raw_fs1);
+
+    if (rc != 0 || raw_sig != 0xaa55 || raw_bps != 512)
+    {
+        FTL_PROGRESS("N3G_WMOUNT_BKREJ rc=%lu sig=%04lx bps=%lu r=%03lx",
+                     (unsigned long)rc,
+                     (unsigned long)raw_sig,
+                     (unsigned long)raw_bps,
+                     (unsigned long)reason);
+        FTL_PROGRESS("N3G_WMOUNT_BACKUP_NOBOOT backup=0 v=%04lx po=%lu s1=%lu sig=%04x bps=%lu r=%03lx",
+                     (unsigned long)backup_vblock,
+                     (unsigned long)backup_page,
+                     (unsigned long)backup_slot,
+                     (unsigned long)raw_sig,
+                     (unsigned long)raw_bps,
+                     (unsigned long)reason);
+        return 0;
+    }
+
+    n3g_direct_boot_valid = 1;
+    n3g_direct_boot_lpn = host_lpn;
+    n3g_direct_boot_vblock = backup_vblock;
+    n3g_direct_boot_page = backup_page;
+    n3g_direct_boot_slot = backup_slot;
+    n3g_direct_fsinfo_valid = 1;
+    n3g_direct_fsinfo_lpn = host_lpn;
+    *fat_j = 0xffffffffu;
+    *fat_po = backup_page;
+    FTL_PROGRESS("N3G_WMOUNT_BACKUP_ACCEPT backup=0 v=%04lx po=%lu s1=%lu",
+                 (unsigned long)backup_vblock,
+                 (unsigned long)backup_page,
+                 (unsigned long)backup_slot);
+    FTL_PROGRESS("N3G_WMOUNT_BOOTSECTOR_OK backup=0 po=%lu s1=%lu bps=%lu v=%04lx raw=%08lx",
+                 (unsigned long)backup_page,
+                 (unsigned long)backup_slot,
+                 (unsigned long)raw_bps,
+                 (unsigned long)backup_vblock,
+                 (unsigned long)ftl_sparebuffer[0].user.lpn);
+    return 1;
+}
+
+static uint32_t ftl_n3g_wmount_fatsz(const uint8_t *s)
+{
+    uint32_t fz16 = (uint32_t)s[0x16] | ((uint32_t)s[0x17] << 8);
+    uint32_t fz32 = (uint32_t)s[0x24]
+                  | ((uint32_t)s[0x25] << 8)
+                  | ((uint32_t)s[0x26] << 16)
+                  | ((uint32_t)s[0x27] << 24);
+
+    return fz16 != 0 ? fz16 : fz32;
+}
+
+static uint32_t ftl_n3g_wmount_root_cluster(const uint8_t *s)
+{
+    return (uint32_t)s[0x2c]
+         | ((uint32_t)s[0x2d] << 8)
+         | ((uint32_t)s[0x2e] << 16)
+         | ((uint32_t)s[0x2f] << 24);
+}
+
+static uint32_t ftl_n3g_wmount_find_current_boot(uint32_t host_lpn,
+                                                 uint32_t part_size,
+                                                 uint32_t *fat_j,
+                                                 uint32_t *fat_po)
+{
+    uint32_t reads = 0;
+    uint32_t candidates = 0;
+    uint32_t aa55 = 0;
+    uint32_t sane = 0;
+    uint32_t prints = 0;
+    uint32_t best_j = 0xffffffffu;
+    uint32_t best_v = 0xffffu;
+    uint32_t best_po = 0xffffffffu;
+    uint32_t best_slot = 0xffffffffu;
+    int32_t best_shift = 0;
+    uint32_t best_sig = 0;
+    uint32_t best_bps = 0;
+    uint32_t best_spc = 0;
+    uint32_t best_rsvd = 0;
+    uint32_t best_nfats = 0;
+    uint32_t best_fatsz = 0;
+    uint32_t best_root = 0;
+    uint32_t best_reason = 0xffffffffu;
+    uint32_t best_score = 0;
+
+    FTL_PROGRESS("N3G_BOOTSECTOR_SCAN start=%08lx ent=%lu",
+                 (unsigned long)host_lpn,
+                 (unsigned long)n3g_direct_map_loaded_entries);
+
+    for (uint32_t j = 0; j < n3g_direct_map_loaded_entries; j++)
+    {
+        uint32_t v = ftl_map[j];
+        uint32_t l0;
+
+        if (v == 0 || v == 0xffffu)
+            continue;
+        if (ftl_n3g_wmount_map_lpn0(j, &l0) != 0)
+            l0 = 0xffffffffu;
+
+        for (uint32_t po = 0; po < ppb; po++)
+        {
+            uint32_t bank;
+            uint32_t physpage;
+            uint32_t rc;
+            uint8_t *b = (uint8_t *)ftl_buffer;
+
+            ftl_n3g_decode_page(v, po, &bank, &physpage);
+            memset(ftl_buffer, 0, sizeof(ftl_buffer));
+            memset(&ftl_sparebuffer[0], 0, sizeof(ftl_sparebuffer[0]));
+            rc = nand_read_page(bank, physpage, ftl_buffer,
+                                &ftl_sparebuffer[0], 1, 0);
+            reads++;
+            if (rc != 0)
+                continue;
+
+            for (uint32_t slot = 0; slot < 4; slot++)
+            {
+                uint32_t slot_off = slot * 0x200;
+                uint32_t slot_sig = (uint32_t)b[slot_off + 0x1fe]
+                                  | ((uint32_t)b[slot_off + 0x1ff] << 8);
+                uint32_t slot_bps = (uint32_t)b[slot_off + 0x0b]
+                                  | ((uint32_t)b[slot_off + 0x0c] << 8);
+                uint32_t slot_bps_sane = slot_bps == 512
+                                       || slot_bps == 1024
+                                       || slot_bps == 2048
+                                       || slot_bps == 4096;
+                uint32_t slot_fat = (b[slot_off + 0x36] == 'F'
+                                  && b[slot_off + 0x37] == 'A'
+                                  && b[slot_off + 0x38] == 'T')
+                                  || (b[slot_off + 0x52] == 'F'
+                                  && b[slot_off + 0x53] == 'A'
+                                  && b[slot_off + 0x54] == 'T');
+
+                for (int32_t shift = -32; shift <= 32; shift++)
+                {
+                    uint32_t base = slot * 0x200;
+                    uint32_t off;
+                    uint32_t sig;
+                    uint32_t bps;
+                    uint32_t spc;
+                    uint32_t rsvd;
+                    uint32_t nfats;
+                    uint32_t total;
+                    uint32_t fat;
+                    uint32_t reason;
+                    uint32_t fatsz;
+                    uint32_t root;
+                    uint32_t ok_bps;
+                    uint32_t ok_spc;
+                    uint32_t ok_rsvd;
+                    uint32_t ok_nfats;
+                    uint32_t ok_sig;
+                    uint32_t ok;
+                    uint32_t score;
+
+                    if (shift != 0 && slot_sig != 0xaa55
+                     && !slot_bps_sane && !slot_fat)
+                        continue;
+
+                    if (shift < 0 && base < (uint32_t)(-shift))
+                        continue;
+                    off = shift < 0 ? base - (uint32_t)(-shift)
+                                    : base + (uint32_t)shift;
+                    if (off + 0x1ff >= 0x800)
+                        continue;
+
+                    sig = (uint32_t)b[off + 0x1fe]
+                        | ((uint32_t)b[off + 0x1ff] << 8);
+                    reason = ftl_n3g_wmount_bpb_reason(b + off, part_size,
+                                    &bps, &spc, &rsvd, &nfats, &total, &fat);
+                    fatsz = ftl_n3g_wmount_fatsz(b + off);
+                    root = ftl_n3g_wmount_root_cluster(b + off);
+                    ok_sig = sig == 0xaa55;
+                    ok_bps = bps == 512 || bps == 1024
+                          || bps == 2048 || bps == 4096;
+                    ok_spc = spc != 0 && (spc & (spc - 1)) == 0;
+                    ok_rsvd = rsvd != 0;
+                    ok_nfats = nfats > 0 && nfats <= 4;
+                    ok = ok_sig && ok_bps && ok_spc && ok_rsvd
+                      && ok_nfats && fatsz != 0 && fat;
+
+                    if (ok_sig)
+                        aa55++;
+                    if (ok)
+                        sane++;
+                    if (!(ok_sig || ok_bps || fat))
+                        continue;
+
+                    candidates++;
+                    score = (ok ? 0x10000 : 0)
+                          + (ok_sig ? 0x8000 : 0)
+                          + (fat ? 0x4000 : 0)
+                          + (ok_bps ? 0x2000 : 0)
+                          + (ok_spc ? 0x1000 : 0)
+                          + (ok_rsvd ? 0x0800 : 0)
+                          + (ok_nfats ? 0x0400 : 0)
+                          + (fatsz != 0 ? 0x0200 : 0)
+                          + (0x1ffu - (reason & 0x1ffu));
+                    if (score > best_score)
+                    {
+                        best_score = score;
+                        best_j = j;
+                        best_v = v;
+                        best_po = po;
+                        best_slot = slot;
+                        best_shift = shift;
+                        best_sig = sig;
+                        best_bps = bps;
+                        best_spc = spc;
+                        best_rsvd = rsvd;
+                        best_nfats = nfats;
+                        best_fatsz = fatsz;
+                        best_root = root;
+                        best_reason = reason;
+                    }
+
+                    if (prints < 16 || ok)
+                    {
+                        FTL_PROGRESS("N3G_BOOTSECTOR_CAND j=%lu v=%04lx po=%lu sl=%lu sh=%ld l0=%08lx ol=%08lx",
+                                     (unsigned long)j,
+                                     (unsigned long)v,
+                                     (unsigned long)po,
+                                     (unsigned long)slot,
+                                     (long)shift,
+                                     (unsigned long)l0,
+                                     (unsigned long)ftl_sparebuffer[0].user.lpn);
+                        FTL_PROGRESS("N3G_BOOTSECTOR_BPB sig=%04lx bps=%lu spc=%lu rs=%lu nf=%lu fz=%lu root=%lu r=%03lx",
+                                     (unsigned long)sig,
+                                     (unsigned long)bps,
+                                     (unsigned long)spc,
+                                     (unsigned long)rsvd,
+                                     (unsigned long)nfats,
+                                     (unsigned long)fatsz,
+                                     (unsigned long)root,
+                                     (unsigned long)reason);
+                        prints++;
+                    }
+
+                    if (ok)
+                    {
+                        n3g_direct_boot_valid = 1;
+                        n3g_direct_boot_lpn = host_lpn;
+                        n3g_direct_boot_vblock = v;
+                        n3g_direct_boot_page = po;
+                        n3g_direct_boot_slot = slot;
+                        n3g_direct_boot_shift = shift;
+                        n3g_direct_fsinfo_valid = 1;
+                        n3g_direct_fsinfo_lpn = host_lpn;
+                        *fat_j = j;
+                        *fat_po = po;
+                        FTL_PROGRESS("N3G_BOOTSECTOR_OK j=%lu v=%04lx po=%lu sl=%lu sh=%ld sig=%04lx bps=%lu spc=%lu rs=%lu nf=%lu fz=%lu root=%lu",
+                                     (unsigned long)j,
+                                     (unsigned long)v,
+                                     (unsigned long)po,
+                                     (unsigned long)slot,
+                                     (long)shift,
+                                     (unsigned long)sig,
+                                     (unsigned long)bps,
+                                     (unsigned long)spc,
+                                     (unsigned long)rsvd,
+                                     (unsigned long)nfats,
+                                     (unsigned long)fatsz,
+                                     (unsigned long)root);
+                        return 1;
+                    }
+                }
+            }
+        }
+    }
+
+    FTL_PROGRESS("N3G_BOOTSECTOR_NOT_FOUND r=%lu cand=%lu aa=%lu sane=%lu",
+                 (unsigned long)reads,
+                 (unsigned long)candidates,
+                 (unsigned long)aa55,
+                 (unsigned long)sane);
+    if (best_j != 0xffffffffu)
+    {
+        FTL_PROGRESS("N3G_BOOTSECTOR_BEST j=%lu v=%04lx po=%lu sl=%lu sh=%ld",
+                     (unsigned long)best_j,
+                     (unsigned long)best_v,
+                     (unsigned long)best_po,
+                     (unsigned long)best_slot,
+                     (long)best_shift);
+        FTL_PROGRESS("N3G_BOOTSECTOR_BEST_BPB sig=%04lx bps=%lu spc=%lu rs=%lu nf=%lu fz=%lu root=%lu r=%03lx",
+                     (unsigned long)best_sig,
+                     (unsigned long)best_bps,
+                     (unsigned long)best_spc,
+                     (unsigned long)best_rsvd,
+                     (unsigned long)best_nfats,
+                     (unsigned long)best_fatsz,
+                     (unsigned long)best_root,
+                     (unsigned long)best_reason);
+    }
+    return 0;
+}
+
+static void ftl_n3g_wmount_dump_hex16(const char *tag, const char *target,
+                                      uint32_t id, uint32_t off,
+                                      const uint8_t *b)
+{
+    FTL_PROGRESS("N3GD_%s target=%s id=%lu off=%03lx %02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x",
+                 tag, target, (unsigned long)id, (unsigned long)off,
+                 b[0], b[1], b[2], b[3], b[4], b[5], b[6], b[7],
+                 b[8], b[9], b[10], b[11], b[12], b[13], b[14], b[15]);
+}
+
+static void ftl_n3g_wmount_dump_raw_page(const char *kind, uint32_t id,
+                                         const char *target,
+                                         uint32_t j, uint32_t v,
+                                         uint32_t po, uint32_t slot,
+                                         uint32_t l0, uint32_t target_lpn,
+                                         uint32_t bank, uint32_t physpage)
+{
+    uint32_t pb = physpage / ftl_nand_type->pagesperblock;
+    uint32_t pp = physpage % ftl_nand_type->pagesperblock;
+    int32_t rc;
+    const uint8_t *body;
+    const uint8_t *oob;
+
+    memset(ftl_buffer, 0, sizeof(ftl_buffer));
+    memset(&ftl_sparebuffer[0], 0, sizeof(ftl_sparebuffer[0]));
+    rc = (int32_t)nand_read_page(bank, physpage, ftl_buffer,
+                                 &ftl_sparebuffer[0], 1, 0);
+    body = (const uint8_t *)ftl_buffer;
+    oob = (const uint8_t *)&ftl_sparebuffer[0];
+
+    FTL_PROGRESS("N3GD_DUMP_PAGE target=%s j=%lu v=%04lx po=%lu",
+                 target, (unsigned long)j, (unsigned long)v,
+                 (unsigned long)po);
+    FTL_PROGRESS("N3GD_TARGET target=%s kind=%s b=4294967295 p=4294967295 j=%lu v=%04lx resolved_block=%lu resolved_page=%lu rc=%ld",
+                 target, kind, (unsigned long)j, (unsigned long)v,
+                 (unsigned long)pb, (unsigned long)pp, (long)rc);
+    FTL_PROGRESS("N3GD_BEGIN id=%lu target=%s kind=%s j=%lu v=%04lx po=%lu sl=%lu l0=%08lx tgt=%08lx bank=%lu pb=%lu pp=%lu phy=%lu rc=%ld t=%02x l=%08lx",
+                 (unsigned long)id, target, kind, (unsigned long)j,
+                 (unsigned long)v, (unsigned long)po, (unsigned long)slot,
+                 (unsigned long)l0, (unsigned long)target_lpn,
+                 (unsigned long)bank, (unsigned long)pb, (unsigned long)pp,
+                 (unsigned long)physpage, (long)rc,
+                 ftl_sparebuffer[0].user.type,
+                 (unsigned long)ftl_sparebuffer[0].user.lpn);
+    for (uint32_t off = 0; off < 0x800; off += 16)
+        ftl_n3g_wmount_dump_hex16("BODY", target, id, off, body + off);
+    for (uint32_t off = 0; off < sizeof(ftl_sparebuffer[0]); off += 16)
+        ftl_n3g_wmount_dump_hex16("OOB", target, id, off, oob + off);
+    FTL_PROGRESS("N3GD_END id=%lu", (unsigned long)id);
+}
+
+static void ftl_n3g_wmount_dump_map_page(uint32_t id, uint32_t map_block,
+                                         uint32_t map_pageoff,
+                                         uint32_t map_page,
+                                         const char *target)
+{
+    int32_t body_rc;
+    int32_t oob_rc;
+    int32_t rc;
+    const uint8_t *body;
+    const uint8_t *oob;
+
+    memset(ftl_buffer, 0, sizeof(ftl_buffer));
+    memset(&ftl_sparebuffer[0], 0, sizeof(ftl_sparebuffer[0]));
+    oob_rc = nano3g_nand_diag_local_read(0, map_page, 0x800,
+                                         (uint32_t *)&ftl_sparebuffer[0],
+                                         0x10);
+    body_rc = nano3g_nand_diag_local_read(0, map_page, 0,
+                                          (uint32_t *)ftl_buffer,
+                                          0x800 / sizeof(uint32_t));
+    body = (const uint8_t *)ftl_buffer;
+    oob = (const uint8_t *)&ftl_sparebuffer[0];
+    rc = body_rc != 0 ? body_rc : oob_rc;
+
+    FTL_PROGRESS("N3GD_DUMP_MAP b=%lu p=%lu",
+                 (unsigned long)map_block, (unsigned long)map_pageoff);
+    FTL_PROGRESS("N3GD_TARGET target=%s kind=map b=%lu p=%lu j=4294967295 v=ffff resolved_block=%lu resolved_page=%lu rc=%ld",
+                 target, (unsigned long)map_block,
+                 (unsigned long)map_pageoff, (unsigned long)map_block,
+                 (unsigned long)map_pageoff, (long)rc);
+    FTL_PROGRESS("N3GM_MAP_SEEN b=%lu p=%lu t=%02x u=%08lx ix=%04x rc=%ld",
+                 (unsigned long)map_block, (unsigned long)map_pageoff,
+                 ftl_sparebuffer[0].meta.type,
+                 (unsigned long)ftl_sparebuffer[0].meta.usn,
+                 ftl_sparebuffer[0].meta.idx, (long)rc);
+    FTL_PROGRESS("N3GD_BEGIN id=%lu target=%s kind=map j=4294967295 v=ffff po=%lu sl=4294967295 l0=ffffffff tgt=ffffffff bank=0 pb=%lu pp=%lu phy=%lu rc=%ld t=%02x l=%08lx u=%08lx ix=%04x",
+                 (unsigned long)id, target,
+                 (unsigned long)map_pageoff,
+                 (unsigned long)map_block, (unsigned long)map_pageoff,
+                 (unsigned long)map_page, (long)rc,
+                 ftl_sparebuffer[0].meta.type,
+                 (unsigned long)ftl_sparebuffer[0].user.lpn,
+                 (unsigned long)ftl_sparebuffer[0].meta.usn,
+                 ftl_sparebuffer[0].meta.idx);
+    for (uint32_t off = 0; off < 0x800; off += 16)
+        ftl_n3g_wmount_dump_hex16("BODY", target, id, off, body + off);
+    for (uint32_t off = 0; off < sizeof(ftl_sparebuffer[0]); off += 16)
+        ftl_n3g_wmount_dump_hex16("OOB", target, id, off, oob + off);
+    FTL_PROGRESS("N3GD_END id=%lu", (unsigned long)id);
+}
+
+static uint32_t ftl_n3g_wmount_dump_candidate_seen(uint32_t *seen_j,
+                                                   uint32_t *seen_po,
+                                                   uint32_t count,
+                                                   uint32_t j,
+                                                   uint32_t po)
+{
+    for (uint32_t i = 0; i < count; i++)
+        if (seen_j[i] == j && seen_po[i] == po)
+            return 1;
+    return 0;
+}
+
+static uint32_t ftl_n3g_wmount_dump_vpo_seen(uint32_t *seen_v,
+                                             uint32_t *seen_po,
+                                             uint32_t count,
+                                             uint32_t v,
+                                             uint32_t po)
+{
+    for (uint32_t i = 0; i < count; i++)
+        if (seen_v[i] == v && seen_po[i] == po)
+            return 1;
+    return 0;
+}
+
+static void ftl_n3g_wmount_dump_fixed_page(uint32_t *id,
+                                           const char *target,
+                                           uint32_t j,
+                                           uint32_t v,
+                                           uint32_t po,
+                                           uint32_t slot,
+                                           uint32_t l0,
+                                           uint32_t target_lpn)
+{
+    uint32_t bank;
+    uint32_t physpage;
+
+    ftl_n3g_decode_page(v, po, &bank, &physpage);
+    ftl_n3g_wmount_dump_raw_page("page", (*id)++, target, j, v, po, slot,
+                                 l0, target_lpn, bank, physpage);
+}
+
+static void ftl_n3g_wmount_dump_map_candidates(uint32_t *id,
+                                               uint32_t map_block,
+                                               uint32_t map_pageoff,
+                                               uint32_t target_lpn,
+                                               uint32_t mbr_j,
+                                               uint32_t *seen_v,
+                                               uint32_t *seen_po,
+                                               uint32_t *seen_count,
+                                               uint32_t seen_cap)
+{
+    uint32_t map_page = map_block * ftl_nand_type->pagesperblock + map_pageoff;
+    uint32_t map_usn = 0xffffffffu;
+    uint32_t map_type = 0xffu;
+
+    (void)id;
+    (void)seen_v;
+    (void)seen_po;
+    (void)seen_count;
+    (void)seen_cap;
+
+    memset(n3g_direct_probe_map, 0xff, sizeof(n3g_direct_probe_map));
+    memset(&ftl_sparebuffer[0], 0, sizeof(ftl_sparebuffer[0]));
+    if (nano3g_nand_diag_local_read(0, map_page, 0x800,
+                                    (uint32_t *)&ftl_sparebuffer[0],
+                                    0x10) == 0)
+    {
+        map_type = ftl_sparebuffer[0].meta.type;
+        map_usn = ftl_sparebuffer[0].meta.usn;
+    }
+    if (nano3g_nand_diag_local_read(0, map_page, 0,
+                                    (uint32_t *)n3g_direct_probe_map,
+                                    sizeof(n3g_direct_probe_map)
+                                    / sizeof(uint32_t)) != 0)
+    {
+        FTL_PROGRESS("N3GM_MAP_FAIL b=%lu p=%lu",
+                     (unsigned long)map_block,
+                     (unsigned long)map_pageoff);
+        return;
+    }
+
+    FTL_PROGRESS("N3GM_MAP b=%lu p=%lu type=%02lx u=%08lx",
+                 (unsigned long)map_block,
+                 (unsigned long)map_pageoff,
+                 (unsigned long)map_type,
+                 (unsigned long)map_usn);
+
+    for (uint32_t j = 0; j < 0x400; j++)
+    {
+        uint32_t v = n3g_direct_probe_map[j];
+        uint32_t bank;
+        uint32_t physpage;
+        uint32_t l0;
+        uint32_t span = ppb * 4;
+        uint32_t end;
+        uint32_t delta = 0xffffffffu;
+        uint32_t po = 0;
+        uint32_t type;
+        uint32_t interested;
+
+        if (v == 0 || v == 0xffffu)
+            continue;
+
+        ftl_n3g_decode_page(v, 0, &bank, &physpage);
+        memset(&ftl_sparebuffer[0], 0, sizeof(ftl_sparebuffer[0]));
+        if (nand_read_page(bank, physpage, NULL, &ftl_sparebuffer[0], 1, 0) != 0)
+            continue;
+        type = ftl_sparebuffer[0].user.type;
+        if (type != 0x40 && type != 0x41)
+            continue;
+
+        l0 = ftl_sparebuffer[0].user.lpn;
+        end = l0 + span - 1;
+        if (target_lpn >= l0 && target_lpn <= end)
+        {
+            delta = target_lpn - l0;
+            po = delta >> 2;
+        }
+
+        interested = (j == 61 || j == 462 || j == 982 || j == mbr_j
+                   || v == 0x0194u || v == 0x0384u
+                   || v == 0x0383u || v == 0x056bu
+                   || (l0 >= 0x00009c00u && l0 <= 0x0000a200u)
+                   || (end >= 0x00009c00u && l0 <= 0x0000a200u)
+                   || delta != 0xffffffffu);
+        if (!interested)
+            continue;
+
+        FTL_PROGRESS("N3GM_ENTRY mapb=%lu mapp=%lu j=%lu v=%04lx l0=%08lx span=%lu t=%02lx po=%lu tgt=%08lx d=%lu",
+                     (unsigned long)map_block,
+                     (unsigned long)map_pageoff,
+                     (unsigned long)j,
+                     (unsigned long)v,
+                     (unsigned long)l0,
+                     (unsigned long)span,
+                     (unsigned long)type,
+                     (unsigned long)po,
+                     (unsigned long)target_lpn,
+                     (unsigned long)delta);
+    }
+}
+
+static void ftl_n3g_wmount_dump_replay_set(uint32_t map_block,
+                                           uint32_t map_pageoff,
+                                           uint32_t map_page,
+                                           uint32_t mbr_j,
+                                           uint32_t mbr_po,
+                                           uint32_t mbr_slot,
+                                           uint32_t mbr_base_lpn,
+                                           uint32_t target_lpn,
+                                           uint32_t part_type,
+                                           uint32_t part_start,
+                                           uint32_t part_size)
+{
+    static const struct
+    {
+        uint32_t block;
+        uint32_t page;
+        const char *target;
+    } map_targets[] =
+    {
+        { 6916, 0, "map_b6916_p0" },
+        { 6166, 0, "map_b6166_p0" },
+        { 6912, 0, "map_b6912_p0" },
+    };
+    static const struct
+    {
+        uint32_t j;
+        uint32_t v;
+        uint32_t po;
+        uint32_t slot;
+        uint32_t l0;
+        const char *target;
+    } page_targets[] =
+    {
+        { 982, 0x056b, 0, 0, 0x00000000, "page_j982_v056B" },
+        { 61, 0x0384, 287, 0xffffffffu, 0xffffffffu, "page_j61_v0384" },
+        { 61, 0x0194, 0, 0xffffffffu, 0xffffffffu, "page_j61_v0194" },
+        { 462, 0x0383, 287, 0xffffffffu, 0xffffffffu, "page_j462_v0383" },
+    };
+    static const uint32_t test_lbas[] =
+    {
+        0x00000000, 0x00000001, 0x0000003f,
+        0x0000a07c, 0x0000a07e, 0x0000a080
+    };
+    uint32_t id = 1;
+
+    FTL_PROGRESS("N3GD_START profile=winpod_mbr_fat32 target=%08lx ppb=%lu",
+                 (unsigned long)target_lpn, (unsigned long)ppb);
+    FTL_PROGRESS("N3GM_START selected_map_b=%lu selected_map_p=%lu mbr_j=%lu mbr_po=%lu mbr_s1=%lu mbr_l0=%08lx",
+                 (unsigned long)map_block,
+                 (unsigned long)map_pageoff,
+                 (unsigned long)mbr_j,
+                 (unsigned long)mbr_po,
+                 (unsigned long)mbr_slot,
+                 (unsigned long)mbr_base_lpn);
+    FTL_PROGRESS("N3GM_PART p=0 t=%02lx st=%08lx sz=%08lx",
+                 (unsigned long)part_type,
+                 (unsigned long)part_start,
+                 (unsigned long)part_size);
+    FTL_PROGRESS("N3GM_MBR j=%lu v=%04lx po=%lu l0=%08lx",
+                 (unsigned long)mbr_j,
+                 (unsigned long)(mbr_j < ARRAYLEN(ftl_map)
+                    ? ftl_map[mbr_j] : 0xffffu),
+                 (unsigned long)mbr_po,
+                 (unsigned long)mbr_base_lpn);
+    for (uint32_t i = 0; i < ARRAYLEN(test_lbas); i++)
+        FTL_PROGRESS("N3GM_TEST_LBA lba=%08lx", (unsigned long)test_lbas[i]);
+
+    for (uint32_t i = 0; i < ARRAYLEN(map_targets); i++)
+    {
+        uint32_t p = map_targets[i].block * ftl_nand_type->pagesperblock
+                   + map_targets[i].page;
+
+        ftl_n3g_wmount_dump_map_page(id++, map_targets[i].block,
+                                     map_targets[i].page, p,
+                                     map_targets[i].target);
+    }
+
+    if (map_block != 6916 && map_block != 6166 && map_block != 6912)
+    {
+        FTL_PROGRESS("N3GM_SELECTED_MAP_EXTRA b=%lu p=%lu",
+                     (unsigned long)map_block,
+                     (unsigned long)map_pageoff);
+        ftl_n3g_wmount_dump_map_page(id++, map_block, map_pageoff, map_page,
+                                     "map_selected");
+    }
+
+    for (uint32_t i = 0; i < ARRAYLEN(page_targets); i++)
+    {
+        ftl_n3g_wmount_dump_fixed_page(&id, page_targets[i].target,
+                                       page_targets[i].j, page_targets[i].v,
+                                       page_targets[i].po,
+                                       page_targets[i].slot,
+                                       page_targets[i].l0, target_lpn);
+    }
+
+    for (uint32_t i = 0; i < ARRAYLEN(map_targets); i++)
+    {
+        ftl_n3g_wmount_dump_map_candidates(&id, map_targets[i].block,
+                                           map_targets[i].page,
+                                           target_lpn, mbr_j,
+                                           NULL, NULL, NULL, 0);
+    }
+
+    FTL_PROGRESS("N3GD_DONE pages=%lu", (unsigned long)(id - 1));
+}
+
+static uint32_t ftl_n3g_wmount_probe_l0_range(const char *tag,
+                                              uint32_t target_lpn,
+                                              uint32_t host_lpn,
+                                              uint32_t part_size,
+                                              uint32_t *fat_j,
+                                              uint32_t *fat_po)
+{
+    uint32_t hits = 0;
+    uint32_t prints = 0;
+
+    FTL_PROGRESS("N3G_WMOUNT_RLOOK %s l=%08lx",
+                 tag, (unsigned long)target_lpn);
+
+    for (uint32_t j = 0; j < n3g_direct_map_loaded_entries; j++)
+    {
+        uint32_t lpn0;
+        uint32_t delta;
+        uint32_t po;
+        uint32_t slot;
+        uint32_t v = ftl_map[j];
+        uint32_t bank;
+        uint32_t physpage;
+        uint32_t rc;
+        uint8_t *b = (uint8_t *)ftl_buffer;
+        uint16_t *h = (uint16_t *)ftl_buffer;
+        uint32_t sig;
+        uint32_t bps;
+        uint32_t spc;
+        uint32_t rsvd;
+        uint32_t nfats;
+        uint32_t total;
+        uint32_t fat;
+        uint32_t reason;
+
+        if (v == 0 || v == 0xffffu)
+            continue;
+        if (ftl_n3g_wmount_known_bad_j(j))
+            continue;
+        if (ftl_n3g_wmount_map_lpn0(j, &lpn0) != 0)
+            continue;
+        if (target_lpn < lpn0)
+            continue;
+
+        delta = target_lpn - lpn0;
+        if (delta >= ppb * 4)
+            continue;
+
+        po = delta >> 2;
+        slot = delta & 3u;
+        ftl_n3g_decode_page(v, po, &bank, &physpage);
+        memset(ftl_buffer, 0, sizeof(ftl_buffer));
+        memset(&ftl_sparebuffer[0], 0, sizeof(ftl_sparebuffer[0]));
+        rc = nand_read_page(bank, physpage, ftl_buffer,
+                            &ftl_sparebuffer[0], 1, 0);
+        if (rc != 0)
+            continue;
+
+        sig = h[((slot * 0x200) + 0x1fe) >> 1];
+        reason = ftl_n3g_wmount_bpb_reason(b + slot * 0x200,
+                                           part_size, &bps, &spc, &rsvd,
+                                           &nfats, &total, &fat);
+        uint32_t score = (sig == 0xaa55 ? 0x1000 : 0)
+                       + (fat ? 0x0800 : 0)
+                       + ((reason & ~0x020u) == 0 ? 0x0400 : 0)
+                       + (bps == 512 || bps == 1024
+                       || bps == 2048 || bps == 4096 ? 0x0200 : 0)
+                       + (0x1ffu - (reason & 0x1ffu));
+        hits++;
+        n3g_wmount_rd_hits++;
+        if (!n3g_wmount_rd_best_valid
+         || score > n3g_wmount_rd_best_score)
+        {
+            n3g_wmount_rd_best_valid = 1;
+            n3g_wmount_rd_best_tag = tag;
+            n3g_wmount_rd_best_j = j;
+            n3g_wmount_rd_best_v = v;
+            n3g_wmount_rd_best_l0 = lpn0;
+            n3g_wmount_rd_best_po = po;
+            n3g_wmount_rd_best_slot = slot;
+            n3g_wmount_rd_best_sig = sig;
+            n3g_wmount_rd_best_reason = reason;
+            n3g_wmount_rd_best_bps = bps;
+            n3g_wmount_rd_best_fat = fat;
+            n3g_wmount_rd_best_type = ftl_sparebuffer[0].user.type;
+            n3g_wmount_rd_best_oob_lpn = ftl_sparebuffer[0].user.lpn;
+            n3g_wmount_rd_best_score = score;
+        }
+        if (prints < 8 || (sig == 0xaa55 && fat))
+        {
+            FTL_PROGRESS("N3G_WMOUNT_RHIT %s j=%lu v=%04lx l0=%08lx po=%lu sl=%lu",
+                         tag, (unsigned long)j, (unsigned long)v,
+                         (unsigned long)lpn0, (unsigned long)po,
+                         (unsigned long)slot);
+            FTL_PROGRESS("N3G_WMOUNT_RB %s t=%02x ol=%08lx sig=%04lx bps=%lu fat=%lu r=%03lx",
+                         tag, ftl_sparebuffer[0].user.type,
+                         (unsigned long)ftl_sparebuffer[0].user.lpn,
+                         (unsigned long)sig, (unsigned long)bps,
+                         (unsigned long)fat, (unsigned long)reason);
+            prints++;
+        }
+
+        if (sig == 0xaa55 && fat && (reason & ~0x020u) == 0)
+        {
+            n3g_direct_boot_valid = 1;
+            n3g_direct_boot_lpn = host_lpn;
+            n3g_direct_boot_vblock = v;
+            n3g_direct_boot_page = po;
+            n3g_direct_boot_slot = slot;
+            *fat_j = j;
+            *fat_po = po;
+            FTL_PROGRESS("N3G_WMOUNT_RMAP %s j=%lu v=%04lx po=%lu sl=%lu",
+                         tag, (unsigned long)j, (unsigned long)v,
+                         (unsigned long)po, (unsigned long)slot);
+            return 1;
+        }
+
+        if (sig != 0xaa55)
+        {
+            n3g_wmount_rd_rej_sig++;
+            if (sig == 0)
+                n3g_wmount_rd_rej_zero++;
+        }
+        else if (!fat)
+            n3g_wmount_rd_rej_fat++;
+        else
+            n3g_wmount_rd_rej_bpb++;
+
+        FTL_PROGRESS("N3G_WMOUNT_RREJ %s j=%lu po=%lu sl=%lu sig=%04lx r=%03lx bps=%lu fat=%lu",
+                     tag, (unsigned long)j, (unsigned long)po,
+                     (unsigned long)slot, (unsigned long)sig,
+                     (unsigned long)reason, (unsigned long)bps,
+                     (unsigned long)fat);
+    }
+
+    FTL_PROGRESS("N3G_WMOUNT_RDONE %s hits=%lu",
+                 tag, (unsigned long)hits);
+    return 0;
+}
+
+static uint32_t ftl_n3g_wmount_probe_cover_window(uint32_t target_lpn,
+                                                  uint32_t host_lpn,
+                                                  uint32_t part_size,
+                                                  uint32_t *fat_j,
+                                                  uint32_t *fat_po)
+{
+    uint32_t entries = 0;
+    uint32_t reads = 0;
+    uint32_t aa55 = 0;
+    uint32_t sane = 0;
+
+    FTL_PROGRESS("N3G_WMOUNT_COV_START tgt=%08lx",
+                 (unsigned long)target_lpn);
+
+    for (uint32_t j = 0; j < n3g_direct_map_loaded_entries; j++)
+    {
+        uint32_t v = ftl_map[j];
+        uint32_t l0;
+        int32_t diff;
+
+        if (v == 0 || v == 0xffffu)
+            continue;
+        if (ftl_n3g_wmount_map_lpn0(j, &l0) != 0)
+            continue;
+
+        diff = (int32_t)target_lpn - (int32_t)l0;
+        if (diff < -4 || diff > 4)
+            continue;
+
+        entries++;
+        FTL_PROGRESS("N3G_WMOUNT_COV_ENTRY j=%lu v=%04lx l0=%08lx d=%ld",
+                     (unsigned long)j, (unsigned long)v,
+                     (unsigned long)l0, (long)diff);
+
+        for (uint32_t po = 288; po <= 292; po++)
+        {
+            uint32_t bank;
+            uint32_t physpage;
+            uint32_t rc;
+            uint8_t *b = (uint8_t *)ftl_buffer;
+            uint16_t *h = (uint16_t *)ftl_buffer;
+
+            if (po >= ppb)
+                continue;
+
+            ftl_n3g_decode_page(v, po, &bank, &physpage);
+            memset(ftl_buffer, 0, sizeof(ftl_buffer));
+            memset(&ftl_sparebuffer[0], 0, sizeof(ftl_sparebuffer[0]));
+            rc = nand_read_page(bank, physpage, ftl_buffer,
+                                &ftl_sparebuffer[0], 1, 0);
+            reads++;
+            if (rc != 0)
+            {
+                FTL_PROGRESS("N3G_WMOUNT_COV_READ j=%lu po=%lu rc=%lu",
+                             (unsigned long)j, (unsigned long)po,
+                             (unsigned long)rc);
+                continue;
+            }
+
+            for (uint32_t slot = 0; slot < 4; slot++)
+            {
+                uint32_t off = slot * 0x200;
+                uint32_t sig = h[(off + 0x1fe) >> 1];
+                uint32_t bps;
+                uint32_t spc;
+                uint32_t rsvd;
+                uint32_t nfats;
+                uint32_t total;
+                uint32_t fat;
+                uint32_t reason = ftl_n3g_wmount_bpb_reason(b + off,
+                                        part_size, &bps, &spc, &rsvd,
+                                        &nfats, &total, &fat);
+                uint32_t sane_bps = bps == 512 || bps == 1024
+                                  || bps == 2048 || bps == 4096;
+
+                if (sig == 0xaa55)
+                    aa55++;
+                if (sane_bps)
+                    sane++;
+
+                FTL_PROGRESS("N3G_WMOUNT_COVP j=%lu po=%lu sl=%lu t=%02x ol=%08lx sig=%04lx bps=%lu fat=%lu r=%03lx",
+                             (unsigned long)j, (unsigned long)po,
+                             (unsigned long)slot,
+                             ftl_sparebuffer[0].user.type,
+                             (unsigned long)ftl_sparebuffer[0].user.lpn,
+                             (unsigned long)sig, (unsigned long)bps,
+                             (unsigned long)fat, (unsigned long)reason);
+
+                if (sig == 0xaa55 && fat && (reason & ~0x020u) == 0)
+                {
+                    n3g_direct_boot_valid = 1;
+                    n3g_direct_boot_lpn = host_lpn;
+                    n3g_direct_boot_vblock = v;
+                    n3g_direct_boot_page = po;
+                    n3g_direct_boot_slot = slot;
+                    *fat_j = j;
+                    *fat_po = po;
+                    FTL_PROGRESS("N3G_WMOUNT_BOOTSECTOR_OK cov j=%lu v=%04lx po=%lu sl=%lu",
+                                 (unsigned long)j, (unsigned long)v,
+                                 (unsigned long)po, (unsigned long)slot);
+                    return 1;
+                }
+            }
+        }
+    }
+
+    FTL_PROGRESS("N3G_WMOUNT_COV_DONE e=%lu r=%lu aa=%lu sane=%lu",
+                 (unsigned long)entries, (unsigned long)reads,
+                 (unsigned long)aa55, (unsigned long)sane);
+    return 0;
+}
+
+static void ftl_n3g_wmount_direct_lba_diag(uint32_t target_lpn,
+                                           uint32_t part_size)
+{
+    uint32_t best_j = 0xffffffffu;
+    uint32_t best_v = 0xffffu;
+    uint32_t best_l0 = 0xffffffffu;
+    uint32_t best_delta = 0xffffffffu;
+    uint32_t covers = 0;
+    uint32_t near_j[6];
+    uint32_t near_v[6];
+    uint32_t near_l0[6];
+    uint32_t near_dist[6];
+
+    for (uint32_t i = 0; i < ARRAYLEN(near_j); i++)
+    {
+        near_j[i] = 0xffffffffu;
+        near_v[i] = 0xffffu;
+        near_l0[i] = 0xffffffffu;
+        near_dist[i] = 0xffffffffu;
+    }
+
+    FTL_PROGRESS("N3G_WMOUNT_DLOOK l=%08lx ppb=%lu",
+                 (unsigned long)target_lpn, (unsigned long)ppb);
+
+    for (uint32_t j = 0; j < n3g_direct_map_loaded_entries; j++)
+    {
+        uint32_t v = ftl_map[j];
+        uint32_t l0;
+        uint32_t end;
+        uint32_t dist;
+
+        if (v == 0 || v == 0xffffu)
+            continue;
+        if (ftl_n3g_wmount_map_lpn0(j, &l0) != 0)
+            continue;
+
+        end = l0 + ppb * 4 - 1;
+        if (target_lpn >= l0 && target_lpn <= end)
+        {
+            uint32_t delta = target_lpn - l0;
+
+            covers++;
+            FTL_PROGRESS("N3G_WMOUNT_DCV j=%lu v=%04lx l0=%08lx end=%08lx d=%lu po=%lu sl=%lu",
+                         (unsigned long)j, (unsigned long)v,
+                         (unsigned long)l0, (unsigned long)end,
+                         (unsigned long)delta,
+                         (unsigned long)(delta >> 2),
+                         (unsigned long)(delta & 3u));
+            if (best_j == 0xffffffffu || l0 > best_l0)
+            {
+                best_j = j;
+                best_v = v;
+                best_l0 = l0;
+                best_delta = delta;
+            }
+        }
+
+        if (target_lpn < l0)
+            dist = l0 - target_lpn;
+        else if (target_lpn > end)
+            dist = target_lpn - end;
+        else
+            dist = 0;
+
+        for (uint32_t n = 0; n < ARRAYLEN(near_j); n++)
+        {
+            if (dist >= near_dist[n])
+                continue;
+            for (uint32_t m = ARRAYLEN(near_j) - 1; m > n; m--)
+            {
+                near_j[m] = near_j[m - 1];
+                near_v[m] = near_v[m - 1];
+                near_l0[m] = near_l0[m - 1];
+                near_dist[m] = near_dist[m - 1];
+            }
+            near_j[n] = j;
+            near_v[n] = v;
+            near_l0[n] = l0;
+            near_dist[n] = dist;
+            break;
+        }
+    }
+
+    if (best_j != 0xffffffffu)
+    {
+        uint32_t po = best_delta >> 2;
+        uint32_t slot = best_delta & 3u;
+        uint32_t bank;
+        uint32_t physpage;
+        uint32_t pb;
+        uint32_t pp;
+        uint32_t rc;
+        uint32_t off = slot * 0x200;
+        uint8_t *b = (uint8_t *)ftl_buffer;
+        uint16_t *h = (uint16_t *)ftl_buffer;
+        uint32_t sig;
+        uint32_t bps;
+        uint32_t spc;
+        uint32_t rsvd;
+        uint32_t nfats;
+        uint32_t total;
+        uint32_t fat;
+        uint32_t reason;
+
+        ftl_n3g_decode_page(best_v, po, &bank, &physpage);
+        pb = physpage / ftl_nand_type->pagesperblock;
+        pp = physpage % ftl_nand_type->pagesperblock;
+        memset(ftl_buffer, 0, sizeof(ftl_buffer));
+        memset(&ftl_sparebuffer[0], 0, sizeof(ftl_sparebuffer[0]));
+        rc = nand_read_page(bank, physpage, ftl_buffer,
+                            &ftl_sparebuffer[0], 1, 0);
+        FTL_PROGRESS("N3G_WMOUNT_DSEL j=%lu v=%04lx l0=%08lx d=%lu po=%lu sl=%lu",
+                     (unsigned long)best_j, (unsigned long)best_v,
+                     (unsigned long)best_l0, (unsigned long)best_delta,
+                     (unsigned long)po, (unsigned long)slot);
+        FTL_PROGRESS("N3G_WMOUNT_DPHY bank=%lu pb=%lu pp=%lu phy=%lu rc=%lu",
+                     (unsigned long)bank, (unsigned long)pb,
+                     (unsigned long)pp, (unsigned long)physpage,
+                     (unsigned long)rc);
+        if (rc == 0)
+        {
+            sig = h[(off + 0x1fe) >> 1];
+            reason = ftl_n3g_wmount_bpb_reason(b + off, part_size, &bps,
+                                               &spc, &rsvd, &nfats, &total,
+                                               &fat);
+            FTL_PROGRESS("N3G_WMOUNT_DOOB t=%02x l=%08lx sig=%04lx",
+                         ftl_sparebuffer[0].user.type,
+                         (unsigned long)ftl_sparebuffer[0].user.lpn,
+                         (unsigned long)sig);
+            FTL_PROGRESS("N3G_WMOUNT_D0 %02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x",
+                         b[off + 0], b[off + 1], b[off + 2], b[off + 3],
+                         b[off + 4], b[off + 5], b[off + 6], b[off + 7],
+                         b[off + 8], b[off + 9], b[off + 10], b[off + 11],
+                         b[off + 12], b[off + 13], b[off + 14], b[off + 15]);
+            FTL_PROGRESS("N3G_WMOUNT_D1 %02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x",
+                         b[off + 16], b[off + 17], b[off + 18],
+                         b[off + 19], b[off + 20], b[off + 21],
+                         b[off + 22], b[off + 23], b[off + 24],
+                         b[off + 25], b[off + 26], b[off + 27],
+                         b[off + 28], b[off + 29], b[off + 30],
+                         b[off + 31]);
+            FTL_PROGRESS("N3G_WMOUNT_DBPB 0B=%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x",
+                         b[off + 0x0b], b[off + 0x0c], b[off + 0x0d],
+                         b[off + 0x0e], b[off + 0x0f], b[off + 0x10],
+                         b[off + 0x11], b[off + 0x12], b[off + 0x13],
+                         b[off + 0x14], b[off + 0x15], b[off + 0x16],
+                         b[off + 0x17], b[off + 0x18], b[off + 0x19],
+                         b[off + 0x1a]);
+            FTL_PROGRESS("N3G_WMOUNT_DFAT 52=%02x%02x%02x%02x%02x%02x%02x%02x sg=%02x%02x",
+                         b[off + 0x52], b[off + 0x53],
+                         b[off + 0x54], b[off + 0x55],
+                         b[off + 0x56], b[off + 0x57],
+                         b[off + 0x58], b[off + 0x59],
+                         b[off + 0x1fe], b[off + 0x1ff]);
+            FTL_PROGRESS("N3G_WMOUNT_DSUM r=%03lx bps=%lu spc=%lu rs=%lu nf=%lu ts=%lu fat=%lu",
+                         (unsigned long)reason, (unsigned long)bps,
+                         (unsigned long)spc, (unsigned long)rsvd,
+                         (unsigned long)nfats, (unsigned long)total,
+                         (unsigned long)fat);
+        }
+    }
+    else
+    {
+        FTL_PROGRESS("N3G_WMOUNT_DNOCOVER n=%lu", (unsigned long)covers);
+    }
+
+    for (uint32_t n = 0; n < ARRAYLEN(near_j); n++)
+    {
+        if (near_j[n] == 0xffffffffu)
+            continue;
+        FTL_PROGRESS("N3G_WMOUNT_DNEAR n=%lu j=%lu v=%04lx l0=%08lx dist=%lu",
+                     (unsigned long)n, (unsigned long)near_j[n],
+                     (unsigned long)near_v[n], (unsigned long)near_l0[n],
+                     (unsigned long)near_dist[n]);
+    }
+    FTL_PROGRESS("N3G_WMOUNT_DDONE covers=%lu", (unsigned long)covers);
+}
+
+static uint32_t ftl_n3g_direct_mount(void)
+{
+    const uint32_t map_block = 6916;
+    const uint32_t map_page = map_block * ftl_nand_type->pagesperblock;
+    uint32_t map_usn;
+    uint32_t map_idx;
+    uint32_t map0 = 0xffffu;
+    uint32_t min_lpn = 0xffffffffu;
+    uint32_t min_j = 0xffffffffu;
+    uint32_t min_v = 0xffffffffu;
+    uint32_t max_lpn = 0;
+    uint32_t raw_users = 0;
+    uint32_t l0_hits = 0;
+    uint32_t l0_scans = 0;
+    uint32_t l0_j = 0xffffffffu;
+    uint32_t l0_v = 0xffffffffu;
+    uint32_t l0_po = 0xffffffffu;
+    uint32_t low_prints = 0;
+
+    n3g_direct_map_mount = 0;
+    n3g_direct_map_count = 0;
+    n3g_direct_map_min_lblock = 0xffffffffu;
+    n3g_direct_map_max_lblock = 0;
+    memset(ftl_map, 0xff, sizeof(ftl_map));
+    for (uint32_t i = 0; i < ARRAYLEN(n3g_direct_l0_vblock); i++)
+    {
+        n3g_direct_l0_vblock[i] = 0xffffu;
+        n3g_direct_l0_page[i] = 0xffffu;
+    }
+    for (uint32_t i = 0; i < ARRAYLEN(n3g_direct_l0_cache); i++)
+        n3g_direct_l0_cache[i] = 0xffffffffu;
+
+    FTL_PROGRESS("N3G_DIRECT_START");
+
+    memset(ftl_buffer, 0, sizeof(ftl_buffer));
+    memset(&ftl_sparebuffer[0], 0, sizeof(ftl_sparebuffer[0]));
+    if (nano3g_nand_diag_local_read(0, map_page, 0x800,
+                                    (uint32_t *)&ftl_sparebuffer[0],
+                                    0x10) != 0)
+    {
+        FTL_PROGRESS("N3G_DIRECT_FAIL mapoob");
+        return -1;
+    }
+    if (nano3g_nand_diag_local_read(0, map_page, 0,
+                                    (uint32_t *)ftl_buffer,
+                                    0x800 / sizeof(uint32_t)) != 0)
+    {
+        FTL_PROGRESS("N3G_DIRECT_FAIL mapbody");
+        return -1;
+    }
+
+    map_usn = ftl_sparebuffer[0].meta.usn;
+    map_idx = ftl_sparebuffer[0].meta.idx;
+    if (ftl_sparebuffer[0].meta.type != 0x44)
+    {
+        FTL_PROGRESS("N3G_DIRECT_FAIL t=%02x ix=%04x u=%08lx",
+                     ftl_sparebuffer[0].meta.type,
+                     ftl_sparebuffer[0].meta.idx,
+                     (unsigned long)map_usn);
+        return -1;
+    }
+
+    const uint16_t *map = (const uint16_t *)ftl_buffer;
+    for (uint32_t j = 0; j < 0x800 / sizeof(uint16_t); j++)
+    {
+        uint32_t v = map[j];
+        uint32_t bank;
+        uint32_t physpage;
+        uint32_t lpn;
+        uint32_t lblock;
+
+        if (v == 0 || v == 0xffffu)
+            continue;
+
+        ftl_n3g_decode_page(v, 0, &bank, &physpage);
+        memset(&ftl_sparebuffer[0], 0, sizeof(ftl_sparebuffer[0]));
+        if (nand_read_page(bank, physpage, NULL, &ftl_sparebuffer[0],
+                           1, 0) != 0)
+            continue;
+        if (ftl_sparebuffer[0].user.type != 0x40
+         && ftl_sparebuffer[0].user.type != 0x41)
+            continue;
+
+        lpn = ftl_sparebuffer[0].user.lpn;
+        raw_users++;
+        if (lpn < min_lpn)
+        {
+            min_lpn = lpn;
+            min_j = j;
+            min_v = v;
+        }
+        if (lpn > max_lpn)
+            max_lpn = lpn;
+
+        lblock = lpn / ppb;
+        if (lblock >= ftl_nand_type->userblocks)
+            continue;
+        if (ftl_map[lblock] != 0xffffu)
+            continue;
+
+        ftl_map[lblock] = v;
+        n3g_direct_map_count++;
+        if (lblock < n3g_direct_map_min_lblock)
+            n3g_direct_map_min_lblock = lblock;
+        if (lblock > n3g_direct_map_max_lblock)
+            n3g_direct_map_max_lblock = lblock;
+        if (lblock == 0)
+            map0 = v;
+    }
+
+    FTL_PROGRESS("N3G_DIRECT_RAW b=%lu t=44 ix=%04lx u=%08lx ru=%lu mn=%08lx j=%lu v=%04lx mx=%08lx",
+                 (unsigned long)map_block,
+                 (unsigned long)map_idx,
+                 (unsigned long)map_usn,
+                 (unsigned long)raw_users,
+                 (unsigned long)min_lpn,
+                 (unsigned long)min_j,
+                 (unsigned long)min_v,
+                 (unsigned long)max_lpn);
+
+    if (map0 == 0xffffu)
+    {
+        for (uint32_t j = 0; j < 0x800 / sizeof(uint16_t); j++)
+        {
+            uint32_t v = map[j];
+
+            if (v == 0 || v == 0xffffu)
+                continue;
+
+            for (uint32_t po = 0; po < ppb; po++)
+            {
+                uint32_t bank;
+                uint32_t physpage;
+                uint32_t lpn;
+
+                if ((l0_scans & 0x1ffff) == 0)
+                    FTL_PROGRESS("N3G_L0_PROG j=%lu po=%lu",
+                                 (unsigned long)j,
+                                 (unsigned long)po);
+
+                ftl_n3g_decode_page(v, po, &bank, &physpage);
+                memset(&ftl_sparebuffer[0], 0, sizeof(ftl_sparebuffer[0]));
+                if (nand_read_page(bank, physpage, NULL,
+                                   &ftl_sparebuffer[0], 1, 0) != 0)
+                {
+                    l0_scans++;
+                    continue;
+                }
+                l0_scans++;
+
+                if (ftl_sparebuffer[0].user.type != 0x40
+                 && ftl_sparebuffer[0].user.type != 0x41)
+                    continue;
+
+                lpn = ftl_sparebuffer[0].user.lpn;
+                if (lpn >= ppb)
+                    continue;
+                if (lpn >= ARRAYLEN(n3g_direct_l0_vblock))
+                    continue;
+
+                if (n3g_direct_l0_vblock[lpn] == 0xffffu)
+                {
+                    n3g_direct_l0_vblock[lpn] = v;
+                    n3g_direct_l0_page[lpn] = po;
+                    l0_hits++;
+                    if (low_prints < 8)
+                    {
+                        uint32_t body[0x200] STORAGE_ALIGN_ATTR;
+                        uint16_t *h = (uint16_t *)body;
+
+                        memset(body, 0, sizeof(body));
+                        if (nand_read_page(bank, physpage, body,
+                                           &ftl_sparebuffer[0], 1, 0) != 0)
+                            memset(body, 0, sizeof(body));
+                        FTL_PROGRESS("N3G_L0_HIT l=%08lx j=%lu v=%04lx po=%lu sig=%04x,%04x w=%08lx,%08lx",
+                                     (unsigned long)lpn,
+                                     (unsigned long)j,
+                                     (unsigned long)v,
+                                     (unsigned long)po,
+                                     h[0xff], h[0x100],
+                                     (unsigned long)body[0],
+                                     (unsigned long)body[1]);
+                        low_prints++;
+                    }
+                    if (lpn == 0)
+                    {
+                        l0_j = j;
+                        l0_v = v;
+                        l0_po = po;
+                        map0 = v;
+                        ftl_map[0] = v;
+                        if (n3g_direct_map_min_lblock > 0)
+                            n3g_direct_map_min_lblock = 0;
+                        goto l0_done;
+                    }
+                }
+            }
+        }
+
+l0_done:
+        FTL_PROGRESS("N3G_L0_DONE scans=%lu hits=%lu j=%lu v=%04lx po=%lu",
+                     (unsigned long)l0_scans,
+                     (unsigned long)l0_hits,
+                     (unsigned long)l0_j,
+                     (unsigned long)l0_v,
+                     (unsigned long)l0_po);
+        if (map0 == 0xffffu)
+        {
+            FTL_PROGRESS("N3G_DIRECT_FAIL nomap0 cnt=%lu mn=%lu mx=%lu",
+                         (unsigned long)n3g_direct_map_count,
+                         (unsigned long)n3g_direct_map_min_lblock,
+                         (unsigned long)n3g_direct_map_max_lblock);
+            return -1;
+        }
+    }
+
+    n3g_direct_map_mount = 1;
+    FTL_PROGRESS("N3G_DIRECT_MAP b=%lu p=%lu u=%lu mn=%lu mx=%lu m0=%04lx usn=%08lx",
+                 (unsigned long)map_block,
+                 (unsigned long)(map_page % ftl_nand_type->pagesperblock),
+                 (unsigned long)n3g_direct_map_count,
+                 (unsigned long)n3g_direct_map_min_lblock,
+                 (unsigned long)n3g_direct_map_max_lblock,
+                 (unsigned long)map0,
+                 (unsigned long)map_usn);
+
+    memset(ftl_buffer, 0, sizeof(ftl_buffer));
+    int32_t rc = (int32_t)ftl_n3g_direct_read(0, 1, ftl_buffer);
+    FTL_PROGRESS("N3G_DIRECT_S0 rc=%ld t=%02x l=%08lx sig=%04x,%04x w=%08lx,%08lx",
+                 (long)rc,
+                 ftl_sparebuffer[0].user.type,
+                 (unsigned long)ftl_sparebuffer[0].user.lpn,
+                 ((uint16_t *)ftl_buffer)[0xff],
+                 ((uint16_t *)ftl_buffer)[0x100],
+                 (unsigned long)((uint32_t *)ftl_buffer)[0],
+                 (unsigned long)((uint32_t *)ftl_buffer)[1]);
+    if (rc != 0)
+    {
+        n3g_direct_map_mount = 0;
+        return -1;
+    }
+
+    FTL_PROGRESS("N3G_DIRECT_READY");
+    return 0;
+}
+
+static void ftl_n3g_maplow_probe(void)
+{
+    static const uint32_t map_blocks[] = { 6916, 6166, 5914 };
+    uint8_t mapbuf[0x800] STORAGE_ALIGN_ATTR;
+    uint32_t scans = 0;
+    uint32_t hits = 0;
+    uint32_t zero_block = 0xffffffffu;
+    uint32_t zero_j = 0xffffffffu;
+    uint32_t zero_v = 0xffffffffu;
+    uint32_t zero_po = 0xffffffffu;
+
+    FTL_PROGRESS("N3G_MLOW_START");
+
+    for (uint32_t mi = 0; mi < ARRAYLEN(map_blocks); mi++)
+    {
+        uint32_t map_block = map_blocks[mi];
+        uint32_t map_page = map_block * ftl_nand_type->pagesperblock;
+        uint32_t users = 0;
+
+        memset(mapbuf, 0, sizeof(mapbuf));
+        memset(&ftl_sparebuffer[0], 0, sizeof(ftl_sparebuffer[0]));
+        if (nano3g_nand_diag_local_read(0, map_page, 0x800,
+                                        (uint32_t *)&ftl_sparebuffer[0],
+                                        0x10) != 0)
+        {
+            FTL_PROGRESS("N3G_MLOW_MAP b=%lu oob=bad",
+                         (unsigned long)map_block);
+            continue;
+        }
+        if (nano3g_nand_diag_local_read(0, map_page, 0,
+                                        (uint32_t *)mapbuf,
+                                        0x800 / sizeof(uint32_t)) != 0)
+        {
+            FTL_PROGRESS("N3G_MLOW_MAP b=%lu body=bad",
+                         (unsigned long)map_block);
+            continue;
+        }
+        FTL_PROGRESS("N3G_MLOW_MAP b=%lu t=%02x ix=%04x u=%08lx",
+                     (unsigned long)map_block,
+                     ftl_sparebuffer[0].meta.type,
+                     ftl_sparebuffer[0].meta.idx,
+                     (unsigned long)ftl_sparebuffer[0].meta.usn);
+
+        if (ftl_sparebuffer[0].meta.type != 0x44)
+            continue;
+
+        const uint16_t *map = (const uint16_t *)mapbuf;
+        for (uint32_t j = 0; j < 0x800 / sizeof(uint16_t); j++)
+        {
+            uint32_t v = map[j];
+
+            if ((j & 0xff) == 0)
+                FTL_PROGRESS("N3G_MLOW_PROG b=%lu j=%lu",
+                             (unsigned long)map_block,
+                             (unsigned long)j);
+
+            if (v == 0 || v == 0xffffu)
+                continue;
+            users++;
+
+            for (uint32_t po = 0; po < ppb; po++)
+            {
+                uint32_t bank;
+                uint32_t physpage;
+                uint32_t lpn;
+
+                ftl_n3g_decode_page(v, po, &bank, &physpage);
+                memset(&ftl_sparebuffer[0], 0, sizeof(ftl_sparebuffer[0]));
+                if (nand_read_page(bank, physpage, NULL,
+                                   &ftl_sparebuffer[0], 1, 0) != 0)
+                {
+                    scans++;
+                    continue;
+                }
+                scans++;
+
+                if (ftl_sparebuffer[0].user.type != 0x40
+                 && ftl_sparebuffer[0].user.type != 0x41)
+                    continue;
+
+                lpn = ftl_sparebuffer[0].user.lpn;
+                if (lpn >= ppb)
+                    continue;
+
+                if (hits < 16 || lpn == 0)
+                {
+                    uint32_t body[0x200] STORAGE_ALIGN_ATTR;
+                    uint16_t *h = (uint16_t *)body;
+
+                    memset(body, 0, sizeof(body));
+                    if (nand_read_page(bank, physpage, body,
+                                       &ftl_sparebuffer[0], 1, 0) != 0)
+                        memset(body, 0, sizeof(body));
+                    FTL_PROGRESS("N3G_MLOW_HIT mb=%lu l=%08lx j=%lu v=%04lx po=%lu sig=%04x,%04x w=%08lx,%08lx",
+                                 (unsigned long)map_block,
+                                 (unsigned long)lpn,
+                                 (unsigned long)j,
+                                 (unsigned long)v,
+                                 (unsigned long)po,
+                                 h[0xff], h[0x100],
+                                 (unsigned long)body[0],
+                                 (unsigned long)body[1]);
+                }
+                hits++;
+
+                if (lpn == 0)
+                {
+                    zero_block = map_block;
+                    zero_j = j;
+                    zero_v = v;
+                    zero_po = po;
+                    goto mlow_done;
+                }
+            }
+        }
+
+        FTL_PROGRESS("N3G_MLOW_MAPDONE b=%lu users=%lu hits=%lu",
+                     (unsigned long)map_block,
+                     (unsigned long)users,
+                     (unsigned long)hits);
+    }
+
+mlow_done:
+    FTL_PROGRESS("N3G_MLOW_DONE scans=%lu hits=%lu zb=%lu j=%lu v=%04lx po=%lu",
+                 (unsigned long)scans,
+                 (unsigned long)hits,
+                 (unsigned long)zero_block,
+                 (unsigned long)zero_j,
+                 (unsigned long)zero_v,
+                 (unsigned long)zero_po);
+}
+
+static void ftl_n3g_log45_probe(void)
+{
+    static const struct
+    {
+        uint32_t block;
+        uint32_t page;
+    } pages[] =
+    {
+        { 2820, 1 },
+        { 2820, 2 },
+        { 2821, 1 },
+        { 2821, 2 },
+        { 6916, 1 },
+        { 6916, 2 },
+        { 6917, 0 },
+        { 6917, 1 },
+        { 6917, 2 },
+    };
+
+    FTL_PROGRESS("N3G_LOG45_START");
+
+    for (uint32_t i = 0; i < ARRAYLEN(pages); i++)
+    {
+        uint32_t physpage = pages[i].block * ftl_nand_type->pagesperblock
+                          + pages[i].page;
+        uint32_t u16_low = 0;
+        uint32_t u16_ff = 0;
+        uint32_t u32_low = 0;
+        uint32_t u32_pageish = 0;
+        uint32_t nz = 0;
+        uint16_t *h = (uint16_t *)ftl_buffer;
+        uint32_t *w = (uint32_t *)ftl_buffer;
+
+        memset(ftl_buffer, 0, sizeof(ftl_buffer));
+        memset(&ftl_sparebuffer[0], 0, sizeof(ftl_sparebuffer[0]));
+        if (nano3g_nand_diag_local_read(0, physpage, 0x800,
+                                        (uint32_t *)&ftl_sparebuffer[0],
+                                        0x10) != 0)
+        {
+            FTL_PROGRESS("N3G_LOG45 b=%lu p=%lu oob=bad",
+                         (unsigned long)pages[i].block,
+                         (unsigned long)pages[i].page);
+            continue;
+        }
+        if (nano3g_nand_diag_local_read(0, physpage, 0,
+                                        (uint32_t *)ftl_buffer,
+                                        0x800 / sizeof(uint32_t)) != 0)
+        {
+            FTL_PROGRESS("N3G_LOG45 b=%lu p=%lu body=bad",
+                         (unsigned long)pages[i].block,
+                         (unsigned long)pages[i].page);
+            continue;
+        }
+
+        for (uint32_t j = 0; j < 0x800 / sizeof(uint16_t); j++)
+        {
+            if (h[j] != 0)
+                nz++;
+            if (h[j] == 0xffffu)
+                u16_ff++;
+            else if (h[j] < ppb)
+                u16_low++;
+        }
+
+        for (uint32_t j = 0; j < 0x800 / sizeof(uint32_t); j++)
+        {
+            if (w[j] < ppb)
+                u32_low++;
+            if (w[j] < ftl_nand_type->userblocks * ppb)
+                u32_pageish++;
+        }
+
+        FTL_PROGRESS("N3G_LOG45 b=%lu p=%lu t=%02x ix=%04x u=%08lx nz=%lu hlow=%lu hff=%lu wlow=%lu wp=%lu",
+                     (unsigned long)pages[i].block,
+                     (unsigned long)pages[i].page,
+                     ftl_sparebuffer[0].meta.type,
+                     ftl_sparebuffer[0].meta.idx,
+                     (unsigned long)ftl_sparebuffer[0].meta.usn,
+                     (unsigned long)nz,
+                     (unsigned long)u16_low,
+                     (unsigned long)u16_ff,
+                     (unsigned long)u32_low,
+                     (unsigned long)u32_pageish);
+        FTL_PROGRESS("N3G_LOG45_W b=%lu p=%lu %08lx,%08lx,%08lx,%08lx,%08lx,%08lx,%08lx,%08lx",
+                     (unsigned long)pages[i].block,
+                     (unsigned long)pages[i].page,
+                     (unsigned long)w[0],
+                     (unsigned long)w[1],
+                     (unsigned long)w[2],
+                     (unsigned long)w[3],
+                     (unsigned long)w[4],
+                     (unsigned long)w[5],
+                     (unsigned long)w[6],
+                     (unsigned long)w[7]);
+    }
+
+    FTL_PROGRESS("N3G_LOG45_DONE");
+}
+
+static void ftl_n3g_mpage_scan_probe(void)
+{
+    static const uint32_t starts[] = { 7167, 3071 };
+    uint32_t spare[16] STORAGE_ALIGN_ATTR;
+    uint32_t scans = 0;
+    uint32_t hits = 0;
+    uint32_t count44 = 0;
+    uint32_t count45 = 0;
+    uint32_t min44 = 0xffffffffu;
+    uint32_t max44 = 0;
+    uint32_t min45 = 0xffffffffu;
+    uint32_t max45 = 0;
+
+    FTL_PROGRESS("N3G_MPAGE_START");
+
+    for (uint32_t range = 0; range < ARRAYLEN(starts); range++)
+    {
+        for (uint32_t n = 0; n < 2048; n++)
+        {
+            uint32_t block = starts[range] - n;
+
+            if ((n & 0x1ff) == 0)
+                FTL_PROGRESS("N3G_MPAGE_PROG b=%lu",
+                             (unsigned long)block);
+
+            for (uint32_t po = 0; po < 16; po++)
+            {
+                uint32_t page = block * ftl_nand_type->pagesperblock + po;
+                uint8_t *s = (uint8_t *)spare;
+                uint8_t type;
+                uint16_t idx;
+                uint32_t usn;
+
+                memset(spare, 0, sizeof(spare));
+                if (nano3g_nand_diag_local_read(0, page, 0x800,
+                                                spare, ARRAYLEN(spare)) != 0)
+                    continue;
+                scans++;
+
+                type = s[9];
+                if (type != 0x44 && type != 0x45)
+                    continue;
+
+                idx = s[4] | ((uint16_t)s[5] << 8);
+                usn = s[0] | ((uint32_t)s[1] << 8)
+                    | ((uint32_t)s[2] << 16)
+                    | ((uint32_t)s[3] << 24);
+
+                if (type == 0x44)
+                {
+                    count44++;
+                    if (idx < min44)
+                        min44 = idx;
+                    if (idx > max44)
+                        max44 = idx;
+                }
+                else
+                {
+                    count45++;
+                    if (idx < min45)
+                        min45 = idx;
+                    if (idx > max45)
+                        max45 = idx;
+                }
+
+                if (hits < 64)
+                {
+                    FTL_PROGRESS("N3G_MPAGE_HIT t=%02x b=%lu p=%lu ix=%04x u=%08lx w=%08lx,%08lx,%08lx",
+                                 type,
+                                 (unsigned long)block,
+                                 (unsigned long)po,
+                                 idx,
+                                 (unsigned long)usn,
+                                 (unsigned long)spare[0],
+                                 (unsigned long)spare[1],
+                                 (unsigned long)spare[2]);
+                }
+                hits++;
+            }
+        }
+    }
+
+    FTL_PROGRESS("N3G_MPAGE_DONE scans=%lu hits=%lu c44=%lu i44=%lu-%lu c45=%lu i45=%lu-%lu",
+                 (unsigned long)scans,
+                 (unsigned long)hits,
+                 (unsigned long)count44,
+                 (unsigned long)min44,
+                 (unsigned long)max44,
+                 (unsigned long)count45,
+                 (unsigned long)min45,
+                 (unsigned long)max45);
+}
+
+static void ftl_n3g_lpn0_oob_probe(void)
+{
+    static const uint32_t starts[] = { 0, 2048, 4096, 6144 };
+    uint32_t scans = 0;
+    uint32_t hits = 0;
+    uint32_t hit_bank = 0xffffffffu;
+    uint32_t hit_block = 0xffffffffu;
+    uint32_t hit_page = 0xffffffffu;
+    uint32_t hit_lpn = 0xffffffffu;
+    uint32_t hit_type = 0;
+
+    FTL_PROGRESS("N3G_LPN0_START");
+
+    for (uint32_t range = 0; range < ARRAYLEN(starts); range++)
+    {
+        uint32_t end = starts[range] + 2048;
+
+        if (end > ftl_nand_type->blocks)
+            end = ftl_nand_type->blocks;
+
+        for (uint32_t block = starts[range]; block < end; block++)
+        {
+            if (((block - starts[range]) & 0x1ff) == 0)
+                FTL_PROGRESS("N3G_LPN0_PROG b=%lu",
+                             (unsigned long)block);
+
+            for (uint32_t po = 0; po < ftl_nand_type->pagesperblock; po++)
+            {
+                uint32_t physpage = block * ftl_nand_type->pagesperblock + po;
+
+                for (uint32_t bank = 0; bank < ftl_banks; bank++)
+                {
+                    uint32_t lpn;
+                    uint32_t type;
+
+                    memset(&ftl_sparebuffer[0], 0, sizeof(ftl_sparebuffer[0]));
+                    if (nand_read_page(bank, physpage, NULL,
+                                       &ftl_sparebuffer[0], 1, 0) != 0)
+                    {
+                        scans++;
+                        continue;
+                    }
+                    scans++;
+
+                    type = ftl_sparebuffer[0].user.type;
+                    if (type != 0x40 && type != 0x41)
+                        continue;
+
+                    lpn = ftl_sparebuffer[0].user.lpn;
+                    if (lpn >= 0x200)
+                        continue;
+
+                    if (hits < 64 || lpn == 0)
+                    {
+                        uint32_t body[0x200] STORAGE_ALIGN_ATTR;
+                        uint16_t *h = (uint16_t *)body;
+
+                        memset(body, 0, sizeof(body));
+                        if (nand_read_page(bank, physpage, body,
+                                           &ftl_sparebuffer[0], 1, 0) != 0)
+                            memset(body, 0, sizeof(body));
+
+                        FTL_PROGRESS("N3G_LPN0_HIT l=%08lx bk=%lu b=%lu p=%lu t=%02lx sig=%04x,%04x w=%08lx,%08lx",
+                                     (unsigned long)lpn,
+                                     (unsigned long)bank,
+                                     (unsigned long)block,
+                                     (unsigned long)po,
+                                     (unsigned long)type,
+                                     h[0xff], h[0x100],
+                                     (unsigned long)body[0],
+                                     (unsigned long)body[1]);
+                    }
+                    hits++;
+
+                    if (lpn == 0)
+                    {
+                        hit_bank = bank;
+                        hit_block = block;
+                        hit_page = po;
+                        hit_lpn = lpn;
+                        hit_type = type;
+                        goto lpn0_done;
+                    }
+                }
+            }
+        }
+    }
+
+lpn0_done:
+    FTL_PROGRESS("N3G_LPN0_DONE scans=%lu hits=%lu l=%08lx bk=%lu b=%lu p=%lu t=%02lx",
+                 (unsigned long)scans,
+                 (unsigned long)hits,
+                 (unsigned long)hit_lpn,
+                 (unsigned long)hit_bank,
+                 (unsigned long)hit_block,
+                 (unsigned long)hit_page,
+                 (unsigned long)hit_type);
+}
+
+static void ftl_n3g_room892_probe(void)
+{
+    const uint32_t base_physpage = 114176;
+    const uint32_t bank = 0;
+
+    FTL_PROGRESS("N3G_ROOM892_START pp=%lu",
+                 (unsigned long)base_physpage);
+
+    for (int32_t d = -4; d <= 8; d++)
+    {
+        uint32_t physpage = base_physpage + d;
+        uint32_t pblock = physpage / ftl_nand_type->pagesperblock;
+        uint32_t po = physpage % ftl_nand_type->pagesperblock;
+        uint32_t body[0x200] STORAGE_ALIGN_ATTR;
+        uint16_t *h = (uint16_t *)body;
+        int32_t rc;
+
+        memset(body, 0, sizeof(body));
+        memset(&ftl_sparebuffer[0], 0, sizeof(ftl_sparebuffer[0]));
+        rc = (int32_t)nand_read_page(bank, physpage, body,
+                                     &ftl_sparebuffer[0], 1, 0);
+
+        FTL_PROGRESS("N3G_ROOM892 d=%ld bk=%lu pb=%lu po=%lu pp=%lu rc=%ld t=%02x l=%08lx sig=%04x,%04x w=%08lx,%08lx",
+                     (long)d,
+                     (unsigned long)bank,
+                     (unsigned long)pblock,
+                     (unsigned long)po,
+                     (unsigned long)physpage,
+                     (long)rc,
+                     ftl_sparebuffer[0].user.type,
+                     (unsigned long)ftl_sparebuffer[0].user.lpn,
+                     h[0xff], h[0x100],
+                     (unsigned long)body[0],
+                     (unsigned long)body[1]);
+    }
+
+    FTL_PROGRESS("N3G_ROOM892_DONE");
+}
+
+static void ftl_n3g_room892_oob_probe(void)
+{
+    const uint32_t base_physpage = 114176;
+    const uint32_t bank = 0;
+    uint32_t local_spare[16] STORAGE_ALIGN_ATTR;
+
+    FTL_PROGRESS("N3G_R892O_START pp=%lu",
+                 (unsigned long)base_physpage);
+
+    for (int32_t d = -4; d <= 8; d++)
+    {
+        uint32_t physpage = base_physpage + d;
+        uint32_t pblock = physpage / ftl_nand_type->pagesperblock;
+        uint32_t po = physpage % ftl_nand_type->pagesperblock;
+        uint32_t body[0x200] STORAGE_ALIGN_ATTR;
+        uint16_t *h = (uint16_t *)body;
+        int32_t nrc;
+        int32_t orc;
+
+        memset(body, 0, sizeof(body));
+        memset(&ftl_sparebuffer[0], 0, sizeof(ftl_sparebuffer[0]));
+        nrc = (int32_t)nand_read_page(bank, physpage, body,
+                                      &ftl_sparebuffer[0], 1, 0);
+
+        memset(local_spare, 0, sizeof(local_spare));
+        orc = nano3g_nand_diag_local_read(bank, physpage, 0x800,
+                                          local_spare,
+                                          ARRAYLEN(local_spare));
+
+        FTL_PROGRESS("N3G_R892N d=%ld pb=%lu po=%lu rc=%ld t=%02x l=%08lx w2=%08lx sig=%04x,%04x",
+                     (long)d,
+                     (unsigned long)pblock,
+                     (unsigned long)po,
+                     (long)nrc,
+                     ftl_sparebuffer[0].user.type,
+                     (unsigned long)ftl_sparebuffer[0].user.lpn,
+                     (unsigned long)((uint32_t *)&ftl_sparebuffer[0])[2],
+                     h[0xff], h[0x100]);
+        FTL_PROGRESS("N3G_R892L d=%ld rc=%ld t=%02lx l=%08lx w=%08lx,%08lx,%08lx",
+                     (long)d,
+                     (long)orc,
+                     (unsigned long)(((uint8_t *)local_spare)[9]),
+                     (unsigned long)local_spare[0],
+                     (unsigned long)local_spare[0],
+                     (unsigned long)local_spare[1],
+                     (unsigned long)local_spare[2]);
+    }
+
+    FTL_PROGRESS("N3G_R892O_DONE");
+}
+
+static void ftl_n3g_v01d3_probe(void)
+{
+    const uint32_t vblock = 0x01d3;
+    uint32_t local_spare[16] STORAGE_ALIGN_ATTR;
+
+    FTL_PROGRESS("N3G_V01D3_START");
+
+    for (uint32_t po = 0; po < 32; po++)
+    {
+        uint32_t bank;
+        uint32_t physpage;
+        uint32_t pblock;
+        uint32_t pageoff;
+        int32_t nrc;
+        int32_t lrc;
+
+        ftl_n3g_decode_page(vblock, po, &bank, &physpage);
+        pblock = physpage / ftl_nand_type->pagesperblock;
+        pageoff = physpage % ftl_nand_type->pagesperblock;
+
+        memset(&ftl_sparebuffer[0], 0, sizeof(ftl_sparebuffer[0]));
+        nrc = (int32_t)nand_read_page(bank, physpage, NULL,
+                                      &ftl_sparebuffer[0], 1, 0);
+
+        memset(local_spare, 0, sizeof(local_spare));
+        lrc = nano3g_nand_diag_local_read(bank, physpage, 0x800,
+                                          local_spare,
+                                          ARRAYLEN(local_spare));
+
+        FTL_PROGRESS("N3G_V01D3 po=%lu bk=%lu pb=%lu pg=%lu n=%ld/%02x/%08lx l=%ld/%02lx/%08lx",
+                     (unsigned long)po,
+                     (unsigned long)bank,
+                     (unsigned long)pblock,
+                     (unsigned long)pageoff,
+                     (long)nrc,
+                     ftl_sparebuffer[0].user.type,
+                     (unsigned long)ftl_sparebuffer[0].user.lpn,
+                     (long)lrc,
+                     (unsigned long)(((uint8_t *)local_spare)[9]),
+                     (unsigned long)local_spare[0]);
+    }
+
+    FTL_PROGRESS("N3G_V01D3_DONE");
+}
+
+static uint32_t ftl_n3g_shift_lpn(uint32_t w0)
+{
+    return (w0 >> 8) & 0x00ffffffu;
+}
+
+static void ftl_n3g_v01d3_raw_probe(void)
+{
+    const uint32_t vblock = 0x01d3;
+    uint32_t local_spare[16] STORAGE_ALIGN_ATTR;
+    uint32_t body[0x200] STORAGE_ALIGN_ATTR;
+    uint16_t *h = (uint16_t *)body;
+
+    FTL_PROGRESS("N3G_V01R_START");
+
+    for (uint32_t po = 12; po <= 15; po++)
+    {
+        uint32_t bank;
+        uint32_t physpage;
+        uint32_t pblock;
+        uint32_t pageoff;
+        int32_t nrc;
+        int32_t lrc;
+
+        ftl_n3g_decode_page(vblock, po, &bank, &physpage);
+        pblock = physpage / ftl_nand_type->pagesperblock;
+        pageoff = physpage % ftl_nand_type->pagesperblock;
+
+        memset(body, 0, sizeof(body));
+        memset(&ftl_sparebuffer[0], 0, sizeof(ftl_sparebuffer[0]));
+        nrc = (int32_t)nand_read_page(bank, physpage, body,
+                                      &ftl_sparebuffer[0], 1, 0);
+
+        memset(local_spare, 0, sizeof(local_spare));
+        lrc = nano3g_nand_diag_local_read(bank, physpage, 0x800,
+                                          local_spare,
+                                          ARRAYLEN(local_spare));
+
+        FTL_PROGRESS("N3G_V01RN po=%lu bk=%lu pb=%lu pg=%lu rc=%ld sl=%08lx t9=%02lx w=%08lx,%08lx,%08lx sig=%04x",
+                     (unsigned long)po,
+                     (unsigned long)bank,
+                     (unsigned long)pblock,
+                     (unsigned long)pageoff,
+                     (long)nrc,
+                     (unsigned long)ftl_n3g_shift_lpn(((uint32_t *)&ftl_sparebuffer[0])[0]),
+                     (unsigned long)(((uint8_t *)&ftl_sparebuffer[0])[9]),
+                     (unsigned long)((uint32_t *)&ftl_sparebuffer[0])[0],
+                     (unsigned long)((uint32_t *)&ftl_sparebuffer[0])[1],
+                     (unsigned long)((uint32_t *)&ftl_sparebuffer[0])[2],
+                     h[0xff]);
+        FTL_PROGRESS("N3G_V01RL po=%lu rc=%ld sl=%08lx t9=%02lx w=%08lx,%08lx,%08lx",
+                     (unsigned long)po,
+                     (long)lrc,
+                     (unsigned long)ftl_n3g_shift_lpn(local_spare[0]),
+                     (unsigned long)(((uint8_t *)local_spare)[9]),
+                     (unsigned long)local_spare[0],
+                     (unsigned long)local_spare[1],
+                     (unsigned long)local_spare[2]);
+    }
+
+    FTL_PROGRESS("N3G_V01R_DONE");
+}
+
+static void ftl_n3g_map744_probe(void)
+{
+    const uint32_t map_block = 6916;
+    const uint32_t map_page = map_block * ftl_nand_type->pagesperblock;
+    const uint32_t map_index = 744;
+    uint16_t *map = (uint16_t *)ftl_buffer;
+    uint32_t vblock;
+
+    FTL_PROGRESS("N3G_MAP744_START");
+
+    memset(ftl_buffer, 0, sizeof(ftl_buffer));
+    memset(&ftl_sparebuffer[0], 0, sizeof(ftl_sparebuffer[0]));
+    if (nano3g_nand_diag_local_read(0, map_page, 0x800,
+                                    (uint32_t *)&ftl_sparebuffer[0],
+                                    0x10) != 0
+     || nano3g_nand_diag_local_read(0, map_page, 0,
+                                    (uint32_t *)ftl_buffer,
+                                    0x800 / sizeof(uint32_t)) != 0)
+    {
+        FTL_PROGRESS("N3G_MAP744_FAIL mapread");
+        return;
+    }
+
+    vblock = map[map_index];
+    FTL_PROGRESS("N3G_MAP744_MAP t=%02x ix=%04x u=%08lx j=%lu v=%04lx e=%04x,%04x,%04x,%04x",
+                 ftl_sparebuffer[0].meta.type,
+                 ftl_sparebuffer[0].meta.idx,
+                 (unsigned long)ftl_sparebuffer[0].meta.usn,
+                 (unsigned long)map_index,
+                 (unsigned long)vblock,
+                 map[map_index - 2],
+                 map[map_index - 1],
+                 map[map_index + 1],
+                 map[map_index + 2]);
+
+    for (uint32_t po = 0; po < 16; po++)
+    {
+        uint32_t bank;
+        uint32_t physpage;
+        uint32_t pblock;
+        uint32_t pageoff;
+        uint32_t *spw = (uint32_t *)&ftl_sparebuffer[0];
+        int32_t rc;
+
+        ftl_n3g_decode_page(vblock, po, &bank, &physpage);
+        pblock = physpage / ftl_nand_type->pagesperblock;
+        pageoff = physpage % ftl_nand_type->pagesperblock;
+
+        memset(&ftl_sparebuffer[0], 0, sizeof(ftl_sparebuffer[0]));
+        rc = (int32_t)nand_read_page(bank, physpage, NULL,
+                                     &ftl_sparebuffer[0], 1, 0);
+
+        FTL_PROGRESS("N3G_MAP744_P po=%lu bk=%lu pb=%lu pg=%lu rc=%ld w=%08lx,%08lx,%08lx sl=%08lx t9=%02lx",
+                     (unsigned long)po,
+                     (unsigned long)bank,
+                     (unsigned long)pblock,
+                     (unsigned long)pageoff,
+                     (long)rc,
+                     (unsigned long)spw[0],
+                     (unsigned long)spw[1],
+                     (unsigned long)spw[2],
+                     (unsigned long)ftl_n3g_shift_lpn(spw[0]),
+                     (unsigned long)(((uint8_t *)spw)[9]));
+    }
+
+    FTL_PROGRESS("N3G_MAP744_DONE");
+}
+
+static void ftl_n3g_shift0_probe(void)
+{
+    const uint32_t map_block = 6916;
+    const uint32_t map_page = map_block * ftl_nand_type->pagesperblock;
+    uint16_t *map = (uint16_t *)ftl_buffer;
+    uint32_t hits = 0;
+    uint32_t found_j = 0xffffffffu;
+    uint32_t found_v = 0xffffffffu;
+    uint32_t found_po = 0xffffffffu;
+    uint32_t found_bank = 0xffffffffu;
+    uint32_t found_physpage = 0xffffffffu;
+
+    FTL_PROGRESS("N3G_SHIFT0_START");
+
+    memset(ftl_buffer, 0, sizeof(ftl_buffer));
+    memset(&ftl_sparebuffer[0], 0, sizeof(ftl_sparebuffer[0]));
+    if (nano3g_nand_diag_local_read(0, map_page, 0x800,
+                                    (uint32_t *)&ftl_sparebuffer[0],
+                                    0x10) != 0
+     || nano3g_nand_diag_local_read(0, map_page, 0,
+                                    (uint32_t *)ftl_buffer,
+                                    0x800 / sizeof(uint32_t)) != 0)
+    {
+        FTL_PROGRESS("N3G_SHIFT0_FAIL mapread");
+        return;
+    }
+
+    FTL_PROGRESS("N3G_SHIFT0_MAP t=%02x ix=%04x u=%08lx",
+                 ftl_sparebuffer[0].meta.type,
+                 ftl_sparebuffer[0].meta.idx,
+                 (unsigned long)ftl_sparebuffer[0].meta.usn);
+
+    for (uint32_t j = 0; j < 0x800 / sizeof(uint16_t); j++)
+    {
+        uint32_t v = map[j];
+
+        if (v == 0 || v == 0xffffu)
+            continue;
+
+        for (uint32_t po = 0; po < ppb; po++)
+        {
+            uint32_t bank;
+            uint32_t physpage;
+            uint32_t *spw = (uint32_t *)&ftl_sparebuffer[0];
+            uint32_t slpn;
+
+            ftl_n3g_decode_page(v, po, &bank, &physpage);
+            memset(&ftl_sparebuffer[0], 0, sizeof(ftl_sparebuffer[0]));
+            if (nand_read_page(bank, physpage, NULL,
+                               &ftl_sparebuffer[0], 1, 0) != 0)
+                continue;
+
+            slpn = ftl_n3g_shift_lpn(spw[0]);
+            if (slpn >= ppb)
+                continue;
+
+            if (hits < 8)
+                FTL_PROGRESS("N3G_SHIFT0_HIT s=%08lx j=%lu v=%04lx po=%lu w=%08lx",
+                             (unsigned long)slpn,
+                             (unsigned long)j,
+                             (unsigned long)v,
+                             (unsigned long)po,
+                             (unsigned long)spw[0]);
+            hits++;
+
+            if (slpn == 0)
+            {
+                found_j = j;
+                found_v = v;
+                found_po = po;
+                found_bank = bank;
+                found_physpage = physpage;
+                goto shift_found;
+            }
+        }
+    }
+
+shift_found:
+    FTL_PROGRESS("N3G_SHIFT0_FOUND hits=%lu j=%lu v=%04lx po=%lu bk=%lu pp=%lu",
+                 (unsigned long)hits,
+                 (unsigned long)found_j,
+                 (unsigned long)found_v,
+                 (unsigned long)found_po,
+                 (unsigned long)found_bank,
+                 (unsigned long)found_physpage);
+
+    if (found_j != 0xffffffffu)
+    {
+        uint32_t body[0x200] STORAGE_ALIGN_ATTR;
+        uint16_t *h = (uint16_t *)body;
+        int32_t rc;
+
+        memset(body, 0, sizeof(body));
+        memset(&ftl_sparebuffer[0], 0, sizeof(ftl_sparebuffer[0]));
+        rc = (int32_t)nand_read_page(found_bank, found_physpage, body,
+                                     &ftl_sparebuffer[0], 1, 0);
+        FTL_PROGRESS("N3G_SHIFT0_BODY rc=%ld sig=%04x,%04x w=%08lx,%08lx o=%08lx,%08lx,%08lx",
+                     (long)rc,
+                     h[0xff], h[0x100],
+                     (unsigned long)body[0],
+                     (unsigned long)body[1],
+                     (unsigned long)((uint32_t *)&ftl_sparebuffer[0])[0],
+                     (unsigned long)((uint32_t *)&ftl_sparebuffer[0])[1],
+                     (unsigned long)((uint32_t *)&ftl_sparebuffer[0])[2]);
+    }
+
+    FTL_PROGRESS("N3G_SHIFT0_DONE");
+}
+
+static void ftl_n3g_anchor744_probe(void)
+{
+    const uint32_t map_block = 6916;
+    const uint32_t map_page = map_block * ftl_nand_type->pagesperblock;
+    const uint32_t map_index = 744;
+    const uint32_t po = 0;
+    uint16_t *map = (uint16_t *)ftl_buffer;
+    uint32_t spare[16] STORAGE_ALIGN_ATTR;
+    uint32_t body[0x200] STORAGE_ALIGN_ATTR;
+    union ftl_spare_data_type nand_spare STORAGE_ALIGN_ATTR;
+    uint8_t *s = (uint8_t *)spare;
+    uint16_t *h = (uint16_t *)body;
+    uint32_t vblock;
+    uint32_t bank;
+    uint32_t physpage;
+    uint32_t pblock;
+    uint32_t pageoff;
+    uint32_t o0_rc;
+    uint32_t body_rc;
+    uint32_t nand_rc;
+    uint32_t o1_rc;
+    uint32_t ok;
+
+    FTL_PROGRESS("N3G_A744_START");
+
+    memset(ftl_buffer, 0, sizeof(ftl_buffer));
+    memset(&ftl_sparebuffer[0], 0, sizeof(ftl_sparebuffer[0]));
+    if (nano3g_nand_diag_local_read(0, map_page, 0x800,
+                                    (uint32_t *)&ftl_sparebuffer[0],
+                                    0x10) != 0
+     || nano3g_nand_diag_local_read(0, map_page, 0,
+                                    (uint32_t *)ftl_buffer,
+                                    0x800 / sizeof(uint32_t)) != 0)
+    {
+        FTL_PROGRESS("N3G_A744_FAIL mapread");
+        return;
+    }
+
+    vblock = map[map_index];
+    FTL_PROGRESS("N3G_A744_MAP t=%02x ix=%04x u=%08lx j=%lu v=%04lx",
+                 ftl_sparebuffer[0].meta.type,
+                 ftl_sparebuffer[0].meta.idx,
+                 (unsigned long)ftl_sparebuffer[0].meta.usn,
+                 (unsigned long)map_index,
+                 (unsigned long)vblock);
+
+    ftl_n3g_decode_page(vblock, po, &bank, &physpage);
+    pblock = physpage / ftl_nand_type->pagesperblock;
+    pageoff = physpage % ftl_nand_type->pagesperblock;
+    FTL_PROGRESS("N3G_A744_PAGE po=0 bk=%lu pb=%lu pg=%lu pp=%lu",
+                 (unsigned long)bank,
+                 (unsigned long)pblock,
+                 (unsigned long)pageoff,
+                 (unsigned long)physpage);
+
+    memset(spare, 0, sizeof(spare));
+    o0_rc = nano3g_nand_diag_local_read(bank, physpage, 0x800,
+                                        spare, ARRAYLEN(spare));
+    FTL_PROGRESS("N3G_A744_O0 rc=%lu t=%02x l=%08lx w=%08lx,%08lx,%08lx",
+                 (unsigned long)o0_rc,
+                 s[9],
+                 (unsigned long)spare[0],
+                 (unsigned long)spare[0],
+                 (unsigned long)spare[1],
+                 (unsigned long)spare[2]);
+
+    memset(body, 0, sizeof(body));
+    body_rc = nano3g_nand_diag_local_read(bank, physpage, 0,
+                                          body, ARRAYLEN(body));
+    FTL_PROGRESS("N3G_A744_BODY rc=%lu sig=%04x,%04x w=%08lx,%08lx",
+                 (unsigned long)body_rc,
+                 h[0xff], h[0x100],
+                 (unsigned long)body[0],
+                 (unsigned long)body[1]);
+
+    memset(body, 0, sizeof(body));
+    memset(&nand_spare, 0, sizeof(nand_spare));
+    nand_rc = nand_read_page(bank, physpage, body, &nand_spare, 1, 0);
+    FTL_PROGRESS("N3G_A744_NAND rc=%lu t=%02x l=%08lx sig=%04x,%04x w=%08lx,%08lx o=%08lx,%08lx,%08lx",
+                 (unsigned long)nand_rc,
+                 nand_spare.user.type,
+                 (unsigned long)nand_spare.user.lpn,
+                 h[0xff], h[0x100],
+                 (unsigned long)body[0],
+                 (unsigned long)body[1],
+                 (unsigned long)((uint32_t *)&nand_spare)[0],
+                 (unsigned long)((uint32_t *)&nand_spare)[1],
+                 (unsigned long)((uint32_t *)&nand_spare)[2]);
+
+    memset(spare, 0, sizeof(spare));
+    o1_rc = nano3g_nand_diag_local_read(bank, physpage, 0x800,
+                                        spare, ARRAYLEN(spare));
+    FTL_PROGRESS("N3G_A744_O1 rc=%lu t=%02x l=%08lx w=%08lx,%08lx,%08lx",
+                 (unsigned long)o1_rc,
+                 s[9],
+                 (unsigned long)spare[0],
+                 (unsigned long)spare[0],
+                 (unsigned long)spare[1],
+                 (unsigned long)spare[2]);
+
+    ok = ((spare[0] == 0x800 || nand_spare.user.lpn == 0x800)
+       && (h[0xff] == 0xf833 || h[0x100] == 0xf833));
+    FTL_PROGRESS("N3G_A744_DONE ok=%lu", (unsigned long)ok);
+}
+
+static uint32_t ftl_n3g_offset_mount(void)
+{
+    const uint32_t map_block = 6916;
+    const uint32_t map_page = map_block * ftl_nand_type->pagesperblock;
+    const uint32_t base_lpn = 0x800;
+    uint16_t *map = (uint16_t *)ftl_buffer;
+    uint32_t map0 = 0xffffu;
+    uint32_t duplicates = 0;
+    uint32_t exact_count = 0;
+    uint32_t exact_dup = 0;
+
+    FTL_PROGRESS("N3G_DMOUNT_START base=%08lx",
+                 (unsigned long)base_lpn);
+
+    n3g_direct_map_mount = 0;
+    n3g_direct_sector_base = base_lpn;
+    n3g_direct_map_count = 0;
+    n3g_direct_map_min_lblock = 0xffffffffu;
+    n3g_direct_map_max_lblock = 0;
+    memset(ftl_map, 0xff, sizeof(ftl_map));
+    for (uint32_t i = 0; i < ARRAYLEN(n3g_direct_l0_vblock); i++)
+    {
+        n3g_direct_l0_vblock[i] = 0xffffu;
+        n3g_direct_l0_page[i] = 0xffffu;
+    }
+    for (uint32_t i = 0; i < ARRAYLEN(n3g_direct_l0_cache); i++)
+        n3g_direct_l0_cache[i] = 0xffffffffu;
+
+    memset(ftl_buffer, 0, sizeof(ftl_buffer));
+    memset(&ftl_sparebuffer[0], 0, sizeof(ftl_sparebuffer[0]));
+    if (nano3g_nand_diag_local_read(0, map_page, 0x800,
+                                    (uint32_t *)&ftl_sparebuffer[0],
+                                    0x10) != 0
+     || nano3g_nand_diag_local_read(0, map_page, 0,
+                                    (uint32_t *)ftl_buffer,
+                                    0x800 / sizeof(uint32_t)) != 0)
+    {
+        FTL_PROGRESS("N3G_DMOUNT_FAIL mapread");
+        return -1;
+    }
+
+    FTL_PROGRESS("N3G_DMOUNT_MAP t=%02x ix=%04x u=%08lx",
+                 ftl_sparebuffer[0].meta.type,
+                 ftl_sparebuffer[0].meta.idx,
+                 (unsigned long)ftl_sparebuffer[0].meta.usn);
+    if (ftl_sparebuffer[0].meta.type != 0x44)
+        return -1;
+
+    for (uint32_t j = 0; j < 0x800 / sizeof(uint16_t); j++)
+    {
+        uint32_t v = map[j];
+        uint32_t bank;
+        uint32_t physpage;
+        uint32_t lpn;
+        uint32_t lblock;
+
+        if (v == 0 || v == 0xffffu)
+            continue;
+
+        ftl_n3g_decode_page(v, 0, &bank, &physpage);
+        memset(&ftl_sparebuffer[0], 0, sizeof(ftl_sparebuffer[0]));
+        if (nand_read_page(bank, physpage, NULL,
+                           &ftl_sparebuffer[0], 1, 0) != 0)
+            continue;
+        if (ftl_sparebuffer[0].user.type != 0x40
+         && ftl_sparebuffer[0].user.type != 0x41)
+            continue;
+
+        lpn = ftl_sparebuffer[0].user.lpn;
+        lblock = lpn / ppb;
+        if (lblock >= ftl_nand_type->userblocks)
+            continue;
+        if (ftl_map[lblock] != 0xffffu)
+        {
+            duplicates++;
+            continue;
+        }
+
+        ftl_map[lblock] = v;
+        n3g_direct_map_count++;
+        if (lblock < n3g_direct_map_min_lblock)
+            n3g_direct_map_min_lblock = lblock;
+        if (lblock > n3g_direct_map_max_lblock)
+            n3g_direct_map_max_lblock = lblock;
+        if (lblock == (base_lpn / ppb))
+            map0 = v;
+    }
+
+    /*
+     * Seed the exact first host page from the stable anchor before doing any
+     * wider exact-page discovery. The full 1024*ppb scan is too slow/noisy for
+     * the bootloader screen and can be reintroduced with progress once this
+     * anchor proves the read path.
+     */
+    n3g_direct_l0_vblock[0] = map[744];
+    n3g_direct_l0_page[0] = 0;
+    exact_count = 1;
+
+    FTL_PROGRESS("N3G_DMOUNT_INV n=%lu dup=%lu mn=%lu mx=%lu b0=%lu v=%04lx",
+                 (unsigned long)n3g_direct_map_count,
+                 (unsigned long)duplicates,
+                 (unsigned long)n3g_direct_map_min_lblock,
+                 (unsigned long)n3g_direct_map_max_lblock,
+                 (unsigned long)(base_lpn / ppb),
+                 (unsigned long)map0);
+    FTL_PROGRESS("N3G_DMOUNT_EXACT n=%lu dup=%lu p0v=%04x p0po=%u",
+                 (unsigned long)exact_count,
+                 (unsigned long)exact_dup,
+                 n3g_direct_l0_vblock[0],
+                 n3g_direct_l0_page[0]);
+    if (n3g_direct_l0_vblock[0] == 0xffffu)
+    {
+        FTL_PROGRESS("N3G_DMOUNT_FAIL nobase");
+        return -1;
+    }
+
+    n3g_direct_map_mount = 1;
+
+    memset(ftl_buffer, 0, sizeof(ftl_buffer));
+    int32_t rc = (int32_t)ftl_n3g_direct_read(0, 1, ftl_buffer);
+    FTL_PROGRESS("N3G_DMOUNT_S0 rc=%ld t=%02x l=%08lx sig=%04x,%04x w=%08lx,%08lx",
+                 (long)rc,
+                 ftl_sparebuffer[0].user.type,
+                 (unsigned long)ftl_sparebuffer[0].user.lpn,
+                 ((uint16_t *)ftl_buffer)[0xff],
+                 ((uint16_t *)ftl_buffer)[0x100],
+                 (unsigned long)((uint32_t *)ftl_buffer)[0],
+                 (unsigned long)((uint32_t *)ftl_buffer)[1]);
+    if (rc != 0)
+    {
+        n3g_direct_map_mount = 0;
+        return -1;
+    }
+
+    FTL_PROGRESS("N3G_DMOUNT_READY");
+    return 0;
+}
+
+static uint32_t ftl_n3g_bootsig_probe(void)
+{
+    const uint32_t map_block = 6916;
+    const uint32_t map_page = map_block * ftl_nand_type->pagesperblock;
+    static const uint32_t js[] = { 744, 569, 5, 27, 207, 953 };
+    uint16_t *map = (uint16_t *)ftl_buffer;
+    uint32_t hits = 0;
+
+    FTL_PROGRESS("N3G_BSIG_START");
+
+    memset(ftl_buffer, 0, sizeof(ftl_buffer));
+    memset(&ftl_sparebuffer[0], 0, sizeof(ftl_sparebuffer[0]));
+    if (nano3g_nand_diag_local_read(0, map_page, 0x800,
+                                    (uint32_t *)&ftl_sparebuffer[0],
+                                    0x10) != 0
+     || nano3g_nand_diag_local_read(0, map_page, 0,
+                                    (uint32_t *)ftl_buffer,
+                                    0x800 / sizeof(uint32_t)) != 0)
+    {
+        FTL_PROGRESS("N3G_BSIG_FAIL mapread");
+        return -1;
+    }
+
+    FTL_PROGRESS("N3G_BSIG_MAP t=%02x ix=%04x u=%08lx",
+                 ftl_sparebuffer[0].meta.type,
+                 ftl_sparebuffer[0].meta.idx,
+                 (unsigned long)ftl_sparebuffer[0].meta.usn);
+    if (ftl_sparebuffer[0].meta.type != 0x44)
+        return -1;
+
+    for (uint32_t ci = 0; ci < ARRAYLEN(js); ci++)
+    {
+        uint32_t j = js[ci];
+        uint32_t v = map[j];
+
+        if (v == 0 || v == 0xffffu)
+            continue;
+
+        FTL_PROGRESS("N3G_BSIG_CAND j=%lu v=%04lx",
+                     (unsigned long)j, (unsigned long)v);
+
+        for (uint32_t po = 0; po < 16; po++)
+        {
+            uint32_t bank;
+            uint32_t physpage;
+            uint32_t rc;
+            uint16_t *h = (uint16_t *)ftl_buffer;
+            uint32_t sig0, sig1, sig2, sig3;
+
+            ftl_n3g_decode_page(v, po, &bank, &physpage);
+            memset(ftl_buffer, 0, sizeof(ftl_buffer));
+            memset(&ftl_sparebuffer[0], 0, sizeof(ftl_sparebuffer[0]));
+            rc = nand_read_page(bank, physpage, ftl_buffer,
+                                &ftl_sparebuffer[0], 1, 0);
+
+            sig0 = h[0x0ff];
+            sig1 = h[0x1ff];
+            sig2 = h[0x2ff];
+            sig3 = h[0x3ff];
+
+            if (po < 4 || sig0 == 0xaa55 || sig1 == 0xaa55
+             || sig2 == 0xaa55 || sig3 == 0xaa55)
+            {
+                FTL_PROGRESS("N3G_BSIG_P j=%lu po=%lu rc=%lu t=%02x l=%08lx s=%04x,%04x,%04x,%04x w=%08lx",
+                             (unsigned long)j, (unsigned long)po,
+                             (unsigned long)rc,
+                             ftl_sparebuffer[0].user.type,
+                             (unsigned long)ftl_sparebuffer[0].user.lpn,
+                             sig0, sig1, sig2, sig3,
+                             (unsigned long)((uint32_t *)ftl_buffer)[0]);
+            }
+
+            if (sig0 == 0xaa55 || sig1 == 0xaa55
+             || sig2 == 0xaa55 || sig3 == 0xaa55)
+            {
+                hits++;
+                FTL_PROGRESS("N3G_BSIG_HIT j=%lu v=%04lx po=%lu l=%08lx slot=%lu",
+                             (unsigned long)j, (unsigned long)v,
+                             (unsigned long)po,
+                             (unsigned long)ftl_sparebuffer[0].user.lpn,
+                             sig0 == 0xaa55 ? 0UL :
+                             sig1 == 0xaa55 ? 1UL :
+                             sig2 == 0xaa55 ? 2UL : 3UL);
+            }
+        }
+    }
+
+    FTL_PROGRESS("N3G_BSIG_DONE hits=%lu", (unsigned long)hits);
+    return -1;
+}
+
+static uint32_t ftl_n3g_format_probe(void)
+{
+    const uint32_t map_block = 6916;
+    const uint32_t map_page = map_block * ftl_nand_type->pagesperblock;
+    uint16_t *map = (uint16_t *)ftl_buffer;
+    uint32_t scans = 0;
+    uint32_t mbr_hits = 0;
+    uint32_t apm_hits = 0;
+    uint32_t hfs_hits = 0;
+    uint32_t fat_hits = 0;
+    uint32_t printed = 0;
+
+    FTL_PROGRESS("N3G_FMT_START");
+
+    memset(ftl_buffer, 0, sizeof(ftl_buffer));
+    memset(&ftl_sparebuffer[0], 0, sizeof(ftl_sparebuffer[0]));
+    if (nano3g_nand_diag_local_read(0, map_page, 0x800,
+                                    (uint32_t *)&ftl_sparebuffer[0],
+                                    0x10) != 0
+     || nano3g_nand_diag_local_read(0, map_page, 0,
+                                    (uint32_t *)ftl_buffer,
+                                    0x800 / sizeof(uint32_t)) != 0)
+    {
+        FTL_PROGRESS("N3G_FMT_FAIL mapread");
+        return -1;
+    }
+
+    FTL_PROGRESS("N3G_FMT_MAP t=%02x ix=%04x u=%08lx",
+                 ftl_sparebuffer[0].meta.type,
+                 ftl_sparebuffer[0].meta.idx,
+                 (unsigned long)ftl_sparebuffer[0].meta.usn);
+    if (ftl_sparebuffer[0].meta.type != 0x44)
+        return -1;
+
+    memcpy(ftl_map, map, 0x800);
+
+    for (uint32_t j = 0; j < 0x400; j++)
+    {
+        uint32_t v = ftl_map[j];
+
+        if ((j & 0x7f) == 0)
+            FTL_PROGRESS("N3G_FMT_PROG j=%lu", (unsigned long)j);
+
+        if (v == 0 || v == 0xffffu)
+            continue;
+
+        for (uint32_t po = 0; po < 4; po++)
+        {
+            uint32_t bank;
+            uint32_t physpage;
+            uint32_t rc;
+            uint8_t *b = (uint8_t *)ftl_buffer;
+            uint16_t *h = (uint16_t *)ftl_buffer;
+            uint32_t is_mbr;
+            uint32_t is_apm;
+            uint32_t is_hfs;
+            uint32_t is_fat;
+
+            ftl_n3g_decode_page(v, po, &bank, &physpage);
+            memset(ftl_buffer, 0, sizeof(ftl_buffer));
+            memset(&ftl_sparebuffer[0], 0, sizeof(ftl_sparebuffer[0]));
+            rc = nand_read_page(bank, physpage, ftl_buffer,
+                                &ftl_sparebuffer[0], 1, 0);
+            scans++;
+
+            is_mbr = (h[0x0ff] == 0xaa55 || h[0x1ff] == 0xaa55
+                   || h[0x2ff] == 0xaa55 || h[0x3ff] == 0xaa55);
+            is_apm = ((b[0] == 'E' && b[1] == 'R')
+                   || (b[0] == 'P' && b[1] == 'M')
+                   || (b[0x200] == 'P' && b[0x201] == 'M')
+                   || (b[0x400] == 'P' && b[0x401] == 'M')
+                   || (b[0x600] == 'P' && b[0x601] == 'M'));
+            is_hfs = ((b[0x400] == 'H' && (b[0x401] == '+' || b[0x401] == 'X'))
+                   || (b[0] == 'H' && (b[1] == '+' || b[1] == 'X'))
+                   || (b[0x200] == 'H' && (b[0x201] == '+' || b[0x201] == 'X'))
+                   || (b[0x600] == 'H' && (b[0x601] == '+' || b[0x601] == 'X')));
+            is_fat = ((b[0x36] == 'F' && b[0x37] == 'A' && b[0x38] == 'T')
+                   || (b[0x52] == 'F' && b[0x53] == 'A' && b[0x54] == 'T')
+                   || (b[0x236] == 'F' && b[0x237] == 'A' && b[0x238] == 'T')
+                   || (b[0x252] == 'F' && b[0x253] == 'A' && b[0x254] == 'T')
+                   || (b[0x436] == 'F' && b[0x437] == 'A' && b[0x438] == 'T')
+                   || (b[0x452] == 'F' && b[0x453] == 'A' && b[0x454] == 'T')
+                   || (b[0x636] == 'F' && b[0x637] == 'A' && b[0x638] == 'T')
+                   || (b[0x652] == 'F' && b[0x653] == 'A' && b[0x654] == 'T'));
+
+            if (is_mbr)
+                mbr_hits++;
+            if (is_apm)
+                apm_hits++;
+            if (is_hfs)
+                hfs_hits++;
+            if (is_fat)
+                fat_hits++;
+
+            if ((j == 744 && po == 0) || is_mbr || is_apm || is_hfs || is_fat)
+            {
+                if (printed < 20)
+                {
+                    FTL_PROGRESS("N3G_FMT_PAGE j=%lu po=%lu rc=%lu t=%02x l=%08lx b=%02x%02x/%02x%02x/%02x%02x/%02x%02x sig=%04x,%04x,%04x,%04x",
+                                 (unsigned long)j,
+                                 (unsigned long)po,
+                                 (unsigned long)rc,
+                                 ftl_sparebuffer[0].user.type,
+                                 (unsigned long)ftl_sparebuffer[0].user.lpn,
+                                 b[0], b[1], b[0x200], b[0x201],
+                                 b[0x400], b[0x401], b[0x600], b[0x601],
+                                 h[0x0ff], h[0x1ff],
+                                 h[0x2ff], h[0x3ff]);
+                    printed++;
+                }
+            }
+        }
+    }
+
+    if (apm_hits || hfs_hits)
+        FTL_PROGRESS("N3G_FORMAT_GUESS macpod mbr=%lu apm=%lu hfs=%lu fat=%lu scans=%lu",
+                     (unsigned long)mbr_hits, (unsigned long)apm_hits,
+                     (unsigned long)hfs_hits, (unsigned long)fat_hits,
+                     (unsigned long)scans);
+    else if (mbr_hits || fat_hits)
+        FTL_PROGRESS("N3G_FORMAT_GUESS winpod mbr=%lu apm=%lu hfs=%lu fat=%lu scans=%lu",
+                     (unsigned long)mbr_hits, (unsigned long)apm_hits,
+                     (unsigned long)hfs_hits, (unsigned long)fat_hits,
+                     (unsigned long)scans);
+    else
+        FTL_PROGRESS("N3G_FORMAT_GUESS unknown mbr=%lu apm=%lu hfs=%lu fat=%lu scans=%lu",
+                     (unsigned long)mbr_hits, (unsigned long)apm_hits,
+                     (unsigned long)hfs_hits, (unsigned long)fat_hits,
+                     (unsigned long)scans);
+
+    FTL_PROGRESS("N3G_FMT_DONE");
+    return -1;
+}
+
+static uint32_t ftl_n3g_mbr_probe(void)
+{
+    const uint32_t map_block = 6916;
+    const uint32_t map_page = map_block * ftl_nand_type->pagesperblock;
+    uint16_t *map = (uint16_t *)ftl_buffer;
+    uint32_t lpn0_hits = 0;
+    uint32_t mbr_hits = 0;
+    uint32_t best_j = 0xffffffffu;
+    uint32_t best_po = 0xffffffffu;
+    uint32_t best_slot = 0xffffffffu;
+    uint32_t part_start[4] = { 0, 0, 0, 0 };
+    uint32_t part_size[4] = { 0, 0, 0, 0 };
+    uint8_t part_type[4] = { 0, 0, 0, 0 };
+
+    FTL_PROGRESS("N3G_MBR_START");
+
+    memset(ftl_buffer, 0, sizeof(ftl_buffer));
+    memset(&ftl_sparebuffer[0], 0, sizeof(ftl_sparebuffer[0]));
+    if (nano3g_nand_diag_local_read(0, map_page, 0x800,
+                                    (uint32_t *)&ftl_sparebuffer[0],
+                                    0x10) != 0
+     || nano3g_nand_diag_local_read(0, map_page, 0,
+                                    (uint32_t *)ftl_buffer,
+                                    0x800 / sizeof(uint32_t)) != 0)
+    {
+        FTL_PROGRESS("N3G_MBR_FAIL mapread");
+        return -1;
+    }
+
+    FTL_PROGRESS("N3G_MBR_MAP t=%02x ix=%04x u=%08lx",
+                 ftl_sparebuffer[0].meta.type,
+                 ftl_sparebuffer[0].meta.idx,
+                 (unsigned long)ftl_sparebuffer[0].meta.usn);
+    if (ftl_sparebuffer[0].meta.type != 0x44)
+        return -1;
+
+    memcpy(ftl_map, map, 0x800);
+
+    for (uint32_t j = 0; j < 0x400; j++)
+    {
+        uint32_t v = ftl_map[j];
+
+        if ((j & 0xff) == 0)
+            FTL_PROGRESS("N3G_MBR_PROG j=%lu", (unsigned long)j);
+        if (v == 0 || v == 0xffffu)
+            continue;
+
+        for (uint32_t po = 0; po < ppb; po++)
+        {
+            uint32_t bank;
+            uint32_t physpage;
+            uint32_t rc;
+            uint16_t *h = (uint16_t *)ftl_buffer;
+            uint8_t *b = (uint8_t *)ftl_buffer;
+
+            ftl_n3g_decode_page(v, po, &bank, &physpage);
+            memset(ftl_buffer, 0, sizeof(ftl_buffer));
+            memset(&ftl_sparebuffer[0], 0, sizeof(ftl_sparebuffer[0]));
+            rc = nand_read_page(bank, physpage, ftl_buffer,
+                                &ftl_sparebuffer[0], 1, 0);
+            if (rc != 0 || ftl_sparebuffer[0].user.lpn != 0)
+                continue;
+
+            lpn0_hits++;
+
+            for (uint32_t slot = 0; slot < 4; slot++)
+            {
+                uint32_t off = slot * 0x200;
+
+                if (h[(off + 0x1fe) >> 1] != 0xaa55)
+                    continue;
+
+                mbr_hits++;
+                best_j = j;
+                best_po = po;
+                best_slot = slot;
+                FTL_PROGRESS("N3G_MBR_HIT j=%lu po=%lu slot=%lu w=%08lx,%08lx",
+                             (unsigned long)j, (unsigned long)po,
+                             (unsigned long)slot,
+                             (unsigned long)((uint32_t *)(b + off))[0],
+                             (unsigned long)((uint32_t *)(b + off))[1]);
+
+                for (uint32_t p = 0; p < 4; p++)
+                {
+                    uint32_t pe = off + 0x1be + p * 16;
+
+                    part_type[p] = b[pe + 4];
+                    part_start[p] = (uint32_t)b[pe + 8]
+                                  | ((uint32_t)b[pe + 9] << 8)
+                                  | ((uint32_t)b[pe + 10] << 16)
+                                  | ((uint32_t)b[pe + 11] << 24);
+                    part_size[p] = (uint32_t)b[pe + 12]
+                                 | ((uint32_t)b[pe + 13] << 8)
+                                 | ((uint32_t)b[pe + 14] << 16)
+                                 | ((uint32_t)b[pe + 15] << 24);
+                    FTL_PROGRESS("N3G_MBR_PART p=%lu t=%02x st=%08lx sz=%08lx",
+                                 (unsigned long)p, part_type[p],
+                                 (unsigned long)part_start[p],
+                                 (unsigned long)part_size[p]);
+                }
+                goto found_mbr;
+            }
+        }
+    }
+
+found_mbr:
+    if (mbr_hits)
+    {
+        for (uint32_t p = 0; p < 4; p++)
+        {
+            uint32_t targets[2];
+
+            if (part_type[p] == 0 || part_start[p] == 0)
+                continue;
+
+            targets[0] = part_start[p];
+            targets[1] = part_start[p] >> 2;
+            for (uint32_t ti = 0; ti < 2; ti++)
+            {
+                uint32_t target = targets[ti];
+                uint32_t found = 0;
+
+                for (uint32_t j = 0; j < 0x400 && !found; j++)
+                {
+                    uint32_t v = ftl_map[j];
+
+                    if (v == 0 || v == 0xffffu)
+                        continue;
+                    for (uint32_t po = 0; po < 8; po++)
+                    {
+                        uint32_t bank;
+                        uint32_t physpage;
+                        uint32_t rc;
+                        uint8_t *b = (uint8_t *)ftl_buffer;
+                        uint16_t *h = (uint16_t *)ftl_buffer;
+                        uint32_t fat = 0;
+
+                        ftl_n3g_decode_page(v, po, &bank, &physpage);
+                        memset(ftl_buffer, 0, sizeof(ftl_buffer));
+                        memset(&ftl_sparebuffer[0], 0, sizeof(ftl_sparebuffer[0]));
+                        rc = nand_read_page(bank, physpage, ftl_buffer,
+                                            &ftl_sparebuffer[0], 1, 0);
+                        if (rc != 0 || ftl_sparebuffer[0].user.lpn != target)
+                            continue;
+
+                        fat = ((b[0x36] == 'F' && b[0x37] == 'A' && b[0x38] == 'T')
+                            || (b[0x52] == 'F' && b[0x53] == 'A' && b[0x54] == 'T')
+                            || (b[0x236] == 'F' && b[0x237] == 'A' && b[0x238] == 'T')
+                            || (b[0x252] == 'F' && b[0x253] == 'A' && b[0x254] == 'T')
+                            || (b[0x436] == 'F' && b[0x437] == 'A' && b[0x438] == 'T')
+                            || (b[0x452] == 'F' && b[0x453] == 'A' && b[0x454] == 'T')
+                            || (b[0x636] == 'F' && b[0x637] == 'A' && b[0x638] == 'T')
+                            || (b[0x652] == 'F' && b[0x653] == 'A' && b[0x654] == 'T'));
+                        FTL_PROGRESS("N3G_MBR_FAT p=%lu mode=%lu tgt=%08lx j=%lu po=%lu fat=%lu sig=%04x,%04x,%04x,%04x b=%02x%02x",
+                                     (unsigned long)p, (unsigned long)ti,
+                                     (unsigned long)target, (unsigned long)j,
+                                     (unsigned long)po, (unsigned long)fat,
+                                     h[0x0ff], h[0x1ff], h[0x2ff], h[0x3ff],
+                                     b[0], b[1]);
+                        found = 1;
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    if (mbr_hits)
+        FTL_PROGRESS("N3G_FORMAT_GUESS winpod mbr=%lu l0=%lu j=%lu po=%lu slot=%lu",
+                     (unsigned long)mbr_hits, (unsigned long)lpn0_hits,
+                     (unsigned long)best_j, (unsigned long)best_po,
+                     (unsigned long)best_slot);
+    else
+        FTL_PROGRESS("N3G_FORMAT_GUESS unknown mbr=0 l0=%lu",
+                     (unsigned long)lpn0_hits);
+
+    FTL_PROGRESS("N3G_MBR_DONE");
+    return -1;
+}
+
+static uint32_t ftl_n3g_winpod_mount(void)
+{
+    uint32_t map_block = 6916;
+    uint32_t map_page = map_block * ftl_nand_type->pagesperblock;
+    uint32_t map_pageoff = 0;
+    uint16_t *map = (uint16_t *)ftl_buffer;
+    uint8_t mbr_page[0x800] STORAGE_ALIGN_ATTR;
+    struct n3g_wmount_map_candidate selected;
+    uint32_t mbr_found = 0;
+    uint32_t mbr_j = 0xffffffffu;
+    uint32_t mbr_po = 0xffffffffu;
+    uint32_t mbr_slot = 0xffffffffu;
+    uint32_t fat_found = 0;
+    uint32_t fat_j = 0xffffffffu;
+    uint32_t fat_po = 0xffffffffu;
+    uint32_t part_idx = 0xffffffffu;
+    uint32_t part_start = 0;
+    uint32_t part_size = 0;
+    uint32_t map_usn = 0;
+    uint32_t mbr_base_lpn = 0xffffffffu;
+    uint32_t mbr_part_lpn = 0xffffffffu;
+    uint32_t boot_sector_ok = 0;
+    uint8_t part_type = 0;
+
+    FTL_PROGRESS("N3G_WMOUNT_START");
+
+    n3g_direct_map_mount = 0;
+    n3g_direct_mbr_valid = 0;
+    n3g_direct_mbr_j = 0xffffffffu;
+    n3g_direct_mbr_v = 0xffffu;
+    n3g_direct_mbr_po = 0xffffffffu;
+    n3g_direct_boot_valid = 0;
+    n3g_direct_boot_slot = 0;
+    n3g_direct_boot_shift = 0;
+    n3g_direct_fsinfo_valid = 0;
+    n3g_direct_fsinfo_lpn = 0xffffffffu;
+    n3g_wmount_rd_best_valid = 0;
+    n3g_wmount_rd_best_tag = "";
+    n3g_wmount_rd_best_j = 0xffffffffu;
+    n3g_wmount_rd_best_v = 0xffffu;
+    n3g_wmount_rd_best_l0 = 0xffffffffu;
+    n3g_wmount_rd_best_po = 0xffffffffu;
+    n3g_wmount_rd_best_slot = 0xffffffffu;
+    n3g_wmount_rd_best_sig = 0;
+    n3g_wmount_rd_best_reason = 0xffffffffu;
+    n3g_wmount_rd_best_bps = 0;
+    n3g_wmount_rd_best_fat = 0;
+    n3g_wmount_rd_best_type = 0xffu;
+    n3g_wmount_rd_best_oob_lpn = 0xffffffffu;
+    n3g_wmount_rd_best_score = 0;
+    n3g_wmount_rd_hits = 0;
+    n3g_wmount_rd_rej_zero = 0;
+    n3g_wmount_rd_rej_sig = 0;
+    n3g_wmount_rd_rej_fat = 0;
+    n3g_wmount_rd_rej_bpb = 0;
+    n3g_direct_sector_base = 0;
+    n3g_direct_sector_scale = 1;
+    memset(ftl_map, 0xff, sizeof(ftl_map));
+    memset(n3g_direct_mbr, 0, sizeof(n3g_direct_mbr));
+    for (uint32_t i = 0; i < ARRAYLEN(n3g_direct_l0_vblock); i++)
+    {
+        n3g_direct_l0_vblock[i] = 0xffffu;
+        n3g_direct_l0_page[i] = 0xffffu;
+    }
+    for (uint32_t i = 0; i < ARRAYLEN(n3g_direct_l0_cache); i++)
+        n3g_direct_l0_cache[i] = 0xffffffffu;
+
+    if (ftl_n3g_wmount_find_map_cluster(mbr_page, &selected) == 0)
+    {
+        map_block = selected.block;
+        map_pageoff = selected.page;
+        map_page = map_block * ftl_nand_type->pagesperblock + map_pageoff;
+        mbr_j = selected.mbr_j;
+        mbr_po = selected.mbr_po;
+        mbr_slot = selected.mbr_slot;
+        mbr_found = 1;
+    }
+
+    memset(ftl_buffer, 0, sizeof(ftl_buffer));
+    memset(&ftl_sparebuffer[0], 0, sizeof(ftl_sparebuffer[0]));
+    if (nano3g_nand_diag_local_read(0, map_page, 0x800,
+                                    (uint32_t *)&ftl_sparebuffer[0],
+                                    0x10) != 0
+     || nano3g_nand_diag_local_read(0, map_page, 0,
+                                    (uint32_t *)ftl_buffer,
+                                    0x800 / sizeof(uint32_t)) != 0)
+    {
+        FTL_PROGRESS("N3G_WMOUNT_FAIL mapread");
+        return -1;
+    }
+    FTL_PROGRESS("N3G_WMOUNT_MAP t=%02x ix=%04x u=%08lx",
+                 ftl_sparebuffer[0].meta.type,
+                 ftl_sparebuffer[0].meta.idx,
+                 (unsigned long)ftl_sparebuffer[0].meta.usn);
+    if (ftl_sparebuffer[0].meta.type != 0x44)
+        return -1;
+    map_usn = ftl_sparebuffer[0].meta.usn;
+    memcpy(ftl_map, map, 0x800);
+    n3g_direct_map_loaded_entries = 0x400;
+
+    for (uint32_t j = 0; j < 0x400 && !mbr_found; j++)
+    {
+        uint32_t v = ftl_map[j];
+
+        if ((j & 0xff) == 0)
+            FTL_PROGRESS("N3G_WMOUNT_PROG j=%lu", (unsigned long)j);
+        if (v == 0 || v == 0xffffu)
+            continue;
+
+        for (uint32_t po = 0; po < ppb; po++)
+        {
+            uint32_t bank;
+            uint32_t physpage;
+            uint32_t rc;
+            uint8_t *b = (uint8_t *)ftl_buffer;
+            uint16_t *h = (uint16_t *)ftl_buffer;
+
+            ftl_n3g_decode_page(v, po, &bank, &physpage);
+            memset(ftl_buffer, 0, sizeof(ftl_buffer));
+            memset(&ftl_sparebuffer[0], 0, sizeof(ftl_sparebuffer[0]));
+            rc = nand_read_page(bank, physpage, ftl_buffer,
+                                &ftl_sparebuffer[0], 1, 0);
+            if (rc != 0 || ftl_sparebuffer[0].user.lpn != 0)
+                continue;
+
+            for (uint32_t slot = 0; slot < 4; slot++)
+            {
+                uint32_t off = slot * 0x200;
+
+                if (h[(off + 0x1fe) >> 1] != 0xaa55)
+                    continue;
+
+                memcpy(mbr_page, b + off, 0x200);
+                memset(mbr_page + 0x200, 0, 0x600);
+                mbr_j = j;
+                mbr_po = po;
+                mbr_slot = slot;
+                mbr_found = 1;
+                ftl_map[0] = v;
+                n3g_direct_l0_vblock[0] = v;
+                n3g_direct_l0_page[0] = po;
+                FTL_PROGRESS("N3G_WMOUNT_MBR j=%lu po=%lu slot=%lu",
+                             (unsigned long)j, (unsigned long)po,
+                             (unsigned long)slot);
+                break;
+            }
+            if (mbr_found)
+                break;
+        }
+    }
+
+    if (!mbr_found)
+    {
+        FTL_PROGRESS("N3G_WMOUNT_FAIL nombr");
+        return -1;
+    }
+
+    for (uint32_t p = 0; p < 4; p++)
+    {
+        uint32_t pe = 0x1be + p * 16;
+        uint8_t type = mbr_page[pe + 4];
+        uint32_t start = (uint32_t)mbr_page[pe + 8]
+                       | ((uint32_t)mbr_page[pe + 9] << 8)
+                       | ((uint32_t)mbr_page[pe + 10] << 16)
+                       | ((uint32_t)mbr_page[pe + 11] << 24);
+        uint32_t size = (uint32_t)mbr_page[pe + 12]
+                      | ((uint32_t)mbr_page[pe + 13] << 8)
+                      | ((uint32_t)mbr_page[pe + 14] << 16)
+                      | ((uint32_t)mbr_page[pe + 15] << 24);
+
+        FTL_PROGRESS("N3G_WMOUNT_PART p=%lu t=%02x st=%08lx sz=%08lx",
+                     (unsigned long)p, type,
+                     (unsigned long)start, (unsigned long)size);
+        if ((type == 0x0c || type == 0x0b) && start != 0 && size != 0
+         && (part_idx == 0xffffffffu || type == 0x0c))
+        {
+            part_idx = p;
+            part_type = type;
+            part_start = start;
+            part_size = size;
+        }
+    }
+
+    if (part_idx == 0xffffffffu)
+    {
+        FTL_PROGRESS("N3G_WMOUNT_FAIL nopart");
+        return -1;
+    }
+    FTL_PROGRESS("N3G_WMOUNT_USEPART p=%lu t=%02x st=%08lx sz=%08lx",
+                 (unsigned long)part_idx, part_type,
+                 (unsigned long)part_start, (unsigned long)part_size);
+
+    ftl_n3g_wmount_load_map_pages(map_block, map_usn);
+
+    if (ftl_n3g_wmount_map_lpn0(mbr_j, &mbr_base_lpn) == 0)
+    {
+        mbr_part_lpn = mbr_base_lpn + part_start;
+        n3g_direct_sector_base = mbr_base_lpn;
+        n3g_direct_sector_scale = 2;
+    }
+    FTL_PROGRESS("N3G_WMOUNT_MBASE j=%lu l0=%08lx tgt=%08lx",
+                 (unsigned long)mbr_j,
+                 (unsigned long)mbr_base_lpn,
+                 (unsigned long)mbr_part_lpn);
+    FTL_PROGRESS("N3G_WMOUNT_MBR_OK j=%lu v=%04lx po=%lu sl=%lu l0=%08lx sig=AA55",
+                 (unsigned long)mbr_j,
+                 (unsigned long)(mbr_j < ARRAYLEN(ftl_map)
+                    ? ftl_map[mbr_j] : 0xffffu),
+                 (unsigned long)mbr_po,
+                 (unsigned long)mbr_slot,
+                 (unsigned long)mbr_base_lpn);
+    FTL_PROGRESS("N3G_WMOUNT_PART_OK p=%lu t=%02x st=%08lx sz=%08lx",
+                 (unsigned long)part_idx, part_type,
+                 (unsigned long)part_start, (unsigned long)part_size);
+
+    (void)fat_j;
+    (void)fat_po;
+    (void)fat_found;
+
+#if 0
+    const struct n3g_wmount_target targets[] =
+    {
+        { "mbrbase", mbr_part_lpn, 0 },
+        { "exact", part_start, 0 },
+        { "base4", part_start & ~3u, part_start & 3u },
+        { "div4", part_start >> 2, part_start & 3u },
+        { "div2", part_start >> 1, part_start & 1u },
+    };
+
+    ftl_n3g_wmount_scan_maplogs(map_block, map_usn, targets,
+                                ARRAYLEN(targets), part_start,
+                                part_size,
+                                &fat_j, &fat_po);
+    if (n3g_direct_boot_valid)
+        fat_found = 1;
+
+    if (!fat_found
+     && ftl_n3g_wmount_probe_l0_range("exact", part_start, part_start,
+                                      part_size, &fat_j, &fat_po) != 0)
+        fat_found = 1;
+
+    if (!fat_found && mbr_part_lpn != 0xffffffffu
+     && ftl_n3g_wmount_probe_l0_range("mbrbase", mbr_part_lpn, part_start,
+                                      part_size, &fat_j, &fat_po) != 0)
+        fat_found = 1;
+
+    if (!fat_found && mbr_part_lpn != 0xffffffffu
+     && ftl_n3g_wmount_probe_cover_window(mbr_part_lpn, part_start,
+                                          part_size, &fat_j, &fat_po) != 0)
+        fat_found = 1;
+
+    if (!fat_found
+     && ftl_n3g_wmount_try_known_backup(part_start, part_size,
+                                        &fat_j, &fat_po) != 0)
+        fat_found = 1;
+#endif
+
+    if (!fat_found && n3g_wmount_rd_best_valid)
+        FTL_PROGRESS("N3G_WMOUNT_RBEST %s j=%lu v=%04lx po=%lu sl=%lu sig=%04lx r=%03lx",
+                     n3g_wmount_rd_best_tag,
+                     (unsigned long)n3g_wmount_rd_best_j,
+                     (unsigned long)n3g_wmount_rd_best_v,
+                     (unsigned long)n3g_wmount_rd_best_po,
+                     (unsigned long)n3g_wmount_rd_best_slot,
+                     (unsigned long)n3g_wmount_rd_best_sig,
+                     (unsigned long)n3g_wmount_rd_best_reason);
+
+#if 0
+    for (uint32_t i = 0; i < ARRAYLEN(targets) && !fat_found; i++)
+    {
+        uint32_t tj;
+        uint32_t tpo;
+        uint32_t tv;
+        uint32_t tsig;
+        uint32_t tbps;
+        uint32_t tfat;
+        uint32_t trc = ftl_n3g_wmount_probe_target(&targets[i], &tj, &tpo,
+                                                   &tv, &tsig, &tbps, &tfat);
+
+        if (tj == mbr_j && targets[i].lpn == mbr_base_lpn)
+            continue;
+
+        FTL_PROGRESS("N3G_WMOUNT_BSTGT %s rc=%ld l=%08lx sl=%lu j=%lu v=%04lx po=%lu sig=%04lx bps=%lu fat=%lu",
+                     targets[i].name, (long)(int32_t)trc,
+                     (unsigned long)targets[i].lpn,
+                     (unsigned long)targets[i].slot,
+                     (unsigned long)tj, (unsigned long)tv,
+                     (unsigned long)tpo, (unsigned long)tsig,
+                     (unsigned long)tbps, (unsigned long)tfat);
+
+        if (trc == 0)
+        {
+            const uint8_t *b = (const uint8_t *)ftl_buffer;
+            const uint32_t *w = (const uint32_t *)ftl_buffer;
+            uint32_t off = targets[i].slot * 0x200;
+            uint32_t wi = off >> 2;
+            uint32_t oem0 = (uint32_t)b[off + 3]
+                          | ((uint32_t)b[off + 4] << 8)
+                          | ((uint32_t)b[off + 5] << 16)
+                          | ((uint32_t)b[off + 6] << 24);
+            uint32_t oem1 = (uint32_t)b[off + 7]
+                          | ((uint32_t)b[off + 8] << 8)
+                          | ((uint32_t)b[off + 9] << 16)
+                          | ((uint32_t)b[off + 10] << 24);
+            uint32_t fs0 = (uint32_t)b[off + 0x52]
+                         | ((uint32_t)b[off + 0x53] << 8)
+                         | ((uint32_t)b[off + 0x54] << 16)
+                         | ((uint32_t)b[off + 0x55] << 24);
+            uint32_t fs1 = (uint32_t)b[off + 0x56]
+                         | ((uint32_t)b[off + 0x57] << 8)
+                         | ((uint32_t)b[off + 0x58] << 16)
+                         | ((uint32_t)b[off + 0x59] << 24);
+
+            FTL_PROGRESS("N3G_WMOUNT_BSD %s t=%02x ol=%08lx w=%08lx,%08lx,%08lx,%08lx",
+                         targets[i].name, ftl_sparebuffer[0].user.type,
+                         (unsigned long)ftl_sparebuffer[0].user.lpn,
+                         (unsigned long)w[wi],
+                         (unsigned long)w[wi + 1],
+                         (unsigned long)w[wi + 2],
+                         (unsigned long)w[wi + 3]);
+            FTL_PROGRESS("N3G_WMOUNT_BSS %s s=%02x%02x oem=%08lx,%08lx fs=%08lx,%08lx",
+                         targets[i].name, b[off + 0x1fe], b[off + 0x1ff],
+                         (unsigned long)oem0, (unsigned long)oem1,
+                         (unsigned long)fs0, (unsigned long)fs1);
+        }
+
+        if (trc == 0 && tsig == 0xaa55)
+        {
+            uint32_t bps;
+            uint32_t spc;
+            uint32_t rsvd;
+            uint32_t nfats;
+            uint32_t total;
+            uint32_t fat;
+            uint32_t off = targets[i].slot * 0x200;
+            uint32_t reason = ftl_n3g_wmount_bpb_reason(
+                                  (uint8_t *)ftl_buffer + off, part_size,
+                                  &bps, &spc, &rsvd, &nfats, &total, &fat);
+
+            FTL_PROGRESS("N3G_WMOUNT_BSBPB %s r=%03lx bps=%lu spc=%lu rs=%lu nf=%lu ts=%lu fat=%lu",
+                         targets[i].name, (unsigned long)reason,
+                         (unsigned long)bps, (unsigned long)spc,
+                         (unsigned long)rsvd, (unsigned long)nfats,
+                         (unsigned long)total, (unsigned long)fat);
+
+            if (fat && (reason & ~0x020u) == 0)
+            {
+                n3g_direct_boot_valid = 1;
+                n3g_direct_boot_lpn = part_start;
+                n3g_direct_boot_vblock = tv;
+                n3g_direct_boot_page = tpo;
+                n3g_direct_boot_slot = targets[i].slot;
+                fat_j = tj;
+                fat_po = tpo;
+                fat_found = 1;
+                FTL_PROGRESS("N3G_WMOUNT_BOOTSECTOR_OK %s j=%lu v=%04lx po=%lu sl=%lu",
+                             targets[i].name, (unsigned long)tj,
+                             (unsigned long)tv, (unsigned long)tpo,
+                             (unsigned long)targets[i].slot);
+            }
+        }
+    }
+#endif
+
+    uint32_t part_lblock = part_start / ppb;
+    uint32_t part_page = part_start % ppb;
+    for (uint32_t j = 0; j < 0x400 && !fat_found && 0; j++)
+    {
+        uint32_t v = ftl_map[j];
+        uint32_t bank;
+        uint32_t physpage;
+        uint32_t rc;
+        uint32_t lblock;
+
+        if ((j & 0xff) == 0)
+            FTL_PROGRESS("N3G_WMOUNT_BPROG j=%lu", (unsigned long)j);
+        if (v == 0 || v == 0xffffu)
+            continue;
+
+        ftl_n3g_decode_page(v, 0, &bank, &physpage);
+        memset(&ftl_sparebuffer[0], 0, sizeof(ftl_sparebuffer[0]));
+        rc = nand_read_page(bank, physpage, NULL, &ftl_sparebuffer[0], 1, 0);
+        if (rc != 0 || (ftl_sparebuffer[0].user.type != 0x40
+                     && ftl_sparebuffer[0].user.type != 0x41))
+            continue;
+
+        lblock = ftl_sparebuffer[0].user.lpn / ppb;
+        if (lblock != part_lblock)
+            continue;
+
+        ftl_map[part_lblock] = v;
+        fat_j = j;
+        fat_po = part_page;
+        fat_found = 1;
+        FTL_PROGRESS("N3G_WMOUNT_BMAP lb=%lu j=%lu v=%04lx po=%lu l0=%08lx",
+                     (unsigned long)part_lblock, (unsigned long)j,
+                     (unsigned long)v, (unsigned long)part_page,
+                     (unsigned long)ftl_sparebuffer[0].user.lpn);
+    }
+
+    if (0 && !fat_found)
+    {
+        uint32_t scan_low = part_start >= 0x10000 ? part_start - 0x10000 : 0;
+        uint32_t scan_high = part_start + 0x10000;
+        uint32_t ranges = 0;
+        uint32_t reads = 0;
+        uint32_t aa55_hits = 0;
+        uint32_t bps_hits = 0;
+        uint32_t spc_hits = 0;
+        uint32_t rsvd_hits = 0;
+        uint32_t nf_hits = 0;
+        uint32_t fat_hits = 0;
+        uint32_t bpb_hits = 0;
+        uint32_t fat_details = 0;
+        uint32_t aa_details = 0;
+        uint32_t cand_hits = 0;
+        uint32_t reject_reason = 0;
+        uint32_t fat_sane_shift = 0;
+        uint32_t fat_rejects = 0;
+        uint32_t aa_rejects = 0;
+
+        FTL_PROGRESS("N3G_WMOUNT_FXSCAN lo=%08lx hi=%08lx ppb=%lu",
+                     (unsigned long)scan_low,
+                     (unsigned long)scan_high,
+                     (unsigned long)ppb);
+
+        for (uint32_t j = 0; j < n3g_direct_map_loaded_entries
+             && !fat_found; j++)
+        {
+            uint32_t v = ftl_map[j];
+            uint32_t l0;
+            uint32_t first_po;
+            uint32_t last_po;
+
+            if (v == 0 || v == 0xffffu)
+                continue;
+            if (j == mbr_j)
+                continue;
+            if (ftl_n3g_wmount_map_lpn0(j, &l0) != 0)
+                continue;
+            if (l0 > scan_high || l0 + ppb * 4 - 1 < scan_low)
+                continue;
+
+            ranges++;
+            first_po = scan_low > l0 ? (scan_low - l0) >> 2 : 0;
+            last_po = scan_high > l0 ? (scan_high - l0) >> 2 : 0;
+            if (last_po >= ppb)
+                last_po = ppb - 1;
+
+            for (uint32_t po = first_po; po <= last_po && !fat_found; po++)
+            {
+                uint32_t bank;
+                uint32_t physpage;
+                uint32_t rc;
+                uint8_t *b = (uint8_t *)ftl_buffer;
+                uint16_t *h = (uint16_t *)ftl_buffer;
+
+                ftl_n3g_decode_page(v, po, &bank, &physpage);
+                memset(ftl_buffer, 0, sizeof(ftl_buffer));
+                memset(&ftl_sparebuffer[0], 0, sizeof(ftl_sparebuffer[0]));
+                rc = nand_read_page(bank, physpage, ftl_buffer,
+                                    &ftl_sparebuffer[0], 1, 0);
+                reads++;
+                if (rc != 0)
+                    continue;
+
+                for (uint32_t slot = 0; slot < 4 && !fat_found; slot++)
+                {
+                    uint32_t sector_lpn = l0 + po * 4 + slot;
+                    uint32_t off = slot * 0x200;
+                    uint32_t sig = h[(off + 0x1fe) >> 1];
+                    uint32_t bps;
+                    uint32_t spc;
+                    uint32_t rsvd;
+                    uint32_t nfats;
+                    uint32_t total;
+                    uint32_t fat;
+                    uint32_t reason;
+                    uint32_t sane_bps;
+                    uint32_t sane_spc;
+                    uint32_t sane_rsvd;
+                    uint32_t sane_nf;
+                    uint32_t aa55;
+
+                    if (sector_lpn < scan_low || sector_lpn > scan_high)
+                        continue;
+
+                    reason = ftl_n3g_wmount_bpb_reason(b + off, part_size,
+                                    &bps, &spc, &rsvd, &nfats, &total, &fat);
+                    aa55 = sig == 0xaa55;
+                    sane_bps = bps == 512 || bps == 1024
+                            || bps == 2048 || bps == 4096;
+                    sane_spc = spc != 0 && (spc & (spc - 1)) == 0;
+                    sane_rsvd = rsvd != 0;
+                    sane_nf = nfats > 0 && nfats <= 4;
+
+                    if (aa55)
+                        aa55_hits++;
+                    if (sane_bps)
+                        bps_hits++;
+                    if (sane_spc)
+                        spc_hits++;
+                    if (sane_rsvd)
+                        rsvd_hits++;
+                    if (sane_nf)
+                        nf_hits++;
+                    if (fat)
+                        fat_hits++;
+                    if (aa55 && fat && (reason & ~0x020u) == 0)
+                        bpb_hits++;
+
+                    if (aa55 || sane_bps || fat)
+                        cand_hits++;
+
+                    if (ftl_n3g_wmount_known_bad_j(j)
+                     && !(sane_bps || fat))
+                        continue;
+
+                    if (!(aa55 || sane_bps || fat))
+                        continue;
+
+                    if (reject_reason == 0 && !(aa55 && fat
+                     && (reason & ~0x020u) == 0))
+                        reject_reason = reason != 0 ? reason : 0x800u;
+
+                    if (aa55 && aa_details < 1)
+                    {
+                        uint32_t pb = physpage / ftl_nand_type->pagesperblock;
+                        uint32_t pp = physpage % ftl_nand_type->pagesperblock;
+                        uint32_t found_bps = 0;
+
+                        FTL_PROGRESS("N3G_WMOUNT_ADET j=%lu v=%04lx po=%lu s=%lu l0=%08lx l=%08lx pb=%lu pp=%lu",
+                                     (unsigned long)j, (unsigned long)v,
+                                     (unsigned long)po,
+                                     (unsigned long)slot,
+                                     (unsigned long)l0,
+                                     (unsigned long)sector_lpn,
+                                     (unsigned long)pb,
+                                     (unsigned long)pp);
+                        FTL_PROGRESS("N3G_WMOUNT_AOOB t=%02lx l=%08lx sig=%02x%02x r=%03lx bps=%lu spc=%lu",
+                                     (unsigned long)ftl_sparebuffer[0].user.type,
+                                     (unsigned long)ftl_sparebuffer[0].user.lpn,
+                                     b[off + 0x1fe], b[off + 0x1ff],
+                                     (unsigned long)reason,
+                                     (unsigned long)bps,
+                                     (unsigned long)spc);
+
+                        for (int32_t win = -32; win < 64; win += 16)
+                        {
+                            int32_t pos = (int32_t)off + 0x0b + win;
+
+                            if (pos < 0)
+                                continue;
+                            if (pos + 15 >= 0x800)
+                                continue;
+                            FTL_PROGRESS("N3G_WMOUNT_AW d=%ld %02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x",
+                                         (long)win,
+                                         b[pos + 0], b[pos + 1],
+                                         b[pos + 2], b[pos + 3],
+                                         b[pos + 4], b[pos + 5],
+                                         b[pos + 6], b[pos + 7],
+                                         b[pos + 8], b[pos + 9],
+                                         b[pos + 10], b[pos + 11],
+                                         b[pos + 12], b[pos + 13],
+                                         b[pos + 14], b[pos + 15]);
+                        }
+
+                        for (int32_t win = -32; win < 64; win++)
+                        {
+                            int32_t pos = (int32_t)off + 0x0b + win;
+                            uint32_t val;
+                            uint32_t base;
+                            uint32_t abps;
+                            uint32_t aspc;
+                            uint32_t arsvd;
+                            uint32_t anfats;
+                            uint32_t atotal;
+                            uint32_t afat;
+                            uint32_t areason;
+                            uint32_t afatsz16;
+                            uint32_t afatsz32;
+                            uint32_t afatsz;
+                            uint32_t asig;
+
+                            if (pos < 0 || pos + 1 >= 0x800)
+                                continue;
+                            val = (uint32_t)b[pos] | ((uint32_t)b[pos + 1] << 8);
+                            if (val != 512 && val != 1024
+                             && val != 2048 && val != 4096)
+                                continue;
+
+                            if (pos < 0x0b)
+                                continue;
+                            base = (uint32_t)pos - 0x0b;
+                            if (base + 0x59 >= 0x800)
+                                continue;
+
+                            areason = ftl_n3g_wmount_bpb_reason(b + base,
+                                            part_size, &abps, &aspc, &arsvd,
+                                            &anfats, &atotal, &afat);
+                            afatsz16 = (uint32_t)b[base + 0x16]
+                                     | ((uint32_t)b[base + 0x17] << 8);
+                            afatsz32 = (uint32_t)b[base + 0x24]
+                                     | ((uint32_t)b[base + 0x25] << 8)
+                                     | ((uint32_t)b[base + 0x26] << 16)
+                                     | ((uint32_t)b[base + 0x27] << 24);
+                            afatsz = afatsz16 != 0 ? afatsz16 : afatsz32;
+                            asig = base + 0x1ff < 0x800
+                                 ? ((uint32_t)b[base + 0x1fe]
+                                    | ((uint32_t)b[base + 0x1ff] << 8))
+                                 : 0;
+                            FTL_PROGRESS("N3G_WMOUNT_ABPS d=%ld base=%03lx val=%lu",
+                                         (long)win,
+                                         (unsigned long)(base - off),
+                                         (unsigned long)val);
+                            FTL_PROGRESS("N3G_WMOUNT_ABPB r=%03lx sig=%04lx bps=%lu spc=%lu rs=%lu nf=%lu ts=%lu fz=%lu fat=%lu",
+                                         (unsigned long)areason,
+                                         (unsigned long)asig,
+                                         (unsigned long)abps,
+                                         (unsigned long)aspc,
+                                         (unsigned long)arsvd,
+                                         (unsigned long)anfats,
+                                         (unsigned long)atotal,
+                                         (unsigned long)afatsz,
+                                         (unsigned long)afat);
+                            found_bps = 1;
+                            break;
+                        }
+
+                        if (found_bps == 0)
+                        {
+                            aa_rejects++;
+                            FTL_PROGRESS("N3G_WMOUNT_AREJ j=%lu v=%04lx no_bps_magic",
+                                         (unsigned long)j,
+                                         (unsigned long)v);
+                        }
+                        aa_details++;
+                    }
+
+                    if (fat && fat_details < 2)
+                    {
+                        uint32_t pb = physpage / ftl_nand_type->pagesperblock;
+                        uint32_t pp = physpage % ftl_nand_type->pagesperblock;
+                        uint32_t fs0 = (uint32_t)b[off + 0x52]
+                                     | ((uint32_t)b[off + 0x53] << 8)
+                                     | ((uint32_t)b[off + 0x54] << 16)
+                                     | ((uint32_t)b[off + 0x55] << 24);
+                        uint32_t fs1 = (uint32_t)b[off + 0x56]
+                                     | ((uint32_t)b[off + 0x57] << 8)
+                                     | ((uint32_t)b[off + 0x58] << 16)
+                                     | ((uint32_t)b[off + 0x59] << 24);
+
+                        FTL_PROGRESS("N3G_WMOUNT_FDET j=%lu v=%04lx po=%lu s=%lu l0=%08lx l=%08lx pb=%lu pp=%lu",
+                                     (unsigned long)j, (unsigned long)v,
+                                     (unsigned long)po,
+                                     (unsigned long)slot,
+                                     (unsigned long)l0,
+                                     (unsigned long)sector_lpn,
+                                     (unsigned long)pb,
+                                     (unsigned long)pp);
+                        FTL_PROGRESS("N3G_WMOUNT_FOOB t=%02lx l=%08lx sig=%02x%02x r=%03lx",
+                                     (unsigned long)ftl_sparebuffer[0].user.type,
+                                     (unsigned long)ftl_sparebuffer[0].user.lpn,
+                                     b[off + 0x1fe], b[off + 0x1ff],
+                                     (unsigned long)reason);
+                        FTL_PROGRESS("N3G_WMOUNT_FD0 %02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x",
+                                     b[off + 0], b[off + 1],
+                                     b[off + 2], b[off + 3],
+                                     b[off + 4], b[off + 5],
+                                     b[off + 6], b[off + 7],
+                                     b[off + 8], b[off + 9],
+                                     b[off + 10], b[off + 11],
+                                     b[off + 12], b[off + 13],
+                                     b[off + 14], b[off + 15]);
+                        FTL_PROGRESS("N3G_WMOUNT_FD1 0B=%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x",
+                                     b[off + 0x0b], b[off + 0x0c],
+                                     b[off + 0x0d], b[off + 0x0e],
+                                     b[off + 0x0f], b[off + 0x10],
+                                     b[off + 0x11], b[off + 0x12],
+                                     b[off + 0x13], b[off + 0x14],
+                                     b[off + 0x15], b[off + 0x16],
+                                     b[off + 0x17], b[off + 0x18],
+                                     b[off + 0x19], b[off + 0x1a]);
+                        FTL_PROGRESS("N3G_WMOUNT_FD2 1B=%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x 52=%08lx,%08lx",
+                                     b[off + 0x1b], b[off + 0x1c],
+                                     b[off + 0x1d], b[off + 0x1e],
+                                     b[off + 0x1f], b[off + 0x20],
+                                     b[off + 0x21], b[off + 0x22],
+                                     b[off + 0x23], b[off + 0x24],
+                                     (unsigned long)fs0,
+                                     (unsigned long)fs1);
+
+                        for (int32_t win = -32; win <= 64; win += 16)
+                        {
+                            int32_t pos = (int32_t)off + win;
+
+                            if (pos < 0)
+                                continue;
+                            if (pos + 15 >= 0x800)
+                                continue;
+                            FTL_PROGRESS("N3G_WMOUNT_FRW d=%ld %02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x",
+                                         (long)(pos - (int32_t)off),
+                                         b[pos + 0], b[pos + 1],
+                                         b[pos + 2], b[pos + 3],
+                                         b[pos + 4], b[pos + 5],
+                                         b[pos + 6], b[pos + 7],
+                                         b[pos + 8], b[pos + 9],
+                                         b[pos + 10], b[pos + 11],
+                                         b[pos + 12], b[pos + 13],
+                                         b[pos + 14], b[pos + 15]);
+                        }
+
+                        for (int32_t sh = -32; sh <= 32; sh++)
+                        {
+                            uint32_t sbps;
+                            uint32_t sspc;
+                            uint32_t srsvd;
+                            uint32_t snfats;
+                            uint32_t stotal;
+                            uint32_t sfat;
+                            uint32_t sreason;
+                            uint32_t soff;
+                            uint32_t sfatsz16;
+                            uint32_t sfatsz32;
+                            uint32_t sfatsz;
+                            uint32_t ssane;
+
+                            if (sh < 0 && off < (uint32_t)(-sh))
+                                continue;
+                            soff = off + sh;
+                            if (soff + 0x59 >= 0x800)
+                                continue;
+                            sreason = ftl_n3g_wmount_bpb_reason(b + soff,
+                                            part_size, &sbps, &sspc, &srsvd,
+                                            &snfats, &stotal, &sfat);
+                            sfatsz16 = (uint32_t)b[soff + 0x16]
+                                     | ((uint32_t)b[soff + 0x17] << 8);
+                            sfatsz32 = (uint32_t)b[soff + 0x24]
+                                     | ((uint32_t)b[soff + 0x25] << 8)
+                                     | ((uint32_t)b[soff + 0x26] << 16)
+                                     | ((uint32_t)b[soff + 0x27] << 24);
+                            sfatsz = sfatsz16 != 0 ? sfatsz16 : sfatsz32;
+                            ssane = sbps == 512 || sbps == 1024
+                                  || sbps == 2048 || sbps == 4096;
+                            FTL_PROGRESS("N3G_WMOUNT_FSH d=%ld ok=%lu r=%03lx bps=%lu spc=%lu rs=%lu nf=%lu fz=%lu fat=%lu",
+                                         (long)sh,
+                                         (unsigned long)ssane,
+                                         (unsigned long)sreason,
+                                         (unsigned long)sbps,
+                                         (unsigned long)sspc,
+                                         (unsigned long)srsvd,
+                                         (unsigned long)snfats,
+                                         (unsigned long)sfatsz,
+                                         (unsigned long)sfat);
+                        }
+                        for (uint32_t aslot = 0; aslot < 4
+                             && fat_sane_shift == 0; aslot++)
+                        {
+                            uint32_t aoff = aslot * 0x200;
+                            for (int32_t sh = -32; sh <= 32; sh++)
+                            {
+                                uint32_t sbps;
+                                uint32_t sspc;
+                                uint32_t srsvd;
+                                uint32_t snfats;
+                                uint32_t stotal;
+                                uint32_t sfat;
+                                uint32_t sreason;
+                                uint32_t soff;
+                                uint32_t sfatsz16;
+                                uint32_t sfatsz32;
+                                uint32_t sfatsz;
+
+                                if (sh < 0 && aoff < (uint32_t)(-sh))
+                                    continue;
+                                soff = aoff + sh;
+                                if (soff + 0x59 >= 0x800)
+                                    continue;
+                                sreason = ftl_n3g_wmount_bpb_reason(b + soff,
+                                                part_size, &sbps, &sspc,
+                                                &srsvd, &snfats, &stotal,
+                                                &sfat);
+                                if (sbps == 512 || sbps == 1024
+                                 || sbps == 2048 || sbps == 4096)
+                                {
+                                    sfatsz16 = (uint32_t)b[soff + 0x16]
+                                             | ((uint32_t)b[soff + 0x17] << 8);
+                                    sfatsz32 = (uint32_t)b[soff + 0x24]
+                                             | ((uint32_t)b[soff + 0x25] << 8)
+                                             | ((uint32_t)b[soff + 0x26] << 16)
+                                             | ((uint32_t)b[soff + 0x27] << 24);
+                                    sfatsz = sfatsz16 != 0 ? sfatsz16 : sfatsz32;
+                                    fat_sane_shift = 1;
+                                    FTL_PROGRESS("N3G_WMOUNT_FSANE s=%lu d=%ld r=%03lx bps=%lu spc=%lu rs=%lu nf=%lu fz=%lu fat=%lu",
+                                                 (unsigned long)aslot,
+                                                 (long)sh,
+                                                 (unsigned long)sreason,
+                                                 (unsigned long)sbps,
+                                                 (unsigned long)sspc,
+                                                 (unsigned long)srsvd,
+                                                 (unsigned long)snfats,
+                                                 (unsigned long)sfatsz,
+                                                 (unsigned long)sfat);
+                                    break;
+                                }
+                            }
+                        }
+                        if (fat_sane_shift == 0)
+                        {
+                            fat_rejects++;
+                            FTL_PROGRESS("N3G_WMOUNT_FREJ j=%lu v=%04lx no_sane_bps",
+                                         (unsigned long)j,
+                                         (unsigned long)v);
+                        }
+                        fat_details++;
+                    }
+
+                    if (aa55 && fat && (reason & ~0x020u) == 0)
+                    {
+                        n3g_direct_boot_valid = 1;
+                        n3g_direct_boot_lpn = part_start;
+                        n3g_direct_boot_vblock = v;
+                        n3g_direct_boot_page = po;
+                        n3g_direct_boot_slot = slot;
+                        fat_j = j;
+                        fat_po = po;
+                        fat_found = 1;
+                        FTL_PROGRESS("N3G_WMOUNT_VMAP j=%lu v=%04lx po=%lu sl=%lu l=%08lx",
+                                     (unsigned long)j,
+                                     (unsigned long)v,
+                                     (unsigned long)po,
+                                     (unsigned long)slot,
+                                     (unsigned long)sector_lpn);
+                    }
+                }
+            }
+        }
+
+        FTL_PROGRESS("N3G_WMOUNT_FXDONE r=%lu cand=%lu aa=%lu bpb=%lu fat=%lu sj=%lu spo=%lu ss=%lu",
+                     (unsigned long)reads,
+                     (unsigned long)cand_hits,
+                     (unsigned long)aa55_hits,
+                     (unsigned long)bpb_hits,
+                     (unsigned long)fat_hits,
+                     (unsigned long)(n3g_direct_boot_valid
+                        ? fat_j : 0xffffffffu),
+                     (unsigned long)(n3g_direct_boot_valid
+                        ? fat_po : 0xffffffffu),
+                     (unsigned long)(n3g_direct_boot_valid
+                        ? n3g_direct_boot_slot : 0xffffffffu));
+        FTL_PROGRESS("N3G_WMOUNT_FXCNT rg=%lu bps=%lu spc=%lu rs=%lu nf=%lu hit=%lu arej=%lu frej=%lu rej=%03lx",
+                     (unsigned long)ranges,
+                     (unsigned long)bps_hits,
+                     (unsigned long)spc_hits,
+                     (unsigned long)rsvd_hits,
+                     (unsigned long)nf_hits,
+                     (unsigned long)fat_found,
+                     (unsigned long)aa_rejects,
+                     (unsigned long)fat_rejects,
+                     (unsigned long)(fat_found ? 0 : reject_reason));
+    }
+
+    if (0 && !fat_found)
+    {
+        uint32_t scan_low = part_start >= 0x200 ? part_start - 0x200 : 0;
+        uint32_t scan_high = part_start + 0x200;
+        uint32_t cand_seen = 0;
+        uint32_t cand_prints = 0;
+        uint32_t scan_reads = 0;
+        uint32_t aa55_seen = 0;
+        uint32_t aa55_prints = 0;
+        uint32_t bpb_seen = 0;
+        uint32_t fat_seen = 0;
+        uint32_t fat_prints = 0;
+        uint32_t in_prints = 0;
+
+        FTL_PROGRESS("N3G_WMOUNT_FSCAN st=%08lx lo=%08lx hi=%08lx",
+                     (unsigned long)part_start,
+                     (unsigned long)scan_low,
+                     (unsigned long)scan_high);
+
+        for (uint32_t j = 0; j < 0x400 && !fat_found; j++)
+        {
+            uint32_t v = ftl_map[j];
+            uint32_t bank;
+            uint32_t physpage;
+            uint32_t rc;
+
+            if (v == 0 || v == 0xffffu)
+                continue;
+
+            for (uint32_t po = 0; po < ppb && !fat_found; po++)
+            {
+                uint8_t *b = (uint8_t *)ftl_buffer;
+                uint16_t *h = (uint16_t *)ftl_buffer;
+                uint32_t oob_lpn;
+                uint32_t oob_t;
+                uint32_t in_range;
+                uint32_t best_slot = 0;
+                uint32_t best_score = 0;
+                uint32_t best_sig = 0;
+                uint32_t best_bps = 0;
+                uint32_t best_fat = 0;
+                uint32_t best_bpb = 0;
+                uint32_t best_reason = 0xffffffffu;
+                uint32_t best_spc = 0;
+                uint32_t best_rsvd = 0;
+                uint32_t best_nfats = 0;
+                uint32_t best_total = 0;
+
+                ftl_n3g_decode_page(v, po, &bank, &physpage);
+                memset(ftl_buffer, 0, sizeof(ftl_buffer));
+                memset(&ftl_sparebuffer[0], 0, sizeof(ftl_sparebuffer[0]));
+                rc = nand_read_page(bank, physpage, ftl_buffer,
+                                    &ftl_sparebuffer[0], 1, 0);
+                scan_reads++;
+                if (rc != 0)
+                    continue;
+
+                oob_t = ftl_sparebuffer[0].user.type;
+                oob_lpn = ftl_sparebuffer[0].user.lpn;
+                in_range = (oob_t == 0x40 || oob_t == 0x41)
+                        && oob_lpn >= scan_low && oob_lpn <= scan_high;
+
+                for (uint32_t slot = 0; slot < 4; slot++)
+                {
+                    uint32_t off = slot * 0x200;
+                    uint32_t sig = h[(off + 0x1fe) >> 1];
+                    uint32_t aa55 = sig == 0xaa55;
+                    uint32_t bps;
+                    uint32_t spc;
+                    uint32_t rsvd;
+                    uint32_t nfats;
+                    uint32_t total;
+                    uint32_t fat;
+                    uint32_t reason = ftl_n3g_wmount_bpb_reason(b + off,
+                                            part_size, &bps, &spc, &rsvd,
+                                            &nfats, &total, &fat);
+                    uint32_t bpb = aa55 && (reason & ~0x120u) == 0;
+                    uint32_t score = (aa55 ? 4 : 0)
+                                   + (bpb ? 4 : 0)
+                                   + (fat ? 2 : 0);
+                    uint32_t sane_bps = bps == 512 || bps == 1024
+                                      || bps == 2048 || bps == 4096;
+                    uint32_t sane_spc = spc != 0
+                                      && (spc & (spc - 1)) == 0;
+                    uint32_t sane_nf = nfats > 0 && nfats <= 4;
+                    uint32_t partial_bpb = sane_bps
+                                        || (sane_spc && rsvd != 0 && sane_nf);
+
+                    if (in_range && in_prints < 24
+                     && (aa55 || sane_bps || fat || partial_bpb))
+                    {
+                        uint32_t fs0 = (uint32_t)b[off + 0x52]
+                                     | ((uint32_t)b[off + 0x53] << 8)
+                                     | ((uint32_t)b[off + 0x54] << 16)
+                                     | ((uint32_t)b[off + 0x55] << 24);
+                        uint32_t fs1 = (uint32_t)b[off + 0x56]
+                                     | ((uint32_t)b[off + 0x57] << 8)
+                                     | ((uint32_t)b[off + 0x58] << 16)
+                                     | ((uint32_t)b[off + 0x59] << 24);
+
+                        FTL_PROGRESS("N3G_WMOUNT_ICAND j=%lu v=%04lx po=%lu l=%08lx sl=%lu sig=%04lx",
+                                     (unsigned long)j, (unsigned long)v,
+                                     (unsigned long)po,
+                                     (unsigned long)oob_lpn,
+                                     (unsigned long)slot,
+                                     (unsigned long)sig);
+                        FTL_PROGRESS("N3G_WMOUNT_IBPB bps=%lu spc=%lu rs=%lu nf=%lu fat=%lu r=%03lx",
+                                     (unsigned long)bps,
+                                     (unsigned long)spc,
+                                     (unsigned long)rsvd,
+                                     (unsigned long)nfats,
+                                     (unsigned long)fat,
+                                     (unsigned long)reason);
+                        FTL_PROGRESS("N3G_WMOUNT_ISTR fs=%08lx,%08lx b0=%02x%02x%02x%02x sg=%02x%02x",
+                                     (unsigned long)fs0,
+                                     (unsigned long)fs1,
+                                     b[off + 0], b[off + 1],
+                                     b[off + 2], b[off + 3],
+                                     b[off + 0x1fe],
+                                     b[off + 0x1ff]);
+                        in_prints++;
+                    }
+
+                    if (fat && fat_prints < 8)
+                    {
+                        uint32_t pb = physpage / ftl_nand_type->pagesperblock;
+                        uint32_t pp = physpage % ftl_nand_type->pagesperblock;
+                        uint32_t fs0 = (uint32_t)b[off + 0x52]
+                                     | ((uint32_t)b[off + 0x53] << 8)
+                                     | ((uint32_t)b[off + 0x54] << 16)
+                                     | ((uint32_t)b[off + 0x55] << 24);
+                        uint32_t fs1 = (uint32_t)b[off + 0x56]
+                                     | ((uint32_t)b[off + 0x57] << 8)
+                                     | ((uint32_t)b[off + 0x58] << 16)
+                                     | ((uint32_t)b[off + 0x59] << 24);
+                        uint32_t sh1_bps, sh1_spc, sh1_rsvd, sh1_nfats;
+                        uint32_t sh1_total, sh1_fat, sh1_reason;
+                        uint32_t sh2_bps, sh2_spc, sh2_rsvd, sh2_nfats;
+                        uint32_t sh2_total, sh2_fat, sh2_reason;
+                        uint32_t sh4_bps, sh4_spc, sh4_rsvd, sh4_nfats;
+                        uint32_t sh4_total, sh4_fat, sh4_reason;
+
+                        sh1_reason = ftl_n3g_wmount_bpb_reason(b + off + 1,
+                                        part_size, &sh1_bps, &sh1_spc,
+                                        &sh1_rsvd, &sh1_nfats, &sh1_total,
+                                        &sh1_fat);
+                        sh2_reason = ftl_n3g_wmount_bpb_reason(b + off + 2,
+                                        part_size, &sh2_bps, &sh2_spc,
+                                        &sh2_rsvd, &sh2_nfats, &sh2_total,
+                                        &sh2_fat);
+                        sh4_reason = ftl_n3g_wmount_bpb_reason(b + off + 4,
+                                        part_size, &sh4_bps, &sh4_spc,
+                                        &sh4_rsvd, &sh4_nfats, &sh4_total,
+                                        &sh4_fat);
+
+                        FTL_PROGRESS("N3G_WMOUNT_FCAND j=%lu v=%04lx po=%lu sl=%lu pb=%lu pp=%lu",
+                                     (unsigned long)j, (unsigned long)v,
+                                     (unsigned long)po, (unsigned long)slot,
+                                     (unsigned long)pb, (unsigned long)pp);
+                        FTL_PROGRESS("N3G_WMOUNT_FOOB t=%02lx l=%08lx sig=%02x%02x fs=%08lx,%08lx",
+                                     (unsigned long)oob_t,
+                                     (unsigned long)oob_lpn,
+                                     b[off + 0x1fe], b[off + 0x1ff],
+                                     (unsigned long)fs0,
+                                     (unsigned long)fs1);
+                        FTL_PROGRESS("N3G_WMOUNT_F0 %02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x",
+                                     b[off + 0], b[off + 1],
+                                     b[off + 2], b[off + 3],
+                                     b[off + 4], b[off + 5],
+                                     b[off + 6], b[off + 7],
+                                     b[off + 8], b[off + 9],
+                                     b[off + 10], b[off + 11],
+                                     b[off + 12], b[off + 13],
+                                     b[off + 14], b[off + 15]);
+                        FTL_PROGRESS("N3G_WMOUNT_F1 0B=%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x",
+                                     b[off + 0x0b], b[off + 0x0c],
+                                     b[off + 0x0d], b[off + 0x0e],
+                                     b[off + 0x0f], b[off + 0x10],
+                                     b[off + 0x11], b[off + 0x12],
+                                     b[off + 0x13], b[off + 0x14],
+                                     b[off + 0x15], b[off + 0x16],
+                                     b[off + 0x17], b[off + 0x18],
+                                     b[off + 0x19], b[off + 0x1a]);
+                        FTL_PROGRESS("N3G_WMOUNT_F2 1B=%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x 52=%02x%02x%02x%02x%02x%02x%02x%02x",
+                                     b[off + 0x1b], b[off + 0x1c],
+                                     b[off + 0x1d], b[off + 0x1e],
+                                     b[off + 0x1f], b[off + 0x20],
+                                     b[off + 0x21], b[off + 0x22],
+                                     b[off + 0x23], b[off + 0x24],
+                                     b[off + 0x52], b[off + 0x53],
+                                     b[off + 0x54], b[off + 0x55],
+                                     b[off + 0x56], b[off + 0x57],
+                                     b[off + 0x58], b[off + 0x59]);
+                        FTL_PROGRESS("N3G_WMOUNT_FR bps=%lu spc=%lu rs=%lu nf=%lu ts=%lu r=%03lx",
+                                     (unsigned long)bps,
+                                     (unsigned long)spc,
+                                     (unsigned long)rsvd,
+                                     (unsigned long)nfats,
+                                     (unsigned long)total,
+                                     (unsigned long)reason);
+                        FTL_PROGRESS("N3G_WMOUNT_FB j=%lu b=%lu s=%lu r=%lu n=%lu f=%lu z=%lu c=%lu",
+                                     (unsigned long)((reason & 0x001) != 0),
+                                     (unsigned long)((reason & 0x002) != 0),
+                                     (unsigned long)((reason & 0x004) != 0),
+                                     (unsigned long)((reason & 0x008) != 0),
+                                     (unsigned long)((reason & 0x010) != 0),
+                                     (unsigned long)((reason & 0x100) != 0),
+                                     (unsigned long)((reason & 0x200) != 0),
+                                     (unsigned long)((reason & 0x400) != 0));
+                        FTL_PROGRESS("N3G_WMOUNT_FSH r0=%03lx r1=%03lx r2=%03lx r4=%03lx fat=%lu,%lu,%lu,%lu",
+                                     (unsigned long)reason,
+                                     (unsigned long)sh1_reason,
+                                     (unsigned long)sh2_reason,
+                                     (unsigned long)sh4_reason,
+                                     (unsigned long)fat,
+                                     (unsigned long)sh1_fat,
+                                     (unsigned long)sh2_fat,
+                                     (unsigned long)sh4_fat);
+                        fat_prints++;
+                    }
+
+                    if (score > best_score)
+                    {
+                        best_score = score;
+                        best_slot = slot;
+                        best_sig = sig;
+                        best_bps = bps;
+                        best_fat = fat;
+                        best_bpb = bpb;
+                        best_reason = reason;
+                        best_spc = spc;
+                        best_rsvd = rsvd;
+                        best_nfats = nfats;
+                        best_total = total;
+                    }
+                }
+
+                if (in_range)
+                    cand_seen++;
+                if (best_sig == 0xaa55)
+                    aa55_seen++;
+                if (best_bpb)
+                    bpb_seen++;
+                if (best_fat)
+                    fat_seen++;
+
+                if (0 && best_sig == 0xaa55 && aa55_prints < 12)
+                {
+                    uint32_t off = best_slot * 0x200;
+                    uint32_t pb = physpage / ftl_nand_type->pagesperblock;
+                    uint32_t pp = physpage % ftl_nand_type->pagesperblock;
+
+                    FTL_PROGRESS("N3G_WMOUNT_AA n=%lu j=%lu v=%04lx po=%lu sl=%lu pb=%lu pp=%lu t=%02lx l=%08lx",
+                                 (unsigned long)aa55_prints,
+                                 (unsigned long)j,
+                                 (unsigned long)v,
+                                 (unsigned long)po,
+                                 (unsigned long)best_slot,
+                                 (unsigned long)pb,
+                                 (unsigned long)pp,
+                                 (unsigned long)oob_t,
+                                 (unsigned long)oob_lpn);
+                    FTL_PROGRESS("N3G_WMOUNT_A0 n=%lu %02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x",
+                                 (unsigned long)aa55_prints,
+                                 b[off + 0], b[off + 1],
+                                 b[off + 2], b[off + 3],
+                                 b[off + 4], b[off + 5],
+                                 b[off + 6], b[off + 7],
+                                 b[off + 8], b[off + 9],
+                                 b[off + 10], b[off + 11],
+                                 b[off + 12], b[off + 13],
+                                 b[off + 14], b[off + 15]);
+                    FTL_PROGRESS("N3G_WMOUNT_A1 n=%lu 0B=%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x",
+                                 (unsigned long)aa55_prints,
+                                 b[off + 0x0b], b[off + 0x0c],
+                                 b[off + 0x0d], b[off + 0x0e],
+                                 b[off + 0x0f], b[off + 0x10],
+                                 b[off + 0x11], b[off + 0x12],
+                                 b[off + 0x13], b[off + 0x14],
+                                 b[off + 0x15], b[off + 0x16],
+                                 b[off + 0x17], b[off + 0x18],
+                                 b[off + 0x19], b[off + 0x1a]);
+                    FTL_PROGRESS("N3G_WMOUNT_A2 n=%lu 1B=%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x 52=%02x%02x%02x%02x%02x%02x%02x%02x sg=%02x%02x",
+                                 (unsigned long)aa55_prints,
+                                 b[off + 0x1b], b[off + 0x1c],
+                                 b[off + 0x1d], b[off + 0x1e],
+                                 b[off + 0x1f], b[off + 0x20],
+                                 b[off + 0x21], b[off + 0x22],
+                                 b[off + 0x23], b[off + 0x24],
+                                 b[off + 0x52], b[off + 0x53],
+                                 b[off + 0x54], b[off + 0x55],
+                                 b[off + 0x56], b[off + 0x57],
+                                 b[off + 0x58], b[off + 0x59],
+                                 b[off + 0x1fe], b[off + 0x1ff]);
+                    FTL_PROGRESS("N3G_WMOUNT_AR n=%lu bps=%lu spc=%lu rs=%lu nf=%lu ts=%lu fat=%lu r=%03lx",
+                                 (unsigned long)aa55_prints,
+                                 (unsigned long)best_bps,
+                                 (unsigned long)best_spc,
+                                 (unsigned long)best_rsvd,
+                                 (unsigned long)best_nfats,
+                                 (unsigned long)best_total,
+                                 (unsigned long)best_fat,
+                                 (unsigned long)best_reason);
+                    aa55_prints++;
+                }
+
+                uint32_t sane_bps = best_bps == 512 || best_bps == 1024
+                                  || best_bps == 2048 || best_bps == 4096;
+                uint32_t sane_spc = best_spc != 0
+                                  && (best_spc & (best_spc - 1)) == 0;
+                uint32_t sane_nf = best_nfats > 0 && best_nfats <= 4;
+                uint32_t close = best_sig == 0xaa55
+                              && (best_fat || (sane_bps && sane_spc
+                               && best_rsvd != 0 && sane_nf));
+
+                if (!close && !best_bpb && !best_fat)
+                    continue;
+
+                if (cand_prints < 12)
+                {
+                    uint32_t off = best_slot * 0x200;
+                    uint32_t fs0 = (uint32_t)b[off + 0x52]
+                                 | ((uint32_t)b[off + 0x53] << 8)
+                                 | ((uint32_t)b[off + 0x54] << 16)
+                                 | ((uint32_t)b[off + 0x55] << 24);
+                    uint32_t fs1 = (uint32_t)b[off + 0x56]
+                                 | ((uint32_t)b[off + 0x57] << 8)
+                                 | ((uint32_t)b[off + 0x58] << 16)
+                                 | ((uint32_t)b[off + 0x59] << 24);
+
+                    FTL_PROGRESS("N3G_WMOUNT_BCAND j=%lu v=%04lx po=%lu sl=%lu l=%08lx sig=%04lx",
+                                 (unsigned long)j,
+                                 (unsigned long)v,
+                                 (unsigned long)po,
+                                 (unsigned long)best_slot,
+                                 (unsigned long)oob_lpn,
+                                 (unsigned long)best_sig);
+                    FTL_PROGRESS("N3G_WMOUNT_BBPB bps=%lu spc=%lu rs=%lu nf=%lu ts=%lu fat=%lu r=%03lx",
+                                 (unsigned long)best_bps,
+                                 (unsigned long)best_spc,
+                                 (unsigned long)best_rsvd,
+                                 (unsigned long)best_nfats,
+                                 (unsigned long)best_total,
+                                 (unsigned long)best_fat,
+                                 (unsigned long)best_reason);
+                    FTL_PROGRESS("N3G_WMOUNT_BSTR fs=%08lx,%08lx sg=%02x%02x",
+                                 (unsigned long)fs0,
+                                 (unsigned long)fs1,
+                                 b[off + 0x1fe], b[off + 0x1ff]);
+                    cand_prints++;
+                }
+
+                if (best_bpb && best_fat)
+                {
+                    ftl_map[part_lblock] = v;
+                    n3g_direct_boot_valid = 1;
+                    n3g_direct_boot_lpn = part_start;
+                    n3g_direct_boot_vblock = v;
+                    n3g_direct_boot_page = po;
+                    n3g_direct_boot_slot = best_slot;
+                    fat_j = j;
+                    fat_po = po;
+                    fat_found = 1;
+                    FTL_PROGRESS("N3G_WMOUNT_CMAP j=%lu v=%04lx po=%lu sl=%lu l=%08lx sig=%04lx fat=%lu",
+                                 (unsigned long)j,
+                                 (unsigned long)v,
+                                 (unsigned long)po,
+                                 (unsigned long)best_slot,
+                                 (unsigned long)oob_lpn,
+                                 (unsigned long)best_sig,
+                                 (unsigned long)best_fat);
+                }
+            }
+        }
+
+        FTL_PROGRESS("N3G_WMOUNT_CDONE r=%lu in=%lu ip=%lu aa=%lu ap=%lu bpb=%lu fat=%lu fp=%lu hit=%lu",
+                     (unsigned long)scan_reads,
+                     (unsigned long)cand_seen,
+                     (unsigned long)in_prints,
+                     (unsigned long)aa55_seen,
+                     (unsigned long)aa55_prints,
+                     (unsigned long)bpb_seen,
+                     (unsigned long)fat_seen,
+                     (unsigned long)fat_prints,
+                     (unsigned long)fat_found);
+        if (!fat_found)
+            FTL_PROGRESS("N3G_WMOUNT_CMISS prints=%lu",
+                         (unsigned long)cand_prints);
+    }
+
+    /*
+     * Present the restored Windows MBR in RAM only. Keep the partition start
+     * and size in the MBR's original units for this diagnostic.
+     */
+    memcpy(n3g_direct_mbr, mbr_page, 0x800);
+    uint32_t pe = 0x1be + part_idx * 16;
+    n3g_direct_mbr[pe + 8] = part_start & 0xff;
+    n3g_direct_mbr[pe + 9] = (part_start >> 8) & 0xff;
+    n3g_direct_mbr[pe + 10] = (part_start >> 16) & 0xff;
+    n3g_direct_mbr[pe + 11] = (part_start >> 24) & 0xff;
+    n3g_direct_mbr[pe + 12] = part_size & 0xff;
+    n3g_direct_mbr[pe + 13] = (part_size >> 8) & 0xff;
+    n3g_direct_mbr[pe + 14] = (part_size >> 16) & 0xff;
+    n3g_direct_mbr[pe + 15] = (part_size >> 24) & 0xff;
+    n3g_direct_mbr_valid = 1;
+    n3g_direct_mbr_j = mbr_j;
+    n3g_direct_mbr_v = (mbr_j < ARRAYLEN(ftl_map)) ? ftl_map[mbr_j] : 0xffffu;
+    n3g_direct_mbr_po = mbr_po;
+    n3g_direct_map_mount = 1;
+
+    memset(ftl_buffer, 0, sizeof(ftl_buffer));
+    int32_t rc0 = (int32_t)ftl_n3g_direct_read(0, 1, ftl_buffer);
+    uint16_t *h0 = (uint16_t *)ftl_buffer;
+    FTL_PROGRESS("N3G_WMOUNT_S0 rc=%ld sig=%04x part=%lu t=%02x st=%08lx sz=%08lx",
+                 (long)rc0, h0[0xff], (unsigned long)part_idx,
+                 part_type, (unsigned long)part_start,
+                 (unsigned long)part_size);
+    if (rc0 != 0)
+    {
+        n3g_direct_map_mount = 0;
+        n3g_direct_mbr_valid = 0;
+        return -1;
+    }
+
+    /*
+     * The restored WinPod volume uses a 4096-byte FAT sector on top of the
+     * 512-byte WMOUNT sector reader. Rockbox scales BPB fields to 512-byte
+     * storage sectors, then reads FSInfo at partition_start + fsinfo * scale.
+     * Some Nano 3G dumps do not expose that FSInfo page through the current
+     * map, and fat_mount() treats a missing FSInfo sector as fatal. Once the
+     * boot sector itself validates, provide the small FSInfo sector Rockbox
+     * needs so mounting can continue to FAT/root reads.
+     */
+    {
+        uint32_t bps = 0;
+        uint32_t spc = 0;
+        uint32_t rsvd = 0;
+        uint32_t nfats = 0;
+        uint32_t total = 0;
+        uint32_t fat = 0;
+        uint32_t reason;
+        uint32_t scale;
+        uint32_t fsinfo;
+        int32_t rcb;
+        uint8_t *b = (uint8_t *)ftl_buffer;
+
+        memset(ftl_buffer, 0, sizeof(ftl_buffer));
+        rcb = (int32_t)ftl_n3g_direct_read(part_start, 1, ftl_buffer);
+        reason = ftl_n3g_wmount_bpb_reason(b, part_size, &bps, &spc,
+                                           &rsvd, &nfats, &total, &fat);
+        if (rcb == 0 && fat && (reason & ~0x020u) == 0
+            && bps >= 512 && (bps % 512) == 0)
+        {
+            boot_sector_ok = 1;
+            scale = bps / 512;
+            fsinfo = (uint32_t)b[0x30] | ((uint32_t)b[0x31] << 8);
+            if (fsinfo != 0 && scale != 0)
+            {
+                n3g_direct_fsinfo_valid = 1;
+                n3g_direct_fsinfo_lpn = part_start + fsinfo * scale;
+            }
+            FTL_PROGRESS("N3G_WMOUNT_BOOT_OK rc=%ld sig=%04x bps=%lu spc=%lu rs=%lu nf=%lu fs=%08lx",
+                         (long)rcb,
+                         (unsigned int)(b[0x1fe] | ((uint32_t)b[0x1ff] << 8)),
+                         (unsigned long)bps,
+                         (unsigned long)spc,
+                         (unsigned long)rsvd,
+                         (unsigned long)nfats,
+                         (unsigned long)n3g_direct_fsinfo_lpn);
+        }
+        else
+        {
+            FTL_PROGRESS("N3G_WMOUNT_BOOT_BAD rc=%ld sig=%04x bps=%lu r=%03lx",
+                         (long)rcb,
+                         (unsigned int)(b[0x1fe] | ((uint32_t)b[0x1ff] << 8)),
+                         (unsigned long)bps,
+                         (unsigned long)reason);
+        }
+    }
+
+    if (!n3g_direct_boot_valid)
+    {
+        if (boot_sector_ok)
+        {
+            FTL_PROGRESS("N3G_WMOUNT_READY mbrj=%lu mbrpo=%lu xmap=1 st=%08lx sz=%08lx fs=%08lx",
+                         (unsigned long)mbr_j, (unsigned long)mbr_po,
+                         (unsigned long)part_start, (unsigned long)part_size,
+                         (unsigned long)n3g_direct_fsinfo_lpn);
+            return 0;
+        }
+
+        FTL_PROGRESS("N3G_WMOUNT_NOBOOT rd=%lu z=%lu sig=%lu fat=%lu bpb=%lu",
+                     (unsigned long)n3g_wmount_rd_hits,
+                     (unsigned long)n3g_wmount_rd_rej_zero,
+                     (unsigned long)n3g_wmount_rd_rej_sig,
+                     (unsigned long)n3g_wmount_rd_rej_fat,
+                     (unsigned long)n3g_wmount_rd_rej_bpb);
+        if (n3g_wmount_rd_best_valid)
+            FTL_PROGRESS("N3G_WMOUNT_NBEST %s j=%lu v=%04lx po=%lu sl=%lu r=%03lx",
+                         n3g_wmount_rd_best_tag,
+                         (unsigned long)n3g_wmount_rd_best_j,
+                         (unsigned long)n3g_wmount_rd_best_v,
+                         (unsigned long)n3g_wmount_rd_best_po,
+                         (unsigned long)n3g_wmount_rd_best_slot,
+                         (unsigned long)n3g_wmount_rd_best_reason);
+        FTL_PROGRESS("N3G_WMOUNT_READY mbrj=%lu mbrpo=%lu xmap=0 st=%08lx sz=%08lx",
+                     (unsigned long)mbr_j, (unsigned long)mbr_po,
+                     (unsigned long)part_start, (unsigned long)part_size);
+        return 0;
+    }
+
+    FTL_PROGRESS("N3G_WMOUNT_SEL ok=1 j=%lu v=%04lx po=%lu sl=%lu",
+                 (unsigned long)fat_j,
+                 (unsigned long)n3g_direct_boot_vblock,
+                 (unsigned long)fat_po,
+                 (unsigned long)n3g_direct_boot_slot);
+    memset(ftl_buffer, 0, sizeof(ftl_buffer));
+    int32_t rcf = (int32_t)ftl_n3g_direct_read(part_start, 1, ftl_buffer);
+    uint16_t *hf = (uint16_t *)ftl_buffer;
+    FTL_PROGRESS("N3G_WMOUNT_SF rc=%ld j=%lu po=%lu sig=%04x,%04x,%04x,%04x w=%08lx,%08lx",
+                 (long)rcf, (unsigned long)fat_j, (unsigned long)fat_po,
+                 hf[0x0ff], hf[0x1ff], hf[0x2ff], hf[0x3ff],
+                 (unsigned long)((uint32_t *)ftl_buffer)[0],
+                 (unsigned long)((uint32_t *)ftl_buffer)[1]);
+
+    FTL_PROGRESS("N3G_WMOUNT_READY mbrj=%lu mbrpo=%lu xmap=%lu st=%08lx sz=%08lx",
+                 (unsigned long)mbr_j, (unsigned long)mbr_po,
+                 (unsigned long)fat_found, (unsigned long)part_start,
+                 (unsigned long)part_size);
+    return 0;
+}
+#endif
+
+#if defined(IPOD_NANO3G) && defined(BOOTLOADER)
+static void ftl_n3g_print_regs(const char *tag,
+                               const struct nano3g_nand_reg_diag *reg)
+{
+    FTL_PROGRESS("N3G_REG %s f0=%08lx f1=%08lx stat=%08lx cmd=%08lx a0=%08lx a1=%08lx a2=%08lx",
+                 tag, (unsigned long)reg->fmctrl0,
+                 (unsigned long)reg->fmctrl1,
+                 (unsigned long)reg->fmcstat,
+                 (unsigned long)reg->fmcmd,
+                 (unsigned long)reg->fmaddr0,
+                 (unsigned long)reg->fmaddr1,
+                 (unsigned long)reg->fmaddr2);
+    FTL_PROGRESS("N3G_GPIO %s p7=%08lx p8=%08lx p9=%08lx p10=%08lx p11=%08lx gpio=%08lx",
+                 tag, (unsigned long)reg->pcon7,
+                 (unsigned long)reg->pcon8,
+                 (unsigned long)reg->pcon9,
+                 (unsigned long)reg->pcon10,
+                 (unsigned long)reg->pcon11,
+                 (unsigned long)reg->gpiocmd);
+    FTL_PROGRESS("N3G_CLK %s pwr0=%08lx pwr1=%08lx clk1=%08lx misc=%08lx stage=%08lx/%08lx/%08lx",
+                 tag, (unsigned long)reg->pwr0,
+                 (unsigned long)reg->pwr1,
+                 (unsigned long)reg->clkcon1,
+                 (unsigned long)reg->misc,
+                 (unsigned long)reg->fmstage0,
+                 (unsigned long)reg->fmstage1,
+                 (unsigned long)reg->fmstage2);
+}
+#endif
+
+static void ftl_n3g_sanity_scan_raw(void)
+{
+#if defined(IPOD_NANO3G) && defined(BOOTLOADER)
+    static const uint32_t sample_pages[] =
+    {
+        0, 1, 128, 1024, 65536, 524288, 1048443, 1048444
+    };
+    int32_t read_rc;
+    int32_t id_rc;
+    uint32_t id;
+    uint32_t ctrl0;
+    uint32_t pmu10;
+    uint32_t pmu15;
+    uint32_t pcon7;
+    uint32_t pcon8;
+    uint32_t pcon9;
+    uint32_t pcon10;
+    uint32_t pcon11;
+    uint32_t clk_before;
+    uint32_t clk_during;
+    uint32_t clk_after;
+    uint32_t cp_before;
+    uint32_t cp_during;
+    uint32_t cp_after;
+    uint32_t nonzero;
+    uint32_t ff;
+    uint32_t nontrivial;
+    uint32_t i;
+    uint32_t hits = 0;
+    uint32_t id_hits = 0;
+    uint32_t cur_id = 0;
+    uint32_t local_id = 0;
+    uint32_t idvar_id = 0;
+    uint32_t gpiovar_id = 0;
+    uint32_t clkvar_id = 0;
+    uint32_t cp15_id = 0;
+    uint32_t pmu_id = 0;
+    uint32_t sample_page = 0xffffffffu;
+    uint32_t sample_w0 = 0;
+    uint32_t sample_w1 = 0;
+    uint32_t sample_nz = 0;
+    uint32_t sample_nt = 0;
+    int32_t sample_rc = 0x7fffffff;
+
+#if N3G_SCREEN_COMPACT
+    uint32_t entry_diag[10];
+    uint32_t stage_diag[39];
+
+    nano3g_nand_entry_diag_get(entry_diag, ARRAYLEN(entry_diag));
+    nano3g_nand_stage_diag_get(stage_diag, ARRAYLEN(stage_diag));
+
+    FTL_PROGRESS("N3G_MIN_START");
+    FTL_PROGRESS("N3G_ENT r0=%08lx r1=%08lx c=%08lx",
+                 (unsigned long)entry_diag[2],
+                 (unsigned long)entry_diag[3],
+                 (unsigned long)entry_diag[1]);
+    FTL_PROGRESS("N3G_ENT2 rc=%ld/%ld st=%08lx/%08lx",
+                 (long)(int32_t)entry_diag[4],
+                 (long)(int32_t)entry_diag[5],
+                 (unsigned long)entry_diag[6],
+                 (unsigned long)entry_diag[7]);
+    FTL_PROGRESS("N3G_STG seen=%08lx ok=%08lx bad=%lu",
+                 (unsigned long)stage_diag[1],
+                 (unsigned long)stage_diag[2],
+                 (unsigned long)stage_diag[3]);
+    FTL_PROGRESS("N3G_STG2 last=%08lx rc=%ld st=%08lx",
+                 (unsigned long)stage_diag[4],
+                 (long)(int32_t)stage_diag[5],
+                 (unsigned long)stage_diag[6]);
+
+    id_rc = nano3g_nand_diag_read_id_current(&id);
+    cur_id = id;
+    if (id_rc == 0 && id != 0)
+        id_hits++;
+
+    id_rc = nano3g_nand_diag_read_id(&id);
+    local_id = id;
+    if (id_rc == 0 && id != 0)
+        id_hits++;
+
+    for (i = 0; i < 8; i++)
+    {
+        id_rc = nano3g_nand_diag_read_id_variant(0, i, &ctrl0, &id);
+        if (id_rc == 0 && id != 0)
+        {
+            idvar_id = id;
+            id_hits++;
+            break;
+        }
+    }
+
+    for (i = 0; i < 5; i++)
+    {
+        id_rc = nano3g_nand_diag_gpio_id_variant(0, i, &ctrl0, &id,
+                                                 &pcon7, &pcon8, &pcon9,
+                                                 &pcon10, &pcon11);
+        if (id_rc == 0 && id != 0)
+        {
+            gpiovar_id = id;
+            id_hits++;
+            break;
+        }
+    }
+
+    for (i = 0; i < 4; i++)
+    {
+        id_rc = nano3g_nand_diag_clock_id_variant(0, i, &id, &clk_before,
+                                                  &clk_during, &clk_after);
+        if (id_rc == 0 && id != 0)
+        {
+            clkvar_id = id;
+            id_hits++;
+            break;
+        }
+    }
+
+    id_rc = nano3g_nand_diag_cp15_id(0, &id, &cp_before, &cp_during,
+                                     &cp_after);
+    if (id_rc == 0 && id != 0)
+    {
+        cp15_id = id;
+        id_hits++;
+    }
+
+    for (i = 0; i < ARRAYLEN(sample_pages); i++)
+    {
+        memset(ftl_buffer, 0, 0x800);
+        read_rc = nano3g_nand_diag_local_read(0, sample_pages[i], 0,
+                                              (uint32_t *)ftl_buffer, 16);
+        ftl_n3g_sanity_count((const uint8_t *)ftl_buffer, 64, &nonzero, &ff,
+                             &nontrivial);
+        if (sample_page == 0xffffffffu || nontrivial != 0)
+        {
+            sample_page = sample_pages[i];
+            sample_rc = read_rc;
+            sample_w0 = ftl_buffer[0];
+            sample_w1 = ftl_buffer[1];
+            sample_nz = nonzero;
+            sample_nt = nontrivial;
+        }
+        if (read_rc == 0 && nontrivial != 0)
+        {
+            hits++;
+            break;
+        }
+    }
+
+    FTL_PROGRESS("N3G_IDS c=%08lx l=%08lx",
+                 (unsigned long)cur_id, (unsigned long)local_id);
+    FTL_PROGRESS("N3G_ID2 i=%08lx g=%08lx",
+                 (unsigned long)idvar_id, (unsigned long)gpiovar_id);
+    FTL_PROGRESS("N3G_ID3 k=%08lx p=%08lx h=%lu",
+                 (unsigned long)clkvar_id, (unsigned long)pmu_id,
+                 (unsigned long)id_hits);
+    FTL_PROGRESS("N3G_ID4 cp=%08lx", (unsigned long)cp15_id);
+    FTL_PROGRESS("N3G_SMP p=%lu r=%ld",
+                 (unsigned long)sample_page, (long)sample_rc);
+    FTL_PROGRESS("N3G_DAT %08lx %08lx",
+                 (unsigned long)sample_w0, (unsigned long)sample_w1);
+    FTL_PROGRESS("N3G_CNT nz=%lu nt=%lu",
+                 (unsigned long)sample_nz, (unsigned long)sample_nt);
+    if (hits != 0)
+        FTL_PROGRESS("N3G_NAND_ACCESS_FIXED");
+    else
+        FTL_PROGRESS("N3G_NAND_ACCESS_STILL_BROKEN");
+    FTL_PROGRESS("N3G_MIN_DONE");
+    return;
+#endif
+
+    struct nano3g_nand_reg_diag reg;
+
+    nano3g_nand_diag_regs(&reg);
+    ftl_n3g_print_regs("entry", &reg);
+
+    id_rc = nano3g_nand_diag_read_id_current(&id);
+    cur_id = id;
+    FTL_PROGRESS("N3G_DFU_STATE_ID rc=%ld id=%08lx", (long)id_rc,
+                 (unsigned long)id);
+    FTL_PROGRESS("N3G_ID_CUR rc=%ld id=%08lx", (long)id_rc,
+                 (unsigned long)id);
+    if (id_rc == 0 && id != 0)
+        id_hits++;
+
+    nano3g_nand_diag_regs(&reg);
+    ftl_n3g_print_regs("after_curid", &reg);
+
+    id_rc = nano3g_nand_diag_read_id(&id);
+    local_id = id;
+    FTL_PROGRESS("N3G_LOCAL_ID rc=%ld id=%08lx", (long)id_rc,
+                 (unsigned long)id);
+    FTL_PROGRESS("N3G_ID_LOC rc=%ld id=%08lx", (long)id_rc,
+                 (unsigned long)id);
+    if (id_rc == 0 && id != 0)
+        id_hits++;
+
+    nano3g_nand_diag_regs(&reg);
+    ftl_n3g_print_regs("after_localid", &reg);
+
+    for (i = 0; i < 8; i++)
+    {
+        id_rc = nano3g_nand_diag_read_id_variant(0, i, &ctrl0, &id);
+        FTL_PROGRESS("N3G_IDVAR v=%lu rc=%ld c=%08lx id=%08lx",
+                     (unsigned long)i, (long)id_rc,
+                     (unsigned long)ctrl0, (unsigned long)id);
+        if (id_rc == 0 && id != 0)
+        {
+            idvar_id = id;
+            id_hits++;
+            break;
+        }
+    }
+
+    for (i = 0; i < 5; i++)
+    {
+        id_rc = nano3g_nand_diag_gpio_id_variant(0, i, &ctrl0, &id,
+                                                 &pcon7, &pcon8, &pcon9,
+                                                 &pcon10, &pcon11);
+        FTL_PROGRESS("N3G_GPIOVAR v=%lu rc=%ld c=%08lx id=%08lx p7=%08lx p8=%08lx",
+                     (unsigned long)i, (long)id_rc,
+                     (unsigned long)ctrl0, (unsigned long)id,
+                     (unsigned long)pcon7, (unsigned long)pcon8);
+        FTL_PROGRESS("N3G_GPIOVAR2 v=%lu p9=%08lx p10=%08lx p11=%08lx",
+                     (unsigned long)i, (unsigned long)pcon9,
+                     (unsigned long)pcon10, (unsigned long)pcon11);
+        if (id_rc == 0 && id != 0)
+        {
+            gpiovar_id = id;
+            id_hits++;
+            break;
+        }
+    }
+
+    for (i = 0; i < 4; i++)
+    {
+        id_rc = nano3g_nand_diag_clock_id_variant(0, i, &id, &clk_before,
+                                                  &clk_during, &clk_after);
+        FTL_PROGRESS("N3G_CLKVAR v=%lu rc=%ld id=%08lx",
+                     (unsigned long)i, (long)id_rc, (unsigned long)id);
+        FTL_PROGRESS("N3G_CLKVAR2 b=%08lx d=%08lx a=%08lx",
+                     (unsigned long)clk_before,
+                     (unsigned long)clk_during,
+                     (unsigned long)clk_after);
+        if (id_rc == 0 && id != 0)
+        {
+            clkvar_id = id;
+            id_hits++;
+            break;
+        }
+    }
+
+    for (i = 0; i < 5; i++)
+    {
+        id_rc = nano3g_nand_diag_pmu_id_variant(i, &pmu10, &pmu15, &id);
+        FTL_PROGRESS("N3G_PMUID v=%lu rc=%ld p10=%02lx p15=%02lx id=%08lx",
+                     (unsigned long)i, (long)id_rc,
+                     (unsigned long)pmu10, (unsigned long)pmu15,
+                     (unsigned long)id);
+        if (id_rc == 0 && id != 0)
+        {
+            pmu_id = id;
+            id_hits++;
+            break;
+        }
+    }
+
+    for (i = 0; i < ARRAYLEN(sample_pages); i++)
+    {
+        memset(ftl_buffer, 0, 0x800);
+        read_rc = nano3g_nand_diag_local_read(0, sample_pages[i], 0,
+                                              (uint32_t *)ftl_buffer, 16);
+        ftl_n3g_sanity_count((const uint8_t *)ftl_buffer, 64, &nonzero, &ff,
+                             &nontrivial);
+        FTL_PROGRESS("N3G_LOCAL_SAMPLE p=%lu rc=%ld nz=%lu nt=%lu w0=%08lx",
+                     (unsigned long)sample_pages[i], (long)read_rc,
+                     (unsigned long)nonzero, (unsigned long)nontrivial,
+                     (unsigned long)ftl_buffer[0]);
+        FTL_PROGRESS("N3G_SMPL p=%lu rc=%ld",
+                     (unsigned long)sample_pages[i], (long)read_rc);
+        FTL_PROGRESS("N3G_SMPLW w0=%08lx w1=%08lx nz=%lu nt=%lu",
+                     (unsigned long)ftl_buffer[0],
+                     (unsigned long)ftl_buffer[1],
+                     (unsigned long)nonzero, (unsigned long)nontrivial);
+        if (sample_page == 0xffffffffu || nontrivial != 0)
+        {
+            sample_page = sample_pages[i];
+            sample_rc = read_rc;
+            sample_w0 = ftl_buffer[0];
+            sample_w1 = ftl_buffer[1];
+            sample_nz = nonzero;
+            sample_nt = nontrivial;
+        }
+        if (read_rc == 0 && nontrivial != 0)
+        {
+            hits++;
+            break;
+        }
+    }
+
+    memset(ftl_buffer, 0, 0x800);
+    read_rc = nano3g_nand_diag_local_read(0, 0, 0x800,
+                                          (uint32_t *)ftl_buffer, 16);
+    ftl_n3g_sanity_count((const uint8_t *)ftl_buffer, 64, &nonzero, &ff,
+                         &nontrivial);
+    FTL_PROGRESS("N3G_LOCAL_OOB p=0 rc=%ld nz=%lu nt=%lu w0=%08lx",
+                 (long)read_rc, (unsigned long)nonzero,
+                 (unsigned long)nontrivial, (unsigned long)ftl_buffer[0]);
+
+    nano3g_nand_diag_regs(&reg);
+    ftl_n3g_print_regs("after_reads", &reg);
+
+    FTL_PROGRESS("N3G_LL_STAGE %lu init=%ld local=%ld reset=%08lx",
+                 (unsigned long)nano3g_nand_diag_last_fail_stage(),
+                 (long)nano3g_nand_diag_last_init_rc(),
+                 (long)nano3g_nand_diag_last_rom_rc(),
+                 (unsigned long)nano3g_nand_diag_last_reset_stat());
+    FTL_PROGRESS("N3G_FINAL_IDS cur=%08lx loc=%08lx",
+                 (unsigned long)cur_id, (unsigned long)local_id);
+    FTL_PROGRESS("N3G_FINAL_IDS2 iv=%08lx gv=%08lx",
+                 (unsigned long)idvar_id, (unsigned long)gpiovar_id);
+    FTL_PROGRESS("N3G_FINAL_IDC clk=%08lx pmu=%08lx",
+                 (unsigned long)clkvar_id, (unsigned long)pmu_id);
+    FTL_PROGRESS("N3G_FINAL_IDP hits=%lu", (unsigned long)id_hits);
+    FTL_PROGRESS("N3G_FINAL_SAMPLE p=%lu rc=%ld",
+                 (unsigned long)sample_page, (long)sample_rc);
+    FTL_PROGRESS("N3G_FINAL_SW w0=%08lx w1=%08lx",
+                 (unsigned long)sample_w0, (unsigned long)sample_w1);
+    FTL_PROGRESS("N3G_FINAL_SC nz=%lu nt=%lu data=%lu",
+                 (unsigned long)sample_nz, (unsigned long)sample_nt,
+                 (unsigned long)hits);
+    FTL_PROGRESS("N3G_ID_SUM hits=%lu", (unsigned long)id_hits);
+    if (hits != 0)
+        FTL_PROGRESS("N3G_NAND_ACCESS_FIXED");
+    else
+        FTL_PROGRESS("N3G_NAND_ACCESS_STILL_BROKEN");
+    FTL_PROGRESS("N3G_LOCAL_READ_DONE");
+    return;
+#else
+    static const uint32_t sample_blocks[] =
+    {
+        0, 1, 16, 128, 512, 1024, 4096, 8190
+    };
+    uint32_t bank;
+    uint32_t sample;
+    uint32_t found_nontrivial = 0;
+    uint32_t samples_seen = 0;
+    uint32_t nontrivial_samples = 0;
+    uint32_t body_nonzero_total = 0;
+    uint32_t oob_nonzero_total = 0;
+    uint32_t read_fail = 0;
+    uint32_t read_rc_or = 0;
+
+    for (bank = 0; bank < 4; bank++)
+    {
+        for (sample = 0; sample < ARRAYLEN(sample_blocks); sample++)
+        {
+            uint32_t block = sample_blocks[sample];
+            uint32_t abs;
+            uint32_t body_nonzero;
+            uint32_t oob_nonzero;
+            uint32_t body_ff;
+            uint32_t oob_ff;
+            uint32_t body_nontrivial;
+            uint32_t oob_nontrivial;
+            uint32_t rc;
+
+            if (block >= ftl_nand_type->blocks)
+                continue;
+
+            abs = block * ftl_nand_type->pagesperblock;
+            memset(ftl_buffer, 0, 0x800);
+            memset(&ftl_sparebuffer[0], 0, sizeof(ftl_sparebuffer[0]));
+
+            if (samples_seen == 0)
+                FTL_PROGRESS("N3G_SANITY_READ_BEGIN bank=%lu block=%lu page=%lu",
+                             (unsigned long)bank, (unsigned long)block,
+                             (unsigned long)abs);
+            rc = nand_read_page(bank, abs, ftl_buffer, &ftl_sparebuffer[0], 0, 0);
+            if (samples_seen == 0)
+                FTL_PROGRESS("N3G_SANITY_READ_END rc=%lu", (unsigned long)rc);
+            read_rc_or |= rc;
+            if (rc != 0)
+                read_fail++;
+
+            ftl_n3g_sanity_count(ftl_buffer, 512, &body_nonzero, &body_ff,
+                                 &body_nontrivial);
+            ftl_n3g_sanity_count((const uint8_t *)&ftl_sparebuffer[0],
+                                 sizeof(ftl_sparebuffer[0]), &oob_nonzero,
+                                 &oob_ff, &oob_nontrivial);
+            if (body_nontrivial != 0 || oob_nontrivial != 0)
+            {
+                found_nontrivial = 1;
+                nontrivial_samples++;
+            }
+
+            body_nonzero_total += body_nonzero;
+            oob_nonzero_total += oob_nonzero;
+            samples_seen++;
+
+            if (rc != 0 || found_nontrivial)
+                break;
+        }
+        if (read_fail != 0 || found_nontrivial)
+            break;
+    }
+
+#if defined(IPOD_NANO3G) && defined(BOOTLOADER)
+    FTL_PROGRESS("N3G_LL_STAGE %lu",
+                 (unsigned long)nano3g_nand_diag_last_fail_stage());
+    FTL_PROGRESS("N3G_LL_POS b%lu p%lu",
+                 (unsigned long)nano3g_nand_diag_last_bank(),
+                 (unsigned long)nano3g_nand_diag_last_page());
+    FTL_PROGRESS("N3G_LL_INIT_RC %ld",
+                 (long)nano3g_nand_diag_last_init_rc());
+    FTL_PROGRESS("N3G_LL_ROM_RC %ld",
+                 (long)nano3g_nand_diag_last_rom_rc());
+    FTL_PROGRESS("N3G_LL_RESET %08lx",
+                 (unsigned long)nano3g_nand_diag_last_reset_stat());
+#endif
+    FTL_PROGRESS("N3G_SANITY_FINAL samples=%lu read_fail=%lu rc_or=%lu nontrivial=%lu body_nonzero=%lu oob_nonzero=%lu",
+                 (unsigned long)samples_seen,
+                 (unsigned long)read_fail,
+                 (unsigned long)read_rc_or,
+                 (unsigned long)nontrivial_samples,
+                 (unsigned long)body_nonzero_total,
+                 (unsigned long)oob_nonzero_total);
+
+    if (found_nontrivial)
+        FTL_PROGRESS("N3G_NAND_ACCESS_FIXED");
+    else
+        FTL_PROGRESS("N3G_NAND_ACCESS_STILL_BROKEN");
+
+    FTL_PROGRESS("N3G_SANITY_SCAN_DONE");
+#endif
 }
 
 static uint32_t ftl_n3g_page_structure_score(const uint32_t* data)
@@ -659,10 +8200,6 @@ static int ftl_n3g_read_phys_page0(uint32_t phys, uint32_t total_pages,
 static void ftl_n3g_targeted_meta_decode(const uint32_t pages[],
                                          uint32_t recon_data[][128])
 {
-    uint32_t i;
-    uint32_t ret;
-    uint8_t* bytes = (uint8_t*)ftl_buffer;
-
     (void)pages;
     (void)recon_data;
 
@@ -675,84 +8212,7 @@ static void ftl_n3g_targeted_meta_decode(const uint32_t pages[],
                  (unsigned long)syshyperblocks,
                  ftl_nand_type->pagesperblock);
 
-    if (!ftl_has_devinfo())
-    {
-        FTL_PROGRESS("N3G_CTX_DEVINFO_FAIL");
-        return;
-    }
-
-    FTL_PROGRESS("N3G_CTX_DEVINFO_OK");
-
-    ret = ftl_vfl_open();
-    FTL_PROGRESS("N3G_VFL_OPEN rc=%lu", (unsigned long)ret);
-    if (ret != 0)
-        return;
-
-    for (i = 0; i < ftl_banks; i++)
-    {
-        FTL_PROGRESS("N3G_VFL_CXT bank=%lu usn=%08lx upd=%08lx active=%u next=%u",
-                     (unsigned long)i, (unsigned long)ftl_vfl_cxt[i].usn,
-                     (unsigned long)ftl_vfl_cxt[i].updatecount,
-                     ftl_vfl_cxt[i].activecxtblock,
-                     ftl_vfl_cxt[i].nextcxtpage);
-        FTL_PROGRESS("N3G_VFL_CTRL bank=%lu ctrl=%04x %04x %04x vfl=%04x %04x %04x %04x",
-                     (unsigned long)i,
-                     ftl_vfl_cxt[i].ftlctrlblocks[0],
-                     ftl_vfl_cxt[i].ftlctrlblocks[1],
-                     ftl_vfl_cxt[i].ftlctrlblocks[2],
-                     ftl_vfl_cxt[i].vflcxtblocks[0],
-                     ftl_vfl_cxt[i].vflcxtblocks[1],
-                     ftl_vfl_cxt[i].vflcxtblocks[2],
-                     ftl_vfl_cxt[i].vflcxtblocks[3]);
-    }
-
-    ret = ftl_open();
-    FTL_PROGRESS("N3G_FTL_OPEN rc=%lu", (unsigned long)ret);
-    if (ret != 0)
-        return;
-
-    FTL_PROGRESS("N3G_FTL_CXT usn=%08lx next=%08lx ctrlpage=%08lx clean=%08lx",
-                 (unsigned long)ftl_cxt.usn,
-                 (unsigned long)ftl_cxt.nextblockusn,
-                 (unsigned long)ftl_cxt.ftlctrlpage,
-                 (unsigned long)ftl_cxt.clean_flag);
-    FTL_PROGRESS("N3G_FTL_CTRL %04x %04x %04x map0=%08lx map1=%08lx",
-                 ftl_cxt.ftlctrlblocks[0], ftl_cxt.ftlctrlblocks[1],
-                 ftl_cxt.ftlctrlblocks[2],
-                 (unsigned long)ftl_cxt.ftl_map_pages[0],
-                 (unsigned long)ftl_cxt.ftl_map_pages[1]);
-
-    FTL_PROGRESS("N3G_FTL_MAP0 %04x %04x %04x %04x %04x %04x %04x %04x",
-                 ftl_map[0], ftl_map[1], ftl_map[2], ftl_map[3],
-                 ftl_map[4], ftl_map[5], ftl_map[6], ftl_map[7]);
-
-    ret = ftl_read(0, 1, ftl_buffer);
-    FTL_PROGRESS("N3G_SECTOR0_FTL rc=%ld sig=%02x%02x first=%08lx %08lx %08lx %08lx",
-                 (long)ret, bytes[510], bytes[511],
-                 (unsigned long)((uint32_t*)bytes)[0],
-                 (unsigned long)((uint32_t*)bytes)[1],
-                 (unsigned long)((uint32_t*)bytes)[2],
-                 (unsigned long)((uint32_t*)bytes)[3]);
-
-    if (bytes[510] == 0x55 && bytes[511] == 0xaa)
-    {
-        FTL_PROGRESS("N3G_WINPOD_MBR_FOUND type0=%02x start0=%lu size0=%lu",
-                     bytes[450],
-                     (unsigned long)ftl_n3g_mbr_part_start(bytes, 0),
-                     (unsigned long)ftl_n3g_mbr_part_size(bytes, 0));
-        FTL_PROGRESS("N3G_PART1 type=%02x start=%lu size=%lu",
-                     bytes[466],
-                     (unsigned long)ftl_n3g_mbr_part_start(bytes, 1),
-                     (unsigned long)ftl_n3g_mbr_part_size(bytes, 1));
-    }
-    else if (bytes[0] == 'E' && bytes[1] == 'R')
-    {
-        FTL_PROGRESS("N3G_MACPOD_DRIVER_DESC_FOUND");
-    }
-    else
-    {
-        FTL_PROGRESS("N3G_NO_BOOT_SIGNATURE_FOUND");
-    }
+    ftl_n3g_sanity_scan_raw();
 }
 
 static void ftl_n3g_dump_meta_candidate(uint32_t bank, uint32_t block,
@@ -1583,10 +9043,58 @@ static inline void ftl_n3g_dump_reconstruction_pages(void)
    Used to check if one is present, and to read the lowlevel BBT. */
 static uint32_t ftl_find_devinfo(uint32_t bank)
 {
+#if defined(IPOD_NANO3G) && defined(BOOTLOADER) && N3G_RECON_ONLY
+    (void)bank;
+    FTL_PROGRESS("N3G_DEVINFO_FIND_DISABLED");
+    return 0;
+#endif
+
     /* Scan the last 10% of the flash for device info pages */
     uint32_t lowestBlock = ftl_nand_type->blocks
                          - (ftl_nand_type->blocks / 10);
     uint32_t block, page, pagenum;
+
+    if (n3g_ctx_trace_compact)
+    {
+        uint32_t scanned, limit;
+        uint32_t lastBlock = ftl_nand_type->blocks - 1;
+
+        limit = ftl_nand_type->blocks;
+        if (limit > N3G_DEVINFO_SCAN_BLOCK_LIMIT)
+            limit = N3G_DEVINFO_SCAN_BLOCK_LIMIT;
+
+        lowestBlock = lastBlock - limit + 1;
+        FTL_PROGRESS("N3G_DEVINFO_SCAN bank=%lu from=%lu",
+                     (unsigned long)bank, (unsigned long)lowestBlock);
+
+        for (scanned = 0; scanned < limit; scanned++)
+        {
+            const char* sig;
+
+            block = lastBlock - scanned;
+            if ((scanned & 0xf) == 0)
+                FTL_PROGRESS("N3G_DEVINFO_PROGRESS bank=%lu block=%lu",
+                             (unsigned long)bank, (unsigned long)block);
+
+            pagenum = block * ftl_nand_type->pagesperblock;
+            if ((nand_read_page(bank, pagenum, ftl_buffer,
+                                &ftl_sparebuffer[0], 1, 0) & 0x11F) != 0)
+                continue;
+
+            sig = ftl_n3g_devinfo_marker(ftl_buffer, &ftl_sparebuffer[0]);
+            if (sig != NULL)
+            {
+                FTL_PROGRESS("N3G_CTX_DEVINFO_OK bank=%lu block=%lu page=%lu sig=%s",
+                             (unsigned long)bank, (unsigned long)block,
+                             (unsigned long)pagenum, sig);
+                return pagenum;
+            }
+        }
+
+        FTL_PROGRESS("N3G_CTX_DEVINFO_FAIL bank=%lu", (unsigned long)bank);
+        return 0;
+    }
+
     FTL_PROGRESS("N3G_DEVINFO_SCAN bank=%lu from=%lu",
                  (unsigned long)bank, (unsigned long)lowestBlock);
     for (block = ftl_nand_type->blocks - 1; block >= lowestBlock; block--)
@@ -1644,6 +9152,23 @@ static uint32_t ftl_find_devinfo(uint32_t bank)
 static uint32_t ftl_has_devinfo(void)
 {
     uint32_t i;
+
+#if defined(IPOD_NANO3G) && defined(BOOTLOADER) && N3G_RECON_ONLY
+    FTL_PROGRESS("N3G_DEVINFO_SCAN_DISABLED");
+    return 0;
+#endif
+
+    if (n3g_ctx_trace_compact)
+    {
+        if (ftl_banks == 0)
+        {
+            FTL_PROGRESS("N3G_CTX_DEVINFO_FAIL bank=0");
+            return 0;
+        }
+
+        return ftl_find_devinfo(0) != 0;
+    }
+
     for (i = 0; i < ftl_banks; i++) if (ftl_find_devinfo(i) == 0) return 0;
     return 1;
 }
@@ -2613,6 +10138,11 @@ uint32_t ftl_read(uint32_t sector, uint32_t count, void* buffer)
     }
     if (count == 0) return 0;
 
+#if defined(IPOD_NANO3G) && defined(BOOTLOADER)
+    if (n3g_direct_map_mount)
+        return ftl_n3g_direct_read(sector, count, buffer);
+#endif
+
     mutex_lock(&ftl_mtx);
 
     for (i = 0; i < count; i++)
@@ -3476,31 +11006,52 @@ uint32_t ftl_sync(void)
    which will just do nothing if everything was already clean. */
 uint32_t ftl_init(void)
 {
+#if defined(IPOD_NANO3G) && defined(BOOTLOADER) && N3G_RECON_ONLY
+#if N3G_SCREEN_COMPACT
+    FTL_PROGRESS("N3G_BUILD 20260505d");
+    FTL_PROGRESS("N3G_EXEC_WMOUNT_ED_TARGET_DUMP");
+#else
+    FTL_PROGRESS("N3G_NAND_ACCESS_PROBE_START");
+    FTL_PROGRESS("N3G_VERDICT_ONLY_BUILD v=20260503i");
+#endif
+#else
     FTL_PROGRESS("FTL_SCAN_PROGRESS init start");
-    FTL_PROGRESS("INIT_STARTED_CONFIRMED");
-    FTL_PROGRESS("CLASSIC_6G7G_FTL_COMPARISON classic=ATA_CEATA no_nand_vfl");
-    FTL_PROGRESS("NANO2G_VS_CLASSIC_MATCH_SCORE nano2g=whimory classic=ata score=0");
-    FTL_PROGRESS("BEST_NANO3G_METADATA_FORMAT_GUESS pending");
+#endif
     mutex_init(&ftl_mtx);
     uint32_t i;
+#if !(defined(IPOD_NANO3G) && defined(BOOTLOADER) && N3G_RECON_ONLY && N3G_SCREEN_COMPACT)
+    FTL_PROGRESS("N3G_STAGE before_nand_device_init");
+#endif
     if (nand_device_init() != 0) //return 1;
         panicf("FTL: Lowlevel NAND driver init failed!");
-    FTL_PROGRESS("ftl nand init ok");
+#if !(defined(IPOD_NANO3G) && defined(BOOTLOADER) && N3G_RECON_ONLY && N3G_SCREEN_COMPACT)
+    FTL_PROGRESS("N3G_STAGE after_nand_device_init");
+#endif
     ftl_banks = 0;
     for (i = 0; i < 4; i++)
         if (nand_get_device_type(i) != 0) ftl_banks = i + 1;
     ftl_nand_type = nand_get_device_type(0);
     ppb = ftl_nand_type->pagesperblock * ftl_banks;
     syshyperblocks = ftl_nand_type->blocks - ftl_nand_type->userblocks - 0x17;
+#if !(defined(IPOD_NANO3G) && defined(BOOTLOADER) && N3G_RECON_ONLY && N3G_SCREEN_COMPACT)
     FTL_PROGRESS("ftl geom banks %lu blocks %u user %u ppb %lu sys %lu",
                  (unsigned long)ftl_banks, ftl_nand_type->blocks,
                  ftl_nand_type->userblocks, (unsigned long)ppb,
                  (unsigned long)syshyperblocks);
-    ftl_n3g_dump_reconstruction_pages();
+#endif
 #if defined(IPOD_NANO3G) && defined(BOOTLOADER) && N3G_RECON_ONLY
-    FTL_PROGRESS("INIT_FAIL recon_only");
+#if !N3G_SCREEN_COMPACT
+    FTL_PROGRESS("N3G_STAGE before_sanity_scan");
+#endif
+    if (ftl_n3g_winpod_mount() == 0)
+        return 0;
+    return -1;
+#if !N3G_SCREEN_COMPACT
+    FTL_PROGRESS("N3G_STAGE after_sanity_scan");
+#endif
     return -1;
 #endif
+    ftl_n3g_dump_reconstruction_pages();
 
     if (!ftl_has_devinfo())
     {

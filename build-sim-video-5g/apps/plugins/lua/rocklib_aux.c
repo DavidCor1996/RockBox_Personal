@@ -534,9 +534,9 @@ static int rock_strchr(lua_State *L)
 
 static int rock_strcmp(lua_State *L)
 {
-	const char * bojwg = (const char *) luaL_checkstring(L, 1);
-	const char * vruuf = (const char *) luaL_checkstring(L, 2);
-	int result = rb->strcmp(bojwg, vruuf);
+	const char * otlkc = (const char *) luaL_checkstring(L, 1);
+	const char * krvlb = (const char *) luaL_checkstring(L, 2);
+	int result = rb->strcmp(otlkc, krvlb);
 	lua_pushinteger(L, result);
 	return 1;
 }

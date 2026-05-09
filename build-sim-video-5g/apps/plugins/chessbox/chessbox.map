@@ -10,24 +10,24 @@ Merging object attributes
 
 Merging program properties
 
-Removed property 0xc0000002 to merge /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o (0x3) and /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/chessbox.o (not found)
-Updated property 0xc0010001 (0x9) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o (0x1) and /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/chessbox.o (0x9)
-Updated property 0xc0010001 (0x9) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o (0x9) and /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/opening.o (0x1)
-Updated property 0xc0010002 (0x1) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o (0x1) and /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/opening.o (0x0)
-Updated property 0xc0010001 (0x9) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o (0x9) and /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o (0x1)
-Updated property 0xc0010001 (0x9) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o (0x9) and /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(playback_control.o) (0x1)
-Updated property 0xc0010001 (0x9) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o (0x9) and /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(chessbox_pieces.240x240x16.o) (0x1)
-Updated property 0xc0010002 (0x1) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o (0x1) and /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(chessbox_pieces.240x240x16.o) (0x0)
-Updated property 0xc0010001 (0x9) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o (0x9) and /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtendS.o (0x1)
-Updated property 0xc0010002 (0x1) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o (0x1) and /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtendS.o (0x0)
-Removed property 0xc0000002 to merge /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o (not found) and /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtendS.o (0x3)
-Updated property 0xc0010001 (0x9) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o (0x9) and /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o (0x1)
-Removed property 0xc0000002 to merge /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o (not found) and /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o (0x3)
+Removed property 0xc0000002 to merge /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o (0x3) and /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/chessbox.o (not found)
+Updated property 0xc0010001 (0x9) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o (0x1) and /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/chessbox.o (0x9)
+Updated property 0xc0010001 (0x9) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o (0x9) and /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/opening.o (0x1)
+Updated property 0xc0010002 (0x1) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o (0x1) and /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/opening.o (0x0)
+Updated property 0xc0010001 (0x9) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o (0x9) and /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o (0x1)
+Updated property 0xc0010001 (0x9) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o (0x9) and /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(playback_control.o) (0x1)
+Updated property 0xc0010001 (0x9) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o (0x9) and /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(chessbox_pieces.240x240x16.o) (0x1)
+Updated property 0xc0010002 (0x1) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o (0x1) and /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(chessbox_pieces.240x240x16.o) (0x0)
+Updated property 0xc0010001 (0x9) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o (0x9) and /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtendS.o (0x1)
+Updated property 0xc0010002 (0x1) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o (0x1) and /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtendS.o (0x0)
+Removed property 0xc0000002 to merge /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o (not found) and /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtendS.o (0x3)
+Updated property 0xc0010001 (0x9) to merge /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o (0x9) and /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o (0x1)
+Removed property 0xc0000002 to merge /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o (not found) and /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o (0x3)
 
 Discarded input sections
 
  .note.gnu.property
-                0x0000000000000000       0x50 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtbeginS.o
+                0x0000000000000000       0x50 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtbeginS.o
  .note.gnu.property
                 0x0000000000000000       0x30 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/chessbox.o
  .note.gnu.property
@@ -43,9 +43,9 @@ Discarded input sections
  .note.gnu.property
                 0x0000000000000000       0x30 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(chessbox_pieces.240x240x16.o)
  .note.gnu.property
-                0x0000000000000000       0x50 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtendS.o
+                0x0000000000000000       0x50 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtendS.o
  .note.gnu.property
-                0x0000000000000000       0x50 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
+                0x0000000000000000       0x50 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
 
 Memory Configuration
 
@@ -54,8 +54,8 @@ Name             Origin             Length             Attributes
 
 Linker script and memory map
 
-LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
-LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtbeginS.o
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtbeginS.o
 LOAD /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/chessbox.o
 LOAD /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/gnuchess.o
 LOAD /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/opening.o
@@ -64,97 +64,101 @@ LOAD /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugi
 LOAD /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a
 LOAD /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a
 LOAD /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libfixedpoint.a
-LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/libgcc.a
-LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/libgcc.a
-LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/libgcc_s.so
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/libgcc.a
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/libgcc.a
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/libgcc_s_asneeded.so
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/libgcc_s.so
 START GROUP
-LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/libgcc_s.so.1
-LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/libgcc.a
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/libgcc_s.so.1
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/libgcc.a
 END GROUP
-LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/libc.so
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/libatomic_asneeded.so
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/libatomic.so
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/libc.so
 START GROUP
 LOAD /usr/lib/libc.so.6
 LOAD /usr/lib/libc_nonshared.a
 LOAD /usr/lib/ld-linux-x86-64.so.2
 END GROUP
-LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/libgcc.a
-LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/libgcc_s.so
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/libgcc.a
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/libgcc_s_asneeded.so
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/libgcc_s.so
 START GROUP
-LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/libgcc_s.so.1
-LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/libgcc.a
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/libgcc_s.so.1
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/libgcc.a
 END GROUP
-LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtendS.o
-LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtendS.o
+LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
                 0x00000000000002a8                . = (SEGMENT_START ("text-segment", 0x0) + SIZEOF_HEADERS)
 
 .note.gnu.build-id
                 0x00000000000002a8       0x24
  *(.note.gnu.build-id)
  .note.gnu.build-id
-                0x00000000000002a8       0x24 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+                0x00000000000002a8       0x24 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
 
 .hash
  *(.hash)
 
 .gnu.hash       0x00000000000002d0       0x30
  *(.gnu.hash)
- .gnu.hash      0x00000000000002d0       0x30 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ .gnu.hash      0x00000000000002d0       0x30 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
 
 .dynsym         0x0000000000000300      0x120
  *(.dynsym)
- .dynsym        0x0000000000000300      0x120 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ .dynsym        0x0000000000000300      0x120 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
 
 .dynstr         0x0000000000000420       0xb6
  *(.dynstr)
- .dynstr        0x0000000000000420       0xb6 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ .dynstr        0x0000000000000420       0xb6 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
 
 .gnu.version    0x00000000000004d6       0x18
  *(.gnu.version)
- .gnu.version   0x00000000000004d6       0x18 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ .gnu.version   0x00000000000004d6       0x18 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
 
 .gnu.version_d  0x00000000000004f0        0x0
  *(.gnu.version_d)
  .gnu.version_d
-                0x00000000000004f0        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+                0x00000000000004f0        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
 
 .gnu.version_r  0x00000000000004f0       0x30
  *(.gnu.version_r)
  .gnu.version_r
-                0x00000000000004f0       0x30 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+                0x00000000000004f0       0x30 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
 
 .rela.dyn       0x0000000000000520      0x480
  *(.rela.init)
  *(.rela.text .rela.text.* .rela.gnu.linkonce.t.*)
- .rela.text     0x0000000000000520        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ .rela.text     0x0000000000000520        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
  *(.rela.fini)
  *(.rela.rodata .rela.rodata.* .rela.gnu.linkonce.r.*)
  *(.rela.data .rela.data.* .rela.gnu.linkonce.d.*)
  .rela.data.rel.local
-                0x0000000000000520       0xd8 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+                0x0000000000000520       0xd8 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
  .rela.data.rel.ro.local
-                0x00000000000005f8      0x300 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+                0x00000000000005f8      0x300 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
  *(.rela.tdata .rela.tdata.* .rela.gnu.linkonce.td.*)
  *(.rela.tbss .rela.tbss.* .rela.gnu.linkonce.tb.*)
  *(.rela.ctors)
  *(.rela.dtors)
  *(.rela.got)
- .rela.got      0x00000000000008f8       0x78 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ .rela.got      0x00000000000008f8       0x78 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
  *(.rela.tls)
- .rela.tls      0x0000000000000970        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ .rela.tls      0x0000000000000970        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
  *(.rela.bss .rela.bss.* .rela.gnu.linkonce.b.*)
  *(.rela.ldata .rela.ldata.* .rela.gnu.linkonce.l.*)
  *(.rela.lbss .rela.lbss.* .rela.gnu.linkonce.lb.*)
  *(.rela.lrodata .rela.lrodata.* .rela.gnu.linkonce.lr.*)
  *(.rela.ifunc)
- .rela.ifunc    0x0000000000000970        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ .rela.ifunc    0x0000000000000970        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
  .rela.fini_array
-                0x0000000000000970       0x18 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+                0x0000000000000970       0x18 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
  .rela.init_array
-                0x0000000000000988       0x18 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+                0x0000000000000988       0x18 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
 
 .rela.plt       0x00000000000009a0       0x60
  *(.rela.plt)
- .rela.plt      0x00000000000009a0       0x60 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ .rela.plt      0x00000000000009a0       0x60 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
  *(.rela.iplt)
 
 .relr.dyn
@@ -163,178 +167,174 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 
 .init           0x0000000000001000       0x1b
  *(SORT_NONE(.init))
- .init          0x0000000000001000       0x16 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ .init          0x0000000000001000       0x16 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
                 0x0000000000001000                _init
- .init          0x0000000000001016        0x5 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
+ .init          0x0000000000001016        0x5 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
 
 .plt            0x0000000000001020       0x50
  *(.plt)
- .plt           0x0000000000001020       0x50 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ .plt           0x0000000000001020       0x50 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
  *(.iplt)
 
 .plt.got        0x0000000000001070        0x0
  *(.plt.got)
- .plt.got       0x0000000000001070        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ .plt.got       0x0000000000001070        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
 
 .plt.sec
  *(.plt.sec)
 
-.text           0x0000000000001080     0xcd8b
+.text           0x0000000000001080     0xd267
  *(.text.unlikely .text.*_unlikely .text.unlikely.*)
  *(.text.exit .text.exit.*)
  *(.text.startup .text.startup.*)
  *(.text.hot .text.hot.*)
  *(SORT_BY_NAME(.text.sorted.*))
  *(.text .stub .text.* .gnu.linkonce.t.*)
- .text          0x0000000000001080        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
- .text          0x0000000000001080       0xc9 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtbeginS.o
+ .text          0x0000000000001080        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
+ .text          0x0000000000001080       0xc9 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtbeginS.o
  *fill*         0x0000000000001149        0x7 
- .text          0x0000000000001150     0x213a /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/chessbox.o
-                0x0000000000002630                cb_talk
-                0x00000000000027e0                plugin_start
- *fill*         0x000000000000328a       0x36 
- .text          0x00000000000032c0     0x8330 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/gnuchess.o
-                0x00000000000032c0                ScoreKPK
-                0x00000000000034d0                ScoreKBNK
-                0x0000000000003600                KingScan
-                0x0000000000003af0                BRscan
-                0x0000000000003cf0                trapped
-                0x0000000000003fb0                SqValue
-                0x0000000000004bc0                UpdateWeights
-                0x0000000000004eb0                ScoreLoneKing
-                0x0000000000005090                ScorePosition
-                0x00000000000053f0                distance
-                0x0000000000005440                BlendBoard
-                0x00000000000054a0                CopyBoard
-                0x00000000000054e0                ProbeTTable
-                0x0000000000005590                PutInTTable
-                0x0000000000005600                ZeroTTable
-                0x0000000000005650                LinkMove
-                0x0000000000005800                GenMoves
-                0x0000000000005bf0                CaptureList
-                0x0000000000006040                UpdateHashbd
-                0x00000000000060e0                UpdatePieceList
-                0x00000000000061b0                InitializeStats
-                0x0000000000006330                EnPassant
-                0x0000000000006380                pick
-                0x0000000000006430                OpeningBook
-                0x00000000000065d0                repetition
-                0x00000000000066d0                SqAtakd
-                0x00000000000069c0                castle
-                0x0000000000006c30                MoveList
-                0x0000000000006e50                MakeMove
-                0x00000000000073c0                UnmakeMove
-                0x0000000000007750                ataks
-                0x0000000000007920                ExaminePosition
-                0x0000000000008c10                evaluate
-                0x0000000000008f90                ElapsedTime
-                0x00000000000090b0                search
-                0x0000000000009f40                SetTimeControl
-                0x0000000000009fc0                NewGame
-                0x000000000000a300                GNUChess_Initialize
-                0x000000000000a360                algbr
-                0x000000000000a560                SelectMove
-                0x000000000000b2d0                VerifyMove
- .text          0x000000000000b5f0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/opening.o
- *fill*         0x000000000000b5f0       0x10 
- .text          0x000000000000b600     0x2575 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/chessbox_pgn.o
-                0x000000000000ba70                pgn_list_games
-                0x000000000000bc90                pgn_show_game_list
-                0x000000000000be40                pgn_parse_game
-                0x000000000000cdc0                pgn_init_game
-                0x000000000000cf70                pgn_append_ply
-                0x000000000000d040                pgn_set_result
-                0x000000000000d080                pgn_store_game
- .text          0x000000000000db75       0xe3 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
-                0x000000000000db84                plugin__start
-                0x000000000000dbd8                rb_atexit
-                0x000000000000dbf1                exit
-                0x000000000000dc0a                _exit
-                0x000000000000dc19                exit_on_usb
- .text          0x000000000000dc58      0x1b3 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(playback_control.o)
-                0x000000000000ddd5                playback_control_init
-                0x000000000000dddd                playback_control
- .text          0x000000000000de0b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(chessbox_pieces.240x240x16.o)
- .text          0x000000000000de0b        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtendS.o
- .text          0x000000000000de0b        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
+ .text          0x0000000000001150     0x2235 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/chessbox.o
+                0x0000000000002700                cb_talk
+                0x00000000000028b0                plugin_start
+ *fill*         0x0000000000003385       0x3b 
+ .text          0x00000000000033c0     0x867e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/gnuchess.o
+                0x0000000000003430                ScoreKPK
+                0x0000000000003640                ScoreKBNK
+                0x0000000000003770                KingScan
+                0x0000000000003c60                BRscan
+                0x0000000000003ea0                trapped
+                0x00000000000041e0                SqValue
+                0x0000000000004df0                UpdateWeights
+                0x0000000000005120                ScoreLoneKing
+                0x0000000000005310                ScorePosition
+                0x0000000000005680                distance
+                0x00000000000056d0                BlendBoard
+                0x0000000000005730                CopyBoard
+                0x0000000000005760                ProbeTTable
+                0x0000000000005800                PutInTTable
+                0x0000000000005870                ZeroTTable
+                0x00000000000058d0                LinkMove
+                0x0000000000005a80                GenMoves
+                0x0000000000005ec0                CaptureList
+                0x00000000000062f0                UpdateHashbd
+                0x0000000000006390                UpdatePieceList
+                0x00000000000063f0                InitializeStats
+                0x0000000000006570                EnPassant
+                0x00000000000065c0                pick
+                0x0000000000006670                OpeningBook
+                0x0000000000006810                repetition
+                0x0000000000006910                SqAtakd
+                0x0000000000006c30                castle
+                0x0000000000006eb0                MoveList
+                0x00000000000070f0                MakeMove
+                0x0000000000007700                UnmakeMove
+                0x0000000000007b20                ataks
+                0x0000000000007d20                ExaminePosition
+                0x0000000000009000                evaluate
+                0x0000000000009390                ElapsedTime
+                0x00000000000094b0                search
+                0x000000000000a280                SetTimeControl
+                0x000000000000a2f0                NewGame
+                0x000000000000a620                GNUChess_Initialize
+                0x000000000000a680                algbr
+                0x000000000000a870                SelectMove
+                0x000000000000b690                VerifyMove
+ .text          0x000000000000ba3e        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/opening.o
+ *fill*         0x000000000000ba3e        0x2 
+ .text          0x000000000000ba40     0x2611 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/chessbox_pgn.o
+                0x000000000000be70                pgn_list_games
+                0x000000000000c130                pgn_show_game_list
+                0x000000000000c2d0                pgn_parse_game
+                0x000000000000d230                pgn_init_game
+                0x000000000000d400                pgn_append_ply
+                0x000000000000d4d0                pgn_set_result
+                0x000000000000d510                pgn_store_game
+ .text          0x000000000000e051       0xe3 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+                0x000000000000e060                plugin__start
+                0x000000000000e0b4                rb_atexit
+                0x000000000000e0cd                exit
+                0x000000000000e0e6                _exit
+                0x000000000000e0f5                exit_on_usb
+ .text          0x000000000000e134      0x1b3 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(playback_control.o)
+                0x000000000000e2b1                playback_control_init
+                0x000000000000e2b9                playback_control
+ .text          0x000000000000e2e7        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(chessbox_pieces.240x240x16.o)
+ .text          0x000000000000e2e7        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtendS.o
+ .text          0x000000000000e2e7        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
  *(.gnu.warning)
 
-.fini           0x000000000000de0c        0xd
+.fini           0x000000000000e2e8        0xd
  *(SORT_NONE(.fini))
- .fini          0x000000000000de0c        0x8 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
-                0x000000000000de0c                _fini
- .fini          0x000000000000de14        0x5 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
+ .fini          0x000000000000e2e8        0x8 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
+                0x000000000000e2e8                _fini
+ .fini          0x000000000000e2f0        0x5 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
                 [!provide]                        PROVIDE (__etext = .)
                 [!provide]                        PROVIDE (_etext = .)
                 [!provide]                        PROVIDE (etext = .)
-                0x000000000000e000                . = ALIGN (CONSTANT (MAXPAGESIZE))
-                0x000000000000e000                . = SEGMENT_START ("rodata-segment", (ALIGN (CONSTANT (MAXPAGESIZE)) + (. & (CONSTANT (MAXPAGESIZE) - 0x1))))
+                0x000000000000f000                . = ALIGN (CONSTANT (MAXPAGESIZE))
+                0x000000000000f000                . = SEGMENT_START ("rodata-segment", (ALIGN (CONSTANT (MAXPAGESIZE)) + (. & (CONSTANT (MAXPAGESIZE) - 0x1))))
 
-.rodata         0x000000000000e000     0xbc30
+.rodata         0x000000000000f000     0xbbf0
  *(.rodata .rodata.* .gnu.linkonce.r.*)
  .rodata.str1.8
-                0x000000000000e000       0xb3 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/chessbox.o
+                0x000000000000f000       0xb3 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/chessbox.o
                                          0x24 (size before relaxing)
- *fill*         0x000000000000e0b3        0xd 
- .rodata        0x000000000000e0c0      0x124 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/chessbox.o
+ *fill*         0x000000000000f0b3        0x1 
+ .rodata        0x000000000000f0b4      0x110 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/chessbox.o
+ *fill*         0x000000000000f1c4        0xc 
+ .rodata.cst32  0x000000000000f1d0       0x20 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/chessbox.o
  .rodata.str1.1
-                0x000000000000e1e4      0x163 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/chessbox.o
+                0x000000000000f1f0      0x163 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/chessbox.o
                                           0x9 (size before relaxing)
- *fill*         0x000000000000e347        0x1 
- .rodata.cst4   0x000000000000e348        0x8 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/chessbox.o
-                                          0x4 (size before relaxing)
- .rodata        0x000000000000e350       0x34 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/gnuchess.o
+ *fill*         0x000000000000f353        0x1 
+ .rodata        0x000000000000f354       0x34 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/gnuchess.o
  .rodata.str1.1
-                0x000000000000e384        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/gnuchess.o
+                0x000000000000f388        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/gnuchess.o
                                          0x24 (size before relaxing)
- *fill*         0x000000000000e384        0xc 
- .rodata.cst16  0x000000000000e390       0x40 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/gnuchess.o
+ *fill*         0x000000000000f388        0x8 
+ .rodata.cst16  0x000000000000f390       0x40 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/gnuchess.o
  .rodata.str1.1
-                0x000000000000e3d0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/chessbox_pgn.o
+                0x000000000000f3d0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/chessbox_pgn.o
                                         0x148 (size before relaxing)
  .rodata.str1.8
-                0x000000000000e3d0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/chessbox_pgn.o
+                0x000000000000f3d0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/chessbox_pgn.o
                                          0x8b (size before relaxing)
- *fill*         0x000000000000e3d0       0x10 
- .rodata        0x000000000000e3e0       0x42 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/chessbox_pgn.o
- .rodata.cst4   0x000000000000e422        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/chessbox_pgn.o
-                                          0x4 (size before relaxing)
- *fill*         0x000000000000e422        0x6 
- .rodata.cst8   0x000000000000e428       0x20 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/chessbox_pgn.o
- .rodata.cst2   0x000000000000e448        0x4 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/chessbox_pgn.o
+ .rodata.cst8   0x000000000000f3d0        0x8 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/chessbox_pgn.o
+ *fill*         0x000000000000f3d8        0x8 
+ .rodata        0x000000000000f3e0       0x22 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/chessbox_pgn.o
  .rodata.str1.1
-                0x000000000000e44c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(playback_control.o)
+                0x000000000000f402        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(playback_control.o)
                                          0x16 (size before relaxing)
- *fill*         0x000000000000e44c        0x4 
- .rodata        0x000000000000e450       0xf8 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(playback_control.o)
- *fill*         0x000000000000e548       0x18 
- .rodata        0x000000000000e560     0xb6d0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(chessbox_pieces.240x240x16.o)
-                0x000000000000e560                chessbox_pieces
+ *fill*         0x000000000000f402        0xe 
+ .rodata        0x000000000000f410       0xf8 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(playback_control.o)
+ *fill*         0x000000000000f508       0x18 
+ .rodata        0x000000000000f520     0xb6d0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(chessbox_pieces.240x240x16.o)
+                0x000000000000f520                chessbox_pieces
 
 .rodata1
  *(.rodata1)
 
-.eh_frame_hdr   0x0000000000019c30      0x284
+.eh_frame_hdr   0x000000000001abf0      0x28c
  *(.eh_frame_hdr)
- .eh_frame_hdr  0x0000000000019c30      0x284 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/chessbox.o
-                0x0000000000019c30                __GNU_EH_FRAME_HDR
+ .eh_frame_hdr  0x000000000001abf0      0x28c /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/chessbox.o
+                0x000000000001abf0                __GNU_EH_FRAME_HDR
  *(.eh_frame_entry .eh_frame_entry.*)
 
-.eh_frame       0x0000000000019eb8     0x1184
+.eh_frame       0x000000000001ae80     0x10ec
  *(.eh_frame)
- .eh_frame      0x0000000000019eb8       0x40 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
- .eh_frame      0x0000000000019ef8        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
- .eh_frame      0x0000000000019ef8      0x278 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/chessbox.o
-                                        0x290 (size before relaxing)
- .eh_frame      0x000000000001a170      0xa70 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/gnuchess.o
-                                        0xa88 (size before relaxing)
- .eh_frame      0x000000000001abe0      0x2e0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/chessbox_pgn.o
-                                        0x2f8 (size before relaxing)
- .eh_frame      0x000000000001aec0       0x88 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+ .eh_frame      0x000000000001ae80       0x40 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
+ .eh_frame      0x000000000001aec0        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
+ .eh_frame      0x000000000001aec0      0x290 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/chessbox.o
+                                        0x2a8 (size before relaxing)
+ .eh_frame      0x000000000001b150      0x9e0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/gnuchess.o
+                                        0x9f8 (size before relaxing)
+ .eh_frame      0x000000000001bb30      0x2c0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/chessbox_pgn.o
+                                        0x2d8 (size before relaxing)
+ .eh_frame      0x000000000001bdf0       0x88 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
                                          0xa0 (size before relaxing)
- .eh_frame      0x000000000001af48       0xf0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(playback_control.o)
+ .eh_frame      0x000000000001be78       0xf0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(playback_control.o)
                                         0x108 (size before relaxing)
- .eh_frame      0x000000000001b038        0x4 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtendS.o
+ .eh_frame      0x000000000001bf68        0x4 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtendS.o
  *(.eh_frame.*)
 
 .sframe
@@ -354,36 +354,36 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
  *(.note.build-id)
 
 .note.GNU-stack
-                0x000000000001b03c        0x0
+                0x000000000001bf6c        0x0
  *(.note.GNU-stack)
  .note.GNU-stack
-                0x000000000001b03c        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+                0x000000000001bf6c        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
  .note.GNU-stack
-                0x000000000001b03c        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtbeginS.o
+                0x000000000001bf6c        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtbeginS.o
  .note.GNU-stack
-                0x000000000001b03c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/chessbox.o
+                0x000000000001bf6c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/chessbox.o
  .note.GNU-stack
-                0x000000000001b03c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/gnuchess.o
+                0x000000000001bf6c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/gnuchess.o
  .note.GNU-stack
-                0x000000000001b03c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/opening.o
+                0x000000000001bf6c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/opening.o
  .note.GNU-stack
-                0x000000000001b03c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/chessbox_pgn.o
+                0x000000000001bf6c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/chessbox_pgn.o
  .note.GNU-stack
-                0x000000000001b03c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+                0x000000000001bf6c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
  .note.GNU-stack
-                0x000000000001b03c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(playback_control.o)
+                0x000000000001bf6c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(playback_control.o)
  .note.GNU-stack
-                0x000000000001b03c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(chessbox_pieces.240x240x16.o)
+                0x000000000001bf6c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(chessbox_pieces.240x240x16.o)
  .note.GNU-stack
-                0x000000000001b03c        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtendS.o
+                0x000000000001bf6c        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtendS.o
  .note.GNU-stack
-                0x000000000001b03c        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
+                0x000000000001bf6c        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
 
 .note.gnu.property
-                0x000000000001b040       0x30
+                0x000000000001bf70       0x30
  *(.note.gnu.property)
  .note.gnu.property
-                0x000000000001b040       0x30 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+                0x000000000001bf70       0x30 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
 
 .note.ABI-tag
  *(.note.ABI-tag)
@@ -431,12 +431,12 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .init_array     0x000000000001cbf0        0x8
  *(SORT_BY_INIT_PRIORITY(.init_array.*) SORT_BY_INIT_PRIORITY(.ctors.*))
  *(.init_array EXCLUDE_FILE(*crtend?.o *crtend.o *crtbegin?.o *crtbegin.o) .ctors)
- .init_array    0x000000000001cbf0        0x8 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtbeginS.o
+ .init_array    0x000000000001cbf0        0x8 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtbeginS.o
 
 .fini_array     0x000000000001cbf8        0x8
  *(SORT_BY_INIT_PRIORITY(.fini_array.*) SORT_BY_INIT_PRIORITY(.dtors.*))
  *(.fini_array EXCLUDE_FILE(*crtend?.o *crtend.o *crtbegin?.o *crtbegin.o) .dtors)
- .fini_array    0x000000000001cbf8        0x8 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtbeginS.o
+ .fini_array    0x000000000001cbf8        0x8 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtbeginS.o
 
 .ctors
  *crtbegin.o(.ctors)
@@ -478,31 +478,31 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
                 0x000000000001cdc0       0x28 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(chessbox_pieces.240x240x16.o)
                 0x000000000001cdc0                bm_chessbox_pieces
  *(.data.rel.ro .data.rel.ro.* .gnu.linkonce.d.rel.ro.*)
- .data.rel.ro   0x000000000001cde8        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ .data.rel.ro   0x000000000001cde8        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
 
 .dynamic        0x000000000001cde8      0x1c0
  *(.dynamic)
- .dynamic       0x000000000001cde8      0x1c0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ .dynamic       0x000000000001cde8      0x1c0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
                 0x000000000001cde8                _DYNAMIC
 
 .got            0x000000000001cfa8       0x28
  *(.got)
- .got           0x000000000001cfa8       0x28 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ .got           0x000000000001cfa8       0x28 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
  *(.igot)
                 0x000000000001cfe8                . = DATA_SEGMENT_RELRO_END (., (SIZEOF (.got.plt) >= 0x18)?0x18:0x0)
 
 .got.plt        0x000000000001cfe8       0x38
  *(.got.plt)
- .got.plt       0x000000000001cfe8       0x38 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ .got.plt       0x000000000001cfe8       0x38 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
                 0x000000000001cfe8                _GLOBAL_OFFSET_TABLE_
  *(.igot.plt)
 
 .data           0x000000000001d020     0x7358
  *(.data .data.* .gnu.linkonce.d.*)
- .data          0x000000000001d020        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
- .data          0x000000000001d020        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtbeginS.o
+ .data          0x000000000001d020        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
+ .data          0x000000000001d020        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtbeginS.o
  .data.rel.local
-                0x000000000001d020        0x8 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtbeginS.o
+                0x000000000001d020        0x8 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtbeginS.o
                 0x000000000001d020                __dso_handle
  *fill*         0x000000000001d028       0x18 
  .data          0x000000000001d040       0xb8 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/chessbox.o
@@ -558,15 +558,15 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
  .data.rel.local
                 0x0000000000024340       0x38 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(playback_control.o)
  .data          0x0000000000024378        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(chessbox_pieces.240x240x16.o)
- .data          0x0000000000024378        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtendS.o
- .data          0x0000000000024378        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
+ .data          0x0000000000024378        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtendS.o
+ .data          0x0000000000024378        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
 
 .tm_clone_table
                 0x0000000000024378        0x0
  .tm_clone_table
-                0x0000000000024378        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtbeginS.o
+                0x0000000000024378        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtbeginS.o
  .tm_clone_table
-                0x0000000000024378        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtendS.o
+                0x0000000000024378        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtendS.o
 
 .data1
  *(.data1)
@@ -577,10 +577,10 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 
 .bss            0x0000000000024380    0x1bb10
  *(.dynbss)
- .dynbss        0x0000000000024380        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
+ .dynbss        0x0000000000024380        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
  *(.bss .bss.* .gnu.linkonce.b.*)
- .bss           0x0000000000024380        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crti.o
- .bss           0x0000000000024380        0x1 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtbeginS.o
+ .bss           0x0000000000024380        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
+ .bss           0x0000000000024380        0x1 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtbeginS.o
  *fill*         0x0000000000024381        0x7 
  .bss           0x0000000000024388       0x18 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/chessbox.o
                 0x0000000000024388                wt_command
@@ -750,8 +750,8 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
  .bss           0x000000000003fe88        0x8 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(playback_control.o)
                 0x000000000003fe88                parentvp
  .bss           0x000000000003fe90        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(chessbox_pieces.240x240x16.o)
- .bss           0x000000000003fe90        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtendS.o
- .bss           0x000000000003fe90        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
+ .bss           0x000000000003fe90        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtendS.o
+ .bss           0x000000000003fe90        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
  *(COMMON)
                 0x000000000003fe90                . = ALIGN ((. != 0x0)?0x8:0x1)
 
@@ -791,25 +791,25 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .stab.indexstr
  *(.stab.indexstr)
 
-.comment        0x0000000000000000       0x1b
+.comment        0x0000000000000000       0x36
  *(.comment)
- .comment       0x0000000000000000       0x1b /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtbeginS.o
+ .comment       0x0000000000000000       0x36 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtbeginS.o
                                          0x1c (size before relaxing)
- .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/chessbox.o
+ .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/chessbox.o
                                          0x1c (size before relaxing)
- .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/gnuchess.o
+ .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/gnuchess.o
                                          0x1c (size before relaxing)
- .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/opening.o
+ .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/opening.o
                                          0x1c (size before relaxing)
- .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/chessbox_pgn.o
+ .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/chessbox_pgn.o
                                          0x1c (size before relaxing)
- .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+ .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
                                          0x1c (size before relaxing)
- .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(playback_control.o)
+ .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(playback_control.o)
                                          0x1c (size before relaxing)
- .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(chessbox_pieces.240x240x16.o)
+ .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(chessbox_pieces.240x240x16.o)
                                          0x1c (size before relaxing)
- .comment       0x000000000000001b        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/crtendS.o
+ .comment       0x0000000000000036        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtendS.o
                                          0x1c (size before relaxing)
 
 .gnu.build.attributes
@@ -847,54 +847,54 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000    0x34136
+.debug_info     0x0000000000000000    0x342e7
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0xb37c /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/chessbox.o
- .debug_info    0x000000000000b37c     0xbf63 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/gnuchess.o
- .debug_info    0x00000000000172df       0x57 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/opening.o
- .debug_info    0x0000000000017336     0xb722 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/chessbox_pgn.o
- .debug_info    0x0000000000022a58     0x7c93 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
- .debug_info    0x000000000002a6eb     0x9908 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(playback_control.o)
- .debug_info    0x0000000000033ff3      0x143 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(chessbox_pieces.240x240x16.o)
+ .debug_info    0x0000000000000000     0xb315 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/chessbox.o
+ .debug_info    0x000000000000b315     0xc1cb /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/gnuchess.o
+ .debug_info    0x00000000000174e0       0x57 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/opening.o
+ .debug_info    0x0000000000017537     0xb6d2 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/chessbox_pgn.o
+ .debug_info    0x0000000000022c09     0x7c93 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+ .debug_info    0x000000000002a89c     0x9908 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(playback_control.o)
+ .debug_info    0x00000000000341a4      0x143 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(chessbox_pieces.240x240x16.o)
 
-.debug_abbrev   0x0000000000000000     0x1c60
+.debug_abbrev   0x0000000000000000     0x1ca3
  *(.debug_abbrev)
  .debug_abbrev  0x0000000000000000      0x68b /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/chessbox.o
- .debug_abbrev  0x000000000000068b      0x5fa /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/gnuchess.o
- .debug_abbrev  0x0000000000000c85       0x41 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/opening.o
- .debug_abbrev  0x0000000000000cc6      0x6c1 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/chessbox_pgn.o
- .debug_abbrev  0x0000000000001387      0x442 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
- .debug_abbrev  0x00000000000017c9      0x3d9 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(playback_control.o)
- .debug_abbrev  0x0000000000001ba2       0xbe /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(chessbox_pieces.240x240x16.o)
+ .debug_abbrev  0x000000000000068b      0x63c /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/gnuchess.o
+ .debug_abbrev  0x0000000000000cc7       0x41 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/opening.o
+ .debug_abbrev  0x0000000000000d08      0x6c2 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/chessbox_pgn.o
+ .debug_abbrev  0x00000000000013ca      0x442 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+ .debug_abbrev  0x000000000000180c      0x3d9 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(playback_control.o)
+ .debug_abbrev  0x0000000000001be5       0xbe /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(chessbox_pieces.240x240x16.o)
 
-.debug_line     0x0000000000000000     0x9bdf
+.debug_line     0x0000000000000000     0xa1ea
  *(.debug_line .debug_line.* .debug_line_end)
- .debug_line    0x0000000000000000     0x16c2 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/chessbox.o
- .debug_line    0x00000000000016c2     0x6181 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/gnuchess.o
- .debug_line    0x0000000000007843       0x3a /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/opening.o
- .debug_line    0x000000000000787d     0x1d27 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/chessbox_pgn.o
- .debug_line    0x00000000000095a4      0x2bd /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
- .debug_line    0x0000000000009861      0x332 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(playback_control.o)
- .debug_line    0x0000000000009b93       0x4c /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(chessbox_pieces.240x240x16.o)
+ .debug_line    0x0000000000000000     0x16f1 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/chessbox.o
+ .debug_line    0x00000000000016f1     0x65a1 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/gnuchess.o
+ .debug_line    0x0000000000007c92       0x3a /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/opening.o
+ .debug_line    0x0000000000007ccc     0x1ee3 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/chessbox_pgn.o
+ .debug_line    0x0000000000009baf      0x2bd /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+ .debug_line    0x0000000000009e6c      0x332 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(playback_control.o)
+ .debug_line    0x000000000000a19e       0x4c /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(chessbox_pieces.240x240x16.o)
 
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0xc078
+.debug_str      0x0000000000000000     0xc138
  *(.debug_str)
- .debug_str     0x0000000000000000     0xc078 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/chessbox.o
+ .debug_str     0x0000000000000000     0xc138 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/chessbox.o
                                        0xa576 (size before relaxing)
- .debug_str     0x000000000000c078        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/gnuchess.o
+ .debug_str     0x000000000000c138        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/gnuchess.o
                                        0x5768 (size before relaxing)
- .debug_str     0x000000000000c078        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/opening.o
+ .debug_str     0x000000000000c138        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/opening.o
                                          0xeb (size before relaxing)
- .debug_str     0x000000000000c078        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/chessbox_pgn.o
+ .debug_str     0x000000000000c138        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/chessbox_pgn.o
                                        0xb7c8 (size before relaxing)
- .debug_str     0x000000000000c078        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+ .debug_str     0x000000000000c138        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
                                        0x5134 (size before relaxing)
- .debug_str     0x000000000000c078        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(playback_control.o)
+ .debug_str     0x000000000000c138        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(playback_control.o)
                                        0xa3a4 (size before relaxing)
- .debug_str     0x000000000000c078        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(chessbox_pieces.240x240x16.o)
+ .debug_str     0x000000000000c138        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(chessbox_pieces.240x240x16.o)
                                         0x172 (size before relaxing)
 
 .debug_loc
@@ -950,18 +950,18 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
                                         0x238 (size before relaxing)
 
 .debug_loclists
-                0x0000000000000000     0x6b7a
+                0x0000000000000000     0x76a3
  *(.debug_loclists)
  .debug_loclists
-                0x0000000000000000      0xb27 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/chessbox.o
+                0x0000000000000000      0xb6a /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/chessbox.o
  .debug_loclists
-                0x0000000000000b27     0x4629 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/gnuchess.o
+                0x0000000000000b6a     0x4e2b /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/gnuchess.o
  .debug_loclists
-                0x0000000000005150     0x1908 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/chessbox_pgn.o
+                0x0000000000005995     0x1bec /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/chessbox_pgn.o
  .debug_loclists
-                0x0000000000006a58       0x9e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+                0x0000000000007581       0x9e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
  .debug_loclists
-                0x0000000000006af6       0x84 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(playback_control.o)
+                0x000000000000761f       0x84 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(playback_control.o)
 
 .debug_macro
  *(.debug_macro)
@@ -970,14 +970,14 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/../../../../lib/crtn.o
  *(.debug_names)
 
 .debug_rnglists
-                0x0000000000000000      0x40a
+                0x0000000000000000      0x52b
  *(.debug_rnglists)
  .debug_rnglists
-                0x0000000000000000      0x106 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/chessbox.o
+                0x0000000000000000      0x116 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/chessbox.o
  .debug_rnglists
-                0x0000000000000106      0x1ee /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/gnuchess.o
+                0x0000000000000116      0x300 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/gnuchess.o
  .debug_rnglists
-                0x00000000000002f4      0x116 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/chessbox_pgn.o
+                0x0000000000000416      0x115 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/chessbox_pgn.o
 
 .debug_str_offsets
  *(.debug_str_offsets)

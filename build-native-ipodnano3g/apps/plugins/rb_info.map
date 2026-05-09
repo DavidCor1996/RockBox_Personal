@@ -161,7 +161,7 @@ LOAD /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a
  .data          0x0000000009dff660       0x84 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/rb_info.o
  .data          0x0000000009dff6e4        0x4 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/plugin_crt0.o
                 0x0000000009dff6e4                rb
- .data.list_sep_color.12407
+ .data.list_sep_color.12409
                 0x0000000009dff6e8        0x4 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(printcell_helper.o)
 
 .igot.plt       0x0000000009dff6ec        0x0
@@ -180,9 +180,9 @@ LOAD /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a
  *fill*         0x0000000009dff7ee        0x2 
  .bss.printcell
                 0x0000000009dff7f0      0x14c /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(printcell_helper.o)
- .bss.printcell_buffer.12365
+ .bss.printcell_buffer.12367
                 0x0000000009dff93c      0x104 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(printcell_helper.o)
- .bss.sidx.12366
+ .bss.sidx.12368
                 0x0000000009dffa40       0x20 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(printcell_helper.o)
  *(COMMON)
                 0x0000000009dffa60                . = ALIGN (0x4)

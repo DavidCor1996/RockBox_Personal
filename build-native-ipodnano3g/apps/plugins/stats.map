@@ -186,11 +186,11 @@ LOAD /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a
  *(.bss*)
  .bss           0x0000000009dfc998      0x130 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/stats.o
  .bss           0x0000000009dfcac8       0x60 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/plugin_crt0.o
- .bss.id3_count.12324
+ .bss.id3_count.12326
                 0x0000000009dfcb28        0x4 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(mul_id3.o)
- .bss.last_displayed.12325
+ .bss.last_displayed.12327
                 0x0000000009dfcb2c        0x4 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(mul_id3.o)
- .bss.last_get_action.12326
+ .bss.last_get_action.12328
                 0x0000000009dfcb30        0x4 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(mul_id3.o)
  *(COMMON)
                 0x0000000009dfcb34                . = ALIGN (0x4)

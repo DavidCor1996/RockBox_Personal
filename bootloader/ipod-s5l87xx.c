@@ -144,6 +144,82 @@ struct nano3g_nand_direct_diag
 };
 
 extern void nano3g_nand_direct_diag(struct nano3g_nand_direct_diag *diag);
+extern void nano3g_nand_entry_diag_run(void);
+extern void nano3g_nand_stage_diag_run(uint32_t stage);
+
+static void n3g_storage_direct_lba_diag(void)
+{
+    static unsigned char buf[0x800] STORAGE_ALIGN_ATTR;
+    int rc;
+    uint16_t sig;
+    uint32_t start;
+    uint32_t size;
+    uint32_t bps;
+    uint32_t rsvd;
+    uint32_t total16;
+    uint32_t total32;
+    uint32_t fatsz16;
+    uint32_t fatsz32;
+    uint32_t fsinfo;
+    uint32_t scale;
+    const unsigned char *fs;
+
+    memset(buf, 0, sizeof(buf));
+    rc = storage_read_sectors(IF_MD(0,) 0, 1, buf);
+    sig = (uint16_t)buf[0x1fe] | ((uint16_t)buf[0x1ff] << 8);
+    start = (uint32_t)buf[0x1be + 8]
+          | ((uint32_t)buf[0x1be + 9] << 8)
+          | ((uint32_t)buf[0x1be + 10] << 16)
+          | ((uint32_t)buf[0x1be + 11] << 24);
+    size = (uint32_t)buf[0x1be + 12]
+         | ((uint32_t)buf[0x1be + 13] << 8)
+         | ((uint32_t)buf[0x1be + 14] << 16)
+         | ((uint32_t)buf[0x1be + 15] << 24);
+    printf("N3G_DIRECT_LBA0 rc=%d sig=%04x p0t=%02x p0st=%08lx p0sz=%08lx",
+           rc, sig, buf[0x1be + 4], (unsigned long)start,
+           (unsigned long)size);
+
+    memset(buf, 0, sizeof(buf));
+    rc = storage_read_sectors(IF_MD(0,) start, 1, buf);
+    sig = (uint16_t)buf[0x1fe] | ((uint16_t)buf[0x1ff] << 8);
+    bps = (uint32_t)buf[0x0b] | ((uint32_t)buf[0x0c] << 8);
+    rsvd = (uint32_t)buf[0x0e] | ((uint32_t)buf[0x0f] << 8);
+    total16 = (uint32_t)buf[0x13] | ((uint32_t)buf[0x14] << 8);
+    total32 = (uint32_t)buf[0x20]
+            | ((uint32_t)buf[0x21] << 8)
+            | ((uint32_t)buf[0x22] << 16)
+            | ((uint32_t)buf[0x23] << 24);
+    fatsz16 = (uint32_t)buf[0x16] | ((uint32_t)buf[0x17] << 8);
+    fatsz32 = (uint32_t)buf[0x24]
+            | ((uint32_t)buf[0x25] << 8)
+            | ((uint32_t)buf[0x26] << 16)
+            | ((uint32_t)buf[0x27] << 24);
+    fs = (buf[0x52] || buf[0x53] || buf[0x54]) ? &buf[0x52] : &buf[0x36];
+    printf("N3G_DIRECT_BOOT rc=%d sig=%04x bps=%lu spc=%u rs=%lu nf=%u fz=%lu ts=%lu fatstr=%c%c%c%c%c%c%c%c",
+           rc, sig, (unsigned long)bps, buf[0x0d], (unsigned long)rsvd,
+           buf[0x10], (unsigned long)(fatsz16 != 0 ? fatsz16 : fatsz32),
+           (unsigned long)(total16 != 0 ? total16 : total32),
+           fs[0], fs[1], fs[2], fs[3], fs[4], fs[5], fs[6], fs[7]);
+
+    scale = (bps >= 512 && (bps % 512) == 0) ? bps / 512 : 1;
+    fsinfo = (uint32_t)buf[0x30] | ((uint32_t)buf[0x31] << 8);
+    memset(buf, 0, sizeof(buf));
+    rc = storage_read_sectors(IF_MD(0,) start + fsinfo * scale, 1, buf);
+    printf("N3G_DIRECT_FSINFO rc=%d lba=%08lx sig=%08lx free=%08lx next=%08lx",
+           rc, (unsigned long)(start + fsinfo * scale),
+           (unsigned long)((uint32_t)buf[0]
+               | ((uint32_t)buf[1] << 8)
+               | ((uint32_t)buf[2] << 16)
+               | ((uint32_t)buf[3] << 24)),
+           (unsigned long)((uint32_t)buf[0x1e8]
+               | ((uint32_t)buf[0x1e9] << 8)
+               | ((uint32_t)buf[0x1ea] << 16)
+               | ((uint32_t)buf[0x1eb] << 24)),
+           (unsigned long)((uint32_t)buf[0x1ec]
+               | ((uint32_t)buf[0x1ed] << 8)
+               | ((uint32_t)buf[0x1ee] << 16)
+               | ((uint32_t)buf[0x1ef] << 24)));
+}
 #endif
 
 
@@ -863,28 +939,59 @@ void main(void)
 
     usec_timer_init();
 
+#ifdef IPOD_NANO3G
+    nano3g_nand_entry_diag_run();
+#endif
+
 #ifdef S5L87XX_DEVELOPMENT_BOOTLOADER
     piezo_seq(alive);
 #endif
 
     /* Configure I2C0 */
     i2c_preinit(0);
+#ifdef IPOD_NANO3G
+    nano3g_nand_stage_diag_run(0);
+#endif
 
     if (pmu_is_hibernated()) {
         rc = launch_onb(1); /* 27/2 = 13.5 MHz. */
     }
+#ifdef IPOD_NANO3G
+    nano3g_nand_stage_diag_run(1);
+#endif
 
     system_preinit();
+#ifdef IPOD_NANO3G
+    nano3g_nand_stage_diag_run(2);
+#endif
     memory_init();
+#ifdef IPOD_NANO3G
+    nano3g_nand_stage_diag_run(3);
+#endif
     /*
      * XXX: BSS is initialized here, do not use .bss before this line
      */
     bss_init();
+#ifdef IPOD_NANO3G
+    nano3g_nand_stage_diag_run(4);
+#endif
 
     system_init();
+#ifdef IPOD_NANO3G
+    nano3g_nand_stage_diag_run(5);
+#endif
     kernel_init();
+#ifdef IPOD_NANO3G
+    nano3g_nand_stage_diag_run(6);
+#endif
     i2c_init();
+#ifdef IPOD_NANO3G
+    nano3g_nand_stage_diag_run(7);
+#endif
     power_init();
+#ifdef IPOD_NANO3G
+    nano3g_nand_stage_diag_run(8);
+#endif
 
     enable_irq();
 
@@ -905,7 +1012,8 @@ void main(void)
             btn = button_read_device();
         }
         /* Enter OF, diagmode and diskmode using ONB */
-        if ((btn == BUTTON_MENU)
+        if (button_hold()
+                || (btn == BUTTON_MENU)
                 || (btn == (BUTTON_SELECT|BUTTON_LEFT))
                 || (btn == (BUTTON_SELECT|BUTTON_PLAY))) {
             rc = kernel_launch_onb();
@@ -938,7 +1046,7 @@ void main(void)
 
     backlight_init(); /* Turns on the backlight */
 
-#ifdef IPOD_NANO3G
+#if defined(IPOD_NANO3G) && 0
     struct nano3g_nand_direct_diag ndiag;
     nano3g_nand_direct_diag(&ndiag);
     printf("DID rc %ld id %08lx", (long)ndiag.id_rc,
@@ -1022,32 +1130,10 @@ void main(void)
                (long)ndiag.dump_rc[p],
                (unsigned long)ndiag.dump_non_ff[p],
                (unsigned long)ndiag.dump_sig510[p]);
-        for (int i = 0; i < 16; i += 4)
-        {
-            printf("pg%lu.%02d %08lx %08lx %08lx %08lx",
-                   (unsigned long)ndiag.dump_pages[p], i,
-                   (unsigned long)ndiag.dump_words[p][i],
-                   (unsigned long)ndiag.dump_words[p][i + 1],
-                   (unsigned long)ndiag.dump_words[p][i + 2],
-                   (unsigned long)ndiag.dump_words[p][i + 3]);
-        }
     }
     printf("first_nf %08lx mbr %08lx",
            (unsigned long)ndiag.first_non_ff_page,
            (unsigned long)ndiag.first_mbr_page);
-    printf("sec0 rc %ld init %ld nf %lu sig %08lx",
-           (long)ndiag.sector0_rc,
-           (long)ndiag.sector0_init_rc,
-           (unsigned long)ndiag.sector0_non_ff,
-           (unsigned long)ndiag.sector0_sig510);
-    for (int i = 0; i < 128; i += 4)
-    {
-        printf("sec0.%03d %08lx %08lx %08lx %08lx", i,
-               (unsigned long)ndiag.sector0_words[i],
-               (unsigned long)ndiag.sector0_words[i + 1],
-               (unsigned long)ndiag.sector0_words[i + 2],
-               (unsigned long)ndiag.sector0_words[i + 3]);
-    }
     printf("p80 %08lx %08lx", (unsigned long)ndiag.page0,
            (unsigned long)ndiag.page1);
     printf("sp %08lx %08lx", (unsigned long)ndiag.spare0,
@@ -1089,11 +1175,34 @@ void main(void)
         battery_trap();
 #endif
 
+#ifdef IPOD_NANO3G
+        lcd_clear_display();
+        line = 0;
+        nano3g_nand_stage_diag_run(9);
+        printf("N3G_BOOT_STORAGE_START");
+#endif
+
         rc = storage_init();
         if (rc != 0) {
+#ifdef IPOD_NANO3G
+            int btn = button_read_device();
+            if (button_hold()
+                    || (btn == BUTTON_MENU)
+                    || (btn == (BUTTON_SELECT|BUTTON_LEFT))
+                    || (btn == (BUTTON_SELECT|BUTTON_PLAY))) {
+                printf("Executing OF...");
+                rc = kernel_launch_onb();
+                if (rc == 0)
+                    goto of_loaded;
+            }
+#endif
             printf("Storage error: %d", rc);
             fatal_error(ERR_STORAGE);
         }
+
+#ifdef IPOD_NANO3G
+        n3g_storage_direct_lba_diag();
+#endif
 
         filesystem_init();
 
@@ -1139,6 +1248,7 @@ void main(void)
         }
     }
 
+of_loaded:
     if (rc != 0) {
         printf("Load OF error: %d", rc);
         fatal_error(ERR_OF);
@@ -1180,6 +1290,9 @@ void main(void)
     }
 
     printf("Loading Rockbox...");
+#if defined(IPOD_NANO3G)
+    printf("N3G_LOAD_PATH path=/" BOOTFILE);
+#endif
     unsigned char *loadbuffer = (unsigned char *)DRAM_ORIG;
     rc = load_firmware(loadbuffer, BOOTFILE, MAX_LOADSIZE);
 
