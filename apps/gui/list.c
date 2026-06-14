@@ -42,39 +42,13 @@
 #include "statusbar-skinned.h"
 #include "skin_engine/skin_albumart_color.h"
 
-static bool list_is_ipodvideo_leftpane_theme(void)
+static bool list_is_ipodvideo_iclassic_theme(void)
 {
-#if defined(IPOD_VIDEO)
-    const char *sbs = (const char *)global_settings.sbs_file;
-    return strstr(sbs, "iPone") != NULL ||
-           strstr(sbs, "iClassic") != NULL;
+#if CONFIG_KEYPAD == IPOD_4G_PAD
+    return strstr((const char *)global_settings.sbs_file, "iClassic") != NULL;
 #else
     return false;
 #endif
-}
-
-static bool list_parent_state_changed(void)
-{
-#if defined(IPOD_VIDEO)
-    static bool last_hold;
-    static bool initialized;
-
-    if (list_is_ipodvideo_leftpane_theme())
-    {
-        bool hold = button_hold();
-        if (!initialized || hold != last_hold)
-        {
-            initialized = true;
-            last_hold = hold;
-            return true;
-        }
-    }
-    else
-    {
-        initialized = false;
-    }
-#endif
-    return false;
 }
 
 /* The minimum number of pending button events in queue before starting
@@ -284,7 +258,7 @@ int gui_list_get_item_offset(struct gui_synclist * gui_list,
  */
 void gui_synclist_draw(struct gui_synclist *gui_list)
 {
-    if (list_is_dirty(gui_list) || list_parent_state_changed())
+    if (list_is_dirty(gui_list))
     {
         list_init_viewports(gui_list);
         FOR_NB_SCREENS(i)
@@ -537,20 +511,15 @@ void gui_synclist_set_viewport_defaults(struct viewport *vp,
 {
     viewport_set_defaults(vp, screen);
 
-    if (screen == SCREEN_MAIN && list_is_ipodvideo_leftpane_theme())
+    if (screen == SCREEN_MAIN && list_is_ipodvideo_iclassic_theme())
     {
-        /* iPone/iClassic SBS lock screens retarget the UI viewport while the
-         * hardware hold switch is on. Preserve that SBS-provided viewport so
-         * delayed list redraws cannot paint menu text over the lock screen. */
-        if (button_hold())
-            return;
-
-        /* Keep Apple-style video iPod themes inside the left-pane menu frame,
-         * even if the active SBS UI viewport briefly falls back to default. */
+        /* Keep the legacy iPone path untouched. Only iClassic gets a forced
+         * left-pane menu viewport so its selector stays inside the Apple-style
+         * frame instead of spanning the full screen. */
         vp->x = 0;
-        vp->y = strstr((const char *)global_settings.sbs_file, "iPone") ? 24 : 16;
-        vp->width = strstr((const char *)global_settings.sbs_file, "iPone") ? 160 : 144;
-        vp->height = strstr((const char *)global_settings.sbs_file, "iPone") ? 216 : 224;
+        vp->y = 16;
+        vp->width = 144;
+        vp->height = 224;
         return;
     }
 
