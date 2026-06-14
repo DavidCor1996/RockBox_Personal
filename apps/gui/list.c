@@ -51,6 +51,35 @@ static bool list_is_ipodvideo_iclassic_theme(void)
 #endif
 }
 
+static bool list_ipone_hold_viewport_changed(void)
+{
+#if defined(IPOD_VIDEO)
+    static bool initialized;
+    static bool last_hold;
+
+    if (strstr((const char *)global_settings.sbs_file, "iPone") != NULL)
+    {
+        bool hold = button_hold();
+
+        if (!initialized)
+        {
+            initialized = true;
+            last_hold = hold;
+        }
+        else if (hold != last_hold)
+        {
+            last_hold = hold;
+            return true;
+        }
+    }
+    else
+    {
+        initialized = false;
+    }
+#endif
+    return false;
+}
+
 /* The minimum number of pending button events in queue before starting
  * to limit list drawing interval.
  */
@@ -258,7 +287,7 @@ int gui_list_get_item_offset(struct gui_synclist * gui_list,
  */
 void gui_synclist_draw(struct gui_synclist *gui_list)
 {
-    if (list_is_dirty(gui_list))
+    if (list_is_dirty(gui_list) || list_ipone_hold_viewport_changed())
     {
         list_init_viewports(gui_list);
         FOR_NB_SCREENS(i)

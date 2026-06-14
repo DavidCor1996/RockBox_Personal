@@ -4,12 +4,12 @@ Target define: -DIPOD_VIDEO
 Memory: 64
 CPU: arm
 Manufacturer: ipod
-Version: 9c076ce768M-260503
+Version: c5a1e4a6ffM-260614
 Binary: rockbox.ipod
-Binary size: 887840
+Binary size: 891600
 Voice format: 400
-Actual size: 887832
-RAM usage: 1371856
+Actual size: 891592
+RAM usage: 1375616
 Features: accessory_supply:alarm:backlight_brightness:crossfade:dircache:headphone_detection:hold_button:hotkey:lcd_bitmap:lcd_non-mono:lcd_color:lcd_sleep:morse_input:pitchscreen:multivolume:quickscreen:radio:rds:recording:recording_linein:rtc:serial_port:swcodec:tagcache:tc_ramcache:charging:usb_charging_enable:wheel_acceleration:lineout_poweroff:large_plugin_buffer:albumart:backlight_fade_int:disk_storage:scrollwheel:usb_power:usbstack:usb_hid:usb_hid_mouse:himem:hardware_click:play_frequency:clear_settings_on_hold:perceptual_volume:usbdac
 gcc: arm-elf-eabi-gcc (GCC) 9.5.0
 ld: GNU ld (GNU Binutils) 2.38
