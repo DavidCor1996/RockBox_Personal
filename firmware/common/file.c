@@ -504,6 +504,12 @@ static int open_internal_inner1(const char *path, int oflag,
     if (rc < 0)
         FILE_ERROR(ERRNO, rc * 10 - 3);
 
+#if defined(IPOD_NANO3G) && defined(BOOTLOADER)
+    fat_n3g_debug_file_open(path, fildes, &file->stream.fatstr,
+                            (unsigned long)file->offset,
+                            (unsigned long)*file->sizep);
+#endif
+
     return fildes;
 
 file_error:
@@ -950,6 +956,14 @@ ssize_t read(int fildes, void *buf, size_t nbyte)
                fildes, buf, (unsigned long)nbyte);
         FILE_ERROR(EBADF, -2);
     }
+
+#if defined(IPOD_NANO3G) && defined(BOOTLOADER)
+    if ((file->offset == 0 && nbyte == 8)
+     || file->stream.fatstr.fatfilep->firstcluster == 0x0000d44b)
+        fat_n3g_debug_file_read_begin(&file->stream.fatstr,
+                                      (unsigned long)file->offset,
+                                      (unsigned long)nbyte);
+#endif
 
     rc = readwrite(file, buf, nbyte, false);
     if (rc < 0)

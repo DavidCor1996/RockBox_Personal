@@ -1,6 +1,7 @@
 """Main application window — ties together all UI components in an iTunes 7 layout."""
 
 import logging
+import json
 import os
 import shutil
 import time
@@ -9,9 +10,9 @@ from datetime import datetime
 from PySide6.QtWidgets import (
     QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QSplitter,
     QApplication, QMessageBox, QInputDialog, QMenu, QStackedWidget, QFileDialog,
-    QProgressDialog,
+    QProgressDialog, QTabWidget,
 )
-from PySide6.QtCore import QEventLoop, QProcess, Qt, QTimer, Slot
+from PySide6.QtCore import QEventLoop, QProcess, QProcessEnvironment, Qt, QTimer, Slot
 from PySide6.QtGui import QAction, QIcon
 
 from app.config import Config
@@ -34,6 +35,15 @@ from services.device_storage import DeviceStorageAnalyzer
 from services.device_detector import DeviceDetector, create_mock_device
 from services.device_inventory import DeviceInventoryVerifier, device_record_from_info
 from services.android_media import AndroidMediaImporter, discover_android_sources
+from services.streamrip_import import (
+    StreamripImporter,
+    StreamripImportError,
+    discover_imported_audio_files,
+    ensure_rockbox_cover_files,
+    find_existing_streamrip_source_file,
+    streamrip_url_info,
+)
+from services.youtube_movies import YoutubeMovieImporter, YoutubeMovieImportError
 from services.playback import PlaybackService, STATE_STOPPED
 from services.sync_engine import SyncEngine, SyncPlanBuilder
 from services.theme_assets import ThemeAssetManager
@@ -75,12 +85,13 @@ from ui.plugin_manager import PluginManagerWidget
 from ui.game_manager import GameManagerWidget
 from ui.photo_manager import PhotoManagerWidget
 from ui.ipone_wallpaper_manager import IPoneWallpaperManagerWidget
-from ui.web_browser import BrowserPanel
+from ui.web_browser import BrowserPanel, MovieStorePanel
 from ui.boot_manager import BootManagerWidget
 from ui.theme_hub import ThemeHubWidget
 from ui.theme_designer import ThemeDesignerWidget
 from ui.video_library import VideoGridView, build_video_browser_groups
 from ui.video_player import VideoPlayerWindow
+from ui.video_sync import VideoSyncPanel
 from ui.dialogs.metadata_editor import MetadataEditor
 from ui.dialogs.album_info import AlbumInfoDialog
 from ui.dialogs.album_metadata import AlbumMetadataDialog
@@ -109,6 +120,8 @@ class MainWindow(QMainWindow):
             self._artwork,
         )
         self._android_importer = AndroidMediaImporter(self)
+        self._streamrip_importer = StreamripImporter(self._config)
+        self._youtube_movie_importer = YoutubeMovieImporter(self._config)
         self._scanner = LibraryScanner(self._db, self._config)
         self._device_detector = DeviceDetector(self._config)
         self._device_storage_analyzer = DeviceStorageAnalyzer(self)
@@ -177,6 +190,31 @@ class MainWindow(QMainWindow):
         self._scan_ui_refresh_timer.setInterval(120)
         self._scan_ui_refresh_timer.timeout.connect(self._flush_scan_ui_refresh)
         self._android_import_progress = None
+        self._store_import_process = None
+        self._store_import_started_at = 0.0
+        self._store_import_output_dir = ""
+        self._store_import_output = []
+        self._store_import_log_path = ""
+        self._store_import_poll_timer = QTimer(self)
+        self._store_import_poll_timer.setInterval(750)
+        self._store_import_poll_timer.timeout.connect(self._poll_store_import_downloads)
+        self._store_search_process = None
+        self._store_search_output_path = ""
+        self._store_search_output = []
+        self._store_search_mode = ""
+        self._store_search_home_tab = "featured"
+        self._store_home_loaded_tabs = set()
+        self._store_detail_process = None
+        self._store_detail_output_path = ""
+        self._store_detail_output = []
+        self._movie_import_process = None
+        self._movie_import_output = []
+        self._movie_import_log_path = ""
+        self._movie_browse_process = None
+        self._movie_browse_output_path = ""
+        self._movie_browse_output = []
+        self._movie_browse_query = ""
+        self._movie_browse_loaded = False
 
         created = ensure_default_smart_playlists(self._db)
         if created:
@@ -266,6 +304,7 @@ class MainWindow(QMainWindow):
         self._genre_view = GroupedTrackView("Genres")
         self._genre_view.set_artwork_manager(self._artwork)
         self._video_view = VideoGridView(self._video_thumbnails)
+        self._video_sync_panel = VideoSyncPanel()
         self._video_player_window = None
         self._device_summary = DeviceSummaryWidget()
         self._theme_hub = ThemeHubWidget()
@@ -276,6 +315,19 @@ class MainWindow(QMainWindow):
         self._game_manager = GameManagerWidget()
         self._photo_manager = PhotoManagerWidget()
         self._browser_panel = BrowserPanel()
+        self._movie_store_panel = MovieStorePanel()
+        self._game_browser_panel = BrowserPanel(
+            music_store=False,
+            title="iPod Games",
+            web_title="iPod Games Browser",
+            show_downloads=True,
+        )
+        self._store_page = QTabWidget()
+        self._store_page.setObjectName("store_tabs")
+        self._store_page.addTab(self._browser_panel, "Music")
+        self._store_page.addTab(self._movie_store_panel, "Movies")
+        self._store_page.addTab(self._game_browser_panel, "iPod Games")
+        self._store_page.currentChanged.connect(self._on_store_tab_changed)
         self._simulator_panel = SimulatorPanel()
         self._device_summary.set_options(
             self._config.auto_sync_on_connect,
@@ -288,6 +340,7 @@ class MainWindow(QMainWindow):
         self._content_stack = QStackedWidget()
         self._content_stack.addWidget(self._table_page)
         self._content_stack.addWidget(self._video_view)
+        self._content_stack.addWidget(self._video_sync_panel)
         self._content_stack.addWidget(self._artist_view)
         self._content_stack.addWidget(self._album_view)
         self._content_stack.addWidget(self._genre_view)
@@ -297,9 +350,8 @@ class MainWindow(QMainWindow):
         self._content_stack.addWidget(self._theme_designer)
         self._content_stack.addWidget(self._boot_manager)
         self._content_stack.addWidget(self._plugin_manager)
-        self._content_stack.addWidget(self._game_manager)
+        self._content_stack.addWidget(self._store_page)
         self._content_stack.addWidget(self._photo_manager)
-        self._content_stack.addWidget(self._browser_panel)
         self._content_stack.addWidget(self._simulator_panel)
         content_layout.addWidget(self._content_stack)
 
@@ -397,6 +449,9 @@ class MainWindow(QMainWindow):
         self._video_view.track_double_clicked.connect(self._on_track_double_click)
         self._video_view.selection_changed.connect(self._on_track_selection_changed)
         self._video_view.context_requested.connect(self._on_video_context_menu)
+        self._video_sync_panel.refresh_requested.connect(self._refresh_video_sync_panel)
+        self._video_sync_panel.preview_requested.connect(self._preview_video_sync)
+        self._video_sync_panel.sync_requested.connect(self._sync_video_track_ids)
 
         # Library browser views
         self._artist_view.track_double_clicked.connect(self._on_track_double_click)
@@ -420,7 +475,6 @@ class MainWindow(QMainWindow):
         self._ipone_wallpapers.apply_requested.connect(self._apply_ipone_wallpapers)
         self._ipone_wallpapers.import_requested.connect(self._import_ipone_wallpaper)
         self._ipone_wallpapers.remove_requested.connect(self._remove_ipone_wallpaper)
-        self._ipone_wallpapers.clock_position_changed.connect(self._on_ipone_wallpaper_clock_position_changed)
         self._theme_designer.profile_selected.connect(self._on_theme_designer_profile_selected)
         self._theme_designer.variant_selected.connect(self._on_theme_designer_variant_selected)
         self._theme_designer.preview_changed.connect(self._on_theme_designer_preview_changed)
@@ -467,6 +521,14 @@ class MainWindow(QMainWindow):
         self._photo_manager.sync_requested.connect(self._sync_selected_photos)
         self._photo_manager.remove_requested.connect(self._remove_selected_photos)
         self._browser_panel.open_external_requested.connect(self._open_browser_external)
+        self._browser_panel.store_import_requested.connect(self._start_store_import)
+        self._browser_panel.store_result_import_requested.connect(self._start_store_result_import)
+        self._browser_panel.store_search_requested.connect(self._start_store_search)
+        self._browser_panel.store_album_details_requested.connect(self._start_store_album_detail)
+        self._browser_panel.store_home_tab_requested.connect(self._on_store_home_tab_requested)
+        self._movie_store_panel.movie_import_requested.connect(self._start_movie_import)
+        self._movie_store_panel.movie_browse_requested.connect(self._start_movie_browse)
+        self._game_browser_panel.open_external_requested.connect(self._open_browser_external)
         self._simulator_panel.profile_selected.connect(self._on_simulator_profile_selected)
         self._simulator_panel.simulator_selected.connect(self._on_simulator_target_selected)
         self._simulator_panel.bind_requested.connect(self._bind_simulator_to_profile)
@@ -690,12 +752,12 @@ class MainWindow(QMainWindow):
     # ═══════════════════════════════════════════════════════════════
 
     def _library_media_type(self):
-        if self._current_view == "library_videos":
+        if self._current_view in {"library_videos", "library_video_sync"}:
             return "video"
         return "audio"
 
     def _current_status_item_label(self):
-        if self._current_view == "library_videos":
+        if self._current_view in {"library_videos", "library_video_sync"}:
             return "videos"
         return "songs"
 
@@ -711,6 +773,8 @@ class MainWindow(QMainWindow):
         return self._track_table
 
     def _active_track_selection_ids(self):
+        if self._current_view == "library_video_sync":
+            return set()
         return self._active_track_table().get_selected_track_ids()
 
     def _refresh_view(self):
@@ -721,6 +785,8 @@ class MainWindow(QMainWindow):
             self._video_view.set_tracks(tracks)
             self._video_view.set_current_track_id(self._current_playing_track_id)
             self._video_view.select_track_ids(selected_ids)
+        elif self._current_view == "library_video_sync":
+            self._refresh_video_sync_panel()
         else:
             self._track_model.set_tracks(tracks)
             self._track_model.set_current_track_id(self._current_playing_track_id)
@@ -734,6 +800,8 @@ class MainWindow(QMainWindow):
             tracks = self._get_filtered_tracks(media_type="audio")
         elif self._current_view == "library_videos":
             tracks = self._get_filtered_tracks(media_type="video")
+        elif self._current_view == "library_video_sync":
+            tracks = []
         elif self._current_view == "library_artists":
             tracks = self._get_filtered_tracks(media_type="audio")
         elif self._current_view == "library_albums":
@@ -912,6 +980,7 @@ class MainWindow(QMainWindow):
         titles = {
             "library_music": "Music",
             "library_videos": "Videos",
+            "library_video_sync": "Video Sync",
             "library_artists": "Artists",
             "library_albums": "Albums",
             "library_genres": "Genres",
@@ -920,7 +989,8 @@ class MainWindow(QMainWindow):
             "rockbox_theme_designer": "Theme Designer",
             "rockbox_boot": "Boot / Branding",
             "rockbox_plugins": "Plugins",
-            "rockbox_games": "Games",
+            "rockbox_games": "Store",
+            "rockbox_movies": "Store",
             "rockbox_photos": "Photos",
             "rockbox_browser": "Store",
             "rockbox_simulator": "Simulator",
@@ -1059,6 +1129,9 @@ class MainWindow(QMainWindow):
             self._refresh_library_browsers(current_tracks)
         elif self._current_view == "library_videos":
             self._content_stack.setCurrentWidget(self._video_view)
+        elif self._current_view == "library_video_sync":
+            self._content_stack.setCurrentWidget(self._video_sync_panel)
+            self._refresh_video_sync_panel()
         elif self._current_view == "library_albums":
             self._content_stack.setCurrentWidget(self._album_view)
             self._refresh_library_browsers(current_tracks)
@@ -1084,13 +1157,19 @@ class MainWindow(QMainWindow):
             self._content_stack.setCurrentWidget(self._plugin_manager)
             self._refresh_plugin_manager()
         elif self._current_view == "rockbox_games":
-            self._content_stack.setCurrentWidget(self._game_manager)
-            self._refresh_game_manager()
+            self._content_stack.setCurrentWidget(self._store_page)
+            self._store_page.setCurrentWidget(self._game_browser_panel)
+            self._refresh_game_browser_panel()
+        elif self._current_view == "rockbox_movies":
+            self._content_stack.setCurrentWidget(self._store_page)
+            self._store_page.setCurrentWidget(self._movie_store_panel)
+            self._refresh_movie_store_panel()
         elif self._current_view == "rockbox_photos":
             self._content_stack.setCurrentWidget(self._photo_manager)
             self._refresh_photo_manager()
         elif self._current_view == "rockbox_browser":
-            self._content_stack.setCurrentWidget(self._browser_panel)
+            self._content_stack.setCurrentWidget(self._store_page)
+            self._store_page.setCurrentWidget(self._browser_panel)
             self._refresh_browser_panel()
         elif self._current_view == "rockbox_simulator":
             self._content_stack.setCurrentWidget(self._simulator_panel)
@@ -1104,6 +1183,26 @@ class MainWindow(QMainWindow):
         )
         self._column_browser.setVisible(browser_visible)
         self._mark_current_playing_track(self._current_playing_track_id)
+
+    def _on_store_tab_changed(self, index):
+        if getattr(self, "_content_stack", None) is None:
+            return
+        if self._content_stack.currentWidget() is not self._store_page:
+            return
+        current = self._store_page.widget(index)
+        self._toolbar.set_title("Store")
+        if current is self._movie_store_panel:
+            self._current_view = "rockbox_movies"
+            self._refresh_movie_store_panel()
+            self._status_bar.set_left_text("Store: Movies")
+        elif current is self._game_browser_panel:
+            self._current_view = "rockbox_games"
+            self._refresh_game_browser_panel()
+            self._status_bar.set_left_text("Store: iPod Games")
+        elif current is self._browser_panel:
+            self._current_view = "rockbox_browser"
+            self._refresh_browser_panel()
+            self._status_bar.set_left_text("Store: Music")
 
     def _update_device_summary(self):
         device = self._device_detector.current_device
@@ -2413,7 +2512,7 @@ class MainWindow(QMainWindow):
         elif self._current_view == "rockbox_plugins":
             self._refresh_plugin_manager()
         elif self._current_view == "rockbox_games":
-            self._refresh_game_manager()
+            self._refresh_game_browser_panel()
         elif self._current_view == "rockbox_photos":
             self._refresh_photo_manager()
         elif self._current_view == "rockbox_simulator":
@@ -2728,6 +2827,85 @@ class MainWindow(QMainWindow):
         dialog.sync_cancelled.connect(lambda: self._sync_engine.cancel_sync())
         dialog.exec()
 
+    def _refresh_video_sync_panel(self):
+        videos = self._video_sync_candidates(
+            self._db.get_tracks_by_media_type(
+                "video",
+                order_by="artist, album, disc_number, track_number, title",
+            )
+        )
+        self._video_sync_panel.set_videos(videos)
+        if not videos:
+            self._video_sync_panel.set_status("No videos in the library. Add movies from the Store or scan your video folders.")
+        elif not self._device_detector.is_connected:
+            self._video_sync_panel.set_status("Connect an iPod to preview or sync selected videos.")
+        else:
+            missing = sum(1 for video in videos if not video.get("synced_to_device"))
+            self._video_sync_panel.set_status(
+                f"{missing} video{'s' if missing != 1 else ''} not on iPod."
+            )
+
+    def _video_sync_candidates(self, rows):
+        video_roots = [
+            os.path.abspath(os.path.expanduser(path))
+            for path in (getattr(self._config, "video_dirs", None) or [self._config.video_dir])
+            if path
+        ]
+        youtube_roots = [os.path.join(root, "YouTube") for root in video_roots]
+        candidates = []
+        for row in normalize_tracks_for_ui(rows):
+            item = dict(row)
+            file_path = os.path.abspath(os.path.expanduser(str(item.get("file_path") or "")))
+            if not file_path.lower().endswith(".mpg"):
+                continue
+            if not any(self._path_is_relative_to(file_path, root) for root in youtube_roots):
+                continue
+            title = str(item.get("title") or "").strip().casefold()
+            if title in {"", "youtube", "mpeg video", "youtube mpeg video"}:
+                item["title"] = os.path.splitext(os.path.basename(file_path))[0]
+            item["video_sync_label"] = "Downloaded"
+            item["video_sync_category"] = "Downloaded"
+            candidates.append(item)
+        return candidates
+
+    @staticmethod
+    def _path_is_relative_to(path, root):
+        try:
+            return os.path.commonpath([path, os.path.abspath(root)]) == os.path.abspath(root)
+        except ValueError:
+            return False
+
+    def _preview_video_sync(self, track_ids):
+        self._show_video_sync_plan(track_ids)
+
+    def _sync_video_track_ids(self, track_ids):
+        self._show_video_sync_plan(track_ids)
+
+    def _show_video_sync_plan(self, track_ids):
+        track_ids = set(track_ids or [])
+        if not track_ids:
+            self._video_sync_panel.set_status("Select one or more videos to sync.")
+            return
+        if not self._device_detector.is_connected:
+            self._video_sync_panel.set_status("No Rockbox device is connected.")
+            QMessageBox.warning(self, "No Device", "No Rockbox device is connected.")
+            return
+
+        plan = self._build_sync_plan_with_feedback(track_ids=track_ids)
+        if plan is None:
+            return
+        if plan.total_operations == 0:
+            self._video_sync_panel.set_status("Selected videos are already synced.")
+            self._status_bar.set_left_text("Selected videos are already synced")
+            return
+
+        self._video_sync_panel.set_status(plan.summary())
+        self._status_bar.set_left_text(plan.summary())
+        dialog = SyncDialog(plan, self)
+        dialog.sync_confirmed.connect(lambda: self._execute_sync(plan, dialog))
+        dialog.sync_cancelled.connect(lambda: self._sync_engine.cancel_sync())
+        dialog.exec()
+
     def _build_sync_plan_with_feedback(self, track_ids=None):
         self._status_bar.set_left_text("Planning sync...")
 
@@ -3037,25 +3215,744 @@ class MainWindow(QMainWindow):
     # ═══════════════════════════════════════════════════════════════
 
     def _refresh_browser_panel(self):
+        download_dir = self._config.music_dir
+        self._browser_panel.set_auto_accept_cookies(self._config.get("store_auto_accept_cookies", True))
+        self._browser_panel.set_store_preferred_format(self._config.get("streamrip_preferred_format", "flac"))
+        self._browser_panel.set_store_context(
+            self._config.get("browser_home_url", "https://listen.tidal.com/"),
+            download_dir,
+        )
+        self._start_store_homepage()
+
+    def _refresh_game_browser_panel(self):
         profile = self._rockbox_profiles.current_profile()
         download_dir = ""
         if profile:
             download_dir = profile.get("games_library_path", "")
-            if not download_dir:
-                download_dir = self._config.get("games_library_path", "")
-            if not download_dir:
-                download_dir = os.path.join(os.path.expanduser("~"), "Documents", "Gameboy")
-        self._browser_panel.set_auto_accept_cookies(self._config.get("store_auto_accept_cookies", True))
-        self._browser_panel.set_store_context(
+        if not download_dir:
+            download_dir = self._config.get("games_library_path", "")
+        if not download_dir:
+            download_dir = os.path.join(os.path.expanduser("~"), "Documents", "Gameboy")
+        self._game_browser_panel.set_auto_accept_cookies(self._config.get("store_auto_accept_cookies", True))
+        self._game_browser_panel.set_store_context(
             self._config.get("browser_home_url", "https://www.rockbox.org/"),
             download_dir,
         )
+
+    def _refresh_movie_store_panel(self):
+        if self._movie_browse_loaded:
+            return
+        self._movie_browse_loaded = True
+        query = "public domain full movies"
+        self._movie_store_panel._movie_browse_edit.setText(query)
+        self._start_movie_browse(query)
 
     def _open_browser_external(self, url):
         if not url:
             return
         import subprocess
         subprocess.Popen(["xdg-open", url], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, start_new_session=True)
+
+    def _start_movie_browse(self, query):
+        if self._movie_browse_process is not None:
+            return
+        try:
+            request = self._youtube_movie_importer.prepare_browse(query, limit=18)
+        except YoutubeMovieImportError as exc:
+            self._movie_store_panel.set_movie_browse_status(str(exc), running=False)
+            return
+
+        process = QProcess(self)
+        env = QProcessEnvironment.systemEnvironment()
+        for key, value in request.env.items():
+            env.insert(str(key), str(value))
+        process.setProcessEnvironment(env)
+        process.setWorkingDirectory(self._youtube_movie_importer.state_dir)
+        process.readyReadStandardOutput.connect(self._on_movie_browse_output)
+        process.readyReadStandardError.connect(self._on_movie_browse_output)
+        process.finished.connect(self._on_movie_browse_finished)
+        process.errorOccurred.connect(self._on_movie_browse_error)
+
+        self._movie_browse_process = process
+        self._movie_browse_output_path = request.output_path
+        self._movie_browse_output = []
+        self._movie_browse_query = str(query or "").strip()
+        self._movie_store_panel.set_movie_browse_status(f"Browsing YouTube for {self._movie_browse_query}...", running=True)
+        self._status_bar.set_left_text("Browsing YouTube movies")
+        process.start(request.command[0], request.command[1:])
+
+    def _on_movie_browse_output(self):
+        process = self._movie_browse_process
+        if process is None:
+            return
+        raw = (
+            bytes(process.readAllStandardOutput()).decode("utf-8", errors="replace")
+            + bytes(process.readAllStandardError()).decode("utf-8", errors="replace")
+        )
+        text = " ".join(line.strip() for line in raw.splitlines() if line.strip())
+        if text:
+            self._movie_browse_output.append(text)
+
+    def _on_movie_browse_finished(self, exit_code, exit_status):
+        process = self._movie_browse_process
+        self._movie_browse_process = None
+        if process is not None:
+            raw = (
+                bytes(process.readAllStandardOutput()).decode("utf-8", errors="replace")
+                + bytes(process.readAllStandardError()).decode("utf-8", errors="replace")
+            )
+            text = " ".join(line.strip() for line in raw.splitlines() if line.strip())
+            if text:
+                self._movie_browse_output.append(text)
+
+        output_path = self._movie_browse_output_path
+        self._movie_browse_output_path = ""
+        query = self._movie_browse_query
+        self._movie_browse_query = ""
+        if exit_code != 0:
+            detail = " ".join(self._movie_browse_output).strip()
+            self._movie_browse_output = []
+            self._movie_store_panel.set_movie_browse_status(
+                f"Movie browse failed with exit code {exit_code}: {detail[-500:]}",
+                running=False,
+            )
+            self._status_bar.set_left_text("Movie browse failed")
+            return
+
+        try:
+            with open(output_path, "r") as handle:
+                results = json.load(handle)
+        except (OSError, json.JSONDecodeError) as exc:
+            self._movie_browse_output = []
+            self._movie_store_panel.set_movie_browse_status(f"Movie browse result could not be read: {exc}", running=False)
+            self._status_bar.set_left_text("Movie browse failed")
+            return
+
+        self._movie_browse_output = []
+        count = len(results)
+        header = f"Browse: {query}" if query else "Featured Movies"
+        self._movie_store_panel.set_movie_results(results, header)
+        label = f"Found {count} movie result{'s' if count != 1 else ''}."
+        self._movie_store_panel.set_movie_browse_status(label, running=False)
+        self._status_bar.set_left_text(label)
+
+    def _on_movie_browse_error(self, error):
+        self._movie_browse_process = None
+        self._movie_browse_output_path = ""
+        self._movie_browse_output = []
+        self._movie_browse_query = ""
+        self._movie_store_panel.set_movie_browse_status(f"Movie browse could not start: {error}", running=False)
+        self._status_bar.set_left_text("Movie browse failed")
+
+    def _start_movie_import(self, url):
+        if self._movie_import_process is not None:
+            return
+        try:
+            request = self._youtube_movie_importer.prepare_import(url)
+        except YoutubeMovieImportError as exc:
+            self._movie_store_panel.set_movie_import_status(str(exc), running=False)
+            QMessageBox.warning(self, "Movie Import", str(exc))
+            return
+
+        process = QProcess(self)
+        env = QProcessEnvironment.systemEnvironment()
+        for key, value in request.env.items():
+            env.insert(str(key), str(value))
+        process.setProcessEnvironment(env)
+        process.setWorkingDirectory(request.output_dir)
+        process.readyReadStandardOutput.connect(self._on_movie_import_output)
+        process.readyReadStandardError.connect(self._on_movie_import_output)
+        process.finished.connect(self._on_movie_import_finished)
+        process.errorOccurred.connect(self._on_movie_import_error)
+
+        self._movie_import_process = process
+        self._movie_import_output = []
+        self._movie_import_log_path = request.log_path
+        self._append_movie_import_log("Process started.\n")
+        self._movie_store_panel.begin_movie_import(url, request.output_dir)
+        self._movie_store_panel.set_movie_import_status(
+            f"Downloading and converting movie... Log: {request.log_path}",
+            running=True,
+        )
+        self._status_bar.set_left_text("Importing YouTube movie")
+        process.start(request.command[0], request.command[1:])
+
+    def _append_movie_import_log(self, text):
+        if not self._movie_import_log_path or not text:
+            return
+        try:
+            with open(self._movie_import_log_path, "a") as handle:
+                handle.write(text)
+                if not text.endswith("\n"):
+                    handle.write("\n")
+        except OSError:
+            pass
+
+    def _on_movie_import_output(self):
+        process = self._movie_import_process
+        if process is None:
+            return
+        raw = (
+            bytes(process.readAllStandardOutput()).decode("utf-8", errors="replace")
+            + bytes(process.readAllStandardError()).decode("utf-8", errors="replace")
+        )
+        self._append_movie_import_log(raw)
+        lines = [line.strip() for line in raw.splitlines() if line.strip()]
+        if lines:
+            self._movie_import_output.extend(lines)
+            latest = lines[-1]
+            status = "Converting" if "ffmpeg" in latest.lower() or "mpeg2video" in latest.lower() else "Downloading"
+            self._movie_store_panel.update_movie_import(status, latest[-80:])
+            self._movie_store_panel.set_movie_import_status(
+                f"{latest[-500:]}\nLog: {self._movie_import_log_path}",
+                running=True,
+            )
+
+    def _on_movie_import_finished(self, exit_code, exit_status):
+        process = self._movie_import_process
+        self._movie_import_process = None
+        if process is not None:
+            raw = (
+                bytes(process.readAllStandardOutput()).decode("utf-8", errors="replace")
+                + bytes(process.readAllStandardError()).decode("utf-8", errors="replace")
+            )
+            self._append_movie_import_log(raw)
+            self._movie_import_output.extend(line.strip() for line in raw.splitlines() if line.strip())
+        log_path = self._movie_import_log_path
+        self._append_movie_import_log(f"\nProcess finished with exit code {exit_code}.\n")
+        self._movie_import_log_path = ""
+
+        output_path = ""
+        for line in self._movie_import_output:
+            if line.startswith("ROCKPOD_MOVIE_OUTPUT="):
+                output_path = line.split("=", 1)[1].strip()
+        self._movie_import_output = []
+        if exit_code != 0 or not output_path:
+            message = f"YouTube movie import failed with exit code {exit_code}.\nLog: {log_path}"
+            self._movie_store_panel.finish_movie_import(success=False)
+            self._movie_store_panel.set_movie_import_status(message, running=False)
+            self._status_bar.set_left_text("Movie import failed")
+            return
+
+        label = f"Imported movie: {os.path.basename(output_path)}. Refreshing library.\nLog: {log_path}"
+        self._movie_store_panel.finish_movie_import(output_path, success=True)
+        self._movie_store_panel.set_movie_import_status(label, running=False)
+        self._status_bar.set_left_text(label)
+        self._start_scan(force_full=False)
+
+    def _on_movie_import_error(self, error):
+        self._movie_import_process = None
+        log_path = self._movie_import_log_path
+        self._append_movie_import_log(f"Process error: {error}\n")
+        self._movie_import_log_path = ""
+        self._movie_import_output = []
+        self._movie_store_panel.finish_movie_import(success=False)
+        self._movie_store_panel.set_movie_import_status(
+            f"YouTube movie import could not start: {error}\nLog: {log_path}",
+            running=False,
+        )
+        self._status_bar.set_left_text("Movie import failed")
+
+    def _start_store_search(self, query, source):
+        if self._store_search_process is not None:
+            return
+        try:
+            request = self._streamrip_importer.prepare_album_search(query, source, limit=24)
+        except StreamripImportError as exc:
+            self._browser_panel.set_store_search_status(str(exc), running=False)
+            return
+
+        process = QProcess(self)
+        env = QProcessEnvironment.systemEnvironment()
+        for key, value in request.env.items():
+            env.insert(str(key), str(value))
+        process.setProcessEnvironment(env)
+        process.setWorkingDirectory(self._streamrip_importer.streamrip_state_dir)
+        process.readyReadStandardOutput.connect(self._on_store_search_output)
+        process.readyReadStandardError.connect(self._on_store_search_output)
+        process.finished.connect(self._on_store_search_finished)
+        process.errorOccurred.connect(self._on_store_search_error)
+
+        self._store_search_process = process
+        self._store_search_output_path = request.output_path
+        self._store_search_output = []
+        self._store_search_mode = "search"
+        self._browser_panel.set_store_search_status(f"Searching {source.capitalize()}...", running=True)
+        self._status_bar.set_left_text(f"Searching {source.capitalize()} store")
+        process.start(request.command[0], request.command[1:])
+
+    def _on_store_home_tab_requested(self, tab_key):
+        self._start_store_homepage(force=True, tab_key=tab_key)
+
+    def _start_store_homepage(self, force=False, tab_key=None):
+        tab = str(tab_key or getattr(self._browser_panel, "_store_home_tab", "featured") or "featured").strip().lower()
+        self._browser_panel.set_store_home_tab(tab, emit=False)
+        if tab in self._store_home_loaded_tabs and not force:
+            return
+        if self._store_search_process is not None:
+            return
+        try:
+            request = self._streamrip_importer.prepare_store_homepage(limit=24, home_tab=tab)
+        except StreamripImportError as exc:
+            self._browser_panel.set_store_search_status(str(exc), running=False)
+            return
+
+        process = QProcess(self)
+        env = QProcessEnvironment.systemEnvironment()
+        for key, value in request.env.items():
+            env.insert(str(key), str(value))
+        process.setProcessEnvironment(env)
+        process.setWorkingDirectory(self._streamrip_importer.streamrip_state_dir)
+        process.readyReadStandardOutput.connect(self._on_store_search_output)
+        process.readyReadStandardError.connect(self._on_store_search_output)
+        process.finished.connect(self._on_store_search_finished)
+        process.errorOccurred.connect(self._on_store_search_error)
+
+        self._store_search_process = process
+        self._store_search_output_path = request.output_path
+        self._store_search_output = []
+        self._store_search_mode = "homepage"
+        self._store_search_home_tab = tab
+        label = self._store_home_tab_label(tab)
+        self._browser_panel.set_store_search_status(f"Loading {label} from TIDAL...", running=True)
+        self._status_bar.set_left_text(f"Loading TIDAL Store {label}")
+        process.start(request.command[0], request.command[1:])
+
+    @staticmethod
+    def _store_home_tab_label(tab_key):
+        labels = {
+            "featured": "Featured",
+            "new_releases": "New Releases",
+            "top_albums": "Top Albums",
+            "just_added": "Just Added",
+            "alternative": "Alternative",
+            "rock": "Rock",
+            "hip_hop": "Hip-Hop/Rap",
+        }
+        return labels.get(str(tab_key or "featured"), "Featured")
+
+    def _on_store_search_output(self):
+        process = self._store_search_process
+        if process is None:
+            return
+        raw = (
+            bytes(process.readAllStandardOutput()).decode("utf-8", errors="replace")
+            + bytes(process.readAllStandardError()).decode("utf-8", errors="replace")
+        )
+        text = " ".join(line.strip() for line in raw.splitlines() if line.strip())
+        if text:
+            self._store_search_output.append(text)
+
+    def _on_store_search_finished(self, exit_code, exit_status):
+        process = self._store_search_process
+        self._store_search_process = None
+        if process is not None:
+            raw = (
+                bytes(process.readAllStandardOutput()).decode("utf-8", errors="replace")
+                + bytes(process.readAllStandardError()).decode("utf-8", errors="replace")
+            )
+            text = " ".join(line.strip() for line in raw.splitlines() if line.strip())
+            if text:
+                self._store_search_output.append(text)
+
+        output_path = self._store_search_output_path
+        self._store_search_output_path = ""
+        mode = self._store_search_mode
+        self._store_search_mode = ""
+        home_tab = self._store_search_home_tab
+        self._store_search_home_tab = "featured"
+        if exit_code != 0:
+            detail = " ".join(self._store_search_output).strip()
+            self._store_search_output = []
+            self._browser_panel.set_store_search_status(
+                f"Store search failed with exit code {exit_code}: {detail[-500:]}",
+                running=False,
+            )
+            self._status_bar.set_left_text("Store search failed")
+            return
+
+        try:
+            with open(output_path, "r") as handle:
+                results = json.load(handle)
+        except (OSError, json.JSONDecodeError) as exc:
+            self._store_search_output = []
+            self._browser_panel.set_store_search_status(f"Store search result could not be read: {exc}", running=False)
+            self._status_bar.set_left_text("Store search failed")
+            return
+
+        self._store_search_output = []
+        results = self._mark_store_results_owned(results)
+        if mode == "homepage":
+            self._store_home_loaded_tabs.add(home_tab)
+            self._browser_panel.set_store_home_results(results, home_tab)
+        else:
+            self._browser_panel.set_store_results(results, "Search Results")
+        count = len(results)
+        if mode == "homepage":
+            tab_label = self._store_home_tab_label(home_tab)
+            label = f"Loaded {count} {tab_label} TIDAL album{'s' if count != 1 else ''}."
+        else:
+            label = f"Found {count} album{'s' if count != 1 else ''}."
+        self._browser_panel.set_store_search_status(label, running=False)
+        self._status_bar.set_left_text(label)
+
+    def _on_store_search_error(self, error):
+        self._store_search_process = None
+        self._store_search_output_path = ""
+        self._store_search_output = []
+        self._store_search_mode = ""
+        self._store_search_home_tab = "featured"
+        self._browser_panel.set_store_search_status(f"Store search could not start: {error}", running=False)
+        self._status_bar.set_left_text("Store search failed")
+
+    def _start_store_album_detail(self, result):
+        if self._store_detail_process is not None:
+            return
+        item = dict(result or {})
+        source = str(item.get("source") or "tidal").strip().lower()
+        album_id = str(item.get("id") or "").strip()
+        try:
+            request = self._streamrip_importer.prepare_album_detail(source, album_id)
+        except StreamripImportError as exc:
+            self._browser_panel.set_store_search_status(str(exc), running=False)
+            return
+
+        process = QProcess(self)
+        env = QProcessEnvironment.systemEnvironment()
+        for key, value in request.env.items():
+            env.insert(str(key), str(value))
+        process.setProcessEnvironment(env)
+        process.setWorkingDirectory(self._streamrip_importer.streamrip_state_dir)
+        process.readyReadStandardOutput.connect(self._on_store_album_detail_output)
+        process.readyReadStandardError.connect(self._on_store_album_detail_output)
+        process.finished.connect(self._on_store_album_detail_finished)
+        process.errorOccurred.connect(self._on_store_album_detail_error)
+
+        self._store_detail_process = process
+        self._store_detail_output_path = request.output_path
+        self._store_detail_output = []
+        self._browser_panel.set_store_search_status("Loading track list...", running=False)
+        self._status_bar.set_left_text("Loading store album details")
+        process.start(request.command[0], request.command[1:])
+
+    def _on_store_album_detail_output(self):
+        process = self._store_detail_process
+        if process is None:
+            return
+        raw = (
+            bytes(process.readAllStandardOutput()).decode("utf-8", errors="replace")
+            + bytes(process.readAllStandardError()).decode("utf-8", errors="replace")
+        )
+        text = " ".join(line.strip() for line in raw.splitlines() if line.strip())
+        if text:
+            self._store_detail_output.append(text)
+
+    def _on_store_album_detail_finished(self, exit_code, exit_status):
+        process = self._store_detail_process
+        self._store_detail_process = None
+        if process is not None:
+            raw = (
+                bytes(process.readAllStandardOutput()).decode("utf-8", errors="replace")
+                + bytes(process.readAllStandardError()).decode("utf-8", errors="replace")
+            )
+            text = " ".join(line.strip() for line in raw.splitlines() if line.strip())
+            if text:
+                self._store_detail_output.append(text)
+
+        output_path = self._store_detail_output_path
+        self._store_detail_output_path = ""
+        if exit_code != 0:
+            detail = " ".join(self._store_detail_output).strip()
+            self._store_detail_output = []
+            self._browser_panel.set_store_search_status(
+                f"Album details failed with exit code {exit_code}: {detail[-500:]}",
+                running=False,
+            )
+            self._status_bar.set_left_text("Album details failed")
+            return
+
+        try:
+            with open(output_path, "r") as handle:
+                result = json.load(handle)
+        except (OSError, json.JSONDecodeError) as exc:
+            self._store_detail_output = []
+            self._browser_panel.set_store_search_status(f"Album details could not be read: {exc}", running=False)
+            self._status_bar.set_left_text("Album details failed")
+            return
+
+        self._store_detail_output = []
+        result = self._mark_store_results_owned([result])[0]
+        self._browser_panel.update_store_result_details(result)
+        count = len(result.get("track_items") or [])
+        self._browser_panel.set_store_search_status(
+            f"Loaded {count} track{'s' if count != 1 else ''}.",
+            running=False,
+        )
+        self._status_bar.set_left_text("Loaded store album details")
+
+    def _on_store_album_detail_error(self, error):
+        self._store_detail_process = None
+        self._store_detail_output_path = ""
+        self._store_detail_output = []
+        self._browser_panel.set_store_search_status(f"Album details could not start: {error}", running=False)
+        self._status_bar.set_left_text("Album details failed")
+
+    def _mark_store_results_owned(self, results):
+        marked = []
+        for result in results or []:
+            item = dict(result or {})
+            url_info = streamrip_url_info(item.get("url"))
+            if self._find_store_result_in_library(item, url_info):
+                item["owned"] = True
+                item["in_library"] = True
+            track_items = []
+            for track in item.get("track_items") or []:
+                track_item = dict(track or {})
+                track_url_info = streamrip_url_info(track_item.get("url"))
+                if self._find_store_result_in_library(track_item, track_url_info):
+                    track_item["owned"] = True
+                    track_item["in_library"] = True
+                track_items.append(track_item)
+            if track_items:
+                item["track_items"] = track_items
+            marked.append(item)
+        return marked
+
+    def _start_store_result_import(self, result, output_format):
+        result = dict(result or {})
+        url = str(result.get("url") or "").strip()
+        if not url:
+            self._browser_panel.set_store_import_status("This store item does not have an import URL.", running=False)
+            self._status_bar.set_left_text("Store item cannot be imported")
+            return
+        self._start_store_import(url, output_format, result)
+
+    def _start_store_import(self, url, output_format, store_result=None):
+        if self._store_import_process is not None:
+            return
+        duplicate_message = self._store_import_duplicate_message(url, store_result)
+        if duplicate_message:
+            self._browser_panel.set_store_import_status(duplicate_message, running=False)
+            self._status_bar.set_left_text(duplicate_message)
+            return
+        try:
+            request = self._streamrip_importer.prepare_import(url, output_format)
+        except StreamripImportError as exc:
+            self._browser_panel.set_store_import_status(str(exc), running=False)
+            QMessageBox.warning(self, "Store Import", str(exc))
+            return
+
+        process = QProcess(self)
+        env = QProcessEnvironment.systemEnvironment()
+        for key, value in request.env.items():
+            env.insert(str(key), str(value))
+        process.setProcessEnvironment(env)
+        process.setWorkingDirectory(request.output_dir)
+        process.readyReadStandardOutput.connect(self._on_store_import_output)
+        process.readyReadStandardError.connect(self._on_store_import_output)
+        process.finished.connect(self._on_store_import_finished)
+        process.errorOccurred.connect(self._on_store_import_error)
+
+        self._store_import_process = process
+        self._store_import_started_at = request.started_at
+        self._store_import_output_dir = request.output_dir
+        self._store_import_output = []
+        self._store_import_log_path = request.log_path
+        self._append_store_import_log("Process started.\n")
+        self._browser_panel.begin_store_import_download(url, request.output_dir)
+        self._browser_panel.set_store_import_status(
+            f"Importing with streamrip... Log: {request.log_path}",
+            running=True,
+        )
+        self._status_bar.set_left_text("Importing music from store")
+        self._store_import_poll_timer.start()
+        process.start(request.command[0], request.command[1:])
+
+    @staticmethod
+    def _store_match_text(value):
+        return " ".join(str(value or "").casefold().split())
+
+    def _store_import_duplicate_message(self, url, store_result=None):
+        info = streamrip_url_info(url)
+        existing_file = ""
+        if info.get("source") and info.get("media_type") and info.get("id"):
+            existing_file = find_existing_streamrip_source_file(
+                self._config.music_dir,
+                info["source"],
+                info["media_type"],
+                info["id"],
+            )
+        if existing_file:
+            label = self._store_result_label(store_result, info)
+            filename = os.path.basename(existing_file)
+            return f"Already in library: {label}. Skipping download. Matched {filename}."
+
+        matched = self._find_store_result_in_library(store_result, info)
+        if matched:
+            label = self._store_result_label(store_result, info, matched)
+            return f"Already in library: {label}. Skipping download."
+        return ""
+
+    def _store_result_label(self, store_result=None, url_info=None, matched_track=None):
+        result = dict(store_result or {})
+        matched = dict(matched_track or {})
+        title = result.get("title") or matched.get("album") or matched.get("title")
+        artist = result.get("artist") or matched.get("album_artist") or matched.get("artist")
+        media_type = result.get("media_type") or (url_info or {}).get("media_type") or "item"
+        if title and artist:
+            return f"{title} by {artist}"
+        if title:
+            return str(title)
+        item_id = (url_info or {}).get("id")
+        source = (url_info or {}).get("source")
+        if source and item_id:
+            return f"{source.capitalize()} {media_type} {item_id}"
+        return "store item"
+
+    def _find_store_result_in_library(self, store_result=None, url_info=None):
+        result = dict(store_result or {})
+        media_type = str(result.get("media_type") or (url_info or {}).get("media_type") or "").lower()
+        title = self._store_match_text(result.get("title"))
+        artist = self._store_match_text(result.get("artist"))
+        if not title:
+            return None
+
+        try:
+            tracks = [dict(row) for row in self._db.get_all_tracks(media_type="audio")]
+        except Exception:
+            logger.exception("Could not check library for existing store import")
+            return None
+
+        if media_type == "track":
+            for row in tracks:
+                if self._store_match_text(row.get("title")) != title:
+                    continue
+                row_artist = self._store_match_text(row.get("artist") or row.get("album_artist"))
+                if not artist or row_artist == artist:
+                    return row
+            return None
+
+        for row in tracks:
+            if self._store_match_text(row.get("album")) != title:
+                continue
+            row_artists = {
+                self._store_match_text(row.get("album_artist")),
+                self._store_match_text(row.get("artist")),
+            }
+            if not artist or artist in row_artists:
+                return row
+        return None
+
+    def _append_store_import_log(self, text):
+        if not self._store_import_log_path or not text:
+            return
+        try:
+            with open(self._store_import_log_path, "a") as handle:
+                handle.write(text)
+                if not text.endswith("\n"):
+                    handle.write("\n")
+        except OSError:
+            pass
+
+    def _on_store_import_output(self):
+        process = self._store_import_process
+        if process is None:
+            return
+        raw = (
+            bytes(process.readAllStandardOutput()).decode("utf-8", errors="replace")
+            + bytes(process.readAllStandardError()).decode("utf-8", errors="replace")
+        )
+        self._append_store_import_log(raw)
+        text = " ".join(line.strip() for line in raw.splitlines() if line.strip())
+        if text:
+            self._store_import_output.append(text)
+            suffix = f"\nLog: {self._store_import_log_path}" if self._store_import_log_path else ""
+            self._browser_panel.set_store_import_status(f"{text[-500:]}{suffix}", running=True)
+        self._poll_store_import_downloads()
+
+    def _poll_store_import_downloads(self):
+        if not self._store_import_output_dir or not self._store_import_started_at:
+            return
+        imported = discover_imported_audio_files(self._store_import_output_dir, self._store_import_started_at)
+        if imported:
+            self._browser_panel.update_store_import_downloads(
+                imported,
+                running=self._store_import_process is not None,
+            )
+
+    def _on_store_import_finished(self, exit_code, exit_status):
+        self._store_import_poll_timer.stop()
+        process = self._store_import_process
+        self._store_import_process = None
+        if process is not None:
+            raw = (
+                bytes(process.readAllStandardOutput()).decode("utf-8", errors="replace")
+                + bytes(process.readAllStandardError()).decode("utf-8", errors="replace")
+            )
+            self._append_store_import_log(raw)
+            text = " ".join(line.strip() for line in raw.splitlines() if line.strip())
+            if text:
+                self._store_import_output.append(text)
+        imported = discover_imported_audio_files(self._store_import_output_dir, self._store_import_started_at)
+        cover_updates = ensure_rockbox_cover_files(imported, self._store_import_output_dir)
+        self._append_store_import_log(
+            f"\nProcess finished with exit code {exit_code}.\n"
+            f"Detected imported files: {len(imported)}\n"
+            f"Rockbox cover files added: {len(cover_updates)}\n"
+        )
+        log_path = self._store_import_log_path
+        self._browser_panel.finish_store_import_downloads(imported, success=(exit_code == 0))
+        self._store_import_started_at = 0.0
+        self._store_import_output_dir = ""
+        self._store_import_log_path = ""
+        if exit_code != 0:
+            detail = " ".join(self._store_import_output).strip()
+            self._store_import_output = []
+            if detail:
+                message = f"streamrip failed with exit code {exit_code}: {detail[-600:]}\nLog: {log_path}"
+            else:
+                message = f"streamrip failed with exit code {exit_code}\nLog: {log_path}"
+            self._browser_panel.set_store_import_status(message, running=False)
+            return
+        count = len(imported)
+        if count == 0:
+            detail = " ".join(self._store_import_output).strip()
+            self._store_import_output = []
+            if detail:
+                label = f"No new audio files detected. Last streamrip output: {detail[-600:]}\nLog: {log_path}"
+            else:
+                label = (
+                    "No new audio files detected. Check Tidal/Qobuz auth and whether the album is "
+                    f"available in your region.\nLog: {log_path}"
+                )
+            self._browser_panel.set_store_import_status(label, running=False)
+            self._status_bar.set_left_text("No new store imports detected")
+            return
+        self._store_import_output = []
+        label = (
+            f"Imported {count} audio file{'s' if count != 1 else ''}; "
+            f"added {len(cover_updates)} Rockbox cover file{'s' if len(cover_updates) != 1 else ''}. "
+            f"Refreshing library.\nLog: {log_path}"
+        )
+        self._browser_panel.set_store_import_status(label, running=False)
+        self._status_bar.set_left_text(label)
+        self._start_scan(force_full=False)
+
+    def _on_store_import_error(self, error):
+        self._store_import_poll_timer.stop()
+        imported = discover_imported_audio_files(self._store_import_output_dir, self._store_import_started_at)
+        self._store_import_process = None
+        self._store_import_output = []
+        log_path = self._store_import_log_path
+        self._append_store_import_log(f"Process error: {error}\n")
+        self._browser_panel.finish_store_import_downloads(imported, success=False)
+        self._store_import_started_at = 0.0
+        self._store_import_output_dir = ""
+        self._store_import_log_path = ""
+        self._browser_panel.set_store_import_status(
+            f"streamrip could not start: {error}\nLog: {log_path}",
+            running=False,
+        )
 
     # ═══════════════════════════════════════════════════════════════
     # Preferences
@@ -3104,7 +4001,7 @@ class MainWindow(QMainWindow):
                 profile["games_library_path"] = changes["games_library_path"]
                 self._rockbox_profiles.save_profile(profile)
             self._refresh_game_manager()
-            self._refresh_browser_panel()
+            self._refresh_game_browser_panel()
         if theme_change_requested:
             self._theme_assets = ThemeAssetManager(self._config)
             status = self._theme_assets.theme_status()
@@ -3150,7 +4047,6 @@ class MainWindow(QMainWindow):
         self._ipone_wallpapers.set_profiles(profiles, selected_id)
         profile = self._rockbox_profiles.current_profile()
         if not profile:
-            self._ipone_wallpapers.set_clock_position("center", supported=False)
             self._ipone_wallpapers.set_themes([], "")
             self._ipone_wallpapers.set_candidates([], [])
             return
@@ -3168,14 +4064,6 @@ class MainWindow(QMainWindow):
         wallpaper_profile = dict(profile)
         if selected_theme:
             wallpaper_profile["selected_theme"] = selected_theme
-        supports_clock_position = (
-            str(wallpaper_profile.get("screen_resolution") or "").strip() == "320x240"
-            and "nano2g" not in str(wallpaper_profile.get("selected_theme") or "").strip().lower()
-        )
-        self._ipone_wallpapers.set_clock_position(
-            wallpaper_profile.get("lockscreen_clock_position", "center"),
-            supported=supports_clock_position,
-        )
         candidates = self._ipone_wallpapers_service.list_candidates(
             wallpaper_profile["source_repo_path"],
             wallpaper_profile,
@@ -3209,13 +4097,6 @@ class MainWindow(QMainWindow):
         self._refresh_game_manager()
         self._refresh_simulator_panel()
 
-    def _on_ipone_wallpaper_clock_position_changed(self, value):
-        profile = self._rockbox_profiles.current_profile()
-        if not profile:
-            return
-        profile["lockscreen_clock_position"] = "left" if str(value or "").strip().lower() == "left" else "center"
-        self._rockbox_profiles.save_profile(profile)
-
     def _apply_ipone_wallpapers(self, selection):
         profile = self._rockbox_profiles.current_profile()
         if not profile:
@@ -3227,15 +4108,11 @@ class MainWindow(QMainWindow):
         if theme_id and theme_id != profile.get("selected_theme"):
             profile["selected_theme"] = theme_id
             self._rockbox_profiles.save_profile(profile)
-        clock_position = str(
-            selection.get("clock_position") or profile.get("lockscreen_clock_position") or "center"
-        ).strip().lower()
         try:
             bundle = self._ipone_wallpapers_service.build_apply_bundle(
                 profile,
                 lock_source=lock_source,
                 charge_source=charge_source,
-                clock_position=clock_position,
             )
             diff = self._rockbox_deploy.build_diff(profile, bundle)
         except ValueError as exc:
@@ -3254,8 +4131,6 @@ class MainWindow(QMainWindow):
             lines.extend(["", f"Lockscreen: {os.path.basename(lock_source)}"])
         if charge_source:
             lines.extend(["", f"Charge: {os.path.basename(charge_source)}"])
-        if any(item["kind"] == "lockscreen_clock_layout" for item in diff["items"]):
-            lines.extend(["", f"Lockscreen Clock: {'Left' if clock_position == 'left' else 'Centered'}"])
         prompt = QMessageBox(self)
         prompt.setWindowTitle("Apply Wallpapers")
         prompt.setText("\n".join(lines))
@@ -4353,7 +5228,7 @@ class MainWindow(QMainWindow):
         self._refresh_plugin_manager()
         self._refresh_game_manager()
         self._refresh_simulator_panel()
-        self._refresh_browser_panel()
+        self._refresh_game_browser_panel()
 
     def _on_game_target_mode_selected(self, target_mode):
         self._current_game_target_mode = target_mode or "device"
@@ -4373,7 +5248,7 @@ class MainWindow(QMainWindow):
         profile["games_library_path"] = path
         self._rockbox_profiles.save_profile(profile)
         self._refresh_game_manager()
-        self._refresh_browser_panel()
+        self._refresh_game_browser_panel()
 
     def _on_game_selection_changed(self):
         profile = self._rockbox_profiles.current_profile()

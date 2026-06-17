@@ -131,6 +131,30 @@ def build_device_path(track_row, dir_template, file_template):
     ext = d.get("sync_output_ext") or Path(d.get("file_path", "")).suffix or ".mp3"
     tn = d.get("track_number")
     dn = d.get("disc_number", 1) or 1
+    media_type = str(d.get("media_type") or "audio").lower()
+    source_path = str(d.get("file_path") or "")
+    source_parts = [part.casefold() for part in Path(source_path).parts]
+    is_downloaded_video = (
+        media_type == "video"
+        and ext.lower() in {".mpg", ".mpeg", ".mpe"}
+        and "youtube" in source_parts
+    )
+    if is_downloaded_video and _is_generic_downloaded_video_title(title):
+        title = _sanitize_filename(Path(source_path).stem or "Downloaded Video")
+    video_kind_label = {
+        "movie": "Movies",
+        "show": "TV Shows",
+        "home_video": "Home Videos",
+    }.get(str(d.get("video_kind") or "movie"), "Movies")
+    video_sync_category = str(d.get("video_sync_category") or "").strip()
+    if is_downloaded_video:
+        video_sync_category = video_sync_category or "Downloaded"
+    if video_sync_category:
+        video_kind_label = video_sync_category
+
+    if media_type == "video" and str(dir_template or "").startswith("Music/"):
+        dir_template = "Videos/{video_kind}"
+        file_template = "{title}{ext}"
 
     try:
         track_num = int(tn) if tn else 0
@@ -143,6 +167,7 @@ def build_device_path(track_row, dir_template, file_template):
             artist=_sanitize_filename(d.get("artist") or "Unknown Artist"),
             album=album,
             genre=_sanitize_filename(d.get("genre") or "Unknown"),
+            video_kind=_sanitize_filename(video_kind_label),
             year=d.get("year") or "0000",
         )
     except (KeyError, ValueError):
@@ -160,6 +185,32 @@ def build_device_path(track_row, dir_template, file_template):
         filename = f"{track_num:02d} - {title}{ext}"
 
     return os.path.join(dir_path, filename)
+
+
+def _is_generic_downloaded_video_title(title):
+    return str(title or "").strip().casefold() in {
+        "",
+        "unknown",
+        "youtube",
+        "mpeg video",
+        "youtube mpeg video",
+    }
+
+
+def _device_cache_title(row):
+    title = str(row.get("title") or "").strip()
+    file_path = str(row.get("file_path") or "")
+    media_type = str(row.get("media_type") or "audio").lower()
+    ext = Path(file_path).suffix.lower()
+    source_parts = [part.casefold() for part in Path(file_path).parts]
+    if (
+        media_type == "video"
+        and ext in {".mpg", ".mpeg", ".mpe"}
+        and "youtube" in source_parts
+        and _is_generic_downloaded_video_title(title)
+    ):
+        return Path(file_path).stem or "Downloaded Video"
+    return title
 
 
 def _remove_audio_with_sidecars(path):
@@ -1264,7 +1315,7 @@ class SyncEngine(QObject):
                 "device_id": device_key,
                 "device_path": rel_path,
                 "local_track_id": row.get("id"),
-                "title": row.get("title", ""),
+                "title": _device_cache_title(row),
                 "artist": row.get("artist", ""),
                 "album": row.get("album", ""),
                 "album_artist": row.get("album_artist", ""),

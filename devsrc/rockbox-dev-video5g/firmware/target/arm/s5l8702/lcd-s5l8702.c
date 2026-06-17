@@ -620,7 +620,9 @@ static inline void nano3g_force_clcd_linecnt_test(const char *stage)
 static void s5l_lcd_write_config(uint32_t config) ICODE_ATTR;
 static void s5l_lcd_write_config(uint32_t config)
 {
+#if !defined(IPOD_NANO3G)
     while (!(LCD_STATUS & 0x2));
+#endif
     udelay(1);
     nano3g_record_lcd_write(LCD_BASE, config);
     LCD_CON = config;
@@ -629,7 +631,9 @@ static void s5l_lcd_write_config(uint32_t config)
 static void s5l_lcd_write_cmd(uint16_t cmd) ICODE_ATTR;
 static void s5l_lcd_write_cmd(uint16_t cmd)
 {
+#if !defined(IPOD_NANO3G)
     while (LCD_STATUS & 0x10);
+#endif
     nano3g_record_lcd_write(LCD_BASE + 0x04, cmd);
     LCD_WCMD = cmd;
 }
@@ -637,7 +641,9 @@ static void s5l_lcd_write_cmd(uint16_t cmd)
 static void s5l_lcd_write_data(uint16_t data) ICODE_ATTR;
 static void s5l_lcd_write_data(uint16_t data)
 {
+#if !defined(IPOD_NANO3G)
     while (LCD_STATUS & 0x10);
+#endif
     nano3g_record_lcd_write(LCD_BASE + 0x40, data);
     LCD_WDATA = data;
 }

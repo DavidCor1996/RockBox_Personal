@@ -584,6 +584,16 @@ static void init(void)
     viewportmanager_init();
     CHART("<viewportmanager_init");
 
+#ifdef IPOD_NANO3G
+    lcd_clear_display();
+    lcd_puts(0, 0, "N3G_NATIVE_PRESTOR");
+    lcd_puts(0, 1, "handoff ok");
+    lcd_puts(0, 2, "storage skipped");
+    lcd_update();
+    while (1)
+        sleep(HZ);
+#endif
+
     CHART(">storage_init");
     rc = storage_init();
     CHART("<storage_init");

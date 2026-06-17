@@ -50,7 +50,7 @@ SUPPORTED_FORMATS = {
     ".aiff", ".aif", ".wav", ".wma", ".ape", ".wv", ".opus",
 }
 SUPPORTED_VIDEO_FORMATS = {
-    ".mp4", ".m4v", ".mov", ".mkv", ".avi", ".webm",
+    ".mp4", ".m4v", ".mov", ".mkv", ".avi", ".webm", ".mpg", ".mpeg", ".mpe",
 }
 
 ARTWORK_FILENAMES = [
@@ -126,7 +126,13 @@ class Config:
         "online_artwork_max_queue_size": 50,
         "background_artwork_lookup_enabled": True,
         "browser_home_url": "https://www.rockbox.org/",
+        "games_browser_home_url": "https://www.rockbox.org/",
         "store_auto_accept_cookies": True,
+        "streamrip_binary": str(Path(__file__).resolve().parents[1] / ".venv" / "bin" / "rip"),
+        "streamrip_preferred_format": "flac",
+        "streamrip_quality": 4,
+        "youtube_movie_binary": "yt-dlp",
+        "ffmpeg_binary": "ffmpeg",
         "games_library_path": DEFAULT_GAMES_LIBRARY_DIR,
         "games_device_target_dir": "gameboy",
         "games_simulator_target_dir": "gameboy",

@@ -274,6 +274,34 @@ class TestBuildDevicePath:
         )
         assert result.endswith(os.path.join("Wish You Were Here", "01 - Shine On.mp3"))
 
+    def test_video_rows_default_to_videos_folder(self):
+        row = {
+            "title": "Family Movie",
+            "file_path": "/videos/family.mpg",
+            "media_type": "video",
+            "video_kind": "home_video",
+        }
+        result = build_device_path(
+            row,
+            "Music/{album_artist}/{album}",
+            "{track_number:02d} - {title}{ext}",
+        )
+        assert result == os.path.join("Videos", "Home Videos", "Family Movie.mpg")
+
+    def test_downloaded_video_rows_use_downloaded_folder(self):
+        row = {
+            "title": "YouTube",
+            "file_path": "/videos/YouTube/downloaded.mpg",
+            "media_type": "video",
+            "video_kind": "movie",
+        }
+        result = build_device_path(
+            row,
+            "Music/{album_artist}/{album}",
+            "{track_number:02d} - {title}{ext}",
+        )
+        assert result == os.path.join("Videos", "Downloaded", "downloaded.mpg")
+
 
 # ===========================================================================
 # Tests: SyncPlan

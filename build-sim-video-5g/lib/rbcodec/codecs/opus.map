@@ -669,7 +669,7 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
 .plt.sec
  *(.plt.sec)
 
-.text           0x00000000000020f0    0x161ec
+.text           0x00000000000020f0    0x16203
  *(.text.unlikely .text.*_unlikely .text.unlikely.*)
  *(.text.exit .text.exit.*)
  *(.text.startup .text.startup.*)
@@ -934,53 +934,53 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
  .text.destroy_memory_pool
                 0x00000000000174e0        0x5 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libtlsf.a(tlsf.o)
                 0x00000000000174e0                destroy_memory_pool
- .text.free_ex  0x00000000000174e5      0x2b4 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libtlsf.a(tlsf.o)
+ .text.free_ex  0x00000000000174e5      0x2a2 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libtlsf.a(tlsf.o)
                 0x00000000000174e5                free_ex
  .text.init_memory_pool
-                0x0000000000017799       0xaf /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libtlsf.a(tlsf.o)
-                0x0000000000017799                init_memory_pool
+                0x0000000000017787       0xa2 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libtlsf.a(tlsf.o)
+                0x0000000000017787                init_memory_pool
  .text.add_new_area
-                0x0000000000017848      0x140 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libtlsf.a(tlsf.o)
-                0x0000000000017848                add_new_area
+                0x0000000000017829      0x140 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libtlsf.a(tlsf.o)
+                0x0000000000017829                add_new_area
  .text.malloc_ex
-                0x0000000000017988      0x317 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libtlsf.a(tlsf.o)
-                0x0000000000017988                malloc_ex
+                0x0000000000017969      0x310 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libtlsf.a(tlsf.o)
+                0x0000000000017969                malloc_ex
  .text.tlsf_malloc
-                0x0000000000017c9f       0x8c /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libtlsf.a(tlsf.o)
-                0x0000000000017c9f                tlsf_malloc
+                0x0000000000017c79       0x8c /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libtlsf.a(tlsf.o)
+                0x0000000000017c79                tlsf_malloc
  .text.tlsf_free
-                0x0000000000017d2b        0xc /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libtlsf.a(tlsf.o)
-                0x0000000000017d2b                tlsf_free
+                0x0000000000017d05        0xc /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libtlsf.a(tlsf.o)
+                0x0000000000017d05                tlsf_free
  .text.realloc_ex
-                0x0000000000017d37      0x3b0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libtlsf.a(tlsf.o)
-                0x0000000000017d37                realloc_ex
+                0x0000000000017d11      0x3ed /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libtlsf.a(tlsf.o)
+                0x0000000000017d11                realloc_ex
  .text.tlsf_realloc
-                0x00000000000180e7       0x19 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libtlsf.a(tlsf.o)
-                0x00000000000180e7                tlsf_realloc
- .text          0x0000000000018100      0x1dc /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
-                0x0000000000018100                codec_init
-                0x0000000000018129                codec_set_replaygain
-                0x000000000001819c                codec_malloc
-                0x00000000000181d2                codec_calloc
-                0x0000000000018204                codec_free
-                0x0000000000018205                codec_realloc
-                0x000000000001823c                codec_strlen
-                0x000000000001824c                strcpy
-                0x000000000001825c                strcat
-                0x000000000001826c                strcmp
-                0x000000000001827c                memcpy
-                0x000000000001828c                memset
-                0x000000000001829c                memcmp
-                0x00000000000182ac                memchr
-                0x00000000000182bc                memmove
-                0x00000000000182cc                qsort
+                0x00000000000180fe       0x19 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libtlsf.a(tlsf.o)
+                0x00000000000180fe                tlsf_realloc
+ .text          0x0000000000018117      0x1dc /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+                0x0000000000018117                codec_init
+                0x0000000000018140                codec_set_replaygain
+                0x00000000000181b3                codec_malloc
+                0x00000000000181e9                codec_calloc
+                0x000000000001821b                codec_free
+                0x000000000001821c                codec_realloc
+                0x0000000000018253                codec_strlen
+                0x0000000000018263                strcpy
+                0x0000000000018273                strcat
+                0x0000000000018283                strcmp
+                0x0000000000018293                memcpy
+                0x00000000000182a3                memset
+                0x00000000000182b3                memcmp
+                0x00000000000182c3                memchr
+                0x00000000000182d3                memmove
+                0x00000000000182e3                qsort
  *(.gnu.warning)
 
-.fini           0x00000000000182dc        0xd
+.fini           0x00000000000182f4        0xd
  *(SORT_NONE(.fini))
- .fini          0x00000000000182dc        0x8 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
-                0x00000000000182dc                _fini
- .fini          0x00000000000182e4        0x5 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
+ .fini          0x00000000000182f4        0x8 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
+                0x00000000000182f4                _fini
+ .fini          0x00000000000182fc        0x5 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
                 [!provide]                        PROVIDE (__etext = .)
                 [!provide]                        PROVIDE (_etext = .)
                 [!provide]                        PROVIDE (etext = .)
@@ -1114,7 +1114,7 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
                 0x0000000000020b00                __GNU_EH_FRAME_HDR
  *(.eh_frame_entry .eh_frame_entry.*)
 
-.eh_frame       0x0000000000021370     0x2bac
+.eh_frame       0x0000000000021370     0x2b8c
  *(.eh_frame)
  .eh_frame      0x0000000000021370       0x40 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
  .eh_frame      0x00000000000213b0        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
@@ -1232,11 +1232,11 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
                                          0x68 (size before relaxing)
  .eh_frame      0x0000000000023b38       0x18 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(resampler_private_AR2.o)
                                          0x30 (size before relaxing)
- .eh_frame      0x0000000000023b50      0x270 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libtlsf.a(tlsf.o)
-                                        0x2e8 (size before relaxing)
- .eh_frame      0x0000000000023dc0      0x158 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+ .eh_frame      0x0000000000023b50      0x250 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libtlsf.a(tlsf.o)
+                                        0x2d0 (size before relaxing)
+ .eh_frame      0x0000000000023da0      0x158 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
                                         0x170 (size before relaxing)
- .eh_frame      0x0000000000023f18        0x4 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtendS.o
+ .eh_frame      0x0000000000023ef8        0x4 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtendS.o
  *(.eh_frame.*)
 
 .sframe
@@ -1256,160 +1256,160 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
  *(.note.build-id)
 
 .note.GNU-stack
-                0x0000000000023f1c        0x0
+                0x0000000000023efc        0x0
  *(.note.GNU-stack)
  .note.GNU-stack
-                0x0000000000023f1c        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
+                0x0000000000023efc        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
  .note.GNU-stack
-                0x0000000000023f1c        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtbeginS.o
+                0x0000000000023efc        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtbeginS.o
  .note.GNU-stack
-                0x0000000000023f1c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/opus.o
+                0x0000000000023efc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/opus.o
  .note.GNU-stack
-                0x0000000000023f1c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/codec_crt0.o
+                0x0000000000023efc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/codec_crt0.o
  .note.GNU-stack
-                0x0000000000023f1c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(opus_decoder.o)
+                0x0000000000023efc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(opus_decoder.o)
  .note.GNU-stack
-                0x0000000000023f1c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(opus_header.o)
+                0x0000000000023efc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(opus_header.o)
  .note.GNU-stack
-                0x0000000000023f1c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(framing.o)
+                0x0000000000023efc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(framing.o)
  .note.GNU-stack
-                0x0000000000023f1c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(celt_decoder.o)
+                0x0000000000023efc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(celt_decoder.o)
  .note.GNU-stack
-                0x0000000000023f1c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(celt_lpc.o)
+                0x0000000000023efc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(celt_lpc.o)
  .note.GNU-stack
-                0x0000000000023f1c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(entcode.o)
+                0x0000000000023efc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(entcode.o)
  .note.GNU-stack
-                0x0000000000023f1c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(entdec.o)
+                0x0000000000023efc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(entdec.o)
  .note.GNU-stack
-                0x0000000000023f1c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(mathops.o)
+                0x0000000000023efc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(mathops.o)
  .note.GNU-stack
-                0x0000000000023f1c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(mdct.o)
+                0x0000000000023efc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(mdct.o)
  .note.GNU-stack
-                0x0000000000023f1c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(modes.o)
+                0x0000000000023efc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(modes.o)
  .note.GNU-stack
-                0x0000000000023f1c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(pitch.o)
+                0x0000000000023efc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(pitch.o)
  .note.GNU-stack
-                0x0000000000023f1c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(quant_bands.o)
+                0x0000000000023efc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(quant_bands.o)
  .note.GNU-stack
-                0x0000000000023f1c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(rate.o)
+                0x0000000000023efc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(rate.o)
  .note.GNU-stack
-                0x0000000000023f1c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(vq.o)
+                0x0000000000023efc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(vq.o)
  .note.GNU-stack
-                0x0000000000023f1c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(dec_API.o)
+                0x0000000000023efc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(dec_API.o)
  .note.GNU-stack
-                0x0000000000023f1c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(decode_frame.o)
+                0x0000000000023efc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(decode_frame.o)
  .note.GNU-stack
-                0x0000000000023f1c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(decode_indices.o)
+                0x0000000000023efc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(decode_indices.o)
  .note.GNU-stack
-                0x0000000000023f1c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(decode_parameters.o)
+                0x0000000000023efc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(decode_parameters.o)
  .note.GNU-stack
-                0x0000000000023f1c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(decode_pitch.o)
+                0x0000000000023efc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(decode_pitch.o)
  .note.GNU-stack
-                0x0000000000023f1c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(decode_pulses.o)
+                0x0000000000023efc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(decode_pulses.o)
  .note.GNU-stack
-                0x0000000000023f1c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(decoder_set_fs.o)
+                0x0000000000023efc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(decoder_set_fs.o)
  .note.GNU-stack
-                0x0000000000023f1c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(gain_quant.o)
+                0x0000000000023efc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(gain_quant.o)
  .note.GNU-stack
-                0x0000000000023f1c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(init_decoder.o)
+                0x0000000000023efc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(init_decoder.o)
  .note.GNU-stack
-                0x0000000000023f1c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(lin2log.o)
+                0x0000000000023efc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(lin2log.o)
  .note.GNU-stack
-                0x0000000000023f1c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(log2lin.o)
+                0x0000000000023efc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(log2lin.o)
  .note.GNU-stack
-                0x0000000000023f1c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(NLSF2A.o)
+                0x0000000000023efc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(NLSF2A.o)
  .note.GNU-stack
-                0x0000000000023f1c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(NLSF_decode.o)
+                0x0000000000023efc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(NLSF_decode.o)
  .note.GNU-stack
-                0x0000000000023f1c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(NLSF_stabilize.o)
+                0x0000000000023efc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(NLSF_stabilize.o)
  .note.GNU-stack
-                0x0000000000023f1c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(NLSF_unpack.o)
+                0x0000000000023efc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(NLSF_unpack.o)
  .note.GNU-stack
-                0x0000000000023f1c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(pitch_est_tables.o)
+                0x0000000000023efc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(pitch_est_tables.o)
  .note.GNU-stack
-                0x0000000000023f1c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(PLC.o)
+                0x0000000000023efc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(PLC.o)
  .note.GNU-stack
-                0x0000000000023f1c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(resampler.o)
+                0x0000000000023efc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(resampler.o)
  .note.GNU-stack
-                0x0000000000023f1c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(resampler_private_down_FIR.o)
+                0x0000000000023efc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(resampler_private_down_FIR.o)
  .note.GNU-stack
-                0x0000000000023f1c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(resampler_private_IIR_FIR.o)
+                0x0000000000023efc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(resampler_private_IIR_FIR.o)
  .note.GNU-stack
-                0x0000000000023f1c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(resampler_private_up2_HQ.o)
+                0x0000000000023efc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(resampler_private_up2_HQ.o)
  .note.GNU-stack
-                0x0000000000023f1c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(resampler_rom.o)
+                0x0000000000023efc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(resampler_rom.o)
  .note.GNU-stack
-                0x0000000000023f1c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(shell_coder.o)
+                0x0000000000023efc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(shell_coder.o)
  .note.GNU-stack
-                0x0000000000023f1c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(sort.o)
+                0x0000000000023efc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(sort.o)
  .note.GNU-stack
-                0x0000000000023f1c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(stereo_decode_pred.o)
+                0x0000000000023efc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(stereo_decode_pred.o)
  .note.GNU-stack
-                0x0000000000023f1c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(stereo_MS_to_LR.o)
+                0x0000000000023efc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(stereo_MS_to_LR.o)
  .note.GNU-stack
-                0x0000000000023f1c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(sum_sqr_shift.o)
+                0x0000000000023efc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(sum_sqr_shift.o)
  .note.GNU-stack
-                0x0000000000023f1c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(table_LSF_cos.o)
+                0x0000000000023efc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(table_LSF_cos.o)
  .note.GNU-stack
-                0x0000000000023f1c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(tables_gain.o)
+                0x0000000000023efc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(tables_gain.o)
  .note.GNU-stack
-                0x0000000000023f1c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(tables_LTP.o)
+                0x0000000000023efc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(tables_LTP.o)
  .note.GNU-stack
-                0x0000000000023f1c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(tables_NLSF_CB_NB_MB.o)
+                0x0000000000023efc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(tables_NLSF_CB_NB_MB.o)
  .note.GNU-stack
-                0x0000000000023f1c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(tables_NLSF_CB_WB.o)
+                0x0000000000023efc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(tables_NLSF_CB_WB.o)
  .note.GNU-stack
-                0x0000000000023f1c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(tables_other.o)
+                0x0000000000023efc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(tables_other.o)
  .note.GNU-stack
-                0x0000000000023f1c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(tables_pitch_lag.o)
+                0x0000000000023efc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(tables_pitch_lag.o)
  .note.GNU-stack
-                0x0000000000023f1c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(tables_pulses_per_block.o)
+                0x0000000000023efc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(tables_pulses_per_block.o)
  .note.GNU-stack
-                0x0000000000023f1c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(opus.o)
+                0x0000000000023efc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(opus.o)
  .note.GNU-stack
-                0x0000000000023f1c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(bands.o)
+                0x0000000000023efc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(bands.o)
  .note.GNU-stack
-                0x0000000000023f1c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(celt.o)
+                0x0000000000023efc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(celt.o)
  .note.GNU-stack
-                0x0000000000023f1c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(cwrs.o)
+                0x0000000000023efc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(cwrs.o)
  .note.GNU-stack
-                0x0000000000023f1c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(entenc.o)
+                0x0000000000023efc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(entenc.o)
  .note.GNU-stack
-                0x0000000000023f1c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(kiss_fft.o)
+                0x0000000000023efc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(kiss_fft.o)
  .note.GNU-stack
-                0x0000000000023f1c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(laplace.o)
+                0x0000000000023efc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(laplace.o)
  .note.GNU-stack
-                0x0000000000023f1c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(bwexpander_32.o)
+                0x0000000000023efc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(bwexpander_32.o)
  .note.GNU-stack
-                0x0000000000023f1c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(bwexpander.o)
+                0x0000000000023efc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(bwexpander.o)
  .note.GNU-stack
-                0x0000000000023f1c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(CNG.o)
+                0x0000000000023efc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(CNG.o)
  .note.GNU-stack
-                0x0000000000023f1c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(code_signs.o)
+                0x0000000000023efc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(code_signs.o)
  .note.GNU-stack
-                0x0000000000023f1c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(decode_core.o)
+                0x0000000000023efc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(decode_core.o)
  .note.GNU-stack
-                0x0000000000023f1c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(LPC_analysis_filter.o)
+                0x0000000000023efc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(LPC_analysis_filter.o)
  .note.GNU-stack
-                0x0000000000023f1c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(LPC_fit.o)
+                0x0000000000023efc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(LPC_fit.o)
  .note.GNU-stack
-                0x0000000000023f1c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(LPC_inv_pred_gain.o)
+                0x0000000000023efc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(LPC_inv_pred_gain.o)
  .note.GNU-stack
-                0x0000000000023f1c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(resampler_private_AR2.o)
+                0x0000000000023efc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(resampler_private_AR2.o)
  .note.GNU-stack
-                0x0000000000023f1c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libtlsf.a(tlsf.o)
+                0x0000000000023efc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libtlsf.a(tlsf.o)
  .note.GNU-stack
-                0x0000000000023f1c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+                0x0000000000023efc        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
  .note.GNU-stack
-                0x0000000000023f1c        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtendS.o
+                0x0000000000023efc        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtendS.o
  .note.GNU-stack
-                0x0000000000023f1c        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
+                0x0000000000023efc        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
 
 .note.gnu.property
-                0x0000000000023f20       0x30
+                0x0000000000023f00       0x30
  *(.note.gnu.property)
  .note.gnu.property
-                0x0000000000023f20       0x30 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
+                0x0000000000023f00       0x30 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
 
 .note.ABI-tag
  *(.note.ABI-tag)
@@ -1906,7 +1906,7 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000    0x314dd
+.debug_info     0x0000000000000000    0x315ca
  *(.debug_info .gnu.linkonce.wi.*)
  .debug_info    0x0000000000000000     0x239b /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/opus.o
  .debug_info    0x000000000000239b      0xecb /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/codec_crt0.o
@@ -1975,10 +1975,10 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
  .debug_info    0x000000000002dae2      0x272 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(LPC_fit.o)
  .debug_info    0x000000000002dd54      0x49a /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(LPC_inv_pred_gain.o)
  .debug_info    0x000000000002e1ee      0x23e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(resampler_private_AR2.o)
- .debug_info    0x000000000002e42c     0x1a7e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libtlsf.a(tlsf.o)
- .debug_info    0x000000000002feaa     0x1633 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+ .debug_info    0x000000000002e42c     0x1b6b /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libtlsf.a(tlsf.o)
+ .debug_info    0x000000000002ff97     0x1633 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
 
-.debug_abbrev   0x0000000000000000     0x94a8
+.debug_abbrev   0x0000000000000000     0x94e2
  *(.debug_abbrev)
  .debug_abbrev  0x0000000000000000      0x4e9 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/opus.o
  .debug_abbrev  0x00000000000004e9      0x287 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/codec_crt0.o
@@ -2047,10 +2047,10 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
  .debug_abbrev  0x0000000000008966       0xea /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(LPC_fit.o)
  .debug_abbrev  0x0000000000008a50      0x1a1 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(LPC_inv_pred_gain.o)
  .debug_abbrev  0x0000000000008bf1      0x120 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(resampler_private_AR2.o)
- .debug_abbrev  0x0000000000008d11      0x43c /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libtlsf.a(tlsf.o)
- .debug_abbrev  0x000000000000914d      0x35b /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+ .debug_abbrev  0x0000000000008d11      0x476 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libtlsf.a(tlsf.o)
+ .debug_abbrev  0x0000000000009187      0x35b /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
 
-.debug_line     0x0000000000000000    0x161b4
+.debug_line     0x0000000000000000    0x1621a
  *(.debug_line .debug_line.* .debug_line_end)
  .debug_line    0x0000000000000000      0x827 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/opus.o
  .debug_line    0x0000000000000827       0xa9 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/codec_crt0.o
@@ -2119,8 +2119,8 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
  .debug_line    0x0000000000014a11      0x1ca /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(LPC_fit.o)
  .debug_line    0x0000000000014bdb      0x367 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(LPC_inv_pred_gain.o)
  .debug_line    0x0000000000014f42       0xc3 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(resampler_private_AR2.o)
- .debug_line    0x0000000000015005      0xf07 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libtlsf.a(tlsf.o)
- .debug_line    0x0000000000015f0c      0x2a8 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+ .debug_line    0x0000000000015005      0xf6d /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libtlsf.a(tlsf.o)
+ .debug_line    0x0000000000015f72      0x2a8 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
 
 .debug_frame
  *(.debug_frame)
@@ -2505,7 +2505,7 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
                                         0x330 (size before relaxing)
 
 .debug_loclists
-                0x0000000000000000    0x1c619
+                0x0000000000000000    0x1c743
  *(.debug_loclists)
  .debug_loclists
                 0x0000000000000000      0x4e1 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/opus.o
@@ -2622,9 +2622,9 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
  .debug_loclists
                 0x000000000001b524       0x64 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(resampler_private_AR2.o)
  .debug_loclists
-                0x000000000001b588      0xd69 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libtlsf.a(tlsf.o)
+                0x000000000001b588      0xe93 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libtlsf.a(tlsf.o)
  .debug_loclists
-                0x000000000001c2f1      0x328 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+                0x000000000001c41b      0x328 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
 
 .debug_macro
  *(.debug_macro)
@@ -2633,7 +2633,7 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
  *(.debug_names)
 
 .debug_rnglists
-                0x0000000000000000     0x11ed
+                0x0000000000000000     0x11f6
  *(.debug_rnglists)
  .debug_rnglists
                 0x0000000000000000       0x2b /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/opus.o
@@ -2700,7 +2700,7 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
  .debug_rnglists
                 0x0000000000000fa5       0x4e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libopus.a(LPC_inv_pred_gain.o)
  .debug_rnglists
-                0x0000000000000ff3      0x1fa /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libtlsf.a(tlsf.o)
+                0x0000000000000ff3      0x203 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libtlsf.a(tlsf.o)
 
 .debug_str_offsets
  *(.debug_str_offsets)

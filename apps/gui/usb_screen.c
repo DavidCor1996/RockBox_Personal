@@ -43,7 +43,9 @@
 #include "misc.h"
 #include "icons.h"
 
+#ifndef IPOD_NANO3G
 #include "bitmaps/usblogo.h"
+#endif
 
 #ifdef HAVE_REMOTE_LCD
 #include "bitmaps/remote_usblogo.h"
@@ -144,10 +146,17 @@ static void usb_screen_fix_viewports(struct screen *screen,
     }
     else
 #endif
+#ifdef IPOD_NANO3G
+    {
+        logo_width = 0;
+        logo_height = 0;
+    }
+#else
     {
         logo_width = BMPWIDTH_usblogo;
         logo_height = BMPHEIGHT_usblogo;
     }
+#endif
 
     viewportmanager_overlay_begin(screen->screen_type, parent);
     viewport_set_centered_preset(parent, VIEWPORT_OVERLAY_PRESET_LARGE);
@@ -199,12 +208,14 @@ static void usb_screen_fix_viewports(struct screen *screen,
 static void usb_screens_draw(struct usb_screen_vps_t *usb_screen_vps_ar)
 {
     struct viewport *last_vp;
+#ifndef IPOD_NANO3G
     static const struct bitmap* logos[NB_SCREENS] = {
         &bm_usblogo,
 #ifdef HAVE_REMOTE_LCD
         &bm_remote_usblogo,
 #endif
     };
+#endif
 
     FOR_NB_SCREENS(i)
     {
@@ -219,7 +230,9 @@ static void usb_screens_draw(struct usb_screen_vps_t *usb_screen_vps_ar)
         screen->backlight_on();
 
         screen->set_viewport(logo);
+#ifndef IPOD_NANO3G
         screen->bmp(logos[i], 0, 0);
+#endif
         if (i == SCREEN_MAIN)
         {
 #ifdef USB_ENABLE_HID

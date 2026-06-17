@@ -94,6 +94,31 @@ def test_build_apply_bundle_targets_active_ipone_wallpapers(tmp_dir):
     assert ".rockbox/wps/iPone/Wallpaper.bmp" in destinations
     assert ".rockbox/wps/iPone/WallpaperCurrent.bmp" in destinations
     assert ".rockbox/wps/iPone/ChargeWallpaper.bmp" in destinations
+    assert ".rockbox/wps/iPone/ChargeWallpaperAlt.bmp" in destinations
+    assert ".rockbox/wps/iPone/ChargeWallpaperThird.bmp" in destinations
+    assert ".rockbox/wps/iPone/ChargeWallpaperFourth.bmp" in destinations
+
+
+def test_build_apply_bundle_does_not_rewrite_device_sbs_without_explicit_clock_position(tmp_dir):
+    repo_root = os.path.join(tmp_dir, "repo")
+    device_root = os.path.join(tmp_dir, "ipod")
+    lock_source = os.path.join(repo_root, "rockpod", "generated", "lockscreen-besties-trio-v5.bmp")
+    sbs_path = os.path.join(device_root, ".rockbox", "wps", "iPone.sbs")
+    _write_bmp(lock_source)
+    os.makedirs(os.path.dirname(sbs_path), exist_ok=True)
+    with open(sbs_path, "w", encoding="utf-8") as handle:
+        handle.write("%Vl(iPoneLockscreen,0,32,-,55,8)%Vf(FFFFFF)%ac%cl:%cM %cP\n")
+
+    service = IPoneWallpaperService()
+    profile = _profile(repo_root)
+    profile["device_mount_path"] = device_root
+    profile["lockscreen_clock_position"] = "left"
+
+    bundle = service.build_apply_bundle(profile, lock_source=lock_source)
+
+    kinds = {item["kind"] for item in bundle["assets"]}
+    assert "lock_wallpaper" in kinds
+    assert "lockscreen_clock_layout" not in kinds
 
 
 def test_build_apply_bundle_targets_blackery_wallpapers(tmp_dir):
@@ -121,6 +146,9 @@ def test_build_apply_bundle_targets_blackery_wallpapers(tmp_dir):
     assert ".rockbox/wps/Blackery/Wallpaper.bmp" in destinations
     assert ".rockbox/wps/Blackery/WallpaperCurrent.bmp" in destinations
     assert ".rockbox/wps/Blackery/ChargeWallpaper.bmp" in destinations
+    assert ".rockbox/wps/Blackery/ChargeWallpaperAlt.bmp" in destinations
+    assert ".rockbox/wps/Blackery/ChargeWallpaperThird.bmp" in destinations
+    assert ".rockbox/wps/Blackery/ChargeWallpaperFourth.bmp" in destinations
 
 
 def test_build_apply_bundle_targets_ipone_nano2g_wallpapers(tmp_dir):
@@ -138,6 +166,9 @@ def test_build_apply_bundle_targets_ipone_nano2g_wallpapers(tmp_dir):
     assert ".rockbox/wps/iPone_nano2g/Wallpaper.bmp" in destinations
     assert ".rockbox/wps/iPone_nano2g/WallpaperCurrent.bmp" in destinations
     assert ".rockbox/wps/iPone_nano2g/ChargeWallpaper.bmp" in destinations
+    assert ".rockbox/wps/iPone_nano2g/ChargeWallpaperAlt.bmp" in destinations
+    assert ".rockbox/wps/iPone_nano2g/ChargeWallpaperThird.bmp" in destinations
+    assert ".rockbox/wps/iPone_nano2g/ChargeWallpaperFourth.bmp" in destinations
     assert ".rockbox/wps/Wallpaper.bmp" in destinations
     assert ".rockbox/wps/ChargeWallpaper.bmp" in destinations
 
@@ -360,6 +391,62 @@ def test_wallpaper_widget_preserves_selection_across_candidate_refreshes():
         assert widget.current_selection()["theme_id"] == "Blackery"
         assert widget._lock_pane.current_candidate()["id"] == "lock-b"
         assert widget._charge_pane.current_candidate()["id"] == "charge-b"
+    finally:
+        widget.close()
+
+
+def test_wallpaper_widget_does_not_expose_clock_position_choice():
+    app = QApplication.instance() or QApplication([])
+    widget = IPoneWallpaperManagerWidget()
+    try:
+        combo_type = type(widget._profile_combo)
+        labels = [
+            child.text()
+            for child in widget.findChildren(type(widget._summary))
+        ]
+        assert "Lockscreen Clock:" not in labels
+        assert len(widget.findChildren(combo_type)) == 2
+        assert "clock_position" not in widget.current_selection()
+        assert not hasattr(widget, "clock_position_changed")
+        assert not hasattr(widget, "set_clock_position")
+    finally:
+        widget.close()
+
+
+def test_wallpaper_widget_cross_apply_buttons_swap_sources():
+    app = QApplication.instance() or QApplication([])
+    widget = IPoneWallpaperManagerWidget()
+    emitted = []
+    try:
+        widget.apply_requested.connect(lambda selection: emitted.append(dict(selection)))
+        widget.set_candidates(
+            [
+                {
+                    "id": "lock-a",
+                    "label": "Lock A",
+                    "source_path": "/tmp/lock-a.bmp",
+                    "preview_path": "",
+                    "removable": False,
+                },
+            ],
+            [
+                {
+                    "id": "charge-a",
+                    "label": "Charge A",
+                    "source_path": "/tmp/charge-a.bmp",
+                    "preview_path": "",
+                    "removable": False,
+                },
+            ],
+        )
+
+        widget._lock_to_charge_btn.click()
+        widget._charge_to_lock_btn.click()
+
+        assert emitted[0]["lock_source"] == ""
+        assert emitted[0]["charge_source"] == "/tmp/lock-a.bmp"
+        assert emitted[1]["lock_source"] == "/tmp/charge-a.bmp"
+        assert emitted[1]["charge_source"] == ""
     finally:
         widget.close()
 

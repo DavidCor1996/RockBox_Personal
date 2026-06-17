@@ -165,7 +165,7 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
 .plt.sec
  *(.plt.sec)
 
-.text           0x0000000000001040     0x2be0
+.text           0x0000000000001040     0x2bd8
  *(.text.unlikely .text.*_unlikely .text.unlikely.*)
  *(.text.exit .text.exit.*)
  *(.text.startup .text.startup.*)
@@ -188,24 +188,24 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
                 0x0000000000001bdf                CLOSE
  .text          0x0000000000001c0c     0x1c6e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/imageviewer/jpegp/jpeg81.o
                 0x0000000000002ad0                JPEGDecode
- .text          0x000000000000387a      0x2e9 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/imageviewer/jpegp/idct.o
-                0x000000000000398f                idct_s
-                0x0000000000003a76                idct_sq
- .text          0x0000000000003b63       0xbd /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/imageviewer/jpegp/mempool.o
-                0x0000000000003b63                malloc
-                0x0000000000003b90                calloc
-                0x0000000000003bc2                init_mem_pool
-                0x0000000000003bea                freeze_mem_pool
-                0x0000000000003c00                clear_mem_pool
- .text          0x0000000000003c20        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtendS.o
- .text          0x0000000000003c20        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
+ .text          0x000000000000387a      0x2e1 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/imageviewer/jpegp/idct.o
+                0x0000000000003987                idct_s
+                0x0000000000003a6e                idct_sq
+ .text          0x0000000000003b5b       0xbd /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/imageviewer/jpegp/mempool.o
+                0x0000000000003b5b                malloc
+                0x0000000000003b88                calloc
+                0x0000000000003bba                init_mem_pool
+                0x0000000000003be2                freeze_mem_pool
+                0x0000000000003bf8                clear_mem_pool
+ .text          0x0000000000003c18        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtendS.o
+ .text          0x0000000000003c18        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
  *(.gnu.warning)
 
-.fini           0x0000000000003c20        0xd
+.fini           0x0000000000003c18        0xd
  *(SORT_NONE(.fini))
- .fini          0x0000000000003c20        0x8 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
-                0x0000000000003c20                _fini
- .fini          0x0000000000003c28        0x5 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
+ .fini          0x0000000000003c18        0x8 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
+                0x0000000000003c18                _fini
+ .fini          0x0000000000003c20        0x5 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
                 [!provide]                        PROVIDE (__etext = .)
                 [!provide]                        PROVIDE (_etext = .)
                 [!provide]                        PROVIDE (etext = .)
@@ -487,21 +487,21 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
 .stab.indexstr
  *(.stab.indexstr)
 
-.comment        0x0000000000000000       0x36
+.comment        0x0000000000000000       0x1b
  *(.comment)
- .comment       0x0000000000000000       0x36 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtbeginS.o
+ .comment       0x0000000000000000       0x1b /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtbeginS.o
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/imageviewer/jpegp/jpegp.o
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/imageviewer/jpegp/jpegp.o
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/imageviewer/jpegp/BUFFILEGETC.o
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/imageviewer/jpegp/BUFFILEGETC.o
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/imageviewer/jpegp/jpeg81.o
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/imageviewer/jpegp/jpeg81.o
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/imageviewer/jpegp/idct.o
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/imageviewer/jpegp/idct.o
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/imageviewer/jpegp/mempool.o
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/imageviewer/jpegp/mempool.o
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtendS.o
+ .comment       0x000000000000001b        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtendS.o
                                          0x1c (size before relaxing)
 
 .gnu.build.attributes
@@ -551,28 +551,28 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
  .debug_abbrev  0x00000000000010bf      0x137 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/imageviewer/jpegp/idct.o
  .debug_abbrev  0x00000000000011f6      0x3ba /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/imageviewer/jpegp/mempool.o
 
-.debug_line     0x0000000000000000     0x30cd
+.debug_line     0x0000000000000000     0x30c5
  *(.debug_line .debug_line.* .debug_line_end)
  .debug_line    0x0000000000000000      0x859 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/imageviewer/jpegp/jpegp.o
  .debug_line    0x0000000000000859      0x3dd /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/imageviewer/jpegp/BUFFILEGETC.o
  .debug_line    0x0000000000000c36     0x1f2d /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/imageviewer/jpegp/jpeg81.o
- .debug_line    0x0000000000002b63      0x324 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/imageviewer/jpegp/idct.o
- .debug_line    0x0000000000002e87      0x246 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/imageviewer/jpegp/mempool.o
+ .debug_line    0x0000000000002b63      0x31c /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/imageviewer/jpegp/idct.o
+ .debug_line    0x0000000000002e7f      0x246 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/imageviewer/jpegp/mempool.o
 
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0x523e
+.debug_str      0x0000000000000000     0x517e
  *(.debug_str)
- .debug_str     0x0000000000000000     0x523e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/imageviewer/jpegp/jpegp.o
+ .debug_str     0x0000000000000000     0x517e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/imageviewer/jpegp/jpegp.o
                                        0x54fa (size before relaxing)
- .debug_str     0x000000000000523e        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/imageviewer/jpegp/BUFFILEGETC.o
+ .debug_str     0x000000000000517e        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/imageviewer/jpegp/BUFFILEGETC.o
                                        0x4fbd (size before relaxing)
- .debug_str     0x000000000000523e        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/imageviewer/jpegp/jpeg81.o
+ .debug_str     0x000000000000517e        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/imageviewer/jpegp/jpeg81.o
                                        0x547a (size before relaxing)
- .debug_str     0x000000000000523e        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/imageviewer/jpegp/idct.o
+ .debug_str     0x000000000000517e        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/imageviewer/jpegp/idct.o
                                         0x133 (size before relaxing)
- .debug_str     0x000000000000523e        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/imageviewer/jpegp/mempool.o
+ .debug_str     0x000000000000517e        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/imageviewer/jpegp/mempool.o
                                        0x4fe8 (size before relaxing)
 
 .debug_loc
@@ -622,7 +622,7 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
                                         0x660 (size before relaxing)
 
 .debug_loclists
-                0x0000000000000000     0x238c
+                0x0000000000000000     0x23a2
  *(.debug_loclists)
  .debug_loclists
                 0x0000000000000000      0x79b /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/imageviewer/jpegp/jpegp.o
@@ -631,9 +631,9 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
  .debug_loclists
                 0x000000000000085c     0x1861 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/imageviewer/jpegp/jpeg81.o
  .debug_loclists
-                0x00000000000020bd      0x240 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/imageviewer/jpegp/idct.o
+                0x00000000000020bd      0x256 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/imageviewer/jpegp/idct.o
  .debug_loclists
-                0x00000000000022fd       0x8f /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/imageviewer/jpegp/mempool.o
+                0x0000000000002313       0x8f /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/imageviewer/jpegp/mempool.o
 
 .debug_macro
  *(.debug_macro)

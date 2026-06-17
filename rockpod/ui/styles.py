@@ -1090,6 +1090,17 @@ QTabBar::tab:hover {{
     background: #e8e8e8;
 }}
 
+QTabWidget#store_tabs::pane {{
+    border-top: 1px solid #aeb6c1;
+    background: #ffffff;
+}}
+
+QTabWidget#store_tabs QTabBar::tab {{
+    min-width: 92px;
+    padding-left: 12px;
+    padding-right: 12px;
+}}
+
 /* ── Rockbox Theme Hub ──────────────────────────────────────────── */
 QWidget#theme_hub {{
     background: #f2f2f2;
@@ -1148,6 +1159,255 @@ QLabel#theme_preview {{
     background: #ffffff;
     border: 1px solid #b8bcc2;
     color: #666666;
+}}
+
+/* ── Music Store / iTunes Store 2006-2008 shell ─────────────────── */
+QWidget#browser_panel {{
+    background: #d6dce5;
+}}
+
+QFrame#itunes_store_shell {{
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+        stop:0 #edf1f6, stop:0.18 #dce4ee, stop:1 #c8d1dd);
+    border-left: 1px solid #9da8b5;
+}}
+
+QFrame#itunes_store_nav {{
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+        stop:0 #fbfbfb, stop:0.08 #f2f2f2, stop:0.48 #d7d7d7, stop:0.5 #c5c5c5, stop:1 #aeb2b8);
+    border: 1px solid #7d8792;
+    border-radius: 4px;
+}}
+
+QFrame#itunes_store_tabs {{
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+        stop:0 #f4f6f9, stop:0.52 #d8e0ea, stop:0.54 #c4cedb, stop:1 #b1bdca);
+    border: 1px solid #8a96a4;
+    border-radius: 4px;
+}}
+
+QLabel#itunes_store_title {{
+    color: #2a3541;
+    font-size: 12px;
+    font-weight: bold;
+    padding-left: 8px;
+    padding-right: 8px;
+    background: transparent;
+}}
+
+QPushButton#store_nav_button,
+QPushButton#store_buy_button {{
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+        stop:0 #ffffff, stop:0.45 #e9edf2, stop:0.48 #d6dde6, stop:1 #aeb9c7);
+    border: 1px solid #7b8795;
+    border-radius: 3px;
+    color: #1d2834;
+    font-size: 11px;
+    font-weight: bold;
+    padding: 2px 8px;
+    min-height: 18px;
+}}
+
+QPushButton#store_buy_button {{
+    color: #ffffff;
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+        stop:0 #9ac2f0, stop:0.46 #5f93d2, stop:0.5 #3c77bd, stop:1 #255e9e);
+    border: 1px solid #315f93;
+}}
+
+QPushButton#store_nav_button:pressed,
+QPushButton#store_buy_button:pressed {{
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+        stop:0 #8d99a8, stop:1 #c8d1dc);
+}}
+
+QPushButton#store_nav_button:checked,
+QPushButton#store_nav_button[active="true"] {{
+    color: #ffffff;
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+        stop:0 #7e8fa5, stop:0.47 #586c85, stop:0.5 #465a73, stop:1 #6f8198);
+    border: 1px solid #46566a;
+}}
+
+QLineEdit#itunes_store_search,
+QLineEdit#itunes_store_import_url {{
+    background: #ffffff;
+    border: 1px solid #7d8792;
+    border-radius: 10px;
+    padding: 2px 9px;
+    selection-background-color: #7ca4d2;
+    min-height: 18px;
+}}
+
+QFrame#itunes_store_import_bar {{
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+        stop:0 #f9fbfd, stop:1 #d9e2ec);
+    border: 1px solid #a5b1bf;
+    border-radius: 4px;
+}}
+
+QLabel#itunes_store_small_title,
+QLabel#itunes_store_section_title {{
+    background: transparent;
+    color: #2f3b48;
+    font-size: 11px;
+    font-weight: bold;
+}}
+
+QScrollArea#itunes_store_scroll,
+QWidget#itunes_store_page {{
+    background: #ffffff;
+}}
+
+QFrame#itunes_store_hero {{
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+        stop:0 #eef5ff, stop:0.45 #d8e8fb, stop:0.48 #c8d9ee, stop:1 #a7bad3);
+    border: 1px solid #8b9eb7;
+}}
+
+QLabel#itunes_store_kicker {{
+    background: transparent;
+    color: #44698f;
+    font-size: 11px;
+    font-weight: bold;
+}}
+
+QLabel#itunes_store_headline {{
+    background: transparent;
+    color: #16293d;
+    font-size: 20px;
+    font-weight: bold;
+}}
+
+QLabel#itunes_store_subhead {{
+    background: transparent;
+    color: #35485a;
+    font-size: 12px;
+}}
+
+QLabel#itunes_store_cover,
+QLabel#itunes_store_album_art {{
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: bold;
+    border: 1px solid #6f7a86;
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
+        stop:0 #9bb2c9, stop:0.48 #506d8e, stop:0.5 #354f6e, stop:1 #17283b);
+}}
+
+QFrame#itunes_store_panel,
+QFrame#itunes_store_sidebar_panel,
+QFrame#itunes_store_web_frame {{
+    background: #ffffff;
+    border: 1px solid #aeb6c1;
+}}
+
+QFrame#itunes_store_album_tile {{
+    background: #ffffff;
+    border: none;
+    min-width: 106px;
+}}
+
+QFrame#itunes_store_album_tile:hover {{
+    background: #eef4fb;
+}}
+
+QFrame#itunes_store_album_detail {{
+    background: #ffffff;
+    border: 1px solid #b2bcc8;
+}}
+
+QFrame#itunes_store_detail_bar {{
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+        stop:0 #f7f8fa, stop:0.48 #e1e5ea, stop:0.5 #cfd6df, stop:1 #b9c3cf);
+    border-bottom: 1px solid #9da8b5;
+}}
+
+QLabel#itunes_store_detail_art {{
+    color: #ffffff;
+    font-size: 24px;
+    font-weight: bold;
+    border: 1px solid #6f7a86;
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
+        stop:0 #9bb2c9, stop:0.48 #506d8e, stop:0.5 #354f6e, stop:1 #17283b);
+}}
+
+QLabel#itunes_store_detail_title {{
+    background: transparent;
+    color: #111111;
+    font-size: 20px;
+    font-weight: bold;
+}}
+
+QLabel#itunes_store_detail_artist {{
+    background: transparent;
+    color: #1d3d6f;
+    font-size: 13px;
+    font-weight: bold;
+}}
+
+QLabel#itunes_store_detail_meta {{
+    background: transparent;
+    color: #626a72;
+    font-size: 11px;
+}}
+
+QFrame#itunes_store_detail_table {{
+    background: #ffffff;
+    border: 1px solid #ccd3db;
+}}
+
+QFrame#itunes_store_detail_row {{
+    background: #ffffff;
+    border-bottom: 1px solid #e5e9ee;
+}}
+
+QLabel#itunes_store_detail_key {{
+    background: transparent;
+    color: #626a72;
+    font-size: 11px;
+    font-weight: bold;
+    min-width: 70px;
+}}
+
+QLabel#itunes_store_detail_value {{
+    background: transparent;
+    color: #202a36;
+    font-size: 11px;
+}}
+
+QLabel#itunes_store_album_title {{
+    background: transparent;
+    color: #1d3d6f;
+    font-size: 11px;
+    font-weight: bold;
+}}
+
+QLabel#itunes_store_album_subtitle {{
+    background: transparent;
+    color: #626a72;
+    font-size: 10px;
+}}
+
+QPushButton#itunes_store_chart_row {{
+    text-align: left;
+    background: #ffffff;
+    border: none;
+    border-bottom: 1px solid #e1e5ea;
+    color: #1d3d6f;
+    font-size: 11px;
+    padding: 3px 4px;
+}}
+
+QPushButton#itunes_store_chart_row:hover {{
+    background: #eef4fb;
+}}
+
+QTreeWidget#itunes_store_downloads {{
+    background: #ffffff;
+    alternate-background-color: #f6f8fb;
+    border: 1px solid #9faab7;
+    font-size: 11px;
 }}
 
 QTreeWidget {{

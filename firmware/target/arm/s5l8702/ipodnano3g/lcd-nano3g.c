@@ -395,20 +395,25 @@ struct lcd_info_rec* lcd_target_get_info(void)
 
         if (type != LCD_TYPE_UNKNOWN)
         {
-            nano3g_boottrace_log("lcd detect ok");
-            lcd_info.lcd_type = type;
-            //lcd_info.mpuiface = LCD_MPUIFACE_PAR9;
+            break;
+        }
+    }
+
+    if (type != LCD_TYPE_UNKNOWN)
+    {
+        nano3g_boottrace_log("lcd detect ok");
+        lcd_info.lcd_type = type;
+        //lcd_info.mpuiface = LCD_MPUIFACE_PAR9;
 #if defined(HAVE_LCD_SLEEP) || defined(HAVE_LCD_SHUTDOWN)
-            lcd_info.seq_sleep = seq_sleep_by_type[type];
+        lcd_info.seq_sleep = seq_sleep_by_type[type];
 #endif
 #ifdef HAVE_LCD_SLEEP
-            lcd_info.seq_awake = seq_awake_by_type[type];
+        lcd_info.seq_awake = seq_awake_by_type[type];
 #endif
 #ifdef BOOTLOADER
-            lcd_info.seq_init = seq_init_by_type[type];
+        lcd_info.seq_init = seq_init_by_type[type];
 #endif
-            return &lcd_info;
-        }
+        return &lcd_info;
     }
 
     nano3g_boottrace_log("lcd detect fail");

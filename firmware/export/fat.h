@@ -158,6 +158,15 @@ int fat_closewrite(struct fat_filestr *filestr, uint32_t size,
                    struct fat_direntry *fatentp);
 void fat_filestr_init(struct fat_filestr *filestr, struct fat_file *file);
 sector_t fat_query_sectornum(const struct fat_filestr *filestr);
+#if defined(IPOD_NANO3G) && defined(BOOTLOADER)
+void fat_n3g_debug_file_open(const char *path, int fd,
+                             const struct fat_filestr *filestr,
+                             unsigned long file_offset,
+                             unsigned long file_size);
+void fat_n3g_debug_file_read_begin(const struct fat_filestr *filestr,
+                                   unsigned long file_offset,
+                                   unsigned long byte_count);
+#endif
 long fat_readwrite(struct fat_filestr *filestr, unsigned long sectorcount,
                    void *buf, bool write);
 void fat_rewind(struct fat_filestr *filestr);

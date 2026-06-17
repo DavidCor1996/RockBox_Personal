@@ -189,7 +189,10 @@ class IPoneWallpaperService:
             )
         if charge_source:
             charge_abs = self._normalized_apply_source(repo_root, profile, "charge", charge_source)
-            charge_destinations = [f".rockbox/wps/{asset_dir}/ChargeWallpaper.bmp"]
+            charge_destinations = [
+                f".rockbox/wps/{asset_dir}/{filename}"
+                for filename in CHARGE_DEFAULTS
+            ]
             charge_destinations.extend(self._legacy_destinations(profile, "charge"))
             assets.extend(
                 [
@@ -197,7 +200,8 @@ class IPoneWallpaperService:
                     for destination_rel in charge_destinations
                 ]
             )
-        assets.extend(self._clock_layout_assets(profile, clock_position))
+        if str(clock_position or "").strip():
+            assets.extend(self._clock_layout_assets(profile, clock_position))
         if not assets:
             raise ValueError("No wallpaper or supported clock layout changes selected")
         return {
@@ -208,7 +212,7 @@ class IPoneWallpaperService:
         }
 
     def _clock_layout_assets(self, profile: Dict, clock_position: str) -> List[Dict]:
-        normalized = self._normalize_clock_position(clock_position or profile.get("lockscreen_clock_position"))
+        normalized = self._normalize_clock_position(clock_position)
         repo_root = os.path.abspath(profile.get("source_repo_path") or "")
         targets = self._clock_layout_targets(profile, repo_root)
         if not targets:

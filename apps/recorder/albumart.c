@@ -30,6 +30,10 @@
 #include "pathfuncs.h"
 #include "settings.h"
 #include "wps.h"
+#if !defined(PLUGIN) && defined(HAVE_TAGCACHE) && \
+    defined(HAVE_TC_RAMCACHE) && defined(HAVE_DIRCACHE)
+#include "tagcache.h"
+#endif
 
 /* Define LOGF_ENABLE to enable logf output in this file */
 /*#define LOGF_ENABLE*/
@@ -185,14 +189,6 @@ bool search_albumart_files(const struct mp3entry *id3, const char *size_string,
             found = try_exts(path, pathlen);
         }
 
-#ifdef USE_JPEG_COVER
-        if (!found && !*size_string)
-        {
-            snprintf (path, sizeof(path), "%sfolder.jpg", dir);
-            found = file_exists(path);
-        }
-#endif
-
         artist = id3->albumartist != NULL ? id3->albumartist : id3->artist;
 
         if (!found && artist && id3->album)
@@ -206,6 +202,14 @@ bool search_albumart_files(const struct mp3entry *id3, const char *size_string,
             fix_path_part(path, strlen(ROCKBOX_DIR "/albumart/"), MAX_PATH);
             found = try_exts(path, pathlen);
         }
+
+#ifdef USE_JPEG_COVER
+        if (!found && !*size_string)
+        {
+            snprintf (path, sizeof(path), "%sfolder.jpg", dir);
+            found = file_exists(path);
+        }
+#endif
 
         if (!found)
         {
@@ -252,6 +256,21 @@ bool search_albumart_files(const struct mp3entry *id3, const char *size_string,
 }
 
 #ifndef PLUGIN
+#if defined(HAVE_TAGCACHE) && defined(HAVE_TC_RAMCACHE) && defined(HAVE_DIRCACHE)
+static bool fill_tagcache_albumart_id3(const struct mp3entry *id3,
+                                       struct mp3entry *tc_id3)
+{
+    if (!id3 || !tc_id3 || !id3->path[0])
+        return false;
+
+    if (!tagcache_fill_tags(tc_id3, id3->path))
+        return false;
+
+    strmemccpy(tc_id3->path, id3->path, sizeof(tc_id3->path));
+    return tc_id3->album && (tc_id3->albumartist || tc_id3->artist);
+}
+#endif
+
 /* Look for albumart bitmap in the same dir as the track and in its parent dir.
  * Stores the found filename in the buf parameter.
  * Returns true if a bitmap was found, false otherwise */
@@ -272,9 +291,25 @@ bool find_albumart(const struct mp3entry *id3, char *buf, int buflen,
     if (search_albumart_files(id3, size_string, buf, buflen))
         return true;
 
+#if defined(HAVE_TAGCACHE) && defined(HAVE_TC_RAMCACHE) && defined(HAVE_DIRCACHE)
+    struct mp3entry tc_id3;
+    bool have_tc_id3 = fill_tagcache_albumart_id3(id3, &tc_id3);
+
+    if (have_tc_id3 && search_albumart_files(&tc_id3, size_string, buf, buflen))
+        return true;
+#endif
+
     /* Then we look for generic bitmaps */
     *size_string = 0;
-    return search_albumart_files(id3, size_string, buf, buflen);
+    if (search_albumart_files(id3, size_string, buf, buflen))
+        return true;
+
+#if defined(HAVE_TAGCACHE) && defined(HAVE_TC_RAMCACHE) && defined(HAVE_DIRCACHE)
+    if (have_tc_id3 && search_albumart_files(&tc_id3, size_string, buf, buflen))
+        return true;
+#endif
+
+    return false;
 }
 
 #endif /* PLUGIN */

@@ -658,14 +658,20 @@ class ArtworkManager(QObject):
         meta = self._load_album_meta(album_key)
         self._record_album_identity(album_info)
 
-        cached_desktop = meta.get("desktop_source_art_path", "")
-        cached_resolution = meta.get("desktop_source_resolution", [])
-        if cached_desktop and os.path.exists(cached_desktop):
-            if not allow_online or not self._is_low_quality_resolution(cached_resolution):
-                return cached_desktop
-
         img_data, source_path, source_kind, source_resolution = self._get_best_local_album_artwork(album_info["tracks"])
         if img_data:
+            source_hash = hashlib.md5(img_data).hexdigest()
+            cached_desktop = meta.get("desktop_source_art_path", "")
+            cached_resolution = meta.get("desktop_source_resolution", [])
+            if (
+                cached_desktop
+                and os.path.exists(cached_desktop)
+                and meta.get("source_provenance") == source_path
+                and meta.get("desktop_source_hash") == source_hash
+                and (not allow_online or not self._is_low_quality_resolution(cached_resolution))
+            ):
+                return cached_desktop
+
             ext = self._ext_for_source(source_path)
             desktop_path = os.path.join(self._original_dir, f"{self._slug(album_key)}_local{ext}")
             try:
@@ -674,6 +680,7 @@ class ArtworkManager(QObject):
                 meta.update(
                     {
                         "desktop_source_art_path": desktop_path,
+                        "desktop_source_hash": source_hash,
                         "desktop_source_type": source_kind,
                         "desktop_source_resolution": source_resolution,
                         "source": source_kind,
@@ -687,8 +694,11 @@ class ArtworkManager(QObject):
             except OSError as e:
                 self._record_artwork_failure(source_path, f"cache write failure: {e}")
 
+        cached_desktop = meta.get("desktop_source_art_path", "")
+        cached_resolution = meta.get("desktop_source_resolution", [])
         if cached_desktop and os.path.exists(cached_desktop):
-            return cached_desktop
+            if not allow_online or not self._is_low_quality_resolution(cached_resolution):
+                return cached_desktop
 
         if allow_online:
             self.queue_online_lookup(album_info)
@@ -886,13 +896,6 @@ class ArtworkManager(QObject):
             except OSError as e:
                 self._record_artwork_failure(explicit_artwork, f"explicit artwork read failure: {e}")
 
-        has_embedded = self._get_value(track_row, "has_embedded_artwork", 0)
-        if has_embedded:
-            data, _mime = extract_artwork_data(file_path)
-            if data:
-                return data, file_path
-            self._record_artwork_failure(file_path, "embedded artwork missing or extraction failed")
-
         folder = os.path.dirname(file_path)
         for name in ARTWORK_FILENAMES:
             art_path = os.path.join(folder, name)
@@ -902,6 +905,14 @@ class ArtworkManager(QObject):
                         return f.read(), art_path
                 except OSError as e:
                     self._record_artwork_failure(art_path, f"folder artwork read failure: {e}")
+
+        has_embedded = self._get_value(track_row, "has_embedded_artwork", 0)
+        if has_embedded:
+            data, _mime = extract_artwork_data(file_path)
+            if data:
+                return data, file_path
+            self._record_artwork_failure(file_path, "embedded artwork missing or extraction failed")
+
         return None, file_path
 
     def _album_info(self, album_or_tracks):

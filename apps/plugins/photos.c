@@ -25,6 +25,12 @@
 #define MAX_LOCKS 128
 #define PIN_LEN 4
 
+#if (CONFIG_KEYPAD == IPOD_1G2G_PAD) \
+    || (CONFIG_KEYPAD == IPOD_3G_PAD) \
+    || (CONFIG_KEYPAD == IPOD_4G_PAD)
+#define PHOTOS_IPOD_CONTROLS
+#endif
+
 enum photos_entry_kind {
     PHOTOS_ENTRY_DIR = 0,
     PHOTOS_ENTRY_FILE,
@@ -83,6 +89,21 @@ static int photos_tsr_exit(bool reenter)
 {
     return reenter ? PLUGIN_TSR_TERMINATE : PLUGIN_TSR_SUSPEND;
 }
+
+#ifdef PHOTOS_IPOD_CONTROLS
+static const struct button_mapping photos_ipod_ctx[] =
+{
+    { PLA_SCROLL_BACK,        BUTTON_SCROLL_BACK,                BUTTON_NONE },
+    { PLA_SCROLL_FWD,         BUTTON_SCROLL_FWD,                 BUTTON_NONE },
+    { PLA_SCROLL_BACK_REPEAT, BUTTON_SCROLL_BACK|BUTTON_REPEAT,  BUTTON_NONE },
+    { PLA_SCROLL_FWD_REPEAT,  BUTTON_SCROLL_FWD|BUTTON_REPEAT,   BUTTON_NONE },
+    { PLA_CANCEL,             BUTTON_MENU|BUTTON_REL,            BUTTON_MENU },
+    { PLA_CANCEL,             BUTTON_LEFT|BUTTON_REL,            BUTTON_LEFT },
+    { PLA_SELECT_REL,         BUTTON_SELECT|BUTTON_REL,          BUTTON_SELECT },
+    { PLA_UP_REPEAT,          BUTTON_SELECT|BUTTON_REPEAT,       BUTTON_SELECT },
+    LAST_ITEM_IN_LIST
+};
+#endif
 
 static bool photos_is_hidden(const char *name)
 {
@@ -822,7 +843,12 @@ static void photos_draw_footer(void)
     if (photos.entry_count <= 0)
     {
         rb->lcd_putsxy(photos.margin, LCD_HEIGHT - photos.footer_h + 2,
+#ifdef PHOTOS_IPOD_CONTROLS
+                       photos_path_is_root(photos.current_dir) ?
+                       "Menu: exit" : "Menu: back");
+#else
                        "Hold Select: menu");
+#endif
         return;
     }
 
@@ -1107,9 +1133,15 @@ static enum plugin_status photos_open_context_menu(void)
 
 static enum plugin_status photos_grid_loop(void)
 {
+#ifdef PHOTOS_IPOD_CONTROLS
+    static const struct button_mapping *plugin_contexts[] = {
+        photos_ipod_ctx,
+    };
+#else
     static const struct button_mapping *plugin_contexts[] = {
         pla_main_ctx,
     };
+#endif
 
     photos_ensure_selection_visible();
     photos_draw_screen();

@@ -412,3 +412,77 @@ Scope is theme-first (WPS/SBS/FMS/config/assets) with design preservation.
 - Lockscreen clock/miniplayer baseline is restored.
 - Volume overlay while unlocked remains normal.
 - Immediate-lock stale volume overlay bug remains unresolved.
+
+## Stage 05 - SBS polish and regression workflow expansion (2026-06-09)
+
+- Type: theme-visible SBS refinement + screenshot workflow hardening
+- Status: implemented, simulator-loaded; automated screenshots blocked in this sandbox
+
+### Purpose
+
+- Make high-visibility secondary screens feel intentional without touching playback engine code.
+- Improve the menu mini-player, charging/docked screen, and lock/AOD spacing from the SBS layer.
+- Make screenshot capture a normal pre-change/post-change command for iPone theme work.
+
+### What changed
+
+1. **Charging/docked screen polish**
+   - Charging mode now cycles all four existing charge wallpapers by quarter-minute windows.
+   - Added a larger drawn battery block beside the clock/status card.
+   - Added an optional now-playing strip when track metadata is present.
+
+2. **Menu mini-player polish**
+   - Replaced the small badge-only treatment with a compact card showing:
+     - Now Playing label
+     - play/pause icon
+     - track title
+     - artist/album fallback line
+   - Kept the existing right-side album-art area and left-side list viewport behavior.
+
+3. **Lockscreen/AOD refinement**
+   - Tightened clock/date spacing to give the track card more room.
+   - Added a light AOD now-playing card instead of two loose text lines.
+   - Preserved the existing lockscreen notification card and hold-state routing.
+
+4. **Regression screenshot command made source-aware**
+   - `tools/ipone_regression_capture.sh` now overlays current source files from:
+     - `wps/iPone.sbs`
+     - `wps/iPone.wps`
+     - `wps/iPone.fms`
+     - `wps/iPone/`
+   - This avoids accidentally capturing stale simdisk theme files after a source edit.
+   - Old PNGs are cleared only after the first simulator launch succeeds, so a launch failure
+     no longer deletes the previous evidence set.
+
+5. **Regression coverage expanded**
+   - Added SBS menu mini-player capture:
+     - `docs/ipone-regression-shots/11-menu-mini-player.png`
+   - Added charging/docked capture using simulator USB charge-only mode:
+     - `docs/ipone-regression-shots/12-charging-docked.png`
+
+### Normal command for theme changes
+
+Run this before and after future iPone theme edits:
+
+```sh
+tools/ipone_regression_capture.sh
+```
+
+### Files touched
+
+- `wps/iPone.sbs`
+- `tools/ipone_regression_capture.sh`
+- `docs/ipone_theme_modernization_log.md`
+
+### Known tradeoffs
+
+- This stage stays theme-only; it does not solve the previously documented WPS stale volume overlay
+  during immediate lock transitions.
+- The charging battery is drawn from skin rectangles and battery state branches rather than adding
+  a new bitmap asset.
+- The updated screenshot helper could not complete from this Codex sandbox on 2026-06-09:
+  - `rockboxui` launches and loads the edited theme in the simulator.
+  - `rockboxui` segfaults in this environment when launched with stdout/stderr redirected.
+  - `xdotool` fails to initialize when run from the same non-interactive shell that backgrounds
+    the SDL simulator, although separate `xdotool` calls can see the window.
+  - ImageMagick `import` cannot open the X server from this sandbox even with the active Xauthority.

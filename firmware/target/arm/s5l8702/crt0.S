@@ -142,7 +142,9 @@ start_loc:
     orr     r0, r0, #1<<12           /* enable icache */
     mcr     p15, 0, r0, c1, c0, 0
 #else
+#ifndef IPOD_NANO3G
     bl      memory_init
+#endif
 
     /* Copy interrupt vectors to iram */
     ldr     r2, =_intvectstart

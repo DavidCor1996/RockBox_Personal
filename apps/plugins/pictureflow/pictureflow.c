@@ -5108,21 +5108,16 @@ static int pictureflow_main(void)
             last_update = current_update;
             frames = 0;
         }
-        /* Draw FPS or draw percentage of already built album cache */
-        if (pf_cfg.show_fps || aa_cache.inspected < pf_idx.album_ct)
+        /* Draw FPS only when explicitly enabled. Cache progress continues in
+         * the background without overlaying a percentage on the cover view. */
+        if (pf_cfg.show_fps)
         {
 #ifdef USEGSLIB
             mylcd_set_foreground(G_BRIGHT(255));
 #else
             mylcd_set_foreground(G_PIX(255,0,0));
 #endif
-            if(aa_cache.inspected >= pf_idx.album_ct)
-                 rb->snprintf(fpstxt, sizeof(fpstxt), "FPS: %d", fps);
-            else
-            {
-                int progress_pct = 100 * aa_cache.inspected / pf_idx.album_ct;
-                rb->snprintf(fpstxt, sizeof(fpstxt), "%d %%", progress_pct);
-            }
+            rb->snprintf(fpstxt, sizeof(fpstxt), "FPS: %d", fps);
 
             if (pf_cfg.show_album_name == ALBUM_NAME_TOP ||
                 pf_cfg.show_album_name == ALBUM_AND_ARTIST_TOP)

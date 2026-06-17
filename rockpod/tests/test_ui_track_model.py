@@ -2,6 +2,7 @@
 
 import os
 import sys
+from io import BytesIO
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
@@ -108,6 +109,42 @@ def test_album_artwork_uses_folder_jpg_fallback(tmp_dir):
 
     assert os.path.exists(art_path)
     assert "placeholder" not in os.path.basename(art_path)
+
+
+def test_album_artwork_prefers_rockbox_cover_over_stale_embedded_cache(tmp_dir, monkeypatch):
+    manager = ArtworkManager(os.path.join(tmp_dir, "artwork"))
+    album_dir = os.path.join(tmp_dir, "Album")
+    os.makedirs(album_dir, exist_ok=True)
+    audio = os.path.join(album_dir, "01.flac")
+    cover = os.path.join(album_dir, "cover.jpg")
+    with open(audio, "wb") as f:
+        f.write(b"audio")
+
+    embedded = BytesIO()
+    Image.new("RGB", (20, 20), "#ff0000").save(embedded, "JPEG")
+
+    monkeypatch.setattr(
+        "services.artwork_manager.extract_artwork_data",
+        lambda _path: (embedded.getvalue(), "image/jpeg"),
+    )
+    album_info = {
+        "group_key": "artist\0album",
+        "tracks": [
+            {"file_path": audio, "has_embedded_artwork": 1, "album": "Album", "artist": "Artist"},
+        ],
+    }
+
+    first = manager.get_artwork_for_album(album_info, "thumb")
+    assert os.path.exists(first)
+    assert manager._load_album_meta("artist\0album")["source"] == "embedded"
+
+    Image.new("RGB", (10, 10), "#336699").save(cover, "JPEG")
+    second = manager.get_artwork_for_album(album_info, "thumb")
+    meta = manager._load_album_meta("artist\0album")
+
+    assert os.path.exists(second)
+    assert meta["source"] == "folder"
+    assert meta["source_provenance"] == cover
 
 
 def test_album_artwork_missing_uses_placeholder_and_reports_diagnostic(tmp_dir):

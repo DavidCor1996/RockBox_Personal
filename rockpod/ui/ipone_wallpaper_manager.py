@@ -145,7 +145,6 @@ class IPoneWallpaperManagerWidget(QWidget):
     apply_requested = Signal(dict)
     import_requested = Signal(str, str)
     remove_requested = Signal(str, dict)
-    clock_position_changed = Signal(str)
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -168,15 +167,15 @@ class IPoneWallpaperManagerWidget(QWidget):
         self._theme_combo = QComboBox()
         self._theme_combo.currentIndexChanged.connect(self._emit_theme_selected)
         header_layout.addWidget(self._theme_combo, 1)
-        header_layout.addWidget(QLabel("Lockscreen Clock:"))
-        self._clock_position_combo = QComboBox()
-        self._clock_position_combo.addItem("Centered", "center")
-        self._clock_position_combo.addItem("Left", "left")
-        self._clock_position_combo.currentIndexChanged.connect(self._emit_clock_position_changed)
-        header_layout.addWidget(self._clock_position_combo)
         self._apply_both_btn = QPushButton("Apply Both")
         self._apply_both_btn.clicked.connect(self._emit_apply_both)
         header_layout.addWidget(self._apply_both_btn)
+        self._lock_to_charge_btn = QPushButton("Lock -> Charge")
+        self._lock_to_charge_btn.clicked.connect(self._emit_apply_lock_as_charge)
+        header_layout.addWidget(self._lock_to_charge_btn)
+        self._charge_to_lock_btn = QPushButton("Charge -> Lock")
+        self._charge_to_lock_btn.clicked.connect(self._emit_apply_charge_as_lock)
+        header_layout.addWidget(self._charge_to_lock_btn)
         layout.addWidget(header)
 
         self._summary = QLabel(
@@ -250,22 +249,7 @@ class IPoneWallpaperManagerWidget(QWidget):
             "theme_id": self.current_theme_id(),
             "lock_source": lock.get("source_path", "") if lock else "",
             "charge_source": charge.get("source_path", "") if charge else "",
-            "clock_position": self.current_clock_position(),
         }
-
-    def current_clock_position(self):
-        return self._clock_position_combo.currentData() or "center"
-
-    def set_clock_position(self, value, supported=True):
-        normalized = "left" if str(value or "").strip().lower() == "left" else "center"
-        self._clock_position_combo.blockSignals(True)
-        index = self._clock_position_combo.findData(normalized)
-        self._clock_position_combo.setCurrentIndex(index if index >= 0 else 0)
-        self._clock_position_combo.blockSignals(False)
-        self._clock_position_combo.setEnabled(bool(supported))
-        self._clock_position_combo.setToolTip(
-            "" if supported else "Lockscreen clock alignment is currently supported on 320x240 iPone themes."
-        )
 
     def _emit_profile_selected(self):
         profile_id = self.current_profile_id()
@@ -290,8 +274,17 @@ class IPoneWallpaperManagerWidget(QWidget):
     def _emit_apply_both(self):
         self.apply_requested.emit(self.current_selection())
 
-    def _emit_clock_position_changed(self):
-        self.clock_position_changed.emit(self.current_clock_position())
+    def _emit_apply_lock_as_charge(self):
+        selection = self.current_selection()
+        selection["charge_source"] = selection.get("lock_source", "")
+        selection["lock_source"] = ""
+        self.apply_requested.emit(selection)
+
+    def _emit_apply_charge_as_lock(self):
+        selection = self.current_selection()
+        selection["lock_source"] = selection.get("charge_source", "")
+        selection["charge_source"] = ""
+        self.apply_requested.emit(selection)
 
     def _choose_custom_lock(self):
         path, _ = QFileDialog.getOpenFileName(self, "Choose Lock Wallpaper", "", "Images (*.bmp *.png *.jpg *.jpeg)")

@@ -88,6 +88,7 @@ class Sidebar(QWidget):
     # Item identifiers
     LIBRARY_MUSIC = "library_music"
     LIBRARY_VIDEOS = "library_videos"
+    LIBRARY_VIDEO_SYNC = "library_video_sync"
     LIBRARY_ARTISTS = "library_artists"
     LIBRARY_ALBUMS = "library_albums"
     LIBRARY_GENRES = "library_genres"
@@ -181,6 +182,8 @@ class Sidebar(QWidget):
                                           _make_icon("#4a90d9", "music"))
         self._videos_item = self._add_item(lib_header, "Videos", self.LIBRARY_VIDEOS,
                                            _make_icon("#7f8fb3", "device"))
+        self._video_sync_item = self._add_item(lib_header, "Video Sync", self.LIBRARY_VIDEO_SYNC,
+                                               _make_icon("#6f8fb8", "playlist"))
         self._artists_item = self._add_item(lib_header, "Artists", self.LIBRARY_ARTISTS,
                                             _make_icon("#8d72c9", "artist"))
         self._albums_item = self._add_item(lib_header, "Albums", self.LIBRARY_ALBUMS,
@@ -215,10 +218,7 @@ class Sidebar(QWidget):
             self._rockbox_header, "Plugins", self.ROCKBOX_PLUGINS,
             _make_icon("#7c96ad", "playlist")
         )
-        self._games_item = self._add_item(
-            self._rockbox_header, "Games", self.ROCKBOX_GAMES,
-            _make_icon("#7f9a67", "music")
-        )
+        self._games_item = None
         self._photos_item = self._add_item(
             self._rockbox_header, "Photos", self.ROCKBOX_PHOTOS,
             _make_icon("#8c9f6f", "album")

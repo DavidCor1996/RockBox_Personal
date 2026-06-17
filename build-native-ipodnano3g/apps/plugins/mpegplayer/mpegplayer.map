@@ -221,7 +221,7 @@ LOAD /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a
  .header        0x0000000009dfc000       0x1c /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/plugin_crt0.o
                 0x0000000009dfc000                __header
 
-.text           0x0000000009dfc020    0x1c0b0
+.text           0x0000000009dfc020    0x1c1f0
  *(.text*)
  .text          0x0000000009dfc020      0x80c /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/mpegplayer/libmpeg2/decode.o
                 0x0000000009dfc110                mpeg2_parse_header
@@ -292,7 +292,7 @@ LOAD /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a
                 0x0000000009e07104                codec_malloc
                 0x0000000009e0716c                codec_calloc
                 0x0000000009e071d8                codec_free
- .text          0x0000000009e071dc      0xc64 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/mpegplayer/video_out_rockbox.o
+ .text          0x0000000009e071dc      0xc5c /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/mpegplayer/video_out_rockbox.o
                 0x0000000009e0733c                vo_rect_clear
                 0x0000000009e07354                vo_rect_empty
                 0x0000000009e07358                vo_rect_set_ext
@@ -302,344 +302,344 @@ LOAD /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a
                 0x0000000009e074d8                vo_rect_offset
                 0x0000000009e0750c                stretch_image_plane
                 0x0000000009e075e4                vo_draw_frame
-                0x0000000009e07878                vo_draw_frame_thumb
-                0x0000000009e07a30                vo_set_display_mode
-                0x0000000009e07a48                vo_dimensions
-                0x0000000009e07a64                vo_init
-                0x0000000009e07a94                vo_show
-                0x0000000009e07ac0                vo_is_visible
-                0x0000000009e07ad8                vo_cleanup
-                0x0000000009e07aec                vo_set_clip_rect
-                0x0000000009e07b80                vo_setup
-                0x0000000009e07df4                vo_get_clip_rect
-                0x0000000009e07e30                vo_set_post_draw_callback
- .text          0x0000000009e07e40     0x108c /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/mpegplayer/video_thread.o
-                0x0000000009e08d64                video_thread_init
-                0x0000000009e08e20                video_thread_exit
-                0x0000000009e08e74                video_thread_get_stats
- .text          0x0000000009e08ecc      0x648 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/mpegplayer/pcm_output.o
-                0x0000000009e09098                pcm_output_get_buffer
-                0x0000000009e090dc                pcm_output_commit_data
-                0x0000000009e09148                pcm_output_empty
-                0x0000000009e09168                pcm_output_flush
-                0x0000000009e091e8                pcm_output_set_clock
-                0x0000000009e09228                pcm_output_get_clock
-                0x0000000009e09284                pcm_output_get_ticks
-                0x0000000009e092f4                pcm_output_play_pause
-                0x0000000009e09398                pcm_output_stop
-                0x0000000009e093f4                pcm_output_drain
-                0x0000000009e0942c                pcm_output_init
-                0x0000000009e094d0                pcm_output_exit
- .text          0x0000000009e09514      0xb64 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/mpegplayer/audio_thread.o
-                0x0000000009e09f7c                audio_thread_init
-                0x0000000009e0a020                audio_thread_exit
- .text          0x0000000009e0a078      0xf3c /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/mpegplayer/disk_buf.o
-                0x0000000009e0a1a0                disk_buf_is_data_ready
-                0x0000000009e0a23c                dbuf_l2_init
-                0x0000000009e0a248                _disk_buf_getbuffer
-                0x0000000009e0a2ec                _disk_buf_getbuffer_l2
-                0x0000000009e0a3e4                disk_buf_read
-                0x0000000009e0a498                disk_buf_lseek
-                0x0000000009e0a518                disk_buf_set_streaming_window
-                0x0000000009e0a598                disk_buf_offset2ptr
-                0x0000000009e0a5d0                disk_buf_close
-                0x0000000009e0a63c                disk_buf_open
-                0x0000000009e0a6c4                disk_buf_send_msg
-                0x0000000009e0a6ec                disk_buf_prepare_streaming
-                0x0000000009e0a750                disk_buf_post_msg
-                0x0000000009e0a778                disk_buf_reply_msg
-                0x0000000009e0add8                disk_buf_init
-                0x0000000009e0af60                disk_buf_exit
- .text          0x0000000009e0afb4     0x14b4 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/mpegplayer/mpeg_settings.o
-                0x0000000009e0b3d8                mpeg_backlight_update_brightness
-                0x0000000009e0b804                mpeg_start_menu
-                0x0000000009e0c258                mpeg_menu
-                0x0000000009e0c2b4                init_settings
-                0x0000000009e0c3cc                save_settings
- .text          0x0000000009e0c468     0x10cc /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/mpegplayer/stream_mgr.o
-                0x0000000009e0c6f8                str_next_data_not_ready
-                0x0000000009e0c778                str_data_notify_received
-                0x0000000009e0c7a8                stream_add_stream
-                0x0000000009e0c7dc                stream_remove_streams
-                0x0000000009e0c808                move_strl_to_actl
-                0x0000000009e0c8c4                stream_generate_event
-                0x0000000009e0c908                stream_clear_notify
-                0x0000000009e0c91c                stream_show_vo
-                0x0000000009e0c948                stream_vo_is_visible
-                0x0000000009e0c970                stream_vo_get_size
-                0x0000000009e0c9c0                stream_vo_set_clip
-                0x0000000009e0c9f8                stream_vo_set_display_mode
-                0x0000000009e0ca7c                stream_vo_get_clip
-                0x0000000009e0cac0                stream_display_thumb
-                0x0000000009e0cb00                stream_draw_frame
-                0x0000000009e0cb2c                stream_set_callback
-                0x0000000009e0cb68                stream_get_resume_time
-                0x0000000009e0cb88                stream_get_seek_time
-                0x0000000009e0cd30                stream_on_open
-                0x0000000009e0d150                stream_wait_status
-                0x0000000009e0d160                stream_get_window
-                0x0000000009e0d1bc                stream_open
-                0x0000000009e0d1e4                stream_play
-                0x0000000009e0d20c                stream_pause
-                0x0000000009e0d234                stream_resume
-                0x0000000009e0d25c                stream_stop
-                0x0000000009e0d284                stream_seek
-                0x0000000009e0d2d0                stream_close
-                0x0000000009e0d2f8                stream_init
-                0x0000000009e0d4cc                stream_exit
- .text          0x0000000009e0d534     0x35f0 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/mpegplayer/mpegplayer.o
-                0x0000000009e0f854                plugin_start
- .text          0x0000000009e10b24     0x11b4 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/mpegplayer/mpeg_parser.o
-                0x0000000009e10cb8                str_initialize
-                0x0000000009e10ce8                str_end_of_stream
-                0x0000000009e11280                mpeg_parser_scan_start_code
-                0x0000000009e11348                mpeg_parser_scan_pes
-                0x0000000009e11408                mpeg_parser_scan_scr
-                0x0000000009e1152c                mpeg_parser_scan_pts
-                0x0000000009e11878                parser_prepare_image
-                0x0000000009e119e0                parser_seek_time
-                0x0000000009e11a18                parser_prepare_streaming
-                0x0000000009e11af8                parser_init_stream
-                0x0000000009e11cb8                parser_close_stream
-                0x0000000009e11cc8                parser_init
- .text          0x0000000009e11cd8      0x370 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/mpegplayer/mpeg_misc.o
-                0x0000000009e11cd8                stream_scan_init
-                0x0000000009e11ce0                stream_scan_normalize
-                0x0000000009e11d08                stream_scan_offset
-                0x0000000009e11d38                ts_to_hms
-                0x0000000009e11da8                hms_format
-                0x0000000009e11e04                muldiv_uint32
-                0x0000000009e11e5c                list_is_empty
-                0x0000000009e11e6c                list_is_member
-                0x0000000009e11e94                list_remove_item
-                0x0000000009e11eb8                list_add_item
-                0x0000000009e11ee4                list_clear_all
-                0x0000000009e11f00                list_enum_items
-                0x0000000009e11f50                mpeg_sysevent_clear
-                0x0000000009e11f64                mpeg_sysevent_set
-                0x0000000009e11f78                mpeg_sysevent
-                0x0000000009e11f88                mpeg_sysevent_callback
-                0x0000000009e11fb0                mpeg_sysevent_handle
-                0x0000000009e11fd8                mpeg_button_get
- .text          0x0000000009e12048      0x1e0 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/plugin_crt0.o
-                0x0000000009e12060                plugin__start
-                0x0000000009e1218c                rb_atexit
-                0x0000000009e121ac                exit
-                0x0000000009e121c8                _exit
-                0x0000000009e121dc                exit_on_usb
- .text          0x0000000009e12228      0x708 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/lib/rbcodec/codecs/libmad-mpeg.a(frame.o)
-                0x0000000009e1245c                mad_header_init
-                0x0000000009e12484                mad_header_decode
-                0x0000000009e12814                mad_frame_decode
-                0x0000000009e128dc                mad_frame_mute
-                0x0000000009e12918                mad_frame_init
- .text          0x0000000009e12930      0xac0 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/lib/rbcodec/codecs/libmad-mpeg.a(layer12.o)
-                0x0000000009e12a5c                mad_layer_I
-                0x0000000009e12d60                mad_layer_II
- .text          0x0000000009e133f0     0x2190 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/lib/rbcodec/codecs/libmad-mpeg.a(layer3.o)
-                0x0000000009e14f28                mad_layer_III
- .text          0x0000000009e15580      0x2f8 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/lib/rbcodec/codecs/libmad-mpeg.a(stream.o)
-                0x0000000009e15580                mad_stream_init
-                0x0000000009e155d0                mad_stream_buffer
-                0x0000000009e155f4                mad_stream_sync
-                0x0000000009e15664                mad_stream_errorstr
- .text          0x0000000009e15878     0x10e8 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/lib/rbcodec/codecs/libmad-mpeg.a(synth.o)
-                0x0000000009e15878                mad_synth_mute
-                0x0000000009e15884                mad_synth_init
-                0x0000000009e158a8                mad_synth_frame
- .text          0x0000000009e16960      0x964 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/lib/rbcodec/codecs/libmad-mpeg.a(imdct_l_arm.o)
-                0x0000000009e16960                _III_imdct_l
-                0x0000000009e16960                III_imdct_l
- .text          0x0000000009e172c4      0x1cc /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/lib/rbcodec/codecs/libmad-mpeg.a(bit.o)
-                0x0000000009e172c4                mad_bit_init
-                0x0000000009e172dc                mad_bit_length
-                0x0000000009e172ec                mad_bit_nextbyte
-                0x0000000009e17300                mad_bit_skip
-                0x0000000009e17310                mad_bit_crc
- .text.memcpy   0x0000000009e17490       0x14 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(gcc-support.o)
-                0x0000000009e17490                memcpy
- .text.memset   0x0000000009e174a4       0x14 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(gcc-support.o)
-                0x0000000009e174a4                memset
- .text.memmove  0x0000000009e174b8       0x14 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(gcc-support.o)
-                0x0000000009e174b8                memmove
+                0x0000000009e07870                vo_draw_frame_thumb
+                0x0000000009e07a28                vo_set_display_mode
+                0x0000000009e07a40                vo_dimensions
+                0x0000000009e07a5c                vo_init
+                0x0000000009e07a8c                vo_show
+                0x0000000009e07ab8                vo_is_visible
+                0x0000000009e07ad0                vo_cleanup
+                0x0000000009e07ae4                vo_set_clip_rect
+                0x0000000009e07b78                vo_setup
+                0x0000000009e07dec                vo_get_clip_rect
+                0x0000000009e07e28                vo_set_post_draw_callback
+ .text          0x0000000009e07e38     0x108c /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/mpegplayer/video_thread.o
+                0x0000000009e08d5c                video_thread_init
+                0x0000000009e08e18                video_thread_exit
+                0x0000000009e08e6c                video_thread_get_stats
+ .text          0x0000000009e08ec4      0x648 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/mpegplayer/pcm_output.o
+                0x0000000009e09090                pcm_output_get_buffer
+                0x0000000009e090d4                pcm_output_commit_data
+                0x0000000009e09140                pcm_output_empty
+                0x0000000009e09160                pcm_output_flush
+                0x0000000009e091e0                pcm_output_set_clock
+                0x0000000009e09220                pcm_output_get_clock
+                0x0000000009e0927c                pcm_output_get_ticks
+                0x0000000009e092ec                pcm_output_play_pause
+                0x0000000009e09390                pcm_output_stop
+                0x0000000009e093ec                pcm_output_drain
+                0x0000000009e09424                pcm_output_init
+                0x0000000009e094c8                pcm_output_exit
+ .text          0x0000000009e0950c      0xb64 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/mpegplayer/audio_thread.o
+                0x0000000009e09f74                audio_thread_init
+                0x0000000009e0a018                audio_thread_exit
+ .text          0x0000000009e0a070      0xf3c /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/mpegplayer/disk_buf.o
+                0x0000000009e0a198                disk_buf_is_data_ready
+                0x0000000009e0a234                dbuf_l2_init
+                0x0000000009e0a240                _disk_buf_getbuffer
+                0x0000000009e0a2e4                _disk_buf_getbuffer_l2
+                0x0000000009e0a3dc                disk_buf_read
+                0x0000000009e0a490                disk_buf_lseek
+                0x0000000009e0a510                disk_buf_set_streaming_window
+                0x0000000009e0a590                disk_buf_offset2ptr
+                0x0000000009e0a5c8                disk_buf_close
+                0x0000000009e0a634                disk_buf_open
+                0x0000000009e0a6bc                disk_buf_send_msg
+                0x0000000009e0a6e4                disk_buf_prepare_streaming
+                0x0000000009e0a748                disk_buf_post_msg
+                0x0000000009e0a770                disk_buf_reply_msg
+                0x0000000009e0add0                disk_buf_init
+                0x0000000009e0af58                disk_buf_exit
+ .text          0x0000000009e0afac     0x14b4 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/mpegplayer/mpeg_settings.o
+                0x0000000009e0b3d0                mpeg_backlight_update_brightness
+                0x0000000009e0b7fc                mpeg_start_menu
+                0x0000000009e0c250                mpeg_menu
+                0x0000000009e0c2ac                init_settings
+                0x0000000009e0c3c4                save_settings
+ .text          0x0000000009e0c460     0x10cc /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/mpegplayer/stream_mgr.o
+                0x0000000009e0c6f0                str_next_data_not_ready
+                0x0000000009e0c770                str_data_notify_received
+                0x0000000009e0c7a0                stream_add_stream
+                0x0000000009e0c7d4                stream_remove_streams
+                0x0000000009e0c800                move_strl_to_actl
+                0x0000000009e0c8bc                stream_generate_event
+                0x0000000009e0c900                stream_clear_notify
+                0x0000000009e0c914                stream_show_vo
+                0x0000000009e0c940                stream_vo_is_visible
+                0x0000000009e0c968                stream_vo_get_size
+                0x0000000009e0c9b8                stream_vo_set_clip
+                0x0000000009e0c9f0                stream_vo_set_display_mode
+                0x0000000009e0ca74                stream_vo_get_clip
+                0x0000000009e0cab8                stream_display_thumb
+                0x0000000009e0caf8                stream_draw_frame
+                0x0000000009e0cb24                stream_set_callback
+                0x0000000009e0cb60                stream_get_resume_time
+                0x0000000009e0cb80                stream_get_seek_time
+                0x0000000009e0cd28                stream_on_open
+                0x0000000009e0d148                stream_wait_status
+                0x0000000009e0d158                stream_get_window
+                0x0000000009e0d1b4                stream_open
+                0x0000000009e0d1dc                stream_play
+                0x0000000009e0d204                stream_pause
+                0x0000000009e0d22c                stream_resume
+                0x0000000009e0d254                stream_stop
+                0x0000000009e0d27c                stream_seek
+                0x0000000009e0d2c8                stream_close
+                0x0000000009e0d2f0                stream_init
+                0x0000000009e0d4c4                stream_exit
+ .text          0x0000000009e0d52c     0x3738 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/mpegplayer/mpegplayer.o
+                0x0000000009e0f910                plugin_start
+ .text          0x0000000009e10c64     0x11b4 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/mpegplayer/mpeg_parser.o
+                0x0000000009e10df8                str_initialize
+                0x0000000009e10e28                str_end_of_stream
+                0x0000000009e113c0                mpeg_parser_scan_start_code
+                0x0000000009e11488                mpeg_parser_scan_pes
+                0x0000000009e11548                mpeg_parser_scan_scr
+                0x0000000009e1166c                mpeg_parser_scan_pts
+                0x0000000009e119b8                parser_prepare_image
+                0x0000000009e11b20                parser_seek_time
+                0x0000000009e11b58                parser_prepare_streaming
+                0x0000000009e11c38                parser_init_stream
+                0x0000000009e11df8                parser_close_stream
+                0x0000000009e11e08                parser_init
+ .text          0x0000000009e11e18      0x370 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/mpegplayer/mpeg_misc.o
+                0x0000000009e11e18                stream_scan_init
+                0x0000000009e11e20                stream_scan_normalize
+                0x0000000009e11e48                stream_scan_offset
+                0x0000000009e11e78                ts_to_hms
+                0x0000000009e11ee8                hms_format
+                0x0000000009e11f44                muldiv_uint32
+                0x0000000009e11f9c                list_is_empty
+                0x0000000009e11fac                list_is_member
+                0x0000000009e11fd4                list_remove_item
+                0x0000000009e11ff8                list_add_item
+                0x0000000009e12024                list_clear_all
+                0x0000000009e12040                list_enum_items
+                0x0000000009e12090                mpeg_sysevent_clear
+                0x0000000009e120a4                mpeg_sysevent_set
+                0x0000000009e120b8                mpeg_sysevent
+                0x0000000009e120c8                mpeg_sysevent_callback
+                0x0000000009e120f0                mpeg_sysevent_handle
+                0x0000000009e12118                mpeg_button_get
+ .text          0x0000000009e12188      0x1e0 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/plugin_crt0.o
+                0x0000000009e121a0                plugin__start
+                0x0000000009e122cc                rb_atexit
+                0x0000000009e122ec                exit
+                0x0000000009e12308                _exit
+                0x0000000009e1231c                exit_on_usb
+ .text          0x0000000009e12368      0x708 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/lib/rbcodec/codecs/libmad-mpeg.a(frame.o)
+                0x0000000009e1259c                mad_header_init
+                0x0000000009e125c4                mad_header_decode
+                0x0000000009e12954                mad_frame_decode
+                0x0000000009e12a1c                mad_frame_mute
+                0x0000000009e12a58                mad_frame_init
+ .text          0x0000000009e12a70      0xac0 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/lib/rbcodec/codecs/libmad-mpeg.a(layer12.o)
+                0x0000000009e12b9c                mad_layer_I
+                0x0000000009e12ea0                mad_layer_II
+ .text          0x0000000009e13530     0x2190 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/lib/rbcodec/codecs/libmad-mpeg.a(layer3.o)
+                0x0000000009e15068                mad_layer_III
+ .text          0x0000000009e156c0      0x2f8 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/lib/rbcodec/codecs/libmad-mpeg.a(stream.o)
+                0x0000000009e156c0                mad_stream_init
+                0x0000000009e15710                mad_stream_buffer
+                0x0000000009e15734                mad_stream_sync
+                0x0000000009e157a4                mad_stream_errorstr
+ .text          0x0000000009e159b8     0x10e8 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/lib/rbcodec/codecs/libmad-mpeg.a(synth.o)
+                0x0000000009e159b8                mad_synth_mute
+                0x0000000009e159c4                mad_synth_init
+                0x0000000009e159e8                mad_synth_frame
+ .text          0x0000000009e16aa0      0x964 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/lib/rbcodec/codecs/libmad-mpeg.a(imdct_l_arm.o)
+                0x0000000009e16aa0                _III_imdct_l
+                0x0000000009e16aa0                III_imdct_l
+ .text          0x0000000009e17404      0x1cc /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/lib/rbcodec/codecs/libmad-mpeg.a(bit.o)
+                0x0000000009e17404                mad_bit_init
+                0x0000000009e1741c                mad_bit_length
+                0x0000000009e1742c                mad_bit_nextbyte
+                0x0000000009e17440                mad_bit_skip
+                0x0000000009e17450                mad_bit_crc
+ .text.memcpy   0x0000000009e175d0       0x14 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(gcc-support.o)
+                0x0000000009e175d0                memcpy
+ .text.memset   0x0000000009e175e4       0x14 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(gcc-support.o)
+                0x0000000009e175e4                memset
+ .text.memmove  0x0000000009e175f8       0x14 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(gcc-support.o)
+                0x0000000009e175f8                memmove
  .text.talk_val
-                0x0000000009e174cc       0x28 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(helper.o)
-                0x0000000009e174cc                talk_val
+                0x0000000009e1760c       0x28 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(helper.o)
+                0x0000000009e1760c                talk_val
  .text.backlight_ignore_timeout
-                0x0000000009e174f4       0x54 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(helper.o)
-                0x0000000009e174f4                backlight_ignore_timeout
+                0x0000000009e17634       0x54 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(helper.o)
+                0x0000000009e17634                backlight_ignore_timeout
  .text.backlight_use_settings
-                0x0000000009e17548       0x38 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(helper.o)
-                0x0000000009e17548                backlight_use_settings
+                0x0000000009e17688       0x38 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(helper.o)
+                0x0000000009e17688                backlight_use_settings
  .text.backlight_brightness_set
-                0x0000000009e17580       0x14 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(helper.o)
-                0x0000000009e17580                backlight_brightness_set
+                0x0000000009e176c0       0x14 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(helper.o)
+                0x0000000009e176c0                backlight_brightness_set
  .text.backlight_brightness_use_setting
-                0x0000000009e17594       0x1c /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(helper.o)
-                0x0000000009e17594                backlight_brightness_use_setting
+                0x0000000009e176d4       0x1c /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(helper.o)
+                0x0000000009e176d4                backlight_brightness_use_setting
  .text.get_cfg_filename.constprop.0
-                0x0000000009e175b0       0xc8 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(configfile.o)
+                0x0000000009e176f0       0xc8 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(configfile.o)
  .text.configfile_save
-                0x0000000009e17678      0x12c /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(configfile.o)
-                0x0000000009e17678                configfile_save
+                0x0000000009e177b8      0x12c /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(configfile.o)
+                0x0000000009e177b8                configfile_save
  .text.configfile_load
-                0x0000000009e177a4      0x1f4 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(configfile.o)
-                0x0000000009e177a4                configfile_load
+                0x0000000009e178e4      0x1f4 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(configfile.o)
+                0x0000000009e178e4                configfile_load
  .text.configfile_get_value
-                0x0000000009e17998       0xcc /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(configfile.o)
-                0x0000000009e17998                configfile_get_value
+                0x0000000009e17ad8       0xcc /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(configfile.o)
+                0x0000000009e17ad8                configfile_get_value
  .text.configfile_update_entry
-                0x0000000009e17a64      0x118 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(configfile.o)
-                0x0000000009e17a64                configfile_update_entry
- .text          0x0000000009e17b7c       0x1c /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/lib/libsetjmp.a(setjmp.o)
-                0x0000000009e17b7c                setjmp
-                0x0000000009e17b88                longjmp
- .text          0x0000000009e17b98      0x114 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivsi3.o)
-                0x0000000009e17b98                __udivsi3
-                0x0000000009e17b98                __aeabi_uidiv
-                0x0000000009e17c8c                __aeabi_uidivmod
- .text          0x0000000009e17cac      0x148 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
-                0x0000000009e17cac                __aeabi_idiv
-                0x0000000009e17cac                __divsi3
-                0x0000000009e17dd4                __aeabi_idivmod
- .text          0x0000000009e17df4        0x4 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
-                0x0000000009e17df4                __aeabi_ldiv0
-                0x0000000009e17df4                __aeabi_idiv0
- .text          0x0000000009e17df8       0xd4 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_aeabi_ldivmod.o)
-                0x0000000009e17df8                __aeabi_ldivmod
- .text          0x0000000009e17ecc       0x3c /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_aeabi_uldivmod.o)
-                0x0000000009e17ecc                __aeabi_uldivmod
- .text          0x0000000009e17f08      0x130 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivmoddi4.o)
-                0x0000000009e17f08                __udivmoddi4
- .text          0x0000000009e18038       0x28 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzdi2.o)
-                0x0000000009e18038                __clzdi2
- .text          0x0000000009e18060       0x48 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzsi2.o)
-                0x0000000009e18060                __clzsi2
- .text.__stub   0x0000000009e180a8       0x28 linker stubs
+                0x0000000009e17ba4      0x118 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(configfile.o)
+                0x0000000009e17ba4                configfile_update_entry
+ .text          0x0000000009e17cbc       0x1c /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/lib/libsetjmp.a(setjmp.o)
+                0x0000000009e17cbc                setjmp
+                0x0000000009e17cc8                longjmp
+ .text          0x0000000009e17cd8      0x114 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivsi3.o)
+                0x0000000009e17cd8                __udivsi3
+                0x0000000009e17cd8                __aeabi_uidiv
+                0x0000000009e17dcc                __aeabi_uidivmod
+ .text          0x0000000009e17dec      0x148 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_divsi3.o)
+                0x0000000009e17dec                __aeabi_idiv
+                0x0000000009e17dec                __divsi3
+                0x0000000009e17f14                __aeabi_idivmod
+ .text          0x0000000009e17f34        0x4 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_dvmd_tls.o)
+                0x0000000009e17f34                __aeabi_ldiv0
+                0x0000000009e17f34                __aeabi_idiv0
+ .text          0x0000000009e17f38       0xd4 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_aeabi_ldivmod.o)
+                0x0000000009e17f38                __aeabi_ldivmod
+ .text          0x0000000009e1800c       0x3c /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_aeabi_uldivmod.o)
+                0x0000000009e1800c                __aeabi_uldivmod
+ .text          0x0000000009e18048      0x130 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_udivmoddi4.o)
+                0x0000000009e18048                __udivmoddi4
+ .text          0x0000000009e18178       0x28 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzdi2.o)
+                0x0000000009e18178                __clzdi2
+ .text          0x0000000009e181a0       0x48 /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a(_clzsi2.o)
+                0x0000000009e181a0                __clzsi2
+ .text.__stub   0x0000000009e181e8       0x28 linker stubs
  *(.glue_7)
- .glue_7        0x0000000009e180d0        0x0 linker stubs
+ .glue_7        0x0000000009e18210        0x0 linker stubs
  *(.glue_7t)
- .glue_7t       0x0000000009e180d0        0x0 linker stubs
+ .glue_7t       0x0000000009e18210        0x0 linker stubs
 
-.vfp11_veneer   0x0000000009e180d0        0x0
- .vfp11_veneer  0x0000000009e180d0        0x0 linker stubs
+.vfp11_veneer   0x0000000009e18210        0x0
+ .vfp11_veneer  0x0000000009e18210        0x0 linker stubs
 
-.v4_bx          0x0000000009e180d0        0x0
- .v4_bx         0x0000000009e180d0        0x0 linker stubs
+.v4_bx          0x0000000009e18210        0x0
+ .v4_bx         0x0000000009e18210        0x0 linker stubs
 
-.iplt           0x0000000009e180d0        0x0
- .iplt          0x0000000009e180d0        0x0 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/mpegplayer/libmpeg2/decode.o
+.iplt           0x0000000009e18210        0x0
+ .iplt          0x0000000009e18210        0x0 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/mpegplayer/libmpeg2/decode.o
 
-.rodata         0x0000000009e180d0    0x1f1c4
+.rodata         0x0000000009e18210    0x1f1d4
  *(.rodata*)
- .rodata        0x0000000009e180d0       0x24 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/mpegplayer/libmpeg2/decode.o
- .rodata        0x0000000009e180f4      0x23c /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/mpegplayer/libmpeg2/header.o
-                0x0000000009e182b0                default_mpeg2_scan_alt
-                0x0000000009e182f0                default_mpeg2_scan_norm
- .rodata        0x0000000009e18330       0x40 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/mpegplayer/libmpeg2/motion_comp.o
-                0x0000000009e18330                mpeg2_mc
+ .rodata        0x0000000009e18210       0x24 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/mpegplayer/libmpeg2/decode.o
+ .rodata        0x0000000009e18234      0x23c /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/mpegplayer/libmpeg2/header.o
+                0x0000000009e183f0                default_mpeg2_scan_alt
+                0x0000000009e18430                default_mpeg2_scan_norm
+ .rodata        0x0000000009e18470       0x40 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/mpegplayer/libmpeg2/motion_comp.o
+                0x0000000009e18470                mpeg2_mc
  .rodata.str1.1
-                0x0000000009e18370        0x9 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/mpegplayer/video_thread.o
+                0x0000000009e184b0        0x9 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/mpegplayer/video_thread.o
  .rodata.str1.1
-                0x0000000009e18379        0xa /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/mpegplayer/disk_buf.o
+                0x0000000009e184b9        0xa /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/mpegplayer/disk_buf.o
  .rodata.str1.1
-                0x0000000009e18383      0x16b /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/mpegplayer/mpeg_settings.o
+                0x0000000009e184c3      0x16b /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/mpegplayer/mpeg_settings.o
                                         0x16e (size before relaxing)
- *fill*         0x0000000009e184ee        0x2 
- .rodata        0x0000000009e184f0       0xf4 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/mpegplayer/mpeg_settings.o
+ *fill*         0x0000000009e1862e        0x2 
+ .rodata        0x0000000009e18630       0xf4 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/mpegplayer/mpeg_settings.o
  .rodata.str1.1
-                0x0000000009e185e4       0xd9 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/mpegplayer/stream_mgr.o
+                0x0000000009e18724       0xd9 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/mpegplayer/stream_mgr.o
  .rodata.str1.1
-                0x0000000009e186bd      0x164 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/mpegplayer/mpegplayer.o
+                0x0000000009e187fd      0x164 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/mpegplayer/mpegplayer.o
                                         0x16c (size before relaxing)
- *fill*         0x0000000009e18821        0x3 
- .rodata        0x0000000009e18824       0x10 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/mpegplayer/mpegplayer.o
- .rodata        0x0000000009e18834       0x40 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/mpegplayer/mpeg_parser.o
+ *fill*         0x0000000009e18961        0x3 
+ .rodata        0x0000000009e18964       0x20 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/mpegplayer/mpegplayer.o
+ .rodata        0x0000000009e18984       0x40 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/mpegplayer/mpeg_parser.o
  .rodata.str1.1
-                0x0000000009e18874       0x15 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/mpegplayer/mpeg_misc.o
- *fill*         0x0000000009e18889        0x3 
- .rodata        0x0000000009e1888c      0x144 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/lib/rbcodec/codecs/libmad-mpeg.a(frame.o)
- .rodata        0x0000000009e189d0      0x12e /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/lib/rbcodec/codecs/libmad-mpeg.a(layer12.o)
- *fill*         0x0000000009e18afe        0x2 
- .rodata        0x0000000009e18b00     0x8456 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/lib/rbcodec/codecs/libmad-mpeg.a(layer3.o)
+                0x0000000009e189c4       0x15 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/mpegplayer/mpeg_misc.o
+ *fill*         0x0000000009e189d9        0x3 
+ .rodata        0x0000000009e189dc      0x144 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/lib/rbcodec/codecs/libmad-mpeg.a(frame.o)
+ .rodata        0x0000000009e18b20      0x12e /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/lib/rbcodec/codecs/libmad-mpeg.a(layer12.o)
+ *fill*         0x0000000009e18c4e        0x2 
+ .rodata        0x0000000009e18c50     0x8456 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/lib/rbcodec/codecs/libmad-mpeg.a(layer3.o)
  .rodata.str1.1
-                0x0000000009e20f56      0x215 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/lib/rbcodec/codecs/libmad-mpeg.a(stream.o)
- *fill*         0x0000000009e2116b        0x1 
- .rodata        0x0000000009e2116c      0x200 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/lib/rbcodec/codecs/libmad-mpeg.a(bit.o)
- .rodata        0x0000000009e2136c      0x108 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/lib/rbcodec/codecs/libmad-mpeg.a(huffman.o)
-                0x0000000009e2136c                mad_huff_pair_table
-                0x0000000009e2146c                mad_huff_quad_table
+                0x0000000009e210a6      0x215 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/lib/rbcodec/codecs/libmad-mpeg.a(stream.o)
+ *fill*         0x0000000009e212bb        0x1 
+ .rodata        0x0000000009e212bc      0x200 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/lib/rbcodec/codecs/libmad-mpeg.a(bit.o)
+ .rodata        0x0000000009e214bc      0x108 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/lib/rbcodec/codecs/libmad-mpeg.a(huffman.o)
+                0x0000000009e214bc                mad_huff_pair_table
+                0x0000000009e215bc                mad_huff_quad_table
  .rodata.get_cfg_filename.constprop.0.str1.1
-                0x0000000009e21474       0x1d /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(configfile.o)
+                0x0000000009e215c4       0x1d /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(configfile.o)
                                          0x21 (size before relaxing)
  .rodata.configfile_save.str1.1
-                0x0000000009e21491       0x26 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(configfile.o)
+                0x0000000009e215e1       0x26 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(configfile.o)
  .rodata.configfile_load.str1.1
-                0x0000000009e214b7        0xd /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(configfile.o)
- .rodata        0x0000000009e214c4       0x40 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/bitmaps/libpluginbitmaps.a(mpegplayer_status_icons_8x8x1.o)
-                0x0000000009e214c4                bm_mpegplayer_status_icons_8x8x1
-                0x0000000009e214dc                mpegplayer_status_icons_8x8x1
- .rodata        0x0000000009e21504       0x90 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/bitmaps/libpluginbitmaps.a(mpegplayer_status_icons_12x12x1.o)
-                0x0000000009e21504                bm_mpegplayer_status_icons_12x12x1
-                0x0000000009e2151c                mpegplayer_status_icons_12x12x1
- .rodata        0x0000000009e21594       0xb8 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/bitmaps/libpluginbitmaps.a(mpegplayer_status_icons_16x16x1.o)
-                0x0000000009e21594                bm_mpegplayer_status_icons_16x16x1
-                0x0000000009e215ac                mpegplayer_status_icons_16x16x1
- .rodata        0x0000000009e2164c     0x6418 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/bitmaps/libpluginbitmaps.a(ipodtiktok_header.320x40x24.o)
-                0x0000000009e2164c                bm_ipodtiktok_header
-                0x0000000009e21664                ipodtiktok_header
- .rodata        0x0000000009e27a64     0xf018 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/bitmaps/libpluginbitmaps.a(ipodtiktok_scrim.320x96x24.o)
-                0x0000000009e27a64                bm_ipodtiktok_scrim
-                0x0000000009e27a7c                ipodtiktok_scrim
- .rodata        0x0000000009e36a7c      0x818 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/bitmaps/libpluginbitmaps.a(ipodtiktok_heart.32x32x24.o)
-                0x0000000009e36a7c                bm_ipodtiktok_heart
-                0x0000000009e36a94                ipodtiktok_heart
+                0x0000000009e21607        0xd /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/libplugin.a(configfile.o)
+ .rodata        0x0000000009e21614       0x40 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/bitmaps/libpluginbitmaps.a(mpegplayer_status_icons_8x8x1.o)
+                0x0000000009e21614                bm_mpegplayer_status_icons_8x8x1
+                0x0000000009e2162c                mpegplayer_status_icons_8x8x1
+ .rodata        0x0000000009e21654       0x90 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/bitmaps/libpluginbitmaps.a(mpegplayer_status_icons_12x12x1.o)
+                0x0000000009e21654                bm_mpegplayer_status_icons_12x12x1
+                0x0000000009e2166c                mpegplayer_status_icons_12x12x1
+ .rodata        0x0000000009e216e4       0xb8 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/bitmaps/libpluginbitmaps.a(mpegplayer_status_icons_16x16x1.o)
+                0x0000000009e216e4                bm_mpegplayer_status_icons_16x16x1
+                0x0000000009e216fc                mpegplayer_status_icons_16x16x1
+ .rodata        0x0000000009e2179c     0x6418 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/bitmaps/libpluginbitmaps.a(ipodtiktok_header.320x40x24.o)
+                0x0000000009e2179c                bm_ipodtiktok_header
+                0x0000000009e217b4                ipodtiktok_header
+ .rodata        0x0000000009e27bb4     0xf018 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/bitmaps/libpluginbitmaps.a(ipodtiktok_scrim.320x96x24.o)
+                0x0000000009e27bb4                bm_ipodtiktok_scrim
+                0x0000000009e27bcc                ipodtiktok_scrim
+ .rodata        0x0000000009e36bcc      0x818 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/bitmaps/libpluginbitmaps.a(ipodtiktok_heart.32x32x24.o)
+                0x0000000009e36bcc                bm_ipodtiktok_heart
+                0x0000000009e36be4                ipodtiktok_heart
 
-.rel.dyn        0x0000000009e37294        0x0
- .rel.iplt      0x0000000009e37294        0x0 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/mpegplayer/libmpeg2/decode.o
+.rel.dyn        0x0000000009e373e4        0x0
+ .rel.iplt      0x0000000009e373e4        0x0 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/mpegplayer/libmpeg2/decode.o
 
-.data           0x0000000009e37294      0x198
+.data           0x0000000009e373e4      0x198
  *(.data*)
- .data          0x0000000009e37294      0x194 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/mpegplayer/mpeg_settings.o
- .data          0x0000000009e37428        0x4 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/plugin_crt0.o
-                0x0000000009e37428                rb
+ .data          0x0000000009e373e4      0x194 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/mpegplayer/mpeg_settings.o
+ .data          0x0000000009e37578        0x4 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/plugin_crt0.o
+                0x0000000009e37578                rb
 
-.igot.plt       0x0000000009e3742c        0x0
- .igot.plt      0x0000000009e3742c        0x0 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/mpegplayer/libmpeg2/decode.o
+.igot.plt       0x0000000009e3757c        0x0
+ .igot.plt      0x0000000009e3757c        0x0 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/mpegplayer/libmpeg2/decode.o
 
 /DISCARD/
  *(.eh_frame)
 
-.bss            0x0000000009e3742c     0xc0f4
-                0x0000000009e3742c                plugin_bss_start = .
-                0x0000000009e3742c                _plugin_bss_start = .
+.bss            0x0000000009e3757c     0xc0f4
+                0x0000000009e3757c                plugin_bss_start = .
+                0x0000000009e3757c                _plugin_bss_start = .
  *(.bss*)
- .bss           0x0000000009e3742c       0x1c /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/mpegplayer/alloc.o
- .bss           0x0000000009e37448       0x58 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/mpegplayer/video_out_rockbox.o
- .bss           0x0000000009e374a0       0xf4 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/mpegplayer/video_thread.o
- .bss           0x0000000009e37594      0x414 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/mpegplayer/pcm_output.o
- .bss           0x0000000009e379a8     0x300c /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/mpegplayer/audio_thread.o
-                0x0000000009e379a8                audio_queue
-                0x0000000009e385b4                sbsample
- .bss           0x0000000009e3a9b4      0x964 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/mpegplayer/disk_buf.o
-                0x0000000009e3a9c8                disk_buf
- .bss           0x0000000009e3b318      0x13c /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/mpegplayer/mpeg_settings.o
-                0x0000000009e3b318                settings
- .bss           0x0000000009e3b454      0x964 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/mpegplayer/stream_mgr.o
-                0x0000000009e3b454                stream_mgr
- .bss           0x0000000009e3bdb8     0x7640 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/mpegplayer/mpegplayer.o
- .bss           0x0000000009e433f8       0xc4 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/mpegplayer/mpeg_parser.o
-                0x0000000009e433f8                str_parser
- .bss           0x0000000009e434bc        0x4 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/mpegplayer/mpeg_misc.o
- .bss           0x0000000009e434c0       0x60 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/plugin_crt0.o
+ .bss           0x0000000009e3757c       0x1c /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/mpegplayer/alloc.o
+ .bss           0x0000000009e37598       0x58 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/mpegplayer/video_out_rockbox.o
+ .bss           0x0000000009e375f0       0xf4 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/mpegplayer/video_thread.o
+ .bss           0x0000000009e376e4      0x414 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/mpegplayer/pcm_output.o
+ .bss           0x0000000009e37af8     0x300c /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/mpegplayer/audio_thread.o
+                0x0000000009e37af8                audio_queue
+                0x0000000009e38704                sbsample
+ .bss           0x0000000009e3ab04      0x964 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/mpegplayer/disk_buf.o
+                0x0000000009e3ab18                disk_buf
+ .bss           0x0000000009e3b468      0x13c /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/mpegplayer/mpeg_settings.o
+                0x0000000009e3b468                settings
+ .bss           0x0000000009e3b5a4      0x964 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/mpegplayer/stream_mgr.o
+                0x0000000009e3b5a4                stream_mgr
+ .bss           0x0000000009e3bf08     0x7640 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/mpegplayer/mpegplayer.o
+ .bss           0x0000000009e43548       0xc4 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/mpegplayer/mpeg_parser.o
+                0x0000000009e43548                str_parser
+ .bss           0x0000000009e4360c        0x4 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/mpegplayer/mpeg_misc.o
+ .bss           0x0000000009e43610       0x60 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/plugin_crt0.o
  *(COMMON)
-                0x0000000009e43520                . = ALIGN (0x4)
+                0x0000000009e43670                . = ALIGN (0x4)
 
-.pluginend      0x0000000009e43520        0x0
-                0x0000000009e43520                _plugin_end_addr = .
-                0x0000000009e43520                plugin_end_addr = .
+.pluginend      0x0000000009e43670        0x0
+                0x0000000009e43670                _plugin_end_addr = .
+                0x0000000009e43670                plugin_end_addr = .
 
-.iram           0x000000000000c000     0x2bde load address 0x0000000009e3742c
+.iram           0x000000000000c000     0x2bde load address 0x0000000009e3757c
                 0x000000000000c000                iramstart = .
  *(.icode)
  .icode         0x000000000000c000      0x3dc /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/lib/rbcodec/codecs/libmad-mpeg.a(synth_full_arm.o)
@@ -667,9 +667,9 @@ LOAD /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a
                 0x000000000000eb5e                mpeg2_scan_alt
                 0x000000000000eb9e                mpeg2_scan_norm
                 0x000000000000ebde                iramend = .
-                0x0000000009e3742c                iramcopy = LOADADDR (.iram)
+                0x0000000009e3757c                iramcopy = LOADADDR (.iram)
 
-.ibss           0x000000000000ebe0     0x586c load address 0x0000000009e3a020
+.ibss           0x000000000000ebe0     0x586c load address 0x0000000009e3a160
                 0x000000000000ebe0                iedata = .
  *(.ibss)
  .ibss          0x000000000000ebe0       0x80 /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/mpegplayer/libmpeg2/decode.o
@@ -682,11 +682,11 @@ LOAD /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a
  .ibss          0x0000000000014440        0xc /home/david/Documents/RockBox_Personal-master/build-native-ipodnano3g/apps/plugins/mpegplayer/disk_buf.o
                 0x000000000001444c                . = ALIGN (0x4)
                 0x000000000001444c                iend = .
-                0x0000000009e43520                loadendaddr = MAX (plugin_end_addr, (LOADADDR (.iram) + SIZEOF (.iram)))
+                0x0000000009e43670                loadendaddr = MAX (plugin_end_addr, (LOADADDR (.iram) + SIZEOF (.iram)))
 
-.pluginloadend  0x0000000009e43520        0x0
-                0x0000000009e43520                _plugin_load_end_addr = .
-                0x0000000009e43520                plugin_load_end_addr = .
+.pluginloadend  0x0000000009e43670        0x0
+                0x0000000009e43670                _plugin_load_end_addr = .
+                0x0000000009e43670                plugin_load_end_addr = .
 
 .comment        0x0000000000000000       0x11
  *(.comment)

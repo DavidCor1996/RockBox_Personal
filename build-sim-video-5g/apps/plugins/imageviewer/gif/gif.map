@@ -198,7 +198,7 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
 .plt.sec
  *(.plt.sec)
 
-.text           0x0000000000001040     0x720c
+.text           0x0000000000001040     0x7223
  *(.text.unlikely .text.*_unlikely .text.unlikely.*)
  *(.text.exit .text.exit.*)
  *(.text.startup .text.startup.*)
@@ -274,61 +274,61 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
  .text.destroy_memory_pool
                 0x00000000000047fe        0x5 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libtlsf.a(tlsf.o)
                 0x00000000000047fe                destroy_memory_pool
- .text.free_ex  0x0000000000004803      0x2b4 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libtlsf.a(tlsf.o)
+ .text.free_ex  0x0000000000004803      0x2a2 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libtlsf.a(tlsf.o)
                 0x0000000000004803                free_ex
  .text.init_memory_pool
-                0x0000000000004ab7       0xaf /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libtlsf.a(tlsf.o)
-                0x0000000000004ab7                init_memory_pool
+                0x0000000000004aa5       0xa2 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libtlsf.a(tlsf.o)
+                0x0000000000004aa5                init_memory_pool
  .text.add_new_area
-                0x0000000000004b66      0x140 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libtlsf.a(tlsf.o)
-                0x0000000000004b66                add_new_area
+                0x0000000000004b47      0x140 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libtlsf.a(tlsf.o)
+                0x0000000000004b47                add_new_area
  .text.malloc_ex
-                0x0000000000004ca6      0x317 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libtlsf.a(tlsf.o)
-                0x0000000000004ca6                malloc_ex
+                0x0000000000004c87      0x310 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libtlsf.a(tlsf.o)
+                0x0000000000004c87                malloc_ex
  .text.tlsf_malloc
-                0x0000000000004fbd       0x8c /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libtlsf.a(tlsf.o)
-                0x0000000000004fbd                tlsf_malloc
+                0x0000000000004f97       0x8c /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libtlsf.a(tlsf.o)
+                0x0000000000004f97                tlsf_malloc
  .text.tlsf_free
-                0x0000000000005049        0xc /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libtlsf.a(tlsf.o)
-                0x0000000000005049                tlsf_free
+                0x0000000000005023        0xc /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libtlsf.a(tlsf.o)
+                0x0000000000005023                tlsf_free
  .text.realloc_ex
-                0x0000000000005055      0x3b0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libtlsf.a(tlsf.o)
-                0x0000000000005055                realloc_ex
+                0x000000000000502f      0x3ed /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libtlsf.a(tlsf.o)
+                0x000000000000502f                realloc_ex
  .text.tlsf_realloc
-                0x0000000000005405       0x19 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libtlsf.a(tlsf.o)
-                0x0000000000005405                tlsf_realloc
+                0x000000000000541c       0x19 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libtlsf.a(tlsf.o)
+                0x000000000000541c                tlsf_realloc
  .text.calloc_ex
-                0x000000000000541e       0x3f /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libtlsf.a(tlsf.o)
-                0x000000000000541e                calloc_ex
+                0x0000000000005435       0x3f /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libtlsf.a(tlsf.o)
+                0x0000000000005435                calloc_ex
  .text.tlsf_calloc
-                0x000000000000545d        0xc /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libtlsf.a(tlsf.o)
-                0x000000000000545d                tlsf_calloc
- .text          0x0000000000005469       0x40 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
-                0x0000000000005469                memcpy
-                0x0000000000005479                memset
-                0x0000000000005489                memmove
-                0x0000000000005499                memcmp
- .text          0x00000000000054a9      0xb58 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_resize.o)
-                0x0000000000005975                get_size_native
-                0x0000000000005bae                recalc_dimension
-                0x0000000000005c26                resize_on_load
- .text          0x0000000000006001      0xe81 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_bmp.o)
-                0x0000000000006341                output_row_8_native
-                0x000000000000644a                save_bmp_file
-                0x0000000000006645                simple_resize_bitmap
-                0x00000000000066ea                read_bmp_fd
-                0x0000000000006df5                read_bmp_file
- .text          0x0000000000006e82     0x13ca /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(bmp_smooth_scale.o)
-                0x0000000000006e82                smooth_resize_bitmap
- .text          0x000000000000824c        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtendS.o
- .text          0x000000000000824c        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
+                0x0000000000005474        0xc /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libtlsf.a(tlsf.o)
+                0x0000000000005474                tlsf_calloc
+ .text          0x0000000000005480       0x40 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
+                0x0000000000005480                memcpy
+                0x0000000000005490                memset
+                0x00000000000054a0                memmove
+                0x00000000000054b0                memcmp
+ .text          0x00000000000054c0      0xb58 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_resize.o)
+                0x000000000000598c                get_size_native
+                0x0000000000005bc5                recalc_dimension
+                0x0000000000005c3d                resize_on_load
+ .text          0x0000000000006018      0xe81 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_bmp.o)
+                0x0000000000006358                output_row_8_native
+                0x0000000000006461                save_bmp_file
+                0x000000000000665c                simple_resize_bitmap
+                0x0000000000006701                read_bmp_fd
+                0x0000000000006e0c                read_bmp_file
+ .text          0x0000000000006e99     0x13ca /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(bmp_smooth_scale.o)
+                0x0000000000006e99                smooth_resize_bitmap
+ .text          0x0000000000008263        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtendS.o
+ .text          0x0000000000008263        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
  *(.gnu.warning)
 
-.fini           0x000000000000824c        0xd
+.fini           0x0000000000008264        0xd
  *(SORT_NONE(.fini))
- .fini          0x000000000000824c        0x8 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
-                0x000000000000824c                _fini
- .fini          0x0000000000008254        0x5 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
+ .fini          0x0000000000008264        0x8 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
+                0x0000000000008264                _fini
+ .fini          0x000000000000826c        0x5 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
                 [!provide]                        PROVIDE (__etext = .)
                 [!provide]                        PROVIDE (_etext = .)
                 [!provide]                        PROVIDE (etext = .)
@@ -378,7 +378,7 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
                 0x00000000000098e0                __GNU_EH_FRAME_HDR
  *(.eh_frame_entry .eh_frame_entry.*)
 
-.eh_frame       0x0000000000009b78      0xee8
+.eh_frame       0x0000000000009b78      0xed0
  *(.eh_frame)
  .eh_frame      0x0000000000009b78       0x40 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
  .eh_frame      0x0000000000009bb8        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
@@ -392,17 +392,17 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
                                         0x100 (size before relaxing)
  .eh_frame      0x000000000000a370       0x18 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/imageviewer/gif/gif_err.o
                                          0x30 (size before relaxing)
- .eh_frame      0x000000000000a388      0x2d0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libtlsf.a(tlsf.o)
-                                        0x2e8 (size before relaxing)
- .eh_frame      0x000000000000a658       0x50 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
+ .eh_frame      0x000000000000a388      0x2b8 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libtlsf.a(tlsf.o)
+                                        0x2d0 (size before relaxing)
+ .eh_frame      0x000000000000a640       0x50 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
                                          0x68 (size before relaxing)
- .eh_frame      0x000000000000a6a8      0x190 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_resize.o)
+ .eh_frame      0x000000000000a690      0x190 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_resize.o)
                                         0x1a8 (size before relaxing)
- .eh_frame      0x000000000000a838      0x1d8 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_bmp.o)
+ .eh_frame      0x000000000000a820      0x1d8 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_bmp.o)
                                         0x1f0 (size before relaxing)
- .eh_frame      0x000000000000aa10       0x4c /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(bmp_smooth_scale.o)
+ .eh_frame      0x000000000000a9f8       0x4c /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(bmp_smooth_scale.o)
                                          0x68 (size before relaxing)
- .eh_frame      0x000000000000aa5c        0x4 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtendS.o
+ .eh_frame      0x000000000000aa44        0x4 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtendS.o
  *(.eh_frame.*)
 
 .sframe
@@ -422,42 +422,42 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
  *(.note.build-id)
 
 .note.GNU-stack
-                0x000000000000aa60        0x0
+                0x000000000000aa48        0x0
  *(.note.GNU-stack)
  .note.GNU-stack
-                0x000000000000aa60        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
+                0x000000000000aa48        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
  .note.GNU-stack
-                0x000000000000aa60        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtbeginS.o
+                0x000000000000aa48        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtbeginS.o
  .note.GNU-stack
-                0x000000000000aa60        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/imageviewer/gif/dgif_lib.o
+                0x000000000000aa48        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/imageviewer/gif/dgif_lib.o
  .note.GNU-stack
-                0x000000000000aa60        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/imageviewer/gif/gifalloc.o
+                0x000000000000aa48        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/imageviewer/gif/gifalloc.o
  .note.GNU-stack
-                0x000000000000aa60        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/imageviewer/gif/gif_decoder.o
+                0x000000000000aa48        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/imageviewer/gif/gif_decoder.o
  .note.GNU-stack
-                0x000000000000aa60        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/imageviewer/gif/gif.o
+                0x000000000000aa48        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/imageviewer/gif/gif.o
  .note.GNU-stack
-                0x000000000000aa60        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/imageviewer/gif/gif_err.o
+                0x000000000000aa48        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/imageviewer/gif/gif_err.o
  .note.GNU-stack
-                0x000000000000aa60        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libtlsf.a(tlsf.o)
+                0x000000000000aa48        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libtlsf.a(tlsf.o)
  .note.GNU-stack
-                0x000000000000aa60        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
+                0x000000000000aa48        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
  .note.GNU-stack
-                0x000000000000aa60        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_resize.o)
+                0x000000000000aa48        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_resize.o)
  .note.GNU-stack
-                0x000000000000aa60        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_bmp.o)
+                0x000000000000aa48        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_bmp.o)
  .note.GNU-stack
-                0x000000000000aa60        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(bmp_smooth_scale.o)
+                0x000000000000aa48        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(bmp_smooth_scale.o)
  .note.GNU-stack
-                0x000000000000aa60        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtendS.o
+                0x000000000000aa48        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtendS.o
  .note.GNU-stack
-                0x000000000000aa60        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
+                0x000000000000aa48        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
 
 .note.gnu.property
-                0x000000000000aa60       0x30
+                0x000000000000aa48       0x30
  *(.note.gnu.property)
  .note.gnu.property
-                0x000000000000aa60       0x30 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
+                0x000000000000aa48       0x30 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
 
 .note.ABI-tag
  *(.note.ABI-tag)
@@ -653,31 +653,31 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
 .stab.indexstr
  *(.stab.indexstr)
 
-.comment        0x0000000000000000       0x36
+.comment        0x0000000000000000       0x1b
  *(.comment)
- .comment       0x0000000000000000       0x36 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtbeginS.o
+ .comment       0x0000000000000000       0x1b /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtbeginS.o
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/imageviewer/gif/dgif_lib.o
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/imageviewer/gif/dgif_lib.o
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/imageviewer/gif/gifalloc.o
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/imageviewer/gif/gifalloc.o
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/imageviewer/gif/gif_decoder.o
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/imageviewer/gif/gif_decoder.o
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/imageviewer/gif/gif.o
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/imageviewer/gif/gif.o
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/imageviewer/gif/gif_err.o
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/imageviewer/gif/gif_err.o
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libtlsf.a(tlsf.o)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libtlsf.a(tlsf.o)
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_resize.o)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_resize.o)
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_bmp.o)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_bmp.o)
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(bmp_smooth_scale.o)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(bmp_smooth_scale.o)
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtendS.o
+ .comment       0x000000000000001b        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtendS.o
                                          0x1c (size before relaxing)
 
 .gnu.build.attributes
@@ -721,44 +721,44 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000    0x3c374
+.debug_info     0x0000000000000000    0x3c461
  *(.debug_info .gnu.linkonce.wi.*)
  .debug_info    0x0000000000000000     0x900e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/imageviewer/gif/dgif_lib.o
  .debug_info    0x000000000000900e     0x81b4 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/imageviewer/gif/gifalloc.o
  .debug_info    0x00000000000111c2     0x8628 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/imageviewer/gif/gif_decoder.o
  .debug_info    0x00000000000197ea     0x830d /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/imageviewer/gif/gif.o
  .debug_info    0x0000000000021af7       0xe5 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/imageviewer/gif/gif_err.o
- .debug_info    0x0000000000021bdc     0x1a7e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libtlsf.a(tlsf.o)
- .debug_info    0x000000000002365a     0x7664 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
- .debug_info    0x000000000002acbe     0x8647 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_resize.o)
- .debug_info    0x0000000000033305     0x89e7 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_bmp.o)
- .debug_info    0x000000000003bcec      0x688 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(bmp_smooth_scale.o)
+ .debug_info    0x0000000000021bdc     0x1b6b /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libtlsf.a(tlsf.o)
+ .debug_info    0x0000000000023747     0x7664 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
+ .debug_info    0x000000000002adab     0x8647 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_resize.o)
+ .debug_info    0x00000000000333f2     0x89e7 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_bmp.o)
+ .debug_info    0x000000000003bdd9      0x688 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(bmp_smooth_scale.o)
 
-.debug_abbrev   0x0000000000000000     0x2955
+.debug_abbrev   0x0000000000000000     0x298f
  *(.debug_abbrev)
  .debug_abbrev  0x0000000000000000      0x625 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/imageviewer/gif/dgif_lib.o
  .debug_abbrev  0x0000000000000625      0x589 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/imageviewer/gif/gifalloc.o
  .debug_abbrev  0x0000000000000bae      0x4c3 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/imageviewer/gif/gif_decoder.o
  .debug_abbrev  0x0000000000001071      0x4c1 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/imageviewer/gif/gif.o
  .debug_abbrev  0x0000000000001532       0x76 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/imageviewer/gif/gif_err.o
- .debug_abbrev  0x00000000000015a8      0x43c /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libtlsf.a(tlsf.o)
- .debug_abbrev  0x00000000000019e4      0x310 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
- .debug_abbrev  0x0000000000001cf4      0x5da /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_resize.o)
- .debug_abbrev  0x00000000000022ce      0x58e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_bmp.o)
- .debug_abbrev  0x000000000000285c       0xf9 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(bmp_smooth_scale.o)
+ .debug_abbrev  0x00000000000015a8      0x476 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libtlsf.a(tlsf.o)
+ .debug_abbrev  0x0000000000001a1e      0x310 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
+ .debug_abbrev  0x0000000000001d2e      0x5da /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_resize.o)
+ .debug_abbrev  0x0000000000002308      0x58e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_bmp.o)
+ .debug_abbrev  0x0000000000002896       0xf9 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(bmp_smooth_scale.o)
 
-.debug_line     0x0000000000000000     0x6da3
+.debug_line     0x0000000000000000     0x6e09
  *(.debug_line .debug_line.* .debug_line_end)
  .debug_line    0x0000000000000000     0x15f2 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/imageviewer/gif/dgif_lib.o
  .debug_line    0x00000000000015f2      0xa49 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/imageviewer/gif/gifalloc.o
  .debug_line    0x000000000000203b      0x8fc /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/imageviewer/gif/gif_decoder.o
  .debug_line    0x0000000000002937      0x5fb /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/imageviewer/gif/gif.o
  .debug_line    0x0000000000002f32       0xdf /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/imageviewer/gif/gif_err.o
- .debug_line    0x0000000000003011      0xf07 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libtlsf.a(tlsf.o)
- .debug_line    0x0000000000003f18      0x1eb /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
- .debug_line    0x0000000000004103      0xe54 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_resize.o)
- .debug_line    0x0000000000004f57      0xe76 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_bmp.o)
- .debug_line    0x0000000000005dcd      0xfd6 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(bmp_smooth_scale.o)
+ .debug_line    0x0000000000003011      0xf6d /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libtlsf.a(tlsf.o)
+ .debug_line    0x0000000000003f7e      0x1eb /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
+ .debug_line    0x0000000000004169      0xe54 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_resize.o)
+ .debug_line    0x0000000000004fbd      0xe76 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_bmp.o)
+ .debug_line    0x0000000000005e33      0xfd6 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(bmp_smooth_scale.o)
 
 .debug_frame
  *(.debug_frame)
@@ -814,41 +814,41 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
  *(.debug_addr)
 
 .debug_line_str
-                0x0000000000000000      0xa76
+                0x0000000000000000      0xa46
  *(.debug_line_str)
  .debug_line_str
-                0x0000000000000000      0xa76 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/imageviewer/gif/dgif_lib.o
+                0x0000000000000000      0xa46 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/imageviewer/gif/dgif_lib.o
                                         0x6a5 (size before relaxing)
  .debug_line_str
-                0x0000000000000a76        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/imageviewer/gif/gifalloc.o
+                0x0000000000000a46        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/imageviewer/gif/gifalloc.o
                                         0x691 (size before relaxing)
  .debug_line_str
-                0x0000000000000a76        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/imageviewer/gif/gif_decoder.o
+                0x0000000000000a46        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/imageviewer/gif/gif_decoder.o
                                         0x6b9 (size before relaxing)
  .debug_line_str
-                0x0000000000000a76        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/imageviewer/gif/gif.o
+                0x0000000000000a46        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/imageviewer/gif/gif.o
                                         0x716 (size before relaxing)
  .debug_line_str
-                0x0000000000000a76        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/imageviewer/gif/gif_err.o
+                0x0000000000000a46        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/imageviewer/gif/gif_err.o
                                         0x136 (size before relaxing)
  .debug_line_str
-                0x0000000000000a76        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libtlsf.a(tlsf.o)
+                0x0000000000000a46        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libtlsf.a(tlsf.o)
                                         0x165 (size before relaxing)
  .debug_line_str
-                0x0000000000000a76        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
+                0x0000000000000a46        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
                                         0x636 (size before relaxing)
  .debug_line_str
-                0x0000000000000a76        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_resize.o)
+                0x0000000000000a46        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_resize.o)
                                         0x6a8 (size before relaxing)
  .debug_line_str
-                0x0000000000000a76        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_bmp.o)
+                0x0000000000000a46        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_bmp.o)
                                         0x65c (size before relaxing)
  .debug_line_str
-                0x0000000000000a76        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(bmp_smooth_scale.o)
+                0x0000000000000a46        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(bmp_smooth_scale.o)
                                         0x17d (size before relaxing)
 
 .debug_loclists
-                0x0000000000000000     0x7d47
+                0x0000000000000000     0x7e71
  *(.debug_loclists)
  .debug_loclists
                 0x0000000000000000     0x1103 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/imageviewer/gif/dgif_lib.o
@@ -861,15 +861,15 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
  .debug_loclists
                 0x0000000000002328       0xf7 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/imageviewer/gif/gif_err.o
  .debug_loclists
-                0x000000000000241f      0xd69 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libtlsf.a(tlsf.o)
+                0x000000000000241f      0xe93 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libtlsf.a(tlsf.o)
  .debug_loclists
-                0x0000000000003188       0xe4 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
+                0x00000000000032b2       0xe4 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
  .debug_loclists
-                0x000000000000326c     0x22d0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_resize.o)
+                0x0000000000003396     0x22d0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_resize.o)
  .debug_loclists
-                0x000000000000553c     0x103e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_bmp.o)
+                0x0000000000005666     0x103e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_bmp.o)
  .debug_loclists
-                0x000000000000657a     0x17cd /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(bmp_smooth_scale.o)
+                0x00000000000066a4     0x17cd /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(bmp_smooth_scale.o)
 
 .debug_macro
  *(.debug_macro)
@@ -878,7 +878,7 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
  *(.debug_names)
 
 .debug_rnglists
-                0x0000000000000000      0x4e7
+                0x0000000000000000      0x4f0
  *(.debug_rnglists)
  .debug_rnglists
                 0x0000000000000000       0x72 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/imageviewer/gif/dgif_lib.o
@@ -889,13 +889,13 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
  .debug_rnglists
                 0x0000000000000119       0x46 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/imageviewer/gif/gif.o
  .debug_rnglists
-                0x000000000000015f      0x1fa /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libtlsf.a(tlsf.o)
+                0x000000000000015f      0x203 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libtlsf.a(tlsf.o)
  .debug_rnglists
-                0x0000000000000359       0xb5 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_resize.o)
+                0x0000000000000362       0xb5 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_resize.o)
  .debug_rnglists
-                0x000000000000040e       0x74 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_bmp.o)
+                0x0000000000000417       0x74 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_bmp.o)
  .debug_rnglists
-                0x0000000000000482       0x65 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(bmp_smooth_scale.o)
+                0x000000000000048b       0x65 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(bmp_smooth_scale.o)
 
 .debug_str_offsets
  *(.debug_str_offsets)

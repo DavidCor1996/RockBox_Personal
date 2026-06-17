@@ -39,6 +39,10 @@
 /*#define LOGF_ENABLE*/
 #include "logf.h"
 
+#if defined(IPOD_NANO3G) && defined(BOOTLOADER)
+extern int printf(const char *format, ...);
+#endif
+
 #define BYTES2INT32(array, pos) \
     (((uint32_t)array[pos+0] <<  0) | \
      ((uint32_t)array[pos+1] <<  8) | \
@@ -847,6 +851,100 @@ static unsigned long cluster2sec(struct bpb *fat_bpb, long cluster)
     return (unsigned long)(cluster - zerocluster)*fat_bpb->bpb_secperclus
             + fat_bpb->firstdatasector;
 }
+
+#if defined(IPOD_NANO3G) && defined(BOOTLOADER)
+static unsigned long n3g_dbg_req_active;
+static unsigned long n3g_dbg_req_offset;
+static unsigned long n3g_dbg_req_count;
+static unsigned long n3g_dbg_req_first_cluster;
+static unsigned long n3g_dbg_req_data_lba;
+extern int ftl_n3g_read_rockbox_file_sector(uint32_t file_sector,
+                                            uint32_t host_lpn,
+                                            void *buffer);
+
+static unsigned long n3g_fat_raw_mult(struct bpb *fat_bpb)
+{
+    unsigned long log_sector_size = LOG_SECTOR_SIZE(fat_bpb);
+
+    if (log_sector_size == 0 || fat_bpb->bpb_bytspersec == 0)
+        return 1;
+    return fat_bpb->bpb_bytspersec / log_sector_size;
+}
+
+static unsigned long n3g_fat_raw_spc(struct bpb *fat_bpb)
+{
+    unsigned long mult = n3g_fat_raw_mult(fat_bpb);
+
+    return mult != 0 ? fat_bpb->bpb_secperclus / mult
+                     : fat_bpb->bpb_secperclus;
+}
+
+void fat_n3g_debug_file_open(const char *path, int fd,
+                             const struct fat_filestr *filestr,
+                             unsigned long file_offset,
+                             unsigned long file_size)
+{
+    struct fat_file * const file = filestr->fatfilep;
+    struct bpb * const fat_bpb = FAT_BPB(file->volume);
+
+    if (!fat_bpb || !path || !strstr(path, "rockbox.ipod"))
+        return;
+
+    unsigned long file_lba = file->firstcluster
+        ? fat_bpb->startsector + cluster2sec(fat_bpb, file->firstcluster)
+        : 0;
+    unsigned long cluster_size = fat_bpb->bpb_secperclus
+                               * LOG_SECTOR_SIZE(fat_bpb);
+
+    printf("N3G_FOPEN fd=%ld fc=%08lx cc=%08lx off=%lu sz=%lu csz=%lu bps=%lu lss=%lu spc=%lu rspc=%lu",
+           (long)fd,
+           (unsigned long)file->firstcluster,
+           (unsigned long)filestr->lastcluster,
+           file_offset,
+           file_size,
+           cluster_size,
+           (unsigned long)fat_bpb->bpb_bytspersec,
+           (unsigned long)LOG_SECTOR_SIZE(fat_bpb),
+           (unsigned long)fat_bpb->bpb_secperclus,
+           (unsigned long)n3g_fat_raw_spc(fat_bpb));
+    printf("N3G_FMAP pstart=%08lx fat=%08lx root=%08lx data=%08lx flba=%08lx rsv=%lu fatsz=%lu nf=%lu",
+           (unsigned long)fat_bpb->startsector,
+           (unsigned long)(fat_bpb->startsector + fat_bpb->bpb_rsvdseccnt),
+           (unsigned long)(fat_bpb->startsector + fat_bpb->rootdirsector),
+           (unsigned long)(fat_bpb->startsector + fat_bpb->firstdatasector),
+           file_lba,
+           (unsigned long)fat_bpb->bpb_rsvdseccnt,
+           (unsigned long)fat_bpb->fatsize,
+           (unsigned long)fat_bpb->bpb_numfats);
+}
+
+void fat_n3g_debug_file_read_begin(const struct fat_filestr *filestr,
+                                   unsigned long file_offset,
+                                   unsigned long byte_count)
+{
+    struct fat_file * const file = filestr->fatfilep;
+    struct bpb * const fat_bpb = FAT_BPB(file->volume);
+
+    if (!fat_bpb)
+        return;
+
+    n3g_dbg_req_active = 1;
+    n3g_dbg_req_offset = file_offset;
+    n3g_dbg_req_count = byte_count;
+    n3g_dbg_req_first_cluster = file->firstcluster;
+    n3g_dbg_req_data_lba = fat_bpb->startsector + fat_bpb->firstdatasector;
+
+    printf("N3G_RREQ off=%lu cnt=%lu fs=%lu fsec=%lu so=%lu qsec=%08lx fc=%08lx cc=%08lx",
+           file_offset,
+           byte_count,
+           (unsigned long)LOG_SECTOR_SIZE(fat_bpb),
+           file_offset / LOG_SECTOR_SIZE(fat_bpb),
+           file_offset % LOG_SECTOR_SIZE(fat_bpb),
+           (unsigned long)fat_query_sectornum(filestr),
+           (unsigned long)file->firstcluster,
+           (unsigned long)filestr->lastcluster);
+}
+#endif
 
 #ifdef HAVE_FAT16SUPPORT
 static long get_next_cluster16(struct bpb *fat_bpb, long startcluster)
@@ -2460,12 +2558,22 @@ sector_t fat_query_sectornum(const struct fat_filestr *filestr)
 
 /* helper for fat_readwrite */
 static long transfer(struct bpb *fat_bpb, sector_t start, long count,
-                     char *buf, bool write)
+                     char *buf, bool write, unsigned long firstcluster,
+                     unsigned long file_sector)
 {
     long rc = 0;
 
     DEBUGF("%s(s=%llx, c=%lx, wr=%u)\n", __func__,
            (uint64_t)(start + fat_bpb->startsector), count, write ? 1 : 0);
+#if defined(IPOD_NANO3G) && defined(BOOTLOADER)
+    if (n3g_dbg_req_active || start == 0x00003af0u
+     || start == 0x006de0b8u)
+        printf("N3G_XFER st=%08lx base=%08lx abs=%08lx cnt=%ld wr=%d",
+               (unsigned long)start,
+               (unsigned long)fat_bpb->startsector,
+               (unsigned long)(start + fat_bpb->startsector),
+               count, write ? 1 : 0);
+#endif
 
     if (write)
     {
@@ -2487,6 +2595,28 @@ static long transfer(struct bpb *fat_bpb, sector_t start, long count,
         }
     }
 
+#if defined(IPOD_NANO3G) && defined(BOOTLOADER)
+    if (0 && !write && firstcluster == 0x0000de2b2u)
+    {
+        long done;
+
+        printf("N3G_RBXFER fs=%lu st=%08lx abs=%08lx cnt=%ld",
+               file_sector,
+               (unsigned long)start,
+               (unsigned long)(start + fat_bpb->startsector),
+               count);
+        for (done = 0; done < count; done++)
+        {
+            rc = ftl_n3g_read_rockbox_file_sector(file_sector + done,
+                                                  start + fat_bpb->startsector + done,
+                                                  buf + done * LOG_SECTOR_SIZE(fat_bpb));
+            if (rc <= 0)
+                break;
+        }
+        rc = done == count ? count : (rc < 0 ? rc : done);
+    }
+    else
+#endif
 #ifdef STORAGE_NEEDS_BOUNCE_BUFFER
     if(UNLIKELY(STORAGE_OVERLAP((uintptr_t)buf))) {
         void* xfer_buf = FAT_BOUNCE_BUFFER(fat_bpb);
@@ -2525,10 +2655,48 @@ static long transfer(struct bpb *fat_bpb, sector_t start, long count,
 
     if (rc < 0)
     {
+#if defined(IPOD_NANO3G) && defined(BOOTLOADER)
+        printf("N3G_XFER_ERR abs=%08lx rc=%ld",
+               (unsigned long)(start + fat_bpb->startsector), rc);
+        if (!write && n3g_dbg_req_active)
+        {
+            printf("N3G_FILEMAP fc=%08lx data=%08lx flba=%08lx off=%lu cnt=%lu rc=%ld",
+                   n3g_dbg_req_first_cluster,
+                   n3g_dbg_req_data_lba,
+                   (unsigned long)(start + fat_bpb->startsector),
+                   n3g_dbg_req_offset,
+                   n3g_dbg_req_count,
+                   rc);
+            n3g_dbg_req_active = 0;
+        }
+#endif
         DEBUGF("Couldn't %s sector %llx (err %ld)\n",
                write ? "write":"read", (uint64_t)start, rc);
         return rc;
     }
+
+#if defined(IPOD_NANO3G) && defined(BOOTLOADER)
+    if (!write && n3g_dbg_req_active)
+    {
+        printf("N3G_FILEMAP fc=%08lx data=%08lx flba=%08lx off=%lu cnt=%lu rc=%ld",
+               n3g_dbg_req_first_cluster,
+               n3g_dbg_req_data_lba,
+               (unsigned long)(start + fat_bpb->startsector),
+               n3g_dbg_req_offset,
+               n3g_dbg_req_count,
+               rc);
+        printf("N3G_RDATA b0=%02x%02x%02x%02x%02x%02x%02x%02x b8=%02x%02x%02x%02x%02x%02x%02x%02x",
+               (unsigned char)buf[0], (unsigned char)buf[1],
+               (unsigned char)buf[2], (unsigned char)buf[3],
+               (unsigned char)buf[4], (unsigned char)buf[5],
+               (unsigned char)buf[6], (unsigned char)buf[7],
+               (unsigned char)buf[8], (unsigned char)buf[9],
+               (unsigned char)buf[10], (unsigned char)buf[11],
+               (unsigned char)buf[12], (unsigned char)buf[13],
+               (unsigned char)buf[14], (unsigned char)buf[15]);
+        n3g_dbg_req_active = 0;
+    }
+#endif
 
     return 0;
 }
@@ -2577,6 +2745,17 @@ long fat_readwrite(struct fat_filestr *filestr, unsigned long sectorcount,
         {
             cluster = newcluster;
             sector = cluster2sec(fat_bpb, cluster) - 1;
+#if defined(IPOD_NANO3G) && defined(BOOTLOADER)
+            if (n3g_dbg_req_active || file->firstcluster == 0x000de2b2u)
+                printf("N3G_FATRW fc=%08lx cl=%08lx spc=%lu rspc=%lu fd=%08lx sec=%08lx flba=%08lx",
+                       (unsigned long)file->firstcluster,
+                       (unsigned long)cluster,
+                       (unsigned long)fat_bpb->bpb_secperclus,
+                       (unsigned long)n3g_fat_raw_spc(fat_bpb),
+                       (unsigned long)fat_bpb->firstdatasector,
+                       (unsigned long)sector,
+                       (unsigned long)(fat_bpb->startsector + sector + 1));
+#endif
 
         #ifdef HAVE_FAT16SUPPORT
             if (fat_bpb->is_fat16 && file->firstcluster < 0)
@@ -2597,6 +2776,7 @@ long fat_readwrite(struct fat_filestr *filestr, unsigned long sectorcount,
     unsigned long transferred = 0;
     unsigned long count = 0;
     sector_t last = sector;
+    unsigned long file_sector_base = fat_query_sectornum(filestr);
 
     while (transferred + count < sectorcount)
     {
@@ -2628,7 +2808,8 @@ long fat_readwrite(struct fat_filestr *filestr, unsigned long sectorcount,
         if (sector != last || count >= FAT_MAX_TRANSFER_SIZE)
         {
             /* not sequential/over limit */
-            rc = transfer(fat_bpb, last - count + 1, count, buf, write);
+            rc = transfer(fat_bpb, last - count + 1, count, buf, write,
+                          file->firstcluster, file_sector_base + transferred);
             if (rc < 0)
                 FAT_ERROR(rc * 10 - 2);
 
@@ -2644,7 +2825,8 @@ long fat_readwrite(struct fat_filestr *filestr, unsigned long sectorcount,
     if (count)
     {
         /* transfer any remainder */
-        rc = transfer(fat_bpb, last - count + 1, count, buf, write);
+        rc = transfer(fat_bpb, last - count + 1, count, buf, write,
+                      file->firstcluster, file_sector_base + transferred);
         if (rc < 0)
             FAT_ERROR(rc * 10 - 3);
 

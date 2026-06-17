@@ -791,25 +791,25 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
 .stab.indexstr
  *(.stab.indexstr)
 
-.comment        0x0000000000000000       0x36
+.comment        0x0000000000000000       0x1b
  *(.comment)
- .comment       0x0000000000000000       0x36 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtbeginS.o
+ .comment       0x0000000000000000       0x1b /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtbeginS.o
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/chessbox.o
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/chessbox.o
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/gnuchess.o
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/gnuchess.o
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/opening.o
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/opening.o
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/chessbox_pgn.o
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/chessbox_pgn.o
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(playback_control.o)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(playback_control.o)
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(chessbox_pieces.240x240x16.o)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(chessbox_pieces.240x240x16.o)
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtendS.o
+ .comment       0x000000000000001b        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtendS.o
                                          0x1c (size before relaxing)
 
 .gnu.build.attributes
@@ -880,21 +880,21 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0xc138
+.debug_str      0x0000000000000000     0xc078
  *(.debug_str)
- .debug_str     0x0000000000000000     0xc138 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/chessbox.o
+ .debug_str     0x0000000000000000     0xc078 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/chessbox.o
                                        0xa576 (size before relaxing)
- .debug_str     0x000000000000c138        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/gnuchess.o
+ .debug_str     0x000000000000c078        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/gnuchess.o
                                        0x5768 (size before relaxing)
- .debug_str     0x000000000000c138        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/opening.o
+ .debug_str     0x000000000000c078        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/opening.o
                                          0xeb (size before relaxing)
- .debug_str     0x000000000000c138        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/chessbox_pgn.o
+ .debug_str     0x000000000000c078        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessbox/chessbox_pgn.o
                                        0xb7c8 (size before relaxing)
- .debug_str     0x000000000000c138        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+ .debug_str     0x000000000000c078        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
                                        0x5134 (size before relaxing)
- .debug_str     0x000000000000c138        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(playback_control.o)
+ .debug_str     0x000000000000c078        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(playback_control.o)
                                        0xa3a4 (size before relaxing)
- .debug_str     0x000000000000c138        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(chessbox_pieces.240x240x16.o)
+ .debug_str     0x000000000000c078        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(chessbox_pieces.240x240x16.o)
                                         0x172 (size before relaxing)
 
 .debug_loc

@@ -676,7 +676,7 @@ def test_failed_online_lookup_degrades_gracefully(config, tmp_dir):
         manager.shutdown()
 
 
-def test_online_hires_replaces_low_res_local_for_desktop_source(config, tmp_dir):
+def test_folder_cover_remains_desktop_source_after_online_fetch(config, tmp_dir):
     config.enable_online_artwork_lookup = True
     lookup = FakeLookupClient()
     manager = ArtworkManager(os.path.join(tmp_dir, "art"), config=config, lookup_client=lookup)
@@ -699,9 +699,9 @@ def test_online_hires_replaces_low_res_local_for_desktop_source(config, tmp_dir)
         after_info = manager.inspect_artwork(_album_info(audio))
 
         assert os.path.exists(after)
-        assert after_info["desktop_source_type"] == "online"
-        assert after_info["desktop_source_resolution"] == [1200, 1200]
-        assert after_info["display_is_hi_res_thumb"] is True
+        assert after_info["desktop_source_type"] == "folder"
+        assert after_info["desktop_source_resolution"] == [120, 120]
+        assert after_info["display_is_hi_res_thumb"] is False
     finally:
         manager.shutdown()
 

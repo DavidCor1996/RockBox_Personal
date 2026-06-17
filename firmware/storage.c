@@ -361,6 +361,10 @@ int storage_init(void)
     init_volume_names();
 #endif
 
+#if defined(IPOD_NANO3G) && defined(BOOTLOADER)
+    return rc;
+#endif
+
     storage_thread_init();
     return rc;
 }

@@ -111,6 +111,21 @@ bool nano3g_safe_mode_enabled(void)
 static uint16_t alive[] = { 500,100,0, 0 };
 static uint16_t happy[] = { 1000,100,0, 500,150,0, 0 };
 static uint16_t fatal[] = { 3000,500,500, 3000,500,500, 3000,500,0, 0 };
+static uint16_t n3g_stage_primary[] = {
+    700,80,80, 0
+};
+static uint16_t n3g_stage_backup_bad[] = {
+    700,80,80, 700,80,80, 0
+};
+static uint16_t n3g_stage_patch_missing[] = {
+    700,80,80, 700,80,80, 700,80,80, 0
+};
+static uint16_t n3g_stage_write_bad[] = {
+    2200,250,120, 700,80,80, 0
+};
+static uint16_t n3g_stage_patch_ok[] = {
+    500,80,60, 900,80,60, 1300,120,0, 0
+};
 #define sad2 (&fatal[3])
 #define sad  (&fatal[6])
 
@@ -246,6 +261,9 @@ void main(void)
     struct Im3Info *hinfo;
     void *fw_addr;
     unsigned bl_nor_sz;
+#if defined(IPOD_NANO3G) && defined(NANO3G_PRIMARY_MMU_PATCH)
+    int patched = 0;
+#endif
 
     usec_timer_init();
     piezo_seq(alive);
@@ -275,6 +293,54 @@ void main(void)
         goto bye; /* no FW found */
     }
 
+#if defined(IPOD_NANO3G) && defined(NANO3G_PRIMARY_MMU_PATCH)
+    /*
+     * Narrow Nano 3G recovery updater.  The installed primary bootloader is
+     * already loading Rockbox, but patches the current native memory_init()
+     * branch at the old address.  Preserve the adjacent Apple backup and
+     * update only the primary Rockbox IM3 in place.
+     */
+    status = n3g_stage_primary;
+    piezo_seq(status);
+    {
+    struct Im3Info backup_hinfo;
+    if (im3_read(NORBOOT_OFF + im3_nor_sz(hinfo), &backup_hinfo, NULL) != 0) {
+        status = n3g_stage_backup_bad;
+        goto bye;
+    }
+
+    }
+    {
+        uint8_t *p = fw_addr;
+        uint32_t fw_size = get_uint32le(hinfo->data_sz);
+        for (uint32_t i = 0; i + 4 <= fw_size; i++) {
+            if (p[i] == 0xa8 && p[i + 1] == 0x81
+             && p[i + 2] == 0x07 && p[i + 3] == 0x08) {
+                p[i] = 0x88;
+                patched++;
+            }
+        }
+        for (uint32_t i = 0; i + 8 <= fw_size; i++) {
+            if (!memcmp(&p[i], "080781A8", 8)) {
+                memcpy(&p[i], "08078188", 8);
+                patched++;
+            }
+        }
+        if (patched == 0) {
+            status = n3g_stage_patch_missing;
+            goto bye;
+        }
+        im3_sign(HWKEYAES_UKEY, fw_addr, fw_size, hinfo->u.enc12.data_sign);
+        im3_sign(HWKEYAES_UKEY, hinfo, IM3INFOSIGN_SZ, hinfo->info_sign);
+        if (!im3_write(NORBOOT_OFF, hinfo)) {
+            status = n3g_stage_write_bad;
+            goto bye;
+        }
+        status = n3g_stage_patch_ok;
+        goto bye;
+    }
+#endif
+
     if (identify_fw(hinfo) == FW_RB) {
         /* FW found, but not OF, assume it is a RB bootloader,
            already decrypted OF should be located just behind */
@@ -295,8 +361,26 @@ void main(void)
          * and overwrite the real Apple boot image.
          */
         struct Im3Info primary_hinfo = *hinfo;
-        int nor_offset = NORBOOT_OFF + im3_nor_sz(&primary_hinfo);
-        if (im3_read(nor_offset, hinfo, fw_addr) != 0) {
+        unsigned primary_nor_sz = im3_nor_sz(&primary_hinfo);
+        int nor_offset = NORBOOT_OFF + primary_nor_sz;
+        if (im3_read(nor_offset, hinfo, fw_addr) == 0) {
+            /*
+             * Safe update path for an already dual-booted Nano 3G.  The
+             * current bootloader locates Apple NOR boot at
+             * NORBOOT_OFF + im3_nor_sz(current_primary), so only replace the
+             * primary image when the new image occupies the same NOR span.
+             * This preserves the adjacent Apple backup in place.
+             */
+            bl_nor_sz = im3_nor_sz(&bl_hinfo);
+            if (bl_nor_sz != primary_nor_sz) {
+                status = sad2;
+                goto bye;
+            }
+            if (!im3_write(NORBOOT_OFF, &bl_hinfo))
+                status = sad;
+            goto bye;
+        }
+        else {
             *hinfo = primary_hinfo;
             fw_addr = (void*)hinfo + IM3HDR_SZ;
             if (im3_read(NORBOOT_OFF, hinfo, fw_addr) != 0) {

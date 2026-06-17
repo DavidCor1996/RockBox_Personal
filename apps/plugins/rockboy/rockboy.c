@@ -514,6 +514,7 @@ static void rockboy_set_default_options(void)
 
 #if CONFIG_KEYPAD == IPOD_4G_PAD && defined(IPOD_VIDEO)
         options.autosave = 1;
+        options.scaling = 0;
 #endif
 }
 
@@ -526,18 +527,18 @@ void rockboy_apply_performance_preset(int preset)
     {
         case ROCKBOY_PERF_PERFORMANCE:
             options.maxskip = 3;
-            options.sound = 0;
-            options.scaling = 2;
+            options.sound = 1;
+            options.scaling = 0;
             break;
         case ROCKBOY_PERF_QUALITY:
             options.maxskip = 1;
             options.sound = 1;
-            options.scaling = 1;
+            options.scaling = 0;
             break;
         default:
             options.maxskip = 2;
             options.sound = 1;
-            options.scaling = 2;
+            options.scaling = 0;
             break;
     }
 #else
@@ -606,6 +607,18 @@ static void setoptions (void)
         options.profile > ROCKBOY_PROFILE_OVERLAY_AND_LOG)
         options.profile = ROCKBOY_PROFILE_OFF;
 
+#if CONFIG_KEYPAD == IPOD_4G_PAD && defined(IPOD_VIDEO)
+    if (((options.performance_preset == ROCKBOY_PERF_BALANCED ||
+          options.performance_preset == ROCKBOY_PERF_PERFORMANCE) &&
+         options.scaling == 2) ||
+        (options.performance_preset == ROCKBOY_PERF_QUALITY &&
+         options.scaling == 1))
+    {
+        options.scaling = 0;
+        options.dirty = 1;
+    }
+#endif
+
     close(fd);
 }
 
@@ -672,10 +685,14 @@ enum plugin_status plugin_start(const void* parameter)
 
     rb->lcd_clear_display();
 
-    if (!parameter)
+    if (!parameter || !((const char *)parameter)[0])
     {
+#if CONFIG_KEYPAD == IPOD_4G_PAD && defined(IPOD_VIDEO)
+        return rb->plugin_open(ROCKBOY_LAUNCHER_PATH, NULL);
+#else
         rb->splash(HZ*3, "Play gameboy ROM file! (.gb/.gbc)");
         return PLUGIN_OK;
+#endif
     }
     if(rb->audio_status())
     {

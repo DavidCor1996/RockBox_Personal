@@ -18,7 +18,7 @@ from mutagen.id3 import ID3
 from models.track import Track, compute_artwork_hash
 
 logger = logging.getLogger(__name__)
-VIDEO_EXTENSIONS = {".mp4", ".m4v", ".mov", ".mkv", ".avi", ".webm"}
+VIDEO_EXTENSIONS = {".mp4", ".m4v", ".mov", ".mkv", ".avi", ".webm", ".mpg", ".mpeg", ".mpe"}
 _GENERIC_VIDEO_FOLDER_NAMES = {
     "video", "videos", "movie", "movies", "tv", "tv shows", "shows", "series", "anime",
     "archive", "_archive", "mediadrive", "_mediadrive", "sample", "sample & cover",
@@ -74,6 +74,9 @@ CODEC_MAP = {
     ".mkv": "Matroska",
     ".avi": "AVI",
     ".webm": "WebM",
+    ".mpg": "MPEG Video",
+    ".mpeg": "MPEG Video",
+    ".mpe": "MPEG Video",
     ".aiff": "AIFF",
     ".aif": "AIFF",
     ".wav": "WAV",

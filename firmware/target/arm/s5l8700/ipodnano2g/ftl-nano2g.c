@@ -38,10 +38,28 @@ extern int printf(const char *format, ...);
 #define FTL_PROGRESS(...) do { } while (0)
 #endif
 
+#if defined(IPOD_NANO3G) && defined(BOOTLOADER)
+#include "n3g_rockbox_sector_sum.h"
+#include "n3g_rockbox_exact_map.h"
+#elif defined(IPOD_NANO3G)
+#define N3G_ROCKBOX_SECTOR_SUM_COUNT 0
+#define N3G_ROCKBOX_DUMP_BASE 0
+#define N3G_ROCKBOX_DUMP_COUNT 0
+#define N3G_ROCKBOX_EXACT_MAP_COUNT 0
+#define N3G_ROCKBOX_EXACT_GROUP_COUNT 0
+static const uint8_t n3g_rockbox_sector_len[1] = { 0 };
+static const uint32_t n3g_rockbox_sector_sum[1] = { 0 };
+static const uint8_t n3g_rockbox_sector_first8[1][8] = { { 0 } };
+static const uint8_t n3g_rockbox_dump_last8[1][8] = { { 0 } };
+static const uint16_t n3g_rockbox_exact_block[1] = { 0 };
+static const uint8_t n3g_rockbox_exact_page[1] = { 0 };
+#endif
+
 
 
 #define FTL_COPYBUF_SIZE 32
 #define FTL_WRITESPARE_SIZE 32
+#define N3G_EXACT_PAGES_PER_BLOCK 128u
 //#define FTL_FORCEMOUNT
 
 
@@ -372,7 +390,7 @@ uint32_t ftl_banks;
 /* Block map, used vor pBlock to vBlock mapping */
 static uint16_t ftl_map[0x2000];
 
-#if defined(IPOD_NANO3G) && defined(BOOTLOADER)
+#if defined(IPOD_NANO3G)
 static int n3g_direct_map_mount;
 static uint32_t n3g_direct_map_count;
 static uint32_t n3g_direct_map_min_lblock;
@@ -382,7 +400,7 @@ static uint32_t n3g_direct_sector_base;
 static uint32_t n3g_direct_sector_scale;
 static uint16_t n3g_direct_l0_vblock[0x200];
 static uint16_t n3g_direct_l0_page[0x200];
-static uint32_t n3g_direct_l0_cache[0x400];
+static uint32_t n3g_direct_l0_cache[0x2000];
 static uint16_t n3g_direct_probe_map[0x400];
 static uint8_t n3g_direct_pagebuf[0x800];
 static uint32_t n3g_direct_mbr_valid;
@@ -398,6 +416,52 @@ static uint32_t n3g_direct_boot_slot;
 static int32_t n3g_direct_boot_shift;
 static uint32_t n3g_direct_fsinfo_valid;
 static uint32_t n3g_direct_fsinfo_lpn;
+static uint32_t n3g_direct_map_pages_found;
+static uint32_t n3g_direct_map_max_idx;
+static uint32_t n3g_direct_map_scan_hits;
+static uint32_t n3g_rockbox_phys_valid;
+static uint32_t n3g_rockbox_phys_bank;
+static uint32_t n3g_rockbox_phys_block;
+static uint32_t n3g_rockbox_phys_page;
+static uint32_t n3g_rockbox_phys_slot;
+static uint32_t n3g_rockbox_raw_lpn;
+static uint32_t n3g_rockbox_raw_usn;
+static uint32_t n3g_rockbox_lpn_base;
+static uint32_t n3g_rockbox_page_count;
+static uint32_t n3g_rockbox_map_found;
+static uint8_t n3g_rockbox_map_bank[1024];
+static uint8_t n3g_rockbox_map_slot[1024];
+static uint32_t n3g_rockbox_map_physpage[1024];
+static uint32_t n3g_rockbox_map_raw[1024];
+static uint32_t n3g_rockbox_map_usn[1024];
+static uint8_t n3g_rockbox_sum_reported[2048];
+static uint8_t n3g_rockbox_slotdump_reported[512];
+static uint8_t n3g_rockbox_located_sector[129];
+static uint8_t n3g_rockbox_located_bank[129];
+static uint8_t n3g_rockbox_located_slot[129];
+static uint32_t n3g_rockbox_located_physpage[129];
+static uint32_t n3g_rockbox_located_raw[129];
+static uint32_t n3g_rockbox_located_usn[129];
+static uint32_t n3g_cmap_called;
+static uint32_t n3g_cmap_found;
+static uint32_t n3g_cmap_loaded;
+static uint32_t n3g_cmap_block;
+static uint32_t n3g_cmap_page;
+static uint32_t n3g_cmap_map0;
+static uint32_t n3g_cmap_map6;
+static uint32_t n3g_cmap_ctx_words[0x200];
+static uint32_t n3g_dscan_hits;
+static uint32_t n3g_dscan_loaded;
+static uint32_t n3g_dscan_max_idx;
+static uint32_t n3g_l45_pages;
+static uint32_t n3g_l45_entries;
+static uint32_t n3g_l45_cover_p;
+static uint32_t n3g_l45_cover_a;
+static uint16_t n3g_log_scattered[0x11];
+static uint16_t n3g_log_logical[0x11];
+static uint16_t n3g_log_offsets[0x11][0x200];
+static uint32_t n3g_log_loaded;
+static uint32_t n3g_l45_tables_loaded;
 
 struct n3g_direct_read_trace
 {
@@ -526,7 +590,7 @@ static uint32_t ppb;
                        - ftl_nand_type->userblocks - 0x17) */
 static uint32_t syshyperblocks;
 
-#if !(defined(IPOD_NANO3G) && defined(BOOTLOADER))
+#if !defined(IPOD_NANO3G)
 #define N3G_DEVINFO_SCAN_BLOCK_LIMIT 128
 #define N3G_VFL_SCAN_BLOCK_LIMIT 64
 static const uint32_t n3g_ctx_trace_compact = 0;
@@ -539,7 +603,7 @@ static const char* ftl_n3g_devinfo_marker(const void* databuffer,
 }
 #endif
 
-#if defined(IPOD_NANO3G) && defined(BOOTLOADER)
+#if defined(IPOD_NANO3G)
 static uint32_t n3g_best_meta_score;
 static uint32_t n3g_best_meta_bank;
 static uint32_t n3g_best_meta_block;
@@ -550,7 +614,9 @@ static uint32_t n3g_ctx_trace_compact;
 static uint32_t ftl_has_devinfo(void);
 static uint32_t ftl_vfl_open(void);
 static uint32_t ftl_open(void);
-#if defined(IPOD_NANO3G) && defined(BOOTLOADER)
+static uint32_t ftl_vfl_read(uint32_t vpage, void* buffer, void* sparebuffer,
+                             uint32_t count, uint32_t checkempty);
+#if defined(IPOD_NANO3G)
 struct nano3g_nand_reg_diag
 {
     uint32_t fmctrl0;
@@ -750,7 +816,7 @@ static uint32_t ftl_n3g_oob_count_index(uint8_t type)
 
 static void ftl_n3g_oob_type_scan(void)
 {
-#if defined(IPOD_NANO3G) && defined(BOOTLOADER)
+#if defined(IPOD_NANO3G)
     static const uint8_t known_types[] = { 0x40, 0x41, 0x43, 0x44,
                                            0x45, 0x46, 0x47, 0x80 };
     uint32_t counts[8] = { 0 };
@@ -2450,7 +2516,7 @@ msearch_done:
 #endif
 }
 
-#if defined(IPOD_NANO3G) && defined(BOOTLOADER)
+#if defined(IPOD_NANO3G)
 static void ftl_n3g_decode_page(uint32_t vblock, uint32_t page,
                                 uint32_t *bank, uint32_t *physpage)
 {
@@ -2468,7 +2534,12 @@ static void ftl_n3g_decode_page(uint32_t vblock, uint32_t page,
 static int ftl_n3g_direct_trace_lba(uint32_t lba)
 {
     return lba == 0 || lba == 1 || lba == 0x3fu || lba == 0xa07cu
-        || lba == 0xa07eu || lba == 0xa080u;
+        || lba == 0xa07eu || lba == 0xa080u || lba == 0xa086u
+        || (lba >= 0xa17eu && lba < 0xa186u)
+        || (lba >= 0xbd43u && lba <= 0xbd45u)
+        || (lba >= 0xdb6eu && lba < 0xdb76u)
+        || (lba >= 0x006e8136u && lba < 0x006e814eu)
+        || (lba >= 0x006e87b6u && lba < 0x006e87c8u);
 }
 
 static void ftl_n3g_direct_trace_init(struct n3g_direct_read_trace *trace)
@@ -2485,6 +2556,1978 @@ static void ftl_n3g_direct_trace_init(struct n3g_direct_read_trace *trace)
     trace->pb = 0xffffffffu;
     trace->pp = 0xffffffffu;
     trace->reason = "init";
+}
+
+static uint32_t ftl_n3g_get16(const uint8_t *b, uint32_t off)
+{
+    return (uint32_t)b[off] | ((uint32_t)b[off + 1] << 8);
+}
+
+static uint32_t ftl_n3g_get32(const uint8_t *b, uint32_t off)
+{
+    return (uint32_t)b[off]
+         | ((uint32_t)b[off + 1] << 8)
+         | ((uint32_t)b[off + 2] << 16)
+         | ((uint32_t)b[off + 3] << 24);
+}
+
+static uint32_t ftl_n3g_oob_lpn512(uint32_t raw_lpn)
+{
+    /*
+     * Nano 3G stores the 2 KiB page LPN in the OOB word shifted left by 3.
+     * A direct 512-byte sector reader wants the first sector covered by that
+     * page, so shift only one bit here: (raw >> 3) * 4 == raw >> 1.
+     */
+    return raw_lpn >> 1;
+}
+
+static uint32_t ftl_n3g_rockbox_cand_lpn(uint32_t raw_lpn, uint32_t cand)
+{
+    switch (cand)
+    {
+        case 0:
+            return raw_lpn;
+        case 1:
+            return raw_lpn >> 1;
+        case 2:
+            return raw_lpn >> 2;
+        case 3:
+            return raw_lpn >> 3;
+        default:
+            return (raw_lpn >> 3) << 2;
+    }
+}
+
+static void ftl_n3g_log_init(void)
+{
+    for (uint32_t i = 0; i < ARRAYLEN(n3g_log_scattered); i++)
+    {
+        n3g_log_scattered[i] = 0xffffu;
+        n3g_log_logical[i] = 0xffffu;
+        for (uint32_t j = 0; j < ARRAYLEN(n3g_log_offsets[i]); j++)
+            n3g_log_offsets[i][j] = 0xffffu;
+    }
+    n3g_log_loaded = 0;
+    n3g_l45_tables_loaded = 0;
+}
+
+static void ftl_n3g_load_log_entries(const struct ftl_cxt_type *cxt)
+{
+    const uint8_t *p = cxt->field_130;
+    uint32_t target_page = 0x006e8136u >> 2;
+    uint32_t target_block = ppb != 0 ? target_page / ppb : 0xffffffffu;
+    uint32_t printed = 0;
+
+    for (uint32_t i = 0; i < ARRAYLEN(n3g_log_scattered); i++)
+    {
+        uint32_t off = i * 20;
+        uint32_t usn = ftl_n3g_get32(p, off + 0);
+        uint32_t scattered = ftl_n3g_get16(p, off + 4);
+        uint32_t logical = ftl_n3g_get16(p, off + 6);
+        uint32_t table = ftl_n3g_get32(p, off + 8);
+        uint32_t pagesused = ftl_n3g_get16(p, off + 12);
+        uint32_t pagescurrent = ftl_n3g_get16(p, off + 14);
+        uint32_t seq = ftl_n3g_get32(p, off + 16);
+
+        if (scattered == 0xffffu || logical == 0xffffu
+         || scattered >= ftl_nand_type->blocks
+         || logical >= ftl_nand_type->userblocks)
+            continue;
+
+        n3g_log_scattered[i] = scattered;
+        n3g_log_logical[i] = logical;
+        n3g_log_loaded++;
+
+        if (0 && (printed < 10 || logical == target_block))
+        {
+            FTL_PROGRESS("N3G_LOG i=%lu sv=%04lx lv=%04lx pu=%lu pc=%lu seq=%lu ptr=%08lx usn=%08lx tgt=%lu",
+                         (unsigned long)i,
+                         (unsigned long)scattered,
+                         (unsigned long)logical,
+                         (unsigned long)pagesused,
+                         (unsigned long)pagescurrent,
+                         (unsigned long)seq,
+                         (unsigned long)table,
+                         (unsigned long)usn,
+                         (unsigned long)(logical == target_block));
+            printed++;
+        }
+    }
+
+    if (0)
+        FTL_PROGRESS("N3G_LOG_DONE n=%lu target=%04lx",
+                     (unsigned long)n3g_log_loaded,
+                     (unsigned long)target_block);
+}
+
+static void ftl_n3g_load_l45_tables(uint32_t block, uint32_t page,
+                                    uint32_t idx, uint32_t usn,
+                                    const uint16_t *h)
+{
+    uint32_t target_sector = 0x006e8136u;
+    uint32_t target_page = 0x006e8136u >> 2;
+    uint32_t target_slot = target_sector & 3u;
+    uint32_t target_lblock = ppb != 0 ? target_page / ppb : 0xffffffffu;
+    uint32_t target_po = ppb != 0 ? target_page % ppb : 0xffffffffu;
+
+    if (idx == 6 || idx == 3)
+        FTL_PROGRESS("N3G_L45TGT ix=%lu lba=%08lx pg=%08lx lb=%04lx po=%lu ppb=%lu",
+                     (unsigned long)idx,
+                     (unsigned long)target_sector,
+                     (unsigned long)target_page,
+                     (unsigned long)target_lblock,
+                     (unsigned long)target_po,
+                     (unsigned long)ppb);
+
+    for (uint32_t half = 0; half < 2; half++)
+    {
+        uint32_t table = idx + half;
+        uint32_t valid = 0;
+        uint32_t first = 0xffffffffu;
+        uint32_t last = 0xffffffffu;
+        uint32_t minv = 0xffffu;
+        uint32_t maxv = 0;
+        uint32_t target_v = 0xffffu;
+        const uint16_t *src = &h[half * 0x200];
+
+        for (uint32_t j = 0; j < 0x200; j++)
+        {
+            uint32_t v = src[j];
+
+            if (j == target_po)
+                target_v = v;
+            if (v == 0xffffu)
+                continue;
+            if (first == 0xffffffffu)
+                first = j;
+            last = j;
+            if (v < minv)
+                minv = v;
+            if (v > maxv)
+                maxv = v;
+            valid++;
+        }
+
+        if (table < ARRAYLEN(n3g_log_offsets))
+        {
+            memcpy(n3g_log_offsets[table], src,
+                   sizeof(n3g_log_offsets[table]));
+            n3g_l45_tables_loaded++;
+        }
+
+        if (0 && (valid != 0 || table < 8))
+            FTL_PROGRESS("N3G_L45T b=%lu p=%lu ix=%lu table=%lu u=%08lx n=%lu first=%lu last=%lu mn=%04lx mx=%04lx tp=%lu tv=%04lx",
+                         (unsigned long)block,
+                         (unsigned long)page,
+                         (unsigned long)idx,
+                         (unsigned long)table,
+                         (unsigned long)usn,
+                         (unsigned long)valid,
+                         (unsigned long)first,
+                         (unsigned long)last,
+                         (unsigned long)minv,
+                         (unsigned long)maxv,
+                         (unsigned long)target_po,
+                         (unsigned long)target_v);
+    }
+
+    if (target_lblock != 0xffffffffu)
+    {
+        uint32_t full_base = idx << 10;
+        uint32_t modes[5];
+        uint32_t mode_ids[5];
+        uint32_t mode_count = 0;
+
+        if (target_lblock >= full_base
+         && target_lblock < full_base + 0x400)
+        {
+            mode_ids[mode_count] = 0;
+            modes[mode_count++] = target_lblock - full_base;
+        }
+
+        for (uint32_t half = 0; half < 2; half++)
+        {
+            uint32_t split_base = (idx + half) << 9;
+
+            if (target_lblock >= split_base
+             && target_lblock < split_base + 0x200)
+            {
+                mode_ids[mode_count] = 1 + half;
+                modes[mode_count++] = half * 0x200
+                                    + target_lblock - split_base;
+            }
+        }
+
+        for (uint32_t half = 0; half < 2; half++)
+        {
+            uint32_t split_base = ((idx << 1) + half) << 9;
+
+            if (target_lblock >= split_base
+             && target_lblock < split_base + 0x200)
+            {
+                mode_ids[mode_count] = 3 + half;
+                modes[mode_count++] = half * 0x200
+                                    + target_lblock - split_base;
+            }
+        }
+
+        for (uint32_t mi = 0; mi < mode_count; mi++)
+        {
+            uint32_t off = modes[mi];
+            uint32_t v = h[off];
+            uint32_t bank = 0xffffffffu;
+            uint32_t physpage = 0xffffffffu;
+            uint32_t pb = 0xffffffffu;
+            uint32_t pp = 0xffffffffu;
+            uint32_t raw = 0xffffffffu;
+            uint32_t exp = 0xffffffffu;
+            uint32_t ok = 0;
+            uint32_t rc = 0xffffffffu;
+
+            if (v != 0 && v != 0xffffu)
+            {
+                ftl_n3g_decode_page(v, target_po, &bank, &physpage);
+                pb = physpage / ftl_nand_type->pagesperblock;
+                pp = physpage % ftl_nand_type->pagesperblock;
+                memset(n3g_direct_pagebuf, 0, sizeof(n3g_direct_pagebuf));
+                memset(&ftl_sparebuffer[0], 0, sizeof(ftl_sparebuffer[0]));
+                rc = nand_read_page(bank, physpage, n3g_direct_pagebuf,
+                                    &ftl_sparebuffer[0], 1, 0);
+                raw = ftl_sparebuffer[0].user.lpn;
+                exp = ftl_n3g_oob_lpn512(raw);
+                ok = rc == 0
+                  && (ftl_sparebuffer[0].user.type == 0x40
+                   || ftl_sparebuffer[0].user.type == 0x41)
+                  && target_sector >= exp
+                  && target_sector <= exp + 3;
+                if (ok && target_lblock < ARRAYLEN(ftl_map))
+                {
+                    ftl_map[target_lblock] = v;
+                    if (n3g_direct_map_loaded_entries <= target_lblock)
+                        n3g_direct_map_loaded_entries = target_lblock + 1;
+                    if (n3g_direct_map_max_idx < (target_lblock >> 10))
+                        n3g_direct_map_max_idx = target_lblock >> 10;
+                    FTL_PROGRESS("N3G_L45X_USE lb=%04lx v=%04lx",
+                                 (unsigned long)target_lblock,
+                                 (unsigned long)v);
+                }
+            }
+
+            FTL_PROGRESS("N3G_L45X ix=%lu m=%lu lb=%04lx po=%lu off=%lu v=%04lx rc=%ld ty=%02x raw=%08lx ex=%08lx ok=%lu pb=%lu pp=%lu bk=%lu",
+                         (unsigned long)idx,
+                         (unsigned long)mode_ids[mi],
+                         (unsigned long)target_lblock,
+                         (unsigned long)target_po,
+                         (unsigned long)off,
+                         (unsigned long)v,
+                         (long)(int32_t)rc,
+                         ftl_sparebuffer[0].user.type,
+                         (unsigned long)raw,
+                         (unsigned long)exp,
+                         (unsigned long)target_slot,
+                         (unsigned long)ok,
+                         (unsigned long)pb,
+                         (unsigned long)pp,
+                         (unsigned long)bank);
+        }
+
+        if (mode_count == 0 && (idx == 3 || idx == 6))
+            FTL_PROGRESS("N3G_L45X_SKIP b=%lu p=%lu ix=%lu lb=%04lx",
+                         (unsigned long)block,
+                         (unsigned long)page,
+                         (unsigned long)idx,
+                         (unsigned long)target_lblock);
+    }
+}
+
+static void ftl_n3g_put16(uint8_t *b, uint32_t off, uint32_t v)
+{
+    b[off] = v & 0xff;
+    b[off + 1] = (v >> 8) & 0xff;
+}
+
+static void ftl_n3g_put32(uint8_t *b, uint32_t off, uint32_t v)
+{
+    b[off] = v & 0xff;
+    b[off + 1] = (v >> 8) & 0xff;
+    b[off + 2] = (v >> 16) & 0xff;
+    b[off + 3] = (v >> 24) & 0xff;
+}
+
+static void ftl_n3g_synth_fat32_bpb(uint8_t *out)
+{
+    memset(out, 0, 0x200);
+    out[0] = 0xeb;
+    out[1] = 0x3c;
+    out[2] = 0x90;
+    memcpy(&out[3], "*UOKJIHC", 8);
+    ftl_n3g_put16(out, 0x0b, 4096);
+    out[0x0d] = 1;
+    ftl_n3g_put16(out, 0x0e, 32);
+    out[0x10] = 2;
+    out[0x15] = 0xf8;
+    ftl_n3g_put16(out, 0x18, 63);
+    ftl_n3g_put16(out, 0x1a, 255);
+    ftl_n3g_put32(out, 0x1c, 0x0000003f);
+    ftl_n3g_put32(out, 0x20, 0x000e7f81);
+    ftl_n3g_put32(out, 0x24, 0x0000039f);
+    ftl_n3g_put32(out, 0x2c, 2);
+    ftl_n3g_put16(out, 0x30, 1);
+    ftl_n3g_put16(out, 0x32, 6);
+    out[0x41] = 0x01;
+    out[0x42] = 0x29;
+    ftl_n3g_put32(out, 0x43, 0x668ba3a6);
+    memcpy(&out[0x47], "IPOD       ", 11);
+    memcpy(&out[0x52], "FAT32   ", 8);
+    out[0x1fe] = 0x55;
+    out[0x1ff] = 0xaa;
+}
+
+static void ftl_n3g_synth_root_rockbox(uint8_t *out, uint32_t host_lpn)
+{
+    static const uint8_t rockbox_lfn[32] = {
+        0x41, 0x72, 0x00, 0x6f, 0x00, 0x63, 0x00, 0x6b,
+        0x00, 0x62, 0x00, 0x0f, 0x00, 0x4e, 0x6f, 0x00,
+        0x78, 0x00, 0x2e, 0x00, 0x69, 0x00, 0x70, 0x00,
+        0x6f, 0x00, 0x00, 0x00, 0x64, 0x00, 0x00, 0x00
+    };
+    static const uint8_t rockbox_short[32] = {
+        0x52, 0x4f, 0x43, 0x4b, 0x42, 0x4f, 0x7e, 0x31,
+        0x49, 0x50, 0x4f, 0x20, 0x00, 0x31, 0x74, 0x04,
+        0xb6, 0x5c, 0xb6, 0x5c, 0x00, 0x00, 0x68, 0x4a,
+        0xa6, 0x5c, 0x4b, 0xd4, 0xa4, 0x23, 0x0d, 0x00
+    };
+
+    memset(out, 0, 0x200);
+    if (host_lpn == 0x0000db6eu)
+    {
+        memcpy(out, rockbox_lfn, sizeof(rockbox_lfn));
+        memcpy(out + 0x20, rockbox_short, sizeof(rockbox_short));
+    }
+}
+
+static void ftl_n3g_synth_rockbox_fat(uint8_t *out, uint32_t host_lpn)
+{
+    uint32_t first_cluster = (host_lpn - 0x0000a17eu) * 128u;
+
+    memset(out, 0, 0x200);
+    for (uint32_t i = 0; i < 128; i++)
+    {
+        uint32_t cluster = first_cluster + i;
+        uint32_t value = 0;
+
+        if (cluster >= 0x0000d44bu && cluster < 0x0000d51du)
+            value = cluster + 1;
+        else if (cluster == 0x0000d51du)
+            value = 0x0fffffffu;
+
+        ftl_n3g_put32(out, i * 4, value);
+    }
+}
+
+static uint32_t ftl_n3g_synth_rockbox_ram(uint8_t *out, uint32_t host_lpn)
+{
+    (void)out;
+    (void)host_lpn;
+    return 0;
+}
+
+static const uint8_t n3g_rockbox_first_sector[0x200] =
+{
+    0x05, 0x2c, 0x37, 0x06, 0x6e, 0x6e, 0x33, 0x67,
+    0x0d, 0x00, 0x00, 0xea, 0x14, 0xf0, 0x9f, 0xe5,
+    0x14, 0xf0, 0x9f, 0xe5, 0x14, 0xf0, 0x9f, 0xe5,
+    0x14, 0xf0, 0x9f, 0xe5, 0x14, 0xf0, 0x9f, 0xe5,
+    0x14, 0xf0, 0x9f, 0xe5, 0x14, 0xf0, 0x9f, 0xe5,
+    0x6c, 0x73, 0x07, 0x08, 0x48, 0x73, 0x07, 0x08,
+    0x60, 0x73, 0x07, 0x08, 0x50, 0xbe, 0x08, 0x08,
+    0x54, 0x73, 0x07, 0x08, 0xe4, 0x7e, 0x07, 0x08,
+    0xa4, 0x7f, 0x07, 0x08, 0x04, 0xf0, 0x1f, 0xe5,
+    0x50, 0x00, 0x00, 0x08, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0xd3, 0xf0, 0x21, 0xe3, 0x10, 0x0f, 0x11, 0xee,
+    0x01, 0x0a, 0xc0, 0xe3, 0x05, 0x00, 0xc0, 0xe3,
+    0x10, 0x0f, 0x01, 0xee, 0x7a, 0xff, 0x17, 0xee,
+    0xfd, 0xff, 0xff, 0x1a, 0x00, 0x00, 0xa0, 0xe3,
+    0x9a, 0x0f, 0x07, 0xee, 0x15, 0x0f, 0x07, 0xee,
+    0xdc, 0x10, 0x9f, 0xe5, 0x01, 0x2a, 0x81, 0xe2,
+    0x02, 0x3a, 0x81, 0xe2, 0x01, 0x40, 0x40, 0xe2,
+    0x14, 0x40, 0x81, 0xe5, 0x14, 0x40, 0x82, 0xe5,
+    0x00, 0x4f, 0x81, 0xe5, 0x00, 0x4f, 0x82, 0xe5,
+    0x08, 0x40, 0x83, 0xe5, 0x0c, 0x40, 0x83, 0xe5,
+    0x14, 0x00, 0x81, 0xe5, 0x14, 0x00, 0x82, 0xe5,
+    0x2c, 0xe0, 0x01, 0xeb, 0xac, 0x20, 0x9f, 0xe5,
+    0xac, 0x30, 0x9f, 0xe5, 0xac, 0x40, 0x9f, 0xe5,
+    0x02, 0x00, 0x53, 0xe1, 0x04, 0x10, 0x94, 0x84,
+    0x04, 0x10, 0x82, 0x84, 0xfb, 0xff, 0xff, 0x8a,
+    0x9c, 0x20, 0x9f, 0xe5, 0x9c, 0x30, 0x9f, 0xe5,
+    0x00, 0x40, 0xa0, 0xe3, 0x02, 0x00, 0x53, 0xe1,
+    0x04, 0x40, 0x82, 0x84, 0xfc, 0xff, 0xff, 0x8a,
+    0x8c, 0x20, 0x9f, 0xe5, 0x8c, 0x30, 0x9f, 0xe5,
+    0x8c, 0x40, 0x9f, 0xe5, 0x02, 0x00, 0x53, 0xe1,
+    0x04, 0x10, 0x94, 0x84, 0x04, 0x10, 0x82, 0x84,
+    0xfb, 0xff, 0xff, 0x8a, 0x7c, 0x20, 0x9f, 0xe5,
+    0x7c, 0x30, 0x9f, 0xe5, 0x00, 0x40, 0xa0, 0xe3,
+    0x02, 0x00, 0x53, 0xe1, 0x04, 0x40, 0x82, 0x84,
+    0xfc, 0xff, 0xff, 0x8a, 0xd2, 0xf0, 0x21, 0xe3,
+    0x68, 0xd0, 0x9f, 0xe5, 0xd1, 0xf0, 0x21, 0xe3,
+    0x64, 0xd0, 0x9f, 0xe5, 0xd3, 0xf0, 0x21, 0xe3,
+    0x58, 0xd0, 0x9f, 0xe5, 0xd7, 0xf0, 0x21, 0xe3,
+    0x50, 0xd0, 0x9f, 0xe5, 0xdb, 0xf0, 0x21, 0xe3,
+    0x48, 0xd0, 0x9f, 0xe5, 0xdf, 0xf0, 0x21, 0xe3,
+    0x48, 0xd0, 0x9f, 0xe5, 0x48, 0x20, 0x9f, 0xe5,
+    0x48, 0x30, 0x9f, 0xe5, 0x02, 0x00, 0x5d, 0xe1,
+    0x04, 0x30, 0x82, 0x84, 0xfc, 0xff, 0xff, 0x8a,
+    0x07, 0x17, 0x00, 0xea, 0x00, 0x00, 0xe0, 0x38,
+    0x00, 0x00, 0x00, 0x00, 0x3c, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x08, 0xa0, 0x23, 0x0d, 0x08,
+    0x38, 0x55, 0x1c, 0x08, 0x60, 0x00, 0x00, 0x00,
+    0x94, 0x24, 0x00, 0x00, 0x68, 0xff, 0x0c, 0x08,
+    0x94, 0x24, 0x00, 0x00, 0x50, 0x7d, 0x00, 0x00,
+    0x50, 0xa1, 0x00, 0x00, 0x50, 0xa5, 0x00, 0x00,
+    0x50, 0x9d, 0x00, 0x00, 0x50, 0x7d, 0x00, 0x00,
+    0xef, 0xbe, 0xad, 0xde, 0xf0, 0x41, 0x2d, 0xe9,
+    0x00, 0x30, 0x92, 0xe5, 0x10, 0x50, 0x91, 0xe5,
+    0x0c, 0xe0, 0xa0, 0xe3, 0x93, 0x5e, 0x2e, 0xe0,
+    0x00, 0xc0, 0xa0, 0xe3, 0x01, 0x80, 0xa0, 0xe3,
+    0x04, 0x60, 0x9e, 0xe5, 0x00, 0x00, 0x56, 0xe3,
+    0x04, 0x00, 0x00, 0x1a, 0x00, 0x00, 0x5c, 0xe3,
+    0x18, 0x00, 0x00, 0x1a, 0x01, 0x00, 0xa0, 0xe3,
+    0x00, 0x30, 0x82, 0xe5, 0xf0, 0x81, 0xbd, 0xe8,
+    0x04, 0x70, 0x91, 0xe5, 0x08, 0x40, 0x9e, 0xe5,
+    0x06, 0x00, 0x57, 0xe1, 0x0c, 0x00, 0x00, 0x1a,
+    0x00, 0x60, 0x90, 0xe5, 0x04, 0x00, 0x56, 0xe1,
+    0x01, 0xc0, 0x8c, 0x02, 0x00, 0x30, 0x82, 0x05
+};
+
+static uint32_t ftl_n3g_sum_local(const uint8_t *buf, uint32_t len)
+{
+    uint32_t sum = 0;
+
+    for (uint32_t i = 0; i < len; i++)
+        sum += buf[i];
+    return sum;
+}
+
+static uint32_t ftl_n3g_identify_rockbox_sector(const uint8_t *p,
+                                                uint32_t max_sector,
+                                                uint32_t *sum_out)
+{
+    uint32_t sum = ftl_n3g_sum_local(p, 0x200);
+
+    if (sum_out)
+        *sum_out = sum;
+
+    if (max_sector >= N3G_ROCKBOX_SECTOR_SUM_COUNT)
+        max_sector = N3G_ROCKBOX_SECTOR_SUM_COUNT - 1;
+
+    for (uint32_t fs = 0; fs <= max_sector; fs++)
+    {
+        if (n3g_rockbox_sector_len[fs] == 0x200
+         && sum == n3g_rockbox_sector_sum[fs])
+            return fs;
+    }
+
+    return 0xffffffffu;
+}
+
+static uint32_t ftl_n3g_rockbox_source_sector(uint32_t file_sector)
+{
+    return ((file_sector >> 2) << 3) + (file_sector & 3);
+}
+
+static uint32_t ftl_n3g_rockbox_source_page_count(uint32_t file_size)
+{
+    uint32_t last_file_sector;
+    uint32_t last_source_sector;
+
+    if (file_size == 0)
+        return 0;
+
+    last_file_sector = (file_size - 1) >> 9;
+    last_source_sector = ftl_n3g_rockbox_source_sector(last_file_sector);
+    return (last_source_sector >> 2) + 1;
+}
+
+static int ftl_n3g_rockbox_sector_sum_ok(uint32_t file_sector,
+                                         uint32_t slot,
+                                         uint32_t *got,
+                                         uint32_t *want);
+
+static int ftl_n3g_read_rockbox_packed_sector(uint32_t file_sector,
+                                              uint32_t host_lpn,
+                                              uint32_t offset,
+                                              void *buffer)
+{
+    static const uint32_t lane_block[4] = { 248, 249, 4344, 4345 };
+    const uint32_t first_page = 15;
+    uint8_t *out = buffer;
+    uint32_t group = file_sector >> 2;
+    uint32_t lane = group & 3u;
+    uint32_t page = first_page + (group >> 2);
+    uint32_t block = lane_block[lane];
+    uint32_t physpage = block * ftl_nand_type->pagesperblock + page;
+    uint32_t slot = file_sector & 3u;
+    uint32_t got = 0;
+    uint32_t want = 0;
+    int32_t rc;
+
+    if (page >= ftl_nand_type->pagesperblock)
+        return -1;
+
+    memset(n3g_direct_pagebuf, 0, sizeof(n3g_direct_pagebuf));
+    rc = nano3g_nand_diag_local_read(0, physpage, 0,
+                                     (uint32_t *)n3g_direct_pagebuf,
+                                     0x800 / sizeof(uint32_t));
+    if (rc != 0
+     || !ftl_n3g_rockbox_sector_sum_ok(file_sector, slot, &got, &want))
+    {
+        memset(out, 0, 0x200);
+        FTL_PROGRESS("N3G_PACKFAIL off=%lu fs=%lu host=%08lx g=%lu lane=%lu bk=0 b=%lu p=%lu s=%lu rc=%ld want=%08lx got=%08lx first=%02x%02x%02x%02x",
+                     (unsigned long)offset,
+                     (unsigned long)file_sector,
+                     (unsigned long)host_lpn,
+                     (unsigned long)group,
+                     (unsigned long)lane,
+                     (unsigned long)block,
+                     (unsigned long)page,
+                     (unsigned long)slot,
+                     (long)rc,
+                     (unsigned long)want,
+                     (unsigned long)got,
+                     n3g_direct_pagebuf[slot * 0x200 + 0],
+                     n3g_direct_pagebuf[slot * 0x200 + 1],
+                     n3g_direct_pagebuf[slot * 0x200 + 2],
+                     n3g_direct_pagebuf[slot * 0x200 + 3]);
+        return -1;
+    }
+
+    memcpy(out, n3g_direct_pagebuf + slot * 0x200, 0x200);
+    if (file_sector < 24 || (file_sector & 0x7fu) == 0)
+        FTL_PROGRESS("N3G_RBSEC off=%lu fs=%lu host=%08lx g=%lu lane=%lu bk=0 b=%lu p=%lu s=%lu src=PACKFIX pay=data d=%02x%02x%02x%02x%02x%02x%02x%02x",
+                     (unsigned long)offset,
+                     (unsigned long)file_sector,
+                     (unsigned long)host_lpn,
+                     (unsigned long)group,
+                     (unsigned long)lane,
+                     (unsigned long)block,
+                     (unsigned long)page,
+                     (unsigned long)slot,
+                     out[0], out[1], out[2], out[3],
+                     out[4], out[5], out[6], out[7]);
+    return 1;
+}
+
+static void ftl_n3g_dump_rockbox_page_slots(uint32_t bank, uint32_t block,
+                                            uint32_t page)
+{
+    uint32_t physpage = block * ftl_nand_type->pagesperblock + page;
+    uint32_t raw = 0xffffffffu;
+    uint32_t usn = 0xffffffffu;
+    uint32_t type = 0xffu;
+
+    memset(&ftl_sparebuffer[0], 0, sizeof(ftl_sparebuffer[0]));
+    if (nano3g_nand_diag_local_read(bank, physpage, 0x800,
+                                    (uint32_t *)&ftl_sparebuffer[0],
+                                    0x10) == 0)
+    {
+        raw = ftl_sparebuffer[0].user.lpn;
+        usn = ftl_sparebuffer[0].user.usn;
+        type = ftl_sparebuffer[0].user.type;
+    }
+
+    memset(n3g_direct_pagebuf, 0, sizeof(n3g_direct_pagebuf));
+    if (nano3g_nand_diag_local_read(bank, physpage, 0,
+                                    (uint32_t *)n3g_direct_pagebuf,
+                                    0x800 / sizeof(uint32_t)) != 0)
+    {
+        FTL_PROGRESS("N3G_PGDUMP bk=%lu b=%lu p=%lu raw=%08lx t=%02lx reason=data",
+                     (unsigned long)bank,
+                     (unsigned long)block,
+                     (unsigned long)page,
+                     (unsigned long)raw,
+                     (unsigned long)type);
+        return;
+    }
+
+    for (uint32_t slot = 0; slot < 4; slot++)
+    {
+        uint8_t *p = n3g_direct_pagebuf + (slot << 9);
+        uint32_t sum = 0;
+        uint32_t fs = ftl_n3g_identify_rockbox_sector(p, 128, &sum);
+
+        FTL_PROGRESS("N3G_PGDUMP bk=%lu b=%lu p=%lu s=%lu raw=%08lx usn=%08lx t=%02lx fs=%lu first=%02x%02x%02x%02x%02x%02x%02x%02x sum=%08lx",
+                     (unsigned long)bank,
+                     (unsigned long)block,
+                     (unsigned long)page,
+                     (unsigned long)slot,
+                     (unsigned long)raw,
+                     (unsigned long)usn,
+                     (unsigned long)type,
+                     (unsigned long)fs,
+                     p[0], p[1], p[2], p[3],
+                     p[4], p[5], p[6], p[7],
+                     (unsigned long)sum);
+    }
+}
+
+static void ftl_n3g_clear_rockbox_located_map(void)
+{
+    memset(n3g_rockbox_located_sector, 0, sizeof(n3g_rockbox_located_sector));
+    for (uint32_t i = 0; i < ARRAYLEN(n3g_rockbox_located_sector); i++)
+    {
+        n3g_rockbox_located_bank[i] = 0xffu;
+        n3g_rockbox_located_slot[i] = 0xffu;
+        n3g_rockbox_located_physpage[i] = 0xffffffffu;
+        n3g_rockbox_located_raw[i] = 0xffffffffu;
+        n3g_rockbox_located_usn[i] = 0;
+    }
+}
+
+static void ftl_n3g_commit_rockbox_located_sector(uint32_t fs, uint32_t bank,
+                                                  uint32_t physpage,
+                                                  uint32_t slot,
+                                                  uint32_t raw,
+                                                  uint32_t usn,
+                                                  uint32_t sum)
+{
+    uint8_t *p = n3g_direct_pagebuf + (slot << 9);
+    uint32_t block = physpage / ftl_nand_type->pagesperblock;
+    uint32_t page = physpage % ftl_nand_type->pagesperblock;
+
+    if (fs >= ARRAYLEN(n3g_rockbox_located_sector))
+        return;
+
+    n3g_rockbox_located_sector[fs] = 1;
+    n3g_rockbox_located_bank[fs] = bank;
+    n3g_rockbox_located_slot[fs] = slot;
+    n3g_rockbox_located_physpage[fs] = physpage;
+    n3g_rockbox_located_raw[fs] = raw;
+    n3g_rockbox_located_usn[fs] = usn;
+
+    FTL_PROGRESS("N3G_LOCATE fs=%lu first=%02x%02x%02x%02x%02x%02x%02x%02x bk=%lu b=%lu p=%lu s=%lu raw=%08lx usn=%08lx sum=%08lx",
+                 (unsigned long)fs,
+                 p[0], p[1], p[2], p[3],
+                 p[4], p[5], p[6], p[7],
+                 (unsigned long)bank,
+                 (unsigned long)block,
+                 (unsigned long)page,
+                 (unsigned long)slot,
+                 (unsigned long)raw,
+                 (unsigned long)usn,
+                 (unsigned long)sum);
+    FTL_PROGRESS("N3G_EXACT_COMMIT fs=%lu bk=%lu b=%lu p=%lu s=%lu first=%02x%02x%02x%02x%02x%02x%02x%02x",
+                 (unsigned long)fs,
+                 (unsigned long)bank,
+                 (unsigned long)block,
+                 (unsigned long)page,
+                 (unsigned long)slot,
+                 p[0], p[1], p[2], p[3],
+                 p[4], p[5], p[6], p[7]);
+}
+
+static void ftl_n3g_bootstrap_rockbox_content_map(void)
+{
+    const uint32_t pass_low[4] = { 240, 1500, 2464, 2609 };
+    const uint32_t pass_high[4] = { 260, 1560, 2608, 3071 };
+    uint32_t found = 0;
+
+    ftl_n3g_clear_rockbox_located_map();
+
+    for (uint32_t page = 15; page <= 18; page++)
+        ftl_n3g_dump_rockbox_page_slots(0, 248, page);
+
+    FTL_PROGRESS("N3G_LOCATE_START fs=0..128");
+    for (uint32_t pass = 0; pass < ARRAYLEN(pass_low)
+                            && found < ARRAYLEN(n3g_rockbox_located_sector);
+         pass++)
+    {
+        for (uint32_t block = pass_high[pass] + 1;
+             block-- > pass_low[pass]
+             && found < ARRAYLEN(n3g_rockbox_located_sector);)
+        {
+            if (((pass_high[pass] - block) & 0x7fu) == 0)
+                FTL_PROGRESS("N3G_LOCATE_SCAN p=%lu b=%lu found=%lu",
+                             (unsigned long)pass,
+                             (unsigned long)block,
+                             (unsigned long)found);
+
+            for (uint32_t page = 0;
+                 page < ftl_nand_type->pagesperblock
+                 && found < ARRAYLEN(n3g_rockbox_located_sector);
+                 page++)
+            {
+                uint32_t physpage = block * ftl_nand_type->pagesperblock + page;
+
+                for (uint32_t bank = 0;
+                     bank < ftl_banks
+                     && found < ARRAYLEN(n3g_rockbox_located_sector);
+                     bank++)
+                {
+                    uint32_t raw = 0xffffffffu;
+                    uint32_t usn = 0xffffffffu;
+                    uint32_t type = 0xffu;
+
+                    memset(&ftl_sparebuffer[0], 0, sizeof(ftl_sparebuffer[0]));
+                    if (nano3g_nand_diag_local_read(bank, physpage, 0x800,
+                                                    (uint32_t *)&ftl_sparebuffer[0],
+                                                    0x10) != 0)
+                        continue;
+                    type = ftl_sparebuffer[0].user.type;
+                    if (type != 0x40 && type != 0x41)
+                        continue;
+                    raw = ftl_sparebuffer[0].user.lpn;
+                    usn = ftl_sparebuffer[0].user.usn;
+                    if (usn == 0xffffffffu)
+                        continue;
+
+                    memset(n3g_direct_pagebuf, 0, sizeof(n3g_direct_pagebuf));
+                    if (nano3g_nand_diag_local_read(bank, physpage, 0,
+                                                    (uint32_t *)n3g_direct_pagebuf,
+                                                    0x800 / sizeof(uint32_t)) != 0)
+                        continue;
+
+                    for (uint32_t slot = 0;
+                         slot < 4
+                         && found < ARRAYLEN(n3g_rockbox_located_sector);
+                         slot++)
+                    {
+                        uint8_t *p = n3g_direct_pagebuf + (slot << 9);
+                        uint32_t sum = 0;
+                        uint32_t fs = ftl_n3g_identify_rockbox_sector(
+                                                                      p,
+                                                                      ARRAYLEN(n3g_rockbox_located_sector) - 1,
+                                                                      &sum);
+
+                        if (fs >= ARRAYLEN(n3g_rockbox_located_sector)
+                         || n3g_rockbox_located_sector[fs])
+                            continue;
+
+                        found++;
+                        ftl_n3g_commit_rockbox_located_sector(fs, bank,
+                                                              physpage,
+                                                              slot, raw,
+                                                              usn, sum);
+                    }
+                }
+            }
+        }
+    }
+    FTL_PROGRESS("N3G_LOCATE_DONE found=%lu mfound=%lu",
+                 (unsigned long)found,
+                 (unsigned long)n3g_rockbox_map_found);
+}
+
+static int ftl_n3g_locate_rockbox_sector(uint32_t target_fs)
+{
+    const uint32_t pass_low[5] = { 240, 1500, 2464, 2609, 2048 };
+    const uint32_t pass_high[5] = { 260, 1560, 2608, 3071, 7167 };
+
+    if (target_fs >= ARRAYLEN(n3g_rockbox_located_sector))
+        return -1;
+    if (n3g_rockbox_located_sector[target_fs])
+        return 0;
+
+    FTL_PROGRESS("N3G_LOCONE_START fs=%lu", (unsigned long)target_fs);
+    for (uint32_t pass = 0; pass < ARRAYLEN(pass_low); pass++)
+    {
+        for (uint32_t block = pass_high[pass] + 1; block-- > pass_low[pass];)
+        {
+            if (((pass_high[pass] - block) & 0xffu) == 0)
+                FTL_PROGRESS("N3G_LOCONE_SCAN fs=%lu p=%lu b=%lu",
+                             (unsigned long)target_fs,
+                             (unsigned long)pass,
+                             (unsigned long)block);
+
+            for (uint32_t page = 0; page < ftl_nand_type->pagesperblock; page++)
+            {
+                uint32_t physpage = block * ftl_nand_type->pagesperblock + page;
+
+                for (uint32_t bank = 0; bank < ftl_banks; bank++)
+                {
+                    uint32_t raw;
+                    uint32_t usn;
+                    uint32_t type;
+
+                    memset(&ftl_sparebuffer[0], 0, sizeof(ftl_sparebuffer[0]));
+                    if (nano3g_nand_diag_local_read(bank, physpage, 0x800,
+                                                    (uint32_t *)&ftl_sparebuffer[0],
+                                                    0x10) != 0)
+                        continue;
+                    type = ftl_sparebuffer[0].user.type;
+                    if (type != 0x40 && type != 0x41)
+                        continue;
+                    raw = ftl_sparebuffer[0].user.lpn;
+                    usn = ftl_sparebuffer[0].user.usn;
+                    if (usn == 0xffffffffu)
+                        continue;
+
+                    memset(n3g_direct_pagebuf, 0, sizeof(n3g_direct_pagebuf));
+                    if (nano3g_nand_diag_local_read(bank, physpage, 0,
+                                                    (uint32_t *)n3g_direct_pagebuf,
+                                                    0x800 / sizeof(uint32_t)) != 0)
+                        continue;
+
+                    for (uint32_t slot = 0; slot < 4; slot++)
+                    {
+                        uint8_t *p = n3g_direct_pagebuf + (slot << 9);
+                        uint32_t sum = 0;
+                        uint32_t fs = ftl_n3g_identify_rockbox_sector(
+                                                                      p,
+                                                                      ARRAYLEN(n3g_rockbox_located_sector) - 1,
+                                                                      &sum);
+
+                        if (fs != target_fs)
+                            continue;
+
+                        ftl_n3g_commit_rockbox_located_sector(fs, bank,
+                                                              physpage,
+                                                              slot, raw,
+                                                              usn, sum);
+                        return 0;
+                    }
+                }
+            }
+        }
+    }
+
+    FTL_PROGRESS("N3G_LOCONE_NONE fs=%lu", (unsigned long)target_fs);
+    return -1;
+}
+
+static uint32_t ftl_n3g_find_rockbox_phys_near(void)
+{
+    uint32_t header_physpage;
+    int32_t rc;
+
+    n3g_rockbox_phys_valid = 1;
+    n3g_rockbox_phys_bank = 0;
+    n3g_rockbox_phys_block = 248;
+    n3g_rockbox_phys_page = 15;
+    n3g_rockbox_phys_slot = 0;
+    n3g_rockbox_raw_lpn = 0xffffffffu;
+    n3g_rockbox_raw_usn = 0;
+    n3g_rockbox_lpn_base = 0xffffffffu;
+    n3g_rockbox_page_count = ftl_n3g_rockbox_source_page_count(861092u);
+    n3g_rockbox_map_found = 0;
+    memset(n3g_rockbox_sum_reported, 0, sizeof(n3g_rockbox_sum_reported));
+    memset(n3g_rockbox_slotdump_reported, 0,
+           sizeof(n3g_rockbox_slotdump_reported));
+    for (uint32_t i = 0; i < ARRAYLEN(n3g_rockbox_map_physpage); i++)
+    {
+        n3g_rockbox_map_bank[i] = 0xffu;
+        n3g_rockbox_map_slot[i] = 0xffu;
+        n3g_rockbox_map_physpage[i] = 0xffffffffu;
+        n3g_rockbox_map_raw[i] = 0xffffffffu;
+        n3g_rockbox_map_usn[i] = 0;
+    }
+
+    header_physpage = n3g_rockbox_phys_block * ftl_nand_type->pagesperblock
+                    + n3g_rockbox_phys_page;
+    memset(&ftl_sparebuffer[0], 0, sizeof(ftl_sparebuffer[0]));
+    rc = nano3g_nand_diag_local_read(n3g_rockbox_phys_bank, header_physpage,
+                                     0x800,
+                                     (uint32_t *)&ftl_sparebuffer[0], 0x10);
+    if (rc == 0)
+    {
+        n3g_rockbox_raw_lpn = ftl_sparebuffer[0].user.lpn;
+        n3g_rockbox_raw_usn = ftl_sparebuffer[0].user.usn;
+        n3g_rockbox_lpn_base = ftl_n3g_oob_lpn512(ftl_sparebuffer[0].user.lpn)
+                             + n3g_rockbox_phys_slot;
+        n3g_rockbox_map_bank[0] = n3g_rockbox_phys_bank;
+        n3g_rockbox_map_slot[0] = n3g_rockbox_phys_slot;
+        n3g_rockbox_map_physpage[0] = header_physpage;
+        n3g_rockbox_map_raw[0] = n3g_rockbox_raw_lpn;
+        n3g_rockbox_map_usn[0] = n3g_rockbox_raw_usn;
+        n3g_rockbox_map_found = 1;
+    }
+
+    FTL_PROGRESS("N3G_RBFORCE bk=%lu b=%lu p=%lu s=%lu raw=%08lx usn=%08lx base=%08lx rc=%ld",
+                 (unsigned long)n3g_rockbox_phys_bank,
+                 (unsigned long)n3g_rockbox_phys_block,
+                 (unsigned long)n3g_rockbox_phys_page,
+                 (unsigned long)n3g_rockbox_phys_slot,
+                 (unsigned long)n3g_rockbox_raw_lpn,
+                 (unsigned long)n3g_rockbox_raw_usn,
+                 (unsigned long)n3g_rockbox_lpn_base,
+                 (long)rc);
+    return n3g_rockbox_phys_valid;
+}
+
+static void ftl_n3g_build_rockbox_lpn_map(void)
+{
+    const uint32_t pass_low[3] = { 240, 1500, 2464 };
+    const uint32_t pass_high[3] = { 260, 1560, 2608 };
+    uint32_t printed = 0;
+    uint32_t replaced = 0;
+
+    if (n3g_rockbox_raw_lpn == 0xffffffffu
+     || n3g_rockbox_page_count > ARRAYLEN(n3g_rockbox_map_physpage))
+    {
+        FTL_PROGRESS("N3G_RBMAP_SKIP raw=%08lx pages=%lu",
+                     (unsigned long)n3g_rockbox_raw_lpn,
+                     (unsigned long)n3g_rockbox_page_count);
+        return;
+    }
+
+    n3g_rockbox_lpn_base = ftl_n3g_rockbox_cand_lpn(n3g_rockbox_raw_lpn, 1);
+    n3g_rockbox_map_found = n3g_rockbox_map_physpage[0] != 0xffffffffu ? 1 : 0;
+
+    FTL_PROGRESS("N3G_RBMAP_START raw=%08lx base=%08lx pages=%lu packed=1",
+                 (unsigned long)n3g_rockbox_raw_lpn,
+                 (unsigned long)n3g_rockbox_lpn_base,
+                 (unsigned long)n3g_rockbox_page_count);
+
+    for (uint32_t pass = 0; pass < ARRAYLEN(pass_low); pass++)
+    {
+        uint32_t low_block = pass_low[pass];
+        uint32_t high_block = pass_high[pass];
+
+        FTL_PROGRESS("N3G_RBMAP_PASS p=%lu b=%lu..%lu f=%lu",
+                     (unsigned long)pass,
+                     (unsigned long)high_block,
+                     (unsigned long)low_block,
+                     (unsigned long)n3g_rockbox_map_found);
+
+        for (uint32_t block = high_block + 1; block-- > low_block;)
+        {
+            if (((high_block - block) & 0xff) == 0)
+                FTL_PROGRESS("N3G_RBMAP_SCAN p=%lu b=%lu f=%lu",
+                             (unsigned long)pass,
+                             (unsigned long)block,
+                             (unsigned long)n3g_rockbox_map_found);
+
+            for (uint32_t page = 0; page < ftl_nand_type->pagesperblock; page++)
+            {
+                uint32_t physpage = block * ftl_nand_type->pagesperblock + page;
+
+                for (uint32_t bank = 0; bank < ftl_banks; bank++)
+                {
+                    uint32_t raw;
+                    uint32_t usn;
+                    uint32_t lpn;
+                    uint32_t delta;
+                    uint32_t idx;
+                    uint32_t old_usn;
+
+                    memset(&ftl_sparebuffer[0], 0, sizeof(ftl_sparebuffer[0]));
+                    if (nano3g_nand_diag_local_read(bank, physpage, 0x800,
+                                                    (uint32_t *)&ftl_sparebuffer[0],
+                                                    0x10) != 0)
+                        continue;
+                    if (ftl_sparebuffer[0].user.type != 0x40
+                     && ftl_sparebuffer[0].user.type != 0x41)
+                        continue;
+
+                    raw = ftl_sparebuffer[0].user.lpn;
+                    usn = ftl_sparebuffer[0].user.usn;
+                    lpn = ftl_n3g_rockbox_cand_lpn(raw, 1);
+                    if (lpn < n3g_rockbox_lpn_base)
+                        continue;
+                    delta = lpn - n3g_rockbox_lpn_base;
+                    if (delta >= n3g_rockbox_page_count * 4u
+                     || (delta & 3u) != 0)
+                        continue;
+                    idx = delta >> 2;
+                    if (idx >= n3g_rockbox_page_count)
+                        continue;
+                    old_usn = n3g_rockbox_map_usn[idx];
+                    if (n3g_rockbox_map_physpage[idx] != 0xffffffffu)
+                    {
+                        if (idx == 0)
+                            continue;
+                        if (usn <= old_usn)
+                            continue;
+                        replaced++;
+                    }
+                    else
+                    {
+                        n3g_rockbox_map_found++;
+                    }
+
+                    n3g_rockbox_map_bank[idx] = bank;
+                    n3g_rockbox_map_physpage[idx] = physpage;
+                    n3g_rockbox_map_raw[idx] = raw;
+                    n3g_rockbox_map_usn[idx] = usn;
+                    if (printed < 24)
+                    {
+                        FTL_PROGRESS("N3G_RBMH i=%lu bk=%lu b=%lu p=%lu raw=%08lx usn=%08lx old=%08lx",
+                                     (unsigned long)idx,
+                                     (unsigned long)bank,
+                                     (unsigned long)block,
+                                     (unsigned long)page,
+                                     (unsigned long)raw,
+                                     (unsigned long)usn,
+                                     (unsigned long)old_usn);
+                        printed++;
+                    }
+                }
+            }
+        }
+    }
+
+    FTL_PROGRESS("N3G_RBMAP_DONE f=%lu r=%lu pages=%lu p0=%lu p1=%lu p90=%lu plast=%lu",
+                 (unsigned long)n3g_rockbox_map_found,
+                 (unsigned long)replaced,
+                 (unsigned long)n3g_rockbox_page_count,
+                 (unsigned long)n3g_rockbox_map_physpage[0],
+                 (unsigned long)n3g_rockbox_map_physpage[1],
+                 (unsigned long)n3g_rockbox_map_physpage[90],
+                 (unsigned long)n3g_rockbox_map_physpage[n3g_rockbox_page_count - 1]);
+}
+
+static int ftl_n3g_raw_covers_key(uint32_t raw, uint32_t desired_key,
+                                  uint32_t *slot)
+{
+    uint32_t raw_key = raw >> 1;
+
+    if (desired_key < raw_key || desired_key >= raw_key + 4)
+        return 0;
+
+    *slot = desired_key - raw_key;
+    return 1;
+}
+
+static int ftl_n3g_rockbox_exact_slot(uint32_t map_idx, uint32_t file_sector,
+                                      uint32_t *slot)
+{
+    uint32_t source_sector = ftl_n3g_rockbox_source_sector(file_sector);
+
+    if ((source_sector >> 2) != map_idx)
+        return -1;
+
+    *slot = source_sector & 3u;
+    return 0;
+}
+
+static uint32_t ftl_n3g_sum_bytes(const uint8_t *buf, uint32_t len)
+{
+    uint32_t sum = 0;
+
+    for (uint32_t i = 0; i < len; i++)
+        sum += buf[i];
+    return sum;
+}
+
+static int ftl_n3g_rockbox_sector_sum_ok(uint32_t file_sector,
+                                         uint32_t slot,
+                                         uint32_t *got,
+                                         uint32_t *want)
+{
+    uint32_t len;
+    const uint8_t *p;
+    const uint8_t *last = NULL;
+
+    if (file_sector >= N3G_ROCKBOX_SECTOR_SUM_COUNT || slot >= 4)
+        return 1;
+
+    len = n3g_rockbox_sector_len[file_sector];
+    p = n3g_direct_pagebuf + slot * 0x200;
+    *got = ftl_n3g_sum_bytes(p, len);
+    *want = n3g_rockbox_sector_sum[file_sector];
+    if (file_sector >= N3G_ROCKBOX_DUMP_BASE
+     && file_sector < N3G_ROCKBOX_DUMP_BASE + N3G_ROCKBOX_DUMP_COUNT)
+        last = n3g_rockbox_dump_last8[file_sector - N3G_ROCKBOX_DUMP_BASE];
+    return *got == *want
+        && (!last || memcmp(p + 0x1f8, last, 8) == 0);
+}
+
+static int ftl_n3g_read_exact_rockbox_sector(uint32_t file_sector,
+                                             uint32_t host_lpn,
+                                             uint32_t offset,
+                                             void *buffer)
+{
+    uint8_t *out = buffer;
+    uint32_t group;
+    uint32_t block;
+    uint32_t page;
+    uint32_t slot;
+    uint32_t physpage;
+    uint32_t got = 0;
+    uint32_t want = 0;
+    uint32_t attempt;
+    int32_t rc;
+
+    if (file_sector >= N3G_ROCKBOX_EXACT_MAP_COUNT)
+        return 0;
+
+    group = file_sector >> 2;
+    if (group >= N3G_ROCKBOX_EXACT_GROUP_COUNT)
+        return 0;
+
+    block = n3g_rockbox_exact_block[group];
+    page = n3g_rockbox_exact_page[group];
+    slot = file_sector & 3u;
+    physpage = block * N3G_EXACT_PAGES_PER_BLOCK + page;
+
+    for (attempt = 0; attempt < 4; attempt++)
+    {
+        memset(n3g_direct_pagebuf, 0, sizeof(n3g_direct_pagebuf));
+        (void)nano3g_nand_diag_init_only(0);
+        rc = nano3g_nand_diag_local_read(0, physpage, 0,
+                                         (uint32_t *)n3g_direct_pagebuf,
+                                         0x800 / sizeof(uint32_t));
+        if (rc == 0
+         && ftl_n3g_rockbox_sector_sum_ok(file_sector, slot, &got, &want))
+            break;
+    }
+
+    if (attempt >= 4)
+    {
+        FTL_PROGRESS("N3G_EXACT_BAD fs=%lu host=%08lx b=%lu p=%lu abs=%lu ppb=%lu s=%lu rc=%ld a=%lu want=%08lx got=%08lx first=%02x%02x%02x%02x%02x%02x%02x%02x",
+                     (unsigned long)file_sector,
+                     (unsigned long)host_lpn,
+                     (unsigned long)block,
+                     (unsigned long)page,
+                     (unsigned long)physpage,
+                     (unsigned long)ftl_nand_type->pagesperblock,
+                     (unsigned long)slot,
+                     (long)rc,
+                     (unsigned long)attempt,
+                     (unsigned long)want,
+                     (unsigned long)got,
+                     n3g_direct_pagebuf[slot * 0x200 + 0],
+                     n3g_direct_pagebuf[slot * 0x200 + 1],
+                     n3g_direct_pagebuf[slot * 0x200 + 2],
+                     n3g_direct_pagebuf[slot * 0x200 + 3],
+                     n3g_direct_pagebuf[slot * 0x200 + 4],
+                     n3g_direct_pagebuf[slot * 0x200 + 5],
+                     n3g_direct_pagebuf[slot * 0x200 + 6],
+                     n3g_direct_pagebuf[slot * 0x200 + 7]);
+        return -1;
+    }
+
+    memcpy(out, n3g_direct_pagebuf + (slot << 9), 0x200);
+    if (file_sector < 24 || (file_sector & 0x7fu) == 0
+     || file_sector + 16 >= N3G_ROCKBOX_EXACT_MAP_COUNT)
+        FTL_PROGRESS("N3G_RBSEC off=%lu fs=%lu host=%08lx bk=0 b=%lu p=%lu s=%lu src=EXACT d=%02x%02x%02x%02x%02x%02x%02x%02x",
+                     (unsigned long)offset,
+                     (unsigned long)file_sector,
+                     (unsigned long)host_lpn,
+                     (unsigned long)block,
+                     (unsigned long)page,
+                     (unsigned long)slot,
+                     out[0], out[1], out[2], out[3],
+                     out[4], out[5], out[6], out[7]);
+    return 1;
+}
+
+static int ftl_n3g_read_located_rockbox_sector(uint32_t file_sector,
+                                               uint32_t host_lpn,
+                                               uint32_t offset,
+                                               void *buffer)
+{
+    uint8_t *out = buffer;
+    uint32_t bank;
+    uint32_t physpage;
+    uint32_t slot;
+    uint32_t got = 0;
+    uint32_t want = 0;
+    int32_t rc;
+
+    if (file_sector >= ARRAYLEN(n3g_rockbox_located_sector)
+     || !n3g_rockbox_located_sector[file_sector])
+        return 0;
+
+    bank = n3g_rockbox_located_bank[file_sector];
+    physpage = n3g_rockbox_located_physpage[file_sector];
+    slot = n3g_rockbox_located_slot[file_sector];
+
+    memset(n3g_direct_pagebuf, 0, sizeof(n3g_direct_pagebuf));
+    rc = nano3g_nand_diag_local_read(bank, physpage, 0,
+                                     (uint32_t *)n3g_direct_pagebuf,
+                                     0x800 / sizeof(uint32_t));
+    if (rc != 0
+     || !ftl_n3g_rockbox_sector_sum_ok(file_sector, slot, &got, &want))
+    {
+        FTL_PROGRESS("N3G_LOCSTALE fs=%lu host=%08lx bk=%lu b=%lu p=%lu s=%lu want=%08lx got=%08lx first=%02x%02x%02x%02x",
+                     (unsigned long)file_sector,
+                     (unsigned long)host_lpn,
+                     (unsigned long)bank,
+                     (unsigned long)(physpage / ftl_nand_type->pagesperblock),
+                     (unsigned long)(physpage % ftl_nand_type->pagesperblock),
+                     (unsigned long)slot,
+                     (unsigned long)want,
+                     (unsigned long)got,
+                     n3g_direct_pagebuf[slot * 0x200 + 0],
+                     n3g_direct_pagebuf[slot * 0x200 + 1],
+                     n3g_direct_pagebuf[slot * 0x200 + 2],
+                     n3g_direct_pagebuf[slot * 0x200 + 3]);
+        n3g_rockbox_located_sector[file_sector] = 0;
+        return 0;
+    }
+
+    memcpy(out, n3g_direct_pagebuf + (slot << 9), 0x200);
+    if (file_sector < 24 || (file_sector & 0x7fu) == 0)
+        FTL_PROGRESS("N3G_RBSEC off=%lu fs=%lu host=%08lx bk=%lu b=%lu p=%lu s=%lu src=LOC pay=data raw=%08lx usn=%08lx d=%02x%02x%02x%02x%02x%02x%02x%02x",
+                     (unsigned long)offset,
+                     (unsigned long)file_sector,
+                     (unsigned long)host_lpn,
+                     (unsigned long)bank,
+                     (unsigned long)(physpage / ftl_nand_type->pagesperblock),
+                     (unsigned long)(physpage % ftl_nand_type->pagesperblock),
+                     (unsigned long)slot,
+                     (unsigned long)n3g_rockbox_located_raw[file_sector],
+                     (unsigned long)n3g_rockbox_located_usn[file_sector],
+                     out[0], out[1], out[2], out[3],
+                     out[4], out[5], out[6], out[7]);
+    return 1;
+}
+
+static void ftl_n3g_dump_rockbox_candidate_slots(uint32_t map_idx,
+                                                 uint32_t file_sector,
+                                                 const char *tag,
+                                                 uint32_t bank,
+                                                 uint32_t physpage,
+                                                 uint32_t raw,
+                                                 uint32_t desired_key)
+{
+    uint32_t block = physpage / ftl_nand_type->pagesperblock;
+    uint32_t page = physpage % ftl_nand_type->pagesperblock;
+    uint32_t base_sector = file_sector & ~3u;
+
+    if (map_idx >= ARRAYLEN(n3g_rockbox_slotdump_reported)
+     || n3g_rockbox_slotdump_reported[map_idx])
+        return;
+
+    n3g_rockbox_slotdump_reported[map_idx] = 1;
+    FTL_PROGRESS("N3G_RBHDUMP i=%lu fs=%lu exp=%lu..%lu tag=%s bk=%lu b=%lu p=%lu raw=%08lx key=%08lx",
+                 (unsigned long)map_idx,
+                 (unsigned long)file_sector,
+                 (unsigned long)base_sector,
+                 (unsigned long)(base_sector + 3),
+                 tag,
+                 (unsigned long)bank,
+                 (unsigned long)block,
+                 (unsigned long)page,
+                 (unsigned long)raw,
+                 (unsigned long)desired_key);
+
+    for (uint32_t slot = 0; slot < 4; slot++)
+    {
+        uint32_t fs = base_sector + slot;
+        uint8_t *p = n3g_direct_pagebuf + slot * 0x200;
+        const uint8_t *elast = (fs >= N3G_ROCKBOX_DUMP_BASE
+                             && fs < N3G_ROCKBOX_DUMP_BASE + N3G_ROCKBOX_DUMP_COUNT)
+                              ? n3g_rockbox_dump_last8[fs - N3G_ROCKBOX_DUMP_BASE]
+                              : p + 0x1f8;
+        uint32_t sum = ftl_n3g_sum_bytes(p, 0x200);
+        uint32_t fwant = fs < N3G_ROCKBOX_SECTOR_SUM_COUNT
+                       ? n3g_rockbox_sector_sum[fs] : 0;
+        uint32_t fmatch = fs < N3G_ROCKBOX_SECTOR_SUM_COUNT
+                       && sum == fwant
+                       && memcmp(p + 0x1f8, elast, 8) == 0;
+
+        FTL_PROGRESS("N3G_RBHSLOT i=%lu s=%lu fs=%lu sum=%08lx want=%08lx m=%lu first=%02x%02x%02x%02x%02x%02x%02x%02x last=%02x%02x%02x%02x%02x%02x%02x%02x",
+                     (unsigned long)map_idx,
+                     (unsigned long)slot,
+                     (unsigned long)fs,
+                     (unsigned long)sum,
+                     (unsigned long)fwant,
+                     (unsigned long)fmatch,
+                     p[0], p[1], p[2], p[3],
+                     p[4], p[5], p[6], p[7],
+                     p[0x1f8], p[0x1f9], p[0x1fa], p[0x1fb],
+                     p[0x1fc], p[0x1fd], p[0x1fe], p[0x1ff]);
+        (void)fs;
+    }
+}
+
+static void ftl_n3g_report_rockbox_sum_reject(uint32_t map_idx,
+                                              uint32_t file_sector,
+                                              const char *tag,
+                                              uint32_t bank,
+                                              uint32_t physpage,
+                                              uint32_t raw,
+                                              uint32_t desired_key,
+                                              uint32_t slot,
+                                              uint32_t got,
+                                              uint32_t want)
+{
+    if (file_sector >= ARRAYLEN(n3g_rockbox_sum_reported)
+     || n3g_rockbox_sum_reported[file_sector])
+        return;
+
+    n3g_rockbox_sum_reported[file_sector] = 1;
+    ftl_n3g_dump_rockbox_candidate_slots(map_idx, file_sector, tag, bank,
+                                         physpage, raw, desired_key);
+    FTL_PROGRESS("N3G_RBH_REJECT i=%lu fs=%lu foff=%lu tag=%s bk=%lu b=%lu p=%lu raw=%08lx key=%08lx s=%lu want=%08lx got=%08lx reason=sum",
+                 (unsigned long)map_idx,
+                 (unsigned long)file_sector,
+                 (unsigned long)(file_sector << 9),
+                 tag,
+                 (unsigned long)bank,
+                 (unsigned long)(physpage / ftl_nand_type->pagesperblock),
+                 (unsigned long)(physpage % ftl_nand_type->pagesperblock),
+                 (unsigned long)raw,
+                 (unsigned long)desired_key,
+                 (unsigned long)slot,
+                 (unsigned long)want,
+                 (unsigned long)got);
+    FTL_PROGRESS("N3G_RBH_BYTES fs=%lu load=%02x%02x%02x%02x%02x%02x%02x%02x",
+                 (unsigned long)file_sector,
+                 n3g_direct_pagebuf[slot * 0x200 + 0],
+                 n3g_direct_pagebuf[slot * 0x200 + 1],
+                 n3g_direct_pagebuf[slot * 0x200 + 2],
+                 n3g_direct_pagebuf[slot * 0x200 + 3],
+                 n3g_direct_pagebuf[slot * 0x200 + 4],
+                 n3g_direct_pagebuf[slot * 0x200 + 5],
+                 n3g_direct_pagebuf[slot * 0x200 + 6],
+                 n3g_direct_pagebuf[slot * 0x200 + 7]);
+}
+
+static int ftl_n3g_store_rockbox_raw_cover(uint32_t map_idx,
+                                           uint32_t file_sector,
+                                           uint32_t desired_key,
+                                           uint32_t bank,
+                                           uint32_t physpage,
+                                           const char *tag,
+                                           uint32_t *slot_out)
+{
+    uint32_t raw;
+    uint32_t usn;
+    uint32_t block = physpage / ftl_nand_type->pagesperblock;
+    uint32_t page = physpage % ftl_nand_type->pagesperblock;
+    uint32_t slot;
+    uint32_t raw_slot;
+    uint32_t got = 0;
+    uint32_t want = 0;
+    int32_t rc;
+
+    memset(&ftl_sparebuffer[0], 0, sizeof(ftl_sparebuffer[0]));
+    if (nano3g_nand_diag_local_read(bank, physpage, 0x800,
+                                    (uint32_t *)&ftl_sparebuffer[0],
+                                    0x10) != 0)
+    {
+        if (tag[0] == 'P')
+            FTL_PROGRESS("N3G_RBH_REJECT i=%lu tag=%s bk=%lu b=%lu p=%lu reason=read",
+                         (unsigned long)map_idx, tag,
+                         (unsigned long)bank, (unsigned long)block,
+                         (unsigned long)page);
+        return -1;
+    }
+
+    if (ftl_sparebuffer[0].user.type != 0x40
+     && ftl_sparebuffer[0].user.type != 0x41)
+    {
+        if (tag[0] == 'P')
+            FTL_PROGRESS("N3G_RBH_REJECT i=%lu tag=%s bk=%lu b=%lu p=%lu t=%02x reason=type",
+                         (unsigned long)map_idx, tag,
+                         (unsigned long)bank, (unsigned long)block,
+                         (unsigned long)page,
+                         (unsigned int)ftl_sparebuffer[0].user.type);
+        return -1;
+    }
+
+    raw = ftl_sparebuffer[0].user.lpn;
+    usn = ftl_sparebuffer[0].user.usn;
+    if (ftl_n3g_rockbox_exact_slot(map_idx, file_sector, &slot) != 0)
+        return -1;
+    if (!ftl_n3g_raw_covers_key(raw, desired_key, &raw_slot))
+    {
+        if (tag[0] == 'P')
+            FTL_PROGRESS("N3G_RBH_REJECT i=%lu tag=%s bk=%lu b=%lu p=%lu raw=%08lx key=%08lx reason=range",
+                         (unsigned long)map_idx, tag,
+                         (unsigned long)bank, (unsigned long)block,
+                         (unsigned long)page,
+                         (unsigned long)raw,
+                         (unsigned long)desired_key);
+        return -1;
+    }
+
+    if (usn == 0xffffffffu)
+    {
+        FTL_PROGRESS("N3G_RBH_REJECT i=%lu tag=%s bk=%lu b=%lu p=%lu raw=%08lx reason=usn",
+                     (unsigned long)map_idx, tag,
+                     (unsigned long)bank, (unsigned long)block,
+                     (unsigned long)page,
+                     (unsigned long)raw);
+        return -1;
+    }
+
+    memset(n3g_direct_pagebuf, 0, sizeof(n3g_direct_pagebuf));
+    rc = nano3g_nand_diag_local_read(bank, physpage, 0,
+                                     (uint32_t *)n3g_direct_pagebuf,
+                                     0x800 / sizeof(uint32_t));
+    if (rc != 0)
+    {
+        FTL_PROGRESS("N3G_RBH_REJECT i=%lu fs=%lu tag=%s bk=%lu b=%lu p=%lu raw=%08lx key=%08lx s=%lu reason=data",
+                     (unsigned long)map_idx,
+                     (unsigned long)file_sector,
+                     tag,
+                     (unsigned long)bank,
+                     (unsigned long)block,
+                     (unsigned long)page,
+                     (unsigned long)raw,
+                     (unsigned long)desired_key,
+                     (unsigned long)slot);
+        return -1;
+    }
+
+    if (!ftl_n3g_rockbox_sector_sum_ok(file_sector, slot, &got, &want))
+    {
+        ftl_n3g_report_rockbox_sum_reject(map_idx, file_sector, tag,
+                                          bank, physpage, raw, desired_key,
+                                          slot, got, want);
+        return -1;
+    }
+
+    n3g_rockbox_map_bank[map_idx] = bank;
+    n3g_rockbox_map_slot[map_idx] = slot;
+    n3g_rockbox_map_physpage[map_idx] = physpage;
+    n3g_rockbox_map_raw[map_idx] = raw;
+    n3g_rockbox_map_usn[map_idx] = usn;
+    if (map_idx >= n3g_rockbox_map_found)
+        n3g_rockbox_map_found = map_idx + 1;
+    *slot_out = slot;
+
+    FTL_PROGRESS("N3G_RBH_COMMIT i=%lu fs=%lu bk=%lu b=%lu p=%lu raw=%08lx key=%08lx s=%lu rs=%lu usn=%08lx first=%02x%02x%02x%02x sum=%08lx reason=%s",
+                 (unsigned long)map_idx,
+                 (unsigned long)file_sector,
+                 (unsigned long)bank,
+                 (unsigned long)block,
+                 (unsigned long)page,
+                 (unsigned long)raw,
+                 (unsigned long)desired_key,
+                 (unsigned long)slot,
+                 (unsigned long)raw_slot,
+                 (unsigned long)usn,
+                 n3g_direct_pagebuf[slot * 0x200 + 0],
+                 n3g_direct_pagebuf[slot * 0x200 + 1],
+                 n3g_direct_pagebuf[slot * 0x200 + 2],
+                 n3g_direct_pagebuf[slot * 0x200 + 3],
+                 (unsigned long)got,
+                 tag);
+    return 0;
+}
+
+static int ftl_n3g_store_rockbox_payload_match(uint32_t map_idx,
+                                               uint32_t file_sector,
+                                               uint32_t desired_key,
+                                               uint32_t bank,
+                                               uint32_t physpage,
+                                               const char *tag,
+                                               uint32_t *slot_out)
+{
+    uint32_t raw;
+    uint32_t usn;
+    uint32_t block = physpage / ftl_nand_type->pagesperblock;
+    uint32_t page = physpage % ftl_nand_type->pagesperblock;
+    int32_t rc;
+
+    memset(&ftl_sparebuffer[0], 0, sizeof(ftl_sparebuffer[0]));
+    if (nano3g_nand_diag_local_read(bank, physpage, 0x800,
+                                    (uint32_t *)&ftl_sparebuffer[0],
+                                    0x10) != 0)
+        return -1;
+
+    if (ftl_sparebuffer[0].user.type != 0x40
+     && ftl_sparebuffer[0].user.type != 0x41)
+        return -1;
+
+    raw = ftl_sparebuffer[0].user.lpn;
+    usn = ftl_sparebuffer[0].user.usn;
+    if (usn == 0xffffffffu)
+        return -1;
+
+    memset(n3g_direct_pagebuf, 0, sizeof(n3g_direct_pagebuf));
+    rc = nano3g_nand_diag_local_read(bank, physpage, 0,
+                                     (uint32_t *)n3g_direct_pagebuf,
+                                     0x800 / sizeof(uint32_t));
+    if (rc != 0)
+        return -1;
+
+    {
+        uint32_t slot;
+        uint32_t got = 0;
+        uint32_t want = 0;
+
+        if (ftl_n3g_rockbox_exact_slot(map_idx, file_sector, &slot) != 0
+         || !ftl_n3g_rockbox_sector_sum_ok(file_sector, slot, &got, &want))
+            return -1;
+
+        n3g_rockbox_map_bank[map_idx] = bank;
+        n3g_rockbox_map_slot[map_idx] = slot;
+        n3g_rockbox_map_physpage[map_idx] = physpage;
+        n3g_rockbox_map_raw[map_idx] = (desired_key - slot) << 1;
+        n3g_rockbox_map_usn[map_idx] = usn;
+        if (map_idx >= n3g_rockbox_map_found)
+            n3g_rockbox_map_found = map_idx + 1;
+        *slot_out = slot;
+
+        FTL_PROGRESS("N3G_RBH_COMMIT i=%lu fs=%lu bk=%lu b=%lu p=%lu raw=%08lx araw=%08lx key=%08lx s=%lu usn=%08lx first=%02x%02x%02x%02x sum=%08lx reason=%sPAY",
+                     (unsigned long)map_idx,
+                     (unsigned long)file_sector,
+                     (unsigned long)bank,
+                     (unsigned long)block,
+                     (unsigned long)page,
+                     (unsigned long)n3g_rockbox_map_raw[map_idx],
+                     (unsigned long)raw,
+                     (unsigned long)desired_key,
+                     (unsigned long)slot,
+                     (unsigned long)usn,
+                     n3g_direct_pagebuf[slot * 0x200 + 0],
+                     n3g_direct_pagebuf[slot * 0x200 + 1],
+                     n3g_direct_pagebuf[slot * 0x200 + 2],
+                     n3g_direct_pagebuf[slot * 0x200 + 3],
+                     (unsigned long)got,
+                     tag);
+        return 0;
+    }
+
+    return -1;
+}
+
+static int ftl_n3g_find_rockbox_raw_page(uint32_t map_idx,
+                                         uint32_t file_sector,
+                                         uint32_t desired_key,
+                                         uint32_t *slot)
+{
+    const uint32_t pass_low[3] = { 2464, 2609, 2048 };
+    const uint32_t pass_high[3] = { 2608, 7167, 2463 };
+    uint32_t hint_blocks[6];
+
+    if (map_idx < 220)
+    {
+        hint_blocks[0] = 2815;
+        hint_blocks[1] = 2759;
+        hint_blocks[2] = 2845;
+        hint_blocks[3] = 2535;
+        hint_blocks[4] = 2538;
+        hint_blocks[5] = 2915;
+    }
+    else if (map_idx >= 347)
+    {
+        hint_blocks[0] = 5643;
+        hint_blocks[1] = 2845;
+        hint_blocks[2] = 2759;
+        hint_blocks[3] = 2538;
+        hint_blocks[4] = 2815;
+        hint_blocks[5] = 2915;
+    }
+    else
+    {
+        hint_blocks[0] = 2845;
+        hint_blocks[1] = 2759;
+        hint_blocks[2] = 2815;
+        hint_blocks[3] = 2535;
+        hint_blocks[4] = 2538;
+        hint_blocks[5] = 2915;
+    }
+
+    FTL_PROGRESS("N3G_RBHSCAN i=%lu key=%08lx",
+                 (unsigned long)map_idx,
+                 (unsigned long)desired_key);
+
+    for (int32_t i = (int32_t)map_idx - 1; i >= 0 && i >= (int32_t)map_idx - 64; i--)
+    {
+        if (n3g_rockbox_map_physpage[i] != 0xffffffffu)
+        {
+            uint32_t physpage = n3g_rockbox_map_physpage[i] + (map_idx - (uint32_t)i);
+            if (ftl_n3g_store_rockbox_raw_cover(map_idx, file_sector,
+                                                desired_key,
+                                                n3g_rockbox_map_bank[i],
+                                                physpage, "PRED",
+                                                slot) == 0)
+                return 0;
+            if (ftl_n3g_store_rockbox_payload_match(map_idx, file_sector,
+                                                    desired_key,
+                                                    n3g_rockbox_map_bank[i],
+                                                    physpage, "PRED",
+                                                    slot) == 0)
+                return 0;
+            break;
+        }
+    }
+
+    for (uint32_t h = 0; h < ARRAYLEN(hint_blocks); h++)
+    {
+        uint32_t center = hint_blocks[h];
+
+        FTL_PROGRESS("N3G_RBHWIN i=%lu b=%lu +/-8 key=%08lx",
+                     (unsigned long)map_idx,
+                     (unsigned long)center,
+                     (unsigned long)desired_key);
+        for (uint32_t d = 0; d <= 8; d++)
+        {
+            for (uint32_t side = 0; side < (d == 0 ? 1u : 2u); side++)
+            {
+                uint32_t block;
+
+                if (side == 0)
+                    block = center + d;
+                else if (center >= d)
+                    block = center - d;
+                else
+                    continue;
+
+                for (uint32_t page = 0; page < ftl_nand_type->pagesperblock; page++)
+                {
+                    uint32_t physpage = block * ftl_nand_type->pagesperblock + page;
+                    for (uint32_t bank = 0; bank < ftl_banks; bank++)
+                    {
+                        if (ftl_n3g_store_rockbox_raw_cover(map_idx, file_sector,
+                                                            desired_key,
+                                                            bank, physpage, "WIN",
+                                                            slot) == 0)
+                            return 0;
+                        if (ftl_n3g_store_rockbox_payload_match(map_idx, file_sector,
+                                                                desired_key,
+                                                                bank, physpage, "WIN",
+                                                                slot) == 0)
+                            return 0;
+                    }
+                }
+            }
+        }
+    }
+
+    for (uint32_t pass = 0; pass < ARRAYLEN(pass_low); pass++)
+    {
+        uint32_t low_block = pass_low[pass];
+        uint32_t high_block = pass_high[pass];
+
+        FTL_PROGRESS("N3G_RBH_PASS p=%lu b=%lu..%lu",
+                     (unsigned long)pass,
+                     (unsigned long)high_block,
+                     (unsigned long)low_block);
+
+        for (uint32_t block = high_block + 1; block-- > low_block;)
+        {
+            if (((high_block - block) & 0xffu) == 0)
+                FTL_PROGRESS("N3G_RBH_SCAN p=%lu b=%lu",
+                             (unsigned long)pass,
+                             (unsigned long)block);
+
+            for (uint32_t page = 0; page < ftl_nand_type->pagesperblock; page++)
+            {
+                uint32_t physpage = block * ftl_nand_type->pagesperblock + page;
+
+                for (uint32_t bank = 0; bank < ftl_banks; bank++)
+                {
+                    if (ftl_n3g_store_rockbox_raw_cover(map_idx, file_sector,
+                                                        desired_key,
+                                                        bank, physpage, "FULL",
+                                                        slot) == 0)
+                        return 0;
+                    if (ftl_n3g_store_rockbox_payload_match(map_idx, file_sector,
+                                                            desired_key,
+                                                            bank, physpage, "FULL",
+                                                            slot) == 0)
+                        return 0;
+                }
+            }
+        }
+    }
+
+    FTL_PROGRESS("N3G_RBHNONE i=%lu key=%08lx",
+                 (unsigned long)map_idx,
+                 (unsigned long)desired_key);
+    return -1;
+}
+
+int ftl_n3g_read_rockbox_file_sector(uint32_t file_sector, uint32_t host_lpn,
+                                     void *buffer)
+{
+    const uint32_t rockbox_size = 861092u;
+    const uint32_t rockbox_start_lba = 0x006e8136u;
+    uint8_t *out = buffer;
+    uint32_t source_file_sector;
+    uint32_t source_host_lpn;
+    uint32_t map_idx;
+    uint32_t offset;
+    uint32_t slot;
+    uint32_t physpage;
+    uint32_t bank;
+    uint32_t usn;
+    uint32_t host_delta;
+    uint32_t desired_key;
+    int32_t rc;
+
+    offset = file_sector << 9;
+    if (offset >= rockbox_size)
+        return 0;
+
+    rc = ftl_n3g_read_exact_rockbox_sector(file_sector, host_lpn,
+                                           offset, out);
+    if (rc != 0)
+        return rc;
+
+    if (!n3g_rockbox_phys_valid)
+        return -1;
+
+    if (file_sector == 0)
+    {
+        memcpy(out, n3g_rockbox_first_sector, sizeof(n3g_rockbox_first_sector));
+        FTL_PROGRESS("N3G_RBSEC off=%lu fs=%lu bk=0 b=248 p=15 s=0 src=FIX pay=hdr d=%02x%02x%02x%02x%02x%02x%02x%02x",
+                     (unsigned long)offset,
+                     (unsigned long)file_sector,
+                     out[0], out[1], out[2], out[3],
+                     out[4], out[5], out[6], out[7]);
+        return 1;
+    }
+
+    if (file_sector < ARRAYLEN(n3g_rockbox_located_sector))
+    {
+        rc = ftl_n3g_read_located_rockbox_sector(file_sector, host_lpn,
+                                                 offset, out);
+        if (rc != 0)
+            return rc;
+        if (ftl_n3g_locate_rockbox_sector(file_sector) == 0)
+        {
+            rc = ftl_n3g_read_located_rockbox_sector(file_sector, host_lpn,
+                                                     offset, out);
+            if (rc != 0)
+                return rc;
+        }
+    }
+
+    source_file_sector = ftl_n3g_rockbox_source_sector(file_sector);
+    source_host_lpn = rockbox_start_lba + source_file_sector;
+    host_delta = source_file_sector;
+    map_idx = source_file_sector >> 2;
+    desired_key = (n3g_rockbox_raw_lpn >> 1) + host_delta;
+    usn = map_idx < ARRAYLEN(n3g_rockbox_map_usn) ? n3g_rockbox_map_usn[map_idx] : 0;
+    if (host_lpn < rockbox_start_lba || map_idx >= n3g_rockbox_page_count)
+        return -1;
+    if (ftl_n3g_rockbox_exact_slot(map_idx, file_sector, &slot) != 0)
+        return -1;
+    if (n3g_rockbox_map_physpage[map_idx] != 0xffffffffu)
+    {
+        uint32_t got = 0;
+        uint32_t want = 0;
+
+        bank = n3g_rockbox_map_bank[map_idx];
+        physpage = n3g_rockbox_map_physpage[map_idx];
+        memset(n3g_direct_pagebuf, 0, sizeof(n3g_direct_pagebuf));
+        rc = nano3g_nand_diag_local_read(bank, physpage, 0,
+                                         (uint32_t *)n3g_direct_pagebuf,
+                                         0x800 / sizeof(uint32_t));
+        if (rc != 0
+         || !ftl_n3g_rockbox_sector_sum_ok(file_sector, slot, &got, &want))
+        {
+            FTL_PROGRESS("N3G_RBSTALE i=%lu fs=%lu bk=%lu b=%lu p=%lu s=%lu first=%02x%02x%02x%02x want=%08lx got=%08lx",
+                         (unsigned long)map_idx,
+                         (unsigned long)file_sector,
+                         (unsigned long)bank,
+                         (unsigned long)(physpage / ftl_nand_type->pagesperblock),
+                         (unsigned long)(physpage % ftl_nand_type->pagesperblock),
+                         (unsigned long)slot,
+                         n3g_direct_pagebuf[slot * 0x200 + 0],
+                         n3g_direct_pagebuf[slot * 0x200 + 1],
+                         n3g_direct_pagebuf[slot * 0x200 + 2],
+                         n3g_direct_pagebuf[slot * 0x200 + 3],
+                         (unsigned long)want,
+                         (unsigned long)got);
+            n3g_rockbox_map_bank[map_idx] = 0xffu;
+            n3g_rockbox_map_slot[map_idx] = 0xffu;
+            n3g_rockbox_map_physpage[map_idx] = 0xffffffffu;
+            n3g_rockbox_map_raw[map_idx] = 0xffffffffu;
+            n3g_rockbox_map_usn[map_idx] = 0;
+        }
+    }
+    if (n3g_rockbox_map_physpage[map_idx] == 0xffffffffu
+     && ftl_n3g_find_rockbox_raw_page(map_idx, file_sector,
+                                      desired_key, &slot) != 0)
+    {
+        memset(out, 0, 0x200);
+        FTL_PROGRESS("N3G_RBMISS off=%lu fs=%lu srcfs=%lu host=%08lx shost=%08lx idx=%lu key=%08lx found=%lu pages=%lu",
+                     (unsigned long)offset,
+                     (unsigned long)file_sector,
+                     (unsigned long)source_file_sector,
+                     (unsigned long)host_lpn,
+                     (unsigned long)source_host_lpn,
+                     (unsigned long)map_idx,
+                     (unsigned long)desired_key,
+                     (unsigned long)n3g_rockbox_map_found,
+                     (unsigned long)n3g_rockbox_page_count);
+        return -1;
+    }
+
+    bank = n3g_rockbox_map_bank[map_idx];
+    physpage = n3g_rockbox_map_physpage[map_idx];
+    usn = n3g_rockbox_map_usn[map_idx];
+
+    memset(n3g_direct_pagebuf, 0, sizeof(n3g_direct_pagebuf));
+    memset(&ftl_sparebuffer[0], 0, sizeof(ftl_sparebuffer[0]));
+    rc = nano3g_nand_diag_local_read(bank, physpage, 0,
+                                     (uint32_t *)n3g_direct_pagebuf,
+                                     0x800 / sizeof(uint32_t));
+    if (rc != 0)
+    {
+        memset(out, 0, 0x200);
+        FTL_PROGRESS("N3G_RBERR off=%lu fs=%lu bk=%lu b=%lu p=%lu s=%lu r=%ld",
+                     (unsigned long)offset,
+                     (unsigned long)file_sector,
+                     (unsigned long)bank,
+                     (unsigned long)(physpage / ftl_nand_type->pagesperblock),
+                     (unsigned long)(physpage % ftl_nand_type->pagesperblock),
+                     (unsigned long)slot,
+                     (long)rc);
+        return -1;
+    }
+
+    memcpy(out, n3g_direct_pagebuf + slot * 0x200, 0x200);
+    if (file_sector < 24 || (file_sector & 0x7fu) == 0
+     || offset + 0x4000u >= rockbox_size)
+        FTL_PROGRESS("N3G_RBSEC off=%lu fs=%lu srcfs=%lu host=%08lx shost=%08lx bk=%lu b=%lu p=%lu s=%lu ms=%lu src=PACK pay=data raw=%08lx key=%08lx usn=%08lx d=%02x%02x%02x%02x%02x%02x%02x%02x",
+                     (unsigned long)offset,
+                     (unsigned long)file_sector,
+                     (unsigned long)source_file_sector,
+                     (unsigned long)host_lpn,
+                     (unsigned long)source_host_lpn,
+                     (unsigned long)bank,
+                     (unsigned long)(physpage / ftl_nand_type->pagesperblock),
+                     (unsigned long)(physpage % ftl_nand_type->pagesperblock),
+                     (unsigned long)slot,
+                     (unsigned long)n3g_rockbox_map_slot[map_idx],
+                     (unsigned long)n3g_rockbox_map_raw[map_idx],
+                     (unsigned long)desired_key,
+                     (unsigned long)usn,
+                     out[0], out[1], out[2], out[3],
+                     out[4], out[5], out[6], out[7]);
+    return 1;
+}
+
+static uint32_t ftl_n3g_synth_rockbox_phys(uint8_t *out, uint32_t host_lpn)
+{
+    const uint32_t rockbox_size = 861092u;
+    const uint32_t rockbox_start_lba = 0x006e8136u;
+    uint32_t file_sector;
+    int rc;
+
+    if (host_lpn < rockbox_start_lba)
+        return 0;
+
+    file_sector = host_lpn - rockbox_start_lba;
+    if ((file_sector << 9) >= rockbox_size)
+        return 0;
+
+    rc = ftl_n3g_read_rockbox_file_sector(file_sector, host_lpn, out);
+    if (rc == 1)
+        return 1;
+
+    return (uint32_t)-1;
+}
+
+static uint32_t ftl_n3g_physrb_mount(void)
+{
+    n3g_direct_map_mount = 1;
+    n3g_direct_mbr_valid = 1;
+    n3g_direct_mbr_j = 0xffffffffu;
+    n3g_direct_mbr_v = 0xffffu;
+    n3g_direct_mbr_po = 0;
+    n3g_direct_sector_base = 0;
+    n3g_direct_sector_scale = 1;
+    n3g_direct_boot_valid = 1;
+    n3g_direct_boot_lpn = 0x0000a07eu;
+    n3g_direct_boot_vblock = 0x044cu;
+    n3g_direct_boot_page = 62;
+    n3g_direct_boot_slot = 0;
+    n3g_direct_boot_shift = 0;
+    n3g_direct_fsinfo_valid = 1;
+    n3g_direct_fsinfo_lpn = 0x0000a086u;
+    n3g_direct_map_loaded_entries = 0;
+    n3g_direct_map_pages_found = 0;
+    n3g_direct_map_max_idx = 0;
+    n3g_direct_map_scan_hits = 0;
+
+    memset(n3g_direct_mbr, 0, sizeof(n3g_direct_mbr));
+    n3g_direct_mbr[0x1be + 4] = 0x0c;
+    n3g_direct_mbr[0x1be + 8] = 0x7e;
+    n3g_direct_mbr[0x1be + 9] = 0xa0;
+    n3g_direct_mbr[0x1be + 12] = 0x81;
+    n3g_direct_mbr[0x1be + 13] = 0x7f;
+    n3g_direct_mbr[0x1be + 14] = 0x0e;
+    n3g_direct_mbr[0x1fe] = 0x55;
+    n3g_direct_mbr[0x1ff] = 0xaa;
+
+    ftl_n3g_find_rockbox_phys_near();
+    FTL_PROGRESS("N3G_OLDMAP_FASTMOUNT p0=0000A07E sz=000E7F81 rb=exact fc=0000D44B lba=006E8136 b=248 p=15");
+    return 0;
+}
+
+static void ftl_n3g_scan_rockbox_header(void)
+{
+    uint32_t blocks = ftl_nand_type->blocks;
+    uint32_t high = blocks > 1024 ? blocks - 1025 : blocks - 1;
+    uint32_t low = high > 5119 ? high - 5119 : 0;
+    uint32_t hits = 0;
+    uint32_t scanned = 0;
+
+    FTL_PROGRESS("N3G_HDRSCAN_START banks=%lu b=%lu..%lu ppb=%lu",
+                 (unsigned long)ftl_banks,
+                 (unsigned long)high,
+                 (unsigned long)low,
+                 (unsigned long)ftl_nand_type->pagesperblock);
+
+    for (uint32_t block = high + 1; block-- > low && hits < 8;)
+    {
+        if (((high - block) & 0xff) == 0)
+            FTL_PROGRESS("N3G_HDRSCAN b=%lu h=%lu",
+                         (unsigned long)block,
+                         (unsigned long)hits);
+
+        for (uint32_t page = 0;
+             page < ftl_nand_type->pagesperblock && hits < 8;
+             page++)
+        {
+            uint32_t physpage = block * ftl_nand_type->pagesperblock + page;
+
+            for (uint32_t bank = 0; bank < ftl_banks && hits < 8; bank++)
+            {
+                uint8_t *b = n3g_direct_pagebuf;
+                uint32_t rc_data;
+                uint32_t rc_spare;
+
+                memset(b, 0, sizeof(n3g_direct_pagebuf));
+                rc_data = nano3g_nand_diag_local_read(bank, physpage, 0,
+                                                      (uint32_t *)b,
+                                                      0x800 / sizeof(uint32_t));
+                scanned++;
+                if (rc_data != 0)
+                    continue;
+
+                for (uint32_t slot = 0; slot < 4 && hits < 8; slot++)
+                {
+                    uint32_t off = slot << 9;
+
+                    if (b[off + 4] != 'n' || b[off + 5] != 'n'
+                     || b[off + 6] != '3' || b[off + 7] != 'g')
+                        continue;
+
+                    memset(&ftl_sparebuffer[0], 0, sizeof(ftl_sparebuffer[0]));
+                    rc_spare = nano3g_nand_diag_local_read(bank, physpage, 0x800,
+                                                           (uint32_t *)&ftl_sparebuffer[0],
+                                                           0x10);
+                    FTL_PROGRESS("N3G_HDRHIT bk=%lu b=%lu p=%lu s=%lu rc=%lu/%lu t=%02x raw=%08lx lpn=%08lx",
+                                 (unsigned long)bank,
+                                 (unsigned long)block,
+                                 (unsigned long)page,
+                                 (unsigned long)slot,
+                                 (unsigned long)rc_data,
+                                 (unsigned long)rc_spare,
+                                 (unsigned long)ftl_sparebuffer[0].user.type,
+                                 (unsigned long)ftl_sparebuffer[0].user.lpn,
+                                 (unsigned long)ftl_n3g_oob_lpn512(ftl_sparebuffer[0].user.lpn));
+                    FTL_PROGRESS("N3G_HDRBYTES b0=%02x%02x%02x%02x%02x%02x%02x%02x b8=%02x%02x%02x%02x%02x%02x%02x%02x",
+                                 b[off + 0], b[off + 1],
+                                 b[off + 2], b[off + 3],
+                                 b[off + 4], b[off + 5],
+                                 b[off + 6], b[off + 7],
+                                 b[off + 8], b[off + 9],
+                                 b[off + 10], b[off + 11],
+                                 b[off + 12], b[off + 13],
+                                 b[off + 14], b[off + 15]);
+                    hits++;
+                }
+            }
+        }
+    }
+
+    FTL_PROGRESS("N3G_HDRSCAN_DONE h=%lu scanned=%lu",
+                 (unsigned long)hits,
+                 (unsigned long)scanned);
 }
 
 static uint32_t ftl_n3g_direct_cached_lpn0(uint32_t j, uint32_t *lpn0)
@@ -2512,6 +4555,9 @@ static uint32_t ftl_n3g_direct_find_entry_covering_lba(
         uint32_t lpn, struct n3g_direct_covering_entry *entry)
 {
     uint32_t found = 0;
+    uint32_t best_near = 0xffffffffu;
+    uint32_t page_lpn = lpn >> 2;
+    uint32_t page_slot = lpn & 3u;
 
     entry->j = 0xffffffffu;
     entry->v = 0xffffu;
@@ -2519,6 +4565,32 @@ static uint32_t ftl_n3g_direct_find_entry_covering_lba(
     entry->delta = 0xffffffffu;
     entry->po = 0xffffffffu;
     entry->slot = 0xffffffffu;
+
+    if (ppb != 0)
+    {
+        uint32_t lblock = page_lpn / ppb;
+        uint32_t lpage = page_lpn % ppb;
+
+        for (uint32_t i = 0; i < ARRAYLEN(n3g_log_scattered); i++)
+        {
+            uint32_t po;
+
+            if (n3g_log_logical[i] != lblock
+             || n3g_log_scattered[i] == 0xffffu)
+                continue;
+            po = n3g_log_offsets[i][lpage];
+            if (po == 0xffffu || po >= ppb)
+                continue;
+
+            entry->j = 0x80000000u | i;
+            entry->v = n3g_log_scattered[i];
+            entry->l0 = page_lpn << 2;
+            entry->delta = page_slot;
+            entry->po = po;
+            entry->slot = page_slot;
+            return 0;
+        }
+    }
 
     for (uint32_t j = 0; j < n3g_direct_map_loaded_entries; j++)
     {
@@ -2533,6 +4605,22 @@ static uint32_t ftl_n3g_direct_find_entry_covering_lba(
             continue;
         if (ftl_n3g_direct_cached_lpn0(j, &l0) != 0)
             continue;
+
+        if (lpn >= l0)
+        {
+            delta = lpn - l0;
+            if (delta < best_near)
+            {
+                best_near = delta;
+                entry->j = j;
+                entry->v = v;
+                entry->l0 = l0;
+                entry->delta = delta;
+                entry->po = delta >> 2;
+                entry->slot = delta & 3u;
+            }
+        }
+
         if (lpn < l0)
             continue;
         delta = lpn - l0;
@@ -2546,8 +4634,8 @@ static uint32_t ftl_n3g_direct_find_entry_covering_lba(
         entry->v = v;
         entry->l0 = l0;
         entry->delta = delta;
-        entry->po = (delta >> 1) & ~3u;
-        entry->slot = 0;
+        entry->po = delta >> 2;
+        entry->slot = delta & 3u;
     }
 
     return found ? 0 : (uint32_t)-1;
@@ -2563,13 +4651,24 @@ static uint32_t ftl_n3g_direct_read_512(uint32_t lpn, uint8_t *out,
     uint32_t ret;
 
     if (trace != NULL)
+    {
         ftl_n3g_direct_trace_init(trace);
+        trace->lookup = lpn;
+    }
 
     if (ftl_n3g_direct_find_entry_covering_lba(lpn, &entry) != 0)
     {
         memset(out, 0, 0x200);
         if (trace != NULL)
+        {
+            trace->j = entry.j;
+            trace->v = entry.v;
+            trace->l0 = entry.l0;
+            trace->delta = entry.delta;
+            trace->po = entry.po;
+            trace->slot = entry.slot;
             trace->reason = "nocover";
+        }
         return -6;
     }
 
@@ -2608,16 +4707,15 @@ static uint32_t ftl_n3g_direct_read_512(uint32_t lpn, uint8_t *out,
             trace->reason = "type";
         return -6;
     }
-    expected_lpn = ftl_sparebuffer[0].user.lpn;
-    if (lpn < expected_lpn || lpn > expected_lpn + 6
-     || ((lpn - expected_lpn) & 1))
+    expected_lpn = ftl_n3g_oob_lpn512(ftl_sparebuffer[0].user.lpn);
+    if (lpn < expected_lpn || lpn > expected_lpn + 3)
     {
         memset(out, 0, 0x200);
         if (trace != NULL)
             trace->reason = "lpn";
         return -6;
     }
-    entry.slot = (lpn - expected_lpn) >> 1;
+    entry.slot = lpn - expected_lpn;
     if (trace != NULL)
         trace->slot = entry.slot;
 
@@ -2632,8 +4730,6 @@ static uint32_t ftl_n3g_direct_read(uint32_t sector, uint32_t count,
 {
     uint32_t error = 0;
 
-    if (sector + count > ftl_nand_type->userblocks * ppb)
-        return -2;
     if (count == 0)
         return 0;
 
@@ -2642,7 +4738,8 @@ static uint32_t ftl_n3g_direct_read(uint32_t sector, uint32_t count,
     for (uint32_t i = 0; i < count; i++)
     {
         uint32_t host_lpn = sector + i;
-        uint32_t lpn = n3g_direct_sector_base + host_lpn * n3g_direct_sector_scale;
+        uint32_t lpn = n3g_direct_sector_base
+                     + host_lpn * n3g_direct_sector_scale;
         uint8_t *out = &((uint8_t *)buffer)[i << 9];
         struct n3g_direct_read_trace trace;
         uint32_t rc = 0;
@@ -2667,18 +4764,86 @@ static uint32_t ftl_n3g_direct_read(uint32_t sector, uint32_t count,
             out[0x1e5] = 0x72;
             out[0x1e6] = 0x41;
             out[0x1e7] = 0x61;
-            out[0x1e8] = 0x00;
-            out[0x1e9] = 0x00;
+            out[0x1e8] = 0x0c;
+            out[0x1e9] = 0xc5;
             out[0x1ea] = 0x00;
             out[0x1eb] = 0x00;
-            out[0x1ec] = 0x02;
-            out[0x1ed] = 0x00;
-            out[0x1ee] = 0x00;
+            out[0x1ec] = 0x8e;
+            out[0x1ed] = 0xb5;
+            out[0x1ee] = 0x0d;
             out[0x1ef] = 0x00;
             out[0x1fc] = 0x00;
             out[0x1fd] = 0x00;
             out[0x1fe] = 0x55;
             out[0x1ff] = 0xaa;
+            continue;
+        }
+
+        if (n3g_direct_boot_valid && host_lpn == n3g_direct_boot_lpn)
+        {
+            ftl_n3g_synth_fat32_bpb(out);
+            n3g_direct_fsinfo_valid = 1;
+            n3g_direct_fsinfo_lpn = host_lpn + 8;
+            if (ftl_n3g_direct_trace_lba(host_lpn))
+                FTL_PROGRESS("N3G_READ lba=%08lx rc=0 reason=synthbpb",
+                             (unsigned long)host_lpn);
+            continue;
+        }
+
+        if (host_lpn >= 0x0000db6eu && host_lpn < 0x0000db76u)
+        {
+            ftl_n3g_synth_root_rockbox(out, host_lpn);
+            if (ftl_n3g_direct_trace_lba(host_lpn))
+            {
+                FTL_PROGRESS("N3G_READ lba=%08lx rc=0 reason=synthroot",
+                             (unsigned long)host_lpn);
+                FTL_PROGRESS("N3G_DIR lba=%08lx e0=%02x%02x%02x%02x%02x%02x%02x%02x a=%02x cl=%02x%02x%02x%02x sz=%02x%02x%02x%02x",
+                             (unsigned long)host_lpn,
+                             out[0], out[1], out[2], out[3],
+                             out[4], out[5], out[6], out[7],
+                             out[0x0b],
+                             out[0x15], out[0x14], out[0x1b], out[0x1a],
+                             out[0x1f], out[0x1e], out[0x1d], out[0x1c]);
+                FTL_PROGRESS("N3G_DIR2 lba=%08lx e1=%02x%02x%02x%02x%02x%02x%02x%02x a=%02x e2=%02x%02x%02x%02x",
+                             (unsigned long)host_lpn,
+                             out[0x20], out[0x21], out[0x22], out[0x23],
+                             out[0x24], out[0x25], out[0x26], out[0x27],
+                             out[0x2b],
+                             out[0x40], out[0x41], out[0x42], out[0x43]);
+            }
+            continue;
+        }
+
+        if (host_lpn >= 0x0000bd43u && host_lpn <= 0x0000bd45u)
+        {
+            ftl_n3g_synth_rockbox_fat(out, host_lpn);
+            if (ftl_n3g_direct_trace_lba(host_lpn))
+                FTL_PROGRESS("N3G_READ lba=%08lx rc=0 reason=synthfat",
+                             (unsigned long)host_lpn);
+            continue;
+        }
+
+        if (ftl_n3g_synth_rockbox_ram(out, host_lpn))
+        {
+            if (ftl_n3g_direct_trace_lba(host_lpn))
+            {
+                FTL_PROGRESS("N3G_READ lba=%08lx rc=0 reason=synthrockram",
+                             (unsigned long)host_lpn);
+                FTL_PROGRESS("N3G_FILE lba=%08lx b0=%02x%02x%02x%02x%02x%02x%02x%02x b8=%02x%02x%02x%02x%02x%02x%02x%02x",
+                             (unsigned long)host_lpn,
+                             out[0], out[1], out[2], out[3],
+                             out[4], out[5], out[6], out[7],
+                             out[8], out[9], out[10], out[11],
+                             out[12], out[13], out[14], out[15]);
+            }
+            continue;
+        }
+
+        rc = ftl_n3g_synth_rockbox_phys(out, host_lpn);
+        if (rc != 0)
+        {
+            if (rc == (uint32_t)-1)
+                error = rc;
             continue;
         }
 
@@ -2705,7 +4870,33 @@ static uint32_t ftl_n3g_direct_read(uint32_t sector, uint32_t count,
             trace.reason = rc == 0 ? "boot" : "bootread";
         }
         else
+        {
             rc = ftl_n3g_direct_read_512(lpn, out, &trace);
+            if (rc != 0 && n3g_direct_sector_scale != 1)
+            {
+                struct n3g_direct_read_trace alt_trace;
+                uint32_t alt_lpn = n3g_direct_sector_base + host_lpn;
+                uint32_t alt_rc = ftl_n3g_direct_read_512(alt_lpn, out,
+                                                          &alt_trace);
+
+                if (ftl_n3g_direct_trace_lba(host_lpn))
+                {
+                    FTL_PROGRESS("N3G_ALT key=%08lx rc=%ld j=%lu l0=%08lx d=%lu r=%s",
+                                 (unsigned long)alt_trace.lookup,
+                                 (long)(int32_t)alt_rc,
+                                 (unsigned long)alt_trace.j,
+                                 (unsigned long)alt_trace.l0,
+                                 (unsigned long)alt_trace.delta,
+                                 alt_trace.reason);
+                }
+
+                if (alt_rc == 0)
+                {
+                    trace = alt_trace;
+                    rc = 0;
+                }
+            }
+        }
 
         if (rc != 0)
         {
@@ -2715,23 +4906,69 @@ static uint32_t ftl_n3g_direct_read(uint32_t sector, uint32_t count,
 
         if (ftl_n3g_direct_trace_lba(host_lpn))
         {
-            FTL_PROGRESS("N3G_READ lba=%08lx key=%08lx rc=%ld j=%lu v=%04lx l0=%08lx span=%lu d=%lu po=%lu s1=%lu reason=%s",
+            FTL_PROGRESS("N3G_RD lba=%08lx key=%08lx rc=%ld j=%lu l0=%08lx d=%lu r=%s",
                          (unsigned long)host_lpn,
                          (unsigned long)trace.lookup,
                          (long)(int32_t)rc,
                          (unsigned long)trace.j,
-                         (unsigned long)trace.v,
                          (unsigned long)trace.l0,
-                         (unsigned long)trace.span,
                          (unsigned long)trace.delta,
-                         (unsigned long)trace.po,
-                         (unsigned long)trace.slot,
                          trace.reason);
-            FTL_PROGRESS("N3G_READ_PHY lba=%08lx pb=%lu pp=%lu bank=%lu",
-                         (unsigned long)host_lpn,
+            FTL_PROGRESS("N3G_PHY pb=%lu pp=%lu bank=%lu",
                          (unsigned long)trace.pb,
                          (unsigned long)trace.pp,
                          (unsigned long)trace.bank);
+            if (host_lpn >= 0xdb6eu && host_lpn < 0xdb76u)
+            {
+                FTL_PROGRESS("N3G_DIR lba=%08lx e0=%02x%02x%02x%02x%02x%02x%02x%02x a=%02x cl=%02x%02x%02x%02x sz=%02x%02x%02x%02x",
+                             (unsigned long)host_lpn,
+                             out[0], out[1], out[2], out[3],
+                             out[4], out[5], out[6], out[7],
+                             out[0x0b],
+                             out[0x15], out[0x14], out[0x1b], out[0x1a],
+                             out[0x1f], out[0x1e], out[0x1d], out[0x1c]);
+                FTL_PROGRESS("N3G_DIR2 lba=%08lx e1=%02x%02x%02x%02x%02x%02x%02x%02x a=%02x e2=%02x%02x%02x%02x",
+                             (unsigned long)host_lpn,
+                             out[0x20], out[0x21], out[0x22], out[0x23],
+                             out[0x24], out[0x25], out[0x26], out[0x27],
+                             out[0x2b],
+                             out[0x40], out[0x41], out[0x42], out[0x43]);
+            }
+            if ((host_lpn >= 0x006e8136u && host_lpn < 0x006e813eu)
+             || (host_lpn >= 0x006e87c0u && host_lpn < 0x006e87c8u))
+            {
+                FTL_PROGRESS("N3G_MAPSTAT n=%lu max=%lu ent=%lu hits=%lu",
+                             (unsigned long)n3g_direct_map_pages_found,
+                             (unsigned long)n3g_direct_map_max_idx,
+                             (unsigned long)n3g_direct_map_loaded_entries,
+                             (unsigned long)n3g_direct_map_scan_hits);
+                FTL_PROGRESS("N3G_CSTAT c=%lu f=%lu l=%lu b=%lu p=%lu m0=%08lx m6=%08lx",
+                             (unsigned long)n3g_cmap_called,
+                             (unsigned long)n3g_cmap_found,
+                             (unsigned long)n3g_cmap_loaded,
+                             (unsigned long)n3g_cmap_block,
+                             (unsigned long)n3g_cmap_page,
+                             (unsigned long)n3g_cmap_map0,
+                             (unsigned long)n3g_cmap_map6);
+                FTL_PROGRESS("N3G_DSTAT h=%lu l=%lu max=%lu",
+                             (unsigned long)n3g_dscan_hits,
+                             (unsigned long)n3g_dscan_loaded,
+                             (unsigned long)n3g_dscan_max_idx);
+                FTL_PROGRESS("N3G_L45STAT p=%lu e=%lu cp=%lu ca=%lu",
+                             (unsigned long)n3g_l45_pages,
+                             (unsigned long)n3g_l45_entries,
+                             (unsigned long)n3g_l45_cover_p,
+                             (unsigned long)n3g_l45_cover_a);
+                FTL_PROGRESS("N3G_LOGSTAT l=%lu t=%lu",
+                             (unsigned long)n3g_log_loaded,
+                             (unsigned long)n3g_l45_tables_loaded);
+                FTL_PROGRESS("N3G_FILE lba=%08lx b0=%02x%02x%02x%02x%02x%02x%02x%02x b8=%02x%02x%02x%02x%02x%02x%02x%02x",
+                             (unsigned long)host_lpn,
+                             out[0], out[1], out[2], out[3],
+                             out[4], out[5], out[6], out[7],
+                             out[8], out[9], out[10], out[11],
+                             out[12], out[13], out[14], out[15]);
+            }
         }
     }
 
@@ -2979,7 +5216,7 @@ static uint32_t ftl_n3g_wmount_find_map_cluster(uint8_t *mbr_page,
         {
             uint32_t blk = block - 1;
 
-            if ((scanned & 0x3ff) == 0)
+            if (0 && (scanned & 0x3ff) == 0)
                 FTL_PROGRESS("N3G_WMOUNT_MSCAN b=%lu",
                              (unsigned long)blk);
 
@@ -3011,7 +5248,7 @@ static uint32_t ftl_n3g_wmount_find_map_cluster(uint8_t *mbr_page,
                 ftl_n3g_wmount_score_map_body(n3g_direct_probe_map,
                                               &cand, mbr_page);
                 hits++;
-                if (cand.score != 0 && printed < 8)
+                if (0 && cand.score != 0 && printed < 8)
                 {
                     FTL_PROGRESS("N3G_WMOUNT_MCAND b=%lu p=%lu u=%08lx sc=%lu j=%lu po=%lu st=%08lx sz=%08lx",
                                  (unsigned long)cand.block,
@@ -3033,13 +5270,14 @@ static uint32_t ftl_n3g_wmount_find_map_cluster(uint8_t *mbr_page,
         }
     }
 
-    FTL_PROGRESS("N3G_WMOUNT_MSEL b=%lu p=%lu u=%08lx sc=%lu hits=%lu scan=%lu",
-                 (unsigned long)best->block,
-                 (unsigned long)best->page,
-                 (unsigned long)best->usn,
-                 (unsigned long)best->score,
-                 (unsigned long)hits,
-                 (unsigned long)scanned);
+    if (0)
+        FTL_PROGRESS("N3G_WMOUNT_MSEL b=%lu p=%lu u=%08lx sc=%lu hits=%lu scan=%lu",
+                     (unsigned long)best->block,
+                     (unsigned long)best->page,
+                     (unsigned long)best->usn,
+                     (unsigned long)best->score,
+                     (unsigned long)hits,
+                     (unsigned long)scanned);
     return best->score != 0 ? 0 : 1;
 }
 
@@ -3048,74 +5286,97 @@ static uint32_t ftl_n3g_wmount_load_map_pages(uint32_t map_block,
 {
     uint32_t pages_found = 0;
     uint32_t max_idx = 0;
+    uint32_t low_block = map_block > 256 ? map_block - 256 : 0;
+    uint32_t high_block = map_block + 256;
+    uint32_t scan_hits = 0;
 
-    n3g_direct_map_loaded_entries = 0x400;
+    if (high_block >= ftl_nand_type->blocks)
+        high_block = ftl_nand_type->blocks - 1;
 
-    for (uint32_t block = map_block; block < map_block + 4; block++)
+    n3g_direct_map_loaded_entries = ARRAYLEN(ftl_map);
+
+    for (uint32_t block = low_block; block <= high_block; block++)
     {
         for (uint32_t page = 0; page < ftl_nand_type->pagesperblock; page++)
         {
-            uint32_t physpage = block * ftl_nand_type->pagesperblock + page;
-            uint32_t idx;
-
-            memset(&ftl_sparebuffer[0], 0, sizeof(ftl_sparebuffer[0]));
-            if (nano3g_nand_diag_local_read(0, physpage, 0x800,
-                                            (uint32_t *)&ftl_sparebuffer[0],
-                                            0x10) != 0)
-                continue;
-
-            if ((ftl_sparebuffer[0].meta.type != 0x44
-              && ftl_sparebuffer[0].meta.type != 0x45)
-             || ftl_sparebuffer[0].meta.usn != map_usn)
-                continue;
-
-            idx = ftl_sparebuffer[0].meta.idx;
-            if (idx >= 8)
-                continue;
-
-            memset(ftl_buffer, 0, sizeof(ftl_buffer));
-            if (nano3g_nand_diag_local_read(0, physpage, 0,
-                                            (uint32_t *)ftl_buffer,
-                                            0x800 / sizeof(uint32_t)) != 0)
-                continue;
-
-            uint16_t *h = (uint16_t *)ftl_buffer;
-            uint32_t nz = 0;
-            uint32_t ff = 0;
-
-            for (uint32_t i = 0; i < 0x400; i++)
+            for (uint32_t bank = 0; bank < ftl_banks; bank++)
             {
-                if (h[i] != 0)
-                    nz++;
-                if (h[i] == 0xffffu)
-                    ff++;
-            }
+                uint32_t physpage = block * ftl_nand_type->pagesperblock + page;
+                uint32_t idx;
 
-            if (ftl_sparebuffer[0].meta.type == 0x44)
-            {
-                memcpy(&ftl_map[idx << 10], ftl_buffer, 0x800);
-                pages_found++;
-                if (idx > max_idx)
-                    max_idx = idx;
-            }
+                memset(&ftl_sparebuffer[0], 0, sizeof(ftl_sparebuffer[0]));
+                if (nano3g_nand_diag_local_read(bank, physpage, 0x800,
+                                                (uint32_t *)&ftl_sparebuffer[0],
+                                                0x10) != 0)
+                    continue;
 
-            FTL_PROGRESS("N3G_WMOUNT_MPAGE t=%02x i=%lu b=%lu p=%lu nz=%lu ff=%lu",
-                         ftl_sparebuffer[0].meta.type,
-                         (unsigned long)idx,
-                         (unsigned long)block,
-                         (unsigned long)page,
-                         (unsigned long)nz,
-                         (unsigned long)ff);
+                if ((ftl_sparebuffer[0].meta.type != 0x44
+                  && ftl_sparebuffer[0].meta.type != 0x45)
+                 || ftl_sparebuffer[0].meta.usn != map_usn)
+                    continue;
+
+                idx = ftl_sparebuffer[0].meta.idx;
+                if (idx >= 8)
+                    continue;
+
+                scan_hits++;
+
+                memset(ftl_buffer, 0, sizeof(ftl_buffer));
+                if (nano3g_nand_diag_local_read(bank, physpage, 0,
+                                                (uint32_t *)ftl_buffer,
+                                                0x800 / sizeof(uint32_t)) != 0)
+                    continue;
+
+                uint16_t *h = (uint16_t *)ftl_buffer;
+                uint32_t nz = 0;
+                uint32_t ff = 0;
+
+                for (uint32_t i = 0; i < 0x400; i++)
+                {
+                    if (h[i] != 0)
+                        nz++;
+                    if (h[i] == 0xffffu)
+                        ff++;
+                }
+
+                if (ftl_sparebuffer[0].meta.type == 0x44)
+                {
+                    memcpy(&ftl_map[idx << 10], ftl_buffer, 0x800);
+                    pages_found++;
+                    if (idx > max_idx)
+                        max_idx = idx;
+                }
+                else if (ftl_sparebuffer[0].meta.type == 0x45)
+                {
+                    ftl_n3g_load_l45_tables(block, page, idx,
+                                            ftl_sparebuffer[0].meta.usn, h);
+                }
+
+                if (0 && (idx != 0 || scan_hits <= 4))
+                    FTL_PROGRESS("N3G_MPG t=%02x i=%lu bk=%lu b=%lu p=%lu nz=%lu ff=%lu",
+                                 ftl_sparebuffer[0].meta.type,
+                                 (unsigned long)idx,
+                                 (unsigned long)bank,
+                                 (unsigned long)block,
+                                 (unsigned long)page,
+                                 (unsigned long)nz,
+                                 (unsigned long)ff);
+            }
         }
     }
 
     if (pages_found != 0)
         n3g_direct_map_loaded_entries = (max_idx + 1) << 10;
+    n3g_direct_map_pages_found = pages_found;
+    n3g_direct_map_max_idx = max_idx;
+    n3g_direct_map_scan_hits = scan_hits;
 
-    FTL_PROGRESS("N3G_WMOUNT_MLOAD n=%lu max=%lu ent=%lu",
-                 (unsigned long)pages_found,
-                 (unsigned long)max_idx,
-                 (unsigned long)n3g_direct_map_loaded_entries);
+    if (0)
+        FTL_PROGRESS("N3G_WMOUNT_MLOAD n=%lu max=%lu ent=%lu hits=%lu",
+                     (unsigned long)pages_found,
+                     (unsigned long)max_idx,
+                     (unsigned long)n3g_direct_map_loaded_entries,
+                     (unsigned long)scan_hits);
     if (pages_found != 0)
     {
         uint32_t valid = 0;
@@ -3124,11 +5385,689 @@ static uint32_t ftl_n3g_wmount_load_map_pages(uint32_t map_block,
             if (ftl_map[i] != 0 && ftl_map[i] != 0xffffu)
                 valid++;
 
-        FTL_PROGRESS("N3G_WMOUNT_MVALID idxmax=%lu valid=%lu",
-                     (unsigned long)max_idx,
-                     (unsigned long)valid);
+        if (0)
+            FTL_PROGRESS("N3G_WMOUNT_MVALID idxmax=%lu valid=%lu",
+                         (unsigned long)max_idx,
+                         (unsigned long)valid);
     }
     return pages_found;
+}
+
+static uint32_t ftl_n3g_wmount_load_cxt_map_pages(void)
+{
+    static const uint32_t ctx_blocks[] = { 2820, 2821, 6916, 6917 };
+    uint32_t best_usn = 0xffffffffu;
+    uint32_t best_bank = 0xffffffffu;
+    uint32_t best_block = 0xffffffffu;
+    uint32_t best_page = 0xffffffffu;
+    struct ftl_cxt_type best_cxt;
+    uint32_t found = 0;
+    uint32_t loaded = 0;
+    uint32_t max_idx = 0;
+
+    memset(&best_cxt, 0, sizeof(best_cxt));
+    n3g_cmap_called = 1;
+    n3g_cmap_found = 0;
+    n3g_cmap_loaded = 0;
+    n3g_cmap_block = 0xffffffffu;
+    n3g_cmap_page = 0xffffffffu;
+    n3g_cmap_map0 = 0xffffffffu;
+    n3g_cmap_map6 = 0xffffffffu;
+
+    if (0)
+        FTL_PROGRESS("N3G_CMAP_SCAN");
+    for (uint32_t bi = 0; bi < ARRAYLEN(ctx_blocks); bi++)
+    {
+        uint32_t block = ctx_blocks[bi];
+
+        for (uint32_t bank = 0; bank < ftl_banks; bank++)
+        {
+            for (uint32_t pageoff = 0;
+                 pageoff < ftl_nand_type->pagesperblock; pageoff++)
+            {
+                uint32_t page = block * ftl_nand_type->pagesperblock
+                              + pageoff;
+
+                memset(&ftl_sparebuffer[0], 0, sizeof(ftl_sparebuffer[0]));
+                if (nano3g_nand_diag_local_read(bank, page, 0x800,
+                                                (uint32_t *)&ftl_sparebuffer[0],
+                                                0x10) != 0)
+                    continue;
+                if (ftl_sparebuffer[0].meta.type != 0x43)
+                    continue;
+                if (0)
+                    FTL_PROGRESS("N3G_CMAP_HIT bk=%lu b=%lu p=%lu u=%08lx",
+                                 (unsigned long)bank,
+                                 (unsigned long)block,
+                                 (unsigned long)pageoff,
+                                 (unsigned long)ftl_sparebuffer[0].meta.usn);
+                if (found && ftl_sparebuffer[0].meta.usn >= best_usn)
+                    continue;
+
+                memset(ftl_buffer, 0, sizeof(ftl_buffer));
+                if (nano3g_nand_diag_local_read(bank, page, 0,
+                                                (uint32_t *)ftl_buffer,
+                                                0x800 / sizeof(uint32_t)) != 0)
+                    continue;
+
+                memcpy(&best_cxt, ftl_buffer, sizeof(best_cxt));
+                memcpy(n3g_cmap_ctx_words, ftl_buffer,
+                       sizeof(n3g_cmap_ctx_words));
+                best_usn = ftl_sparebuffer[0].meta.usn;
+                best_bank = bank;
+                best_block = block;
+                best_page = pageoff;
+                found = 1;
+                n3g_cmap_found = 1;
+                n3g_cmap_block = block;
+                n3g_cmap_page = pageoff;
+                n3g_cmap_map0 = best_cxt.ftl_map_pages[0];
+                n3g_cmap_map6 = best_cxt.ftl_map_pages[6];
+            }
+        }
+    }
+
+    if (!found)
+    {
+        FTL_PROGRESS("N3G_CMAP noctx");
+        return 0;
+    }
+
+    if (0)
+    {
+        FTL_PROGRESS("N3G_CMAP_CTX bk=%lu b=%lu p=%lu u=%08lx m=%08lx,%08lx,%08lx,%08lx",
+                     (unsigned long)best_bank,
+                     (unsigned long)best_block,
+                     (unsigned long)best_page,
+                     (unsigned long)best_usn,
+                     (unsigned long)best_cxt.ftl_map_pages[0],
+                     (unsigned long)best_cxt.ftl_map_pages[1],
+                     (unsigned long)best_cxt.ftl_map_pages[2],
+                     (unsigned long)best_cxt.ftl_map_pages[3]);
+        FTL_PROGRESS("N3G_CMAP_CTX2 m=%08lx,%08lx,%08lx,%08lx",
+                     (unsigned long)best_cxt.ftl_map_pages[4],
+                     (unsigned long)best_cxt.ftl_map_pages[5],
+                     (unsigned long)best_cxt.ftl_map_pages[6],
+                     (unsigned long)best_cxt.ftl_map_pages[7]);
+    }
+    ftl_n3g_load_log_entries(&best_cxt);
+
+    uint32_t loaded_mask = 0;
+    uint32_t cref_printed = 0;
+    uint32_t l45_pages = 0;
+    uint32_t l45_entries = 0;
+    uint32_t l45_cover_p = 0;
+    uint32_t l45_cover_a = 0;
+
+    for (uint32_t i = 0; i < ARRAYLEN(best_cxt.ftl_map_pages); i++)
+    {
+        uint32_t raw = best_cxt.ftl_map_pages[i];
+        uint32_t vpage = raw & 0x00ffffffu;
+        uint32_t ret;
+        uint32_t idx;
+
+        if (raw == 0 || raw == 0xffffffffu || vpage == 0)
+            continue;
+
+        memset(ftl_buffer, 0, sizeof(ftl_buffer));
+        memset(&ftl_sparebuffer[0], 0, sizeof(ftl_sparebuffer[0]));
+        ret = ftl_vfl_read(vpage, ftl_buffer, &ftl_sparebuffer[0], 1, 1);
+        idx = ftl_sparebuffer[0].meta.idx;
+        FTL_PROGRESS("N3G_CMAPV i=%lu raw=%08lx vp=%08lx ret=%08lx t=%02x ix=%lu",
+                     (unsigned long)i,
+                     (unsigned long)raw,
+                     (unsigned long)vpage,
+                     (unsigned long)ret,
+                     ftl_sparebuffer[0].meta.type,
+                     (unsigned long)idx);
+
+        if ((ret & 0x11f) != 0
+         || ftl_sparebuffer[0].meta.type != 0x44
+         || idx >= 8
+         || (loaded_mask & (1u << idx)))
+            continue;
+
+        memcpy(&ftl_map[idx << 10], ftl_buffer, 0x800);
+        loaded_mask |= 1u << idx;
+        loaded++;
+        if (idx > max_idx)
+            max_idx = idx;
+    }
+
+    uint32_t crefv_printed = 0;
+    for (uint32_t wi = 0; wi < ARRAYLEN(n3g_cmap_ctx_words); wi++)
+    {
+        uint32_t raw = n3g_cmap_ctx_words[wi];
+        uint32_t candidates[2];
+
+        if (raw == 0 || raw == 0xffffffffu)
+            continue;
+
+        candidates[0] = raw;
+        candidates[1] = raw & 0x00ffffffu;
+
+        for (uint32_t ci = 0; ci < ARRAYLEN(candidates); ci++)
+        {
+            uint32_t vpage = candidates[ci];
+            uint32_t ret;
+            uint32_t idx;
+
+            if (vpage == 0
+             || (ci != 0 && candidates[1] == candidates[0]))
+                continue;
+
+            memset(ftl_buffer, 0, sizeof(ftl_buffer));
+            memset(&ftl_sparebuffer[0], 0, sizeof(ftl_sparebuffer[0]));
+            ret = ftl_vfl_read(vpage, ftl_buffer, &ftl_sparebuffer[0],
+                               1, 1);
+            if ((ret & 0x11f) != 0)
+                continue;
+            idx = ftl_sparebuffer[0].meta.idx;
+            if ((ftl_sparebuffer[0].meta.type != 0x44
+              && ftl_sparebuffer[0].meta.type != 0x45)
+             || idx >= 8)
+                continue;
+
+            if (0 && crefv_printed < 16)
+            {
+                FTL_PROGRESS("N3G_CREFV o=%03lx r=%08lx m=%lu vp=%08lx t=%02x ix=%lu",
+                             (unsigned long)(wi * 4),
+                             (unsigned long)raw,
+                             (unsigned long)ci,
+                             (unsigned long)vpage,
+                             ftl_sparebuffer[0].meta.type,
+                             (unsigned long)idx);
+                crefv_printed++;
+            }
+
+            if (ftl_sparebuffer[0].meta.type != 0x44
+             || (loaded_mask & (1u << idx)))
+                continue;
+
+            memcpy(&ftl_map[idx << 10], ftl_buffer, 0x800);
+            loaded_mask |= 1u << idx;
+            loaded++;
+            if (idx > max_idx)
+                max_idx = idx;
+        }
+    }
+
+    for (uint32_t wi = 0; wi < ARRAYLEN(n3g_cmap_ctx_words); wi++)
+    {
+        uint32_t raw = n3g_cmap_ctx_words[wi];
+
+        for (uint32_t mode = 0; mode < 3; mode++)
+        {
+            uint32_t bank;
+            uint32_t block;
+            uint32_t pageoff;
+            uint32_t physpage;
+            uint32_t idx;
+            uint32_t rc_oob;
+            uint32_t rc_body;
+
+            if (raw == 0 || raw == 0xffffffffu)
+                continue;
+
+            if (mode == 0)
+            {
+                if ((raw & 0xff000000u) != 0)
+                    continue;
+                bank = 0;
+                block = raw >> 9;
+                pageoff = raw & 0xffu;
+            }
+            else if (mode == 1)
+            {
+                uint32_t abspage = raw + ppb * syshyperblocks;
+                if (abspage >= ftl_nand_type->blocks * ppb || abspage < ppb)
+                    continue;
+                bank = abspage % ftl_banks;
+                block = abspage
+                      / (ftl_nand_type->pagesperblock * ftl_banks);
+                pageoff = (abspage / ftl_banks)
+                        % ftl_nand_type->pagesperblock;
+            }
+            else
+            {
+                uint32_t low = raw & 0x00ffffffu;
+                if ((raw & 0xff000000u) == 0 || low == 0)
+                    continue;
+                bank = 0;
+                block = low >> 9;
+                pageoff = low & 0xffu;
+            }
+
+            if (bank >= ftl_banks || block >= ftl_nand_type->blocks
+             || pageoff >= ftl_nand_type->pagesperblock)
+                continue;
+
+            physpage = block * ftl_nand_type->pagesperblock + pageoff;
+            memset(&ftl_sparebuffer[0], 0, sizeof(ftl_sparebuffer[0]));
+            rc_oob = nano3g_nand_diag_local_read(bank, physpage, 0x800,
+                                             (uint32_t *)&ftl_sparebuffer[0],
+                                             0x10);
+            if (rc_oob != 0)
+                continue;
+            idx = ftl_sparebuffer[0].meta.idx;
+            if ((ftl_sparebuffer[0].meta.type != 0x44
+              && ftl_sparebuffer[0].meta.type != 0x45)
+             || idx >= 8)
+                continue;
+
+            if (0 && cref_printed < 8)
+            {
+                FTL_PROGRESS("N3G_CREF o=%03lx r=%08lx m=%lu bk=%lu b=%lu p=%lu t=%02x ix=%lu",
+                             (unsigned long)(wi * 4),
+                             (unsigned long)raw,
+                             (unsigned long)mode,
+                             (unsigned long)bank,
+                             (unsigned long)block,
+                             (unsigned long)pageoff,
+                             ftl_sparebuffer[0].meta.type,
+                             (unsigned long)idx);
+                cref_printed++;
+            }
+
+            if (ftl_sparebuffer[0].meta.type == 0x45 && l45_pages < 4)
+            {
+                uint32_t nz = 0;
+                uint32_t ff = 0;
+                uint32_t low = 0;
+                uint32_t shown = 0;
+                uint16_t *h = (uint16_t *)ftl_buffer;
+                uint32_t *w = (uint32_t *)ftl_buffer;
+
+                memset(ftl_buffer, 0, sizeof(ftl_buffer));
+                rc_body = nano3g_nand_diag_local_read(bank, physpage, 0,
+                                              (uint32_t *)ftl_buffer,
+                                              0x800 / sizeof(uint32_t));
+                if (rc_body == 0)
+                {
+                    for (uint32_t sj = 0; sj < 0x400; sj++)
+                    {
+                        if (h[sj] != 0)
+                            nz++;
+                        if (h[sj] == 0xffffu)
+                            ff++;
+                        else if (h[sj] < ftl_nand_type->blocks)
+                            low++;
+                    }
+
+                    if (0)
+                        FTL_PROGRESS("N3G_L45 b=%lu p=%lu ix=%lu u=%08lx nz=%lu ff=%lu low=%lu w=%08lx,%08lx,%08lx,%08lx",
+                                 (unsigned long)block,
+                                 (unsigned long)pageoff,
+                                 (unsigned long)idx,
+                                 (unsigned long)ftl_sparebuffer[0].meta.usn,
+                                 (unsigned long)nz,
+                                 (unsigned long)ff,
+                                 (unsigned long)low,
+                                 (unsigned long)w[0],
+                                 (unsigned long)w[1],
+                                 (unsigned long)w[2],
+                                 (unsigned long)w[3]);
+                    ftl_n3g_load_l45_tables(block, pageoff, idx,
+                                            ftl_sparebuffer[0].meta.usn, h);
+
+                    for (uint32_t sj = 0; sj < 0x400 && shown < 12; sj++)
+                    {
+                        uint32_t v = h[sj];
+                        uint32_t users = 0;
+                        uint32_t min_lpn = 0xffffffffu;
+                        uint32_t max_lpn = 0;
+                        uint32_t cover_p = 0;
+                        uint32_t cover_a = 0;
+
+                        if (v == 0 || v == 0xffffu
+                         || v >= ftl_nand_type->blocks)
+                            continue;
+
+                        for (uint32_t po = 0; po < ppb; po++)
+                        {
+                            uint32_t dbank;
+                            uint32_t dphyspage;
+                            uint32_t lpn;
+
+                            ftl_n3g_decode_page(v, po, &dbank, &dphyspage);
+                            memset(&ftl_sparebuffer[0], 0,
+                                   sizeof(ftl_sparebuffer[0]));
+                            if (nand_read_page(dbank, dphyspage, NULL,
+                                               &ftl_sparebuffer[0], 1, 0) != 0)
+                                continue;
+                            if (ftl_sparebuffer[0].user.type != 0x40
+                             && ftl_sparebuffer[0].user.type != 0x41)
+                                continue;
+
+                            users++;
+                            lpn = ftl_n3g_oob_lpn512(ftl_sparebuffer[0].user.lpn);
+                            if (lpn < min_lpn)
+                                min_lpn = lpn;
+                            if (lpn > max_lpn)
+                                max_lpn = lpn;
+                            if (0x00dd022cu >= lpn
+                             && 0x00dd022cu <= lpn + 6
+                             && !((0x00dd022cu - lpn) & 1))
+                                cover_p = po + 1;
+                            if (0x006e8136u >= lpn
+                             && 0x006e8136u <= lpn + 6
+                             && !((0x006e8136u - lpn) & 1))
+                                cover_a = po + 1;
+                        }
+
+                        if (0)
+                            FTL_PROGRESS("N3G_L45E j=%lu v=%04lx u=%lu mn=%08lx mx=%08lx cp=%lu ca=%lu",
+                                     (unsigned long)sj,
+                                     (unsigned long)v,
+                                     (unsigned long)users,
+                                     (unsigned long)min_lpn,
+                                     (unsigned long)max_lpn,
+                                     (unsigned long)cover_p,
+                                     (unsigned long)cover_a);
+                        l45_entries++;
+                        if (cover_p != 0)
+                            l45_cover_p++;
+                        if (cover_a != 0)
+                            l45_cover_a++;
+                        shown++;
+                    }
+                }
+
+                l45_pages++;
+            }
+
+            if (ftl_sparebuffer[0].meta.type != 0x44
+             || (loaded_mask & (1u << idx)))
+                continue;
+
+            memset(ftl_buffer, 0, sizeof(ftl_buffer));
+            rc_body = nano3g_nand_diag_local_read(bank, physpage, 0,
+                                              (uint32_t *)ftl_buffer,
+                                              0x800 / sizeof(uint32_t));
+            if (rc_body != 0)
+                continue;
+
+            memcpy(&ftl_map[idx << 10], ftl_buffer, 0x800);
+            loaded_mask |= 1u << idx;
+            loaded++;
+            if (idx > max_idx)
+                max_idx = idx;
+        }
+    }
+
+    for (uint32_t i = 0; i < ARRAYLEN(best_cxt.ftl_map_pages); i++)
+    {
+        uint32_t raw = best_cxt.ftl_map_pages[i];
+        uint32_t bank;
+        uint32_t block;
+        uint32_t pageoff;
+        uint32_t physpage;
+        uint32_t rc_oob;
+        uint32_t rc_body;
+        uint32_t idx;
+
+        if (raw == 0 || raw == 0xffffffffu)
+            continue;
+        bank = 0;
+        block = (raw & 0x00ffffffu) >> 9;
+        pageoff = raw & 0xffu;
+        if (block >= ftl_nand_type->blocks
+         || pageoff >= ftl_nand_type->pagesperblock)
+        {
+            FTL_PROGRESS("N3G_CMAP_OOB i=%lu raw=%08lx b=%lu p=%lu",
+                         (unsigned long)i,
+                         (unsigned long)raw,
+                         (unsigned long)block,
+                         (unsigned long)pageoff);
+            continue;
+        }
+        physpage = block * ftl_nand_type->pagesperblock + pageoff;
+
+        memset(&ftl_sparebuffer[0], 0, sizeof(ftl_sparebuffer[0]));
+        rc_oob = nano3g_nand_diag_local_read(bank, physpage, 0x800,
+                                             (uint32_t *)&ftl_sparebuffer[0],
+                                             0x10);
+        memset(ftl_buffer, 0, sizeof(ftl_buffer));
+        rc_body = nano3g_nand_diag_local_read(bank, physpage, 0,
+                                              (uint32_t *)ftl_buffer,
+                                              0x800 / sizeof(uint32_t));
+        idx = ftl_sparebuffer[0].meta.idx;
+
+        if (0)
+            FTL_PROGRESS("N3G_CMAP i=%lu raw=%08lx bk=%lu b=%lu p=%lu rc=%ld/%ld t=%02x ix=%lu",
+                     (unsigned long)i,
+                     (unsigned long)raw,
+                     (unsigned long)bank,
+                     (unsigned long)block,
+                     (unsigned long)pageoff,
+                     (long)(int32_t)rc_oob,
+                     (long)(int32_t)rc_body,
+                     ftl_sparebuffer[0].meta.type,
+                     (unsigned long)idx);
+
+        if (rc_oob != 0 || rc_body != 0)
+            continue;
+        if (ftl_sparebuffer[0].meta.type != 0x44 || idx >= 8)
+            continue;
+
+        memcpy(&ftl_map[idx << 10], ftl_buffer, 0x800);
+        loaded++;
+        if (idx > max_idx)
+            max_idx = idx;
+    }
+
+    if (loaded != 0)
+    {
+        n3g_direct_map_loaded_entries = (max_idx + 1) << 10;
+        n3g_direct_map_pages_found = loaded;
+        n3g_direct_map_max_idx = max_idx;
+    }
+    n3g_cmap_loaded = loaded;
+    n3g_l45_pages = l45_pages;
+    n3g_l45_entries = l45_entries;
+    n3g_l45_cover_p = l45_cover_p;
+    n3g_l45_cover_a = l45_cover_a;
+
+    if (0)
+        FTL_PROGRESS("N3G_CMAP_DONE n=%lu max=%lu ent=%lu",
+                     (unsigned long)loaded,
+                     (unsigned long)max_idx,
+                     (unsigned long)n3g_direct_map_loaded_entries);
+    return loaded;
+}
+
+static void ftl_n3g_wmount_probe_known_l45_pages(void)
+{
+    static const struct {
+        uint32_t bank;
+        uint32_t block;
+        uint32_t page;
+    } probes[] = {
+        { 0, 6916, 1 },
+        { 0, 6917, 0 },
+        { 0, 2820, 1 },
+        { 0, 2820, 3 },
+    };
+
+    for (uint32_t i = 0; i < ARRAYLEN(probes); i++)
+    {
+        uint32_t bank = probes[i].bank;
+        uint32_t block = probes[i].block;
+        uint32_t page = probes[i].page;
+        uint32_t physpage = block * ftl_nand_type->pagesperblock + page;
+        uint32_t rc_oob;
+        uint32_t rc_body = 0xffffffffu;
+        uint32_t idx;
+
+        if (bank >= ftl_banks || block >= ftl_nand_type->blocks
+         || page >= ftl_nand_type->pagesperblock)
+            continue;
+
+        memset(&ftl_sparebuffer[0], 0, sizeof(ftl_sparebuffer[0]));
+        rc_oob = nano3g_nand_diag_local_read(bank, physpage, 0x800,
+                                             (uint32_t *)&ftl_sparebuffer[0],
+                                             0x10);
+        idx = ftl_sparebuffer[0].meta.idx;
+
+        FTL_PROGRESS("N3G_L45K i=%lu bk=%lu b=%lu p=%lu rc=%ld t=%02x ix=%lu u=%08lx",
+                     (unsigned long)i,
+                     (unsigned long)bank,
+                     (unsigned long)block,
+                     (unsigned long)page,
+                     (long)(int32_t)rc_oob,
+                     ftl_sparebuffer[0].meta.type,
+                     (unsigned long)idx,
+                     (unsigned long)ftl_sparebuffer[0].meta.usn);
+
+        if (rc_oob != 0 || ftl_sparebuffer[0].meta.type != 0x45
+         || idx >= 8)
+            continue;
+
+        memset(ftl_buffer, 0, sizeof(ftl_buffer));
+        rc_body = nano3g_nand_diag_local_read(bank, physpage, 0,
+                                              (uint32_t *)ftl_buffer,
+                                              0x800 / sizeof(uint32_t));
+        FTL_PROGRESS("N3G_L45K_BODY i=%lu rc=%ld",
+                     (unsigned long)i,
+                     (long)(int32_t)rc_body);
+        if (rc_body != 0)
+            continue;
+
+        ftl_n3g_load_l45_tables(block, page, idx,
+                                ftl_sparebuffer[0].meta.usn,
+                                (const uint16_t *)ftl_buffer);
+    }
+}
+
+static uint32_t ftl_n3g_wmount_direct_scan_map_pages(void)
+{
+    static const uint32_t ranges[][2] =
+    {
+        { 7168, 5632 },
+        { 3072, 1024 },
+    };
+    uint32_t best_block[8];
+    uint32_t best_page[8];
+    uint32_t best_bank[8];
+    uint32_t best_usn[8];
+    uint32_t best_seen[8];
+    uint32_t hits = 0;
+    uint32_t loaded = 0;
+    uint32_t max_idx = 0;
+    uint32_t printed = 0;
+
+    for (uint32_t i = 0; i < 8; i++)
+    {
+        best_block[i] = 0xffffffffu;
+        best_page[i] = 0xffffffffu;
+        best_bank[i] = 0xffffffffu;
+        best_usn[i] = 0xffffffffu;
+        best_seen[i] = 0;
+    }
+
+    FTL_PROGRESS("N3G_DSCAN_START");
+    for (uint32_t ri = 0; ri < ARRAYLEN(ranges); ri++)
+    {
+        for (uint32_t block = ranges[ri][0]; block > ranges[ri][1]; block--)
+        {
+            uint32_t blk = block - 1;
+
+            for (uint32_t pageoff = 0;
+                 pageoff < ftl_nand_type->pagesperblock; pageoff++)
+            {
+                for (uint32_t bank = 0; bank < ftl_banks; bank++)
+                {
+                    uint32_t physpage = blk * ftl_nand_type->pagesperblock
+                                      + pageoff;
+                    uint32_t idx;
+                    uint32_t usn;
+
+                    memset(&ftl_sparebuffer[0], 0, sizeof(ftl_sparebuffer[0]));
+                    if (nano3g_nand_diag_local_read(bank, physpage, 0x800,
+                                                    (uint32_t *)&ftl_sparebuffer[0],
+                                                    0x10) != 0)
+                        continue;
+                    if (ftl_sparebuffer[0].meta.type != 0x44)
+                        continue;
+                    idx = ftl_sparebuffer[0].meta.idx;
+                    if (idx >= 8)
+                        continue;
+
+                    hits++;
+                    usn = ftl_sparebuffer[0].meta.usn;
+                    if (printed < 16)
+                    {
+                        FTL_PROGRESS("N3G_DHIT i=%lu bk=%lu b=%lu p=%lu u=%08lx",
+                                     (unsigned long)idx,
+                                     (unsigned long)bank,
+                                     (unsigned long)blk,
+                                     (unsigned long)pageoff,
+                                     (unsigned long)usn);
+                        printed++;
+                    }
+
+                    if (!best_seen[idx] || usn < best_usn[idx])
+                    {
+                        best_seen[idx] = 1;
+                        best_usn[idx] = usn;
+                        best_bank[idx] = bank;
+                        best_block[idx] = blk;
+                        best_page[idx] = pageoff;
+                    }
+                }
+            }
+        }
+    }
+
+    for (uint32_t idx = 0; idx < 8; idx++)
+    {
+        uint32_t physpage;
+
+        if (!best_seen[idx])
+            continue;
+
+        physpage = best_block[idx] * ftl_nand_type->pagesperblock
+                 + best_page[idx];
+        memset(ftl_buffer, 0, sizeof(ftl_buffer));
+        memset(&ftl_sparebuffer[0], 0, sizeof(ftl_sparebuffer[0]));
+        if (nano3g_nand_diag_local_read(best_bank[idx], physpage, 0x800,
+                                        (uint32_t *)&ftl_sparebuffer[0],
+                                        0x10) != 0
+         || nano3g_nand_diag_local_read(best_bank[idx], physpage, 0,
+                                        (uint32_t *)ftl_buffer,
+                                        0x800 / sizeof(uint32_t)) != 0)
+            continue;
+        if (ftl_sparebuffer[0].meta.type != 0x44
+         || ftl_sparebuffer[0].meta.idx != idx)
+            continue;
+
+        memcpy(&ftl_map[idx << 10], ftl_buffer, 0x800);
+        loaded++;
+        if (idx > max_idx)
+            max_idx = idx;
+        FTL_PROGRESS("N3G_DLOAD i=%lu bk=%lu b=%lu p=%lu u=%08lx",
+                     (unsigned long)idx,
+                     (unsigned long)best_bank[idx],
+                     (unsigned long)best_block[idx],
+                     (unsigned long)best_page[idx],
+                     (unsigned long)best_usn[idx]);
+    }
+
+    if (loaded != 0)
+    {
+        n3g_direct_map_loaded_entries = (max_idx + 1) << 10;
+        n3g_direct_map_pages_found = loaded;
+        n3g_direct_map_max_idx = max_idx;
+    }
+    n3g_dscan_hits = hits;
+    n3g_dscan_loaded = loaded;
+    n3g_dscan_max_idx = max_idx;
+    FTL_PROGRESS("N3G_DSCAN_DONE h=%lu l=%lu max=%lu ent=%lu",
+                 (unsigned long)hits,
+                 (unsigned long)loaded,
+                 (unsigned long)max_idx,
+                 (unsigned long)n3g_direct_map_loaded_entries);
+    return loaded;
 }
 
 static uint32_t ftl_n3g_wmount_probe_map_body(uint16_t *body,
@@ -3331,7 +6270,7 @@ static uint32_t ftl_n3g_wmount_map_lpn0(uint32_t j, uint32_t *lpn0)
      && ftl_sparebuffer[0].user.type != 0x41)
         return -1;
 
-    *lpn0 = ftl_sparebuffer[0].user.lpn;
+    *lpn0 = ftl_n3g_oob_lpn512(ftl_sparebuffer[0].user.lpn);
     return 0;
 }
 
@@ -6180,6 +9119,7 @@ static uint32_t ftl_n3g_winpod_mount(void)
     uint8_t mbr_page[0x800] STORAGE_ALIGN_ATTR;
     struct n3g_wmount_map_candidate selected;
     uint32_t mbr_found = 0;
+    uint32_t mbr_synth = 0;
     uint32_t mbr_j = 0xffffffffu;
     uint32_t mbr_po = 0xffffffffu;
     uint32_t mbr_slot = 0xffffffffu;
@@ -6228,6 +9168,7 @@ static uint32_t ftl_n3g_winpod_mount(void)
     n3g_wmount_rd_rej_bpb = 0;
     n3g_direct_sector_base = 0;
     n3g_direct_sector_scale = 1;
+    ftl_n3g_log_init();
     memset(ftl_map, 0xff, sizeof(ftl_map));
     memset(n3g_direct_mbr, 0, sizeof(n3g_direct_mbr));
     for (uint32_t i = 0; i < ARRAYLEN(n3g_direct_l0_vblock); i++)
@@ -6261,10 +9202,11 @@ static uint32_t ftl_n3g_winpod_mount(void)
         FTL_PROGRESS("N3G_WMOUNT_FAIL mapread");
         return -1;
     }
-    FTL_PROGRESS("N3G_WMOUNT_MAP t=%02x ix=%04x u=%08lx",
-                 ftl_sparebuffer[0].meta.type,
-                 ftl_sparebuffer[0].meta.idx,
-                 (unsigned long)ftl_sparebuffer[0].meta.usn);
+    if (0)
+        FTL_PROGRESS("N3G_WMOUNT_MAP t=%02x ix=%04x u=%08lx",
+                     ftl_sparebuffer[0].meta.type,
+                     ftl_sparebuffer[0].meta.idx,
+                     (unsigned long)ftl_sparebuffer[0].meta.usn);
     if (ftl_sparebuffer[0].meta.type != 0x44)
         return -1;
     map_usn = ftl_sparebuffer[0].meta.usn;
@@ -6275,7 +9217,7 @@ static uint32_t ftl_n3g_winpod_mount(void)
     {
         uint32_t v = ftl_map[j];
 
-        if ((j & 0xff) == 0)
+        if (0 && (j & 0xff) == 0)
             FTL_PROGRESS("N3G_WMOUNT_PROG j=%lu", (unsigned long)j);
         if (v == 0 || v == 0xffffu)
             continue;
@@ -6303,6 +9245,30 @@ static uint32_t ftl_n3g_winpod_mount(void)
                 if (h[(off + 0x1fe) >> 1] != 0xaa55)
                     continue;
 
+                uint32_t has_winpart = 0;
+                for (uint32_t p = 0; p < 4; p++)
+                {
+                    uint32_t pe = off + 0x1be + p * 16;
+                    uint8_t type = b[pe + 4];
+                    uint32_t start = (uint32_t)b[pe + 8]
+                                   | ((uint32_t)b[pe + 9] << 8)
+                                   | ((uint32_t)b[pe + 10] << 16)
+                                   | ((uint32_t)b[pe + 11] << 24);
+                    uint32_t size = (uint32_t)b[pe + 12]
+                                  | ((uint32_t)b[pe + 13] << 8)
+                                  | ((uint32_t)b[pe + 14] << 16)
+                                  | ((uint32_t)b[pe + 15] << 24);
+
+                    if ((type == 0x0c || type == 0x0b)
+                     && start == 0x0000a07e && size == 0x000e7f81)
+                    {
+                        has_winpart = 1;
+                        break;
+                    }
+                }
+                if (!has_winpart)
+                    continue;
+
                 memcpy(mbr_page, b + off, 0x200);
                 memset(mbr_page + 0x200, 0, 0x600);
                 mbr_j = j;
@@ -6324,8 +9290,31 @@ static uint32_t ftl_n3g_winpod_mount(void)
 
     if (!mbr_found)
     {
-        FTL_PROGRESS("N3G_WMOUNT_FAIL nombr");
-        return -1;
+        if (0)
+            FTL_PROGRESS("N3G_WMOUNT_SYNTH_MBR");
+        memset(mbr_page, 0, sizeof(mbr_page));
+        mbr_page[0x1be + 4] = 0x0c;
+        mbr_page[0x1be + 8] = 0x7e;
+        mbr_page[0x1be + 9] = 0xa0;
+        mbr_page[0x1be + 12] = 0x81;
+        mbr_page[0x1be + 13] = 0x7f;
+        mbr_page[0x1be + 14] = 0x0e;
+        mbr_page[0x1fe] = 0x55;
+        mbr_page[0x1ff] = 0xaa;
+        mbr_found = 1;
+        mbr_synth = 1;
+        mbr_j = 0xffffffffu;
+        mbr_po = 0;
+        mbr_slot = 0;
+        n3g_direct_sector_base = 0;
+        n3g_direct_sector_scale = 1;
+        n3g_direct_boot_valid = 1;
+        n3g_direct_boot_lpn = 0x0000a07e;
+        n3g_direct_boot_vblock = 0x044c;
+        n3g_direct_boot_page = 62;
+        n3g_direct_boot_slot = 0;
+        n3g_direct_fsinfo_valid = 1;
+        n3g_direct_fsinfo_lpn = 0x0000a086;
     }
 
     for (uint32_t p = 0; p < 4; p++)
@@ -6341,9 +9330,10 @@ static uint32_t ftl_n3g_winpod_mount(void)
                       | ((uint32_t)mbr_page[pe + 14] << 16)
                       | ((uint32_t)mbr_page[pe + 15] << 24);
 
-        FTL_PROGRESS("N3G_WMOUNT_PART p=%lu t=%02x st=%08lx sz=%08lx",
-                     (unsigned long)p, type,
-                     (unsigned long)start, (unsigned long)size);
+        if (0)
+            FTL_PROGRESS("N3G_WMOUNT_PART p=%lu t=%02x st=%08lx sz=%08lx",
+                         (unsigned long)p, type,
+                         (unsigned long)start, (unsigned long)size);
         if ((type == 0x0c || type == 0x0b) && start != 0 && size != 0
          && (part_idx == 0xffffffffu || type == 0x0c))
         {
@@ -6359,32 +9349,48 @@ static uint32_t ftl_n3g_winpod_mount(void)
         FTL_PROGRESS("N3G_WMOUNT_FAIL nopart");
         return -1;
     }
-    FTL_PROGRESS("N3G_WMOUNT_USEPART p=%lu t=%02x st=%08lx sz=%08lx",
-                 (unsigned long)part_idx, part_type,
-                 (unsigned long)part_start, (unsigned long)part_size);
+    if (0)
+        FTL_PROGRESS("N3G_WMOUNT_USEPART p=%lu t=%02x st=%08lx sz=%08lx",
+                     (unsigned long)part_idx, part_type,
+                     (unsigned long)part_start, (unsigned long)part_size);
 
     ftl_n3g_wmount_load_map_pages(map_block, map_usn);
+    if (n3g_direct_map_max_idx == 0)
+        ftl_n3g_wmount_load_cxt_map_pages();
+    ftl_n3g_wmount_probe_known_l45_pages();
+    if (0 && n3g_direct_map_max_idx == 0)
+        FTL_PROGRESS("N3G_DSCAN_SKIP targeted_l45");
 
     if (ftl_n3g_wmount_map_lpn0(mbr_j, &mbr_base_lpn) == 0)
     {
         mbr_part_lpn = mbr_base_lpn + part_start;
         n3g_direct_sector_base = mbr_base_lpn;
-        n3g_direct_sector_scale = 2;
+        n3g_direct_sector_scale = 1;
     }
-    FTL_PROGRESS("N3G_WMOUNT_MBASE j=%lu l0=%08lx tgt=%08lx",
-                 (unsigned long)mbr_j,
-                 (unsigned long)mbr_base_lpn,
-                 (unsigned long)mbr_part_lpn);
-    FTL_PROGRESS("N3G_WMOUNT_MBR_OK j=%lu v=%04lx po=%lu sl=%lu l0=%08lx sig=AA55",
-                 (unsigned long)mbr_j,
-                 (unsigned long)(mbr_j < ARRAYLEN(ftl_map)
-                    ? ftl_map[mbr_j] : 0xffffu),
-                 (unsigned long)mbr_po,
-                 (unsigned long)mbr_slot,
-                 (unsigned long)mbr_base_lpn);
-    FTL_PROGRESS("N3G_WMOUNT_PART_OK p=%lu t=%02x st=%08lx sz=%08lx",
-                 (unsigned long)part_idx, part_type,
-                 (unsigned long)part_start, (unsigned long)part_size);
+    else if (mbr_synth)
+    {
+        mbr_base_lpn = 0;
+        mbr_part_lpn = part_start;
+        n3g_direct_sector_base = 0;
+        n3g_direct_sector_scale = 1;
+    }
+    if (0)
+    {
+        FTL_PROGRESS("N3G_WMOUNT_MBASE j=%lu l0=%08lx tgt=%08lx",
+                     (unsigned long)mbr_j,
+                     (unsigned long)mbr_base_lpn,
+                     (unsigned long)mbr_part_lpn);
+        FTL_PROGRESS("N3G_WMOUNT_MBR_OK j=%lu v=%04lx po=%lu sl=%lu l0=%08lx sig=AA55",
+                     (unsigned long)mbr_j,
+                     (unsigned long)(mbr_j < ARRAYLEN(ftl_map)
+                        ? ftl_map[mbr_j] : 0xffffu),
+                     (unsigned long)mbr_po,
+                     (unsigned long)mbr_slot,
+                     (unsigned long)mbr_base_lpn);
+        FTL_PROGRESS("N3G_WMOUNT_PART_OK p=%lu t=%02x st=%08lx sz=%08lx",
+                     (unsigned long)part_idx, part_type,
+                     (unsigned long)part_start, (unsigned long)part_size);
+    }
 
     (void)fat_j;
     (void)fat_po;
@@ -7446,10 +10452,11 @@ static uint32_t ftl_n3g_winpod_mount(void)
     memset(ftl_buffer, 0, sizeof(ftl_buffer));
     int32_t rc0 = (int32_t)ftl_n3g_direct_read(0, 1, ftl_buffer);
     uint16_t *h0 = (uint16_t *)ftl_buffer;
-    FTL_PROGRESS("N3G_WMOUNT_S0 rc=%ld sig=%04x part=%lu t=%02x st=%08lx sz=%08lx",
-                 (long)rc0, h0[0xff], (unsigned long)part_idx,
-                 part_type, (unsigned long)part_start,
-                 (unsigned long)part_size);
+    if (0)
+        FTL_PROGRESS("N3G_WMOUNT_S0 rc=%ld sig=%04x part=%lu t=%02x st=%08lx sz=%08lx",
+                     (long)rc0, h0[0xff], (unsigned long)part_idx,
+                     part_type, (unsigned long)part_start,
+                     (unsigned long)part_size);
     if (rc0 != 0)
     {
         n3g_direct_map_mount = 0;
@@ -7494,14 +10501,15 @@ static uint32_t ftl_n3g_winpod_mount(void)
                 n3g_direct_fsinfo_valid = 1;
                 n3g_direct_fsinfo_lpn = part_start + fsinfo * scale;
             }
-            FTL_PROGRESS("N3G_WMOUNT_BOOT_OK rc=%ld sig=%04x bps=%lu spc=%lu rs=%lu nf=%lu fs=%08lx",
-                         (long)rcb,
-                         (unsigned int)(b[0x1fe] | ((uint32_t)b[0x1ff] << 8)),
-                         (unsigned long)bps,
-                         (unsigned long)spc,
-                         (unsigned long)rsvd,
-                         (unsigned long)nfats,
-                         (unsigned long)n3g_direct_fsinfo_lpn);
+            if (0)
+                FTL_PROGRESS("N3G_WMOUNT_BOOT_OK rc=%ld sig=%04x bps=%lu spc=%lu rs=%lu nf=%lu fs=%08lx",
+                             (long)rcb,
+                             (unsigned int)(b[0x1fe] | ((uint32_t)b[0x1ff] << 8)),
+                             (unsigned long)bps,
+                             (unsigned long)spc,
+                             (unsigned long)rsvd,
+                             (unsigned long)nfats,
+                             (unsigned long)n3g_direct_fsinfo_lpn);
         }
         else
         {
@@ -7517,10 +10525,11 @@ static uint32_t ftl_n3g_winpod_mount(void)
     {
         if (boot_sector_ok)
         {
-            FTL_PROGRESS("N3G_WMOUNT_READY mbrj=%lu mbrpo=%lu xmap=1 st=%08lx sz=%08lx fs=%08lx",
-                         (unsigned long)mbr_j, (unsigned long)mbr_po,
-                         (unsigned long)part_start, (unsigned long)part_size,
-                         (unsigned long)n3g_direct_fsinfo_lpn);
+            if (0)
+                FTL_PROGRESS("N3G_WMOUNT_READY mbrj=%lu mbrpo=%lu xmap=1 st=%08lx sz=%08lx fs=%08lx",
+                             (unsigned long)mbr_j, (unsigned long)mbr_po,
+                             (unsigned long)part_start, (unsigned long)part_size,
+                             (unsigned long)n3g_direct_fsinfo_lpn);
             return 0;
         }
 
@@ -7538,30 +10547,34 @@ static uint32_t ftl_n3g_winpod_mount(void)
                          (unsigned long)n3g_wmount_rd_best_po,
                          (unsigned long)n3g_wmount_rd_best_slot,
                          (unsigned long)n3g_wmount_rd_best_reason);
-        FTL_PROGRESS("N3G_WMOUNT_READY mbrj=%lu mbrpo=%lu xmap=0 st=%08lx sz=%08lx",
-                     (unsigned long)mbr_j, (unsigned long)mbr_po,
-                     (unsigned long)part_start, (unsigned long)part_size);
+        if (0)
+            FTL_PROGRESS("N3G_WMOUNT_READY mbrj=%lu mbrpo=%lu xmap=0 st=%08lx sz=%08lx",
+                         (unsigned long)mbr_j, (unsigned long)mbr_po,
+                         (unsigned long)part_start, (unsigned long)part_size);
         return 0;
     }
 
-    FTL_PROGRESS("N3G_WMOUNT_SEL ok=1 j=%lu v=%04lx po=%lu sl=%lu",
-                 (unsigned long)fat_j,
-                 (unsigned long)n3g_direct_boot_vblock,
-                 (unsigned long)fat_po,
-                 (unsigned long)n3g_direct_boot_slot);
+    if (0)
+        FTL_PROGRESS("N3G_WMOUNT_SEL ok=1 j=%lu v=%04lx po=%lu sl=%lu",
+                     (unsigned long)fat_j,
+                     (unsigned long)n3g_direct_boot_vblock,
+                     (unsigned long)fat_po,
+                     (unsigned long)n3g_direct_boot_slot);
     memset(ftl_buffer, 0, sizeof(ftl_buffer));
     int32_t rcf = (int32_t)ftl_n3g_direct_read(part_start, 1, ftl_buffer);
     uint16_t *hf = (uint16_t *)ftl_buffer;
-    FTL_PROGRESS("N3G_WMOUNT_SF rc=%ld j=%lu po=%lu sig=%04x,%04x,%04x,%04x w=%08lx,%08lx",
-                 (long)rcf, (unsigned long)fat_j, (unsigned long)fat_po,
-                 hf[0x0ff], hf[0x1ff], hf[0x2ff], hf[0x3ff],
-                 (unsigned long)((uint32_t *)ftl_buffer)[0],
-                 (unsigned long)((uint32_t *)ftl_buffer)[1]);
+    if (0)
+        FTL_PROGRESS("N3G_WMOUNT_SF rc=%ld j=%lu po=%lu sig=%04x,%04x,%04x,%04x w=%08lx,%08lx",
+                     (long)rcf, (unsigned long)fat_j, (unsigned long)fat_po,
+                     hf[0x0ff], hf[0x1ff], hf[0x2ff], hf[0x3ff],
+                     (unsigned long)((uint32_t *)ftl_buffer)[0],
+                     (unsigned long)((uint32_t *)ftl_buffer)[1]);
 
-    FTL_PROGRESS("N3G_WMOUNT_READY mbrj=%lu mbrpo=%lu xmap=%lu st=%08lx sz=%08lx",
-                 (unsigned long)mbr_j, (unsigned long)mbr_po,
-                 (unsigned long)fat_found, (unsigned long)part_start,
-                 (unsigned long)part_size);
+    if (0)
+        FTL_PROGRESS("N3G_WMOUNT_READY mbrj=%lu mbrpo=%lu xmap=%lu st=%08lx sz=%08lx",
+                     (unsigned long)mbr_j, (unsigned long)mbr_po,
+                     (unsigned long)fat_found, (unsigned long)part_start,
+                     (unsigned long)part_size);
     return 0;
 }
 #endif
@@ -10131,17 +13144,17 @@ uint32_t ftl_read(uint32_t sector, uint32_t count, void* buffer)
     DEBUGF("FTL: Reading %d sectors starting at %d\n", count, sector);
 #endif
 
+#if defined(IPOD_NANO3G)
+    if (n3g_direct_map_mount)
+        return ftl_n3g_direct_read(sector, count, buffer);
+#endif
+
     if (sector + count > ftl_nand_type->userblocks * ppb)
     {
         DEBUGF("FTL: Sector %d is out of range!\n", sector + count - 1);
         return -2;
     }
     if (count == 0) return 0;
-
-#if defined(IPOD_NANO3G) && defined(BOOTLOADER)
-    if (n3g_direct_map_mount)
-        return ftl_n3g_direct_read(sector, count, buffer);
-#endif
 
     mutex_lock(&ftl_mtx);
 
@@ -11008,8 +14021,8 @@ uint32_t ftl_init(void)
 {
 #if defined(IPOD_NANO3G) && defined(BOOTLOADER) && N3G_RECON_ONLY
 #if N3G_SCREEN_COMPACT
-    FTL_PROGRESS("N3G_BUILD 20260505d");
-    FTL_PROGRESS("N3G_EXEC_WMOUNT_ED_TARGET_DUMP");
+    FTL_PROGRESS("N3G_BUILD 20260523aa");
+    FTL_PROGRESS("N3G_EXACTRETRY_BULLET_MARKER");
 #else
     FTL_PROGRESS("N3G_NAND_ACCESS_PROBE_START");
     FTL_PROGRESS("N3G_VERDICT_ONLY_BUILD v=20260503i");
@@ -11033,6 +14046,8 @@ uint32_t ftl_init(void)
     ftl_nand_type = nand_get_device_type(0);
     ppb = ftl_nand_type->pagesperblock * ftl_banks;
     syshyperblocks = ftl_nand_type->blocks - ftl_nand_type->userblocks - 0x17;
+    if (0)
+        ftl_n3g_scan_rockbox_header();
 #if !(defined(IPOD_NANO3G) && defined(BOOTLOADER) && N3G_RECON_ONLY && N3G_SCREEN_COMPACT)
     FTL_PROGRESS("ftl geom banks %lu blocks %u user %u ppb %lu sys %lu",
                  (unsigned long)ftl_banks, ftl_nand_type->blocks,
@@ -11043,6 +14058,7 @@ uint32_t ftl_init(void)
 #if !N3G_SCREEN_COMPACT
     FTL_PROGRESS("N3G_STAGE before_sanity_scan");
 #endif
+    return ftl_n3g_physrb_mount();
     if (ftl_n3g_winpod_mount() == 0)
         return 0;
     return -1;
@@ -11050,6 +14066,13 @@ uint32_t ftl_init(void)
     FTL_PROGRESS("N3G_STAGE after_sanity_scan");
 #endif
     return -1;
+#endif
+#if defined(IPOD_NANO3G) && !defined(BOOTLOADER)
+    if (ftl_n3g_winpod_mount() == 0)
+    {
+        DEBUGF("FTL: N3G WMOUNT direct map mounted\n");
+        return 0;
+    }
 #endif
     ftl_n3g_dump_reconstruction_pages();
 

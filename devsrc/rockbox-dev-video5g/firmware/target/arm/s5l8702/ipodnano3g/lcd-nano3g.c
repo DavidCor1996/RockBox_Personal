@@ -23,7 +23,7 @@
 
 #include "lcd-s5l8702.h"
 #include "bringup-nano3g.h"
-#ifdef BOOTLOADER
+#if defined(IPOD_NANO3G)
 #include "piezo.h"
 #endif
 
@@ -377,6 +377,14 @@ struct lcd_info_rec* lcd_target_get_info(void)
 
     nano3g_boottrace_log("lcd detect start");
 
+#ifdef BOOTLOADER
+    lcd_id[0] = 0x00;
+    lcd_id[1] = 0x38;
+    lcd_id[2] = 0xb3;
+    lcd_id[3] = 0x00;
+    type = LCD_TYPE_38B3;
+    nano3g_boottrace_log("lcd detect forced");
+#else
     while (retry--)
     {
         lcd_read_display_id(LCD_MPUIFACE_PAR9, &lcd_id[0]);         // TODO?: MPUIFACE_PAR9
@@ -395,20 +403,26 @@ struct lcd_info_rec* lcd_target_get_info(void)
 
         if (type != LCD_TYPE_UNKNOWN)
         {
-            nano3g_boottrace_log("lcd detect ok");
-            lcd_info.lcd_type = type;
-            //lcd_info.mpuiface = LCD_MPUIFACE_PAR9;
+            break;
+        }
+    }
+#endif
+
+    if (type != LCD_TYPE_UNKNOWN)
+    {
+        nano3g_boottrace_log("lcd detect ok");
+        lcd_info.lcd_type = type;
+        //lcd_info.mpuiface = LCD_MPUIFACE_PAR9;
 #if defined(HAVE_LCD_SLEEP) || defined(HAVE_LCD_SHUTDOWN)
-            lcd_info.seq_sleep = seq_sleep_by_type[type];
+        lcd_info.seq_sleep = seq_sleep_by_type[type];
 #endif
 #ifdef HAVE_LCD_SLEEP
-            lcd_info.seq_awake = seq_awake_by_type[type];
+        lcd_info.seq_awake = seq_awake_by_type[type];
 #endif
 #ifdef BOOTLOADER
-            lcd_info.seq_init = seq_init_by_type[type];
+        lcd_info.seq_init = seq_init_by_type[type];
 #endif
-            return &lcd_info;
-        }
+        return &lcd_info;
     }
 
     nano3g_boottrace_log("lcd detect fail");

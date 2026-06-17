@@ -32,6 +32,7 @@
 #include "../kernel-internal.h"
 #include "file_internal.h"
 #include "storage.h"
+#include "nand.h"
 #include "disk.h"
 #include "font.h"
 #include "backlight.h"
@@ -59,9 +60,15 @@
 #if defined(IPOD_6G) || defined(IPOD_NANO3G)
 #include "norboot-target.h"
 #endif
+#ifdef IPOD_NANO3G
+#include "bringup-nano3g.h"
+#endif
 
 #ifdef IPOD_NANO3G
 #define N3G_PAGE_SCAN_COUNT 12
+
+static volatile uint32_t n3g_probe_saved_cpsr;
+static volatile uint32_t n3g_probe_saved_sp;
 
 struct nano3g_nand_direct_diag
 {
@@ -566,7 +573,7 @@ static void pmu_info(void)
         {
             unsigned char buf[8];
 
-#if defined(IPOD_NANO3G)
+#if defined(IPOD_NANO3G) && 0
             if (i == 0) {
                 static int flip = 0;
                 if (flip) {
@@ -936,6 +943,9 @@ static void devel_menu(void)
 void main(void)
 {
     int rc = 0;
+#ifdef IPOD_NANO3G
+    bool n3g_lcd_ready = false;
+#endif
 
     usec_timer_init();
 
@@ -991,6 +1001,25 @@ void main(void)
     power_init();
 #ifdef IPOD_NANO3G
     nano3g_nand_stage_diag_run(8);
+
+    /*
+     * Transient DFU bring-up: make the display visible before button
+     * selection or storage so black-screen failures tell us whether C ran.
+     */
+    lcd_init();
+    lcd_set_foreground(LCD_WHITE);
+    lcd_set_background(LCD_BLACK);
+    lcd_clear_display();
+    font_init();
+    lcd_setfont(FONT_SYSFIXED);
+    nano3g_boottrace_enable_lcd(true);
+    backlight_init();
+    verbose = true;
+    printf("N3G_TRANSIENT_VIS");
+    printf("N3G_BUILD 20260526_SKIPM34_M35");
+    printf("N3G_VIS_OK_CONTINUE");
+    lcd_update();
+    n3g_lcd_ready = true;
 #endif
 
     enable_irq();
@@ -999,6 +1028,7 @@ void main(void)
     serial_setup();
 #endif
 
+#ifndef IPOD_NANO3G
     button_init();
     if (rc == 0) {
         /* User button selection timeout */
@@ -1019,13 +1049,21 @@ void main(void)
             rc = kernel_launch_onb();
         }
     }
+#else
+    printf("N3G_SKIP_BUTTON_SELECT");
+#endif
 
-    lcd_init();
-    lcd_set_foreground(LCD_WHITE);
-    lcd_set_background(LCD_BLACK);
-    lcd_clear_display();
-    font_init();
-    lcd_setfont(FONT_SYSFIXED);
+#ifdef IPOD_NANO3G
+    if (!n3g_lcd_ready)
+#endif
+    {
+        lcd_init();
+        lcd_set_foreground(LCD_WHITE);
+        lcd_set_background(LCD_BLACK);
+        lcd_clear_display();
+        font_init();
+        lcd_setfont(FONT_SYSFIXED);
+    }
 
     // TODO: see if removing this causes the nano3g LCD to initialize properly
 #ifdef S5L87XX_DEVELOPMENT_BOOTLOADER
@@ -1043,8 +1081,17 @@ void main(void)
 
     printf("Rockbox boot loader");
     printf("Version: %s", rbversion);
+#ifdef IPOD_NANO3G
+    printf("N3G_PRESTOR_CONTINUE_20260525");
+    lcd_update();
+#endif
 
-    backlight_init(); /* Turns on the backlight */
+#ifdef IPOD_NANO3G
+    if (!n3g_lcd_ready)
+#endif
+    {
+        backlight_init(); /* Turns on the backlight */
+    }
 
 #if defined(IPOD_NANO3G) && 0
     struct nano3g_nand_direct_diag ndiag;
@@ -1183,6 +1230,9 @@ void main(void)
 #endif
 
         rc = storage_init();
+#ifdef IPOD_NANO3G
+        printf("N3G_STORAGE_RET rc=%d", rc);
+#endif
         if (rc != 0) {
 #ifdef IPOD_NANO3G
             int btn = button_read_device();
@@ -1205,6 +1255,9 @@ void main(void)
 #endif
 
         filesystem_init();
+#ifdef IPOD_NANO3G
+        printf("N3G_FS_RET");
+#endif
 
         /* We wait until HDD spins up to check for hold button */
         if (button_hold()) {
@@ -1268,6 +1321,9 @@ of_loaded:
 #endif
 
     rc = disk_mount_all();
+#ifdef IPOD_NANO3G
+    printf("N3G_MOUNT_RET rc=%d", rc);
+#endif
     if (rc <= 0) {
 #ifdef STORAGE_GET_INFO
         struct storage_info sinfo;
@@ -1289,12 +1345,25 @@ of_loaded:
         fatal_error(ERR_RB);
     }
 
+#if defined(IPOD_NANO3G) && 0
+    lcd_clear_display();
+    lcd_puts(0, 0, "N3G_MOUNTSTOP_BF");
+    lcd_puts(0, 1, "mounted no load");
+    lcd_update();
+    while (1)
+        sleep(HZ);
+#endif
+
     printf("Loading Rockbox...");
-#if defined(IPOD_NANO3G)
+#if defined(IPOD_NANO3G) && 0
     printf("N3G_LOAD_PATH path=/" BOOTFILE);
 #endif
     unsigned char *loadbuffer = (unsigned char *)DRAM_ORIG;
+#if defined(IPOD_NANO3G) && 0
+    rc = load_firmware(loadbuffer, "/" BOOTFILE, MAX_LOADSIZE);
+#else
     rc = load_firmware(loadbuffer, BOOTFILE, MAX_LOADSIZE);
+#endif
 
     if (rc <= EFILE_EMPTY) {
         printf("Error!");
@@ -1304,9 +1373,868 @@ of_loaded:
     }
 
     printf("Rockbox loaded.");
+#if defined(IPOD_NANO3G) && 0
+    lcd_clear_display();
+    lcd_puts(0, 0, "N3G_LOADSTOP_20260525");
+    lcd_puts(0, 1, "loaded no handoff");
+    printf("N3G_LOADVERIFY rc=%ld b0=%02x%02x%02x%02x%02x%02x%02x%02x b8=%02x%02x%02x%02x%02x%02x%02x%02x",
+           (long)rc,
+           loadbuffer[0], loadbuffer[1], loadbuffer[2], loadbuffer[3],
+           loadbuffer[4], loadbuffer[5], loadbuffer[6], loadbuffer[7],
+           loadbuffer[8], loadbuffer[9], loadbuffer[10], loadbuffer[11],
+           loadbuffer[12], loadbuffer[13], loadbuffer[14], loadbuffer[15]);
+    lcd_update();
+    while (1)
+        sleep(HZ);
+#endif
 
     /* If we get here, we have a new firmware image at 0x08000000, run it */
+#if defined(IPOD_NANO3G)
+    printf("N3G_JPREP addr=%08lx rc=%ld", (unsigned long)loadbuffer,
+           (long)rc);
+    printf("N3G_MEMCALL a=08078160");
+    lcd_update();
+    commit_discard_idcache();
+    ((void (*)(void))(loadbuffer + 0x78160))();
+    printf("N3G_MEMRET");
+    printf("N3G_CRT0MANUAL");
+    printf("N3G_CRT0SKIPVEC");
+    memset((void *)0x080d23a0, 0, 0x081c5538 - 0x080d23a0);
+    printf("N3G_CRT0BSS");
+    memcpy((void *)0x00000060, loadbuffer + 0x0cff68, 0x00002494 - 0x60);
+    printf("N3G_CRT0IRAM");
+    memset((void *)0x00002494, 0, 0x00007d50 - 0x00002494);
+    printf("N3G_CRT0IBSS");
+    /* Bypass the native storage path that loops after handoff. */
+    *(volatile uint32_t *)(loadbuffer + 0x5e2c) = 0xe3a00000u;
+    printf("N3G_PATCHSTOR a=08005e2c n=E3A00000");
+	    *(volatile uint32_t *)(loadbuffer + 0x5e84) = 0xe3a00001u;
+	    printf("N3G_PATCHMOUNT a=08005e84 n=E3A00001");
+		    *(volatile uint32_t *)(loadbuffer + 0x77fac) = 0xe12fff1eu;
+	    *(volatile uint32_t *)(loadbuffer + 0x780e8) = 0xe12fff1eu;
+	    *(volatile uint32_t *)(loadbuffer + 0x77dec) = 0xe12fff1eu;
+	    *(volatile uint32_t *)(loadbuffer + 0x83f48) = 0xe12fff1eu;
+	    for (unsigned int n3g_irq_patch = 0x5db4; n3g_irq_patch <= 0x5dc8;
+	         n3g_irq_patch += 4)
+	        *(volatile uint32_t *)(loadbuffer + n3g_irq_patch) = 0xe1a00000u;
+			    *(volatile uint32_t *)(loadbuffer + 0x5e30) = 0xe321f0dfu;
+			    *(volatile uint32_t *)(loadbuffer + 0x5e34) = 0xea000012u;
+			    *(volatile uint32_t *)(loadbuffer + 0x5e88) = 0xe3a06001u;
+			    *(volatile uint32_t *)(loadbuffer + 0x5e8c) = 0xea000034u;
+			    *(volatile uint32_t *)(loadbuffer + 0x5f6c) = 0xe1a00000u;
+			    *(volatile uint32_t *)(loadbuffer + 0x5f70) = 0xe1a00000u;
+			    *(volatile uint32_t *)(loadbuffer + 0x5f74) = 0xea00000au;
+			    *(volatile uint32_t *)(loadbuffer + 0x5fa4) = 0xe5950024u;
+			    *(volatile uint32_t *)(loadbuffer + 0x5fa8) = 0xe1c00fc0u;
+			    *(volatile uint32_t *)(loadbuffer + 0x5fac) = 0xe1a00000u;
+			    *(volatile uint32_t *)(loadbuffer + 0x5fb0) = 0xe1a00000u;
+			    *(volatile uint32_t *)(loadbuffer + 0x5fb4) = 0xe1a00000u;
+			    *(volatile uint32_t *)(loadbuffer + 0x5fb8) = 0xe1a00000u;
+			    *(volatile uint32_t *)(loadbuffer + 0x5fbc) = 0xea000013u;
+			    *(volatile uint32_t *)(loadbuffer + 0x6010) = 0xe59f8184u;
+			    *(volatile uint32_t *)(loadbuffer + 0x6014) = 0xe59f91b4u;
+			    *(volatile uint32_t *)(loadbuffer + 0x6018) = 0xe59fa1b4u;
+			    *(volatile uint32_t *)(loadbuffer + 0x601c) = 0xe3a07000u;
+			    *(volatile uint32_t *)(loadbuffer + 0x6020) = 0xe3a00001u;
+			    *(volatile uint32_t *)(loadbuffer + 0x602c) = 0xea000039u;
+			    *(volatile uint32_t *)(loadbuffer + 0x6118) = 0xe28dd04cu;
+			    *(volatile uint32_t *)(loadbuffer + 0x611c) = 0xe8bd8880u;
+		    commit_discard_idcache();
+#if 1
+{
+    lcd_clear_display();
+    lcd_puts(0, 0, "N3G_CMAIN_GO");
+    lcd_puts(0, 1, "loaded image");
+    lcd_update();
+    sleep(HZ / 2);
+
+    ((void (*)(void))(loadbuffer + 0x667f4))();
+    ((void (*)(void))(loadbuffer + 0x83d48))();
+    ((void (*)(void))(loadbuffer + 0x82dc0))();
+    ((void (*)(void))(loadbuffer + 0x84170))();
+    ((void (*)(void))(loadbuffer + 0x6a878))();
+    ((void (*)(uint32_t))(loadbuffer + 0x67800))(1);
+    ((void (*)(void))(loadbuffer + 0x77754))();
+    ((void (*)(void))(loadbuffer + 0x7faf4))();
+    ((void (*)(void))(loadbuffer + 0x743e4))();
+    ((void (*)(void))(loadbuffer + 0x723a4))();
+    ((void (*)(void))(loadbuffer + 0x1af48))();
+    ((void (*)(void))(loadbuffer + 0x5d0c))();
+    ((void (*)(uint32_t, uint32_t, uint32_t))(loadbuffer + 0x5a84))
+        (0x080c31dcu, 0x0812098cu, 884);
+    ((void (*)(void))(loadbuffer + 0x81dc4))();
+    ((void (*)(void))(loadbuffer + 0x81c74))();
+    ((void (*)(void))(loadbuffer + 0x7fae4))();
+    ((void (*)(void))(loadbuffer + 0x67c2c))();
+    ((void (*)(void))(loadbuffer + 0x656e0))();
+    ((void (*)(void))(loadbuffer + 0x7565c))();
+    ((void (*)(uint32_t, uint32_t, uint32_t))(loadbuffer + 0x82dc4))
+        (0x081658a4u, 1, 0);
+    ((void (*)(void))(loadbuffer + 0x77a14))();
+    (void)((uint32_t (*)(void))(loadbuffer + 0x75128))();
+    uint32_t n3g_fast_r = ((uint32_t (*)(void))(loadbuffer + 0x75128))();
+    *(volatile uint32_t *)0x08164690 = n3g_fast_r;
+    ((void (*)(void))(loadbuffer + 0x6741c))();
+    *(volatile uint32_t *)0x081646b0 = 0x080750f4u;
+    ((void (*)(uint32_t))(loadbuffer + 0x840f8))(0x08075150u);
+    ((void (*)(void))(loadbuffer + 0x67384))();
+    ((void (*)(void))(loadbuffer + 0x7f5d0))();
+    ((void (*)(uint32_t))(loadbuffer + 0x31b04))(0x081153a0u);
+    ((void (*)(void))(loadbuffer + 0x32244))();
+    ((void (*)(void))(loadbuffer + 0x348dc))();
+    ((void (*)(void))(loadbuffer + 0x32ee0))();
+    (void)((uint32_t (*)(void))(loadbuffer + 0x75770))();
+    ((void (*)(void))(loadbuffer + 0x75ec0))();
+    ((void (*)(void))(loadbuffer + 0x598e0))();
+    ((void (*)(void))(loadbuffer + 0x1b310))();
+    ((void (*)(void))(loadbuffer + 0x671a4))();
+    volatile uint32_t *n3g_fast_state = (volatile uint32_t *)0x080f12b0u;
+    ((void (*)(uint32_t))(loadbuffer + 0x6d948))
+        (n3g_fast_state[9] & 0x7fffffffu);
+    ((void (*)(uint32_t))(loadbuffer + 0x1abc0))(1);
+
+    volatile uint16_t *n3g_fb = (volatile uint16_t *)0x0813d540u;
+    for (unsigned int n3g_px = 0; n3g_px < 76800; n3g_px++)
+        n3g_fb[n3g_px] = 0x07e0u;
+    ((void (*)(void))(loadbuffer + 0x8f2a8))();
+    commit_discard_idcache();
+
+    asm volatile(
+        "msr cpsr_c, %[sys_cpsr]\n"
+        "mov sp, %[sys_sp]\n"
+        "mov r4, %[state_a]\n"
+        "mov r5, %[state_b]\n"
+        "bx %[entry]\n"
+        :
+        : [sys_cpsr]"r"(0xdfu), [sys_sp]"r"(0x00009d50u),
+          [state_a]"r"(0x080f0b34u), [state_b]"r"(0x080f12b0u),
+          [entry]"r"(loadbuffer + 0x600c)
+        : "r0", "r1", "r2", "r3", "r4", "r5", "r12", "lr", "cc",
+          "memory");
+    while (1)
+        sleep(HZ);
+}
+#endif
+#if 0
+			    char n3g_line[32];
+		    lcd_clear_display();
+		    lcd_puts(0, 0, "N3G_EPI_GO");
+		    snprintf(n3g_line, sizeof(n3g_line), "5e34 %08lx",
+		             (unsigned long)*(volatile uint32_t *)(loadbuffer + 0x5e34));
+		    lcd_puts(0, 1, n3g_line);
+		    snprintf(n3g_line, sizeof(n3g_line), "6118 %08lx",
+		             (unsigned long)*(volatile uint32_t *)(loadbuffer + 0x6118));
+		    lcd_puts(0, 2, n3g_line);
+			    lcd_update();
+			    lcd_clear_display();
+			    lcd_puts(0, 0, "N3G_77FAC_STOP");
+			    snprintf(n3g_line, sizeof(n3g_line), "77fac %08lx",
+			             (unsigned long)*(volatile uint32_t *)(loadbuffer + 0x77fac));
+			    lcd_puts(0, 1, n3g_line);
+			    lcd_update();
+			    ((void (*)(void))(loadbuffer + 0x77fac))();
+		    lcd_clear_display();
+		    lcd_puts(0, 0, "N3G_77FAC_RET");
+		    lcd_puts(0, 1, "direct ok");
+		    lcd_update();
+		    void *n3g_main_fn = loadbuffer + 0x5d7c;
+		    asm volatile(
+		        "mrs r6, cpsr\n"
+		        "ldr r7, =n3g_probe_saved_cpsr\n"
+		        "str r6, [r7]\n"
+		        "mov r6, sp\n"
+		        "ldr r7, =n3g_probe_saved_sp\n"
+		        "str r6, [r7]\n"
+		        "msr cpsr_c, %[sys_cpsr]\n"
+		        "mov sp, %[sys_sp]\n"
+		        "blx %[fn]\n"
+		        "ldr r7, =n3g_probe_saved_cpsr\n"
+		        "ldr r6, [r7]\n"
+		        "msr cpsr_c, r6\n"
+		        "ldr r7, =n3g_probe_saved_sp\n"
+		        "ldr r6, [r7]\n"
+		        "mov sp, r6\n"
+		        :
+		        : [sys_cpsr]"r"(0xdfu), [sys_sp]"r"(0x00009d50u),
+		          [fn]"r"(n3g_main_fn)
+		        : "r0", "r1", "r2", "r3", "r6", "r7", "r12", "lr", "cc",
+		          "memory");
+		    lcd_clear_display();
+		    lcd_puts(0, 0, "N3G_EPI_RET");
+		    lcd_puts(0, 1, "main returned");
+		    lcd_update();
+			    while (1)
+			        sleep(HZ);
+#endif
+#if 0
+	    lcd_clear_display();
+	    lcd_puts(0, 0, "N3G_MAINSTEP_GO");
+    lcd_puts(0, 1, "manual crt0");
+    lcd_puts(0, 2, "step native");
+    lcd_update();
+    sleep(HZ / 2);
+    printf("N3G_M0 skip=08077fac");
+    lcd_clear_display();
+    lcd_puts(0, 0, "N3G_M0 skip");
+    lcd_puts(0, 1, "08077fac");
+    lcd_update();
+    sleep(HZ / 2);
+    printf("N3G_M0 skipped");
+    lcd_clear_display();
+    lcd_puts(0, 0, "N3G_M0 skipped");
+    lcd_puts(0, 1, "M1 next");
+    lcd_update();
+    sleep(HZ / 2);
+    printf("N3G_M1 call=080667f4");
+    lcd_clear_display();
+    lcd_puts(0, 0, "N3G_M1 call");
+    lcd_puts(0, 1, "080667f4");
+    lcd_update();
+    ((void (*)(void))(loadbuffer + 0x667f4))();
+    printf("N3G_M1 ret");
+    lcd_clear_display();
+    lcd_puts(0, 0, "N3G_M1 ret");
+    lcd_puts(0, 1, "M2 next");
+    lcd_update();
+    sleep(HZ / 2);
+    printf("N3G_M2 call=08083d48");
+    lcd_clear_display();
+    lcd_puts(0, 0, "N3G_M2 call");
+    lcd_puts(0, 1, "08083d48");
+    lcd_update();
+    ((void (*)(void))(loadbuffer + 0x83d48))();
+    printf("N3G_M2 ret");
+    lcd_clear_display();
+    lcd_puts(0, 0, "N3G_M2 ret");
+    lcd_puts(0, 1, "M3 next");
+    lcd_update();
+    sleep(HZ / 2);
+    printf("N3G_M3 call=08082dc0");
+    lcd_clear_display();
+    lcd_puts(0, 0, "N3G_M3 call");
+    lcd_puts(0, 1, "08082dc0");
+    lcd_update();
+    ((void (*)(void))(loadbuffer + 0x82dc0))();
+    printf("N3G_M3 ret");
+    lcd_clear_display();
+    lcd_puts(0, 0, "N3G_M3 ret");
+    lcd_puts(0, 1, "M4 next");
+    lcd_update();
+    sleep(HZ / 2);
+    printf("N3G_M4 call=08084170");
+    lcd_clear_display();
+    lcd_puts(0, 0, "N3G_M4 call");
+    lcd_puts(0, 1, "08084170");
+    lcd_update();
+    ((void (*)(void))(loadbuffer + 0x84170))();
+    printf("N3G_M4 ret");
+    lcd_clear_display();
+    lcd_puts(0, 0, "N3G_M4 ret");
+    lcd_puts(0, 1, "M5 next");
+    lcd_update();
+    sleep(HZ / 2);
+    printf("N3G_M5 call=0806a878");
+    lcd_clear_display();
+    lcd_puts(0, 0, "N3G_M5 call");
+    lcd_puts(0, 1, "0806a878");
+    lcd_update();
+    ((void (*)(void))(loadbuffer + 0x6a878))();
+    printf("N3G_M5 ret");
+    lcd_clear_display();
+    lcd_puts(0, 0, "N3G_M5 ret");
+    lcd_puts(0, 1, "M6 next");
+    lcd_update();
+    sleep(HZ / 2);
+    printf("N3G_M6 skip=080780e8 arg=0337f980");
+    lcd_clear_display();
+    lcd_puts(0, 0, "N3G_M6 skip");
+    lcd_puts(0, 1, "080780e8");
+    lcd_update();
+    sleep(HZ / 2);
+    printf("N3G_M6 skipped");
+    lcd_clear_display();
+    lcd_puts(0, 0, "N3G_M6 skipped");
+    lcd_puts(0, 1, "M7 next");
+    lcd_update();
+    sleep(HZ / 2);
+    printf("N3G_M7 call=08067800 arg=1");
+    lcd_clear_display();
+    lcd_puts(0, 0, "N3G_M7 call");
+    lcd_puts(0, 1, "08067800");
+    lcd_update();
+    ((void (*)(uint32_t))(loadbuffer + 0x67800))(1);
+    printf("N3G_M7 ret");
+    lcd_clear_display();
+    lcd_puts(0, 0, "N3G_M7 ret");
+    lcd_puts(0, 1, "M8 next");
+    lcd_update();
+    sleep(HZ / 2);
+    printf("N3G_M8 call=08077754");
+    lcd_clear_display();
+    lcd_puts(0, 0, "N3G_M8 call");
+    lcd_puts(0, 1, "08077754");
+    lcd_update();
+    ((void (*)(void))(loadbuffer + 0x77754))();
+    printf("N3G_M8 ret");
+    lcd_clear_display();
+    lcd_puts(0, 0, "N3G_M8 ret");
+    lcd_puts(0, 1, "M9 next");
+    lcd_update();
+    sleep(HZ / 2);
+    printf("N3G_M9 call=0807faf4");
+    lcd_clear_display();
+    lcd_puts(0, 0, "N3G_M9 call");
+    lcd_puts(0, 1, "0807faf4");
+    lcd_update();
+    ((void (*)(void))(loadbuffer + 0x7faf4))();
+    printf("N3G_M9 ret");
+    lcd_clear_display();
+    lcd_puts(0, 0, "N3G_M9 ret");
+    lcd_puts(0, 1, "M10 next");
+    lcd_update();
+    sleep(HZ / 2);
+    printf("N3G_M10 call=080743e4");
+    lcd_clear_display();
+    lcd_puts(0, 0, "N3G_M10 call");
+    lcd_puts(0, 1, "080743e4");
+    lcd_update();
+    ((void (*)(void))(loadbuffer + 0x743e4))();
+    printf("N3G_M10 ret");
+    lcd_clear_display();
+    lcd_puts(0, 0, "N3G_M10 ret");
+    lcd_puts(0, 1, "M11 next");
+    lcd_update();
+    sleep(HZ / 2);
+    printf("N3G_M11 call=080723a4");
+    lcd_clear_display();
+    lcd_puts(0, 0, "N3G_M11 call");
+    lcd_puts(0, 1, "080723a4");
+    lcd_update();
+    ((void (*)(void))(loadbuffer + 0x723a4))();
+    printf("N3G_M11 ret");
+    lcd_clear_display();
+    lcd_puts(0, 0, "N3G_M11 ret");
+    lcd_puts(0, 1, "M12 next");
+    lcd_update();
+    sleep(HZ / 2);
+    printf("N3G_M12 call=0801af48");
+    lcd_clear_display();
+    lcd_puts(0, 0, "N3G_M12 call");
+    lcd_puts(0, 1, "0801af48");
+    lcd_update();
+    ((void (*)(void))(loadbuffer + 0x1af48))();
+    printf("N3G_M12 ret");
+    lcd_clear_display();
+    lcd_puts(0, 0, "N3G_M12 ret");
+    lcd_puts(0, 1, "M13 next");
+    lcd_update();
+    sleep(HZ / 2);
+    printf("N3G_M13 call=08005d0c");
+    lcd_clear_display();
+    lcd_puts(0, 0, "N3G_M13 call");
+    lcd_puts(0, 1, "08005d0c");
+    lcd_update();
+    ((void (*)(void))(loadbuffer + 0x5d0c))();
+    printf("N3G_M13 ret");
+    lcd_clear_display();
+    lcd_puts(0, 0, "N3G_M13 ret");
+    lcd_puts(0, 1, "M14 next");
+    lcd_update();
+    sleep(HZ / 2);
+    printf("N3G_M14 call=08005a84");
+    lcd_clear_display();
+    lcd_puts(0, 0, "N3G_M14 call");
+    lcd_puts(0, 1, "08005a84");
+    lcd_update();
+    ((void (*)(uint32_t, uint32_t, uint32_t))(loadbuffer + 0x5a84))
+        (0x080c31dcu, 0x0812098cu, 884);
+    printf("N3G_M14 ret");
+    lcd_clear_display();
+    lcd_puts(0, 0, "N3G_M14 ret");
+    lcd_puts(0, 1, "M15 next");
+    lcd_update();
+    sleep(HZ / 2);
+    printf("N3G_M15 call=08081dc4");
+    lcd_clear_display();
+    lcd_puts(0, 0, "N3G_M15 call");
+    lcd_puts(0, 1, "08081dc4");
+    lcd_update();
+    ((void (*)(void))(loadbuffer + 0x81dc4))();
+    printf("N3G_M15 ret");
+    lcd_clear_display();
+    lcd_puts(0, 0, "N3G_M15 ret");
+    lcd_puts(0, 1, "M16 next");
+    lcd_update();
+    sleep(HZ / 2);
+    printf("N3G_M16 call=08081c74");
+    lcd_clear_display();
+    lcd_puts(0, 0, "N3G_M16 call");
+    lcd_puts(0, 1, "08081c74");
+    lcd_update();
+    ((void (*)(void))(loadbuffer + 0x81c74))();
+    printf("N3G_M16 ret");
+    lcd_clear_display();
+    lcd_puts(0, 0, "N3G_M16 ret");
+    lcd_puts(0, 1, "M17 next");
+    lcd_update();
+    sleep(HZ / 2);
+    printf("N3G_M17 call=0807fae4");
+    lcd_clear_display();
+    lcd_puts(0, 0, "N3G_M17 call");
+    lcd_puts(0, 1, "0807fae4");
+    lcd_update();
+    ((void (*)(void))(loadbuffer + 0x7fae4))();
+    printf("N3G_M17 ret");
+    lcd_clear_display();
+    lcd_puts(0, 0, "N3G_M17 ret");
+    lcd_puts(0, 1, "M18 next");
+    lcd_update();
+    sleep(HZ / 2);
+    printf("N3G_M18 call=08067c2c");
+    lcd_clear_display();
+    lcd_puts(0, 0, "N3G_M18 call");
+    lcd_puts(0, 1, "08067c2c");
+    lcd_update();
+    ((void (*)(void))(loadbuffer + 0x67c2c))();
+    printf("N3G_M18 ret");
+    lcd_clear_display();
+    lcd_puts(0, 0, "N3G_M18 ret");
+    lcd_puts(0, 1, "M19 next");
+    lcd_update();
+    sleep(HZ / 2);
+    printf("N3G_M19 call=080656e0");
+    lcd_clear_display();
+    lcd_puts(0, 0, "N3G_M19 call");
+    lcd_puts(0, 1, "080656e0");
+    lcd_update();
+    ((void (*)(void))(loadbuffer + 0x656e0))();
+    printf("N3G_M19 ret");
+    lcd_clear_display();
+    lcd_puts(0, 0, "N3G_M19 ret");
+    lcd_puts(0, 1, "M20 next");
+    lcd_update();
+    sleep(HZ / 2);
+    printf("N3G_M20a call=0807565c");
+    lcd_clear_display();
+    lcd_puts(0, 0, "N3G_M20a call");
+    lcd_puts(0, 1, "0807565c");
+    lcd_update();
+    ((void (*)(void))(loadbuffer + 0x7565c))();
+    printf("N3G_M20a ret");
+    lcd_clear_display();
+    lcd_puts(0, 0, "N3G_M20a ret");
+    lcd_puts(0, 1, "M20b next");
+    lcd_update();
+    sleep(HZ / 2);
+    printf("N3G_M20b0 call=08082dc4");
+    lcd_clear_display();
+    lcd_puts(0, 0, "N3G_M20b0 call");
+    lcd_puts(0, 1, "08082dc4");
+    lcd_update();
+    ((void (*)(uint32_t, uint32_t, uint32_t))(loadbuffer + 0x82dc4))
+        (0x081658a4u, 1, 0);
+    printf("N3G_M20b0 ret");
+    lcd_clear_display();
+    lcd_puts(0, 0, "N3G_M20b0 ret");
+    lcd_puts(0, 1, "M20b1 next");
+    lcd_update();
+    sleep(HZ / 2);
+    printf("N3G_M20b1 call=08077a14");
+    lcd_clear_display();
+    lcd_puts(0, 0, "N3G_M20b1 call");
+    lcd_puts(0, 1, "08077a14");
+    lcd_update();
+    ((void (*)(void))(loadbuffer + 0x77a14))();
+    printf("N3G_M20b1 ret");
+    lcd_clear_display();
+    lcd_puts(0, 0, "N3G_M20b1 ret");
+    lcd_puts(0, 1, "M20b2 next");
+    lcd_update();
+    sleep(HZ / 2);
+    printf("N3G_M20b2 skip=08082ddc");
+    lcd_clear_display();
+    lcd_puts(0, 0, "N3G_M20b2 skip");
+    lcd_puts(0, 1, "08082ddc");
+    lcd_update();
+    sleep(HZ / 2);
+    printf("N3G_M20b2 skipped");
+    lcd_clear_display();
+    lcd_puts(0, 0, "N3G_M20b2 skipped");
+    lcd_puts(0, 1, "M20c next");
+    lcd_update();
+    sleep(HZ / 2);
+    printf("N3G_M20c call=08075128");
+    lcd_clear_display();
+    lcd_puts(0, 0, "N3G_M20c call");
+    lcd_puts(0, 1, "08075128");
+    lcd_update();
+    uint32_t n3g_m20_r = ((uint32_t (*)(void))(loadbuffer + 0x75128))();
+    *(volatile uint32_t *)0x08164690 = n3g_m20_r;
+    printf("N3G_M20c ret r=%08lx", (unsigned long)n3g_m20_r);
+    lcd_clear_display();
+    lcd_puts(0, 0, "N3G_M20c ret");
+    lcd_puts(0, 1, "M20d next");
+    lcd_update();
+    sleep(HZ / 2);
+    printf("N3G_M20d call=0806741c");
+    lcd_clear_display();
+    lcd_puts(0, 0, "N3G_M20d call");
+    lcd_puts(0, 1, "0806741c");
+    lcd_update();
+    ((void (*)(void))(loadbuffer + 0x6741c))();
+    printf("N3G_M20d ret");
+    lcd_clear_display();
+    lcd_puts(0, 0, "N3G_M20d ret");
+    lcd_puts(0, 1, "M20e next");
+    lcd_update();
+    sleep(HZ / 2);
+    printf("N3G_M20e call=080840f8");
+    lcd_clear_display();
+    lcd_puts(0, 0, "N3G_M20e call");
+    lcd_puts(0, 1, "080840f8");
+    lcd_update();
+    *(volatile uint32_t *)0x081646b0 = 0x080750f4u;
+    ((void (*)(uint32_t))(loadbuffer + 0x840f8))(0x08075150u);
+    printf("N3G_M20e ret");
+    lcd_clear_display();
+    lcd_puts(0, 0, "N3G_M20e ret");
+    lcd_puts(0, 1, "M21 next");
+    lcd_update();
+    sleep(HZ / 2);
+    printf("N3G_M21 call=08067384");
+    lcd_clear_display();
+    lcd_puts(0, 0, "N3G_M21 call");
+    lcd_puts(0, 1, "08067384");
+    lcd_update();
+    ((void (*)(void))(loadbuffer + 0x67384))();
+    printf("N3G_M21 ret");
+    lcd_clear_display();
+    lcd_puts(0, 0, "N3G_M21 ret");
+    lcd_puts(0, 1, "M22 next");
+    lcd_update();
+    sleep(HZ / 2);
+    printf("N3G_M22 call=0807f5d0");
+    lcd_clear_display();
+    lcd_puts(0, 0, "N3G_M22 call");
+    lcd_puts(0, 1, "0807f5d0");
+    lcd_update();
+    ((void (*)(void))(loadbuffer + 0x7f5d0))();
+    printf("N3G_M22 ret");
+    lcd_clear_display();
+    lcd_puts(0, 0, "N3G_M22 ret");
+    lcd_puts(0, 1, "M23 next");
+    lcd_update();
+    sleep(HZ / 2);
+    printf("N3G_M23 call=08031b04");
+    lcd_clear_display();
+    lcd_puts(0, 0, "N3G_M23 call");
+    lcd_puts(0, 1, "08031b04");
+    lcd_update();
+    ((void (*)(uint32_t))(loadbuffer + 0x31b04))(0x081153a0u);
+    printf("N3G_M23 ret");
+    lcd_clear_display();
+    lcd_puts(0, 0, "N3G_M23 ret");
+    lcd_puts(0, 1, "M24 next");
+    lcd_update();
+    sleep(HZ / 2);
+    printf("N3G_M24 call=08032244");
+    lcd_clear_display();
+    lcd_puts(0, 0, "N3G_M24 call");
+    lcd_puts(0, 1, "08032244");
+	    lcd_update();
+		    ((void (*)(void))(loadbuffer + 0x32244))();
+		    printf("N3G_M24 ret");
+		    lcd_clear_display();
+#endif
+		    lcd_puts(0, 0, "N3G_FAST_GO");
+	    lcd_puts(0, 1, "to M34");
+	    lcd_update();
+	    sleep(HZ / 2);
+
+	    ((void (*)(void))(loadbuffer + 0x667f4))();
+	    ((void (*)(void))(loadbuffer + 0x83d48))();
+	    ((void (*)(void))(loadbuffer + 0x82dc0))();
+	    ((void (*)(void))(loadbuffer + 0x84170))();
+	    ((void (*)(void))(loadbuffer + 0x6a878))();
+	    ((void (*)(uint32_t))(loadbuffer + 0x67800))(1);
+	    ((void (*)(void))(loadbuffer + 0x77754))();
+	    ((void (*)(void))(loadbuffer + 0x7faf4))();
+	    ((void (*)(void))(loadbuffer + 0x743e4))();
+	    ((void (*)(void))(loadbuffer + 0x723a4))();
+	    ((void (*)(void))(loadbuffer + 0x1af48))();
+	    ((void (*)(void))(loadbuffer + 0x5d0c))();
+	    ((void (*)(uint32_t, uint32_t, uint32_t))(loadbuffer + 0x5a84))
+	        (0x080c31dcu, 0x0812098cu, 884);
+	    ((void (*)(void))(loadbuffer + 0x81dc4))();
+	    ((void (*)(void))(loadbuffer + 0x81c74))();
+	    ((void (*)(void))(loadbuffer + 0x7fae4))();
+	    ((void (*)(void))(loadbuffer + 0x67c2c))();
+	    ((void (*)(void))(loadbuffer + 0x656e0))();
+	    lcd_clear_display();
+	    lcd_puts(0, 0, "N3G_WRAPSKIP_GO");
+	    lcd_puts(0, 1, "skip wait");
+	    lcd_update();
+	    sleep(HZ / 2);
+	    ((void (*)(void))(loadbuffer + 0x7565c))();
+	    ((void (*)(uint32_t, uint32_t, uint32_t))(loadbuffer + 0x82dc4))
+	        (0x081658a4u, 1, 0);
+	    ((void (*)(void))(loadbuffer + 0x77a14))();
+	    (void)((uint32_t (*)(void))(loadbuffer + 0x75128))();
+	    uint32_t n3g_fast_r = ((uint32_t (*)(void))(loadbuffer + 0x75128))();
+	    *(volatile uint32_t *)0x08164690 = n3g_fast_r;
+	    ((void (*)(void))(loadbuffer + 0x6741c))();
+	    *(volatile uint32_t *)0x081646b0 = 0x080750f4u;
+	    ((void (*)(uint32_t))(loadbuffer + 0x840f8))(0x08075150u);
+	    lcd_clear_display();
+	    lcd_puts(0, 0, "N3G_WRAPSKIP_RET");
+	    lcd_puts(0, 1, "next native");
+	    lcd_update();
+	    sleep(HZ / 2);
+	    ((void (*)(void))(loadbuffer + 0x67384))();
+	    ((void (*)(void))(loadbuffer + 0x7f5d0))();
+	    ((void (*)(uint32_t))(loadbuffer + 0x31b04))(0x081153a0u);
+	    ((void (*)(void))(loadbuffer + 0x32244))();
+	    ((void (*)(void))(loadbuffer + 0x348dc))();
+	    ((void (*)(void))(loadbuffer + 0x32ee0))();
+	    (void)((uint32_t (*)(void))(loadbuffer + 0x75770))();
+	    ((void (*)(void))(loadbuffer + 0x75ec0))();
+	    ((void (*)(void))(loadbuffer + 0x598e0))();
+	    ((void (*)(void))(loadbuffer + 0x1b310))();
+	    ((void (*)(void))(loadbuffer + 0x671a4))();
+	    volatile uint32_t *n3g_fast_state = (volatile uint32_t *)0x080f12b0u;
+	    ((void (*)(uint32_t))(loadbuffer + 0x6d948))
+	        (n3g_fast_state[9] & 0x7fffffffu);
+
+	    lcd_clear_display();
+	    lcd_puts(0, 0, "N3G_M34 skip");
+	    lcd_puts(0, 1, "tagcache");
+	    lcd_update();
+	    sleep(HZ / 2);
+	    lcd_clear_display();
+	    lcd_puts(0, 0, "N3G_M35 call");
+	    lcd_puts(0, 1, "0801abc0");
+	    lcd_update();
+	    ((void (*)(uint32_t))(loadbuffer + 0x1abc0))(1);
+	    lcd_clear_display();
+	    lcd_puts(0, 0, "N3G_M35 ret");
+	    lcd_puts(0, 1, "M36 next");
+	    lcd_update();
+	    sleep(HZ / 2);
+	    lcd_clear_display();
+	    lcd_puts(0, 0, "N3G_M36 call");
+	    lcd_puts(0, 1, "08050e84");
+	    lcd_update();
+	    ((void (*)(void))(loadbuffer + 0x50e84))();
+	    lcd_clear_display();
+	    lcd_puts(0, 0, "N3G_M36 ret");
+	    lcd_puts(0, 1, "M37? next");
+	    lcd_update();
+	    sleep(HZ / 2);
+	    uint32_t n3g_loop_ok = ((uint32_t (*)(void))(loadbuffer + 0x50f28))();
+	    lcd_clear_display();
+	    lcd_puts(0, 0, n3g_loop_ok ? "N3G_LOOP yes" : "N3G_LOOP no");
+	    lcd_puts(0, 1, "M37 next");
+	    lcd_update();
+	    sleep(HZ / 2);
+	    lcd_clear_display();
+	    lcd_puts(0, 0, "N3G_M37 call");
+	    lcd_puts(0, 1, "080514b0");
+	    lcd_update();
+	    uint32_t n3g_m37_r = ((uint32_t (*)(void))(loadbuffer + 0x514b0))();
+	    lcd_clear_display();
+		    lcd_puts(0, 0, n3g_m37_r > 0 ? "N3G_M37 pos" : "N3G_M37 zero");
+		    lcd_puts(0, 1, "sched stat");
+		    lcd_update();
+		    sleep(HZ / 2);
+		    volatile uint32_t *n3g_sched = (volatile uint32_t *)0x000072b4u;
+		    uint32_t n3g_ready0 = *(volatile uint32_t *)0x0819b37cu;
+		    uint32_t n3g_tick = *(volatile uint32_t *)0x0819b3a4u;
+		    uint32_t n3g_curid = ((uint32_t (*)(void))(loadbuffer + 0x83f34))();
+		    printf("N3G_SCHED q=%08lx loop=%08lx id=%08lx",
+		           (unsigned long)n3g_m37_r, (unsigned long)n3g_loop_ok,
+		           (unsigned long)n3g_curid);
+		    printf("N3G_SCHED2 run=%08lx cur=%08lx wake=%08lx ready=%08lx tick=%08lx",
+		           (unsigned long)n3g_sched[0], (unsigned long)n3g_sched[3],
+		           (unsigned long)n3g_sched[13], (unsigned long)n3g_ready0,
+		           (unsigned long)n3g_tick);
+		    lcd_clear_display();
+		    lcd_puts(0, 0, "N3G_SCHEDSTAT");
+		    lcd_puts(0, 1, n3g_m37_r > 0 ? "q pos" : "q zero");
+		    lcd_puts(0, 2, n3g_sched[3] ? "cur set" : "cur null");
+		    lcd_update();
+		    sleep(HZ / 2);
+		    volatile unsigned char *n3g_tg = (volatile unsigned char *)0x0811bd4cu;
+		    uint32_t n3g_p28 = ((uint32_t (*)(void))(loadbuffer + 0x50f28))();
+		    uint32_t n3g_p30 = ((uint32_t (*)(void))(loadbuffer + 0x50f30))();
+		    uint32_t n3g_p40 = ((uint32_t (*)(void))(loadbuffer + 0x50f40))();
+		    uint32_t n3g_p50 = ((uint32_t (*)(void))(loadbuffer + 0x50f50))();
+		    printf("N3G_TGFLAGS f59=%02lx f5a=%02lx f5b=%02lx p28=%08lx p30=%08lx p40=%08lx p50=%08lx",
+		           (unsigned long)n3g_tg[0x59],
+		           (unsigned long)n3g_tg[0x5a],
+		           (unsigned long)n3g_tg[0x5b],
+		           (unsigned long)n3g_p28,
+		           (unsigned long)n3g_p30,
+		           (unsigned long)n3g_p40,
+		           (unsigned long)n3g_p50);
+		    char n3g_diag_line[32];
+		    lcd_clear_display();
+		    lcd_puts(0, 0, "N3G_TGFLAGS");
+		    snprintf(n3g_diag_line, sizeof(n3g_diag_line), "59 %02lx 5A %02lx",
+		             (unsigned long)n3g_tg[0x59],
+		             (unsigned long)n3g_tg[0x5a]);
+		    lcd_puts(0, 1, n3g_diag_line);
+		    snprintf(n3g_diag_line, sizeof(n3g_diag_line), "5B %02lx P50 %lx",
+		             (unsigned long)n3g_tg[0x5b],
+		             (unsigned long)n3g_p50);
+		    lcd_puts(0, 2, n3g_diag_line);
+		    snprintf(n3g_diag_line, sizeof(n3g_diag_line), "P28 %lx P30 %lx",
+		             (unsigned long)n3g_p28,
+		             (unsigned long)n3g_p30);
+		    lcd_puts(0, 3, n3g_diag_line);
+		    lcd_update();
+		    sleep(HZ / 2);
+		    lcd_clear_display();
+		    lcd_puts(0, 0, "N3G_NO_SLEEP");
+		    lcd_puts(0, 1, "mainstep stop");
+		    lcd_update();
+	    while (1)
+	        sleep(HZ);
+
+#if 0
+	    lcd_clear_display();
+	    lcd_puts(0, 0, "N3G_M24 ret");
+	    lcd_puts(0, 1, "M25 next");
+	    lcd_update();
+	    sleep(HZ / 2);
+	    printf("N3G_M25 call=080348dc");
+	    lcd_clear_display();
+	    lcd_puts(0, 0, "N3G_M25 call");
+	    lcd_puts(0, 1, "080348dc");
+	    lcd_update();
+	    ((void (*)(void))(loadbuffer + 0x348dc))();
+	    printf("N3G_M25 ret");
+	    lcd_clear_display();
+	    lcd_puts(0, 0, "N3G_M25 ret");
+	    lcd_puts(0, 1, "M26 next");
+	    lcd_update();
+	    sleep(HZ / 2);
+	    printf("N3G_M26 call=08032ee0");
+	    lcd_clear_display();
+	    lcd_puts(0, 0, "N3G_M26 call");
+	    lcd_puts(0, 1, "08032ee0");
+	    lcd_update();
+	    ((void (*)(void))(loadbuffer + 0x32ee0))();
+	    printf("N3G_M26 ret");
+	    lcd_clear_display();
+	    lcd_puts(0, 0, "N3G_M26 ret");
+	    lcd_puts(0, 1, "M27 next");
+	    lcd_update();
+	    sleep(HZ / 2);
+	    printf("N3G_M27 call=08075770");
+	    lcd_clear_display();
+	    lcd_puts(0, 0, "N3G_M27 call");
+	    lcd_puts(0, 1, "08075770");
+	    lcd_update();
+	    uint32_t n3g_m27_r = ((uint32_t (*)(void))(loadbuffer + 0x75770))();
+	    printf("N3G_M27 ret r=%08lx", (unsigned long)n3g_m27_r);
+	    lcd_clear_display();
+	    lcd_puts(0, 0, "N3G_M27 ret");
+	    lcd_puts(0, 1, "postmount next");
+	    lcd_update();
+	    sleep(HZ / 2);
+	    (void)n3g_m27_r;
+	    lcd_clear_display();
+	    lcd_puts(0, 0, "N3G_M28 skip");
+	    lcd_puts(0, 1, "mount r=1");
+	    lcd_update();
+	    sleep(HZ / 2);
+	    volatile uint8_t *n3g_main_cfg = (volatile uint8_t *)0x080f0b34u;
+	    lcd_clear_display();
+	    lcd_puts(0, 0, "N3G_M29 call");
+	    lcd_puts(0, 1, "08075ec0");
+	    lcd_update();
+	    ((void (*)(void))(loadbuffer + 0x75ec0))();
+	    lcd_clear_display();
+	    lcd_puts(0, 0, "N3G_M29 ret");
+	    lcd_puts(0, 1, "M30 next");
+	    lcd_update();
+	    sleep(HZ / 2);
+	    lcd_clear_display();
+	    lcd_puts(0, 0, "N3G_M30 call");
+	    lcd_puts(0, 1, "080598e0");
+	    lcd_update();
+	    ((void (*)(void))(loadbuffer + 0x598e0))();
+	    lcd_clear_display();
+	    lcd_puts(0, 0, "N3G_M30 ret");
+	    lcd_puts(0, 1, "M31 next");
+	    lcd_update();
+	    sleep(HZ / 2);
+	    lcd_clear_display();
+	    lcd_puts(0, 0, "N3G_M31 call");
+	    lcd_puts(0, 1, "0801b310");
+	    lcd_update();
+	    ((void (*)(void))(loadbuffer + 0x1b310))();
+	    (void)n3g_main_cfg;
+	    lcd_clear_display();
+	    lcd_puts(0, 0, "N3G_M31 ret");
+	    lcd_puts(0, 1, "M32 next");
+	    lcd_update();
+	    sleep(HZ / 2);
+	    lcd_clear_display();
+	    lcd_puts(0, 0, "N3G_M32 call");
+	    lcd_puts(0, 1, "080671a4");
+	    lcd_update();
+	    ((void (*)(void))(loadbuffer + 0x671a4))();
+	    lcd_clear_display();
+	    lcd_puts(0, 0, "N3G_M32 ret");
+	    lcd_puts(0, 1, "M33 next");
+	    lcd_update();
+	    sleep(HZ / 2);
+	    volatile uint32_t *n3g_main_state = (volatile uint32_t *)0x080f12b0u;
+	    lcd_clear_display();
+	    lcd_puts(0, 0, "N3G_M33 call");
+	    lcd_puts(0, 1, "0806d948");
+	    lcd_update();
+	    ((void (*)(uint32_t))(loadbuffer + 0x6d948))
+	        (n3g_main_state[9] & 0x7fffffffu);
+	    lcd_clear_display();
+	    lcd_puts(0, 0, "N3G_M33 ret");
+	    lcd_puts(0, 1, "M34 next");
+	    lcd_update();
+	    sleep(HZ / 2);
+	    lcd_clear_display();
+	    lcd_puts(0, 0, "N3G_M34 call");
+	    lcd_puts(0, 1, "0804ff68");
+	    lcd_update();
+	    ((void (*)(void))(loadbuffer + 0x4ff68))();
+	    lcd_clear_display();
+	    lcd_puts(0, 0, "N3G_M34 ret");
+	    lcd_puts(0, 1, "M35 next");
+	    lcd_update();
+	    sleep(HZ / 2);
+	    lcd_clear_display();
+	    lcd_puts(0, 0, "N3G_M35 call");
+	    lcd_puts(0, 1, "0801abc0");
+	    lcd_update();
+	    ((void (*)(uint32_t))(loadbuffer + 0x1abc0))(1);
+	    lcd_clear_display();
+	    lcd_puts(0, 0, "N3G_M35 ret");
+	    printf("N3G_MAINSTEP_STOP");
+	    lcd_puts(0, 1, "mainstep stop");
+	    lcd_update();
+	    while (1)
+	        sleep(HZ);
+#endif
+	    disable_irq();
+    commit_discard_idcache();
+    ((void (*)(void))(loadbuffer + 0x5d7c))();
+    printf("N3G_MAINRET");
+    while (1)
+        sleep(HZ);
+#endif
+#if !defined(IPOD_NANO3G)
     disable_irq();
+#endif
 
     int (*kernel_entry)(void) = (void*)loadbuffer;
     commit_discard_idcache();
@@ -1314,6 +2242,9 @@ of_loaded:
 
     /* End stop - should not get here */
     enable_irq();
+#if defined(IPOD_NANO3G)
+    printf("N3G_RET rc=%ld", (long)rc);
+#endif
     printf("ERR: Failed to boot");
     while(1);
 #endif

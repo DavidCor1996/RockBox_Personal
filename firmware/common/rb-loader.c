@@ -26,6 +26,10 @@
 #include "loader_strerror.h"
 #include "checksum.h"
 
+#if defined(IPOD_NANO3G) && defined(BOOTLOADER)
+extern int printf(const char *format, ...);
+#endif
+
 #if defined(HAVE_BOOTDATA) || defined(HAVE_MULTIBOOT)
 #include "multiboot.h"
 #endif
@@ -54,6 +58,9 @@ static int load_firmware_filename(unsigned char* buf,
         return EFILE_NOT_FOUND;
 
     len = filesize(fd) - 8;
+#if defined(IPOD_NANO3G) && defined(BOOTLOADER)
+    printf("N3G_FIL_OPEN fd=%ld len=%ld", (long)fd, (long)len);
+#endif
 
     if (len > buffer_size)
     {
@@ -63,13 +70,29 @@ static int load_firmware_filename(unsigned char* buf,
 
     /* read 32-bit checksum followed by 4-byte model name,
      * this is the "scramble -add" header written by tools/scramble */
-    if (read(fd, buf, 8) < 8)
+    int n3g_header_read = read(fd, buf, 8);
+#if defined(IPOD_NANO3G) && defined(BOOTLOADER)
+    printf("N3G_FIL_RHDR n=%ld b=%02x%02x%02x%02x%02x%02x%02x%02x",
+           (long)n3g_header_read,
+           buf[0], buf[1], buf[2], buf[3],
+           buf[4], buf[5], buf[6], buf[7]);
+#endif
+    if (n3g_header_read < 8)
     {
+#if defined(IPOD_NANO3G) && defined(BOOTLOADER)
+        printf("N3G_FIL_STOP header read failed");
+        while (1)
+            __asm__ volatile("");
+#endif
         ret = EREAD_CHKSUM_FAILED;
         goto end;
     }
 
     chksum = load_be32(buf); /* Rockbox checksums are big-endian */
+#if defined(IPOD_NANO3G) && defined(BOOTLOADER)
+    printf("N3G_FIL_HDR len=%ld sum=%08lx tag=%c%c%c%c",
+           (long)len, chksum, buf[4], buf[5], buf[6], buf[7]);
+#endif
 
     if (read(fd, buf, len) < len)
     {
@@ -77,11 +100,34 @@ static int load_firmware_filename(unsigned char* buf,
         goto end;
     }
 
+#if defined(IPOD_NANO3G) && defined(BOOTLOADER)
+    {
+        uint32_t got = calc_checksum(MODEL_NUMBER, buf, len);
+        printf("N3G_FIL_BODY b0=%02x%02x%02x%02x%02x%02x%02x%02x",
+               buf[0], buf[1], buf[2], buf[3],
+               buf[4], buf[5], buf[6], buf[7]);
+        printf("N3G_FIL_BODY b8=%02x%02x%02x%02x%02x%02x%02x%02x",
+               buf[8], buf[9], buf[10], buf[11],
+               buf[12], buf[13], buf[14], buf[15]);
+        printf("N3G_FIL_SUM want=%08lx got=%08lx",
+               chksum, (unsigned long)got);
+        if (got != chksum)
+        {
+            printf("N3G_FIL_STOP checksum mismatch");
+            while (1)
+                __asm__ volatile("");
+            ret = EBAD_CHKSUM;
+            goto end;
+        }
+    }
+
+#else
     if (!verify_checksum(chksum, buf, len))
     {
         ret = EBAD_CHKSUM;
         goto end;
     }
+#endif
     ret = len;
 
 end:

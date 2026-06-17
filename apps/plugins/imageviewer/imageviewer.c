@@ -135,10 +135,52 @@ static enum image_type image_type = IMAGE_UNKNOWN;
 
 /************************* Implementation ***************************/
 
+static bool is_supported_image_name(const char *name)
+{
+    static const char *const exts[] = {
+        ".bmp", ".jpg", ".jpe", ".jpeg", ".png",
+#ifdef HAVE_LCD_COLOR
+        ".ppm",
+#endif
+        ".gif",
+    };
+    const char *ext = rb->strrchr(name, '.');
+    size_t i;
+
+    if (!ext)
+        return false;
+
+    for (i = 0; i < ARRAYLEN(exts); i++)
+    {
+        if (!rb->strcasecmp(ext, exts[i]))
+            return true;
+    }
+
+    return false;
+}
+
+static int compare_pic_names(const void *left, const void *right)
+{
+    const char * const *a = left;
+    const char * const *b = right;
+    return rb->strcasecmp(*a, *b);
+}
+
 /* Read directory contents for scrolling. */
 static void get_pic_list(bool single_file)
 {
+    unsigned char *list_start = buf;
+    unsigned char *name_end = buf + buf_size;
+    DIR *dir;
+    struct dirent *entry;
+    char dirpath[MAX_PATH];
+    char fullpath[MAX_PATH];
+    char *pname;
+    char *slash;
+
     file_pt = (char **) buf;
+    entries = 0;
+    curfile = -1;
 
     if (single_file)
     {
@@ -149,30 +191,73 @@ static void get_pic_list(bool single_file)
         return;
     }
 
-    struct tree_context *tree = rb->tree_get_context();
-    struct entry *dircache = rb->tree_get_entries(tree);
-    int i;
-    char *pname;
+    rb->strlcpy(dirpath, np_file, sizeof(dirpath));
+    slash = rb->strrchr(dirpath, '/');
+    if (!slash)
+        return;
+    *slash = '\0';
+    pname = slash + 1;
 
-    /* Remove path and leave only the name.*/
-    pname = rb->strrchr(np_file,'/');
-    pname++;
+    dir = rb->opendir(dirpath);
+    if (!dir)
+        return;
 
-    for (i = 0; i < tree->filesindir && buf_size > sizeof(char**); i++)
+    while ((entry = rb->readdir(dir)) != NULL)
     {
-        /* Add all files. Non-image files will be filtered out while loading. */
-        if (!(dircache[i].attr & ATTR_DIRECTORY))
-        {
-            file_pt[entries] = dircache[i].name;
-            /* Set Selected File. */
-            if (!rb->strcmp(file_pt[entries], pname))
-                curfile = entries;
-            entries++;
+        struct dirinfo info = rb->dir_get_info(dir, entry);
+        size_t name_len;
 
-            buf += (sizeof(char**));
-            buf_size -= (sizeof(char**));
+        if (info.attribute & ATTR_DIRECTORY)
+            continue;
+        if (!is_supported_image_name(entry->d_name))
+            continue;
+
+        name_len = rb->strlen(entry->d_name) + 1;
+        if ((entries + 1) * sizeof(char *) + name_len >
+            (size_t)(name_end - list_start))
+            break;
+
+        name_end -= name_len;
+        rb->strlcpy((char *)name_end, entry->d_name, name_len);
+        file_pt[entries] = (char *)name_end;
+
+        if (!rb->strcmp(entry->d_name, pname))
+            curfile = entries;
+        entries++;
+    }
+    rb->closedir(dir);
+
+    if (entries > 1)
+        rb->qsort(file_pt, entries, sizeof(char *), compare_pic_names);
+
+    if (curfile >= 0)
+    {
+        int i;
+        for (i = 0; i < entries; i++)
+        {
+            if (!rb->strcmp(file_pt[i], pname))
+            {
+                curfile = i;
+                break;
+            }
         }
     }
+
+    if (entries <= 0 || curfile < 0)
+    {
+        char *base = rb->strrchr(np_file, '/');
+        file_pt[0] = base ? base + 1 : np_file;
+        entries = 1;
+        curfile = 0;
+        buf += sizeof(char *);
+        buf_size -= sizeof(char *);
+        return;
+    }
+
+    rb->snprintf(fullpath, sizeof(fullpath), "%s/%s", dirpath, file_pt[curfile]);
+    rb->strlcpy(np_file, fullpath, sizeof(np_file));
+    buf = list_start + entries * sizeof(char *);
+    buf_size = name_end - buf;
 }
 
 static int change_filename(int direct)
@@ -631,6 +716,13 @@ static int scroll_bmp(struct image_info *info, bool initial_frame)
 
         switch(button)
         {
+#ifdef IMGVIEW_PAN_WHEN_ZOOMED
+        case IMGVIEW_LEFT:
+        case IMGVIEW_LEFT | BUTTON_REPEAT:
+            if (info->width > LCD_WIDTH)
+                pan_view_left(info);
+            break;
+#else
         case IMGVIEW_LEFT:
             if (entries > 1 && info->width <= LCD_WIDTH
                             && info->height <= LCD_HEIGHT)
@@ -643,7 +735,15 @@ static int scroll_bmp(struct image_info *info, bool initial_frame)
         case IMGVIEW_LEFT | BUTTON_REPEAT:
             pan_view_left(info);
             break;
+#endif
 
+#ifdef IMGVIEW_PAN_WHEN_ZOOMED
+        case IMGVIEW_RIGHT:
+        case IMGVIEW_RIGHT | BUTTON_REPEAT:
+            if (info->width > LCD_WIDTH)
+                pan_view_right(info);
+            break;
+#else
         case IMGVIEW_RIGHT:
             if (entries > 1 && info->width <= LCD_WIDTH
                             && info->height <= LCD_HEIGHT)
@@ -656,12 +756,17 @@ static int scroll_bmp(struct image_info *info, bool initial_frame)
         case IMGVIEW_RIGHT | BUTTON_REPEAT:
             pan_view_right(info);
             break;
+#endif
 
         case IMGVIEW_UP:
         case IMGVIEW_UP | BUTTON_REPEAT:
 #ifdef IMGVIEW_SCROLL_UP
         case IMGVIEW_SCROLL_UP:
         case IMGVIEW_SCROLL_UP | BUTTON_REPEAT:
+#endif
+#ifdef IMGVIEW_PAN_WHEN_ZOOMED
+            if (info->height <= LCD_HEIGHT)
+                return PLUGIN_OK;
 #endif
             pan_view_up(info);
             break;
@@ -671,6 +776,10 @@ static int scroll_bmp(struct image_info *info, bool initial_frame)
 #ifdef IMGVIEW_SCROLL_DOWN
         case IMGVIEW_SCROLL_DOWN:
         case IMGVIEW_SCROLL_DOWN | BUTTON_REPEAT:
+#endif
+#ifdef IMGVIEW_PAN_WHEN_ZOOMED
+            if (info->height <= LCD_HEIGHT)
+                break;
 #endif
             pan_view_down(info);
             break;
@@ -719,6 +828,10 @@ static int scroll_bmp(struct image_info *info, bool initial_frame)
         case IMGVIEW_NEXT_REPEAT:
 #endif
         case IMGVIEW_NEXT:
+#ifdef IMGVIEW_PAN_WHEN_ZOOMED
+            if (info->width > LCD_WIDTH)
+                break;
+#endif
             if (entries > 1)
                 return change_filename(DIR_NEXT);
             break;
@@ -727,6 +840,10 @@ static int scroll_bmp(struct image_info *info, bool initial_frame)
         case IMGVIEW_PREVIOUS_REPEAT:
 #endif
         case IMGVIEW_PREVIOUS:
+#ifdef IMGVIEW_PAN_WHEN_ZOOMED
+            if (info->width > LCD_WIDTH)
+                break;
+#endif
             if (entries > 1)
                 return change_filename(DIR_PREV);
             break;
@@ -894,7 +1011,12 @@ reload_decoder:
     rb->memset(info, 0, sizeof(*info));
     remaining = buf_size;
 
-    if (rb->button_get(false) == IMGVIEW_MENU)
+    int queued_button = rb->button_get(false);
+    if (queued_button == IMGVIEW_MENU
+#ifdef IMGVIEW_QUIT
+        || queued_button == IMGVIEW_QUIT
+#endif
+       )
         status = PLUGIN_ABORT;
     else
         status = imgdec->load_image(filename, info, buf, &remaining, offset, filesize);

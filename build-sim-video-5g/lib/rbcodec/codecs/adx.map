@@ -186,7 +186,7 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
 .plt.sec
  *(.plt.sec)
 
-.text           0x0000000000001050     0x12f9
+.text           0x0000000000001050     0x136d
  *(.text.unlikely .text.*_unlikely .text.unlikely.*)
  *(.text.exit .text.exit.*)
  *(.text.startup .text.startup.*)
@@ -217,25 +217,25 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
                 0x0000000000001d16                memchr
                 0x0000000000001d26                memmove
                 0x0000000000001d36                qsort
- .text          0x0000000000001d46      0x603 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libfixedpoint.a(fixedpoint.o)
+ .text          0x0000000000001d46      0x677 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libfixedpoint.a(fixedpoint.o)
                 0x0000000000001d46                fp_sincos
-                0x0000000000001dd3                fp_sqrt
-                0x0000000000001e76                ipow
-                0x0000000000001eac                fp14_sin
-                0x0000000000001f0c                fp14_cos
-                0x0000000000001f73                fp16_log
-                0x0000000000002049                fp16_exp
-                0x0000000000002121                fp_exp10
-                0x0000000000002281                fp_log10
-                0x000000000000230e                fp_decibels
-                0x000000000000232c                fp_factor
+                0x0000000000001dd1                fp_sqrt
+                0x0000000000001e81                ipow
+                0x0000000000001ebc                fp14_sin
+                0x0000000000001f14                fp14_cos
+                0x0000000000001f71                fp16_log
+                0x000000000000207d                fp16_exp
+                0x000000000000217f                fp_exp10
+                0x00000000000022e4                fp_log10
+                0x0000000000002382                fp_decibels
+                0x00000000000023a0                fp_factor
  *(.gnu.warning)
 
-.fini           0x000000000000234c        0xd
+.fini           0x00000000000023c0        0xd
  *(SORT_NONE(.fini))
- .fini          0x000000000000234c        0x8 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
-                0x000000000000234c                _fini
- .fini          0x0000000000002354        0x5 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
+ .fini          0x00000000000023c0        0x8 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
+                0x00000000000023c0                _fini
+ .fini          0x00000000000023c8        0x5 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
                 [!provide]                        PROVIDE (__etext = .)
                 [!provide]                        PROVIDE (_etext = .)
                 [!provide]                        PROVIDE (etext = .)
@@ -538,12 +538,12 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
  .debug_abbrev  0x0000000000000639      0x35b /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
  .debug_abbrev  0x0000000000000994      0x1c4 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libfixedpoint.a(fixedpoint.o)
 
-.debug_line     0x0000000000000000     0x151c
+.debug_line     0x0000000000000000     0x13d3
  *(.debug_line .debug_line.* .debug_line_end)
  .debug_line    0x0000000000000000      0x8b4 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/adx.o
  .debug_line    0x00000000000008b4       0xa9 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/codec_crt0.o
  .debug_line    0x000000000000095d      0x2a8 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
- .debug_line    0x0000000000000c05      0x917 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libfixedpoint.a(fixedpoint.o)
+ .debug_line    0x0000000000000c05      0x7ce /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libfixedpoint.a(fixedpoint.o)
 
 .debug_frame
  *(.debug_frame)
@@ -603,7 +603,7 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
                                         0x161 (size before relaxing)
 
 .debug_loclists
-                0x0000000000000000     0x199f
+                0x0000000000000000    0xb08df
  *(.debug_loclists)
  .debug_loclists
                 0x0000000000000000      0x975 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/adx.o
@@ -612,7 +612,7 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
  .debug_loclists
                 0x0000000000000993      0x328 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
  .debug_loclists
-                0x0000000000000cbb      0xce4 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libfixedpoint.a(fixedpoint.o)
+                0x0000000000000cbb    0xafc24 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libfixedpoint.a(fixedpoint.o)
 
 .debug_macro
  *(.debug_macro)

@@ -24,12 +24,12 @@ ANDROID_SKIP_DIR_NAMES = {
     ".thumbnails", ".trashed", "android", "data", "obb", "cache", "lost.dir",
 }
 
-IPOD_VIDEO_FPS = 24
+IPOD_VIDEO_FPS = 20
 IPOD_VIDEO_SIZE = "320:240"
-IPOD_VIDEO_QSCALE = "6"
-IPOD_VIDEO_MAXRATE = "1500k"
-IPOD_VIDEO_BUFSIZE = "1835k"
-IPOD_AUDIO_BITRATE = "128k"
+IPOD_VIDEO_QSCALE = "8"
+IPOD_VIDEO_MAXRATE = "900k"
+IPOD_VIDEO_BUFSIZE = "512k"
+IPOD_AUDIO_BITRATE = "96k"
 IPODTIKTOK_DEVICE_DIR = os.path.join("Videos", "iPodTikTok")
 IPODTIKTOK_FEED_PATH = os.path.join(".rockbox", "rocks", "apps", ".ipodtiktok_feed.tsv")
 IPODTIKTOK_MANIFEST_PATH = os.path.join(".rockbox", "rocks", "apps", ".ipodtiktok_import_manifest.tsv")
@@ -375,6 +375,12 @@ def build_ffmpeg_command(
             "mpeg2video",
             "-pix_fmt",
             "yuv420p",
+            "-bf",
+            "0",
+            "-g",
+            "12",
+            "-flags",
+            "+low_delay",
             "-q:v",
             IPOD_VIDEO_QSCALE,
             "-maxrate",
@@ -404,6 +410,12 @@ def build_ffmpeg_command(
         "mpeg2video",
         "-pix_fmt",
         "yuv420p",
+        "-bf",
+        "0",
+        "-g",
+        "12",
+        "-flags",
+        "+low_delay",
         "-q:v",
         IPOD_VIDEO_QSCALE,
         "-maxrate",

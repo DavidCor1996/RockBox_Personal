@@ -4,6 +4,7 @@ set -euo pipefail
 build_dir="${1:-/home/david/Documents/RockBox_Personal-master/build-sim-video-5g}"
 out_dir="${2:-/home/david/Documents/RockBox_Personal-master/docs/ipone-regression-shots}"
 source_sim_root="${build_dir}/simdisk"
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 sim_root=""
 
 normal_track="${NORMAL_TRACK:-/Music/Electric Jewels - April Wine/01 - April Wine - Weeping Widow.flac}"
@@ -38,9 +39,28 @@ prepare_runtime_root()
     done
 
     set_runtime_paths
+    install_current_theme_sources
 
     if [ ! -f "${resume_new_file}" ] && [ -f "${resume_file}" ]; then
         cp "${resume_file}" "${resume_new_file}"
+    fi
+}
+
+install_current_theme_sources()
+{
+    for skin_file in iPone.sbs iPone.wps iPone.fms; do
+        if [ -f "${repo_root}/wps/${skin_file}" ]; then
+            cp "${repo_root}/wps/${skin_file}" "${rb_cfg_dir}/wps/${skin_file}"
+        fi
+    done
+
+    if [ -d "${repo_root}/wps/iPone" ]; then
+        rm -rf "${rb_cfg_dir}/wps/iPone"
+        cp -a "${repo_root}/wps/iPone" "${rb_cfg_dir}/wps/iPone"
+    fi
+
+    if [ -f "${repo_root}/backdrops/iPone_bd.bmp" ]; then
+        cp "${repo_root}/backdrops/iPone_bd.bmp" "${rb_cfg_dir}/backdrops/iPone_bd.bmp"
     fi
 }
 
@@ -161,9 +181,10 @@ EOF
 
 launch_and_prepare_window()
 {
-    "${rockboxui}" --zoom 2 --nobackground --root "${sim_root}" \
-        >/tmp/ipone_regression_capture.log 2>&1 &
+    pushd "${build_dir}" >/dev/null
+    ./rockboxui --zoom 2 --nobackground --root "${sim_root}" &
     sim_pid=$!
+    popd >/dev/null
     sleep 2
     local win_ids
     win_ids="$(xdotool search --pid "${sim_pid}" || true)"
@@ -225,6 +246,11 @@ cleanup_runtime()
 {
     set +e
     cleanup_sim
+    if [ "${IPONE_CAPTURE_KEEP_ROOT:-0}" = "1" ]; then
+        printf "preserved simulator root: %s\n" "${sim_root:-}"
+        printf "preserved temp dir: %s\n" "${tmp_dir:-}"
+        return
+    fi
     if [ -n "${sim_root:-}" ] && [ -d "${sim_root}" ]; then
         rm -rf "${sim_root}"
     fi
@@ -245,7 +271,6 @@ main()
     fi
 
     mkdir -p "${out_dir}"
-    rm -f "${out_dir}"/*.png
     tmp_dir="$(mktemp -d)"
 
     trap cleanup_runtime EXIT INT TERM HUP
@@ -257,8 +282,17 @@ main()
 
     write_playlist_and_resume "${normal_track}"
     launch_and_prepare_window
+    rm -f "${out_dir}"/*.png
     ensure_playback_started
     capture_window "01-normal-playback.png"
+
+    xdotool key --window "${sim_wid}" KP_5
+    sleep 0.9
+    capture_window "11-menu-mini-player.png"
+
+    xdotool key --window "${sim_wid}" KP_Add
+    sleep 0.8
+    ensure_playback_started
 
     xdotool key --window "${sim_wid}" KP_Add
     sleep 1
@@ -314,6 +348,14 @@ main()
     xdotool key --window "${sim_wid}" h
     sleep 0.4
     capture_window "10-rapid-volume-lock-cycle.png"
+
+    xdotool key --window "${sim_wid}" h
+    sleep 0.5
+    xdotool key --window "${sim_wid}" F10
+    sleep 0.3
+    xdotool key --window "${sim_wid}" F11
+    sleep 1.4
+    capture_window "12-charging-docked.png"
 
     cleanup_sim
 

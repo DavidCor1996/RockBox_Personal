@@ -82,6 +82,11 @@ def test_build_ffmpeg_command_for_video_uses_mpeg2_profile():
     assert command[0] == "ffmpeg"
     assert "-c:v" in command
     assert "mpeg2video" in command
+    assert "-bf" in command
+    assert "0" in command
+    assert "-g" in command
+    assert "12" in command
+    assert "+low_delay" in command
     assert "-map" in command
     assert "0:a:0?" in command
 

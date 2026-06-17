@@ -334,7 +334,7 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
 .plt.sec
  *(.plt.sec)
 
-.text           0x00000000000050c0    0x19d72
+.text           0x00000000000050c0    0x19d89
  *(.text.unlikely .text.*_unlikely .text.unlikely.*)
  *(.text.exit .text.exit.*)
  *(.text.startup .text.startup.*)
@@ -683,71 +683,71 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
  .text.destroy_memory_pool
                 0x000000000001dfe0        0x5 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libtlsf.a(tlsf.o)
                 0x000000000001dfe0                destroy_memory_pool
- .text.free_ex  0x000000000001dfe5      0x2b4 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libtlsf.a(tlsf.o)
+ .text.free_ex  0x000000000001dfe5      0x2a2 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libtlsf.a(tlsf.o)
                 0x000000000001dfe5                free_ex
  .text.init_memory_pool
-                0x000000000001e299       0xaf /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libtlsf.a(tlsf.o)
-                0x000000000001e299                init_memory_pool
+                0x000000000001e287       0xa2 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libtlsf.a(tlsf.o)
+                0x000000000001e287                init_memory_pool
  .text.add_new_area
-                0x000000000001e348      0x140 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libtlsf.a(tlsf.o)
-                0x000000000001e348                add_new_area
+                0x000000000001e329      0x140 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libtlsf.a(tlsf.o)
+                0x000000000001e329                add_new_area
  .text.malloc_ex
-                0x000000000001e488      0x317 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libtlsf.a(tlsf.o)
-                0x000000000001e488                malloc_ex
+                0x000000000001e469      0x310 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libtlsf.a(tlsf.o)
+                0x000000000001e469                malloc_ex
  .text.tlsf_malloc
-                0x000000000001e79f       0x8c /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libtlsf.a(tlsf.o)
-                0x000000000001e79f                tlsf_malloc
+                0x000000000001e779       0x8c /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libtlsf.a(tlsf.o)
+                0x000000000001e779                tlsf_malloc
  .text.tlsf_free
-                0x000000000001e82b        0xc /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libtlsf.a(tlsf.o)
-                0x000000000001e82b                tlsf_free
+                0x000000000001e805        0xc /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libtlsf.a(tlsf.o)
+                0x000000000001e805                tlsf_free
  .text.realloc_ex
-                0x000000000001e837      0x3b0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libtlsf.a(tlsf.o)
-                0x000000000001e837                realloc_ex
+                0x000000000001e811      0x3ed /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libtlsf.a(tlsf.o)
+                0x000000000001e811                realloc_ex
  .text.tlsf_realloc
-                0x000000000001ebe7       0x19 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libtlsf.a(tlsf.o)
-                0x000000000001ebe7                tlsf_realloc
+                0x000000000001ebfe       0x19 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libtlsf.a(tlsf.o)
+                0x000000000001ebfe                tlsf_realloc
  .text.calloc_ex
-                0x000000000001ec00       0x3f /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libtlsf.a(tlsf.o)
-                0x000000000001ec00                calloc_ex
+                0x000000000001ec17       0x3f /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libtlsf.a(tlsf.o)
+                0x000000000001ec17                calloc_ex
  .text.tlsf_calloc
-                0x000000000001ec3f        0xc /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libtlsf.a(tlsf.o)
-                0x000000000001ec3f                tlsf_calloc
- .text          0x000000000001ec4b       0x40 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
-                0x000000000001ec4b                memcpy
-                0x000000000001ec5b                memset
-                0x000000000001ec6b                memmove
-                0x000000000001ec7b                memcmp
- .text          0x000000000001ec8b       0x5f /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_actions.o)
-                0x000000000001ecb4                pluginlib_getaction
- .text          0x000000000001ecea      0x11a /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(helper.o)
-                0x000000000001ecea                talk_val
-                0x000000000001ed02                backlight_force_on
-                0x000000000001ed24                backlight_ignore_timeout
-                0x000000000001ed62                backlight_use_settings
-                0x000000000001ed94                sw_poweroff_disable
-                0x000000000001edba                sw_poweroff_restore
-                0x000000000001edd1                remote_backlight_force_on
-                0x000000000001edd2                remote_backlight_ignore_timeout
-                0x000000000001edd3                remote_backlight_use_settings
-                0x000000000001edd4                buttonlight_force_on
-                0x000000000001edd5                buttonlight_force_off
-                0x000000000001edd6                buttonlight_ignore_timeout
-                0x000000000001edd7                buttonlight_use_settings
-                0x000000000001edd8                backlight_brightness_set
-                0x000000000001ede8                backlight_brightness_use_setting
-                0x000000000001ee02                buttonlight_brightness_set
-                0x000000000001ee03                buttonlight_brightness_use_setting
- .text          0x000000000001ee04       0x2e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(strncpy.o)
-                0x000000000001ee04                strncpy
- .text          0x000000000001ee32        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtendS.o
- .text          0x000000000001ee32        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
+                0x000000000001ec56        0xc /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libtlsf.a(tlsf.o)
+                0x000000000001ec56                tlsf_calloc
+ .text          0x000000000001ec62       0x40 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
+                0x000000000001ec62                memcpy
+                0x000000000001ec72                memset
+                0x000000000001ec82                memmove
+                0x000000000001ec92                memcmp
+ .text          0x000000000001eca2       0x5f /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_actions.o)
+                0x000000000001eccb                pluginlib_getaction
+ .text          0x000000000001ed01      0x11a /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(helper.o)
+                0x000000000001ed01                talk_val
+                0x000000000001ed19                backlight_force_on
+                0x000000000001ed3b                backlight_ignore_timeout
+                0x000000000001ed79                backlight_use_settings
+                0x000000000001edab                sw_poweroff_disable
+                0x000000000001edd1                sw_poweroff_restore
+                0x000000000001ede8                remote_backlight_force_on
+                0x000000000001ede9                remote_backlight_ignore_timeout
+                0x000000000001edea                remote_backlight_use_settings
+                0x000000000001edeb                buttonlight_force_on
+                0x000000000001edec                buttonlight_force_off
+                0x000000000001eded                buttonlight_ignore_timeout
+                0x000000000001edee                buttonlight_use_settings
+                0x000000000001edef                backlight_brightness_set
+                0x000000000001edff                backlight_brightness_use_setting
+                0x000000000001ee19                buttonlight_brightness_set
+                0x000000000001ee1a                buttonlight_brightness_use_setting
+ .text          0x000000000001ee1b       0x2e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(strncpy.o)
+                0x000000000001ee1b                strncpy
+ .text          0x000000000001ee49        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtendS.o
+ .text          0x000000000001ee49        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
  *(.gnu.warning)
 
-.fini           0x000000000001ee34        0xd
+.fini           0x000000000001ee4c        0xd
  *(SORT_NONE(.fini))
- .fini          0x000000000001ee34        0x8 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
-                0x000000000001ee34                _fini
- .fini          0x000000000001ee3c        0x5 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
+ .fini          0x000000000001ee4c        0x8 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
+                0x000000000001ee4c                _fini
+ .fini          0x000000000001ee54        0x5 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
                 [!provide]                        PROVIDE (__etext = .)
                 [!provide]                        PROVIDE (_etext = .)
                 [!provide]                        PROVIDE (etext = .)
@@ -896,7 +896,7 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
                 0x0000000000021ef8                __GNU_EH_FRAME_HDR
  *(.eh_frame_entry .eh_frame_entry.*)
 
-.eh_frame       0x00000000000237e0     0x7868
+.eh_frame       0x00000000000237e0     0x7850
  *(.eh_frame)
  .eh_frame      0x00000000000237e0       0x40 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
  .eh_frame      0x0000000000023820        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
@@ -976,17 +976,17 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
                                         0x9f8 (size before relaxing)
  .eh_frame      0x000000000002aae8       0x88 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
                                          0xa0 (size before relaxing)
- .eh_frame      0x000000000002ab70      0x2d0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libtlsf.a(tlsf.o)
-                                        0x2e8 (size before relaxing)
- .eh_frame      0x000000000002ae40       0x50 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
+ .eh_frame      0x000000000002ab70      0x2b8 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libtlsf.a(tlsf.o)
+                                        0x2d0 (size before relaxing)
+ .eh_frame      0x000000000002ae28       0x50 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
                                          0x68 (size before relaxing)
- .eh_frame      0x000000000002ae90       0x28 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_actions.o)
+ .eh_frame      0x000000000002ae78       0x28 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_actions.o)
                                          0x40 (size before relaxing)
- .eh_frame      0x000000000002aeb8      0x178 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(helper.o)
+ .eh_frame      0x000000000002aea0      0x178 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(helper.o)
                                         0x190 (size before relaxing)
- .eh_frame      0x000000000002b030       0x14 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(strncpy.o)
+ .eh_frame      0x000000000002b018       0x14 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(strncpy.o)
                                          0x30 (size before relaxing)
- .eh_frame      0x000000000002b044        0x4 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtendS.o
+ .eh_frame      0x000000000002b02c        0x4 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtendS.o
  *(.eh_frame.*)
 
 .sframe
@@ -1006,110 +1006,110 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
  *(.note.build-id)
 
 .note.GNU-stack
-                0x000000000002b048        0x0
+                0x000000000002b030        0x0
  *(.note.GNU-stack)
  .note.GNU-stack
-                0x000000000002b048        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
+                0x000000000002b030        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
  .note.GNU-stack
-                0x000000000002b048        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtbeginS.o
+                0x000000000002b030        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtbeginS.o
  .note.GNU-stack
-                0x000000000002b048        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/lauxlib.o
+                0x000000000002b030        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/lauxlib.o
  .note.GNU-stack
-                0x000000000002b048        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/lapi.o
+                0x000000000002b030        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/lapi.o
  .note.GNU-stack
-                0x000000000002b048        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/lbaselib.o
+                0x000000000002b030        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/lbaselib.o
  .note.GNU-stack
-                0x000000000002b048        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/lbitlib.o
+                0x000000000002b030        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/lbitlib.o
  .note.GNU-stack
-                0x000000000002b048        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/lcode.o
+                0x000000000002b030        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/lcode.o
  .note.GNU-stack
-                0x000000000002b048        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/ldebug.o
+                0x000000000002b030        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/ldebug.o
  .note.GNU-stack
-                0x000000000002b048        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/ldo.o
+                0x000000000002b030        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/ldo.o
  .note.GNU-stack
-                0x000000000002b048        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/ldump.o
+                0x000000000002b030        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/ldump.o
  .note.GNU-stack
-                0x000000000002b048        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/lfunc.o
+                0x000000000002b030        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/lfunc.o
  .note.GNU-stack
-                0x000000000002b048        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/lgc.o
+                0x000000000002b030        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/lgc.o
  .note.GNU-stack
-                0x000000000002b048        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/liolib.o
+                0x000000000002b030        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/liolib.o
  .note.GNU-stack
-                0x000000000002b048        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/llex.o
+                0x000000000002b030        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/llex.o
  .note.GNU-stack
-                0x000000000002b048        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/lmathlib.o
+                0x000000000002b030        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/lmathlib.o
  .note.GNU-stack
-                0x000000000002b048        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/lmem.o
+                0x000000000002b030        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/lmem.o
  .note.GNU-stack
-                0x000000000002b048        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/loadlib.o
+                0x000000000002b030        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/loadlib.o
  .note.GNU-stack
-                0x000000000002b048        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/lobject.o
+                0x000000000002b030        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/lobject.o
  .note.GNU-stack
-                0x000000000002b048        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/lopcodes.o
+                0x000000000002b030        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/lopcodes.o
  .note.GNU-stack
-                0x000000000002b048        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/loslib.o
+                0x000000000002b030        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/loslib.o
  .note.GNU-stack
-                0x000000000002b048        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/lparser.o
+                0x000000000002b030        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/lparser.o
  .note.GNU-stack
-                0x000000000002b048        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/lstate.o
+                0x000000000002b030        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/lstate.o
  .note.GNU-stack
-                0x000000000002b048        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/lstring.o
+                0x000000000002b030        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/lstring.o
  .note.GNU-stack
-                0x000000000002b048        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/lstrlib.o
+                0x000000000002b030        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/lstrlib.o
  .note.GNU-stack
-                0x000000000002b048        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/ltable.o
+                0x000000000002b030        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/ltable.o
  .note.GNU-stack
-                0x000000000002b048        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/ltablib.o
+                0x000000000002b030        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/ltablib.o
  .note.GNU-stack
-                0x000000000002b048        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/ltm.o
+                0x000000000002b030        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/ltm.o
  .note.GNU-stack
-                0x000000000002b048        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/lundump.o
+                0x000000000002b030        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/lundump.o
  .note.GNU-stack
-                0x000000000002b048        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/lua_user.o
+                0x000000000002b030        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/lua_user.o
  .note.GNU-stack
-                0x000000000002b048        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/lvm.o
+                0x000000000002b030        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/lvm.o
  .note.GNU-stack
-                0x000000000002b048        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/lzio.o
+                0x000000000002b030        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/lzio.o
  .note.GNU-stack
-                0x000000000002b048        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/rockaux.o
+                0x000000000002b030        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/rockaux.o
  .note.GNU-stack
-                0x000000000002b048        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/rocklib.o
+                0x000000000002b030        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/rocklib.o
  .note.GNU-stack
-                0x000000000002b048        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/rocklib_img.o
+                0x000000000002b030        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/rocklib_img.o
  .note.GNU-stack
-                0x000000000002b048        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/tlsf_helper.o
+                0x000000000002b030        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/tlsf_helper.o
  .note.GNU-stack
-                0x000000000002b048        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/strpbrk.o
+                0x000000000002b030        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/strpbrk.o
  .note.GNU-stack
-                0x000000000002b048        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/rocklua.o
+                0x000000000002b030        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/rocklua.o
  .note.GNU-stack
-                0x000000000002b048        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/luadir.o
+                0x000000000002b030        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/luadir.o
  .note.GNU-stack
-                0x000000000002b048        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/rocklib_events.o
+                0x000000000002b030        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/rocklib_events.o
  .note.GNU-stack
-                0x000000000002b048        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/rocklib_aux.o
+                0x000000000002b030        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/rocklib_aux.o
  .note.GNU-stack
-                0x000000000002b048        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+                0x000000000002b030        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
  .note.GNU-stack
-                0x000000000002b048        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libtlsf.a(tlsf.o)
+                0x000000000002b030        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libtlsf.a(tlsf.o)
  .note.GNU-stack
-                0x000000000002b048        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
+                0x000000000002b030        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
  .note.GNU-stack
-                0x000000000002b048        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_actions.o)
+                0x000000000002b030        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_actions.o)
  .note.GNU-stack
-                0x000000000002b048        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(helper.o)
+                0x000000000002b030        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(helper.o)
  .note.GNU-stack
-                0x000000000002b048        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(strncpy.o)
+                0x000000000002b030        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(strncpy.o)
  .note.GNU-stack
-                0x000000000002b048        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtendS.o
+                0x000000000002b030        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtendS.o
  .note.GNU-stack
-                0x000000000002b048        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
+                0x000000000002b030        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
 
 .note.gnu.property
-                0x000000000002b048       0x30
+                0x000000000002b030       0x30
  *(.note.gnu.property)
  .note.gnu.property
-                0x000000000002b048       0x30 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
+                0x000000000002b030       0x30 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
 
 .note.ABI-tag
  *(.note.ABI-tag)
@@ -1419,99 +1419,99 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
 .stab.indexstr
  *(.stab.indexstr)
 
-.comment        0x0000000000000000       0x36
+.comment        0x0000000000000000       0x1b
  *(.comment)
- .comment       0x0000000000000000       0x36 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtbeginS.o
+ .comment       0x0000000000000000       0x1b /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtbeginS.o
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/lauxlib.o
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/lauxlib.o
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/lapi.o
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/lapi.o
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/lbaselib.o
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/lbaselib.o
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/lbitlib.o
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/lbitlib.o
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/lcode.o
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/lcode.o
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/ldebug.o
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/ldebug.o
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/ldo.o
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/ldo.o
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/ldump.o
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/ldump.o
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/lfunc.o
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/lfunc.o
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/lgc.o
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/lgc.o
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/liolib.o
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/liolib.o
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/llex.o
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/llex.o
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/lmathlib.o
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/lmathlib.o
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/lmem.o
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/lmem.o
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/loadlib.o
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/loadlib.o
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/lobject.o
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/lobject.o
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/lopcodes.o
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/lopcodes.o
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/loslib.o
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/loslib.o
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/lparser.o
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/lparser.o
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/lstate.o
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/lstate.o
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/lstring.o
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/lstring.o
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/lstrlib.o
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/lstrlib.o
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/ltable.o
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/ltable.o
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/ltablib.o
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/ltablib.o
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/ltm.o
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/ltm.o
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/lundump.o
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/lundump.o
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/lua_user.o
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/lua_user.o
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/lvm.o
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/lvm.o
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/lzio.o
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/lzio.o
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/rockaux.o
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/rockaux.o
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/rocklib.o
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/rocklib.o
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/rocklib_img.o
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/rocklib_img.o
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/tlsf_helper.o
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/tlsf_helper.o
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/strpbrk.o
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/strpbrk.o
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/rocklua.o
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/rocklua.o
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/luadir.o
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/luadir.o
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/rocklib_events.o
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/rocklib_events.o
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/rocklib_aux.o
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/rocklib_aux.o
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libtlsf.a(tlsf.o)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libtlsf.a(tlsf.o)
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_actions.o)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_actions.o)
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(helper.o)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(helper.o)
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(strncpy.o)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(strncpy.o)
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtendS.o
+ .comment       0x000000000000001b        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtendS.o
                                          0x1c (size before relaxing)
 
 .gnu.build.attributes
@@ -1623,7 +1623,7 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000   0x1146b3
+.debug_info     0x0000000000000000   0x1147a0
  *(.debug_info .gnu.linkonce.wi.*)
  .debug_info    0x0000000000000000     0xb9b4 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/lauxlib.o
  .debug_info    0x000000000000b9b4     0xba14 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/lapi.o
@@ -1664,13 +1664,13 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
  .debug_info    0x00000000000dfff3     0x9bb0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/rocklib_events.o
  .debug_info    0x00000000000e9ba3     0xa39d /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/rocklib_aux.o
  .debug_info    0x00000000000f3f40     0x7c93 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
- .debug_info    0x00000000000fbbd3     0x1a7e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libtlsf.a(tlsf.o)
- .debug_info    0x00000000000fd651     0x7664 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
- .debug_info    0x0000000000104cb5     0x7e49 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_actions.o)
- .debug_info    0x000000000010cafe     0x7a8b /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(helper.o)
- .debug_info    0x0000000000114589      0x12a /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(strncpy.o)
+ .debug_info    0x00000000000fbbd3     0x1b6b /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libtlsf.a(tlsf.o)
+ .debug_info    0x00000000000fd73e     0x7664 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
+ .debug_info    0x0000000000104da2     0x7e49 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_actions.o)
+ .debug_info    0x000000000010cbeb     0x7a8b /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(helper.o)
+ .debug_info    0x0000000000114676      0x12a /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(strncpy.o)
 
-.debug_abbrev   0x0000000000000000     0xcf4d
+.debug_abbrev   0x0000000000000000     0xcf87
  *(.debug_abbrev)
  .debug_abbrev  0x0000000000000000      0x794 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/lauxlib.o
  .debug_abbrev  0x0000000000000794      0x775 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/lapi.o
@@ -1711,13 +1711,13 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
  .debug_abbrev  0x000000000000b0db      0x700 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/rocklib_events.o
  .debug_abbrev  0x000000000000b7db      0x41d /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/rocklib_aux.o
  .debug_abbrev  0x000000000000bbf8      0x442 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
- .debug_abbrev  0x000000000000c03a      0x43c /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libtlsf.a(tlsf.o)
- .debug_abbrev  0x000000000000c476      0x310 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
- .debug_abbrev  0x000000000000c786      0x364 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_actions.o)
- .debug_abbrev  0x000000000000caea      0x3c2 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(helper.o)
- .debug_abbrev  0x000000000000ceac       0xa1 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(strncpy.o)
+ .debug_abbrev  0x000000000000c03a      0x476 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libtlsf.a(tlsf.o)
+ .debug_abbrev  0x000000000000c4b0      0x310 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
+ .debug_abbrev  0x000000000000c7c0      0x364 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_actions.o)
+ .debug_abbrev  0x000000000000cb24      0x3c2 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(helper.o)
+ .debug_abbrev  0x000000000000cee6       0xa1 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(strncpy.o)
 
-.debug_line     0x0000000000000000    0x19627
+.debug_line     0x0000000000000000    0x1968d
  *(.debug_line .debug_line.* .debug_line_end)
  .debug_line    0x0000000000000000     0x1075 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/lauxlib.o
  .debug_line    0x0000000000001075     0x17bf /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/lapi.o
@@ -1758,11 +1758,11 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
  .debug_line    0x000000000001602b      0xd0b /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/rocklib_events.o
  .debug_line    0x0000000000016d36      0xff8 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/rocklib_aux.o
  .debug_line    0x0000000000017d2e      0x2bd /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
- .debug_line    0x0000000000017feb      0xf07 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libtlsf.a(tlsf.o)
- .debug_line    0x0000000000018ef2      0x1eb /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
- .debug_line    0x00000000000190dd      0x1e7 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_actions.o)
- .debug_line    0x00000000000192c4      0x2b4 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(helper.o)
- .debug_line    0x0000000000019578       0xaf /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(strncpy.o)
+ .debug_line    0x0000000000017feb      0xf6d /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libtlsf.a(tlsf.o)
+ .debug_line    0x0000000000018f58      0x1eb /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
+ .debug_line    0x0000000000019143      0x1e7 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_actions.o)
+ .debug_line    0x000000000001932a      0x2b4 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(helper.o)
+ .debug_line    0x00000000000195de       0xaf /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(strncpy.o)
 
 .debug_frame
  *(.debug_frame)
@@ -1886,143 +1886,143 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
  *(.debug_addr)
 
 .debug_line_str
-                0x0000000000000000     0x14f9
+                0x0000000000000000     0x14c9
  *(.debug_line_str)
  .debug_line_str
-                0x0000000000000000     0x14f9 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/lauxlib.o
+                0x0000000000000000     0x14c9 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/lauxlib.o
                                         0x6d4 (size before relaxing)
  .debug_line_str
-                0x00000000000014f9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/lapi.o
+                0x00000000000014c9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/lapi.o
                                         0x6ab (size before relaxing)
  .debug_line_str
-                0x00000000000014f9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/lbaselib.o
+                0x00000000000014c9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/lbaselib.o
                                         0x65e (size before relaxing)
  .debug_line_str
-                0x00000000000014f9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/lbitlib.o
+                0x00000000000014c9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/lbitlib.o
                                         0x2cd (size before relaxing)
  .debug_line_str
-                0x00000000000014f9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/lcode.o
+                0x00000000000014c9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/lcode.o
                                         0x1d5 (size before relaxing)
  .debug_line_str
-                0x00000000000014f9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/ldebug.o
+                0x00000000000014c9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/ldebug.o
                                         0x686 (size before relaxing)
  .debug_line_str
-                0x00000000000014f9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/ldo.o
+                0x00000000000014c9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/ldo.o
                                         0x239 (size before relaxing)
  .debug_line_str
-                0x00000000000014f9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/ldump.o
+                0x00000000000014c9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/ldump.o
                                         0x185 (size before relaxing)
  .debug_line_str
-                0x00000000000014f9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/lfunc.o
+                0x00000000000014c9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/lfunc.o
                                         0x188 (size before relaxing)
  .debug_line_str
-                0x00000000000014f9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/lgc.o
+                0x00000000000014c9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/lgc.o
                                         0x66d (size before relaxing)
  .debug_line_str
-                0x00000000000014f9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/liolib.o
+                0x00000000000014c9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/liolib.o
                                         0x66b (size before relaxing)
  .debug_line_str
-                0x00000000000014f9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/llex.o
+                0x00000000000014c9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/llex.o
                                         0x6a1 (size before relaxing)
  .debug_line_str
-                0x00000000000014f9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/lmathlib.o
+                0x00000000000014c9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/lmathlib.o
                                         0x64e (size before relaxing)
  .debug_line_str
-                0x00000000000014f9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/lmem.o
+                0x00000000000014c9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/lmem.o
                                         0x187 (size before relaxing)
  .debug_line_str
-                0x00000000000014f9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/loadlib.o
+                0x00000000000014c9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/loadlib.o
                                         0x655 (size before relaxing)
  .debug_line_str
-                0x00000000000014f9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/lobject.o
+                0x00000000000014c9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/lobject.o
                                         0x6a3 (size before relaxing)
  .debug_line_str
-                0x00000000000014f9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/lopcodes.o
+                0x00000000000014c9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/lopcodes.o
                                         0x29c (size before relaxing)
  .debug_line_str
-                0x00000000000014f9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/loslib.o
+                0x00000000000014c9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/loslib.o
                                         0x662 (size before relaxing)
  .debug_line_str
-                0x00000000000014f9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/lparser.o
+                0x00000000000014c9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/lparser.o
                                         0x33f (size before relaxing)
  .debug_line_str
-                0x00000000000014f9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/lstate.o
+                0x00000000000014c9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/lstate.o
                                         0x1b9 (size before relaxing)
  .debug_line_str
-                0x00000000000014f9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/lstring.o
+                0x00000000000014c9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/lstring.o
                                         0x661 (size before relaxing)
  .debug_line_str
-                0x00000000000014f9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/lstrlib.o
+                0x00000000000014c9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/lstrlib.o
                                         0x664 (size before relaxing)
  .debug_line_str
-                0x00000000000014f9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/ltable.o
+                0x00000000000014c9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/ltable.o
                                         0x31c (size before relaxing)
  .debug_line_str
-                0x00000000000014f9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/ltablib.o
+                0x00000000000014c9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/ltablib.o
                                         0x2cd (size before relaxing)
  .debug_line_str
-                0x00000000000014f9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/ltm.o
+                0x00000000000014c9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/ltm.o
                                         0x2f4 (size before relaxing)
  .debug_line_str
-                0x00000000000014f9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/lundump.o
+                0x00000000000014c9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/lundump.o
                                         0x18b (size before relaxing)
  .debug_line_str
-                0x00000000000014f9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/lua_user.o
+                0x00000000000014c9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/lua_user.o
                                         0x2fb (size before relaxing)
  .debug_line_str
-                0x00000000000014f9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/lvm.o
+                0x00000000000014c9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/lvm.o
                                         0x69b (size before relaxing)
  .debug_line_str
-                0x00000000000014f9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/lzio.o
+                0x00000000000014c9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/lzio.o
                                         0x195 (size before relaxing)
  .debug_line_str
-                0x00000000000014f9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/rockaux.o
+                0x00000000000014c9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/rockaux.o
                                         0x68b (size before relaxing)
  .debug_line_str
-                0x00000000000014f9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/rocklib.o
+                0x00000000000014c9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/rocklib.o
                                         0x6e5 (size before relaxing)
  .debug_line_str
-                0x00000000000014f9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/rocklib_img.o
+                0x00000000000014c9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/rocklib_img.o
                                         0x657 (size before relaxing)
  .debug_line_str
-                0x00000000000014f9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/tlsf_helper.o
+                0x00000000000014c9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/tlsf_helper.o
                                         0x647 (size before relaxing)
  .debug_line_str
-                0x00000000000014f9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/strpbrk.o
+                0x00000000000014c9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/strpbrk.o
                                         0x134 (size before relaxing)
  .debug_line_str
-                0x00000000000014f9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/rocklua.o
+                0x00000000000014c9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/rocklua.o
                                         0x72c (size before relaxing)
  .debug_line_str
-                0x00000000000014f9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/luadir.o
+                0x00000000000014c9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/luadir.o
                                         0x650 (size before relaxing)
  .debug_line_str
-                0x00000000000014f9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/rocklib_events.o
+                0x00000000000014c9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/rocklib_events.o
                                         0x685 (size before relaxing)
  .debug_line_str
-                0x00000000000014f9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/rocklib_aux.o
+                0x00000000000014c9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/rocklib_aux.o
                                         0x6c4 (size before relaxing)
  .debug_line_str
-                0x00000000000014f9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+                0x00000000000014c9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
                                         0x693 (size before relaxing)
  .debug_line_str
-                0x00000000000014f9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libtlsf.a(tlsf.o)
+                0x00000000000014c9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libtlsf.a(tlsf.o)
                                         0x165 (size before relaxing)
  .debug_line_str
-                0x00000000000014f9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
+                0x00000000000014c9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
                                         0x636 (size before relaxing)
  .debug_line_str
-                0x00000000000014f9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_actions.o)
+                0x00000000000014c9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_actions.o)
                                         0x66d (size before relaxing)
  .debug_line_str
-                0x00000000000014f9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(helper.o)
+                0x00000000000014c9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(helper.o)
                                         0x638 (size before relaxing)
  .debug_line_str
-                0x00000000000014f9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(strncpy.o)
+                0x00000000000014c9        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(strncpy.o)
                                         0x16d (size before relaxing)
 
 .debug_loclists
-                0x0000000000000000    0x17f02
+                0x0000000000000000    0x1802c
  *(.debug_loclists)
  .debug_loclists
                 0x0000000000000000     0x1689 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/lauxlib.o
@@ -2099,15 +2099,15 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
  .debug_loclists
                 0x0000000000016eae       0x9e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
  .debug_loclists
-                0x0000000000016f4c      0xd69 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libtlsf.a(tlsf.o)
+                0x0000000000016f4c      0xe93 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libtlsf.a(tlsf.o)
  .debug_loclists
-                0x0000000000017cb5       0xe4 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
+                0x0000000000017ddf       0xe4 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
  .debug_loclists
-                0x0000000000017d99       0x67 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_actions.o)
+                0x0000000000017ec3       0x67 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_actions.o)
  .debug_loclists
-                0x0000000000017e00       0x5f /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(helper.o)
+                0x0000000000017f2a       0x5f /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(helper.o)
  .debug_loclists
-                0x0000000000017e5f       0xa3 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(strncpy.o)
+                0x0000000000017f89       0xa3 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(strncpy.o)
 
 .debug_macro
  *(.debug_macro)
@@ -2116,7 +2116,7 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
  *(.debug_names)
 
 .debug_rnglists
-                0x0000000000000000     0x115e
+                0x0000000000000000     0x1167
  *(.debug_rnglists)
  .debug_rnglists
                 0x0000000000000000       0x52 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/lauxlib.o
@@ -2167,7 +2167,7 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
  .debug_rnglists
                 0x0000000000000e46      0x11e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/lua/rocklib_events.o
  .debug_rnglists
-                0x0000000000000f64      0x1fa /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libtlsf.a(tlsf.o)
+                0x0000000000000f64      0x203 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libtlsf.a(tlsf.o)
 
 .debug_str_offsets
  *(.debug_str_offsets)

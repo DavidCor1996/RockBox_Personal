@@ -792,6 +792,63 @@ int swidth  IDATA_ATTR=160;
 int sremain IDATA_ATTR=LCD_WIDTH-160;
 #endif
 
+#if defined(IPOD_VIDEO) && defined(HAVE_LCD_COLOR) && \
+    (LCD_WIDTH == 320) && (LCD_HEIGHT == 240)
+static int ipodvideo_fast_y_accum IDATA_ATTR;
+static int ipodvideo_fast_out_y IDATA_ATTR;
+
+static inline bool ipodvideo_fast_fullscreen(void)
+{
+    return options.scaling == 0 && options.rotate == 0;
+}
+
+static void ipodvideo_fast_scale_line(void)
+{
+    int repeat;
+
+    if (L == 0)
+    {
+        ipodvideo_fast_y_accum = 0;
+        ipodvideo_fast_out_y = 0;
+    }
+
+    ipodvideo_fast_y_accum += LCD_HEIGHT;
+    repeat = ipodvideo_fast_y_accum / 144;
+    ipodvideo_fast_y_accum %= 144;
+
+#if defined(HAVE_LCD_MODES) && (HAVE_LCD_MODES & LCD_MODE_PAL256)
+    unsigned char *frame = (unsigned char*)get_framebuffer();
+#else
+    fb_data *frame = get_framebuffer();
+#endif
+
+    while (repeat-- > 0 && ipodvideo_fast_out_y < LCD_HEIGHT)
+    {
+        int x;
+#if defined(HAVE_LCD_MODES) && (HAVE_LCD_MODES & LCD_MODE_PAL256)
+        unsigned char *dest = frame + ipodvideo_fast_out_y * LCD_WIDTH;
+
+        for (x = 0; x < 160; x++)
+        {
+            unsigned char px = BUF[x];
+            *dest++ = px;
+            *dest++ = px;
+        }
+#else
+        fb_data *dest = frame + ipodvideo_fast_out_y * LCD_WIDTH;
+
+        for (x = 0; x < 160; x++)
+        {
+            fb_data px = PAL[BUF[x]];
+            *dest++ = px;
+            *dest++ = px;
+        }
+#endif
+        ipodvideo_fast_out_y++;
+    }
+}
+#endif
+
 void setvidmode(void)
 {
 
@@ -865,6 +922,11 @@ void setvidmode(void)
     } else {
         sremain=LCD_WIDTH-swidth;
     }
+#endif
+#if defined(IPOD_VIDEO) && defined(HAVE_LCD_COLOR) && \
+    (LCD_WIDTH == 320) && (LCD_HEIGHT == 240)
+    ipodvideo_fast_y_accum = 0;
+    ipodvideo_fast_out_y = 0;
 #endif
 }
 
@@ -946,6 +1008,13 @@ void lcd_refreshline(void)
     static int hpt IDATA_ATTR=0x8000;
     unsigned long scale_start = *rb->current_tick;
 
+#if defined(IPOD_VIDEO) && defined(HAVE_LCD_COLOR) && \
+    (LCD_WIDTH == 320) && (LCD_HEIGHT == 240)
+    if (ipodvideo_fast_fullscreen())
+        ipodvideo_fast_scale_line();
+    else
+#endif
+    {
     while((hpt>>16)<L+1)
     {
         hpt+=SCALEHS;
@@ -969,6 +1038,7 @@ void lcd_refreshline(void)
             srcpt+=SCALEWS;
         }
         vdest+=sremain;
+    }
     }
     rockboy_profile_add(ROCKBOY_TIME_SCALE, *rb->current_tick - scale_start);
 
