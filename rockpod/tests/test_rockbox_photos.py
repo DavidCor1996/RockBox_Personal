@@ -144,6 +144,80 @@ def test_photo_sync_removes_stale_preconversion_photo_and_thumb(tmp_dir):
     assert not os.path.exists(os.path.join(device, "Photos", ".photo_thumbs", "Trip", "IMG_0001.png.bmp"))
 
 
+def test_photo_sync_repairs_missing_device_thumbnails(tmp_dir):
+    repo_root = os.path.join(tmp_dir, "repo")
+    photos = os.path.join(tmp_dir, "photos")
+    device = os.path.join(tmp_dir, "device")
+    _make_image(os.path.join(photos, "new.jpg"), size=(320, 240))
+    _make_image(os.path.join(device, "Photos", "Existing.jpg"), size=(320, 240))
+    _make_image(os.path.join(device, "Photos", ".photo_thumbs", "wp", "Existing.jpg.bmp"), size=(64, 48))
+
+    _config, store = _make_store(tmp_dir, repo_root)
+    profile = store.current_profile()
+    profile["photos_library_path"] = photos
+    profile["device_mount_path"] = device
+    profile = store.save_profile(profile)
+
+    service = RockboxPhotoService()
+    deploy = RockboxDeployService()
+    selected = service.list_photos(profile)
+    deploy_profile = service.deploy_profile(profile, "device")
+    bundle = service.build_sync_bundle(profile, selected, "device")
+    repair_assets = [
+        item for item in bundle["assets"]
+        if item["kind"] == "photo_thumb_repair"
+    ]
+    assert [item["destination_rel"] for item in repair_assets] == [
+        "Photos/.photo_thumbs/Existing.jpg.bmp"
+    ]
+
+    synced = deploy.apply_diff(
+        deploy_profile,
+        deploy.build_diff(deploy_profile, bundle),
+    )
+
+    assert synced["success"] is True
+    assert os.path.isfile(os.path.join(device, "Photos", ".photo_thumbs", "Existing.jpg.bmp"))
+
+
+def test_photo_sync_repairs_oversized_device_thumbnails(tmp_dir):
+    repo_root = os.path.join(tmp_dir, "repo")
+    photos = os.path.join(tmp_dir, "photos")
+    device = os.path.join(tmp_dir, "device")
+    _make_image(os.path.join(photos, "new.jpg"), size=(320, 240))
+    _make_image(os.path.join(device, "Photos", "Tall.jpg"), size=(800, 700))
+    _make_image(os.path.join(device, "Photos", ".photo_thumbs", "Tall.jpg.bmp"), size=(87, 70))
+
+    _config, store = _make_store(tmp_dir, repo_root)
+    profile = store.current_profile()
+    profile["photos_library_path"] = photos
+    profile["device_mount_path"] = device
+    profile = store.save_profile(profile)
+
+    service = RockboxPhotoService()
+    deploy = RockboxDeployService()
+    selected = service.list_photos(profile)
+    deploy_profile = service.deploy_profile(profile, "device")
+    bundle = service.build_sync_bundle(profile, selected, "device")
+    repair_assets = [
+        item for item in bundle["assets"]
+        if item["kind"] == "photo_thumb_repair"
+    ]
+    assert [item["destination_rel"] for item in repair_assets] == [
+        "Photos/.photo_thumbs/Tall.jpg.bmp"
+    ]
+
+    synced = deploy.apply_diff(
+        deploy_profile,
+        deploy.build_diff(deploy_profile, bundle),
+    )
+
+    assert synced["success"] is True
+    with Image.open(os.path.join(device, "Photos", ".photo_thumbs", "Tall.jpg.bmp")) as image:
+        assert image.size[0] <= 80
+        assert image.size[1] <= 60
+
+
 def test_deleted_local_photo_remains_removable_from_device(tmp_dir):
     repo_root = os.path.join(tmp_dir, "repo")
     photos = os.path.join(tmp_dir, "photos")

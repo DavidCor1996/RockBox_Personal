@@ -32,6 +32,8 @@ logger = logging.getLogger(__name__)
 COPY_CHUNK_SIZE = 4 * 1024 * 1024
 LEGACY_COPY_MODE = os.environ.get("ROCKPOD_SYNC_LEGACY_COPY", "").strip().lower() in {"1", "true", "yes", "on"}
 AUDIO_EXTENSIONS = {ext for ext in CODEC_MAP.keys() if ext not in VIDEO_EXTENSIONS}
+ALBUM_LIST_DEVICE_DIR = os.path.join(".rockbox", "albumlist")
+ALBUM_LIST_THUMB_DEVICE_DIR = os.path.join(ALBUM_LIST_DEVICE_DIR, "thumbs")
 
 
 def _sanitize_filename(name, max_len=200):
@@ -1186,7 +1188,11 @@ class SyncEngine(QObject):
     def _populate_artwork_sync_plan(self, plan, matched, local_tracks):
         if not self._artwork_manager:
             return
-        if not self._config_value("copy_artwork_to_device", True) or not self._config.get("export_device_cover_jpg", True):
+        if not self._config_value("copy_artwork_to_device", True):
+            return
+        export_device_covers = self._config_value("export_device_cover_jpg", True)
+        export_album_list_thumbnails = self._config_value("export_album_list_thumbnails", True)
+        if not export_device_covers and not export_album_list_thumbnails:
             return
         device = self._device_detector.current_device
         if not device:
@@ -1221,27 +1227,95 @@ class SyncEngine(QObject):
 
         seen = set()
         existing_cover_hashes = {}
+        existing_albumlist_hashes = {}
         for album_key, album_info in album_targets.items():
-            cover_src, cover_hash = self._artwork_manager.export_device_cover(album_info)
-            if not cover_src:
-                continue
-            for rel_dir in sorted(album_info["device_dirs"]):
-                cover_rel = os.path.join(rel_dir, "cover.jpg")
-                if cover_rel in seen:
-                    continue
-                seen.add(cover_rel)
-                device_cover = os.path.join(device.mount_path, cover_rel)
-                if os.path.exists(device_cover):
-                    cached_hash = existing_cover_hashes.get(device_cover)
-                    if cached_hash is None:
-                        try:
-                            cached_hash = compute_file_hash(device_cover)
-                        except OSError:
-                            cached_hash = ""
-                        existing_cover_hashes[device_cover] = cached_hash
-                    if cached_hash and cached_hash == cover_hash:
-                        continue
-                plan.artwork_to_copy.append((cover_src, cover_rel, album_key))
+            if export_device_covers:
+                cover_src, cover_hash = self._artwork_manager.export_device_cover(album_info)
+                if cover_src:
+                    for rel_dir in sorted(album_info["device_dirs"]):
+                        cover_rel = os.path.join(rel_dir, "cover.jpg")
+                        if cover_rel in seen:
+                            continue
+                        seen.add(cover_rel)
+                        device_cover = os.path.join(device.mount_path, cover_rel)
+                        if os.path.exists(device_cover):
+                            cached_hash = existing_cover_hashes.get(device_cover)
+                            if cached_hash is None:
+                                try:
+                                    cached_hash = compute_file_hash(device_cover)
+                                except OSError:
+                                    cached_hash = ""
+                                existing_cover_hashes[device_cover] = cached_hash
+                            if cached_hash and cached_hash == cover_hash:
+                                continue
+                        plan.artwork_to_copy.append((cover_src, cover_rel, album_key))
+
+        if export_album_list_thumbnails:
+            self._populate_album_list_artwork_sync_plan(
+                plan,
+                album_targets,
+                device.mount_path,
+                existing_albumlist_hashes,
+            )
+
+    def _populate_album_list_artwork_sync_plan(self, plan, album_targets, device_mount, existing_hashes):
+        manifest_entries = []
+        seen = set()
+        for album_key, album_info in sorted(album_targets.items(), key=lambda item: str(item[0]).casefold()):
+            thumb_src, thumb_hash, device_name, album_id = self._artwork_manager.export_album_list_thumbnail(album_info)
+            thumb_rel = ""
+            if thumb_src and thumb_hash and device_name:
+                thumb_rel = os.path.join(ALBUM_LIST_THUMB_DEVICE_DIR, device_name)
+                if thumb_rel not in seen:
+                    seen.add(thumb_rel)
+                    self._append_artwork_copy_if_changed(
+                        plan,
+                        thumb_src,
+                        thumb_rel,
+                        album_key,
+                        thumb_hash,
+                        device_mount,
+                        existing_hashes,
+                    )
+            elif not album_id:
+                album_id = self._artwork_manager.album_list_id(album_key)
+
+            manifest_entries.append(
+                {
+                    "album_id": album_id,
+                    "thumb": os.path.join("thumbs", device_name) if thumb_rel else "",
+                    "artist": album_info.get("artist", ""),
+                    "album": album_info.get("album", ""),
+                    "group_key": album_key,
+                    "device_dirs": "|".join(sorted(album_info.get("device_dirs") or [])),
+                }
+            )
+
+        manifest_src, manifest_hash = self._artwork_manager.export_album_list_manifest(manifest_entries)
+        if manifest_src and manifest_hash:
+            self._append_artwork_copy_if_changed(
+                plan,
+                manifest_src,
+                os.path.join(ALBUM_LIST_DEVICE_DIR, "index.tsv"),
+                "albumlist_manifest",
+                manifest_hash,
+                device_mount,
+                existing_hashes,
+            )
+
+    def _append_artwork_copy_if_changed(self, plan, src, rel_path, album_key, expected_hash, device_mount, existing_hashes):
+        device_path = os.path.join(device_mount, rel_path)
+        if os.path.exists(device_path):
+            cached_hash = existing_hashes.get(device_path)
+            if cached_hash is None:
+                try:
+                    cached_hash = compute_file_hash(device_path)
+                except OSError:
+                    cached_hash = ""
+                existing_hashes[device_path] = cached_hash
+            if cached_hash and cached_hash == expected_hash:
+                return
+        plan.artwork_to_copy.append((src, rel_path, album_key))
 
     def apply_successful_sync_to_cache(self, plan, synced_at=None):
         """Update cached DB device state from a completed sync plan."""

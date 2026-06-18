@@ -23,6 +23,7 @@
 #define MAX_VISIBLE_THUMBS 6
 #define MIN_ENTRY_CAPACITY 32
 #define MAX_LOCKS 128
+#define MAX_MOVE_DIRS 96
 #define PIN_LEN 4
 
 #if (CONFIG_KEYPAD == IPOD_1G2G_PAD) \
@@ -45,6 +46,10 @@ struct photo_entry {
 struct photo_lock {
     char relpath[MAX_PATH];
     char pin[PIN_LEN + 1];
+};
+
+struct photo_move_dir {
+    char path[MAX_PATH];
 };
 
 struct thumb_slot {
@@ -83,7 +88,9 @@ struct photos_state {
 
 static struct photos_state photos;
 static struct photo_lock photo_locks[MAX_LOCKS];
+static struct photo_move_dir photo_move_dirs[MAX_MOVE_DIRS];
 static int photo_lock_count;
+static int photo_move_dir_count;
 
 static int photos_tsr_exit(bool reenter)
 {
@@ -174,6 +181,23 @@ static void photos_dirname(const char *path, char *out, size_t out_size)
 
     *slash = '\0';
     rb->strlcpy(out, tmp, out_size);
+}
+
+static void photos_ensure_parent_dirs(const char *path)
+{
+    char tmp[MAX_PATH];
+    char *p;
+
+    rb->strlcpy(tmp, path, sizeof(tmp));
+    for (p = tmp + 1; *p; p++)
+    {
+        if (*p != '/')
+            continue;
+
+        *p = '\0';
+        rb->mkdir(tmp);
+        *p = '/';
+    }
 }
 
 static int photos_find_lock_rel(const char *relpath)
@@ -754,6 +778,57 @@ static void photos_draw_tile_placeholder(int x, int y, int w, int h,
     rb->lcd_putsxy(text_x, text_y, label);
 }
 
+static void photos_draw_folder_icon(int x, int y, int w, int h)
+{
+    int tab_w = MAX(16, w / 2);
+    int tab_h = MAX(5, h / 5);
+    int body_y = y + tab_h - 1;
+    int body_h = h - tab_h + 1;
+
+    rb->lcd_set_foreground(LCD_RGBPACK(230, 190, 74));
+    rb->lcd_fillrect(x + 3, y, tab_w, tab_h);
+    rb->lcd_fillrect(x, body_y, w, body_h);
+
+    rb->lcd_set_foreground(LCD_RGBPACK(250, 220, 112));
+    rb->lcd_hline(x + 4, x + tab_w - 1, y + 1);
+    rb->lcd_hline(x + 2, x + w - 3, body_y + 2);
+
+    rb->lcd_set_foreground(LCD_RGBPACK(124, 88, 32));
+    rb->lcd_drawrect(x + 3, y, tab_w, tab_h);
+    rb->lcd_drawrect(x, body_y, w, body_h);
+}
+
+static void photos_draw_folder_tile_contents(const struct photo_entry *entry,
+                                             int x, int y, int w, int h)
+{
+    char label[64];
+    int label_h = photos.line_h;
+    int label_y = y + h - label_h;
+    int icon_w = MIN(w - 8, 42);
+    int icon_h = MIN(h - label_h - 8, 32);
+    int icon_x;
+    int icon_y;
+    int label_w = 0;
+
+    if (icon_w < 24)
+        icon_w = MAX(16, w - 4);
+    if (icon_h < 18)
+        icon_h = MAX(12, h - label_h - 4);
+
+    icon_x = x + (w - icon_w) / 2;
+    icon_y = y + MAX(2, (h - label_h - icon_h) / 2);
+
+    rb->lcd_set_foreground(LCD_RGBPACK(34, 34, 34));
+    rb->lcd_fillrect(x, y, w, h);
+    photos_draw_folder_icon(icon_x, icon_y, icon_w, icon_h);
+
+    photos_truncate_to_width(photos_basename(entry->path), label,
+                             sizeof(label), w);
+    rb->lcd_getstringsize(label, &label_w, NULL);
+    rb->lcd_set_foreground(LCD_WHITE);
+    rb->lcd_putsxy(x + MAX(0, (w - label_w) / 2), label_y, label);
+}
+
 static void photos_draw_tile(int slot_index)
 {
     int x;
@@ -795,7 +870,8 @@ static void photos_draw_tile(int slot_index)
 
     if (entry->is_dir)
     {
-        photos_draw_tile_placeholder(inner_x, inner_y, inner_w, inner_h, "Folder");
+        photos_draw_folder_tile_contents(entry, inner_x, inner_y,
+                                         inner_w, inner_h);
     }
     else if (slot->loaded)
     {
@@ -1045,6 +1121,330 @@ static bool photos_unlock_selected(void)
     return true;
 }
 
+static void photos_remove_locks_under(const char *path)
+{
+    char relpath[MAX_PATH];
+    size_t rel_len;
+    int i = 0;
+
+    if (!photos_relpath(path, relpath, sizeof(relpath)) || relpath[0] == '\0')
+        return;
+
+    rel_len = rb->strlen(relpath);
+    while (i < photo_lock_count)
+    {
+        if (!rb->strcmp(photo_locks[i].relpath, relpath) ||
+            (rb->strncmp(photo_locks[i].relpath, relpath, rel_len) == 0 &&
+             photo_locks[i].relpath[rel_len] == '/'))
+        {
+            int j;
+            for (j = i; j < photo_lock_count - 1; j++)
+                photo_locks[j] = photo_locks[j + 1];
+            photo_lock_count--;
+        }
+        else
+        {
+            i++;
+        }
+    }
+}
+
+static bool photos_delete_tree(const char *path)
+{
+    DIR *dir = rb->opendir(path);
+    struct dirent *entry;
+    bool ok = true;
+
+    if (!dir)
+        return rb->remove(path) == 0;
+
+    while ((entry = rb->readdir(dir)) != NULL)
+    {
+        struct dirinfo info;
+        char child[MAX_PATH];
+
+        if (!rb->strcmp(entry->d_name, ".") || !rb->strcmp(entry->d_name, ".."))
+            continue;
+
+        rb->snprintf(child, sizeof(child), "%s/%s", path, entry->d_name);
+        info = rb->dir_get_info(dir, entry);
+        if (info.attribute & ATTR_DIRECTORY)
+            ok = photos_delete_tree(child) && ok;
+        else if (rb->remove(child) < 0)
+            ok = false;
+    }
+
+    rb->closedir(dir);
+    return (rb->rmdir(path) == 0) && ok;
+}
+
+static void photos_delete_thumbs_for(const char *path, bool is_dir)
+{
+    char thumb_path[MAX_PATH];
+    char relpath[MAX_PATH];
+
+    if (is_dir)
+    {
+        if (!photos_relpath(path, relpath, sizeof(relpath)) || relpath[0] == '\0')
+            return;
+
+        rb->snprintf(thumb_path, sizeof(thumb_path), "%s/%s",
+                     PHOTOS_THUMB_DIR, relpath);
+        photos_delete_tree(thumb_path);
+    }
+    else
+    {
+        photos_thumb_path(path, thumb_path, sizeof(thumb_path));
+        if (thumb_path[0] != '\0')
+            rb->remove(thumb_path);
+    }
+}
+
+static bool photos_delete_selected(void)
+{
+    struct photo_entry *entry;
+    char delete_path[MAX_PATH];
+    bool is_dir;
+
+    if (photos.entry_count <= 0)
+        return false;
+
+    entry = &photos.entries[photos.selected];
+    if (photos_path_is_root(entry->path))
+        return false;
+
+    if (!photos_unlock_if_needed(entry->path))
+        return false;
+
+    if (!rb->yesno_pop_confirm(entry->is_dir ?
+                               "Delete this folder?" :
+                               "Delete this photo?"))
+        return false;
+
+    rb->strlcpy(delete_path, entry->path, sizeof(delete_path));
+    is_dir = entry->is_dir;
+
+    photos.selected_path[0] = '\0';
+    if (photos.selected + 1 < photos.entry_count)
+        rb->strlcpy(photos.selected_path, photos.entries[photos.selected + 1].path,
+                    sizeof(photos.selected_path));
+    else if (photos.selected > 0)
+        rb->strlcpy(photos.selected_path, photos.entries[photos.selected - 1].path,
+                    sizeof(photos.selected_path));
+
+    if (!photos_delete_tree(delete_path))
+    {
+        rb->splash(HZ * 2, "Delete failed");
+        photos_rescan_current_dir();
+        return false;
+    }
+
+    photos_delete_thumbs_for(delete_path, is_dir);
+    photos_remove_locks_under(delete_path);
+    photos_save_locks();
+    photos_rescan_current_dir();
+    return true;
+}
+
+static int compare_move_dirs(const void *left, const void *right)
+{
+    const struct photo_move_dir *a = left;
+    const struct photo_move_dir *b = right;
+
+    if (photos_path_is_root(a->path))
+        return photos_path_is_root(b->path) ? 0 : -1;
+    if (photos_path_is_root(b->path))
+        return 1;
+
+    return rb->strcasecmp(a->path, b->path);
+}
+
+static void photos_add_move_dir(const char *path)
+{
+    if (photo_move_dir_count >= MAX_MOVE_DIRS)
+        return;
+
+    rb->strlcpy(photo_move_dirs[photo_move_dir_count].path, path,
+                sizeof(photo_move_dirs[photo_move_dir_count].path));
+    photo_move_dir_count++;
+}
+
+static void photos_collect_move_dirs(const char *path)
+{
+    DIR *dir;
+    struct dirent *entry;
+
+    photos_add_move_dir(path);
+    if (photo_move_dir_count >= MAX_MOVE_DIRS)
+        return;
+
+    dir = rb->opendir(path);
+    if (!dir)
+        return;
+
+    while ((entry = rb->readdir(dir)) != NULL &&
+           photo_move_dir_count < MAX_MOVE_DIRS)
+    {
+        struct dirinfo info;
+        char child[MAX_PATH];
+
+        if (!rb->strcmp(entry->d_name, ".") || !rb->strcmp(entry->d_name, ".."))
+            continue;
+        if (photos_is_hidden(entry->d_name))
+            continue;
+
+        rb->snprintf(child, sizeof(child), "%s/%s", path, entry->d_name);
+        info = rb->dir_get_info(dir, entry);
+        if (info.attribute & ATTR_DIRECTORY)
+            photos_collect_move_dirs(child);
+    }
+
+    rb->closedir(dir);
+}
+
+static const char *photos_move_dir_name(int selected_item, void *data,
+                                        char *buffer, size_t buffer_len)
+{
+    char relpath[MAX_PATH];
+    (void)data;
+
+    if (selected_item < 0 || selected_item >= photo_move_dir_count)
+        return "";
+
+    if (photos_relpath(photo_move_dirs[selected_item].path, relpath,
+                       sizeof(relpath)) && relpath[0] != '\0')
+    {
+        rb->snprintf(buffer, buffer_len, "Photos/%s", relpath);
+        return buffer;
+    }
+
+    rb->strlcpy(buffer, "Photos", buffer_len);
+    return buffer;
+}
+
+static enum themable_icons photos_move_dir_icon(int selected_item, void *data)
+{
+    (void)selected_item;
+    (void)data;
+    return Icon_Folder;
+}
+
+static bool photos_pick_move_destination(char *out, size_t out_size)
+{
+    struct gui_synclist list;
+    int action;
+    int selected = 0;
+    bool done = false;
+    bool picked = false;
+
+    photo_move_dir_count = 0;
+    photos_collect_move_dirs(PHOTOS_ROOT);
+    if (photo_move_dir_count <= 0)
+        return false;
+
+    if (photo_move_dir_count > 1)
+    {
+        rb->qsort(photo_move_dirs, photo_move_dir_count,
+                  sizeof(struct photo_move_dir), compare_move_dirs);
+    }
+
+    rb->gui_synclist_init(&list, photos_move_dir_name, NULL, false, 1, NULL);
+    rb->gui_synclist_set_icon_callback(&list, photos_move_dir_icon);
+    rb->gui_synclist_set_nb_items(&list, photo_move_dir_count);
+    rb->gui_synclist_set_title(&list, "Move to Folder", Icon_Folder);
+    rb->gui_synclist_select_item(&list, selected);
+    rb->gui_synclist_draw(&list);
+
+    while (!done)
+    {
+        action = rb->get_action(CONTEXT_LIST, HZ / 10);
+        if (rb->gui_synclist_do_button(&list, &action))
+            continue;
+
+        switch (action)
+        {
+            case ACTION_STD_OK:
+                selected = rb->gui_synclist_get_sel_pos(&list);
+                rb->strlcpy(out, photo_move_dirs[selected].path, out_size);
+                picked = true;
+                done = true;
+                break;
+
+            case ACTION_STD_CANCEL:
+            case ACTION_STD_MENU:
+                done = true;
+                break;
+
+            default:
+                if (rb->default_event_handler(action) == SYS_USB_CONNECTED)
+                    done = true;
+                break;
+        }
+    }
+
+    return picked;
+}
+
+static bool photos_move_selected_to_folder(void)
+{
+    struct photo_entry *entry;
+    char destination[MAX_PATH];
+    char current_parent[MAX_PATH];
+    char newpath[MAX_PATH];
+    char old_thumb[MAX_PATH];
+    char new_thumb[MAX_PATH];
+
+    if (photos.entry_count <= 0)
+        return false;
+
+    entry = &photos.entries[photos.selected];
+    if (entry->is_dir)
+        return false;
+
+    if (!photos_unlock_if_needed(entry->path))
+        return false;
+
+    if (!photos_pick_move_destination(destination, sizeof(destination)))
+        return false;
+
+    photos_dirname(entry->path, current_parent, sizeof(current_parent));
+    if (!rb->strcmp(current_parent, destination))
+    {
+        rb->splash(HZ, "Already there");
+        return false;
+    }
+
+    rb->snprintf(newpath, sizeof(newpath), "%s/%s",
+                 destination, photos_basename(entry->path));
+    if (rb->file_exists(newpath) || rb->dir_exists(newpath))
+    {
+        rb->splash(HZ * 2, "Name exists");
+        return false;
+    }
+
+    if (rb->rename(entry->path, newpath) < 0)
+    {
+        rb->splash(HZ * 2, "Move failed");
+        return false;
+    }
+
+    photos_thumb_path(entry->path, old_thumb, sizeof(old_thumb));
+    photos_thumb_path(newpath, new_thumb, sizeof(new_thumb));
+    if (old_thumb[0] != '\0' && new_thumb[0] != '\0' &&
+        rb->file_exists(old_thumb))
+    {
+        photos_ensure_parent_dirs(new_thumb);
+        rb->rename(old_thumb, new_thumb);
+    }
+
+    photos_update_lock_paths(entry->path, newpath);
+    photos_save_locks();
+    rb->strlcpy(photos.selected_path, newpath, sizeof(photos.selected_path));
+    photos_rescan_current_dir();
+    rb->splash(HZ, "Moved");
+    return true;
+}
+
 static enum plugin_status photos_open_context_menu(void)
 {
     int selection = 0;
@@ -1070,14 +1470,15 @@ static enum plugin_status photos_open_context_menu(void)
         if (entry->is_dir && entry->locked)
         {
             MENUITEM_STRINGLIST(menu, "Folder", NULL,
-                                "Open", "Rename", "Unlock",
+                                "Open", "Rename", "Delete", "Unlock",
                                 "New Folder", "Refresh", "Back");
             switch (rb->do_menu(&menu, &selection, NULL, false))
             {
                 case 0: return photos_open_entry(entry);
                 case 1: photos_rename_selected(); break;
-                case 2: photos_unlock_selected(); break;
-                case 3: photos_create_folder(); break;
+                case 2: photos_delete_selected(); break;
+                case 3: photos_unlock_selected(); break;
+                case 4: photos_create_folder(); break;
                 default: break;
             }
             return PLUGIN_OK;
@@ -1086,14 +1487,15 @@ static enum plugin_status photos_open_context_menu(void)
         if (entry->is_dir)
         {
             MENUITEM_STRINGLIST(menu, "Folder", NULL,
-                                "Open", "Rename", "Lock",
+                                "Open", "Rename", "Delete", "Lock",
                                 "New Folder", "Refresh", "Back");
             switch (rb->do_menu(&menu, &selection, NULL, false))
             {
                 case 0: return photos_open_entry(entry);
                 case 1: photos_rename_selected(); break;
-                case 2: photos_lock_selected(); break;
-                case 3: photos_create_folder(); break;
+                case 2: photos_delete_selected(); break;
+                case 3: photos_lock_selected(); break;
+                case 4: photos_create_folder(); break;
                 default: break;
             }
             return PLUGIN_OK;
@@ -1102,28 +1504,34 @@ static enum plugin_status photos_open_context_menu(void)
         if (entry->locked)
         {
             MENUITEM_STRINGLIST(menu, "Photo", NULL,
-                                "View", "Rename", "Unlock",
-                                "New Folder", "Refresh", "Back");
+                                "View", "Rename", "Move to Folder",
+                                "Delete", "Unlock", "New Folder",
+                                "Refresh", "Back");
             switch (rb->do_menu(&menu, &selection, NULL, false))
             {
                 case 0: return photos_open_entry(entry);
                 case 1: photos_rename_selected(); break;
-                case 2: photos_unlock_selected(); break;
-                case 3: photos_create_folder(); break;
+                case 2: photos_move_selected_to_folder(); break;
+                case 3: photos_delete_selected(); break;
+                case 4: photos_unlock_selected(); break;
+                case 5: photos_create_folder(); break;
                 default: break;
             }
             return PLUGIN_OK;
         }
 
         MENUITEM_STRINGLIST(menu, "Photo", NULL,
-                            "View", "Rename", "Lock",
-                            "New Folder", "Refresh", "Back");
+                            "View", "Rename", "Move to Folder",
+                            "Delete", "Lock", "New Folder",
+                            "Refresh", "Back");
         switch (rb->do_menu(&menu, &selection, NULL, false))
         {
             case 0: return photos_open_entry(entry);
             case 1: photos_rename_selected(); break;
-            case 2: photos_lock_selected(); break;
-            case 3: photos_create_folder(); break;
+            case 2: photos_move_selected_to_folder(); break;
+            case 3: photos_delete_selected(); break;
+            case 4: photos_lock_selected(); break;
+            case 5: photos_create_folder(); break;
             default: break;
         }
     }

@@ -129,10 +129,10 @@
 %Vl(ChargeCardInner,8,20,184,70,-)%dr(0,0,-,-,2D2936)
 %Vl(ChargeCardHighlight,8,20,184,1,-)%dr(0,0,-,-,464056)
 %Vl(ChargeCardLowlight,8,89,184,1,-)%dr(0,0,-,-,18161F)
-%Vl(ChargeClockShadow,20,28,158,42,4)%Vf(16121D)%al%cl:%cM %cP
-%Vl(ChargeClock,18,26,158,42,4)%Vf(F1EAFF)%al%cl:%cM %cP
-%Vl(ChargeMetaShadow,19,70,158,14,2)%Vf(16121D)%al%?bc<Charging|On Power> %bl%%
-%Vl(ChargeMeta,18,68,158,14,2)%Vf(D7CCF0)%al%?bc<Charging|On Power> %bl%%
+%Vl(ChargeClockShadow,1,34,318,55,8)%Vf(16121D)%ac%cl:%cM %cP
+%Vl(ChargeClock,0,32,-,55,8)%Vf(F1EAFF)%ac%cl:%cM %cP
+%Vl(ChargeMetaShadow,1,91,318,20,6)%Vf(16121D)%ac%?bc<Charging|On Power> %bl%%
+%Vl(ChargeMeta,0,90,-,20,6)%Vf(D7CCF0)%ac%?bc<Charging|On Power> %bl%%
 %Vl(ChargeNowPlaying,18,102,284,32,-)%?it<%dr(0,0,-,-,221D2A)%dr(0,0,-,1,3E374B)|>
 %Vl(ChargeNowPlaying,28,108,22,18,-)%?it<%?mp<|%xd(LockPlayIconLarge,1)|%xd(LockPlayIconLarge,2)|||||%xd(LockPlayIconLarge,1)|%xd(LockPlayIconLarge,2)>|>
 %Vl(ChargeNowPlaying,56,105,204,14,2)%Vf(FFFFFF)%s%al%?it<%it|>

@@ -190,11 +190,11 @@ LOAD /usr/local/lib/gcc/arm-elf-eabi/9.5.0/libgcc.a
  *(.bss*)
  .bss           0x0000000003f00a68      0x130 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/stats.o
  .bss           0x0000000003f00b98       0x60 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/plugin_crt0.o
- .bss.id3_count.12465
+ .bss.id3_count.12474
                 0x0000000003f00bf8        0x4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(mul_id3.o)
- .bss.last_displayed.12466
+ .bss.last_displayed.12475
                 0x0000000003f00bfc        0x4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(mul_id3.o)
- .bss.last_get_action.12467
+ .bss.last_get_action.12476
                 0x0000000003f00c00        0x4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(mul_id3.o)
  *(COMMON)
                 0x0000000003f00c04                . = ALIGN (0x4)

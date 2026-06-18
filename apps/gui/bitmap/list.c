@@ -97,7 +97,7 @@ static int list_icon_width(enum screen_type screen)
     return get_icon_width(screen) + ICON_PADDING * 2;
 }
 
-static void _default_listdraw_fn(struct list_putlineinfo_t *list_info)
+void gui_list_draw_item_default(struct list_putlineinfo_t *list_info)
 {
     struct screen *display = list_info->display; 
     int x = list_info->x;
@@ -215,7 +215,7 @@ void list_draw(struct screen *display, struct gui_synclist *list)
     if (list->callback_draw_item != NULL)
         callback_draw_item = list->callback_draw_item;
     else
-        callback_draw_item = _default_listdraw_fn;
+        callback_draw_item = gui_list_draw_item_default;
 
     struct viewport * last_vp = display->set_viewport(parent);
 #if defined(HAVE_ALBUMART) && defined(HAVE_LCD_COLOR)

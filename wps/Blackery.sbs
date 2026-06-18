@@ -129,10 +129,10 @@
 %Vl(ChargeCardInner,8,18,178,66,-)%dr(0,0,-,-,183028)
 %Vl(ChargeCardHighlight,8,18,178,1,-)%dr(0,0,-,-,2A8F6B)
 %Vl(ChargeCardLowlight,8,83,178,1,-)%dr(0,0,-,-,08110D)
-%Vl(ChargeClockShadow,20,26,152,42,4)%Vf(06100C)%al%cl:%cM %cP
-%Vl(ChargeClock,18,24,152,42,4)%Vf(EAFDF5)%al%cl:%cM %cP
-%Vl(ChargeMetaShadow,19,66,152,14,2)%Vf(06100C)%alCharging %bl%%
-%Vl(ChargeMeta,18,64,152,14,2)%Vf(BDEDD9)%alCharging %bl%%
+%Vl(ChargeClockShadow,1,57,318,54,4)%Vf(06100C)%ac%cl:%cM %cP
+%Vl(ChargeClock,0,55,-,54,4)%Vf(EAFDF5)%ac%cl:%cM %cP
+%Vl(ChargeMetaShadow,1,121,318,20,3)%Vf(06100C)%acCharging %bl%%
+%Vl(ChargeMeta,0,120,-,20,3)%Vf(BDEDD9)%acCharging %bl%%
 %Vl(USB,20,194,280,18,4)%Vf(C9F1E0)%acEject before disconnecting
 
 #------------ Settings Preview (adwaitapod-style) ------------#

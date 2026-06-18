@@ -29,6 +29,7 @@ _DESKTOP_MIN_SOURCE_DIMENSION = max(ARTWORK_DISPLAY_SIZE) * 2
 _MIN_EFFECTIVE_LOOKUP_INTERVAL_SECONDS = 60.0
 _VIDEO_POSTER_THUMB_SIZE = (180, 270)
 _VIDEO_POSTER_DISPLAY_SIZE = (360, 540)
+_ALBUM_LIST_THUMB_SIZE = (32, 32)
 _VIDEO_POSTER_FILENAMES = (
     "poster.jpg", "poster.png", "Poster.jpg", "Poster.png",
     "movie.jpg", "movie.png", "Movie.jpg", "Movie.png",
@@ -74,11 +75,13 @@ class ArtworkManager(QObject):
         self._original_dir = os.path.join(self._album_dir, "originals")
         self._meta_dir = os.path.join(self._album_dir, "meta")
         self._device_dir = os.path.join(self._album_dir, "device")
+        self._albumlist_dir = os.path.join(self._album_dir, "albumlist")
         os.makedirs(self._thumb_dir, exist_ok=True)
         os.makedirs(self._display_dir, exist_ok=True)
         os.makedirs(self._original_dir, exist_ok=True)
         os.makedirs(self._meta_dir, exist_ok=True)
         os.makedirs(self._device_dir, exist_ok=True)
+        os.makedirs(self._albumlist_dir, exist_ok=True)
 
         storefront = getattr(config, "online_artwork_storefront", "us") if config else "us"
         interval = self._effective_artwork_interval(config)
@@ -367,6 +370,94 @@ class ArtworkManager(QObject):
         )
         self._save_album_meta(album_key, meta)
         return cover_path, source_hash
+
+    def export_album_list_thumbnail(self, album_or_tracks, force=False, size=None):
+        album_info = self._album_info(album_or_tracks)
+        source_path = self._ensure_album_source(album_info, allow_online=False)
+        if not source_path:
+            return "", "", "", ""
+
+        target_size = self._album_list_thumb_size(size)
+        album_key = album_info["group_key"]
+        album_id = self.album_list_id(album_key)
+        meta = self._load_album_meta(album_key)
+        source_hash = self._file_hash(source_path)
+        thumb_name = f"{album_id}_{target_size[0]}x{target_size[1]}_{source_hash[:12]}.bmp"
+        thumb_path = os.path.join(self._albumlist_dir, thumb_name)
+        if (
+            not force
+            and meta.get("album_list_thumb_path") == thumb_path
+            and meta.get("album_list_thumb_source_hash") == source_hash
+            and os.path.exists(thumb_path)
+        ):
+            return thumb_path, self._file_hash(thumb_path), f"{album_id}.bmp", album_id
+
+        try:
+            with Image.open(source_path) as img:
+                img = img.convert("RGB")
+                img.thumbnail(target_size, Image.LANCZOS)
+                canvas = Image.new("RGB", target_size, "#000000")
+                left = (target_size[0] - img.width) // 2
+                top = (target_size[1] - img.height) // 2
+                canvas.paste(img, (left, top))
+                canvas.save(thumb_path, "BMP")
+        except Exception as e:
+            self._record_artwork_failure(source_path, f"album list thumbnail export failure: {e}")
+            return "", "", "", album_id
+
+        meta["album_list_thumb_path"] = thumb_path
+        meta["album_list_thumb_source_hash"] = source_hash
+        meta["album_list_thumb_resolution"] = [target_size[0], target_size[1]]
+        self._save_album_meta(album_key, meta)
+        return thumb_path, self._file_hash(thumb_path), f"{album_id}.bmp", album_id
+
+    def export_album_list_manifest(self, entries):
+        rows = []
+        for entry in entries:
+            album_id = str(entry.get("album_id") or "").strip()
+            if not album_id:
+                continue
+            rows.append(
+                {
+                    "album_id": album_id,
+                    "thumb": self._manifest_field(entry.get("thumb", "")),
+                    "artist": self._manifest_field(entry.get("artist", "")),
+                    "album": self._manifest_field(entry.get("album", "")),
+                    "group_key": self._manifest_field(entry.get("group_key", "")),
+                    "device_dirs": self._manifest_field(entry.get("device_dirs", "")),
+                }
+            )
+        rows.sort(key=lambda item: (item["artist"].casefold(), item["album"].casefold(), item["album_id"]))
+        lines = [
+            "# rockpod albumlist v1",
+            "album_id\tthumb\tartist\talbum\tgroup_key\tdevice_dirs",
+        ]
+        lines.extend(
+            "\t".join(
+                (
+                    row["album_id"],
+                    row["thumb"],
+                    row["artist"],
+                    row["album"],
+                    row["group_key"],
+                    row["device_dirs"],
+                )
+            )
+            for row in rows
+        )
+        data = "\n".join(lines) + "\n"
+        manifest_path = os.path.join(self._albumlist_dir, "index.tsv")
+        try:
+            if os.path.exists(manifest_path):
+                with open(manifest_path, "r", encoding="utf-8") as handle:
+                    if handle.read() == data:
+                        return manifest_path, self._file_hash(manifest_path)
+            with open(manifest_path, "w", encoding="utf-8", newline="\n") as handle:
+                handle.write(data)
+            return manifest_path, self._file_hash(manifest_path)
+        except OSError as e:
+            logger.warning("Failed to write album list manifest: %s", e)
+            return "", ""
 
     def album_artwork_diagnostics(self):
         return {
@@ -1316,6 +1407,28 @@ class ArtworkManager(QObject):
         if len(self._artwork_diagnostics["artwork_failures"]) >= limit:
             return
         self._artwork_diagnostics["artwork_failures"].append({"path": path, "reason": reason})
+
+    @staticmethod
+    def album_list_id(album_key):
+        text = unicodedata.normalize("NFKC", str(album_key or "")).strip().casefold()
+        text = re.sub(r"\s+", " ", text)
+        return hashlib.sha1(text.encode("utf-8")).hexdigest()[:24]
+
+    @staticmethod
+    def _album_list_thumb_size(size):
+        if size is None:
+            return _ALBUM_LIST_THUMB_SIZE
+        try:
+            value = int(size)
+        except (TypeError, ValueError):
+            return _ALBUM_LIST_THUMB_SIZE
+        value = max(16, min(96, value))
+        return value, value
+
+    @staticmethod
+    def _manifest_field(value):
+        text = unicodedata.normalize("NFC", str(value or ""))
+        return re.sub(r"[\x00\t\r\n]+", " ", text).strip()
 
     def _config_value(self, key, default=None):
         if self._config is None:

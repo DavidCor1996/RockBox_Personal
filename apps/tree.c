@@ -56,6 +56,9 @@
 #include "pathfuncs.h"
 #include "filetree.h"
 #include "tagtree.h"
+#if defined(HAVE_TAGCACHE) && defined(HAVE_LCD_COLOR)
+#include "gui/albumlist_art.h"
+#endif
 #ifdef HAVE_RECORDING
 #include "recorder/recording.h"
 #endif
@@ -525,6 +528,10 @@ static int update_dir(void)
     gui_synclist_set_voice_callback(list, &tree_voice_cb);
 #ifdef HAVE_LCD_COLOR
     gui_synclist_set_color_callback(list, &tree_get_filecolor);
+#endif
+#if defined(HAVE_TAGCACHE) && defined(HAVE_LCD_COLOR)
+    if (id3db)
+        albumlist_art_setup_list(list);
 #endif
     if( tc.selected_item >= tc.filesindir)
         tc.selected_item=tc.filesindir-1;

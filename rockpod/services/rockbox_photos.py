@@ -111,6 +111,7 @@ class RockboxPhotoService:
         target_dir = self._photo_target_dir(profile, target_mode).rstrip("/")
         thumb_dir = self._photo_thumb_dir(profile, target_mode).rstrip("/")
         assets = []
+        thumb_destinations = set()
         for photo in photos:
             prepared = self._prepare_photo_for_device(profile, photo, target_mode)
             relpath = prepared["device_relative_path"].lstrip("/")
@@ -125,13 +126,17 @@ class RockboxPhotoService:
                     "preserve_metadata": False,
                 }
             )
+            thumb_destination = f"{thumb_dir}/{relpath}.bmp"
+            thumb_exists = bool(prepared["thumb_abs"] and os.path.isfile(prepared["thumb_abs"]))
+            if thumb_exists:
+                thumb_destinations.add(thumb_destination)
             assets.append(
                 {
                     "kind": "photo_thumb",
                     "source_rel": photo["relative_path"].lstrip("/"),
                     "source_abs": prepared["thumb_abs"],
-                    "destination_rel": f"{thumb_dir}/{relpath}.bmp",
-                    "exists": bool(prepared["thumb_abs"] and os.path.isfile(prepared["thumb_abs"])),
+                    "destination_rel": thumb_destination,
+                    "exists": thumb_exists,
                     "size": prepared.get("thumb_size", 0),
                     "preserve_metadata": False,
                 }
@@ -158,6 +163,11 @@ class RockboxPhotoService:
                         "action": "remove",
                     }
                 )
+        assets.extend(
+            self._missing_device_thumbnail_assets(
+                profile, target_mode, target_dir, thumb_dir, thumb_destinations
+            )
+        )
         return {
             "id": f"photos-sync-{profile['id']}",
             "name": "Rockbox Photo Sync",
@@ -240,8 +250,7 @@ class RockboxPhotoService:
                 )
 
                 thumb = image.copy()
-                thumb.thumbnail(self._thumbnail_size(profile), Image.Resampling.LANCZOS)
-                thumb.save(thumb_cache, "BMP")
+                self._write_thumbnail(profile, thumb, thumb_cache)
         except (OSError, UnidentifiedImageError):
             return {
                 "device_relative_path": relpath,
@@ -258,6 +267,71 @@ class RockboxPhotoService:
             "photo_size": os.path.getsize(photo_cache),
             "thumb_size": os.path.getsize(thumb_cache),
         }
+
+    def _missing_device_thumbnail_assets(self, profile, target_mode, target_dir, thumb_dir, planned_destinations):
+        target_root = self.photo_target_root(profile, target_mode)
+        if not target_root or not os.path.isdir(target_root):
+            return []
+
+        assets = []
+        cache_root = os.path.join(self._photo_cache_root(profile, target_mode), "repair_thumbs")
+        for source_path in self._scan_photo_files(target_root):
+            relpath = self._relative_photo_path(target_root, source_path)
+            thumb_destination = f"{thumb_dir}/{relpath}.bmp"
+            if thumb_destination in planned_destinations:
+                continue
+
+            thumb_abs = os.path.join(self.mount_root(profile, target_mode), thumb_destination)
+            if not self._thumbnail_needs_repair(profile, thumb_abs):
+                continue
+
+            thumb_cache = os.path.join(cache_root, f"{relpath}.bmp")
+            if not self._generate_thumbnail_from_file(profile, source_path, thumb_cache):
+                continue
+
+            assets.append(
+                {
+                    "kind": "photo_thumb_repair",
+                    "source_rel": relpath,
+                    "source_abs": thumb_cache,
+                    "destination_rel": thumb_destination,
+                    "exists": True,
+                    "size": os.path.getsize(thumb_cache),
+                    "preserve_metadata": False,
+                }
+            )
+            planned_destinations.add(thumb_destination)
+        return assets
+
+    def _thumbnail_needs_repair(self, profile, thumb_abs):
+        if not os.path.isfile(thumb_abs):
+            return True
+
+        max_width, max_height = self._thumbnail_size(profile)
+        try:
+            with Image.open(thumb_abs) as image:
+                return (
+                    image.format != "BMP"
+                    or image.size[0] > max_width
+                    or image.size[1] > max_height
+                )
+        except (OSError, UnidentifiedImageError):
+            return True
+
+    def _generate_thumbnail_from_file(self, profile, source_path, thumb_cache):
+        os.makedirs(os.path.dirname(thumb_cache), exist_ok=True)
+        try:
+            with Image.open(source_path) as image:
+                image = ImageOps.exif_transpose(image)
+                image = self._rgb_image(image)
+                self._write_thumbnail(profile, image, thumb_cache)
+        except (OSError, UnidentifiedImageError):
+            return False
+        return os.path.isfile(thumb_cache)
+
+    def _write_thumbnail(self, profile, image, thumb_cache):
+        image.thumbnail(self._thumbnail_size(profile), Image.Resampling.LANCZOS)
+        image.save(thumb_cache, "BMP")
 
     def _photo_cache_root(self, profile, target_mode):
         source_repo = profile.get("source_repo_path") or os.getcwd()
@@ -276,7 +350,7 @@ class RockboxPhotoService:
             return THUMBNAIL_MAX_SIZE
 
         if width >= 300 and height >= 220:
-            return (87, 70)
+            return (80, 60)
         if width >= 220 and height >= 170:
             return (80, 60)
         if width >= 176 and height >= 132:

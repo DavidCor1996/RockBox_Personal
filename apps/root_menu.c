@@ -1563,7 +1563,6 @@ void root_menu_load_from_cfg(void* setting, char *value)
     unsigned int menu_item_count = 0, i;
     bool main_menu_added = false;
     bool games_added = false;
-    bool photos_added = false;
     int insert_at = -1;
 
     if (*value == '-')
@@ -1596,8 +1595,6 @@ void root_menu_load_from_cfg(void* setting, char *value)
                     main_menu_added = true;
                 if (menu_table[i].item == &gameboy_browser)
                     games_added = true;
-                if (menu_table[i].item == &photos_item)
-                    photos_added = true;
                 if (menu_table[i].item == &videos
 #ifdef HAVE_TAGCACHE
                     || menu_table[i].item == &db_browser
@@ -1615,15 +1612,6 @@ void root_menu_load_from_cfg(void* setting, char *value)
         for (i = menu_item_count; i > (unsigned)insert_at; i--)
             root_menu__[i] = root_menu__[i - 1];
         root_menu__[insert_at] = (struct menu_item_ex *)&gameboy_browser;
-        menu_item_count++;
-    }
-    if (!photos_added)
-    {
-        if (insert_at < 0 || (unsigned)insert_at > menu_item_count)
-            insert_at = menu_item_count;
-        for (i = menu_item_count; i > (unsigned)insert_at; i--)
-            root_menu__[i] = root_menu__[i - 1];
-        root_menu__[insert_at] = (struct menu_item_ex *)&photos_item;
         menu_item_count++;
     }
     if (!main_menu_added)

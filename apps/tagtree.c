@@ -2394,6 +2394,49 @@ int tagtree_get_custom_action(struct tree_context* c)
     return tagtree_get_entry(c, c->selected_item)->customaction;
 }
 
+bool tagtree_get_album_art_row(struct tree_context *c, int id,
+                               char *album, size_t album_size,
+                               char *artist, size_t artist_size)
+{
+    if (!c || !csi || c->currtable != TABLE_NAVIBROWSE ||
+        c->currextra < 0 || c->currextra >= csi->tagorder_count ||
+        csi->tagorder[c->currextra] != tag_album ||
+        id < c->special_entry_count)
+        return false;
+
+    struct tagentry *entry = tagtree_get_entry(c, id);
+    if (!entry || !entry->name || P2ID((unsigned char *)entry->name) >= 0)
+        return false;
+
+    if (album && album_size > 0)
+        strmemccpy(album, entry->name, album_size);
+
+    if (artist && artist_size > 0)
+        artist[0] = '\0';
+
+    if (artist && artist_size > 0)
+    {
+        for (int i = c->currextra - 1; i >= 0; i--)
+        {
+            int tag = csi->tagorder[i];
+            if (tag != tag_albumartist && tag != tag_artist)
+                continue;
+
+            struct tagcache_search tcs;
+            if (!tagcache_search(&tcs, tag))
+                continue;
+            bool found = tagcache_retrieve(&tcs, csi->result_seek[i], tag,
+                                           artist, artist_size);
+            tagcache_search_finish(&tcs);
+            if (found)
+                break;
+            artist[0] = '\0';
+        }
+    }
+
+    return true;
+}
+
 static void swap_array_bool(bool *a, bool *b)
 {
     bool temp = *a;

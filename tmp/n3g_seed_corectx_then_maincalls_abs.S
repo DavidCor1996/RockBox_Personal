@@ -1,0 +1,135 @@
+    .arm
+    .section .text
+    .global _start
+
+    .macro MARK name
+    ldr     r2, =\name
+    bl      show
+    .endm
+
+    .macro CALL addr
+    ldr     r3, =\addr
+    blx     r3
+    .endm
+
+_start:
+    ldr     r12, =0x2201d18c
+    blx     r12
+
+    CALL    0x08078160
+
+    ldr     r0, =0x080d23a0
+    ldr     r1, =0x081c5538
+    mov     r2, #0
+1:  cmp     r0, r1
+    strlo   r2, [r0], #4
+    blo     1b
+
+    ldr     r0, =0x080cff68
+    ldr     r1, =0x00000060
+    ldr     r2, =0x00002494
+2:  cmp     r1, r2
+    ldrlo   r3, [r0], #4
+    strlo   r3, [r1], #4
+    blo     2b
+
+    ldr     r0, =0x00002494
+    ldr     r1, =0x00007d50
+    mov     r2, #0
+3:  cmp     r0, r1
+    strlo   r2, [r0], #4
+    blo     3b
+
+    ldr     r1, =0xe1a00000
+    ldr     r0, =0x08005d84
+    str     r1, [r0]
+    ldr     r0, =0x080743f4
+    str     r1, [r0]
+    ldr     r0, =0x08005db4
+    mov     r2, #6
+4:  str     r1, [r0], #4
+    subs    r2, r2, #1
+    bne     4b
+
+    ldr     r0, =0x0807f134
+    ldr     r1, =0xe12fff1e
+    str     r1, [r0]
+    ldr     r0, =0x08005e2c
+    ldr     r1, =0xe3a00000
+    str     r1, [r0]
+    ldr     r0, =0x08005e84
+    ldr     r1, =0xe3a00001
+    str     r1, [r0]
+
+    msr     CPSR_c, #0xdf
+    ldr     sp, =0x00009d50
+
+    ldr     r4, =0x0812215c
+    ldr     r5, =0x081c553c
+    ldr     r6, =0x09cfc000
+
+    MARK    m0
+    str     r6, [r4, #0]
+    str     r6, [r4, #8]
+    sub     r3, r6, #4
+    str     r3, [r4, #4]
+    str     r5, [r4, #12]
+    str     r5, [r4, #16]
+    mov     r3, #1
+    strb    r3, [r4, #20]
+    MARK    m1
+
+    CALL    0x08083d48
+    MARK    m2
+    CALL    0x08082dc0
+    MARK    m3
+    CALL    0x08084170
+    MARK    m4
+    CALL    0x0806a878
+    MARK    m5
+    ldr     r0, =0x0337f980
+    CALL    0x080780e8
+    MARK    m6
+    mov     r0, #1
+    CALL    0x08067800
+    MARK    m7
+    CALL    0x08077754
+    MARK    m8
+    CALL    0x0807faf4
+    MARK    m9
+5:  b       5b
+
+show:
+    push    {r0-r6, lr}
+    ldr     r12, =0x2200c8cc
+    blx     r12
+    mov     r0, #0
+    mov     r1, #0
+    ldr     r2, [sp, #8]
+    ldr     r12, =0x2200c738
+    blx     r12
+    ldr     r12, =0x2201d658
+    blx     r12
+    pop     {r0-r6, pc}
+
+m0: .asciz "SN0 seed"
+    .balign 4
+m1: .asciz "SN1 compact"
+    .balign 4
+m2: .asciz "SN2 kernel"
+    .balign 4
+m3: .asciz "SN3 82dc0"
+    .balign 4
+m4: .asciz "SN4 84170"
+    .balign 4
+m5: .asciz "SN5 a878"
+    .balign 4
+m6: .asciz "SN6 freq"
+    .balign 4
+m7: .asciz "SN7 c1"
+    .balign 4
+m8: .asciz "SN8 7754"
+    .balign 4
+m9: .asciz "SN9 faf4"
+    .balign 4
+    .ltorg

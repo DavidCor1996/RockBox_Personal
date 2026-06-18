@@ -570,6 +570,48 @@ def test_standard_cover_generated_for_ipod(config, tmp_dir):
         manager.shutdown()
 
 
+def test_album_list_thumbnail_and_manifest_generated_for_ipod(config, tmp_dir):
+    manager = ArtworkManager(os.path.join(tmp_dir, "art"), config=config)
+    try:
+        album_dir = os.path.join(tmp_dir, "Album")
+        audio = os.path.join(album_dir, "01.mp3")
+        os.makedirs(album_dir, exist_ok=True)
+        with open(audio, "wb") as f:
+            f.write(b"audio")
+        Image.new("RGB", (500, 300), "#225588").save(os.path.join(album_dir, "folder.jpg"), "JPEG")
+
+        thumb_path, thumb_hash, device_name, album_id = manager.export_album_list_thumbnail(_album_info(audio))
+
+        assert os.path.exists(thumb_path)
+        assert thumb_hash
+        assert device_name == f"{album_id}.bmp"
+        with Image.open(thumb_path) as img:
+            assert img.format == "BMP"
+            assert img.size == (32, 32)
+
+        manifest_path, manifest_hash = manager.export_album_list_manifest(
+            [
+                {
+                    "album_id": album_id,
+                    "thumb": os.path.join("thumbs", device_name),
+                    "artist": "Artist",
+                    "album": "Album",
+                    "group_key": "artist\0album",
+                    "device_dirs": "Music/Artist/Album",
+                }
+            ]
+        )
+
+        assert os.path.exists(manifest_path)
+        assert manifest_hash
+        with open(manifest_path, "r", encoding="utf-8") as handle:
+            data = handle.read()
+        assert "album_id\tthumb\tartist\talbum\tgroup_key\tdevice_dirs" in data
+        assert f"{album_id}\tthumbs/{device_name}\tArtist\tAlbum" in data
+    finally:
+        manager.shutdown()
+
+
 def test_existing_valid_cover_not_rewritten_unnecessarily(config, tmp_dir):
     lookup = FakeLookupClient()
     manager = ArtworkManager(os.path.join(tmp_dir, "art"), config=config, lookup_client=lookup)
@@ -651,8 +693,10 @@ def test_artwork_sync_can_happen_without_recopying_music(config, db, tmp_dir):
 
         assert plan.copy_count == 0
         assert plan.resync_count == 0
-        assert len(plan.artwork_to_copy) == 1
-        assert plan.artwork_to_copy[0][1] == "Music/Artist/Album/cover.jpg"
+        rel_paths = {item[1] for item in plan.artwork_to_copy}
+        assert "Music/Artist/Album/cover.jpg" in rel_paths
+        assert ".rockbox/albumlist/index.tsv" in rel_paths
+        assert any(path.startswith(".rockbox/albumlist/thumbs/") and path.endswith(".bmp") for path in rel_paths)
     finally:
         manager.shutdown()
 
