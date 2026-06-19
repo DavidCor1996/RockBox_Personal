@@ -8,14 +8,19 @@ import tempfile
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 import pytest
+from PIL import Image
 
 from app.config import Config
 from app.database import Database
+from services.artwork_manager import ArtworkManager
 from services.device_detector import DeviceDetector, DeviceInfo, create_mock_device
 from services.sync_engine import (
+    ALBUM_LIST_DEVICE_DIR,
     SyncEngine,
     SyncPlan,
     SyncWorker,
+    VIDEO_LIST_DEVICE_DIR,
+    VIDEO_LIST_THUMB_DEVICE_DIR,
     _clear_device_trash,
     build_device_path,
     _sanitize_filename,
@@ -49,6 +54,11 @@ def _insert_track(db, title, artist, album, **kw):
         "device_path": kw.get("device_path", None),
         "last_synced_metadata_hash": kw.get("last_synced_metadata_hash", ""),
         "last_synced_file_hash": kw.get("last_synced_file_hash", ""),
+        "media_type": kw.get("media_type", "audio"),
+        "show_title": kw.get("show_title", ""),
+        "season_number": kw.get("season_number", None),
+        "episode_number": kw.get("episode_number", None),
+        "video_kind": kw.get("video_kind", "movie"),
     }
     db.upsert_track(data)
     db.commit()
@@ -122,6 +132,21 @@ def _make_source_file(env_dict, artist, album, title, ext=".mp3", size=1024):
     with open(path, "wb") as f:
         f.write(os.urandom(size))
     return path
+
+
+def test_video_device_path_uses_file_stem_when_title_is_youtube():
+    rel_path = build_device_path(
+        {
+            "file_path": "/media/Videos/YouTube/Real Movie.mpg",
+            "media_type": "video",
+            "title": "youtube",
+            "video_kind": "movie",
+        },
+        "Music/{album_artist}/{album}",
+        "{track_number:02d} - {title}{ext}",
+    )
+
+    assert rel_path == os.path.join("Videos", "Downloaded", "Real Movie.mpg")
 
 
 # ===========================================================================
@@ -338,7 +363,7 @@ class TestSyncPlan:
         plan.to_delete.append("Music/Old/orphan.mp3")
 
         assert plan.total_operations == 1
-        assert "orphaned" in plan.summary()
+        assert "duplicate device tracks" in plan.summary()
 
 
 # ===========================================================================
@@ -1214,6 +1239,86 @@ class TestSyncEnginePlan:
         plan = engine.build_sync_plan(track_ids={ids[0], ids[2]}, force_full=True)
 
         assert plan.copy_count + plan.resync_count == 2
+
+    def test_plan_selected_video_ids_uses_video_rows_and_exports_list_thumbnail(self, env):
+        video_dir = os.path.join(env["tmp"], "Videos", "YouTube")
+        os.makedirs(video_dir, exist_ok=True)
+        src = os.path.join(video_dir, "Real Movie.mpg")
+        with open(src, "wb") as handle:
+            handle.write(os.urandom(1024))
+        Image.new("RGB", (600, 900), color=(30, 80, 120)).save(
+            os.path.join(video_dir, "Real Movie.jpg"),
+            "JPEG",
+        )
+        row = _insert_track(
+            env["db"],
+            "youtube",
+            "",
+            "youtube",
+            file_path=src,
+            metadata_hash="video_meta",
+            file_hash="video_file",
+            media_type="video",
+            codec="mpeg",
+            video_kind="movie",
+        )
+
+        config = env["config"]
+        detector = DeviceDetector(config)
+        device = DeviceInfo(env["device_path"])
+        device.name = "Test iPod"
+        device.is_rockbox = True
+        detector._current_device = device
+        audio_src = _make_source_file(env, "Art", "Alb", "Duped")
+        audio = _insert_track(
+            env["db"],
+            "Duped",
+            "Art",
+            "Alb",
+            file_path=audio_src,
+            metadata_hash="dup_hash",
+        )
+        manager = ArtworkManager(config.artwork_cache_dir, config=config)
+        try:
+            engine = SyncEngine(env["db"], config, detector, manager)
+            engine.set_current_device(device)
+            _insert_device_track(
+                env["db"],
+                "Duped",
+                "Art",
+                "Alb",
+                os.path.join("Music", "Art", "Alb", "01 - Duped.mp3"),
+                device_id=engine.current_device_key,
+                metadata_hash="dup_hash",
+                local_track_id=audio["id"],
+            )
+            _insert_device_track(
+                env["db"],
+                "Duped",
+                "Art",
+                "Alb",
+                os.path.join("Music", "Art", "Alb", "01 - Duped (2).mp3"),
+                device_id=engine.current_device_key,
+                metadata_hash="dup_hash_variant",
+            )
+            engine.load_cached_device_inventory(engine.current_device_key)
+            plan = engine.build_sync_plan(track_ids={row["id"]})
+        finally:
+            manager.shutdown()
+
+        assert plan.copy_count == 1
+        assert plan.to_delete == []
+        planned_row, rel_path = plan.to_copy[0]
+        assert planned_row["title"] == "Real Movie"
+        assert rel_path == os.path.join("Videos", "Downloaded", "Real Movie.mpg")
+
+        artwork_paths = {item[1] for item in plan.artwork_to_copy}
+        assert os.path.join(ALBUM_LIST_DEVICE_DIR, "index.tsv") not in artwork_paths
+        assert os.path.join(VIDEO_LIST_DEVICE_DIR, "index.tsv") in artwork_paths
+        assert any(
+            rel.startswith(VIDEO_LIST_THUMB_DEVICE_DIR) and rel.endswith(".bmp")
+            for rel in artwork_paths
+        )
 
 
 # ===========================================================================

@@ -8,6 +8,7 @@ from urllib.parse import urlparse
 
 from PySide6.QtCore import Qt, QUrl, Signal
 from PySide6.QtGui import QPixmap
+from PySide6.QtNetwork import QNetworkAccessManager, QNetworkRequest
 from PySide6.QtWidgets import (
     QFrame,
     QGridLayout,
@@ -1168,6 +1169,13 @@ class MovieStorePanel(QWidget):
         self._movie_item = None
         self._movie_results = []
         self._movie_browse_buttons = {}
+        self._movie_results_header_text = "Featured Movies"
+        self._movie_detail_result_key = ""
+        self._movie_thumbnail_cache = {}
+        self._movie_thumbnail_labels = {}
+        self._movie_thumbnail_requests = set()
+        self._movie_thumbnail_manager = QNetworkAccessManager(self)
+        self._movie_thumbnail_manager.finished.connect(self._on_movie_thumbnail_finished)
 
         layout = QVBoxLayout(self)
         layout.setContentsMargins(10, 8, 10, 10)
@@ -1323,7 +1331,9 @@ class MovieStorePanel(QWidget):
 
     def set_movie_results(self, results, header_text="Featured Movies"):
         self._movie_results = [dict(item or {}) for item in (results or [])]
-        self._movie_results_header.setText(str(header_text or "Featured Movies"))
+        self._movie_results_header_text = str(header_text or "Featured Movies")
+        self._movie_detail_result_key = ""
+        self._movie_results_header.setText(self._movie_results_header_text)
         self._render_movie_results()
 
     def _render_movie_results(self):
@@ -1332,6 +1342,7 @@ class MovieStorePanel(QWidget):
             widget = item.widget()
             if widget is not None:
                 widget.deleteLater()
+        self._movie_results_header.setText(self._movie_results_header_text)
         if not self._movie_results:
             placeholder = QLabel("Browse or search for authorized YouTube videos.")
             placeholder.setObjectName("itunes_store_subhead")
@@ -1349,14 +1360,17 @@ class MovieStorePanel(QWidget):
 
         tile = QFrame()
         tile.setObjectName("itunes_store_album_tile")
+        tile.setCursor(Qt.PointingHandCursor)
+        tile.mousePressEvent = lambda event, item=dict(result): self._handle_movie_result_tile_press(event, item)
         tile_layout = QVBoxLayout(tile)
         tile_layout.setContentsMargins(4, 4, 4, 6)
         tile_layout.setSpacing(4)
 
         cover = QLabel(title[:2].upper())
-        cover.setObjectName("itunes_store_album_art")
+        cover.setObjectName("itunes_store_movie_thumbnail")
         cover.setAlignment(Qt.AlignCenter)
-        cover.setFixedSize(82, 82)
+        cover.setFixedSize(128, 72)
+        self._set_movie_thumbnail(cover, result, title)
         title_label = QLabel(title)
         title_label.setObjectName("itunes_store_album_title")
         title_label.setWordWrap(True)
@@ -1375,6 +1389,170 @@ class MovieStorePanel(QWidget):
         tile_layout.addWidget(detail_label)
         tile_layout.addWidget(buy_btn)
         return tile
+
+    def _handle_movie_result_tile_press(self, event, result):
+        if event.button() == Qt.LeftButton:
+            self.show_movie_result_details(result)
+            event.accept()
+
+    def _movie_result_key(self, result):
+        item = dict(result or {})
+        return str(item.get("id") or item.get("url") or item.get("title") or "").strip()
+
+    def movie_result_for_url(self, url):
+        wanted = str(url or "").strip()
+        if not wanted:
+            return {}
+        for result in self._movie_results or []:
+            item = dict(result or {})
+            if str(item.get("url") or "").strip() == wanted:
+                return item
+        return {}
+
+    def _clear_movie_results_grid(self):
+        while self._movie_results_grid.count():
+            item = self._movie_results_grid.takeAt(0)
+            widget = item.widget()
+            if widget is not None:
+                widget.deleteLater()
+
+    def show_movie_result_details(self, result):
+        self._clear_movie_results_grid()
+        self._movie_detail_result_key = self._movie_result_key(result)
+        self._movie_results_header.setText("Movie Details")
+        self._movie_results_grid.addWidget(self._movie_result_details(result), 0, 0, 1, 3)
+
+    def _restore_movie_results(self):
+        self._movie_detail_result_key = ""
+        self._render_movie_results()
+
+    def _movie_result_details(self, result):
+        result = dict(result or {})
+        title = str(result.get("title") or "YouTube Movie")
+        uploader = str(result.get("uploader") or "YouTube")
+        duration = str(result.get("duration_text") or "")
+        url = str(result.get("url") or "")
+        video_id = str(result.get("id") or "")
+
+        panel = QFrame()
+        panel.setObjectName("itunes_store_album_detail")
+        panel_layout = QVBoxLayout(panel)
+        panel_layout.setContentsMargins(0, 0, 0, 0)
+        panel_layout.setSpacing(8)
+
+        top_bar = QFrame()
+        top_bar.setObjectName("itunes_store_detail_bar")
+        top_layout = QHBoxLayout(top_bar)
+        top_layout.setContentsMargins(6, 4, 6, 4)
+        back_btn = QPushButton("Back")
+        back_btn.setObjectName("store_nav_button")
+        back_btn.clicked.connect(self._restore_movie_results)
+        top_layout.addWidget(back_btn)
+        top_layout.addStretch(1)
+        panel_layout.addWidget(top_bar)
+
+        body = QHBoxLayout()
+        body.setContentsMargins(8, 4, 8, 8)
+        body.setSpacing(14)
+
+        poster = QLabel(title[:2].upper())
+        poster.setObjectName("itunes_store_movie_thumbnail")
+        poster.setAlignment(Qt.AlignCenter)
+        poster.setFixedSize(256, 144)
+        self._set_movie_thumbnail(poster, result, title)
+        body.addWidget(poster, alignment=Qt.AlignTop)
+
+        info = QVBoxLayout()
+        info.setSpacing(5)
+        title_label = QLabel(title)
+        title_label.setObjectName("itunes_store_detail_title")
+        title_label.setWordWrap(True)
+        uploader_label = QLabel(uploader)
+        uploader_label.setObjectName("itunes_store_detail_artist")
+        uploader_label.setWordWrap(True)
+        info.addWidget(title_label)
+        info.addWidget(uploader_label)
+
+        meta_bits = ["YouTube"]
+        if duration:
+            meta_bits.append(duration)
+        if video_id:
+            meta_bits.append(video_id)
+        meta = QLabel(" - ".join(meta_bits))
+        meta.setObjectName("itunes_store_detail_meta")
+        meta.setWordWrap(True)
+        info.addWidget(meta)
+
+        if url:
+            url_label = QLabel(url)
+            url_label.setObjectName("itunes_store_detail_value")
+            url_label.setWordWrap(True)
+            url_label.setTextInteractionFlags(Qt.TextSelectableByMouse)
+            info.addWidget(url_label)
+
+        action_row = QHBoxLayout()
+        add_btn = QPushButton("Add Movie")
+        add_btn.setObjectName("store_buy_button")
+        add_btn.setEnabled(bool(url))
+        add_btn.clicked.connect(lambda _checked=False, item=dict(result): self.movie_import_requested.emit(str(item.get("url") or "")))
+        action_row.addWidget(add_btn)
+        action_row.addStretch(1)
+        info.addLayout(action_row)
+        info.addStretch(1)
+
+        body.addLayout(info, 1)
+        panel_layout.addLayout(body)
+        return panel
+
+    def _set_movie_thumbnail(self, label, result, title):
+        label.setText(str(title or "YT")[:2].upper())
+        label.setPixmap(QPixmap())
+        label.setAlignment(Qt.AlignCenter)
+        url = str((result or {}).get("thumbnail_path") or (result or {}).get("thumbnail") or "").strip()
+        if not url:
+            return
+
+        if os.path.isfile(url):
+            pixmap = QPixmap(url)
+            if not pixmap.isNull():
+                self._apply_movie_thumbnail(label, pixmap)
+            return
+
+        cached = self._movie_thumbnail_cache.get(url)
+        if cached is not None:
+            self._apply_movie_thumbnail(label, cached)
+            return
+
+        labels = self._movie_thumbnail_labels.setdefault(url, [])
+        labels.append(label)
+        if url in self._movie_thumbnail_requests:
+            return
+
+        self._movie_thumbnail_requests.add(url)
+        request = QNetworkRequest(QUrl(url))
+        reply = self._movie_thumbnail_manager.get(request)
+        reply.setProperty("movie_thumbnail_url", url)
+
+    def _apply_movie_thumbnail(self, label, pixmap):
+        if label is None or pixmap.isNull():
+            return
+        label.setPixmap(pixmap.scaled(label.size(), Qt.KeepAspectRatio, Qt.SmoothTransformation))
+        label.setText("")
+
+    def _on_movie_thumbnail_finished(self, reply):
+        url = str(reply.property("movie_thumbnail_url") or "")
+        self._movie_thumbnail_requests.discard(url)
+        pixmap = QPixmap()
+        if not reply.error():
+            pixmap.loadFromData(bytes(reply.readAll()))
+        reply.deleteLater()
+
+        if not url or pixmap.isNull():
+            return
+        self._movie_thumbnail_cache[url] = pixmap
+        labels = self._movie_thumbnail_labels.pop(url, [])
+        for label in labels:
+            self._apply_movie_thumbnail(label, pixmap)
 
     def set_movie_import_status(self, status, running=False):
         text = str(status or "")

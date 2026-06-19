@@ -2,9 +2,11 @@ import os
 import zipfile
 
 from PySide6.QtCore import Qt
+from PySide6.QtGui import QColor, QPixmap
 from PySide6.QtTest import QTest
-from PySide6.QtWidgets import QApplication
+from PySide6.QtWidgets import QApplication, QLabel
 
+from scripts.youtube_movie_browse import _download_thumbnail, _thumbnail_url
 from ui.web_browser import BrowserPanel, MovieStorePanel, extract_downloaded_archive, should_block_browser_url
 
 
@@ -373,3 +375,88 @@ def test_movie_store_panel_emits_youtube_url_and_tracks_status():
     assert panel._movie_results_header.text() == "Browse: public domain"
     assert panel._movie_downloads.topLevelItem(0).text(0) == "Movie.mpg"
     assert panel._movie_downloads.topLevelItem(0).text(1) == "Completed"
+
+
+def test_movie_store_panel_shows_movie_details_and_imports_selected_result():
+    QApplication.instance() or QApplication([])
+    panel = MovieStorePanel()
+    emitted = []
+    panel.movie_import_requested.connect(emitted.append)
+    panel.set_movie_results(
+        [
+            {
+                "title": "Feature Film",
+                "uploader": "Archive Channel",
+                "duration_text": "1:20:00",
+                "url": "https://www.youtube.com/watch?v=feature",
+                "id": "feature",
+            }
+        ],
+        "Browse: archive",
+    )
+
+    panel.show_movie_result_details(panel._movie_results[0])
+    detail = panel._movie_results_grid.itemAt(0).widget()
+    assert panel._movie_results_header.text() == "Movie Details"
+    assert any(label.text() == "Feature Film" for label in detail.findChildren(QLabel))
+
+    add_button = next(button for button in detail.findChildren(type(panel._movie_import_btn)) if button.text() == "Add Movie")
+    add_button.click()
+    assert emitted == ["https://www.youtube.com/watch?v=feature"]
+
+    back_button = next(button for button in detail.findChildren(type(panel._movie_import_btn)) if button.text() == "Back")
+    back_button.click()
+    assert panel._movie_results_header.text() == "Browse: archive"
+    assert panel._movie_results_grid.count() == 1
+
+
+def test_movie_store_panel_uses_result_thumbnail_path(tmp_dir):
+    QApplication.instance() or QApplication([])
+    thumb_path = os.path.join(tmp_dir, "movie-thumb.png")
+    pixmap = QPixmap(32, 18)
+    pixmap.fill(QColor("#336699"))
+    assert pixmap.save(thumb_path)
+
+    panel = MovieStorePanel()
+    panel.set_movie_results(
+        [
+            {
+                "title": "Movie With Thumbnail",
+                "uploader": "Archive Channel",
+                "url": "https://www.youtube.com/watch?v=movie",
+                "thumbnail": "https://example.test/remote.jpg",
+                "thumbnail_path": thumb_path,
+            }
+        ]
+    )
+
+    tile = panel._movie_results_grid.itemAt(0).widget()
+    thumbnail = tile.findChild(type(panel._movie_results_header), "itunes_store_movie_thumbnail")
+    assert thumbnail is not None
+    assert thumbnail.pixmap() is not None
+    assert not thumbnail.pixmap().isNull()
+
+
+def test_youtube_movie_browse_builds_fallback_thumbnail_url():
+    assert _thumbnail_url({"id": "abc123"}) == "https://i.ytimg.com/vi/abc123/hqdefault.jpg"
+    assert _thumbnail_url({"thumbnail": "https://example.test/thumb.jpg"}) == "https://example.test/thumb.jpg"
+
+
+def test_youtube_movie_browse_downloads_thumbnail_to_cache(tmp_dir, monkeypatch):
+    class FakeResponse:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, exc_type, exc, tb):
+            return False
+
+        def read(self):
+            return b"thumbnail-bytes"
+
+    monkeypatch.setattr("scripts.youtube_movie_browse.urlopen", lambda request, timeout=15: FakeResponse())
+
+    path = _download_thumbnail("https://example.test/thumb.jpg", tmp_dir, "video-id")
+
+    assert path.startswith(tmp_dir)
+    assert path.endswith(".jpg")
+    assert open(path, "rb").read() == b"thumbnail-bytes"

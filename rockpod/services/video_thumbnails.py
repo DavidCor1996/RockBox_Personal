@@ -17,6 +17,7 @@ _VIDEO_POSTER_FILENAMES = (
     "season1-poster.jpg", "season1-poster.png",
     "show.jpg", "show.png",
 )
+_VIDEO_LIST_THUMB_SIZE = (32, 32)
 
 
 class VideoThumbnailService:
@@ -24,9 +25,11 @@ class VideoThumbnailService:
 
     def __init__(self, cache_root, config=None, artwork_manager=None):
         self._cache_dir = os.path.join(cache_root, "video_thumbs")
+        self._video_list_dir = os.path.join(self._cache_dir, "list")
         self._config = config
         self._artwork = artwork_manager
         os.makedirs(self._cache_dir, exist_ok=True)
+        os.makedirs(self._video_list_dir, exist_ok=True)
         self._ffmpeg = shutil.which("ffmpeg") or ""
 
     @property
@@ -91,6 +94,65 @@ class VideoThumbnailService:
             return ""
         video_info = self._video_info(track)
         return self._artwork.get_video_poster(video_info, size="thumb", allow_online=False)
+
+    def video_list_id(self, track):
+        video_info = self._video_info(track)
+        identity = str(
+            video_info.get("group_key")
+            or video_info.get("album")
+            or (track or {}).get("file_path")
+            or "video"
+        )
+        return hashlib.sha1(identity.encode("utf-8", "replace")).hexdigest()[:24]
+
+    def export_video_list_thumbnail(self, track, force=False, size=None):
+        target_size = size or _VIDEO_LIST_THUMB_SIZE
+        width = max(int(target_size[0]), 1)
+        height = max(int(target_size[1]), 1)
+        video_id = self.video_list_id(track)
+        source = self.thumbnail_path(track, size=max(width, height) * 4)
+        if not source:
+            return "", "", "", video_id
+
+        source_hash = self._file_hash(source)[:12]
+        cache_target = os.path.join(
+            self._video_list_dir,
+            f"{video_id}_{width}x{height}_{source_hash}.bmp",
+        )
+        if not os.path.exists(cache_target) or force:
+            self._render_list_thumbnail(source, cache_target, width, height)
+        if not os.path.exists(cache_target):
+            return "", "", "", video_id
+        return cache_target, self._file_hash(cache_target), f"{video_id}.bmp", video_id
+
+    def export_video_list_manifest(self, entries):
+        manifest_path = os.path.join(self._video_list_dir, "index.tsv")
+        lines = [
+            "# rockpod videolist v1",
+            "video_id\tthumb\ttitle\tkind\tgroup_key\tdevice_path",
+        ]
+        def sort_key(item):
+            return (
+                str(item.get("title") or "").casefold(),
+                str(item.get("device_path") or ""),
+            )
+
+        for entry in sorted(entries, key=sort_key):
+            lines.append(
+                "\t".join(
+                    [
+                        self._manifest_field(entry.get("video_id")),
+                        self._manifest_field(entry.get("thumb")),
+                        self._manifest_field(entry.get("title")),
+                        self._manifest_field(entry.get("kind")),
+                        self._manifest_field(entry.get("group_key")),
+                        self._manifest_field(entry.get("device_path")),
+                    ]
+                )
+            )
+        with open(manifest_path, "w", encoding="utf-8", newline="\n") as handle:
+            handle.write("\n".join(lines) + "\n")
+        return manifest_path, self._file_hash(manifest_path)
 
     @staticmethod
     def _video_info(track):
@@ -210,3 +272,26 @@ class VideoThumbnailService:
             top = max((scaled_height - height) // 2, 0)
             canvas = frame.crop((left, top, left + width, top + height))
             canvas.save(target_path, "JPEG", quality=88)
+
+    @staticmethod
+    def _render_list_thumbnail(source_path, target_path, width, height):
+        with Image.open(source_path) as frame:
+            frame = frame.convert("RGB")
+            frame.thumbnail((width, height), Image.LANCZOS)
+            canvas = Image.new("RGB", (width, height), "black")
+            left = max((width - frame.width) // 2, 0)
+            top = max((height - frame.height) // 2, 0)
+            canvas.paste(frame, (left, top))
+            canvas.save(target_path, "BMP")
+
+    @staticmethod
+    def _file_hash(path):
+        h = hashlib.sha256()
+        with open(path, "rb") as handle:
+            for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+                h.update(chunk)
+        return h.hexdigest()
+
+    @staticmethod
+    def _manifest_field(value):
+        return str(value or "").replace("\t", " ").replace("\r", " ").replace("\n", " ").strip()

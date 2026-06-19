@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 VIDEO_EXTENSIONS = {".mp4", ".m4v", ".mov", ".mkv", ".avi", ".webm", ".mpg", ".mpeg", ".mpe"}
 _GENERIC_VIDEO_FOLDER_NAMES = {
     "video", "videos", "movie", "movies", "tv", "tv shows", "shows", "series", "anime",
-    "archive", "_archive", "mediadrive", "_mediadrive", "sample", "sample & cover",
+    "archive", "_archive", "mediadrive", "_mediadrive", "youtube", "sample", "sample & cover",
     "other cartoons you'd probably like, here",
 }
 _TV_SHOW_FOLDER_NAMES = {"tv", "tv shows", "shows", "series", "anime"}
@@ -523,7 +523,7 @@ def _normalize_movie_fields(track, path, parent):
         track.title = cleaned_title
     if folder_title and (not cleaned_album or _title_needs_cleanup(track.album)):
         cleaned_album = folder_title
-    elif not cleaned_album and cleaned_title:
+    elif cleaned_title and (not cleaned_album or _title_needs_cleanup(track.album)):
         cleaned_album = cleaned_title
     if folder_title and (not cleaned_artist or _title_needs_cleanup(track.artist)):
         cleaned_artist = folder_title
@@ -543,6 +543,8 @@ def _title_needs_cleanup(title):
     if "http://" in lowered or "https://" in lowered:
         return True
     if "quicktime" in lowered:
+        return True
+    if lowered in {"youtube", "mpeg video", "youtube mpeg video"}:
         return True
     if "complete series" in lowered or "full series" in lowered:
         return True

@@ -5,7 +5,6 @@ from __future__ import annotations
 
 import argparse
 import os
-import re
 import subprocess
 import sys
 import time
@@ -16,19 +15,14 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from services.android_media import build_ffmpeg_command  # noqa: E402
-from services.youtube_movies import is_supported_youtube_url  # noqa: E402
+from services.youtube_movies import is_supported_youtube_url, sanitize_movie_title  # noqa: E402
 
 
 VIDEO_EXTENSIONS = {".mp4", ".mkv", ".webm", ".mov", ".m4v"}
 
 
 def _sanitize_component(value, max_len=96):
-    text = str(value or "").strip() or "YouTube Movie"
-    text = re.sub(r"[<>:\"/\\|?*]+", "_", text)
-    text = re.sub(r"\s+", " ", text).strip(" ._-")
-    if len(text) > max_len:
-        text = text[:max_len].rstrip(" ._-")
-    return text or "YouTube Movie"
+    return sanitize_movie_title(value, max_len=max_len)
 
 
 def _newest_video(download_dir, started_at):

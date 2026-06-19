@@ -22,6 +22,8 @@ class VideoSyncPanel(QWidget):
 
     preview_requested = Signal(set)
     sync_requested = Signal(set)
+    remove_requested = Signal(set)
+    delete_requested = Signal(set)
     refresh_requested = Signal()
 
     def __init__(self, parent=None):
@@ -65,6 +67,8 @@ class VideoSyncPanel(QWidget):
         self._select_missing_btn = QPushButton("Select Missing")
         self._select_all_btn = QPushButton("Select All")
         self._clear_btn = QPushButton("Clear")
+        self._remove_btn = QPushButton("Remove from iPod")
+        self._delete_btn = QPushButton("Delete Local Files")
         self._preview_btn = QPushButton("Preview Sync")
         self._sync_btn = QPushButton("Sync Selected")
         for button in (
@@ -78,6 +82,9 @@ class VideoSyncPanel(QWidget):
         action_layout.addStretch(1)
         for button in (self._preview_btn, self._sync_btn):
             button.setObjectName("store_buy_button")
+            action_layout.addWidget(button)
+        for button in (self._remove_btn, self._delete_btn):
+            button.setObjectName("store_nav_button")
             action_layout.addWidget(button)
         layout.addWidget(actions)
 
@@ -99,6 +106,8 @@ class VideoSyncPanel(QWidget):
         self._clear_btn.clicked.connect(self.clear_selection)
         self._preview_btn.clicked.connect(lambda: self.preview_requested.emit(self.selected_track_ids()))
         self._sync_btn.clicked.connect(lambda: self.sync_requested.emit(self.selected_track_ids()))
+        self._remove_btn.clicked.connect(lambda: self.remove_requested.emit(self.selected_track_ids()))
+        self._delete_btn.clicked.connect(lambda: self.delete_requested.emit(self.selected_track_ids()))
 
     def set_videos(self, videos):
         self._videos = [dict(video or {}) for video in (videos or [])]
@@ -113,6 +122,7 @@ class VideoSyncPanel(QWidget):
             file_path = str(video.get("file_path") or "")
             item = QTreeWidgetItem([title, kind, status, device_path, file_path])
             item.setData(0, Qt.UserRole, int(video.get("id") or 0))
+            item.setData(0, Qt.UserRole + 1, dict(video))
             item.setFlags(item.flags() | Qt.ItemIsUserCheckable)
             item.setCheckState(0, Qt.Unchecked)
             self._tree.addTopLevelItem(item)
@@ -129,6 +139,14 @@ class VideoSyncPanel(QWidget):
                 if track_id:
                     ids.add(track_id)
         return ids
+
+    def selected_videos(self):
+        videos = []
+        for index in range(self._tree.topLevelItemCount()):
+            item = self._tree.topLevelItem(index)
+            if item.checkState(0) == Qt.Checked:
+                videos.append(dict(item.data(0, Qt.UserRole + 1) or {}))
+        return videos
 
     def select_missing(self):
         self._tree.blockSignals(True)
@@ -165,6 +183,9 @@ class VideoSyncPanel(QWidget):
         )
         self._preview_btn.setEnabled(selected > 0)
         self._sync_btn.setEnabled(selected > 0)
+        selected_videos = self.selected_videos()
+        self._remove_btn.setEnabled(any(video.get("synced_to_device") for video in selected_videos))
+        self._delete_btn.setEnabled(selected > 0)
 
     def _resize_columns(self):
         for column in range(5):

@@ -5,7 +5,7 @@ import sys
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from models.track import Track, compute_metadata_hash, compute_artwork_hash
-from services.metadata_reader import read_metadata_details, read_lyrics
+from services.metadata_reader import read_metadata_details, read_lyrics, _apply_video_path_fallback
 
 
 class TestMetadataHash:
@@ -78,6 +78,20 @@ class TestMetadataHash:
         h = t.recompute_metadata_hash()
         assert h == t.metadata_hash
         assert len(h) == 32
+
+
+def test_video_path_fallback_replaces_generic_youtube_title(tmp_dir):
+    video_dir = os.path.join(tmp_dir, "Videos", "YouTube")
+    os.makedirs(video_dir, exist_ok=True)
+    video_path = os.path.join(video_dir, "Real Movie.mpg")
+    with open(video_path, "wb") as handle:
+        handle.write(b"video")
+    track = Track(file_path=video_path, title="youtube", album="youtube", artist="")
+
+    _apply_video_path_fallback(track, video_path)
+
+    assert track.title == "Real Movie"
+    assert track.album == "Real Movie"
 
 
 class TestArtworkHash:

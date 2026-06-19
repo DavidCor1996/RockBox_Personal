@@ -337,6 +337,13 @@ static int browser(void* param)
 #define VIDEO_BROWSER_MAX_FILES 192
 #define VIDEO_BROWSER_MAX_DEPTH 6
 #define VIDEO_BROWSER_TITLE_MAX 64
+#define VIDEO_LIST_INDEX ROCKBOX_DIR "/videolist/index.tsv"
+#define VIDEO_LIST_ROOT ROCKBOX_DIR "/videolist"
+#define VIDEO_LIST_THUMB_SIZE 32
+#define VIDEO_LIST_TEXT_PAD 6
+#define VIDEO_LIST_LOOKUP_CACHE 16
+#define VIDEO_LIST_BITMAP_CACHE 8
+#define VIDEO_LIST_PATH_LEN MAX_PATH
 
 struct video_entry
 {
@@ -371,6 +378,29 @@ struct video_browser_state
     enum video_sort_order sort_order;
 };
 
+#ifdef HAVE_LCD_COLOR
+struct video_thumb_lookup_slot {
+    bool valid;
+    bool found;
+    char video_path[VIDEO_LIST_PATH_LEN];
+    char thumb_path[VIDEO_LIST_PATH_LEN];
+};
+
+struct video_thumb_bitmap_slot {
+    bool valid;
+    unsigned long last_used;
+    char path[VIDEO_LIST_PATH_LEN];
+    struct bitmap bm;
+    unsigned char data[BM_SIZE(VIDEO_LIST_THUMB_SIZE, VIDEO_LIST_THUMB_SIZE,
+                               FORMAT_NATIVE, false)];
+};
+
+static struct video_thumb_lookup_slot video_thumb_lookup_cache[VIDEO_LIST_LOOKUP_CACHE];
+static int video_thumb_lookup_victim;
+static struct video_thumb_bitmap_slot video_thumb_bitmap_cache[VIDEO_LIST_BITMAP_CACHE];
+static unsigned long video_thumb_bitmap_tick;
+#endif
+
 static const char * const video_scan_roots[] = {
     "/Videos",
     "/Video",
@@ -378,6 +408,187 @@ static const char * const video_scan_roots[] = {
     "/iPod_Control/Videos",
     "/iPod_Control/Movies",
 };
+
+#ifdef HAVE_LCD_COLOR
+static int video_ascii_casecmp(const char *a, const char *b)
+{
+    while (*a && *b)
+    {
+        int ca = tolower((unsigned char)*a++);
+        int cb = tolower((unsigned char)*b++);
+        if (ca != cb)
+            return ca - cb;
+    }
+    return (unsigned char)*a - (unsigned char)*b;
+}
+
+static void video_trim_line(char *line)
+{
+    size_t len = strlen(line);
+    while (len > 0 && (line[len - 1] == '\r' || line[len - 1] == '\n'))
+        line[--len] = '\0';
+}
+
+static bool video_split_tsv(char *line, char *fields[], int field_count)
+{
+    int i;
+
+    for (i = 0; i < field_count; i++)
+    {
+        fields[i] = line;
+        char *tab = strchr(line, '\t');
+        if (tab)
+        {
+            *tab = '\0';
+            line = tab + 1;
+        }
+        else if (i != field_count - 1)
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
+static bool video_manifest_path_matches(const char *entry_path,
+                                        const char *manifest_path)
+{
+    const char *entry_rel = entry_path;
+
+    if (!entry_path || !manifest_path || !manifest_path[0])
+        return false;
+
+    if (entry_rel[0] == '/')
+        entry_rel++;
+
+    if (video_ascii_casecmp(entry_rel, manifest_path) == 0)
+        return true;
+
+    return manifest_path[0] == '/' &&
+           video_ascii_casecmp(entry_path, manifest_path) == 0;
+}
+
+static bool video_find_manifest_thumb(const char *video_path,
+                                      char *thumb_path,
+                                      size_t thumb_path_size)
+{
+    int fd = open(VIDEO_LIST_INDEX, O_RDONLY);
+    if (fd < 0)
+        return false;
+
+    char line[512];
+    bool found = false;
+    while (read_line(fd, line, sizeof(line)) > 0)
+    {
+        video_trim_line(line);
+        if (line[0] == '#' || line[0] == '\0' ||
+            strncmp(line, "video_id\t", 9) == 0)
+            continue;
+
+        char *fields[6];
+        if (!video_split_tsv(line, fields, 6) || !fields[1][0])
+            continue;
+
+        if (video_manifest_path_matches(video_path, fields[5]))
+        {
+            snprintf(thumb_path, thumb_path_size, "%s/%s",
+                     VIDEO_LIST_ROOT, fields[1]);
+            found = true;
+            break;
+        }
+    }
+
+    close(fd);
+    return found;
+}
+
+static bool video_lookup_thumb_path(const char *video_path,
+                                    char *thumb_path,
+                                    size_t thumb_path_size)
+{
+    int i;
+
+    for (i = 0; i < VIDEO_LIST_LOOKUP_CACHE; i++)
+    {
+        struct video_thumb_lookup_slot *slot = &video_thumb_lookup_cache[i];
+        if (!slot->valid)
+            continue;
+        if (video_ascii_casecmp(slot->video_path, video_path) == 0)
+        {
+            if (slot->found)
+                strmemccpy(thumb_path, slot->thumb_path, thumb_path_size);
+            return slot->found;
+        }
+    }
+
+    struct video_thumb_lookup_slot *slot =
+        &video_thumb_lookup_cache[video_thumb_lookup_victim];
+    video_thumb_lookup_victim =
+        (video_thumb_lookup_victim + 1) % VIDEO_LIST_LOOKUP_CACHE;
+    slot->valid = true;
+    strmemccpy(slot->video_path, video_path, sizeof(slot->video_path));
+    slot->found = video_find_manifest_thumb(video_path, slot->thumb_path,
+                                            sizeof(slot->thumb_path));
+    if (slot->found)
+        strmemccpy(thumb_path, slot->thumb_path, thumb_path_size);
+    return slot->found;
+}
+
+static struct video_thumb_bitmap_slot *video_thumb_bitmap_cache_victim(void)
+{
+    int victim = 0;
+    int i;
+    unsigned long oldest = video_thumb_bitmap_cache[0].last_used;
+
+    for (i = 0; i < VIDEO_LIST_BITMAP_CACHE; i++)
+    {
+        if (!video_thumb_bitmap_cache[i].valid)
+            return &video_thumb_bitmap_cache[i];
+        if (video_thumb_bitmap_cache[i].last_used < oldest)
+        {
+            oldest = video_thumb_bitmap_cache[i].last_used;
+            victim = i;
+        }
+    }
+
+    return &video_thumb_bitmap_cache[victim];
+}
+
+static struct bitmap *video_load_thumb_bitmap(const char *path)
+{
+    int i;
+
+    for (i = 0; i < VIDEO_LIST_BITMAP_CACHE; i++)
+    {
+        struct video_thumb_bitmap_slot *slot = &video_thumb_bitmap_cache[i];
+        if (slot->valid && strcmp(slot->path, path) == 0)
+        {
+            slot->last_used = ++video_thumb_bitmap_tick;
+            return &slot->bm;
+        }
+    }
+
+    struct video_thumb_bitmap_slot *slot = video_thumb_bitmap_cache_victim();
+    memset(&slot->bm, 0, sizeof(slot->bm));
+    slot->bm.width = VIDEO_LIST_THUMB_SIZE;
+    slot->bm.height = VIDEO_LIST_THUMB_SIZE;
+    slot->bm.format = FORMAT_NATIVE;
+    slot->bm.data = slot->data;
+
+    int rc = read_bmp_file(path, &slot->bm, sizeof(slot->data),
+                           FORMAT_NATIVE | FORMAT_DITHER, NULL);
+    if (rc < 0)
+    {
+        slot->valid = false;
+        return NULL;
+    }
+
+    slot->valid = true;
+    slot->last_used = ++video_thumb_bitmap_tick;
+    strmemccpy(slot->path, path, sizeof(slot->path));
+    return &slot->bm;
+}
+#endif
 
 static bool is_supported_video_ext(const char *ext)
 {
@@ -860,6 +1071,68 @@ static enum themable_icons videos_get_icon(int selected_item, void *data)
     return Icon_Questionmark;
 }
 
+#ifdef HAVE_LCD_COLOR
+static void videos_draw_item(struct list_putlineinfo_t *list_info)
+{
+    if (!list_info || list_info->is_title)
+    {
+        gui_list_draw_item_default(list_info);
+        return;
+    }
+
+    struct video_browser_state *state =
+        (struct video_browser_state *)list_info->list->data;
+    if (!state || list_info->line < 0 || list_info->line >= state->count)
+    {
+        gui_list_draw_item_default(list_info);
+        return;
+    }
+
+    char thumb_path[VIDEO_LIST_PATH_LEN];
+    if (!video_lookup_thumb_path(state->entries[list_info->line].path,
+                                 thumb_path, sizeof(thumb_path)))
+    {
+        gui_list_draw_item_default(list_info);
+        return;
+    }
+
+    struct bitmap *bm = video_load_thumb_bitmap(thumb_path);
+    if (!bm)
+    {
+        gui_list_draw_item_default(list_info);
+        return;
+    }
+
+    struct list_putlineinfo_t text_info = *list_info;
+    text_info.item_indent += VIDEO_LIST_THUMB_SIZE + VIDEO_LIST_TEXT_PAD;
+    text_info.icon = Icon_NOICON;
+    text_info.have_icons = false;
+    gui_list_draw_item_default(&text_info);
+
+    int x = list_info->item_indent + 1;
+    int y = list_info->y + MAX(0, (list_info->linedes->height - bm->height) / 2);
+    list_info->display->bmp_part(bm, 0, 0, x, y, bm->width, bm->height);
+}
+
+static void videos_setup_art_list(struct gui_synclist *list)
+{
+    if (!list)
+        return;
+
+    int fd = open(VIDEO_LIST_INDEX, O_RDONLY);
+    if (fd < 0)
+        return;
+    close(fd);
+
+    list->callback_draw_item = videos_draw_item;
+    FOR_NB_SCREENS(i)
+    {
+        if (list->line_height[i] < VIDEO_LIST_THUMB_SIZE + 2)
+            list->line_height[i] = VIDEO_LIST_THUMB_SIZE + 2;
+    }
+}
+#endif
+
 /* Current video for preview screen - used by context menu */
 static struct video_entry *current_preview_entry;
 static struct video_browser_state *current_video_browser_state;
@@ -1066,6 +1339,10 @@ static int videos_action_cb(int action, struct gui_synclist *lists)
 {
     struct video_browser_state *state = lists->data;
     int selected = gui_synclist_get_sel_pos(lists);
+
+#ifdef HAVE_LCD_COLOR
+    videos_setup_art_list(lists);
+#endif
 
     /* Set global state pointer for sort menu access */
     current_video_browser_state = state;

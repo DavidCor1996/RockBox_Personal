@@ -120,3 +120,55 @@ def test_thumbnail_service_returns_empty_when_unavailable(tmp_dir):
     service._ffmpeg = ""
 
     assert service.thumbnail_path({"file_path": os.path.join(tmp_dir, "missing.mkv")}) == ""
+
+
+def test_video_list_thumbnail_and_manifest_generated_for_ipod(tmp_dir, monkeypatch):
+    video_path = os.path.join(tmp_dir, "Movie", "Real Movie.mpg")
+    os.makedirs(os.path.dirname(video_path), exist_ok=True)
+    with open(video_path, "wb") as f:
+        f.write(b"video")
+    poster_path = os.path.join(os.path.dirname(video_path), "Real Movie.jpg")
+    Image.new("RGB", (600, 900), color=(40, 90, 130)).save(poster_path, "JPEG")
+
+    service = VideoThumbnailService(tmp_dir)
+    service._ffmpeg = "/usr/bin/ffmpeg"
+
+    def fail_run(*args, **kwargs):
+        raise AssertionError("ffmpeg should not run when a video poster exists")
+
+    monkeypatch.setattr("services.video_thumbnails.subprocess.run", fail_run)
+
+    track = {
+        "file_path": video_path,
+        "title": "Real Movie",
+        "media_type": "video",
+        "video_kind": "movie",
+    }
+    thumb_path, thumb_hash, device_name, video_id = service.export_video_list_thumbnail(track)
+
+    assert os.path.exists(thumb_path)
+    assert thumb_hash
+    assert device_name == f"{video_id}.bmp"
+    with Image.open(thumb_path) as rendered:
+        assert rendered.format == "BMP"
+        assert rendered.size == (32, 32)
+
+    manifest_path, manifest_hash = service.export_video_list_manifest(
+        [
+            {
+                "video_id": video_id,
+                "thumb": os.path.join("thumbs", device_name),
+                "title": "Real Movie",
+                "kind": "movie",
+                "group_key": video_path,
+                "device_path": "Videos/Movies/Real Movie.mpg",
+            }
+        ]
+    )
+
+    assert os.path.exists(manifest_path)
+    assert manifest_hash
+    with open(manifest_path, "r", encoding="utf-8") as handle:
+        data = handle.read()
+    assert "video_id\tthumb\ttitle\tkind\tgroup_key\tdevice_path" in data
+    assert f"{video_id}\tthumbs/{device_name}\tReal Movie\tmovie" in data

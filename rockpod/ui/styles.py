@@ -1286,13 +1286,18 @@ QLabel#itunes_store_subhead {{
 }}
 
 QLabel#itunes_store_cover,
-QLabel#itunes_store_album_art {{
+QLabel#itunes_store_album_art,
+QLabel#itunes_store_movie_thumbnail {{
     color: #ffffff;
     font-size: 15px;
     font-weight: bold;
     border: 1px solid #6f7a86;
     background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
         stop:0 #9bb2c9, stop:0.48 #506d8e, stop:0.5 #354f6e, stop:1 #17283b);
+}}
+
+QLabel#itunes_store_movie_thumbnail {{
+    font-size: 13px;
 }}
 
 QFrame#itunes_store_panel,

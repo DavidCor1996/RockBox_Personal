@@ -43,7 +43,13 @@ from services.streamrip_import import (
     find_existing_streamrip_source_file,
     streamrip_url_info,
 )
-from services.youtube_movies import YoutubeMovieImporter, YoutubeMovieImportError
+from services.youtube_movies import (
+    YoutubeMovieImporter,
+    YoutubeMovieImportError,
+    existing_movie_duplicate,
+    parse_movie_import_progress,
+    persist_movie_import_poster,
+)
 from services.playback import PlaybackService, STATE_STOPPED
 from services.sync_engine import SyncEngine, SyncPlanBuilder
 from services.theme_assets import ThemeAssetManager
@@ -210,6 +216,7 @@ class MainWindow(QMainWindow):
         self._movie_import_process = None
         self._movie_import_output = []
         self._movie_import_log_path = ""
+        self._movie_import_result = {}
         self._movie_browse_process = None
         self._movie_browse_output_path = ""
         self._movie_browse_output = []
@@ -452,6 +459,8 @@ class MainWindow(QMainWindow):
         self._video_sync_panel.refresh_requested.connect(self._refresh_video_sync_panel)
         self._video_sync_panel.preview_requested.connect(self._preview_video_sync)
         self._video_sync_panel.sync_requested.connect(self._sync_video_track_ids)
+        self._video_sync_panel.remove_requested.connect(self._remove_video_track_ids_from_device)
+        self._video_sync_panel.delete_requested.connect(self._delete_video_track_ids)
 
         # Library browser views
         self._artist_view.track_double_clicked.connect(self._on_track_double_click)
@@ -2881,6 +2890,128 @@ class MainWindow(QMainWindow):
     def _sync_video_track_ids(self, track_ids):
         self._show_video_sync_plan(track_ids)
 
+    def _video_rows_for_ids(self, track_ids):
+        ids = {int(track_id) for track_id in (track_ids or []) if int(track_id or 0)}
+        if not ids:
+            return []
+        return [
+            dict(row)
+            for row in self._db.get_tracks_by_ids(ids, media_type=None)
+            if str(row.get("media_type") or "") == "video"
+        ]
+
+    def _remove_video_track_ids_from_device(self, track_ids):
+        rows = self._video_rows_for_ids(track_ids)
+        targets = [row for row in rows if row.get("synced_to_device") or row.get("device_path")]
+        if not targets:
+            self._video_sync_panel.set_status("Select synced videos to remove from the iPod.")
+            return
+        if not self._device_detector.is_connected:
+            self._video_sync_panel.set_status("Connect an iPod to remove selected videos.")
+            QMessageBox.warning(self, "No Device", "No Rockbox device is connected.")
+            return
+
+        reply = QMessageBox.question(
+            self,
+            "Remove from iPod",
+            f"Remove {len(targets)} selected video{'s' if len(targets) != 1 else ''} from the iPod?\n\n"
+            "The local video files stay in your RockPod library.",
+            QMessageBox.Yes | QMessageBox.No,
+            QMessageBox.No,
+        )
+        if reply != QMessageBox.Yes:
+            return
+
+        deleted = self._remove_video_rows_from_device(targets)
+        self._refresh_video_sync_panel()
+        self._refresh_view()
+        self._status_bar.set_left_text(f"Removed {deleted} video{'s' if deleted != 1 else ''} from iPod")
+
+    def _remove_video_rows_from_device(self, rows):
+        device_tracks = [dict(row) for row in self._sync_engine.get_device_tracks()]
+        by_local_id = {
+            int(row.get("local_track_id") or 0): row
+            for row in device_tracks
+            if int(row.get("local_track_id") or 0)
+        }
+        by_path = {
+            str(row.get("device_path") or ""): row
+            for row in device_tracks
+            if row.get("device_path")
+        }
+
+        deleted = 0
+        for row in rows:
+            local_id = int(row.get("id") or 0)
+            device_path = str(row.get("device_path") or "")
+            device_row = by_local_id.get(local_id) or by_path.get(device_path)
+            if not device_row and device_path:
+                device_row = {"device_path": device_path, "local_track_id": local_id}
+            if not device_row or not device_row.get("device_path"):
+                continue
+            ok, msg = self._sync_engine.delete_device_track(device_row)
+            if ok:
+                deleted += 1
+            else:
+                logger.warning("Failed to remove video from device: %s", msg)
+        return deleted
+
+    def _delete_video_track_ids(self, track_ids):
+        rows = self._video_rows_for_ids(track_ids)
+        if not rows:
+            self._video_sync_panel.set_status("Select videos to delete.")
+            return
+
+        reply = QMessageBox.question(
+            self,
+            "Delete Local Videos",
+            f"Delete {len(rows)} selected local video file{'s' if len(rows) != 1 else ''}?\n\n"
+            "This removes the files from your computer and RockPod library. "
+            "If an iPod is connected, synced copies are removed from it too.",
+            QMessageBox.Yes | QMessageBox.No,
+            QMessageBox.No,
+        )
+        if reply != QMessageBox.Yes:
+            return
+
+        if self._device_detector.is_connected:
+            self._remove_video_rows_from_device(rows)
+
+        deleted = 0
+        failed = []
+        with self._db.transaction():
+            for row in rows:
+                file_path = str(row.get("file_path") or "")
+                if file_path and os.path.exists(file_path):
+                    try:
+                        os.remove(file_path)
+                    except OSError as exc:
+                        failed.append(f"{os.path.basename(file_path) or file_path}: {exc}")
+                        continue
+                    for suffix in (".jpg", ".jpeg", ".png"):
+                        sidecar = os.path.splitext(file_path)[0] + suffix
+                        if os.path.exists(sidecar):
+                            try:
+                                os.remove(sidecar)
+                            except OSError:
+                                logger.warning("Failed to remove video sidecar %s", sidecar)
+                track_id = int(row.get("id") or 0)
+                if track_id:
+                    self._db.delete_track(track_id)
+                    deleted += 1
+
+        self._playback.remove_tracks_from_queue({int(row.get("id") or 0) for row in rows})
+        self._refresh_video_sync_panel()
+        self._refresh_view()
+        if failed:
+            QMessageBox.warning(
+                self,
+                "Delete Incomplete",
+                f"Deleted {deleted} video{'s' if deleted != 1 else ''}.\n\n"
+                + "\n".join(failed[:6]),
+            )
+        self._status_bar.set_left_text(f"Deleted {deleted} local video{'s' if deleted != 1 else ''}")
+
     def _show_video_sync_plan(self, track_ids):
         track_ids = set(track_ids or [])
         if not track_ids:
@@ -3347,6 +3478,13 @@ class MainWindow(QMainWindow):
     def _start_movie_import(self, url):
         if self._movie_import_process is not None:
             return
+        movie_result = self._movie_store_panel.movie_result_for_url(url)
+        duplicate_message = self._movie_import_duplicate_message(movie_result)
+        if duplicate_message:
+            self._movie_store_panel.set_movie_import_status(duplicate_message, running=False)
+            self._status_bar.set_left_text(duplicate_message)
+            QMessageBox.warning(self, "Movie Import", duplicate_message)
+            return
         try:
             request = self._youtube_movie_importer.prepare_import(url)
         except YoutubeMovieImportError as exc:
@@ -3368,6 +3506,7 @@ class MainWindow(QMainWindow):
         self._movie_import_process = process
         self._movie_import_output = []
         self._movie_import_log_path = request.log_path
+        self._movie_import_result = dict(movie_result or {})
         self._append_movie_import_log("Process started.\n")
         self._movie_store_panel.begin_movie_import(url, request.output_dir)
         self._movie_store_panel.set_movie_import_status(
@@ -3376,6 +3515,22 @@ class MainWindow(QMainWindow):
         )
         self._status_bar.set_left_text("Importing YouTube movie")
         process.start(request.command[0], request.command[1:])
+
+    def _movie_import_duplicate_message(self, movie_result):
+        result = dict(movie_result or {})
+        if not result.get("title"):
+            return ""
+        try:
+            rows = self._db.get_tracks_by_media_type("video")
+        except Exception:
+            logger.exception("Could not check existing movie imports")
+            rows = []
+        duplicate = existing_movie_duplicate(rows, result, self._youtube_movie_importer.output_dir)
+        if not duplicate:
+            return ""
+        title = str(result.get("title") or "movie")
+        existing = str(duplicate.get("title") or os.path.basename(str(duplicate.get("file_path") or "")) or "existing movie")
+        return f"Movie already appears to be in your library: {title} ({existing})."
 
     def _append_movie_import_log(self, text):
         if not self._movie_import_log_path or not text:
@@ -3400,11 +3555,10 @@ class MainWindow(QMainWindow):
         lines = [line.strip() for line in raw.splitlines() if line.strip()]
         if lines:
             self._movie_import_output.extend(lines)
-            latest = lines[-1]
-            status = "Converting" if "ffmpeg" in latest.lower() or "mpeg2video" in latest.lower() else "Downloading"
-            self._movie_store_panel.update_movie_import(status, latest[-80:])
+            progress = parse_movie_import_progress(lines)
+            self._movie_store_panel.update_movie_import(progress["phase"], progress["progress"])
             self._movie_store_panel.set_movie_import_status(
-                f"{latest[-500:]}\nLog: {self._movie_import_log_path}",
+                f"{progress['detail']}\nLog: {self._movie_import_log_path}",
                 running=True,
             )
 
@@ -3420,7 +3574,6 @@ class MainWindow(QMainWindow):
             self._movie_import_output.extend(line.strip() for line in raw.splitlines() if line.strip())
         log_path = self._movie_import_log_path
         self._append_movie_import_log(f"\nProcess finished with exit code {exit_code}.\n")
-        self._movie_import_log_path = ""
 
         output_path = ""
         for line in self._movie_import_output:
@@ -3432,9 +3585,22 @@ class MainWindow(QMainWindow):
             self._movie_store_panel.finish_movie_import(success=False)
             self._movie_store_panel.set_movie_import_status(message, running=False)
             self._status_bar.set_left_text("Movie import failed")
+            self._movie_import_log_path = ""
+            self._movie_import_result = {}
             return
 
-        label = f"Imported movie: {os.path.basename(output_path)}. Refreshing library.\nLog: {log_path}"
+        poster_source = str(
+            self._movie_import_result.get("thumbnail_path")
+            or self._movie_import_result.get("thumbnail")
+            or ""
+        )
+        poster_path = persist_movie_import_poster(output_path, poster_source)
+        if poster_path:
+            self._append_movie_import_log(f"Poster sidecar: {poster_path}\n")
+        self._movie_import_result = {}
+        self._movie_import_log_path = ""
+        poster_note = " Poster saved." if poster_path else ""
+        label = f"Imported movie: {os.path.basename(output_path)}.{poster_note} Refreshing library.\nLog: {log_path}"
         self._movie_store_panel.finish_movie_import(output_path, success=True)
         self._movie_store_panel.set_movie_import_status(label, running=False)
         self._status_bar.set_left_text(label)
@@ -3446,6 +3612,7 @@ class MainWindow(QMainWindow):
         self._append_movie_import_log(f"Process error: {error}\n")
         self._movie_import_log_path = ""
         self._movie_import_output = []
+        self._movie_import_result = {}
         self._movie_store_panel.finish_movie_import(success=False)
         self._movie_store_panel.set_movie_import_status(
             f"YouTube movie import could not start: {error}\nLog: {log_path}",

@@ -31,6 +31,39 @@ def test_video_sync_panel_selects_missing_videos():
     assert "1 selected" in panel._subhead.text()
 
 
+def test_video_sync_panel_emits_remove_and_delete_for_selected_videos():
+    QApplication.instance() or QApplication([])
+    panel = VideoSyncPanel()
+    panel.set_videos(
+        [
+            {
+                "id": 1,
+                "title": "On Device",
+                "video_kind": "movie",
+                "synced_to_device": True,
+                "device_path": "Videos/Downloaded/On Device.mpg",
+            },
+            {"id": 2, "title": "Missing", "video_kind": "movie", "synced_to_device": False},
+        ]
+    )
+    panel.select_all()
+
+    removed = []
+    deleted = []
+    panel.remove_requested.connect(lambda ids: removed.append(ids))
+    panel.delete_requested.connect(lambda ids: deleted.append(ids))
+
+    assert panel._remove_btn.isEnabled()
+    assert panel._delete_btn.isEnabled()
+    assert {video["id"] for video in panel.selected_videos()} == {1, 2}
+
+    panel._remove_btn.click()
+    panel._delete_btn.click()
+
+    assert removed == [{1, 2}]
+    assert deleted == [{1, 2}]
+
+
 def test_video_sync_screen_routes_from_sidebar(config, monkeypatch):
     QApplication.instance() or QApplication([])
     monkeypatch.setattr(DeviceDetector, "start_polling", lambda self: None)

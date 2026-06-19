@@ -27,6 +27,7 @@ from services.metadata_reader import read_metadata, compute_file_hash, CODEC_MAP
 from services.reconciliation import summarize_unmatched_tracks
 from services.track_matcher import TrackMatcher
 from services.device_inventory import device_music_roots, device_record_from_info, verify_device_inventory
+from services.video_thumbnails import VideoThumbnailService
 
 logger = logging.getLogger(__name__)
 COPY_CHUNK_SIZE = 4 * 1024 * 1024
@@ -34,6 +35,8 @@ LEGACY_COPY_MODE = os.environ.get("ROCKPOD_SYNC_LEGACY_COPY", "").strip().lower(
 AUDIO_EXTENSIONS = {ext for ext in CODEC_MAP.keys() if ext not in VIDEO_EXTENSIONS}
 ALBUM_LIST_DEVICE_DIR = os.path.join(".rockbox", "albumlist")
 ALBUM_LIST_THUMB_DEVICE_DIR = os.path.join(ALBUM_LIST_DEVICE_DIR, "thumbs")
+VIDEO_LIST_DEVICE_DIR = os.path.join(".rockbox", "videolist")
+VIDEO_LIST_THUMB_DEVICE_DIR = os.path.join(VIDEO_LIST_DEVICE_DIR, "thumbs")
 
 
 def _sanitize_filename(name, max_len=200):
@@ -127,20 +130,24 @@ def build_device_path(track_row, dir_template, file_template):
     """
     d = dict(track_row) if hasattr(track_row, "keys") else track_row
 
-    album_artist = _sanitize_filename(d.get("album_artist") or d.get("artist") or "Unknown Artist")
-    album = _sanitize_filename(d.get("album") or "Unknown Album")
-    title = _sanitize_filename(d.get("title") or "Unknown")
     ext = d.get("sync_output_ext") or Path(d.get("file_path", "")).suffix or ".mp3"
     tn = d.get("track_number")
     dn = d.get("disc_number", 1) or 1
     media_type = str(d.get("media_type") or "audio").lower()
     source_path = str(d.get("file_path") or "")
+    album_artist = _sanitize_filename(d.get("album_artist") or d.get("artist") or "Unknown Artist")
+    album = _sanitize_filename(d.get("album") or "Unknown Album")
+    title = _sanitize_filename(d.get("title") or "Unknown")
     source_parts = [part.casefold() for part in Path(source_path).parts]
     is_downloaded_video = (
         media_type == "video"
         and ext.lower() in {".mpg", ".mpeg", ".mpe"}
         and "youtube" in source_parts
     )
+    if media_type == "video" and _is_generic_downloaded_video_title(title):
+        stem_title = Path(source_path).stem
+        if stem_title and not _is_generic_downloaded_video_title(stem_title):
+            title = _sanitize_filename(stem_title)
     if is_downloaded_video and _is_generic_downloaded_video_title(title):
         title = _sanitize_filename(Path(source_path).stem or "Downloaded Video")
     video_kind_label = {
@@ -301,7 +308,7 @@ class SyncPlan:
         if self.up_to_date:
             parts.append(f"{len(self.up_to_date)} tracks already up to date")
         if self.to_delete:
-            parts.append(f"{len(self.to_delete)} orphaned tracks on device")
+            parts.append(f"{len(self.to_delete)} duplicate device tracks to remove")
         if self.transcode_count:
             parts.append(f"{self.transcode_count} tracks converted for device sync")
         mb = self.total_bytes / (1024 * 1024)
@@ -640,6 +647,15 @@ class SyncEngine(QObject):
         self._config = config
         self._device_detector = device_detector
         self._artwork_manager = artwork_manager
+        cache_root = getattr(self._config, "artwork_cache_dir", "") or os.path.join(
+            getattr(self._config, "cache_dir", ""),
+            "artwork",
+        )
+        self._video_thumbnails = VideoThumbnailService(
+            cache_root,
+            self._config,
+            self._artwork_manager,
+        )
         self._audio_transcoder = AudioSyncTranscoder(
             os.path.join(self._config.cache_dir, "device_transcodes")
         )
@@ -794,7 +810,7 @@ class SyncEngine(QObject):
         stage_start = time.perf_counter()
         emit_status("Loading library tracks...")
         if track_ids:
-            local_tracks = self._db.get_tracks_by_ids(track_ids)
+            local_tracks = self._db.get_tracks_by_ids(track_ids, media_type=None)
         else:
             local_tracks = self._db.get_all_tracks()
         stage_times["local_fetch_seconds"] = time.perf_counter() - stage_start
@@ -803,6 +819,7 @@ class SyncEngine(QObject):
         stage_start = time.perf_counter()
         emit_status("Preparing tracks for device sync...")
         local_tracks, transcode_errors, transcode_count = self._prepare_tracks_for_sync(local_tracks)
+        local_tracks = [self._normalize_video_row_for_sync(row) for row in local_tracks]
         stage_times["audio_prepare_seconds"] = time.perf_counter() - stage_start
         plan.errors.extend(transcode_errors)
         plan.transcode_count = transcode_count
@@ -932,12 +949,13 @@ class SyncEngine(QObject):
                     # This is a future enhancement — log for now.
                     pass
 
-        duplicate_groups = self._find_duplicate_groups(all_local_tracks, device_tracks)
-        for group in duplicate_groups:
-            for row in group["remove"]:
-                rel_path = row.get("device_path", "")
-                if rel_path:
-                    plan.to_delete.append(rel_path)
+        if not track_ids:
+            duplicate_groups = self._find_duplicate_groups(all_local_tracks, device_tracks)
+            for group in duplicate_groups:
+                for row in group["remove"]:
+                    rel_path = row.get("device_path", "")
+                    if rel_path:
+                        plan.to_delete.append(rel_path)
 
         stage_start = time.perf_counter()
         emit_status("Planning artwork sync...")
@@ -1149,6 +1167,21 @@ class SyncEngine(QObject):
             prepared.append(sync_row)
         return prepared, errors, transcode_count
 
+    @staticmethod
+    def _normalize_video_row_for_sync(row):
+        item = dict(row) if hasattr(row, "keys") else dict(row or {})
+        if str(item.get("media_type") or "audio").lower() != "video":
+            return item
+        source_path = str(item.get("file_path") or "")
+        stem_title = Path(source_path).stem.strip()
+        if stem_title and _is_generic_downloaded_video_title(item.get("title")):
+            item["title"] = stem_title
+        if stem_title and _is_generic_downloaded_video_title(item.get("album")):
+            item["album"] = item.get("title") or stem_title
+        if not str(item.get("video_kind") or "").strip():
+            item["video_kind"] = "movie"
+        return item
+
     def _unique_device_path(self, rel_path, used_paths, allow_existing=""):
         """Avoid path collisions while preserving the configured folder layout."""
         if rel_path == allow_existing or rel_path not in used_paths:
@@ -1201,6 +1234,8 @@ class SyncEngine(QObject):
         album_targets = {}
 
         def add_target(row, device_rel_path):
+            if str(row.get("media_type") or "audio").lower() != "audio":
+                return
             rel_dir = os.path.dirname(device_rel_path)
             if not rel_dir:
                 return
@@ -1251,9 +1286,16 @@ class SyncEngine(QObject):
                         plan.artwork_to_copy.append((cover_src, cover_rel, album_key))
 
         if export_album_list_thumbnails:
-            self._populate_album_list_artwork_sync_plan(
+            if album_targets:
+                self._populate_album_list_artwork_sync_plan(
+                    plan,
+                    album_targets,
+                    device.mount_path,
+                    existing_albumlist_hashes,
+                )
+            self._populate_video_list_artwork_sync_plan(
                 plan,
-                album_targets,
+                matched,
                 device.mount_path,
                 existing_albumlist_hashes,
             )
@@ -1298,6 +1340,80 @@ class SyncEngine(QObject):
                 manifest_src,
                 os.path.join(ALBUM_LIST_DEVICE_DIR, "index.tsv"),
                 "albumlist_manifest",
+                manifest_hash,
+                device_mount,
+                existing_hashes,
+            )
+
+    def _populate_video_list_artwork_sync_plan(self, plan, matched, device_mount, existing_hashes):
+        if not self._video_thumbnails:
+            return
+
+        video_targets = {}
+
+        def add_video(row, device_rel_path):
+            item = self._normalize_video_row_for_sync(row)
+            if str(item.get("media_type") or "audio").lower() != "video":
+                return
+            rel_path = str(device_rel_path or "").strip()
+            if not rel_path:
+                return
+            key = str(item.get("video_group_key") or item.get("file_path") or rel_path)
+            video_targets[key] = {"row": item, "device_path": rel_path}
+
+        for row, rel_path in plan.to_copy:
+            add_video(row, rel_path)
+        for row, _old_path, rel_path in plan.to_resync:
+            add_video(row, rel_path)
+        for result in matched:
+            row = dict(result.local_track) if hasattr(result.local_track, "keys") else dict(result.local_track)
+            device_row = dict(result.device_track) if hasattr(result.device_track, "keys") else dict(result.device_track)
+            add_video(row, device_row.get("device_path", ""))
+
+        if not video_targets:
+            return
+
+        manifest_entries = []
+        seen = set()
+        for key, target in sorted(video_targets.items(), key=lambda item: str(item[0]).casefold()):
+            row = target["row"]
+            thumb_src, thumb_hash, device_name, video_id = self._video_thumbnails.export_video_list_thumbnail(row)
+            thumb_rel = ""
+            if thumb_src and thumb_hash and device_name:
+                thumb_rel = os.path.join(VIDEO_LIST_THUMB_DEVICE_DIR, device_name)
+                if thumb_rel not in seen:
+                    seen.add(thumb_rel)
+                    self._append_artwork_copy_if_changed(
+                        plan,
+                        thumb_src,
+                        thumb_rel,
+                        key,
+                        thumb_hash,
+                        device_mount,
+                        existing_hashes,
+                    )
+            elif not video_id:
+                video_id = self._video_thumbnails.video_list_id(row)
+
+            title = str(row.get("title") or Path(str(row.get("file_path") or "")).stem or "Untitled Video")
+            manifest_entries.append(
+                {
+                    "video_id": video_id,
+                    "thumb": os.path.join("thumbs", device_name) if thumb_rel else "",
+                    "title": title,
+                    "kind": row.get("video_kind") or "movie",
+                    "group_key": key,
+                    "device_path": target["device_path"],
+                }
+            )
+
+        manifest_src, manifest_hash = self._video_thumbnails.export_video_list_manifest(manifest_entries)
+        if manifest_src and manifest_hash:
+            self._append_artwork_copy_if_changed(
+                plan,
+                manifest_src,
+                os.path.join(VIDEO_LIST_DEVICE_DIR, "index.tsv"),
+                "videolist_manifest",
                 manifest_hash,
                 device_mount,
                 existing_hashes,
