@@ -3,6 +3,30 @@
 #include "loader.h"
 #include "profiler.h"
 
+#ifdef SIMULATOR
+#include <stdlib.h>
+#define ROCKBOY_PROFILE_AUTOWRITE_ENV "ROCKBOY_PROFILE_AUTOWRITE_FRAMES"
+static const char *profile_rom_path;
+static unsigned long autowrite_frames;
+static bool autowrite_done;
+
+static unsigned long parse_autowrite_frames(void)
+{
+    const char *value = getenv(ROCKBOY_PROFILE_AUTOWRITE_ENV);
+    char *end;
+    unsigned long frames;
+
+    if (!value || !value[0])
+        return 0;
+
+    frames = strtoul(value, &end, 10);
+    if (frames == 0 || *end != '\0')
+        return 0;
+
+    return frames;
+}
+#endif
+
 static struct rockboy_profile_totals totals;
 
 static unsigned long avg_ticks(const struct rockboy_profile_totals *p,
@@ -14,6 +38,17 @@ static unsigned long avg_ticks(const struct rockboy_profile_totals *p,
 void rockboy_profile_reset(void)
 {
     memset(&totals, 0, sizeof(totals));
+}
+
+void rockboy_profile_start(const char *rom_path)
+{
+#ifdef SIMULATOR
+    profile_rom_path = rom_path;
+    autowrite_frames = parse_autowrite_frames();
+    autowrite_done = false;
+#else
+    (void)rom_path;
+#endif
 }
 
 void rockboy_profile_add(enum rockboy_profile_counter which, unsigned long ticks)
@@ -29,8 +64,16 @@ void rockboy_profile_add(enum rockboy_profile_counter which, unsigned long ticks
 
 void rockboy_profile_frame_rendered(void)
 {
-    if (rockboy_profile_is_enabled())
+    if (rockboy_profile_is_enabled()) {
         totals.rendered_frames++;
+#ifdef SIMULATOR
+        if (autowrite_frames && !autowrite_done &&
+            totals.rendered_frames >= autowrite_frames) {
+            autowrite_done = true;
+            rockboy_profile_log_summary(profile_rom_path);
+        }
+#endif
+    }
 }
 
 void rockboy_profile_frame_skipped(void)

@@ -27,7 +27,7 @@ REQUIRED_PROFILE_FIELDS = {
     "skipped_frames",
     "frame_avg_ticks",
     "cpu_avg_ticks",
-    "render_avg_ticks",
+    "lcd_render_avg_ticks",
     "scale_avg_ticks",
     "blit_avg_ticks",
     "audio_mix_avg_ticks",

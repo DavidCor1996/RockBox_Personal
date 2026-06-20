@@ -46,6 +46,7 @@ struct rockboy_profile_totals {
 };
 
 void rockboy_profile_reset(void);
+void rockboy_profile_start(const char *rom_path);
 void rockboy_profile_add(enum rockboy_profile_counter which, unsigned long ticks);
 void rockboy_profile_frame_rendered(void);
 void rockboy_profile_frame_skipped(void);

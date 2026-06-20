@@ -35,3 +35,12 @@ def test_hot_paths_increment_profile_detail_counters():
     assert "ROCKBOY_EVENT_SLOW_MEM_WRITES" in fastmem
     assert "ROCKBOY_EVENT_VRAM_DIRTY_WRITES" in lcd
     assert "ROCKBOY_EVENT_LCD_DMG_BG_ONLY_ELIGIBLE" in lcd
+
+
+def test_simulator_profile_autowrite_is_opt_in_and_target_gated():
+    profiler = _read("apps/plugins/rockboy/profiler.c")
+    rockboy = _read("apps/plugins/rockboy/rockboy.c")
+
+    assert "ROCKBOY_PROFILE_AUTOWRITE_FRAMES" in profiler
+    assert "#ifdef SIMULATOR" in profiler
+    assert "rockboy_profile_start(rom_path)" in rockboy

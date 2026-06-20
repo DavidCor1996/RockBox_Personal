@@ -722,6 +722,7 @@ enum plugin_status plugin_start(const void* parameter)
         return_to_launcher = true;
     }
     rockboy_return_to_launcher = return_to_launcher;
+    rockboy_profile_start(rom_path);
 
     shut=0;
     cleanshut=0;
