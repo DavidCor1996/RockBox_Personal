@@ -20,7 +20,6 @@
  ****************************************************************************/
 #include "config.h"
 #include <string.h>
-#include <strings.h>
 #include "system.h"
 #include "storage.h"
 #include "thread.h"
@@ -845,7 +844,14 @@ static bool fill_buffer(void)
 static bool albumart_path_is_bmp(const char *path)
 {
     size_t len = path ? strlen(path) : 0;
-    return len >= 4 && strcasecmp(path + len - 4, ".bmp") == 0;
+    if (len < 4)
+        return false;
+
+    path += len - 4;
+    return path[0] == '.' &&
+           (path[1] == 'b' || path[1] == 'B') &&
+           (path[2] == 'm' || path[2] == 'M') &&
+           (path[3] == 'p' || path[3] == 'P');
 }
 
 /* Given a file descriptor to a bitmap file, write the bitmap data to the
