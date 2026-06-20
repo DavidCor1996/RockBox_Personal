@@ -201,6 +201,8 @@ static int tempbuf_handle;
 #endif
 
 #define SORTED_TAGS_COUNT 9
+#define TAGCACHE_COMMIT_INDEX_STEPS (SORTED_TAGS_COUNT + 1)
+#define TAGCACHE_COMMIT_NUMERIC_STEP (TAGCACHE_COMMIT_INDEX_STEPS + 1)
 #define TAGCACHE_IS_UNIQUE(tag) (BIT_N(tag) & TAGCACHE_UNIQUE_TAGS)
 #define TAGCACHE_IS_SORTED(tag) (BIT_N(tag) & TAGCACHE_SORTED_TAGS)
 #define TAGCACHE_IS_NUMERIC_OR_NONUNIQUE(tag) \
@@ -407,7 +409,7 @@ static long lookup_buffer_depth;
 static struct tempbuf_searchidx **lookup;
 
 /* Used when building the temporary file. */
-static int cachefd = -1, filenametag_fd;
+static int cachefd = -1, filenametag_fd, masterindex_fd = -1;
 static int total_entry_count = 0;
 static int data_size = 0;
 static int processed_dir_count;
@@ -426,6 +428,41 @@ static inline void str_setlen(char *buf, size_t len)
 const char* tagcache_tag_to_str(int tag)
 {
     return tags_str[tag];
+}
+
+const char* tagcache_commit_stage_name(const struct tagcache_stat *stat)
+{
+    if (!stat || stat->commit_step <= 0)
+        return NULL;
+
+    switch (stat->commit_tag)
+    {
+        case tag_artist:
+            return "artists";
+        case tag_album:
+            return "albums";
+        case tag_genre:
+            return "genres";
+        case tag_composer:
+            return "composers";
+        case tag_comment:
+            return "comments";
+        case tag_albumartist:
+            return "album artists";
+        case tag_grouping:
+            return "grouping";
+        case tag_title:
+            return "tracks";
+        case tag_virt_canonicalartist:
+            return "artist map";
+        case TAG_COUNT:
+            return "track data";
+    }
+
+    if (stat->commit_tag >= 0 && stat->commit_tag < TAG_COUNT)
+        return tagcache_tag_to_str(stat->commit_tag);
+
+    return NULL;
 }
 
 #ifdef TAGCACHE_SUPPORT_FOREIGN_ENDIAN
@@ -2326,7 +2363,7 @@ static void NO_INLINE add_tagcache(char *path, unsigned long mtime)
         /* TODO: Mark that the index exists (for fast reverse scan) */
         //found_idx[idx_id/8] |= idx_id%8;
 
-        if (!get_index(-1, idx_id, &idx, true))
+        if (!get_index(masterindex_fd, idx_id, &idx, true))
         {
             logf("failed to retrieve index entry");
             DB_LOG("error", "failed to retrieve index entry");
@@ -3499,6 +3536,7 @@ static bool commit(void)
 
     /* Now create the index files. */
     tc_stat.commit_step = 0;
+    tc_stat.commit_tag = -1;
     tch.datasize = 0;
     tc_stat.commit_delayed = false;
 
@@ -3510,6 +3548,7 @@ static bool commit(void)
             continue;
 
         tc_stat.commit_step++;
+        tc_stat.commit_tag = i;
         ret = build_index(i, &tch, tmpfd);
         if (ret <= 0)
         {
@@ -3519,22 +3558,27 @@ static bool commit(void)
                 tc_stat.commit_delayed = true;
 
             tc_stat.commit_step = 0;
+            tc_stat.commit_tag = -1;
             goto commit_error;
         }
         do_timed_yield();
     }
 
+    tc_stat.commit_step = TAGCACHE_COMMIT_NUMERIC_STEP;
+    tc_stat.commit_tag = TAG_COUNT;
     if (!build_numeric_indices(&tch, tmpfd))
     {
         logf("Failure to commit numeric indices");
         close(tmpfd);
         tc_stat.commit_step = 0;
+        tc_stat.commit_tag = -1;
         goto commit_error;
     }
 
     close(tmpfd);
 
     tc_stat.commit_step = 0;
+    tc_stat.commit_tag = -1;
 
     if (!USR_CANCEL)
     {
@@ -4523,21 +4567,29 @@ static bool load_tagcache(void)
     current_tcmh = tcmh;
 
     /* Load the master index table. */
-    for (int i = 0; i < tcmh.tch.entry_count; i++)
+    for (int i = 0; i < tcmh.tch.entry_count; )
     {
-        bytesleft -= sizeof(struct index_entry);
+        int count = MIN(tcmh.tch.entry_count - i, IDX_BUF_DEPTH);
+        ssize_t len = sizeof(struct index_entry) * count;
+
+        bytesleft -= len;
         if (bytesleft < 0)
         {
             logf("too big tagcache.");
             goto failure;
         }
 
-        int rc = read_index_entries(fd, &tcramcache.hdr->indices[i], 1);
-        if (rc != sizeof (struct index_entry))
+        ssize_t rc = read_index_entries(fd, &tcramcache.hdr->indices[i], count);
+        if (rc != len)
         {
             logf("read error #10");
             goto failure;
         }
+
+        i += count;
+
+        if (do_timed_yield() && check_event_queue())
+            goto failure;
     }
 
     close(fd);
@@ -4569,7 +4621,7 @@ static bool load_tagcache(void)
         bytesleft -= sizeof (struct tagcache_header);
 
         fd = open_tag_fd(tch, tag, false);
-        if (rc < 0)
+        if (fd < 0)
             goto failure;
 
         /* Load the entries for this tag */
@@ -5083,6 +5135,11 @@ void do_tagcache_build(const char *path[])
     }
 
     filenametag_fd = open_tag_fd(&header, tag_filename, false);
+    if (filenametag_fd >= 0 && !tc_stat.ramcache)
+    {
+        struct master_header mh;
+        masterindex_fd = open_master_fd(&mh, false);
+    }
 
     cpu_boost(true);
 
@@ -5184,9 +5241,23 @@ void do_tagcache_build(const char *path[])
         filenametag_fd = -1;
     }
 
+    if (masterindex_fd >= 0)
+    {
+        close(masterindex_fd);
+        masterindex_fd = -1;
+    }
+
     if (!ret)
     {
         logf("Aborted.");
+        cpu_boost(false);
+        return ;
+    }
+
+    if (total_entry_count == 0 && tc_stat.ready)
+    {
+        logf("tagcache: no new entries");
+        remove_db_file(TAGCACHE_FILE_TEMP);
         cpu_boost(false);
         return ;
     }
@@ -5322,14 +5393,24 @@ static void tagcache_thread(void)
 #endif /* HAVE_TC_RAMCACHE */
 
     cpu_boost(false);
-    tc_stat.initialized = true;
 
-    /* Don't delay bootup with the header check but do it on background. */
+    /* Finish the initial header check before reporting initialized. If the
+     * database is missing or invalid, build it here so boot can show progress.
+     */
     if (!tc_stat.ready)
     {
-        sleep(HZ);
         tagcache_commit_finalize();
+
+        if (!tc_stat.ready && !tc_stat.commit_delayed)
+        {
+            logf("tagcache: auto init on boot");
+            remove_files();
+            remove_db_file(TAGCACHE_FILE_TEMP);
+            tagcache_build();
+        }
     }
+
+    tc_stat.initialized = true;
 
     while (1)
     {
@@ -5505,6 +5586,7 @@ void tagcache_stop_scan(void)
 void tagcache_init(void)
 {
     memset(&tc_stat, 0, sizeof(struct tagcache_stat));
+    tc_stat.commit_tag = -1;
     memset(&current_tcmh, 0, sizeof(struct master_header));
     filenametag_fd = -1;
     write_lock = read_lock = 0;
@@ -5561,6 +5643,6 @@ int tagcache_get_commit_step(void)
 }
 int tagcache_get_max_commit_step(void)
 {
-    return (int)(SORTED_TAGS_COUNT)+1;
+    return TAGCACHE_COMMIT_NUMERIC_STEP;
 }
 #endif /*!defined(PLUGIN)*/

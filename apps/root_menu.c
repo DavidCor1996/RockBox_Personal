@@ -222,17 +222,7 @@ static int browser(void* param)
                     if (!reinit_attempted && !stat->ready &&
                         stat->processed_entries == 0 && stat->commit_step == 0)
                     {
-                        /* Prompt the user */
                         reinit_attempted = true;
-                        static const char *lines[]={
-                            ID2P(LANG_TAGCACHE_BUSY), ID2P(LANG_TAGCACHE_FORCE_UPDATE)};
-                        static const struct text_message message={lines, 2};
-                        if(gui_syncyesno_run(&message, NULL, NULL) == YESNO_NO)
-                            break;
-                        FOR_NB_SCREENS(i)
-                            screens[i].clear_display();
-
-                        /* Start initialisation */
                         tagcache_rebuild();
                     }
 
@@ -257,27 +247,45 @@ static int browser(void* param)
                     }
                     if (stat->commit_step > 0)
                     {
+                        int max_step = tagcache_get_max_commit_step();
+                        const char *stage = tagcache_commit_stage_name(stat);
                         /* (prevent redundant voicing by splash_progress */
                         bool tmp = global_settings.talk_menu;
                         global_settings.talk_menu = false;
 
                         if (lang_is_rtl())
                         {
-                            splash_progress(stat->commit_step,
-                                            tagcache_get_max_commit_step(),
-                                            "[%d/%d] %s", stat->commit_step,
-                                            tagcache_get_max_commit_step(),
-                                            str(LANG_TAGCACHE_INIT));
+                            if (stage)
+                                splash_progress(stat->commit_step, max_step,
+                                                "[%d/%d] %s: %s",
+                                                stat->commit_step, max_step,
+                                                stage, str(LANG_TAGCACHE_INIT));
+                            else
+                                splash_progress(stat->commit_step, max_step,
+                                                "[%d/%d] %s",
+                                                stat->commit_step, max_step,
+                                                str(LANG_TAGCACHE_INIT));
                         }
                         else
                         {
-                            splash_progress(stat->commit_step,
-                                            tagcache_get_max_commit_step(),
-                                            "%s [%d/%d]", str(LANG_TAGCACHE_INIT),
-                                            stat->commit_step,
-                                            tagcache_get_max_commit_step());
+                            if (stage)
+                                splash_progress(stat->commit_step, max_step,
+                                                "%s: %s [%d/%d]",
+                                                str(LANG_TAGCACHE_INIT), stage,
+                                                stat->commit_step, max_step);
+                            else
+                                splash_progress(stat->commit_step, max_step,
+                                                "%s [%d/%d]",
+                                                str(LANG_TAGCACHE_INIT),
+                                                stat->commit_step, max_step);
                         }
                         global_settings.talk_menu = tmp;
+                    }
+                    else if (stat->progress >= 0)
+                    {
+                        splash_progress(stat->progress, 100,
+                                        str(LANG_BUILDING_DATABASE),
+                                        stat->processed_entries);
                     }
                     else
                     {

@@ -91,6 +91,7 @@ struct tagcache_stat {
         *curentry;           /* Path of the current entry being scanned. */
 
     int  commit_step;        /* Commit progress */
+    int  commit_tag;         /* Tag currently being committed, or TAG_COUNT for numeric */
     int  ramcache_allocated; /* Has ram been allocated for ramcache? */
     int  ramcache_used;      /* How much ram has been really used */
     int  progress;           /* Current progress of disk scan */
@@ -165,6 +166,7 @@ void do_tagcache_build(const char *path[]);
 #endif
 
 const char* tagcache_tag_to_str(int tag);
+const char* tagcache_commit_stage_name(const struct tagcache_stat *stat);
 
 bool tagcache_find_index(struct tagcache_search *tcs, const char *filename);
 bool tagcache_check_clauses(struct tagcache_search *tcs,

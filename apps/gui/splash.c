@@ -238,6 +238,92 @@ void splashf(int ticks, const char *fmt, ...)
         sleep(ticks);
 }
 
+#ifdef HAVE_LCD_COLOR
+static int splash_progress_fill_width(int current, int total, int width)
+{
+    if (total <= 0 || width <= 0)
+        return 0;
+
+    if (current < 0)
+        current = 0;
+    else if (current > total)
+        current = total;
+
+    int fill_width = current * width / total;
+
+    if (current > 0 && fill_width == 0)
+        fill_width = 1;
+
+    return fill_width;
+}
+
+static void splash_progress_fill_roundish(struct screen *screen,
+                                          int x, int y, int w, int h,
+                                          unsigned color)
+{
+    if (w <= 0 || h <= 0)
+        return;
+
+    screen->set_foreground(color);
+
+    if (w < 5 || h < 5)
+    {
+        screen->fillrect(x, y, w, h);
+        return;
+    }
+
+    screen->fillrect(x + 2, y, w - 4, h);
+    screen->fillrect(x + 1, y + 1, w - 2, h - 2);
+    screen->fillrect(x, y + 2, w, h - 4);
+}
+
+static void splash_progress_draw_pill(struct screen *screen,
+                                      int x, int y, int w, int h,
+                                      int current, int total)
+{
+    const unsigned old_fg = screen->get_foreground();
+    const unsigned track_edge = SCREEN_COLOR_TO_NATIVE(screen,
+                                LCD_RGBPACK(102, 91, 126));
+    const unsigned track = SCREEN_COLOR_TO_NATIVE(screen,
+                           LCD_RGBPACK(31, 24, 43));
+    const unsigned track_top = SCREEN_COLOR_TO_NATIVE(screen,
+                               LCD_RGBPACK(54, 44, 72));
+    const unsigned fill = SCREEN_COLOR_TO_NATIVE(screen,
+                          LCD_RGBPACK(157, 122, 230));
+    const unsigned fill_top = SCREEN_COLOR_TO_NATIVE(screen,
+                              LCD_RGBPACK(232, 210, 255));
+    int inner_x = x + 1;
+    int inner_y = y + 1;
+    int inner_w = w - 2;
+    int inner_h = h - 2;
+    int fill_w = splash_progress_fill_width(current, total, inner_w);
+
+    splash_progress_fill_roundish(screen, x, y, w, h, track_edge);
+    splash_progress_fill_roundish(screen, inner_x, inner_y, inner_w, inner_h,
+                                  track);
+
+    if (inner_w > 4 && inner_h > 4)
+    {
+        screen->set_foreground(track_top);
+        screen->fillrect(inner_x + 2, inner_y + 1, inner_w - 4, 1);
+    }
+
+    if (fill_w > 0)
+    {
+        splash_progress_fill_roundish(screen, inner_x, inner_y, fill_w,
+                                      inner_h, fill);
+
+        if (fill_w > 4 && inner_h > 4)
+        {
+            screen->set_foreground(fill_top);
+            screen->fillrect(inner_x + 2, inner_y + 1, fill_w - 4, 1);
+        }
+    }
+
+    screen->set_foreground(old_fg);
+}
+#endif
+
 /* set delay before progress meter is shown */
 void splash_progress_set_delay(long delay_ticks)
 {
@@ -285,16 +371,29 @@ void splash_progress(int current, int total, const char *fmt, ...)
         if (splash_internal(screen, fmt, ap, &vp, 1))
         {
             int size = screen->getcharheight();
-            int x = RECT_SPACING;
-            int y = vp.height - size - RECT_SPACING;
-            int w = vp.width - RECT_SPACING * 2;
-            int h = size;
+            int h = size > 12 ? 8 : size - 2;
+            int x = RECT_SPACING * 2;
+            int y;
+            int w = vp.width - RECT_SPACING * 4;
+
+            if (h < 5)
+                h = 5;
+
+            y = vp.height - h - RECT_SPACING - 1;
 #ifdef HAVE_LCD_COLOR
-            const int sb_flags = HORIZONTAL | FOREGROUND;
-#else
-            const int sb_flags = HORIZONTAL;
+            if (screen->depth > 1)
+                splash_progress_draw_pill(screen, x, y, w, h, current, total);
+            else
 #endif
-            gui_scrollbar_draw(screen, x, y, w, h, total, 0, current, sb_flags);
+            {
+#ifdef HAVE_LCD_COLOR
+                const int sb_flags = HORIZONTAL | FOREGROUND;
+#else
+                const int sb_flags = HORIZONTAL;
+#endif
+                gui_scrollbar_draw(screen, x, y, w, h, total, 0, current,
+                                   sb_flags);
+            }
 
             screen->update_viewport();
         }

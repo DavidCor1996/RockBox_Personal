@@ -2177,6 +2177,12 @@ static int database_callback(int btn, struct gui_synclist *lists)
     simplelist_addline(" %s", stat->curentry ? stat->curentry : "---");
     simplelist_addline("Commit step: %d",
              stat->commit_step);
+    if (stat->commit_step > 0)
+    {
+        const char *stage = tagcache_commit_stage_name(stat);
+        simplelist_addline("Commit stage: %s",
+                 stage ? stage : "---");
+    }
     simplelist_addline("Commit delayed: %s",
              stat->commit_delayed ? "Yes" : "No");
 
