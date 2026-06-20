@@ -249,6 +249,21 @@ class TestDatabase:
 
         assert db.get_playlist_track_count(pid) == 2
 
+    def test_set_playlist_track_order_reorders_existing_tracks(self, db):
+        pid = db.create_playlist("Manual Order")
+        for title in ("A", "B", "C"):
+            db.upsert_track({"file_path": f"/{title}.mp3", "title": title})
+        db.commit()
+        ids = [db.get_track_by_path(f"/{title}.mp3")["id"] for title in ("A", "B", "C")]
+        db.add_tracks_to_playlist(pid, ids)
+        db.commit()
+
+        assert db.set_playlist_track_order(pid, [ids[2], ids[0], ids[1]]) == 3
+        db.commit()
+
+        tracks = db.get_playlist_tracks(pid)
+        assert [row["title"] for row in tracks] == ["C", "A", "B"]
+
     def test_get_playlist_track_counts_batches_results(self, db):
         first = db.create_playlist("First")
         second = db.create_playlist("Second")

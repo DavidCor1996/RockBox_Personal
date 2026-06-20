@@ -1039,6 +1039,39 @@ class TestSyncEnginePlan:
         assert plan.to_delete == []
         assert any("safety limit" in error for error in plan.errors)
 
+    def test_plan_skips_duplicate_deletes_when_limit_is_zero(self, env):
+        env["config"].max_auto_duplicate_deletes_per_sync = 0
+        src = _make_source_file(env, "Art", "Alb", "Existing")
+        local = _insert_track(env["db"], "Existing", "Art", "Alb", file_path=src, metadata_hash="same_hash")
+
+        engine = self._make_engine(env)
+        engine.set_current_device(engine._device_detector.current_device)
+        _insert_device_track(
+            env["db"],
+            "Existing",
+            "Art",
+            "Alb",
+            "Music/Art/Alb/01 - Existing.mp3",
+            device_id=engine.current_device_key,
+            metadata_hash="same_hash",
+            local_track_id=local["id"],
+        )
+        _insert_device_track(
+            env["db"],
+            "Existing",
+            "Art",
+            "Alb",
+            "Music/Art/Alb/01 - Existing (2).mp3",
+            device_id=engine.current_device_key,
+            metadata_hash="same_hash_variant",
+        )
+        engine.load_cached_device_inventory(engine.current_device_key)
+
+        plan = engine.build_sync_plan()
+
+        assert plan.to_delete == []
+        assert plan.errors == []
+
     def test_plan_blocks_duplicate_delete_without_auto_suffix(self, env):
         src = _make_source_file(env, "Art", "Alb", "Existing")
         local = _insert_track(env["db"], "Existing", "Art", "Alb", file_path=src, metadata_hash="same_hash")
@@ -1274,6 +1307,52 @@ class TestSyncEnginePlan:
             env["db"].mark_device_scanned(engine.current_device_key)
             env["db"].commit()
             engine.load_cached_device_inventory()
+            return 1
+
+        monkeypatch.setattr(engine, "scan_device", fake_scan)
+
+        plan = engine.build_sync_plan()
+
+        assert scans == [False]
+        assert plan.copy_count == 0
+        assert plan.up_to_date_count == 1
+
+    def test_build_sync_plan_scans_when_cached_inventory_is_partial_and_unverified(self, env, monkeypatch):
+        src = _make_source_file(env, "Art", "Alb", "Existing")
+        _insert_track(env["db"], "Existing", "Art", "Alb", file_path=src, metadata_hash="same_hash")
+        device_media = os.path.join(env["device_path"], "Music", "Art", "Alb", "01 - Existing.mp3")
+        os.makedirs(os.path.dirname(device_media), exist_ok=True)
+        with open(device_media, "wb") as handle:
+            handle.write(b"device-audio")
+
+        engine = self._make_engine(env)
+        engine.set_current_device(engine._device_detector.current_device)
+        _insert_device_track(
+            env["db"],
+            "Unrelated",
+            "Other",
+            "Other",
+            "Music/Other/Other/01 - Unrelated.mp3",
+            device_id=engine.current_device_key,
+        )
+        engine.load_cached_device_inventory(engine.current_device_key)
+        scans = []
+
+        def fake_scan(force_full=False):
+            scans.append(force_full)
+            env["db"].clear_device_tracks(engine.current_device_key)
+            _insert_device_track(
+                env["db"],
+                "Existing",
+                "Art",
+                "Alb",
+                "Music/Art/Alb/01 - Existing.mp3",
+                device_id=engine.current_device_key,
+                metadata_hash="same_hash",
+            )
+            env["db"].mark_device_scanned(engine.current_device_key)
+            env["db"].commit()
+            engine.load_cached_device_inventory(engine.current_device_key)
             return 1
 
         monkeypatch.setattr(engine, "scan_device", fake_scan)

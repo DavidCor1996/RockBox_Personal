@@ -73,6 +73,36 @@ def test_device_record_and_tracks_persist_across_reopen(config, db):
         reopened.close()
 
 
+def test_upsert_device_merges_same_mount_and_capacity_inventory(db):
+    old_key = "rockbox:old-runtime-signature"
+    new_key = "rockbox:stable-device-signature"
+    mount_path = "/run/media/test/IPOD"
+    device_row = {
+        "display_name": "Test iPod",
+        "mount_path_last_seen": mount_path,
+        "rockbox_detected": 1,
+        "capacity_bytes": 1000,
+        "free_bytes_last_seen": 500,
+    }
+    db.upsert_device({"stable_device_key": old_key, **device_row})
+    db.upsert_device_track(
+        {
+            "device_id": old_key,
+            "device_path": "Music/Artist/Album/01 - Song.mp3",
+            "title": "Song",
+            "artist": "Artist",
+            "album": "Album",
+        }
+    )
+
+    db.upsert_device({"stable_device_key": new_key, **device_row})
+
+    assert db.get_device_by_key(old_key) is None
+    migrated = db.get_all_device_tracks(new_key)
+    assert len(migrated) == 1
+    assert migrated[0]["device_path"] == "Music/Artist/Album/01 - Song.mp3"
+
+
 def test_device_info_normalizes_trailing_slash_mount_path(config):
     plain = DeviceInfo(config.mock_device_path)
     slashed = DeviceInfo(config.mock_device_path + "/")

@@ -10,7 +10,7 @@ from models.track import compute_metadata_hash
 
 logger = logging.getLogger(__name__)
 
-SCHEMA_VERSION = 8
+SCHEMA_VERSION = 9
 
 SCHEMA_SQL = """
 CREATE TABLE IF NOT EXISTS schema_version (
@@ -66,6 +66,7 @@ CREATE TABLE IF NOT EXISTS playlists (
     is_smart INTEGER DEFAULT 0,
     rules_json TEXT,
     sort_order TEXT DEFAULT 'manual',
+    sync_to_rockbox INTEGER DEFAULT 1,
     date_created TEXT DEFAULT (datetime('now')),
     date_modified TEXT DEFAULT (datetime('now'))
 );
@@ -413,6 +414,13 @@ class Database:
                 "CREATE INDEX IF NOT EXISTS idx_tracks_show_title "
                 "ON tracks(show_title)"
             )
+
+        if current_version < 9:
+            playlist_cols = {
+                row["name"] for row in conn.execute("PRAGMA table_info(playlists)")
+            }
+            if "sync_to_rockbox" not in playlist_cols:
+                conn.execute("ALTER TABLE playlists ADD COLUMN sync_to_rockbox INTEGER DEFAULT 1")
 
     @classmethod
     def _write_lock_for_path(cls, path):
@@ -775,6 +783,12 @@ class Database:
             (name, playlist_id),
         )
 
+    def set_playlist_sync_to_rockbox(self, playlist_id, enabled):
+        self.execute(
+            "UPDATE playlists SET sync_to_rockbox = ?, date_modified = datetime('now') WHERE id = ?",
+            (1 if enabled else 0, playlist_id),
+        )
+
     def get_playlist(self, playlist_id):
         return self.fetchone("SELECT * FROM playlists WHERE id = ?", (playlist_id,))
 
@@ -913,6 +927,41 @@ class Database:
             (playlist_id,),
         )
 
+    def set_playlist_track_order(self, playlist_id, track_ids):
+        """Replace manual playlist order with the given track ids."""
+        rows = self.fetchall(
+            "SELECT track_id FROM playlist_tracks WHERE playlist_id = ? "
+            "ORDER BY position, id",
+            (playlist_id,),
+        )
+        existing_ids = [row["track_id"] for row in rows]
+        existing_set = set(existing_ids)
+        ordered = []
+        seen = set()
+        for track_id in track_ids or []:
+            try:
+                normalized = int(track_id)
+            except (TypeError, ValueError):
+                continue
+            if normalized in seen or normalized not in existing_set:
+                continue
+            seen.add(normalized)
+            ordered.append(normalized)
+        ordered.extend(track_id for track_id in existing_ids if track_id not in seen)
+        if ordered == existing_ids:
+            return 0
+        for index, track_id in enumerate(ordered, 1):
+            self.execute(
+                "UPDATE playlist_tracks SET position = ? "
+                "WHERE playlist_id = ? AND track_id = ?",
+                (index, playlist_id, track_id),
+            )
+        self.execute(
+            "UPDATE playlists SET date_modified = datetime('now') WHERE id = ?",
+            (playlist_id,),
+        )
+        return len(ordered)
+
     def delete_playlist(self, playlist_id):
         self.execute("DELETE FROM playlist_tracks WHERE playlist_id = ?", (playlist_id,))
         self.execute("DELETE FROM playlists WHERE id = ?", (playlist_id,))
@@ -940,7 +989,74 @@ class Database:
             f"ON CONFLICT(stable_device_key) DO UPDATE SET {update_parts}"
         )
         self.execute(sql, tuple(data.values()))
+        self._merge_duplicate_device_rows(data["stable_device_key"])
         return self.get_device_by_key(data["stable_device_key"])
+
+    def _merge_duplicate_device_rows(self, stable_device_key):
+        """Merge remembered rows for the same mounted device into the current key."""
+        target = self.get_device_by_key(stable_device_key)
+        if not target:
+            return
+        mount_path = (target["mount_path_last_seen"] or "").rstrip("/\\")
+        capacity = target["capacity_bytes"] or 0
+        if not mount_path or capacity <= 0:
+            return
+
+        duplicates = self.fetchall(
+            "SELECT * FROM devices WHERE stable_device_key != ? "
+            "AND rtrim(rtrim(mount_path_last_seen, '/'), '\\') = ? "
+            "AND capacity_bytes = ?",
+            (stable_device_key, mount_path, capacity),
+        )
+        for duplicate in duplicates:
+            old_key = duplicate["stable_device_key"]
+            self._merge_device_track_rows(old_key, stable_device_key)
+            self._merge_device_playlist_rows(old_key, stable_device_key)
+            self.execute(
+                "UPDATE runtime_imports SET device_id = ? WHERE device_id = ?",
+                (stable_device_key, old_key),
+            )
+            self.execute(
+                "UPDATE runtime_stats SET device_id = ? WHERE device_id = ?",
+                (stable_device_key, old_key),
+            )
+            self.execute(
+                "UPDATE devices SET first_seen_at = MIN(first_seen_at, ?), "
+                "last_scan_at = COALESCE(last_scan_at, ?), "
+                "last_sync_at = COALESCE(last_sync_at, ?) "
+                "WHERE stable_device_key = ?",
+                (
+                    duplicate["first_seen_at"],
+                    duplicate["last_scan_at"],
+                    duplicate["last_sync_at"],
+                    stable_device_key,
+                ),
+            )
+            self.execute("DELETE FROM devices WHERE stable_device_key = ?", (old_key,))
+
+    def _merge_device_track_rows(self, old_key, stable_device_key):
+        self.execute(
+            "UPDATE device_tracks SET device_id = ? "
+            "WHERE device_id = ? "
+            "AND NOT EXISTS ("
+            "SELECT 1 FROM device_tracks AS current "
+            "WHERE current.device_id = ? "
+            "AND current.device_path = device_tracks.device_path)",
+            (stable_device_key, old_key, stable_device_key),
+        )
+        self.execute("DELETE FROM device_tracks WHERE device_id = ?", (old_key,))
+
+    def _merge_device_playlist_rows(self, old_key, stable_device_key):
+        self.execute(
+            "UPDATE device_playlists SET device_id = ? "
+            "WHERE device_id = ? "
+            "AND NOT EXISTS ("
+            "SELECT 1 FROM device_playlists AS current "
+            "WHERE current.device_id = ? "
+            "AND current.source_path = device_playlists.source_path)",
+            (stable_device_key, old_key, stable_device_key),
+        )
+        self.execute("DELETE FROM device_playlists WHERE device_id = ?", (old_key,))
 
     def get_device_by_key(self, stable_device_key):
         return self.fetchone(

@@ -493,11 +493,11 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000    0x179a7
+.debug_info     0x0000000000000000    0x179f5
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0x8289 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pong.o
- .debug_info    0x0000000000008289     0x7c93 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
- .debug_info    0x000000000000ff1c     0x7a8b /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(helper.o)
+ .debug_info    0x0000000000000000     0x82a3 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pong.o
+ .debug_info    0x00000000000082a3     0x7cad /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+ .debug_info    0x000000000000ff50     0x7aa5 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(helper.o)
 
 .debug_abbrev   0x0000000000000000      0xd4f
  *(.debug_abbrev)
@@ -514,14 +514,14 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0x4ce4
+.debug_str      0x0000000000000000     0x4cfb
  *(.debug_str)
- .debug_str     0x0000000000000000     0x4ce4 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pong.o
-                                       0x497a (size before relaxing)
- .debug_str     0x0000000000004ce4        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
-                                       0x5134 (size before relaxing)
- .debug_str     0x0000000000004ce4        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(helper.o)
-                                       0x512b (size before relaxing)
+ .debug_str     0x0000000000000000     0x4cfb /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pong.o
+                                       0x4991 (size before relaxing)
+ .debug_str     0x0000000000004cfb        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+                                       0x514b (size before relaxing)
+ .debug_str     0x0000000000004cfb        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(helper.o)
+                                       0x5142 (size before relaxing)
 
 .debug_loc
  *(.debug_loc)

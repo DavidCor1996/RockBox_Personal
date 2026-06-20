@@ -186,6 +186,33 @@ def test_track_table_can_restore_selection_by_track_id():
     assert selected == {2}
 
 
+def test_playlist_reorder_drop_uses_drag_payload_not_highlighted_selection(monkeypatch):
+    app = QApplication.instance() or QApplication([])
+    table = TrackTable()
+    model = TrackTableModel()
+    model.set_tracks([
+        {"id": 1, "title": "One"},
+        {"id": 2, "title": "Two"},
+        {"id": 3, "title": "Three"},
+    ])
+    table.setModel(model)
+    table.select_track_ids({3})
+    monkeypatch.setattr(table, "_drop_target_row", lambda _position, _current_ids: 3)
+
+    new_order, moved_ids = table._reordered_track_ids_for_drop(QPoint(0, 0), [1])
+
+    assert moved_ids == [1]
+    assert new_order == [2, 3, 1]
+    assert table.get_selected_track_ids() == {3}
+
+
+def test_playlist_move_actions_reorder_selected_tracks():
+    assert MainWindow._playlist_order_after_selection_move([1, 2, 3], {2}, -1) == [2, 1, 3]
+    assert MainWindow._playlist_order_after_selection_move([1, 2, 3], {2}, 1) == [1, 3, 2]
+    assert MainWindow._playlist_order_after_selection_move([1, 2, 3, 4], {2, 3}, -1) == [2, 3, 1, 4]
+    assert MainWindow._playlist_order_after_selection_move([1, 2, 3, 4], {2, 3}, 1) == [1, 4, 2, 3]
+
+
 def test_album_grid_uses_larger_album_tiles(tmp_dir):
     app = QApplication.instance() or QApplication([])
     view = AlbumGridView(ArtworkManager(os.path.join(tmp_dir, "artwork")))
@@ -220,10 +247,100 @@ def test_main_window_uses_grouped_view_as_active_track_table_in_artists_mode(con
     monkeypatch.setattr(DeviceDetector, "start_polling", lambda self: None)
     monkeypatch.setattr(QTimer, "singleShot", lambda *args, **kwargs: None)
     monkeypatch.setattr(LibraryScanner, "start_scan", lambda self, force_full=False: None)
+    monkeypatch.setattr(MainWindow, "_start_store_homepage", lambda self, force=False, tab_key=None: None)
 
     window = MainWindow(config)
     try:
         window._current_view = "library_artists"
         assert window._active_track_table() is window._artist_view
     finally:
+        window.close()
+
+
+def test_main_window_enables_drag_reorder_for_regular_playlist(config, monkeypatch):
+    app = QApplication.instance() or QApplication([])
+    monkeypatch.setattr(DeviceDetector, "start_polling", lambda self: None)
+    monkeypatch.setattr(QTimer, "singleShot", lambda *args, **kwargs: None)
+    monkeypatch.setattr(LibraryScanner, "start_scan", lambda self, force_full=False: None)
+    monkeypatch.setattr(MainWindow, "_start_store_homepage", lambda self, force=False, tab_key=None: None)
+
+    window = MainWindow(config)
+    try:
+        pid = window._db.create_playlist("Manual")
+        window._db.upsert_track({"file_path": "/one.mp3", "title": "One"})
+        window._db.commit()
+        track_id = window._db.get_track_by_path("/one.mp3")["id"]
+        window._db.add_track_to_playlist(pid, track_id)
+        window._db.commit()
+
+        window._current_view = f"playlist_{pid}"
+        window._refresh_view()
+        assert window._track_table._playlist_reorder_enabled is True
+
+        window._current_view = "library_music"
+        window._refresh_view()
+        assert window._track_table._playlist_reorder_enabled is False
+    finally:
+        window._device_storage_analyzer.shutdown()
+        window.close()
+
+
+def test_regular_playlist_keeps_manual_order_when_reorder_mode_loads(config, monkeypatch):
+    app = QApplication.instance() or QApplication([])
+    monkeypatch.setattr(DeviceDetector, "start_polling", lambda self: None)
+    monkeypatch.setattr(QTimer, "singleShot", lambda *args, **kwargs: None)
+    monkeypatch.setattr(LibraryScanner, "start_scan", lambda self, force_full=False: None)
+    monkeypatch.setattr(MainWindow, "_start_store_homepage", lambda self, force=False, tab_key=None: None)
+
+    window = MainWindow(config)
+    try:
+        pid = window._db.create_playlist("Manual")
+        window._db.upsert_track({"file_path": "/z.mp3", "title": "Zed"})
+        window._db.upsert_track({"file_path": "/a.mp3", "title": "Alpha"})
+        window._db.commit()
+        zed_id = window._db.get_track_by_path("/z.mp3")["id"]
+        alpha_id = window._db.get_track_by_path("/a.mp3")["id"]
+        window._db.add_tracks_to_playlist(pid, [zed_id, alpha_id])
+        window._db.commit()
+
+        window._track_table.sortByColumn(1, Qt.AscendingOrder)
+        window._current_view = f"playlist_{pid}"
+        window._refresh_view()
+
+        assert window._track_table._playlist_reorder_enabled is True
+        assert [window._track_model.track_at(row)["title"] for row in range(window._track_model.rowCount())] == [
+            "Zed",
+            "Alpha",
+        ]
+    finally:
+        window._device_storage_analyzer.shutdown()
+        window.close()
+
+
+def test_main_window_move_playlist_selection_up_persists_order(config, monkeypatch):
+    app = QApplication.instance() or QApplication([])
+    monkeypatch.setattr(DeviceDetector, "start_polling", lambda self: None)
+    monkeypatch.setattr(QTimer, "singleShot", lambda *args, **kwargs: None)
+    monkeypatch.setattr(LibraryScanner, "start_scan", lambda self, force_full=False: None)
+    monkeypatch.setattr(MainWindow, "_start_store_homepage", lambda self, force=False, tab_key=None: None)
+
+    window = MainWindow(config)
+    try:
+        pid = window._db.create_playlist("Manual")
+        for title in ("One", "Two", "Three"):
+            window._db.upsert_track({"file_path": f"/{title}.mp3", "title": title})
+        window._db.commit()
+        ids = [window._db.get_track_by_path(f"/{title}.mp3")["id"] for title in ("One", "Two", "Three")]
+        window._db.add_tracks_to_playlist(pid, ids)
+        window._db.commit()
+
+        window._current_view = f"playlist_{pid}"
+        window._refresh_view()
+        window._track_table.select_track_ids({ids[1]})
+        window._move_selection_in_playlist(-1)
+
+        assert [row["id"] for row in window._db.get_playlist_tracks(pid)] == [ids[1], ids[0], ids[2]]
+        assert window._track_table.get_selected_track_ids() == {ids[1]}
+    finally:
+        window._device_storage_analyzer.shutdown()
         window.close()

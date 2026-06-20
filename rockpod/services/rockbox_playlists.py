@@ -3,9 +3,14 @@
 import logging
 import os
 import re
+import hashlib
+import json
+import shutil
+import subprocess
 from pathlib import Path
 
 from services.smart_playlists import evaluate_playlist
+from services.track_matcher import TrackMatcher
 
 logger = logging.getLogger(__name__)
 
@@ -15,8 +20,14 @@ PLAYLIST_DIR_CANDIDATES = [
     "Playlists",
     "playlists",
     ".rockbox/playlists",
+    ".rockbox/Playlists",
 ]
-MANAGED_PLAYLIST_DIR = ".rockbox/playlists/RockPod"
+MANAGED_PLAYLIST_DIR = "Playlists"
+LEGACY_MANAGED_PLAYLIST_DIR = ".rockbox/playlists/RockPod"
+MANAGED_PLAYLIST_MANIFEST = ".rockbox/rockpod-playlists.json"
+LOCAL_MANAGED_PLAYLIST_DIR = "Playlists/RockPod"
+LOCAL_APPLE_MUSIC_MEDIA_DIR = "Playlists/RockPod Media"
+APPLE_MUSIC_DIRECT_EXTENSIONS = {".mp3", ".m4a", ".aac", ".aiff", ".aif", ".wav"}
 
 
 def import_device_playlists(db, device):
@@ -72,14 +83,24 @@ def import_device_playlists(db, device):
     return imported
 
 
-def export_device_playlists(db, device, include_smart=True):
+def export_device_playlists(
+    db,
+    device,
+    include_smart=True,
+    duplicate_strictness="metadata_and_hash",
+    duration_tolerance=2.0,
+):
     device_id = getattr(device, "stable_device_key", "") or f"rockbox:{device.mount_path}"
     mount_path = getattr(device, "mount_path", "")
     managed_root = os.path.join(mount_path, MANAGED_PLAYLIST_DIR)
     os.makedirs(managed_root, exist_ok=True)
 
-    device_path_by_local_id = _device_path_map(db, device_id)
-    used_names = set()
+    device_tracks = [dict(row) for row in db.get_all_device_tracks(device_id)]
+    device_path_by_local_id = _device_path_map_from_rows(device_tracks)
+    matcher = TrackMatcher(duplicate_strictness, duration_tolerance)
+    previous_manifest = _read_managed_playlist_manifest(mount_path)
+    previous_sources = set(previous_manifest.get("sources") or [])
+    used_names = _existing_catalog_playlist_names(mount_path, previous_sources)
     seen_sources = set()
     exported = []
     removed = []
@@ -87,6 +108,8 @@ def export_device_playlists(db, device, include_smart=True):
 
     for playlist_row in db.get_all_playlists():
         playlist = dict(playlist_row) if hasattr(playlist_row, "keys") else playlist_row
+        if not playlist.get("sync_to_rockbox", 1):
+            continue
         if playlist.get("is_smart") and not include_smart:
             continue
         rows = (
@@ -94,7 +117,7 @@ def export_device_playlists(db, device, include_smart=True):
             if playlist.get("is_smart")
             else db.get_playlist_tracks(playlist["id"])
         )
-        entries = _playlist_entries(rows, device_path_by_local_id)
+        entries = _playlist_entries(rows, device_path_by_local_id, device_tracks, matcher)
         if not entries:
             continue
 
@@ -117,7 +140,7 @@ def export_device_playlists(db, device, include_smart=True):
             failures.append(f"{rel_source}: {exc}")
             logger.warning("Could not export Rockbox playlist %s: %s", full_path, exc)
 
-    for rel_source in _managed_playlist_sources(mount_path):
+    for rel_source in _managed_playlist_sources(mount_path, previous_sources):
         if rel_source in seen_sources:
             continue
         full_path = os.path.join(mount_path, rel_source)
@@ -127,6 +150,13 @@ def export_device_playlists(db, device, include_smart=True):
         except OSError as exc:
             failures.append(f"{rel_source}: {exc}")
             logger.warning("Could not remove stale Rockbox playlist %s: %s", full_path, exc)
+
+    if not failures:
+        try:
+            _write_managed_playlist_manifest(mount_path, seen_sources)
+        except OSError as exc:
+            failures.append(f"{MANAGED_PLAYLIST_MANIFEST}: {exc}")
+            logger.warning("Could not write Rockbox playlist manifest: %s", exc)
 
     imported = import_device_playlists(db, device)
     logger.info(
@@ -142,6 +172,104 @@ def export_device_playlists(db, device, include_smart=True):
         "removed": removed,
         "failures": failures,
         "imported_count": imported,
+    }
+
+
+def export_local_music_playlists(
+    db,
+    music_root,
+    include_smart=True,
+    device_id="",
+    convert_for_apple_music=False,
+    ffmpeg_path="",
+):
+    """Export RockPod playlists into the shared music folder as relative .m3u8 files."""
+    used_names = set()
+    seen_sources = set()
+    exported = []
+    removed = []
+    failures = []
+
+    if not str(music_root or "").strip():
+        return {
+            "success": False,
+            "exported": [],
+            "removed": [],
+            "failures": ["music folder is not configured"],
+        }
+
+    music_root = os.path.abspath(os.path.expanduser(str(music_root)))
+    managed_root = os.path.join(music_root, LOCAL_MANAGED_PLAYLIST_DIR)
+    media_root = os.path.join(music_root, LOCAL_APPLE_MUSIC_MEDIA_DIR)
+
+    for playlist_row in db.get_all_playlists():
+        playlist = dict(playlist_row) if hasattr(playlist_row, "keys") else playlist_row
+        if playlist.get("is_smart") and not include_smart:
+            continue
+        rows = (
+            evaluate_playlist(db, playlist, device_id=device_id)
+            if playlist.get("is_smart")
+            else db.get_playlist_tracks(playlist["id"])
+        )
+        try:
+            entries = _local_playlist_entries(
+                rows,
+                music_root,
+                managed_root,
+                media_root=media_root,
+                convert_for_apple_music=convert_for_apple_music,
+                ffmpeg_path=ffmpeg_path,
+            )
+        except OSError as exc:
+            failures.append(f"{playlist['name']}: {exc}")
+            logger.warning("Could not prepare local playlist %s: %s", playlist["name"], exc)
+            continue
+        if not entries:
+            continue
+
+        filename = _managed_playlist_filename(playlist["name"], used_names)
+        rel_source = f"{LOCAL_MANAGED_PLAYLIST_DIR}/{filename}"
+        full_path = os.path.join(music_root, rel_source)
+        seen_sources.add(rel_source)
+        try:
+            _write_playlist_file(full_path, entries, path_key="path", absolute_prefix="")
+            exported.append(
+                {
+                    "playlist_id": playlist["id"],
+                    "name": playlist["name"],
+                    "source_path": rel_source,
+                    "track_count": len(entries),
+                    "is_smart": bool(playlist.get("is_smart")),
+                }
+            )
+        except OSError as exc:
+            failures.append(f"{rel_source}: {exc}")
+            logger.warning("Could not export local playlist %s: %s", full_path, exc)
+
+    if not failures:
+        for rel_source in _local_managed_playlist_sources(music_root):
+            if rel_source in seen_sources:
+                continue
+            full_path = os.path.join(music_root, rel_source)
+            try:
+                os.remove(full_path)
+                removed.append(rel_source)
+            except OSError as exc:
+                failures.append(f"{rel_source}: {exc}")
+                logger.warning("Could not remove stale local playlist %s: %s", full_path, exc)
+
+    logger.info(
+        "Exported %d local music playlists to %s (%d removed, %d failures)",
+        len(exported),
+        managed_root,
+        len(removed),
+        len(failures),
+    )
+    return {
+        "success": not failures,
+        "exported": exported,
+        "removed": removed,
+        "failures": failures,
     }
 
 
@@ -165,8 +293,66 @@ def _playlist_files(mount_path):
     return sorted(files)
 
 
-def _managed_playlist_sources(mount_path):
+def _managed_playlist_sources(mount_path, previous_sources=None):
+    sources = set(str(path) for path in (previous_sources or []) if str(path or "").strip())
+    legacy_root = os.path.join(mount_path, LEGACY_MANAGED_PLAYLIST_DIR)
+    if os.path.isdir(legacy_root):
+        for walk_root, _dirs, names in os.walk(legacy_root):
+            for name in sorted(names):
+                if Path(name).suffix.lower() not in PLAYLIST_EXTENSIONS:
+                    continue
+                full = os.path.join(walk_root, name)
+                sources.add(os.path.relpath(full, mount_path).replace("\\", "/"))
+    return sorted(sources)
+
+
+def _existing_catalog_playlist_names(mount_path, managed_sources=None):
+    managed_sources = set(managed_sources or [])
     root = os.path.join(mount_path, MANAGED_PLAYLIST_DIR)
+    used = set()
+    if not os.path.isdir(root):
+        return used
+    for name in os.listdir(root):
+        full = os.path.join(root, name)
+        rel_source = f"{MANAGED_PLAYLIST_DIR}/{name}".replace("\\", "/")
+        if (
+            os.path.isfile(full)
+            and Path(name).suffix.lower() in PLAYLIST_EXTENSIONS
+            and rel_source not in managed_sources
+        ):
+            used.add(name.casefold())
+    return used
+
+
+def _read_managed_playlist_manifest(mount_path):
+    path = os.path.join(mount_path, MANAGED_PLAYLIST_MANIFEST)
+    try:
+        with open(path, "r", encoding="utf-8") as handle:
+            data = json.load(handle)
+    except (OSError, json.JSONDecodeError):
+        return {"sources": []}
+    sources = [
+        str(item).replace("\\", "/")
+        for item in (data.get("sources") or [])
+        if str(item or "").strip()
+    ]
+    return {"sources": sources}
+
+
+def _write_managed_playlist_manifest(mount_path, sources):
+    path = os.path.join(mount_path, MANAGED_PLAYLIST_MANIFEST)
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    data = {
+        "version": 1,
+        "sources": sorted(str(source).replace("\\", "/") for source in sources),
+    }
+    with open(path, "w", encoding="utf-8", newline="\n") as handle:
+        json.dump(data, handle, indent=2)
+        handle.write("\n")
+
+
+def _local_managed_playlist_sources(music_root):
+    root = os.path.join(music_root, LOCAL_MANAGED_PLAYLIST_DIR)
     if not os.path.isdir(root):
         return []
     sources = []
@@ -175,7 +361,7 @@ def _managed_playlist_sources(mount_path):
             if Path(name).suffix.lower() not in PLAYLIST_EXTENSIONS:
                 continue
             full = os.path.join(walk_root, name)
-            sources.append(os.path.relpath(full, mount_path).replace("\\", "/"))
+            sources.append(os.path.relpath(full, music_root).replace("\\", "/"))
     return sorted(sources)
 
 
@@ -204,8 +390,12 @@ def _normalize_playlist_entry(mount_path, entry_path):
 
 
 def _device_path_map(db, device_id):
+    return _device_path_map_from_rows(db.get_all_device_tracks(device_id))
+
+
+def _device_path_map_from_rows(rows):
     selected = {}
-    for row in db.get_all_device_tracks(device_id):
+    for row in rows:
         item = dict(row)
         local_track_id = item.get("local_track_id")
         device_path = str(item.get("device_path") or "").replace("\\", "/").lstrip("/")
@@ -221,12 +411,13 @@ def _device_path_rank(device_path):
     return (len(device_path), device_path.casefold())
 
 
-def _playlist_entries(rows, device_path_by_local_id):
+def _playlist_entries(rows, device_path_by_local_id, device_tracks=None, matcher=None):
     entries = []
-    for row in rows:
-        item = dict(row) if hasattr(row, "keys") else row
+    playlist_rows = [dict(row) if hasattr(row, "keys") else dict(row) for row in rows]
+    matched_paths = _playlist_matched_device_paths(playlist_rows, device_tracks or [], matcher)
+    for item in playlist_rows:
         track_id = item.get("id")
-        device_path = device_path_by_local_id.get(track_id)
+        device_path = device_path_by_local_id.get(track_id) or matched_paths.get(track_id)
         if not device_path:
             continue
         entries.append(
@@ -238,6 +429,129 @@ def _playlist_entries(rows, device_path_by_local_id):
             }
         )
     return entries
+
+
+def _playlist_matched_device_paths(rows, device_tracks, matcher=None):
+    if not rows or not device_tracks:
+        return {}
+    matcher = matcher or TrackMatcher()
+    matched, _unmatched, _orphaned, _resync = matcher.match_all(rows, device_tracks)
+    paths = {}
+    for result in matched:
+        local = dict(result.local_track) if hasattr(result.local_track, "keys") else dict(result.local_track)
+        device = dict(result.device_track) if hasattr(result.device_track, "keys") else dict(result.device_track)
+        track_id = local.get("id")
+        device_path = str(device.get("device_path") or "").replace("\\", "/").lstrip("/")
+        if track_id and device_path:
+            paths[track_id] = device_path
+    return paths
+
+
+def _local_playlist_entries(
+    rows,
+    music_root,
+    playlist_dir,
+    media_root="",
+    convert_for_apple_music=False,
+    ffmpeg_path="",
+):
+    entries = []
+    for row in rows:
+        item = dict(row) if hasattr(row, "keys") else row
+        file_path = os.path.abspath(os.path.expanduser(str(item.get("file_path") or "")))
+        if not file_path or not os.path.isfile(file_path):
+            continue
+        try:
+            if os.path.commonpath([music_root, file_path]) != music_root:
+                continue
+        except ValueError:
+            continue
+        playlist_source = file_path
+        if convert_for_apple_music and Path(file_path).suffix.lower() not in APPLE_MUSIC_DIRECT_EXTENSIONS:
+            playlist_source = _ensure_apple_music_transcode(file_path, media_root, ffmpeg_path)
+        try:
+            rel_path = os.path.relpath(playlist_source, playlist_dir)
+        except ValueError:
+            rel_path = playlist_source
+        entries.append(
+            {
+                "path": rel_path.replace("\\", "/"),
+                "title": item.get("title", "") or Path(file_path).stem,
+                "artist": item.get("artist", "") or item.get("album_artist", ""),
+                "duration": item.get("duration", 0) or 0,
+            }
+        )
+    return entries
+
+
+def _ensure_apple_music_transcode(source_path, media_root, ffmpeg_path=""):
+    if not media_root:
+        raise OSError("Apple Music media cache is not configured")
+    ffmpeg_bin = _ffmpeg_bin(ffmpeg_path)
+    if not ffmpeg_bin:
+        raise OSError("ffmpeg is required to convert FLAC files for Apple Music")
+    os.makedirs(media_root, exist_ok=True)
+    target_path = _apple_music_transcode_path(source_path, media_root)
+    if os.path.isfile(target_path) and os.path.getsize(target_path) > 0:
+        return target_path
+
+    tmp_path = _temporary_playlist_media_path(target_path)
+    if os.path.exists(tmp_path):
+        os.remove(tmp_path)
+    command = [
+        ffmpeg_bin,
+        "-y",
+        "-i",
+        source_path,
+        "-map",
+        "0:a:0",
+        "-vn",
+        "-map_metadata",
+        "0",
+        "-c:a",
+        "alac",
+        tmp_path,
+    ]
+    result = subprocess.run(
+        command,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+        check=False,
+    )
+    if result.returncode != 0:
+        if os.path.exists(tmp_path):
+            try:
+                os.remove(tmp_path)
+            except OSError:
+                pass
+        message = (result.stderr or result.stdout or f"ffmpeg exited with {result.returncode}").strip()
+        raise OSError(f"audio conversion failed for {source_path}: {message}")
+    os.replace(tmp_path, target_path)
+    return target_path
+
+
+def _apple_music_transcode_path(source_path, media_root):
+    try:
+        stat = os.stat(source_path)
+        material = f"{source_path}|{int(stat.st_mtime)}|{int(stat.st_size)}"
+    except OSError:
+        material = source_path
+    digest = hashlib.sha256(material.encode("utf-8")).hexdigest()[:16]
+    stem = _sanitize_playlist_name(Path(source_path).stem) or "track"
+    return os.path.join(media_root, f"{stem[:72]}-{digest}.m4a")
+
+
+def _temporary_playlist_media_path(target_path):
+    root, ext = os.path.splitext(target_path)
+    return f"{root}.tmp{ext}" if ext else target_path + ".tmp"
+
+
+def _ffmpeg_bin(ffmpeg_path=""):
+    explicit = os.path.abspath(str(ffmpeg_path or "").strip()) if ffmpeg_path else ""
+    if explicit and os.path.isfile(explicit):
+        return explicit
+    return shutil.which("ffmpeg") or ""
 
 
 def _managed_playlist_filename(name, used_names):
@@ -258,7 +572,7 @@ def _sanitize_playlist_name(name):
     return text[:120].rstrip(" .")
 
 
-def _write_playlist_file(path, entries):
+def _write_playlist_file(path, entries, path_key="device_path", absolute_prefix="/"):
     os.makedirs(os.path.dirname(path), exist_ok=True)
     lines = ["#EXTM3U"]
     for entry in entries:
@@ -268,9 +582,12 @@ def _write_playlist_file(path, entries):
         if artist and title:
             label = f"{artist} - {title}"
         else:
-            label = title or artist or Path(entry["device_path"]).stem
+            label = title or artist or Path(entry[path_key]).stem
         lines.append(f"#EXTINF:{duration},{label}")
-        lines.append("/" + str(entry["device_path"]).replace("\\", "/").lstrip("/"))
+        playlist_path = str(entry[path_key]).replace("\\", "/")
+        if absolute_prefix:
+            playlist_path = absolute_prefix + playlist_path.lstrip("/")
+        lines.append(playlist_path)
     with open(path, "w", encoding="utf-8", newline="\n") as handle:
         handle.write("\n".join(lines) + "\n")
 

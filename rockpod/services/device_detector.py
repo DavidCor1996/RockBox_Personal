@@ -125,18 +125,10 @@ class DeviceInfo:
             pass
 
     def _build_signature(self):
-        """Create a device key stable across routine Rockbox config changes."""
+        """Create a device key stable across routine Rockbox/runtime changes."""
         h = hashlib.sha256()
         h.update((os.path.basename(self.mount_path) or "iPod").encode("utf-8", "ignore"))
         h.update(str(self.total_space or 0).encode("ascii"))
-        info_path = os.path.join(self.mount_path, ".rockbox", "rockbox-info.txt")
-        if os.path.isfile(info_path):
-            try:
-                with open(info_path, "rb") as f:
-                    h.update(b".rockbox/rockbox-info.txt")
-                    h.update(f.read(8192))
-            except OSError:
-                pass
         return h.hexdigest()[:24]
 
     def _apply_target_metadata(self):

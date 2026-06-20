@@ -175,6 +175,20 @@ def test_stable_device_key_ignores_config_changes(tmp_dir):
     assert first == second
 
 
+def test_stable_device_key_ignores_rockbox_info_changes(tmp_dir):
+    mount = os.path.join(tmp_dir, "ipod")
+    create_mock_device(mount)
+
+    first = DeviceInfo(mount).stable_device_key
+
+    with open(os.path.join(mount, ".rockbox", "rockbox-info.txt"), "w", encoding="utf-8") as handle:
+        handle.write("Version: custom-build\nTarget: ipod6g\n")
+
+    second = DeviceInfo(mount).stable_device_key
+
+    assert first == second
+
+
 def test_device_info_reads_rockbox_target_metadata(tmp_dir):
     mount = os.path.join(tmp_dir, "ipod")
     create_mock_device(mount)

@@ -796,10 +796,10 @@ class SyncEngine(QObject):
         row = dict(device_row) if hasattr(device_row, "keys") else device_row
         if self._rockbox_database_newer_than_scan(device, row):
             return True
-        if self._device_tracks:
-            return False
         if row.get("last_scan_at"):
             return False
+        if self._device_tracks:
+            return self._device_has_indexable_media_on_disk(device)
         return self._device_has_indexable_media_on_disk(device)
 
     @staticmethod
@@ -1115,6 +1115,10 @@ class SyncEngine(QObject):
         max_deletes = int(self._config_value("max_auto_duplicate_deletes_per_sync", MAX_AUTO_DUPLICATE_DELETE_COUNT) or 0)
         if max_deletes < 0:
             max_deletes = 0
+        if max_deletes == 0:
+            plan.to_delete = []
+            logger.info("Skipped automatic duplicate cleanup because the safety limit is 0")
+            return
         if len(deletes) > max_deletes:
             plan.to_delete = []
             plan.errors.append(

@@ -589,15 +589,15 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000    0x2ae9f
+.debug_info     0x0000000000000000    0x2af21
  *(.debug_info .gnu.linkonce.wi.*)
  .debug_info    0x0000000000000000     0x1019 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/reversi/reversi-game.o
- .debug_info    0x0000000000001019     0x8ae4 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/reversi/reversi-gui.o
- .debug_info    0x0000000000009afd      0x569 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/reversi/reversi-strategy.o
- .debug_info    0x000000000000a066     0x7a73 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/reversi/reversi-strategy-naive.o
- .debug_info    0x0000000000011ad9     0x7e2b /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/reversi/reversi-strategy-simple.o
- .debug_info    0x0000000000019904     0x7c93 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
- .debug_info    0x0000000000021597     0x9908 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(playback_control.o)
+ .debug_info    0x0000000000001019     0x8afe /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/reversi/reversi-gui.o
+ .debug_info    0x0000000000009b17      0x569 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/reversi/reversi-strategy.o
+ .debug_info    0x000000000000a080     0x7a8d /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/reversi/reversi-strategy-naive.o
+ .debug_info    0x0000000000011b0d     0x7e45 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/reversi/reversi-strategy-simple.o
+ .debug_info    0x0000000000019952     0x7cad /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+ .debug_info    0x00000000000215ff     0x9922 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(playback_control.o)
 
 .debug_abbrev   0x0000000000000000     0x1b44
  *(.debug_abbrev)
@@ -622,22 +622,22 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0xa3c1
+.debug_str      0x0000000000000000     0xa3d8
  *(.debug_str)
- .debug_str     0x0000000000000000     0xa3c1 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/reversi/reversi-game.o
+ .debug_str     0x0000000000000000     0xa3d8 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/reversi/reversi-game.o
                                         0xb64 (size before relaxing)
- .debug_str     0x000000000000a3c1        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/reversi/reversi-gui.o
-                                       0x5607 (size before relaxing)
- .debug_str     0x000000000000a3c1        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/reversi/reversi-strategy.o
+ .debug_str     0x000000000000a3d8        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/reversi/reversi-gui.o
+                                       0x561e (size before relaxing)
+ .debug_str     0x000000000000a3d8        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/reversi/reversi-strategy.o
                                         0x99b (size before relaxing)
- .debug_str     0x000000000000a3c1        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/reversi/reversi-strategy-naive.o
-                                       0x5061 (size before relaxing)
- .debug_str     0x000000000000a3c1        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/reversi/reversi-strategy-simple.o
-                                       0x50ae (size before relaxing)
- .debug_str     0x000000000000a3c1        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
-                                       0x5134 (size before relaxing)
- .debug_str     0x000000000000a3c1        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(playback_control.o)
-                                       0xa3a4 (size before relaxing)
+ .debug_str     0x000000000000a3d8        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/reversi/reversi-strategy-naive.o
+                                       0x5078 (size before relaxing)
+ .debug_str     0x000000000000a3d8        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/reversi/reversi-strategy-simple.o
+                                       0x50c5 (size before relaxing)
+ .debug_str     0x000000000000a3d8        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+                                       0x514b (size before relaxing)
+ .debug_str     0x000000000000a3d8        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(playback_control.o)
+                                       0xa3bb (size before relaxing)
 
 .debug_loc
  *(.debug_loc)

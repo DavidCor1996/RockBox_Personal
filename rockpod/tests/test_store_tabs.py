@@ -16,12 +16,14 @@ def test_store_contains_music_and_ipod_games_browser_tabs(config, monkeypatch):
     window = MainWindow(config)
     try:
         assert window._store_page.tabText(0) == "Music"
-        assert window._store_page.tabText(1) == "Movies"
-        assert window._store_page.tabText(2) == "iPod Games"
+        assert window._store_page.tabText(1) == "Sharing"
+        assert window._store_page.tabText(2) == "Movies"
+        assert window._store_page.tabText(3) == "iPod Games"
         assert window._store_page.widget(0) is window._browser_panel
-        assert window._store_page.widget(1) is window._movie_store_panel
-        assert window._store_page.widget(2) is window._game_browser_panel
-        assert window._store_page.widget(2) is not window._game_manager
+        assert window._store_page.widget(1) is window._music_sharing_panel
+        assert window._store_page.widget(2) is window._movie_store_panel
+        assert window._store_page.widget(3) is window._game_browser_panel
+        assert window._store_page.widget(3) is not window._game_manager
 
         window._on_sidebar_selection("rockbox", "rockbox_browser")
         assert window._content_stack.currentWidget() is window._store_page
@@ -31,6 +33,9 @@ def test_store_contains_music_and_ipod_games_browser_tabs(config, monkeypatch):
         assert window._current_view == "rockbox_games"
         assert window._game_browser_panel._download_dir == config.get("games_library_path")
         assert window._game_browser_panel.current_url() == config.get("browser_home_url")
+
+        window._store_page.setCurrentWidget(window._music_sharing_panel)
+        assert window._current_view == "rockbox_sharing"
     finally:
         window._device_storage_analyzer.shutdown()
         window.close()

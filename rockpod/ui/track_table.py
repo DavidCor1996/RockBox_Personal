@@ -198,10 +198,12 @@ class TrackTable(QTableView):
     track_double_clicked = Signal(object)  # track dict/row
     selection_changed = Signal(list)       # list of track dicts
     track_activated = Signal(object)       # Enter/Return activation
+    playlist_reorder_requested = Signal(list, list)  # new order, moved track ids
 
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setObjectName("track_table")
+        self._playlist_reorder_enabled = False
 
         # Table behavior
         self.setAlternatingRowColors(True)
@@ -216,6 +218,7 @@ class TrackTable(QTableView):
         # Enable drag for drag-to-playlist / drag-to-device
         self.setDragEnabled(True)
         self.setDragDropMode(QAbstractItemView.DragOnly)
+        self.setDropIndicatorShown(True)
 
         # Row height
         self.verticalHeader().setDefaultSectionSize(18)
@@ -231,6 +234,24 @@ class TrackTable(QTableView):
         h.setDefaultSectionSize(110)
 
         self.doubleClicked.connect(self._on_double_click)
+
+    def set_playlist_reorder_enabled(self, enabled):
+        enabled = bool(enabled)
+        if self._playlist_reorder_enabled == enabled:
+            return
+        self._playlist_reorder_enabled = enabled
+        if enabled:
+            self.setAcceptDrops(True)
+            self.viewport().setAcceptDrops(True)
+            self.setDragDropMode(QAbstractItemView.DragDrop)
+            self.setDefaultDropAction(Qt.MoveAction)
+            self.setSortingEnabled(False)
+        else:
+            self.setAcceptDrops(False)
+            self.viewport().setAcceptDrops(False)
+            self.setDragDropMode(QAbstractItemView.DragOnly)
+            self.setDefaultDropAction(Qt.CopyAction)
+            self.setSortingEnabled(True)
 
     def setModel(self, model):
         super().setModel(model)
@@ -308,8 +329,82 @@ class TrackTable(QTableView):
             self.setCurrentIndex(first_index)
             self.scrollTo(first_index, QAbstractItemView.PositionAtCenter)
 
+    def _selected_track_ids_in_row_order(self):
+        model = self.model()
+        if not model or not self.selectionModel():
+            return []
+        rows = sorted(index.row() for index in self.selectionModel().selectedRows())
+        ids = []
+        seen = set()
+        for row in rows:
+            track = model.data(model.index(row, 0), TRACK_DATA_ROLE)
+            tid = normalize_track_for_ui(track).get("id") if track else None
+            if tid and tid not in seen:
+                seen.add(tid)
+                ids.append(tid)
+        return ids
+
+    def _track_ids_in_model_order(self):
+        model = self.model()
+        if not model:
+            return []
+        ids = []
+        for row in range(model.rowCount()):
+            track = model.data(model.index(row, 0), TRACK_DATA_ROLE)
+            tid = normalize_track_for_ui(track).get("id") if track else None
+            if tid:
+                ids.append(tid)
+        return ids
+
+    @staticmethod
+    def _track_ids_from_mime(mime):
+        if not mime or not mime.hasFormat(TRACK_IDS_MIME):
+            return []
+        raw = bytes(mime.data(TRACK_IDS_MIME)).decode("utf-8", errors="ignore")
+        ids = []
+        seen = set()
+        for part in raw.split(","):
+            try:
+                track_id = int(part.strip())
+            except ValueError:
+                continue
+            if track_id and track_id not in seen:
+                seen.add(track_id)
+                ids.append(track_id)
+        return ids
+
+    def _drop_target_row(self, position, current_ids):
+        index = self.indexAt(position)
+        target_row = index.row() if index.isValid() else len(current_ids)
+        indicator_name = getattr(self.dropIndicatorPosition(), "name", str(self.dropIndicatorPosition()))
+        if "BelowItem" in indicator_name:
+            target_row += 1
+        elif "OnViewport" in indicator_name:
+            target_row = len(current_ids)
+        return max(0, min(target_row, len(current_ids)))
+
+    def _reordered_track_ids_for_drop(self, position, moving_ids):
+        current_ids = self._track_ids_in_model_order()
+        moving_set = set(moving_ids or [])
+        moving_ids = [track_id for track_id in (moving_ids or []) if track_id in current_ids]
+        if not current_ids or not moving_ids:
+            return [], []
+
+        target_row = self._drop_target_row(position, current_ids)
+        selected_before_target = 0
+        for row, track_id in enumerate(current_ids):
+            if row >= target_row:
+                break
+            if track_id in moving_set:
+                selected_before_target += 1
+        target_row = max(0, target_row - selected_before_target)
+
+        remaining = [track_id for track_id in current_ids if track_id not in moving_set]
+        target_row = max(0, min(target_row, len(remaining)))
+        return remaining[:target_row] + moving_ids + remaining[target_row:], moving_ids
+
     def startDrag(self, supported_actions):
-        ids = sorted(self.get_selected_track_ids())
+        ids = self._selected_track_ids_in_row_order()
         if not ids:
             return
 
@@ -317,4 +412,51 @@ class TrackTable(QTableView):
         mime.setData(TRACK_IDS_MIME, ",".join(str(tid) for tid in ids).encode("utf-8"))
         drag = QDrag(self)
         drag.setMimeData(mime)
-        drag.exec(Qt.CopyAction)
+        actions = Qt.CopyAction
+        if self._playlist_reorder_enabled:
+            actions |= Qt.MoveAction
+        drag.exec(actions, Qt.MoveAction if self._playlist_reorder_enabled else Qt.CopyAction)
+
+    def dragEnterEvent(self, event):
+        if (
+            self._playlist_reorder_enabled
+            and event.source() is self
+            and event.mimeData().hasFormat(TRACK_IDS_MIME)
+        ):
+            event.setDropAction(Qt.MoveAction)
+            event.accept()
+            return
+        super().dragEnterEvent(event)
+
+    def dragMoveEvent(self, event):
+        if (
+            self._playlist_reorder_enabled
+            and event.source() is self
+            and event.mimeData().hasFormat(TRACK_IDS_MIME)
+        ):
+            super().dragMoveEvent(event)
+            event.setDropAction(Qt.MoveAction)
+            event.accept()
+            return
+        super().dragMoveEvent(event)
+
+    def dropEvent(self, event):
+        if (
+            self._playlist_reorder_enabled
+            and event.source() is self
+            and event.mimeData().hasFormat(TRACK_IDS_MIME)
+        ):
+            current_ids = self._track_ids_in_model_order()
+            moving_ids = self._track_ids_from_mime(event.mimeData())
+            if not moving_ids:
+                event.ignore()
+                return
+
+            position = event.position().toPoint() if hasattr(event, "position") else event.pos()
+            new_order, moved_ids = self._reordered_track_ids_for_drop(position, moving_ids)
+            if new_order != current_ids:
+                self.playlist_reorder_requested.emit(new_order, moved_ids)
+            event.setDropAction(Qt.MoveAction)
+            event.accept()
+            return
+        super().dropEvent(event)

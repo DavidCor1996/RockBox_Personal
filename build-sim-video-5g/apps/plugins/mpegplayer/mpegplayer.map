@@ -1325,42 +1325,42 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000    0xac144
+.debug_info     0x0000000000000000    0xac2fe
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0x90ab /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mpegplayer/libmpeg2/decode.o
- .debug_info    0x00000000000090ab     0x97c7 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mpegplayer/libmpeg2/header.o
- .debug_info    0x0000000000012872      0x9fe /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mpegplayer/libmpeg2/idct.o
- .debug_info    0x0000000000013270      0x6f1 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mpegplayer/libmpeg2/motion_comp.o
- .debug_info    0x0000000000013961     0x56d2 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mpegplayer/libmpeg2/slice.o
- .debug_info    0x0000000000019033      0x6d6 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mpegplayer/libmpeg2/motion_comp_c.o
- .debug_info    0x0000000000019709     0x801f /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mpegplayer/alloc.o
- .debug_info    0x0000000000021728     0x8e44 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mpegplayer/video_out_rockbox.o
- .debug_info    0x000000000002a56c     0x99b9 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mpegplayer/video_thread.o
- .debug_info    0x0000000000033f25     0x821f /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mpegplayer/pcm_output.o
- .debug_info    0x000000000003c144     0x95ea /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mpegplayer/audio_thread.o
- .debug_info    0x000000000004572e     0x9329 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mpegplayer/disk_buf.o
- .debug_info    0x000000000004ea57     0xc385 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mpegplayer/mpeg_settings.o
- .debug_info    0x000000000005addc     0xa46f /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mpegplayer/stream_mgr.o
- .debug_info    0x000000000006524b     0xe1d1 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mpegplayer/mpegplayer.o
- .debug_info    0x000000000007341c     0x96a7 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mpegplayer/mpeg_parser.o
- .debug_info    0x000000000007cac3     0x8425 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mpegplayer/mpeg_misc.o
- .debug_info    0x0000000000084ee8     0x7c93 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
- .debug_info    0x000000000008cb7b     0x1038 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libmad-mpeg.a(frame.o)
- .debug_info    0x000000000008dbb3     0x1007 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libmad-mpeg.a(layer12.o)
- .debug_info    0x000000000008ebba     0x320c /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libmad-mpeg.a(layer3.o)
- .debug_info    0x0000000000091dc6      0x446 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libmad-mpeg.a(stream.o)
- .debug_info    0x000000000009220c     0x1bcb /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libmad-mpeg.a(synth.o)
- .debug_info    0x0000000000093dd7      0x6df /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libmad-mpeg.a(bit.o)
- .debug_info    0x00000000000944b6      0x7a4 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libmad-mpeg.a(huffman.o)
- .debug_info    0x0000000000094c5a     0x7664 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
- .debug_info    0x000000000009c2be     0x7a8b /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(helper.o)
- .debug_info    0x00000000000a3d49     0x7cdc /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(configfile.o)
- .debug_info    0x00000000000aba25      0x11d /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(mpegplayer_status_icons_8x8x1.o)
- .debug_info    0x00000000000abb42      0x11d /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(mpegplayer_status_icons_12x12x1.o)
- .debug_info    0x00000000000abc5f      0x11d /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(mpegplayer_status_icons_16x16x1.o)
- .debug_info    0x00000000000abd7c      0x143 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(ipodtiktok_header.320x40x24.o)
- .debug_info    0x00000000000abebf      0x143 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(ipodtiktok_scrim.320x96x24.o)
- .debug_info    0x00000000000ac002      0x142 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(ipodtiktok_heart.32x32x24.o)
+ .debug_info    0x0000000000000000     0x90c5 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mpegplayer/libmpeg2/decode.o
+ .debug_info    0x00000000000090c5     0x97e1 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mpegplayer/libmpeg2/header.o
+ .debug_info    0x00000000000128a6      0x9fe /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mpegplayer/libmpeg2/idct.o
+ .debug_info    0x00000000000132a4      0x6f1 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mpegplayer/libmpeg2/motion_comp.o
+ .debug_info    0x0000000000013995     0x56d2 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mpegplayer/libmpeg2/slice.o
+ .debug_info    0x0000000000019067      0x6d6 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mpegplayer/libmpeg2/motion_comp_c.o
+ .debug_info    0x000000000001973d     0x8039 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mpegplayer/alloc.o
+ .debug_info    0x0000000000021776     0x8e5e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mpegplayer/video_out_rockbox.o
+ .debug_info    0x000000000002a5d4     0x99d3 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mpegplayer/video_thread.o
+ .debug_info    0x0000000000033fa7     0x8239 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mpegplayer/pcm_output.o
+ .debug_info    0x000000000003c1e0     0x9604 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mpegplayer/audio_thread.o
+ .debug_info    0x00000000000457e4     0x9343 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mpegplayer/disk_buf.o
+ .debug_info    0x000000000004eb27     0xc39f /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mpegplayer/mpeg_settings.o
+ .debug_info    0x000000000005aec6     0xa489 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mpegplayer/stream_mgr.o
+ .debug_info    0x000000000006534f     0xe1eb /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mpegplayer/mpegplayer.o
+ .debug_info    0x000000000007353a     0x96c1 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mpegplayer/mpeg_parser.o
+ .debug_info    0x000000000007cbfb     0x843f /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mpegplayer/mpeg_misc.o
+ .debug_info    0x000000000008503a     0x7cad /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+ .debug_info    0x000000000008cce7     0x1038 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libmad-mpeg.a(frame.o)
+ .debug_info    0x000000000008dd1f     0x1007 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libmad-mpeg.a(layer12.o)
+ .debug_info    0x000000000008ed26     0x320c /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libmad-mpeg.a(layer3.o)
+ .debug_info    0x0000000000091f32      0x446 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libmad-mpeg.a(stream.o)
+ .debug_info    0x0000000000092378     0x1bcb /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libmad-mpeg.a(synth.o)
+ .debug_info    0x0000000000093f43      0x6df /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libmad-mpeg.a(bit.o)
+ .debug_info    0x0000000000094622      0x7a4 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libmad-mpeg.a(huffman.o)
+ .debug_info    0x0000000000094dc6     0x767e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
+ .debug_info    0x000000000009c444     0x7aa5 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(helper.o)
+ .debug_info    0x00000000000a3ee9     0x7cf6 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(configfile.o)
+ .debug_info    0x00000000000abbdf      0x11d /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(mpegplayer_status_icons_8x8x1.o)
+ .debug_info    0x00000000000abcfc      0x11d /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(mpegplayer_status_icons_12x12x1.o)
+ .debug_info    0x00000000000abe19      0x11d /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(mpegplayer_status_icons_16x16x1.o)
+ .debug_info    0x00000000000abf36      0x143 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(ipodtiktok_header.320x40x24.o)
+ .debug_info    0x00000000000ac079      0x143 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(ipodtiktok_scrim.320x96x24.o)
+ .debug_info    0x00000000000ac1bc      0x142 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(ipodtiktok_heart.32x32x24.o)
 
 .debug_abbrev   0x0000000000000000     0x84a7
  *(.debug_abbrev)
@@ -1439,75 +1439,75 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000    0x105f8
+.debug_str      0x0000000000000000    0x1060f
  *(.debug_str)
- .debug_str     0x0000000000000000    0x105f8 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mpegplayer/libmpeg2/decode.o
-                                       0x5b89 (size before relaxing)
- .debug_str     0x00000000000105f8        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mpegplayer/libmpeg2/header.o
-                                       0x5bfd (size before relaxing)
- .debug_str     0x00000000000105f8        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mpegplayer/libmpeg2/idct.o
+ .debug_str     0x0000000000000000    0x1060f /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mpegplayer/libmpeg2/decode.o
+                                       0x5ba0 (size before relaxing)
+ .debug_str     0x000000000001060f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mpegplayer/libmpeg2/header.o
+                                       0x5c14 (size before relaxing)
+ .debug_str     0x000000000001060f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mpegplayer/libmpeg2/idct.o
                                         0x284 (size before relaxing)
- .debug_str     0x00000000000105f8        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mpegplayer/libmpeg2/motion_comp.o
+ .debug_str     0x000000000001060f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mpegplayer/libmpeg2/motion_comp.o
                                         0x9fe (size before relaxing)
- .debug_str     0x00000000000105f8        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mpegplayer/libmpeg2/slice.o
+ .debug_str     0x000000000001060f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mpegplayer/libmpeg2/slice.o
                                        0x11cc (size before relaxing)
- .debug_str     0x00000000000105f8        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mpegplayer/libmpeg2/motion_comp_c.o
+ .debug_str     0x000000000001060f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mpegplayer/libmpeg2/motion_comp_c.o
                                         0x214 (size before relaxing)
- .debug_str     0x00000000000105f8        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mpegplayer/alloc.o
-                                       0x53c4 (size before relaxing)
- .debug_str     0x00000000000105f8        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mpegplayer/video_out_rockbox.o
-                                       0x5753 (size before relaxing)
- .debug_str     0x00000000000105f8        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mpegplayer/video_thread.o
-                                       0x5d72 (size before relaxing)
- .debug_str     0x00000000000105f8        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mpegplayer/pcm_output.o
-                                       0x5530 (size before relaxing)
- .debug_str     0x00000000000105f8        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mpegplayer/audio_thread.o
-                                       0x5fcc (size before relaxing)
- .debug_str     0x00000000000105f8        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mpegplayer/disk_buf.o
-                                       0x592a (size before relaxing)
- .debug_str     0x00000000000105f8        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mpegplayer/mpeg_settings.o
-                                       0xc168 (size before relaxing)
- .debug_str     0x00000000000105f8        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mpegplayer/stream_mgr.o
-                                       0x5ce7 (size before relaxing)
- .debug_str     0x00000000000105f8        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mpegplayer/mpegplayer.o
-                                       0x78d4 (size before relaxing)
- .debug_str     0x00000000000105f8        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mpegplayer/mpeg_parser.o
-                                       0x5894 (size before relaxing)
- .debug_str     0x00000000000105f8        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mpegplayer/mpeg_misc.o
-                                       0x64ed (size before relaxing)
- .debug_str     0x00000000000105f8        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
-                                       0x5134 (size before relaxing)
- .debug_str     0x00000000000105f8        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libmad-mpeg.a(frame.o)
+ .debug_str     0x000000000001060f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mpegplayer/alloc.o
+                                       0x53db (size before relaxing)
+ .debug_str     0x000000000001060f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mpegplayer/video_out_rockbox.o
+                                       0x576a (size before relaxing)
+ .debug_str     0x000000000001060f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mpegplayer/video_thread.o
+                                       0x5d89 (size before relaxing)
+ .debug_str     0x000000000001060f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mpegplayer/pcm_output.o
+                                       0x5547 (size before relaxing)
+ .debug_str     0x000000000001060f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mpegplayer/audio_thread.o
+                                       0x5fe3 (size before relaxing)
+ .debug_str     0x000000000001060f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mpegplayer/disk_buf.o
+                                       0x5941 (size before relaxing)
+ .debug_str     0x000000000001060f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mpegplayer/mpeg_settings.o
+                                       0xc17f (size before relaxing)
+ .debug_str     0x000000000001060f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mpegplayer/stream_mgr.o
+                                       0x5cfe (size before relaxing)
+ .debug_str     0x000000000001060f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mpegplayer/mpegplayer.o
+                                       0x78eb (size before relaxing)
+ .debug_str     0x000000000001060f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mpegplayer/mpeg_parser.o
+                                       0x58ab (size before relaxing)
+ .debug_str     0x000000000001060f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mpegplayer/mpeg_misc.o
+                                       0x6504 (size before relaxing)
+ .debug_str     0x000000000001060f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+                                       0x514b (size before relaxing)
+ .debug_str     0x000000000001060f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libmad-mpeg.a(frame.o)
                                         0xcbb (size before relaxing)
- .debug_str     0x00000000000105f8        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libmad-mpeg.a(layer12.o)
+ .debug_str     0x000000000001060f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libmad-mpeg.a(layer12.o)
                                         0xc81 (size before relaxing)
- .debug_str     0x00000000000105f8        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libmad-mpeg.a(layer3.o)
+ .debug_str     0x000000000001060f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libmad-mpeg.a(layer3.o)
                                        0x11ce (size before relaxing)
- .debug_str     0x00000000000105f8        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libmad-mpeg.a(stream.o)
+ .debug_str     0x000000000001060f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libmad-mpeg.a(stream.o)
                                         0x454 (size before relaxing)
- .debug_str     0x00000000000105f8        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libmad-mpeg.a(synth.o)
+ .debug_str     0x000000000001060f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libmad-mpeg.a(synth.o)
                                         0xb20 (size before relaxing)
- .debug_str     0x00000000000105f8        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libmad-mpeg.a(bit.o)
+ .debug_str     0x000000000001060f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libmad-mpeg.a(bit.o)
                                         0x6e5 (size before relaxing)
- .debug_str     0x00000000000105f8        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libmad-mpeg.a(huffman.o)
+ .debug_str     0x000000000001060f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libmad-mpeg.a(huffman.o)
                                         0x73d (size before relaxing)
- .debug_str     0x00000000000105f8        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
-                                       0x47db (size before relaxing)
- .debug_str     0x00000000000105f8        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(helper.o)
-                                       0x512b (size before relaxing)
- .debug_str     0x00000000000105f8        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(configfile.o)
-                                       0x48aa (size before relaxing)
- .debug_str     0x00000000000105f8        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(mpegplayer_status_icons_8x8x1.o)
+ .debug_str     0x000000000001060f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
+                                       0x47f2 (size before relaxing)
+ .debug_str     0x000000000001060f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(helper.o)
+                                       0x5142 (size before relaxing)
+ .debug_str     0x000000000001060f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(configfile.o)
+                                       0x48c1 (size before relaxing)
+ .debug_str     0x000000000001060f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(mpegplayer_status_icons_8x8x1.o)
                                         0x169 (size before relaxing)
- .debug_str     0x00000000000105f8        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(mpegplayer_status_icons_12x12x1.o)
+ .debug_str     0x000000000001060f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(mpegplayer_status_icons_12x12x1.o)
                                         0x16d (size before relaxing)
- .debug_str     0x00000000000105f8        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(mpegplayer_status_icons_16x16x1.o)
+ .debug_str     0x000000000001060f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(mpegplayer_status_icons_16x16x1.o)
                                         0x16d (size before relaxing)
- .debug_str     0x00000000000105f8        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(ipodtiktok_header.320x40x24.o)
+ .debug_str     0x000000000001060f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(ipodtiktok_header.320x40x24.o)
                                         0x176 (size before relaxing)
- .debug_str     0x00000000000105f8        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(ipodtiktok_scrim.320x96x24.o)
+ .debug_str     0x000000000001060f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(ipodtiktok_scrim.320x96x24.o)
                                         0x174 (size before relaxing)
- .debug_str     0x00000000000105f8        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(ipodtiktok_heart.32x32x24.o)
+ .debug_str     0x000000000001060f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(ipodtiktok_heart.32x32x24.o)
                                         0x174 (size before relaxing)
 
 .debug_loc

@@ -6,7 +6,11 @@ import struct
 from models.track import Track
 from services.device_inventory import device_record_from_info, verify_device_inventory
 from services.device_detector import DeviceInfo, create_mock_device
-from services.rockbox_tagcache import read_rockbox_tagcache_tracks
+from services.rockbox_tagcache import (
+    read_rockbox_tagcache_tracks,
+    write_rockbox_tagcache_from_device_inventory,
+    write_rockbox_tagcache_tracks,
+)
 
 
 TAGCACHE_MAGIC = 0x54434810
@@ -25,6 +29,7 @@ TAG_GROUPING = 8
 TAG_YEAR = 9
 TAG_DISCNUMBER = 10
 TAG_TRACKNUMBER = 11
+TAG_VIRT_CANONICALARTIST = 12
 TAG_BITRATE = 13
 TAG_LENGTH = 14
 
@@ -38,6 +43,7 @@ STRING_TAGS = {
     TAG_COMMENT: "database_6.tcd",
     TAG_ALBUMARTIST: "database_7.tcd",
     TAG_GROUPING: "database_8.tcd",
+    TAG_VIRT_CANONICALARTIST: "database_12.tcd",
 }
 
 
@@ -133,6 +139,106 @@ def test_read_rockbox_tagcache_tracks_parses_audio_rows(tmp_dir):
     assert tracks[0]["codec"] == "MP3"
     assert tracks[1]["device_path"].endswith("Second Song.flac")
     assert tracks[1]["codec"] == "FLAC"
+
+
+def test_write_rockbox_tagcache_tracks_roundtrips_generated_database(tmp_dir):
+    mount_path = os.path.join(tmp_dir, "ipod")
+    audio_dir = os.path.join(mount_path, "Music", "Artist", "Album")
+    os.makedirs(audio_dir, exist_ok=True)
+    track_path = os.path.join(audio_dir, "01 - Song.mp3")
+    with open(track_path, "wb") as handle:
+        handle.write(b"song")
+
+    result = write_rockbox_tagcache_tracks(
+        mount_path,
+        [
+            {
+                "device_path": "Music/Artist/Album/01 - Song.mp3",
+                "title": "Song",
+                "artist": "Artist",
+                "album": "Album",
+                "album_artist": "Artist",
+                "genre": "Rock",
+                "year": 2026,
+                "track_number": 1,
+                "disc_number": 1,
+                "duration": 123.4,
+                "bitrate": 320,
+            }
+        ],
+    )
+    tracks = read_rockbox_tagcache_tracks(mount_path)
+
+    assert result["success"] is True
+    assert result["track_count"] == 1
+    assert os.path.isfile(os.path.join(mount_path, ".rockbox", "database_idx.tcd"))
+    assert os.path.isfile(os.path.join(mount_path, ".rockbox", "database_12.tcd"))
+    assert tracks[0]["device_path"] == "Music/Artist/Album/01 - Song.mp3"
+    assert tracks[0]["title"] == "Song"
+    assert tracks[0]["artist"] == "Artist"
+    assert tracks[0]["album"] == "Album"
+    assert tracks[0]["duration"] == 123.4
+
+
+def test_write_rockbox_tagcache_removes_stale_database_files_without_touching_music(tmp_dir):
+    mount_path = os.path.join(tmp_dir, "ipod")
+    audio_dir = os.path.join(mount_path, "Music", "Artist", "Album")
+    rockbox_dir = os.path.join(mount_path, ".rockbox")
+    os.makedirs(audio_dir, exist_ok=True)
+    os.makedirs(rockbox_dir, exist_ok=True)
+    track_path = os.path.join(audio_dir, "01 - Song.mp3")
+    with open(track_path, "wb") as handle:
+        handle.write(b"song")
+    stale_tmp = os.path.join(rockbox_dir, "database_tmp.tcd")
+    with open(stale_tmp, "wb") as handle:
+        handle.write(b"stale")
+
+    write_rockbox_tagcache_tracks(
+        mount_path,
+        [
+            {
+                "device_path": "Music/Artist/Album/01 - Song.mp3",
+                "title": "Song",
+                "artist": "Artist",
+                "album": "Album",
+                "album_artist": "Artist",
+            }
+        ],
+    )
+
+    assert not os.path.exists(stale_tmp)
+    assert os.path.isfile(track_path)
+
+
+def test_write_rockbox_tagcache_from_device_inventory_uses_cached_rows(config, db):
+    mount_path = config.mock_device_path
+    audio_dir = os.path.join(mount_path, "Music", "Artist", "Album")
+    os.makedirs(audio_dir, exist_ok=True)
+    with open(os.path.join(audio_dir, "01 - Song.mp3"), "wb") as handle:
+        handle.write(b"song")
+    device = _device(mount_path)
+    key = db.upsert_device(device_record_from_info(device))["stable_device_key"]
+    db.upsert_device_track(
+        {
+            "device_id": key,
+            "device_path": "Music/Artist/Album/01 - Song.mp3",
+            "title": "Song",
+            "artist": "Artist",
+            "album": "Album",
+            "album_artist": "Artist",
+            "duration": 45.0,
+            "bitrate": 192,
+        }
+    )
+    db.commit()
+
+    result = write_rockbox_tagcache_from_device_inventory(db, device, key)
+    tracks = read_rockbox_tagcache_tracks(mount_path)
+
+    assert result["success"] is True
+    assert result["track_count"] == 1
+    assert tracks[0]["title"] == "Song"
+    assert tracks[0]["duration"] == 45.0
 
 
 def test_verify_device_inventory_prefers_rockbox_tagcache(config, db, monkeypatch):

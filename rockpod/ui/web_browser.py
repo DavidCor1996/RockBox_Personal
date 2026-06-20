@@ -25,6 +25,8 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from services.music_sharing import share_item_to_store_result
+
 def _load_webengine_view():
     if os.environ.get("QT_QPA_PLATFORM", "").lower() == "offscreen":
         return None
@@ -1201,6 +1203,317 @@ class BrowserPanel(QWidget):
         if "://" not in text:
             return f"https://{text}"
         return text
+
+
+class MusicSharingPanel(QWidget):
+    share_send_requested = Signal(dict)
+    share_refresh_requested = Signal()
+    share_settings_changed = Signal(dict)
+    share_buy_requested = Signal(dict, str)
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setObjectName("browser_panel")
+        self._download_items = {}
+        self._active_store_import_item = None
+        self._inbox = []
+        self._outbox = []
+
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(10, 8, 10, 10)
+        layout.setSpacing(7)
+
+        nav = QFrame()
+        nav.setObjectName("itunes_store_nav")
+        nav_layout = QHBoxLayout(nav)
+        nav_layout.setContentsMargins(9, 5, 9, 5)
+        title = QLabel("Music Sharing")
+        title.setObjectName("itunes_store_title")
+        nav_layout.addWidget(title)
+        nav_layout.addStretch(1)
+        layout.addWidget(nav)
+
+        hero = QFrame()
+        hero.setObjectName("itunes_store_hero")
+        hero_layout = QVBoxLayout(hero)
+        hero_layout.setContentsMargins(14, 12, 14, 12)
+        kicker = QLabel("Shared Music")
+        kicker.setObjectName("itunes_store_kicker")
+        headline = QLabel("Albums, songs, and playlists from your pair")
+        headline.setObjectName("itunes_store_headline")
+        subhead = QLabel("Use a shared relay URL and pair code, then Buy shared links into your library.")
+        subhead.setObjectName("itunes_store_subhead")
+        subhead.setWordWrap(True)
+        hero_layout.addWidget(kicker)
+        hero_layout.addWidget(headline)
+        hero_layout.addWidget(subhead)
+        layout.addWidget(hero)
+
+        connection_bar = QFrame()
+        connection_bar.setObjectName("itunes_store_import_bar")
+        connection_layout = QHBoxLayout(connection_bar)
+        connection_layout.setContentsMargins(9, 6, 9, 6)
+        connection_layout.setSpacing(6)
+        connection_label = QLabel("Connect")
+        connection_label.setObjectName("itunes_store_small_title")
+        self._relay_url_edit = QLineEdit()
+        self._relay_url_edit.setObjectName("itunes_store_import_url")
+        self._relay_url_edit.setPlaceholderText("https://your-rockpod-relay.example.com")
+        self._pair_code_edit = QLineEdit()
+        self._pair_code_edit.setObjectName("itunes_store_import_url")
+        self._pair_code_edit.setPlaceholderText("Pair code")
+        self._display_name_edit = QLineEdit()
+        self._display_name_edit.setObjectName("itunes_store_import_url")
+        self._display_name_edit.setPlaceholderText("Your name")
+        self._save_settings_btn = QPushButton("Save")
+        self._save_settings_btn.setObjectName("store_nav_button")
+        self._save_settings_btn.clicked.connect(self._emit_settings_changed)
+        self._refresh_btn = QPushButton("Refresh")
+        self._refresh_btn.setObjectName("store_buy_button")
+        self._refresh_btn.clicked.connect(self.share_refresh_requested.emit)
+        connection_layout.addWidget(connection_label)
+        connection_layout.addWidget(self._relay_url_edit, 2)
+        connection_layout.addWidget(self._pair_code_edit, 1)
+        connection_layout.addWidget(self._display_name_edit, 1)
+        connection_layout.addWidget(self._save_settings_btn)
+        connection_layout.addWidget(self._refresh_btn)
+        layout.addWidget(connection_bar)
+
+        compose_bar = QFrame()
+        compose_bar.setObjectName("itunes_store_import_bar")
+        compose_layout = QHBoxLayout(compose_bar)
+        compose_layout.setContentsMargins(9, 6, 9, 6)
+        compose_layout.setSpacing(6)
+        compose_label = QLabel("Share")
+        compose_label.setObjectName("itunes_store_small_title")
+        self._kind_combo = QComboBox()
+        self._kind_combo.addItem("Album", "album")
+        self._kind_combo.addItem("Song", "track")
+        self._kind_combo.addItem("Playlist", "playlist")
+        self._share_title_edit = QLineEdit()
+        self._share_title_edit.setObjectName("itunes_store_import_url")
+        self._share_title_edit.setPlaceholderText("Title")
+        self._share_artist_edit = QLineEdit()
+        self._share_artist_edit.setObjectName("itunes_store_import_url")
+        self._share_artist_edit.setPlaceholderText("Artist")
+        self._share_url_edit = QLineEdit()
+        self._share_url_edit.setObjectName("itunes_store_import_url")
+        self._share_url_edit.setPlaceholderText("Tidal, Qobuz, Deezer, SoundCloud, or Spotify playlist URL")
+        self._share_note_edit = QLineEdit()
+        self._share_note_edit.setObjectName("itunes_store_import_url")
+        self._share_note_edit.setPlaceholderText("Note")
+        self._send_btn = QPushButton("Send")
+        self._send_btn.setObjectName("store_buy_button")
+        self._send_btn.clicked.connect(self._emit_share_send)
+        compose_layout.addWidget(compose_label)
+        compose_layout.addWidget(self._kind_combo)
+        compose_layout.addWidget(self._share_title_edit, 1)
+        compose_layout.addWidget(self._share_artist_edit, 1)
+        compose_layout.addWidget(self._share_url_edit, 2)
+        compose_layout.addWidget(self._share_note_edit, 1)
+        compose_layout.addWidget(self._send_btn)
+        layout.addWidget(compose_bar)
+
+        body_scroll = QScrollArea()
+        body_scroll.setObjectName("itunes_store_scroll")
+        body_scroll.setWidgetResizable(True)
+        body_scroll.setFrameShape(QFrame.NoFrame)
+        page = QWidget()
+        page.setObjectName("itunes_store_page")
+        page_layout = QHBoxLayout(page)
+        page_layout.setContentsMargins(0, 0, 0, 0)
+        page_layout.setSpacing(8)
+
+        inbox_panel = QFrame()
+        inbox_panel.setObjectName("itunes_store_panel")
+        inbox_layout = QVBoxLayout(inbox_panel)
+        inbox_layout.setContentsMargins(8, 7, 8, 8)
+        inbox_layout.setSpacing(7)
+        inbox_header = QLabel("Inbox")
+        inbox_header.setObjectName("itunes_store_section_title")
+        inbox_layout.addWidget(inbox_header)
+        self._inbox_tree = self._build_share_tree()
+        inbox_layout.addWidget(self._inbox_tree)
+        page_layout.addWidget(inbox_panel, 3)
+
+        sent_panel = QFrame()
+        sent_panel.setObjectName("itunes_store_sidebar_panel")
+        sent_layout = QVBoxLayout(sent_panel)
+        sent_layout.setContentsMargins(8, 7, 8, 8)
+        sent_layout.setSpacing(7)
+        sent_header = QLabel("Sent")
+        sent_header.setObjectName("itunes_store_section_title")
+        sent_layout.addWidget(sent_header)
+        self._outbox_tree = self._build_share_tree()
+        sent_layout.addWidget(self._outbox_tree)
+        page_layout.addWidget(sent_panel, 2)
+
+        body_scroll.setWidget(page)
+        layout.addWidget(body_scroll, 1)
+
+        self._status = QLabel("")
+        self._status.setObjectName("theme_hub_status")
+        self._status.setWordWrap(True)
+        self._status.setTextInteractionFlags(Qt.TextSelectableByMouse | Qt.LinksAccessibleByMouse)
+        self._status.setVisible(False)
+        layout.addWidget(self._status)
+
+        self._downloads = QTreeWidget()
+        self._downloads.setObjectName("itunes_store_downloads")
+        self._downloads.setHeaderLabels(["Download", "Status", "Progress", "Folder"])
+        self._downloads.setRootIsDecorated(False)
+        self._downloads.setMinimumHeight(96)
+        self._downloads.setMaximumHeight(150)
+        layout.addWidget(self._downloads)
+        self.set_share_items([], [])
+
+    def _build_share_tree(self):
+        tree = QTreeWidget()
+        tree.setObjectName("itunes_store_downloads")
+        tree.setHeaderLabels(["Type", "Title", "Artist", "From", "Note", "Buy"])
+        tree.setRootIsDecorated(False)
+        tree.setAlternatingRowColors(True)
+        return tree
+
+    def set_connection_settings(self, settings):
+        self._relay_url_edit.setText(str(getattr(settings, "relay_url", "") or ""))
+        self._pair_code_edit.setText(str(getattr(settings, "pair_code", "") or ""))
+        self._display_name_edit.setText(str(getattr(settings, "display_name", "") or ""))
+
+    def _emit_settings_changed(self):
+        self.share_settings_changed.emit(
+            {
+                "relay_url": self._relay_url_edit.text().strip(),
+                "pair_code": self._pair_code_edit.text().strip(),
+                "display_name": self._display_name_edit.text().strip(),
+            }
+        )
+
+    def _emit_share_send(self):
+        self.share_send_requested.emit(
+            {
+                "kind": self._kind_combo.currentData() or "album",
+                "title": self._share_title_edit.text().strip(),
+                "artist": self._share_artist_edit.text().strip(),
+                "url": self._share_url_edit.text().strip(),
+                "note": self._share_note_edit.text().strip(),
+            }
+        )
+
+    def clear_share_composer(self):
+        self._share_title_edit.clear()
+        self._share_artist_edit.clear()
+        self._share_url_edit.clear()
+        self._share_note_edit.clear()
+
+    def set_share_status(self, status, running=False):
+        text = str(status or "")
+        self._status.setText(text)
+        self._status.setVisible(bool(text))
+        self._send_btn.setEnabled(not running)
+        self._refresh_btn.setEnabled(not running)
+        self._save_settings_btn.setEnabled(not running)
+
+    def set_store_import_status(self, status, running=False):
+        self.set_share_status(status, running=running)
+
+    def set_share_items(self, inbox, outbox):
+        self._inbox = [dict(item or {}) for item in (inbox or [])]
+        self._outbox = [dict(item or {}) for item in (outbox or [])]
+        self._populate_share_tree(self._inbox_tree, self._inbox, allow_buy=True)
+        self._populate_share_tree(self._outbox_tree, self._outbox, allow_buy=True)
+
+    def _populate_share_tree(self, tree, messages, allow_buy=True):
+        tree.clear()
+        if not messages:
+            item = QTreeWidgetItem(["", "No shared music yet", "", "", "", ""])
+            tree.addTopLevelItem(item)
+            self._resize_share_tree(tree)
+            return
+        for message in messages:
+            share = dict((message or {}).get("item") or {})
+            kind = str(share.get("kind") or share.get("media_type") or "album").capitalize()
+            title = str(share.get("title") or "")
+            artist = str(share.get("artist") or "")
+            sender = str((message or {}).get("sender_name") or "")
+            note = str(share.get("note") or "")
+            row = QTreeWidgetItem([kind, title, artist, sender, note, ""])
+            tree.addTopLevelItem(row)
+            buy_btn = QPushButton("Buy")
+            buy_btn.setObjectName("store_buy_button")
+            buy_btn.setEnabled(bool(share.get("url")) and allow_buy)
+            buy_btn.clicked.connect(
+                lambda _checked=False, item=dict(share): self._emit_share_buy(item)
+            )
+            tree.setItemWidget(row, 5, buy_btn)
+        self._resize_share_tree(tree)
+
+    def _emit_share_buy(self, item):
+        output_format = "flac"
+        self.share_buy_requested.emit(share_item_to_store_result(item), output_format)
+
+    def begin_store_import_download(self, url, output_dir):
+        self._download_items = {}
+        label = str(url or "").strip() or "Shared music import"
+        self._active_store_import_item = QTreeWidgetItem(
+            [
+                label,
+                "Starting",
+                "0 tracks",
+                os.path.abspath(str(output_dir or "")),
+            ]
+        )
+        self._downloads.insertTopLevelItem(0, self._active_store_import_item)
+        self._resize_download_columns()
+
+    def update_store_import_downloads(self, audio_files, running=True):
+        unique_files = sorted(set(str(path) for path in audio_files if path))
+        for path in unique_files:
+            display = os.path.basename(path)
+            folder = os.path.dirname(path)
+            item = self._download_items.get(path)
+            if item is None:
+                item = QTreeWidgetItem([display, "Downloading", "On disk", folder])
+                insert_at = len(self._download_items)
+                if self._active_store_import_item is not None:
+                    insert_at += 1
+                self._downloads.insertTopLevelItem(insert_at, item)
+                self._download_items[path] = item
+            item.setText(0, display)
+            item.setText(1, "Downloading" if running else "Completed")
+            item.setText(2, "On disk" if running else "100%")
+            item.setText(3, folder)
+
+        if self._active_store_import_item is not None:
+            count = len(unique_files)
+            suffix = "track" if count == 1 else "tracks"
+            self._active_store_import_item.setText(1, "Downloading" if running else "Completed")
+            self._active_store_import_item.setText(2, f"{count} {suffix}")
+        self._resize_download_columns()
+
+    def finish_store_import_downloads(self, audio_files, success=True):
+        self.update_store_import_downloads(audio_files, running=False)
+        if self._active_store_import_item is not None:
+            count = len(set(str(path) for path in audio_files if path))
+            if success and count:
+                status = "Completed"
+            elif success:
+                status = "No Files"
+            else:
+                status = "Failed"
+            suffix = "track" if count == 1 else "tracks"
+            self._active_store_import_item.setText(1, status)
+            self._active_store_import_item.setText(2, f"{count} {suffix}")
+        self._resize_download_columns()
+
+    def _resize_download_columns(self):
+        for column in range(4):
+            self._downloads.resizeColumnToContents(column)
+
+    @staticmethod
+    def _resize_share_tree(tree):
+        for column in range(6):
+            tree.resizeColumnToContents(column)
 
 
 class MovieStorePanel(QWidget):

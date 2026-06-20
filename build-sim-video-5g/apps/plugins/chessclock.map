@@ -507,11 +507,11 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000    0x198e8
+.debug_info     0x0000000000000000    0x19936
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0x834d /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessclock.o
- .debug_info    0x000000000000834d     0x7c93 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
- .debug_info    0x000000000000ffe0     0x9908 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(playback_control.o)
+ .debug_info    0x0000000000000000     0x8367 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessclock.o
+ .debug_info    0x0000000000008367     0x7cad /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+ .debug_info    0x0000000000010014     0x9922 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(playback_control.o)
 
 .debug_abbrev   0x0000000000000000      0xd13
  *(.debug_abbrev)
@@ -528,14 +528,14 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0x9f54
+.debug_str      0x0000000000000000     0x9f6b
  *(.debug_str)
- .debug_str     0x0000000000000000     0x9f54 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessclock.o
-                                       0x5345 (size before relaxing)
- .debug_str     0x0000000000009f54        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
-                                       0x5134 (size before relaxing)
- .debug_str     0x0000000000009f54        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(playback_control.o)
-                                       0xa3a4 (size before relaxing)
+ .debug_str     0x0000000000000000     0x9f6b /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/chessclock.o
+                                       0x535c (size before relaxing)
+ .debug_str     0x0000000000009f6b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+                                       0x514b (size before relaxing)
+ .debug_str     0x0000000000009f6b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(playback_control.o)
+                                       0xa3bb (size before relaxing)
 
 .debug_loc
  *(.debug_loc)

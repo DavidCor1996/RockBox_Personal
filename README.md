@@ -136,6 +136,8 @@ Cross-compiler setup remains the standard Rockbox toolchain flow via `tools/rock
 ## Install
 
 > Your iPod must already have a Rockbox bootloader installed.
+> Before copying anything to a real iPod, run the simulator-first gate in
+> [docs/simulator-first-ipod-deploy-spec.md](docs/simulator-first-ipod-deploy-spec.md).
 
 1. Build or download the correct package for your target.
 2. Connect the iPod in disk mode.

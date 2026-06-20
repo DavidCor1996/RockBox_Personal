@@ -15,7 +15,7 @@ from PySide6.QtWidgets import (
     QApplication, QMessageBox, QInputDialog, QLineEdit, QMenu, QStackedWidget, QFileDialog,
     QProgressDialog, QTabWidget,
 )
-from PySide6.QtCore import QEventLoop, QProcess, QProcessEnvironment, Qt, QTimer, Slot
+from PySide6.QtCore import QEventLoop, QItemSelectionModel, QProcess, QProcessEnvironment, Qt, QTimer, Slot
 from PySide6.QtGui import QAction, QIcon
 
 from app.config import Config
@@ -46,6 +46,7 @@ from services.streamrip_import import (
     find_existing_streamrip_source_file,
     streamrip_url_info,
 )
+from services.music_sharing import MusicSharingService, MusicSharingError
 from services.youtube_movies import (
     YoutubeMovieImporter,
     YoutubeMovieImportError,
@@ -72,7 +73,8 @@ from services.ipone_wallpapers import IPoneWallpaperService
 from services.rockbox_profiles import RockboxProfileStore
 from services.rockbox_plugins import RockboxPluginService
 from services.rockbox_runtime import import_runtime_data_for_device
-from services.rockbox_playlists import export_device_playlists
+from services.rockbox_playlists import export_device_playlists, export_local_music_playlists
+from services.rockbox_tagcache import TagcacheError, write_rockbox_tagcache_from_device_inventory
 from services.rockbox_simulator import RockboxSimulatorService
 from services.rockbox_themes import RockboxThemeService
 from services.theme_designer import ThemeDesignerService
@@ -94,7 +96,7 @@ from ui.plugin_manager import PluginManagerWidget
 from ui.game_manager import GameManagerWidget
 from ui.photo_manager import PhotoManagerWidget
 from ui.ipone_wallpaper_manager import IPoneWallpaperManagerWidget
-from ui.web_browser import BrowserPanel, MovieStorePanel
+from ui.web_browser import BrowserPanel, MovieStorePanel, MusicSharingPanel
 from ui.boot_manager import BootManagerWidget
 from ui.theme_hub import ThemeHubWidget
 from ui.theme_designer import ThemeDesignerWidget
@@ -131,6 +133,7 @@ class MainWindow(QMainWindow):
         )
         self._android_importer = AndroidMediaImporter(self)
         self._streamrip_importer = StreamripImporter(self._config)
+        self._music_sharing = MusicSharingService(self._config)
         self._youtube_movie_importer = YoutubeMovieImporter(self._config)
         self._scanner = LibraryScanner(self._db, self._config)
         self._device_detector = DeviceDetector(self._config)
@@ -206,6 +209,7 @@ class MainWindow(QMainWindow):
         self._store_import_output = []
         self._store_import_log_path = ""
         self._store_import_context = None
+        self._store_import_panel = None
         self._pending_store_playlist_import = None
         self._store_import_poll_timer = QTimer(self)
         self._store_import_poll_timer.setInterval(750)
@@ -239,7 +243,9 @@ class MainWindow(QMainWindow):
         self._connect_signals()
         self._load_cached_library()
         self._refresh_playlists()
+        self._export_shared_music_playlists(silent=True)
         self._refresh_browser_panel()
+        self._refresh_music_sharing_panel()
         self._refresh_current_rockbox_panel()
 
         # Let the window paint before probing the device or refreshing
@@ -328,6 +334,7 @@ class MainWindow(QMainWindow):
         self._game_manager = GameManagerWidget()
         self._photo_manager = PhotoManagerWidget()
         self._browser_panel = BrowserPanel()
+        self._music_sharing_panel = MusicSharingPanel()
         self._movie_store_panel = MovieStorePanel()
         self._game_browser_panel = BrowserPanel(
             music_store=False,
@@ -338,6 +345,7 @@ class MainWindow(QMainWindow):
         self._store_page = QTabWidget()
         self._store_page.setObjectName("store_tabs")
         self._store_page.addTab(self._browser_panel, "Music")
+        self._store_page.addTab(self._music_sharing_panel, "Sharing")
         self._store_page.addTab(self._movie_store_panel, "Movies")
         self._store_page.addTab(self._game_browser_panel, "iPod Games")
         self._store_page.currentChanged.connect(self._on_store_tab_changed)
@@ -464,6 +472,7 @@ class MainWindow(QMainWindow):
         self._track_table.track_double_clicked.connect(self._on_track_double_click)
         self._track_table.track_activated.connect(self._on_track_double_click)
         self._track_table.selection_changed.connect(self._on_track_selection_changed)
+        self._track_table.playlist_reorder_requested.connect(self._reorder_current_playlist)
         self._video_view.track_double_clicked.connect(self._on_track_double_click)
         self._video_view.selection_changed.connect(self._on_track_selection_changed)
         self._video_view.context_requested.connect(self._on_video_context_menu)
@@ -549,6 +558,10 @@ class MainWindow(QMainWindow):
         self._browser_panel.store_album_details_requested.connect(self._start_store_album_detail)
         self._browser_panel.store_home_tab_requested.connect(self._on_store_home_tab_requested)
         self._browser_panel.store_preview_requested.connect(self._preview_store_track)
+        self._music_sharing_panel.share_settings_changed.connect(self._save_music_sharing_settings)
+        self._music_sharing_panel.share_refresh_requested.connect(self._refresh_music_shares_from_relay)
+        self._music_sharing_panel.share_send_requested.connect(self._send_music_share)
+        self._music_sharing_panel.share_buy_requested.connect(self._start_music_share_import)
         self._movie_store_panel.movie_import_requested.connect(self._start_movie_import)
         self._movie_store_panel.movie_browse_requested.connect(self._start_movie_browse)
         self._game_browser_panel.open_external_requested.connect(self._open_browser_external)
@@ -705,6 +718,7 @@ class MainWindow(QMainWindow):
                 parts.append(f"Ignored {ignored} unsupported files")
             self._status_bar.set_left_text(" · ".join(parts))
         self._finalize_pending_store_playlist_import()
+        self._export_shared_music_playlists(silent=True)
 
     def _on_scan_error(self, msg):
         self._toolbar.set_scanning(False)
@@ -805,6 +819,7 @@ class MainWindow(QMainWindow):
     def _refresh_view(self):
         """Reload the track table based on current sidebar selection and filters."""
         selected_ids = self._active_track_selection_ids()
+        self._update_playlist_reorder_mode()
         tracks = self._tracks_for_current_view(include_search=True)
         if self._current_view == "library_videos":
             self._video_view.set_tracks(tracks)
@@ -866,6 +881,8 @@ class MainWindow(QMainWindow):
             tracks = []
         elif self._current_view == "rockbox_browser":
             tracks = []
+        elif self._current_view == "rockbox_sharing":
+            tracks = []
         elif self._current_view == "rockbox_simulator":
             tracks = []
         elif self._current_view.startswith("device_playlist_"):
@@ -895,6 +912,41 @@ class MainWindow(QMainWindow):
         if include_search:
             tracks = filter_tracks_for_search(tracks, self._toolbar.search_text.strip())
         return tracks
+
+    def _current_manual_playlist_id(self):
+        if not self._current_view.startswith("playlist_"):
+            return None
+        try:
+            playlist_id = int(self._current_view.replace("playlist_", ""))
+        except ValueError:
+            return None
+        playlist = self._db.get_playlist(playlist_id)
+        if not playlist or playlist["is_smart"]:
+            return None
+        return playlist_id
+
+    def _update_playlist_reorder_mode(self):
+        enabled = bool(self._current_manual_playlist_id() and not self._toolbar.search_text.strip())
+        self._track_table.set_playlist_reorder_enabled(enabled)
+
+    def _reorder_current_playlist(self, track_ids, moved_track_ids=None):
+        playlist_id = self._current_manual_playlist_id()
+        if not playlist_id:
+            self._status_bar.set_left_text("Only regular playlists can be reordered")
+            return
+        if self._toolbar.search_text.strip():
+            self._status_bar.set_left_text("Clear search before reordering a playlist")
+            return
+        selected_ids = set(moved_track_ids or [])
+        updated = self._db.set_playlist_track_order(playlist_id, track_ids)
+        if not updated:
+            return
+        self._db.commit()
+        self._refresh_playlists()
+        self._export_shared_music_playlists(silent=True)
+        self._refresh_view()
+        self._track_table.select_track_ids(selected_ids)
+        self._status_bar.set_left_text("Playlist order updated")
 
     def _get_filtered_tracks(self, media_type="audio"):
         """Get tracks filtered by column browser selections."""
@@ -1016,6 +1068,7 @@ class MainWindow(QMainWindow):
             "rockbox_plugins": "Plugins",
             "rockbox_games": "Store",
             "rockbox_movies": "Store",
+            "rockbox_sharing": "Store",
             "rockbox_photos": "Photos",
             "rockbox_browser": "Store",
             "rockbox_simulator": "Simulator",
@@ -1224,6 +1277,10 @@ class MainWindow(QMainWindow):
             self._current_view = "rockbox_games"
             self._refresh_game_browser_panel()
             self._status_bar.set_left_text("Store: iPod Games")
+        elif current is self._music_sharing_panel:
+            self._current_view = "rockbox_sharing"
+            self._refresh_music_sharing_panel()
+            self._status_bar.set_left_text("Store: Sharing")
         elif current is self._browser_panel:
             self._current_view = "rockbox_browser"
             self._refresh_browser_panel()
@@ -1739,6 +1796,15 @@ class MainWindow(QMainWindow):
 
     def _on_table_context_menu(self, pos):
         table = self.sender() if isinstance(self.sender(), TrackTable) else self._track_table
+        index = table.indexAt(pos)
+        if index.isValid() and table.selectionModel():
+            selected_rows = {item.row() for item in table.selectionModel().selectedRows()}
+            if index.row() not in selected_rows:
+                table.selectionModel().select(
+                    index,
+                    QItemSelectionModel.ClearAndSelect | QItemSelectionModel.Rows,
+                )
+                table.setCurrentIndex(index)
         self._show_track_context_menu(table.viewport().mapToGlobal(pos))
 
     def _on_video_context_menu(self, target, global_pos):
@@ -1778,6 +1844,15 @@ class MainWindow(QMainWindow):
 
         if self._current_view.startswith("playlist_"):
             menu.addSeparator()
+            move_up = menu.addAction("Move Up", lambda: self._move_selection_in_playlist(-1))
+            move_down = menu.addAction("Move Down", lambda: self._move_selection_in_playlist(1))
+            can_reorder = bool(
+                self._current_manual_playlist_id()
+                and not self._toolbar.search_text.strip()
+                and self._active_track_table().get_selected_track_ids()
+            )
+            move_up.setEnabled(can_reorder)
+            move_down.setEnabled(can_reorder)
             menu.addAction("Remove from Playlist", self._remove_selection_from_playlist)
 
         if self._current_view == "device_music":
@@ -2194,6 +2269,7 @@ class MainWindow(QMainWindow):
             pid = self._db.create_playlist(name.strip())
             self._db.commit()
             self._refresh_playlists()
+            self._export_shared_music_playlists(silent=True)
             self._sidebar.select_item(f"playlist_{pid}")
             self._on_sidebar_selection("playlist", f"playlist_{pid}")
             logger.info("Created playlist: %s (id=%d)", name.strip(), pid)
@@ -2208,6 +2284,8 @@ class MainWindow(QMainWindow):
         added = self._db.add_tracks_to_playlist(playlist_id, track_ids)
         self._db.commit()
         self._refresh_playlists()
+        if added:
+            self._export_shared_music_playlists(silent=True)
 
     def _refresh_missing_artwork(self):
         albums = group_tracks_by_album(self._db.get_all_tracks())
@@ -2363,6 +2441,7 @@ class MainWindow(QMainWindow):
         self._db.add_tracks_to_playlist(pid, track_ids)
         self._db.commit()
         self._refresh_playlists()
+        self._export_shared_music_playlists(silent=True)
         self._sidebar.select_item(f"playlist_{pid}")
         self._on_sidebar_selection("playlist", f"playlist_{pid}")
 
@@ -2379,8 +2458,58 @@ class MainWindow(QMainWindow):
         self._playback.remove_tracks_from_queue(track_ids)
         self._db.commit()
         self._refresh_playlists()
+        self._export_shared_music_playlists(silent=True)
         self._refresh_view()
         self._status_bar.set_left_text(f"Removed {len(track_ids)} track(s) from playlist")
+
+    @staticmethod
+    def _playlist_order_after_selection_move(current_ids, selected_ids, direction):
+        ordered = list(current_ids or [])
+        selected = set(selected_ids or [])
+        if not ordered or not selected:
+            return ordered
+        if direction < 0:
+            for index in range(1, len(ordered)):
+                if ordered[index] in selected and ordered[index - 1] not in selected:
+                    ordered[index - 1], ordered[index] = ordered[index], ordered[index - 1]
+        elif direction > 0:
+            for index in range(len(ordered) - 2, -1, -1):
+                if ordered[index] in selected and ordered[index + 1] not in selected:
+                    ordered[index + 1], ordered[index] = ordered[index], ordered[index + 1]
+        return ordered
+
+    def _move_selection_in_playlist(self, direction):
+        playlist_id = self._current_manual_playlist_id()
+        if not playlist_id:
+            self._status_bar.set_left_text("Only regular playlists can be reordered")
+            return
+        if self._toolbar.search_text.strip():
+            self._status_bar.set_left_text("Clear search before reordering a playlist")
+            return
+
+        selected_ids = self._active_track_table().get_selected_track_ids()
+        if not selected_ids:
+            return
+
+        current_ids = [
+            normalize_track_for_ui(track).get("id")
+            for track in self._db.get_playlist_tracks(playlist_id)
+        ]
+        current_ids = [track_id for track_id in current_ids if track_id]
+        new_order = self._playlist_order_after_selection_move(current_ids, selected_ids, direction)
+        if new_order == current_ids:
+            return
+
+        updated = self._db.set_playlist_track_order(playlist_id, new_order)
+        if not updated:
+            return
+        self._db.commit()
+        self._refresh_playlists()
+        self._export_shared_music_playlists(silent=True)
+        self._refresh_view()
+        self._track_table.select_track_ids(selected_ids)
+        label = "Moved up" if direction < 0 else "Moved down"
+        self._status_bar.set_left_text(f"{label} {len(selected_ids)} playlist track(s)")
 
     def _rename_playlist(self, playlist_id):
         playlist = self._db.get_playlist(playlist_id)
@@ -2393,6 +2522,7 @@ class MainWindow(QMainWindow):
             self._db.rename_playlist(playlist_id, name.strip())
             self._db.commit()
             self._refresh_playlists()
+            self._export_shared_music_playlists(silent=True)
             self._toolbar.set_title(name.strip())
 
     def _delete_playlist(self, playlist_id):
@@ -2411,6 +2541,7 @@ class MainWindow(QMainWindow):
         self._db.delete_playlist(playlist_id)
         self._db.commit()
         self._refresh_playlists()
+        self._export_shared_music_playlists(silent=True)
         self._current_view = "library_music"
         self._sidebar.select_item("library_music")
         self._toolbar.set_title("Music")
@@ -2445,6 +2576,31 @@ class MainWindow(QMainWindow):
             )
         self._refresh_device_playlists()
 
+    def _export_shared_music_playlists(self, silent=False):
+        try:
+            result = export_local_music_playlists(
+                self._db,
+                self._config.music_dir,
+                include_smart=False,
+                device_id=self._sync_engine.current_device_key,
+                convert_for_apple_music=True,
+                ffmpeg_path=self._config.get("ffmpeg_binary", ""),
+            )
+        except Exception as exc:
+            logger.warning("Shared music playlist export failed: %s", exc)
+            if not silent:
+                self._status_bar.set_left_text("Shared music playlist export failed")
+            return {"success": False, "exported": [], "removed": [], "failures": [str(exc)]}
+
+        if not result.get("success"):
+            logger.warning("Shared music playlist export failed: %s", result.get("failures", []))
+            if not silent:
+                self._status_bar.set_left_text("Shared music playlist export failed")
+        elif not silent:
+            count = len(result.get("exported") or [])
+            self._status_bar.set_left_text(f"Exported {count} shared music playlist(s)")
+        return result
+
     def _refresh_device_playlists(self):
         self._sidebar.clear_device_playlists()
         device_key = self._sync_engine.current_device_key
@@ -2463,6 +2619,23 @@ class MainWindow(QMainWindow):
             menu.addAction("New Playlist", self._new_playlist)
         elif item_id.startswith("playlist_"):
             playlist_id = int(item_id.replace("playlist_", ""))
+            playlist = self._db.get_playlist(playlist_id)
+            playlist_data = dict(playlist) if playlist is not None else {}
+            show_action = menu.addAction(
+                "Show in Rockbox Playlists",
+                lambda checked=False, pid=playlist_id: self._set_playlist_rockbox_sync(pid, checked),
+            )
+            show_action.setCheckable(True)
+            show_action.setChecked(bool(playlist_data.get("sync_to_rockbox", 1)))
+            sync_playlists_action = menu.addAction("Sync Rockbox Playlists Now", self._sync_rockbox_playlists_now)
+            sync_playlists_action.setEnabled(
+                bool(
+                    self._device_detector.current_device
+                    and getattr(self._device_detector.current_device, "is_rockbox", False)
+                    and self._device_config_value("sync_playlists_to_device", True)
+                )
+            )
+            menu.addSeparator()
             menu.addAction("Rename Playlist", lambda: self._rename_playlist(playlist_id))
             menu.addAction("Delete Playlist", lambda: self._delete_playlist(playlist_id))
             menu.addSeparator()
@@ -2478,6 +2651,39 @@ class MainWindow(QMainWindow):
         else:
             menu.addAction("New Playlist", self._new_playlist)
         menu.exec(global_pos)
+
+    def _set_playlist_rockbox_sync(self, playlist_id, enabled):
+        playlist = self._db.get_playlist(playlist_id)
+        if not playlist:
+            return
+        self._db.set_playlist_sync_to_rockbox(playlist_id, enabled)
+        self._db.commit()
+        self._refresh_playlists()
+        if (
+            self._device_detector.current_device
+            and getattr(self._device_detector.current_device, "is_rockbox", False)
+            and self._device_config_value("sync_playlists_to_device", True)
+        ):
+            result = self._sync_rockbox_playlists(self._device_detector.current_device)
+            if result.get("success"):
+                self._status_bar.set_left_text("Rockbox playlists updated")
+            else:
+                self._status_bar.set_left_text("Rockbox playlist update failed")
+            return
+        state = "shown" if enabled else "hidden"
+        self._status_bar.set_left_text(f"{playlist['name']} will be {state} in Rockbox Playlists")
+
+    def _sync_rockbox_playlists_now(self):
+        device = self._device_detector.current_device
+        if not device or not getattr(device, "is_rockbox", False):
+            self._status_bar.set_left_text("No Rockbox device is connected")
+            return
+        result = self._sync_rockbox_playlists(device)
+        if result.get("success"):
+            count = len(result.get("exported") or [])
+            self._status_bar.set_left_text(f"Rockbox playlists updated: {count} playlist(s)")
+        else:
+            self._status_bar.set_left_text("Rockbox playlist update failed")
 
     # ═══════════════════════════════════════════════════════════════
     # Device operations
@@ -3203,6 +3409,28 @@ class MainWindow(QMainWindow):
                 self._status_bar.set_left_text("Sync complete")
             return
 
+        host_result = self._generate_rockbox_database_host_side(device)
+        if host_result.get("success"):
+            self._rockbox_db_stale = False
+            self._runtime_refresh_pending = False
+            self._device_state = "Ready"
+            self._rockbox_db_update_started_at = None
+            self._rockbox_db_feedback_tick = 0
+            track_count = host_result.get("track_count", 0)
+            if playlist_result and playlist_result["success"] and playlist_result["exported"]:
+                self._status_bar.set_left_text(
+                    f"Sync complete; database ready with {track_count} tracks; "
+                    f"{len(playlist_result['exported'])} playlist(s) updated"
+                )
+            else:
+                self._status_bar.set_left_text(
+                    f"Sync complete; Rockbox database ready with {track_count} tracks"
+                )
+            self._update_sync_status()
+            self._refresh_device_storage_breakdown(device)
+            self._update_device_summary()
+            return
+
         self._rockbox_db_stale = True
         self._runtime_refresh_pending = True
         self._device_state = "Sync Complete (DB stale)"
@@ -3232,9 +3460,32 @@ class MainWindow(QMainWindow):
         self._refresh_device_storage_breakdown(device)
         self._update_device_summary()
 
+    def _generate_rockbox_database_host_side(self, device):
+        try:
+            result = write_rockbox_tagcache_from_device_inventory(
+                self._db,
+                device,
+                self._sync_engine.current_device_key,
+            )
+            logger.info(
+                "Generated Rockbox database on host: %d tracks",
+                result.get("track_count", 0),
+            )
+            return result
+        except (OSError, TagcacheError) as exc:
+            logger.warning("Host Rockbox database generation failed: %s", exc)
+        except Exception:
+            logger.exception("Host Rockbox database generation failed")
+        return {"success": False, "track_count": 0, "files": []}
+
     def _sync_rockbox_playlists(self, device):
         try:
-            result = export_device_playlists(self._db, device)
+            result = export_device_playlists(
+                self._db,
+                device,
+                duplicate_strictness=self._device_config_value("duplicate_strictness", "metadata_and_hash"),
+                duration_tolerance=self._device_config_value("duration_match_tolerance_seconds", 2.0),
+            )
             self._db.commit()
             self._refresh_playlists()
             if result["failures"]:
@@ -3404,6 +3655,60 @@ class MainWindow(QMainWindow):
             download_dir,
         )
         self._start_store_homepage()
+
+    def _refresh_music_sharing_panel(self):
+        self._music_sharing_panel.set_connection_settings(self._music_sharing.settings())
+        inbox, outbox = self._music_sharing.history()
+        self._music_sharing_panel.set_share_items(inbox, outbox)
+
+    def _save_music_sharing_settings(self, settings):
+        try:
+            self._music_sharing.set_settings(
+                relay_url=(settings or {}).get("relay_url"),
+                pair_code=(settings or {}).get("pair_code"),
+                display_name=(settings or {}).get("display_name"),
+            )
+        except MusicSharingError as exc:
+            self._music_sharing_panel.set_share_status(str(exc), running=False)
+            self._status_bar.set_left_text("Music sharing settings not saved")
+            return
+        self._refresh_music_sharing_panel()
+        self._music_sharing_panel.set_share_status("Music sharing settings saved.", running=False)
+        self._status_bar.set_left_text("Music sharing settings saved")
+
+    def _refresh_music_shares_from_relay(self):
+        self._music_sharing_panel.set_share_status("Refreshing shared music...", running=True)
+        try:
+            added = self._music_sharing.fetch()
+        except MusicSharingError as exc:
+            self._music_sharing_panel.set_share_status(str(exc), running=False)
+            self._status_bar.set_left_text("Music sharing refresh failed")
+            return
+        self._refresh_music_sharing_panel()
+        if added:
+            label = f"Received {added} shared music item{'s' if added != 1 else ''}."
+        else:
+            label = "No new shared music."
+        self._music_sharing_panel.set_share_status(label, running=False)
+        self._status_bar.set_left_text(label)
+
+    def _send_music_share(self, item):
+        self._music_sharing_panel.set_share_status("Sending shared music...", running=True)
+        try:
+            self._music_sharing.send(item)
+        except MusicSharingError as exc:
+            self._music_sharing_panel.set_share_status(str(exc), running=False)
+            self._status_bar.set_left_text("Music sharing send failed")
+            return
+        self._refresh_music_sharing_panel()
+        self._music_sharing_panel.clear_share_composer()
+        title = str((item or {}).get("title") or "shared item")
+        label = f"Shared {title}."
+        self._music_sharing_panel.set_share_status(label, running=False)
+        self._status_bar.set_left_text(label)
+
+    def _start_music_share_import(self, result, output_format):
+        self._start_store_result_import(result, output_format, status_panel=self._music_sharing_panel)
 
     def _refresh_game_browser_panel(self):
         profile = self._rockbox_profiles.current_profile()
@@ -3935,29 +4240,44 @@ class MainWindow(QMainWindow):
             marked.append(item)
         return marked
 
-    def _start_store_result_import(self, result, output_format):
+    def _active_store_import_panel(self):
+        return self._store_import_panel or self._browser_panel
+
+    def _start_store_result_import(self, result, output_format, status_panel=None):
         result = dict(result or {})
         url = str(result.get("url") or "").strip()
+        if self._store_import_process is not None:
+            panel = status_panel or self._active_store_import_panel()
+            panel.set_store_import_status("Another music import is already running.", running=True)
+            return
+        self._store_import_panel = status_panel or self._browser_panel
         if not url:
-            self._browser_panel.set_store_import_status("This store item does not have an import URL.", running=False)
+            self._active_store_import_panel().set_store_import_status("This store item does not have an import URL.", running=False)
             self._status_bar.set_left_text("Store item cannot be imported")
+            self._store_import_panel = None
             return
         self._start_store_import(url, output_format, result)
 
     def _start_store_import(self, url, output_format, store_result=None):
         if self._store_import_process is not None:
+            self._active_store_import_panel().set_store_import_status("Another music import is already running.", running=True)
             return
+        if self._store_import_panel is None:
+            self._store_import_panel = self._browser_panel
+        panel = self._active_store_import_panel()
         self._store_import_context = None
         duplicate_message = self._store_import_duplicate_message(url, store_result)
         if duplicate_message:
-            self._browser_panel.set_store_import_status(duplicate_message, running=False)
+            panel.set_store_import_status(duplicate_message, running=False)
             self._status_bar.set_left_text(duplicate_message)
+            self._store_import_panel = None
             return
         try:
             request = self._streamrip_importer.prepare_import(url, output_format)
         except StreamripImportError as exc:
-            self._browser_panel.set_store_import_status(str(exc), running=False)
+            panel.set_store_import_status(str(exc), running=False)
             QMessageBox.warning(self, "Store Import", str(exc))
+            self._store_import_panel = None
             return
 
         process = QProcess(self)
@@ -3982,8 +4302,8 @@ class MainWindow(QMainWindow):
             "store_result": dict(store_result or {}),
         }
         self._append_store_import_log("Process started.\n")
-        self._browser_panel.begin_store_import_download(url, request.output_dir)
-        self._browser_panel.set_store_import_status(
+        panel.begin_store_import_download(url, request.output_dir)
+        panel.set_store_import_status(
             f"Importing with streamrip... Log: {request.log_path}",
             running=True,
         )
@@ -4090,7 +4410,7 @@ class MainWindow(QMainWindow):
         if text:
             self._store_import_output.append(text)
             suffix = f"\nLog: {self._store_import_log_path}" if self._store_import_log_path else ""
-            self._browser_panel.set_store_import_status(f"{text[-500:]}{suffix}", running=True)
+            self._active_store_import_panel().set_store_import_status(f"{text[-500:]}{suffix}", running=True)
         self._poll_store_import_downloads()
 
     def _poll_store_import_downloads(self):
@@ -4098,7 +4418,7 @@ class MainWindow(QMainWindow):
             return
         imported = discover_imported_audio_files(self._store_import_output_dir, self._store_import_started_at)
         if imported:
-            self._browser_panel.update_store_import_downloads(
+            self._active_store_import_panel().update_store_import_downloads(
                 imported,
                 running=self._store_import_process is not None,
             )
@@ -4126,7 +4446,8 @@ class MainWindow(QMainWindow):
             f"Rockbox cover files added: {len(cover_updates)}\n"
         )
         log_path = self._store_import_log_path
-        self._browser_panel.finish_store_import_downloads(imported, success=(exit_code == 0))
+        panel = self._active_store_import_panel()
+        panel.finish_store_import_downloads(imported, success=(exit_code == 0))
         self._store_import_started_at = 0.0
         self._store_import_output_dir = ""
         self._store_import_log_path = ""
@@ -4137,7 +4458,8 @@ class MainWindow(QMainWindow):
                 message = f"streamrip failed with exit code {exit_code}: {detail[-600:]}\nLog: {log_path}"
             else:
                 message = f"streamrip failed with exit code {exit_code}\nLog: {log_path}"
-            self._browser_panel.set_store_import_status(message, running=False)
+            panel.set_store_import_status(message, running=False)
+            self._store_import_panel = None
             return
         count = len(imported)
         if count == 0:
@@ -4150,8 +4472,9 @@ class MainWindow(QMainWindow):
                     "No new audio files detected. Check Tidal/Qobuz auth and whether the album is "
                     f"available in your region.\nLog: {log_path}"
                 )
-            self._browser_panel.set_store_import_status(label, running=False)
+            panel.set_store_import_status(label, running=False)
             self._status_bar.set_left_text("No new store imports detected")
+            self._store_import_panel = None
             return
         if self._is_spotify_playlist_import(import_context):
             self._pending_store_playlist_import = {
@@ -4164,8 +4487,9 @@ class MainWindow(QMainWindow):
             f"added {len(cover_updates)} Rockbox cover file{'s' if len(cover_updates) != 1 else ''}. "
             f"Refreshing library.\nLog: {log_path}"
         )
-        self._browser_panel.set_store_import_status(label, running=False)
+        panel.set_store_import_status(label, running=False)
         self._status_bar.set_left_text(label)
+        self._store_import_panel = None
         self._start_scan(force_full=False)
 
     def _on_store_import_error(self, error):
@@ -4176,14 +4500,16 @@ class MainWindow(QMainWindow):
         self._store_import_context = None
         log_path = self._store_import_log_path
         self._append_store_import_log(f"Process error: {error}\n")
-        self._browser_panel.finish_store_import_downloads(imported, success=False)
+        panel = self._active_store_import_panel()
+        panel.finish_store_import_downloads(imported, success=False)
         self._store_import_started_at = 0.0
         self._store_import_output_dir = ""
         self._store_import_log_path = ""
-        self._browser_panel.set_store_import_status(
+        panel.set_store_import_status(
             f"streamrip could not start: {error}\nLog: {log_path}",
             running=False,
         )
+        self._store_import_panel = None
 
     @staticmethod
     def _is_spotify_playlist_import(context):
@@ -4221,6 +4547,7 @@ class MainWindow(QMainWindow):
         added = self._db.add_tracks_to_playlist(playlist_id, track_ids)
         self._db.commit()
         self._refresh_playlists()
+        self._export_shared_music_playlists(silent=True)
         self._status_bar.set_left_text(
             f"Created playlist {name} with {added} track{'s' if added != 1 else ''}; it will sync as a playlist"
         )

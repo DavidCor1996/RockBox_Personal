@@ -13,6 +13,7 @@ class Playlist:
     name: str = ""
     is_smart: bool = False
     rules_json: Optional[str] = None
+    sync_to_rockbox: bool = True
     date_created: Optional[str] = None
     date_modified: Optional[str] = None
 
@@ -32,6 +33,7 @@ class Playlist:
     def to_dict(self):
         d = asdict(self)
         d["is_smart"] = int(d["is_smart"])
+        d["sync_to_rockbox"] = int(d["sync_to_rockbox"])
         if d.get("id") is None:
             del d["id"]
         return d
@@ -42,6 +44,7 @@ class Playlist:
             return None
         data = dict(row)
         data["is_smart"] = bool(data.get("is_smart", 0))
+        data["sync_to_rockbox"] = bool(data.get("sync_to_rockbox", 1))
         return cls(**{k: v for k, v in data.items() if k in cls.__dataclass_fields__})
 
 

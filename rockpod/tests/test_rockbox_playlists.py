@@ -4,7 +4,14 @@ import json
 import os
 
 from services.device_detector import DeviceInfo
-from services.rockbox_playlists import MANAGED_PLAYLIST_DIR, export_device_playlists
+from services.rockbox_playlists import (
+    LEGACY_MANAGED_PLAYLIST_DIR,
+    LOCAL_MANAGED_PLAYLIST_DIR,
+    MANAGED_PLAYLIST_DIR,
+    MANAGED_PLAYLIST_MANIFEST,
+    export_device_playlists,
+    export_local_music_playlists,
+)
 
 
 def _device(mount_path):
@@ -114,7 +121,7 @@ def test_export_device_playlists_exports_smart_playlists_and_removes_stale_manag
         "Smart Album",
     )
 
-    stale_path = os.path.join(mock_device, MANAGED_PLAYLIST_DIR, "Old Playlist.m3u8")
+    stale_path = os.path.join(mock_device, LEGACY_MANAGED_PLAYLIST_DIR, "Old Playlist.m3u8")
     os.makedirs(os.path.dirname(stale_path), exist_ok=True)
     with open(stale_path, "w", encoding="utf-8") as handle:
         handle.write("#EXTM3U\n")
@@ -123,7 +130,7 @@ def test_export_device_playlists_exports_smart_playlists_and_removes_stale_manag
     db.commit()
 
     assert result["success"] is True
-    assert result["removed"] == [f"{MANAGED_PLAYLIST_DIR}/Old Playlist.m3u8"]
+    assert result["removed"] == [f"{LEGACY_MANAGED_PLAYLIST_DIR}/Old Playlist.m3u8"]
     exported_paths = {item["source_path"] for item in result["exported"]}
     assert f"{MANAGED_PLAYLIST_DIR}/Smart_ Favorites.m3u8" in exported_paths
     assert not os.path.exists(stale_path)
@@ -137,3 +144,190 @@ def test_export_device_playlists_exports_smart_playlists_and_removes_stale_manag
     assert len(imported) == 1
     assert imported[0]["name"] == "Smart_ Favorites"
     assert imported[0]["track_count"] == 1
+
+
+def test_export_device_playlists_only_writes_playlists_selected_for_rockbox(db, mock_device):
+    device = _device(mock_device)
+    synced = _insert_track(db, "/music/synced.mp3", "Synced", "Art", "Alb")
+    hidden = _insert_track(db, "/music/hidden.mp3", "Hidden", "Art", "Alb")
+    shown_id = db.create_playlist("Shown")
+    hidden_id = db.create_playlist("Hidden")
+    db.add_track_to_playlist(shown_id, synced["id"])
+    db.add_track_to_playlist(hidden_id, hidden["id"])
+    db.set_playlist_sync_to_rockbox(hidden_id, False)
+    _insert_device_track(
+        db,
+        device.stable_device_key,
+        synced["id"],
+        "Music/Art/Alb/01 - Synced.mp3",
+        "Synced",
+        "Art",
+        "Alb",
+    )
+    _insert_device_track(
+        db,
+        device.stable_device_key,
+        hidden["id"],
+        "Music/Art/Alb/02 - Hidden.mp3",
+        "Hidden",
+        "Art",
+        "Alb",
+    )
+
+    result = export_device_playlists(db, device)
+
+    assert result["success"] is True
+    assert [item["name"] for item in result["exported"]] == ["Shown"]
+    assert os.path.isfile(os.path.join(mock_device, MANAGED_PLAYLIST_DIR, "Shown.m3u8"))
+    assert not os.path.exists(os.path.join(mock_device, MANAGED_PLAYLIST_DIR, "Hidden.m3u8"))
+
+
+def test_export_device_playlists_preserves_user_catalog_playlists(db, mock_device):
+    device = _device(mock_device)
+    row = _insert_track(db, "/music/on.mp3", "On Device", "Art", "Alb")
+    playlist_id = db.create_playlist("Road Mix")
+    db.add_track_to_playlist(playlist_id, row["id"])
+    _insert_device_track(
+        db,
+        device.stable_device_key,
+        row["id"],
+        "Music/Art/Alb/01 - On Device.mp3",
+        "On Device",
+        "Art",
+        "Alb",
+    )
+
+    user_playlist = os.path.join(mock_device, MANAGED_PLAYLIST_DIR, "Road Mix.m3u8")
+    os.makedirs(os.path.dirname(user_playlist), exist_ok=True)
+    with open(user_playlist, "w", encoding="utf-8") as handle:
+        handle.write("#EXTM3U\n/user-owned.mp3\n")
+
+    result = export_device_playlists(db, device)
+
+    assert result["success"] is True
+    assert result["exported"][0]["source_path"] == f"{MANAGED_PLAYLIST_DIR}/Road Mix (2).m3u8"
+    with open(user_playlist, "r", encoding="utf-8") as handle:
+        assert "/user-owned.mp3" in handle.read()
+    assert os.path.isfile(os.path.join(mock_device, MANAGED_PLAYLIST_DIR, "Road Mix (2).m3u8"))
+    assert os.path.isfile(os.path.join(mock_device, MANAGED_PLAYLIST_MANIFEST))
+
+
+def test_export_device_playlists_matches_existing_unlinked_device_tracks(db, mock_device):
+    device = _device(mock_device)
+    row = _insert_track(db, "/music/existing.mp3", "Existing", "Art", "Alb")
+    playlist_id = db.create_playlist("Existing Mix")
+    db.add_track_to_playlist(playlist_id, row["id"])
+    db.upsert_device_track(
+        {
+            "device_id": device.stable_device_key,
+            "device_path": "Music/Art/Alb/01 - Existing.mp3",
+            "title": "Existing",
+            "artist": "Art",
+            "album": "Alb",
+            "album_artist": "Art",
+            "duration": 245.0,
+            "bitrate": 320,
+            "codec": "mp3",
+            "metadata_hash": "device-only-hash",
+            "file_hash": "",
+            "present_on_device": 1,
+        }
+    )
+    db.commit()
+
+    result = export_device_playlists(db, device)
+
+    assert result["success"] is True
+    playlist_path = os.path.join(mock_device, MANAGED_PLAYLIST_DIR, "Existing Mix.m3u8")
+    with open(playlist_path, "r", encoding="utf-8") as handle:
+        content = handle.read()
+    assert "/Music/Art/Alb/01 - Existing.mp3" in content
+
+
+def test_export_local_music_playlists_writes_relative_m3u8_for_network_share(db, tmp_dir):
+    music_root = os.path.join(tmp_dir, "Music")
+    album_dir = os.path.join(music_root, "Artist", "Album")
+    os.makedirs(album_dir, exist_ok=True)
+    first_path = os.path.join(album_dir, "01 - One.flac")
+    second_path = os.path.join(album_dir, "02 - Two.flac")
+    with open(first_path, "wb") as handle:
+        handle.write(b"one")
+    with open(second_path, "wb") as handle:
+        handle.write(b"two")
+
+    first = _insert_track(db, first_path, "One", "Artist", "Album")
+    second = _insert_track(db, second_path, "Two", "Artist", "Album")
+    playlist_id = db.create_playlist("Road Mix")
+    db.add_tracks_to_playlist(playlist_id, [first["id"], second["id"]])
+    db.commit()
+
+    result = export_local_music_playlists(db, music_root)
+
+    assert result["success"] is True
+    assert result["exported"][0]["source_path"] == f"{LOCAL_MANAGED_PLAYLIST_DIR}/Road Mix.m3u8"
+    playlist_path = os.path.join(music_root, LOCAL_MANAGED_PLAYLIST_DIR, "Road Mix.m3u8")
+    with open(playlist_path, "r", encoding="utf-8") as handle:
+        content = handle.read()
+    assert "#EXTM3U" in content
+    assert "../.." in content
+    assert "../../Artist/Album/01 - One.flac" in content
+    assert "../../Artist/Album/02 - Two.flac" in content
+    assert "/home/" not in content
+
+
+def test_export_local_music_playlists_removes_stale_managed_files(db, tmp_dir):
+    music_root = os.path.join(tmp_dir, "Music")
+    managed = os.path.join(music_root, LOCAL_MANAGED_PLAYLIST_DIR)
+    os.makedirs(managed, exist_ok=True)
+    stale_path = os.path.join(managed, "Old.m3u8")
+    with open(stale_path, "w", encoding="utf-8") as handle:
+        handle.write("#EXTM3U\n")
+
+    result = export_local_music_playlists(db, music_root)
+
+    assert result["success"] is True
+    assert result["removed"] == [f"{LOCAL_MANAGED_PLAYLIST_DIR}/Old.m3u8"]
+    assert not os.path.exists(stale_path)
+
+
+def test_export_local_music_playlists_can_point_to_converted_apple_music_files(db, tmp_dir, monkeypatch):
+    music_root = os.path.join(tmp_dir, "Music")
+    album_dir = os.path.join(music_root, "Artist", "Album")
+    media_dir = os.path.join(music_root, "Playlists", "RockPod Media")
+    os.makedirs(album_dir, exist_ok=True)
+    source_path = os.path.join(album_dir, "01 - One.flac")
+    converted_path = os.path.join(media_dir, "01 - One.m4a")
+    with open(source_path, "wb") as handle:
+        handle.write(b"flac")
+
+    def fake_transcode(path, target_dir, ffmpeg_path=""):
+        assert path == source_path
+        assert target_dir == media_dir
+        os.makedirs(target_dir, exist_ok=True)
+        with open(converted_path, "wb") as handle:
+            handle.write(b"m4a")
+        return converted_path
+
+    monkeypatch.setattr(
+        "services.rockbox_playlists._ensure_apple_music_transcode",
+        fake_transcode,
+    )
+
+    first = _insert_track(db, source_path, "One", "Artist", "Album")
+    playlist_id = db.create_playlist("Road Mix")
+    db.add_track_to_playlist(playlist_id, first["id"])
+    db.commit()
+
+    result = export_local_music_playlists(
+        db,
+        music_root,
+        include_smart=False,
+        convert_for_apple_music=True,
+    )
+
+    assert result["success"] is True
+    playlist_path = os.path.join(music_root, LOCAL_MANAGED_PLAYLIST_DIR, "Road Mix.m3u8")
+    with open(playlist_path, "r", encoding="utf-8") as handle:
+        content = handle.read()
+    assert "../RockPod Media/01 - One.m4a" in content
+    assert ".flac" not in content

@@ -629,17 +629,17 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000    0x2bba0
+.debug_info     0x0000000000000000    0x2bc22
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0x9177 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/sudoku/sudoku.o
- .debug_info    0x0000000000009177     0x937f /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/sudoku/generator.o
- .debug_info    0x00000000000124f6       0x6a /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/sudoku/templates.o
- .debug_info    0x0000000000012560     0x7c93 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
- .debug_info    0x000000000001a1f3     0x7cdc /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(configfile.o)
- .debug_info    0x0000000000021ecf     0x9908 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(playback_control.o)
- .debug_info    0x000000000002b7d7      0x143 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(sudoku_start.320x240x16.o)
- .debug_info    0x000000000002b91a      0x143 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(sudoku_normal.320x240x16.o)
- .debug_info    0x000000000002ba5d      0x143 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(sudoku_inverse.320x240x16.o)
+ .debug_info    0x0000000000000000     0x9191 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/sudoku/sudoku.o
+ .debug_info    0x0000000000009191     0x9399 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/sudoku/generator.o
+ .debug_info    0x000000000001252a       0x6a /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/sudoku/templates.o
+ .debug_info    0x0000000000012594     0x7cad /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+ .debug_info    0x000000000001a241     0x7cf6 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(configfile.o)
+ .debug_info    0x0000000000021f37     0x9922 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(playback_control.o)
+ .debug_info    0x000000000002b859      0x143 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(sudoku_start.320x240x16.o)
+ .debug_info    0x000000000002b99c      0x143 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(sudoku_normal.320x240x16.o)
+ .debug_info    0x000000000002badf      0x143 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(sudoku_inverse.320x240x16.o)
 
 .debug_abbrev   0x0000000000000000     0x1b82
  *(.debug_abbrev)
@@ -668,25 +668,25 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0xa463
+.debug_str      0x0000000000000000     0xa47a
  *(.debug_str)
- .debug_str     0x0000000000000000     0xa463 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/sudoku/sudoku.o
-                                       0x5566 (size before relaxing)
- .debug_str     0x000000000000a463        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/sudoku/generator.o
-                                       0x51fc (size before relaxing)
- .debug_str     0x000000000000a463        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/sudoku/templates.o
+ .debug_str     0x0000000000000000     0xa47a /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/sudoku/sudoku.o
+                                       0x557d (size before relaxing)
+ .debug_str     0x000000000000a47a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/sudoku/generator.o
+                                       0x5213 (size before relaxing)
+ .debug_str     0x000000000000a47a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/sudoku/templates.o
                                          0xef (size before relaxing)
- .debug_str     0x000000000000a463        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
-                                       0x5134 (size before relaxing)
- .debug_str     0x000000000000a463        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(configfile.o)
-                                       0x48aa (size before relaxing)
- .debug_str     0x000000000000a463        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(playback_control.o)
-                                       0xa3a4 (size before relaxing)
- .debug_str     0x000000000000a463        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(sudoku_start.320x240x16.o)
+ .debug_str     0x000000000000a47a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+                                       0x514b (size before relaxing)
+ .debug_str     0x000000000000a47a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(configfile.o)
+                                       0x48c1 (size before relaxing)
+ .debug_str     0x000000000000a47a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(playback_control.o)
+                                       0xa3bb (size before relaxing)
+ .debug_str     0x000000000000a47a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(sudoku_start.320x240x16.o)
                                         0x16c (size before relaxing)
- .debug_str     0x000000000000a463        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(sudoku_normal.320x240x16.o)
+ .debug_str     0x000000000000a47a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(sudoku_normal.320x240x16.o)
                                         0x16e (size before relaxing)
- .debug_str     0x000000000000a463        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(sudoku_inverse.320x240x16.o)
+ .debug_str     0x000000000000a47a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(sudoku_inverse.320x240x16.o)
                                         0x170 (size before relaxing)
 
 .debug_loc

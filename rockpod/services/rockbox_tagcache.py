@@ -1,10 +1,13 @@
-"""Read Rockbox tagcache (.tcd) files into RockPod device inventory rows."""
+"""Read and write Rockbox tagcache (.tcd) files for RockPod devices."""
 
 from __future__ import annotations
 
+import glob
 import os
 import struct
+import tempfile
 from pathlib import Path
+from shutil import rmtree
 
 from app.config import SUPPORTED_FORMATS
 from models.track import compute_metadata_hash
@@ -24,10 +27,20 @@ TAG_GROUPING = 8
 TAG_YEAR = 9
 TAG_DISCNUMBER = 10
 TAG_TRACKNUMBER = 11
+TAG_VIRT_CANONICALARTIST = 12
 TAG_BITRATE = 13
 TAG_LENGTH = 14
+TAG_PLAYCOUNT = 15
+TAG_RATING = 16
+TAG_PLAYTIME = 17
+TAG_LASTPLAYED = 18
+TAG_COMMITID = 19
+TAG_MTIME = 20
+TAG_LASTELAPSED = 21
+TAG_LASTOFFSET = 22
 TAG_COUNT = 23
 FLAG_DELETED = 0x0001
+UNTAGGED_INDEX_ID = 0xFFFF
 
 STRING_TAGS = {
     TAG_ARTIST: "database_0.tcd",
@@ -39,11 +52,93 @@ STRING_TAGS = {
     TAG_COMMENT: "database_6.tcd",
     TAG_ALBUMARTIST: "database_7.tcd",
     TAG_GROUPING: "database_8.tcd",
+    TAG_VIRT_CANONICALARTIST: "database_12.tcd",
 }
+
+ROW_SIZE = (TAG_COUNT + 1) * 4
+HOST_TAGCACHE_FILES = [
+    "database_idx.tcd",
+    "database_0.tcd",
+    "database_1.tcd",
+    "database_2.tcd",
+    "database_3.tcd",
+    "database_4.tcd",
+    "database_5.tcd",
+    "database_6.tcd",
+    "database_7.tcd",
+    "database_8.tcd",
+    "database_12.tcd",
+]
+HOST_TAGCACHE_REMOVE_GLOBS = [
+    "database*.tcd",
+    "tagcache*.tcd",
+]
+UNIQUE_STRING_TAGS = {
+    TAG_ARTIST,
+    TAG_ALBUM,
+    TAG_GENRE,
+    TAG_COMPOSER,
+    TAG_COMMENT,
+    TAG_ALBUMARTIST,
+    TAG_GROUPING,
+    TAG_VIRT_CANONICALARTIST,
+}
+SORTED_STRING_TAGS = UNIQUE_STRING_TAGS | {TAG_TITLE}
 
 
 class TagcacheError(RuntimeError):
     """Raised when Rockbox tagcache files are invalid or unreadable."""
+
+
+def write_rockbox_tagcache_tracks(mount_path: str, tracks: list[dict]) -> dict:
+    """Generate Rockbox tagcache files under ``mount_path/.rockbox``.
+
+    The writer builds into a temporary root first and validates the generated
+    files with ``read_rockbox_tagcache_tracks`` before swapping them into place.
+    Only Rockbox database/tagcache files are removed or replaced.
+    """
+    mount = Path(mount_path)
+    if not mount.is_dir():
+        raise TagcacheError("Device mount path is unavailable")
+
+    entries = [_normalize_writer_entry(track, str(mount)) for track in tracks]
+    entries = [entry for entry in entries if entry]
+    entries.sort(key=lambda item: item["filename"].casefold())
+
+    temp_root = Path(tempfile.mkdtemp(prefix=".rockpod_tagcache_", dir=str(mount)))
+    try:
+        temp_rockbox = temp_root / ".rockbox"
+        temp_rockbox.mkdir(parents=True, exist_ok=True)
+        _write_tagcache_files(temp_rockbox, entries)
+        parsed = read_rockbox_tagcache_tracks(str(temp_root))
+        if len(parsed) != len(entries):
+            raise TagcacheError(
+                f"Generated tagcache validation failed: expected {len(entries)} tracks, read {len(parsed)}"
+            )
+
+        rockbox_dir = mount / ".rockbox"
+        rockbox_dir.mkdir(parents=True, exist_ok=True)
+        _remove_existing_host_tagcache_files(rockbox_dir)
+        for filename in HOST_TAGCACHE_FILES:
+            os.replace(temp_rockbox / filename, rockbox_dir / filename)
+
+        return {
+            "success": True,
+            "track_count": len(entries),
+            "files": [str(rockbox_dir / filename) for filename in HOST_TAGCACHE_FILES],
+        }
+    finally:
+        rmtree(temp_root, ignore_errors=True)
+
+
+def write_rockbox_tagcache_from_device_inventory(db, device, device_key: str = "") -> dict:
+    """Generate Rockbox tagcache from RockPod's cached device inventory."""
+    mount_path = getattr(device, "mount_path", "") if device else ""
+    if not mount_path:
+        raise TagcacheError("Device mount path is unavailable")
+    key = device_key or getattr(device, "stable_device_key", "") or f"rockbox:{mount_path}"
+    tracks = [dict(row) for row in db.get_all_device_tracks(key)]
+    return write_rockbox_tagcache_tracks(mount_path, tracks)
 
 
 def _rel_device_path(raw_path: str) -> str:
@@ -56,6 +151,143 @@ def _rel_device_path(raw_path: str) -> str:
 def _codec_for_path(device_path: str) -> str:
     suffix = Path(device_path).suffix.lower().lstrip(".")
     return suffix.upper()
+
+
+def _to_int(value, default=0):
+    try:
+        if value in (None, ""):
+            return default
+        return int(float(value))
+    except (TypeError, ValueError):
+        return default
+
+
+def _string_tag(value: object) -> str:
+    text = str(value or "").strip()
+    return text if text else UNTAGGED
+
+
+def _sort_tag_key(value: str) -> tuple[int, str]:
+    text = str(value or "")
+    if text == UNTAGGED:
+        return (0, "")
+    return (1, text.casefold())
+
+
+def _normalize_writer_entry(track: dict, mount_path: str) -> dict | None:
+    filename = _rel_device_path(track.get("device_path", ""))
+    if not filename:
+        return None
+    suffix = Path(filename).suffix.lower()
+    if suffix not in SUPPORTED_FORMATS:
+        return None
+
+    full_path = os.path.join(mount_path, filename)
+    if not os.path.isfile(full_path):
+        return None
+
+    artist = _string_tag(track.get("artist"))
+    album_artist = _string_tag(track.get("album_artist") or track.get("artist"))
+    title = _string_tag(track.get("title") or Path(filename).stem)
+    grouping = _string_tag(track.get("grouping") or title)
+
+    return {
+        TAG_ARTIST: artist,
+        TAG_ALBUM: _string_tag(track.get("album")),
+        TAG_GENRE: _string_tag(track.get("genre")),
+        TAG_TITLE: title,
+        TAG_FILENAME: "/" + filename,
+        TAG_COMPOSER: _string_tag(track.get("composer")),
+        TAG_COMMENT: _string_tag(track.get("comment")),
+        TAG_ALBUMARTIST: album_artist,
+        TAG_GROUPING: grouping,
+        TAG_VIRT_CANONICALARTIST: artist if artist != UNTAGGED else album_artist,
+        TAG_YEAR: _to_int(track.get("year")),
+        TAG_DISCNUMBER: _to_int(track.get("disc_number"), 1) or 1,
+        TAG_TRACKNUMBER: _to_int(track.get("track_number")),
+        TAG_BITRATE: _to_int(track.get("bitrate")),
+        TAG_LENGTH: max(_to_int(float(track.get("duration") or 0) * 1000), 0),
+        TAG_PLAYCOUNT: _to_int(track.get("play_count")),
+        TAG_RATING: _to_int(track.get("rating")),
+        TAG_PLAYTIME: _to_int(track.get("play_time")),
+        TAG_LASTPLAYED: _to_int(track.get("last_played")),
+        TAG_COMMITID: 1,
+        TAG_MTIME: _to_int(os.path.getmtime(full_path)),
+        TAG_LASTELAPSED: 0,
+        TAG_LASTOFFSET: 0,
+        "filename": filename,
+    }
+
+
+def _pack_header(datasize: int, entry_count: int) -> bytes:
+    return struct.pack("<iii", TAGCACHE_MAGIC, datasize, entry_count)
+
+
+def _tag_entry_bytes(value: str, idx_id: int) -> bytes:
+    encoded = str(value).encode("utf-8") + b"\0"
+    return struct.pack("<ii", len(encoded), idx_id) + encoded
+
+
+def _write_tagcache_files(rockbox_dir: Path, entries: list[dict]) -> None:
+    offsets_by_entry = [{tag: 0 for tag in STRING_TAGS} for _entry in entries]
+
+    for tag, filename in STRING_TAGS.items():
+        body = bytearray()
+        items = []
+        if tag in UNIQUE_STRING_TAGS:
+            grouped = {}
+            for entry_idx, entry in enumerate(entries):
+                value = entry[tag]
+                grouped.setdefault(value, []).append(entry_idx)
+            for value, entry_indices in grouped.items():
+                items.append((value, UNTAGGED_INDEX_ID, entry_indices))
+            items.sort(key=lambda item: _sort_tag_key(item[0]))
+        else:
+            for entry_idx, entry in enumerate(entries):
+                items.append((entry[tag], entry_idx, [entry_idx]))
+            if tag in SORTED_STRING_TAGS:
+                items.sort(key=lambda item: (_sort_tag_key(item[0]), item[1]))
+
+        for value, idx_id, entry_indices in items:
+            offset = 12 + len(body)
+            body.extend(_tag_entry_bytes(value, idx_id))
+            for entry_idx in entry_indices:
+                offsets_by_entry[entry_idx][tag] = offset
+
+        (rockbox_dir / filename).write_bytes(_pack_header(len(body), len(items)) + body)
+
+    master_body = bytearray()
+    for entry_idx, entry in enumerate(entries):
+        row = [0] * TAG_COUNT + [0]
+        for tag in range(TAG_COUNT):
+            if tag in STRING_TAGS:
+                row[tag] = offsets_by_entry[entry_idx][tag]
+            else:
+                row[tag] = _to_int(entry.get(tag))
+        master_body.extend(struct.pack(f"<{TAG_COUNT + 1}i", *row))
+
+    master_header = struct.pack(
+        "<6i",
+        TAGCACHE_MAGIC,
+        len(master_body),
+        len(entries),
+        0,
+        1,
+        0,
+    )
+    (rockbox_dir / "database_idx.tcd").write_bytes(master_header + master_body)
+
+
+def _remove_existing_host_tagcache_files(rockbox_dir: Path) -> None:
+    seen = set()
+    for pattern in HOST_TAGCACHE_REMOVE_GLOBS:
+        for raw_path in glob.glob(str(rockbox_dir / pattern)):
+            path = Path(raw_path)
+            if path.name in {".", ".."} or path in seen:
+                continue
+            seen.add(path)
+            if path.is_file():
+                path.unlink()
 
 
 def _decode_tag_entry(blob: bytes, offset: int, endian: str) -> str:
