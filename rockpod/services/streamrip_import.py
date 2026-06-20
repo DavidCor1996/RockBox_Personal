@@ -114,11 +114,19 @@ def streamrip_url_info(value):
         elif "track" in parts:
             media_type = "track"
             item_id = parts[-1]
+    elif source == "spotify" and len(parts) >= 2 and parts[0] in {"album", "track", "playlist"}:
+        media_type = parts[0]
+        item_id = parts[1]
     return {
         "source": source,
         "media_type": media_type,
         "id": item_id,
     }
+
+
+def is_spotify_playlist_url(value):
+    info = streamrip_url_info(value)
+    return info.get("source") == "spotify" and info.get("media_type") == "playlist" and bool(info.get("id"))
 
 
 def _flatten_tag_values(value):
@@ -287,6 +295,28 @@ def build_streamrip_command(binary, music_dir, url, output_format="flac", qualit
     if output_format not in SUPPORTED_STREAMRIP_FORMATS:
         raise StreamripImportError("RockPod supports FLAC, ALAC, AAC, OGG, or MP3 streamrip imports.")
     quality = streamrip_quality_for_url(item_url, quality)
+    url_info = streamrip_url_info(item_url)
+
+    if url_info.get("source") == "spotify":
+        if url_info.get("media_type") != "playlist" or not url_info.get("id"):
+            raise StreamripImportError("RockPod can convert Spotify playlist URLs to Tidal imports.")
+        if not config_path:
+            raise StreamripImportError("Spotify playlist conversion requires a streamrip config path.")
+        script_path = Path(__file__).resolve().parents[1] / "scripts" / "spotify_playlist_tidal_import.py"
+        return [
+            sys.executable,
+            str(script_path),
+            "--config-path",
+            os.path.abspath(os.path.expanduser(str(config_path))),
+            "--url",
+            item_url,
+            "--output-format",
+            output_format,
+            "--quality",
+            str(quality),
+            "--source",
+            "tidal",
+        ]
 
     command = [
         binary,
@@ -470,7 +500,7 @@ class StreamripImporter:
 
     def prepare_import(self, url, output_format=None):
         binary = self._config.get("streamrip_binary", "rip")
-        if shutil.which(binary) is None and not os.path.exists(binary):
+        if not is_spotify_playlist_url(url) and shutil.which(binary) is None and not os.path.exists(binary):
             raise StreamripImportError(
                 f"streamrip is not installed or not on PATH. Install {STREAMRIP_REPOSITORY_URL} "
                 "or set the streamrip binary in RockPod config."

@@ -1,6 +1,7 @@
 """Local music playback service with a swappable backend."""
 
 import os
+from urllib.parse import urlparse
 
 from PySide6.QtCore import QObject, QUrl, Signal, Slot
 
@@ -86,7 +87,10 @@ class QtMediaPlaybackBackend(QObject):
         if not self._player:
             self.error.emit("Audio playback backend is unavailable")
             return
-        self._player.setSource(QUrl.fromLocalFile(path))
+        if _is_remote_media_source(path):
+            self._player.setSource(QUrl(path))
+        else:
+            self._player.setSource(QUrl.fromLocalFile(path))
 
     def set_video_output(self, output):
         if self._player:
@@ -210,7 +214,7 @@ class PlaybackService(QObject):
         self._queue_source = source_type or ""
         self._queue = [
             t for t in _normalize_tracks(tracks)
-            if t.get("file_path")
+            if _track_media_source(t)
         ]
         self._index = max(0, min(int(index or 0), len(self._queue) - 1)) if self._queue else -1
 
@@ -235,15 +239,18 @@ class PlaybackService(QObject):
             return False
         self._index = index
         track = self._queue[self._index]
-        path = track.get("file_path", "")
-        if not path or not os.path.isfile(path):
-            self._on_error(f"Cannot play missing local file: {path or 'unknown file'}")
+        source = _track_media_source(track)
+        if not source:
+            self._on_error("Cannot play missing media source")
+            return False
+        if not _is_remote_media_source(source) and not os.path.isfile(source):
+            self._on_error(f"Cannot play missing local file: {source or 'unknown file'}")
             return False
         self._duration = int(float(track.get("duration", 0) or 0) * 1000)
         self._position = 0
         self.track_changed.emit(track)
         self.position_changed.emit(self._position, self._duration)
-        self._backend.set_media(path)
+        self._backend.set_media(source)
         self._backend.play()
         self._set_state(STATE_PLAYING)
         return True
@@ -363,8 +370,9 @@ class PlaybackService(QObject):
             if idx >= 0:
                 return idx
         fp = track.get("file_path", "")
+        source = _track_media_source(track)
         for idx, row in enumerate(tracks):
-            if row.get("file_path") == fp:
+            if row.get("file_path") == fp or _track_media_source(row) == source:
                 return idx
         return 0
 
@@ -387,3 +395,17 @@ def _normalize_track(track):
 
 def _normalize_tracks(tracks):
     return [_normalize_track(track) for track in (tracks or [])]
+
+
+def _is_remote_media_source(value):
+    parsed = urlparse(str(value or "").strip())
+    return parsed.scheme in {"http", "https"}
+
+
+def _track_media_source(track):
+    item = _normalize_track(track)
+    for key in ("file_path", "stream_url", "preview_url"):
+        value = str(item.get(key) or "").strip()
+        if value:
+            return value
+    return ""

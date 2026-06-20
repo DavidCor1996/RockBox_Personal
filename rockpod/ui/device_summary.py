@@ -1,7 +1,7 @@
 """Classic iTunes-style iPod Summary screen."""
 
-from PySide6.QtCore import Qt, Signal
-from PySide6.QtGui import QColor, QPainter, QPixmap
+from PySide6.QtCore import QRectF, Qt, Signal
+from PySide6.QtGui import QColor, QLinearGradient, QPainter, QPen
 from PySide6.QtWidgets import (
     QCheckBox,
     QFrame,
@@ -16,6 +16,7 @@ from PySide6.QtWidgets import (
 )
 
 from ui.storage_bar import StorageBar, format_bytes
+from ui.ipod_art import draw_plugged_ipod
 
 
 def compute_device_storage(device, device_tracks, device_row=None, storage_breakdown=None):
@@ -124,9 +125,7 @@ class DeviceSummaryWidget(QWidget):
         header_layout = QHBoxLayout(header)
         header_layout.setContentsMargins(10, 6, 10, 6)
         header_layout.setSpacing(8)
-        self._icon = QLabel()
-        self._icon.setFixedSize(72, 72)
-        self._icon.setPixmap(_ipod_icon())
+        self._icon = DeviceSummaryIpodWell()
         header_layout.addWidget(self._icon)
 
         title_col = QVBoxLayout()
@@ -254,17 +253,12 @@ class DeviceSummaryWidget(QWidget):
         self._open_music_btn.clicked.connect(self.open_music_clicked)
         self._auto_sync.toggled.connect(self.auto_sync_changed)
         self._resync_meta.toggled.connect(self.resync_metadata_changed)
+        self._rockbox_autoupdate.toggled.connect(self.rockbox_autoupdate_changed)
         self._verify_bg.toggled.connect(self.verify_background_changed)
 
     def apply_theme_assets(self, theme_assets):
-        icon_path = theme_assets.asset_path("device_summary_sidebar_icon")
-        if icon_path:
-            px = QPixmap(icon_path)
-            if not px.isNull():
-                self._icon.setPixmap(px.scaled(72, 72, Qt.KeepAspectRatio, Qt.SmoothTransformation))
-                return
-        self._icon.setPixmap(_ipod_icon())
-        self._rockbox_autoupdate.toggled.connect(self.rockbox_autoupdate_changed)
+        asset_path = theme_assets.asset_path("device_plugged_ipod") if theme_assets else ""
+        self._icon.set_asset_path(asset_path)
 
     def set_options(self, auto_sync=False, resync_metadata=True, manual=False,
                     rockbox_autoupdate=False, verify_background=False):
@@ -307,19 +301,53 @@ class DeviceSummaryWidget(QWidget):
             btn.setEnabled(connected)
 
 
-def _ipod_icon():
-    px = QPixmap(72, 72)
-    px.fill(Qt.transparent)
-    p = QPainter(px)
-    p.setRenderHint(QPainter.Antialiasing)
-    p.setPen(QColor("#777777"))
-    p.setBrush(QColor("#f8f8f8"))
-    p.drawRoundedRect(18, 3, 36, 66, 5, 5)
-    p.setBrush(QColor("#dfe7ef"))
-    p.drawRect(22, 9, 28, 22)
-    p.setBrush(QColor("#e5e5e5"))
-    p.drawEllipse(24, 38, 24, 24)
-    p.setBrush(QColor("#f8f8f8"))
-    p.drawEllipse(31, 45, 10, 10)
-    p.end()
-    return px
+class DeviceSummaryIpodWell(QWidget):
+    """Small chrome display well for the iPod artwork in the Summary header."""
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setObjectName("device_summary_ipod_well")
+        self.setFixedSize(96, 76)
+        self._asset_path = ""
+
+    def set_asset_path(self, asset_path=""):
+        self._asset_path = str(asset_path or "")
+        self.update()
+
+    def paintEvent(self, event):
+        del event
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.Antialiasing, True)
+
+        outer = QRectF(0.5, 0.5, self.width() - 1, self.height() - 1)
+        bg = QLinearGradient(outer.topLeft(), outer.bottomLeft())
+        bg.setColorAt(0.0, QColor("#ffffff"))
+        bg.setColorAt(0.50, QColor("#eeeeee"))
+        bg.setColorAt(0.51, QColor("#d6d6d6"))
+        bg.setColorAt(1.0, QColor("#c7c7c7"))
+        painter.setPen(QPen(QColor("#8b8b8b"), 1))
+        painter.setBrush(bg)
+        painter.drawRoundedRect(outer, 4, 4)
+
+        lcd = QRectF(outer.left() + 7, outer.top() + 7, outer.width() - 14, outer.height() - 15)
+        lcd_grad = QLinearGradient(lcd.topLeft(), lcd.bottomLeft())
+        lcd_grad.setColorAt(0.0, QColor("#fbfff4"))
+        lcd_grad.setColorAt(0.24, QColor("#edf5dc"))
+        lcd_grad.setColorAt(0.50, QColor("#dce9c4"))
+        lcd_grad.setColorAt(0.51, QColor("#c7d5ab"))
+        lcd_grad.setColorAt(1.0, QColor("#edf5da"))
+        painter.setPen(QPen(QColor("#7b836d"), 1))
+        painter.setBrush(lcd_grad)
+        painter.drawRoundedRect(lcd, 9, 9)
+
+        gloss = QRectF(lcd.left() + 4, lcd.top() + 3, lcd.width() - 8, 8)
+        painter.setPen(Qt.NoPen)
+        painter.setBrush(QColor(255, 255, 255, 64))
+        painter.drawRoundedRect(gloss, 4, 4)
+
+        draw_plugged_ipod(
+            painter,
+            QRectF(outer.center().x() - 35, outer.top() - 1, 70, 78),
+            connected=True,
+            asset_path=self._asset_path,
+        )

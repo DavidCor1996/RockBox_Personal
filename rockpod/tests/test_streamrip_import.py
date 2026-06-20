@@ -41,6 +41,27 @@ def test_build_streamrip_command_caps_tidal_at_quality_three(tmp_dir):
     assert config_path in command
 
 
+def test_build_streamrip_command_converts_spotify_playlist_through_tidal(tmp_dir):
+    music_dir = os.path.join(tmp_dir, "Music")
+    config_path = os.path.join(tmp_dir, "streamrip", "config.toml")
+
+    command = build_streamrip_command(
+        "rip",
+        music_dir,
+        "https://open.spotify.com/playlist/37i9dQZF1DXcBWIGoYBM5M",
+        "flac",
+        4,
+        config_path,
+    )
+
+    assert command[0].endswith("python") or "python" in os.path.basename(command[0])
+    assert command[1].endswith("spotify_playlist_tidal_import.py")
+    assert "--source" in command
+    assert "tidal" in command
+    assert "--url" in command
+    assert "https://open.spotify.com/playlist/37i9dQZF1DXcBWIGoYBM5M" in command
+
+
 def test_streamrip_quality_caps_follow_service_limits():
     assert streamrip_quality_for_url("https://listen.tidal.com/album/123", 4) == 3
     assert streamrip_quality_for_url("https://www.qobuz.com/us-en/album/example/abc", 4) == 4
@@ -57,6 +78,11 @@ def test_streamrip_url_info_extracts_album_and_track_ids():
         "source": "deezer",
         "media_type": "track",
         "id": "42",
+    }
+    assert streamrip_url_info("https://open.spotify.com/playlist/37i9dQZF1DXcBWIGoYBM5M") == {
+        "source": "spotify",
+        "media_type": "playlist",
+        "id": "37i9dQZF1DXcBWIGoYBM5M",
     }
 
 

@@ -1,11 +1,13 @@
 import os
 
 from PIL import Image
+from PySide6.QtWidgets import QApplication
 
 from app.config import Config
 from services.rockbox_deploy import RockboxDeployService
 from services.rockbox_photos import RockboxPhotoService
 from services.rockbox_profiles import RockboxProfileStore
+from ui.photo_manager import PhotoManagerWidget
 
 
 def _make_file(path, content=b"x"):
@@ -42,6 +44,71 @@ def test_photo_discovery_filters_supported_images_and_preserves_folders(tmp_dir)
         "Trip/IMG_0001.jpg",
         "Trip/IMG_0002.png",
     ]
+
+
+def test_hidden_photos_are_filtered_until_included(tmp_dir):
+    repo_root = os.path.join(tmp_dir, "repo")
+    photos = os.path.join(tmp_dir, "photos")
+    device = os.path.join(tmp_dir, "device")
+    _make_file(os.path.join(photos, "Trip", "Public.jpg"), b"public")
+    _make_file(os.path.join(photos, "Trip", "Private.png"), b"private")
+    _make_file(os.path.join(device, "Photos", "Trip", "Private.jpg"), b"synced")
+
+    _config, store = _make_store(tmp_dir, repo_root)
+    profile = store.current_profile()
+    profile["photos_library_path"] = photos
+    profile["device_mount_path"] = device
+    profile = store.save_profile(profile)
+
+    service = RockboxPhotoService()
+    private = next(item for item in service.list_photos(profile) if item["relative_path"] == "Trip/Private.png")
+
+    assert service.set_hidden(profile, [private], True) == 1
+    assert [item["relative_path"] for item in service.list_photos(profile)] == ["Trip/Public.jpg"]
+
+    revealed = service.list_photos(profile, include_hidden=True)
+    hidden_photo = next(item for item in revealed if item["relative_path"] == "Trip/Private.png")
+    assert hidden_photo["hidden"] is True
+
+    os.remove(os.path.join(photos, "Trip", "Private.png"))
+    assert [item["relative_path"] for item in service.list_photos(profile)] == ["Trip/Public.jpg"]
+
+    revealed_stale = service.list_photos(profile, include_hidden=True)
+    hidden_stale = next(item for item in revealed_stale if item["relative_path"] == "Trip/Private.jpg")
+    assert hidden_stale["missing_source"] is True
+    assert hidden_stale["hidden"] is True
+
+
+def test_photo_manager_marks_hidden_items_and_toggles_hide_button(tmp_dir):
+    QApplication.instance() or QApplication([])
+    widget = PhotoManagerWidget()
+    visible = {
+        "id": "visible",
+        "relative_path": "Visible.jpg",
+        "source_path": "",
+        "size": 12,
+        "modified_time": 0,
+        "on_device": True,
+        "on_simulator": False,
+        "missing_source": False,
+        "hidden": False,
+    }
+    hidden = {
+        **visible,
+        "id": "hidden",
+        "relative_path": "Hidden.jpg",
+        "hidden": True,
+    }
+
+    widget.set_photos([visible, hidden])
+    assert widget._photo_list.item(1).text().startswith("[Hidden/D] ")
+
+    widget.set_selection_details([visible])
+    assert widget._hide_btn.isEnabled()
+    assert widget._hide_btn.text() == "Hide Selected"
+
+    widget.set_selection_details([hidden])
+    assert widget._hide_btn.text() == "Unhide Selected"
 
 
 def test_photo_sync_and_remove_device_preserves_unrelated_files(tmp_dir):

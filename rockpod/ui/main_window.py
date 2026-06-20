@@ -1,15 +1,18 @@
 """Main application window — ties together all UI components in an iTunes 7 layout."""
 
 import logging
+import base64
+import hashlib
 import json
 import os
+import secrets
 import shutil
 import time
 from datetime import datetime
 
 from PySide6.QtWidgets import (
     QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QSplitter,
-    QApplication, QMessageBox, QInputDialog, QMenu, QStackedWidget, QFileDialog,
+    QApplication, QMessageBox, QInputDialog, QLineEdit, QMenu, QStackedWidget, QFileDialog,
     QProgressDialog, QTabWidget,
 )
 from PySide6.QtCore import QEventLoop, QProcess, QProcessEnvironment, Qt, QTimer, Slot
@@ -117,6 +120,7 @@ class MainWindow(QMainWindow):
         # Core services
         self._config = config or Config()
         self._config.ensure_dirs()
+        self._show_hidden_wallpapers = False
         self._db_was_missing = not os.path.exists(self._config.db_path)
         self._db = Database(self._config.db_path)
         self._artwork = ArtworkManager(self._config.artwork_cache_dir, self._config, self)
@@ -201,6 +205,8 @@ class MainWindow(QMainWindow):
         self._store_import_output_dir = ""
         self._store_import_output = []
         self._store_import_log_path = ""
+        self._store_import_context = None
+        self._pending_store_playlist_import = None
         self._store_import_poll_timer = QTimer(self)
         self._store_import_poll_timer.setInterval(750)
         self._store_import_poll_timer.timeout.connect(self._poll_store_import_downloads)
@@ -406,6 +412,11 @@ class MainWindow(QMainWindow):
         self._browser_action.toggled.connect(self._toggle_column_browser)
         self._browser_action.setShortcut("Ctrl+B")
         view_menu.addAction(self._browser_action)
+        self._show_hidden_wallpapers_action = QAction("Show Hidden Wallpapers/Photos", self)
+        self._show_hidden_wallpapers_action.setCheckable(True)
+        self._show_hidden_wallpapers_action.setChecked(False)
+        self._show_hidden_wallpapers_action.toggled.connect(self._toggle_hidden_wallpapers)
+        view_menu.addAction(self._show_hidden_wallpapers_action)
         view_menu.addAction("Inspect Selected Artwork", self._show_selected_artwork_debug)
 
         # Device menu
@@ -483,6 +494,7 @@ class MainWindow(QMainWindow):
         self._ipone_wallpapers.theme_selected.connect(self._on_ipone_wallpaper_theme_selected)
         self._ipone_wallpapers.apply_requested.connect(self._apply_ipone_wallpapers)
         self._ipone_wallpapers.import_requested.connect(self._import_ipone_wallpaper)
+        self._ipone_wallpapers.hide_requested.connect(self._hide_ipone_wallpaper)
         self._ipone_wallpapers.remove_requested.connect(self._remove_ipone_wallpaper)
         self._theme_designer.profile_selected.connect(self._on_theme_designer_profile_selected)
         self._theme_designer.variant_selected.connect(self._on_theme_designer_variant_selected)
@@ -528,6 +540,7 @@ class MainWindow(QMainWindow):
         self._photo_manager.selection_changed.connect(self._on_photo_selection_changed)
         self._photo_manager.dry_run_requested.connect(self._dry_run_photo_sync)
         self._photo_manager.sync_requested.connect(self._sync_selected_photos)
+        self._photo_manager.hide_requested.connect(self._hide_selected_photos)
         self._photo_manager.remove_requested.connect(self._remove_selected_photos)
         self._browser_panel.open_external_requested.connect(self._open_browser_external)
         self._browser_panel.store_import_requested.connect(self._start_store_import)
@@ -535,6 +548,7 @@ class MainWindow(QMainWindow):
         self._browser_panel.store_search_requested.connect(self._start_store_search)
         self._browser_panel.store_album_details_requested.connect(self._start_store_album_detail)
         self._browser_panel.store_home_tab_requested.connect(self._on_store_home_tab_requested)
+        self._browser_panel.store_preview_requested.connect(self._preview_store_track)
         self._movie_store_panel.movie_import_requested.connect(self._start_movie_import)
         self._movie_store_panel.movie_browse_requested.connect(self._start_movie_browse)
         self._game_browser_panel.open_external_requested.connect(self._open_browser_external)
@@ -690,6 +704,7 @@ class MainWindow(QMainWindow):
             if ignored:
                 parts.append(f"Ignored {ignored} unsupported files")
             self._status_bar.set_left_text(" · ".join(parts))
+        self._finalize_pending_store_playlist_import()
 
     def _on_scan_error(self, msg):
         self._toolbar.set_scanning(False)
@@ -697,6 +712,7 @@ class MainWindow(QMainWindow):
         self._scan_ui_refresh_timer.stop()
         self._scan_ui_refresh_pending = False
         self._last_scan_report = self._scanner.last_report
+        self._pending_store_playlist_import = None
         self._status_bar.set_left_text(f"Scan failed; cached library preserved ({msg})")
         logger.error("Scan error: %s", msg)
 
@@ -1370,6 +1386,20 @@ class MainWindow(QMainWindow):
     def _on_playback_error(self, message):
         self._status_bar.set_left_text(f"Playback error: {message}")
         self._toolbar.set_playback_state("stopped")
+
+    def _preview_store_track(self, track, queue_tracks):
+        track = normalize_track_for_ui(track)
+        queue = normalize_tracks_for_ui(queue_tracks or [track])
+        if not track.get("preview_url") and not track.get("stream_url"):
+            self._status_bar.set_left_text("No preview is available for this store track")
+            return
+        self._playback.set_video_output(None)
+        if not self._playback.play_track(track, queue, "store_preview"):
+            return
+        cover_path = track.get("cover_path") or ""
+        self._toolbar.set_selected_track(track, cover_path if os.path.isfile(cover_path) else "")
+        title = track.get("title") or "store preview"
+        self._status_bar.set_left_text(f"Previewing: {title}")
 
     def _mark_current_playing_track(self, track_id):
         self._track_model.set_current_track_id(track_id)
@@ -2805,6 +2835,8 @@ class MainWindow(QMainWindow):
         plan = self._build_sync_plan_with_feedback()
         if plan is None:
             return
+        if self._sync_plan_has_blocking_errors(plan):
+            return
         if plan.total_operations == 0 and not plan.errors:
             self._status_bar.set_left_text("Up to date")
             return
@@ -2825,6 +2857,8 @@ class MainWindow(QMainWindow):
 
         plan = self._build_sync_plan_with_feedback(track_ids=track_ids)
         if plan is None:
+            return
+        if self._sync_plan_has_blocking_errors(plan):
             return
         if plan.total_operations == 0:
             self._status_bar.set_left_text("Selected tracks are already synced")
@@ -3025,6 +3059,9 @@ class MainWindow(QMainWindow):
         plan = self._build_sync_plan_with_feedback(track_ids=track_ids)
         if plan is None:
             return
+        if self._sync_plan_has_blocking_errors(plan):
+            self._video_sync_panel.set_status("Sync blocked: review the warning details.")
+            return
         if plan.total_operations == 0:
             self._video_sync_panel.set_status("Selected videos are already synced.")
             self._status_bar.set_left_text("Selected videos are already synced")
@@ -3036,6 +3073,19 @@ class MainWindow(QMainWindow):
         dialog.sync_confirmed.connect(lambda: self._execute_sync(plan, dialog))
         dialog.sync_cancelled.connect(lambda: self._sync_engine.cancel_sync())
         dialog.exec()
+
+    def _sync_plan_has_blocking_errors(self, plan):
+        errors = [str(error) for error in getattr(plan, "errors", []) if str(error).strip()]
+        if not errors:
+            return False
+        self._status_bar.set_left_text("Sync blocked")
+        QMessageBox.warning(
+            self,
+            "Sync Blocked",
+            "RockPod blocked this sync because the plan has warnings that could affect files on the iPod.\n\n"
+            + "\n".join(errors[:8]),
+        )
+        return True
 
     def _build_sync_plan_with_feedback(self, track_ids=None):
         self._status_bar.set_left_text("Planning sync...")
@@ -3897,6 +3947,7 @@ class MainWindow(QMainWindow):
     def _start_store_import(self, url, output_format, store_result=None):
         if self._store_import_process is not None:
             return
+        self._store_import_context = None
         duplicate_message = self._store_import_duplicate_message(url, store_result)
         if duplicate_message:
             self._browser_panel.set_store_import_status(duplicate_message, running=False)
@@ -3925,6 +3976,11 @@ class MainWindow(QMainWindow):
         self._store_import_output_dir = request.output_dir
         self._store_import_output = []
         self._store_import_log_path = request.log_path
+        self._store_import_context = {
+            "url": url,
+            "url_info": streamrip_url_info(url),
+            "store_result": dict(store_result or {}),
+        }
         self._append_store_import_log("Process started.\n")
         self._browser_panel.begin_store_import_download(url, request.output_dir)
         self._browser_panel.set_store_import_status(
@@ -4062,6 +4118,8 @@ class MainWindow(QMainWindow):
                 self._store_import_output.append(text)
         imported = discover_imported_audio_files(self._store_import_output_dir, self._store_import_started_at)
         cover_updates = ensure_rockbox_cover_files(imported, self._store_import_output_dir)
+        import_context = self._store_import_context
+        self._store_import_context = None
         self._append_store_import_log(
             f"\nProcess finished with exit code {exit_code}.\n"
             f"Detected imported files: {len(imported)}\n"
@@ -4095,6 +4153,11 @@ class MainWindow(QMainWindow):
             self._browser_panel.set_store_import_status(label, running=False)
             self._status_bar.set_left_text("No new store imports detected")
             return
+        if self._is_spotify_playlist_import(import_context):
+            self._pending_store_playlist_import = {
+                "context": import_context,
+                "imported_files": list(imported),
+            }
         self._store_import_output = []
         label = (
             f"Imported {count} audio file{'s' if count != 1 else ''}; "
@@ -4110,6 +4173,7 @@ class MainWindow(QMainWindow):
         imported = discover_imported_audio_files(self._store_import_output_dir, self._store_import_started_at)
         self._store_import_process = None
         self._store_import_output = []
+        self._store_import_context = None
         log_path = self._store_import_log_path
         self._append_store_import_log(f"Process error: {error}\n")
         self._browser_panel.finish_store_import_downloads(imported, success=False)
@@ -4120,6 +4184,81 @@ class MainWindow(QMainWindow):
             f"streamrip could not start: {error}\nLog: {log_path}",
             running=False,
         )
+
+    @staticmethod
+    def _is_spotify_playlist_import(context):
+        if not context:
+            return False
+        info = dict(context.get("url_info") or streamrip_url_info(context.get("url")))
+        return info.get("source") == "spotify" and info.get("media_type") == "playlist" and bool(info.get("id"))
+
+    def _finalize_pending_store_playlist_import(self):
+        pending = self._pending_store_playlist_import
+        if not pending:
+            return
+        self._pending_store_playlist_import = None
+
+        context = dict(pending.get("context") or {})
+        imported_files = list(pending.get("imported_files") or [])
+        track_ids = []
+        seen = set()
+        for path in imported_files:
+            row = self._db.get_track_by_path(path)
+            if not row or row["media_type"] != "audio":
+                continue
+            track_id = row["id"]
+            if track_id in seen:
+                continue
+            seen.add(track_id)
+            track_ids.append(track_id)
+
+        if not track_ids:
+            self._status_bar.set_left_text("Spotify playlist imported, but no scanned audio tracks matched it")
+            return
+
+        name = self._unique_playlist_name(self._store_import_playlist_name(context, imported_files))
+        playlist_id = self._db.create_playlist(name)
+        added = self._db.add_tracks_to_playlist(playlist_id, track_ids)
+        self._db.commit()
+        self._refresh_playlists()
+        self._status_bar.set_left_text(
+            f"Created playlist {name} with {added} track{'s' if added != 1 else ''}; it will sync as a playlist"
+        )
+
+    def _store_import_playlist_name(self, context, imported_files):
+        result = dict((context or {}).get("store_result") or {})
+        for key in ("title", "name"):
+            value = str(result.get(key) or "").strip()
+            if value:
+                return value
+
+        folders = [os.path.dirname(path) for path in imported_files if path]
+        if folders:
+            try:
+                common = os.path.commonpath(folders)
+            except ValueError:
+                common = folders[0]
+            music_root = os.path.abspath(os.path.expanduser(str(self._config.music_dir or "")))
+            if os.path.abspath(common) != music_root:
+                basename = os.path.basename(common.rstrip(os.sep)).strip()
+                if basename:
+                    return basename
+
+        info = dict((context or {}).get("url_info") or {})
+        item_id = str(info.get("id") or "").strip()
+        if item_id:
+            return f"Spotify Playlist {item_id}"
+        return "Spotify Playlist"
+
+    def _unique_playlist_name(self, name):
+        base = str(name or "Playlist").strip() or "Playlist"
+        existing = {row["name"] for row in self._db.get_all_playlists()}
+        if base not in existing:
+            return base
+        index = 2
+        while f"{base} {index}" in existing:
+            index += 1
+        return f"{base} {index}"
 
     # ═══════════════════════════════════════════════════════════════
     # Preferences
@@ -4234,6 +4373,7 @@ class MainWindow(QMainWindow):
         candidates = self._ipone_wallpapers_service.list_candidates(
             wallpaper_profile["source_repo_path"],
             wallpaper_profile,
+            include_hidden=self._show_hidden_wallpapers,
         )
         self._ipone_wallpapers.set_candidates(
             candidates.get("lock", []),
@@ -4399,6 +4539,99 @@ class MainWindow(QMainWindow):
         if removed:
             kind_label = "lockscreen" if kind == "lock" else "charge"
             self._status_bar.set_left_text(f"Removed {kind_label} wallpaper")
+
+    def _hide_ipone_wallpaper(self, kind, candidate):
+        profile = self._rockbox_profiles.current_profile()
+        if not profile:
+            self._status_bar.set_left_text("No Rockbox profile selected")
+            return
+        source_path = str(candidate.get("source_path") or "").strip()
+        if not source_path:
+            return
+        hidden = not bool(candidate.get("hidden"))
+        try:
+            changed = self._ipone_wallpapers_service.set_hidden(
+                profile["source_repo_path"],
+                source_path,
+                hidden,
+            )
+        except ValueError as exc:
+            QMessageBox.warning(self, "Hide Wallpaper", str(exc))
+            return
+        self._refresh_ipone_wallpapers()
+        if changed:
+            kind_label = "lockscreen" if kind == "lock" else "charge"
+            action = "Hidden" if hidden else "Unhidden"
+            self._status_bar.set_left_text(f"{action} {kind_label} wallpaper")
+
+    def _toggle_hidden_wallpapers(self, checked):
+        checked = bool(checked)
+        if checked:
+            if not self._ensure_hidden_wallpaper_password():
+                self._show_hidden_wallpapers_action.blockSignals(True)
+                self._show_hidden_wallpapers_action.setChecked(False)
+                self._show_hidden_wallpapers_action.blockSignals(False)
+                return
+        self._show_hidden_wallpapers = checked
+        self._refresh_ipone_wallpapers()
+        self._refresh_photo_manager()
+
+    def _ensure_hidden_wallpaper_password(self):
+        stored_hash = str(self._config.get("hidden_wallpapers_password_hash", "") or "")
+        if not stored_hash:
+            return self._set_hidden_wallpaper_password()
+        password, ok = QInputDialog.getText(
+            self,
+            "Show Hidden Wallpapers/Photos",
+            "Password:",
+            QLineEdit.Password,
+        )
+        if not ok:
+            return False
+        if self._verify_hidden_wallpaper_password(password):
+            return True
+        QMessageBox.warning(self, "Show Hidden Wallpapers/Photos", "Incorrect password.")
+        return False
+
+    def _set_hidden_wallpaper_password(self):
+        password, ok = QInputDialog.getText(
+            self,
+            "Set Hidden Wallpapers/Photos Password",
+            "Create password:",
+            QLineEdit.Password,
+        )
+        if not ok:
+            return False
+        password = str(password or "")
+        if not password:
+            QMessageBox.warning(self, "Set Hidden Wallpapers/Photos Password", "Password cannot be empty.")
+            return False
+        confirm, ok = QInputDialog.getText(
+            self,
+            "Set Hidden Wallpapers/Photos Password",
+            "Confirm password:",
+            QLineEdit.Password,
+        )
+        if not ok:
+            return False
+        if password != str(confirm or ""):
+            QMessageBox.warning(self, "Set Hidden Wallpapers/Photos Password", "Passwords do not match.")
+            return False
+        salt = secrets.token_bytes(16)
+        digest = hashlib.pbkdf2_hmac("sha256", password.encode("utf-8"), salt, 120_000)
+        self._config.set("hidden_wallpapers_password_salt", base64.b64encode(salt).decode("ascii"))
+        self._config.set("hidden_wallpapers_password_hash", base64.b64encode(digest).decode("ascii"))
+        self._config.save()
+        return True
+
+    def _verify_hidden_wallpaper_password(self, password):
+        try:
+            salt = base64.b64decode(str(self._config.get("hidden_wallpapers_password_salt", "") or ""))
+            expected = base64.b64decode(str(self._config.get("hidden_wallpapers_password_hash", "") or ""))
+        except (ValueError, TypeError):
+            return False
+        digest = hashlib.pbkdf2_hmac("sha256", str(password or "").encode("utf-8"), salt, 120_000)
+        return secrets.compare_digest(digest, expected)
 
     def _refresh_theme_hub(self):
         profiles = self._rockbox_profiles.profiles()
@@ -5232,7 +5465,11 @@ class MainWindow(QMainWindow):
         )
         target_mode = self._photo_manager.current_target_mode()
         target_root = self._rockbox_photos.target_root(profile, target_mode, sim_target)
-        photos = self._rockbox_photos.list_photos(profile, sim_target)
+        photos = self._rockbox_photos.list_photos(
+            profile,
+            sim_target,
+            include_hidden=self._show_hidden_wallpapers,
+        )
         selected_ids = [photo["id"] for photo in self._photo_manager.selected_photos()]
         self._photo_manager.set_library_state(
             profile.get("photos_library_path", ""),
@@ -5327,6 +5564,19 @@ class MainWindow(QMainWindow):
             self._status_bar.set_left_text("Photo sync failed")
             QMessageBox.warning(self, "Photo Sync Failed", "\n".join(result["failures"]))
         self._refresh_photo_manager()
+
+    def _hide_selected_photos(self):
+        profile = self._rockbox_profiles.current_profile()
+        photos = self._photo_manager.selected_photos()
+        if not profile or not photos:
+            self._status_bar.set_left_text("No selected photos to hide")
+            return
+        hidden = not all(photo.get("hidden") for photo in photos)
+        changed = self._rockbox_photos.set_hidden(profile, photos, hidden)
+        self._refresh_photo_manager()
+        if changed:
+            action = "Hidden" if hidden else "Unhidden"
+            self._status_bar.set_left_text(f"{action} {changed} photo(s)")
 
     def _remove_selected_photos(self):
         profile = self._rockbox_profiles.current_profile()

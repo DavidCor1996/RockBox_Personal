@@ -24,6 +24,7 @@ class _WallpaperPane(QFrame):
     selection_changed = Signal()
     apply_clicked = Signal()
     add_clicked = Signal()
+    hide_clicked = Signal()
     remove_clicked = Signal()
 
     def __init__(self, title: str, empty_text: str, parent=None):
@@ -50,11 +51,14 @@ class _WallpaperPane(QFrame):
         buttons = QHBoxLayout()
         self._add_btn = QPushButton("Add...")
         self._add_btn.clicked.connect(self.add_clicked)
+        self._hide_btn = QPushButton("Hide")
+        self._hide_btn.clicked.connect(self.hide_clicked)
         self._remove_btn = QPushButton("Remove")
         self._remove_btn.clicked.connect(self.remove_clicked)
         self._apply_btn = QPushButton("Apply")
         self._apply_btn.clicked.connect(self.apply_clicked)
         buttons.addWidget(self._add_btn)
+        buttons.addWidget(self._hide_btn)
         buttons.addWidget(self._remove_btn)
         buttons.addStretch(1)
         buttons.addWidget(self._apply_btn)
@@ -113,6 +117,7 @@ class _WallpaperPane(QFrame):
             self._preview.setPixmap(QPixmap())
             self._preview.setText("No selection")
             self._detail.setText("")
+            self._hide_btn.setEnabled(False)
             self._remove_btn.setEnabled(False)
             return
         preview_path = candidate.get("preview_path", "")
@@ -128,11 +133,15 @@ class _WallpaperPane(QFrame):
             self._preview.setPixmap(QPixmap())
             self._preview.setText("Preview unavailable")
         removable = bool(candidate.get("removable"))
+        hidden = bool(candidate.get("hidden"))
+        self._hide_btn.setEnabled(True)
+        self._hide_btn.setText("Unhide" if hidden else "Hide")
         self._remove_btn.setEnabled(removable)
         self._detail.setText(
             f"Source: {candidate.get('origin', 'custom').title()}\n"
             f"Size: {candidate.get('width', 0)}x{candidate.get('height', 0)}\n"
             f"{candidate.get('source_path', '')}\n"
+            f"Hidden: {'Yes' if hidden else 'No'}\n"
             f"Removable: {'Yes' if removable else 'No'}"
         )
 
@@ -144,6 +153,7 @@ class IPoneWallpaperManagerWidget(QWidget):
     theme_selected = Signal(str)
     apply_requested = Signal(dict)
     import_requested = Signal(str, str)
+    hide_requested = Signal(str, dict)
     remove_requested = Signal(str, dict)
 
     def __init__(self, parent=None):
@@ -195,6 +205,8 @@ class IPoneWallpaperManagerWidget(QWidget):
         self._charge_pane.apply_clicked.connect(self._emit_apply_charge)
         self._lock_pane.add_clicked.connect(self._choose_custom_lock)
         self._charge_pane.add_clicked.connect(self._choose_custom_charge)
+        self._lock_pane.hide_clicked.connect(self._emit_hide_lock)
+        self._charge_pane.hide_clicked.connect(self._emit_hide_charge)
         self._lock_pane.remove_clicked.connect(self._emit_remove_lock)
         self._charge_pane.remove_clicked.connect(self._emit_remove_charge)
         panes.addWidget(self._lock_pane, 1)
@@ -305,3 +317,13 @@ class IPoneWallpaperManagerWidget(QWidget):
         candidate = self._charge_pane.current_candidate()
         if candidate:
             self.remove_requested.emit("charge", dict(candidate))
+
+    def _emit_hide_lock(self):
+        candidate = self._lock_pane.current_candidate()
+        if candidate:
+            self.hide_requested.emit("lock", dict(candidate))
+
+    def _emit_hide_charge(self):
+        candidate = self._charge_pane.current_candidate()
+        if candidate:
+            self.hide_requested.emit("charge", dict(candidate))

@@ -37,6 +37,12 @@ ALBUM_LIST_DEVICE_DIR = os.path.join(".rockbox", "albumlist")
 ALBUM_LIST_THUMB_DEVICE_DIR = os.path.join(ALBUM_LIST_DEVICE_DIR, "thumbs")
 VIDEO_LIST_DEVICE_DIR = os.path.join(".rockbox", "videolist")
 VIDEO_LIST_THUMB_DEVICE_DIR = os.path.join(VIDEO_LIST_DEVICE_DIR, "thumbs")
+SYNC_TEMP_SUFFIX = ".rockpod_tmp"
+MAX_AUTO_DUPLICATE_DELETE_COUNT = 5
+MANIFEST_ARTWORK_RELPATHS = {
+    os.path.join(ALBUM_LIST_DEVICE_DIR, "index.tsv"),
+    os.path.join(VIDEO_LIST_DEVICE_DIR, "index.tsv"),
+}
 
 
 def _sanitize_filename(name, max_len=200):
@@ -59,6 +65,13 @@ def _bump_reason(reason_counts, reason):
     if not reason:
         return
     reason_counts[reason] = reason_counts.get(reason, 0) + 1
+
+
+def _looks_like_auto_duplicate_path(rel_path):
+    """Return whether a device path looks like a RockPod-created duplicate copy."""
+    name = os.path.basename(str(rel_path or ""))
+    stem, _ext = os.path.splitext(name)
+    return re.search(r"\s\([2-9]\d*\)$", stem) is not None
 
 
 def _sync_update_reasons(row, device_row=None, old_dev_path="", new_rel_path=""):
@@ -264,6 +277,63 @@ def _clear_device_trash(device_mount):
     return removed
 
 
+def _device_rel_path(device_mount, path):
+    try:
+        rel = os.path.relpath(path, device_mount)
+    except (OSError, ValueError):
+        return str(path)
+    return rel.replace(os.sep, "/")
+
+
+def _cleanup_stale_sync_temps(device_mount):
+    """Remove temp files left by an interrupted RockPod sync."""
+    removed = []
+    errors = []
+    if not device_mount or not os.path.isdir(device_mount):
+        return removed, errors
+
+    for root, dirs, files in os.walk(device_mount):
+        dirs[:] = [name for name in dirs if not str(name).startswith(".Trash-")]
+        for name in files:
+            if not str(name).endswith(SYNC_TEMP_SUFFIX):
+                continue
+            full = os.path.join(root, name)
+            try:
+                os.remove(full)
+                removed.append(_device_rel_path(device_mount, full))
+            except OSError as exc:
+                errors.append(f"Could not remove stale temp file {_device_rel_path(device_mount, full)}: {exc}")
+    return removed, errors
+
+
+def _sync_source_path(row):
+    item = dict(row) if hasattr(row, "keys") else dict(row or {})
+    return str(item.get("sync_source_path") or item.get("file_path") or "")
+
+
+def _sync_row_transfer_size(row):
+    item = dict(row) if hasattr(row, "keys") else dict(row or {})
+    source_path = _sync_source_path(item)
+    if source_path:
+        try:
+            return os.path.getsize(source_path)
+        except OSError:
+            pass
+    try:
+        return int(item.get("file_size") or 0)
+    except (TypeError, ValueError):
+        return 0
+
+
+def _device_file_matches_sync_source(row, device_path):
+    if not os.path.isfile(device_path):
+        return False
+    try:
+        return os.path.getsize(device_path) == _sync_row_transfer_size(row)
+    except OSError:
+        return False
+
+
 class SyncPlan:
     """Describes what a sync operation will do before executing it."""
 
@@ -276,6 +346,8 @@ class SyncPlan:
         self.total_bytes = 0
         self.transcode_count = 0
         self.errors = []
+        self.preflight_linked = []   # list of (track_row, device_rel_path) repaired before copy
+        self.preflight_removed = []  # list of stale temp relpaths removed before copy
         self.plan_profile = {}
         self.execution_profile = {}
         self.copy_reason_counts = {}
@@ -309,6 +381,10 @@ class SyncPlan:
             parts.append(f"{len(self.up_to_date)} tracks already up to date")
         if self.to_delete:
             parts.append(f"{len(self.to_delete)} duplicate device tracks to remove")
+        if self.preflight_linked:
+            parts.append(f"{len(self.preflight_linked)} interrupted sync files repaired")
+        if self.preflight_removed:
+            parts.append(f"{len(self.preflight_removed)} stale sync temp files removed")
         if self.transcode_count:
             parts.append(f"{self.transcode_count} tracks converted for device sync")
         mb = self.total_bytes / (1024 * 1024)
@@ -447,6 +523,10 @@ class SyncWorker(QObject):
                     return
                 desc = f"Syncing artwork: {os.path.basename(os.path.dirname(rel_path))}"
                 self.progress.emit(artwork_offset + i + 1, total, desc)
+                if failed and rel_path in MANIFEST_ARTWORK_RELPATHS:
+                    skipped += 1
+                    logger.warning("Skipping %s because media copy failures occurred", rel_path)
+                    continue
                 dest = os.path.join(self._device_mount, rel_path)
                 copy_started = time.perf_counter()
                 ok, copy_stats = self._copy_file(src_cover, dest, created_dirs)
@@ -560,7 +640,7 @@ class SyncWorker(QObject):
             # Copy to a temp file first, then replace the destination.
             # Rockbox does not need source timestamps preserved on device files,
             # so avoid extra metadata syscalls on slow removable storage.
-            tmp = dest + ".rockpod_tmp"
+            tmp = dest + SYNC_TEMP_SUFFIX
             try:
                 t_open = time.perf_counter()
                 with open(src, "rb") as src_handle, open(tmp, "wb") as tmp_handle:
@@ -797,6 +877,9 @@ class SyncEngine(QObject):
         file_template = self._config_value("device_file_template", "{track_number:02d} - {title}{ext}")
         resync_meta = bool(self._config_value("resync_metadata_changes", True))
         force = force_full or bool(self._config_value("force_full_resync", False))
+        removed_temps, temp_errors = _cleanup_stale_sync_temps(device.mount_path)
+        plan.preflight_removed.extend(removed_temps)
+        plan.errors.extend(temp_errors)
 
         stage_times = {
             "local_fetch_seconds": 0.0,
@@ -892,6 +975,19 @@ class SyncEngine(QObject):
                     ):
                         _bump_reason(update_reason_counts, reason)
                 else:
+                    desired_full_path = os.path.join(device.mount_path, desired_rel_path)
+                    if desired_rel_path not in used_paths and os.path.isfile(desired_full_path):
+                        used_paths.add(desired_rel_path)
+                        if _device_file_matches_sync_source(row, desired_full_path):
+                            plan.preflight_linked.append((row, desired_rel_path))
+                            continue
+                        plan.to_resync.append((row, desired_rel_path, desired_rel_path))
+                        _bump_reason(update_reason_counts, "interrupted sync repair overwrite")
+                        if row.get("sync_transcoded"):
+                            _bump_reason(update_reason_counts, "conversion required")
+                        plan.total_bytes += _sync_row_transfer_size(row)
+                        continue
+
                     rel_path = self._unique_device_path(
                         desired_rel_path,
                         used_paths,
@@ -934,6 +1030,9 @@ class SyncEngine(QObject):
                 if not (resync_meta and id(result) in resync_ids)
             ]
 
+            if plan.preflight_linked:
+                self._apply_preflight_links(plan.preflight_linked)
+
             # Also check for artwork changes (if track matched but artwork_hash differs)
             if resync_meta:
                 for result in matched:
@@ -956,6 +1055,7 @@ class SyncEngine(QObject):
                     rel_path = row.get("device_path", "")
                     if rel_path:
                         plan.to_delete.append(rel_path)
+            self._apply_duplicate_delete_safety(plan)
 
         stage_start = time.perf_counter()
         emit_status("Planning artwork sync...")
@@ -992,6 +1092,41 @@ class SyncEngine(QObject):
         if not self._current_device_key:
             return []
         return self._db.get_all_device_tracks(self._current_device_key)
+
+    def _apply_duplicate_delete_safety(self, plan):
+        """Block risky automatic device deletes before a sync can execute."""
+        deletes = list(getattr(plan, "to_delete", []) or [])
+        if not deletes:
+            return
+
+        unsafe = [
+            rel_path for rel_path in deletes
+            if not _looks_like_auto_duplicate_path(rel_path)
+        ]
+        if unsafe:
+            plan.to_delete = []
+            plan.errors.append(
+                "Skipped automatic duplicate cleanup because delete candidates did not look like RockPod duplicate files: "
+                + ", ".join(unsafe[:5])
+            )
+            logger.warning("Blocked unsafe duplicate cleanup candidates: %s", unsafe)
+            return
+
+        max_deletes = int(self._config_value("max_auto_duplicate_deletes_per_sync", MAX_AUTO_DUPLICATE_DELETE_COUNT) or 0)
+        if max_deletes < 0:
+            max_deletes = 0
+        if len(deletes) > max_deletes:
+            plan.to_delete = []
+            plan.errors.append(
+                f"Skipped automatic duplicate cleanup because it wanted to remove {len(deletes)} iPod files. "
+                f"The safety limit is {max_deletes}. Use duplicate cleanup manually after reviewing the device."
+            )
+            logger.warning(
+                "Blocked duplicate cleanup count %d above safety limit %d: %s",
+                len(deletes),
+                max_deletes,
+                deletes,
+            )
 
     def device_inventory_has_local_links(self):
         """Return whether the cached device inventory can answer match-based counts cheaply."""
@@ -1253,6 +1388,8 @@ class SyncEngine(QObject):
             add_target(dict(row), rel_path)
         for row, _old_path, rel_path in plan.to_resync:
             add_target(dict(row), rel_path)
+        for row, rel_path in plan.preflight_linked:
+            add_target(dict(row), rel_path)
         for result in matched:
             row = dict(result.local_track) if hasattr(result.local_track, "keys") else dict(result.local_track)
             device_row = dict(result.device_track) if hasattr(result.device_track, "keys") else dict(result.device_track)
@@ -1365,6 +1502,8 @@ class SyncEngine(QObject):
             add_video(row, rel_path)
         for row, _old_path, rel_path in plan.to_resync:
             add_video(row, rel_path)
+        for row, rel_path in plan.preflight_linked:
+            add_video(row, rel_path)
         for result in matched:
             row = dict(result.local_track) if hasattr(result.local_track, "keys") else dict(result.local_track)
             device_row = dict(result.device_track) if hasattr(result.device_track, "keys") else dict(result.device_track)
@@ -1433,6 +1572,27 @@ class SyncEngine(QObject):
                 return
         plan.artwork_to_copy.append((src, rel_path, album_key))
 
+    def _apply_preflight_links(self, links):
+        """Persist completed files found during planning as synced device rows."""
+        device_key = self._current_device_key
+        if not device_key or not links:
+            return
+        synced_at = datetime.now().isoformat(timespec="seconds")
+        with self._db.transaction():
+            for row, rel_path in links:
+                item = dict(row) if hasattr(row, "keys") else dict(row or {})
+                self._upsert_synced_device_row(device_key, item, rel_path, synced_at)
+                local_id = item.get("id")
+                if local_id:
+                    self._db.mark_synced(
+                        local_id,
+                        rel_path,
+                        item.get("metadata_hash", ""),
+                        item.get("file_hash", ""),
+                    )
+            self._db.mark_device_synced(device_key)
+        self.load_cached_device_inventory(device_key)
+
     def apply_successful_sync_to_cache(self, plan, synced_at=None):
         """Update cached DB device state from a completed sync plan."""
         device_key = self._current_device_key
@@ -1441,6 +1601,17 @@ class SyncEngine(QObject):
         if synced_at is None:
             synced_at = time.strftime("%Y-%m-%dT%H:%M:%S")
 
+        for row, rel_path in getattr(plan, "preflight_linked", []):
+            item = dict(row) if hasattr(row, "keys") else dict(row or {})
+            self._upsert_synced_device_row(device_key, item, rel_path, synced_at)
+            local_id = item.get("id")
+            if local_id:
+                self._db.mark_synced(
+                    local_id,
+                    rel_path,
+                    item.get("metadata_hash", ""),
+                    item.get("file_hash", ""),
+                )
         for row, rel_path in plan.to_copy:
             self._upsert_synced_device_row(device_key, row, rel_path, synced_at)
         for row, old_rel_path, rel_path in plan.to_resync:
@@ -1669,6 +1840,9 @@ class SyncEngine(QObject):
         for group in duplicates:
             for row in group["remove"]:
                 rel = row.get("device_path", "")
+                if not _looks_like_auto_duplicate_path(rel):
+                    failures.append(f"{rel}: skipped; not an automatic duplicate-suffix path")
+                    continue
                 full = os.path.join(device.mount_path, rel)
                 try:
                     _remove_audio_with_sidecars(full)

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+import json
 
 from PIL import Image, ImageOps, UnidentifiedImageError
 
@@ -13,21 +14,30 @@ PHOTO_THUMB_DIR = "Photos/.photo_thumbs"
 DEVICE_PHOTO_MAX_SIZE = (800, 800)
 DEVICE_PHOTO_JPEG_QUALITY = 85
 THUMBNAIL_MAX_SIZE = (64, 48)
+HIDDEN_PHOTOS_FILE = ".hidden_photos.json"
 
 
 class RockboxPhotoService:
     """Manage user-supplied photos for the Rockbox Photos plugin."""
 
-    def list_photos(self, profile, simulator_target=None):
+    def list_photos(self, profile, simulator_target=None, include_hidden=False):
         library_path = os.path.abspath(profile.get("photos_library_path") or "")
         device_root = self.photo_target_root(profile, "device")
         sim_root = self.photo_target_root(profile, "simulator", simulator_target)
+        hidden_keys = set(self._load_hidden(profile).get("hidden", []))
         photos = []
         relpaths = set()
 
         if library_path and os.path.isdir(library_path):
             for source_path in self._scan_photo_files(library_path):
                 relpath = self._relative_photo_path(library_path, source_path)
+                hidden_key = self._hidden_key(relpath)
+                device_hidden_key = self._hidden_key(self._device_photo_relpath(relpath))
+                is_hidden = hidden_key in hidden_keys or device_hidden_key in hidden_keys
+                if is_hidden and not include_hidden:
+                    relpaths.add(relpath)
+                    relpaths.add(self._device_photo_relpath(relpath))
+                    continue
                 stat = os.stat(source_path)
                 photos.append(
                     {
@@ -42,6 +52,8 @@ class RockboxPhotoService:
                         "on_device": os.path.isfile(os.path.join(device_root, self._device_photo_relpath(relpath))) if device_root else False,
                         "on_simulator": os.path.isfile(os.path.join(sim_root, self._device_photo_relpath(relpath))) if sim_root else False,
                         "missing_source": False,
+                        "hidden": is_hidden,
+                        "hidden_key": hidden_key,
                     }
                 )
                 relpaths.add(relpath)
@@ -53,6 +65,11 @@ class RockboxPhotoService:
             for target_path in self._scan_photo_files(root):
                 relpath = self._relative_photo_path(root, target_path)
                 if relpath in relpaths:
+                    continue
+                hidden_key = self._hidden_key(relpath)
+                is_hidden = hidden_key in hidden_keys
+                if is_hidden and not include_hidden:
+                    relpaths.add(relpath)
                     continue
                 stat = os.stat(target_path)
                 photos.append(
@@ -68,11 +85,38 @@ class RockboxPhotoService:
                         "on_device": key == "on_device",
                         "on_simulator": key == "on_simulator",
                         "missing_source": True,
+                        "hidden": is_hidden,
+                        "hidden_key": hidden_key,
                     }
                 )
                 relpaths.add(relpath)
 
         return sorted(photos, key=lambda item: item["relative_path"].lower())
+
+    def set_hidden(self, profile, photos, hidden=True):
+        items = photos if isinstance(photos, (list, tuple)) else [photos]
+        data = self._load_hidden(profile)
+        keys = set(data.get("hidden", []))
+        changed = 0
+        for photo in items:
+            relpaths = {
+                str((photo or {}).get("relative_path") or "").strip(),
+                str((photo or {}).get("device_relative_path") or "").strip(),
+            }
+            relpaths = {relpath for relpath in relpaths if relpath}
+            if not relpaths:
+                continue
+            photo_keys = {self._hidden_key(relpath) for relpath in relpaths}
+            before = any(key in keys for key in photo_keys)
+            if hidden:
+                keys.update(photo_keys)
+            else:
+                keys.difference_update(photo_keys)
+            if before != any(key in keys for key in photo_keys):
+                changed += 1
+        data["hidden"] = sorted(keys)
+        self._save_hidden(profile, data)
+        return changed
 
     def mount_root(self, profile, target_mode="device", simulator_target=None):
         mount_root = profile.get("device_mount_path") or ""
@@ -338,6 +382,33 @@ class RockboxPhotoService:
         profile_id = self._safe_cache_component(profile.get("id") or "default")
         mode = self._safe_cache_component(target_mode or "device")
         return os.path.abspath(os.path.join(source_repo, "rockpod", ".generated", "photos", profile_id, mode))
+
+    def _hidden_path(self, profile):
+        source_repo = profile.get("source_repo_path") or os.getcwd()
+        return os.path.abspath(os.path.join(source_repo, "rockpod", "generated", HIDDEN_PHOTOS_FILE))
+
+    @staticmethod
+    def _hidden_key(relpath):
+        return str(relpath or "").replace("\\", "/").lstrip("/").casefold()
+
+    def _load_hidden(self, profile):
+        path = self._hidden_path(profile)
+        try:
+            with open(path, "r", encoding="utf-8") as handle:
+                data = json.load(handle)
+        except (OSError, json.JSONDecodeError):
+            return {"hidden": []}
+        hidden = data.get("hidden", [])
+        if not isinstance(hidden, list):
+            hidden = []
+        return {"hidden": [str(item) for item in hidden]}
+
+    def _save_hidden(self, profile, data):
+        path = self._hidden_path(profile)
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        with open(path, "w", encoding="utf-8") as handle:
+            json.dump({"hidden": list(data.get("hidden", []))}, handle, indent=2, sort_keys=True)
+            handle.write("\n")
 
     @staticmethod
     def _thumbnail_size(profile):

@@ -108,7 +108,6 @@ static enum plugin_status run_pocketcatch(void)
     if (status == PLUGIN_OK)
         pc_world_save(&pc_game.world);
 
-    rb->audio_stop();
     set_world_wheel_mode(false);
     pc_world_teardown(&pc_game.world);
     pc_assets_teardown(&pc_game.encounter.assets);

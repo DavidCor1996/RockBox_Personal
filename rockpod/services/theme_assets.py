@@ -41,6 +41,7 @@ DEFAULT_ASSET_MAP = {
     "storagebar_frame": "statusbar/storage_frame.png",
     "device_summary_header": "device/summary_header.png",
     "device_summary_sidebar_icon": "device/ipod_icon.png",
+    "device_plugged_ipod": "device/ipod_plugged_2007.png",
     "album_placeholder": "artwork/album_placeholder.png",
     "album_frame": "artwork/album_frame.png",
 }

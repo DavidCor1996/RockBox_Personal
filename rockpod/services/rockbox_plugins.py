@@ -105,17 +105,17 @@ class RockboxPluginService:
                 }
             )
         for asset_path in metadata.get("asset_source_paths", []):
-            if not os.path.isfile(asset_path):
+            source_abs, destination_rel = self._asset_source_destination(metadata, asset_path)
+            if not os.path.isfile(source_abs):
                 continue
-            filename = os.path.basename(asset_path)
             assets.append(
                 {
                     "kind": "plugin_asset",
-                    "source_rel": os.path.relpath(asset_path, metadata["repo_root"]).replace("\\", "/"),
-                    "source_abs": asset_path,
-                    "destination_rel": f"{metadata['asset_destination_dir']}/{filename}",
+                    "source_rel": os.path.relpath(source_abs, metadata["repo_root"]).replace("\\", "/"),
+                    "source_abs": source_abs,
+                    "destination_rel": destination_rel,
                     "exists": True,
-                    "size": os.path.getsize(asset_path),
+                    "size": os.path.getsize(source_abs),
                 }
             )
         return {
@@ -136,13 +136,13 @@ class RockboxPluginService:
             }
         ]
         for asset_path in metadata.get("asset_source_paths", []):
-            filename = os.path.basename(asset_path)
+            _source_abs, destination_rel = self._asset_source_destination(metadata, asset_path)
             assets.append(
                 {
                     "kind": "plugin_asset",
                     "source_rel": "",
                     "source_abs": "",
-                    "destination_rel": f"{metadata['asset_destination_dir']}/{filename}",
+                    "destination_rel": destination_rel,
                     "exists": False,
                     "action": "remove",
                 }
@@ -168,6 +168,8 @@ class RockboxPluginService:
                 candidate = os.path.join(repo_root, "apps", "plugins", filename)
                 if os.path.isfile(candidate):
                     asset_sources.append(candidate)
+        elif plugin_id == "pocketcatch":
+            asset_sources = self._pocketcatch_asset_sources(repo_root, category, profile, simulator_target)
         return {
             "id": plugin_id,
             "display_name": override.get("display_name", plugin_id.replace("_", " ").title()),
@@ -188,6 +190,112 @@ class RockboxPluginService:
             ),
             "repo_root": repo_root,
         }
+
+    @staticmethod
+    def _asset_source_destination(metadata, asset_source):
+        if isinstance(asset_source, dict):
+            return asset_source["source_abs"], asset_source["destination_rel"]
+        filename = os.path.basename(asset_source)
+        return asset_source, f"{metadata['asset_destination_dir']}/{filename}"
+
+    @classmethod
+    def _pocketcatch_asset_sources(cls, repo_root, category, profile, simulator_target):
+        pack_root = cls._pocketcatch_pack_root(repo_root, profile, simulator_target)
+        if not pack_root:
+            return []
+
+        destination_root = f".rockbox/rocks/{category}/pocketcatch"
+        sources = []
+        rel_paths = set()
+        for root, _dirs, files in os.walk(pack_root):
+            for filename in sorted(files):
+                source_abs = os.path.join(root, filename)
+                rel_path = os.path.relpath(source_abs, pack_root).replace("\\", "/")
+                rel_paths.add(rel_path)
+                sources.append(
+                    {
+                        "source_abs": source_abs,
+                        "destination_rel": f"{destination_root}/{rel_path}",
+                    }
+                )
+
+        bg_alias = "backgrounds/scene_day_layer0.bmp"
+        bg_source = os.path.join(pack_root, "backgrounds", "new_bark_town_hgss.bmp")
+        if bg_alias not in rel_paths and os.path.isfile(bg_source):
+            sources.append(
+                {
+                    "source_abs": bg_source,
+                    "destination_rel": f"{destination_root}/{bg_alias}",
+                }
+            )
+        return sources
+
+    @staticmethod
+    def _pocketcatch_pack_root(repo_root, profile, simulator_target):
+        candidates = []
+        for rel_path in (
+            os.path.join("rockpod", "assets", "pocketcatch"),
+            os.path.join("rockpod", "assets", "pocketcatch_personal"),
+        ):
+            candidates.append(os.path.join(repo_root, rel_path))
+
+        resolution = str((profile or {}).get("screen_resolution") or "").strip()
+        if resolution:
+            candidates.append(
+                os.path.join(
+                    repo_root,
+                    "rockpod",
+                    ".theme_designer",
+                    "simulator",
+                    f"ipod-{resolution}",
+                    "build-sim-video-5g",
+                    "simdisk",
+                    ".rockbox",
+                    "rocks",
+                    "games",
+                    "pocketcatch",
+                )
+            )
+
+        if simulator_target:
+            simdisk_path = simulator_target.get("simdisk_path") or ""
+            if simdisk_path:
+                candidates.append(os.path.join(simdisk_path, ".rockbox", "rocks", "games", "pocketcatch"))
+
+        theme_designer_root = os.path.join(repo_root, "rockpod", ".theme_designer", "simulator")
+        if os.path.isdir(theme_designer_root):
+            for sim_name in sorted(os.listdir(theme_designer_root)):
+                sim_root = os.path.join(theme_designer_root, sim_name)
+                if not os.path.isdir(sim_root):
+                    continue
+                for build_name in sorted(os.listdir(sim_root)):
+                    candidates.append(
+                        os.path.join(
+                            sim_root,
+                            build_name,
+                            "simdisk",
+                            ".rockbox",
+                            "rocks",
+                            "games",
+                            "pocketcatch",
+                        )
+                    )
+
+        for candidate in candidates:
+            if RockboxPluginService._valid_pocketcatch_pack_root(candidate):
+                return candidate
+        return ""
+
+    @staticmethod
+    def _valid_pocketcatch_pack_root(candidate):
+        if not candidate or not os.path.isdir(candidate):
+            return False
+        required = (
+            "pack.json",
+            os.path.join("sprites", "creatures", "creature_001_idle_0.bmp"),
+            os.path.join("sprites", "balls", "ball_default_idle_0.bmp"),
+        )
+        return all(os.path.isfile(os.path.join(candidate, rel_path)) for rel_path in required)
 
     @staticmethod
     def _load_categories(repo_root):

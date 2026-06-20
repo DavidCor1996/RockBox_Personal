@@ -18,6 +18,13 @@ static const fb_data pc_gb_palette[4] = {
     PC_GB_LIGHT,
 };
 
+enum pc_render_egg_rarity {
+    PC_RENDER_EGG_COMMON = 0,
+    PC_RENDER_EGG_UNCOMMON,
+    PC_RENDER_EGG_RARE,
+    PC_RENDER_EGG_EPIC
+};
+
 #define PC_WORLD_TILESET_MAX 96
 #define PC_WORLD_TILE_CACHE_PIXELS (PC_WORLD_SUBTILE_SIZE * PC_WORLD_SUBTILE_SIZE)
 #define PC_WORLD_NPC_TRAINERS 3
@@ -101,6 +108,9 @@ static void draw_asset_bitmap_fit(const struct bitmap *bmp, int x, int y, int w,
 
 static const struct pc_asset_bitmap *ensure_npc_trainer_asset(int trainer_index,
                                                               int heading, int frame);
+static int npc_variant_for_position(const struct pc_world_state *world,
+                                    int trainer_index,
+                                    int metatile_x, int metatile_y);
 static const struct pc_asset_bitmap *ensure_ui_ball_asset(void);
 static const struct pc_asset_bitmap *ensure_weather_icon_asset(enum pc_world_weather weather);
 static const struct pc_asset_bitmap *ensure_bag_row_asset(int slot, int species_index);
@@ -536,7 +546,10 @@ static bool outdoor_scene(enum pc_world_scene scene)
            scene == PC_WORLD_SCENE_ROUTE4 ||
            scene == PC_WORLD_SCENE_CERULEAN ||
            scene == PC_WORLD_SCENE_ROUTE24 ||
-           scene == PC_WORLD_SCENE_ROUTE25;
+           scene == PC_WORLD_SCENE_ROUTE25 ||
+           scene == PC_WORLD_SCENE_ROUTE5 ||
+           scene == PC_WORLD_SCENE_ROUTE6 ||
+           scene == PC_WORLD_SCENE_VERMILION;
 }
 
 enum pc_scene_tileset_group {
@@ -579,6 +592,8 @@ static enum pc_scene_tileset_group scene_tileset_group(enum pc_world_scene scene
         case PC_WORLD_SCENE_MT_MOON_POKECENTER:
         case PC_WORLD_SCENE_CERULEAN_MART:
         case PC_WORLD_SCENE_CERULEAN_POKECENTER:
+        case PC_WORLD_SCENE_VERMILION_POKECENTER:
+        case PC_WORLD_SCENE_VERMILION_MART:
             return PC_SCENE_TILESET_POKECENTER;
 
         case PC_WORLD_SCENE_VIRIDIAN_GYM:
@@ -595,6 +610,9 @@ static enum pc_scene_tileset_group scene_tileset_group(enum pc_world_scene scene
         case PC_WORLD_SCENE_VIRIDIAN_FOREST_NORTH_GATE:
         case PC_WORLD_SCENE_MUSEUM_1F:
         case PC_WORLD_SCENE_MUSEUM_2F:
+        case PC_WORLD_SCENE_UNDERGROUND_NORTH:
+        case PC_WORLD_SCENE_UNDERGROUND_PATH:
+        case PC_WORLD_SCENE_UNDERGROUND_SOUTH:
             return PC_SCENE_TILESET_GATE;
 
         case PC_WORLD_SCENE_OAKS_LAB:
@@ -623,6 +641,9 @@ static enum pc_scene_tileset_group scene_tileset_group(enum pc_world_scene scene
         case PC_WORLD_SCENE_CERULEAN:
         case PC_WORLD_SCENE_ROUTE24:
         case PC_WORLD_SCENE_ROUTE25:
+        case PC_WORLD_SCENE_ROUTE5:
+        case PC_WORLD_SCENE_ROUTE6:
+        case PC_WORLD_SCENE_VERMILION:
         default:
             return PC_SCENE_TILESET_OVERWORLD;
     }
@@ -780,6 +801,79 @@ static void draw_pokestop(const struct pc_world_state *world, int index)
     xlcd_drawcircle(screen_x, screen_y - 3, 11);
 }
 
+static fb_data egg_shell_color(int rarity)
+{
+    switch (rarity)
+    {
+        case PC_RENDER_EGG_UNCOMMON:
+            return LCD_RGBPACK(0xd8, 0xf2, 0xa7);
+
+        case PC_RENDER_EGG_RARE:
+            return LCD_RGBPACK(0xb8, 0xe9, 0xff);
+
+        case PC_RENDER_EGG_EPIC:
+            return LCD_RGBPACK(0xe2, 0xdb, 0xf1);
+
+        case PC_RENDER_EGG_COMMON:
+        default:
+            return LCD_RGBPACK(0xff, 0xf0, 0xc8);
+    }
+}
+
+static fb_data egg_spot_color(int rarity)
+{
+    switch (rarity)
+    {
+        case PC_RENDER_EGG_UNCOMMON:
+            return LCD_RGBPACK(0x68, 0xa8, 0x58);
+
+        case PC_RENDER_EGG_RARE:
+            return LCD_RGBPACK(0x58, 0xbd, 0xe5);
+
+        case PC_RENDER_EGG_EPIC:
+            return LCD_RGBPACK(0x9a, 0x69, 0xc7);
+
+        case PC_RENDER_EGG_COMMON:
+        default:
+            return LCD_RGBPACK(0xe8, 0x9c, 0x5c);
+    }
+}
+
+static void draw_egg_icon(int x, int y, int rarity)
+{
+    fb_data shell = egg_shell_color(rarity);
+    fb_data spot = egg_spot_color(rarity);
+
+    rb->lcd_set_foreground(LCD_RGBPACK(0xa0, 0xa8, 0x90));
+    rb->lcd_fillrect(x + 3, y + 19, 18, 3);
+    rb->lcd_set_foreground(shell);
+    xlcd_fillcircle(x + 12, y + 11, 10);
+    rb->lcd_fillrect(x + 4, y + 9, 17, 10);
+    rb->lcd_set_foreground(PC_GB_DEEP);
+    xlcd_drawcircle(x + 12, y + 11, 10);
+    rb->lcd_drawline(x + 4, y + 11, x + 4, y + 18);
+    rb->lcd_drawline(x + 20, y + 11, x + 20, y + 18);
+    rb->lcd_set_foreground(spot);
+    xlcd_fillcircle(x + 9, y + 8, 2);
+    xlcd_fillcircle(x + 15, y + 13, 2);
+    rb->lcd_fillrect(x + 8, y + 16, 7, 2);
+}
+
+static void draw_small_progress(int x, int y, int w, int h, int progress, int required,
+                                fb_data color)
+{
+    int fill_w = 0;
+
+    fill_rect_outline(x, y, w, h, PC_GB_LIGHT, PC_GB_DEEP);
+    if (required > 0)
+        fill_w = ((w - 2) * MIN(progress, required)) / required;
+    if (fill_w > 0)
+    {
+        rb->lcd_set_foreground(color);
+        rb->lcd_fillrect(x + 1, y + 1, fill_w, h - 2);
+    }
+}
+
 static void draw_pokestop_overlay(const struct pc_world_state *world)
 {
     const struct pc_asset_bitmap *ball = ensure_ui_ball_asset();
@@ -851,16 +945,23 @@ static void draw_pokestop_overlay(const struct pc_world_state *world)
     if (world->pokestop_spun)
     {
         draw_text_small(x + 16, y + 156, PC_GB_DEEP, "SUPPLIES");
-        draw_flat_panel(x + 16, y + 166, 74, 28, PC_GB_LIGHT, PC_GB_DEEP, PC_GB_MID);
-        draw_flat_panel(x + 98, y + 166, 74, 28, PC_GB_LIGHT, PC_GB_DEEP, PC_GB_MID);
+        draw_flat_panel(x + 16, y + 166, 70, 28, PC_GB_LIGHT, PC_GB_DEEP, PC_GB_MID);
+        draw_flat_panel(x + 94, y + 166, 70, 28, PC_GB_LIGHT, PC_GB_DEEP, PC_GB_MID);
         if (ball != NULL)
             draw_asset_bitmap(&ball->bmp, x + 28, y + 173);
         draw_text_small(x + 48, y + 171, PC_GB_DARK, "BALLS");
         rb->snprintf(line, sizeof(line), "x%d", world->pokestop_reward_balls);
         draw_text_small(x + 48, y + 181, PC_GB_DEEP, line);
-        draw_text_small(x + 112, y + 171, PC_GB_DARK, "COINS");
+        draw_text_small(x + 108, y + 171, PC_GB_DARK, "COINS");
         rb->snprintf(line, sizeof(line), "$%d", world->pokestop_reward_money);
-        draw_text_small(x + 112, y + 181, PC_GB_DEEP, line);
+        draw_text_small(x + 108, y + 181, PC_GB_DEEP, line);
+        if (world->pokestop_reward_egg)
+        {
+            draw_flat_panel(x + 172, y + 166, 74, 28, PC_GB_LIGHT, PC_GB_DEEP, PC_GB_MID);
+            draw_egg_icon(x + 180, y + 169, PC_RENDER_EGG_RARE);
+            draw_text_small(x + 204, y + 171, PC_GB_DARK, "EGG");
+            draw_text_small(x + 204, y + 181, PC_GB_DEEP, "x1");
+        }
         draw_text_small(x + 18, y + 199, PC_GB_DARK, "Select close  Left back");
     }
     else
@@ -1377,6 +1478,7 @@ static void draw_static_named_trainer_npc(const struct pc_world_state *world,
                                           enum pc_heading heading)
 {
     const struct pc_asset_bitmap *trainer;
+    int variant;
     int step = PC_WORLD_TILE_SIZE / 2;
     int screen_x = world->origin_x + metatile_x * step + step / 2;
     int screen_y = world->origin_y + metatile_y * step + step / 2
@@ -1388,7 +1490,8 @@ static void draw_static_named_trainer_npc(const struct pc_world_state *world,
         return;
     }
 
-    trainer = ensure_npc_trainer_asset(trainer_index, heading, 1);
+    variant = npc_variant_for_position(world, trainer_index, metatile_x, metatile_y);
+    trainer = ensure_npc_trainer_asset(variant, heading, 1);
     if (trainer == NULL || !trainer->loaded)
     {
         draw_static_red_npc(world, metatile_x, metatile_y, heading);
@@ -1414,6 +1517,41 @@ static const char *npc_trainer_name(int trainer_index)
     if (trainer_index < 0 || trainer_index >= PC_WORLD_NPC_TRAINERS)
         return names[0];
     return names[trainer_index];
+}
+
+static int npc_variant_player_trainer_index(int variant)
+{
+    static const signed char player_indices[PC_WORLD_NPC_TRAINERS] = {
+        2, 6, 0
+    };
+
+    if (variant < 0 || variant >= PC_WORLD_NPC_TRAINERS)
+        return -1;
+    return player_indices[variant];
+}
+
+static int npc_variant_for_position(const struct pc_world_state *world,
+                                    int trainer_index,
+                                    int metatile_x, int metatile_y)
+{
+    int variant = trainer_index;
+
+    if (variant < 0)
+        variant = 0;
+    variant += (int)world->scene + metatile_x * 3 + metatile_y * 5;
+    variant %= PC_WORLD_NPC_TRAINERS;
+    if (variant < 0)
+        variant += PC_WORLD_NPC_TRAINERS;
+
+    if (npc_variant_player_trainer_index(variant) == world->player_trainer &&
+        PC_WORLD_NPC_TRAINERS > 1)
+    {
+        variant = (variant + 1 + ((int)world->scene % (PC_WORLD_NPC_TRAINERS - 1))) %
+                  PC_WORLD_NPC_TRAINERS;
+        if (npc_variant_player_trainer_index(variant) == world->player_trainer)
+            variant = (variant + 1) % PC_WORLD_NPC_TRAINERS;
+    }
+    return variant;
 }
 
 static const struct pc_asset_bitmap *ensure_npc_trainer_asset(int trainer_index,
@@ -1549,6 +1687,30 @@ static void draw_scene_npcs(const struct pc_world_state *world)
         draw_static_named_trainer_npc(world, 2, 8, 4, PC_HEADING_E);
         draw_static_named_trainer_npc(world, 2, 23, 9, PC_HEADING_N);
         draw_static_named_trainer_npc(world, 2, 13, 7, PC_HEADING_E);
+        return;
+    }
+
+    if (world->scene == PC_WORLD_SCENE_ROUTE5)
+    {
+        draw_static_named_trainer_npc(world, 1, 5, 7, PC_HEADING_S);
+        draw_static_named_trainer_npc(world, 0, 8, 12, PC_HEADING_W);
+        return;
+    }
+
+    if (world->scene == PC_WORLD_SCENE_ROUTE6)
+    {
+        draw_static_named_trainer_npc(world, 0, 5, 9, PC_HEADING_S);
+        draw_static_named_trainer_npc(world, 1, 6, 13, PC_HEADING_W);
+        draw_static_named_trainer_npc(world, 2, 3, 15, PC_HEADING_E);
+        return;
+    }
+
+    if (world->scene == PC_WORLD_SCENE_VERMILION)
+    {
+        draw_static_named_trainer_npc(world, 2, 10, 9, PC_HEADING_S);
+        draw_static_named_trainer_npc(world, 1, 15, 5, PC_HEADING_W);
+        draw_static_named_trainer_npc(world, 0, 6, 12, PC_HEADING_E);
+        draw_static_named_trainer_npc(world, 2, 17, 14, PC_HEADING_S);
         return;
     }
 
@@ -2023,27 +2185,27 @@ static const struct pc_asset_bitmap *ensure_bag_row_asset(int slot, int species_
 static void draw_menu_overlay(const struct pc_world_state *world)
 {
     static const char *const items[] = {
-        "Resume", "Songs", "Buddy", "Field Moves",
+        "Resume", "Songs", "Eggs", "Buddy", "Field Moves",
         "Backpack", "Pokedex", "Save Game", "Quit"
     };
     int x = 28;
-    int y = 12;
+    int y = 8;
     int w = LCD_WIDTH - 56;
-    int h = 176;
+    int h = 200;
     int i;
 
     fill_rect_outline(x, y, w, h, PC_GB_PANEL, PC_GB_DEEP);
     draw_text_small(x + 44, y + 10, PC_GB_DEEP, "PAUSE");
-    for (i = 0; i < 8; ++i)
+    for (i = 0; i < (int)ARRAYLEN(items); ++i)
     {
-        int row_y = y + 28 + i * 16;
+        int row_y = y + 28 + i * 15;
 
         if (i == world->menu_index)
-            fill_rect_outline(x + 10, row_y - 2, w - 20, 14, PC_GB_MID, PC_GB_DEEP);
+            fill_rect_outline(x + 10, row_y - 2, w - 20, 13, PC_GB_MID, PC_GB_DEEP);
         draw_text_small(x + 18, row_y, PC_GB_DEEP, items[i]);
     }
     if (world->detail.line2[0] != '\0')
-        draw_text_small(x + 10, y + 156, PC_GB_DEEP, world->detail.line2);
+        draw_text_small(x + 10, y + 178, PC_GB_DEEP, world->detail.line2);
 }
 
 static const char *field_ability_label(enum pc_field_ability ability)
@@ -2056,9 +2218,93 @@ static const char *field_ability_label(enum pc_field_ability ability)
         case PC_FIELD_ABILITY_CUT:
             return "HM01 Cut";
 
+        case PC_FIELD_ABILITY_FLY:
+            return "HM02 Fly";
+
+        case PC_FIELD_ABILITY_STRENGTH:
+            return "HM04 Strength";
+
+        case PC_FIELD_ABILITY_FLASH:
+            return "HM05 Flash";
+
         default:
             return "Field Move";
     }
+}
+
+static int field_ability_cost_for_draw(enum pc_field_ability ability)
+{
+    switch (ability)
+    {
+        case PC_FIELD_ABILITY_SURF:
+            return 80;
+
+        case PC_FIELD_ABILITY_CUT:
+            return 60;
+
+        case PC_FIELD_ABILITY_FLY:
+            return 100;
+
+        case PC_FIELD_ABILITY_STRENGTH:
+            return 90;
+
+        case PC_FIELD_ABILITY_FLASH:
+            return 70;
+
+        default:
+            return 0;
+    }
+}
+
+static void draw_eggs_overlay(const struct pc_world_state *world)
+{
+    int x = 18;
+    int y = 18;
+    int w = LCD_WIDTH - 36;
+    int h = LCD_HEIGHT - 36;
+    int i;
+    char line[40];
+
+    fill_rect_outline(x, y, w, h, PC_GB_PANEL, PC_GB_DEEP);
+    draw_text_small(x + 10, y + 8, PC_GB_DEEP, "INCUBATOR");
+    rb->snprintf(line, sizeof(line), "%d/%d eggs", pc_world_egg_count(world), PC_EGG_SLOT_COUNT);
+    draw_text_small(x + w - 68, y + 8, PC_GB_DARK, line);
+
+    for (i = 0; i < PC_EGG_SLOT_COUNT; ++i)
+    {
+        int row_y = y + 30 + i * 48;
+        int rarity = world->egg_rarity[i];
+        int progress = world->egg_progress_seconds[i];
+        int required = MAX(1, world->egg_required_seconds[i]);
+        fb_data fill = egg_spot_color(rarity);
+
+        draw_flat_panel(x + 10, row_y, w - 20, 40,
+                        i == world->egg_index ? LCD_RGBPACK(0xff, 0xf0, 0xd8) : PC_GB_LIGHT,
+                        PC_GB_DEEP,
+                        i == world->egg_index ? LCD_RGBPACK(0xf4, 0xc0, 0x78) : PC_GB_MID);
+
+        if (world->egg_species[i] < 0)
+        {
+            draw_text_small(x + 52, row_y + 9, PC_GB_DARK, "Empty slot");
+            draw_text_small(x + 52, row_y + 21, PC_GB_DARK, "PokeStops may drop eggs");
+            draw_egg_icon(x + 22, row_y + 8, PC_RENDER_EGG_COMMON);
+            continue;
+        }
+
+        draw_egg_icon(x + 22, row_y + 8, rarity);
+        rb->snprintf(line, sizeof(line), "%s egg", pc_world_egg_rarity_label(rarity));
+        fit_text_small(line, sizeof(line), line, w - 92);
+        draw_text_small(x + 52, row_y + 7, PC_GB_DEEP, line);
+        rb->snprintf(line, sizeof(line), "%d:%02d / %d:%02d",
+                     progress / 60, progress % 60, required / 60, required % 60);
+        draw_text_small(x + 52, row_y + 19, PC_GB_DARK, line);
+        draw_small_progress(x + 52, row_y + 30, w - 86, 7, progress, required, fill);
+    }
+
+    if (world->detail.line1[0] != '\0')
+        draw_text_small(x + 10, y + h - 30, PC_GB_DEEP, world->detail.line1);
+    if (world->detail.line2[0] != '\0')
+        draw_text_small(x + 10, y + h - 18, PC_GB_DARK, world->detail.line2);
 }
 
 static void draw_bag_overlay(const struct pc_world_state *world)
@@ -2256,15 +2502,15 @@ static void draw_mart_overlay(const struct pc_world_state *world)
         }
         else if (world->mart_category == 1)
         {
-            if (i == 0)
-            {
-                name = "HM03 Surf";
-                tag = world->ability_owned[PC_FIELD_ABILITY_SURF] ? "OWND" : "$80";
-            }
+            enum pc_field_ability ability = (enum pc_field_ability)i;
+
+            name = field_ability_label(ability);
+            if (world->ability_owned[i])
+                tag = "OWND";
             else
             {
-                name = "HM01 Cut";
-                tag = world->ability_owned[PC_FIELD_ABILITY_CUT] ? "OWND" : "$60";
+                rb->snprintf(line, sizeof(line), "$%d", field_ability_cost_for_draw(ability));
+                tag = line;
             }
         }
         else
@@ -2319,7 +2565,7 @@ static void draw_field_moves_overlay(const struct pc_world_state *world)
     {
         const struct pc_creature_def *partner = NULL;
         int assigned = world->ability_species[i];
-        int row_y = y + 34 + i * 24;
+        int row_y = y + 30 + i * 22;
 
         if (assigned >= 0 && assigned < PC_POKEDEX_MAX &&
             world->caught_counts[assigned] > 0)
@@ -2341,8 +2587,8 @@ static void draw_field_moves_overlay(const struct pc_world_state *world)
         draw_text_small(x + 24, row_y + 10, PC_GB_DARK, line);
     }
 
-    draw_text_small(x + 10, y + 98, PC_GB_DEEP, "Select assign  Left back");
-    draw_text_small(x + 10, y + 112, PC_GB_DEEP, "Locked moves are sold in mart");
+    draw_text_small(x + 10, y + 146, PC_GB_DEEP, "Select assign  Left back");
+    draw_text_small(x + 10, y + 160, PC_GB_DEEP, "Locked moves are sold in mart");
 }
 
 static void draw_songs_overlay(const struct pc_world_state *world)
@@ -2542,6 +2788,8 @@ void pc_world_render_frame(const struct pc_world_state *world)
         draw_mart_overlay(world);
     else if (world->view == PC_WORLD_VIEW_SONGS)
         draw_songs_overlay(world);
+    else if (world->view == PC_WORLD_VIEW_EGGS)
+        draw_eggs_overlay(world);
     else if (world->view == PC_WORLD_VIEW_BUDDY)
         draw_buddy_overlay(world);
     else if (world->view == PC_WORLD_VIEW_FIELD_MOVES)

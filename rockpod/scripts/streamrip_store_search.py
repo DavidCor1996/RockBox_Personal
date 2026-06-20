@@ -92,6 +92,26 @@ def _int_value(value, default: int = 0) -> int:
         return default
 
 
+def _preview_url(item: dict) -> str:
+    candidates = (
+        item.get("preview_url"),
+        item.get("preview"),
+        item.get("previewUrl"),
+        item.get("sample_url"),
+        item.get("sampleUrl"),
+        item.get("stream_url"),
+    )
+    for value in candidates:
+        if isinstance(value, str) and value.strip():
+            return value.strip()
+    preview = item.get("preview") if isinstance(item.get("preview"), dict) else {}
+    for key in ("url", "href"):
+        value = preview.get(key)
+        if isinstance(value, str) and value.strip():
+            return value.strip()
+    return ""
+
+
 def _artist_name(item: dict) -> str:
     artists = item.get("artists")
     if isinstance(artists, list) and artists:
@@ -168,6 +188,7 @@ def _normalize_track(source: str, item: dict, fallback_artist: str = "") -> dict
         "disc_number": _int_value(item.get("volumeNumber") or item.get("disc_number") or item.get("media_number"), 1),
         "duration": _int_value(duration),
         "url": _track_url(source, track_id),
+        "preview_url": _preview_url(item),
     }
 
 

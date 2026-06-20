@@ -225,6 +225,57 @@ def test_browser_panel_album_details_show_ordered_tracks_and_single_buy_buttons(
     assert emitted[0][0]["url"] == "https://tidal.com/track/1"
 
 
+def test_browser_panel_album_details_preview_button_emits_album_preview_queue():
+    QApplication.instance() or QApplication([])
+    panel = BrowserPanel()
+    emitted = []
+    panel.store_preview_requested.connect(lambda track, queue: emitted.append((track, queue)))
+
+    result = {
+        "source": "tidal",
+        "media_type": "album",
+        "id": "123",
+        "title": "Album",
+        "artist": "Artist",
+        "cover_path": "",
+        "url": "https://tidal.com/album/123",
+        "track_items": [
+            {
+                "source": "tidal",
+                "media_type": "track",
+                "id": "1",
+                "title": "First Song",
+                "track_number": 1,
+                "url": "https://tidal.com/track/1",
+                "preview_url": "https://example.com/first.mp3",
+            },
+            {
+                "source": "tidal",
+                "media_type": "track",
+                "id": "2",
+                "title": "Second Song",
+                "track_number": 2,
+                "url": "https://tidal.com/track/2",
+            },
+        ],
+    }
+    panel.show_store_result_details(result)
+
+    detail = panel._store_results_grid.itemAt(0).widget()
+    preview_button = next(button for button in detail.findChildren(type(panel._store_import_btn)) if button.text() == "Preview")
+    disabled_preview = next(button for button in detail.findChildren(type(panel._store_import_btn)) if button.text() == "No Preview")
+
+    assert preview_button.isEnabled() is True
+    assert disabled_preview.isEnabled() is False
+
+    preview_button.click()
+    assert emitted[0][0]["title"] == "First Song"
+    assert emitted[0][0]["stream_url"] == "https://example.com/first.mp3"
+    assert emitted[0][0]["album"] == "Album"
+    assert len(emitted[0][1]) == 1
+    assert emitted[0][1][0]["preview_url"] == "https://example.com/first.mp3"
+
+
 def test_browser_panel_browser_only_mode_hides_music_store_controls():
     QApplication.instance() or QApplication([])
     panel = BrowserPanel(music_store=False, title="iPod Games", web_title="iPod Games Browser")
@@ -261,7 +312,8 @@ def test_browser_panel_music_store_does_not_embed_web_store():
     assert panel._web is None
     assert panel._url_edit.isHidden()
     assert panel._open_external_btn.isHidden()
-    assert panel._store_import_bar.isHidden()
+    assert not panel._store_import_bar.isHidden()
+    assert "Spotify playlist URL" in panel._store_url_edit.placeholderText()
 
 
 def test_browser_panel_music_home_tabs_emit_section_requests():

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+import json
 import re
 from typing import Dict, List
 
@@ -54,6 +55,8 @@ LOCKSCREEN_DATE_LEFT_V2 = (
     "%if(%St(lang), =, japanese),%if(%St(lang), =, korean))<%cb %cd|%?if(%St(lang), =, english-us)<%cb %cd|%cd %cb>>"
 )
 
+HIDDEN_WALLPAPERS_FILE = ".hidden_wallpapers.json"
+
 
 def _clean_label(name: str) -> str:
     stem = os.path.splitext(os.path.basename(name))[0]
@@ -96,10 +99,11 @@ def _theme_label(name: str, kind: str) -> str:
 class IPoneWallpaperService:
     """Expose wallpaper choices and build direct device-copy bundles."""
 
-    def list_candidates(self, repo_root: str, profile: Dict) -> Dict[str, List[Dict]]:
+    def list_candidates(self, repo_root: str, profile: Dict, include_hidden: bool = False) -> Dict[str, List[Dict]]:
         repo_root = os.path.abspath(repo_root)
         asset_dir = self._asset_dir(profile)
         generated_dir = os.path.join(repo_root, "rockpod", "generated")
+        hidden = self._load_hidden(repo_root)
         lock = []
         charge = []
         seen_lock = set()
@@ -107,10 +111,10 @@ class IPoneWallpaperService:
 
         for filename in self._theme_wallpaper_files(repo_root, asset_dir, "lock"):
             full = os.path.join(repo_root, "wps", asset_dir, filename)
-            self._append_candidate(lock, seen_lock, full, origin="theme", label=_theme_label(filename, "lock"))
+            self._append_candidate(lock, seen_lock, full, repo_root, hidden, include_hidden, origin="theme", label=_theme_label(filename, "lock"))
         for filename in self._theme_wallpaper_files(repo_root, asset_dir, "charge"):
             full = os.path.join(repo_root, "wps", asset_dir, filename)
-            self._append_candidate(charge, seen_charge, full, origin="theme", label=_theme_label(filename, "charge"))
+            self._append_candidate(charge, seen_charge, full, repo_root, hidden, include_hidden, origin="theme", label=_theme_label(filename, "charge"))
 
         if os.path.isdir(generated_dir):
             for name in sorted(os.listdir(generated_dir)):
@@ -120,9 +124,9 @@ class IPoneWallpaperService:
                 if self._is_intermediate_generated_file(name):
                     continue
                 if self._matches(name, LOCK_PATTERNS):
-                    self._append_candidate(lock, seen_lock, full, origin="generated")
+                    self._append_candidate(lock, seen_lock, full, repo_root, hidden, include_hidden, origin="generated")
                 if self._matches(name, CHARGE_PATTERNS):
-                    self._append_candidate(charge, seen_charge, full, origin="generated")
+                    self._append_candidate(charge, seen_charge, full, repo_root, hidden, include_hidden, origin="generated")
 
         return {"lock": lock, "charge": charge}
 
@@ -162,6 +166,23 @@ class IPoneWallpaperService:
         if not os.path.isfile(source_abs):
             return False
         os.remove(source_abs)
+        self.set_hidden(repo_root, source_abs, False)
+        return True
+
+    def set_hidden(self, repo_root: str, source_path: str, hidden: bool = True) -> bool:
+        repo_root = os.path.abspath(repo_root)
+        source_abs = os.path.abspath(source_path)
+        if not os.path.isfile(source_abs):
+            return False
+        key = self._hidden_key(repo_root, source_abs)
+        data = self._load_hidden(repo_root)
+        keys = set(data.get("hidden", []))
+        if hidden:
+            keys.add(key)
+        else:
+            keys.discard(key)
+        data["hidden"] = sorted(keys)
+        self._save_hidden(repo_root, data)
         return True
 
     def build_apply_bundle(
@@ -238,6 +259,9 @@ class IPoneWallpaperService:
         items: List[Dict],
         seen: set,
         source_abs: str,
+        repo_root: str,
+        hidden: Dict,
+        include_hidden: bool,
         origin: str,
         label: str = "",
     ):
@@ -246,6 +270,10 @@ class IPoneWallpaperService:
             return
         key = os.path.normcase(os.path.abspath(deploy_abs))
         if key in seen:
+            return
+        hidden_key = self._hidden_key(repo_root, deploy_abs)
+        is_hidden = hidden_key in set(hidden.get("hidden", []))
+        if is_hidden and not include_hidden:
             return
         seen.add(key)
         preview_abs = self._previewable_path(source_abs)
@@ -258,10 +286,47 @@ class IPoneWallpaperService:
                 "preview_path": preview_abs,
                 "origin": origin,
                 "removable": origin == "generated",
+                "hidden": is_hidden,
+                "hidden_key": hidden_key,
                 "width": width,
                 "height": height,
             }
         )
+
+    @staticmethod
+    def _hidden_path(repo_root: str) -> str:
+        return os.path.join(os.path.abspath(repo_root), "rockpod", "generated", HIDDEN_WALLPAPERS_FILE)
+
+    @staticmethod
+    def _hidden_key(repo_root: str, source_abs: str) -> str:
+        repo_root = os.path.abspath(repo_root)
+        source_abs = os.path.abspath(source_abs)
+        try:
+            rel = os.path.relpath(source_abs, repo_root)
+            if not rel.startswith("..") and rel != os.curdir:
+                return rel.replace(os.sep, "/").casefold()
+        except ValueError:
+            pass
+        return os.path.normcase(source_abs)
+
+    def _load_hidden(self, repo_root: str) -> Dict:
+        path = self._hidden_path(repo_root)
+        try:
+            with open(path, "r", encoding="utf-8") as handle:
+                data = json.load(handle)
+        except (OSError, json.JSONDecodeError):
+            return {"hidden": []}
+        hidden = data.get("hidden", [])
+        if not isinstance(hidden, list):
+            hidden = []
+        return {"hidden": [str(item) for item in hidden]}
+
+    def _save_hidden(self, repo_root: str, data: Dict):
+        path = self._hidden_path(repo_root)
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        with open(path, "w", encoding="utf-8") as handle:
+            json.dump({"hidden": list(data.get("hidden", []))}, handle, indent=2, sort_keys=True)
+            handle.write("\n")
 
     @staticmethod
     def _matches(name: str, patterns) -> bool:

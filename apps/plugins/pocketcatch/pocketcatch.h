@@ -28,6 +28,7 @@
 #define PC_MUSIC_ROOT_PATH     "/Music"
 #define PC_MUSIC_HISTORY_PATH  PC_ASSET_ROOT_ALT "/music_history.dat"
 #define PC_MUSIC_UNLOCKS_PATH  PC_ASSET_ROOT_ALT "/unlocked_songs.dat"
+#define PC_EGG_RUNTIME_PATH    PC_ASSET_ROOT_ALT "/egg_runtime.dat"
 
 #define PC_BG_MAX_BYTES        (LCD_WIDTH * LCD_HEIGHT * sizeof(fb_data))
 #define PC_CREATURE_MAX_W      112
@@ -96,9 +97,11 @@
 #define PC_WORLD_MAX_SPAWNS    8
 #define PC_WORLD_WALK_FRAMES   3
 #define PC_WORLD_SECRET_COUNT  8
-#define PC_WORLD_POKESTOP_COUNT 31
+#define PC_WORLD_POKESTOP_COUNT 37
+#define PC_WORLD_POKESTOP_COUNT_V16 31
 #define PC_WORLD_POKESTOP_COUNT_V12 10
 #define PC_WORLD_POKESTOP_COUNT_V13 18
+#define PC_EGG_SLOT_COUNT      3
 #define PC_POKESTOP_SPIN_TARGET 84
 #define PC_BUDDY_CANDY_STEPS   48
 #define PC_MART_CATEGORY_COUNT 3
@@ -341,10 +344,18 @@ enum pc_world_scene {
     PC_WORLD_SCENE_CERULEAN_BADGE_HOUSE,
     PC_WORLD_SCENE_ROUTE24,
     PC_WORLD_SCENE_ROUTE25,
-    PC_WORLD_SCENE_BILLS_HOUSE
+    PC_WORLD_SCENE_BILLS_HOUSE,
+    PC_WORLD_SCENE_ROUTE5,
+    PC_WORLD_SCENE_UNDERGROUND_NORTH,
+    PC_WORLD_SCENE_UNDERGROUND_PATH,
+    PC_WORLD_SCENE_UNDERGROUND_SOUTH,
+    PC_WORLD_SCENE_ROUTE6,
+    PC_WORLD_SCENE_VERMILION,
+    PC_WORLD_SCENE_VERMILION_POKECENTER,
+    PC_WORLD_SCENE_VERMILION_MART
 };
 
-#define PC_WORLD_SCENE_MAX PC_WORLD_SCENE_BILLS_HOUSE
+#define PC_WORLD_SCENE_MAX PC_WORLD_SCENE_VERMILION_MART
 
 enum pc_world_view {
     PC_WORLD_VIEW_MAP = 0,
@@ -353,6 +364,7 @@ enum pc_world_view {
     PC_WORLD_VIEW_POKEDEX,
     PC_WORLD_VIEW_MART,
     PC_WORLD_VIEW_SONGS,
+    PC_WORLD_VIEW_EGGS,
     PC_WORLD_VIEW_BUDDY,
     PC_WORLD_VIEW_FIELD_MOVES,
     PC_WORLD_VIEW_FIELD_ASSIGN,
@@ -362,6 +374,9 @@ enum pc_world_view {
 enum pc_field_ability {
     PC_FIELD_ABILITY_SURF = 0,
     PC_FIELD_ABILITY_CUT,
+    PC_FIELD_ABILITY_FLY,
+    PC_FIELD_ABILITY_STRENGTH,
+    PC_FIELD_ABILITY_FLASH,
     PC_FIELD_ABILITY_COUNT
 };
 
@@ -418,6 +433,8 @@ struct pc_world_state {
     int mart_assign_index;
     int field_index;
     int song_index;
+    int egg_index;
+    int egg_runtime_save_frame;
     int bag_index;
     int buddy_index;
     int dex_index;
@@ -432,6 +449,7 @@ struct pc_world_state {
     int pokestop_last_wheel_angle;
     int pokestop_reward_balls;
     int pokestop_reward_money;
+    int pokestop_reward_egg_species;
     enum pc_world_scene scene;
     enum pc_world_view view;
     bool moving;
@@ -440,6 +458,7 @@ struct pc_world_state {
     bool pending_encounter;
     bool quit_requested;
     bool pokestop_spun;
+    bool pokestop_reward_egg;
     struct pc_message banner;
     struct pc_message detail;
     unsigned char tiles[PC_WORLD_MAP_MAX_H][PC_WORLD_MAP_MAX_W];
@@ -450,6 +469,10 @@ struct pc_world_state {
     unsigned short pokestop_cooldowns[PC_WORLD_POKESTOP_COUNT];
     unsigned short caught_counts[PC_POKEDEX_MAX];
     unsigned short family_candy[PC_POKEDEX_MAX];
+    signed short egg_species[PC_EGG_SLOT_COUNT];
+    unsigned short egg_progress_seconds[PC_EGG_SLOT_COUNT];
+    unsigned short egg_required_seconds[PC_EGG_SLOT_COUNT];
+    unsigned char egg_rarity[PC_EGG_SLOT_COUNT];
     signed short ability_species[PC_FIELD_ABILITY_COUNT];
     unsigned char ability_owned[PC_FIELD_ABILITY_COUNT];
     unsigned char owned_trainers[PC_PLAYER_TRAINER_COUNT];
@@ -525,6 +548,8 @@ void pc_world_finish_encounter(struct pc_world_state *world,
 void pc_world_cancel_encounter(struct pc_world_state *world);
 int pc_world_song_count(void);
 bool pc_world_song_name(int index, char *buffer, size_t buffer_size);
+int pc_world_egg_count(const struct pc_world_state *world);
+const char *pc_world_egg_rarity_label(int rarity);
 bool pc_world_secret_draw_info(const struct pc_world_state *world, int index,
                                int *metatile_x, int *metatile_y);
 bool pc_world_pokestop_draw_info(const struct pc_world_state *world, int index,

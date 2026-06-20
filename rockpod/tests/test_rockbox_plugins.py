@@ -68,6 +68,42 @@ def test_plugin_discovery_and_custom_priority(tmp_dir):
     assert pocket["destination_rel"] == ".rockbox/rocks/games/pocketcatch.rock"
 
 
+def test_pocketcatch_deploy_bundle_preserves_asset_pack_tree(tmp_dir):
+    repo_root = os.path.join(tmp_dir, "repo")
+    _make_repo(repo_root)
+    _make_build_outputs(repo_root)
+    _make_file(os.path.join(repo_root, "rockpod", "assets", "pocketcatch", "pack.json"), "{}")
+    _make_file(
+        os.path.join(repo_root, "rockpod", "assets", "pocketcatch", "sprites", "creatures", "creature_001_idle_0.bmp"),
+        b"creature",
+    )
+    _make_file(
+        os.path.join(repo_root, "rockpod", "assets", "pocketcatch", "sprites", "balls", "ball_default_idle_0.bmp"),
+        b"ball",
+    )
+    _make_file(
+        os.path.join(repo_root, "rockpod", "assets", "pocketcatch", "backgrounds", "new_bark_town_hgss.bmp"),
+        b"background",
+    )
+    _config, store = _make_store(tmp_dir, repo_root)
+    profile = store.current_profile()
+    profile["source_repo_path"] = repo_root
+    profile["target_device_model"] = "iPod Classic / Video"
+    profile = store.save_profile(profile)
+
+    service = RockboxPluginService()
+    metadata = service.plugin_details(repo_root, "pocketcatch", profile, None, "device")
+    bundle = service.build_deploy_bundle(metadata)
+    destinations = {item["destination_rel"] for item in bundle["assets"]}
+
+    assert ".rockbox/rocks/games/pocketcatch.rock" in destinations
+    assert ".rockbox/rocks/games/pocketcatch/pack.json" in destinations
+    assert ".rockbox/rocks/games/pocketcatch/sprites/creatures/creature_001_idle_0.bmp" in destinations
+    assert ".rockbox/rocks/games/pocketcatch/sprites/balls/ball_default_idle_0.bmp" in destinations
+    assert ".rockbox/rocks/games/pocketcatch/backgrounds/new_bark_town_hgss.bmp" in destinations
+    assert ".rockbox/rocks/games/pocketcatch/backgrounds/scene_day_layer0.bmp" in destinations
+
+
 def test_plugin_deploy_diff_device_and_repeat_apply(tmp_dir):
     repo_root = os.path.join(tmp_dir, "repo")
     _make_repo(repo_root)

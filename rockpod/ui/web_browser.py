@@ -136,6 +136,7 @@ class BrowserPanel(QWidget):
     store_search_requested = Signal(str, str)
     store_album_details_requested = Signal(dict)
     store_home_tab_requested = Signal(str)
+    store_preview_requested = Signal(dict, list)
 
     STORE_HOME_TABS = [
         ("featured", "Featured"),
@@ -277,7 +278,7 @@ class BrowserPanel(QWidget):
 
         self._store_url_edit = QLineEdit()
         self._store_url_edit.setObjectName("itunes_store_import_url")
-        self._store_url_edit.setPlaceholderText("Tidal, Qobuz, Deezer, SoundCloud, or Spotify URL")
+        self._store_url_edit.setPlaceholderText("Paste Tidal, Qobuz, Deezer, SoundCloud, or Spotify playlist URL")
         self._store_url_edit.returnPressed.connect(self._emit_store_import)
         self._store_format = QComboBox()
         self._store_format.addItem("FLAC", "flac")
@@ -302,7 +303,7 @@ class BrowserPanel(QWidget):
         shell_layout.addWidget(self._store_status)
         self._store_search_bar.setVisible(self._music_store)
         self._store_tab_bar.setVisible(self._music_store)
-        self._store_import_bar.setVisible(False)
+        self._store_import_bar.setVisible(self._music_store)
         self.set_store_home_tab("featured", emit=False)
 
         if self._music_store:
@@ -633,6 +634,47 @@ class BrowserPanel(QWidget):
             return ""
         return f"{seconds // 60}:{seconds % 60:02d}"
 
+    @staticmethod
+    def _store_result_preview_url(track):
+        item = dict(track or {})
+        for key in ("preview_url", "stream_url", "preview", "sample_url", "sample"):
+            raw = item.get(key)
+            if isinstance(raw, str) and raw.strip():
+                return raw.strip()
+            if isinstance(raw, dict):
+                for nested_key in ("url", "href"):
+                    value = str(raw.get(nested_key) or "").strip()
+                    if value:
+                        return value
+        return ""
+
+    def _emit_store_track_preview(self, track, album):
+        album_item = dict(album or {})
+        preview_tracks = []
+        for item in self._store_result_track_items(album_item):
+            track_item = dict(item or {})
+            preview_url = self._store_result_preview_url(track_item)
+            if not preview_url:
+                continue
+            track_item["preview_url"] = preview_url
+            track_item["stream_url"] = preview_url
+            track_item.setdefault("album", album_item.get("title") or "")
+            track_item.setdefault("album_artist", album_item.get("artist") or "")
+            track_item.setdefault("artist", album_item.get("artist") or "")
+            track_item.setdefault("media_type", "audio")
+            track_item.setdefault("cover_path", album_item.get("cover_path") or "")
+            preview_tracks.append(track_item)
+        selected = dict(track or {})
+        preview_url = self._store_result_preview_url(selected)
+        selected["preview_url"] = preview_url
+        selected["stream_url"] = preview_url
+        selected.setdefault("album", album_item.get("title") or "")
+        selected.setdefault("album_artist", album_item.get("artist") or "")
+        selected.setdefault("artist", album_item.get("artist") or "")
+        selected.setdefault("media_type", "audio")
+        selected.setdefault("cover_path", album_item.get("cover_path") or "")
+        self.store_preview_requested.emit(selected, preview_tracks or [selected])
+
     def _store_result_details(self, result):
         result = dict(result or {})
         title = str(result.get("title") or "Untitled Album")
@@ -733,9 +775,12 @@ class BrowserPanel(QWidget):
         header_title.setObjectName("itunes_store_detail_key")
         header_duration = QLabel("Time")
         header_duration.setObjectName("itunes_store_detail_key")
+        header_preview = QLabel("Preview")
+        header_preview.setObjectName("itunes_store_detail_key")
         header_layout.addWidget(header_number)
         header_layout.addWidget(header_title, 1)
         header_layout.addWidget(header_duration)
+        header_layout.addWidget(header_preview)
         track_layout.addWidget(header)
         if track_items:
             multi_disc = len({self._store_result_int(track.get("disc_number") or 1, 1) for track in track_items}) > 1
@@ -756,6 +801,7 @@ class BrowserPanel(QWidget):
                 duration = self._format_track_duration(track.get("duration") or track.get("duration_seconds"))
                 track_url = str(track.get("url") or "")
                 track_owned = bool(track.get("owned") or track.get("in_library"))
+                preview_url = self._store_result_preview_url(track)
                 row = QFrame()
                 row.setObjectName("itunes_store_detail_row")
                 row_layout = QHBoxLayout(row)
@@ -767,6 +813,12 @@ class BrowserPanel(QWidget):
                 name.setWordWrap(True)
                 time_label = QLabel(duration)
                 time_label.setObjectName("itunes_store_detail_key")
+                preview_btn = QPushButton("Preview" if preview_url else "No Preview")
+                preview_btn.setObjectName("store_nav_button")
+                preview_btn.setEnabled(bool(preview_url))
+                preview_btn.clicked.connect(
+                    lambda _checked=False, item=dict(track), album=dict(result): self._emit_store_track_preview(item, album)
+                )
                 buy_track_btn = QPushButton("Owned" if track_owned else "Buy")
                 buy_track_btn.setObjectName("store_buy_button")
                 buy_track_btn.setEnabled(bool(track_url) and not track_owned)
@@ -774,6 +826,7 @@ class BrowserPanel(QWidget):
                 row_layout.addWidget(number)
                 row_layout.addWidget(name, 1)
                 row_layout.addWidget(time_label)
+                row_layout.addWidget(preview_btn)
                 row_layout.addWidget(buy_track_btn)
                 track_layout.addWidget(row)
         else:

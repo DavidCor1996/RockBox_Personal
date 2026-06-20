@@ -350,6 +350,11 @@ class TrackMatcher:
 
     def explain_unmatched(self, row, device_rows):
         """Return a concise reason why a local row did not match."""
+        row = dict(row) if hasattr(row, "keys") else dict(row or {})
+        device_rows = [
+            dict(dt) if hasattr(dt, "keys") else dict(dt or {})
+            for dt in (device_rows or [])
+        ]
         title = _normalize(row.get("title", ""))
         if not title:
             return "missing title"

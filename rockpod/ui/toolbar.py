@@ -4,8 +4,8 @@ from PySide6.QtWidgets import (
     QWidget, QHBoxLayout, QVBoxLayout, QLabel, QPushButton, QLineEdit,
     QSizePolicy, QSlider, QFrame,
 )
-from PySide6.QtCore import Qt, Signal, QSize
-from PySide6.QtGui import QFont, QPixmap, QIcon, QFontMetrics
+from PySide6.QtCore import QPoint, Qt, Signal, QSize
+from PySide6.QtGui import QColor, QBrush, QFont, QFontMetrics, QIcon, QPainter, QPen, QPixmap, QPolygon
 
 from ui.track_adapter import normalize_track_for_ui
 
@@ -95,21 +95,21 @@ class Toolbar(QWidget):
         transport_layout.setContentsMargins(0, 0, 0, 0)
         transport_layout.setSpacing(2)
 
-        self._prev_btn = QPushButton("◀◀")
+        self._prev_btn = QPushButton("")
         self._prev_btn.setObjectName("playback_button")
-        self._prev_btn.setFixedSize(24, 19)
+        self._prev_btn.setFixedSize(26, 22)
         self._prev_btn.setToolTip("Previous")
         self._prev_btn.clicked.connect(self.previous_clicked)
 
-        self._play_btn = QPushButton("▶")
+        self._play_btn = QPushButton("")
         self._play_btn.setObjectName("playback_button")
-        self._play_btn.setFixedSize(26, 21)
+        self._play_btn.setFixedSize(29, 24)
         self._play_btn.setToolTip("Play/Pause")
         self._play_btn.clicked.connect(self.play_pause_clicked)
 
-        self._next_btn = QPushButton("▶▶")
+        self._next_btn = QPushButton("")
         self._next_btn.setObjectName("playback_button")
-        self._next_btn.setFixedSize(24, 19)
+        self._next_btn.setFixedSize(26, 22)
         self._next_btn.setToolTip("Next")
         self._next_btn.clicked.connect(self.next_clicked)
 
@@ -121,7 +121,8 @@ class Toolbar(QWidget):
         self._playback_cluster = QWidget()
         self._playback_cluster.setObjectName("playback_cluster")
         self._playback_cluster.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Preferred)
-        self._playback_cluster.setMinimumWidth(980)
+        self._playback_cluster.setMinimumWidth(430)
+        self._playback_cluster.setMaximumWidth(520)
         cluster_layout = QHBoxLayout(self._playback_cluster)
         cluster_layout.setContentsMargins(8, 0, 18, 0)
         cluster_layout.setSpacing(5)
@@ -291,13 +292,9 @@ class Toolbar(QWidget):
         self._apply_button_icon(self._sync_btn, theme_assets.asset_path("toolbar_sync"), "Sync to iPod")
         self._apply_button_icon(self._scan_btn, theme_assets.asset_path("toolbar_refresh"), "Refresh")
         self._apply_button_icon(self._new_playlist_btn, theme_assets.asset_path("toolbar_new_playlist"), "+")
-        self._apply_button_icon(self._prev_btn, theme_assets.asset_path("playback_previous"), "◀◀")
-        self._apply_button_icon(
-            self._play_btn,
-            theme_assets.asset_path("playback_pause") if self._play_btn.text() == "❚❚" else theme_assets.asset_path("playback_play"),
-            self._play_btn.text(),
-        )
-        self._apply_button_icon(self._next_btn, theme_assets.asset_path("playback_next"), "▶▶")
+        self._apply_transport_icon(self._prev_btn, "previous")
+        self._apply_transport_icon(self._play_btn, "pause" if self._playback_state == "playing" else "play")
+        self._apply_transport_icon(self._next_btn, "next")
 
         logo_path = theme_assets.asset_path("branding_title")
         if logo_path:
@@ -315,13 +312,7 @@ class Toolbar(QWidget):
 
     def set_playback_state(self, state):
         self._playback_state = state or "stopped"
-        self._play_btn.setText("❚❚" if state == "playing" else "▶")
-        if self._theme_assets is not None:
-            self._apply_button_icon(
-                self._play_btn,
-                self._theme_assets.asset_path("playback_pause") if state == "playing" else self._theme_assets.asset_path("playback_play"),
-                self._play_btn.text(),
-            )
+        self._apply_transport_icon(self._play_btn, "pause" if state == "playing" else "play")
         active = state in {"playing", "paused"}
         self._set_center_active(active)
         self._selected_art.setVisible(active and self._current_art_pixmap is not None)
@@ -414,9 +405,61 @@ class Toolbar(QWidget):
         button.setIcon(QIcon())
         button.setText(fallback_text)
 
+    def _apply_transport_icon(self, button, kind):
+        button.setText("")
+        button.setIcon(_transport_icon(kind))
+        button.setIconSize(QSize(19, 19))
+
 
 def _format_time(ms):
     seconds = int(ms or 0) // 1000
     mins = seconds // 60
     secs = seconds % 60
     return f"{mins}:{secs:02d}"
+
+
+def _transport_icon(kind):
+    px = QPixmap(22, 22)
+    px.fill(Qt.transparent)
+    painter = QPainter(px)
+    painter.setRenderHint(QPainter.Antialiasing, True)
+
+    shadow = QColor(255, 255, 255, 190)
+    face = QColor("#3f3f3f")
+    painter.setPen(Qt.NoPen)
+
+    def triangle(points, color):
+        painter.setBrush(QBrush(color))
+        painter.drawPolygon(QPolygon([QPoint(int(x), int(y)) for x, y in points]))
+
+    def bar(x, y, w, h, color):
+        painter.setBrush(QBrush(color))
+        painter.drawRoundedRect(x, y, w, h, 1, 1)
+
+    if kind == "previous":
+        triangle([(14, 6), (14, 16), (8, 11)], shadow)
+        triangle([(8, 6), (8, 16), (2, 11)], shadow)
+        bar(3, 6, 2, 10, shadow)
+        triangle([(15, 6), (15, 16), (9, 11)], face)
+        triangle([(9, 6), (9, 16), (3, 11)], face)
+        bar(4, 6, 2, 10, face)
+    elif kind == "next":
+        triangle([(8, 6), (8, 16), (14, 11)], shadow)
+        triangle([(14, 6), (14, 16), (20, 11)], shadow)
+        bar(18, 6, 2, 10, shadow)
+        triangle([(7, 6), (7, 16), (13, 11)], face)
+        triangle([(13, 6), (13, 16), (19, 11)], face)
+        bar(17, 6, 2, 10, face)
+    elif kind == "pause":
+        bar(8, 6, 3, 10, shadow)
+        bar(14, 6, 3, 10, shadow)
+        bar(7, 6, 3, 10, face)
+        bar(13, 6, 3, 10, face)
+    else:
+        triangle([(8, 5), (8, 17), (17, 11)], shadow)
+        triangle([(7, 5), (7, 17), (16, 11)], face)
+
+    painter.setPen(QPen(QColor(0, 0, 0, 40), 1))
+    painter.setBrush(Qt.NoBrush)
+    painter.end()
+    return QIcon(px)

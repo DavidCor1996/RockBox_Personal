@@ -19,9 +19,9 @@ FONT_FAMILY = (
 
 # ── Color constants ──────────────────────────────────────────────────
 # Toolbar / chrome
-TOOLBAR_GRAD_TOP = "#d8d8d8"
-TOOLBAR_GRAD_BOT = "#adadad"
-TOOLBAR_BORDER = "#727272"
+TOOLBAR_GRAD_TOP = "#eeeeee"
+TOOLBAR_GRAD_BOT = "#a7a7a7"
+TOOLBAR_BORDER = "#777777"
 
 # Sidebar (source list)
 SIDEBAR_BG = "#d8dde4"
@@ -90,6 +90,70 @@ QWidget {{
     background: {CONTENT_BG};
 }}
 
+QPushButton {{
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+        stop:0 #ffffff,
+        stop:0.18 #f7f7f7,
+        stop:0.49 #e4e4e4,
+        stop:0.50 #d1d1d1,
+        stop:1 #bfc4ca);
+    border: 1px solid #7f8790;
+    border-top-color: #9aa1a8;
+    border-radius: 3px;
+    color: #1f2933;
+    font-size: 11px;
+    font-weight: bold;
+    padding: 2px 10px;
+    min-height: 19px;
+}}
+
+QPushButton:hover {{
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+        stop:0 #ffffff, stop:0.42 #f4f7fb, stop:0.43 #dbe4ef, stop:1 #b7c3d1);
+}}
+
+QPushButton:pressed {{
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+        stop:0 #8997a7, stop:1 #c2ccd8);
+    color: #ffffff;
+}}
+
+QPushButton:disabled {{
+    color: #8b8f94;
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+        stop:0 #f4f4f4, stop:1 #dadada);
+    border-color: #b6bbc0;
+}}
+
+QLineEdit,
+QComboBox {{
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+        stop:0 #ffffff, stop:0.55 #fbfbfb, stop:1 #ededed);
+    border: 1px solid #9aa2ab;
+    border-radius: 3px;
+    padding: 2px 6px;
+    min-height: 18px;
+    selection-background-color: {TABLE_SEL_GRAD_TOP};
+    font-size: 11px;
+}}
+
+QLineEdit:focus,
+QComboBox:focus {{
+    border: 1px solid {FOCUS_RING};
+}}
+
+QComboBox::drop-down {{
+    width: 18px;
+    border: none;
+}}
+
+QListWidget,
+QTreeWidget,
+QTableView {{
+    selection-background-color: {TABLE_SEL_GRAD_TOP};
+    selection-color: {TABLE_SEL_TEXT};
+}}
+
 /* ── Main window ─────────────────────────────────────────────────── */
 QMainWindow {{
     background: {SIDEBAR_BG};
@@ -104,8 +168,15 @@ QMainWindow::separator {{
 /* ── Toolbar area ────────────────────────────────────────────────── */
 QWidget#toolbar_container {{
     background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-        stop:0 #f2efe8, stop:0.04 #ebe5da, stop:0.16 #ddd6c9, stop:0.52 #c8beb0, stop:1 #a79f95);
-    border-bottom: 1px solid #676767;
+        stop:0 #f9f9f9,
+        stop:0.03 #efefef,
+        stop:0.08 #d7d7d7,
+        stop:0.22 #c7c7c7,
+        stop:0.50 #b9b9b9,
+        stop:0.51 #ababab,
+        stop:0.76 #c6c6c6,
+        stop:1 #9f9f9f);
+    border-bottom: 1px solid #5f5f5f;
     border-top: 1px solid #fdfdfd;
     min-height: 44px;
     max-height: 44px;
@@ -140,17 +211,27 @@ QWidget#transport_group {{
 
 QWidget#playback_cluster {{
     background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-        stop:0 #f6f0df, stop:0.18 #eee6d3, stop:0.7 #e3dac8, stop:1 #d7cdb8);
-    border: 1px solid #9f9688;
-    border-radius: 4px;
+        stop:0 #fbfff4,
+        stop:0.08 #eff6df,
+        stop:0.50 #dfeac6,
+        stop:0.51 #cbd8af,
+        stop:1 #eff5de);
+    border: 1px solid #7f8674;
+    border-top-color: #5f6656;
+    border-left-color: #6e7563;
+    border-radius: 9px;
     min-width: 0px;
     padding: 1px 3px 1px 2px;
 }}
 
 QWidget#playback_cluster[active="true"] {{
     background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-        stop:0 #fbf5e6, stop:0.16 #f2ead9, stop:0.68 #e6dcc8, stop:1 #d8cdb8);
-    border: 1px solid #938a7c;
+        stop:0 #fffff6,
+        stop:0.12 #f3f9e5,
+        stop:0.50 #dce9c3,
+        stop:0.51 #c7d5ab,
+        stop:1 #edf5da);
+    border: 1px solid #686f5e;
 }}
 
 QWidget#toolbar_group_center {{
@@ -176,8 +257,8 @@ QWidget#toolbar_container QLabel {{
 
 QWidget#toolbar_container QLabel#selected_art {{
     background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-        stop:0 #ffffff, stop:0.5 #f3efe7, stop:1 #d6cab5);
-    border: 1px solid #737373;
+        stop:0 #ffffff, stop:0.5 #f6f6f6, stop:1 #d5d5d5);
+    border: 1px solid #666666;
     margin-left: 0px;
     margin-right: 1px;
 }}
@@ -191,7 +272,7 @@ QWidget#toolbar_container QLabel#selected_title {{
 }}
 
 QWidget#toolbar_container QLabel#selected_title[active="false"] {{
-    color: #5b5448;
+    color: #565656;
 }}
 
 QWidget#toolbar_container QLabel#selected_artist {{
@@ -202,7 +283,7 @@ QWidget#toolbar_container QLabel#selected_artist {{
 }}
 
 QWidget#toolbar_container QLabel#selected_artist[active="false"] {{
-    color: #8b8377;
+    color: #858585;
 }}
 
 QWidget#toolbar_container QLabel#selected_time {{
@@ -214,11 +295,11 @@ QWidget#toolbar_container QLabel#selected_time {{
 }}
 
 QWidget#toolbar_container QLabel#selected_time[active="false"] {{
-    color: #8b8377;
+    color: #858585;
 }}
 
 QWidget#toolbar_container QLabel#toolbar_title {{
-    color: #6a6258;
+    color: #535353;
     padding-left: 4px;
     padding-right: 0px;
     font-size: 10px;
@@ -227,8 +308,14 @@ QWidget#toolbar_container QLabel#toolbar_title {{
 
 QWidget#toolbar_container QPushButton {{
     background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-        stop:0 #ffffff, stop:0.18 #f7f7f7, stop:0.48 #e6e6e6, stop:0.49 #d9d9d9, stop:1 #bdbdbd);
-    border: 1px solid #7d7d7d;
+        stop:0 #ffffff,
+        stop:0.18 #f8f8f8,
+        stop:0.48 #e7e7e7,
+        stop:0.49 #d2d2d2,
+        stop:0.86 #b8b8b8,
+        stop:1 #dcdcdc);
+    border: 1px solid #747474;
+    border-top-color: #858585;
     border-radius: 3px;
     padding: 0px 4px;
     color: #1a1a1a;
@@ -251,21 +338,30 @@ QWidget#toolbar_container QPushButton#prefs_button {{
 }}
 
 QWidget#toolbar_container QPushButton#playback_button {{
-    padding: 0px 2px;
-    min-width: 23px;
-    max-width: 26px;
-    min-height: 19px;
-    max-height: 21px;
+    padding: 0px;
+    min-width: 22px;
+    max-width: 29px;
+    min-height: 22px;
+    max-height: 24px;
     font-size: 10px;
-    border-radius: 9px;
-    border: 1px solid #5e5e5e;
+    border-radius: 11px;
+    border: 1px solid #626262;
     background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-        stop:0 #ffffff, stop:0.08 #fcfcfc, stop:0.28 #f5f5f5, stop:0.29 #efefef, stop:0.68 #d4d0c8, stop:1 #ada69b);
+        stop:0 #ffffff,
+        stop:0.10 #fdfdfd,
+        stop:0.34 #efefef,
+        stop:0.35 #dcdcdc,
+        stop:0.70 #c6c6c6,
+        stop:1 #9d9d9d);
 }}
 
 QWidget#toolbar_container QPushButton#playback_button:hover {{
     background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-        stop:0 #ffffff, stop:0.14 #fefefe, stop:0.36 #f7f4ed, stop:0.37 #eee8dc, stop:1 #c8c0b3);
+        stop:0 #ffffff,
+        stop:0.18 #ffffff,
+        stop:0.44 #f4f4f4,
+        stop:0.45 #e2e2e2,
+        stop:1 #b9b9b9);
 }}
 
 QWidget#toolbar_container QPushButton#playback_button:pressed {{
@@ -285,7 +381,7 @@ QWidget#toolbar_container QSlider#playback_progress::groove:horizontal {{
     height: 3px;
     border: none;
     background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-        stop:0 #c1b8aa, stop:0.5 #ab9f90, stop:1 #d8d0c4);
+        stop:0 #9aa18b, stop:0.5 #777d6d, stop:1 #d9e2c4);
     border-radius: 2px;
 }}
 
@@ -306,7 +402,7 @@ QWidget#toolbar_container QSlider#volume_slider::groove:horizontal {{
     height: 2px;
     border: none;
     background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-        stop:0 #a79e91, stop:1 #ddd5c8);
+        stop:0 #8f8f8f, stop:1 #d8d8d8);
     border-radius: 2px;
 }}
 
@@ -349,7 +445,7 @@ QWidget#toolbar_container QSlider#volume_slider:focus {{
 
 QWidget#toolbar_container QPushButton:hover {{
     background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-        stop:0 #ffffff, stop:0.4 #f7f7f7, stop:0.41 #ececec, stop:1 #d1d1d1);
+        stop:0 #ffffff, stop:0.4 #fbfbfb, stop:0.41 #e8e8e8, stop:1 #c8c8c8);
 }}
 
 QWidget#toolbar_container QPushButton:pressed {{
@@ -378,8 +474,8 @@ QWidget#toolbar_container QPushButton#sync_button:pressed {{
 /* ── Search field (capsule shape like iTunes) ────────────────────── */
 QLineEdit#search_field {{
     background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-        stop:0 #fffdf8, stop:0.14 #f7f1e5, stop:0.45 #eee4d1, stop:1 #e0d5bf);
-    border: 1px solid #8c8478;
+        stop:0 #ffffff, stop:0.55 #f7f7f7, stop:1 #eeeeee);
+    border: 1px solid #8f8f8f;
     border-radius: 9px;
     padding: 0px 6px 0px 7px;
     font-size: 10px;
@@ -397,8 +493,8 @@ QLineEdit#search_field:focus {{
 /* ── Sidebar (Source List) ───────────────────────────────────────── */
 QWidget#sidebar {{
     background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
-        stop:0 #e6eaef, stop:0.12 #dbe0e6, stop:0.62 #d0d6de, stop:1 #c4ccd6);
-    border-right: 1px solid #949da8;
+        stop:0 #eef2f7, stop:0.12 #e4e9f0, stop:0.62 #d8dee7, stop:1 #c6ceda);
+    border-right: 1px solid #8d96a2;
 }}
 
 QTreeWidget#source_list {{
@@ -472,50 +568,79 @@ QTableView#track_table::item:selected {{
 /* ── Device summary ───────────────────────────────────────────────── */
 QWidget#device_summary {{
     background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-        stop:0 #f5f5f5, stop:0.14 #eeeeee, stop:1 #e2e2e2);
+        stop:0 #f8f8f8, stop:0.08 #eeeeee, stop:0.36 #dedede, stop:1 #cfcfcf);
     color: #1a1a1a;
 }}
 
 QFrame#device_summary_header {{
     background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-        stop:0 #ffffff, stop:0.08 #fbfbfb, stop:0.46 #efefef, stop:1 #d1d1d1);
-    border: 1px solid #939393;
-    border-radius: 3px;
+        stop:0 #ffffff,
+        stop:0.09 #f8f8f8,
+        stop:0.48 #e7e7e7,
+        stop:0.49 #d4d4d4,
+        stop:1 #bdbdbd);
+    border: 1px solid #858585;
+    border-top-color: #a5a5a5;
+    border-radius: 4px;
 }}
 
 QLabel#device_summary_name {{
+    background: transparent;
     font-size: 15px;
     font-weight: bold;
     color: #111111;
 }}
 
 QLabel#device_summary_model {{
+    background: transparent;
     font-size: 11px;
     color: #2d2d2d;
 }}
 
 QLabel#device_summary_detail {{
+    background: transparent;
     font-size: 10px;
     color: #6e6e6e;
 }}
 
 QLabel#device_summary_label {{
+    background: transparent;
     font-size: 10px;
     color: #6b6b6b;
 }}
 
 QLabel#device_summary_value {{
+    background: transparent;
     font-weight: bold;
     color: #202020;
     font-size: 11px;
 }}
 
+QWidget#device_summary QCheckBox {{
+    background: transparent;
+}}
+
+QWidget#device_summary QCheckBox::indicator {{
+    width: 11px;
+    height: 11px;
+    border: 1px solid #9aa2ab;
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+        stop:0 #f9f9f9, stop:1 #d9d9d9);
+}}
+
+QWidget#device_summary QCheckBox::indicator:checked {{
+    border: 1px solid #6f7d8c;
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+        stop:0 #edf5dc, stop:1 #c7d5ab);
+}}
+
 QGroupBox#device_summary_group {{
-    border: 1px solid #979797;
+    border: 1px solid #888888;
+    border-top-color: #b6b6b6;
     border-radius: 3px;
     margin-top: 9px;
     background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-        stop:0 #ffffff, stop:0.12 #fbfbfb, stop:0.5 #f1f1f1, stop:1 #e5e5e5);
+        stop:0 #ffffff, stop:0.13 #f7f7f7, stop:0.52 #e9e9e9, stop:1 #dcdcdc);
     font-weight: bold;
 }}
 
@@ -679,8 +804,8 @@ QLabel#browser_header {{
 /* ── Status bar ──────────────────────────────────────────────────── */
 QWidget#status_bar {{
     background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-        stop:0 #f6f6f6, stop:0.2 #efefef, stop:1 #e3e3e3);
-    border-top: 1px solid {STATUS_BORDER};
+        stop:0 #bdbdbd, stop:0.08 #efefef, stop:0.42 #d6d6d6, stop:0.43 #b9b9b9, stop:1 #dedede);
+    border-top: 1px solid #7e7e7e;
     min-height: 20px;
     max-height: 20px;
 }}
@@ -704,8 +829,8 @@ QWidget#status_bar QLabel#status_center {{
 /* ── Storage bar ─────────────────────────────────────────────────── */
 QWidget#storage_bar_container {{
     background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-        stop:0 #f6f6f6, stop:0.25 #efefef, stop:1 #e2e2e2);
-    border-top: 1px solid {STATUS_BORDER};
+        stop:0 #eeeeee, stop:0.24 #d8d8d8, stop:0.25 #bdbdbd, stop:1 #dedede);
+    border-top: 1px solid #858585;
     min-height: 42px;
     max-height: 42px;
 }}
@@ -876,21 +1001,26 @@ QDialog QGroupBox::title {{
 
 QDialog#sync_dialog {{
     background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-        stop:0 #efefef, stop:1 #dfdfdf);
+        stop:0 #f6f6f6, stop:0.14 #e7e7e7, stop:0.55 #d7d7d7, stop:1 #c8c8c8);
 }}
 
 QFrame#sync_dialog_header {{
     background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-        stop:0 #fbfbfb, stop:0.48 #ececec, stop:1 #d7d7d7);
-    border: 1px solid #a8a8a8;
-    border-radius: 3px;
+        stop:0 #ffffff,
+        stop:0.10 #f8f8f8,
+        stop:0.48 #e7e7e7,
+        stop:0.49 #d2d2d2,
+        stop:1 #bdbdbd);
+    border: 1px solid #858585;
+    border-top-color: #aaaaaa;
+    border-radius: 4px;
 }}
 
 QLabel#sync_dialog_icon {{
     background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-        stop:0 #fefefe, stop:1 #cfcfcf);
-    border: 1px solid #8d8d8d;
-    border-radius: 3px;
+        stop:0 #ffffff, stop:0.48 #f2f2f2, stop:0.49 #d9d9d9, stop:1 #bcbcbc);
+    border: 1px solid #777777;
+    border-radius: 4px;
     font-size: 16px;
     color: #4c6f9d;
 }}
@@ -910,9 +1040,18 @@ QFrame#sync_summary_panel,
 QFrame#sync_progress_panel,
 QFrame#sync_warning_panel {{
     background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-        stop:0 #fcfcfc, stop:1 #eeeeee);
-    border: 1px solid #b7b7b7;
+        stop:0 #ffffff, stop:0.11 #f8f8f8, stop:0.52 #e9e9e9, stop:1 #dcdcdc);
+    border: 1px solid #8f8f8f;
+    border-top-color: #bdbdbd;
     border-radius: 3px;
+}}
+
+QWidget#sync_animation_widget {{
+    background: transparent;
+}}
+
+QWidget#sync_dialog_footer {{
+    background: transparent;
 }}
 
 QLabel#sync_summary_label {{
@@ -1096,43 +1235,76 @@ QTabWidget#store_tabs::pane {{
 }}
 
 QTabWidget#store_tabs QTabBar::tab {{
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+        stop:0 #f8f8f8, stop:0.48 #e6e6e6, stop:0.5 #d4d4d4, stop:1 #c2c7ce);
+    border: 1px solid #9ba5b0;
+    border-bottom-color: #8d97a3;
     min-width: 92px;
     padding-left: 12px;
     padding-right: 12px;
 }}
 
+QTabWidget#store_tabs QTabBar::tab:selected {{
+    background: #ffffff;
+    border-bottom-color: #ffffff;
+}}
+
 /* ── Rockbox Theme Hub ──────────────────────────────────────────── */
-QWidget#theme_hub {{
-    background: #f2f2f2;
+QWidget#theme_hub,
+QWidget#photo_manager,
+QWidget#game_manager,
+QWidget#plugin_manager,
+QWidget#boot_manager,
+QWidget#simulator_panel {{
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+        stop:0 #f4f4f4, stop:0.22 #e7e7e7, stop:1 #d4d4d4);
 }}
 
 QFrame#theme_hub_header {{
     background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-        stop:0 #f8f8f8, stop:1 #dcdcdc);
-    border: 1px solid #b9b9b9;
+        stop:0 #ffffff,
+        stop:0.12 #f7f7f7,
+        stop:0.48 #e4e4e4,
+        stop:0.50 #cfcfcf,
+        stop:1 #bfc4ca);
+    border: 1px solid #8b939d;
+    border-top-color: #aab0b7;
+    border-radius: 4px;
+}}
+
+QFrame#theme_hub_header QLabel {{
+    background: transparent;
+    color: #2e343b;
+    font-size: 11px;
 }}
 
 QLabel#theme_hub_status,
 QLabel#theme_hub_diff {{
-    background: #f9f9f9;
-    border: 1px solid #c7c7c7;
-    padding: 4px 6px;
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+        stop:0 #ffffff, stop:1 #eeeeee);
+    border: 1px solid #b8bec6;
+    border-top-color: #d1d6dc;
+    border-radius: 2px;
+    padding: 5px 7px;
     color: #4a4a4a;
 }}
 
-QListWidget#game_list {{
+QListWidget#game_list,
+QListWidget#photo_list {{
     background: #ffffff;
     border: 1px solid #b8bcc2;
     font-size: 11px;
     outline: none;
 }}
 
-QListWidget#game_list::item {{
-    padding: 1px 6px;
-    min-height: 17px;
+QListWidget#game_list::item,
+QListWidget#photo_list::item {{
+    padding: 2px 6px;
+    min-height: 18px;
 }}
 
-QListWidget#game_list::item:selected {{
+QListWidget#game_list::item:selected,
+QListWidget#photo_list::item:selected {{
     background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
         stop:0 {TABLE_SEL_GRAD_TOP}, stop:1 {TABLE_SEL_GRAD_BOT});
     color: {TABLE_SEL_TEXT};
@@ -1140,8 +1312,10 @@ QListWidget#game_list::item:selected {{
 
 QLabel#game_cover_preview {{
     background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-        stop:0 #fbfbfb, stop:1 #ececec);
-    border: 1px solid #c5c9ce;
+        stop:0 #ffffff, stop:0.52 #f3f3f3, stop:1 #dfdfdf);
+    border: 1px solid #aeb5bd;
+    border-top-color: #cfd4da;
+    border-radius: 3px;
     padding: 4px;
     color: #666666;
 }}
@@ -1156,8 +1330,10 @@ QLabel#game_warning_strip {{
 }}
 
 QLabel#theme_preview {{
-    background: #ffffff;
-    border: 1px solid #b8bcc2;
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+        stop:0 #ffffff, stop:1 #eeeeee);
+    border: 1px solid #aeb5bd;
+    border-radius: 3px;
     color: #666666;
 }}
 

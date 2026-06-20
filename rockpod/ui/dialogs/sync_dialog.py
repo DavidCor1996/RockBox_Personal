@@ -1,6 +1,7 @@
 """Sync confirmation dialog — structured iTunes-style summary and progress sheet."""
 
-from PySide6.QtCore import Qt, Signal
+from PySide6.QtCore import QRectF, Qt, QTimer, Signal
+from PySide6.QtGui import QColor, QFont, QLinearGradient, QPainter, QPen
 from PySide6.QtWidgets import (
     QDialog,
     QFrame,
@@ -13,6 +14,145 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from ui.ipod_art import draw_plugged_ipod
+
+
+class SyncAnimationWidget(QWidget):
+    """Small iTunes-style device well shown while a sync is running."""
+
+    def __init__(self, parent=None, asset_path=""):
+        super().__init__(parent)
+        self.setObjectName("sync_animation_widget")
+        self.setMinimumHeight(82)
+        self.setMaximumHeight(94)
+        self._asset_path = asset_path
+        self._frame = 0
+        self._active = False
+        self._complete = False
+        self._cancelled = False
+        self._progress = 0.0
+        self._timer = QTimer(self)
+        self._timer.setInterval(70)
+        self._timer.timeout.connect(self._tick)
+
+    def start(self):
+        self._active = True
+        self._complete = False
+        self._cancelled = False
+        self._frame = 0
+        self._timer.start()
+        self.update()
+
+    def set_progress(self, current, total):
+        if total:
+            self._progress = max(0.0, min(float(current) / float(total), 1.0))
+        self.update()
+
+    def finish(self, cancelled=False):
+        self._active = False
+        self._cancelled = bool(cancelled)
+        self._complete = not cancelled
+        self._timer.stop()
+        self.update()
+
+    def _tick(self):
+        self._frame = (self._frame + 1) % 60
+        self.update()
+
+    def paintEvent(self, event):
+        del event
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.Antialiasing, True)
+
+        rect = QRectF(0.5, 0.5, self.width() - 1, self.height() - 1)
+        bg = QLinearGradient(rect.topLeft(), rect.bottomLeft())
+        bg.setColorAt(0.0, QColor("#f7f7f7"))
+        bg.setColorAt(0.16, QColor("#e6e6e6"))
+        bg.setColorAt(0.48, QColor("#d0d0d0"))
+        bg.setColorAt(0.49, QColor("#b9b9b9"))
+        bg.setColorAt(1.0, QColor("#dddddd"))
+        painter.setPen(QPen(QColor("#7f7f7f"), 1))
+        painter.setBrush(bg)
+        painter.drawRoundedRect(rect, 4, 4)
+
+        center_x = self.width() / 2
+        center_y = self.height() / 2 + 2
+        line_y = center_y - 2
+
+        lcd = QRectF(center_x - 132, center_y - 18, 264, 31)
+        lcd_grad = QLinearGradient(lcd.topLeft(), lcd.bottomLeft())
+        lcd_grad.setColorAt(0.0, QColor("#fbfff4"))
+        lcd_grad.setColorAt(0.22, QColor("#edf5dc"))
+        lcd_grad.setColorAt(0.50, QColor("#dce9c4"))
+        lcd_grad.setColorAt(0.51, QColor("#c7d5ab"))
+        lcd_grad.setColorAt(1.0, QColor("#edf5da"))
+        painter.setPen(QPen(QColor("#7b836d"), 1))
+        painter.setBrush(lcd_grad)
+        painter.drawRoundedRect(lcd, 11, 11)
+
+        lcd_gloss = QRectF(lcd.left() + 5, lcd.top() + 3, lcd.width() - 10, 9)
+        painter.setPen(Qt.NoPen)
+        painter.setBrush(QColor(255, 255, 255, 62))
+        painter.drawRoundedRect(lcd_gloss, 5, 5)
+
+        self._draw_transfer_notes(painter, center_x, line_y)
+        self._draw_ipod(painter, center_x, center_y)
+
+    def _draw_transfer_notes(self, painter, center_x, line_y):
+        if self._complete:
+            colors = [QColor("#5f944a"), QColor("#77ad5e"), QColor("#8bbf73")]
+            positions = [center_x - 38, center_x, center_x + 38]
+            notes = ["♪", "♫", "♪"]
+        elif self._cancelled:
+            colors = [QColor("#b8b8b8"), QColor("#a8a8a8"), QColor("#989898")]
+            positions = [center_x - 32, center_x, center_x + 32]
+            notes = ["♪", "♫", "♪"]
+        elif self._active:
+            colors = [QColor("#6f879e"), QColor("#486d94"), QColor("#2f557f")]
+            lead = (self._frame * 5) % 190
+            positions = [
+                center_x - 126 + lead,
+                center_x - 96 + lead,
+                center_x - 66 + lead,
+                center_x - 36 + lead,
+                center_x - 6 + lead,
+            ]
+            notes = ["♪", "♫", "♬", "♪", "♫"]
+        else:
+            colors = [QColor("#aeb5bd"), QColor("#9fa8b1"), QColor("#929ca7")]
+            positions = [center_x - 42, center_x, center_x + 42]
+            notes = ["♪", "♫", "♪"]
+
+        font = QFont("Lucida Grande")
+        font.setPixelSize(18)
+        font.setBold(True)
+        painter.setFont(font)
+        for index, x in enumerate(positions):
+            if x < center_x - 108 or x > center_x + 108:
+                continue
+            if center_x - 36 < x < center_x + 36:
+                continue
+            color = QColor(colors[index % len(colors)])
+            if self._active:
+                color.setAlpha(145 + min(index, 3) * 28)
+            y_offset = -3 if index % 2 else 2
+            note_rect = QRectF(x - 10, line_y - 14 + y_offset, 20, 22)
+            painter.setPen(QColor(255, 255, 255, 96))
+            painter.drawText(note_rect.translated(0, 1), Qt.AlignCenter, notes[index % len(notes)])
+            painter.setPen(color)
+            painter.drawText(
+                note_rect,
+                Qt.AlignCenter,
+                notes[index % len(notes)],
+            )
+
+    def _draw_ipod(self, painter, center_x, center_y):
+        draw_plugged_ipod(
+            painter,
+            QRectF(center_x - 35, center_y - 39, 70, 78),
+            connected=True,
+            asset_path=self._asset_path,
+        )
 
 class SyncDialog(QDialog):
     """Dialog showing sync plan and progress, styled like a compact iTunes sheet."""
@@ -24,7 +164,7 @@ class SyncDialog(QDialog):
         super().__init__(parent)
         self.setObjectName("sync_dialog")
         self.setWindowTitle("Sync to iPod")
-        self.setMinimumSize(470, 292)
+        self.setMinimumSize(470, 370)
         self.setModal(True)
         self._plan = sync_plan
 
@@ -128,9 +268,17 @@ class SyncDialog(QDialog):
         progress_layout.addWidget(self._results)
         layout.addWidget(progress_panel)
 
+        asset_path = ""
+        parent_theme = getattr(parent, "_theme_assets", None)
+        if parent_theme is not None:
+            asset_path = parent_theme.asset_path("device_plugged_ipod")
+        self._animation = SyncAnimationWidget(asset_path=asset_path)
+        layout.addWidget(self._animation)
+
         layout.addStretch(1)
 
         footer = QWidget()
+        footer.setObjectName("sync_dialog_footer")
         footer_layout = QHBoxLayout(footer)
         footer_layout.setContentsMargins(0, 0, 0, 0)
         footer_layout.setSpacing(6)
@@ -173,6 +321,7 @@ class SyncDialog(QDialog):
         self._subtitle.setText("Updating your iPod")
         self._sync_btn.setVisible(False)
         self._progress.setMaximum(self._plan.total_operations or 1)
+        self._animation.start()
         self.sync_confirmed.emit()
 
     def _on_cancel(self):
@@ -184,6 +333,7 @@ class SyncDialog(QDialog):
         current = max(0, int(current or 0))
         self._progress.setMaximum(total)
         self._progress.setValue(min(current, total))
+        self._animation.set_progress(min(current, total), total)
 
         phase = _infer_phase(description)
         self._phase_label.setText(f"Status: {phase} {min(current, total)} of {total}")
@@ -193,6 +343,8 @@ class SyncDialog(QDialog):
     def show_results(self, copied, failed, skipped):
         self._title.setText("Sync Complete")
         self._subtitle.setText("Your iPod has been updated")
+        self._animation.set_progress(1, 1)
+        self._animation.finish()
         self._phase_label.setText("Status: Finished")
         self._item_label.setVisible(False)
         self._sync_btn.setVisible(False)
@@ -215,6 +367,7 @@ class SyncDialog(QDialog):
     def show_cancelled(self):
         self._title.setText("Sync Cancelled")
         self._subtitle.setText("Your iPod was not fully updated")
+        self._animation.finish(cancelled=True)
         self._phase_label.setText("Status: Cancelled")
         self._item_label.setVisible(False)
         self._sync_btn.setVisible(False)

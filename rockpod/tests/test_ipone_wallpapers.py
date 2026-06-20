@@ -80,6 +80,38 @@ def test_nano2g_candidates_include_generated_wallpapers_with_size_metadata(tmp_d
     assert charge_items["charge-wallpaper-classic-legacy.bmp"]["height"] == 240
 
 
+def test_hidden_wallpapers_are_filtered_until_included(tmp_dir):
+    repo_root = os.path.join(tmp_dir, "repo")
+    theme_lock = os.path.join(repo_root, "wps", "iPone", "Wallpaper.bmp")
+    generated_charge = os.path.join(repo_root, "rockpod", "generated", "charge-wallpaper-private.bmp")
+    _write_bmp(theme_lock)
+    _write_bmp(os.path.join(repo_root, "wps", "iPone", "ChargeWallpaper.bmp"))
+    _write_bmp(generated_charge)
+
+    service = IPoneWallpaperService()
+    assert service.set_hidden(repo_root, theme_lock, True) is True
+    assert service.set_hidden(repo_root, generated_charge, True) is True
+
+    visible = service.list_candidates(repo_root, _profile(repo_root))
+    assert "Wallpaper.bmp" not in {os.path.basename(item["source_path"]) for item in visible["lock"]}
+    assert "charge-wallpaper-private.bmp" not in {
+        os.path.basename(item["source_path"]) for item in visible["charge"]
+    }
+
+    revealed = service.list_candidates(repo_root, _profile(repo_root), include_hidden=True)
+    hidden_lock = next(item for item in revealed["lock"] if os.path.basename(item["source_path"]) == "Wallpaper.bmp")
+    hidden_charge = next(
+        item for item in revealed["charge"]
+        if os.path.basename(item["source_path"]) == "charge-wallpaper-private.bmp"
+    )
+    assert hidden_lock["hidden"] is True
+    assert hidden_charge["hidden"] is True
+
+    assert service.set_hidden(repo_root, theme_lock, False) is True
+    visible_again = service.list_candidates(repo_root, _profile(repo_root))
+    assert "Wallpaper.bmp" in {os.path.basename(item["source_path"]) for item in visible_again["lock"]}
+
+
 def test_build_apply_bundle_targets_active_ipone_wallpapers(tmp_dir):
     repo_root = os.path.join(tmp_dir, "repo")
     lock_source = os.path.join(repo_root, "rockpod", "generated", "lockscreen-besties-trio-v5.bmp")
@@ -391,6 +423,47 @@ def test_wallpaper_widget_preserves_selection_across_candidate_refreshes():
         assert widget.current_selection()["theme_id"] == "Blackery"
         assert widget._lock_pane.current_candidate()["id"] == "lock-b"
         assert widget._charge_pane.current_candidate()["id"] == "charge-b"
+    finally:
+        widget.close()
+
+
+def test_wallpaper_widget_hide_button_emits_current_candidate_and_toggles_label():
+    app = QApplication.instance() or QApplication([])
+    widget = IPoneWallpaperManagerWidget()
+    emitted = []
+    try:
+        widget.hide_requested.connect(lambda kind, candidate: emitted.append((kind, dict(candidate))))
+        widget.set_candidates(
+            [
+                {
+                    "id": "lock-a",
+                    "label": "Lock A",
+                    "source_path": "/tmp/lock-a.bmp",
+                    "preview_path": "",
+                    "removable": False,
+                    "hidden": False,
+                },
+                {
+                    "id": "lock-b",
+                    "label": "Lock B",
+                    "source_path": "/tmp/lock-b.bmp",
+                    "preview_path": "",
+                    "removable": False,
+                    "hidden": True,
+                },
+            ],
+            [],
+        )
+
+        assert widget._lock_pane._hide_btn.text() == "Hide"
+        widget._lock_pane._hide_btn.click()
+        widget._lock_pane._list.setCurrentRow(1)
+        assert widget._lock_pane._hide_btn.text() == "Unhide"
+        widget._lock_pane._hide_btn.click()
+
+        assert emitted[0][0] == "lock"
+        assert emitted[0][1]["id"] == "lock-a"
+        assert emitted[1][1]["id"] == "lock-b"
     finally:
         widget.close()
 

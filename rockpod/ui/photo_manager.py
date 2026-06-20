@@ -30,6 +30,7 @@ class PhotoManagerWidget(QWidget):
     selection_changed = Signal()
     dry_run_requested = Signal()
     sync_requested = Signal()
+    hide_requested = Signal()
     remove_requested = Signal()
 
     def __init__(self, parent=None):
@@ -103,12 +104,16 @@ class PhotoManagerWidget(QWidget):
         actions.setSpacing(6)
         self._dry_run_btn = QPushButton("Dry Run")
         self._sync_btn = QPushButton("Sync Selected")
+        self._hide_btn = QPushButton("Hide Selected")
         self._remove_btn = QPushButton("Remove Selected")
         self._dry_run_btn.clicked.connect(self.dry_run_requested)
         self._sync_btn.clicked.connect(self.sync_requested)
+        self._hide_btn.clicked.connect(self.hide_requested)
         self._remove_btn.clicked.connect(self.remove_requested)
+        self._hide_btn.setEnabled(False)
         actions.addWidget(self._dry_run_btn)
         actions.addWidget(self._sync_btn)
+        actions.addWidget(self._hide_btn)
         actions.addWidget(self._remove_btn)
         right.addLayout(actions)
         body.addLayout(right, 2)
@@ -153,6 +158,8 @@ class PhotoManagerWidget(QWidget):
             flags = []
             if photo.get("missing_source"):
                 flags.append("Missing")
+            if photo.get("hidden"):
+                flags.append("Hidden")
             if photo["on_device"]:
                 flags.append("D")
             if photo["on_simulator"]:
@@ -171,6 +178,8 @@ class PhotoManagerWidget(QWidget):
             self._diff_label.setText("")
             self._preview_label.setText("No Preview")
             self._preview_label.setPixmap(QPixmap())
+            self._hide_btn.setText("Hide Selected")
+            self._hide_btn.setEnabled(False)
             return
         first = photos[0]
         modified = (
@@ -189,9 +198,12 @@ class PhotoManagerWidget(QWidget):
                     f"Modified: {modified}",
                     f"On Device: {'Yes' if first['on_device'] else 'No'}",
                     f"On Simulator: {'Yes' if first['on_simulator'] else 'No'}",
+                    f"Hidden: {'Yes' if first.get('hidden') else 'No'}",
                 ]
             )
         )
+        self._hide_btn.setEnabled(True)
+        self._hide_btn.setText("Unhide Selected" if all(photo.get("hidden") for photo in photos) else "Hide Selected")
         if diff_summary:
             self._diff_label.setText(
                 f"Add {diff_summary['add']} · Overwrite {diff_summary['overwrite']} · "

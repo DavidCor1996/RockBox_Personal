@@ -96,6 +96,22 @@ def test_next_previous_stay_inside_queue(tmp_dir):
     assert service.current_track["id"] == 1
 
 
+def test_remote_preview_url_can_play_without_local_file():
+    backend = FakeBackend()
+    service = PlaybackService(backend)
+    track = {
+        "id": "tidal:track:1",
+        "title": "Preview",
+        "preview_url": "https://example.com/preview.mp3",
+        "duration": 30,
+    }
+
+    assert service.play_track(track, [track], "store_preview") is True
+    assert service.state == STATE_PLAYING
+    assert backend.media == "https://example.com/preview.mp3"
+    assert service.queue_source == "store_preview"
+
+
 def test_seek_and_volume_controls(tmp_dir):
     backend = FakeBackend()
     service = PlaybackService(backend)

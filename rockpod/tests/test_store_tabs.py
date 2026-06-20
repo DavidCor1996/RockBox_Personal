@@ -75,3 +75,51 @@ def test_store_results_are_marked_owned_from_library_album(config, monkeypatch):
     finally:
         window._device_storage_analyzer.shutdown()
         window.close()
+
+
+def test_spotify_playlist_store_import_creates_standard_playlist(config, monkeypatch):
+    QApplication.instance() or QApplication([])
+    monkeypatch.setattr(DeviceDetector, "start_polling", lambda self: None)
+    monkeypatch.setattr(QTimer, "singleShot", lambda *args, **kwargs: None)
+    monkeypatch.setattr(LibraryScanner, "start_scan", lambda self, force_full=False: None)
+    monkeypatch.setattr(MainWindow, "_start_store_homepage", lambda self, force=False: None)
+
+    window = MainWindow(config)
+    try:
+        first = f"{config.music_dir}/Playlist Name/01. One.flac"
+        second = f"{config.music_dir}/Playlist Name/02. Two.flac"
+        for path, title in ((first, "One"), (second, "Two")):
+            window._db.upsert_track(
+                {
+                    "file_path": path,
+                    "title": title,
+                    "artist": "Artist",
+                    "album": "Playlist Name",
+                    "album_artist": "Artist",
+                    "media_type": "audio",
+                }
+            )
+        window._db.commit()
+        window._pending_store_playlist_import = {
+            "context": {
+                "url": "https://open.spotify.com/playlist/37i9dQZF1DXcBWIGoYBM5M",
+                "url_info": {
+                    "source": "spotify",
+                    "media_type": "playlist",
+                    "id": "37i9dQZF1DXcBWIGoYBM5M",
+                },
+                "store_result": {"title": "Playlist Name"},
+            },
+            "imported_files": [first, second],
+        }
+
+        window._finalize_pending_store_playlist_import()
+
+        playlists = [row for row in window._db.get_all_playlists() if row["name"] == "Playlist Name"]
+        assert len(playlists) == 1
+        playlist = playlists[0]
+        tracks = window._db.get_playlist_tracks(playlist["id"])
+        assert [row["title"] for row in tracks] == ["One", "Two"]
+    finally:
+        window._device_storage_analyzer.shutdown()
+        window.close()
