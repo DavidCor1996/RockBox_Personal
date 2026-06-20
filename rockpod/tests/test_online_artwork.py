@@ -15,6 +15,10 @@ from services.online_artwork import ITunesArtworkLookup, OnlineArtworkRateLimitE
 from services.sync_engine import SyncEngine
 
 
+def _temp_names(path):
+    return [name for name in os.listdir(path) if name.startswith("tmp")]
+
+
 class FakeLookupClient:
     def __init__(self, succeed=True):
         self.succeed = succeed
@@ -171,6 +175,7 @@ def test_missing_local_artwork_triggers_online_lookup_and_caches_hires(config, t
         assert os.path.exists(meta["desktop_source_art_path"])
         assert meta["desktop_source_resolution"] == [1200, 1200]
         assert meta["online_selected_url"] == "https://example.com/1200.jpg"
+        assert not _temp_names(os.path.dirname(manager._meta_path("artist\0album")))
         assert lookup.search_calls
         assert lookup.download_calls
     finally:
@@ -604,6 +609,7 @@ def test_album_list_thumbnail_and_manifest_generated_for_ipod(config, tmp_dir):
 
         assert os.path.exists(manifest_path)
         assert manifest_hash
+        assert not _temp_names(os.path.dirname(manifest_path))
         with open(manifest_path, "r", encoding="utf-8") as handle:
             data = handle.read()
         assert "album_id\tthumb\tartist\talbum\tgroup_key\tdevice_dirs" in data

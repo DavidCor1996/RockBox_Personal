@@ -5,15 +5,51 @@ import os
 import tarfile
 
 import main
+import pytest
 import services.itunes_asset_tools as tools_module
 import services.theme_assets as theme_assets_module
 from services.itunes_asset_tools import (
+    build_asset_review,
     extract_itunes_assets,
     format_discovery_guide,
     import_itunes_assets,
     validate_personal_theme,
 )
 from services.theme_assets import ThemeAssetManager
+
+
+def _temp_names(path):
+    return [name for name in os.listdir(path) if name.startswith("tmp")]
+
+
+class _FakeCommandResult:
+    def __init__(self, command, returncode=0, stdout="", stderr="", log_path=""):
+        self.command = command
+        self.cwd = ""
+        self.returncode = returncode
+        self.stdout = stdout
+        self.stderr = stderr
+        self.log_path = log_path
+
+    def failure_message(self):
+        return f"Command failed with exit status {self.returncode}: {' '.join(self.command)}\nLog: {self.log_path}"
+
+
+class _FakeCommandRunner:
+    def __init__(self, returncode=0, stdout="", stderr="", log_path=""):
+        self.returncode = returncode
+        self.stdout = stdout
+        self.stderr = stderr
+        self.log_path = log_path
+        self.commands = []
+
+    def run(self, command, cwd="", timeout=None, env=None):
+        command = [str(part) for part in command]
+        self.commands.append(command)
+        if command and os.path.basename(command[0]) == "montage":
+            with open(command[-1], "wb") as handle:
+                handle.write(b"sheet")
+        return _FakeCommandResult(command, self.returncode, self.stdout, self.stderr, self.log_path)
 
 
 def _prepare_theme_dirs(tmp_dir, monkeypatch):
@@ -66,6 +102,7 @@ def test_import_itunes_assets_maps_partial_theme(config, tmp_dir, monkeypatch):
 
     assert report["copied_count"] == 3
     assert os.path.isfile(os.path.join(report["validation"]["manifest_path"]))
+    assert not _temp_names(os.path.dirname(report["validation"]["manifest_path"]))
     assert manager.asset_path("branding_title").endswith("theme_itunes_personal/branding/title.png")
     assert manager.asset_path("toolbar_sync").endswith("theme_itunes_personal/toolbar/sync.bmp")
     assert manager.asset_path("sidebar_music").endswith("theme_itunes_personal/sidebar/music.ico")
@@ -109,7 +146,24 @@ def test_extract_itunes_assets_from_directory(tmp_dir):
     assert report["copied_asset_count"] == 1
     assert report["embedded_resource_candidates"]
     assert os.path.isfile(report["summary_path"])
+    assert not _temp_names(os.path.dirname(report["summary_path"]))
     assert os.path.isdir(report["collected_dir"])
+
+
+def test_extract_itunes_assets_archive_uses_shared_command_runner(tmp_dir, monkeypatch):
+    archive = os.path.join(tmp_dir, "iTunes.zip")
+    with open(archive, "wb") as handle:
+        handle.write(b"zip")
+    runner = _FakeCommandRunner(returncode=7, log_path=os.path.join(tmp_dir, "7z.log"))
+    monkeypatch.setattr(tools_module.shutil, "which", lambda name: "/usr/bin/7z" if name in {"7z", "7za"} else None)
+
+    with pytest.raises(RuntimeError) as exc:
+        extract_itunes_assets(archive, os.path.join(tmp_dir, "out"), command_runner=runner)
+
+    assert runner.commands
+    assert runner.commands[0][:2] == ["/usr/bin/7z", "x"]
+    assert "exit status 7" in str(exc.value)
+    assert runner.log_path in str(exc.value)
 
 
 def test_extract_itunes_assets_unpacks_pkg_payloads(tmp_dir):
@@ -135,6 +189,26 @@ def test_extract_itunes_assets_unpacks_pkg_payloads(tmp_dir):
         for filename in files:
             collected.append(os.path.join(root, filename))
     assert any(path.endswith("iTunes.icns") for path in collected)
+
+
+def test_asset_review_uses_shared_command_runner_for_identify_and_montage(tmp_dir, monkeypatch):
+    source = os.path.join(tmp_dir, "assets")
+    os.makedirs(source, exist_ok=True)
+    with open(os.path.join(source, "sync.png"), "wb") as handle:
+        handle.write(b"png")
+    runner = _FakeCommandRunner(stdout="32 24\n")
+    monkeypatch.setattr(
+        tools_module.shutil,
+        "which",
+        lambda name: f"/usr/bin/{name}" if name in {"identify", "montage"} else None,
+    )
+
+    report = build_asset_review(source, os.path.join(tmp_dir, "review"), command_runner=runner)
+
+    assert [os.path.basename(command[0]) for command in runner.commands] == ["identify", "montage"]
+    assert report["asset_count"] == 1
+    assert report["contact_sheets"]["root"].endswith("root_contact_sheet.png")
+    assert not _temp_names(report["review_dir"])
 
 
 def test_parse_args_supports_asset_commands():

@@ -223,6 +223,12 @@ class TestTrackMatcher:
         assert len(matched) == 500
         assert len(unmatched) == 0
         assert len(orphaned) == 0
+        assert matcher.last_profile["local_count"] == 500
+        assert matcher.last_profile["device_count"] == 500
+        assert matcher.last_profile["matched_count"] == 500
+        assert matcher.last_profile["unmatched_count"] == 0
+        assert matcher.last_profile["orphaned_count"] == 0
+        assert matcher.last_profile["match_seconds"] >= 0.0
 
     def test_similar_numbered_titles_do_not_false_match(self):
         local = [_make_local(1, "Song 1", "Artist", "Album", duration=200.0)]

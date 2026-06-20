@@ -1,4 +1,5 @@
 import os
+import time
 
 from app.config import Config
 from services.rockbox_deploy import RockboxDeployService
@@ -66,6 +67,41 @@ def test_plugin_discovery_and_custom_priority(tmp_dir):
     assert pocket["category"] == "games"
     assert pocket["binary_exists"] is True
     assert pocket["destination_rel"] == ".rockbox/rocks/games/pocketcatch.rock"
+
+
+def test_plugin_heavy_fixture_records_discovery_and_bundle_profile(tmp_dir):
+    repo_root = os.path.join(tmp_dir, "repo")
+    plugin_ids = [f"fixture_plugin_{index:03d}" for index in range(72)]
+    categories = "".join(f"{plugin_id},{'games' if index % 2 else 'apps'}\n" for index, plugin_id in enumerate(plugin_ids))
+    _make_file(os.path.join(repo_root, "apps", "plugins", "CATEGORIES"), categories)
+    for plugin_id in plugin_ids:
+        _make_file(os.path.join(repo_root, "apps", "plugins", f"{plugin_id}.c"), f"/* {plugin_id} */\n")
+        _make_file(os.path.join(repo_root, "build-hw-ipodvideo-5g", "apps", "plugins", f"{plugin_id}.rock"), plugin_id)
+
+    _config, store = _make_store(tmp_dir, repo_root)
+    profile = store.current_profile()
+    profile["source_repo_path"] = repo_root
+    profile["target_device_model"] = "iPod Classic / Video"
+    profile = store.save_profile(profile)
+
+    service = RockboxPluginService()
+    started_at = time.perf_counter()
+    plugins = service.list_plugins(repo_root, profile, None, "device")
+    bundles = [service.build_deploy_bundle(plugin) for plugin in plugins]
+    profile_data = {
+        "plugin_count": len(plugins),
+        "bundle_count": len(bundles),
+        "asset_count": sum(len(bundle["assets"]) for bundle in bundles),
+        "scan_seconds": time.perf_counter() - started_at,
+    }
+
+    assert profile_data["plugin_count"] == 72
+    assert profile_data["bundle_count"] == 72
+    assert profile_data["asset_count"] == 72
+    assert profile_data["scan_seconds"] >= 0.0
+    assert plugins[0]["id"] == "fixture_plugin_000"
+    assert plugins[-1]["id"] == "fixture_plugin_071"
+    assert all(bundle["assets"][0]["destination_rel"].startswith(".rockbox/rocks/") for bundle in bundles)
 
 
 def test_pocketcatch_deploy_bundle_preserves_asset_pack_tree(tmp_dir):

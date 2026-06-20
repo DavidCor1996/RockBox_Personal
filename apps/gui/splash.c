@@ -43,6 +43,65 @@ static long progress_next_tick, talked_tick;
 #define RECT_SPACING 3
 #define SPLASH_MEMORY_INTERVAL (HZ)
 
+#ifdef HAVE_LCD_COLOR
+static void splash_fill_roundish(struct screen *screen,
+                                 int x, int y, int w, int h,
+                                 unsigned color)
+{
+    if (w <= 0 || h <= 0)
+        return;
+
+    screen->set_foreground(color);
+
+    if (w < 5 || h < 5)
+    {
+        screen->fillrect(x, y, w, h);
+        return;
+    }
+
+    screen->fillrect(x + 2, y, w - 4, h);
+    screen->fillrect(x + 1, y + 1, w - 2, h - 2);
+    screen->fillrect(x, y + 2, w, h - 4);
+}
+
+static bool splash_draw_modern_panel(struct screen *screen,
+                                     const struct viewport *vp)
+{
+    if (screen->depth <= 1)
+        return false;
+
+    const unsigned edge = SCREEN_COLOR_TO_NATIVE(screen,
+                          LCD_RGBPACK(104, 91, 136));
+    const unsigned panel = SCREEN_COLOR_TO_NATIVE(screen,
+                           LCD_RGBPACK(28, 25, 39));
+    const unsigned top = SCREEN_COLOR_TO_NATIVE(screen,
+                         LCD_RGBPACK(59, 49, 84));
+    const unsigned accent = SCREEN_COLOR_TO_NATIVE(screen,
+                            LCD_RGBPACK(188, 145, 255));
+    int accent_w = vp->width - 12;
+    if (accent_w > 54)
+        accent_w = 54;
+
+    splash_fill_roundish(screen, 0, 0, vp->width, vp->height, edge);
+    splash_fill_roundish(screen, 1, 1, vp->width - 2, vp->height - 2, panel);
+
+    if (vp->width > 12 && vp->height > 8)
+    {
+        screen->set_foreground(top);
+        screen->fillrect(5, 2, vp->width - 10, 1);
+    }
+
+    if (accent_w > 0 && vp->height > 5)
+    {
+        screen->set_foreground(accent);
+        screen->fillrect((vp->width - accent_w) / 2, vp->height - 3,
+                         accent_w, 1);
+    }
+
+    return true;
+}
+#endif
+
 static bool splash_internal(struct screen * screen, const char *fmt, va_list ap,
                             struct viewport *vp, int addl_lines)
 {
@@ -76,6 +135,7 @@ static bool splash_internal(struct screen * screen, const char *fmt, va_list ap,
     int width, height;
     int maxw = min_width - 2*RECT_SPACING;
     int fontnum = vp->font;
+    bool modern_panel = false;
 
     char lastbrkchr;
     size_t len, next_len;
@@ -175,16 +235,24 @@ static bool splash_internal(struct screen * screen, const char *fmt, va_list ap,
                  (bg == 63422 && fg == 65535); /* -> iPod reFresh themes from '22 */
 
         vp->drawmode = DRMODE_FG;
-        /* can't do vp->fg_pattern here, since set_foreground does a bit more on
-         * greyscale */
-        screen->set_foreground(broken ? SCREEN_COLOR_TO_NATIVE(screen, LCD_LIGHTGRAY) :
-                               bg);     /* gray as fallback for broken themes */
+#ifdef HAVE_LCD_COLOR
+        modern_panel = splash_draw_modern_panel(screen, vp);
+#endif
+        if (!modern_panel)
+        {
+            /* can't do vp->fg_pattern here, since set_foreground does a bit more on
+             * greyscale */
+            screen->set_foreground(broken ? SCREEN_COLOR_TO_NATIVE(screen, LCD_LIGHTGRAY) :
+                                   bg);     /* gray as fallback for broken themes */
+            screen->fill_viewport();
+        }
     }
     else
 #endif
+    {
         vp->drawmode = (DRMODE_SOLID|DRMODE_INVERSEVID);
-
-    screen->fill_viewport();
+        screen->fill_viewport();
+    }
 
 #if LCD_DEPTH > 1
     if (screen->depth > 1)
@@ -196,7 +264,8 @@ static bool splash_internal(struct screen * screen, const char *fmt, va_list ap,
 #endif
         vp->drawmode = DRMODE_SOLID;
 
-    screen->draw_border_viewport();
+    if (!modern_panel)
+        screen->draw_border_viewport();
 
     /* print the message to screen */
     for(i = 0, y = RECT_SPACING; i <= line; i++, y+= chr_h)

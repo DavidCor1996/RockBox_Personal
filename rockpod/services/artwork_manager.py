@@ -23,6 +23,7 @@ from services.online_artwork import (
     OnlineArtworkNetworkError,
     OnlineArtworkRateLimitError,
 )
+from services.file_safety import atomic_write_json, atomic_write_text
 
 logger = logging.getLogger(__name__)
 _DESKTOP_MIN_SOURCE_DIMENSION = max(ARTWORK_DISPLAY_SIZE) * 2
@@ -452,8 +453,7 @@ class ArtworkManager(QObject):
                 with open(manifest_path, "r", encoding="utf-8") as handle:
                     if handle.read() == data:
                         return manifest_path, self._file_hash(manifest_path)
-            with open(manifest_path, "w", encoding="utf-8", newline="\n") as handle:
-                handle.write(data)
+            atomic_write_text(manifest_path, data)
             return manifest_path, self._file_hash(manifest_path)
         except OSError as e:
             logger.warning("Failed to write album list manifest: %s", e)
@@ -1370,8 +1370,7 @@ class ArtworkManager(QObject):
         path = self._meta_path(album_key)
         data = dict(meta)
         data["album_key"] = album_key
-        with open(path, "w", encoding="utf-8") as handle:
-            json.dump(data, handle, indent=2, sort_keys=True)
+        atomic_write_json(path, data)
 
     def _meta_path(self, album_key):
         return os.path.join(self._meta_dir, f"{self._slug(album_key)}.json")

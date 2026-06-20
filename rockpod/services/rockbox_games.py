@@ -14,6 +14,7 @@ from urllib.request import Request, urlopen
 
 from PIL import Image, UnidentifiedImageError
 
+from services.file_safety import atomic_write_json, atomic_write_text
 from services.online_game_metadata import OnlineGameMetadataLookup
 
 
@@ -835,8 +836,7 @@ class RockboxGameService:
                     ]
                 )
             )
-        with open(index_path, "w", encoding="utf-8") as handle:
-            handle.write("\n".join(lines) + "\n")
+        atomic_write_text(index_path, "\n".join(lines) + "\n")
 
     @staticmethod
     def _sanitize_index_field(value):
@@ -876,7 +876,6 @@ class RockboxGameService:
 
     def _write_cached_metadata(self, profile, game, metadata):
         cache_path = self._cached_metadata_path(profile, game)
-        os.makedirs(os.path.dirname(cache_path), exist_ok=True)
         payload = dict(self.cached_metadata_for_game(profile, game))
         payload.update(
             {
@@ -892,9 +891,7 @@ class RockboxGameService:
                 "updated_at": datetime.now().isoformat(timespec="seconds"),
             }
         )
-        with open(cache_path, "w", encoding="utf-8") as handle:
-            json.dump(payload, handle, indent=2, sort_keys=True)
-            handle.write("\n")
+        atomic_write_json(cache_path, payload)
         return cache_path
 
     @staticmethod

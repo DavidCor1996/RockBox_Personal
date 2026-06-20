@@ -26,6 +26,9 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from services.rockbox_simulator import RockboxSimulatorService
+from ui.process_helpers import start_hidden_process, start_qprocess
+
 
 class _ColorButton(QPushButton):
     color_changed = Signal(str)
@@ -242,32 +245,31 @@ class _EmbeddedSimulatorPreview(QWidget):
     def _start_process(self):
         self._placeholder.setText("Starting simulator..." if self.supports_live_embed() else "Starting baked-in simulator preview...")
         self._show_placeholder()
-        self._process = QProcess(self)
-        self._process.setWorkingDirectory(os.path.dirname(self._binary_path))
-        env = self._process.processEnvironment()
-        runtime_root = self._runtime_root()
-        if runtime_root:
-            env.insert("RBROOT", runtime_root)
-        if not self.supports_live_embed():
-            capture_path = self.preview_capture_sim_path()
-            if capture_path:
-                env.insert("ROCKPOD_SIM_PREVIEW_BMP", capture_path)
-                env.insert("ROCKPOD_SIM_PREVIEW_INTERVAL_MS", "200")
-                if not self.supports_window_controls():
-                    env.insert("ROCKPOD_SIM_HIDDEN", "1")
-        self._process.setProcessEnvironment(env)
-        self._process.setProgram(self._binary_path)
-        self._process.setArguments(["--nobackground", "--root", self._simdisk_path])
-        self._process.errorOccurred.connect(self._on_process_error)
-        self._process.finished.connect(self._on_process_finished)
-        self._process.start()
+        self._process = start_qprocess(
+            self,
+            self._simulator_command(),
+            cwd=os.path.dirname(self._binary_path),
+            env=self._simulator_env(hidden=not self.supports_live_embed() and not self.supports_window_controls()),
+            error_handler=self._on_process_error,
+            finished_handler=self._on_process_finished,
+        )
         if self.supports_live_embed():
             self._schedule_attach()
 
     def _start_hidden_process(self):
         self._placeholder.setText("Starting baked-in simulator preview...")
         self._show_placeholder()
-        env = os.environ.copy()
+        self._hidden_process = start_hidden_process(
+            self._simulator_command(),
+            cwd=os.path.dirname(self._binary_path),
+            env=self._simulator_env(hidden=True),
+        )
+
+    def _simulator_command(self):
+        return [self._binary_path, "--nobackground", "--root", self._simdisk_path]
+
+    def _simulator_env(self, hidden=False):
+        env = {}
         runtime_root = self._runtime_root()
         if runtime_root:
             env["RBROOT"] = runtime_root
@@ -275,15 +277,9 @@ class _EmbeddedSimulatorPreview(QWidget):
         if capture_path:
             env["ROCKPOD_SIM_PREVIEW_BMP"] = capture_path
             env["ROCKPOD_SIM_PREVIEW_INTERVAL_MS"] = "200"
-            env["ROCKPOD_SIM_HIDDEN"] = "1"
-        self._hidden_process = subprocess.Popen(
-            [self._binary_path, "--nobackground", "--root", self._simdisk_path],
-            cwd=os.path.dirname(self._binary_path),
-            env=env,
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
-            start_new_session=True,
-        )
+            if hidden:
+                env["ROCKPOD_SIM_HIDDEN"] = "1"
+        return env
 
     def _schedule_attach(self):
         self._attach_attempts = 0
@@ -300,19 +296,7 @@ class _EmbeddedSimulatorPreview(QWidget):
         if pid <= 0:
             self._retry_attach("Waiting for simulator process...")
             return
-        try:
-            result = subprocess.run(
-                ["xdotool", "search", "--pid", str(pid)],
-                stdout=subprocess.PIPE,
-                stderr=subprocess.DEVNULL,
-                text=True,
-                timeout=1.0,
-                check=False,
-            )
-        except (OSError, subprocess.TimeoutExpired):
-            self._retry_attach("Waiting for simulator window...")
-            return
-        ids = [line.strip() for line in result.stdout.splitlines() if line.strip().isdigit()]
+        ids = self._window_ids_for_pid(pid)
         if not ids:
             self._retry_attach("Waiting for simulator window...")
             return
@@ -412,17 +396,7 @@ class _EmbeddedSimulatorPreview(QWidget):
         window_ids = self._window_ids_for_pid(pid)
         if not window_ids:
             return False
-        try:
-            result = subprocess.run(
-                ["xdotool", "key", "--window", window_ids[-1], key_name],
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL,
-                timeout=1.0,
-                check=False,
-            )
-        except (OSError, subprocess.TimeoutExpired):
-            return False
-        return result.returncode == 0
+        return RockboxSimulatorService._send_key_to_window_id(window_ids[-1], key_name)
 
     def _active_pid(self):
         if self._process and self._process.state() != QProcess.NotRunning:
@@ -439,18 +413,8 @@ class _EmbeddedSimulatorPreview(QWidget):
 
     @staticmethod
     def _window_ids_for_pid(pid):
-        try:
-            result = subprocess.run(
-                ["xdotool", "search", "--pid", str(pid)],
-                stdout=subprocess.PIPE,
-                stderr=subprocess.DEVNULL,
-                text=True,
-                timeout=1.0,
-                check=False,
-            )
-        except (OSError, subprocess.TimeoutExpired):
-            return []
-        return [line.strip() for line in result.stdout.splitlines() if line.strip().isdigit()]
+        window_id = RockboxSimulatorService._wait_for_window_id(pid, timeout=1.0)
+        return [window_id] if window_id else []
 
     def schedule_controls(self, actions, delay_ms=1600, step_ms=500):
         queue = [str(action or "").strip().lower() for action in (actions or []) if str(action or "").strip()]

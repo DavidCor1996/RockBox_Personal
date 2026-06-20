@@ -2,6 +2,7 @@
 
 import os
 import sys
+import time
 from io import BytesIO
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
@@ -109,6 +110,51 @@ def test_album_artwork_uses_folder_jpg_fallback(tmp_dir):
 
     assert os.path.exists(art_path)
     assert "placeholder" not in os.path.basename(art_path)
+
+
+def test_album_artwork_heavy_fixture_records_render_profile(tmp_dir):
+    manager = ArtworkManager(os.path.join(tmp_dir, "artwork"))
+    albums = []
+    try:
+        for index in range(40):
+            album_dir = os.path.join(tmp_dir, "Library", f"Artist {index:02d}", f"Album {index:02d}")
+            os.makedirs(album_dir, exist_ok=True)
+            audio = os.path.join(album_dir, "01.mp3")
+            cover = os.path.join(album_dir, "cover.jpg")
+            with open(audio, "wb") as f:
+                f.write(b"audio")
+            Image.new("RGB", (96, 96), (index * 3 % 255, 80, 160)).save(cover, "JPEG")
+            albums.append(
+                {
+                    "group_key": f"artist-{index:02d}\0album-{index:02d}",
+                    "album": f"Album {index:02d}",
+                    "artist": f"Artist {index:02d}",
+                    "tracks": [
+                        {
+                            "file_path": audio,
+                            "has_embedded_artwork": 0,
+                            "album": f"Album {index:02d}",
+                            "artist": f"Artist {index:02d}",
+                        }
+                    ],
+                }
+            )
+
+        started_at = time.perf_counter()
+        rendered = [manager.get_artwork_for_album(album, "thumb", allow_online=False) for album in albums]
+        profile = {
+            "album_count": len(albums),
+            "rendered_count": sum(1 for path in rendered if path and os.path.exists(path)),
+            "render_seconds": time.perf_counter() - started_at,
+        }
+
+        assert profile["album_count"] == 40
+        assert profile["rendered_count"] == 40
+        assert profile["render_seconds"] >= 0.0
+        assert all("placeholder" not in os.path.basename(path) for path in rendered)
+        assert len(manager.album_artwork_diagnostics()["album_keys"]) == 40
+    finally:
+        manager.shutdown()
 
 
 def test_album_artwork_prefers_rockbox_cover_over_stale_embedded_cache(tmp_dir, monkeypatch):

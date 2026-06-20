@@ -9,6 +9,9 @@ from pathlib import Path
 
 from PySide6.QtCore import QObject, Signal, QTimer
 
+from services.command_runner import CommandRunner
+from services.file_safety import atomic_write_text
+
 logger = logging.getLogger(__name__)
 
 # Markers that indicate a Rockbox installation
@@ -167,9 +170,11 @@ class DeviceDetector(QObject):
     device_disconnected = Signal(str)      # mount_path
     device_space_updated = Signal(object)  # DeviceInfo
 
-    def __init__(self, config):
+    def __init__(self, config, command_runner=None):
         super().__init__()
         self._config = config
+        log_dir = os.path.join(config.get("cache_dir", ""), "device-commands")
+        self._command_runner = command_runner or CommandRunner(log_dir=log_dir)
         self._current_device = None
         self._poll_timer = None
         self._poll_interval_connected_ms = int(self._config.get("device_poll_interval_connected_ms", 5000))
@@ -404,17 +409,16 @@ class DeviceDetector(QObject):
 
         # Try sync + umount on Linux
         try:
-            import subprocess
-            subprocess.run(["sync"], check=True, timeout=30)
-            result = subprocess.run(
-                ["umount", mount], capture_output=True, text=True, timeout=30
-            )
+            sync_result = self._command_runner.run(["sync"], timeout=30)
+            if sync_result.returncode != 0:
+                return False, f"Sync failed: {sync_result.failure_message()}"
+            result = self._command_runner.run(["umount", mount], timeout=30)
             if result.returncode == 0:
                 self._current_device = None
                 self.device_disconnected.emit(mount)
                 return True, f"Device ejected: {mount}"
             else:
-                return False, f"Unmount failed: {result.stderr.strip()}"
+                return False, f"Unmount failed: {result.failure_message()}"
         except Exception as e:
             return False, f"Eject error: {e}"
 
@@ -437,12 +441,8 @@ def create_mock_device(path, num_tracks=0):
     rb_dir = os.path.join(path, ".rockbox")
     os.makedirs(rb_dir, exist_ok=True)
 
-    with open(os.path.join(rb_dir, "rockbox-info.txt"), "w") as f:
-        f.write("Version: mock-v1.0\n")
-        f.write("Target: ipod6g\n")
-
-    with open(os.path.join(rb_dir, "config.cfg"), "w") as f:
-        f.write("# Rockbox config\n")
+    atomic_write_text(os.path.join(rb_dir, "rockbox-info.txt"), "Version: mock-v1.0\nTarget: ipod6g\n")
+    atomic_write_text(os.path.join(rb_dir, "config.cfg"), "# Rockbox config\n")
 
     # Create Music directory
     music_dir = os.path.join(path, "Music")

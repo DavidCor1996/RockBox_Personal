@@ -14,6 +14,9 @@ from PySide6.QtCore import Qt
 from PySide6.QtGui import QImage, QImageReader
 from PIL import Image, ImageOps, UnidentifiedImageError
 
+from services.command_runner import CommandRunner
+from services.file_safety import atomic_write_json, atomic_write_text
+
 
 BOOT_SPECS = {
     "320x240": {
@@ -277,12 +280,7 @@ class RockboxBootService:
             }
         artifact_path = os.path.join(build_dir, "rockbox.ipod")
         command = ["make", "-C", build_dir, "-j4", artifact_path]
-        result = (runner or subprocess.run)(
-            command,
-            check=False,
-            capture_output=True,
-            text=True,
-        )
+        result = self._run_command(profile, command, runner=runner)
         success = result.returncode == 0 and os.path.isfile(artifact_path)
         return {
             "success": success,
@@ -380,13 +378,7 @@ class RockboxBootService:
         configure_stderr = ""
         if not os.path.isfile(os.path.join(build_dir, "Makefile")):
             configure_command = [configure_path, f"--target={configure_target}", "--type=b"]
-            configure_result = (runner or subprocess.run)(
-                configure_command,
-                check=False,
-                capture_output=True,
-                text=True,
-                cwd=build_dir,
-            )
+            configure_result = self._run_command(profile, configure_command, runner=runner, cwd=build_dir)
             configure_stdout = configure_result.stdout
             configure_stderr = configure_result.stderr
             if configure_result.returncode != 0:
@@ -402,12 +394,7 @@ class RockboxBootService:
         # Bootloader build trees don't consistently expose the final artifact name
         # as an addressable make target, even though the default target produces it.
         build_command = ["make", "-C", build_dir, "-j4"]
-        result = (runner or subprocess.run)(
-            build_command,
-            check=False,
-            capture_output=True,
-            text=True,
-        )
+        result = self._run_command(profile, build_command, runner=runner)
         success = result.returncode == 0 and os.path.isfile(artifact_path)
         stdout = "\n".join(part for part in (configure_stdout, result.stdout) if part.strip())
         stderr = "\n".join(part for part in (configure_stderr, result.stderr) if part.strip())
@@ -481,12 +468,7 @@ class RockboxBootService:
                 "message": "No crypto plugin build target found for this profile",
             }
         command = ["make", "-C", build_dir, "-j4", artifact_path]
-        result = (runner or subprocess.run)(
-            command,
-            check=False,
-            capture_output=True,
-            text=True,
-        )
+        result = self._run_command(profile, command, runner=runner)
         success = result.returncode == 0 and os.path.isfile(artifact_path)
         return {
             "success": success,
@@ -556,11 +538,8 @@ class RockboxBootService:
 
     def save_bootloader_stage_metadata(self, profile, metadata):
         path = self.bootloader_stage_metadata_path(profile)
-        os.makedirs(os.path.dirname(path), exist_ok=True)
         payload = dict(metadata or {})
-        with open(path, "w", encoding="utf-8") as handle:
-            json.dump(payload, handle, indent=2, sort_keys=True)
-            handle.write("\n")
+        atomic_write_json(path, payload)
         return path
 
     def clear_bootloader_stage_metadata(self, profile):
@@ -611,8 +590,7 @@ class RockboxBootService:
         os.makedirs(working_root, exist_ok=True)
         assets = self._build_legacy_bootloader_restore_assets(profile, metadata, working_root)
         staged_marker_path = os.path.join(working_root, f"{profile['id']}-nano2g-encrypt-pending")
-        with open(staged_marker_path, "w", encoding="utf-8") as handle:
-            handle.write("pending\n")
+        atomic_write_text(staged_marker_path, "pending\n")
         assets.extend(
             [
                 {
@@ -670,8 +648,7 @@ class RockboxBootService:
         os.makedirs(working_root, exist_ok=True)
         assets = []
         restored_config_path = os.path.join(working_root, f"{profile['id']}-bootloader-config-restore.cfg")
-        with open(restored_config_path, "w", encoding="utf-8") as handle:
-            handle.write(original_config)
+        atomic_write_text(restored_config_path, original_config)
         assets.append(
             {
                 "kind": "bootloader_restore_config",
@@ -718,8 +695,7 @@ class RockboxBootService:
         os.makedirs(working_root, exist_ok=True)
         paths = self.bootloader_stage_paths(profile)
         restored_config_path = os.path.join(working_root, f"{profile['id']}-bootloader-config-restore.cfg")
-        with open(restored_config_path, "w", encoding="utf-8") as handle:
-            handle.write(original_config)
+        atomic_write_text(restored_config_path, original_config)
         assets = [
             {
                 "kind": "bootloader_restore_config",
@@ -815,13 +791,7 @@ class RockboxBootService:
                 "stderr": "",
                 "message": "Mounted device path does not exist",
             }
-        run = runner or subprocess.run
-        findmnt = run(
-            ["findmnt", "-no", "SOURCE", mount_path],
-            check=False,
-            capture_output=True,
-            text=True,
-        )
+        findmnt = self._run_command(profile, ["findmnt", "-no", "SOURCE", mount_path], runner=runner)
         partition_path = findmnt.stdout.strip()
         if findmnt.returncode != 0 or not partition_path:
             return {
@@ -832,12 +802,7 @@ class RockboxBootService:
                 "stderr": findmnt.stderr,
                 "message": "Unable to resolve mounted partition for this device",
             }
-        lsblk = run(
-            ["lsblk", "-no", "PKNAME", partition_path],
-            check=False,
-            capture_output=True,
-            text=True,
-        )
+        lsblk = self._run_command(profile, ["lsblk", "-no", "PKNAME", partition_path], runner=runner)
         parent = lsblk.stdout.strip()
         disk_path = partition_path if not parent else os.path.join("/dev", parent)
         return {
@@ -861,12 +826,7 @@ class RockboxBootService:
                 "stderr": "",
                 "message": "",
             }
-        result = (runner or subprocess.run)(
-            ["make", "-C", tool_dir],
-            check=False,
-            capture_output=True,
-            text=True,
-        )
+        result = self._run_command(profile, ["make", "-C", tool_dir], runner=runner)
         success = result.returncode == 0 and os.path.isfile(binary_path) and os.access(binary_path, os.X_OK)
         return {
             "success": success,
@@ -902,7 +862,6 @@ class RockboxBootService:
                 "message": ipodpatcher["message"],
             }
 
-        run = runner or subprocess.run
         stdout_parts = []
         stderr_parts = []
         cleanup_path = ""
@@ -917,7 +876,7 @@ class RockboxBootService:
             encrypted_path = cleanup_path
 
         def _run(command):
-            result = run(command, check=False, capture_output=True, text=True)
+            result = self._run_command(profile, command, runner=runner)
             if result.stdout.strip():
                 stdout_parts.append(result.stdout)
             if result.stderr.strip():
@@ -1032,16 +991,40 @@ class RockboxBootService:
             return False
 
     @staticmethod
+    def _command_runner_for_profile(profile):
+        source_root = os.path.abspath((profile or {}).get("source_repo_path") or "")
+        if not source_root:
+            return CommandRunner()
+        return CommandRunner(log_dir=os.path.join(source_root, "rockpod", ".generated", "command_logs", "boot"))
+
+    def _run_command(self, profile, command, runner=None, cwd=""):
+        if runner is not None and hasattr(runner, "run"):
+            return runner.run(command, cwd=cwd)
+        if runner is not None:
+            kwargs = {
+                "check": False,
+                "capture_output": True,
+                "text": True,
+            }
+            if cwd:
+                kwargs["cwd"] = cwd
+            return runner(command, **kwargs)
+        return self._command_runner_for_profile(profile).run(command, cwd=cwd)
+
+    @staticmethod
     def _run_progress_command(command, runner=None, progress_callback=None, progress_current=0, progress_total=0, progress_label=""):
         if progress_callback:
             progress_callback(progress_current, progress_total, progress_label)
         if runner is not None:
-            result = runner(
-                command,
-                check=False,
-                capture_output=True,
-                text=True,
-            )
+            if hasattr(runner, "run"):
+                result = runner.run(command)
+            else:
+                result = runner(
+                    command,
+                    check=False,
+                    capture_output=True,
+                    text=True,
+                )
             if progress_callback:
                 progress_callback(progress_current, progress_total, progress_label)
             return result

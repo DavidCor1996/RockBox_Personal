@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+import re
 from copy import deepcopy
 
 
@@ -216,6 +217,35 @@ class RockboxThemeService:
     def bundle_for_theme(self, theme_id, source_repo_path):
         return self.inspect_theme(theme_id, source_repo_path)
 
+    def validate_skin_references(self, theme_id, source_repo_path, kinds=("wps", "sbs", "fms")):
+        """Validate bitmap references in a theme's WPS/SBS/FMS files."""
+        base = os.path.abspath(source_repo_path)
+        bundle = self.bundle_for_theme(theme_id, base)
+        wanted = {str(kind).strip().lower() for kind in kinds}
+        skin_assets = [
+            item for item in bundle["assets"]
+            if item["kind"] in wanted and item["exists"]
+        ]
+        missing = []
+        checked = []
+        for skin in skin_assets:
+            checked.append(skin["source_rel"])
+            for image_ref in self._skin_image_references(skin["source_abs"]):
+                resolved = self._resolve_skin_image_reference(base, theme_id, image_ref)
+                if not resolved:
+                    missing.append(
+                        {
+                            "skin": skin["source_rel"],
+                            "reference": image_ref,
+                        }
+                    )
+        return {
+            "theme_id": theme_id,
+            "checked": checked,
+            "missing": missing,
+            "success": not missing,
+        }
+
     def _expand_asset(self, base, asset):
         source_rel = asset["source"]
         dest_rel = asset["destination"]
@@ -262,6 +292,38 @@ class RockboxThemeService:
             "size": size,
             "preview_path": os.path.abspath(source_abs) if exists else "",
         }
+
+    @staticmethod
+    def _skin_image_references(path):
+        references = []
+        pattern = re.compile(r"%xl\(([^)]*)\)")
+        try:
+            with open(path, "r", encoding="utf-8", errors="replace") as handle:
+                text = handle.read()
+        except OSError:
+            return references
+        for match in pattern.finditer(text):
+            parts = [part.strip() for part in match.group(1).split(",")]
+            if len(parts) < 2:
+                continue
+            image_path = parts[1]
+            if image_path:
+                references.append(image_path)
+        return references
+
+    @staticmethod
+    def _resolve_skin_image_reference(base, theme_id, image_ref):
+        normalized = str(image_ref or "").replace("\\", "/").lstrip("/")
+        if not normalized:
+            return ""
+        candidates = [
+            os.path.join(base, "wps", normalized),
+            os.path.join(base, "wps", theme_id, normalized),
+        ]
+        for candidate in candidates:
+            if os.path.isfile(candidate):
+                return os.path.abspath(candidate)
+        return ""
 
     @staticmethod
     def _is_compatible_with_model(definition, target_device_model):

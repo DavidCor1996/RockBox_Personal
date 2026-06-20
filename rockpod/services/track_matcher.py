@@ -11,6 +11,7 @@ Matching priority:
 
 import logging
 import re
+import time
 import unicodedata
 from difflib import SequenceMatcher
 
@@ -150,6 +151,7 @@ class TrackMatcher:
     def __init__(self, strictness="metadata_and_hash", duration_tolerance=2.0):
         self.strictness = strictness
         self.duration_tolerance = float(duration_tolerance or 2.0)
+        self.last_profile = {}
 
     def match_all(self, local_tracks, device_tracks):
         """Match all local tracks against device tracks.
@@ -160,6 +162,8 @@ class TrackMatcher:
             orphaned: list of device tracks with no local match
             resync: list of MatchResult that are matched but need re-copy
         """
+        started_at = time.perf_counter()
+
         # Build indices on device tracks. Values are lists so duplicate-looking
         # metadata does not overwrite earlier candidates.
         dev_by_id = {}
@@ -212,6 +216,15 @@ class TrackMatcher:
             "%d orphaned (on device only), %d need resync",
             len(matched), len(unmatched), len(orphaned), len(resync),
         )
+        self.last_profile = {
+            "local_count": len(local_tracks),
+            "device_count": len(device_rows),
+            "matched_count": len(matched),
+            "unmatched_count": len(unmatched),
+            "orphaned_count": len(orphaned),
+            "resync_count": len(resync),
+            "match_seconds": time.perf_counter() - started_at,
+        }
         return matched, unmatched, orphaned, resync
 
     def _match_one(self, row, dev_by_id, dev_by_mhash,

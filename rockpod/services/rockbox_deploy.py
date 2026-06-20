@@ -11,20 +11,21 @@ import os
 import shutil
 from datetime import datetime
 
+from services.file_safety import atomic_write_json
+from services.path_safety import resolve_under_root, validate_device_root
+
 
 class RockboxDeployService:
     """Build diffs, apply theme bundles, and restore backups."""
 
     def build_diff(self, profile, theme_bundle):
         self._validate_theme_compatibility(profile, theme_bundle)
-        mount_path = os.path.abspath(profile.get("device_mount_path") or "")
-        if not mount_path or not os.path.isdir(mount_path):
-            raise ValueError("Profile mount path does not exist")
+        mount_path = validate_device_root(profile.get("device_mount_path") or "")
 
         items = []
         counts = {"add": 0, "overwrite": 0, "unchanged": 0, "missing_source": 0, "remove": 0}
         for asset in theme_bundle.get("assets", []):
-            dest_full = os.path.join(mount_path, asset["destination_rel"].lstrip("/"))
+            dest_full = resolve_under_root(mount_path, asset["destination_rel"])
             exists_on_device = os.path.exists(dest_full)
             action = asset.get("action") or "copy"
             source_exists = bool(asset.get("exists"))
@@ -70,6 +71,7 @@ class RockboxDeployService:
         }
 
     def apply_diff(self, profile, diff_report):
+        mount_path = validate_device_root(diff_report.get("mount_path") or profile.get("device_mount_path") or "")
         actionable = [
             item for item in diff_report["items"]
             if item["status"] in ("add", "overwrite", "remove")
@@ -90,9 +92,16 @@ class RockboxDeployService:
         failures = []
         for item in actionable:
             dest_abs = item["destination_abs"]
+            if not self._within_mount(mount_path, dest_abs):
+                failures.append(f"{item['destination_rel']}: destination escapes device root")
+                continue
             existed = os.path.exists(dest_abs)
             backup_rel = item["destination_rel"].lstrip("/")
-            backup_abs = os.path.join(backup_dir, backup_rel)
+            try:
+                backup_abs = resolve_under_root(backup_dir, backup_rel)
+            except ValueError as exc:
+                failures.append(f"{item['destination_rel']}: {exc}")
+                continue
             if existed:
                 os.makedirs(os.path.dirname(backup_abs), exist_ok=True)
                 shutil.copy2(dest_abs, backup_abs)
@@ -122,9 +131,7 @@ class RockboxDeployService:
                 failures.append(f"{item['destination_rel']}: {exc}")
 
         manifest_path = os.path.join(backup_dir, "manifest.json")
-        with open(manifest_path, "w", encoding="utf-8") as handle:
-            json.dump(manifest, handle, indent=2, sort_keys=True)
-            handle.write("\n")
+        atomic_write_json(manifest_path, manifest)
 
         return {
             "success": not failures,
@@ -137,6 +144,7 @@ class RockboxDeployService:
         }
 
     def restore_latest_backup(self, profile):
+        mount_path = validate_device_root(profile.get("device_mount_path") or "")
         backup_root = os.path.abspath(profile.get("backup_location") or "")
         if not os.path.isdir(backup_root):
             return {"success": False, "restored_count": 0, "failures": ["No backup directory found"]}
@@ -158,7 +166,14 @@ class RockboxDeployService:
         backup_dir = os.path.dirname(manifest_path)
         for item in manifest.get("items", []):
             dest_abs = item["destination_abs"]
-            backup_abs = os.path.join(backup_dir, item["backup_rel"])
+            if not self._within_mount(mount_path, dest_abs):
+                failures.append(f"{item.get('destination_rel', dest_abs)}: destination escapes device root")
+                continue
+            try:
+                backup_abs = resolve_under_root(backup_dir, item["backup_rel"])
+            except ValueError as exc:
+                failures.append(f"{item.get('destination_rel', dest_abs)}: {exc}")
+                continue
             try:
                 if item.get("existed"):
                     os.makedirs(os.path.dirname(dest_abs), exist_ok=True)
@@ -194,6 +209,13 @@ class RockboxDeployService:
                     break
                 digest.update(chunk)
         return digest.hexdigest()
+
+    @staticmethod
+    def _within_mount(mount_path, path):
+        try:
+            return os.path.commonpath([os.path.abspath(mount_path), os.path.abspath(path)]) == os.path.abspath(mount_path)
+        except ValueError:
+            return False
 
     @staticmethod
     def _validate_theme_compatibility(profile, theme_bundle):

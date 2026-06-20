@@ -15,6 +15,10 @@ from ui.device_summary import DeviceSummaryWidget, build_summary_data, compute_d
 from ui.storage_bar import storage_segments
 
 
+def _temp_names(path):
+    return [name for name in os.listdir(path) if name.startswith("tmp")]
+
+
 def test_summary_storage_computes_capacity_used_free():
     class Device:
         total_space = 1000
@@ -191,6 +195,9 @@ def test_enable_rockbox_tagcache_autoupdate_updates_config(tmp_dir):
     create_mock_device(path)
     ok = enable_rockbox_tagcache_autoupdate(DeviceInfo(path))
     assert ok is True
+    config_path = os.path.join(path, ".rockbox", "config.cfg")
+    assert os.path.isfile(config_path)
+    assert not _temp_names(os.path.dirname(config_path))
     state = detect_rockbox_database_state(DeviceInfo(path), {"last_sync_at": "2026-04-17 12:00:00"})
     assert state["tagcache_autoupdate"] is True
 

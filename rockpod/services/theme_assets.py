@@ -5,6 +5,8 @@ import logging
 from copy import deepcopy
 from pathlib import Path
 
+from services.file_safety import atomic_write_json
+
 
 logger = logging.getLogger(__name__)
 
@@ -224,9 +226,7 @@ class ThemeAssetManager:
             manifest["import_metadata"] = metadata
 
         manifest_path = PERSONAL_THEME_DIR / "theme.json"
-        with open(manifest_path, "w", encoding="utf-8") as handle:
-            json.dump(manifest, handle, indent=2, sort_keys=True)
-            handle.write("\n")
+        atomic_write_json(manifest_path, manifest)
         self._personal = self._load_theme("personal", PERSONAL_THEME_DIR)
         return str(manifest_path)
 

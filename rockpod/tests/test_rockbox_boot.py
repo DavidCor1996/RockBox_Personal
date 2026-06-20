@@ -8,6 +8,32 @@ from services.rockbox_deploy import RockboxDeployService
 from services.rockbox_profiles import RockboxProfileStore
 
 
+def _temp_names(path):
+    return [name for name in os.listdir(path) if name.startswith("tmp")]
+
+
+class _FakeCommandResult:
+    def __init__(self, command=None, returncode=0, stdout="", stderr=""):
+        self.command = command or []
+        self.returncode = returncode
+        self.stdout = stdout
+        self.stderr = stderr
+        self.log_path = ""
+
+
+class _FakeCommandRunner:
+    def __init__(self, handler):
+        self.handler = handler
+        self.commands = []
+        self.cwd = []
+
+    def run(self, command, cwd="", timeout=None, env=None):
+        command = [str(part) for part in command]
+        self.commands.append(command)
+        self.cwd.append(cwd)
+        return self.handler(command, cwd)
+
+
 def _make_store(tmp_dir, repo_root):
     config = Config(os.path.join(tmp_dir, "boot-config.json"))
     return config, RockboxProfileStore(config, repo_root)
@@ -265,6 +291,30 @@ def test_boot_rebuild_firmware_uses_expected_build_dir(tmp_dir):
     assert calls == [["make", "-C", build_dir, "-j4", os.path.join(build_dir, "rockbox.ipod")]]
 
 
+def test_boot_rebuild_firmware_accepts_shared_command_runner_style(tmp_dir):
+    repo_root = os.path.join(tmp_dir, "repo")
+    build_dir = os.path.join(repo_root, "build-hw-ipodnano2g")
+    os.makedirs(build_dir, exist_ok=True)
+    _config, store = _make_store(tmp_dir, repo_root)
+
+    profile = store.current_profile()
+    profile["source_repo_path"] = repo_root
+    profile["screen_resolution"] = "176x132"
+    profile = store.save_profile(profile)
+    artifact = os.path.join(build_dir, "rockbox.ipod")
+
+    def handle(command, cwd):
+        _write_bytes(artifact)
+        return _FakeCommandResult(command, stdout="ok")
+
+    runner = _FakeCommandRunner(handle)
+    result = RockboxBootService().rebuild_firmware(profile, runner=runner)
+
+    assert result["success"] is True
+    assert runner.commands == [["make", "-C", build_dir, "-j4", artifact]]
+    assert runner.cwd == [""]
+
+
 def test_boot_firmware_build_dir_prefers_video_for_ambiguous_320x240_profile(tmp_dir):
     repo_root = os.path.join(tmp_dir, "repo")
     video_dir = os.path.join(repo_root, "build-hw-ipodvideo-5g")
@@ -471,6 +521,7 @@ def test_nano2g_bootloader_stage_bundle_stages_marker_and_repairs_legacy_startup
             "original_plugin_dat_base64": "QUJD",
         },
     )
+    assert not _temp_names(os.path.dirname(boot.bootloader_stage_metadata_path(profile)))
     bundle, metadata = boot.build_bootloader_stage_bundle(profile, artifact, os.path.join(tmp_dir, "staging"))
 
     config_asset = next(asset for asset in bundle["assets"] if asset["kind"] == "bootloader_restore_config")
@@ -482,6 +533,7 @@ def test_nano2g_bootloader_stage_bundle_stages_marker_and_repairs_legacy_startup
     marker_asset = next(asset for asset in bundle["assets"] if asset["kind"] == "bootloader_stage_marker")
     with open(marker_asset["source_abs"], "r", encoding="utf-8") as handle:
         assert handle.read() == "pending\n"
+    assert not _temp_names(os.path.dirname(marker_asset["source_abs"]))
 
     assert metadata["artifact_sha256"] == boot._hash_file(artifact)
     assert metadata["marker_rel"] == ".rockbox/rockpod/boot/nano2g-encrypt-pending"
@@ -507,6 +559,8 @@ def test_nano2g_bootloader_restore_bundle_restores_plugin_dat_or_removes_when_ab
         },
     )
     bundle = boot.build_bootloader_restore_config_bundle(profile, os.path.join(tmp_dir, "restore"))
+    config_asset = next(asset for asset in bundle["assets"] if asset["kind"] == "bootloader_restore_config")
+    assert not _temp_names(os.path.dirname(config_asset["source_abs"]))
     plugin_asset = next(asset for asset in bundle["assets"] if asset["kind"] == "bootloader_restore_plugin_dat")
     with open(plugin_asset["source_abs"], "rb") as handle:
         assert handle.read() == b"ABC"
@@ -584,6 +638,7 @@ def test_nano2g_bootloader_stage_status_tracks_encrypted_output_and_hash(tmp_dir
             "original_config": "volume: -20\n",
         },
     )
+    assert not _temp_names(os.path.dirname(boot.bootloader_stage_metadata_path(profile)))
 
     status = boot.bootloader_stage_status(profile, artifact)
 
@@ -664,6 +719,36 @@ def test_resolve_disk_nodes_uses_mount_source_and_parent_disk(tmp_dir):
     assert result["partition_path"] == "/dev/sda2"
     assert result["disk_path"] == "/dev/sda"
     assert calls == [
+        ["findmnt", "-no", "SOURCE", mount_root],
+        ["lsblk", "-no", "PKNAME", "/dev/sda2"],
+    ]
+
+
+def test_resolve_disk_nodes_accepts_shared_command_runner_style(tmp_dir):
+    repo_root = os.path.join(tmp_dir, "repo")
+    mount_root = os.path.join(tmp_dir, "device")
+    os.makedirs(mount_root, exist_ok=True)
+    _config, store = _make_store(tmp_dir, repo_root)
+
+    profile = store.current_profile()
+    profile["source_repo_path"] = repo_root
+    profile["device_mount_path"] = mount_root
+    profile["screen_resolution"] = "176x132"
+    profile = store.save_profile(profile)
+
+    def handle(command, cwd):
+        if command[:2] == ["findmnt", "-no"]:
+            return _FakeCommandResult(command, stdout="/dev/sda2\n")
+        if command[:3] == ["lsblk", "-no", "PKNAME"]:
+            return _FakeCommandResult(command, stdout="sda\n")
+        return _FakeCommandResult(command, returncode=1, stderr="unexpected")
+
+    runner = _FakeCommandRunner(handle)
+    result = RockboxBootService().resolve_disk_nodes(profile, runner=runner)
+
+    assert result["success"] is True
+    assert result["disk_path"] == "/dev/sda"
+    assert runner.commands == [
         ["findmnt", "-no", "SOURCE", mount_root],
         ["lsblk", "-no", "PKNAME", "/dev/sda2"],
     ]

@@ -1,9 +1,40 @@
+from types import SimpleNamespace
+
 from PySide6.QtCore import QTimer
 from PySide6.QtWidgets import QApplication
 
 from services.device_detector import DeviceDetector
 from services.library_scanner import LibraryScanner
 from ui.main_window import MainWindow
+
+
+class _FakeSignal:
+    def __init__(self):
+        self.connected = []
+
+    def connect(self, callback):
+        self.connected.append(callback)
+
+
+class _FakeProcess:
+    def __init__(self, parent=None):
+        self.parent = parent
+        self.readyReadStandardOutput = _FakeSignal()
+        self.readyReadStandardError = _FakeSignal()
+        self.finished = _FakeSignal()
+        self.errorOccurred = _FakeSignal()
+        self.environment = None
+        self.working_directory = ""
+        self.started = None
+
+    def setProcessEnvironment(self, env):
+        self.environment = env
+
+    def setWorkingDirectory(self, path):
+        self.working_directory = path
+
+    def start(self, program, args):
+        self.started = (program, list(args))
 
 
 def test_store_contains_music_and_ipod_games_browser_tabs(config, monkeypatch):
@@ -36,6 +67,39 @@ def test_store_contains_music_and_ipod_games_browser_tabs(config, monkeypatch):
 
         window._store_page.setCurrentWidget(window._music_sharing_panel)
         assert window._current_view == "rockbox_sharing"
+    finally:
+        window._device_storage_analyzer.shutdown()
+        window.close()
+
+
+def test_main_window_child_process_helper_configures_environment(config, monkeypatch):
+    QApplication.instance() or QApplication([])
+    monkeypatch.setattr(DeviceDetector, "start_polling", lambda self: None)
+    monkeypatch.setattr(QTimer, "singleShot", lambda *args, **kwargs: None)
+    monkeypatch.setattr(LibraryScanner, "start_scan", lambda self, force_full=False: None)
+    monkeypatch.setattr(MainWindow, "_start_store_homepage", lambda self, force=False: None)
+    monkeypatch.setattr("ui.process_helpers.QProcess", _FakeProcess)
+
+    window = MainWindow(config)
+    try:
+        request = SimpleNamespace(command=["tool", "--flag"], env={"ROCKPOD_TEST": "1"})
+
+        process = window._create_child_process(
+            request,
+            "/tmp/work",
+            window._on_store_search_output,
+            window._on_store_search_finished,
+            window._on_store_search_error,
+        )
+        process.start(request.command[0], request.command[1:])
+
+        assert process.working_directory == "/tmp/work"
+        assert process.environment.value("ROCKPOD_TEST") == "1"
+        assert process.readyReadStandardOutput.connected == [window._on_store_search_output]
+        assert process.readyReadStandardError.connected == [window._on_store_search_output]
+        assert process.finished.connected == [window._on_store_search_finished]
+        assert process.errorOccurred.connected == [window._on_store_search_error]
+        assert process.started == ("tool", ["--flag"])
     finally:
         window._device_storage_analyzer.shutdown()
         window.close()

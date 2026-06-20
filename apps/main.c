@@ -335,91 +335,14 @@ static int INIT_ATTR init_dircache(bool preinit)
 #endif /* HAVE_DIRCACHE */
 
 #ifdef HAVE_TAGCACHE
-static const char *tagcache_scan_progress_text(const struct tagcache_stat *stat)
-{
-    if (stat->scan_status == TAGCACHE_SCAN_UPDATING)
-        return "Updating database... %d found";
-
-    return str(LANG_BUILDING_DATABASE);
-}
-
 static void init_tagcache(void) INIT_ATTR;
 static void init_tagcache(void)
 {
-    bool clear = false;
-#if 0
-    long talked_tick = 0;
-#endif
     tagcache_init();
 
     while (!tagcache_is_initialized())
-    {
-        struct tagcache_stat *stat = tagcache_get_stat();
-        int ret = stat->commit_step;
-
-        if (ret > 0)
-        {
-            int max_step = tagcache_get_max_commit_step();
-            const char *stage = tagcache_commit_stage_name(stat);
-#if 0 /* FIXME: Audio isn't even initialized yet! */
-            /* hwcodec can't use voice here, as the database commit
-             * uses the audio buffer. */
-            if(global_settings.talk_menu
-               && (talked_tick == 0
-                   || TIME_AFTER(current_tick, talked_tick+7*HZ)))
-            {
-                talked_tick = current_tick;
-                talk_id(LANG_TAGCACHE_INIT, false);
-                talk_number(ret, true);
-                talk_id(VOICE_OF, true);
-                talk_number(max_step, true);
-            }
-#endif
-            if (lang_is_rtl())
-            {
-                if (stage)
-                    splash_progress(ret, max_step, "[%d/%d] %s: %s",
-                                    ret, max_step, stage,
-                                    str(LANG_TAGCACHE_INIT));
-                else
-                    splash_progress(ret, max_step, "[%d/%d] %s",
-                                    ret, max_step, str(LANG_TAGCACHE_INIT));
-            }
-            else
-            {
-                if (stage)
-                    splash_progress(ret, max_step, "%s: %s [%d/%d]",
-                                    str(LANG_TAGCACHE_INIT), stage,
-                                    ret, max_step);
-                else
-                    splash_progress(ret, max_step, "%s [%d/%d]",
-                                    str(LANG_TAGCACHE_INIT), ret,
-                                    max_step);
-            }
-            clear = true;
-        }
-        else if (stat->progress >= 0)
-        {
-            splash_progress(stat->progress, 100,
-                            tagcache_scan_progress_text(stat),
-                            stat->processed_entries);
-            clear = true;
-        }
-        else if (stat->processed_entries > 0)
-        {
-            splashf(0, tagcache_scan_progress_text(stat),
-                    stat->processed_entries);
-            clear = true;
-        }
         sleep(HZ/4);
-    }
     tagtree_init();
-
-    if (clear)
-    {
-        backlight_on();
-        show_logo_boot();
-    }
 }
 #endif /* HAVE_TAGCACHE */
 

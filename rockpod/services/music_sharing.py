@@ -11,6 +11,7 @@ import uuid
 from dataclasses import dataclass
 from urllib import parse, request
 
+from services.file_safety import atomic_write_json
 from services.streamrip_import import streamrip_url_info
 
 
@@ -146,9 +147,7 @@ class MusicSharingService:
         return data
 
     def _save_store(self, data):
-        os.makedirs(os.path.dirname(self._store_path), exist_ok=True)
-        with open(self._store_path, "w") as handle:
-            json.dump(data, handle, indent=2, sort_keys=True)
+        atomic_write_json(self._store_path, data)
 
     def inbox(self):
         return list(self._load_store().get("inbox") or [])

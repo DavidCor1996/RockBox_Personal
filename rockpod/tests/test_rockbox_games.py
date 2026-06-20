@@ -8,6 +8,10 @@ from services.rockbox_games import RockboxGameService
 from services.rockbox_profiles import RockboxProfileStore
 
 
+def _temp_names(path):
+    return [name for name in os.listdir(path) if name.startswith("tmp")]
+
+
 def _make_file(path, content=b"x"):
     os.makedirs(os.path.dirname(path), exist_ok=True)
     mode = "wb" if isinstance(content, bytes) else "w"
@@ -389,6 +393,8 @@ def test_game_metadata_fetch_is_cached_and_written_to_launcher_index(tmp_dir):
 
     fetched = service.fetch_metadata_for_game(profile, games[0], lookup_client=_Lookup())
     assert fetched["success"] is True
+    cache_dir = os.path.join(repo_root, "rockpod", ".generated", "game_metadata", profile["id"])
+    assert not _temp_names(cache_dir)
     assert service.list_games(profile)[0]["publisher"] == "Nintendo"
 
     deploy_profile = service.deploy_profile(profile, "device")
@@ -401,6 +407,8 @@ def test_game_metadata_fetch_is_cached_and_written_to_launcher_index(tmp_dir):
     assert index_entries[0]["year"] == "1996"
     assert index_entries[0]["genre"] == "Role-playing video game"
     assert index_entries[0]["publisher"] == "Nintendo"
+    stage_dir = os.path.join(repo_root, "rockpod", ".generated", "games", profile["id"], "device")
+    assert not _temp_names(stage_dir)
 
 
 def test_launcher_library_falls_back_to_gameboy_scan(tmp_dir):

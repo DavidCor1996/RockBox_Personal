@@ -7,6 +7,8 @@ import json
 
 from PIL import Image, ImageOps, UnidentifiedImageError
 
+from services.file_safety import atomic_write_json
+
 
 SUPPORTED_PHOTO_EXTENSIONS = {".bmp", ".gif", ".jpg", ".jpe", ".jpeg", ".png", ".ppm"}
 PHOTO_TARGET_DIR = "Photos"
@@ -405,10 +407,7 @@ class RockboxPhotoService:
 
     def _save_hidden(self, profile, data):
         path = self._hidden_path(profile)
-        os.makedirs(os.path.dirname(path), exist_ok=True)
-        with open(path, "w", encoding="utf-8") as handle:
-            json.dump({"hidden": list(data.get("hidden", []))}, handle, indent=2, sort_keys=True)
-            handle.write("\n")
+        atomic_write_json(path, {"hidden": list(data.get("hidden", []))})
 
     @staticmethod
     def _thumbnail_size(profile):

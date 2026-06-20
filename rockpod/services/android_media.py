@@ -4,11 +4,14 @@ import hashlib
 import os
 import re
 import shutil
-import subprocess
 import time
 from pathlib import Path
 
 from PySide6.QtCore import QObject, QThread, Signal, Slot, Qt
+
+from services.command_runner import CommandRunner
+from services.file_safety import atomic_write_text
+from services.path_safety import resolve_under_root, validate_device_root
 
 
 ANDROID_VIDEO_EXTENSIONS = {
@@ -258,7 +261,7 @@ def _parse_tiktok_index(rel_path):
 
 
 def _load_tiktok_manifest(device_mount):
-    manifest_path = os.path.join(device_mount, IPODTIKTOK_MANIFEST_PATH)
+    manifest_path = resolve_under_root(device_mount, IPODTIKTOK_MANIFEST_PATH)
     rows = {}
     if not os.path.isfile(manifest_path):
         return rows
@@ -283,31 +286,33 @@ def _load_tiktok_manifest(device_mount):
 
 
 def _save_tiktok_manifest(device_mount, rows):
-    manifest_path = os.path.join(device_mount, IPODTIKTOK_MANIFEST_PATH)
-    os.makedirs(os.path.dirname(manifest_path), exist_ok=True)
+    manifest_path = resolve_under_root(device_mount, IPODTIKTOK_MANIFEST_PATH)
     ordered = sorted(
         rows.items(),
         key=lambda item: (_parse_tiktok_index(item[1].get("rel_path", "")), item[1].get("rel_path", "")),
     )
-    with open(manifest_path, "w", encoding="utf-8") as handle:
-        handle.write("signature\ttitle\trel_path\tsource_rel_path\n")
-        for signature, row in ordered:
-            handle.write(
-                f"{signature}\t{row.get('title', '')}\t{row.get('rel_path', '')}\t{row.get('source_rel_path', '')}\n"
-            )
+    lines = ["signature\ttitle\trel_path\tsource_rel_path"]
+    for signature, row in ordered:
+        lines.append(
+            f"{signature}\t{row.get('title', '')}\t{row.get('rel_path', '')}\t{row.get('source_rel_path', '')}"
+        )
+    atomic_write_text(manifest_path, "\n".join(lines) + "\n")
     return manifest_path
 
 
 def rebuild_tiktok_feed(device_mount, manifest_rows=None):
     manifest_rows = dict(manifest_rows or _load_tiktok_manifest(device_mount))
-    feed_path = os.path.join(device_mount, IPODTIKTOK_FEED_PATH)
-    os.makedirs(os.path.dirname(feed_path), exist_ok=True)
+    device_mount = validate_device_root(device_mount)
+    feed_path = resolve_under_root(device_mount, IPODTIKTOK_FEED_PATH)
 
     existing = []
     filtered_manifest = {}
     for signature, row in manifest_rows.items():
         rel_path = row.get("rel_path", "")
-        full_path = os.path.join(device_mount, rel_path)
+        try:
+            full_path = resolve_under_root(device_mount, rel_path)
+        except ValueError:
+            continue
         if not rel_path or not os.path.isfile(full_path):
             continue
         filtered_manifest[signature] = row
@@ -316,14 +321,14 @@ def rebuild_tiktok_feed(device_mount, manifest_rows=None):
     existing.sort(
         key=lambda item: (_parse_tiktok_index(item[1].get("rel_path", "")), item[1].get("rel_path", ""))
     )
-    with open(feed_path, "w", encoding="utf-8") as handle:
-        handle.write("id\ttitle\tpath\n")
-        for _signature, row in existing:
-            rel_path = row.get("rel_path", "")
-            clip_id = Path(rel_path).stem or f"clip{len(existing)}"
-            title = row.get("title", "") or clip_id
-            device_path = "/" + rel_path.replace(os.sep, "/").lstrip("/")
-            handle.write(f"{clip_id}\t{title}\t{device_path}\n")
+    lines = ["id\ttitle\tpath"]
+    for _signature, row in existing:
+        rel_path = row.get("rel_path", "")
+        clip_id = Path(rel_path).stem or f"clip{len(existing)}"
+        title = row.get("title", "") or clip_id
+        device_path = "/" + rel_path.replace(os.sep, "/").lstrip("/")
+        lines.append(f"{clip_id}\t{title}\t{device_path}")
+    atomic_write_text(feed_path, "\n".join(lines) + "\n")
 
     return {
         "feed_path": IPODTIKTOK_FEED_PATH,
@@ -443,6 +448,7 @@ def import_android_media(
     photo_duration_seconds=8.0,
     for_tiktok_plugin=False,
     ffmpeg_path="",
+    command_runner=None,
     progress_callback=None,
     cancel_check=None,
 ):
@@ -452,11 +458,14 @@ def import_android_media(
         raise RuntimeError("ffmpeg is required for Android media import")
     if not source_root or not os.path.isdir(source_root):
         raise RuntimeError("Android source path is missing or not mounted")
-    if not device_mount or not os.path.isdir(device_mount):
-        raise RuntimeError("iPod mount path is missing")
+    try:
+        device_mount = validate_device_root(device_mount)
+    except ValueError as exc:
+        raise RuntimeError(str(exc)) from exc
 
     if for_tiktok_plugin:
         device_subdir = IPODTIKTOK_DEVICE_DIR
+    runner = command_runner or CommandRunner(log_dir=os.path.join(device_mount, ".rockbox", "rockpod-logs"))
     items = scan_android_media(source_root, include_photos=include_photos, include_videos=include_videos)
     tiktok_manifest = _load_tiktok_manifest(device_mount) if for_tiktok_plugin else {}
     report = {
@@ -506,7 +515,7 @@ def import_android_media(
             rel_path = build_device_output_relpath(item, device_subdir)
             signature = ""
             title = ""
-        dest_path = os.path.join(device_mount, rel_path)
+        dest_path = resolve_under_root(device_mount, rel_path)
         os.makedirs(os.path.dirname(dest_path), exist_ok=True)
         if os.path.exists(dest_path):
             report["skipped_existing"] += 1
@@ -527,7 +536,7 @@ def import_android_media(
             ffmpeg_path=ffmpeg_bin,
         )
         try:
-            result = subprocess.run(command, check=False, capture_output=True, text=True)
+            result = runner.run(command, cwd=os.path.dirname(tmp_path))
         except OSError as exc:
             raise RuntimeError(f"ffmpeg launch failed: {exc}") from exc
 
@@ -537,7 +546,12 @@ def import_android_media(
                     os.remove(tmp_path)
             except OSError:
                 pass
-            message = (result.stderr or result.stdout or f"ffmpeg exited with {result.returncode}").strip()
+            message = (
+                result.stderr
+                or result.stdout
+                or getattr(result, "failure_message", lambda: "")()
+                or f"ffmpeg exited with {result.returncode}"
+            ).strip()
             report["failures"].append({"path": item["source_path"], "error": message})
             continue
 

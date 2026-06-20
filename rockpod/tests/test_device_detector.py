@@ -6,6 +6,40 @@ from services.device_detector import DeviceDetector
 from services.device_detector import DeviceInfo, create_mock_device
 
 
+def _temp_names(path):
+    return [name for name in os.listdir(path) if name.startswith("tmp")]
+
+
+class _FakeCommandResult:
+    def __init__(self, command, returncode=0, stdout="", stderr="", log_path=""):
+        self.command = command
+        self.returncode = returncode
+        self.stdout = stdout
+        self.stderr = stderr
+        self.log_path = log_path
+
+    def failure_message(self):
+        message = f"Command failed with exit status {self.returncode}: {' '.join(self.command)}"
+        if self.log_path:
+            message = f"{message}\nLog: {self.log_path}"
+        return message
+
+
+class _FakeCommandRunner:
+    def __init__(self, results):
+        self.results = list(results)
+        self.commands = []
+
+    def run(self, command, cwd="", timeout=None, env=None):
+        command = [str(part) for part in command]
+        self.commands.append(command)
+        if self.results:
+            result = self.results.pop(0)
+            result.command = command
+            return result
+        return _FakeCommandResult(command)
+
+
 class _FakeTimer:
     def __init__(self, interval=0):
         self._interval = interval
@@ -164,6 +198,7 @@ def test_space_update_is_throttled_for_same_connected_device(config, monkeypatch
 def test_stable_device_key_ignores_config_changes(tmp_dir):
     mount = os.path.join(tmp_dir, "ipod")
     create_mock_device(mount)
+    assert not _temp_names(os.path.join(mount, ".rockbox"))
 
     first = DeviceInfo(mount).stable_device_key
 
@@ -208,6 +243,46 @@ def test_probe_mount_path_normalizes_trailing_slash(config):
 
     assert result is not None
     assert result["mount_path"] == os.path.normpath(config.mock_device_path)
+
+
+def test_eject_device_uses_shared_command_runner(config, tmp_dir):
+    config.mock_device_enabled = False
+    mount = os.path.join(tmp_dir, "ipod")
+    create_mock_device(mount)
+    runner = _FakeCommandRunner([_FakeCommandResult([], 0), _FakeCommandResult([], 0)])
+    detector = DeviceDetector(config, command_runner=runner)
+    detector._current_device = DeviceInfo(mount)
+    disconnected = []
+    detector.device_disconnected.connect(disconnected.append)
+
+    ok, message = detector.eject_device()
+
+    assert ok is True
+    assert "Device ejected" in message
+    assert runner.commands == [["sync"], ["umount", mount]]
+    assert disconnected == [mount]
+    assert detector.current_device is None
+
+
+def test_eject_device_reports_runner_failure_with_log(config, tmp_dir):
+    config.mock_device_enabled = False
+    mount = os.path.join(tmp_dir, "ipod")
+    create_mock_device(mount)
+    log_path = os.path.join(tmp_dir, "umount.log")
+    runner = _FakeCommandRunner([
+        _FakeCommandResult([], 0),
+        _FakeCommandResult([], 32, stderr="", log_path=log_path),
+    ])
+    detector = DeviceDetector(config, command_runner=runner)
+    detector._current_device = DeviceInfo(mount)
+
+    ok, message = detector.eject_device()
+
+    assert ok is False
+    assert "Unmount failed" in message
+    assert "exit status 32" in message
+    assert log_path in message
+    assert detector.current_device is not None
 
 
 def test_scan_mount_points_ignores_io_errors_and_finds_valid_device(config, monkeypatch):

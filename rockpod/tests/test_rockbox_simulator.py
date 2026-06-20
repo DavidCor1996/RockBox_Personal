@@ -9,6 +9,30 @@ from services.rockbox_simulator import RockboxSimulatorService
 from services.rockbox_themes import RockboxThemeService
 
 
+def _temp_names(path):
+    return [name for name in os.listdir(path) if name.startswith("tmp")]
+
+
+class _FakeCommandResult:
+    def __init__(self, returncode=0, stdout="", stderr=""):
+        self.returncode = returncode
+        self.stdout = stdout
+        self.stderr = stderr
+        self.log_path = ""
+
+
+class _FakeCommandRunner:
+    def __init__(self, results):
+        self.results = list(results)
+        self.commands = []
+
+    def run(self, command, cwd="", timeout=None, env=None):
+        self.commands.append([str(part) for part in command])
+        if self.results:
+            return self.results.pop(0)
+        return _FakeCommandResult()
+
+
 def _make_file(path, content=b"x"):
     os.makedirs(os.path.dirname(path), exist_ok=True)
     mode = "wb" if isinstance(content, bytes) else "w"
@@ -64,6 +88,29 @@ def test_simulator_target_discovery(tmp_dir):
     assert nano["screen_resolution"] == "176x132"
 
 
+def test_fallback_ipodvideo_target_uses_local_video_sim_build(tmp_dir):
+    repo_root = os.path.join(tmp_dir, "repo")
+    build_dir, simdisk = _make_sim_target(repo_root)
+    service = RockboxSimulatorService()
+
+    target = service.fallback_ipodvideo_target(
+        {
+            "source_repo_path": repo_root,
+            "screen_resolution": "320x240",
+        }
+    )
+
+    assert target["id"] == "build-sim-video-5g"
+    assert target["build_dir"] == build_dir
+    assert target["binary_path"] == os.path.join(build_dir, "rockboxui")
+    assert target["simdisk_path"] == simdisk
+    assert target["rockbox_root"] == os.path.join(simdisk, ".rockbox")
+    assert target["device_model"] == "iPod Classic / Video"
+    assert service.fallback_ipodvideo_target(
+        {"source_repo_path": repo_root, "screen_resolution": "176x132"}
+    ) is None
+
+
 def test_profile_simulator_binding_persists(tmp_dir):
     repo_root = os.path.join(tmp_dir, "repo")
     build_dir, simdisk = _make_sim_target(repo_root)
@@ -113,6 +160,7 @@ def test_theme_designer_preview_target_reset_rebuilds_clean_simdisk(tmp_dir):
     assert not os.path.exists(dirty_path)
     with open(os.path.join(rebuilt["simdisk_path"], ".rockbox", "config.cfg"), "r", encoding="utf-8") as handle:
         assert handle.read() == "base\n"
+    assert not _temp_names(os.path.join(rebuilt["simdisk_path"], ".rockbox"))
 
 
 def test_simdisk_deploy_diff_and_apply_only_touch_rockbox_paths(tmp_dir):
@@ -339,6 +387,74 @@ def test_latest_screenshot_ignores_stale_screenshot_dir_for_theme_designer_targe
     assert service.latest_screenshot(profile, target) == ""
 
 
+def test_capture_theme_preview_sequence_records_default_ipone_screens(tmp_dir):
+    service = RockboxSimulatorService()
+    target = {"id": "build-sim-video-5g-theme-designer"}
+    calls = []
+
+    def fake_capture(_target, preview_screen="wps", timeout=6.0):
+        calls.append((preview_screen, timeout))
+        path = os.path.join(tmp_dir, f"{preview_screen}.bmp")
+        _make_file(path, b"BMFAKE")
+        return path
+
+    service.capture_theme_preview = fake_capture
+
+    results = service.capture_theme_preview_sequence(target, timeout=1.5)
+
+    assert [item["screen"] for item in results] == ["sbs", "wps", "lockscreen"]
+    assert [item[0] for item in calls] == ["sbs", "wps", "lockscreen"]
+    assert all(item["success"] for item in results)
+    assert all(item["captured_path"].endswith(f"{item['screen']}.bmp") for item in results)
+    assert {item[1] for item in calls} == {1.5}
+
+
+def test_capture_theme_preview_sequence_filters_blank_custom_screens(tmp_dir):
+    service = RockboxSimulatorService()
+    calls = []
+
+    def fake_capture(_target, preview_screen="wps", timeout=6.0):
+        calls.append(preview_screen)
+        if preview_screen == "wps":
+            path = os.path.join(tmp_dir, "wps.bmp")
+            _make_file(path, b"BMFAKE")
+            return path
+        return ""
+
+    service.capture_theme_preview = fake_capture
+
+    results = service.capture_theme_preview_sequence({}, screens=["", "wps", "missing"])
+
+    assert calls == ["wps", "missing"]
+    assert results[0]["success"] is True
+    assert results[1] == {"screen": "missing", "captured_path": "", "success": False}
+
+
+def test_xdotool_helpers_use_shared_command_runner(monkeypatch):
+    monkeypatch.setattr(
+        "services.rockbox_simulator.shutil.which",
+        lambda name: "/usr/bin/xdotool" if name == "xdotool" else None,
+    )
+    runner = _FakeCommandRunner([
+        _FakeCommandResult(stdout="123\n"),
+        _FakeCommandResult(returncode=0),
+        _FakeCommandResult(returncode=0),
+    ])
+
+    window_id = RockboxSimulatorService._wait_for_window_id(77, timeout=0.2, command_runner=runner)
+    sent = RockboxSimulatorService._send_key_to_window_id(window_id, "F5", command_runner=runner)
+    moved = RockboxSimulatorService._move_window_offscreen(window_id, command_runner=runner)
+
+    assert window_id == "123"
+    assert sent is True
+    assert moved is True
+    assert runner.commands == [
+        ["xdotool", "search", "--pid", "77"],
+        ["xdotool", "key", "--window", "123", "F5"],
+        ["xdotool", "windowmove", "123", "5000", "5000"],
+    ]
+
+
 def test_activate_theme_preview_updates_preview_config_files(tmp_dir):
     repo_root = os.path.join(tmp_dir, "repo")
     _build_dir, simdisk = _make_sim_target(repo_root)
@@ -388,6 +504,7 @@ def test_activate_theme_preview_updates_preview_config_files(tmp_dir):
         with open(path, "r", encoding="utf-8") as handle:
             text = handle.read()
         assert "volume: 3" in text
+        assert not _temp_names(os.path.dirname(path))
         assert "theme: /.rockbox/themes/preview.cfg" in text
         assert "start in screen: root" in text
         assert "wps: /.rockbox/wps/preview.wps" in text

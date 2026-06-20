@@ -605,6 +605,10 @@ sub buildzip {
         }
         copy("$ROOT/apps/plugins/bitmaps/native/$pf_logo",
              "$temp_dir/rocks/demos/pictureflow_splash.bmp");
+        if ($width == 320 && $height == 240) {
+            copy("$ROOT/apps/plugins/bitmaps/native/pictureflow_loading_bg.320x240x24.bmp",
+                 "$temp_dir/rocks/demos/pictureflow_loading_bg.bmp");
+        }
 
     }
 

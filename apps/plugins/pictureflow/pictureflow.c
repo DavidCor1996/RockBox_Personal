@@ -1297,11 +1297,11 @@ static int get_tcs_search_res(int type, struct tagcache_search *tcs,
     return ret;
 }
 
-#define STR_STEP_INDEXING_UNTAGGED "1/5 Find " UNTAGGED
-#define STR_STEP_ASSIGNING_ALBUMS "2/5 Find Albums"
-#define STR_STEP_ASSIGNING_ALBUM_YEAR "3/5 Check Album Year"
-#define STR_STEP_REMOVING_DUPLICATES "4/5 Remove Duplicates"
-#define STR_STEP_PREPARING_ARTWORK "5/5 Prepare Artwork"
+#define STR_STEP_INDEXING_UNTAGGED "Preparing library"
+#define STR_STEP_ASSIGNING_ALBUMS "Loading albums"
+#define STR_STEP_ASSIGNING_ALBUM_YEAR "Sorting releases"
+#define STR_STEP_REMOVING_DUPLICATES "Tidying albums"
+#define STR_STEP_PREPARING_ARTWORK "Preparing artwork"
 
 /*adds <untagged> albums/artist to existing album index */
 static int create_album_untagged(struct tagcache_search *tcs,
@@ -2250,9 +2250,9 @@ static void draw_splashscreen(unsigned char * buf_tmp, size_t buf_tmp_size)
 static void draw_progressbar(int step, int count, char *msg)
 {
     static int txt_w, txt_h;
-    const int bar_height = 22;
-    const int w = LCD_WIDTH - 20;
-    const int x = 10;
+    const int bar_height = 10;
+    const int w = LCD_WIDTH - 44;
+    const int x = 22;
     static int y;
     if (msg != NULL)
     {
@@ -2269,24 +2269,28 @@ static void draw_progressbar(int step, int count, char *msg)
 #endif
         rb->lcd_getstringsize(msg, &txt_w, &txt_h);
 
-        y = (LCD_HEIGHT - txt_h)/2;
+        y = (LCD_HEIGHT - txt_h)/2 + 18;
 
         rb->lcd_putsxy((LCD_WIDTH - txt_w)/2, y, msg);
-        y += (txt_h + 5);
+        y += (txt_h + 9);
     }
 #if LCD_DEPTH > 1
 #ifdef HAVE_LCD_COLOR
-    rb->lcd_set_foreground(pf_color_mix(100));
+    rb->lcd_set_foreground(N_PIX(99, 84, 128));
 #else
     rb->lcd_set_foreground(N_BRIGHT(100));
 #endif
 #endif
     rb->lcd_drawrect(x, y, w+2, bar_height);
 #if LCD_DEPTH > 1
-    rb->lcd_set_foreground(N_PIX(165, 231, 82));
+    rb->lcd_set_foreground(N_PIX(159, 119, 236));
 #endif
 
-    rb->lcd_fillrect(x+1, y+1, step * w / count, bar_height-2);
+    rb->lcd_fillrect(x+1, y+1, count > 0 ? step * w / count : 0, bar_height-2);
+#if LCD_DEPTH > 1
+    rb->lcd_set_foreground(N_PIX(232, 211, 255));
+    rb->lcd_fillrect(x+2, y+2, count > 0 ? step * (w - 2) / count : 0, 1);
+#endif
 #if LCD_DEPTH > 1
 #ifdef HAVE_LCD_COLOR
     rb->lcd_set_foreground(pf_fg_color);

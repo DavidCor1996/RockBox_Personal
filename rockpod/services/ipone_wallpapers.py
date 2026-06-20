@@ -9,6 +9,7 @@ from typing import Dict, List
 
 from PIL import Image, ImageOps, UnidentifiedImageError
 
+from services.file_safety import atomic_write_json, atomic_write_text
 from services.greyscale_images import render_2bpp_greyscale, should_render_2bpp_greyscale
 
 LOCK_DEFAULTS = [
@@ -323,10 +324,7 @@ class IPoneWallpaperService:
 
     def _save_hidden(self, repo_root: str, data: Dict):
         path = self._hidden_path(repo_root)
-        os.makedirs(os.path.dirname(path), exist_ok=True)
-        with open(path, "w", encoding="utf-8") as handle:
-            json.dump({"hidden": list(data.get("hidden", []))}, handle, indent=2, sort_keys=True)
-            handle.write("\n")
+        atomic_write_json(path, {"hidden": list(data.get("hidden", []))})
 
     @staticmethod
     def _matches(name: str, patterns) -> bool:
@@ -474,9 +472,7 @@ class IPoneWallpaperService:
         else:
             updated = IPoneWallpaperService._replace_first(content, time_variants, LOCKSCREEN_TIME_CENTER)
             updated = IPoneWallpaperService._replace_first(updated, date_variants, LOCKSCREEN_DATE_CENTER)
-        os.makedirs(os.path.dirname(dest_path), exist_ok=True)
-        with open(dest_path, "w", encoding="utf-8") as handle:
-            handle.write(updated)
+        atomic_write_text(dest_path, updated)
 
     @staticmethod
     def _replace_first(content: str, candidates, replacement: str) -> str:

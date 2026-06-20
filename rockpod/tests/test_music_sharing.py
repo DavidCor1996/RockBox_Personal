@@ -7,6 +7,10 @@ from scripts.music_share_relay import RelayStore, make_handler
 from services.music_sharing import MusicSharingService, share_item_to_store_result
 
 
+def _temp_names(path):
+    return [name for name in os.listdir(path) if name.startswith("tmp")]
+
+
 def _sharing_config(path, name):
     cfg = Config(os.path.join(path, f"{name}.json"))
     cfg.cache_dir = os.path.join(path, name, "cache")
@@ -49,6 +53,9 @@ def test_music_sharing_relay_round_trip(tmp_dir):
         assert result["media_type"] == "album"
         assert result["id"] == "123"
         assert result["url"] == "https://tidal.com/album/123"
+        receiver_store = receiver._store_path
+        assert os.path.isfile(receiver_store)
+        assert not _temp_names(os.path.dirname(receiver_store))
     finally:
         server.shutdown()
         thread.join(timeout=2)

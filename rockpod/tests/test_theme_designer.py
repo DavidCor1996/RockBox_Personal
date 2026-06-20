@@ -5,7 +5,11 @@ from PySide6.QtWidgets import QApplication
 
 from services.rockbox_deploy import RockboxDeployService
 from services.theme_designer import ThemeDesignerService
-from ui.theme_designer import ThemeDesignerWidget
+from ui.theme_designer import ThemeDesignerWidget, _EmbeddedSimulatorPreview
+
+
+def _temp_names(path):
+    return [name for name in os.listdir(path) if name.startswith("tmp")]
 
 
 def _write_text(path, content):
@@ -209,6 +213,7 @@ def test_generates_and_persists_custom_variant(tmp_dir):
     assert loaded["name"] == "Midnight Glass"
     assert loaded["font_rel"] == "fonts/18-Cantarell-Regular.fnt"
     assert loaded["colors"]["selector_end"] == "ABCDEF"
+    assert not _temp_names(os.path.join(repo_root, "rockpod", ".theme_designer", "variants"))
 
 
 def test_wallpaper_conversion_respects_profile_resolution(tmp_dir):
@@ -304,6 +309,8 @@ def test_generated_bundle_deploys_with_existing_deploy_flow(tmp_dir):
     assert os.path.isfile(os.path.join(device_root, ".rockbox", "themes", f"{saved['id']}.cfg"))
     assert os.path.isfile(os.path.join(device_root, ".rockbox", "wps", f"{saved['id']}.wps"))
     assert os.path.isfile(os.path.join(device_root, ".rockbox", "rockpod", "theme_designer", f"{saved['id']}.json"))
+    assert not _temp_names(os.path.join(repo_root, "rockpod", ".theme_designer", "generated", saved["id"], "themes"))
+    assert not _temp_names(os.path.join(repo_root, "rockpod", ".theme_designer", "generated", saved["id"]))
 
 
 def test_preserves_base_theme_files_when_variant_is_generated(tmp_dir):
@@ -373,6 +380,8 @@ def test_preview_bundle_applies_unsaved_colors_to_generated_assets_and_templates
         content = handle.read()
     assert "224466" in content
     assert "EEEEDD" in content
+    assert not _temp_names(os.path.dirname(cfg))
+    assert not _temp_names(os.path.dirname(os.path.dirname(cfg)))
     assert "88AA44" in content
     assert "FFF199" in content
 
@@ -508,7 +517,7 @@ def test_theme_designer_does_not_launch_live_simulator_on_set_target(tmp_dir, mo
         errorOccurred = type("Sig", (), {"connect": lambda self, fn: None})()
         finished = type("Sig", (), {"connect": lambda self, fn: None})()
 
-    monkeypatch.setattr("ui.theme_designer.QProcess", _Proc)
+    monkeypatch.setattr("ui.process_helpers.QProcess", _Proc)
     monkeypatch.setattr("ui.theme_designer.QTimer.singleShot", lambda *_args, **_kwargs: None)
 
     widget = ThemeDesignerWidget()
@@ -574,7 +583,7 @@ def test_wayland_preview_buttons_are_disabled_in_manual_snapshot_mode(tmp_dir, m
         errorOccurred = type("Sig", (), {"connect": lambda self, fn: None})()
         finished = type("Sig", (), {"connect": lambda self, fn: None})()
 
-    monkeypatch.setattr("ui.theme_designer.QProcess", _Proc)
+    monkeypatch.setattr("ui.process_helpers.QProcess", _Proc)
 
     widget = ThemeDesignerWidget()
     widget.set_simulator_target(binary, simdisk)
@@ -596,3 +605,28 @@ def test_x11_simulator_mode_prefers_embedded_surface_when_xdotool_exists(monkeyp
     assert widget._preview_stack.currentWidget() is widget._preview
     assert widget.current_variant_data()["preview_screen"] == "sbs"
     widget.deleteLater()
+
+
+def test_embedded_simulator_preview_delegates_xdotool_helpers(monkeypatch):
+    calls = []
+    monkeypatch.setattr(
+        "ui.theme_designer.RockboxSimulatorService._wait_for_window_id",
+        lambda pid, timeout=1.0: calls.append(("search", pid, timeout)) or "456",
+    )
+    monkeypatch.setattr(
+        "ui.theme_designer.RockboxSimulatorService._send_key_to_window_id",
+        lambda window_id, key_name: calls.append(("key", window_id, key_name)) or True,
+    )
+    monkeypatch.setattr("ui.theme_designer.shutil.which", lambda name: "/usr/bin/xdotool" if name == "xdotool" else None)
+
+    preview = _EmbeddedSimulatorPreview()
+    preview._active_pid = lambda: 99
+
+    assert preview._window_ids_for_pid(77) == ["456"]
+    assert preview.send_key("F5") is True
+    assert calls == [
+        ("search", 77, 1.0),
+        ("search", 99, 1.0),
+        ("key", "456", "F5"),
+    ]
+    preview.deleteLater()

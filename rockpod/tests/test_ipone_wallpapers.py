@@ -7,6 +7,10 @@ from services.ipone_wallpapers import IPoneWallpaperService
 from ui.ipone_wallpaper_manager import IPoneWallpaperManagerWidget
 
 
+def _temp_names(path):
+    return [name for name in os.listdir(path) if name.startswith("tmp")]
+
+
 def _write_bmp(path, width=320, height=240, color="#222244"):
     os.makedirs(os.path.dirname(path), exist_ok=True)
     Image.new("RGB", (width, height), color).save(path, "BMP")
@@ -90,6 +94,9 @@ def test_hidden_wallpapers_are_filtered_until_included(tmp_dir):
 
     service = IPoneWallpaperService()
     assert service.set_hidden(repo_root, theme_lock, True) is True
+    hidden_path = os.path.join(repo_root, "rockpod", "generated", ".hidden_wallpapers.json")
+    assert os.path.isfile(hidden_path)
+    assert not _temp_names(os.path.dirname(hidden_path))
     assert service.set_hidden(repo_root, generated_charge, True) is True
 
     visible = service.list_candidates(repo_root, _profile(repo_root))

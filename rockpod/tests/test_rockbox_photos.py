@@ -10,6 +10,10 @@ from services.rockbox_profiles import RockboxProfileStore
 from ui.photo_manager import PhotoManagerWidget
 
 
+def _temp_names(path):
+    return [name for name in os.listdir(path) if name.startswith("tmp")]
+
+
 def _make_file(path, content=b"x"):
     os.makedirs(os.path.dirname(path), exist_ok=True)
     with open(path, "wb") as handle:
@@ -64,6 +68,9 @@ def test_hidden_photos_are_filtered_until_included(tmp_dir):
     private = next(item for item in service.list_photos(profile) if item["relative_path"] == "Trip/Private.png")
 
     assert service.set_hidden(profile, [private], True) == 1
+    hidden_path = os.path.join(repo_root, "rockpod", "generated", ".hidden_photos.json")
+    assert os.path.isfile(hidden_path)
+    assert not _temp_names(os.path.dirname(hidden_path))
     assert [item["relative_path"] for item in service.list_photos(profile)] == ["Trip/Public.jpg"]
 
     revealed = service.list_photos(profile, include_hidden=True)

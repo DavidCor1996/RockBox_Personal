@@ -6,6 +6,8 @@ import glob
 import os
 from datetime import datetime
 
+from services.file_safety import atomic_write_text
+
 
 ROCKBOX_DATABASE_GLOBS = [
     ".rockbox/database*.tcd",
@@ -120,8 +122,7 @@ def enable_rockbox_tagcache_autoupdate(device):
         if lines and not lines[-1].endswith("\n"):
             lines[-1] += "\n"
         lines.append("tagcache_autoupdate: on\n")
-    with open(config_path, "w", encoding="utf-8") as handle:
-        handle.writelines(lines)
+    atomic_write_text(config_path, "".join(lines))
     return True
 
 

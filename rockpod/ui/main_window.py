@@ -15,7 +15,7 @@ from PySide6.QtWidgets import (
     QApplication, QMessageBox, QInputDialog, QLineEdit, QMenu, QStackedWidget, QFileDialog,
     QProgressDialog, QTabWidget,
 )
-from PySide6.QtCore import QEventLoop, QItemSelectionModel, QProcess, QProcessEnvironment, Qt, QTimer, Slot
+from PySide6.QtCore import QEventLoop, QItemSelectionModel, Qt, QTimer, Slot
 from PySide6.QtGui import QAction, QIcon
 
 from app.config import Config
@@ -103,6 +103,20 @@ from ui.theme_designer import ThemeDesignerWidget
 from ui.video_library import VideoGridView, build_video_browser_groups
 from ui.video_player import VideoPlayerWindow
 from ui.video_sync import VideoSyncPanel
+from ui.android_workflows import summarize_android_import
+from ui.boot_workflows import BootProgressController
+from ui.store_workflows import (
+    store_import_empty_message,
+    store_import_failure_message,
+    store_import_success_message,
+)
+from ui.process_helpers import (
+    compact_process_text,
+    create_child_process,
+    process_output_lines,
+    read_process_text,
+    start_detached_command,
+)
 from ui.dialogs.metadata_editor import MetadataEditor
 from ui.dialogs.album_info import AlbumInfoDialog
 from ui.dialogs.album_metadata import AlbumMetadataDialog
@@ -2188,65 +2202,22 @@ class MainWindow(QMainWindow):
             self._refresh_device_storage_breakdown(device)
             self._update_device_summary()
 
-        scanned = int(report.get("scanned", 0) or 0)
-        imported = int(report.get("imported", 0) or 0)
-        imported_photos = int(report.get("imported_photos", 0) or 0)
-        imported_videos = int(report.get("imported_videos", 0) or 0)
-        skipped = int(report.get("skipped_existing", 0) or 0)
-        failures = list(report.get("failures") or [])
-        cancelled = bool(report.get("cancelled"))
-        device_subdir = report.get("device_subdir", "")
-        for_tiktok_plugin = bool(report.get("for_tiktok_plugin"))
-        feed_entries = int(report.get("feed_entries", 0) or 0)
-
-        if scanned == 0 and not failures:
-            self._status_bar.set_left_text("No Android media found")
+        summary = summarize_android_import(report)
+        if summary["empty"]:
+            self._status_bar.set_left_text(summary["status_text"])
             QMessageBox.information(
                 self,
                 "Import Android Media",
-                "No photos or videos were found under the selected Android storage root.",
+                summary["dialog_text"],
             )
             return
 
-        lines = [
-            f"Scanned {scanned} Android media items.",
-            f"Imported {imported} files to /{device_subdir}.",
-        ]
-        if imported:
-            lines.append(f"Imported breakdown: {imported_photos} photos, {imported_videos} videos.")
-        if skipped:
-            lines.append(f"Skipped {skipped} items already present on the iPod.")
-        if for_tiktok_plugin:
-            lines.append(f"Updated iPodTikTok feed with {feed_entries} clips.")
-        if cancelled:
-            lines.append("Import was cancelled before all items finished.")
-        if failures:
-            lines.append("")
-            lines.append("Failures:")
-            for item in failures[:8]:
-                lines.append(
-                    f"{os.path.basename(item.get('path', ''))}: "
-                    f"{item.get('error', 'conversion failed')}"
-                )
-            if len(failures) > 8:
-                lines.append(f"...and {len(failures) - 8} more.")
-
-        if imported and not cancelled:
-            if for_tiktok_plugin:
-                self._status_bar.set_left_text(
-                    f"Imported iPodTikTok clips: {imported} files, feed now has {feed_entries} clips"
-                )
-            else:
-                self._status_bar.set_left_text(
-                    f"Imported Android media: {imported} files ({imported_photos} photos, {imported_videos} videos)"
-                )
-        elif cancelled:
-            self._status_bar.set_left_text("Android import cancelled")
-
-        if failures:
-            QMessageBox.warning(self, "Import Android Media", "\n".join(lines))
+        if summary["status_text"]:
+            self._status_bar.set_left_text(summary["status_text"])
+        if summary["warning"]:
+            QMessageBox.warning(self, "Import Android Media", summary["dialog_text"])
         else:
-            QMessageBox.information(self, "Import Android Media", "\n".join(lines))
+            QMessageBox.information(self, "Import Android Media", summary["dialog_text"])
 
     def _on_android_import_error(self, message):
         self._dismiss_android_import_progress()
@@ -3736,8 +3707,17 @@ class MainWindow(QMainWindow):
     def _open_browser_external(self, url):
         if not url:
             return
-        import subprocess
-        subprocess.Popen(["xdg-open", url], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, start_new_session=True)
+        start_detached_command(["xdg-open", url])
+
+    def _create_child_process(self, request, working_directory, output_handler, finished_handler, error_handler):
+        return create_child_process(
+            self,
+            request,
+            working_directory,
+            output_handler,
+            finished_handler,
+            error_handler,
+        )
 
     def _start_movie_browse(self, query):
         if self._movie_browse_process is not None:
@@ -3748,17 +3728,13 @@ class MainWindow(QMainWindow):
             self._movie_store_panel.set_movie_browse_status(str(exc), running=False)
             return
 
-        process = QProcess(self)
-        env = QProcessEnvironment.systemEnvironment()
-        for key, value in request.env.items():
-            env.insert(str(key), str(value))
-        process.setProcessEnvironment(env)
-        process.setWorkingDirectory(self._youtube_movie_importer.state_dir)
-        process.readyReadStandardOutput.connect(self._on_movie_browse_output)
-        process.readyReadStandardError.connect(self._on_movie_browse_output)
-        process.finished.connect(self._on_movie_browse_finished)
-        process.errorOccurred.connect(self._on_movie_browse_error)
-
+        process = self._create_child_process(
+            request,
+            self._youtube_movie_importer.state_dir,
+            self._on_movie_browse_output,
+            self._on_movie_browse_finished,
+            self._on_movie_browse_error,
+        )
         self._movie_browse_process = process
         self._movie_browse_output_path = request.output_path
         self._movie_browse_output = []
@@ -3771,11 +3747,7 @@ class MainWindow(QMainWindow):
         process = self._movie_browse_process
         if process is None:
             return
-        raw = (
-            bytes(process.readAllStandardOutput()).decode("utf-8", errors="replace")
-            + bytes(process.readAllStandardError()).decode("utf-8", errors="replace")
-        )
-        text = " ".join(line.strip() for line in raw.splitlines() if line.strip())
+        text = compact_process_text(read_process_text(process))
         if text:
             self._movie_browse_output.append(text)
 
@@ -3783,11 +3755,7 @@ class MainWindow(QMainWindow):
         process = self._movie_browse_process
         self._movie_browse_process = None
         if process is not None:
-            raw = (
-                bytes(process.readAllStandardOutput()).decode("utf-8", errors="replace")
-                + bytes(process.readAllStandardError()).decode("utf-8", errors="replace")
-            )
-            text = " ".join(line.strip() for line in raw.splitlines() if line.strip())
+            text = compact_process_text(read_process_text(process))
             if text:
                 self._movie_browse_output.append(text)
 
@@ -3847,16 +3815,13 @@ class MainWindow(QMainWindow):
             QMessageBox.warning(self, "Movie Import", str(exc))
             return
 
-        process = QProcess(self)
-        env = QProcessEnvironment.systemEnvironment()
-        for key, value in request.env.items():
-            env.insert(str(key), str(value))
-        process.setProcessEnvironment(env)
-        process.setWorkingDirectory(request.output_dir)
-        process.readyReadStandardOutput.connect(self._on_movie_import_output)
-        process.readyReadStandardError.connect(self._on_movie_import_output)
-        process.finished.connect(self._on_movie_import_finished)
-        process.errorOccurred.connect(self._on_movie_import_error)
+        process = self._create_child_process(
+            request,
+            request.output_dir,
+            self._on_movie_import_output,
+            self._on_movie_import_finished,
+            self._on_movie_import_error,
+        )
 
         self._movie_import_process = process
         self._movie_import_output = []
@@ -3902,12 +3867,9 @@ class MainWindow(QMainWindow):
         process = self._movie_import_process
         if process is None:
             return
-        raw = (
-            bytes(process.readAllStandardOutput()).decode("utf-8", errors="replace")
-            + bytes(process.readAllStandardError()).decode("utf-8", errors="replace")
-        )
+        raw = read_process_text(process)
         self._append_movie_import_log(raw)
-        lines = [line.strip() for line in raw.splitlines() if line.strip()]
+        lines = process_output_lines(raw)
         if lines:
             self._movie_import_output.extend(lines)
             progress = parse_movie_import_progress(lines)
@@ -3921,12 +3883,9 @@ class MainWindow(QMainWindow):
         process = self._movie_import_process
         self._movie_import_process = None
         if process is not None:
-            raw = (
-                bytes(process.readAllStandardOutput()).decode("utf-8", errors="replace")
-                + bytes(process.readAllStandardError()).decode("utf-8", errors="replace")
-            )
+            raw = read_process_text(process)
             self._append_movie_import_log(raw)
-            self._movie_import_output.extend(line.strip() for line in raw.splitlines() if line.strip())
+            self._movie_import_output.extend(process_output_lines(raw))
         log_path = self._movie_import_log_path
         self._append_movie_import_log(f"\nProcess finished with exit code {exit_code}.\n")
 
@@ -3984,16 +3943,13 @@ class MainWindow(QMainWindow):
             self._browser_panel.set_store_search_status(str(exc), running=False)
             return
 
-        process = QProcess(self)
-        env = QProcessEnvironment.systemEnvironment()
-        for key, value in request.env.items():
-            env.insert(str(key), str(value))
-        process.setProcessEnvironment(env)
-        process.setWorkingDirectory(self._streamrip_importer.streamrip_state_dir)
-        process.readyReadStandardOutput.connect(self._on_store_search_output)
-        process.readyReadStandardError.connect(self._on_store_search_output)
-        process.finished.connect(self._on_store_search_finished)
-        process.errorOccurred.connect(self._on_store_search_error)
+        process = self._create_child_process(
+            request,
+            self._streamrip_importer.streamrip_state_dir,
+            self._on_store_search_output,
+            self._on_store_search_finished,
+            self._on_store_search_error,
+        )
 
         self._store_search_process = process
         self._store_search_output_path = request.output_path
@@ -4019,16 +3975,13 @@ class MainWindow(QMainWindow):
             self._browser_panel.set_store_search_status(str(exc), running=False)
             return
 
-        process = QProcess(self)
-        env = QProcessEnvironment.systemEnvironment()
-        for key, value in request.env.items():
-            env.insert(str(key), str(value))
-        process.setProcessEnvironment(env)
-        process.setWorkingDirectory(self._streamrip_importer.streamrip_state_dir)
-        process.readyReadStandardOutput.connect(self._on_store_search_output)
-        process.readyReadStandardError.connect(self._on_store_search_output)
-        process.finished.connect(self._on_store_search_finished)
-        process.errorOccurred.connect(self._on_store_search_error)
+        process = self._create_child_process(
+            request,
+            self._streamrip_importer.streamrip_state_dir,
+            self._on_store_search_output,
+            self._on_store_search_finished,
+            self._on_store_search_error,
+        )
 
         self._store_search_process = process
         self._store_search_output_path = request.output_path
@@ -4057,11 +4010,7 @@ class MainWindow(QMainWindow):
         process = self._store_search_process
         if process is None:
             return
-        raw = (
-            bytes(process.readAllStandardOutput()).decode("utf-8", errors="replace")
-            + bytes(process.readAllStandardError()).decode("utf-8", errors="replace")
-        )
-        text = " ".join(line.strip() for line in raw.splitlines() if line.strip())
+        text = compact_process_text(read_process_text(process))
         if text:
             self._store_search_output.append(text)
 
@@ -4069,11 +4018,7 @@ class MainWindow(QMainWindow):
         process = self._store_search_process
         self._store_search_process = None
         if process is not None:
-            raw = (
-                bytes(process.readAllStandardOutput()).decode("utf-8", errors="replace")
-                + bytes(process.readAllStandardError()).decode("utf-8", errors="replace")
-            )
-            text = " ".join(line.strip() for line in raw.splitlines() if line.strip())
+            text = compact_process_text(read_process_text(process))
             if text:
                 self._store_search_output.append(text)
 
@@ -4139,16 +4084,13 @@ class MainWindow(QMainWindow):
             self._browser_panel.set_store_search_status(str(exc), running=False)
             return
 
-        process = QProcess(self)
-        env = QProcessEnvironment.systemEnvironment()
-        for key, value in request.env.items():
-            env.insert(str(key), str(value))
-        process.setProcessEnvironment(env)
-        process.setWorkingDirectory(self._streamrip_importer.streamrip_state_dir)
-        process.readyReadStandardOutput.connect(self._on_store_album_detail_output)
-        process.readyReadStandardError.connect(self._on_store_album_detail_output)
-        process.finished.connect(self._on_store_album_detail_finished)
-        process.errorOccurred.connect(self._on_store_album_detail_error)
+        process = self._create_child_process(
+            request,
+            self._streamrip_importer.streamrip_state_dir,
+            self._on_store_album_detail_output,
+            self._on_store_album_detail_finished,
+            self._on_store_album_detail_error,
+        )
 
         self._store_detail_process = process
         self._store_detail_output_path = request.output_path
@@ -4161,11 +4103,7 @@ class MainWindow(QMainWindow):
         process = self._store_detail_process
         if process is None:
             return
-        raw = (
-            bytes(process.readAllStandardOutput()).decode("utf-8", errors="replace")
-            + bytes(process.readAllStandardError()).decode("utf-8", errors="replace")
-        )
-        text = " ".join(line.strip() for line in raw.splitlines() if line.strip())
+        text = compact_process_text(read_process_text(process))
         if text:
             self._store_detail_output.append(text)
 
@@ -4173,11 +4111,7 @@ class MainWindow(QMainWindow):
         process = self._store_detail_process
         self._store_detail_process = None
         if process is not None:
-            raw = (
-                bytes(process.readAllStandardOutput()).decode("utf-8", errors="replace")
-                + bytes(process.readAllStandardError()).decode("utf-8", errors="replace")
-            )
-            text = " ".join(line.strip() for line in raw.splitlines() if line.strip())
+            text = compact_process_text(read_process_text(process))
             if text:
                 self._store_detail_output.append(text)
 
@@ -4280,16 +4214,13 @@ class MainWindow(QMainWindow):
             self._store_import_panel = None
             return
 
-        process = QProcess(self)
-        env = QProcessEnvironment.systemEnvironment()
-        for key, value in request.env.items():
-            env.insert(str(key), str(value))
-        process.setProcessEnvironment(env)
-        process.setWorkingDirectory(request.output_dir)
-        process.readyReadStandardOutput.connect(self._on_store_import_output)
-        process.readyReadStandardError.connect(self._on_store_import_output)
-        process.finished.connect(self._on_store_import_finished)
-        process.errorOccurred.connect(self._on_store_import_error)
+        process = self._create_child_process(
+            request,
+            request.output_dir,
+            self._on_store_import_output,
+            self._on_store_import_finished,
+            self._on_store_import_error,
+        )
 
         self._store_import_process = process
         self._store_import_started_at = request.started_at
@@ -4401,12 +4332,9 @@ class MainWindow(QMainWindow):
         process = self._store_import_process
         if process is None:
             return
-        raw = (
-            bytes(process.readAllStandardOutput()).decode("utf-8", errors="replace")
-            + bytes(process.readAllStandardError()).decode("utf-8", errors="replace")
-        )
+        raw = read_process_text(process)
         self._append_store_import_log(raw)
-        text = " ".join(line.strip() for line in raw.splitlines() if line.strip())
+        text = compact_process_text(raw)
         if text:
             self._store_import_output.append(text)
             suffix = f"\nLog: {self._store_import_log_path}" if self._store_import_log_path else ""
@@ -4428,12 +4356,9 @@ class MainWindow(QMainWindow):
         process = self._store_import_process
         self._store_import_process = None
         if process is not None:
-            raw = (
-                bytes(process.readAllStandardOutput()).decode("utf-8", errors="replace")
-                + bytes(process.readAllStandardError()).decode("utf-8", errors="replace")
-            )
+            raw = read_process_text(process)
             self._append_store_import_log(raw)
-            text = " ".join(line.strip() for line in raw.splitlines() if line.strip())
+            text = compact_process_text(raw)
             if text:
                 self._store_import_output.append(text)
         imported = discover_imported_audio_files(self._store_import_output_dir, self._store_import_started_at)
@@ -4452,26 +4377,15 @@ class MainWindow(QMainWindow):
         self._store_import_output_dir = ""
         self._store_import_log_path = ""
         if exit_code != 0:
-            detail = " ".join(self._store_import_output).strip()
+            message = store_import_failure_message(exit_code, self._store_import_output, log_path)
             self._store_import_output = []
-            if detail:
-                message = f"streamrip failed with exit code {exit_code}: {detail[-600:]}\nLog: {log_path}"
-            else:
-                message = f"streamrip failed with exit code {exit_code}\nLog: {log_path}"
             panel.set_store_import_status(message, running=False)
             self._store_import_panel = None
             return
         count = len(imported)
         if count == 0:
-            detail = " ".join(self._store_import_output).strip()
+            label = store_import_empty_message(self._store_import_output, log_path)
             self._store_import_output = []
-            if detail:
-                label = f"No new audio files detected. Last streamrip output: {detail[-600:]}\nLog: {log_path}"
-            else:
-                label = (
-                    "No new audio files detected. Check Tidal/Qobuz auth and whether the album is "
-                    f"available in your region.\nLog: {log_path}"
-                )
             panel.set_store_import_status(label, running=False)
             self._status_bar.set_left_text("No new store imports detected")
             self._store_import_panel = None
@@ -4482,11 +4396,7 @@ class MainWindow(QMainWindow):
                 "imported_files": list(imported),
             }
         self._store_import_output = []
-        label = (
-            f"Imported {count} audio file{'s' if count != 1 else ''}; "
-            f"added {len(cover_updates)} Rockbox cover file{'s' if len(cover_updates) != 1 else ''}. "
-            f"Refreshing library.\nLog: {log_path}"
-        )
+        label = store_import_success_message(count, len(cover_updates), log_path)
         panel.set_store_import_status(label, running=False)
         self._status_bar.set_left_text(label)
         self._store_import_panel = None
@@ -5241,18 +5151,8 @@ class MainWindow(QMainWindow):
             self._theme_designer.set_simulator_preview("")
             return
         target = self._preferred_theme_designer_simulator_target(profile)
-        if not target and profile.get("screen_resolution") == "320x240":
-            build_dir = os.path.join(profile["source_repo_path"], "build-sim-video-5g")
-            binary = os.path.join(build_dir, "rockboxui")
-            simdisk = os.path.join(build_dir, "simdisk")
-            if os.path.isfile(binary) and os.path.isdir(simdisk):
-                target = {
-                    "id": "build-sim-video-5g",
-                    "build_dir": build_dir,
-                    "binary_path": binary,
-                    "simdisk_path": simdisk,
-                    "screen_resolution": "320x240",
-                }
+        if not target:
+            target = self._rockbox_simulator.fallback_ipodvideo_target(profile)
         preview_target = self._rockbox_simulator.theme_designer_preview_target(profile, target) if target else None
         self._theme_designer.set_simulator_target(
             (preview_target or {}).get("binary_path", ""),
@@ -5282,20 +5182,8 @@ class MainWindow(QMainWindow):
         if not profile:
             return
         target = self._preferred_theme_designer_simulator_target(profile)
-        if not target and profile.get("screen_resolution") == "320x240":
-            build_dir = os.path.join(profile["source_repo_path"], "build-sim-video-5g")
-            binary = os.path.join(build_dir, "rockboxui")
-            simdisk = os.path.join(build_dir, "simdisk")
-            if os.path.isfile(binary) and os.path.isdir(simdisk):
-                target = {
-                    "id": "build-sim-video-5g",
-                    "name": "build-sim-video-5g",
-                    "build_dir": build_dir,
-                    "binary_path": binary,
-                    "simdisk_path": simdisk,
-                    "screen_resolution": "320x240",
-                    "device_model": "iPod Classic / Video",
-                }
+        if not target:
+            target = self._rockbox_simulator.fallback_ipodvideo_target(profile)
         if not target:
             return
         try:
@@ -5554,106 +5442,36 @@ class MainWindow(QMainWindow):
         )
 
     def _show_boot_progress(self, title, label, total=4):
-        progress = QProgressDialog(label, None, 0, max(total, 1), self)
-        progress.setWindowTitle(title)
-        progress.setWindowModality(Qt.WindowModal)
-        progress.setMinimumDuration(0)
-        progress.setAutoClose(False)
-        progress.setAutoReset(False)
-        progress.setCancelButton(None)
-        progress.setValue(0)
-        progress.show()
-        QApplication.processEvents()
-        return progress
+        return BootProgressController(self, self._status_bar).show(title, label, total=total)
 
     def _update_boot_progress(self, progress, current, total, label, busy=False):
-        if progress is not None:
-            if busy:
-                progress.setRange(0, 0)
-            else:
-                progress.setRange(0, max(total, 1))
-                progress.setValue(min(max(current, 0), max(total, 1)))
-            progress.setLabelText(label or "Updating Rockbox boot branding...")
-        if label:
-            self._status_bar.set_left_text(label)
-        QApplication.processEvents()
+        BootProgressController(self, self._status_bar).update(progress, current, total, label, busy=busy)
 
     def _close_boot_progress(self, progress):
-        if progress is not None:
-            progress.close()
-            progress.deleteLater()
-            QApplication.processEvents()
-
-    def _run_boot_process(self, command, progress, label):
-        self._update_boot_progress(progress, 0, 0, label, busy=True)
-        process = QProcess(self)
-        process.setProcessChannelMode(QProcess.MergedChannels)
-        output_parts = []
-
-        def read_output():
-            data = bytes(process.readAllStandardOutput()).decode("utf-8", "replace")
-            if not data:
-                return
-            output_parts.append(data)
-            lines = [line.strip() for line in data.splitlines() if line.strip()]
-            if lines:
-                self._update_boot_progress(progress, 0, 0, lines[-1][:160], busy=True)
-
-        loop = QEventLoop(self)
-        process.readyReadStandardOutput.connect(read_output)
-        process.finished.connect(lambda _code, _status: loop.quit())
-        process.errorOccurred.connect(lambda _error: loop.quit())
-        process.start(command[0], command[1:])
-        if not process.waitForStarted(3000):
-            return {
-                "returncode": 127,
-                "stdout": "".join(output_parts),
-                "stderr": process.errorString(),
-            }
-        loop.exec()
-        read_output()
-        return {
-            "returncode": process.exitCode(),
-            "stdout": "".join(output_parts),
-            "stderr": process.errorString() if process.exitStatus() != QProcess.NormalExit else "",
-        }
+        BootProgressController(self, self._status_bar).close(progress)
 
     def _full_install_runtime_firmware(self, profile, progress=None):
-        build_dir = self._rockbox_boot.firmware_build_dir(profile)
-        mount_path = os.path.abspath(profile.get("device_mount_path") or "")
-        if not build_dir:
-            return {"success": False, "artifact_path": "", "message": "No Rockbox build directory found for this profile"}
-        if not mount_path or not os.path.isdir(mount_path):
-            return {"success": False, "artifact_path": "", "message": "Mounted device path does not exist"}
+        def on_progress(current, total, label):
+            self._update_boot_progress(progress, current, total, label, busy=False)
 
-        artifact_path = os.path.join(build_dir, "rockbox.ipod")
-        build = self._run_boot_process(
-            ["make", "-C", build_dir, "-j4", artifact_path],
-            progress,
-            "Building rockbox.ipod...",
+        result = self._rockbox_boot.full_install_firmware(
+            profile,
+            progress_callback=on_progress,
         )
-        if build["returncode"] != 0 or not os.path.isfile(artifact_path):
-            details = "\n".join(part for part in (build.get("stderr", ""), build.get("stdout", "")) if part.strip())
-            return {
-                "success": False,
-                "artifact_path": "",
-                "message": details[:4000] if details else "Firmware rebuild failed",
-            }
-
-        install = self._run_boot_process(
-            ["make", "-C", build_dir, f"PREFIX={mount_path}", "fullinstall"],
-            progress,
-            "Installing full Rockbox setup to iPod...",
-        )
-        if install["returncode"] != 0:
-            details = "\n".join(part for part in (install.get("stderr", ""), install.get("stdout", "")) if part.strip())
-            return {
-                "success": False,
-                "artifact_path": "",
-                "message": details[:4000] if details else "Rockbox full install failed",
-            }
+        if not result["success"]:
+            details = "\n".join(
+                part
+                for part in (
+                    result.get("stderr", ""),
+                    result.get("stdout", ""),
+                    result.get("message", ""),
+                )
+                if str(part).strip()
+            )
+            result["message"] = details[:4000] if details else result.get("message", "Rockbox full install failed")
+            return result
         self._update_boot_progress(progress, 4, 4, "Full install complete")
-        return {"success": True, "artifact_path": artifact_path, "message": ""}
+        return result
 
     def _apply_boot_deploy(self):
         profile = self._rockbox_profiles.current_profile()
@@ -6518,8 +6336,7 @@ class MainWindow(QMainWindow):
         if not profile:
             return
         path = self._rockbox_simulator.ensure_screenshot_dir(profile, target)
-        import subprocess
-        subprocess.Popen(["xdg-open", path], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, start_new_session=True)
+        start_detached_command(["xdg-open", path])
 
     # ═══════════════════════════════════════════════════════════════
     # Window lifecycle

@@ -3,10 +3,12 @@
 import hashlib
 import os
 import shutil
-import subprocess
 from pathlib import Path
 
 from PIL import Image
+
+from services.command_runner import CommandRunner
+from services.file_safety import atomic_write_text
 
 
 _VIDEO_POSTER_FILENAMES = (
@@ -23,11 +25,12 @@ _VIDEO_LIST_THUMB_SIZE = (32, 32)
 class VideoThumbnailService:
     """Generate and cache poster thumbnails for local video files."""
 
-    def __init__(self, cache_root, config=None, artwork_manager=None):
+    def __init__(self, cache_root, config=None, artwork_manager=None, command_runner=None):
         self._cache_dir = os.path.join(cache_root, "video_thumbs")
         self._video_list_dir = os.path.join(self._cache_dir, "list")
         self._config = config
         self._artwork = artwork_manager
+        self._command_runner = command_runner or CommandRunner(log_dir=os.path.join(self._cache_dir, "logs"))
         os.makedirs(self._cache_dir, exist_ok=True)
         os.makedirs(self._video_list_dir, exist_ok=True)
         self._ffmpeg = shutil.which("ffmpeg") or ""
@@ -150,8 +153,7 @@ class VideoThumbnailService:
                     ]
                 )
             )
-        with open(manifest_path, "w", encoding="utf-8", newline="\n") as handle:
-            handle.write("\n".join(lines) + "\n")
+        atomic_write_text(manifest_path, "\n".join(lines) + "\n")
         return manifest_path, self._file_hash(manifest_path)
 
     @staticmethod
@@ -250,7 +252,7 @@ class VideoThumbnailService:
             target_path,
         ]
         try:
-            result = subprocess.run(command, check=False, capture_output=True, text=True)
+            result = self._command_runner.run(command, cwd=os.path.dirname(target_path))
         except OSError:
             return False
         return result.returncode == 0 and os.path.exists(target_path)

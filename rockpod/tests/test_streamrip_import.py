@@ -16,6 +16,10 @@ from services.streamrip_import import (
 )
 
 
+def _temp_names(path):
+    return [name for name in os.listdir(path) if name.startswith("tmp")]
+
+
 def test_supported_streamrip_urls_include_lossless_sources():
     assert is_supported_streamrip_url("https://listen.tidal.com/album/123") is True
     assert is_supported_streamrip_url("https://www.qobuz.com/us-en/album/example/abc") is True
@@ -152,6 +156,7 @@ def test_prepare_import_creates_log_and_streamrip_config(config):
     assert os.path.isfile(request.log_path)
     assert request.log_path.startswith(importer.log_dir)
     assert os.path.isfile(importer.config_path)
+    assert not _temp_names(os.path.dirname(importer.config_path))
 
 
 def test_prepare_album_search_builds_storefront_search_request(config):
@@ -210,6 +215,7 @@ def test_ensure_streamrip_config_sets_rockpod_album_defaults(config):
         text = handle.read()
 
     assert 'save_artwork = true' in text
+    assert not _temp_names(os.path.dirname(path))
     assert 'embed = true' in text
     assert 'folder_format = "{albumartist} - {title} ({year})"' in text
     assert 'track_format = "{tracknumber:02}. {title}"' in text

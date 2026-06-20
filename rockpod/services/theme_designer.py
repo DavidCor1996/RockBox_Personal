@@ -11,6 +11,7 @@ from copy import deepcopy
 
 from PIL import Image, ImageColor, ImageOps, UnidentifiedImageError
 
+from services.file_safety import atomic_write_json, atomic_write_text
 from services.greyscale_images import render_2bpp_greyscale, should_render_2bpp_greyscale
 from services.rockbox_themes import RockboxThemeService
 
@@ -316,10 +317,7 @@ class ThemeDesignerService:
         normalized = self._normalize_variant(variant, repo_root)
         variant_id = normalized["id"] or self._unique_variant_id(repo_root, normalized["name"])
         normalized["id"] = variant_id
-        os.makedirs(self._variants_dir(repo_root), exist_ok=True)
-        with open(self._variant_path(repo_root, variant_id), "w", encoding="utf-8") as handle:
-            json.dump(normalized, handle, indent=2, sort_keys=True)
-            handle.write("\n")
+        atomic_write_json(self._variant_path(repo_root, variant_id), normalized)
         return normalized
 
     def rename_variant(self, repo_root, variant_id, new_name):
@@ -548,8 +546,7 @@ class ThemeDesignerService:
                 output.append(f"{key}: {value}\n")
 
         path = os.path.join(stage_root, "themes", f"{variant['id']}.cfg")
-        with open(path, "w", encoding="utf-8") as handle:
-            handle.writelines(output)
+        atomic_write_text(path, "".join(output))
 
     def _copy_template(self, base_bundle, kind, stage_root, dest_rel):
         asset = next((item for item in base_bundle["assets"] if item["kind"] == kind), None)
@@ -584,21 +581,17 @@ class ThemeDesignerService:
 
     def _write_metadata(self, stage_root, variant):
         path = os.path.join(stage_root, "metadata.json")
-        with open(path, "w", encoding="utf-8") as handle:
-            json.dump(
-                {
-                    "id": variant["id"],
-                    "name": variant["name"],
-                    "base_theme_id": variant["base_theme_id"],
-                    "screen_resolution": variant["screen_resolution"],
-                    "wallpaper_source": variant.get("wallpaper_source", ""),
-                    "charging_wallpaper_source": variant.get("charging_wallpaper_source", ""),
-                },
-                handle,
-                indent=2,
-                sort_keys=True,
-            )
-            handle.write("\n")
+        atomic_write_json(
+            path,
+            {
+                "id": variant["id"],
+                "name": variant["name"],
+                "base_theme_id": variant["base_theme_id"],
+                "screen_resolution": variant["screen_resolution"],
+                "wallpaper_source": variant.get("wallpaper_source", ""),
+                "charging_wallpaper_source": variant.get("charging_wallpaper_source", ""),
+            },
+        )
 
     def _preview_image_path(self, explicit_source, base_dir, candidates):
         explicit = os.path.abspath(explicit_source or "")
@@ -826,5 +819,4 @@ class ThemeDesignerService:
             content = content.replace(source, target)
             content = content.replace(source.lower(), target.lower())
 
-        with open(path, "w", encoding="utf-8") as handle:
-            handle.write(content)
+        atomic_write_text(path, content)

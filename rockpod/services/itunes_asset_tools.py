@@ -5,11 +5,12 @@ from __future__ import annotations
 import json
 import os
 import shutil
-import subprocess
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Iterable
 
+from services.command_runner import CommandRunner
+from services.file_safety import atomic_write_json, atomic_write_text
 from services.theme_assets import PERSONAL_THEME_DIR, ThemeAssetManager
 
 
@@ -261,7 +262,11 @@ def import_itunes_assets(source_dir: str | os.PathLike[str], config=None):
     }
 
 
-def extract_itunes_assets(source_path: str | os.PathLike[str], out_dir: str | os.PathLike[str] | None = None):
+def extract_itunes_assets(
+    source_path: str | os.PathLike[str],
+    out_dir: str | os.PathLike[str] | None = None,
+    command_runner=None,
+):
     source = Path(source_path).resolve()
     if out_dir is None:
         out_dir = source.parent / f"{source.stem}_rockpod_assets"
@@ -271,6 +276,7 @@ def extract_itunes_assets(source_path: str | os.PathLike[str], out_dir: str | os
     output_root.mkdir(parents=True, exist_ok=True)
     raw_dir.mkdir(parents=True, exist_ok=True)
     collected_dir.mkdir(parents=True, exist_ok=True)
+    runner = command_runner or CommandRunner(log_dir=str(output_root / "logs"))
 
     extraction_mode = "directory"
     extraction_notes = []
@@ -282,14 +288,9 @@ def extract_itunes_assets(source_path: str | os.PathLike[str], out_dir: str | os
         seven_zip = shutil.which("7z") or shutil.which("7za")
         if not seven_zip:
             raise RuntimeError("7z is required for local installer extraction but was not found in PATH.")
-        result = subprocess.run(
-            [seven_zip, "x", str(source), f"-o{raw_dir}", "-y"],
-            capture_output=True,
-            text=True,
-            check=False,
-        )
+        result = _run_tool([seven_zip, "x", str(source), f"-o{raw_dir}", "-y"], runner)
         if _extraction_failed(result, raw_dir):
-            raise RuntimeError((result.stderr or result.stdout).strip() or "7z extraction failed")
+            raise RuntimeError(_command_failure_detail(result, "7z extraction failed"))
         extracted_root = raw_dir
         extraction_notes.append("Archive extracted with 7z.")
     elif source.is_dir():
@@ -309,32 +310,32 @@ def extract_itunes_assets(source_path: str | os.PathLike[str], out_dir: str | os
         nested_msi = _first_existing(raw_dir / "iTunes.msi", raw_dir / "QuickTime.msi")
         if nested_msi:
             nested_dir = output_root / "itunes_msi"
-            _extract_archive(nested_msi, nested_dir)
+            _extract_archive(nested_msi, nested_dir, runner)
             copied_assets.extend(_collect_images(nested_dir, collected_dir))
             nested_notes.append(f"Nested MSI extracted: {nested_msi.name}")
 
             nested_cab = _first_existing(nested_dir / "iTunes.cab")
             if nested_cab:
                 cab_dir = output_root / "itunes_cab"
-                _extract_archive(nested_cab, cab_dir)
+                _extract_archive(nested_cab, cab_dir, runner)
                 copied_assets.extend(_collect_images(cab_dir, collected_dir))
                 nested_notes.append("Nested iTunes.cab extracted.")
-                copied_assets.extend(_extract_qtr_images(cab_dir, output_root, collected_dir))
-                copied_assets.extend(_extract_pe_icons(cab_dir, output_root, collected_dir))
+                copied_assets.extend(_extract_qtr_images(cab_dir, output_root, collected_dir, runner))
+                copied_assets.extend(_extract_pe_icons(cab_dir, output_root, collected_dir, runner))
     elif source.is_file() and source.suffix.lower() == ".msi":
         nested_cab = _first_existing(raw_dir / "iTunes.cab")
         if nested_cab:
             cab_dir = output_root / "itunes_cab"
-            _extract_archive(nested_cab, cab_dir)
+            _extract_archive(nested_cab, cab_dir, runner)
             copied_assets.extend(_collect_images(cab_dir, collected_dir))
             nested_notes.append("Nested iTunes.cab extracted.")
-            copied_assets.extend(_extract_qtr_images(cab_dir, output_root, collected_dir))
-            copied_assets.extend(_extract_pe_icons(cab_dir, output_root, collected_dir))
+            copied_assets.extend(_extract_qtr_images(cab_dir, output_root, collected_dir, runner))
+            copied_assets.extend(_extract_pe_icons(cab_dir, output_root, collected_dir, runner))
     elif source.is_dir():
-        copied_assets.extend(_extract_qtr_images(extracted_root, output_root, collected_dir))
-        copied_assets.extend(_extract_pe_icons(extracted_root, output_root, collected_dir))
+        copied_assets.extend(_extract_qtr_images(extracted_root, output_root, collected_dir, runner))
+        copied_assets.extend(_extract_pe_icons(extracted_root, output_root, collected_dir, runner))
 
-    copied_assets.extend(_extract_pkg_payloads(extracted_root, output_root, collected_dir))
+    copied_assets.extend(_extract_pkg_payloads(extracted_root, output_root, collected_dir, runner))
 
     embedded_candidates = []
     for path in sorted(extracted_root.rglob("*")):
@@ -354,29 +355,22 @@ def extract_itunes_assets(source_path: str | os.PathLike[str], out_dir: str | os
         "notes": extraction_notes + nested_notes,
         "next_step": f"Run `rockpod import-itunes-assets {collected_dir}`",
     }
-    with open(summary_path, "w", encoding="utf-8") as handle:
-        json.dump(summary, handle, indent=2)
-        handle.write("\n")
+    atomic_write_json(summary_path, summary, sort_keys=False)
     summary["summary_path"] = str(summary_path)
     return summary
 
 
-def _extract_archive(source: Path, out_dir: Path):
+def _extract_archive(source: Path, out_dir: Path, command_runner=None):
     seven_zip = shutil.which("7z") or shutil.which("7za")
     if not seven_zip:
         raise RuntimeError("7z is required for local installer extraction but was not found in PATH.")
     out_dir.mkdir(parents=True, exist_ok=True)
-    result = subprocess.run(
-        [seven_zip, "x", str(source), f"-o{out_dir}", "-y"],
-        capture_output=True,
-        text=True,
-        check=False,
-    )
+    result = _run_tool([seven_zip, "x", str(source), f"-o{out_dir}", "-y"], command_runner)
     if _extraction_failed(result, out_dir):
-        raise RuntimeError((result.stderr or result.stdout).strip() or f"Failed to extract {source}")
+        raise RuntimeError(_command_failure_detail(result, f"Failed to extract {source}"))
 
 
-def _extract_pkg_payloads(root: Path, output_root: Path, collected_dir: Path):
+def _extract_pkg_payloads(root: Path, output_root: Path, collected_dir: Path, command_runner=None):
     copied = []
     payload_root = output_root / "pkg_payloads"
     for archive in sorted(root.rglob("Archive.pax.gz")):
@@ -388,34 +382,24 @@ def _extract_pkg_payloads(root: Path, output_root: Path, collected_dir: Path):
         dest = payload_root / stem
         shutil.rmtree(dest, ignore_errors=True)
         dest.mkdir(parents=True, exist_ok=True)
-        if not _extract_payload_archive(archive, dest):
+        if not _extract_payload_archive(archive, dest, command_runner):
             continue
         copied.extend(_collect_images(dest, collected_dir))
-        copied.extend(_extract_qtr_images(dest, output_root, collected_dir))
-        copied.extend(_extract_pe_icons(dest, output_root, collected_dir))
+        copied.extend(_extract_qtr_images(dest, output_root, collected_dir, command_runner))
+        copied.extend(_extract_pe_icons(dest, output_root, collected_dir, command_runner))
     return copied
 
 
-def _extract_payload_archive(source: Path, out_dir: Path):
+def _extract_payload_archive(source: Path, out_dir: Path, command_runner=None):
     tar = shutil.which("tar")
     if tar:
-        result = subprocess.run(
-            [tar, "-xzf", str(source), "-C", str(out_dir)],
-            capture_output=True,
-            text=True,
-            check=False,
-        )
+        result = _run_tool([tar, "-xzf", str(source), "-C", str(out_dir)], command_runner)
         if result.returncode == 0:
             return True
     seven_zip = shutil.which("7z") or shutil.which("7za")
     if not seven_zip:
         return False
-    result = subprocess.run(
-        [seven_zip, "x", str(source), f"-o{out_dir}", "-y"],
-        capture_output=True,
-        text=True,
-        check=False,
-    )
+    result = _run_tool([seven_zip, "x", str(source), f"-o{out_dir}", "-y"], command_runner)
     if result.returncode != 0:
         return False
 
@@ -424,22 +408,12 @@ def _extract_payload_archive(source: Path, out_dir: Path):
         pax_out = out_dir / f"{pax.stem}_contents"
         pax_out.mkdir(parents=True, exist_ok=True)
         if tar:
-            pax_result = subprocess.run(
-                [tar, "-xf", str(pax), "-C", str(pax_out)],
-                capture_output=True,
-                text=True,
-                check=False,
-            )
+            pax_result = _run_tool([tar, "-xf", str(pax), "-C", str(pax_out)], command_runner)
             if pax_result.returncode == 0:
                 _merge_tree(pax_out, out_dir)
                 shutil.rmtree(pax_out, ignore_errors=True)
                 continue
-        pax_result = subprocess.run(
-            [seven_zip, "x", str(pax), f"-o{pax_out}", "-y"],
-            capture_output=True,
-            text=True,
-            check=False,
-        )
+        pax_result = _run_tool([seven_zip, "x", str(pax), f"-o{pax_out}", "-y"], command_runner)
         if pax_result.returncode == 0:
             _merge_tree(pax_out, out_dir)
         shutil.rmtree(pax_out, ignore_errors=True)
@@ -453,7 +427,24 @@ def _safe_stem(value: str):
     return "_".join(part for part in text.split("_") if part) or "payload"
 
 
-def _extraction_failed(result: subprocess.CompletedProcess[str], out_dir: Path):
+def _run_tool(command, command_runner=None, cwd=""):
+    runner = command_runner or CommandRunner()
+    return runner.run([str(part) for part in command], cwd=str(cwd or ""))
+
+
+def _command_failure_detail(result, fallback):
+    message = (getattr(result, "stderr", "") or getattr(result, "stdout", "") or "").strip()
+    if not message and hasattr(result, "failure_message"):
+        message = result.failure_message().strip()
+    if not message:
+        message = fallback
+    log_path = getattr(result, "log_path", "")
+    if log_path and log_path not in message:
+        message = f"{message}\nLog: {log_path}"
+    return message
+
+
+def _extraction_failed(result, out_dir: Path):
     if result.returncode == 0:
         return False
     message = f"{result.stderr}\n{result.stdout}".lower()
@@ -487,7 +478,7 @@ def _collect_images(root: Path, collected_dir: Path):
     return copied
 
 
-def _extract_qtr_images(root: Path, output_root: Path, collected_dir: Path):
+def _extract_qtr_images(root: Path, output_root: Path, collected_dir: Path, command_runner=None):
     binwalk = shutil.which("binwalk")
     if not binwalk:
         return []
@@ -496,12 +487,7 @@ def _extract_qtr_images(root: Path, output_root: Path, collected_dir: Path):
         qtr_out = output_root / f"{qtr.stem}_binwalk"
         shutil.rmtree(qtr_out, ignore_errors=True)
         qtr_out.mkdir(parents=True, exist_ok=True)
-        result = subprocess.run(
-            [binwalk, "-e", "-C", str(qtr_out), str(qtr)],
-            capture_output=True,
-            text=True,
-            check=False,
-        )
+        result = _run_tool([binwalk, "-e", "-C", str(qtr_out), str(qtr)], command_runner)
         if result.returncode != 0:
             continue
         for image in sorted(qtr_out.rglob("image.png")):
@@ -513,7 +499,7 @@ def _extract_qtr_images(root: Path, output_root: Path, collected_dir: Path):
     return copied
 
 
-def _extract_pe_icons(root: Path, output_root: Path, collected_dir: Path):
+def _extract_pe_icons(root: Path, output_root: Path, collected_dir: Path, command_runner=None):
     wrestool = shutil.which("wrestool")
     icotool = shutil.which("icotool")
     if not wrestool or not icotool:
@@ -525,18 +511,13 @@ def _extract_pe_icons(root: Path, output_root: Path, collected_dir: Path):
         icon_dir = output_root / f"{pe.name}_icons"
         shutil.rmtree(icon_dir, ignore_errors=True)
         icon_dir.mkdir(parents=True, exist_ok=True)
-        extract = subprocess.run(
-            [wrestool, "-x", "--output", str(icon_dir), "-t14", str(pe)],
-            capture_output=True,
-            text=True,
-            check=False,
-        )
+        extract = _run_tool([wrestool, "-x", "--output", str(icon_dir), "-t14", str(pe)], command_runner)
         if extract.returncode != 0:
             continue
         for ico in sorted(icon_dir.glob("*.ico")):
             png_dir = output_root / f"{ico.stem}_png"
             png_dir.mkdir(parents=True, exist_ok=True)
-            subprocess.run([icotool, "-x", "-o", str(png_dir), str(ico)], capture_output=True, text=True, check=False)
+            _run_tool([icotool, "-x", "-o", str(png_dir), str(ico)], command_runner)
             for png in sorted(png_dir.glob("*.png")):
                 dest = collected_dir / "icons" / png.name
                 dest.parent.mkdir(parents=True, exist_ok=True)
@@ -560,18 +541,23 @@ def validate_personal_theme(config=None):
     return report
 
 
-def build_asset_review(source_dir: str | os.PathLike[str], out_dir: str | os.PathLike[str] | None = None):
+def build_asset_review(
+    source_dir: str | os.PathLike[str],
+    out_dir: str | os.PathLike[str] | None = None,
+    command_runner=None,
+):
     source = Path(source_dir).resolve()
     if out_dir is None:
         out_dir = source / "_review"
     review_dir = Path(out_dir).resolve()
     review_dir.mkdir(parents=True, exist_ok=True)
+    runner = command_runner or CommandRunner(log_dir=str(review_dir / "logs"))
 
     manifest = []
     grouped = {}
     for image in sorted(_iter_candidate_files(source)):
         category = image.parent.name if image.parent != source else "root"
-        dims = _image_dimensions(image)
+        dims = _image_dimensions(image, runner)
         rel = image.relative_to(source).as_posix()
         item = {
             "category": category,
@@ -598,18 +584,15 @@ def build_asset_review(source_dir: str | os.PathLike[str], out_dir: str | os.Pat
             "-geometry", "96x96+8+20",
             str(output_path),
         ]
-        result = subprocess.run(cmd, capture_output=True, text=True, check=False)
+        result = _run_tool(cmd, runner)
         if result.returncode == 0 and output_path.is_file():
             sheets[category] = str(output_path)
 
     manifest_path = review_dir / "asset_manifest.json"
-    with open(manifest_path, "w", encoding="utf-8") as handle:
-        json.dump(manifest, handle, indent=2)
-        handle.write("\n")
+    atomic_write_json(manifest_path, manifest, sort_keys=False)
 
     html_path = review_dir / "index.html"
-    with open(html_path, "w", encoding="utf-8") as handle:
-        handle.write(_review_html(grouped, sheets))
+    atomic_write_text(html_path, _review_html(grouped, sheets))
 
     return {
         "source_dir": str(source),
@@ -662,15 +645,10 @@ def format_discovery_guide() -> str:
     return "\n".join(lines)
 
 
-def _image_dimensions(path: Path):
+def _image_dimensions(path: Path, command_runner=None):
     identify = shutil.which("identify")
     if identify:
-        result = subprocess.run(
-            [identify, "-format", "%w %h", str(path)],
-            capture_output=True,
-            text=True,
-            check=False,
-        )
+        result = _run_tool([identify, "-format", "%w %h", str(path)], command_runner)
         if result.returncode == 0 and result.stdout.strip():
             parts = result.stdout.strip().split()
             if len(parts) == 2 and all(part.isdigit() for part in parts):

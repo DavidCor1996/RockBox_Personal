@@ -25,6 +25,60 @@ This does not replace hardware testing. It defines the minimum pre-hardware gate
 
 ## Required Gates
 
+The automated gate is:
+
+```bash
+tools/simulator_first_gate.sh --target ipodvideo --smoke
+```
+
+Use `--rockpod-tests` when the change touches RockPod code, and use
+`--theme-tests` when the change touches WPS/SBS/FMS/theme assets. Use
+`--skip-build` only when the simulator has already been built and installed.
+
+Theme-focused changes should use:
+
+```bash
+tools/simulator_first_gate.sh --target ipodvideo --skip-build --theme-tests --smoke
+```
+
+The gate copies current source `themes/`, `wps/`, `backdrops/`, `icons/`, and
+`fonts/` into the isolated simulator disk before launching the simulator, so WPS
+and SBS checks are run against the current source tree rather than stale build
+output.
+
+## Target Matrix
+
+Use the simulator closest to the hardware that will receive the build.
+
+| Hardware target | Simulator target | Default build directory | Required before hardware |
+| --- | --- | --- | --- |
+| iPod Video 5G/5.5G | `ipodvideo` | `build-sim-video-5g` | Always |
+| iPod Classic 6G/7G | `ipod6g` | `build-sim-ipod6g` | Always when Classic-specific code, theme assets, or storage paths changed |
+| iPod 3G | `ipod3g` | `build-sim-3g` | Always when 160x128 UI, grayscale assets, or 3G menu paths changed |
+| iPod nano 2G | closest available simulator plus code review | target-specific build dir | Required if a simulator exists; otherwise document the gap before hardware |
+
+If a change is shared across all targets, test at least the intended hardware target and one second screen size when the change touches layout, fonts, bitmaps, WPS/SBS, list rendering, or menu behavior.
+
+## Evidence
+
+Each simulator-first run should leave a short deploy note in the PR, commit message, issue, or local handoff. Use this format:
+
+```text
+Simulator gate:
+- Date:
+- Target:
+- Command:
+- Build result:
+- Smoke result:
+- RockPod tests:
+- WPS/SBS/FMS theme tests:
+- Manual checks:
+- Known warnings:
+- Hardware deploy allowed: yes/no
+```
+
+Expected warnings must be written down. Unexpected warnings are a hard stop until understood. Current known simulator-only warnings may include missing translated strings for local hard-coded theme/menu labels; those are allowed only if the UI path still renders correctly and the change did not add new untranslated strings.
+
 ### 1. Source Hygiene Gate
 
 Before building, confirm the change set is understandable:
@@ -100,20 +154,24 @@ Hard stop:
 
 Simulator tests should run against disposable data, not a real music library or iPod mount.
 
-Use the simulator `simdisk/` as the test root:
+The automated gate copies the simulator `simdisk/` to `/tmp/rockbox-sim-gate-*` and replaces `Music/` with an isolated directory. Manual tests should use the same rule.
+
+Use the simulator `simdisk/` as the source root, then test against a disposable copy:
 
 ```bash
-mkdir -p build-sim-video-5g/simdisk/Music
-mkdir -p build-sim-video-5g/simdisk/Playlists
+tmp_root="$(mktemp -d /tmp/rockbox-sim-manual.XXXXXX)"
+cp -a build-sim-video-5g/simdisk "$tmp_root/simdisk"
+rm -rf "$tmp_root/simdisk/Music"
+mkdir -p "$tmp_root/simdisk/Music" "$tmp_root/simdisk/Playlists" "$tmp_root/simdisk/Videos"
 ```
 
-If testing database or sync behavior, copy a small known test album or generated sample files into `simdisk/Music`. Keep the dataset small enough to inspect manually.
+If testing database or sync behavior, copy a small known test album or generated sample files into the temporary `Music/` directory. Keep the dataset small enough to inspect manually.
 
 Hard stop:
 
-- `simdisk/Music` is a symlink to the host music library
+- the active test `Music/` directory is a symlink to the host music library
 - the simulator points at `/run/media`, `/media`, or another real device mount
-- tests require deleting or rewriting files outside `build-sim-video-5g/simdisk`
+- tests require deleting or rewriting files outside the temporary simulator root
 
 ### 5. Manual Simulator Smoke Test
 
@@ -150,7 +208,23 @@ Hard stop:
 - a plugin that is part of the change fails to start
 - database or playlist behavior regresses in the simulator
 
-### 6. RockPod Simulator/Mock Device Gate
+### 6. Manual Feature Matrix
+
+Run the relevant manual cases for the files changed.
+
+| Change area | Manual simulator checks |
+| --- | --- |
+| Root menu or settings | open root menu, scroll top to bottom, enter each changed item, back out cleanly |
+| WPS/SBS/FMS/theme | load the theme, open WPS, open menus, toggle hold/lockscreen state, check charging/USB screen if possible |
+| Fonts/icons/bitmaps | verify no missing image placeholder, clipped title, blank backdrop, or invalid color on 320x240 |
+| Video browser | open Videos, verify empty state, verify at least one supported `.mpg` entry, verify unsupported format message |
+| Plugins/games | launch the changed plugin, exit cleanly, verify save/config file paths stay under `simdisk` |
+| Database/tagcache | start with no database, scan a small `Music/` set, reboot simulator, verify Music opens without rebuilding unexpectedly |
+| Playlists | export/import `.m3u8`, open playlist in Rockbox, verify paths are device-relative or Rockbox-absolute, not host paths |
+| Boot splash/runtime assets | verify boot reaches the root menu and the first visible screen is not blank or corrupted |
+| RockPod sync | sync to mock/simulator disk, inspect created/updated/deleted paths, then open the simulator on that disk |
+
+### 7. RockPod Simulator/Mock Device Gate
 
 For RockPod changes that write files, test against a mock device or simulator disk before using a real iPod.
 
@@ -162,12 +236,14 @@ source .venv/bin/activate
 python main.py --mock --mock-path /tmp/rockpod-mock-ipod
 ```
 
-Simulator disk flow:
+Simulator disk flow should use a disposable copy:
 
 ```bash
-cd rockpod
-source .venv/bin/activate
-python main.py --mock --mock-path ../build-sim-video-5g/simdisk
+tmp_root="$(mktemp -d /tmp/rockpod-simdisk.XXXXXX)"
+cp -a ../build-sim-video-5g/simdisk "$tmp_root/simdisk"
+rm -rf "$tmp_root/simdisk/Music"
+mkdir -p "$tmp_root/simdisk/Music"
+python main.py --mock --mock-path "$tmp_root/simdisk"
 ```
 
 Check at minimum:
@@ -178,6 +254,7 @@ Check at minimum:
 - playlists are exported and re-imported correctly
 - Rockbox database/tagcache behavior is correct for the selected mode
 - stale file removal never affects files outside the mock/simulator root
+- a second sync is idempotent unless files changed
 
 Hard stop:
 
@@ -185,8 +262,9 @@ Hard stop:
 - sync plan includes unexpected deletes
 - generated playlists reference host absolute paths
 - database generation rewrites anything outside `.rockbox`
+- mock/simulator root contains symlinks to the host library
 
-### 7. Post-Simulator Review Gate
+### 8. Post-Simulator Review Gate
 
 After the simulator pass, review changed files again:
 
@@ -205,6 +283,18 @@ Hard stop:
 
 - `simdisk` state, generated databases, caches, or local media appear as commit candidates
 - simulator testing modified source unexpectedly
+
+## Failure Handling
+
+If a gate fails:
+
+1. Stop before hardware deploy.
+2. Record the failing command and the first meaningful error.
+3. Preserve logs or screenshots only if they help diagnosis.
+4. Fix the issue in source, not by editing generated simulator output.
+5. Rerun the failed gate, then rerun the full automated gate.
+
+Do not bypass a failure because the iPod is not mounted. The absence of mounted hardware is the intended safe state for this gate.
 
 ## Hardware Push Gate
 
@@ -230,6 +320,12 @@ Expected hardware package:
 
 Do not copy simulator binaries to a real iPod.
 
+Run physical iPod write probes, package installs, and cleanup commands outside the
+workspace sandbox. Sandboxed probes against `/run/media/...` mounts can report a
+false read-only failure even when the mounted iPod accepts writes from the host
+session. Verify with a harmless outside-sandbox write before `fullinstall`, then
+remove the probe file before deploying.
+
 ## Minimum Sign-Off Checklist
 
 Record these before pushing to hardware:
@@ -237,11 +333,15 @@ Record these before pushing to hardware:
 - Target: `ipodvideo`, `ipod6g`, or other target
 - Simulator build directory:
 - Simulator command used:
+- Simulator smoke result:
 - RockPod tests run:
 - Manual simulator checks passed:
+- Mock/simulator sync root used:
 - Known limitations:
+- Known warnings:
 - Hardware package path:
 - Backup path for existing device `.rockbox`:
+- Hardware deploy approved by:
 
 ## Release Rule
 

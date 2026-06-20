@@ -6,10 +6,10 @@ import hashlib
 import logging
 import os
 import shutil
-import subprocess
 from pathlib import Path
 
 from models.track import compute_metadata_hash
+from services.command_runner import CommandRunner
 from services.metadata_reader import compute_file_hash
 
 logger = logging.getLogger(__name__)
@@ -37,9 +37,10 @@ def output_extension_for_codec(codec: str) -> str:
 class AudioSyncTranscoder:
     """Create cached, sync-only transcodes for a specific device/settings tuple."""
 
-    def __init__(self, cache_root: str, ffmpeg_path: str = ""):
+    def __init__(self, cache_root: str, ffmpeg_path: str = "", command_runner=None):
         self._cache_root = os.path.abspath(cache_root)
         self._ffmpeg_path = str(ffmpeg_path or "").strip()
+        self._command_runner = command_runner or CommandRunner(log_dir=os.path.join(self._cache_root, "logs"))
 
     def ffmpeg_bin(self) -> str:
         explicit = os.path.abspath(self._ffmpeg_path) if self._ffmpeg_path else ""
@@ -189,13 +190,7 @@ class AudioSyncTranscoder:
             target_bitrate,
         )
         try:
-            result = subprocess.run(
-                command,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                text=True,
-                check=False,
-            )
+            result = self._command_runner.run(command, cwd=os.path.dirname(cache_path))
         except OSError as exc:
             raise RuntimeError(f"ffmpeg launch failed: {exc}") from exc
 
@@ -205,7 +200,12 @@ class AudioSyncTranscoder:
                     os.remove(tmp_path)
                 except OSError:
                     pass
-            message = (result.stderr or result.stdout or f"ffmpeg exited with {result.returncode}").strip()
+            message = (
+                result.stderr
+                or result.stdout
+                or getattr(result, "failure_message", lambda: "")()
+                or f"ffmpeg exited with {result.returncode}"
+            ).strip()
             raise RuntimeError(f"audio conversion failed: {message}")
 
         os.replace(tmp_path, cache_path)

@@ -14,6 +14,8 @@ from urllib.parse import urlparse
 import mutagen
 from tomlkit import dumps, parse
 
+from services.file_safety import atomic_write_text
+
 
 STREAMRIP_REPOSITORY_URL = "https://github.com/nathom/streamrip"
 SUPPORTED_STREAMRIP_FORMATS = {"flac", "mp3", "alac", "aac", "ogg"}
@@ -280,8 +282,7 @@ def ensure_streamrip_config(config_path, music_dir, quality=4):
     data["cli"]["progress_bars"] = False
     data["misc"]["check_for_updates"] = False
 
-    with open(config_path, "w") as handle:
-        handle.write(dumps(data))
+    atomic_write_text(config_path, dumps(data))
     return config_path
 
 

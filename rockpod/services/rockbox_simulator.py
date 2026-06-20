@@ -9,6 +9,9 @@ import subprocess
 import time
 from datetime import datetime
 
+from services.command_runner import CommandRunner
+from services.file_safety import atomic_write_text
+
 
 _PREVIEW_AUDIO_EXTENSIONS = (".flac", ".mp3", ".ogg", ".wav", ".m4a", ".aac", ".opus")
 
@@ -54,6 +57,28 @@ class RockboxSimulatorService:
                 }
             )
         return targets
+
+    def fallback_ipodvideo_target(self, profile):
+        if str((profile or {}).get("screen_resolution") or "") != "320x240":
+            return None
+        repo_root = os.path.abspath((profile or {}).get("source_repo_path") or "")
+        if not repo_root:
+            return None
+        build_dir = os.path.join(repo_root, "build-sim-video-5g")
+        binary = os.path.join(build_dir, "rockboxui")
+        simdisk = os.path.join(build_dir, "simdisk")
+        if not (os.path.isfile(binary) and os.path.isdir(simdisk)):
+            return None
+        return {
+            "id": "build-sim-video-5g",
+            "name": "build-sim-video-5g",
+            "build_dir": build_dir,
+            "binary_path": binary,
+            "simdisk_path": simdisk,
+            "rockbox_root": os.path.join(simdisk, ".rockbox"),
+            "screen_resolution": "320x240",
+            "device_model": "iPod Classic / Video",
+        }
 
     def bind_profile(self, profile, target, screenshot_dir=""):
         updated = dict(profile)
@@ -260,9 +285,7 @@ class RockboxSimulatorService:
         for key, value in remaining.items():
             output.append(f"{key}: {value}\n")
 
-        os.makedirs(os.path.dirname(path), exist_ok=True)
-        with open(path, "w", encoding="utf-8") as handle:
-            handle.writelines(output)
+        atomic_write_text(path, "".join(output))
 
     def launch(self, target, detached=True):
         cmd = [target["binary_path"], "--nobackground", "--root", target["simdisk_path"]]
@@ -352,6 +375,23 @@ class RockboxSimulatorService:
             return self._snapshot_preview_capture(target, host_capture)
         return ""
 
+    def capture_theme_preview_sequence(self, target, screens=None, timeout=6.0):
+        requested = screens or ("sbs", "wps", "lockscreen")
+        results = []
+        for screen in requested:
+            screen_id = str(screen or "").strip().lower()
+            if not screen_id:
+                continue
+            path = self.capture_theme_preview(target, preview_screen=screen_id, timeout=timeout)
+            results.append(
+                {
+                    "screen": screen_id,
+                    "captured_path": path,
+                    "success": bool(path and os.path.isfile(path)),
+                }
+            )
+        return results
+
     def capture_screenshot(self, profile, target):
         screenshot_dir = self.ensure_screenshot_dir(profile, target)
         candidates = []
@@ -400,25 +440,19 @@ class RockboxSimulatorService:
         shutil.rmtree(stale_root, ignore_errors=True)
 
     @staticmethod
-    def _wait_for_window_and_send_key(pid, key_name, timeout=2.5):
-        window_id = RockboxSimulatorService._wait_for_window_id(pid, timeout=timeout)
-        return RockboxSimulatorService._send_key_to_window_id(window_id, key_name)
+    def _wait_for_window_and_send_key(pid, key_name, timeout=2.5, command_runner=None):
+        window_id = RockboxSimulatorService._wait_for_window_id(pid, timeout=timeout, command_runner=command_runner)
+        return RockboxSimulatorService._send_key_to_window_id(window_id, key_name, command_runner=command_runner)
 
     @staticmethod
-    def _wait_for_window_id(pid, timeout=2.5):
+    def _wait_for_window_id(pid, timeout=2.5, command_runner=None):
         if not pid or shutil.which("xdotool") is None:
             return ""
+        runner = command_runner or CommandRunner()
         deadline = time.monotonic() + max(0.2, float(timeout))
         while time.monotonic() < deadline:
             try:
-                result = subprocess.run(
-                    ["xdotool", "search", "--pid", str(pid)],
-                    stdout=subprocess.PIPE,
-                    stderr=subprocess.DEVNULL,
-                    text=True,
-                    timeout=1.0,
-                    check=False,
-                )
+                result = runner.run(["xdotool", "search", "--pid", str(pid)], timeout=1.0)
             except (OSError, subprocess.TimeoutExpired):
                 result = None
             ids = [line.strip() for line in (result.stdout.splitlines() if result else []) if line.strip().isdigit()]
@@ -428,33 +462,23 @@ class RockboxSimulatorService:
         return ""
 
     @staticmethod
-    def _send_key_to_window_id(window_id, key_name):
+    def _send_key_to_window_id(window_id, key_name, command_runner=None):
         if not window_id or shutil.which("xdotool") is None:
             return False
+        runner = command_runner or CommandRunner()
         try:
-            sent = subprocess.run(
-                ["xdotool", "key", "--window", window_id, key_name],
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL,
-                timeout=1.0,
-                check=False,
-            )
+            sent = runner.run(["xdotool", "key", "--window", window_id, key_name], timeout=1.0)
         except (OSError, subprocess.TimeoutExpired):
             return False
         return sent.returncode == 0
 
     @staticmethod
-    def _move_window_offscreen(window_id):
+    def _move_window_offscreen(window_id, command_runner=None):
         if not window_id or shutil.which("xdotool") is None:
             return False
+        runner = command_runner or CommandRunner()
         try:
-            moved = subprocess.run(
-                ["xdotool", "windowmove", window_id, "5000", "5000"],
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL,
-                timeout=1.0,
-                check=False,
-            )
+            moved = runner.run(["xdotool", "windowmove", window_id, "5000", "5000"], timeout=1.0)
         except (OSError, subprocess.TimeoutExpired):
             return False
         return moved.returncode == 0
@@ -472,28 +496,25 @@ class RockboxSimulatorService:
 
     @staticmethod
     def _write_preview_playlist(path, track_path):
-        os.makedirs(os.path.dirname(path), exist_ok=True)
-        with open(path, "w", encoding="utf-8") as handle:
-            handle.write(f"P:6::\nA:0:0:{track_path}\n")
+        atomic_write_text(path, f"P:6::\nA:0:0:{track_path}\n")
 
     @staticmethod
     def _write_preview_resume(path):
-        os.makedirs(os.path.dirname(path), exist_ok=True)
-        with open(path, "w", encoding="utf-8") as handle:
-            handle.write(
-                "volume: 6\n"
-                "pitch: 10000\n"
-                "speed: 10000\n"
-                "IDX: 0\n"
-                "CRC: 0\n"
-                "ELA: 0\n"
-                "OFF: 0\n"
-                "PLM: 0\n"
-                "CRT: 1\n"
-                "TRT: 1\n"
-                "PVS: -1\n"
-                "PFQ: 0\n"
-            )
+        atomic_write_text(
+            path,
+            "volume: 6\n"
+            "pitch: 10000\n"
+            "speed: 10000\n"
+            "IDX: 0\n"
+            "CRC: 0\n"
+            "ELA: 0\n"
+            "OFF: 0\n"
+            "PLM: 0\n"
+            "CRT: 1\n"
+            "TRT: 1\n"
+            "PVS: -1\n"
+            "PFQ: 0\n",
+        )
 
     @staticmethod
     def _snapshot_preview_capture(target, source_path):

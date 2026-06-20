@@ -9,6 +9,7 @@ from services.rockbox_playlists import (
     LOCAL_MANAGED_PLAYLIST_DIR,
     MANAGED_PLAYLIST_DIR,
     MANAGED_PLAYLIST_MANIFEST,
+    _ensure_apple_music_transcode,
     export_device_playlists,
     export_local_music_playlists,
 )
@@ -19,6 +20,33 @@ def _device(mount_path):
     device.name = "Test iPod"
     device.is_rockbox = True
     return device
+
+
+class _FakeCommandResult:
+    def __init__(self, returncode=0, stdout="", stderr="", log_path=""):
+        self.returncode = returncode
+        self.stdout = stdout
+        self.stderr = stderr
+        self.log_path = log_path
+
+    def failure_message(self):
+        return f"Command failed with exit status {self.returncode}: fake ffmpeg\nLog: {self.log_path}"
+
+
+class _FakeCommandRunner:
+    def __init__(self, result=None, write_output=True):
+        self.result = result or _FakeCommandResult()
+        self.write_output = write_output
+        self.commands = []
+        self.cwd = ""
+
+    def run(self, command, cwd="", timeout=None, env=None):
+        self.commands.append(command)
+        self.cwd = cwd
+        if self.write_output and self.result.returncode == 0:
+            with open(command[-1], "wb") as handle:
+                handle.write(b"converted")
+        return self.result
 
 
 def _insert_track(db, file_path, title, artist, album):
@@ -92,6 +120,13 @@ def test_export_device_playlists_writes_managed_m3u8_and_imports_cache(db, mock_
     assert "#EXTM3U" in content
     assert "/Music/Art/Alb/01 - On Device.mp3" in content
     assert "Off Device" not in content
+    assert not [
+        name for name in os.listdir(os.path.dirname(playlist_path))
+        if name.startswith("tmp")
+    ]
+    manifest_dir = os.path.join(mock_device, ".rockbox")
+    assert os.path.isfile(os.path.join(mock_device, MANAGED_PLAYLIST_MANIFEST))
+    assert not [name for name in os.listdir(manifest_dir) if name.startswith("tmp")]
 
     imported = db.get_device_playlists(device.stable_device_key)
     assert len(imported) == 1
@@ -273,6 +308,10 @@ def test_export_local_music_playlists_writes_relative_m3u8_for_network_share(db,
     assert "../../Artist/Album/01 - One.flac" in content
     assert "../../Artist/Album/02 - Two.flac" in content
     assert "/home/" not in content
+    assert not [
+        name for name in os.listdir(os.path.dirname(playlist_path))
+        if name.startswith("tmp")
+    ]
 
 
 def test_export_local_music_playlists_removes_stale_managed_files(db, tmp_dir):
@@ -331,3 +370,42 @@ def test_export_local_music_playlists_can_point_to_converted_apple_music_files(d
         content = handle.read()
     assert "../RockPod Media/01 - One.m4a" in content
     assert ".flac" not in content
+
+
+def test_apple_music_transcode_uses_shared_command_runner(tmp_dir):
+    media_root = os.path.join(tmp_dir, "media")
+    source_path = os.path.join(tmp_dir, "One.flac")
+    with open(source_path, "wb") as handle:
+        handle.write(b"flac")
+    runner = _FakeCommandRunner()
+
+    converted = _ensure_apple_music_transcode(source_path, media_root, ffmpeg_path="/usr/bin/ffmpeg", command_runner=runner)
+
+    assert os.path.isfile(converted)
+    assert converted.endswith(".m4a")
+    assert runner.cwd == media_root
+    assert runner.commands[0][0] == "/usr/bin/ffmpeg"
+    assert runner.commands[0][-1].endswith(".tmp.m4a")
+
+
+def test_apple_music_transcode_failure_removes_temp_and_reports_log(tmp_dir):
+    media_root = os.path.join(tmp_dir, "media")
+    source_path = os.path.join(tmp_dir, "One.flac")
+    with open(source_path, "wb") as handle:
+        handle.write(b"flac")
+    result = _FakeCommandResult(returncode=7, stderr="", log_path=os.path.join(tmp_dir, "ffmpeg.log"))
+    runner = _FakeCommandRunner(result=result, write_output=False)
+
+    try:
+        _ensure_apple_music_transcode(source_path, media_root, ffmpeg_path="/usr/bin/ffmpeg", command_runner=runner)
+    except OSError as exc:
+        assert "audio conversion failed" in str(exc)
+        assert "exit status 7" in str(exc)
+        assert result.log_path in str(exc)
+    else:
+        raise AssertionError("Transcode failure was not reported")
+
+    assert not [
+        name for name in os.listdir(media_root)
+        if name.endswith(".tmp.m4a")
+    ]

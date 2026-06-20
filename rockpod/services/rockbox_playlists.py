@@ -6,9 +6,10 @@ import re
 import hashlib
 import json
 import shutil
-import subprocess
 from pathlib import Path
 
+from services.command_runner import CommandRunner
+from services.file_safety import atomic_write_text
 from services.smart_playlists import evaluate_playlist
 from services.track_matcher import TrackMatcher
 
@@ -341,14 +342,11 @@ def _read_managed_playlist_manifest(mount_path):
 
 def _write_managed_playlist_manifest(mount_path, sources):
     path = os.path.join(mount_path, MANAGED_PLAYLIST_MANIFEST)
-    os.makedirs(os.path.dirname(path), exist_ok=True)
     data = {
         "version": 1,
         "sources": sorted(str(source).replace("\\", "/") for source in sources),
     }
-    with open(path, "w", encoding="utf-8", newline="\n") as handle:
-        json.dump(data, handle, indent=2)
-        handle.write("\n")
+    atomic_write_text(path, json.dumps(data, indent=2) + "\n")
 
 
 def _local_managed_playlist_sources(music_root):
@@ -484,7 +482,7 @@ def _local_playlist_entries(
     return entries
 
 
-def _ensure_apple_music_transcode(source_path, media_root, ffmpeg_path=""):
+def _ensure_apple_music_transcode(source_path, media_root, ffmpeg_path="", command_runner=None):
     if not media_root:
         raise OSError("Apple Music media cache is not configured")
     ffmpeg_bin = _ffmpeg_bin(ffmpeg_path)
@@ -512,20 +510,20 @@ def _ensure_apple_music_transcode(source_path, media_root, ffmpeg_path=""):
         "alac",
         tmp_path,
     ]
-    result = subprocess.run(
-        command,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        text=True,
-        check=False,
-    )
+    runner = command_runner or CommandRunner(log_dir=os.path.join(media_root, "logs"))
+    result = runner.run(command, cwd=media_root)
     if result.returncode != 0:
         if os.path.exists(tmp_path):
             try:
                 os.remove(tmp_path)
             except OSError:
                 pass
-        message = (result.stderr or result.stdout or f"ffmpeg exited with {result.returncode}").strip()
+        message = (
+            result.stderr
+            or result.stdout
+            or getattr(result, "failure_message", lambda: "")()
+            or f"ffmpeg exited with {result.returncode}"
+        ).strip()
         raise OSError(f"audio conversion failed for {source_path}: {message}")
     os.replace(tmp_path, target_path)
     return target_path
@@ -573,7 +571,6 @@ def _sanitize_playlist_name(name):
 
 
 def _write_playlist_file(path, entries, path_key="device_path", absolute_prefix="/"):
-    os.makedirs(os.path.dirname(path), exist_ok=True)
     lines = ["#EXTM3U"]
     for entry in entries:
         duration = _duration_seconds(entry.get("duration"))
@@ -588,8 +585,7 @@ def _write_playlist_file(path, entries, path_key="device_path", absolute_prefix=
         if absolute_prefix:
             playlist_path = absolute_prefix + playlist_path.lstrip("/")
         lines.append(playlist_path)
-    with open(path, "w", encoding="utf-8", newline="\n") as handle:
-        handle.write("\n".join(lines) + "\n")
+    atomic_write_text(path, "\n".join(lines) + "\n")
 
 
 def _duration_seconds(value):

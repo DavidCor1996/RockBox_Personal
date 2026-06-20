@@ -139,6 +139,10 @@ Cross-compiler setup remains the standard Rockbox toolchain flow via `tools/rock
 > Before copying anything to a real iPod, run the simulator-first gate in
 > [docs/simulator-first-ipod-deploy-spec.md](docs/simulator-first-ipod-deploy-spec.md).
 
+```bash
+tools/simulator_first_gate.sh --target ipodvideo --smoke
+```
+
 1. Build or download the correct package for your target.
 2. Connect the iPod in disk mode.
 3. Extract the resulting `.zip` to the root of the iPod so it updates `.rockbox`.
@@ -156,6 +160,11 @@ This repo should be treated as a personal working fork, not a polished upstream 
 - theme and asset changes may matter as much as code changes
 - simulator helpers exist for development convenience
 - plugin/game work is still in progress
+
+Improvement planning and validation specs:
+
+- [Rockbox improvement spec](docs/rockbox-improvement-spec.md)
+- [Simulator-first iPod deploy spec](docs/simulator-first-ipod-deploy-spec.md)
 
 ---
 
