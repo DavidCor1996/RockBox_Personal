@@ -136,6 +136,34 @@ Acceptance:
 - The new counters compile out or stay cheap when profiling is off.
 - Profile logs remain single-line summaries.
 
+Status - 2026-06-20:
+
+- Implemented Phase 1 profiling detail in the current working tree.
+- `profile.log` remains a single-line summary and now includes:
+  - `cpu_ops`
+  - `slow_mem_reads`
+  - `slow_mem_writes`
+  - `vram_dirty_writes`
+  - `lcd_lines`
+  - `dmg_lines`
+  - `cgb_lines`
+  - `no_sprite_lines`
+  - `no_window_lines`
+  - `dmg_bg_only_eligible`
+  - `dmg_bg_window_no_spr_eligible`
+  - `cgb_no_sprite_lines`
+- Instrumentation points:
+  - `apps/plugins/rockboy/cpu.c` counts executed CPU opcodes.
+  - `apps/plugins/rockboy/fastmem.c` counts slow read/write map misses.
+  - `apps/plugins/rockboy/lcd.c` counts dirty VRAM writes and scanline classes.
+  - `apps/plugins/rockboy/profiler.c` writes the extended profile fields.
+- Validation passed:
+  - `pytest tests/test_online_artwork.py tests/test_rockbox_wps_art.py tests/test_album_art_first_load_source.py tests/test_rockboy_profile_instrumentation.py tests/test_rockbox_games.py -q`
+  - `make -C build-sim-video-5g -j4`
+  - `tools/simulator_first_gate.sh --target ipodvideo --skip-build --rockpod-tests --theme-tests --smoke --timeout 3 --manual-checklist --allow-mounted-ipod --evidence-file /tmp/rockbox-album-gameboy-final2-gate.txt`
+  - Full combined gate result: 626 RockPod tests passed, 53 WPS/SBS/FMS tests
+    passed, and the simulator stayed alive for the 3 second smoke run.
+
 ## Phase 2: CPU Interpreter Hot Path
 
 Add a compile-time optional CPU dispatch backend while keeping the current

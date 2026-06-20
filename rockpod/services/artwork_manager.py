@@ -12,7 +12,7 @@ import unicodedata
 from collections import deque
 from pathlib import Path
 
-from PIL import Image
+from PIL import Image, ImageOps
 from PySide6.QtCore import QObject, Signal
 
 from app.config import ARTWORK_FILENAMES, ARTWORK_THUMB_SIZE, ARTWORK_DISPLAY_SIZE
@@ -77,12 +77,14 @@ class ArtworkManager(QObject):
         self._meta_dir = os.path.join(self._album_dir, "meta")
         self._device_dir = os.path.join(self._album_dir, "device")
         self._albumlist_dir = os.path.join(self._album_dir, "albumlist")
+        self._wps_dir = os.path.join(self._album_dir, "wps")
         os.makedirs(self._thumb_dir, exist_ok=True)
         os.makedirs(self._display_dir, exist_ok=True)
         os.makedirs(self._original_dir, exist_ok=True)
         os.makedirs(self._meta_dir, exist_ok=True)
         os.makedirs(self._device_dir, exist_ok=True)
         os.makedirs(self._albumlist_dir, exist_ok=True)
+        os.makedirs(self._wps_dir, exist_ok=True)
 
         storefront = getattr(config, "online_artwork_storefront", "us") if config else "us"
         interval = self._effective_artwork_interval(config)
@@ -371,6 +373,64 @@ class ArtworkManager(QObject):
         )
         self._save_album_meta(album_key, meta)
         return cover_path, source_hash
+
+    def export_rockbox_wps_cover(self, album_or_tracks, size, force=False, fit_mode=None):
+        album_info = self._album_info(album_or_tracks)
+        source_path = self._ensure_album_source(album_info, allow_online=False)
+        if not source_path:
+            return "", ""
+
+        target_size = self._normalize_wps_cover_size(size)
+        if not target_size:
+            return "", ""
+        fit = str(fit_mode or self._config_value("wps_cover_fit_mode", "contain") or "contain").strip().lower()
+        if fit not in {"contain", "cover"}:
+            fit = "contain"
+
+        album_key = album_info["group_key"]
+        meta = self._load_album_meta(album_key)
+        source_hash = self._file_hash(source_path)
+        width, height = target_size
+        cover_name = f"{self._slug(album_key)}_{width}x{height}_{fit}.bmp"
+        cover_path = os.path.join(self._wps_dir, cover_name)
+        meta_key = f"{width}x{height}:{fit}"
+        exports = dict(meta.get("wps_cover_exports") or {})
+        cached = dict(exports.get(meta_key) or {})
+        if (
+            not force
+            and cached.get("path") == cover_path
+            and cached.get("source_hash") == source_hash
+            and os.path.exists(cover_path)
+        ):
+            return cover_path, cached.get("output_hash") or self._file_hash(cover_path)
+
+        try:
+            with Image.open(source_path) as img:
+                img = img.convert("RGB")
+                if fit == "cover":
+                    rendered = ImageOps.fit(img, target_size, Image.LANCZOS)
+                else:
+                    img.thumbnail(target_size, Image.LANCZOS)
+                    rendered = Image.new("RGB", target_size, "#000000")
+                    left = (width - img.width) // 2
+                    top = (height - img.height) // 2
+                    rendered.paste(img, (left, top))
+                rendered.save(cover_path, "BMP")
+        except Exception as e:
+            self._record_artwork_failure(source_path, f"WPS cover export failure: {e}")
+            return "", ""
+
+        output_hash = self._file_hash(cover_path)
+        exports[meta_key] = {
+            "path": cover_path,
+            "source_hash": source_hash,
+            "output_hash": output_hash,
+            "dimensions": [width, height],
+            "fit_mode": fit,
+        }
+        meta["wps_cover_exports"] = exports
+        self._save_album_meta(album_key, meta)
+        return cover_path, output_hash
 
     def export_album_list_thumbnail(self, album_or_tracks, force=False, size=None):
         album_info = self._album_info(album_or_tracks)
@@ -1423,6 +1483,23 @@ class ArtworkManager(QObject):
             return _ALBUM_LIST_THUMB_SIZE
         value = max(16, min(96, value))
         return value, value
+
+    @staticmethod
+    def _normalize_wps_cover_size(size):
+        if isinstance(size, str):
+            parts = re.split(r"[xX, ]+", size.strip())
+        else:
+            parts = list(size or [])
+        if len(parts) < 2:
+            return None
+        try:
+            width = int(parts[0])
+            height = int(parts[1])
+        except (TypeError, ValueError):
+            return None
+        if width <= 0 or height <= 0 or width > 800 or height > 800:
+            return None
+        return width, height
 
     @staticmethod
     def _manifest_field(value):

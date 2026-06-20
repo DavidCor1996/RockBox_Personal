@@ -1,0 +1,37 @@
+"""Static checks for Rockboy profiling detail instrumentation."""
+
+from pathlib import Path
+
+
+REPO_ROOT = Path(__file__).resolve().parents[2]
+
+
+def _read(rel_path):
+    return (REPO_ROOT / rel_path).read_text(encoding="utf-8", errors="replace")
+
+
+def test_profile_log_includes_phase1_detail_counters():
+    profiler = _read("apps/plugins/rockboy/profiler.c")
+
+    for field in (
+        "cpu_ops=%lu",
+        "slow_mem_reads=%lu",
+        "slow_mem_writes=%lu",
+        "vram_dirty_writes=%lu",
+        "lcd_lines=%lu",
+        "dmg_bg_only_eligible=%lu",
+        "cgb_no_sprite_lines=%lu",
+    ):
+        assert field in profiler
+
+
+def test_hot_paths_increment_profile_detail_counters():
+    cpu = _read("apps/plugins/rockboy/cpu.c")
+    fastmem = _read("apps/plugins/rockboy/fastmem.c")
+    lcd = _read("apps/plugins/rockboy/lcd.c")
+
+    assert "ROCKBOY_EVENT_CPU_OPS" in cpu
+    assert "ROCKBOY_EVENT_SLOW_MEM_READS" in fastmem
+    assert "ROCKBOY_EVENT_SLOW_MEM_WRITES" in fastmem
+    assert "ROCKBOY_EVENT_VRAM_DIRTY_WRITES" in lcd
+    assert "ROCKBOY_EVENT_LCD_DMG_BG_ONLY_ELIGIBLE" in lcd

@@ -55,13 +55,91 @@ covers for Rockbox.
 - RockPod already manages artwork in `rockpod/services/artwork_manager.py`.
   - `export_device_cover()` currently exports a device JPEG, normally up to
     `device_cover_art_size` pixels.
+  - `export_rockbox_wps_cover()` exists in the current working tree and exports
+    cached WPS-sized BMPs.
   - `export_album_list_thumbnail()` already exports BMP thumbnails for Rockbox
     album-list use.
 - RockPod sync planning in `rockpod/services/sync_engine.py` already adds cover
   files to `plan.artwork_to_copy`.
   - The current device cover target is `Music/.../cover.jpg`.
+  - The current working tree also plans WPS-sized cover targets named
+    `Music/.../cover.<width>x<height>.bmp` when `export_wps_sized_covers` is
+    enabled.
   - This helps Rockbox find external art, but still leaves Rockbox to decode a
-    JPEG and resize it for the WPS slot on first load.
+    JPEG and resize it for the WPS slot if the exact-size BMP path is missing,
+    stale, or not generated for the active skin slot.
+
+## Current Implementation Audit
+
+The current tree already contains part of the desired RockPod-side
+implementation:
+
+- `rockpod/services/rockbox_wps_art.py`
+  - parses `%Cl(...)` tags from WPS text
+  - selects sizes from RockPod profiles
+  - limits generated sizes with `max_wps_cover_sizes_per_device`
+- `ArtworkManager.export_rockbox_wps_cover()`
+  - exports BMPs at exact WPS dimensions
+  - supports `contain` and `cover` fit modes
+  - caches by source hash, dimensions, and fit mode
+- `SyncEngine._populate_artwork_sync_plan()`
+  - reads `export_wps_sized_covers`
+  - plans `cover.<width>x<height>.bmp` copies beside synced albums
+  - avoids copying unchanged files by hashing existing device files
+
+Remaining gaps found in the pre-implementation audit:
+
+- Active skin detection needed to be device-truth-first. The implementation now
+  parses connected-device `.rockbox/config.cfg` when available, reads the active
+  `.wps` and `.sbs`, and falls back to managed profile sizes when the device is
+  unavailable.
+- SBS/miniplayer art needed to be covered. The helper now reads both WPS and SBS
+  skin files before applying the per-device size cap.
+- Fallback size data could drift from checked-in themes. The implementation
+  parses profile skin files first and uses hard-coded fallbacks only when the
+  theme files are unavailable.
+- Rockbox's extension probe order checked `.jpeg` and `.jpg` before `.bmp` even
+  for size-specific covers. Size-specific lookup now probes `.bmp` first while
+  leaving generic cover lookup order unchanged.
+- `apps/buffering.c` always reserved `JPEG_DECODE_OVERHEAD` for album-art bitmap
+  loads when JPEG support was compiled in, even for external `.bmp` files. The
+  external BMP path now skips that JPEG overhead reservation.
+- Sync planning hashes existing cover files one by one. On large devices this
+  can make planning artwork-heavy libraries slower than necessary.
+- There is no explicit first-load timing instrumentation yet, so improvements
+  need measurable before/after evidence.
+
+## Implementation Status - 2026-06-20
+
+Completed in the current working tree:
+
+- WPS `%Cl(...)` size parsing is implemented in
+  `rockpod/services/rockbox_wps_art.py`.
+- RockPod config now includes `export_wps_sized_covers`,
+  `wps_cover_fit_mode`, and `max_wps_cover_sizes_per_device`.
+- `ArtworkManager.export_rockbox_wps_cover()` exports exact-size BMP covers,
+  caches by source hash/dimensions/fit mode, and avoids rewriting unchanged
+  outputs.
+- `SyncEngine._populate_artwork_sync_plan()` plans
+  `Music/.../cover.<width>x<height>.bmp` without resyncing unchanged audio.
+- Connected-device `.rockbox/config.cfg` parsing discovers active WPS/SBS skins
+  before falling back to managed profile skin files.
+- Rockbox size-specific album-art lookup prefers `.bmp` before JPEG extensions.
+- Rockbox buffering skips JPEG decode overhead for external `.bmp` album art.
+- Tests cover parser behavior, BMP dimensions, no-rewrite behavior, and
+  artwork-only sync planning, connected-device size discovery, BMP-first lookup,
+  and external BMP overhead behavior.
+- Validation passed:
+  `pytest tests/test_online_artwork.py tests/test_rockbox_wps_art.py tests/test_album_art_first_load_source.py tests/test_rockboy_profile_instrumentation.py tests/test_rockbox_games.py -q`
+  with 63 tests passed, `make -C build-sim-video-5g -j4`, and simulator gate
+  `/tmp/rockbox-album-gameboy-final2-gate.txt` with 626 RockPod tests,
+  53 WPS/SBS/FMS tests, and a passing simulator smoke run.
+
+Deferred until measured evidence shows it is needed:
+
+- Explicit first-load timing instrumentation.
+- Resize scratch-space reduction when an exact-size external BMP is confirmed.
+- Fully async WPS placeholder redraw.
 
 ## Risk Analysis
 
@@ -97,6 +175,82 @@ size.
 - Some libraries have multiple albums in the same artist folder, so any
   generated cover name must not collide incorrectly.
 
+## Performance Improvement Candidates
+
+### Low Risk / Worth Doing
+
+1. Complete RockPod WPS-sized BMP export validation.
+   - The implementation mostly exists.
+   - Add tests around active size discovery, generated BMP dimensions, sync
+     planning, and no-rewrite behavior.
+   - Risk is low because it only adds extra artwork files and keeps `cover.jpg`
+     fallback.
+
+2. Parse active device WPS/SBS files.
+   - Prefer connected-device truth over RockPod profile guesses.
+   - Read `.rockbox/config.cfg`, then parse active `.wps` and `.sbs` files.
+   - Include fallback to profile parsing when the device is disconnected.
+   - Risk is low if parsing failure simply returns existing profile/default
+     sizes.
+
+3. Fix fallback sizes and include known iPone-family SBS sizes.
+   - Known iPone-style sizes in this tree include `138x138`, `128x128`, and
+     `51x51` on 320x240 themes.
+   - Keep the default max size count bounded, but make the selection explicit:
+     main WPS art first, then visible miniplayer/lockscreen art.
+   - Risk is low; excess generation can be controlled by config.
+
+4. Avoid JPEG decode overhead allocation for external BMP album art.
+   - In `apps/buffering.c`, skip `JPEG_DECODE_OVERHEAD` when `TYPE_BITMAP`
+     source is an external `.bmp` and `embedded_albumart == NULL`.
+   - This reduces buffer pressure for the exact-size BMP path.
+   - Risk is low if JPEG/embedded paths keep existing overhead.
+
+5. Prefer BMP extension for size-specific album-art lookup.
+   - For non-empty size strings like `.138x138`, check `.bmp` before `.jpeg`
+     and `.jpg`.
+   - Generic no-size lookup can keep the current extension order.
+   - Risk is low because all extensions remain supported; only the probe order
+     changes for size-specific assets.
+
+6. Add timing logs.
+   - Log selected album-art source type, lookup time, decode time, dimensions,
+     and cache hit/miss.
+   - Risk is low behind debug/logf guards.
+
+### Medium Risk / Worth Prototyping After Measurement
+
+1. Add an artwork manifest for RockPod sync planning.
+   - Store `rel_path -> output_hash` under `.rockbox/rockpod/`.
+   - Use it to avoid hashing every existing cover on every plan.
+   - Fall back to file hashing when the manifest is missing or stale.
+   - Risk is medium because the manifest must stay consistent across manual
+     device edits and partial sync failures.
+
+2. Expand Rockbox decoded-art cache beyond `last_folder_aa_path`.
+   - Use a tiny LRU keyed by art path plus dimensions.
+   - Cache current, previous, and next likely album art.
+   - Risk is medium because album-art handles share the playback buffer with
+     audio/codecs.
+
+3. Add negative lookup caching.
+   - Cache "no art found" per directory/album/dim for a short window.
+   - Avoid repeated failed probes across multiple tracks in no-art albums.
+   - Risk is medium because stale negative entries can hide newly-added covers
+     until invalidated.
+
+### Higher Risk / Defer Unless Needed
+
+1. Fully async WPS placeholder redraw.
+   - Draw WPS immediately, then invalidate only the art viewport when ready.
+   - This is the best UI model but touches playback/WPS timing and stale-art
+     edge cases.
+
+2. Centralized `.rockbox/albumart` deduplication as the primary path.
+   - Could reduce duplicate cover files across multi-disc or split folders.
+   - It is not a first-hit win with the current search order unless local
+     folder covers are absent.
+
 ## Goals
 
 - Make first WPS art display fast for the active iPod theme, especially iPone on
@@ -124,7 +278,9 @@ size.
 RockPod should determine the album-art dimensions the active WPS needs:
 
 - parse `.rockbox/config.cfg` for `wps:`
-- read the selected `.wps` file
+- parse `sbs:` as well as `wps:`
+- read the selected `.wps` and `.sbs` files from the connected device when
+  available
 - parse `%Cl(x,y,w,h,...)` album-art load tags
 - record the requested dimensions per target/profile
 
@@ -135,9 +291,16 @@ Fallbacks:
   theme
 - keep `cover.jpg` export enabled for compatibility
 
+Size priority:
+
+1. active WPS main art
+2. active SBS/miniplayer art visible during playback
+3. lockscreen/notification art
+4. profile fallback sizes
+
 ### 2. Export Exact-Size Rockbox BMP Covers
 
-Add an artwork export method alongside `export_device_cover()`:
+Use the existing artwork export method alongside `export_device_cover()`:
 
 `export_rockbox_wps_cover(album_info, size=(w, h), force=False)`
 
@@ -178,6 +341,11 @@ Config:
 - `wps_cover_fit_mode`: default `contain`
 - `max_wps_cover_sizes_per_device`: default `2`
 
+The current working tree has these config keys plus targeted unit and simulator
+coverage. Device-truth-first size discovery is implemented through
+`.rockbox/config.cfg`; UI exposure remains optional follow-up work because the
+managed RockPod sync path now has safe defaults.
+
 ### 4. Keep Existing Generic Cover Flow
 
 Do not remove current `cover.jpg` export. It remains useful for:
@@ -199,7 +367,37 @@ The first phase should rely on current behavior:
 
 This is the lowest-risk improvement because it mostly shifts work to RockPod.
 
-### 2. Add Lightweight Album-Art Timing Logs
+### 2. Reduce BMP Load Overhead
+
+Update `apps/buffering.c` so external `.bmp` album-art loads do not reserve
+JPEG decode overhead.
+
+Current behavior:
+
+- all `TYPE_BITMAP` loads reserve output bitmap space
+- all `TYPE_BITMAP` loads also reserve `JPEG_DECODE_OVERHEAD` when `HAVE_JPEG`
+  is enabled
+- this happens even for exact-size external BMPs
+
+Desired behavior:
+
+- embedded JPEG/PNG and external JPEG paths keep the existing overhead
+- external BMP paths reserve only bitmap output space plus resize scratch space
+- exact-size BMPs should avoid resize scratch space if `read_bmp_fd()` can
+  confirm no resize is needed; this is optional and should be measured
+
+### 3. Prefer BMP for Size-Specific Probes
+
+Update `apps/recorder/albumart.c` so generated size-specific BMPs are reached
+with fewer failed file checks:
+
+- for size strings such as `.138x138`, probe `.bmp`, then `.jpeg`, then `.jpg`
+- for generic covers, keep current behavior unless measurement shows otherwise
+
+This keeps compatibility with existing JPEG covers while making RockPod's
+generated BMP path the cheapest path.
+
+### 4. Add Lightweight Album-Art Timing Logs
 
 Behind a debug or logf build option, measure:
 
@@ -211,7 +409,7 @@ Behind a debug or logf build option, measure:
 
 These logs make simulator and hardware comparison objective.
 
-### 3. Optional Async Placeholder Flow
+### 5. Optional Async Placeholder Flow
 
 If first draw still blocks, change WPS behavior so art decode never blocks the
 initial WPS paint:
@@ -224,7 +422,7 @@ initial WPS paint:
 This should be a second phase because it touches playback/WPS timing more
 deeply.
 
-### 4. Optional Small LRU Cache
+### 6. Optional Small LRU Cache
 
 Replace or extend `last_folder_aa_path` with a tiny LRU of decoded folder-art
 handles:
@@ -242,26 +440,35 @@ Rules:
 
 ## Implementation Plan
 
-1. Add WPS album-art size parser in RockPod.
-   - Unit test `%Cl` parsing for iPone and malformed skins.
-2. Add `export_rockbox_wps_cover()` to `ArtworkManager`.
-   - Unit test BMP format, exact dimensions, no unnecessary rewrite, and hash
-     metadata.
-3. Extend `SyncEngine._populate_artwork_sync_plan()`.
-   - Unit test missing exact-size BMP is planned without recopying music.
-   - Unit test unchanged BMP is skipped.
-4. Add a simulator fixture with an album that has both `cover.jpg` and
+1. Finish RockPod tests for the current WPS-sized cover implementation.
+   - `%Cl` parsing for iPone, SpringPod3, malformed skins, and multiple slots.
+   - BMP format, exact dimensions, no unnecessary rewrite, and hash metadata.
+   - Missing exact-size BMP is planned without recopying music.
+   - Unchanged BMP is skipped.
+2. Improve active device size discovery.
+   - Parse connected `.rockbox/config.cfg`.
+   - Parse both active `.wps` and `.sbs`.
+   - Fall back to profile/default sizes.
+3. Fix fallback size data and cap/priority rules.
+   - Main WPS size first.
+   - SBS/miniplayer size second.
+   - Lock/notification size only if cap allows.
+4. Add the low-risk Rockbox changes.
+   - Skip JPEG overhead allocation for external BMPs.
+   - Prefer `.bmp` for size-specific album-art probes.
+   - Add debug timing logs as follow-up measured instrumentation.
+5. Add a simulator fixture with an album that has both `cover.jpg` and
    `cover.<w>x<h>.bmp`.
    - Verify Rockbox chooses the exact-size BMP.
-5. Add Rockbox timing/log instrumentation around `find_albumart()` and
-   `bufopen(... TYPE_BITMAP ...)`.
 6. Measure before/after on iPod Video 5G simulator:
    - first track selection from stopped state
    - skip to next track same album
    - skip to next track different album
    - return to previous album
-7. If exact-size BMP staging is not enough, implement async placeholder redraw
-   and/or the tiny LRU cache.
+7. If planning time becomes noticeable on large libraries, add an artwork
+   manifest to avoid hashing unchanged device covers.
+8. If first WPS paint still blocks after exact-size BMP and Rockbox low-risk
+   changes, prototype async placeholder redraw and/or the tiny LRU cache.
 
 ## Acceptance Criteria
 
@@ -273,6 +480,9 @@ Rules:
   present.
 - First selection with pre-staged BMP is measurably faster than JPEG-only
   `cover.jpg`.
+- Exact-size BMP loads reserve less playback buffer memory than JPEG/generic
+  image loads.
+- Size-specific generated BMPs are found without probing JPEG extensions first.
 - Repeating sync does not rewrite unchanged cover BMPs.
 - Adding new music plans artwork-only copies for missing covers without
   resyncing unchanged audio.

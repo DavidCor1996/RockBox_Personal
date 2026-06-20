@@ -20,6 +20,7 @@
  ****************************************************************************/
 #include "config.h"
 #include <string.h>
+#include <strings.h>
 #include "system.h"
 #include "storage.h"
 #include "thread.h"
@@ -841,6 +842,12 @@ static bool fill_buffer(void)
 }
 
 #ifdef HAVE_ALBUMART
+static bool albumart_path_is_bmp(const char *path)
+{
+    size_t len = path ? strlen(path) : 0;
+    return len >= 4 && strcasecmp(path + len - 4, ".bmp") == 0;
+}
+
 /* Given a file descriptor to a bitmap file, write the bitmap data to the
    buffer, with a struct bitmap and the actual data immediately following.
    Return value is the total size (struct + data). */
@@ -869,7 +876,7 @@ static int load_image(int fd, const char *path,
         lseek(fd, aa->pos, SEEK_SET);
         rc = clip_jpeg_fd(fd, aa->type, aa->size, bmp, (int)max_size, format, NULL);
     }
-    else if (strcmp(path + strlen(path) - 4, ".bmp"))
+    else if (!albumart_path_is_bmp(path))
         rc = read_jpeg_fd(fd, bmp, (int)max_size, format, NULL);
     else
 #endif
@@ -969,9 +976,9 @@ int bufopen(const char *file, off_t offset, enum data_type type,
         size += sizeof(struct bitmap);
 
 #ifdef HAVE_JPEG
-        /* JPEG loading requires extra memory
-         * TODO: don't add unncessary overhead for .bmp images! */
-        size += JPEG_DECODE_OVERHEAD;
+        /* JPEG/embedded artwork needs decode overhead; external BMPs do not. */
+        if (aa->embedded_albumart != NULL || !albumart_path_is_bmp(file))
+            size += JPEG_DECODE_OVERHEAD;
 #endif
        /* resize_on_load requires space for 1 line + 2 spare lines */
 #ifdef HAVE_LCD_COLOR

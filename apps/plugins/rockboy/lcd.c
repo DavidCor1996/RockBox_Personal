@@ -970,6 +970,24 @@ void lcd_refreshline(void)
     WV = (L - WY) & 7;
 
     spr_enum();
+    rockboy_profile_count(ROCKBOY_EVENT_LCD_LINES, 1);
+    if (hw.cgb)
+        rockboy_profile_count(ROCKBOY_EVENT_LCD_CGB_LINES, 1);
+    else
+        rockboy_profile_count(ROCKBOY_EVENT_LCD_DMG_LINES, 1);
+    if (!NS)
+        rockboy_profile_count(ROCKBOY_EVENT_LCD_NO_SPRITE_LINES, 1);
+    if (WX == 160)
+        rockboy_profile_count(ROCKBOY_EVENT_LCD_NO_WINDOW_LINES, 1);
+    if (!hw.cgb && !NS)
+    {
+        if (WX == 160)
+            rockboy_profile_count(ROCKBOY_EVENT_LCD_DMG_BG_ONLY_ELIGIBLE, 1);
+        else
+            rockboy_profile_count(ROCKBOY_EVENT_LCD_DMG_BG_WINDOW_NO_SPR_ELIGIBLE, 1);
+    }
+    if (hw.cgb && !NS)
+        rockboy_profile_count(ROCKBOY_EVENT_LCD_CGB_NO_SPRITE_LINES, 1);
 
     tilebuf();
     if (hw.cgb)
@@ -1178,6 +1196,7 @@ void vram_write(addr a, byte b)
 {
     lcd.vbank[R_VBK&1][a] = b;
     if (a >= 0x1800) return;
+    rockboy_profile_count(ROCKBOY_EVENT_VRAM_DIRTY_WRITES, 1);
     patdirty[((R_VBK&1)<<9)+(a>>4)] = 1;
     anydirty = 1;
     pal_dirty();

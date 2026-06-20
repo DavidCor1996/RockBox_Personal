@@ -45,6 +45,14 @@ void rockboy_profile_pcm_underrun(void)
         totals.pcm_underruns++;
 }
 
+void rockboy_profile_count(enum rockboy_profile_event which, unsigned long count)
+{
+    if (!rockboy_profile_is_enabled() || which >= ROCKBOY_EVENT_COUNT)
+        return;
+
+    totals.events[which] += count;
+}
+
 const struct rockboy_profile_totals *rockboy_profile_get_totals(void)
 {
     return &totals;
@@ -79,7 +87,12 @@ void rockboy_profile_log_summary(const char *rom_path)
              "blit_avg_ticks=%lu blit_peak_ticks=%lu "
              "audio_mix_avg_ticks=%lu audio_mix_peak_ticks=%lu "
              "pcm_wait_avg_ticks=%lu pcm_wait_peak_ticks=%lu "
-             "pcm_underruns=%lu save_total_ticks=%lu\n",
+             "pcm_underruns=%lu save_total_ticks=%lu "
+             "cpu_ops=%lu slow_mem_reads=%lu slow_mem_writes=%lu "
+             "vram_dirty_writes=%lu lcd_lines=%lu dmg_lines=%lu cgb_lines=%lu "
+             "no_sprite_lines=%lu no_window_lines=%lu "
+             "dmg_bg_only_eligible=%lu dmg_bg_window_no_spr_eligible=%lu "
+             "cgb_no_sprite_lines=%lu\n",
              rom_path ? rom_path : "<unknown>",
              p->rendered_frames,
              p->skipped_frames,
@@ -98,6 +111,18 @@ void rockboy_profile_log_summary(const char *rom_path)
              avg_ticks(p, ROCKBOY_TIME_PCM_WAIT),
              p->peak[ROCKBOY_TIME_PCM_WAIT],
              p->pcm_underruns,
-             p->total[ROCKBOY_TIME_SAVE]);
+             p->total[ROCKBOY_TIME_SAVE],
+             p->events[ROCKBOY_EVENT_CPU_OPS],
+             p->events[ROCKBOY_EVENT_SLOW_MEM_READS],
+             p->events[ROCKBOY_EVENT_SLOW_MEM_WRITES],
+             p->events[ROCKBOY_EVENT_VRAM_DIRTY_WRITES],
+             p->events[ROCKBOY_EVENT_LCD_LINES],
+             p->events[ROCKBOY_EVENT_LCD_DMG_LINES],
+             p->events[ROCKBOY_EVENT_LCD_CGB_LINES],
+             p->events[ROCKBOY_EVENT_LCD_NO_SPRITE_LINES],
+             p->events[ROCKBOY_EVENT_LCD_NO_WINDOW_LINES],
+             p->events[ROCKBOY_EVENT_LCD_DMG_BG_ONLY_ELIGIBLE],
+             p->events[ROCKBOY_EVENT_LCD_DMG_BG_WINDOW_NO_SPR_ELIGIBLE],
+             p->events[ROCKBOY_EVENT_LCD_CGB_NO_SPRITE_LINES]);
     close(fd);
 }

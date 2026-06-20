@@ -12,6 +12,7 @@ from services.artwork_manager import ArtworkManager
 from services.device_detector import DeviceDetector, DeviceInfo, create_mock_device
 from services.device_inventory import device_record_from_info
 from services.online_artwork import ITunesArtworkLookup, OnlineArtworkRateLimitError
+from services.rockbox_wps_art import parse_wps_album_art_sizes
 from services.sync_engine import SyncEngine
 
 
@@ -575,6 +576,36 @@ def test_standard_cover_generated_for_ipod(config, tmp_dir):
         manager.shutdown()
 
 
+def test_wps_album_art_size_parser_handles_valid_and_malformed_tags():
+    text = "%Cl(91,10,138,138,1)\n%Cl(bad)\n%Cl(0,0,54,54)\n%Cl(1,2,-3,4)"
+
+    assert parse_wps_album_art_sizes(text) == [(138, 138), (54, 54)]
+
+
+def test_wps_sized_cover_generated_for_rockbox_first_load(config, tmp_dir):
+    manager = ArtworkManager(os.path.join(tmp_dir, "art"), config=config)
+    try:
+        album_dir = os.path.join(tmp_dir, "Album")
+        audio = os.path.join(album_dir, "01.mp3")
+        os.makedirs(album_dir, exist_ok=True)
+        with open(audio, "wb") as f:
+            f.write(b"audio")
+        Image.new("RGB", (500, 300), "#225588").save(os.path.join(album_dir, "folder.jpg"), "JPEG")
+
+        cover_path, cover_hash = manager.export_rockbox_wps_cover(_album_info(audio), (138, 138))
+        before = os.path.getmtime(cover_path)
+        cover_path_2, cover_hash_2 = manager.export_rockbox_wps_cover(_album_info(audio), "138x138")
+
+        assert cover_path == cover_path_2
+        assert cover_hash == cover_hash_2
+        assert before == os.path.getmtime(cover_path_2)
+        with Image.open(cover_path) as img:
+            assert img.format == "BMP"
+            assert img.size == (138, 138)
+    finally:
+        manager.shutdown()
+
+
 def test_album_list_thumbnail_and_manifest_generated_for_ipod(config, tmp_dir):
     manager = ArtworkManager(os.path.join(tmp_dir, "art"), config=config)
     try:
@@ -703,6 +734,88 @@ def test_artwork_sync_can_happen_without_recopying_music(config, db, tmp_dir):
         assert "Music/Artist/Album/cover.jpg" in rel_paths
         assert ".rockbox/albumlist/index.tsv" in rel_paths
         assert any(path.startswith(".rockbox/albumlist/thumbs/") and path.endswith(".bmp") for path in rel_paths)
+    finally:
+        manager.shutdown()
+
+
+def test_wps_sized_artwork_sync_plans_exact_bmp_without_recopying_music(config, db, tmp_dir):
+    config.export_device_cover_jpg = False
+    config.export_album_list_thumbnails = False
+    config.export_wps_sized_covers = True
+    device_path = os.path.join(tmp_dir, "ipod")
+    create_mock_device(device_path)
+    device = DeviceInfo(device_path)
+    device.name = "Test iPod"
+    device.is_rockbox = True
+
+    repo_wps = os.path.join(tmp_dir, "repo", "wps")
+    os.makedirs(repo_wps, exist_ok=True)
+    with open(os.path.join(repo_wps, "iPone.wps"), "w", encoding="utf-8") as handle:
+        handle.write("%Cl(91,10,138,138,1)\n")
+    config.rockbox_profiles = [
+        {
+            "id": "ipod-320x240",
+            "device_mount_path": device_path,
+            "source_repo_path": os.path.join(tmp_dir, "repo"),
+            "selected_theme": "iPone",
+            "screen_resolution": "320x240",
+        }
+    ]
+    config.rockbox_selected_profile_id = "ipod-320x240"
+
+    music_path = os.path.join(tmp_dir, "Music", "Artist", "Album", "01 - Song.mp3")
+    os.makedirs(os.path.dirname(music_path), exist_ok=True)
+    with open(music_path, "wb") as f:
+        f.write(b"audio")
+    Image.new("RGB", (500, 500), "#884422").save(os.path.join(os.path.dirname(music_path), "folder.jpg"), "JPEG")
+
+    db.upsert_track(
+        {
+            "file_path": music_path,
+            "title": "Song",
+            "artist": "Artist",
+            "album": "Album",
+            "album_artist": "Artist",
+            "file_size": os.path.getsize(music_path),
+            "duration": 120.0,
+            "metadata_hash": "same",
+            "synced_to_device": 1,
+            "device_path": "Music/Artist/Album/01 - Song.mp3",
+            "last_synced_metadata_hash": "same",
+        }
+    )
+    db.commit()
+    key = db.upsert_device(device_record_from_info(device))["stable_device_key"]
+    db.upsert_device_track(
+        {
+            "device_id": key,
+            "device_path": "Music/Artist/Album/01 - Song.mp3",
+            "local_track_id": db.get_track_by_path(music_path)["id"],
+            "title": "Song",
+            "artist": "Artist",
+            "album": "Album",
+            "album_artist": "Artist",
+            "file_size": os.path.getsize(music_path),
+            "duration": 120.0,
+            "metadata_hash": "same",
+            "present_on_device": 1,
+        }
+    )
+    db.commit()
+
+    manager = ArtworkManager(os.path.join(tmp_dir, "art"), config=config)
+    try:
+        detector = DeviceDetector(config)
+        detector._current_device = device
+        engine = SyncEngine(db, config, detector, manager)
+        engine.set_current_device(device)
+
+        plan = engine.build_sync_plan()
+
+        assert plan.copy_count == 0
+        assert plan.resync_count == 0
+        rel_paths = {item[1] for item in plan.artwork_to_copy}
+        assert rel_paths == {"Music/Artist/Album/cover.138x138.bmp"}
     finally:
         manager.shutdown()
 

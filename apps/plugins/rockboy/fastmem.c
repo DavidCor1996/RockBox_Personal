@@ -2,19 +2,25 @@
 
 #include "rockmacros.h"
 #include "fastmem.h"
+#include "profiler.h"
 
 byte readb(int a)
 {
     byte *p = mbc.rmap[a>>12];
     if (p) return p[a];
-    else return mem_read(a);
+    rockboy_profile_count(ROCKBOY_EVENT_SLOW_MEM_READS, 1);
+    return mem_read(a);
 }
 
 void writeb(int a, byte b)
 {
     byte *p = mbc.wmap[a>>12];
     if (p) p[a] = b;
-    else mem_write(a, b);
+    else
+    {
+        rockboy_profile_count(ROCKBOY_EVENT_SLOW_MEM_WRITES, 1);
+        mem_write(a, b);
+    }
 }
 
 int readw(int a)
@@ -34,6 +40,7 @@ int readw(int a)
 #endif
         }
     }
+    rockboy_profile_count(ROCKBOY_EVENT_SLOW_MEM_READS, 2);
     return mem_read(a) | (mem_read(a+1)<<8);
 }
 
@@ -62,6 +69,7 @@ void writew(int a, int w)
 #endif
         }
     }
+    rockboy_profile_count(ROCKBOY_EVENT_SLOW_MEM_WRITES, 2);
     mem_write(a, w);
     mem_write(a+1, w>>8);
 }

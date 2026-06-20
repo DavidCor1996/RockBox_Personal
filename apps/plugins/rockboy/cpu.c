@@ -8,6 +8,7 @@
 #include "fastmem.h"
 #include "cpuregs.h"
 #include "cpucore.h"
+#include "profiler.h"
 
 #ifdef USE_ASM
 #include "asm.h"
@@ -419,6 +420,7 @@ next:
     if(PC&0x8000) {
 #endif
     op = FETCH;
+    rockboy_profile_count(ROCKBOY_EVENT_CPU_OPS, 1);
     clen = cycles_table[op];
 
     switch(op)

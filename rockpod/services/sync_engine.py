@@ -28,6 +28,7 @@ from services.reconciliation import summarize_unmatched_tracks
 from services.track_matcher import TrackMatcher
 from services.device_inventory import device_music_roots, device_record_from_info, verify_device_inventory
 from services.video_thumbnails import VideoThumbnailService
+from services.rockbox_wps_art import wps_album_art_sizes_for_config
 
 logger = logging.getLogger(__name__)
 COPY_CHUNK_SIZE = 4 * 1024 * 1024
@@ -1363,8 +1364,9 @@ class SyncEngine(QObject):
         if not self._config_value("copy_artwork_to_device", True):
             return
         export_device_covers = self._config_value("export_device_cover_jpg", True)
+        export_wps_covers = self._config_value("export_wps_sized_covers", True)
         export_album_list_thumbnails = self._config_value("export_album_list_thumbnails", True)
-        if not export_device_covers and not export_album_list_thumbnails:
+        if not export_device_covers and not export_wps_covers and not export_album_list_thumbnails:
             return
         device = self._device_detector.current_device
         if not device:
@@ -1404,6 +1406,8 @@ class SyncEngine(QObject):
         seen = set()
         existing_cover_hashes = {}
         existing_albumlist_hashes = {}
+        wps_sizes = wps_album_art_sizes_for_config(self._config, device.mount_path) if export_wps_covers else []
+        fit_mode = self._config_value("wps_cover_fit_mode", "contain")
         for album_key, album_info in album_targets.items():
             if export_device_covers:
                 cover_src, cover_hash = self._artwork_manager.export_device_cover(album_info)
@@ -1425,6 +1429,28 @@ class SyncEngine(QObject):
                             if cached_hash and cached_hash == cover_hash:
                                 continue
                         plan.artwork_to_copy.append((cover_src, cover_rel, album_key))
+            for width, height in wps_sizes:
+                wps_src, wps_hash = self._artwork_manager.export_rockbox_wps_cover(
+                    album_info,
+                    (width, height),
+                    fit_mode=fit_mode,
+                )
+                if not wps_src or not wps_hash:
+                    continue
+                for rel_dir in sorted(album_info["device_dirs"]):
+                    wps_rel = os.path.join(rel_dir, f"cover.{width}x{height}.bmp")
+                    if wps_rel in seen:
+                        continue
+                    seen.add(wps_rel)
+                    self._append_artwork_copy_if_changed(
+                        plan,
+                        wps_src,
+                        wps_rel,
+                        album_key,
+                        wps_hash,
+                        device.mount_path,
+                        existing_cover_hashes,
+                    )
 
         if export_album_list_thumbnails:
             if album_targets:

@@ -84,17 +84,20 @@ static char* strip_filename(char* buf, int buf_size, const char* fullpath)
 #ifdef USE_JPEG_COVER
 static const char * const extensions[] = { "jpeg", "jpg", "bmp" };
 static const unsigned char extension_lens[] = { 4, 3, 3 };
+static const unsigned char sized_extension_order[] = { 2, 0, 1 };
 /* Try checking for several file extensions, return true if a file is found and
  * leaving the path modified to include the matching extension.
  */
-static bool try_exts(char *path, int len)
+static bool try_exts(char *path, int len, bool prefer_bmp)
 {
     int i;
+    int index;
     for (i = 0; i < 3; i++)
     {
-        if (extension_lens[i] + len > MAX_PATH)
+        index = prefer_bmp ? sized_extension_order[i] : i;
+        if (extension_lens[index] + len > MAX_PATH)
             continue;
-        strcpy(path + len, extensions[i]);
+        strcpy(path + len, extensions[index]);
         if (file_exists(path))
             return true;
     }
@@ -103,7 +106,7 @@ static bool try_exts(char *path, int len)
 #define EXT
 #else
 #define EXT "bmp"
-#define try_exts(path, len) file_exists(path)
+#define try_exts(path, len, prefer_bmp) file_exists(path)
 #endif
 
 /* Look for the first matching album art bitmap in the following list:
@@ -167,7 +170,7 @@ bool search_albumart_files(const struct mp3entry *id3, const char *size_string,
 #ifdef USE_JPEG_COVER
             pathlen = strlen(path);
 #endif
-            found = try_exts(path, pathlen);
+            found = try_exts(path, pathlen, *size_string != '\0');
         }
         if (pass)
             break;
@@ -178,7 +181,7 @@ bool search_albumart_files(const struct mp3entry *id3, const char *size_string,
             pathlen = snprintf(path, sizeof(path),
                             "%s%s%s." EXT, dir, id3->album, size_string);
             fix_path_part(path, dirlen, albumlen);
-            found = try_exts(path, pathlen);
+            found = try_exts(path, pathlen, *size_string != '\0');
         }
 
         if (!found)
@@ -186,7 +189,7 @@ bool search_albumart_files(const struct mp3entry *id3, const char *size_string,
             /* if it still doesn't exist, we look for a generic file */
             pathlen = snprintf(path, sizeof(path),
                             "%scover%s." EXT, dir, size_string);
-            found = try_exts(path, pathlen);
+            found = try_exts(path, pathlen, *size_string != '\0');
         }
 
         artist = id3->albumartist != NULL ? id3->albumartist : id3->artist;
@@ -200,7 +203,7 @@ bool search_albumart_files(const struct mp3entry *id3, const char *size_string,
                             id3->album,
                             size_string);
             fix_path_part(path, strlen(ROCKBOX_DIR "/albumart/"), MAX_PATH);
-            found = try_exts(path, pathlen);
+            found = try_exts(path, pathlen, *size_string != '\0');
         }
 
 #ifdef USE_JPEG_COVER
@@ -231,7 +234,7 @@ bool search_albumart_files(const struct mp3entry *id3, const char *size_string,
                 pathlen = snprintf(path, sizeof(path),
                                 "%s%s%s." EXT, dir, id3->album, size_string);
                 fix_path_part(path, dirlen, albumlen);
-                found = try_exts(path, pathlen);
+                found = try_exts(path, pathlen, *size_string != '\0');
             }
 
             if (!found)
@@ -240,7 +243,7 @@ bool search_albumart_files(const struct mp3entry *id3, const char *size_string,
                 * for a generic file */
                 pathlen = snprintf(path, sizeof(path),
                                 "%scover%s." EXT, dir, size_string);
-                found = try_exts(path, pathlen);
+                found = try_exts(path, pathlen, *size_string != '\0');
             }
         }
         if (found)
