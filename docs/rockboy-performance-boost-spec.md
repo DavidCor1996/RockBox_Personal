@@ -114,6 +114,22 @@ Acceptance:
   changes in the simulator across the profile corpus until the best measured
   configuration is found, not merely until the first improvement appears.
 
+Status - 2026-06-20:
+
+- Added `tools/rockboy_profile_gate.py` for the repeatable simulator side of
+  the harness.
+- The gate verifies the simulator build, Rockboy plugin, and ROM corpus, then
+  prepares an isolated simdisk with `Profile: Overlay + Log` enabled in
+  `.rockbox/rockboy/options`.
+- The gate validates collected `profile.log` entries after a simulator run and
+  requires the Phase 1 counters before accepting the log.
+- The current simulator CLI cannot directly launch Rockboy with a ROM
+  parameter, so the gate prints the exact simulator command and ROM manifest for
+  the manual plugin-launch portion.
+- Prepare/validate coverage uses four staged ROMs: Tetris, Pokemon Red,
+  Zelda Oracle, and Mario Tennis. Launch stability remains covered by the
+  simulator-first gate.
+
 ## Phase 1: Profiling Detail
 
 Current profiling separates CPU, render, scale, blit, audio, PCM wait, and
@@ -159,9 +175,11 @@ Status - 2026-06-20:
   - `apps/plugins/rockboy/profiler.c` writes the extended profile fields.
 - Validation passed:
   - `pytest tests/test_online_artwork.py tests/test_rockbox_wps_art.py tests/test_album_art_first_load_source.py tests/test_rockboy_profile_instrumentation.py tests/test_rockbox_games.py -q`
+  - `pytest tests/test_rockboy_profile_gate.py tests/test_rockboy_profile_instrumentation.py -q`
+  - `tools/rockboy_profile_gate.py`
   - `make -C build-sim-video-5g -j4`
-  - `tools/simulator_first_gate.sh --target ipodvideo --skip-build --rockpod-tests --theme-tests --smoke --timeout 3 --manual-checklist --allow-mounted-ipod --evidence-file /tmp/rockbox-album-gameboy-final2-gate.txt`
-  - Full combined gate result: 626 RockPod tests passed, 53 WPS/SBS/FMS tests
+  - `tools/simulator_first_gate.sh --target ipodvideo --skip-build --rockpod-tests --theme-tests --smoke --timeout 3 --manual-checklist --allow-mounted-ipod --evidence-file /tmp/rockbox-album-gameboy-final4-gate.txt`
+  - Full combined gate result: 629 RockPod tests passed, 53 WPS/SBS/FMS tests
     passed, and the simulator stayed alive for the 3 second smoke run.
 
 ## Phase 2: CPU Interpreter Hot Path
@@ -191,6 +209,13 @@ Acceptance:
 - Save/load state remains byte-for-byte compatible.
 - Interrupt, HALT, STOP, timer, and LCDC event timing tests still pass at the
   existing Rockboy accuracy level.
+
+Status - 2026-06-20:
+
+- Not implemented yet. This phase is intentionally blocked until Phase 0
+  produces before/after `profile.log` evidence from the ROM corpus. The current
+  work added the harness and counters needed to make that decision without
+  guessing.
 
 ## Phase 3: LCD Fast-Line Renderer
 
@@ -223,6 +248,12 @@ Acceptance:
   fast path is commonly eligible.
 - No visible corruption in the profile corpus.
 - The fast path can be disabled at runtime or compile time for bisection.
+
+Status - 2026-06-20:
+
+- Not implemented yet. The Phase 1 counters now report eligible scanlines; a
+  renderer fast path should wait until those counters show enough eligible lines
+  on the simulator ROM corpus.
 
 ## Phase 4: Compatibility Tiers
 

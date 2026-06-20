@@ -132,7 +132,7 @@ Completed in the current working tree:
 - Validation passed:
   `pytest tests/test_online_artwork.py tests/test_rockbox_wps_art.py tests/test_album_art_first_load_source.py tests/test_rockboy_profile_instrumentation.py tests/test_rockbox_games.py -q`
   with 63 tests passed, `make -C build-sim-video-5g -j4`, and simulator gate
-  `/tmp/rockbox-album-gameboy-final2-gate.txt` with 626 RockPod tests,
+  `/tmp/rockbox-album-gameboy-final4-gate.txt` with 629 RockPod tests,
   53 WPS/SBS/FMS tests, and a passing simulator smoke run.
 
 Deferred until measured evidence shows it is needed:
