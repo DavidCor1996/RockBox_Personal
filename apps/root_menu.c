@@ -283,13 +283,19 @@ static int browser(void* param)
                     }
                     else if (stat->progress >= 0)
                     {
+                        const char *progress_text = str(LANG_BUILDING_DATABASE);
+                        if (stat->scan_status == TAGCACHE_SCAN_UPDATING)
+                            progress_text = "Updating database... %d found";
                         splash_progress(stat->progress, 100,
-                                        str(LANG_BUILDING_DATABASE),
+                                        progress_text,
                                         stat->processed_entries);
                     }
                     else
                     {
-                        splashf(0, str(LANG_BUILDING_DATABASE),
+                        const char *progress_text = str(LANG_BUILDING_DATABASE);
+                        if (stat->scan_status == TAGCACHE_SCAN_UPDATING)
+                            progress_text = "Updating database... %d found";
+                        splashf(0, progress_text,
                                    stat->processed_entries); /* (voiced above) */
                     }
                 }

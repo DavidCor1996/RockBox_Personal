@@ -335,6 +335,14 @@ static int INIT_ATTR init_dircache(bool preinit)
 #endif /* HAVE_DIRCACHE */
 
 #ifdef HAVE_TAGCACHE
+static const char *tagcache_scan_progress_text(const struct tagcache_stat *stat)
+{
+    if (stat->scan_status == TAGCACHE_SCAN_UPDATING)
+        return "Updating database... %d found";
+
+    return str(LANG_BUILDING_DATABASE);
+}
+
 static void init_tagcache(void) INIT_ATTR;
 static void init_tagcache(void)
 {
@@ -393,13 +401,13 @@ static void init_tagcache(void)
         else if (stat->progress >= 0)
         {
             splash_progress(stat->progress, 100,
-                            str(LANG_BUILDING_DATABASE),
+                            tagcache_scan_progress_text(stat),
                             stat->processed_entries);
             clear = true;
         }
         else if (stat->processed_entries > 0)
         {
-            splashf(0, str(LANG_BUILDING_DATABASE),
+            splashf(0, tagcache_scan_progress_text(stat),
                     stat->processed_entries);
             clear = true;
         }

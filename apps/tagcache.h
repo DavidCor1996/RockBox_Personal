@@ -77,6 +77,14 @@ enum clause { clause_none, clause_is, clause_is_not, clause_gt, clause_gteq,
 	clause_not_oneof, clause_not_begins_oneof, clause_not_ends_oneof, clause_not_contains_oneof,
     clause_logical_or };
 
+enum tagcache_scan_status {
+    TAGCACHE_SCAN_IDLE = 0,
+    TAGCACHE_SCAN_BUILDING,
+    TAGCACHE_SCAN_UPDATING,
+    TAGCACHE_SCAN_COMMITTING,
+    TAGCACHE_SCAN_UP_TO_DATE,
+};
+
 struct tagcache_stat {
     char db_path[MAX_PATHNAME+1];  /* Path to DB root directory */
 
@@ -92,6 +100,7 @@ struct tagcache_stat {
 
     int  commit_step;        /* Commit progress */
     int  commit_tag;         /* Tag currently being committed, or TAG_COUNT for numeric */
+    int  scan_status;        /* Current scan/update status */
     int  ramcache_allocated; /* Has ram been allocated for ramcache? */
     int  ramcache_used;      /* How much ram has been really used */
     int  progress;           /* Current progress of disk scan */
@@ -167,6 +176,7 @@ void do_tagcache_build(const char *path[]);
 
 const char* tagcache_tag_to_str(int tag);
 const char* tagcache_commit_stage_name(const struct tagcache_stat *stat);
+const char* tagcache_scan_status_name(const struct tagcache_stat *stat);
 
 bool tagcache_find_index(struct tagcache_search *tcs, const char *filename);
 bool tagcache_check_clauses(struct tagcache_search *tcs,

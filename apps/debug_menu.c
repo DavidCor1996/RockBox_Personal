@@ -2170,6 +2170,8 @@ static int database_callback(int btn, struct gui_synclist *lists)
              stat->ramcache_used, stat->ramcache_allocated);
     simplelist_addline("Total entries: %d",
                        stat->total_entries);
+    simplelist_addline("Scan status: %s",
+                       tagcache_scan_status_name(stat));
     simplelist_setline("Progress:");
     simplelist_addline(" %d%% (%d entries)",
                        stat->progress, stat->processed_entries);

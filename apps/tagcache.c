@@ -465,6 +465,30 @@ const char* tagcache_commit_stage_name(const struct tagcache_stat *stat)
     return NULL;
 }
 
+const char* tagcache_scan_status_name(const struct tagcache_stat *stat)
+{
+    if (!stat)
+        return "---";
+
+    if (stat->commit_step > 0)
+        return "Committing database";
+
+    switch (stat->scan_status)
+    {
+        case TAGCACHE_SCAN_BUILDING:
+            return "Building database";
+        case TAGCACHE_SCAN_UPDATING:
+            return "Updating database";
+        case TAGCACHE_SCAN_COMMITTING:
+            return "Committing database";
+        case TAGCACHE_SCAN_UP_TO_DATE:
+            return "Database up to date";
+        case TAGCACHE_SCAN_IDLE:
+        default:
+            return "Idle";
+    }
+}
+
 #ifdef TAGCACHE_SUPPORT_FOREIGN_ENDIAN
 static void swap_tagfile_entry(struct tagfile_entry *buf)
 {
@@ -3529,6 +3553,7 @@ static bool commit(void)
     }
 
     logf("commit %" PRId32 " entries...", tch.entry_count);
+    tc_stat.scan_status = TAGCACHE_SCAN_COMMITTING;
 
     /* Mark DB dirty so it will stay disabled if commit fails. */
     current_tcmh.dirty = true;
@@ -3633,6 +3658,9 @@ commit_error:
 #endif /* HAVE_TC_RAMCACHE */
 
     read_lock--;
+    tc_stat.commit_step = 0;
+    tc_stat.commit_tag = -1;
+    tc_stat.scan_status = TAGCACHE_SCAN_IDLE;
 
 #ifdef HAVE_DIRCACHE
     /* Resume the dircache, if we stole the buffer. */
@@ -5108,6 +5136,13 @@ void do_tagcache_build(const char *path[])
     if (!path || !path[0])
         path = default_path;
 
+    if (tc_stat.scan_status == TAGCACHE_SCAN_IDLE ||
+        tc_stat.scan_status == TAGCACHE_SCAN_UP_TO_DATE)
+    {
+        tc_stat.scan_status = tc_stat.ready ? TAGCACHE_SCAN_UPDATING :
+                              TAGCACHE_SCAN_BUILDING;
+    }
+
     str_setlen(curpath, 0);
     data_size = 0;
     total_entry_count = 0;
@@ -5124,6 +5159,7 @@ void do_tagcache_build(const char *path[])
     {
         logf("skipping, cache already waiting for commit");
         close(cachefd);
+        tc_stat.scan_status = TAGCACHE_SCAN_IDLE;
         return ;
     }
 
@@ -5131,6 +5167,7 @@ void do_tagcache_build(const char *path[])
     if (cachefd < 0)
     {
         logf("master file open failed: %s", TAGCACHE_FILE_TEMP);
+        tc_stat.scan_status = TAGCACHE_SCAN_IDLE;
         return ;
     }
 
@@ -5250,6 +5287,7 @@ void do_tagcache_build(const char *path[])
     if (!ret)
     {
         logf("Aborted.");
+        tc_stat.scan_status = TAGCACHE_SCAN_IDLE;
         cpu_boost(false);
         return ;
     }
@@ -5258,6 +5296,7 @@ void do_tagcache_build(const char *path[])
     {
         logf("tagcache: no new entries");
         remove_db_file(TAGCACHE_FILE_TEMP);
+        tc_stat.scan_status = TAGCACHE_SCAN_UP_TO_DATE;
         cpu_boost(false);
         return ;
     }
@@ -5270,6 +5309,7 @@ void do_tagcache_build(const char *path[])
     {
         logf("tagcache built!");
     }
+    tc_stat.scan_status = TAGCACHE_SCAN_IDLE;
 #ifdef __PCTOOL__
     free_tempbuf();
 #endif
@@ -5404,6 +5444,7 @@ static void tagcache_thread(void)
         if (!tc_stat.ready && !tc_stat.commit_delayed)
         {
             logf("tagcache: auto init on boot");
+            tc_stat.scan_status = TAGCACHE_SCAN_BUILDING;
             remove_files();
             remove_db_file(TAGCACHE_FILE_TEMP);
             tagcache_build();
@@ -5425,12 +5466,14 @@ static void tagcache_thread(void)
                 break;
 
             case Q_REBUILD:
+                tc_stat.scan_status = TAGCACHE_SCAN_BUILDING;
                 remove_files();
                 remove_db_file(TAGCACHE_FILE_TEMP);
                 tagcache_build();
                 break;
 
             case Q_UPDATE:
+                tc_stat.scan_status = TAGCACHE_SCAN_UPDATING;
                 tagcache_build();
 #ifdef HAVE_TC_RAMCACHE
                 load_ramcache();
@@ -5452,12 +5495,16 @@ static void tagcache_thread(void)
                     if (global_settings.tagcache_ram == TAGCACHE_RAM_ON)
                         check_file_refs(global_settings.tagcache_autoupdate);
                     if (tc_stat.ramcache && global_settings.tagcache_autoupdate)
+                    {
+                        tc_stat.scan_status = TAGCACHE_SCAN_UPDATING;
                         tagcache_build();
+                    }
                 }
                 else
 #endif /* HAVE_RC_RAMCACHE */
                 if (global_settings.tagcache_autoupdate)
                 {
+                    tc_stat.scan_status = TAGCACHE_SCAN_UPDATING;
                     tagcache_build();
 
                     /* This will be very slow unless dircache is enabled
@@ -5565,12 +5612,14 @@ bool tagcache_update(void)
     if (!tc_stat.ready)
         return false;
 
+    tc_stat.scan_status = TAGCACHE_SCAN_UPDATING;
     queue_post(&tagcache_queue, Q_UPDATE, 0);
     return false;
 }
 
 bool tagcache_rebuild(void)
 {
+    tc_stat.scan_status = TAGCACHE_SCAN_BUILDING;
     queue_post(&tagcache_queue, Q_REBUILD, 0);
     return false;
 }
