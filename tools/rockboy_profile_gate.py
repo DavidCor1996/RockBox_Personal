@@ -21,6 +21,17 @@ from pathlib import Path
 PROFILE_OFF = 0
 PROFILE_OVERLAY_AND_LOG = 2
 ROCKBOY_OPTION_INTS = 22
+OPEN_PLUGIN_ENTRY_SIZE = 568
+OPEN_PLUGIN_NAME_OFFSET = 12
+OPEN_PLUGIN_NAME_SIZE = 33
+OPEN_PLUGIN_PATH_OFFSET = 45
+OPEN_PLUGIN_PATH_SIZE = 261
+OPEN_PLUGIN_PARAM_OFFSET = 306
+OPEN_PLUGIN_PARAM_SIZE = 261
+START_SCREEN_HASH = 0x8E2A0CC9
+LANG_START_SCREEN = 215
+OPEN_PLUGIN_CHECKSUM = 0x02380507
+ROCKBOY_PLUGIN_PATH = "/.rockbox/rocks/viewers/rockboy.rock"
 REQUIRED_PROFILE_FIELDS = {
     "rom",
     "rendered_frames",
@@ -86,6 +97,65 @@ def enable_profile_logging(options_path: Path) -> None:
     options_path.write_bytes(struct.pack("<" + "i" * ROCKBOY_OPTION_INTS, *values))
 
 
+def _write_cstring(entry: bytearray, offset: int, size: int, value: str) -> None:
+    encoded = value.encode("utf-8")
+    if len(encoded) >= size:
+        raise ValueError(f"open plugin field is too long: {value}")
+    entry[offset : offset + size] = b"\0" * size
+    entry[offset : offset + len(encoded)] = encoded
+
+
+def _start_screen_metadata(plugin_dat: Path) -> tuple[int, int, int]:
+    if plugin_dat.exists():
+        data = plugin_dat.read_bytes()
+        for offset in range(0, len(data) - OPEN_PLUGIN_ENTRY_SIZE + 1, OPEN_PLUGIN_ENTRY_SIZE):
+            hash_value, lang_id, checksum = struct.unpack_from("<IiI", data, offset)
+            if lang_id == LANG_START_SCREEN:
+                return hash_value, lang_id, checksum
+    return START_SCREEN_HASH, LANG_START_SCREEN, OPEN_PLUGIN_CHECKSUM
+
+
+def _replace_config_prefix(lines: list[str], prefix: str, replacement: str) -> list[str]:
+    filtered = [line for line in lines if not line.startswith(prefix)]
+    filtered.append(replacement)
+    return filtered
+
+
+def write_start_screen_config(simdisk: Path, rom_arg: str) -> Path:
+    config_path = simdisk / ".rockbox" / "config.cfg"
+    if config_path.exists():
+        lines = config_path.read_text(encoding="utf-8", errors="replace").splitlines()
+    else:
+        lines = []
+
+    lines = _replace_config_prefix(lines, "start in screen:", "start in screen: plugin")
+    lines = _replace_config_prefix(
+        lines,
+        "openplugin:",
+        f'openplugin: "Start Screen", "rockboy.rock", "{ROCKBOY_PLUGIN_PATH}", "{rom_arg}"',
+    )
+    config_path.parent.mkdir(parents=True, exist_ok=True)
+    config_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    return config_path
+
+
+def write_rockboy_direct_start(simdisk: Path, rom: Path) -> Path:
+    plugin_dat = simdisk / ".rockbox" / "rocks" / "plugin.dat"
+    hash_value, lang_id, checksum = _start_screen_metadata(plugin_dat)
+    rom_arg = "@" + str((Path("/") / rom.relative_to(simdisk)).as_posix()).lstrip("/")
+
+    entry = bytearray(OPEN_PLUGIN_ENTRY_SIZE)
+    struct.pack_into("<IiI", entry, 0, hash_value, lang_id, checksum)
+    _write_cstring(entry, OPEN_PLUGIN_NAME_OFFSET, OPEN_PLUGIN_NAME_SIZE, "rockboy.rock")
+    _write_cstring(entry, OPEN_PLUGIN_PATH_OFFSET, OPEN_PLUGIN_PATH_SIZE, ROCKBOY_PLUGIN_PATH)
+    _write_cstring(entry, OPEN_PLUGIN_PARAM_OFFSET, OPEN_PLUGIN_PARAM_SIZE, rom_arg)
+
+    plugin_dat.parent.mkdir(parents=True, exist_ok=True)
+    plugin_dat.write_bytes(entry)
+    write_start_screen_config(simdisk, rom_arg)
+    return plugin_dat
+
+
 def parse_profile_log(path: Path) -> list[dict[str, str]]:
     entries: list[dict[str, str]] = []
     if not path.exists():
@@ -131,7 +201,11 @@ def prepare(args: argparse.Namespace) -> None:
     gate_root = Path(tempfile.mkdtemp(prefix="rockboy-profile-gate-"))
     active_simdisk = gate_root / "simdisk"
     shutil.copytree(source_simdisk, active_simdisk, symlinks=True)
+    built_rockboy_plugin = build_dir / "apps" / "plugins" / "rockboy" / "rockboy.rock"
+    if built_rockboy_plugin.is_file():
+        shutil.copy2(built_rockboy_plugin, active_simdisk / ".rockbox" / "rocks" / "viewers" / "rockboy.rock")
     enable_profile_logging(active_simdisk / ".rockbox" / "rockboy" / "options")
+    (active_simdisk / ".rockbox" / "rockboy" / "profile.log").unlink(missing_ok=True)
 
     manifest = gate_root / "rockboy-profile-roms.txt"
     manifest.write_text(
@@ -139,11 +213,20 @@ def prepare(args: argparse.Namespace) -> None:
         encoding="utf-8",
     )
 
+    if args.direct_start:
+        direct_rom = active_simdisk / roms[0].relative_to(source_simdisk)
+        plugin_dat = write_rockboy_direct_start(active_simdisk, direct_rom)
+        print(f"Direct-start plugin entry: {plugin_dat}")
+        print(f"Direct-start ROM: {Path('/') / roms[0].relative_to(source_simdisk)}")
+
     command = [str(binary), "--nobackground", "--root", str(active_simdisk), "--zoom", "1"]
     print(f"Prepared isolated Rockboy profile simdisk: {active_simdisk}")
     print(f"ROM manifest: {manifest}")
     print("Run simulator:")
-    print(" ".join(command))
+    if args.autowrite_frames:
+        print(f"ROCKBOY_PROFILE_AUTOWRITE_FRAMES={args.autowrite_frames} " + " ".join(command))
+    else:
+        print(" ".join(command))
     print("In simulator, open each ROM listed in the manifest, run long enough to collect frames, then quit Rockboy.")
     print("Validate after the run:")
     print(f"{Path(__file__).relative_to(root)} --validate {active_simdisk}")
@@ -160,6 +243,8 @@ def main(argv: list[str]) -> int:
     parser.add_argument("--rom", action="append", default=list(DEFAULT_ROM_PATTERNS))
     parser.add_argument("--prepare", action="store_true")
     parser.add_argument("--validate")
+    parser.add_argument("--direct-start", action="store_true")
+    parser.add_argument("--autowrite-frames", type=int, default=0)
     args = parser.parse_args(argv)
 
     if args.validate:

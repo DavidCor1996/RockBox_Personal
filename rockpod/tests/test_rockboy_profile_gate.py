@@ -49,3 +49,54 @@ def test_validate_profile_log_reports_missing_new_counter(tmp_path):
         gate.validate_profile_log(profile_log)
 
     assert "cpu_ops" in str(excinfo.value)
+
+
+def _cstring(data, offset, size):
+    raw = data[offset : offset + size]
+    return raw.split(b"\0", 1)[0].decode("utf-8")
+
+
+def test_write_rockboy_direct_start_uses_launcher_rom_argument(tmp_path):
+    gate = _load_gate()
+    simdisk = tmp_path / "simdisk"
+    rom = simdisk / "gameboy" / "Pokemon Red.gb"
+    rom.parent.mkdir(parents=True)
+    rom.write_bytes(b"rom")
+
+    plugin_dat = gate.write_rockboy_direct_start(simdisk, rom)
+    data = plugin_dat.read_bytes()
+
+    assert len(data) == gate.OPEN_PLUGIN_ENTRY_SIZE
+    assert struct.unpack_from("<IiI", data, 0) == (
+        gate.START_SCREEN_HASH,
+        gate.LANG_START_SCREEN,
+        gate.OPEN_PLUGIN_CHECKSUM,
+    )
+    assert _cstring(data, gate.OPEN_PLUGIN_NAME_OFFSET, gate.OPEN_PLUGIN_NAME_SIZE) == "rockboy.rock"
+    assert _cstring(data, gate.OPEN_PLUGIN_PATH_OFFSET, gate.OPEN_PLUGIN_PATH_SIZE) == gate.ROCKBOY_PLUGIN_PATH
+    assert _cstring(data, gate.OPEN_PLUGIN_PARAM_OFFSET, gate.OPEN_PLUGIN_PARAM_SIZE) == "@gameboy/Pokemon Red.gb"
+    config = (simdisk / ".rockbox" / "config.cfg").read_text(encoding="utf-8")
+    assert "start in screen: plugin" in config
+    assert '"@gameboy/Pokemon Red.gb"' in config
+
+
+def test_write_rockboy_direct_start_preserves_existing_start_screen_metadata(tmp_path):
+    gate = _load_gate()
+    simdisk = tmp_path / "simdisk"
+    plugin_dat = simdisk / ".rockbox" / "rocks" / "plugin.dat"
+    plugin_dat.parent.mkdir(parents=True)
+    existing = bytearray(gate.OPEN_PLUGIN_ENTRY_SIZE)
+    struct.pack_into("<IiI", existing, 0, 0x11111111, gate.LANG_START_SCREEN, 0x22222222)
+    plugin_dat.write_bytes(existing)
+
+    rom = simdisk / "gameboy" / "Tetris.gb"
+    rom.parent.mkdir(parents=True)
+    rom.write_bytes(b"rom")
+
+    gate.write_rockboy_direct_start(simdisk, rom)
+
+    assert struct.unpack_from("<IiI", plugin_dat.read_bytes(), 0) == (
+        0x11111111,
+        gate.LANG_START_SCREEN,
+        0x22222222,
+    )

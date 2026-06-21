@@ -51,9 +51,10 @@ void rockboy_profile_start(const char *rom_path)
 #endif
 }
 
-void rockboy_profile_add(enum rockboy_profile_counter which, unsigned long ticks)
+void rockboy_profile_add_enabled(enum rockboy_profile_counter which,
+                                 unsigned long ticks)
 {
-    if (!rockboy_profile_is_enabled() || which >= ROCKBOY_TIME_COUNT)
+    if (which >= ROCKBOY_TIME_COUNT)
         return;
 
     totals.total[which] += ticks;
@@ -62,35 +63,32 @@ void rockboy_profile_add(enum rockboy_profile_counter which, unsigned long ticks
         totals.peak[which] = ticks;
 }
 
-void rockboy_profile_frame_rendered(void)
+void rockboy_profile_frame_rendered_enabled(void)
 {
-    if (rockboy_profile_is_enabled()) {
-        totals.rendered_frames++;
+    totals.rendered_frames++;
 #ifdef SIMULATOR
-        if (autowrite_frames && !autowrite_done &&
-            totals.rendered_frames >= autowrite_frames) {
-            autowrite_done = true;
-            rockboy_profile_log_summary(profile_rom_path);
-        }
-#endif
+    if (autowrite_frames && !autowrite_done &&
+        totals.rendered_frames >= autowrite_frames) {
+        autowrite_done = true;
+        rockboy_profile_log_summary(profile_rom_path);
     }
+#endif
 }
 
-void rockboy_profile_frame_skipped(void)
+void rockboy_profile_frame_skipped_enabled(void)
 {
-    if (rockboy_profile_is_enabled())
-        totals.skipped_frames++;
+    totals.skipped_frames++;
 }
 
-void rockboy_profile_pcm_underrun(void)
+void rockboy_profile_pcm_underrun_enabled(void)
 {
-    if (rockboy_profile_is_enabled())
-        totals.pcm_underruns++;
+    totals.pcm_underruns++;
 }
 
-void rockboy_profile_count(enum rockboy_profile_event which, unsigned long count)
+void rockboy_profile_count_enabled(enum rockboy_profile_event which,
+                                   unsigned long count)
 {
-    if (!rockboy_profile_is_enabled() || which >= ROCKBOY_EVENT_COUNT)
+    if (which >= ROCKBOY_EVENT_COUNT)
         return;
 
     totals.events[which] += count;
@@ -99,11 +97,6 @@ void rockboy_profile_count(enum rockboy_profile_event which, unsigned long count
 const struct rockboy_profile_totals *rockboy_profile_get_totals(void)
 {
     return &totals;
-}
-
-bool rockboy_profile_is_enabled(void)
-{
-    return options.profile != ROCKBOY_PROFILE_OFF;
 }
 
 void rockboy_profile_log_summary(const char *rom_path)

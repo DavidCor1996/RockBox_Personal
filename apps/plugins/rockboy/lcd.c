@@ -1006,7 +1006,8 @@ void lcd_refreshline(void)
         bg_scan();
         wnd_scan();
     }
-    spr_scan();
+    if (NS)
+        spr_scan();
 
 #if !defined(HAVE_LCD_COLOR)
 #if LCD_DEPTH == 1

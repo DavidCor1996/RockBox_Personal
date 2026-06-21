@@ -44,3 +44,19 @@ def test_simulator_profile_autowrite_is_opt_in_and_target_gated():
     assert "ROCKBOY_PROFILE_AUTOWRITE_FRAMES" in profiler
     assert "#ifdef SIMULATOR" in profiler
     assert "rockboy_profile_start(rom_path)" in rockboy
+
+
+def test_profile_hot_path_calls_are_inline_guarded():
+    profiler_h = _read("apps/plugins/rockboy/profiler.h")
+    profiler_c = _read("apps/plugins/rockboy/profiler.c")
+
+    assert "#define rockboy_profile_count(which, count)" in profiler_h
+    assert "if (rockboy_profile_is_enabled())" in profiler_h
+    assert "rockboy_profile_count_enabled" in profiler_h
+    assert "void rockboy_profile_count_enabled" in profiler_c
+
+
+def test_no_sprite_lines_skip_sprite_scan_call():
+    lcd = _read("apps/plugins/rockboy/lcd.c")
+
+    assert "if (NS)\n        spr_scan();" in lcd

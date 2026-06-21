@@ -129,6 +129,13 @@ Status - 2026-06-20:
 - Prepare/validate coverage uses four staged ROMs: Tetris, Pokemon Red,
   Zelda Oracle, and Mario Tennis. Launch stability remains covered by the
   simulator-first gate.
+- The gate can now write a direct-start Rockbox `plugin.dat` plus matching
+  `config.cfg` start-screen entries, stage the freshly built `rockboy.rock`,
+  clear stale copied `profile.log` data, and print an autowrite simulator
+  command. This makes repeatable single-ROM before/after profile runs possible
+  without manual menu navigation.
+- Direct-start validation passed with Tetris in the iPod Video simulator:
+  `tools/rockboy_profile_gate.py --validate /tmp/rockboy-profile-gate-4p0ms7cp/simdisk`.
 
 ## Phase 1: Profiling Detail
 
@@ -181,6 +188,10 @@ Status - 2026-06-20:
   - `tools/simulator_first_gate.sh --target ipodvideo --skip-build --rockpod-tests --theme-tests --smoke --timeout 3 --manual-checklist --allow-mounted-ipod --evidence-file /tmp/rockbox-album-gameboy-final4-gate.txt`
   - Full combined gate result: 629 RockPod tests passed, 53 WPS/SBS/FMS tests
     passed, and the simulator stayed alive for the 3 second smoke run.
+- Follow-up performance guard:
+  - Profile event/timing calls are now inline-guarded in `profiler.h`, so
+    normal gameplay with profiling off avoids the per-op/per-line profiler
+    function calls introduced by instrumentation.
 
 ## Phase 2: CPU Interpreter Hot Path
 
@@ -251,9 +262,15 @@ Acceptance:
 
 Status - 2026-06-20:
 
-- Not implemented yet. The Phase 1 counters now report eligible scanlines; a
-  renderer fast path should wait until those counters show enough eligible lines
-  on the simulator ROM corpus.
+- Started with the lowest-risk no-sprite-line fast path.
+- `lcd_refreshline()` now skips the `spr_scan()` function call entirely when
+  `spr_enum()` found no visible sprites for the line. Sprite enumeration and
+  all full renderer behavior remain unchanged.
+- Direct-start Tetris evidence after the guard:
+  - `lcd_lines=17280`
+  - `no_sprite_lines=13688`
+  - `dmg_bg_only_eligible=13688`
+  - profile validation passed in the iPod Video simulator.
 
 ## Phase 4: Compatibility Tiers
 
