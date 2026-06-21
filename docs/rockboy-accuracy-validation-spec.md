@@ -44,6 +44,33 @@ Passed on 2026-06-20:
     disabled channels can still clock length, and DAC-off writes immediately
     clear channel status.
 
+Passed on 2026-06-21:
+
+- `blargg/dmg_sound/rom_singles/03-trigger.gb`: on-screen `Passed`
+  - Fifth-register length-enable writes now use a frame-sequencer phase model
+    for DMG extra clocks, and trigger writes still perform length reload and
+    DAC-gated side effects while preserving nonzero counters.
+- `blargg/dmg_sound/rom_singles/07-len sweep period sync.gb`: on-screen
+  `Passed`
+  - Length and sweep clocks now run from the CPU-driven APU frame sequencer
+    rather than audio-mixer sample cadence.
+- `blargg/dmg_sound/rom_singles/08-len ctr during power.gb`: on-screen
+  `Passed`
+  - DMG APU power-off now freezes internal length counters, and powered-off
+    length-register writes update the hidden counters without making normal
+    powered-off register writes visible.
+- `blargg/dmg_sound/rom_singles/09-wave read while on.gb`: on-screen
+  `Passed`
+- `blargg/dmg_sound/rom_singles/10-wave trigger while on.gb`: on-screen
+  `Passed`
+- `blargg/dmg_sound/rom_singles/11-regs after power.gb`: on-screen
+  `Passed`
+- `blargg/dmg_sound/rom_singles/12-wave write while on.gb`: on-screen
+  `Passed`
+- `blargg/dmg_sound/dmg_sound.gb`: on-screen `Passed`
+  - Final aggregate screen showed `01:ok` through `12:ok` followed by
+    `Passed`.
+
 Fixed during this pass:
 
 - `POP AF` now masks unused low flag bits.
@@ -63,6 +90,10 @@ Fixed during this pass:
 - DMG sound register masks, APU power-off semantics, wave RAM write/read
   behavior, length counter reload/preserve behavior, length-enable clocking,
   and DAC-gated channel status now match Blargg's first two DMG sound groups.
+- DMG sound frame-sequencer length/sweep timing, fifth-register extra clocks,
+  DMG power-off length counter freezing, active wave-RAM read/write windows,
+  and DMG wave retrigger corruption now pass Blargg's full `dmg_sound.gb`
+  aggregate suite in the iPod Video simulator.
 
 Known failures from the expanded 2026-06-20 simulator pass:
 
@@ -71,10 +102,6 @@ Known failures from the expanded 2026-06-20 simulator pass:
   - Failing groups: `02`, `04`, `05`, `07`, `08`.
   - Remaining cause: Rockboy still does not emulate the DMG OAM corruption bug
     caused by OAM accesses and 16-bit IDU operations during PPU mode 2.
-- `blargg/dmg_sound/dmg_sound.gb`: groups `01` and `02` pass on-screen.
-  Groups `03`-`12` still fail; the next known blocker is
-  `rom_singles/03-trigger.gb`, which requires a stable APU frame-sequencer
-  phase model for write-time length-enable/trigger extra clocks.
 - `blargg/cgb_sound/cgb_sound.gb`: group `10` passed; the other groups failed
   on-screen.
 

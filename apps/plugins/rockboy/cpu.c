@@ -6,6 +6,7 @@
 #include "lcdc.h"
 #include "mem.h"
 #include "fastmem.h"
+#include "sound.h"
 #include "cpuregs.h"
 #include "cpucore.h"
 #include "profiler.h"
@@ -346,7 +347,7 @@ static void lcdc_advance(int cnt)
 static void sound_advance(int cnt) ICODE_ATTR;
 static void sound_advance(int cnt)
 {
-    cpu.snd += cnt;
+    sound_tick(cnt);
 }
 
 void cpu_timers(int cnt)

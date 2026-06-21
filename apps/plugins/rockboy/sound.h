@@ -6,7 +6,7 @@
 struct sndchan
 {
     /* S1, S2, S3, S4 */
-    int on, len, skip, cont;
+    int on, len, skip, cont, suppress_enable_clock;
     unsigned int pos;
 
     /* S1, S2, S4 */
@@ -17,6 +17,7 @@ struct sndchan
     
     /* S1 only */
     int swlen, swlenreload, swsteps, swstep, swdir;
+    int swshadow, swenabled, swneg_used;
 
     /* S3 only */
     int outputlevel;
@@ -33,6 +34,12 @@ struct snd
     bool gbDigitalSound;
     int rate;
     int quality;
+    int length_phase;
+    int frame_step;
+    int wave_timer;
+    int wave_access;
+    int wave_index;
+    int wave_startup;
     struct sndchan ch[4];
 };
 
@@ -48,5 +55,6 @@ void sound_write(byte r, byte b) ICODE_ATTR;
 void sound_dirty(void);
 void sound_reset(void);
 void sound_mix(void) ICODE_ATTR;
+void sound_tick(int cnt) ICODE_ATTR;
 
 #endif

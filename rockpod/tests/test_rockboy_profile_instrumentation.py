@@ -196,26 +196,37 @@ def test_sound_register_read_masks_and_power_off_are_modelled():
     assert "return REG(r) | sound_read_mask[r - RI_NR10];" in sound
     assert "static void sound_power_off(void)" in sound
     assert "for (r = RI_NR10; r <= RI_NR51; r++)" in sound
+    assert "S1.cont = S2.cont = S3.cont = S4.cont = 0;" in sound
+    assert "snd.length_phase = 0;" in sound
+    assert "snd.frame_step = 0;" in sound
+    assert "snd.wave_access = 0;" in sound
     assert "if (!(R_NR52 & 0x80))" in sound
 
 
 def test_sound_trigger_preserves_nonzero_length_counter():
     sound = _read("apps/plugins/rockboy/sound.c")
 
-    assert "#define SOUND_LENGTH_UNIT 172" in sound
-    assert "if (S1.len <= 0)\n                S1.len = SOUND_LENGTH_UNIT * 64;" in sound
-    assert "if (S2.len <= 0)\n                S2.len = SOUND_LENGTH_UNIT * 64;" in sound
-    assert "if (S3.len <= 0)\n                S3.len = SOUND_LENGTH_UNIT * 256;" in sound
-    assert "if (S4.len <= 0)\n                S4.len = SOUND_LENGTH_UNIT * 64;" in sound
+    assert "#define SOUND_LENGTH_UNIT 1" in sound
+    assert "#define SOUND_LENGTH_CLOCK 4096" in sound
+    assert "if (S1.len <= 0)" in sound
+    assert "S1.len = SOUND_LENGTH_UNIT * 64;" in sound
+    assert "if (S2.len <= 0)" in sound
+    assert "S2.len = SOUND_LENGTH_UNIT * 64;" in sound
+    assert "if (S3.len <= 0)" in sound
+    assert "S3.len = SOUND_LENGTH_UNIT * 256;" in sound
+    assert "if (S4.len <= 0)" in sound
+    assert "S4.len = SOUND_LENGTH_UNIT * 64;" in sound
+    assert "suppress_enable_clock = !(b & 0x40) && !(old & 0x40)" in sound
 
 
 def test_sound_length_clocks_only_when_enabled():
     sound = _read("apps/plugins/rockboy/sound.c")
 
-    assert "if(S1.cont && S1.len > 0)" in sound
-    assert "if(S2.cont && S2.len > 0)" in sound
-    assert "if(S3.cont && S3.len > 0)" in sound
-    assert "if(S4.cont && S4.len > 0)" in sound
+    assert "static void sound_clock_lengths(void)" in sound
+    assert "if (S1.cont)" in sound
+    assert "if (S2.cont)" in sound
+    assert "if (S3.cont)" in sound
+    assert "if (S4.cont)" in sound
     assert "R_NR52 &= 0xf7;" in sound
 
 
@@ -228,3 +239,109 @@ def test_sound_dac_off_clears_channel_and_blocks_trigger():
     assert "if (sound_env_dac_enabled(R_NR12))" in sound
     assert "if (sound_env_dac_enabled(R_NR22))" in sound
     assert "if (sound_env_dac_enabled(R_NR42))" in sound
+
+
+def test_sound_frame_phase_drives_length_enable_extra_clock():
+    sound = _read("apps/plugins/rockboy/sound.c")
+    sound_h = _read("apps/plugins/rockboy/sound.h")
+    save = _read("apps/plugins/rockboy/save.c")
+
+    assert "int length_phase;" in sound_h
+    assert "int frame_step;" in sound_h
+    assert "suppress_enable_clock" in sound_h
+    assert "static bool sound_length_extra_clock_phase(void)" in sound
+    assert "return snd.frame_step & 1;" in sound
+    assert "!ch->suppress_enable_clock && sound_length_extra_clock_phase()" in sound
+    assert "ch->suppress_enable_clock = 0;" in sound
+    assert "suppress_enable_clock = !(b & 0x40) && !(old & 0x40)" in sound
+    assert "static void sound_advance_frame_phase(int quality)" in sound
+    assert "while (snd.length_phase >= SOUND_LENGTH_CLOCK)" in sound
+    assert "sound_clock_lengths();" in sound
+    assert "if (R_NR52 & 0x80)" in sound
+    assert "snd.length_phase = 0;" in sound
+    assert "sound_advance_frame_phase(cnt);" in sound
+    assert "sound_apply_length_enable_write(&S1, old, b, 0xfe);" in sound
+    assert "sound_apply_length_enable_write(&S2, old, b, 0xfd);" in sound
+    assert "sound_apply_length_enable_write(&S3, old, b, 0xfb);" in sound
+    assert "sound_apply_length_enable_write(&S4, old, b, 0xf7);" in sound
+    assert "bool reloaded_length;" in sound
+    assert "static bool sound_trigger_extra_clock_allowed(byte old, byte b)" in sound
+    assert "sound_trigger_extra_clock_allowed(old, b)" in sound
+    assert 'I4("SPh ", &snd.length_phase)' in save
+    assert 'I4("SFs ", &snd.frame_step)' in save
+    assert 'I4("S1se", &snd.ch[0].suppress_enable_clock)' in save
+    assert 'I4("S4se", &snd.ch[3].suppress_enable_clock)' in save
+
+
+def test_sound_sweep_uses_frame_clocked_shadow_model():
+    sound = _read("apps/plugins/rockboy/sound.c")
+    sound_h = _read("apps/plugins/rockboy/sound.h")
+    save = _read("apps/plugins/rockboy/save.c")
+
+    assert "swshadow" in sound_h
+    assert "swenabled" in sound_h
+    assert "swneg_used" in sound_h
+    assert "static void sound_sweep_clock(void)" in sound
+    assert "if (!(snd.frame_step & 1))" in sound
+    assert "sound_sweep_clock();" in sound
+    assert "S1.swshadow = ((int)(b & 7) << 8) | R_NR13;" in sound
+    assert "S1.swenabled = ((R_NR10 >> 4) & 7) || (R_NR10 & 7);" in sound
+    assert "if (S1.swneg_used && (old & 0x08) && !(b & 0x08))" in sound
+    assert 'I4("S1sh", &snd.ch[0].swshadow)' in save
+    assert 'I4("S1sn", &snd.ch[0].swenabled)' in save
+
+
+def test_sound_wave_reads_use_cpu_cycle_timer():
+    sound = _read("apps/plugins/rockboy/sound.c")
+    sound_h = _read("apps/plugins/rockboy/sound.h")
+    save = _read("apps/plugins/rockboy/save.c")
+    cpu = _read("apps/plugins/rockboy/cpu.c")
+
+    assert "int wave_timer;" in sound_h
+    assert "int wave_access;" in sound_h
+    assert "int wave_index;" in sound_h
+    assert "int wave_startup;" in sound_h
+    assert "void sound_tick(int cnt)" in sound_h
+    assert "static void sound_wave_tick(int cnt)" in sound
+    assert "snd.wave_timer = sound_wave_period() + 1;" in sound
+    assert "snd.wave_startup = 1;" in sound
+    assert "static int sound_wave_access_offset(void)" in sound
+    assert "if (!snd.wave_access || (snd.wave_startup && snd.wave_index == 1))" in sound
+    assert "if (snd.wave_timer != 1 || (snd.wave_startup && snd.wave_index == 1))" in sound
+    assert "static void sound_wave_retrigger_dmg(void)" in sound
+    assert "if (offset < 4)" in sound
+    assert "ram.hi[0x30] = ram.hi[0x30 + offset];" in sound
+    assert "src = 0x30 + (offset & 0x0c);" in sound
+    assert "if (snd.wave_startup && snd.wave_index != 1)" in sound
+    assert "snd.wave_access = 1;" in sound
+    assert "return ((snd.wave_index - 1) >> 1) & 0x0f;" in sound
+    assert "return (snd.wave_index >> 1) & 0x0f;" in sound
+    assert "return ram.hi[0x30 + offset];" in sound
+    assert "ram.hi[0x30 + offset] = b;" in sound
+    assert "sound_wave_retrigger_dmg();" in sound
+    assert "sound_wave_restart_timer();" in sound
+    assert 'I4("SWt ", &snd.wave_timer)' in save
+    assert 'I4("SWa ", &snd.wave_access)' in save
+    assert 'I4("SWi ", &snd.wave_index)' in save
+    assert 'I4("SWs ", &snd.wave_startup)' in save
+    assert '#include "sound.h"' in cpu
+    assert "sound_tick(cnt);" in cpu
+
+
+def test_sound_powered_off_keeps_noise_length_writable():
+    sound = _read("apps/plugins/rockboy/sound.c")
+
+    assert "byte nr41 = R_NR41;" in sound
+    assert "int s1_len = S1.len;" in sound
+    assert "int s2_len = S2.len;" in sound
+    assert "int s3_len = S3.len;" in sound
+    assert "int s4_len = S4.len;" in sound
+    assert "R_NR41 = nr41;" in sound
+    assert "S1.len = s1_len;" in sound
+    assert "S2.len = s2_len;" in sound
+    assert "S3.len = s3_len;" in sound
+    assert "case RI_NR11:" in sound
+    assert "case RI_NR21:" in sound
+    assert "case RI_NR31:" in sound
+    assert "case RI_NR41:" in sound
+    assert "S4.len = SOUND_LENGTH_UNIT * (64 - (b & 0x3f));" in sound
