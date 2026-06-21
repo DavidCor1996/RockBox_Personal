@@ -196,8 +196,10 @@ Status - 2026-06-20:
     function calls introduced by instrumentation.
   - The profile log now records fast-path use/reject counters:
     `dmg_bg_only_used`, `dmg_bg_only_rejected`,
-    `cgb_bg_only_eligible`, `cgb_bg_only_used`, and
-    `cgb_bg_only_rejected`.
+    `dmg_bg_window_no_spr_used`, `dmg_bg_window_no_spr_rejected`,
+    `cgb_bg_only_eligible`, `cgb_bg_only_used`, `cgb_bg_only_rejected`,
+    `cgb_bg_window_no_spr_eligible`, `cgb_bg_window_no_spr_used`, and
+    `cgb_bg_window_no_spr_rejected`.
 
 ## Phase 2: CPU Interpreter Hot Path
 
@@ -280,6 +282,10 @@ Status - 2026-06-20:
   - `DMG_BG_ONLY`: no CGB, no visible sprites, and no window.
   - `CGB_BG_ONLY`: CGB, no visible sprites, and no window; preserves tile bank,
     x/y flip, and palette attribute handling.
+- Added window/no-sprite direct scan paths:
+  - `DMG_BG_WINDOW_NO_SPR`: no CGB, no visible sprites, and an on-screen window.
+  - `CGB_BG_WINDOW_NO_SPR`: CGB, no visible sprites, and an on-screen window;
+    preserves tile bank, x/y flip, and palette attribute handling.
 - Fast-line rendering is disabled under the existing `Quality` performance
   preset, giving a runtime fallback for bisection while keeping the current
   Balanced/Performance presets on the fast path.
@@ -295,6 +301,17 @@ Status - 2026-06-20:
   - `cgb_bg_only_eligible=17280`
   - `cgb_bg_only_used=17280`
   - `cgb_bg_only_rejected=0`
+  - profile validation passed in the iPod Video simulator.
+- Direct-start Pokemon Red evidence after the DMG window/no-sprite fast path:
+  - `dmg_bg_window_no_spr_eligible=17280`
+  - `dmg_bg_window_no_spr_used=17280`
+  - `dmg_bg_window_no_spr_rejected=0`
+  - profile validation passed in the iPod Video simulator.
+- Direct-start Mario Tennis CGB evidence after adding the CGB window/no-sprite
+  fast path:
+  - `cgb_bg_only_eligible=15476`
+  - `cgb_bg_only_used=15476`
+  - `cgb_bg_window_no_spr_eligible=0` in the sampled boot window
   - profile validation passed in the iPod Video simulator.
 - Build validation:
   - `make -C build-sim-video-5g -j8`

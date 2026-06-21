@@ -389,6 +389,74 @@ static void dmg_bg_only_scan(void)
     }
 }
 
+static void dmg_copy_bg_span(byte *dest, byte *tilemap, const int *wrap,
+                             int row, int xoff, int cnt)
+{
+    byte *src;
+    int chunk;
+
+    if (cnt <= 0)
+        return;
+
+    src = patpix[dmg_bg_tile(*tilemap)][row] + xoff;
+    tilemap += *wrap + 1;
+    wrap++;
+    chunk = 8 - xoff;
+    if (chunk > cnt)
+        chunk = cnt;
+    memcpy(dest, src, chunk);
+    dest += chunk;
+    cnt -= chunk;
+
+    while (cnt >= 8)
+    {
+        src = patpix[dmg_bg_tile(*tilemap)][row];
+        tilemap += *wrap + 1;
+        wrap++;
+        memcpy(dest, src, 8);
+        dest += 8;
+        cnt -= 8;
+    }
+
+    if (cnt)
+    {
+        src = patpix[dmg_bg_tile(*tilemap)][row];
+        while (cnt--)
+            *(dest++) = *(src++);
+    }
+}
+
+static void dmg_copy_window_span(byte *dest, byte *tilemap, int row, int cnt)
+{
+    byte *src;
+
+    while (cnt >= 8)
+    {
+        src = patpix[dmg_bg_tile(*tilemap++)][row];
+        memcpy(dest, src, 8);
+        dest += 8;
+        cnt -= 8;
+    }
+
+    if (cnt)
+    {
+        src = patpix[dmg_bg_tile(*tilemap)][row];
+        while (cnt--)
+            *(dest++) = *(src++);
+    }
+}
+
+static void dmg_bg_window_no_spr_scan(void) ICODE_ATTR;
+static void dmg_bg_window_no_spr_scan(void)
+{
+    int bg_base = ((R_LCDC&0x08)?0x1C00:0x1800) + (T<<5) + S;
+    int wnd_base = ((R_LCDC&0x40)?0x1C00:0x1800) + (WT<<5);
+
+    dmg_copy_bg_span(BUF, lcd.vbank[0] + bg_base, bg_wraptable + S,
+                     V, U, WX);
+    dmg_copy_window_span(BUF + WX, lcd.vbank[0] + wnd_base, WV, 160 - WX);
+}
+
 static void cgb_bg_only_scan(void)
 {
     int cnt = 160;
@@ -428,6 +496,82 @@ static void cgb_bg_only_scan(void)
         src = patpix[cgb_bg_tile(*tilemap, attr)][V];
         blendcpy(dest, src, (attr & 0x07) << 2, cnt);
     }
+}
+
+static void cgb_copy_bg_span(byte *dest, byte *tilemap, byte *attrmap,
+                             const int *wrap, int row, int xoff, int cnt)
+{
+    byte *src;
+    byte attr;
+    int chunk;
+
+    if (cnt <= 0)
+        return;
+
+    attr = *attrmap;
+    src = patpix[cgb_bg_tile(*tilemap, attr)][row] + xoff;
+    chunk = 8 - xoff;
+    if (chunk > cnt)
+        chunk = cnt;
+    blendcpy(dest, src, (attr & 0x07) << 2, chunk);
+    tilemap += *wrap + 1;
+    attrmap += *wrap + 1;
+    wrap++;
+    dest += chunk;
+    cnt -= chunk;
+
+    while (cnt >= 8)
+    {
+        attr = *attrmap;
+        src = patpix[cgb_bg_tile(*tilemap, attr)][row];
+        blendcpy(dest, src, (attr & 0x07) << 2, 8);
+        tilemap += *wrap + 1;
+        attrmap += *wrap + 1;
+        wrap++;
+        dest += 8;
+        cnt -= 8;
+    }
+
+    if (cnt)
+    {
+        attr = *attrmap;
+        src = patpix[cgb_bg_tile(*tilemap, attr)][row];
+        blendcpy(dest, src, (attr & 0x07) << 2, cnt);
+    }
+}
+
+static void cgb_copy_window_span(byte *dest, byte *tilemap, byte *attrmap,
+                                 int row, int cnt)
+{
+    byte *src;
+    byte attr;
+
+    while (cnt >= 8)
+    {
+        attr = *attrmap++;
+        src = patpix[cgb_bg_tile(*tilemap++, attr)][row];
+        blendcpy(dest, src, (attr & 0x07) << 2, 8);
+        dest += 8;
+        cnt -= 8;
+    }
+
+    if (cnt)
+    {
+        attr = *attrmap;
+        src = patpix[cgb_bg_tile(*tilemap, attr)][row];
+        blendcpy(dest, src, (attr & 0x07) << 2, cnt);
+    }
+}
+
+static void cgb_bg_window_no_spr_scan(void)
+{
+    int bg_base = ((R_LCDC&0x08)?0x1C00:0x1800) + (T<<5) + S;
+    int wnd_base = ((R_LCDC&0x40)?0x1C00:0x1800) + (WT<<5);
+
+    cgb_copy_bg_span(BUF, lcd.vbank[0] + bg_base, lcd.vbank[1] + bg_base,
+                     bg_wraptable + S, V, U, WX);
+    cgb_copy_window_span(BUF + WX, lcd.vbank[0] + wnd_base,
+                         lcd.vbank[1] + wnd_base, WV, 160 - WX);
 }
 
 static bool fast_line_rendering_enabled(void)
@@ -1038,7 +1182,9 @@ void lcd_refreshline(void)
 {
     unsigned long render_start = *rb->current_tick;
     bool dmg_bg_only_eligible;
+    bool dmg_bg_window_no_spr_eligible;
     bool cgb_bg_only_eligible;
+    bool cgb_bg_window_no_spr_eligible;
 
     if (!(R_LCDC & 0x80))
         return; /* should not happen... */
@@ -1097,26 +1243,44 @@ void lcd_refreshline(void)
         rockboy_profile_count(ROCKBOY_EVENT_LCD_CGB_NO_SPRITE_LINES, 1);
         if (WX == 160)
             rockboy_profile_count(ROCKBOY_EVENT_LCD_CGB_BG_ONLY_ELIGIBLE, 1);
+        else if (WX >= 0 && WX < 160)
+            rockboy_profile_count(ROCKBOY_EVENT_LCD_CGB_BG_WINDOW_NO_SPR_ELIGIBLE, 1);
     }
 
     dmg_bg_only_eligible = !hw.cgb && !NS && WX == 160;
+    dmg_bg_window_no_spr_eligible = !hw.cgb && !NS && WX >= 0 && WX < 160;
     cgb_bg_only_eligible = hw.cgb && !NS && WX == 160;
+    cgb_bg_window_no_spr_eligible = hw.cgb && !NS && WX >= 0 && WX < 160;
     if (dmg_bg_only_eligible && fast_line_rendering_enabled())
     {
         rockboy_profile_count(ROCKBOY_EVENT_LCD_DMG_BG_ONLY_USED, 1);
         dmg_bg_only_scan();
+    }
+    else if (dmg_bg_window_no_spr_eligible && fast_line_rendering_enabled())
+    {
+        rockboy_profile_count(ROCKBOY_EVENT_LCD_DMG_BG_WINDOW_NO_SPR_USED, 1);
+        dmg_bg_window_no_spr_scan();
     }
     else if (cgb_bg_only_eligible && fast_line_rendering_enabled())
     {
         rockboy_profile_count(ROCKBOY_EVENT_LCD_CGB_BG_ONLY_USED, 1);
         cgb_bg_only_scan();
     }
+    else if (cgb_bg_window_no_spr_eligible && fast_line_rendering_enabled())
+    {
+        rockboy_profile_count(ROCKBOY_EVENT_LCD_CGB_BG_WINDOW_NO_SPR_USED, 1);
+        cgb_bg_window_no_spr_scan();
+    }
     else
     {
         if (dmg_bg_only_eligible)
             rockboy_profile_count(ROCKBOY_EVENT_LCD_DMG_BG_ONLY_REJECTED, 1);
+        if (dmg_bg_window_no_spr_eligible)
+            rockboy_profile_count(ROCKBOY_EVENT_LCD_DMG_BG_WINDOW_NO_SPR_REJECTED, 1);
         if (cgb_bg_only_eligible)
             rockboy_profile_count(ROCKBOY_EVENT_LCD_CGB_BG_ONLY_REJECTED, 1);
+        if (cgb_bg_window_no_spr_eligible)
+            rockboy_profile_count(ROCKBOY_EVENT_LCD_CGB_BG_WINDOW_NO_SPR_REJECTED, 1);
         tilebuf();
         if (hw.cgb)
         {

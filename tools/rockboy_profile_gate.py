@@ -58,9 +58,14 @@ REQUIRED_PROFILE_FIELDS = {
     "cgb_no_sprite_lines",
     "dmg_bg_only_used",
     "dmg_bg_only_rejected",
+    "dmg_bg_window_no_spr_used",
+    "dmg_bg_window_no_spr_rejected",
     "cgb_bg_only_eligible",
     "cgb_bg_only_used",
     "cgb_bg_only_rejected",
+    "cgb_bg_window_no_spr_eligible",
+    "cgb_bg_window_no_spr_used",
+    "cgb_bg_window_no_spr_rejected",
 }
 
 DEFAULT_ROM_PATTERNS = (

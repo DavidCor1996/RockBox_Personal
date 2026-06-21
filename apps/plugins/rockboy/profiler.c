@@ -130,8 +130,13 @@ void rockboy_profile_log_summary(const char *rom_path)
              "dmg_bg_only_eligible=%lu dmg_bg_window_no_spr_eligible=%lu "
              "cgb_no_sprite_lines=%lu "
              "dmg_bg_only_used=%lu dmg_bg_only_rejected=%lu "
+             "dmg_bg_window_no_spr_used=%lu "
+             "dmg_bg_window_no_spr_rejected=%lu "
              "cgb_bg_only_eligible=%lu cgb_bg_only_used=%lu "
-             "cgb_bg_only_rejected=%lu\n",
+             "cgb_bg_only_rejected=%lu "
+             "cgb_bg_window_no_spr_eligible=%lu "
+             "cgb_bg_window_no_spr_used=%lu "
+             "cgb_bg_window_no_spr_rejected=%lu\n",
              rom_path ? rom_path : "<unknown>",
              p->rendered_frames,
              p->skipped_frames,
@@ -165,8 +170,13 @@ void rockboy_profile_log_summary(const char *rom_path)
              p->events[ROCKBOY_EVENT_LCD_CGB_NO_SPRITE_LINES],
              p->events[ROCKBOY_EVENT_LCD_DMG_BG_ONLY_USED],
              p->events[ROCKBOY_EVENT_LCD_DMG_BG_ONLY_REJECTED],
+             p->events[ROCKBOY_EVENT_LCD_DMG_BG_WINDOW_NO_SPR_USED],
+             p->events[ROCKBOY_EVENT_LCD_DMG_BG_WINDOW_NO_SPR_REJECTED],
              p->events[ROCKBOY_EVENT_LCD_CGB_BG_ONLY_ELIGIBLE],
              p->events[ROCKBOY_EVENT_LCD_CGB_BG_ONLY_USED],
-             p->events[ROCKBOY_EVENT_LCD_CGB_BG_ONLY_REJECTED]);
+             p->events[ROCKBOY_EVENT_LCD_CGB_BG_ONLY_REJECTED],
+             p->events[ROCKBOY_EVENT_LCD_CGB_BG_WINDOW_NO_SPR_ELIGIBLE],
+             p->events[ROCKBOY_EVENT_LCD_CGB_BG_WINDOW_NO_SPR_USED],
+             p->events[ROCKBOY_EVENT_LCD_CGB_BG_WINDOW_NO_SPR_REJECTED]);
     close(fd);
 }
