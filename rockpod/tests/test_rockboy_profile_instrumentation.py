@@ -187,3 +187,44 @@ def test_lcd_enable_first_line_matches_blargg_sync_boundary():
     lcdc = _read("apps/plugins/rockboy/lcdc.c")
 
     assert "C = 38;" in lcdc
+
+
+def test_sound_register_read_masks_and_power_off_are_modelled():
+    sound = _read("apps/plugins/rockboy/sound.c")
+
+    assert "static const byte sound_read_mask[0x30]" in sound
+    assert "return REG(r) | sound_read_mask[r - RI_NR10];" in sound
+    assert "static void sound_power_off(void)" in sound
+    assert "for (r = RI_NR10; r <= RI_NR51; r++)" in sound
+    assert "if (!(R_NR52 & 0x80))" in sound
+
+
+def test_sound_trigger_preserves_nonzero_length_counter():
+    sound = _read("apps/plugins/rockboy/sound.c")
+
+    assert "#define SOUND_LENGTH_UNIT 172" in sound
+    assert "if (S1.len <= 0)\n                S1.len = SOUND_LENGTH_UNIT * 64;" in sound
+    assert "if (S2.len <= 0)\n                S2.len = SOUND_LENGTH_UNIT * 64;" in sound
+    assert "if (S3.len <= 0)\n                S3.len = SOUND_LENGTH_UNIT * 256;" in sound
+    assert "if (S4.len <= 0)\n                S4.len = SOUND_LENGTH_UNIT * 64;" in sound
+
+
+def test_sound_length_clocks_only_when_enabled():
+    sound = _read("apps/plugins/rockboy/sound.c")
+
+    assert "if(S1.cont && S1.len > 0)" in sound
+    assert "if(S2.cont && S2.len > 0)" in sound
+    assert "if(S3.cont && S3.len > 0)" in sound
+    assert "if(S4.cont && S4.len > 0)" in sound
+    assert "R_NR52 &= 0xf7;" in sound
+
+
+def test_sound_dac_off_clears_channel_and_blocks_trigger():
+    sound = _read("apps/plugins/rockboy/sound.c")
+
+    assert "static bool sound_env_dac_enabled(byte b)" in sound
+    assert "return b & 0xf8;" in sound
+    assert "if (!sound_env_dac_enabled(b))" in sound
+    assert "if (sound_env_dac_enabled(R_NR12))" in sound
+    assert "if (sound_env_dac_enabled(R_NR22))" in sound
+    assert "if (sound_env_dac_enabled(R_NR42))" in sound

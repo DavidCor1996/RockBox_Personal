@@ -113,6 +113,34 @@ struct snd snd IBSS_ATTR;
 #define SOUND_MAGIC_2 0x30000000
 #define NOISE_MAGIC 5
 
+static const byte sound_read_mask[0x30] = {
+    0x80, 0x3f, 0x00, 0xff, 0xbf, 0xff, 0x3f, 0x00,
+    0xff, 0xbf, 0x7f, 0xff, 0x9f, 0xff, 0xbf, 0xff,
+    0xff, 0x00, 0x00, 0xbf, 0x00, 0x00, 0x70, 0xff,
+    0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+};
+
+#define SOUND_LENGTH_UNIT 172
+
+static void sound_power_off(void)
+{
+    int r;
+
+    S1.on = S2.on = S3.on = S4.on = 0;
+
+    for (r = RI_NR10; r <= RI_NR51; r++)
+        ram.hi[r] = 0;
+
+    R_NR52 = 0;
+}
+
+static bool sound_env_dac_enabled(byte b)
+{
+    return b & 0xf8;
+}
+
 static void gbSoundChannel1(int *r, int *l, int balance, int quality)
 {
     int vol = S1.envol;
@@ -120,6 +148,17 @@ static void gbSoundChannel1(int *r, int *l, int balance, int quality)
     int freq = 0;
 
     int value = 0;
+
+    if(S1.cont && S1.len > 0)
+    {
+        S1.len-=quality;
+
+        if(S1.len <=0)
+        {
+            R_NR52 &= 0xfe;
+            S1.on = 0;
+        }
+    }
 
     if(!S1.on)
         return;
@@ -134,17 +173,6 @@ static void gbSoundChannel1(int *r, int *l, int balance, int quality)
 
     if (balance & 1) *r += value;
     if (balance & 16) *l += value;
-
-    if(S1.len) 
-    {
-        S1.len-=quality;
-
-        if(S1.len <=0 && S1.cont) 
-        {
-            R_NR52 &= 0xfe;
-            S1.on = 0;
-        }
-    }
 
     if(S1.enlen)
     {
@@ -218,6 +246,15 @@ static void gbSoundChannel2(int *r, int *l, int balance, int quality)
   
     int value = 0;
 
+    if(S2.cont && S2.len > 0) {
+        S2.len-=quality;
+
+        if(S2.len <= 0) {
+            R_NR52 &= 0xfd;
+            S2.on = 0;
+        }
+    }
+
     if(!S2.on)
         return;
     
@@ -232,15 +269,6 @@ static void gbSoundChannel2(int *r, int *l, int balance, int quality)
     if (balance & 2) *r += value;
     if (balance & 32) *l += value;
 
-    if(S2.len) {
-        S2.len-=quality;
-        
-        if(S2.len <= 0 && S2.cont) {
-            R_NR52 &= 0xfd;
-            S2.on = 0;
-        }
-    }
-    
     if(S2.enlen) {
         S2.enlen-=quality;
       
@@ -260,6 +288,16 @@ static void gbSoundChannel2(int *r, int *l, int balance, int quality)
 static void gbSoundChannel3(int *r, int *l, int balance, int quality)
 {
     int s;
+
+    if(S3.cont && S3.len > 0)
+    {
+        S3.len-=quality;
+        if(S3.len<=0)
+        {
+            R_NR52 &= 0xFB;
+            S3.on=0;
+        }
+    }
 
     if(!S3.on)
         return;
@@ -295,15 +333,6 @@ static void gbSoundChannel3(int *r, int *l, int balance, int quality)
         if (balance & 64) *l += s;
     }
 
-    if(S3.len)
-    {
-        S3.len-=quality;
-        if(S3.len<=0 && S3.cont)
-        {
-            R_NR52 &= 0xFB;
-            S3.on=0;
-        }
-    }
 }
 
 static void gbSoundChannel4(int *r, int *l, int balance, int quality)
@@ -311,6 +340,15 @@ static void gbSoundChannel4(int *r, int *l, int balance, int quality)
     int vol = S4.envol;
   
     int value = 0;
+
+    if(S4.cont && S4.len > 0) {
+        S4.len-=quality;
+
+        if(S4.len <= 0) {
+            R_NR52 &= 0xf7;
+            S4.on = 0;
+        }
+    }
 
     if(!S4.on)
         return;
@@ -354,15 +392,6 @@ static void gbSoundChannel4(int *r, int *l, int balance, int quality)
     if (balance & 8) *r += value;
     if (balance & 128) *l += value;
   
-    if(S4.len) {
-        S4.len-=quality;
-        
-        if(S4.len <= 0 && S4.cont) {
-            R_NR52 &= 0xfd;
-            S4.on = 0;
-        }
-    }
-    
     if(S4.enlen) {
         S4.enlen-=quality;
         
@@ -457,18 +486,39 @@ byte sound_read(byte r)
     if(!options.sound) return 0;
     sound_mix();
     /* printf("read %02X: %02X\n", r, REG(r)); */
+    if (r >= RI_NR10 && r <= 0x3f)
+        return REG(r) | sound_read_mask[r - RI_NR10];
     return REG(r);
 }
 
 void sound_write(byte r, byte b)
 {
     int freq=0;
-    ram.hi[r]=b;
 
     if(!options.sound)
         return;
 
     sound_mix();
+
+    if (r >= 0x30 && r <= 0x3f)
+    {
+        ram.hi[r] = b;
+        return;
+    }
+
+    if (r == RI_NR52)
+    {
+        if (b & 0x80)
+            R_NR52 = (R_NR52 & 0x0f) | 0x80;
+        else
+            sound_power_off();
+        return;
+    }
+
+    if (!(R_NR52 & 0x80))
+        return;
+
+    ram.hi[r]=b;
 
     switch (r)
     {
@@ -479,17 +529,21 @@ void sound_write(byte r, byte b)
         S1.swstep = 0;
         break;
     case RI_NR11:
-        S1.len = 172 * (64 - (b & 0x3f));
+        S1.len = SOUND_LENGTH_UNIT * (64 - (b & 0x3f));
         S1.wave = soundWavePattern[b >> 6];
         break;
     case RI_NR12:
         S1.envol = b >> 4;
         S1.endir = b & 0x08;
         S1.enlenreload = S1.enlen = 689 * (b & 7);
+        if (!sound_env_dac_enabled(b))
+        {
+            R_NR52 &= 0xfe;
+            S1.on = 0;
+        }
         break;
     case RI_NR13:
         freq = (((int)(R_NR14 & 7)) << 8) | b;
-        S1.len = 172 * (64 - (R_NR11 & 0x3f));
         freq = 2048 - freq;
         if(freq)
         {
@@ -503,7 +557,6 @@ void sound_write(byte r, byte b)
     case RI_NR14:
         freq = (((int)(b&7) << 8) | R_NR13);
         freq = 2048 - freq;
-        S1.len = 172 * (64 - (R_NR11 & 0x3f));
         S1.cont = b & 0x40;
         if(freq) 
         {
@@ -515,10 +568,10 @@ void sound_write(byte r, byte b)
         }
         if(b & 0x80)
         {
-            R_NR52 |= 1;
             S1.envol = R_NR12 >> 4;
             S1.endir = R_NR12 & 0x08;
-            S1.len = 172 * (64 - (R_NR11 & 0x3f));
+            if (S1.len <= 0)
+                S1.len = SOUND_LENGTH_UNIT * 64;
             S1.enlenreload = S1.enlen = 689 * (R_NR12 & 7);
             S1.swlen = S1.swlenreload = 344 * ((R_NR10 >> 4) & 7);
             S1.swsteps = R_NR10 & 7;
@@ -526,21 +579,34 @@ void sound_write(byte r, byte b)
             S1.swstep = 0;
   
             S1.pos = 0;
-            S1.on = 1;
+            if (sound_env_dac_enabled(R_NR12))
+            {
+                R_NR52 |= 1;
+                S1.on = 1;
+            }
+            else
+            {
+                R_NR52 &= 0xfe;
+                S1.on = 0;
+            }
         }
         break;
     case RI_NR21:
         S2.wave = soundWavePattern[b >> 6];
-        S2.len = 172 * (64 - (b & 0x3f));
+        S2.len = SOUND_LENGTH_UNIT * (64 - (b & 0x3f));
         break;
     case RI_NR22:
         S2.envol = b >> 4;
         S2.endir = b & 0x08;
         S2.enlenreload = S2.enlen = 689 * (b & 7);
+        if (!sound_env_dac_enabled(b))
+        {
+            R_NR52 &= 0xfd;
+            S2.on = 0;
+        }
         break;
     case RI_NR23:
         freq = (((int)(R_NR24 & 7)) << 8) | b;
-        S2.len = 172 * (64 - (R_NR21 & 0x3f));
         freq = 2048 - freq;
         if(freq)
         {
@@ -554,21 +620,29 @@ void sound_write(byte r, byte b)
     case RI_NR24:
         freq = (((int)(b&7) << 8) | R_NR23);
         freq = 2048 - freq;
-        S2.len = 172 * (64 - (R_NR21 & 0x3f));
         S2.cont = b & 0x40;
         if(freq) {
             S2.skip = SOUND_MAGIC / freq;
         } else
             S2.skip = 0;
         if(b & 0x80) {
-            R_NR52 |= 2;
             S2.envol = R_NR22 >> 4;
             S2.endir = R_NR22 & 0x08;
-            S2.len = 172 * (64 - (R_NR21 & 0x3f));
+            if (S2.len <= 0)
+                S2.len = SOUND_LENGTH_UNIT * 64;
             S2.enlenreload = S2.enlen = 689 * (R_NR22 & 7);
 
             S2.pos = 0;
-            S2.on = 1;
+            if (sound_env_dac_enabled(R_NR22))
+            {
+                R_NR52 |= 2;
+                S2.on = 1;
+            }
+            else
+            {
+                R_NR52 &= 0xfd;
+                S2.on = 0;
+            }
         }
         break;
     case RI_NR30:
@@ -578,7 +652,7 @@ void sound_write(byte r, byte b)
         }
         break;
     case RI_NR31:
-        S3.len = (256-R_NR31) * 172;
+        S3.len = (256-R_NR31) * SOUND_LENGTH_UNIT;
         break;
     case RI_NR32:
         S3.outputlevel = (b >> 5) & 3;
@@ -599,21 +673,35 @@ void sound_write(byte r, byte b)
             S3.skip = 0;
 
         S3.cont=b & 0x40;
-        if((b & 0x80) && (R_NR30 & 0x80))
+        if(b & 0x80)
         {
-            R_NR52 |= 4;
-            S3.len = 172 * (256 - R_NR31);
+            if (S3.len <= 0)
+                S3.len = SOUND_LENGTH_UNIT * 256;
             S3.pos = 0;
-            S3.on = 1;
+            if (R_NR30 & 0x80)
+            {
+                R_NR52 |= 4;
+                S3.on = 1;
+            }
+            else
+            {
+                R_NR52 &= 0xfb;
+                S3.on = 0;
+            }
         }
         break;
     case RI_NR41:
-        S4.len = 172 * (64 - (b & 0x3f));
+        S4.len = SOUND_LENGTH_UNIT * (64 - (b & 0x3f));
         break;
     case RI_NR42:
         S4.envol = b >> 4;
         S4.endir = b & 0x08;
         S4.enlenreload = S4.enlen = 689 * (b & 7);
+        if (!sound_env_dac_enabled(b))
+        {
+            R_NR52 &= 0xf7;
+            S4.on = 0;
+        }
         break;
     case RI_NR43:
         freq = soundFreqRatio[b & 7];
@@ -629,10 +717,10 @@ void sound_write(byte r, byte b)
         S4.cont = b & 0x40;
         if(b & 0x80)
         {
-            R_NR52 |= 8;
             S4.envol = R_NR42 >> 4;
             S4.endir = R_NR42 & 0x08;
-            S4.len = 172 * (64 - (R_NR41 & 0x3f));
+            if (S4.len <= 0)
+                S4.len = SOUND_LENGTH_UNIT * 64;
             S4.enlenreload = S4.enlen = 689 * (R_NR42 & 7);
 
             S4.on = 1;
@@ -657,6 +745,16 @@ void sound_write(byte r, byte b)
             {
                 S4.shiftright = 0x7f;
             }
+            if (sound_env_dac_enabled(R_NR42))
+            {
+                R_NR52 |= 8;
+                S4.on = 1;
+            }
+            else
+            {
+                R_NR52 &= 0xf7;
+                S4.on = 0;
+            }
         }
         break;
     case RI_NR50:
@@ -665,15 +763,6 @@ void sound_write(byte r, byte b)
         break;
     case RI_NR51:
         snd.balance = b;
-        break;
-    case RI_NR52:
-        if (!(b & 0x80))
-        {
-            S1.on=0;
-            S2.on=0;
-            S3.on=0;
-            S4.on=0;
-        }
         break;
     }
     
@@ -714,6 +803,8 @@ void sound_reset(void)
     S4.clock = 0;
     S4.shiftright = 0x7f;
     S4.nsteps = 0;
+
+    R_NR52 = 0x80;
 
     sound_write(0x10, 0x80);
     sound_write(0x11, 0xbf);

@@ -34,6 +34,15 @@ Passed on 2026-06-20:
 - `blargg/oam_bug/rom_singles/1-lcd_sync.gb`: on-screen `Passed`
   - The staged ROM must be run with `--force-dmg` because the original header
     is CGB-compatible and Rockboy otherwise starts it in CGB mode.
+- `blargg/dmg_sound/rom_singles/01-registers.gb`: on-screen `Passed`
+  - Sound register reads now return the DMG fixed read-one bits, APU power-off
+    clears NR10-NR51, powered-off register writes are ignored, and wave RAM
+    remains readable/writable.
+- `blargg/dmg_sound/rom_singles/02-len ctr.gb`: on-screen `Passed`
+  - Trigger writes now preserve nonzero length counters, zero length reloads to
+    the channel maximum, length counters only clock while length enable is set,
+    disabled channels can still clock length, and DAC-off writes immediately
+    clear channel status.
 
 Fixed during this pass:
 
@@ -51,6 +60,9 @@ Fixed during this pass:
 - Simulator serial output now logs SB/SC test-ROM output.
 - LCD enable now advances the first visible scanline at the boundary expected
   by `oam_bug/rom_singles/1-lcd_sync.gb`.
+- DMG sound register masks, APU power-off semantics, wave RAM write/read
+  behavior, length counter reload/preserve behavior, length-enable clocking,
+  and DAC-gated channel status now match Blargg's first two DMG sound groups.
 
 Known failures from the expanded 2026-06-20 simulator pass:
 
@@ -59,7 +71,10 @@ Known failures from the expanded 2026-06-20 simulator pass:
   - Failing groups: `02`, `04`, `05`, `07`, `08`.
   - Remaining cause: Rockboy still does not emulate the DMG OAM corruption bug
     caused by OAM accesses and 16-bit IDU operations during PPU mode 2.
-- `blargg/dmg_sound/dmg_sound.gb`: all 12 groups failed on-screen.
+- `blargg/dmg_sound/dmg_sound.gb`: groups `01` and `02` pass on-screen.
+  Groups `03`-`12` still fail; the next known blocker is
+  `rom_singles/03-trigger.gb`, which requires a stable APU frame-sequencer
+  phase model for write-time length-enable/trigger extra clocks.
 - `blargg/cgb_sound/cgb_sound.gb`: group `10` passed; the other groups failed
   on-screen.
 
