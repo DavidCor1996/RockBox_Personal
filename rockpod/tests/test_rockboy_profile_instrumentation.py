@@ -56,6 +56,16 @@ def test_simulator_profile_autowrite_is_opt_in_and_target_gated():
     assert "rockboy_profile_start(rom_path)" in rockboy
 
 
+def test_simulator_serial_log_is_opt_in_and_target_gated():
+    mem = _read("apps/plugins/rockboy/mem.c")
+
+    assert "ROCKBOY_SERIAL_LOG" in mem
+    assert "#ifdef SIMULATOR" in mem
+    assert "case RI_SB:" in mem
+    assert "rockboy_serial_log_byte(R_SB);" in mem
+    assert 'snprintf(path, sizeof(path), "%s/serial.log", savedir);' in mem
+
+
 def test_profile_hot_path_calls_are_inline_guarded():
     profiler_h = _read("apps/plugins/rockboy/profiler.h")
     profiler_c = _read("apps/plugins/rockboy/profiler.c")
@@ -103,3 +113,32 @@ def test_cpu_interpreter_scratch_state_stays_local():
     assert "union reg acc;" in cpu
     assert "static byte op IBSS_ATTR" not in cpu
     assert "static union reg acc IBSS_ATTR" not in cpu
+
+
+def test_pop_af_masks_unused_flag_bits():
+    cpu = _read("apps/plugins/rockboy/cpu.c")
+
+    assert "F=LB(acc)&0xF0;" in cpu
+    assert "F &= 0xF0;" in cpu
+
+
+def test_daa_uses_explicit_gameboy_flag_math():
+    cpu = _read("apps/plugins/rockboy/cpu.c")
+
+    assert "if ((F & FH) || ((A & 0x0F) > 0x09)) b |= 0x06;" in cpu
+    assert "if ((F & FC) || (A > 0x99)) { b |= 0x60; w = FC; }" in cpu
+    assert "F = (F & FN) | ZFLAG(A) | w;" in cpu
+
+
+def test_halt_idles_without_requiring_ime():
+    cpu = _read("apps/plugins/rockboy/cpu.c")
+
+    assert "if (!cpu.halt) return 0;" in cpu
+    assert "if (!(cpu.halt && IME)) return 0;" not in cpu
+
+
+def test_sp_relative_add_uses_low_byte_flag_math():
+    cpu = _read("apps/plugins/rockboy/cpu.c")
+
+    assert "((SP & 0x0F) + ((n) & 0x0F) > 0x0F) ? FH : 0" in cpu
+    assert "((SP & 0xFF) + (n) > 0xFF) ? FC : 0" in cpu

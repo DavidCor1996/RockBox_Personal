@@ -11,6 +11,42 @@
 #include "lcdc.h"
 #include "sound.h"
 
+#ifdef SIMULATOR
+#include <stdlib.h>
+
+#define ROCKBOY_SERIAL_LOG_ENV "ROCKBOY_SERIAL_LOG"
+
+static int rockboy_serial_log_fd = -2;
+
+static bool rockboy_serial_log_enabled(void)
+{
+    const char *value = getenv(ROCKBOY_SERIAL_LOG_ENV);
+
+    return value && value[0] && strcmp(value, "0");
+}
+
+static void rockboy_serial_log_byte(byte b)
+{
+    char path[128];
+
+    if (rockboy_serial_log_fd == -2) {
+        rockboy_serial_log_fd = -1;
+        if (rockboy_serial_log_enabled()) {
+            snprintf(path, sizeof(path), "%s/serial.log", savedir);
+            rockboy_serial_log_fd = open(path, O_WRONLY | O_CREAT | O_APPEND, 0666);
+        }
+    }
+
+    if (rockboy_serial_log_fd >= 0)
+        write(rockboy_serial_log_fd, &b, 1);
+}
+#else
+static inline void rockboy_serial_log_byte(byte b)
+{
+    (void)b;
+}
+#endif
+
 struct mbc mbc IBSS_ATTR;
 struct rom rom IBSS_ATTR;
 struct ram ram;
@@ -125,6 +161,7 @@ static void ioreg_write(byte r, byte b)
     case RI_TAC:
     case RI_SCY:
     case RI_SCX:
+    case RI_SB:
     case RI_WY:
     case RI_WX:
         REG(r) = b;
@@ -157,6 +194,7 @@ static void ioreg_write(byte r, byte b)
         /* FIXME - this is a hack for stupid roms that probe serial */
         if ((b & 0x81) == 0x81)
         {
+            rockboy_serial_log_byte(R_SB);
             R_SB = 0xff;
             hw_interrupt(IF_SERIAL, IF_SERIAL);
             hw_interrupt(0, IF_SERIAL);

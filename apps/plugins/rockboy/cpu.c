@@ -59,14 +59,14 @@ HL = W(acc); }
 
 #define ADDSP(n) { \
 DW(acc) = (un32)SP + (un32)(n8)(n); \
-F = (FH & (((SP>>8) ^ ((n)>>8) ^ HB(acc)) << 1)) \
-| (acc.b[HI][LO] << 4); \
+F = (((SP & 0x0F) + ((n) & 0x0F) > 0x0F) ? FH : 0) \
+| (((SP & 0xFF) + (n) > 0xFF) ? FC : 0); \
 SP = W(acc); }
 
 #define LDHLSP(n) { \
 DW(acc) = (un32)SP + (un32)(n8)(n); \
-F = (FH & (((SP>>8) ^ ((n)>>8) ^ HB(acc)) << 1)) \
-| (acc.b[HI][LO] << 4); \
+F = (((SP & 0x0F) + ((n) & 0x0F) > 0x0F) ? FH : 0) \
+| (((SP & 0xFF) + (n) > 0xFF) ? FC : 0); \
 HL = W(acc); }
 
 #define CP(n) { \
@@ -140,8 +140,18 @@ F |= (FH|FN); }
 #define CCF { F = (F & (FZ|FC)) ^ FC; }
 
 #define DAA { \
-A += (LB(acc) = daa_table[((((int)F)&0x70)<<4) | A]); \
-F = (F & (FN)) | ZFLAG(A) | daa_carry_table[LB(acc)>>2]; }
+b = 0; \
+w = 0; \
+if (!(F & FN)) { \
+    if ((F & FH) || ((A & 0x0F) > 0x09)) b |= 0x06; \
+    if ((F & FC) || (A > 0x99)) { b |= 0x60; w = FC; } \
+    A += b; \
+} else { \
+    if (F & FH) b |= 0x06; \
+    if (F & FC) { b |= 0x60; w = FC; } \
+    A -= b; \
+} \
+F = (F & FN) | ZFLAG(A) | w; }
 
 #define SWAP(r) { \
 (r) = swap_table[(r)]; \
@@ -335,7 +345,7 @@ static int cpu_idle(int max)
 {
     int cnt, unit;
 
-    if (!(cpu.halt && IME)) return 0;
+    if (!cpu.halt) return 0;
 	if (R_IF & R_IE)
 	{
 		cpu.halt = 0;
@@ -877,11 +887,12 @@ next:
 #ifdef DYNAREC
         POP(W(acc));
         A=HB(acc);
-        F=LB(acc);
+        F=LB(acc)&0xF0;
 #else
         POP(AF); 
-        break;
+        F &= 0xF0;
 #endif
+        break;
     case 0xF5: /* PUSH AF */
         PUSH(AF); break;
 
