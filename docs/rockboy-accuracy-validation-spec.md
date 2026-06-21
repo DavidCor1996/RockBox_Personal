@@ -25,6 +25,10 @@ Passed on 2026-06-20:
 - `blargg/mem_timing-2/mem_timing.gb`: on-screen `Passed`
   - This ROM did not emit a serial log in the simulator run, so the result was
     verified by simulator screenshot instead of `serial.log`.
+- `blargg/interrupt_time/interrupt_time.gb`: on-screen `Passed`
+  - The final rows report `0D`, matching the expected interrupt-entry timing.
+- `blargg/halt_bug.gb`: on-screen `Passed`
+  - The test verifies the DMG HALT PC increment bug and IF unused-bit readback.
 
 Fixed during this pass:
 
@@ -32,6 +36,12 @@ Fixed during this pass:
 - `DAA` now uses explicit Game Boy flag math.
 - `HALT` now idles even when IME is clear and wakes on enabled pending
   interrupts.
+- DMG `HALT` with `IME=0` and pending `IE & IF` now suppresses the next opcode
+  fetch PC increment, matching the HALT bug.
+- Interrupt entry now charges five machine cycles before the interrupt handler
+  instruction stream continues.
+- IF register reads now return bits 5-7 set while writes remain masked to the
+  implemented low interrupt bits.
 - `ADD SP,e8` and `LD HL,SP+e8` now use low-byte carry and half-carry flags.
 - Simulator serial output now logs SB/SC test-ROM output.
 

@@ -139,6 +139,17 @@ def test_halt_idles_without_requiring_ime():
     assert "if (!(cpu.halt && IME)) return 0;" not in cpu
 
 
+def test_dmg_halt_bug_skips_next_pc_increment():
+    cpu = _read("apps/plugins/rockboy/cpu.c")
+    cpu_h = _read("apps/plugins/rockboy/cpu-gb.h")
+
+    assert "unsigned int halt_bug;" in cpu_h
+    assert "static byte cpu_fetch_byte(void)" in cpu
+    assert "if (cpu.halt_bug)" in cpu
+    assert "cpu.halt_bug = 1;" in cpu
+    assert "if (!IME && (IF & IE))" in cpu
+
+
 def test_sp_relative_add_uses_low_byte_flag_math():
     cpu = _read("apps/plugins/rockboy/cpu.c")
 
@@ -155,3 +166,18 @@ def test_cpu_memory_access_timing_splits_instruction_cycles():
     assert "cpu_finish_instruction_timing(clen);" in cpu
     assert "cpu.mem_access_total = clen;" in cpu
     assert "int mem_access_active;" in cpu_h
+
+
+def test_interrupt_entry_charges_five_machine_cycles():
+    cpu = _read("apps/plugins/rockboy/cpu.c")
+
+    assert "static int cpu_interrupt_entry_timing(void)" in cpu
+    assert "int cycles = 5;" in cpu
+    assert "i -= cpu_interrupt_entry_timing();" in cpu
+
+
+def test_if_register_reads_with_unused_bits_set():
+    mem = _read("apps/plugins/rockboy/mem.c")
+
+    assert "case RI_IF:" in mem
+    assert "return REG(r) | 0xE0;" in mem

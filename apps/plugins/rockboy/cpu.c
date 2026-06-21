@@ -23,7 +23,20 @@ bool plugbuf;
 #define PUSH(w) ( (SP -= 2), (writew(xSP, (w))) )
 #define POP(w) ( ((w) = readw(xSP)), (SP += 2) )
 
-#define FETCH (readb(PC++))
+static byte cpu_fetch_byte(void) ICODE_ATTR;
+static byte cpu_fetch_byte(void)
+{
+    byte value = readb(PC);
+
+    if (cpu.halt_bug)
+        cpu.halt_bug = 0;
+    else
+        PC++;
+
+    return value;
+}
+
+#define FETCH cpu_fetch_byte()
 
 
 #define INC(r) { ((r)++); \
@@ -256,6 +269,7 @@ void cpu_reset(void)
 #endif
     cpu.speed = 0;
     cpu.halt = 0;
+    cpu.halt_bug = 0;
     cpu.div = 0;
     cpu.tim = 0;
     cpu.lcdc = 40;
@@ -355,6 +369,17 @@ static void cpu_advance_instruction_cycle(void)
     lcdc_advance(cnt);
     if(options.sound)
         sound_advance(cnt);
+}
+
+static int cpu_interrupt_entry_timing(void) ICODE_ATTR;
+static int cpu_interrupt_entry_timing(void)
+{
+    int cycles = 5;
+
+    while (cycles--)
+        cpu_advance_instruction_cycle();
+
+    return 10;
 }
 
 static void cpu_start_instruction_timing(int total) ICODE_ATTR;
@@ -474,6 +499,9 @@ next:
         case 0x10:
             THROW_INT(4); break;
         }
+        i -= cpu_interrupt_entry_timing();
+        if (i <= 0)
+            return cycles - i;
     }
     IME = IMA;
     
@@ -974,7 +1002,10 @@ next:
         break;
             
     case 0x76: /* HALT */
-        cpu.halt = 1;
+        if (!IME && (IF & IE))
+            cpu.halt_bug = 1;
+        else
+            cpu.halt = 1;
         break;
 
     case 0xCB: /* CB prefix */

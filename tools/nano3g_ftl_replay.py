@@ -269,6 +269,10 @@ def page_l0(page: DumpPage) -> int:
     return l0
 
 
+def page_entry_l0(page: DumpPage) -> int:
+    return int(page.meta.get("l0", page_l0(page)))
+
+
 def is_boot_candidate_page(page: DumpPage) -> bool:
     return page.kind != "map" and page_l0(page) != 0xFFFFFFFF
 
@@ -277,7 +281,7 @@ def page_entry_key(page: DumpPage) -> tuple[int, int, int]:
     return (
         int(page.meta.get("j", 0xFFFFFFFF)),
         int(page.meta.get("v", 0xFFFF)),
-        page_l0(page),
+        page_entry_l0(page),
     )
 
 
@@ -297,7 +301,7 @@ def find_entry_covering_lba(
     for page in pages:
         if not is_boot_candidate_page(page):
             continue
-        l0 = page_l0(page)
+        l0 = page_entry_l0(page)
         if l0 == 0:
             continue
         key = page_entry_key(page)

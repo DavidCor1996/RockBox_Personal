@@ -292,8 +292,9 @@ static byte ioreg_read(byte r)
     case RI_WY:
     case RI_WX:
     case RI_IE:
-    case RI_IF:
         return REG(r);
+    case RI_IF:
+        return REG(r) | 0xE0;
     case RI_VBK:
     case RI_BCPS:
     case RI_OCPS:

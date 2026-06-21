@@ -25,6 +25,7 @@ struct cpu
     int ime, ima;
     unsigned int speed;
     unsigned int halt;
+    unsigned int halt_bug;
     unsigned int div;
     int tim;
     int lcdc;
