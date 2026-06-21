@@ -58,6 +58,11 @@ static int scanline_ind=0;
 #endif
 
 static int dmg_pal[4][4];
+static const int bg_wraptable[64] =
+{
+    0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,-32
+};
 
 #if defined(HAVE_LCD_MODES) && (HAVE_LCD_MODES & LCD_MODE_PAL256)
 unsigned char *vdest;
@@ -240,18 +245,13 @@ static void tilebuf(void)
     int base;
     byte *tilemap, *attrmap;
     int *tilebuf;
-    int *wrap;
-    static int wraptable[64] =
-    {
-        0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,
-        0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,-32
-    };
+    const int *wrap;
 
     base = ((R_LCDC&0x08)?0x1C00:0x1800) + (T<<5) + S;
     tilemap = lcd.vbank[0] + base;
     attrmap = lcd.vbank[1] + base;
     tilebuf = BG;
-    wrap = wraptable + S;
+    wrap = bg_wraptable + S;
     cnt = ((WX + 7) >> 3) + 1;
 
     if (hw.cgb) {
@@ -329,6 +329,110 @@ static void tilebuf(void)
             for (i = cnt; i > 0; i--)
                 *(tilebuf++) = (256 + ((n8)*(tilemap++)));
     }
+}
+
+static int dmg_bg_tile(byte tile)
+{
+    if (R_LCDC & 0x10)
+        return tile;
+    return 256 + (n8)tile;
+}
+
+static void blendcpy(byte *dest, byte *src, byte b, int cnt);
+
+static int cgb_bg_tile(byte tile, byte attr)
+{
+    int tile_index;
+
+    if (R_LCDC & 0x10)
+        tile_index = tile;
+    else
+        tile_index = 256 + (n8)tile;
+
+    return tile_index | (((int)attr & 0x08) << 6) |
+        (((int)attr & 0x60) << 5);
+}
+
+static void dmg_bg_only_scan(void) ICODE_ATTR;
+static void dmg_bg_only_scan(void)
+{
+    int cnt = 160;
+    int chunk = 8 - U;
+    int base = ((R_LCDC&0x08)?0x1C00:0x1800) + (T<<5) + S;
+    byte *tilemap = lcd.vbank[0] + base;
+    byte *dest = BUF;
+    const int *wrap = bg_wraptable + S;
+    byte *src;
+
+    src = patpix[dmg_bg_tile(*tilemap)][V] + U;
+    tilemap += *wrap + 1;
+    wrap++;
+    memcpy(dest, src, chunk);
+    dest += chunk;
+    cnt -= chunk;
+
+    while (cnt >= 8)
+    {
+        src = patpix[dmg_bg_tile(*tilemap)][V];
+        tilemap += *wrap + 1;
+        wrap++;
+        memcpy(dest, src, 8);
+        dest += 8;
+        cnt -= 8;
+    }
+
+    if (cnt)
+    {
+        src = patpix[dmg_bg_tile(*tilemap)][V];
+        while (cnt--)
+            *(dest++) = *(src++);
+    }
+}
+
+static void cgb_bg_only_scan(void)
+{
+    int cnt = 160;
+    int chunk = 8 - U;
+    int base = ((R_LCDC&0x08)?0x1C00:0x1800) + (T<<5) + S;
+    byte *tilemap = lcd.vbank[0] + base;
+    byte *attrmap = lcd.vbank[1] + base;
+    byte *dest = BUF;
+    const int *wrap = bg_wraptable + S;
+    byte *src;
+    byte attr;
+
+    attr = *attrmap;
+    src = patpix[cgb_bg_tile(*tilemap, attr)][V] + U;
+    blendcpy(dest, src, (attr & 0x07) << 2, chunk);
+    tilemap += *wrap + 1;
+    attrmap += *wrap + 1;
+    wrap++;
+    dest += chunk;
+    cnt -= chunk;
+
+    while (cnt >= 8)
+    {
+        attr = *attrmap;
+        src = patpix[cgb_bg_tile(*tilemap, attr)][V];
+        blendcpy(dest, src, (attr & 0x07) << 2, 8);
+        tilemap += *wrap + 1;
+        attrmap += *wrap + 1;
+        wrap++;
+        dest += 8;
+        cnt -= 8;
+    }
+
+    if (cnt)
+    {
+        attr = *attrmap;
+        src = patpix[cgb_bg_tile(*tilemap, attr)][V];
+        blendcpy(dest, src, (attr & 0x07) << 2, cnt);
+    }
+}
+
+static bool fast_line_rendering_enabled(void)
+{
+    return options.performance_preset != ROCKBOY_PERF_QUALITY;
 }
 
 
@@ -933,6 +1037,8 @@ void setvidmode(void)
 void lcd_refreshline(void)
 {
     unsigned long render_start = *rb->current_tick;
+    bool dmg_bg_only_eligible;
+    bool cgb_bg_only_eligible;
 
     if (!(R_LCDC & 0x80))
         return; /* should not happen... */
@@ -987,24 +1093,47 @@ void lcd_refreshline(void)
             rockboy_profile_count(ROCKBOY_EVENT_LCD_DMG_BG_WINDOW_NO_SPR_ELIGIBLE, 1);
     }
     if (hw.cgb && !NS)
-        rockboy_profile_count(ROCKBOY_EVENT_LCD_CGB_NO_SPRITE_LINES, 1);
-
-    tilebuf();
-    if (hw.cgb)
     {
-        bg_scan_color();
-        wnd_scan_color();
-        if (NS)
-        {
-            bg_scan_pri();
-            wnd_scan_pri();
-        }
+        rockboy_profile_count(ROCKBOY_EVENT_LCD_CGB_NO_SPRITE_LINES, 1);
+        if (WX == 160)
+            rockboy_profile_count(ROCKBOY_EVENT_LCD_CGB_BG_ONLY_ELIGIBLE, 1);
+    }
+
+    dmg_bg_only_eligible = !hw.cgb && !NS && WX == 160;
+    cgb_bg_only_eligible = hw.cgb && !NS && WX == 160;
+    if (dmg_bg_only_eligible && fast_line_rendering_enabled())
+    {
+        rockboy_profile_count(ROCKBOY_EVENT_LCD_DMG_BG_ONLY_USED, 1);
+        dmg_bg_only_scan();
+    }
+    else if (cgb_bg_only_eligible && fast_line_rendering_enabled())
+    {
+        rockboy_profile_count(ROCKBOY_EVENT_LCD_CGB_BG_ONLY_USED, 1);
+        cgb_bg_only_scan();
     }
     else
     {
+        if (dmg_bg_only_eligible)
+            rockboy_profile_count(ROCKBOY_EVENT_LCD_DMG_BG_ONLY_REJECTED, 1);
+        if (cgb_bg_only_eligible)
+            rockboy_profile_count(ROCKBOY_EVENT_LCD_CGB_BG_ONLY_REJECTED, 1);
+        tilebuf();
+        if (hw.cgb)
+        {
+            bg_scan_color();
+            wnd_scan_color();
+            if (NS)
+            {
+                bg_scan_pri();
+                wnd_scan_pri();
+            }
+        }
+        else
+        {
 
-        bg_scan();
-        wnd_scan();
+            bg_scan();
+            wnd_scan();
+        }
     }
     if (NS)
         spr_scan();

@@ -100,3 +100,16 @@ def test_write_rockboy_direct_start_preserves_existing_start_screen_metadata(tmp
         gate.LANG_START_SCREEN,
         0x22222222,
     )
+
+
+def test_rom_only_replaces_default_patterns(monkeypatch):
+    gate = _load_gate()
+    captured = {}
+
+    def fake_prepare(args):
+        captured["rom"] = args.rom
+
+    monkeypatch.setattr(gate, "prepare", fake_prepare)
+
+    assert gate.main(["--rom-only", "Pokemon*.gb", "--direct-start"]) == 0
+    assert captured["rom"] == ["Pokemon*.gb"]

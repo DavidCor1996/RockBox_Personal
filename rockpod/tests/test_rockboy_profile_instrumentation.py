@@ -20,6 +20,11 @@ def test_profile_log_includes_phase1_detail_counters():
         "vram_dirty_writes=%lu",
         "lcd_lines=%lu",
         "dmg_bg_only_eligible=%lu",
+        "dmg_bg_only_used=%lu",
+        "dmg_bg_only_rejected=%lu",
+        "cgb_bg_only_eligible=%lu",
+        "cgb_bg_only_used=%lu",
+        "cgb_bg_only_rejected=%lu",
         "cgb_no_sprite_lines=%lu",
     ):
         assert field in profiler
@@ -60,3 +65,28 @@ def test_no_sprite_lines_skip_sprite_scan_call():
     lcd = _read("apps/plugins/rockboy/lcd.c")
 
     assert "if (NS)\n        spr_scan();" in lcd
+
+
+def test_dmg_background_only_fast_path_is_guarded():
+    lcd = _read("apps/plugins/rockboy/lcd.c")
+
+    assert "static void dmg_bg_only_scan(void)" in lcd
+    assert "static void cgb_bg_only_scan(void)" in lcd
+    assert "dmg_bg_only_eligible = !hw.cgb && !NS && WX == 160;" in lcd
+    assert "cgb_bg_only_eligible = hw.cgb && !NS && WX == 160;" in lcd
+    assert "fast_line_rendering_enabled()" in lcd
+    assert "ROCKBOY_PERF_QUALITY" in lcd
+    assert "ROCKBOY_EVENT_LCD_DMG_BG_ONLY_USED" in lcd
+    assert "ROCKBOY_EVENT_LCD_DMG_BG_ONLY_REJECTED" in lcd
+    assert "ROCKBOY_EVENT_LCD_CGB_BG_ONLY_USED" in lcd
+    assert "ROCKBOY_EVENT_LCD_CGB_BG_ONLY_REJECTED" in lcd
+
+
+def test_cpu_interpreter_scratch_state_stays_local():
+    cpu = _read("apps/plugins/rockboy/cpu.c")
+
+    assert "byte op;" in cpu
+    assert "byte cbop;" in cpu
+    assert "union reg acc;" in cpu
+    assert "static byte op IBSS_ATTR" not in cpu
+    assert "static union reg acc IBSS_ATTR" not in cpu

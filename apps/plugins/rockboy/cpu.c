@@ -372,12 +372,12 @@ extern int debug_trace;
 int cpu_emulate(int cycles)
 {
     int i;
-    static byte op IBSS_ATTR;
-    static byte cbop IBSS_ATTR;
+    byte op;
+    byte cbop;
     int clen;
-    static union reg acc IBSS_ATTR;
-    static byte b IBSS_ATTR;
-    static word w IBSS_ATTR;
+    union reg acc;
+    byte b;
+    word w;
 
     i = cycles;
 next:

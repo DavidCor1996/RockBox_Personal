@@ -56,6 +56,11 @@ REQUIRED_PROFILE_FIELDS = {
     "dmg_bg_only_eligible",
     "dmg_bg_window_no_spr_eligible",
     "cgb_no_sprite_lines",
+    "dmg_bg_only_used",
+    "dmg_bg_only_rejected",
+    "cgb_bg_only_eligible",
+    "cgb_bg_only_used",
+    "cgb_bg_only_rejected",
 }
 
 DEFAULT_ROM_PATTERNS = (
@@ -241,11 +246,14 @@ def main(argv: list[str]) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--build-dir", default="build-sim-video-5g")
     parser.add_argument("--rom", action="append", default=list(DEFAULT_ROM_PATTERNS))
+    parser.add_argument("--rom-only", action="append")
     parser.add_argument("--prepare", action="store_true")
     parser.add_argument("--validate")
     parser.add_argument("--direct-start", action="store_true")
     parser.add_argument("--autowrite-frames", type=int, default=0)
     args = parser.parse_args(argv)
+    if args.rom_only:
+        args.rom = args.rom_only
 
     if args.validate:
         validate(args)

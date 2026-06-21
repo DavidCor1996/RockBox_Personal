@@ -134,6 +134,8 @@ Status - 2026-06-20:
   clear stale copied `profile.log` data, and print an autowrite simulator
   command. This makes repeatable single-ROM before/after profile runs possible
   without manual menu navigation.
+- `--rom-only` can target one ROM pattern without appending the default corpus,
+  which was used for Pokemon Red and Oracle of Ages direct-start runs.
 - Direct-start validation passed with Tetris in the iPod Video simulator:
   `tools/rockboy_profile_gate.py --validate /tmp/rockboy-profile-gate-4p0ms7cp/simdisk`.
 
@@ -192,6 +194,10 @@ Status - 2026-06-20:
   - Profile event/timing calls are now inline-guarded in `profiler.h`, so
     normal gameplay with profiling off avoids the per-op/per-line profiler
     function calls introduced by instrumentation.
+  - The profile log now records fast-path use/reject counters:
+    `dmg_bg_only_used`, `dmg_bg_only_rejected`,
+    `cgb_bg_only_eligible`, `cgb_bg_only_used`, and
+    `cgb_bg_only_rejected`.
 
 ## Phase 2: CPU Interpreter Hot Path
 
@@ -223,10 +229,14 @@ Acceptance:
 
 Status - 2026-06-20:
 
-- Not implemented yet. This phase is intentionally blocked until Phase 0
-  produces before/after `profile.log` evidence from the ROM corpus. The current
-  work added the harness and counters needed to make that decision without
-  guessing.
+- Started with the lowest-risk interpreter locality change.
+- `cpu_emulate()` now keeps opcode scratch state (`op`, `cbop`, `acc`, `b`,
+  and `w`) as per-call locals instead of `static IBSS` objects, giving the
+  compiler a chance to keep those values in registers in the hot switch loop.
+- The existing switch interpreter remains the compatibility fallback; no
+  threaded dispatch or generated opcode backend has been introduced.
+- Direct-start simulator profile gates still pass after the CPU locality
+  change.
 
 ## Phase 3: LCD Fast-Line Renderer
 
@@ -266,11 +276,31 @@ Status - 2026-06-20:
 - `lcd_refreshline()` now skips the `spr_scan()` function call entirely when
   `spr_enum()` found no visible sprites for the line. Sprite enumeration and
   all full renderer behavior remain unchanged.
-- Direct-start Tetris evidence after the guard:
+- Added background-only direct scan paths:
+  - `DMG_BG_ONLY`: no CGB, no visible sprites, and no window.
+  - `CGB_BG_ONLY`: CGB, no visible sprites, and no window; preserves tile bank,
+    x/y flip, and palette attribute handling.
+- Fast-line rendering is disabled under the existing `Quality` performance
+  preset, giving a runtime fallback for bisection while keeping the current
+  Balanced/Performance presets on the fast path.
+- Direct-start Tetris evidence after the DMG fast path:
   - `lcd_lines=17280`
   - `no_sprite_lines=13688`
   - `dmg_bg_only_eligible=13688`
+  - `dmg_bg_only_used=13688`
+  - `dmg_bg_only_rejected=0`
   - profile validation passed in the iPod Video simulator.
+- Direct-start Oracle of Ages CGB evidence after the CGB fast path:
+  - `cgb_lines=17280`
+  - `cgb_bg_only_eligible=17280`
+  - `cgb_bg_only_used=17280`
+  - `cgb_bg_only_rejected=0`
+  - profile validation passed in the iPod Video simulator.
+- Build validation:
+  - `make -C build-sim-video-5g -j8`
+  - `make -C build-hw-ipodvideo-5g -j8`
+  - hardware rebuild required clearing stale generated Rockboy objects that
+    still referenced the previous profiler function symbols.
 
 ## Phase 4: Compatibility Tiers
 
@@ -282,6 +312,16 @@ Options:
 - `Balanced`: safe fast paths that preserve line-level behavior.
 - `Fast`: opt-in paths that may break rare raster/palette effects but reduce
   frame drops.
+
+Status - 2026-06-20:
+
+- Runtime bisection is available through the existing Rockboy performance
+  preset:
+  - `Quality` uses the full renderer path for background-only lines.
+  - `Balanced` and `Performance` use the measured background-only fast paths.
+- A larger UI rename to `Accurate/Balanced/Fast` has not been done because the
+  current menu already exposes `Balanced/Performance/Quality` and changing
+  persisted option semantics would be higher risk than the renderer work.
 
 Default:
 
