@@ -29,6 +29,9 @@ struct cpu
     int tim;
     int lcdc;
     int snd;
+    int mem_access_active;
+    int mem_access_elapsed;
+    int mem_access_total;
 };
 
 extern struct cpu cpu;
@@ -50,6 +53,7 @@ extern int blockclen;
 
 void cpu_reset(void);
 void cpu_timers(int cnt) ICODE_ATTR;
+void cpu_mem_access(void) ICODE_ATTR;
 int cpu_emulate(int cycles) ICODE_ATTR;
 
 #endif

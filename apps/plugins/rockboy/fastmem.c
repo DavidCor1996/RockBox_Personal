@@ -1,12 +1,19 @@
 
 
 #include "rockmacros.h"
+#include "cpu-gb.h"
 #include "fastmem.h"
 #include "profiler.h"
+
+#define CPU_MEMORY_ACCESS() do { \
+    if (cpu.mem_access_active) \
+        cpu_mem_access(); \
+} while (0)
 
 byte readb(int a)
 {
     byte *p = mbc.rmap[a>>12];
+    CPU_MEMORY_ACCESS();
     if (p) return p[a];
     rockboy_profile_count(ROCKBOY_EVENT_SLOW_MEM_READS, 1);
     return mem_read(a);
@@ -15,6 +22,7 @@ byte readb(int a)
 void writeb(int a, byte b)
 {
     byte *p = mbc.wmap[a>>12];
+    CPU_MEMORY_ACCESS();
     if (p) p[a] = b;
     else
     {
@@ -25,6 +33,8 @@ void writeb(int a, byte b)
 
 int readw(int a)
 {
+    CPU_MEMORY_ACCESS();
+    CPU_MEMORY_ACCESS();
     if ((a+1) & 0xfff)
     {
         byte *p = mbc.rmap[a>>12];
@@ -46,6 +56,8 @@ int readw(int a)
 
 void writew(int a, int w)
 {
+    CPU_MEMORY_ACCESS();
+    CPU_MEMORY_ACCESS();
     if ((a+1) & 0xfff)
     {
         byte *p = mbc.wmap[a>>12];

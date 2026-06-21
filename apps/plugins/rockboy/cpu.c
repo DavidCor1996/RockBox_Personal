@@ -259,6 +259,9 @@ void cpu_reset(void)
     cpu.div = 0;
     cpu.tim = 0;
     cpu.lcdc = 40;
+    cpu.mem_access_active = 0;
+    cpu.mem_access_elapsed = 0;
+    cpu.mem_access_total = 0;
 
     IME = 0;
     IMA = 0;
@@ -339,6 +342,55 @@ void cpu_timers(int cnt)
     lcdc_advance(cnt);
     if(options.sound)
         sound_advance(cnt);
+}
+
+static void cpu_advance_instruction_cycle(void) ICODE_ATTR;
+static void cpu_advance_instruction_cycle(void)
+{
+    int cnt = 2;
+
+    div_advance(cnt);
+    timer_advance(cnt);
+    cnt >>= cpu.speed;
+    lcdc_advance(cnt);
+    if(options.sound)
+        sound_advance(cnt);
+}
+
+static void cpu_start_instruction_timing(int total) ICODE_ATTR;
+static void cpu_start_instruction_timing(int total)
+{
+    cpu.mem_access_active = 1;
+    cpu.mem_access_elapsed = 0;
+    cpu.mem_access_total = total;
+    cpu_mem_access();
+}
+
+static int cpu_finish_instruction_timing(int total) ICODE_ATTR;
+static int cpu_finish_instruction_timing(int total)
+{
+    if (total < cpu.mem_access_elapsed)
+        total = cpu.mem_access_elapsed;
+
+    cpu.mem_access_total = total;
+    while (cpu.mem_access_elapsed < cpu.mem_access_total)
+        cpu_mem_access();
+
+    cpu.mem_access_active = 0;
+    cpu.mem_access_elapsed = 0;
+    cpu.mem_access_total = 0;
+
+    return total << 1;
+}
+
+void cpu_mem_access(void)
+{
+    if (!cpu.mem_access_active ||
+        cpu.mem_access_elapsed >= cpu.mem_access_total)
+        return;
+
+    cpu_advance_instruction_cycle();
+    cpu.mem_access_elapsed++;
 }
 
 static int cpu_idle(int max)
@@ -432,6 +484,7 @@ next:
     op = FETCH;
     rockboy_profile_count(ROCKBOY_EVENT_CPU_OPS, 1);
     clen = cycles_table[op];
+    cpu_start_instruction_timing(op == 0xCB ? 2 : clen);
 
     switch(op)
     {
@@ -927,6 +980,7 @@ next:
     case 0xCB: /* CB prefix */
         cbop = FETCH;
         clen = cb_cycles_table[cbop];
+        cpu.mem_access_total = clen;
         switch (cbop)
         {
             CB_REG_CASES(B, 0);
@@ -1017,13 +1071,7 @@ next:
         
                               
                                                 
-    clen <<= 1;
-    div_advance(clen);
-    timer_advance(clen);
-    clen >>= cpu.speed;
-    lcdc_advance(clen);
-    if(options.sound)
-        sound_advance(clen);
+    clen = cpu_finish_instruction_timing(clen);
 
     i -= clen;
     if (i > 0) goto next;

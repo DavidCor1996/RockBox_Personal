@@ -45,6 +45,8 @@ def test_hot_paths_increment_profile_detail_counters():
     assert "ROCKBOY_EVENT_SLOW_MEM_WRITES" in fastmem
     assert "ROCKBOY_EVENT_VRAM_DIRTY_WRITES" in lcd
     assert "ROCKBOY_EVENT_LCD_DMG_BG_ONLY_ELIGIBLE" in lcd
+    assert "CPU_MEMORY_ACCESS()" in fastmem
+    assert "cpu_mem_access();" in fastmem
 
 
 def test_simulator_profile_autowrite_is_opt_in_and_target_gated():
@@ -142,3 +144,14 @@ def test_sp_relative_add_uses_low_byte_flag_math():
 
     assert "((SP & 0x0F) + ((n) & 0x0F) > 0x0F) ? FH : 0" in cpu
     assert "((SP & 0xFF) + (n) > 0xFF) ? FC : 0" in cpu
+
+
+def test_cpu_memory_access_timing_splits_instruction_cycles():
+    cpu = _read("apps/plugins/rockboy/cpu.c")
+    cpu_h = _read("apps/plugins/rockboy/cpu-gb.h")
+
+    assert "void cpu_mem_access(void)" in cpu
+    assert "cpu_start_instruction_timing(op == 0xCB ? 2 : clen);" in cpu
+    assert "cpu_finish_instruction_timing(clen);" in cpu
+    assert "cpu.mem_access_total = clen;" in cpu
+    assert "int mem_access_active;" in cpu_h
