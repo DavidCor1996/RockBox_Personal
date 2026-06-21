@@ -58,3 +58,15 @@ def test_copy_rom_stages_accuracy_rom_under_gameboy(tmp_path):
 
     assert staged == simdisk / "gameboy" / "accuracy" / "cpu_instrs.gb"
     assert staged.read_bytes() == b"rom"
+
+
+def test_force_dmg_header_patches_staged_cgb_flag(tmp_path):
+    gate = _load_gate()
+    rom = tmp_path / "oam_bug.gb"
+    data = bytearray(0x150)
+    data[0x143] = 0x80
+    rom.write_bytes(data)
+
+    gate.force_dmg_header(rom)
+
+    assert rom.read_bytes()[0x143] == 0x00

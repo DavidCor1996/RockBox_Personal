@@ -181,3 +181,9 @@ def test_if_register_reads_with_unused_bits_set():
 
     assert "case RI_IF:" in mem
     assert "return REG(r) | 0xE0;" in mem
+
+
+def test_lcd_enable_first_line_matches_blargg_sync_boundary():
+    lcdc = _read("apps/plugins/rockboy/lcdc.c")
+
+    assert "C = 38;" in lcdc

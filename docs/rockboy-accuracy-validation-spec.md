@@ -10,6 +10,8 @@ simulator.
 
 - `tools/rockboy_accuracy_gate.py` prepares an isolated simulator disk,
   direct-starts a supplied accuracy ROM, and validates Rockboy serial output.
+- `tools/rockboy_accuracy_gate.py --force-dmg` patches only the staged copy of
+  a ROM so CGB-compatible DMG test ROMs run in DMG mode.
 - Simulator-only `ROCKBOY_SERIAL_LOG=1` captures Game Boy link-port bytes to
   `/.rockbox/rockboy/serial.log`.
 - Test ROM binaries are not committed. Use an external checkout such as
@@ -29,6 +31,9 @@ Passed on 2026-06-20:
   - The final rows report `0D`, matching the expected interrupt-entry timing.
 - `blargg/halt_bug.gb`: on-screen `Passed`
   - The test verifies the DMG HALT PC increment bug and IF unused-bit readback.
+- `blargg/oam_bug/rom_singles/1-lcd_sync.gb`: on-screen `Passed`
+  - The staged ROM must be run with `--force-dmg` because the original header
+    is CGB-compatible and Rockboy otherwise starts it in CGB mode.
 
 Fixed during this pass:
 
@@ -44,6 +49,19 @@ Fixed during this pass:
   implemented low interrupt bits.
 - `ADD SP,e8` and `LD HL,SP+e8` now use low-byte carry and half-carry flags.
 - Simulator serial output now logs SB/SC test-ROM output.
+- LCD enable now advances the first visible scanline at the boundary expected
+  by `oam_bug/rom_singles/1-lcd_sync.gb`.
+
+Known failures from the expanded 2026-06-20 simulator pass:
+
+- `blargg/oam_bug/oam_bug.gb` in forced-DMG mode:
+  - Passing groups: `01`, `03`, `06`.
+  - Failing groups: `02`, `04`, `05`, `07`, `08`.
+  - Remaining cause: Rockboy still does not emulate the DMG OAM corruption bug
+    caused by OAM accesses and 16-bit IDU operations during PPU mode 2.
+- `blargg/dmg_sound/dmg_sound.gb`: all 12 groups failed on-screen.
+- `blargg/cgb_sound/cgb_sound.gb`: group `10` passed; the other groups failed
+  on-screen.
 
 Memory timing work completed:
 

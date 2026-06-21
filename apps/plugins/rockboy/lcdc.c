@@ -66,7 +66,9 @@ void lcdc_change(byte b)
     {
         R_LY = 0;
         stat_change(2);
-        C = 40;
+        /* First line after LCD enable reaches LY=1 between Blargg's
+         * 109/110 cycle checks. */
+        C = 38;
         lcd_begin();
     }
 }
@@ -162,10 +164,3 @@ void lcdc_trans(void)
         }
     }
 }
-
-
-
-
-
-
-

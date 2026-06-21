@@ -25,6 +25,14 @@ def copy_rom(active_simdisk: Path, rom_path: Path) -> Path:
     return target
 
 
+def force_dmg_header(rom_path: Path) -> None:
+    data = bytearray(rom_path.read_bytes())
+    if len(data) <= 0x143:
+        raise SystemExit(f"ROM is too small to patch CGB flag: {rom_path}")
+    data[0x143] = 0x00
+    rom_path.write_bytes(data)
+
+
 def prepare(args: argparse.Namespace) -> None:
     root = repo_root()
     build_dir = (root / args.build_dir).resolve()
@@ -53,11 +61,15 @@ def prepare(args: argparse.Namespace) -> None:
     serial_log = active_simdisk / ".rockbox" / "rockboy" / "serial.log"
     serial_log.unlink(missing_ok=True)
     direct_rom = copy_rom(active_simdisk, rom_path)
+    if args.force_dmg:
+        force_dmg_header(direct_rom)
     write_rockboy_direct_start(active_simdisk, direct_rom)
 
     command = [str(binary), "--nobackground", "--root", str(active_simdisk), "--zoom", "1"]
     print(f"Prepared isolated Rockboy accuracy simdisk: {active_simdisk}")
     print(f"Direct-start ROM: {Path('/') / direct_rom.relative_to(active_simdisk)}")
+    if args.force_dmg:
+        print("Forced DMG mode: patched staged ROM CGB flag to 0x00")
     print(f"Serial log: {serial_log}")
     print("Run simulator:")
     print("ROCKBOY_SERIAL_LOG=1 " + " ".join(command))
@@ -89,6 +101,7 @@ def main(argv: list[str]) -> int:
     parser.add_argument("--build-dir", default="build-sim-video-5g")
     parser.add_argument("--rom")
     parser.add_argument("--expect", default="Passed")
+    parser.add_argument("--force-dmg", action="store_true")
     parser.add_argument("--prepare", action="store_true")
     parser.add_argument("--validate")
     args = parser.parse_args(argv)
