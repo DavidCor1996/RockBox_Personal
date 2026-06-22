@@ -172,14 +172,29 @@ bool list_display_title(struct gui_synclist *list, enum screen_type screen)
         list_nb_lines(list, screen) > 2;
 }
 
+int list_get_title_height(struct gui_synclist *list, enum screen_type screen)
+{
+    if (list->force_fullscreen_albumlist)
+        return font_get(list->parent[screen]->font)->height;
+
+    return list->line_height[screen];
+}
+
 int list_get_nb_lines(struct gui_synclist *list, enum screen_type screen)
 {
     int lines = skinlist_get_line_count(screen, list);
     if (lines < 0)
     {
-        lines = list_nb_lines(list, screen);
         if (list_display_title(list, screen))
-            lines -= 1;
+        {
+            int title_height = list_get_title_height(list, screen);
+            lines = MAX(0, list->parent[screen]->height - title_height) /
+                    list->line_height[screen];
+        }
+        else
+        {
+            lines = list_nb_lines(list, screen);
+        }
     }
     return lines;
 }
@@ -219,6 +234,7 @@ static void gui_synclist_init_display_settings(struct gui_synclist * list)
     list->cursor_style = gs->cursor_style;
     list->force_fullscreen_albumlist = false;
     list->fullscreen_albumlist_theme_hidden = false;
+    list->fullscreen_albumlist_first_item = 0;
 }
 
 /*
@@ -332,9 +348,12 @@ static void gui_list_put_selection_on_screen(struct gui_synclist * gui_list,
 {
     int nb_lines = list_get_nb_lines(gui_list, screen);
     int bottom = MAX(0, gui_list->nb_items - nb_lines);
+    int min_start = gui_list->force_fullscreen_albumlist ?
+        gui_list->fullscreen_albumlist_first_item : 0;
     int new_start_item = gui_list->start_item[screen];
     int difference = gui_list->selected_item - gui_list->start_item[screen];
-    const int scroll_limit_up   = (nb_lines < gui_list->selected_size+2 ? 0:1);
+    const int scroll_limit_up = gui_list->force_fullscreen_albumlist ? 0 :
+        (nb_lines < gui_list->selected_size + 2 ? 0 : 1);
     const int scroll_limit_down = (scroll_limit_up+gui_list->selected_size);
 
     if (gui_list->selected_size >= nb_lines)
@@ -358,8 +377,10 @@ static void gui_list_put_selection_on_screen(struct gui_synclist * gui_list,
     {
         new_start_item = gui_list->selected_item + scroll_limit_down - nb_lines;
     }
-    if (new_start_item < 0)
-        gui_list->start_item[screen] = 0;
+    if (bottom < min_start)
+        gui_list->start_item[screen] = bottom;
+    else if (new_start_item < min_start)
+        gui_list->start_item[screen] = min_start;
     else if (new_start_item > bottom)
         gui_list->start_item[screen] = bottom;
     else
@@ -452,6 +473,10 @@ void gui_synclist_speak_item(struct gui_synclist *lists)
  */
 void gui_synclist_select_item(struct gui_synclist * gui_list, int item_number)
 {
+    if (gui_list->force_fullscreen_albumlist &&
+        item_number < gui_list->fullscreen_albumlist_first_item)
+        item_number = gui_list->fullscreen_albumlist_first_item;
+
     if (item_number >= gui_list->nb_items || item_number < 0)
         return;
     if (item_number != gui_list->selected_item)
@@ -599,6 +624,8 @@ void gui_synclist_set_fullscreen_albumlist(struct gui_synclist *list,
     }
 
     list->force_fullscreen_albumlist = enable;
+    if (!enable)
+        list->fullscreen_albumlist_first_item = 0;
 
     if (!enable && list->fullscreen_albumlist_theme_hidden)
     {

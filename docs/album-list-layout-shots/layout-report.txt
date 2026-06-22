@@ -1,26 +1,19 @@
 Reference target: stock iPod classic 7G album list is a 320x240 full-width
-text list with a thin top title/status area, single horizontal selection bar,
-and roughly 9 to 10 visible rows. Colors are intentionally not compared
-against stock; this repo keeps the iPone/Rockbox theme colors.
+album-cover list with a thin top title/status area, single horizontal
+selection bar, and square cover thumbnails at the left of album rows. Colors
+are intentionally not compared against stock; this repo keeps the
+iPone/Rockbox theme colors.
 
 Captured:
 - 00-database-root.png: non-album database root, used to verify normal list
   layout remains scoped outside album rows.
 - 01-root-after-one-down.png: database root after one scroll step.
-- 02-root-after-two-down-album-selected.png: database root with Album selected.
-- 03-albums-list.png: Database -> Album after two scroll steps and Select.
+- 02-root-after-two-down-album-selected.png: database root with Albums selected.
+- 03-albums-list.png: Database -> Albums, using the laptop music folder and
+  real cover.jpg files converted to 40x40 album-list BMPs.
 
 Expected after implementation:
 - album list uses the full 320px screen width with a normal list title row;
-- album rows use compact text layout with no 32x32 thumbnails;
-- visible row density is stock-like and significantly denser than the old
-  34px thumbnail rows;
+- album rows show 40x40 cover thumbnails in 44px rows;
+- non-album database root keeps the normal iPone right-side pane;
 - selector/theme colors remain those from the current iPone config.
-
-Observed after the final simulator capture:
-- 02-root-after-two-down-album-selected.png keeps the iPone right-side pane
-  for the Database root, so the special behavior is scoped to Album rows.
-- 03-albums-list.png renders the Album screen as a full-width 320x240 list
-  with the Album title at the top and no right-side SBS residue.
-- The selected Album row uses the existing purple iPone selector; no color
-  settings were changed for this spec.

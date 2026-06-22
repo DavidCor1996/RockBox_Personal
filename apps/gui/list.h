@@ -153,6 +153,7 @@ struct gui_synclist
     bool scroll_paginated;
     bool force_fullscreen_albumlist;
     bool fullscreen_albumlist_theme_hidden;
+    int fullscreen_albumlist_first_item;
     /* whether the text of the whole items of the list have to be
      * scrolled or only for the selected item */
     bool scroll_all;

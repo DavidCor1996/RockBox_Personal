@@ -30,7 +30,7 @@ _DESKTOP_MIN_SOURCE_DIMENSION = max(ARTWORK_DISPLAY_SIZE) * 2
 _MIN_EFFECTIVE_LOOKUP_INTERVAL_SECONDS = 60.0
 _VIDEO_POSTER_THUMB_SIZE = (180, 270)
 _VIDEO_POSTER_DISPLAY_SIZE = (360, 540)
-_ALBUM_LIST_THUMB_SIZE = (32, 32)
+_ALBUM_LIST_THUMB_SIZE = (40, 40)
 _VIDEO_POSTER_FILENAMES = (
     "poster.jpg", "poster.png", "Poster.jpg", "Poster.png",
     "movie.jpg", "movie.png", "Movie.jpg", "Movie.png",

@@ -623,7 +623,7 @@ def test_album_list_thumbnail_and_manifest_generated_for_ipod(config, tmp_dir):
         assert device_name == f"{album_id}.bmp"
         with Image.open(thumb_path) as img:
             assert img.format == "BMP"
-            assert img.size == (32, 32)
+            assert img.size == (40, 40)
 
         manifest_path, manifest_hash = manager.export_album_list_manifest(
             [

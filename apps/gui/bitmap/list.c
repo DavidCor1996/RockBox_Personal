@@ -66,6 +66,7 @@ int gui_list_get_item_offset(struct gui_synclist * gui_list, int item_width,
                              struct viewport *vp);
 bool list_display_title(struct gui_synclist *list, enum screen_type screen);
 int list_get_nb_lines(struct gui_synclist *list, enum screen_type screen);
+int list_get_title_height(struct gui_synclist *list, enum screen_type screen);
 
 void gui_synclist_scroll_stop(struct gui_synclist *lists)
 {
@@ -156,7 +157,7 @@ static bool draw_title(struct screen *display,
     if (!list_display_title(list, screen))
         return false;
     *title_text_vp = *(list->parent[screen]);
-    linedes.height = list->line_height[screen];
+    linedes.height = list_get_title_height(list, screen);
     title_text_vp->height = linedes.height;
 
 #if LCD_DEPTH > 1

@@ -6,6 +6,7 @@ out_dir="${2:-/home/david/Documents/RockBox_Personal-master/docs/album-list-layo
 source_sim_root="${build_dir}/simdisk"
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 rockboxui="${build_dir}/rockboxui"
+laptop_music_dir="${IPONE_ALBUMLIST_MUSIC_DIR:-/home/david/Music}"
 sim_root=""
 tmp_dir=""
 sim_pid=""
@@ -43,18 +44,80 @@ install_current_theme_sources()
     fi
 }
 
+seed_albumlist_proof_art()
+{
+    local album_dir="${sim_root}/.rockbox/albumlist"
+    local thumb_dir="${album_dir}/thumbs"
+
+    mkdir -p "${thumb_dir}"
+
+    cat >"${album_dir}/index.tsv" <<'EOF'
+# rockpod albumlist v1
+album_id	thumb	artist	album	group_key	device_dirs
+EOF
+
+    add_album_thumb "4" "4 - Foreigner/cover.jpg" "proof-4.bmp"
+    add_album_thumb "7 Years" "7 Years - Lukas Graham/cover.jpg" "proof-7-years.bmp"
+    add_album_thumb "A Hard Day's Night" "A Hard Day's Night/cover.jpg" "proof-hard-days-night.bmp"
+    add_album_thumb "(Don't Mess With The ) Time Man" "Halestorm - (Don't Mess With The ) Time Man (2000)/cover.jpg" "proof-time-man-full.bmp"
+    add_album_thumb "Time Man" "Halestorm - (Don't Mess With The ) Time Man (2000)/cover.jpg" "proof-time-man.bmp"
+    add_album_thumb "A Toot and a Snore in '74" "A Toot In an Snore in 74'/cover.jpg" "proof-toot-74.bmp"
+    add_album_thumb "A Momentary Lapse of Reason" "A Momentary Lapse of Reason - Pink Floyd/cover.jpg" "proof-momentary-lapse.bmp"
+    add_album_thumb "A Question Of Balance" "A Question Of Balance - The Moody Blues/cover.jpg" "proof-question-balance.bmp"
+    add_album_thumb "Abbey Road (Remastered)" "Abbey Road (Remastered) - The Beatles/cover.jpg" "proof-abbey-road.bmp"
+    add_album_thumb "All the Right Reasons" "All the Right Reasons - Nickelback/cover.jpg" "proof-all-right-reasons.bmp"
+    add_album_thumb "All Things Must Pass (Remastered 2014)" "All Things Must Pass (Remastered 2014) - George Harrison/cover.jpg" "proof-all-things.bmp"
+    add_album_thumb "Random Access Memories" "Random Access Memories - Daft Punk/cover.jpg" "proof-random-access-memories.bmp"
+}
+
+add_album_thumb()
+{
+    local album="$1"
+    local cover_rel="$2"
+    local bmp_name="$3"
+    local src="${laptop_music_dir}/${cover_rel}"
+    local album_dir="${sim_root}/.rockbox/albumlist"
+    local dst="${album_dir}/thumbs/${bmp_name}"
+
+    if [ ! -f "${src}" ]; then
+        return
+    fi
+
+    magick "${src}" \
+        -auto-orient \
+        -thumbnail 40x40 \
+        -background black \
+        -alpha remove \
+        -alpha off \
+        -gravity center \
+        -extent 40x40 \
+        "BMP3:${dst}"
+
+    printf '%s\t%s\t\t%s\t%s\t\n' \
+        "${bmp_name%.bmp}" "thumbs/${bmp_name}" "${album}" "${album}" \
+        >>"${album_dir}/index.tsv"
+}
+
 prepare_runtime_root()
 {
     sim_root="$(mktemp -d)"
     cp -a "${source_sim_root}/.rockbox" "${sim_root}/.rockbox"
+    cp "${repo_root}/apps/tagnavi.config" "${sim_root}/.rockbox/tagnavi.config"
 
-    for dir_name in Music Playlists Podcasts Recordings; do
+    for dir_name in Playlists Podcasts Recordings; do
         if [ -e "${source_sim_root}/${dir_name}" ]; then
             ln -s "${source_sim_root}/${dir_name}" "${sim_root}/${dir_name}"
         fi
     done
+    if [ -e "${sim_root}/Music" ] || [ -L "${sim_root}/Music" ]; then
+        rm -rf "${sim_root}/Music"
+    fi
+    if [ -d "${laptop_music_dir}" ]; then
+        ln -s "${laptop_music_dir}" "${sim_root}/Music"
+    fi
 
     install_current_theme_sources
+    seed_albumlist_proof_art
 
     awk '
         BEGIN { start_replaced = 0; icons_replaced = 0 }
@@ -103,6 +166,18 @@ capture_window()
     import -window "${sim_wid}" "${out_dir}/$1"
 }
 
+tap_key()
+{
+    local key="$1"
+
+    xdotool windowactivate "${sim_wid}"
+    sleep 0.1
+    xdotool keydown --window "${sim_wid}" "${key}"
+    sleep 0.05
+    xdotool keyup --window "${sim_wid}" "${key}"
+    sleep 1
+}
+
 cleanup()
 {
     set +e
@@ -144,36 +219,33 @@ main()
     launch_sim
 
     capture_window "00-database-root.png"
-    xdotool key --window "${sim_wid}" KP_2
-    sleep 0.2
+    tap_key KP_2
     capture_window "01-root-after-one-down.png"
-    xdotool key --window "${sim_wid}" KP_2
-    sleep 0.2
+    tap_key KP_2
     capture_window "02-root-after-two-down-album-selected.png"
-    xdotool keydown --window "${sim_wid}" Return
-    sleep 0.15
-    xdotool keyup --window "${sim_wid}" Return
-    sleep 1
+    tap_key Return
+    sleep 2
     capture_window "03-albums-list.png"
 
     cat >"${out_dir}/layout-report.txt" <<EOF
 Reference target: stock iPod classic 7G album list is a 320x240 full-width
-text list with a thin top title/status area, single horizontal selection bar,
-and roughly 9 to 10 visible rows. Colors are intentionally not compared
-against stock; this repo keeps the iPone/Rockbox theme colors.
+album-cover list with a thin top title/status area, single horizontal
+selection bar, and square cover thumbnails at the left of album rows. Colors
+are intentionally not compared against stock; this repo keeps the
+iPone/Rockbox theme colors.
 
 Captured:
 - 00-database-root.png: non-album database root, used to verify normal list
   layout remains scoped outside album rows.
 - 01-root-after-one-down.png: database root after one scroll step.
-- 02-root-after-two-down-album-selected.png: database root with Album selected.
-- 03-albums-list.png: Database -> Album after two scroll steps and Select.
+- 02-root-after-two-down-album-selected.png: database root with Albums selected.
+- 03-albums-list.png: Database -> Albums, using the laptop music folder and
+  real cover.jpg files converted to 40x40 album-list BMPs.
 
 Expected after implementation:
-- album list uses the full 320px screen width, apart from normal top inset;
-- album rows use compact text layout with no 32x32 thumbnails;
-- visible row density is stock-like and significantly denser than the old
-  34px thumbnail rows;
+- album list uses the full 320px screen width with a normal list title row;
+- album rows show 40x40 cover thumbnails in 44px rows;
+- non-album database root keeps the normal iPone right-side pane;
 - selector/theme colors remain those from the current iPone config.
 EOF
 

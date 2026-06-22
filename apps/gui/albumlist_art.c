@@ -23,9 +23,9 @@
 
 #define ALBUMLIST_INDEX ROCKBOX_DIR "/albumlist/index.tsv"
 #define ALBUMLIST_ROOT ROCKBOX_DIR "/albumlist"
-#define ALBUMLIST_THUMB_SIZE 32
-#define ALBUMLIST_TEXT_PAD 6
-#define ALBUMLIST_COMPACT_ROW_HEIGHT 22
+#define ALBUMLIST_THUMB_SIZE 40
+#define ALBUMLIST_TEXT_PAD 8
+#define ALBUMLIST_ROW_HEIGHT 44
 #define ALBUMLIST_LOOKUP_CACHE 16
 #define ALBUMLIST_BITMAP_CACHE 8
 #define ALBUMLIST_ALBUM_LEN 96
@@ -54,20 +54,34 @@ static int lookup_victim;
 static struct albumlist_bitmap_slot bitmap_cache[ALBUMLIST_BITMAP_CACHE];
 static unsigned long bitmap_tick;
 
+static bool albumlist_get_album_row(struct tree_context *tc, int id,
+                                    char *album, size_t album_size,
+                                    char *artist, size_t artist_size)
+{
+    if (!tc ||
+        !tagtree_get_album_art_row(tc, id, album, album_size,
+                                  artist, artist_size))
+        return false;
+
+    return album && album[0] != '\0';
+}
+
 static bool albumlist_has_album_rows(struct gui_synclist *list)
 {
     struct tree_context *tc = list ? (struct tree_context *)list->data : NULL;
     char album[ALBUMLIST_ALBUM_LEN];
     char artist[ALBUMLIST_ARTIST_LEN];
 
-    return list && tc &&
-        tagtree_get_album_art_row(tc, tc->special_entry_count,
-                                  album, sizeof(album),
-                                  artist, sizeof(artist));
-}
+    if (!list || !tc)
+        return false;
 
-static bool albumlist_use_legacy_thumbnails(void)
-{
+    for (int i = tc->special_entry_count; i < list->nb_items; i++)
+    {
+        if (albumlist_get_album_row(tc, i, album, sizeof(album),
+                                    artist, sizeof(artist)))
+            return true;
+    }
+
     return false;
 }
 
@@ -237,13 +251,35 @@ static struct bitmap *load_thumb_bitmap(const char *path)
     return &slot->bm;
 }
 
+static int albumlist_first_album_row(struct gui_synclist *list,
+                                     struct tree_context *tc)
+{
+    char album[ALBUMLIST_ALBUM_LEN];
+    char artist[ALBUMLIST_ARTIST_LEN];
+
+    if (!list || !tc)
+        return -1;
+
+    for (int i = tc->special_entry_count; i < list->nb_items; i++)
+    {
+        if (albumlist_get_album_row(tc, i, album, sizeof(album),
+                                    artist, sizeof(artist)))
+            return i;
+    }
+
+    return -1;
+}
+
 void albumlist_setup_list(struct gui_synclist *list)
 {
+    struct tree_context *tc = list ? (struct tree_context *)list->data : NULL;
+    int first_album_row;
+
     if (!list)
         return;
 
-    list->callback_draw_item = NULL;
     list->show_icons = global_settings.show_icons;
+    list->callback_draw_item = NULL;
     gui_synclist_set_fullscreen_albumlist(list, false);
 
     if (!albumlist_has_album_rows(list))
@@ -252,21 +288,26 @@ void albumlist_setup_list(struct gui_synclist *list)
     gui_synclist_set_fullscreen_albumlist(list, true);
     list->callback_get_item_icon = NULL;
     list->show_icons = false;
+    list->callback_draw_item = albumlist_art_draw_item;
     FOR_NB_SCREENS(i)
     {
         if (screens[i].lcdwidth == 320 && screens[i].lcdheight == 240)
             list->line_height[i] = MAX(list->line_height[i],
-                                       ALBUMLIST_COMPACT_ROW_HEIGHT);
+                                       ALBUMLIST_ROW_HEIGHT);
     }
 
-    if (albumlist_use_legacy_thumbnails())
+    first_album_row = albumlist_first_album_row(list, tc);
+    list->fullscreen_albumlist_first_item = MAX(0, first_album_row);
+    if (tc && first_album_row >= 0 && tc->selected_item < first_album_row)
+        tc->selected_item = first_album_row;
+
+    if (first_album_row >= 0 && list->selected_item < first_album_row)
+        gui_synclist_select_item(list, first_album_row);
+
+    if (first_album_row >= 0)
     {
-        list->callback_draw_item = albumlist_art_draw_item;
         FOR_NB_SCREENS(i)
-        {
-            if (list->line_height[i] < ALBUMLIST_THUMB_SIZE + 2)
-                list->line_height[i] = ALBUMLIST_THUMB_SIZE + 2;
-        }
+            list->start_item[i] = first_album_row;
     }
 }
 
@@ -283,9 +324,9 @@ void albumlist_art_draw_item(struct list_putlineinfo_t *list_info)
     char artist[ALBUMLIST_ARTIST_LEN];
     char path[ALBUMLIST_PATH_LEN];
 
-    if (!tagtree_get_album_art_row(tc, list_info->line,
-                                   album, sizeof(album),
-                                   artist, sizeof(artist)) ||
+    if (!albumlist_get_album_row(tc, list_info->line,
+                                 album, sizeof(album),
+                                 artist, sizeof(artist)) ||
         !lookup_thumb_path(album, artist, path, sizeof(path)))
     {
         gui_list_draw_item_default(list_info);
