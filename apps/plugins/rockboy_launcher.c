@@ -348,6 +348,20 @@ static void launcher_apply_performance_preset(struct options *options, int prese
             options->scaling = 2;
             break;
     }
+
+#if CONFIG_KEYPAD == IPOD_4G_PAD && defined(IPOD_VIDEO)
+    if (preset == ROCKBOY_PERF_BALANCED)
+    {
+        options->maxskip = 4;
+        options->sound = 1;
+        options->scaling = 0;
+    }
+    else if (preset == ROCKBOY_PERF_PERFORMANCE)
+    {
+        options->maxskip = 5;
+        options->scaling = 0;
+    }
+#endif
 }
 
 static void launcher_set_default_rockboy_options(struct options *options)
@@ -361,6 +375,16 @@ static void launcher_set_default_rockboy_options(struct options *options)
 
 static void sanitize_rockboy_options(struct options *options)
 {
+#if CONFIG_KEYPAD == IPOD_4G_PAD && defined(IPOD_VIDEO)
+    if (options->performance_preset == ROCKBOY_PERF_BALANCED &&
+        options->maxskip == 2 &&
+        options->sound == 1 &&
+        options->scaling == 2)
+    {
+        launcher_apply_performance_preset(options, ROCKBOY_PERF_BALANCED);
+    }
+#endif
+
     if (options->performance_preset < ROCKBOY_PERF_BALANCED ||
         options->performance_preset > ROCKBOY_PERF_QUALITY)
     {

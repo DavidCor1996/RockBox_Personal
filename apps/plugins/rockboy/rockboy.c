@@ -547,7 +547,7 @@ void rockboy_apply_performance_preset(int preset)
     switch (preset)
     {
         case ROCKBOY_PERF_PERFORMANCE:
-            options.maxskip = 3;
+            options.maxskip = 5;
             options.sound = 1;
             options.scaling = 0;
             options.rotate = 0;
@@ -559,7 +559,7 @@ void rockboy_apply_performance_preset(int preset)
             options.rotate = 0;
             break;
         default:
-            options.maxskip = 2;
+            options.maxskip = 4;
             options.sound = 1;
             options.scaling = 0;
             options.rotate = 0;
@@ -633,6 +633,18 @@ static void setoptions (void)
 
 #if CONFIG_KEYPAD == IPOD_4G_PAD && defined(IPOD_VIDEO)
     rockboy_ipod5g_force_display_defaults();
+    if (options.performance_preset == ROCKBOY_PERF_BALANCED &&
+        options.maxskip < 4)
+    {
+        options.maxskip = 4;
+        options.dirty = 1;
+    }
+    else if (options.performance_preset == ROCKBOY_PERF_PERFORMANCE &&
+             options.maxskip < 5)
+    {
+        options.maxskip = 5;
+        options.dirty = 1;
+    }
     if (((options.performance_preset == ROCKBOY_PERF_BALANCED ||
           options.performance_preset == ROCKBOY_PERF_PERFORMANCE) &&
          options.scaling == 2) ||

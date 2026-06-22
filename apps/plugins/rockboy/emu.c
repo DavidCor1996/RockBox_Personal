@@ -72,6 +72,12 @@ static void emu_profile_step(unsigned long *cpu_ticks)
 #define ROCKBOY_GB_CPU_HZ 4194304ULL
 #define ROCKBOY_GB_CYCLES_PER_FRAME 70224ULL
 
+#if defined(IPOD_VIDEO)
+#define ROCKBOY_SKIP_RAMP_UP_STABLE_FRAMES 2
+#else
+#define ROCKBOY_SKIP_RAMP_UP_STABLE_FRAMES 10
+#endif
+
 static unsigned long emu_frame_deadline_ticks(unsigned long pace_start,
                                               unsigned long pace_frames)
 {
@@ -151,7 +157,7 @@ static void emu_update_frame_pacing(unsigned long *pace_start,
 
         if (desired_skip > options.frameskip)
         {
-            if (++(*stable_frames) >= 10)
+            if (++(*stable_frames) >= ROCKBOY_SKIP_RAMP_UP_STABLE_FRAMES)
             {
                 options.frameskip = desired_skip;
                 *stable_frames = 0;

@@ -98,6 +98,8 @@ def test_gameboy_frame_pacing_uses_hardware_cadence():
     assert "#define ROCKBOY_GB_CYCLES_PER_FRAME 70224ULL" in emu
     assert "#define ROCKBOY_TARGET_FPS 60" not in emu
     assert "emu_frame_deadline_ticks" in emu
+    assert "#define ROCKBOY_SKIP_RAMP_UP_STABLE_FRAMES 2" in emu
+    assert "++(*stable_frames) >= ROCKBOY_SKIP_RAMP_UP_STABLE_FRAMES" in emu
     assert "target_fps_x1000=%lu" in profiler
     assert "frame_avg_ticks_x1000=%lu" in profiler
     assert "ROCKBOY_PERF_AUTOWRITE_FRAMES" in profiler
@@ -108,6 +110,22 @@ def test_gameboy_frame_pacing_uses_hardware_cadence():
     assert "TARGET_FPS_X1000 = 59728" in gate
     assert "--validate-speed" in gate
     assert "ROCKBOY_PERF_AUTOWRITE_FRAMES" in gate
+
+
+def test_ipod_video_rockboy_defaults_use_fast_fullscreen_controls():
+    launcher = _read("apps/plugins/rockboy_launcher.c")
+    rockboy = _read("apps/plugins/rockboy/rockboy.c")
+
+    assert "#if CONFIG_KEYPAD == IPOD_4G_PAD && defined(IPOD_VIDEO)" in launcher
+    assert "options->control_preset = ROCKBOY_CTRL_IPOD5G;" in launcher
+    assert "options->maxskip = 4;" in launcher
+    assert "options->scaling = 0;" in launcher
+    assert "options->maxskip == 2" in launcher
+    assert "launcher_apply_performance_preset(options, ROCKBOY_PERF_BALANCED);" in launcher
+    assert "options.maxskip = 4;" in rockboy
+    assert "options.maxskip = 5;" in rockboy
+    assert "options.maxskip < 4" in rockboy
+    assert "rockboy_ipod5g_force_display_defaults();" in rockboy
 
 
 def test_balanced_pcm_submit_does_not_block_gameplay_when_queue_is_full():
