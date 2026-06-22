@@ -27,6 +27,11 @@
 #include "config.h"
 #include "profiler.h"
 
+#ifdef SIMULATOR
+#include <stdlib.h>
+#define ROCKBOY_INPUT_SCRIPT_ENV "ROCKBOY_INPUT_SCRIPT"
+#endif
+
 #if CONFIG_KEYPAD == SANSA_E200_PAD || CONFIG_KEYPAD == SANSA_FUZE_PAD
 #define ROCKBOY_SCROLLWHEEL
 #define ROCKBOY_SCROLLWHEEL_CC  BUTTON_SCROLL_BACK
@@ -79,6 +84,134 @@ static void post_masked_event(event_t *ev, byte mask)
             ev->code = pads[i];
             ev_postevent(ev);
         }
+    }
+}
+#endif
+
+#ifdef SIMULATOR
+static unsigned long scripted_input_frame;
+
+static int scripted_input_matches(const char *name, int len, const char *literal)
+{
+    int i;
+
+    for (i = 0; i < len && literal[i]; i++)
+    {
+        char c = name[i];
+        if (c >= 'a' && c <= 'z')
+            c -= 'a' - 'A';
+        if (c != literal[i])
+            return 0;
+    }
+
+    return i == len && literal[i] == '\0';
+}
+
+static int scripted_input_pad(const char *name, int len)
+{
+    if (scripted_input_matches(name, len, "UP")) return PAD_UP;
+    if (scripted_input_matches(name, len, "DOWN")) return PAD_DOWN;
+    if (scripted_input_matches(name, len, "LEFT")) return PAD_LEFT;
+    if (scripted_input_matches(name, len, "RIGHT")) return PAD_RIGHT;
+    if (scripted_input_matches(name, len, "A")) return PAD_A;
+    if (scripted_input_matches(name, len, "B")) return PAD_B;
+    if (scripted_input_matches(name, len, "START")) return PAD_START;
+    if (scripted_input_matches(name, len, "SELECT")) return PAD_SELECT;
+    return -1;
+}
+
+static int scripted_input_event_type(const char *state, int len)
+{
+    char c;
+
+    if (len <= 0)
+        return EV_NONE;
+
+    c = state[0];
+    if (c >= 'a' && c <= 'z')
+        c -= 'a' - 'A';
+
+    if (c == 'P')
+        return EV_PRESS;
+    if (c == 'R')
+        return EV_RELEASE;
+    return EV_NONE;
+}
+
+static const char *scripted_input_next_token(const char *cursor)
+{
+    while (*cursor && *cursor != ',')
+        cursor++;
+    if (*cursor == ',')
+        cursor++;
+    return cursor;
+}
+
+static void scripted_input_post_due(void)
+{
+    const char *script = getenv(ROCKBOY_INPUT_SCRIPT_ENV);
+    const char *cursor;
+    char *end;
+
+    scripted_input_frame++;
+    if (!script || !script[0])
+        return;
+
+    cursor = script;
+    while (*cursor)
+    {
+        unsigned long frame;
+        const char *name;
+        const char *state;
+        int name_len;
+        int state_len;
+        int pad;
+        int type;
+
+        while (*cursor == ' ' || *cursor == ',')
+            cursor++;
+        if (!*cursor)
+            break;
+
+        frame = strtoul(cursor, &end, 10);
+        if (end == cursor || *end != ':')
+        {
+            cursor = scripted_input_next_token(cursor);
+            continue;
+        }
+
+        name = end + 1;
+        cursor = name;
+        while (*cursor && *cursor != ':' && *cursor != ',')
+            cursor++;
+        if (*cursor != ':')
+        {
+            cursor = scripted_input_next_token(cursor);
+            continue;
+        }
+        name_len = cursor - name;
+
+        state = cursor + 1;
+        cursor = state;
+        while (*cursor && *cursor != ',')
+            cursor++;
+        state_len = cursor - state;
+
+        if (frame == scripted_input_frame)
+        {
+            pad = scripted_input_pad(name, name_len);
+            type = scripted_input_event_type(state, state_len);
+            if (pad >= 0 && type != EV_NONE)
+            {
+                event_t ev;
+                ev.type = type;
+                ev.code = pad;
+                ev_postevent(&ev);
+            }
+        }
+
+        if (*cursor == ',')
+            cursor++;
     }
 }
 #endif
@@ -313,7 +446,10 @@ void ev_poll(void)
 
 #ifndef HAVE_WHEEL_POSITION
     }
-#endif    
+#endif
+#ifdef SIMULATOR
+    scripted_input_post_due();
+#endif
 }
 
 /* New frameskip, makes more sense to me and performs as well */
@@ -324,12 +460,14 @@ void vid_begin(void)
     {
         skip++;
         fb.enabled=0;
+        rockboy_perf_frame_skipped();
         rockboy_profile_frame_skipped();
     }
     else
     {
         skip=0;
         fb.enabled=1;
+        rockboy_perf_frame_rendered();
     }
 }
 

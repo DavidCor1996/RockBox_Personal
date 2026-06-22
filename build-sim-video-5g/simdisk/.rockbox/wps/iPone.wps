@@ -217,7 +217,7 @@
 %Vl(Lockscreen,0,101,-,20,4)%ac%?if(%ss(0,7,%St(lang)), =, english)<%?cu<Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday>|%ca> %?or(%if(%ss(0,7,%St(lang)), =, chinese),%if(%St(lang), =, magyar),%if(%St(lang), =, lietuviu),%if(%St(lang), =, japanese),%if(%St(lang), =, korean))<%cb %cd|%?if(%St(lang), =, english-us)<%cb %cd|%cd %cb>>
 #
 #---Notification---#
-%Vl(LockTint,16,150,288,75,-)%Cl(0,0,288,75,c,c,2)%?C(2)<%Cd(2)|>
+%Vl(LockTint,16,150,288,75,-)
 %Vl(LockCardShadow,24,161,248,52,-)%dr(0,0,-,-,15121b)
 %Vl(LockCardOuter,22,159,248,52,-)%dr(0,0,-,-,26222f)
 %Vl(LockCardInner,24,161,244,48,-)%dr(0,0,-,-,2d2936)

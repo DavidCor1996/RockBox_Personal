@@ -11,6 +11,32 @@
 #include "emu.h"
 #include "profiler.h"
 
+#ifdef SIMULATOR
+#include <stdlib.h>
+#include <string.h>
+
+#define ROCKBOY_ACCURACY_FAST_ENV "ROCKBOY_ACCURACY_FAST"
+
+static bool rockboy_accuracy_fast_forward_enabled(void)
+{
+    static int enabled = -1;
+    const char *value;
+
+    if (enabled < 0)
+    {
+        value = getenv(ROCKBOY_ACCURACY_FAST_ENV);
+        enabled = value && value[0] && strcmp(value, "0");
+    }
+
+    return enabled;
+}
+#else
+static inline bool rockboy_accuracy_fast_forward_enabled(void)
+{
+    return false;
+}
+#endif
+
 /*
  * emu_reset is called to initialize the state of the emulated
  * system. It should set cpu registers, hardware registers, etc. to
@@ -43,7 +69,47 @@ static void emu_profile_step(unsigned long *cpu_ticks)
     emu_profile_cpu_emulate(cpu.lcdc, cpu_ticks);
 }
 
-#define ROCKBOY_TARGET_FPS 60
+#define ROCKBOY_GB_CPU_HZ 4194304ULL
+#define ROCKBOY_GB_CYCLES_PER_FRAME 70224ULL
+
+static unsigned long emu_frame_deadline_ticks(unsigned long pace_start,
+                                              unsigned long pace_frames)
+{
+    unsigned long long ticks =
+        ((unsigned long long)pace_frames * HZ * ROCKBOY_GB_CYCLES_PER_FRAME +
+         (ROCKBOY_GB_CPU_HZ / 2)) / ROCKBOY_GB_CPU_HZ;
+
+    return pace_start + (unsigned long)ticks;
+}
+
+static int emu_late_frames(long lateness)
+{
+    unsigned long long frames;
+
+    if (lateness <= 0)
+        return 0;
+
+    frames = ((unsigned long long)lateness * ROCKBOY_GB_CPU_HZ) /
+        ((unsigned long long)HZ * ROCKBOY_GB_CYCLES_PER_FRAME);
+    if (frames < 1)
+        frames = 1;
+    if (frames > (unsigned long long)options.maxskip)
+        frames = options.maxskip;
+
+    return (int)frames;
+}
+
+static int emu_late_tolerance_ticks(void)
+{
+    unsigned long frame_ticks =
+        (unsigned long)((HZ * ROCKBOY_GB_CYCLES_PER_FRAME +
+                         (ROCKBOY_GB_CPU_HZ / 2)) / ROCKBOY_GB_CPU_HZ);
+
+    if (frame_ticks < 1)
+        return 1;
+
+    return (int)frame_ticks;
+}
 
 static void emu_update_frame_pacing(unsigned long *pace_start,
                                     unsigned long *pace_frames,
@@ -53,19 +119,18 @@ static void emu_update_frame_pacing(unsigned long *pace_start,
     unsigned long now;
     long lateness;
     int desired_skip;
-    int late_tolerance = HZ / ROCKBOY_TARGET_FPS;
+    int late_tolerance = emu_late_tolerance_ticks();
 
-    if (late_tolerance < 1)
-        late_tolerance = 1;
     if (options.frameskip > options.maxskip)
         options.frameskip = options.maxskip;
     if (options.frameskip < 0)
         options.frameskip = 0;
 
     (*pace_frames)++;
-    deadline = *pace_start +
-        ((*pace_frames * HZ) + (ROCKBOY_TARGET_FPS / 2)) /
-        ROCKBOY_TARGET_FPS;
+    if (rockboy_accuracy_fast_forward_enabled())
+        return;
+
+    deadline = emu_frame_deadline_ticks(*pace_start, *pace_frames);
 
     while ((long)(deadline - *rb->current_tick) > 0)
         rb->yield();
@@ -76,36 +141,39 @@ static void emu_update_frame_pacing(unsigned long *pace_start,
     if (lateness > HZ)
     {
         *pace_start = now -
-            ((*pace_frames * HZ) + (ROCKBOY_TARGET_FPS / 2)) /
-            ROCKBOY_TARGET_FPS;
+            (emu_frame_deadline_ticks(0, *pace_frames));
         lateness = 0;
     }
 
     if (lateness > late_tolerance)
     {
-        desired_skip = (lateness * ROCKBOY_TARGET_FPS) / HZ;
-        if (desired_skip < 1)
-            desired_skip = 1;
-        if (desired_skip > options.maxskip)
-            desired_skip = options.maxskip;
+        desired_skip = emu_late_frames(lateness);
 
         if (desired_skip > options.frameskip)
         {
-            options.frameskip = desired_skip;
-            *stable_frames = 0;
+            if (++(*stable_frames) >= 10)
+            {
+                options.frameskip = desired_skip;
+                *stable_frames = 0;
+            }
         }
         else if (desired_skip < options.frameskip)
         {
-            if (++(*stable_frames) >= 15)
+            if (++(*stable_frames) >= 2)
             {
                 options.frameskip--;
                 *stable_frames = 0;
             }
         }
-        else
+        else if (options.frameskip > 0 && ++(*stable_frames) >= 3)
+        {
+            options.frameskip--;
+            *stable_frames = 0;
+        }
+        else if (!options.frameskip)
             *stable_frames = 0;
     }
-    else if (options.frameskip > 0 && ++(*stable_frames) >= 30)
+    else if (options.frameskip > 0 && ++(*stable_frames) >= 2)
     {
         options.frameskip--;
         *stable_frames = 0;
@@ -160,16 +228,18 @@ void emu_run(void)
         while (R_LY > 0) /* wait for next frame */
         {
             emu_profile_step(&cpu_ticks);
-            rb->yield();
+            if (!rockboy_accuracy_fast_forward_enabled())
+                rb->yield();
         }
 
         frames++;
         emu_update_frame_pacing(&pace_start, &pace_frames, &stable_frames);
 
         if(options.showstats)
-            if(*rb->current_tick-timehun>=100)
+            if(*rb->current_tick-timehun>=HZ)
             {
-                options.fps=frames;
+                unsigned long elapsed = *rb->current_tick-timehun;
+                options.fps=(frames * HZ + (elapsed / 2)) / elapsed;
                 frames=0;
                 timehun=*rb->current_tick;
             }
@@ -177,6 +247,7 @@ void emu_run(void)
         rockboy_profile_add(ROCKBOY_TIME_FRAME,
                             *rb->current_tick - frame_start);
         rockboy_profile_add(ROCKBOY_TIME_CPU, cpu_ticks);
+        rockboy_perf_log_if_due();
     }
 
 #ifdef HAVE_ADJUSTABLE_CPU_FREQ

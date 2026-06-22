@@ -10,6 +10,7 @@
 #include "cpuregs.h"
 #include "cpucore.h"
 #include "profiler.h"
+#include "settings.h"
 
 #ifdef USE_ASM
 #include "asm.h"
@@ -17,12 +18,48 @@
 
 struct cpu cpu IBSS_ATTR;
 bool plugbuf;
+extern struct options options;
+
+#ifdef SIMULATOR
+#include <stdlib.h>
+#include <string.h>
+
+#define ROCKBOY_ACCURACY_LOG_ENV "ROCKBOY_ACCURACY_LOG"
+
+static bool rockboy_accuracy_log_enabled(void)
+{
+    static int enabled = -1;
+    const char *value;
+
+    if (enabled < 0)
+    {
+        value = getenv(ROCKBOY_ACCURACY_LOG_ENV);
+        enabled = value && value[0] && strcmp(value, "0");
+    }
+
+    return enabled;
+}
+#else
+static inline bool rockboy_accuracy_log_enabled(void)
+{
+    return false;
+}
+#endif
+
+static inline bool cpu_precise_mem_timing_enabled(void)
+{
+    return options.performance_preset == ROCKBOY_PERF_QUALITY ||
+        rockboy_accuracy_log_enabled();
+}
 
 #define ZFLAG(n) ( (n) ? 0 : FZ )
 
 
-#define PUSH(w) ( (SP -= 2), (writew(xSP, (w))) )
-#define POP(w) ( ((w) = readw(xSP)), (SP += 2) )
+static void cpu_push_word(word value) ICODE_ATTR;
+static word cpu_pop_word(void) ICODE_ATTR;
+
+#define PUSH(w) cpu_push_word(w)
+#define POP(w) ((w) = cpu_pop_word())
 
 static byte cpu_fetch_byte(void) ICODE_ATTR;
 static byte cpu_fetch_byte(void)
@@ -38,6 +75,46 @@ static byte cpu_fetch_byte(void)
 }
 
 #define FETCH cpu_fetch_byte()
+
+static void cpu_push_word(word value)
+{
+    word sp = xSP;
+
+    cpu_mem_access();
+    if (mem_oam_bug_active(sp))
+        mem_oam_corrupt_write(sp);
+
+    sp--;
+    SP = sp;
+    writeb(sp, value >> 8);
+    if (mem_oam_bug_active(sp))
+        mem_oam_corrupt_write(sp);
+
+    sp--;
+    SP = sp;
+    writeb(sp, value);
+    if (mem_oam_bug_active(sp))
+        mem_oam_corrupt_write(sp);
+}
+
+static word cpu_pop_word(void)
+{
+    word sp = xSP;
+    byte lo;
+    byte hi;
+
+    lo = readb(sp);
+    if (mem_oam_bug_active(sp))
+        mem_oam_corrupt_read_idu(sp);
+
+    sp++;
+    hi = readb(sp);
+    if (mem_oam_bug_active(sp))
+        mem_oam_corrupt_read(sp);
+
+    SP = sp + 1;
+    return lo | ((word)hi << 8);
+}
 
 
 #define INC(r) { ((r)++); \
@@ -386,6 +463,14 @@ static int cpu_interrupt_entry_timing(void)
 static void cpu_start_instruction_timing(int total) ICODE_ATTR;
 static void cpu_start_instruction_timing(int total)
 {
+    if (!cpu_precise_mem_timing_enabled())
+    {
+        cpu.mem_access_active = 0;
+        cpu.mem_access_elapsed = 0;
+        cpu.mem_access_total = total;
+        return;
+    }
+
     cpu.mem_access_active = 1;
     cpu.mem_access_elapsed = 0;
     cpu.mem_access_total = total;
@@ -395,6 +480,14 @@ static void cpu_start_instruction_timing(int total)
 static int cpu_finish_instruction_timing(int total) ICODE_ATTR;
 static int cpu_finish_instruction_timing(int total)
 {
+    if (!cpu.mem_access_active)
+    {
+        cpu_timers(total << 1);
+        cpu.mem_access_elapsed = 0;
+        cpu.mem_access_total = 0;
+        return total << 1;
+    }
+
     if (total < cpu.mem_access_elapsed)
         total = cpu.mem_access_elapsed;
 
@@ -685,13 +778,59 @@ next:
         A = readb(xDE); break;
 
     case 0x22: /* LDI (HL),A */
-        writeb(xHL, A); HL++; break;
+        if (mem_oam_bug_active(xHL))
+        {
+            cpu_mem_access();
+            mem_oam_corrupt_write(xHL);
+            HL++;
+        }
+        else
+        {
+            writeb(xHL, A);
+            HL++;
+        }
+        break;
     case 0x2A: /* LDI A,(HL) */
-        A = readb(xHL); HL++; break;
+        if (mem_oam_bug_active(xHL))
+        {
+            cpu_mem_access();
+            A = 0xFF;
+            mem_oam_corrupt_read_idu(xHL);
+            HL++;
+        }
+        else
+        {
+            A = readb(xHL);
+            HL++;
+        }
+        break;
     case 0x32: /* LDD (HL),A */
-        writeb(xHL, A); HL--; break;
+        if (mem_oam_bug_active(xHL))
+        {
+            cpu_mem_access();
+            mem_oam_corrupt_write(xHL);
+            HL--;
+        }
+        else
+        {
+            writeb(xHL, A);
+            HL--;
+        }
+        break;
     case 0x3A: /* LDD A,(HL) */
-        A = readb(xHL); HL--; break;
+        if (mem_oam_bug_active(xHL))
+        {
+            cpu_mem_access();
+            A = 0xFF;
+            mem_oam_corrupt_read_idu(xHL);
+            HL--;
+        }
+        else
+        {
+            A = readb(xHL);
+            HL--;
+        }
+        break;
 
     case 0x06: /* LD B,imm */
         B = FETCH; break;
@@ -774,6 +913,8 @@ next:
         INC(A); break;
             
     case 0x03: /* INC BC */
+        cpu_mem_access();
+        mem_oam_corrupt_write(xBC);
 #ifdef DYNAREC
         W(acc)=((B<<8)|C)+1;
         B=HB(acc);
@@ -783,6 +924,8 @@ next:
 #endif
         break;
     case 0x13: /* INC DE */
+        cpu_mem_access();
+        mem_oam_corrupt_write(xDE);
 #ifdef DYNAREC
         W(acc)=((D<<8)|E)+1;
         D=HB(acc);
@@ -792,8 +935,12 @@ next:
 #endif
         break;
     case 0x23: /* INC HL */
+        cpu_mem_access();
+        mem_oam_corrupt_write(xHL);
         INCW(HL); break;
     case 0x33: /* INC SP */
+        cpu_mem_access();
+        mem_oam_corrupt_write(xSP);
         INCW(SP); break;
             
     case 0x05: /* DEC B */
@@ -817,6 +964,8 @@ next:
         DEC(A); break;
 
     case 0x0B: /* DEC BC */
+        cpu_mem_access();
+        mem_oam_corrupt_write(xBC);
 #ifdef DYNAREC
         W(acc)=((B<<8)|C)-1;
         B=HB(acc);
@@ -826,6 +975,8 @@ next:
 #endif
         break;
     case 0x1B: /* DEC DE */
+        cpu_mem_access();
+        mem_oam_corrupt_write(xDE);
 #ifdef DYNAREC
         W(acc)=((D<<8)|E)-1;
         D=HB(acc);
@@ -835,8 +986,12 @@ next:
 #endif
         break;
     case 0x2B: /* DEC HL */
+        cpu_mem_access();
+        mem_oam_corrupt_write(xHL);
         DECW(HL); break;
     case 0x3B: /* DEC SP */
+        cpu_mem_access();
+        mem_oam_corrupt_write(xSP);
         DECW(SP); break;
 
     case 0x07: /* RLCA */

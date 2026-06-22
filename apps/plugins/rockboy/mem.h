@@ -49,6 +49,11 @@ extern struct ram ram;
 void mem_updatemap(void) ICODE_ATTR;
 void mem_write(int a, byte b) ICODE_ATTR;
 byte mem_read(int a) ICODE_ATTR;
+bool mem_oam_bug_active(int a) ICODE_ATTR;
+void mem_oam_corrupt_read(int a) ICODE_ATTR;
+void mem_oam_corrupt_write(int a) ICODE_ATTR;
+void mem_oam_corrupt_read_idu(int a) ICODE_ATTR;
+void mem_accuracy_log_cart_write(int a, byte b) ICODE_ATTR;
 void mbc_reset(void);
 
 

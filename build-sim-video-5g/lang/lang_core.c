@@ -387,7 +387,7 @@ const unsigned char core_language_builtin[] =
     "Queued %d tracks (%s)\0"
     "View\0"
     "Search in Playlist\0"
-    "Searching... %d found (%s)\0"
+    "Loading tracks... %d found (%s)\0"
     "Reshuffle\0"
     "Add to New Playlist\0"
     "%s doesn't exist\0"

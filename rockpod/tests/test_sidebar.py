@@ -44,12 +44,14 @@ def test_sidebar_not_on_ipod_label_can_show_pending_state():
     assert item.toolTip(0) == "Verifying device inventory"
 
 
-def test_sidebar_uses_store_entry_for_music_and_ipod_games():
+def test_sidebar_exposes_store_and_game_sync_entries():
     app = QApplication.instance() or QApplication([])
     sidebar = Sidebar()
 
     store = sidebar._find_item("rockbox_browser")
+    game_sync = sidebar._find_item("rockbox_game_sync")
 
     assert store is not None
     assert store.text(0) == "Store"
-    assert sidebar._find_item("rockbox_games") is None
+    assert game_sync is not None
+    assert game_sync.text(0) == "Game Sync"

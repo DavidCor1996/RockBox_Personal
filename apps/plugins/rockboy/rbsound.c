@@ -2,8 +2,10 @@
 #include "defs.h"
 #include "pcm.h"
 #include "profiler.h"
+#include "settings.h"
 
 struct pcm pcm IBSS_ATTR;
+extern struct options options;
 
 #define N_BUFS 4
 #define BUF_SIZE 2048
@@ -14,6 +16,15 @@ static bool newly_started;
 static volatile int queued_bufs;
 static volatile int read_buf;
 static int write_buf;
+
+static int rockboy_pcm_preferred_hz(void)
+{
+#if defined(HW_HAVE_11) && !defined(TOSHIBA_GIGABEAT_F)
+    return SAMPR_11;
+#else
+    return SAMPR_44;
+#endif
+}
 
 static void get_more(const void** start, size_t* size)
 {
@@ -45,13 +56,9 @@ void rockboy_pcm_init(void)
     read_buf = 0;
     write_buf = 0;
 
-#if defined(HW_HAVE_11) && !defined(TOSHIBA_GIGABEAT_F)
-    pcm.hz = SAMPR_11;
-#else
-    pcm.hz = SAMPR_44;
-#endif
-
+    pcm.hz = rockboy_pcm_preferred_hz();
     pcm.stereo = 1;
+    pcm.drop_when_full = options.performance_preset != ROCKBOY_PERF_QUALITY;
 
     pcm.len = BUF_SIZE;
     if(!buf)
@@ -94,10 +101,18 @@ int rockboy_pcm_submit(void)
     if (!pcm.buf) return 0;
     if (pcm.pos < pcm.len) return 1;
 
+    pcm.drop_when_full = options.performance_preset != ROCKBOY_PERF_QUALITY;
     wait_start = *rb->current_tick;
-    while (queued_bufs >= N_BUFS - 1)
+    while (queued_bufs >= N_BUFS - 1 && !pcm.drop_when_full)
     {
         rb->yield();
+    }
+    if (queued_bufs >= N_BUFS - 1)
+    {
+        rockboy_profile_add(ROCKBOY_TIME_PCM_WAIT,
+                            *rb->current_tick - wait_start);
+        pcm.pos = 0;
+        return 1;
     }
     rockboy_profile_add(ROCKBOY_TIME_PCM_WAIT,
                         *rb->current_tick - wait_start);

@@ -9,6 +9,7 @@ struct pcm
 {
     int hz, len;
     int stereo;
+    int drop_when_full;
     short *buf;
     int pos;
 };
@@ -20,5 +21,4 @@ int  rockboy_pcm_submit(void);
 void rockboy_pcm_close(void);
 
 #endif
-
 

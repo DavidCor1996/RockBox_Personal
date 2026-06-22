@@ -385,6 +385,7 @@ class MainWindow(QMainWindow):
         self._content_stack.addWidget(self._theme_designer)
         self._content_stack.addWidget(self._boot_manager)
         self._content_stack.addWidget(self._plugin_manager)
+        self._content_stack.addWidget(self._game_manager)
         self._content_stack.addWidget(self._store_page)
         self._content_stack.addWidget(self._photo_manager)
         self._content_stack.addWidget(self._simulator_panel)
@@ -889,6 +890,8 @@ class MainWindow(QMainWindow):
             tracks = []
         elif self._current_view == "rockbox_plugins":
             tracks = []
+        elif self._current_view == "rockbox_game_sync":
+            tracks = []
         elif self._current_view == "rockbox_games":
             tracks = []
         elif self._current_view == "rockbox_photos":
@@ -1080,6 +1083,7 @@ class MainWindow(QMainWindow):
             "rockbox_theme_designer": "Theme Designer",
             "rockbox_boot": "Boot / Branding",
             "rockbox_plugins": "Plugins",
+            "rockbox_game_sync": "Game Sync",
             "rockbox_games": "Store",
             "rockbox_movies": "Store",
             "rockbox_sharing": "Store",
@@ -1248,6 +1252,9 @@ class MainWindow(QMainWindow):
         elif self._current_view == "rockbox_plugins":
             self._content_stack.setCurrentWidget(self._plugin_manager)
             self._refresh_plugin_manager()
+        elif self._current_view == "rockbox_game_sync":
+            self._content_stack.setCurrentWidget(self._game_manager)
+            self._refresh_game_manager()
         elif self._current_view == "rockbox_games":
             self._content_stack.setCurrentWidget(self._store_page)
             self._store_page.setCurrentWidget(self._game_browser_panel)
@@ -2727,6 +2734,8 @@ class MainWindow(QMainWindow):
             self._refresh_boot_manager()
         elif self._current_view == "rockbox_plugins":
             self._refresh_plugin_manager()
+        elif self._current_view == "rockbox_game_sync":
+            self._refresh_game_manager()
         elif self._current_view == "rockbox_games":
             self._refresh_game_browser_panel()
         elif self._current_view == "rockbox_photos":

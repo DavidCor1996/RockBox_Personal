@@ -518,6 +518,27 @@ static void rockboy_set_default_options(void)
 #endif
 }
 
+#if CONFIG_KEYPAD == IPOD_4G_PAD && defined(IPOD_VIDEO)
+static void rockboy_ipod5g_force_display_defaults(void)
+{
+    if (options.scaling != 0)
+    {
+        options.scaling = 0;
+        options.dirty = 1;
+    }
+    if (options.rotate != 0)
+    {
+        options.rotate = 0;
+        options.dirty = 1;
+    }
+    if (options.control_preset != ROCKBOY_CTRL_IPOD5G)
+    {
+        options.control_preset = ROCKBOY_CTRL_IPOD5G;
+        options.dirty = 1;
+    }
+}
+#endif
+
 void rockboy_apply_performance_preset(int preset)
 {
     options.performance_preset = preset;
@@ -529,16 +550,19 @@ void rockboy_apply_performance_preset(int preset)
             options.maxskip = 3;
             options.sound = 1;
             options.scaling = 0;
+            options.rotate = 0;
             break;
         case ROCKBOY_PERF_QUALITY:
             options.maxskip = 1;
             options.sound = 1;
             options.scaling = 0;
+            options.rotate = 0;
             break;
         default:
             options.maxskip = 2;
             options.sound = 1;
             options.scaling = 0;
+            options.rotate = 0;
             break;
     }
 #else
@@ -608,6 +632,7 @@ static void setoptions (void)
         options.profile = ROCKBOY_PROFILE_OFF;
 
 #if CONFIG_KEYPAD == IPOD_4G_PAD && defined(IPOD_VIDEO)
+    rockboy_ipod5g_force_display_defaults();
     if (((options.performance_preset == ROCKBOY_PERF_BALANCED ||
           options.performance_preset == ROCKBOY_PERF_PERFORMANCE) &&
          options.scaling == 2) ||
@@ -723,6 +748,7 @@ enum plugin_status plugin_start(const void* parameter)
     }
     rockboy_return_to_launcher = return_to_launcher;
     rockboy_profile_start(rom_path);
+    rockboy_perf_start(rom_path);
 
     shut=0;
     cleanshut=0;

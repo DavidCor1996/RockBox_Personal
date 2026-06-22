@@ -23,7 +23,11 @@ void writeb(int a, byte b)
 {
     byte *p = mbc.wmap[a>>12];
     CPU_MEMORY_ACCESS();
-    if (p) p[a] = b;
+    if (p)
+    {
+        mem_accuracy_log_cart_write(a, b);
+        p[a] = b;
+    }
     else
     {
         rockboy_profile_count(ROCKBOY_EVENT_SLOW_MEM_WRITES, 1);
@@ -67,14 +71,20 @@ void writew(int a, int w)
 #ifndef ALLOW_UNALIGNED_IO
             if (a&1)
             {
+                mem_accuracy_log_cart_write(a, w);
+                mem_accuracy_log_cart_write(a + 1, w >> 8);
                 p[a] = w;
                 p[a+1] = w >> 8;
                 return;
             }
 #endif
+            mem_accuracy_log_cart_write(a, w);
+            mem_accuracy_log_cart_write(a + 1, w >> 8);
             *(word *)(p+a) = w;
             return;
 #else
+            mem_accuracy_log_cart_write(a, w);
+            mem_accuracy_log_cart_write(a + 1, w >> 8);
             p[a] = w;
             p[a+1] = w >> 8;
             return;

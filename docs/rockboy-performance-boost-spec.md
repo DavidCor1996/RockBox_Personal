@@ -138,6 +138,22 @@ Status - 2026-06-20:
   which was used for Pokemon Red and Oracle of Ages direct-start runs.
 - Direct-start validation passed with Tetris in the iPod Video simulator:
   `tools/rockboy_profile_gate.py --validate /tmp/rockboy-profile-gate-4p0ms7cp/simdisk`.
+- The profile gate can now run the iPod Video simulator directly with
+  `ROCKBOX_SIM_PLUGIN`, stop after an autowritten profile sample, and validate
+  the speed profile with `--validate-speed`.
+- Rockboy frame pacing now uses the original Game Boy cadence rather than a
+  rounded 60 fps target: 4,194,304 CPU cycles per second divided by 70,224
+  cycles per frame, logged as `target_fps_x1000=59728`.
+- Speed acceptance now checks `frame_avg_ticks_x1000` against
+  `target_frame_ticks_x1000` and fails if the skipped-frame ratio exceeds the
+  gate threshold. This makes Pokémon/Tetris profile runs a measurable
+  performance gate instead of a subjective simulator observation.
+- The speed gate now disables frameskip for acceptance runs and uses a minimal
+  staged simdisk so long profile loops do not fill `/tmp`.
+- Final Pokémon simulator evidence after pacing/audio/frameskip tuning:
+  `total_frames=900`, `rendered_frames=900`, `skipped_frames=0`,
+  `effective_fps_x1000=59094`, `target_fps_x1000=59728`,
+  `pcm_hz=11025`, `sound=1`.
 
 ## Phase 1: Profiling Detail
 

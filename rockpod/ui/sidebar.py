@@ -102,6 +102,7 @@ class Sidebar(QWidget):
     ROCKBOX_THEME_DESIGNER = "rockbox_theme_designer"
     ROCKBOX_BOOT = "rockbox_boot"
     ROCKBOX_PLUGINS = "rockbox_plugins"
+    ROCKBOX_GAME_SYNC = "rockbox_game_sync"
     ROCKBOX_GAMES = "rockbox_games"
     ROCKBOX_PHOTOS = "rockbox_photos"
     ROCKBOX_BROWSER = "rockbox_browser"
@@ -218,7 +219,10 @@ class Sidebar(QWidget):
             self._rockbox_header, "Plugins", self.ROCKBOX_PLUGINS,
             _make_icon("#7c96ad", "playlist")
         )
-        self._games_item = None
+        self._games_item = self._add_item(
+            self._rockbox_header, "Game Sync", self.ROCKBOX_GAME_SYNC,
+            _make_icon("#6f8fb8", "device")
+        )
         self._photos_item = self._add_item(
             self._rockbox_header, "Photos", self.ROCKBOX_PHOTOS,
             _make_icon("#8c9f6f", "album")

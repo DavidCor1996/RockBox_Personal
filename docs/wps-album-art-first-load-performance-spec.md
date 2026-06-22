@@ -25,6 +25,20 @@ common path is cheap:
 The user should not need to embed artwork in every audio file or manually resize
 covers for Rockbox.
 
+The visual target should also account for stock iPod classic 7G expectations:
+album art on playback and right-side preview surfaces should feel larger than
+tiny list thumbnails. For the current 320x240 iPone skin, checked-in tags
+already request:
+
+- WPS main art: `138x138` in `wps/iPone.wps`;
+- SBS/right preview art: `128x128` in `wps/iPone.sbs`;
+- lockscreen notification art: `51x51` in `wps/iPone.sbs`.
+
+If simulator comparison shows the stock 7G playback art still feels larger than
+the current iPone layout, increase the WPS/SBS `%Cl(...)` slots and let RockPod
+generate matching exact-size BMPs. Do not enlarge the theme art without also
+updating RockPod size discovery and buffer/load validation.
+
 ## Current Evidence
 
 ### Rockbox
@@ -117,6 +131,9 @@ Completed in the current working tree:
   `rockpod/services/rockbox_wps_art.py`.
 - RockPod config now includes `export_wps_sized_covers`,
   `wps_cover_fit_mode`, and `max_wps_cover_sizes_per_device`.
+- The checked-in iPone 320x240 WPS/SBS sizes are currently discovered from
+  `%Cl(...)` as `138x138`, `128x128`, and `51x51`; the default cap prioritizes
+  the two largest visible playback/preview surfaces.
 - `ArtworkManager.export_rockbox_wps_cover()` exports exact-size BMP covers,
   caches by source hash/dimensions/fit mode, and avoids rewriting unchanged
   outputs.
@@ -196,6 +213,8 @@ size.
 3. Fix fallback sizes and include known iPone-family SBS sizes.
    - Known iPone-style sizes in this tree include `138x138`, `128x128`, and
      `51x51` on 320x240 themes.
+   - If the WPS/SBS art is enlarged to better match stock 7G visual scale,
+     update the fallback data and tests with the new measured dimensions.
    - Keep the default max size count bounded, but make the selection explicit:
      main WPS art first, then visible miniplayer/lockscreen art.
    - Risk is low; excess generation can be controlled by config.
@@ -255,6 +274,8 @@ size.
 
 - Make first WPS art display fast for the active iPod theme, especially iPone on
   320x240 targets.
+- Preserve or improve the stock-like visual scale of playback album art; do not
+  solve load time by making the art smaller.
 - Avoid large JPEG decode on the Rockbox first-hit path when RockPod has already
   synced artwork.
 - Preserve existing generic `cover.jpg` behavior for compatibility.
@@ -289,6 +310,8 @@ Fallbacks:
 - if parsing fails, use profile defaults for known themes
 - for iPone 320x240, use the active WPS slot dimensions from the checked-in
   theme
+- if iPone WPS/SBS art slots are enlarged after stock 7G screenshot comparison,
+  update the fallback and tests so RockPod exports the larger exact-size BMPs
 - keep `cover.jpg` export enabled for compatibility
 
 Size priority:
@@ -453,6 +476,8 @@ Rules:
    - Main WPS size first.
    - SBS/miniplayer size second.
    - Lock/notification size only if cap allows.
+   - Include any future larger iPone WPS/SBS art slots in the tests so larger
+     visuals do not regress first-load speed.
 4. Add the low-risk Rockbox changes.
    - Skip JPEG overhead allocation for external BMPs.
    - Prefer `.bmp` for size-specific album-art probes.

@@ -20,6 +20,9 @@
  ****************************************************************************/
 #include "config.h"
 #include "system.h"
+#ifdef SIMULATOR
+#include <stdlib.h>
+#endif
 
 #include "version.h"
 #include "gcc_extensions.h"
@@ -228,6 +231,18 @@ int main(void)
         }
     }
 #endif /* #ifdef AUTOROCK */
+
+#ifdef SIMULATOR
+    {
+        const char *sim_plugin = getenv("ROCKBOX_SIM_PLUGIN");
+        const char *sim_plugin_param = getenv("ROCKBOX_SIM_PLUGIN_PARAM");
+
+        if (sim_plugin && sim_plugin[0])
+            plugin_load(sim_plugin,
+                        sim_plugin_param && sim_plugin_param[0] ?
+                        sim_plugin_param : NULL);
+    }
+#endif
 
     global_status.last_volume_change = 0;
     /* no calls INIT_ATTR functions after this point anymore!

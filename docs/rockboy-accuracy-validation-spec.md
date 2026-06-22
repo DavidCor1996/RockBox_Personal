@@ -14,6 +14,16 @@ simulator.
   a ROM so CGB-compatible DMG test ROMs run in DMG mode.
 - Simulator-only `ROCKBOY_SERIAL_LOG=1` captures Game Boy link-port bytes to
   `/.rockbox/rockboy/serial.log`.
+- `tools/rockboy_accuracy_gate.py --run` launches the iPod Video simulator,
+  waits for the expected serial text, and stops the simulator process after the
+  ROM emits a verdict.
+- Simulator-only `ROCKBOX_SIM_PLUGIN` and `ROCKBOX_SIM_PLUGIN_PARAM` can be
+  used by the gates to launch Rockboy directly with a staged ROM path. This
+  avoids fragile manual navigation and keeps hardware builds unchanged.
+- Simulator-only `ROCKBOY_ACCURACY_FAST=1` is used by `--run` to skip frame
+  pacing and LCD line refresh work during serial-only accuracy gates. A black
+  simulator window is expected in this mode; normal simulator and iPod runs do
+  not use this flag.
 - Test ROM binaries are not committed. Use an external checkout such as
   `/tmp/gb-test-roms`.
 
@@ -70,6 +80,39 @@ Passed on 2026-06-21:
 - `blargg/dmg_sound/dmg_sound.gb`: on-screen `Passed`
   - Final aggregate screen showed `01:ok` through `12:ok` followed by
     `Passed`.
+- `blargg/oam_bug/oam_bug.gb` in forced-DMG mode: serial `Passed`
+  - Individual groups `1-lcd_sync`, `2-causes`, `3-non_causes`,
+    `4-scanline_timing`, `5-timing_bug`, `6-timing_no_bug`, and
+    `8-instr_effect` were also validated with the simulator gate.
+  - `7-timing_effect` is diagnostic-heavy as an individual ROM, but the
+    aggregate OAM ROM passes with the same implementation.
+- `blargg/cgb_sound/cgb_sound.gb`: serial `Passed`
+  - The previously failing `08-len ctr during power`,
+    `09-wave read while on`, `11-regs after power`, and `12-wave` singles now
+    pass in the simulator.
+- Automated gate rerun:
+  - `cpu_instrs.gb`: serial `Passed all tests`
+  - `instr_timing.gb`: serial `Passed`
+  - `mem_timing.gb`: serial `Passed all tests`
+  - `dmg_sound.gb`: serial `Passed`
+  - `oam_bug.gb` with `--force-dmg`: serial `Passed`
+  - `cgb_sound.gb`: serial `Passed`
+- LCD/gameplay smoke:
+  - `cpu_instrs.gb` frame 120 dump-only LCD capture completed and produced a
+    gate-validated non-blank 160x144 PPM frame.
+  - `Pokemon - Red Version (USA, Europe) (SGB Enhanced).gb` frame 300
+    dump-only LCD capture completed after scripted START/A input and produced
+    a gate-validated non-blank 160x144 PPM frame.
+- Performance cadence:
+  - Normal Rockboy gameplay now paces frames from the original Game Boy clock:
+    4,194,304 Hz / 70,224 cycles per frame = 59.7275 fps.
+  - `tools/rockboy_profile_gate.py --run --validate-speed` validates
+    `target_fps_x1000=59728`, average paced frame ticks, and skipped-frame
+    ratio from `profile.log`.
+  - `Pokemon - Red Version (USA, Europe) (SGB Enhanced).gb` passed the
+    simulator speed gate with sound on and frameskip forced off:
+    `total_frames=900`, `rendered_frames=900`, `skipped_frames=0`,
+    `effective_fps_x1000=59094`, `target_fps_x1000=59728`.
 
 Fixed during this pass:
 
@@ -94,16 +137,25 @@ Fixed during this pass:
   DMG power-off length counter freezing, active wave-RAM read/write windows,
   and DMG wave retrigger corruption now pass Blargg's full `dmg_sound.gb`
   aggregate suite in the iPod Video simulator.
+- The DMG OAM corruption bug is now modeled for mode-2 OAM accesses, stack
+  push/pop ordering, and HL auto-increment/decrement 16-bit IDU effects. The
+  forced-DMG `oam_bug.gb` aggregate now passes in the iPod Video simulator.
+- CGB APU power-off/power-on behavior now resets hidden length counters,
+  ignores powered-off register writes, preserves wave RAM, exposes channel-3's
+  current wave byte while playing, targets current-byte wave writes, and uses a
+  CGB-specific wave restart phase. The full `cgb_sound.gb` aggregate now
+  passes in the iPod Video simulator.
+- Frame pacing no longer targets rounded 60 fps. The normal gameplay loop uses
+  the hardware CPU/frame-cycle ratio, while serial-only fast accuracy gates
+  still opt out of pacing with `ROCKBOY_ACCURACY_FAST=1`.
+- The profile speed gate stages only the selected ROM into a minimal simulator
+  disk and forces `frameskip=0`/`maxskip=0`, so passing performance evidence is
+  based on rendered frames rather than hidden skip recovery.
 
-Known failures from the expanded 2026-06-20 simulator pass:
+Resolved failures from the expanded 2026-06-20 simulator pass:
 
-- `blargg/oam_bug/oam_bug.gb` in forced-DMG mode:
-  - Passing groups: `01`, `03`, `06`.
-  - Failing groups: `02`, `04`, `05`, `07`, `08`.
-  - Remaining cause: Rockboy still does not emulate the DMG OAM corruption bug
-    caused by OAM accesses and 16-bit IDU operations during PPU mode 2.
-- `blargg/cgb_sound/cgb_sound.gb`: group `10` passed; the other groups failed
-  on-screen.
+- `blargg/oam_bug/oam_bug.gb` in forced-DMG mode now reports `Passed`.
+- `blargg/cgb_sound/cgb_sound.gb` now reports `Passed`.
 
 Memory timing work completed:
 
@@ -126,7 +178,15 @@ Required:
 - `cpu_instrs.gb` passes.
 - `instr_timing.gb` passes.
 - `mem_timing.gb` passes.
-- LCD visual reference tests such as DMG/CGB acid tests match reference output.
+- `oam_bug.gb` passes in forced-DMG mode.
+- `dmg_sound.gb` and `cgb_sound.gb` pass.
+- LCD visual reference tests such as DMG/CGB acid tests match reference output
+  once external reference images are supplied.
 - A small ROM corpus still boots in simulator after accuracy changes.
+- Profile speed gates show normal gameplay cadence within tolerance and do not
+  rely on sustained frameskip to keep up.
 
-Current status: not frame-accurate yet.
+Current status: serial CPU/timing/memory/OAM/APU gates pass and LCD dump-only
+smokes are automated with nonblank-frame validation. Do not claim frame
+accuracy yet until true LCD reference images are supplied and matched
+pixel-for-pixel.

@@ -143,11 +143,23 @@ static void sound_power_off(void)
 
     for (r = RI_NR10; r <= RI_NR51; r++)
         ram.hi[r] = 0;
-    R_NR41 = nr41;
-    S1.len = s1_len;
-    S2.len = s2_len;
-    S3.len = s3_len;
-    S4.len = s4_len;
+
+    if (!hw.cgb)
+    {
+        R_NR41 = nr41;
+        S1.len = s1_len;
+        S2.len = s2_len;
+        S3.len = s3_len;
+        S4.len = s4_len;
+    }
+    else
+    {
+        S1.len = S2.len = S3.len = S4.len = 0;
+        S1.suppress_enable_clock =
+            S2.suppress_enable_clock =
+            S3.suppress_enable_clock =
+            S4.suppress_enable_clock = 0;
+    }
 
     R_NR52 = 0;
 }
@@ -214,7 +226,7 @@ static int sound_wave_period(void)
 
 static void sound_wave_restart_timer(void)
 {
-    snd.wave_timer = sound_wave_period() + 1;
+    snd.wave_timer = sound_wave_period() + (hw.cgb ? 3 : 1);
     snd.wave_access = 0;
     snd.wave_index = 0;
     snd.wave_startup = 1;
@@ -226,6 +238,11 @@ static int sound_wave_access_offset(void)
         return -1;
 
     return ((snd.wave_index - 1) >> 1) & 0x0f;
+}
+
+static int sound_wave_current_offset_cgb(void)
+{
+    return (snd.wave_index >> 1) & 0x0f;
 }
 
 static int sound_wave_corruption_offset(void)
@@ -650,6 +667,8 @@ byte sound_read(byte r)
     if(!options.sound) return 0;
     sound_mix();
     /* printf("read %02X: %02X\n", r, REG(r)); */
+    if (r >= 0x30 && r <= 0x3f && hw.cgb && S3.on && (R_NR30 & 0x80))
+        return ram.hi[0x30 + sound_wave_current_offset_cgb()];
     if (r >= 0x30 && r <= 0x3f && !hw.cgb && S3.on && (R_NR30 & 0x80))
     {
         offset = sound_wave_access_offset();
@@ -675,6 +694,11 @@ void sound_write(byte r, byte b)
 
     if (r >= 0x30 && r <= 0x3f)
     {
+        if (hw.cgb && S3.on && (R_NR30 & 0x80))
+        {
+            ram.hi[0x30 + sound_wave_current_offset_cgb()] = b;
+            return;
+        }
         if (!hw.cgb && S3.on && (R_NR30 & 0x80))
         {
             int offset = sound_wave_access_offset();
@@ -694,6 +718,14 @@ void sound_write(byte r, byte b)
             {
                 snd.length_phase = 0;
                 snd.frame_step = 0;
+                if (hw.cgb)
+                {
+                    S1.len = S2.len = S3.len = S4.len = 0;
+                    S1.suppress_enable_clock =
+                        S2.suppress_enable_clock =
+                        S3.suppress_enable_clock =
+                        S4.suppress_enable_clock = 0;
+                }
             }
             R_NR52 = (R_NR52 & 0x0f) | 0x80;
         }
@@ -704,6 +736,9 @@ void sound_write(byte r, byte b)
 
     if (!(R_NR52 & 0x80))
     {
+        if (hw.cgb)
+            return;
+
         switch (r)
         {
         case RI_NR11:

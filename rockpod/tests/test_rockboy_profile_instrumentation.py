@@ -60,12 +60,95 @@ def test_simulator_profile_autowrite_is_opt_in_and_target_gated():
 
 def test_simulator_serial_log_is_opt_in_and_target_gated():
     mem = _read("apps/plugins/rockboy/mem.c")
+    fastmem = _read("apps/plugins/rockboy/fastmem.c")
 
     assert "ROCKBOY_SERIAL_LOG" in mem
+    assert "ROCKBOY_ACCURACY_LOG" in mem
+    assert "GBLARGG_FINAL_RESULT" in mem
+    assert "GBLARGG_TEXT_LOG_LIMIT" in mem
+    assert "accuracy text truncated" in mem
     assert "#ifdef SIMULATOR" in mem
     assert "case RI_SB:" in mem
     assert "rockboy_serial_log_byte(R_SB);" in mem
+    assert "mem_accuracy_log_cart_write(a, b);" in fastmem
     assert 'snprintf(path, sizeof(path), "%s/serial.log", savedir);' in mem
+
+
+def test_simulator_accuracy_fast_forward_is_opt_in_and_target_gated():
+    emu = _read("apps/plugins/rockboy/emu.c")
+    lcdc = _read("apps/plugins/rockboy/lcdc.c")
+
+    assert "ROCKBOY_ACCURACY_FAST" in emu
+    assert "#ifdef SIMULATOR" in emu
+    assert "rockboy_accuracy_fast_forward_enabled()" in emu
+    assert "if (rockboy_accuracy_fast_forward_enabled())\n        return;" in emu
+    assert "if (!rockboy_accuracy_fast_forward_enabled())\n                rb->yield();" in emu
+    assert "ROCKBOY_ACCURACY_FAST" in lcdc
+    assert "fb.enabled && !rockboy_accuracy_fast_forward_enabled()" in lcdc
+
+
+def test_gameboy_frame_pacing_uses_hardware_cadence():
+    emu = _read("apps/plugins/rockboy/emu.c")
+    profiler = _read("apps/plugins/rockboy/profiler.c")
+    profiler_h = _read("apps/plugins/rockboy/profiler.h")
+    sys_rockbox = _read("apps/plugins/rockboy/sys_rockbox.c")
+    gate = _read("tools/rockboy_profile_gate.py")
+
+    assert "#define ROCKBOY_GB_CPU_HZ 4194304ULL" in emu
+    assert "#define ROCKBOY_GB_CYCLES_PER_FRAME 70224ULL" in emu
+    assert "#define ROCKBOY_TARGET_FPS 60" not in emu
+    assert "emu_frame_deadline_ticks" in emu
+    assert "target_fps_x1000=%lu" in profiler
+    assert "frame_avg_ticks_x1000=%lu" in profiler
+    assert "ROCKBOY_PERF_AUTOWRITE_FRAMES" in profiler
+    assert "performance.log" in profiler
+    assert "rockboy_perf_frame_rendered" in sys_rockbox
+    assert "rockboy_perf_frame_skipped" in sys_rockbox
+    assert "void rockboy_perf_log_if_due(void)" in profiler_h
+    assert "TARGET_FPS_X1000 = 59728" in gate
+    assert "--validate-speed" in gate
+    assert "ROCKBOY_PERF_AUTOWRITE_FRAMES" in gate
+
+
+def test_balanced_pcm_submit_does_not_block_gameplay_when_queue_is_full():
+    rbsound = _read("apps/plugins/rockboy/rbsound.c")
+    pcm_h = _read("apps/plugins/rockboy/pcm.h")
+    profiler = _read("apps/plugins/rockboy/profiler.c")
+
+    assert "drop_when_full" in pcm_h
+    assert "rockboy_pcm_preferred_hz" in rbsound
+    assert "return SAMPR_11;" in rbsound
+    assert "options.performance_preset != ROCKBOY_PERF_QUALITY" in rbsound
+    assert "queued_bufs >= N_BUFS - 1 && !pcm.drop_when_full" in rbsound
+    assert "pcm.pos = 0;" in rbsound
+    assert "pcm_hz=%d" in profiler
+
+
+def test_simulator_lcd_reference_dump_is_opt_in_and_target_gated():
+    lcd = _read("apps/plugins/rockboy/lcd.c")
+    gate = _read("tools/rockboy_lcd_reference_gate.py")
+
+    assert "ROCKBOY_LCD_DUMP_FRAME" in lcd
+    assert "ROCKBOY_LCD_DUMP_NAME" in lcd
+    assert "#if defined(SIMULATOR) && defined(HAVE_LCD_COLOR)" in lcd
+    assert "static void lcd_dump_line(void)" in lcd
+    assert "P6\\n160 144\\n255\\n" in lcd
+    assert "lcd_dump_line();" in lcd
+    assert "ROCKBOY_LCD_DUMP_FRAME" in gate
+    assert "ROCKBOY_ACCURACY_FAST" not in gate
+
+
+def test_simulator_scripted_input_is_opt_in_and_target_gated():
+    sys_rockbox = _read("apps/plugins/rockboy/sys_rockbox.c")
+    gate = _read("tools/rockboy_lcd_reference_gate.py")
+
+    assert "ROCKBOY_INPUT_SCRIPT" in sys_rockbox
+    assert "#ifdef SIMULATOR" in sys_rockbox
+    assert "scripted_input_post_due();" in sys_rockbox
+    assert "PAD_START" in sys_rockbox
+    assert "PAD_A" in sys_rockbox
+    assert "--input-script" in gate
+    assert 'env["ROCKBOY_INPUT_SCRIPT"] = args.input_script' in gate
 
 
 def test_profile_hot_path_calls_are_inline_guarded():
@@ -91,8 +174,18 @@ def test_dmg_background_only_fast_path_is_guarded():
     assert "static void dmg_bg_window_no_spr_scan(void)" in lcd
     assert "static void cgb_bg_only_scan(void)" in lcd
     assert "static void cgb_bg_window_no_spr_scan(void)" in lcd
-    assert "dmg_bg_only_eligible = !hw.cgb && !NS && WX == 160;" in lcd
-    assert "dmg_bg_window_no_spr_eligible = !hw.cgb && !NS && WX >= 0 && WX < 160;" in lcd
+    assert "dmg_bg_only_eligible = !hw.cgb && (R_LCDC & 0x01) && !NS && WX == 160;" in lcd
+    assert "!hw.cgb && (R_LCDC & 0x01) && !NS && WX >= 0 && WX < 160;" in lcd
+    assert "if (!hw.cgb && !(R_LCDC & 0x01))" in lcd
+    assert "dmg_bg_disabled_scan();" in lcd
+    assert "static int window_line;" in lcd
+    assert "window_line = 0;" in lcd
+    assert "WT = window_line >> 3;" in lcd
+    assert "WV = window_line & 7;" in lcd
+    assert "if (WX < 160)\n        window_line++;" in lcd
+    assert "(dmg_map >> ((palette_index & 3) << 1)) & 3" in lcd
+    assert "if (b && ((hw.cgb && !(R_LCDC & 0x01)) || !(bg[i]&3)))" in lcd
+    assert "if (b && (!(R_LCDC & 0x01) || !pri[i] || !(bg[i]&3)))" in lcd
     assert "cgb_bg_only_eligible = hw.cgb && !NS && WX == 160;" in lcd
     assert "cgb_bg_window_no_spr_eligible = hw.cgb && !NS && WX >= 0 && WX < 160;" in lcd
     assert "fast_line_rendering_enabled()" in lcd
@@ -162,10 +255,48 @@ def test_cpu_memory_access_timing_splits_instruction_cycles():
     cpu_h = _read("apps/plugins/rockboy/cpu-gb.h")
 
     assert "void cpu_mem_access(void)" in cpu
+    assert "cpu_precise_mem_timing_enabled" in cpu
+    assert "ROCKBOY_ACCURACY_LOG" in cpu
+    assert "options.performance_preset == ROCKBOY_PERF_QUALITY" in cpu
+    assert "cpu_timers(total << 1);" in cpu
     assert "cpu_start_instruction_timing(op == 0xCB ? 2 : clen);" in cpu
     assert "cpu_finish_instruction_timing(clen);" in cpu
     assert "cpu.mem_access_total = clen;" in cpu
     assert "int mem_access_active;" in cpu_h
+
+
+def test_oam_bug_stack_ops_use_ordered_memory_cycles():
+    cpu = _read("apps/plugins/rockboy/cpu.c")
+
+    assert "static void cpu_push_word(word value)" in cpu
+    assert "static word cpu_pop_word(void)" in cpu
+    assert "#define PUSH(w) cpu_push_word(w)" in cpu
+    assert "#define POP(w) ((w) = cpu_pop_word())" in cpu
+    assert "mem_oam_corrupt_read_idu(sp);" in cpu
+    assert "mem_oam_corrupt_read(sp);" in cpu
+    assert "mem_oam_corrupt_write(sp);" in cpu
+
+
+def test_oam_bug_hl_auto_inc_dec_charges_memory_cycle_before_corruption():
+    cpu = _read("apps/plugins/rockboy/cpu.c")
+
+    for opcode in (
+        "case 0x22: /* LDI (HL),A */",
+        "case 0x2A: /* LDI A,(HL) */",
+        "case 0x32: /* LDD (HL),A */",
+        "case 0x3A: /* LDD A,(HL) */",
+    ):
+        start = cpu.index(opcode)
+        active = cpu.index("if (mem_oam_bug_active(xHL))", start)
+        cycle = cpu.index("cpu_mem_access();", active)
+        corrupt = min(
+            pos for pos in (
+                cpu.find("mem_oam_corrupt_write(xHL);", active),
+                cpu.find("mem_oam_corrupt_read_idu(xHL);", active),
+            )
+            if pos >= 0
+        )
+        assert cycle < corrupt
 
 
 def test_interrupt_entry_charges_five_machine_cycles():
@@ -303,9 +434,10 @@ def test_sound_wave_reads_use_cpu_cycle_timer():
     assert "int wave_startup;" in sound_h
     assert "void sound_tick(int cnt)" in sound_h
     assert "static void sound_wave_tick(int cnt)" in sound
-    assert "snd.wave_timer = sound_wave_period() + 1;" in sound
+    assert "snd.wave_timer = sound_wave_period() + (hw.cgb ? 3 : 1);" in sound
     assert "snd.wave_startup = 1;" in sound
     assert "static int sound_wave_access_offset(void)" in sound
+    assert "static int sound_wave_current_offset_cgb(void)" in sound
     assert "if (!snd.wave_access || (snd.wave_startup && snd.wave_index == 1))" in sound
     assert "if (snd.wave_timer != 1 || (snd.wave_startup && snd.wave_index == 1))" in sound
     assert "static void sound_wave_retrigger_dmg(void)" in sound
@@ -316,6 +448,8 @@ def test_sound_wave_reads_use_cpu_cycle_timer():
     assert "snd.wave_access = 1;" in sound
     assert "return ((snd.wave_index - 1) >> 1) & 0x0f;" in sound
     assert "return (snd.wave_index >> 1) & 0x0f;" in sound
+    assert "r >= 0x30 && r <= 0x3f && hw.cgb && S3.on && (R_NR30 & 0x80)" in sound
+    assert "ram.hi[0x30 + sound_wave_current_offset_cgb()] = b;" in sound
     assert "return ram.hi[0x30 + offset];" in sound
     assert "ram.hi[0x30 + offset] = b;" in sound
     assert "sound_wave_retrigger_dmg();" in sound
@@ -345,3 +479,12 @@ def test_sound_powered_off_keeps_noise_length_writable():
     assert "case RI_NR31:" in sound
     assert "case RI_NR41:" in sound
     assert "S4.len = SOUND_LENGTH_UNIT * (64 - (b & 0x3f));" in sound
+
+
+def test_sound_cgb_power_cycle_resets_hidden_lengths_and_ignores_off_writes():
+    sound = _read("apps/plugins/rockboy/sound.c")
+
+    assert "if (!hw.cgb)" in sound
+    assert "S1.len = S2.len = S3.len = S4.len = 0;" in sound
+    assert "if (hw.cgb)\n            return;" in sound
+    assert "snd.wave_timer = sound_wave_period() + (hw.cgb ? 3 : 1);" in sound

@@ -60,6 +60,10 @@ def test_store_contains_music_and_ipod_games_browser_tabs(config, monkeypatch):
         assert window._content_stack.currentWidget() is window._store_page
         assert window._store_page.currentWidget() is window._browser_panel
 
+        window._on_sidebar_selection("rockbox", "rockbox_game_sync")
+        assert window._content_stack.currentWidget() is window._game_manager
+
+        window._on_sidebar_selection("rockbox", "rockbox_browser")
         window._store_page.setCurrentWidget(window._game_browser_panel)
         assert window._current_view == "rockbox_games"
         assert window._game_browser_panel._download_dir == config.get("games_library_path")

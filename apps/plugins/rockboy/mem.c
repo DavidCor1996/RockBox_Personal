@@ -3,6 +3,7 @@
 #include "rockmacros.h"
 
 #include "defs.h"
+#include "cpu-gb.h"
 #include "hw.h"
 #include "regs.h"
 #include "mem.h"
@@ -13,10 +14,18 @@
 
 #ifdef SIMULATOR
 #include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
 
 #define ROCKBOY_SERIAL_LOG_ENV "ROCKBOY_SERIAL_LOG"
+#define ROCKBOY_ACCURACY_LOG_ENV "ROCKBOY_ACCURACY_LOG"
+#define GBLARGG_FINAL_RESULT 0xA000
+#define GBLARGG_TEXT_OUT_BASE 0xA004
+#define GBLARGG_TEXT_OUT_END 0xB000
+#define GBLARGG_TEXT_LOG_LIMIT 4096
 
 static int rockboy_serial_log_fd = -2;
+static int rockboy_accuracy_text_bytes;
 
 static bool rockboy_serial_log_enabled(void)
 {
@@ -40,9 +49,60 @@ static void rockboy_serial_log_byte(byte b)
     if (rockboy_serial_log_fd >= 0)
         write(rockboy_serial_log_fd, &b, 1);
 }
+
+static bool rockboy_accuracy_log_enabled(void)
+{
+    const char *value = getenv(ROCKBOY_ACCURACY_LOG_ENV);
+
+    return value && value[0] && strcmp(value, "0");
+}
+
+static void rockboy_serial_log_text(const char *text)
+{
+    while (*text)
+        rockboy_serial_log_byte(*text++);
+}
+
+void mem_accuracy_log_cart_write(int a, byte b)
+{
+    char result[24];
+
+    if (!rockboy_accuracy_log_enabled())
+        return;
+    if (a == GBLARGG_FINAL_RESULT)
+    {
+        if (b == 0x80)
+            return;
+        if (b == 0)
+            rockboy_serial_log_text("\nPassed\n");
+        else
+        {
+            snprintf(result, sizeof(result), "\nFailed #%u\n", b);
+            rockboy_serial_log_text(result);
+        }
+        return;
+    }
+    if (a < GBLARGG_TEXT_OUT_BASE || a >= GBLARGG_TEXT_OUT_END)
+        return;
+    if (b == 0)
+        return;
+    if (rockboy_accuracy_text_bytes >= GBLARGG_TEXT_LOG_LIMIT)
+        return;
+    rockboy_serial_log_byte(b);
+    rockboy_accuracy_text_bytes++;
+    if (rockboy_accuracy_text_bytes == GBLARGG_TEXT_LOG_LIMIT)
+        rockboy_serial_log_text("\n[accuracy text truncated]\n");
+}
+
 #else
 static inline void rockboy_serial_log_byte(byte b)
 {
+    (void)b;
+}
+
+void mem_accuracy_log_cart_write(int a, byte b)
+{
+    (void)a;
     (void)b;
 }
 #endif
@@ -50,6 +110,114 @@ static inline void rockboy_serial_log_byte(byte b)
 struct mbc mbc IBSS_ATTR;
 struct rom rom IBSS_ATTR;
 struct ram ram;
+
+#define OAM_BUG_MODE2_CLOCKS 40
+
+static word oam_get_word(int row, int word_index) ICODE_ATTR;
+static word oam_get_word(int row, int word_index)
+{
+    int offset = row * 8 + word_index * 2;
+
+    return lcd.oam.mem[offset] | ((word)lcd.oam.mem[offset + 1] << 8);
+}
+
+static void oam_set_word(int row, int word_index, word value) ICODE_ATTR;
+static void oam_set_word(int row, int word_index, word value)
+{
+    int offset = row * 8 + word_index * 2;
+
+    lcd.oam.mem[offset] = value;
+    lcd.oam.mem[offset + 1] = value >> 8;
+}
+
+static int mem_oam_bug_row(void) ICODE_ATTR;
+static int mem_oam_bug_row(void)
+{
+    int mode2_clocks = OAM_BUG_MODE2_CLOCKS;
+    int elapsed = mode2_clocks - cpu.lcdc;
+
+    if (elapsed < 0)
+        elapsed = 0;
+    else if (elapsed >= mode2_clocks)
+        elapsed = mode2_clocks - 1;
+
+    return elapsed >> 1;
+}
+
+bool mem_oam_bug_active(int a)
+{
+    if (hw.cgb || !(R_LCDC & 0x80) || R_LY >= 144)
+        return false;
+    if ((R_STAT & 0x03) != 0x02)
+        return false;
+    return (a & 0xFF00) == 0xFE00;
+}
+
+static void mem_oam_corrupt_access(int row, bool write) ICODE_ATTR;
+static void mem_oam_corrupt_access(int row, bool write)
+{
+    word a, b, c;
+
+    if (row <= 0 || row >= 20)
+        return;
+
+    a = oam_get_word(row, 0);
+    b = oam_get_word(row - 1, 0);
+    c = oam_get_word(row - 1, 2);
+
+    if (write)
+        oam_set_word(row, 0, ((a ^ c) & (b ^ c)) ^ c);
+    else
+        oam_set_word(row, 0, b | (a & c));
+
+    oam_set_word(row, 1, oam_get_word(row - 1, 1));
+    oam_set_word(row, 2, oam_get_word(row - 1, 2));
+    oam_set_word(row, 3, oam_get_word(row - 1, 3));
+}
+
+void mem_oam_corrupt_read(int a)
+{
+    if (mem_oam_bug_active(a))
+        mem_oam_corrupt_access(mem_oam_bug_row(), false);
+}
+
+void mem_oam_corrupt_write(int a)
+{
+    if (mem_oam_bug_active(a))
+        mem_oam_corrupt_access(mem_oam_bug_row(), true);
+}
+
+void mem_oam_corrupt_read_idu(int a)
+{
+    int row;
+    word a_word, b_word, c_word, d_word;
+
+    if (!mem_oam_bug_active(a))
+        return;
+
+    row = mem_oam_bug_row();
+    if (row >= 4 && row < 19)
+    {
+        a_word = oam_get_word(row - 2, 0);
+        b_word = oam_get_word(row - 1, 0);
+        c_word = oam_get_word(row, 0);
+        d_word = oam_get_word(row - 1, 2);
+
+        oam_set_word(row - 1, 0,
+            (b_word & (a_word | c_word | d_word)) |
+            (a_word & c_word & d_word));
+        oam_set_word(row, 0, oam_get_word(row - 1, 0));
+        oam_set_word(row, 1, oam_get_word(row - 1, 1));
+        oam_set_word(row, 2, oam_get_word(row - 1, 2));
+        oam_set_word(row, 3, oam_get_word(row - 1, 3));
+        oam_set_word(row - 2, 0, oam_get_word(row - 1, 0));
+        oam_set_word(row - 2, 1, oam_get_word(row - 1, 1));
+        oam_set_word(row - 2, 2, oam_get_word(row - 1, 2));
+        oam_set_word(row - 2, 3, oam_get_word(row - 1, 3));
+    }
+
+    mem_oam_corrupt_access(row, false);
+}
 
 
 /*
@@ -503,6 +671,7 @@ void mem_write(int a, byte b)
         }
         if (ram.sbank[mbc.rambank][a & 0x1FFF] != b)
         {
+            mem_accuracy_log_cart_write(a, b);
             ram.sbank[mbc.rambank][a & 0x1FFF] = b;
             ram.dirty = 1;
         }
@@ -524,7 +693,8 @@ void mem_write(int a, byte b)
         }
         if ((a & 0xFF00) == 0xFE00)
         {
-            /* if (R_STAT & 0x02) break; */
+            if ((R_LCDC & 0x80) && (R_STAT & 0x02))
+                break;
             if (a < 0xFEA0) lcd.oam.mem[a & 0xFF] = b;
             break;
         }
@@ -583,7 +753,8 @@ byte mem_read(int a)
         if (a < 0xFE00) return mem_read(a & 0xDFFF);
         if ((a & 0xFF00) == 0xFE00)
         {
-            /* if (R_STAT & 0x02) return 0xFF; */
+            if ((R_LCDC & 0x80) && (R_STAT & 0x02))
+                return 0xFF;
             if (a < 0xFEA0) return lcd.oam.mem[a & 0xFF];
             return 0xFF;
         }

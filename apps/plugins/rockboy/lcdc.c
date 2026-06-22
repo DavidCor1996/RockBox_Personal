@@ -8,6 +8,32 @@
 #include "fb.h"
 #include "lcdc.h"
 
+#ifdef SIMULATOR
+#include <stdlib.h>
+#include <string.h>
+
+#define ROCKBOY_ACCURACY_FAST_ENV "ROCKBOY_ACCURACY_FAST"
+
+static bool rockboy_accuracy_fast_forward_enabled(void)
+{
+    static int enabled = -1;
+    const char *value;
+
+    if (enabled < 0)
+    {
+        value = getenv(ROCKBOY_ACCURACY_FAST_ENV);
+        enabled = value && value[0] && strcmp(value, "0");
+    }
+
+    return enabled;
+}
+#else
+static inline bool rockboy_accuracy_fast_forward_enabled(void)
+{
+    return false;
+}
+#endif
+
 
 #define C (cpu.lcdc)
 
@@ -65,11 +91,19 @@ void lcdc_change(byte b)
     if ((R_LCDC ^ old) & 0x80) /* lcd on/off change */
     {
         R_LY = 0;
-        stat_change(2);
-        /* First line after LCD enable reaches LY=1 between Blargg's
-         * 109/110 cycle checks. */
-        C = 38;
-        lcd_begin();
+        if (R_LCDC & 0x80)
+        {
+            stat_change(2);
+            /* First line after LCD enable reaches LY=1 between Blargg's
+             * 109/110 cycle checks. */
+            C = 38;
+            lcd_begin();
+        }
+        else
+        {
+            stat_change(0);
+            C = 0;
+        }
     }
 }
 
@@ -133,7 +167,7 @@ void lcdc_trans(void)
             stat_trigger();
             break;
         case 2:
-            if (fb.enabled)
+            if (fb.enabled && !rockboy_accuracy_fast_forward_enabled())
                 lcd_refreshline();
             stat_change(3);
             C += 86;

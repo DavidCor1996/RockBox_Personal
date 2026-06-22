@@ -70,6 +70,10 @@ void rockboy_profile_count_enabled(enum rockboy_profile_event which,
                                    unsigned long count);
 const struct rockboy_profile_totals *rockboy_profile_get_totals(void);
 void rockboy_profile_log_summary(const char *rom_path);
+void rockboy_perf_start(const char *rom_path);
+void rockboy_perf_frame_rendered(void);
+void rockboy_perf_frame_skipped(void);
+void rockboy_perf_log_if_due(void);
 
 static inline bool rockboy_profile_is_enabled(void)
 {

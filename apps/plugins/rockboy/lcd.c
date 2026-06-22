@@ -12,6 +12,12 @@
 #ifdef USE_ASM
 #include "asm.h"
 #endif
+#if defined(SIMULATOR) && defined(HAVE_LCD_COLOR)
+#include <stdlib.h>
+#define ROCKBOY_LCD_DUMP_FRAME_ENV "ROCKBOY_LCD_DUMP_FRAME"
+#define ROCKBOY_LCD_DUMP_NAME_ENV "ROCKBOY_LCD_DUMP_NAME"
+#define ROCKBOY_LCD_DUMP_DEFAULT_NAME "lcd-reference.ppm"
+#endif
 
 struct lcd lcd;
 
@@ -58,6 +64,7 @@ static int scanline_ind=0;
 #endif
 
 static int dmg_pal[4][4];
+static int window_line;
 static const int bg_wraptable[64] =
 {
     0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,
@@ -75,6 +82,145 @@ static fb_data* get_framebuffer(void)
     struct viewport *vp_main = *(rb->screens[SCREEN_MAIN]->current_viewport);
     return vp_main->buffer->fb_ptr;
 }
+
+#if defined(SIMULATOR) && defined(HAVE_LCD_COLOR)
+static bool lcd_dump_configured;
+static unsigned long lcd_dump_target_frame;
+static unsigned long lcd_dump_next_frame = 1;
+static int lcd_dump_fd = -1;
+static unsigned char lcd_dump_rgb_line[160 * 3];
+
+static unsigned long lcd_dump_parse_target_frame(void)
+{
+    const char *value = getenv(ROCKBOY_LCD_DUMP_FRAME_ENV);
+    char *end;
+    unsigned long frame;
+
+    if (!value || !value[0])
+        return 0;
+
+    frame = strtoul(value, &end, 10);
+    if (frame == 0 || *end != '\0')
+        return 0;
+
+    return frame;
+}
+
+static const char *lcd_dump_name(void)
+{
+    const char *name = getenv(ROCKBOY_LCD_DUMP_NAME_ENV);
+
+    if (!name || !name[0] || strchr(name, '/'))
+        return ROCKBOY_LCD_DUMP_DEFAULT_NAME;
+
+    return name;
+}
+
+static void lcd_dump_configure(void)
+{
+    if (lcd_dump_configured)
+        return;
+
+    lcd_dump_target_frame = lcd_dump_parse_target_frame();
+    lcd_dump_configured = true;
+}
+
+static void lcd_dump_open(void)
+{
+    char path[128];
+    char header[32];
+    int header_len;
+
+    snprintf(path, sizeof(path), "%s/%s", savedir, lcd_dump_name());
+    lcd_dump_fd = open(path, O_WRONLY | O_CREAT | O_TRUNC, 0666);
+    if (lcd_dump_fd < 0)
+    {
+        lcd_dump_target_frame = 0;
+        return;
+    }
+
+    header_len = snprintf(header, sizeof(header), "P6\n160 144\n255\n");
+    write(lcd_dump_fd, header, header_len);
+}
+
+static void lcd_dump_color(byte *rgb, int palette_index)
+{
+    int c, r, g, b;
+
+    if (!hw.cgb)
+    {
+        int mapnum;
+        byte dmg_map;
+
+        if (palette_index >= 32)
+        {
+            mapnum = 2 + ((palette_index >> 2) & 1);
+            dmg_map = mapnum == 3 ? R_OBP1 : R_OBP0;
+        }
+        else if (palette_index >= 8)
+        {
+            mapnum = 1;
+            dmg_map = R_BGP;
+        }
+        else
+        {
+            mapnum = 0;
+            dmg_map = R_BGP;
+        }
+
+        c = dmg_pal[mapnum][(dmg_map >> ((palette_index & 3) << 1)) & 3];
+        rgb[0] = (byte)(c & 0xff);
+        rgb[1] = (byte)((c >> 8) & 0xff);
+        rgb[2] = (byte)((c >> 16) & 0xff);
+        return;
+    }
+
+    palette_index &= 0x3f;
+    c = (lcd.pal[palette_index << 1] |
+         ((int)lcd.pal[(palette_index << 1) | 1] << 8)) & 0x7fff;
+    r = c & 0x1f;
+    g = (c >> 5) & 0x1f;
+    b = (c >> 10) & 0x1f;
+
+    rgb[0] = (byte)((r << 3) | (r >> 2));
+    rgb[1] = (byte)((g << 3) | (g >> 2));
+    rgb[2] = (byte)((b << 3) | (b >> 2));
+}
+
+static void lcd_dump_line(void)
+{
+    int x;
+
+    lcd_dump_configure();
+    if (!lcd_dump_target_frame)
+        return;
+
+    if (L == 0 && lcd_dump_next_frame == lcd_dump_target_frame)
+        lcd_dump_open();
+
+    if (lcd_dump_fd >= 0)
+    {
+        for (x = 0; x < 160; x++)
+            lcd_dump_color(&lcd_dump_rgb_line[x * 3], BUF[x]);
+        write(lcd_dump_fd, lcd_dump_rgb_line, sizeof(lcd_dump_rgb_line));
+    }
+
+    if (L == 143)
+    {
+        if (lcd_dump_fd >= 0)
+        {
+            close(lcd_dump_fd);
+            lcd_dump_fd = -1;
+            lcd_dump_target_frame = 0;
+        }
+        lcd_dump_next_frame++;
+    }
+}
+#else
+static inline void lcd_dump_line(void)
+{
+}
+#endif
 
 #ifndef ASM_UPDATEPATPIX
 static void updatepatpix(void) ICODE_ATTR;
@@ -579,6 +725,12 @@ static bool fast_line_rendering_enabled(void)
     return options.performance_preset != ROCKBOY_PERF_QUALITY;
 }
 
+static void dmg_bg_disabled_scan(void) ICODE_ATTR;
+static void dmg_bg_disabled_scan(void)
+{
+    memset(BUF, 0, 160);
+}
+
 
 /* V = vertical line
  * WX = WND start (if 0, no need to do anything) -> WY
@@ -926,7 +1078,8 @@ static void spr_scan(void)
             while (i--)
             {
                 b = src[i];
-                if (b && !(bg[i]&3)) dest[i] = pal|b;
+                if (b && ((hw.cgb && !(R_LCDC & 0x01)) || !(bg[i]&3)))
+                    dest[i] = pal|b;
             }
         }
         else if (hw.cgb)
@@ -936,7 +1089,7 @@ static void spr_scan(void)
             while (i--)
             {
                 b = src[i];
-                if (b && (!pri[i] || !(bg[i]&3)))
+                if (b && (!(R_LCDC & 0x01) || !pri[i] || !(bg[i]&3)))
                     dest[i] = pal|b;
             }
         }
@@ -1029,6 +1182,7 @@ void lcd_begin(void)
     }
 #endif
     WY = R_WY;
+    window_line = 0;
 }
 
 #ifdef HAVE_LCD_COLOR
@@ -1215,11 +1369,12 @@ void lcd_refreshline(void)
     U = X & 7;
     V = Y & 7;
 
+    WY = R_WY;
     WX = R_WX - 7;
     if (WY>L || WY<0 || WY>143 || WX<-7 || WX>159 || !(R_LCDC&0x20))
         WX = 160;
-    WT = (L - WY) >> 3;
-    WV = (L - WY) & 7;
+    WT = window_line >> 3;
+    WV = window_line & 7;
 
     spr_enum();
     rockboy_profile_count(ROCKBOY_EVENT_LCD_LINES, 1);
@@ -1247,11 +1402,16 @@ void lcd_refreshline(void)
             rockboy_profile_count(ROCKBOY_EVENT_LCD_CGB_BG_WINDOW_NO_SPR_ELIGIBLE, 1);
     }
 
-    dmg_bg_only_eligible = !hw.cgb && !NS && WX == 160;
-    dmg_bg_window_no_spr_eligible = !hw.cgb && !NS && WX >= 0 && WX < 160;
+    dmg_bg_only_eligible = !hw.cgb && (R_LCDC & 0x01) && !NS && WX == 160;
+    dmg_bg_window_no_spr_eligible =
+        !hw.cgb && (R_LCDC & 0x01) && !NS && WX >= 0 && WX < 160;
     cgb_bg_only_eligible = hw.cgb && !NS && WX == 160;
     cgb_bg_window_no_spr_eligible = hw.cgb && !NS && WX >= 0 && WX < 160;
-    if (dmg_bg_only_eligible && fast_line_rendering_enabled())
+    if (!hw.cgb && !(R_LCDC & 0x01))
+    {
+        dmg_bg_disabled_scan();
+    }
+    else if (dmg_bg_only_eligible && fast_line_rendering_enabled())
     {
         rockboy_profile_count(ROCKBOY_EVENT_LCD_DMG_BG_ONLY_USED, 1);
         dmg_bg_only_scan();
@@ -1301,6 +1461,9 @@ void lcd_refreshline(void)
     }
     if (NS)
         spr_scan();
+    lcd_dump_line();
+    if (WX < 160)
+        window_line++;
 
 #if !defined(HAVE_LCD_COLOR)
 #if LCD_DEPTH == 1
