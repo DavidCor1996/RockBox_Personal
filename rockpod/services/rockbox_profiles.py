@@ -30,9 +30,76 @@ def _normalize_games_target_dir(value, default_value="gameboy"):
 
 def _normalize_clock_position(value):
     text = str(value or "").strip().lower()
-    if text == "left":
-        return "left"
+    if text in {"top", "center", "lower", "custom", "left"}:
+        return text
     return "center"
+
+
+def _normalize_hex_color(value, default_value):
+    text = str(value or "").strip().lstrip("#").upper()
+    if re.fullmatch(r"[0-9A-F]{6}", text):
+        return text
+    return default_value
+
+
+def _normalize_lockscreen_customization(value):
+    item = copy.deepcopy(value) if isinstance(value, dict) else {}
+    clock = item.get("clock") if isinstance(item.get("clock"), dict) else {}
+    date = item.get("date") if isinstance(item.get("date"), dict) else {}
+    readability = item.get("readability") if isinstance(item.get("readability"), dict) else {}
+    mini_player = item.get("mini_player") if isinstance(item.get("mini_player"), dict) else {}
+    position = _normalize_clock_position(clock.get("position") or item.get("clock_position"))
+    align = str(clock.get("align") or "center").strip().lower()
+    if align not in {"left", "center", "right"}:
+        align = "center"
+    style = str(clock.get("style") or "solid").strip().lower()
+    if style not in {"solid", "soft shadow", "outline", "glass", "glass tinted"}:
+        style = "solid"
+    glass_strength = str(clock.get("glass_strength") or "off").strip().lower()
+    if glass_strength not in {"off", "low", "medium", "high"}:
+        glass_strength = "off"
+    date_mode = str(date.get("mode") or "below").strip().lower()
+    if date_mode not in {"follow", "above", "below", "hidden"}:
+        date_mode = "below"
+    blur_strength = str(mini_player.get("blur_strength") or "medium").strip().lower()
+    if blur_strength not in {"low", "medium", "high"}:
+        blur_strength = "medium"
+    return {
+        "wallpaper_id": str(item.get("wallpaper_id") or "").strip(),
+        "clock": {
+            "position": position,
+            "x": int(clock.get("x", 0) or 0),
+            "y": int(clock.get("y", 32) or 32),
+            "width": int(clock.get("width", 320) or 320),
+            "height": int(clock.get("height", 55) or 55),
+            "align": align,
+            "font": str(clock.get("font") or "35-Adobe-Helvetica-Bold.fnt").strip(),
+            "style": style,
+            "color": _normalize_hex_color(clock.get("color"), "FFFFFF"),
+            "shadow": "soft" if str(clock.get("shadow") or "soft").strip().lower() != "off" else "off",
+            "glass_strength": glass_strength,
+            "opacity": int(clock.get("opacity", 82) or 82),
+        },
+        "date": {
+            "mode": date_mode,
+            "y": int(date.get("y", 101) or 101),
+            "font": str(date.get("font") or "16-Adobe-Helvetica-Bold.fnt").strip(),
+            "color": _normalize_hex_color(date.get("color"), "FFFFFF"),
+        },
+        "readability": {
+            "auto_contrast": bool(readability.get("auto_contrast", True)),
+            "min_contrast": float(readability.get("min_contrast", 4.5) or 4.5),
+            "sample_region": str(readability.get("sample_region") or "clock_box").strip(),
+        },
+        "mini_player": {
+            "style": str(mini_player.get("style") or "matched_blur").strip(),
+            "blur_strength": blur_strength,
+            "tint_source": str(mini_player.get("tint_source") or "wallpaper").strip(),
+            "tint_color": _normalize_hex_color(mini_player.get("tint_color"), "2D2936"),
+            "text_color": _normalize_hex_color(mini_player.get("text_color"), "FFFFFF"),
+            "secondary_text_color": _normalize_hex_color(mini_player.get("secondary_text_color"), "C8BED7"),
+        },
+    }
 
 
 class RockboxProfileStore:
@@ -124,6 +191,7 @@ class RockboxProfileStore:
                 "selected_theme": "iPone",
                 "backup_location": os.path.join(backup_root, "ipod_320x240"),
                 "lockscreen_clock_position": "center",
+                "lockscreen_customization": _normalize_lockscreen_customization({}),
             },
             {
                 "id": "ipod_3g",
@@ -135,6 +203,7 @@ class RockboxProfileStore:
                 "selected_theme": "CoverPod_3g",
                 "backup_location": os.path.join(backup_root, "ipod_3g"),
                 "lockscreen_clock_position": "center",
+                "lockscreen_customization": _normalize_lockscreen_customization({}),
             },
             {
                 "id": "ipod_nano2g",
@@ -146,6 +215,7 @@ class RockboxProfileStore:
                 "selected_theme": "iPone_nano2g",
                 "backup_location": os.path.join(backup_root, "ipod_nano2g"),
                 "lockscreen_clock_position": "center",
+                "lockscreen_customization": _normalize_lockscreen_customization({}),
             },
         ]
 
@@ -177,6 +247,7 @@ class RockboxProfileStore:
             "selected_theme": selected_theme,
             "backup_location": os.path.abspath(backup_location),
             "lockscreen_clock_position": _normalize_clock_position(item.get("lockscreen_clock_position")),
+            "lockscreen_customization": _normalize_lockscreen_customization(item.get("lockscreen_customization")),
             "simulator_target": str(item.get("simulator_target") or "").strip(),
             "simulator_binary_path": str(item.get("simulator_binary_path") or "").strip(),
             "simulator_simdisk_path": str(item.get("simulator_simdisk_path") or "").strip(),

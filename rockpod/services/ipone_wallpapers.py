@@ -7,7 +7,7 @@ import json
 import re
 from typing import Dict, List
 
-from PIL import Image, ImageOps, UnidentifiedImageError
+from PIL import Image, ImageFilter, ImageOps, ImageStat, UnidentifiedImageError
 
 from services.file_safety import atomic_write_json, atomic_write_text
 from services.greyscale_images import render_2bpp_greyscale, should_render_2bpp_greyscale
@@ -37,7 +37,18 @@ CHARGE_PATTERNS = (
     re.compile(r"^charge-wallpaper.*\.(png|bmp|jpg|jpeg)$", re.I),
 )
 
-LOCKSCREEN_CLOCK_POSITIONS = {"center", "left"}
+PICTUREFLOW_PATTERNS = (
+    re.compile(r"^pictureflow-loading-bg.*\.(png|bmp|jpg|jpeg)$", re.I),
+)
+
+PICTUREFLOW_DEFAULT = "apps/plugins/bitmaps/native/pictureflow_loading_bg.320x240x24.bmp"
+PICTUREFLOW_DESTINATION = ".rockbox/rocks/demos/pictureflow_loading_bg.bmp"
+
+LOCKSCREEN_CLOCK_POSITIONS = {"top", "center", "custom", "left"}
+LOCKSCREEN_CLOCK_ALIGNS = {"left", "center"}
+LOCKSCREEN_CLOCK_STYLES = {"solid", "soft shadow", "outline", "glass", "glass tinted"}
+LOCKSCREEN_GLASS_STRENGTHS = {"off", "low", "medium", "high"}
+LOCKSCREEN_DATE_MODES = {"follow", "above", "below"}
 
 LOCKSCREEN_TIME_CENTER = "%Vl(iPoneLockscreen,0,55,-,60,4)%Vf(FFFFFF)%ac%cl:%cM %cP"
 LOCKSCREEN_TIME_LEFT_V1 = "%Vl(iPoneLockscreen,18,55,152,60,4)%Vf(FFFFFF)%al%cl:%cM %cP"
@@ -57,6 +68,43 @@ LOCKSCREEN_DATE_LEFT_V2 = (
 )
 
 HIDDEN_WALLPAPERS_FILE = ".hidden_wallpapers.json"
+
+DEFAULT_LOCKSCREEN_CUSTOMIZATION = {
+    "wallpaper_id": "",
+    "clock": {
+        "position": "center",
+        "x": 0,
+        "y": 32,
+        "width": 320,
+        "height": 55,
+        "align": "center",
+        "font": "35-Adobe-Helvetica-Bold.fnt",
+        "style": "solid",
+        "color": "FFFFFF",
+        "shadow": "soft",
+        "glass_strength": "off",
+        "opacity": 82,
+    },
+    "date": {
+        "mode": "below",
+        "y": 101,
+        "font": "16-Adobe-Helvetica-Bold.fnt",
+        "color": "FFFFFF",
+    },
+    "readability": {
+        "auto_contrast": True,
+        "min_contrast": 4.5,
+        "sample_region": "clock_box",
+    },
+    "mini_player": {
+        "style": "matched_blur",
+        "blur_strength": "medium",
+        "tint_source": "wallpaper",
+        "tint_color": "2D2936",
+        "text_color": "FFFFFF",
+        "secondary_text_color": "C8BED7",
+    },
+}
 
 
 def _clean_label(name: str) -> str:
@@ -107,8 +155,10 @@ class IPoneWallpaperService:
         hidden = self._load_hidden(repo_root)
         lock = []
         charge = []
+        pictureflow = []
         seen_lock = set()
         seen_charge = set()
+        seen_pictureflow = set()
 
         for filename in self._theme_wallpaper_files(repo_root, asset_dir, "lock"):
             full = os.path.join(repo_root, "wps", asset_dir, filename)
@@ -116,6 +166,17 @@ class IPoneWallpaperService:
         for filename in self._theme_wallpaper_files(repo_root, asset_dir, "charge"):
             full = os.path.join(repo_root, "wps", asset_dir, filename)
             self._append_candidate(charge, seen_charge, full, repo_root, hidden, include_hidden, origin="theme", label=_theme_label(filename, "charge"))
+        pictureflow_default = os.path.join(repo_root, PICTUREFLOW_DEFAULT)
+        self._append_candidate(
+            pictureflow,
+            seen_pictureflow,
+            pictureflow_default,
+            repo_root,
+            hidden,
+            include_hidden,
+            origin="theme",
+            label="Current Default PictureFlow Init",
+        )
 
         if os.path.isdir(generated_dir):
             for name in sorted(os.listdir(generated_dir)):
@@ -128,13 +189,15 @@ class IPoneWallpaperService:
                     self._append_candidate(lock, seen_lock, full, repo_root, hidden, include_hidden, origin="generated")
                 if self._matches(name, CHARGE_PATTERNS):
                     self._append_candidate(charge, seen_charge, full, repo_root, hidden, include_hidden, origin="generated")
+                if self._matches(name, PICTUREFLOW_PATTERNS):
+                    self._append_candidate(pictureflow, seen_pictureflow, full, repo_root, hidden, include_hidden, origin="generated")
 
-        return {"lock": lock, "charge": charge}
+        return {"lock": lock, "charge": charge, "pictureflow": pictureflow}
 
     def import_candidate(self, repo_root: str, profile: Dict, kind: str, source_path: str) -> Dict:
         repo_root = os.path.abspath(repo_root)
         source_abs = os.path.abspath(source_path)
-        if kind not in {"lock", "charge"}:
+        if kind not in {"lock", "charge", "pictureflow"}:
             raise ValueError("Unknown wallpaper kind")
         if not os.path.isfile(source_abs):
             raise ValueError("Wallpaper source does not exist")
@@ -142,7 +205,11 @@ class IPoneWallpaperService:
         generated_dir = os.path.join(repo_root, "rockpod", "generated")
         os.makedirs(generated_dir, exist_ok=True)
         stem = _slug(os.path.splitext(os.path.basename(source_abs))[0])
-        prefix = "lockscreen" if kind == "lock" else "charge-wallpaper"
+        prefix = {
+            "lock": "lockscreen",
+            "charge": "charge-wallpaper",
+            "pictureflow": "pictureflow-loading-bg",
+        }[kind]
         dest_name = self._unique_generated_name(generated_dir, prefix, stem)
         dest_abs = os.path.join(generated_dir, dest_name)
         self._render_bmp(source_abs, dest_abs, str(profile.get("screen_resolution") or "320x240"))
@@ -191,7 +258,9 @@ class IPoneWallpaperService:
         profile: Dict,
         lock_source: str = "",
         charge_source: str = "",
+        pictureflow_source: str = "",
         clock_position: str = "",
+        lockscreen_customization: Dict | None = None,
     ) -> Dict:
         asset_dir = self._asset_dir(profile)
         repo_root = os.path.abspath(profile.get("source_repo_path") or "")
@@ -222,15 +291,29 @@ class IPoneWallpaperService:
                     for destination_rel in charge_destinations
                 ]
             )
+        if pictureflow_source:
+            pictureflow_abs = self._normalized_apply_source(repo_root, profile, "pictureflow", pictureflow_source)
+            assets.append(
+                self._asset_record("pictureflow_loading_wallpaper", pictureflow_abs, PICTUREFLOW_DESTINATION)
+            )
         if str(clock_position or "").strip():
             assets.extend(self._clock_layout_assets(profile, clock_position))
+        customization = self.normalize_lockscreen_customization(lockscreen_customization or {})
+        if lockscreen_customization:
+            assets.extend(
+                self._lockscreen_customization_assets(
+                    profile,
+                    customization,
+                    lock_source=lock_source,
+                )
+            )
         if not assets:
             raise ValueError("No wallpaper or supported clock layout changes selected")
         return {
             "id": "ipone_wallpapers",
             "name": "iPone Wallpapers",
             "assets": assets,
-            "preview_path": os.path.abspath(lock_source or charge_source),
+            "preview_path": os.path.abspath(lock_source or charge_source or pictureflow_source),
         }
 
     def _clock_layout_assets(self, profile: Dict, clock_position: str) -> List[Dict]:
@@ -253,6 +336,79 @@ class IPoneWallpaperService:
                     destination_rel,
                 )
             )
+        return assets
+
+    def _lockscreen_customization_assets(self, profile: Dict, customization: Dict, lock_source: str = "") -> List[Dict]:
+        repo_root = os.path.abspath(profile.get("source_repo_path") or "")
+        if str(profile.get("screen_resolution") or "") != "320x240":
+            return []
+        targets = self._lockscreen_customization_targets(profile, repo_root)
+        if not targets:
+            return []
+
+        profile_id = str(profile.get("id") or "default")
+        staged_root = os.path.join(repo_root, "rockpod", ".wallpaper_clock", profile_id)
+        os.makedirs(staged_root, exist_ok=True)
+
+        wallpaper_source = self._lockscreen_wallpaper_source(profile, repo_root, lock_source)
+        card_sources = {}
+        clock_glass_sources = {}
+        if wallpaper_source:
+            customization = self._with_lockscreen_auto_contrast(wallpaper_source, customization)
+            for asset_dir in {asset_dir for _source_rel, _destination_rel, asset_dir in targets}:
+                card_path = os.path.join(staged_root, asset_dir, "LockMiniCardGenerated.bmp")
+                self._render_lock_mini_card(wallpaper_source, card_path, customization)
+                card_sources[asset_dir] = card_path
+                if str(customization.get("clock", {}).get("style", "")).startswith("glass"):
+                    glass_path = os.path.join(staged_root, asset_dir, "LockClockGlassGenerated.bmp")
+                    self._render_lock_clock_glass(wallpaper_source, glass_path, customization)
+                    clock_glass_sources[asset_dir] = glass_path
+
+        assets = []
+        for source_rel, destination_rel, asset_dir in targets:
+            source_abs = self._clock_layout_source_path(profile, repo_root, source_rel, destination_rel)
+            staged_sbs = os.path.join(staged_root, os.path.basename(source_rel))
+            self._render_lockscreen_sbs(
+                source_abs,
+                staged_sbs,
+                customization,
+                bool(card_sources.get(asset_dir)),
+                bool(clock_glass_sources.get(asset_dir)),
+            )
+            assets.append(
+                self._asset_record(
+                    "lockscreen_customization_sbs",
+                    staged_sbs,
+                    destination_rel,
+                )
+            )
+            card_path = card_sources.get(asset_dir)
+            if card_path:
+                assets.append(
+                    self._asset_record(
+                        "lockscreen_mini_player_blur",
+                        card_path,
+                        f".rockbox/wps/{asset_dir}/LockMiniCardGenerated.bmp",
+                    )
+                )
+            glass_path = clock_glass_sources.get(asset_dir)
+            if glass_path:
+                assets.append(
+                    self._asset_record(
+                        "lockscreen_clock_glass",
+                        glass_path,
+                        f".rockbox/wps/{asset_dir}/LockClockGlassGenerated.bmp",
+                    )
+                )
+        metadata_path = os.path.join(staged_root, "lockscreen_customization.json")
+        atomic_write_json(metadata_path, customization)
+        assets.append(
+            self._asset_record(
+                "lockscreen_customization_metadata",
+                metadata_path,
+                ".rockbox/rockpod/lockscreen_customization.json",
+            )
+        )
         return assets
 
     def _append_candidate(
@@ -387,6 +543,8 @@ class IPoneWallpaperService:
         theme = str(profile.get("selected_theme") or "").strip().lower()
         if theme == "blackery":
             return "Blackery"
+        if theme == "ipone7g":
+            return "iPone7G"
         if theme == "galaxy":
             return "Galaxy"
         if theme == "coverpod_3g":
@@ -400,6 +558,85 @@ class IPoneWallpaperService:
         return "iPone"
 
     @staticmethod
+    def normalize_lockscreen_customization(value: Dict | None) -> Dict:
+        source = value if isinstance(value, dict) else {}
+        result = json.loads(json.dumps(DEFAULT_LOCKSCREEN_CUSTOMIZATION))
+        clock = source.get("clock") if isinstance(source.get("clock"), dict) else {}
+        date = source.get("date") if isinstance(source.get("date"), dict) else {}
+        readability = source.get("readability") if isinstance(source.get("readability"), dict) else {}
+        mini_player = source.get("mini_player") if isinstance(source.get("mini_player"), dict) else {}
+
+        result["wallpaper_id"] = str(source.get("wallpaper_id") or "").strip()
+        result["clock"]["position"] = IPoneWallpaperService._choice(
+            clock.get("position"),
+            LOCKSCREEN_CLOCK_POSITIONS,
+            result["clock"]["position"],
+        )
+        align_default = result["clock"]["align"]
+        if "align" in clock:
+            align_default = IPoneWallpaperService._choice(clock.get("align"), LOCKSCREEN_CLOCK_ALIGNS, align_default)
+        x_default = result["clock"]["x"]
+        width_default = result["clock"]["width"]
+        if align_default == "left":
+            x_default = 28
+            width_default = 264
+        result["clock"]["x"] = IPoneWallpaperService._int_between(clock.get("x"), 0, 319, x_default)
+        result["clock"]["y"] = IPoneWallpaperService._int_between(clock.get("y"), 0, 64, result["clock"]["y"])
+        result["clock"]["width"] = IPoneWallpaperService._int_between(clock.get("width"), 80, 320, width_default)
+        result["clock"]["height"] = IPoneWallpaperService._int_between(clock.get("height"), 20, 100, result["clock"]["height"])
+        result["clock"]["align"] = align_default
+        result["clock"]["font"] = IPoneWallpaperService._clock_font(clock.get("font"))
+        result["clock"]["style"] = IPoneWallpaperService._choice(
+            clock.get("style"),
+            LOCKSCREEN_CLOCK_STYLES,
+            result["clock"]["style"],
+        )
+        result["clock"]["color"] = IPoneWallpaperService._hex_color(clock.get("color"), result["clock"]["color"])
+        result["clock"]["shadow"] = "soft" if bool(clock.get("shadow", result["clock"]["shadow"] != "off")) else "off"
+        result["clock"]["glass_strength"] = IPoneWallpaperService._choice(
+            clock.get("glass_strength"),
+            LOCKSCREEN_GLASS_STRENGTHS,
+            result["clock"]["glass_strength"],
+        )
+        result["clock"]["opacity"] = IPoneWallpaperService._int_between(clock.get("opacity"), 40, 100, result["clock"]["opacity"])
+
+        result["date"]["mode"] = IPoneWallpaperService._choice(date.get("mode"), LOCKSCREEN_DATE_MODES, result["date"]["mode"])
+        if "y" in date:
+            date_y_default = result["date"]["y"]
+        elif result["date"]["mode"] == "above":
+            date_y_default = max(0, result["clock"]["y"] - 24)
+        else:
+            date_y_default = min(220, result["clock"]["y"] + result["clock"]["height"] + 14)
+        result["date"]["y"] = IPoneWallpaperService._int_between(date.get("y"), 0, 220, date_y_default)
+        result["date"]["color"] = IPoneWallpaperService._hex_color(date.get("color"), result["date"]["color"])
+        result["readability"]["auto_contrast"] = bool(readability.get("auto_contrast", result["readability"]["auto_contrast"]))
+        result["readability"]["min_contrast"] = IPoneWallpaperService._float_between(
+            readability.get("min_contrast"),
+            1.0,
+            7.0,
+            result["readability"]["min_contrast"],
+        )
+        result["mini_player"]["style"] = "matched_blur" if mini_player.get("style", "matched_blur") != "current" else "current"
+        result["mini_player"]["blur_strength"] = IPoneWallpaperService._choice(
+            mini_player.get("blur_strength"),
+            {"low", "medium", "high"},
+            result["mini_player"]["blur_strength"],
+        )
+        result["mini_player"]["tint_color"] = IPoneWallpaperService._hex_color(
+            mini_player.get("tint_color"),
+            result["mini_player"]["tint_color"],
+        )
+        result["mini_player"]["text_color"] = IPoneWallpaperService._hex_color(
+            mini_player.get("text_color"),
+            result["mini_player"]["text_color"],
+        )
+        result["mini_player"]["secondary_text_color"] = IPoneWallpaperService._hex_color(
+            mini_player.get("secondary_text_color"),
+            result["mini_player"]["secondary_text_color"],
+        )
+        return result
+
+    @staticmethod
     def _legacy_destinations(profile: Dict, kind: str) -> List[str]:
         resolution = str(profile.get("screen_resolution") or "").strip()
         if resolution != "176x132":
@@ -411,6 +648,281 @@ class IPoneWallpaperService:
         return []
 
     @staticmethod
+    def _choice(value, allowed, default):
+        text = str(value or "").strip().lower()
+        return text if text in allowed else default
+
+    @staticmethod
+    def _int_between(value, minimum: int, maximum: int, default: int) -> int:
+        try:
+            number = int(value)
+        except (TypeError, ValueError):
+            return default
+        return max(minimum, min(maximum, number))
+
+    @staticmethod
+    def _float_between(value, minimum: float, maximum: float, default: float) -> float:
+        try:
+            number = float(value)
+        except (TypeError, ValueError):
+            return default
+        return max(minimum, min(maximum, number))
+
+    @staticmethod
+    def _hex_color(value, default: str) -> str:
+        text = str(value or "").strip().lstrip("#").upper()
+        if re.fullmatch(r"[0-9A-F]{6}", text):
+            return text
+        return default
+
+    @staticmethod
+    def _clock_font(value) -> str:
+        text = str(value or "").strip()
+        allowed = {
+            "35-Adobe-Helvetica-Bold.fnt",
+            "16-Adobe-Helvetica-Bold.fnt",
+            "18-Cantarell-Bold.fnt",
+            "66-Cantarell-Light.fnt",
+        }
+        return text if text in allowed else DEFAULT_LOCKSCREEN_CUSTOMIZATION["clock"]["font"]
+
+    @staticmethod
+    def _lockscreen_customization_targets(profile: Dict, repo_root: str):
+        theme = str(profile.get("selected_theme") or "").strip().lower()
+        resolution = str(profile.get("screen_resolution") or "").strip()
+        if resolution != "320x240":
+            return []
+        candidates = []
+        if theme == "ipone7g":
+            candidates.append(("wps/iPone7G.sbs", ".rockbox/wps/iPone7G.sbs", "iPone7G"))
+        elif theme == "ipone":
+            candidates.append(("wps/iPone.sbs", ".rockbox/wps/iPone.sbs", "iPone"))
+            if os.path.isfile(os.path.join(repo_root, "wps", "iPone7G.sbs")):
+                candidates.append(("wps/iPone7G.sbs", ".rockbox/wps/iPone7G.sbs", "iPone7G"))
+        else:
+            return []
+
+        mount_value = str(profile.get("device_mount_path") or "").strip()
+        mount_path = os.path.abspath(mount_value) if mount_value else ""
+        targets = []
+        for source_rel, destination_rel, asset_dir in candidates:
+            if mount_path:
+                device_abs = os.path.join(mount_path, destination_rel.lstrip("/"))
+                if os.path.isfile(device_abs):
+                    targets.append((source_rel, destination_rel, asset_dir))
+            elif os.path.isfile(os.path.join(repo_root, source_rel)):
+                targets.append((source_rel, destination_rel, asset_dir))
+        return targets
+
+    @staticmethod
+    def _lockscreen_wallpaper_source(profile: Dict, repo_root: str, lock_source: str) -> str:
+        if lock_source and os.path.isfile(lock_source):
+            return os.path.abspath(lock_source)
+        asset_dir = IPoneWallpaperService._asset_dir(profile)
+        candidates = [
+            os.path.join(repo_root, "wps", asset_dir, "Wallpaper.bmp"),
+            os.path.join(repo_root, "wps", "iPone", "Wallpaper.bmp"),
+        ]
+        mount_value = str(profile.get("device_mount_path") or "").strip()
+        mount_path = os.path.abspath(mount_value) if mount_value else ""
+        if mount_path:
+            candidates.insert(0, os.path.join(mount_path, ".rockbox", "wps", asset_dir, "Wallpaper.bmp"))
+            candidates.insert(1, os.path.join(mount_path, ".rockbox", "wps", "iPone", "Wallpaper.bmp"))
+        for candidate in candidates:
+            if os.path.isfile(candidate):
+                return os.path.abspath(candidate)
+        return ""
+
+    @staticmethod
+    def _render_lock_mini_card(source_path: str, dest_path: str, customization: Dict):
+        try:
+            with Image.open(source_path) as img:
+                base = ImageOps.fit(img.convert("RGB"), (320, 240), Image.Resampling.LANCZOS)
+        except (OSError, UnidentifiedImageError) as exc:
+            raise ValueError(f"Unreadable lockscreen wallpaper: {source_path}") from exc
+
+        crop = base.crop((22, 158, 272, 212))
+        blur_name = customization.get("mini_player", {}).get("blur_strength", "medium")
+        radius = {"low": 4, "medium": 7, "high": 10}.get(blur_name, 7)
+        crop = crop.filter(ImageFilter.GaussianBlur(radius=radius)).convert("RGBA")
+
+        stat = ImageStat.Stat(crop.convert("RGB"))
+        avg = tuple(int(item) for item in stat.mean[:3])
+        luminance = (avg[0] * 299 + avg[1] * 587 + avg[2] * 114) // 1000
+        tint_hex = customization.get("mini_player", {}).get("tint_color", "2D2936")
+        tint = tuple(int(tint_hex[index:index + 2], 16) for index in (0, 2, 4))
+        overlay_alpha = 150 if luminance > 132 else 95
+        overlay = Image.new("RGBA", crop.size, (*tint, overlay_alpha))
+        card = Image.alpha_composite(crop, overlay)
+
+        highlight = Image.new("RGBA", (card.width, 1), (255, 255, 255, 46))
+        lowlight = Image.new("RGBA", (card.width, 1), (0, 0, 0, 72))
+        card.alpha_composite(highlight, (0, 0))
+        card.alpha_composite(lowlight, (0, card.height - 1))
+        os.makedirs(os.path.dirname(dest_path), exist_ok=True)
+        card.convert("RGB").save(dest_path, "BMP")
+
+    @staticmethod
+    def _with_lockscreen_auto_contrast(source_path: str, customization: Dict) -> Dict:
+        if not customization.get("readability", {}).get("auto_contrast", True):
+            return customization
+        clock = customization.get("clock", {})
+        x = int(clock.get("x", 0))
+        y = int(clock.get("y", 32))
+        width = int(clock.get("width", 320))
+        height = int(clock.get("height", 55))
+        try:
+            with Image.open(source_path) as img:
+                base = ImageOps.fit(img.convert("RGB"), (320, 240), Image.Resampling.LANCZOS)
+        except (OSError, UnidentifiedImageError) as exc:
+            raise ValueError(f"Unreadable lockscreen wallpaper: {source_path}") from exc
+
+        sample = base.crop((x, y, min(320, x + width), min(240, y + height)))
+        stat = ImageStat.Stat(sample)
+        avg = tuple(int(item) for item in stat.mean[:3])
+        luminance = (avg[0] * 299 + avg[1] * 587 + avg[2] * 114) // 1000
+        updated = json.loads(json.dumps(customization))
+        if luminance >= 150:
+            updated["clock"]["color"] = "16121D"
+            updated["date"]["color"] = "2A2633"
+        else:
+            updated["clock"]["color"] = "FFFFFF"
+            updated["date"]["color"] = "FFFFFF"
+        return updated
+
+    @staticmethod
+    def _render_lock_clock_glass(source_path: str, dest_path: str, customization: Dict):
+        clock = customization.get("clock", {})
+        x = int(clock.get("x", 0))
+        y = max(0, int(clock.get("y", 32)) - 4)
+        width = int(clock.get("width", 320))
+        height = min(240 - y, int(clock.get("height", 55)) + 8)
+        if width >= 320:
+            x = 0
+            width = 320
+        try:
+            with Image.open(source_path) as img:
+                base = ImageOps.fit(img.convert("RGB"), (320, 240), Image.Resampling.LANCZOS)
+        except (OSError, UnidentifiedImageError) as exc:
+            raise ValueError(f"Unreadable lockscreen wallpaper: {source_path}") from exc
+
+        crop = base.crop((x, y, min(320, x + width), min(240, y + height))).filter(
+            ImageFilter.GaussianBlur(radius=5)
+        ).convert("RGBA")
+        strength = clock.get("glass_strength", "medium")
+        style = clock.get("style", "glass")
+        alpha = {"low": 38, "medium": 68, "high": 96}.get(strength, 68)
+        tint = (255, 255, 255) if style == "glass" else (224, 210, 255)
+        overlay = Image.new("RGBA", crop.size, (*tint, alpha))
+        glass = Image.alpha_composite(crop, overlay)
+        glass.alpha_composite(Image.new("RGBA", (glass.width, 1), (255, 255, 255, 90)), (0, 0))
+        glass.alpha_composite(Image.new("RGBA", (glass.width, 1), (0, 0, 0, 58)), (0, glass.height - 1))
+        os.makedirs(os.path.dirname(dest_path), exist_ok=True)
+        glass.convert("RGB").save(dest_path, "BMP")
+
+    @staticmethod
+    def _render_lockscreen_sbs(
+        source_path: str,
+        dest_path: str,
+        customization: Dict,
+        use_generated_card: bool,
+        use_clock_glass: bool,
+    ):
+        try:
+            with open(source_path, "r", encoding="utf-8") as handle:
+                content = handle.read()
+        except OSError as exc:
+            raise ValueError(f"Unreadable SBS layout: {source_path}") from exc
+
+        updated = IPoneWallpaperService._replace_lockscreen_clock(content, customization, use_clock_glass)
+        if use_generated_card:
+            updated = IPoneWallpaperService._enable_generated_lock_card(updated)
+        if use_clock_glass:
+            updated = IPoneWallpaperService._enable_generated_clock_glass(updated)
+        atomic_write_text(dest_path, updated)
+
+    @staticmethod
+    def _replace_lockscreen_clock(content: str, customization: Dict, use_clock_glass: bool = False) -> str:
+        clock = customization.get("clock", {})
+        date = customization.get("date", {})
+        x = int(clock.get("x", 0))
+        y = int(clock.get("y", 32))
+        width = int(clock.get("width", 320))
+        height = int(clock.get("height", 55))
+        if width >= 320:
+            width_text = "-"
+        else:
+            width_text = str(width)
+        font_id = {
+            "35-Adobe-Helvetica-Bold.fnt": "4",
+            "16-Adobe-Helvetica-Bold.fnt": "3",
+            "18-Cantarell-Bold.fnt": "9",
+            "66-Cantarell-Light.fnt": "8",
+        }.get(clock.get("font"), "4")
+        align_tag = {"left": "%al", "center": "%ac"}.get(clock.get("align"), "%ac")
+        color = clock.get("color", "FFFFFF")
+        time_replacement = f"%Vl(iPoneLockscreen,{x},{y},{width_text},{height},{font_id})%Vf({color}){align_tag}%cl:%cM %cP"
+        if use_clock_glass:
+            glass_y = max(0, y - 4)
+            glass_height = min(240 - glass_y, height + 8)
+            glass_width = width_text
+            time_replacement = (
+                f"%Vl(LockClockGlass,{x},{glass_y},{glass_width},{glass_height},-)%xd(LockClockGlassGenerated)\n"
+                f"{time_replacement}"
+            )
+
+        date_mode = date.get("mode", "below")
+        date_y = int(date.get("y", y + height + 14))
+        date_color = date.get("color", color)
+        date_replacement = ""
+        date_replacement = (
+            f"%Vl(iPoneLockscreen,{x},{date_y},{width_text},20,6)%Vf({date_color}){align_tag}"
+            "%?if(%ss(0,7,%St(lang)), =, english)<%?cu<Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday>|%ca> "
+            "%?or(%if(%ss(0,7,%St(lang)), =, chinese),%if(%St(lang), =, magyar),%if(%St(lang), =, lietuviu),"
+            "%if(%St(lang), =, japanese),%if(%St(lang), =, korean))<%cb %cd|%?if(%St(lang), =, english-us)<%cb %cd|%cd %cb>>"
+        )
+
+        time_pattern = re.compile(r"%Vl\(iPoneLockscreen,[^\n]*%cl:%cM %cP")
+        date_pattern = re.compile(r"%Vl\(iPoneLockscreen,[^\n]*%cd\|%cd %cb>>")
+        updated, time_count = time_pattern.subn(time_replacement, content, count=1)
+        updated, date_count = date_pattern.subn(date_replacement, updated, count=1)
+        if time_count != 1 or date_count != 1:
+            raise ValueError(f"Unsupported lockscreen clock layout: {time_count}/{date_count}")
+        return updated
+
+    @staticmethod
+    def _enable_generated_clock_glass(content: str) -> str:
+        if "%xl(LockClockGlassGenerated,LockClockGlassGenerated.bmp)" not in content:
+            marker = "%xl(LsStyle,LockscreenStyle.bmp)\n"
+            content = content.replace(marker, marker + "%xl(LockClockGlassGenerated,LockClockGlassGenerated.bmp)\n", 1)
+        if "%Vd(LockClockGlass)%Vd(iPoneLockscreen)" in content:
+            return content
+        content = content.replace("%Vd(iPoneLockscreen)%?mp<", "%Vd(LockClockGlass)%Vd(iPoneLockscreen)%?mp<", 1)
+        return content
+
+    @staticmethod
+    def _enable_generated_lock_card(content: str) -> str:
+        if "%xl(LockMiniCardGenerated,LockMiniCardGenerated.bmp)" not in content:
+            marker = "%xl(NotificationBackdrop,Notification.bmp,16,150)\n"
+            content = content.replace(marker, marker + "%xl(LockMiniCardGenerated,LockMiniCardGenerated.bmp)\n", 1)
+        content = re.sub(
+            r"%Vl\(LockCardShadow,24,161,248,52,-\)%dr\(0,0,-,-,15121b\)\n",
+            "%Vl(LockCardShadow,24,161,248,52,-)%dr(0,0,-,-,15121b)\n",
+            content,
+            count=1,
+        )
+        card_block = (
+            "%Vl(LockCardOuter,22,159,248,52,-)%dr(0,0,-,-,26222f)\n"
+            "%Vl(LockCardInner,24,161,244,48,-)%dr(0,0,-,-,2d2936)\n"
+            "%Vl(LockCardHighlight,24,161,244,1,-)%dr(0,0,-,-,464056)\n"
+            "%Vl(LockCardLowlight,24,208,244,1,-)%dr(0,0,-,-,18161f)"
+        )
+        generated_block = "%Vl(LockMiniCardGenerated,22,159,250,54,-)%xd(LockMiniCardGenerated)"
+        if card_block in content:
+            content = content.replace(card_block, generated_block, 1)
+        return content
+
+    @staticmethod
     def _clock_layout_targets(profile: Dict, repo_root: str):
         theme = str(profile.get("selected_theme") or "").strip().lower()
         resolution = str(profile.get("screen_resolution") or "").strip()
@@ -419,7 +931,8 @@ class IPoneWallpaperService:
         candidates = [
             ("wps/iPone.sbs", ".rockbox/wps/iPone.sbs"),
         ]
-        mount_path = os.path.abspath(profile.get("device_mount_path") or "")
+        mount_value = str(profile.get("device_mount_path") or "").strip()
+        mount_path = os.path.abspath(mount_value) if mount_value else ""
         targets = []
         for source_rel, destination_rel in candidates:
             if mount_path:
@@ -432,7 +945,8 @@ class IPoneWallpaperService:
 
     @staticmethod
     def _clock_layout_source_path(profile: Dict, repo_root: str, source_rel: str, destination_rel: str) -> str:
-        mount_path = os.path.abspath(profile.get("device_mount_path") or "")
+        mount_value = str(profile.get("device_mount_path") or "").strip()
+        mount_path = os.path.abspath(mount_value) if mount_value else ""
         if mount_path:
             device_abs = os.path.join(mount_path, destination_rel.lstrip("/"))
             if os.path.isfile(device_abs):
@@ -519,7 +1033,11 @@ class IPoneWallpaperService:
         source_abs = os.path.abspath(source_path)
         staged_root = os.path.join(repo_root, "rockpod", ".wallpaper_apply", str(profile.get("id") or "default"))
         os.makedirs(staged_root, exist_ok=True)
-        prefix = "lockscreen" if kind == "lock" else "charge-wallpaper"
+        prefix = {
+            "lock": "lockscreen",
+            "charge": "charge-wallpaper",
+            "pictureflow": "pictureflow-loading-bg",
+        }.get(kind, "wallpaper")
         dest_abs = os.path.join(staged_root, f"{prefix}-normalized.bmp")
         self._render_bmp(source_abs, dest_abs, str(profile.get("screen_resolution") or "320x240"))
         return dest_abs

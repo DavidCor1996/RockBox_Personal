@@ -4600,7 +4600,7 @@ class MainWindow(QMainWindow):
         profile = self._rockbox_profiles.current_profile()
         if not profile:
             self._ipone_wallpapers.set_themes([], "")
-            self._ipone_wallpapers.set_candidates([], [])
+            self._ipone_wallpapers.set_candidates([], [], [])
             return
         themes = self._rockbox_themes.list_themes(
             profile["source_repo_path"],
@@ -4624,7 +4624,9 @@ class MainWindow(QMainWindow):
         self._ipone_wallpapers.set_candidates(
             candidates.get("lock", []),
             candidates.get("charge", []),
+            candidates.get("pictureflow", []),
         )
+        self._ipone_wallpapers.set_lockscreen_customization(profile.get("lockscreen_customization", {}))
 
     def _on_ipone_wallpaper_profile_selected(self, profile_id):
         self._rockbox_profiles.set_selected_profile(profile_id)
@@ -4657,15 +4659,22 @@ class MainWindow(QMainWindow):
             return
         lock_source = str(selection.get("lock_source") or "").strip()
         charge_source = str(selection.get("charge_source") or "").strip()
+        pictureflow_source = str(selection.get("pictureflow_source") or "").strip()
+        lockscreen_customization = selection.get("lockscreen_customization") or {}
         theme_id = str(selection.get("theme_id") or "").strip()
         if theme_id and theme_id != profile.get("selected_theme"):
             profile["selected_theme"] = theme_id
+            self._rockbox_profiles.save_profile(profile)
+        if lockscreen_customization:
+            profile["lockscreen_customization"] = lockscreen_customization
             self._rockbox_profiles.save_profile(profile)
         try:
             bundle = self._ipone_wallpapers_service.build_apply_bundle(
                 profile,
                 lock_source=lock_source,
                 charge_source=charge_source,
+                pictureflow_source=pictureflow_source,
+                lockscreen_customization=lockscreen_customization,
             )
             diff = self._rockbox_deploy.build_diff(profile, bundle)
         except ValueError as exc:
@@ -4684,6 +4693,11 @@ class MainWindow(QMainWindow):
             lines.extend(["", f"Lockscreen: {os.path.basename(lock_source)}"])
         if charge_source:
             lines.extend(["", f"Charge: {os.path.basename(charge_source)}"])
+        if pictureflow_source:
+            lines.extend(["", f"PictureFlow Init: {os.path.basename(pictureflow_source)}"])
+        if lockscreen_customization:
+            clock = lockscreen_customization.get("clock", {})
+            lines.extend(["", f"Lock Screen Clock: {clock.get('position', 'center')} / {clock.get('style', 'solid')}"])
         prompt = QMessageBox(self)
         prompt.setWindowTitle("Apply Wallpapers")
         prompt.setText("\n".join(lines))
@@ -4750,7 +4764,11 @@ class MainWindow(QMainWindow):
             return
         self._refresh_ipone_wallpapers()
         label = item.get("label") or os.path.basename(item.get("source_path", source_path))
-        kind_label = "lockscreen" if kind == "lock" else "charge"
+        kind_label = {
+            "lock": "lockscreen",
+            "charge": "charge",
+            "pictureflow": "PictureFlow init",
+        }.get(kind, kind)
         self._status_bar.set_left_text(f"Added {kind_label} wallpaper: {label}")
 
     def _remove_ipone_wallpaper(self, kind, candidate):

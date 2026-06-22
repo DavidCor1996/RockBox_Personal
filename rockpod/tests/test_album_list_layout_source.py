@@ -129,7 +129,9 @@ def test_ipone_right_pane_slideshow_pan_is_smooth_and_refreshed():
     assert "MIN(next_delay, IPONE_RIGHT_PANE_SLIDESHOW_UPDATE_DELAY)" not in sbs
     assert "%xl(SbsBgFullArt,iPone_bd_fullart.bmp)" in ipone_sbs
     assert "%?if(%St(ipone right pane), =, full art)<%xd(SbsBgFullArt)|%xd(SbsBg)>" in ipone_sbs
-    assert "%?if(%cs, =, 21)<|%?mh<|%V(8,3,54,14,2)%Vf(F4EFFB)%aliPod>>" in ipone7g_sbs
+    assert "%xl(SbsIpodLabel,SbsIpodLabel.bmp)" in ipone7g_sbs
+    assert "%V(8,3,58,14,-)\n%?if(%cs, =, 21)<|%?mh<|%xd(SbsIpodLabel)>>" in ipone7g_sbs
+    assert "%aliPod" not in ipone7g_sbs
     assert "%Vd(SbsIpodTitle)" not in ipone7g_sbs
 
 

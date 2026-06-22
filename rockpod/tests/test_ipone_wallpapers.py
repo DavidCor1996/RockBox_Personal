@@ -32,8 +32,10 @@ def test_lists_theme_and_generated_wallpapers_without_intermediate_files(tmp_dir
     _write_bmp(os.path.join(repo_root, "wps", "iPone", "WallpaperAlt.bmp"))
     _write_bmp(os.path.join(repo_root, "wps", "iPone", "ChargeWallpaper.bmp"))
     _write_bmp(os.path.join(repo_root, "wps", "iPone", "ChargeWallpaperAlt.bmp"))
+    _write_bmp(os.path.join(repo_root, "apps", "plugins", "bitmaps", "native", "pictureflow_loading_bg.320x240x24.bmp"))
     _write_bmp(os.path.join(repo_root, "rockpod", "generated", "lockscreen-besties-trio-v5.bmp"))
     _write_bmp(os.path.join(repo_root, "rockpod", "generated", "charge-wallpaper-new-screenshot-v6.bmp"))
+    _write_bmp(os.path.join(repo_root, "rockpod", "generated", "pictureflow-loading-bg-v11.bmp"))
     _write_bmp(os.path.join(repo_root, "rockpod", "generated", "lockscreen-solo-new-v2.bmp"))
     _write_bmp(os.path.join(repo_root, "rockpod", "generated", "lockscreen-solo-new-v2-mask.bmp"))
     _write_bmp(os.path.join(repo_root, "rockpod", "generated", "lockscreen-direct-local-v3-subject.bmp"))
@@ -43,6 +45,7 @@ def test_lists_theme_and_generated_wallpapers_without_intermediate_files(tmp_dir
 
     lock_names = {os.path.basename(item["source_path"]) for item in candidates["lock"]}
     charge_names = {os.path.basename(item["source_path"]) for item in candidates["charge"]}
+    pictureflow_names = {os.path.basename(item["source_path"]) for item in candidates["pictureflow"]}
 
     assert "Wallpaper.bmp" in lock_names
     assert "WallpaperAlt.bmp" in lock_names
@@ -53,6 +56,8 @@ def test_lists_theme_and_generated_wallpapers_without_intermediate_files(tmp_dir
     assert "ChargeWallpaper.bmp" in charge_names
     assert "ChargeWallpaperAlt.bmp" in charge_names
     assert "charge-wallpaper-new-screenshot-v6.bmp" in charge_names
+    assert "pictureflow_loading_bg.320x240x24.bmp" in pictureflow_names
+    assert "pictureflow-loading-bg-v11.bmp" in pictureflow_names
 
 
 def test_nano2g_candidates_include_generated_wallpapers_with_size_metadata(tmp_dir):
@@ -136,6 +141,127 @@ def test_build_apply_bundle_targets_active_ipone_wallpapers(tmp_dir):
     assert ".rockbox/wps/iPone/ChargeWallpaperAlt.bmp" in destinations
     assert ".rockbox/wps/iPone/ChargeWallpaperThird.bmp" in destinations
     assert ".rockbox/wps/iPone/ChargeWallpaperFourth.bmp" in destinations
+
+
+def test_build_apply_bundle_targets_pictureflow_initialization_wallpaper(tmp_dir):
+    repo_root = os.path.join(tmp_dir, "repo")
+    pictureflow_source = os.path.join(repo_root, "rockpod", "generated", "pictureflow-loading-bg-v11.bmp")
+    _write_bmp(pictureflow_source)
+
+    service = IPoneWallpaperService()
+    bundle = service.build_apply_bundle(_profile(repo_root), pictureflow_source=pictureflow_source)
+
+    assets = {item["destination_rel"]: item for item in bundle["assets"]}
+    assert ".rockbox/rocks/demos/pictureflow_loading_bg.bmp" in assets
+    with Image.open(assets[".rockbox/rocks/demos/pictureflow_loading_bg.bmp"]["source_abs"]) as rendered:
+        assert rendered.size == (320, 240)
+
+
+def test_build_apply_bundle_stages_lockscreen_customization_for_ipone_and_7g(tmp_dir):
+    repo_root = os.path.join(tmp_dir, "repo")
+    lock_source = os.path.join(repo_root, "rockpod", "generated", "lockscreen-besties-trio-v5.bmp")
+    sbs_fragment = "\n".join(
+            [
+                "%xl(LsStyle,LockscreenStyle.bmp)",
+                "%xl(NotificationBackdrop,Notification.bmp,16,150)",
+                "%?if(%cs, =, 21)<%Vd(ChargeClock)|%?mh<%Vd(iPoneLockscreen)%?mp<|%Vd(LockPlayer)>|%Vd(normal)>>",
+                "%Vl(iPoneLockscreen,0,32,-,55,8)%Vf(FFFFFF)%ac%cl:%cM %cP",
+            "%Vl(iPoneLockscreen,0,101,-,20,6)%Vf(FFFFFF)%ac%?if(%ss(0,7,%St(lang)), =, english)<%?cu<Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday>|%ca> %?or(%if(%ss(0,7,%St(lang)), =, chinese),%if(%St(lang), =, magyar),%if(%St(lang), =, lietuviu),%if(%St(lang), =, japanese),%if(%St(lang), =, korean))<%cb %cd|%?if(%St(lang), =, english-us)<%cb %cd|%cd %cb>>",
+            "%Vl(LockCardShadow,24,161,248,52,-)%dr(0,0,-,-,15121b)",
+            "%Vl(LockCardOuter,22,159,248,52,-)%dr(0,0,-,-,26222f)",
+            "%Vl(LockCardInner,24,161,244,48,-)%dr(0,0,-,-,2d2936)",
+            "%Vl(LockCardHighlight,24,161,244,1,-)%dr(0,0,-,-,464056)",
+            "%Vl(LockCardLowlight,24,208,244,1,-)%dr(0,0,-,-,18161f)",
+        ]
+    )
+    _write_bmp(lock_source)
+    os.makedirs(os.path.join(repo_root, "wps", "iPone"), exist_ok=True)
+    os.makedirs(os.path.join(repo_root, "wps", "iPone7G"), exist_ok=True)
+    _write_bmp(os.path.join(repo_root, "wps", "iPone", "Wallpaper.bmp"))
+    _write_bmp(os.path.join(repo_root, "wps", "iPone7G", "Wallpaper.bmp"))
+    for name in ("iPone.sbs", "iPone7G.sbs"):
+        with open(os.path.join(repo_root, "wps", name), "w", encoding="utf-8") as handle:
+            handle.write(sbs_fragment)
+
+    service = IPoneWallpaperService()
+    customization = {
+        "clock": {
+            "position": "custom",
+            "y": 44,
+            "height": 70,
+            "align": "left",
+            "font": "66-Cantarell-Light.fnt",
+            "style": "glass",
+            "glass_strength": "medium",
+        },
+        "date": {"mode": "below"},
+        "mini_player": {"blur_strength": "high"},
+    }
+    bundle = service.build_apply_bundle(
+        _profile(repo_root),
+        lock_source=lock_source,
+        lockscreen_customization=customization,
+    )
+
+    destinations = {item["destination_rel"] for item in bundle["assets"]}
+    assert ".rockbox/wps/iPone.sbs" in destinations
+    assert ".rockbox/wps/iPone7G.sbs" in destinations
+    assert ".rockbox/wps/iPone/LockMiniCardGenerated.bmp" in destinations
+    assert ".rockbox/wps/iPone7G/LockMiniCardGenerated.bmp" in destinations
+    assert ".rockbox/wps/iPone/LockClockGlassGenerated.bmp" in destinations
+    assert ".rockbox/wps/iPone7G/LockClockGlassGenerated.bmp" in destinations
+    staged_sbs = next(item["source_abs"] for item in bundle["assets"] if item["destination_rel"] == ".rockbox/wps/iPone.sbs")
+    with open(staged_sbs, "r", encoding="utf-8") as handle:
+        staged = handle.read()
+    assert "%xl(LockClockGlassGenerated,LockClockGlassGenerated.bmp)" in staged
+    assert "%Vd(LockClockGlass)%Vd(iPoneLockscreen)" in staged
+    assert "%Vl(LockClockGlass,28,40,264,78,-)%xd(LockClockGlassGenerated)" in staged
+    assert "%Vl(iPoneLockscreen,28,44,264,70,8)%Vf(FFFFFF)%al%cl:%cM %cP" in staged
+    assert "%xl(LockMiniCardGenerated,LockMiniCardGenerated.bmp)" in staged
+
+
+def test_lockscreen_customization_uses_visible_clock_text_on_bright_glass(tmp_dir):
+    repo_root = os.path.join(tmp_dir, "repo")
+    lock_source = os.path.join(repo_root, "rockpod", "generated", "lockscreen-bright.bmp")
+    sbs_path = os.path.join(repo_root, "wps", "iPone7G.sbs")
+    sbs_fragment = "\n".join(
+        [
+            "%xl(LsStyle,LockscreenStyle.bmp)",
+            "%xl(NotificationBackdrop,Notification.bmp,16,150)",
+            "%?if(%cs, =, 21)<%Vd(ChargeClock)|%?mh<%Vd(iPoneLockscreen)%?mp<|%Vd(LockPlayer)>|%Vd(normal)>>",
+            "%Vl(iPoneLockscreen,0,32,-,55,8)%Vf(FFFFFF)%ac%cl:%cM %cP",
+            "%Vl(iPoneLockscreen,0,101,-,20,6)%Vf(FFFFFF)%ac%?if(%ss(0,7,%St(lang)), =, english)<%?cu<Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday>|%ca> %?or(%if(%ss(0,7,%St(lang)), =, chinese),%if(%St(lang), =, magyar),%if(%St(lang), =, lietuviu),%if(%St(lang), =, japanese),%if(%St(lang), =, korean))<%cb %cd|%?if(%St(lang), =, english-us)<%cb %cd|%cd %cb>>",
+        ]
+    )
+    _write_bmp(lock_source, color="#DCEFF0")
+    os.makedirs(os.path.dirname(sbs_path), exist_ok=True)
+    with open(sbs_path, "w", encoding="utf-8") as handle:
+        handle.write(sbs_fragment)
+
+    service = IPoneWallpaperService()
+    profile = _profile(repo_root)
+    profile["selected_theme"] = "iPone7G"
+    bundle = service.build_apply_bundle(
+        profile,
+        lock_source=lock_source,
+        lockscreen_customization={
+            "clock": {
+                "position": "lower",
+                "y": 78,
+                "height": 64,
+                "align": "right",
+                "style": "glass tinted",
+                "glass_strength": "high",
+            },
+            "date": {"mode": "below"},
+        },
+    )
+
+    staged_sbs = next(item["source_abs"] for item in bundle["assets"] if item["destination_rel"] == ".rockbox/wps/iPone7G.sbs")
+    with open(staged_sbs, "r", encoding="utf-8") as handle:
+        staged = handle.read()
+    assert "%Vl(iPoneLockscreen,0,64,-,64,4)%Vf(16121D)%ac%cl:%cM %cP" in staged
+    assert "%Vl(iPoneLockscreen,0,142,-,20,6)%Vf(2A2633)%ac" in staged
 
 
 def test_build_apply_bundle_does_not_rewrite_device_sbs_without_explicit_clock_position(tmp_dir):
@@ -475,20 +601,54 @@ def test_wallpaper_widget_hide_button_emits_current_candidate_and_toggles_label(
         widget.close()
 
 
-def test_wallpaper_widget_does_not_expose_clock_position_choice():
+def test_wallpaper_widget_exposes_lockscreen_customization_and_pictureflow():
     app = QApplication.instance() or QApplication([])
     widget = IPoneWallpaperManagerWidget()
     try:
-        combo_type = type(widget._profile_combo)
-        labels = [
-            child.text()
-            for child in widget.findChildren(type(widget._summary))
-        ]
-        assert "Lockscreen Clock:" not in labels
-        assert len(widget.findChildren(combo_type)) == 2
-        assert "clock_position" not in widget.current_selection()
-        assert not hasattr(widget, "clock_position_changed")
-        assert not hasattr(widget, "set_clock_position")
+        widget.set_candidates(
+            [],
+            [],
+            [
+                {
+                    "id": "pf-a",
+                    "label": "PictureFlow A",
+                    "source_path": "/tmp/pf-a.bmp",
+                    "preview_path": "",
+                    "removable": False,
+                },
+            ],
+        )
+        widget.set_lockscreen_customization(
+            {
+                "clock": {
+                    "position": "custom",
+                    "y": 42,
+                    "height": 72,
+                    "align": "left",
+                    "font": "66-Cantarell-Light.fnt",
+                    "style": "glass",
+                    "glass_strength": "medium",
+                },
+                "date": {"mode": "above"},
+                "readability": {"auto_contrast": False},
+                "mini_player": {"blur_strength": "high"},
+            }
+        )
+        selection = widget.current_selection()
+        custom = selection["lockscreen_customization"]
+        assert selection["pictureflow_source"] == "/tmp/pf-a.bmp"
+        assert custom["clock"]["position"] == "custom"
+        assert custom["clock"]["x"] == 28
+        assert custom["clock"]["y"] == 42
+        assert custom["clock"]["width"] == 264
+        assert custom["clock"]["height"] == 72
+        assert custom["clock"]["align"] == "left"
+        assert custom["clock"]["font"] == "66-Cantarell-Light.fnt"
+        assert custom["clock"]["style"] == "glass"
+        assert custom["clock"]["glass_strength"] == "medium"
+        assert custom["date"]["mode"] == "above"
+        assert custom["readability"]["auto_contrast"] is False
+        assert custom["mini_player"]["blur_strength"] == "high"
     finally:
         widget.close()
 
@@ -525,8 +685,12 @@ def test_wallpaper_widget_cross_apply_buttons_swap_sources():
 
         assert emitted[0]["lock_source"] == ""
         assert emitted[0]["charge_source"] == "/tmp/lock-a.bmp"
+        assert emitted[0]["pictureflow_source"] == ""
+        assert emitted[0]["lockscreen_customization"] == {}
         assert emitted[1]["lock_source"] == "/tmp/charge-a.bmp"
         assert emitted[1]["charge_source"] == ""
+        assert emitted[1]["pictureflow_source"] == ""
+        assert emitted[1]["lockscreen_customization"] == {}
     finally:
         widget.close()
 
