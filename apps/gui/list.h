@@ -151,6 +151,8 @@ struct gui_synclist
     bool talk_menu;
     bool wraparound;
     bool scroll_paginated;
+    bool force_fullscreen_albumlist;
+    bool fullscreen_albumlist_theme_hidden;
     /* whether the text of the whole items of the list have to be
      * scrolled or only for the selected item */
     bool scroll_all;
@@ -206,6 +208,8 @@ extern void gui_synclist_set_nb_items(struct gui_synclist * lists, int nb_items)
 extern void gui_synclist_set_icon_callback(struct gui_synclist * lists, list_get_icon icon_callback);
 extern void gui_synclist_set_voice_callback(struct gui_synclist * lists, list_speak_item voice_callback);
 extern void gui_synclist_set_viewport_defaults(struct viewport *vp, enum screen_type screen);
+extern void gui_synclist_set_fullscreen_albumlist(struct gui_synclist *list,
+                                                  bool enable);
 #ifdef HAVE_LCD_COLOR
 extern void gui_synclist_set_color_callback(struct gui_synclist * lists, list_get_color color_callback);
 extern void gui_synclist_set_sel_color(struct gui_synclist * lists, struct list_selection_color *list_sel_color);

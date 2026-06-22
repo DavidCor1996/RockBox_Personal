@@ -7,7 +7,7 @@
 
 #include "list.h"
 
-void albumlist_art_setup_list(struct gui_synclist *list);
+void albumlist_setup_list(struct gui_synclist *list);
 void albumlist_art_draw_item(struct list_putlineinfo_t *list_info);
 
 #endif

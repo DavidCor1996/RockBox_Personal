@@ -94,6 +94,22 @@ static bool need_full_update = false;
 
 #define LIST_TOP_INSET_MAIN 5
 
+static void list_apply_default_top_inset(struct viewport *vp,
+                                         enum screen_type screen)
+{
+    if (screen == SCREEN_MAIN && vp->height > LIST_TOP_INSET_MAIN)
+    {
+        vp->y += LIST_TOP_INSET_MAIN;
+        vp->height -= LIST_TOP_INSET_MAIN;
+    }
+}
+
+static void list_apply_fullscreen_albumlist_viewport(struct viewport *vp,
+                                                     enum screen_type screen)
+{
+    viewport_set_defaults(vp, screen);
+}
+
 bool list_need_full_update(void)
 {
     bool ret = need_full_update;
@@ -128,6 +144,8 @@ static void list_init_viewports(struct gui_synclist *list)
         FOR_NB_SCREENS(i)
         {
             gui_synclist_set_viewport_defaults(list->parent[i], i);
+            if (list->force_fullscreen_albumlist)
+                list_apply_fullscreen_albumlist_viewport(list->parent[i], i);
         }
     }
     list->dirty_tick = current_tick;
@@ -145,6 +163,9 @@ bool list_display_title(struct gui_synclist *list, enum screen_type screen)
     if (screen == SCREEN_MAIN && sb_skin_is_ipod3g_galaxy_theme())
         return false;
 #endif
+
+    if (list->force_fullscreen_albumlist)
+        return list->title != NULL && list_nb_lines(list, screen) > 2;
 
     return list->title != NULL &&
         !sb_set_title_text(list->title, list->title_icon, screen) &&
@@ -196,6 +217,8 @@ static void gui_synclist_init_display_settings(struct gui_synclist * list)
     list->talk_menu = gs->talk_menu;
     list->wraparound = gs->list_wraparound;
     list->cursor_style = gs->cursor_style;
+    list->force_fullscreen_albumlist = false;
+    list->fullscreen_albumlist_theme_hidden = false;
 }
 
 /*
@@ -297,7 +320,8 @@ void gui_synclist_draw(struct gui_synclist *gui_list)
     }
     FOR_NB_SCREENS(i)
     {
-        if (!skinlist_draw(&screens[i], gui_list))
+        if (gui_list->force_fullscreen_albumlist ||
+            !skinlist_draw(&screens[i], gui_list))
             list_draw(&screens[i], gui_list);
     }
 }
@@ -554,11 +578,39 @@ void gui_synclist_set_viewport_defaults(struct viewport *vp,
 
     /* Give default list screens a little breathing room below the status bar
      * without affecting custom parent viewports supplied by callers. */
-    if (screen == SCREEN_MAIN && vp->height > LIST_TOP_INSET_MAIN)
+    list_apply_default_top_inset(vp, screen);
+}
+
+void gui_synclist_set_fullscreen_albumlist(struct gui_synclist *list,
+                                           bool enable)
+{
+    if (!list)
+        return;
+
+    if (list->force_fullscreen_albumlist == enable &&
+        list->fullscreen_albumlist_theme_hidden == enable)
+        return;
+
+    if (enable && !list->fullscreen_albumlist_theme_hidden)
     {
-        vp->y += LIST_TOP_INSET_MAIN;
-        vp->height -= LIST_TOP_INSET_MAIN;
+        FOR_NB_SCREENS(i)
+            viewportmanager_theme_enable(i, false, NULL);
+        list->fullscreen_albumlist_theme_hidden = true;
     }
+
+    list->force_fullscreen_albumlist = enable;
+
+    if (!enable && list->fullscreen_albumlist_theme_hidden)
+    {
+        FOR_NB_SCREENS(i)
+            viewportmanager_theme_undo(i, true);
+        list->fullscreen_albumlist_theme_hidden = false;
+    }
+
+    list_init_viewports(list);
+    FOR_NB_SCREENS(i)
+        list_init_item_height(list, i);
+    gui_synclist_select_item(list, list->selected_item);
 }
 
 #ifdef HAVE_LCD_COLOR

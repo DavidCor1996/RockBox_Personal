@@ -530,8 +530,7 @@ static int update_dir(void)
     gui_synclist_set_color_callback(list, &tree_get_filecolor);
 #endif
 #if defined(HAVE_TAGCACHE) && defined(HAVE_LCD_COLOR)
-    if (id3db)
-        albumlist_art_setup_list(list);
+    albumlist_setup_list(list);
 #endif
     if( tc.selected_item >= tc.filesindir)
         tc.selected_item=tc.filesindir-1;

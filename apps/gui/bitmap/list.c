@@ -149,7 +149,8 @@ static bool draw_title(struct screen *display,
     struct viewport *title_text_vp = &title_text[screen];
     struct line_desc linedes = LINE_DESC_DEFINIT;
 
-    if (sb_set_title_text(list->title, list->title_icon, screen))
+    if (!list->force_fullscreen_albumlist &&
+        sb_set_title_text(list->title, list->title_icon, screen))
         return false; /* the sbs is handling the title */
     display->scroll_stop_viewport(title_text_vp);
     if (!list_display_title(list, screen))

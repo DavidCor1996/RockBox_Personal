@@ -14,6 +14,7 @@
 #include "lcd.h"
 #include "misc.h"
 #include "screen_access.h"
+#include "settings.h"
 #include "system.h"
 #include "tagtree.h"
 #include "tree.h"
@@ -24,6 +25,7 @@
 #define ALBUMLIST_ROOT ROCKBOX_DIR "/albumlist"
 #define ALBUMLIST_THUMB_SIZE 32
 #define ALBUMLIST_TEXT_PAD 6
+#define ALBUMLIST_COMPACT_ROW_HEIGHT 22
 #define ALBUMLIST_LOOKUP_CACHE 16
 #define ALBUMLIST_BITMAP_CACHE 8
 #define ALBUMLIST_ALBUM_LEN 96
@@ -51,6 +53,23 @@ static struct albumlist_lookup_slot lookup_cache[ALBUMLIST_LOOKUP_CACHE];
 static int lookup_victim;
 static struct albumlist_bitmap_slot bitmap_cache[ALBUMLIST_BITMAP_CACHE];
 static unsigned long bitmap_tick;
+
+static bool albumlist_has_album_rows(struct gui_synclist *list)
+{
+    struct tree_context *tc = list ? (struct tree_context *)list->data : NULL;
+    char album[ALBUMLIST_ALBUM_LEN];
+    char artist[ALBUMLIST_ARTIST_LEN];
+
+    return list && tc &&
+        tagtree_get_album_art_row(tc, tc->special_entry_count,
+                                  album, sizeof(album),
+                                  artist, sizeof(artist));
+}
+
+static bool albumlist_use_legacy_thumbnails(void)
+{
+    return false;
+}
 
 static int ascii_casecmp(const char *a, const char *b)
 {
@@ -218,23 +237,36 @@ static struct bitmap *load_thumb_bitmap(const char *path)
     return &slot->bm;
 }
 
-void albumlist_art_setup_list(struct gui_synclist *list)
+void albumlist_setup_list(struct gui_synclist *list)
 {
-    struct tree_context *tc = list ? (struct tree_context *)list->data : NULL;
-    char album[ALBUMLIST_ALBUM_LEN];
-    char artist[ALBUMLIST_ARTIST_LEN];
-
-    if (!list || !tc ||
-        !tagtree_get_album_art_row(tc, tc->special_entry_count,
-                                   album, sizeof(album),
-                                   artist, sizeof(artist)))
+    if (!list)
         return;
 
-    list->callback_draw_item = albumlist_art_draw_item;
+    list->callback_draw_item = NULL;
+    list->show_icons = global_settings.show_icons;
+    gui_synclist_set_fullscreen_albumlist(list, false);
+
+    if (!albumlist_has_album_rows(list))
+        return;
+
+    gui_synclist_set_fullscreen_albumlist(list, true);
+    list->callback_get_item_icon = NULL;
+    list->show_icons = false;
     FOR_NB_SCREENS(i)
     {
-        if (list->line_height[i] < ALBUMLIST_THUMB_SIZE + 2)
-            list->line_height[i] = ALBUMLIST_THUMB_SIZE + 2;
+        if (screens[i].lcdwidth == 320 && screens[i].lcdheight == 240)
+            list->line_height[i] = MAX(list->line_height[i],
+                                       ALBUMLIST_COMPACT_ROW_HEIGHT);
+    }
+
+    if (albumlist_use_legacy_thumbnails())
+    {
+        list->callback_draw_item = albumlist_art_draw_item;
+        FOR_NB_SCREENS(i)
+        {
+            if (list->line_height[i] < ALBUMLIST_THUMB_SIZE + 2)
+                list->line_height[i] = ALBUMLIST_THUMB_SIZE + 2;
+        }
     }
 }
 
