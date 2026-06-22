@@ -292,7 +292,7 @@ struct skin_albumart {
     unsigned char state; /* WPS_ALBUMART_NONE, _CHECK, _LOAD */
 
     OFFSETTYPE(struct skin_albumart *) next;
-#ifdef IPOD_NANO2G
+#if defined(HAVE_LCD_COLOR)
     OFFSETTYPE(struct skin_viewport *) viewport;
 #endif
     int slot_id;

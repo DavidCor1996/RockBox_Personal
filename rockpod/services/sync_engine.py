@@ -36,6 +36,7 @@ LEGACY_COPY_MODE = os.environ.get("ROCKPOD_SYNC_LEGACY_COPY", "").strip().lower(
 AUDIO_EXTENSIONS = {ext for ext in CODEC_MAP.keys() if ext not in VIDEO_EXTENSIONS}
 ALBUM_LIST_DEVICE_DIR = os.path.join(".rockbox", "albumlist")
 ALBUM_LIST_THUMB_DEVICE_DIR = os.path.join(ALBUM_LIST_DEVICE_DIR, "thumbs")
+ALBUM_LIST_SLIDE_DEVICE_DIR = os.path.join(ALBUM_LIST_DEVICE_DIR, "slides")
 VIDEO_LIST_DEVICE_DIR = os.path.join(".rockbox", "videolist")
 VIDEO_LIST_THUMB_DEVICE_DIR = os.path.join(VIDEO_LIST_DEVICE_DIR, "thumbs")
 SYNC_TEMP_SUFFIX = ".rockpod_tmp"
@@ -1488,6 +1489,25 @@ class SyncEngine(QObject):
                     )
             elif not album_id:
                 album_id = self._artwork_manager.album_list_id(album_key)
+
+            slide_src, slide_hash, slide_device_name, slide_album_id = (
+                self._artwork_manager.export_album_list_slide(album_info)
+            )
+            if not album_id and slide_album_id:
+                album_id = slide_album_id
+            if slide_src and slide_hash and slide_device_name:
+                slide_rel = os.path.join(ALBUM_LIST_SLIDE_DEVICE_DIR, slide_device_name)
+                if slide_rel not in seen:
+                    seen.add(slide_rel)
+                    self._append_artwork_copy_if_changed(
+                        plan,
+                        slide_src,
+                        slide_rel,
+                        album_key,
+                        slide_hash,
+                        device_mount,
+                        existing_hashes,
+                    )
 
             manifest_entries.append(
                 {

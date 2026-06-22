@@ -458,7 +458,7 @@ struct skin_albumart *skin_resolve_albumart(char *skin_buffer,
                 return aa;
             aa = SKINOFFSETTOPTR(skin_buffer, aa->next);
         }
-#ifdef IPOD_NANO2G
+#ifdef HAVE_LCD_COLOR
         return SKINOFFSETTOPTR(skin_buffer, data->albumart);
 #else
         return NULL;

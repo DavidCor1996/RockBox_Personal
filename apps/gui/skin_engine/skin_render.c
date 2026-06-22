@@ -57,8 +57,8 @@
 
 static char* skin_buffer;
 
-#if defined(HAVE_ALBUMART) && defined(IPOD_NANO2G)
-static int nano2g_albumart_handle_or_fallback(int handle)
+#if defined(HAVE_ALBUMART) && defined(HAVE_LCD_COLOR)
+static int skin_albumart_handle_or_fallback(int handle)
 {
     if (handle >= 0)
         return handle;
@@ -73,8 +73,8 @@ static int nano2g_albumart_handle_or_fallback(int handle)
     return -1;
 }
 
-static void nano2g_draw_viewport_albumart(struct gui_wps *gwps,
-                                          struct skin_viewport *skin_viewport)
+static void skin_draw_viewport_albumart(struct gui_wps *gwps,
+                                        struct skin_viewport *skin_viewport)
 {
     struct wps_data *data = gwps->data;
     struct skin_albumart *aa =
@@ -88,7 +88,7 @@ static void nano2g_draw_viewport_albumart(struct gui_wps *gwps,
         if (owner == skin_viewport)
         {
             int handle = playback_current_aa_hid(aa->playback_aa_slot);
-            handle = nano2g_albumart_handle_or_fallback(handle);
+            handle = skin_albumart_handle_or_fallback(handle);
             draw_album_art(gwps, aa, handle, false);
             aa->draw_handle = -1;
         }
@@ -347,8 +347,8 @@ static bool do_non_text_tags(struct gui_wps *gwps, struct skin_draw_info *info,
                 if (aa)
                 {
                     int handle = playback_current_aa_hid(aa->playback_aa_slot);
-#ifdef IPOD_NANO2G
-                    handle = nano2g_albumart_handle_or_fallback(handle);
+#if defined(HAVE_LCD_COLOR)
+                    handle = skin_albumart_handle_or_fallback(handle);
 #endif
 #if CONFIG_TUNER
                     if (in_radio_screen() || (get_radio_status() != FMRADIO_OFF))
@@ -522,8 +522,8 @@ static void do_tags_in_hidden_conditional(struct skin_element* branch,
                 int handle = -1;
                 if (aa)
                     handle = playback_current_aa_hid(aa->playback_aa_slot);
-#ifdef IPOD_NANO2G
-                handle = nano2g_albumart_handle_or_fallback(handle);
+#if defined(HAVE_LCD_COLOR)
+                handle = skin_albumart_handle_or_fallback(handle);
 #endif
                 draw_album_art(gwps, aa, handle, true);
             }
@@ -906,8 +906,8 @@ void skin_render_viewport(struct skin_element* viewport, struct gui_wps *gwps,
             info.line_number++;
         line = SKINOFFSETTOPTR(skin_buffer, line->next);
     }
-#ifdef IPOD_NANO2G
-    nano2g_draw_viewport_albumart(gwps, skin_viewport);
+#if defined(HAVE_ALBUMART) && defined(HAVE_LCD_COLOR)
+    skin_draw_viewport_albumart(gwps, skin_viewport);
 #endif
     wps_display_images(gwps, &skin_viewport->vp);
 }

@@ -3,10 +3,14 @@ set -euo pipefail
 
 build_dir="${1:-/home/david/Documents/RockBox_Personal-master/build-sim-video-5g}"
 out_dir="${2:-/home/david/Documents/RockBox_Personal-master/docs/album-list-layout-shots}"
-source_sim_root="${build_dir}/simdisk"
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-rockboxui="${build_dir}/rockboxui"
+build_abs="$(cd "${repo_root}/${build_dir}" 2>/dev/null || cd "${build_dir}" && pwd)"
+source_sim_root="${build_abs}/simdisk"
+rockboxui="${build_abs}/rockboxui"
 laptop_music_dir="${IPONE_ALBUMLIST_MUSIC_DIR:-/home/david/Music}"
+album_list_layout="${IPONE_ALBUMLIST_LAYOUT:-full}"
+enter_key="${IPONE_ALBUMLIST_ENTER_KEY:-KP_5}"
+back_key="${IPONE_ALBUMLIST_BACK_KEY:-Left}"
 sim_root=""
 tmp_dir=""
 sim_pid=""
@@ -37,6 +41,10 @@ install_current_theme_sources()
             cp "${repo_root}/wps/${skin_file}" "${rb_cfg_dir}/wps/${skin_file}"
         fi
     done
+
+    if [ -f "${repo_root}/themes/iPone.cfg" ]; then
+        cp "${repo_root}/themes/iPone.cfg" "${rb_cfg_dir}/themes/iPone.cfg"
+    fi
 
     if [ -d "${repo_root}/wps/iPone" ]; then
         rm -rf "${rb_cfg_dir}/wps/iPone"
@@ -119,8 +127,23 @@ prepare_runtime_root()
     install_current_theme_sources
     seed_albumlist_proof_art
 
+    if [ ! -f "${sim_root}/.rockbox/config.cfg" ]; then
+        if [ -f "${sim_root}/.rockbox/themes/iPone.cfg" ]; then
+            cp "${sim_root}/.rockbox/themes/iPone.cfg" \
+               "${sim_root}/.rockbox/config.cfg"
+        else
+            cat >"${sim_root}/.rockbox/config.cfg" <<'EOF'
+wps: /.rockbox/wps/iPone.wps
+sbs: /.rockbox/wps/iPone.sbs
+fms: /.rockbox/wps/iPone.fms
+statusbar: off
+album art: prefer image file
+EOF
+        fi
+    fi
+
     awk '
-        BEGIN { start_replaced = 0; icons_replaced = 0 }
+        BEGIN { start_replaced = 0; icons_replaced = 0; layout_replaced = 0 }
         /^start in screen:/ {
             print "start in screen: db"
             start_replaced = 1
@@ -131,21 +154,28 @@ prepare_runtime_root()
             icons_replaced = 1
             next
         }
+        /^album list layout:/ {
+            print "album list layout: " album_list_layout
+            layout_replaced = 1
+            next
+        }
         { print }
         END {
             if (!start_replaced)
                 print "start in screen: db"
             if (!icons_replaced)
                 print "show icons: on"
+            if (!layout_replaced)
+                print "album list layout: " album_list_layout
         }
-    ' "${sim_root}/.rockbox/config.cfg" >"${tmp_dir}/config.cfg"
+    ' album_list_layout="${album_list_layout}" "${sim_root}/.rockbox/config.cfg" >"${tmp_dir}/config.cfg"
     cp "${tmp_dir}/config.cfg" "${sim_root}/.rockbox/config.cfg"
 }
 
 launch_sim()
 {
-    pushd "${build_dir}" >/dev/null
-    ./rockboxui --zoom 2 --nobackground --root "${sim_root}" &
+    pushd "${repo_root}" >/dev/null
+    "${rockboxui}" --zoom 2 --nobackground --root "${sim_root}" &
     sim_pid=$!
     popd >/dev/null
 
@@ -170,11 +200,9 @@ tap_key()
 {
     local key="$1"
 
-    xdotool windowactivate "${sim_wid}"
+    xdotool windowactivate --sync "${sim_wid}"
     sleep 0.1
-    xdotool keydown --window "${sim_wid}" "${key}"
-    sleep 0.05
-    xdotool keyup --window "${sim_wid}" "${key}"
+    xdotool key --clearmodifiers "${key}"
     sleep 1
 }
 
@@ -219,13 +247,15 @@ main()
     launch_sim
 
     capture_window "00-database-root.png"
-    tap_key KP_2
+    tap_key Down
     capture_window "01-root-after-one-down.png"
-    tap_key KP_2
+    tap_key Down
     capture_window "02-root-after-two-down-album-selected.png"
-    tap_key Return
+    tap_key "${enter_key}"
     sleep 2
     capture_window "03-albums-list.png"
+    tap_key "${back_key}"
+    capture_window "04-root-after-albums-back.png"
 
     cat >"${out_dir}/layout-report.txt" <<EOF
 Reference target: stock iPod classic 7G album list is a 320x240 full-width
@@ -241,10 +271,15 @@ Captured:
 - 02-root-after-two-down-album-selected.png: database root with Albums selected.
 - 03-albums-list.png: Database -> Albums, using the laptop music folder and
   real cover.jpg files converted to 40x40 album-list BMPs.
+- 04-root-after-albums-back.png: returned from Albums to the normal database
+  root, used to verify the themed pane and selector are restored.
 
 Expected after implementation:
-- album list uses the full 320px screen width with a normal list title row;
-- album rows show 40x40 cover thumbnails in 44px rows;
+- selected album list layout: ${album_list_layout};
+- full mode uses the full 320x240 screen without a pinned title row;
+- full mode album rows show 40x40 cover thumbnails in 44px rows;
+- compact mode keeps the active theme/list viewport with small album art in
+  normal compact rows;
 - non-album database root keeps the normal iPone right-side pane;
 - selector/theme colors remain those from the current iPone config.
 EOF

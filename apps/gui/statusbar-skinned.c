@@ -39,12 +39,13 @@
 #include "font.h"
 #include "icon.h"
 #include "icons.h"
+#include "albumlist_art.h"
 #include "option_select.h"
 #include "string-extra.h"
 #include "timefuncs.h"
+#include "misc.h"
 #ifdef HAVE_TOUCHSCREEN
 #include "sound.h"
-#include "misc.h"
 #endif
 #include "skin_engine/skin_albumart_color.h"
 #define VP_FULLSCREEN_UI_LABEL "__sbs_fullscreen_ui"
@@ -59,11 +60,122 @@ static enum themable_icons sbs_icon[NB_SCREENS];
 static bool sbs_loaded[NB_SCREENS] = { false };
 static bool sbs_fullscreen_ui[NB_SCREENS] = { false };
 
+#if (defined(IPOD_VIDEO) || defined(IPOD_6G)) && defined(HAVE_LCD_COLOR)
+#define IPONE_RIGHT_PANE_SLIDESHOW_UPDATE_DELAY MAX(1, HZ / 30)
+static bool sb_ipone_slideshow_was_active[NB_SCREENS] = {false};
+
+static bool sb_ipone_right_pane_can_draw(void)
+{
+    switch (get_current_activity())
+    {
+        case ACTIVITY_MAINMENU:
+        case ACTIVITY_FILEBROWSER:
+        case ACTIVITY_DATABASEBROWSER:
+        case ACTIVITY_PLAYLISTBROWSER:
+        case ACTIVITY_CONTEXTMENU:
+            return true;
+        default:
+            return false;
+    }
+}
+
+static bool sb_ipone_right_pane_slideshow_eligible(enum screen_type screen)
+{
+    if (screen != SCREEN_MAIN ||
+        global_settings.ipone_right_pane != 1 ||
+        !strstr((const char *)global_settings.sbs_file, "iPone") ||
+        !sb_ipone_right_pane_can_draw())
+    {
+        return false;
+    }
+
+    return true;
+}
+
+static bool sb_ipone_right_pane_slideshow_paused_by_hold(enum screen_type screen)
+{
+#ifdef HAS_BUTTON_HOLD
+    return sb_ipone_right_pane_slideshow_eligible(screen) && button_hold();
+#else
+    (void)screen;
+    return false;
+#endif
+}
+
+static bool sb_ipone_right_pane_slideshow_active(enum screen_type screen)
+{
+    if (!sb_ipone_right_pane_slideshow_eligible(screen))
+        return false;
+
+#ifdef HAS_BUTTON_HOLD
+    if (button_hold())
+        return false;
+#endif
+
+    return true;
+}
+
+static void sb_ipone_draw_right_pane_slideshow(enum screen_type screen)
+{
+    if (!sb_ipone_right_pane_slideshow_active(screen))
+        return;
+
+    if (albumlist_draw_slideshow(&screens[screen], 160, 0, 160, 240))
+        lcd_update_rect(160, 0, 160, 240);
+}
+
+static bool sb_ipone_update_right_pane_slideshow(enum screen_type screen,
+                                                 bool force)
+{
+    static long next_slideshow_update[NB_SCREENS] = {0};
+
+    if (!sb_ipone_right_pane_slideshow_active(screen))
+    {
+        next_slideshow_update[screen] =
+            current_tick + IPONE_RIGHT_PANE_SLIDESHOW_UPDATE_DELAY;
+        return false;
+    }
+
+    if (!force && !TIME_AFTER(current_tick, next_slideshow_update[screen]))
+        return false;
+
+    sb_ipone_draw_right_pane_slideshow(screen);
+    next_slideshow_update[screen] =
+        current_tick + IPONE_RIGHT_PANE_SLIDESHOW_UPDATE_DELAY;
+    return true;
+}
+
+static void sb_ipone_right_pane_track_active_state(enum screen_type screen,
+                                                   bool *force)
+{
+    albumlist_slideshow_set_paused(
+        sb_ipone_right_pane_slideshow_paused_by_hold(screen));
+
+    bool active = sb_ipone_right_pane_slideshow_active(screen);
+
+    if (active == sb_ipone_slideshow_was_active[screen])
+        return;
+
+    sb_ipone_slideshow_was_active[screen] = active;
+    *force = true;
+}
+#endif
+
 bool sb_skin_is_ipod3g_galaxy_theme(void)
 {
 #if CONFIG_KEYPAD == IPOD_3G_PAD
     return strstr((const char *)global_settings.sbs_file, "Galaxy") != NULL;
 #else
+    return false;
+#endif
+}
+
+bool sb_skin_needs_fast_update(enum screen_type screen)
+{
+#if (defined(IPOD_VIDEO) || defined(IPOD_6G)) && defined(HAVE_LCD_COLOR)
+    return sb_ipone_right_pane_slideshow_active(screen);
+#else
+    (void)screen;
     return false;
 #endif
 }
@@ -295,6 +407,9 @@ void sb_skin_update(enum screen_type screen, bool force)
     if (screen == SCREEN_MAIN && sb_skin_is_ipod3g_galaxy_theme())
         force = true;
 #endif
+#if (defined(IPOD_VIDEO) || defined(IPOD_6G)) && defined(HAVE_LCD_COLOR)
+    sb_ipone_right_pane_track_active_state(screen, &force);
+#endif
     if (TIME_AFTER(current_tick, next_update[i]) || force || force_waiting)
     {
         force_waiting = false;
@@ -307,6 +422,10 @@ void sb_skin_update(enum screen_type screen, bool force)
             if (force)
                 skin_request_full_update(CUSTOM_STATUSBAR);
             skin_update(CUSTOM_STATUSBAR, screen, SKIN_REFRESH_NON_STATIC);
+
+#if (defined(IPOD_VIDEO) || defined(IPOD_6G)) && defined(HAVE_LCD_COLOR)
+            sb_ipone_update_right_pane_slideshow(screen, true);
+#endif
 
 #if CONFIG_KEYPAD == IPOD_3G_PAD
             if (screen == SCREEN_MAIN && sb_skin_is_ipod3g_galaxy_theme())
@@ -345,6 +464,12 @@ void sb_skin_update(enum screen_type screen, bool force)
         }
         next_update[i] = current_tick + update_delay; /* don't update too often */
     }
+#if (defined(IPOD_VIDEO) || defined(IPOD_6G)) && defined(HAVE_LCD_COLOR)
+#if defined(HAVE_LCD_ENABLE) || defined(HAVE_LCD_SLEEP)
+    if (lcd_active() || (i != SCREEN_MAIN))
+#endif
+        sb_ipone_update_right_pane_slideshow(screen, false);
+#endif
 }
 
 void do_sbs_update_callback(unsigned short id, void *param)

@@ -1475,7 +1475,7 @@ static int parse_albumart_load(struct skin_element* element,
     aa->width =  percent_parse_param(get_param(element, 2), curr_vp->vp.width);
     aa->height =  percent_parse_param(get_param(element, 3), curr_vp->vp.height);
     aa->next = INVALID_OFFSET;
-#ifdef IPOD_NANO2G
+#ifdef HAVE_LCD_COLOR
     aa->viewport = PTRTOSKINOFFSET(skin_buffer, curr_vp);
 #endif
     aa->slot_id = WPS_ALBUMART_SLOT_NONE;
@@ -2502,7 +2502,7 @@ static int skin_element_callback(struct skin_element* element, void* data)
 
             element->data = PTRTOSKINOFFSET(skin_buffer, token);
 
-#if defined(HAVE_ALBUMART) && defined(IPOD_NANO2G)
+#if defined(HAVE_ALBUMART) && defined(HAVE_LCD_COLOR)
             if (token->type == SKIN_TOKEN_ALBUMART_DISPLAY)
                 curr_line->update_mode |= SKIN_REFRESH_DYNAMIC;
 #endif

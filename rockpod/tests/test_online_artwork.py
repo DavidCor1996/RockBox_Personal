@@ -617,6 +617,7 @@ def test_album_list_thumbnail_and_manifest_generated_for_ipod(config, tmp_dir):
         Image.new("RGB", (500, 300), "#225588").save(os.path.join(album_dir, "folder.jpg"), "JPEG")
 
         thumb_path, thumb_hash, device_name, album_id = manager.export_album_list_thumbnail(_album_info(audio))
+        slide_path, slide_hash, slide_device_name, slide_album_id = manager.export_album_list_slide(_album_info(audio))
 
         assert os.path.exists(thumb_path)
         assert thumb_hash
@@ -624,6 +625,13 @@ def test_album_list_thumbnail_and_manifest_generated_for_ipod(config, tmp_dir):
         with Image.open(thumb_path) as img:
             assert img.format == "BMP"
             assert img.size == (40, 40)
+        assert os.path.exists(slide_path)
+        assert slide_hash
+        assert slide_device_name == f"{album_id}.bmp"
+        assert slide_album_id == album_id
+        with Image.open(slide_path) as img:
+            assert img.format == "BMP"
+            assert img.size == (384, 384)
 
         manifest_path, manifest_hash = manager.export_album_list_manifest(
             [
@@ -734,6 +742,7 @@ def test_artwork_sync_can_happen_without_recopying_music(config, db, tmp_dir):
         assert "Music/Artist/Album/cover.jpg" in rel_paths
         assert ".rockbox/albumlist/index.tsv" in rel_paths
         assert any(path.startswith(".rockbox/albumlist/thumbs/") and path.endswith(".bmp") for path in rel_paths)
+        assert any(path.startswith(".rockbox/albumlist/slides/") and path.endswith(".bmp") for path in rel_paths)
     finally:
         manager.shutdown()
 

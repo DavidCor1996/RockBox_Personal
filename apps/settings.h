@@ -86,6 +86,11 @@ enum {
     PLAYLIST_VIEWER_ENTRY_SHOW_ID3_TITLE = 3
 };
 
+enum album_list_layout {
+    ALBUM_LIST_LAYOUT_FULL = 0,
+    ALBUM_LIST_LAYOUT_COMPACT = 1,
+};
+
 #ifdef HAVE_CROSSFADE
 enum {
     CROSSFADE_ENABLE_OFF = 0,
@@ -655,6 +660,8 @@ struct user_settings
 
     int ipone_charge_wallpaper; /* iPone charge wallpaper mode */
     int ipone_lock_wallpaper;   /* iPone lock wallpaper mode */
+    int ipone_right_pane;       /* iPone SBS right pane mode */
+    int album_list_layout;      /* album list viewport/art mode */
 
     int browser_default;        /* Default browser when accessed from WPS */
 

@@ -72,6 +72,23 @@
 
 #define NOINLINE __attribute__ ((noinline))
 
+#if defined(HAVE_ALBUMART) && defined(HAVE_LCD_COLOR)
+static int skin_tokens_albumart_handle_or_fallback(int handle)
+{
+    if (handle >= 0)
+        return handle;
+
+    for (int slot = 0; slot < WPS_MAX_ALBUMART; slot++)
+    {
+        handle = playback_current_aa_hid(slot);
+        if (handle >= 0)
+            return handle;
+    }
+
+    return -1;
+}
+#endif
+
 static const char* get_codectype(const struct mp3entry* id3)
 {
     if (id3 && id3->codectype < AFMT_NUM_CODECS) {
@@ -1235,6 +1252,9 @@ const char *get_token_value(struct gui_wps *gwps,
             {
                 int handle = -1;
                 handle = playback_current_aa_hid(aa->playback_aa_slot);
+#if defined(HAVE_LCD_COLOR)
+                handle = skin_tokens_albumart_handle_or_fallback(handle);
+#endif
 #if CONFIG_TUNER
                 if (in_radio_screen() || (get_radio_status() != FMRADIO_OFF))
                 {

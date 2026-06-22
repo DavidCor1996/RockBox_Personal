@@ -41,6 +41,7 @@
 #include "appevents.h"
 #include "statusbar-skinned.h"
 #include "skin_engine/skin_albumart_color.h"
+#include "skin_engine/skin_engine.h"
 
 static bool list_is_ipodvideo_iclassic_theme(void)
 {
@@ -53,7 +54,7 @@ static bool list_is_ipodvideo_iclassic_theme(void)
 
 static bool list_ipone_hold_viewport_changed(void)
 {
-#if defined(IPOD_VIDEO)
+#if defined(IPOD_VIDEO) || defined(IPOD_6G)
     static bool initialized;
     static bool last_hold;
 
@@ -90,6 +91,8 @@ void list_draw(struct screen *display, struct gui_synclist *list);
 static long last_dirty_tick;
 static struct viewport parent[NB_SCREENS];
 static struct gui_synclist *current_lists;
+static struct gui_synclist *fullscreen_albumlist_owner;
+static bool fullscreen_albumlist_theme_hidden;
 static bool need_full_update = false;
 
 #define LIST_TOP_INSET_MAIN 5
@@ -115,6 +118,16 @@ bool list_need_full_update(void)
     bool ret = need_full_update;
     need_full_update = false;
     return ret;
+}
+
+const char *list_current_selected_text(char *buffer, size_t buffer_len)
+{
+    if (!current_lists || !current_lists->callback_get_item_name)
+        return NULL;
+
+    return current_lists->callback_get_item_name(current_lists->selected_item,
+                                                current_lists->data,
+                                                buffer, buffer_len);
 }
 
 static bool list_is_dirty(struct gui_synclist *list)
@@ -165,7 +178,7 @@ bool list_display_title(struct gui_synclist *list, enum screen_type screen)
 #endif
 
     if (list->force_fullscreen_albumlist)
-        return list->title != NULL && list_nb_lines(list, screen) > 2;
+        return false;
 
     return list->title != NULL &&
         !sb_set_title_text(list->title, list->title_icon, screen) &&
@@ -175,7 +188,17 @@ bool list_display_title(struct gui_synclist *list, enum screen_type screen)
 int list_get_title_height(struct gui_synclist *list, enum screen_type screen)
 {
     if (list->force_fullscreen_albumlist)
-        return font_get(list->parent[screen]->font)->height;
+    {
+        int height = font_get(list->parent[screen]->font)->height;
+        int rows = (list->parent[screen]->height - height) /
+                   list->line_height[screen];
+
+        if (rows > 0)
+            height = list->parent[screen]->height -
+                     rows * list->line_height[screen];
+
+        return height;
+    }
 
     return list->line_height[screen];
 }
@@ -612,14 +635,39 @@ void gui_synclist_set_fullscreen_albumlist(struct gui_synclist *list,
     if (!list)
         return;
 
-    if (list->force_fullscreen_albumlist == enable &&
-        list->fullscreen_albumlist_theme_hidden == enable)
-        return;
+    bool owner_hidden = fullscreen_albumlist_theme_hidden &&
+                        fullscreen_albumlist_owner == list;
 
-    if (enable && !list->fullscreen_albumlist_theme_hidden)
+    if (list->force_fullscreen_albumlist == enable)
+    {
+        if (enable)
+        {
+            if (owner_hidden && list->fullscreen_albumlist_theme_hidden)
+                return;
+        }
+        else if (!owner_hidden)
+        {
+            return;
+        }
+    }
+
+    if (enable && fullscreen_albumlist_theme_hidden &&
+        fullscreen_albumlist_owner != list)
+    {
+        FOR_NB_SCREENS(i)
+            viewportmanager_theme_undo(i, true);
+        if (fullscreen_albumlist_owner)
+            fullscreen_albumlist_owner->fullscreen_albumlist_theme_hidden = false;
+        fullscreen_albumlist_theme_hidden = false;
+        fullscreen_albumlist_owner = NULL;
+    }
+
+    if (enable && !fullscreen_albumlist_theme_hidden)
     {
         FOR_NB_SCREENS(i)
             viewportmanager_theme_enable(i, false, NULL);
+        fullscreen_albumlist_theme_hidden = true;
+        fullscreen_albumlist_owner = list;
         list->fullscreen_albumlist_theme_hidden = true;
     }
 
@@ -627,11 +675,17 @@ void gui_synclist_set_fullscreen_albumlist(struct gui_synclist *list,
     if (!enable)
         list->fullscreen_albumlist_first_item = 0;
 
-    if (!enable && list->fullscreen_albumlist_theme_hidden)
+    if (!enable && owner_hidden)
     {
         FOR_NB_SCREENS(i)
+        {
             viewportmanager_theme_undo(i, true);
+            skin_update(CUSTOM_STATUSBAR, i, SKIN_REFRESH_ALL);
+        }
+        fullscreen_albumlist_theme_hidden = false;
+        fullscreen_albumlist_owner = NULL;
         list->fullscreen_albumlist_theme_hidden = false;
+        need_full_update = true;
     }
 
     list_init_viewports(list);
@@ -979,6 +1033,12 @@ int list_do_action_timeout(struct gui_synclist *lists, int timeout)
             timeout = fade_timeout;
     }
 #endif
+    if (sb_skin_needs_fast_update(SCREEN_MAIN))
+    {
+        int fast_timeout = MAX(1, HZ / 30);
+        if (timeout == TIMEOUT_BLOCK || timeout > fast_timeout)
+            timeout = fast_timeout;
+    }
     add_event_ex(GUI_EVENT_NEED_UI_UPDATE, true, _lists_uiviewport_update_callback, NULL);
     current_lists = lists;
     if(lists->scheduled_talk_tick)

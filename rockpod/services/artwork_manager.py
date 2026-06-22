@@ -31,6 +31,7 @@ _MIN_EFFECTIVE_LOOKUP_INTERVAL_SECONDS = 60.0
 _VIDEO_POSTER_THUMB_SIZE = (180, 270)
 _VIDEO_POSTER_DISPLAY_SIZE = (360, 540)
 _ALBUM_LIST_THUMB_SIZE = (40, 40)
+_ALBUM_LIST_SLIDE_SIZE = (384, 384)
 _VIDEO_POSTER_FILENAMES = (
     "poster.jpg", "poster.png", "Poster.jpg", "Poster.png",
     "movie.jpg", "movie.png", "Movie.jpg", "Movie.png",
@@ -77,6 +78,7 @@ class ArtworkManager(QObject):
         self._meta_dir = os.path.join(self._album_dir, "meta")
         self._device_dir = os.path.join(self._album_dir, "device")
         self._albumlist_dir = os.path.join(self._album_dir, "albumlist")
+        self._albumlist_slide_dir = os.path.join(self._albumlist_dir, "slides")
         self._wps_dir = os.path.join(self._album_dir, "wps")
         os.makedirs(self._thumb_dir, exist_ok=True)
         os.makedirs(self._display_dir, exist_ok=True)
@@ -84,6 +86,7 @@ class ArtworkManager(QObject):
         os.makedirs(self._meta_dir, exist_ok=True)
         os.makedirs(self._device_dir, exist_ok=True)
         os.makedirs(self._albumlist_dir, exist_ok=True)
+        os.makedirs(self._albumlist_slide_dir, exist_ok=True)
         os.makedirs(self._wps_dir, exist_ok=True)
 
         storefront = getattr(config, "online_artwork_storefront", "us") if config else "us"
@@ -471,6 +474,42 @@ class ArtworkManager(QObject):
         meta["album_list_thumb_resolution"] = [target_size[0], target_size[1]]
         self._save_album_meta(album_key, meta)
         return thumb_path, self._file_hash(thumb_path), f"{album_id}.bmp", album_id
+
+    def export_album_list_slide(self, album_or_tracks, force=False, size=None):
+        album_info = self._album_info(album_or_tracks)
+        source_path = self._ensure_album_source(album_info, allow_online=False)
+        if not source_path:
+            return "", "", "", ""
+
+        target_size = self._album_list_slide_size(size)
+        album_key = album_info["group_key"]
+        album_id = self.album_list_id(album_key)
+        meta = self._load_album_meta(album_key)
+        source_hash = self._file_hash(source_path)
+        slide_name = f"{album_id}_{target_size[0]}x{target_size[1]}_{source_hash[:12]}.bmp"
+        slide_path = os.path.join(self._albumlist_slide_dir, slide_name)
+        if (
+            not force
+            and meta.get("album_list_slide_path") == slide_path
+            and meta.get("album_list_slide_source_hash") == source_hash
+            and os.path.exists(slide_path)
+        ):
+            return slide_path, self._file_hash(slide_path), f"{album_id}.bmp", album_id
+
+        try:
+            with Image.open(source_path) as img:
+                img = img.convert("RGB")
+                rendered = ImageOps.fit(img, target_size, Image.LANCZOS)
+                rendered.save(slide_path, "BMP")
+        except Exception as e:
+            self._record_artwork_failure(source_path, f"album list slide export failure: {e}")
+            return "", "", "", album_id
+
+        meta["album_list_slide_path"] = slide_path
+        meta["album_list_slide_source_hash"] = source_hash
+        meta["album_list_slide_resolution"] = [target_size[0], target_size[1]]
+        self._save_album_meta(album_key, meta)
+        return slide_path, self._file_hash(slide_path), f"{album_id}.bmp", album_id
 
     def export_album_list_manifest(self, entries):
         rows = []
@@ -1482,6 +1521,17 @@ class ArtworkManager(QObject):
         except (TypeError, ValueError):
             return _ALBUM_LIST_THUMB_SIZE
         value = max(16, min(96, value))
+        return value, value
+
+    @staticmethod
+    def _album_list_slide_size(size):
+        if size is None:
+            return _ALBUM_LIST_SLIDE_SIZE
+        try:
+            value = int(size)
+        except (TypeError, ValueError):
+            return _ALBUM_LIST_SLIDE_SIZE
+        value = max(160, min(384, value))
         return value, value
 
     @staticmethod
