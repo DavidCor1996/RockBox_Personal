@@ -39,9 +39,9 @@ def test_theme_filtering_by_resolution(tmp_dir):
     classic3g = service.list_themes(_repo_root(), "160x128")
     nano = service.list_themes(_repo_root(), "176x132")
 
-    assert {item["id"] for item in desktop} == {"Blackery", "iPone"}
-    assert {item["id"] for item in video5g} == {"Blackery", "iPone", "SpringPod3"}
-    assert {item["id"] for item in classic6g} == {"Blackery", "iPone"}
+    assert {item["id"] for item in desktop} == {"Blackery", "iPone", "iPoneCustom"}
+    assert {item["id"] for item in video5g} == {"Blackery", "iPone", "iPoneCustom", "SpringPod3"}
+    assert {item["id"] for item in classic6g} == {"Blackery", "iPone", "iPoneCustom"}
     assert {item["id"] for item in classic3g} == {"Galaxy", "CoverPod_3g", "iPone_3g"}
     assert {item["id"] for item in nano} == {"iPone_nano2g"}
 
@@ -171,6 +171,83 @@ def test_deploy_diff_generation_and_repeat_apply(tmp_dir):
     assert diff2["summary"]["unchanged"] >= diff["summary"]["add"]
     assert diff2["summary"]["add"] == 0
     assert diff2["summary"]["overwrite"] == 0
+
+
+def test_theme_remove_bundle_deletes_deployed_theme_files(tmp_dir):
+    _config, store = _make_store(tmp_dir)
+    mount_path = os.path.join(tmp_dir, "device")
+    os.makedirs(mount_path, exist_ok=True)
+    profile = store.current_profile()
+    profile["device_mount_path"] = mount_path
+    profile["backup_location"] = os.path.join(tmp_dir, ".backups", profile["id"])
+    profile = store.save_profile(profile)
+
+    theme_service = RockboxThemeService()
+    deploy_service = RockboxDeployService()
+    bundle = theme_service.bundle_for_theme("iPone", _repo_root())
+    deploy_service.apply_diff(profile, deploy_service.build_diff(profile, bundle))
+    cfg_path = os.path.join(mount_path, ".rockbox", "themes", "iPone.cfg")
+    assert os.path.isfile(cfg_path)
+
+    remove_bundle = theme_service.remove_bundle_for_theme("iPone", _repo_root())
+    assert remove_bundle["id"] == "iPone-remove"
+    assert all(item.get("action") == "remove" for item in remove_bundle["assets"])
+    remove_diff = deploy_service.build_diff(profile, remove_bundle)
+    assert remove_diff["summary"]["remove"] > 0
+    removed = deploy_service.apply_diff(profile, remove_diff)
+
+    assert removed["success"] is True
+    assert not os.path.exists(cfg_path)
+
+
+def test_device_only_theme_is_listed_and_can_be_removed(tmp_dir):
+    _config, store = _make_store(tmp_dir)
+    mount_path = os.path.join(tmp_dir, "device")
+    theme_root = os.path.join(mount_path, ".rockbox")
+    os.makedirs(os.path.join(theme_root, "themes"), exist_ok=True)
+    os.makedirs(os.path.join(theme_root, "wps", "Unsaved"), exist_ok=True)
+    os.makedirs(os.path.join(theme_root, "backdrops"), exist_ok=True)
+    os.makedirs(os.path.join(theme_root, "icons"), exist_ok=True)
+    with open(os.path.join(theme_root, "themes", "Unsaved.cfg"), "w", encoding="utf-8") as handle:
+        handle.write(
+            "wps: /.rockbox/wps/Unsaved.wps\n"
+            "sbs: /.rockbox/wps/Unsaved.sbs\n"
+            "backdrop: /.rockbox/backdrops/Unsaved_bd.bmp\n"
+            "iconset: /.rockbox/icons/Unsaved.bmp\n"
+        )
+    for rel in (
+        "wps/Unsaved.wps",
+        "wps/Unsaved.sbs",
+        "wps/Unsaved/Panel.bmp",
+        "backdrops/Unsaved_bd.bmp",
+        "icons/Unsaved.bmp",
+    ):
+        with open(os.path.join(theme_root, rel), "wb") as handle:
+            handle.write(b"asset")
+
+    profile = store.current_profile()
+    profile["device_mount_path"] = mount_path
+    profile["backup_location"] = os.path.join(tmp_dir, ".backups", profile["id"])
+    profile = store.save_profile(profile)
+
+    theme_service = RockboxThemeService()
+    deploy_service = RockboxDeployService()
+    listed = theme_service.list_themes(_repo_root(), "320x240", "", mount_path)
+    assert "Unsaved" in {item["id"] for item in listed}
+
+    details = theme_service.inspect_device_theme("Unsaved", mount_path)
+    rels = {item["destination_rel"] for item in details["assets"]}
+    assert ".rockbox/themes/Unsaved.cfg" in rels
+    assert ".rockbox/wps/Unsaved/Panel.bmp" in rels
+
+    remove_bundle = theme_service.remove_bundle_for_theme("Unsaved", _repo_root(), mount_path)
+    remove_diff = deploy_service.build_diff(profile, remove_bundle)
+    assert remove_diff["summary"]["remove"] >= 5
+    removed = deploy_service.apply_diff(profile, remove_diff)
+
+    assert removed["success"] is True
+    assert not os.path.exists(os.path.join(theme_root, "themes", "Unsaved.cfg"))
+    assert not os.path.exists(os.path.join(theme_root, "wps", "Unsaved", "Panel.bmp"))
 
 
 def test_deploy_rejects_unsafe_device_root(tmp_dir):

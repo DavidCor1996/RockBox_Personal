@@ -105,6 +105,46 @@ backlight on button hold: normal
 </theme>
 
 <theme>
+Name: iPoneCustom
+Targets: ipodvideo ipod6g
+Authors: iPone Custom test variant by local build, based on iPone/iClassic/adwaitapod work
+WPS: yes
+SBS: yes
+FMS: yes
+RWPS: no
+RSBS: no
+RFMS: no
+
+<main>
+wps.320x240x(16|24|32): iPoneCustom.wps
+sbs.320x240x(16|24|32): iPoneCustom.sbs
+fms.320x240x(16|24|32): iPoneCustom.fms
+font.320x240x(16|24|32): 18-Cantarell-Bold.fnt
+backdrop: -
+background color: 100F16
+foreground color: F7F4FA
+line selector start color: 2B2234
+line selector end color: 9D7AE6
+line selector text color: FCF9FF
+list separator color: 1A1621
+selector type: bar (gradient)
+scrollbar: off
+show icons: on
+statusbar: off
+ui viewport: -
+list separator height: 1
+iconset: icons/iPoneCustom.bmp
+viewers iconset: -
+battery display: graphic
+album art: prefer image file
+filetype colours: -
+backlight on button hold: normal
+ipone right pane: miniplayer
+album list layout: full
+</main>
+</theme>
+
+<theme>
 Name: iPone_nano2g
 Targets: ipodnano2g
 Authors: iPone port by local build, based on iPone/iClassic work

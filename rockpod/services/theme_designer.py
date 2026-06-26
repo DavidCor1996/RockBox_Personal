@@ -1,4 +1,4 @@
-"""Guided iPone theme designer with staged variant generation."""
+"""Guided iPone designer with staged variant generation."""
 
 from __future__ import annotations
 
@@ -17,12 +17,13 @@ from services.rockbox_themes import RockboxThemeService
 
 
 BASE_THEME_BY_RESOLUTION = {
-    "320x240": "iPone",
+    "320x240": "iPoneCustom",
     "160x128": "CoverPod_3g",
     "176x132": "iPone_nano2g",
 }
 
 PREVIEW_MODES = ("simulator",)
+PREVIEW_THEME_ID = "ipone_preview"
 
 DEFAULT_COLORS = {
     "background": "100F16",
@@ -70,6 +71,28 @@ WALLPAPER_TARGETS = {
             "ChargeWallpaperAlt.bmp",
             "ChargeWallpaperThird.bmp",
             "ChargeWallpaperFourth.bmp",
+        ],
+    },
+    "iPoneCustom": {
+        "main": [
+            "Wallpaper.bmp",
+            "WallpaperAlt.bmp",
+            "WallpaperThird.bmp",
+            "WallpaperFourth.bmp",
+            "WallpaperFifth.bmp",
+            "WallpaperSixth.bmp",
+            "iPone_bg.bmp",
+            "iPone_bd.bmp",
+            "SbsBackdrop.bmp",
+        ],
+        "charging": [
+            "ChargeWallpaper.bmp",
+            "ChargeWallpaperAlt.bmp",
+            "ChargeWallpaperThird.bmp",
+            "ChargeWallpaperFourth.bmp",
+        ],
+        "right_pane": [
+            "RightPaneWallpaper.bmp",
         ],
     },
     "iPone_nano2g": {
@@ -139,6 +162,13 @@ PREVIEW_BACKDROP_TARGETS = {
         "wps/iPone/iPone_bd.bmp",
         "wps/iPone/iPone_bg.bmp",
     ],
+    "iPoneCustom": [
+        "wps/iPoneCustom/RightPaneWallpaper.bmp",
+        "backdrops/iPoneCustom_bd.bmp",
+        "wps/iPoneCustom/SbsBackdrop.bmp",
+        "wps/iPoneCustom/iPone_bd.bmp",
+        "wps/iPoneCustom/iPone_bg.bmp",
+    ],
     "iPone_nano2g": [
         "wps/iPone_nano2g/wpsbackdrop-176x132x16.bmp",
         "wps/iPone_nano2g/Wallpaper.bmp",
@@ -166,6 +196,10 @@ SOLID_BACKGROUND_TARGETS = {
         "main": WALLPAPER_TARGETS["iPone"]["main"],
         "charging": WALLPAPER_TARGETS["iPone"]["charging"],
     },
+    "iPoneCustom": {
+        "main": WALLPAPER_TARGETS["iPoneCustom"]["main"],
+        "charging": WALLPAPER_TARGETS["iPoneCustom"]["charging"],
+    },
     "iPone_nano2g": {
         "main": WALLPAPER_TARGETS["iPone_nano2g"]["main"],
         "charging": WALLPAPER_TARGETS["iPone_nano2g"]["charging"],
@@ -183,6 +217,79 @@ SOLID_BACKGROUND_TARGETS = {
         "charging": WALLPAPER_TARGETS["Galaxy"]["charging"],
     },
 }
+
+SBS_SOLID_BACKGROUND_TARGETS = {
+    "iPoneCustom": ("iPone_bd.bmp", "SbsBackdrop.bmp"),
+}
+
+TINTED_SPRITE_ASSETS = (
+    "Battery.bmp",
+    "LoadingStatus.bmp",
+    "LockscreenStyle.bmp",
+    "AlwaysOnDisplayStyle.bmp",
+    "NotifMusic.bmp",
+    "NotifPlayIcon.bmp",
+    "NotifPlayIconLock.bmp",
+    "Notification.bmp",
+    "LosslessIcon.bmp",
+    "LosslessIconLock.bmp",
+    "MiniRecordSpin.bmp",
+    "MiniRecordSpinSmall.bmp",
+    "Playing Status.bmp",
+    "PlayStatus.bmp",
+    "PlayStatusPurple.bmp",
+    "PlayStatusPurpleLarge.bmp",
+    "PlaybackStatusIcons.bmp",
+    "PlayerStatusButton.bmp",
+    "PlayerSlider.bmp",
+    "PlayerSliderThin.bmp",
+    "PlayerSliderThinPurple.bmp",
+    "PlayerSliderThinPurple12.bmp",
+    "Slider.bmp",
+    "SliderThin.bmp",
+    "SliderThinPurple.bmp",
+    "SliderThinPurple12.bmp",
+    "SliderBackdrop.bmp",
+    "SliderBackdrop4Digits.bmp",
+    "SliderBackdrop5Digits.bmp",
+    "SliderBackdrop6Digits.bmp",
+    "SliderBackdropThin.bmp",
+    "SliderBackdropThin4Digits.bmp",
+    "SliderBackdropThin5Digits.bmp",
+    "SliderBackdropThin6Digits.bmp",
+    "SliderBackdropThinPurple.bmp",
+    "SliderBackdropThinPurple4Digits.bmp",
+    "SliderBackdropThinPurple5Digits.bmp",
+    "SliderBackdropThinPurple6Digits.bmp",
+    "SliderBackdropThinPurple12.bmp",
+    "SliderBackdropThinPurple12_4Digits.bmp",
+    "SliderBackdropThinPurple12_5Digits.bmp",
+    "SliderBackdropThinPurple12_6Digits.bmp",
+    "VolumeBackdrop.bmp",
+    "VolumePromptIcons.bmp",
+    "VolumeSlider.bmp",
+    "VolumeSliderBackdrop.bmp",
+    "VolumeSliderBackdropPurple.bmp",
+    "VolumeSliderEnd.bmp",
+    "VolumeSliderEndPurple.bmp",
+    "VolumeSliderPurple.bmp",
+    "WpsTL.bmp",
+    "WpsTR.bmp",
+    "WpsBL.bmp",
+    "WpsBR.bmp",
+    "WpsBackdropL.bmp",
+    "WpsBackdropR.bmp",
+    "WpsBackdropT.bmp",
+    "WpsBackdropB.bmp",
+    "PlayerFallback.bmp",
+    "FrameTop.bmp",
+    "FrameLeft.bmp",
+    "FrameRight.bmp",
+    "FrameBottom.bmp",
+    "LargeSliderBackdrop.bmp",
+    "LargeSliderFallback.bmp",
+    "LargeSliderTop.bmp",
+)
 
 
 def _slug(value):
@@ -257,6 +364,10 @@ class ThemeDesignerService:
         theme_id = self.base_theme_id_for_profile(profile)
         bundle = self._themes.bundle_for_theme(theme_id, repo_root)
         cfg_asset = next((item for item in bundle["assets"] if item["kind"] == "cfg"), None)
+        if cfg_asset and not cfg_asset.get("exists") and theme_id == "iPoneCustom":
+            theme_id = "iPone"
+            bundle = self._themes.bundle_for_theme(theme_id, repo_root)
+            cfg_asset = next((item for item in bundle["assets"] if item["kind"] == "cfg"), None)
         settings = self._read_cfg_settings(cfg_asset["source_abs"]) if cfg_asset else {}
         font_rel = self._normalize_font_rel(settings.get("font", ""))
         resolution = str(profile.get("screen_resolution") or "").strip() or "320x240"
@@ -268,8 +379,12 @@ class ThemeDesignerService:
             "font_rel": font_rel or self._first_font_rel(repo_root),
             "fit_mode": "fill",
             "charging_fit_mode": "fill",
+            "right_pane_fit_mode": "fill",
             "wallpaper_source": "",
             "charging_wallpaper_source": "",
+            "right_pane_wallpaper_source": "",
+            "color_profile": "default",
+            "appearance_mode": "dark",
             "colors": {
                 "background": _ensure_hex(settings.get("background color"), DEFAULT_COLORS["background"]),
                 "foreground": _ensure_hex(settings.get("foreground color"), DEFAULT_COLORS["foreground"]),
@@ -332,6 +447,44 @@ class ThemeDesignerService:
         duplicated["name"] = f"{original['name']} Copy"
         return self.save_variant(repo_root, duplicated)
 
+    def delete_variant(self, repo_root, variant_id):
+        path = self._variant_path(repo_root, variant_id)
+        if not os.path.isfile(path):
+            return False
+        os.remove(path)
+        return True
+
+    def build_remove_bundle(self, repo_root, profile, variant):
+        normalized = self._normalize_variant(variant, repo_root)
+        theme_name = normalized.get("id", "")
+        if not theme_name:
+            raise ValueError("Variant must be saved before it can be deleted")
+        assets = []
+        for kind, rel in (
+            ("cfg", f"themes/{theme_name}.cfg"),
+            ("wps", f"wps/{theme_name}.wps"),
+            ("sbs", f"wps/{theme_name}.sbs"),
+            ("fms", f"wps/{theme_name}.fms"),
+            ("backdrop", f"backdrops/{theme_name}_bd.bmp"),
+            ("iconset", f"icons/{theme_name}.bmp"),
+            ("metadata", f"rockpod/theme_designer/{theme_name}.json"),
+        ):
+            assets.append(self._remove_asset_record(kind, f".rockbox/{rel}"))
+
+        generated_assets_dir = os.path.join(self._generated_dir(repo_root), theme_name, "wps", theme_name)
+        if os.path.isdir(generated_assets_dir):
+            for root, _dirs, files in os.walk(generated_assets_dir):
+                for filename in sorted(files):
+                    full = os.path.join(root, filename)
+                    suffix = os.path.relpath(full, generated_assets_dir).replace("\\", "/")
+                    assets.append(self._remove_asset_record("wps_assets", f".rockbox/wps/{theme_name}/{suffix}"))
+        return {
+            "id": f"{theme_name}-remove",
+            "name": f"Remove {normalized['name']}",
+            "variant": normalized,
+            "assets": assets,
+        }
+
     def build_preview_state(self, repo_root, profile, variant):
         normalized = self._normalize_variant(variant, repo_root)
         width, height = _fit_size(normalized["screen_resolution"])
@@ -346,6 +499,11 @@ class ThemeDesignerService:
             normalized.get("charging_wallpaper_source", ""),
             base_dir,
             base_targets.get("charging", []),
+        )
+        right_pane_path = self._preview_image_path(
+            normalized.get("right_pane_wallpaper_source", ""),
+            base_dir,
+            base_targets.get("right_pane", []),
         )
         menu_backdrop_path = self._preview_repo_image_path(
             repo_root,
@@ -363,6 +521,7 @@ class ThemeDesignerService:
             "colors": deepcopy(normalized["colors"]),
             "wallpaper_path": main_path,
             "charging_wallpaper_path": charging_path,
+            "right_pane_wallpaper_path": right_pane_path,
             "menu_backdrop_path": menu_backdrop_path,
             "preview_modes": list(PREVIEW_MODES),
         }
@@ -386,6 +545,7 @@ class ThemeDesignerService:
             ("sbs", f"wps/{theme_name}.sbs"),
             ("fms", f"wps/{theme_name}.fms"),
             ("backdrop", f"backdrops/{theme_name}_bd.bmp"),
+            ("iconset", f"icons/{theme_name}.bmp"),
             ("metadata", "metadata.json"),
         ):
             abs_path = os.path.join(stage_root, rel)
@@ -394,25 +554,7 @@ class ThemeDesignerService:
                 destination = f".rockbox/rockpod/theme_designer/{theme_name}.json"
             assets.append(self._asset_record(kind, rel, destination, abs_path))
 
-        assets.append(
-            self._asset_record(
-                "font",
-                font_rel,
-                f".rockbox/fonts/{os.path.basename(font_rel)}",
-                font_abs,
-            )
-        )
-
-        for item in bundle["assets"]:
-            if item["kind"] == "iconset":
-                assets.append(
-                    self._asset_record(
-                        "iconset",
-                        item["source_rel"],
-                        item["destination_rel"],
-                        item["source_abs"],
-                    )
-                )
+        assets.extend(self._font_assets_for_generated_skins(repo_root, stage_root, theme_name, font_rel))
 
         wps_dir = os.path.join(stage_root, "wps", theme_name)
         for root, _dirs, files in os.walk(wps_dir):
@@ -434,17 +576,50 @@ class ThemeDesignerService:
             ),
         }
 
+    def _font_assets_for_generated_skins(self, repo_root, stage_root, theme_name, primary_font_rel):
+        names = set()
+        if primary_font_rel:
+            names.add(os.path.basename(primary_font_rel))
+        for rel in (
+            f"wps/{theme_name}.wps",
+            f"wps/{theme_name}.sbs",
+            f"wps/{theme_name}.fms",
+        ):
+            names.update(self._skin_font_references(os.path.join(stage_root, rel)))
+
+        assets = []
+        for name in sorted(names):
+            source_abs = os.path.join(os.path.abspath(repo_root), "fonts", name)
+            assets.append(self._asset_record("font", f"fonts/{name}", f".rockbox/fonts/{name}", source_abs))
+        return assets
+
+    def _skin_font_references(self, skin_path):
+        if not os.path.isfile(skin_path):
+            return set()
+        with open(skin_path, "r", encoding="utf-8") as handle:
+            content = handle.read()
+
+        names = set()
+        for match in re.finditer(r"%Fl\(([^)]*)\)", content):
+            args = [item.strip() for item in match.group(1).split(",")]
+            if len(args) < 2:
+                continue
+            font_ref = args[1].strip("\"'")
+            if not font_ref:
+                continue
+            names.add(os.path.basename(font_ref))
+        return names
+
     def build_preview_bundle(self, repo_root, profile, variant):
         normalized = self._normalize_variant(variant, repo_root)
-        preview_id = f"theme-designer-preview-{_slug(profile.get('id') or normalized['base_theme_id'])}"
-        normalized["id"] = preview_id
+        normalized["id"] = PREVIEW_THEME_ID
         return self.build_bundle(repo_root, profile, normalized)
 
     def _stage_variant(self, repo_root, variant, base_bundle):
         theme_name = variant["id"]
         generated_root = self._generated_dir(repo_root)
         os.makedirs(generated_root, exist_ok=True)
-        if theme_name.startswith("theme-designer-preview-"):
+        if self._is_preview_theme_id(theme_name):
             stage_root = tempfile.mkdtemp(prefix=f"{theme_name}-", dir=generated_root)
         else:
             stage_root = os.path.join(generated_root, theme_name)
@@ -456,29 +631,45 @@ class ThemeDesignerService:
         os.makedirs(os.path.join(stage_root, "themes"), exist_ok=True)
         os.makedirs(os.path.join(stage_root, "wps"), exist_ok=True)
         os.makedirs(os.path.join(stage_root, "backdrops"), exist_ok=True)
+        os.makedirs(os.path.join(stage_root, "icons"), exist_ok=True)
 
         base_dir = self._base_asset_dir(repo_root, variant["base_theme_id"])
         staged_wps_dir = os.path.join(stage_root, "wps", theme_name)
         shutil.copytree(base_dir, staged_wps_dir)
 
         self._apply_wallpaper_overrides(staged_wps_dir, variant)
+        self._apply_sprite_color_overrides(staged_wps_dir, variant)
+        self._write_iconset(stage_root, variant, base_bundle)
         self._write_cfg(stage_root, variant, base_bundle)
-        self._copy_template(base_bundle, "wps", stage_root, f"wps/{theme_name}.wps")
-        self._copy_template(base_bundle, "sbs", stage_root, f"wps/{theme_name}.sbs")
-        self._copy_template(base_bundle, "fms", stage_root, f"wps/{theme_name}.fms")
+        self._copy_template(base_bundle, "wps", stage_root, f"wps/{theme_name}.wps", variant)
+        self._copy_template(base_bundle, "sbs", stage_root, f"wps/{theme_name}.sbs", variant)
+        self._copy_template(base_bundle, "fms", stage_root, f"wps/{theme_name}.fms", variant)
         self._write_backdrop(stage_root, variant, staged_wps_dir)
         self._write_metadata(stage_root, variant)
         return stage_root
 
+    @staticmethod
+    def _is_preview_theme_id(theme_name):
+        return str(theme_name or "") == PREVIEW_THEME_ID or str(theme_name or "").startswith("theme-designer-preview-")
+
     def _apply_wallpaper_overrides(self, staged_wps_dir, variant):
         targets = WALLPAPER_TARGETS.get(variant["base_theme_id"], {})
+        sbs_solid_targets = set(SBS_SOLID_BACKGROUND_TARGETS.get(variant["base_theme_id"], ()))
         if variant.get("wallpaper_source"):
             for name in targets.get("main", []):
+                if name in sbs_solid_targets:
+                    continue
                 self._render_image(
                     variant["wallpaper_source"],
                     os.path.join(staged_wps_dir, name),
                     variant["screen_resolution"],
                     variant.get("fit_mode", "fill"),
+                    variant["colors"]["background"],
+                )
+            for name in sbs_solid_targets:
+                self._render_solid_image(
+                    os.path.join(staged_wps_dir, name),
+                    variant["screen_resolution"],
                     variant["colors"]["background"],
                 )
         else:
@@ -505,6 +696,26 @@ class ThemeDesignerService:
                     variant["screen_resolution"],
                     charging_fill,
                 )
+        if variant.get("right_pane_wallpaper_source"):
+            for name in targets.get("right_pane", []):
+                self._render_right_pane_image(
+                    variant["right_pane_wallpaper_source"],
+                    os.path.join(staged_wps_dir, name),
+                    variant["screen_resolution"],
+                    variant.get("right_pane_fit_mode", "fill"),
+                    variant["colors"]["background"],
+                    os.path.join(staged_wps_dir, "iPone_bd.bmp"),
+                    variant.get("right_pane_offset_x", 0),
+                    variant.get("right_pane_offset_y", 0),
+                )
+
+    def _apply_sprite_color_overrides(self, staged_wps_dir, variant):
+        if variant.get("color_profile") == "default":
+            return
+        for filename in TINTED_SPRITE_ASSETS:
+            path = os.path.join(staged_wps_dir, filename)
+            if os.path.isfile(path):
+                self._tint_luminance_bitmap(path, variant["colors"]["background"], variant["colors"]["selector_end"])
 
     def _write_cfg(self, stage_root, variant, base_bundle):
         cfg_asset = next((item for item in base_bundle["assets"] if item["kind"] == "cfg"), None)
@@ -521,11 +732,14 @@ class ThemeDesignerService:
             "font": f"/.rockbox/fonts/{os.path.basename(variant['font_rel'])}",
             "background color": variant["colors"]["background"],
             "foreground color": variant["colors"]["foreground"],
+            "iconset": f"/.rockbox/icons/{variant['id']}.bmp",
             "line selector start color": variant["colors"]["selector_start"],
             "line selector end color": variant["colors"]["selector_end"],
             "line selector text color": variant["colors"]["selector_text"],
             "list separator color": variant["colors"]["list_separator"],
         }
+        if variant.get("right_pane_wallpaper_source"):
+            overrides["ipone right pane"] = "custom wallpaper"
 
         written = set()
         output = []
@@ -548,7 +762,7 @@ class ThemeDesignerService:
         path = os.path.join(stage_root, "themes", f"{variant['id']}.cfg")
         atomic_write_text(path, "".join(output))
 
-    def _copy_template(self, base_bundle, kind, stage_root, dest_rel):
+    def _copy_template(self, base_bundle, kind, stage_root, dest_rel, variant=None):
         asset = next((item for item in base_bundle["assets"] if item["kind"] == kind), None)
         if not asset:
             raise ValueError(f"Base theme {kind} missing")
@@ -557,6 +771,80 @@ class ThemeDesignerService:
         shutil.copy2(asset["source_abs"], target)
         if target.lower().endswith((".wps", ".sbs", ".fms")):
             self._apply_template_color_overrides(target, base_bundle["id"], stage_root)
+        if kind == "sbs" and variant and variant.get("right_pane_wallpaper_source"):
+            self._force_generated_right_pane_wallpaper(target)
+
+    def _force_generated_right_pane_wallpaper(self, path):
+        try:
+            with open(path, "r", encoding="utf-8") as handle:
+                content = handle.read()
+        except OSError:
+            return
+        image_branch = "%?if(%St(ipone right pane), =, custom wallpaper)<%xd(SbsBg)%xd(SbsRightWallpaper)|%?if(%St(ipone right pane), =, full art)<%xd(SbsBgFullArt)|%xd(SbsBg)>>"
+        content = content.replace(image_branch, "%xd(SbsBg)%xd(SbsRightWallpaper)")
+        draw_branch = "%?if(%St(ipone right pane), =, custom wallpaper)<%Vd(normal)|%?if(%St(ipone right pane), =, full art)<%Vd(SbsAnimPulse)%?mp<%Vd(normal)|%Vd(normal)|%Vd(normal)|%Vd(normal)|%Vd(normal)|%Vd(normal)|%Vd(normal)|%Vd(normal)|%Vd(normal)>|%?mp<%Vd(SbsAlbumArt)%Vd(normal)|%Vd(SbsAlbumArt)%Vd(normal)|%Vd(SbsAlbumArt)%Vd(normal)|%Vd(SbsAlbumArt)%Vd(normal)|%Vd(SbsAlbumArt)%Vd(normal)|%Vd(SbsAlbumArt)%Vd(normal)|%Vd(SbsAlbumArt)%Vd(normal)|%Vd(radio)|%Vd(radio)>>"
+        content = content.replace(draw_branch, "%Vd(normal)")
+        atomic_write_text(path, content)
+
+    def _write_iconset(self, stage_root, variant, base_bundle):
+        asset = next((item for item in base_bundle["assets"] if item["kind"] == "iconset"), None)
+        if not asset or not asset.get("exists"):
+            return
+        target = os.path.join(stage_root, "icons", f"{variant['id']}.bmp")
+        if variant.get("color_profile") == "default":
+            shutil.copy2(asset["source_abs"], target)
+            return
+        try:
+            with Image.open(asset["source_abs"]) as img:
+                source = img.convert("RGB")
+        except (OSError, UnidentifiedImageError):
+            shutil.copy2(asset["source_abs"], target)
+            return
+
+        low = _hex_to_rgb(_mix_hex(variant["colors"]["background"], "000000", 0.35))
+        high = _hex_to_rgb(variant["colors"]["selector_end"])
+        output = Image.new("RGB", source.size)
+        pixels = []
+        for red, green, blue in source.getdata():
+            luminance = (0.2126 * red + 0.7152 * green + 0.0722 * blue) / 255.0
+            if luminance < 0.04:
+                pixels.append((red, green, blue))
+                continue
+            pixels.append(
+                (
+                    int(round(low[0] + (high[0] - low[0]) * luminance)),
+                    int(round(low[1] + (high[1] - low[1]) * luminance)),
+                    int(round(low[2] + (high[2] - low[2]) * luminance)),
+                )
+            )
+        output.putdata(pixels)
+        output.save(target, "BMP")
+
+    def _tint_luminance_bitmap(self, path, low_hex, high_hex):
+        try:
+            with Image.open(path) as img:
+                source = img.convert("RGB")
+        except (OSError, UnidentifiedImageError):
+            return
+
+        low = _hex_to_rgb(_mix_hex(low_hex, "000000", 0.25))
+        high = _hex_to_rgb(high_hex)
+        pixels = []
+        for red, green, blue in source.getdata():
+            luminance = (0.2126 * red + 0.7152 * green + 0.0722 * blue) / 255.0
+            if luminance < 0.05:
+                pixels.append((red, green, blue))
+                continue
+            pixels.append(
+                (
+                    int(round(low[0] + (high[0] - low[0]) * luminance)),
+                    int(round(low[1] + (high[1] - low[1]) * luminance)),
+                    int(round(low[2] + (high[2] - low[2]) * luminance)),
+                )
+            )
+        output = Image.new("RGB", source.size)
+        output.putdata(pixels)
+        output.save(path, "BMP")
 
     def _write_backdrop(self, stage_root, variant, staged_wps_dir):
         backdrop_path = os.path.join(stage_root, "backdrops", f"{variant['id']}_bd.bmp")
@@ -590,6 +878,11 @@ class ThemeDesignerService:
                 "screen_resolution": variant["screen_resolution"],
                 "wallpaper_source": variant.get("wallpaper_source", ""),
                 "charging_wallpaper_source": variant.get("charging_wallpaper_source", ""),
+                "right_pane_wallpaper_source": variant.get("right_pane_wallpaper_source", ""),
+                "right_pane_offset_x": variant.get("right_pane_offset_x", 0),
+                "right_pane_offset_y": variant.get("right_pane_offset_y", 0),
+                "color_profile": variant.get("color_profile", "custom"),
+                "appearance_mode": variant.get("appearance_mode", "dark"),
             },
         )
 
@@ -625,8 +918,15 @@ class ThemeDesignerService:
         base["font_rel"] = self._normalize_font_rel(item.get("font_rel") or base["font_rel"])
         base["fit_mode"] = self._normalize_fit_mode(item.get("fit_mode") or base["fit_mode"])
         base["charging_fit_mode"] = self._normalize_fit_mode(item.get("charging_fit_mode") or base["charging_fit_mode"])
+        base["right_pane_fit_mode"] = self._normalize_fit_mode(item.get("right_pane_fit_mode") or base["right_pane_fit_mode"])
+        base["right_pane_offset_x"] = self._normalize_offset(item.get("right_pane_offset_x", base.get("right_pane_offset_x", 0)))
+        base["right_pane_offset_y"] = self._normalize_offset(item.get("right_pane_offset_y", base.get("right_pane_offset_y", 0)))
         base["wallpaper_source"] = os.path.abspath(str(item.get("wallpaper_source") or "").strip()) if item.get("wallpaper_source") else ""
         base["charging_wallpaper_source"] = os.path.abspath(str(item.get("charging_wallpaper_source") or "").strip()) if item.get("charging_wallpaper_source") else ""
+        base["right_pane_wallpaper_source"] = os.path.abspath(str(item.get("right_pane_wallpaper_source") or "").strip()) if item.get("right_pane_wallpaper_source") else ""
+        base["color_profile"] = str(item.get("color_profile") or base.get("color_profile") or "custom").strip() or "custom"
+        appearance_mode = str(item.get("appearance_mode") or base.get("appearance_mode") or "dark").strip().lower()
+        base["appearance_mode"] = "light" if appearance_mode == "light" else "dark"
         colors = dict(base["colors"])
         colors.update(item.get("colors") or {})
         base["colors"] = {
@@ -645,6 +945,14 @@ class ThemeDesignerService:
         if text in {"fill", "fit", "stretch"}:
             return text
         return "fill"
+
+    @staticmethod
+    def _normalize_offset(value):
+        try:
+            number = int(value)
+        except (TypeError, ValueError):
+            number = 0
+        return max(-100, min(100, number))
 
     @staticmethod
     def _normalize_font_rel(value):
@@ -697,6 +1005,20 @@ class ThemeDesignerService:
             "preview_path": os.path.abspath(source_abs) if os.path.isfile(source_abs) else "",
         }
 
+    @staticmethod
+    def _remove_asset_record(kind, destination_rel):
+        rel = str(destination_rel or "").replace("\\", "/")
+        return {
+            "kind": kind,
+            "source_rel": rel,
+            "source_abs": "",
+            "destination_rel": rel,
+            "exists": True,
+            "size": 0,
+            "preview_path": "",
+            "action": "remove",
+        }
+
     def _render_image(self, source_path, dest_path, resolution, fit_mode, matte_hex):
         width, height = _fit_size(resolution)
         try:
@@ -736,6 +1058,58 @@ class ThemeDesignerService:
         os.makedirs(os.path.dirname(dest_path), exist_ok=True)
         image.save(dest_path, "BMP")
 
+    def _render_right_pane_image(self, source_path, dest_path, resolution, fit_mode, matte_hex, base_path, offset_x=0, offset_y=0):
+        width, height = _fit_size(resolution)
+        pane_x = width // 2
+        pane_width = width - pane_x
+        offset_x = self._normalize_offset(offset_x)
+        offset_y = self._normalize_offset(offset_y)
+        if os.path.isfile(base_path):
+            try:
+                with Image.open(base_path) as base:
+                    rendered = base.convert("RGB").resize((width, height), Image.Resampling.LANCZOS)
+            except (OSError, UnidentifiedImageError):
+                rendered = Image.new("RGB", (width, height), ImageColor.getrgb(f"#{matte_hex}"))
+        else:
+            rendered = Image.new("RGB", (width, height), ImageColor.getrgb(f"#{matte_hex}"))
+
+        try:
+            with Image.open(source_path) as img:
+                image = img.convert("RGB")
+        except (OSError, UnidentifiedImageError) as exc:
+            raise ValueError(f"Unreadable right pane wallpaper: {source_path}") from exc
+
+        if fit_mode == "stretch":
+            pane = image.resize((pane_width, height), Image.Resampling.LANCZOS)
+        elif fit_mode == "fit":
+            pane = Image.new("RGB", (pane_width, height), ImageColor.getrgb(f"#{matte_hex}"))
+            fitted = ImageOps.contain(image, (pane_width, height), Image.Resampling.LANCZOS)
+            left = self._offset_position(pane_width - fitted.width, offset_x)
+            top = self._offset_position(height - fitted.height, offset_y)
+            pane.paste(fitted, (left, top))
+        else:
+            scale = max(pane_width / image.width, height / image.height)
+            resized = image.resize(
+                (max(1, int(round(image.width * scale))), max(1, int(round(image.height * scale)))),
+                Image.Resampling.LANCZOS,
+            )
+            left = self._offset_position(resized.width - pane_width, offset_x)
+            top = self._offset_position(resized.height - height, offset_y)
+            pane = resized.crop((left, top, left + pane_width, top + height))
+
+        rendered.paste(pane, (pane_x, 0))
+        if should_render_2bpp_greyscale(resolution):
+            rendered = render_2bpp_greyscale(rendered)
+        os.makedirs(os.path.dirname(dest_path), exist_ok=True)
+        rendered.save(dest_path, "BMP")
+
+    @staticmethod
+    def _offset_position(extra_space, offset):
+        extra_space = max(0, int(extra_space))
+        if extra_space <= 0:
+            return 0
+        return int(round(extra_space * ((max(-100, min(100, int(offset))) + 100) / 200.0)))
+
     def _designer_root(self, repo_root):
         root = os.path.abspath(repo_root)
         if os.path.basename(root) == "rockpod":
@@ -752,7 +1126,7 @@ class ThemeDesignerService:
         return os.path.join(self._variants_dir(repo_root), f"{variant_id}.json")
 
     def _apply_template_color_overrides(self, path, base_theme_id, stage_root):
-        if str(base_theme_id or "").strip() != "iPone":
+        if str(base_theme_id or "").strip() not in {"iPone", "iPoneCustom"}:
             return
 
         theme_cfg_path = os.path.join(stage_root, "themes")

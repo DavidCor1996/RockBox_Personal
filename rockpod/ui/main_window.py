@@ -64,6 +64,7 @@ from services.rockbox_device import (
     clear_rockbox_database_cache,
     detect_rockbox_database_state,
     enable_rockbox_tagcache_autoupdate,
+    invalidate_pictureflow_cache,
 )
 from services.rockbox_deploy import RockboxDeployService
 from services.rockbox_boot import RockboxBootService
@@ -76,7 +77,7 @@ from services.rockbox_runtime import import_runtime_data_for_device
 from services.rockbox_playlists import export_device_playlists, export_local_music_playlists
 from services.rockbox_tagcache import TagcacheError, write_rockbox_tagcache_from_device_inventory
 from services.rockbox_simulator import RockboxSimulatorService
-from services.rockbox_themes import RockboxThemeService
+from services.rockbox_themes import RockboxThemeService, THEME_DEFINITIONS
 from services.theme_designer import ThemeDesignerService
 from services.online_album_metadata import AlbumMetadataFetcher
 from ui.sidebar import Sidebar
@@ -512,6 +513,7 @@ class MainWindow(QMainWindow):
         self._theme_hub.profile_saved.connect(self._on_theme_profile_saved)
         self._theme_hub.theme_selected.connect(self._on_theme_selected)
         self._theme_hub.deploy_requested.connect(self._deploy_selected_theme)
+        self._theme_hub.delete_requested.connect(self._delete_selected_theme_from_device)
         self._theme_hub.restore_requested.connect(self._restore_theme_backup)
         self._theme_hub.use_connected_device_requested.connect(self._use_connected_device_for_profile)
         self._ipone_wallpapers.profile_selected.connect(self._on_ipone_wallpaper_profile_selected)
@@ -527,6 +529,7 @@ class MainWindow(QMainWindow):
         self._theme_designer.save_requested.connect(self._save_theme_designer_variant)
         self._theme_designer.rename_requested.connect(self._rename_theme_designer_variant)
         self._theme_designer.duplicate_requested.connect(self._duplicate_theme_designer_variant)
+        self._theme_designer.delete_requested.connect(self._delete_theme_designer_variant)
         self._theme_designer.deploy_device_requested.connect(self._deploy_theme_designer_variant_to_device)
         self._theme_designer.deploy_simulator_requested.connect(self._deploy_theme_designer_variant_to_simulator)
         self._boot_manager.profile_selected.connect(self._on_boot_profile_selected)
@@ -1080,7 +1083,7 @@ class MainWindow(QMainWindow):
             "library_genres": "Genres",
             "rockbox_themes": "Themes",
             "rockbox_wallpapers": "Wallpapers",
-            "rockbox_theme_designer": "Theme Designer",
+            "rockbox_theme_designer": "iPone Designer",
             "rockbox_boot": "Boot / Branding",
             "rockbox_plugins": "Plugins",
             "rockbox_game_sync": "Game Sync",
@@ -2642,11 +2645,7 @@ class MainWindow(QMainWindow):
             and getattr(self._device_detector.current_device, "is_rockbox", False)
             and self._device_config_value("sync_playlists_to_device", True)
         ):
-            result = self._sync_rockbox_playlists(self._device_detector.current_device)
-            if result.get("success"):
-                self._status_bar.set_left_text("Rockbox playlists updated")
-            else:
-                self._status_bar.set_left_text("Rockbox playlist update failed")
+            self._sync_rockbox_playlists_now()
             return
         state = "shown" if enabled else "hidden"
         self._status_bar.set_left_text(f"{playlist['name']} will be {state} in Rockbox Playlists")
@@ -2656,6 +2655,22 @@ class MainWindow(QMainWindow):
         if not device or not getattr(device, "is_rockbox", False):
             self._status_bar.set_left_text("No Rockbox device is connected")
             return
+        if self._sync_engine.is_syncing:
+            return
+        track_ids = self._sync_engine.rockbox_playlist_track_ids()
+        if track_ids:
+            plan = self._build_sync_plan_with_feedback(track_ids=track_ids)
+            if plan is None:
+                return
+            if self._sync_plan_has_blocking_errors(plan):
+                return
+            if plan.total_operations:
+                self._status_bar.set_left_text(plan.summary())
+                dialog = SyncDialog(plan, self)
+                dialog.sync_confirmed.connect(lambda: self._execute_sync(plan, dialog))
+                dialog.sync_cancelled.connect(lambda: self._sync_engine.cancel_sync())
+                dialog.exec()
+                return
         result = self._sync_rockbox_playlists(device)
         if result.get("success"):
             count = len(result.get("exported") or [])
@@ -3374,6 +3389,7 @@ class MainWindow(QMainWindow):
                 self._active_sync_plan.to_copy
                 or self._active_sync_plan.to_resync
                 or self._active_sync_plan.to_delete
+                or self._active_sync_plan.artwork_to_copy
             )
         )
         if not had_track_changes:
@@ -3391,6 +3407,17 @@ class MainWindow(QMainWindow):
 
         host_result = self._generate_rockbox_database_host_side(device)
         if host_result.get("success"):
+            pictureflow_result = invalidate_pictureflow_cache(device)
+            if not pictureflow_result.get("success"):
+                logger.warning(
+                    "PictureFlow cache invalidation failed: %s",
+                    pictureflow_result.get("failures", []),
+                )
+            elif pictureflow_result.get("removed"):
+                logger.info(
+                    "Invalidated %d PictureFlow cache file(s)",
+                    len(pictureflow_result.get("removed", [])),
+                )
             self._rockbox_db_stale = False
             self._runtime_refresh_pending = False
             self._device_state = "Ready"
@@ -4606,6 +4633,7 @@ class MainWindow(QMainWindow):
             profile["source_repo_path"],
             profile["screen_resolution"],
             profile.get("target_device_model", ""),
+            profile.get("device_mount_path", ""),
         )
         selected_theme = profile.get("selected_theme") or (themes[0]["id"] if themes else "")
         if themes and not any(item["id"] == selected_theme for item in themes):
@@ -4925,7 +4953,10 @@ class MainWindow(QMainWindow):
         self._set_theme_details(profile, selected_theme)
 
     def _set_theme_details(self, profile, theme_id):
-        details = self._rockbox_themes.inspect_theme(theme_id, profile["source_repo_path"])
+        if theme_id in THEME_DEFINITIONS:
+            details = self._rockbox_themes.inspect_theme(theme_id, profile["source_repo_path"])
+        else:
+            details = self._rockbox_themes.inspect_device_theme(theme_id, profile.get("device_mount_path", ""))
         self._theme_hub.set_theme_details(details)
         try:
             diff = self._rockbox_deploy.build_diff(profile, details)
@@ -5029,6 +5060,71 @@ class MainWindow(QMainWindow):
         if rollback_button is not None and dialog.clickedButton() == rollback_button:
             self._restore_theme_backup()
         self._status_bar.set_left_text("Theme deployed" if result["success"] else "Theme deploy completed with errors")
+        self._refresh_theme_hub()
+        self._refresh_ipone_wallpapers()
+        self._refresh_plugin_manager()
+        self._refresh_game_manager()
+
+    def _delete_selected_theme_from_device(self):
+        profile = self._rockbox_profiles.current_profile()
+        if not profile:
+            self._status_bar.set_left_text("No Rockbox profile selected")
+            return
+        theme_id = str(profile.get("selected_theme") or "").strip()
+        if not theme_id:
+            self._status_bar.set_left_text("No Rockbox theme selected")
+            return
+        try:
+            bundle = self._rockbox_themes.remove_bundle_for_theme(
+                theme_id,
+                profile["source_repo_path"],
+                profile.get("device_mount_path", ""),
+            )
+            diff = self._rockbox_deploy.build_diff(profile, bundle)
+        except ValueError as exc:
+            QMessageBox.warning(self, "Delete Theme Failed", str(exc))
+            return
+
+        remove_items = [item for item in diff["items"] if item["status"] == "remove"]
+        if not remove_items:
+            QMessageBox.information(self, "Delete Theme", f"No {theme_id} files were found on this device.")
+            self._refresh_theme_hub()
+            return
+
+        confirm = QMessageBox(self)
+        confirm.setWindowTitle("Delete Theme From Device")
+        confirm.setText(
+            f"Delete {len(remove_items)} {theme_id} theme file(s) from:\n"
+            f"{profile['device_mount_path']}?\n\n"
+            "A backup is created first, so Restore Previous can put these files back."
+        )
+        lines = [item["destination_rel"] for item in remove_items]
+        if lines:
+            detail = "\n".join(f"- {path}" for path in lines[:80])
+            if len(lines) > 80:
+                detail += f"\n... and {len(lines) - 80} more"
+            confirm.setDetailedText(detail)
+        confirm.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
+        confirm.setDefaultButton(QMessageBox.No)
+        confirm.exec()
+        if confirm.clickedButton() != confirm.button(QMessageBox.Yes):
+            return
+
+        result = self._rockbox_deploy.apply_diff(profile, diff)
+        message = f"Removed {result['copied_count']} files\nBackup: {result['backup_dir']}"
+        if result["failures"]:
+            message += "\n\nFailures:\n" + "\n".join(result["failures"][:8])
+        dialog = QMessageBox(self)
+        dialog.setWindowTitle("Theme Delete Result")
+        dialog.setText(message)
+        rollback_button = None
+        if result["rollback_available"]:
+            rollback_button = dialog.addButton("Restore Now", QMessageBox.ActionRole)
+        dialog.addButton(QMessageBox.Ok)
+        dialog.exec()
+        if rollback_button is not None and dialog.clickedButton() == rollback_button:
+            self._restore_theme_backup()
+        self._status_bar.set_left_text("Theme files deleted" if result["success"] else "Theme delete completed with errors")
         self._refresh_theme_hub()
         self._refresh_ipone_wallpapers()
         self._refresh_plugin_manager()
@@ -5220,7 +5316,7 @@ class MainWindow(QMainWindow):
                 self._pending_designer_preview_variant or (self._current_designer_variant or {}),
             )
         except Exception:
-            logger.exception("Theme designer preview bundle generation failed")
+            logger.exception("iPone designer preview bundle generation failed")
             return
 
         self._theme_designer.shutdown_simulator_preview()
@@ -5239,7 +5335,7 @@ class MainWindow(QMainWindow):
                 preview_screen=preview_screen,
             )
         except Exception:
-            logger.exception("Theme designer preview deployment failed")
+            logger.exception("iPone designer preview deployment failed")
             return
         shot = self._rockbox_simulator.capture_theme_preview(
             preview_target,
@@ -5282,6 +5378,58 @@ class MainWindow(QMainWindow):
         self._status_bar.set_left_text(f"Duplicated theme variant: {duplicated['name']}")
         self._refresh_theme_designer()
 
+    def _delete_theme_designer_variant(self, variant_id):
+        profile = self._rockbox_profiles.current_profile()
+        if not profile or not variant_id:
+            return
+        try:
+            variant = self._theme_designer_service.load_variant(profile["source_repo_path"], variant_id)
+        except FileNotFoundError:
+            self._status_bar.set_left_text("Saved iPone variant was not found")
+            self._refresh_theme_designer()
+            return
+
+        confirm = QMessageBox(self)
+        confirm.setWindowTitle("Delete iPone Design")
+        confirm.setText(
+            f"Delete '{variant['name']}'?\n\n"
+            "This removes the saved RockPod design. If matching generated theme files are on the connected iPod, "
+            "RockPod will remove those too after making a backup."
+        )
+        confirm.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
+        confirm.setDefaultButton(QMessageBox.No)
+        confirm.exec()
+        if confirm.clickedButton() != confirm.button(QMessageBox.Yes):
+            return
+
+        removed_device_files = 0
+        failures = []
+        try:
+            bundle = self._theme_designer_service.build_remove_bundle(profile["source_repo_path"], profile, variant)
+            diff = self._rockbox_deploy.build_diff(profile, bundle)
+            if diff["summary"].get("remove", 0):
+                result = self._rockbox_deploy.apply_diff(profile, diff)
+                removed_device_files = result.get("copied_count", 0)
+                failures = result.get("failures", [])
+        except ValueError as exc:
+            failures = [str(exc)]
+
+        local_removed = self._theme_designer_service.delete_variant(profile["source_repo_path"], variant_id)
+        self._current_designer_variant = None
+        self._current_designer_draft = None
+        self._current_designer_preview_path = ""
+        message = f"Deleted saved design: {variant['name']}" if local_removed else f"Saved design already deleted: {variant['name']}"
+        if removed_device_files:
+            message += f"\nRemoved {removed_device_files} generated file(s) from device."
+        if failures:
+            message += "\n\nDevice cleanup issues:\n" + "\n".join(failures[:8])
+            QMessageBox.warning(self, "Delete iPone Design", message)
+        else:
+            QMessageBox.information(self, "Delete iPone Design", message)
+        self._status_bar.set_left_text(f"Deleted iPone design: {variant['name']}")
+        self._refresh_theme_designer()
+        self._refresh_theme_hub()
+
     def _deploy_theme_designer_variant_to_device(self, variant_data):
         profile = self._rockbox_profiles.current_profile()
         if not profile:
@@ -5303,7 +5451,7 @@ class MainWindow(QMainWindow):
             matches = [item for item in self._simulator_targets if item["screen_resolution"] == profile["screen_resolution"]]
             target = matches[0] if matches else self._simulator_targets[0]
         if not target:
-            QMessageBox.information(self, "Theme Designer", "No simulator target is available for this profile.")
+            QMessageBox.information(self, "iPone Designer", "No simulator target is available for this profile.")
             return
         sim_profile = self._rockbox_simulator.simulator_profile(profile, target)
         self._deploy_theme_bundle(sim_profile, bundle, "simulator")
@@ -5315,7 +5463,7 @@ class MainWindow(QMainWindow):
             saved = self._theme_designer_service.save_variant(profile["source_repo_path"], merged)
             bundle = self._theme_designer_service.build_bundle(profile["source_repo_path"], profile, saved)
         except ValueError as exc:
-            QMessageBox.warning(self, "Theme Designer", str(exc))
+            QMessageBox.warning(self, "iPone Designer", str(exc))
             return None
         self._current_designer_variant = saved
         self._refresh_theme_designer()
@@ -5325,7 +5473,7 @@ class MainWindow(QMainWindow):
         try:
             diff = self._rockbox_deploy.build_diff(deploy_profile, bundle)
         except ValueError as exc:
-            QMessageBox.warning(self, "Theme Designer", str(exc))
+            QMessageBox.warning(self, "iPone Designer", str(exc))
             return
         summary = diff["summary"]
         prompt = QMessageBox(self)
@@ -5345,7 +5493,7 @@ class MainWindow(QMainWindow):
         message = f"Copied {result['copied_count']} files\nBackup: {result['backup_dir']}"
         if result["failures"]:
             message += "\n\nFailures:\n" + "\n".join(result["failures"][:8])
-        QMessageBox.information(self, "Theme Designer Deploy", message)
+        QMessageBox.information(self, "iPone Designer Deploy", message)
         self._status_bar.set_left_text(
             "Theme variant deployed" if result["success"] else "Theme variant deploy completed with errors"
         )

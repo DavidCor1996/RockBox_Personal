@@ -187,9 +187,13 @@ class RockboxSimulatorService:
         settings = self._read_cfg_settings(theme_cfg)
         if not settings:
             return False
+        self._clear_theme_preview_runtime_config(preview_root, simdisk_path)
         settings["theme"] = f"/.rockbox/themes/{theme_name}.cfg"
         wants_playback = preview_screen in {"wps", "lockscreen"}
         settings["start in screen"] = "wps" if wants_playback else "root"
+        if preview_screen == "sbs":
+            settings["statusbar"] = "custom"
+            settings["ui viewport"] = "-"
         if wants_playback:
             settings["repeat"] = "all"
 
@@ -242,6 +246,26 @@ class RockboxSimulatorService:
                 self._write_preview_resume(os.path.join(preview_root, ".config", "rockbox.org", ".resume.cfg"))
                 self._write_preview_resume(os.path.join(preview_root, ".config", "rockbox.org", ".resume.cfg.new"))
         return updated
+
+    @staticmethod
+    def _clear_theme_preview_runtime_config(preview_root, simdisk_path):
+        stale_paths = (
+            os.path.join(preview_root, ".config", "rockbox.org", "config.cfg"),
+            os.path.join(preview_root, ".config", "rockbox.org", "config.cfg.new"),
+            os.path.join(preview_root, ".config", "rockbox.org", "config.cfg.old"),
+            os.path.join(simdisk_path, ".rockbox", "config.cfg"),
+            os.path.join(simdisk_path, ".rockbox", "config.cfg.new"),
+            os.path.join(simdisk_path, ".rockbox", "config.cfg.old"),
+            os.path.join(simdisk_path, "config.cfg"),
+            os.path.join(simdisk_path, "config.cfg.new"),
+            os.path.join(simdisk_path, "config.cfg.old"),
+        )
+        for path in stale_paths:
+            try:
+                if os.path.exists(path):
+                    os.remove(path)
+            except OSError:
+                pass
 
     @staticmethod
     def _read_cfg_settings(path):
@@ -350,6 +374,9 @@ class RockboxSimulatorService:
             if preview_screen == "lockscreen":
                 self._send_key_to_window_id(window_id, "h")
                 time.sleep(0.8)
+            elif preview_screen == "sbs":
+                self._send_key_to_window_id(window_id, "Escape")
+                time.sleep(0.3)
             try:
                 if os.path.exists(host_capture):
                     os.remove(host_capture)

@@ -45,13 +45,21 @@ def _make_repo(repo_root):
             ]
         ),
     )
-    _write_text(os.path.join(repo_root, "wps", "iPone.wps"), "%wd\n%xl(Lockscreen,Wallpaper.bmp)\n")
-    _write_text(os.path.join(repo_root, "wps", "iPone.sbs"), "%wd\n%xl(Bg,iPone_bd.bmp)\n")
+    _write_text(
+        os.path.join(repo_root, "wps", "iPone.wps"),
+        "%wd\n%Fl(2,14-Adobe-Helvetica-Bold.fnt)\n%xl(Lockscreen,Wallpaper.bmp)\n",
+    )
+    _write_text(
+        os.path.join(repo_root, "wps", "iPone.sbs"),
+        "%wd\n%Fl(3,/.rockbox/fonts/150-Adwaitapod-Icons.fnt,2)\n%xl(Bg,iPone_bd.bmp)\n",
+    )
     _write_text(os.path.join(repo_root, "wps", "iPone.fms"), "%wd\n%xl(Lockscreen,Wallpaper.bmp)\n")
     _write_bmp(os.path.join(repo_root, "backdrops", "iPone_bd.bmp"), 320, 240, "#111111")
     _write_bmp(os.path.join(repo_root, "icons", "iPone.bmp"), 16, 16, "#999999")
     _write_text(os.path.join(repo_root, "fonts", "24 iLike.fnt"), "font24\n")
     _write_text(os.path.join(repo_root, "fonts", "18-Cantarell-Regular.fnt"), "font18\n")
+    _write_text(os.path.join(repo_root, "fonts", "14-Adobe-Helvetica-Bold.fnt"), "font14\n")
+    _write_text(os.path.join(repo_root, "fonts", "150-Adwaitapod-Icons.fnt"), "icons\n")
     for name in (
         "Wallpaper.bmp",
         "WallpaperAlt.bmp",
@@ -313,6 +321,66 @@ def test_generated_bundle_deploys_with_existing_deploy_flow(tmp_dir):
     assert not _temp_names(os.path.join(repo_root, "rockpod", ".theme_designer", "generated", saved["id"]))
 
 
+def test_generated_bundle_includes_fonts_referenced_by_skin_files(tmp_dir):
+    repo_root = os.path.join(tmp_dir, "repo")
+    _make_repo(repo_root)
+    service = ThemeDesignerService()
+    profile = _profile(repo_root)
+
+    variant = service.new_variant(repo_root, profile, "Skin Fonts")
+    saved = service.save_variant(repo_root, variant)
+    bundle = service.build_bundle(repo_root, profile, saved)
+    font_dests = {
+        item["destination_rel"]
+        for item in bundle["assets"]
+        if item["kind"] == "font"
+    }
+
+    assert ".rockbox/fonts/24 iLike.fnt" in font_dests
+    assert ".rockbox/fonts/14-Adobe-Helvetica-Bold.fnt" in font_dests
+    assert ".rockbox/fonts/150-Adwaitapod-Icons.fnt" in font_dests
+
+
+def test_right_pane_wallpaper_offset_controls_crop_focus(tmp_dir):
+    source = os.path.join(tmp_dir, "right-pane.png")
+    base = os.path.join(tmp_dir, "base.bmp")
+    left_path = os.path.join(tmp_dir, "left-focus.bmp")
+    right_path = os.path.join(tmp_dir, "right-focus.bmp")
+    image = Image.new("RGB", (320, 240), "#cc0000")
+    for x in range(160, 320):
+        for y in range(240):
+            image.putpixel((x, y), (0, 80, 220))
+    image.save(source, "PNG")
+    Image.new("RGB", (320, 240), "#ffffff").save(base, "BMP")
+    service = ThemeDesignerService()
+
+    service._render_right_pane_image(
+        source,
+        left_path,
+        "320x240",
+        "fill",
+        "FFFFFF",
+        base,
+        -100,
+        0,
+    )
+    service._render_right_pane_image(
+        source,
+        right_path,
+        "320x240",
+        "fill",
+        "FFFFFF",
+        base,
+        100,
+        0,
+    )
+
+    with Image.open(left_path) as rendered:
+        assert rendered.convert("RGB").getpixel((220, 120))[0] > 160
+    with Image.open(right_path) as rendered:
+        assert rendered.convert("RGB").getpixel((220, 120))[2] > 160
+
+
 def test_preserves_base_theme_files_when_variant_is_generated(tmp_dir):
     repo_root = os.path.join(tmp_dir, "repo")
     _make_repo(repo_root)
@@ -347,6 +415,7 @@ def test_preview_bundle_can_rebuild_without_reusing_the_same_stage_dir(tmp_dir):
     second_cfg = next(item for item in second["assets"] if item["kind"] == "cfg")["source_abs"]
 
     assert first["id"] == second["id"]
+    assert first["id"] == "ipone_preview"
     assert first_cfg != second_cfg
     assert os.path.isfile(first_cfg)
     assert os.path.isfile(second_cfg)

@@ -660,7 +660,7 @@ struct user_settings
 
     int ipone_charge_wallpaper; /* iPone charge wallpaper mode */
     int ipone_lock_wallpaper;   /* iPone lock wallpaper mode */
-    int ipone_right_pane;       /* iPone SBS right pane mode */
+    int ipone_right_pane;       /* iPone SBS right pane mode: miniplayer/full art/custom wallpaper */
     int album_list_layout;      /* album list viewport/art mode */
 
     int browser_default;        /* Default browser when accessed from WPS */

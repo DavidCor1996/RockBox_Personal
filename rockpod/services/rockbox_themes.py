@@ -50,6 +50,28 @@ THEME_DEFINITIONS = {
             "icons/iPone.bmp",
         ],
     },
+    "iPoneCustom": {
+        "name": "iPone Custom",
+        "description": "Experimental iPone stack with RockPod-managed colors and right-pane wallpaper.",
+        "resolutions": ["320x240"],
+        "assets": [
+            {"kind": "cfg", "source": "themes/iPoneCustom.cfg", "destination": ".rockbox/themes/iPoneCustom.cfg"},
+            {"kind": "wps", "source": "wps/iPoneCustom.wps", "destination": ".rockbox/wps/iPoneCustom.wps"},
+            {"kind": "sbs", "source": "wps/iPoneCustom.sbs", "destination": ".rockbox/wps/iPoneCustom.sbs"},
+            {"kind": "fms", "source": "wps/iPoneCustom.fms", "destination": ".rockbox/wps/iPoneCustom.fms"},
+            {"kind": "backdrop", "source": "backdrops/iPoneCustom_bd.bmp", "destination": ".rockbox/backdrops/iPoneCustom_bd.bmp"},
+            {"kind": "iconset", "source": "icons/iPoneCustom.bmp", "destination": ".rockbox/icons/iPoneCustom.bmp"},
+            {"kind": "font", "source": "fonts/24 iLike.fnt", "destination": ".rockbox/fonts/24 iLike.fnt"},
+            {"kind": "wps_assets", "source": "wps/iPoneCustom", "destination": ".rockbox/wps/iPoneCustom", "recursive": True},
+        ],
+        "preview_candidates": [
+            "wps/iPoneCustom/RightPaneWallpaper.bmp",
+            "wps/iPoneCustom/Wallpaper.bmp",
+            "wps/iPoneCustom/SbsBackdrop.bmp",
+            "backdrops/iPoneCustom_bd.bmp",
+            "icons/iPoneCustom.bmp",
+        ],
+    },
     "SpringPod3": {
         "name": "SpringPod3",
         "description": "iOS 3-inspired Aqua stack for iPod Video 5G / 5.5G only.",
@@ -160,7 +182,7 @@ THEME_DEFINITIONS = {
 class RockboxThemeService:
     """Expose deterministic theme stacks and completeness information."""
 
-    def list_themes(self, source_repo_path, screen_resolution="", target_device_model=""):
+    def list_themes(self, source_repo_path, screen_resolution="", target_device_model="", device_mount_path=""):
         resolution = str(screen_resolution or "").strip()
         result = []
         for theme_id, definition in THEME_DEFINITIONS.items():
@@ -178,6 +200,33 @@ class RockboxThemeService:
                 "asset_count": info["asset_count"],
                 "preview_path": info["preview_path"],
             })
+        result.extend(self.list_device_themes(device_mount_path, known_ids={item["id"] for item in result}))
+        return result
+
+    def list_device_themes(self, device_mount_path, known_ids=None):
+        known = {str(item or "").strip() for item in (known_ids or set())}
+        themes_dir = os.path.join(os.path.abspath(device_mount_path or ""), ".rockbox", "themes")
+        if not os.path.isdir(themes_dir):
+            return []
+        result = []
+        for name in sorted(os.listdir(themes_dir)):
+            if not name.lower().endswith(".cfg"):
+                continue
+            theme_id = os.path.splitext(name)[0]
+            if not theme_id or theme_id in known:
+                continue
+            result.append(
+                {
+                    "id": theme_id,
+                    "name": f"{theme_id} (device)",
+                    "description": "Theme found on the connected device but not in this RockPod repo.",
+                    "status": "Device only",
+                    "found_count": 1,
+                    "asset_count": 1,
+                    "preview_path": "",
+                    "device_only": True,
+                }
+            )
         return result
 
     def inspect_theme(self, theme_id, source_repo_path):
@@ -214,8 +263,86 @@ class RockboxThemeService:
             "compatible_device_models": list(definition.get("compatible_device_models", [])),
         }
 
+    def inspect_device_theme(self, theme_id, device_mount_path):
+        theme_id = str(theme_id or "").strip()
+        root = os.path.abspath(device_mount_path or "")
+        cfg_rel = f".rockbox/themes/{theme_id}.cfg"
+        cfg_abs = os.path.join(root, cfg_rel)
+        assets = [self._device_asset_record("cfg", cfg_rel, cfg_abs)]
+        settings = self._read_cfg_settings(cfg_abs)
+        for key, kind in (
+            ("wps", "wps"),
+            ("sbs", "sbs"),
+            ("fms", "fms"),
+            ("backdrop", "backdrop"),
+            ("iconset", "iconset"),
+            ("viewers iconset", "iconset"),
+            ("font", "font"),
+        ):
+            rel = self._device_setting_rel(settings.get(key, ""))
+            if rel:
+                assets.append(self._device_asset_record(kind, rel, os.path.join(root, rel)))
+
+        wps_dir = os.path.join(root, ".rockbox", "wps", theme_id)
+        if os.path.isdir(wps_dir):
+            for dir_root, _dirs, files in os.walk(wps_dir):
+                for filename in sorted(files):
+                    full = os.path.join(dir_root, filename)
+                    rel = os.path.relpath(full, root).replace("\\", "/")
+                    assets.append(self._device_asset_record("wps_assets", rel, full))
+
+        unique = []
+        seen = set()
+        for asset in assets:
+            key = asset["destination_rel"]
+            if key in seen:
+                continue
+            seen.add(key)
+            unique.append(asset)
+
+        found_count = sum(1 for item in unique if item["exists"])
+        return {
+            "id": theme_id,
+            "name": f"{theme_id} (device)",
+            "description": "Theme found on the connected device but not in this RockPod repo.",
+            "status": "Device only",
+            "asset_count": len(unique),
+            "found_count": found_count,
+            "missing_count": len(unique) - found_count,
+            "preview_path": "",
+            "assets": unique,
+            "resolutions": [],
+            "compatible_device_models": [],
+            "device_only": True,
+        }
+
     def bundle_for_theme(self, theme_id, source_repo_path):
         return self.inspect_theme(theme_id, source_repo_path)
+
+    def remove_bundle_for_theme(self, theme_id, source_repo_path, device_mount_path=""):
+        if str(theme_id or "").strip() in THEME_DEFINITIONS:
+            bundle = self.inspect_theme(theme_id, source_repo_path)
+        else:
+            bundle = self.inspect_device_theme(theme_id, device_mount_path)
+        assets = []
+        for asset in bundle["assets"]:
+            item = dict(asset)
+            item["action"] = "remove"
+            item["exists"] = True
+            assets.append(item)
+        return {
+            "id": f"{theme_id}-remove",
+            "name": f"Remove {bundle['name']}",
+            "description": f"Remove {bundle['name']} files from the selected device.",
+            "status": "Remove",
+            "asset_count": len(assets),
+            "found_count": len(assets),
+            "missing_count": 0,
+            "preview_path": bundle.get("preview_path", ""),
+            "assets": assets,
+            "resolutions": bundle.get("resolutions", []),
+            "compatible_device_models": bundle.get("compatible_device_models", []),
+        }
 
     def validate_skin_references(self, theme_id, source_repo_path, kinds=("wps", "sbs", "fms")):
         """Validate bitmap references in a theme's WPS/SBS/FMS files."""
@@ -292,6 +419,52 @@ class RockboxThemeService:
             "size": size,
             "preview_path": os.path.abspath(source_abs) if exists else "",
         }
+
+    @staticmethod
+    def _device_asset_record(kind, rel_path, source_abs):
+        rel = str(rel_path or "").replace("\\", "/").lstrip("/")
+        exists = os.path.isfile(source_abs)
+        size = 0
+        if exists:
+            try:
+                size = os.path.getsize(source_abs)
+            except OSError:
+                size = 0
+        return {
+            "kind": kind,
+            "source_rel": rel,
+            "source_abs": os.path.abspath(source_abs),
+            "destination_rel": rel,
+            "exists": exists,
+            "size": size,
+            "preview_path": os.path.abspath(source_abs) if exists and source_abs.lower().endswith((".bmp", ".png", ".jpg", ".jpeg")) else "",
+        }
+
+    @staticmethod
+    def _read_cfg_settings(path):
+        settings = {}
+        try:
+            with open(path, "r", encoding="utf-8", errors="replace") as handle:
+                for raw in handle:
+                    line = raw.strip()
+                    if not line or line.startswith("#") or ":" not in line:
+                        continue
+                    key, value = line.split(":", 1)
+                    settings[key.strip().lower()] = value.strip()
+        except OSError:
+            return settings
+        return settings
+
+    @staticmethod
+    def _device_setting_rel(value):
+        text = str(value or "").strip().replace("\\", "/")
+        if not text:
+            return ""
+        if text.startswith("/"):
+            text = text.lstrip("/")
+        if text.startswith(".rockbox/"):
+            return text
+        return ""
 
     @staticmethod
     def _skin_image_references(path):
