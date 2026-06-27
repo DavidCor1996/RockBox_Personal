@@ -52,6 +52,10 @@ static int audio_dc_out_prev;
 static bool audio_started;
 static bool audio_ready;
 static bool cpu_boosted;
+#ifdef HAVE_WHEEL_POSITION
+static DWORD wheel_pad_latch;
+static long wheel_pad_latch_tick;
+#endif
 
 WORD NesPalette[64] =
 {
@@ -167,6 +171,69 @@ static void poll_quit(void)
         (BUTTON_MENU | BUTTON_SELECT | BUTTON_PLAY))
         quit_requested = true;
 }
+
+#ifdef HAVE_WHEEL_POSITION
+static DWORD wheel_touch_pad(int buttons)
+{
+    int wheel = rb->wheel_status();
+    int zone;
+    long now;
+    DWORD pad;
+
+    if (wheel < 0)
+        return 0;
+
+    zone = (wheel + 6) / 12;
+    if (zone > 7)
+        zone = 0;
+
+    switch (zone)
+    {
+    case 0:
+        pad = NES_PAD_UP;
+        break;
+    case 1:
+        pad = NES_PAD_UP | NES_PAD_RIGHT;
+        break;
+    case 2:
+        pad = NES_PAD_RIGHT;
+        break;
+    case 3:
+        pad = NES_PAD_DOWN | NES_PAD_RIGHT;
+        break;
+    case 4:
+        pad = NES_PAD_DOWN;
+        break;
+    case 5:
+        pad = NES_PAD_DOWN | NES_PAD_LEFT;
+        break;
+    case 6:
+        pad = NES_PAD_LEFT;
+        break;
+    case 7:
+        pad = NES_PAD_UP | NES_PAD_LEFT;
+        break;
+    default:
+        return 0;
+    }
+
+    now = *rb->current_tick;
+
+    if (((buttons & BUTTON_PLAY) && (pad & NES_PAD_DOWN)) ||
+        ((buttons & BUTTON_MENU) && (pad & NES_PAD_UP)))
+    {
+        if (wheel_pad_latch &&
+            TIME_BEFORE(now, wheel_pad_latch_tick + HZ / 3))
+            return wheel_pad_latch;
+
+        return 0;
+    }
+
+    wheel_pad_latch = pad;
+    wheel_pad_latch_tick = now;
+    return pad;
+}
+#endif
 
 static void audio_get_more(const void **start, size_t *size)
 {
@@ -409,6 +476,10 @@ enum plugin_status plugin_start(const void *parameter)
     audio_started = false;
     audio_ready = false;
     cpu_boosted = false;
+#ifdef HAVE_WHEEL_POSITION
+    wheel_pad_latch = 0;
+    wheel_pad_latch_tick = 0;
+#endif
     APU_Mute = 1;
 
 #if defined(HAVE_ADJUSTABLE_CPU_FREQ)
@@ -436,7 +507,13 @@ enum plugin_status plugin_start(const void *parameter)
 
     rb->lcd_clear_display();
     rb->lcd_update();
+#ifdef HAVE_WHEEL_POSITION
+    rb->wheel_send_events(false);
+#endif
     InfoNES_Cycle();
+#ifdef HAVE_WHEEL_POSITION
+    rb->wheel_send_events(true);
+#endif
     save_sram();
     InfoNES_Fin();
     rb->button_clear_queue();
@@ -561,12 +638,16 @@ void InfoNES_PadState(DWORD *pdwPad1, DWORD *pdwPad2, DWORD *pdwSystem)
     else
     {
         if (buttons & BUTTON_SELECT)
-            pad |= NES_PAD_A;
-        if (buttons & BUTTON_PLAY)
             pad |= NES_PAD_B;
+        if (buttons & BUTTON_PLAY)
+            pad |= NES_PAD_A;
         if (buttons & BUTTON_MENU)
             pad |= NES_PAD_START;
     }
+
+#ifdef HAVE_WHEEL_POSITION
+    pad |= wheel_touch_pad(buttons);
+#endif
 
     if (buttons & BUTTON_SCROLL_BACK)
         pad |= NES_PAD_UP;
