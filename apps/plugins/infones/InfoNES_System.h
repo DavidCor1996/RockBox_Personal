@@ -15,6 +15,10 @@
 
 #include "InfoNES_Types.h"
 
+#ifndef INFONES_PROFILE_DEEP
+#define INFONES_PROFILE_DEEP 0
+#endif
+
 /*-------------------------------------------------------------------*/
 /*  Palette data                                                     */
 /*-------------------------------------------------------------------*/
@@ -41,6 +45,14 @@ void InfoNES_WritePalette( WORD wAddr, BYTE byData );
 
 /* Update palette rendering for PPUMASK grayscale/emphasis bits */
 void InfoNES_SetPPUMask( BYTE byData );
+
+/* Current platform tick for coarse profiling */
+long InfoNES_GetTicks( void );
+
+/* Coarse timing buckets for the platform profile log */
+void InfoNES_ProfileCpu( long ticks );
+void InfoNES_ProfileHSync( long ticks );
+void InfoNES_ProfileApu( long ticks );
 
 /* Get a joypad state */
 void InfoNES_PadState( DWORD *pdwPad1, DWORD *pdwPad2, DWORD *pdwSystem );

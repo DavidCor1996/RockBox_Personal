@@ -11,19 +11,26 @@
 #define INFONES_DISP_Y ((LCD_HEIGHT - NES_DISP_HEIGHT) / 2)
 #define INFONES_SAVE_DIR ROCKBOX_DIR "/infones"
 #define INFONES_PROFILE_LOG INFONES_SAVE_DIR "/profile.log"
-#define INFONES_FPS 60
+#define INFONES_NTSC_FPS_X1000 60099
+#define INFONES_PACE_SCALE 1000L
+#define INFONES_FRAME_PERIOD_SCALED \
+    ((HZ * INFONES_PACE_SCALE * 1000L + INFONES_NTSC_FPS_X1000 / 2) / \
+     INFONES_NTSC_FPS_X1000)
+#define INFONES_EARLY_PROFILE_FRAMES 120
 #define INFONES_AUDIO_SAMPLES 1024
 #if defined(IPOD_6G)
 #define INFONES_AUDIO_BUFS 10
 #define INFONES_AUDIO_START_BUFS 4
 #define INFONES_AUDIO_FRAMES_PER_BUF 2
+#define INFONES_WAIT_YIELD_SCANLINES 64
 #else
 #define INFONES_AUDIO_BUFS 6
 #define INFONES_AUDIO_START_BUFS 3
 #define INFONES_AUDIO_FRAMES_PER_BUF 4
+#define INFONES_WAIT_YIELD_SCANLINES 16
 #endif
 #define INFONES_AUDIO_SCALE 28
-#define INFONES_WAIT_YIELD_SCANLINES 16
+#define INFONES_PROFILE_HIST_SIZE 32
 #define INFONES_SCALE_FILL_SCREEN \
     (LCD_WIDTH != NES_DISP_WIDTH || LCD_HEIGHT != NES_DISP_HEIGHT)
 
@@ -44,8 +51,7 @@ static unsigned char *alloc_end;
 static bool quit_requested;
 static char sram_path[MAX_PATH];
 static bool sram_path_valid;
-static long next_frame_tick;
-static unsigned int frame_tick_accum;
+static long next_frame_tick_scaled;
 static unsigned int wait_yield_count;
 static short *audio_buf;
 static short *audio_hwbuf;
@@ -72,16 +78,31 @@ struct infones_rgb
     unsigned char b;
 };
 
+struct infones_profile_bucket
+{
+    unsigned long total;
+    unsigned long count;
+    unsigned long hist[INFONES_PROFILE_HIST_SIZE];
+    long peak;
+};
+
 struct infones_profile
 {
     char rom_path[MAX_PATH];
     size_t plugin_buf_kib;
     long start_tick;
+    long first_frame_tick;
     unsigned long frames;
+    unsigned long frames_emulated;
+    unsigned long frames_rendered;
+    unsigned long frames_late;
+    unsigned long frames_skipped;
+    unsigned long pacer_resets;
     unsigned long frame_ticks_total;
     unsigned long scale_ticks_total;
     unsigned long sound_ticks_total;
     unsigned long sound_samples;
+    unsigned long wait_yields;
     unsigned long pcm_underruns;
     unsigned long pcm_low_water;
     unsigned long pcm_full_waits;
@@ -90,6 +111,13 @@ struct infones_profile
     long frame_ticks_peak;
     long scale_ticks_peak;
     long sound_ticks_peak;
+    struct infones_profile_bucket frame_bucket;
+    struct infones_profile_bucket wait_bucket;
+    struct infones_profile_bucket lcd_bucket;
+    struct infones_profile_bucket cpu_bucket;
+    struct infones_profile_bucket hsync_bucket;
+    struct infones_profile_bucket apu_bucket;
+    struct infones_profile_bucket sound_bucket;
     bool early_snapshot_written;
 };
 
@@ -241,15 +269,73 @@ static void profile_reset(const char *rom_path, size_t buf_size)
     profile.start_tick = *rb->current_tick;
 }
 
-static void profile_record_frame(long frame_ticks, long scale_ticks)
+static void profile_record_bucket(struct infones_profile_bucket *bucket,
+                                  long ticks)
 {
+    unsigned int hist_idx;
+
+    if (ticks < 0)
+        ticks = 0;
+
+    bucket->total += ticks;
+    bucket->count++;
+    if (ticks > bucket->peak)
+        bucket->peak = ticks;
+
+    hist_idx = MIN((unsigned long)ticks,
+                   (unsigned long)INFONES_PROFILE_HIST_SIZE - 1);
+    bucket->hist[hist_idx]++;
+}
+
+static unsigned long profile_bucket_avg_x1000(
+    const struct infones_profile_bucket *bucket)
+{
+    if (bucket->count == 0)
+        return 0;
+
+    return (bucket->total * 1000) / bucket->count;
+}
+
+static unsigned long profile_bucket_p99(
+    const struct infones_profile_bucket *bucket)
+{
+    unsigned long wanted;
+    unsigned long seen = 0;
+    unsigned int idx;
+
+    if (bucket->count == 0)
+        return 0;
+
+    wanted = (bucket->count * 99 + 99) / 100;
+    for (idx = 0; idx < INFONES_PROFILE_HIST_SIZE; idx++)
+    {
+        seen += bucket->hist[idx];
+        if (seen >= wanted)
+            return idx;
+    }
+
+    return INFONES_PROFILE_HIST_SIZE - 1;
+}
+
+static void profile_record_frame(long frame_ticks, long wait_ticks,
+                                 long lcd_ticks)
+{
+    if (profile.first_frame_tick == 0)
+        profile.first_frame_tick = *rb->current_tick;
+
     profile.frames++;
+    profile.frames_emulated++;
+    profile.frames_rendered++;
     profile.frame_ticks_total += frame_ticks;
-    profile.scale_ticks_total += scale_ticks;
+    profile.scale_ticks_total += lcd_ticks;
     if (frame_ticks > profile.frame_ticks_peak)
         profile.frame_ticks_peak = frame_ticks;
-    if (scale_ticks > profile.scale_ticks_peak)
-        profile.scale_ticks_peak = scale_ticks;
+    if (lcd_ticks > profile.scale_ticks_peak)
+        profile.scale_ticks_peak = lcd_ticks;
+
+    profile_record_bucket(&profile.frame_bucket, frame_ticks);
+    profile_record_bucket(&profile.wait_bucket, wait_ticks);
+    profile_record_bucket(&profile.lcd_bucket, lcd_ticks);
 }
 
 static void profile_record_sound(long sound_ticks, int samples)
@@ -258,24 +344,54 @@ static void profile_record_sound(long sound_ticks, int samples)
     profile.sound_samples += samples;
     if (sound_ticks > profile.sound_ticks_peak)
         profile.sound_ticks_peak = sound_ticks;
+
+    profile_record_bucket(&profile.sound_bucket, sound_ticks);
 }
 
 static void profile_maybe_write_early_snapshot(void)
 {
-    if (!profile.early_snapshot_written && profile.frames >= INFONES_FPS * 2)
+    if (!profile.early_snapshot_written &&
+        profile.frames >= INFONES_EARLY_PROFILE_FRAMES)
     {
         profile_write_log();
         profile.early_snapshot_written = true;
     }
 }
 
+long InfoNES_GetTicks(void)
+{
+    return *rb->current_tick;
+}
+
+void InfoNES_ProfileCpu(long ticks)
+{
+    profile_record_bucket(&profile.cpu_bucket, ticks);
+}
+
+void InfoNES_ProfileHSync(long ticks)
+{
+    profile_record_bucket(&profile.hsync_bucket, ticks);
+}
+
+void InfoNES_ProfileApu(long ticks)
+{
+    profile_record_bucket(&profile.apu_bucket, ticks);
+}
+
 static void profile_write_log(void)
 {
     int fd;
     long elapsed = *rb->current_tick - profile.start_tick;
+    long emu_elapsed = elapsed;
+    unsigned long effective_fps_x1000 = 0;
     unsigned long avg_frame_x1000 = 0;
     unsigned long avg_scale_x1000 = 0;
     unsigned long avg_sound_x1000 = 0;
+
+    if (profile.first_frame_tick != 0)
+        emu_elapsed = *rb->current_tick - profile.first_frame_tick;
+    if (emu_elapsed > 0)
+        effective_fps_x1000 = (profile.frames * HZ * 1000) / emu_elapsed;
 
     if (profile.frames > 0)
     {
@@ -294,26 +410,64 @@ static void profile_write_log(void)
         return;
 
     rb->fdprintf(fd,
-                 "rom=\"%s\" elapsed_ticks=%ld hz=%d frames=%lu "
+                 "rom=\"%s\" elapsed_ticks=%ld emu_elapsed_ticks=%ld "
+                 "hz=%d frames=%lu "
+                 "target_fps_x1000=%d effective_fps_x1000=%lu "
+                 "frames_emulated=%lu frames_rendered=%lu "
+                 "frames_late=%lu frames_skipped=%lu pacer_resets=%lu "
                  "avg_frame_ticks_x1000=%lu peak_frame_ticks=%ld "
+                 "p99_frame_ticks=%lu "
                  "avg_scale_ticks_x1000=%lu peak_scale_ticks=%ld "
+                 "p99_lcd_ticks=%lu "
+                 "avg_wait_ticks_x1000=%lu peak_wait_ticks=%ld "
+                 "p99_wait_ticks=%lu "
+                 "avg_cpu_ticks_x1000=%lu peak_cpu_ticks=%ld "
+                 "p99_cpu_ticks=%lu "
+                 "avg_hsync_ticks_x1000=%lu peak_hsync_ticks=%ld "
+                 "p99_hsync_ticks=%lu "
+                 "avg_apu_ticks_x1000=%lu peak_apu_ticks=%ld "
+                 "p99_apu_ticks=%lu "
                  "audio_samples=%lu avg_sound_ticks_per_sample_x1000=%lu "
-                 "peak_sound_call_ticks=%ld pcm_underruns=%lu "
-                 "pcm_low_water=%lu pcm_full_waits=%lu audio_bufs=%d "
-                 "audio_buf_samples=%d plugin_buf_kib=%lu "
+                 "avg_sound_call_ticks_x1000=%lu "
+                 "peak_sound_call_ticks=%ld p99_sound_call_ticks=%lu "
+                 "pcm_underruns=%lu pcm_low_water=%lu pcm_full_waits=%lu "
+                 "wait_yields=%lu wait_yield_scanlines=%d "
+                 "audio_bufs=%d audio_buf_samples=%d plugin_buf_kib=%lu "
                  "palette_writes=%lu ppumask_updates=%lu "
                  "ppu_palette="
                  "%02x,%02x,%02x,%02x,%02x,%02x,%02x,%02x,"
                  "%02x,%02x,%02x,%02x,%02x,%02x,%02x,%02x,"
                  "%02x,%02x,%02x,%02x,%02x,%02x,%02x,%02x,"
                  "%02x,%02x,%02x,%02x,%02x,%02x,%02x,%02x\n",
-                 profile.rom_path, elapsed, HZ, profile.frames,
-                 avg_frame_x1000, profile.frame_ticks_peak,
+                 profile.rom_path, elapsed, emu_elapsed, HZ, profile.frames,
+                 INFONES_NTSC_FPS_X1000, effective_fps_x1000,
+                 profile.frames_emulated, profile.frames_rendered,
+                 profile.frames_late, profile.frames_skipped,
+                 profile.pacer_resets, avg_frame_x1000,
+                 profile.frame_ticks_peak,
+                 profile_bucket_p99(&profile.frame_bucket),
                  avg_scale_x1000, profile.scale_ticks_peak,
+                 profile_bucket_p99(&profile.lcd_bucket),
+                 profile_bucket_avg_x1000(&profile.wait_bucket),
+                 profile.wait_bucket.peak,
+                 profile_bucket_p99(&profile.wait_bucket),
+                 profile_bucket_avg_x1000(&profile.cpu_bucket),
+                 profile.cpu_bucket.peak,
+                 profile_bucket_p99(&profile.cpu_bucket),
+                 profile_bucket_avg_x1000(&profile.hsync_bucket),
+                 profile.hsync_bucket.peak,
+                 profile_bucket_p99(&profile.hsync_bucket),
+                 profile_bucket_avg_x1000(&profile.apu_bucket),
+                 profile.apu_bucket.peak,
+                 profile_bucket_p99(&profile.apu_bucket),
                  profile.sound_samples, avg_sound_x1000,
-                 profile.sound_ticks_peak, profile.pcm_underruns,
-                 profile.pcm_low_water, profile.pcm_full_waits,
-                 INFONES_AUDIO_BUFS, audio_buf_samples,
+                 profile_bucket_avg_x1000(&profile.sound_bucket),
+                 profile.sound_ticks_peak,
+                 profile_bucket_p99(&profile.sound_bucket),
+                 profile.pcm_underruns, profile.pcm_low_water,
+                 profile.pcm_full_waits, profile.wait_yields,
+                 INFONES_WAIT_YIELD_SCANLINES, INFONES_AUDIO_BUFS,
+                 audio_buf_samples,
                  (unsigned long)profile.plugin_buf_kib,
                  profile.palette_writes, profile.ppumask_updates,
                  PPURAM[0x3f00] & 0x3f, PPURAM[0x3f01] & 0x3f,
@@ -554,37 +708,55 @@ static short filter_audio_sample(int sample)
     return clamp_audio_sample(filtered);
 }
 
-static void pace_frame(void)
+static long pace_frame(void)
 {
-    long now = *rb->current_tick;
+    long wait_start = *rb->current_tick;
+    long now = wait_start;
+    long now_scaled = now * INFONES_PACE_SCALE;
+    long wait_ticks;
 
-    if (next_frame_tick != 0)
+    if (next_frame_tick_scaled != 0)
     {
-        while (!quit_requested && (now = *rb->current_tick) < next_frame_tick)
+        long late_scaled = now_scaled - next_frame_tick_scaled;
+
+        if (late_scaled > 2 * INFONES_PACE_SCALE)
+            profile.frames_late++;
+
+        while (!quit_requested && now_scaled < next_frame_tick_scaled)
         {
-            long remaining = next_frame_tick - now;
+            long remaining_scaled = next_frame_tick_scaled - now_scaled;
+            long remaining_ticks =
+                (remaining_scaled + INFONES_PACE_SCALE - 1) /
+                INFONES_PACE_SCALE;
+
             poll_quit();
-            if (remaining > 1)
-                rb->sleep(remaining - 1);
+            if (remaining_ticks > 1)
+                rb->sleep(remaining_ticks - 1);
             else
                 rb->yield();
+
+            now = *rb->current_tick;
+            now_scaled = now * INFONES_PACE_SCALE;
         }
 
         now = *rb->current_tick;
-        if (now - next_frame_tick > HZ / 2)
+        now_scaled = now * INFONES_PACE_SCALE;
+        if (now_scaled - next_frame_tick_scaled >
+            (HZ / 2) * INFONES_PACE_SCALE)
         {
-            next_frame_tick = now;
-            frame_tick_accum = 0;
+            next_frame_tick_scaled = now_scaled;
+            profile.pacer_resets++;
         }
     }
     else
     {
-        next_frame_tick = now;
+        next_frame_tick_scaled = now_scaled;
     }
 
-    frame_tick_accum += HZ;
-    next_frame_tick += frame_tick_accum / INFONES_FPS;
-    frame_tick_accum %= INFONES_FPS;
+    next_frame_tick_scaled += INFONES_FRAME_PERIOD_SCALED;
+
+    wait_ticks = *rb->current_tick - wait_start;
+    return wait_ticks > 0 ? wait_ticks : 0;
 }
 
 static fb_data *get_lcd_framebuffer(void)
@@ -613,11 +785,11 @@ static void scale_frame_fill_screen(fb_data *dst)
             const fb_data *s = src + group * 4;
             fb_data *d = dst + group * 5;
 
-            d[0] = display_pixel(s[0]);
-            d[1] = display_pixel(s[0]);
-            d[2] = display_pixel(s[1]);
-            d[3] = display_pixel(s[2]);
-            d[4] = display_pixel(s[3]);
+            d[0] = s[0];
+            d[1] = s[0];
+            d[2] = s[1];
+            d[3] = s[2];
+            d[4] = s[3];
         }
         src += NES_DISP_WIDTH;
         dst += LCD_WIDTH;
@@ -707,8 +879,7 @@ enum plugin_status plugin_start(const void *parameter)
     lcd_fb = NULL;
     quit_requested = false;
     sram_path_valid = false;
-    next_frame_tick = 0;
-    frame_tick_accum = 0;
+    next_frame_tick_scaled = 0;
     wait_yield_count = 0;
     audio_buf = NULL;
     audio_hwbuf = NULL;
@@ -855,9 +1026,10 @@ void InfoNES_LoadFrame(void)
 {
     long frame_start = *rb->current_tick;
     long scale_start;
+    long wait_ticks;
     long scale_ticks;
 
-    pace_frame();
+    wait_ticks = pace_frame();
     scale_start = *rb->current_tick;
 #if INFONES_SCALE_FILL_SCREEN
     fb_data *framebuffer = get_lcd_framebuffer();
@@ -866,7 +1038,8 @@ void InfoNES_LoadFrame(void)
         scale_frame_fill_screen(framebuffer);
         rb->lcd_update();
         scale_ticks = *rb->current_tick - scale_start;
-        profile_record_frame(*rb->current_tick - frame_start, scale_ticks);
+        profile_record_frame(*rb->current_tick - frame_start, wait_ticks,
+                             scale_ticks);
         profile_maybe_write_early_snapshot();
         return;
     }
@@ -877,7 +1050,8 @@ void InfoNES_LoadFrame(void)
     rb->lcd_update_rect(INFONES_DISP_X, INFONES_DISP_Y,
                         NES_DISP_WIDTH, NES_DISP_HEIGHT);
     scale_ticks = *rb->current_tick - scale_start;
-    profile_record_frame(*rb->current_tick - frame_start, scale_ticks);
+    profile_record_frame(*rb->current_tick - frame_start, wait_ticks,
+                         scale_ticks);
     profile_maybe_write_early_snapshot();
 }
 
@@ -950,10 +1124,13 @@ void InfoNES_DebugPrint(char *pszMsg)
 
 void InfoNES_Wait(void)
 {
-    poll_quit();
     wait_yield_count++;
     if ((wait_yield_count & (INFONES_WAIT_YIELD_SCANLINES - 1)) == 0)
+    {
+        poll_quit();
+        profile.wait_yields++;
         rb->yield();
+    }
 }
 
 void InfoNES_SoundInit(void)

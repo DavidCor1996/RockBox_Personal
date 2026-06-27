@@ -597,8 +597,14 @@ void InfoNES_Cycle()
   for (;;)
   {    
     int nStep;
+#if INFONES_PROFILE_DEEP
+    long profile_start;
+#endif
 
     // Set a flag if a scanning line is a hit in the sprite #0
+#if INFONES_PROFILE_DEEP
+    profile_start = InfoNES_GetTicks();
+#endif
     if ( SpriteJustHit == PPU_Scanline &&
       PPU_ScanTable[ PPU_Scanline ] == SCAN_ON_SCREEN )
     {
@@ -624,6 +630,9 @@ void InfoNES_Cycle()
       // Execute instructions
       K6502_Step( STEP_PER_SCANLINE );
     }
+#if INFONES_PROFILE_DEEP
+    InfoNES_ProfileCpu( InfoNES_GetTicks() - profile_start );
+#endif
 
     // Frame IRQ in H-Sync
     FrameStep += STEP_PER_SCANLINE;
@@ -638,8 +647,14 @@ void InfoNES_Cycle()
     MapperHSync();
     
     // A function in H-Sync
+#if INFONES_PROFILE_DEEP
+    profile_start = InfoNES_GetTicks();
+#endif
     if ( InfoNES_HSync() == -1 )
       return;  // To the menu screen
+#if INFONES_PROFILE_DEEP
+    InfoNES_ProfileHSync( InfoNES_GetTicks() - profile_start );
+#endif
 
     // HSYNC Wait
     InfoNES_Wait();
@@ -729,7 +744,15 @@ int InfoNES_HSync()
 
       // pAPU Sound function in V-Sync
       if ( !APU_Mute )
+      {
+#if INFONES_PROFILE_DEEP
+        long profile_start = InfoNES_GetTicks();
+#endif
         InfoNES_pAPUVsync();
+#if INFONES_PROFILE_DEEP
+        InfoNES_ProfileApu( InfoNES_GetTicks() - profile_start );
+#endif
+      }
 
       // A mapper function in V-Sync
       MapperVSync();
@@ -1045,6 +1068,7 @@ void InfoNES_DrawLine()
       {
         pPoint[ nX ] = PalTable[ ( nSprData & 0xf ) + 0x10 ];
       }
+      pPoint[ nX ] &= ~INFONES_BACKDROP_MARKER;
     }
 
     /*-------------------------------------------------------------------*/
@@ -1060,6 +1084,12 @@ void InfoNES_DrawLine()
 
     if ( nSprCnt >= 8 )
       PPU_R2 |= R2_MAX_SP;  // Set a flag of maximum sprites on scanline
+  }
+  else
+  {
+    pPoint = &WorkFrame[ PPU_Scanline * NES_DISP_WIDTH ];
+    for ( nX = 0; nX < NES_DISP_WIDTH; ++nX )
+      pPoint[ nX ] &= ~INFONES_BACKDROP_MARKER;
   }
 }
 
