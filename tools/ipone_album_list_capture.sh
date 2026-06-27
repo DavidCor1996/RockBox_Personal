@@ -9,8 +9,11 @@ source_sim_root="${build_abs}/simdisk"
 rockboxui="${build_abs}/rockboxui"
 laptop_music_dir="${IPONE_ALBUMLIST_MUSIC_DIR:-/home/david/Music}"
 album_list_layout="${IPONE_ALBUMLIST_LAYOUT:-full}"
+theme="${IPONE_ALBUMLIST_THEME:-iPone}"
 enter_key="${IPONE_ALBUMLIST_ENTER_KEY:-KP_5}"
 back_key="${IPONE_ALBUMLIST_BACK_KEY:-Left}"
+init_wait="${IPONE_ALBUMLIST_INIT_WAIT:-8}"
+first_boot_wait="${IPONE_ALBUMLIST_FIRST_BOOT_WAIT:-60}"
 sim_root=""
 tmp_dir=""
 sim_pid=""
@@ -36,19 +39,40 @@ install_current_theme_sources()
 {
     local rb_cfg_dir="${sim_root}/.rockbox"
 
-    for skin_file in iPone.sbs iPone.wps iPone.fms; do
-        if [ -f "${repo_root}/wps/${skin_file}" ]; then
-            cp "${repo_root}/wps/${skin_file}" "${rb_cfg_dir}/wps/${skin_file}"
+    for skin_ext in sbs wps fms; do
+        if [ -f "${repo_root}/wps/${theme}.${skin_ext}" ]; then
+            cp "${repo_root}/wps/${theme}.${skin_ext}" "${rb_cfg_dir}/wps/${theme}.${skin_ext}"
         fi
     done
 
-    if [ -f "${repo_root}/themes/iPone.cfg" ]; then
-        cp "${repo_root}/themes/iPone.cfg" "${rb_cfg_dir}/themes/iPone.cfg"
+    if [ -f "${repo_root}/themes/${theme}.cfg" ]; then
+        cp "${repo_root}/themes/${theme}.cfg" "${rb_cfg_dir}/themes/${theme}.cfg"
     fi
 
-    if [ -d "${repo_root}/wps/iPone" ]; then
-        rm -rf "${rb_cfg_dir}/wps/iPone"
-        cp -a "${repo_root}/wps/iPone" "${rb_cfg_dir}/wps/iPone"
+    if [ -d "${repo_root}/wps/${theme}" ]; then
+        rm -rf "${rb_cfg_dir}/wps/${theme}"
+        cp -a "${repo_root}/wps/${theme}" "${rb_cfg_dir}/wps/${theme}"
+    fi
+
+    if [ -f "${repo_root}/backdrops/${theme}_bd.bmp" ]; then
+        cp "${repo_root}/backdrops/${theme}_bd.bmp" "${rb_cfg_dir}/backdrops/${theme}_bd.bmp"
+    fi
+
+    if [ -f "${repo_root}/icons/${theme}.bmp" ]; then
+        cp "${repo_root}/icons/${theme}.bmp" "${rb_cfg_dir}/icons/${theme}.bmp"
+    fi
+
+    mkdir -p "${rb_cfg_dir}/fonts"
+    copy_font_dir "${repo_root}/fonts" "${rb_cfg_dir}/fonts"
+    copy_font_dir "${repo_root}/rockpod/.theme_designer/simulator/ipod-320x240/build-sim-video-5g/simdisk/.rockbox/fonts" "${rb_cfg_dir}/fonts"
+}
+
+copy_font_dir()
+{
+    local src="$1"
+    local dst="$2"
+    if [ -d "${src}" ]; then
+        cp -a "${src}/." "${dst}/"
     fi
 }
 
@@ -111,6 +135,8 @@ prepare_runtime_root()
     sim_root="$(mktemp -d)"
     cp -a "${source_sim_root}/.rockbox" "${sim_root}/.rockbox"
     cp "${repo_root}/apps/tagnavi.config" "${sim_root}/.rockbox/tagnavi.config"
+    rm -f "${sim_root}/.rockbox/database.ignore" \
+          "${sim_root}/.rockbox/database_commit.ignore"
 
     for dir_name in Playlists Podcasts Recordings; do
         if [ -e "${source_sim_root}/${dir_name}" ]; then
@@ -128,14 +154,11 @@ prepare_runtime_root()
     seed_albumlist_proof_art
 
     if [ ! -f "${sim_root}/.rockbox/config.cfg" ]; then
-        if [ -f "${sim_root}/.rockbox/themes/iPone.cfg" ]; then
-            cp "${sim_root}/.rockbox/themes/iPone.cfg" \
+        if [ -f "${sim_root}/.rockbox/themes/${theme}.cfg" ]; then
+            cp "${sim_root}/.rockbox/themes/${theme}.cfg" \
                "${sim_root}/.rockbox/config.cfg"
         else
             cat >"${sim_root}/.rockbox/config.cfg" <<'EOF'
-wps: /.rockbox/wps/iPone.wps
-sbs: /.rockbox/wps/iPone.sbs
-fms: /.rockbox/wps/iPone.fms
 statusbar: off
 album art: prefer image file
 EOF
@@ -143,10 +166,26 @@ EOF
     fi
 
     awk '
-        BEGIN { start_replaced = 0; icons_replaced = 0; layout_replaced = 0 }
+        BEGIN {
+            start_replaced = 0
+            icons_replaced = 0
+            layout_replaced = 0
+            scan_replaced = 0
+            autoupdate_replaced = 0
+        }
         /^start in screen:/ {
-            print "start in screen: db"
+            print "start in screen: root"
             start_replaced = 1
+            next
+        }
+        /^database scan paths:/ {
+            print "database scan paths: /Music"
+            scan_replaced = 1
+            next
+        }
+        /^tagcache_autoupdate:/ {
+            print "tagcache_autoupdate: on"
+            autoupdate_replaced = 1
             next
         }
         /^show icons:/ {
@@ -162,11 +201,15 @@ EOF
         { print }
         END {
             if (!start_replaced)
-                print "start in screen: db"
+                print "start in screen: root"
             if (!icons_replaced)
                 print "show icons: on"
             if (!layout_replaced)
                 print "album list layout: " album_list_layout
+            if (!scan_replaced)
+                print "database scan paths: /Music"
+            if (!autoupdate_replaced)
+                print "tagcache_autoupdate: on"
         }
     ' album_list_layout="${album_list_layout}" "${sim_root}/.rockbox/config.cfg" >"${tmp_dir}/config.cfg"
     cp "${tmp_dir}/config.cfg" "${sim_root}/.rockbox/config.cfg"
@@ -204,6 +247,40 @@ tap_key()
     sleep 0.1
     xdotool key --clearmodifiers "${key}"
     sleep 1
+}
+
+stop_sim()
+{
+    if [ -n "${sim_pid:-}" ] && kill -0 "${sim_pid}" >/dev/null 2>&1; then
+        kill "${sim_pid}" >/dev/null 2>&1 || true
+        wait "${sim_pid}" 2>/dev/null || true
+    fi
+    sim_pid=""
+    sim_wid=""
+}
+
+database_ready_file_exists()
+{
+    [ -f "${sim_root}/.rockbox/database_idx.tcd" ] && \
+    [ ! -f "${sim_root}/.rockbox/database_tmp.tcd" ]
+}
+
+initialize_database()
+{
+    launch_sim
+    local waited=0
+    while [ "${waited}" -lt "${first_boot_wait}" ]; do
+        if database_ready_file_exists; then
+            break
+        fi
+        sleep 1
+        waited=$((waited + 1))
+    done
+    sleep 2
+    stop_sim
+    sleep 1
+    launch_sim
+    sleep "${init_wait}"
 }
 
 cleanup()
@@ -244,18 +321,23 @@ main()
     trap cleanup EXIT INT TERM HUP
 
     prepare_runtime_root
-    launch_sim
+    initialize_database
 
-    capture_window "00-database-root.png"
+    capture_window "00-main-root.png"
     tap_key Down
-    capture_window "01-root-after-one-down.png"
-    tap_key Down
-    capture_window "02-root-after-two-down-album-selected.png"
+    capture_window "01-main-music-selected.png"
     tap_key "${enter_key}"
     sleep 2
-    capture_window "03-albums-list.png"
+    capture_window "02-music-root.png"
+    tap_key Down
+    capture_window "03-music-artist-selected.png"
+    tap_key Down
+    capture_window "04-music-albums-selected.png"
+    tap_key "${enter_key}"
+    sleep 2
+    capture_window "05-albums-list.png"
     tap_key "${back_key}"
-    capture_window "04-root-after-albums-back.png"
+    capture_window "06-music-after-albums-back.png"
 
     cat >"${out_dir}/layout-report.txt" <<EOF
 Reference target: stock iPod classic 7G album list is a 320x240 full-width
@@ -265,17 +347,19 @@ are intentionally not compared against stock; this repo keeps the
 iPone/Rockbox theme colors.
 
 Captured:
-- 00-database-root.png: non-album database root, used to verify normal list
-  layout remains scoped outside album rows.
-- 01-root-after-one-down.png: database root after one scroll step.
-- 02-root-after-two-down-album-selected.png: database root with Albums selected.
-- 03-albums-list.png: Database -> Albums, using the laptop music folder and
+- 00-main-root.png: themed main menu root.
+- 01-main-music-selected.png: main menu with Music selected.
+- 02-music-root.png: Database/Music root after entering Music.
+- 03-music-artist-selected.png: Music root after one scroll step.
+- 04-music-albums-selected.png: Music root with Albums selected.
+- 05-albums-list.png: Database -> Albums, using the laptop music folder and
   real cover.jpg files converted to 40x40 album-list BMPs.
-- 04-root-after-albums-back.png: returned from Albums to the normal database
+- 06-music-after-albums-back.png: returned from Albums to the normal database
   root, used to verify the themed pane and selector are restored.
 
 Expected after implementation:
 - selected album list layout: ${album_list_layout};
+- selected theme: ${theme};
 - full mode uses the full 320x240 screen without a pinned title row;
 - full mode album rows show 40x40 cover thumbnails in 44px rows;
 - compact mode keeps the active theme/list viewport with small album art in

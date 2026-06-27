@@ -638,6 +638,7 @@ def test_album_list_thumbnail_and_manifest_generated_for_ipod(config, tmp_dir):
                 {
                     "album_id": album_id,
                     "thumb": os.path.join("thumbs", device_name),
+                    "slide": os.path.join("slides", slide_device_name),
                     "artist": "Artist",
                     "album": "Album",
                     "group_key": "artist\0album",
@@ -651,8 +652,9 @@ def test_album_list_thumbnail_and_manifest_generated_for_ipod(config, tmp_dir):
         assert not _temp_names(os.path.dirname(manifest_path))
         with open(manifest_path, "r", encoding="utf-8") as handle:
             data = handle.read()
-        assert "album_id\tthumb\tartist\talbum\tgroup_key\tdevice_dirs" in data
-        assert f"{album_id}\tthumbs/{device_name}\tArtist\tAlbum" in data
+        assert "# rockpod albumlist v2" in data
+        assert "album_id\tthumb\tslide\tartist\talbum\tgroup_key\tdevice_dirs" in data
+        assert f"{album_id}\tthumbs/{device_name}\tslides/{slide_device_name}\tArtist\tAlbum" in data
     finally:
         manager.shutdown()
 

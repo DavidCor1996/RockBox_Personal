@@ -40,7 +40,7 @@
 #define ROCKBOX_LITTLE_ENDIAN 1
 
 /* Define the GCC version used for the build */
-#define GCCNUM 1502
+#define GCCNUM 1601
 
 /* Define this if you build rockbox to support the logf logging and display */
 #undef ROCKBOX_HAS_LOGF

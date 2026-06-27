@@ -83,6 +83,6 @@ export PIPER_MODEL_DIR=
 
 
 
-CONFIGURE_OPTIONS=    --target=$(MODELNAME) --ram=$(MEMORYSIZE) --rbdir=$(RBDIR) --type=s
+CONFIGURE_OPTIONS=  --target=$(MODELNAME) --ram=$(MEMORYSIZE) --rbdir=$(RBDIR) --type=s
 
 include $(TOOLSDIR)/root.make

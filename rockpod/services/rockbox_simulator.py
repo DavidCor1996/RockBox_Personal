@@ -189,10 +189,14 @@ class RockboxSimulatorService:
             return False
         self._clear_theme_preview_runtime_config(preview_root, simdisk_path)
         settings["theme"] = f"/.rockbox/themes/{theme_name}.cfg"
-        wants_playback = preview_screen in {"wps", "lockscreen"}
+        settings["autoload bookmarks"] = "off"
+        settings["warn when erasing dynamic playlist"] = "off"
+        settings["auto update"] = "off"
+        settings["tagcache_autoupdate"] = "off"
+        wants_playback = preview_screen == "wps"
         settings["start in screen"] = "wps" if wants_playback else "root"
         if preview_screen == "sbs":
-            settings["statusbar"] = "custom"
+            settings["statusbar"] = "off"
             settings["ui viewport"] = "-"
         if wants_playback:
             settings["repeat"] = "all"
@@ -237,6 +241,8 @@ class RockboxSimulatorService:
             except OSError:
                 pass
 
+        self._clear_preview_database_state(preview_root, simdisk_path)
+
         if wants_playback:
             track_path = self._first_preview_track(simdisk_path)
             if track_path:
@@ -246,6 +252,42 @@ class RockboxSimulatorService:
                 self._write_preview_resume(os.path.join(preview_root, ".config", "rockbox.org", ".resume.cfg"))
                 self._write_preview_resume(os.path.join(preview_root, ".config", "rockbox.org", ".resume.cfg.new"))
         return updated
+
+    @staticmethod
+    def _clear_preview_database_state(preview_root, simdisk_path):
+        roots = (
+            os.path.join(preview_root, ".config", "rockbox.org"),
+            os.path.join(simdisk_path, ".rockbox"),
+        )
+        names = (
+            "database_changelog.txt",
+            "database_idx.tcd",
+            "database_0.tcd",
+            "database_1.tcd",
+            "database_2.tcd",
+            "database_3.tcd",
+            "database_4.tcd",
+            "database_5.tcd",
+            "database_6.tcd",
+            "database_7.tcd",
+            "database_8.tcd",
+            "database_9.tcd",
+            "database_tmp.tcd",
+            "database_commit.tmp",
+        )
+        for root in roots:
+            for name in names:
+                path = os.path.join(root, name)
+                try:
+                    if os.path.exists(path):
+                        os.remove(path)
+                except OSError:
+                    pass
+            try:
+                os.makedirs(root, exist_ok=True)
+                open(os.path.join(root, "database.ignore"), "a", encoding="utf-8").close()
+            except OSError:
+                pass
 
     @staticmethod
     def _clear_theme_preview_runtime_config(preview_root, simdisk_path):
@@ -273,14 +315,42 @@ class RockboxSimulatorService:
         try:
             with open(path, "r", encoding="utf-8", errors="replace") as handle:
                 for raw in handle:
-                    line = raw.strip()
-                    if not line or line.startswith("#") or ":" not in line:
+                    parsed = RockboxSimulatorService._split_cfg_line(raw)
+                    if not parsed:
                         continue
-                    key, value = line.split(":", 1)
+                    key, _sep, value = parsed
                     settings[key.strip().lower()] = value.strip()
         except OSError:
             return {}
         return settings
+
+    @staticmethod
+    def _split_cfg_line(raw):
+        text = str(raw or "").strip()
+        if not text or text.startswith("#"):
+            return None
+
+        colon_pos = text.find(":")
+        equals_pos = text.find("=")
+        if colon_pos == -1 and equals_pos == -1:
+            return None
+
+        if colon_pos == -1:
+            sep = "="
+            idx = equals_pos
+        elif equals_pos == -1:
+            sep = ":"
+            idx = colon_pos
+        elif colon_pos < equals_pos:
+            sep = ":"
+            idx = colon_pos
+        else:
+            sep = "="
+            idx = equals_pos
+
+        key = text[:idx]
+        value = text[idx + 1 :]
+        return key.strip(), sep, value.strip()
 
     @staticmethod
     def _merge_cfg_settings(path, overrides):
@@ -293,18 +363,23 @@ class RockboxSimulatorService:
             lines = []
 
         remaining = {str(key).strip().lower(): str(value).strip() for key, value in (overrides or {}).items() if str(key).strip()}
+        handled = set()
         output = []
         for raw in lines:
-            stripped = raw.strip()
-            if not stripped or stripped.startswith("#") or ":" not in stripped:
+            parsed = RockboxSimulatorService._split_cfg_line(raw)
+            if not parsed:
                 output.append(raw)
                 continue
-            key, _value = stripped.split(":", 1)
+
+            key, sep, _value = parsed
             normalized = key.strip().lower()
             if normalized in remaining:
-                output.append(f"{key.strip()}: {remaining.pop(normalized)}\n")
-            else:
-                output.append(raw)
+                output.append(f"{key.strip()}{sep} {remaining.pop(normalized)}\n")
+                handled.add(normalized)
+                continue
+            if normalized in handled:
+                continue
+            output.append(raw)
 
         for key, value in remaining.items():
             output.append(f"{key}: {value}\n")
@@ -354,9 +429,8 @@ class RockboxSimulatorService:
         env = os.environ.copy()
         env["RBROOT"] = preview_root
         env["ROCKPOD_SIM_PREVIEW_BMP"] = "/.rockbox/live_preview.bmp"
-        env["ROCKPOD_SIM_PREVIEW_INTERVAL_MS"] = "5000"
-        if shutil.which("xdotool") is None:
-            env["ROCKPOD_SIM_HIDDEN"] = "1"
+        env["ROCKPOD_SIM_PREVIEW_INTERVAL_MS"] = "800"
+        env["ROCKPOD_SIM_HIDDEN"] = "1"
 
         process = subprocess.Popen(
             [binary_path, "--nobackground", "--root", simdisk_path],
@@ -367,10 +441,12 @@ class RockboxSimulatorService:
             start_new_session=True,
         )
         try:
-            window_id = self._wait_for_window_id(process.pid, timeout=3.0)
+            window_id = ""
+            if shutil.which("xdotool") is not None:
+                window_id = self._wait_for_window_id(process.pid, timeout=0.8)
             if window_id:
                 self._move_window_offscreen(window_id)
-            time.sleep(1.8)
+            time.sleep(2.0)
             if preview_screen == "lockscreen":
                 self._send_key_to_window_id(window_id, "h")
                 time.sleep(0.8)
@@ -382,7 +458,8 @@ class RockboxSimulatorService:
                     os.remove(host_capture)
             except OSError:
                 pass
-            self._send_key_to_window_id(window_id, "F5")
+            if window_id:
+                self._send_key_to_window_id(window_id, "F5")
             deadline = time.monotonic() + max(0.5, float(timeout))
             while time.monotonic() < deadline:
                 if os.path.isfile(host_capture) and os.path.getsize(host_capture) > 0:

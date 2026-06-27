@@ -124,6 +124,7 @@ from ui.dialogs.album_metadata import AlbumMetadataDialog
 from ui.dialogs.device_settings import DeviceSettingsDialog
 from ui.dialogs.preferences import PreferencesDialog
 from ui.dialogs.sync_dialog import SyncDialog
+from services.file_safety import atomic_write_text
 
 logger = logging.getLogger(__name__)
 
@@ -193,6 +194,8 @@ class MainWindow(QMainWindow):
         self._current_designer_preview_path = ""
         self._pending_designer_preview_variant = None
         self._pending_designer_preview_mode = ""
+        self._designer_preview_running = False
+        self._designer_preview_rerun_requested = False
         self._designer_preview_timer = QTimer(self)
         self._designer_preview_timer.setSingleShot(True)
         self._designer_preview_timer.setInterval(100)
@@ -515,6 +518,7 @@ class MainWindow(QMainWindow):
         self._theme_hub.deploy_requested.connect(self._deploy_selected_theme)
         self._theme_hub.delete_requested.connect(self._delete_selected_theme_from_device)
         self._theme_hub.restore_requested.connect(self._restore_theme_backup)
+        self._theme_hub.reset_default_requested.connect(self._reset_device_to_default)
         self._theme_hub.use_connected_device_requested.connect(self._use_connected_device_for_profile)
         self._ipone_wallpapers.profile_selected.connect(self._on_ipone_wallpaper_profile_selected)
         self._ipone_wallpapers.theme_selected.connect(self._on_ipone_wallpaper_theme_selected)
@@ -4938,6 +4942,7 @@ class MainWindow(QMainWindow):
             profile["source_repo_path"],
             profile["screen_resolution"],
             profile.get("target_device_model", ""),
+            profile.get("device_mount_path", ""),
         )
         if not themes:
             self._current_theme_diff = None
@@ -5130,6 +5135,70 @@ class MainWindow(QMainWindow):
         self._refresh_plugin_manager()
         self._refresh_game_manager()
 
+    def _reset_device_to_default(self):
+        profile = self._rockbox_profiles.current_profile()
+        if not profile:
+            self._status_bar.set_left_text("No Rockbox profile selected")
+            return
+        try:
+            bundle = self._rockbox_themes.build_reset_to_default_bundle(
+                profile["source_repo_path"],
+                profile.get("device_mount_path", ""),
+            )
+            diff = self._rockbox_deploy.build_diff(profile, bundle)
+        except ValueError as exc:
+            QMessageBox.warning(self, "Reset To Default Failed", str(exc))
+            return
+
+        remove_items = [item for item in diff["items"] if item["status"] == "remove"]
+        if not remove_items:
+            QMessageBox.information(self, "Reset To Default", "Device already has only default theme files.")
+            self._refresh_theme_hub()
+            return
+
+        confirm = QMessageBox(self)
+        confirm.setWindowTitle("Reset To Default")
+        confirm.setText(
+            f"Remove {len(remove_items)} custom theme file(s) from:\n"
+            f"{profile['device_mount_path']}?\n\n"
+            "A backup is created first, so Restore Previous can put these files back."
+        )
+        lines = [item["destination_rel"] for item in remove_items]
+        if lines:
+            detail = "\n".join(f"- {path}" for path in lines[:80])
+            if len(lines) > 80:
+                detail += f"\n... and {len(lines) - 80} more"
+            confirm.setDetailedText(detail)
+        confirm.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
+        confirm.setDefaultButton(QMessageBox.No)
+        confirm.exec()
+        if confirm.clickedButton() != confirm.button(QMessageBox.Yes):
+            return
+
+        result = self._rockbox_deploy.apply_diff(profile, diff)
+        message = f"Removed {result['copied_count']} files\nBackup: {result['backup_dir']}"
+        if result["failures"]:
+            message += "\n\nFailures:\n" + "\n".join(result["failures"][:8])
+        dialog = QMessageBox(self)
+        dialog.setWindowTitle("Reset To Default Result")
+        dialog.setText(message)
+        rollback_button = None
+        if result["rollback_available"]:
+            rollback_button = dialog.addButton("Restore Now", QMessageBox.ActionRole)
+        dialog.addButton(QMessageBox.Ok)
+        dialog.exec()
+        if rollback_button is not None and dialog.clickedButton() == rollback_button:
+            self._restore_theme_backup()
+        self._status_bar.set_left_text(
+            "Device reset to default theme files"
+            if result["success"]
+            else "Reset to default completed with errors"
+        )
+        self._refresh_theme_hub()
+        self._refresh_ipone_wallpapers()
+        self._refresh_plugin_manager()
+        self._refresh_game_manager()
+
     def _restore_theme_backup(self):
         profile = self._rockbox_profiles.current_profile()
         if not profile:
@@ -5195,7 +5264,6 @@ class MainWindow(QMainWindow):
             preview["simulator_preview_path"] = self._current_designer_preview_path
         self._theme_designer.load_variant(variant, preview)
         self._refresh_theme_designer_simulator_preview(profile)
-        self._ensure_theme_designer_default_preview(profile, variant)
 
     def _on_theme_designer_profile_selected(self, profile_id):
         self._rockbox_profiles.set_selected_profile(profile_id)
@@ -5225,7 +5293,6 @@ class MainWindow(QMainWindow):
         preview = self._theme_designer_service.build_preview_state(profile["source_repo_path"], profile, variant)
         self._theme_designer.load_variant(variant, preview)
         self._refresh_theme_designer_simulator_preview(profile)
-        self._ensure_theme_designer_default_preview(profile, variant)
 
     def _preferred_theme_designer_simulator_target(self, profile):
         target_id = profile.get("simulator_target") or ""
@@ -5301,32 +5368,47 @@ class MainWindow(QMainWindow):
     def _apply_theme_designer_preview_to_simulator(self):
         if self._pending_designer_preview_mode != "simulator":
             return
+        if self._designer_preview_running:
+            self._designer_preview_rerun_requested = True
+            return
         profile = self._rockbox_profiles.current_profile()
         if not profile:
             return
+        self._designer_preview_running = True
+        self._designer_preview_rerun_requested = False
+        self._theme_designer.set_preview_loading(True)
         target = self._preferred_theme_designer_simulator_target(profile)
         if not target:
             target = self._rockbox_simulator.fallback_ipodvideo_target(profile)
         if not target:
+            self._designer_preview_running = False
+            self._theme_designer.set_preview_loading(False)
             return
+        preview_variant = dict(
+            self._pending_designer_preview_variant
+            if self._pending_designer_preview_variant is not None
+            else (self._current_designer_variant or {})
+        )
+        preview_screen = str(preview_variant.get("preview_screen") or "sbs").strip().lower()
+        if preview_screen not in {"sbs", "wps", "lockscreen"}:
+            preview_screen = "sbs"
+        shot = ""
         try:
             bundle = self._theme_designer_service.build_preview_bundle(
                 profile["source_repo_path"],
                 profile,
-                self._pending_designer_preview_variant or (self._current_designer_variant or {}),
+                preview_variant,
             )
         except Exception:
             logger.exception("iPone designer preview bundle generation failed")
+            self._designer_preview_running = False
+            self._theme_designer.set_preview_loading(False)
             return
 
-        self._theme_designer.shutdown_simulator_preview()
-        preview_target = self._rockbox_simulator.theme_designer_preview_target(profile, target, reset=True)
-        preview_profile = self._rockbox_simulator.simulator_profile(profile, preview_target)
-        preview_screen = str(
-            (self._pending_designer_preview_variant or {}).get("preview_screen")
-            or "wps"
-        ).strip().lower() or "wps"
         try:
+            self._theme_designer.shutdown_simulator_preview()
+            preview_target = self._rockbox_simulator.theme_designer_preview_target(profile, target, reset=False)
+            preview_profile = self._rockbox_simulator.simulator_profile(profile, preview_target)
             diff = self._rockbox_deploy.build_diff(preview_profile, bundle)
             self._rockbox_deploy.apply_diff(preview_profile, diff)
             self._rockbox_simulator.activate_theme_preview(
@@ -5334,16 +5416,21 @@ class MainWindow(QMainWindow):
                 bundle["id"],
                 preview_screen=preview_screen,
             )
+            shot = self._rockbox_simulator.capture_theme_preview(
+                preview_target,
+                preview_screen=preview_screen,
+            )
         except Exception:
             logger.exception("iPone designer preview deployment failed")
-            return
-        shot = self._rockbox_simulator.capture_theme_preview(
-            preview_target,
-            preview_screen=preview_screen,
-        )
-        if shot:
-            self._current_designer_preview_path = shot
-            self._theme_designer.set_simulator_preview(shot)
+            shot = ""
+        finally:
+            self._designer_preview_running = False
+            self._designer_preview_rerun_requested = False
+            if shot:
+                self._current_designer_preview_path = shot
+                self._theme_designer.set_simulator_preview(shot)
+            else:
+                self._theme_designer.set_preview_loading(False)
 
     def _save_theme_designer_variant(self, variant_data):
         profile = self._rockbox_profiles.current_profile()
@@ -5435,8 +5522,31 @@ class MainWindow(QMainWindow):
         if not profile:
             return
         bundle = self._saved_theme_bundle_for_profile(profile, variant_data)
-        if bundle:
-            self._deploy_theme_bundle(profile, bundle, "device")
+        if not bundle:
+            return
+        original_variant_data = variant_data
+        confirmed_variant_data = self._confirm_theme_designer_readability(profile, variant_data, bundle)
+        if confirmed_variant_data is None:
+            return
+        if confirmed_variant_data is not original_variant_data:
+            bundle = self._saved_theme_bundle_for_profile(profile, confirmed_variant_data)
+            if not bundle:
+                return
+        try:
+            runtime_assets = self._build_theme_designer_runtime_config_asset(
+                profile, bundle.get("variant"), bundle
+            )
+        except Exception as exc:
+            logger.exception("Failed to build iPone designer runtime config")
+            runtime_assets = []
+            QMessageBox.warning(
+                self,
+                "iPone Designer Runtime Config",
+                f"Could not prepare device config update:\n{exc}"
+            )
+        if runtime_assets:
+            bundle["assets"].extend(runtime_assets if isinstance(runtime_assets, list) else [runtime_assets])
+        self._deploy_theme_bundle(profile, bundle, "device")
 
     def _deploy_theme_designer_variant_to_simulator(self, variant_data):
         profile = self._rockbox_profiles.current_profile()
@@ -5445,6 +5555,14 @@ class MainWindow(QMainWindow):
         bundle = self._saved_theme_bundle_for_profile(profile, variant_data)
         if not bundle:
             return
+        original_variant_data = variant_data
+        confirmed_variant_data = self._confirm_theme_designer_readability(profile, variant_data, bundle)
+        if confirmed_variant_data is None:
+            return
+        if confirmed_variant_data is not original_variant_data:
+            bundle = self._saved_theme_bundle_for_profile(profile, confirmed_variant_data)
+            if not bundle:
+                return
         target_id = profile.get("simulator_target") or ""
         target = self._simulator_target_by_id(target_id) if target_id else None
         if not target and self._simulator_targets:
@@ -5469,6 +5587,151 @@ class MainWindow(QMainWindow):
         self._refresh_theme_designer()
         return bundle
 
+    def _confirm_theme_designer_readability(self, profile, variant_data, bundle=None):
+        merged = dict(self._current_designer_variant or {})
+        merged.update(variant_data or {})
+        if bundle:
+            issues = self._theme_designer_service.readability_recommendations_for_bundle(
+                profile["source_repo_path"],
+                profile,
+                bundle,
+            )
+        else:
+            issues = self._theme_designer_service.readability_recommendations(
+                profile["source_repo_path"],
+                profile,
+                merged,
+            )
+        if not issues:
+            return variant_data
+
+        lines = []
+        for issue in issues[:6]:
+            lines.append(
+                f"{issue['label']}: #{issue['current']} on {issue['background']} "
+                f"is {issue['ratio']:.1f}:1; recommended #{issue['recommended']} "
+                f"({issue['recommended_ratio']:.1f}:1)."
+            )
+        if len(issues) > 6:
+            lines.append(f"+{len(issues) - 6} more")
+
+        dialog = QMessageBox(self)
+        dialog.setWindowTitle("Readability Check")
+        dialog.setIcon(QMessageBox.Warning)
+        dialog.setText("Some generated iPone skin text may be hard to read.")
+        dialog.setInformativeText("\n".join(lines))
+        apply_button = dialog.addButton("Use Recommended Colors", QMessageBox.AcceptRole)
+        dialog.addButton("Install Anyway", QMessageBox.DestructiveRole)
+        cancel_button = dialog.addButton(QMessageBox.Cancel)
+        dialog.exec()
+        clicked = dialog.clickedButton()
+        if clicked is cancel_button:
+            return None
+        if clicked is not apply_button:
+            return variant_data
+
+        updated = dict(variant_data or {})
+        colors = dict(updated.get("colors") or merged.get("colors") or {})
+        clock = dict(updated.get("lockscreen_clock") or merged.get("lockscreen_clock") or {})
+        for issue in issues:
+            target = issue.get("target")
+            recommended = issue.get("recommended")
+            if target == "lockscreen_clock.color":
+                clock["color"] = recommended
+            elif target and target.startswith("colors."):
+                colors[target.split(".", 1)[1]] = recommended
+        if colors:
+            updated["colors"] = colors
+        if clock:
+            updated["lockscreen_clock"] = clock
+        return updated
+
+    def _build_theme_designer_runtime_config_asset(self, profile, variant, bundle=None):
+        variant_id = str((variant or {}).get("id") or "").strip()
+        if not variant_id:
+            return []
+
+        mount_root = os.path.abspath(str(profile.get("device_mount_path") or "").strip())
+        if not mount_root:
+            return []
+
+        runtime_dir = os.path.join(
+            os.path.abspath(profile.get("source_repo_path") or ""),
+            "rockpod",
+            ".theme_designer",
+            "runtime_configs",
+        )
+        os.makedirs(runtime_dir, exist_ok=True)
+        runtime_cfg = os.path.join(runtime_dir, f"{variant_id}.cfg")
+        live_cfg = os.path.join(mount_root, ".rockbox", "config.cfg")
+        if os.path.isfile(live_cfg):
+            shutil.copy2(live_cfg, runtime_cfg)
+        else:
+            atomic_write_text(runtime_cfg, "# Generated by RockPod\n")
+
+        theme_settings = {}
+        cfg_asset = next(
+            (item for item in (bundle or {}).get("assets", []) if item.get("kind") == "cfg"),
+            None,
+        )
+        cfg_source = str((cfg_asset or {}).get("source_abs") or "").strip()
+        if cfg_source and os.path.isfile(cfg_source):
+            theme_settings = self._rockbox_simulator._read_cfg_settings(cfg_source)
+
+        right_pane_mode = self._theme_designer_service._normalize_right_pane_mode(
+            (variant or {}).get("right_pane_mode"),
+            (variant or {}).get("base_right_pane_mode", "miniplayer"),
+        )
+
+        variant_sbs_name = self._theme_designer_service._sbs_skin_name(variant or {})
+        variant_theme_path = theme_settings.get("theme") or f"/.rockbox/themes/{variant_id}.cfg"
+        variant_wps_path = theme_settings.get("wps") or f"/.rockbox/wps/{variant_id}.wps"
+        variant_sbs_path = theme_settings.get("sbs") or f"/.rockbox/wps/{variant_sbs_name}.sbs"
+        variant_fms_path = theme_settings.get("fms") or f"/.rockbox/wps/{variant_id}.fms"
+        variant_backdrop_path = f"/.rockbox/backdrops/{variant_id}_bd.bmp"
+        variant_iconset_path = f"/.rockbox/icons/{variant_id}.bmp"
+        font_rel = str((variant or {}).get("font_rel", "") or "").strip()
+        font_ref = f"/.rockbox/{font_rel.lstrip('/')}" if font_rel else ""
+
+        overrides = dict(theme_settings)
+        overrides.update(
+            {
+                "theme": variant_theme_path,
+                "wps": variant_wps_path,
+                "sbs": variant_sbs_path,
+                "fms": variant_fms_path,
+                "backdrop": theme_settings.get("backdrop") or variant_backdrop_path,
+                "iconset": theme_settings.get("iconset") or variant_iconset_path,
+                "viewers iconset": "-",
+                "statusbar": "off",
+                "ui viewport": "-",
+                "ipone right pane": right_pane_mode,
+                **({"font": font_ref} if font_ref else {}),
+            },
+        )
+        self._rockbox_simulator._merge_cfg_settings(runtime_cfg, overrides)
+
+        file_size = os.path.getsize(runtime_cfg)
+        assets = []
+        for destination_rel in (".rockbox/config.cfg", "config.cfg"):
+            assets.append(
+                {
+                    "kind": "runtime_config",
+                    "source_rel": f"theme_designer/runtime_configs/{variant_id}.cfg",
+                    "source_abs": runtime_cfg,
+                    "destination_rel": destination_rel,
+                    "exists": True,
+                    "size": file_size,
+                    "preview_path": runtime_cfg,
+                    "action": "copy",
+                    "preserve_metadata": True,
+                }
+            )
+
+        if len(assets) == 1:
+            return assets[0]
+        return assets
+
     def _deploy_theme_bundle(self, deploy_profile, bundle, target_label):
         try:
             diff = self._rockbox_deploy.build_diff(deploy_profile, bundle)
@@ -5489,10 +5752,31 @@ class MainWindow(QMainWindow):
         prompt.exec()
         if prompt.clickedButton() != prompt.button(QMessageBox.Yes):
             return
+        progress = QProgressDialog(
+            f"Installing {bundle['name']} to {target_label}...",
+            None,
+            0,
+            3,
+            self,
+        )
+        progress.setWindowTitle("Installing iPone Design")
+        progress.setWindowModality(Qt.ApplicationModal)
+        progress.setCancelButton(None)
+        progress.setMinimumDuration(0)
+        progress.setValue(0)
+        QApplication.processEvents()
+        progress.setLabelText("Copying theme files...")
+        progress.setValue(1)
+        QApplication.processEvents()
         result = self._rockbox_deploy.apply_diff(deploy_profile, diff)
+        progress.setLabelText("Refreshing RockPod views...")
+        progress.setValue(2)
+        QApplication.processEvents()
         message = f"Copied {result['copied_count']} files\nBackup: {result['backup_dir']}"
         if result["failures"]:
             message += "\n\nFailures:\n" + "\n".join(result["failures"][:8])
+        progress.setValue(3)
+        progress.close()
         QMessageBox.information(self, "iPone Designer Deploy", message)
         self._status_bar.set_left_text(
             "Theme variant deployed" if result["success"] else "Theme variant deploy completed with errors"

@@ -31,7 +31,7 @@ LOCAL_APPLE_MUSIC_MEDIA_DIR = "Playlists/RockPod Media"
 APPLE_MUSIC_DIRECT_EXTENSIONS = {".mp3", ".m4a", ".aac", ".aiff", ".aif", ".wav"}
 
 
-def import_device_playlists(db, device):
+def import_device_playlists(db, device, force_reparse=False):
     device_id = getattr(device, "stable_device_key", "") or f"rockbox:{device.mount_path}"
     mount_path = getattr(device, "mount_path", "")
     playlist_files = _playlist_files(mount_path)
@@ -45,6 +45,7 @@ def import_device_playlists(db, device):
         for row in present_tracks
         if row.get("device_path")
     }
+    device_track_by_basename = _device_basename_map(present_tracks)
     seen_sources = set()
 
     imported = 0
@@ -58,6 +59,8 @@ def import_device_playlists(db, device):
             continue
         previous = existing.get(rel_source)
         if (
+            not force_reparse
+            and
             previous
             and previous.get("source_mtime") == stat.st_mtime
             and previous.get("source_size") == stat.st_size
@@ -65,7 +68,14 @@ def import_device_playlists(db, device):
             continue
         entries = []
         for position, entry_path in enumerate(_parse_playlist_entries(full_path), start=1):
-            matched = _match_playlist_entry(db, device_id, mount_path, entry_path, device_track_map)
+            matched = _match_playlist_entry(
+                db,
+                device_id,
+                mount_path,
+                entry_path,
+                device_track_map,
+                device_track_by_basename,
+            )
             entries.append({"position": position, "entry_path": entry_path, **matched})
         playlist = db.upsert_device_playlist(
             {
@@ -159,7 +169,7 @@ def export_device_playlists(
             failures.append(f"{MANAGED_PLAYLIST_MANIFEST}: {exc}")
             logger.warning("Could not write Rockbox playlist manifest: %s", exc)
 
-    imported = import_device_playlists(db, device)
+    imported = import_device_playlists(db, device, force_reparse=True)
     logger.info(
         "Exported %d Rockbox playlists for %s (%d removed, %d failures)",
         len(exported),
@@ -409,13 +419,86 @@ def _device_path_rank(device_path):
     return (len(device_path), device_path.casefold())
 
 
+def _normalize_text(value):
+    return str(value or "").strip().casefold()
+
+
+def _device_basename_map(rows):
+    by_basename = {}
+    for item in (rows or []):
+        row = dict(item) if hasattr(item, "keys") else item
+        path = str(row.get("device_path") or "").replace("\\", "/")
+        basename = os.path.basename(path).casefold()
+        if not basename:
+            continue
+        by_basename.setdefault(basename, []).append(row)
+    return by_basename
+
+
+def _playlist_fallback_exact_match(row, candidate):
+    local_title = _normalize_text(row.get("title"))
+    local_artist = _normalize_text(row.get("artist") or row.get("album_artist"))
+    local_album = _normalize_text(row.get("album"))
+    local_duration = _duration_seconds(row.get("duration"))
+
+    candidate_title = _normalize_text(candidate.get("title"))
+    candidate_artist = _normalize_text(
+        candidate.get("artist") or candidate.get("album_artist")
+    )
+    candidate_album = _normalize_text(candidate.get("album"))
+    candidate_duration = _duration_seconds(candidate.get("duration"))
+
+    if local_title and not candidate_title:
+        return False
+    if local_title and local_title != candidate_title:
+        return False
+    if local_artist and not candidate_artist:
+        return False
+    if local_artist and local_artist != candidate_artist:
+        return False
+    if local_album and candidate_album and local_album != candidate_album:
+        return False
+    if local_duration and candidate_duration:
+        if abs(local_duration - candidate_duration) > 2:
+            return False
+    elif local_duration and not candidate_duration:
+        return False
+    return True
+
+
+def _playlist_fallback_path(row, by_basename):
+    file_path = str(row.get("file_path") or "")
+    basename = os.path.basename(file_path).casefold()
+    if not basename:
+        return ""
+
+    candidates = by_basename.get(basename)
+    if not candidates or len(candidates) != 1:
+        return ""
+
+    candidate = candidates[0]
+    if not _playlist_fallback_exact_match(row, candidate):
+        return ""
+
+    return str(candidate.get("device_path") or "").replace("\\", "/").lstrip("/")
+
+
 def _playlist_entries(rows, device_path_by_local_id, device_tracks=None, matcher=None):
     entries = []
     playlist_rows = [dict(row) if hasattr(row, "keys") else dict(row) for row in rows]
     matched_paths = _playlist_matched_device_paths(playlist_rows, device_tracks or [], matcher)
+    device_rows_by_local_id = _device_rows_by_local_id(device_tracks or [])
+    by_basename = _device_basename_map(device_tracks or [])
     for item in playlist_rows:
         track_id = item.get("id")
-        device_path = device_path_by_local_id.get(track_id) or matched_paths.get(track_id)
+        device_path = ""
+        linked_device = device_rows_by_local_id.get(track_id)
+        if linked_device and _playlist_fallback_exact_match(item, linked_device):
+            device_path = device_path_by_local_id.get(track_id)
+        if not device_path:
+            device_path = matched_paths.get(track_id)
+        if not device_path:
+            device_path = _playlist_fallback_path(item, by_basename)
         if not device_path:
             continue
         entries.append(
@@ -429,6 +512,22 @@ def _playlist_entries(rows, device_path_by_local_id, device_tracks=None, matcher
     return entries
 
 
+def _device_rows_by_local_id(rows):
+    selected = {}
+    for row in rows:
+        item = dict(row) if hasattr(row, "keys") else row
+        local_track_id = item.get("local_track_id")
+        device_path = str(item.get("device_path") or "").replace("\\", "/").lstrip("/")
+        if not local_track_id or not device_path:
+            continue
+        current = selected.get(local_track_id)
+        if current is None or _device_path_rank(device_path) < _device_path_rank(
+            str(current.get("device_path") or "")
+        ):
+            selected[local_track_id] = item
+    return selected
+
+
 def _playlist_matched_device_paths(rows, device_tracks, matcher=None):
     if not rows or not device_tracks:
         return {}
@@ -440,7 +539,7 @@ def _playlist_matched_device_paths(rows, device_tracks, matcher=None):
         device = dict(result.device_track) if hasattr(result.device_track, "keys") else dict(result.device_track)
         track_id = local.get("id")
         device_path = str(device.get("device_path") or "").replace("\\", "/").lstrip("/")
-        if track_id and device_path:
+        if track_id and device_path and _playlist_fallback_exact_match(local, device):
             paths[track_id] = device_path
     return paths
 
@@ -595,17 +694,50 @@ def _duration_seconds(value):
         return 0
 
 
-def _match_playlist_entry(db, device_id, mount_path, entry_path, device_track_map=None):
+def _match_playlist_entry(
+    db,
+    device_id,
+    mount_path,
+    entry_path,
+    device_track_map=None,
+    device_track_by_basename=None,
+):
     normalized = _normalize_playlist_entry(mount_path, entry_path)
-    device_track = device_track_map.get(normalized) if device_track_map and normalized else None
-    if not device_track and normalized:
-        device_track = db.fetchone(
-            "SELECT * FROM device_tracks WHERE device_id = ? AND device_path LIKE ? "
-            "AND COALESCE(present_on_device, 1) = 1 LIMIT 1",
-            (device_id, f"%{normalized}"),
-        )
-    if device_track:
-        row = dict(device_track)
+    if not normalized:
+        return {
+            "device_track_id": None,
+            "local_track_id": None,
+            "title": "",
+            "artist": "",
+            "album": "",
+        }
+
+    candidates = []
+
+    if device_track_map:
+        variants = [normalized]
+        if normalized.startswith("/"):
+            variants.append(normalized[1:])
+        stripped = normalized
+        while stripped.startswith("./") or stripped.startswith("../"):
+            stripped = stripped[3:]
+            variants.append(stripped)
+            if stripped.startswith("/"):
+                stripped = stripped[1:]
+                variants.append(stripped)
+
+        for variant in variants:
+            row = device_track_map.get(variant)
+            if row:
+                candidates.append(row)
+
+        if not candidates and device_track_by_basename is not None:
+            by_basename = device_track_by_basename.get(os.path.basename(normalized).casefold())
+            if by_basename and len(by_basename) == 1:
+                candidates.append(by_basename[0])
+
+    if candidates:
+        row = dict(candidates[0])
         return {
             "device_track_id": row.get("id"),
             "local_track_id": row.get("local_track_id"),

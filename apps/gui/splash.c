@@ -70,14 +70,10 @@ static bool splash_draw_modern_panel(struct screen *screen,
     if (screen->depth <= 1)
         return false;
 
-    const unsigned edge = SCREEN_COLOR_TO_NATIVE(screen,
-                          LCD_RGBPACK(104, 91, 136));
-    const unsigned panel = SCREEN_COLOR_TO_NATIVE(screen,
-                           LCD_RGBPACK(28, 25, 39));
-    const unsigned top = SCREEN_COLOR_TO_NATIVE(screen,
-                         LCD_RGBPACK(59, 49, 84));
-    const unsigned accent = SCREEN_COLOR_TO_NATIVE(screen,
-                            LCD_RGBPACK(188, 145, 255));
+    const unsigned edge = global_settings.lss_color;
+    const unsigned panel = global_settings.bg_color;
+    const unsigned top = global_settings.lss_color;
+    const unsigned accent = global_settings.lse_color;
     int accent_w = vp->width - 12;
     if (accent_w > 54)
         accent_w = 54;
@@ -351,16 +347,11 @@ static void splash_progress_draw_pill(struct screen *screen,
                                       int current, int total)
 {
     const unsigned old_fg = screen->get_foreground();
-    const unsigned track_edge = SCREEN_COLOR_TO_NATIVE(screen,
-                                LCD_RGBPACK(102, 91, 126));
-    const unsigned track = SCREEN_COLOR_TO_NATIVE(screen,
-                           LCD_RGBPACK(31, 24, 43));
-    const unsigned track_top = SCREEN_COLOR_TO_NATIVE(screen,
-                               LCD_RGBPACK(54, 44, 72));
-    const unsigned fill = SCREEN_COLOR_TO_NATIVE(screen,
-                          LCD_RGBPACK(157, 122, 230));
-    const unsigned fill_top = SCREEN_COLOR_TO_NATIVE(screen,
-                              LCD_RGBPACK(232, 210, 255));
+    const unsigned track_edge = global_settings.lss_color;
+    const unsigned track = global_settings.bg_color;
+    const unsigned track_top = global_settings.lss_color;
+    const unsigned fill = global_settings.lse_color;
+    const unsigned fill_top = global_settings.lst_color;
     int inner_x = x + 1;
     int inner_y = y + 1;
     int inner_w = w - 2;

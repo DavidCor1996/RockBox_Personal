@@ -79,11 +79,19 @@ static bool sb_ipone_right_pane_can_draw(void)
     }
 }
 
+static bool sb_ipone_right_pane_theme_compatible(void)
+{
+    const char *sbs_file = (const char *)global_settings.sbs_file;
+
+    return strstr(sbs_file, "iPone") != NULL ||
+           strstr(sbs_file, "Forest") != NULL;
+}
+
 static bool sb_ipone_right_pane_slideshow_eligible(enum screen_type screen)
 {
     if (screen != SCREEN_MAIN ||
         global_settings.ipone_right_pane != 1 ||
-        !strstr((const char *)global_settings.sbs_file, "iPone") ||
+        !sb_ipone_right_pane_theme_compatible() ||
         !sb_ipone_right_pane_can_draw())
     {
         return false;

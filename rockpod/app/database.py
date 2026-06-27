@@ -728,6 +728,8 @@ class Database:
             "last_played",
             "date_added",
             "video_kind",
+            "artwork_path",
+            "has_embedded_artwork",
         }
         metadata_hash_fields = {
             "title",

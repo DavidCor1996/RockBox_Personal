@@ -14,6 +14,7 @@ from app.config import Config
 from app.database import Database
 from services.artwork_manager import ArtworkManager
 from services.device_detector import DeviceDetector, DeviceInfo
+from services.rockbox_device import invalidate_pictureflow_cache
 from services.rockbox_playlists import export_device_playlists
 from services.sync_engine import SyncEngine, SyncWorker
 
@@ -108,6 +109,7 @@ def main():
                 if config.get("sync_playlists_to_device", True):
                     report["playlist_sync"] = export_device_playlists(db, device)
                     db.commit()
+                report["pictureflow_cache"] = invalidate_pictureflow_cache(device)
                 report["post_sync_cache_update_seconds"] = time.perf_counter() - cache_started
             else:
                 report["post_sync_cache_update_seconds"] = 0.0

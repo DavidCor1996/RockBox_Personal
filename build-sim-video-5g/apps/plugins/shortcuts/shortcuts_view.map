@@ -158,7 +158,7 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
 .plt.sec
  *(.plt.sec)
 
-.text           0x0000000000001060     0x1125
+.text           0x0000000000001060     0x1119
  *(.text.unlikely .text.*_unlikely .text.unlikely.*)
  *(.text.exit .text.exit.*)
  *(.text.startup .text.startup.*)
@@ -183,28 +183,28 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
                 0x00000000000017f8                write_int_instruction_to_file
                 0x0000000000001829                write_entry_to_file
                 0x0000000000001898                dump_sc_file
- .text          0x0000000000001963      0x73f /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/shortcuts/shortcuts_view.o
+ .text          0x0000000000001963      0x733 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/shortcuts/shortcuts_view.o
                 0x0000000000001a17                draw_sc_list
                 0x0000000000001ad0                open_browse
                 0x0000000000001b96                ends_with
                 0x0000000000001bf1                goto_entry
                 0x0000000000001d8a                list_sc
-                0x0000000000001f1e                plugin_start
- .text          0x00000000000020a2       0xe3 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
-                0x00000000000020b1                plugin__start
-                0x0000000000002105                rb_atexit
-                0x000000000000211e                exit
-                0x0000000000002137                _exit
-                0x0000000000002146                exit_on_usb
- .text          0x0000000000002185        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtendS.o
- .text          0x0000000000002185        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
+                0x0000000000001f12                plugin_start
+ .text          0x0000000000002096       0xe3 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+                0x00000000000020a5                plugin__start
+                0x00000000000020f9                rb_atexit
+                0x0000000000002112                exit
+                0x000000000000212b                _exit
+                0x000000000000213a                exit_on_usb
+ .text          0x0000000000002179        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtendS.o
+ .text          0x0000000000002179        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
  *(.gnu.warning)
 
-.fini           0x0000000000002188        0xd
+.fini           0x000000000000217c        0xd
  *(SORT_NONE(.fini))
- .fini          0x0000000000002188        0x8 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
-                0x0000000000002188                _fini
- .fini          0x0000000000002190        0x5 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
+ .fini          0x000000000000217c        0x8 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
+                0x000000000000217c                _fini
+ .fini          0x0000000000002184        0x5 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
                 [!provide]                        PROVIDE (__etext = .)
                 [!provide]                        PROVIDE (_etext = .)
                 [!provide]                        PROVIDE (etext = .)
@@ -500,11 +500,11 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000    0x18c79
+.debug_info     0x0000000000000000    0x18d48
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0x8744 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/shortcuts/shortcuts_common.o
- .debug_info    0x0000000000008744     0x8888 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/shortcuts/shortcuts_view.o
- .debug_info    0x0000000000010fcc     0x7cad /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+ .debug_info    0x0000000000000000     0x8789 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/shortcuts/shortcuts_common.o
+ .debug_info    0x0000000000008789     0x88cd /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/shortcuts/shortcuts_view.o
+ .debug_info    0x0000000000011056     0x7cf2 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
 
 .debug_abbrev   0x0000000000000000      0xe8c
  *(.debug_abbrev)
@@ -521,14 +521,14 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0x616e
+.debug_str      0x0000000000000000     0x61ee
  *(.debug_str)
- .debug_str     0x0000000000000000     0x616e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/shortcuts/shortcuts_common.o
-                                       0x51bb (size before relaxing)
- .debug_str     0x000000000000616e        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/shortcuts/shortcuts_view.o
-                                       0x65bc (size before relaxing)
- .debug_str     0x000000000000616e        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
-                                       0x514b (size before relaxing)
+ .debug_str     0x0000000000000000     0x61ee /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/shortcuts/shortcuts_common.o
+                                       0x523b (size before relaxing)
+ .debug_str     0x00000000000061ee        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/shortcuts/shortcuts_view.o
+                                       0x663c (size before relaxing)
+ .debug_str     0x00000000000061ee        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+                                       0x51cb (size before relaxing)
 
 .debug_loc
  *(.debug_loc)

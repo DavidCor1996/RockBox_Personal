@@ -106,7 +106,7 @@ class Config:
         "auto_rebuild_rockbox_database_after_sync": False,
         "rockbox_database_update_mode": "active",
         "sync_mode": "missing_only",
-        "max_auto_duplicate_deletes_per_sync": 5,
+        "max_auto_duplicate_deletes_per_sync": 50,
         "resync_metadata_changes": True,
         "force_full_resync": False,
         "duplicate_strictness": "metadata_and_hash",

@@ -10,6 +10,7 @@ from services.rockbox_device import (
     clear_rockbox_database_cache,
     detect_rockbox_database_state,
     enable_rockbox_tagcache_autoupdate,
+    invalidate_pictureflow_cache,
 )
 from ui.device_summary import DeviceSummaryWidget, build_summary_data, compute_device_storage
 from ui.storage_bar import storage_segments
@@ -226,6 +227,41 @@ def test_clear_rockbox_database_cache_removes_only_tagcache_files(tmp_dir):
     assert not os.path.exists(db_file)
     assert not os.path.exists(tagcache_file)
     assert os.path.isfile(keep_file)
+
+
+def test_invalidate_pictureflow_cache_removes_generated_slides_and_forces_rebuild(tmp_dir):
+    path = os.path.join(tmp_dir, "ipod")
+    create_mock_device(path)
+    cache_dir = os.path.join(path, ".rockbox", "rocks", "demos", "pictureflow")
+    os.makedirs(cache_dir, exist_ok=True)
+    pfraw_file = os.path.join(cache_dir, "deadbeefcafebabe.pfraw")
+    index_file = os.path.join(cache_dir, "pictureflow_album.idx")
+    keep_file = os.path.join(path, ".rockbox", "rocks", "demos", "pictureflow.rock")
+    config_file = os.path.join(path, ".rockbox", "rocks", "demos", "pictureflow.cfg")
+    for file_path, content in (
+        (pfraw_file, b"slide"),
+        (index_file, b"index"),
+        (keep_file, b"plugin"),
+    ):
+        with open(file_path, "wb") as handle:
+            handle.write(content)
+    with open(config_file, "w", encoding="utf-8") as handle:
+        handle.write("cache version:          5\nupdate albumart:          1\n")
+
+    result = invalidate_pictureflow_cache(DeviceInfo(path))
+
+    assert result["success"] is True
+    assert sorted(os.path.basename(item) for item in result["removed"]) == [
+        "deadbeefcafebabe.pfraw",
+        "pictureflow_album.idx",
+    ]
+    assert not os.path.exists(pfraw_file)
+    assert not os.path.exists(index_file)
+    assert os.path.isfile(keep_file)
+    with open(config_file, "r", encoding="utf-8") as handle:
+        config_text = handle.read()
+    assert "cache version:          0" in config_text
+    assert "update albumart:          0" in config_text
 
 
 def test_device_root_selection_shows_summary(config, db, monkeypatch):

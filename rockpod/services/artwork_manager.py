@@ -521,6 +521,7 @@ class ArtworkManager(QObject):
                 {
                     "album_id": album_id,
                     "thumb": self._manifest_field(entry.get("thumb", "")),
+                    "slide": self._manifest_field(entry.get("slide", "")),
                     "artist": self._manifest_field(entry.get("artist", "")),
                     "album": self._manifest_field(entry.get("album", "")),
                     "group_key": self._manifest_field(entry.get("group_key", "")),
@@ -529,14 +530,15 @@ class ArtworkManager(QObject):
             )
         rows.sort(key=lambda item: (item["artist"].casefold(), item["album"].casefold(), item["album_id"]))
         lines = [
-            "# rockpod albumlist v1",
-            "album_id\tthumb\tartist\talbum\tgroup_key\tdevice_dirs",
+            "# rockpod albumlist v2",
+            "album_id\tthumb\tslide\tartist\talbum\tgroup_key\tdevice_dirs",
         ]
         lines.extend(
             "\t".join(
                 (
                     row["album_id"],
                     row["thumb"],
+                    row["slide"],
                     row["artist"],
                     row["album"],
                     row["group_key"],

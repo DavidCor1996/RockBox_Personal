@@ -96,6 +96,8 @@ def test_ipone_right_pane_slideshow_pan_is_smooth_and_refreshed():
     assert "albumlist_manifest_at(wanted)" in albumlist
     assert "slideshow_order_base" in albumlist
     assert "slideshow_order_step" in albumlist
+    assert "bool has_slide_field = field_count >= 7" in albumlist
+    assert "albumlist_manifest_path_join(fields[slide_field], entry->slide_path" in albumlist
     assert "static bool slideshow_paused;" in albumlist
     assert "static long slideshow_paused_at;" in albumlist
     assert "static long slideshow_paused_total;" in albumlist
@@ -104,7 +106,11 @@ def test_ipone_right_pane_slideshow_pan_is_smooth_and_refreshed():
     assert "return tick - slideshow_paused_total;" in albumlist
     assert "albumlist_gcd(slideshow_order_step, entry_count)" in albumlist
     assert "struct albumlist_slideshow_slot slideshow_slots[2]" in albumlist
-    assert "albumlist_prefetch_slideshow_slot(next_wanted);" in albumlist
+    assert "#define ALBUMLIST_SLIDESHOW_FAILURE_CACHE 8" in albumlist
+    assert "albumlist_slideshow_recent_failure(index, path)" in albumlist
+    assert "albumlist_slideshow_record_failure(index, path);" in albumlist
+    assert "albumlist_choose_slideshow_victim(protected_index)" in albumlist
+    assert "albumlist_prefetch_slideshow_slot(next_wanted, wanted);" in albumlist
     assert "albumlist_slideshow_is_prerendered(path)" in albumlist
     assert "format |= FORMAT_RESIZE | FORMAT_KEEP_ASPECT | FORMAT_DITHER;" in albumlist
     assert "long pan_pos = pan_phase * ALBUMLIST_SLIDESHOW_PAN_SCALE /" in albumlist
@@ -123,6 +129,7 @@ def test_ipone_right_pane_slideshow_pan_is_smooth_and_refreshed():
     assert "sb_ipone_right_pane_slideshow_eligible" in sbs
     assert "sb_ipone_right_pane_slideshow_paused_by_hold" in sbs
     assert "sb_ipone_right_pane_slideshow_active" in sbs
+    assert 'strstr(sbs_file, "Forest") != NULL' in sbs
     assert "albumlist_slideshow_set_paused(" in sbs
     assert "sb_ipone_right_pane_track_active_state(screen, &force);" in sbs
     assert "sb_ipone_update_right_pane_slideshow(screen, false);" in sbs

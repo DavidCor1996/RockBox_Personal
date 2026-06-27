@@ -10,6 +10,7 @@ from services.rockbox_playlists import (
     MANAGED_PLAYLIST_DIR,
     MANAGED_PLAYLIST_MANIFEST,
     _ensure_apple_music_transcode,
+    _playlist_fallback_path,
     export_device_playlists,
     export_local_music_playlists,
 )
@@ -279,6 +280,37 @@ def test_export_device_playlists_matches_existing_unlinked_device_tracks(db, moc
     assert "/Music/Art/Alb/01 - Existing.mp3" in content
 
 
+def test_export_device_playlists_rejects_wrong_artist_linked_device_track(db, mock_device):
+    device = _device(mock_device)
+    row = _insert_track(db, "/music/happy-fits.mp3", "Hold Me Down", "The Happy Fits", "What Could Be Better")
+    playlist_id = db.create_playlist("Rani's Playlist")
+    db.add_track_to_playlist(playlist_id, row["id"])
+    db.upsert_device_track(
+        {
+            "device_id": device.stable_device_key,
+            "local_track_id": row["id"],
+            "device_path": "Music/Halsey/Badlands/02 - Hold Me Down.flac",
+            "title": "Hold Me Down",
+            "artist": "Halsey",
+            "album": "Badlands",
+            "album_artist": "Halsey",
+            "duration": 245.0,
+            "bitrate": 320,
+            "codec": "flac",
+            "metadata_hash": "wrong-song",
+            "file_hash": "wrong-song",
+            "present_on_device": 1,
+        }
+    )
+    db.commit()
+
+    result = export_device_playlists(db, device)
+
+    assert result["success"] is True
+    assert result["exported"] == []
+    assert not os.path.exists(os.path.join(mock_device, MANAGED_PLAYLIST_DIR, "Rani's Playlist.m3u8"))
+
+
 def test_export_local_music_playlists_writes_relative_m3u8_for_network_share(db, tmp_dir):
     music_root = os.path.join(tmp_dir, "Music")
     album_dir = os.path.join(music_root, "Artist", "Album")
@@ -409,3 +441,59 @@ def test_apple_music_transcode_failure_removes_temp_and_reports_log(tmp_dir):
         name for name in os.listdir(media_root)
         if name.endswith(".tmp.m4a")
     ]
+
+
+def test_playlist_fallback_path_uses_unique_basename_match():
+    track = {
+        "file_path": "/music/Wake Up.m4a",
+        "title": "Wake Up",
+        "artist": "Run River North",
+        "album": "Great Album",
+        "duration": 191.0,
+    }
+    by_basename = {
+        "wake up.m4a": [
+            {
+                "device_path": "Music/Run River North/01 - Wake Up.m4a",
+                "title": "Wake Up",
+                "artist": "Run River North",
+                "album": "Great Album",
+                "duration": 191.0,
+            }
+        ]
+    }
+
+    assert (
+        _playlist_fallback_path(track, by_basename)
+        == "Music/Run River North/01 - Wake Up.m4a"
+    )
+
+
+def test_playlist_fallback_path_skips_ambiguous_duplicate_filenames():
+    track = {
+        "file_path": "/music/Good Day to Be Alive.m4a",
+        "title": "Good Day to Be Alive",
+        "artist": "Summer Kennedy",
+        "album": "Acoustic",
+        "duration": 231.0,
+    }
+    by_basename = {
+        "good day to be alive.m4a": [
+            {
+                "device_path": "Music/Run River North/01 - Good Day to Be Alive.m4a",
+                "title": "Good Day to Be Alive",
+                "artist": "Run River North",
+                "album": "Live",
+                "duration": 231.0,
+            },
+            {
+                "device_path": "Music/Summer Kennedy/01 - Good Day to Be Alive.m4a",
+                "title": "Good Day to Be Alive",
+                "artist": "Summer Kennedy",
+                "album": "Singles",
+                "duration": 231.0,
+            },
+        ]
+    }
+
+    assert _playlist_fallback_path(track, by_basename) == ""

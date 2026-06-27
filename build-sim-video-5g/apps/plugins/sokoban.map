@@ -526,12 +526,12 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000    0x1ab6d
+.debug_info     0x0000000000000000    0x1ac58
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0x945c /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/sokoban.o
- .debug_info    0x000000000000945c     0x7cad /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
- .debug_info    0x0000000000011109     0x9922 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(playback_control.o)
- .debug_info    0x000000000001aa2b      0x142 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(sokoban_tiles.14x14x16.o)
+ .debug_info    0x0000000000000000     0x94a1 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/sokoban.o
+ .debug_info    0x00000000000094a1     0x7cf2 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+ .debug_info    0x0000000000011193     0x9983 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(playback_control.o)
+ .debug_info    0x000000000001ab16      0x142 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(sokoban_tiles.14x14x16.o)
 
 .debug_abbrev   0x0000000000000000      0xe8c
  *(.debug_abbrev)
@@ -550,15 +550,15 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0xa21d
+.debug_str      0x0000000000000000     0xa305
  *(.debug_str)
- .debug_str     0x0000000000000000     0xa21d /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/sokoban.o
-                                       0x53f2 (size before relaxing)
- .debug_str     0x000000000000a21d        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
-                                       0x514b (size before relaxing)
- .debug_str     0x000000000000a21d        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(playback_control.o)
-                                       0xa3bb (size before relaxing)
- .debug_str     0x000000000000a21d        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(sokoban_tiles.14x14x16.o)
+ .debug_str     0x0000000000000000     0xa305 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/sokoban.o
+                                       0x5472 (size before relaxing)
+ .debug_str     0x000000000000a305        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+                                       0x51cb (size before relaxing)
+ .debug_str     0x000000000000a305        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(playback_control.o)
+                                       0xa4a3 (size before relaxing)
+ .debug_str     0x000000000000a305        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(sokoban_tiles.14x14x16.o)
                                         0x16e (size before relaxing)
 
 .debug_loc

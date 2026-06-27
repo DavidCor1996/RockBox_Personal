@@ -545,13 +545,13 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000    0x29977
+.debug_info     0x0000000000000000    0x29aec
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0xafd9 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/announce_status.o
- .debug_info    0x000000000000afd9     0x7cad /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
- .debug_info    0x0000000000012c86     0x7aa5 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(helper.o)
- .debug_info    0x000000000001a72b     0x7cf6 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(configfile.o)
- .debug_info    0x0000000000022421     0x7556 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(kbd_helper.o)
+ .debug_info    0x0000000000000000     0xb03a /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/announce_status.o
+ .debug_info    0x000000000000b03a     0x7cf2 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+ .debug_info    0x0000000000012d2c     0x7aea /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(helper.o)
+ .debug_info    0x000000000001a816     0x7d3b /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(configfile.o)
+ .debug_info    0x0000000000022551     0x759b /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(kbd_helper.o)
 
 .debug_abbrev   0x0000000000000000     0x1645
  *(.debug_abbrev)
@@ -572,18 +572,18 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0xb5ab
+.debug_str      0x0000000000000000     0xb693
  *(.debug_str)
- .debug_str     0x0000000000000000     0xb5ab /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/announce_status.o
-                                       0xb9dd (size before relaxing)
- .debug_str     0x000000000000b5ab        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
-                                       0x514b (size before relaxing)
- .debug_str     0x000000000000b5ab        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(helper.o)
-                                       0x5142 (size before relaxing)
- .debug_str     0x000000000000b5ab        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(configfile.o)
-                                       0x48c1 (size before relaxing)
- .debug_str     0x000000000000b5ab        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(kbd_helper.o)
-                                       0x481b (size before relaxing)
+ .debug_str     0x0000000000000000     0xb693 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/announce_status.o
+                                       0xbac5 (size before relaxing)
+ .debug_str     0x000000000000b693        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+                                       0x51cb (size before relaxing)
+ .debug_str     0x000000000000b693        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(helper.o)
+                                       0x51c2 (size before relaxing)
+ .debug_str     0x000000000000b693        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(configfile.o)
+                                       0x4941 (size before relaxing)
+ .debug_str     0x000000000000b693        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(kbd_helper.o)
+                                       0x489b (size before relaxing)
 
 .debug_loc
  *(.debug_loc)

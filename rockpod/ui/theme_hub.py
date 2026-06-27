@@ -32,6 +32,7 @@ class ThemeHubWidget(QWidget):
     deploy_requested = Signal()
     delete_requested = Signal()
     restore_requested = Signal()
+    reset_default_requested = Signal()
     use_connected_device_requested = Signal()
 
     def __init__(self, parent=None):
@@ -118,10 +119,13 @@ class ThemeHubWidget(QWidget):
         self._deploy_btn.clicked.connect(self.deploy_requested)
         self._delete_btn = QPushButton("Delete From Device")
         self._delete_btn.clicked.connect(self.delete_requested)
+        self._reset_default_btn = QPushButton("Reset To Default")
+        self._reset_default_btn.clicked.connect(self.reset_default_requested)
         self._restore_btn = QPushButton("Restore Previous")
         self._restore_btn.clicked.connect(self.restore_requested)
         deploy_row.addWidget(self._diff_summary, 1)
         deploy_row.addWidget(self._delete_btn)
+        deploy_row.addWidget(self._reset_default_btn)
         deploy_row.addWidget(self._restore_btn)
         deploy_row.addWidget(self._deploy_btn)
         right_col.addLayout(deploy_row)

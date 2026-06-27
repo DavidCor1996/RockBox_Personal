@@ -1,0 +1,75 @@
+{
+  "name": "RunePod generated asset source manifest v1",
+  "date": "2026-06-27",
+  "status": "runtime-sprite-sheet-v1-extracted",
+  "source_image": "reference/runepod_style_sheet_v1.png",
+  "prompt": "prompts/sprite_style_sheet_v1.prompt.txt",
+  "original_generated_image": "/home/david/.codex/generated_images/019f09e8-1238-7521-964c-85992ce79be0/ig_088d48af850a748e016a400031573881908f96b8e6993c5658.png",
+  "sha256": "697c23c6511b2344afc49507e80f9d84d2d059ba982da6084bfeb9f417af9617",
+  "format": {
+    "type": "PNG",
+    "width": 1448,
+    "height": 1086,
+    "channels": "RGB",
+    "bit_depth": 8,
+    "chroma_key": "#ff00ff"
+  },
+  "runtime_assets": [
+    {
+      "path": "../../runtime/sprites/runepod_sprites.320x64x24.bmp",
+      "install_path": ".rockbox/rocks/games/runepod/sprites/runepod_sprites.320x64x24.bmp",
+      "type": "BMP3",
+      "width": 320,
+      "height": 64,
+      "cell_width": 32,
+      "cell_height": 32,
+      "bit_depth": 24,
+      "sha256": "b41af6e3513f270ea10c011dec0fbf983a4221a48ae186094d4f8a853240b7bb",
+      "status": "loaded by apps/plugins/runepod.c with primitive fallback"
+    }
+  ],
+  "visual_contract": {
+    "camera": "three-quarter top-down",
+    "scale_target": "24-32 px gameplay sprites after extraction/downscale",
+    "style": "original low-poly-inspired hand-painted fantasy sprites",
+    "lighting": "upper-left",
+    "outline": "dark readable outline",
+    "palette": "muted natural palette"
+  },
+  "included_concepts": [
+    "player adventurer",
+    "village guide NPC",
+    "shopkeeper NPC",
+    "ratling enemy",
+    "oak tree resource",
+    "copper rock resource",
+    "fishing pond tile",
+    "campfire prop",
+    "wooden workbench prop",
+    "HP icon",
+    "coins icon",
+    "logs icon",
+    "ore icon",
+    "raw fish icon",
+    "cooked food icon",
+    "combat icon"
+  ],
+  "runtime_conversion_completed": [
+    "cropped first-pass concepts into normalized 32x32 cells",
+    "preserved #ff00ff as Rockbox transparent key",
+    "packed cells into a 320x64 BMP3 runtime sheet",
+    "wired runtime sheet into the RunePod plugin with primitive fallback"
+  ],
+  "runtime_conversion_remaining": [
+    "split direction-specific animation frames",
+    "write a generated frame rectangle table for all future sheets",
+    "verify no #ff00ff pixels remain inside sprite bodies after all future crops",
+    "capture direct RunePod simulator screenshots once direct plugin autostart is reliable"
+  ],
+  "provenance_constraints": [
+    "original generated asset",
+    "no RuneScape or OSRS source assets",
+    "no copied skill icons",
+    "no proprietary names, maps, or traced screenshots"
+  ]
+}

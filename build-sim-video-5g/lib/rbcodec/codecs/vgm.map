@@ -766,43 +766,43 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
 .stab.indexstr
  *(.stab.indexstr)
 
-.comment        0x0000000000000000       0x36
+.comment        0x0000000000000000       0x1b
  *(.comment)
- .comment       0x0000000000000000       0x36 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtbeginS.o
+ .comment       0x0000000000000000       0x1b /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtbeginS.o
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/vgm.o
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/vgm.o
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/codec_crt0.o
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/codec_crt0.o
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libvgm.a(vgm_emu.o)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libvgm.a(vgm_emu.o)
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libvgm.a(ym2612_emu.o)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libvgm.a(ym2612_emu.o)
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libvgm.a(track_filter.o)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libvgm.a(track_filter.o)
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libvgm.a(inflate.o)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libvgm.a(inflate.o)
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libvgm.a(mallocer.o)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libvgm.a(mallocer.o)
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libvgm.a(blip_buffer.o)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libvgm.a(blip_buffer.o)
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libvgm.a(multi_buffer.o)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libvgm.a(multi_buffer.o)
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libvgm.a(resampler.o)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libvgm.a(resampler.o)
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libvgm.a(bbfuncs.o)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libvgm.a(bbfuncs.o)
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libvgm.a(mbreader.o)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libvgm.a(mbreader.o)
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libemu2413.a(sms_apu.o)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libemu2413.a(sms_apu.o)
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libemu2413.a(ym2413_emu.o)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libemu2413.a(ym2413_emu.o)
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libemu2413.a(emu2413.o)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libemu2413.a(emu2413.o)
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+ .comment       0x000000000000001b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
                                          0x1c (size before relaxing)
- .comment       0x0000000000000036        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtendS.o
+ .comment       0x000000000000001b        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtendS.o
                                          0x1c (size before relaxing)
 
 .gnu.build.attributes
@@ -918,39 +918,39 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0x3385
+.debug_str      0x0000000000000000     0x32b3
  *(.debug_str)
- .debug_str     0x0000000000000000     0x3385 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/vgm.o
+ .debug_str     0x0000000000000000     0x32b3 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/vgm.o
                                        0x156c (size before relaxing)
- .debug_str     0x0000000000003385        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/codec_crt0.o
+ .debug_str     0x00000000000032b3        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/codec_crt0.o
                                         0xcba (size before relaxing)
- .debug_str     0x0000000000003385        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libvgm.a(vgm_emu.o)
+ .debug_str     0x00000000000032b3        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libvgm.a(vgm_emu.o)
                                        0x15bf (size before relaxing)
- .debug_str     0x0000000000003385        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libvgm.a(ym2612_emu.o)
+ .debug_str     0x00000000000032b3        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libvgm.a(ym2612_emu.o)
                                         0xb3a (size before relaxing)
- .debug_str     0x0000000000003385        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libvgm.a(track_filter.o)
+ .debug_str     0x00000000000032b3        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libvgm.a(track_filter.o)
                                         0x8a5 (size before relaxing)
- .debug_str     0x0000000000003385        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libvgm.a(inflate.o)
+ .debug_str     0x00000000000032b3        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libvgm.a(inflate.o)
                                         0xa54 (size before relaxing)
- .debug_str     0x0000000000003385        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libvgm.a(mallocer.o)
+ .debug_str     0x00000000000032b3        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libvgm.a(mallocer.o)
                                         0xcf6 (size before relaxing)
- .debug_str     0x0000000000003385        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libvgm.a(blip_buffer.o)
+ .debug_str     0x00000000000032b3        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libvgm.a(blip_buffer.o)
                                         0x519 (size before relaxing)
- .debug_str     0x0000000000003385        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libvgm.a(multi_buffer.o)
+ .debug_str     0x00000000000032b3        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libvgm.a(multi_buffer.o)
                                         0x6db (size before relaxing)
- .debug_str     0x0000000000003385        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libvgm.a(resampler.o)
+ .debug_str     0x00000000000032b3        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libvgm.a(resampler.o)
                                         0x56e (size before relaxing)
- .debug_str     0x0000000000003385        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libvgm.a(bbfuncs.o)
+ .debug_str     0x00000000000032b3        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libvgm.a(bbfuncs.o)
                                         0x26d (size before relaxing)
- .debug_str     0x0000000000003385        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libvgm.a(mbreader.o)
+ .debug_str     0x00000000000032b3        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libvgm.a(mbreader.o)
                                         0x1ba (size before relaxing)
- .debug_str     0x0000000000003385        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libemu2413.a(sms_apu.o)
+ .debug_str     0x00000000000032b3        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libemu2413.a(sms_apu.o)
                                         0x53b (size before relaxing)
- .debug_str     0x0000000000003385        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libemu2413.a(ym2413_emu.o)
+ .debug_str     0x00000000000032b3        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libemu2413.a(ym2413_emu.o)
                                         0x452 (size before relaxing)
- .debug_str     0x0000000000003385        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libemu2413.a(emu2413.o)
+ .debug_str     0x00000000000032b3        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libemu2413.a(emu2413.o)
                                         0xd1b (size before relaxing)
- .debug_str     0x0000000000003385        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+ .debug_str     0x00000000000032b3        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
                                         0xed6 (size before relaxing)
 
 .debug_loc
@@ -981,55 +981,55 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
  *(.debug_addr)
 
 .debug_line_str
-                0x0000000000000000      0x997
+                0x0000000000000000      0x967
  *(.debug_line_str)
  .debug_line_str
-                0x0000000000000000      0x997 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/vgm.o
+                0x0000000000000000      0x967 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/vgm.o
                                         0x452 (size before relaxing)
  .debug_line_str
-                0x0000000000000997        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/codec_crt0.o
+                0x0000000000000967        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/codec_crt0.o
                                         0x268 (size before relaxing)
  .debug_line_str
-                0x0000000000000997        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libvgm.a(vgm_emu.o)
+                0x0000000000000967        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libvgm.a(vgm_emu.o)
                                         0x1f1 (size before relaxing)
  .debug_line_str
-                0x0000000000000997        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libvgm.a(ym2612_emu.o)
+                0x0000000000000967        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libvgm.a(ym2612_emu.o)
                                         0x208 (size before relaxing)
  .debug_line_str
-                0x0000000000000997        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libvgm.a(track_filter.o)
+                0x0000000000000967        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libvgm.a(track_filter.o)
                                         0x20c (size before relaxing)
  .debug_line_str
-                0x0000000000000997        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libvgm.a(inflate.o)
+                0x0000000000000967        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libvgm.a(inflate.o)
                                         0x289 (size before relaxing)
  .debug_line_str
-                0x0000000000000997        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libvgm.a(mallocer.o)
+                0x0000000000000967        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libvgm.a(mallocer.o)
                                         0x31a (size before relaxing)
  .debug_line_str
-                0x0000000000000997        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libvgm.a(blip_buffer.o)
+                0x0000000000000967        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libvgm.a(blip_buffer.o)
                                         0x170 (size before relaxing)
  .debug_line_str
-                0x0000000000000997        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libvgm.a(multi_buffer.o)
+                0x0000000000000967        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libvgm.a(multi_buffer.o)
                                         0x16c (size before relaxing)
  .debug_line_str
-                0x0000000000000997        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libvgm.a(resampler.o)
+                0x0000000000000967        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libvgm.a(resampler.o)
                                         0x185 (size before relaxing)
  .debug_line_str
-                0x0000000000000997        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libvgm.a(bbfuncs.o)
+                0x0000000000000967        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libvgm.a(bbfuncs.o)
                                         0x1b7 (size before relaxing)
  .debug_line_str
-                0x0000000000000997        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libvgm.a(mbreader.o)
+                0x0000000000000967        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libvgm.a(mbreader.o)
                                         0x19d (size before relaxing)
  .debug_line_str
-                0x0000000000000997        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libemu2413.a(sms_apu.o)
+                0x0000000000000967        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libemu2413.a(sms_apu.o)
                                         0x148 (size before relaxing)
  .debug_line_str
-                0x0000000000000997        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libemu2413.a(ym2413_emu.o)
+                0x0000000000000967        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libemu2413.a(ym2413_emu.o)
                                         0x15b (size before relaxing)
  .debug_line_str
-                0x0000000000000997        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libemu2413.a(emu2413.o)
+                0x0000000000000967        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libemu2413.a(emu2413.o)
                                         0x1ff (size before relaxing)
  .debug_line_str
-                0x0000000000000997        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+                0x0000000000000967        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
                                         0x330 (size before relaxing)
 
 .debug_loclists

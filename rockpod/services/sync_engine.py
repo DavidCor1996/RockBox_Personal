@@ -25,6 +25,7 @@ from services.audio_transcode import AudioSyncTranscoder
 from services.rockbox_device import detect_rockbox_database_state
 from services.metadata_reader import read_metadata, compute_file_hash, CODEC_MAP, VIDEO_EXTENSIONS
 from services.reconciliation import summarize_unmatched_tracks
+from services.smart_playlists import evaluate_playlist
 from services.track_matcher import TrackMatcher
 from services.device_inventory import device_music_roots, device_record_from_info, verify_device_inventory
 from services.video_thumbnails import VideoThumbnailService
@@ -40,7 +41,7 @@ ALBUM_LIST_SLIDE_DEVICE_DIR = os.path.join(ALBUM_LIST_DEVICE_DIR, "slides")
 VIDEO_LIST_DEVICE_DIR = os.path.join(".rockbox", "videolist")
 VIDEO_LIST_THUMB_DEVICE_DIR = os.path.join(VIDEO_LIST_DEVICE_DIR, "thumbs")
 SYNC_TEMP_SUFFIX = ".rockpod_tmp"
-MAX_AUTO_DUPLICATE_DELETE_COUNT = 5
+MAX_AUTO_DUPLICATE_DELETE_COUNT = 50
 MANIFEST_ARTWORK_RELPATHS = {
     os.path.join(ALBUM_LIST_DEVICE_DIR, "index.tsv"),
     os.path.join(VIDEO_LIST_DEVICE_DIR, "index.tsv"),
@@ -73,7 +74,15 @@ def _looks_like_auto_duplicate_path(rel_path):
     """Return whether a device path looks like a RockPod-created duplicate copy."""
     name = os.path.basename(str(rel_path or ""))
     stem, _ext = os.path.splitext(name)
-    return re.search(r"\s\([2-9]\d*\)$", stem) is not None
+    suffix_match = re.search(r"\s\((\d+)\)$", stem)
+    if suffix_match is not None and int(suffix_match.group(1)) >= 2:
+        return True
+
+    normalized = str(rel_path or "").replace("\\", "/").casefold()
+    normalized = normalized.replace("\u2018", "'").replace("\u2019", "'").replace("\u02bc", "'")
+    # Older Rani imports generated an album-level directory literal "Rani's playlist";
+    # those entries are legacy duplicates that can be safely auto-cleaned.
+    return bool(re.search(r"/rani's playlist(?=/|$)", normalized))
 
 
 def _sync_update_reasons(row, device_row=None, old_dev_path="", new_rel_path=""):
@@ -777,6 +786,42 @@ class SyncEngine(QObject):
         duplicate_strictness, duration_tolerance = self._match_settings()
         return TrackMatcher(duplicate_strictness, duration_tolerance)
 
+    def rockbox_playlist_track_ids(self, include_smart=True):
+        """Return local track IDs required by playlists selected for Rockbox sync."""
+        if not bool(self._config_value("sync_playlists_to_device", True)):
+            return []
+        device_id = self._ensure_current_device_key()
+        seen = set()
+        track_ids = []
+        for playlist_row in self._db.get_all_playlists():
+            playlist = dict(playlist_row) if hasattr(playlist_row, "keys") else dict(playlist_row or {})
+            if not playlist.get("sync_to_rockbox", 1):
+                continue
+            if playlist.get("is_smart") and not include_smart:
+                continue
+            try:
+                rows = (
+                    evaluate_playlist(self._db, playlist, device_id=device_id)
+                    if playlist.get("is_smart")
+                    else self._db.get_playlist_tracks(playlist["id"])
+                )
+            except Exception:
+                logger.exception("Could not evaluate Rockbox playlist %s for sync planning", playlist.get("name"))
+                continue
+            for row in rows:
+                item = dict(row) if hasattr(row, "keys") else dict(row or {})
+                if str(item.get("media_type") or "audio").lower() != "audio":
+                    continue
+                try:
+                    track_id = int(item.get("id"))
+                except (TypeError, ValueError):
+                    continue
+                if track_id in seen:
+                    continue
+                seen.add(track_id)
+                track_ids.append(track_id)
+        return track_ids
+
     def _ensure_current_device_key(self):
         if self._current_device_key:
             return self._current_device_key
@@ -898,6 +943,22 @@ class SyncEngine(QObject):
             local_tracks = self._db.get_tracks_by_ids(track_ids, media_type=None)
         else:
             local_tracks = self._db.get_all_tracks()
+            playlist_track_ids = self.rockbox_playlist_track_ids()
+            if playlist_track_ids:
+                existing_ids = {
+                    int(row["id"])
+                    for row in local_tracks
+                    if row["id"] is not None
+                }
+                missing_playlist_ids = [
+                    track_id for track_id in playlist_track_ids
+                    if track_id not in existing_ids
+                ]
+                if missing_playlist_ids:
+                    local_tracks = list(local_tracks) + self._db.get_tracks_by_ids(
+                        missing_playlist_ids,
+                        media_type=None,
+                    )
         stage_times["local_fetch_seconds"] = time.perf_counter() - stage_start
         all_local_tracks = local_tracks if not track_ids else self._db.get_all_tracks()
 
@@ -1027,9 +1088,42 @@ class SyncEngine(QObject):
                     plan.total_bytes += row.get("file_size", 0) if isinstance(row, dict) else 0
 
             resync_ids = {id(result) for result in resync_list}
+            legacy_path_resync_ids = set()
+            for result in matched:
+                if not resync_meta:
+                    local = dict(result.local_track) if hasattr(result.local_track, "keys") else result.local_track
+                    device = dict(result.device_track) if hasattr(result.device_track, "keys") else result.device_track
+                    old_dev = (
+                        (device or {}).get("device_path", "")
+                        if isinstance(device, dict)
+                        else ""
+                    ) or (local or {}).get("device_path", "")
+                    expected = self._unique_device_path(
+                        build_device_path(local, dir_template, file_template),
+                        used_paths,
+                        allow_existing=old_dev,
+                    )
+                    if (
+                        old_dev
+                        and expected
+                        and old_dev != expected
+                        and _looks_like_auto_duplicate_path(old_dev)
+                    ):
+                        legacy_path_resync_ids.add(id(result))
+                        used_paths.add(expected)
+                        plan.to_resync.append((local, old_dev, expected))
+                        for reason in _sync_update_reasons(
+                            local,
+                            device_row=device,
+                            old_dev_path=old_dev,
+                            new_rel_path=expected,
+                        ):
+                            _bump_reason(update_reason_counts, reason)
+
             plan.up_to_date = [
                 result for result in matched
                 if not (resync_meta and id(result) in resync_ids)
+                and id(result) not in legacy_path_resync_ids
             ]
 
             if plan.preflight_linked:
@@ -1100,6 +1194,8 @@ class SyncEngine(QObject):
         deletes = list(getattr(plan, "to_delete", []) or [])
         if not deletes:
             return
+        deletes = sorted(deletes)
+        plan.to_delete = deletes
 
         unsafe = [
             rel_path for rel_path in deletes
@@ -1108,8 +1204,8 @@ class SyncEngine(QObject):
         if unsafe:
             plan.to_delete = []
             plan.errors.append(
-                "Skipped automatic duplicate cleanup because delete candidates did not look like RockPod duplicate files: "
-                + ", ".join(unsafe[:5])
+                "Skipped automatic duplicate cleanup because delete candidates did not look like RockPod "
+                f"duplicate files: {', '.join(unsafe[:5])}"
             )
             logger.warning("Blocked unsafe duplicate cleanup candidates: %s", unsafe)
             return
@@ -1493,6 +1589,7 @@ class SyncEngine(QObject):
             slide_src, slide_hash, slide_device_name, slide_album_id = (
                 self._artwork_manager.export_album_list_slide(album_info)
             )
+            slide_rel = ""
             if not album_id and slide_album_id:
                 album_id = slide_album_id
             if slide_src and slide_hash and slide_device_name:
@@ -1513,6 +1610,7 @@ class SyncEngine(QObject):
                 {
                     "album_id": album_id,
                     "thumb": os.path.join("thumbs", device_name) if thumb_rel else "",
+                    "slide": os.path.join("slides", slide_device_name) if slide_rel else "",
                     "artist": album_info.get("artist", ""),
                     "album": album_info.get("album", ""),
                     "group_key": album_key,

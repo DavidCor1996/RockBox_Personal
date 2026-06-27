@@ -179,6 +179,9 @@ THEME_DEFINITIONS = {
 }
 
 
+DEFAULT_RESET_PROTECT_THEME_IDS = {"iPone"}
+
+
 class RockboxThemeService:
     """Expose deterministic theme stacks and completeness information."""
 
@@ -228,6 +231,71 @@ class RockboxThemeService:
                 }
             )
         return result
+
+    def build_reset_to_default_bundle(self, source_repo_path, device_mount_path, preserve_font_assets=True):
+        del source_repo_path  # currently unused, retained for parity with other service signatures
+        preserved = {item for item in DEFAULT_RESET_PROTECT_THEME_IDS}
+        mount_root = os.path.abspath(device_mount_path or "")
+        if not mount_root:
+            raise ValueError("No device mount path available for reset")
+
+        items = []
+        theme_ids = self._list_device_theme_ids(mount_root)
+        for theme_id in theme_ids:
+            if theme_id in preserved:
+                continue
+            bundle = self.inspect_device_theme(theme_id, mount_root)
+            for asset in bundle["assets"]:
+                if preserve_font_assets and asset.get("kind") == "font":
+                    continue
+                item = dict(asset)
+                item["action"] = "remove"
+                item["exists"] = True
+                items.append(item)
+
+        metadata_dir = os.path.join(mount_root, ".rockbox", "rockpod", "theme_designer")
+        if os.path.isdir(metadata_dir):
+            for entry in sorted(os.listdir(metadata_dir)):
+                full = os.path.join(metadata_dir, entry)
+                if not os.path.isfile(full):
+                    continue
+                if not entry.lower().endswith(".json"):
+                    continue
+                items.append(
+                    {
+                        "kind": "theme_designer_metadata",
+                        "source_rel": f".rockbox/rockpod/theme_designer/{entry}",
+                        "source_abs": "",
+                        "destination_rel": f".rockbox/rockpod/theme_designer/{entry}",
+                        "exists": True,
+                        "size": 0,
+                        "preview_path": "",
+                        "action": "remove",
+                    }
+                )
+
+        deduped = []
+        seen = set()
+        for item in items:
+            destination = item.get("destination_rel", "")
+            if destination in seen:
+                continue
+            seen.add(destination)
+            deduped.append(item)
+        return {
+            "id": "reset-default",
+            "name": "Reset to Default",
+            "theme_id": "reset-default",
+            "description": "Remove non-default themes and custom theme assets from the device.",
+            "status": "Remove",
+            "asset_count": len(deduped),
+            "found_count": len(deduped),
+            "missing_count": 0,
+            "preview_path": "",
+            "assets": deduped,
+            "resolutions": [],
+            "compatible_device_models": [],
+        }
 
     def inspect_theme(self, theme_id, source_repo_path):
         base = os.path.abspath(source_repo_path)
@@ -508,3 +576,17 @@ class RockboxThemeService:
         if not model:
             return False
         return any(item in model for item in compatible)
+
+    @staticmethod
+    def _list_device_theme_ids(mount_root):
+        themes_dir = os.path.join(os.path.abspath(mount_root or ""), ".rockbox", "themes")
+        if not os.path.isdir(themes_dir):
+            return []
+        theme_ids = []
+        for name in sorted(os.listdir(themes_dir)):
+            if not name.lower().endswith(".cfg"):
+                continue
+            theme_id = os.path.splitext(name)[0]
+            if theme_id:
+                theme_ids.append(theme_id)
+        return theme_ids

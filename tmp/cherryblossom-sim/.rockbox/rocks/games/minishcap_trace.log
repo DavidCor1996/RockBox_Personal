@@ -1,6 +1,0 @@
-minishcap plugin_start build=MC-SIM r4
-minishcap audio init rate=44100
-minishcap asset meadow_full skipped buf=1048576 need=1387008
-minishcap asset using chunked meadow renderer
-minishcap begin_room room=4 request=(12,86) spawn=(12,86) camera=(0,0)
-minishcap bgm profile=2 room=4 sword=0 menu=0

@@ -724,6 +724,89 @@ def test_device_playlist_import_maps_cached_device_tracks(config, db):
     assert tracks[0]["title"] == "Song"
 
 
+def test_device_playlist_import_uses_exact_path_without_sql_wildcard(config, db):
+    device = _device(config.mock_device_path)
+    key = db.upsert_device(device_record_from_info(device))["stable_device_key"]
+    db.upsert_device_track(
+        {
+            "device_id": key,
+            "device_path": "Music/Artist/Album/01 - Song.mp3",
+            "title": "Song",
+            "artist": "Artist",
+            "album": "Album",
+            "file_hash": "hash",
+            "metadata_hash": "mh",
+        }
+    )
+    db.upsert_device_track(
+        {
+            "device_id": key,
+            "device_path": "Music/Artist/02 - Song.mp3",
+            "title": "Song II",
+            "artist": "Different",
+            "album": "Other",
+            "file_hash": "hash2",
+            "metadata_hash": "mh2",
+        }
+    )
+    playlist_dir = os.path.join(config.mock_device_path, "Playlists")
+    os.makedirs(playlist_dir, exist_ok=True)
+    playlist_path = os.path.join(playlist_dir, "ExactOnly.m3u")
+    with open(playlist_path, "w", encoding="utf-8") as handle:
+        handle.write("Music/Artist/Album/01 - Song.mp3\n")
+
+    imported = import_device_playlists(db, device)
+    db.commit()
+
+    playlists = db.get_device_playlists(key)
+    tracks = db.get_device_playlist_tracks(playlists[0]["id"])
+    assert imported == 1
+    assert len(playlists) == 1
+    assert len(tracks) == 1
+    assert tracks[0]["title"] == "Song"
+
+
+def test_device_playlist_import_drops_ambiguous_basename_entries(config, db):
+    device = _device(config.mock_device_path)
+    key = db.upsert_device(device_record_from_info(device))["stable_device_key"]
+    db.upsert_device_track(
+        {
+            "device_id": key,
+            "device_path": "Music/Artist/Album/01 - Wake Up.mp3",
+            "title": "Wake Up",
+            "artist": "Artist",
+            "album": "Album",
+            "file_hash": "hash",
+            "metadata_hash": "mh",
+        }
+    )
+    db.upsert_device_track(
+        {
+            "device_id": key,
+            "device_path": "Music/Foo/Album/02 - Wake Up.mp3",
+            "title": "Wake Up",
+            "artist": "Different",
+            "album": "Other",
+            "file_hash": "hash2",
+            "metadata_hash": "mh2",
+        }
+    )
+    playlist_dir = os.path.join(config.mock_device_path, "Playlists")
+    os.makedirs(playlist_dir, exist_ok=True)
+    with open(os.path.join(playlist_dir, "Ambiguous.m3u"), "w", encoding="utf-8") as handle:
+        handle.write("Wake Up.mp3\n")
+
+    imported = import_device_playlists(db, device)
+    db.commit()
+
+    playlists = db.get_device_playlists(key)
+    tracks = db.get_device_playlist_tracks(playlists[0]["id"])
+    assert imported == 1
+    assert len(playlists) == 1
+    assert len(tracks) == 1
+    assert tracks[0]["local_track_id"] is None
+
+
 def test_device_playlist_import_skips_unchanged_files(config, db, monkeypatch):
     device = _device(config.mock_device_path)
     key = db.upsert_device(device_record_from_info(device))["stable_device_key"]
@@ -762,6 +845,51 @@ def test_device_playlist_import_skips_unchanged_files(config, db, monkeypatch):
     assert len(playlists) == 1
     assert len(tracks) == 1
     assert tracks[0]["title"] == "Song"
+
+
+def test_device_playlist_import_force_reparse_can_update_cached_entry(config, db, monkeypatch):
+    device = _device(config.mock_device_path)
+    key = db.upsert_device(device_record_from_info(device))["stable_device_key"]
+    local = _insert_local_track(db, title="Song", artist="Artist", album="Album", metadata_hash="mh")
+    db.upsert_device_track(
+        {
+            "device_id": key,
+            "device_path": "Music/Artist/Album/01 - Song.mp3",
+            "title": "Song",
+            "artist": "Artist",
+            "album": "Album",
+            "local_track_id": local["id"],
+            "metadata_hash": "mh",
+        }
+    )
+    playlist_dir = os.path.join(config.mock_device_path, "Playlists")
+    os.makedirs(playlist_dir, exist_ok=True)
+    playlist_path = os.path.join(playlist_dir, "ForceParse.m3u")
+    with open(playlist_path, "w", encoding="utf-8") as handle:
+        handle.write("Music/Artist/Album/01 - Song.mp3\n")
+
+    first = import_device_playlists(db, device)
+    db.commit()
+    assert first == 1
+
+    call_count = {"count": 0}
+
+    def fake_parse(path):
+        call_count["count"] += 1
+        return [
+            "Music/Artist/Album/01 - Song.mp3",
+        ]
+
+    monkeypatch.setattr(
+        "services.rockbox_playlists._parse_playlist_entries",
+        fake_parse,
+    )
+
+    second = import_device_playlists(db, device, force_reparse=True)
+    db.commit()
+
+    assert second == 1
+    assert call_count["count"] == 1
 
 
 def test_device_playlist_import_removes_deleted_files(config, db):

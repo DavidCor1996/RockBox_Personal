@@ -1728,50 +1728,50 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000    0xc6b5b
+.debug_info     0x0000000000000000    0xc6f82
  *(.debug_info .gnu.linkonce.wi.*)
  .debug_info    0x0000000000000000      0xea6 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/drv_nos.o
- .debug_info    0x0000000000000ea6     0x9700 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/load_669.o
- .debug_info    0x000000000000a5a6     0x29a2 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/load_amf.o
- .debug_info    0x000000000000cf48     0x221c /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/load_asy.o
- .debug_info    0x000000000000f164     0x259e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/load_dsm.o
- .debug_info    0x0000000000011702     0x241b /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/load_far.o
- .debug_info    0x0000000000013b1d     0x2750 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/load_gdm.o
- .debug_info    0x000000000001626d     0x2ed3 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/load_imf.o
- .debug_info    0x0000000000019140     0xa77d /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/load_it.o
- .debug_info    0x00000000000238bd     0x262f /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/load_m15.o
- .debug_info    0x0000000000025eec     0x33a4 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/load_med.o
- .debug_info    0x0000000000029290     0x29f7 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/load_mod.o
- .debug_info    0x000000000002bc87     0x20c3 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/load_mtm.o
- .debug_info    0x000000000002dd4a     0x2453 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/load_okt.o
- .debug_info    0x000000000003019d     0x2598 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/load_s3m.o
- .debug_info    0x0000000000032735     0x2424 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/load_stm.o
- .debug_info    0x0000000000034b59     0x26eb /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/load_stx.o
- .debug_info    0x0000000000037244     0x94b1 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/load_ult.o
- .debug_info    0x00000000000406f5     0x8a2e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/load_umx.o
- .debug_info    0x0000000000049123     0x9c44 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/load_uni.o
- .debug_info    0x0000000000052d67     0xa490 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/load_xm.o
- .debug_info    0x000000000005d1f7      0x711 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/mdreg.o
- .debug_info    0x000000000005d908     0xafc4 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/mdriver.o
- .debug_info    0x00000000000688cc     0xa466 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/mloader.o
- .debug_info    0x0000000000072d32      0x38e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/mlreg.o
- .debug_info    0x00000000000730c0     0x306e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/mlutil.o
- .debug_info    0x000000000007612e     0x7ab8 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/mmalloc.o
- .debug_info    0x000000000007dbe6      0xa45 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/mmerror.o
- .debug_info    0x000000000007e62b     0xa3db /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/mmio.o
- .debug_info    0x0000000000088a06     0xf612 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/mplayer.o
- .debug_info    0x0000000000098018      0xca8 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/munitrk.o
- .debug_info    0x0000000000098cc0      0x694 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/npertab.o
- .debug_info    0x0000000000099354     0x1bbc /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/sloader.o
- .debug_info    0x000000000009af10     0x2bb4 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/virtch.o
- .debug_info    0x000000000009dac4     0x2b24 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/virtch2.o
- .debug_info    0x00000000000a05e8     0x162f /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/virtch_common.o
- .debug_info    0x00000000000a1c17     0xc28e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/mikmod.o
- .debug_info    0x00000000000adea5     0x7cad /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
- .debug_info    0x00000000000b5b52     0x1b6b /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libtlsf.a(tlsf.o)
- .debug_info    0x00000000000b76bd     0x767e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
- .debug_info    0x00000000000bed3b     0x7cf6 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(configfile.o)
- .debug_info    0x00000000000c6a31      0x12a /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(strncpy.o)
+ .debug_info    0x0000000000000ea6     0x9745 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/load_669.o
+ .debug_info    0x000000000000a5eb     0x29a2 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/load_amf.o
+ .debug_info    0x000000000000cf8d     0x221c /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/load_asy.o
+ .debug_info    0x000000000000f1a9     0x259e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/load_dsm.o
+ .debug_info    0x0000000000011747     0x241b /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/load_far.o
+ .debug_info    0x0000000000013b62     0x2750 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/load_gdm.o
+ .debug_info    0x00000000000162b2     0x2ed3 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/load_imf.o
+ .debug_info    0x0000000000019185     0xa7c2 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/load_it.o
+ .debug_info    0x0000000000023947     0x262f /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/load_m15.o
+ .debug_info    0x0000000000025f76     0x33a4 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/load_med.o
+ .debug_info    0x000000000002931a     0x29f7 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/load_mod.o
+ .debug_info    0x000000000002bd11     0x20c3 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/load_mtm.o
+ .debug_info    0x000000000002ddd4     0x2453 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/load_okt.o
+ .debug_info    0x0000000000030227     0x2598 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/load_s3m.o
+ .debug_info    0x00000000000327bf     0x2424 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/load_stm.o
+ .debug_info    0x0000000000034be3     0x26eb /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/load_stx.o
+ .debug_info    0x00000000000372ce     0x94f6 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/load_ult.o
+ .debug_info    0x00000000000407c4     0x8a73 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/load_umx.o
+ .debug_info    0x0000000000049237     0x9c89 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/load_uni.o
+ .debug_info    0x0000000000052ec0     0xa4d5 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/load_xm.o
+ .debug_info    0x000000000005d395      0x711 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/mdreg.o
+ .debug_info    0x000000000005daa6     0xb009 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/mdriver.o
+ .debug_info    0x0000000000068aaf     0xa4ab /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/mloader.o
+ .debug_info    0x0000000000072f5a      0x38e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/mlreg.o
+ .debug_info    0x00000000000732e8     0x306e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/mlutil.o
+ .debug_info    0x0000000000076356     0x7afd /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/mmalloc.o
+ .debug_info    0x000000000007de53      0xa45 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/mmerror.o
+ .debug_info    0x000000000007e898     0xa420 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/mmio.o
+ .debug_info    0x0000000000088cb8     0xf657 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/mplayer.o
+ .debug_info    0x000000000009830f      0xca8 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/munitrk.o
+ .debug_info    0x0000000000098fb7      0x694 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/npertab.o
+ .debug_info    0x000000000009964b     0x1bbc /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/sloader.o
+ .debug_info    0x000000000009b207     0x2bb4 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/virtch.o
+ .debug_info    0x000000000009ddbb     0x2b24 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/virtch2.o
+ .debug_info    0x00000000000a08df     0x162f /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/virtch_common.o
+ .debug_info    0x00000000000a1f0e     0xc2ef /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/mikmod.o
+ .debug_info    0x00000000000ae1fd     0x7cf2 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+ .debug_info    0x00000000000b5eef     0x1b6b /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libtlsf.a(tlsf.o)
+ .debug_info    0x00000000000b7a5a     0x76c3 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
+ .debug_info    0x00000000000bf11d     0x7d3b /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(configfile.o)
+ .debug_info    0x00000000000c6e58      0x12a /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(strncpy.o)
 
 .debug_abbrev   0x0000000000000000     0xc00e
  *(.debug_abbrev)
@@ -1866,91 +1866,91 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000    0x10a06
+.debug_str      0x0000000000000000    0x10aee
  *(.debug_str)
- .debug_str     0x0000000000000000    0x10a06 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/drv_nos.o
+ .debug_str     0x0000000000000000    0x10aee /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/drv_nos.o
                                        0x11dd (size before relaxing)
- .debug_str     0x0000000000010a06        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/load_669.o
-                                       0x644d (size before relaxing)
- .debug_str     0x0000000000010a06        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/load_amf.o
+ .debug_str     0x0000000000010aee        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/load_669.o
+                                       0x64cd (size before relaxing)
+ .debug_str     0x0000000000010aee        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/load_amf.o
                                        0x1f84 (size before relaxing)
- .debug_str     0x0000000000010a06        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/load_asy.o
+ .debug_str     0x0000000000010aee        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/load_asy.o
                                        0x1e5c (size before relaxing)
- .debug_str     0x0000000000010a06        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/load_dsm.o
+ .debug_str     0x0000000000010aee        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/load_dsm.o
                                        0x1e90 (size before relaxing)
- .debug_str     0x0000000000010a06        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/load_far.o
+ .debug_str     0x0000000000010aee        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/load_far.o
                                        0x1e67 (size before relaxing)
- .debug_str     0x0000000000010a06        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/load_gdm.o
+ .debug_str     0x0000000000010aee        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/load_gdm.o
                                        0x1f17 (size before relaxing)
- .debug_str     0x0000000000010a06        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/load_imf.o
+ .debug_str     0x0000000000010aee        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/load_imf.o
                                        0x1f45 (size before relaxing)
- .debug_str     0x0000000000010a06        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/load_it.o
-                                       0x67e1 (size before relaxing)
- .debug_str     0x0000000000010a06        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/load_m15.o
+ .debug_str     0x0000000000010aee        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/load_it.o
+                                       0x6861 (size before relaxing)
+ .debug_str     0x0000000000010aee        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/load_m15.o
                                        0x1ee4 (size before relaxing)
- .debug_str     0x0000000000010a06        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/load_med.o
+ .debug_str     0x0000000000010aee        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/load_med.o
                                        0x21b1 (size before relaxing)
- .debug_str     0x0000000000010a06        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/load_mod.o
+ .debug_str     0x0000000000010aee        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/load_mod.o
                                        0x1f7b (size before relaxing)
- .debug_str     0x0000000000010a06        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/load_mtm.o
+ .debug_str     0x0000000000010aee        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/load_mtm.o
                                        0x1e69 (size before relaxing)
- .debug_str     0x0000000000010a06        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/load_okt.o
+ .debug_str     0x0000000000010aee        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/load_okt.o
                                        0x1e70 (size before relaxing)
- .debug_str     0x0000000000010a06        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/load_s3m.o
+ .debug_str     0x0000000000010aee        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/load_s3m.o
                                        0x1f32 (size before relaxing)
- .debug_str     0x0000000000010a06        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/load_stm.o
+ .debug_str     0x0000000000010aee        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/load_stm.o
                                        0x1ec7 (size before relaxing)
- .debug_str     0x0000000000010a06        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/load_stx.o
+ .debug_str     0x0000000000010aee        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/load_stx.o
                                        0x1ef9 (size before relaxing)
- .debug_str     0x0000000000010a06        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/load_ult.o
-                                       0x643a (size before relaxing)
- .debug_str     0x0000000000010a06        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/load_umx.o
-                                       0x56c9 (size before relaxing)
- .debug_str     0x0000000000010a06        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/load_uni.o
-                                       0x648e (size before relaxing)
- .debug_str     0x0000000000010a06        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/load_xm.o
-                                       0x6564 (size before relaxing)
- .debug_str     0x0000000000010a06        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/mdreg.o
+ .debug_str     0x0000000000010aee        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/load_ult.o
+                                       0x64ba (size before relaxing)
+ .debug_str     0x0000000000010aee        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/load_umx.o
+                                       0x5749 (size before relaxing)
+ .debug_str     0x0000000000010aee        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/load_uni.o
+                                       0x650e (size before relaxing)
+ .debug_str     0x0000000000010aee        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/load_xm.o
+                                       0x65e4 (size before relaxing)
+ .debug_str     0x0000000000010aee        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/mdreg.o
                                         0x478 (size before relaxing)
- .debug_str     0x0000000000010a06        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/mdriver.o
-                                       0x6bb5 (size before relaxing)
- .debug_str     0x0000000000010a06        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/mloader.o
-                                       0x668a (size before relaxing)
- .debug_str     0x0000000000010a06        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/mlreg.o
+ .debug_str     0x0000000000010aee        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/mdriver.o
+                                       0x6c35 (size before relaxing)
+ .debug_str     0x0000000000010aee        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/mloader.o
+                                       0x670a (size before relaxing)
+ .debug_str     0x0000000000010aee        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/mlreg.o
                                         0x2b7 (size before relaxing)
- .debug_str     0x0000000000010a06        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/mlutil.o
+ .debug_str     0x0000000000010aee        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/mlutil.o
                                        0x15a6 (size before relaxing)
- .debug_str     0x0000000000010a06        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/mmalloc.o
-                                       0x506c (size before relaxing)
- .debug_str     0x0000000000010a06        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/mmerror.o
+ .debug_str     0x0000000000010aee        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/mmalloc.o
+                                       0x50ec (size before relaxing)
+ .debug_str     0x0000000000010aee        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/mmerror.o
                                        0x1632 (size before relaxing)
- .debug_str     0x0000000000010a06        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/mmio.o
-                                       0x54f8 (size before relaxing)
- .debug_str     0x0000000000010a06        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/mplayer.o
-                                       0x667a (size before relaxing)
- .debug_str     0x0000000000010a06        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/munitrk.o
+ .debug_str     0x0000000000010aee        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/mmio.o
+                                       0x5578 (size before relaxing)
+ .debug_str     0x0000000000010aee        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/mplayer.o
+                                       0x66fa (size before relaxing)
+ .debug_str     0x0000000000010aee        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/munitrk.o
                                         0xef0 (size before relaxing)
- .debug_str     0x0000000000010a06        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/npertab.o
+ .debug_str     0x0000000000010aee        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/npertab.o
                                         0xdcc (size before relaxing)
- .debug_str     0x0000000000010a06        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/sloader.o
+ .debug_str     0x0000000000010aee        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/sloader.o
                                        0x19ac (size before relaxing)
- .debug_str     0x0000000000010a06        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/virtch.o
+ .debug_str     0x0000000000010aee        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/virtch.o
                                        0x1c75 (size before relaxing)
- .debug_str     0x0000000000010a06        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/virtch2.o
+ .debug_str     0x0000000000010aee        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/virtch2.o
                                        0x1cc3 (size before relaxing)
- .debug_str     0x0000000000010a06        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/virtch_common.o
+ .debug_str     0x0000000000010aee        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/virtch_common.o
                                        0x1507 (size before relaxing)
- .debug_str     0x0000000000010a06        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/mikmod.o
-                                       0xc174 (size before relaxing)
- .debug_str     0x0000000000010a06        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
-                                       0x514b (size before relaxing)
- .debug_str     0x0000000000010a06        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libtlsf.a(tlsf.o)
+ .debug_str     0x0000000000010aee        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/mikmod.o
+                                       0xc25c (size before relaxing)
+ .debug_str     0x0000000000010aee        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+                                       0x51cb (size before relaxing)
+ .debug_str     0x0000000000010aee        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libtlsf.a(tlsf.o)
                                         0x410 (size before relaxing)
- .debug_str     0x0000000000010a06        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
-                                       0x47f2 (size before relaxing)
- .debug_str     0x0000000000010a06        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(configfile.o)
-                                       0x48c1 (size before relaxing)
- .debug_str     0x0000000000010a06        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(strncpy.o)
+ .debug_str     0x0000000000010aee        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
+                                       0x4872 (size before relaxing)
+ .debug_str     0x0000000000010aee        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(configfile.o)
+                                       0x4941 (size before relaxing)
+ .debug_str     0x0000000000010aee        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(strncpy.o)
                                         0x19c (size before relaxing)
 
 .debug_loc
@@ -2111,7 +2111,7 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
                                         0x16d (size before relaxing)
 
 .debug_loclists
-                0x0000000000000000    0x1ed13
+                0x0000000000000000    0x1ed08
  *(.debug_loclists)
  .debug_loclists
                 0x0000000000000000      0x691 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/load_669.o
@@ -2158,37 +2158,37 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
  .debug_loclists
                 0x0000000000009f97      0xf8f /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/mloader.o
  .debug_loclists
-                0x000000000000af26     0x1940 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/mlutil.o
+                0x000000000000af26     0x193e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/mlutil.o
  .debug_loclists
-                0x000000000000c866      0x1bf /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/mmalloc.o
+                0x000000000000c864      0x1bf /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/mmalloc.o
  .debug_loclists
-                0x000000000000ca25       0x36 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/mmerror.o
+                0x000000000000ca23       0x36 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/mmerror.o
  .debug_loclists
-                0x000000000000ca5b     0x18fa /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/mmio.o
+                0x000000000000ca59     0x18fa /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/mmio.o
  .debug_loclists
-                0x000000000000e355     0x6af6 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/mplayer.o
+                0x000000000000e353     0x6aed /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/mplayer.o
  .debug_loclists
-                0x0000000000014e4b      0x3eb /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/munitrk.o
+                0x0000000000014e40      0x3eb /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/munitrk.o
  .debug_loclists
-                0x0000000000015236     0x21ee /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/sloader.o
+                0x000000000001522b     0x21ee /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/sloader.o
  .debug_loclists
-                0x0000000000017424     0x2a73 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/virtch.o
+                0x0000000000017419     0x2a73 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/virtch.o
  .debug_loclists
-                0x0000000000019e97     0x3168 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/virtch2.o
+                0x0000000000019e8c     0x3168 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/virtch2.o
  .debug_loclists
-                0x000000000001cfff      0x28a /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/virtch_common.o
+                0x000000000001cff4      0x28a /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/virtch_common.o
  .debug_loclists
-                0x000000000001d289      0x668 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/mikmod.o
+                0x000000000001d27e      0x668 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/mikmod/mikmod.o
  .debug_loclists
-                0x000000000001d8f1       0x9e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+                0x000000000001d8e6       0x9e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
  .debug_loclists
-                0x000000000001d98f      0xe93 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libtlsf.a(tlsf.o)
+                0x000000000001d984      0xe93 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libtlsf.a(tlsf.o)
  .debug_loclists
-                0x000000000001e822       0xe4 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
+                0x000000000001e817       0xe4 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
  .debug_loclists
-                0x000000000001e906      0x36a /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(configfile.o)
+                0x000000000001e8fb      0x36a /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(configfile.o)
  .debug_loclists
-                0x000000000001ec70       0xa3 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(strncpy.o)
+                0x000000000001ec65       0xa3 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(strncpy.o)
 
 .debug_macro
  *(.debug_macro)

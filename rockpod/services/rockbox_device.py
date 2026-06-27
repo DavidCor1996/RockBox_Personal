@@ -15,6 +15,13 @@ ROCKBOX_DATABASE_GLOBS = [
     ".rockbox/database/*.tcd",
 ]
 
+PICTUREFLOW_CACHE_GLOBS = [
+    ".rockbox/rocks/demos/pictureflow/*.pfraw",
+    ".rockbox/rocks/demos/pictureflow/pictureflow_album.idx",
+]
+
+PICTUREFLOW_CONFIG_REL = ".rockbox/rocks/demos/pictureflow.cfg"
+
 RUNTIME_EXPORT_GLOBS = [
     ".rockbox/database_changelog.txt",
     ".rockbox/database_changelog.json",
@@ -147,6 +154,59 @@ def clear_rockbox_database_cache(device):
                 removed.append(path)
             except OSError as exc:
                 failures.append(f"{path}: {exc}")
+
+    return {
+        "success": not failures,
+        "removed": removed,
+        "failures": failures,
+    }
+
+
+def invalidate_pictureflow_cache(device):
+    """Remove generated PictureFlow cache files so album art is rebuilt from current tags/covers."""
+    mount_path = getattr(device, "mount_path", "")
+    if not mount_path or not os.path.isdir(mount_path):
+        return {"success": False, "removed": [], "failures": ["Device mount path is unavailable"]}
+
+    removed = []
+    failures = []
+    seen = set()
+    for pattern in PICTUREFLOW_CACHE_GLOBS:
+        for path in glob.glob(os.path.join(mount_path, pattern)):
+            real = os.path.realpath(path)
+            if real in seen:
+                continue
+            seen.add(real)
+            if not os.path.isfile(path):
+                continue
+            try:
+                os.remove(path)
+                removed.append(path)
+            except OSError as exc:
+                failures.append(f"{path}: {exc}")
+
+    config_path = os.path.join(mount_path, PICTUREFLOW_CONFIG_REL)
+    if os.path.isfile(config_path):
+        try:
+            with open(config_path, "r", encoding="utf-8", errors="replace") as handle:
+                lines = handle.readlines()
+            updated = False
+            for idx, raw in enumerate(lines):
+                stripped = raw.strip()
+                if ":" not in stripped or stripped.startswith("#"):
+                    continue
+                key, _value = stripped.split(":", 1)
+                normalized = key.strip().lower()
+                if normalized == "cache version":
+                    lines[idx] = "cache version:          0\n"
+                    updated = True
+                elif normalized == "update albumart":
+                    lines[idx] = "update albumart:          0\n"
+                    updated = True
+            if updated:
+                atomic_write_text(config_path, "".join(lines))
+        except OSError as exc:
+            failures.append(f"{config_path}: {exc}")
 
     return {
         "success": not failures,

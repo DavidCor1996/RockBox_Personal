@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+import math
 import shutil
 import subprocess
 
@@ -10,6 +11,7 @@ from PySide6.QtCore import Qt, QRectF, Signal, QTimer, QProcess, QEvent
 from PySide6.QtGui import QColor, QFont, QPainter, QPainterPath, QPen, QPixmap, QWindow
 from PySide6.QtWidgets import (
     QComboBox,
+    QCheckBox,
     QColorDialog,
     QDialog,
     QDialogButtonBox,
@@ -23,6 +25,7 @@ from PySide6.QtWidgets import (
     QPushButton,
     QScrollArea,
     QSizePolicy,
+    QSpinBox,
     QStackedLayout,
     QVBoxLayout,
     QWidget,
@@ -46,6 +49,7 @@ COLOR_PROFILES = {
             "selector_end": "9D7AE6",
             "selector_text": "FCF9FF",
             "list_separator": "1A1621",
+            "sbs_clock": "E8DFF8",
         },
     },
     "blue": {
@@ -155,10 +159,11 @@ LIGHT_COLOR_PROFILES = {
         "background": "F5F1FA",
         "foreground": "15121D",
         "selector_start": "DCD3EA",
-        "selector_end": "9D7AE6",
-        "selector_text": "15121D",
-        "list_separator": "DED6E8",
-    },
+            "selector_end": "9D7AE6",
+            "selector_text": "15121D",
+            "list_separator": "DED6E8",
+            "sbs_clock": "15121D",
+        },
     "blue": {
         "background": "F1F7FF",
         "foreground": "0D111B",
@@ -478,6 +483,158 @@ class _RightPanePositionDialog(QDialog):
         self._offset_y = int(offset_y)
 
 
+class _LockscreenClockPositionWidget(QWidget):
+    position_changed = Signal(int, int)
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setMinimumSize(320, 300)
+        self._wallpaper_path = ""
+        self._x = 0
+        self._y = 32
+        self._width = 320
+        self._height = 55
+        self._color = "FFFFFF"
+        self._align = "center"
+        self._drag_offset = None
+
+    def set_clock(self, wallpaper_path, x, y, width, height, color, align):
+        self._wallpaper_path = str(wallpaper_path or "").strip()
+        self._x = self._clamp(int(x or 0), 0, 319)
+        self._y = self._clamp(int(y or 32), 0, 180)
+        self._width = self._clamp(int(width or 320), 40, 320)
+        self._height = self._clamp(int(height or 55), 12, 100)
+        self._color = str(color or "FFFFFF").strip().lstrip("#")[:6] or "FFFFFF"
+        self._align = str(align or "center").strip().lower()
+        self.update()
+
+    def position(self):
+        return self._x, self._y
+
+    def paintEvent(self, _event):
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.Antialiasing)
+        painter.fillRect(self.rect(), QColor("#101014"))
+        screen = self._screen_rect()
+        pixmap = QPixmap(self._wallpaper_path) if self._wallpaper_path and os.path.isfile(self._wallpaper_path) else QPixmap()
+        if pixmap.isNull():
+            painter.fillRect(screen, QColor("#17131F"))
+        else:
+            fitted = pixmap.scaled(screen.size().toSize(), Qt.KeepAspectRatioByExpanding, Qt.SmoothTransformation)
+            source = QRectF(
+                max(0, (fitted.width() - screen.width()) / 2),
+                max(0, (fitted.height() - screen.height()) / 2),
+                screen.width(),
+                screen.height(),
+            )
+            painter.drawPixmap(screen, fitted, source)
+
+        box = self._clock_rect()
+        painter.fillRect(box, QColor(0, 0, 0, 72))
+        painter.setPen(QPen(QColor("#FFFFFF"), 2))
+        painter.drawRoundedRect(box, 5, 5)
+        painter.setPen(QColor(f"#{self._color}"))
+        font = QFont()
+        font.setPointSize(max(13, int(box.height() * 0.38)))
+        font.setBold(False)
+        painter.setFont(font)
+        alignment = {"left": Qt.AlignLeft, "right": Qt.AlignRight}.get(self._align, Qt.AlignHCenter)
+        painter.drawText(box.adjusted(8, 0, -8, 0), alignment | Qt.AlignVCenter, "10:09 PM")
+        painter.setPen(QColor(255, 255, 255, 180))
+        painter.drawText(screen.adjusted(0, 8, 0, 0), Qt.AlignHCenter | Qt.AlignTop, "Drag clock box")
+
+    def mousePressEvent(self, event):
+        if event.button() == Qt.LeftButton and self._clock_rect().contains(event.position()):
+            self._drag_offset = event.position() - self._clock_rect().topLeft()
+            self.setCursor(Qt.ClosedHandCursor)
+        super().mousePressEvent(event)
+
+    def mouseMoveEvent(self, event):
+        if self._drag_offset is not None:
+            screen = self._screen_rect()
+            scale = 320.0 / max(1.0, screen.width())
+            pos = event.position() - self._drag_offset
+            self._x = self._clamp(int(round((pos.x() - screen.x()) * scale)), 0, max(0, 320 - self._width))
+            self._y = self._clamp(int(round((pos.y() - screen.y()) * scale)), 0, 180)
+            self.position_changed.emit(self._x, self._y)
+            self.update()
+        super().mouseMoveEvent(event)
+
+    def mouseReleaseEvent(self, event):
+        self._drag_offset = None
+        self.unsetCursor()
+        super().mouseReleaseEvent(event)
+
+    def _screen_rect(self):
+        available = QRectF(self.rect()).adjusted(12, 12, -12, -12)
+        scale = min(available.width() / 320.0, available.height() / 240.0)
+        width = 320.0 * scale
+        height = 240.0 * scale
+        return QRectF(available.center().x() - width / 2, available.center().y() - height / 2, width, height)
+
+    def _clock_rect(self):
+        screen = self._screen_rect()
+        scale = screen.width() / 320.0
+        return QRectF(
+            screen.x() + self._x * scale,
+            screen.y() + self._y * scale,
+            self._width * scale,
+            self._height * scale,
+        )
+
+    @staticmethod
+    def _clamp(value, low, high):
+        return max(int(low), min(int(high), int(value)))
+
+
+class _LockscreenClockPositionDialog(QDialog):
+    def __init__(self, parent, wallpaper_path, x, y, width, height, color, align):
+        super().__init__(parent)
+        self.setWindowTitle("Position Lockscreen Clock")
+        self._x = int(x or 0)
+        self._y = int(y or 32)
+
+        layout = QVBoxLayout(self)
+        hint = QLabel("Drag the clock box to place the lockscreen time. Use the size fields in the designer for exact box size.")
+        hint.setWordWrap(True)
+        layout.addWidget(hint)
+        self._position = _LockscreenClockPositionWidget()
+        self._position.set_clock(wallpaper_path, x, y, width, height, color, align)
+        self._position.position_changed.connect(self._set_position)
+        layout.addWidget(self._position, 1)
+
+        actions = QHBoxLayout()
+        center = QPushButton("Center")
+        center.clicked.connect(self._center)
+        actions.addWidget(center)
+        actions.addStretch(1)
+        buttons = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        buttons.accepted.connect(self.accept)
+        buttons.rejected.connect(self.reject)
+        actions.addWidget(buttons)
+        layout.addLayout(actions)
+
+    def position(self):
+        return self._x, self._y
+
+    def _set_position(self, x, y):
+        self._x = int(x)
+        self._y = int(y)
+
+    def _center(self):
+        self._x = 0
+        self._y = 32
+        self._position.set_clock(
+            self._position._wallpaper_path,
+            self._x,
+            self._y,
+            self._position._width,
+            self._position._height,
+            self._position._color,
+            self._position._align,
+        )
+
+
 class _ScreenPreview(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -497,10 +654,23 @@ class _ScreenPreview(QWidget):
             "colors": {},
         }
         self._mode = "main_menu"
+        self._spinner_frame = 0
+        self._loading_timer = QTimer(self)
+        self._loading_timer.setInterval(90)
+        self._loading_timer.timeout.connect(self._tick_loading_spinner)
 
     def set_preview(self, state, mode):
         self._state = dict(state or {})
         self._mode = mode or "main_menu"
+        if self._state.get("preview_loading"):
+            if not self._loading_timer.isActive():
+                self._loading_timer.start()
+        else:
+            self._loading_timer.stop()
+        self.update()
+
+    def _tick_loading_spinner(self):
+        self._spinner_frame = (self._spinner_frame + 1) % 12
         self.update()
 
     def paintEvent(self, event):
@@ -508,6 +678,7 @@ class _ScreenPreview(QWidget):
         painter.setRenderHint(QPainter.Antialiasing)
         painter.fillRect(self.rect(), QColor("#0b0b0d"))
         if self._paint_simulator_surface(painter, QRectF(self.rect())):
+            self._paint_loading_overlay(painter)
             return
         painter.setPen(QColor("#F7F4FA"))
         font = QFont()
@@ -516,6 +687,7 @@ class _ScreenPreview(QWidget):
         painter.setFont(font)
         text = self._state.get("simulator_status_text") or "Simulator preview unavailable"
         painter.drawText(self.rect().adjusted(16, 16, -16, -16), Qt.AlignCenter | Qt.TextWordWrap, text)
+        self._paint_loading_overlay(painter)
 
     def _paint_simulator_surface(self, painter, target_rect):
         shot = self._state.get("simulator_preview_path", "")
@@ -533,6 +705,35 @@ class _ScreenPreview(QWidget):
                 painter.drawPixmap(x, y, fitted)
                 return True
         return False
+
+    def _paint_loading_overlay(self, painter):
+        if not self._state.get("preview_loading"):
+            return
+        overlay = QRectF(self.rect()).adjusted(12, 12, -12, -12)
+        painter.save()
+        painter.setBrush(QColor(0, 0, 0, 135))
+        painter.setPen(Qt.NoPen)
+        painter.drawRoundedRect(overlay, 10, 10)
+        center = overlay.center()
+        radius = 18
+        tick_count = 12
+        for index in range(tick_count):
+            distance = (index - self._spinner_frame) % tick_count
+            alpha = 55 + int(200 * (1.0 - distance / tick_count))
+            painter.setPen(QPen(QColor(255, 255, 255, min(255, alpha)), 3))
+            angle = (index / tick_count) * math.tau
+            x1 = center.x() + radius * 0.55 * math.cos(angle)
+            y1 = center.y() + radius * 0.55 * math.sin(angle)
+            x2 = center.x() + radius * math.cos(angle)
+            y2 = center.y() + radius * math.sin(angle)
+            painter.drawLine(int(x1), int(y1), int(x2), int(y2))
+        painter.setPen(QColor("#FFFFFF"))
+        font = QFont()
+        font.setPointSize(11)
+        font.setBold(True)
+        painter.setFont(font)
+        painter.drawText(overlay.adjusted(0, 48, 0, 0), Qt.AlignCenter, "Updating preview...")
+        painter.restore()
 
     def mousePressEvent(self, event):
         super().mousePressEvent(event)
@@ -866,8 +1067,11 @@ class ThemeDesignerWidget(QWidget):
         self._base_right_pane_wallpaper_path = ""
         self._base_menu_backdrop_path = ""
         self._base_simulator_preview_path = ""
+        self._preview_loading = False
+        self._suppress_preview_signal = False
         self._right_pane_offset_x = 0
         self._right_pane_offset_y = 0
+        self._lockscreen_clock_font_pending = "fonts/66-Cantarell-Light.fnt"
 
         self.setStyleSheet(
             "QFrame#DesignerSection {"
@@ -952,16 +1156,20 @@ class ThemeDesignerWidget(QWidget):
         self._charging_wallpaper_edit.textChanged.connect(self._sync_preview)
         self._right_pane_wallpaper_edit = QLineEdit()
         self._right_pane_wallpaper_edit.setPlaceholderText("Default")
-        self._right_pane_wallpaper_edit.textChanged.connect(self._sync_preview)
+        self._right_pane_wallpaper_edit.textChanged.connect(self._on_right_pane_wallpaper_changed)
         self._fit_combo = QComboBox()
         self._fit_combo.addItems(["fill", "fit", "stretch"])
         self._charge_fit_combo = QComboBox()
         self._charge_fit_combo.addItems(["fill", "fit", "stretch"])
         self._right_pane_fit_combo = QComboBox()
         self._right_pane_fit_combo.addItems(["fill", "fit", "stretch"])
+        self._right_pane_mode_combo = QComboBox()
+        self._right_pane_mode_combo.addItem("Miniplayer", "miniplayer")
+        self._right_pane_mode_combo.addItem("Full art", "full art")
         self._fit_combo.currentIndexChanged.connect(self._sync_preview)
         self._charge_fit_combo.currentIndexChanged.connect(self._sync_preview)
         self._right_pane_fit_combo.currentIndexChanged.connect(self._sync_preview)
+        self._right_pane_mode_combo.currentIndexChanged.connect(self._sync_preview)
         wallpapers_form.addRow("Main", self._path_row(self._wallpaper_edit, self._choose_wallpaper))
         wallpapers_form.addRow("Charging", self._path_row(self._charging_wallpaper_edit, self._choose_charging_wallpaper))
         wallpapers_form.addRow(
@@ -972,6 +1180,7 @@ class ThemeDesignerWidget(QWidget):
                 [("Position", self._choose_right_pane_position)],
             ),
         )
+        wallpapers_form.addRow("Right pane mode", self._right_pane_mode_combo)
         wallpapers_layout.addLayout(wallpapers_form)
         self._artwork_advanced_toggle = QPushButton("Show fit options")
         self._artwork_advanced_toggle.setCheckable(True)
@@ -1028,6 +1237,10 @@ class ThemeDesignerWidget(QWidget):
         self._selector_end_btn = _ColorButton("Highlight End")
         self._selector_text_btn = _ColorButton("Highlight Text")
         self._separator_btn = _ColorButton("Separator")
+        self._sbs_clock_btn = _ColorButton("SBS Clock")
+        self._line_separators_check = QCheckBox("Show line separators")
+        self._line_separators_check.setChecked(True)
+        self._line_separators_check.stateChanged.connect(self._sync_preview)
         for button in (
             self._background_btn,
             self._foreground_btn,
@@ -1035,10 +1248,12 @@ class ThemeDesignerWidget(QWidget):
             self._selector_end_btn,
             self._selector_text_btn,
             self._separator_btn,
+            self._sbs_clock_btn,
         ):
             button.color_changed.connect(self._sync_preview)
         theme_form.addRow("Mode", self._appearance_mode_combo)
         theme_form.addRow("Accent", self._color_profile_combo)
+        theme_form.addRow("", self._line_separators_check)
         theme_layout.addLayout(theme_form)
         self._advanced_color_toggle = QPushButton("Show advanced colors and font")
         self._advanced_color_toggle.setCheckable(True)
@@ -1049,6 +1264,7 @@ class ThemeDesignerWidget(QWidget):
         advanced_color_form.addRow("Font", self._font_combo)
         advanced_color_form.addRow("Background", self._background_btn)
         advanced_color_form.addRow("Text", self._foreground_btn)
+        advanced_color_form.addRow("Right clock", self._sbs_clock_btn)
         advanced_color_form.addRow("Highlight start", self._selector_start_btn)
         advanced_color_form.addRow("Highlight end", self._selector_end_btn)
         advanced_color_form.addRow("Highlight text", self._selector_text_btn)
@@ -1057,6 +1273,58 @@ class ThemeDesignerWidget(QWidget):
         theme_layout.addWidget(self._advanced_color_toggle)
         theme_layout.addWidget(self._advanced_color_options)
         controls.addWidget(theme_form_frame)
+
+        clock_frame = QFrame()
+        clock_frame.setObjectName("DesignerSection")
+        clock_layout = QVBoxLayout(clock_frame)
+        clock_layout.setContentsMargins(10, 8, 10, 8)
+        clock_layout.setSpacing(8)
+        clock_title = QLabel("Lockscreen Clock")
+        clock_title.setObjectName("SectionTitle")
+        clock_hint = QLabel("Choose the font file, color, size box, and screen position for the lockscreen time.")
+        clock_hint.setObjectName("SectionHint")
+        clock_layout.addWidget(clock_title)
+        clock_layout.addWidget(clock_hint)
+        clock_form = QFormLayout()
+        self._lockscreen_clock_font_combo = QComboBox()
+        self._lockscreen_clock_font_combo.currentIndexChanged.connect(self._sync_preview)
+        self._lockscreen_clock_color_btn = _ColorButton("Clock Color")
+        self._lockscreen_clock_color_btn.color_changed.connect(self._sync_preview)
+        self._lockscreen_clock_align_combo = QComboBox()
+        self._lockscreen_clock_align_combo.addItem("Left", "left")
+        self._lockscreen_clock_align_combo.addItem("Center", "center")
+        self._lockscreen_clock_align_combo.addItem("Right", "right")
+        self._lockscreen_clock_align_combo.currentIndexChanged.connect(self._sync_preview)
+        self._lockscreen_clock_x_spin = self._spinbox(0, 319, 0)
+        self._lockscreen_clock_y_spin = self._spinbox(0, 180, 32)
+        self._lockscreen_clock_width_spin = self._spinbox(40, 320, 320)
+        self._lockscreen_clock_height_spin = self._spinbox(12, 100, 55)
+        self._lockscreen_clock_position_btn = QPushButton("Position Visually")
+        self._lockscreen_clock_position_btn.clicked.connect(self._choose_lockscreen_clock_position)
+        clock_position_row = QWidget()
+        clock_position_layout = QHBoxLayout(clock_position_row)
+        clock_position_layout.setContentsMargins(0, 0, 0, 0)
+        clock_position_layout.setSpacing(6)
+        clock_position_layout.addWidget(QLabel("X"))
+        clock_position_layout.addWidget(self._lockscreen_clock_x_spin)
+        clock_position_layout.addWidget(QLabel("Y"))
+        clock_position_layout.addWidget(self._lockscreen_clock_y_spin)
+        clock_position_layout.addWidget(self._lockscreen_clock_position_btn)
+        clock_size_row = QWidget()
+        clock_size_layout = QHBoxLayout(clock_size_row)
+        clock_size_layout.setContentsMargins(0, 0, 0, 0)
+        clock_size_layout.setSpacing(6)
+        clock_size_layout.addWidget(QLabel("W"))
+        clock_size_layout.addWidget(self._lockscreen_clock_width_spin)
+        clock_size_layout.addWidget(QLabel("H"))
+        clock_size_layout.addWidget(self._lockscreen_clock_height_spin)
+        clock_form.addRow("Font", self._lockscreen_clock_font_combo)
+        clock_form.addRow("Color", self._lockscreen_clock_color_btn)
+        clock_form.addRow("Align", self._lockscreen_clock_align_combo)
+        clock_form.addRow("Position", clock_position_row)
+        clock_form.addRow("Size box", clock_size_row)
+        clock_layout.addLayout(clock_form)
+        controls.addWidget(clock_frame)
 
         action_row = QHBoxLayout()
         self._save_btn = QPushButton("Save")
@@ -1183,15 +1451,25 @@ class ThemeDesignerWidget(QWidget):
 
     def set_fonts(self, fonts):
         current = self._font_combo.currentData()
+        clock_current = self._lockscreen_clock_font_combo.currentData() if hasattr(self, "_lockscreen_clock_font_combo") else ""
         self._font_combo.blockSignals(True)
         self._font_combo.clear()
+        self._lockscreen_clock_font_combo.blockSignals(True)
+        self._lockscreen_clock_font_combo.clear()
         for font in fonts:
             self._font_combo.addItem(font["label"], font["path_rel"])
+            self._lockscreen_clock_font_combo.addItem(font["label"], font["path_rel"])
         if current:
             index = self._font_combo.findData(current)
             if index >= 0:
                 self._font_combo.setCurrentIndex(index)
+        clock_value = clock_current or self._lockscreen_clock_font_pending
+        if clock_value:
+            index = self._lockscreen_clock_font_combo.findData(clock_value)
+            if index >= 0:
+                self._lockscreen_clock_font_combo.setCurrentIndex(index)
         self._font_combo.blockSignals(False)
+        self._lockscreen_clock_font_combo.blockSignals(False)
 
     def set_variants(self, variants, selected_variant_id=""):
         self._variants = {item["id"]: item for item in variants if item.get("id")}
@@ -1200,7 +1478,11 @@ class ThemeDesignerWidget(QWidget):
         self._variant_combo.addItem("Unsaved Draft", "")
         selected_index = 0
         for index, variant in enumerate(variants, start=1):
-            self._variant_combo.addItem(variant["name"], variant["id"])
+            variant_id = variant.get("id", "")
+            label = str(variant.get("name") or "").strip() or "iPone Custom"
+            if variant_id:
+                label = f"{label} ({variant_id})"
+            self._variant_combo.addItem(label, variant_id)
             if variant["id"] == selected_variant_id:
                 selected_index = index
         self._variant_combo.setCurrentIndex(selected_index)
@@ -1231,18 +1513,30 @@ class ThemeDesignerWidget(QWidget):
         self._fit_combo.setCurrentText(variant.get("fit_mode", "fill"))
         self._charge_fit_combo.setCurrentText(variant.get("charging_fit_mode", "fill"))
         self._right_pane_fit_combo.setCurrentText(variant.get("right_pane_fit_mode", "fill"))
+        right_pane_mode = str(variant.get("right_pane_mode") or "").strip()
+        self._set_right_pane_mode_value(right_pane_mode or "miniplayer")
         self._right_pane_offset_x = self._clamp_offset(variant.get("right_pane_offset_x", 0))
         self._right_pane_offset_y = self._clamp_offset(variant.get("right_pane_offset_y", 0))
         self._set_font_value(variant.get("font_rel", ""))
+        clock = dict(variant.get("lockscreen_clock") or {})
+        self._set_lockscreen_clock_font_value(clock.get("font_rel", "fonts/66-Cantarell-Light.fnt"))
+        self._lockscreen_clock_color_btn.set_hex(clock.get("color", "FFFFFF"))
+        self._set_combo_data_value(self._lockscreen_clock_align_combo, clock.get("align", "center"))
+        self._lockscreen_clock_x_spin.setValue(self._clamp_int(clock.get("x", 0), 0, 319))
+        self._lockscreen_clock_y_spin.setValue(self._clamp_int(clock.get("y", 32), 0, 180))
+        self._lockscreen_clock_width_spin.setValue(self._clamp_int(clock.get("width", 320), 40, 320))
+        self._lockscreen_clock_height_spin.setValue(self._clamp_int(clock.get("height", 55), 12, 100))
         colors = variant.get("colors", {})
         self._set_appearance_mode_value(variant.get("appearance_mode", "dark"))
         self._set_color_profile_value(variant.get("color_profile", "custom"))
+        self._line_separators_check.setChecked(bool(variant.get("show_line_separators", True)))
         self._background_btn.set_hex(colors.get("background", "100F16"))
         self._foreground_btn.set_hex(colors.get("foreground", "F7F4FA"))
         self._selector_start_btn.set_hex(colors.get("selector_start", "2B2234"))
         self._selector_end_btn.set_hex(colors.get("selector_end", "9D7AE6"))
         self._selector_text_btn.set_hex(colors.get("selector_text", "FCF9FF"))
         self._separator_btn.set_hex(colors.get("list_separator", "1A1621"))
+        self._sbs_clock_btn.set_hex(colors.get("sbs_clock", colors.get("foreground", "F7F4FA")))
         self._base_wallpaper_path = preview_state.get("wallpaper_path", "")
         self._base_charging_wallpaper_path = preview_state.get("charging_wallpaper_path", "")
         self._base_right_pane_wallpaper_path = preview_state.get("right_pane_wallpaper_path", "")
@@ -1272,11 +1566,22 @@ class ThemeDesignerWidget(QWidget):
             "fit_mode": self._fit_combo.currentText(),
             "charging_fit_mode": self._charge_fit_combo.currentText(),
             "right_pane_fit_mode": self._right_pane_fit_combo.currentText(),
+            "right_pane_mode": self._right_pane_mode_combo.currentData() or "miniplayer",
             "right_pane_offset_x": self._right_pane_offset_x,
             "right_pane_offset_y": self._right_pane_offset_y,
             "font_rel": self._font_combo.currentData() or "",
+            "lockscreen_clock": {
+                "font_rel": self._lockscreen_clock_font_combo.currentData() or "fonts/66-Cantarell-Light.fnt",
+                "x": self._lockscreen_clock_x_spin.value(),
+                "y": self._lockscreen_clock_y_spin.value(),
+                "width": self._lockscreen_clock_width_spin.value(),
+                "height": self._lockscreen_clock_height_spin.value(),
+                "align": self._lockscreen_clock_align_combo.currentData() or "center",
+                "color": self._lockscreen_clock_color_btn.hex(),
+            },
             "color_profile": self._color_profile_combo.currentData() or "custom",
             "appearance_mode": self._appearance_mode_combo.currentData() or "dark",
+            "show_line_separators": self._line_separators_check.isChecked(),
             "colors": {
                 "background": self._background_btn.hex(),
                 "foreground": self._foreground_btn.hex(),
@@ -1284,6 +1589,7 @@ class ThemeDesignerWidget(QWidget):
                 "selector_end": self._selector_end_btn.hex(),
                 "selector_text": self._selector_text_btn.hex(),
                 "list_separator": self._separator_btn.hex(),
+                "sbs_clock": self._sbs_clock_btn.hex(),
             },
             "preview_screen": self._preview_screen.currentData() or "sbs",
         }
@@ -1293,7 +1599,22 @@ class ThemeDesignerWidget(QWidget):
 
     def set_simulator_preview(self, path):
         self._base_simulator_preview_path = str(path or "").strip()
-        self._sync_preview()
+        self._preview_loading = False
+        self._refresh_preview_btn.setEnabled(True)
+        self._sync_preview_silent()
+
+    def set_preview_loading(self, loading):
+        self._preview_loading = bool(loading)
+        self._refresh_preview_btn.setEnabled(not self._preview_loading)
+        self._refresh_preview_btn.setText("Updating..." if self._preview_loading else "Update Preview")
+        self._sync_preview_silent()
+
+    def _sync_preview_silent(self):
+        self._suppress_preview_signal = True
+        try:
+            self._sync_preview()
+        finally:
+            self._suppress_preview_signal = False
 
     def set_simulator_target(self, binary_path, simdisk_path):
         self._simulator_surface.set_target(binary_path, simdisk_path)
@@ -1324,6 +1645,13 @@ class ThemeDesignerWidget(QWidget):
             layout.addWidget(button)
         layout.addWidget(clear)
         return row
+
+    def _spinbox(self, minimum, maximum, value):
+        box = QSpinBox()
+        box.setRange(int(minimum), int(maximum))
+        box.setValue(int(value))
+        box.valueChanged.connect(self._sync_preview)
+        return box
 
     def _set_artwork_advanced_visible(self, visible):
         self._artwork_advanced_options.setVisible(bool(visible))
@@ -1390,6 +1718,9 @@ class ThemeDesignerWidget(QWidget):
         if path:
             self._right_pane_wallpaper_edit.setText(path)
 
+    def _on_right_pane_wallpaper_changed(self, path):
+        self._sync_preview()
+
     def _choose_right_pane_position(self):
         image_path = self._right_pane_wallpaper_edit.text().strip() or self._base_right_pane_wallpaper_path
         if not image_path or not os.path.isfile(image_path):
@@ -1407,6 +1738,24 @@ class ThemeDesignerWidget(QWidget):
             self._right_pane_offset_x, self._right_pane_offset_y = dialog.offsets()
             self._sync_preview()
 
+    def _choose_lockscreen_clock_position(self):
+        wallpaper_path = self._wallpaper_edit.text().strip() or self._base_wallpaper_path
+        dialog = _LockscreenClockPositionDialog(
+            self,
+            wallpaper_path,
+            self._lockscreen_clock_x_spin.value(),
+            self._lockscreen_clock_y_spin.value(),
+            self._lockscreen_clock_width_spin.value(),
+            self._lockscreen_clock_height_spin.value(),
+            self._lockscreen_clock_color_btn.hex(),
+            self._lockscreen_clock_align_combo.currentData() or "center",
+        )
+        if dialog.exec() == QDialog.Accepted:
+            x, y = dialog.position()
+            self._lockscreen_clock_x_spin.setValue(x)
+            self._lockscreen_clock_y_spin.setValue(y)
+            self._sync_preview()
+
     @staticmethod
     def _clamp_offset(value):
         try:
@@ -1420,6 +1769,28 @@ class ThemeDesignerWidget(QWidget):
         if index >= 0:
             self._font_combo.setCurrentIndex(index)
 
+    def _set_lockscreen_clock_font_value(self, value):
+        self._lockscreen_clock_font_pending = str(value or "fonts/66-Cantarell-Light.fnt")
+        index = self._lockscreen_clock_font_combo.findData(self._lockscreen_clock_font_pending)
+        if index >= 0:
+            self._lockscreen_clock_font_combo.setCurrentIndex(index)
+
+    @staticmethod
+    def _clamp_int(value, minimum, maximum):
+        try:
+            number = int(value)
+        except (TypeError, ValueError):
+            number = int(minimum)
+        return max(int(minimum), min(int(maximum), number))
+
+    @staticmethod
+    def _set_combo_data_value(combo, value):
+        index = combo.findData(value)
+        if index >= 0:
+            combo.blockSignals(True)
+            combo.setCurrentIndex(index)
+            combo.blockSignals(False)
+
     def _set_color_profile_value(self, value):
         index = self._color_profile_combo.findData(value)
         if index < 0:
@@ -1428,6 +1799,16 @@ class ThemeDesignerWidget(QWidget):
             self._color_profile_combo.blockSignals(True)
             self._color_profile_combo.setCurrentIndex(index)
             self._color_profile_combo.blockSignals(False)
+
+    def _set_right_pane_mode_value(self, value):
+        mode = str(value or "miniplayer").strip().lower()
+        if mode not in {"miniplayer", "full art"}:
+            mode = "miniplayer"
+        index = self._right_pane_mode_combo.findData(mode)
+        if index >= 0:
+            self._right_pane_mode_combo.blockSignals(True)
+            self._right_pane_mode_combo.setCurrentIndex(index)
+            self._right_pane_mode_combo.blockSignals(False)
 
     def _set_appearance_mode_value(self, value):
         mode = "light" if str(value or "").strip().lower() == "light" else "dark"
@@ -1449,6 +1830,7 @@ class ThemeDesignerWidget(QWidget):
         self._selector_end_btn.set_hex(colors["selector_end"])
         self._selector_text_btn.set_hex(colors["selector_text"])
         self._separator_btn.set_hex(colors["list_separator"])
+        self._sbs_clock_btn.set_hex(colors.get("sbs_clock", colors["foreground"]))
         self._sync_preview()
 
     def _sync_preview(self, *_args):
@@ -1466,11 +1848,13 @@ class ThemeDesignerWidget(QWidget):
             "right_pane_wallpaper_path": self._right_pane_wallpaper_edit.text().strip() or self._base_right_pane_wallpaper_path,
             "menu_backdrop_path": self._base_menu_backdrop_path,
             "simulator_preview_path": simulator_preview_path,
-            "simulator_status_text": self._simulator_surface.status_text(),
+            "simulator_status_text": "Updating preview..." if self._preview_loading else self._simulator_surface.status_text(),
+            "preview_loading": self._preview_loading,
             "colors": variant["colors"],
         }
         self._preview.set_preview(state, self._preview_mode.currentData())
-        self.preview_changed.emit(variant, self._preview_mode.currentData() or "main_menu")
+        if not self._suppress_preview_signal:
+            self.preview_changed.emit(variant, self._preview_mode.currentData() or "main_menu")
 
     def restart_simulator_preview(self, post_actions=None):
         if self._preview_mode.currentData() == "simulator":

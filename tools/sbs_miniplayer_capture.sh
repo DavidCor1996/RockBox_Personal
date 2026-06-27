@@ -15,8 +15,6 @@ if [ "${no_playback}" = "1" ] && [ -z "${SBS_START_SCREEN:-}" ]; then
 fi
 if [ -n "${SBS_MENU_KEY:-}" ]; then
     menu_key="${SBS_MENU_KEY}"
-elif [[ "${build_dir}" == *video-5g* ]]; then
-    menu_key="KP_5"
 else
     menu_key="w"
 fi
@@ -122,6 +120,17 @@ prepare_root()
     copy_if_exists "${repo_root}/wps/${theme}.wps" "${sim_root}/.rockbox/wps/${theme}.wps"
     copy_if_exists "${repo_root}/wps/${theme}.fms" "${sim_root}/.rockbox/wps/${theme}.fms"
     copy_if_exists "${repo_root}/wps/${theme}" "${sim_root}/.rockbox/wps/${theme}"
+    if [ -f "${repo_root}/themes/${theme}.cfg" ]; then
+        local configured_sbs configured_sbs_rel configured_sbs_dir
+        configured_sbs="$(awk -F: 'tolower($1) == "sbs" { sub(/^[[:space:]]+/, "", $2); print $2; exit }' "${repo_root}/themes/${theme}.cfg")"
+        configured_sbs_rel="${configured_sbs#/.rockbox/wps/}"
+        configured_sbs_rel="${configured_sbs_rel#.rockbox/wps/}"
+        if [ -n "${configured_sbs_rel}" ] && [ "${configured_sbs_rel}" != "${configured_sbs}" ]; then
+            copy_if_exists "${repo_root}/wps/${configured_sbs_rel}" "${sim_root}/.rockbox/wps/${configured_sbs_rel}"
+            configured_sbs_dir="${configured_sbs_rel%.sbs}"
+            copy_if_exists "${repo_root}/wps/${configured_sbs_dir}" "${sim_root}/.rockbox/wps/${configured_sbs_dir}"
+        fi
+    fi
 
     if [ "${theme}" = "iPone7G" ]; then
         copy_if_exists "${repo_root}/wps/iPone.wps" "${sim_root}/.rockbox/wps/iPone.wps"
@@ -387,11 +396,23 @@ main()
         return
     fi
 
-    # This gate is intentionally SBS-only: resume playback, press the iPod
-    # MENU button into the SBS/root screen, then engage HOLD from there.
-    press_key "${menu_key}"
-    sleep 1
+    # This gate is intentionally SBS-only. Most captures resume playback in
+    # WPS, then press the iPod MENU button into the SBS/root screen. Tests can
+    # start directly in root and skip this key to avoid target-specific keymap
+    # ambiguity.
+    if [ "${SBS_SKIP_MENU_KEY:-0}" != "1" ]; then
+        press_key "${menu_key}"
+        sleep 1
+    fi
     capture_window "00-sbs-mini-player.png"
+    if [ "${SBS_SECOND_CAPTURE:-0}" = "1" ]; then
+        sleep "${SBS_SLIDESHOW_WAIT:-4}"
+        capture_window "00-sbs-mini-player-b.png"
+        magick "${out_dir}/00-sbs-mini-player.png" -crop 320x480+320+0 +repage \
+            "${out_dir}/00-sbs-right-pane-a.png"
+        magick "${out_dir}/00-sbs-mini-player-b.png" -crop 320x480+320+0 +repage \
+            "${out_dir}/00-sbs-right-pane-b.png"
+    fi
 
     press_key h
     sleep "${SBS_HOLD_WAIT:-1}"
@@ -416,6 +437,12 @@ main()
         magick "${out_dir}/01-sbs-lock-art-crop.png" -format "%k" info:
         printf "\nsbs_lock_ui_unique_colors="
         magick "${out_dir}/01-sbs-lock-ui-crop.png" -format "%k" info:
+        if [ "${SBS_SECOND_CAPTURE:-0}" = "1" ]; then
+            printf "\nsbs_right_pane_a_sha256="
+            sha256sum "${out_dir}/00-sbs-right-pane-a.png" | awk '{print $1}'
+            printf "sbs_right_pane_b_sha256="
+            sha256sum "${out_dir}/00-sbs-right-pane-b.png" | awk '{print $1}'
+        fi
         printf "\n"
     } >"${out_dir}/analysis.txt"
 

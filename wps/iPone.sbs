@@ -53,13 +53,13 @@
 %?if(%cs, =, 21)<%VI(USB)|%?mh<%VI(UiLocked)|%VI(UiMenu)>>
 %V(0,0,-,-,-)
 
-%?if(%cs, =, 21)<|%?mh<|%?if(%St(ipone right pane), =, full art)<|%Vd(clock)>>>
+%?if(%cs, =, 21)<|%?mh<|%?if(%St(ipone right pane), !=, custom wallpaper)<|%Vd(clock)>>>
 %Vl(clockShadow,164,11,154,30,5)%Vf(191523)
 %s%ac%cl:%cM %cP
 %Vl(clock,163,10,154,30,5)%Vf(E8DFF8)
 %s%ac%cl:%cM %cP
 %V(0,0,-,-,-)
-%?if(%cs, =, 21)<|%?mh<|%?if(%St(ipone right pane), =, full art)<|%?cs<%Vd(t)|%Vd(n)|%Vd(n)|%Vd(n)|%Vd(n)>>>>
+%?if(%cs, =, 21)<|%?mh<|%?if(%St(ipone right pane), !=, custom wallpaper)<|%?cs<%Vd(t)|%Vd(n)|%Vd(n)|%Vd(n)|%Vd(n)>>>>
 %Vl(t,58,3,58,14,2)%Vf(F4EFFB)
 %s%al%?Lt<%?if(%Lt, =, Rockbox)<iPod|%Lt>|iPod>
 %Vl(n,58,3,58,14,2)%Vf(F4EFFB)
@@ -67,7 +67,7 @@
 
 %V(134,5,25,11,-)
 %?if(%cs, =, 21)<|%?mh<|%?bp<%?bc<%t(1.0)%xd(Ba);%t(1.0)%xd(Bb)|%xd(Bc)>|%?bl<%xd(Bd)|%xd(Bd)|%xd(Be)|%xd(Bf)|%xd(Bg)|%xd(Bh)|%xd(Bi)|%xd(Bj)|%xd(Bk)|%xd(Bl)|%xd(Bm)|%xd(Bn)|%xd(Bo)|%xd(Bp)|%xd(Bq)|%xd(Br)|%xd(Bs)|%xd(Bt)|%xd(Bu)|%xd(Bv)|%xd(Bw)|%xd(Bx)||>>>>
-%?if(%cs, =, 21)<|%?mh<|%?if(%St(ipone right pane), =, full art)<|%?Lt<%?it<%Vd(NowPlayingBadge)%Vd(MiniTitle)%Vd(MiniSub)%Vd(NowPlayingRecord)|>|>>>>>
+%?if(%cs, =, 21)<|%?mh<|%?if(%St(ipone right pane), !=, custom wallpaper)<|%?Lt<%?it<%Vd(NowPlayingBadge)%Vd(MiniTitle)%Vd(MiniSub)%Vd(NowPlayingRecord)|>|>>>>>
 %?if(%cs, =, 21)<%Vd(USB)|%?mh<|%?or(%if(%cs, =, 1),%if(%cs, =, 5),%if(%cs, =, 6),%if(%cs, =, 7),%if(%cs, =, 8),%if(%cs, =, 9),%if(%cs, =, 12),%if(%cs, =, 13),%if(%cs, =, 15),%if(%cs, =, 16),%if(%cs, =, 17),%if(%cs, =, 18),%if(%cs, =, 19),%if(%cs, =, 20))<%Vd(ScrollReminder)>>>
 
 %Vl(MiniTitle,166,187,112,19,9)%Vf(FFFFFF)

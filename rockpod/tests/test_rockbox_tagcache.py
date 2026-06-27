@@ -186,12 +186,17 @@ def test_write_rockbox_tagcache_removes_stale_database_files_without_touching_mu
     rockbox_dir = os.path.join(mount_path, ".rockbox")
     os.makedirs(audio_dir, exist_ok=True)
     os.makedirs(rockbox_dir, exist_ok=True)
+    stale_subdir = os.path.join(rockbox_dir, "database")
+    os.makedirs(stale_subdir, exist_ok=True)
     track_path = os.path.join(audio_dir, "01 - Song.mp3")
     with open(track_path, "wb") as handle:
         handle.write(b"song")
     stale_tmp = os.path.join(rockbox_dir, "database_tmp.tcd")
     with open(stale_tmp, "wb") as handle:
         handle.write(b"stale")
+    stale_nested = os.path.join(stale_subdir, "database_idx.tcd")
+    with open(stale_nested, "wb") as handle:
+        handle.write(b"stale nested")
 
     write_rockbox_tagcache_tracks(
         mount_path,
@@ -207,6 +212,7 @@ def test_write_rockbox_tagcache_removes_stale_database_files_without_touching_mu
     )
 
     assert not os.path.exists(stale_tmp)
+    assert not os.path.exists(stale_nested)
     assert os.path.isfile(track_path)
 
 
@@ -239,6 +245,49 @@ def test_write_rockbox_tagcache_from_device_inventory_uses_cached_rows(config, d
     assert result["track_count"] == 1
     assert tracks[0]["title"] == "Song"
     assert tracks[0]["duration"] == 45.0
+
+
+def test_write_rockbox_tagcache_from_device_inventory_prunes_missing_cached_rows(config, db):
+    mount_path = config.mock_device_path
+    audio_dir = os.path.join(mount_path, "Music", "Artist", "Album")
+    os.makedirs(audio_dir, exist_ok=True)
+    with open(os.path.join(audio_dir, "01 - Song.mp3"), "wb") as handle:
+        handle.write(b"song")
+    device = _device(mount_path)
+    key = db.upsert_device(device_record_from_info(device))["stable_device_key"]
+    db.upsert_device_track(
+        {
+            "device_id": key,
+            "device_path": "Music/Artist/Album/01 - Song.mp3",
+            "title": "Song",
+            "artist": "Artist",
+            "album": "Album",
+            "album_artist": "Artist",
+        }
+    )
+    db.upsert_device_track(
+        {
+            "device_id": key,
+            "device_path": "Music/Artist/Rani's playlist/02 - Stale.mp3",
+            "title": "Stale",
+            "artist": "Artist",
+            "album": "Rani's playlist",
+            "album_artist": "Artist",
+        }
+    )
+    db.commit()
+
+    result = write_rockbox_tagcache_from_device_inventory(db, device, key)
+    tracks = read_rockbox_tagcache_tracks(mount_path)
+    stale = db.fetchone(
+        "SELECT present_on_device FROM device_tracks WHERE device_id = ? AND device_path = ?",
+        (key, "Music/Artist/Rani's playlist/02 - Stale.mp3"),
+    )
+
+    assert result["success"] is True
+    assert result["track_count"] == 1
+    assert [track["title"] for track in tracks] == ["Song"]
+    assert stale["present_on_device"] == 0
 
 
 def test_verify_device_inventory_prefers_rockbox_tagcache(config, db, monkeypatch):

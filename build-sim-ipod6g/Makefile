@@ -57,8 +57,8 @@ export SHARED_CFLAGS=-fPIC -fvisibility=hidden
 export LDOPTS=-lm -ldl -L/usr/lib -lSDL2 -lpthread
 export GLOBAL_LDOPTS= -Wl,-z,defs -Wl,--no-warn-rwx-segments
 export LDMAP_OPT=-Map
-export GCCVER=15.2.1
-export GCCNUM=1502
+export GCCVER=16.1.1
+export GCCNUM=1601
 export UNAME=Linux
 export MANUALDEV=ipod6g
 export TTS_OPTS=

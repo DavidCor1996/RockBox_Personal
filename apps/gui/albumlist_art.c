@@ -64,7 +64,7 @@ static struct albumlist_bitmap_slot bitmap_cache[ALBUMLIST_BITMAP_CACHE];
 static unsigned long bitmap_tick;
 
 static void trim_line(char *line);
-static bool split_tsv(char *line, char *fields[], int field_count);
+static int split_tsv(char *line, char *fields[], int max_fields);
 
 struct albumlist_manifest_entry {
     char thumb_path[ALBUMLIST_PATH_LEN];
@@ -78,6 +78,10 @@ static struct albumlist_manifest_entry
 static int manifest_cache_count;
 static bool manifest_cache_loaded;
 static long manifest_cache_next_reload;
+
+#if defined(IPOD_VIDEO) || defined(IPOD_6G)
+static void albumlist_slideshow_invalidate_failures(void);
+#endif
 
 static bool albumlist_path_exists(const char *path)
 {
@@ -139,6 +143,22 @@ static void albumlist_invalidate_lookup_cache(void)
     lookup_victim = 0;
 }
 
+static void albumlist_manifest_path_join(const char *relative_path, char *path,
+                                         size_t path_size)
+{
+    if (!relative_path || !relative_path[0])
+    {
+        if (path_size > 0)
+            path[0] = '\0';
+        return;
+    }
+
+    if (relative_path[0] == '/')
+        strmemccpy(path, relative_path, path_size);
+    else
+        snprintf(path, path_size, "%s/%s", ALBUMLIST_ROOT, relative_path);
+}
+
 static void albumlist_load_manifest_cache(void)
 {
     if (manifest_cache_loaded &&
@@ -149,6 +169,9 @@ static void albumlist_load_manifest_cache(void)
     manifest_cache_loaded = true;
     manifest_cache_next_reload = current_tick + ALBUMLIST_MANIFEST_RELOAD_DELAY;
     albumlist_invalidate_lookup_cache();
+#if defined(IPOD_VIDEO) || defined(IPOD_6G)
+    albumlist_slideshow_invalidate_failures();
+#endif
 
     int fd = open(ALBUMLIST_INDEX, O_RDONLY);
     if (fd < 0)
@@ -163,25 +186,41 @@ static void albumlist_load_manifest_cache(void)
             strncmp(line, "album_id\t", 9) == 0)
             continue;
 
-        char *fields[6];
-        if (!split_tsv(line, fields, 6) || (!fields[1][0] && !fields[5][0]))
+        char *fields[7] = {0};
+        int field_count = split_tsv(line, fields, ARRAYLEN(fields));
+        bool has_slide_field = field_count >= 7;
+        int slide_field = has_slide_field ? 2 : -1;
+        int artist_field = has_slide_field ? 3 : 2;
+        int album_field = has_slide_field ? 4 : 3;
+        int dirs_field = has_slide_field ? 6 : 5;
+
+        if (field_count < 6 ||
+            (!fields[1][0] &&
+             !(has_slide_field && fields[slide_field][0]) &&
+             !fields[dirs_field][0]))
             continue;
 
         struct albumlist_manifest_entry *entry =
             &manifest_cache[manifest_cache_count];
         memset(entry, 0, sizeof(*entry));
-        strmemccpy(entry->artist, fields[2], sizeof(entry->artist));
-        strmemccpy(entry->album, fields[3], sizeof(entry->album));
+        strmemccpy(entry->artist, fields[artist_field], sizeof(entry->artist));
+        strmemccpy(entry->album, fields[album_field], sizeof(entry->album));
 
         if (fields[1][0])
-            snprintf(entry->thumb_path, sizeof(entry->thumb_path),
-                     "%s/%s", ALBUMLIST_ROOT, fields[1]);
+            albumlist_manifest_path_join(fields[1], entry->thumb_path,
+                                         sizeof(entry->thumb_path));
 
-        if (!albumlist_slide_path_for_id(fields[0], entry->slide_path,
-                                         sizeof(entry->slide_path)) &&
-            !albumlist_cover_path_for_dir(fields[5], entry->slide_path,
-                                          sizeof(entry->slide_path)) &&
-            entry->thumb_path[0])
+        if (has_slide_field && fields[slide_field][0])
+        {
+            albumlist_manifest_path_join(fields[slide_field], entry->slide_path,
+                                         sizeof(entry->slide_path));
+        }
+        else if (!albumlist_slide_path_for_id(fields[0], entry->slide_path,
+                                              sizeof(entry->slide_path)) &&
+                 !albumlist_cover_path_for_dir(fields[dirs_field],
+                                               entry->slide_path,
+                                               sizeof(entry->slide_path)) &&
+                 entry->thumb_path[0])
         {
             strmemccpy(entry->slide_path, entry->thumb_path,
                        sizeof(entry->slide_path));
@@ -218,6 +257,8 @@ static struct albumlist_manifest_entry *albumlist_manifest_at(int index)
 #define ALBUMLIST_SLIDESHOW_PAN_SCALE 1024
 #define ALBUMLIST_SLIDESHOW_PREFETCH_PHASE \
     (ALBUMLIST_SLIDESHOW_PAN_DURATION / 2)
+#define ALBUMLIST_SLIDESHOW_FAILURE_CACHE 8
+#define ALBUMLIST_SLIDESHOW_FAILURE_RETRY_DELAY (HZ * 30)
 #define ALBUMLIST_SLIDESHOW_BYTES \
     ALBUMLIST_SCALED_BYTES(ALBUMLIST_SLIDESHOW_SIZE, \
                            ALBUMLIST_SLIDESHOW_SIZE)
@@ -230,7 +271,16 @@ struct albumlist_slideshow_slot {
     unsigned char data[ALBUMLIST_SLIDESHOW_BYTES];
 };
 
+struct albumlist_slideshow_failure {
+    bool valid;
+    int manifest_index;
+    long retry_after;
+    char path[ALBUMLIST_PATH_LEN];
+};
+
 static struct albumlist_slideshow_slot slideshow_slots[2];
+static struct albumlist_slideshow_failure
+    slideshow_failures[ALBUMLIST_SLIDESHOW_FAILURE_CACHE];
 static int slideshow_slot_victim;
 static int slideshow_order_count;
 static int slideshow_order_base;
@@ -342,6 +392,78 @@ static bool albumlist_slideshow_is_prerendered(const char *path)
     return path && strstr(path, ALBUMLIST_ROOT "/slides/") != NULL;
 }
 
+static void albumlist_slideshow_invalidate_failures(void)
+{
+    for (int i = 0; i < (int)ARRAYLEN(slideshow_failures); i++)
+        slideshow_failures[i].valid = false;
+}
+
+static bool albumlist_slideshow_recent_failure(int index, const char *path)
+{
+    for (int i = 0; i < (int)ARRAYLEN(slideshow_failures); i++)
+    {
+        struct albumlist_slideshow_failure *failure = &slideshow_failures[i];
+        if (!failure->valid ||
+            failure->manifest_index != index ||
+            strcmp(failure->path, path) != 0)
+        {
+            continue;
+        }
+
+        if (!TIME_AFTER(current_tick, failure->retry_after))
+            return true;
+
+        failure->valid = false;
+        return false;
+    }
+
+    return false;
+}
+
+static void albumlist_slideshow_clear_failure(int index, const char *path)
+{
+    for (int i = 0; i < (int)ARRAYLEN(slideshow_failures); i++)
+    {
+        struct albumlist_slideshow_failure *failure = &slideshow_failures[i];
+        if (failure->valid &&
+            failure->manifest_index == index &&
+            strcmp(failure->path, path) == 0)
+        {
+            failure->valid = false;
+            return;
+        }
+    }
+}
+
+static void albumlist_slideshow_record_failure(int index, const char *path)
+{
+    int victim = 0;
+    long oldest = slideshow_failures[0].retry_after;
+
+    for (int i = 0; i < (int)ARRAYLEN(slideshow_failures); i++)
+    {
+        struct albumlist_slideshow_failure *failure = &slideshow_failures[i];
+        if (!failure->valid ||
+            (failure->manifest_index == index && strcmp(failure->path, path) == 0))
+        {
+            victim = i;
+            break;
+        }
+
+        if (TIME_BEFORE(failure->retry_after, oldest))
+        {
+            oldest = failure->retry_after;
+            victim = i;
+        }
+    }
+
+    struct albumlist_slideshow_failure *failure = &slideshow_failures[victim];
+    failure->valid = true;
+    failure->manifest_index = index;
+    failure->retry_after = current_tick + ALBUMLIST_SLIDESHOW_FAILURE_RETRY_DELAY;
+    strmemccpy(failure->path, path, sizeof(failure->path));
+}
+
 static bool albumlist_load_slideshow_slot(struct albumlist_slideshow_slot *slot,
                                           int index)
 {
@@ -351,6 +473,9 @@ static bool albumlist_load_slideshow_slot(struct albumlist_slideshow_slot *slot,
         return true;
 
     if (!albumlist_manifest_path_at(index, path, sizeof(path)))
+        return false;
+
+    if (albumlist_slideshow_recent_failure(index, path))
         return false;
 
     if (slot->valid && strcmp(path, slot->path) == 0)
@@ -387,16 +512,41 @@ static bool albumlist_load_slideshow_slot(struct albumlist_slideshow_slot *slot,
         slot->valid = false;
         slot->manifest_index = -1;
         slot->path[0] = '\0';
+        albumlist_slideshow_record_failure(index, path);
         return false;
     }
 
     slot->manifest_index = index;
     strmemccpy(slot->path, path, sizeof(slot->path));
     slot->valid = true;
+    albumlist_slideshow_clear_failure(index, path);
     return true;
 }
 
-static struct albumlist_slideshow_slot *albumlist_get_slideshow_slot(int index)
+static struct albumlist_slideshow_slot *albumlist_choose_slideshow_victim(
+    int protected_index)
+{
+    for (int i = 0; i < (int)ARRAYLEN(slideshow_slots); i++)
+    {
+        if (!slideshow_slots[i].valid)
+            return &slideshow_slots[i];
+    }
+
+    for (int attempts = 0; attempts < (int)ARRAYLEN(slideshow_slots); attempts++)
+    {
+        int candidate = slideshow_slot_victim;
+        slideshow_slot_victim =
+            (slideshow_slot_victim + 1) % (int)ARRAYLEN(slideshow_slots);
+
+        if (slideshow_slots[candidate].manifest_index != protected_index)
+            return &slideshow_slots[candidate];
+    }
+
+    return NULL;
+}
+
+static struct albumlist_slideshow_slot *albumlist_get_slideshow_slot(
+    int index, int protected_index)
 {
     for (int i = 0; i < (int)ARRAYLEN(slideshow_slots); i++)
     {
@@ -406,16 +556,16 @@ static struct albumlist_slideshow_slot *albumlist_get_slideshow_slot(int index)
     }
 
     struct albumlist_slideshow_slot *slot =
-        &slideshow_slots[slideshow_slot_victim];
-    slideshow_slot_victim =
-        (slideshow_slot_victim + 1) % (int)ARRAYLEN(slideshow_slots);
+        albumlist_choose_slideshow_victim(protected_index);
+    if (!slot)
+        return NULL;
 
     return albumlist_load_slideshow_slot(slot, index) ? slot : NULL;
 }
 
-static void albumlist_prefetch_slideshow_slot(int index)
+static void albumlist_prefetch_slideshow_slot(int index, int protected_index)
 {
-    (void)albumlist_get_slideshow_slot(index);
+    (void)albumlist_get_slideshow_slot(index, protected_index);
 }
 
 static void albumlist_draw_slideshow_shadow(struct screen *display, int x, int y,
@@ -462,7 +612,8 @@ bool albumlist_draw_slideshow(struct screen *display, int x, int y,
                    ALBUMLIST_SLIDESHOW_PAN_DURATION;
 
     bool drew = false;
-    struct albumlist_slideshow_slot *slot = albumlist_get_slideshow_slot(wanted);
+    struct albumlist_slideshow_slot *slot =
+        albumlist_get_slideshow_slot(wanted, -1);
     if (slot)
     {
         int pan_range_x = MAX(0, slot->bm.width - width);
@@ -520,7 +671,7 @@ bool albumlist_draw_slideshow(struct screen *display, int x, int y,
     }
 
     if (phase >= ALBUMLIST_SLIDESHOW_PREFETCH_PHASE)
-        albumlist_prefetch_slideshow_slot(next_wanted);
+        albumlist_prefetch_slideshow_slot(next_wanted, wanted);
 
     return drew;
 }
@@ -592,23 +743,26 @@ static void trim_line(char *line)
         line[--len] = '\0';
 }
 
-static bool split_tsv(char *line, char *fields[], int field_count)
+static int split_tsv(char *line, char *fields[], int max_fields)
 {
-    for (int i = 0; i < field_count; i++)
+    int count = 0;
+
+    while (count < max_fields)
     {
-        fields[i] = line;
+        fields[count++] = line;
         char *tab = strchr(line, '\t');
         if (tab)
         {
             *tab = '\0';
             line = tab + 1;
         }
-        else if (i != field_count - 1)
+        else
         {
-            return false;
+            break;
         }
     }
-    return true;
+
+    return count;
 }
 
 static bool manifest_entry_matches(const char *album, const char *artist,

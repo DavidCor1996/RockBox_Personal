@@ -7,9 +7,10 @@ import os
 import re
 import shutil
 import tempfile
+import colorsys
 from copy import deepcopy
 
-from PIL import Image, ImageColor, ImageOps, UnidentifiedImageError
+from PIL import Image, ImageColor, ImageDraw, ImageOps, UnidentifiedImageError
 
 from services.file_safety import atomic_write_json, atomic_write_text
 from services.greyscale_images import render_2bpp_greyscale, should_render_2bpp_greyscale
@@ -32,6 +33,20 @@ DEFAULT_COLORS = {
     "selector_end": "9D7AE6",
     "selector_text": "FCF9FF",
     "list_separator": "1A1621",
+    "sbs_clock": "E8DFF8",
+}
+
+RIGHT_PANE_MODES = ("miniplayer", "full art")
+DEFAULT_RIGHT_PANE_MODE = "miniplayer"
+
+DEFAULT_LOCKSCREEN_CLOCK = {
+    "font_rel": "fonts/66-Cantarell-Light.fnt",
+    "x": 0,
+    "y": 32,
+    "width": 320,
+    "height": 55,
+    "align": "center",
+    "color": "FFFFFF",
 }
 
 WALLPAPER_TARGETS = {
@@ -219,11 +234,10 @@ SOLID_BACKGROUND_TARGETS = {
 }
 
 SBS_SOLID_BACKGROUND_TARGETS = {
-    "iPoneCustom": ("iPone_bd.bmp", "SbsBackdrop.bmp"),
+    "iPoneCustom": ("iPone_bd.bmp", "SbsBackdrop.bmp", "iPone_bd_fullart.bmp"),
 }
 
 TINTED_SPRITE_ASSETS = (
-    "Battery.bmp",
     "LoadingStatus.bmp",
     "LockscreenStyle.bmp",
     "AlwaysOnDisplayStyle.bmp",
@@ -369,6 +383,7 @@ class ThemeDesignerService:
             bundle = self._themes.bundle_for_theme(theme_id, repo_root)
             cfg_asset = next((item for item in bundle["assets"] if item["kind"] == "cfg"), None)
         settings = self._read_cfg_settings(cfg_asset["source_abs"]) if cfg_asset else {}
+        base_right_pane_mode = self._normalize_right_pane_mode(settings.get("ipone right pane", DEFAULT_RIGHT_PANE_MODE))
         font_rel = self._normalize_font_rel(settings.get("font", ""))
         resolution = str(profile.get("screen_resolution") or "").strip() or "320x240"
         return {
@@ -380,9 +395,13 @@ class ThemeDesignerService:
             "fit_mode": "fill",
             "charging_fit_mode": "fill",
             "right_pane_fit_mode": "fill",
+            "right_pane_mode": base_right_pane_mode,
+            "base_right_pane_mode": base_right_pane_mode,
             "wallpaper_source": "",
             "charging_wallpaper_source": "",
             "right_pane_wallpaper_source": "",
+            "show_line_separators": True,
+            "lockscreen_clock": deepcopy(DEFAULT_LOCKSCREEN_CLOCK),
             "color_profile": "default",
             "appearance_mode": "dark",
             "colors": {
@@ -392,6 +411,7 @@ class ThemeDesignerService:
                 "selector_end": _ensure_hex(settings.get("line selector end color"), DEFAULT_COLORS["selector_end"]),
                 "selector_text": _ensure_hex(settings.get("line selector text color"), DEFAULT_COLORS["selector_text"]),
                 "list_separator": _ensure_hex(settings.get("list separator color"), DEFAULT_COLORS["list_separator"]),
+                "sbs_clock": DEFAULT_COLORS["sbs_clock"],
             },
         }
 
@@ -533,6 +553,7 @@ class ThemeDesignerService:
         bundle = self._themes.bundle_for_theme(normalized["base_theme_id"], repo_root)
         stage_root = self._stage_variant(repo_root, normalized, bundle)
         theme_name = normalized["id"]
+        sbs_skin_name = self._sbs_skin_name(normalized)
         font_rel = normalized["font_rel"]
         font_abs = os.path.join(os.path.abspath(repo_root), font_rel)
         if not os.path.isfile(font_abs):
@@ -542,7 +563,7 @@ class ThemeDesignerService:
         for kind, rel in (
             ("cfg", f"themes/{theme_name}.cfg"),
             ("wps", f"wps/{theme_name}.wps"),
-            ("sbs", f"wps/{theme_name}.sbs"),
+            ("sbs", f"wps/{sbs_skin_name}.sbs"),
             ("fms", f"wps/{theme_name}.fms"),
             ("backdrop", f"backdrops/{theme_name}_bd.bmp"),
             ("iconset", f"icons/{theme_name}.bmp"),
@@ -554,15 +575,20 @@ class ThemeDesignerService:
                 destination = f".rockbox/rockpod/theme_designer/{theme_name}.json"
             assets.append(self._asset_record(kind, rel, destination, abs_path))
 
-        assets.extend(self._font_assets_for_generated_skins(repo_root, stage_root, theme_name, font_rel))
+        assets.extend(self._font_assets_for_generated_skins(repo_root, stage_root, theme_name, sbs_skin_name, font_rel))
 
         wps_dir = os.path.join(stage_root, "wps", theme_name)
-        for root, _dirs, files in os.walk(wps_dir):
-            for filename in sorted(files):
-                full = os.path.join(root, filename)
-                suffix = os.path.relpath(full, wps_dir).replace("\\", "/")
-                rel = f"wps/{theme_name}/{suffix}"
-                assets.append(self._asset_record("wps_assets", rel, f".rockbox/{rel}", full))
+        asset_dirs = [(theme_name, wps_dir)]
+        sbs_wps_dir = os.path.join(stage_root, "wps", sbs_skin_name)
+        if sbs_skin_name != theme_name and os.path.isdir(sbs_wps_dir):
+            asset_dirs.append((sbs_skin_name, sbs_wps_dir))
+        for skin_name, skin_dir in asset_dirs:
+            for root, _dirs, files in os.walk(skin_dir):
+                for filename in sorted(files):
+                    full = os.path.join(root, filename)
+                    suffix = os.path.relpath(full, skin_dir).replace("\\", "/")
+                    rel = f"wps/{skin_name}/{suffix}"
+                    assets.append(self._asset_record("wps_assets", rel, f".rockbox/{rel}", full))
 
         return {
             "id": normalized["id"],
@@ -576,13 +602,13 @@ class ThemeDesignerService:
             ),
         }
 
-    def _font_assets_for_generated_skins(self, repo_root, stage_root, theme_name, primary_font_rel):
+    def _font_assets_for_generated_skins(self, repo_root, stage_root, theme_name, sbs_skin_name, primary_font_rel):
         names = set()
         if primary_font_rel:
             names.add(os.path.basename(primary_font_rel))
         for rel in (
             f"wps/{theme_name}.wps",
-            f"wps/{theme_name}.sbs",
+            f"wps/{sbs_skin_name}.sbs",
             f"wps/{theme_name}.fms",
         ):
             names.update(self._skin_font_references(os.path.join(stage_root, rel)))
@@ -617,6 +643,7 @@ class ThemeDesignerService:
 
     def _stage_variant(self, repo_root, variant, base_bundle):
         theme_name = variant["id"]
+        sbs_skin_name = self._sbs_skin_name(variant)
         generated_root = self._generated_dir(repo_root)
         os.makedirs(generated_root, exist_ok=True)
         if self._is_preview_theme_id(theme_name):
@@ -639,14 +666,27 @@ class ThemeDesignerService:
 
         self._apply_wallpaper_overrides(staged_wps_dir, variant)
         self._apply_sprite_color_overrides(staged_wps_dir, variant)
+        self._write_stock_battery_asset(staged_wps_dir, variant)
+        if sbs_skin_name != theme_name:
+            staged_sbs_wps_dir = os.path.join(stage_root, "wps", sbs_skin_name)
+            if os.path.isdir(staged_sbs_wps_dir):
+                shutil.rmtree(staged_sbs_wps_dir)
+            shutil.copytree(staged_wps_dir, staged_sbs_wps_dir)
         self._write_iconset(stage_root, variant, base_bundle)
         self._write_cfg(stage_root, variant, base_bundle)
         self._copy_template(base_bundle, "wps", stage_root, f"wps/{theme_name}.wps", variant)
-        self._copy_template(base_bundle, "sbs", stage_root, f"wps/{theme_name}.sbs", variant)
+        self._copy_template(base_bundle, "sbs", stage_root, f"wps/{sbs_skin_name}.sbs", variant)
         self._copy_template(base_bundle, "fms", stage_root, f"wps/{theme_name}.fms", variant)
         self._write_backdrop(stage_root, variant, staged_wps_dir)
         self._write_metadata(stage_root, variant)
         return stage_root
+
+    @staticmethod
+    def _sbs_skin_name(variant):
+        theme_name = str(variant.get("id") or "").strip()
+        if str(variant.get("base_theme_id") or "").startswith("iPone"):
+            return f"iPoneDesigner-{theme_name}"
+        return theme_name
 
     @staticmethod
     def _is_preview_theme_id(theme_name):
@@ -655,9 +695,16 @@ class ThemeDesignerService:
     def _apply_wallpaper_overrides(self, staged_wps_dir, variant):
         targets = WALLPAPER_TARGETS.get(variant["base_theme_id"], {})
         sbs_solid_targets = set(SBS_SOLID_BACKGROUND_TARGETS.get(variant["base_theme_id"], ()))
+        protected_full_art_targets = {"iPone_bd_fullart.bmp"}
+        if not sbs_solid_targets:
+            sbs_solid_targets = {
+                name
+                for name in targets.get("main", ())
+                if os.path.basename(name) in {"iPone_bd.bmp", "SbsBackdrop.bmp", "iPone_bd_fullart.bmp"}
+            }
         if variant.get("wallpaper_source"):
             for name in targets.get("main", []):
-                if name in sbs_solid_targets:
+                if name in sbs_solid_targets or os.path.basename(name) in protected_full_art_targets:
                     continue
                 self._render_image(
                     variant["wallpaper_source"],
@@ -667,17 +714,26 @@ class ThemeDesignerService:
                     variant["colors"]["background"],
                 )
             for name in sbs_solid_targets:
-                self._render_solid_image(
+                self._render_sbs_background_image(
                     os.path.join(staged_wps_dir, name),
                     variant["screen_resolution"],
-                    variant["colors"]["background"],
+                    variant,
                 )
         else:
-            for name in SOLID_BACKGROUND_TARGETS.get(variant["base_theme_id"], {}).get("main", []):
-                self._render_solid_image(
+            if self._uses_customized_colors(variant):
+                for name in targets.get("main", []):
+                    if name in sbs_solid_targets or os.path.basename(name) in protected_full_art_targets:
+                        continue
+                    self._render_solid_image(
+                        os.path.join(staged_wps_dir, name),
+                        variant["screen_resolution"],
+                        variant["colors"]["background"],
+                    )
+            for name in sbs_solid_targets:
+                self._render_sbs_background_image(
                     os.path.join(staged_wps_dir, name),
                     variant["screen_resolution"],
-                    variant["colors"]["background"],
+                    variant,
                 )
         if variant.get("charging_wallpaper_source"):
             for name in targets.get("charging", []):
@@ -688,15 +744,24 @@ class ThemeDesignerService:
                     variant.get("charging_fit_mode", "fill"),
                     variant["colors"]["background"],
                 )
-        else:
-            charging_fill = _mix_hex(variant["colors"]["background"], variant["colors"]["selector_start"], 0.55)
-            for name in SOLID_BACKGROUND_TARGETS.get(variant["base_theme_id"], {}).get("charging", []):
-                self._render_solid_image(
+        if variant.get("right_pane_wallpaper_source"):
+            sbs_right_pane_targets = [
+                name for name in sbs_solid_targets
+                if os.path.basename(name) != "iPone_bd_fullart.bmp"
+            ]
+            if not sbs_right_pane_targets:
+                sbs_right_pane_targets = targets.get("right_pane", [])
+            for name in sbs_right_pane_targets:
+                self._render_right_pane_image(
+                    variant["right_pane_wallpaper_source"],
                     os.path.join(staged_wps_dir, name),
                     variant["screen_resolution"],
-                    charging_fill,
+                    variant.get("right_pane_fit_mode", "fill"),
+                    variant["colors"]["background"],
+                    os.path.join(staged_wps_dir, name),
+                    variant.get("right_pane_offset_x", 0),
+                    variant.get("right_pane_offset_y", 0),
                 )
-        if variant.get("right_pane_wallpaper_source"):
             for name in targets.get("right_pane", []):
                 self._render_right_pane_image(
                     variant["right_pane_wallpaper_source"],
@@ -708,6 +773,16 @@ class ThemeDesignerService:
                     variant.get("right_pane_offset_x", 0),
                     variant.get("right_pane_offset_y", 0),
                 )
+
+    @staticmethod
+    def _uses_customized_colors(variant):
+        if variant.get("color_profile") and variant.get("color_profile") != "default":
+            return True
+        colors = variant.get("colors") or {}
+        for key, default in DEFAULT_COLORS.items():
+            if _ensure_hex(colors.get(key), default) != _ensure_hex(default, default):
+                return True
+        return False
 
     def _apply_sprite_color_overrides(self, staged_wps_dir, variant):
         if variant.get("color_profile") == "default":
@@ -724,22 +799,30 @@ class ThemeDesignerService:
         with open(cfg_asset["source_abs"], "r", encoding="utf-8") as handle:
             lines = handle.readlines()
 
+        cfg_background = "FFFFFF" if variant.get("appearance_mode") == "light" else variant["colors"]["background"]
+        cfg_foreground = "15121D" if variant.get("appearance_mode") == "light" else variant["colors"]["foreground"]
         overrides = {
             "wps": f"/.rockbox/wps/{variant['id']}.wps",
-            "sbs": f"/.rockbox/wps/{variant['id']}.sbs",
+            "sbs": f"/.rockbox/wps/{self._sbs_skin_name(variant)}.sbs",
             "fms": f"/.rockbox/wps/{variant['id']}.fms",
             "backdrop": f"/.rockbox/backdrops/{variant['id']}_bd.bmp",
             "font": f"/.rockbox/fonts/{os.path.basename(variant['font_rel'])}",
-            "background color": variant["colors"]["background"],
-            "foreground color": variant["colors"]["foreground"],
+            "background color": cfg_background,
+            "foreground color": cfg_foreground,
             "iconset": f"/.rockbox/icons/{variant['id']}.bmp",
             "line selector start color": variant["colors"]["selector_start"],
             "line selector end color": variant["colors"]["selector_end"],
             "line selector text color": variant["colors"]["selector_text"],
             "list separator color": variant["colors"]["list_separator"],
+            "list separator height": "1" if variant.get("show_line_separators", True) else "0",
+            "statusbar": "off",
+            "ui viewport": "-",
         }
-        if variant.get("right_pane_wallpaper_source"):
-            overrides["ipone right pane"] = "custom wallpaper"
+        right_pane_mode = self._normalize_right_pane_mode(
+            variant.get("right_pane_mode"),
+            base_default=variant.get("base_right_pane_mode", DEFAULT_RIGHT_PANE_MODE),
+        )
+        overrides["ipone right pane"] = right_pane_mode
 
         written = set()
         output = []
@@ -759,6 +842,23 @@ class ThemeDesignerService:
             if key not in written:
                 output.append(f"{key}: {value}\n")
 
+        theme_label = (str(variant.get("name") or variant["id"]).strip() or variant["id"] or "Custom iPone")
+        variant_id = str(variant.get("id") or "").strip()
+        if variant_id and variant_id not in theme_label:
+            theme_label = f"{theme_label} ({variant_id})"
+        theme_label = re.sub(r"\s+", " ", theme_label).strip()[:140]
+        updated_output = []
+        replaced_theme_comment = False
+        for line in output:
+            if line.startswith("# Theme:"):
+                updated_output.append(f"# Theme: {theme_label}\n")
+                replaced_theme_comment = True
+            else:
+                updated_output.append(line)
+        if not replaced_theme_comment:
+            updated_output.insert(0, f"# Theme: {theme_label}\n")
+        output = updated_output
+
         path = os.path.join(stage_root, "themes", f"{variant['id']}.cfg")
         atomic_write_text(path, "".join(output))
 
@@ -770,21 +870,9 @@ class ThemeDesignerService:
         os.makedirs(os.path.dirname(target), exist_ok=True)
         shutil.copy2(asset["source_abs"], target)
         if target.lower().endswith((".wps", ".sbs", ".fms")):
-            self._apply_template_color_overrides(target, base_bundle["id"], stage_root)
-        if kind == "sbs" and variant and variant.get("right_pane_wallpaper_source"):
-            self._force_generated_right_pane_wallpaper(target)
-
-    def _force_generated_right_pane_wallpaper(self, path):
-        try:
-            with open(path, "r", encoding="utf-8") as handle:
-                content = handle.read()
-        except OSError:
-            return
-        image_branch = "%?if(%St(ipone right pane), =, custom wallpaper)<%xd(SbsBg)%xd(SbsRightWallpaper)|%?if(%St(ipone right pane), =, full art)<%xd(SbsBgFullArt)|%xd(SbsBg)>>"
-        content = content.replace(image_branch, "%xd(SbsBg)%xd(SbsRightWallpaper)")
-        draw_branch = "%?if(%St(ipone right pane), =, custom wallpaper)<%Vd(normal)|%?if(%St(ipone right pane), =, full art)<%Vd(SbsAnimPulse)%?mp<%Vd(normal)|%Vd(normal)|%Vd(normal)|%Vd(normal)|%Vd(normal)|%Vd(normal)|%Vd(normal)|%Vd(normal)|%Vd(normal)>|%?mp<%Vd(SbsAlbumArt)%Vd(normal)|%Vd(SbsAlbumArt)%Vd(normal)|%Vd(SbsAlbumArt)%Vd(normal)|%Vd(SbsAlbumArt)%Vd(normal)|%Vd(SbsAlbumArt)%Vd(normal)|%Vd(SbsAlbumArt)%Vd(normal)|%Vd(SbsAlbumArt)%Vd(normal)|%Vd(radio)|%Vd(radio)>>"
-        content = content.replace(draw_branch, "%Vd(normal)")
-        atomic_write_text(path, content)
+            self._apply_template_color_overrides(target, base_bundle["id"], stage_root, variant)
+        if variant and target.lower().endswith((".wps", ".sbs")):
+            self._apply_lockscreen_clock_overrides(target, variant)
 
     def _write_iconset(self, stage_root, variant, base_bundle):
         asset = next((item for item in base_bundle["assets"] if item["kind"] == "iconset"), None)
@@ -801,23 +889,7 @@ class ThemeDesignerService:
             shutil.copy2(asset["source_abs"], target)
             return
 
-        low = _hex_to_rgb(_mix_hex(variant["colors"]["background"], "000000", 0.35))
-        high = _hex_to_rgb(variant["colors"]["selector_end"])
-        output = Image.new("RGB", source.size)
-        pixels = []
-        for red, green, blue in source.getdata():
-            luminance = (0.2126 * red + 0.7152 * green + 0.0722 * blue) / 255.0
-            if luminance < 0.04:
-                pixels.append((red, green, blue))
-                continue
-            pixels.append(
-                (
-                    int(round(low[0] + (high[0] - low[0]) * luminance)),
-                    int(round(low[1] + (high[1] - low[1]) * luminance)),
-                    int(round(low[2] + (high[2] - low[2]) * luminance)),
-                )
-            )
-        output.putdata(pixels)
+        output = self._replace_purple_accent_image(source, variant["colors"]["selector_end"])
         output.save(target, "BMP")
 
     def _tint_luminance_bitmap(self, path, low_hex, high_hex):
@@ -827,24 +899,101 @@ class ThemeDesignerService:
         except (OSError, UnidentifiedImageError):
             return
 
-        low = _hex_to_rgb(_mix_hex(low_hex, "000000", 0.25))
-        high = _hex_to_rgb(high_hex)
+        output = self._replace_purple_accent_image(source, high_hex)
+        output.save(path, "BMP")
+
+    def _replace_purple_accent_image(self, source, accent_hex):
+        target_red, target_green, target_blue = _hex_to_rgb(accent_hex)
+        target_hue, target_sat, target_val = colorsys.rgb_to_hsv(
+            target_red / 255.0,
+            target_green / 255.0,
+            target_blue / 255.0,
+        )
         pixels = []
         for red, green, blue in source.getdata():
-            luminance = (0.2126 * red + 0.7152 * green + 0.0722 * blue) / 255.0
-            if luminance < 0.05:
+            hue, sat, val = colorsys.rgb_to_hsv(red / 255.0, green / 255.0, blue / 255.0)
+            is_stock_purple = (
+                sat >= 0.18
+                and 0.66 <= hue <= 0.86
+                and blue >= green + 10
+                and red >= green - 4
+            )
+            if not is_stock_purple:
                 pixels.append((red, green, blue))
                 continue
+
+            new_sat = max(0.16, min(1.0, sat * (0.72 + target_sat * 0.38)))
+            new_val = max(0.0, min(1.0, val * (0.86 + target_val * 0.18)))
+            new_red, new_green, new_blue = colorsys.hsv_to_rgb(target_hue, new_sat, new_val)
             pixels.append(
-                (
-                    int(round(low[0] + (high[0] - low[0]) * luminance)),
-                    int(round(low[1] + (high[1] - low[1]) * luminance)),
-                    int(round(low[2] + (high[2] - low[2]) * luminance)),
-                )
+                (int(round(new_red * 255)), int(round(new_green * 255)), int(round(new_blue * 255)))
             )
         output = Image.new("RGB", source.size)
         output.putdata(pixels)
-        output.save(path, "BMP")
+        return output
+
+    def _write_stock_battery_asset(self, staged_wps_dir, variant):
+        path = os.path.join(staged_wps_dir, "Battery.bmp")
+        if variant.get("color_profile") == "default":
+            return
+        if not os.path.isfile(path):
+            return
+        try:
+            with Image.open(path) as source:
+                image = source.convert("RGB")
+        except (OSError, UnidentifiedImageError):
+            return
+        width, height = image.size
+        if width < 12 or height < 8:
+            return
+
+        background = "000000" if variant.get("appearance_mode") == "dark" else "FFFFFF"
+        foreground = variant["colors"]["foreground"]
+        accent = variant["colors"]["selector_end"]
+        bg_rgb = ImageColor.getrgb(f"#{background}")
+        empty_rgb = ImageColor.getrgb(f"#{_mix_hex(background, foreground, 0.10)}")
+        frame_dark_rgb = ImageColor.getrgb(f"#{_mix_hex(background, foreground, 0.22)}")
+        frame_light_rgb = ImageColor.getrgb(f"#{_mix_hex(foreground, background, 0.18)}")
+        accent_dark_rgb = ImageColor.getrgb(f"#{_mix_hex(accent, background, 0.58)}")
+        accent_light_rgb = ImageColor.getrgb(f"#{_mix_hex(accent, 'FFFFFF', 0.16)}")
+        charge_dark_rgb = ImageColor.getrgb(f"#{_mix_hex(accent, background, 0.36)}")
+        charge_light_rgb = ImageColor.getrgb(f"#{_mix_hex(accent, 'FFFFFF', 0.34)}")
+        low_dark_rgb = ImageColor.getrgb("#7E0E20" if variant.get("appearance_mode") == "dark" else "#A60F25")
+        low_light_rgb = ImageColor.getrgb("#FF4D5E" if variant.get("appearance_mode") == "dark" else "#D92842")
+
+        def blend(start, end, amount):
+            amount = max(0.0, min(1.0, amount))
+            return (
+                int(round(start[0] + (end[0] - start[0]) * amount)),
+                int(round(start[1] + (end[1] - start[1]) * amount)),
+                int(round(start[2] + (end[2] - start[2]) * amount)),
+            )
+
+        output_pixels = []
+        for red, green, blue in image.getdata():
+            high = max(red, green, blue)
+            low = min(red, green, blue)
+            spread = high - low
+            luminance = (0.2126 * red + 0.7152 * green + 0.0722 * blue) / 255.0
+
+            if luminance < 0.18:
+                output_pixels.append(blend(bg_rgb, empty_rgb, luminance / 0.18 * 0.55))
+            elif red > 145 and green > 105 and blue < 145:
+                output_pixels.append(blend(charge_dark_rgb, charge_light_rgb, (luminance - 0.40) / 0.55))
+            elif red > 120 and green < 80 and blue < 95:
+                output_pixels.append(blend(low_dark_rgb, low_light_rgb, (luminance - 0.20) / 0.50))
+            elif spread <= 24:
+                output_pixels.append(blend(frame_dark_rgb, frame_light_rgb, (luminance - 0.16) / 0.70))
+            elif blue >= green and red >= green and spread > 28:
+                output_pixels.append(blend(accent_dark_rgb, accent_light_rgb, (luminance - 0.20) / 0.62))
+            else:
+                output_pixels.append(blend(frame_dark_rgb, frame_light_rgb, (luminance - 0.16) / 0.70))
+
+        image = Image.new("RGB", (width, height))
+        image.putdata(output_pixels)
+        if should_render_2bpp_greyscale(variant["screen_resolution"]):
+            image = render_2bpp_greyscale(image)
+        image.save(path, "BMP")
 
     def _write_backdrop(self, stage_root, variant, staged_wps_dir):
         backdrop_path = os.path.join(stage_root, "backdrops", f"{variant['id']}_bd.bmp")
@@ -881,6 +1030,8 @@ class ThemeDesignerService:
                 "right_pane_wallpaper_source": variant.get("right_pane_wallpaper_source", ""),
                 "right_pane_offset_x": variant.get("right_pane_offset_x", 0),
                 "right_pane_offset_y": variant.get("right_pane_offset_y", 0),
+                "show_line_separators": variant.get("show_line_separators", True),
+                "lockscreen_clock": deepcopy(variant.get("lockscreen_clock", DEFAULT_LOCKSCREEN_CLOCK)),
                 "color_profile": variant.get("color_profile", "custom"),
                 "appearance_mode": variant.get("appearance_mode", "dark"),
             },
@@ -919,11 +1070,27 @@ class ThemeDesignerService:
         base["fit_mode"] = self._normalize_fit_mode(item.get("fit_mode") or base["fit_mode"])
         base["charging_fit_mode"] = self._normalize_fit_mode(item.get("charging_fit_mode") or base["charging_fit_mode"])
         base["right_pane_fit_mode"] = self._normalize_fit_mode(item.get("right_pane_fit_mode") or base["right_pane_fit_mode"])
+        base["base_right_pane_mode"] = base["right_pane_mode"]
+        requested_right_pane_mode = str(item.get("right_pane_mode") or "").strip()
+        raw_right_pane_wallpaper_source = str(item.get("right_pane_wallpaper_source") or "").strip()
+        if requested_right_pane_mode:
+            right_pane_mode = self._normalize_right_pane_mode(
+                requested_right_pane_mode,
+                base_default=base.get("right_pane_mode", DEFAULT_RIGHT_PANE_MODE),
+            )
+        else:
+            right_pane_mode = self._normalize_right_pane_mode(
+                "",
+                base_default=base.get("right_pane_mode", DEFAULT_RIGHT_PANE_MODE),
+            )
+        base["right_pane_mode"] = right_pane_mode
         base["right_pane_offset_x"] = self._normalize_offset(item.get("right_pane_offset_x", base.get("right_pane_offset_x", 0)))
         base["right_pane_offset_y"] = self._normalize_offset(item.get("right_pane_offset_y", base.get("right_pane_offset_y", 0)))
+        base["show_line_separators"] = bool(item.get("show_line_separators", base.get("show_line_separators", True)))
+        base["lockscreen_clock"] = self._normalize_lockscreen_clock(item.get("lockscreen_clock") or base.get("lockscreen_clock"))
         base["wallpaper_source"] = os.path.abspath(str(item.get("wallpaper_source") or "").strip()) if item.get("wallpaper_source") else ""
         base["charging_wallpaper_source"] = os.path.abspath(str(item.get("charging_wallpaper_source") or "").strip()) if item.get("charging_wallpaper_source") else ""
-        base["right_pane_wallpaper_source"] = os.path.abspath(str(item.get("right_pane_wallpaper_source") or "").strip()) if item.get("right_pane_wallpaper_source") else ""
+        base["right_pane_wallpaper_source"] = os.path.abspath(raw_right_pane_wallpaper_source) if raw_right_pane_wallpaper_source else ""
         base["color_profile"] = str(item.get("color_profile") or base.get("color_profile") or "custom").strip() or "custom"
         appearance_mode = str(item.get("appearance_mode") or base.get("appearance_mode") or "dark").strip().lower()
         base["appearance_mode"] = "light" if appearance_mode == "light" else "dark"
@@ -936,8 +1103,475 @@ class ThemeDesignerService:
             "selector_end": _ensure_hex(colors.get("selector_end"), DEFAULT_COLORS["selector_end"]),
             "selector_text": _ensure_hex(colors.get("selector_text"), DEFAULT_COLORS["selector_text"]),
             "list_separator": _ensure_hex(colors.get("list_separator"), DEFAULT_COLORS["list_separator"]),
+            "sbs_clock": _ensure_hex(
+                colors.get("sbs_clock"),
+                _ensure_hex(colors.get("foreground"), DEFAULT_COLORS["sbs_clock"]),
+            ),
         }
         return base
+
+    def _normalize_lockscreen_clock(self, value):
+        source = value if isinstance(value, dict) else {}
+        result = deepcopy(DEFAULT_LOCKSCREEN_CLOCK)
+        result["font_rel"] = self._normalize_font_rel(source.get("font_rel") or source.get("font") or result["font_rel"])
+        result["x"] = self._int_between(source.get("x"), 0, 319, result["x"])
+        result["y"] = self._int_between(source.get("y"), 0, 180, result["y"])
+        result["width"] = self._int_between(source.get("width"), 40, 320, result["width"])
+        result["height"] = self._int_between(source.get("height"), 12, 100, result["height"])
+        align = str(source.get("align") or result["align"]).strip().lower()
+        result["align"] = align if align in {"left", "center", "right"} else DEFAULT_LOCKSCREEN_CLOCK["align"]
+        result["color"] = _ensure_hex(source.get("color"), result["color"])
+        return result
+
+    def readability_recommendations(self, repo_root, profile, variant_data):
+        variant = self._normalize_variant(variant_data, repo_root)
+        issues = []
+        colors = variant["colors"]
+        left_background = "FFFFFF" if variant.get("appearance_mode") == "light" else "000000"
+        self._add_contrast_issue(
+            issues,
+            "Menu text",
+            "colors.foreground",
+            colors["foreground"],
+            self._rgb_from_hex(left_background),
+            "left menu background",
+        )
+        self._add_contrast_issue(
+            issues,
+            "Selected menu text",
+            "colors.selector_text",
+            colors["selector_text"],
+            self._rgb_from_hex(colors["selector_end"]),
+            "selected row",
+        )
+
+        right_wallpaper = str(variant.get("right_pane_wallpaper_source") or "").strip()
+        if right_wallpaper and os.path.isfile(right_wallpaper):
+            right_rgb = self._average_image_rgb(right_wallpaper)
+            if right_rgb:
+                self._add_contrast_issue(
+                    issues,
+                    "Right-side clock/miniplayer text",
+                    "colors.sbs_clock",
+                    colors["sbs_clock"],
+                    right_rgb,
+                    "right-side wallpaper",
+                )
+
+        lock_wallpaper = str(variant.get("wallpaper_source") or "").strip()
+        if lock_wallpaper and os.path.isfile(lock_wallpaper):
+            lock_rgb = self._average_image_rgb(lock_wallpaper)
+            if lock_rgb:
+                clock = self._normalize_lockscreen_clock(variant.get("lockscreen_clock"))
+                self._add_contrast_issue(
+                    issues,
+                    "Lockscreen clock",
+                    "lockscreen_clock.color",
+                    clock["color"],
+                    lock_rgb,
+                    "lockscreen wallpaper",
+                    minimum=3.0,
+                )
+        return issues
+
+    def readability_recommendations_for_bundle(self, repo_root, profile, bundle):
+        variant = dict((bundle or {}).get("variant") or {})
+        issues = self.readability_recommendations(repo_root, profile, variant)
+        for asset in (bundle or {}).get("assets", []):
+            if asset.get("kind") not in {"sbs", "wps"}:
+                continue
+            skin_path = asset.get("source_abs") or ""
+            if not os.path.isfile(skin_path):
+                continue
+            issues.extend(self._skin_readability_issues(skin_path, asset.get("kind"), variant))
+        return self._dedupe_readability_issues(issues)
+
+    def _skin_readability_issues(self, skin_path, skin_kind, variant):
+        screen_width, screen_height = _fit_size(variant.get("screen_resolution") or "320x240")
+        skin_name = os.path.splitext(os.path.basename(skin_path))[0]
+        image_dir = os.path.join(os.path.dirname(skin_path), skin_name)
+        entries = self._skin_text_viewports(skin_path, screen_width, screen_height)
+        issues = []
+        for entry in entries:
+            target = self._readability_target_for_viewport(entry, skin_kind, screen_width)
+            if not target:
+                continue
+            background = self._skin_background_for_viewport(
+                image_dir,
+                skin_kind,
+                variant,
+                entry,
+                screen_width,
+            )
+            if not background:
+                continue
+            self._add_contrast_region_issue(
+                issues,
+                f"{skin_kind.upper()} {entry['name']} font",
+                target,
+                entry["color"],
+                background,
+                entry["x"],
+                entry["y"],
+                entry["width"],
+                entry["height"],
+                minimum=self._minimum_contrast_for_font(entry),
+            )
+        return issues
+
+    def _skin_text_viewports(self, skin_path, screen_width, screen_height):
+        try:
+            with open(skin_path, "r", encoding="utf-8", errors="replace") as handle:
+                lines = handle.readlines()
+        except OSError:
+            return []
+
+        fonts = self._skin_font_map(lines)
+        entries = []
+        current = None
+        emitted = set()
+        for raw in lines:
+            line = raw.strip()
+            viewport = self._parse_viewport_line(line, screen_width, screen_height)
+            if viewport:
+                current = viewport
+            elif line.startswith("%V(") or line.startswith("%Vi("):
+                current = None
+
+            if current is None:
+                continue
+            color = self._last_skin_foreground(line)
+            if color:
+                current["color"] = color
+            if not current.get("color") or not self._skin_line_has_text(line):
+                continue
+            current["font_name"] = fonts.get(str(current.get("font_slot") or "").strip(), "")
+            key = (current["name"], current["x"], current["y"], current["color"])
+            if key in emitted:
+                continue
+            emitted.add(key)
+            entries.append(dict(current))
+        return entries
+
+    @staticmethod
+    def _skin_font_map(lines):
+        fonts = {}
+        for raw in lines:
+            match = re.search(r"%Fl\(([^)]*)\)", str(raw or ""))
+            if not match:
+                continue
+            parts = [part.strip() for part in match.group(1).split(",")]
+            if len(parts) >= 2:
+                fonts[parts[0]] = os.path.basename(parts[1])
+        return fonts
+
+    @staticmethod
+    def _parse_viewport_line(line, screen_width, screen_height):
+        match = re.search(r"%(?:Vl|Vi)\(([^)]*)\)", line)
+        if not match:
+            return None
+        parts = [part.strip() for part in match.group(1).split(",")]
+        if len(parts) < 6:
+            return None
+
+        def parse_coord(value, default=0):
+            text = str(value or "").strip()
+            if text == "-":
+                return default
+            try:
+                return int(float(text))
+            except (TypeError, ValueError):
+                return default
+
+        name = parts[0]
+        x = parse_coord(parts[1], 0)
+        y = parse_coord(parts[2], 0)
+        width = parse_coord(parts[3], screen_width - x)
+        height = parse_coord(parts[4], screen_height - y)
+        return {
+            "name": name,
+            "x": max(0, min(screen_width - 1, x)),
+            "y": max(0, min(screen_height - 1, y)),
+            "width": max(1, min(screen_width - max(0, x), width)),
+            "height": max(1, min(screen_height - max(0, y), height)),
+            "font_slot": parts[5],
+            "color": ThemeDesignerService._last_skin_foreground(line),
+        }
+
+    @staticmethod
+    def _last_skin_foreground(line):
+        matches = re.findall(r"%Vf\(([0-9A-Fa-f]{6})\)", line)
+        return matches[-1].upper() if matches else ""
+
+    @staticmethod
+    def _skin_line_has_text(line):
+        if not line or line.startswith("#"):
+            return False
+        if line.startswith(("%xl(", "%xd(", "%Cl(", "%Cd(", "%dr(", "%pb(", "%pv(")):
+            return False
+        text_tokens = (
+            "%it",
+            "%fn",
+            "%ia",
+            "%id",
+            "%cl",
+            "%cM",
+            "%cP",
+            "%Lt",
+            "%bl",
+            "%pc",
+            "%pt",
+            "%tf",
+            "%Tn",
+            "Now Playing",
+            "HOLD",
+            "FM Radio",
+            "Signal",
+        )
+        if any(token in line for token in text_tokens):
+            return True
+        stripped = re.sub(r"%[A-Za-z?][A-Za-z0-9]*(?:\([^)]*\))?", " ", line)
+        stripped = re.sub(r"[<|>;:=,/%()0-9_-]+", " ", stripped)
+        return bool(re.search(r"[A-Za-z]{2,}", stripped))
+
+    @staticmethod
+    def _is_large_font_slot(slot):
+        try:
+            number = int(str(slot).strip())
+        except (TypeError, ValueError):
+            return False
+        return number >= 8
+
+    @staticmethod
+    def _minimum_contrast_for_font(entry):
+        font_name = str(entry.get("font_name") or "").lower()
+        minimum = 3.0 if ThemeDesignerService._is_large_font_slot(entry.get("font_slot")) else 4.5
+        if any(marker in font_name for marker in ("light", "thin", "extralight", "ultralight")):
+            minimum = max(minimum, 4.5)
+        return minimum
+
+    @staticmethod
+    def _readability_target_for_viewport(entry, skin_kind, screen_width):
+        lowered = str((entry or {}).get("name") or "").strip().lower()
+        if not lowered or "shadow" in lowered:
+            return ""
+        if lowered in {"clock"}:
+            return "colors.sbs_clock"
+        if lowered in {"minititle", "minisub", "nowplayingbadge", "radio"}:
+            return "colors.sbs_clock"
+        if lowered in {"t", "n"}:
+            return "colors.foreground"
+        if lowered in {"iponelockscreen", "lockscreen"}:
+            return "lockscreen_clock.color"
+        if lowered in {"lockmusic", "lockradio", "chargenowplaying"}:
+            return "colors.selector_text"
+        if lowered in {"alwaysondisplay", "aodnowplayingcard", "chargeclock", "chargemeta"}:
+            return "colors.foreground"
+        if skin_kind == "sbs" and int((entry or {}).get("x") or 0) >= max(1, screen_width // 2):
+            return "colors.sbs_clock"
+        return "colors.foreground"
+
+    @staticmethod
+    def _skin_background_for_viewport(image_dir, skin_kind, variant, entry, screen_width):
+        lowered = str((entry or {}).get("name") or "").strip().lower()
+        if skin_kind == "sbs":
+            if "charge" in lowered:
+                for candidate in ("ChargeWallpaper.bmp", "ChargeWallpaperAlt.bmp", "ChargeWallpaperThird.bmp", "ChargeWallpaperFourth.bmp"):
+                    path = os.path.join(image_dir, candidate)
+                    if os.path.isfile(path):
+                        return path
+            if lowered in {"iponelockscreen", "lockmusic", "lockradio", "lockplayer"}:
+                path = os.path.join(image_dir, "Wallpaper.bmp")
+                if os.path.isfile(path):
+                    return path
+            if lowered in {"iponeaod", "aodnowplayingcard"}:
+                path = os.path.join(image_dir, "AODBackdrop.bmp")
+                if os.path.isfile(path):
+                    return path
+            if lowered in {"clock", "minititle", "minisub", "nowplayingbadge", "radio", "t", "n"}:
+                right_mode = str(variant.get("right_pane_mode") or DEFAULT_RIGHT_PANE_MODE).lower()
+                candidate = "iPone_bd_fullart.bmp" if right_mode == "full art" else "iPone_bd.bmp"
+                path = os.path.join(image_dir, candidate)
+                if os.path.isfile(path):
+                    return path
+                fallback = os.path.join(image_dir, "RightPaneWallpaper.bmp")
+                if os.path.isfile(fallback):
+                    return fallback
+            if int((entry or {}).get("x") or 0) >= max(1, screen_width // 2):
+                for candidate in ("iPone_bd_fullart.bmp", "iPone_bd.bmp", "RightPaneWallpaper.bmp", "SbsBackdrop.bmp"):
+                    path = os.path.join(image_dir, candidate)
+                    if os.path.isfile(path):
+                        return path
+            for candidate in ("iPone_bd.bmp", "SbsBackdrop.bmp"):
+                path = os.path.join(image_dir, candidate)
+                if os.path.isfile(path):
+                    return path
+        if skin_kind == "wps" and lowered in {"lockscreen"}:
+            path = os.path.join(image_dir, "Wallpaper.bmp")
+            if os.path.isfile(path):
+                return path
+        if skin_kind == "wps" and lowered in {"alwaysondisplay"}:
+            path = os.path.join(image_dir, "AODBackdrop.bmp")
+            if os.path.isfile(path):
+                return path
+        return ""
+
+    @staticmethod
+    def _average_image_region_rgb(path, x, y, width, height):
+        try:
+            with Image.open(path) as image:
+                source = image.convert("RGB")
+                left = max(0, min(source.width - 1, int(x)))
+                top = max(0, min(source.height - 1, int(y)))
+                right = max(left + 1, min(source.width, left + int(width)))
+                bottom = max(top + 1, min(source.height, top + int(height)))
+                sampled = source.crop((left, top, right, bottom))
+                sampled.thumbnail((48, 48))
+                pixels = list(sampled.getdata())
+        except (OSError, UnidentifiedImageError):
+            return None
+        if not pixels:
+            return None
+        red = sum(pixel[0] for pixel in pixels) / len(pixels)
+        green = sum(pixel[1] for pixel in pixels) / len(pixels)
+        blue = sum(pixel[2] for pixel in pixels) / len(pixels)
+        return (int(round(red)), int(round(green)), int(round(blue)))
+
+    def _add_contrast_region_issue(self, issues, label, target, current_hex, background_path, x, y, width, height, minimum=4.5):
+        stats = self._contrast_region_stats(background_path, x, y, width, height, current_hex)
+        if not stats:
+            return
+        ratio = stats["ratio"]
+        if ratio >= minimum:
+            return
+        recommended = self._best_text_hex(stats["background_rgb"])
+        recommended_ratio = self._contrast_ratio(self._rgb_from_hex(recommended), stats["background_rgb"])
+        if recommended_ratio <= ratio:
+            return
+        issues.append(
+            {
+                "label": label,
+                "target": target,
+                "current": _ensure_hex(current_hex, "FFFFFF"),
+                "recommended": recommended,
+                "ratio": ratio,
+                "recommended_ratio": recommended_ratio,
+                "background": f"{os.path.basename(background_path)} region {int(x)},{int(y)},{int(width)}x{int(height)}",
+                "minimum": minimum,
+            }
+        )
+
+    @classmethod
+    def _contrast_region_stats(cls, path, x, y, width, height, foreground_hex):
+        try:
+            with Image.open(path) as image:
+                source = image.convert("RGB")
+                left = max(0, min(source.width - 1, int(x)))
+                top = max(0, min(source.height - 1, int(y)))
+                right = max(left + 1, min(source.width, left + int(width)))
+                bottom = max(top + 1, min(source.height, top + int(height)))
+                crop = source.crop((left, top, right, bottom))
+        except (OSError, UnidentifiedImageError):
+            return None
+        if crop.width <= 0 or crop.height <= 0:
+            return None
+        foreground_rgb = cls._rgb_from_hex(foreground_hex)
+        tile = max(4, min(16, max(4, min(crop.width, crop.height) // 3)))
+        samples = []
+        for top in range(0, crop.height, tile):
+            for left in range(0, crop.width, tile):
+                region = crop.crop((left, top, min(crop.width, left + tile), min(crop.height, top + tile)))
+                pixels = list(region.getdata())
+                if not pixels:
+                    continue
+                background_rgb = (
+                    int(round(sum(pixel[0] for pixel in pixels) / len(pixels))),
+                    int(round(sum(pixel[1] for pixel in pixels) / len(pixels))),
+                    int(round(sum(pixel[2] for pixel in pixels) / len(pixels))),
+                )
+                samples.append((cls._contrast_ratio(foreground_rgb, background_rgb), background_rgb))
+        if not samples:
+            return None
+        samples.sort(key=lambda item: item[0])
+        index = min(len(samples) - 1, max(0, int(round((len(samples) - 1) * 0.10))))
+        ratio, background_rgb = samples[index]
+        return {"ratio": ratio, "background_rgb": background_rgb}
+
+    @staticmethod
+    def _dedupe_readability_issues(issues):
+        deduped = []
+        seen = set()
+        for issue in issues:
+            key = (issue.get("label"), issue.get("target"), issue.get("current"), issue.get("background"))
+            if key in seen:
+                continue
+            seen.add(key)
+            deduped.append(issue)
+        return deduped
+
+    def _add_contrast_issue(self, issues, label, target, current_hex, background_rgb, background_label, minimum=4.5):
+        current_rgb = self._rgb_from_hex(current_hex)
+        ratio = self._contrast_ratio(current_rgb, background_rgb)
+        if ratio >= minimum:
+            return
+        recommended = self._best_text_hex(background_rgb)
+        recommended_ratio = self._contrast_ratio(self._rgb_from_hex(recommended), background_rgb)
+        if recommended_ratio <= ratio:
+            return
+        issues.append(
+            {
+                "label": label,
+                "target": target,
+                "current": _ensure_hex(current_hex, "FFFFFF"),
+                "recommended": recommended,
+                "ratio": ratio,
+                "recommended_ratio": recommended_ratio,
+                "background": background_label,
+                "minimum": minimum,
+            }
+        )
+
+    @staticmethod
+    def _rgb_from_hex(value):
+        return ImageColor.getrgb(f"#{_ensure_hex(value, '000000')}")
+
+    @staticmethod
+    def _relative_luminance(rgb):
+        values = []
+        for component in rgb:
+            channel = component / 255.0
+            values.append(channel / 12.92 if channel <= 0.03928 else ((channel + 0.055) / 1.055) ** 2.4)
+        return 0.2126 * values[0] + 0.7152 * values[1] + 0.0722 * values[2]
+
+    @classmethod
+    def _contrast_ratio(cls, foreground_rgb, background_rgb):
+        first = cls._relative_luminance(foreground_rgb)
+        second = cls._relative_luminance(background_rgb)
+        light = max(first, second)
+        dark = min(first, second)
+        return (light + 0.05) / (dark + 0.05)
+
+    @classmethod
+    def _best_text_hex(cls, background_rgb):
+        white_ratio = cls._contrast_ratio((255, 255, 255), background_rgb)
+        black_ratio = cls._contrast_ratio((0, 0, 0), background_rgb)
+        return "FFFFFF" if white_ratio >= black_ratio else "000000"
+
+    @staticmethod
+    def _average_image_rgb(path):
+        try:
+            with Image.open(path) as image:
+                sampled = image.convert("RGB")
+                sampled.thumbnail((48, 48))
+                pixels = list(sampled.getdata())
+        except (OSError, UnidentifiedImageError):
+            return None
+        if not pixels:
+            return None
+        red = sum(pixel[0] for pixel in pixels) / len(pixels)
+        green = sum(pixel[1] for pixel in pixels) / len(pixels)
+        blue = sum(pixel[2] for pixel in pixels) / len(pixels)
+        return (int(round(red)), int(round(green)), int(round(blue)))
 
     @staticmethod
     def _normalize_fit_mode(value):
@@ -953,6 +1587,24 @@ class ThemeDesignerService:
         except (TypeError, ValueError):
             number = 0
         return max(-100, min(100, number))
+
+    @staticmethod
+    def _normalize_right_pane_mode(value, base_default=DEFAULT_RIGHT_PANE_MODE):
+        mode = str(value or "").strip().lower()
+        if mode in RIGHT_PANE_MODES:
+            return mode
+        default = str(base_default or DEFAULT_RIGHT_PANE_MODE).strip().lower()
+        if default in RIGHT_PANE_MODES:
+            return default
+        return DEFAULT_RIGHT_PANE_MODE
+
+    @staticmethod
+    def _int_between(value, low, high, default):
+        try:
+            number = int(value)
+        except (TypeError, ValueError):
+            number = int(default)
+        return max(low, min(high, number))
 
     @staticmethod
     def _normalize_font_rel(value):
@@ -1058,6 +1710,35 @@ class ThemeDesignerService:
         os.makedirs(os.path.dirname(dest_path), exist_ok=True)
         image.save(dest_path, "BMP")
 
+    def _render_sbs_background_image(self, dest_path, resolution, variant):
+        width, height = _fit_size(resolution)
+        pane_x = width // 2
+        background = "000000" if variant.get("appearance_mode") == "dark" else "FFFFFF"
+        if variant.get("appearance_mode") == "light":
+            status_hex = _mix_hex(background, "FFFFFF", 0.45)
+            divider_hex = _mix_hex(background, "000000", 0.22)
+        else:
+            status_hex = _mix_hex(background, "000000", 0.42)
+            divider_hex = _mix_hex(background, variant["colors"]["selector_end"], 0.42)
+        shadow_hex = _mix_hex(background, variant["colors"]["selector_end"], 0.22)
+        shadow_hex = _mix_hex(shadow_hex, "000000", 0.58)
+        highlight_hex = _mix_hex(background, "FFFFFF", 0.28)
+        image = Image.new("RGB", (width, height), ImageColor.getrgb(f"#{background}"))
+        pixels = image.load()
+        status_rgb = ImageColor.getrgb(f"#{status_hex}")
+        divider_rgb = ImageColor.getrgb(f"#{divider_hex}")
+        for y in range(0, min(20, height)):
+            for x in range(pane_x):
+                pixels[x, y] = status_rgb
+        if height > 20:
+            for x in range(pane_x):
+                pixels[x, 20] = divider_rgb
+        self._draw_split_shadow(image, pane_x, shadow_hex, highlight_hex)
+        if should_render_2bpp_greyscale(resolution):
+            image = render_2bpp_greyscale(image)
+        os.makedirs(os.path.dirname(dest_path), exist_ok=True)
+        image.save(dest_path, "BMP")
+
     def _render_right_pane_image(self, source_path, dest_path, resolution, fit_mode, matte_hex, base_path, offset_x=0, offset_y=0):
         width, height = _fit_size(resolution)
         pane_x = width // 2
@@ -1072,6 +1753,8 @@ class ThemeDesignerService:
                 rendered = Image.new("RGB", (width, height), ImageColor.getrgb(f"#{matte_hex}"))
         else:
             rendered = Image.new("RGB", (width, height), ImageColor.getrgb(f"#{matte_hex}"))
+        shadow_hex = _mix_hex(matte_hex, "000000", 0.52)
+        highlight_hex = _mix_hex(matte_hex, "FFFFFF", 0.24)
 
         try:
             with Image.open(source_path) as img:
@@ -1098,10 +1781,56 @@ class ThemeDesignerService:
             pane = resized.crop((left, top, left + pane_width, top + height))
 
         rendered.paste(pane, (pane_x, 0))
+        self._draw_split_shadow(rendered, pane_x, shadow_hex, highlight_hex)
         if should_render_2bpp_greyscale(resolution):
             rendered = render_2bpp_greyscale(rendered)
         os.makedirs(os.path.dirname(dest_path), exist_ok=True)
         rendered.save(dest_path, "BMP")
+
+    def _apply_split_shadow_to_existing(self, path, resolution, variant):
+        if not os.path.isfile(path):
+            return
+        width, height = _fit_size(resolution)
+        background = variant["colors"]["background"]
+        shadow_hex = _mix_hex(background, variant["colors"]["selector_end"], 0.22)
+        shadow_hex = _mix_hex(shadow_hex, "000000", 0.58)
+        highlight_hex = _mix_hex(background, "FFFFFF", 0.28)
+        try:
+            with Image.open(path) as img:
+                image = img.convert("RGB").resize((width, height), Image.Resampling.LANCZOS)
+        except (OSError, UnidentifiedImageError):
+            return
+        self._draw_split_shadow(image, width // 2, shadow_hex, highlight_hex)
+        if should_render_2bpp_greyscale(resolution):
+            image = render_2bpp_greyscale(image)
+        image.save(path, "BMP")
+
+    @staticmethod
+    def _draw_split_shadow(image, pane_x, shadow_hex, highlight_hex):
+        width, height = image.size
+        pixels = image.load()
+        shadow = ImageColor.getrgb(f"#{_ensure_hex(shadow_hex, '000000')}")
+        highlight = ImageColor.getrgb(f"#{_ensure_hex(highlight_hex, 'FFFFFF')}")
+        layers = (
+            (-4, shadow, 0.08),
+            (-3, shadow, 0.14),
+            (-2, shadow, 0.28),
+            (-1, shadow, 0.56),
+            (0, shadow, 0.68),
+            (1, highlight, 0.22),
+            (2, shadow, 0.12),
+            (3, shadow, 0.06),
+        )
+        for y in range(height):
+            for offset, color, alpha in layers:
+                x = pane_x + offset
+                if 0 <= x < width:
+                    pixels[x, y] = ThemeDesignerService._blend_rgb(pixels[x, y], color, alpha)
+
+    @staticmethod
+    def _blend_rgb(base, overlay, alpha):
+        alpha = max(0.0, min(1.0, float(alpha)))
+        return tuple(int(round(base[index] + (overlay[index] - base[index]) * alpha)) for index in range(3))
 
     @staticmethod
     def _offset_position(extra_space, offset):
@@ -1125,7 +1854,7 @@ class ThemeDesignerService:
     def _variant_path(self, repo_root, variant_id):
         return os.path.join(self._variants_dir(repo_root), f"{variant_id}.json")
 
-    def _apply_template_color_overrides(self, path, base_theme_id, stage_root):
+    def _apply_template_color_overrides(self, path, base_theme_id, stage_root, variant=None):
         if str(base_theme_id or "").strip() not in {"iPone", "iPoneCustom"}:
             return
 
@@ -1139,6 +1868,12 @@ class ThemeDesignerService:
         selector_start = _ensure_hex(settings.get("line selector start color"), DEFAULT_COLORS["selector_start"])
         selector_end = _ensure_hex(settings.get("line selector end color"), DEFAULT_COLORS["selector_end"])
         selector_text = _ensure_hex(settings.get("line selector text color"), DEFAULT_COLORS["selector_text"])
+        variant_colors = (variant or {}).get("colors", {}) if isinstance(variant, dict) else {}
+        sbs_clock = _ensure_hex(variant_colors.get("sbs_clock"), _mix_hex(foreground, selector_text, 0.26))
+
+        ui_background = background
+        if not (isinstance(variant, dict) and variant.get("appearance_mode") == "light"):
+            ui_background = _mix_hex(background, "000000", 0.12)
 
         replacements = {
             "1F1F24": background,
@@ -1148,7 +1883,7 @@ class ThemeDesignerService:
             "202025": _mix_hex(background, foreground, 0.04),
             "18181D": _mix_hex(background, "000000", 0.24),
             "0B0B0D": _mix_hex(background, "000000", 0.42),
-            "0F0E14": _mix_hex(background, "000000", 0.12),
+            "0F0E14": ui_background,
             "15121B": _mix_hex(selector_start, "000000", 0.42),
             "16121D": _mix_hex(selector_start, "000000", 0.38),
             "18161F": _mix_hex(selector_start, "000000", 0.28),
@@ -1174,7 +1909,7 @@ class ThemeDesignerService:
             "D4CAE4": _mix_hex(selector_text, foreground, 0.34),
             "D7CCF0": _mix_hex(selector_text, foreground, 0.42),
             "E3D8FB": _mix_hex(selector_text, foreground, 0.62),
-            "E8DFF8": _mix_hex(foreground, selector_text, 0.26),
+            "E8DFF8": sbs_clock,
             "F1EAFF": _mix_hex(foreground, selector_text, 0.42),
             "F4EFFB": _mix_hex(foreground, selector_text, 0.18),
             "F7F4FA": foreground,
@@ -1189,8 +1924,67 @@ class ThemeDesignerService:
         except OSError:
             return
 
-        for source, target in replacements.items():
-            content = content.replace(source, target)
-            content = content.replace(source.lower(), target.lower())
+        pattern = re.compile(
+            "|".join(re.escape(source) for source in sorted(replacements, key=len, reverse=True)),
+            re.IGNORECASE,
+        )
+        content = pattern.sub(lambda match: replacements.get(match.group(0).upper(), match.group(0)), content)
+        if os.path.basename(path).lower().endswith(".sbs"):
+            right_pane_text = re.compile(
+                r"(%Vl\((?:MiniTitle|MiniSub|NowPlayingBadge|radio)[^)]*\)%Vf\()([0-9A-Fa-f]{6})(\))"
+            )
+            content = right_pane_text.sub(lambda match: f"{match.group(1)}{sbs_clock}{match.group(3)}", content)
 
         atomic_write_text(path, content)
+
+    def _apply_lockscreen_clock_overrides(self, path, variant):
+        if not str((variant or {}).get("base_theme_id") or "").startswith("iPone"):
+            return
+        clock = self._normalize_lockscreen_clock((variant or {}).get("lockscreen_clock"))
+        try:
+            with open(path, "r", encoding="utf-8") as handle:
+                content = handle.read()
+        except OSError:
+            return
+
+        content = self._ensure_font_slot(content, 10, clock["font_rel"])
+        if os.path.basename(path).lower().endswith(".sbs"):
+            content = self._replace_lockscreen_clock_block(content, "iPoneLockscreen", clock, time_font=10, date_font=6)
+        else:
+            content = self._replace_lockscreen_clock_block(content, "Lockscreen", clock, time_font=10, date_font=4)
+        atomic_write_text(path, content)
+
+    @staticmethod
+    def _ensure_font_slot(content, slot, font_rel):
+        name = os.path.basename(str(font_rel or DEFAULT_LOCKSCREEN_CLOCK["font_rel"]).strip())
+        replacement = f"%Fl({slot},{name})"
+        pattern = re.compile(rf"%Fl\({slot},[^\n]*")
+        if pattern.search(content):
+            return pattern.sub(replacement, content, count=1)
+        matches = list(re.finditer(r"%Fl\([^\n]*", content))
+        if not matches:
+            return replacement + "\n" + content
+        last = matches[-1]
+        return content[:last.end()] + "\n" + replacement + content[last.end():]
+
+    def _replace_lockscreen_clock_block(self, content, viewport_name, clock, time_font, date_font):
+        x = int(clock["x"])
+        y = int(clock["y"])
+        width = int(clock["width"])
+        height = int(clock["height"])
+        width_text = "-" if width >= 320 else str(width)
+        align = {"left": "%al", "center": "%ac", "right": "%ar"}.get(clock["align"], "%ac")
+        color = clock["color"]
+        date_y = min(220, y + height + 14)
+        time_line = f"%Vl({viewport_name},{x},{y},{width_text},{height},{time_font})%Vf({color}){align}%cl:%cM %cP"
+        date_line = (
+            f"%Vl({viewport_name},{x},{date_y},{width_text},20,{date_font})%Vf({color}){align}"
+            "%?if(%ss(0,7,%St(lang)), =, english)<%?cu<Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday>|%ca> "
+            "%?or(%if(%ss(0,7,%St(lang)), =, chinese),%if(%St(lang), =, magyar),%if(%St(lang), =, lietuviu),"
+            "%if(%St(lang), =, japanese),%if(%St(lang), =, korean))<%cb %cd|%?if(%St(lang), =, english-us)<%cb %cd|%cd %cb>>"
+        )
+        time_pattern = re.compile(rf"%Vl\({re.escape(viewport_name)},[^\n]*%cl:%cM %cP")
+        date_pattern = re.compile(rf"%Vl\({re.escape(viewport_name)},[^\n]*%cd\|%cd %cb>>")
+        updated = time_pattern.sub(time_line, content, count=1)
+        updated = date_pattern.sub(date_line, updated, count=1)
+        return updated

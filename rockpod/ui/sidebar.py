@@ -208,7 +208,7 @@ class Sidebar(QWidget):
             _make_icon("#8f7db8", "album")
         )
         self._theme_designer_item = self._add_item(
-            self._rockbox_header, "Theme Designer", self.ROCKBOX_THEME_DESIGNER,
+            self._rockbox_header, "iPone Designer", self.ROCKBOX_THEME_DESIGNER,
             _make_icon("#8f7db8", "device")
         )
         self._boot_item = self._add_item(

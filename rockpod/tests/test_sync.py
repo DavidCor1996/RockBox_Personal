@@ -22,6 +22,7 @@ from services.sync_engine import (
     VIDEO_LIST_DEVICE_DIR,
     VIDEO_LIST_THUMB_DEVICE_DIR,
     _clear_device_trash,
+    _looks_like_auto_duplicate_path,
     build_device_path,
     _sanitize_filename,
 )
@@ -632,7 +633,7 @@ class TestSyncWorkerRun:
     def test_worker_skips_rockbox_list_manifests_after_media_copy_failure(self, env):
         manifest_src = os.path.join(env["tmp"], "index.tsv")
         with open(manifest_src, "w", encoding="utf-8") as handle:
-            handle.write("album_id\tthumb\tartist\talbum\tgroup_key\tdevice_dirs\n")
+            handle.write("album_id\tthumb\tslide\tartist\talbum\tgroup_key\tdevice_dirs\n")
 
         plan = SyncPlan()
         plan.to_copy.append((
@@ -789,6 +790,39 @@ class TestSyncEnginePlan:
         device.is_rockbox = True
         detector._current_device = device
         return SyncEngine(db, config, detector)
+
+    def test_rockbox_playlist_track_ids_only_include_enabled_playlists(self, env):
+        wanted_src = _make_source_file(env, "Run River North", "Wake Up", "Wake Up")
+        ignored_src = _make_source_file(env, "Other", "Album", "Ignored")
+        wanted = _insert_track(env["db"], "Wake Up", "Run River North", "Wake Up", file_path=wanted_src)
+        ignored = _insert_track(env["db"], "Ignored", "Other", "Album", file_path=ignored_src)
+        enabled_id = env["db"].create_playlist("Rani's Playlist")
+        disabled_id = env["db"].create_playlist("Hidden Playlist")
+        env["db"].add_track_to_playlist(enabled_id, wanted["id"])
+        env["db"].add_track_to_playlist(disabled_id, ignored["id"])
+        env["db"].set_playlist_sync_to_rockbox(disabled_id, False)
+        env["db"].commit()
+
+        engine = self._make_engine(env)
+        engine.set_current_device(engine._device_detector.current_device)
+
+        assert engine.rockbox_playlist_track_ids() == [wanted["id"]]
+
+    def test_playlist_track_ids_plan_copies_missing_playlist_media(self, env):
+        src = _make_source_file(env, "Run River North", "Wake Up", "Wake Up")
+        track = _insert_track(env["db"], "Wake Up", "Run River North", "Wake Up", file_path=src)
+        playlist_id = env["db"].create_playlist("Rani's Playlist")
+        env["db"].add_track_to_playlist(playlist_id, track["id"])
+        env["db"].commit()
+
+        engine = self._make_engine(env)
+        engine.set_current_device(engine._device_detector.current_device)
+        plan = engine.build_sync_plan(track_ids=engine.rockbox_playlist_track_ids())
+
+        assert plan.copy_count == 1
+        row, rel_path = plan.to_copy[0]
+        assert dict(row)["id"] == track["id"]
+        assert rel_path == os.path.join("Music", "Run River North", "Wake Up", "01 - Wake Up.mp3")
 
     def test_plan_no_device(self, env):
         """Plan with no device connected should report an error."""
@@ -1006,7 +1040,7 @@ class TestSyncEnginePlan:
         assert plan.resync_count == 0
         assert plan.to_delete == ["Music/Art/Alb/01 - Existing (2).mp3"]
 
-    def test_plan_blocks_large_duplicate_delete_batch(self, env):
+    def test_plan_allows_album_sized_duplicate_delete_batch(self, env):
         src = _make_source_file(env, "Art", "Alb", "Existing")
         local = _insert_track(env["db"], "Existing", "Art", "Alb", file_path=src, metadata_hash="same_hash")
 
@@ -1023,6 +1057,42 @@ class TestSyncEnginePlan:
             local_track_id=local["id"],
         )
         for suffix in range(2, 8):
+            _insert_device_track(
+                env["db"],
+                "Existing",
+                "Art",
+                "Alb",
+                f"Music/Art/Alb/01 - Existing ({suffix}).mp3",
+                device_id=engine.current_device_key,
+                metadata_hash=f"same_hash_{suffix}",
+            )
+        engine.load_cached_device_inventory(engine.current_device_key)
+
+        plan = engine.build_sync_plan()
+
+        assert plan.to_delete == [
+            f"Music/Art/Alb/01 - Existing ({suffix}).mp3"
+            for suffix in range(2, 8)
+        ]
+        assert plan.errors == []
+
+    def test_plan_blocks_oversized_duplicate_delete_batch(self, env):
+        src = _make_source_file(env, "Art", "Alb", "Existing")
+        local = _insert_track(env["db"], "Existing", "Art", "Alb", file_path=src, metadata_hash="same_hash")
+
+        engine = self._make_engine(env)
+        engine.set_current_device(engine._device_detector.current_device)
+        _insert_device_track(
+            env["db"],
+            "Existing",
+            "Art",
+            "Alb",
+            "Music/Art/Alb/01 - Existing.mp3",
+            device_id=engine.current_device_key,
+            metadata_hash="same_hash",
+            local_track_id=local["id"],
+        )
+        for suffix in range(2, 54):
             _insert_device_track(
                 env["db"],
                 "Existing",
@@ -1103,6 +1173,48 @@ class TestSyncEnginePlan:
 
         assert plan.to_delete == []
         assert any("did not look like RockPod duplicate files" in error for error in plan.errors)
+
+    def test_looks_like_auto_duplicate_path_allows_rani_playlist(self):
+        assert _looks_like_auto_duplicate_path("Music/Artist/Rani's playlist/01 - Song.mp3")
+
+    def test_plan_allows_rani_playlist_duplicate_paths(self, env):
+        src = _make_source_file(env, "Art", "Rani's playlist", "Existing")
+        local = _insert_track(
+            env["db"],
+            "Existing",
+            "Art",
+            "Rani's playlist",
+            file_path=src,
+            metadata_hash="same_hash",
+        )
+
+        engine = self._make_engine(env)
+        engine.set_current_device(engine._device_detector.current_device)
+        _insert_device_track(
+            env["db"],
+            "Existing",
+            "Art",
+            "Rani's playlist",
+            "Music/Art/Rani's playlist/01 - Existing.mp3",
+            local_track_id=local["id"],
+            device_id=engine.current_device_key,
+            metadata_hash="same_hash",
+        )
+        _insert_device_track(
+            env["db"],
+            "Existing",
+            "Art",
+            "Rani's playlist",
+            "Music/Art/Rani's playlist/01 - Existing.m4a",
+            device_id=engine.current_device_key,
+            metadata_hash="same_hash_copy",
+        )
+        engine.load_cached_device_inventory(engine.current_device_key)
+
+        plan = engine.build_sync_plan()
+
+        assert plan.to_delete == ["Music/Art/Rani's playlist/01 - Existing.m4a"]
+        assert plan.errors == []
 
     def test_plan_matches_different_filename_without_duplicate(self, env):
         """Matching must use metadata identity, not matching filenames."""

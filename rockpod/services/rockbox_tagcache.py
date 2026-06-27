@@ -72,6 +72,8 @@ HOST_TAGCACHE_FILES = [
 HOST_TAGCACHE_REMOVE_GLOBS = [
     "database*.tcd",
     "tagcache*.tcd",
+    os.path.join("database", "database*.tcd"),
+    os.path.join("database", "tagcache*.tcd"),
 ]
 UNIQUE_STRING_TAGS = {
     TAG_ARTIST,
@@ -138,6 +140,25 @@ def write_rockbox_tagcache_from_device_inventory(db, device, device_key: str = "
         raise TagcacheError("Device mount path is unavailable")
     key = device_key or getattr(device, "stable_device_key", "") or f"rockbox:{mount_path}"
     tracks = [dict(row) for row in db.get_all_device_tracks(key)]
+    missing_ids = [
+        track.get("id")
+        for track in tracks
+        if track.get("id") is not None
+        and track.get("device_path")
+        and not os.path.isfile(os.path.join(mount_path, _rel_device_path(track.get("device_path", ""))))
+    ]
+    if missing_ids:
+        placeholders = ",".join(["?"] * len(missing_ids))
+        db.execute(
+            f"UPDATE device_tracks SET present_on_device = 0, last_scan = datetime('now') "
+            f"WHERE id IN ({placeholders})",
+            tuple(missing_ids),
+        )
+        missing_id_set = set(missing_ids)
+        tracks = [
+            track for track in tracks
+            if track.get("id") not in missing_id_set
+        ]
     return write_rockbox_tagcache_tracks(mount_path, tracks)
 
 

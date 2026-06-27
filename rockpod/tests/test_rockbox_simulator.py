@@ -503,13 +503,16 @@ def test_activate_theme_preview_updates_preview_config_files(tmp_dir):
     ):
         with open(path, "r", encoding="utf-8") as handle:
             text = handle.read()
-        assert "volume: 3" in text
+        assert "volume: 3" not in text
         assert not _temp_names(os.path.dirname(path))
         assert "theme: /.rockbox/themes/preview.cfg" in text
         assert "start in screen: root" in text
+        assert "tagcache_autoupdate: off" in text
         assert "wps: /.rockbox/wps/preview.wps" in text
         assert "sbs: /.rockbox/wps/preview.sbs" in text
         assert "font: /.rockbox/fonts/preview.fnt" in text
+        if path.endswith(".rockbox/config.cfg"):
+            assert os.path.exists(os.path.join(os.path.dirname(path), "database.ignore"))
 
     for stale in (
         os.path.join(preview_root, ".config", "rockbox.org", ".resume.cfg"),
@@ -556,8 +559,11 @@ def test_activate_theme_preview_seeds_wps_runtime_state(tmp_dir):
         with open(path, "r", encoding="utf-8") as handle:
             text = handle.read()
         assert "start in screen: wps" in text
+        assert "tagcache_autoupdate: off" in text
         assert "repeat: all" in text
         assert "theme: /.rockbox/themes/preview.cfg" in text
+        if path.endswith(".rockbox/config.cfg"):
+            assert os.path.exists(os.path.join(os.path.dirname(path), "database.ignore"))
 
     with open(os.path.join(simdisk, ".rockbox", ".playlist_control"), "r", encoding="utf-8") as handle:
         playlist = handle.read()

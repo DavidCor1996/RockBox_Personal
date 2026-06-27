@@ -1,0 +1,23 @@
+Reference target: stock iPod classic 7G album list is a 320x240 full-width
+album-cover list with a thin top title/status area, single horizontal
+selection bar, and square cover thumbnails at the left of album rows. Colors
+are intentionally not compared against stock; this repo keeps the
+iPone/Rockbox theme colors.
+
+Captured:
+- 00-database-root.png: non-album database root, used to verify normal list
+  layout remains scoped outside album rows.
+- 01-root-after-one-down.png: database root after one scroll step.
+- 02-root-after-two-down-album-selected.png: database root with Albums selected.
+- 03-albums-list.png: Database -> Albums, using the laptop music folder and
+  real cover.jpg files converted to 40x40 album-list BMPs.
+- 04-root-after-albums-back.png: returned from Albums to the normal database
+  root, used to verify the themed pane and selector are restored.
+
+Expected after implementation:
+- selected album list layout: full;
+- full mode uses the full 320x240 screen without a pinned title row;
+- full mode album rows show 40x40 cover thumbnails in 44px rows;
+- compact mode keeps the active theme/list viewport and normal rows;
+- non-album database root keeps the normal iPone right-side pane;
+- selector/theme colors remain those from the current iPone config.

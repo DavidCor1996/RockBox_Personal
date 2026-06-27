@@ -506,12 +506,12 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000    0x178c8
+.debug_info     0x0000000000000000    0x17997
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0x855a /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/sliding_puzzle.o
- .debug_info    0x000000000000855a     0x7cad /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
- .debug_info    0x0000000000010207     0x757e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(read_image.o)
- .debug_info    0x0000000000017785      0x143 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(sliding_puzzle.240x240x16.o)
+ .debug_info    0x0000000000000000     0x859f /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/sliding_puzzle.o
+ .debug_info    0x000000000000859f     0x7cf2 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+ .debug_info    0x0000000000010291     0x75c3 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(read_image.o)
+ .debug_info    0x0000000000017854      0x143 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(sliding_puzzle.240x240x16.o)
 
 .debug_abbrev   0x0000000000000000      0xcbb
  *(.debug_abbrev)
@@ -530,15 +530,15 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0x4d85
+.debug_str      0x0000000000000000     0x4e05
  *(.debug_str)
- .debug_str     0x0000000000000000     0x4d85 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/sliding_puzzle.o
-                                       0x5233 (size before relaxing)
- .debug_str     0x0000000000004d85        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
-                                       0x514b (size before relaxing)
- .debug_str     0x0000000000004d85        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(read_image.o)
-                                       0x4815 (size before relaxing)
- .debug_str     0x0000000000004d85        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(sliding_puzzle.240x240x16.o)
+ .debug_str     0x0000000000000000     0x4e05 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/sliding_puzzle.o
+                                       0x52b3 (size before relaxing)
+ .debug_str     0x0000000000004e05        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+                                       0x51cb (size before relaxing)
+ .debug_str     0x0000000000004e05        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(read_image.o)
+                                       0x4895 (size before relaxing)
+ .debug_str     0x0000000000004e05        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(sliding_puzzle.240x240x16.o)
                                         0x170 (size before relaxing)
 
 .debug_loc

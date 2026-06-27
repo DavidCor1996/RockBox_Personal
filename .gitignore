@@ -12,6 +12,21 @@
 *~
 .cache
 
+# RockPod generated output
+/rockpod/.theme_designer/generated/
+/rockpod/generated/
+/rockpod/.wallpaper_apply/
+/rockpod/.wallpaper_clock/
+/tmp/
+
+# RockPod iPone Designer generated theme variants
+/wps/iPoneDesigner-*
+/wps/theme-designer-preview-*
+/wps/new-test*
+/wps/temp*
+/themes/new-test*.cfg
+/themes/temp*.cfg
+
 # RockPod local-only personal iTunes theme assets
 /rockpod/assets/theme_itunes_personal/*
 !/rockpod/assets/theme_itunes_personal/README.md
