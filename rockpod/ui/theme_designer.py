@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import os
 import math
+import re
 import shutil
 import subprocess
 
@@ -1143,7 +1144,7 @@ class ThemeDesignerWidget(QWidget):
         wallpapers_layout.setSpacing(8)
         wallpapers_title = QLabel("Artwork")
         wallpapers_title.setObjectName("SectionTitle")
-        wallpapers_hint = QLabel("Default artwork is used unless a photo is selected.")
+        wallpapers_hint = QLabel("Default artwork is used unless a photo is selected. MP4 uses a device-safe first frame.")
         wallpapers_hint.setObjectName("SectionHint")
         wallpapers_layout.addWidget(wallpapers_title)
         wallpapers_layout.addWidget(wallpapers_hint)
@@ -1157,6 +1158,9 @@ class ThemeDesignerWidget(QWidget):
         self._right_pane_wallpaper_edit = QLineEdit()
         self._right_pane_wallpaper_edit.setPlaceholderText("Default")
         self._right_pane_wallpaper_edit.textChanged.connect(self._on_right_pane_wallpaper_changed)
+        self._right_pane_video_edit = QLineEdit()
+        self._right_pane_video_edit.setPlaceholderText("Optional MP4 first frame")
+        self._right_pane_video_edit.textChanged.connect(self._on_right_pane_video_changed)
         self._fit_combo = QComboBox()
         self._fit_combo.addItems(["fill", "fit", "stretch"])
         self._charge_fit_combo = QComboBox()
@@ -1180,6 +1184,7 @@ class ThemeDesignerWidget(QWidget):
                 [("Position", self._choose_right_pane_position)],
             ),
         )
+        wallpapers_form.addRow("Right video", self._path_row(self._right_pane_video_edit, self._choose_right_pane_video))
         wallpapers_form.addRow("Right pane mode", self._right_pane_mode_combo)
         wallpapers_layout.addLayout(wallpapers_form)
         self._artwork_advanced_toggle = QPushButton("Show fit options")
@@ -1458,6 +1463,14 @@ class ThemeDesignerWidget(QWidget):
         self._lockscreen_clock_font_combo.clear()
         for font in fonts:
             self._font_combo.addItem(font["label"], font["path_rel"])
+        clock_fonts = self._clock_font_order(fonts)
+        large_clock_fonts = [font for font in clock_fonts if self._font_pixel_size(font.get("label")) >= 27]
+        regular_clock_fonts = [font for font in clock_fonts if self._font_pixel_size(font.get("label")) < 27]
+        for font in large_clock_fonts:
+            self._lockscreen_clock_font_combo.addItem(f"Clock: {font['label']}", font["path_rel"])
+        if large_clock_fonts and regular_clock_fonts:
+            self._lockscreen_clock_font_combo.insertSeparator(self._lockscreen_clock_font_combo.count())
+        for font in regular_clock_fonts:
             self._lockscreen_clock_font_combo.addItem(font["label"], font["path_rel"])
         if current:
             index = self._font_combo.findData(current)
@@ -1470,6 +1483,24 @@ class ThemeDesignerWidget(QWidget):
                 self._lockscreen_clock_font_combo.setCurrentIndex(index)
         self._font_combo.blockSignals(False)
         self._lockscreen_clock_font_combo.blockSignals(False)
+
+    @staticmethod
+    def _font_pixel_size(label):
+        match = re.match(r"\s*(\d+)", str(label or ""))
+        return int(match.group(1)) if match else 0
+
+    @classmethod
+    def _clock_font_order(cls, fonts):
+        def sort_key(font):
+            label = str(font.get("label") or "")
+            size = cls._font_pixel_size(label)
+            preferred_family = 0
+            lowered = label.lower()
+            if any(name in lowered for name in ("cantarell", "helvetica", "nimbus", "terminus")):
+                preferred_family = -1
+            return (-size, preferred_family, label.lower())
+
+        return sorted(fonts, key=sort_key)
 
     def set_variants(self, variants, selected_variant_id=""):
         self._variants = {item["id"]: item for item in variants if item.get("id")}
@@ -1510,6 +1541,7 @@ class ThemeDesignerWidget(QWidget):
         self._wallpaper_edit.setText(variant.get("wallpaper_source", ""))
         self._charging_wallpaper_edit.setText(variant.get("charging_wallpaper_source", ""))
         self._right_pane_wallpaper_edit.setText(variant.get("right_pane_wallpaper_source", ""))
+        self._right_pane_video_edit.setText(variant.get("right_pane_video_source", ""))
         self._fit_combo.setCurrentText(variant.get("fit_mode", "fill"))
         self._charge_fit_combo.setCurrentText(variant.get("charging_fit_mode", "fill"))
         self._right_pane_fit_combo.setCurrentText(variant.get("right_pane_fit_mode", "fill"))
@@ -1563,6 +1595,7 @@ class ThemeDesignerWidget(QWidget):
             "wallpaper_source": self._wallpaper_edit.text().strip(),
             "charging_wallpaper_source": self._charging_wallpaper_edit.text().strip(),
             "right_pane_wallpaper_source": self._right_pane_wallpaper_edit.text().strip(),
+            "right_pane_video_source": self._right_pane_video_edit.text().strip(),
             "fit_mode": self._fit_combo.currentText(),
             "charging_fit_mode": self._charge_fit_combo.currentText(),
             "right_pane_fit_mode": self._right_pane_fit_combo.currentText(),
@@ -1719,6 +1752,14 @@ class ThemeDesignerWidget(QWidget):
             self._right_pane_wallpaper_edit.setText(path)
 
     def _on_right_pane_wallpaper_changed(self, path):
+        self._sync_preview()
+
+    def _choose_right_pane_video(self):
+        path, _ = QFileDialog.getOpenFileName(self, "Select Right Pane Video", "", "Videos (*.mp4 *.m4v *.mov *.webm)")
+        if path:
+            self._right_pane_video_edit.setText(path)
+
+    def _on_right_pane_video_changed(self, path):
         self._sync_preview()
 
     def _choose_right_pane_position(self):

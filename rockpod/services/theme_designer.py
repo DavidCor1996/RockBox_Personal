@@ -6,6 +6,7 @@ import json
 import os
 import re
 import shutil
+import subprocess
 import tempfile
 import colorsys
 from copy import deepcopy
@@ -38,6 +39,10 @@ DEFAULT_COLORS = {
 
 RIGHT_PANE_MODES = ("miniplayer", "full art")
 DEFAULT_RIGHT_PANE_MODE = "miniplayer"
+RIGHT_PANE_VIDEO_FRAME_COUNT = 1
+RIGHT_PANE_VIDEO_FPS = 12
+RIGHT_PANE_VIDEO_OVERLAY_X_OFFSET = 4
+RIGHT_PANE_VIDEO_LABELS = "JKLMNOPQRSTUVWXYZ"
 
 DEFAULT_LOCKSCREEN_CLOCK = {
     "font_rel": "fonts/66-Cantarell-Light.fnt",
@@ -241,36 +246,15 @@ TINTED_SPRITE_ASSETS = (
     "LoadingStatus.bmp",
     "LockscreenStyle.bmp",
     "AlwaysOnDisplayStyle.bmp",
-    "NotifMusic.bmp",
     "NotifPlayIcon.bmp",
     "NotifPlayIconLock.bmp",
-    "Notification.bmp",
-    "LosslessIcon.bmp",
-    "LosslessIconLock.bmp",
-    "MiniRecordSpin.bmp",
-    "MiniRecordSpinSmall.bmp",
     "Playing Status.bmp",
-    "PlayStatus.bmp",
     "PlayStatusPurple.bmp",
     "PlayStatusPurpleLarge.bmp",
-    "PlaybackStatusIcons.bmp",
-    "PlayerStatusButton.bmp",
-    "PlayerSlider.bmp",
-    "PlayerSliderThin.bmp",
     "PlayerSliderThinPurple.bmp",
     "PlayerSliderThinPurple12.bmp",
-    "Slider.bmp",
-    "SliderThin.bmp",
     "SliderThinPurple.bmp",
     "SliderThinPurple12.bmp",
-    "SliderBackdrop.bmp",
-    "SliderBackdrop4Digits.bmp",
-    "SliderBackdrop5Digits.bmp",
-    "SliderBackdrop6Digits.bmp",
-    "SliderBackdropThin.bmp",
-    "SliderBackdropThin4Digits.bmp",
-    "SliderBackdropThin5Digits.bmp",
-    "SliderBackdropThin6Digits.bmp",
     "SliderBackdropThinPurple.bmp",
     "SliderBackdropThinPurple4Digits.bmp",
     "SliderBackdropThinPurple5Digits.bmp",
@@ -279,30 +263,9 @@ TINTED_SPRITE_ASSETS = (
     "SliderBackdropThinPurple12_4Digits.bmp",
     "SliderBackdropThinPurple12_5Digits.bmp",
     "SliderBackdropThinPurple12_6Digits.bmp",
-    "VolumeBackdrop.bmp",
-    "VolumePromptIcons.bmp",
-    "VolumeSlider.bmp",
-    "VolumeSliderBackdrop.bmp",
     "VolumeSliderBackdropPurple.bmp",
-    "VolumeSliderEnd.bmp",
     "VolumeSliderEndPurple.bmp",
     "VolumeSliderPurple.bmp",
-    "WpsTL.bmp",
-    "WpsTR.bmp",
-    "WpsBL.bmp",
-    "WpsBR.bmp",
-    "WpsBackdropL.bmp",
-    "WpsBackdropR.bmp",
-    "WpsBackdropT.bmp",
-    "WpsBackdropB.bmp",
-    "PlayerFallback.bmp",
-    "FrameTop.bmp",
-    "FrameLeft.bmp",
-    "FrameRight.bmp",
-    "FrameBottom.bmp",
-    "LargeSliderBackdrop.bmp",
-    "LargeSliderFallback.bmp",
-    "LargeSliderTop.bmp",
 )
 
 
@@ -400,6 +363,7 @@ class ThemeDesignerService:
             "wallpaper_source": "",
             "charging_wallpaper_source": "",
             "right_pane_wallpaper_source": "",
+            "right_pane_video_source": "",
             "show_line_separators": True,
             "lockscreen_clock": deepcopy(DEFAULT_LOCKSCREEN_CLOCK),
             "color_profile": "default",
@@ -676,6 +640,7 @@ class ThemeDesignerService:
         self._write_cfg(stage_root, variant, base_bundle)
         self._copy_template(base_bundle, "wps", stage_root, f"wps/{theme_name}.wps", variant)
         self._copy_template(base_bundle, "sbs", stage_root, f"wps/{sbs_skin_name}.sbs", variant)
+        self._apply_right_pane_video_skin(os.path.join(stage_root, f"wps/{sbs_skin_name}.sbs"), variant)
         self._copy_template(base_bundle, "fms", stage_root, f"wps/{theme_name}.fms", variant)
         self._write_backdrop(stage_root, variant, staged_wps_dir)
         self._write_metadata(stage_root, variant)
@@ -773,6 +738,13 @@ class ThemeDesignerService:
                     variant.get("right_pane_offset_x", 0),
                     variant.get("right_pane_offset_y", 0),
                 )
+        if variant.get("right_pane_video_source"):
+            self._apply_right_pane_video_overrides(
+                staged_wps_dir,
+                variant,
+                targets,
+                sbs_solid_targets,
+            )
 
     @staticmethod
     def _uses_customized_colors(variant):
@@ -801,11 +773,17 @@ class ThemeDesignerService:
 
         cfg_background = "FFFFFF" if variant.get("appearance_mode") == "light" else variant["colors"]["background"]
         cfg_foreground = "15121D" if variant.get("appearance_mode") == "light" else variant["colors"]["foreground"]
+        separator_height = "1" if variant.get("show_line_separators", True) else "0"
+        if variant.get("right_pane_video_source"):
+            separator_height = "0"
+        backdrop_value = f"/.rockbox/backdrops/{variant['id']}_bd.bmp"
+        if str(variant.get("base_theme_id") or "").startswith("iPone"):
+            backdrop_value = "-"
         overrides = {
             "wps": f"/.rockbox/wps/{variant['id']}.wps",
             "sbs": f"/.rockbox/wps/{self._sbs_skin_name(variant)}.sbs",
             "fms": f"/.rockbox/wps/{variant['id']}.fms",
-            "backdrop": f"/.rockbox/backdrops/{variant['id']}_bd.bmp",
+            "backdrop": backdrop_value,
             "font": f"/.rockbox/fonts/{os.path.basename(variant['font_rel'])}",
             "background color": cfg_background,
             "foreground color": cfg_foreground,
@@ -814,7 +792,7 @@ class ThemeDesignerService:
             "line selector end color": variant["colors"]["selector_end"],
             "line selector text color": variant["colors"]["selector_text"],
             "list separator color": variant["colors"]["list_separator"],
-            "list separator height": "1" if variant.get("show_line_separators", True) else "0",
+            "list separator height": separator_height,
             "statusbar": "off",
             "ui viewport": "-",
         }
@@ -890,6 +868,9 @@ class ThemeDesignerService:
             return
 
         output = self._replace_purple_accent_image(source, variant["colors"]["selector_end"])
+        if output is None:
+            shutil.copy2(asset["source_abs"], target)
+            return
         output.save(target, "BMP")
 
     def _tint_luminance_bitmap(self, path, low_hex, high_hex):
@@ -900,6 +881,8 @@ class ThemeDesignerService:
             return
 
         output = self._replace_purple_accent_image(source, high_hex)
+        if output is None:
+            return
         output.save(path, "BMP")
 
     def _replace_purple_accent_image(self, source, accent_hex):
@@ -909,7 +892,38 @@ class ThemeDesignerService:
             target_green / 255.0,
             target_blue / 255.0,
         )
+        if source.mode == "P" and source.getpalette():
+            palette = list(source.getpalette())
+            changed = False
+            for index in range(0, len(palette), 3):
+                red, green, blue = palette[index:index + 3]
+                hue, sat, val = colorsys.rgb_to_hsv(red / 255.0, green / 255.0, blue / 255.0)
+                is_stock_purple = (
+                    sat >= 0.18
+                    and 0.66 <= hue <= 0.86
+                    and blue >= green + 10
+                    and red >= green - 4
+                )
+                if not is_stock_purple:
+                    continue
+                new_sat = max(0.16, min(1.0, sat * (0.72 + target_sat * 0.38)))
+                new_val = max(0.0, min(1.0, val * (0.86 + target_val * 0.18)))
+                new_red, new_green, new_blue = colorsys.hsv_to_rgb(target_hue, new_sat, new_val)
+                palette[index:index + 3] = [
+                    int(round(new_red * 255)),
+                    int(round(new_green * 255)),
+                    int(round(new_blue * 255)),
+                ]
+                changed = True
+            if not changed:
+                return None
+            output = source.copy()
+            output.putpalette(palette)
+            return output
+
+        source = source.convert("RGB")
         pixels = []
+        changed = False
         for red, green, blue in source.getdata():
             hue, sat, val = colorsys.rgb_to_hsv(red / 255.0, green / 255.0, blue / 255.0)
             is_stock_purple = (
@@ -928,6 +942,9 @@ class ThemeDesignerService:
             pixels.append(
                 (int(round(new_red * 255)), int(round(new_green * 255)), int(round(new_blue * 255)))
             )
+            changed = True
+        if not changed:
+            return None
         output = Image.new("RGB", source.size)
         output.putdata(pixels)
         return output
@@ -943,54 +960,9 @@ class ThemeDesignerService:
                 image = source.convert("RGB")
         except (OSError, UnidentifiedImageError):
             return
-        width, height = image.size
-        if width < 12 or height < 8:
+        image = self._replace_purple_accent_image(image, variant["colors"]["selector_end"])
+        if image is None:
             return
-
-        background = "000000" if variant.get("appearance_mode") == "dark" else "FFFFFF"
-        foreground = variant["colors"]["foreground"]
-        accent = variant["colors"]["selector_end"]
-        bg_rgb = ImageColor.getrgb(f"#{background}")
-        empty_rgb = ImageColor.getrgb(f"#{_mix_hex(background, foreground, 0.10)}")
-        frame_dark_rgb = ImageColor.getrgb(f"#{_mix_hex(background, foreground, 0.22)}")
-        frame_light_rgb = ImageColor.getrgb(f"#{_mix_hex(foreground, background, 0.18)}")
-        accent_dark_rgb = ImageColor.getrgb(f"#{_mix_hex(accent, background, 0.58)}")
-        accent_light_rgb = ImageColor.getrgb(f"#{_mix_hex(accent, 'FFFFFF', 0.16)}")
-        charge_dark_rgb = ImageColor.getrgb(f"#{_mix_hex(accent, background, 0.36)}")
-        charge_light_rgb = ImageColor.getrgb(f"#{_mix_hex(accent, 'FFFFFF', 0.34)}")
-        low_dark_rgb = ImageColor.getrgb("#7E0E20" if variant.get("appearance_mode") == "dark" else "#A60F25")
-        low_light_rgb = ImageColor.getrgb("#FF4D5E" if variant.get("appearance_mode") == "dark" else "#D92842")
-
-        def blend(start, end, amount):
-            amount = max(0.0, min(1.0, amount))
-            return (
-                int(round(start[0] + (end[0] - start[0]) * amount)),
-                int(round(start[1] + (end[1] - start[1]) * amount)),
-                int(round(start[2] + (end[2] - start[2]) * amount)),
-            )
-
-        output_pixels = []
-        for red, green, blue in image.getdata():
-            high = max(red, green, blue)
-            low = min(red, green, blue)
-            spread = high - low
-            luminance = (0.2126 * red + 0.7152 * green + 0.0722 * blue) / 255.0
-
-            if luminance < 0.18:
-                output_pixels.append(blend(bg_rgb, empty_rgb, luminance / 0.18 * 0.55))
-            elif red > 145 and green > 105 and blue < 145:
-                output_pixels.append(blend(charge_dark_rgb, charge_light_rgb, (luminance - 0.40) / 0.55))
-            elif red > 120 and green < 80 and blue < 95:
-                output_pixels.append(blend(low_dark_rgb, low_light_rgb, (luminance - 0.20) / 0.50))
-            elif spread <= 24:
-                output_pixels.append(blend(frame_dark_rgb, frame_light_rgb, (luminance - 0.16) / 0.70))
-            elif blue >= green and red >= green and spread > 28:
-                output_pixels.append(blend(accent_dark_rgb, accent_light_rgb, (luminance - 0.20) / 0.62))
-            else:
-                output_pixels.append(blend(frame_dark_rgb, frame_light_rgb, (luminance - 0.16) / 0.70))
-
-        image = Image.new("RGB", (width, height))
-        image.putdata(output_pixels)
         if should_render_2bpp_greyscale(variant["screen_resolution"]):
             image = render_2bpp_greyscale(image)
         image.save(path, "BMP")
@@ -998,9 +970,13 @@ class ThemeDesignerService:
     def _write_backdrop(self, stage_root, variant, staged_wps_dir):
         backdrop_path = os.path.join(stage_root, "backdrops", f"{variant['id']}_bd.bmp")
         source = ""
-        if variant.get("wallpaper_source"):
+        if variant.get("base_theme_id") == "iPoneCustom":
+            candidate = os.path.join(staged_wps_dir, "iPone_bd.bmp")
+            if os.path.isfile(candidate):
+                source = candidate
+        if not source and variant.get("wallpaper_source"):
             source = variant["wallpaper_source"]
-        else:
+        if not source:
             for name in WALLPAPER_TARGETS.get(variant["base_theme_id"], {}).get("main", []):
                 candidate = os.path.join(staged_wps_dir, name)
                 if os.path.isfile(candidate):
@@ -1028,6 +1004,7 @@ class ThemeDesignerService:
                 "wallpaper_source": variant.get("wallpaper_source", ""),
                 "charging_wallpaper_source": variant.get("charging_wallpaper_source", ""),
                 "right_pane_wallpaper_source": variant.get("right_pane_wallpaper_source", ""),
+                "right_pane_video_source": variant.get("right_pane_video_source", ""),
                 "right_pane_offset_x": variant.get("right_pane_offset_x", 0),
                 "right_pane_offset_y": variant.get("right_pane_offset_y", 0),
                 "show_line_separators": variant.get("show_line_separators", True),
@@ -1073,6 +1050,7 @@ class ThemeDesignerService:
         base["base_right_pane_mode"] = base["right_pane_mode"]
         requested_right_pane_mode = str(item.get("right_pane_mode") or "").strip()
         raw_right_pane_wallpaper_source = str(item.get("right_pane_wallpaper_source") or "").strip()
+        raw_right_pane_video_source = str(item.get("right_pane_video_source") or "").strip()
         if requested_right_pane_mode:
             right_pane_mode = self._normalize_right_pane_mode(
                 requested_right_pane_mode,
@@ -1091,6 +1069,7 @@ class ThemeDesignerService:
         base["wallpaper_source"] = os.path.abspath(str(item.get("wallpaper_source") or "").strip()) if item.get("wallpaper_source") else ""
         base["charging_wallpaper_source"] = os.path.abspath(str(item.get("charging_wallpaper_source") or "").strip()) if item.get("charging_wallpaper_source") else ""
         base["right_pane_wallpaper_source"] = os.path.abspath(raw_right_pane_wallpaper_source) if raw_right_pane_wallpaper_source else ""
+        base["right_pane_video_source"] = os.path.abspath(raw_right_pane_video_source) if raw_right_pane_video_source else ""
         base["color_profile"] = str(item.get("color_profile") or base.get("color_profile") or "custom").strip() or "custom"
         appearance_mode = str(item.get("appearance_mode") or base.get("appearance_mode") or "dark").strip().lower()
         base["appearance_mode"] = "light" if appearance_mode == "light" else "dark"
@@ -1738,6 +1717,228 @@ class ThemeDesignerService:
             image = render_2bpp_greyscale(image)
         os.makedirs(os.path.dirname(dest_path), exist_ok=True)
         image.save(dest_path, "BMP")
+
+    def _apply_right_pane_video_overrides(self, staged_wps_dir, variant, targets, sbs_solid_targets):
+        source_path = str(variant.get("right_pane_video_source") or "").strip()
+        if not source_path:
+            return
+        if not os.path.isfile(source_path):
+            raise ValueError(f"Right pane video not found: {source_path}")
+
+        frame_paths = self._extract_right_pane_video_frames(source_path)
+        rendered_frame_paths = []
+        try:
+            if not frame_paths:
+                raise ValueError(f"No frames extracted from right pane video: {source_path}")
+
+            resolution = variant["screen_resolution"]
+            fit_mode = variant.get("right_pane_fit_mode", "fill")
+            matte_hex = variant["colors"]["background"]
+            offset_x = variant.get("right_pane_offset_x", 0)
+            offset_y = variant.get("right_pane_offset_y", 0)
+            for index in range(RIGHT_PANE_VIDEO_FRAME_COUNT):
+                frame_path = frame_paths[index % len(frame_paths)]
+                if RIGHT_PANE_VIDEO_FRAME_COUNT <= 1:
+                    rendered_frame_path = os.path.join(staged_wps_dir, "RightPaneVideo.bmp")
+                else:
+                    rendered_frame_path = os.path.join(staged_wps_dir, f"RightPaneVideoFrame_{index:02d}.bmp")
+                self._render_right_pane_video_frame(
+                    frame_path,
+                    rendered_frame_path,
+                    resolution,
+                    fit_mode,
+                    matte_hex,
+                    offset_x,
+                    offset_y,
+                )
+                rendered_frame_paths.append(rendered_frame_path)
+            if RIGHT_PANE_VIDEO_FRAME_COUNT > 1:
+                self._write_right_pane_video_sheet(
+                    rendered_frame_paths,
+                    os.path.join(staged_wps_dir, "RightPaneWallpaper.bmp"),
+                )
+
+            first_frame = frame_paths[0]
+            sbs_right_pane_targets = [
+                name for name in sbs_solid_targets
+                if os.path.basename(name) != "iPone_bd_fullart.bmp"
+            ]
+            if not sbs_right_pane_targets:
+                sbs_right_pane_targets = targets.get("right_pane", [])
+            for name in sbs_right_pane_targets:
+                self._render_right_pane_image(
+                    first_frame,
+                    os.path.join(staged_wps_dir, name),
+                    resolution,
+                    fit_mode,
+                    matte_hex,
+                    os.path.join(staged_wps_dir, name),
+                    offset_x,
+                    offset_y,
+                )
+            for name in targets.get("right_pane", []):
+                if RIGHT_PANE_VIDEO_FRAME_COUNT > 1 and os.path.basename(name) == "RightPaneWallpaper.bmp":
+                    continue
+                self._render_right_pane_image(
+                    first_frame,
+                    os.path.join(staged_wps_dir, name),
+                    resolution,
+                    fit_mode,
+                    matte_hex,
+                    os.path.join(staged_wps_dir, "iPone_bd.bmp"),
+                    offset_x,
+                    offset_y,
+                )
+        finally:
+            for path in frame_paths:
+                try:
+                    os.remove(path)
+                except OSError:
+                    pass
+            if RIGHT_PANE_VIDEO_FRAME_COUNT > 1:
+                for path in rendered_frame_paths:
+                    try:
+                        os.remove(path)
+                    except OSError:
+                        pass
+
+    def _extract_right_pane_video_frames(self, source_path):
+        with tempfile.TemporaryDirectory(prefix="ipone-video-") as temp_dir:
+            pattern = os.path.join(temp_dir, "frame_%03d.png")
+            command = [
+                "ffmpeg",
+                "-hide_banner",
+                "-loglevel",
+                "error",
+                "-y",
+                "-i",
+                source_path,
+                "-vf",
+                f"fps={RIGHT_PANE_VIDEO_FPS},scale=320:-2:flags=lanczos",
+                "-frames:v",
+                str(RIGHT_PANE_VIDEO_FRAME_COUNT),
+                pattern,
+            ]
+            try:
+                subprocess.run(command, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            except FileNotFoundError as exc:
+                raise ValueError("ffmpeg is required to process video wallpapers") from exc
+            except subprocess.CalledProcessError as exc:
+                detail = (exc.stderr or b"").decode("utf-8", errors="replace").strip()
+                message = f"Could not process right pane video wallpaper: {detail}" if detail else "Could not process right pane video wallpaper"
+                raise ValueError(message) from exc
+
+            extracted = [
+                os.path.join(temp_dir, name)
+                for name in sorted(os.listdir(temp_dir))
+                if name.lower().endswith(".png")
+            ]
+            copied = []
+            for index, path in enumerate(extracted):
+                dest = os.path.join(tempfile.gettempdir(), f"ipone-video-frame-{os.getpid()}-{index:02d}.png")
+                shutil.copy2(path, dest)
+                copied.append(dest)
+            return copied
+
+    def _render_right_pane_video_frame(self, source_path, dest_path, resolution, fit_mode, matte_hex, offset_x=0, offset_y=0):
+        width, height = _fit_size(resolution)
+        pane_x = width // 2
+        pane_width = max(1, width - pane_x - RIGHT_PANE_VIDEO_OVERLAY_X_OFFSET)
+        offset_x = self._normalize_offset(offset_x)
+        offset_y = self._normalize_offset(offset_y)
+
+        try:
+            with Image.open(source_path) as img:
+                image = img.convert("RGB")
+        except (OSError, UnidentifiedImageError) as exc:
+            raise ValueError(f"Unreadable video frame: {source_path}") from exc
+
+        if fit_mode == "stretch":
+            pane = image.resize((pane_width, height), Image.Resampling.LANCZOS)
+        elif fit_mode == "fit":
+            pane = Image.new("RGB", (pane_width, height), ImageColor.getrgb(f"#{matte_hex}"))
+            fitted = ImageOps.contain(image, (pane_width, height), Image.Resampling.LANCZOS)
+            left = self._offset_position(pane_width - fitted.width, offset_x)
+            top = self._offset_position(height - fitted.height, offset_y)
+            pane.paste(fitted, (left, top))
+        else:
+            scale = max(pane_width / image.width, height / image.height)
+            resized = image.resize(
+                (max(1, int(round(image.width * scale))), max(1, int(round(image.height * scale)))),
+                Image.Resampling.LANCZOS,
+            )
+            left = self._offset_position(resized.width - pane_width, offset_x)
+            top = self._offset_position(resized.height - height, offset_y)
+            pane = resized.crop((left, top, left + pane_width, top + height))
+
+        if should_render_2bpp_greyscale(resolution):
+            pane = render_2bpp_greyscale(pane)
+        os.makedirs(os.path.dirname(dest_path), exist_ok=True)
+        pane.save(dest_path, "BMP")
+
+    def _write_right_pane_video_sheet(self, frame_paths, dest_path):
+        frames = []
+        for path in frame_paths:
+            try:
+                with Image.open(path) as image:
+                    frames.append(image.convert("RGB"))
+            except (OSError, UnidentifiedImageError) as exc:
+                raise ValueError(f"Unreadable rendered video frame: {path}") from exc
+        if not frames:
+            return
+        width, height = frames[0].size
+        sheet = Image.new("RGB", (width, height * len(frames)))
+        for index, frame in enumerate(frames):
+            if frame.size != (width, height):
+                frame = frame.resize((width, height), Image.Resampling.LANCZOS)
+            sheet.paste(frame, (0, height * index))
+        os.makedirs(os.path.dirname(dest_path), exist_ok=True)
+        sheet.save(dest_path, "BMP")
+
+    def _apply_right_pane_video_skin(self, sbs_path, variant):
+        if not variant.get("right_pane_video_source") or not os.path.isfile(sbs_path):
+            return
+        try:
+            with open(sbs_path, "r", encoding="utf-8", errors="replace") as handle:
+                content = handle.read()
+        except OSError:
+            return
+        if "%xl(Y,RightPaneVideo.bmp" in content or "%xd(SbsRightWallpapera)" in content:
+            return
+
+        width, _height = _fit_size(variant.get("screen_resolution") or "320x240")
+        overlay_x = width // 2 + RIGHT_PANE_VIDEO_OVERLAY_X_OFFSET
+        if RIGHT_PANE_VIDEO_FRAME_COUNT <= 1:
+            loads = [f"%xl(Y,RightPaneVideo.bmp,{overlay_x},0)"]
+            frames = "%xd(Y)"
+        else:
+            loads = []
+            frames = ";".join(
+                f"%t({1 / RIGHT_PANE_VIDEO_FPS:.3f})%xd(SbsRightWallpaper{chr(ord('a') + index)})"
+                for index in range(RIGHT_PANE_VIDEO_FRAME_COUNT)
+            )
+        animation_line = f"%?if(%St(ipone right pane), =, miniplayer)<{frames}|>"
+        lines = content.splitlines()
+        insert_at = 0
+        for index, line in enumerate(lines):
+            if line.startswith("%xl(SbsBg,"):
+                insert_at = index + 1
+                break
+        for index, line in enumerate(lines):
+            if line.startswith("%xl(SbsRightWallpaper,"):
+                if RIGHT_PANE_VIDEO_FRAME_COUNT > 1:
+                    lines[index] = f"%xl(SbsRightWallpaper,RightPaneWallpaper.bmp,{overlay_x},0,{RIGHT_PANE_VIDEO_FRAME_COUNT})"
+                break
+        if loads:
+            lines[insert_at:insert_at] = loads
+        for index, line in enumerate(lines):
+            if line.strip() == "%V(0,0,-,-,4)%VB":
+                lines.insert(index + 2, animation_line)
+                break
+        content = "\n".join(lines)
+        if content and not content.endswith("\n"):
+            content += "\n"
+        atomic_write_text(sbs_path, content)
 
     def _render_right_pane_image(self, source_path, dest_path, resolution, fit_mode, matte_hex, base_path, offset_x=0, offset_y=0):
         width, height = _fit_size(resolution)
