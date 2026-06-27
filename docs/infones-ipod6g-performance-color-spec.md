@@ -60,6 +60,109 @@ On iPod 6G hardware:
 - Worst-case test ROMs may use a bounded emergency frameskip mode only if audio
   remains stable and the skip count is logged.
 
+## Framerate Optimization Pass
+
+This pass exists to make the default iPod 6G InfoNES path hit console-speed
+gameplay, not to hide lateness with frameskip. The first target is NTSC NROM
+and MMC1/MMC3-era games at the NES cadence.
+
+### Target
+
+- Emulation target: 60.0988 fps for NTSC ROMs.
+- Rockbox pacing fallback: if the platform tick granularity cannot represent
+  60.0988 exactly, use a fixed-point accumulator and log the measured effective
+  fps. Do not hard-code 60.000 fps as the emulator target.
+- Frame budget: about 16.64 ms per frame.
+- Required headroom on iPod 6G after a 2-minute SMB run: average frame time at
+  or below 15.5 ms and 99th percentile below 16.64 ms.
+- Default policy: no routine frameskip. A late frame should be measured and
+  optimized away before frameskip is considered.
+
+### Required Metrics
+
+Extend `/.rockbox/infones/profile.log` before tuning so every optimization has
+before/after numbers:
+
+- `target_fps_x1000` and `effective_fps_x1000`.
+- `frames_emulated`, `frames_rendered`, `frames_late`, `frames_skipped`.
+- Average, peak, and 99th percentile ticks for:
+  - CPU/mapper execution,
+  - PPU scanline/render work,
+  - APU/sample generation,
+  - 256-to-320 scaling and LCD update,
+  - event polling/yield/sleep wait.
+- Count of frame-pacer catch-up resets.
+- Count of audio underruns and queue-low events during the same interval.
+
+The first hardware baseline must be captured on Super Mario Bros. for at least
+120 seconds, then repeated after each optimization group.
+
+### Pass Order
+
+1. Correct pacing target.
+   Replace `INFONES_FPS 60` with an NTSC fixed-point frame period. Keep PAL as
+   future work unless ROM region detection is added in the same pass.
+
+2. Separate emulation time from wait time.
+   `InfoNES_LoadFrame()` currently measures pacing plus render time together.
+   Split frame work into CPU/PPU/APU/render/LCD/wait buckets so a smooth sim run
+   cannot mask hardware stalls.
+
+3. Remove unnecessary work while late.
+   If the emulator is behind schedule, skip sleeps/yields in the frame pacer and
+   continue immediately. Do not skip rendering by default.
+
+4. Lower scheduler overhead.
+   Increase `INFONES_WAIT_YIELD_SCANLINES` on iPod 6G only after confirming quit
+   and USB escape still respond. Test 16, 32, 64, and frame-boundary-only
+   polling.
+
+5. Optimize the 6502 memory hot path.
+   Rebuild dependencies when changing `K6502_rw.h`; the header is included by
+   `K6502.c`, and stale objects can silently keep old behavior. Profile NROM
+   first, then mapper-heavy ROMs.
+
+6. Add mapper fast paths.
+   Add direct read/write paths for common mappers in this order:
+   NROM, MMC1, UNROM, CNROM, MMC3. Each mapper change must preserve SRAM and
+   bank-switch behavior.
+
+7. Optimize renderer and scaling.
+   Keep the current 4-source-to-5-destination expansion for 320x240. If scale
+   cost is still over 10 percent of frame budget, precompute expansion groups or
+   render directly into the 320-wide framebuffer for iPod 6G.
+
+8. Add CHR/tile caches only after profiling proves PPU cost dominates.
+   Use iPod 6G RAM for decoded tile rows and sprite rows, invalidated by CHR
+   writes and mapper bank switches.
+
+9. Tune audio without changing game speed.
+   Audio must not drive the game slower. If PCM buffering hides underruns but
+   frame time is still late, keep optimizing emulation work instead of lowering
+   gameplay speed.
+
+### Acceptance Gates
+
+The framerate pass is accepted only when all of these pass on hardware:
+
+- SMB 1-1 through 1-2: no obvious slowdown, no routine skipped frames, clean
+  jump/run control.
+- SMB 120-second profile: `effective_fps_x1000` within 0.5 percent of the NTSC
+  target and `frames_late` below 1 percent.
+- Zelda 120-second profile: no sustained underruns and no visible scroll hitch.
+- One mapper-heavy game profile: late-frame cause is logged, even if not fully
+  solved in this pass.
+- Simulator and hardware profile logs include the same metric names so results
+  can be compared directly.
+
+### Explicit Non-Goals
+
+- Do not make frameskip the default.
+- Do not reduce audio quality or sample rate just to make gameplay appear fast.
+- Do not add broad CPU rewrites until the current profiler identifies the hot
+  bucket.
+- Do not optimize only against simulator results; iPod 6G hardware is the gate.
+
 ### Audio
 
 On iPod 6G hardware:
@@ -330,4 +433,3 @@ This work is complete when:
   below budget.
 - The iPod artifact copied to the device matches the build artifact by hash.
 - The implementation and logs are committed to git.
-
