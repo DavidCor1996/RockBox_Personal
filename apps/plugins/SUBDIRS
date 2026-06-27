@@ -63,6 +63,11 @@ zxbox
 pacbox
 #endif
 
+#if defined(HAVE_LCD_COLOR) && (LCD_WIDTH >= 256) && (LCD_HEIGHT >= 240) \
+    && (PLUGIN_BUFFER_SIZE >= 0x100000)
+infones
+#endif
+
 #if (defined(HAVE_LCD_COLOR) || defined(MROBE_100) || defined(SANSA_CLIPPLUS) \
     || defined(SANSA_CLIPV2) || (LCD_DEPTH == 2)) \
     && (MEMORYSIZE > 2 && !defined(RB_PROFILE)) && !defined(RG_NANO) /* musl libc issues */

@@ -36,6 +36,7 @@ _PUNCT_TRANSLATION = str.maketrans(
 _PLATFORM_KEYWORDS = {
     ".gb": ("game boy",),
     ".gbc": ("game boy color", "game boy"),
+    ".nes": ("nintendo entertainment system", "nes", "famicom"),
 }
 
 _INSTANCE_KEYWORDS = ("video game", "game")

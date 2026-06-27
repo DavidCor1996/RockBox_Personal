@@ -22,6 +22,7 @@
 #define ROCKBOY_INDEX_PATH    ROCKBOY_LAUNCHER_DIR "/games.tsv"
 #define ROCKBOY_STATE_PATH    ROCKBOY_LAUNCHER_DIR "/state.dat"
 #define ROCKBOY_PLUGIN_PATH   VIEWERS_DIR "/rockboy.rock"
+#define INFONES_PLUGIN_PATH   VIEWERS_DIR "/infones.rock"
 #define ROCKBOY_ROM_DIR       "/gameboy"
 #define ROCKBOY_LOADING_BACKGROUND_BMP ROCKBOY_LAUNCHER_DIR "/loading_bg.bmp"
 #define ROCKBOY_FALLBACK_COVER_BMP PLUGIN_DEMOS_DIR "/pictureflow_emptyslide.bmp"
@@ -195,7 +196,15 @@ static bool has_supported_rom_ext(const char *path)
     if (!ext)
         return false;
 
-    return !rb->strcasecmp(ext, ".gb") || !rb->strcasecmp(ext, ".gbc");
+    return !rb->strcasecmp(ext, ".gb") ||
+           !rb->strcasecmp(ext, ".gbc") ||
+           !rb->strcasecmp(ext, ".nes");
+}
+
+static bool is_nes_rom(const char *path)
+{
+    const char *ext = rb->strrchr(path, '.');
+    return ext && !rb->strcasecmp(ext, ".nes");
 }
 
 static bool has_supported_cover_ext(const char *path)
@@ -2228,7 +2237,7 @@ static enum plugin_status draw_empty_library(void)
     rb->lcd_set_background(LCD_BLACK);
     rb->lcd_set_foreground(LCD_WHITE);
     display->clear_viewport();
-    rb->lcd_putsxy(8, 8, "No Game Boy ROMs found");
+    rb->lcd_putsxy(8, 8, "No game ROMs found");
     rb->lcd_putsxy(8, 8 + launcher.line_height, "Place ROMs in " ROCKBOY_ROM_DIR);
     rb->lcd_putsxy(8, 8 + launcher.line_height * 2, "or add " ROCKBOY_INDEX_PATH);
     rb->lcd_putsxy(8, 8 + launcher.line_height * 4, "Back: Exit");
@@ -2256,6 +2265,9 @@ static enum plugin_status launch_selected_game(void)
 
     entry = &launcher.entries[launcher.selected];
     save_launcher_state(entry->rom_path);
+    if (is_nes_rom(entry->rom_path))
+        return rb->plugin_open(INFONES_PLUGIN_PATH, entry->rom_path);
+
     rb->snprintf(launch_param, sizeof(launch_param), "@%s", entry->rom_path + 1);
     return rb->plugin_open(ROCKBOY_PLUGIN_PATH, launch_param);
 }
@@ -2327,7 +2339,6 @@ static enum plugin_status launcher_context_menu(void)
     int selection = 0;
     int result;
     int previous_mode;
-    bool changed;
 
     static const struct opt_items sort_modes[] = {
         { "Title (A-Z)", -1 },

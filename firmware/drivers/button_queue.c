@@ -161,6 +161,14 @@ bool button_queue_try_post(long button, int data)
             return false;
     }
 
+    if (queue_full(&button_queue))
+    {
+        if (!force_post)
+            return false;
+
+        queue_clear(&button_queue);
+    }
+
     queue_post(&button_queue, button, data);
 
     /* on touchscreen we posted unconditionally */

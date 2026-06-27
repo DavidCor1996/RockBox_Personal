@@ -457,6 +457,32 @@ static int parse_image_load(struct skin_element *element,
 
     return 0;
 }
+
+static int parse_image_framepack(struct skin_element *element,
+                                 struct wps_token *token,
+                                 struct wps_data *wps_data)
+{
+    (void)wps_data;
+    struct skin_image_framepack *framepack = skin_buffer_alloc(sizeof(*framepack));
+    if (!framepack)
+        return WPS_ERROR_INVALID_PARAM;
+
+    framepack->path = PTRTOSKINOFFSET(skin_buffer, get_param_text(element, 0));
+    framepack->x = get_param(element, 1)->data.number;
+    framepack->y = get_param(element, 2)->data.number;
+    framepack->width = get_param(element, 3)->data.number;
+    framepack->height = get_param(element, 4)->data.number;
+    framepack->fps = get_param(element, 5)->data.number;
+    framepack->frames = get_param(element, 6)->data.number;
+
+    if (framepack->width <= 0 || framepack->height <= 0 ||
+        framepack->fps <= 0 || framepack->frames <= 0)
+        return WPS_ERROR_INVALID_PARAM;
+
+    token->value.data = PTRTOSKINOFFSET(skin_buffer, framepack);
+    return 0;
+}
+
 struct skin_font {
     int id; /* the id from font_load */
     char *name;  /* filename without path and extension */
@@ -2606,6 +2632,9 @@ static int skin_element_callback(struct skin_element* element, void* data)
                 case SKIN_TOKEN_IMAGE_PRELOAD_DISPLAY:
                 case SKIN_TOKEN_IMAGE_DISPLAY_9SEGMENT:
                     function = parse_image_display;
+                    break;
+                case SKIN_TOKEN_IMAGE_FRAMEPACK:
+                    function = parse_image_framepack;
                     break;
                 case SKIN_TOKEN_IMAGE_PRELOAD:
                 case SKIN_TOKEN_IMAGE_DISPLAY:

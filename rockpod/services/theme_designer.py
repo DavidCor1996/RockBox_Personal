@@ -9,6 +9,7 @@ import shutil
 import subprocess
 import tempfile
 import colorsys
+import hashlib
 from copy import deepcopy
 
 from PIL import Image, ImageColor, ImageDraw, ImageOps, UnidentifiedImageError
@@ -39,10 +40,9 @@ DEFAULT_COLORS = {
 
 RIGHT_PANE_MODES = ("miniplayer", "full art")
 DEFAULT_RIGHT_PANE_MODE = "miniplayer"
-RIGHT_PANE_VIDEO_FRAME_COUNT = 1
+RIGHT_PANE_VIDEO_FRAME_COUNT = 24
 RIGHT_PANE_VIDEO_FPS = 12
 RIGHT_PANE_VIDEO_OVERLAY_X_OFFSET = 4
-RIGHT_PANE_VIDEO_LABELS = "JKLMNOPQRSTUVWXYZ"
 
 DEFAULT_LOCKSCREEN_CLOCK = {
     "font_rel": "fonts/66-Cantarell-Light.fnt",
@@ -650,7 +650,10 @@ class ThemeDesignerService:
     def _sbs_skin_name(variant):
         theme_name = str(variant.get("id") or "").strip()
         if str(variant.get("base_theme_id") or "").startswith("iPone"):
-            return f"iPoneDesigner-{theme_name}"
+            if len(theme_name) <= 12:
+                return f"iPoneD-{theme_name}"
+            digest = hashlib.sha1(theme_name.encode("utf-8", errors="ignore")).hexdigest()[:6]
+            return f"iPoneD-{theme_name[:10]}-{digest}"
         return theme_name
 
     @staticmethod
@@ -851,6 +854,8 @@ class ThemeDesignerService:
             self._apply_template_color_overrides(target, base_bundle["id"], stage_root, variant)
         if variant and target.lower().endswith((".wps", ".sbs")):
             self._apply_lockscreen_clock_overrides(target, variant)
+        if variant and target.lower().endswith(".sbs"):
+            self._apply_designer_sbs_layout_overrides(target, variant)
 
     def _write_iconset(self, stage_root, variant, base_bundle):
         asset = next((item for item in base_bundle["assets"] if item["kind"] == "iconset"), None)
@@ -1738,10 +1743,7 @@ class ThemeDesignerService:
             offset_y = variant.get("right_pane_offset_y", 0)
             for index in range(RIGHT_PANE_VIDEO_FRAME_COUNT):
                 frame_path = frame_paths[index % len(frame_paths)]
-                if RIGHT_PANE_VIDEO_FRAME_COUNT <= 1:
-                    rendered_frame_path = os.path.join(staged_wps_dir, "RightPaneVideo.bmp")
-                else:
-                    rendered_frame_path = os.path.join(staged_wps_dir, f"RightPaneVideoFrame_{index:02d}.bmp")
+                rendered_frame_path = os.path.join(staged_wps_dir, f"RightPaneVideoFrame_{index:02d}.bmp")
                 self._render_right_pane_video_frame(
                     frame_path,
                     rendered_frame_path,
@@ -1752,11 +1754,10 @@ class ThemeDesignerService:
                     offset_y,
                 )
                 rendered_frame_paths.append(rendered_frame_path)
-            if RIGHT_PANE_VIDEO_FRAME_COUNT > 1:
-                self._write_right_pane_video_sheet(
-                    rendered_frame_paths,
-                    os.path.join(staged_wps_dir, "RightPaneWallpaper.bmp"),
-                )
+            self._write_right_pane_video_framepack(
+                rendered_frame_paths,
+                os.path.join(staged_wps_dir, "RightPaneVideo.rbvp"),
+            )
 
             first_frame = frame_paths[0]
             sbs_right_pane_targets = [
@@ -1777,8 +1778,6 @@ class ThemeDesignerService:
                     offset_y,
                 )
             for name in targets.get("right_pane", []):
-                if RIGHT_PANE_VIDEO_FRAME_COUNT > 1 and os.path.basename(name) == "RightPaneWallpaper.bmp":
-                    continue
                 self._render_right_pane_image(
                     first_frame,
                     os.path.join(staged_wps_dir, name),
@@ -1795,12 +1794,11 @@ class ThemeDesignerService:
                     os.remove(path)
                 except OSError:
                     pass
-            if RIGHT_PANE_VIDEO_FRAME_COUNT > 1:
-                for path in rendered_frame_paths:
-                    try:
-                        os.remove(path)
-                    except OSError:
-                        pass
+            for path in rendered_frame_paths:
+                try:
+                    os.remove(path)
+                except OSError:
+                    pass
 
     def _extract_right_pane_video_frames(self, source_path):
         with tempfile.TemporaryDirectory(prefix="ipone-video-") as temp_dir:
@@ -1895,7 +1893,39 @@ class ThemeDesignerService:
         os.makedirs(os.path.dirname(dest_path), exist_ok=True)
         sheet.save(dest_path, "BMP")
 
+    def _write_right_pane_video_framepack(self, frame_paths, dest_path):
+        frames = []
+        for path in frame_paths:
+            try:
+                with Image.open(path) as image:
+                    frames.append(image.convert("RGB"))
+            except (OSError, UnidentifiedImageError) as exc:
+                raise ValueError(f"Unreadable rendered video frame: {path}") from exc
+        if not frames:
+            return
+
+        width, height = frames[0].size
+        os.makedirs(os.path.dirname(dest_path), exist_ok=True)
+        with open(dest_path, "wb") as handle:
+            handle.write(b"RBVP")
+            handle.write((1).to_bytes(2, "little"))
+            handle.write((32).to_bytes(2, "little"))
+            handle.write(width.to_bytes(2, "little"))
+            handle.write(height.to_bytes(2, "little"))
+            handle.write(RIGHT_PANE_VIDEO_FPS.to_bytes(2, "little"))
+            handle.write(len(frames).to_bytes(2, "little"))
+            handle.write((2).to_bytes(2, "little"))
+            handle.write(bytes(14))
+
+            for frame in frames:
+                if frame.size != (width, height):
+                    frame = frame.resize((width, height), Image.Resampling.LANCZOS)
+                for red, green, blue in frame.getdata():
+                    rgb565 = ((red & 0xF8) << 8) | ((green & 0xFC) << 3) | (blue >> 3)
+                    handle.write(rgb565.to_bytes(2, "little"))
+
     def _apply_right_pane_video_skin(self, sbs_path, variant):
+        return
         if not variant.get("right_pane_video_source") or not os.path.isfile(sbs_path):
             return
         try:
@@ -1903,37 +1933,27 @@ class ThemeDesignerService:
                 content = handle.read()
         except OSError:
             return
-        if "%xl(Y,RightPaneVideo.bmp" in content or "%xd(SbsRightWallpapera)" in content:
+        if "%xv(/.rockbox/wps/" in content:
             return
 
-        width, _height = _fit_size(variant.get("screen_resolution") or "320x240")
+        width, height = _fit_size(variant.get("screen_resolution") or "320x240")
         overlay_x = width // 2 + RIGHT_PANE_VIDEO_OVERLAY_X_OFFSET
-        if RIGHT_PANE_VIDEO_FRAME_COUNT <= 1:
-            loads = [f"%xl(Y,RightPaneVideo.bmp,{overlay_x},0)"]
-            frames = "%xd(Y)"
-        else:
-            loads = []
-            frames = ";".join(
-                f"%t({1 / RIGHT_PANE_VIDEO_FPS:.3f})%xd(SbsRightWallpaper{chr(ord('a') + index)})"
-                for index in range(RIGHT_PANE_VIDEO_FRAME_COUNT)
-            )
-        animation_line = f"%?if(%St(ipone right pane), =, miniplayer)<{frames}|>"
+        pane_width = width - overlay_x
+        sbs_skin_name = self._sbs_skin_name(variant)
+        framepack = (
+            f"%xv(/.rockbox/wps/{sbs_skin_name}/RightPaneVideo.rbvp,"
+            f"0,0,{pane_width},{height},"
+            f"{RIGHT_PANE_VIDEO_FPS},{RIGHT_PANE_VIDEO_FRAME_COUNT})"
+        )
+        animation_lines = [
+            f"%V({overlay_x},0,{pane_width},{height},-)",
+            f"%?if(%cs, =, 21)<|%?mh<|%?if(%St(ipone right pane), =, miniplayer)<{framepack}|>>>",
+            "%V(0,0,-,-,-)",
+        ]
         lines = content.splitlines()
-        insert_at = 0
-        for index, line in enumerate(lines):
-            if line.startswith("%xl(SbsBg,"):
-                insert_at = index + 1
-                break
-        for index, line in enumerate(lines):
-            if line.startswith("%xl(SbsRightWallpaper,"):
-                if RIGHT_PANE_VIDEO_FRAME_COUNT > 1:
-                    lines[index] = f"%xl(SbsRightWallpaper,RightPaneWallpaper.bmp,{overlay_x},0,{RIGHT_PANE_VIDEO_FRAME_COUNT})"
-                break
-        if loads:
-            lines[insert_at:insert_at] = loads
         for index, line in enumerate(lines):
             if line.strip() == "%V(0,0,-,-,4)%VB":
-                lines.insert(index + 2, animation_line)
+                lines[index + 2:index + 2] = animation_lines
                 break
         content = "\n".join(lines)
         if content and not content.endswith("\n"):
@@ -2153,6 +2173,44 @@ class ThemeDesignerService:
             content = self._replace_lockscreen_clock_block(content, "iPoneLockscreen", clock, time_font=10, date_font=6)
         else:
             content = self._replace_lockscreen_clock_block(content, "Lockscreen", clock, time_font=10, date_font=4)
+        atomic_write_text(path, content)
+
+    def _apply_designer_sbs_layout_overrides(self, path, variant):
+        if not str((variant or {}).get("base_theme_id") or "").startswith("iPone"):
+            return
+        clock = self._normalize_lockscreen_clock((variant or {}).get("lockscreen_clock"))
+        lock_color = clock["color"]
+        try:
+            with open(path, "r", encoding="utf-8") as handle:
+                content = handle.read()
+        except OSError:
+            return
+
+        content = content.replace("%V(134,5,25,11,-)", "%V(133,5,25,11,-)", 1)
+        content = re.sub(
+            r"(%Vl\(iPoneLockscreen,32,8,60,16,2\)%Vf\()[0-9A-Fa-f]{6}(\)%alHOLD)",
+            rf"\g<1>{lock_color}\g<2>",
+            content,
+            count=1,
+        )
+        content = re.sub(
+            r"(%Vl\(iPoneLockscreen,242,8,44,16,2\)%Vf\()[0-9A-Fa-f]{6}(\)%ar%bl%%)",
+            rf"\g<1>{lock_color}\g<2>",
+            content,
+            count=1,
+        )
+        content = re.sub(
+            r"(%Vl\(iPoneAOD,32,8,60,16,2\)%Vf\()[0-9A-Fa-f]{6}(\)%alHOLD)",
+            rf"\g<1>{lock_color}\g<2>",
+            content,
+            count=1,
+        )
+        content = re.sub(
+            r"(%Vl\(iPoneAOD,242,8,44,16,2\)%Vf\()[0-9A-Fa-f]{6}(\)%ar%bl%%)",
+            rf"\g<1>{lock_color}\g<2>",
+            content,
+            count=1,
+        )
         atomic_write_text(path, content)
 
     @staticmethod

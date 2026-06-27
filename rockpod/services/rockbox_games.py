@@ -18,7 +18,7 @@ from services.file_safety import atomic_write_json, atomic_write_text
 from services.online_game_metadata import OnlineGameMetadataLookup
 
 
-SUPPORTED_ROM_EXTENSIONS = {".gb", ".gbc"}
+SUPPORTED_ROM_EXTENSIONS = {".gb", ".gbc", ".nes"}
 ROM_TARGET_DIR = "gameboy"
 SAVE_TARGET_DIR = ".rockbox/rockboy"
 LAUNCHER_INDEX_RELATIVE_PATH = ".rockbox/rocks/games/rockboy_launcher/games.tsv"
@@ -33,6 +33,12 @@ SYNC_COVER_MAX_SIZE = {
 LIBRETRO_BOXART_BASE_URLS = {
     ".gb": "https://thumbnails.libretro.com/Nintendo%20-%20Game%20Boy/Named_Boxarts",
     ".gbc": "https://thumbnails.libretro.com/Nintendo%20-%20Game%20Boy%20Color/Named_Boxarts",
+    ".nes": "https://thumbnails.libretro.com/Nintendo%20-%20Nintendo%20Entertainment%20System/Named_Boxarts",
+}
+ROM_PLATFORM_CACHE_DIRS = {
+    ".gb": "gameboy",
+    ".gbc": "gameboy-color",
+    ".nes": "nes",
 }
 PERF_THRESHOLDS = {
     "320x240": {"warn": 1024 * 1024, "critical": 2 * 1024 * 1024},
@@ -42,7 +48,7 @@ LAUNCHER_INDEX_COLUMN_COUNT = 10
 
 
 class RockboxGameService:
-    """Manage user-supplied Game Boy / Game Boy Color ROMs."""
+    """Manage user-supplied Game Boy, Game Boy Color, and NES ROMs."""
 
     def launcher_library(self, profile, target_mode="device", simulator_target=None):
         mount_root = self.mount_root(profile, target_mode, simulator_target)
@@ -911,7 +917,7 @@ class RockboxGameService:
         if not cache_root:
             return ""
         ext = os.path.splitext(game.get("filename") or "")[1].lower()
-        platform = "gameboy-color" if ext == ".gbc" else "gameboy"
+        platform = ROM_PLATFORM_CACHE_DIRS.get(ext, "gameboy")
         stem = os.path.splitext(game.get("filename") or "game")[0]
         safe_name = "".join(ch if ch.isalnum() or ch in ("-", "_", ".", " ") else "_" for ch in stem).strip() or "game"
         return os.path.join(cache_root, platform, f"{safe_name}.png")

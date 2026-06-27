@@ -30,6 +30,7 @@ def test_rom_discovery_and_extension_filtering(tmp_dir):
     repo_root = os.path.join(tmp_dir, "repo")
     roms = os.path.join(tmp_dir, "roms")
     _make_file(os.path.join(roms, "Pokemon.gb"), b"gb")
+    _make_file(os.path.join(roms, "Mario.nes"), b"nes")
     _make_file(os.path.join(roms, "Zelda.gbc"), b"gbc")
     _make_file(os.path.join(roms, "notes.txt"), b"ignore")
 
@@ -41,7 +42,7 @@ def test_rom_discovery_and_extension_filtering(tmp_dir):
     service = RockboxGameService()
     games = service.list_games(profile)
 
-    assert [game["filename"] for game in games] == ["Pokemon.gb", "Zelda.gbc"]
+    assert [game["filename"] for game in games] == ["Mario.nes", "Pokemon.gb", "Zelda.gbc"]
 
 
 def test_profiles_default_games_library_to_documents_gameboy(tmp_dir):
@@ -275,12 +276,53 @@ def test_game_cover_fetches_from_libretro(tmp_dir):
     assert requested[0].endswith("Pokemon%20Blue%20%28USA%2C%20Europe%29.png")
 
 
+def test_game_cover_fetches_nes_boxart_from_libretro(tmp_dir):
+    repo_root = os.path.join(tmp_dir, "repo")
+    roms = os.path.join(tmp_dir, "roms")
+    _make_file(os.path.join(roms, "Super Mario Bros.nes"), b"rom")
+
+    config, store = _make_store(tmp_dir, repo_root)
+    profile = store.current_profile()
+    profile["games_library_path"] = roms
+    profile = store.save_profile(profile)
+
+    service = RockboxGameService()
+    games = service.list_games(profile, config=config)
+
+    class _Response:
+        def __init__(self, data):
+            self._data = data
+
+        def read(self):
+            return self._data
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, exc_type, exc, tb):
+            return False
+
+    requested = []
+
+    def fake_open(request, timeout=10):
+        requested.append(request.full_url)
+        return _Response(b"png-data")
+
+    result = service.fetch_cover_for_game(games[0], config, opener=fake_open)
+
+    assert result["success"] is True
+    assert os.path.isfile(result["path"])
+    assert "/Nintendo%20-%20Nintendo%20Entertainment%20System/" in requested[0]
+    assert requested[0].endswith("Super%20Mario%20Bros.png")
+
+
 def test_launcher_index_parsing_handles_relative_paths_and_favorites(tmp_dir):
     index_root = os.path.join(tmp_dir, "launcher-index")
     index_path = os.path.join(index_root, "games.tsv")
     _make_file(os.path.join(index_root, "roms", "Tetris.gb"), b"rom")
     _make_file(os.path.join(index_root, "covers", "Tetris.jpg"), b"jpg")
     _make_file(os.path.join(index_root, "roms", "Kirby.gbc"), b"rom")
+    _make_file(os.path.join(index_root, "roms", "Super Mario Bros.nes"), b"rom")
     _make_file(
         index_path,
         "\n".join(
@@ -288,6 +330,7 @@ def test_launcher_index_parsing_handles_relative_paths_and_favorites(tmp_dir):
                 "# title\trom_path\tcover_path\tfavorite\tsave_hint",
                 "Tetris\troms/Tetris.gb\tcovers/Tetris.jpg\tfavorite\tyes\t1989\tPuzzle video game\tNintendo\tNintendo\tTile puzzle classic",
                 "Kirby\troms/Kirby.gbc\t\t0\tno\t1995\tPlatform game\tNintendo\tHAL Laboratory\tPink puffball platformer",
+                "Super Mario Bros\troms/Super Mario Bros.nes\t\t0\tno\t1985\tPlatform game\tNintendo\tNintendo\tNES platformer",
                 "Ignore Me\troms/readme.txt\t\t1\tyes",
             ]
         ),
@@ -296,17 +339,18 @@ def test_launcher_index_parsing_handles_relative_paths_and_favorites(tmp_dir):
     service = RockboxGameService()
     entries = service.parse_launcher_index(index_path)
 
-    assert [entry["title"] for entry in entries] == ["Kirby", "Tetris"]
+    assert [entry["title"] for entry in entries] == ["Kirby", "Super Mario Bros", "Tetris"]
     assert entries[0]["rom_path"] == os.path.join(index_root, "roms", "Kirby.gbc")
     assert entries[0]["cover_path"] == ""
     assert entries[0]["favorite"] is False
     assert entries[0]["year"] == "1995"
     assert entries[0]["genre"] == "Platform game"
     assert entries[0]["publisher"] == "Nintendo"
-    assert entries[1]["cover_path"] == os.path.join(index_root, "covers", "Tetris.jpg")
-    assert entries[1]["favorite"] is True
-    assert entries[1]["save_hint"] == "yes"
-    assert entries[1]["description"] == "Tile puzzle classic"
+    assert entries[1]["rom_path"] == os.path.join(index_root, "roms", "Super Mario Bros.nes")
+    assert entries[2]["cover_path"] == os.path.join(index_root, "covers", "Tetris.jpg")
+    assert entries[2]["favorite"] is True
+    assert entries[2]["save_hint"] == "yes"
+    assert entries[2]["description"] == "Tile puzzle classic"
 
 
 def test_launcher_index_ignores_missing_rom_entries(tmp_dir):
@@ -411,12 +455,48 @@ def test_game_metadata_fetch_is_cached_and_written_to_launcher_index(tmp_dir):
     assert not _temp_names(stage_dir)
 
 
+def test_nes_metadata_fetch_uses_nes_platform_hint(tmp_dir):
+    repo_root = os.path.join(tmp_dir, "repo")
+    roms = os.path.join(tmp_dir, "roms")
+    _make_file(os.path.join(roms, "Super Mario Bros.nes"), b"rom")
+
+    _config, store = _make_store(tmp_dir, repo_root)
+    profile = store.current_profile()
+    profile["games_library_path"] = roms
+    profile = store.save_profile(profile)
+
+    service = RockboxGameService()
+    games = service.list_games(profile)
+
+    class _Lookup:
+        def fetch_game_metadata(self, title, platform_hint="", opener=None):
+            assert title == "Super Mario Bros"
+            assert platform_hint == ".nes"
+            return {
+                "year": "1985",
+                "genre": "Platform game",
+                "publisher": "Nintendo",
+                "developer": "Nintendo",
+                "description": "NES platformer",
+                "platform": "Nintendo Entertainment System",
+                "source": "test",
+                "source_url": "https://example.com/game",
+                "entity_id": "Q2",
+            }
+
+    fetched = service.fetch_metadata_for_game(profile, games[0], lookup_client=_Lookup())
+
+    assert fetched["success"] is True
+    assert fetched["metadata"]["platform"] == "Nintendo Entertainment System"
+
+
 def test_launcher_library_falls_back_to_gameboy_scan(tmp_dir):
     repo_root = os.path.join(tmp_dir, "repo")
     device = os.path.join(tmp_dir, "device")
     _make_file(os.path.join(device, "gameboy", "Pokemon.gb"), b"rom")
     _make_file(os.path.join(device, "gameboy", "Pokemon.jpg"), b"jpg")
     _make_file(os.path.join(device, "gameboy", "RPG", "Zelda.gbc"), b"rom")
+    _make_file(os.path.join(device, "gameboy", "Super Mario Bros.nes"), b"rom")
 
     _config, store = _make_store(tmp_dir, repo_root)
     profile = store.current_profile()
@@ -426,7 +506,7 @@ def test_launcher_library_falls_back_to_gameboy_scan(tmp_dir):
     service = RockboxGameService()
     entries = service.launcher_library(profile, "device")
 
-    assert [entry["title"] for entry in entries] == ["Pokemon", "Zelda"]
+    assert [entry["title"] for entry in entries] == ["Pokemon", "Super Mario Bros", "Zelda"]
     assert entries[0]["cover_path"] == os.path.join(device, "gameboy", "Pokemon.jpg")
     assert entries[1]["cover_path"] == ""
 

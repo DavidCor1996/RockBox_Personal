@@ -28,6 +28,8 @@
 #include "screens.h"
 #include "screen_access.h"
 #include "lcd.h"
+#include "file.h"
+#include "core_alloc.h"
 #include "skin_parser.h"
 #include "skin_buffer.h"
 #include "skin_engine/skin_engine.h"
@@ -62,7 +64,20 @@ static bool sbs_fullscreen_ui[NB_SCREENS] = { false };
 
 #if (defined(IPOD_VIDEO) || defined(IPOD_6G)) && defined(HAVE_LCD_COLOR)
 #define IPONE_RIGHT_PANE_SLIDESHOW_UPDATE_DELAY MAX(1, HZ / 30)
+#define IPONE_RIGHT_PANE_VIDEO_UPDATE_DELAY MAX(1, HZ / 12)
+#define IPONE_RIGHT_PANE_VIDEO_X 164
+#define IPONE_RIGHT_PANE_VIDEO_Y 0
+#define IPONE_RIGHT_PANE_VIDEO_WIDTH 156
+#define IPONE_RIGHT_PANE_VIDEO_HEIGHT 240
+#define IPONE_RIGHT_PANE_VIDEO_PIXELS \
+    (IPONE_RIGHT_PANE_VIDEO_WIDTH * IPONE_RIGHT_PANE_VIDEO_HEIGHT)
+#define IPONE_RIGHT_PANE_VIDEO_HEADER_SIZE 32
+#define IPONE_RIGHT_PANE_VIDEO_MAGIC 0x50564252u /* RBVP */
+#define IPONE_RIGHT_PANE_VIDEO_VERSION 1
 static bool sb_ipone_slideshow_was_active[NB_SCREENS] = {false};
+static int sb_ipone_video_cache_handle = -1;
+static char sb_ipone_video_cached_path[MAX_PATH];
+static int sb_ipone_video_cached_frame = -1;
 
 static bool sb_ipone_right_pane_can_draw(void)
 {
@@ -84,6 +99,8 @@ static bool sb_ipone_right_pane_theme_compatible(void)
     const char *sbs_file = (const char *)global_settings.sbs_file;
 
     return strstr(sbs_file, "iPone") != NULL ||
+           strstr(sbs_file, "iPoneD-") != NULL ||
+           strstr(sbs_file, "iPD-") != NULL ||
            strstr(sbs_file, "Forest") != NULL;
 }
 
@@ -98,6 +115,179 @@ static bool sb_ipone_right_pane_slideshow_eligible(enum screen_type screen)
     }
 
     return true;
+}
+
+static bool sb_ipone_right_pane_video_eligible(enum screen_type screen)
+{
+    if (screen != SCREEN_MAIN ||
+        global_settings.ipone_right_pane != 0 ||
+        !sb_ipone_right_pane_theme_compatible())
+    {
+        return false;
+    }
+
+#ifdef HAS_BUTTON_HOLD
+    if (button_hold())
+        return false;
+#endif
+
+    return true;
+}
+
+static unsigned sb_ipone_video_read_le16(const unsigned char *buf)
+{
+    return (unsigned)buf[0] | ((unsigned)buf[1] << 8);
+}
+
+static unsigned long sb_ipone_video_read_le32(const unsigned char *buf)
+{
+    return (unsigned long)buf[0] | ((unsigned long)buf[1] << 8) |
+           ((unsigned long)buf[2] << 16) | ((unsigned long)buf[3] << 24);
+}
+
+static bool sb_ipone_video_read_exact(int fd, void *buf, size_t size)
+{
+    unsigned char *out = buf;
+    while (size > 0)
+    {
+        ssize_t got = read(fd, out, size);
+        if (got <= 0)
+            return false;
+        out += got;
+        size -= got;
+    }
+    return true;
+}
+
+static fb_data *sb_ipone_video_cache_data(void)
+{
+    if (sb_ipone_video_cache_handle <= 0)
+    {
+        sb_ipone_video_cache_handle =
+            core_alloc(IPONE_RIGHT_PANE_VIDEO_PIXELS * sizeof(fb_data));
+        if (sb_ipone_video_cache_handle <= 0)
+            return NULL;
+    }
+
+    return core_get_data(sb_ipone_video_cache_handle);
+}
+
+static bool sb_ipone_video_path(char *path, size_t path_size)
+{
+    char name[MAX_PATH];
+    const char *sbs_file = (const char *)global_settings.sbs_file;
+    const char *base;
+
+    if (!sbs_file ||
+        (!strstr(sbs_file, "iPoneDesigner-") &&
+         !strstr(sbs_file, "iPoneD-") &&
+         !strstr(sbs_file, "iPD-")))
+        return false;
+
+    base = strrchr(sbs_file, '/');
+    strmemccpy(name, base ? base + 1 : sbs_file, sizeof(name));
+    char *ext = strrchr(name, '.');
+    if (!ext || strcmp(ext, ".sbs"))
+        return false;
+    *ext = '\0';
+
+    snprintf(path, path_size, "/.rockbox/wps/%s/RightPaneVideo.rbvp", name);
+    return true;
+}
+
+static bool sb_ipone_video_load_frame(const char *path, int frame)
+{
+    unsigned char header[IPONE_RIGHT_PANE_VIDEO_HEADER_SIZE];
+    size_t frame_bytes = IPONE_RIGHT_PANE_VIDEO_PIXELS * sizeof(fb_data);
+    fb_data *cache = sb_ipone_video_cache_data();
+    int fd = open(path, O_RDONLY);
+    bool ok;
+
+    if (!cache)
+        return false;
+
+    if (fd < 0)
+        return false;
+
+    ok = sb_ipone_video_read_exact(fd, header, sizeof(header));
+    ok = ok && sb_ipone_video_read_le32(header) == IPONE_RIGHT_PANE_VIDEO_MAGIC;
+    ok = ok && sb_ipone_video_read_le16(header + 4) == IPONE_RIGHT_PANE_VIDEO_VERSION;
+    ok = ok && sb_ipone_video_read_le16(header + 6) == IPONE_RIGHT_PANE_VIDEO_HEADER_SIZE;
+    ok = ok && sb_ipone_video_read_le16(header + 8) == IPONE_RIGHT_PANE_VIDEO_WIDTH;
+    ok = ok && sb_ipone_video_read_le16(header + 10) == IPONE_RIGHT_PANE_VIDEO_HEIGHT;
+    ok = ok && sb_ipone_video_read_le16(header + 16) == sizeof(fb_data);
+    ok = ok && frame >= 0 &&
+        frame < (int)sb_ipone_video_read_le16(header + 14);
+
+    if (ok)
+    {
+        off_t offset = IPONE_RIGHT_PANE_VIDEO_HEADER_SIZE +
+            (off_t)frame * (off_t)frame_bytes;
+        ok = lseek(fd, offset, SEEK_SET) == offset;
+        ok = ok && sb_ipone_video_read_exact(fd, cache, frame_bytes);
+    }
+
+    close(fd);
+    return ok;
+}
+
+static bool sb_ipone_draw_right_pane_video(enum screen_type screen)
+{
+    char path[MAX_PATH];
+    fb_data *cache;
+    int frame = (current_tick / IPONE_RIGHT_PANE_VIDEO_UPDATE_DELAY) % 24;
+
+    if (!sb_ipone_right_pane_video_eligible(screen) ||
+        !sb_ipone_video_path(path, sizeof(path)))
+    {
+        return false;
+    }
+
+    if (frame != sb_ipone_video_cached_frame ||
+        strcmp(path, sb_ipone_video_cached_path))
+    {
+        if (!sb_ipone_video_load_frame(path, frame))
+            return false;
+        strmemccpy(sb_ipone_video_cached_path, path,
+                   sizeof(sb_ipone_video_cached_path));
+        sb_ipone_video_cached_frame = frame;
+    }
+
+    cache = sb_ipone_video_cache_data();
+    if (!cache)
+        return false;
+
+    screens[screen].set_drawmode(DRMODE_SOLID);
+    screens[screen].bitmap_part(cache,
+                                0, 0, IPONE_RIGHT_PANE_VIDEO_WIDTH,
+                                IPONE_RIGHT_PANE_VIDEO_X,
+                                IPONE_RIGHT_PANE_VIDEO_Y,
+                                IPONE_RIGHT_PANE_VIDEO_WIDTH,
+                                IPONE_RIGHT_PANE_VIDEO_HEIGHT);
+    lcd_update_rect(IPONE_RIGHT_PANE_VIDEO_X, IPONE_RIGHT_PANE_VIDEO_Y,
+                    IPONE_RIGHT_PANE_VIDEO_WIDTH,
+                    IPONE_RIGHT_PANE_VIDEO_HEIGHT);
+    return true;
+}
+
+static bool sb_ipone_update_right_pane_video(enum screen_type screen, bool force)
+{
+    static long next_video_update[NB_SCREENS] = {0};
+
+    if (!sb_ipone_right_pane_video_eligible(screen))
+    {
+        next_video_update[screen] =
+            current_tick + IPONE_RIGHT_PANE_VIDEO_UPDATE_DELAY;
+        return false;
+    }
+
+    if (!force && !TIME_AFTER(current_tick, next_video_update[screen]))
+        return false;
+
+    bool drawn = sb_ipone_draw_right_pane_video(screen);
+    next_video_update[screen] =
+        current_tick + IPONE_RIGHT_PANE_VIDEO_UPDATE_DELAY;
+    return drawn;
 }
 
 static bool sb_ipone_right_pane_slideshow_paused_by_hold(enum screen_type screen)
@@ -432,6 +622,7 @@ void sb_skin_update(enum screen_type screen, bool force)
             skin_update(CUSTOM_STATUSBAR, screen, SKIN_REFRESH_NON_STATIC);
 
 #if (defined(IPOD_VIDEO) || defined(IPOD_6G)) && defined(HAVE_LCD_COLOR)
+            sb_ipone_update_right_pane_video(screen, true);
             sb_ipone_update_right_pane_slideshow(screen, true);
 #endif
 
@@ -476,7 +667,10 @@ void sb_skin_update(enum screen_type screen, bool force)
 #if defined(HAVE_LCD_ENABLE) || defined(HAVE_LCD_SLEEP)
     if (lcd_active() || (i != SCREEN_MAIN))
 #endif
+    {
+        sb_ipone_update_right_pane_video(screen, false);
         sb_ipone_update_right_pane_slideshow(screen, false);
+    }
 #endif
 }
 

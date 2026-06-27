@@ -77,31 +77,49 @@ not like a desktop cursor awkwardly mapped to a wheel.
 
 ### World Controls
 
-- Wheel: cycle the current focus target among nearby visible interactables,
-  walkable destination anchors, and enemies.
-- Wheel fast spin: jump between target groups, such as NPCs, resources,
-  enemies, exits, and ground destinations.
-- `SELECT`: confirm the highlighted target and default action.
-- `SELECT` hold: open action menu for the highlighted target.
-- `MENU`: back out of menus; pause/options from world view.
-- `LEFT` / `RIGHT`: rotate/cycle action category or cycle nearest target group.
-- `PLAY`: quick action. Default is toggle run/walk if stamina exists; otherwise
-  repeat last skilling action.
+- Wheel: move the world cursor vertically through the visible play area.
+- Wheel repeat/fast spin: move the world cursor vertically faster.
+- `LEFT` / `RIGHT`: move the world cursor horizontally.
+- `LEFT` / `RIGHT` repeat: move the world cursor horizontally faster.
+- `SELECT`: if the cursor is over an interactable, walk to it and perform its
+  default action; otherwise walk to the cursor position.
+- `SELECT` hold: if the cursor is over an interactable, open its action menu;
+  otherwise walk to the cursor position.
+- `MENU`: exit RunePod from world view.
+- `PLAY`: open inventory/status. Early MVP uses this as the native-feeling
+  quick status button; later builds may add a tab inside status for repeat
+  skilling or run/walk.
 
 ### Menu Controls
 
 - Wheel: scroll list.
 - `SELECT`: choose row.
-- `MENU`: back.
+- `MENU`: close the current menu/status screen back to world.
 - `LEFT` / `RIGHT`: switch tabs.
-- `PLAY`: close menu to world.
+- `PLAY`: no close behavior inside menu/status screens; ignore releases so a
+  normal Play press from world cannot immediately close the status UI.
+
+Inventory/status tabs:
+
+- Inventory opens first from `PLAY`.
+- `SELECT` or `RIGHT` switches inventory to Levels.
+- Levels shows combat, mining, woodcutting, fishing, cooking, and crafting as
+  compact rows with level number and current XP progress toward the next level.
+- `SELECT` or `RIGHT` switches Levels to Map.
+- Map shows the expanded village area, the current viewport, the player, the
+  cursor, and interactable targets.
+- `SELECT` or `RIGHT` switches Map to Inventory.
+- `LEFT` moves backward through Map, Levels, and Inventory.
+- `MENU` closes any status tab back to world.
 
 ### Why This Model
 
 Old-school RuneScape is point-and-click, but an iPod click wheel is strongest
-at scrolling through ordered choices. RunePod should preserve the "choose an
-object, choose an action, watch the avatar do it" rhythm while replacing the
-mouse pointer with a native focus ring and context list.
+at controlled incremental movement and list scrolling. RunePod should preserve
+the "point at a thing, choose an action, watch the avatar do it" rhythm while
+replacing the mouse pointer with a native world cursor and context list. The
+world must not feel like a menu of targets; target lists belong only inside
+menus.
 
 ## Interaction Model
 
@@ -113,6 +131,19 @@ Every interactable exposes a sorted action list:
 - Ground anchor: Walk here.
 - Item on ground: Take, Examine.
 - Exit: Enter/Leave.
+
+Cursor-first world model:
+
+- The cursor is an explicit screen-space focus marker clamped inside the world
+  bounds and rendered through the current camera.
+- The cursor selects an interactable only when it is within the configured
+  cursor radius; otherwise the selected action is `Walk here`.
+- The player avatar walks to cursor destinations or interactable anchors.
+- The selected target ring is a cursor affordance, not a list index.
+- Menus may still use wheel-scrolled rows; world play should not require
+  cycling through every visible object.
+- The world may be larger than the screen. The camera follows the cursor and
+  clamps to map bounds.
 
 Default action rules:
 
@@ -211,6 +242,7 @@ Runtime/install layout:
     gather.wav
     hit.wav
     level.wav
+    Harmony.mp3
   save/
     runepod.sav
 ```
@@ -227,8 +259,9 @@ Asset budgets for MVP:
 - Actor sprites: 24x32 or 32x32 frames, 4 directions, 2-4 walk frames.
 - Props/resources: 16x16 to 32x32 sprites, usually static.
 - UI icons: 12x12 or 16x16.
-- Audio: optional short mono WAV clips; no music in MVP unless memory and disk
-  behavior are already stable.
+- Audio: optional short mono WAV clips for effects. User-provided music may be
+  streamed through Rockbox playlist playback once memory and disk behavior are
+  stable; it must not be loaded wholesale into the plugin asset buffer.
 
 Generated asset style contract:
 
@@ -240,6 +273,12 @@ Generated asset style contract:
   the generated sources for reproducibility.
 - Source sheets use `#ff00ff` as the chroma key unless the manifest explicitly
   records a different key.
+- Runtime BMP sheets must use exact `#ff00ff` transparent pixels after crop and
+  downscale. Any fuzzy generated magenta edge must be removed before packing so
+  sprites do not show purple boxes or halos in Rockbox.
+- Runtime drawing must pass `STRIDE(SCREEN_MAIN, sheet_width, sheet_height)` to
+  `lcd_bitmap*_part()` so the same sheet works on horizontal and vertical
+  framebuffer targets.
 - Generated source images are not runtime assets until they have been cropped,
   downscaled, keyed, packed, and screenshot-tested in the iPod 6G simulator.
 
@@ -247,12 +286,79 @@ Generated source asset v1:
 
 - Source: `assets/runepod/source/reference/runepod_style_sheet_v1.png`
 - Runtime sheet: `assets/runepod/runtime/sprites/runepod_sprites.320x64x24.bmp`
+- Directional/player source:
+  `assets/runepod/source/reference/runepod_directional_terrain_sheet_v1.png`
+- Directional player sheet:
+  `assets/runepod/runtime/sprites/runepod_player_dirs.128x32x24.bmp`
+- Terrain tile sheet:
+  `assets/runepod/runtime/tiles/runepod_terrain_tiles.256x32x24.bmp`
+- Terrain v2 source:
+  `assets/runepod/source/reference/runepod_terrain_tiles_v2.png`
 - Prompt: `assets/runepod/source/prompts/sprite_style_sheet_v1.prompt.txt`
+- Directional/terrain prompt:
+  `assets/runepod/source/prompts/directional_terrain_sheet_v1.prompt.txt`
+- Terrain v2 prompt:
+  `assets/runepod/source/prompts/terrain_tiles_v2.prompt.txt`
 - Manifest: `assets/runepod/source/manifest_v1.json`
 - Status: first runtime sprite sheet extracted and loaded by the plugin. The
-  sheet is 320x64 BMP3 with 32x32 cells and `#ff00ff` transparency. It is a
-  first-pass static sheet; directional animation and richer tile sheets remain
-  later asset-pipeline work.
+  sheet is 320x64 BMP3 with 32x32 cells and exact `#ff00ff` transparency. It
+  is a first-pass static sheet; directional animation frames and richer tile
+  sheets remain later asset-pipeline work.
+- Terrain v2 status: `runepod_terrain_tiles.256x32x24.bmp` is regenerated from
+  `runepod_terrain_tiles_v2.png` with a roof-edge/foundation village tile. The
+  runtime terrain SHA-256 is
+  `e001b1b97cf9405c0e25966a8a081eac88335e26496dc926bb4cf8e064d22316`.
+
+Runtime music v1:
+
+- Source: `/home/david/Downloads/Harmony.mp3`
+- Runtime asset: `assets/runepod/runtime/audio/Harmony.mp3`
+- Install path: `.rockbox/rocks/games/runepod/audio/Harmony.mp3`
+- SHA-256:
+  `5c0f4a83b1e16dc783c30160b21af07c250d081fa8c15bca76b479310b3c5a56`
+- Playback behavior: RunePod creates a one-track Rockbox playlist for this file
+  at plugin start, releases the plugin audio buffer back to playback, starts
+  the track as background music, and stops the game-owned track on plugin exit.
+- Provenance: user-provided track, not a generated visual asset and not derived
+  from RuneScape or OSRS material.
+
+Expanded map v1:
+
+- Runtime world size: 640x420.
+- Screen viewport: 320x188 between the top status strip and bottom action
+  strip.
+- The camera follows the cursor, not a hidden target list.
+- The village includes generated terrain tiles for grass, dark grass, path,
+  wood, stone, water, village roof/foundation, and cave ground.
+- Village tile placement uses distinct building footprints with wood interiors
+  and stone plaza/path tiles; it must not repeat a full house tile into a pile
+  of houses.
+- Player facing uses generated south/east/north/west 32x32 sprites and updates
+  toward the dominant walking axis.
+
+Animation v1:
+
+- Do not spend memory on extra frames until the extraction pipeline is stable.
+- Use low-cost procedural animation on top of the first static sheet:
+  - player bob while walking,
+  - selected NPC/enemy idle bob,
+  - fire flicker overlay,
+  - pond shimmer lines,
+  - selected target pulse,
+  - chopping axe swing with leaf chips,
+  - mining pick swing with impact sparks,
+  - fishing rod/line/bobber with water ripple,
+  - cooking flame/smoke burst,
+  - crafting hammer swing with bench sparks,
+  - combat strike/slash with enemy hit flash,
+  - eating/healing marker near the player.
+- Animation must be subtle at 320x240 and must not move actor foot anchors more
+  than one pixel unless a real walk cycle is available.
+- Animation code must keep the primitive fallback path working when the runtime
+  BMP is missing.
+- Successful actions resolve immediately, then play a short timed animation
+  while the bottom action strip reports the reward. Movement clears any active
+  action animation.
 
 ## Data Formats
 
@@ -372,6 +478,9 @@ Build integration:
 - Add generated bitmap headers under `apps/plugins/bitmaps/native/` only for
   fallback assets.
 - External generated asset packs live under `PLUGIN_GAMES_DIR "/runepod"`.
+- Disk-backed music lives under
+  `PLUGIN_GAMES_DIR "/runepod/audio/Harmony.mp3"` and is streamed by Rockbox
+  playback.
 
 Runtime states:
 
@@ -396,6 +505,8 @@ Target a conservative runtime footprint inside the 3 MiB plugin buffer:
 - Map/object/NPC data: <= 300 KiB.
 - Pathfinding scratch, UI strings, inventory, save staging: <= 200 KiB.
 - Audio clips/cache: <= 200 KiB for MVP.
+- Background music: disk-backed playback asset; excluded from the plugin asset
+  cache budget as long as it is streamed through Rockbox playlist playback.
 - Free headroom: >= 500 KiB.
 
 Implementation rules:
@@ -417,8 +528,9 @@ Status as of 2026-06-27:
 - The first scene is a procedural/placeholder village with:
   - title screen,
   - world view,
-  - click-wheel target cycling,
-  - fast group cycling through wheel repeat and left/right,
+  - click-wheel vertical cursor movement,
+  - left/right horizontal cursor movement,
+  - camera follows the cursor over the expanded map,
   - `SELECT` default actions,
   - `SELECT` hold action menu,
   - `PLAY` inventory screen,
@@ -483,19 +595,22 @@ Status:
 
 Status:
 
-- Partially complete. Target focus, group cycling, default actions, menu
-  actions, and direct walk-to-target are implemented.
-- Not complete: collision grid, camera, and pathfinding are still placeholders.
+- Partially complete. Cursor movement, camera follow, default actions, status
+  tabs, map view, and direct walk-to-cursor/target are implemented.
+- Not complete: collision grid and pathfinding are still placeholders.
 
 Next acceptance details:
 
-- Wheel one notch changes exactly one target when no repeat flag is present.
-- Wheel repeat moves by group, not arbitrary target count.
-- `LEFT`/`RIGHT` group cycling lands on predictable target categories.
-- `SELECT` on a far target walks toward it and runs the default action when
-  close.
+- Wheel movement moves the world cursor vertically by one normal step when no
+  repeat flag is present.
+- Wheel repeat moves the world cursor vertically by the configured repeat step.
+- `LEFT`/`RIGHT` moves the world cursor horizontally.
+- `SELECT` on open ground walks toward the cursor.
+- `SELECT` on a far target under the cursor walks toward it and runs the
+  default action when close.
 - `MENU` exits from title/world and backs out from menus.
-- `PLAY` opens/closes inventory without changing world target selection.
+- `PLAY` opens inventory/status without changing world cursor selection.
+- `MENU` closes inventory/status; `PLAY` does not close it.
 
 Pathfinding plan:
 
@@ -750,9 +865,11 @@ Performance checks:
 
 Input checks:
 
-- Wheel slow scroll selects adjacent targets predictably.
-- Wheel fast scroll jumps target groups predictably.
-- `MENU` always backs out one level or opens pause from world.
+- Wheel slow scroll moves the cursor vertically by a normal step.
+- Wheel repeat moves the cursor vertically by the repeat step.
+- `LEFT`/`RIGHT` move the cursor horizontally.
+- `PLAY` opens status from world and does not immediately close it on release.
+- `MENU` closes status screens and exits RunePod from world.
 - No required action depends on simultaneous button chords.
 
 Device checks:
@@ -795,6 +912,8 @@ Acceptance:
 - `LD runepod.rock` appears in the relevant build when `runepod.c` changed.
 - Native output exists at `build-hw-ipod6g/apps/plugins/runepod.rock`.
 - Simulator output exists at `build-sim-ipod6g/apps/plugins/runepod.rock`.
+- Runtime assets, including `runepod/audio/Harmony.mp3`, exist in the simulator
+  simdisk before launch testing.
 
 ### Native Plugin Header Test
 
@@ -817,6 +936,23 @@ Failure cases:
   "not a plugin" on device.
 - Missing staged file means deploy packaging is incomplete.
 - Different first four bytes mean stop and rebuild before deploying.
+
+### Runtime Asset Hash Test
+
+Run before every device deploy:
+
+```sh
+sha256sum assets/runepod/runtime/sprites/runepod_sprites.320x64x24.bmp
+sha256sum assets/runepod/runtime/sprites/runepod_player_dirs.128x32x24.bmp
+sha256sum assets/runepod/runtime/tiles/runepod_terrain_tiles.256x32x24.bmp
+sha256sum assets/runepod/runtime/audio/Harmony.mp3
+```
+
+Acceptance:
+
+- Hashes match `assets/runepod/source/manifest_v1.json`.
+- Device copies under `.rockbox/rocks/games/runepod/` match the workspace
+  runtime assets after push.
 
 ### Simulator Smoke Gate
 
@@ -895,14 +1031,15 @@ Checklist:
 
 - Title screen appears and text is readable.
 - `SELECT` enters the village.
-- Wheel slow scroll cycles targets one at a time.
-- Wheel repeat or `LEFT`/`RIGHT` changes target group.
+- Wheel slow scroll moves the cursor vertically.
+- `LEFT`/`RIGHT` moves the cursor horizontally.
 - `SELECT` on Oak walks to Oak and chops.
 - `SELECT` on Copper walks to Copper and mines.
 - `SELECT` on Pond catches raw fish.
 - `SELECT` on Fire cooks if raw fish exists.
 - `PLAY` opens inventory.
-- `MENU` or `PLAY` closes inventory.
+- `MENU` closes inventory.
+- `PLAY` release does not immediately close inventory after opening it.
 - `SELECT` hold on Ratling opens action menu.
 - Ratling combat changes HP/enemy HP and can reward coins.
 - Guide starts quest, reports missing items, and completes quest after required
@@ -992,8 +1129,14 @@ Run manually after every input change:
 - Pressing `SELECT` once never opens the hold menu.
 - Holding `SELECT` opens the action menu once, not repeatedly.
 - Releasing `SELECT` after a hold does not also execute the default action.
-- Wheel repeat group cycling does not skip into invalid targets.
+- Wheel movement in world moves the cursor vertically and does not cycle a
+  hidden target list.
+- `LEFT` / `RIGHT` in world move the cursor horizontally and clamp at viewport
+  edges.
+- `SELECT` on open ground walks to the cursor.
+- `SELECT` on an object under the cursor walks to and uses that object.
 - `MENU` in action menu returns to world, not Rockbox.
+- Exiting RunePod restores Rockbox click-wheel menu scrolling.
 - `MENU` from pause confirms exit before leaving.
 - `PLAY` quick action is disabled or predictable during dialogue.
 
@@ -1005,6 +1148,11 @@ Run after every UI or sprite change:
 - Selected target ring remains visible against all terrain.
 - Player sprite anchor remains at feet, not sprite center.
 - Actor/resource sprites draw in stable order.
+- Runtime sprites do not show magenta/purple boxes or halos around their cells.
+- Runtime sprite blits use Rockbox stride macros, not raw sheet width.
+- Procedural animations are subtle and do not break target selection boxes or
+  actor foot anchors.
+- Inventory and Levels screens fit in 320x240 without row/text overlap.
 - Color contrast remains readable on iPod 6G LCD.
 - The first viewport gives a clear signal that this is RunePod, not a generic
   debug test screen.

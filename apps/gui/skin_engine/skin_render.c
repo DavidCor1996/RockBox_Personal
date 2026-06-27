@@ -38,6 +38,7 @@
 #include "skin_parser.h"
 #include "tag_table.h"
 #include "skin_scan.h"
+#include "file.h"
 #if CONFIG_TUNER
 #include "radio.h"
 #endif
@@ -56,6 +57,100 @@
 #define MAX_LINE 1024
 
 static char* skin_buffer;
+
+#define SKIN_IMAGE_FRAMEPACK_MAGIC 0x50564252u /* RBVP */
+#define SKIN_IMAGE_FRAMEPACK_VERSION 1
+#define SKIN_IMAGE_FRAMEPACK_HEADER_SIZE 32
+#define SKIN_IMAGE_FRAMEPACK_MAX_PIXELS (160 * 240)
+
+#ifndef __PCTOOL__
+static unsigned char skin_image_framepack_cache[
+    SKIN_IMAGE_FRAMEPACK_MAX_PIXELS * sizeof(fb_data)];
+static char skin_image_framepack_cached_path[MAX_PATH];
+static int skin_image_framepack_cached_frame = -1;
+
+static unsigned skin_image_framepack_read_le16(const unsigned char *buf)
+{
+    return (unsigned)buf[0] | ((unsigned)buf[1] << 8);
+}
+
+static unsigned long skin_image_framepack_read_le32(const unsigned char *buf)
+{
+    return (unsigned long)buf[0] | ((unsigned long)buf[1] << 8) |
+           ((unsigned long)buf[2] << 16) | ((unsigned long)buf[3] << 24);
+}
+
+static bool skin_image_framepack_read_exact(int fd, void *buf, size_t size)
+{
+    unsigned char *out = buf;
+    while (size > 0)
+    {
+        ssize_t got = read(fd, out, size);
+        if (got <= 0)
+            return false;
+        out += got;
+        size -= got;
+    }
+    return true;
+}
+
+static void draw_skin_image_framepack(struct gui_wps *gwps,
+                                      struct skin_image_framepack *framepack)
+{
+    const char *path = SKINOFFSETTOPTR(skin_buffer, framepack->path);
+    if (!path || !*path)
+        return;
+
+    size_t pixels = (size_t)framepack->width * (size_t)framepack->height;
+    if (pixels == 0 || pixels > SKIN_IMAGE_FRAMEPACK_MAX_PIXELS)
+        return;
+
+    long ticks_per_frame = HZ / framepack->fps;
+    if (ticks_per_frame < 1)
+        ticks_per_frame = 1;
+    int frame = (current_tick / ticks_per_frame) % framepack->frames;
+    size_t frame_bytes = pixels * sizeof(fb_data);
+
+    if (frame != skin_image_framepack_cached_frame ||
+        strcmp(path, skin_image_framepack_cached_path))
+    {
+        unsigned char header[SKIN_IMAGE_FRAMEPACK_HEADER_SIZE];
+        int fd = open(path, O_RDONLY);
+        if (fd < 0)
+            return;
+
+        bool ok = skin_image_framepack_read_exact(fd, header, sizeof(header));
+        ok = ok && skin_image_framepack_read_le32(header) == SKIN_IMAGE_FRAMEPACK_MAGIC;
+        ok = ok && skin_image_framepack_read_le16(header + 4) == SKIN_IMAGE_FRAMEPACK_VERSION;
+        ok = ok && skin_image_framepack_read_le16(header + 6) == SKIN_IMAGE_FRAMEPACK_HEADER_SIZE;
+        ok = ok && skin_image_framepack_read_le16(header + 8) == (unsigned)framepack->width;
+        ok = ok && skin_image_framepack_read_le16(header + 10) == (unsigned)framepack->height;
+        ok = ok && skin_image_framepack_read_le16(header + 16) == sizeof(fb_data);
+        ok = ok && skin_image_framepack_read_le16(header + 14) >= (unsigned)framepack->frames;
+
+        if (ok)
+        {
+            off_t offset = SKIN_IMAGE_FRAMEPACK_HEADER_SIZE + (off_t)frame * (off_t)frame_bytes;
+            ok = lseek(fd, offset, SEEK_SET) == offset;
+            ok = ok && skin_image_framepack_read_exact(fd, skin_image_framepack_cache, frame_bytes);
+        }
+        close(fd);
+
+        if (!ok)
+            return;
+
+        strmemccpy(skin_image_framepack_cached_path, path,
+                   sizeof(skin_image_framepack_cached_path));
+        skin_image_framepack_cached_frame = frame;
+    }
+
+    gwps->display->set_drawmode(DRMODE_SOLID);
+    gwps->display->bitmap_part((fb_data *)skin_image_framepack_cache,
+                               0, 0, framepack->width,
+                               framepack->x, framepack->y,
+                               framepack->width, framepack->height);
+}
+#endif
 
 #if defined(HAVE_ALBUMART) && defined(HAVE_LCD_COLOR)
 static int skin_albumart_handle_or_fallback(int handle)
@@ -290,6 +385,16 @@ static bool do_non_text_tags(struct gui_wps *gwps, struct skin_draw_info *info,
             struct gui_img *img = SKINOFFSETTOPTR(skin_buffer, token->value.data);
             if (img && img->loaded && do_refresh)
                 img->display = 0;
+        }
+        break;
+        case SKIN_TOKEN_IMAGE_FRAMEPACK:
+        {
+#ifndef __PCTOOL__
+            struct skin_image_framepack *framepack =
+                SKINOFFSETTOPTR(skin_buffer, token->value.data);
+            if (framepack && do_refresh)
+                draw_skin_image_framepack(gwps, framepack);
+#endif
         }
         break;
         case SKIN_TOKEN_IMAGE_DISPLAY_LISTICON:

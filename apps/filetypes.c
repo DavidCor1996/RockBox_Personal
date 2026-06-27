@@ -42,9 +42,9 @@
 #include "logf.h"
 
 /* max filetypes (plugins & icons stored here) */
-#define MAX_FILETYPES 192
+#define MAX_FILETYPES 256
 /* max viewer plugins */
-#define MAX_VIEWERS 56
+#define MAX_VIEWERS 96
 
 static void fill_from_builtin(const char*,int) INIT_ATTR;
 static void read_builtin_types_init(void) INIT_ATTR;

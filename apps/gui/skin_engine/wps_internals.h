@@ -118,6 +118,16 @@ struct image_display {
     int16_t offset; /* offset into the bitmap strip to start */
 };
 
+struct skin_image_framepack {
+    OFFSETTYPE(char*) path;
+    int16_t x;
+    int16_t y;
+    int16_t width;
+    int16_t height;
+    int16_t fps;
+    int16_t frames;
+};
+
 struct progressbar {
     enum skin_token_type type;
     bool  follow_lang_direction;
