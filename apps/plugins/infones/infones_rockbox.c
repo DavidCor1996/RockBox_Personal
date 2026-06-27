@@ -15,6 +15,7 @@
 #define INFONES_AUDIO_SAMPLES 1024
 #define INFONES_AUDIO_START_BUFS 3
 #define INFONES_AUDIO_SCALE 28
+#define INFONES_WAIT_YIELD_SCANLINES 16
 #define INFONES_SCALE_FILL_SCREEN \
     (LCD_WIDTH != NES_DISP_WIDTH || LCD_HEIGHT != NES_DISP_HEIGHT)
 
@@ -54,37 +55,37 @@ static bool cpu_boosted;
 
 WORD NesPalette[64] =
 {
-    LCD_RGBPACK(117,117,117), LCD_RGBPACK( 39, 27,143),
-    LCD_RGBPACK(  0,  0,171), LCD_RGBPACK( 71,  0,159),
-    LCD_RGBPACK(143,  0,119), LCD_RGBPACK(171,  0, 19),
-    LCD_RGBPACK(167,  0,  0), LCD_RGBPACK(127, 11,  0),
-    LCD_RGBPACK( 67, 47,  0), LCD_RGBPACK(  0, 71,  0),
-    LCD_RGBPACK(  0, 81,  0), LCD_RGBPACK(  0, 63, 23),
-    LCD_RGBPACK( 27, 63, 95), LCD_RGBPACK(  0,  0,  0),
+    LCD_RGBPACK(102,102,102), LCD_RGBPACK(  0, 42,136),
+    LCD_RGBPACK( 20, 18,167), LCD_RGBPACK( 59,  0,164),
+    LCD_RGBPACK( 92,  0,126), LCD_RGBPACK(110,  0, 64),
+    LCD_RGBPACK(108,  7,  0), LCD_RGBPACK( 86, 29,  0),
+    LCD_RGBPACK( 51, 53,  0), LCD_RGBPACK( 11, 72,  0),
+    LCD_RGBPACK(  0, 82,  0), LCD_RGBPACK(  0, 79,  8),
+    LCD_RGBPACK(  0, 64, 77), LCD_RGBPACK(  0,  0,  0),
     LCD_RGBPACK(  0,  0,  0), LCD_RGBPACK(  0,  0,  0),
-    LCD_RGBPACK(188,188,188), LCD_RGBPACK(  0,115,239),
-    LCD_RGBPACK( 35, 59,239), LCD_RGBPACK(131,  0,243),
-    LCD_RGBPACK(191,  0,191), LCD_RGBPACK(231,  0, 91),
-    LCD_RGBPACK(219, 43,  0), LCD_RGBPACK(203, 79, 15),
-    LCD_RGBPACK(139,115,  0), LCD_RGBPACK(  0,151,  0),
-    LCD_RGBPACK(  0,171,  0), LCD_RGBPACK(  0,147, 59),
-    LCD_RGBPACK(  0,131,139), LCD_RGBPACK(  0,  0,  0),
+    LCD_RGBPACK(173,173,173), LCD_RGBPACK( 21, 95,217),
+    LCD_RGBPACK( 66, 64,255), LCD_RGBPACK(117, 39,254),
+    LCD_RGBPACK(160, 26,204), LCD_RGBPACK(183, 30,123),
+    LCD_RGBPACK(181, 49, 32), LCD_RGBPACK(153, 78,  0),
+    LCD_RGBPACK(107,109,  0), LCD_RGBPACK( 56,135,  0),
+    LCD_RGBPACK( 12,147,  0), LCD_RGBPACK(  0,143, 50),
+    LCD_RGBPACK(  0,124,141), LCD_RGBPACK(  0,  0,  0),
     LCD_RGBPACK(  0,  0,  0), LCD_RGBPACK(  0,  0,  0),
-    LCD_RGBPACK(255,255,255), LCD_RGBPACK( 63,191,255),
-    LCD_RGBPACK( 95,151,255), LCD_RGBPACK(167,139,253),
-    LCD_RGBPACK(247,123,255), LCD_RGBPACK(255,119,183),
-    LCD_RGBPACK(255,119, 99), LCD_RGBPACK(255,155, 59),
-    LCD_RGBPACK(243,191, 63), LCD_RGBPACK(131,211, 19),
-    LCD_RGBPACK( 79,223, 75), LCD_RGBPACK( 88,248,152),
-    LCD_RGBPACK(  0,235,219), LCD_RGBPACK(  0,  0,  0),
+    LCD_RGBPACK(255,254,255), LCD_RGBPACK(100,176,255),
+    LCD_RGBPACK(146,144,255), LCD_RGBPACK(198,118,255),
+    LCD_RGBPACK(243,106,255), LCD_RGBPACK(254,110,204),
+    LCD_RGBPACK(254,129,112), LCD_RGBPACK(234,158, 34),
+    LCD_RGBPACK(188,190,  0), LCD_RGBPACK(136,216,  0),
+    LCD_RGBPACK( 92,228, 48), LCD_RGBPACK( 69,224,130),
+    LCD_RGBPACK( 72,205,222), LCD_RGBPACK( 79, 79, 79),
     LCD_RGBPACK(  0,  0,  0), LCD_RGBPACK(  0,  0,  0),
-    LCD_RGBPACK(255,255,255), LCD_RGBPACK(171,231,255),
-    LCD_RGBPACK(199,215,255), LCD_RGBPACK(215,203,255),
-    LCD_RGBPACK(255,199,255), LCD_RGBPACK(255,199,219),
-    LCD_RGBPACK(255,191,179), LCD_RGBPACK(255,219,171),
-    LCD_RGBPACK(255,231,163), LCD_RGBPACK(227,255,163),
-    LCD_RGBPACK(171,243,191), LCD_RGBPACK(179,255,207),
-    LCD_RGBPACK(159,255,243), LCD_RGBPACK(  0,  0,  0),
+    LCD_RGBPACK(255,254,255), LCD_RGBPACK(192,223,255),
+    LCD_RGBPACK(211,210,255), LCD_RGBPACK(232,200,255),
+    LCD_RGBPACK(251,194,255), LCD_RGBPACK(254,196,234),
+    LCD_RGBPACK(254,204,197), LCD_RGBPACK(247,216,165),
+    LCD_RGBPACK(228,229,148), LCD_RGBPACK(207,238,150),
+    LCD_RGBPACK(189,244,171), LCD_RGBPACK(179,243,204),
+    LCD_RGBPACK(181,235,242), LCD_RGBPACK(184,184,184),
     LCD_RGBPACK(  0,  0,  0), LCD_RGBPACK(  0,  0,  0)
 };
 
@@ -162,8 +163,8 @@ static void poll_quit(void)
 
     rb->button_clear_queue();
 
-    if ((buttons & (BUTTON_SELECT | BUTTON_MENU)) ==
-        (BUTTON_SELECT | BUTTON_MENU))
+    if ((buttons & (BUTTON_MENU | BUTTON_SELECT | BUTTON_PLAY)) ==
+        (BUTTON_MENU | BUTTON_SELECT | BUTTON_PLAY))
         quit_requested = true;
 }
 
@@ -253,7 +254,7 @@ static void pace_frame(void)
             if (remaining > 1)
                 rb->sleep(remaining - 1);
             else
-                rb->sleep(1);
+                rb->yield();
         }
 
         now = *rb->current_tick;
@@ -547,16 +548,26 @@ void InfoNES_PadState(DWORD *pdwPad1, DWORD *pdwPad2, DWORD *pdwSystem)
     int buttons = rb->button_status();
     DWORD pad = 0;
 
-    if ((buttons & (BUTTON_SELECT | BUTTON_PLAY)) ==
-        (BUTTON_SELECT | BUTTON_PLAY))
+    if ((buttons & (BUTTON_MENU | BUTTON_SELECT | BUTTON_PLAY)) ==
+        (BUTTON_MENU | BUTTON_SELECT | BUTTON_PLAY))
+    {
+        quit_requested = true;
+    }
+    else if ((buttons & (BUTTON_MENU | BUTTON_PLAY)) ==
+             (BUTTON_MENU | BUTTON_PLAY))
+    {
         pad |= NES_PAD_SELECT;
-    else if (buttons & BUTTON_SELECT)
-        pad |= NES_PAD_A;
-    else if (buttons & BUTTON_PLAY)
-        pad |= NES_PAD_B;
+    }
+    else
+    {
+        if (buttons & BUTTON_SELECT)
+            pad |= NES_PAD_A;
+        if (buttons & BUTTON_PLAY)
+            pad |= NES_PAD_B;
+        if (buttons & BUTTON_MENU)
+            pad |= NES_PAD_START;
+    }
 
-    if (buttons & BUTTON_MENU)
-        pad |= NES_PAD_START;
     if (buttons & BUTTON_SCROLL_BACK)
         pad |= NES_PAD_UP;
     if (buttons & BUTTON_SCROLL_FWD)
@@ -592,7 +603,8 @@ void InfoNES_Wait(void)
 {
     poll_quit();
     wait_yield_count++;
-    rb->yield();
+    if ((wait_yield_count & (INFONES_WAIT_YIELD_SCANLINES - 1)) == 0)
+        rb->yield();
 }
 
 void InfoNES_SoundInit(void)
