@@ -53,6 +53,7 @@ long InfoNES_GetTicks( void );
 void InfoNES_ProfileCpu( long ticks );
 void InfoNES_ProfileHSync( long ticks );
 void InfoNES_ProfileApu( long ticks );
+void InfoNES_ProfileFrameEnd( int rendered );
 
 /* Get a joypad state */
 void InfoNES_PadState( DWORD *pdwPad1, DWORD *pdwPad2, DWORD *pdwSystem );

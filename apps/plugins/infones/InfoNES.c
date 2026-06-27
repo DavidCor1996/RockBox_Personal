@@ -733,6 +733,8 @@ int InfoNES_HSync()
       break;
 
     case SCAN_VBLANK_START:
+      InfoNES_ProfileFrameEnd( FrameCnt == 0 );
+
       // FrameCnt + 1
       FrameCnt = ( FrameCnt >= FrameSkip ) ? 0 : FrameCnt + 1;
 

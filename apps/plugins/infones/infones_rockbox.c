@@ -23,11 +23,17 @@
 #define INFONES_AUDIO_START_BUFS 4
 #define INFONES_AUDIO_FRAMES_PER_BUF 2
 #define INFONES_WAIT_YIELD_SCANLINES 64
+#if !defined(SIMULATOR)
+#define INFONES_HARDWARE_FRAMESKIP 1
+#else
+#define INFONES_HARDWARE_FRAMESKIP 0
+#endif
 #else
 #define INFONES_AUDIO_BUFS 6
 #define INFONES_AUDIO_START_BUFS 3
 #define INFONES_AUDIO_FRAMES_PER_BUF 4
 #define INFONES_WAIT_YIELD_SCANLINES 16
+#define INFONES_HARDWARE_FRAMESKIP 0
 #endif
 #define INFONES_AUDIO_SCALE 28
 #define INFONES_PROFILE_HIST_SIZE 32
@@ -63,6 +69,7 @@ static int audio_pos;
 static int audio_buf_samples;
 static int audio_dc_in_prev;
 static int audio_dc_out_prev;
+static int audio_sample_rate;
 static bool audio_started;
 static bool audio_ready;
 static bool cpu_boosted;
@@ -324,8 +331,6 @@ static void profile_record_frame(long frame_ticks, long wait_ticks,
         profile.first_frame_tick = *rb->current_tick;
 
     profile.frames++;
-    profile.frames_emulated++;
-    profile.frames_rendered++;
     profile.frame_ticks_total += frame_ticks;
     profile.scale_ticks_total += lcd_ticks;
     if (frame_ticks > profile.frame_ticks_peak)
@@ -378,6 +383,18 @@ void InfoNES_ProfileApu(long ticks)
     profile_record_bucket(&profile.apu_bucket, ticks);
 }
 
+void InfoNES_ProfileFrameEnd(int rendered)
+{
+    if (profile.first_frame_tick == 0)
+        profile.first_frame_tick = *rb->current_tick;
+
+    profile.frames_emulated++;
+    if (rendered)
+        profile.frames_rendered++;
+    else
+        profile.frames_skipped++;
+}
+
 static void profile_write_log(void)
 {
     int fd;
@@ -391,7 +408,8 @@ static void profile_write_log(void)
     if (profile.first_frame_tick != 0)
         emu_elapsed = *rb->current_tick - profile.first_frame_tick;
     if (emu_elapsed > 0)
-        effective_fps_x1000 = (profile.frames * HZ * 1000) / emu_elapsed;
+        effective_fps_x1000 =
+            (profile.frames_emulated * HZ * 1000) / emu_elapsed;
 
     if (profile.frames > 0)
     {
@@ -432,7 +450,9 @@ static void profile_write_log(void)
                  "peak_sound_call_ticks=%ld p99_sound_call_ticks=%lu "
                  "pcm_underruns=%lu pcm_low_water=%lu pcm_full_waits=%lu "
                  "wait_yields=%lu wait_yield_scanlines=%d "
-                 "audio_bufs=%d audio_buf_samples=%d plugin_buf_kib=%lu "
+                 "audio_sample_rate=%d audio_bufs=%d "
+                 "audio_buf_samples=%d configured_frameskip=%d "
+                 "plugin_buf_kib=%lu "
                  "palette_writes=%lu ppumask_updates=%lu "
                  "ppu_palette="
                  "%02x,%02x,%02x,%02x,%02x,%02x,%02x,%02x,"
@@ -466,8 +486,9 @@ static void profile_write_log(void)
                  profile_bucket_p99(&profile.sound_bucket),
                  profile.pcm_underruns, profile.pcm_low_water,
                  profile.pcm_full_waits, profile.wait_yields,
-                 INFONES_WAIT_YIELD_SCANLINES, INFONES_AUDIO_BUFS,
-                 audio_buf_samples,
+                 INFONES_WAIT_YIELD_SCANLINES, audio_sample_rate,
+                 INFONES_AUDIO_BUFS, audio_buf_samples,
+                 INFONES_HARDWARE_FRAMESKIP,
                  (unsigned long)profile.plugin_buf_kib,
                  profile.palette_writes, profile.ppumask_updates,
                  PPURAM[0x3f00] & 0x3f, PPURAM[0x3f01] & 0x3f,
@@ -647,7 +668,6 @@ static void audio_get_more(const void **start, size_t *size)
     else if (audio_hwbuf)
     {
         profile.pcm_underruns++;
-        rb->memset(audio_hwbuf, 0, audio_buf_samples * sizeof(short));
     }
 
     *start = audio_hwbuf;
@@ -890,6 +910,7 @@ enum plugin_status plugin_start(const void *parameter)
     audio_pos = 0;
     audio_dc_in_prev = 0;
     audio_dc_out_prev = 0;
+    audio_sample_rate = 0;
     audio_buf_samples = 0;
     audio_started = false;
     audio_ready = false;
@@ -924,6 +945,7 @@ enum plugin_status plugin_start(const void *parameter)
         return PLUGIN_ERROR;
     }
     load_sram();
+    FrameSkip = INFONES_HARDWARE_FRAMESKIP;
 
     rb->lcd_clear_display();
     rb->lcd_update();
@@ -1170,6 +1192,7 @@ int InfoNES_SoundOpen(int samples_per_sync, int sample_rate)
     audio_dc_out_prev = 0;
     audio_started = false;
     audio_ready = true;
+    audio_sample_rate = sample_rate;
 
     rb->pcm_set_frequency(sample_rate);
     APU_Mute = 0;
@@ -1187,6 +1210,7 @@ void InfoNES_SoundClose(void)
     audio_write_buf = NULL;
     audio_dc_in_prev = 0;
     audio_dc_out_prev = 0;
+    audio_sample_rate = 0;
 }
 
 void InfoNES_SoundOutput(int samples, BYTE *wave1, BYTE *wave2, BYTE *wave3,

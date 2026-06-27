@@ -990,7 +990,11 @@ void InfoNES_pAPUInit(void)
   /* Sound Hardware Init */
   InfoNES_SoundInit();
 
+#if defined(IPOD_6G) && !defined(SIMULATOR)
+  ApuQuality = 0;                           // 11025 Hz hardware recovery mode
+#else
   ApuQuality = pAPU_QUALITY - 1;            // 1: 22050, 2: 44100 [samples/sec]
+#endif
 
   ApuPulseMagic      = ApuQual[ ApuQuality ].pulse_magic;
   ApuTriangleMagic   = ApuQual[ ApuQuality ].triangle_magic;
