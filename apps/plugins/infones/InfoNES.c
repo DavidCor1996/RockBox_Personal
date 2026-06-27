@@ -1040,7 +1040,8 @@ void InfoNES_DrawLine()
     for ( nX = 0; nX < NES_DISP_WIDTH; ++nX )
     {
       nSprData = pSprBuf[ nX ];
-      if ( nSprData  && ( nSprData & 0x80 || pPoint[ nX ] & 0x8000 ) )
+      if ( nSprData  && ( nSprData & 0x80 ||
+                          pPoint[ nX ] & INFONES_BACKDROP_MARKER ) )
       {
         pPoint[ nX ] = PalTable[ ( nSprData & 0xf ) + 0x10 ];
       }

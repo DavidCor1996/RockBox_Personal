@@ -10,10 +10,18 @@
 #define INFONES_DISP_X ((LCD_WIDTH - NES_DISP_WIDTH) / 2)
 #define INFONES_DISP_Y ((LCD_HEIGHT - NES_DISP_HEIGHT) / 2)
 #define INFONES_SAVE_DIR ROCKBOX_DIR "/infones"
+#define INFONES_PROFILE_LOG INFONES_SAVE_DIR "/profile.log"
 #define INFONES_FPS 60
-#define INFONES_AUDIO_BUFS 6
 #define INFONES_AUDIO_SAMPLES 1024
+#if defined(IPOD_6G)
+#define INFONES_AUDIO_BUFS 10
+#define INFONES_AUDIO_START_BUFS 4
+#define INFONES_AUDIO_FRAMES_PER_BUF 2
+#else
+#define INFONES_AUDIO_BUFS 6
 #define INFONES_AUDIO_START_BUFS 3
+#define INFONES_AUDIO_FRAMES_PER_BUF 4
+#endif
 #define INFONES_AUDIO_SCALE 28
 #define INFONES_WAIT_YIELD_SCANLINES 16
 #define INFONES_SCALE_FILL_SCREEN \
@@ -57,41 +65,275 @@ static DWORD wheel_pad_latch;
 static long wheel_pad_latch_tick;
 #endif
 
-WORD NesPalette[64] =
+struct infones_rgb
 {
-    LCD_RGBPACK(102,102,102), LCD_RGBPACK(  0, 42,136),
-    LCD_RGBPACK( 20, 18,167), LCD_RGBPACK( 59,  0,164),
-    LCD_RGBPACK( 92,  0,126), LCD_RGBPACK(110,  0, 64),
-    LCD_RGBPACK(108,  7,  0), LCD_RGBPACK( 86, 29,  0),
-    LCD_RGBPACK( 51, 53,  0), LCD_RGBPACK( 11, 72,  0),
-    LCD_RGBPACK(  0, 82,  0), LCD_RGBPACK(  0, 79,  8),
-    LCD_RGBPACK(  0, 64, 77), LCD_RGBPACK(  0,  0,  0),
-    LCD_RGBPACK(  0,  0,  0), LCD_RGBPACK(  0,  0,  0),
-    LCD_RGBPACK(173,173,173), LCD_RGBPACK( 21, 95,217),
-    LCD_RGBPACK( 66, 64,255), LCD_RGBPACK(117, 39,254),
-    LCD_RGBPACK(160, 26,204), LCD_RGBPACK(183, 30,123),
-    LCD_RGBPACK(181, 49, 32), LCD_RGBPACK(153, 78,  0),
-    LCD_RGBPACK(107,109,  0), LCD_RGBPACK( 56,135,  0),
-    LCD_RGBPACK( 12,147,  0), LCD_RGBPACK(  0,143, 50),
-    LCD_RGBPACK(  0,124,141), LCD_RGBPACK(  0,  0,  0),
-    LCD_RGBPACK(  0,  0,  0), LCD_RGBPACK(  0,  0,  0),
-    LCD_RGBPACK(255,254,255), LCD_RGBPACK(100,176,255),
-    LCD_RGBPACK(146,144,255), LCD_RGBPACK(198,118,255),
-    LCD_RGBPACK(243,106,255), LCD_RGBPACK(254,110,204),
-    LCD_RGBPACK(254,129,112), LCD_RGBPACK(234,158, 34),
-    LCD_RGBPACK(188,190,  0), LCD_RGBPACK(136,216,  0),
-    LCD_RGBPACK( 92,228, 48), LCD_RGBPACK( 69,224,130),
-    LCD_RGBPACK( 72,205,222), LCD_RGBPACK( 79, 79, 79),
-    LCD_RGBPACK(  0,  0,  0), LCD_RGBPACK(  0,  0,  0),
-    LCD_RGBPACK(255,254,255), LCD_RGBPACK(192,223,255),
-    LCD_RGBPACK(211,210,255), LCD_RGBPACK(232,200,255),
-    LCD_RGBPACK(251,194,255), LCD_RGBPACK(254,196,234),
-    LCD_RGBPACK(254,204,197), LCD_RGBPACK(247,216,165),
-    LCD_RGBPACK(228,229,148), LCD_RGBPACK(207,238,150),
-    LCD_RGBPACK(189,244,171), LCD_RGBPACK(179,243,204),
-    LCD_RGBPACK(181,235,242), LCD_RGBPACK(184,184,184),
-    LCD_RGBPACK(  0,  0,  0), LCD_RGBPACK(  0,  0,  0)
+    unsigned char r;
+    unsigned char g;
+    unsigned char b;
 };
+
+struct infones_profile
+{
+    char rom_path[MAX_PATH];
+    size_t plugin_buf_kib;
+    long start_tick;
+    unsigned long frames;
+    unsigned long frame_ticks_total;
+    unsigned long scale_ticks_total;
+    unsigned long sound_ticks_total;
+    unsigned long sound_samples;
+    unsigned long pcm_underruns;
+    unsigned long pcm_low_water;
+    unsigned long pcm_full_waits;
+    unsigned long palette_writes;
+    unsigned long ppumask_updates;
+    long frame_ticks_peak;
+    long scale_ticks_peak;
+    long sound_ticks_peak;
+    bool early_snapshot_written;
+};
+
+static const struct infones_rgb nes_palette_rgb[64] =
+{
+    {124,124,124}, {  0,  0,252}, {  0,  0,188}, { 68, 40,188},
+    {148,  0,132}, {168,  0, 32}, {168, 16,  0}, {136, 20,  0},
+    { 80, 48,  0}, {  0,120,  0}, {  0,104,  0}, {  0, 88,  0},
+    {  0, 64, 88}, {  0,  0,  0}, {  0,  0,  0}, {  0,  0,  0},
+    {188,188,188}, {  0,120,248}, {  0, 88,248}, {104, 68,252},
+    {216,  0,204}, {228,  0, 88}, {248, 56,  0}, {228, 92, 16},
+    {172,124,  0}, {  0,184,  0}, {  0,168,  0}, {  0,168, 68},
+    {  0,136,136}, {  0,  0,  0}, {  0,  0,  0}, {  0,  0,  0},
+    {248,248,248}, { 60,188,252}, {104,136,252}, {152,120,248},
+    {248,120,248}, {248, 88,152}, {248,120, 88}, {252,160, 68},
+    {248,184,  0}, {184,248, 24}, { 88,216, 84}, { 88,248,152},
+    {  0,232,216}, {120,120,120}, {  0,  0,  0}, {  0,  0,  0},
+    {252,252,252}, {164,228,252}, {184,184,248}, {216,184,248},
+    {248,184,248}, {248,164,192}, {240,208,176}, {252,224,168},
+    {248,216,120}, {216,248,120}, {184,248,184}, {184,248,216},
+    {  0,252,252}, {248,216,248}, {  0,  0,  0}, {  0,  0,  0}
+};
+
+WORD NesPalette[64];
+static WORD nes_palette_emph[8][64];
+static BYTE palette_ppumask;
+static struct infones_profile profile;
+
+static void profile_write_log(void);
+
+static int emphasis_dim(int value)
+{
+    return (value * 3) >> 2;
+}
+
+static void init_palette_tables(void)
+{
+    int emph;
+    int color;
+
+    for (emph = 0; emph < 8; emph++)
+    {
+        for (color = 0; color < 64; color++)
+        {
+            int r = nes_palette_rgb[color].r;
+            int g = nes_palette_rgb[color].g;
+            int b = nes_palette_rgb[color].b;
+
+            if (emph & 1)
+            {
+                g = emphasis_dim(g);
+                b = emphasis_dim(b);
+            }
+            if (emph & 2)
+            {
+                r = emphasis_dim(r);
+                b = emphasis_dim(b);
+            }
+            if (emph & 4)
+            {
+                r = emphasis_dim(r);
+                g = emphasis_dim(g);
+            }
+
+            nes_palette_emph[emph][color] = LCD_RGBPACK(r, g, b);
+        }
+    }
+
+    rb->memcpy(NesPalette, nes_palette_emph[0], sizeof(NesPalette));
+}
+
+static WORD palette_native(BYTE color, bool backdrop)
+{
+    int emph = (palette_ppumask & R1_BACKCOLOR) >> 5;
+    WORD native;
+
+    color &= 0x3f;
+    if (palette_ppumask & R1_MONOCHROME)
+        color &= 0x30;
+
+    native = nes_palette_emph[emph][color] & ~INFONES_BACKDROP_MARKER;
+    return native | (backdrop ? INFONES_BACKDROP_MARKER : 0);
+}
+
+static inline fb_data display_pixel(fb_data pixel)
+{
+    return pixel & ~INFONES_BACKDROP_MARKER;
+}
+
+static void set_palette_slot(int slot, BYTE value)
+{
+    slot &= 0x1f;
+    PPURAM[0x3f00 + slot] = value & 0x3f;
+}
+
+static void rebuild_palette_table(void)
+{
+    BYTE backdrop = PPURAM[0x3f00] & 0x3f;
+    int slot;
+
+    for (slot = 0; slot < 0x20; slot++)
+    {
+        bool transparent = (slot & 3) == 0;
+        BYTE value = transparent ? backdrop : PPURAM[0x3f00 + slot] & 0x3f;
+
+        PalTable[slot] = palette_native(value, transparent);
+    }
+}
+
+void InfoNES_WritePalette(WORD wAddr, BYTE byData)
+{
+    int slot = wAddr & 0x1f;
+    BYTE value = byData & 0x3f;
+
+    profile.palette_writes++;
+
+    if ((slot & 3) == 0)
+    {
+        int bg_slot = slot & 0x0f;
+
+        set_palette_slot(bg_slot, value);
+        set_palette_slot(bg_slot | 0x10, value);
+    }
+    else
+    {
+        set_palette_slot(slot, value);
+    }
+
+    rebuild_palette_table();
+}
+
+void InfoNES_SetPPUMask(BYTE byData)
+{
+    BYTE new_mask = byData & (R1_BACKCOLOR | R1_MONOCHROME);
+
+    if (new_mask == palette_ppumask)
+        return;
+
+    palette_ppumask = new_mask;
+    profile.ppumask_updates++;
+    rebuild_palette_table();
+}
+
+static void profile_reset(const char *rom_path, size_t buf_size)
+{
+    rb->memset(&profile, 0, sizeof(profile));
+    rb->strlcpy(profile.rom_path, rom_path, sizeof(profile.rom_path));
+    profile.plugin_buf_kib = buf_size / 1024;
+    profile.start_tick = *rb->current_tick;
+}
+
+static void profile_record_frame(long frame_ticks, long scale_ticks)
+{
+    profile.frames++;
+    profile.frame_ticks_total += frame_ticks;
+    profile.scale_ticks_total += scale_ticks;
+    if (frame_ticks > profile.frame_ticks_peak)
+        profile.frame_ticks_peak = frame_ticks;
+    if (scale_ticks > profile.scale_ticks_peak)
+        profile.scale_ticks_peak = scale_ticks;
+}
+
+static void profile_record_sound(long sound_ticks, int samples)
+{
+    profile.sound_ticks_total += sound_ticks;
+    profile.sound_samples += samples;
+    if (sound_ticks > profile.sound_ticks_peak)
+        profile.sound_ticks_peak = sound_ticks;
+}
+
+static void profile_maybe_write_early_snapshot(void)
+{
+    if (!profile.early_snapshot_written && profile.frames >= INFONES_FPS * 2)
+    {
+        profile_write_log();
+        profile.early_snapshot_written = true;
+    }
+}
+
+static void profile_write_log(void)
+{
+    int fd;
+    long elapsed = *rb->current_tick - profile.start_tick;
+    unsigned long avg_frame_x1000 = 0;
+    unsigned long avg_scale_x1000 = 0;
+    unsigned long avg_sound_x1000 = 0;
+
+    if (profile.frames > 0)
+    {
+        avg_frame_x1000 =
+            (profile.frame_ticks_total * 1000) / profile.frames;
+        avg_scale_x1000 =
+            (profile.scale_ticks_total * 1000) / profile.frames;
+    }
+    if (profile.sound_samples > 0)
+        avg_sound_x1000 =
+            (profile.sound_ticks_total * 1000) / profile.sound_samples;
+
+    rb->mkdir(INFONES_SAVE_DIR);
+    fd = rb->open(INFONES_PROFILE_LOG, O_CREAT | O_WRONLY | O_APPEND, 0666);
+    if (fd < 0)
+        return;
+
+    rb->fdprintf(fd,
+                 "rom=\"%s\" elapsed_ticks=%ld hz=%d frames=%lu "
+                 "avg_frame_ticks_x1000=%lu peak_frame_ticks=%ld "
+                 "avg_scale_ticks_x1000=%lu peak_scale_ticks=%ld "
+                 "audio_samples=%lu avg_sound_ticks_per_sample_x1000=%lu "
+                 "peak_sound_call_ticks=%ld pcm_underruns=%lu "
+                 "pcm_low_water=%lu pcm_full_waits=%lu audio_bufs=%d "
+                 "audio_buf_samples=%d plugin_buf_kib=%lu "
+                 "palette_writes=%lu ppumask_updates=%lu "
+                 "ppu_palette="
+                 "%02x,%02x,%02x,%02x,%02x,%02x,%02x,%02x,"
+                 "%02x,%02x,%02x,%02x,%02x,%02x,%02x,%02x,"
+                 "%02x,%02x,%02x,%02x,%02x,%02x,%02x,%02x,"
+                 "%02x,%02x,%02x,%02x,%02x,%02x,%02x,%02x\n",
+                 profile.rom_path, elapsed, HZ, profile.frames,
+                 avg_frame_x1000, profile.frame_ticks_peak,
+                 avg_scale_x1000, profile.scale_ticks_peak,
+                 profile.sound_samples, avg_sound_x1000,
+                 profile.sound_ticks_peak, profile.pcm_underruns,
+                 profile.pcm_low_water, profile.pcm_full_waits,
+                 INFONES_AUDIO_BUFS, audio_buf_samples,
+                 (unsigned long)profile.plugin_buf_kib,
+                 profile.palette_writes, profile.ppumask_updates,
+                 PPURAM[0x3f00] & 0x3f, PPURAM[0x3f01] & 0x3f,
+                 PPURAM[0x3f02] & 0x3f, PPURAM[0x3f03] & 0x3f,
+                 PPURAM[0x3f04] & 0x3f, PPURAM[0x3f05] & 0x3f,
+                 PPURAM[0x3f06] & 0x3f, PPURAM[0x3f07] & 0x3f,
+                 PPURAM[0x3f08] & 0x3f, PPURAM[0x3f09] & 0x3f,
+                 PPURAM[0x3f0a] & 0x3f, PPURAM[0x3f0b] & 0x3f,
+                 PPURAM[0x3f0c] & 0x3f, PPURAM[0x3f0d] & 0x3f,
+                 PPURAM[0x3f0e] & 0x3f, PPURAM[0x3f0f] & 0x3f,
+                 PPURAM[0x3f10] & 0x3f, PPURAM[0x3f11] & 0x3f,
+                 PPURAM[0x3f12] & 0x3f, PPURAM[0x3f13] & 0x3f,
+                 PPURAM[0x3f14] & 0x3f, PPURAM[0x3f15] & 0x3f,
+                 PPURAM[0x3f16] & 0x3f, PPURAM[0x3f17] & 0x3f,
+                 PPURAM[0x3f18] & 0x3f, PPURAM[0x3f19] & 0x3f,
+                 PPURAM[0x3f1a] & 0x3f, PPURAM[0x3f1b] & 0x3f,
+                 PPURAM[0x3f1c] & 0x3f, PPURAM[0x3f1d] & 0x3f,
+                 PPURAM[0x3f1e] & 0x3f, PPURAM[0x3f1f] & 0x3f);
+    rb->close(fd);
+}
 
 static void *infones_alloc(size_t bytes)
 {
@@ -245,9 +487,12 @@ static void audio_get_more(const void **start, size_t *size)
         if (audio_read_idx >= INFONES_AUDIO_BUFS)
             audio_read_idx = 0;
         audio_queued--;
+        if (audio_queued <= 1)
+            profile.pcm_low_water++;
     }
     else if (audio_hwbuf)
     {
+        profile.pcm_underruns++;
         rb->memset(audio_hwbuf, 0, audio_buf_samples * sizeof(short));
     }
 
@@ -262,6 +507,7 @@ static void audio_submit_buffer(void)
 
     while (!quit_requested && audio_queued >= INFONES_AUDIO_BUFS - 1)
     {
+        profile.pcm_full_waits++;
         poll_quit();
         rb->yield();
     }
@@ -367,11 +613,11 @@ static void scale_frame_fill_screen(fb_data *dst)
             const fb_data *s = src + group * 4;
             fb_data *d = dst + group * 5;
 
-            d[0] = s[0];
-            d[1] = s[0];
-            d[2] = s[1];
-            d[3] = s[2];
-            d[4] = s[3];
+            d[0] = display_pixel(s[0]);
+            d[1] = display_pixel(s[0]);
+            d[2] = display_pixel(s[1]);
+            d[3] = display_pixel(s[2]);
+            d[4] = display_pixel(s[3]);
         }
         src += NES_DISP_WIDTH;
         dst += LCD_WIDTH;
@@ -388,7 +634,7 @@ static void scale_frame_fill_screen(fb_data *dst)
         int x;
 
         for (x = 0; x < LCD_WIDTH; x++)
-            line[x] = src[(x * NES_DISP_WIDTH) / LCD_WIDTH];
+            line[x] = display_pixel(src[(x * NES_DISP_WIDTH) / LCD_WIDTH]);
     }
 #endif
 }
@@ -455,6 +701,7 @@ enum plugin_status plugin_start(const void *parameter)
 
     alloc_ptr = rb->plugin_get_buffer(&buf_size);
     alloc_end = alloc_ptr + buf_size;
+    profile_reset(rom_path, buf_size);
     rom_buf = NULL;
     vrom_buf = NULL;
     lcd_fb = NULL;
@@ -476,11 +723,13 @@ enum plugin_status plugin_start(const void *parameter)
     audio_started = false;
     audio_ready = false;
     cpu_boosted = false;
+    palette_ppumask = 0;
 #ifdef HAVE_WHEEL_POSITION
     wheel_pad_latch = 0;
     wheel_pad_latch_tick = 0;
 #endif
     APU_Mute = 1;
+    init_palette_tables();
 
 #if defined(HAVE_ADJUSTABLE_CPU_FREQ)
     rb->cpu_boost(true);
@@ -514,6 +763,7 @@ enum plugin_status plugin_start(const void *parameter)
 #ifdef HAVE_WHEEL_POSITION
     rb->wheel_send_events(true);
 #endif
+    profile_write_log();
     save_sram();
     InfoNES_Fin();
     rb->button_clear_queue();
@@ -603,13 +853,21 @@ void InfoNES_ReleaseRom(void)
 
 void InfoNES_LoadFrame(void)
 {
+    long frame_start = *rb->current_tick;
+    long scale_start;
+    long scale_ticks;
+
     pace_frame();
+    scale_start = *rb->current_tick;
 #if INFONES_SCALE_FILL_SCREEN
     fb_data *framebuffer = get_lcd_framebuffer();
     if (framebuffer)
     {
         scale_frame_fill_screen(framebuffer);
         rb->lcd_update();
+        scale_ticks = *rb->current_tick - scale_start;
+        profile_record_frame(*rb->current_tick - frame_start, scale_ticks);
+        profile_maybe_write_early_snapshot();
         return;
     }
 #endif
@@ -618,6 +876,9 @@ void InfoNES_LoadFrame(void)
                    INFONES_DISP_Y, NES_DISP_WIDTH, NES_DISP_HEIGHT);
     rb->lcd_update_rect(INFONES_DISP_X, INFONES_DISP_Y,
                         NES_DISP_WIDTH, NES_DISP_HEIGHT);
+    scale_ticks = *rb->current_tick - scale_start;
+    profile_record_frame(*rb->current_tick - frame_start, scale_ticks);
+    profile_maybe_write_early_snapshot();
 }
 
 void InfoNES_PadState(DWORD *pdwPad1, DWORD *pdwPad2, DWORD *pdwSystem)
@@ -637,10 +898,17 @@ void InfoNES_PadState(DWORD *pdwPad1, DWORD *pdwPad2, DWORD *pdwSystem)
     }
     else
     {
+#if defined(SIMULATOR)
+        if (buttons & BUTTON_SELECT)
+            pad |= NES_PAD_A;
+        if (buttons & BUTTON_PLAY)
+            pad |= NES_PAD_B;
+#else
         if (buttons & BUTTON_SELECT)
             pad |= NES_PAD_B;
         if (buttons & BUTTON_PLAY)
             pad |= NES_PAD_A;
+#endif
         if (buttons & BUTTON_MENU)
             pad |= NES_PAD_START;
     }
@@ -701,7 +969,8 @@ int InfoNES_SoundOpen(int samples_per_sync, int sample_rate)
     rb->audio_set_output_source(AUDIO_SRC_PLAYBACK);
 #endif
 
-    audio_buf_samples = MAX(INFONES_AUDIO_SAMPLES, samples_per_sync * 4);
+    audio_buf_samples = MAX(INFONES_AUDIO_SAMPLES,
+                            samples_per_sync * INFONES_AUDIO_FRAMES_PER_BUF);
     audio_buf = infones_alloc(audio_buf_samples * INFONES_AUDIO_BUFS *
                               sizeof(short));
     audio_hwbuf = infones_alloc(audio_buf_samples * sizeof(short));
@@ -746,6 +1015,7 @@ void InfoNES_SoundClose(void)
 void InfoNES_SoundOutput(int samples, BYTE *wave1, BYTE *wave2, BYTE *wave3,
                          BYTE *wave4, BYTE *wave5)
 {
+    long sound_start = *rb->current_tick;
     int i;
 
     if (!audio_ready)
@@ -758,6 +1028,8 @@ void InfoNES_SoundOutput(int samples, BYTE *wave1, BYTE *wave2, BYTE *wave3,
             filter_audio_sample(mixed * INFONES_AUDIO_SCALE);
         audio_submit_buffer();
     }
+
+    profile_record_sound(*rb->current_tick - sound_start, samples);
 }
 
 void InfoNES_MessageBox(char *pszMsg, ...)

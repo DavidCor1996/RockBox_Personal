@@ -36,6 +36,12 @@ void InfoNES_ReleaseRom();
 /* Transfer the contents of work frame on the screen */
 void InfoNES_LoadFrame();
 
+/* Update cached Rockbox-native PPU palette entries */
+void InfoNES_WritePalette( WORD wAddr, BYTE byData );
+
+/* Update palette rendering for PPUMASK grayscale/emphasis bits */
+void InfoNES_SetPPUMask( BYTE byData );
+
 /* Get a joypad state */
 void InfoNES_PadState( DWORD *pdwPad1, DWORD *pdwPad2, DWORD *pdwSystem );
 
