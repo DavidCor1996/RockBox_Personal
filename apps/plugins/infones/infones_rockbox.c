@@ -37,7 +37,6 @@
 #define INFONES_HARDWARE_FRAMESKIP 0
 #endif
 #define INFONES_AUDIO_SCALE 28
-#define INFONES_AUTOSAVE_INTERVAL (HZ * 5)
 #define INFONES_RUN_DOUBLE_TAP (HZ / 3)
 #define INFONES_PROFILE_HIST_SIZE 32
 #define INFONES_SCALE_FILL_SCREEN \
@@ -78,7 +77,6 @@ static bool audio_ready;
 static bool cpu_boosted;
 static bool sound_enabled;
 static bool autosave_enabled;
-static long next_autosave_tick;
 static bool right_was_down;
 static bool right_run_active;
 static long right_last_tap_tick;
@@ -432,27 +430,6 @@ static void options_load(void)
     }
 }
 
-static void maybe_autosave_sram(void)
-{
-    long now;
-
-    if (!autosave_enabled || !sram_path_valid || !ROM_SRAM)
-        return;
-
-    now = *rb->current_tick;
-    if (next_autosave_tick == 0)
-    {
-        next_autosave_tick = now + INFONES_AUTOSAVE_INTERVAL;
-        return;
-    }
-
-    if (TIME_BEFORE(now, next_autosave_tick))
-        return;
-
-    save_sram();
-    next_autosave_tick = now + INFONES_AUTOSAVE_INTERVAL;
-}
-
 long InfoNES_GetTicks(void)
 {
     return *rb->current_tick;
@@ -491,7 +468,6 @@ void InfoNES_ProfileFrameEnd(int rendered)
         profile_record_bucket(&profile.wait_bucket, wait_ticks);
     }
 
-    maybe_autosave_sram();
 }
 
 static void profile_write_log(void)
@@ -686,6 +662,22 @@ static void poll_quit(void)
     if ((buttons & (BUTTON_MENU | BUTTON_SELECT | BUTTON_PLAY)) ==
         (BUTTON_MENU | BUTTON_SELECT | BUTTON_PLAY))
         quit_requested = true;
+}
+
+static void drain_input_after_exit(void)
+{
+    long deadline = *rb->current_tick + HZ;
+
+    rb->button_clear_queue();
+    while (TIME_BEFORE(*rb->current_tick, deadline))
+    {
+        if (rb->button_status() == 0)
+            break;
+
+        rb->button_clear_queue();
+        rb->sleep(1);
+    }
+    rb->button_clear_queue();
 }
 
 #ifdef HAVE_WHEEL_POSITION
@@ -1015,7 +1007,6 @@ enum plugin_status plugin_start(const void *parameter)
     audio_ready = false;
     cpu_boosted = false;
     options_reset();
-    next_autosave_tick = 0;
     right_was_down = false;
     right_run_active = false;
     right_last_tap_tick = 0;
@@ -1061,11 +1052,13 @@ enum plugin_status plugin_start(const void *parameter)
     rb->wheel_send_events(false);
 #endif
     InfoNES_Cycle();
+    drain_input_after_exit();
 #ifdef HAVE_WHEEL_POSITION
     rb->wheel_send_events(true);
 #endif
     profile_write_log();
-    save_sram();
+    if (autosave_enabled)
+        save_sram();
     InfoNES_Fin();
     rb->button_clear_queue();
 
