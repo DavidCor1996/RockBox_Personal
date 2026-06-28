@@ -20,8 +20,8 @@
 #define INFONES_EARLY_PROFILE_FRAMES 120
 #define INFONES_AUDIO_SAMPLES 1024
 #if defined(IPOD_6G)
-#define INFONES_AUDIO_BUFS 10
-#define INFONES_AUDIO_START_BUFS 4
+#define INFONES_AUDIO_BUFS 16
+#define INFONES_AUDIO_START_BUFS 6
 #define INFONES_AUDIO_FRAMES_PER_BUF 2
 #define INFONES_DEFAULT_AUDIO_QUALITY 2
 #define INFONES_WAIT_YIELD_SCANLINES 64
@@ -134,6 +134,7 @@ struct infones_profile
     unsigned long pcm_silence_fills;
     unsigned long pcm_low_water;
     unsigned long pcm_full_waits;
+    unsigned long pcm_dropped_buffers;
     unsigned long audio_limited_samples;
     unsigned long audio_peak_abs;
     unsigned long palette_writes;
@@ -583,6 +584,7 @@ static void profile_write_log(void)
                  "peak_sound_call_ticks=%ld p99_sound_call_ticks=%lu "
                  "pcm_underruns=%lu pcm_silence_fills=%lu "
                  "pcm_low_water=%lu pcm_full_waits=%lu "
+                 "pcm_dropped_buffers=%lu "
                  "audio_limited_samples=%lu audio_peak_abs=%lu "
                  "wait_yields=%lu wait_yield_scanlines=%d "
                  "audio_sample_rate=%d audio_quality=%d audio_bufs=%d "
@@ -621,7 +623,8 @@ static void profile_write_log(void)
                  profile_bucket_p99(&profile.sound_bucket),
                  profile.pcm_underruns, profile.pcm_silence_fills,
                  profile.pcm_low_water, profile.pcm_full_waits,
-                 profile.audio_limited_samples, profile.audio_peak_abs,
+                 profile.pcm_dropped_buffers, profile.audio_limited_samples,
+                 profile.audio_peak_abs,
                  profile.wait_yields,
                  INFONES_WAIT_YIELD_SCANLINES, audio_sample_rate,
                  audio_quality, INFONES_AUDIO_BUFS, audio_buf_samples,
@@ -713,6 +716,29 @@ static void draw_status(const char *msg)
     rb->lcd_puts(0, 0, "InfoNES");
     rb->lcd_puts_scroll(0, 2, msg);
     rb->lcd_update();
+}
+
+static void stop_playback_for_plugin(void)
+{
+    if (rb->audio_status())
+    {
+        rb->audio_stop();
+        rb->sleep(HZ / 5);
+    }
+
+    rb->pcm_play_stop();
+    rb->pcm_set_frequency(HW_SAMPR_DEFAULT);
+}
+
+static void restore_playback_state(void)
+{
+    audio_ready = false;
+    rb->pcm_play_stop();
+    rb->pcm_set_frequency(HW_SAMPR_DEFAULT);
+#if INPUT_SRC_CAPS != 0
+    rb->audio_set_input_source(AUDIO_SRC_PLAYBACK, SRCF_PLAYBACK);
+    rb->audio_set_output_source(AUDIO_SRC_PLAYBACK);
+#endif
 }
 
 static bool hold_switch_exit(void)
@@ -855,25 +881,24 @@ static void audio_submit_buffer(void)
     if (!audio_ready || audio_pos < audio_buf_samples)
         return;
 
-    while (!quit_requested && audio_queued >= INFONES_AUDIO_BUFS - 1)
-    {
-        profile.pcm_full_waits++;
-        poll_quit();
-        rb->yield();
-    }
-
     if (quit_requested)
         return;
 
     rb->pcm_play_lock();
-    if (audio_queued < INFONES_AUDIO_BUFS - 1)
+    if (audio_queued >= INFONES_AUDIO_BUFS - 1)
     {
-        audio_queued++;
-        audio_write_idx++;
-        if (audio_write_idx >= INFONES_AUDIO_BUFS)
-            audio_write_idx = 0;
-        audio_write_buf = &audio_buf[audio_buf_samples * 2 * audio_write_idx];
+        profile.pcm_full_waits++;
+        profile.pcm_dropped_buffers++;
+        rb->pcm_play_unlock();
+        audio_pos = 0;
+        return;
     }
+
+    audio_queued++;
+    audio_write_idx++;
+    if (audio_write_idx >= INFONES_AUDIO_BUFS)
+        audio_write_idx = 0;
+    audio_write_buf = &audio_buf[audio_buf_samples * 2 * audio_write_idx];
     rb->pcm_play_unlock();
 
     audio_pos = 0;
@@ -1106,7 +1131,8 @@ enum plugin_status plugin_start(const void *parameter)
         return PLUGIN_ERROR;
     }
 
-    alloc_ptr = rb->plugin_get_buffer(&buf_size);
+    stop_playback_for_plugin();
+    alloc_ptr = rb->plugin_get_audio_buffer(&buf_size);
     alloc_end = alloc_ptr + buf_size;
     profile_reset(rom_path, buf_size);
     rom_buf = NULL;
@@ -1164,6 +1190,7 @@ enum plugin_status plugin_start(const void *parameter)
     if (InfoNES_Load(rom_path) < 0)
     {
         InfoNES_Fin();
+        restore_playback_state();
 #if defined(HAVE_ADJUSTABLE_CPU_FREQ)
         if (cpu_boosted)
             rb->cpu_boost(false);
@@ -1188,6 +1215,7 @@ enum plugin_status plugin_start(const void *parameter)
     if (autosave_enabled)
         save_sram();
     InfoNES_Fin();
+    restore_playback_state();
     rb->button_clear_queue();
 
 #if defined(HAVE_ADJUSTABLE_CPU_FREQ)
@@ -1485,9 +1513,7 @@ int InfoNES_SoundOpen(int samples_per_sync, int sample_rate)
 
 void InfoNES_SoundClose(void)
 {
-    rb->pcm_play_stop();
-    rb->pcm_set_frequency(HW_SAMPR_DEFAULT);
-    audio_ready = false;
+    restore_playback_state();
     audio_started = false;
     audio_buf = NULL;
     audio_hwbuf = NULL;
