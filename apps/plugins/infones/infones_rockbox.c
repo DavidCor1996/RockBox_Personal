@@ -41,9 +41,9 @@
 #define INFONES_PULSE_TABLE_SIZE 31
 #define INFONES_TND_TABLE_SIZE 203
 #define INFONES_AUDIO_GAIN_NUM 1
-#define INFONES_AUDIO_GAIN_DEN 4
-#define INFONES_AUDIO_LIMIT 24000
-#define INFONES_SAFE_VOLUME_DB (-35)
+#define INFONES_AUDIO_GAIN_DEN 8
+#define INFONES_AUDIO_LIMIT 16000
+#define INFONES_SAFE_VOLUME_DB (-50)
 #define INFONES_SCALE_FILL_SCREEN \
     (LCD_WIDTH != NES_DISP_WIDTH || LCD_HEIGHT != NES_DISP_HEIGHT)
 
@@ -792,8 +792,9 @@ static void audio_get_more(const void **start, size_t *size)
 {
     if (audio_ready && audio_queued > 0)
     {
-        rb->memcpy(audio_hwbuf, &audio_buf[audio_buf_samples * audio_read_idx],
-                   audio_buf_samples * sizeof(short));
+        rb->memcpy(audio_hwbuf,
+                   &audio_buf[audio_buf_samples * 2 * audio_read_idx],
+                   audio_buf_samples * 2 * sizeof(short));
         audio_read_idx++;
         if (audio_read_idx >= INFONES_AUDIO_BUFS)
             audio_read_idx = 0;
@@ -807,7 +808,7 @@ static void audio_get_more(const void **start, size_t *size)
     }
 
     *start = audio_hwbuf;
-    *size = audio_buf_samples * sizeof(short);
+    *size = audio_buf_samples * 2 * sizeof(short);
 }
 
 static void audio_submit_buffer(void)
@@ -832,7 +833,7 @@ static void audio_submit_buffer(void)
         audio_write_idx++;
         if (audio_write_idx >= INFONES_AUDIO_BUFS)
             audio_write_idx = 0;
-        audio_write_buf = &audio_buf[audio_buf_samples * audio_write_idx];
+        audio_write_buf = &audio_buf[audio_buf_samples * 2 * audio_write_idx];
     }
     rb->pcm_play_unlock();
 
@@ -861,7 +862,7 @@ static short filter_audio_sample(int sample)
 
     audio_dc_in_prev = sample;
     audio_dc_out_prev = filtered;
-    audio_lp_prev += (filtered - audio_lp_prev) >> 1;
+    audio_lp_prev += (filtered - audio_lp_prev) >> 2;
     if (audio_lp_prev > INFONES_AUDIO_LIMIT)
         return INFONES_AUDIO_LIMIT;
     if (audio_lp_prev < -INFONES_AUDIO_LIMIT)
@@ -1397,18 +1398,18 @@ int InfoNES_SoundOpen(int samples_per_sync, int sample_rate)
 
     audio_buf_samples = MAX(INFONES_AUDIO_SAMPLES,
                             samples_per_sync * INFONES_AUDIO_FRAMES_PER_BUF);
-    audio_buf = infones_alloc(audio_buf_samples * INFONES_AUDIO_BUFS *
+    audio_buf = infones_alloc(audio_buf_samples * 2 * INFONES_AUDIO_BUFS *
                               sizeof(short));
-    audio_hwbuf = infones_alloc(audio_buf_samples * sizeof(short));
+    audio_hwbuf = infones_alloc(audio_buf_samples * 2 * sizeof(short));
     if (!audio_buf || !audio_hwbuf)
     {
         APU_Mute = 1;
         return -1;
     }
 
-    rb->memset(audio_buf, 0, audio_buf_samples * INFONES_AUDIO_BUFS *
+    rb->memset(audio_buf, 0, audio_buf_samples * 2 * INFONES_AUDIO_BUFS *
                sizeof(short));
-    rb->memset(audio_hwbuf, 0, audio_buf_samples * sizeof(short));
+    rb->memset(audio_hwbuf, 0, audio_buf_samples * 2 * sizeof(short));
 
     audio_write_buf = audio_buf;
     audio_queued = 0;
@@ -1455,7 +1456,10 @@ void InfoNES_SoundOutput(int samples, BYTE *wave1, BYTE *wave2, BYTE *wave3,
     {
         int mixed = nes_mix_sample(wave1[i], wave2[i], wave3[i], wave4[i],
                                    wave5[i]);
-        audio_write_buf[audio_pos++] = filter_audio_sample(mixed);
+        short sample = filter_audio_sample(mixed);
+        audio_write_buf[audio_pos * 2] = sample;
+        audio_write_buf[audio_pos * 2 + 1] = sample;
+        audio_pos++;
         audio_submit_buffer();
     }
 
