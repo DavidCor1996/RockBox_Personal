@@ -153,6 +153,7 @@ static WORD nes_palette_emph[8][64];
 static BYTE palette_ppumask;
 static struct infones_profile profile;
 
+static long pace_frame(void);
 static void profile_write_log(void);
 
 static int emphasis_dim(int value)
@@ -390,9 +391,16 @@ void InfoNES_ProfileFrameEnd(int rendered)
 
     profile.frames_emulated++;
     if (rendered)
+    {
         profile.frames_rendered++;
+    }
     else
+    {
+        long wait_ticks = pace_frame();
+
         profile.frames_skipped++;
+        profile_record_bucket(&profile.wait_bucket, wait_ticks);
+    }
 }
 
 static void profile_write_log(void)
