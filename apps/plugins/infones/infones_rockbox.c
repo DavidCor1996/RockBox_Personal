@@ -40,6 +40,9 @@
 #define INFONES_PROFILE_HIST_SIZE 32
 #define INFONES_PULSE_TABLE_SIZE 31
 #define INFONES_TND_TABLE_SIZE 203
+#define INFONES_AUDIO_GAIN_NUM 3
+#define INFONES_AUDIO_GAIN_DEN 8
+#define INFONES_AUDIO_LIMIT 12000
 #define INFONES_SCALE_FILL_SCREEN \
     (LCD_WIDTH != NES_DISP_WIDTH || LCD_HEIGHT != NES_DISP_HEIGHT)
 
@@ -843,6 +846,10 @@ static short filter_audio_sample(int sample)
     audio_dc_in_prev = sample;
     audio_dc_out_prev = filtered;
     audio_lp_prev += (filtered - audio_lp_prev) >> 1;
+    if (audio_lp_prev > INFONES_AUDIO_LIMIT)
+        return INFONES_AUDIO_LIMIT;
+    if (audio_lp_prev < -INFONES_AUDIO_LIMIT)
+        return -INFONES_AUDIO_LIMIT;
     return clamp_audio_sample(audio_lp_prev);
 }
 
@@ -866,7 +873,8 @@ static int nes_mix_sample(BYTE pulse1, BYTE pulse2, BYTE triangle,
     if (tnd_index >= INFONES_TND_TABLE_SIZE)
         tnd_index = INFONES_TND_TABLE_SIZE - 1;
 
-    return nes_pulse_table[pulse_index] + nes_tnd_table[tnd_index];
+    return ((nes_pulse_table[pulse_index] + nes_tnd_table[tnd_index]) *
+            INFONES_AUDIO_GAIN_NUM) / INFONES_AUDIO_GAIN_DEN;
 }
 
 static long pace_frame(void)
