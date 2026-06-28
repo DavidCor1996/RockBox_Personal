@@ -40,9 +40,9 @@
 #define INFONES_PROFILE_HIST_SIZE 32
 #define INFONES_PULSE_TABLE_SIZE 31
 #define INFONES_TND_TABLE_SIZE 203
-#define INFONES_AUDIO_GAIN_NUM 3
-#define INFONES_AUDIO_GAIN_DEN 8
-#define INFONES_AUDIO_LIMIT 12000
+#define INFONES_AUDIO_GAIN_NUM 1
+#define INFONES_AUDIO_GAIN_DEN 4
+#define INFONES_AUDIO_LIMIT 24000
 #define INFONES_SAFE_VOLUME_DB (-35)
 #define INFONES_SCALE_FILL_SCREEN \
     (LCD_WIDTH != NES_DISP_WIDTH || LCD_HEIGHT != NES_DISP_HEIGHT)
@@ -1331,9 +1331,15 @@ void InfoNES_PadState(DWORD *pdwPad1, DWORD *pdwPad2, DWORD *pdwSystem)
     if (buttons & BUTTON_RIGHT)
         pad |= NES_PAD_RIGHT;
     if (left_run_active && left_down)
+    {
+        pad &= ~NES_PAD_A;
         pad |= NES_PAD_LEFT | NES_PAD_B;
+    }
     if (right_run_active && right_down)
+    {
+        pad &= ~NES_PAD_A;
         pad |= NES_PAD_RIGHT | NES_PAD_B;
+    }
 
     poll_quit();
 
