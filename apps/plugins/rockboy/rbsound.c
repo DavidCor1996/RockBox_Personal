@@ -92,6 +92,10 @@ void rockboy_pcm_close(void)
     read_buf = 0;
     write_buf = 0;
     rb->pcm_set_frequency(HW_SAMPR_DEFAULT);
+#if INPUT_SRC_CAPS != 0
+    rb->audio_set_input_source(AUDIO_SRC_PLAYBACK, SRCF_PLAYBACK);
+    rb->audio_set_output_source(AUDIO_SRC_PLAYBACK);
+#endif
 }
 
 int rockboy_pcm_submit(void)

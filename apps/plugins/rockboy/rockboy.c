@@ -48,6 +48,18 @@ void *audio_bufferbase;
 void *audio_bufferpointer;
 size_t audio_buffer_free;
 
+static void rockboy_prepare_audio_buffer(void)
+{
+    if (rb->audio_status())
+    {
+        rb->audio_stop();
+        rb->sleep(HZ / 5);
+    }
+
+    rb->pcm_play_stop();
+    rb->pcm_set_frequency(HW_SAMPR_DEFAULT);
+}
+
 void *my_malloc(size_t size)
 {
     void *alloc;
@@ -731,18 +743,10 @@ enum plugin_status plugin_start(const void* parameter)
         return PLUGIN_OK;
 #endif
     }
-    if(rb->audio_status())
-    {
-        audio_bufferbase = audio_bufferpointer
-            = rb->plugin_get_buffer(&audio_buffer_free);
-        plugbuf=true;
-    }
-    else
-    {
-        audio_bufferbase = audio_bufferpointer
-            = rb->plugin_get_audio_buffer(&audio_buffer_free);
-        plugbuf=false;
-    }
+    rockboy_prepare_audio_buffer();
+    audio_bufferbase = audio_bufferpointer
+        = rb->plugin_get_audio_buffer(&audio_buffer_free);
+    plugbuf = false;
 #if MEMORYSIZE <= 8 && (CONFIG_PLATFORM & PLATFORM_NATIVE)
     /* loaded as an overlay plugin, protect from overwriting ourselves */
     if ((unsigned)(plugin_start_addr - (unsigned char *)audio_bufferbase)
@@ -788,8 +792,7 @@ enum plugin_status plugin_start(const void* parameter)
 
     backlight_use_settings();
 
-    if(!rb->audio_status())
-        rockboy_pcm_close();
+    rockboy_pcm_close();
 
     if(shut&&!cleanshut)
     {
