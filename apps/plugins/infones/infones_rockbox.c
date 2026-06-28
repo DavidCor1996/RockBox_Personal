@@ -43,6 +43,7 @@
 #define INFONES_AUDIO_GAIN_NUM 3
 #define INFONES_AUDIO_GAIN_DEN 8
 #define INFONES_AUDIO_LIMIT 12000
+#define INFONES_SAFE_VOLUME_DB (-35)
 #define INFONES_SCALE_FILL_SCREEN \
     (LCD_WIDTH != NES_DISP_WIDTH || LCD_HEIGHT != NES_DISP_HEIGHT)
 
@@ -227,6 +228,21 @@ static void init_audio_mixer_tables(void)
     nes_tnd_table[0] = 0;
     for (i = 1; i < INFONES_TND_TABLE_SIZE; i++)
         nes_tnd_table[i] = (short)((5363000L * i) / (24329 + 100 * i));
+}
+
+static void apply_safe_launch_volume(void)
+{
+    int safe_volume = INFONES_SAFE_VOLUME_DB;
+    int min_volume = rb->sound_min(SOUND_VOLUME);
+    int max_volume = rb->sound_max(SOUND_VOLUME);
+
+    if (safe_volume < min_volume)
+        safe_volume = min_volume;
+    if (safe_volume > max_volume)
+        safe_volume = max_volume;
+
+    if (rb->global_status->volume > safe_volume)
+        rb->sound_set(SOUND_VOLUME, safe_volume);
 }
 
 static WORD palette_native(BYTE color, bool backdrop)
@@ -1080,6 +1096,7 @@ enum plugin_status plugin_start(const void *parameter)
     APU_Mute = 1;
     init_palette_tables();
     init_audio_mixer_tables();
+    apply_safe_launch_volume();
 
 #if defined(HAVE_ADJUSTABLE_CPU_FREQ)
     rb->cpu_boost(true);
