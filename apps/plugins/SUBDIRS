@@ -66,6 +66,7 @@ pacbox
 #if defined(HAVE_LCD_COLOR) && (LCD_WIDTH >= 256) && (LCD_HEIGHT >= 240) \
     && (PLUGIN_BUFFER_SIZE >= 0x100000)
 infones
+pokemini
 #endif
 
 #if (defined(HAVE_LCD_COLOR) || defined(MROBE_100) || defined(SANSA_CLIPPLUS) \

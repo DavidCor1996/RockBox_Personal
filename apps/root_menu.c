@@ -1759,6 +1759,7 @@ MENUITEM_FUNCTION(photos_item, MENU_FUNC_CHECK_RETVAL,
                   NULL, Icon_Folder);
 
 static const struct browse_folder_info gameboy_folder = {"/gameboy/", SHOW_ALL};
+static const struct browse_folder_info pokemini_folder = {"/PokeMini/", SHOW_ALL};
 #if defined(HAVE_LCD_COLOR) && (LCD_WIDTH >= 220)
 #define INFONES_SAVE_DIR ROCKBOX_DIR "/infones"
 #define INFONES_OPTIONS_PATH INFONES_SAVE_DIR "/options.cfg"
@@ -1956,6 +1957,21 @@ static int launch_podemon_go(void* param)
     return load_plugin_path_screen(PLUGIN_GAMES_DIR "/pocketcatch.rock", NULL);
 }
 
+static int launch_pokemini(void* param)
+{
+    (void)param;
+    if (file_exists(PLUGIN_GAMES_DIR "/pokemini_launcher.rock"))
+        return load_plugin_path_screen(PLUGIN_GAMES_DIR "/pokemini_launcher.rock", NULL);
+
+    return browse_folder((void *)&pokemini_folder);
+}
+
+static int browse_pokemini_roms(void* param)
+{
+    (void)param;
+    return browse_folder((void *)&pokemini_folder);
+}
+
 MENUITEM_FUNCTION(gameboy_coverflow_item, MENU_FUNC_CHECK_RETVAL,
                   "Game Cover Flow", launch_gameboy_browser,
                   NULL, Icon_NOICON);
@@ -1986,12 +2002,23 @@ MENUITEM_FUNCTION(gameboy_browser, MENU_FUNC_CHECK_RETVAL,
 MENUITEM_FUNCTION(podemon_go_item, MENU_FUNC_CHECK_RETVAL,
                   "Podemon Go", launch_podemon_go,
                   NULL, Icon_Plugin);
+MENUITEM_FUNCTION(pokemini_item, MENU_FUNC_CHECK_RETVAL,
+                  "PokeMini", launch_pokemini,
+                  NULL, Icon_Plugin);
+MENUITEM_FUNCTION(pokemini_files_item, MENU_FUNC_CHECK_RETVAL,
+                  "Browse PokeMini Files", browse_pokemini_roms,
+                  NULL, Icon_NOICON);
+MAKE_MENU(pokemini_context_menu, "PokeMini", NULL, Icon_NOICON,
+          &pokemini_files_item);
 #else
 MENUITEM_FUNCTION_W_PARAM(gameboy_browser, MENU_FUNC_CHECK_RETVAL,
                           ID2P(LANG_PLUGIN_GAMES), browse_folder,
                           (void *)&gameboy_folder, NULL, Icon_Folder);
 MENUITEM_RETURNVALUE(podemon_go_item, "Podemon Go", GO_TO_ROOT,
                      NULL, Icon_Plugin);
+MENUITEM_FUNCTION_W_PARAM(pokemini_item, MENU_FUNC_CHECK_RETVAL,
+                          "PokeMini", browse_folder,
+                          (void *)&pokemini_folder, NULL, Icon_Plugin);
 #endif
 MENUITEM_RETURNVALUE(system_menu_, ID2P(LANG_SYSTEM), GO_TO_SYSTEM_SCREEN,
                      NULL, Icon_System_menu);
@@ -2009,6 +2036,7 @@ static struct menu_table menu_table[] = {
     { "photos", &photos_item },
     { "games", &gameboy_browser },
     { "podemon_go", &podemon_go_item },
+    { "pokemini", &pokemini_item },
     { "files", &file_browser },
     { "wps", &wps_item },
     { "playlists", &playlists },
@@ -2136,7 +2164,8 @@ void root_menu_set_default(void* setting, void* defaultval)
 
     for (i=0; i<MAX_MENU_ITEMS; i++)
     {
-        if (menu_table[i].item == &podemon_go_item)
+        if (menu_table[i].item == &podemon_go_item ||
+            menu_table[i].item == &pokemini_item)
             continue;
 
         root_menu__[count++] = (struct menu_item_ex *)menu_table[i].item;
@@ -2947,6 +2976,8 @@ static const char *root_menu_video_label(const struct menu_item_ex *item)
         return "Games";
     if (item == &podemon_go_item)
         return "Podemon";
+    if (item == &pokemini_item)
+        return "PokeMini";
 
     return "Menu";
 }
@@ -2989,6 +3020,8 @@ static int root_menu_video_kind(const struct menu_item_ex *item)
     if (item == &gameboy_browser)
         return 9;
     if (item == &podemon_go_item)
+        return 10;
+    if (item == &pokemini_item)
         return 10;
 
     return 11;
@@ -3370,6 +3403,10 @@ static int load_context_screen(int selection)
     else if (root_menu__[selection] == &gameboy_browser)
     {
         context_menu = &gameboy_context_menu;
+    }
+    else if (root_menu__[selection] == &pokemini_item)
+    {
+        context_menu = &pokemini_context_menu;
     }
 #endif
 
