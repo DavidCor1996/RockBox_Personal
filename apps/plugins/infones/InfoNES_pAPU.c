@@ -124,6 +124,14 @@ struct ApuQualityData_t
   { 0x289d9c00, 0x289d9c00, 0x289d9c00, 735,  41, 44100, 265664 },
 };
 
+static void ApuClearWaveTail(int channel, unsigned int index)
+{
+  while (index < ApuSamplesPerSync)
+  {
+    wave_buffers[channel][index++] = 0;
+  }
+}
+
 /*-------------------------------------------------------------------*/
 /*  Rectangle Wave #1 resources                                      */
 /*-------------------------------------------------------------------*/
@@ -396,7 +404,7 @@ void ApuRenderingWave1( void )
      */
     if ( ApuC1Freq < 8 || ( !ApuC1SweepIncDec && ApuC1Freq > ApuC1FreqLimit ) )
     {
-      wave_buffers[0][i] = 0;
+      ApuClearWaveTail(0, i);
       break;
     }
 
@@ -548,7 +556,7 @@ void ApuRenderingWave2( void )
      */
     if ( ApuC2Freq < 8 || ( !ApuC2SweepIncDec && ApuC2Freq > ApuC2FreqLimit ) )
     {
-      wave_buffers[1][i] = 0;
+      ApuClearWaveTail(1, i);
       break;
     }
 
@@ -674,7 +682,7 @@ void ApuRenderingWave3( void )
     /* Cutting Min Frequency */
     if ( ApuC3Freq < 8 )
     {
-      wave_buffers[2][i] = 0;
+      ApuClearWaveTail(2, i);
       break;
     }
 
@@ -950,6 +958,8 @@ void ApuRenderingWave5(void)
     /* Wave Rendering */
     if ( ApuCtrlNew & 0x10 ) {
       wave_buffers[4][i] = ( ApuC5Reg[1]&0x01 ) + ( ApuC5DpcmValue << 1 );
+    } else {
+      wave_buffers[4][i] = 0;
     }
   }
 }
