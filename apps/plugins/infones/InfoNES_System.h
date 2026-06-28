@@ -49,6 +49,9 @@ void InfoNES_SetPPUMask( BYTE byData );
 /* Current platform tick for coarse profiling */
 long InfoNES_GetTicks( void );
 
+/* Platform-selected pAPU quality index */
+int InfoNES_GetAudioQuality( void );
+
 /* Coarse timing buckets for the platform profile log */
 void InfoNES_ProfileCpu( long ticks );
 void InfoNES_ProfileHSync( long ticks );

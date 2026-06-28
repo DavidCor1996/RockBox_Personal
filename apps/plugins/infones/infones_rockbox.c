@@ -36,9 +36,10 @@
 #define INFONES_WAIT_YIELD_SCANLINES 16
 #define INFONES_HARDWARE_FRAMESKIP 0
 #endif
-#define INFONES_AUDIO_SCALE 28
 #define INFONES_RUN_DOUBLE_TAP (HZ / 3)
 #define INFONES_PROFILE_HIST_SIZE 32
+#define INFONES_PULSE_TABLE_SIZE 31
+#define INFONES_TND_TABLE_SIZE 203
 #define INFONES_SCALE_FILL_SCREEN \
     (LCD_WIDTH != NES_DISP_WIDTH || LCD_HEIGHT != NES_DISP_HEIGHT)
 
@@ -71,12 +72,14 @@ static int audio_pos;
 static int audio_buf_samples;
 static int audio_dc_in_prev;
 static int audio_dc_out_prev;
+static int audio_lp_prev;
 static int audio_sample_rate;
 static bool audio_started;
 static bool audio_ready;
 static bool cpu_boosted;
 static bool sound_enabled;
 static bool autosave_enabled;
+static int audio_quality;
 static bool right_was_down;
 static bool right_run_active;
 static long right_last_tap_tick;
@@ -160,6 +163,8 @@ static const struct infones_rgb nes_palette_rgb[64] =
 
 WORD NesPalette[64];
 static WORD nes_palette_emph[8][64];
+static short nes_pulse_table[INFONES_PULSE_TABLE_SIZE];
+static short nes_tnd_table[INFONES_TND_TABLE_SIZE];
 static BYTE palette_ppumask;
 static struct infones_profile profile;
 
@@ -206,6 +211,19 @@ static void init_palette_tables(void)
     }
 
     rb->memcpy(NesPalette, nes_palette_emph[0], sizeof(NesPalette));
+}
+
+static void init_audio_mixer_tables(void)
+{
+    int i;
+
+    nes_pulse_table[0] = 0;
+    for (i = 1; i < INFONES_PULSE_TABLE_SIZE; i++)
+        nes_pulse_table[i] = (short)((3130000L * i) / (8128 + 100 * i));
+
+    nes_tnd_table[0] = 0;
+    for (i = 1; i < INFONES_TND_TABLE_SIZE; i++)
+        nes_tnd_table[i] = (short)((5363000L * i) / (24329 + 100 * i));
 }
 
 static WORD palette_native(BYTE color, bool backdrop)
@@ -379,6 +397,7 @@ static void options_reset(void)
 {
     sound_enabled = true;
     autosave_enabled = true;
+    audio_quality = 1;
 }
 
 static void options_parse_line(const char *line)
@@ -387,6 +406,8 @@ static void options_parse_line(const char *line)
         sound_enabled = line[6] != '0';
     else if (rb->strncmp(line, "autosave=", 9) == 0)
         autosave_enabled = line[9] != '0';
+    else if (rb->strncmp(line, "audio_quality=", 14) == 0)
+        audio_quality = line[14] == '0' ? 0 : 1;
 }
 
 static void options_load(void)
@@ -433,6 +454,11 @@ static void options_load(void)
 long InfoNES_GetTicks(void)
 {
     return *rb->current_tick;
+}
+
+int InfoNES_GetAudioQuality(void)
+{
+    return audio_quality;
 }
 
 void InfoNES_ProfileCpu(long ticks)
@@ -525,7 +551,7 @@ static void profile_write_log(void)
                  "peak_sound_call_ticks=%ld p99_sound_call_ticks=%lu "
                  "pcm_underruns=%lu pcm_low_water=%lu pcm_full_waits=%lu "
                  "wait_yields=%lu wait_yield_scanlines=%d "
-                 "audio_sample_rate=%d audio_bufs=%d "
+                 "audio_sample_rate=%d audio_quality=%d audio_bufs=%d "
                  "audio_buf_samples=%d configured_frameskip=%d "
                  "plugin_buf_kib=%lu "
                  "palette_writes=%lu ppumask_updates=%lu "
@@ -562,7 +588,7 @@ static void profile_write_log(void)
                  profile.pcm_underruns, profile.pcm_low_water,
                  profile.pcm_full_waits, profile.wait_yields,
                  INFONES_WAIT_YIELD_SCANLINES, audio_sample_rate,
-                 INFONES_AUDIO_BUFS, audio_buf_samples,
+                 audio_quality, INFONES_AUDIO_BUFS, audio_buf_samples,
                  INFONES_HARDWARE_FRAMESKIP,
                  (unsigned long)profile.plugin_buf_kib,
                  profile.palette_writes, profile.ppumask_updates,
@@ -816,7 +842,31 @@ static short filter_audio_sample(int sample)
 
     audio_dc_in_prev = sample;
     audio_dc_out_prev = filtered;
-    return clamp_audio_sample(filtered);
+    audio_lp_prev += (filtered - audio_lp_prev) >> 1;
+    return clamp_audio_sample(audio_lp_prev);
+}
+
+static int nes_channel_4bit(BYTE sample)
+{
+    int value = sample >> 4;
+
+    return value > 15 ? 15 : value;
+}
+
+static int nes_mix_sample(BYTE pulse1, BYTE pulse2, BYTE triangle,
+                          BYTE noise, BYTE dmc)
+{
+    int pulse_index = nes_channel_4bit(pulse1) + nes_channel_4bit(pulse2);
+    int tnd_index = 3 * nes_channel_4bit(triangle) +
+                    2 * (noise > 15 ? 15 : noise) +
+                    (dmc > 127 ? 127 : dmc);
+
+    if (pulse_index >= INFONES_PULSE_TABLE_SIZE)
+        pulse_index = INFONES_PULSE_TABLE_SIZE - 1;
+    if (tnd_index >= INFONES_TND_TABLE_SIZE)
+        tnd_index = INFONES_TND_TABLE_SIZE - 1;
+
+    return nes_pulse_table[pulse_index] + nes_tnd_table[tnd_index];
 }
 
 static long pace_frame(void)
@@ -1001,6 +1051,7 @@ enum plugin_status plugin_start(const void *parameter)
     audio_pos = 0;
     audio_dc_in_prev = 0;
     audio_dc_out_prev = 0;
+    audio_lp_prev = 0;
     audio_sample_rate = 0;
     audio_buf_samples = 0;
     audio_started = false;
@@ -1020,6 +1071,7 @@ enum plugin_status plugin_start(const void *parameter)
 #endif
     APU_Mute = 1;
     init_palette_tables();
+    init_audio_mixer_tables();
 
 #if defined(HAVE_ADJUSTABLE_CPU_FREQ)
     rb->cpu_boost(true);
@@ -1334,6 +1386,7 @@ int InfoNES_SoundOpen(int samples_per_sync, int sample_rate)
     audio_pos = 0;
     audio_dc_in_prev = 0;
     audio_dc_out_prev = 0;
+    audio_lp_prev = 0;
     audio_started = false;
     audio_ready = true;
     audio_sample_rate = sample_rate;
@@ -1354,6 +1407,7 @@ void InfoNES_SoundClose(void)
     audio_write_buf = NULL;
     audio_dc_in_prev = 0;
     audio_dc_out_prev = 0;
+    audio_lp_prev = 0;
     audio_sample_rate = 0;
 }
 
@@ -1368,9 +1422,9 @@ void InfoNES_SoundOutput(int samples, BYTE *wave1, BYTE *wave2, BYTE *wave3,
 
     for (i = 0; i < samples; i++)
     {
-        int mixed = wave1[i] + wave2[i] + wave3[i] + wave4[i] + wave5[i];
-        audio_write_buf[audio_pos++] =
-            filter_audio_sample(mixed * INFONES_AUDIO_SCALE);
+        int mixed = nes_mix_sample(wave1[i], wave2[i], wave3[i], wave4[i],
+                                   wave5[i]);
+        audio_write_buf[audio_pos++] = filter_audio_sample(mixed);
         audio_submit_buffer();
     }
 

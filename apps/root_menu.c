@@ -1767,12 +1767,14 @@ struct infones_root_options
 {
     bool sound;
     bool autosave;
+    int audio_quality;
 };
 
 static void infones_options_defaults(struct infones_root_options *options)
 {
     options->sound = true;
     options->autosave = true;
+    options->audio_quality = 1;
 }
 
 static void infones_options_parse_line(struct infones_root_options *options,
@@ -1782,6 +1784,8 @@ static void infones_options_parse_line(struct infones_root_options *options,
         options->sound = line[6] != '0';
     else if (strncmp(line, "autosave=", 9) == 0)
         options->autosave = line[9] != '0';
+    else if (strncmp(line, "audio_quality=", 14) == 0)
+        options->audio_quality = line[14] == '0' ? 0 : 1;
 }
 
 static void infones_options_load(struct infones_root_options *options)
@@ -1834,8 +1838,9 @@ static bool infones_options_save(const struct infones_root_options *options)
     if (fd < 0)
         return false;
 
-    fdprintf(fd, "sound=%d\nautosave=%d\n",
-             options->sound ? 1 : 0, options->autosave ? 1 : 0);
+    fdprintf(fd, "sound=%d\nautosave=%d\naudio_quality=%d\n",
+             options->sound ? 1 : 0, options->autosave ? 1 : 0,
+             options->audio_quality ? 1 : 0);
     close(fd);
     return true;
 }
@@ -1864,6 +1869,21 @@ static int infones_toggle_autosave(void* param)
     options.autosave = !options.autosave;
     if (infones_options_save(&options))
         splash(HZ, options.autosave ? "NES autosave on" : "NES autosave off");
+    else
+        splash(HZ, "NES options failed");
+
+    return 0;
+}
+
+static int infones_toggle_audio_quality(void* param)
+{
+    struct infones_root_options options;
+
+    (void)param;
+    infones_options_load(&options);
+    options.audio_quality = options.audio_quality ? 0 : 1;
+    if (infones_options_save(&options))
+        splash(HZ, options.audio_quality ? "NES audio 22k" : "NES audio 11k");
     else
         splash(HZ, "NES options failed");
 
@@ -1948,12 +1968,16 @@ MENUITEM_FUNCTION(infones_sound_item, MENU_FUNC_CHECK_RETVAL,
 MENUITEM_FUNCTION(infones_autosave_item, MENU_FUNC_CHECK_RETVAL,
                   "Toggle NES Autosave", infones_toggle_autosave,
                   NULL, Icon_NOICON);
+MENUITEM_FUNCTION(infones_audio_quality_item, MENU_FUNC_CHECK_RETVAL,
+                  "Toggle NES Audio Quality", infones_toggle_audio_quality,
+                  NULL, Icon_NOICON);
 MENUITEM_FUNCTION(infones_clear_saves_item, MENU_FUNC_CHECK_RETVAL,
                   "Clear NES Saves", infones_clear_saves,
                   NULL, Icon_NOICON);
 MAKE_MENU(gameboy_context_menu, "Games", NULL, Icon_NOICON,
           &gameboy_coverflow_item, &gameboy_files_item,
           &infones_sound_item, &infones_autosave_item,
+          &infones_audio_quality_item,
           &infones_clear_saves_item);
 
 MENUITEM_FUNCTION(gameboy_browser, MENU_FUNC_CHECK_RETVAL,

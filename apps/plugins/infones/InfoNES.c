@@ -152,6 +152,7 @@ WORD FrameStep;
 /* Frame Skip */
 WORD FrameSkip;
 WORD FrameCnt;
+static int FrameSkipPatternPos;
 
 /* Display Buffer */
 #if 0
@@ -167,6 +168,27 @@ BYTE ChrBuf[ 256 * 2 * 8 * 8 ];
 
 /* Update flag for ChrBuf */
 BYTE ChrBufUpdate;
+
+static int InfoNES_RenderThisFrame(void)
+{
+  static const BYTE skip_one_pattern[8] = { 1, 0, 1, 0, 0, 1, 0, 1 };
+
+  if ( FrameSkip == 1 )
+    return skip_one_pattern[ FrameSkipPatternPos & 7 ];
+
+  return FrameCnt == 0;
+}
+
+static void InfoNES_AdvanceFrameSkip(void)
+{
+  if ( FrameSkip == 1 )
+  {
+    FrameSkipPatternPos = ( FrameSkipPatternPos + 1 ) & 7;
+    return;
+  }
+
+  FrameCnt = ( FrameCnt >= FrameSkip ) ? 0 : FrameCnt + 1;
+}
 
 /* Palette Table */
 WORD PalTable[ 32 ];
@@ -390,6 +412,7 @@ int InfoNES_Reset()
   // Reset frame skip and frame count
   FrameSkip = 0;
   FrameCnt = 0;
+  FrameSkipPatternPos = 0;
 
 #if 0
   // Reset work frame
@@ -679,7 +702,7 @@ int InfoNES_HSync()
   /*-------------------------------------------------------------------*/
   /*  Render a scanline                                                */
   /*-------------------------------------------------------------------*/
-  if ( FrameCnt == 0 &&
+  if ( InfoNES_RenderThisFrame() &&
        PPU_ScanTable[ PPU_Scanline ] == SCAN_ON_SCREEN )
   {
     InfoNES_DrawLine();
@@ -711,7 +734,7 @@ int InfoNES_HSync()
       PPU_R2 = 0;
 
       // Set up a character data
-      if ( NesHeader.byVRomSize == 0 && FrameCnt == 0 )
+      if ( NesHeader.byVRomSize == 0 && InfoNES_RenderThisFrame() )
         InfoNES_SetupChr();
 
       // Get position of sprite #0
@@ -719,7 +742,7 @@ int InfoNES_HSync()
       break;
 
     case SCAN_UNKNOWN_START:
-      if ( FrameCnt == 0 )
+      if ( InfoNES_RenderThisFrame() )
       {
         // Transfer the contents of work frame on the screen
         InfoNES_LoadFrame();
@@ -733,10 +756,10 @@ int InfoNES_HSync()
       break;
 
     case SCAN_VBLANK_START:
-      InfoNES_ProfileFrameEnd( FrameCnt == 0 );
+      InfoNES_ProfileFrameEnd( InfoNES_RenderThisFrame() );
 
       // FrameCnt + 1
-      FrameCnt = ( FrameCnt >= FrameSkip ) ? 0 : FrameCnt + 1;
+      InfoNES_AdvanceFrameSkip();
 
       // Set a V-Blank flag
       PPU_R2 = R2_IN_VBLANK;
