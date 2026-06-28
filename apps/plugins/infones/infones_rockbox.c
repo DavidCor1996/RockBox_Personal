@@ -698,13 +698,23 @@ static void draw_status(const char *msg)
     rb->lcd_update();
 }
 
+static bool hold_switch_exit(void)
+{
+#ifdef HAS_BUTTON_HOLD
+    return rb->button_hold();
+#else
+    return false;
+#endif
+}
+
 static void poll_quit(void)
 {
     int buttons = rb->button_status();
 
     rb->button_clear_queue();
 
-    if ((buttons & (BUTTON_MENU | BUTTON_SELECT | BUTTON_PLAY)) ==
+    if (hold_switch_exit() ||
+        (buttons & (BUTTON_MENU | BUTTON_SELECT | BUTTON_PLAY)) ==
         (BUTTON_MENU | BUTTON_SELECT | BUTTON_PLAY))
         quit_requested = true;
 }
@@ -716,7 +726,7 @@ static void drain_input_after_exit(void)
     rb->button_clear_queue();
     while (TIME_BEFORE(*rb->current_tick, deadline))
     {
-        if (rb->button_status() == 0)
+        if (rb->button_status() == 0 && !hold_switch_exit())
             break;
 
         rb->button_clear_queue();
@@ -1292,7 +1302,11 @@ void InfoNES_PadState(DWORD *pdwPad1, DWORD *pdwPad2, DWORD *pdwSystem)
     }
     right_was_down = right_down;
 
-    if ((buttons & (BUTTON_MENU | BUTTON_SELECT | BUTTON_PLAY)) ==
+    if (hold_switch_exit())
+    {
+        quit_requested = true;
+    }
+    else if ((buttons & (BUTTON_MENU | BUTTON_SELECT | BUTTON_PLAY)) ==
         (BUTTON_MENU | BUTTON_SELECT | BUTTON_PLAY))
     {
         quit_requested = true;
