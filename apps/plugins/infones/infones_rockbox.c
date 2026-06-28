@@ -10,6 +10,7 @@
 #define INFONES_DISP_X ((LCD_WIDTH - NES_DISP_WIDTH) / 2)
 #define INFONES_DISP_Y ((LCD_HEIGHT - NES_DISP_HEIGHT) / 2)
 #define INFONES_SAVE_DIR ROCKBOX_DIR "/infones"
+#define INFONES_OPTIONS_PATH INFONES_SAVE_DIR "/options.cfg"
 #define INFONES_PROFILE_LOG INFONES_SAVE_DIR "/profile.log"
 #define INFONES_NTSC_FPS_X1000 60099
 #define INFONES_PACE_SCALE 1000L
@@ -36,6 +37,8 @@
 #define INFONES_HARDWARE_FRAMESKIP 0
 #endif
 #define INFONES_AUDIO_SCALE 28
+#define INFONES_AUTOSAVE_INTERVAL (HZ * 5)
+#define INFONES_RUN_DOUBLE_TAP (HZ / 3)
 #define INFONES_PROFILE_HIST_SIZE 32
 #define INFONES_SCALE_FILL_SCREEN \
     (LCD_WIDTH != NES_DISP_WIDTH || LCD_HEIGHT != NES_DISP_HEIGHT)
@@ -73,6 +76,15 @@ static int audio_sample_rate;
 static bool audio_started;
 static bool audio_ready;
 static bool cpu_boosted;
+static bool sound_enabled;
+static bool autosave_enabled;
+static long next_autosave_tick;
+static bool right_was_down;
+static bool right_run_active;
+static long right_last_tap_tick;
+static bool left_was_down;
+static bool left_run_active;
+static long left_last_tap_tick;
 #ifdef HAVE_WHEEL_POSITION
 static DWORD wheel_pad_latch;
 static long wheel_pad_latch_tick;
@@ -155,6 +167,7 @@ static struct infones_profile profile;
 
 static long pace_frame(void);
 static void profile_write_log(void);
+static void save_sram(void);
 
 static int emphasis_dim(int value)
 {
@@ -364,6 +377,82 @@ static void profile_maybe_write_early_snapshot(void)
     }
 }
 
+static void options_reset(void)
+{
+    sound_enabled = true;
+    autosave_enabled = true;
+}
+
+static void options_parse_line(const char *line)
+{
+    if (rb->strncmp(line, "sound=", 6) == 0)
+        sound_enabled = line[6] != '0';
+    else if (rb->strncmp(line, "autosave=", 9) == 0)
+        autosave_enabled = line[9] != '0';
+}
+
+static void options_load(void)
+{
+    char buf[128];
+    char line[32];
+    int fd;
+    ssize_t got;
+    int i;
+    int j = 0;
+
+    options_reset();
+
+    fd = rb->open(INFONES_OPTIONS_PATH, O_RDONLY);
+    if (fd < 0)
+        return;
+
+    got = rb->read(fd, buf, sizeof(buf) - 1);
+    rb->close(fd);
+    if (got <= 0)
+        return;
+
+    buf[got] = '\0';
+    for (i = 0; i <= got; i++)
+    {
+        char c = buf[i];
+
+        if (c == '\n' || c == '\r' || c == '\0')
+        {
+            if (j > 0)
+            {
+                line[j] = '\0';
+                options_parse_line(line);
+                j = 0;
+            }
+        }
+        else if (j < (int)sizeof(line) - 1)
+        {
+            line[j++] = c;
+        }
+    }
+}
+
+static void maybe_autosave_sram(void)
+{
+    long now;
+
+    if (!autosave_enabled || !sram_path_valid || !ROM_SRAM)
+        return;
+
+    now = *rb->current_tick;
+    if (next_autosave_tick == 0)
+    {
+        next_autosave_tick = now + INFONES_AUTOSAVE_INTERVAL;
+        return;
+    }
+
+    if (TIME_BEFORE(now, next_autosave_tick))
+        return;
+
+    save_sram();
+    next_autosave_tick = now + INFONES_AUTOSAVE_INTERVAL;
+}
+
 long InfoNES_GetTicks(void)
 {
     return *rb->current_tick;
@@ -401,6 +490,8 @@ void InfoNES_ProfileFrameEnd(int rendered)
         profile.frames_skipped++;
         profile_record_bucket(&profile.wait_bucket, wait_ticks);
     }
+
+    maybe_autosave_sram();
 }
 
 static void profile_write_log(void)
@@ -923,6 +1014,14 @@ enum plugin_status plugin_start(const void *parameter)
     audio_started = false;
     audio_ready = false;
     cpu_boosted = false;
+    options_reset();
+    next_autosave_tick = 0;
+    right_was_down = false;
+    right_run_active = false;
+    right_last_tap_tick = 0;
+    left_was_down = false;
+    left_run_active = false;
+    left_last_tap_tick = 0;
     palette_ppumask = 0;
 #ifdef HAVE_WHEEL_POSITION
     wheel_pad_latch = 0;
@@ -940,6 +1039,7 @@ enum plugin_status plugin_start(const void *parameter)
     rb->button_clear_queue();
     draw_status("Loading ROM...");
     build_sram_path(rom_path);
+    options_load();
 
     InfoNES_Init();
     if (InfoNES_Load(rom_path) < 0)
@@ -1088,7 +1188,38 @@ void InfoNES_LoadFrame(void)
 void InfoNES_PadState(DWORD *pdwPad1, DWORD *pdwPad2, DWORD *pdwSystem)
 {
     int buttons = rb->button_status();
+    bool left_down = (buttons & BUTTON_LEFT) != 0;
+    bool right_down = (buttons & BUTTON_RIGHT) != 0;
+    long now = *rb->current_tick;
     DWORD pad = 0;
+
+    if (left_down && !left_was_down)
+    {
+        if (left_last_tap_tick != 0 &&
+            TIME_BEFORE(now, left_last_tap_tick + INFONES_RUN_DOUBLE_TAP))
+            left_run_active = true;
+
+        left_last_tap_tick = now;
+    }
+    else if (!left_down)
+    {
+        left_run_active = false;
+    }
+    left_was_down = left_down;
+
+    if (right_down && !right_was_down)
+    {
+        if (right_last_tap_tick != 0 &&
+            TIME_BEFORE(now, right_last_tap_tick + INFONES_RUN_DOUBLE_TAP))
+            right_run_active = true;
+
+        right_last_tap_tick = now;
+    }
+    else if (!right_down)
+    {
+        right_run_active = false;
+    }
+    right_was_down = right_down;
 
     if ((buttons & (BUTTON_MENU | BUTTON_SELECT | BUTTON_PLAY)) ==
         (BUTTON_MENU | BUTTON_SELECT | BUTTON_PLAY))
@@ -1129,6 +1260,10 @@ void InfoNES_PadState(DWORD *pdwPad1, DWORD *pdwPad2, DWORD *pdwSystem)
         pad |= NES_PAD_LEFT;
     if (buttons & BUTTON_RIGHT)
         pad |= NES_PAD_RIGHT;
+    if (left_run_active && left_down)
+        pad |= NES_PAD_LEFT | NES_PAD_B;
+    if (right_run_active && right_down)
+        pad |= NES_PAD_RIGHT | NES_PAD_B;
 
     poll_quit();
 
@@ -1169,6 +1304,14 @@ void InfoNES_SoundInit(void)
 
 int InfoNES_SoundOpen(int samples_per_sync, int sample_rate)
 {
+    if (!sound_enabled)
+    {
+        APU_Mute = 1;
+        audio_ready = false;
+        audio_sample_rate = 0;
+        return -1;
+    }
+
     rb->pcm_play_stop();
 
 #if INPUT_SRC_CAPS != 0

@@ -1760,6 +1760,164 @@ MENUITEM_FUNCTION(photos_item, MENU_FUNC_CHECK_RETVAL,
 
 static const struct browse_folder_info gameboy_folder = {"/gameboy/", SHOW_ALL};
 #if defined(HAVE_LCD_COLOR) && (LCD_WIDTH >= 220)
+#define INFONES_SAVE_DIR ROCKBOX_DIR "/infones"
+#define INFONES_OPTIONS_PATH INFONES_SAVE_DIR "/options.cfg"
+
+struct infones_root_options
+{
+    bool sound;
+    bool autosave;
+};
+
+static void infones_options_defaults(struct infones_root_options *options)
+{
+    options->sound = true;
+    options->autosave = true;
+}
+
+static void infones_options_parse_line(struct infones_root_options *options,
+                                       const char *line)
+{
+    if (strncmp(line, "sound=", 6) == 0)
+        options->sound = line[6] != '0';
+    else if (strncmp(line, "autosave=", 9) == 0)
+        options->autosave = line[9] != '0';
+}
+
+static void infones_options_load(struct infones_root_options *options)
+{
+    char buf[128];
+    char line[32];
+    int fd;
+    ssize_t got;
+    int i;
+    int j = 0;
+
+    infones_options_defaults(options);
+
+    fd = open(INFONES_OPTIONS_PATH, O_RDONLY);
+    if (fd < 0)
+        return;
+
+    got = read(fd, buf, sizeof(buf) - 1);
+    close(fd);
+    if (got <= 0)
+        return;
+
+    buf[got] = '\0';
+    for (i = 0; i <= got; i++)
+    {
+        char c = buf[i];
+
+        if (c == '\n' || c == '\r' || c == '\0')
+        {
+            if (j > 0)
+            {
+                line[j] = '\0';
+                infones_options_parse_line(options, line);
+                j = 0;
+            }
+        }
+        else if (j < (int)sizeof(line) - 1)
+        {
+            line[j++] = c;
+        }
+    }
+}
+
+static bool infones_options_save(const struct infones_root_options *options)
+{
+    int fd;
+
+    mkdir(INFONES_SAVE_DIR);
+    fd = open(INFONES_OPTIONS_PATH, O_CREAT | O_WRONLY | O_TRUNC, 0666);
+    if (fd < 0)
+        return false;
+
+    fdprintf(fd, "sound=%d\nautosave=%d\n",
+             options->sound ? 1 : 0, options->autosave ? 1 : 0);
+    close(fd);
+    return true;
+}
+
+static int infones_toggle_sound(void* param)
+{
+    struct infones_root_options options;
+
+    (void)param;
+    infones_options_load(&options);
+    options.sound = !options.sound;
+    if (infones_options_save(&options))
+        splash(HZ, options.sound ? "NES sound on" : "NES sound off");
+    else
+        splash(HZ, "NES options failed");
+
+    return 0;
+}
+
+static int infones_toggle_autosave(void* param)
+{
+    struct infones_root_options options;
+
+    (void)param;
+    infones_options_load(&options);
+    options.autosave = !options.autosave;
+    if (infones_options_save(&options))
+        splash(HZ, options.autosave ? "NES autosave on" : "NES autosave off");
+    else
+        splash(HZ, "NES options failed");
+
+    return 0;
+}
+
+static bool infones_is_sav_name(const char *name)
+{
+    size_t len = strlen(name);
+
+    return len > 4 &&
+           tolower((unsigned char)name[len - 4]) == '.' &&
+           tolower((unsigned char)name[len - 3]) == 's' &&
+           tolower((unsigned char)name[len - 2]) == 'a' &&
+           tolower((unsigned char)name[len - 1]) == 'v';
+}
+
+static int infones_clear_saves(void* param)
+{
+    DIR *dir;
+    struct dirent *entry;
+    int cleared = 0;
+
+    (void)param;
+    if (!yesno_pop("Clear NES saves?"))
+        return 0;
+
+    dir = opendir(INFONES_SAVE_DIR);
+    if (!dir)
+    {
+        splash(HZ, "No NES saves");
+        return 0;
+    }
+
+    while ((entry = readdir(dir)))
+    {
+        char path[MAX_PATH];
+
+        if (!infones_is_sav_name(entry->d_name))
+            continue;
+
+        if (snprintf(path, sizeof(path), INFONES_SAVE_DIR "/%s",
+                     entry->d_name) >= (int)sizeof(path))
+            continue;
+
+        if (remove(path) == 0)
+            cleared++;
+    }
+    closedir(dir);
+
+    splashf(HZ, "Cleared %d NES save%s", cleared, cleared == 1 ? "" : "s");
+    return 0;
+}
+
 static int launch_gameboy_browser(void* param)
 {
     (void)param;
@@ -1784,8 +1942,19 @@ MENUITEM_FUNCTION(gameboy_coverflow_item, MENU_FUNC_CHECK_RETVAL,
 MENUITEM_FUNCTION(gameboy_files_item, MENU_FUNC_CHECK_RETVAL,
                   "Browse ROM Files", browse_gameboy_roms,
                   NULL, Icon_NOICON);
+MENUITEM_FUNCTION(infones_sound_item, MENU_FUNC_CHECK_RETVAL,
+                  "Toggle NES Sound", infones_toggle_sound,
+                  NULL, Icon_NOICON);
+MENUITEM_FUNCTION(infones_autosave_item, MENU_FUNC_CHECK_RETVAL,
+                  "Toggle NES Autosave", infones_toggle_autosave,
+                  NULL, Icon_NOICON);
+MENUITEM_FUNCTION(infones_clear_saves_item, MENU_FUNC_CHECK_RETVAL,
+                  "Clear NES Saves", infones_clear_saves,
+                  NULL, Icon_NOICON);
 MAKE_MENU(gameboy_context_menu, "Games", NULL, Icon_NOICON,
-          &gameboy_coverflow_item, &gameboy_files_item);
+          &gameboy_coverflow_item, &gameboy_files_item,
+          &infones_sound_item, &infones_autosave_item,
+          &infones_clear_saves_item);
 
 MENUITEM_FUNCTION(gameboy_browser, MENU_FUNC_CHECK_RETVAL,
                   ID2P(LANG_PLUGIN_GAMES), launch_gameboy_browser,
