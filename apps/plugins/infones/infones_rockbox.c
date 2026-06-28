@@ -23,6 +23,7 @@
 #define INFONES_AUDIO_BUFS 10
 #define INFONES_AUDIO_START_BUFS 4
 #define INFONES_AUDIO_FRAMES_PER_BUF 2
+#define INFONES_DEFAULT_AUDIO_QUALITY 2
 #define INFONES_WAIT_YIELD_SCANLINES 64
 #if !defined(SIMULATOR)
 #define INFONES_HARDWARE_FRAMESKIP 1
@@ -33,6 +34,7 @@
 #define INFONES_AUDIO_BUFS 6
 #define INFONES_AUDIO_START_BUFS 3
 #define INFONES_AUDIO_FRAMES_PER_BUF 4
+#define INFONES_DEFAULT_AUDIO_QUALITY 1
 #define INFONES_WAIT_YIELD_SCANLINES 16
 #define INFONES_HARDWARE_FRAMESKIP 0
 #endif
@@ -128,8 +130,11 @@ struct infones_profile
     unsigned long sound_samples;
     unsigned long wait_yields;
     unsigned long pcm_underruns;
+    unsigned long pcm_silence_fills;
     unsigned long pcm_low_water;
     unsigned long pcm_full_waits;
+    unsigned long audio_limited_samples;
+    unsigned long audio_peak_abs;
     unsigned long palette_writes;
     unsigned long ppumask_updates;
     long frame_ticks_peak;
@@ -416,7 +421,7 @@ static void options_reset(void)
 {
     sound_enabled = true;
     autosave_enabled = true;
-    audio_quality = 1;
+    audio_quality = INFONES_DEFAULT_AUDIO_QUALITY;
 }
 
 static void options_parse_line(const char *line)
@@ -426,7 +431,14 @@ static void options_parse_line(const char *line)
     else if (rb->strncmp(line, "autosave=", 9) == 0)
         autosave_enabled = line[9] != '0';
     else if (rb->strncmp(line, "audio_quality=", 14) == 0)
-        audio_quality = line[14] == '0' ? 0 : 1;
+    {
+        if (line[14] == '0')
+            audio_quality = 0;
+        else if (line[14] == '2')
+            audio_quality = 2;
+        else
+            audio_quality = 1;
+    }
 }
 
 static void options_load(void)
@@ -568,7 +580,9 @@ static void profile_write_log(void)
                  "audio_samples=%lu avg_sound_ticks_per_sample_x1000=%lu "
                  "avg_sound_call_ticks_x1000=%lu "
                  "peak_sound_call_ticks=%ld p99_sound_call_ticks=%lu "
-                 "pcm_underruns=%lu pcm_low_water=%lu pcm_full_waits=%lu "
+                 "pcm_underruns=%lu pcm_silence_fills=%lu "
+                 "pcm_low_water=%lu pcm_full_waits=%lu "
+                 "audio_limited_samples=%lu audio_peak_abs=%lu "
                  "wait_yields=%lu wait_yield_scanlines=%d "
                  "audio_sample_rate=%d audio_quality=%d audio_bufs=%d "
                  "audio_buf_samples=%d configured_frameskip=%d "
@@ -604,8 +618,10 @@ static void profile_write_log(void)
                  profile_bucket_avg_x1000(&profile.sound_bucket),
                  profile.sound_ticks_peak,
                  profile_bucket_p99(&profile.sound_bucket),
-                 profile.pcm_underruns, profile.pcm_low_water,
-                 profile.pcm_full_waits, profile.wait_yields,
+                 profile.pcm_underruns, profile.pcm_silence_fills,
+                 profile.pcm_low_water, profile.pcm_full_waits,
+                 profile.audio_limited_samples, profile.audio_peak_abs,
+                 profile.wait_yields,
                  INFONES_WAIT_YIELD_SCANLINES, audio_sample_rate,
                  audio_quality, INFONES_AUDIO_BUFS, audio_buf_samples,
                  INFONES_HARDWARE_FRAMESKIP,
@@ -814,7 +830,9 @@ static void audio_get_more(const void **start, size_t *size)
     }
     else if (audio_hwbuf)
     {
+        rb->memset(audio_hwbuf, 0, audio_buf_samples * 2 * sizeof(short));
         profile.pcm_underruns++;
+        profile.pcm_silence_fills++;
     }
 
     *start = audio_hwbuf;
@@ -869,14 +887,24 @@ static short filter_audio_sample(int sample)
 {
     int filtered = sample - audio_dc_in_prev +
                    ((audio_dc_out_prev * 255) >> 8);
+    int abs_sample;
 
     audio_dc_in_prev = sample;
     audio_dc_out_prev = filtered;
     audio_lp_prev += (filtered - audio_lp_prev) >> 2;
     if (audio_lp_prev > INFONES_AUDIO_LIMIT)
+    {
+        profile.audio_limited_samples++;
         return INFONES_AUDIO_LIMIT;
+    }
     if (audio_lp_prev < -INFONES_AUDIO_LIMIT)
+    {
+        profile.audio_limited_samples++;
         return -INFONES_AUDIO_LIMIT;
+    }
+    abs_sample = audio_lp_prev < 0 ? -audio_lp_prev : audio_lp_prev;
+    if ((unsigned long)abs_sample > profile.audio_peak_abs)
+        profile.audio_peak_abs = abs_sample;
     return clamp_audio_sample(audio_lp_prev);
 }
 
