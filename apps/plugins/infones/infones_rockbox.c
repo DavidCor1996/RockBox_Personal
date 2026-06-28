@@ -43,7 +43,7 @@
 #define INFONES_PULSE_TABLE_SIZE 31
 #define INFONES_TND_TABLE_SIZE 203
 #define INFONES_AUDIO_GAIN_NUM 1
-#define INFONES_AUDIO_GAIN_DEN 8
+#define INFONES_AUDIO_GAIN_DEN 4
 #define INFONES_AUDIO_LIMIT 16000
 #define INFONES_SAFE_VOLUME_DB (-50)
 #define INFONES_SCALE_FILL_SCREEN \
@@ -79,6 +79,7 @@ static int audio_buf_samples;
 static int audio_dc_in_prev;
 static int audio_dc_out_prev;
 static int audio_lp_prev;
+static short audio_last_sample;
 static int audio_sample_rate;
 static bool audio_started;
 static bool audio_ready;
@@ -830,7 +831,17 @@ static void audio_get_more(const void **start, size_t *size)
     }
     else if (audio_hwbuf)
     {
-        rb->memset(audio_hwbuf, 0, audio_buf_samples * 2 * sizeof(short));
+        int i;
+
+        for (i = 0; i < audio_buf_samples; i++)
+        {
+            short sample = audio_last_sample -
+                ((int)audio_last_sample * (i + 1)) / audio_buf_samples;
+
+            audio_hwbuf[i * 2] = sample;
+            audio_hwbuf[i * 2 + 1] = sample;
+        }
+        audio_last_sample = 0;
         profile.pcm_underruns++;
         profile.pcm_silence_fills++;
     }
@@ -1115,6 +1126,7 @@ enum plugin_status plugin_start(const void *parameter)
     audio_dc_in_prev = 0;
     audio_dc_out_prev = 0;
     audio_lp_prev = 0;
+    audio_last_sample = 0;
     audio_sample_rate = 0;
     audio_buf_samples = 0;
     audio_started = false;
@@ -1461,6 +1473,7 @@ int InfoNES_SoundOpen(int samples_per_sync, int sample_rate)
     audio_dc_in_prev = 0;
     audio_dc_out_prev = 0;
     audio_lp_prev = 0;
+    audio_last_sample = 0;
     audio_started = false;
     audio_ready = true;
     audio_sample_rate = sample_rate;
@@ -1482,6 +1495,7 @@ void InfoNES_SoundClose(void)
     audio_dc_in_prev = 0;
     audio_dc_out_prev = 0;
     audio_lp_prev = 0;
+    audio_last_sample = 0;
     audio_sample_rate = 0;
 }
 
@@ -1499,6 +1513,7 @@ void InfoNES_SoundOutput(int samples, BYTE *wave1, BYTE *wave2, BYTE *wave3,
         int mixed = nes_mix_sample(wave1[i], wave2[i], wave3[i], wave4[i],
                                    wave5[i]);
         short sample = filter_audio_sample(mixed);
+        audio_last_sample = sample;
         audio_write_buf[audio_pos * 2] = sample;
         audio_write_buf[audio_pos * 2 + 1] = sample;
         audio_pos++;

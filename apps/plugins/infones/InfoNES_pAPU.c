@@ -124,14 +124,6 @@ struct ApuQualityData_t
   { 0x289d9c00, 0x289d9c00, 0x289d9c00, 735,  41, 44100, 265664 },
 };
 
-static void ApuClearWaveTail(int channel, unsigned int index)
-{
-  while (index < ApuSamplesPerSync)
-  {
-    wave_buffers[channel][index++] = 0;
-  }
-}
-
 /*-------------------------------------------------------------------*/
 /*  Rectangle Wave #1 resources                                      */
 /*-------------------------------------------------------------------*/
@@ -404,8 +396,8 @@ void ApuRenderingWave1( void )
      */
     if ( ApuC1Freq < 8 || ( !ApuC1SweepIncDec && ApuC1Freq > ApuC1FreqLimit ) )
     {
-      ApuClearWaveTail(0, i);
-      break;
+      wave_buffers[0][i] = 0;
+      continue;
     }
 
     /* Frequency sweeping at a rate of ( Sweep Delay + 1) / 120 secs */
@@ -556,8 +548,8 @@ void ApuRenderingWave2( void )
      */
     if ( ApuC2Freq < 8 || ( !ApuC2SweepIncDec && ApuC2Freq > ApuC2FreqLimit ) )
     {
-      ApuClearWaveTail(1, i);
-      break;
+      wave_buffers[1][i] = 0;
+      continue;
     }
 
     /* Frequency sweeping at a rate of ( Sweep Delay + 1) / 120 secs */
@@ -682,8 +674,8 @@ void ApuRenderingWave3( void )
     /* Cutting Min Frequency */
     if ( ApuC3Freq < 8 )
     {
-      ApuClearWaveTail(2, i);
-      break;
+      wave_buffers[2][i] = 0;
+      continue;
     }
 
     /* Counter Control */
