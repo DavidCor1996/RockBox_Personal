@@ -21,15 +21,11 @@
 #define INFONES_AUDIO_SAMPLES 1024
 #if defined(IPOD_6G)
 #define INFONES_AUDIO_BUFS 16
-#define INFONES_AUDIO_START_BUFS 6
+#define INFONES_AUDIO_START_BUFS 8
 #define INFONES_AUDIO_FRAMES_PER_BUF 2
 #define INFONES_DEFAULT_AUDIO_QUALITY 2
-#define INFONES_WAIT_YIELD_SCANLINES 64
-#if !defined(SIMULATOR)
 #define INFONES_HARDWARE_FRAMESKIP 1
-#else
-#define INFONES_HARDWARE_FRAMESKIP 0
-#endif
+#define INFONES_WAIT_YIELD_SCANLINES 256
 #else
 #define INFONES_AUDIO_BUFS 6
 #define INFONES_AUDIO_START_BUFS 3
@@ -718,18 +714,6 @@ static void draw_status(const char *msg)
     rb->lcd_update();
 }
 
-static void stop_playback_for_plugin(void)
-{
-    if (rb->audio_status())
-    {
-        rb->audio_stop();
-        rb->sleep(HZ / 5);
-    }
-
-    rb->pcm_play_stop();
-    rb->pcm_set_frequency(HW_SAMPR_DEFAULT);
-}
-
 static void restore_playback_state(void)
 {
     audio_ready = false;
@@ -1131,7 +1115,6 @@ enum plugin_status plugin_start(const void *parameter)
         return PLUGIN_ERROR;
     }
 
-    stop_playback_for_plugin();
     alloc_ptr = rb->plugin_get_audio_buffer(&buf_size);
     alloc_end = alloc_ptr + buf_size;
     profile_reset(rom_path, buf_size);
@@ -1191,6 +1174,7 @@ enum plugin_status plugin_start(const void *parameter)
     {
         InfoNES_Fin();
         restore_playback_state();
+        rb->plugin_release_audio_buffer();
 #if defined(HAVE_ADJUSTABLE_CPU_FREQ)
         if (cpu_boosted)
             rb->cpu_boost(false);
@@ -1216,6 +1200,7 @@ enum plugin_status plugin_start(const void *parameter)
         save_sram();
     InfoNES_Fin();
     restore_playback_state();
+    rb->plugin_release_audio_buffer();
     rb->button_clear_queue();
 
 #if defined(HAVE_ADJUSTABLE_CPU_FREQ)

@@ -41,7 +41,7 @@
 %V(0,0,-,-,4)%VB
 %?if(%cs, =, 21)<%?bp<%?if(%cM, <, 15)<%xd(ChargeWallpaper)|%?if(%cM, <, 30)<%xd(ChargeWallpaperAlt)|%?if(%cM, <, 45)<%xd(ChargeWallpaperThird)|%xd(ChargeWallpaperFourth)>>>|%xd(LsWallpaper)>|%?mh<%?if(%St(backlight on button hold), =, off)<%dr(0,0,-,-,FFFFFF)|%?bp<%?if(%cM, <, 15)<%xd(ChargeWallpaper)|%?if(%cM, <, 30)<%xd(ChargeWallpaperAlt)|%?if(%cM, <, 45)<%xd(ChargeWallpaperThird)|%xd(ChargeWallpaperFourth)>>>%?mp<|%xd(NotificationBackdrop)>|%xd(LsWallpaper)%?mp<|%xd(NotificationBackdrop)>>>|%xd(SbsBg)>>>
 %V(0,0,-,-,-)
-%?if(%cs, =, 21)<%Vd(ChargeClock)%Vd(ChargeMeta)%Vd(ChargeNowPlaying)|%?mh<%?if(%St(backlight on button hold), =, off)<%Vd(iPoneAOD)%Vd(AodNowPlayingCard)|%Vd(iPoneLockscreen)%?mp<|%Vd(LockPlayer)%Vd(LockMusic)|%Vd(LockPlayer)%Vd(LockMusic)|||||%Vd(LockPlayer)%Vd(LockRadio)>>|%?if(%St(ipone right pane), =, miniplayer)<%Vd(SbsMiniTop)%?mp<%Vd(normal)|%Vd(SbsClassicArt)%Vd(normal)|%Vd(SbsClassicArt)%Vd(normal)|%Vd(SbsClassicArt)%Vd(normal)|%Vd(SbsClassicArt)%Vd(normal)|%Vd(SbsClassicArt)%Vd(normal)|%Vd(SbsClassicArt)%Vd(normal)|%Vd(radio)|%Vd(radio)>|%Vd(SbsAnimPulse)%?mp<%Vd(normal)|%Vd(normal)|%Vd(normal)|%Vd(normal)|%Vd(normal)|%Vd(normal)|%Vd(normal)|%Vd(normal)|%Vd(normal)>>>>
+%?if(%cs, =, 21)<%Vd(ChargeClock)%Vd(ChargeMeta)%Vd(ChargeNowPlaying)|%?mh<%?if(%St(backlight on button hold), =, off)<%Vd(iPoneAOD)%Vd(AodNowPlayingCard)|%Vd(iPoneLockscreen)%?mp<|%Vd(LockPlayer)%Vd(LockMusic)|%Vd(LockPlayer)%Vd(LockMusic)|||||%Vd(LockPlayer)%Vd(LockRadio)>>|%?if(%St(ipone right pane), =, miniplayer)<%Vd(SbsMiniTop)%?mp<%Vd(normal)|%Vd(SbsClassicArt)%Vd(normal)|%Vd(SbsClassicArt)%Vd(normal)|%Vd(SbsClassicArt)%Vd(normal)|%Vd(SbsClassicArt)%Vd(normal)|%Vd(SbsClassicArt)%Vd(normal)|%Vd(SbsClassicArt)%Vd(normal)|%Vd(radio)|%Vd(radio)>|%?mp<%Vd(normal)|%Vd(normal)|%Vd(normal)|%Vd(normal)|%Vd(normal)|%Vd(normal)|%Vd(normal)|%Vd(normal)|%Vd(normal)>>>>
 
 
 # Main UI Viewport - White text on Black (iClassic approach)
@@ -86,7 +86,6 @@
 %Vl(SbsMiniTop,160,0,160,40,5)%Vf(E8DFF8)
 %s%ac%cl:%cM %cP
 %Vl(SbsClassicArt,160,40,160,160,-)%Cl(0,0,160,160,c,c,1)%Cd(1)
-%Vl(SbsAnimPulse,319,239,1,1,-)%t(0.1)%dr(0,0,1,1,000000);%t(0.1)%dr(0,0,1,1,010101)
 %Vi(USB,0,0,1,1,2)
 
 #------------ Lockscreen / Always On Display ------------#

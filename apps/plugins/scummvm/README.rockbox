@@ -1,0 +1,39 @@
+ScummVM Rockbox support starts with a descriptor launcher.
+
+Create a file ending in `.scummvm`:
+
+    gameid=sky
+    engine=sky
+    path=/Games/ScummVM/sky
+    savepath=/.rockbox/scummvm/saves/sky
+
+Open that descriptor from Files. The current plugin validates the descriptor
+and game data path, then runs the Rockbox backend shell.
+
+Shared engine data goes in `/.rockbox/scummvm/engine-data`. For Sky, full
+gameplay requires `sky.cpt` there or in the game data directory. The intro
+resource path can run from `sky.dsk`/`sky.dnr` alone, but the script/scene loop
+needs the compact tables from `sky.cpt`. The plugin now parses and validates
+the `sky.cpt` compact metadata during Sky preparation and section bootstrap.
+
+Current engine state:
+
+- `sky`: loads `sky.dnr`/`sky.dsk`, decodes resources through the imported
+  ScummVM 1.9.0 RNC decoder, and renders the first static intro
+  screen/palette resources (`60110`/`60111`, `60112`/`60113`,
+  `60114`/`60115`) when available. It also applies the first floppy intro
+  animation sequences (`60082` through `60086`) with a small native
+  skip/run sequence player, then validates the section-0 fixed items and all
+  grid resources (`60000` through `60069`) needed before the first playable
+  scene. It also validates and retains the `sky.cpt` compact table format,
+  initializes the native Sky runtime variables, and scans the active logic list
+  from the retained compacts. The runtime loads Sky script modules from
+  `sky.dsk` and decodes active script opcodes up to the first engine mcode
+  call.
+- `queen`: validates `queen.1`/`queen.1c` and known retail/demo resource
+  versions.
+
+The shell owns the screen/input loop and provides the boundary where the full
+trimmed engine loop is being connected.
+
+See docs/scummvm-rockbox-port.md for the port contract.

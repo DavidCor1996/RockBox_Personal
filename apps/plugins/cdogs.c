@@ -919,14 +919,29 @@ static void audio_callback(const void **start, size_t *size)
 
 static void cdogs_audio_init(void)
 {
+    long deadline;
+
     if (g_audio.active)
         return;
 
     rb->talk_disable(true);
+    if (rb->audio_status())
+    {
+        rb->audio_stop();
+        deadline = *rb->current_tick + HZ * 3;
+        while ((rb->audio_status() & AUDIO_STATUS_PLAY) &&
+               TIME_BEFORE(*rb->current_tick, deadline))
+        {
+            rb->sleep(1);
+        }
+    }
     rb->mixer_channel_stop(PCM_MIXER_CHAN_PLAYBACK);
 #if INPUT_SRC_CAPS != 0
     rb->audio_set_input_source(AUDIO_SRC_PLAYBACK, SRCF_PLAYBACK);
     rb->audio_set_output_source(AUDIO_SRC_PLAYBACK);
+#endif
+#if defined(HAVE_CS42L55)
+    rb->audiohw_idle_powerup();
 #endif
     rb->pcm_play_stop();
     rb->pcm_set_frequency(HW_FREQ_8);
@@ -954,6 +969,13 @@ static void audio_shutdown(void)
     rb->pcm_play_stop();
     rb->pcm_set_frequency(HW_FREQ_DEFAULT);
     rb->pcm_apply_settings();
+#if INPUT_SRC_CAPS != 0
+    rb->audio_set_input_source(AUDIO_SRC_PLAYBACK, SRCF_PLAYBACK);
+    rb->audio_set_output_source(AUDIO_SRC_PLAYBACK);
+#endif
+#if defined(HAVE_CS42L55)
+    rb->audiohw_idle_powerdown();
+#endif
     rb->talk_disable(false);
     rb->memset(&g_audio, 0, sizeof(g_audio));
 }

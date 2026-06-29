@@ -100,14 +100,15 @@ void rockboy_pcm_close(void)
 
 int rockboy_pcm_submit(void)
 {
-    unsigned long wait_start;
+    long wait_start;
 
     if (!pcm.buf) return 0;
     if (pcm.pos < pcm.len) return 1;
 
     pcm.drop_when_full = options.performance_preset != ROCKBOY_PERF_QUALITY;
     wait_start = *rb->current_tick;
-    while (queued_bufs >= N_BUFS - 1 && !pcm.drop_when_full)
+    while (queued_bufs >= N_BUFS - 1 && !pcm.drop_when_full &&
+           *rb->current_tick == wait_start)
     {
         rb->yield();
     }
@@ -115,6 +116,7 @@ int rockboy_pcm_submit(void)
     {
         rockboy_profile_add(ROCKBOY_TIME_PCM_WAIT,
                             *rb->current_tick - wait_start);
+        rockboy_profile_pcm_drop();
         pcm.pos = 0;
         return 1;
     }

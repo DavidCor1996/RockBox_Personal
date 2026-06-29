@@ -205,6 +205,11 @@ void rockboy_profile_pcm_underrun_enabled(void)
     totals.pcm_underruns++;
 }
 
+void rockboy_profile_pcm_drop_enabled(void)
+{
+    totals.pcm_dropped_buffers++;
+}
+
 void rockboy_profile_count_enabled(enum rockboy_profile_event which,
                                    unsigned long count)
 {
@@ -245,7 +250,7 @@ void rockboy_profile_log_summary(const char *rom_path)
              "blit_avg_ticks=%lu blit_peak_ticks=%lu "
              "audio_mix_avg_ticks=%lu audio_mix_peak_ticks=%lu "
              "pcm_wait_avg_ticks=%lu pcm_wait_peak_ticks=%lu "
-             "pcm_underruns=%lu save_total_ticks=%lu "
+             "pcm_underruns=%lu pcm_dropped_buffers=%lu save_total_ticks=%lu "
              "cpu_ops=%lu slow_mem_reads=%lu slow_mem_writes=%lu "
              "vram_dirty_writes=%lu lcd_lines=%lu dmg_lines=%lu cgb_lines=%lu "
              "no_sprite_lines=%lu no_window_lines=%lu "
@@ -280,6 +285,7 @@ void rockboy_profile_log_summary(const char *rom_path)
              avg_ticks(p, ROCKBOY_TIME_PCM_WAIT),
              p->peak[ROCKBOY_TIME_PCM_WAIT],
              p->pcm_underruns,
+             p->pcm_dropped_buffers,
              p->total[ROCKBOY_TIME_SAVE],
              p->events[ROCKBOY_EVENT_CPU_OPS],
              p->events[ROCKBOY_EVENT_SLOW_MEM_READS],

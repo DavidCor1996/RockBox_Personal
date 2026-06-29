@@ -396,7 +396,7 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
 .plt.sec
  *(.plt.sec)
 
-.text           0x00000000000030c0    0x34da8
+.text           0x00000000000030c0    0x34e35
  *(.text.unlikely .text.*_unlikely .text.unlikely.*)
  .text.unlikely.pause_menu
                 0x00000000000030c0       0x16 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/puzzles/rockbox.o
@@ -2339,85 +2339,85 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
  .text.tlsf_calloc
                 0x00000000000364d0        0xc /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/libtlsf.a(tlsf.o)
                 0x00000000000364d0                tlsf_calloc
- .text          0x00000000000364dc       0x40 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(gcc-support.o)
+ .text          0x00000000000364dc       0xcd /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(gcc-support.o)
                 0x00000000000364dc                memcpy
-                0x00000000000364ec                memset
-                0x00000000000364fc                memmove
-                0x000000000003650c                memcmp
- .text          0x000000000003651c      0x11a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(helper.o)
-                0x000000000003651c                talk_val
-                0x0000000000036534                backlight_force_on
-                0x0000000000036556                backlight_ignore_timeout
-                0x0000000000036594                backlight_use_settings
-                0x00000000000365c6                sw_poweroff_disable
-                0x00000000000365ec                sw_poweroff_restore
-                0x0000000000036603                remote_backlight_force_on
-                0x0000000000036604                remote_backlight_ignore_timeout
-                0x0000000000036605                remote_backlight_use_settings
-                0x0000000000036606                buttonlight_force_on
-                0x0000000000036607                buttonlight_force_off
-                0x0000000000036608                buttonlight_ignore_timeout
-                0x0000000000036609                buttonlight_use_settings
-                0x000000000003660a                backlight_brightness_set
-                0x000000000003661a                backlight_brightness_use_setting
-                0x0000000000036634                buttonlight_brightness_set
-                0x0000000000036635                buttonlight_brightness_use_setting
- .text          0x0000000000036636      0x1b3 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(playback_control.o)
-                0x00000000000367b3                playback_control_init
-                0x00000000000367bb                playback_control
- .text          0x00000000000367e9      0x377 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(display_text.o)
-                0x0000000000036830                display_text
- .text          0x0000000000036b60       0x2e /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(strncpy.o)
-                0x0000000000036b60                strncpy
- .text          0x0000000000036b8e      0x44a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(stdio_compat.o)
-                0x0000000000036b8e                _fopen_
-                0x0000000000036c27                _fflush_
-                0x0000000000036c2a                _fread_
-                0x0000000000036c68                _fwrite_
-                0x0000000000036cb1                _fseek_
-                0x0000000000036cff                _ftell_
-                0x0000000000036d1b                _fclose_
-                0x0000000000036d48                _fgetc_
-                0x0000000000036db3                _ungetc_
-                0x0000000000036db9                _fputc_
-                0x0000000000036e19                _fgets_
-                0x0000000000036ea9                _clearerr_
-                0x0000000000036eb4                _ferror_
-                0x0000000000036ec2                _feof_
-                0x0000000000036ed7                _fprintf_
- .text          0x0000000000036fd8      0x7db /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(xlcd_draw.o)
-                0x0000000000036fd8                xlcd_filltriangle_screen
-                0x000000000003731f                xlcd_filltriangle
-                0x000000000003734e                xlcd_fillcircle_screen
-                0x00000000000374a1                xlcd_fillcircle
-                0x00000000000374bf                xlcd_drawcircle_screen
-                0x00000000000375b9                xlcd_drawcircle
-                0x00000000000375d7                xlcd_color_bitmap_part
-                0x000000000003779b                xlcd_color_bitmap
- .text          0x00000000000377b3       0x3e /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(xlcd_core.o)
-                0x00000000000377b3                get_framebuffer
- .text          0x00000000000377f1        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(puzzles_cursor.11x16x24.o)
- .text          0x00000000000377f1      0x677 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/libfixedpoint.a(fixedpoint.o)
-                0x00000000000377f1                fp_sincos
-                0x000000000003787c                fp_sqrt
-                0x000000000003792c                ipow
-                0x0000000000037967                fp14_sin
-                0x00000000000379bf                fp14_cos
-                0x0000000000037a1c                fp16_log
-                0x0000000000037b28                fp16_exp
-                0x0000000000037c2a                fp_exp10
-                0x0000000000037d8f                fp_log10
-                0x0000000000037e2d                fp_decibels
-                0x0000000000037e4b                fp_factor
- .text          0x0000000000037e68        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtendS.o
- .text          0x0000000000037e68        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
+                0x0000000000036507                memset
+                0x0000000000036530                memmove
+                0x0000000000036570                memcmp
+ .text          0x00000000000365a9      0x11a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(helper.o)
+                0x00000000000365a9                talk_val
+                0x00000000000365c1                backlight_force_on
+                0x00000000000365e3                backlight_ignore_timeout
+                0x0000000000036621                backlight_use_settings
+                0x0000000000036653                sw_poweroff_disable
+                0x0000000000036679                sw_poweroff_restore
+                0x0000000000036690                remote_backlight_force_on
+                0x0000000000036691                remote_backlight_ignore_timeout
+                0x0000000000036692                remote_backlight_use_settings
+                0x0000000000036693                buttonlight_force_on
+                0x0000000000036694                buttonlight_force_off
+                0x0000000000036695                buttonlight_ignore_timeout
+                0x0000000000036696                buttonlight_use_settings
+                0x0000000000036697                backlight_brightness_set
+                0x00000000000366a7                backlight_brightness_use_setting
+                0x00000000000366c1                buttonlight_brightness_set
+                0x00000000000366c2                buttonlight_brightness_use_setting
+ .text          0x00000000000366c3      0x1b3 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(playback_control.o)
+                0x0000000000036840                playback_control_init
+                0x0000000000036848                playback_control
+ .text          0x0000000000036876      0x377 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(display_text.o)
+                0x00000000000368bd                display_text
+ .text          0x0000000000036bed       0x2e /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(strncpy.o)
+                0x0000000000036bed                strncpy
+ .text          0x0000000000036c1b      0x44a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(stdio_compat.o)
+                0x0000000000036c1b                _fopen_
+                0x0000000000036cb4                _fflush_
+                0x0000000000036cb7                _fread_
+                0x0000000000036cf5                _fwrite_
+                0x0000000000036d3e                _fseek_
+                0x0000000000036d8c                _ftell_
+                0x0000000000036da8                _fclose_
+                0x0000000000036dd5                _fgetc_
+                0x0000000000036e40                _ungetc_
+                0x0000000000036e46                _fputc_
+                0x0000000000036ea6                _fgets_
+                0x0000000000036f36                _clearerr_
+                0x0000000000036f41                _ferror_
+                0x0000000000036f4f                _feof_
+                0x0000000000036f64                _fprintf_
+ .text          0x0000000000037065      0x7db /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(xlcd_draw.o)
+                0x0000000000037065                xlcd_filltriangle_screen
+                0x00000000000373ac                xlcd_filltriangle
+                0x00000000000373db                xlcd_fillcircle_screen
+                0x000000000003752e                xlcd_fillcircle
+                0x000000000003754c                xlcd_drawcircle_screen
+                0x0000000000037646                xlcd_drawcircle
+                0x0000000000037664                xlcd_color_bitmap_part
+                0x0000000000037828                xlcd_color_bitmap
+ .text          0x0000000000037840       0x3e /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(xlcd_core.o)
+                0x0000000000037840                get_framebuffer
+ .text          0x000000000003787e        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(puzzles_cursor.11x16x24.o)
+ .text          0x000000000003787e      0x677 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/libfixedpoint.a(fixedpoint.o)
+                0x000000000003787e                fp_sincos
+                0x0000000000037909                fp_sqrt
+                0x00000000000379b9                ipow
+                0x00000000000379f4                fp14_sin
+                0x0000000000037a4c                fp14_cos
+                0x0000000000037aa9                fp16_log
+                0x0000000000037bb5                fp16_exp
+                0x0000000000037cb7                fp_exp10
+                0x0000000000037e1c                fp_log10
+                0x0000000000037eba                fp_decibels
+                0x0000000000037ed8                fp_factor
+ .text          0x0000000000037ef5        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtendS.o
+ .text          0x0000000000037ef5        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
  *(.gnu.warning)
 
-.fini           0x0000000000037e68        0xd
+.fini           0x0000000000037ef8        0xd
  *(SORT_NONE(.fini))
- .fini          0x0000000000037e68        0x8 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
-                0x0000000000037e68                _fini
- .fini          0x0000000000037e70        0x5 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
+ .fini          0x0000000000037ef8        0x8 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
+                0x0000000000037ef8                _fini
+ .fini          0x0000000000037f00        0x5 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
                 [!provide]                        PROVIDE (__etext = .)
                 [!provide]                        PROVIDE (_etext = .)
                 [!provide]                        PROVIDE (etext = .)
@@ -4319,7 +4319,7 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000    0xdeed5
+.debug_info     0x0000000000000000    0xdef34
  *(.debug_info .gnu.linkonce.wi.*)
  .debug_info    0x0000000000000000     0xdb9d /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/puzzles/src/singles.o
  .debug_info    0x000000000000db9d      0x583 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/puzzles/help/singles.o
@@ -4353,18 +4353,18 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
  .debug_info    0x000000000009badb     0x1923 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/puzzles/src/printing.o
  .debug_info    0x000000000009d3fe     0x7ca7 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
  .debug_info    0x00000000000a50a5     0x1b6b /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/libtlsf.a(tlsf.o)
- .debug_info    0x00000000000a6c10     0x7678 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(gcc-support.o)
- .debug_info    0x00000000000ae288     0x7a9f /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(helper.o)
- .debug_info    0x00000000000b5d27     0x9821 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(playback_control.o)
- .debug_info    0x00000000000bf548     0x7806 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(display_text.o)
- .debug_info    0x00000000000c6d4e      0x12a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(strncpy.o)
- .debug_info    0x00000000000c6e78     0x8098 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(stdio_compat.o)
- .debug_info    0x00000000000cef10     0x825b /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(xlcd_draw.o)
- .debug_info    0x00000000000d716b     0x74f9 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(xlcd_core.o)
- .debug_info    0x00000000000de664      0x141 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(puzzles_cursor.11x16x24.o)
- .debug_info    0x00000000000de7a5      0x730 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/libfixedpoint.a(fixedpoint.o)
+ .debug_info    0x00000000000a6c10     0x76d7 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(gcc-support.o)
+ .debug_info    0x00000000000ae2e7     0x7a9f /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(helper.o)
+ .debug_info    0x00000000000b5d86     0x9821 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(playback_control.o)
+ .debug_info    0x00000000000bf5a7     0x7806 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(display_text.o)
+ .debug_info    0x00000000000c6dad      0x12a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(strncpy.o)
+ .debug_info    0x00000000000c6ed7     0x8098 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(stdio_compat.o)
+ .debug_info    0x00000000000cef6f     0x825b /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(xlcd_draw.o)
+ .debug_info    0x00000000000d71ca     0x74f9 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(xlcd_core.o)
+ .debug_info    0x00000000000de6c3      0x141 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(puzzles_cursor.11x16x24.o)
+ .debug_info    0x00000000000de804      0x730 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/libfixedpoint.a(fixedpoint.o)
 
-.debug_abbrev   0x0000000000000000     0xa79a
+.debug_abbrev   0x0000000000000000     0xa7b1
  *(.debug_abbrev)
  .debug_abbrev  0x0000000000000000      0x7fa /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/puzzles/src/singles.o
  .debug_abbrev  0x00000000000007fa       0xdb /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/puzzles/help/singles.o
@@ -4398,18 +4398,18 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
  .debug_abbrev  0x0000000000007d3c      0x3bd /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/puzzles/src/printing.o
  .debug_abbrev  0x00000000000080f9      0x442 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
  .debug_abbrev  0x000000000000853b      0x476 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/libtlsf.a(tlsf.o)
- .debug_abbrev  0x00000000000089b1      0x310 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(gcc-support.o)
- .debug_abbrev  0x0000000000008cc1      0x3c2 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(helper.o)
- .debug_abbrev  0x0000000000009083      0x3d9 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(playback_control.o)
- .debug_abbrev  0x000000000000945c      0x362 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(display_text.o)
- .debug_abbrev  0x00000000000097be       0xa1 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(strncpy.o)
- .debug_abbrev  0x000000000000985f      0x4fb /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(stdio_compat.o)
- .debug_abbrev  0x0000000000009d5a      0x4cd /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(xlcd_draw.o)
- .debug_abbrev  0x000000000000a227      0x2f1 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(xlcd_core.o)
- .debug_abbrev  0x000000000000a518       0xbe /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(puzzles_cursor.11x16x24.o)
- .debug_abbrev  0x000000000000a5d6      0x1c4 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/libfixedpoint.a(fixedpoint.o)
+ .debug_abbrev  0x00000000000089b1      0x327 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(gcc-support.o)
+ .debug_abbrev  0x0000000000008cd8      0x3c2 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(helper.o)
+ .debug_abbrev  0x000000000000909a      0x3d9 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(playback_control.o)
+ .debug_abbrev  0x0000000000009473      0x362 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(display_text.o)
+ .debug_abbrev  0x00000000000097d5       0xa1 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(strncpy.o)
+ .debug_abbrev  0x0000000000009876      0x4fb /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(stdio_compat.o)
+ .debug_abbrev  0x0000000000009d71      0x4cd /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(xlcd_draw.o)
+ .debug_abbrev  0x000000000000a23e      0x2f1 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(xlcd_core.o)
+ .debug_abbrev  0x000000000000a52f       0xbe /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(puzzles_cursor.11x16x24.o)
+ .debug_abbrev  0x000000000000a5ed      0x1c4 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/libfixedpoint.a(fixedpoint.o)
 
-.debug_line     0x0000000000000000    0x31af3
+.debug_line     0x0000000000000000    0x31bc8
  *(.debug_line .debug_line.* .debug_line_end)
  .debug_line    0x0000000000000000     0x37b7 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/puzzles/src/singles.o
  .debug_line    0x00000000000037b7       0x75 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/puzzles/help/singles.o
@@ -4443,16 +4443,16 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
  .debug_line    0x000000000002dbd2      0x95c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/puzzles/src/printing.o
  .debug_line    0x000000000002e52e      0x2bd /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
  .debug_line    0x000000000002e7eb      0xf6d /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/libtlsf.a(tlsf.o)
- .debug_line    0x000000000002f758      0x1eb /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(gcc-support.o)
- .debug_line    0x000000000002f943      0x2b4 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(helper.o)
- .debug_line    0x000000000002fbf7      0x332 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(playback_control.o)
- .debug_line    0x000000000002ff29      0x42e /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(display_text.o)
- .debug_line    0x0000000000030357       0xaf /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(strncpy.o)
- .debug_line    0x0000000000030406      0x4fc /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(stdio_compat.o)
- .debug_line    0x0000000000030902      0x801 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(xlcd_draw.o)
- .debug_line    0x0000000000031103      0x1d6 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(xlcd_core.o)
- .debug_line    0x00000000000312d9       0x4c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(puzzles_cursor.11x16x24.o)
- .debug_line    0x0000000000031325      0x7ce /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/libfixedpoint.a(fixedpoint.o)
+ .debug_line    0x000000000002f758      0x2c0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(gcc-support.o)
+ .debug_line    0x000000000002fa18      0x2b4 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(helper.o)
+ .debug_line    0x000000000002fccc      0x332 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(playback_control.o)
+ .debug_line    0x000000000002fffe      0x42e /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(display_text.o)
+ .debug_line    0x000000000003042c       0xaf /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(strncpy.o)
+ .debug_line    0x00000000000304db      0x4fc /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(stdio_compat.o)
+ .debug_line    0x00000000000309d7      0x801 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(xlcd_draw.o)
+ .debug_line    0x00000000000311d8      0x1d6 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(xlcd_core.o)
+ .debug_line    0x00000000000313ae       0x4c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(puzzles_cursor.11x16x24.o)
+ .debug_line    0x00000000000313fa      0x7ce /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/libfixedpoint.a(fixedpoint.o)
 
 .debug_frame
  *(.debug_frame)
@@ -4702,7 +4702,7 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
                                         0x15d (size before relaxing)
 
 .debug_loclists
-                0x0000000000000000    0xf12fe
+                0x0000000000000000    0xf13c7
  *(.debug_loclists)
  .debug_loclists
                 0x0000000000000000     0x4478 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/puzzles/src/singles.o
@@ -4763,23 +4763,23 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
  .debug_loclists
                 0x000000000003f256      0xe93 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/libtlsf.a(tlsf.o)
  .debug_loclists
-                0x00000000000400e9       0xe4 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(gcc-support.o)
+                0x00000000000400e9      0x1ad /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(gcc-support.o)
  .debug_loclists
-                0x00000000000401cd       0x5f /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(helper.o)
+                0x0000000000040296       0x5f /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(helper.o)
  .debug_loclists
-                0x000000000004022c       0x84 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(playback_control.o)
+                0x00000000000402f5       0x84 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(playback_control.o)
  .debug_loclists
-                0x00000000000402b0      0x1f4 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(display_text.o)
+                0x0000000000040379      0x1f4 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(display_text.o)
  .debug_loclists
-                0x00000000000404a4       0xa3 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(strncpy.o)
+                0x000000000004056d       0xa3 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(strncpy.o)
  .debug_loclists
-                0x0000000000040547      0x3bf /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(stdio_compat.o)
+                0x0000000000040610      0x3bf /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(stdio_compat.o)
  .debug_loclists
-                0x0000000000040906      0xd9f /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(xlcd_draw.o)
+                0x00000000000409cf      0xd9f /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(xlcd_draw.o)
  .debug_loclists
-                0x00000000000416a5       0x35 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(xlcd_core.o)
+                0x000000000004176e       0x35 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(xlcd_core.o)
  .debug_loclists
-                0x00000000000416da    0xafc24 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/libfixedpoint.a(fixedpoint.o)
+                0x00000000000417a3    0xafc24 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/libfixedpoint.a(fixedpoint.o)
 
 .debug_macro
  *(.debug_macro)

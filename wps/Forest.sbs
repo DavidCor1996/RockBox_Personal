@@ -41,7 +41,7 @@
 %V(0,0,-,-,4)%VB
 %?if(%cs, =, 21)<%?bp<%?if(%cM, <, 15)<%xd(ChargeWallpaper)|%?if(%cM, <, 30)<%xd(ChargeWallpaperAlt)|%?if(%cM, <, 45)<%xd(ChargeWallpaperThird)|%xd(ChargeWallpaperFourth)>>>|%xd(LsWallpaper)>|%?mh<%?if(%St(backlight on button hold), =, off)<%dr(0,0,-,-,FFFFFF)|%?bp<%?if(%cM, <, 15)<%xd(ChargeWallpaper)|%?if(%cM, <, 30)<%xd(ChargeWallpaperAlt)|%?if(%cM, <, 45)<%xd(ChargeWallpaperThird)|%xd(ChargeWallpaperFourth)>>>%?mp<|%xd(NotificationBackdrop)>|%xd(LsWallpaper)%?mp<|%xd(NotificationBackdrop)>>>|%?if(%St(ipone right pane), =, full art)<%xd(SbsBgFullArt)|%xd(SbsBg)>>>>
 %V(0,0,-,-,-)
-%?if(%cs, =, 21)<%Vd(ChargeClock)%Vd(ChargeMeta)%Vd(ChargeNowPlaying)|%?mh<%?if(%St(backlight on button hold), =, off)<%Vd(iPoneAOD)%Vd(AodNowPlayingCard)|%Vd(iPoneLockscreen)%?mp<|%Vd(LockPlayer)%Vd(LockMusic)|%Vd(LockPlayer)%Vd(LockMusic)|||||%Vd(LockPlayer)%Vd(LockRadio)>>|%?if(%St(ipone right pane), =, full art)<%Vd(SbsAnimPulse)%?mp<%Vd(normal)|%Vd(normal)|%Vd(normal)|%Vd(normal)|%Vd(normal)|%Vd(normal)|%Vd(normal)|%Vd(normal)|%Vd(normal)>|%?mp<%Vd(SbsAlbumArt)%Vd(normal)|%Vd(SbsAlbumArt)%Vd(normal)|%Vd(SbsAlbumArt)%Vd(normal)|%Vd(SbsAlbumArt)%Vd(normal)|%Vd(SbsAlbumArt)%Vd(normal)|%Vd(SbsAlbumArt)%Vd(normal)|%Vd(SbsAlbumArt)%Vd(normal)|%Vd(radio)|%Vd(radio)>>>>
+%?if(%cs, =, 21)<%Vd(ChargeClock)%Vd(ChargeMeta)%Vd(ChargeNowPlaying)|%?mh<%?if(%St(backlight on button hold), =, off)<%Vd(iPoneAOD)%Vd(AodNowPlayingCard)|%Vd(iPoneLockscreen)%?mp<|%Vd(LockPlayer)%Vd(LockMusic)|%Vd(LockPlayer)%Vd(LockMusic)|||||%Vd(LockPlayer)%Vd(LockRadio)>>|%?if(%St(ipone right pane), =, full art)<%?mp<%Vd(normal)|%Vd(normal)|%Vd(normal)|%Vd(normal)|%Vd(normal)|%Vd(normal)|%Vd(normal)|%Vd(normal)|%Vd(normal)>|%?mp<%Vd(SbsAlbumArt)%Vd(normal)|%Vd(SbsAlbumArt)%Vd(normal)|%Vd(SbsAlbumArt)%Vd(normal)|%Vd(SbsAlbumArt)%Vd(normal)|%Vd(SbsAlbumArt)%Vd(normal)|%Vd(SbsAlbumArt)%Vd(normal)|%Vd(SbsAlbumArt)%Vd(normal)|%Vd(radio)|%Vd(radio)>>>>
 
 
 # Main UI Viewport - White text on Black (iClassic approach)
@@ -86,7 +86,6 @@
 %Vl(NowPlayingRecord,284,186,20,20,-)%t(0.1)%xd(Ra);%t(0.1)%xd(Rb);%t(0.1)%xd(Rc);%t(0.1)%xd(Rd);%t(0.1)%xd(Re);%t(0.1)%xd(Rf);%t(0.1)%xd(Rg);%t(0.1)%xd(Rh);%t(0.1)%xd(Ri);%t(0.1)%xd(Rj);%t(0.1)%xd(Rk);%t(0.1)%xd(Rl)
 %Vl(NowPlayingBadge,166,170,112,14,2)%Vf(D4CAE4)%alNow Playing
 %Vl(SbsAlbumArt,178,33,128,128,-)%Cl(0,0,128,128,c,c,1)%?C(1)<%Cd(1)|>
-%Vl(SbsAnimPulse,319,239,1,1,-)%t(0.1)%dr(0,0,1,1,000000);%t(0.1)%dr(0,0,1,1,010101)
 %Vi(USB,0,0,1,1,2)
 
 #------------ Lockscreen / Always On Display ------------#

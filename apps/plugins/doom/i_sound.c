@@ -153,6 +153,14 @@ static void stopchan(int i)
     channelinfo[i].data=NULL;
 }
 
+static void stop_all_channels(void)
+{
+   int i;
+
+   for (i = 0; i < NUM_CHANNELS; i++)
+      stopchan(i);
+}
+
 //
 // This function adds a sound to the
 //  list of currently active sounds,
@@ -476,8 +484,22 @@ void I_SubmitSound(void)
 
 void I_ShutdownSound(void)
 {
+   int i;
+
    rb->pcm_play_stop();
+   for (i = 0; i < HZ && rb->pcm_is_playing(); i++)
+      rb->sleep(1);
+
+   stop_all_channels();
+   if (mixbuffer)
+      memset(mixbuffer, 0, MIXBUFFERSIZE*sizeof(short));
+
    rb->pcm_set_frequency(HW_SAMPR_DEFAULT); // 44100
+
+#if INPUT_SRC_CAPS != 0
+   rb->audio_set_input_source(AUDIO_SRC_PLAYBACK, SRCF_PLAYBACK);
+   rb->audio_set_output_source(AUDIO_SRC_PLAYBACK);
+#endif
 }
 
 void I_InitSound()

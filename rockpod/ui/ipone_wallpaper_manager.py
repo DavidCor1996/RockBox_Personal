@@ -237,7 +237,7 @@ class IPoneWallpaperManagerWidget(QWidget):
         self._clock_y_spin.setRange(0, 64)
         self._clock_y_spin.setValue(32)
         self._clock_height_spin = QSpinBox()
-        self._clock_height_spin.setRange(20, 100)
+        self._clock_height_spin.setRange(20, 120)
         self._clock_height_spin.setValue(55)
         self._clock_align_combo = QComboBox()
         for label, value in [("Center", "center"), ("Left", "left")]:
@@ -250,31 +250,31 @@ class IPoneWallpaperManagerWidget(QWidget):
 
         style_form = QFormLayout()
         self._clock_font_combo = QComboBox()
-        for label, value in [
+        entries = [
             ("iPone Default", "35-Adobe-Helvetica-Bold.fnt"),
             ("Adobe Helvetica", "16-Adobe-Helvetica-Bold.fnt"),
             ("Cantarell Bold", "18-Cantarell-Bold.fnt"),
             ("Light Poster", "66-Cantarell-Light.fnt"),
-        ]:
+        ]
+        fonts_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "fonts")
+        for size in (50, 55, 60, 72, 78, 84, 90):
+            for fname in sorted(os.listdir(fonts_dir), reverse=True):
+                if not fname.lower().endswith(".fnt"):
+                    continue
+                prefix = f"{size}-"
+                if not fname.startswith(prefix):
+                    continue
+                if fname.count("-") < 2:
+                    continue
+                rest = fname[len(prefix):].replace(".fnt", "")
+                label = f"{size}px {rest}"
+                entries.append((label, fname))
+        for label, value in entries:
             self._clock_font_combo.addItem(label, value)
-        self._clock_style_combo = QComboBox()
-        for label, value in [
-            ("Solid", "solid"),
-            ("Soft Shadow", "soft shadow"),
-            ("Outline", "outline"),
-            ("Glass", "glass"),
-            ("Glass Tinted", "glass tinted"),
-        ]:
-            self._clock_style_combo.addItem(label, value)
-        self._glass_strength_combo = QComboBox()
-        for label, value in [("Off", "off"), ("Low", "low"), ("Medium", "medium"), ("High", "high")]:
-            self._glass_strength_combo.addItem(label, value)
         self._date_mode_combo = QComboBox()
         for label, value in [("Below", "below"), ("Above", "above"), ("Follow", "follow")]:
             self._date_mode_combo.addItem(label, value)
         style_form.addRow("Clock Font", self._clock_font_combo)
-        style_form.addRow("Clock Style", self._clock_style_combo)
-        style_form.addRow("Glass Strength", self._glass_strength_combo)
         style_form.addRow("Date", self._date_mode_combo)
         custom_layout.addLayout(style_form, 1)
 
@@ -361,8 +361,6 @@ class IPoneWallpaperManagerWidget(QWidget):
         self._clock_height_spin.setValue(int(clock.get("height", 55) or 55))
         self._set_combo_value(self._clock_align_combo, clock.get("align", "center"))
         self._set_combo_value(self._clock_font_combo, clock.get("font", "35-Adobe-Helvetica-Bold.fnt"))
-        self._set_combo_value(self._clock_style_combo, clock.get("style", "solid"))
-        self._set_combo_value(self._glass_strength_combo, clock.get("glass_strength", "off"))
         self._set_combo_value(self._date_mode_combo, date.get("mode", "below"))
         self._auto_contrast_check.setChecked(bool(readability.get("auto_contrast", True)))
         self._set_combo_value(self._mini_blur_combo, mini.get("blur_strength", "medium"))
@@ -391,10 +389,8 @@ class IPoneWallpaperManagerWidget(QWidget):
                 "height": height,
                 "align": align,
                 "font": self._clock_font_combo.currentData() or "35-Adobe-Helvetica-Bold.fnt",
-                "style": self._clock_style_combo.currentData() or "solid",
                 "color": "FFFFFF",
                 "shadow": "soft",
-                "glass_strength": self._glass_strength_combo.currentData() or "off",
                 "opacity": 82,
             },
             "date": {

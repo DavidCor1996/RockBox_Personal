@@ -601,12 +601,15 @@ class IPoneWallpaperService:
         result["clock"]["opacity"] = IPoneWallpaperService._int_between(clock.get("opacity"), 40, 100, result["clock"]["opacity"])
 
         result["date"]["mode"] = IPoneWallpaperService._choice(date.get("mode"), LOCKSCREEN_DATE_MODES, result["date"]["mode"])
+        clock_font_name = result["clock"]["font"]
+        font_pixel_size = self._font_pixel_size(clock_font_name)
+        effective_height = max(result["clock"]["height"], font_pixel_size)
         if "y" in date:
             date_y_default = result["date"]["y"]
         elif result["date"]["mode"] == "above":
             date_y_default = max(0, result["clock"]["y"] - 24)
         else:
-            date_y_default = min(220, result["clock"]["y"] + result["clock"]["height"] + 14)
+            date_y_default = min(220, result["clock"]["y"] + effective_height + 4)
         result["date"]["y"] = IPoneWallpaperService._int_between(date.get("y"), 0, 220, date_y_default)
         result["date"]["color"] = IPoneWallpaperService._hex_color(date.get("color"), result["date"]["color"])
         result["readability"]["auto_contrast"] = bool(readability.get("auto_contrast", result["readability"]["auto_contrast"]))
@@ -676,15 +679,39 @@ class IPoneWallpaperService:
         return default
 
     @staticmethod
+    def _font_pixel_size(font_name: str) -> int:
+        match = re.match(r"(\d+)-", os.path.basename(str(font_name or "")))
+        return int(match.group(1)) if match else 0
+
     def _clock_font(value) -> str:
         text = str(value or "").strip()
-        allowed = {
+        base_allowed = {
             "35-Adobe-Helvetica-Bold.fnt",
             "16-Adobe-Helvetica-Bold.fnt",
             "18-Cantarell-Bold.fnt",
             "66-Cantarell-Light.fnt",
         }
-        return text if text in allowed else DEFAULT_LOCKSCREEN_CUSTOMIZATION["clock"]["font"]
+        if text in base_allowed:
+            return text
+        match = re.match(r"(\d+)-", text)
+        if match:
+            size = int(match.group(1))
+            if 50 <= size <= 90:
+                return text
+        return DEFAULT_LOCKSCREEN_CUSTOMIZATION["clock"]["font"]
+
+    @staticmethod
+    def _ensure_font_slot(content, slot, font_name):
+        name = os.path.basename(str(font_name).strip())
+        replacement = f"%Fl({slot},{name})"
+        pattern = re.compile(rf"%Fl\({slot},[^\n]*")
+        if pattern.search(content):
+            return pattern.sub(replacement, content, count=1)
+        matches = list(re.finditer(r"%Fl\([^\n]*", content))
+        if not matches:
+            return replacement + "\n" + content
+        last = matches[-1]
+        return content[:last.end()] + "\n" + replacement + content[last.end():]
 
     @staticmethod
     def _lockscreen_customization_targets(profile: Dict, repo_root: str):
@@ -793,10 +820,13 @@ class IPoneWallpaperService:
     @staticmethod
     def _render_lock_clock_glass(source_path: str, dest_path: str, customization: Dict):
         clock = customization.get("clock", {})
+        font_pixel_size = IPoneWallpaperService._font_pixel_size(clock.get("font", ""))
+        clock_height = int(clock.get("height", 55))
+        effective_height = max(clock_height, font_pixel_size)
         x = int(clock.get("x", 0))
         y = max(0, int(clock.get("y", 32)) - 4)
         width = int(clock.get("width", 320))
-        height = min(240 - y, int(clock.get("height", 55)) + 8)
+        height = min(240 - y, effective_height + 8)
         if width >= 320:
             x = 0
             width = 320
@@ -853,18 +883,30 @@ class IPoneWallpaperService:
             width_text = "-"
         else:
             width_text = str(width)
-        font_id = {
+        clock_font_name = clock.get("font") or ""
+        font_pixel_size = IPoneWallpaperService._font_pixel_size(clock_font_name)
+        effective_height = max(height, font_pixel_size)
+        base_font_ids = {
             "35-Adobe-Helvetica-Bold.fnt": "4",
             "16-Adobe-Helvetica-Bold.fnt": "3",
             "18-Cantarell-Bold.fnt": "9",
             "66-Cantarell-Light.fnt": "8",
-        }.get(clock.get("font"), "4")
+        }
+        font_id = base_font_ids.get(clock_font_name)
+        if font_id is None:
+            assigned = set(base_font_ids.values())
+            slot = 30
+            while str(slot) in assigned:
+                slot += 1
+            font_id = str(slot)
+            content = IPoneWallpaperService._ensure_font_slot(content, slot, clock_font_name)
         align_tag = {"left": "%al", "center": "%ac"}.get(clock.get("align"), "%ac")
         color = clock.get("color", "FFFFFF")
-        time_replacement = f"%Vl(iPoneLockscreen,{x},{y},{width_text},{height},{font_id})%Vf({color}){align_tag}%cl:%cM %cP"
+
+        time_replacement = f"%Vl(iPoneLockscreen,{x},{y},{width_text},{effective_height},{font_id})%Vf({color}){align_tag}%cl:%cM %cP"
         if use_clock_glass:
             glass_y = max(0, y - 4)
-            glass_height = min(240 - glass_y, height + 8)
+            glass_height = min(240 - glass_y, effective_height + 8)
             glass_width = width_text
             time_replacement = (
                 f"%Vl(LockClockGlass,{x},{glass_y},{glass_width},{glass_height},-)%xd(LockClockGlassGenerated)\n"
@@ -872,9 +914,8 @@ class IPoneWallpaperService:
             )
 
         date_mode = date.get("mode", "below")
-        date_y = int(date.get("y", y + height + 14))
+        date_y = int(date.get("y", min(220, y + effective_height + 4)))
         date_color = date.get("color", color)
-        date_replacement = ""
         date_replacement = (
             f"%Vl(iPoneLockscreen,{x},{date_y},{width_text},20,6)%Vf({date_color}){align_tag}"
             "%?if(%ss(0,7,%St(lang)), =, english)<%?cu<Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday>|%ca> "

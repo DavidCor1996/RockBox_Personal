@@ -244,6 +244,107 @@ static unsigned skin_alpha_blend(unsigned fg, unsigned bg, unsigned char alpha)
 }
 #endif
 
+#ifdef HAVE_LCD_COLOR
+static bool skin_alpha_overlay_label(struct skin_viewport *skin_vp)
+{
+    if (skin_vp->label == VP_DEFAULT_LABEL)
+        return false;
+
+#ifndef __PCTOOL__
+    if (skin_vp->label < 0)
+        return false;
+#endif
+
+    char *label = SKINOFFSETTOPTR(skin_buffer, skin_vp->label);
+    return label && (!strncmp(label, "iPoneClockBase", 14) ||
+                     !strncmp(label, "iPoneClockGlass", 15) ||
+                     !strncmp(label, "iPoneClockStretch", 17));
+}
+
+static unsigned char skin_alpha_overlay_yscale(struct skin_viewport *skin_vp)
+{
+    if (skin_vp->label == VP_DEFAULT_LABEL)
+        return 100;
+
+#ifndef __PCTOOL__
+    if (skin_vp->label < 0)
+        return 100;
+#endif
+
+    char *label = SKINOFFSETTOPTR(skin_buffer, skin_vp->label);
+    char *scale = label ? strstr(label, "Scale") : NULL;
+    int value = 0;
+
+    if (!scale)
+        return 100;
+
+    scale += 5;
+    while (*scale >= '0' && *scale <= '9')
+        value = value * 10 + *scale++ - '0';
+
+    if (value < 100)
+        return 100;
+    if (value > 180)
+        return 180;
+
+    return value;
+}
+
+static void skin_alpha_overlay_yclip(struct skin_viewport *skin_vp,
+                                     unsigned char *top,
+                                     unsigned char *height)
+{
+    *top = 0;
+    *height = 0;
+
+    if (skin_vp->label == VP_DEFAULT_LABEL)
+        return;
+
+#ifndef __PCTOOL__
+    if (skin_vp->label < 0)
+        return;
+#endif
+
+    char *label = SKINOFFSETTOPTR(skin_buffer, skin_vp->label);
+    char *band = label ? strstr(label, "Band") : NULL;
+    int parsed_top = 0;
+    int parsed_height = 0;
+
+    if (!band)
+        return;
+
+    band += 4;
+    while (*band >= '0' && *band <= '9')
+        parsed_top = parsed_top * 10 + *band++ - '0';
+
+    if (*band != 'H')
+        return;
+
+    band++;
+    while (*band >= '0' && *band <= '9')
+        parsed_height = parsed_height * 10 + *band++ - '0';
+
+    if (parsed_height <= 0)
+        return;
+
+    if (parsed_top > 220)
+        parsed_top = 220;
+    if (parsed_height > 80)
+        parsed_height = 80;
+
+    *top = parsed_top;
+    *height = parsed_height;
+}
+
+static bool skin_alpha_overlay_needs_full_redraw(struct skin_viewport *skin_vp)
+{
+    return skin_alpha_overlay_label(skin_vp) &&
+        (skin_vp->fg_alpha < 0xff ||
+         skin_alpha_overlay_yscale(skin_vp) != 100);
+}
+
+#endif
+
 static void skin_write_line(struct screen *display,
                             struct skin_viewport *skin_vp,
                             struct align_pos *align,
@@ -252,13 +353,35 @@ static void skin_write_line(struct screen *display,
                             struct line_desc *line_desc)
 {
 #ifdef HAVE_LCD_COLOR
-    if (display->depth >= 16 && skin_vp->fg_alpha < 0xff)
+    unsigned char overlay_yscale = skin_alpha_overlay_yscale(skin_vp);
+    unsigned char overlay_yclip_top;
+    unsigned char overlay_yclip_height;
+
+    skin_alpha_overlay_yclip(skin_vp, &overlay_yclip_top,
+                             &overlay_yclip_height);
+    if (display->depth >= 16 &&
+        (skin_vp->fg_alpha < 0xff || overlay_yscale != 100 ||
+         overlay_yclip_height))
     {
 #ifndef DISABLE_ALPHA_BITMAP
         unsigned saved_fg = display->get_foreground();
+        struct line_desc overlay_desc;
+        struct line_desc *draw_desc = line_desc;
+
+        if (skin_alpha_overlay_label(skin_vp))
+        {
+            overlay_desc = *line_desc;
+            overlay_desc.style = STYLE_NONE;
+            draw_desc = &overlay_desc;
+        }
+
         display->set_foreground(skin_vp->vp.fg_pattern);
         lcd_set_alpha_bitmap_opacity(skin_vp->fg_alpha);
-        write_line(display, align, line, scroll, line_desc);
+        lcd_set_alpha_bitmap_yscale(overlay_yscale);
+        lcd_set_alpha_bitmap_yclip(overlay_yclip_top, overlay_yclip_height);
+        write_line(display, align, line, scroll, draw_desc);
+        lcd_set_alpha_bitmap_yclip(0, 0);
+        lcd_set_alpha_bitmap_yscale(100);
         lcd_set_alpha_bitmap_opacity(255);
         display->set_foreground(saved_fg);
         return;
@@ -1231,6 +1354,17 @@ void skin_render(struct gui_wps *gwps, unsigned refresh_mode)
             vp_refresh_mode = SKIN_REFRESH_ALL;
             skin_viewport->hidden_flags = VP_DRAW_HIDEABLE | VP_DRAW_ACTIVE;
         }
+
+#ifdef HAVE_LCD_COLOR
+        if ((vp_refresh_mode & SKIN_REFRESH_ALL) != SKIN_REFRESH_ALL &&
+            skin_alpha_overlay_needs_full_redraw(skin_viewport))
+        {
+            /* Alpha text blends with the framebuffer. Only promote the
+             * affected viewport; promoting the whole skin makes unrelated
+             * panes redraw on every clock tick. */
+            vp_refresh_mode = SKIN_REFRESH_ALL;
+        }
+#endif
 
         display->set_viewport_ex(&skin_viewport->vp, VP_FLAG_VP_SET_CLEAN);
 

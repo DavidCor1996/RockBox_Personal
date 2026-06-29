@@ -52,12 +52,6 @@ bool sysmem_init(void)
         return true;
     }
 
-    if (rb->audio_status())
-    {
-        /* Playback must be stopped the entire time the sound buffer is used.*/
-        rb->audio_stop();
-    }
-
     stackBuffer = rb->plugin_get_audio_buffer(&stackMaxSize);
     stackTop = stackBuffer;
     stackSize = 0;

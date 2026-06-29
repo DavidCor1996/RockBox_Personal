@@ -92,6 +92,19 @@ Source file selection uses `SOURCES` files (not per-target Makefiles). These are
 
 Plugins are dynamically loaded `.rock` files. The API is a large struct of function pointers defined in `apps/plugin.h`, versioned so plugins must match the core. Entry point: `enum plugin_status plugin_start(const void *parameter)`.
 
+### Plugin Audio Lifecycle Steering
+
+Before changing any plugin that touches PCM, mixer channels, `plugin_get_audio_buffer()`, `plugin_release_audio_buffer()`, `audio_stop()`, playlist state, or raw audio callbacks, read `docs/plugin-audio-lifecycle-steering.md` and compare against `apps/plugins/mpegplayer/pcm_output.c`, `apps/plugins/mpegplayer/stream_mgr.c`, `apps/plugin.c`, and `firmware/target/arm/s5l8702/pcm-s5l8702.c`.
+
+Key rules for this custom iPod tree:
+
+- Do not call `audio_stop()` directly before stealing the shared audio buffer. Let `plugin_get_audio_buffer()` perform the playback stop and ownership transfer unless the plugin does not need that buffer.
+- Never release or free plugin-owned audio memory while any PCM or mixer callback can still reference it.
+- Full media/video playback must use `PCM_MIXER_CHAN_PLAYBACK`, restore sample rate/state on exit, and leave Database and Files playback able to start without reboot.
+- On iPod Classic 6G/7G, respect the CS42L55/MCLK/sample-rate wake path. Direct PCM code must not assume the codec is awake after Database playback, plugin exits, or rapid app switching.
+- Games/plugins must not mutate or replace the user's playlist just to play their own music when user music is active.
+- Any plugin audio change must be tested across Database music -> plugin/video, Files music -> plugin/video, plugin/video -> Database music, rapid plugin/menu/music switching, volume changes, pause/resume, and menu exit.
+
 ### Codec System
 
 Audio codecs live in `lib/rbcodec/` and are loaded as `.codec` files with their own API struct (`codecs.h`). The codec framework includes DSP processing (EQ, crossfeed, replaygain). Supports MP3, FLAC, Vorbis, Opus, AAC, ALAC, WavPack, APE, WMA, and many more.

@@ -226,6 +226,8 @@ void Z_DumpHistory(char *buf)
 void Z_Close(void)
 {
 //   (free)(zonebase);
+   if (zonebase)
+      rb->plugin_release_audio_buffer();
    zone = rover = zonebase = NULL;
 }
 

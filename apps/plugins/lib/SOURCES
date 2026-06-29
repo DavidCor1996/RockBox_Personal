@@ -18,6 +18,10 @@ printcell_helper.c
 strncpy.c
 stdio_compat.c
 
+#ifdef HAVE_PLUGIN_CXX
+cxx_support.cpp
+#endif
+
 #if (LCD_DEPTH < 4)
 grey_core.c
 grey_draw.c

@@ -190,6 +190,17 @@ void pcm_play_dma_start(const void* addr, size_t size)
     PWRCON(1) &= ~(1 << 7);
     I2SCLKCON = 1;
 
+#if defined(HAVE_CS42L55)
+    /* pcm_apply_settings() runs before target DMA start, while this target's
+     * I2S/MCLK may still be gated after the previous stream stopped.  Reapply
+     * the target clock and CS42L55 sample-rate setup with MCLK live, then
+     * wake the codec before feeding DMA.  This is required when switching
+     * directly from a 48 kHz database track to 44.1 kHz plugin PCM.
+     */
+    pcm_dma_apply_settings();
+    audiohw_idle_powerup();
+#endif
+
     pcm_remaining = size;
     I2STXCOM = 0xe;
 #ifdef IPOD_NANO3G
@@ -220,6 +231,10 @@ void pcm_play_dma_stop(void)
     /* gate I2S clock to save power when idle */
     I2SCLKCON = 0;
     PWRCON(1) |= (1 << 7);
+
+#if defined(HAVE_CS42L55)
+    audiohw_idle_powerdown();
+#endif
 }
 
 /* MCLK = 12MHz (MCLKDIV2=1), [CS42L55 DS, s4.8] */

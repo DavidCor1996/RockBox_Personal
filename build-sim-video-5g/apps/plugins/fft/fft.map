@@ -222,7 +222,7 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
 .plt.sec
  *(.plt.sec)
 
-.text           0x0000000000001080     0x80da
+.text           0x0000000000001080     0x8167
  *(.text.unlikely .text.*_unlikely .text.unlikely.*)
  *(.text.exit .text.exit.*)
  *(.text.startup .text.startup.*)
@@ -253,80 +253,80 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
                 0x00000000000077a4                exit
                 0x00000000000077bd                _exit
                 0x00000000000077cc                exit_on_usb
- .text          0x000000000000780b       0x40 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
+ .text          0x000000000000780b       0xcd /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
                 0x000000000000780b                memcpy
-                0x000000000000781b                memset
-                0x000000000000782b                memmove
-                0x000000000000783b                memcmp
- .text          0x000000000000784b       0x5f /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_actions.o)
-                0x0000000000007874                pluginlib_getaction
- .text          0x00000000000078aa      0x11a /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(helper.o)
-                0x00000000000078aa                talk_val
-                0x00000000000078c2                backlight_force_on
-                0x00000000000078e4                backlight_ignore_timeout
-                0x0000000000007922                backlight_use_settings
-                0x0000000000007954                sw_poweroff_disable
-                0x000000000000797a                sw_poweroff_restore
-                0x0000000000007991                remote_backlight_force_on
-                0x0000000000007992                remote_backlight_ignore_timeout
-                0x0000000000007993                remote_backlight_use_settings
-                0x0000000000007994                buttonlight_force_on
-                0x0000000000007995                buttonlight_force_off
-                0x0000000000007996                buttonlight_ignore_timeout
-                0x0000000000007997                buttonlight_use_settings
-                0x0000000000007998                backlight_brightness_set
-                0x00000000000079a8                backlight_brightness_use_setting
-                0x00000000000079c2                buttonlight_brightness_set
-                0x00000000000079c3                buttonlight_brightness_use_setting
- .text          0x00000000000079c4      0x5ea /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(configfile.o)
-                0x0000000000007a7e                configfile_save
-                0x0000000000007bad                configfile_load
-                0x0000000000007d97                configfile_get_value
-                0x0000000000007e71                configfile_update_entry
- .text          0x0000000000007fae      0x834 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(osd.o)
-                0x0000000000008311                osd_init
-                0x0000000000008538                osd_destroy
-                0x000000000000853d                osd_show
-                0x0000000000008542                osd_update
-                0x0000000000008547                osd_update_rect
-                0x00000000000085df                osd_update_pos
-                0x0000000000008715                osd_monitor_timeout
-                0x000000000000871a                osd_set_timeout
-                0x0000000000008730                osd_get_viewport
-                0x0000000000008738                osd_get_max_dims
-                0x0000000000008753                osd_enabled
-                0x000000000000875e                osd_lcd_update_prepare
-                0x0000000000008777                osd_lcd_update
-                0x000000000000879c                osd_lcd_update_rect
- .text          0x00000000000087e2      0x2c3 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(xlcd_scroll.o)
-                0x00000000000087e2                xlcd_scroll_left
-                0x00000000000088b1                xlcd_scroll_right
-                0x0000000000008975                xlcd_scroll_up
-                0x0000000000008a14                xlcd_scroll_down
- .text          0x0000000000008aa5       0x3e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(xlcd_core.o)
-                0x0000000000008aa5                get_framebuffer
- .text          0x0000000000008ae3        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(fft_colors.16.o)
- .text          0x0000000000008ae3      0x677 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libfixedpoint.a(fixedpoint.o)
-                0x0000000000008ae3                fp_sincos
-                0x0000000000008b6e                fp_sqrt
-                0x0000000000008c1e                ipow
-                0x0000000000008c59                fp14_sin
-                0x0000000000008cb1                fp14_cos
-                0x0000000000008d0e                fp16_log
-                0x0000000000008e1a                fp16_exp
-                0x0000000000008f1c                fp_exp10
-                0x0000000000009081                fp_log10
-                0x000000000000911f                fp_decibels
-                0x000000000000913d                fp_factor
- .text          0x000000000000915a        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtendS.o
- .text          0x000000000000915a        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
+                0x0000000000007836                memset
+                0x000000000000785f                memmove
+                0x000000000000789f                memcmp
+ .text          0x00000000000078d8       0x5f /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_actions.o)
+                0x0000000000007901                pluginlib_getaction
+ .text          0x0000000000007937      0x11a /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(helper.o)
+                0x0000000000007937                talk_val
+                0x000000000000794f                backlight_force_on
+                0x0000000000007971                backlight_ignore_timeout
+                0x00000000000079af                backlight_use_settings
+                0x00000000000079e1                sw_poweroff_disable
+                0x0000000000007a07                sw_poweroff_restore
+                0x0000000000007a1e                remote_backlight_force_on
+                0x0000000000007a1f                remote_backlight_ignore_timeout
+                0x0000000000007a20                remote_backlight_use_settings
+                0x0000000000007a21                buttonlight_force_on
+                0x0000000000007a22                buttonlight_force_off
+                0x0000000000007a23                buttonlight_ignore_timeout
+                0x0000000000007a24                buttonlight_use_settings
+                0x0000000000007a25                backlight_brightness_set
+                0x0000000000007a35                backlight_brightness_use_setting
+                0x0000000000007a4f                buttonlight_brightness_set
+                0x0000000000007a50                buttonlight_brightness_use_setting
+ .text          0x0000000000007a51      0x5ea /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(configfile.o)
+                0x0000000000007b0b                configfile_save
+                0x0000000000007c3a                configfile_load
+                0x0000000000007e24                configfile_get_value
+                0x0000000000007efe                configfile_update_entry
+ .text          0x000000000000803b      0x834 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(osd.o)
+                0x000000000000839e                osd_init
+                0x00000000000085c5                osd_destroy
+                0x00000000000085ca                osd_show
+                0x00000000000085cf                osd_update
+                0x00000000000085d4                osd_update_rect
+                0x000000000000866c                osd_update_pos
+                0x00000000000087a2                osd_monitor_timeout
+                0x00000000000087a7                osd_set_timeout
+                0x00000000000087bd                osd_get_viewport
+                0x00000000000087c5                osd_get_max_dims
+                0x00000000000087e0                osd_enabled
+                0x00000000000087eb                osd_lcd_update_prepare
+                0x0000000000008804                osd_lcd_update
+                0x0000000000008829                osd_lcd_update_rect
+ .text          0x000000000000886f      0x2c3 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(xlcd_scroll.o)
+                0x000000000000886f                xlcd_scroll_left
+                0x000000000000893e                xlcd_scroll_right
+                0x0000000000008a02                xlcd_scroll_up
+                0x0000000000008aa1                xlcd_scroll_down
+ .text          0x0000000000008b32       0x3e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(xlcd_core.o)
+                0x0000000000008b32                get_framebuffer
+ .text          0x0000000000008b70        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(fft_colors.16.o)
+ .text          0x0000000000008b70      0x677 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libfixedpoint.a(fixedpoint.o)
+                0x0000000000008b70                fp_sincos
+                0x0000000000008bfb                fp_sqrt
+                0x0000000000008cab                ipow
+                0x0000000000008ce6                fp14_sin
+                0x0000000000008d3e                fp14_cos
+                0x0000000000008d9b                fp16_log
+                0x0000000000008ea7                fp16_exp
+                0x0000000000008fa9                fp_exp10
+                0x000000000000910e                fp_log10
+                0x00000000000091ac                fp_decibels
+                0x00000000000091ca                fp_factor
+ .text          0x00000000000091e7        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtendS.o
+ .text          0x00000000000091e7        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
  *(.gnu.warning)
 
-.fini           0x000000000000915c        0xd
+.fini           0x00000000000091e8        0xd
  *(SORT_NONE(.fini))
- .fini          0x000000000000915c        0x8 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
-                0x000000000000915c                _fini
- .fini          0x0000000000009164        0x5 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
+ .fini          0x00000000000091e8        0x8 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
+                0x00000000000091e8                _fini
+ .fini          0x00000000000091f0        0x5 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
                 [!provide]                        PROVIDE (__etext = .)
                 [!provide]                        PROVIDE (_etext = .)
                 [!provide]                        PROVIDE (etext = .)
@@ -773,56 +773,56 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000    0x59b2b
+.debug_info     0x0000000000000000    0x59b8a
  *(.debug_info .gnu.linkonce.wi.*)
  .debug_info    0x0000000000000000      0x5e7 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/fft/const.o
  .debug_info    0x00000000000005e7     0x8a1d /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/fft/kiss_fft.o
  .debug_info    0x0000000000009004     0x7a7e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/fft/kiss_fftr.o
  .debug_info    0x0000000000010a82     0xa0be /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/fft/fft.o
  .debug_info    0x000000000001ab40     0x7cf2 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
- .debug_info    0x0000000000022832     0x76c3 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
- .debug_info    0x0000000000029ef5     0x7ea8 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_actions.o)
- .debug_info    0x0000000000031d9d     0x7aea /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(helper.o)
- .debug_info    0x0000000000039887     0x7d3b /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(configfile.o)
- .debug_info    0x00000000000415c2     0x8ed6 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(osd.o)
- .debug_info    0x000000000004a498     0x78de /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(xlcd_scroll.o)
- .debug_info    0x0000000000051d76     0x7544 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(xlcd_core.o)
- .debug_info    0x00000000000592ba      0x141 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(fft_colors.16.o)
- .debug_info    0x00000000000593fb      0x730 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libfixedpoint.a(fixedpoint.o)
+ .debug_info    0x0000000000022832     0x7722 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
+ .debug_info    0x0000000000029f54     0x7ea8 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_actions.o)
+ .debug_info    0x0000000000031dfc     0x7aea /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(helper.o)
+ .debug_info    0x00000000000398e6     0x7d3b /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(configfile.o)
+ .debug_info    0x0000000000041621     0x8ed6 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(osd.o)
+ .debug_info    0x000000000004a4f7     0x78de /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(xlcd_scroll.o)
+ .debug_info    0x0000000000051dd5     0x7544 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(xlcd_core.o)
+ .debug_info    0x0000000000059319      0x141 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(fft_colors.16.o)
+ .debug_info    0x000000000005945a      0x730 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libfixedpoint.a(fixedpoint.o)
 
-.debug_abbrev   0x0000000000000000     0x325c
+.debug_abbrev   0x0000000000000000     0x3273
  *(.debug_abbrev)
  .debug_abbrev  0x0000000000000000       0xde /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/fft/const.o
  .debug_abbrev  0x00000000000000de      0x5d5 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/fft/kiss_fft.o
  .debug_abbrev  0x00000000000006b3      0x3ec /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/fft/kiss_fftr.o
  .debug_abbrev  0x0000000000000a9f      0x6ad /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/fft/fft.o
  .debug_abbrev  0x000000000000114c      0x442 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
- .debug_abbrev  0x000000000000158e      0x310 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
- .debug_abbrev  0x000000000000189e      0x364 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_actions.o)
- .debug_abbrev  0x0000000000001c02      0x3c2 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(helper.o)
- .debug_abbrev  0x0000000000001fc4      0x424 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(configfile.o)
- .debug_abbrev  0x00000000000023e8      0x5d0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(osd.o)
- .debug_abbrev  0x00000000000029b8      0x331 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(xlcd_scroll.o)
- .debug_abbrev  0x0000000000002ce9      0x2f1 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(xlcd_core.o)
- .debug_abbrev  0x0000000000002fda       0xbe /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(fft_colors.16.o)
- .debug_abbrev  0x0000000000003098      0x1c4 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libfixedpoint.a(fixedpoint.o)
+ .debug_abbrev  0x000000000000158e      0x327 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
+ .debug_abbrev  0x00000000000018b5      0x364 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_actions.o)
+ .debug_abbrev  0x0000000000001c19      0x3c2 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(helper.o)
+ .debug_abbrev  0x0000000000001fdb      0x424 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(configfile.o)
+ .debug_abbrev  0x00000000000023ff      0x5d0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(osd.o)
+ .debug_abbrev  0x00000000000029cf      0x331 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(xlcd_scroll.o)
+ .debug_abbrev  0x0000000000002d00      0x2f1 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(xlcd_core.o)
+ .debug_abbrev  0x0000000000002ff1       0xbe /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(fft_colors.16.o)
+ .debug_abbrev  0x00000000000030af      0x1c4 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libfixedpoint.a(fixedpoint.o)
 
-.debug_line     0x0000000000000000     0x7acf
+.debug_line     0x0000000000000000     0x7ba4
  *(.debug_line .debug_line.* .debug_line_end)
  .debug_line    0x0000000000000000       0x7f /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/fft/const.o
  .debug_line    0x000000000000007f     0x3837 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/fft/kiss_fft.o
  .debug_line    0x00000000000038b6      0x5b3 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/fft/kiss_fftr.o
  .debug_line    0x0000000000003e69     0x167f /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/fft/fft.o
  .debug_line    0x00000000000054e8      0x2bd /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
- .debug_line    0x00000000000057a5      0x1eb /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
- .debug_line    0x0000000000005990      0x1e7 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_actions.o)
- .debug_line    0x0000000000005b77      0x2b4 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(helper.o)
- .debug_line    0x0000000000005e2b      0x5b0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(configfile.o)
- .debug_line    0x00000000000063db      0x8dc /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(osd.o)
- .debug_line    0x0000000000006cb7      0x428 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(xlcd_scroll.o)
- .debug_line    0x00000000000070df      0x1d6 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(xlcd_core.o)
- .debug_line    0x00000000000072b5       0x4c /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(fft_colors.16.o)
- .debug_line    0x0000000000007301      0x7ce /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libfixedpoint.a(fixedpoint.o)
+ .debug_line    0x00000000000057a5      0x2c0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
+ .debug_line    0x0000000000005a65      0x1e7 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_actions.o)
+ .debug_line    0x0000000000005c4c      0x2b4 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(helper.o)
+ .debug_line    0x0000000000005f00      0x5b0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(configfile.o)
+ .debug_line    0x00000000000064b0      0x8dc /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(osd.o)
+ .debug_line    0x0000000000006d8c      0x428 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(xlcd_scroll.o)
+ .debug_line    0x00000000000071b4      0x1d6 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(xlcd_core.o)
+ .debug_line    0x000000000000738a       0x4c /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(fft_colors.16.o)
+ .debug_line    0x00000000000073d6      0x7ce /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libfixedpoint.a(fixedpoint.o)
 
 .debug_frame
  *(.debug_frame)
@@ -932,32 +932,32 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
                                         0x161 (size before relaxing)
 
 .debug_loclists
-                0x0000000000000000    0xb5691
+                0x0000000000000000    0xb5765
  *(.debug_loclists)
  .debug_loclists
                 0x0000000000000000     0x2a05 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/fft/kiss_fft.o
  .debug_loclists
                 0x0000000000002a05      0xb40 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/fft/kiss_fftr.o
  .debug_loclists
-                0x0000000000003545     0x11ac /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/fft/fft.o
+                0x0000000000003545     0x11b7 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/fft/fft.o
  .debug_loclists
-                0x00000000000046f1       0x9e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+                0x00000000000046fc       0x9e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
  .debug_loclists
-                0x000000000000478f       0xe4 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
+                0x000000000000479a      0x1ad /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
  .debug_loclists
-                0x0000000000004873       0x67 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_actions.o)
+                0x0000000000004947       0x67 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_actions.o)
  .debug_loclists
-                0x00000000000048da       0x5f /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(helper.o)
+                0x00000000000049ae       0x5f /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(helper.o)
  .debug_loclists
-                0x0000000000004939      0x36a /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(configfile.o)
+                0x0000000000004a0d      0x36a /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(configfile.o)
  .debug_loclists
-                0x0000000000004ca3      0xabf /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(osd.o)
+                0x0000000000004d77      0xabf /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(osd.o)
  .debug_loclists
-                0x0000000000005762      0x2d6 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(xlcd_scroll.o)
+                0x0000000000005836      0x2d6 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(xlcd_scroll.o)
  .debug_loclists
-                0x0000000000005a38       0x35 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(xlcd_core.o)
+                0x0000000000005b0c       0x35 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(xlcd_core.o)
  .debug_loclists
-                0x0000000000005a6d    0xafc24 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libfixedpoint.a(fixedpoint.o)
+                0x0000000000005b41    0xafc24 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libfixedpoint.a(fixedpoint.o)
 
 .debug_macro
  *(.debug_macro)

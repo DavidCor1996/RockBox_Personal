@@ -364,6 +364,7 @@ struct video_entry
     char path[MAX_PATH];
     char title[VIDEO_BROWSER_TITLE_MAX];
     char format[8];  /* File extension for display (e.g., "MPEG", "MP4") */
+    bool is_directory;
     bool playable;
     off_t filesize;  /* File size in bytes */
     time_t mtime;    /* Modification time for sorting */
@@ -385,6 +386,10 @@ enum video_sort_order
 struct video_browser_state
 {
     struct video_entry entries[VIDEO_BROWSER_MAX_FILES];
+    char current_path[VIDEO_LIST_PATH_LEN];
+    int depth;
+    char parent_path_stack[VIDEO_BROWSER_MAX_DEPTH][VIDEO_LIST_PATH_LEN];
+    int parent_selection_stack[VIDEO_BROWSER_MAX_DEPTH];
     int count;
     int selection;
     int next_screen;
@@ -607,7 +612,17 @@ static struct bitmap *video_load_thumb_bitmap(const char *path)
 static bool is_supported_video_ext(const char *ext)
 {
     return !strcasecmp(ext, "mpg") || !strcasecmp(ext, "mpeg")
-        || !strcasecmp(ext, "mpv") || !strcasecmp(ext, "m2v");
+        || !strcasecmp(ext, "mpv") || !strcasecmp(ext, "m2v")
+        || !strcasecmp(ext, "h264")
+        || !strcasecmp(ext, "rvp");
+}
+
+static const char *video_plugin_for_ext(const char *ext)
+{
+    if (ext && (!strcasecmp(ext, "h264") || !strcasecmp(ext, "rvp")))
+        return "openh264_player";
+
+    return "mpegplayer";
 }
 
 static bool is_known_video_ext(const char *ext)
@@ -615,14 +630,23 @@ static bool is_known_video_ext(const char *ext)
     return is_supported_video_ext(ext)
         || !strcasecmp(ext, "mp4")
         || !strcasecmp(ext, "m4v")
-        || !strcasecmp(ext, "mov");
+        || !strcasecmp(ext, "mov")
+        || !strcasecmp(ext, "h264")
+        || !strcasecmp(ext, "rvp");
 }
+
+static int video_entry_type_weight(bool is_directory);
 
 /* Comparison functions for qsort */
 static int video_compare_name_az(const void *a, const void *b)
 {
     const struct video_entry *va = (const struct video_entry *)a;
     const struct video_entry *vb = (const struct video_entry *)b;
+
+    if (va->is_directory != vb->is_directory)
+        return video_entry_type_weight(va->is_directory) -
+               video_entry_type_weight(vb->is_directory);
+
     return strcasecmp(va->title, vb->title);
 }
 
@@ -631,10 +655,20 @@ static int video_compare_name_za(const void *a, const void *b)
     return -video_compare_name_az(a, b);
 }
 
+static int video_entry_type_weight(bool is_directory)
+{
+    return is_directory ? 0 : 1;
+}
+
 static int video_compare_date_new(const void *a, const void *b)
 {
     const struct video_entry *va = (const struct video_entry *)a;
     const struct video_entry *vb = (const struct video_entry *)b;
+
+    if (va->is_directory != vb->is_directory)
+        return video_entry_type_weight(va->is_directory) -
+               video_entry_type_weight(vb->is_directory);
+
     /* Newer files first (larger mtime first) */
     if (va->mtime > vb->mtime) return -1;
     if (va->mtime < vb->mtime) return 1;
@@ -650,6 +684,11 @@ static int video_compare_size_large(const void *a, const void *b)
 {
     const struct video_entry *va = (const struct video_entry *)a;
     const struct video_entry *vb = (const struct video_entry *)b;
+
+    if (va->is_directory != vb->is_directory)
+        return video_entry_type_weight(va->is_directory) -
+               video_entry_type_weight(vb->is_directory);
+
     /* Larger files first */
     if (va->filesize > vb->filesize) return -1;
     if (va->filesize < vb->filesize) return 1;
@@ -917,6 +956,20 @@ static void videos_make_title(const char *path,
     videos_simplify_name(base, title, title_len);
 }
 
+static void videos_make_dir_title(const char *path,
+                                 char *title,
+                                 size_t title_len)
+{
+    const char *name;
+
+    if (!path || !title || !title_len)
+        return;
+
+    name = strrchr(path, '/');
+    name = (name && name[1]) ? name + 1 : path;
+    videos_simplify_name(name, title, title_len);
+}
+
 static bool videos_have_path(struct video_browser_state *state,
                              const char *path)
 {
@@ -933,6 +986,7 @@ static bool videos_have_path(struct video_browser_state *state,
 
 static void videos_add_file(struct video_browser_state *state,
                             const char *path,
+                            bool is_directory,
                             const char *ext,
                             bool playable,
                             const struct dirinfo *info)
@@ -951,7 +1005,10 @@ static void videos_add_file(struct video_browser_state *state,
     vid = &state->entries[state->count];
     
     strmemccpy(vid->path, path, sizeof(vid->path));
-    videos_make_title(path, vid->title, sizeof(vid->title));
+    if (is_directory)
+        videos_make_dir_title(path, vid->title, sizeof(vid->title));
+    else
+        videos_make_title(path, vid->title, sizeof(vid->title));
     
     /* Store format for display - normalize extension to uppercase */
     if (ext)
@@ -966,7 +1023,8 @@ static void videos_add_file(struct video_browser_state *state,
         vid->format[0] = '\0';
     }
     
-    vid->playable = playable;
+    vid->is_directory = is_directory;
+    vid->playable = is_directory ? false : playable;
     
     /* Store file metadata */
     if (info)
@@ -984,18 +1042,67 @@ static void videos_add_file(struct video_browser_state *state,
     vid->width = 0;
     vid->height = 0;
     vid->duration_sec = 0;
-    
+
     state->count++;
 }
 
-static void videos_scan_dir(struct video_browser_state *state,
-                            const char *dir,
-                            int depth)
+static bool videos_has_known_video(const char *dir, int depth)
 {
     DIR *dp;
     struct dirent *entry;
 
-    if (state->truncated || depth > VIDEO_BROWSER_MAX_DEPTH)
+    if (depth > VIDEO_BROWSER_MAX_DEPTH)
+        return false;
+
+    dp = opendir(dir);
+    if (!dp)
+        return false;
+
+    while ((entry = readdir(dp)) != NULL)
+    {
+        struct dirinfo info;
+        const char *ext;
+        char fullpath[MAX_PATH];
+
+        if (!strcmp(entry->d_name, ".") || !strcmp(entry->d_name, ".."))
+            continue;
+
+        info = dir_get_info(dp, entry);
+
+        if (!strcmp(dir, "/"))
+            snprintf(fullpath, sizeof(fullpath), "/%s", entry->d_name);
+        else
+            snprintf(fullpath, sizeof(fullpath), "%s/%s", dir, entry->d_name);
+
+        if (info.attribute & ATTR_DIRECTORY)
+        {
+            if (videos_has_known_video(fullpath, depth + 1))
+            {
+                closedir(dp);
+                return true;
+            }
+            continue;
+        }
+
+        ext = video_get_ext(entry->d_name);
+        if (ext && is_known_video_ext(ext))
+        {
+            closedir(dp);
+            return true;
+        }
+    }
+
+    closedir(dp);
+    return false;
+}
+
+static void videos_scan_single_dir(struct video_browser_state *state,
+                                  const char *dir)
+{
+    DIR *dp;
+    struct dirent *entry;
+
+    if (state->truncated)
         return;
 
     dp = opendir(dir);
@@ -1020,7 +1127,8 @@ static void videos_scan_dir(struct video_browser_state *state,
 
         if (info.attribute & ATTR_DIRECTORY)
         {
-            videos_scan_dir(state, fullpath, depth + 1);
+            if (videos_has_known_video(fullpath, 1))
+                videos_add_file(state, fullpath, true, NULL, false, &info);
             continue;
         }
 
@@ -1028,10 +1136,31 @@ static void videos_scan_dir(struct video_browser_state *state,
         if (!ext || !is_known_video_ext(ext))
             continue;
 
-        videos_add_file(state, fullpath, ext, is_supported_video_ext(ext), &info);
+        videos_add_file(state, fullpath, false, ext, is_supported_video_ext(ext), &info);
     }
 
     closedir(dp);
+}
+
+static void videos_scan_dir(struct video_browser_state *state)
+{
+    int i;
+
+    state->count = 0;
+    state->truncated = false;
+
+    if (state->depth == 0 && state->current_path[0] == '\0')
+    {
+        for (i = 0; i < (int)ARRAYLEN(video_scan_roots); i++)
+            videos_scan_single_dir(state, video_scan_roots[i]);
+    }
+    else
+    {
+        videos_scan_single_dir(state, state->current_path);
+    }
+
+    if (state->count > 1)
+        videos_sort(state);
 }
 
 static const char *videos_get_name(int selected_item,
@@ -1043,6 +1172,9 @@ static const char *videos_get_name(int selected_item,
 
     if (selected_item < 0 || selected_item >= state->count)
         return "";
+
+    if (state->entries[selected_item].is_directory)
+        return state->entries[selected_item].title;
 
     /* Show format indicator for all videos */
     if (state->entries[selected_item].playable)
@@ -1078,6 +1210,9 @@ static enum themable_icons videos_get_icon(int selected_item, void *data)
 
     if (selected_item < 0 || selected_item >= state->count)
         return Icon_NOICON;
+
+    if (state->entries[selected_item].is_directory)
+        return Icon_Folder;
 
     if (state->entries[selected_item].playable)
         return Icon_file_view_menu;
@@ -1291,7 +1426,8 @@ static int video_preview_screen(void)
                 if (entry->playable)
                 {
                     viewportmanager_theme_undo(SCREEN_MAIN, false);
-                    filetype_load_plugin("mpegplayer", entry->path);
+                    filetype_load_plugin(video_plugin_for_ext(entry->format),
+                                         entry->path);
                     return 1;  /* Return to browser */
                 }
                 break;
@@ -1364,6 +1500,30 @@ static int videos_action_cb(int action, struct gui_synclist *lists)
     if (action == ACTION_STD_CANCEL)
     {
         state->selection = selected;
+        if (state->depth > 0)
+        {
+            int parent_depth = state->depth - 1;
+
+            state->depth = parent_depth;
+            if (parent_depth >= 0)
+                strmemccpy(state->current_path,
+                           state->parent_path_stack[parent_depth],
+                           sizeof(state->current_path));
+            else
+                state->current_path[0] = '\0';
+
+            state->selection = state->parent_selection_stack[parent_depth];
+            videos_scan_dir(state);
+
+            gui_synclist_set_nb_items(lists, state->count);
+            if (state->count > 0)
+                gui_synclist_select_item(lists,
+                                         MIN(state->selection, state->count - 1));
+            else
+                gui_synclist_select_item(lists, 0);
+            current_video_browser_state = NULL;
+            return ACTION_REDRAW;
+        }
         current_video_browser_state = NULL;
         return action;
     }
@@ -1371,7 +1531,8 @@ static int videos_action_cb(int action, struct gui_synclist *lists)
     /* Handle context menu (long press on SELECT) */
     if (action == ACTION_STD_CONTEXT)
     {
-        if (selected >= 0 && selected < state->count)
+        if (selected >= 0 && selected < state->count
+            && !state->entries[selected].is_directory)
         {
             state->selection = selected;
             video_context_menu(&state->entries[selected]);
@@ -1393,6 +1554,41 @@ static int videos_action_cb(int action, struct gui_synclist *lists)
     }
 
     state->selection = selected;
+    if (state->entries[selected].is_directory)
+    {
+        if (state->depth < VIDEO_BROWSER_MAX_DEPTH)
+        {
+            int current_depth = state->depth;
+
+            strmemccpy(state->parent_path_stack[current_depth],
+                       state->current_path,
+                       sizeof(state->parent_path_stack[current_depth]));
+            state->parent_selection_stack[current_depth] = state->selection;
+            strmemccpy(state->current_path,
+                       state->entries[selected].path,
+                       sizeof(state->current_path));
+            state->depth = current_depth + 1;
+            state->selection = 0;
+
+            videos_scan_dir(state);
+            if (state->count == 0)
+                state->selection = -1;
+            else if (state->selection >= state->count)
+                state->selection = 0;
+
+            gui_synclist_set_nb_items(lists, state->count);
+            if (state->selection < 0)
+                gui_synclist_select_item(lists, 0);
+            else
+                gui_synclist_select_item(lists, state->selection);
+            current_video_browser_state = NULL;
+            return ACTION_REDRAW;
+        }
+
+        splash(HZ * 2, "Max folder depth reached");
+        current_video_browser_state = NULL;
+        return ACTION_REDRAW;
+    }
 
     if (!state->entries[selected].playable)
     {
@@ -1414,7 +1610,8 @@ static int videos_action_cb(int action, struct gui_synclist *lists)
         return ACTION_REDRAW;
     }
 
-    switch (filetype_load_plugin("mpegplayer", state->entries[selected].path))
+    switch (filetype_load_plugin(video_plugin_for_ext(state->entries[selected].format),
+                                 state->entries[selected].path))
     {
         case PLUGIN_GOTO_WPS:
             state->next_screen = GO_TO_WPS;
@@ -1438,7 +1635,6 @@ static int videos_scrn(void* param)
     static struct video_browser_state state;
     struct simplelist_info list;
     bool usb;
-    int i;
     int ret = GO_TO_PREVIOUS;
 
     (void)param;
@@ -1447,13 +1643,10 @@ static int videos_scrn(void* param)
     state.truncated = false;
     state.next_screen = GO_TO_PREVIOUS;
     state.sort_order = VIDEO_SORT_NAME_AZ;  /* Default sort by name A-Z */
+    state.depth = 0;
+    state.current_path[0] = '\0';
 
-    for (i = 0; i < (int)ARRAYLEN(video_scan_roots) && !state.truncated; i++)
-        videos_scan_dir(&state, video_scan_roots[i], 0);
-
-    /* Sort videos by current sort order */
-    if (state.count > 1)
-        videos_sort(&state);
+    videos_scan_dir(&state);
 
     if (state.count == 0)
     {
@@ -1758,6 +1951,16 @@ MENUITEM_FUNCTION(photos_item, MENU_FUNC_CHECK_RETVAL,
                   "Photos", launch_photos_plugin,
                   NULL, Icon_Folder);
 
+static int launch_desktop_mode(void *param)
+{
+    (void)param;
+    return load_plugin_path_screen(PLUGIN_APPS_DIR "/desktop_mode.rock", NULL);
+}
+
+MENUITEM_FUNCTION(desktop_mode_item, MENU_FUNC_CHECK_RETVAL,
+                  "Desktop Mode", launch_desktop_mode,
+                  NULL, Icon_Rockbox);
+
 static const struct browse_folder_info gameboy_folder = {"/gameboy/", SHOW_ALL};
 static const struct browse_folder_info pokemini_folder = {"/PokeMini/", SHOW_ALL};
 #if defined(HAVE_LCD_COLOR) && (LCD_WIDTH >= 220)
@@ -2034,6 +2237,7 @@ static struct menu_table menu_table[] = {
 #endif
     { "videos", &videos },
     { "photos", &photos_item },
+    { "desktop", &desktop_mode_item },
     { "games", &gameboy_browser },
     { "podemon_go", &podemon_go_item },
     { "pokemini", &pokemini_item },
@@ -2165,7 +2369,8 @@ void root_menu_set_default(void* setting, void* defaultval)
     for (i=0; i<MAX_MENU_ITEMS; i++)
     {
         if (menu_table[i].item == &podemon_go_item ||
-            menu_table[i].item == &pokemini_item)
+            menu_table[i].item == &pokemini_item ||
+            menu_table[i].item == &desktop_mode_item)
             continue;
 
         root_menu__[count++] = (struct menu_item_ex *)menu_table[i].item;

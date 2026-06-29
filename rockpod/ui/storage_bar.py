@@ -10,6 +10,7 @@ SEGMENT_ORDER = (
     ("games_plugins", "Games"),
     ("themes_assets", "Themes"),
     ("rockbox_system", "System"),
+    ("linux_system", "Linux"),
     ("other", "Other"),
     ("free", "Free"),
 )
@@ -19,6 +20,7 @@ SEGMENT_COLORS = {
     "games_plugins": ("#88c676", "#5c9d47"),
     "themes_assets": ("#d58bb8", "#a95f8d"),
     "rockbox_system": ("#f0c060", "#d89028"),
+    "linux_system": ("#70c8c4", "#2d8c89"),
     "other": ("#a7adb8", "#7f8794"),
     "free": ("#efefef", "#d7d7d7"),
 }

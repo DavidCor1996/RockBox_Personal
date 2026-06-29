@@ -161,13 +161,20 @@ void I_ShutdownGraphics(void)
 #define DOOMBUTTON_SCROLLWHEEL
 #define DOOMBUTTON_SCROLLWHEEL_CC     BUTTON_SCROLL_BACK
 #define DOOMBUTTON_SCROLLWHEEL_CW    BUTTON_SCROLL_FWD
-#define DOOMBUTTON_UP         BUTTON_MENU
-#define DOOMBUTTON_WEAPON     BUTTON_SELECT
+#define DOOMBUTTON_IPOD_OPEN     0x04000000
+#define DOOMBUTTON_IPOD_ENTER    0x08000000
+#define DOOMBUTTON_IPOD_ESC      0x10000000
+#define DOOMBUTTON_IPOD_MAP      0x20000000
+#define DOOMBUTTON_IPOD_WEAPON   0x40000000
+#define DOOMBUTTON_UP         BUTTON_PLAY
 #define DOOMBUTTON_LEFT       BUTTON_LEFT
 #define DOOMBUTTON_RIGHT      BUTTON_RIGHT
-#define DOOMBUTTON_SHOOT      BUTTON_PLAY
-#define DOOMBUTTON_ENTER      BUTTON_SELECT
-#define DOOMBUTTON_OPEN       BUTTON_MENU
+#define DOOMBUTTON_SHOOT      BUTTON_SELECT
+#define DOOMBUTTON_OPEN       DOOMBUTTON_IPOD_OPEN
+#define DOOMBUTTON_ENTER      DOOMBUTTON_IPOD_ENTER
+#define DOOMBUTTON_WEAPON     DOOMBUTTON_IPOD_WEAPON
+#define DOOMBUTTON_MAP        DOOMBUTTON_IPOD_MAP
+#define DOOMBUTTON_ESC        BUTTON_MENU
 
 #elif CONFIG_KEYPAD == IAUDIO_X5M5_PAD
 #define DOOMBUTTON_UP      BUTTON_UP
@@ -699,6 +706,311 @@ static inline unsigned int read_scroll_wheel(void)
 }
 #endif
 
+#if (CONFIG_KEYPAD == IPOD_4G_PAD) || (CONFIG_KEYPAD == IPOD_3G_PAD) || \
+    (CONFIG_KEYPAD == IPOD_1G2G_PAD)
+extern int ipod_control_preset;
+
+#define IPOD_CONTROL_SHOOTER   0
+#define IPOD_CONTROL_CLASSIC   1
+#define IPOD_CONTROL_MENUSAFE  2
+#define IPOD_MENU_HOLD_DELAY   12
+
+static bool ipod_ignore_menu_release;
+static bool ipod_menu_pressed;
+static bool ipod_menu_hold_sent;
+static int ipod_map_pan_key;
+static int ipod_map_pan_release_time;
+static int ipod_menu_hold_time;
+
+static inline unsigned int ipod_apply_chords(unsigned int buttons)
+{
+   if ((buttons & (BUTTON_SELECT|BUTTON_MENU)) == (BUTTON_SELECT|BUTTON_MENU))
+   {
+      buttons &= ~(BUTTON_SELECT|BUTTON_MENU);
+      buttons |= DOOMBUTTON_IPOD_ESC;
+   }
+   else if ((buttons & (BUTTON_SELECT|BUTTON_PLAY)) ==
+            (BUTTON_SELECT|BUTTON_PLAY))
+   {
+      buttons &= ~(BUTTON_SELECT|BUTTON_PLAY);
+      buttons |= DOOMBUTTON_IPOD_OPEN;
+   }
+   else if ((buttons & (BUTTON_LEFT|BUTTON_RIGHT)) ==
+            (BUTTON_LEFT|BUTTON_RIGHT))
+   {
+      buttons &= ~(BUTTON_LEFT|BUTTON_RIGHT);
+      buttons |= DOOMBUTTON_IPOD_WEAPON;
+   }
+
+   return buttons;
+}
+
+static inline unsigned int ipod_apply_control_preset(unsigned int buttons)
+{
+   (void) ipod_control_preset;
+   return buttons;
+}
+
+static inline unsigned int ipod_apply_menu_controls(unsigned int buttons)
+{
+   if (buttons & BUTTON_SELECT)
+   {
+      buttons &= ~BUTTON_SELECT;
+      buttons |= DOOMBUTTON_IPOD_ENTER;
+   }
+   if (buttons & BUTTON_MENU)
+   {
+      buttons &= ~BUTTON_MENU;
+      buttons |= DOOMBUTTON_IPOD_ESC;
+   }
+
+   return buttons;
+}
+
+static inline void ipod_post_menu_scroll(int key)
+{
+   event_t event;
+
+   event.type = ev_keydown;
+   event.data1 = key;
+   D_PostEvent(&event);
+}
+
+static inline void ipod_post_menu_key(int key)
+{
+   event_t event;
+
+   event.type = ev_keydown;
+   event.data1 = key;
+   D_PostEvent(&event);
+}
+
+static inline void ipod_post_game_scroll(int amount)
+{
+   event_t event;
+
+   event.type = ev_scroll;
+   event.data1 = amount;
+   D_PostEvent(&event);
+}
+
+static inline void ipod_post_game_key(int key)
+{
+   event_t event;
+
+   event.type = ev_keydown;
+   event.data1 = key;
+   D_PostEvent(&event);
+   event.type = ev_keyup;
+   D_PostEvent(&event);
+}
+
+static inline void ipod_post_map_pan_keyup(void)
+{
+   event_t event;
+
+   if (!ipod_map_pan_key)
+      return;
+
+   event.type = ev_keyup;
+   event.data1 = ipod_map_pan_key;
+   D_PostEvent(&event);
+   ipod_map_pan_key = 0;
+}
+
+static inline void ipod_post_map_pan(int key)
+{
+   event_t event;
+
+   if (ipod_map_pan_key && ipod_map_pan_key != key)
+      ipod_post_map_pan_keyup();
+
+   if (!ipod_map_pan_key)
+   {
+      event.type = ev_keydown;
+      event.data1 = key;
+      D_PostEvent(&event);
+      ipod_map_pan_key = key;
+   }
+
+   ipod_map_pan_release_time = I_GetTime() + 2;
+}
+
+static inline void ipod_update_map_pan(void)
+{
+   if (ipod_map_pan_key && I_GetTime() >= ipod_map_pan_release_time)
+      ipod_post_map_pan_keyup();
+}
+
+static inline void ipod_start_menu_hold(void)
+{
+   ipod_menu_pressed = true;
+   ipod_menu_hold_sent = false;
+   ipod_menu_hold_time = I_GetTime() + IPOD_MENU_HOLD_DELAY;
+}
+
+static inline void ipod_check_menu_hold(void)
+{
+   if (ipod_menu_pressed && !ipod_menu_hold_sent &&
+       I_GetTime() >= ipod_menu_hold_time)
+   {
+      ipod_menu_hold_sent = true;
+      ipod_post_game_key(KEY_TAB);
+   }
+}
+
+static inline void ipod_handle_menu_controls(void)
+{
+   int button;
+
+   while ((button = rb->button_get(false)) != BUTTON_NONE)
+   {
+      unsigned int bare = button & ~(BUTTON_REPEAT|BUTTON_REL);
+
+      if (button & BUTTON_REL)
+      {
+         if (bare & BUTTON_SELECT)
+            ipod_post_menu_key(KEY_ENTER);
+         else if (bare & BUTTON_MENU)
+         {
+            ipod_menu_pressed = false;
+            if (ipod_ignore_menu_release)
+               ipod_ignore_menu_release = false;
+         }
+         else if (bare & BUTTON_LEFT)
+            ipod_post_menu_key(KEY_BACKSPACE);
+         else if (bare & BUTTON_RIGHT)
+            ipod_post_menu_key(KEY_ENTER);
+         continue;
+      }
+
+      if (bare & BUTTON_SCROLL_BACK)
+         ipod_post_menu_scroll(KEY_UPARROW);
+      else if (bare & BUTTON_SCROLL_FWD)
+         ipod_post_menu_scroll(KEY_DOWNARROW);
+      else if (bare & BUTTON_MENU)
+      {
+         ipod_menu_pressed = true;
+         if (ipod_ignore_menu_release)
+            ipod_ignore_menu_release = false;
+         else if (!(button & BUTTON_REPEAT))
+            ipod_post_menu_key(KEY_BACKSPACE);
+      }
+      else if (bare & BUTTON_LEFT)
+         ipod_post_menu_key(KEY_LEFTARROW);
+      else if (bare & BUTTON_RIGHT)
+         ipod_post_menu_key(KEY_RIGHTARROW);
+   }
+
+   if (rb->button_status() & BUTTON_MENU)
+   {
+      if (!ipod_menu_pressed)
+      {
+         ipod_menu_pressed = true;
+         if (ipod_ignore_menu_release)
+            ipod_ignore_menu_release = false;
+         else
+            ipod_post_menu_key(KEY_BACKSPACE);
+      }
+   }
+   else
+   {
+      if (ipod_ignore_menu_release)
+         ipod_ignore_menu_release = false;
+      ipod_menu_pressed = false;
+   }
+}
+
+static inline unsigned int ipod_read_game_buttons(void)
+{
+   unsigned int buttons = BUTTON_NONE;
+   int button;
+   bool done = false;
+   bool map_active = (automapmode & am_active) != 0;
+
+   ipod_update_map_pan();
+
+   while (!done)
+   {
+      unsigned int bare;
+
+      button = rb->button_get(false);
+      if (button == BUTTON_NONE)
+      {
+         done = true;
+         buttons |= rb->button_status();
+         continue;
+      }
+
+      bare = button & ~(BUTTON_REPEAT|BUTTON_REL);
+      if (bare & DOOMBUTTON_SCROLLWHEEL_CC)
+      {
+         if (!(button & BUTTON_REL))
+         {
+            if (map_active)
+               ipod_post_map_pan(KEY_UPARROW);
+            else
+               ipod_post_game_scroll(-1);
+         }
+         continue;
+      }
+      if (bare & DOOMBUTTON_SCROLLWHEEL_CW)
+      {
+         if (!(button & BUTTON_REL))
+         {
+            if (map_active)
+               ipod_post_map_pan(KEY_DOWNARROW);
+            else
+               ipod_post_game_scroll(1);
+         }
+         continue;
+      }
+      if (bare & BUTTON_MENU)
+      {
+         if (button & BUTTON_REL)
+         {
+            if (!ipod_menu_hold_sent && ipod_menu_pressed)
+               ipod_post_menu_key(KEY_ESCAPE);
+            ipod_menu_pressed = false;
+            ipod_menu_hold_sent = false;
+         }
+         else if (!(button & BUTTON_REPEAT) && !ipod_menu_pressed)
+         {
+            ipod_start_menu_hold();
+         }
+         else
+            ipod_check_menu_hold();
+         continue;
+      }
+
+      if (!(button & BUTTON_REL))
+         buttons |= bare;
+   }
+
+   if (!map_active)
+      ipod_post_map_pan_keyup();
+
+   if (rb->button_status() & BUTTON_MENU)
+   {
+      if (!ipod_menu_pressed)
+      {
+         ipod_start_menu_hold();
+      }
+      ipod_check_menu_hold();
+      buttons &= ~BUTTON_MENU;
+   }
+   else if (ipod_menu_pressed)
+   {
+      if (!ipod_menu_hold_sent)
+         ipod_post_menu_key(KEY_ESCAPE);
+      ipod_menu_pressed = false;
+      ipod_menu_hold_sent = false;
+   }
+
+   return buttons;
+}
+#endif
+
 static inline void getkey()
 {
    event_t event;
@@ -735,6 +1047,20 @@ static inline void getkey()
    holdbutton=rb->button_hold();
 #endif
 
+#if (CONFIG_KEYPAD == IPOD_4G_PAD) || (CONFIG_KEYPAD == IPOD_3G_PAD) || \
+    (CONFIG_KEYPAD == IPOD_1G2G_PAD)
+   if (menuactive)
+   {
+      ipod_handle_menu_controls();
+      oldbuttonstate = 0;
+      return;
+   }
+#endif
+
+#if (CONFIG_KEYPAD == IPOD_4G_PAD) || (CONFIG_KEYPAD == IPOD_3G_PAD) || \
+    (CONFIG_KEYPAD == IPOD_1G2G_PAD)
+   newbuttonstate = ipod_read_game_buttons();
+#else
 #if defined(DOOMBUTTON_SCROLLWHEEL) || defined(DOOMBUTTON_REC_SWITCH)
    /* use button_get(false) for clickwheel checks */
    int button; /* move me */
@@ -744,16 +1070,32 @@ static inline void getkey()
    switch(button){
    case DOOMBUTTON_SCROLLWHEEL_CC | BUTTON_REPEAT:
    case DOOMBUTTON_SCROLLWHEEL_CC:
+#if (CONFIG_KEYPAD == IPOD_4G_PAD) || (CONFIG_KEYPAD == IPOD_3G_PAD) || \
+    (CONFIG_KEYPAD == IPOD_1G2G_PAD)
+         if (menuactive)
+            ipod_post_menu_scroll(KEY_UPARROW);
+         else
+#endif
+         {
          event.type = ev_scroll;
          event.data1=-1;
          D_PostEvent(&event);
+         }
          break;
    case DOOMBUTTON_SCROLLWHEEL_CW | BUTTON_REPEAT:
    case DOOMBUTTON_SCROLLWHEEL_CW:
+#if (CONFIG_KEYPAD == IPOD_4G_PAD) || (CONFIG_KEYPAD == IPOD_3G_PAD) || \
+    (CONFIG_KEYPAD == IPOD_1G2G_PAD)
+         if (menuactive)
+            ipod_post_menu_scroll(KEY_DOWNARROW);
+         else
+#endif
+         {
          event.type = ev_scroll;
          //event.data1=KEY_LEFTARROW;
          event.data1=1;
          D_PostEvent(&event);
+         }
          break;
    }
 #endif
@@ -769,7 +1111,24 @@ static inline void getkey()
 #endif
    newbuttonstate = rb->button_status();
 #ifdef DOOMBUTTON_SCROLLWHEEL
+#if (CONFIG_KEYPAD == IPOD_4G_PAD) || (CONFIG_KEYPAD == IPOD_3G_PAD) || \
+    (CONFIG_KEYPAD == IPOD_1G2G_PAD)
+   if (!menuactive)
+      newbuttonstate |= read_scroll_wheel();
+#else
    newbuttonstate |= read_scroll_wheel();
+#endif
+#endif
+#endif
+#if (CONFIG_KEYPAD == IPOD_4G_PAD) || (CONFIG_KEYPAD == IPOD_3G_PAD) || \
+    (CONFIG_KEYPAD == IPOD_1G2G_PAD)
+   if (menuactive)
+      newbuttonstate = ipod_apply_menu_controls(newbuttonstate);
+   else
+   {
+      newbuttonstate = ipod_apply_chords(newbuttonstate);
+      newbuttonstate = ipod_apply_control_preset(newbuttonstate);
+   }
 #endif
 
    if(newbuttonstate==oldbuttonstate) /* Don't continue, nothing left to do */

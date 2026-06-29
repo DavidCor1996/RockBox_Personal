@@ -20,13 +20,34 @@ ifeq ($(APP_TYPE),ctru-app)
     is_app_build =
 endif
 
+PLUGIN_CXX_BASE ?= $(patsubst %gcc,%g++,$(CC))
+ifeq ($(shell command -v $(PLUGIN_CXX_BASE) >/dev/null 2>&1 && echo yes),)
+ifneq ($(shell command -v arm-none-eabi-g++ >/dev/null 2>&1 && echo yes),)
+PLUGIN_CXX_BASE := arm-none-eabi-g++
+endif
+endif
+PLUGIN_CXX ?= $(PLUGIN_CXX_BASE)
+ifeq ($(PLUGIN_CXX_BASE),arm-none-eabi-g++)
+PLUGIN_CXX += -nostdinc \
+	-isystem /usr/arm-none-eabi/include/c++/14.2.0 \
+	-isystem /usr/arm-none-eabi/include/c++/14.2.0/arm-none-eabi \
+	-isystem /usr/arm-none-eabi/include/c++/14.2.0/backward \
+	-isystem /usr/local/lib/gcc/arm-elf-eabi/9.5.0/include \
+	-isystem /usr/local/lib/gcc/arm-elf-eabi/9.5.0/include-fixed
+endif
+PLUGIN_CXX_AVAILABLE := $(shell command -v $(PLUGIN_CXX_BASE) >/dev/null 2>&1 && echo yes)
+ifeq ($(PLUGIN_CXX_AVAILABLE),yes)
+PLUGIN_CXX_DEFINES := -DHAVE_PLUGIN_CXX
+endif
+
 ifdef is_app_build
-PLUGINS_SRC = $(call preprocess, $(APPSDIR)/plugins/SOURCES.app_build)
+PLUGINS_SRC = $(call preprocess, $(APPSDIR)/plugins/SOURCES.app_build,$(PLUGIN_CXX_DEFINES))
 else
-PLUGINS_SRC = $(call preprocess, $(APPSDIR)/plugins/SOURCES)
+PLUGINS_SRC = $(call preprocess, $(APPSDIR)/plugins/SOURCES,$(PLUGIN_CXX_DEFINES))
 endif
 OTHER_SRC += $(PLUGINS_SRC)
 ROCKS1 := $(PLUGINS_SRC:.c=.rock)
+ROCKS1 := $(ROCKS1:.cpp=.rock)
 ROCKS1 := $(call full_path_subst,$(ROOTDIR)/%,$(BUILDDIR)/%,$(ROCKS1))
 
 ROCKS := $(ROCKS1)
@@ -35,10 +56,11 @@ ROCKS1 := $(ROCKS1:%.lua=)
 
 # libplugin.a
 PLUGINLIB := $(BUILDDIR)/apps/plugins/libplugin.a
-PLUGINLIB_SRC = $(call preprocess, $(APPSDIR)/plugins/lib/SOURCES)
+PLUGINLIB_SRC = $(call preprocess, $(APPSDIR)/plugins/lib/SOURCES,$(PLUGIN_CXX_DEFINES))
 OTHER_SRC += $(PLUGINLIB_SRC)
 
 PLUGINLIB_OBJ := $(PLUGINLIB_SRC:.c=.o)
+PLUGINLIB_OBJ := $(PLUGINLIB_OBJ:.cpp=.o)
 PLUGINLIB_OBJ := $(PLUGINLIB_OBJ:.S=.o)
 PLUGINLIB_OBJ := $(call full_path_subst,$(ROOTDIR)/%,$(BUILDDIR)/%,$(PLUGINLIB_OBJ))
 
@@ -73,6 +95,11 @@ OTHER_INC += -I$(APPSDIR)/plugins -I$(APPSDIR)/plugins/lib
 
 # special compile flags for plugins:
 PLUGINFLAGS = -I$(APPSDIR)/plugins -DPLUGIN $(CFLAGS)
+PLUGIN_CXXFLAGS = $(filter-out -std=gnu99 -Wstrict-prototypes \
+	-Wmissing-prototypes -Wold-style-definition,$(PLUGINFLAGS)) \
+	-std=gnu++03 -fno-exceptions -fno-rtti -fno-threadsafe-statics \
+	-fno-use-cxa-atexit -fno-unwind-tables -fno-asynchronous-unwind-tables \
+	-fno-access-control -fpermissive
 
 # single-file plugins depend on their respective .o
 $(ROCKS1): $(BUILDDIR)/%.rock: $(BUILDDIR)/%.o
@@ -144,10 +171,18 @@ $(BUILD_PLUGINSLIB_DIR)/%.o: $(ROOT_PLUGINSLIB_DIR)/%.c
 	$(SILENT)mkdir -p $(dir $@)
 	$(call PRINTS,CC $(subst $(ROOTDIR)/,,$<))$(CC) -I$(dir $<) $(PLUGINLIBFLAGS) -c $< -o $@
 
+$(BUILD_PLUGINSLIB_DIR)/%.o: $(ROOT_PLUGINSLIB_DIR)/%.cpp
+	$(SILENT)mkdir -p $(dir $@)
+	$(call PRINTS,CXX $(subst $(ROOTDIR)/,,$<))$(PLUGIN_CXX) -I$(dir $<) $(PLUGIN_CXXFLAGS) -ffunction-sections -fdata-sections -c $< -o $@
+
 # special pattern rule for compiling plugins with extra flags
 $(BUILDDIR)/apps/plugins/%.o: $(ROOTDIR)/apps/plugins/%.c
 	$(SILENT)mkdir -p $(dir $@)
 	$(call PRINTS,CC $(subst $(ROOTDIR)/,,$<))$(CC) -I$(dir $<) $(PLUGINFLAGS) -c $< -o $@
+
+$(BUILDDIR)/apps/plugins/%.o: $(ROOTDIR)/apps/plugins/%.cpp
+	$(SILENT)mkdir -p $(dir $@)
+	$(call PRINTS,CXX $(subst $(ROOTDIR)/,,$<))$(PLUGIN_CXX) -I$(dir $<) $(PLUGIN_CXXFLAGS) -c $< -o $@
 
 ifdef APP_TYPE
  PLUGINLDFLAGS = $(SHARED_LDFLAGS) -Wl,$(LDMAP_OPT),$*.map

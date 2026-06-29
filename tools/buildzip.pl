@@ -612,6 +612,16 @@ sub buildzip {
 
     }
 
+    if(-e "$temp_dir/rocks/games/rockboy_launcher.rock") {
+        mkpath("$temp_dir/rocks/games/rockboy_launcher/covers", $verbose, 0777);
+        if ($width == 320 && $height == 240) {
+            copy("$ROOT/apps/plugins/bitmaps/native/pictureflow_loading_bg.320x240x24.bmp",
+                 "$temp_dir/rocks/games/rockboy_launcher/loading_bg.bmp");
+        }
+        copy("$ROOT/apps/plugins/bitmaps/native/doom_cover.120x140x24.bmp",
+             "$temp_dir/rocks/games/rockboy_launcher/covers/Doom.bmp");
+    }
+
     if($image) {
         # image is blank when this is a simulator
         if( filesize("rockbox.ucl") > 1000 ) {

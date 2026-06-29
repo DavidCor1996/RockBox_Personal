@@ -22,6 +22,7 @@
 #include "system.h"
 #ifdef SIMULATOR
 #include <stdlib.h>
+#include <stdio.h>
 #endif
 
 #include "version.h"
@@ -237,10 +238,17 @@ int main(void)
         const char *sim_plugin = getenv("ROCKBOX_SIM_PLUGIN");
         const char *sim_plugin_param = getenv("ROCKBOX_SIM_PLUGIN_PARAM");
 
-        if (sim_plugin && sim_plugin[0])
-            plugin_load(sim_plugin,
-                        sim_plugin_param && sim_plugin_param[0] ?
-                        sim_plugin_param : NULL);
+        if (sim_plugin && sim_plugin[0]) {
+            int sim_plugin_rc;
+            fprintf(stderr, "ROCKBOX_SIM_PLUGIN: %s param=%s\n",
+                    sim_plugin,
+                    sim_plugin_param && sim_plugin_param[0] ?
+                    sim_plugin_param : "(null)");
+            sim_plugin_rc = plugin_load(sim_plugin,
+                                        sim_plugin_param && sim_plugin_param[0] ?
+                                        sim_plugin_param : NULL);
+            fprintf(stderr, "ROCKBOX_SIM_PLUGIN rc=%d\n", sim_plugin_rc);
+        }
     }
 #endif
 

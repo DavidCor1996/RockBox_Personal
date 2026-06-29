@@ -383,10 +383,24 @@ void lcd_mono_bitmap(const unsigned char *src, int x, int y, int width, int heig
 #define ALPHA_PIXELS_PER_WORD   (ALPHA_WORDSIZE * CHAR_BIT / ALPHA_BPP)
 
 static unsigned char lcd_alpha_bitmap_opacity = 255;
+static unsigned char lcd_alpha_bitmap_yscale = 100;
+static unsigned char lcd_alpha_bitmap_yclip_top = 0;
+static unsigned char lcd_alpha_bitmap_yclip_height = 0;
 
 void lcd_set_alpha_bitmap_opacity(unsigned char opacity)
 {
     lcd_alpha_bitmap_opacity = opacity;
+}
+
+void lcd_set_alpha_bitmap_yscale(unsigned char yscale)
+{
+    lcd_alpha_bitmap_yscale = yscale ? yscale : 100;
+}
+
+void lcd_set_alpha_bitmap_yclip(unsigned char top, unsigned char height)
+{
+    lcd_alpha_bitmap_yclip_top = top;
+    lcd_alpha_bitmap_yclip_height = height;
 }
 
 #ifdef CPU_ARM
@@ -457,6 +471,47 @@ static void ICODE_ATTR lcd_alpha_bitmap_part_mix(
     int x, int y, int width, int height,
     int stride_image, int stride_alpha)
 {
+    if (lcd_alpha_bitmap_yscale != 100 && height > 0)
+    {
+        unsigned char saved_yscale = lcd_alpha_bitmap_yscale;
+        int draw_height = (height * saved_yscale + 50) / 100;
+        int clip_top = lcd_alpha_bitmap_yclip_top;
+        int clip_height = lcd_alpha_bitmap_yclip_height;
+        int clip_bottom = clip_top + clip_height;
+
+        if (draw_height < 1)
+            draw_height = 1;
+
+        lcd_alpha_bitmap_yscale = 100;
+        for (int row = 0; row < draw_height; row++)
+        {
+            if (clip_height && (row < clip_top || row >= clip_bottom))
+                continue;
+
+            int source_row = src_y + (row * height) / draw_height;
+            lcd_alpha_bitmap_part_mix(image, alpha, src_x, source_row,
+                                      x, y + row, width, 1,
+                                      stride_image, stride_alpha);
+        }
+        lcd_alpha_bitmap_yscale = saved_yscale;
+        return;
+    }
+
+    if (lcd_alpha_bitmap_yclip_height && height > 0)
+    {
+        int clip_top = lcd_alpha_bitmap_yclip_top;
+        int clip_bottom = clip_top + lcd_alpha_bitmap_yclip_height;
+        int draw_top = MAX(0, clip_top);
+        int draw_bottom = MIN(height, clip_bottom);
+
+        if (draw_top >= draw_bottom)
+            return;
+
+        y += draw_top;
+        src_y += draw_top;
+        height = draw_bottom - draw_top;
+    }
+
     struct viewport *vp = lcd_current_viewport;
     unsigned int dmask = 0;
     int drmode = vp->drawmode;

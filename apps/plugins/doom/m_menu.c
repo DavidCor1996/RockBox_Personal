@@ -178,6 +178,28 @@ char    skullName[2][/*8*/9] = {"M_SKULL1","M_SKULL2"};
 // current menudef
 menu_t* currentMenu;
 
+static byte menu_background[MAX_SCREENWIDTH * MAX_SCREENHEIGHT];
+static boolean menu_background_valid;
+
+static void M_CaptureMenuBackground(void)
+{
+   if (gamestate == GS_DEMOSCREEN)
+      D_PageDrawer();
+
+   memcpy(menu_background, d_screens[0], SCREENWIDTH * SCREENHEIGHT);
+   menu_background_valid = true;
+}
+
+static void M_RestoreMenuBackground(void)
+{
+   if (!menu_background_valid)
+      M_CaptureMenuBackground();
+   else
+      memcpy(d_screens[0], menu_background, SCREENWIDTH * SCREENHEIGHT);
+
+   V_MarkRect(0, 0, SCREENWIDTH, SCREENHEIGHT);
+}
+
 //
 // PROTOTYPES
 //
@@ -1068,7 +1090,7 @@ void M_EndGame(int choice)
       return;
    }
 
-   M_StartMessage(s_ENDGAME,M_EndGameResponse,true);
+   M_EndGameResponse(key_menu_enter);
 }
 
 
@@ -1148,14 +1170,7 @@ void M_QuitResponse(int ch)
 void M_QuitDOOM(int choice)
 {
    (void)choice;
-   // We pick index 0 which is language sensitive,
-   //  or one at random, between 1 and maximum number.
-   if (language != english )
-      snprintf(endstring,sizeof(endstring),"%s\n\n%s",s_DOSY, endmsg[0] );
-   else
-      snprintf(endstring,sizeof(endstring),"%s\n\n%s", endmsg[gametic%(NUM_QUITMESSAGES-1)+1], s_DOSY);
-
-   M_StartMessage(endstring,M_QuitResponse,true);
+   M_QuitResponse(key_menu_enter);
 }
 
 
@@ -1659,6 +1674,11 @@ boolean M_Responder (event_t* ev)
          itemOn = currentMenu->lastOn;
          S_StartSound(NULL,sfx_swtchn);
       }
+      else
+      {
+         M_ClearMenus ();
+         S_StartSound(NULL,sfx_swtchx);
+      }
       return true;
 
    default:
@@ -1694,6 +1714,7 @@ void M_StartControlPanel (void)
    if (menuactive)
       return;
 
+   menu_background_valid = false;
    menuactive = 1;
    currentMenu = &MainDef;         // JDC
    itemOn = currentMenu->lastOn;   // JDC
@@ -1749,7 +1770,12 @@ void M_Drawer (void)
    }
 
    if (!menuactive)
+   {
+      menu_background_valid = false;
       return;
+   }
+
+   M_RestoreMenuBackground();
 
    if (currentMenu->routine)
       currentMenu->routine();         // call Draw routine
@@ -1780,6 +1806,7 @@ void M_Drawer (void)
 //
 void M_ClearMenus (void)
 {
+   menu_background_valid = false;
    menuactive = 0;
    // if (!netgame && usergame && paused)
    //       sendpause = true;

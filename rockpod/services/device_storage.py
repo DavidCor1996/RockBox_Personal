@@ -16,6 +16,26 @@ THEME_PREFIXES = (
     ".rockbox/fonts/",
 )
 
+LINUX_PREFIXES = (
+    "Linux/",
+    ".rockpod-linux/",
+    ".disk/",
+    "boot/grub/",
+    "d-i/",
+    "EFI/BOOT/rockpod-linux/",
+    "firmware/",
+    "install/",
+    "isolinux/",
+    "live/",
+)
+
+LINUX_BOOT_FILES = (
+    "EFI/BOOT/BOOTX64.EFI",
+    "EFI/boot/bootx64.efi",
+    "EFI/BOOT/grub.cfg",
+    "EFI/boot/grub.cfg",
+)
+
 
 def analyze_device_storage(mount_path, total_bytes=0, free_bytes=0):
     mount_path = os.path.abspath(str(mount_path or ""))
@@ -24,6 +44,7 @@ def analyze_device_storage(mount_path, total_bytes=0, free_bytes=0):
         "games_plugins": 0,
         "themes_assets": 0,
         "rockbox_system": 0,
+        "linux_system": 0,
         "other": 0,
     }
     if not mount_path or not os.path.isdir(mount_path):
@@ -63,6 +84,7 @@ def _build_summary(categories, total_bytes, free_bytes, walked_used):
         "games_plugins": categories["games_plugins"],
         "themes_assets": categories["themes_assets"],
         "rockbox_system": categories["rockbox_system"],
+        "linux_system": categories["linux_system"],
         "other": categories["other"],
         "scanned_at": datetime.now().isoformat(timespec="seconds"),
     }
@@ -72,6 +94,8 @@ def _classify_relative_path(rel_path):
     rel = str(rel_path or "").replace("\\", "/")
     if rel.startswith("Music/"):
         return "music"
+    if rel in LINUX_BOOT_FILES or any(rel.startswith(prefix) for prefix in LINUX_PREFIXES):
+        return "linux_system"
     if rel.startswith(".rockbox/rocks/"):
         return "games_plugins"
     if any(rel.startswith(prefix) for prefix in THEME_PREFIXES):

@@ -181,11 +181,6 @@ static void start_radio_shuffle_once(bool *radio_started)
         return;
 
     *radio_started = true;
-    if (rb->playlist_amount() <= 0)
-        return;
-
-    rb->playlist_shuffle(*rb->current_tick, -1);
-    rb->playlist_start(0, 0, 0);
 }
 
 static void apply_profile_bonus(struct nc_game_state *state, enum nc_profile profile)

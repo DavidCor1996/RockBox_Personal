@@ -23,9 +23,6 @@ static bool grab_audiobuf(void)
     if(!audiobuf_available)
         return false;
 
-    if(rb->audio_status())
-        rb->audio_stop();
-
     size_t sz;
 
     void *audiobuf = rb->plugin_get_audio_buffer(&sz);

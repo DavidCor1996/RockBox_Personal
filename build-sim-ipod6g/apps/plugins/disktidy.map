@@ -171,7 +171,7 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
 .plt.sec
  *(.plt.sec)
 
-.text           0x0000000000001060     0x1a4b
+.text           0x0000000000001060     0x1abe
  *(.text.unlikely .text.*_unlikely .text.unlikely.*)
  *(.text.exit .text.exit.*)
  *(.text.startup .text.startup.*)
@@ -188,20 +188,20 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
                 0x000000000000251a                exit
                 0x0000000000002533                _exit
                 0x0000000000002542                exit_on_usb
- .text          0x0000000000002581      0x1b3 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(playback_control.o)
-                0x00000000000026fe                playback_control_init
-                0x0000000000002706                playback_control
- .text          0x0000000000002734      0x377 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(display_text.o)
-                0x000000000000277b                display_text
- .text          0x0000000000002aab        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtendS.o
- .text          0x0000000000002aab        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
+ .text          0x0000000000002581      0x226 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(playback_control.o)
+                0x0000000000002771                playback_control_init
+                0x0000000000002779                playback_control
+ .text          0x00000000000027a7      0x377 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(display_text.o)
+                0x00000000000027ee                display_text
+ .text          0x0000000000002b1e        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtendS.o
+ .text          0x0000000000002b1e        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
  *(.gnu.warning)
 
-.fini           0x0000000000002aac        0xd
+.fini           0x0000000000002b20        0xd
  *(SORT_NONE(.fini))
- .fini          0x0000000000002aac        0x8 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
-                0x0000000000002aac                _fini
- .fini          0x0000000000002ab4        0x5 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
+ .fini          0x0000000000002b20        0x8 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
+                0x0000000000002b20                _fini
+ .fini          0x0000000000002b28        0x5 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
                 [!provide]                        PROVIDE (__etext = .)
                 [!provide]                        PROVIDE (_etext = .)
                 [!provide]                        PROVIDE (etext = .)
@@ -233,7 +233,7 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
                 0x000000000000336c                __GNU_EH_FRAME_HDR
  *(.eh_frame_entry .eh_frame_entry.*)
 
-.eh_frame       0x0000000000003460      0x488
+.eh_frame       0x0000000000003460      0x498
  *(.eh_frame)
  .eh_frame      0x0000000000003460       0x40 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
  .eh_frame      0x00000000000034a0        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
@@ -241,11 +241,11 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
                                         0x270 (size before relaxing)
  .eh_frame      0x00000000000036f8       0x88 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
                                          0xa0 (size before relaxing)
- .eh_frame      0x0000000000003780       0xf0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(playback_control.o)
-                                        0x108 (size before relaxing)
- .eh_frame      0x0000000000003870       0x74 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(display_text.o)
+ .eh_frame      0x0000000000003780      0x100 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(playback_control.o)
+                                        0x118 (size before relaxing)
+ .eh_frame      0x0000000000003880       0x74 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(display_text.o)
                                          0x90 (size before relaxing)
- .eh_frame      0x00000000000038e4        0x4 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtendS.o
+ .eh_frame      0x00000000000038f4        0x4 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtendS.o
  *(.eh_frame.*)
 
 .sframe
@@ -265,30 +265,30 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
  *(.note.build-id)
 
 .note.GNU-stack
-                0x00000000000038e8        0x0
+                0x00000000000038f8        0x0
  *(.note.GNU-stack)
  .note.GNU-stack
-                0x00000000000038e8        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
+                0x00000000000038f8        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
  .note.GNU-stack
-                0x00000000000038e8        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtbeginS.o
+                0x00000000000038f8        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtbeginS.o
  .note.GNU-stack
-                0x00000000000038e8        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/disktidy.o
+                0x00000000000038f8        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/disktidy.o
  .note.GNU-stack
-                0x00000000000038e8        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
+                0x00000000000038f8        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
  .note.GNU-stack
-                0x00000000000038e8        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(playback_control.o)
+                0x00000000000038f8        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(playback_control.o)
  .note.GNU-stack
-                0x00000000000038e8        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(display_text.o)
+                0x00000000000038f8        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(display_text.o)
  .note.GNU-stack
-                0x00000000000038e8        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtendS.o
+                0x00000000000038f8        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtendS.o
  .note.GNU-stack
-                0x00000000000038e8        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
+                0x00000000000038f8        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
 
 .note.gnu.property
-                0x00000000000038e8       0x30
+                0x00000000000038f8       0x30
  *(.note.gnu.property)
  .note.gnu.property
-                0x00000000000038e8       0x30 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
+                0x00000000000038f8       0x30 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
 
 .note.ABI-tag
  *(.note.ABI-tag)
@@ -533,39 +533,39 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000    0x244e2
+.debug_info     0x0000000000000000    0x24580
  *(.debug_info .gnu.linkonce.wi.*)
  .debug_info    0x0000000000000000     0xb814 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/disktidy.o
  .debug_info    0x000000000000b814     0x7ca7 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
- .debug_info    0x00000000000134bb     0x9821 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(playback_control.o)
- .debug_info    0x000000000001ccdc     0x7806 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(display_text.o)
+ .debug_info    0x00000000000134bb     0x98bf /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(playback_control.o)
+ .debug_info    0x000000000001cd7a     0x7806 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(display_text.o)
 
-.debug_abbrev   0x0000000000000000     0x1225
+.debug_abbrev   0x0000000000000000     0x122e
  *(.debug_abbrev)
  .debug_abbrev  0x0000000000000000      0x6a8 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/disktidy.o
  .debug_abbrev  0x00000000000006a8      0x442 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
- .debug_abbrev  0x0000000000000aea      0x3d9 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(playback_control.o)
- .debug_abbrev  0x0000000000000ec3      0x362 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(display_text.o)
+ .debug_abbrev  0x0000000000000aea      0x3e2 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(playback_control.o)
+ .debug_abbrev  0x0000000000000ecc      0x362 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(display_text.o)
 
-.debug_line     0x0000000000000000     0x1c31
+.debug_line     0x0000000000000000     0x1c9a
  *(.debug_line .debug_line.* .debug_line_end)
  .debug_line    0x0000000000000000     0x1214 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/disktidy.o
  .debug_line    0x0000000000001214      0x2bd /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
- .debug_line    0x00000000000014d1      0x332 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(playback_control.o)
- .debug_line    0x0000000000001803      0x42e /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(display_text.o)
+ .debug_line    0x00000000000014d1      0x39b /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(playback_control.o)
+ .debug_line    0x000000000000186c      0x42e /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(display_text.o)
 
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0xb446
+.debug_str      0x0000000000000000     0xb4c1
  *(.debug_str)
- .debug_str     0x0000000000000000     0xb446 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/disktidy.o
+ .debug_str     0x0000000000000000     0xb4c1 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/disktidy.o
                                        0xb6dd (size before relaxing)
- .debug_str     0x000000000000b446        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
+ .debug_str     0x000000000000b4c1        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
                                        0x5174 (size before relaxing)
- .debug_str     0x000000000000b446        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(playback_control.o)
-                                       0xa167 (size before relaxing)
- .debug_str     0x000000000000b446        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(display_text.o)
+ .debug_str     0x000000000000b4c1        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(playback_control.o)
+                                       0xa1e2 (size before relaxing)
+ .debug_str     0x000000000000b4c1        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(display_text.o)
                                        0x48fe (size before relaxing)
 
 .debug_loc
@@ -596,32 +596,32 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
  *(.debug_addr)
 
 .debug_line_str
-                0x0000000000000000      0x76d
+                0x0000000000000000      0x775
  *(.debug_line_str)
  .debug_line_str
-                0x0000000000000000      0x76d /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/disktidy.o
+                0x0000000000000000      0x775 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/disktidy.o
                                         0x6ab (size before relaxing)
  .debug_line_str
-                0x000000000000076d        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
+                0x0000000000000775        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
                                         0x68f (size before relaxing)
  .debug_line_str
-                0x000000000000076d        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(playback_control.o)
-                                        0x671 (size before relaxing)
+                0x0000000000000775        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(playback_control.o)
+                                        0x679 (size before relaxing)
  .debug_line_str
-                0x000000000000076d        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(display_text.o)
+                0x0000000000000775        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(display_text.o)
                                         0x63b (size before relaxing)
 
 .debug_loclists
-                0x0000000000000000     0x1245
+                0x0000000000000000     0x124f
  *(.debug_loclists)
  .debug_loclists
                 0x0000000000000000      0xf2f /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/disktidy.o
  .debug_loclists
                 0x0000000000000f2f       0x9e /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
  .debug_loclists
-                0x0000000000000fcd       0x84 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(playback_control.o)
+                0x0000000000000fcd       0x8e /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(playback_control.o)
  .debug_loclists
-                0x0000000000001051      0x1f4 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(display_text.o)
+                0x000000000000105b      0x1f4 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(display_text.o)
 
 .debug_macro
  *(.debug_macro)

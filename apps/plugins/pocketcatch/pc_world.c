@@ -68,6 +68,8 @@
 #define PC_SMALL_GYM_MAP_W 5
 #define PC_SMALL_GYM_MAP_H 7
 #define PC_MUSIC_HISTORY_MAX 256
+#define PC_RUNTIME_LOG_PATH PC_ASSET_ROOT_ALT "/runtime.log"
+#define PC_AUTOSAVE_FRAMES (PC_FRAME_HZ * 30)
 #define PC_UNLOCKED_SONGS_MAX 128
 
 static const unsigned char pc_pallet_blocks[PC_PALLET_MAP_H][PC_PALLET_MAP_W] = {
@@ -992,6 +994,8 @@ static void init_spawns(struct pc_world_state *world);
 static bool outdoor_scene(enum pc_world_scene scene);
 static void load_scene_data(struct pc_world_state *world, enum pc_world_scene scene);
 bool pc_world_save(struct pc_world_state *world);
+static void pc_world_mark_dirty(struct pc_world_state *world);
+static void pc_world_autosave(struct pc_world_state *world, bool force);
 static int clampi(int value, int min_value, int max_value);
 static int find_species_with_mode(const struct pc_world_state *world,
                                   int start, int dir, bool caught_only);
@@ -1029,6 +1033,26 @@ static void ensure_pocketcatch_data_dir(void)
 {
     if (!rb->dir_exists(PC_ASSET_ROOT_ALT))
         rb->mkdir(PC_ASSET_ROOT_ALT);
+}
+
+static void pc_runtime_log(const char *event, int value)
+{
+#ifdef SIMULATOR
+    int fd;
+
+    ensure_pocketcatch_data_dir();
+    fd = rb->open(PC_RUNTIME_LOG_PATH, O_WRONLY | O_CREAT | O_APPEND, 0666);
+    if (fd < 0)
+        return;
+
+    rb->fdprintf(fd, "tick=%ld frame=%d event=%s value=%d audio=%d pcm=%d\n",
+                 *rb->current_tick, value, event, value,
+                 rb->audio_status(), rb->pcm_is_playing() ? 1 : 0);
+    rb->close(fd);
+#else
+    (void)event;
+    (void)value;
+#endif
 }
 
 static bool secret_collected(const struct pc_world_state *world, int index)
@@ -1372,17 +1396,8 @@ static bool pick_random_music_track(char *path, size_t path_size, uint32_t *hash
 
 static bool play_music_track(const char *path)
 {
-    rb->audio_stop();
-    rb->playlist_remove_all_tracks(NULL);
-    if (rb->playlist_create(NULL, NULL) < 0)
-        return false;
-    if (rb->playlist_insert_track(NULL, path, PLAYLIST_INSERT_LAST, false, true) < 0)
-        return false;
-
-    rb->plugin_release_audio_buffer();
-    rb->playlist_set_modified(NULL, true);
-    rb->playlist_start(0, 0, 0);
-    return true;
+    (void)path;
+    return false;
 }
 
 const char *pc_world_egg_rarity_label(int rarity)
@@ -1719,7 +1734,7 @@ static void update_egg_music_progress(struct pc_world_state *world, bool force)
     }
 
     if (seconds > 0 && apply_egg_listen_seconds(world, seconds))
-        pc_world_save(world);
+        pc_world_mark_dirty(world);
 
     save_egg_runtime(hash, elapsed_ms);
 }
@@ -1878,11 +1893,7 @@ static void reload_player_trainer_assets(struct pc_world_state *world)
     for (heading = 0; heading < 4; ++heading)
     {
         for (frame = 0; frame < PC_WORLD_WALK_FRAMES; ++frame)
-        {
             clear_bitmap(&world->assets.trainer[heading][frame]);
-            pc_assets_load_world_trainer(&world->assets.trainer[heading][frame],
-                                         heading, frame);
-        }
     }
     pc_render_reset_trainer_asset();
 }
@@ -3480,8 +3491,6 @@ static void init_assets(struct pc_world_state *world)
                 pc_world_trainer_pixels[heading][frame];
             world->assets.trainer[heading][frame].capacity = PC_WORLD_TRAINER_BYTES;
             clear_bitmap(&world->assets.trainer[heading][frame]);
-            pc_assets_load_world_trainer(&world->assets.trainer[heading][frame],
-                                         heading, frame);
         }
     }
 
@@ -4067,7 +4076,7 @@ static void transition_to_scene_metatile(struct pc_world_state *world,
     world->step_dy = 0;
     world->step_remaining = 0;
     update_camera(world, true);
-    pc_world_save(world);
+    pc_world_mark_dirty(world);
 }
 
 static void transition_to_scene_block(struct pc_world_state *world,
@@ -4078,7 +4087,7 @@ static void transition_to_scene_block(struct pc_world_state *world,
     load_scene_data(world, scene);
     set_player_to_block(world, block_x, block_y, heading);
     update_camera(world, true);
-    pc_world_save(world);
+    pc_world_mark_dirty(world);
 }
 
 static const unsigned char (*scene_respawn_blocks(const struct pc_world_state *world))[2]
@@ -4967,8 +4976,32 @@ static bool pc_world_try_load(struct pc_world_state *world)
     }
     update_camera(world, true);
     if (migrated_save)
-        pc_world_save(world);
+        pc_world_mark_dirty(world);
     return true;
+}
+
+static void pc_world_mark_dirty(struct pc_world_state *world)
+{
+    if (world != NULL)
+        world->save_dirty = true;
+}
+
+static void pc_world_autosave(struct pc_world_state *world, bool force)
+{
+    if (world == NULL || !world->save_dirty)
+        return;
+
+    if (!force &&
+        world->save_last_frame > 0 &&
+        world->frame - world->save_last_frame < PC_AUTOSAVE_FRAMES)
+    {
+        return;
+    }
+
+    if (pc_world_save(world))
+        pc_runtime_log(force ? "save_forced" : "save_auto", world->frame);
+    else
+        pc_runtime_log("save_failed", world->frame);
 }
 
 bool pc_world_save(struct pc_world_state *world)
@@ -5017,6 +5050,8 @@ bool pc_world_save(struct pc_world_state *world)
     }
 
     rb->close(fd);
+    world->save_dirty = false;
+    world->save_last_frame = world->frame;
     return true;
 }
 
@@ -5481,7 +5516,7 @@ static void grant_pokestop_rewards(struct pc_world_state *world)
     world->pokestop_reward_egg = awarded_egg;
     world->pokestop_reward_egg_species = awarded_egg ? world->egg_species[world->egg_index] : -1;
     world->pokestop_spun = true;
-    pc_world_save(world);
+    pc_world_mark_dirty(world);
 }
 
 static bool try_open_pokestop(struct pc_world_state *world)
@@ -5561,7 +5596,7 @@ static bool try_collect_music_secret(struct pc_world_state *world)
     collect_secret(world, secret_index);
     remember_music_track(hash);
     set_notice(world, "Song Unlocked", pc_path_basename(path));
-    pc_world_save(world);
+    pc_world_mark_dirty(world);
     return true;
 }
 
@@ -6846,6 +6881,7 @@ void pc_world_init(struct pc_world_state *world)
 {
     rb->memset(world, 0, sizeof(*world));
     ensure_pocketcatch_data_dir();
+    pc_runtime_log("init", 0);
     load_unlocked_song_store();
     init_progress_defaults(world);
     init_assets(world);
@@ -6876,6 +6912,9 @@ void pc_world_teardown(struct pc_world_state *world)
     int heading;
     int frame;
     int i;
+
+    pc_world_autosave(world, true);
+    pc_runtime_log("teardown", world->frame);
 
     for (heading = 0; heading < 4; ++heading)
     {
@@ -7106,7 +7145,7 @@ static bool buy_mart_pokeballs(struct pc_world_state *world)
                            (int)world->pokeballs + PC_MART_POKEBALL_BUNDLE);
     rb->snprintf(line2, sizeof(line2), "Balls %u", world->pokeballs);
     set_notice(world, "Bought Poke Balls", line2);
-    pc_world_save(world);
+    pc_world_mark_dirty(world);
     return true;
 }
 
@@ -7133,7 +7172,7 @@ static bool buy_field_ability(struct pc_world_state *world,
     world->ability_owned[ability] = 1;
     world->ability_species[ability] = -1;
     set_notice(world, field_ability_name(ability), "Bought at the mart");
-    pc_world_save(world);
+    pc_world_mark_dirty(world);
     return true;
 }
 
@@ -7174,7 +7213,7 @@ static bool buy_or_equip_player_trainer(struct pc_world_state *world, int traine
     apply_player_trainer_choice(world);
     sanitize_player_trainer(world);
     reload_player_trainer_assets(world);
-    pc_world_save(world);
+    pc_world_mark_dirty(world);
     rb->snprintf(line2, sizeof(line2), "%s look equipped", trainer->display_name);
     set_notice(world, "Trainer changed", line2);
     return true;
@@ -7230,7 +7269,7 @@ static bool assign_field_ability(struct pc_world_state *world,
     }
     else
         set_notice(world, field_ability_name(ability), "Ready for field use");
-    pc_world_save(world);
+    pc_world_mark_dirty(world);
     return true;
 }
 
@@ -7250,7 +7289,7 @@ static bool assign_buddy_species(struct pc_world_state *world, int species_index
         world->buddy_species = -1;
         world->buddy_steps = 0;
         set_notice(world, "Buddy cleared", "Pick another partner later");
-        pc_world_save(world);
+        pc_world_mark_dirty(world);
         return true;
     }
 
@@ -7267,7 +7306,7 @@ static bool assign_buddy_species(struct pc_world_state *world, int species_index
     {
         set_notice(world, "Buddy set", "Candy progress started");
     }
-    pc_world_save(world);
+    pc_world_mark_dirty(world);
     return true;
 }
 
@@ -7423,7 +7462,7 @@ static void award_buddy_progress(struct pc_world_state *world, int steps)
         set_notice(world, creature->name, "Buddy found 1 candy");
     else
         set_notice(world, "Buddy reward", "Found 1 candy");
-    pc_world_save(world);
+    pc_world_mark_dirty(world);
 }
 
 static void update_pokestop_spin(struct pc_world_state *world,
@@ -7639,11 +7678,18 @@ static void handle_world_view(struct pc_world_state *world,
             else if (command->nav_y > 0)
                 world->song_index = (world->song_index + 1) % pc_unlocked_songs.count;
 
-            if (command->confirm &&
-                play_music_track(pc_unlocked_songs.paths[world->song_index]))
+            if (command->confirm)
             {
-                set_notice(world, "Now Playing",
-                           pc_path_basename(pc_unlocked_songs.paths[world->song_index]));
+                if (play_music_track(pc_unlocked_songs.paths[world->song_index]))
+                {
+                    set_notice(world, "Now Playing",
+                               pc_path_basename(pc_unlocked_songs.paths[world->song_index]));
+                }
+                else
+                {
+                    set_notice(world, "Songs stay in Library",
+                               "Use Rockbox music menus");
+                }
             }
         }
 
@@ -7791,6 +7837,7 @@ void pc_world_update(struct pc_world_state *world, const struct pc_world_command
     if (world->notice_frames > 0)
         world->notice_frames--;
     update_egg_music_progress(world, false);
+    pc_world_autosave(world, false);
 
     if (command->exit_requested)
     {
@@ -8106,7 +8153,7 @@ void pc_world_finish_encounter(struct pc_world_state *world,
     else
         set_notice(world, "It broke out", "Walk into it again to retry");
 
-    pc_world_save(world);
+    pc_world_mark_dirty(world);
 }
 
 void pc_world_cancel_encounter(struct pc_world_state *world)
@@ -8122,5 +8169,5 @@ void pc_world_cancel_encounter(struct pc_world_state *world)
                               PC_POST_ENCOUNTER_GRACE_STEPS,
                               PC_POST_ENCOUNTER_COOLDOWN);
     set_notice(world, "Encounter skipped", "Keep walking to look around");
-    pc_world_save(world);
+    pc_world_mark_dirty(world);
 }

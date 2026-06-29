@@ -39,6 +39,7 @@
 #include "i_system.h"
 #include "hu_stuff.h"
 #include "st_stuff.h"
+#include "z_zone.h"
 #include "lib/helper.h"
 
 extern boolean timingdemo, singledemo, demoplayback, fastdemo; // killough
@@ -217,6 +218,177 @@ int namemap[7];
 static char **addons;
 static char **demolmp;
 char addon[200];
+#define DOOM_LAUNCHER_CONFIG GAMEBASE"launcher.cfg"
+
+struct doom_launcher_config
+{
+   int builtin;
+   int addonnum;
+   int demonum;
+   int fast_video;
+   int control_preset;
+   int sound;
+   bool loaded;
+};
+
+static struct doom_launcher_config launcher_config;
+
+#if (CONFIG_KEYPAD == IPOD_4G_PAD) || (CONFIG_KEYPAD == IPOD_3G_PAD) || \
+    (CONFIG_KEYPAD == IPOD_1G2G_PAD)
+#define IPOD_CONTROL_SHOOTER   0
+#define IPOD_CONTROL_CLASSIC   1
+#define IPOD_CONTROL_MENUSAFE  2
+int ipod_control_preset = IPOD_CONTROL_SHOOTER;
+#endif
+
+static bool doom_builtin_wad_available(int builtin)
+{
+   return builtin >= 0 && builtin < 7 && !fileexists(wads_builtin[builtin]);
+}
+
+static int doom_menu_index_for_builtin(int status, int builtin)
+{
+   int i;
+
+   if (doom_builtin_wad_available(builtin))
+   {
+      for (i = 0; i < status; i++)
+      {
+         if (namemap[i] == builtin)
+            return i;
+      }
+   }
+
+   return status - 1;
+}
+
+#if (CONFIG_PLATFORM & PLATFORM_HOSTED)
+#undef open
+#undef close
+#endif
+
+static int doom_config_open_read(void)
+{
+#if (CONFIG_PLATFORM & PLATFORM_HOSTED)
+   return rb->open(DOOM_LAUNCHER_CONFIG, O_RDONLY);
+#else
+   return my_open(DOOM_LAUNCHER_CONFIG, O_RDONLY);
+#endif
+}
+
+static int doom_config_open_write(void)
+{
+#if (CONFIG_PLATFORM & PLATFORM_HOSTED)
+   return rb->open(DOOM_LAUNCHER_CONFIG, O_CREAT|O_WRONLY|O_TRUNC, 0666);
+#else
+   return my_open(DOOM_LAUNCHER_CONFIG, O_CREAT|O_WRONLY|O_TRUNC, 0666);
+#endif
+}
+
+static void doom_config_close(int fd)
+{
+#if (CONFIG_PLATFORM & PLATFORM_HOSTED)
+   rb->close(fd);
+#else
+   my_close(fd);
+#endif
+}
+
+#if (CONFIG_PLATFORM & PLATFORM_HOSTED)
+#define open(a, ...)       rb->open((a), __VA_ARGS__)
+#define close(a)           rb->close((a))
+#endif
+
+static void doom_config_defaults(struct doom_launcher_config *config)
+{
+   config->builtin = -1;
+   config->addonnum = 0;
+   config->demonum = 0;
+   config->fast_video = 0;
+   config->control_preset = 0;
+   config->sound = enable_sound ? 1 : 0;
+   config->loaded = false;
+}
+
+static void doom_config_parse_line(struct doom_launcher_config *config, char *line)
+{
+   char *value;
+
+   value = strchr(line, '=');
+   if (!value)
+   {
+      config->builtin = atoi(line);
+      config->loaded = true;
+      return;
+   }
+
+   *value++ = '\0';
+   if (!strcmp(line, "base"))
+      config->builtin = atoi(value);
+   else if (!strcmp(line, "addon"))
+      config->addonnum = atoi(value);
+   else if (!strcmp(line, "demo"))
+      config->demonum = atoi(value);
+   else if (!strcmp(line, "fast_video"))
+      config->fast_video = atoi(value) ? 1 : 0;
+   else if (!strcmp(line, "control"))
+      config->control_preset = atoi(value);
+   else if (!strcmp(line, "sound"))
+      config->sound = atoi(value) ? 1 : 0;
+
+   config->loaded = true;
+}
+
+static void doom_load_launcher_config(struct doom_launcher_config *config)
+{
+   int fd;
+   char line[80];
+
+   doom_config_defaults(config);
+   fd = doom_config_open_read();
+   if (fd < 0)
+      return;
+
+   while (read_line(fd, line, sizeof(line)) > 0)
+      doom_config_parse_line(config, line);
+
+   doom_config_close(fd);
+
+   if (!doom_builtin_wad_available(config->builtin))
+      config->builtin = -1;
+   if (config->addonnum < 0)
+      config->addonnum = 0;
+   if (config->demonum < 0)
+      config->demonum = 0;
+   if (config->control_preset < 0 || config->control_preset > 2)
+      config->control_preset = 0;
+}
+
+static void doom_save_launcher_config(int builtin, int addonnum, int demonum)
+{
+   int fd;
+
+   if (!doom_builtin_wad_available(builtin))
+      return;
+
+   fd = doom_config_open_write();
+   if (fd < 0)
+      return;
+
+   fdprintf(fd, "base=%d\n", builtin);
+   fdprintf(fd, "addon=%d\n", addonnum);
+   fdprintf(fd, "demo=%d\n", demonum);
+   fdprintf(fd, "fast_video=%d\n", launcher_config.fast_video ? 1 : 0);
+#if (CONFIG_KEYPAD == IPOD_4G_PAD) || (CONFIG_KEYPAD == IPOD_3G_PAD) || \
+    (CONFIG_KEYPAD == IPOD_1G2G_PAD)
+   fdprintf(fd, "control=%d\n", ipod_control_preset);
+#else
+   fdprintf(fd, "control=%d\n", launcher_config.control_preset);
+#endif
+   fdprintf(fd, "sound=%d\n", enable_sound ? 1 : 0);
+   doom_config_close(fd);
+}
+
 // This sets up the base game and builds up myargv/c
 bool Dhandle_ver (int dver)
 {
@@ -355,7 +527,7 @@ int Dbuild_filelistm(char ***names, char *firstentry, char *directory, char *str
    {
       if(rb->strcasestr(dptr->d_name, stringmatch))
       {
-         startpt=malloc(strlen(dptr->d_name)*sizeof(char));
+         startpt=malloc(strlen(dptr->d_name)+1);
          strcpy(startpt,dptr->d_name);
          temp[i]=startpt;
          i++;
@@ -499,6 +671,96 @@ int Oset_keys()
 }
 
 extern int fake_contrast;
+extern int screenblocks;
+
+#if (CONFIG_KEYPAD == IPOD_4G_PAD) || (CONFIG_KEYPAD == IPOD_3G_PAD) || \
+    (CONFIG_KEYPAD == IPOD_1G2G_PAD)
+int list_action_callback(int action, struct gui_synclist *lists);
+
+static const char* control_get_name(int selected_item, void * data,
+                                    char * buffer, size_t buffer_len)
+{
+   const char **names = (const char **) data;
+   (void) buffer;
+   (void) buffer_len;
+   return names[selected_item];
+}
+
+static void show_ipod_control_map(void)
+{
+   static const char *controls[] = {
+      "Shooter: Play forward",
+      "Shooter: Select shoot",
+      "Shooter: Menu game menu",
+      "Shooter: Select+Play use",
+      "Classic: Play shoot",
+      "Classic: Select weapon",
+      "Tap Menu: game menu/back",
+      "Hold Menu: automap",
+      "Map: wheel up/down",
+      "Map: left/right pan",
+      "Left/Right: turn",
+      "Left+Right: weapon",
+      "Wheel: strafe",
+      "Hold switch: game menu"
+   };
+   struct simplelist_info info;
+
+   rb->simplelist_info_init(&info, "iPod Controls",
+                            ARRAYLEN(controls), (void*)controls);
+   info.get_name = control_get_name;
+   info.action_callback = list_action_callback;
+   rb->simplelist_show_list(&info);
+}
+
+static void show_ipod_controls(void)
+{
+   int selected = 0;
+   int result;
+   bool menuquit = false;
+   static const struct opt_items presets[] = {
+      { "Shooter", -1 },
+      { "Classic", -1 },
+      { "Menu-safe", -1 },
+   };
+
+   MENUITEM_STRINGLIST(menu, "Controls", NULL,
+                       "Control Preset", "Control Map", "Back");
+
+   while (!menuquit)
+   {
+      result = rb->do_menu(&menu, &selected, NULL, false);
+      switch (result)
+      {
+         case 0:
+            rb->set_option("Control Preset", &ipod_control_preset, RB_INT,
+                           presets, ARRAYLEN(presets), NULL);
+            launcher_config.control_preset = ipod_control_preset;
+            break;
+
+         case 1:
+            show_ipod_control_map();
+            break;
+
+         default:
+            menuquit = true;
+            break;
+      }
+   }
+}
+
+static void apply_fast_video_defaults(bool show_splash)
+{
+   screenblocks = 9;
+   default_translucency = 0;
+   fake_contrast = 0;
+   default_player_bobbing = 0;
+   default_weapon_recoil = 0;
+
+   if (show_splash)
+      rb->splash(HZ*2, "Fast video defaults applied");
+}
+#endif
 
 static bool Doptions()
 {
@@ -594,22 +856,38 @@ int doom_menu()
 
    MENUITEM_STRINGLIST(menu, "Doom", NULL,
                        "Game", "Addons", "Demos",
-                       "Options", "Play Game", "Quit");
+                       "Options",
+#if (CONFIG_KEYPAD == IPOD_4G_PAD) || (CONFIG_KEYPAD == IPOD_3G_PAD) || \
+    (CONFIG_KEYPAD == IPOD_1G2G_PAD)
+                       "Controls", "Fast Video",
+#endif
+                       "Play Game", "Quit");
 
    if( (status=Dbuild_base(names)) == 0 ) // Build up the base wad files (select last added file)
    {
       rb->splash(HZ*2, "Missing Base WAD!");
       return -2;
    }
+   doom_load_launcher_config(&launcher_config);
+   if (launcher_config.sound == 0 || launcher_config.sound == 1)
+      enable_sound = launcher_config.sound;
+#if (CONFIG_KEYPAD == IPOD_4G_PAD) || (CONFIG_KEYPAD == IPOD_3G_PAD) || \
+    (CONFIG_KEYPAD == IPOD_1G2G_PAD)
+   ipod_control_preset = launcher_config.control_preset;
+   if (launcher_config.fast_video)
+      apply_fast_video_defaults(false);
+#endif
 
    int numadd=Dbuild_filelistm(&addons, "No Addon", GAMEBASE"addons/", ".WAD" );
 
    int numdemos=Dbuild_filelistm(&demolmp, "No Demo", GAMEBASE"demos/", ".LMP" );
 
-   argvlist.demonum=0;
-   argvlist.addonnum=0;
+   argvlist.demonum = launcher_config.demonum < numdemos ?
+                      launcher_config.demonum : 0;
+   argvlist.addonnum = launcher_config.addonnum < numadd ?
+                       launcher_config.addonnum : 0;
 
-   gamever=status-1;
+   gamever = doom_menu_index_for_builtin(status, launcher_config.builtin);
 
     /* Clean out the button Queue */
     while (rb->button_get(false) != BUTTON_NONE)
@@ -621,21 +899,57 @@ int doom_menu()
       switch (result) {
          case 0: /* Game picker */
             rb->set_option("Game WAD", &gamever, RB_INT, names, status, NULL );
+            doom_save_launcher_config(namemap[gamever],
+                                      argvlist.addonnum, argvlist.demonum);
             break;
 
          case 1: /* Addon picker */
             menuchoice(addons,numadd,&argvlist.addonnum);
+            doom_save_launcher_config(namemap[gamever],
+                                      argvlist.addonnum, argvlist.demonum);
             break;
 
          case 2: /* Demos */
             menuchoice(demolmp,numdemos,&argvlist.demonum);
+            doom_save_launcher_config(namemap[gamever],
+                                      argvlist.addonnum, argvlist.demonum);
             break;
 
          case 3: /* Options */
             Doptions();
+            doom_save_launcher_config(namemap[gamever],
+                                      argvlist.addonnum, argvlist.demonum);
             break;
 
+#if (CONFIG_KEYPAD == IPOD_4G_PAD) || (CONFIG_KEYPAD == IPOD_3G_PAD) || \
+    (CONFIG_KEYPAD == IPOD_1G2G_PAD)
+         case 4: /* Controls */
+            show_ipod_controls();
+            doom_save_launcher_config(namemap[gamever],
+                                      argvlist.addonnum, argvlist.demonum);
+            break;
+
+         case 5: /* Fast Video */
+            launcher_config.fast_video = 1;
+            apply_fast_video_defaults(true);
+            doom_save_launcher_config(namemap[gamever],
+                                      argvlist.addonnum, argvlist.demonum);
+            break;
+
+         case 6: /* Play Game */
+            doom_save_launcher_config(namemap[gamever],
+                                      argvlist.addonnum, argvlist.demonum);
+            menuquit=1;
+            break;
+
+         case 7: /* Quit */
+            menuquit=1;
+            gamever=-1;
+            break;
+#else
          case 4: /* Play Game */
+            doom_save_launcher_config(namemap[gamever],
+                                      argvlist.addonnum, argvlist.demonum);
             menuquit=1;
             break;
 
@@ -643,6 +957,7 @@ int doom_menu()
             menuquit=1;
             gamever=-1;
             break;
+#endif
 
          default:
             break;
@@ -652,14 +967,71 @@ int doom_menu()
    return (gamever);
 }
 
+static int doom_direct_game(bool allow_first_run_picker)
+{
+   static struct opt_items names[7];
+   int status = Dbuild_base(names);
+   int gamever;
+   int numadd;
+   int numdemos;
+
+   if (status == 0)
+   {
+      rb->splash(HZ*2, "Missing Base WAD!");
+      return -2;
+   }
+   doom_load_launcher_config(&launcher_config);
+   if (launcher_config.sound == 0 || launcher_config.sound == 1)
+      enable_sound = launcher_config.sound;
+#if (CONFIG_KEYPAD == IPOD_4G_PAD) || (CONFIG_KEYPAD == IPOD_3G_PAD) || \
+    (CONFIG_KEYPAD == IPOD_1G2G_PAD)
+   ipod_control_preset = launcher_config.control_preset;
+   if (launcher_config.fast_video)
+      apply_fast_video_defaults(false);
+#endif
+
+   numadd = Dbuild_filelistm(&addons, "No Addon", GAMEBASE"addons/", ".WAD" );
+   numdemos = Dbuild_filelistm(&demolmp, "No Demo", GAMEBASE"demos/", ".LMP" );
+
+   argvlist.addonnum = launcher_config.addonnum < numadd ?
+                       launcher_config.addonnum : 0;
+   argvlist.demonum = launcher_config.demonum < numdemos ?
+                      launcher_config.demonum : 0;
+   gamever = doom_menu_index_for_builtin(status, launcher_config.builtin);
+   if (launcher_config.builtin < 0 && allow_first_run_picker)
+   {
+      rb->set_option("Doom WAD", &gamever, RB_INT, names, status, NULL);
+      argvlist.addonnum = 0;
+      argvlist.demonum = 0;
+      doom_save_launcher_config(namemap[gamever],
+                                argvlist.addonnum, argvlist.demonum);
+   }
+
+   return gamever;
+}
+
+static bool doom_direct_parameter(const void *parameter)
+{
+   const char *param = parameter;
+
+   return param && (!strcmp(param, "--play") || !strcmp(param, "-play") ||
+                    !strcmp(param, "play"));
+}
+
+static bool doom_setup_parameter(const void *parameter)
+{
+   const char *param = parameter;
+
+   return param && (!strcmp(param, "--setup") || !strcmp(param, "-setup") ||
+                    !strcmp(param, "setup"));
+}
+
 extern int systemvol;
 /* this is the plugin entry point */
 enum plugin_status plugin_start(const void* parameter)
 {
    /* Disable all talking before initializing IRAM */
    rb->talk_disable(true);
-
-   (void)parameter;
 
    doomexit=0;
 
@@ -677,16 +1049,19 @@ enum plugin_status plugin_start(const void* parameter)
    printf ("M_LoadDefaults: Load system defaults.\n");
    M_LoadDefaults ();              // load before initing other systems
 
-   rb->splash(HZ*2, "Welcome to RockDoom");
+   if (!doom_direct_parameter(parameter))
+      rb->splash(HZ*2, "Welcome to RockDoom");
 
    myargv =0;
    myargc=0;
 
    rb->lcd_clear_display();
 
-   int result = doom_menu();
+   int result = doom_direct_parameter(parameter) && !doom_setup_parameter(parameter) ?
+                doom_direct_game(true) : doom_menu();
    if (result < 0)
    {
+       Z_Close();
 #ifdef HAVE_ADJUSTABLE_CPU_FREQ
        rb->cpu_boost(false);
 #endif
@@ -744,6 +1119,7 @@ enum plugin_status plugin_start(const void* parameter)
    M_SaveDefaults ();
 
    I_Quit(); // Make SURE everything was closed out right
+   Z_Close();
 
    printf("There were still: %d files open\n", fpoint);
    while(fpoint>0)

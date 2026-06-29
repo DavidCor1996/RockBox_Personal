@@ -42,9 +42,9 @@ static unsigned int held_buttons;
 static long up_latch_tick;
 static long down_latch_tick;
 static unsigned int audio_sample_accum;
-static unsigned int audio_write_idx;
-static unsigned int audio_read_idx;
-static unsigned int audio_queued;
+static volatile unsigned int audio_write_idx;
+static volatile unsigned int audio_read_idx;
+static volatile unsigned int audio_queued;
 static unsigned int audio_buf_samples[PM_AUDIO_QUEUE];
 static bool audio_ready;
 static bool audio_started;
@@ -66,8 +66,11 @@ void *pm_malloc(size_t size)
 {
     unsigned char *result;
 
+    if (size > (size_t)-1 - 3)
+        return NULL;
+
     size = align4(size);
-    if (!alloc_ptr || alloc_ptr + size > alloc_end)
+    if (!alloc_ptr || size > (size_t)(alloc_end - alloc_ptr))
         return NULL;
 
     result = alloc_ptr;
@@ -265,34 +268,29 @@ static void draw_frame(void)
     const int x = (LCD_WIDTH - PM_FB_W) / 2;
     const int y = (LCD_HEIGHT - PM_FB_H) / 2;
 
+    if (!LCDDirty)
+        return;
+
     PokeMini_VideoBlit(video_buffer, PM_FB_W);
     LCDDirty = 0;
 
-    rb->lcd_clear_display();
     rb->lcd_bitmap((fb_data *)video_buffer, x, y, PM_FB_W, PM_FB_H);
-    rb->lcd_update();
-}
-
-static void stop_playback_for_plugin(void)
-{
-    if (rb->audio_status())
-    {
-        rb->audio_stop();
-        rb->sleep(HZ / 5);
-    }
-
-    rb->pcm_play_stop();
-    rb->pcm_set_frequency(HW_SAMPR_DEFAULT);
+    rb->lcd_update_rect(x, y, PM_FB_W, PM_FB_H);
 }
 
 static void audio_shutdown(void)
 {
+    long deadline;
+
     audio_ready = false;
     audio_started = false;
     audio_queued = 0;
     audio_read_idx = 0;
     audio_write_idx = 0;
     rb->pcm_play_stop();
+    deadline = *rb->current_tick + HZ;
+    while (rb->pcm_is_playing() && TIME_BEFORE(*rb->current_tick, deadline))
+        rb->sleep(1);
     rb->pcm_set_frequency(HW_SAMPR_DEFAULT);
 #if INPUT_SRC_CAPS != 0
     rb->audio_set_input_source(AUDIO_SRC_PLAYBACK, SRCF_PLAYBACK);
@@ -327,6 +325,7 @@ static void audio_submit_frame(void)
 {
     unsigned int samples;
     unsigned int i;
+    unsigned int write_idx;
     int16_t *dst;
 
     if (!audio_ready)
@@ -338,18 +337,27 @@ static void audio_submit_frame(void)
     if (samples > PM_AUDIO_MAX_SAMPLES)
         samples = PM_AUDIO_MAX_SAMPLES;
 
+    rb->pcm_play_lock();
     if (audio_queued >= PM_AUDIO_QUEUE - 1)
+    {
+        rb->pcm_play_unlock();
         return;
+    }
+    write_idx = audio_write_idx;
+    rb->pcm_play_unlock();
 
-    dst = &audio_buffer[audio_write_idx * PM_AUDIO_MAX_SAMPLES * PM_AUDIO_CHANNELS];
-    memset(dst, 0,
-           PM_AUDIO_MAX_SAMPLES * PM_AUDIO_CHANNELS * sizeof(int16_t));
+    dst = &audio_buffer[write_idx * PM_AUDIO_MAX_SAMPLES * PM_AUDIO_CHANNELS];
     MinxAudio_GetSamplesS16Ch(dst, (int)samples, PM_AUDIO_CHANNELS);
     for (i = 0; i < samples * PM_AUDIO_CHANNELS; i++)
         dst[i] >>= PM_AUDIO_GAIN_SHIFT;
-    audio_buf_samples[audio_write_idx] = samples;
+    audio_buf_samples[write_idx] = samples;
 
     rb->pcm_play_lock();
+    if (write_idx != audio_write_idx || audio_queued >= PM_AUDIO_QUEUE - 1)
+    {
+        rb->pcm_play_unlock();
+        return;
+    }
     audio_write_idx++;
     if (audio_write_idx >= PM_AUDIO_QUEUE)
         audio_write_idx = 0;
@@ -375,10 +383,15 @@ static void save_eeprom_if_possible(void)
 enum plugin_status plugin_start(const void *parameter)
 {
     const char *rom = parameter;
-    size_t audio_buf_size;
+    size_t audio_buf_size = 0;
     long next_frame_tick;
     unsigned int frame_tick_accum = 0;
     enum plugin_status status = PLUGIN_OK;
+    bool core_created = false;
+    bool palette_inited = false;
+    bool cpu_boosted = false;
+    bool audio_configured = false;
+    bool rom_loaded = false;
 
     rb->lcd_setfont(FONT_SYSFIXED);
     eeprom_path[0] = '\0';
@@ -389,15 +402,21 @@ enum plugin_status plugin_start(const void *parameter)
         return PLUGIN_OK;
     }
 
-    stop_playback_for_plugin();
     alloc_ptr = rb->plugin_get_audio_buffer(&audio_buf_size);
+    if (!alloc_ptr || audio_buf_size == 0)
+    {
+        rb->splash(HZ * 2, "No plugin memory");
+        status = PLUGIN_ERROR;
+        goto cleanup;
+    }
     alloc_end = alloc_ptr + audio_buf_size;
 
     video_buffer = pm_calloc(PM_FB_W * PM_FB_H, sizeof(*video_buffer));
     if (!video_buffer)
     {
         rb->splash(HZ * 2, "No video memory");
-        return PLUGIN_ERROR;
+        status = PLUGIN_ERROR;
+        goto cleanup;
     }
 
     audio_buffer = pm_calloc(PM_AUDIO_QUEUE * PM_AUDIO_MAX_SAMPLES *
@@ -407,7 +426,8 @@ enum plugin_status plugin_start(const void *parameter)
     if (!audio_buffer || !audio_hwbuf)
     {
         rb->splash(HZ * 2, "No audio memory");
-        return PLUGIN_ERROR;
+        status = PLUGIN_ERROR;
+        goto cleanup;
     }
 
     CommandLineInit();
@@ -422,12 +442,15 @@ enum plugin_status plugin_start(const void *parameter)
     if (!PokeMini_Create(0, 0))
     {
         rb->splash(HZ * 2, "PokeMini init failed");
-        return PLUGIN_ERROR;
+        status = PLUGIN_ERROR;
+        goto cleanup;
     }
+    core_created = true;
 
     MinxAudio_ChangeEngine(CommandLine.sound);
     MinxAudio_ChangeFilter(1);
     PokeMini_VideoPalette_Init(PokeMini_BGR16, 0);
+    palette_inited = true;
     PokeMini_VideoPalette_Index(CommandLine.palette, NULL,
                                 CommandLine.lcdcontrast,
                                 CommandLine.lcdbright);
@@ -436,16 +459,17 @@ enum plugin_status plugin_start(const void *parameter)
                            16, PokeMini_NoFilter, CommandLine.lcdmode))
     {
         rb->splash(HZ * 2, "Video init failed");
-        PokeMini_Destroy();
-        return PLUGIN_ERROR;
+        status = PLUGIN_ERROR;
+        goto cleanup;
     }
 
     if (!load_min_rom(rom))
     {
         rb->splashf(HZ * 2, "Bad ROM: %s", base_name(rom));
-        PokeMini_Destroy();
-        return PLUGIN_ERROR;
+        status = PLUGIN_ERROR;
+        goto cleanup;
     }
+    rom_loaded = true;
 
     PokeMini_Reset(0);
     build_eeprom_path(rom);
@@ -453,6 +477,7 @@ enum plugin_status plugin_start(const void *parameter)
 
 #ifdef HAVE_ADJUSTABLE_CPU_FREQ
     rb->cpu_boost(true);
+    cpu_boosted = true;
 #endif
 
     audio_ready = true;
@@ -467,8 +492,12 @@ enum plugin_status plugin_start(const void *parameter)
     rb->audio_set_output_source(AUDIO_SRC_PLAYBACK);
 #endif
     rb->pcm_set_frequency(PM_AUDIO_RATE);
+    audio_configured = true;
 
     rb->button_clear_queue();
+    rb->lcd_clear_display();
+    rb->lcd_update();
+    LCDDirty = MINX_DIRTYSCR;
     next_frame_tick = *rb->current_tick;
 
     while (status == PLUGIN_OK)
@@ -495,15 +524,25 @@ enum plugin_status plugin_start(const void *parameter)
             rb->yield();
     }
 
+cleanup:
+    if (cpu_boosted)
+    {
 #ifdef HAVE_ADJUSTABLE_CPU_FREQ
-    rb->cpu_boost(false);
+        rb->cpu_boost(false);
 #endif
+    }
 
-    audio_shutdown();
+    if (audio_configured || alloc_ptr)
+        audio_shutdown();
+    if (alloc_ptr)
+        rb->plugin_release_audio_buffer();
 
-    PokeMini_VideoPalette_Free();
-    save_eeprom_if_possible();
-    PokeMini_Destroy();
+    if (palette_inited)
+        PokeMini_VideoPalette_Free();
+    if (rom_loaded)
+        save_eeprom_if_possible();
+    if (core_created)
+        PokeMini_Destroy();
     rb->lcd_clear_display();
     rb->lcd_update();
 

@@ -212,7 +212,7 @@ void D_Display (void)
       default:
          break;
       }
-   } else if (gametic != basetic) { // In a level
+   } else if (gametic != basetic || menuactive) { // In a level
       boolean redrawborderstuff;
 
       HU_Erase();
@@ -257,7 +257,7 @@ void D_Display (void)
    oldgamestate = wipegamestate = gamestate;
 
    // draw pause pic
-   if (paused) {
+   if (paused && !menuactive) {
       static int x;
 
       if (!x) { // Cache results of x pos calc

@@ -175,7 +175,7 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
 .plt.sec
  *(.plt.sec)
 
-.text           0x0000000000002060     0x329c
+.text           0x0000000000002060     0x3329
  *(.text.unlikely .text.*_unlikely .text.unlikely.*)
  *(.text.exit .text.exit.*)
  *(.text.startup .text.startup.*)
@@ -201,24 +201,24 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
                 0x0000000000004c66                sha1_buffer
                 0x0000000000004ce9                memxor
                 0x0000000000004cff                hmac_sha1
- .text          0x0000000000004ee6       0x40 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
+ .text          0x0000000000004ee6       0xcd /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
                 0x0000000000004ee6                memcpy
-                0x0000000000004ef6                memset
-                0x0000000000004f06                memmove
-                0x0000000000004f16                memcmp
- .text          0x0000000000004f26       0x5f /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_actions.o)
-                0x0000000000004f4f                pluginlib_getaction
- .text          0x0000000000004f85      0x377 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(display_text.o)
-                0x0000000000004fcc                display_text
- .text          0x00000000000052fc        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtendS.o
- .text          0x00000000000052fc        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
+                0x0000000000004f11                memset
+                0x0000000000004f3a                memmove
+                0x0000000000004f7a                memcmp
+ .text          0x0000000000004fb3       0x5f /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_actions.o)
+                0x0000000000004fdc                pluginlib_getaction
+ .text          0x0000000000005012      0x377 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(display_text.o)
+                0x0000000000005059                display_text
+ .text          0x0000000000005389        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtendS.o
+ .text          0x0000000000005389        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
  *(.gnu.warning)
 
-.fini           0x00000000000052fc        0xd
+.fini           0x000000000000538c        0xd
  *(SORT_NONE(.fini))
- .fini          0x00000000000052fc        0x8 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
-                0x00000000000052fc                _fini
- .fini          0x0000000000005304        0x5 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
+ .fini          0x000000000000538c        0x8 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
+                0x000000000000538c                _fini
+ .fini          0x0000000000005394        0x5 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
                 [!provide]                        PROVIDE (__etext = .)
                 [!provide]                        PROVIDE (_etext = .)
                 [!provide]                        PROVIDE (etext = .)
@@ -558,32 +558,32 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000    0x29a97
+.debug_info     0x0000000000000000    0x29af6
  *(.debug_info .gnu.linkonce.wi.*)
  .debug_info    0x0000000000000000     0xa158 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/otp.o
  .debug_info    0x000000000000a158     0x7cf2 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
  .debug_info    0x0000000000011e4a      0xe91 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(sha1.o)
- .debug_info    0x0000000000012cdb     0x76c3 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
- .debug_info    0x000000000001a39e     0x7ea8 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_actions.o)
- .debug_info    0x0000000000022246     0x7851 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(display_text.o)
+ .debug_info    0x0000000000012cdb     0x7722 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
+ .debug_info    0x000000000001a3fd     0x7ea8 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_actions.o)
+ .debug_info    0x00000000000222a5     0x7851 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(display_text.o)
 
-.debug_abbrev   0x0000000000000000     0x1839
+.debug_abbrev   0x0000000000000000     0x1850
  *(.debug_abbrev)
  .debug_abbrev  0x0000000000000000      0x6ca /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/otp.o
  .debug_abbrev  0x00000000000006ca      0x442 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
  .debug_abbrev  0x0000000000000b0c      0x357 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(sha1.o)
- .debug_abbrev  0x0000000000000e63      0x310 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
- .debug_abbrev  0x0000000000001173      0x364 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_actions.o)
- .debug_abbrev  0x00000000000014d7      0x362 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(display_text.o)
+ .debug_abbrev  0x0000000000000e63      0x327 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
+ .debug_abbrev  0x000000000000118a      0x364 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_actions.o)
+ .debug_abbrev  0x00000000000014ee      0x362 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(display_text.o)
 
-.debug_line     0x0000000000000000     0x268f
+.debug_line     0x0000000000000000     0x2764
  *(.debug_line .debug_line.* .debug_line_end)
  .debug_line    0x0000000000000000     0x1300 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/otp.o
  .debug_line    0x0000000000001300      0x2bd /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
  .debug_line    0x00000000000015bd      0x8d2 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(sha1.o)
- .debug_line    0x0000000000001e8f      0x1eb /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
- .debug_line    0x000000000000207a      0x1e7 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_actions.o)
- .debug_line    0x0000000000002261      0x42e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(display_text.o)
+ .debug_line    0x0000000000001e8f      0x2c0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
+ .debug_line    0x000000000000214f      0x1e7 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_actions.o)
+ .debug_line    0x0000000000002336      0x42e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(display_text.o)
 
 .debug_frame
  *(.debug_frame)
@@ -653,7 +653,7 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
                                         0x63f (size before relaxing)
 
 .debug_loclists
-                0x0000000000000000     0x3570
+                0x0000000000000000     0x3639
  *(.debug_loclists)
  .debug_loclists
                 0x0000000000000000      0x732 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/otp.o
@@ -662,11 +662,11 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
  .debug_loclists
                 0x00000000000007d0     0x2a61 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(sha1.o)
  .debug_loclists
-                0x0000000000003231       0xe4 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
+                0x0000000000003231      0x1ad /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
  .debug_loclists
-                0x0000000000003315       0x67 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_actions.o)
+                0x00000000000033de       0x67 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_actions.o)
  .debug_loclists
-                0x000000000000337c      0x1f4 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(display_text.o)
+                0x0000000000003445      0x1f4 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(display_text.o)
 
 .debug_macro
  *(.debug_macro)

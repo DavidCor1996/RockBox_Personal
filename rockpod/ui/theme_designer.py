@@ -37,6 +37,8 @@ from services.rockbox_simulator import RockboxSimulatorService
 from ui.process_helpers import start_hidden_process, start_qprocess
 
 
+LOCKSCREEN_STATUS_RESERVED_HEIGHT = 24
+
 COLOR_PROFILES = {
     "custom": {
         "label": "Custom",
@@ -503,7 +505,7 @@ class _LockscreenClockPositionWidget(QWidget):
     def set_clock(self, wallpaper_path, x, y, width, height, color, align):
         self._wallpaper_path = str(wallpaper_path or "").strip()
         self._x = self._clamp(int(x or 0), 0, 319)
-        self._y = self._clamp(int(y or 32), 0, 180)
+        self._y = self._clamp(int(y or 32), LOCKSCREEN_STATUS_RESERVED_HEIGHT, 180)
         self._width = self._clamp(int(width or 320), 40, 320)
         self._height = self._clamp(int(height or 55), 12, 100)
         self._color = str(color or "FFFFFF").strip().lstrip("#")[:6] or "FFFFFF"
@@ -557,7 +559,11 @@ class _LockscreenClockPositionWidget(QWidget):
             scale = 320.0 / max(1.0, screen.width())
             pos = event.position() - self._drag_offset
             self._x = self._clamp(int(round((pos.x() - screen.x()) * scale)), 0, max(0, 320 - self._width))
-            self._y = self._clamp(int(round((pos.y() - screen.y()) * scale)), 0, 180)
+            self._y = self._clamp(
+                int(round((pos.y() - screen.y()) * scale)),
+                LOCKSCREEN_STATUS_RESERVED_HEIGHT,
+                180,
+            )
             self.position_changed.emit(self._x, self._y)
             self.update()
         super().mouseMoveEvent(event)
@@ -594,7 +600,7 @@ class _LockscreenClockPositionDialog(QDialog):
         super().__init__(parent)
         self.setWindowTitle("Position Lockscreen Clock")
         self._x = int(x or 0)
-        self._y = int(y or 32)
+        self._y = max(LOCKSCREEN_STATUS_RESERVED_HEIGHT, int(y or 32))
 
         layout = QVBoxLayout(self)
         hint = QLabel("Drag the clock box to place the lockscreen time. Use the size fields in the designer for exact box size.")
@@ -621,7 +627,7 @@ class _LockscreenClockPositionDialog(QDialog):
 
     def _set_position(self, x, y):
         self._x = int(x)
-        self._y = int(y)
+        self._y = max(LOCKSCREEN_STATUS_RESERVED_HEIGHT, int(y))
 
     def _center(self):
         self._x = 0
@@ -1314,9 +1320,22 @@ class ThemeDesignerWidget(QWidget):
         self._lockscreen_clock_align_combo.addItem("Right", "right")
         self._lockscreen_clock_align_combo.currentIndexChanged.connect(self._sync_preview)
         self._lockscreen_clock_x_spin = self._spinbox(0, 319, 0)
-        self._lockscreen_clock_y_spin = self._spinbox(0, 180, 32)
+        self._lockscreen_clock_y_spin = self._spinbox(LOCKSCREEN_STATUS_RESERVED_HEIGHT, 180, 32)
         self._lockscreen_clock_width_spin = self._spinbox(40, 320, 320)
         self._lockscreen_clock_height_spin = self._spinbox(12, 120, 55)
+        self._lockscreen_clock_stretch_slider = QSlider(Qt.Horizontal)
+        self._lockscreen_clock_stretch_slider.setRange(100, 160)
+        self._lockscreen_clock_stretch_slider.setSingleStep(1)
+        self._lockscreen_clock_stretch_slider.setPageStep(5)
+        self._lockscreen_clock_stretch_slider.setValue(100)
+        self._lockscreen_clock_stretch_spin = QSpinBox()
+        self._lockscreen_clock_stretch_spin.setRange(100, 160)
+        self._lockscreen_clock_stretch_spin.setSingleStep(1)
+        self._lockscreen_clock_stretch_spin.setSuffix("%")
+        self._lockscreen_clock_stretch_spin.setValue(100)
+        self._lockscreen_clock_stretch_slider.valueChanged.connect(self._lockscreen_clock_stretch_spin.setValue)
+        self._lockscreen_clock_stretch_spin.valueChanged.connect(self._lockscreen_clock_stretch_slider.setValue)
+        self._lockscreen_clock_stretch_spin.valueChanged.connect(self._sync_preview)
         self._lockscreen_clock_opacity_slider = QSlider(Qt.Horizontal)
         self._lockscreen_clock_opacity_slider.setRange(20, 100)
         self._lockscreen_clock_opacity_slider.setSingleStep(1)
@@ -1349,6 +1368,12 @@ class ThemeDesignerWidget(QWidget):
         clock_size_layout.addWidget(self._lockscreen_clock_width_spin)
         clock_size_layout.addWidget(QLabel("H"))
         clock_size_layout.addWidget(self._lockscreen_clock_height_spin)
+        clock_stretch_row = QWidget()
+        clock_stretch_layout = QHBoxLayout(clock_stretch_row)
+        clock_stretch_layout.setContentsMargins(0, 0, 0, 0)
+        clock_stretch_layout.setSpacing(6)
+        clock_stretch_layout.addWidget(self._lockscreen_clock_stretch_slider, 1)
+        clock_stretch_layout.addWidget(self._lockscreen_clock_stretch_spin)
         clock_opacity_row = QWidget()
         clock_opacity_layout = QHBoxLayout(clock_opacity_row)
         clock_opacity_layout.setContentsMargins(0, 0, 0, 0)
@@ -1359,6 +1384,7 @@ class ThemeDesignerWidget(QWidget):
         clock_form.addRow("Color", self._lockscreen_clock_color_btn)
         clock_form.addRow("Style", self._lockscreen_clock_style_combo)
         clock_form.addRow("Glass", self._lockscreen_clock_glass_combo)
+        clock_form.addRow("Height stretch", clock_stretch_row)
         clock_form.addRow("Font alpha", clock_opacity_row)
         clock_form.addRow("Align", self._lockscreen_clock_align_combo)
         clock_form.addRow("Position", clock_position_row)
@@ -1592,9 +1618,12 @@ class ThemeDesignerWidget(QWidget):
         self._set_combo_data_value(self._lockscreen_clock_glass_combo, clock.get("glass_strength", "high"))
         self._set_combo_data_value(self._lockscreen_clock_align_combo, clock.get("align", "center"))
         self._lockscreen_clock_x_spin.setValue(self._clamp_int(clock.get("x", 0), 0, 319))
-        self._lockscreen_clock_y_spin.setValue(self._clamp_int(clock.get("y", 32), 0, 180))
+        self._lockscreen_clock_y_spin.setValue(
+            self._clamp_int(clock.get("y", 32), LOCKSCREEN_STATUS_RESERVED_HEIGHT, 180)
+        )
         self._lockscreen_clock_width_spin.setValue(self._clamp_int(clock.get("width", 320), 40, 320))
         self._lockscreen_clock_height_spin.setValue(self._clamp_int(clock.get("height", 55), 12, 120))
+        self._set_lockscreen_clock_stretch(clock.get("stretch", 100))
         self._set_lockscreen_clock_opacity(clock.get("opacity", 82))
         colors = variant.get("colors", {})
         self._set_appearance_mode_value(variant.get("appearance_mode", "dark"))
@@ -1648,6 +1677,7 @@ class ThemeDesignerWidget(QWidget):
                 "width": self._lockscreen_clock_width_spin.value(),
                 "height": self._lockscreen_clock_height_spin.value(),
                 "align": self._lockscreen_clock_align_combo.currentData() or "center",
+                "stretch": self._lockscreen_clock_stretch_spin.value(),
                 "color": self._lockscreen_clock_color_btn.hex(),
                 "style": self._lockscreen_clock_style_combo.currentData() or "glass",
                 "glass_strength": self._lockscreen_clock_glass_combo.currentData() or "high",
@@ -1865,6 +1895,15 @@ class ThemeDesignerWidget(QWidget):
         self._lockscreen_clock_opacity_slider.setValue(opacity)
         self._lockscreen_clock_opacity_slider.blockSignals(False)
         self._lockscreen_clock_opacity_spin.blockSignals(False)
+
+    def _set_lockscreen_clock_stretch(self, value):
+        stretch = self._clamp_int(value, 100, 160)
+        self._lockscreen_clock_stretch_spin.blockSignals(True)
+        self._lockscreen_clock_stretch_slider.blockSignals(True)
+        self._lockscreen_clock_stretch_spin.setValue(stretch)
+        self._lockscreen_clock_stretch_slider.setValue(stretch)
+        self._lockscreen_clock_stretch_slider.blockSignals(False)
+        self._lockscreen_clock_stretch_spin.blockSignals(False)
 
     @staticmethod
     def _clamp_int(value, minimum, maximum):

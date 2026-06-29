@@ -61,6 +61,20 @@ def test_storage_segments_include_music_and_free():
     assert segments[-1]["bytes"] == 600
 
 
+def test_storage_segments_include_linux_category():
+    segments = storage_segments({
+        "total": 1000,
+        "music": 300,
+        "linux_system": 200,
+        "other": 100,
+        "free": 400,
+    })
+
+    assert [segment["name"] for segment in segments] == ["Music", "Linux", "Other", "Free"]
+    assert segments[1]["key"] == "linux_system"
+    assert segments[1]["bytes"] == 200
+
+
 def test_summary_action_state_follows_connection():
     app = QApplication.instance() or QApplication([])
     widget = DeviceSummaryWidget()

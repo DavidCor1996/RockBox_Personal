@@ -410,7 +410,7 @@ class RockboxSimulatorService:
         )
         return launched
 
-    def capture_theme_preview(self, target, preview_screen="wps", timeout=6.0):
+    def capture_theme_preview(self, target, preview_screen="wps", timeout=8.0):
         binary_path = str(target.get("binary_path") or "").strip()
         simdisk_path = os.path.abspath(target.get("simdisk_path") or "")
         build_dir = os.path.abspath(target.get("build_dir") or os.path.dirname(binary_path))
@@ -460,13 +460,22 @@ class RockboxSimulatorService:
                 pass
             if window_id:
                 self._send_key_to_window_id(window_id, "F5")
-            deadline = time.monotonic() + max(0.5, float(timeout))
+            settle_seconds = 3.2 if preview_screen in {"lockscreen", "sbs"} else 2.2
+            deadline = time.monotonic() + max(settle_seconds + 1.0, float(timeout))
+            first_capture_at = 0.0
+            latest_capture = ""
             while time.monotonic() < deadline:
                 if os.path.isfile(host_capture) and os.path.getsize(host_capture) > 0:
-                    return self._snapshot_preview_capture(target, host_capture)
+                    latest_capture = host_capture
+                    if first_capture_at <= 0.0:
+                        first_capture_at = time.monotonic()
+                    if time.monotonic() - first_capture_at >= settle_seconds:
+                        return self._snapshot_preview_capture(target, host_capture)
                 if process.poll() is not None:
                     break
                 time.sleep(0.1)
+            if latest_capture:
+                return self._snapshot_preview_capture(target, latest_capture)
         finally:
             if process.poll() is None:
                 process.terminate()

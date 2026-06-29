@@ -16,6 +16,7 @@ cube.c
 cue_playlist.c
 dart_scorer.c
 dict.c
+desktop_mode.c
 file_picker.c
 jackpot.c
 keybox.c
@@ -54,6 +55,10 @@ otp.c
 windows_lnk.c
 pocketcatch_simple.c
 photos.c
+
+#if defined(HAVE_LCD_COLOR) && (LCD_WIDTH >= 320) && (LCD_HEIGHT >= 240)
+nb_maps.c
+#endif
 
 #ifdef USB_ENABLE_HID
 remote_control.c
@@ -146,6 +151,15 @@ amaze.c
 rockboy_launcher.c
 pokemini_launcher.c
 ipodtiktok.c
+doom_play.c
+#endif
+
+#if defined(IPOD_6G)
+palmos.c
+#endif
+
+#if defined(HAVE_PLUGIN_CXX) && defined(IPOD_6G)
+cxxprobe.cpp
 #endif
 
 rockblox1d.c

@@ -350,8 +350,6 @@ void res_setupPart(struct Resource* res, uint16_t partId) {
 }
 
 void res_allocMemBlock(struct Resource* res) {
-    if(rb->audio_status())
-        rb->audio_stop();
     /* steal the audio buffer */
     size_t sz;
     /* memory usage is first statically allocated, then the remainder is used dynamically:

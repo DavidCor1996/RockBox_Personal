@@ -242,7 +242,6 @@ Runtime/install layout:
     gather.wav
     hit.wav
     level.wav
-    Harmony.mp3
   save/
     runepod.sav
 ```
@@ -259,9 +258,8 @@ Asset budgets for MVP:
 - Actor sprites: 24x32 or 32x32 frames, 4 directions, 2-4 walk frames.
 - Props/resources: 16x16 to 32x32 sprites, usually static.
 - UI icons: 12x12 or 16x16.
-- Audio: optional short mono WAV clips for effects. User-provided music may be
-  streamed through Rockbox playlist playback once memory and disk behavior are
-  stable; it must not be loaded wholesale into the plugin asset buffer.
+- Audio: optional short mono WAV clips for effects. User-provided music must not
+  be streamed by creating or replacing a Rockbox playlist from the plugin.
 
 Generated asset style contract:
 
@@ -311,16 +309,12 @@ Generated source asset v1:
 
 Runtime music v1:
 
-- Source: `/home/david/Downloads/Harmony.mp3`
-- Runtime asset: `assets/runepod/runtime/audio/Harmony.mp3`
-- Install path: `.rockbox/rocks/games/runepod/audio/Harmony.mp3`
-- SHA-256:
-  `5c0f4a83b1e16dc783c30160b21af07c250d081fa8c15bca76b479310b3c5a56`
-- Playback behavior: RunePod creates a one-track Rockbox playlist for this file
-  at plugin start, releases the plugin audio buffer back to playback, starts
-  the track as background music, and stops the game-owned track on plugin exit.
-- Provenance: user-provided track, not a generated visual asset and not derived
-  from RuneScape or OSRS material.
+- Disabled. RunePod must not create a Rockbox playlist, start bundled music, or
+  leave a resume playlist behind. Plugin-owned background music previously used
+  `Harmony.mp3`, but that asset is intentionally removed because it could become
+  the global current playlist and resume when Play was pressed after leaving the
+  plugin.
+- Provenance: previous user-provided track removed from the runtime asset set.
 
 Expanded map v1:
 
@@ -478,9 +472,9 @@ Build integration:
 - Add generated bitmap headers under `apps/plugins/bitmaps/native/` only for
   fallback assets.
 - External generated asset packs live under `PLUGIN_GAMES_DIR "/runepod"`.
-- Disk-backed music lives under
-  `PLUGIN_GAMES_DIR "/runepod/audio/Harmony.mp3"` and is streamed by Rockbox
-  playback.
+- Disk-backed plugin music is disabled. If background audio returns later, it
+  must use plugin-local PCM/mixer output and must not mutate the user's playlist
+  or Rockbox resume state.
 
 Runtime states:
 
@@ -505,8 +499,8 @@ Target a conservative runtime footprint inside the 3 MiB plugin buffer:
 - Map/object/NPC data: <= 300 KiB.
 - Pathfinding scratch, UI strings, inventory, save staging: <= 200 KiB.
 - Audio clips/cache: <= 200 KiB for MVP.
-- Background music: disk-backed playback asset; excluded from the plugin asset
-  cache budget as long as it is streamed through Rockbox playlist playback.
+- Background music: disabled unless implemented later through plugin-local
+  PCM/mixer output that does not mutate Rockbox playlist or resume state.
 - Free headroom: >= 500 KiB.
 
 Implementation rules:
@@ -912,8 +906,8 @@ Acceptance:
 - `LD runepod.rock` appears in the relevant build when `runepod.c` changed.
 - Native output exists at `build-hw-ipod6g/apps/plugins/runepod.rock`.
 - Simulator output exists at `build-sim-ipod6g/apps/plugins/runepod.rock`.
-- Runtime assets, including `runepod/audio/Harmony.mp3`, exist in the simulator
-  simdisk before launch testing.
+- Runtime sprites and terrain assets exist in the simulator simdisk before
+  launch testing. There is intentionally no bundled Runepod music asset.
 
 ### Native Plugin Header Test
 
@@ -945,7 +939,6 @@ Run before every device deploy:
 sha256sum assets/runepod/runtime/sprites/runepod_sprites.320x64x24.bmp
 sha256sum assets/runepod/runtime/sprites/runepod_player_dirs.128x32x24.bmp
 sha256sum assets/runepod/runtime/tiles/runepod_terrain_tiles.256x32x24.bmp
-sha256sum assets/runepod/runtime/audio/Harmony.mp3
 ```
 
 Acceptance:

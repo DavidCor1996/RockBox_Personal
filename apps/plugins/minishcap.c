@@ -479,9 +479,28 @@ static bool try_select_interaction(struct game_state *game, int event)
 
 static void init_audio(void)
 {
+    long deadline;
+
     if (audio_initialized) return;
+    if (rb->audio_status())
+    {
+        rb->audio_stop();
+        deadline = *rb->current_tick + HZ * 3;
+        while ((rb->audio_status() & AUDIO_STATUS_PLAY) &&
+               TIME_BEFORE(*rb->current_tick, deadline))
+        {
+            rb->sleep(1);
+        }
+    }
     rb->pcm_play_stop();
     rb->pcm_set_frequency(AUDIO_SAMPLE_RATE);
+#if INPUT_SRC_CAPS != 0
+    rb->audio_set_input_source(AUDIO_SRC_PLAYBACK, SRCF_PLAYBACK);
+    rb->audio_set_output_source(AUDIO_SRC_PLAYBACK);
+#endif
+#if defined(HAVE_CS42L55)
+    rb->audiohw_idle_powerup();
+#endif
     memset(&bgm_voice, 0, sizeof(bgm_voice));
     memset(&sfx_voice, 0, sizeof(sfx_voice));
     bgm_profile_logged = -1;
@@ -489,6 +508,24 @@ static void init_audio(void)
     audio_stream_running = false;
     trace_log("minishcap audio init rate=%d", AUDIO_SAMPLE_RATE);
 
+}
+
+static void shutdown_audio(void)
+{
+    if (!audio_initialized)
+        return;
+
+    rb->pcm_play_stop();
+    rb->pcm_set_frequency(HW_SAMPR_DEFAULT);
+#if INPUT_SRC_CAPS != 0
+    rb->audio_set_input_source(AUDIO_SRC_PLAYBACK, SRCF_PLAYBACK);
+    rb->audio_set_output_source(AUDIO_SRC_PLAYBACK);
+#endif
+#if defined(HAVE_CS42L55)
+    rb->audiohw_idle_powerdown();
+#endif
+    audio_initialized = false;
+    audio_stream_running = false;
 }
 
 static void ensure_audio_stream(void)
@@ -2084,5 +2121,6 @@ enum plugin_status plugin_start(const void *parameter)
         update_game(&game, cmd, clean_event);
         draw_screen(&game);
     }
+    shutdown_audio();
     return status;
 }

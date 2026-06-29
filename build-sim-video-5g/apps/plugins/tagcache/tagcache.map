@@ -173,7 +173,7 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
 .plt.sec
  *(.plt.sec)
 
-.text           0x0000000000001080     0x3c06
+.text           0x0000000000001080     0x3c93
  *(.text.unlikely .text.*_unlikely .text.unlikely.*)
  *(.text.exit .text.exit.*)
  *(.text.startup .text.startup.*)
@@ -271,38 +271,38 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
                 0x0000000000004ac5                exit
                 0x0000000000004ade                _exit
                 0x0000000000004aed                exit_on_usb
- .text          0x0000000000004b2c       0x40 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
+ .text          0x0000000000004b2c       0xcd /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
                 0x0000000000004b2c                memcpy
-                0x0000000000004b3c                memset
-                0x0000000000004b4c                memmove
-                0x0000000000004b5c                memcmp
- .text          0x0000000000004b6c      0x11a /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(helper.o)
-                0x0000000000004b6c                talk_val
-                0x0000000000004b84                backlight_force_on
-                0x0000000000004ba6                backlight_ignore_timeout
-                0x0000000000004be4                backlight_use_settings
-                0x0000000000004c16                sw_poweroff_disable
-                0x0000000000004c3c                sw_poweroff_restore
-                0x0000000000004c53                remote_backlight_force_on
-                0x0000000000004c54                remote_backlight_ignore_timeout
-                0x0000000000004c55                remote_backlight_use_settings
-                0x0000000000004c56                buttonlight_force_on
-                0x0000000000004c57                buttonlight_force_off
-                0x0000000000004c58                buttonlight_ignore_timeout
-                0x0000000000004c59                buttonlight_use_settings
-                0x0000000000004c5a                backlight_brightness_set
-                0x0000000000004c6a                backlight_brightness_use_setting
-                0x0000000000004c84                buttonlight_brightness_set
-                0x0000000000004c85                buttonlight_brightness_use_setting
- .text          0x0000000000004c86        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtendS.o
- .text          0x0000000000004c86        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
+                0x0000000000004b57                memset
+                0x0000000000004b80                memmove
+                0x0000000000004bc0                memcmp
+ .text          0x0000000000004bf9      0x11a /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(helper.o)
+                0x0000000000004bf9                talk_val
+                0x0000000000004c11                backlight_force_on
+                0x0000000000004c33                backlight_ignore_timeout
+                0x0000000000004c71                backlight_use_settings
+                0x0000000000004ca3                sw_poweroff_disable
+                0x0000000000004cc9                sw_poweroff_restore
+                0x0000000000004ce0                remote_backlight_force_on
+                0x0000000000004ce1                remote_backlight_ignore_timeout
+                0x0000000000004ce2                remote_backlight_use_settings
+                0x0000000000004ce3                buttonlight_force_on
+                0x0000000000004ce4                buttonlight_force_off
+                0x0000000000004ce5                buttonlight_ignore_timeout
+                0x0000000000004ce6                buttonlight_use_settings
+                0x0000000000004ce7                backlight_brightness_set
+                0x0000000000004cf7                backlight_brightness_use_setting
+                0x0000000000004d11                buttonlight_brightness_set
+                0x0000000000004d12                buttonlight_brightness_use_setting
+ .text          0x0000000000004d13        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtendS.o
+ .text          0x0000000000004d13        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
  *(.gnu.warning)
 
-.fini           0x0000000000004c88        0xd
+.fini           0x0000000000004d14        0xd
  *(SORT_NONE(.fini))
- .fini          0x0000000000004c88        0x8 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
-                0x0000000000004c88                _fini
- .fini          0x0000000000004c90        0x5 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
+ .fini          0x0000000000004d14        0x8 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
+                0x0000000000004d14                _fini
+ .fini          0x0000000000004d1c        0x5 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
                 [!provide]                        PROVIDE (__etext = .)
                 [!provide]                        PROVIDE (_etext = .)
                 [!provide]                        PROVIDE (etext = .)
@@ -723,26 +723,26 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000    0x26035
+.debug_info     0x0000000000000000    0x26094
  *(.debug_info .gnu.linkonce.wi.*)
  .debug_info    0x0000000000000000     0xf196 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/tagcache/tagcache.o
  .debug_info    0x000000000000f196     0x7cf2 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
- .debug_info    0x0000000000016e88     0x76c3 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
- .debug_info    0x000000000001e54b     0x7aea /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(helper.o)
+ .debug_info    0x0000000000016e88     0x7722 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
+ .debug_info    0x000000000001e5aa     0x7aea /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(helper.o)
 
-.debug_abbrev   0x0000000000000000     0x143d
+.debug_abbrev   0x0000000000000000     0x1454
  *(.debug_abbrev)
  .debug_abbrev  0x0000000000000000      0x929 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/tagcache/tagcache.o
  .debug_abbrev  0x0000000000000929      0x442 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
- .debug_abbrev  0x0000000000000d6b      0x310 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
- .debug_abbrev  0x000000000000107b      0x3c2 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(helper.o)
+ .debug_abbrev  0x0000000000000d6b      0x327 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
+ .debug_abbrev  0x0000000000001092      0x3c2 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(helper.o)
 
-.debug_line     0x0000000000000000     0x31db
+.debug_line     0x0000000000000000     0x32b0
  *(.debug_line .debug_line.* .debug_line_end)
  .debug_line    0x0000000000000000     0x2a7f /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/tagcache/tagcache.o
  .debug_line    0x0000000000002a7f      0x2bd /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
- .debug_line    0x0000000000002d3c      0x1eb /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
- .debug_line    0x0000000000002f27      0x2b4 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(helper.o)
+ .debug_line    0x0000000000002d3c      0x2c0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
+ .debug_line    0x0000000000002ffc      0x2b4 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(helper.o)
 
 .debug_frame
  *(.debug_frame)
@@ -802,16 +802,16 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
                                         0x638 (size before relaxing)
 
 .debug_loclists
-                0x0000000000000000     0x1e28
+                0x0000000000000000     0x1ef1
  *(.debug_loclists)
  .debug_loclists
                 0x0000000000000000     0x1c47 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/tagcache/tagcache.o
  .debug_loclists
                 0x0000000000001c47       0x9e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
  .debug_loclists
-                0x0000000000001ce5       0xe4 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
+                0x0000000000001ce5      0x1ad /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
  .debug_loclists
-                0x0000000000001dc9       0x5f /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(helper.o)
+                0x0000000000001e92       0x5f /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(helper.o)
 
 .debug_macro
  *(.debug_macro)

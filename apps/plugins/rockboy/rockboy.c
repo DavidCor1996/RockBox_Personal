@@ -48,18 +48,6 @@ void *audio_bufferbase;
 void *audio_bufferpointer;
 size_t audio_buffer_free;
 
-static void rockboy_prepare_audio_buffer(void)
-{
-    if (rb->audio_status())
-    {
-        rb->audio_stop();
-        rb->sleep(HZ / 5);
-    }
-
-    rb->pcm_play_stop();
-    rb->pcm_set_frequency(HW_SAMPR_DEFAULT);
-}
-
 void *my_malloc(size_t size)
 {
     void *alloc;
@@ -743,7 +731,6 @@ enum plugin_status plugin_start(const void* parameter)
         return PLUGIN_OK;
 #endif
     }
-    rockboy_prepare_audio_buffer();
     audio_bufferbase = audio_bufferpointer
         = rb->plugin_get_audio_buffer(&audio_buffer_free);
     plugbuf = false;
@@ -797,6 +784,7 @@ enum plugin_status plugin_start(const void* parameter)
     if(shut&&!cleanshut)
     {
         rockboy_return_to_launcher = false;
+        rb->plugin_release_audio_buffer();
         rb->splash(HZ/2, errormsg);
         return PLUGIN_ERROR;
     }
@@ -810,6 +798,7 @@ enum plugin_status plugin_start(const void* parameter)
     cleanup();
     rockboy_profile_log_summary(rom_path);
     rockboy_return_to_launcher = false;
+    rb->plugin_release_audio_buffer();
 
     if (return_to_launcher)
         return rb->plugin_open(ROCKBOY_LAUNCHER_PATH, NULL);

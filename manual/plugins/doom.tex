@@ -37,7 +37,14 @@ Rockdoom options, you will need to quit your current game and restart the plugin
   \fname{/.rockbox/doom/addons} directory)\\
   \emph{Demos. } Select which demo file to play on game start\\
   \emph{Options. } Configure low-level Doom options\\
+  \opt{IPOD_3G_PAD,IPOD_4G_PAD}{\emph{Controls. } Choose the iPod control
+  preset or show the control map\\
+  \emph{Fast Video. } Save and apply lower-cost video defaults for iPod\\}
   \emph{Play Game. } Launch the wad/addon/Demo chosen%\\
+
+  \opt{IPOD_3G_PAD,IPOD_4G_PAD}{In Game Cover Flow, short-press Doom to
+  launch the last selected WAD directly. Long-press Doom to open this setup
+  menu. On first direct launch, Doom asks for a WAD once and saves the choice.}
   
   \item[Options Menu. ]This menu has the following options:
   
@@ -83,7 +90,7 @@ Rockdoom options, you will need to quit your current game and restart the plugin
   \opt{IRIVER_H100_PAD,IRIVER_H300_PAD,IAUDIO_X5_PAD,SANSA_E200_PAD,SANSA_FUZE_PAD,SANSA_C200_PAD,SANSA_CLIP_PAD%
       ,GIGABEAT_PAD,GIGABEAT_S_PAD,MROBE100_PAD,SANSA_FUZEPLUS_PAD,SAMSUNG_YH92X_PAD%
       ,SAMSUNG_YH820_PAD,RG_NANO_PAD}{\ButtonUp}
-  \opt{IPOD_3G_PAD,IPOD_4G_PAD}{\ButtonMenu}
+  \opt{IPOD_3G_PAD,IPOD_4G_PAD}{\ButtonPlay}
   \opt{IRIVER_H10_PAD,MPIO_HD300_PAD}{\ButtonScrollUp}
   \opt{COWON_D2_PAD}{\TouchTopMiddle}
   \opt{PBELL_VIBE500_PAD}{\ButtonOK}
@@ -120,7 +127,8 @@ Rockdoom options, you will need to quit your current game and restart the plugin
     & Turn Right \\
 %
   \opt{IRIVER_H100_PAD,IRIVER_H300_PAD}{\ButtonRec}
-  \opt{IPOD_3G_PAD,IPOD_4G_PAD,GIGABEAT_S_PAD,SAMSUNG_YH92X_PAD,SAMSUNG_YH820_PAD}{\ButtonPlay}
+  \opt{IPOD_3G_PAD,IPOD_4G_PAD}{\ButtonSelect}
+  \opt{GIGABEAT_S_PAD,SAMSUNG_YH92X_PAD,SAMSUNG_YH820_PAD}{\ButtonPlay}
   \opt{IAUDIO_X5_PAD,SANSA_E200_PAD,SANSA_FUZE_PAD,SANSA_C200_PAD,SANSA_CLIP_PAD,SANSA_FUZEPLUS_PAD}{\ButtonSelect}
   \opt{IRIVER_H10_PAD}{\ButtonRew}
   \opt{GIGABEAT_PAD}{\ButtonA}
@@ -146,7 +154,8 @@ Rockdoom options, you will need to quit your current game and restart the plugin
     & Open \\
 %
   \opt{IRIVER_H100_PAD,IRIVER_H300_PAD}{\ButtonOff}
-  \opt{IPOD_3G_PAD,IPOD_4G_PAD,SAMSUNG_YH92X_PAD}{\ButtonHold{} switch}
+  \opt{IPOD_3G_PAD,IPOD_4G_PAD}{\ButtonSelect+\ButtonMenu{} or \ButtonHold{} switch}
+  \opt{SAMSUNG_YH92X_PAD}{\ButtonHold{} switch}
   \opt{IAUDIO_X5_PAD,IRIVER_H10_PAD,SANSA_E200_PAD,SANSA_C200_PAD,GIGABEAT_PAD%
       ,GIGABEAT_S_PAD,MROBE100_PAD,SANSA_CLIP_PAD}{\ButtonPower}
   \opt{SANSA_FUZE_PAD}{\ButtonHome}
@@ -157,9 +166,10 @@ Rockdoom options, you will need to quit your current game and restart the plugin
   \opt{RG_NANO_PAD}{\ButtonStart}
     & InGame Menu \\
 %
-  \opt{IRIVER_H100_PAD,IRIVER_H300_PAD,IPOD_3G_PAD,IPOD_4G_PAD,IAUDIO_X5_PAD%
+  \opt{IRIVER_H100_PAD,IRIVER_H300_PAD,IAUDIO_X5_PAD%
       ,GIGABEAT_PAD,GIGABEAT_S_PAD,SANSA_E200_PAD,SANSA_FUZE_PAD,SANSA_C200_PAD%
       ,MROBE100_PAD,SANSA_CLIP_PAD,SANSA_FUZEPLUS_PAD}{\ButtonSelect}
+  \opt{IPOD_3G_PAD,IPOD_4G_PAD}{\ButtonMenu}
   \opt{IRIVER_H10_PAD}{\ButtonRew}
   \opt{COWON_D2_PAD}{\TouchCenter}
   \opt{PBELL_VIBE500_PAD}{\ButtonPower}
@@ -170,7 +180,7 @@ Rockdoom options, you will need to quit your current game and restart the plugin
     & Enter \\
 %
   \opt{IRIVER_H100_PAD,IRIVER_H300_PAD}{\ButtonOn}
-  \opt{IPOD_3G_PAD,IPOD_4G_PAD}{\ButtonSelect}
+  \opt{IPOD_3G_PAD,IPOD_4G_PAD}{\ButtonSelect+\ButtonRight}
   \opt{IAUDIO_X5_PAD}{\ButtonRec}
   \opt{IRIVER_H10_PAD,SAMSUNG_YH92X_PAD,SAMSUNG_YH820_PAD}{\ButtonFF}
   \opt{SANSA_E200_PAD,SANSA_FUZE_PAD}{\ButtonScrollFwd}
@@ -184,6 +194,12 @@ Rockdoom options, you will need to quit your current game and restart the plugin
     & Change Weapon \\
 %
 \end{btnmap}
+\opt{IPOD_3G_PAD,IPOD_4G_PAD}{The scroll wheel strafes left and right.
+Press \ButtonSelect+\ButtonPlay{} to toggle the automap. In Doom menus, the
+scroll wheel moves through items, \ButtonSelect{} chooses, and \ButtonMenu{}
+backs out. The Shooter preset is the default. The Classic preset uses
+\ButtonMenu{} for forward, \ButtonPlay{} for shoot, and \ButtonSelect{} for
+weapon.}
 
 \subsubsection{Playing the game}
 After installation of the \fname{wad} files is complete you can start the

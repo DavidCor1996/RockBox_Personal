@@ -56,8 +56,11 @@ DEFAULT_LOCKSCREEN_CLOCK = {
     "style": "glass",
     "glass_strength": "high",
     "shadow": "soft",
+    "stretch": 100,
     "opacity": 82,
 }
+
+LOCKSCREEN_STATUS_RESERVED_HEIGHT = 24
 
 WALLPAPER_TARGETS = {
     "Blackery": {
@@ -1128,6 +1131,7 @@ class ThemeDesignerService:
         result["style"] = style if style in {"solid", "soft shadow", "outline", "glass", "glass tinted"} else DEFAULT_LOCKSCREEN_CLOCK["style"]
         glass = str(source.get("glass_strength") or result["glass_strength"]).strip().lower()
         result["glass_strength"] = glass if glass in {"off", "low", "medium", "high"} else DEFAULT_LOCKSCREEN_CLOCK["glass_strength"]
+        result["stretch"] = self._int_between(source.get("stretch"), 100, 160, result["stretch"])
         result["opacity"] = self._int_between(source.get("opacity"), 20, 100, result["opacity"])
         return result
 
@@ -2256,7 +2260,13 @@ class ThemeDesignerService:
             content,
             count=1,
         )
+        content = self._remove_full_art_pulse(content)
         atomic_write_text(path, content)
+
+    @staticmethod
+    def _remove_full_art_pulse(content):
+        content = content.replace("%Vd(SbsAnimPulse)%?mp<", "%?mp<")
+        return re.sub(r"^%Vl\(SbsAnimPulse,[^\n]*(?:\n|$)", "", content, flags=re.MULTILINE)
 
     @staticmethod
     def _ensure_font_slot(content, slot, font_rel):
@@ -2334,21 +2344,28 @@ class ThemeDesignerService:
 
     def _replace_lockscreen_clock_block(self, content, viewport_name, clock, time_font, date_font, use_glass=False, variant=None):
         x = int(clock["x"])
-        y = int(clock["y"])
+        y = self._lockscreen_clock_safe_y(viewport_name, int(clock["y"]))
         width = int(clock["width"])
         height = int(clock["height"])
         width_text = "-" if width >= 320 else str(width)
         align = {"left": "%al", "center": "%ac", "right": "%ar"}.get(clock["align"], "%ac")
         font_pixel_size = ThemeDesignerService._font_pixel_size(clock.get("font_rel", ""))
-        effective_height = max(height, font_pixel_size)
-        date_y = min(220, y + effective_height + 4)
+        stretch_percent = self._int_between(clock.get("stretch"), 100, 160, DEFAULT_LOCKSCREEN_CLOCK["stretch"])
+        stretch_height = self._lockscreen_clock_stretch_height(clock, font_pixel_size)
+        effective_height = max(height, stretch_height)
+        date_y = self._lockscreen_clock_date_y(y, height, font_pixel_size, stretch_percent)
         color = self._lockscreen_clock_skin_color(clock)
         date_color = self._lockscreen_clock_skin_color(clock)
+        base_viewport_name = viewport_name
+        display_underlay_viewports = []
+        display_base_viewports = []
+        display_overlay_viewports = []
+        safe_top = LOCKSCREEN_STATUS_RESERVED_HEIGHT if viewport_name == "iPoneLockscreen" else 0
 
         time_parts = []
         style = clock.get("style", "solid")
-        glass_shadow_line = ""
-        glass_shine_line = ""
+        glass_underlay_lines = []
+        glass_overlay_lines = []
         if use_glass:
             glass_y = max(0, y - 4)
             glass_height = min(240 - glass_y, effective_height + 8)
@@ -2357,19 +2374,59 @@ class ThemeDesignerService:
             )
         if style.startswith("glass"):
             strength = clock.get("glass_strength", "high")
-            shadow_alpha = {"low": 28, "medium": 36, "high": 46}.get(strength, 46)
-            shine_alpha = {"low": 24, "medium": 34, "high": 46}.get(strength, 46)
+            shadow_alpha = self._lockscreen_clock_glass_layer_opacity(
+                clock, {"low": 3, "medium": 5, "high": 7}.get(strength, 7)
+            )
+            shine_alpha = self._lockscreen_clock_glass_layer_opacity(
+                clock, {"low": 18, "medium": 28, "high": 40}.get(strength, 40)
+            )
+            top_edge_alpha = self._lockscreen_clock_glass_layer_opacity(
+                clock, {"low": 40, "medium": 64, "high": 88}.get(strength, 88)
+            )
+            stroke_alpha = self._lockscreen_clock_glass_layer_opacity(
+                clock, {"low": 10, "medium": 15, "high": 20}.get(strength, 20)
+            )
+            refract_cool_alpha = self._lockscreen_clock_glass_layer_opacity(
+                clock, {"low": 14, "medium": 24, "high": 36}.get(strength, 36)
+            )
+            clock_hex = _ensure_hex(clock.get("color"), DEFAULT_LOCKSCREEN_CLOCK["color"])
+            shine_hex = _mix_hex(clock_hex, "FFFFFF", 0.18)
+            top_edge_hex = _mix_hex(clock_hex, "FFFFFF", 0.78)
+            refract_cool_hex = _mix_hex(clock_hex, "BFF6FF", 0.42)
             shadow_color = self._skin_color_with_opacity("000000", shadow_alpha, force_alpha=True)
-            shine_color = self._skin_color_with_opacity("FFFFFF", shine_alpha, force_alpha=True)
+            shine_color = self._skin_color_with_opacity(shine_hex, shine_alpha, force_alpha=True)
+            top_edge_color = self._skin_color_with_opacity(top_edge_hex, top_edge_alpha, force_alpha=True)
+            stroke_color = self._skin_color_with_opacity("000000", stroke_alpha, force_alpha=True)
+            refract_cool_color = self._skin_color_with_opacity(
+                refract_cool_hex, refract_cool_alpha, force_alpha=True
+            )
             shadow_x = min(319, max(0, x + 1))
-            shadow_y = min(239, max(0, y + 2))
-            shine_y = max(0, y - 1)
-            glass_shadow_line = (
-                f"%Vl(iPoneClockGlassShadow,{shadow_x},{shadow_y},{width_text},{effective_height},{time_font})"
+            shadow_y = min(239, max(0, y + 1))
+            top_edge_x = max(0, x - 1)
+            top_edge_y = max(safe_top, y - 2)
+            shine_x = min(319, max(0, x + 1))
+            shine_y = max(0, y)
+            refract_cool_x = max(0, x - 2)
+            refract_cool_y = min(239, max(0, y + 1))
+            shine_height = effective_height
+            glass_underlay_lines.append(
+                f"%Vl({viewport_name},{shadow_x},{shadow_y},{width_text},{effective_height},{time_font})"
                 f"%Vf({shadow_color}){align}%cl:%cM %cP"
             )
-            glass_shine_line = (
-                f"%Vl(iPoneClockGlassShine,{x},{shine_y},{width_text},{effective_height},{time_font})"
+            glass_overlay_lines.append(
+                f"%Vl({viewport_name},{refract_cool_x},{refract_cool_y},{width_text},{effective_height},{time_font})"
+                f"%Vf({refract_cool_color}){align}%cl:%cM %cP"
+            )
+            glass_overlay_lines.append(
+                f"%Vl({viewport_name},{x},{max(safe_top, y - 1)},{width_text},{effective_height},{time_font})"
+                f"%Vf({stroke_color}){align}%cl:%cM %cP"
+            )
+            glass_overlay_lines.append(
+                f"%Vl({viewport_name},{top_edge_x},{top_edge_y},{width_text},{effective_height},{time_font})"
+                f"%Vf({top_edge_color}){align}%cl:%cM %cP"
+            )
+            glass_overlay_lines.append(
+                f"%Vl({viewport_name},{shine_x},{shine_y},{width_text},{shine_height},{time_font})"
                 f"%Vf({shine_color}){align}%cl:%cM %cP"
             )
         if style == "outline":
@@ -2380,18 +2437,16 @@ class ThemeDesignerService:
                 f"%Vl(iPoneClockShadow,{shadow_x},{shadow_y},{width_text},{effective_height},{time_font})"
                 f"%Vf({outline_color}){align}%cl:%cM %cP"
             )
-        if glass_shadow_line:
-            time_parts.append(glass_shadow_line)
-        if glass_shine_line:
-            time_parts.append(glass_shine_line)
+        time_parts.extend(glass_underlay_lines)
         time_parts.append(
-            f"%Vl({viewport_name},{x},{y},{width_text},{effective_height},{time_font})%Vf({color}){align}%cl:%cM %cP"
+            f"%Vl({base_viewport_name},{x},{y},{width_text},{effective_height},{time_font})%Vf({color}){align}%cl:%cM %cP"
         )
+        time_parts.extend(glass_overlay_lines)
         time_line = "\n".join(time_parts)
 
         date_parts = []
         if style.startswith("glass"):
-            date_shadow_color = self._skin_color_with_opacity("000000", 34, force_alpha=True)
+            date_shadow_color = self._skin_color_with_opacity("000000", 12, force_alpha=True)
             date_shadow_x = min(319, max(0, x + 1))
             date_shadow_y = min(239, max(0, date_y + 1))
             date_parts.append(
@@ -2408,25 +2463,92 @@ class ThemeDesignerService:
             "%if(%St(lang), =, japanese),%if(%St(lang), =, korean))<%cb %cd|%?if(%St(lang), =, english-us)<%cb %cd|%cd %cb>>"
         )
         date_line = "\n".join(date_parts)
-        time_pattern = re.compile(rf"%Vl\({re.escape(viewport_name)},[^\n]*%cl:%cM %cP")
+        time_pattern = re.compile(
+            rf"(?:%Vl\((?:{re.escape(viewport_name)}|iPoneClockBase(?:Scale)?\d+|iPoneClockGlass[^)]*),"
+            rf"[^\n]*%cl:%cM %cP(?:\n|$))+"
+        )
         date_pattern = re.compile(rf"%Vl\({re.escape(viewport_name)},[^\n]*%cd\|%cd %cb>>")
-        updated = time_pattern.sub(time_line, content, count=1)
-        updated = date_pattern.sub(date_line, updated, count=1)
+        updated = time_pattern.sub(time_line + "\n", content, count=1)
+        date_matches = list(date_pattern.finditer(updated))
+        if date_matches:
+            updated = (
+                updated[:date_matches[0].start()]
+                + date_line
+                + updated[date_matches[-1].end():]
+            )
+        updated = self._sync_lockscreen_clock_display_chain(
+            updated,
+            viewport_name,
+            display_underlay_viewports,
+            display_base_viewports,
+            display_overlay_viewports,
+        )
         return updated
+
+    @staticmethod
+    def _sync_lockscreen_clock_display_chain(
+        content,
+        viewport_name,
+        display_underlay_viewports,
+        display_base_viewports,
+        display_overlay_viewports,
+    ):
+        if viewport_name != "iPoneLockscreen":
+            return content
+
+        underlay_tags = "".join(f"%Vd({name})" for name in display_underlay_viewports)
+        base_tags = "".join(f"%Vd({name})" for name in display_base_viewports)
+        overlay_tags = "".join(f"%Vd({name})" for name in display_overlay_viewports)
+        if base_tags:
+            replacement = f"%Vd({viewport_name}){underlay_tags}{base_tags}{overlay_tags}%?mp<"
+        else:
+            replacement = f"{underlay_tags}%Vd({viewport_name}){overlay_tags}%?mp<"
+        generated_display = r"%Vd\(iPoneClock(?:Base|Glass|Stretch)[^)]+\)"
+        pattern = re.compile(
+            rf"(?:{generated_display})*"
+            rf"%Vd\({re.escape(viewport_name)}\)"
+            rf"(?:{generated_display})*"
+            r"%\?mp<"
+        )
+        return pattern.sub(replacement, content, count=1)
 
     def _lockscreen_clock_skin_color(self, clock):
         color = _ensure_hex(clock.get("color"), DEFAULT_LOCKSCREEN_CLOCK["color"])
         opacity = self._lockscreen_clock_render_opacity(clock)
         return self._skin_color_with_opacity(color, opacity)
 
+    def _lockscreen_clock_stretch_height(self, clock, font_pixel_size):
+        stretch = self._int_between(clock.get("stretch"), 100, 160, DEFAULT_LOCKSCREEN_CLOCK["stretch"])
+        return max(font_pixel_size, int(round(font_pixel_size * stretch / 100.0)))
+
+    @staticmethod
+    def _lockscreen_clock_safe_y(viewport_name, y):
+        if viewport_name == "iPoneLockscreen":
+            return max(LOCKSCREEN_STATUS_RESERVED_HEIGHT, int(y))
+        return int(y)
+
+    @staticmethod
+    def _lockscreen_clock_date_y(y, height, font_pixel_size, stretch_percent):
+        if font_pixel_size <= 0:
+            return min(220, y + height + 4)
+
+        stretch_extra = max(0, stretch_percent - 100)
+        visible_clock_height = int(round(font_pixel_size * (1.0 + (stretch_extra * 0.5 / 100.0))))
+        gap = 4
+        return min(220, y + visible_clock_height + gap)
+
     def _lockscreen_clock_render_opacity(self, clock):
         opacity = self._int_between(clock.get("opacity"), 20, 100, DEFAULT_LOCKSCREEN_CLOCK["opacity"])
-        style = str(clock.get("style") or "").lower()
-        if style.startswith("glass"):
+        if str(clock.get("style") or "").lower().startswith("glass"):
             strength = str(clock.get("glass_strength") or "high").lower()
             cap = {"low": 76, "medium": 64, "high": 52}.get(strength, 52)
             opacity = min(opacity, cap)
         return opacity
+
+    def _lockscreen_clock_glass_layer_opacity(self, clock, base_opacity):
+        source_opacity = self._int_between(clock.get("opacity"), 20, 100, DEFAULT_LOCKSCREEN_CLOCK["opacity"])
+        factor = 0.40 + (source_opacity / 100.0) * 1.40
+        return max(0, min(100, int(round(base_opacity * factor))))
 
     def _skin_color_with_opacity(self, color, opacity, force_alpha=False):
         color = _ensure_hex(color, DEFAULT_LOCKSCREEN_CLOCK["color"])

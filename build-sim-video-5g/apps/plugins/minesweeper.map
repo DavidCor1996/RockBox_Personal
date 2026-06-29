@@ -166,7 +166,7 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
 .plt.sec
  *(.plt.sec)
 
-.text           0x0000000000001060     0x11c7
+.text           0x0000000000001060     0x123a
  *(.text.unlikely .text.*_unlikely .text.unlikely.*)
  *(.text.exit .text.exit.*)
  *(.text.startup .text.startup.*)
@@ -183,19 +183,19 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
                 0x000000000000200d                exit
                 0x0000000000002026                _exit
                 0x0000000000002035                exit_on_usb
- .text          0x0000000000002074      0x1b3 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(playback_control.o)
-                0x00000000000021f1                playback_control_init
-                0x00000000000021f9                playback_control
- .text          0x0000000000002227        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(minesweeper_tiles.16x16x24.o)
- .text          0x0000000000002227        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtendS.o
- .text          0x0000000000002227        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
+ .text          0x0000000000002074      0x226 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(playback_control.o)
+                0x0000000000002264                playback_control_init
+                0x000000000000226c                playback_control
+ .text          0x000000000000229a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(minesweeper_tiles.16x16x24.o)
+ .text          0x000000000000229a        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtendS.o
+ .text          0x000000000000229a        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
  *(.gnu.warning)
 
-.fini           0x0000000000002228        0xd
+.fini           0x000000000000229c        0xd
  *(SORT_NONE(.fini))
- .fini          0x0000000000002228        0x8 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
-                0x0000000000002228                _fini
- .fini          0x0000000000002230        0x5 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
+ .fini          0x000000000000229c        0x8 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
+                0x000000000000229c                _fini
+ .fini          0x00000000000022a4        0x5 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
                 [!provide]                        PROVIDE (__etext = .)
                 [!provide]                        PROVIDE (_etext = .)
                 [!provide]                        PROVIDE (etext = .)
@@ -227,7 +227,7 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
                 0x0000000000005040                __GNU_EH_FRAME_HDR
  *(.eh_frame_entry .eh_frame_entry.*)
 
-.eh_frame       0x0000000000005100      0x334
+.eh_frame       0x0000000000005100      0x344
  *(.eh_frame)
  .eh_frame      0x0000000000005100       0x40 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
  .eh_frame      0x0000000000005140        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
@@ -235,9 +235,9 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
                                         0x190 (size before relaxing)
  .eh_frame      0x00000000000052b8       0x88 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
                                          0xa0 (size before relaxing)
- .eh_frame      0x0000000000005340       0xf0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(playback_control.o)
-                                        0x108 (size before relaxing)
- .eh_frame      0x0000000000005430        0x4 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtendS.o
+ .eh_frame      0x0000000000005340      0x100 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(playback_control.o)
+                                        0x118 (size before relaxing)
+ .eh_frame      0x0000000000005440        0x4 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtendS.o
  *(.eh_frame.*)
 
 .sframe
@@ -257,30 +257,30 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
  *(.note.build-id)
 
 .note.GNU-stack
-                0x0000000000005434        0x0
+                0x0000000000005444        0x0
  *(.note.GNU-stack)
  .note.GNU-stack
-                0x0000000000005434        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
+                0x0000000000005444        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
  .note.GNU-stack
-                0x0000000000005434        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtbeginS.o
+                0x0000000000005444        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtbeginS.o
  .note.GNU-stack
-                0x0000000000005434        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/minesweeper.o
+                0x0000000000005444        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/minesweeper.o
  .note.GNU-stack
-                0x0000000000005434        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+                0x0000000000005444        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
  .note.GNU-stack
-                0x0000000000005434        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(playback_control.o)
+                0x0000000000005444        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(playback_control.o)
  .note.GNU-stack
-                0x0000000000005434        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(minesweeper_tiles.16x16x24.o)
+                0x0000000000005444        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(minesweeper_tiles.16x16x24.o)
  .note.GNU-stack
-                0x0000000000005434        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtendS.o
+                0x0000000000005444        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtendS.o
  .note.GNU-stack
-                0x0000000000005434        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
+                0x0000000000005444        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
 
 .note.gnu.property
-                0x0000000000005438       0x30
+                0x0000000000005448       0x30
  *(.note.gnu.property)
  .note.gnu.property
-                0x0000000000005438       0x30 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
+                0x0000000000005448       0x30 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
 
 .note.ABI-tag
  *(.note.ABI-tag)
@@ -527,39 +527,39 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000    0x19e99
+.debug_info     0x0000000000000000    0x19f31
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0x86e1 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/minesweeper.o
- .debug_info    0x00000000000086e1     0x7cf2 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
- .debug_info    0x00000000000103d3     0x9983 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(playback_control.o)
- .debug_info    0x0000000000019d56      0x143 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(minesweeper_tiles.16x16x24.o)
+ .debug_info    0x0000000000000000     0x86db /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/minesweeper.o
+ .debug_info    0x00000000000086db     0x7cf2 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+ .debug_info    0x00000000000103cd     0x9a21 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(playback_control.o)
+ .debug_info    0x0000000000019dee      0x143 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(minesweeper_tiles.16x16x24.o)
 
-.debug_abbrev   0x0000000000000000      0xe69
+.debug_abbrev   0x0000000000000000      0xe7b
  *(.debug_abbrev)
- .debug_abbrev  0x0000000000000000      0x590 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/minesweeper.o
- .debug_abbrev  0x0000000000000590      0x442 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
- .debug_abbrev  0x00000000000009d2      0x3d9 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(playback_control.o)
- .debug_abbrev  0x0000000000000dab       0xbe /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(minesweeper_tiles.16x16x24.o)
+ .debug_abbrev  0x0000000000000000      0x599 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/minesweeper.o
+ .debug_abbrev  0x0000000000000599      0x442 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+ .debug_abbrev  0x00000000000009db      0x3e2 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(playback_control.o)
+ .debug_abbrev  0x0000000000000dbd       0xbe /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(minesweeper_tiles.16x16x24.o)
 
-.debug_line     0x0000000000000000     0x12a8
+.debug_line     0x0000000000000000     0x1311
  *(.debug_line .debug_line.* .debug_line_end)
  .debug_line    0x0000000000000000      0xc6d /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/minesweeper.o
  .debug_line    0x0000000000000c6d      0x2bd /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
- .debug_line    0x0000000000000f2a      0x332 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(playback_control.o)
- .debug_line    0x000000000000125c       0x4c /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(minesweeper_tiles.16x16x24.o)
+ .debug_line    0x0000000000000f2a      0x39b /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(playback_control.o)
+ .debug_line    0x00000000000012c5       0x4c /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(minesweeper_tiles.16x16x24.o)
 
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0xa261
+.debug_str      0x0000000000000000     0xa2e0
  *(.debug_str)
- .debug_str     0x0000000000000000     0xa261 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/minesweeper.o
+ .debug_str     0x0000000000000000     0xa2e0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/minesweeper.o
                                        0x5393 (size before relaxing)
- .debug_str     0x000000000000a261        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+ .debug_str     0x000000000000a2e0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
                                        0x51cb (size before relaxing)
- .debug_str     0x000000000000a261        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(playback_control.o)
-                                       0xa4a3 (size before relaxing)
- .debug_str     0x000000000000a261        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(minesweeper_tiles.16x16x24.o)
+ .debug_str     0x000000000000a2e0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(playback_control.o)
+                                       0xa522 (size before relaxing)
+ .debug_str     0x000000000000a2e0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(minesweeper_tiles.16x16x24.o)
                                         0x176 (size before relaxing)
 
 .debug_loc
@@ -590,30 +590,30 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
  *(.debug_addr)
 
 .debug_line_str
-                0x0000000000000000      0x84a
+                0x0000000000000000      0x852
  *(.debug_line_str)
  .debug_line_str
-                0x0000000000000000      0x84a /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/minesweeper.o
+                0x0000000000000000      0x852 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/minesweeper.o
                                         0x698 (size before relaxing)
  .debug_line_str
-                0x000000000000084a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+                0x0000000000000852        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
                                         0x693 (size before relaxing)
  .debug_line_str
-                0x000000000000084a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(playback_control.o)
-                                        0x675 (size before relaxing)
+                0x0000000000000852        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(playback_control.o)
+                                        0x67d (size before relaxing)
  .debug_line_str
-                0x000000000000084a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(minesweeper_tiles.16x16x24.o)
+                0x0000000000000852        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(minesweeper_tiles.16x16x24.o)
                                         0x23a (size before relaxing)
 
 .debug_loclists
-                0x0000000000000000      0x6ec
+                0x0000000000000000      0x6e0
  *(.debug_loclists)
  .debug_loclists
-                0x0000000000000000      0x5ca /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/minesweeper.o
+                0x0000000000000000      0x5b4 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/minesweeper.o
  .debug_loclists
-                0x00000000000005ca       0x9e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+                0x00000000000005b4       0x9e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
  .debug_loclists
-                0x0000000000000668       0x84 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(playback_control.o)
+                0x0000000000000652       0x8e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(playback_control.o)
 
 .debug_macro
  *(.debug_macro)

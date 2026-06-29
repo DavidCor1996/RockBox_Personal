@@ -1,5 +1,7 @@
 """iTunes 7-style source list sidebar."""
 
+from pathlib import Path
+
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QTreeWidget, QTreeWidgetItem, QLabel,
     QAbstractItemView, QSizePolicy,
@@ -12,6 +14,12 @@ from ui.track_table import TRACK_IDS_MIME
 
 # Sidebar icon size matching iTunes 7
 ICON_SIZE = QSize(16, 16)
+LINUX_ICON_PATH = Path(__file__).resolve().parents[1] / "assets" / "icons" / "rockpod-linux.svg"
+
+
+def _asset_icon(path):
+    icon = QIcon(str(path))
+    return icon if not icon.isNull() else None
 
 
 def _make_icon(color_hex, shape="circle"):
@@ -105,6 +113,7 @@ class Sidebar(QWidget):
     ROCKBOX_GAME_SYNC = "rockbox_game_sync"
     ROCKBOX_GAMES = "rockbox_games"
     ROCKBOX_PHOTOS = "rockbox_photos"
+    ROCKBOX_LINUX = "rockbox_linux"
     ROCKBOX_BROWSER = "rockbox_browser"
     ROCKBOX_SIMULATOR = "rockbox_simulator"
 
@@ -226,6 +235,10 @@ class Sidebar(QWidget):
         self._photos_item = self._add_item(
             self._rockbox_header, "Photos", self.ROCKBOX_PHOTOS,
             _make_icon("#8c9f6f", "album")
+        )
+        self._linux_item = self._add_item(
+            self._rockbox_header, "Linux", self.ROCKBOX_LINUX,
+            _asset_icon(LINUX_ICON_PATH) or _make_icon("#5f9ea0", "device")
         )
         self._browser_item = self._add_item(
             self._rockbox_header, "Store", self.ROCKBOX_BROWSER,

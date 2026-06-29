@@ -67,6 +67,13 @@ pacbox
     && (PLUGIN_BUFFER_SIZE >= 0x100000)
 infones
 pokemini
+minivmac
+flashplayer
+#endif
+
+#if defined(HAVE_LCD_COLOR) && (LCD_WIDTH >= 320) && (LCD_HEIGHT >= 240) \
+    && (PLUGIN_BUFFER_SIZE >= 0x100000)
+scummvm
 #endif
 
 #if (defined(HAVE_LCD_COLOR) || defined(MROBE_100) || defined(SANSA_CLIPPLUS) \

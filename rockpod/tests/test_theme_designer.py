@@ -366,11 +366,104 @@ def test_lockscreen_clock_glass_styles_live_text_without_panel(tmp_dir):
         content = handle.read()
     assert "LockClockGlassGenerated" not in content
     assert "%Vd(LockClockGlass)%Vd(iPoneLockscreen)" not in content
-    assert "iPoneClockGlassShadow" in content
-    assert "iPoneClockGlassShine" in content
-    assert content.index("iPoneClockGlassShadow") < content.index("%Vf(FFFFFF80)%ac%cl:%cM %cP")
-    assert content.index("iPoneClockGlassShine") < content.index("%Vf(FFFFFF80)%ac%cl:%cM %cP")
+    assert "%Vd(iPoneClock" not in content
+    assert content.count("%Vl(iPoneLockscreen") >= 8
     assert "%Vf(FFFFFF80)%ac%cl:%cM %cP" in content
+
+
+def test_lockscreen_clock_glass_uses_compact_layer_stack(tmp_dir):
+    service = ThemeDesignerService()
+    content = (
+        "%Vd(iPoneLockscreen)%?mp<\n"
+        "%Vl(iPoneLockscreen,0,32,-,55,10)%Vf(FFFFFF)%ac%cl:%cM %cP\n"
+        "%Vl(iPoneLockscreen,0,91,-,18,6)%Vf(FFFFFF)%ac"
+        "%?if(%ss(0,7,%St(lang)), =, english)<%?cu<Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday>|%ca> "
+        "%?or(%if(%ss(0,7,%St(lang)), =, chinese),%if(%St(lang), =, magyar),%if(%St(lang), =, lietuviu),"
+        "%if(%St(lang), =, japanese),%if(%St(lang), =, korean))<%cb %cd|%?if(%St(lang), =, english-us)<%cb %cd|%cd %cb>>\n"
+    )
+    clock = service._normalize_lockscreen_clock(
+        {"color": "66E0FF", "opacity": 82, "style": "glass", "glass_strength": "high"}
+    )
+
+    updated = service._replace_lockscreen_clock_block(
+        content,
+        "iPoneLockscreen",
+        clock,
+        time_font=10,
+        date_font=6,
+    )
+
+    assert updated.count("%Vl(iPoneLockscreen") == 8
+    assert "%Vd(iPoneClock" not in updated
+    assert "iPoneClockBase" not in updated
+    assert "iPoneClockGlass" not in updated
+    assert "iPoneClockGlassLift" not in updated
+    assert "iPoneClockGlassBevelLight" not in updated
+    assert "iPoneClockGlassRimLeft" not in updated
+    assert "iPoneClockGlassGleam" not in updated
+
+
+def test_lockscreen_clock_stretch_reserves_status_row_and_replaces_stale_scale(tmp_dir):
+    service = ThemeDesignerService()
+    content = (
+        "%Vd(iPoneLockscreen)%Vd(iPoneClockBaseScale140)%Vd(iPoneClockGlassShineScale140)%?mp<\n"
+        "%Vl(iPoneClockBaseScale140,0,24,-,92,10)%Vf(FFFFFF)%ac%cl:%cM %cP\n"
+        "%Vl(iPoneClockGlassShineScale140,1,24,-,92,10)%Vf(FFFFFF40)%ac%cl:%cM %cP\n"
+        "%Vl(iPoneLockscreen,0,94,-,18,6)%Vf(FFFFFF)%ac"
+        "%?if(%ss(0,7,%St(lang)), =, english)<%?cu<Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday>|%ca> "
+        "%?or(%if(%ss(0,7,%St(lang)), =, chinese),%if(%St(lang), =, magyar),%if(%St(lang), =, lietuviu),"
+        "%if(%St(lang), =, japanese),%if(%St(lang), =, korean))<%cb %cd|%?if(%St(lang), =, english-us)<%cb %cd|%cd %cb>>\n"
+    )
+    clock = service._normalize_lockscreen_clock(
+        {
+            "font_rel": "fonts/66-Cantarell-Light.fnt",
+            "x": 0,
+            "y": 0,
+            "height": 55,
+            "stretch": 160,
+            "style": "glass",
+            "glass_strength": "high",
+        }
+    )
+
+    updated = service._replace_lockscreen_clock_block(
+        content,
+        "iPoneLockscreen",
+        clock,
+        time_font=10,
+        date_font=6,
+    )
+
+    assert "iPoneClockBaseScale140" not in updated
+    assert "iPoneClockGlassShineScale140" not in updated
+    assert "%Vd(iPoneClock" not in updated
+    assert "%Vl(iPoneLockscreen,0,24,-,106,10)" in updated
+    assert "%Vl(iPoneLockscreen,0,114,-,18,6)" in updated
+
+
+def test_designer_sbs_layout_removes_full_art_redraw_pulse(tmp_dir):
+    sbs = os.path.join(tmp_dir, "wps", "iPoneD-pulse-test.sbs")
+    _write_text(
+        sbs,
+        "%?if(%St(ipone right pane), =, full art)<%Vd(SbsAnimPulse)%?mp<%Vd(normal)|%Vd(normal)>|%Vd(normal)>\n"
+        "%Vl(SbsAnimPulse,319,239,1,1,-)%t(0.1)%dr(0,0,1,1,000000);%t(0.1)%dr(0,0,1,1,010101)\n"
+        "%Vl(iPoneLockscreen,32,8,60,16,2)%Vf(FFFFFF)%alHOLD\n"
+        "%Vl(iPoneLockscreen,242,8,44,16,2)%Vf(FFFFFF)%ar%bl%%\n",
+    )
+    service = ThemeDesignerService()
+
+    service._apply_designer_sbs_layout_overrides(
+        sbs,
+        {
+            "base_theme_id": "iPone",
+            "lockscreen_clock": {"color": "FFFFFF"},
+        },
+    )
+
+    with open(sbs, "r", encoding="utf-8") as handle:
+        content = handle.read()
+    assert "SbsAnimPulse" not in content
+    assert "%?if(%St(ipone right pane), =, full art)<%?mp<%Vd(normal)|%Vd(normal)>|%Vd(normal)>" in content
 
 
 def test_lockscreen_clock_opacity_samples_staged_wallpaper_without_source(tmp_dir):
@@ -632,6 +725,7 @@ def test_theme_designer_current_variant_data_includes_lockscreen_clock_glass(tmp
     variant["lockscreen_clock"]["opacity"] = 45
     variant["lockscreen_clock"]["style"] = "glass tinted"
     variant["lockscreen_clock"]["glass_strength"] = "medium"
+    variant["lockscreen_clock"]["stretch"] = 135
     preview = service.build_preview_state(repo_root, profile, variant)
     widget = ThemeDesignerWidget()
 
@@ -642,6 +736,7 @@ def test_theme_designer_current_variant_data_includes_lockscreen_clock_glass(tmp
     assert clock["opacity"] == 45
     assert clock["style"] == "glass tinted"
     assert clock["glass_strength"] == "medium"
+    assert clock["stretch"] == 135
     widget.deleteLater()
 
 

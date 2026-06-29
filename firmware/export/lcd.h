@@ -229,6 +229,8 @@ extern void lcd_putsxy_style_offset(int x, int y, const unsigned char *str,
                                     int style, int offset);
 #if defined(HAVE_LCD_COLOR) && !defined(DISABLE_ALPHA_BITMAP)
 extern void lcd_set_alpha_bitmap_opacity(unsigned char opacity);
+extern void lcd_set_alpha_bitmap_yscale(unsigned char yscale);
+extern void lcd_set_alpha_bitmap_yclip(unsigned char top, unsigned char height);
 #endif
 extern void lcd_puts(int x, int y, const unsigned char *string);
 extern void lcd_putsf(int x, int y, const unsigned char *fmt, ...);

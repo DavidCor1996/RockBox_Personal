@@ -57,6 +57,7 @@ struct rockboy_profile_totals {
     unsigned long rendered_frames;
     unsigned long skipped_frames;
     unsigned long pcm_underruns;
+    unsigned long pcm_dropped_buffers;
 };
 
 void rockboy_profile_reset(void);
@@ -66,6 +67,7 @@ void rockboy_profile_add_enabled(enum rockboy_profile_counter which,
 void rockboy_profile_frame_rendered_enabled(void);
 void rockboy_profile_frame_skipped_enabled(void);
 void rockboy_profile_pcm_underrun_enabled(void);
+void rockboy_profile_pcm_drop_enabled(void);
 void rockboy_profile_count_enabled(enum rockboy_profile_event which,
                                    unsigned long count);
 const struct rockboy_profile_totals *rockboy_profile_get_totals(void);
@@ -102,6 +104,12 @@ static inline bool rockboy_profile_is_enabled(void)
     do { \
         if (rockboy_profile_is_enabled()) \
             rockboy_profile_pcm_underrun_enabled(); \
+    } while (0)
+
+#define rockboy_profile_pcm_drop() \
+    do { \
+        if (rockboy_profile_is_enabled()) \
+            rockboy_profile_pcm_drop_enabled(); \
     } while (0)
 
 #define rockboy_profile_count(which, count) \

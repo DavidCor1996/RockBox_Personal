@@ -435,6 +435,7 @@ struct pc_world_state {
     int song_index;
     int egg_index;
     int egg_runtime_save_frame;
+    int save_last_frame;
     int bag_index;
     int buddy_index;
     int dex_index;
@@ -454,6 +455,7 @@ struct pc_world_state {
     enum pc_world_view view;
     bool moving;
     bool map_dirty;
+    bool save_dirty;
     bool encounter_armed;
     bool pending_encounter;
     bool quit_requested;

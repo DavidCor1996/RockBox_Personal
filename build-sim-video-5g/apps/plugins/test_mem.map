@@ -161,7 +161,7 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
 .plt.sec
  *(.plt.sec)
 
-.text           0x0000000000001050      0x501
+.text           0x0000000000001050      0x58e
  *(.text.unlikely .text.*_unlikely .text.unlikely.*)
  *(.text.exit .text.exit.*)
  *(.text.startup .text.startup.*)
@@ -178,20 +178,20 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
                 0x00000000000014aa                exit
                 0x00000000000014c3                _exit
                 0x00000000000014d2                exit_on_usb
- .text          0x0000000000001511       0x40 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
+ .text          0x0000000000001511       0xcd /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
                 0x0000000000001511                memcpy
-                0x0000000000001521                memset
-                0x0000000000001531                memmove
-                0x0000000000001541                memcmp
- .text          0x0000000000001551        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtendS.o
- .text          0x0000000000001551        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
+                0x000000000000153c                memset
+                0x0000000000001565                memmove
+                0x00000000000015a5                memcmp
+ .text          0x00000000000015de        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtendS.o
+ .text          0x00000000000015de        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
  *(.gnu.warning)
 
-.fini           0x0000000000001554        0xd
+.fini           0x00000000000015e0        0xd
  *(SORT_NONE(.fini))
- .fini          0x0000000000001554        0x8 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
-                0x0000000000001554                _fini
- .fini          0x000000000000155c        0x5 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
+ .fini          0x00000000000015e0        0x8 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
+                0x00000000000015e0                _fini
+ .fini          0x00000000000015e8        0x5 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
                 [!provide]                        PROVIDE (__etext = .)
                 [!provide]                        PROVIDE (_etext = .)
                 [!provide]                        PROVIDE (etext = .)
@@ -483,23 +483,23 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000    0x17849
+.debug_info     0x0000000000000000    0x178a8
  *(.debug_info .gnu.linkonce.wi.*)
  .debug_info    0x0000000000000000     0x8494 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/test_mem.o
  .debug_info    0x0000000000008494     0x7cf2 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
- .debug_info    0x0000000000010186     0x76c3 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
+ .debug_info    0x0000000000010186     0x7722 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
 
-.debug_abbrev   0x0000000000000000      0xbdd
+.debug_abbrev   0x0000000000000000      0xbf4
  *(.debug_abbrev)
  .debug_abbrev  0x0000000000000000      0x48b /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/test_mem.o
  .debug_abbrev  0x000000000000048b      0x442 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
- .debug_abbrev  0x00000000000008cd      0x310 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
+ .debug_abbrev  0x00000000000008cd      0x327 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
 
-.debug_line     0x0000000000000000      0x8c4
+.debug_line     0x0000000000000000      0x999
  *(.debug_line .debug_line.* .debug_line_end)
  .debug_line    0x0000000000000000      0x41c /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/test_mem.o
  .debug_line    0x000000000000041c      0x2bd /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
- .debug_line    0x00000000000006d9      0x1eb /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
+ .debug_line    0x00000000000006d9      0x2c0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
 
 .debug_frame
  *(.debug_frame)
@@ -554,14 +554,14 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
                                         0x636 (size before relaxing)
 
 .debug_loclists
-                0x0000000000000000      0x364
+                0x0000000000000000      0x42d
  *(.debug_loclists)
  .debug_loclists
                 0x0000000000000000      0x1e2 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/test_mem.o
  .debug_loclists
                 0x00000000000001e2       0x9e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
  .debug_loclists
-                0x0000000000000280       0xe4 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
+                0x0000000000000280      0x1ad /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
 
 .debug_macro
  *(.debug_macro)

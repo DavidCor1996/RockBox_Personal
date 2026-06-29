@@ -25,7 +25,7 @@ static struct menu_table *menu_table;
 static int menu_item_count;
 
 #define MAX_ITEM_NAME 64
-#define MAX_ITEMS 16
+#define MAX_ITEMS 24
 struct items
 {
     unsigned char *name;

@@ -554,7 +554,7 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
 .plt.sec
  *(.plt.sec)
 
-.text           0x00000000000020c0    0x43204
+.text           0x00000000000020c0    0x43291
  *(.text.unlikely .text.*_unlikely .text.unlikely.*)
  *(.text.exit .text.exit.*)
  *(.text.startup .text.startup.*)
@@ -1532,40 +1532,40 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
  .text.tlsf_calloc
                 0x0000000000045130        0xc /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/libtlsf.a(tlsf.o)
                 0x0000000000045130                tlsf_calloc
- .text          0x000000000004513c       0x40 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(gcc-support.o)
+ .text          0x000000000004513c       0xcd /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(gcc-support.o)
                 0x000000000004513c                memcpy
-                0x000000000004514c                memset
-                0x000000000004515c                memmove
-                0x000000000004516c                memcmp
- .text          0x000000000004517c      0x11a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(helper.o)
-                0x000000000004517c                talk_val
-                0x0000000000045194                backlight_force_on
-                0x00000000000451b6                backlight_ignore_timeout
-                0x00000000000451f4                backlight_use_settings
-                0x0000000000045226                sw_poweroff_disable
-                0x000000000004524c                sw_poweroff_restore
-                0x0000000000045263                remote_backlight_force_on
-                0x0000000000045264                remote_backlight_ignore_timeout
-                0x0000000000045265                remote_backlight_use_settings
-                0x0000000000045266                buttonlight_force_on
-                0x0000000000045267                buttonlight_force_off
-                0x0000000000045268                buttonlight_ignore_timeout
-                0x0000000000045269                buttonlight_use_settings
-                0x000000000004526a                backlight_brightness_set
-                0x000000000004527a                backlight_brightness_use_setting
-                0x0000000000045294                buttonlight_brightness_set
-                0x0000000000045295                buttonlight_brightness_use_setting
- .text          0x0000000000045296       0x2e /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(strncpy.o)
-                0x0000000000045296                strncpy
- .text          0x00000000000452c4        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtendS.o
- .text          0x00000000000452c4        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
+                0x0000000000045167                memset
+                0x0000000000045190                memmove
+                0x00000000000451d0                memcmp
+ .text          0x0000000000045209      0x11a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(helper.o)
+                0x0000000000045209                talk_val
+                0x0000000000045221                backlight_force_on
+                0x0000000000045243                backlight_ignore_timeout
+                0x0000000000045281                backlight_use_settings
+                0x00000000000452b3                sw_poweroff_disable
+                0x00000000000452d9                sw_poweroff_restore
+                0x00000000000452f0                remote_backlight_force_on
+                0x00000000000452f1                remote_backlight_ignore_timeout
+                0x00000000000452f2                remote_backlight_use_settings
+                0x00000000000452f3                buttonlight_force_on
+                0x00000000000452f4                buttonlight_force_off
+                0x00000000000452f5                buttonlight_ignore_timeout
+                0x00000000000452f6                buttonlight_use_settings
+                0x00000000000452f7                backlight_brightness_set
+                0x0000000000045307                backlight_brightness_use_setting
+                0x0000000000045321                buttonlight_brightness_set
+                0x0000000000045322                buttonlight_brightness_use_setting
+ .text          0x0000000000045323       0x2e /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(strncpy.o)
+                0x0000000000045323                strncpy
+ .text          0x0000000000045351        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtendS.o
+ .text          0x0000000000045351        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
  *(.gnu.warning)
 
-.fini           0x00000000000452c4        0xd
+.fini           0x0000000000045354        0xd
  *(SORT_NONE(.fini))
- .fini          0x00000000000452c4        0x8 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
-                0x00000000000452c4                _fini
- .fini          0x00000000000452cc        0x5 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
+ .fini          0x0000000000045354        0x8 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
+                0x0000000000045354                _fini
+ .fini          0x000000000004535c        0x5 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
                 [!provide]                        PROVIDE (__etext = .)
                 [!provide]                        PROVIDE (_etext = .)
                 [!provide]                        PROVIDE (etext = .)
@@ -3788,7 +3788,7 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000   0x1fad3f
+.debug_info     0x0000000000000000   0x1fad9e
  *(.debug_info .gnu.linkonce.wi.*)
  .debug_info    0x0000000000000000     0x82cd /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/pdbox.o
  .debug_info    0x00000000000082cd     0x7b9a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/pdbox-net.o
@@ -3909,11 +3909,11 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
  .debug_info    0x00000000001e17fb      0xaf1 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/extra/zerox~.o
  .debug_info    0x00000000001e22ec     0x7ca7 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
  .debug_info    0x00000000001e9f93     0x1b6b /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/libtlsf.a(tlsf.o)
- .debug_info    0x00000000001ebafe     0x7678 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(gcc-support.o)
- .debug_info    0x00000000001f3176     0x7a9f /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(helper.o)
- .debug_info    0x00000000001fac15      0x12a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(strncpy.o)
+ .debug_info    0x00000000001ebafe     0x76d7 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(gcc-support.o)
+ .debug_info    0x00000000001f31d5     0x7a9f /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(helper.o)
+ .debug_info    0x00000000001fac74      0x12a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(strncpy.o)
 
-.debug_abbrev   0x0000000000000000    0x1ef02
+.debug_abbrev   0x0000000000000000    0x1ef19
  *(.debug_abbrev)
  .debug_abbrev  0x0000000000000000      0x477 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/pdbox.o
  .debug_abbrev  0x0000000000000477      0x3cb /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/pdbox-net.o
@@ -4034,11 +4034,11 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
  .debug_abbrev  0x000000000001dc3f      0x298 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/extra/zerox~.o
  .debug_abbrev  0x000000000001ded7      0x442 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
  .debug_abbrev  0x000000000001e319      0x476 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/libtlsf.a(tlsf.o)
- .debug_abbrev  0x000000000001e78f      0x310 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(gcc-support.o)
- .debug_abbrev  0x000000000001ea9f      0x3c2 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(helper.o)
- .debug_abbrev  0x000000000001ee61       0xa1 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(strncpy.o)
+ .debug_abbrev  0x000000000001e78f      0x327 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(gcc-support.o)
+ .debug_abbrev  0x000000000001eab6      0x3c2 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(helper.o)
+ .debug_abbrev  0x000000000001ee78       0xa1 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(strncpy.o)
 
-.debug_line     0x0000000000000000    0x3bc20
+.debug_line     0x0000000000000000    0x3bcf5
  *(.debug_line .debug_line.* .debug_line_end)
  .debug_line    0x0000000000000000      0x3f8 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/pdbox.o
  .debug_line    0x00000000000003f8      0x2f2 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/pdbox-net.o
@@ -4159,9 +4159,9 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
  .debug_line    0x000000000003a2d6      0x1d2 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/PDa/extra/zerox~.o
  .debug_line    0x000000000003a4a8      0x2bd /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
  .debug_line    0x000000000003a765      0xf6d /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/libtlsf.a(tlsf.o)
- .debug_line    0x000000000003b6d2      0x1eb /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(gcc-support.o)
- .debug_line    0x000000000003b8bd      0x2b4 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(helper.o)
- .debug_line    0x000000000003bb71       0xaf /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(strncpy.o)
+ .debug_line    0x000000000003b6d2      0x2c0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(gcc-support.o)
+ .debug_line    0x000000000003b992      0x2b4 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(helper.o)
+ .debug_line    0x000000000003bc46       0xaf /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(strncpy.o)
 
 .debug_frame
  *(.debug_frame)
@@ -4811,7 +4811,7 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
                                         0x169 (size before relaxing)
 
 .debug_loclists
-                0x0000000000000000    0x3c1bf
+                0x0000000000000000    0x3c288
  *(.debug_loclists)
  .debug_loclists
                 0x0000000000000000       0x81 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pdbox/pdbox.o
@@ -5044,11 +5044,11 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
  .debug_loclists
                 0x000000000003b146      0xe93 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/libtlsf.a(tlsf.o)
  .debug_loclists
-                0x000000000003bfd9       0xe4 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(gcc-support.o)
+                0x000000000003bfd9      0x1ad /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(gcc-support.o)
  .debug_loclists
-                0x000000000003c0bd       0x5f /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(helper.o)
+                0x000000000003c186       0x5f /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(helper.o)
  .debug_loclists
-                0x000000000003c11c       0xa3 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(strncpy.o)
+                0x000000000003c1e5       0xa3 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(strncpy.o)
 
 .debug_macro
  *(.debug_macro)

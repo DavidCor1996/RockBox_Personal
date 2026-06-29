@@ -37,7 +37,6 @@
 #define RP_SPRITES_PATH PLUGIN_GAMES_DATA_DIR "/runepod/sprites/runepod_sprites.320x64x24.bmp"
 #define RP_PLAYER_DIRS_PATH PLUGIN_GAMES_DATA_DIR "/runepod/sprites/runepod_player_dirs.128x32x24.bmp"
 #define RP_TERRAIN_PATH PLUGIN_GAMES_DATA_DIR "/runepod/tiles/runepod_terrain_tiles.256x32x24.bmp"
-#define RP_MUSIC_PATH PLUGIN_GAMES_DATA_DIR "/runepod/audio/Harmony.mp3"
 #define RP_SPRITE_W 32
 #define RP_SPRITE_H 32
 #define RP_SPRITE_SHEET_W 320
@@ -331,35 +330,8 @@ static bool rp_load_terrain(void)
 
 static bool rp_start_music(void)
 {
-    int fd = rb->open(RP_MUSIC_PATH, O_RDONLY);
-
-    if (fd < 0)
-    {
-        rp_smoke_log("music_missing", fd);
-        return false;
-    }
-
-    rb->close(fd);
-    rb->audio_stop();
-    rb->playlist_remove_all_tracks(NULL);
-    if (rb->playlist_create(NULL, NULL) < 0)
-    {
-        rp_smoke_log("music_playlist_create_failed", 0);
-        return false;
-    }
-
-    if (rb->playlist_insert_track(NULL, RP_MUSIC_PATH,
-                                  PLAYLIST_INSERT_LAST, false, true) < 0)
-    {
-        rp_smoke_log("music_insert_failed", 0);
-        return false;
-    }
-
-    rb->plugin_release_audio_buffer();
-    rb->playlist_set_modified(NULL, true);
-    rb->playlist_start(0, 0, 0);
-    rp_smoke_log("music_started", 1);
-    return true;
+    rp_smoke_log("music_disabled_playlist_safety", 0);
+    return false;
 }
 
 static int rp_iabs(int v)
@@ -1914,8 +1886,6 @@ enum plugin_status plugin_start(const void *parameter)
     rp_load_terrain();
     rp_init_game();
     game.music_started = rp_start_music();
-    if (game.music_started)
-        rp_set_message("RunePod prototype", "Harmony background music");
     rp_smoke_log("start", 0);
 
     while (!game.quit)
@@ -1931,9 +1901,8 @@ enum plugin_status plugin_start(const void *parameter)
     }
 
     rp_smoke_log("exit", rendered_frames);
-    if (game.music_started)
-        rb->audio_stop();
     rp_set_wheel_events(true);
+    rb->button_clear_queue();
     return PLUGIN_OK;
 }
 

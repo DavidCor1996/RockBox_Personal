@@ -23,6 +23,8 @@
 #define ROCKBOY_STATE_PATH    ROCKBOY_LAUNCHER_DIR "/state.dat"
 #define ROCKBOY_PLUGIN_PATH   VIEWERS_DIR "/rockboy.rock"
 #define INFONES_PLUGIN_PATH   VIEWERS_DIR "/infones.rock"
+#define DOOM_PLAY_PLUGIN_PATH PLUGIN_GAMES_DIR "/doom_play.rock"
+#define DOOM_COVER_BMP        ROCKBOY_LAUNCHER_DIR "/covers/Doom.bmp"
 #define ROCKBOY_ROM_DIR       "/gameboy"
 #define ROCKBOY_LOADING_BACKGROUND_BMP ROCKBOY_LAUNCHER_DIR "/loading_bg.bmp"
 #define ROCKBOY_FALLBACK_COVER_BMP PLUGIN_DEMOS_DIR "/pictureflow_emptyslide.bmp"
@@ -198,13 +200,25 @@ static bool has_supported_rom_ext(const char *path)
 
     return !rb->strcasecmp(ext, ".gb") ||
            !rb->strcasecmp(ext, ".gbc") ||
-           !rb->strcasecmp(ext, ".nes");
+           !rb->strcasecmp(ext, ".nes") ||
+           !rb->strcasecmp(ext, ".rock");
 }
 
 static bool is_nes_rom(const char *path)
 {
     const char *ext = rb->strrchr(path, '.');
     return ext && !rb->strcasecmp(ext, ".nes");
+}
+
+static bool is_plugin_entry(const char *path)
+{
+    const char *ext = rb->strrchr(path, '.');
+    return ext && !rb->strcasecmp(ext, ".rock");
+}
+
+static bool is_doom_entry(const char *path)
+{
+    return !rb->strcmp(path, DOOM_PLAY_PLUGIN_PATH);
 }
 
 static bool has_supported_cover_ext(const char *path)
@@ -707,6 +721,9 @@ static bool game_has_local_save(struct game_entry *entry)
     char save_base[MAX_SAVE_BASENAME];
     char path[MAX_PATH];
 
+    if (is_plugin_entry(entry->rom_path))
+        return entry->save_hint == SAVE_HINT_YES;
+
     if (entry->save_name[0] == '\0')
     {
         if (derive_rockboy_save_name(entry->rom_path, save_base, sizeof(save_base)))
@@ -812,6 +829,30 @@ static void add_game_entry(const char *title, const char *rom_path,
 
     entry->flags = flags;
     entry->save_hint = save_hint;
+}
+
+static bool game_entry_path_exists(const char *path)
+{
+    int i;
+
+    for (i = 0; i < launcher.entry_count; i++)
+    {
+        if (!rb->strcmp(launcher.entries[i].rom_path, path))
+            return true;
+    }
+
+    return false;
+}
+
+static void add_builtin_game_entries(void)
+{
+    if (rb->file_exists(DOOM_PLAY_PLUGIN_PATH) &&
+        !game_entry_path_exists(DOOM_PLAY_PLUGIN_PATH))
+    {
+        add_game_entry("Doom", DOOM_PLAY_PLUGIN_PATH, DOOM_COVER_BMP,
+                       FLAG_FAVORITE, SAVE_HINT_NO,
+                       "1993", "Shooter", "Rockbox", "Rockdoom");
+    }
 }
 
 static void detect_sidecar_cover(const char *rom_path, char *cover_path, size_t cover_path_size)
@@ -1425,6 +1466,7 @@ static bool load_game_library(void)
     launcher.used_index = load_games_from_index();
     if (!launcher.used_index)
         scan_rom_dir(ROCKBOY_ROM_DIR, 0);
+    add_builtin_game_entries();
 
     prime_game_metadata();
     apply_launcher_filter();
@@ -1445,6 +1487,7 @@ static bool reload_game_library(void)
     launcher.used_index = load_games_from_index();
     if (!launcher.used_index)
         scan_rom_dir(ROCKBOY_ROM_DIR, 0);
+    add_builtin_game_entries();
 
     prime_game_metadata();
     apply_launcher_filter();
@@ -2265,11 +2308,25 @@ static enum plugin_status launch_selected_game(void)
 
     entry = &launcher.entries[launcher.selected];
     save_launcher_state(entry->rom_path);
+    if (is_plugin_entry(entry->rom_path))
+        return rb->plugin_open(entry->rom_path, NULL);
+
     if (is_nes_rom(entry->rom_path))
         return rb->plugin_open(INFONES_PLUGIN_PATH, entry->rom_path);
 
     rb->snprintf(launch_param, sizeof(launch_param), "@%s", entry->rom_path + 1);
     return rb->plugin_open(ROCKBOY_PLUGIN_PATH, launch_param);
+}
+
+static enum plugin_status launch_selected_game_setup(void)
+{
+    struct game_entry *entry = &launcher.entries[launcher.selected];
+
+    save_launcher_state(entry->rom_path);
+    if (is_doom_entry(entry->rom_path))
+        return rb->plugin_open(PLUGIN_GAMES_DIR "/doom.rock", "--setup");
+
+    return launcher_context_menu();
 }
 
 static enum plugin_status handle_select_press(void)
@@ -2283,7 +2340,7 @@ static enum plugin_status handle_select_press(void)
         {
             case PLA_SELECT_REPEAT:
             {
-                enum plugin_status status = launcher_context_menu();
+                enum plugin_status status = launch_selected_game_setup();
                 if (status == PLUGIN_USB_CONNECTED)
                     return status;
                 return PLUGIN_OK;
@@ -2339,6 +2396,9 @@ static enum plugin_status launcher_context_menu(void)
     int selection = 0;
     int result;
     int previous_mode;
+#if CONFIG_KEYPAD == IPOD_4G_PAD && defined(IPOD_VIDEO)
+    bool changed = false;
+#endif
 
     static const struct opt_items sort_modes[] = {
         { "Title (A-Z)", -1 },

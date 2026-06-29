@@ -193,7 +193,7 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
 .plt.sec
  *(.plt.sec)
 
-.text           0x0000000000001070     0x4e0d
+.text           0x0000000000001070     0x4e9a
  *(.text.unlikely .text.*_unlikely .text.unlikely.*)
  *(.text.exit .text.exit.*)
  *(.text.startup .text.startup.*)
@@ -274,20 +274,20 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
                 0x0000000000005cf0                process_metadata
                 0x0000000000005d4e                copy_metadata
                 0x0000000000005e36                free_metadata
- .text          0x0000000000005e3d       0x40 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(gcc-support.o)
+ .text          0x0000000000005e3d       0xcd /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(gcc-support.o)
                 0x0000000000005e3d                memcpy
-                0x0000000000005e4d                memset
-                0x0000000000005e5d                memmove
-                0x0000000000005e6d                memcmp
- .text          0x0000000000005e7d        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtendS.o
- .text          0x0000000000005e7d        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
+                0x0000000000005e68                memset
+                0x0000000000005e91                memmove
+                0x0000000000005ed1                memcmp
+ .text          0x0000000000005f0a        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtendS.o
+ .text          0x0000000000005f0a        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
  *(.gnu.warning)
 
-.fini           0x0000000000005e80        0xd
+.fini           0x0000000000005f0c        0xd
  *(SORT_NONE(.fini))
- .fini          0x0000000000005e80        0x8 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
-                0x0000000000005e80                _fini
- .fini          0x0000000000005e88        0x5 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
+ .fini          0x0000000000005f0c        0x8 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
+                0x0000000000005f0c                _fini
+ .fini          0x0000000000005f14        0x5 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
                 [!provide]                        PROVIDE (__etext = .)
                 [!provide]                        PROVIDE (_etext = .)
                 [!provide]                        PROVIDE (etext = .)
@@ -660,7 +660,7 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000    0x1e5d2
+.debug_info     0x0000000000000000    0x1e631
  *(.debug_info .gnu.linkonce.wi.*)
  .debug_info    0x0000000000000000     0x8924 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/wav2wv.o
  .debug_info    0x0000000000008924     0x7ca7 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
@@ -671,9 +671,9 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
  .debug_info    0x0000000000014b4d     0x1450 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libwavpack.a(words.o)
  .debug_info    0x0000000000015f9d      0x599 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libwavpack.a(float.o)
  .debug_info    0x0000000000016536      0xa24 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libwavpack.a(metadata.o)
- .debug_info    0x0000000000016f5a     0x7678 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(gcc-support.o)
+ .debug_info    0x0000000000016f5a     0x76d7 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(gcc-support.o)
 
-.debug_abbrev   0x0000000000000000     0x218f
+.debug_abbrev   0x0000000000000000     0x21a6
  *(.debug_abbrev)
  .debug_abbrev  0x0000000000000000      0x481 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/wav2wv.o
  .debug_abbrev  0x0000000000000481      0x442 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
@@ -684,9 +684,9 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
  .debug_abbrev  0x000000000000172d      0x3d9 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libwavpack.a(words.o)
  .debug_abbrev  0x0000000000001b06      0x165 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libwavpack.a(float.o)
  .debug_abbrev  0x0000000000001c6b      0x214 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libwavpack.a(metadata.o)
- .debug_abbrev  0x0000000000001e7f      0x310 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(gcc-support.o)
+ .debug_abbrev  0x0000000000001e7f      0x327 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(gcc-support.o)
 
-.debug_line     0x0000000000000000     0x512f
+.debug_line     0x0000000000000000     0x5204
  *(.debug_line .debug_line.* .debug_line_end)
  .debug_line    0x0000000000000000      0x6fb /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/wav2wv.o
  .debug_line    0x00000000000006fb      0x2bd /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
@@ -697,7 +697,7 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
  .debug_line    0x0000000000003893     0x122b /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libwavpack.a(words.o)
  .debug_line    0x0000000000004abe      0x116 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libwavpack.a(float.o)
  .debug_line    0x0000000000004bd4      0x370 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libwavpack.a(metadata.o)
- .debug_line    0x0000000000004f44      0x1eb /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(gcc-support.o)
+ .debug_line    0x0000000000004f44      0x2c0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(gcc-support.o)
 
 .debug_frame
  *(.debug_frame)
@@ -787,7 +787,7 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
                                         0x632 (size before relaxing)
 
 .debug_loclists
-                0x0000000000000000     0x3f7f
+                0x0000000000000000     0x4048
  *(.debug_loclists)
  .debug_loclists
                 0x0000000000000000      0x7c7 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/wav2wv.o
@@ -808,7 +808,7 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
  .debug_loclists
                 0x0000000000003ada      0x3c1 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libwavpack.a(metadata.o)
  .debug_loclists
-                0x0000000000003e9b       0xe4 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(gcc-support.o)
+                0x0000000000003e9b      0x1ad /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(gcc-support.o)
 
 .debug_macro
  *(.debug_macro)
