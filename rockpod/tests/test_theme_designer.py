@@ -318,7 +318,7 @@ def test_lockscreen_clock_skin_color_adds_alpha_when_translucent(tmp_dir):
     assert service._lockscreen_clock_skin_color(clock) == "123ABC40"
 
 
-def test_lockscreen_clock_glass_writes_asset_next_to_sbs_skin(tmp_dir):
+def test_lockscreen_clock_glass_styles_live_text_without_panel(tmp_dir):
     wallpaper = os.path.join(tmp_dir, "wallpaper.bmp")
     Image.new("RGB", (320, 240), "#225577").save(wallpaper, "BMP")
     skin_dir = os.path.join(tmp_dir, "wps")
@@ -351,13 +351,15 @@ def test_lockscreen_clock_glass_writes_asset_next_to_sbs_skin(tmp_dir):
     service._apply_lockscreen_clock_overrides(sbs, variant)
 
     glass = os.path.join(skin_dir, "iPoneD-glass-test", "LockClockGlassGenerated.bmp")
-    assert os.path.isfile(glass)
+    assert not os.path.exists(glass)
     with open(sbs, "r", encoding="utf-8") as handle:
         content = handle.read()
-    assert "%xl(LockClockGlassGenerated,LockClockGlassGenerated.bmp)" in content
-    assert "%Vd(LockClockGlass)%Vd(iPoneLockscreen)" in content
+    assert "LockClockGlassGenerated" not in content
+    assert "%Vd(LockClockGlass)%Vd(iPoneLockscreen)" not in content
     assert "iPoneClockGlassShadow" in content
     assert "iPoneClockGlassShine" in content
+    assert content.index("iPoneClockGlassShadow") < content.index("%Vf(FFFFFF80)%ac%cl:%cM %cP")
+    assert content.index("%Vf(FFFFFF80)%ac%cl:%cM %cP") < content.index("iPoneClockGlassShine")
     assert "%Vf(FFFFFF80)%ac%cl:%cM %cP" in content
 
 

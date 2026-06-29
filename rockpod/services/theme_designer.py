@@ -2194,28 +2194,9 @@ class ThemeDesignerService:
 
         content = self._ensure_font_slot(content, 10, clock["font_rel"])
         is_sbs = os.path.basename(path).lower().endswith(".sbs")
-        clock_style = clock.get("style", "solid")
-        glass_strength = clock.get("glass_strength", "off")
-        wallpaper_source = str(
-            variant.get("_staged_lockscreen_wallpaper_source")
-            or variant.get("wallpaper_source")
-            or ""
-        ).strip()
-        glass_available = bool(wallpaper_source and os.path.isfile(wallpaper_source))
-        use_glass = glass_available and (clock_style.startswith("glass") or (clock_style == "outline" and glass_strength != "off"))
+        use_glass = False
 
         if is_sbs:
-            if use_glass:
-                skin_asset_dir = os.path.join(
-                    os.path.dirname(path),
-                    os.path.splitext(os.path.basename(path))[0],
-                )
-                glass_dest = os.path.join(skin_asset_dir, "LockClockGlassGenerated.bmp")
-                try:
-                    ThemeDesignerService._render_clock_glass(wallpaper_source, glass_dest, clock)
-                except (OSError, ValueError) as exc:
-                    logging.warning("Glass rendering failed, falling back: %s", exc)
-                    use_glass = False
             content = self._replace_lockscreen_clock_block(
                 content,
                 "iPoneLockscreen",
@@ -2366,6 +2347,7 @@ class ThemeDesignerService:
 
         time_parts = []
         style = clock.get("style", "solid")
+        glass_shine_line = ""
         if use_glass:
             glass_y = max(0, y - 4)
             glass_height = min(240 - glass_y, effective_height + 8)
@@ -2373,8 +2355,11 @@ class ThemeDesignerService:
                 f"%Vl(LockClockGlass,{x},{glass_y},{width_text},{glass_height},-)%xd(LockClockGlassGenerated)"
             )
         if style.startswith("glass"):
-            shadow_color = self._skin_color_with_opacity("000000", 42, force_alpha=True)
-            shine_color = self._skin_color_with_opacity("FFFFFF", 38, force_alpha=True)
+            strength = clock.get("glass_strength", "high")
+            shadow_alpha = {"low": 28, "medium": 36, "high": 46}.get(strength, 46)
+            shine_alpha = {"low": 24, "medium": 34, "high": 46}.get(strength, 46)
+            shadow_color = self._skin_color_with_opacity("000000", shadow_alpha, force_alpha=True)
+            shine_color = self._skin_color_with_opacity("FFFFFF", shine_alpha, force_alpha=True)
             shadow_x = min(319, max(0, x + 1))
             shadow_y = min(239, max(0, y + 2))
             shine_y = max(0, y - 1)
@@ -2382,7 +2367,7 @@ class ThemeDesignerService:
                 f"%Vl(iPoneClockGlassShadow,{shadow_x},{shadow_y},{width_text},{effective_height},{time_font})"
                 f"%Vf({shadow_color}){align}%cl:%cM %cP"
             )
-            time_parts.append(
+            glass_shine_line = (
                 f"%Vl(iPoneClockGlassShine,{x},{shine_y},{width_text},{effective_height},{time_font})"
                 f"%Vf({shine_color}){align}%cl:%cM %cP"
             )
@@ -2397,6 +2382,8 @@ class ThemeDesignerService:
         time_parts.append(
             f"%Vl({viewport_name},{x},{y},{width_text},{effective_height},{time_font})%Vf({color}){align}%cl:%cM %cP"
         )
+        if glass_shine_line:
+            time_parts.append(glass_shine_line)
         time_line = "\n".join(time_parts)
 
         date_parts = []
