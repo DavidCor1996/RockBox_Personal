@@ -229,7 +229,7 @@ get_child(OFFSETTYPE(struct skin_element**) children, int child)
     return SKINOFFSETTOPTR(skin_buffer, kids[child]);
 }
 
-#ifdef HAVE_LCD_COLOR
+#if defined(HAVE_LCD_COLOR) && defined(DISABLE_ALPHA_BITMAP)
 static unsigned skin_alpha_blend(unsigned fg, unsigned bg, unsigned char alpha)
 {
     unsigned inv_alpha = 255 - alpha;
@@ -254,6 +254,15 @@ static void skin_write_line(struct screen *display,
 #ifdef HAVE_LCD_COLOR
     if (display->depth >= 16 && skin_vp->fg_alpha < 0xff)
     {
+#ifndef DISABLE_ALPHA_BITMAP
+        unsigned saved_fg = display->get_foreground();
+        display->set_foreground(skin_vp->vp.fg_pattern);
+        lcd_set_alpha_bitmap_opacity(skin_vp->fg_alpha);
+        write_line(display, align, line, scroll, line_desc);
+        lcd_set_alpha_bitmap_opacity(255);
+        display->set_foreground(saved_fg);
+        return;
+#else
         unsigned saved_fg = display->get_foreground();
         unsigned blended = skin_alpha_blend(skin_vp->vp.fg_pattern,
                                             skin_vp->vp.bg_pattern,
@@ -262,6 +271,7 @@ static void skin_write_line(struct screen *display,
         write_line(display, align, line, scroll, line_desc);
         display->set_foreground(saved_fg);
         return;
+#endif
     }
 #endif
     write_line(display, align, line, scroll, line_desc);

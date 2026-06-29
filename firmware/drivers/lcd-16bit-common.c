@@ -382,6 +382,13 @@ void lcd_mono_bitmap(const unsigned char *src, int x, int y, int width, int heig
 #define ALPHA_WORDSIZE          sizeof(ALPHA_WORD_T)
 #define ALPHA_PIXELS_PER_WORD   (ALPHA_WORDSIZE * CHAR_BIT / ALPHA_BPP)
 
+static unsigned char lcd_alpha_bitmap_opacity = 255;
+
+void lcd_set_alpha_bitmap_opacity(unsigned char opacity)
+{
+    lcd_alpha_bitmap_opacity = opacity;
+}
+
 #ifdef CPU_ARM
 #define BLEND_INIT do {} while (0)
 #define BLEND_FINISH do {} while(0)
@@ -434,6 +441,16 @@ static inline unsigned blend_two_colors(unsigned c1, unsigned c2, unsigned a)
 #endif
 }
 
+static inline unsigned alpha_with_opacity(unsigned a)
+{
+    if (lcd_alpha_bitmap_opacity >= 255)
+        return a;
+
+    unsigned coverage = ALPHA_MASK - a;
+    coverage = (coverage * lcd_alpha_bitmap_opacity + 127) / 255;
+    return ALPHA_MASK - coverage;
+}
+
 static void ICODE_ATTR lcd_alpha_bitmap_part_mix(
     const fb_data* image, const unsigned char *alpha,
     int src_x, int src_y,
@@ -448,7 +465,7 @@ static void ICODE_ATTR lcd_alpha_bitmap_part_mix(
     ALPHA_WORD_T alpha_data, *alpha_word;
     size_t alpha_offset = 0, alpha_pixels;
 #else
-    unsigned char alpha_data;
+    unsigned char alpha_data = 0;
     size_t alpha_pixels;
 #endif
 
@@ -591,7 +608,7 @@ static void ICODE_ATTR lcd_alpha_bitmap_part_mix(
         {
             do
             {
-                *dst = blend_two_colors(*dst, ~(*dst), READ_ALPHA());
+                *dst = blend_two_colors(*dst, ~(*dst), alpha_with_opacity(READ_ALPHA()));
                 dst += COL_INC;
             } while (--col);
             break;
@@ -601,7 +618,7 @@ static void ICODE_ATTR lcd_alpha_bitmap_part_mix(
             bo = lcd_backdrop_offset;
             do
             {
-                *dst = blend_two_colors(*PTR_ADD(dst, bo), *dst, READ_ALPHA());
+                *dst = blend_two_colors(*PTR_ADD(dst, bo), *dst, alpha_with_opacity(READ_ALPHA()));
                 dst += COL_INC;
             } while (--col);
             break;
@@ -611,7 +628,7 @@ static void ICODE_ATTR lcd_alpha_bitmap_part_mix(
             /*bg == vp->bg_pattern*/
             do
             {
-                *dst = blend_two_colors(bg, *dst, READ_ALPHA());
+                *dst = blend_two_colors(bg, *dst, alpha_with_opacity(READ_ALPHA()));
                 dst += COL_INC;
             } while (--col);
             break;
@@ -621,7 +638,7 @@ static void ICODE_ATTR lcd_alpha_bitmap_part_mix(
             io = image - dst;
             do
             {
-                *dst = blend_two_colors(*dst, *(dst + io), READ_ALPHA());
+                *dst = blend_two_colors(*dst, *(dst + io), alpha_with_opacity(READ_ALPHA()));
                 dst += COL_INC;
             } while (--col);
             break;
@@ -631,7 +648,7 @@ static void ICODE_ATTR lcd_alpha_bitmap_part_mix(
             /*fg == vp->fg_pattern*/
             do
             {
-                *dst = blend_two_colors(*dst, fg, READ_ALPHA());
+                *dst = blend_two_colors(*dst, fg, alpha_with_opacity(READ_ALPHA()));
                 dst += COL_INC;
             } while (--col);
             break;
@@ -642,7 +659,7 @@ static void ICODE_ATTR lcd_alpha_bitmap_part_mix(
             bo = lcd_backdrop_offset;
             do
             {
-                *dst = blend_two_colors(*PTR_ADD(dst, bo), fg, READ_ALPHA());
+                *dst = blend_two_colors(*PTR_ADD(dst, bo), fg, alpha_with_opacity(READ_ALPHA()));
                 dst += COL_INC;
             } while (--col);
             break;
@@ -653,7 +670,7 @@ static void ICODE_ATTR lcd_alpha_bitmap_part_mix(
             io = image - dst;
             do
             {
-                *dst = blend_two_colors(bg, *(dst + io), READ_ALPHA());
+                *dst = blend_two_colors(bg, *(dst + io), alpha_with_opacity(READ_ALPHA()));
                 dst += COL_INC;
             } while (--col);
             break;
@@ -664,7 +681,7 @@ static void ICODE_ATTR lcd_alpha_bitmap_part_mix(
             io = image - dst;
             do
             {
-                *dst = blend_two_colors(*PTR_ADD(dst, bo), *(dst + io), READ_ALPHA());
+                *dst = blend_two_colors(*PTR_ADD(dst, bo), *(dst + io), alpha_with_opacity(READ_ALPHA()));
                 dst += COL_INC;
             } while (--col);
             break;
@@ -675,7 +692,7 @@ static void ICODE_ATTR lcd_alpha_bitmap_part_mix(
             /*bg == vp->bg_pattern*/
             do
             {
-                *dst = blend_two_colors(bg, fg, READ_ALPHA());
+                *dst = blend_two_colors(bg, fg, alpha_with_opacity(READ_ALPHA()));
                 dst += COL_INC;
             } while (--col);
             break;

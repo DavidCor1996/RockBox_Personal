@@ -285,12 +285,12 @@ def test_lockscreen_clock_opacity_exports_alpha_skin_colors(tmp_dir):
     assert "%Vl(iPoneLockscreen,0,102,-,18,6)%Vf(FFFFFF80)%ac" in updated
 
 
-def test_lockscreen_clock_opacity_at_100_exports_raw_color(tmp_dir):
+def test_lockscreen_clock_opacity_at_100_exports_raw_color_for_solid_clock(tmp_dir):
     wallpaper = os.path.join(tmp_dir, "black.bmp")
     Image.new("RGB", (320, 240), "#000000").save(wallpaper, "BMP")
     service = ThemeDesignerService()
     content = "%Vl(iPoneLockscreen,0,32,-,55,10)%Vf(123456)%ac%cl:%cM %cP\n"
-    clock = service._normalize_lockscreen_clock({"color": "ABCDEF", "opacity": 100})
+    clock = service._normalize_lockscreen_clock({"color": "ABCDEF", "opacity": 100, "style": "solid"})
     variant = {
         "screen_resolution": "320x240",
         "fit_mode": "fill",
@@ -309,6 +309,16 @@ def test_lockscreen_clock_opacity_at_100_exports_raw_color(tmp_dir):
     )
 
     assert "%Vf(ABCDEF)%ac%cl:%cM %cP" in updated
+
+
+def test_lockscreen_clock_glass_high_caps_render_opacity():
+    service = ThemeDesignerService()
+    clock = service._normalize_lockscreen_clock(
+        {"color": "ABCDEF", "opacity": 100, "style": "glass", "glass_strength": "high"}
+    )
+
+    assert service._lockscreen_clock_render_opacity(clock) == 52
+    assert service._lockscreen_clock_skin_color(clock) == "ABCDEF85"
 
 
 def test_lockscreen_clock_skin_color_adds_alpha_when_translucent(tmp_dir):
@@ -359,7 +369,7 @@ def test_lockscreen_clock_glass_styles_live_text_without_panel(tmp_dir):
     assert "iPoneClockGlassShadow" in content
     assert "iPoneClockGlassShine" in content
     assert content.index("iPoneClockGlassShadow") < content.index("%Vf(FFFFFF80)%ac%cl:%cM %cP")
-    assert content.index("%Vf(FFFFFF80)%ac%cl:%cM %cP") < content.index("iPoneClockGlassShine")
+    assert content.index("iPoneClockGlassShine") < content.index("%Vf(FFFFFF80)%ac%cl:%cM %cP")
     assert "%Vf(FFFFFF80)%ac%cl:%cM %cP" in content
 
 

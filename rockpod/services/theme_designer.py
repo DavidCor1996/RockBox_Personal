@@ -2347,6 +2347,7 @@ class ThemeDesignerService:
 
         time_parts = []
         style = clock.get("style", "solid")
+        glass_shadow_line = ""
         glass_shine_line = ""
         if use_glass:
             glass_y = max(0, y - 4)
@@ -2363,7 +2364,7 @@ class ThemeDesignerService:
             shadow_x = min(319, max(0, x + 1))
             shadow_y = min(239, max(0, y + 2))
             shine_y = max(0, y - 1)
-            time_parts.append(
+            glass_shadow_line = (
                 f"%Vl(iPoneClockGlassShadow,{shadow_x},{shadow_y},{width_text},{effective_height},{time_font})"
                 f"%Vf({shadow_color}){align}%cl:%cM %cP"
             )
@@ -2379,11 +2380,13 @@ class ThemeDesignerService:
                 f"%Vl(iPoneClockShadow,{shadow_x},{shadow_y},{width_text},{effective_height},{time_font})"
                 f"%Vf({outline_color}){align}%cl:%cM %cP"
             )
+        if glass_shadow_line:
+            time_parts.append(glass_shadow_line)
+        if glass_shine_line:
+            time_parts.append(glass_shine_line)
         time_parts.append(
             f"%Vl({viewport_name},{x},{y},{width_text},{effective_height},{time_font})%Vf({color}){align}%cl:%cM %cP"
         )
-        if glass_shine_line:
-            time_parts.append(glass_shine_line)
         time_line = "\n".join(time_parts)
 
         date_parts = []
@@ -2413,8 +2416,17 @@ class ThemeDesignerService:
 
     def _lockscreen_clock_skin_color(self, clock):
         color = _ensure_hex(clock.get("color"), DEFAULT_LOCKSCREEN_CLOCK["color"])
-        opacity = self._int_between(clock.get("opacity"), 20, 100, DEFAULT_LOCKSCREEN_CLOCK["opacity"])
+        opacity = self._lockscreen_clock_render_opacity(clock)
         return self._skin_color_with_opacity(color, opacity)
+
+    def _lockscreen_clock_render_opacity(self, clock):
+        opacity = self._int_between(clock.get("opacity"), 20, 100, DEFAULT_LOCKSCREEN_CLOCK["opacity"])
+        style = str(clock.get("style") or "").lower()
+        if style.startswith("glass"):
+            strength = str(clock.get("glass_strength") or "high").lower()
+            cap = {"low": 76, "medium": 64, "high": 52}.get(strength, 52)
+            opacity = min(opacity, cap)
+        return opacity
 
     def _skin_color_with_opacity(self, color, opacity, force_alpha=False):
         color = _ensure_hex(color, DEFAULT_LOCKSCREEN_CLOCK["color"])
