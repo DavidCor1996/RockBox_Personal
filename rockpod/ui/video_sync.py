@@ -22,6 +22,7 @@ class VideoSyncPanel(QWidget):
 
     preview_requested = Signal(set)
     sync_requested = Signal(set)
+    force_repair_requested = Signal(set)
     remove_requested = Signal(set)
     delete_requested = Signal(set)
     refresh_requested = Signal()
@@ -71,6 +72,7 @@ class VideoSyncPanel(QWidget):
         self._delete_btn = QPushButton("Delete Local Files")
         self._preview_btn = QPushButton("Preview Sync")
         self._sync_btn = QPushButton("Sync Selected")
+        self._repair_btn = QPushButton("Repair Selected")
         for button in (
             self._refresh_btn,
             self._select_missing_btn,
@@ -80,7 +82,7 @@ class VideoSyncPanel(QWidget):
             button.setObjectName("store_nav_button")
             action_layout.addWidget(button)
         action_layout.addStretch(1)
-        for button in (self._preview_btn, self._sync_btn):
+        for button in (self._preview_btn, self._sync_btn, self._repair_btn):
             button.setObjectName("store_buy_button")
             action_layout.addWidget(button)
         for button in (self._remove_btn, self._delete_btn):
@@ -106,6 +108,7 @@ class VideoSyncPanel(QWidget):
         self._clear_btn.clicked.connect(self.clear_selection)
         self._preview_btn.clicked.connect(lambda: self.preview_requested.emit(self.selected_track_ids()))
         self._sync_btn.clicked.connect(lambda: self.sync_requested.emit(self.selected_track_ids()))
+        self._repair_btn.clicked.connect(lambda: self.force_repair_requested.emit(self.selected_track_ids()))
         self._remove_btn.clicked.connect(lambda: self.remove_requested.emit(self.selected_track_ids()))
         self._delete_btn.clicked.connect(lambda: self.delete_requested.emit(self.selected_track_ids()))
 
@@ -183,6 +186,7 @@ class VideoSyncPanel(QWidget):
         )
         self._preview_btn.setEnabled(selected > 0)
         self._sync_btn.setEnabled(selected > 0)
+        self._repair_btn.setEnabled(selected > 0)
         selected_videos = self.selected_videos()
         self._remove_btn.setEnabled(any(video.get("synced_to_device") for video in selected_videos))
         self._delete_btn.setEnabled(selected > 0)

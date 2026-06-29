@@ -26,6 +26,7 @@ from services.sync_engine import (
     build_device_path,
     _sanitize_filename,
 )
+from services.video_rvp import VideoRvpTranscoder
 
 
 # ---------------------------------------------------------------------------
@@ -328,6 +329,72 @@ class TestBuildDevicePath:
         )
         assert result == os.path.join("Videos", "Downloaded", "downloaded.mpg")
 
+    def test_show_video_rows_use_show_and_season_folder(self):
+        row = {
+            "title": "Lord of the Nerds",
+            "file_path": "/videos/YouTube/Disney's Recess - Lord Of the Nerds.mpg",
+            "media_type": "video",
+            "video_kind": "show",
+            "show_title": "Recess",
+            "season_number": 3,
+            "episode_number": 37,
+            "sync_output_ext": ".rvp",
+        }
+        result = build_device_path(
+            row,
+            "Music/{album_artist}/{album}",
+            "{track_number:02d} - {title}{ext}",
+        )
+        assert result == os.path.join(
+            "Videos",
+            "TV Shows",
+            "Recess",
+            "Season 03",
+            "S03E37 - Lord of the Nerds.rvp",
+        )
+
+    def test_show_video_rows_with_imdb_alias_fields_still_use_tv_folders(self):
+        row = {
+            "title": "Episode 3",
+            "file_path": "/videos/6teen.S02E03.mkv",
+            "media_type": "video",
+            "video_kind": "TV",
+            "type": "series",
+            "series": "6teen",
+            "season": "Season 2",
+            "episode": "3",
+        }
+        result = build_device_path(
+            row,
+            "Music/{album_artist}/{album}",
+            "{track_number:02d} - {title}{ext}",
+        )
+        assert result == os.path.join(
+            "Videos",
+            "TV Shows",
+            "6teen",
+            "Season 02",
+            "S02E03 - Episode 3.mkv",
+        )
+
+    def test_normalize_video_row_for_sync_maps_imdb_series_aliases(self):
+        row = {
+            "title": "Pilot",
+            "file_path": "/videos/kenny.vs.spenny/s2e1.mp4",
+            "media_type": "video",
+            "type": "tv",
+            "series": "Kenny vs. Spenny",
+            "season_number": "2",
+            "episode_number": "1",
+            "video_kind": "",
+        }
+        normalized = SyncEngine._normalize_video_row_for_sync(row)
+        assert normalized["video_kind"] == "show"
+        assert normalized["show_title"] == "Kenny vs. Spenny"
+        assert normalized["album"] == "Season 2"
+        assert normalized["artist"] == "Kenny vs. Spenny"
+        assert normalized["album_artist"] == "Kenny vs. Spenny"
+
 
 # ===========================================================================
 # Tests: SyncPlan
@@ -549,6 +616,59 @@ class TestSyncWorkerRun:
             assert handle.read() == b"transcoded-mp3-data"
         with open(src, "rb") as handle:
             assert handle.read() != b"transcoded-mp3-data"
+
+    def test_copies_video_rvp_bundle_with_device_basename(self, env):
+        source_video = _make_source_file(env, "Videos", "Src", "Clip", ext=".mp4", size=128)
+        cache_dir = os.path.join(env["tmp"], "cache", "device_video_rvp", "mock")
+        os.makedirs(cache_dir, exist_ok=True)
+        marker = os.path.join(cache_dir, "cache-name.rvp")
+        yuv = os.path.join(cache_dir, "cache-name.yuv")
+        pcm = os.path.join(cache_dir, "cache-name.pcm")
+        with open(marker, "w", encoding="utf-8") as handle:
+            handle.write(VideoRvpTranscoder.marker_text("cache-name.rvp"))
+        with open(yuv, "wb") as handle:
+            handle.write(b"yuv-data")
+        with open(pcm, "wb") as handle:
+            handle.write(b"pcm-data")
+
+        rel_path = os.path.join("Videos", "Downloaded", "Clip.rvp")
+        row = {
+            "id": 303,
+            "file_path": source_video,
+            "sync_source_path": marker,
+            "sync_output_ext": ".rvp",
+            "sync_video_bundle_paths": {"rvp": marker, "yuv": yuv, "pcm": pcm},
+            "sync_video_bundle_sizes": {"rvp": os.path.getsize(marker), "yuv": 8, "pcm": 8},
+            "title": "Clip",
+            "media_type": "video",
+            "metadata_hash": "mh_video",
+            "file_hash": "fh_video",
+        }
+
+        plan = SyncPlan()
+        plan.to_copy.append((row, rel_path))
+        stale_mpg = os.path.join(env["device_path"], "Videos", "Downloaded", "Clip.mpg")
+        stale_seg = os.path.join(env["device_path"], "Videos", "Downloaded", "Clip.seg01.yuv")
+        os.makedirs(os.path.dirname(stale_mpg), exist_ok=True)
+        with open(stale_mpg, "wb") as handle:
+            handle.write(b"legacy-mpeg")
+        with open(stale_seg, "wb") as handle:
+            handle.write(b"stale-segment")
+        worker = SyncWorker(plan, env["device_path"], env["config"].db_path)
+        worker.run()
+
+        dest = os.path.join(env["device_path"], rel_path)
+        assert os.path.isfile(dest)
+        assert os.path.isfile(os.path.splitext(dest)[0] + ".yuv")
+        assert os.path.isfile(os.path.splitext(dest)[0] + ".pcm")
+        assert not os.path.exists(stale_mpg)
+        assert not os.path.exists(stale_seg)
+        with open(dest, "r", encoding="utf-8") as handle:
+            marker_text = handle.read()
+        assert "video=Clip.yuv" in marker_text
+        assert "audio=Clip.pcm" in marker_text
+        with open(os.path.splitext(dest)[0] + ".yuv", "rb") as handle:
+            assert handle.read() == b"yuv-data"
 
     def test_resync_replaces_old_file(self, env):
         src = _make_source_file(env, "Art", "Alb", "Updated", size=4096)
@@ -1262,6 +1382,84 @@ class TestSyncEnginePlan:
                          for r, _, _ in plan.to_resync]
         assert "Changed" in resync_titles
 
+    def test_plan_resync_video_bundle_when_marker_or_settings_changed(self, env, monkeypatch):
+        src = _make_source_file(env, "Show Artist", "Show Album", "Episode", ext=".mp4", size=2048)
+        local_track = _insert_track(
+            env["db"],
+            "Episode",
+            "Show Artist",
+            "Show Album",
+            file_path=src,
+            media_type="video",
+            video_kind="show",
+            video_sync_category="TV Shows",
+            metadata_hash="video_meta",
+            file_hash="bundle_hash",
+        )
+
+        env["config"].set("resync_metadata_changes", False)
+        engine = self._make_engine(env)
+        device_key = engine.set_current_device(engine._device_detector.current_device)
+        rel_path = os.path.join("Videos", "TV Shows", "Episode.rvp")
+        device_mark_path = os.path.join(env["device_path"], rel_path)
+        os.makedirs(os.path.dirname(device_mark_path), exist_ok=True)
+        marker = os.path.basename(device_mark_path)
+        with open(device_mark_path, "w", encoding="utf-8") as handle:
+            handle.write(VideoRvpTranscoder.marker_text(marker, width=320, height=240, fps=20, sample_rate=44100))
+        with open(os.path.join(env["device_path"], "Videos", "TV Shows", "Episode.yuv"), "wb") as handle:
+            handle.write(b"\x00" * 6)
+        with open(os.path.join(env["device_path"], "Videos", "TV Shows", "Episode.pcm"), "wb") as handle:
+            handle.write(b"\x01" * 4)
+        _insert_device_track(
+            env["db"],
+            "Episode",
+            "Show Artist",
+            "Show Album",
+            rel_path,
+            device_id=device_key,
+            local_track_id=local_track["id"],
+            metadata_hash="video_meta",
+            file_hash="bundle_hash",
+            file_size=10,
+        )
+
+        base = os.path.join(env["tmp"], "cache", "device_video_rvp", device_key)
+        os.makedirs(base, exist_ok=True)
+        local_bundle = os.path.join(base, "Episode.rvp")
+
+        def fake_prepare(track_row, device_id):
+            prepared = dict(track_row)
+            prepared["sync_source_path"] = local_bundle
+            prepared["sync_output_ext"] = ".rvp"
+            prepared["sync_transcoded"] = True
+            prepared["sync_video_bundle_paths"] = {
+                "rvp": local_bundle,
+                "yuv": os.path.splitext(local_bundle)[0] + ".yuv",
+                "pcm": os.path.splitext(local_bundle)[0] + ".pcm",
+            }
+            prepared["sync_video_bundle_sizes"] = {"rvp": 512, "yuv": 6, "pcm": 4}
+            prepared["sync_video_width"] = 256
+            prepared["sync_video_height"] = 144
+            prepared["sync_video_fps"] = 20
+            prepared["sync_video_sample_rate"] = 44100
+            prepared["sync_video_profile"] = "compact"
+            prepared["sync_video_segments"] = []
+            prepared["file_size"] = 522
+            prepared["file_hash"] = "bundle_hash"
+            prepared["metadata_hash"] = "video_meta"
+            prepared["codec"] = "RVP"
+            return prepared, {"converted": True, "cache_path": local_bundle, "reason": "rvp_video"}
+
+        monkeypatch.setattr(engine._video_transcoder, "prepare_track_for_sync", fake_prepare)
+
+        plan = engine.build_sync_plan()
+
+        assert len(plan.to_resync) == 1
+        resync_row = dict(plan.to_resync[0][0])
+        assert resync_row["title"] == "Episode"
+        assert resync_row["sync_output_ext"] == ".rvp"
+        assert plan.to_resync[0][1] == rel_path
+
     def test_plan_reason_counts_include_update_breakdown(self, env, monkeypatch):
         src = _make_source_file(env, "Art", "Alb", "Changed", ext=".flac")
         local = _insert_track(
@@ -1612,7 +1810,7 @@ class TestSyncEnginePlan:
 
         assert plan.copy_count + plan.resync_count == 2
 
-    def test_plan_selected_video_ids_uses_video_rows_and_exports_list_thumbnail(self, env):
+    def test_plan_selected_video_ids_uses_video_rows_and_exports_list_thumbnail(self, env, monkeypatch):
         video_dir = os.path.join(env["tmp"], "Videos", "YouTube")
         os.makedirs(video_dir, exist_ok=True)
         src = os.path.join(video_dir, "Real Movie.mpg")
@@ -1654,6 +1852,31 @@ class TestSyncEnginePlan:
         try:
             engine = SyncEngine(env["db"], config, detector, manager)
             engine.set_current_device(device)
+
+            def fake_prepare_video(track_row, device_key):
+                prepared = dict(track_row)
+                cache_dir = os.path.join(env["tmp"], "cache", "device_video_rvp", device_key)
+                marker = os.path.join(cache_dir, "Real Movie.rvp")
+                prepared.update(
+                    {
+                        "sync_source_path": marker,
+                        "sync_output_ext": ".rvp",
+                        "sync_transcoded": True,
+                        "sync_video_bundle_paths": {
+                            "rvp": marker,
+                            "yuv": os.path.splitext(marker)[0] + ".yuv",
+                            "pcm": os.path.splitext(marker)[0] + ".pcm",
+                        },
+                        "sync_video_bundle_sizes": {"rvp": 128, "yuv": 2048, "pcm": 1024},
+                        "file_size": 3200,
+                        "file_hash": "rvp_file",
+                        "metadata_hash": "rvp_meta",
+                        "codec": "RVP",
+                    }
+                )
+                return prepared, {"converted": True, "cache_path": marker, "reason": "rvp_video"}
+
+            monkeypatch.setattr(engine._video_transcoder, "prepare_track_for_sync", fake_prepare_video)
             _insert_device_track(
                 env["db"],
                 "Duped",
@@ -1679,10 +1902,12 @@ class TestSyncEnginePlan:
             manager.shutdown()
 
         assert plan.copy_count == 1
+        assert plan.transcode_count == 1
         assert plan.to_delete == []
         planned_row, rel_path = plan.to_copy[0]
         assert planned_row["title"] == "Real Movie"
-        assert rel_path == os.path.join("Videos", "Downloaded", "Real Movie.mpg")
+        assert planned_row["sync_output_ext"] == ".rvp"
+        assert rel_path == os.path.join("Videos", "Downloaded", "Real Movie.rvp")
 
         artwork_paths = {item[1] for item in plan.artwork_to_copy}
         assert os.path.join(ALBUM_LIST_DEVICE_DIR, "index.tsv") not in artwork_paths
@@ -1803,6 +2028,190 @@ class TestScanDevice:
         assert plan.plan_profile["local_fetch_seconds"] >= 0.0
         assert plan.plan_profile["device_fetch_seconds"] >= 0.0
         assert plan.plan_profile["artwork_generation_seconds"] >= 0.0
+
+
+class TestSyncCacheCleanup:
+    def _make_engine(self, env):
+        config = env["config"]
+        db = env["db"]
+        detector = DeviceDetector(config)
+        device = DeviceInfo(env["device_path"])
+        device.name = "Test iPod"
+        device.is_rockbox = True
+        detector._current_device = device
+        engine = SyncEngine(db, config, detector)
+        engine.set_current_device(device)
+        return engine
+
+    def test_cleanup_local_sync_cache_keeps_current_device_cache(self, env):
+        config = env["config"]
+        config.set("convert_audio_for_device", True)
+        config.set("audio_conversion_codec", "mp3")
+        config.set("audio_conversion_mode", "unsupported_or_lossless")
+
+        engine = self._make_engine(env)
+
+        audio_src = _make_source_file(env, "Artist A", "Album A", "Sync Audio", ext=".flac", size=1024)
+        video_src = _make_source_file(env, "Artist V", "Album V", "Sync Video", ext=".mp4", size=128)
+        audio_track = _insert_track(
+            env["db"],
+            "Sync Audio",
+            "Artist A",
+            "Album A",
+            file_path=audio_src,
+            media_type="audio",
+            codec="flac",
+            bitrate=1411,
+            metadata_hash="audio-meta",
+            file_hash="audio-file",
+        )
+        video_track = _insert_track(
+            env["db"],
+            "Sync Video",
+            "Artist V",
+            "Album V",
+            file_path=video_src,
+            media_type="video",
+            codec="mp4",
+            video_kind="movie",
+            metadata_hash="video-meta",
+            file_hash="video-file",
+        )
+        _insert_device_track(
+            env["db"],
+            "Sync Audio",
+            "Artist A",
+            "Album A",
+            os.path.join("Music", "Artist A", "Album A", "01 - Sync Audio.mp3"),
+            device_id=engine.current_device_key,
+            local_track_id=audio_track["id"],
+            metadata_hash="audio-meta",
+        )
+        _insert_device_track(
+            env["db"],
+            "Sync Video",
+            "Artist V",
+            "Album V",
+            os.path.join("Videos", "Downloaded", "Sync Video.rvp"),
+            device_id=engine.current_device_key,
+            local_track_id=video_track["id"],
+            metadata_hash="video-meta",
+        )
+
+        settings = engine._audio_conversion_settings()
+        audio_cache_path = engine._audio_transcoder._cache_path(
+            audio_src,
+            dict(audio_track),
+            engine.current_device_key,
+            engine._audio_transcoder._normalize_codec(settings.get("target_codec")),
+            engine._audio_transcoder._normalize_bitrate(settings.get("target_bitrate_kbps")),
+        )
+        os.makedirs(os.path.dirname(audio_cache_path), exist_ok=True)
+        with open(audio_cache_path, "wb") as handle:
+            handle.write(b"audio-rvp")
+
+        video_marker = engine._video_transcoder._cache_marker_path(video_src, dict(video_track), engine.current_device_key)
+        video_base = os.path.splitext(video_marker)[0]
+        os.makedirs(os.path.dirname(video_marker), exist_ok=True)
+        with open(video_marker, "w", encoding="utf-8") as handle:
+            handle.write(VideoRvpTranscoder.marker_text(os.path.basename(video_marker)))
+        with open(video_base + ".yuv", "wb") as handle:
+            handle.write(b"yuv")
+        with open(video_base + ".pcm", "wb") as handle:
+            handle.write(b"pcm")
+
+        stale_audio = os.path.join(env["tmp"], "cache", "device_transcodes", engine.current_device_key, "stale-old.mp3")
+        stale_video = os.path.join(env["tmp"], "cache", "device_video_rvp", engine.current_device_key, "stale-old.rvp")
+        stale_other_device = os.path.join(
+            env["tmp"],
+            "cache",
+            "device_transcodes",
+            "other-device",
+            "other-device-old.mp3",
+        )
+        os.makedirs(os.path.dirname(stale_audio), exist_ok=True)
+        os.makedirs(os.path.dirname(stale_video), exist_ok=True)
+        with open(stale_audio, "wb") as handle:
+            handle.write(b"stale-audio")
+        with open(stale_video, "wb") as handle:
+            handle.write(b"stale-video")
+        os.makedirs(os.path.dirname(stale_other_device), exist_ok=True)
+        with open(stale_other_device, "wb") as handle:
+            handle.write(b"other-device-audio")
+
+        result = engine.cleanup_local_sync_cache(device_key=engine.current_device_key)
+
+        assert os.path.isfile(audio_cache_path)
+        assert os.path.isfile(video_marker)
+        assert os.path.isfile(video_base + ".yuv")
+        assert os.path.isfile(video_base + ".pcm")
+        assert not os.path.exists(stale_audio)
+        assert not os.path.exists(stale_video)
+        assert os.path.isfile(stale_other_device)
+        assert result["kept"]["audio"] == 1
+        assert result["kept"]["video"] == 3
+        assert set(result["removed"]) == {stale_audio, stale_video}
+
+    def test_cleanup_segmented_video_cache_keeps_only_needed_segments(self, env):
+        engine = self._make_engine(env)
+
+        video_src = _make_source_file(env, "Artist V", "Album V", "Segment Video", ext=".mp4", size=128)
+        video_track = _insert_track(
+            env["db"],
+            "Segment Video",
+            "Artist V",
+            "Album V",
+            file_path=video_src,
+            media_type="video",
+            codec="mp4",
+            video_kind="movie",
+            metadata_hash="segment-meta",
+            file_hash="segment-file",
+        )
+        _insert_device_track(
+            env["db"],
+            "Segment Video",
+            "Artist V",
+            "Album V",
+            os.path.join("Videos", "Downloaded", "Segment Video.rvp"),
+            device_id=engine.current_device_key,
+            local_track_id=video_track["id"],
+            metadata_hash="segment-meta",
+        )
+
+        video_marker = engine._video_transcoder._cache_marker_path(video_src, dict(video_track), engine.current_device_key)
+        marker_base = os.path.splitext(video_marker)[0]
+        os.makedirs(os.path.dirname(video_marker), exist_ok=True)
+        with open(video_marker, "w", encoding="utf-8") as handle:
+            handle.write(
+                VideoRvpTranscoder.segmented_marker_text(
+                    [("segment.seg01.yuv", "segment.seg01.pcm")],
+                    width=320,
+                    height=240,
+                )
+            )
+        base_video = marker_base + ".yuv"
+        base_audio = marker_base + ".pcm"
+        segment_video = os.path.join(os.path.dirname(marker_base), "segment.seg01.yuv")
+        segment_audio = os.path.join(os.path.dirname(marker_base), "segment.seg01.pcm")
+        with open(base_video, "wb") as handle:
+            handle.write(b"stale yuv")
+        with open(base_audio, "wb") as handle:
+            handle.write(b"stale pcm")
+        with open(segment_video, "wb") as handle:
+            handle.write(b"seg yuv")
+        with open(segment_audio, "wb") as handle:
+            handle.write(b"seg pcm")
+
+        result = engine.cleanup_local_sync_cache(device_key=engine.current_device_key)
+
+        assert os.path.isfile(video_marker)
+        assert os.path.isfile(segment_video)
+        assert os.path.isfile(segment_audio)
+        assert not os.path.exists(base_video)
+        assert not os.path.exists(base_audio)
+        assert set(result["removed"]).isdisjoint({video_marker, segment_video, segment_audio})
+
 
 
 # ===========================================================================

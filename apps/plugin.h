@@ -181,7 +181,7 @@ int plugin_open(const char *plugin, const char *parameter);
  * when this happens please take the opportunity to sort in
  * any new functions "waiting" at the end of the list.
  */
-#define PLUGIN_API_VERSION 280
+#define PLUGIN_API_VERSION 281
 
 /* 239 Marks the removal of ARCHOS HWCODEC and CHARCELL */
 
@@ -806,6 +806,10 @@ struct plugin_api {
     unsigned int (*mixer_get_frequency)(void);
     void (*pcmbuf_fade)(bool fade, bool in);
     void (*pcmbuf_set_low_latency)(bool state);
+#if defined(HAVE_CS42L55) && !defined(SIMULATOR)
+    void (*audiohw_idle_powerup)(void);
+    void (*audiohw_idle_powerdown)(void);
+#endif
     void (*system_sound_play)(enum system_sound sound);
     void (*keyclick_click)(bool rawbutton, int action);
 

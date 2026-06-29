@@ -29,6 +29,7 @@ from services.smart_playlists import evaluate_playlist
 from services.track_matcher import TrackMatcher
 from services.device_inventory import device_music_roots, device_record_from_info, verify_device_inventory
 from services.video_thumbnails import VideoThumbnailService
+from services.video_rvp import VideoRvpTranscoder
 from services.rockbox_wps_art import wps_album_art_sizes_for_config
 
 logger = logging.getLogger(__name__)
@@ -42,6 +43,8 @@ VIDEO_LIST_DEVICE_DIR = os.path.join(".rockbox", "videolist")
 VIDEO_LIST_THUMB_DEVICE_DIR = os.path.join(VIDEO_LIST_DEVICE_DIR, "thumbs")
 SYNC_TEMP_SUFFIX = ".rockpod_tmp"
 MAX_AUTO_DUPLICATE_DELETE_COUNT = 50
+AUDIO_TRANSCODE_CACHE_EXTENSIONS = {".mp3", ".m4a"}
+VIDEO_SYNC_CACHE_EXTENSIONS = {".rvp", ".yuv", ".pcm", ".tmp"}
 MANIFEST_ARTWORK_RELPATHS = {
     os.path.join(ALBUM_LIST_DEVICE_DIR, "index.tsv"),
     os.path.join(VIDEO_LIST_DEVICE_DIR, "index.tsv"),
@@ -147,25 +150,47 @@ def _dedupe_group_key(row):
     return None
 
 
+def _video_episode_label(row):
+    item = dict(row) if hasattr(row, "keys") else dict(row or {})
+    title = _sanitize_filename(item.get("title") or Path(str(item.get("file_path") or "")).stem or "Episode")
+    title = title.rstrip(" ._-") or "Episode"
+    season = _to_video_int(item.get("season_number") or 0) or 0
+    episode = _to_video_int(item.get("episode_number") or item.get("track_number") or 0) or 0
+    if season > 0 and episode > 0:
+        return f"S{season:02d}E{episode:02d} - {title}"
+    if episode > 0:
+        return f"{episode:02d} - {title}"
+    return title
+
+
 def build_device_path(track_row, dir_template, file_template):
     """Build the target path on the device for a track.
 
     Returns a relative path like 'Music/Artist/Album/01 - Title.mp3'
     """
     d = dict(track_row) if hasattr(track_row, "keys") else track_row
+    if str(d.get("media_type") or "audio").lower() == "video":
+        d = _normalize_video_show_fields(d)
+        normalized_kind = _normalize_video_kind_value(d.get("video_kind"))
+        if normalized_kind:
+            d["video_kind"] = normalized_kind
 
     ext = d.get("sync_output_ext") or Path(d.get("file_path", "")).suffix or ".mp3"
     tn = d.get("track_number")
     dn = d.get("disc_number", 1) or 1
     media_type = str(d.get("media_type") or "audio").lower()
     source_path = str(d.get("file_path") or "")
+    source_ext = Path(source_path).suffix.lower()
     album_artist = _sanitize_filename(d.get("album_artist") or d.get("artist") or "Unknown Artist")
     album = _sanitize_filename(d.get("album") or "Unknown Album")
     title = _sanitize_filename(d.get("title") or "Unknown")
+    show_title_raw = str(d.get("show_title") or "").strip()
+    show_title = _sanitize_filename(show_title_raw) if show_title_raw else ""
+    season_number = _to_video_int(d.get("season_number") or 0) or 0
     source_parts = [part.casefold() for part in Path(source_path).parts]
     is_downloaded_video = (
         media_type == "video"
-        and ext.lower() in {".mpg", ".mpeg", ".mpe"}
+        and source_ext in {".mpg", ".mpeg", ".mpe"}
         and "youtube" in source_parts
     )
     if media_type == "video" and _is_generic_downloaded_video_title(title):
@@ -180,12 +205,21 @@ def build_device_path(track_row, dir_template, file_template):
         "home_video": "Home Videos",
     }.get(str(d.get("video_kind") or "movie"), "Movies")
     video_sync_category = str(d.get("video_sync_category") or "").strip()
-    if is_downloaded_video:
+    if is_downloaded_video and not show_title:
         video_sync_category = video_sync_category or "Downloaded"
     if video_sync_category:
         video_kind_label = video_sync_category
 
     if media_type == "video" and str(dir_template or "").startswith("Music/"):
+        if _normalize_video_kind_value(d.get("video_kind")) == "show" and show_title:
+            season_label = "Specials" if season_number == 0 else f"Season {season_number:02d}"
+            return os.path.join(
+                "Videos",
+                "TV Shows",
+                show_title,
+                _sanitize_filename(season_label),
+                f"{_video_episode_label(d)}{ext}",
+            )
         dir_template = "Videos/{video_kind}"
         file_template = "{title}{ext}"
 
@@ -230,6 +264,215 @@ def _is_generic_downloaded_video_title(title):
     }
 
 
+def _to_video_int(value):
+    """Coerce common episode/season-style metadata values into an integer."""
+    if value is None:
+        return None
+    if isinstance(value, bool):
+        return int(value)
+    if isinstance(value, (int, float)):
+        try:
+            return int(value)
+        except (TypeError, ValueError):
+            return None
+    text = str(value).strip()
+    if not text:
+        return None
+    match = re.search(r"\d+", text)
+    if not match:
+        return None
+    try:
+        return int(match.group(0))
+    except (TypeError, ValueError):
+        return None
+
+
+def _normalize_video_kind_value(value):
+    """Normalize mixed-case/legacy video-kind values to canonical forms."""
+    text = str(value or "").strip().lower().replace("-", " ").replace("_", " ")
+    text = re.sub(r"\s+", " ", text)
+    if not text:
+        return ""
+    if re.search(r"\b(tv\s*show|tvseries|tvshow|series|show|episode|tv)\b", text):
+        return "show"
+    if re.search(r"\b(home video|home videos|home_video|homevideo|camcorder|family|personal)\b", text):
+        return "home_video"
+    if re.search(r"\b(movie|film)\b", text):
+        return "movie"
+    return text
+
+
+def _pick_first_field(row, keys):
+    for key in keys:
+        value = row.get(key)
+        if value is None:
+            continue
+        text = str(value).strip()
+        if text:
+            return text
+    return ""
+
+
+def _normalize_video_show_fields(row):
+    if not isinstance(row, dict):
+        return row
+
+    normalized = dict(row)
+    kind = _normalize_video_kind_value(
+        normalized.get("video_kind") or normalized.get("type") or normalized.get("kind")
+    )
+    if kind:
+        normalized["video_kind"] = kind
+
+    if not normalized.get("show_title"):
+        normalized["show_title"] = _pick_first_field(
+            normalized,
+            [
+                "show_title",
+                "show",
+                "show_name",
+                "series_name",
+                "tv_show",
+                "series",
+                "tvshow",
+                "tv series",
+            ],
+        )
+
+    if not normalized.get("season_number"):
+        parsed = _to_video_int(
+            _pick_first_field(
+                normalized,
+                [
+                    "season_number",
+                    "season",
+                    "season_num",
+                    "tv_season",
+                    "tvseason",
+                    "season_number_text",
+                    "series_num",
+                    "series_number",
+                ],
+            )
+        )
+        if parsed is not None:
+            normalized["season_number"] = parsed
+
+    if not normalized.get("episode_number"):
+        parsed = _to_video_int(
+            _pick_first_field(
+                normalized,
+                [
+                    "episode_number",
+                    "episode",
+                    "episode_num",
+                    "tv_episode",
+                    "ep",
+                    "ep_number",
+                    "episode_number_text",
+                    "episode_id",
+                    "episodeid",
+                ],
+            )
+        )
+        if parsed is not None:
+            normalized["episode_number"] = parsed
+
+    if (not normalized.get("track_number")) and normalized.get("episode_number") is not None:
+        normalized["track_number"] = normalized.get("episode_number")
+
+    if (
+        normalized.get("artist") == ""
+        and normalized.get("album_artist") == ""
+        and normalized.get("show_title")
+    ):
+        normalized["artist"] = normalized["show_title"]
+        normalized["album_artist"] = normalized["show_title"]
+
+    inferred_season = _to_video_int(normalized.get("season_number"))
+    inferred_episode = _to_video_int(normalized.get("episode_number"))
+    if normalized.get("show_title") and (
+        kind == "show" or inferred_season is not None or inferred_episode is not None
+    ):
+        normalized["video_kind"] = "show"
+
+    return normalized
+
+
+_VIDEO_EPISODE_OVERRIDES = {
+    "disney's recess - lord of the nerds": {
+        "show_title": "Recess",
+        "title": "Lord of the Nerds",
+        "season_number": 3,
+        "episode_number": 37,
+    },
+    "recess - lord of the nerds": {
+        "show_title": "Recess",
+        "title": "Lord of the Nerds",
+        "season_number": 3,
+        "episode_number": 37,
+    },
+    "lord of the nerds": {
+        "show_title": "Recess",
+        "title": "Lord of the Nerds",
+        "season_number": 3,
+        "episode_number": 37,
+    },
+    "who can stay homeless the longest - kenny vs spenny (hd)": {
+        "show_title": "Kenny vs. Spenny",
+        "title": "Who Can Stay Homeless the Longest?",
+        "season_number": 1,
+        "episode_number": 22,
+    },
+    "who can stay homeless the longest_ - kenny vs. spenny (hd)": {
+        "show_title": "Kenny vs. Spenny",
+        "title": "Who Can Stay Homeless the Longest?",
+        "season_number": 1,
+        "episode_number": 22,
+    },
+    "who can stay homeless the longest": {
+        "show_title": "Kenny vs. Spenny",
+        "title": "Who Can Stay Homeless the Longest?",
+        "season_number": 1,
+        "episode_number": 22,
+    },
+}
+
+
+def _video_override_key(value):
+    text = Path(str(value or "")).stem
+    text = text.replace("_", " ")
+    text = re.sub(r"\s+", " ", text).strip().casefold()
+    text = text.replace("?", "")
+    return text
+
+
+def _apply_video_episode_overrides(row):
+    item = dict(row) if hasattr(row, "keys") else dict(row or {})
+    if str(item.get("media_type") or "audio").lower() != "video":
+        return item
+    candidates = [
+        item.get("title"),
+        Path(str(item.get("file_path") or "")).stem,
+    ]
+    for value in candidates:
+        override = _VIDEO_EPISODE_OVERRIDES.get(_video_override_key(value))
+        if not override:
+            continue
+        item.update(override)
+        item["artist"] = item.get("artist") or override["show_title"]
+        item["album_artist"] = item.get("album_artist") or override["show_title"]
+        item["album"] = item.get("album") or (
+            "Specials" if int(override.get("season_number") or 0) == 0
+            else f"Season {int(override.get('season_number') or 0)}"
+        )
+        item["track_number"] = item.get("track_number") or override.get("episode_number")
+        item["video_kind"] = "show"
+        item["video_sync_category"] = ""
+        return item
+    return item
+
+
 def _device_cache_title(row):
     title = str(row.get("title") or "").strip()
     file_path = str(row.get("file_path") or "")
@@ -254,6 +497,92 @@ def _remove_audio_with_sidecars(path):
     targets.append(base + ".lrc")
 
     for target in targets:
+        if os.path.exists(target):
+            os.remove(target)
+            removed.append(target)
+    return removed
+
+
+def _is_video_bundle_row(row):
+    item = dict(row) if hasattr(row, "keys") else dict(row or {})
+    return (
+        str(item.get("media_type") or "audio").lower() == "video"
+        and str(item.get("sync_output_ext") or "").lower() == ".rvp"
+        and bool(item.get("sync_video_bundle_paths"))
+    )
+
+
+def _remove_media_with_sidecars(path):
+    """Remove a synced media file plus the sidecars RockPod owns for that format."""
+    base, ext = os.path.splitext(path)
+    if ext.lower() == ".rvp":
+        removed = []
+        targets = [path, base + ".yuv", base + ".pcm"]
+        parent = os.path.dirname(path) or "."
+        prefix = os.path.basename(base) + ".seg"
+        try:
+            for name in os.listdir(parent):
+                if name.startswith(prefix) and name.lower().endswith((".yuv", ".pcm")):
+                    targets.append(os.path.join(parent, name))
+        except OSError:
+            pass
+        for target in targets:
+            if os.path.exists(target):
+                os.remove(target)
+                removed.append(target)
+        return removed
+    return _remove_audio_with_sidecars(path)
+
+
+def _current_video_bundle_dest_paths(row, dest):
+    item = dict(row) if hasattr(row, "keys") else dict(row or {})
+    base, _ext = os.path.splitext(dest)
+    paths = {dest}
+    segments = list(item.get("sync_video_segments") or [])
+    if segments:
+        for index, _segment in enumerate(segments, start=1):
+            paths.add(f"{base}.seg{index:02d}.yuv")
+            paths.add(f"{base}.seg{index:02d}.pcm")
+    else:
+        paths.add(base + ".yuv")
+        paths.add(base + ".pcm")
+    return paths
+
+
+def _remove_stale_converted_video_outputs(row, dest):
+    """Remove old source-format files and obsolete RVP sidecars after conversion."""
+    if not _is_video_bundle_row(row):
+        return []
+
+    base, ext = os.path.splitext(dest)
+    if ext.lower() != ".rvp":
+        return []
+
+    removed = []
+    targets = []
+    source_ext = Path(str(dict(row).get("file_path") or "")).suffix.lower()
+    legacy_exts = [source_ext] if source_ext in VIDEO_EXTENSIONS else []
+    for candidate_ext in (".mpg", ".mpeg", ".mpe", ".mp4", ".m4v", ".mov", ".mkv", ".avi", ".webm"):
+        if candidate_ext not in legacy_exts:
+            legacy_exts.append(candidate_ext)
+    targets.extend(base + candidate_ext for candidate_ext in legacy_exts)
+
+    keep_paths = _current_video_bundle_dest_paths(row, dest)
+    parent = os.path.dirname(dest) or "."
+    prefix = os.path.basename(base) + ".seg"
+    targets.extend([base + ".yuv", base + ".pcm"])
+    try:
+        for name in os.listdir(parent):
+            if name.startswith(prefix) and name.lower().endswith((".yuv", ".pcm")):
+                targets.append(os.path.join(parent, name))
+    except OSError:
+        pass
+
+    seen = set()
+    for target in targets:
+        if target in seen or target in keep_paths:
+            continue
+        seen.add(target)
         if os.path.exists(target):
             os.remove(target)
             removed.append(target)
@@ -324,6 +653,14 @@ def _sync_source_path(row):
 
 def _sync_row_transfer_size(row):
     item = dict(row) if hasattr(row, "keys") else dict(row or {})
+    if _is_video_bundle_row(item):
+        sizes = item.get("sync_video_bundle_sizes") or {}
+        try:
+            total = sum(int(value or 0) for value in sizes.values())
+            if total > 0:
+                return total
+        except (TypeError, ValueError):
+            pass
     source_path = _sync_source_path(item)
     if source_path:
         try:
@@ -339,10 +676,98 @@ def _sync_row_transfer_size(row):
 def _device_file_matches_sync_source(row, device_path):
     if not os.path.isfile(device_path):
         return False
+    if _is_video_bundle_row(row):
+        base, _ext = os.path.splitext(device_path)
+        sizes = dict((dict(row).get("sync_video_bundle_sizes") or {}))
+        segments = list((dict(row).get("sync_video_segments") or []))
+        if segments:
+            required = {"rvp": device_path}
+            for index, _segment in enumerate(segments, start=1):
+                required[f"seg{index:02d}_yuv"] = f"{base}.seg{index:02d}.yuv"
+                required[f"seg{index:02d}_pcm"] = f"{base}.seg{index:02d}.pcm"
+        else:
+            required = {
+                "rvp": device_path,
+                "yuv": base + ".yuv",
+                "pcm": base + ".pcm",
+            }
+        for key, path in required.items():
+            if not os.path.isfile(path):
+                return False
+            expected = int(sizes.get(key) or 0)
+            if expected > 0 and os.path.getsize(path) != expected:
+                return False
+        return True
     try:
         return os.path.getsize(device_path) == _sync_row_transfer_size(row)
     except OSError:
         return False
+
+
+def _video_bundle_file_is_current(row, device_path):
+    """Validate a prepared RVP bundle against the on-device marker + sidecar state."""
+    if not _is_video_bundle_row(row):
+        return _device_file_matches_sync_source(row, device_path)
+
+    if not _device_file_matches_sync_source(row, device_path):
+        return False
+
+    marker_path = device_path
+    marker_meta = VideoRvpTranscoder._read_marker_meta(marker_path)
+    if not marker_meta:
+        return False
+
+    expected_width = _coerce_int(row.get("sync_video_width"), 0)
+    if expected_width > 0 and expected_width != _coerce_int(marker_meta.get("width"), 0):
+        return False
+
+    expected_height = _coerce_int(row.get("sync_video_height"), 0)
+    if expected_height > 0 and expected_height != _coerce_int(marker_meta.get("height"), 0):
+        return False
+
+    expected_fps = _coerce_int(row.get("sync_video_fps"), 0)
+    if expected_fps > 0 and expected_fps != _coerce_int(marker_meta.get("fps"), 0):
+        return False
+
+    expected_rate = _coerce_int(row.get("sync_video_sample_rate"), 0)
+    if expected_rate > 0 and expected_rate != _coerce_int(marker_meta.get("sample_rate"), 0):
+        return False
+
+    expected_segments = list((dict(row).get("sync_video_segments") or []))
+    marker_segments = _coerce_int(marker_meta.get("segments"), 0)
+    if not expected_segments and marker_segments > 0:
+        return False
+
+    base = os.path.splitext(os.path.basename(marker_path))[0]
+    if expected_segments:
+        if marker_segments != len(expected_segments):
+            return False
+        for index in range(1, len(expected_segments) + 1):
+            if marker_meta.get(f"segment{index}_video") != f"{base}.seg{index:02d}.yuv":
+                return False
+            if marker_meta.get(f"segment{index}_audio") != f"{base}.seg{index:02d}.pcm":
+                return False
+    else:
+        if marker_meta.get("video") != f"{base}.yuv":
+            return False
+        if marker_meta.get("audio") != f"{base}.pcm":
+            return False
+
+    marker_width = _coerce_int(marker_meta.get("width"), 0)
+    marker_height = _coerce_int(marker_meta.get("height"), 0)
+    marker_fps = _coerce_int(marker_meta.get("fps"), 0)
+    if marker_width < 320 or marker_height < 240 or marker_fps < 20:
+        return False
+
+    return True
+
+
+def _coerce_int(value, default=0):
+    try:
+        value_int = int(value)
+    except (TypeError, ValueError):
+        return default
+    return value_int
 
 
 class SyncPlan:
@@ -465,7 +890,7 @@ class SyncWorker(QObject):
                 self.progress.emit(i + 1, total, desc)
 
                 copy_started = time.perf_counter()
-                ok, copy_stats = self._copy_file(src, dest, created_dirs)
+                ok, copy_stats = self._copy_track_media(row, src, dest, created_dirs)
                 stage_times["track_copy_seconds"] += time.perf_counter() - copy_started
                 stage_times["local_file_read_seconds"] += copy_stats.get("read_seconds", 0.0)
                 stage_times["device_write_seconds"] += copy_stats.get("write_seconds", 0.0)
@@ -476,7 +901,10 @@ class SyncWorker(QObject):
                 if ok:
                     copied += 1
                     self.file_copied.emit(src, dest)
-                    self._sync_lyrics_sidecar(row, dest, created_dirs)
+                    if not _is_video_bundle_row(row):
+                        self._sync_lyrics_sidecar(row, dest, created_dirs)
+                    else:
+                        self._remove_stale_converted_video_outputs(row, dest)
                     tid = row.get("id")
                     if tid:
                         mh = row.get("metadata_hash", "")
@@ -499,7 +927,7 @@ class SyncWorker(QObject):
 
                 dest = os.path.join(self._device_mount, new_rel_path)
                 copy_started = time.perf_counter()
-                ok, copy_stats = self._copy_file(src, dest, created_dirs)
+                ok, copy_stats = self._copy_track_media(row, src, dest, created_dirs)
                 stage_times["track_copy_seconds"] += time.perf_counter() - copy_started
                 stage_times["local_file_read_seconds"] += copy_stats.get("read_seconds", 0.0)
                 stage_times["device_write_seconds"] += copy_stats.get("write_seconds", 0.0)
@@ -510,11 +938,14 @@ class SyncWorker(QObject):
                 if ok:
                     copied += 1
                     self.file_copied.emit(src, dest)
-                    self._sync_lyrics_sidecar(row, dest, created_dirs)
+                    if not _is_video_bundle_row(row):
+                        self._sync_lyrics_sidecar(row, dest, created_dirs)
+                    else:
+                        self._remove_stale_converted_video_outputs(row, dest)
                     if old_dev_path and old_dev_path != new_rel_path:
                         old_full = os.path.join(self._device_mount, old_dev_path)
                         try:
-                            removed = _remove_audio_with_sidecars(old_full)
+                            removed = _remove_media_with_sidecars(old_full)
                             if removed:
                                 logger.debug("Removed old device file(s): %s", ", ".join(removed))
                         except OSError as e:
@@ -567,7 +998,7 @@ class SyncWorker(QObject):
                 self.progress.emit(delete_offset + i + 1, total, desc)
                 dest = os.path.join(self._device_mount, rel_path)
                 try:
-                    removed = _remove_audio_with_sidecars(dest)
+                    removed = _remove_media_with_sidecars(dest)
                     if removed:
                         logger.debug("Removed duplicate device file(s): %s", ", ".join(removed))
                 except OSError as exc:
@@ -700,6 +1131,155 @@ class SyncWorker(QObject):
             logger.error("Failed to copy %s -> %s: %s", src, dest, e)
             return False, stats
 
+    def _copy_track_media(self, row, src, dest, created_dirs=None):
+        if not _is_video_bundle_row(row):
+            return self._copy_file(src, dest, created_dirs)
+
+        stats = self._empty_copy_stats()
+        bundle = dict(row.get("sync_video_bundle_paths") or {})
+        segments = list(row.get("sync_video_segments") or [])
+        source_yuv = bundle.get("yuv")
+        source_pcm = bundle.get("pcm")
+        if not segments and (not source_yuv or not source_pcm):
+            self.file_error.emit(src, "RVP video bundle is missing sidecar paths")
+            return False, stats
+
+        base, _ext = os.path.splitext(dest)
+        copied_paths = []
+        copy_pairs = []
+        if segments:
+            for index, segment in enumerate(segments, start=1):
+                copy_pairs.append((segment.get("yuv"), f"{base}.seg{index:02d}.yuv"))
+                copy_pairs.append((segment.get("pcm"), f"{base}.seg{index:02d}.pcm"))
+        else:
+            copy_pairs = [(source_yuv, base + ".yuv"), (source_pcm, base + ".pcm")]
+
+        for source_path, dest_path in copy_pairs:
+            if not source_path:
+                self.file_error.emit(src, "RVP video segment is missing a source sidecar")
+                self._remove_partial_video_bundle(dest, copied_paths)
+                return False, stats
+            ok, copy_stats = self._copy_file(source_path, dest_path, created_dirs)
+            self._add_copy_stats(stats, copy_stats)
+            if not ok:
+                self._remove_partial_video_bundle(dest, copied_paths)
+                return False, stats
+            copied_paths.append(dest_path)
+
+        ok, marker_stats = self._write_rvp_marker(dest, row, created_dirs)
+        self._add_copy_stats(stats, marker_stats)
+        if not ok:
+            self._remove_partial_video_bundle(dest, copied_paths)
+            return False, stats
+        return True, stats
+
+    @staticmethod
+    def _empty_copy_stats():
+        return {
+            "read_seconds": 0.0,
+            "write_seconds": 0.0,
+            "mkdir_seconds": 0.0,
+            "open_seconds": 0.0,
+            "flush_sync_seconds": 0.0,
+            "replace_seconds": 0.0,
+        }
+
+    @staticmethod
+    def _add_copy_stats(target, source):
+        for key in target:
+            target[key] += float((source or {}).get(key, 0.0) or 0.0)
+
+    def _write_rvp_marker(self, dest, row=None, created_dirs=None):
+        stats = self._empty_copy_stats()
+        try:
+            from services.video_rvp import VideoRvpTranscoder
+            width = int((row or {}).get("sync_video_width", 320) or 320)
+            height = int((row or {}).get("sync_video_height", 240) or 240)
+            fps = int((row or {}).get("sync_video_fps", 20) or 20)
+            sample_rate = int((row or {}).get("sync_video_sample_rate", 44100) or 44100)
+
+            dest_dir = os.path.dirname(dest)
+            if created_dirs is not None:
+                if dest_dir not in created_dirs:
+                    t_mkdir = time.perf_counter()
+                    os.makedirs(dest_dir, exist_ok=True)
+                    stats["mkdir_seconds"] += time.perf_counter() - t_mkdir
+                    created_dirs.add(dest_dir)
+            else:
+                t_mkdir = time.perf_counter()
+                os.makedirs(dest_dir, exist_ok=True)
+                stats["mkdir_seconds"] += time.perf_counter() - t_mkdir
+
+            tmp = dest + SYNC_TEMP_SUFFIX
+            t_open = time.perf_counter()
+            with open(tmp, "w", encoding="utf-8", newline="\n") as handle:
+                stats["open_seconds"] += time.perf_counter() - t_open
+                t_write = time.perf_counter()
+                segments = list((row or {}).get("sync_video_segments") or [])
+                if segments:
+                    base = os.path.splitext(os.path.basename(dest))[0]
+                    parts = [
+                        (f"{base}.seg{index:02d}.yuv", f"{base}.seg{index:02d}.pcm")
+                        for index, _segment in enumerate(segments, start=1)
+                    ]
+                    handle.write(
+                        VideoRvpTranscoder.segmented_marker_text(
+                            parts,
+                            width=width,
+                            height=height,
+                            fps=fps,
+                            sample_rate=sample_rate,
+                        )
+                    )
+                else:
+                    handle.write(
+                        VideoRvpTranscoder.marker_text(
+                            os.path.basename(dest),
+                            width=width,
+                            height=height,
+                            fps=fps,
+                            sample_rate=sample_rate,
+                        )
+                    )
+                stats["write_seconds"] += time.perf_counter() - t_write
+                t_flush = time.perf_counter()
+                handle.flush()
+                sync_fn = os.fsync if LEGACY_COPY_MODE or not hasattr(os, "fdatasync") else os.fdatasync
+                sync_fn(handle.fileno())
+                stats["flush_sync_seconds"] += time.perf_counter() - t_flush
+            t_replace = time.perf_counter()
+            os.replace(tmp, dest)
+            stats["replace_seconds"] += time.perf_counter() - t_replace
+            return True, stats
+        except Exception as exc:
+            tmp = dest + SYNC_TEMP_SUFFIX
+            if os.path.exists(tmp):
+                try:
+                    os.remove(tmp)
+                except OSError:
+                    pass
+            self.file_error.emit(dest, str(exc))
+            logger.error("Failed to write RVP marker %s: %s", dest, exc)
+            return False, stats
+
+    @staticmethod
+    def _remove_partial_video_bundle(dest, copied_paths):
+        for path in list(copied_paths) + [dest, dest + SYNC_TEMP_SUFFIX]:
+            if os.path.exists(path):
+                try:
+                    os.remove(path)
+                except OSError:
+                    pass
+
+    @staticmethod
+    def _remove_stale_converted_video_outputs(row, dest):
+        try:
+            removed = _remove_stale_converted_video_outputs(row, dest)
+            if removed:
+                logger.debug("Removed stale converted video output(s): %s", ", ".join(removed))
+        except OSError as exc:
+            logger.warning("Could not remove stale converted video outputs for %s: %s", dest, exc)
+
     def _sync_lyrics_sidecar(self, track_row, audio_dest, created_dirs=None):
         """Mirror a local .lrc sidecar to the device next to the synced audio file."""
         source_sidecar = _source_lyrics_sidecar_path(track_row)
@@ -749,6 +1329,10 @@ class SyncEngine(QObject):
         )
         self._audio_transcoder = AudioSyncTranscoder(
             os.path.join(self._config.cache_dir, "device_transcodes")
+        )
+        self._video_transcoder = VideoRvpTranscoder(
+            os.path.join(self._config.cache_dir, "device_video_rvp"),
+            ffmpeg_path=self._config.get("ffmpeg_binary", ""),
         )
         self._thread = None
         self._worker = None
@@ -942,7 +1526,7 @@ class SyncEngine(QObject):
         if track_ids:
             local_tracks = self._db.get_tracks_by_ids(track_ids, media_type=None)
         else:
-            local_tracks = self._db.get_all_tracks()
+            local_tracks = self._db.get_all_tracks(media_type=None)
             playlist_track_ids = self.rockbox_playlist_track_ids()
             if playlist_track_ids:
                 existing_ids = {
@@ -960,7 +1544,7 @@ class SyncEngine(QObject):
                         media_type=None,
                     )
         stage_times["local_fetch_seconds"] = time.perf_counter() - stage_start
-        all_local_tracks = local_tracks if not track_ids else self._db.get_all_tracks()
+        all_local_tracks = local_tracks if not track_ids else self._db.get_all_tracks(media_type=None)
 
         stage_start = time.perf_counter()
         emit_status("Preparing tracks for device sync...")
@@ -983,6 +1567,7 @@ class SyncEngine(QObject):
             # Force mode: re-copy every selected local track
             for lt in local_tracks:
                 row = dict(lt)
+                row = self._normalize_video_row_for_sync(row)
                 rel_path = build_device_path(row, dir_template, file_template)
                 old_dev = row.get("device_path", "")
                 if old_dev:
@@ -1021,6 +1606,7 @@ class SyncEngine(QObject):
             # New tracks to copy
             for result in unmatched:
                 row = dict(result.local_track) if hasattr(result.local_track, "keys") else result.local_track
+                row = self._normalize_video_row_for_sync(row)
                 desired_rel_path = build_device_path(row, dir_template, file_template)
                 existing_row = device_by_path.get(desired_rel_path)
                 if (
@@ -1041,7 +1627,7 @@ class SyncEngine(QObject):
                     desired_full_path = os.path.join(device.mount_path, desired_rel_path)
                     if desired_rel_path not in used_paths and os.path.isfile(desired_full_path):
                         used_paths.add(desired_rel_path)
-                        if _device_file_matches_sync_source(row, desired_full_path):
+                        if _video_bundle_file_is_current(row, desired_full_path):
                             plan.preflight_linked.append((row, desired_rel_path))
                             continue
                         plan.to_resync.append((row, desired_rel_path, desired_rel_path))
@@ -1066,43 +1652,60 @@ class SyncEngine(QObject):
                 plan.total_bytes += row.get("file_size", 0) if isinstance(row, dict) else 0
 
             # Tracks needing resync due to metadata/content changes
-            if resync_meta:
-                for result in resync_list:
-                    row = dict(result.local_track) if hasattr(result.local_track, "keys") else result.local_track
+            resync_ids = {id(result) for result in resync_list} if resync_meta else set()
+            if not resync_meta:
+                for result in matched:
+                    local = dict(result.local_track) if hasattr(result.local_track, "keys") else result.local_track
+                    if not _is_video_bundle_row(local):
+                        continue
                     device_row = dict(result.device_track) if hasattr(result.device_track, "keys") else result.device_track
-                    old_dev = device_row.get("device_path", "") if device_row else row.get("device_path", "")
-                    rel_path = self._unique_device_path(
-                        build_device_path(row, dir_template, file_template),
-                        used_paths,
-                        allow_existing=old_dev,
-                    )
-                    used_paths.add(rel_path)
-                    plan.to_resync.append((row, old_dev, rel_path))
-                    for reason in _sync_update_reasons(
-                        row,
-                        device_row=device_row,
-                        old_dev_path=old_dev,
-                        new_rel_path=rel_path,
+                    device_rel = (device_row or {}).get("device_path", "") if isinstance(device_row, dict) else ""
+                    if not device_rel:
+                        continue
+                    if not _video_bundle_file_is_current(
+                        local,
+                        os.path.join(device.mount_path, device_rel),
                     ):
-                        _bump_reason(update_reason_counts, reason)
-                    plan.total_bytes += row.get("file_size", 0) if isinstance(row, dict) else 0
+                        resync_ids.add(id(result))
 
-            resync_ids = {id(result) for result in resync_list}
             legacy_path_resync_ids = set()
             for result in matched:
+                local = dict(result.local_track) if hasattr(result.local_track, "keys") else result.local_track
+                local = self._normalize_video_row_for_sync(local)
+                device_row = dict(result.device_track) if hasattr(result.device_track, "keys") else result.device_track
+                old_dev = (
+                    (device_row or {}).get("device_path", "")
+                    if isinstance(device_row, dict)
+                    else ""
+                ) or (local or {}).get("device_path", "")
+                expected = self._unique_device_path(
+                    build_device_path(local, dir_template, file_template),
+                    used_paths,
+                    allow_existing=old_dev,
+                )
+                if (
+                    id(result) in resync_ids
+                    and (old_dev or expected)
+                ):
+                    if old_dev != expected:
+                        used_paths.add(expected)
+                    plan.to_resync.append((local, old_dev, expected))
+                    for reason in _sync_update_reasons(
+                        local,
+                        device_row=device_row,
+                        old_dev_path=old_dev,
+                        new_rel_path=expected,
+                    ):
+                        _bump_reason(update_reason_counts, reason)
+                    if (
+                        _is_video_bundle_row(local)
+                        and old_dev
+                        and not _video_bundle_file_is_current(local, os.path.join(device.mount_path, old_dev))
+                    ):
+                        _bump_reason(update_reason_counts, "video bundle mismatch")
+                    plan.total_bytes += local.get("file_size", 0) if isinstance(local, dict) else 0
+                    continue
                 if not resync_meta:
-                    local = dict(result.local_track) if hasattr(result.local_track, "keys") else result.local_track
-                    device = dict(result.device_track) if hasattr(result.device_track, "keys") else result.device_track
-                    old_dev = (
-                        (device or {}).get("device_path", "")
-                        if isinstance(device, dict)
-                        else ""
-                    ) or (local or {}).get("device_path", "")
-                    expected = self._unique_device_path(
-                        build_device_path(local, dir_template, file_template),
-                        used_paths,
-                        allow_existing=old_dev,
-                    )
                     if (
                         old_dev
                         and expected
@@ -1114,7 +1717,7 @@ class SyncEngine(QObject):
                         plan.to_resync.append((local, old_dev, expected))
                         for reason in _sync_update_reasons(
                             local,
-                            device_row=device,
+                            device_row=device_row,
                             old_dev_path=old_dev,
                             new_rel_path=expected,
                         ):
@@ -1122,7 +1725,7 @@ class SyncEngine(QObject):
 
             plan.up_to_date = [
                 result for result in matched
-                if not (resync_meta and id(result) in resync_ids)
+                if id(result) not in resync_ids
                 and id(result) not in legacy_path_resync_ids
             ]
 
@@ -1374,17 +1977,236 @@ class SyncEngine(QObject):
             "target_bitrate_kbps": self._config_value("audio_conversion_bitrate_kbps", 160),
         }
 
+    def cleanup_local_sync_cache(self, device_key=None, dry_run=False):
+        """Remove stale local transcode/cache files, keeping only current device tracks."""
+        if device_key is None:
+            if not self._ensure_current_device_key():
+                return {
+                    "device_key": "",
+                    "audio_cache_dir": "",
+                    "video_cache_dir": "",
+                    "kept": {"audio": 0, "video": 0},
+                    "removed": [],
+                    "bytes_freed": 0,
+                    "errors": ["No current device"],
+                }
+            device_key = self._current_device_key
+
+        cache_root = getattr(self._config, "cache_dir", "") or ""
+        audio_dir = os.path.join(cache_root, "device_transcodes", str(device_key))
+        video_dir = os.path.join(cache_root, "device_video_rvp", str(device_key))
+        video_profile = self._config_value("video_sync_profile", "quality")
+        self._video_transcoder.set_profile(video_profile)
+        settings = self._audio_conversion_settings()
+        target_codec = self._audio_transcoder._normalize_codec(settings.get("target_codec", "mp3"))
+        target_bitrate = self._audio_transcoder._normalize_bitrate(settings.get("target_bitrate_kbps", 160))
+
+        device_tracks = self._db.get_all_device_tracks(device_key)
+        keep_audio = set()
+        keep_video = set()
+
+        for dt_row in device_tracks:
+            local_id = dict(dt_row).get("local_track_id")
+            if not local_id:
+                continue
+            local_track = self._db.get_track_by_id(local_id)
+            if not local_track:
+                continue
+            local_track = dict(local_track) if hasattr(local_track, "keys") else dict(local_track or {})
+            media_type = str(local_track.get("media_type") or "audio").lower()
+            if media_type == "video":
+                keep_video.update(self._collect_video_cache_paths(local_track, device_key))
+            elif media_type == "audio":
+                keep_audio.update(self._collect_audio_cache_paths(
+                    local_track,
+                    device_key,
+                    target_codec,
+                    target_bitrate,
+                    settings,
+                ))
+
+        result = {
+            "device_key": device_key,
+            "audio_cache_dir": audio_dir,
+            "video_cache_dir": video_dir,
+            "kept": {
+                "audio": len(keep_audio),
+                "video": len(keep_video),
+            },
+            "removed": [],
+            "bytes_freed": 0,
+            "errors": [],
+        }
+
+        audio_removed = self._cleanup_cache_dir(audio_dir, keep_audio, AUDIO_TRANSCODE_CACHE_EXTENSIONS, dry_run=dry_run)
+        video_removed = self._cleanup_cache_dir(
+            video_dir,
+            keep_video,
+            VIDEO_SYNC_CACHE_EXTENSIONS,
+            dry_run=dry_run,
+        )
+
+        for path, bytes_freed in audio_removed + video_removed:
+            result["removed"].append(path)
+            result["bytes_freed"] += bytes_freed
+
+        if result["removed"]:
+            logger.info(
+                "Cleaned local sync cache for %s (audio kept=%s, video kept=%s, removed=%d files)",
+                device_key,
+                result["kept"]["audio"],
+                result["kept"]["video"],
+                len(result["removed"]),
+            )
+        return result
+
+    def _collect_audio_cache_paths(self, local_track, device_key, target_codec, target_bitrate, settings):
+        item = dict(local_track) if hasattr(local_track, "keys") else dict(local_track)
+        source_path = os.path.abspath(str(item.get("file_path") or ""))
+        if not os.path.isfile(source_path):
+            return set()
+        source_ext = Path(source_path).suffix.lower()
+        should_transcode = False
+        try:
+            should_transcode = self._audio_transcoder._should_transcode(
+                item,
+                source_ext,
+                settings,
+            )
+        except Exception:
+            # Conservative fallback: if we cannot inspect the same decision path, err on the
+            # side of keeping fewer files in sync-related cache directories.
+            return set()
+        if not should_transcode:
+            return set()
+        try:
+            cache_path = self._audio_transcoder._cache_path(
+                source_path,
+                item,
+                device_key,
+                target_codec,
+                target_bitrate,
+            )
+            return {cache_path}
+        except Exception:
+            return set()
+
+    def _collect_video_cache_paths(self, local_track, device_key):
+        item = dict(local_track) if hasattr(local_track, "keys") else dict(local_track or {})
+        source_path = os.path.abspath(str(item.get("file_path") or ""))
+        if not source_path:
+            return set()
+        base_keep = set()
+        cache_root = self._video_transcoder._cache_root
+        marker_path = self._video_transcoder._cache_marker_path(source_path, item, device_key)
+        cache_dir = os.path.dirname(marker_path)
+        if not os.path.isdir(cache_root) and not os.path.isdir(cache_dir):
+            return set()
+        base_keep.add(marker_path)
+        marker_meta = {}
+        if os.path.isfile(marker_path):
+            marker_meta = self._video_transcoder._read_marker_meta(marker_path)
+        segments = self._collect_cached_video_segment_paths(marker_meta, marker_path)
+        if segments:
+            base_keep.update(segments)
+            return base_keep
+        base, _ext = os.path.splitext(marker_path)
+        base_keep.add(base + ".yuv")
+        base_keep.add(base + ".pcm")
+        base_keep.update(self._collect_existing_segment_paths(marker_path))
+        return base_keep
+
+    @staticmethod
+    def _collect_cached_video_segment_paths(marker_meta, marker_path):
+        if not marker_meta:
+            return set()
+        segment_count = 0
+        try:
+            segment_count = int(str(marker_meta.get("segments") or "0").strip())
+        except (TypeError, ValueError):
+            segment_count = 0
+
+        if segment_count <= 0:
+            return set()
+        base_dir = os.path.dirname(marker_path)
+        tracks = set()
+        for index in range(1, segment_count + 1):
+            video_name = marker_meta.get(f"segment{index}_video", "").strip()
+            audio_name = marker_meta.get(f"segment{index}_audio", "").strip()
+            if video_name:
+                tracks.add(os.path.join(base_dir, video_name))
+            if audio_name:
+                tracks.add(os.path.join(base_dir, audio_name))
+        return tracks
+
+    @staticmethod
+    def _collect_existing_segment_paths(marker_path):
+        base = os.path.splitext(os.path.basename(marker_path))[0]
+        base_dir = os.path.dirname(marker_path)
+        if not base_dir:
+            base_dir = "."
+        segment_paths = set()
+        try:
+            for name in os.listdir(base_dir):
+                if name.startswith(base + ".seg") and name.lower().endswith((".yuv", ".pcm")):
+                    segment_paths.add(os.path.join(base_dir, name))
+        except OSError:
+            return segment_paths
+        return segment_paths
+
+    @staticmethod
+    def _cleanup_cache_dir(cache_dir, keep_paths, extensions, dry_run=False):
+        if not os.path.isdir(cache_dir):
+            return []
+        removed = []
+        keep = {os.path.normpath(path) for path in keep_paths}
+
+        for root, dirs, files in os.walk(cache_dir):
+            if os.path.basename(root) == "logs":
+                continue
+            for name in files:
+                full_path = os.path.join(root, name)
+                if os.path.normpath(full_path) in keep:
+                    continue
+                _, ext = os.path.splitext(name)
+                if ext.lower() in extensions or name.lower().endswith(".rockpod_tmp"):
+                    file_size = os.path.getsize(full_path) if os.path.isfile(full_path) else 0
+                    try:
+                        if not dry_run:
+                            os.remove(full_path)
+                        removed.append((full_path, file_size))
+                    except OSError as exc:
+                        logger.debug("Could not remove stale cache file %s: %s", full_path, exc)
+        return removed
+
     def _prepare_tracks_for_sync(self, rows):
         settings = self._audio_conversion_settings()
-        if not settings["enabled"]:
-            return [dict(row) if hasattr(row, "keys") else dict(row) for row in rows], [], 0
-
+        video_profile = self._config_value("video_sync_profile", "quality")
+        self._video_transcoder.set_profile(video_profile)
         prepared = []
         errors = []
         transcode_count = 0
         for row in rows:
             item = dict(row) if hasattr(row, "keys") else dict(row)
-            if str(item.get("media_type") or "audio") != "audio":
+            media_type = str(item.get("media_type") or "audio").lower()
+            if media_type == "video":
+                item = self._normalize_video_row_for_sync(item)
+                try:
+                    sync_row, info = self._video_transcoder.prepare_track_for_sync(
+                        item,
+                        self._current_device_key or "device",
+                    )
+                except RuntimeError as exc:
+                    title = item.get("title") or os.path.basename(str(item.get("file_path") or "video"))
+                    message = f"{title}: {exc}"
+                    errors.append(message)
+                    logger.warning("Skipping video sync for %s", message)
+                    continue
+                if info.get("converted"):
+                    transcode_count += 1
+                prepared.append(sync_row)
+                continue
+            if media_type != "audio" or not settings["enabled"]:
                 prepared.append(item)
                 continue
             try:
@@ -1409,13 +2231,26 @@ class SyncEngine(QObject):
         item = dict(row) if hasattr(row, "keys") else dict(row or {})
         if str(item.get("media_type") or "audio").lower() != "video":
             return item
+        item = _normalize_video_show_fields(item)
+        item = _apply_video_episode_overrides(item)
+        item = _normalize_video_show_fields(item)
         source_path = str(item.get("file_path") or "")
         stem_title = Path(source_path).stem.strip()
         if stem_title and _is_generic_downloaded_video_title(item.get("title")):
             item["title"] = stem_title
-        if stem_title and _is_generic_downloaded_video_title(item.get("album")):
+        if stem_title and _is_generic_downloaded_video_title(item.get("album")) and not item.get("season_number"):
             item["album"] = item.get("title") or stem_title
-        if not str(item.get("video_kind") or "").strip():
+        if _normalize_video_kind_value(item.get("video_kind")) == "show" and item.get("show_title"):
+            item["video_kind"] = "show"
+            if not str(item.get("album") or "").strip() and item.get("season_number") is not None:
+                season_number = _to_video_int(item.get("season_number") or 0) or 0
+                item["album"] = "Specials" if season_number == 0 else f"Season {season_number}"
+            if not str(item.get("artist") or "").strip() and item.get("show_title"):
+                item["artist"] = item["show_title"]
+            if not str(item.get("album_artist") or "").strip() and item.get("show_title"):
+                item["album_artist"] = item["show_title"]
+            item["video_sync_category"] = ""
+        elif not str(item.get("video_kind") or "").strip():
             item["video_kind"] = "movie"
         return item
 
@@ -1945,7 +2780,7 @@ class SyncEngine(QObject):
 
         if os.path.isfile(full):
             try:
-                removed = _remove_audio_with_sidecars(full)
+                removed = _remove_media_with_sidecars(full)
                 logger.info("Deleted device file(s): %s", ", ".join(removed) if removed else full)
             except OSError as e:
                 return False, str(e)
@@ -1993,7 +2828,7 @@ class SyncEngine(QObject):
                     continue
                 full = os.path.join(device.mount_path, rel)
                 try:
-                    _remove_audio_with_sidecars(full)
+                    _remove_media_with_sidecars(full)
                     did = row.get("id")
                     if did:
                         self._db.delete_device_track(did)

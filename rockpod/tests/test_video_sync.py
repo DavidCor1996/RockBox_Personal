@@ -64,6 +64,25 @@ def test_video_sync_panel_emits_remove_and_delete_for_selected_videos():
     assert deleted == [{1, 2}]
 
 
+def test_video_sync_panel_emits_repair_for_selected_videos():
+    QApplication.instance() or QApplication([])
+    panel = VideoSyncPanel()
+    panel.set_videos(
+        [
+            {"id": 1, "title": "Repairable", "video_kind": "movie", "synced_to_device": False},
+            {"id": 2, "title": "Also Repairable", "video_kind": "movie", "synced_to_device": False},
+        ]
+    )
+    panel.select_all()
+
+    repaired = []
+    panel.force_repair_requested.connect(lambda ids: repaired.append(ids))
+
+    panel._repair_btn.click()
+
+    assert repaired == [{1, 2}]
+
+
 def test_video_sync_screen_routes_from_sidebar(config, monkeypatch):
     QApplication.instance() or QApplication([])
     monkeypatch.setattr(DeviceDetector, "start_polling", lambda self: None)

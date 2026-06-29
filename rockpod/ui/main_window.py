@@ -498,6 +498,7 @@ class MainWindow(QMainWindow):
         self._video_sync_panel.refresh_requested.connect(self._refresh_video_sync_panel)
         self._video_sync_panel.preview_requested.connect(self._preview_video_sync)
         self._video_sync_panel.sync_requested.connect(self._sync_video_track_ids)
+        self._video_sync_panel.force_repair_requested.connect(self._force_repair_video_track_ids)
         self._video_sync_panel.remove_requested.connect(self._remove_video_track_ids_from_device)
         self._video_sync_panel.delete_requested.connect(self._delete_video_track_ids)
 
@@ -3129,6 +3130,9 @@ class MainWindow(QMainWindow):
     def _sync_video_track_ids(self, track_ids):
         self._show_video_sync_plan(track_ids)
 
+    def _force_repair_video_track_ids(self, track_ids):
+        self._show_video_sync_plan(track_ids, force_full=True)
+
     def _video_rows_for_ids(self, track_ids):
         ids = {int(track_id) for track_id in (track_ids or []) if int(track_id or 0)}
         if not ids:
@@ -3218,15 +3222,14 @@ class MainWindow(QMainWindow):
 
         deleted = 0
         failed = []
-        with self._db.transaction():
-            for row in rows:
-                file_path = str(row.get("file_path") or "")
-                if file_path and os.path.exists(file_path):
-                    try:
-                        os.remove(file_path)
-                    except OSError as exc:
-                        failed.append(f"{os.path.basename(file_path) or file_path}: {exc}")
-                        continue
+        for row in rows:
+            file_path = os.path.expanduser(str(row.get("file_path") or ""))
+            if file_path and os.path.exists(file_path):
+                try:
+                    os.remove(file_path)
+                except OSError as exc:
+                    failed.append(f"{os.path.basename(file_path) or file_path}: {exc}")
+                else:
                     for suffix in (".jpg", ".jpeg", ".png"):
                         sidecar = os.path.splitext(file_path)[0] + suffix
                         if os.path.exists(sidecar):
@@ -3234,6 +3237,8 @@ class MainWindow(QMainWindow):
                                 os.remove(sidecar)
                             except OSError:
                                 logger.warning("Failed to remove video sidecar %s", sidecar)
+        with self._db.transaction():
+            for row in rows:
                 track_id = int(row.get("id") or 0)
                 if track_id:
                     self._db.delete_track(track_id)
@@ -3251,7 +3256,7 @@ class MainWindow(QMainWindow):
             )
         self._status_bar.set_left_text(f"Deleted {deleted} local video{'s' if deleted != 1 else ''}")
 
-    def _show_video_sync_plan(self, track_ids):
+    def _show_video_sync_plan(self, track_ids, force_full=False):
         track_ids = set(track_ids or [])
         if not track_ids:
             self._video_sync_panel.set_status("Select one or more videos to sync.")
@@ -3261,14 +3266,17 @@ class MainWindow(QMainWindow):
             QMessageBox.warning(self, "No Device", "No Rockbox device is connected.")
             return
 
-        plan = self._build_sync_plan_with_feedback(track_ids=track_ids)
+        plan = self._build_sync_plan_with_feedback(track_ids=track_ids, force_full=force_full)
         if plan is None:
             return
         if self._sync_plan_has_blocking_errors(plan):
             self._video_sync_panel.set_status("Sync blocked: review the warning details.")
             return
         if plan.total_operations == 0:
-            self._video_sync_panel.set_status("Selected videos are already synced.")
+            if force_full:
+                self._video_sync_panel.set_status("Selected videos are already synced. Force repair will still re-sync.")
+            else:
+                self._video_sync_panel.set_status("Selected videos are already synced.")
             self._status_bar.set_left_text("Selected videos are already synced")
             return
 
@@ -3292,7 +3300,7 @@ class MainWindow(QMainWindow):
         )
         return True
 
-    def _build_sync_plan_with_feedback(self, track_ids=None):
+    def _build_sync_plan_with_feedback(self, track_ids=None, force_full=False):
         self._status_bar.set_left_text("Planning sync...")
 
         progress = QProgressDialog("Comparing your library with the iPod...", None, 0, 0, self)
@@ -3321,6 +3329,7 @@ class MainWindow(QMainWindow):
             self._device_detector.current_device,
             self._config.artwork_cache_dir,
             track_ids=track_ids,
+            force_full=force_full,
         )
         if not started:
             progress.close()
@@ -3360,13 +3369,25 @@ class MainWindow(QMainWindow):
             t_cache = time.perf_counter()
             self._update_device_cache_from_plan(self._active_sync_plan)
             post_sync_db_update_seconds = time.perf_counter() - t_cache
+
+            t_cache_cleanup = time.perf_counter()
+            cache_cleanup = self._sync_engine.cleanup_local_sync_cache(
+                device_key=self._sync_engine.current_device_key,
+            ) if self._active_sync_plan else {}
+            post_sync_cache_cleanup_seconds = time.perf_counter() - t_cache_cleanup
+            removed_count = len(cache_cleanup.get("removed", []) if isinstance(cache_cleanup, dict) else [])
             self._post_sync_rockbox_integration()
             profile = dict(getattr(self._active_sync_plan, "execution_profile", {}) or {})
             profile["post_sync_db_update_seconds"] = post_sync_db_update_seconds
+            profile["post_sync_cache_cleanup_seconds"] = post_sync_cache_cleanup_seconds
             self._active_sync_plan.execution_profile = profile
+            if isinstance(cache_cleanup, dict) and cache_cleanup.get("errors"):
+                logger.warning("Cache cleanup reported errors: %s", ", ".join(cache_cleanup["errors"]))
             logger.info(
-                "Sync finalize timing: post_sync_db_update=%.3fs total=%.3fs",
+                "Sync finalize timing: post_sync_db_update=%.3fs post_sync_cache_cleanup=%.3fs removed=%d total=%.3fs",
                 post_sync_db_update_seconds,
+                post_sync_cache_cleanup_seconds,
+                removed_count,
                 float(profile.get("total_seconds", 0.0) or 0.0),
             )
         else:

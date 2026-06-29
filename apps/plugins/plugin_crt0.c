@@ -47,6 +47,33 @@ static jmp_buf __exit_env;
 /* only 1 atexit handler for now, chain in the exit handler if you need more */
 static void (*atexit_handler)(void);
 
+static void stop_audio_for_plugin_load(void)
+{
+    long deadline;
+
+    if (rb->audio_status())
+    {
+        rb->audio_stop();
+        deadline = *rb->current_tick + HZ * 3;
+        while ((rb->audio_status() & AUDIO_STATUS_PLAY) &&
+               TIME_BEFORE(*rb->current_tick, deadline))
+        {
+            rb->sleep(1);
+        }
+    }
+
+    rb->pcm_play_stop();
+    deadline = *rb->current_tick + HZ;
+    while (rb->pcm_is_playing() && TIME_BEFORE(*rb->current_tick, deadline))
+        rb->sleep(1);
+
+    rb->pcm_set_frequency(HW_SAMPR_DEFAULT);
+#if INPUT_SRC_CAPS != 0
+    rb->audio_set_input_source(AUDIO_SRC_PLAYBACK, SRCF_PLAYBACK);
+    rb->audio_set_output_source(AUDIO_SRC_PLAYBACK);
+#endif
+}
+
 int rb_atexit(void (*fn)(void))
 {
     if (atexit_handler)
@@ -81,7 +108,7 @@ enum plugin_status plugin__start(const void *param)
     if (iram_size > 0 || ibss_size > 0)
     {
         /* We need to stop audio playback in order to use codec IRAM */
-        rb->audio_stop();
+        stop_audio_for_plugin_load();
         rb->memcpy(iramstart, iramcopy, iram_size);
         rb->memset(iedata, 0, ibss_size);
         /* make the icache (if it exists) up to date with the new code */

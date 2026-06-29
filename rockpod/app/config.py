@@ -85,6 +85,7 @@ DEVICE_OVERRIDE_KEYS = frozenset(
         "audio_conversion_mode",
         "audio_conversion_codec",
         "audio_conversion_bitrate_kbps",
+        "video_sync_profile",
     }
 )
 
@@ -118,6 +119,7 @@ class Config:
         "audio_conversion_mode": "unsupported_or_lossless",
         "audio_conversion_codec": "mp3",
         "audio_conversion_bitrate_kbps": 160,
+        "video_sync_profile": "quality",
         "enable_online_artwork_lookup": False,
         "prefer_local_artwork": True,
         "fetch_hires_online_artwork": True,

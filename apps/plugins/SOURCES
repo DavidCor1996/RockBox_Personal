@@ -96,6 +96,10 @@ h264_poc.c
 #endif
 #endif
 
+#if defined(HAVE_LCD_COLOR) && (LCD_WIDTH >= 320) && (LCD_HEIGHT >= 240)
+openh264_player.c
+#endif
+
 /* Overlays loaders */
 
 #if defined(HAVE_LCD_COLOR) && (LCD_STRIDEFORMAT == HORIZONTAL_STRIDE) && !defined(RG_NANO) /* Build issues */

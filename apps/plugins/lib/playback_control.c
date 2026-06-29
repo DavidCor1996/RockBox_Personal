@@ -52,7 +52,21 @@ static bool play(void)
 
 static bool stop(void)
 {
+    long deadline;
+
     rb->audio_stop();
+    deadline = *rb->current_tick + HZ * 3;
+    while ((rb->audio_status() & AUDIO_STATUS_PLAY) &&
+           TIME_BEFORE(*rb->current_tick, deadline))
+    {
+        rb->sleep(1);
+    }
+    rb->pcm_play_stop();
+    rb->pcm_set_frequency(HW_SAMPR_DEFAULT);
+#if INPUT_SRC_CAPS != 0
+    rb->audio_set_input_source(AUDIO_SRC_PLAYBACK, SRCF_PLAYBACK);
+    rb->audio_set_output_source(AUDIO_SRC_PLAYBACK);
+#endif
     return false;
 }
 

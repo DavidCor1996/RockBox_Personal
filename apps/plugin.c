@@ -51,6 +51,10 @@
 #include "statusbar-skinned.h"
 #include "skin_engine/skin_albumart_color.h"
 
+#if defined(HAVE_CS42L55)
+#include "cs42l55.h"
+#endif
+
 #if CONFIG_CHARGING
 #include "power.h"
 #endif
@@ -694,6 +698,10 @@ static const struct plugin_api rockbox_api = {
 
     pcmbuf_fade,
     pcmbuf_set_low_latency,
+#if defined(HAVE_CS42L55) && !defined(SIMULATOR)
+    audiohw_idle_powerup,
+    audiohw_idle_powerdown,
+#endif
     system_sound_play,
     keyclick_click,
 
@@ -886,6 +894,25 @@ static const struct plugin_api rockbox_api = {
 static int plugin_buffer_handle;
 static size_t plugin_buffer_size;
 
+static void plugin_quiesce_audio_buffer_users(void)
+{
+    long deadline;
+
+    mixer_reset();
+    deadline = current_tick + HZ;
+    while (pcm_is_playing() && TIME_BEFORE(current_tick, deadline))
+        sleep(1);
+
+    pcm_set_frequency(HW_SAMPR_DEFAULT);
+#if INPUT_SRC_CAPS != 0
+    audio_set_input_source(AUDIO_SRC_PLAYBACK, SRCF_PLAYBACK);
+    audio_set_output_source(AUDIO_SRC_PLAYBACK);
+#endif
+#if defined(HAVE_CS42L55) && !defined(SIMULATOR)
+    audiohw_idle_powerdown();
+#endif
+}
+
 int plugin_load(const char* plugin, const void* parameter)
 {
     struct plugin_header *p_hdr;
@@ -922,6 +949,8 @@ int plugin_load(const char* plugin, const void* parameter)
         }
         else
         {
+            if (plugin_buffer_handle > 0)
+                plugin_quiesce_audio_buffer_users();
             lc_close(current_plugin_handle);
             current_plugin_handle = pfn_tsr_exit = NULL;
             plugin_buffer_handle = core_free(plugin_buffer_handle);
@@ -1035,6 +1064,8 @@ int plugin_load(const char* plugin, const void* parameter)
 
     if (!pfn_tsr_exit)
     {   /* close handle if plugin is no tsr one */
+        if (plugin_buffer_handle > 0)
+            plugin_quiesce_audio_buffer_users();
         lc_close(current_plugin_handle);
         current_plugin_handle = NULL;
         plugin_buffer_handle = core_free(plugin_buffer_handle);
@@ -1087,6 +1118,10 @@ int plugin_load(const char* plugin, const void* parameter)
             sb_set_title_text(NULL, Icon_NOICON, i);
 
     plugin_check_open_close__exit();
+    button_clear_queue();
+#ifdef HAVE_WHEEL_POSITION
+    wheel_send_events(true);
+#endif
 
     status_save(false);
 
@@ -1154,6 +1189,30 @@ static void* plugin_get_audio_buffer(size_t *buffer_size)
 {
     if (plugin_buffer_handle <= 0)
     {
+        long deadline;
+
+        if (audio_status())
+        {
+            audio_stop();
+            deadline = current_tick + HZ * 3;
+            while ((audio_status() & AUDIO_STATUS_PLAY) &&
+                   TIME_BEFORE(current_tick, deadline))
+            {
+                sleep(1);
+            }
+        }
+
+        pcm_play_stop();
+        deadline = current_tick + HZ;
+        while (pcm_is_playing() && TIME_BEFORE(current_tick, deadline))
+            sleep(1);
+
+        mixer_reset();
+        pcm_set_frequency(HW_SAMPR_DEFAULT);
+#if INPUT_SRC_CAPS != 0
+        audio_set_input_source(AUDIO_SRC_PLAYBACK, SRCF_PLAYBACK);
+        audio_set_output_source(AUDIO_SRC_PLAYBACK);
+#endif
         plugin_buffer_handle = core_alloc_maximum(&plugin_buffer_size,
                                                   &buflib_ops_locked);
     }
@@ -1168,6 +1227,7 @@ static void plugin_release_audio_buffer(void)
 {
     if (plugin_buffer_handle > 0)
     {
+        plugin_quiesce_audio_buffer_users();
         plugin_buffer_handle = core_free(plugin_buffer_handle);
         plugin_buffer_size = 0;
     }

@@ -161,6 +161,18 @@ class DeviceSettingsDialog(QDialog):
             )
         )
         options_layout.addRow("Converted Bitrate:", self._audio_conversion_bitrate)
+
+        self._video_sync_profile = QComboBox()
+        self._video_sync_profile.addItems(["Compact", "Quality"])
+        profile_map = {"compact": 0, "quality": 1}
+        self._video_sync_profile.setCurrentIndex(
+            profile_map.get(
+                str(self._config.get_effective("video_sync_profile", device=device, default="compact")).strip().lower(),
+                0,
+            )
+        )
+        options_layout.addRow("Video Sync Profile:", self._video_sync_profile)
+
         self._convert_audio.toggled.connect(self._update_audio_conversion_controls)
         self._update_audio_conversion_controls()
 
@@ -261,6 +273,12 @@ class DeviceSettingsDialog(QDialog):
                 1,
             )
         )
+        self._video_sync_profile.setCurrentIndex(
+            {"compact": 0, "quality": 1}.get(
+                str(self._config.get("video_sync_profile", "compact")).strip().lower(),
+                0,
+            )
+        )
         self._update_audio_conversion_controls()
         self._auto_rebuild.setChecked(bool(self._config.get("auto_rebuild_rockbox_database_after_sync", False)))
         self._verify_background.setChecked(bool(self._config.get("verify_device_in_background", False)))
@@ -292,6 +310,10 @@ class DeviceSettingsDialog(QDialog):
             "audio_conversion_bitrate_kbps": {0: 128, 1: 160, 2: 192}.get(
                 self._audio_conversion_bitrate.currentIndex(),
                 160,
+            ),
+            "video_sync_profile": {0: "compact", 1: "quality"}.get(
+                self._video_sync_profile.currentIndex(),
+                "compact",
             ),
             "auto_rebuild_rockbox_database_after_sync": self._auto_rebuild.isChecked(),
             "verify_device_in_background": self._verify_background.isChecked(),
