@@ -69,10 +69,40 @@
 #define SKY_COMPACT_EXTRA_SUB 33
 #define SKY_COMPACT_EXTRA_SUB_OFF 34
 #define SKY_COMPACT_SCREEN 3
+#define SKY_COMPACT_X 6
+#define SKY_COMPACT_Y 7
+#define SKY_COMPACT_ACTION_SCRIPT 17
+#define SKY_COMPACT_UP_FLAG 18
+#define SKY_COMPACT_DOWN_FLAG 19
+#define SKY_COMPACT_SYNC 2
+#define SKY_COMPACT_REQUEST 42
+#define SKY_COMPACT_ALT 41
+#define SKY_COMPACT_LOGIC_FIELD 0
+#define SKY_COMPACT_AR_TARGET_X 51
+#define SKY_COMPACT_AR_TARGET_Y 52
+#define SKY_COMPACT_GRAFIX_PROG_ID 23
+#define SKY_COMPACT_GRAFIX_PROG_POS 24
+#define SKY_COMPACT_OFFSET 25
+#define SKY_COMPACT_MOOD 22
+#define SKY_COMPACT_TURN_PROG_ID 48
+#define SKY_COMPACT_TURN_PROG_POS 49
+#define SKY_COMPACT_WAITING_FOR 50
+#define SKY_COMPACT_MEGA_SET 54
 #define SKY_ST_LOGIC 64
+#define SKY_ST_MOUSE 16
+#define SKY_ST_DRAW_MASK 0x0007
+#define SKY_ST_BACKGROUND 1
+#define SKY_ST_FOREGROUND 2
+#define SKY_ST_SORT 4
+#define SKY_ST_GRID_PLOT 128
 #define SKY_LOGIC_SCRIPT 1
+#define SKY_LOGIC_AR 2
+#define SKY_LOGIC_AR_ANIM 3
+#define SKY_LOGIC_ALT 5
+#define SKY_LOGIC_SIMPLE_MOD 16
 #define SKY_SCRIPT_MAX_STEPS 256
 #define SKY_SCRIPT_STACK_SIZE 16
+#define SKY_NEXT_MEGA_SET 144
 
 static uint32_t script_vars[SKY_NUM_SCRIPT_VARS];
 static const struct scummvm_target *runtime_target;
@@ -87,6 +117,10 @@ static bool runtime_mcode(uint16_t mcode,
                           uint32_t a,
                           uint32_t b,
                           uint32_t c,
+                          uint16_t current_id,
+                          uint16_t *compact,
+                          uint16_t compact_size,
+                          bool *continue_script,
                           char *status,
                           size_t status_size);
 
@@ -233,7 +267,9 @@ static bool stack_pop(uint32_t *stack, uint32_t *stack_pos, uint32_t *value)
 static bool compact_script_slots(const uint16_t *compact,
                                  uint16_t compact_size,
                                  uint16_t *script_no,
-                                 uint16_t *script_off)
+                                 uint16_t *script_off,
+                                 uint16_t *script_index_out,
+                                 uint16_t *offset_index_out)
 {
     uint16_t mode = compact_word(compact, compact_size, SKY_COMPACT_MODE);
     uint16_t script_index;
@@ -262,7 +298,33 @@ static bool compact_script_slots(const uint16_t *compact,
 
     *script_no = compact_word(compact, compact_size, script_index);
     *script_off = compact_word(compact, compact_size, offset_index);
+    if (script_index_out)
+        *script_index_out = script_index;
+    if (offset_index_out)
+        *offset_index_out = offset_index;
     return *script_no != 0;
+}
+
+static bool compact_set_word(uint16_t *compact,
+                             uint16_t compact_size,
+                             uint16_t index,
+                             uint16_t value)
+{
+    if (!compact || index >= compact_size)
+        return false;
+
+    compact[index] = value;
+    return true;
+}
+
+static bool compact_offset_to_word(uint16_t byte_offset,
+                                   uint16_t *word_index)
+{
+    if (byte_offset & 1)
+        return false;
+
+    *word_index = byte_offset / 2;
+    return true;
 }
 
 static bool decode_first_active_script(
@@ -270,7 +332,7 @@ static bool decode_first_active_script(
     char *status,
     size_t status_size)
 {
-    const uint16_t *compact;
+    uint16_t *compact;
     const struct scummvm_sky_resource *module;
     const char *name = NULL;
     uint16_t cpt_size;
@@ -278,6 +340,8 @@ static bool decode_first_active_script(
     uint16_t logic;
     uint16_t script_no;
     uint16_t script_off;
+    uint16_t script_slot_index = 0;
+    uint16_t script_offset_index = 0;
     uint16_t module_no;
     uint16_t script_index;
     uint32_t module_words;
@@ -287,8 +351,8 @@ static bool decode_first_active_script(
     uint32_t stack_pos = 0;
     uint32_t steps = 0;
 
-    compact = scummvm_sky_cpt_fetch(info->first_logic_id,
-                                    &cpt_size, &cpt_type, &name);
+    compact = scummvm_sky_cpt_fetch_mutable(info->first_logic_id,
+                                            &cpt_size, &cpt_type, &name);
     if (!compact) {
         rb->strlcpy(status, "Sky runtime has no active compact",
                     status_size);
@@ -305,7 +369,8 @@ static bool decode_first_active_script(
         return true;
     }
 
-    if (!compact_script_slots(compact, cpt_size, &script_no, &script_off)) {
+    if (!compact_script_slots(compact, cpt_size, &script_no, &script_off,
+                              &script_slot_index, &script_offset_index)) {
         rb->snprintf(status, status_size,
                      "Sky runtime: first %04x has unsupported mode",
                      (unsigned)info->first_logic_id);
@@ -471,10 +536,48 @@ static bool decode_first_active_script(
                 return false;
             }
             mcode = module_word(module, pc++) / 4;
-            if (!runtime_mcode(mcode, a, b, c, status, status_size))
+            {
+                bool continue_script = true;
+                if (!runtime_mcode(mcode, a, b, c, info->first_logic_id,
+                                   compact, cpt_size, &continue_script,
+                                   status, status_size))
+                    return false;
+                if (!continue_script) {
+                    compact_set_word(compact, cpt_size, script_offset_index,
+                                     (uint16_t)pc);
+                    return true;
+                }
+            }
+            break;
+        case 15:
+            if (pc >= module_words) {
+                rb->strlcpy(status, "Sky script push_offset failed",
+                            status_size);
                 return false;
-            if (mcode > 2)
-                return true;
+            }
+            skip = module_word(module, pc++);
+            if (!compact_offset_to_word(skip, &skip) ||
+                !stack_push(stack, &stack_pos,
+                            compact_word(compact, cpt_size, skip))) {
+                rb->strlcpy(status, "Sky script push_offset failed",
+                            status_size);
+                return false;
+            }
+            break;
+        case 16:
+            if (pc >= module_words ||
+                !stack_pop(stack, &stack_pos, &a)) {
+                rb->strlcpy(status, "Sky script pop_offset failed",
+                            status_size);
+                return false;
+            }
+            skip = module_word(module, pc++);
+            if (!compact_offset_to_word(skip, &skip) ||
+                !compact_set_word(compact, cpt_size, skip, (uint16_t)a)) {
+                rb->strlcpy(status, "Sky script pop_offset failed",
+                            status_size);
+                return false;
+            }
             break;
         case 12:
             if (!stack_pop(stack, &stack_pos, &a) ||
