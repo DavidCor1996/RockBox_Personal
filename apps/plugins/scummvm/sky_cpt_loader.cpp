@@ -175,10 +175,10 @@ void scummvm_sky_cpt_unload(void)
     rb->memset(&current_cpt, 0, sizeof(current_cpt));
 }
 
-const uint16_t *scummvm_sky_cpt_fetch(uint16_t cpt_id,
-                                      uint16_t *size,
-                                      uint16_t *type,
-                                      const char **name)
+uint16_t *scummvm_sky_cpt_fetch_mutable(uint16_t cpt_id,
+                                        uint16_t *size,
+                                        uint16_t *type,
+                                        const char **name)
 {
     uint16_t list = cpt_id >> 12;
     uint16_t index = cpt_id & 0x0fff;
@@ -200,6 +200,14 @@ const uint16_t *scummvm_sky_cpt_fetch(uint16_t cpt_id,
         *name = current_cpt.ascii + entry->name_offset;
 
     return current_cpt.raw + entry->raw_offset;
+}
+
+const uint16_t *scummvm_sky_cpt_fetch(uint16_t cpt_id,
+                                      uint16_t *size,
+                                      uint16_t *type,
+                                      const char **name)
+{
+    return scummvm_sky_cpt_fetch_mutable(cpt_id, size, type, name);
 }
 
 bool scummvm_sky_cpt_load(const struct scummvm_target *target,

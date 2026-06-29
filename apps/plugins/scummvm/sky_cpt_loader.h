@@ -45,6 +45,10 @@ const uint16_t *scummvm_sky_cpt_fetch(uint16_t cpt_id,
                                       uint16_t *size,
                                       uint16_t *type,
                                       const char **name);
+uint16_t *scummvm_sky_cpt_fetch_mutable(uint16_t cpt_id,
+                                        uint16_t *size,
+                                        uint16_t *type,
+                                        const char **name);
 void scummvm_sky_cpt_unload(void);
 
 #ifdef __cplusplus
