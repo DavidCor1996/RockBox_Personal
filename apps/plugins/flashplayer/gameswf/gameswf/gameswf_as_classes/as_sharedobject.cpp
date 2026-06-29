@@ -26,15 +26,26 @@ namespace gameswf
 		builtin_member( "flush", &as_sharedobject_flush );
 	}
 
+	string_hash<gc_ptr<as_object> >* as_sharedobject::local_objects()
+	{
+		static string_hash<gc_ptr<as_object> >* local;
+		if (local == NULL)
+		{
+			local = new string_hash<gc_ptr<as_object> >;
+		}
+		return local;
+	}
+
 	gc_ptr<as_object> as_sharedobject::get_local( const tu_string & name, player * player )
 	{
-		string_hash<gc_ptr<as_object> >::const_iterator it = m_local.find( name );
+		string_hash<gc_ptr<as_object> >* local = local_objects();
+		string_hash<gc_ptr<as_object> >::const_iterator it = local->find( name );
 
-		if( it == m_local.end() )
+		if( it == local->end() )
 		{
 			gc_ptr<as_object> new_object = new as_sharedobject( player );
 
-			m_local.add( name, new_object );
+			local->add( name, new_object );
 			return new_object;
 		}
 
@@ -55,8 +66,6 @@ namespace gameswf
 
 		return true;
 	}
-
-	string_hash<gc_ptr<as_object> > as_sharedobject::m_local;
 }
 
 // Local Variables:
