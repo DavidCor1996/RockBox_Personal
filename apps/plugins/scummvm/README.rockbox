@@ -29,7 +29,9 @@ Current engine state:
   initializes the native Sky runtime variables, and scans the active logic list
   from the retained compacts. The runtime loads Sky script modules from
   `sky.dsk` and decodes active script opcodes up to the first engine mcode
-  call.
+  call. Cache-fast, cache-chip, and draw-screen mcodes are now handled
+  natively, with draw-screen presenting the current Sky screen through the
+  compact palette.
 - `queen`: validates `queen.1`/`queen.1c` and known retail/demo resource
   versions.
 

@@ -85,7 +85,9 @@ public:
         int y;
 
         if (_target && !rb->strcasecmp(_target->engine, "sky")) {
-            bool ok = scummvm_sky_loader_render_current(video);
+            bool ok = _sky_bootstrapped ?
+                scummvm_sky_runtime_render(video) :
+                scummvm_sky_loader_render_current(video);
             advanceSkyIntro(state);
             return ok;
         }

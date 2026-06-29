@@ -122,14 +122,15 @@ namespace gameswf
 
 	as_transform_member	get_transform_member(const tu_stringi& name)
 	{
-		if (s_transform_member_map.size() == 0)
+		if (s_transform_member_map == NULL)
 		{
-			s_transform_member_map.set_capacity(int(AS_TRANSFORM_MEMBER_COUNT));
-			s_transform_member_map.add("colorTransform", colorTransform);
-			s_transform_member_map.add("concatenatedColorTransform", concatenatedColorTransform);
-			s_transform_member_map.add("matrix", matrix);
-			s_transform_member_map.add("concatenatedMatrix", concatenatedMatrix);
-			s_transform_member_map.add("pixelBounds", pixelBounds);
+			s_transform_member_map = new stringi_hash<as_transform_member>;
+			s_transform_member_map->set_capacity(int(AS_TRANSFORM_MEMBER_COUNT));
+			s_transform_member_map->add("colorTransform", colorTransform);
+			s_transform_member_map->add("concatenatedColorTransform", concatenatedColorTransform);
+			s_transform_member_map->add("matrix", matrix);
+			s_transform_member_map->add("concatenatedMatrix", concatenatedMatrix);
+			s_transform_member_map->add("pixelBounds", pixelBounds);
 		}
 
 		as_transform_member	result = invalidMember;

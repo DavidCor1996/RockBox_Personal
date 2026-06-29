@@ -104,7 +104,10 @@ Implemented bridge pieces:
   active logic list from the retained compact table each frame. It also loads
   Sky script modules from `sky.dsk` and decodes the active compact's script
   stream until the first engine mcode call, reporting the real mcode and
-  arguments that need native implementation next.
+  arguments that need native implementation next. The first native mcode
+  handlers are wired: cache-fast, cache-chip, and draw-screen. Draw-screen
+  loads the current Sky screen resource and renders it through the retained
+  compact palette into the Rockbox video surface.
 - `queen`: validates `queen.1`/`queen.1c`, recognizes known retail/demo file
   sizes, and recognizes rebuilt `QTBL` resource headers.
 - Both engines still render through the Rockbox framebuffer shell; full engine
@@ -143,10 +146,11 @@ These rules are mandatory for this tree and come from
 12. Sky compact-table loader and bootstrap validation. Done.
 13. Native Sky runtime state and active logic-list scanning. Done.
 14. Sky script-module loading and first-mcode decoder. Done.
-15. Full Sky or Queen engine loop: scripts, scene drawing, save/load, and
+15. Initial Sky mcode execution for cache and screen draw. Done.
+16. Full Sky or Queen engine loop: scripts, scene drawing, save/load, and
     input.
-16. PCM mixer-backed audio using the required lifecycle.
-17. Engine allowlist expansion and per-game input profiles.
+17. PCM mixer-backed audio using the required lifecycle.
+18. Engine allowlist expansion and per-game input profiles.
 
 ## Test Matrix
 

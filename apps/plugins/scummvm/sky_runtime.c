@@ -22,6 +22,8 @@
 #define SKY_NUM_SCRIPT_VARS 838
 #define SKY_MAX_LOGIC_SCAN 2048
 #define SKY_MAX_SCRIPT_MODULES 16
+#define SKY_MAX_CACHE_ITEMS 300
+#define SKY_MAX_CACHE_LIST 60
 #define SKY_CPT_MAINLIST 7
 #define SKY_FILE_MODULE_0 60400
 
@@ -76,8 +78,17 @@ static uint32_t script_vars[SKY_NUM_SCRIPT_VARS];
 static const struct scummvm_target *runtime_target;
 static struct scummvm_sky_resource script_modules[SKY_MAX_SCRIPT_MODULES];
 static struct scummvm_sky_resource runtime_screen;
+static struct scummvm_sky_resource cached_items[SKY_MAX_CACHE_ITEMS];
+static uint16_t cache_build_list[SKY_MAX_CACHE_LIST];
 static uint16_t runtime_palette_id;
 static bool runtime_ready;
+
+static bool runtime_mcode(uint16_t mcode,
+                          uint32_t a,
+                          uint32_t b,
+                          uint32_t c,
+                          char *status,
+                          size_t status_size);
 
 static uint16_t compact_word(const uint16_t *compact, uint16_t size,
                              uint16_t index)
@@ -95,10 +106,14 @@ void scummvm_sky_runtime_reset(void)
     for (i = 0; i < ARRAYLEN(script_modules); i++)
         scummvm_sky_loader_release_resource(&script_modules[i]);
     scummvm_sky_loader_release_resource(&runtime_screen);
+    for (i = 0; i < ARRAYLEN(cached_items); i++)
+        scummvm_sky_loader_release_resource(&cached_items[i]);
 
     rb->memset(script_vars, 0, sizeof(script_vars));
     rb->memset(script_modules, 0, sizeof(script_modules));
     rb->memset(&runtime_screen, 0, sizeof(runtime_screen));
+    rb->memset(cached_items, 0, sizeof(cached_items));
+    rb->memset(cache_build_list, 0, sizeof(cache_build_list));
     runtime_palette_id = 0;
     runtime_target = NULL;
     runtime_ready = false;
@@ -456,15 +471,11 @@ static bool decode_first_active_script(
                 return false;
             }
             mcode = module_word(module, pc++) / 4;
-            rb->snprintf(status, status_size,
-                         "Sky script: %04x %s mcode %u(%lu,%lu,%lu)",
-                         (unsigned)info->first_logic_id,
-                         name ? name : "",
-                         (unsigned)mcode,
-                         (unsigned long)a,
-                         (unsigned long)b,
-                         (unsigned long)c);
-            return true;
+            if (!runtime_mcode(mcode, a, b, c, status, status_size))
+                return false;
+            if (mcode > 2)
+                return true;
+            break;
         case 12:
             if (!stack_pop(stack, &stack_pos, &a) ||
                 !stack_pop(stack, &stack_pos, &b) ||
@@ -567,6 +578,124 @@ static bool runtime_draw_screen(uint16_t palette_id,
                  (unsigned long)screen_id,
                  (unsigned)palette_id);
     return true;
+}
+
+static bool runtime_cache_files(char *status, size_t status_size)
+{
+    uint32_t i;
+    uint32_t loaded = 0;
+
+    for (i = 0; i < ARRAYLEN(cache_build_list) && cache_build_list[i]; i++) {
+        uint16_t file_nr = cache_build_list[i] & 0x7fff;
+        uint16_t slot = file_nr & 0x07ff;
+
+        if (slot >= ARRAYLEN(cached_items) || slot == 0x07ff)
+            continue;
+
+        if (cached_items[slot].file_nr == file_nr &&
+            cached_items[slot].data)
+            continue;
+
+        scummvm_sky_loader_release_resource(&cached_items[slot]);
+        if (!scummvm_sky_loader_load_resource(runtime_target,
+                                              file_nr,
+                                              &cached_items[slot],
+                                              status,
+                                              status_size))
+            return false;
+        loaded++;
+    }
+
+    rb->snprintf(status, status_size, "Sky cache loaded %lu files",
+                 (unsigned long)loaded);
+    cache_build_list[0] = 0;
+    return true;
+}
+
+static bool runtime_cache_fast(uint16_t list_id,
+                               char *status,
+                               size_t status_size)
+{
+    const uint16_t *list;
+    uint16_t list_size;
+    uint16_t list_type;
+    uint32_t i = 0;
+
+    rb->memset(cache_build_list, 0, sizeof(cache_build_list));
+
+    list = scummvm_sky_cpt_fetch(list_id, &list_size, &list_type, NULL);
+    if (!list) {
+        rb->snprintf(status, status_size,
+                     "Sky cache list %u missing", (unsigned)list_id);
+        return false;
+    }
+
+    while (i < ARRAYLEN(cache_build_list) - 1 && i < list_size) {
+        cache_build_list[i] = list[i] & 0x7fff;
+        if (list[i] == 0)
+            break;
+        i++;
+    }
+
+    (void)list_type;
+    rb->snprintf(status, status_size, "Sky cache fast list %u",
+                 (unsigned)list_id);
+    return true;
+}
+
+static bool runtime_cache_chip(uint16_t list_id,
+                               char *status,
+                               size_t status_size)
+{
+    const uint16_t *list;
+    uint16_t list_size;
+    uint16_t list_type;
+    uint32_t dst = 0;
+    uint32_t src = 0;
+
+    while (dst < ARRAYLEN(cache_build_list) && cache_build_list[dst])
+        dst++;
+
+    list = scummvm_sky_cpt_fetch(list_id, &list_size, &list_type, NULL);
+    if (!list) {
+        rb->snprintf(status, status_size,
+                     "Sky cache chip list %u missing", (unsigned)list_id);
+        return false;
+    }
+
+    while (dst < ARRAYLEN(cache_build_list) - 1 && src < list_size) {
+        cache_build_list[dst++] = list[src] & 0x7fff;
+        if (list[src++] == 0)
+            break;
+    }
+
+    (void)list_type;
+    return runtime_cache_files(status, status_size);
+}
+
+static bool runtime_mcode(uint16_t mcode,
+                          uint32_t a,
+                          uint32_t b,
+                          uint32_t c,
+                          char *status,
+                          size_t status_size)
+{
+    switch (mcode) {
+    case 0:
+        return runtime_cache_chip((uint16_t)a, status, status_size);
+    case 1:
+        return runtime_cache_fast((uint16_t)a, status, status_size);
+    case 2:
+        return runtime_draw_screen((uint16_t)a, status, status_size);
+    default:
+        rb->snprintf(status, status_size,
+                     "Sky mcode %u pending (%lu,%lu,%lu)",
+                     (unsigned)mcode,
+                     (unsigned long)a,
+                     (unsigned long)b,
+                     (unsigned long)c);
+        return true;
+    }
 }
 
 bool scummvm_sky_runtime_render(struct scummvm_video *video)

@@ -11,23 +11,31 @@
 
 namespace tu_random
 {
-	// Global generator.
-	static generator	s_generator;
+	static generator* get_generator()
+	{
+		static generator* s_generator;
+		if (s_generator == NULL)
+		{
+			s_generator = new generator;
+		}
+		return s_generator;
+	}
 
 	Uint32	next_random()
 	{
-		return s_generator.next_random();
+		return get_generator()->next_random();
 	}
 
 	void	seed_random(Uint32 seed)
 	{
-		s_generator.seed_random(seed);
+		get_generator()->seed_random(seed);
 	}
 
 	float	get_unit_float()
 	{
-		return s_generator.get_unit_float();
+		return get_generator()->get_unit_float();
 	}
+
 
 
 	// PRNG code adapted from the complimentary-multiply-with-carry

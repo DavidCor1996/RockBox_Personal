@@ -656,10 +656,19 @@ namespace gameswf
 		return m_player->get_root(); 
 	}
 
-	static tu_string s_constructor("__constructor__");
+	static const tu_string& get_constructor_name()
+	{
+		static tu_string* s_constructor;
+		if (s_constructor == NULL)
+		{
+			s_constructor = new tu_string("__constructor__");
+		}
+		return *s_constructor;
+	}
+
 	bool as_object::get_ctor(as_value* val) const
 	{
-		return m_members.get(s_constructor, val);
+		return m_members.get(get_constructor_name(), val);
 	}
 
 	void as_object::set_ctor(const as_value& val)

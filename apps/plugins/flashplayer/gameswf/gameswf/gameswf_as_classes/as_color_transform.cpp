@@ -192,18 +192,19 @@ namespace gameswf
 
 	as_color_transform_member	get_color_transform_member(const tu_stringi& name)
 	{
-		if (s_color_transform_member_map.size() == 0)
+		if (s_color_transform_member_map == NULL)
 		{
-			s_color_transform_member_map.set_capacity(int(AS_COLOR_TRANSFORM_MEMBER_COUNT));
-			s_color_transform_member_map.add("redMultiplier", redMultiplier);
-			s_color_transform_member_map.add("greenMultiplier", greenMultiplier);
-			s_color_transform_member_map.add("blueMultiplier", blueMultiplier);
-			s_color_transform_member_map.add("alphaMultiplier", alphaMultiplier);
-			s_color_transform_member_map.add("redOffset", redOffset);
-			s_color_transform_member_map.add("greenOffset", greenOffset);
-			s_color_transform_member_map.add("blueOffset", blueOffset);
-			s_color_transform_member_map.add("alphaOffset", alphaOffset);
-			s_color_transform_member_map.add("rgb", rgb);
+			s_color_transform_member_map = new stringi_hash<as_color_transform_member>;
+			s_color_transform_member_map->set_capacity(int(AS_COLOR_TRANSFORM_MEMBER_COUNT));
+			s_color_transform_member_map->add("redMultiplier", redMultiplier);
+			s_color_transform_member_map->add("greenMultiplier", greenMultiplier);
+			s_color_transform_member_map->add("blueMultiplier", blueMultiplier);
+			s_color_transform_member_map->add("alphaMultiplier", alphaMultiplier);
+			s_color_transform_member_map->add("redOffset", redOffset);
+			s_color_transform_member_map->add("greenOffset", greenOffset);
+			s_color_transform_member_map->add("blueOffset", blueOffset);
+			s_color_transform_member_map->add("alphaOffset", alphaOffset);
+			s_color_transform_member_map->add("rgb", rgb);
 		}
 
 		as_color_transform_member	result = invalidMember;

@@ -221,10 +221,22 @@ namespace gameswf
 
 	// Standard property lookup.
 
-	static stringi_hash<as_standard_member>	s_standard_property_map;
+	static stringi_hash<as_standard_member>*	s_standard_property_map;
+	static stringi_hash<as_standard_member>* get_standard_property_map()
+	{
+		if (s_standard_property_map == NULL)
+		{
+			s_standard_property_map = new stringi_hash<as_standard_member>;
+		}
+		return s_standard_property_map;
+	}
+
 	void clear_standard_property_map()
 	{
-		s_standard_property_map.clear();
+		if (s_standard_property_map != NULL)
+		{
+			s_standard_property_map->clear();
+		}
 	}
 
 	const char* get_gameswf_version()
@@ -240,20 +252,28 @@ namespace gameswf
 
 	// dynamic library stuff, for sharing DLL/shared library among different movies.
 
-	static string_hash<tu_loadlib*> s_shared_libs;
+	static string_hash<tu_loadlib*>* s_shared_libs;
 	string_hash<tu_loadlib*>* get_shared_libs()
 	{
-		return &s_shared_libs;
+		if (s_shared_libs == NULL)
+		{
+			s_shared_libs = new string_hash<tu_loadlib*>;
+		}
+		return s_shared_libs;
 	}
 
 	void clear_shared_libs()
 	{
-		for (string_hash<tu_loadlib*>::iterator it = s_shared_libs.begin();
-			it != s_shared_libs.end(); ++it)
+		if (s_shared_libs == NULL)
+		{
+			return;
+		}
+		for (string_hash<tu_loadlib*>::iterator it = s_shared_libs->begin();
+			it != s_shared_libs->end(); ++it)
 		{
 			delete it->second;
 		}
-		s_shared_libs.clear();
+		s_shared_libs->clear();
 	}
 
 	struct registered_type_node
@@ -324,54 +344,55 @@ namespace gameswf
 
 	as_standard_member	get_standard_member(const tu_stringi& name)
 	{
-		if (s_standard_property_map.size() == 0)
+		stringi_hash<as_standard_member>* map = get_standard_property_map();
+		if (map->size() == 0)
 		{
-			s_standard_property_map.set_capacity(int(AS_STANDARD_MEMBER_COUNT));
+			map->set_capacity(int(AS_STANDARD_MEMBER_COUNT));
 
-			s_standard_property_map.add("_x", M_X);
-			s_standard_property_map.add("_y", M_Y);
-			s_standard_property_map.add("_xscale", M_XSCALE);
-			s_standard_property_map.add("_yscale", M_YSCALE);
-			s_standard_property_map.add("_currentframe", M_CURRENTFRAME);
-			s_standard_property_map.add("_totalframes", M_TOTALFRAMES);
-			s_standard_property_map.add("_alpha", M_ALPHA);
-			s_standard_property_map.add("_visible", M_VISIBLE);
-			s_standard_property_map.add("_width", M_WIDTH);
-			s_standard_property_map.add("_height", M_HEIGHT);
-			s_standard_property_map.add("_rotation", M_ROTATION);
-			s_standard_property_map.add("_target", M_TARGET);
-			s_standard_property_map.add("_framesloaded", M_FRAMESLOADED);
-			s_standard_property_map.add("_name", M_NAME);
-			s_standard_property_map.add("_droptarget", M_DROPTARGET);
-			s_standard_property_map.add("_url", M_URL);
-			s_standard_property_map.add("_highquality", M_HIGHQUALITY);
-			s_standard_property_map.add("_focusrect", M_FOCUSRECT);
-			s_standard_property_map.add("_soundbuftime", M_SOUNDBUFTIME);
-			s_standard_property_map.add("_xmouse", M_XMOUSE);
-			s_standard_property_map.add("_ymouse", M_YMOUSE);
-			s_standard_property_map.add("_parent", M_PARENT);
-			s_standard_property_map.add("text", M_TEXT);
-			s_standard_property_map.add("textWidth", M_TEXTWIDTH);
-			s_standard_property_map.add("textColor", M_TEXTCOLOR);
-			s_standard_property_map.add("border", M_BORDER);
-			s_standard_property_map.add("multiline", M_MULTILINE);
-			s_standard_property_map.add("wordWrap", M_WORDWRAP);
-			s_standard_property_map.add("type", M_TYPE);
-			s_standard_property_map.add("backgroundColor", M_BACKGROUNDCOLOR);
-			s_standard_property_map.add("_this", M_THIS);
-			s_standard_property_map.add("this", MTHIS);
-			s_standard_property_map.add("_root", M_ROOT);
-			s_standard_property_map.add(".", MDOT);
-			s_standard_property_map.add("..", MDOT2);
-			s_standard_property_map.add("_level0", M_LEVEL0);
-			s_standard_property_map.add("_global", M_GLOBAL);
-			s_standard_property_map.add("enabled", M_ENABLED);
-			s_standard_property_map.add("password", M_PASSWORD);
-			s_standard_property_map.add("onMouseMove", M_MOUSE_MOVE);
+			map->add("_x", M_X);
+			map->add("_y", M_Y);
+			map->add("_xscale", M_XSCALE);
+			map->add("_yscale", M_YSCALE);
+			map->add("_currentframe", M_CURRENTFRAME);
+			map->add("_totalframes", M_TOTALFRAMES);
+			map->add("_alpha", M_ALPHA);
+			map->add("_visible", M_VISIBLE);
+			map->add("_width", M_WIDTH);
+			map->add("_height", M_HEIGHT);
+			map->add("_rotation", M_ROTATION);
+			map->add("_target", M_TARGET);
+			map->add("_framesloaded", M_FRAMESLOADED);
+			map->add("_name", M_NAME);
+			map->add("_droptarget", M_DROPTARGET);
+			map->add("_url", M_URL);
+			map->add("_highquality", M_HIGHQUALITY);
+			map->add("_focusrect", M_FOCUSRECT);
+			map->add("_soundbuftime", M_SOUNDBUFTIME);
+			map->add("_xmouse", M_XMOUSE);
+			map->add("_ymouse", M_YMOUSE);
+			map->add("_parent", M_PARENT);
+			map->add("text", M_TEXT);
+			map->add("textWidth", M_TEXTWIDTH);
+			map->add("textColor", M_TEXTCOLOR);
+			map->add("border", M_BORDER);
+			map->add("multiline", M_MULTILINE);
+			map->add("wordWrap", M_WORDWRAP);
+			map->add("type", M_TYPE);
+			map->add("backgroundColor", M_BACKGROUNDCOLOR);
+			map->add("_this", M_THIS);
+			map->add("this", MTHIS);
+			map->add("_root", M_ROOT);
+			map->add(".", MDOT);
+			map->add("..", MDOT2);
+			map->add("_level0", M_LEVEL0);
+			map->add("_global", M_GLOBAL);
+			map->add("enabled", M_ENABLED);
+			map->add("password", M_PASSWORD);
+			map->add("onMouseMove", M_MOUSE_MOVE);
 		}
 
 		as_standard_member	result = M_INVALID_MEMBER;
-		s_standard_property_map.get(name, &result);
+		map->get(name, &result);
 
 		return result;
 	}
@@ -380,30 +401,30 @@ namespace gameswf
 	// properties by number
 	//
 
-	static const tu_string	s_property_names[] =
+	static const char*	s_property_names[] =
 	{
-		tu_string("_x"),
-		tu_string("_y"),
-		tu_string("_xscale"),
-		tu_string("_yscale"),
-		tu_string("_currentframe"),
-		tu_string("_totalframes"),
-		tu_string("_alpha"),
-		tu_string("_visible"),
-		tu_string("_width"),
-		tu_string("_height"),
-		tu_string("_rotation"),
-		tu_string("_target"),
-		tu_string("_framesloaded"),
-		tu_string("_name"),
-		tu_string("_droptarget"),
-		tu_string("_url"),
-		tu_string("_highquality"),
-		tu_string("_focusrect"),
-		tu_string("_soundbuftime"),
-		tu_string("mysteryquality"), //tu_string("@@ mystery quality member"),  //this seems like a stupid bug to me . . . but I don't want it accessing the heap yet.
-		tu_string("_xmouse"),
-		tu_string("_ymouse"),
+		"_x",
+		"_y",
+		"_xscale",
+		"_yscale",
+		"_currentframe",
+		"_totalframes",
+		"_alpha",
+		"_visible",
+		"_width",
+		"_height",
+		"_rotation",
+		"_target",
+		"_framesloaded",
+		"_name",
+		"_droptarget",
+		"_url",
+		"_highquality",
+		"_focusrect",
+		"_soundbuftime",
+		"mysteryquality", //"@@ mystery quality member",  //this seems like a stupid bug to me . . . but I don't want it accessing the heap yet.
+		"_xmouse",
+		"_ymouse",
 	};
 
 	as_value	get_property(as_object* obj, int prop_number)

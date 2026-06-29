@@ -2395,10 +2395,24 @@ namespace gameswf
 
 	};
 
+	static tu_string*	get_function_names()
+	{
+		static tu_string* names;
+		if (names == NULL)
+		{
+			names = new tu_string[event_id::EVENT_COUNT];
+			for (int i = 0; i < event_id::EVENT_COUNT; i++)
+			{
+				names[i] = s_function_name_literals[i];
+			}
+		}
+		return names;
+	}
+
 	const tu_string&	event_id::get_function_name() const
 	{
 		assert(m_id > INVALID && m_id < EVENT_COUNT);
-		return s_function_names[m_id];
+		return get_function_names()[m_id];
 	}
 
 };
