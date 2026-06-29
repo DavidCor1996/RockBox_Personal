@@ -53,8 +53,8 @@ DEFAULT_LOCKSCREEN_CLOCK = {
     "height": 55,
     "align": "center",
     "color": "FFFFFF",
-    "style": "solid",
-    "glass_strength": "off",
+    "style": "glass",
+    "glass_strength": "high",
     "shadow": "soft",
     "opacity": 82,
 }
@@ -2206,7 +2206,11 @@ class ThemeDesignerService:
 
         if is_sbs:
             if use_glass:
-                glass_dest = os.path.join(os.path.dirname(path), "LockClockGlassGenerated.bmp")
+                skin_asset_dir = os.path.join(
+                    os.path.dirname(path),
+                    os.path.splitext(os.path.basename(path))[0],
+                )
+                glass_dest = os.path.join(skin_asset_dir, "LockClockGlassGenerated.bmp")
                 try:
                     ThemeDesignerService._render_clock_glass(wallpaper_source, glass_dest, clock)
                 except (OSError, ValueError) as exc:
@@ -2368,6 +2372,20 @@ class ThemeDesignerService:
             time_parts.append(
                 f"%Vl(LockClockGlass,{x},{glass_y},{width_text},{glass_height},-)%xd(LockClockGlassGenerated)"
             )
+        if style.startswith("glass"):
+            shadow_color = self._skin_color_with_opacity("000000", 42, force_alpha=True)
+            shine_color = self._skin_color_with_opacity("FFFFFF", 38, force_alpha=True)
+            shadow_x = min(319, max(0, x + 1))
+            shadow_y = min(239, max(0, y + 2))
+            shine_y = max(0, y - 1)
+            time_parts.append(
+                f"%Vl(iPoneClockGlassShadow,{shadow_x},{shadow_y},{width_text},{effective_height},{time_font})"
+                f"%Vf({shadow_color}){align}%cl:%cM %cP"
+            )
+            time_parts.append(
+                f"%Vl(iPoneClockGlassShine,{x},{shine_y},{width_text},{effective_height},{time_font})"
+                f"%Vf({shine_color}){align}%cl:%cM %cP"
+            )
         if style == "outline":
             outline_color = ThemeDesignerService._clock_contrast_color(clock["color"])
             shadow_x = min(319, max(0, x + 1))
@@ -2381,12 +2399,25 @@ class ThemeDesignerService:
         )
         time_line = "\n".join(time_parts)
 
-        date_line = (
+        date_parts = []
+        if style.startswith("glass"):
+            date_shadow_color = self._skin_color_with_opacity("000000", 34, force_alpha=True)
+            date_shadow_x = min(319, max(0, x + 1))
+            date_shadow_y = min(239, max(0, date_y + 1))
+            date_parts.append(
+                f"%Vl({viewport_name},{date_shadow_x},{date_shadow_y},{width_text},18,{date_font})"
+                f"%Vf({date_shadow_color}){align}"
+                "%?if(%ss(0,7,%St(lang)), =, english)<%?cu<Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday>|%ca> "
+                "%?or(%if(%ss(0,7,%St(lang)), =, chinese),%if(%St(lang), =, magyar),%if(%St(lang), =, lietuviu),"
+                "%if(%St(lang), =, japanese),%if(%St(lang), =, korean))<%cb %cd|%?if(%St(lang), =, english-us)<%cb %cd|%cd %cb>>"
+            )
+        date_parts.append(
             f"%Vl({viewport_name},{x},{date_y},{width_text},18,{date_font})%Vf({date_color}){align}"
             "%?if(%ss(0,7,%St(lang)), =, english)<%?cu<Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday>|%ca> "
             "%?or(%if(%ss(0,7,%St(lang)), =, chinese),%if(%St(lang), =, magyar),%if(%St(lang), =, lietuviu),"
             "%if(%St(lang), =, japanese),%if(%St(lang), =, korean))<%cb %cd|%?if(%St(lang), =, english-us)<%cb %cd|%cd %cb>>"
         )
+        date_line = "\n".join(date_parts)
         time_pattern = re.compile(rf"%Vl\({re.escape(viewport_name)},[^\n]*%cl:%cM %cP")
         date_pattern = re.compile(rf"%Vl\({re.escape(viewport_name)},[^\n]*%cd\|%cd %cb>>")
         updated = time_pattern.sub(time_line, content, count=1)
@@ -2396,7 +2427,12 @@ class ThemeDesignerService:
     def _lockscreen_clock_skin_color(self, clock):
         color = _ensure_hex(clock.get("color"), DEFAULT_LOCKSCREEN_CLOCK["color"])
         opacity = self._int_between(clock.get("opacity"), 20, 100, DEFAULT_LOCKSCREEN_CLOCK["opacity"])
-        if opacity >= 100:
+        return self._skin_color_with_opacity(color, opacity)
+
+    def _skin_color_with_opacity(self, color, opacity, force_alpha=False):
+        color = _ensure_hex(color, DEFAULT_LOCKSCREEN_CLOCK["color"])
+        opacity = self._int_between(opacity, 0, 100, 100)
+        if opacity >= 100 and not force_alpha:
             return color
         alpha = max(0, min(255, int(round(opacity * 255 / 100.0))))
         return f"{color}{alpha:02X}"

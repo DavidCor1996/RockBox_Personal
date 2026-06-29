@@ -1296,6 +1296,18 @@ class ThemeDesignerWidget(QWidget):
         self._lockscreen_clock_font_combo.currentIndexChanged.connect(self._sync_preview)
         self._lockscreen_clock_color_btn = _ColorButton("Clock Color")
         self._lockscreen_clock_color_btn.color_changed.connect(self._sync_preview)
+        self._lockscreen_clock_style_combo = QComboBox()
+        self._lockscreen_clock_style_combo.addItem("Liquid Glass", "glass")
+        self._lockscreen_clock_style_combo.addItem("Tinted Glass", "glass tinted")
+        self._lockscreen_clock_style_combo.addItem("Outline", "outline")
+        self._lockscreen_clock_style_combo.addItem("Solid", "solid")
+        self._lockscreen_clock_style_combo.currentIndexChanged.connect(self._sync_preview)
+        self._lockscreen_clock_glass_combo = QComboBox()
+        self._lockscreen_clock_glass_combo.addItem("High", "high")
+        self._lockscreen_clock_glass_combo.addItem("Medium", "medium")
+        self._lockscreen_clock_glass_combo.addItem("Low", "low")
+        self._lockscreen_clock_glass_combo.addItem("Off", "off")
+        self._lockscreen_clock_glass_combo.currentIndexChanged.connect(self._sync_preview)
         self._lockscreen_clock_align_combo = QComboBox()
         self._lockscreen_clock_align_combo.addItem("Left", "left")
         self._lockscreen_clock_align_combo.addItem("Center", "center")
@@ -1345,6 +1357,8 @@ class ThemeDesignerWidget(QWidget):
         clock_opacity_layout.addWidget(self._lockscreen_clock_opacity_spin)
         clock_form.addRow("Font", self._lockscreen_clock_font_combo)
         clock_form.addRow("Color", self._lockscreen_clock_color_btn)
+        clock_form.addRow("Style", self._lockscreen_clock_style_combo)
+        clock_form.addRow("Glass", self._lockscreen_clock_glass_combo)
         clock_form.addRow("Font alpha", clock_opacity_row)
         clock_form.addRow("Align", self._lockscreen_clock_align_combo)
         clock_form.addRow("Position", clock_position_row)
@@ -1574,6 +1588,8 @@ class ThemeDesignerWidget(QWidget):
         clock = dict(variant.get("lockscreen_clock") or {})
         self._set_lockscreen_clock_font_value(clock.get("font_rel", "fonts/66-Cantarell-Light.fnt"))
         self._lockscreen_clock_color_btn.set_hex(clock.get("color", "FFFFFF"))
+        self._set_combo_data_value(self._lockscreen_clock_style_combo, clock.get("style", "glass"))
+        self._set_combo_data_value(self._lockscreen_clock_glass_combo, clock.get("glass_strength", "high"))
         self._set_combo_data_value(self._lockscreen_clock_align_combo, clock.get("align", "center"))
         self._lockscreen_clock_x_spin.setValue(self._clamp_int(clock.get("x", 0), 0, 319))
         self._lockscreen_clock_y_spin.setValue(self._clamp_int(clock.get("y", 32), 0, 180))
@@ -1633,6 +1649,8 @@ class ThemeDesignerWidget(QWidget):
                 "height": self._lockscreen_clock_height_spin.value(),
                 "align": self._lockscreen_clock_align_combo.currentData() or "center",
                 "color": self._lockscreen_clock_color_btn.hex(),
+                "style": self._lockscreen_clock_style_combo.currentData() or "glass",
+                "glass_strength": self._lockscreen_clock_glass_combo.currentData() or "high",
                 "opacity": self._lockscreen_clock_opacity_spin.value(),
             },
             "color_profile": self._color_profile_combo.currentData() or "custom",

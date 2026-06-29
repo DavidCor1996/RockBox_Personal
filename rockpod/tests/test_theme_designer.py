@@ -234,6 +234,8 @@ def test_lockscreen_clock_opacity_defaults_and_clamps(tmp_dir):
     variant = service.new_variant(repo_root, _profile(repo_root), "Clock Alpha")
 
     assert variant["lockscreen_clock"]["opacity"] == 82
+    assert variant["lockscreen_clock"]["style"] == "glass"
+    assert variant["lockscreen_clock"]["glass_strength"] == "high"
     assert service._normalize_lockscreen_clock({"opacity": 5})["opacity"] == 20
     assert service._normalize_lockscreen_clock({"opacity": 200})["opacity"] == 100
     assert service._normalize_lockscreen_clock({"opacity": "bad"})["opacity"] == 82
@@ -314,6 +316,49 @@ def test_lockscreen_clock_skin_color_adds_alpha_when_translucent(tmp_dir):
     clock = service._normalize_lockscreen_clock({"color": "123ABC", "opacity": 25})
 
     assert service._lockscreen_clock_skin_color(clock) == "123ABC40"
+
+
+def test_lockscreen_clock_glass_writes_asset_next_to_sbs_skin(tmp_dir):
+    wallpaper = os.path.join(tmp_dir, "wallpaper.bmp")
+    Image.new("RGB", (320, 240), "#225577").save(wallpaper, "BMP")
+    skin_dir = os.path.join(tmp_dir, "wps")
+    os.makedirs(skin_dir, exist_ok=True)
+    sbs = os.path.join(skin_dir, "iPoneD-glass-test.sbs")
+    _write_text(
+        sbs,
+        "%xl(LsStyle,LockscreenStyle.bmp)\n"
+        "%Vd(iPoneLockscreen)%?mp<\n"
+        "%Vl(iPoneLockscreen,0,32,-,55,10)%Vf(FFFFFF)%ac%cl:%cM %cP\n"
+        "%Vl(iPoneLockscreen,0,91,-,18,6)%Vf(FFFFFF)%ac"
+        "%?if(%ss(0,7,%St(lang)), =, english)<%?cu<Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday>|%ca> "
+        "%?or(%if(%ss(0,7,%St(lang)), =, chinese),%if(%St(lang), =, magyar),%if(%St(lang), =, lietuviu),"
+        "%if(%St(lang), =, japanese),%if(%St(lang), =, korean))<%cb %cd|%?if(%St(lang), =, english-us)<%cb %cd|%cd %cb>>\n",
+    )
+    service = ThemeDesignerService()
+    variant = {
+        "base_theme_id": "iPone",
+        "screen_resolution": "320x240",
+        "fit_mode": "fill",
+        "wallpaper_source": wallpaper,
+        "lockscreen_clock": {
+            "color": "FFFFFF",
+            "opacity": 50,
+            "style": "glass",
+            "glass_strength": "high",
+        },
+    }
+
+    service._apply_lockscreen_clock_overrides(sbs, variant)
+
+    glass = os.path.join(skin_dir, "iPoneD-glass-test", "LockClockGlassGenerated.bmp")
+    assert os.path.isfile(glass)
+    with open(sbs, "r", encoding="utf-8") as handle:
+        content = handle.read()
+    assert "%xl(LockClockGlassGenerated,LockClockGlassGenerated.bmp)" in content
+    assert "%Vd(LockClockGlass)%Vd(iPoneLockscreen)" in content
+    assert "iPoneClockGlassShadow" in content
+    assert "iPoneClockGlassShine" in content
+    assert "%Vf(FFFFFF80)%ac%cl:%cM %cP" in content
 
 
 def test_lockscreen_clock_opacity_samples_staged_wallpaper_without_source(tmp_dir):
@@ -565,7 +610,7 @@ def test_preview_bundle_applies_unsaved_colors_to_generated_assets_and_templates
     assert "FFF199" in content
 
 
-def test_theme_designer_current_variant_data_includes_lockscreen_clock_opacity(tmp_dir):
+def test_theme_designer_current_variant_data_includes_lockscreen_clock_glass(tmp_dir):
     app = QApplication.instance() or QApplication([])
     repo_root = os.path.join(tmp_dir, "repo")
     _make_repo(repo_root)
@@ -573,13 +618,18 @@ def test_theme_designer_current_variant_data_includes_lockscreen_clock_opacity(t
     profile = _profile(repo_root)
     variant = service.new_variant(repo_root, profile, "Widget Alpha")
     variant["lockscreen_clock"]["opacity"] = 45
+    variant["lockscreen_clock"]["style"] = "glass tinted"
+    variant["lockscreen_clock"]["glass_strength"] = "medium"
     preview = service.build_preview_state(repo_root, profile, variant)
     widget = ThemeDesignerWidget()
 
     widget.set_fonts(service.fonts_for_profile(repo_root))
     widget.load_variant(variant, preview)
 
-    assert widget.current_variant_data()["lockscreen_clock"]["opacity"] == 45
+    clock = widget.current_variant_data()["lockscreen_clock"]
+    assert clock["opacity"] == 45
+    assert clock["style"] == "glass tinted"
+    assert clock["glass_strength"] == "medium"
     widget.deleteLater()
 
 
