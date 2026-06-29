@@ -767,15 +767,58 @@ static int parse_viewportcolour(struct skin_element *element,
             colour->colour = fg_color;
         else
             colour->colour = bg_color;
+#ifdef HAVE_LCD_COLOR
+        colour->alpha = 0xff;
+#endif
 #if (LCD_DEPTH > 1) || (defined(HAVE_REMOTE_LCD) && (LCD_REMOTE_DEPTH > 1))
         colour->is_default = true;
 #endif
     }
     else
     {
-        if (!parse_color(curr_screen, SKINOFFSETTOPTR(skin_buffer, param->data.text),
-                    &colour->colour))
+        char *text = SKINOFFSETTOPTR(skin_buffer, param->data.text);
+#ifdef HAVE_LCD_COLOR
+        if (token->type == SKIN_TOKEN_VIEWPORT_FGCOLOUR &&
+            curr_screen == SCREEN_MAIN && strlen(text) == 8)
+        {
+            char rgb_text[7];
+            int alpha;
+
+            if (!isxdigit((unsigned char)text[0]) ||
+                !isxdigit((unsigned char)text[1]) ||
+                !isxdigit((unsigned char)text[2]) ||
+                !isxdigit((unsigned char)text[3]) ||
+                !isxdigit((unsigned char)text[4]) ||
+                !isxdigit((unsigned char)text[5]) ||
+                !isxdigit((unsigned char)text[6]) ||
+                !isxdigit((unsigned char)text[7]))
+                return -1;
+
+            memcpy(rgb_text, text, 6);
+            rgb_text[6] = '\0';
+            if (!parse_color(curr_screen, rgb_text, &colour->colour))
+                return -1;
+
+            alpha = (isdigit((unsigned char)text[6]) ? text[6] - '0' :
+                    tolower((unsigned char)text[6]) - 'a' + 10) << 4;
+            alpha |= isdigit((unsigned char)text[7]) ?
+                    text[7] - '0' : tolower((unsigned char)text[7]) - 'a' + 10;
+            colour->alpha = alpha;
+        }
+        else
+#endif
+        {
+            if (!parse_color(curr_screen, text, &colour->colour))
+                return -1;
+#ifdef HAVE_LCD_COLOR
+            colour->alpha = 0xff;
+#endif
+        }
+#ifdef HAVE_LCD_COLOR
+        if (token->type == SKIN_TOKEN_VIEWPORT_FGCOLOUR &&
+            curr_screen == SCREEN_MAIN && strlen(text) != 6 && strlen(text) != 8)
             return -1;
+#endif
 #if (LCD_DEPTH > 1) || (defined(HAVE_REMOTE_LCD) && (LCD_REMOTE_DEPTH > 1))
         colour->is_default = false;
 #endif
@@ -786,6 +829,9 @@ static int parse_viewportcolour(struct skin_element *element,
         if (token->type == SKIN_TOKEN_VIEWPORT_FGCOLOUR)
         {
             curr_vp->vp.fg_pattern = colour->colour;
+#ifdef HAVE_LCD_COLOR
+            curr_vp->fg_alpha = colour->alpha;
+#endif
 #if defined(HAVE_LCD_COLOR) && defined(HAVE_ALBUMART)
             curr_vp->dc_orig_fg = colour->colour;
 #endif
@@ -2394,6 +2440,7 @@ static int convert_viewport(struct wps_data *data, struct skin_element* element)
     skin_vp->start_gradient.start = global_settings.lss_color;
     skin_vp->start_gradient.end = global_settings.lse_color;
     skin_vp->start_gradient.text = global_settings.lst_color;
+    skin_vp->fg_alpha = 0xff;
 #ifdef HAVE_ALBUMART
     skin_vp->dc_orig_fg = skin_vp->vp.fg_pattern;
     skin_vp->dc_orig_bg = skin_vp->vp.bg_pattern;

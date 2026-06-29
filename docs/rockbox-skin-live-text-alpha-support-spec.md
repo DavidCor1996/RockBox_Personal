@@ -136,18 +136,29 @@ render path:
 display->set_foreground(skin_viewport->vp.fg_pattern);
 ```
 
-When a viewport foreground has alpha:
+When a viewport foreground has alpha in the implemented first pass:
 
 1. Resolve the foreground RGB and alpha.
-2. Draw text through an alpha-aware skin text helper.
-3. Blend only glyph pixels into the current framebuffer/background.
+2. Blend the foreground RGB against the viewport background color.
+3. Draw text through the existing skin text renderer with the blended color.
 
 The implementation should avoid changing global LCD draw mode semantics for
 all callers.
 
 ### Blend Source
 
-Blend against the current framebuffer pixel under each glyph pixel:
+The first implementation blends against `skin_viewport->vp.bg_pattern`:
+
+```text
+out = src * alpha + viewport_bg * (1 - alpha)
+```
+
+This makes alpha visibly work for generated clock skins while keeping the
+existing text renderer and scroll behavior intact. It is not yet full
+per-framebuffer-pixel translucency over arbitrary already-drawn content.
+
+A later, more complete implementation can blend against the current framebuffer
+pixel under each glyph pixel:
 
 ```text
 out = src * alpha + dst * (1 - alpha)

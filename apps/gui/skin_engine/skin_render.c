@@ -229,6 +229,44 @@ get_child(OFFSETTYPE(struct skin_element**) children, int child)
     return SKINOFFSETTOPTR(skin_buffer, kids[child]);
 }
 
+#ifdef HAVE_LCD_COLOR
+static unsigned skin_alpha_blend(unsigned fg, unsigned bg, unsigned char alpha)
+{
+    unsigned inv_alpha = 255 - alpha;
+    unsigned red = (RGB_UNPACK_RED(fg) * alpha +
+                    RGB_UNPACK_RED(bg) * inv_alpha + 127) / 255;
+    unsigned green = (RGB_UNPACK_GREEN(fg) * alpha +
+                      RGB_UNPACK_GREEN(bg) * inv_alpha + 127) / 255;
+    unsigned blue = (RGB_UNPACK_BLUE(fg) * alpha +
+                     RGB_UNPACK_BLUE(bg) * inv_alpha + 127) / 255;
+
+    return LCD_RGBPACK(red, green, blue);
+}
+#endif
+
+static void skin_write_line(struct screen *display,
+                            struct skin_viewport *skin_vp,
+                            struct align_pos *align,
+                            int line,
+                            bool scroll,
+                            struct line_desc *line_desc)
+{
+#ifdef HAVE_LCD_COLOR
+    if (display->depth >= 16 && skin_vp->fg_alpha < 0xff)
+    {
+        unsigned saved_fg = display->get_foreground();
+        unsigned blended = skin_alpha_blend(skin_vp->vp.fg_pattern,
+                                            skin_vp->vp.bg_pattern,
+                                            skin_vp->fg_alpha);
+        display->set_foreground(blended);
+        write_line(display, align, line, scroll, line_desc);
+        display->set_foreground(saved_fg);
+        return;
+    }
+#endif
+    write_line(display, align, line, scroll, line_desc);
+}
+
 
 static bool do_non_text_tags(struct gui_wps *gwps, struct skin_draw_info *info,
                              struct skin_element *element)
@@ -249,7 +287,12 @@ static bool do_non_text_tags(struct gui_wps *gwps, struct skin_draw_info *info,
             if (!col) return false;
             unsigned colour = dynamic_colors_resolve(col->colour);
             if (token->type == SKIN_TOKEN_VIEWPORT_FGCOLOUR)
+            {
                 skin_vp->vp.fg_pattern = colour;
+#ifdef HAVE_LCD_COLOR
+                skin_vp->fg_alpha = col->alpha;
+#endif
+            }
             else
                 skin_vp->vp.bg_pattern = colour;
             skin_vp->fgbg_changed = true;
@@ -1004,7 +1047,7 @@ void skin_render_viewport(struct skin_element* viewport, struct gui_wps *gwps,
                 display->scroll_stop_viewport_rect(&skin_viewport->vp,
                     0, info.line_number*h, skin_viewport->vp.width, h);
             }
-            write_line(display, align, info.line_number,
+            skin_write_line(display, skin_viewport, align, info.line_number,
                     info.line_scrolls, &info.line_desc);
         }
         if (!info.no_line_break)
@@ -1302,7 +1345,7 @@ void skin_render_playlistviewer(struct playlistviewer* viewer,
                 display->scroll_stop_viewport_rect(vp,
                     0, info.line_number*h, vp->width, h);
             }
-            write_line(display, align, info.line_number,
+            skin_write_line(display, skin_viewport, align, info.line_number,
                     info.line_scrolls, &info.line_desc);
         }
         info.line_number++;

@@ -1308,7 +1308,7 @@ class ThemeDesignerService:
 
     @staticmethod
     def _last_skin_foreground(line):
-        matches = re.findall(r"%Vf\(([0-9A-Fa-f]{6})\)", line)
+        matches = re.findall(r"%Vf\(([0-9A-Fa-f]{6})(?:[0-9A-Fa-f]{2})?\)", line)
         return matches[-1].upper() if matches else ""
 
     @staticmethod
@@ -2196,8 +2196,12 @@ class ThemeDesignerService:
         is_sbs = os.path.basename(path).lower().endswith(".sbs")
         clock_style = clock.get("style", "solid")
         glass_strength = clock.get("glass_strength", "off")
-        wallpaper_source = str(variant.get("wallpaper_source") or "").strip()
-        glass_available = bool(wallpaper_source)
+        wallpaper_source = str(
+            variant.get("_staged_lockscreen_wallpaper_source")
+            or variant.get("wallpaper_source")
+            or ""
+        ).strip()
+        glass_available = bool(wallpaper_source and os.path.isfile(wallpaper_source))
         use_glass = glass_available and (clock_style.startswith("glass") or (clock_style == "outline" and glass_strength != "off"))
 
         if is_sbs:
@@ -2314,17 +2318,22 @@ class ThemeDesignerService:
         except (OSError, UnidentifiedImageError) as exc:
             raise ValueError(f"Unreadable lockscreen wallpaper: {source_path}") from exc
 
-        crop = base.crop((x, y, min(320, x + width), min(240, y + height))).filter(
-            ImageFilter.GaussianBlur(radius=5)
-        ).convert("RGBA")
+        crop = base.crop((x, y, min(320, x + width), min(240, y + height)))
         strength = clock.get("glass_strength", "medium")
         style = clock.get("style", "glass")
-        alpha = {"low": 38, "medium": 68, "high": 96}.get(strength, 68)
+        blur_radius = {"low": 3, "medium": 6, "high": 9}.get(strength, 6)
+        crop = crop.filter(ImageFilter.GaussianBlur(radius=blur_radius)).convert("RGBA")
+        alpha = {"low": 34, "medium": 58, "high": 84}.get(strength, 58)
         tint = (255, 255, 255) if style in ("glass", "glass tinted") else (224, 210, 255)
         overlay = Image.new("RGBA", crop.size, (*tint, alpha))
         glass = Image.alpha_composite(crop, overlay)
-        glass.alpha_composite(Image.new("RGBA", (glass.width, 1), (255, 255, 255, 90)), (0, 0))
-        glass.alpha_composite(Image.new("RGBA", (glass.width, 1), (0, 0, 0, 58)), (0, glass.height - 1))
+        draw = ImageDraw.Draw(glass, "RGBA")
+        for row in range(max(1, glass.height // 2)):
+            fade = int(54 * (1.0 - row / max(1, glass.height // 2)))
+            draw.line((0, row, glass.width, row), fill=(255, 255, 255, fade))
+        draw.line((0, 0, glass.width, 0), fill=(255, 255, 255, 118))
+        draw.line((0, glass.height - 1, glass.width, glass.height - 1), fill=(0, 0, 0, 52))
+        draw.line((0, 1, glass.width, glass.height - 2), fill=(255, 255, 255, 26), width=2)
         os.makedirs(os.path.dirname(dest_path), exist_ok=True)
         glass.convert("RGB").save(dest_path, "BMP")
 
@@ -2348,8 +2357,8 @@ class ThemeDesignerService:
         font_pixel_size = ThemeDesignerService._font_pixel_size(clock.get("font_rel", ""))
         effective_height = max(height, font_pixel_size)
         date_y = min(220, y + effective_height + 4)
-        color = self._effective_lockscreen_clock_color(variant, clock, x, y, width, effective_height)
-        date_color = self._effective_lockscreen_clock_color(variant, clock, x, date_y, width, 18)
+        color = self._lockscreen_clock_skin_color(clock)
+        date_color = self._lockscreen_clock_skin_color(clock)
 
         time_parts = []
         style = clock.get("style", "solid")
@@ -2360,7 +2369,7 @@ class ThemeDesignerService:
                 f"%Vl(LockClockGlass,{x},{glass_y},{width_text},{glass_height},-)%xd(LockClockGlassGenerated)"
             )
         if style == "outline":
-            outline_color = ThemeDesignerService._clock_contrast_color(color)
+            outline_color = ThemeDesignerService._clock_contrast_color(clock["color"])
             shadow_x = min(319, max(0, x + 1))
             shadow_y = min(239, max(0, y + 1))
             time_parts.append(
@@ -2383,6 +2392,14 @@ class ThemeDesignerService:
         updated = time_pattern.sub(time_line, content, count=1)
         updated = date_pattern.sub(date_line, updated, count=1)
         return updated
+
+    def _lockscreen_clock_skin_color(self, clock):
+        color = _ensure_hex(clock.get("color"), DEFAULT_LOCKSCREEN_CLOCK["color"])
+        opacity = self._int_between(clock.get("opacity"), 20, 100, DEFAULT_LOCKSCREEN_CLOCK["opacity"])
+        if opacity >= 100:
+            return color
+        alpha = max(0, min(255, int(round(opacity * 255 / 100.0))))
+        return f"{color}{alpha:02X}"
 
     def _effective_lockscreen_clock_color(self, variant, clock, x, y, width, height):
         color = _ensure_hex(clock.get("color"), DEFAULT_LOCKSCREEN_CLOCK["color"])

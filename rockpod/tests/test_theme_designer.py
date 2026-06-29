@@ -239,7 +239,7 @@ def test_lockscreen_clock_opacity_defaults_and_clamps(tmp_dir):
     assert service._normalize_lockscreen_clock({"opacity": "bad"})["opacity"] == 82
 
 
-def test_lockscreen_clock_opacity_exports_rgb_only_composited_colors(tmp_dir):
+def test_lockscreen_clock_opacity_exports_alpha_skin_colors(tmp_dir):
     wallpaper = os.path.join(tmp_dir, "black.bmp")
     Image.new("RGB", (320, 240), "#000000").save(wallpaper, "BMP")
     service = ThemeDesignerService()
@@ -279,8 +279,8 @@ def test_lockscreen_clock_opacity_exports_rgb_only_composited_colors(tmp_dir):
     )
 
     assert "%Vl(Clock,0,0,40,10,1)%Vf(FFFFFF)%acmenu" in updated
-    assert "%Vf(808080)%ac%cl:%cM %cP" in updated
-    assert "%Vl(iPoneLockscreen,0,102,-,18,6)%Vf(808080)%ac" in updated
+    assert "%Vf(FFFFFF80)%ac%cl:%cM %cP" in updated
+    assert "%Vl(iPoneLockscreen,0,102,-,18,6)%Vf(FFFFFF80)%ac" in updated
 
 
 def test_lockscreen_clock_opacity_at_100_exports_raw_color(tmp_dir):
@@ -307,6 +307,13 @@ def test_lockscreen_clock_opacity_at_100_exports_raw_color(tmp_dir):
     )
 
     assert "%Vf(ABCDEF)%ac%cl:%cM %cP" in updated
+
+
+def test_lockscreen_clock_skin_color_adds_alpha_when_translucent(tmp_dir):
+    service = ThemeDesignerService()
+    clock = service._normalize_lockscreen_clock({"color": "123ABC", "opacity": 25})
+
+    assert service._lockscreen_clock_skin_color(clock) == "123ABC40"
 
 
 def test_lockscreen_clock_opacity_samples_staged_wallpaper_without_source(tmp_dir):
