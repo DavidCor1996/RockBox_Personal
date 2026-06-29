@@ -26,6 +26,7 @@ from PySide6.QtWidgets import (
     QPushButton,
     QScrollArea,
     QSizePolicy,
+    QSlider,
     QSpinBox,
     QStackedLayout,
     QVBoxLayout,
@@ -1303,7 +1304,20 @@ class ThemeDesignerWidget(QWidget):
         self._lockscreen_clock_x_spin = self._spinbox(0, 319, 0)
         self._lockscreen_clock_y_spin = self._spinbox(0, 180, 32)
         self._lockscreen_clock_width_spin = self._spinbox(40, 320, 320)
-        self._lockscreen_clock_height_spin = self._spinbox(12, 100, 55)
+        self._lockscreen_clock_height_spin = self._spinbox(12, 120, 55)
+        self._lockscreen_clock_opacity_slider = QSlider(Qt.Horizontal)
+        self._lockscreen_clock_opacity_slider.setRange(20, 100)
+        self._lockscreen_clock_opacity_slider.setSingleStep(1)
+        self._lockscreen_clock_opacity_slider.setPageStep(5)
+        self._lockscreen_clock_opacity_slider.setValue(82)
+        self._lockscreen_clock_opacity_spin = QSpinBox()
+        self._lockscreen_clock_opacity_spin.setRange(20, 100)
+        self._lockscreen_clock_opacity_spin.setSingleStep(1)
+        self._lockscreen_clock_opacity_spin.setSuffix("%")
+        self._lockscreen_clock_opacity_spin.setValue(82)
+        self._lockscreen_clock_opacity_slider.valueChanged.connect(self._lockscreen_clock_opacity_spin.setValue)
+        self._lockscreen_clock_opacity_spin.valueChanged.connect(self._lockscreen_clock_opacity_slider.setValue)
+        self._lockscreen_clock_opacity_spin.valueChanged.connect(self._sync_preview)
         self._lockscreen_clock_position_btn = QPushButton("Position Visually")
         self._lockscreen_clock_position_btn.clicked.connect(self._choose_lockscreen_clock_position)
         clock_position_row = QWidget()
@@ -1323,8 +1337,15 @@ class ThemeDesignerWidget(QWidget):
         clock_size_layout.addWidget(self._lockscreen_clock_width_spin)
         clock_size_layout.addWidget(QLabel("H"))
         clock_size_layout.addWidget(self._lockscreen_clock_height_spin)
+        clock_opacity_row = QWidget()
+        clock_opacity_layout = QHBoxLayout(clock_opacity_row)
+        clock_opacity_layout.setContentsMargins(0, 0, 0, 0)
+        clock_opacity_layout.setSpacing(6)
+        clock_opacity_layout.addWidget(self._lockscreen_clock_opacity_slider, 1)
+        clock_opacity_layout.addWidget(self._lockscreen_clock_opacity_spin)
         clock_form.addRow("Font", self._lockscreen_clock_font_combo)
         clock_form.addRow("Color", self._lockscreen_clock_color_btn)
+        clock_form.addRow("Font alpha", clock_opacity_row)
         clock_form.addRow("Align", self._lockscreen_clock_align_combo)
         clock_form.addRow("Position", clock_position_row)
         clock_form.addRow("Size box", clock_size_row)
@@ -1557,7 +1578,8 @@ class ThemeDesignerWidget(QWidget):
         self._lockscreen_clock_x_spin.setValue(self._clamp_int(clock.get("x", 0), 0, 319))
         self._lockscreen_clock_y_spin.setValue(self._clamp_int(clock.get("y", 32), 0, 180))
         self._lockscreen_clock_width_spin.setValue(self._clamp_int(clock.get("width", 320), 40, 320))
-        self._lockscreen_clock_height_spin.setValue(self._clamp_int(clock.get("height", 55), 12, 100))
+        self._lockscreen_clock_height_spin.setValue(self._clamp_int(clock.get("height", 55), 12, 120))
+        self._set_lockscreen_clock_opacity(clock.get("opacity", 82))
         colors = variant.get("colors", {})
         self._set_appearance_mode_value(variant.get("appearance_mode", "dark"))
         self._set_color_profile_value(variant.get("color_profile", "custom"))
@@ -1611,6 +1633,7 @@ class ThemeDesignerWidget(QWidget):
                 "height": self._lockscreen_clock_height_spin.value(),
                 "align": self._lockscreen_clock_align_combo.currentData() or "center",
                 "color": self._lockscreen_clock_color_btn.hex(),
+                "opacity": self._lockscreen_clock_opacity_spin.value(),
             },
             "color_profile": self._color_profile_combo.currentData() or "custom",
             "appearance_mode": self._appearance_mode_combo.currentData() or "dark",
@@ -1815,6 +1838,15 @@ class ThemeDesignerWidget(QWidget):
         index = self._lockscreen_clock_font_combo.findData(self._lockscreen_clock_font_pending)
         if index >= 0:
             self._lockscreen_clock_font_combo.setCurrentIndex(index)
+
+    def _set_lockscreen_clock_opacity(self, value):
+        opacity = self._clamp_int(value, 20, 100)
+        self._lockscreen_clock_opacity_spin.blockSignals(True)
+        self._lockscreen_clock_opacity_slider.blockSignals(True)
+        self._lockscreen_clock_opacity_spin.setValue(opacity)
+        self._lockscreen_clock_opacity_slider.setValue(opacity)
+        self._lockscreen_clock_opacity_slider.blockSignals(False)
+        self._lockscreen_clock_opacity_spin.blockSignals(False)
 
     @staticmethod
     def _clamp_int(value, minimum, maximum):

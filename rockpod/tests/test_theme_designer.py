@@ -215,13 +215,116 @@ def test_generates_and_persists_custom_variant(tmp_dir):
     variant = service.new_variant(repo_root, _profile(repo_root), "Midnight Glass")
     variant["font_rel"] = "fonts/18-Cantarell-Regular.fnt"
     variant["colors"]["selector_end"] = "ABCDEF"
+    variant["lockscreen_clock"]["opacity"] = 64
     saved = service.save_variant(repo_root, variant)
 
     loaded = service.load_variant(repo_root, saved["id"])
     assert loaded["name"] == "Midnight Glass"
     assert loaded["font_rel"] == "fonts/18-Cantarell-Regular.fnt"
     assert loaded["colors"]["selector_end"] == "ABCDEF"
+    assert loaded["lockscreen_clock"]["opacity"] == 64
     assert not _temp_names(os.path.join(repo_root, "rockpod", ".theme_designer", "variants"))
+
+
+def test_lockscreen_clock_opacity_defaults_and_clamps(tmp_dir):
+    repo_root = os.path.join(tmp_dir, "repo")
+    _make_repo(repo_root)
+    service = ThemeDesignerService()
+
+    variant = service.new_variant(repo_root, _profile(repo_root), "Clock Alpha")
+
+    assert variant["lockscreen_clock"]["opacity"] == 82
+    assert service._normalize_lockscreen_clock({"opacity": 5})["opacity"] == 20
+    assert service._normalize_lockscreen_clock({"opacity": 200})["opacity"] == 100
+    assert service._normalize_lockscreen_clock({"opacity": "bad"})["opacity"] == 82
+
+
+def test_lockscreen_clock_opacity_exports_rgb_only_composited_colors(tmp_dir):
+    wallpaper = os.path.join(tmp_dir, "black.bmp")
+    Image.new("RGB", (320, 240), "#000000").save(wallpaper, "BMP")
+    service = ThemeDesignerService()
+    content = (
+        "%Vl(Clock,0,0,40,10,1)%Vf(FFFFFF)%acmenu\n"
+        "%Vl(iPoneLockscreen,0,32,-,55,10)%Vf(FFFFFF)%ac%cl:%cM %cP\n"
+        "%Vl(iPoneLockscreen,0,91,-,18,6)%Vf(FFFFFF)%ac"
+        "%?if(%ss(0,7,%St(lang)), =, english)<%?cu<Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday>|%ca> "
+        "%?or(%if(%ss(0,7,%St(lang)), =, chinese),%if(%St(lang), =, magyar),%if(%St(lang), =, lietuviu),"
+        "%if(%St(lang), =, japanese),%if(%St(lang), =, korean))<%cb %cd|%?if(%St(lang), =, english-us)<%cb %cd|%cd %cb>>\n"
+    )
+    clock = service._normalize_lockscreen_clock(
+        {
+            "color": "FFFFFF",
+            "opacity": 50,
+            "x": 0,
+            "y": 32,
+            "width": 320,
+            "height": 55,
+        }
+    )
+    variant = {
+        "screen_resolution": "320x240",
+        "fit_mode": "fill",
+        "wallpaper_source": wallpaper,
+        "appearance_mode": "dark",
+        "colors": {"background": "000000"},
+    }
+
+    updated = service._replace_lockscreen_clock_block(
+        content,
+        "iPoneLockscreen",
+        clock,
+        time_font=10,
+        date_font=6,
+        variant=variant,
+    )
+
+    assert "%Vl(Clock,0,0,40,10,1)%Vf(FFFFFF)%acmenu" in updated
+    assert "%Vf(808080)%ac%cl:%cM %cP" in updated
+    assert "%Vl(iPoneLockscreen,0,102,-,18,6)%Vf(808080)%ac" in updated
+
+
+def test_lockscreen_clock_opacity_at_100_exports_raw_color(tmp_dir):
+    wallpaper = os.path.join(tmp_dir, "black.bmp")
+    Image.new("RGB", (320, 240), "#000000").save(wallpaper, "BMP")
+    service = ThemeDesignerService()
+    content = "%Vl(iPoneLockscreen,0,32,-,55,10)%Vf(123456)%ac%cl:%cM %cP\n"
+    clock = service._normalize_lockscreen_clock({"color": "ABCDEF", "opacity": 100})
+    variant = {
+        "screen_resolution": "320x240",
+        "fit_mode": "fill",
+        "wallpaper_source": wallpaper,
+        "appearance_mode": "dark",
+        "colors": {"background": "000000"},
+    }
+
+    updated = service._replace_lockscreen_clock_block(
+        content,
+        "iPoneLockscreen",
+        clock,
+        time_font=10,
+        date_font=6,
+        variant=variant,
+    )
+
+    assert "%Vf(ABCDEF)%ac%cl:%cM %cP" in updated
+
+
+def test_lockscreen_clock_opacity_samples_staged_wallpaper_without_source(tmp_dir):
+    wallpaper = os.path.join(tmp_dir, "staged.bmp")
+    Image.new("RGB", (320, 240), "#000000").save(wallpaper, "BMP")
+    service = ThemeDesignerService()
+    clock = service._normalize_lockscreen_clock({"color": "FFFFFF", "opacity": 25})
+    variant = {
+        "screen_resolution": "320x240",
+        "fit_mode": "fill",
+        "_staged_lockscreen_wallpaper_source": wallpaper,
+        "appearance_mode": "dark",
+        "colors": {"background": "000000"},
+    }
+
+    color = service._effective_lockscreen_clock_color(variant, clock, 0, 32, 320, 55)
+
+    assert color == "404040"
 
 
 def test_wallpaper_conversion_respects_profile_resolution(tmp_dir):
@@ -453,6 +556,24 @@ def test_preview_bundle_applies_unsaved_colors_to_generated_assets_and_templates
     assert not _temp_names(os.path.dirname(os.path.dirname(cfg)))
     assert "88AA44" in content
     assert "FFF199" in content
+
+
+def test_theme_designer_current_variant_data_includes_lockscreen_clock_opacity(tmp_dir):
+    app = QApplication.instance() or QApplication([])
+    repo_root = os.path.join(tmp_dir, "repo")
+    _make_repo(repo_root)
+    service = ThemeDesignerService()
+    profile = _profile(repo_root)
+    variant = service.new_variant(repo_root, profile, "Widget Alpha")
+    variant["lockscreen_clock"]["opacity"] = 45
+    preview = service.build_preview_state(repo_root, profile, variant)
+    widget = ThemeDesignerWidget()
+
+    widget.set_fonts(service.fonts_for_profile(repo_root))
+    widget.load_variant(variant, preview)
+
+    assert widget.current_variant_data()["lockscreen_clock"]["opacity"] == 45
+    widget.deleteLater()
 
 
 def test_wayland_simulator_mode_uses_full_preview_surface(tmp_dir, monkeypatch):

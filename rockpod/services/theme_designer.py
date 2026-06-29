@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import logging
 import os
 import re
 import shutil
@@ -12,7 +13,7 @@ import colorsys
 import hashlib
 from copy import deepcopy
 
-from PIL import Image, ImageColor, ImageDraw, ImageOps, UnidentifiedImageError
+from PIL import Image, ImageColor, ImageDraw, ImageFilter, ImageOps, UnidentifiedImageError
 
 from services.file_safety import atomic_write_json, atomic_write_text
 from services.greyscale_images import render_2bpp_greyscale, should_render_2bpp_greyscale
@@ -52,6 +53,10 @@ DEFAULT_LOCKSCREEN_CLOCK = {
     "height": 55,
     "align": "center",
     "color": "FFFFFF",
+    "style": "solid",
+    "glass_strength": "off",
+    "shadow": "soft",
+    "opacity": 82,
 }
 
 WALLPAPER_TARGETS = {
@@ -554,6 +559,17 @@ class ThemeDesignerService:
                     rel = f"wps/{skin_name}/{suffix}"
                     assets.append(self._asset_record("wps_assets", rel, f".rockbox/{rel}", full))
 
+        glass_path = os.path.join(stage_root, "wps", "LockClockGlassGenerated.bmp")
+        if os.path.isfile(glass_path):
+            assets.append(
+                self._asset_record(
+                    "lockscreen_clock_glass",
+                    "wps/LockClockGlassGenerated.bmp",
+                    ".rockbox/wps/LockClockGlassGenerated.bmp",
+                    glass_path,
+                )
+            )
+
         return {
             "id": normalized["id"],
             "name": normalized["name"],
@@ -629,6 +645,9 @@ class ThemeDesignerService:
         shutil.copytree(base_dir, staged_wps_dir)
 
         self._apply_wallpaper_overrides(staged_wps_dir, variant)
+        staged_lockscreen = os.path.join(staged_wps_dir, "Wallpaper.bmp")
+        if os.path.isfile(staged_lockscreen):
+            variant["_staged_lockscreen_wallpaper_source"] = staged_lockscreen
         self._apply_sprite_color_overrides(staged_wps_dir, variant)
         self._write_stock_battery_asset(staged_wps_dir, variant)
         if sbs_skin_name != theme_name:
@@ -1101,10 +1120,15 @@ class ThemeDesignerService:
         result["x"] = self._int_between(source.get("x"), 0, 319, result["x"])
         result["y"] = self._int_between(source.get("y"), 0, 180, result["y"])
         result["width"] = self._int_between(source.get("width"), 40, 320, result["width"])
-        result["height"] = self._int_between(source.get("height"), 12, 100, result["height"])
+        result["height"] = self._int_between(source.get("height"), 12, 120, result["height"])
         align = str(source.get("align") or result["align"]).strip().lower()
         result["align"] = align if align in {"left", "center", "right"} else DEFAULT_LOCKSCREEN_CLOCK["align"]
         result["color"] = _ensure_hex(source.get("color"), result["color"])
+        style = str(source.get("style") or result["style"]).strip().lower()
+        result["style"] = style if style in {"solid", "soft shadow", "outline", "glass", "glass tinted"} else DEFAULT_LOCKSCREEN_CLOCK["style"]
+        glass = str(source.get("glass_strength") or result["glass_strength"]).strip().lower()
+        result["glass_strength"] = glass if glass in {"off", "low", "medium", "high"} else DEFAULT_LOCKSCREEN_CLOCK["glass_strength"]
+        result["opacity"] = self._int_between(source.get("opacity"), 20, 100, result["opacity"])
         return result
 
     def readability_recommendations(self, repo_root, profile, variant_data):
@@ -2169,10 +2193,42 @@ class ThemeDesignerService:
             return
 
         content = self._ensure_font_slot(content, 10, clock["font_rel"])
-        if os.path.basename(path).lower().endswith(".sbs"):
-            content = self._replace_lockscreen_clock_block(content, "iPoneLockscreen", clock, time_font=10, date_font=6)
+        is_sbs = os.path.basename(path).lower().endswith(".sbs")
+        clock_style = clock.get("style", "solid")
+        glass_strength = clock.get("glass_strength", "off")
+        wallpaper_source = str(variant.get("wallpaper_source") or "").strip()
+        glass_available = bool(wallpaper_source)
+        use_glass = glass_available and (clock_style.startswith("glass") or (clock_style == "outline" and glass_strength != "off"))
+
+        if is_sbs:
+            if use_glass:
+                glass_dest = os.path.join(os.path.dirname(path), "LockClockGlassGenerated.bmp")
+                try:
+                    ThemeDesignerService._render_clock_glass(wallpaper_source, glass_dest, clock)
+                except (OSError, ValueError) as exc:
+                    logging.warning("Glass rendering failed, falling back: %s", exc)
+                    use_glass = False
+            content = self._replace_lockscreen_clock_block(
+                content,
+                "iPoneLockscreen",
+                clock,
+                time_font=10,
+                date_font=6,
+                use_glass=use_glass,
+                variant=variant,
+            )
+            if use_glass:
+                content = ThemeDesignerService._enable_generated_clock_glass(content)
         else:
-            content = self._replace_lockscreen_clock_block(content, "Lockscreen", clock, time_font=10, date_font=4)
+            content = self._replace_lockscreen_clock_block(
+                content,
+                "Lockscreen",
+                clock,
+                time_font=10,
+                date_font=4,
+                use_glass=False,
+                variant=variant,
+            )
         atomic_write_text(path, content)
 
     def _apply_designer_sbs_layout_overrides(self, path, variant):
@@ -2226,18 +2282,98 @@ class ThemeDesignerService:
         last = matches[-1]
         return content[:last.end()] + "\n" + replacement + content[last.end():]
 
-    def _replace_lockscreen_clock_block(self, content, viewport_name, clock, time_font, date_font):
+    @staticmethod
+    def _font_pixel_size(font_name: str) -> int:
+        match = re.match(r"(\d+)-", os.path.basename(str(font_name or "")))
+        return int(match.group(1)) if match else 0
+
+    @staticmethod
+    def _clock_contrast_color(hex_color: str) -> str:
+        try:
+            r, g, b = int(hex_color[0:2], 16), int(hex_color[2:4], 16), int(hex_color[4:6], 16)
+            luminance = 0.299 * r + 0.587 * g + 0.114 * b
+            return "2A2A3E" if luminance > 128 else "D0D0E0"
+        except (ValueError, IndexError):
+            return "2A2A3E"
+
+    @staticmethod
+    def _render_clock_glass(source_path: str, dest_path: str, clock: Dict):
+        font_pixel_size = ThemeDesignerService._font_pixel_size(clock.get("font_rel", ""))
+        clock_height = int(clock.get("height", 55))
+        effective_height = max(clock_height, font_pixel_size)
+        x = int(clock.get("x", 0))
+        y = max(0, int(clock.get("y", 32)) - 4)
+        width = int(clock.get("width", 320))
+        height = min(240 - y, effective_height + 8)
+        if width >= 320:
+            x = 0
+            width = 320
+        try:
+            with Image.open(source_path) as img:
+                base = ImageOps.fit(img.convert("RGB"), (320, 240), Image.Resampling.LANCZOS)
+        except (OSError, UnidentifiedImageError) as exc:
+            raise ValueError(f"Unreadable lockscreen wallpaper: {source_path}") from exc
+
+        crop = base.crop((x, y, min(320, x + width), min(240, y + height))).filter(
+            ImageFilter.GaussianBlur(radius=5)
+        ).convert("RGBA")
+        strength = clock.get("glass_strength", "medium")
+        style = clock.get("style", "glass")
+        alpha = {"low": 38, "medium": 68, "high": 96}.get(strength, 68)
+        tint = (255, 255, 255) if style in ("glass", "glass tinted") else (224, 210, 255)
+        overlay = Image.new("RGBA", crop.size, (*tint, alpha))
+        glass = Image.alpha_composite(crop, overlay)
+        glass.alpha_composite(Image.new("RGBA", (glass.width, 1), (255, 255, 255, 90)), (0, 0))
+        glass.alpha_composite(Image.new("RGBA", (glass.width, 1), (0, 0, 0, 58)), (0, glass.height - 1))
+        os.makedirs(os.path.dirname(dest_path), exist_ok=True)
+        glass.convert("RGB").save(dest_path, "BMP")
+
+    @staticmethod
+    def _enable_generated_clock_glass(content: str) -> str:
+        if "%xl(LockClockGlassGenerated,LockClockGlassGenerated.bmp)" not in content:
+            marker = "%xl(LsStyle,LockscreenStyle.bmp)\n"
+            content = content.replace(marker, marker + "%xl(LockClockGlassGenerated,LockClockGlassGenerated.bmp)\n", 1)
+        if "%Vd(LockClockGlass)%Vd(iPoneLockscreen)" in content:
+            return content
+        content = content.replace("%Vd(iPoneLockscreen)%?mp<", "%Vd(LockClockGlass)%Vd(iPoneLockscreen)%?mp<", 1)
+        return content
+
+    def _replace_lockscreen_clock_block(self, content, viewport_name, clock, time_font, date_font, use_glass=False, variant=None):
         x = int(clock["x"])
         y = int(clock["y"])
         width = int(clock["width"])
         height = int(clock["height"])
         width_text = "-" if width >= 320 else str(width)
         align = {"left": "%al", "center": "%ac", "right": "%ar"}.get(clock["align"], "%ac")
-        color = clock["color"]
-        date_y = min(220, y + height + 14)
-        time_line = f"%Vl({viewport_name},{x},{y},{width_text},{height},{time_font})%Vf({color}){align}%cl:%cM %cP"
+        font_pixel_size = ThemeDesignerService._font_pixel_size(clock.get("font_rel", ""))
+        effective_height = max(height, font_pixel_size)
+        date_y = min(220, y + effective_height + 4)
+        color = self._effective_lockscreen_clock_color(variant, clock, x, y, width, effective_height)
+        date_color = self._effective_lockscreen_clock_color(variant, clock, x, date_y, width, 18)
+
+        time_parts = []
+        style = clock.get("style", "solid")
+        if use_glass:
+            glass_y = max(0, y - 4)
+            glass_height = min(240 - glass_y, effective_height + 8)
+            time_parts.append(
+                f"%Vl(LockClockGlass,{x},{glass_y},{width_text},{glass_height},-)%xd(LockClockGlassGenerated)"
+            )
+        if style == "outline":
+            outline_color = ThemeDesignerService._clock_contrast_color(color)
+            shadow_x = min(319, max(0, x + 1))
+            shadow_y = min(239, max(0, y + 1))
+            time_parts.append(
+                f"%Vl(iPoneClockShadow,{shadow_x},{shadow_y},{width_text},{effective_height},{time_font})"
+                f"%Vf({outline_color}){align}%cl:%cM %cP"
+            )
+        time_parts.append(
+            f"%Vl({viewport_name},{x},{y},{width_text},{effective_height},{time_font})%Vf({color}){align}%cl:%cM %cP"
+        )
+        time_line = "\n".join(time_parts)
+
         date_line = (
-            f"%Vl({viewport_name},{x},{date_y},{width_text},20,{date_font})%Vf({color}){align}"
+            f"%Vl({viewport_name},{x},{date_y},{width_text},18,{date_font})%Vf({date_color}){align}"
             "%?if(%ss(0,7,%St(lang)), =, english)<%?cu<Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday>|%ca> "
             "%?or(%if(%ss(0,7,%St(lang)), =, chinese),%if(%St(lang), =, magyar),%if(%St(lang), =, lietuviu),"
             "%if(%St(lang), =, japanese),%if(%St(lang), =, korean))<%cb %cd|%?if(%St(lang), =, english-us)<%cb %cd|%cd %cb>>"
@@ -2247,3 +2383,83 @@ class ThemeDesignerService:
         updated = time_pattern.sub(time_line, content, count=1)
         updated = date_pattern.sub(date_line, updated, count=1)
         return updated
+
+    def _effective_lockscreen_clock_color(self, variant, clock, x, y, width, height):
+        color = _ensure_hex(clock.get("color"), DEFAULT_LOCKSCREEN_CLOCK["color"])
+        opacity = self._int_between(clock.get("opacity"), 20, 100, DEFAULT_LOCKSCREEN_CLOCK["opacity"])
+        if opacity >= 100:
+            return color
+        background = self._lockscreen_region_background_rgb(variant, x, y, width, height)
+        foreground = _hex_to_rgb(color)
+        amount = opacity / 100.0
+        return _rgb_to_hex(
+            (
+                background[0] + (foreground[0] - background[0]) * amount,
+                background[1] + (foreground[1] - background[1]) * amount,
+                background[2] + (foreground[2] - background[2]) * amount,
+            )
+        )
+
+    def _lockscreen_region_background_rgb(self, variant, x, y, width, height):
+        fallback = (255, 255, 255) if (variant or {}).get("appearance_mode") == "light" else (0, 0, 0)
+        source_path = str(
+            (variant or {}).get("_staged_lockscreen_wallpaper_source")
+            or (variant or {}).get("wallpaper_source")
+            or ""
+        ).strip()
+        if not source_path or not os.path.isfile(source_path):
+            return fallback
+        try:
+            image = self._rendered_wallpaper_for_sampling(
+                source_path,
+                (variant or {}).get("screen_resolution", "320x240"),
+                (variant or {}).get("fit_mode", "fill"),
+                ((variant or {}).get("colors") or {}).get("background", DEFAULT_COLORS["background"]),
+            )
+        except ValueError:
+            return fallback
+        if image.width <= 0 or image.height <= 0:
+            return fallback
+        left = max(0, min(image.width - 1, int(x)))
+        top = max(0, min(image.height - 1, int(y)))
+        right = max(left + 1, min(image.width, left + max(1, int(width))))
+        bottom = max(top + 1, min(image.height, top + max(1, int(height))))
+        region = image.crop((left, top, right, bottom))
+        pixels = list(region.getdata())
+        if not pixels:
+            pixels = list(image.getdata())
+        if not pixels:
+            return fallback
+        return (
+            int(round(sum(pixel[0] for pixel in pixels) / len(pixels))),
+            int(round(sum(pixel[1] for pixel in pixels) / len(pixels))),
+            int(round(sum(pixel[2] for pixel in pixels) / len(pixels))),
+        )
+
+    @staticmethod
+    def _rendered_wallpaper_for_sampling(source_path, resolution, fit_mode, matte_hex):
+        width, height = _fit_size(resolution)
+        try:
+            with Image.open(source_path) as img:
+                image = img.convert("RGB")
+        except (OSError, UnidentifiedImageError) as exc:
+            raise ValueError(f"Unreadable wallpaper: {source_path}") from exc
+
+        if fit_mode == "stretch":
+            return image.resize((width, height), Image.Resampling.LANCZOS)
+        if fit_mode == "fit":
+            rendered = Image.new("RGB", (width, height), ImageColor.getrgb(f"#{_ensure_hex(matte_hex, '000000')}"))
+            fitted = ImageOps.contain(image, (width, height), Image.Resampling.LANCZOS)
+            left = (width - fitted.width) // 2
+            top = (height - fitted.height) // 2
+            rendered.paste(fitted, (left, top))
+            return rendered
+
+        scale = max(width / image.width, height / image.height)
+        resized = image.resize(
+            (max(1, int(round(image.width * scale))), max(1, int(round(image.height * scale)))),
+            Image.Resampling.LANCZOS,
+        )
+        left = max(0, (resized.width - width) // 2)
+        top = max(0, (resized.height - height) // 2)
+        return resized.crop((left, top, left + width, top + height))
