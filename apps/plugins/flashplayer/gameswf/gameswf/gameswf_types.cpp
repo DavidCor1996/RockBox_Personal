@@ -50,8 +50,6 @@ namespace gameswf
 	// matrix
 	//
 
-	matrix	matrix::identity;
-
 	matrix::matrix()
 	{
 		// Default to identity.

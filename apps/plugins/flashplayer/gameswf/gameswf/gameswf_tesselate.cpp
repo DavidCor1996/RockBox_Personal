@@ -183,8 +183,26 @@ namespace tesselate
 
 
 	// More Renderer state.
-	static array<fill_segment>	s_current_segments;	// @@ should not dynamically resize this thing!
-	static array<point>	s_current_path;			// @@ should not dynamically resize this thing!
+	static array<fill_segment>* s_current_segments_ref()
+	{
+		static array<fill_segment>* segments;
+		if (segments == NULL)
+		{
+			segments = new array<fill_segment>;
+		}
+		return segments;
+	}
+	#define s_current_segments (*s_current_segments_ref())	// @@ should not dynamically resize this thing!
+	static array<point>* s_current_path_ref()
+	{
+		static array<point>* path;
+		if (path == NULL)
+		{
+			path = new array<point>;
+		}
+		return path;
+	}
+	#define s_current_path (*s_current_path_ref())			// @@ should not dynamically resize this thing!
 	static point	s_last_point;
 	static int	s_current_left_style;
 	static int	s_current_right_style;
@@ -622,7 +640,16 @@ namespace tesselate_new
 	};
 
 
-	static array<path_part>	s_path_parts;
+	static array<path_part>* s_path_parts_ref()
+	{
+		static array<path_part>* parts;
+		if (parts == NULL)
+		{
+			parts = new array<path_part>;
+		}
+		return parts;
+	}
+	#define s_path_parts (*s_path_parts_ref())
 	static point	s_last_point;
 
 

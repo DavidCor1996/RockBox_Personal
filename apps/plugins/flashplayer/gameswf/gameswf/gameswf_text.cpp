@@ -904,7 +904,8 @@ namespace gameswf
 	//	render::end_submit_mask();
 
 		// Draw our actual text. 
-		display_glyph_records(matrix::identity, this, m_text_glyph_records, 
+		matrix text_identity;
+		display_glyph_records(text_identity, this, m_text_glyph_records, 
 			m_def->m_root_def); 
 
 		// turn off mask

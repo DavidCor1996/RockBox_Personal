@@ -25,10 +25,15 @@
 #define SKY_MAX_CACHE_ITEMS 300
 #define SKY_MAX_CACHE_LIST 60
 #define SKY_CPT_MAINLIST 7
+#define SKY_CPT_MOVE_LIST 0x00bd
 #define SKY_FILE_MODULE_0 60400
 
+#define SKY_VAR_RESULT 0
 #define SKY_VAR_SCREEN 1
 #define SKY_VAR_LOGIC_LIST_NO 2
+#define SKY_VAR_MOUSE_STOP 14
+#define SKY_VAR_TEXT1 53
+#define SKY_VAR_RND 115
 #define SKY_VAR_CUR_SECTION 143
 #define SKY_VAR_LAMB_GREET 109
 #define SKY_VAR_JOEY_SECTION 145
@@ -69,11 +74,13 @@
 #define SKY_COMPACT_EXTRA_SUB 33
 #define SKY_COMPACT_EXTRA_SUB_OFF 34
 #define SKY_COMPACT_SCREEN 3
+#define SKY_COMPACT_PLACE 4
 #define SKY_COMPACT_X 6
 #define SKY_COMPACT_Y 7
 #define SKY_COMPACT_ACTION_SCRIPT 17
 #define SKY_COMPACT_UP_FLAG 18
 #define SKY_COMPACT_DOWN_FLAG 19
+#define SKY_COMPACT_FLAG 21
 #define SKY_COMPACT_SYNC 2
 #define SKY_COMPACT_REQUEST 42
 #define SKY_COMPACT_ALT 41
@@ -84,6 +91,7 @@
 #define SKY_COMPACT_GRAFIX_PROG_POS 24
 #define SKY_COMPACT_OFFSET 25
 #define SKY_COMPACT_MOOD 22
+#define SKY_COMPACT_LEAVING 38
 #define SKY_COMPACT_TURN_PROG_ID 48
 #define SKY_COMPACT_TURN_PROG_POS 49
 #define SKY_COMPACT_WAITING_FOR 50
@@ -99,6 +107,10 @@
 #define SKY_LOGIC_AR 2
 #define SKY_LOGIC_AR_ANIM 3
 #define SKY_LOGIC_ALT 5
+#define SKY_LOGIC_MOD_ANIMATE 6
+#define SKY_LOGIC_FRAMES 13
+#define SKY_LOGIC_PAUSE 14
+#define SKY_LOGIC_WAIT_SYNC 15
 #define SKY_LOGIC_SIMPLE_MOD 16
 #define SKY_SCRIPT_MAX_STEPS 256
 #define SKY_SCRIPT_STACK_SIZE 16
@@ -317,13 +329,59 @@ static bool compact_set_word(uint16_t *compact,
     return true;
 }
 
-static bool compact_offset_to_word(uint16_t byte_offset,
+static const uint16_t compact_field_offsets[] = {
+    0, 0, 2, 0, 4, 0, 6, 0, 8, 0, 10, 0, 0, 0, 12, 0,
+    14, 0, 16, 0, 18, 0, 20, 0, 22, 0, 24, 0, 26, 0, 28, 0,
+    30, 0, 32, 0, 34, 0, 36, 0, 38, 0, 40, 0, 42, 0, 44, 0,
+    46, 0, 48, 0, 0, 0, 52, 0, 54, 0, 56, 0, 58, 0, 60, 0,
+    62, 0, 64, 0, 66, 0, 68, 0, 70, 0, 72, 0, 74, 0, 76, 0,
+    78, 0, 80, 0, 82, 0, 84, 0, 86, 0, 88, 0, 90, 0, 92, 0,
+    94, 0, 96, 0, 0, 0, 100, 0, 102, 0, 104, 0, 0, 0, 108, 0,
+};
+
+static const uint16_t megaset_field_offsets[] = {
+    0, 0, 2, 0, 4, 0, 6, 0, 8, 0, 0, 0, 12, 0, 0, 0,
+    16, 0, 0, 0, 20, 0, 0, 0, 24, 0, 0, 0, 28, 0, 0, 0,
+};
+
+static bool compact_offset_to_word(uint16_t compact_offset,
                                    uint16_t *word_index)
 {
-    if (byte_offset & 1)
+    uint16_t byte_offset;
+    uint16_t off = compact_offset;
+    uint16_t set;
+
+    if (off < ARRAYLEN(compact_field_offsets)) {
+        byte_offset = compact_field_offsets[off];
+        if (!byte_offset && off != 0)
+            return false;
+        *word_index = byte_offset / 2;
+        return true;
+    }
+
+    off -= ARRAYLEN(compact_field_offsets);
+    set = 0;
+    while (set < 4) {
+        if (off < ARRAYLEN(megaset_field_offsets)) {
+            byte_offset = megaset_field_offsets[off];
+            if (!byte_offset && off != 0)
+                return false;
+            *word_index = (uint16_t)(55 + set * 14 + byte_offset / 2);
+            return true;
+        }
+        off -= ARRAYLEN(megaset_field_offsets);
+
+        /* Turn tables live in separate CPT entries, not inside this compact. */
+        if (off < 100)
+            return false;
+        off -= 100;
+        set++;
+    }
+
+    if (compact_offset & 1)
         return false;
 
-    *word_index = byte_offset / 2;
+    *word_index = compact_offset / 2;
     return true;
 }
 
@@ -596,6 +654,37 @@ static bool decode_first_active_script(
                          name ? name : "",
                          (unsigned long)steps);
             return true;
+        case 14:
+            if (pc >= module_words ||
+                !stack_pop(stack, &stack_pos, &a)) {
+                rb->strlcpy(status, "Sky script switch failed",
+                            status_size);
+                return false;
+            }
+            b = module_word(module, pc++);
+            while (b) {
+                if (pc + 1 >= module_words) {
+                    rb->strlcpy(status, "Sky script switch table failed",
+                                status_size);
+                    return false;
+                }
+                if (a == module_word(module, pc)) {
+                    pc += module_word(module, pc + 1) / 2;
+                    pc++;
+                    break;
+                }
+                pc += 2;
+                b--;
+            }
+            if (!b) {
+                if (pc >= module_words) {
+                    rb->strlcpy(status, "Sky script switch default failed",
+                                status_size);
+                    return false;
+                }
+                pc += module_word(module, pc) / 2;
+            }
+            break;
         case 17:
             if (!stack_pop(stack, &stack_pos, &a) ||
                 !stack_pop(stack, &stack_pos, &b) ||
@@ -715,6 +804,39 @@ static bool runtime_cache_files(char *status, size_t status_size)
     return true;
 }
 
+static bool runtime_cache_one(uint16_t file_nr,
+                              char *status,
+                              size_t status_size)
+{
+    uint16_t slot = file_nr & 0x07ff;
+
+    if (slot >= ARRAYLEN(cached_items) || slot == 0x07ff)
+        return true;
+
+    if (cached_items[slot].file_nr == file_nr && cached_items[slot].data)
+        return true;
+
+    scummvm_sky_loader_release_resource(&cached_items[slot]);
+    if (!scummvm_sky_loader_load_resource(runtime_target, file_nr,
+                                          &cached_items[slot],
+                                          status,
+                                          status_size))
+        return false;
+
+    rb->snprintf(status, status_size, "Sky mini-load %u",
+                 (unsigned)file_nr);
+    return true;
+}
+
+static void runtime_flush_cache(void)
+{
+    uint32_t i;
+
+    for (i = 0; i < ARRAYLEN(cached_items); i++)
+        scummvm_sky_loader_release_resource(&cached_items[i]);
+    rb->memset(cache_build_list, 0, sizeof(cache_build_list));
+}
+
 static bool runtime_cache_fast(uint16_t list_id,
                                char *status,
                                size_t status_size)
@@ -776,13 +898,46 @@ static bool runtime_cache_chip(uint16_t list_id,
     return runtime_cache_files(status, status_size);
 }
 
+static bool runtime_set_grafix_program(uint16_t *compact,
+                                       uint16_t compact_size,
+                                       uint16_t program_id,
+                                       uint16_t logic)
+{
+    const uint16_t *program;
+    uint16_t program_size;
+    uint16_t program_type;
+
+    program = scummvm_sky_cpt_fetch(program_id, &program_size,
+                                    &program_type, NULL);
+    if (!program || program_size == 0)
+        return false;
+
+    compact_set_word(compact, compact_size, SKY_COMPACT_GRAFIX_PROG_ID,
+                     program_id);
+    compact_set_word(compact, compact_size, SKY_COMPACT_GRAFIX_PROG_POS, 1);
+    compact_set_word(compact, compact_size, SKY_COMPACT_OFFSET, program[0]);
+    compact_set_word(compact, compact_size, SKY_COMPACT_LOGIC_FIELD, logic);
+    (void)program_type;
+    return true;
+}
+
 static bool runtime_mcode(uint16_t mcode,
                           uint32_t a,
                           uint32_t b,
                           uint32_t c,
+                          uint16_t current_id,
+                          uint16_t *compact,
+                          uint16_t compact_size,
+                          bool *continue_script,
                           char *status,
                           size_t status_size)
 {
+    uint16_t target_size;
+    uint16_t target_type;
+    uint16_t *target;
+
+    *continue_script = true;
+
     switch (mcode) {
     case 0:
         return runtime_cache_chip((uint16_t)a, status, status_size);
@@ -790,6 +945,275 @@ static bool runtime_mcode(uint16_t mcode,
         return runtime_cache_fast((uint16_t)a, status, status_size);
     case 2:
         return runtime_draw_screen((uint16_t)a, status, status_size);
+    case 3:
+        compact_set_word(compact, compact_size, SKY_COMPACT_DOWN_FLAG, 1);
+        compact_set_word(compact, compact_size, SKY_COMPACT_AR_TARGET_X,
+                         (uint16_t)a);
+        compact_set_word(compact, compact_size, SKY_COMPACT_AR_TARGET_Y,
+                         (uint16_t)b);
+        compact_set_word(compact, compact_size, SKY_COMPACT_LOGIC_FIELD,
+                         SKY_LOGIC_AR);
+        compact_set_word(compact, compact_size, SKY_COMPACT_X,
+                         compact_word(compact, compact_size,
+                                      SKY_COMPACT_X) & 0xfff8);
+        compact_set_word(compact, compact_size, SKY_COMPACT_Y,
+                         compact_word(compact, compact_size,
+                                      SKY_COMPACT_Y) & 0xfff8);
+        *continue_script = false;
+        rb->snprintf(status, status_size, "Sky mcode fnAr %04x",
+                     (unsigned)current_id);
+        return true;
+    case 4:
+        compact_set_word(compact, compact_size, SKY_COMPACT_MOOD, 0);
+        compact_set_word(compact, compact_size, SKY_COMPACT_LOGIC_FIELD,
+                         SKY_LOGIC_AR_ANIM);
+        *continue_script = false;
+        rb->snprintf(status, status_size, "Sky mcode fnArAnimate %04x",
+                     (unsigned)current_id);
+        return true;
+    case 5:
+        compact_set_word(compact, compact_size, SKY_COMPACT_LOGIC_FIELD, 0);
+        rb->snprintf(status, status_size, "Sky mcode fnIdle %04x",
+                     (unsigned)current_id);
+        return true;
+    case 7:
+        compact_set_word(compact, compact_size, SKY_COMPACT_MODE,
+                         compact_word(compact, compact_size,
+                                      SKY_COMPACT_MODE) + 4);
+        compact_set_word(compact, compact_size, SKY_COMPACT_ACTION_SUB,
+                         (uint16_t)(a & 0xffff));
+        compact_set_word(compact, compact_size, SKY_COMPACT_ACTION_SUB_OFF,
+                         (uint16_t)(a >> 16));
+        *continue_script = false;
+        rb->snprintf(status, status_size, "Sky mcode fnStartSub %04x",
+                     (unsigned)current_id);
+        return true;
+    case 8:
+        target = scummvm_sky_cpt_fetch_mutable((uint16_t)a, &target_size,
+                                               &target_type, NULL);
+        if (!target) {
+            rb->snprintf(status, status_size,
+                         "Sky mcode fnTheyStartSub missing %lu",
+                         (unsigned long)a);
+            return false;
+        }
+        compact_set_word(target, target_size, SKY_COMPACT_MODE,
+                         compact_word(target, target_size,
+                                      SKY_COMPACT_MODE) + 4);
+        compact_set_word(target, target_size, SKY_COMPACT_ACTION_SUB,
+                         (uint16_t)(b & 0xffff));
+        compact_set_word(target, target_size, SKY_COMPACT_ACTION_SUB_OFF,
+                         (uint16_t)(b >> 16));
+        (void)target_type;
+        rb->snprintf(status, status_size, "Sky mcode fnTheyStartSub");
+        return true;
+    case 9:
+        target = scummvm_sky_cpt_fetch_mutable((uint16_t)a, &target_size,
+                                               &target_type, NULL);
+        if (!target) {
+            rb->snprintf(status, status_size,
+                         "Sky mcode fnAssignBase missing %lu",
+                         (unsigned long)a);
+            return false;
+        }
+        compact_set_word(target, target_size, SKY_COMPACT_MODE, 0);
+        compact_set_word(target, target_size, SKY_COMPACT_LOGIC_FIELD,
+                         SKY_LOGIC_SCRIPT);
+        compact_set_word(target, target_size, SKY_COMPACT_BASE_SUB,
+                         (uint16_t)(b & 0xffff));
+        compact_set_word(target, target_size, SKY_COMPACT_BASE_SUB_OFF,
+                         (uint16_t)(b >> 16));
+        (void)target_type;
+        rb->snprintf(status, status_size, "Sky mcode fnAssignBase");
+        return true;
+    case 22:
+        compact_set_word(compact, compact_size, SKY_COMPACT_DOWN_FLAG, 0);
+        return true;
+    case 24:
+        compact_set_word(compact, compact_size, SKY_COMPACT_ALT,
+                         (uint16_t)(a & 0xffff));
+        compact_set_word(compact, compact_size, SKY_COMPACT_LOGIC_FIELD,
+                         SKY_LOGIC_ALT);
+        *continue_script = false;
+        return true;
+    case 26:
+        target = scummvm_sky_cpt_fetch_mutable((uint16_t)a, &target_size,
+                                               &target_type, NULL);
+        if (target)
+            compact_set_word(target, target_size, SKY_COMPACT_STATUS, 0);
+        (void)target_type;
+        return true;
+    case 31:
+        script_vars[SKY_VAR_MOUSE_STOP] |= 1;
+        return true;
+    case 32:
+        script_vars[SKY_VAR_MOUSE_STOP] = 0;
+        return true;
+    case 44:
+        target = scummvm_sky_cpt_fetch_mutable((uint16_t)a, &target_size,
+                                               &target_type, NULL);
+        if (target)
+            compact_set_word(target, target_size, SKY_COMPACT_SYNC,
+                             (uint16_t)b);
+        (void)target_type;
+        *continue_script = false;
+        return true;
+    case 45:
+        target = scummvm_sky_cpt_fetch_mutable((uint16_t)a, &target_size,
+                                               &target_type, NULL);
+        if (target)
+            compact_set_word(target, target_size, SKY_COMPACT_SYNC,
+                             (uint16_t)b);
+        (void)target_type;
+        return true;
+    case 46:
+        target = scummvm_sky_cpt_fetch_mutable((uint16_t)a, &target_size,
+                                               &target_type, NULL);
+        if (target)
+            compact_set_word(target, target_size, SKY_COMPACT_REQUEST,
+                             (uint16_t)(b & 0xffff));
+        (void)target_type;
+        *continue_script = false;
+        return true;
+    case 47:
+        target = scummvm_sky_cpt_fetch_mutable((uint16_t)a, &target_size,
+                                               &target_type, NULL);
+        if (target)
+            compact_set_word(target, target_size, SKY_COMPACT_REQUEST, 0);
+        (void)target_type;
+        return true;
+    case 52:
+        target = scummvm_sky_cpt_fetch_mutable((uint16_t)a, &target_size,
+                                               &target_type, NULL);
+        if (target) {
+            uint16_t st = compact_word(target, target_size,
+                                       SKY_COMPACT_STATUS);
+            compact_set_word(target, target_size, SKY_COMPACT_STATUS,
+                             (st & ~SKY_ST_DRAW_MASK) |
+                             SKY_ST_FOREGROUND);
+        }
+        (void)target_type;
+        return true;
+    case 53:
+        compact_set_word(compact, compact_size, SKY_COMPACT_STATUS,
+                         (compact_word(compact, compact_size,
+                                       SKY_COMPACT_STATUS) &
+                          ~SKY_ST_DRAW_MASK) | SKY_ST_BACKGROUND);
+        return true;
+    case 54:
+        target = scummvm_sky_cpt_fetch_mutable((uint16_t)a, &target_size,
+                                               &target_type, NULL);
+        if (target) {
+            uint16_t st = compact_word(target, target_size,
+                                       SKY_COMPACT_STATUS);
+            compact_set_word(target, target_size, SKY_COMPACT_STATUS,
+                             (st & ~SKY_ST_DRAW_MASK) |
+                             SKY_ST_BACKGROUND);
+        }
+        (void)target_type;
+        return true;
+    case 55:
+        target = scummvm_sky_cpt_fetch_mutable((uint16_t)a, &target_size,
+                                               &target_type, NULL);
+        if (target) {
+            uint16_t st = compact_word(target, target_size,
+                                       SKY_COMPACT_STATUS);
+            compact_set_word(target, target_size, SKY_COMPACT_STATUS,
+                             (st & ~SKY_ST_DRAW_MASK) | SKY_ST_SORT);
+        }
+        (void)target_type;
+        return true;
+    case 56:
+        compact_set_word(compact, compact_size, SKY_COMPACT_STATUS,
+                         compact_word(compact, compact_size,
+                                      SKY_COMPACT_STATUS) &
+                         ~SKY_ST_DRAW_MASK);
+        return true;
+    case 59:
+        compact_set_word(compact, compact_size, SKY_COMPACT_STATUS,
+                         compact_word(compact, compact_size,
+                                      SKY_COMPACT_STATUS) ^
+                         SKY_ST_GRID_PLOT);
+        return true;
+    case 60:
+        compact_set_word(compact, compact_size, SKY_COMPACT_DOWN_FLAG,
+                         (uint16_t)a);
+        *continue_script = false;
+        return true;
+    case 65:
+        compact_set_word(compact, compact_size, SKY_COMPACT_MEGA_SET,
+                         compact_word(compact, compact_size,
+                                      SKY_COMPACT_MEGA_SET) +
+                         SKY_NEXT_MEGA_SET);
+        return true;
+    case 66:
+        compact_set_word(compact, compact_size, SKY_COMPACT_MEGA_SET,
+                         compact_word(compact, compact_size,
+                                      SKY_COMPACT_MEGA_SET) -
+                         SKY_NEXT_MEGA_SET);
+        return true;
+    case 67:
+        target = scummvm_sky_cpt_fetch_mutable((uint16_t)a, &target_size,
+                                               &target_type, NULL);
+        if (target)
+            compact_set_word(target, target_size, SKY_COMPACT_MEGA_SET,
+                             (uint16_t)(b * SKY_NEXT_MEGA_SET));
+        (void)target_type;
+        return true;
+    case 73:
+        script_vars[0] = rb->rand() & a;
+        return true;
+    case 74:
+        target = scummvm_sky_cpt_fetch_mutable((uint16_t)a, &target_size,
+                                               &target_type, NULL);
+        script_vars[0] = target &&
+            compact_word(target, target_size, SKY_COMPACT_SCREEN) == b;
+        (void)target_type;
+        return true;
+    case 75:
+        target = scummvm_sky_cpt_fetch_mutable((uint16_t)a, &target_size,
+                                               &target_type, NULL);
+        if (target)
+            compact_set_word(target, target_size, SKY_COMPACT_STATUS,
+                             compact_word(target, target_size,
+                                          SKY_COMPACT_STATUS) ^
+                             SKY_ST_MOUSE);
+        (void)target_type;
+        return true;
+    case 76:
+        target = scummvm_sky_cpt_fetch_mutable((uint16_t)a, &target_size,
+                                               &target_type, NULL);
+        if (target)
+            compact_set_word(target, target_size, SKY_COMPACT_STATUS,
+                             compact_word(target, target_size,
+                                          SKY_COMPACT_STATUS) |
+                             SKY_ST_MOUSE);
+        (void)target_type;
+        return true;
+    case 77:
+        target = scummvm_sky_cpt_fetch_mutable((uint16_t)a, &target_size,
+                                               &target_type, NULL);
+        if (target)
+            compact_set_word(target, target_size, SKY_COMPACT_STATUS,
+                             compact_word(target, target_size,
+                                          SKY_COMPACT_STATUS) &
+                             ~SKY_ST_MOUSE);
+        (void)target_type;
+        return true;
+    case 78:
+        target = scummvm_sky_cpt_fetch_mutable((uint16_t)a, &target_size,
+                                               &target_type, NULL);
+        script_vars[0] = target ?
+            compact_word(target, target_size, SKY_COMPACT_X) : 0;
+        (void)target_type;
+        return true;
+    case 79:
+        target = scummvm_sky_cpt_fetch_mutable((uint16_t)a, &target_size,
+                                               &target_type, NULL);
+        script_vars[0] = target ?
+            compact_word(target, target_size, SKY_COMPACT_Y) : 0;
+        (void)target_type;
+        return true;
     default:
         rb->snprintf(status, status_size,
                      "Sky mcode %u pending (%lu,%lu,%lu)",
