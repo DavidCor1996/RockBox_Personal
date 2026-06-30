@@ -60,6 +60,8 @@ DEFAULT_LOCKSCREEN_CLOCK = {
     "opacity": 82,
 }
 
+LOCKSCREEN_CLOCK_FONT_FALLBACK = "fonts/90-Cantarell-Regular.fnt"
+LOCKSCREEN_CLOCK_FONT_REJECT_TOKENS = ("icon", "symbol", "dingbat", "emoji")
 LOCKSCREEN_STATUS_RESERVED_HEIGHT = 24
 
 WALLPAPER_TARGETS = {
@@ -1119,7 +1121,9 @@ class ThemeDesignerService:
     def _normalize_lockscreen_clock(self, value):
         source = value if isinstance(value, dict) else {}
         result = deepcopy(DEFAULT_LOCKSCREEN_CLOCK)
-        result["font_rel"] = self._normalize_font_rel(source.get("font_rel") or source.get("font") or result["font_rel"])
+        result["font_rel"] = self._normalize_lockscreen_clock_font_rel(
+            source.get("font_rel") or source.get("font") or result["font_rel"]
+        )
         result["x"] = self._int_between(source.get("x"), 0, 319, result["x"])
         result["y"] = self._int_between(source.get("y"), 0, 180, result["y"])
         result["width"] = self._int_between(source.get("width"), 40, 320, result["width"])
@@ -1624,6 +1628,14 @@ class ThemeDesignerService:
         if text.startswith("/.rockbox/fonts/"):
             return f"fonts/{os.path.basename(text)}"
         return text.replace("\\", "/")
+
+    @staticmethod
+    def _normalize_lockscreen_clock_font_rel(value):
+        font_rel = ThemeDesignerService._normalize_font_rel(value)
+        font_name = os.path.basename(font_rel).lower()
+        if any(token in font_name for token in LOCKSCREEN_CLOCK_FONT_REJECT_TOKENS):
+            return LOCKSCREEN_CLOCK_FONT_FALLBACK
+        return font_rel
 
     def _read_cfg_settings(self, path):
         settings = {}
@@ -2523,7 +2535,7 @@ class ThemeDesignerService:
 
     @staticmethod
     def _lockscreen_clock_safe_y(viewport_name, y):
-        if viewport_name == "iPoneLockscreen":
+        if viewport_name in {"iPoneLockscreen", "Lockscreen"}:
             return max(LOCKSCREEN_STATUS_RESERVED_HEIGHT, int(y))
         return int(y)
 
@@ -2533,8 +2545,8 @@ class ThemeDesignerService:
             return min(220, y + height + 4)
 
         stretch_extra = max(0, stretch_percent - 100)
-        visible_clock_height = int(round(font_pixel_size * (1.0 + (stretch_extra * 0.5 / 100.0))))
-        gap = 4
+        visible_clock_height = int(round(font_pixel_size * (1.0 + (stretch_extra * 0.42 / 100.0))))
+        gap = 2
         return min(220, y + visible_clock_height + gap)
 
     def _lockscreen_clock_render_opacity(self, clock):

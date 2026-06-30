@@ -58,6 +58,7 @@ def _make_repo(repo_root):
     _write_bmp(os.path.join(repo_root, "icons", "iPone.bmp"), 16, 16, "#999999")
     _write_text(os.path.join(repo_root, "fonts", "24 iLike.fnt"), "font24\n")
     _write_text(os.path.join(repo_root, "fonts", "18-Cantarell-Regular.fnt"), "font18\n")
+    _write_text(os.path.join(repo_root, "fonts", "90-Cantarell-Regular.fnt"), "font90\n")
     _write_text(os.path.join(repo_root, "fonts", "14-Adobe-Helvetica-Bold.fnt"), "font14\n")
     _write_text(os.path.join(repo_root, "fonts", "150-Adwaitapod-Icons.fnt"), "icons\n")
     for name in (
@@ -241,6 +242,14 @@ def test_lockscreen_clock_opacity_defaults_and_clamps(tmp_dir):
     assert service._normalize_lockscreen_clock({"opacity": "bad"})["opacity"] == 82
 
 
+def test_lockscreen_clock_rejects_icon_font_for_readable_sbs_and_wps_clock(tmp_dir):
+    service = ThemeDesignerService()
+
+    clock = service._normalize_lockscreen_clock({"font_rel": "fonts/150-Adwaitapod-Icons.fnt"})
+
+    assert clock["font_rel"] == "fonts/90-Cantarell-Regular.fnt"
+
+
 def test_lockscreen_clock_opacity_exports_alpha_skin_colors(tmp_dir):
     wallpaper = os.path.join(tmp_dir, "black.bmp")
     Image.new("RGB", (320, 240), "#000000").save(wallpaper, "BMP")
@@ -282,7 +291,7 @@ def test_lockscreen_clock_opacity_exports_alpha_skin_colors(tmp_dir):
 
     assert "%Vl(Clock,0,0,40,10,1)%Vf(FFFFFF)%acmenu" in updated
     assert "%Vf(FFFFFF80)%ac%cl:%cM %cP" in updated
-    assert "%Vl(iPoneLockscreen,0,102,-,18,6)%Vf(FFFFFF80)%ac" in updated
+    assert "%Vl(iPoneLockscreen,0,100,-,18,6)%Vf(FFFFFF80)%ac" in updated
 
 
 def test_lockscreen_clock_opacity_at_100_exports_raw_color_for_solid_clock(tmp_dir):
@@ -438,7 +447,43 @@ def test_lockscreen_clock_stretch_reserves_status_row_and_replaces_stale_scale(t
     assert "iPoneClockGlassShineScale140" not in updated
     assert "%Vd(iPoneClock" not in updated
     assert "%Vl(iPoneLockscreen,0,24,-,106,10)" in updated
-    assert "%Vl(iPoneLockscreen,0,114,-,18,6)" in updated
+    assert "%Vl(iPoneLockscreen,0,109,-,18,6)" in updated
+
+
+def test_lockscreen_clock_wps_uses_designer_clock_position_and_spacing(tmp_dir):
+    service = ThemeDesignerService()
+    content = (
+        "%Vd(Lockscreen)%?mp<\n"
+        "%Vl(Lockscreen,0,32,-,55,8)%ac%cl:%cM %cP\n"
+        "%Vl(Lockscreen,0,101,-,20,4)%ac"
+        "%?if(%ss(0,7,%St(lang)), =, english)<%?cu<Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday>|%ca> "
+        "%?or(%if(%ss(0,7,%St(lang)), =, chinese),%if(%St(lang), =, magyar),%if(%St(lang), =, lietuviu),"
+        "%if(%St(lang), =, japanese),%if(%St(lang), =, korean))<%cb %cd|%?if(%St(lang), =, english-us)<%cb %cd|%cd %cb>>\n"
+    )
+    clock = service._normalize_lockscreen_clock(
+        {
+            "font_rel": "fonts/66-Cantarell-Light.fnt",
+            "x": 0,
+            "y": 0,
+            "height": 55,
+            "stretch": 160,
+            "style": "glass",
+            "glass_strength": "high",
+            "opacity": 82,
+        }
+    )
+
+    updated = service._replace_lockscreen_clock_block(
+        content,
+        "Lockscreen",
+        clock,
+        time_font=10,
+        date_font=4,
+    )
+
+    assert "%Vl(Lockscreen,0,24,-,106,10)" in updated
+    assert "%Vl(Lockscreen,0,109,-,18,4)" in updated
+    assert "%Vf(FFFFFF85)%ac%cl:%cM %cP" in updated
 
 
 def test_designer_sbs_layout_removes_full_art_redraw_pulse(tmp_dir):

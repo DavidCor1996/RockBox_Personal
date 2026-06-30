@@ -700,7 +700,12 @@ static void hp_unplug_change(bool inserted)
         int audio_stat = audio_status();
         if (inserted)
         {
+#ifdef HAS_BUTTON_HOLD
+            if (!button_hold())
+                backlight_on();
+#else
             backlight_on();
+#endif
             if ((audio_stat & AUDIO_STATUS_PLAY) &&
                     headphone_caused_pause &&
                     global_settings.unplug_mode > 1 )
@@ -741,7 +746,12 @@ static void lo_unplug_change(bool inserted)
         int audio_stat = audio_status();
         if (inserted)
         {
+#ifdef HAS_BUTTON_HOLD
+            if (!button_hold())
+                backlight_on();
+#else
             backlight_on();
+#endif
             if ((audio_stat & AUDIO_STATUS_PLAY) &&
                     lineout_caused_pause &&
                     global_settings.unplug_mode > 1 )
