@@ -72,6 +72,7 @@ namespace gameswf
 		// Read the sprite info.  Consists of a series of tags.
 	{
 		int	tag_end = in->get_tag_end_position();
+		int	tag_count = 0;
 
 		set_frame_count(in->read_u16());
 
@@ -83,6 +84,9 @@ namespace gameswf
 		{
 			int	tag_type = in->open_tag();
 			loader_function lf = NULL;
+			tag_count++;
+			flashplayer_trace_parse_start("sprite", tag_count,
+				tag_type, in->get_position());
 			if (tag_type == 1)
 			{
 				// show frame tag -- advance to the next frame.
@@ -102,6 +106,10 @@ namespace gameswf
 			}
 
 			in->close_tag();
+			flashplayer_trace_parse_end("sprite", tag_count,
+				tag_type, in->get_position());
+			flashplayer_trace_parse_progress("sprite", tag_count,
+				tag_type, in->get_position());
 		}
 
 		IF_VERBOSE_PARSE(log_msg("  -- sprite END --\n"));

@@ -379,38 +379,38 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
                 0x0000000000004050                . = ALIGN (ALIGNOF (NEXT_SECTION))
                 [!provide]                        PROVIDE (__bss_start = .)
 
-.bss            0x0000000000004060      0x628
+.bss            0x0000000000004060      0x8a8
  *(.dynbss)
  .dynbss        0x0000000000004060        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
  *(.bss .bss.* .gnu.linkonce.b.*)
  .bss           0x0000000000004060        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
  .bss           0x0000000000004060        0x1 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtbeginS.o
  *fill*         0x0000000000004061       0x1f 
- .bss           0x0000000000004080      0x510 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/main_menu_config.o
- *fill*         0x0000000000004590       0x10 
- .bss           0x00000000000045a0       0xe8 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
- .bss           0x0000000000004688        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtendS.o
- .bss           0x0000000000004688        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
+ .bss           0x0000000000004080      0x790 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/main_menu_config.o
+ *fill*         0x0000000000004810       0x10 
+ .bss           0x0000000000004820       0xe8 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
+ .bss           0x0000000000004908        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtendS.o
+ .bss           0x0000000000004908        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
  *(COMMON)
-                0x0000000000004688                . = ALIGN ((. != 0x0)?0x8:0x1)
+                0x0000000000004908                . = ALIGN ((. != 0x0)?0x8:0x1)
 
 .lbss
  *(.dynlbss)
  *(.lbss .lbss.* .gnu.linkonce.lb.*)
  *(LARGE_COMMON)
-                0x0000000000004688                . = ALIGN (0x8)
-                0x0000000000004688                . = SEGMENT_START ("ldata-segment", .)
+                0x0000000000004908                . = ALIGN (0x8)
+                0x0000000000004908                . = SEGMENT_START ("ldata-segment", .)
 
 .lrodata
  *(.lrodata .lrodata.* .gnu.linkonce.lr.*)
 
-.ldata          0x0000000000006688        0x0
+.ldata          0x0000000000006908        0x0
  *(.ldata .ldata.* .gnu.linkonce.l.*)
-                0x0000000000006688                . = ALIGN ((. != 0x0)?0x8:0x1)
-                0x0000000000006688                . = ALIGN (0x8)
+                0x0000000000006908                . = ALIGN ((. != 0x0)?0x8:0x1)
+                0x0000000000006908                . = ALIGN (0x8)
                 [!provide]                        PROVIDE (_end = .)
                 [!provide]                        PROVIDE (end = .)
-                0x0000000000006688                . = DATA_SEGMENT_END (.)
+                0x0000000000006908                . = DATA_SEGMENT_END (.)
 
 .stab
  *(.stab)

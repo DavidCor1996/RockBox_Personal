@@ -30,6 +30,9 @@ namespace gameswf
 	struct execute_tag;
 	struct font;
 	struct root;
+	struct sound_sample;
+
+	sound_sample* find_shared_sound_export(const tu_string& symbol);
 	
 	//
 	// This is the client program's interface to the definition of
@@ -304,6 +307,23 @@ namespace gameswf
 		array<array<execute_tag*> >	   m_init_action_list;	// Init actions for each frame.
 		stringi_hash<int>		   m_named_frames;	// 0-based frame #'s
 		stringi_hash<gc_ptr<character_def> > m_exports;
+		struct pending_sound_export
+		{
+			int m_character_id;
+			tu_string m_symbol;
+
+			pending_sound_export() :
+				m_character_id(0)
+			{
+			}
+
+			pending_sound_export(int character_id, const tu_string& symbol) :
+				m_character_id(character_id),
+				m_symbol(symbol)
+			{
+			}
+		};
+		array<pending_sound_export> m_pending_sound_exports;
 
 		// Items we import.
 		array<import_info>	m_imports;
@@ -378,6 +398,7 @@ namespace gameswf
 		void	add_bitmap_character(int character_id, bitmap_character_def* ch);
 		sound_sample*	get_sound_sample(int character_id);
 		virtual void	add_sound_sample(int character_id, sound_sample* sam);
+		void	add_pending_sound_export(int character_id, const tu_string& symbol);
 		void	add_execute_tag(execute_tag* e);
 		void	add_init_action(int sprite_id, execute_tag* e);
 		void	add_frame_name(const char* name);

@@ -13,6 +13,7 @@
 #include "gameswf/gameswf_action.h"	// for as_object
 #include "gameswf/gameswf_sprite.h"
 #include "gameswf/gameswf_as_classes/as_number.h"
+#include "gameswf_compat/compatibility_include.h"
 
 namespace gameswf
 {
@@ -191,13 +192,19 @@ namespace gameswf
 	void	sprite_get_bytes_loaded(const fn_call& fn)
 	{
 		sprite_instance* sprite = sprite_getptr(fn);
-		fn.result->set_int(sprite->get_loaded_bytes());
+		int bytes = sprite->get_loaded_bytes();
+		flashplayer_trace_movie_state("getBytesLoaded", bytes,
+			sprite->get_current_frame(), sprite->get_frame_count());
+		fn.result->set_int(bytes);
 	}
 
 	void	sprite_get_bytes_total(const fn_call& fn)
 	{
 		sprite_instance* sprite = sprite_getptr(fn);
-		fn.result->set_int(sprite->get_file_bytes());
+		int bytes = sprite->get_file_bytes();
+		flashplayer_trace_movie_state("getBytesTotal", bytes,
+			sprite->get_current_frame(), sprite->get_frame_count());
+		fn.result->set_int(bytes);
 	}
 
 	//swapDepths(target:Object) : Void

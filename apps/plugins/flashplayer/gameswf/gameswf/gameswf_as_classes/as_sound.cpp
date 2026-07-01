@@ -70,6 +70,29 @@ namespace gameswf
 		{
 			res = target->find_exported_resource(fn.arg(0).to_string());
 		}
+		if (res == NULL)
+		{
+			res = find_shared_sound_export(fn.arg(0).to_string());
+		}
+		if (res == NULL)
+		{
+			tu_string folded_name(fn.arg(0).to_string());
+			for (int i = 0, n = folded_name.length(); i < n; i++)
+			{
+				if (folded_name[i] >= 'A' && folded_name[i] <= 'Z')
+				{
+					folded_name[i] = folded_name[i] - 'A' + 'a';
+				}
+			}
+			if (target)
+			{
+				res = target->find_exported_resource(folded_name);
+			}
+			if (res == NULL)
+			{
+				res = find_shared_sound_export(folded_name);
+			}
+		}
 
 		if (res == NULL)
 		{
@@ -149,6 +172,75 @@ namespace gameswf
 				}
 			}
 		}
+	}
+
+	bool	as_sound::get_member(const tu_stringi& name, as_value* val)
+	{
+		if (as_object::get_member(name, val))
+		{
+			return true;
+		}
+
+		if (name == "attachSound")
+		{
+			val->set_as_c_function(get_player(), sound_attach);
+			return true;
+		}
+		if (name == "start")
+		{
+			val->set_as_c_function(get_player(), sound_start);
+			return true;
+		}
+		if (name == "stop")
+		{
+			val->set_as_c_function(get_player(), sound_stop);
+			return true;
+		}
+		if (name == "setVolume")
+		{
+			val->set_as_c_function(get_player(), sound_volume);
+			return true;
+		}
+		if (name == "loadSound")
+		{
+			val->set_as_c_function(get_player(), sound_load);
+			return true;
+		}
+
+		return false;
+	}
+
+	bool	call_null_sound_compat(const tu_string& varname,
+		const tu_string& method_name, as_environment* env, int nargs,
+		int first_arg_bottom_index, as_value* result)
+	{
+		as_c_function_ptr func = NULL;
+		if (method_name == "attachSound")
+			func = sound_attach;
+		else if (method_name == "start")
+			func = sound_start;
+		else if (method_name == "stop")
+			func = sound_stop;
+		else if (method_name == "setVolume")
+			func = sound_volume;
+		else if (method_name == "loadSound")
+			func = sound_load;
+		else
+			return false;
+
+		gc_ptr<as_sound> snd = new as_sound(env->get_player());
+		snd->m_target = env->get_target();
+
+		as_value this_val;
+		this_val.set_as_object(snd.get_ptr());
+		env->get_player()->set_alive(snd.get_ptr());
+		if (varname.length() > 0)
+		{
+			env->set_member(varname, this_val);
+		}
+
+		(*func)(fn_call(result, this_val, env, nargs, first_arg_bottom_index));
+		return true;
 	}
 
 	// The number of milliseconds a sound has been playing. 

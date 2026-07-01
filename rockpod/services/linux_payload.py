@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import errno
 import hashlib
 import json
 import os
@@ -43,6 +44,7 @@ MAX_ALLOCATION_GB = 80
 DEFAULT_VM_USERNAME = "rockpod"
 DEFAULT_VM_PASSWORD = "rockpod"
 VM_PROVISION_VERSION = "2"
+COPY_CHUNK_SIZE = 1024 * 1024
 GIB = 1024 ** 3
 VM_DISK_DESCRIPTOR = "rockpod-linux-data.vmdk"
 VM_DISK_EXTENT_PREFIX = "rockpod-linux-data-s"
@@ -81,6 +83,9 @@ EXCLUDED_EXTRACTED_NAMES = {
 class LinuxPayloadService:
     """Install a bootable PC Linux live payload as ordinary iPod files."""
 
+    class _TransferCancelled(RuntimeError):
+        """Raised when a manual Linux install transfer cancel is requested."""
+
     def payload_profile(self, profile):
         repo_root = os.path.abspath(profile.get("source_repo_path") or os.getcwd())
         backup_root = os.path.join(repo_root, "rockpod", ".backups", "linux", profile.get("id") or "device")
@@ -98,11 +103,61 @@ class LinuxPayloadService:
             raise ValueError("Refusing to install Linux payload: .rockbox marker not found")
         return root
 
-    def verify_iso(self, iso_path, expected_sha256=DEBIAN_LIVE_XFCE_SHA256):
+    def verify_iso(
+        self,
+        iso_path,
+        expected_sha256=DEBIAN_LIVE_XFCE_SHA256,
+        progress_callback=None,
+        require_cached=False,
+    ):
         path = os.path.abspath(iso_path or "")
         if not os.path.isfile(path):
             return {"success": False, "message": "ISO file does not exist", "sha256": ""}
-        digest = self._sha256(path)
+
+        cache_path = path + ".sha256"
+        path_size = os.path.getsize(path)
+        try:
+            with open(cache_path, "r", encoding="utf-8") as handle:
+                parts = handle.readline().strip().split()
+            if len(parts) >= 1:
+                checksum = parts[0]
+                cached_size = int(parts[1]) if len(parts) >= 2 else None
+                if checksum == expected_sha256 and (cached_size is None or cached_size == path_size):
+                    return {
+                        "success": True,
+                        "message": "ISO checksum verified from cache",
+                        "sha256": checksum,
+                        "expected_sha256": expected_sha256,
+                        "path": path,
+                    }
+        except Exception:
+            if require_cached:
+                return {
+                    "success": False,
+                    "message": "ISO checksum cache missing; full validation required",
+                    "sha256": "",
+                    "expected_sha256": expected_sha256,
+                    "path": path,
+                }
+            pass
+
+        if progress_callback:
+            try:
+                digest = self._sha256(path, progress_callback=progress_callback)
+            except TypeError:
+                digest = self._sha256(path)
+        else:
+            digest = self._sha256(path)
+
+        try:
+            if digest == expected_sha256:
+                with open(cache_path, "w", encoding="utf-8") as handle:
+                    handle.write(f"{digest}  {path_size}\n")
+            else:
+                if os.path.exists(cache_path):
+                    os.remove(cache_path)
+        except OSError:
+            pass
         return {
             "success": digest == expected_sha256,
             "message": "ISO checksum verified" if digest == expected_sha256 else "ISO checksum mismatch",
@@ -110,6 +165,45 @@ class LinuxPayloadService:
             "expected_sha256": expected_sha256,
             "path": path,
         }
+
+    @staticmethod
+    def _human_bytes(value):
+        try:
+            value = int(value or 0)
+        except (TypeError, ValueError):
+            value = 0
+        units = ["B", "KB", "MB", "GB", "TB"]
+        index = 0
+        result = float(value)
+        while result >= 1024 and index < len(units) - 1:
+            result /= 1024
+            index += 1
+        return f"{result:.1f} {units[index]}"
+
+    @staticmethod
+    def _ensure_free_space(path, required_bytes=0):
+        path = os.path.abspath(path or "")
+        if required_bytes is None:
+            required_bytes = 0
+        try:
+            usage = shutil.disk_usage(path)
+        except OSError:
+            return
+        required_bytes = int(required_bytes)
+        if required_bytes <= 0:
+            return
+        margin = 16 * 1024 * 1024
+        if usage.free <= (required_bytes + margin):
+            raise OSError(
+                errno.ENOSPC,
+                (
+                    f"No space on host filesystem at '{path}'. "
+                    f"Required: {LinuxPayloadService._human_bytes(required_bytes + margin)}, "
+                    f"free: {LinuxPayloadService._human_bytes(usage.free)}. "
+                    "Download happens on the host cache directory, not the iPod."
+                ),
+                path,
+            )
 
     def download_iso(self, cache_dir, progress_callback=None):
         cache_dir = os.path.abspath(cache_dir or "")
@@ -122,17 +216,31 @@ class LinuxPayloadService:
         try:
             with urllib.request.urlopen(DEBIAN_LIVE_XFCE_URL, timeout=30) as response:
                 total = int(response.headers.get("Content-Length") or 0)
+                self._ensure_free_space(cache_dir, total)
                 copied = 0
                 with open(tmp_path, "wb") as handle:
                     while True:
                         chunk = response.read(1024 * 1024)
                         if not chunk:
                             break
-                        handle.write(chunk)
+                        try:
+                            handle.write(chunk)
+                        except OSError as exc:
+                            if exc.errno == errno.ENOSPC:
+                                raise
+                            raise
                         copied += len(chunk)
                         if progress_callback:
                             progress_callback(copied, total)
             os.replace(tmp_path, target_path)
+        except OSError as exc:
+            if exc.errno == errno.ENOSPC:
+                raise OSError(
+                    errno.ENOSPC,
+                    str(exc),
+                    cache_dir,
+                )
+            raise
         finally:
             if os.path.exists(tmp_path):
                 try:
@@ -166,6 +274,36 @@ class LinuxPayloadService:
         if result.returncode != 0:
             raise RuntimeError(result.stderr.strip() or result.stdout.strip() or "7z extraction failed")
         return extract_root
+
+    @staticmethod
+    def _verify_directory_writable(directory):
+        marker = os.path.join(directory, ".rockpod-write-test")
+        try:
+            with open(marker, "wb") as handle:
+                handle.write(b"")
+                try:
+                    handle.flush()
+                except OSError:
+                    pass
+                try:
+                    os.fsync(handle.fileno())
+                except OSError:
+                    pass
+        finally:
+            if os.path.exists(marker):
+                try:
+                    os.remove(marker)
+                except OSError:
+                    pass
+
+    @staticmethod
+    def _is_cancel_requested(cancel_state):
+        if not cancel_state:
+            return False
+        try:
+            return bool(cancel_state.get("cancelled"))
+        except AttributeError:
+            return False
 
     def build_bundle_from_extracted(self, extracted_root):
         extracted_root = os.path.abspath(extracted_root or "")
@@ -216,10 +354,13 @@ class LinuxPayloadService:
             "total_size": total_size + os.path.getsize(manifest_path),
         }
 
-    def build_vm_bundle_from_iso(self, iso_path, working_root, allocation_gb=DEFAULT_ALLOCATION_GB, vm_user=None):
-        verification = self.verify_iso(iso_path)
-        if not verification["success"]:
-            raise ValueError(verification["message"])
+    def build_vm_bundle_from_iso(self, iso_path, working_root, allocation_gb=DEFAULT_ALLOCATION_GB, vm_user=None, verify_iso=True):
+        if verify_iso:
+            verification = self.verify_iso(iso_path)
+            if not verification["success"]:
+                raise ValueError(verification["message"])
+        elif not os.path.isfile(iso_path):
+            raise ValueError("ISO file does not exist")
         credentials = self._vm_credentials(vm_user)
         working_root = os.path.abspath(working_root or "")
         os.makedirs(working_root, exist_ok=True)
@@ -443,7 +584,14 @@ class LinuxPayloadService:
             "remaining_bytes": max(allocation_bytes - total_size, 0),
         }
 
-    def install_bundle(self, profile, bundle, allocation_gb=DEFAULT_ALLOCATION_GB):
+    def install_bundle(
+        self,
+        profile,
+        bundle,
+        allocation_gb=DEFAULT_ALLOCATION_GB,
+        progress_callback=None,
+        cancel_state=None,
+    ):
         allocation = self.validate_allocation(bundle, allocation_gb)
         if not allocation["valid"]:
             raise ValueError(allocation["message"])
@@ -456,6 +604,12 @@ class LinuxPayloadService:
         timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
         backup_dir = os.path.join(backup_root, timestamp)
         os.makedirs(backup_dir, exist_ok=True)
+        bundle_mode = bundle.get("manifest", {}).get("mode")
+        is_vm_bundle = bundle_mode == "portable-vm" or bundle.get("id") == "rockpod-linux-portable-vm"
+        vm_root = resolve_under_root(mount_path, VM_ROOT_REL)
+        if is_vm_bundle:
+            os.makedirs(vm_root, exist_ok=True)
+            self._verify_directory_writable(vm_root)
 
         manifest = {
             "created_at": datetime.now().isoformat(timespec="seconds"),
@@ -466,9 +620,20 @@ class LinuxPayloadService:
             "payload_bytes": allocation["payload_bytes"],
             "items": [],
         }
+        total_size = int(bundle.get("total_size") or 0)
+        assets = bundle.get("assets") or []
+        asset_count = len(assets)
+        if callable(progress_callback):
+            progress_callback(
+                0,
+                max(total_size, 1),
+                f"Preparing Linux payload ({asset_count} files)",
+            )
+        copied_bytes = 0
         copied = 0
         failures = []
-        for asset in bundle.get("assets", []):
+        warnings = []
+        for index, asset in enumerate(assets, 1):
             rel = asset.get("destination_rel", "")
             try:
                 dest_abs = resolve_under_root(mount_path, rel)
@@ -484,11 +649,43 @@ class LinuxPayloadService:
             try:
                 if existed:
                     os.makedirs(os.path.dirname(backup_abs), exist_ok=True)
-                    shutil.copy2(dest_abs, backup_abs)
-                os.makedirs(os.path.dirname(dest_abs), exist_ok=True)
-                shutil.copy2(source_abs, dest_abs)
-                if self._sha256(source_abs) != self._sha256(dest_abs):
+                    try:
+                        self._copy_with_progress(
+                            source_abs=dest_abs,
+                            destination_abs=backup_abs,
+                            preserve_metadata=True,
+                            cancel_state=cancel_state,
+                        )
+                    except self._TransferCancelled as exc:
+                        raise exc
+                    except OSError as exc:
+                        if getattr(exc, "errno", None) == errno.EFBIG:
+                            warnings.append(
+                                f"{rel}: backup may fail on FAT32/legacy limits (file exceeds 4GB support)"
+                            )
+                        else:
+                            warnings.append(f"{rel}: backup copy failed: {exc}")
+                file_label = f"[{index}/{asset_count}] Copying {rel}"
+                if callable(progress_callback):
+                    progress_callback(
+                        copied_bytes,
+                        max(total_size, 1),
+                        file_label,
+                    )
+                copied_size = self._copy_with_progress(
+                    source_abs=source_abs,
+                    destination_abs=dest_abs,
+                    preserve_metadata=bool(asset.get("preserve_metadata", True)),
+                    progress_callback=progress_callback,
+                    progress_current=copied_bytes,
+                    progress_total=max(total_size, 1),
+                    progress_label=file_label,
+                    cancel_state=cancel_state,
+                )
+                if copied_size != os.path.getsize(source_abs):
                     raise OSError("verification mismatch after copy")
+                copied_bytes += copied_size
+                os.makedirs(os.path.dirname(dest_abs), exist_ok=True)
                 manifest["items"].append(
                     {
                         "destination_rel": rel,
@@ -498,20 +695,120 @@ class LinuxPayloadService:
                     }
                 )
                 copied += 1
-            except OSError as exc:
+            except self._TransferCancelled as exc:
                 failures.append(f"{rel}: {exc}")
+                break
+            except OSError as exc:
+                if getattr(exc, "errno", None) == errno.EFBIG:
+                    failures.append(
+                        f"{rel}: destination filesystem may reject files larger than 4GB (FAT32/legacy limits)"
+                    )
+                else:
+                    failures.append(f"{rel}: {exc}")
+            except Exception as exc:
+                failures.append(f"{rel}: {exc}")
+            if self._is_cancel_requested(cancel_state):
+                failures.append("Transfer was cancelled by user")
+                break
+
+        if callable(progress_callback):
+            progress_callback(
+                copied_bytes,
+                max(total_size, 1),
+                "Linux payload copy complete",
+            )
+
+        if not self._is_cancel_requested(cancel_state):
+            if is_vm_bundle:
+                required_files = (
+                    f"{VM_ROOT_REL}/{DEBIAN_LIVE_XFCE_ISO}",
+                    f"{VM_ROOT_REL}/start-linux-linux.command",
+                    f"{VM_ROOT_REL}/autoinstall-linux-linux.command",
+                    f"{VM_ROOT_REL}/manifest.json",
+                )
+                for rel in required_files:
+                    candidate = resolve_under_root(mount_path, rel)
+                    if not os.path.isfile(candidate):
+                        failures.append(f"{rel}: missing after copy")
 
         manifest_path = os.path.join(backup_dir, "manifest.json")
         atomic_write_json(manifest_path, manifest)
         return {
             "success": not failures,
             "copied_count": copied,
+            "copied_bytes": copied_bytes,
             "failure_count": len(failures),
+            "warning_count": len(warnings),
             "failures": failures,
+            "warnings": warnings,
             "backup_dir": backup_dir,
             "manifest_path": manifest_path,
             "allocation": allocation,
+            "cancelled": self._is_cancel_requested(cancel_state),
         }
+
+    def _copy_with_progress(
+        self,
+        source_abs,
+        destination_abs,
+        preserve_metadata,
+        progress_callback=None,
+        progress_current=0,
+        progress_total=0,
+        progress_label="",
+        cancel_state=None,
+    ):
+        source_abs = os.path.abspath(source_abs)
+        destination_abs = os.path.abspath(destination_abs)
+        if not os.path.isfile(source_abs):
+            raise OSError("source file missing")
+
+        temp_abs = f"{destination_abs}.rockpod-copying"
+        copied = 0
+        os.makedirs(os.path.dirname(destination_abs), exist_ok=True)
+        try:
+            with open(source_abs, "rb") as source, open(temp_abs, "wb") as target:
+                while True:
+                    if self._is_cancel_requested(cancel_state):
+                        raise self._TransferCancelled("Transfer was cancelled by user")
+                    chunk = source.read(COPY_CHUNK_SIZE)
+                    if not chunk:
+                        break
+                    target.write(chunk)
+                    copied += len(chunk)
+                    if callable(progress_callback):
+                        progress_callback(
+                            progress_current + copied,
+                            max(progress_total, 1),
+                            progress_label,
+                        )
+            try:
+                os.chmod(temp_abs, os.stat(source_abs).st_mode)
+            except OSError:
+                pass
+            if preserve_metadata:
+                try:
+                    shutil.copystat(source_abs, temp_abs)
+                except OSError:
+                    os.utime(temp_abs, None)
+            else:
+                os.utime(temp_abs, None)
+            try:
+                os.replace(temp_abs, destination_abs)
+            except OSError as exc:
+                try:
+                    if os.path.exists(destination_abs):
+                        os.remove(destination_abs)
+                    shutil.move(temp_abs, destination_abs)
+                except OSError:
+                    raise exc
+            return copied
+        finally:
+            if os.path.exists(temp_abs):
+                try:
+                    os.remove(temp_abs)
+                except OSError:
+                    pass
 
     def installed_status(self, mount_path):
         root = validate_device_root(mount_path)
@@ -593,6 +890,56 @@ class LinuxPayloadService:
                 os.rmdir(linux_root)
         except OSError as exc:
             failures.append(str(exc))
+
+        return {
+            "success": not failures,
+            "removed": removed,
+            "removed_count": len(removed),
+            "failures": failures,
+        }
+
+    def cleanup_vm_root(self, mount_path):
+        root = self.validate_mount(mount_path)
+        vm_root = resolve_under_root(root, VM_ROOT_REL)
+        removed = []
+        failures = []
+        if not os.path.isdir(vm_root):
+            return {
+                "success": True,
+                "removed": removed,
+                "removed_count": len(removed),
+                "failures": failures,
+            }
+
+        for dirpath, dirnames, filenames in os.walk(vm_root, topdown=False):
+            for filename in filenames:
+                path = os.path.join(dirpath, filename)
+                try:
+                    os.remove(path)
+                    removed.append(os.path.relpath(path, root))
+                except OSError as exc:
+                    failures.append(f"{os.path.relpath(path, root)}: {exc}")
+            for dirname in dirnames:
+                child = os.path.join(dirpath, dirname)
+                try:
+                    os.rmdir(child)
+                except OSError as exc:
+                    if os.path.exists(child):
+                        failures.append(f"{os.path.relpath(child, root)}: {exc}")
+        try:
+            if os.path.isdir(vm_root):
+                os.rmdir(vm_root)
+        except OSError as exc:
+            if os.path.exists(vm_root):
+                failures.append(f"{VM_ROOT_REL}: {exc}")
+
+        linux_root = resolve_under_root(root, "Linux")
+        try:
+            if os.path.isdir(linux_root) and not os.listdir(linux_root):
+                os.rmdir(linux_root)
+        except OSError as exc:
+            if os.path.exists(linux_root):
+                failures.append(f"Linux/: {exc}")
 
         return {
             "success": not failures,
@@ -1668,12 +2015,17 @@ d-i preseed/late_command string in-target usermod -aG sudo {credentials['usernam
         }
 
     @staticmethod
-    def _sha256(path):
+    def _sha256(path, progress_callback=None):
         digest = hashlib.sha256()
+        total = os.path.getsize(path)
+        read = 0
         with open(path, "rb") as handle:
             while True:
                 chunk = handle.read(1024 * 1024)
                 if not chunk:
                     break
                 digest.update(chunk)
+                read += len(chunk)
+                if progress_callback:
+                    progress_callback(read, total)
         return digest.hexdigest()

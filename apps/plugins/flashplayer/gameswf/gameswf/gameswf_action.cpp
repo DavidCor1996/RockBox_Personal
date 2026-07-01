@@ -11,6 +11,7 @@
 #include "gameswf/gameswf_log.h"
 #include "gameswf/gameswf_stream.h"
 #include "gameswf/gameswf_movie_def.h"
+#include "gameswf/gameswf_as_classes/as_sound.h"
 #include "gameswf/gameswf_sprite.h"
 #include "gameswf/gameswf_function.h"
 #include "gameswf/gameswf_freetype.h"
@@ -66,7 +67,247 @@
 
 namespace gameswf
 {
-	
+	static bool	call_string_method_compat(const as_value& receiver,
+		const tu_string& method_name, as_environment* env, int nargs,
+		int first_arg_bottom_index, as_value* result)
+	{
+		if (!receiver.is_string())
+		{
+			return false;
+		}
+
+		fn_call fn(result, receiver, env, nargs, first_arg_bottom_index);
+		if (method_name == "toUpperCase")
+		{
+			string_to_uppercase(fn);
+			return true;
+		}
+		if (method_name == "toLowerCase")
+		{
+			string_to_lowercase(fn);
+			return true;
+		}
+		if (method_name == "indexOf")
+		{
+			string_index_of(fn);
+			return true;
+		}
+		if (method_name == "substr")
+		{
+			string_substr(fn);
+			return true;
+		}
+		if (method_name == "substring")
+		{
+			string_substring(fn);
+			return true;
+		}
+		if (method_name == "charAt")
+		{
+			string_char_at(fn);
+			return true;
+		}
+		if (method_name == "charCodeAt")
+		{
+			string_char_code_at(fn);
+			return true;
+		}
+		return false;
+	}
+
+
+	static bool	call_null_date_compat(const tu_string& var_name, const tu_string& method_name, as_value* result)
+	{
+		if (var_name != "date")
+		{
+			return false;
+		}
+
+		Uint32 ms = tu_timer::get_ticks();
+		if (method_name == "getTime")
+		{
+			result->set_double((double) ms);
+			return true;
+		}
+		if (method_name == "getMilliseconds")
+		{
+			result->set_int(ms % 1000);
+			return true;
+		}
+		if (method_name == "getSeconds")
+		{
+			result->set_int((ms / 1000) % 60);
+			return true;
+		}
+		if (method_name == "getMinutes")
+		{
+			result->set_int((ms / 60000) % 60);
+			return true;
+		}
+		if (method_name == "getHours")
+		{
+			result->set_int((ms / 3600000) % 24);
+			return true;
+		}
+
+		return false;
+	}
+
+
+	bool	action_buffer::action_function_exists(as_environment* env,
+		const tu_string& name, int start_pc) const
+	{
+		if (name.length() <= 0)
+		{
+			return true;
+		}
+
+		as_value value;
+		env->get_member(name, &value);
+		as_s_function* existing_function = cast_to<as_s_function>(value.to_object());
+		return existing_function != NULL
+			&& existing_function->m_action_buffer.m_buffer == m_buffer
+			&& existing_function->m_start_pc == start_pc;
+	}
+
+	static const char*	action_skip_string(const membuf& buffer, int stop_pc, int* offset)
+	{
+		const char* str = (const char*) &buffer[*offset];
+		while (*offset < stop_pc && buffer[*offset] != 0)
+		{
+			(*offset)++;
+		}
+		if (*offset < stop_pc)
+		{
+			(*offset)++;
+		}
+		return str;
+	}
+
+	static int	action_read_u16(const membuf& buffer, int stop_pc, int* offset)
+	{
+		if (*offset + 1 >= stop_pc)
+		{
+			*offset = stop_pc;
+			return 0;
+		}
+		int value = buffer[*offset] | (buffer[*offset + 1] << 8);
+		*offset += 2;
+		return value;
+	}
+
+	void	action_buffer::hoist_named_functions(
+		as_environment* env, int start_pc, int stop_pc,
+		const array<with_stack_entry>& with_stack) const
+	{
+		membuf& buffer = *m_buffer.get_ptr();
+
+		for (int pc = start_pc; pc < stop_pc; )
+		{
+			int action_id = buffer[pc];
+			if ((action_id & 0x80) == 0)
+			{
+				if (action_id == 0x00)
+				{
+					return;
+				}
+				pc++;
+				continue;
+			}
+
+			if (pc + 2 >= stop_pc)
+			{
+				return;
+			}
+
+			int action_length = buffer[pc + 1] | (buffer[pc + 2] << 8);
+			int payload_end = pc + action_length + 3;
+			int next_pc = payload_end;
+			if (payload_end > stop_pc)
+			{
+				return;
+			}
+
+			if (action_id == 0x88)
+			{
+				const_cast<action_buffer*>(this)->process_decl_dict(pc, next_pc);
+			}
+			else if (action_id == 0x8E || action_id == 0x9B)
+			{
+				int i = pc + 3;
+				tu_string name = action_skip_string(buffer, payload_end, &i);
+				if (i > payload_end)
+				{
+					return;
+				}
+
+				if (action_id == 0x8E)
+				{
+					int nargs = action_read_u16(buffer, payload_end, &i);
+					if (i >= payload_end)
+					{
+						return;
+					}
+					uint8 register_count = buffer[i];
+					i++;
+					uint16 flags = action_read_u16(buffer, payload_end, &i);
+
+					if (action_function_exists(env, name, next_pc) == false)
+					{
+						as_s_function* func = new as_s_function(
+							env->get_player(), this, next_pc, with_stack);
+						func->set_target(env->get_target());
+						func->set_is_function2();
+						func->set_local_register_count(register_count);
+						func->set_function2_flags(flags);
+
+						for (int n = 0; n < nargs && i < payload_end; n++)
+						{
+							int arg_register = buffer[i];
+							i++;
+							const char* arg_name =
+								action_skip_string(buffer, payload_end, &i);
+							func->add_arg(arg_register, arg_name);
+						}
+
+						int body_length = action_read_u16(buffer, payload_end, &i);
+						func->set_length(body_length);
+						if (name.length() > 0)
+						{
+							env->set_member(name, as_value(func));
+						}
+					}
+				}
+				else
+				{
+					int nargs = action_read_u16(buffer, payload_end, &i);
+					if (action_function_exists(env, name, next_pc) == false)
+					{
+						as_s_function* func = new as_s_function(
+							env->get_player(), this, next_pc, with_stack);
+						func->set_target(env->get_target());
+
+						for (int n = 0; n < nargs && i < payload_end; n++)
+						{
+							const char* arg_name =
+								action_skip_string(buffer, payload_end, &i);
+							func->add_arg(0, arg_name);
+						}
+
+						int body_length = action_read_u16(buffer, payload_end, &i);
+						func->set_length(body_length);
+						if (name.length() > 0)
+						{
+							env->set_member(name, as_value(func));
+						}
+					}
+				}
+			}
+
+			pc = next_pc;
+		}
+	}
+
 	//
 	// action stuff
 	//
@@ -572,10 +813,24 @@ namespace gameswf
 	
 		character*	original_target = env->get_target();
 		membuf & buffer = *m_buffer.get_ptr();
+		flashplayer_trace_action(0, 0, start_pc, exec_bytes, NULL);
+		flashplayer_trace_action_bytes((const unsigned char*) &buffer[start_pc], exec_bytes);
 
 		int	stop_pc = start_pc + exec_bytes;
+		int op_count = 0;
+		const int op_budget = 200000;
+		/* Named-function hoisting is too expensive for large AVM1 games here. */
+		(void)retval;
 		for (int pc = start_pc; pc < stop_pc; )
 		{
+			if (++op_count > op_budget)
+			{
+				log_error("error: action_buffer exceeded opcode budget pc=%d stop=%d target='%s'\n",
+					pc, stop_pc,
+					env->get_target() ? env->get_target()->get_name().c_str() : "");
+				goto done;
+			}
+
 			// Cleanup any expired "with" blocks.
 			while (with_stack.size() > 0
 				   && pc >= with_stack.back().m_block_end_pc)
@@ -604,7 +859,7 @@ namespace gameswf
 					break;
 
 				case 0x00:	// end of actions.
-					return;
+					goto done;
 
 				case 0x04:	// next frame.
 					if (env->get_target() != NULL)
@@ -772,6 +1027,24 @@ namespace gameswf
 				}
 				case 0x1D:	// set variable
 				{
+					const tu_string& set_name = env->top(1).to_tu_string();
+					if (set_name == "_global.personColor" ||
+						set_name == "_global.personColor2" ||
+						set_name == "_global.karmaAdjust" ||
+						set_name == "_global.saveGame" ||
+						set_name == "_global.loadGame")
+					{
+						flashplayer_trace_movie_state(set_name.c_str(),
+							env->top(0).is_function() ? 1 : 0,
+							env->top(0).is_object() ? 1 : 0,
+							env->top(0).is_undefined() ? 1 : 0);
+					}
+					if (env->top(1).to_tu_string() == "server" || env->top(1).to_tu_string() == "protocol")
+					{
+						flashplayer_trace_movie_state(env->top(1).to_tu_string().c_str(),
+							env->top(0).is_string() ? env->top(0).to_tu_string().length() : -1,
+							env->top(0).is_string() ? 1 : 0, env->top(0).is_undefined() ? 1 : 0);
+					}
 					env->set_variable(env->top(1).to_tu_string(), env->top(0), with_stack);
 					IF_VERBOSE_ACTION(log_msg("-------------- set var: %s \n",
 								  env->top(1).to_tu_string().c_str()));
@@ -798,11 +1071,20 @@ namespace gameswf
 				}
 				case 0x22:	// get property
 				{
-
+					int prop_number = env->top(0).to_int();
+					bool empty_target =
+						env->top(1).is_string() &&
+						env->top(1).to_tu_string().length() == 0;
 					character*	target = cast_to<character>(env->find_target(env->top(1)));
+					flashplayer_trace_movie_state("getProperty", prop_number,
+						target ? 1 : 0, env->top(1).is_string() ? 1 : 0);
 					if (target)
 					{
-						env->top(1) = get_property(target, env->top(0).to_int());
+						env->top(1) = get_property(target, prop_number);
+					}
+					else if (prop_number == 15)
+					{
+						env->top(1).set_string(flashplayer_get_movie_url());
 					}
 					else
 					{
@@ -1380,6 +1662,21 @@ namespace gameswf
 				case 0x4F:	// set member
 				{
 					as_object*	obj = env->top(2).to_object();
+					const tu_string& member_name = env->top(1).to_tu_string();
+					if (member_name == "personColor" ||
+						member_name == "personColor2" ||
+						member_name == "karmaAdjust" ||
+						member_name == "saveGame" ||
+						member_name == "loadGame")
+					{
+						flashplayer_trace_movie_state(member_name.c_str(),
+							env->top(0).is_function() ? 1 : 0,
+							obj ? 1 : 0,
+							env->top(2).is_object() ? 1 : 0);
+					}
+					flashplayer_trace_member_lookup("setMember",
+						env->top(1).to_tu_string().c_str(), obj != NULL,
+						env->top(2).is_object());
 					if (obj)
 					{
 						obj->set_member(env->top(1).to_tu_string(), env->top(0));
@@ -1424,8 +1721,11 @@ namespace gameswf
 							nargs,
 							env->get_top_index() - 3);
 					}
-					else
-					if (method_name == "undefined" || method_name == "")
+					else if (call_string_method_compat(env->top(1), method_name, env,
+						nargs, env->get_top_index() - 3, &result))
+					{
+					}
+					else if (method_name == "undefined" || method_name == "")
 					{
 						// Flash help says:
 						// If the method name is blank or undefined, the object is taken to be 
@@ -1477,8 +1777,13 @@ namespace gameswf
 						}
 						else
 						{
-							log_error("error: can't find %s[0x0].%s\n", 
-								last_varname.c_str(), method_name.c_str());
+							if (!call_null_date_compat(last_varname, method_name, &result)
+								&& !call_null_sound_compat(last_varname, method_name,
+									env, nargs, env->get_top_index() - 3, &result))
+							{
+								log_error("error: can't find %s[0x0].%s\n",
+									last_varname.c_str(), method_name.c_str());
+							}
 						}
 //#else
 //						log_error("error: can't find method %s\n", method_name.c_str());
@@ -1687,6 +1992,7 @@ namespace gameswf
 
 					if (env->get_target() != NULL)
 					{
+						flashplayer_trace_action(1, action_id, frame, env->get_target()->get_current_frame(), NULL);
 						env->get_target()->goto_frame(frame);
 					}
 					break;
@@ -1785,6 +2091,7 @@ namespace gameswf
 					char*	frame_label = (char*) &buffer[pc + 3];
 					if (env->get_target() != NULL)
 					{
+						flashplayer_trace_action(2, action_id, 0, env->get_target()->get_current_frame(), frame_label);
 						env->get_target()->goto_labeled_frame(frame_label);
 					}
 					break;
@@ -2285,6 +2592,7 @@ namespace gameswf
 						// we need to do the conversion...
 
 						const char* frame_label = env->top(0).to_string();
+						flashplayer_trace_action(4, action_id, play_flag, target->get_current_frame(), frame_label);
 						if (target->goto_labeled_frame(frame_label))
 						{
 							success = true;
@@ -2306,6 +2614,7 @@ namespace gameswf
 					{
 						// Frame numbers appear to be 0-based!  @@ Verify.
 						int frame_number = env->top(0).to_int();
+						flashplayer_trace_action(3, action_id, play_flag, frame_number, NULL);
 						target->goto_frame(frame_number);
 						success = true;
 					}
@@ -2333,6 +2642,7 @@ namespace gameswf
 #endif
 		}
 
+done:
 		env->set_target(original_target);
 	}
 

@@ -110,6 +110,10 @@ public:
 	void subtitles(bool enable) { _subtitles = enable; }
 
 	void update(bool checkPlayerInput = false);
+#ifdef ROCKBOX_SCUMMVM_EMBEDDED
+	Common::Error rockboxInit();
+	void rockboxStep();
+#endif
 
 	bool canLoadOrSave() const;
 	bool canLoadGameStateCurrently();

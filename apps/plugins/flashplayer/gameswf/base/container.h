@@ -257,6 +257,15 @@ public:
 		resize(0);
 	}
 
+	void	clear_keep_capacity()
+	// Empty and destruct all elements without releasing storage.
+	{
+		{for (int i = 0; i < m_size; i++) {
+			(m_buffer + i)->~T();
+		}}
+		m_size = 0;
+	}
+
 	void	operator=(const array<T>& a)
 	// Array copy.  Copies the contents of a into this array.
 	{

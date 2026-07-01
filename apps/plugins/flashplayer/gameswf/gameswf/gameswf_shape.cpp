@@ -28,6 +28,10 @@
 #endif // DEBUG_DISPLAY_SHAPE_PATHS
 
 extern bool gameswf_tesselate_dump_shape;
+extern "C" void flashplayer_trace_shape_mesh(int id, int paths, int cached,
+	int error_x100);
+extern "C" int flashplayer_consume_shape_mesh_budget(int id, int paths,
+	int cached, int error_x100);
 
 namespace gameswf
 {
@@ -1118,6 +1122,19 @@ namespace gameswf
 		int	line_base = 0;
 		float	x = 0, y = 0;
 		path	current_path;
+		int	edge_hint = 16;
+		int shape_record_bytes = in->get_tag_end_position() - in->get_position();
+		if (shape_record_bytes > 0)
+		{
+			edge_hint = shape_record_bytes / 4;
+			int path_hint = shape_record_bytes / 48;
+			if (edge_hint < 16) edge_hint = 16;
+			if (edge_hint > 4096) edge_hint = 4096;
+			if (path_hint < 4) path_hint = 4;
+			if (path_hint > 1024) path_hint = 1024;
+			current_path.m_edges.reserve(edge_hint);
+			m_paths.reserve(m_paths.size() + path_hint);
+		}
 
 #define SHAPE_LOG 0
 		// SHAPERECORDS
@@ -1133,8 +1150,15 @@ namespace gameswf
 					// Store the current path if any.
 					if (! current_path.is_empty())
 					{
-						m_paths.push_back(current_path);
-						current_path.m_edges.resize(0);
+						m_paths.push_back(path());
+						path& p = m_paths.back();
+						p.m_fill0 = current_path.m_fill0;
+						p.m_fill1 = current_path.m_fill1;
+						p.m_line = current_path.m_line;
+						p.m_ax = current_path.m_ax;
+						p.m_ay = current_path.m_ay;
+						p.m_new_shape = current_path.m_new_shape;
+						p.m_edges.transfer_members(&current_path.m_edges);
 					}
 
 					break;
@@ -1146,8 +1170,15 @@ namespace gameswf
 					// Store the current path if any, and prepare a fresh one.
 					if (! current_path.is_empty())
 					{
-						m_paths.push_back(current_path);
-						current_path.m_edges.resize(0);
+						m_paths.push_back(path());
+						path& p = m_paths.back();
+						p.m_fill0 = current_path.m_fill0;
+						p.m_fill1 = current_path.m_fill1;
+						p.m_line = current_path.m_line;
+						p.m_ax = current_path.m_ax;
+						p.m_ay = current_path.m_ay;
+						p.m_new_shape = current_path.m_new_shape;
+						p.m_edges.transfer_members(&current_path.m_edges);
 					}
 
 					int	num_move_bits = in->read_uint(5);
@@ -1169,8 +1200,15 @@ namespace gameswf
 					// fill_style_0_change = 1;
 					if (! current_path.is_empty())
 					{
-						m_paths.push_back(current_path);
-						current_path.m_edges.resize(0);
+						m_paths.push_back(path());
+						path& p = m_paths.back();
+						p.m_fill0 = current_path.m_fill0;
+						p.m_fill1 = current_path.m_fill1;
+						p.m_line = current_path.m_line;
+						p.m_ax = current_path.m_ax;
+						p.m_ay = current_path.m_ay;
+						p.m_new_shape = current_path.m_new_shape;
+						p.m_edges.transfer_members(&current_path.m_edges);
 						current_path.m_ax = x;
 						current_path.m_ay = y;
 					}
@@ -1188,8 +1226,15 @@ namespace gameswf
 					// fill_style_1_change = 1;
 					if (! current_path.is_empty())
 					{
-						m_paths.push_back(current_path);
-						current_path.m_edges.resize(0);
+						m_paths.push_back(path());
+						path& p = m_paths.back();
+						p.m_fill0 = current_path.m_fill0;
+						p.m_fill1 = current_path.m_fill1;
+						p.m_line = current_path.m_line;
+						p.m_ax = current_path.m_ax;
+						p.m_ay = current_path.m_ay;
+						p.m_new_shape = current_path.m_new_shape;
+						p.m_edges.transfer_members(&current_path.m_edges);
 						current_path.m_ax = x;
 						current_path.m_ay = y;
 					}
@@ -1207,8 +1252,15 @@ namespace gameswf
 					// line_style_change = 1;
 					if (! current_path.is_empty())
 					{
-						m_paths.push_back(current_path);
-						current_path.m_edges.resize(0);
+						m_paths.push_back(path());
+						path& p = m_paths.back();
+						p.m_fill0 = current_path.m_fill0;
+						p.m_fill1 = current_path.m_fill1;
+						p.m_line = current_path.m_line;
+						p.m_ax = current_path.m_ax;
+						p.m_ay = current_path.m_ay;
+						p.m_new_shape = current_path.m_new_shape;
+						p.m_edges.transfer_members(&current_path.m_edges);
 						current_path.m_ax = x;
 						current_path.m_ay = y;
 					}
@@ -1228,8 +1280,15 @@ namespace gameswf
 					// Store the current path if any.
 					if (! current_path.is_empty())
 					{
-						m_paths.push_back(current_path);
-						current_path.m_edges.resize(0);
+						m_paths.push_back(path());
+						path& p = m_paths.back();
+						p.m_fill0 = current_path.m_fill0;
+						p.m_fill1 = current_path.m_fill1;
+						p.m_line = current_path.m_line;
+						p.m_ax = current_path.m_ax;
+						p.m_ay = current_path.m_ay;
+						p.m_new_shape = current_path.m_new_shape;
+						p.m_edges.transfer_members(&current_path.m_edges);
 
 						// Clear styles.
 						current_path.m_fill0 = -1;
@@ -1296,7 +1355,7 @@ namespace gameswf
 
 					if (SHAPE_LOG) IF_VERBOSE_PARSE(log_msg("  shape_character_read: straight edge = %4g %4g - %4g %4g\n", x, y, x + dx, y + dy));
 
-					current_path.m_edges.push_back(edge(x, y, x + dx, y + dy));
+					current_path.m_edges.push_back(edge(x + dx, y + dy, x + dx, y + dy));
 
 					x += dx;
 					y += dy;
@@ -1561,6 +1620,10 @@ namespace gameswf
 // 		}
 
 		float	object_space_max_error = 20.0f / max_scale / pixel_scale * s_curve_max_pixel_error;
+		if (object_space_max_error < 10.0f)
+		{
+			object_space_max_error = 10.0f;
+		}
 
 #ifdef DEBUG_DISPLAY_SHAPE_PATHS
 		// Render a debug view of shape path outlines, instead
@@ -1594,6 +1657,14 @@ namespace gameswf
 		}
 
 		// Construct a new mesh to handle this error tolerance.
+		int error_x100 = (int)(object_space_max_error * 100.0f);
+		if (!flashplayer_consume_shape_mesh_budget(get_id(), m_paths.size(),
+			m_cached_meshes.size(), error_x100))
+		{
+			return;
+		}
+		flashplayer_trace_shape_mesh(get_id(), m_paths.size(),
+			m_cached_meshes.size(), error_x100);
 		mesh_set*	m = new mesh_set(this, object_space_max_error * 0.75f);
 		m_cached_meshes.push_back(m);
 		m->display(mat, cx, fill_styles, line_styles, bm);

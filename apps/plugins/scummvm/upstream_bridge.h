@@ -28,9 +28,11 @@ extern "C" {
 bool scummvm_upstream_can_run(const struct scummvm_target *target);
 bool scummvm_upstream_init(const struct scummvm_target *target,
                            struct scummvm_engine_state *state);
+void scummvm_upstream_input(int x, int y, bool down, bool clicked);
 bool scummvm_upstream_frame(const struct scummvm_target *target,
                             struct scummvm_engine_state *state,
                             struct scummvm_video *video);
+void scummvm_upstream_shutdown(void);
 
 #ifdef __cplusplus
 }

@@ -1,10 +1,12 @@
 """Main application window — ties together all UI components in an iTunes 7 layout."""
 
 import logging
+import errno
 import base64
 import hashlib
 import json
 import os
+import shlex
 import secrets
 import shutil
 import signal
@@ -249,6 +251,7 @@ class MainWindow(QMainWindow):
         self._movie_import_output = []
         self._movie_import_log_path = ""
         self._movie_import_result = {}
+        self._linux_cache_dir_override = None
         self._movie_browse_process = None
         self._movie_browse_output_path = ""
         self._movie_browse_output = []
@@ -5635,6 +5638,37 @@ class MainWindow(QMainWindow):
     def _confirm_theme_designer_readability(self, profile, variant_data, bundle=None):
         merged = dict(self._current_designer_variant or {})
         merged.update(variant_data or {})
+        budget_issues = []
+        if bundle:
+            budget_issues = [
+                issue for issue in self._theme_designer_service.render_budget_recommendations_for_bundle(
+                    profile["source_repo_path"],
+                    profile,
+                    bundle,
+                )
+                if issue.get("level") in {"critical", "warn"}
+            ]
+        if budget_issues:
+            lines = []
+            for issue in budget_issues[:6]:
+                lines.append(
+                    f"{issue['skin']}: {issue['label']} - {issue['detail']} "
+                    f"{issue['recommendation']}"
+                )
+            if len(budget_issues) > 6:
+                lines.append(f"+{len(budget_issues) - 6} more")
+
+            dialog = QMessageBox(self)
+            dialog.setWindowTitle("Render Budget Check")
+            dialog.setIcon(QMessageBox.Warning)
+            dialog.setText("Some generated iPone skin patterns may slow Rockbox redraws.")
+            dialog.setInformativeText("\n".join(lines))
+            dialog.addButton("Install Anyway", QMessageBox.DestructiveRole)
+            cancel_button = dialog.addButton(QMessageBox.Cancel)
+            dialog.exec()
+            if dialog.clickedButton() is cancel_button:
+                return None
+
         if bundle:
             issues = self._theme_designer_service.readability_recommendations_for_bundle(
                 profile["source_repo_path"],
@@ -6708,10 +6742,45 @@ class MainWindow(QMainWindow):
     # ═══════════════════════════════════════════════════════════════
 
     def _linux_cache_dir(self):
+        if self._linux_cache_dir_override:
+            return self._linux_cache_dir_override
         cache_dir = self._config.get("cache_dir", "")
         if not cache_dir:
             cache_dir = os.path.join(self._repo_root, "rockpod", ".cache")
         return os.path.join(cache_dir, "linux")
+
+    def _linux_cache_dir_candidates(self):
+        cache_dirs = []
+        seen = set()
+
+        def add(path):
+            if not path:
+                return
+            resolved = os.path.abspath(os.path.expanduser(path))
+            if resolved in seen:
+                return
+            seen.add(resolved)
+            cache_dirs.append(resolved)
+
+        if self._linux_cache_dir_override:
+            add(self._linux_cache_dir_override)
+        config_cache = self._config.get("cache_dir", "")
+        if not config_cache:
+            config_cache = os.path.join(self._repo_root, "rockpod", ".cache")
+        add(os.path.join(config_cache, "linux"))
+        add(os.path.join(os.path.expanduser("~/.rockpod"), "cache", "linux"))
+        return cache_dirs
+
+    def _find_verified_linux_cache_dir(self):
+        cache_dirs = self._linux_cache_dir_candidates()
+        for cache_dir in cache_dirs:
+            iso_path = os.path.join(cache_dir, DEBIAN_LIVE_XFCE_ISO)
+            try:
+                if self._linux_payload.verify_iso(iso_path, require_cached=True).get("success"):
+                    return cache_dir
+            except Exception:
+                continue
+        return None
 
     def _linux_iso_path(self):
         return os.path.join(self._linux_cache_dir(), DEBIAN_LIVE_XFCE_ISO)
@@ -6724,7 +6793,7 @@ class MainWindow(QMainWindow):
 
     def _refresh_linux_manager(self):
         device = self._device_detector.current_device
-        iso_status = self._linux_payload.verify_iso(self._linux_iso_path())
+        iso_status = self._linux_payload.verify_iso(self._linux_iso_path(), require_cached=True)
         extracted = self._linux_extracted_path()
         stage_ready = (
             os.path.isfile(os.path.join(extracted, "manifest.json"))
@@ -6765,7 +6834,7 @@ class MainWindow(QMainWindow):
                     "mount_path": getattr(device, "mount_path", ""),
                 } if device else {},
                 "iso": "Debian ISO: verified" if iso_status["success"] else "Debian ISO: missing or invalid",
-                "stage": "Payload: staged" if stage_ready else "Payload: not staged",
+                "stage": "Payload: staged (cache)" if stage_ready else "Payload: not staged",
                 "install": install_text,
                 "free_bytes": int(getattr(device, "free_space", 0) or 0) if device else 0,
                 "payload_bytes": payload_bytes,
@@ -6785,7 +6854,20 @@ class MainWindow(QMainWindow):
         progress.setCancelButton(None)
         progress.setMinimumDuration(0)
         progress.show()
+        progress.raise_()
+        progress.activateWindow()
         QApplication.processEvents()
+
+        verified_cache_dir = self._find_verified_linux_cache_dir()
+        if verified_cache_dir:
+            self._linux_cache_dir_override = verified_cache_dir
+            progress.setLabelText(
+                f"Using verified Debian ISO from existing cache:\n{verified_cache_dir}"
+            )
+            QApplication.processEvents()
+            progress.close()
+            self._status_bar.set_left_text("Debian ISO already present and verified")
+            return self._linux_payload.verify_iso(self._linux_iso_path())
 
         def on_progress(copied, total):
             if total:
@@ -6793,11 +6875,51 @@ class MainWindow(QMainWindow):
             progress.setLabelText(f"Downloading Debian Live Xfce... {copied // (1024 * 1024)} MB")
             QApplication.processEvents()
 
+        self._linux_cache_dir_override = None
+        cache_dirs = self._linux_cache_dir_candidates()
+        if not cache_dirs:
+            cache_dirs = [self._linux_cache_dir()]
+
+        last_error = None
+        result = None
         try:
-            result = self._linux_payload.download_iso(self._linux_cache_dir(), on_progress)
+            for index, cache_dir in enumerate(cache_dirs):
+                self._linux_cache_dir_override = cache_dir
+                progress.setLabelText(
+                    f"Downloading Debian Live Xfce...\nCache: {cache_dir}"
+                )
+                QApplication.processEvents()
+                if index > 0:
+                    progress.setLabelText(f"Retrying Debian ISO download to alternate cache: {cache_dir}")
+                    QApplication.processEvents()
+                try:
+                    result = self._linux_payload.download_iso(cache_dir, on_progress)
+                    break
+                except OSError as exc:
+                    last_error = exc
+                    if exc.errno == errno.ENOSPC and index + 1 < len(cache_dirs):
+                        continue
+                    raise
+            if result is None:
+                if last_error is not None:
+                    raise last_error
+                raise RuntimeError("Unable to write Debian ISO to cache.")
         except Exception as exc:
             progress.close()
-            QMessageBox.warning(self, "RockPod Linux", f"Download failed: {exc}")
+            if isinstance(exc, OSError) and exc.errno == errno.ENOSPC:
+                candidates = "\n".join(
+                    [f"- {os.path.abspath(os.path.expanduser(c))}" for c in cache_dirs]
+                )
+                QMessageBox.warning(
+                    self,
+                    "RockPod Linux",
+                    "Host cache does not have enough space to download the ISO.\n"
+                    f"Error: {exc}\n\n"
+                    "Current cache candidate list:\n"
+                    f"{candidates}",
+                )
+            else:
+                QMessageBox.warning(self, "RockPod Linux", f"Download failed: {exc}")
             self._refresh_linux_manager()
             return
         progress.close()
@@ -6816,12 +6938,17 @@ class MainWindow(QMainWindow):
         credentials = self._linux_manager.prompt_vm_user()
         if credentials is None:
             return
-        progress = QProgressDialog("Extracting Debian Live payload...", None, 0, 0, self)
+        progress = QProgressDialog("Staging Debian payload locally...", None, 0, 0, self)
         progress.setWindowTitle("RockPod Linux")
         progress.setWindowModality(Qt.WindowModal)
         progress.setCancelButton(None)
         progress.setMinimumDuration(0)
+        progress.setAutoClose(False)
+        progress.setAutoReset(False)
+        progress.setLabelText("Preparing and extracting VM payload to cache (host only)...")
         progress.show()
+        progress.raise_()
+        progress.activateWindow()
         QApplication.processEvents()
         try:
             if os.path.isdir(self._linux_extracted_path()):
@@ -6838,95 +6965,365 @@ class MainWindow(QMainWindow):
             self._refresh_linux_manager()
             return
         progress.close()
-        self._status_bar.set_left_text(f"Linux payload staged: {len(bundle.get('assets', []))} files")
+        self._status_bar.set_left_text(
+            f"Stage completed in cache; install to iPod via "
+            f"'{self._linux_manager._install_btn.text()}' if mounted."
+        )
         self._refresh_linux_manager()
 
     def _install_linux_payload(self, allocation_gb):
-        device = self._device_detector.current_device
-        if not device:
-            QMessageBox.warning(self, "RockPod Linux", "Connect a Rockbox iPod first.")
-            return
-        verification = self._linux_payload.verify_iso(self._linux_iso_path())
-        if not verification["success"]:
-            self._download_linux_iso()
-            verification = self._linux_payload.verify_iso(self._linux_iso_path())
-            if not verification["success"]:
-                return
-        credentials = self._linux_manager.prompt_vm_user()
-        if credentials is None:
-            return
-        try:
-            if os.path.isdir(self._linux_extracted_path()):
-                shutil.rmtree(self._linux_extracted_path())
-            bundle = self._linux_payload.build_vm_bundle_from_iso(
-                self._linux_iso_path(),
-                self._linux_extracted_path(),
-                allocation_gb,
-                credentials,
-            )
-            allocation = self._linux_payload.validate_allocation(bundle, allocation_gb)
-        except Exception as exc:
-            QMessageBox.warning(self, "RockPod Linux", f"Payload is not ready: {exc}")
-            self._refresh_linux_manager()
-            return
-        if not allocation["valid"]:
-            QMessageBox.warning(self, "RockPod Linux", allocation["message"])
-            return
-        message = (
-            f"Install Debian Live Xfce to:\n{device.mount_path}\n\n"
-            f"Linux allocation: {allocation['allocation_gb']} GB maximum\n"
-            f"Payload size: {allocation['payload_bytes'] // (1024 * 1024)} MB\n\n"
-            "RockPod will copy the VM bundle, then launch the unattended Debian "
-            "installer script from the iPod. It does not modify the iPod "
-            "bootloader, stock boot, Rockbox boot, partitions, or boot sector."
-        )
-        if QMessageBox.question(self, "Install RockPod Linux", message) != QMessageBox.Yes:
-            return
-        progress = QProgressDialog("Copying Linux payload to iPod...", None, 0, 0, self)
-        progress.setWindowTitle("RockPod Linux")
-        progress.setWindowModality(Qt.WindowModal)
-        progress.setCancelButton(None)
-        progress.setMinimumDuration(0)
-        progress.show()
+        install_btn = self._linux_manager._install_btn
+        original_install_text = install_btn.text()
+        install_btn.setEnabled(False)
+        install_btn.setText("Installing Linux VM...")
+
+        def _safe_progress_units(total_bytes, unit=1024 * 1024, max_range=2_147_483_647):
+            if unit <= 0:
+                unit = 1
+            if total_bytes is None:
+                return 1
+            try:
+                total = int(total_bytes)
+            except Exception:
+                return 1
+            if total <= 0:
+                return 1
+            return max(min(max(total // unit, 1), max_range), 1)
+
+        self._status_bar.set_left_text("Linux install: validating environment...")
         QApplication.processEvents()
         try:
-            profile = {
-                "id": self._sync_engine.current_device_key or "ipod",
-                "name": getattr(device, "name", "iPod"),
-                "device_mount_path": device.mount_path,
-                "source_repo_path": self._repo_root,
-                "backup_location": os.path.join(
-                    self._repo_root,
-                    "rockpod",
-                    ".backups",
-                    "linux",
-                    self._sync_engine.current_device_key or "ipod",
-                ),
-            }
-            result = self._linux_payload.install_bundle(profile, bundle, allocation_gb=allocation_gb)
-        except Exception as exc:
-            progress.close()
-            QMessageBox.warning(self, "RockPod Linux", f"Install failed: {exc}")
-            self._refresh_linux_manager()
-            return
-        progress.close()
-        if result.get("success"):
-            self._status_bar.set_left_text(f"Linux installed: {result.get('copied_count', 0)} files copied")
-            self._refresh_device_storage_breakdown(device)
-            autoinstall = os.path.join(
-                device.mount_path,
-                "Linux",
-                "RockPodVM",
-                "autoinstall-linux-linux.command",
-            )
+            self._status_bar.set_left_text("Linux install: locating a valid cached Debian ISO...")
+            QApplication.processEvents()
+
+            device = self._device_detector.current_device
+            if not device:
+                QMessageBox.warning(self, "RockPod Linux", "Connect a Rockbox iPod first.")
+                return
+
             try:
-                self._launch_linux_autoinstall_preview(autoinstall)
-                self._status_bar.set_left_text("Linux VM copied; Debian autoinstall running")
+                verified_cache_dir = self._find_verified_linux_cache_dir()
+                if verified_cache_dir:
+                    self._linux_cache_dir_override = verified_cache_dir
+                else:
+                    self._linux_cache_dir_override = None
+                self._status_bar.set_left_text("Linux install: validating cached Debian ISO checksum...")
+                QApplication.processEvents()
+
+                def verify_iso_with_progress():
+                    verify_progress = QProgressDialog(
+                        "Validating Debian ISO checksum...",
+                        None,
+                        0,
+                        0,
+                        self,
+                    )
+                    verify_progress.setWindowTitle("RockPod Linux")
+                    verify_progress.setWindowModality(Qt.WindowModal)
+                    verify_progress.setCancelButton(None)
+                    verify_progress.setMinimumDuration(0)
+                    verify_progress.setAutoClose(False)
+                    verify_progress.setAutoReset(False)
+                    verify_progress.setValue(0)
+                    verify_progress.setLabelText("Validating Debian ISO checksum from cache...")
+                    verify_progress.show()
+                    verify_progress.raise_()
+                    verify_progress.activateWindow()
+                    QApplication.processEvents()
+
+                    def on_verify_progress(current, total):
+                        maximum = _safe_progress_units(total, unit=1024 * 1024)
+                        if total:
+                            displayed_current = int(current or 0) // (1024 * 1024)
+                            verify_progress.setLabelText(
+                                f"Validating Debian ISO checksum: "
+                                f"{displayed_current} MB / "
+                                f"{maximum} MB"
+                            )
+                        else:
+                            verify_progress.setLabelText(
+                                "Validating Debian ISO checksum..."
+                                f" {current} bytes"
+                            )
+                        if verify_progress.maximum() != maximum:
+                            verify_progress.setRange(0, maximum)
+                        verify_progress.setValue(min(int(displayed_current) if total else 0, maximum))
+                        self._status_bar.set_left_text(verify_progress.labelText())
+                        QApplication.processEvents()
+
+                    try:
+                        verification = self._linux_payload.verify_iso(
+                            self._linux_iso_path(),
+                            progress_callback=on_verify_progress,
+                        )
+                    finally:
+                        verify_progress.close()
+                    return verification
+
+                verification = verify_iso_with_progress()
+                if not verification["success"]:
+                    self._status_bar.set_left_text("Linux install: downloading Debian ISO...")
+                    QApplication.processEvents()
+                    self._download_linux_iso()
+                    verification = verify_iso_with_progress()
+                    if not verification["success"]:
+                        raise RuntimeError("Debian ISO is missing or invalid.")
             except Exception as exc:
-                QMessageBox.warning(self, "RockPod Linux", f"Installed, but autoinstall could not start: {exc}")
-        else:
-            QMessageBox.warning(self, "RockPod Linux", "\n".join(result.get("failures", [])) or "Install failed")
-        self._refresh_linux_manager()
+                details = str(exc).strip()
+                if not details:
+                    details = exc.__class__.__name__
+                self._status_bar.set_left_text("Linux install blocked before credential check.")
+                QMessageBox.warning(self, "RockPod Linux", f"Install blocked before credential check: {details}")
+                self._refresh_linux_manager()
+                return
+
+            credentials = self._linux_manager.prompt_vm_user()
+            if credentials is None:
+                self._status_bar.set_left_text("Linux install canceled by user.")
+                return
+
+            stage_progress = QProgressDialog(
+                "Preparing Debian VM payload locally...",
+                None,
+                0,
+                0,
+                self,
+            )
+            stage_progress.setWindowTitle("RockPod Linux")
+            stage_progress.setWindowModality(Qt.WindowModal)
+            stage_progress.setCancelButton(None)
+            stage_progress.setMinimumDuration(0)
+            stage_progress.setAutoClose(False)
+            stage_progress.setAutoReset(False)
+            stage_progress.setLabelText("Building bootable VM payload in cache...")
+            stage_progress.show()
+            stage_progress.raise_()
+            stage_progress.activateWindow()
+            QApplication.processEvents()
+            try:
+                if os.path.isdir(self._linux_extracted_path()):
+                    shutil.rmtree(self._linux_extracted_path())
+                bundle = self._linux_payload.build_vm_bundle_from_iso(
+                    self._linux_iso_path(),
+                    self._linux_extracted_path(),
+                    allocation_gb,
+                    credentials,
+                    verify_iso=False,
+                )
+                allocation = self._linux_payload.validate_allocation(bundle, allocation_gb)
+            except Exception as exc:
+                details = str(exc).strip()
+                if not details:
+                    details = exc.__class__.__name__
+                stage_progress.close()
+                self._status_bar.set_left_text("Linux install blocked before copy.")
+                QMessageBox.warning(self, "RockPod Linux", f"Install blocked before copy: {details}")
+                self._refresh_linux_manager()
+                return
+            stage_progress.close()
+
+            if not allocation["valid"]:
+                QMessageBox.warning(self, "RockPod Linux", allocation["message"])
+                self._status_bar.set_left_text("Linux install blocked by allocation limits.")
+                return
+
+            message = (
+                f"Install Debian Live Xfce to:\n{device.mount_path}\n\n"
+                f"Target: {os.path.join(device.mount_path, 'Linux', 'RockPodVM')}\n\n"
+                f"Linux allocation: {allocation['allocation_gb']} GB maximum\n"
+                f"Payload size: {allocation['payload_bytes'] // (1024 * 1024)} MB\n\n"
+                "RockPod will copy the VM bundle, then launch the unattended Debian "
+                "installer script from the iPod. It does not modify the iPod "
+                "bootloader, stock boot, Rockbox boot, partitions, or boot sector."
+            )
+            if QMessageBox.question(
+                self,
+                "Install RockPod Linux",
+                message,
+                QMessageBox.Yes | QMessageBox.No,
+                QMessageBox.Yes,
+            ) != QMessageBox.Yes:
+                self._status_bar.set_left_text("Linux install confirmation denied.")
+                return
+
+            progress = QProgressDialog(
+                "Copying Linux payload to iPod...",
+                None,
+                0,
+                _safe_progress_units(bundle.get("total_size"), unit=1024 * 1024),
+                self,
+            )
+            cancel_state = {"cancelled": False}
+            progress.setWindowTitle("RockPod Linux")
+            progress.setWindowModality(Qt.WindowModal)
+            progress.setCancelButtonText("Cancel")
+            progress.setMinimumDuration(0)
+            progress.setAutoClose(False)
+            progress.setAutoReset(False)
+            progress.show()
+            progress.raise_()
+            progress.activateWindow()
+            QApplication.processEvents()
+
+            def on_progress(current, total, label):
+                if progress.wasCanceled():
+                    cancel_state["cancelled"] = True
+                    progress.setLabelText("Transfer cancel requested...")
+                    QApplication.processEvents()
+                    return
+                current_value = (int(current or 0) // (1024 * 1024))
+                display_max = _safe_progress_units(total, unit=1024 * 1024)
+                if progress.maximum() != display_max:
+                    progress.setRange(0, display_max)
+                progress.setValue(min(current_value, display_max))
+                if label:
+                    progress.setLabelText(
+                        f"{label} ({current_value} MB / {display_max} MB)"
+                    )
+                self._status_bar.set_left_text(progress.labelText())
+                QApplication.processEvents()
+
+            self._status_bar.set_left_text("Linux install: copying payload files...")
+            try:
+                profile = {
+                    "id": self._sync_engine.current_device_key or "ipod",
+                    "name": getattr(device, "name", "iPod"),
+                    "device_mount_path": device.mount_path,
+                    "source_repo_path": self._repo_root,
+                    "backup_location": os.path.join(
+                        self._repo_root,
+                        "rockpod",
+                        ".backups",
+                        "linux",
+                        self._sync_engine.current_device_key or "ipod",
+                    ),
+                }
+                result = self._linux_payload.install_bundle(
+                    profile,
+                    bundle,
+                    allocation_gb=allocation_gb,
+                    progress_callback=on_progress,
+                    cancel_state=cancel_state,
+                )
+            except Exception as exc:
+                progress.close()
+                self._status_bar.set_left_text("Linux install failed during transfer.")
+                QMessageBox.warning(self, "RockPod Linux", f"Install failed: {exc}")
+                self._refresh_linux_manager()
+                return
+
+            progress.close()
+            copied_count = int(result.get("copied_count") or 0)
+            copied_bytes = int(result.get("copied_bytes") or 0)
+            if result.get("success"):
+                self._status_bar.set_left_text(
+                    f"Linux installed: {copied_count} files ({copied_bytes // (1024 * 1024)} MB)"
+                )
+                warnings = list(result.get("warnings") or [])
+                if warnings:
+                    self._status_bar.set_left_text(
+                        f"Linux installed with {len(warnings)} warning(s): "
+                        f"first: {warnings[0]}"
+                    )
+                self._refresh_device_storage_breakdown(device)
+                autoinstall = os.path.join(
+                    device.mount_path,
+                    "Linux",
+                    "RockPodVM",
+                    "autoinstall-linux-linux.command",
+                )
+                try:
+                    self._launch_linux_autoinstall_preview(autoinstall)
+                    self._status_bar.set_left_text("Linux VM copied; Debian autoinstall running")
+                except Exception as exc:
+                    QMessageBox.warning(self, "RockPod Linux", f"Installed, but autoinstall could not start: {exc}")
+            else:
+                failures = list(result.get("failures") or [])
+                warnings = list(result.get("warnings") or [])
+                required_present = all(
+                    os.path.isfile(
+                        os.path.join(
+                            device.mount_path,
+                            "Linux",
+                            "RockPodVM",
+                            filename,
+                        )
+                    )
+                    for filename in (
+                        DEBIAN_LIVE_XFCE_ISO,
+                        "start-linux-linux.command",
+                        "autoinstall-linux-linux.command",
+                        "manifest.json",
+                    )
+                )
+                details = [f"Copied {copied_count} files ({copied_bytes // (1024 * 1024)} MB)."]
+                if not copied_bytes and not failures:
+                    details.append("No payload bytes were written to the device.")
+                if failures:
+                    details.extend(failures[:6])
+                    if len(failures) > 6:
+                        details.append(f"... and {len(failures) - 6} more issues.")
+                was_cancelled = bool(result.get("cancelled") or cancel_state.get("cancelled"))
+                if was_cancelled:
+                    should_remove = self._confirm_remove_linux_partial_payload(
+                        os.path.join(device.mount_path, "Linux", "RockPodVM"),
+                        copied_count,
+                        copied_bytes,
+                    )
+                    if should_remove:
+                        cleanup = self._linux_payload.cleanup_vm_root(device.mount_path)
+                        if cleanup.get("success"):
+                            self._status_bar.set_left_text("Install canceled; partial Linux files removed")
+                        else:
+                            details.append("Cleanup issues:")
+                            details.extend((cleanup.get("failures") or [])[:6])
+                            if len(cleanup.get("failures", [])) > 6:
+                                details.append(f"... and {len(cleanup.get('failures', [])) - 6} more issues.")
+                            QMessageBox.warning(self, "RockPod Linux", "\n".join(details))
+                    else:
+                        QMessageBox.warning(self, "RockPod Linux", "\n".join(details))
+                        self._status_bar.set_left_text("Install canceled. Partial payload kept on device.")
+                elif required_present and warnings and not failures:
+                    autoinstall = os.path.join(
+                        device.mount_path,
+                        "Linux",
+                        "RockPodVM",
+                        "autoinstall-linux-linux.command",
+                    )
+                    warning_text = "\n".join(warnings[:6])
+                    if len(warnings) > 6:
+                        warning_text += f"\n... and {len(warnings) - 6} more warnings."
+                    QMessageBox.warning(
+                        self,
+                        "RockPod Linux",
+                        f"{warning_text}\n\nContinuing with Debian autoinstall despite non-fatal warnings."
+                        if warning_text
+                        else "Starting Debian autoinstall despite non-fatal warnings.",
+                    )
+                    try:
+                        self._launch_linux_autoinstall_preview(autoinstall)
+                        self._status_bar.set_left_text("Linux VM copied with warnings; Debian autoinstall running")
+                    except Exception as exc:
+                        QMessageBox.warning(self, "RockPod Linux", f"Installed, but autoinstall could not start: {exc}")
+                else:
+                    QMessageBox.warning(self, "RockPod Linux", "\n".join(details))
+            self._refresh_linux_manager()
+        finally:
+            install_btn.setEnabled(True)
+            install_btn.setText(original_install_text)
+
+    def _confirm_remove_linux_partial_payload(self, vm_root, copied_count, copied_bytes):
+        return (
+            QMessageBox.question(
+                self,
+                "RockPod Linux",
+                f"Install was canceled during copy.\n\n"
+                f"Copied: {copied_count} files ({copied_bytes // (1024 * 1024)} MB)\n"
+                f"Location: {vm_root}\n\n"
+                "Remove partial files so you can retry?",
+            )
+            == QMessageBox.Yes
+        )
 
     def _launch_linux_autoinstall_preview(self, autoinstall):
         if not os.path.isfile(autoinstall):
@@ -6939,6 +7336,10 @@ class MainWindow(QMainWindow):
                 self._linux_install_dialog.activateWindow()
             raise RuntimeError("A Debian autoinstall VM is already running.")
 
+        bash_exec = shutil.which("bash") or "/bin/bash"
+        if not os.path.isfile(bash_exec):
+            raise RuntimeError("bash was not found in PATH and /bin/bash is unavailable.")
+
         dialog = LinuxInstallProgressDialog(self)
         dialog.set_status("Launching Debian autoinstall VM...")
         dialog.show()
@@ -6946,19 +7347,61 @@ class MainWindow(QMainWindow):
         dialog.activateWindow()
         self._linux_install_dialog = dialog
 
-        process = QProcess(self)
-        process.setProcessChannelMode(QProcess.MergedChannels)
-        process.setWorkingDirectory(os.path.dirname(autoinstall))
-        self._linux_install_process = process
+        process = None
+        startup_launch = True
+        launch_time = None
+        finished = {"done": False}
+
+        def set_active_process(candidate):
+            nonlocal process
+            process = candidate
+            self._linux_install_process = process
+            process.setProcessChannelMode(QProcess.MergedChannels)
+            process.setWorkingDirectory(os.path.dirname(autoinstall))
+
+        def finalize(message, success):
+            nonlocal process
+            if finished["done"]:
+                return
+            finished["done"] = True
+            read_output()
+            dialog.mark_finished(message, success=success)
+            self._linux_install_process = None
+
+            if process is not None:
+                try:
+                    process.deleteLater()
+                except Exception:
+                    pass
+                process = None
+
+            if self._device_detector.current_device is not None:
+                self._refresh_device_storage_breakdown(self._device_detector.current_device)
+            self._refresh_linux_manager()
 
         def read_output():
-            text = bytes(process.readAllStandardOutput()).decode("utf-8", "replace")
+            proc = process
+            if proc is None:
+                return
+            try:
+                text = bytes(proc.readAllStandardOutput()).decode("utf-8", "replace")
+            except Exception:
+                return
             if text:
                 dialog.append_output(text)
                 dialog.set_status("Debian installer is running...")
 
+        def process_is_running(candidate=None):
+            proc = process if candidate is None else candidate
+            if proc is None:
+                return False
+            try:
+                return proc.state() != QProcess.NotRunning
+            except Exception:
+                return False
+
         def stop_install():
-            if process.state() == QProcess.NotRunning:
+            if process is None or process.state() == QProcess.NotRunning:
                 return
             dialog.append_output("\nStopping Debian autoinstall VM...\n")
             dialog.set_status("Stopping Debian autoinstall VM...")
@@ -6972,7 +7415,7 @@ class MainWindow(QMainWindow):
                 process.terminate()
 
             def force_stop():
-                if process.state() == QProcess.NotRunning:
+                if process is None or process.state() == QProcess.NotRunning:
                     return
                 pid = int(process.processId())
                 if pid > 0:
@@ -6986,42 +7429,109 @@ class MainWindow(QMainWindow):
             QTimer.singleShot(5000, force_stop)
 
         def on_error(_error):
-            read_output()
+            if process is None:
+                return
+            if not process_is_running():
+                return
+            if startup_launch:
+                return
             message = process.errorString() or "Could not start Debian autoinstall."
             dialog.append_output(f"\nRockPod Linux install process error: {message}\n")
-            dialog.mark_finished("Debian autoinstall could not start.", success=False)
+            finalize("Debian autoinstall could not start.", success=False)
             self._status_bar.set_left_text("Debian autoinstall could not start")
-            self._linux_install_process = None
-            self._refresh_linux_manager()
 
         def on_finished(exit_code, exit_status):
-            read_output()
+            if process is None:
+                return
+            if startup_launch:
+                return
+            if finished["done"]:
+                return
+            elapsed_ms = int((time.monotonic() - (launch_time or time.monotonic())) * 1000)
             success = exit_status == QProcess.NormalExit and int(exit_code) == 0
             if success:
+                if elapsed_ms < 1000:
+                    message = (
+                        f"Debian autoinstall exited immediately ({elapsed_ms} ms). "
+                        "This usually means the installer did not launch correctly."
+                    )
+                    dialog.append_output(f"\n{message}\n")
+                    finalize("Debian autoinstall did not start.", success=False)
+                    self._status_bar.set_left_text("Debian autoinstall did not start")
+                    return
                 dialog.append_output("\nDebian autoinstall finished. Start VM is now available.\n")
-                dialog.mark_finished("Debian autoinstall finished. Use Start VM.", success=True)
+                finalize("Debian autoinstall finished. Use Start VM.", success=True)
                 self._status_bar.set_left_text("Debian autoinstall finished")
             else:
                 dialog.append_output(f"\nDebian autoinstall exited with code {int(exit_code)}.\n")
-                dialog.mark_finished("Debian autoinstall stopped or failed.", success=False)
+                finalize("Debian autoinstall stopped or failed.", success=False)
                 self._status_bar.set_left_text("Debian autoinstall stopped or failed")
-            self._linux_install_process = None
-            if self._device_detector.current_device is not None:
-                self._refresh_device_storage_breakdown(self._device_detector.current_device)
-            self._refresh_linux_manager()
+
+        def run_process(program, arguments, command_text):
+            nonlocal process, startup_launch, launch_time
+            startup_launch = True
+            launch_time = time.monotonic()
+            candidate = QProcess(self)
+            set_active_process(candidate)
+            candidate.readyReadStandardOutput.connect(read_output)
+            candidate.readyReadStandardError.connect(read_output)
+            candidate.errorOccurred.connect(on_error)
+            candidate.finished.connect(on_finished)
+            dialog.append_output(f"$ {command_text}\n")
+            candidate.start(program, arguments)
+            if candidate.waitForStarted(3000):
+                startup_launch = False
+                process = candidate
+                return True
+            error = candidate.errorString() or "start failed"
+            try:
+                candidate.deleteLater()
+            except Exception:
+                pass
+            candidate.close()
+            return error
 
         dialog.stop_requested.connect(stop_install)
-        process.readyReadStandardOutput.connect(read_output)
-        process.errorOccurred.connect(on_error)
-        process.finished.connect(on_finished)
-        process.start("setsid", ["bash", autoinstall])
-        if not process.waitForStarted(3000):
-            message = process.errorString() or "Could not start Debian autoinstall."
+
+        quoted_workdir = shlex.quote(os.path.dirname(autoinstall))
+        script_name = shlex.quote(os.path.basename(autoinstall))
+        quoted_bash = shlex.quote(bash_exec)
+        start_attempts = []
+        start_attempts.append((bash_exec, [autoinstall], f"{quoted_bash} {shlex.quote(autoinstall)}"))
+        start_attempts.append((bash_exec, ["-lc", f"cd {quoted_workdir} && ./{script_name}"], f"{quoted_bash} -lc 'cd {quoted_workdir} && ./{script_name}'"))
+
+        start_error = None
+        started = False
+        for program, args, label in start_attempts:
+            result = run_process(program, args, label)
+            if result is True:
+                started = True
+                break
+            start_error = result
+
+        if not started:
+            message = start_error or "Could not start Debian autoinstall."
             dialog.append_output(f"\nRockPod Linux install process error: {message}\n")
             dialog.mark_finished("Debian autoinstall could not start.", success=False)
             self._linux_install_process = None
             raise RuntimeError(message)
-        dialog.append_output(f"$ bash {autoinstall}\n\n")
+
+        def confirm_running():
+            if process is None or finished["done"]:
+                return
+            if not process_is_running():
+                read_output()
+                try:
+                    code = int(process.exitCode())
+                except Exception:
+                    code = 1
+                if code != 0:
+                    message = f"Debian autoinstall exited early with code {code}."
+                    dialog.append_output(f"\nRockPod Linux install process error: {message}\n")
+                    finalize("Debian autoinstall could not start.", success=False)
+
+        # Give immediate feedback if the autoinstall exits before the user can read output.
+        QTimer.singleShot(800, confirm_running)
         dialog.set_status("Debian installer is running...")
 
     def _start_linux_vm(self):

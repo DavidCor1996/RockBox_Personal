@@ -10,6 +10,16 @@ typedef struct rb_compat_FILE FILE;
 
 extern "C" {
 void flashplayer_trace_tag(int tag_count, int tag_type, int stream_pos);
+void flashplayer_trace_parse_progress(const char *scope, int tag_count,
+                                      int tag_type, int stream_pos);
+void flashplayer_trace_parse_start(const char *scope, int tag_count,
+                                   int tag_type, int stream_pos);
+void flashplayer_trace_parse_end(const char *scope, int tag_count,
+                                 int tag_type, int stream_pos);
+int flashplayer_should_stop_movie_load(int loading_frame, int tag_count,
+                                       int stream_pos);
+int flashplayer_should_skip_movie_tag(int loading_frame, int tag_count,
+                                      int tag_type, int stream_pos);
 void flashplayer_trace_shape(int phase, int character_id, int stream_pos);
 void flashplayer_trace_shape_record(int record_count, int flags, int stream_pos);
 void flashplayer_trace_rect(int phase, int nbits, int stream_pos);
@@ -17,6 +27,24 @@ void flashplayer_trace_execute_tag(int frame);
 void flashplayer_trace_loader(int hit, int tag_type);
 void flashplayer_trace_loader_register(int tag_type);
 void flashplayer_trace_font(int op, int font_id);
+void flashplayer_trace_mouse_event(int event_id, int topmost, int active,
+                                   int last_button, int current_button,
+                                   int inside, int x, int y);
+void flashplayer_trace_button_action(int button_id, int event_id,
+    int conditions, int mask, int matched, int action_count);
+void flashplayer_trace_action(int phase, int opcode, int a, int b,
+                              const char *text);
+void flashplayer_trace_action_bytes(const unsigned char *bytes, int len);
+void flashplayer_trace_movie_state(const char *name, int value, int aux_a,
+                                   int aux_b);
+void flashplayer_trace_do_actions(const char *owner, int count);
+void flashplayer_trace_member_lookup(const char *owner, const char *name,
+                                     int found, int object_result);
+void flashplayer_trace_variable_lookup(const char *name, int source,
+                                       int object_result);
+void flashplayer_trace_display_object(const char *name, int depth, int id,
+                                      int visible);
+const char *flashplayer_get_movie_url(void);
 void *flashplayer_tu_realloc(void *ptr, size_t new_size, size_t old_size);
 extern FILE *stderr;
 int fprintf(FILE *stream, const char *format, ...);

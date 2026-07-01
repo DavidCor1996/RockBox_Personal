@@ -82,6 +82,29 @@ namespace gameswf
 		IF_VERBOSE_PARSE(log_msg("define sound: ch=%d, format=%d, rate=%d, 16=%d, stereo=%d, ct=%d\n",
 					 character_id, int(format), sample_rate, int(sample_16bit), int(stereo), sample_count));
 
+		/*
+		 * Rockbox flashplayer currently uses a silent sound handler.  Do not
+		 * copy or expand embedded sound payloads during SWF load; Stick RPG
+		 * contains very large DefineSound tags near the start of the file, and
+		 * reading those bytes one at a time makes hardware appear stuck in
+		 * load_file.  A placeholder sample keeps StartSound/ButtonSound tags
+		 * resolvable while stream::close_tag() skips the payload.
+		 */
+		if (s_sound_handler)
+		{
+			int handler_id = s_sound_handler->create_sound(
+				NULL,
+				0,
+				sample_count,
+				format,
+				get_sample_rate(sample_rate),
+				stereo);
+			sound_sample*	sam = new sound_sample(m->get_player(), handler_id);
+			m->add_sound_sample(character_id, sam);
+		}
+
+		return;
+
 		// If we have a sound_handler, ask it to init this sound.
 		if (s_sound_handler)
 		{

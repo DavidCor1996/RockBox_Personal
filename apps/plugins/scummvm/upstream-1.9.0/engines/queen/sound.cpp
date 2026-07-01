@@ -95,13 +95,23 @@ public:
 	}
 };
 
-class SilentSound : public PCSound {
+class SilentSound :
+#ifdef ROCKBOX_SCUMMVM_EMBEDDED
+	public Sound {
+#else
+	public PCSound {
+#endif
 public:
-	SilentSound(Audio::Mixer *mixer, QueenEngine *vm) : PCSound(mixer, vm) {}
+	SilentSound(Audio::Mixer *mixer, QueenEngine *vm) :
+#ifdef ROCKBOX_SCUMMVM_EMBEDDED
+		Sound(mixer, vm) {}
+#else
+		PCSound(mixer, vm) {}
 protected:
 	void playSoundData(Common::File *f, uint32 size, Audio::SoundHandle *soundHandle) {
 		// Do nothing
 	}
+#endif
 };
 
 class SBSound : public PCSound {
@@ -110,6 +120,89 @@ public:
 protected:
 	void playSoundData(Common::File *f, uint32 size, Audio::SoundHandle *soundHandle);
 };
+
+#ifdef ROCKBOX_SCUMMVM_EMBEDDED
+class RockboxSBSound : public Sound {
+public:
+	RockboxSBSound(Audio::Mixer *mixer, QueenEngine *vm) : Sound(mixer, vm) {}
+
+	void playSfx(uint16 sfx) {
+		if (sfxOn() && sfx != 0)
+			playSound(_sfxName[sfx - 1], false);
+	}
+	void playSpeech(const char *base) {
+		if (speechOn())
+			playSound(base, true);
+	}
+	void playSong(int16 songNum) {
+		_lastOverride = songNum;
+	}
+
+	void stopSfx() { _mixer->stopHandle(_sfxHandle); }
+	void stopSong() {}
+	void stopSpeech() { _mixer->stopHandle(_speechHandle); }
+
+	bool isSpeechActive() const { return _mixer->isSoundHandleActive(_speechHandle); }
+	bool isSfxActive() const { return _mixer->isSoundHandleActive(_sfxHandle); }
+
+private:
+	void playSound(const char *base, bool isSpeech) {
+		char name[13];
+		strcpy(name, base);
+		for (int i = 0; i < 8; i++) {
+			if (name[i] == ' ')
+				name[i] = '0';
+		}
+		strcat(name, ".SB");
+		if (isSpeech) {
+			while (_mixer->isSoundHandleActive(_speechHandle)) {
+				_vm->input()->delay(10);
+			}
+		} else {
+			_mixer->stopHandle(_sfxHandle);
+		}
+		uint32 size;
+		Common::File *f = _vm->resource()->findSound(name, &size);
+		if (f) {
+			playSoundData(f, size, isSpeech ? &_speechHandle : &_sfxHandle);
+			_speechSfxExists = isSpeech;
+		} else {
+			_speechSfxExists = false;
+		}
+	}
+
+	void playSoundData(Common::File *f, uint32 size, Audio::SoundHandle *soundHandle) {
+		int headerSize;
+		f->seek(2, SEEK_CUR);
+		uint16 version = f->readUint16LE();
+		switch (version) {
+		case 104:
+			headerSize = SB_HEADER_SIZE_V104;
+			break;
+		case 110:
+			headerSize = SB_HEADER_SIZE_V110;
+			break;
+		default:
+			warning("Unhandled SB file version %d, defaulting to 104", version);
+			headerSize = SB_HEADER_SIZE_V104;
+			break;
+		}
+		f->seek(headerSize - 4, SEEK_CUR);
+		size -= headerSize;
+		uint8 *sound = (uint8 *)malloc(size);
+		if (sound) {
+			f->read(sound, size);
+			Audio::Mixer::SoundType type = (soundHandle == &_speechHandle) ? Audio::Mixer::kSpeechSoundType : Audio::Mixer::kSFXSoundType;
+
+			Audio::AudioStream *stream = Audio::makeRawStream(sound, size, 11840, Audio::FLAG_UNSIGNED);
+			_mixer->playStream(type, soundHandle, stream);
+		}
+	}
+
+	Audio::SoundHandle _sfxHandle;
+	Audio::SoundHandle _speechHandle;
+};
+#endif
 
 #ifdef USE_MAD
 class MP3Sound : public PCSound {
@@ -156,6 +249,12 @@ Sound::Sound(Audio::Mixer *mixer, QueenEngine *vm) :
 }
 
 Sound *Sound::makeSoundInstance(Audio::Mixer *mixer, QueenEngine *vm, uint8 compression) {
+#ifdef ROCKBOX_SCUMMVM_EMBEDDED
+	if (compression == COMPRESSION_NONE)
+		return new RockboxSBSound(mixer, vm);
+	return new SilentSound(mixer, vm);
+#endif
+
 	if (vm->resource()->getPlatform() == Common::kPlatformAmiga)
 		return new AmigaSound(mixer, vm);
 

@@ -16,23 +16,28 @@ SCUMMVM_OBJ := $(SCUMMVM_OBJ:.cpp=.o)
 
 OTHER_SRC += $(SCUMMVM_SRC)
 OTHER_INC += -I$(SCUMMVMSRCDIR) \
-	-I$(SCUMMVMSRCDIR)/upstream-1.9.0 \
-	-I$(SCUMMVMSRCDIR)/upstream-1.9.0/engines \
+	-iquote $(SCUMMVMSRCDIR)/upstream-1.9.0 \
+	-iquote $(SCUMMVMSRCDIR)/upstream-1.9.0/engines \
 	-DHAVE_CONFIG_H -DSCUMM_LITTLE_ENDIAN
 
 SCUMMVMFLAGS = $(filter-out -O%,$(PLUGINFLAGS)) -Os
-SCUMMVM_CXXFLAGS = -I$(SCUMMVMSRCDIR)/upstream-1.9.0 \
-	-I$(SCUMMVMSRCDIR)/upstream-1.9.0/engines \
+SCUMMVM_CXXFLAGS = -iquote $(SCUMMVMSRCDIR)/upstream-1.9.0 \
+	-iquote $(SCUMMVMSRCDIR)/upstream-1.9.0/engines \
 	$(PLUGIN_CXXFLAGS) -I$(SCUMMVMSRCDIR) \
-	-DHAVE_CONFIG_H \
+	-DHAVE_CONFIG_H -DNDEBUG \
+	-DROCKBOX_SCUMMVM_EMBEDDED \
 	-D__STDC_LIMIT_MACROS -D__STDC_CONSTANT_MACROS
+
+ifneq ($(findstring -DSIMULATOR,$(EXTRA_DEFINES)),)
+SCUMMVM_CXXFLAGS += -DPOSIX
+endif
 
 $(SCUMMVMBUILDDIR)/scummvm.rock: $(SCUMMVM_OBJ)
 
 $(SCUMMVMBUILDDIR)/%.o: $(SCUMMVMSRCDIR)/%.c $(SCUMMVMSRCDIR)/scummvm.make
 	$(SILENT)mkdir -p $(dir $@)
-	$(call PRINTS,CC $(subst $(ROOTDIR)/,,$<))$(CC) -I$(dir $<) $(SCUMMVMFLAGS) -c $< -o $@
+	$(call PRINTS,CC $(subst $(ROOTDIR)/,,$<))$(CC) $(SCUMMVMFLAGS) -c $< -o $@
 
 $(SCUMMVMBUILDDIR)/%.o: $(SCUMMVMSRCDIR)/%.cpp $(SCUMMVMSRCDIR)/scummvm.make
 	$(SILENT)mkdir -p $(dir $@)
-	$(call PRINTS,CXX $(subst $(ROOTDIR)/,,$<))$(PLUGIN_CXX) -I$(dir $<) $(SCUMMVM_CXXFLAGS) -c $< -o $@
+	$(call PRINTS,CXX $(subst $(ROOTDIR)/,,$<))$(PLUGIN_CXX) $(SCUMMVM_CXXFLAGS) -c $< -o $@

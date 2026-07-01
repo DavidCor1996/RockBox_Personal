@@ -8,6 +8,10 @@
 
 #include "gameswf/gameswf_character.h"
 #include "gameswf/gameswf_render.h"
+#include "gameswf/gameswf_sprite.h"
+#include "gameswf_compat/compatibility_include.h"
+
+extern "C" void flashplayer_trace_visible_set(const char *name, int value);
 
 namespace gameswf
 {
@@ -157,7 +161,7 @@ namespace gameswf
 			case M_URL:
 			{
 				// our URL.
-				val->set_string("gameswf");
+				val->set_string(flashplayer_get_movie_url());
 				return true;
 			}
 			case M_HIGHQUALITY:
@@ -226,6 +230,8 @@ namespace gameswf
 	{
 		// first try character members
 		as_standard_member	std_member = get_standard_member(name);
+		flashplayer_trace_member_lookup("characterSet", name.c_str(),
+			std_member == M_VISIBLE, 1);
 		switch (std_member)
 		{
 			default:
@@ -287,7 +293,20 @@ namespace gameswf
 			}
 			case M_VISIBLE:
 			{
-				set_visible(val.to_bool());
+				bool visible = val.to_bool();
+				set_visible(visible);
+				if (m_parent != NULL && get_name().size() > 0)
+				{
+					sprite_instance* parent =
+						cast_to<sprite_instance>(m_parent.get_ptr());
+					if (parent != NULL)
+					{
+						parent->set_display_object_visible(
+							get_name().c_str(), visible);
+					}
+				}
+				flashplayer_trace_visible_set(get_name().c_str(),
+					get_visible() ? 1 : 0);
 				return true;
 			}
 			case M_WIDTH:

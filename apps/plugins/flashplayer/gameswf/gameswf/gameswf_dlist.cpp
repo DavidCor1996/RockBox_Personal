@@ -12,7 +12,10 @@
 #include "gameswf/gameswf_render.h"
 #include "gameswf/gameswf.h"
 #include "gameswf/gameswf_root.h"
+#include "gameswf/gameswf_sprite.h"
+#include "gameswf_compat/compatibility_include.h"
 #include <typeinfo>
+#include <string.h>
 
 
 
@@ -249,6 +252,10 @@ namespace gameswf
 		m_display_object_array.insert(index, di);
 
 		ch->execute_frame_tags(0);
+		if (sprite_instance* sprite = cast_to<sprite_instance>(ch))
+		{
+			sprite->do_actions();
+		}
 		add_keypress_listener(ch);
 	}
 	
@@ -479,6 +486,9 @@ namespace gameswf
 
 			character*	ch = dobj.m_character.get_ptr();
 			assert(ch);
+			flashplayer_trace_display_object(ch->get_name().c_str(),
+				ch->get_depth(), ch->get_id(),
+				ch->get_visible() ? 1 : 0);
 
 			if (ch->get_visible() == false)
 			{
@@ -643,17 +653,31 @@ namespace gameswf
 	void display_list::dump(tu_string& tabs)
 	{
 		tabs += "  ";
-		printf("%s*** displaylist ***\n", tabs.c_str());
+		log_error("%s*** displaylist ***\n", tabs.c_str());
 		for (int i = 0, n = size(); i < n; i++)
 		{
 			character*	ch = get_character(i);
+			const char* name = ch->get_name().c_str();
 			if (ch->get_name().size() > 0)
 			{
-				printf("%s%s\n", tabs.c_str(), ch->get_name().c_str());
+				log_error("%sdepth=%d id=%d name=%s visible=%d clip=%d blend=%d\n",
+					tabs.c_str(), ch->get_depth(), ch->get_id(),
+					name, ch->get_visible() ? 1 : 0,
+					ch->get_clip_depth(), ch->get_blend_mode());
 			}
 			else
 			{
-				printf("%s<noname>\n", tabs.c_str());
+				log_error("%sdepth=%d id=%d name=<noname> visible=%d clip=%d blend=%d\n",
+					tabs.c_str(), ch->get_depth(), ch->get_id(),
+					ch->get_visible() ? 1 : 0, ch->get_clip_depth(),
+					ch->get_blend_mode());
+			}
+			if (tabs.size() < 6
+				&& (strcmp(name, "pregameMC") == 0
+					|| strcmp(name, "filmscreen") == 0
+					|| strcmp(name, "introscreen") == 0))
+			{
+				ch->dump(tabs);
 			}
 		}
 		tabs.resize(tabs.size() - 2);

@@ -423,9 +423,9 @@ namespace gameswf
 		int	nbits = in->read_uint(4);
 
 		if (has_mult) {
-			m_[0][0] = in->read_sint(nbits) / 255.0f;
-			m_[1][0] = in->read_sint(nbits) / 255.0f;
-			m_[2][0] = in->read_sint(nbits) / 255.0f;
+			m_[0][0] = in->read_sint(nbits) / 256.0f;
+			m_[1][0] = in->read_sint(nbits) / 256.0f;
+			m_[2][0] = in->read_sint(nbits) / 256.0f;
 			m_[3][0] = 1;
 		}
 		else {
@@ -435,7 +435,7 @@ namespace gameswf
 			m_[0][1] = (float) in->read_sint(nbits);
 			m_[1][1] = (float) in->read_sint(nbits);
 			m_[2][1] = (float) in->read_sint(nbits);
-			m_[3][1] = 1;
+			m_[3][1] = 0;
 		}
 		else {
 			for (int i = 0; i < 4; i++) { m_[i][1] = 0; }

@@ -27,4 +27,8 @@ extern "C" {
 #undef new
 }
 
+#ifdef ABS
+#undef ABS
+#endif
+
 #endif

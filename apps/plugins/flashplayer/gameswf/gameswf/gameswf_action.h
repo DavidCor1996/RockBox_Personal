@@ -189,6 +189,11 @@ namespace gameswf
 		//action_buffer(const action_buffer& a) { assert(0); }
 
 		void	process_decl_dict(int start_pc, int stop_pc);
+		bool	action_function_exists(as_environment* env,
+			const tu_string& name, int start_pc) const;
+		void	hoist_named_functions(as_environment* env,
+			int start_pc, int stop_pc,
+			const array<with_stack_entry>& with_stack) const;
 		static void	enumerate(as_environment* env, as_object* object);
 
 		// data:

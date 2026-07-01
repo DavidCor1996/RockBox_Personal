@@ -137,12 +137,20 @@ namespace gameswf
 					// onRelease
 					if( active_entity != NULL )
 					{
+						flashplayer_trace_mouse_event(3, topmost_entity != NULL,
+							active_entity != NULL, ms->m_mouse_button_state_last,
+							ms->m_mouse_button_state_current, ms->m_mouse_inside_entity_last,
+							m_mouse_x, m_mouse_y);
 						active_entity->on_event( event_id::RELEASE );
 					}
 				}
 				else if( active_entity != NULL && !active_entity->get_track_as_menu() )
 				{
 					// onReleaseOutside
+					flashplayer_trace_mouse_event(4, topmost_entity != NULL,
+						active_entity != NULL, ms->m_mouse_button_state_last,
+						ms->m_mouse_button_state_current, ms->m_mouse_inside_entity_last,
+						m_mouse_x, m_mouse_y);
 					active_entity->on_event( event_id::RELEASE_OUTSIDE );
 				}
 			}
@@ -161,6 +169,10 @@ namespace gameswf
 					// onRollOut
 					if (active_entity != NULL && ms->m_mouse_inside_entity_last)
 					{
+						flashplayer_trace_mouse_event(1, topmost_entity != NULL,
+							active_entity != NULL, ms->m_mouse_button_state_last,
+							ms->m_mouse_button_state_current, ms->m_mouse_inside_entity_last,
+							m_mouse_x, m_mouse_y);
 						active_entity->on_event( event_id::ROLL_OUT );
 					}
 
@@ -169,6 +181,10 @@ namespace gameswf
 					// onRollOver
 					if (active_entity != NULL)
 					{
+						flashplayer_trace_mouse_event(0, topmost_entity != NULL,
+							active_entity != NULL, ms->m_mouse_button_state_last,
+							ms->m_mouse_button_state_current, ms->m_mouse_inside_entity_last,
+							m_mouse_x, m_mouse_y);
 						active_entity->on_event( event_id::ROLL_OVER );
 					}
 
@@ -205,6 +221,10 @@ namespace gameswf
 
 				if (active_entity != NULL)
 				{
+					flashplayer_trace_mouse_event(2, topmost_entity != NULL,
+						active_entity != NULL, ms->m_mouse_button_state_last,
+						ms->m_mouse_button_state_current, ms->m_mouse_inside_entity_last,
+						m_mouse_x, m_mouse_y);
 					active_entity->on_event(event_id::PRESS);
 				}
 				ms->m_mouse_inside_entity_last = true;

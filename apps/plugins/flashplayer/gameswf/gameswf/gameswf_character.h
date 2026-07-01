@@ -70,6 +70,8 @@ namespace gameswf
 		void set_registered_class_constructor(const as_value & value);
 		void instanciate_registered_class(character * ch);
 		player* get_player() const { return m_player.get_ptr(); }
+		int get_id() const { return m_id; }
+		void set_id(int id) { m_id = id; }
 
 		// flash9
 		virtual as_function* instanciate_class(character* ch) const { return NULL; }

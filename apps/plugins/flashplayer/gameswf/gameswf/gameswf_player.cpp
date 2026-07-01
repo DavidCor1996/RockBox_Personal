@@ -12,6 +12,7 @@
 #include "gameswf/gameswf_player.h"
 #include "gameswf/gameswf_object.h"
 #include "gameswf/gameswf_action.h"
+#include "gameswf_compat/compatibility_include.h"
 
 // action script classes
 #include "gameswf/gameswf_as_sprite.h"
@@ -393,6 +394,63 @@ namespace gameswf
 
 		as_standard_member	result = M_INVALID_MEMBER;
 		map->get(name, &result);
+		if (result == M_INVALID_MEMBER)
+		{
+			static const struct {
+				const char* name;
+				as_standard_member member;
+			} fallback[] = {
+				{ "_x", M_X },
+				{ "_y", M_Y },
+				{ "_xscale", M_XSCALE },
+				{ "_yscale", M_YSCALE },
+				{ "_currentframe", M_CURRENTFRAME },
+				{ "_totalframes", M_TOTALFRAMES },
+				{ "_alpha", M_ALPHA },
+				{ "_visible", M_VISIBLE },
+				{ "_width", M_WIDTH },
+				{ "_height", M_HEIGHT },
+				{ "_rotation", M_ROTATION },
+				{ "_target", M_TARGET },
+				{ "_framesloaded", M_FRAMESLOADED },
+				{ "_name", M_NAME },
+				{ "_droptarget", M_DROPTARGET },
+				{ "_url", M_URL },
+				{ "_highquality", M_HIGHQUALITY },
+				{ "_focusrect", M_FOCUSRECT },
+				{ "_soundbuftime", M_SOUNDBUFTIME },
+				{ "_xmouse", M_XMOUSE },
+				{ "_ymouse", M_YMOUSE },
+				{ "_parent", M_PARENT },
+				{ "text", M_TEXT },
+				{ "textWidth", M_TEXTWIDTH },
+				{ "textColor", M_TEXTCOLOR },
+				{ "border", M_BORDER },
+				{ "multiline", M_MULTILINE },
+				{ "wordWrap", M_WORDWRAP },
+				{ "type", M_TYPE },
+				{ "backgroundColor", M_BACKGROUNDCOLOR },
+				{ "_this", M_THIS },
+				{ "this", MTHIS },
+				{ "_root", M_ROOT },
+				{ ".", MDOT },
+				{ "..", MDOT2 },
+				{ "_level0", M_LEVEL0 },
+				{ "_global", M_GLOBAL },
+				{ "enabled", M_ENABLED },
+				{ "password", M_PASSWORD },
+				{ "onMouseMove", M_MOUSE_MOVE },
+			};
+
+			for (size_t i = 0; i < TU_ARRAYSIZE(fallback); i++)
+			{
+				if (tu_string::stricmp(name.c_str(), fallback[i].name) == 0)
+				{
+					result = fallback[i].member;
+					break;
+				}
+			}
+		}
 
 		return result;
 	}
@@ -430,6 +488,11 @@ namespace gameswf
 	as_value	get_property(as_object* obj, int prop_number)
 	{
 		as_value	val;
+		if (prop_number == 15)
+		{
+			val.set_string(flashplayer_get_movie_url());
+			return val;
+		}
 		if (prop_number >= 0 && prop_number < int(sizeof(s_property_names)/sizeof(s_property_names[0])))
 		{
 			obj->get_member(s_property_names[prop_number], &val);
@@ -584,8 +647,12 @@ namespace gameswf
 		m_global->builtin_member("NetStream", as_global_netstream_ctor);
 		m_global->builtin_member("NetConnection", as_global_netconnection_ctor);
 
-		m_global->builtin_member("math", math_init(this));
-		m_global->builtin_member("Key", key_init(this));
+		as_object* math = math_init(this);
+		m_global->builtin_member("Math", math);
+		m_global->builtin_member("math", math);
+		as_key* key = key_init(this);
+		m_global->builtin_member("Key", key);
+		m_global->builtin_member("key", key);
 		m_global->builtin_member("AsBroadcaster", broadcaster_init(this));
 		m_global->builtin_member("flash", flash_init(this));
 
@@ -739,6 +806,7 @@ namespace gameswf
 		}
 
 		tu_file* in = s_opener_function(filename);
+		flashplayer_trace_movie_state("create_movie_open", 0, 0, 0);
 		if (in == NULL)
 		{
 			log_error("failed to open '%s'; can't create movie.\n", filename);
@@ -753,7 +821,8 @@ namespace gameswf
 
 		ensure_loaders_registered();
 
-		movie_def_impl*	m = new movie_def_impl(this, DO_LOAD_BITMAPS, DO_LOAD_FONT_SHAPES);
+		movie_def_impl*	m = new movie_def_impl(this, DO_LOAD_BITMAPS, DO_NOT_LOAD_FONT_SHAPES);
+		flashplayer_trace_movie_state("create_movie_read_begin", 0, 0, 0);
 
 		if (s_use_cached_movie_def)
 		{
@@ -761,6 +830,7 @@ namespace gameswf
 		}
 
 		m->read(in);
+		flashplayer_trace_movie_state("create_movie_read_end", 0, 0, 0);
 
 		// "in" will be deleted after termination of the loader thread
 		//	delete in;
@@ -793,6 +863,7 @@ namespace gameswf
 	// Load the actual movie.
 	{
 		gc_ptr<gameswf::movie_definition>	md = create_movie(infile);
+		flashplayer_trace_movie_state("load_file_def_ready", md != NULL, 0, 0);
 		if (md == NULL)
 		{
 			fprintf(stderr, "error: can't create a movie from '%s'\n", infile);
@@ -800,6 +871,7 @@ namespace gameswf
 		}
 
 		gc_ptr<gameswf::root>	m = md->create_instance();
+		flashplayer_trace_movie_state("load_file_instance_ready", m != NULL, 0, 0);
 		if (m == NULL)
 		{
 			fprintf(stderr, "error: can't create movie instance\n");

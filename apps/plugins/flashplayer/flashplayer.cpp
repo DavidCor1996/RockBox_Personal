@@ -17,6 +17,7 @@
 #include "gameswf/gameswf_render.h"
 #include "gameswf/gameswf_root.h"
 #include "gameswf/gameswf_sprite.h"
+#include "base/image.h"
 
 #include <stdarg.h>
 #ifdef SIMULATOR
@@ -25,6 +26,7 @@ extern "C" char *getenv(const char *name);
 
 extern "C" {
 #include "lib/plugin_cxx.h"
+#include "lib/jpeg_mem.h"
 #include "tinf.h"
 }
 
@@ -32,14 +34,72 @@ namespace gameswf {
     void clear_shared_fonts();
 }
 
+image::rgb *flashplayer_decode_jpeg_rgb(unsigned char *data, unsigned long len)
+{
+    struct dim size;
+    struct bitmap bm;
+    image::rgb *im = NULL;
+    unsigned char *buffer = NULL;
+    int maxsize;
+    int rc;
+
+    if (!data || len == 0)
+        return NULL;
+
+    if (get_jpeg_dim_mem(data, len, &size) < 0 ||
+        size.width <= 0 || size.height <= 0)
+        return NULL;
+
+    maxsize = BM_SIZE(size.width, size.height, FORMAT_NATIVE, 0) +
+              JPEG_DECODE_OVERHEAD;
+    buffer = new unsigned char[maxsize];
+    if (!buffer)
+        return NULL;
+
+    rb->memset(&bm, 0, sizeof(bm));
+    bm.width = size.width;
+    bm.height = size.height;
+    bm.format = FORMAT_NATIVE;
+    bm.data = buffer;
+
+    rc = decode_jpeg_mem(data, len, &bm, maxsize, FORMAT_NATIVE, NULL);
+    if (rc >= 0)
+    {
+        im = image::create_rgb(bm.width, bm.height);
+    }
+
+    if (im)
+    {
+        fb_data *src = (fb_data *)bm.data;
+        int stride = BM_WIDTH(bm.width, FORMAT_NATIVE, 0);
+        for (int y = 0; y < bm.height; y++)
+        {
+            unsigned char *dst = im->m_data + y * im->m_pitch;
+            for (int x = 0; x < bm.width; x++)
+            {
+                fb_data px = src[y * stride + x];
+                dst[x * 3 + 0] = FB_UNPACK_RED(px);
+                dst[x * 3 + 1] = FB_UNPACK_GREEN(px);
+                dst[x * 3 + 2] = FB_UNPACK_BLUE(px);
+            }
+        }
+    }
+
+    delete [] buffer;
+    return im;
+}
+
 #define FLASH_DIR      ROCKBOX_DIR "/flash"
 #define STICK_DIR      FLASH_DIR "/stickrpg"
 #define DEFAULT_SWF    STICK_DIR "/stickrpg.swf"
+#define STICK_RPG_URL  "http://www.xgenstudios.com/srpgcompletexgen.swf"
 #define FLASH_LOG_PATH FLASH_DIR "/flashplayer.log"
 #define SIM_SWF        "/home/david/Downloads/stickrpg.swf"
 #define FLASH_TRIANGLE_BUDGET 36000
 #define FLASH_ALPHA_CUTOFF 2
-#define FLASH_MIN_TRIANGLE_AREA2 6
+#define FLASH_MIN_TRIANGLE_AREA2 1
+
+static void flash_logf(const char *fmt, ...);
 
 #if defined(HAVE_LCD_COLOR)
 #define COL_BG      LCD_RGBPACK(14, 16, 18)
@@ -80,12 +140,33 @@ struct RockboxBitmapInfo : public gameswf::bitmap_info {
     int bpp;
     int pitch;
     unsigned char *data;
+    bool owns_data;
 
-    RockboxBitmapInfo() : w(0), h(0), bpp(0), pitch(0), data(NULL) {}
+    RockboxBitmapInfo() : w(0), h(0), bpp(0), pitch(0), data(NULL), owns_data(false) {}
     RockboxBitmapInfo(int width, int height, int bytes_per_pixel,
                       int row_pitch, unsigned char *src)
         : w(width), h(height), bpp(bytes_per_pixel),
-          pitch(row_pitch), data(src) {}
+          pitch(row_pitch), data(NULL), owns_data(false)
+    {
+        int size;
+        if (w <= 0 || h <= 0 || bpp <= 0 || pitch <= 0 || !src)
+            return;
+
+        size = pitch * h;
+        data = new unsigned char[size];
+        if (data) {
+            rb->memcpy(data, src, size);
+            owns_data = true;
+        } else {
+            w = h = bpp = pitch = 0;
+        }
+    }
+
+    virtual ~RockboxBitmapInfo()
+    {
+        if (owns_data)
+            delete [] data;
+    }
 
     virtual int get_width() const { return w; }
     virtual int get_height() const { return h; }
@@ -94,9 +175,27 @@ struct RockboxBitmapInfo : public gameswf::bitmap_info {
 };
 
 struct RockboxRenderHandler : public gameswf::render_handler {
+    struct FillState {
+        gameswf::rgba color;
+        gameswf::bitmap_info *bitmap;
+        gameswf::matrix bitmap_matrix;
+        gameswf::cxform bitmap_cx;
+        bitmap_wrap_mode bitmap_wrap;
+        bool is_bitmap;
+        bool enabled;
+
+        FillState()
+            : color(180, 180, 180, 255), bitmap(NULL),
+              bitmap_wrap(WRAP_CLAMP), is_bitmap(false), enabled(false)
+        {
+        }
+    };
+
     fb_data *framebuf;
+    unsigned char *maskbuf;
     gameswf::matrix mat;
     gameswf::cxform cx;
+    FillState fills[2];
     gameswf::rgba fill_color;
     gameswf::rgba line_color;
     gameswf::bitmap_info *fill_bitmap;
@@ -104,11 +203,18 @@ struct RockboxRenderHandler : public gameswf::render_handler {
     gameswf::cxform fill_bitmap_cx;
     bitmap_wrap_mode fill_bitmap_wrap;
     bool fill_is_bitmap;
+    bool fill_enabled;
+    int active_fill_side;
+    bool line_enabled;
     int line_width;
     float sx;
     float sy;
     float tx;
     float ty;
+    float display_x0;
+    float display_x1;
+    float display_y0;
+    float display_y1;
     int triangles;
     int bitmaps;
     int lines;
@@ -124,28 +230,44 @@ struct RockboxRenderHandler : public gameswf::render_handler {
     int opaque_pixels;
     int span_pixels;
     int tiny_triangles;
+    int max_tri_w;
+    int max_tri_h;
+    int max_tri_area;
+    int fill_trace_count;
+    int triangle_trace_count;
     bool triangle_budget_hit;
+    bool mask_submitting;
+    bool mask_active;
     gameswf::rgba last_solid;
     gameswf::rgba last_bitmap_sample;
 
     RockboxRenderHandler()
-        : framebuf(NULL),
+        : framebuf(NULL), maskbuf(NULL),
           fill_color(220, 220, 220, 255), line_color(30, 30, 30, 255),
           fill_bitmap(NULL), fill_bitmap_wrap(WRAP_CLAMP), fill_is_bitmap(false),
+          fill_enabled(false), active_fill_side(0), line_enabled(false),
           line_width(1), sx(1.0f), sy(1.0f), tx(0.0f), ty(0.0f),
+          display_x0(0.0f), display_x1(1.0f),
+          display_y0(0.0f), display_y1(1.0f),
           triangles(0), bitmaps(0), lines(0), begins(0),
           solid_fills(0), bitmap_fills(0), mask_tests(0), mask_begins(0),
           mask_ends(0), mask_disables(0), alpha_skips(0), alpha_blends(0),
           opaque_pixels(0), span_pixels(0), tiny_triangles(0),
-          triangle_budget_hit(false),
+          max_tri_w(0), max_tri_h(0), max_tri_area(0),
+          fill_trace_count(0), triangle_trace_count(0),
+          triangle_budget_hit(false), mask_submitting(false), mask_active(false),
           last_solid(0, 0, 0, 255),
           last_bitmap_sample(0, 0, 0, 255)
     {
         framebuf = new fb_data[LCD_WIDTH * LCD_HEIGHT];
+        maskbuf = new unsigned char[LCD_WIDTH * LCD_HEIGHT];
+        if (maskbuf)
+            rb->memset(maskbuf, 0, LCD_WIDTH * LCD_HEIGHT);
     }
 
     virtual ~RockboxRenderHandler()
     {
+        delete [] maskbuf;
         delete [] framebuf;
     }
 
@@ -202,12 +324,24 @@ struct RockboxRenderHandler : public gameswf::render_handler {
         opaque_pixels = 0;
         span_pixels = 0;
         tiny_triangles = 0;
+        max_tri_w = 0;
+        max_tri_h = 0;
+        max_tri_area = 0;
+        fill_trace_count = 0;
+        triangle_trace_count = 0;
         triangle_budget_hit = false;
+        fill_enabled = false;
+        active_fill_side = 0;
+        line_enabled = false;
         begins++;
         sx = sw != 0.0f ? viewport_width / sw : 1.0f;
         sy = sh != 0.0f ? viewport_height / sh : 1.0f;
         tx = viewport_x0 - x0 * sx;
         ty = viewport_y0 - y0 * sy;
+        display_x0 = x0 < x1 ? x0 : x1;
+        display_x1 = x0 < x1 ? x1 : x0;
+        display_y0 = y0 < y1 ? y0 : y1;
+        display_y1 = y0 < y1 ? y1 : y0;
         rb->lcd_set_viewport(NULL);
         {
             fb_data bg = (fb_data)rb_color_from_rgba(background_color);
@@ -234,12 +368,25 @@ struct RockboxRenderHandler : public gameswf::render_handler {
     virtual void set_matrix(const gameswf::matrix& m) { mat = m; }
     virtual void set_cxform(const gameswf::cxform& c) { cx = c; }
 
+    static int round_pixel(float v)
+    {
+        return (int)(v >= 0.0f ? v + 0.5f : v - 0.5f);
+    }
+
     void transform_point(float x, float y, int *ox, int *oy)
     {
         float mx = mat.m_[0][0] * x + mat.m_[0][1] * y + mat.m_[0][2];
         float my = mat.m_[1][0] * x + mat.m_[1][1] * y + mat.m_[1][2];
-        *ox = (int)(mx * sx + tx);
-        *oy = (int)(my * sy + ty);
+        *ox = round_pixel(mx * sx + tx);
+        *oy = round_pixel(my * sy + ty);
+    }
+
+    void transform_point_screen(float x, float y, float *ox, float *oy)
+    {
+        float mx = mat.m_[0][0] * x + mat.m_[0][1] * y + mat.m_[0][2];
+        float my = mat.m_[1][0] * x + mat.m_[1][1] * y + mat.m_[1][2];
+        *ox = mx * sx + tx;
+        *oy = my * sy + ty;
     }
 
     void draw_pixel_rgba(int x, int y, gameswf::rgba c)
@@ -255,6 +402,14 @@ struct RockboxRenderHandler : public gameswf::render_handler {
             alpha_skips++;
             return;
         }
+
+        if (mask_submitting) {
+            if (maskbuf)
+                maskbuf[y * LCD_WIDTH + x] = 1;
+            return;
+        }
+        if (mask_active && (!maskbuf || !maskbuf[y * LCD_WIDTH + x]))
+            return;
 
         if (framebuf) {
             fb_data *dst = framebuf + y * LCD_WIDTH + x;
@@ -283,6 +438,13 @@ struct RockboxRenderHandler : public gameswf::render_handler {
     {
         if (x < 0 || x >= LCD_WIDTH || y < 0 || y >= LCD_HEIGHT)
             return;
+        if (mask_submitting) {
+            if (maskbuf)
+                maskbuf[y * LCD_WIDTH + x] = 1;
+            return;
+        }
+        if (mask_active && (!maskbuf || !maskbuf[y * LCD_WIDTH + x]))
+            return;
         if (framebuf)
             framebuf[y * LCD_WIDTH + x] = color;
         else {
@@ -308,6 +470,21 @@ struct RockboxRenderHandler : public gameswf::render_handler {
         }
 
         count = xb - xa + 1;
+        if (mask_submitting) {
+            int x;
+            if (maskbuf) {
+                for (x = xa; x <= xb; x++)
+                    maskbuf[y * LCD_WIDTH + x] = 1;
+            }
+            return;
+        }
+        if (mask_active) {
+            int x;
+            for (x = xa; x <= xb; x++)
+                draw_pixel_rgba(x, y, color);
+            return;
+        }
+
         span_pixels += count;
         if (framebuf) {
             fb_data *dst = framebuf + y * LCD_WIDTH + xa;
@@ -397,6 +574,90 @@ struct RockboxRenderHandler : public gameswf::render_handler {
                 draw_pixel_rgba(x, y, color);
     }
 
+    static float edgef(float ax, float ay, float bx, float by,
+                       float px, float py)
+    {
+        return (px - ax) * (by - ay) - (py - ay) * (bx - ax);
+    }
+
+    void fill_screen_triangle_float(float x0, float y0, float x1, float y1,
+                                    float x2, float y2, bool allow_fallback)
+    {
+        float fminx = x0 < x1 ? (x0 < x2 ? x0 : x2) : (x1 < x2 ? x1 : x2);
+        float fmaxx = x0 > x1 ? (x0 > x2 ? x0 : x2) : (x1 > x2 ? x1 : x2);
+        float fminy = y0 < y1 ? (y0 < y2 ? y0 : y2) : (y1 < y2 ? y1 : y2);
+        float fmaxy = y0 > y1 ? (y0 > y2 ? y0 : y2) : (y1 > y2 ? y1 : y2);
+        int minx = (int)(fminx - 1.0f);
+        int maxx = (int)(fmaxx + 1.0f);
+        int miny = (int)(fminy - 1.0f);
+        int maxy = (int)(fmaxy + 1.0f);
+        int drew = 0;
+        int x, y;
+
+        if (minx < 0) minx = 0;
+        if (miny < 0) miny = 0;
+        if (maxx >= LCD_WIDTH) maxx = LCD_WIDTH - 1;
+        if (maxy >= LCD_HEIGHT) maxy = LCD_HEIGHT - 1;
+        if (maxx < minx || maxy < miny)
+            return;
+
+        for (y = miny; y <= maxy; y++) {
+            for (x = minx; x <= maxx; x++) {
+                float px = (float)x + 0.5f;
+                float py = (float)y + 0.5f;
+                float e0 = edgef(x0, y0, x1, y1, px, py);
+                float e1 = edgef(x1, y1, x2, y2, px, py);
+                float e2 = edgef(x2, y2, x0, y0, px, py);
+                bool neg = e0 < 0.0f || e1 < 0.0f || e2 < 0.0f;
+                bool pos = e0 > 0.0f || e1 > 0.0f || e2 > 0.0f;
+
+                if (!(neg && pos)) {
+                    if (fill_is_bitmap) {
+                        gameswf::point stage_pt(((float)x - tx) / sx,
+                                                 ((float)y - ty) / sy);
+                        gameswf::point object_pt;
+                        mat.transform_by_inverse(&object_pt, stage_pt);
+                        draw_pixel_rgba(x, y,
+                            sample_bitmap_rgba(object_pt.m_x, object_pt.m_y));
+                    } else {
+                        draw_pixel_rgba(x, y, cx.transform(fill_color));
+                    }
+                    drew++;
+                }
+            }
+        }
+
+        if (drew == 0 && allow_fallback) {
+            int cxp = round_pixel((x0 + x1 + x2) / 3.0f);
+            int cyp = round_pixel((y0 + y1 + y2) / 3.0f);
+            if (fill_is_bitmap) {
+                gameswf::point stage_pt(((float)cxp - tx) / sx,
+                                         ((float)cyp - ty) / sy);
+                gameswf::point object_pt;
+                mat.transform_by_inverse(&object_pt, stage_pt);
+                draw_pixel_rgba(cxp, cyp,
+                    sample_bitmap_rgba(object_pt.m_x, object_pt.m_y));
+            } else {
+                draw_pixel_rgba(cxp, cyp, cx.transform(fill_color));
+            }
+        }
+    }
+
+    void select_fill_side(int fill_side)
+    {
+        if (fill_side < 0 || fill_side >= 2)
+            fill_side = 0;
+
+        active_fill_side = fill_side;
+        fill_enabled = fills[fill_side].enabled;
+        fill_is_bitmap = fills[fill_side].is_bitmap;
+        fill_bitmap = fills[fill_side].bitmap;
+        fill_bitmap_matrix = fills[fill_side].bitmap_matrix;
+        fill_bitmap_cx = fills[fill_side].bitmap_cx;
+        fill_bitmap_wrap = fills[fill_side].bitmap_wrap;
+        fill_color = fills[fill_side].color;
+    }
+
     gameswf::rgba sample_bitmap_rgba(float local_x, float local_y)
     {
         RockboxBitmapInfo *bi = (RockboxBitmapInfo *)fill_bitmap;
@@ -410,8 +671,8 @@ struct RockboxRenderHandler : public gameswf::render_handler {
             return cx.transform(fill_color);
 
         fill_bitmap_matrix.transform(&uv, gameswf::point(local_x, local_y));
-        x = (int)uv.m_x;
-        y = (int)uv.m_y;
+        x = (int)floorf(uv.m_x + 0.5f);
+        y = (int)floorf(uv.m_y + 0.5f);
 
         if (fill_bitmap_wrap == WRAP_REPEAT) {
             x %= bi->w;
@@ -436,11 +697,6 @@ struct RockboxRenderHandler : public gameswf::render_handler {
             c = gameswf::rgba(p[0], p[0], p[0], 255);
         last_bitmap_sample = fill_bitmap_cx.transform(c);
         return last_bitmap_sample;
-    }
-
-    static int edge(int ax, int ay, int bx, int by, int px, int py)
-    {
-        return (px - ax) * (by - ay) - (py - ay) * (bx - ax);
     }
 
     static void swap_int(int *a, int *b)
@@ -498,28 +754,24 @@ struct RockboxRenderHandler : public gameswf::render_handler {
         int x0, y0, x1, y1, x2, y2;
         int minx, maxx, miny, maxy;
         int x, y;
-        bool neg;
-        bool pos;
 
         transform_point(ax, ay, &x0, &y0);
         transform_point(bx, by, &x1, &y1);
         transform_point(cxp, cyp, &x2, &y2);
 
+        if (!fill_enabled)
+            return;
+
         {
             int area2 = (x1 - x0) * (y2 - y0) - (y1 - y0) * (x2 - x0);
             if (area2 < 0) area2 = -area2;
             if (area2 < FLASH_MIN_TRIANGLE_AREA2) {
+                float fx0, fy0, fx1, fy1, fx2, fy2;
                 tiny_triangles++;
-                if (!fill_is_bitmap) {
-                    gameswf::rgba c = cx.transform(fill_color);
-                    fill_tiny_solid(x0, y0, x1, y1, x2, y2, c);
-                } else {
-                    gameswf::point stage_pt((x0 - tx) / sx, (y0 - ty) / sy);
-                    gameswf::point object_pt;
-                    mat.transform_by_inverse(&object_pt, stage_pt);
-                    draw_pixel_rgba(x0, y0, sample_bitmap_rgba(object_pt.m_x,
-                                                               object_pt.m_y));
-                }
+                transform_point_screen(ax, ay, &fx0, &fy0);
+                transform_point_screen(bx, by, &fx1, &fy1);
+                transform_point_screen(cxp, cyp, &fx2, &fy2);
+                fill_screen_triangle_float(fx0, fy0, fx1, fy1, fx2, fy2, true);
                 return;
             }
         }
@@ -542,40 +794,43 @@ struct RockboxRenderHandler : public gameswf::render_handler {
             rb->yield();
         }
 #endif
-        if (!fill_is_bitmap) {
-            draw_solid_triangle(x0, y0, x1, y1, x2, y2,
-                                cx.transform(fill_color));
-            return;
-        }
-
         minx = MIN(x0, MIN(x1, x2));
         maxx = MAX(x0, MAX(x1, x2));
         miny = MIN(y0, MIN(y1, y2));
         maxy = MAX(y0, MAX(y1, y2));
+        {
+            int bw = maxx - minx + 1;
+            int bh = maxy - miny + 1;
+            int ba = bw * bh;
+            if (ba > max_tri_area) {
+                max_tri_area = ba;
+                max_tri_w = bw;
+                max_tri_h = bh;
+            }
+#ifdef SIMULATOR
+            if (false && (triangle_trace_count < 180 ||
+                 (triangles > 4300 && triangle_trace_count < 260)) &&
+                ba > 200) {
+                gameswf::rgba tc = cx.transform(fill_color);
+                triangle_trace_count++;
+                flash_logf("tri trace n=%d ba=%d bbox=%d,%d-%d,%d color=%u,%u,%u,%u bitmap=%d",
+                           triangle_trace_count, ba, minx, miny, maxx, maxy,
+                           tc.m_r, tc.m_g, tc.m_b, tc.m_a,
+                           fill_is_bitmap ? 1 : 0);
+            }
+#endif
+        }
         if (minx < 0) minx = 0;
         if (miny < 0) miny = 0;
         if (maxx >= LCD_WIDTH) maxx = LCD_WIDTH - 1;
         if (maxy >= LCD_HEIGHT) maxy = LCD_HEIGHT - 1;
 
-        for (y = miny; y <= maxy; y++) {
-            for (x = minx; x <= maxx; x++) {
-                int e0 = edge(x0, y0, x1, y1, x, y);
-                int e1 = edge(x1, y1, x2, y2, x, y);
-                int e2 = edge(x2, y2, x0, y0, x, y);
-                neg = e0 < 0 || e1 < 0 || e2 < 0;
-                pos = e0 > 0 || e1 > 0 || e2 > 0;
-                if (!(neg && pos)) {
-                    if (fill_is_bitmap) {
-                        gameswf::point stage_pt((x - tx) / sx, (y - ty) / sy);
-                        gameswf::point object_pt;
-                        mat.transform_by_inverse(&object_pt, stage_pt);
-                        draw_pixel_rgba(x, y, sample_bitmap_rgba(object_pt.m_x,
-                                                                 object_pt.m_y));
-                    } else {
-                        draw_pixel_rgba(x, y, cx.transform(fill_color));
-                    }
-                }
-            }
+        {
+            float fx0, fy0, fx1, fy1, fx2, fy2;
+            transform_point_screen(ax, ay, &fx0, &fy0);
+            transform_point_screen(bx, by, &fx1, &fy1);
+            transform_point_screen(cxp, cyp, &fx2, &fy2);
+            fill_screen_triangle_float(fx0, fy0, fx1, fy1, fx2, fy2, false);
         }
     }
 
@@ -583,6 +838,7 @@ struct RockboxRenderHandler : public gameswf::render_handler {
     {
         const coord_component *c = (const coord_component *)coords;
         int i;
+        select_fill_side(0);
         for (i = 0; i + 2 < vertex_count; i++)
             draw_triangle(c[i * 2], c[i * 2 + 1],
                           c[(i + 1) * 2], c[(i + 1) * 2 + 1],
@@ -593,6 +849,7 @@ struct RockboxRenderHandler : public gameswf::render_handler {
     {
         const coord_component *c = (const coord_component *)coords;
         int i;
+        select_fill_side(0);
         for (i = 0; i + 2 < vertex_count; i += 3)
             draw_triangle(c[i * 2], c[i * 2 + 1],
                           c[(i + 1) * 2], c[(i + 1) * 2 + 1],
@@ -604,6 +861,9 @@ struct RockboxRenderHandler : public gameswf::render_handler {
         const coord_component *c = (const coord_component *)coords;
         int i;
         int x0, y0, x1, y1;
+
+        if (!line_enabled)
+            return;
 
         {
         fb_data packed = (fb_data)rb_color_from_rgba(cx.transform(line_color));
@@ -620,31 +880,59 @@ struct RockboxRenderHandler : public gameswf::render_handler {
         }
     }
 
-    virtual void fill_style_disable(int fill_side) { (void)fill_side; }
+    virtual void fill_style_disable(int fill_side)
+    {
+        if (fill_side >= 0 && fill_side < 2) {
+            fills[fill_side].enabled = false;
+            fills[fill_side].is_bitmap = false;
+            fills[fill_side].bitmap = NULL;
+            if (fill_side == active_fill_side)
+                select_fill_side(fill_side);
+        }
+    }
     virtual void fill_style_color(int fill_side, const gameswf::rgba& color)
     {
-        (void)fill_side;
-        fill_is_bitmap = false;
-        fill_bitmap = NULL;
-        fill_color = color;
+        if (fill_side < 0 || fill_side >= 2)
+            return;
+        fills[fill_side].enabled = true;
+        fills[fill_side].is_bitmap = false;
+        fills[fill_side].bitmap = NULL;
+        fills[fill_side].color = color;
+        if (fill_side == active_fill_side)
+            select_fill_side(fill_side);
         last_solid = cx.transform(color);
         solid_fills++;
+#ifdef SIMULATOR
+        if (false && fill_trace_count < 800) {
+            gameswf::rgba tc = cx.transform(color);
+            fill_trace_count++;
+            flash_logf("fill trace n=%d color=%u,%u,%u,%u transformed=%u,%u,%u,%u tri=%d",
+                       fill_trace_count,
+                       color.m_r, color.m_g, color.m_b, color.m_a,
+                       tc.m_r, tc.m_g, tc.m_b, tc.m_a, triangles);
+        }
+#endif
     }
     virtual void fill_style_bitmap(int fill_side, gameswf::bitmap_info *bi,
                                    const gameswf::matrix& m,
                                    bitmap_wrap_mode wm, bitmap_blend_mode bm)
     {
-        (void)fill_side; (void)bm;
-        fill_is_bitmap = bi != NULL;
-        fill_bitmap = bi;
-        fill_bitmap_matrix = m;
-        fill_bitmap_cx = cx;
-        fill_bitmap_wrap = wm;
-        fill_color = gameswf::rgba(180, 180, 180, 255);
+        (void)bm;
+        if (fill_side < 0 || fill_side >= 2)
+            return;
+        fills[fill_side].enabled = bi != NULL;
+        fills[fill_side].is_bitmap = bi != NULL;
+        fills[fill_side].bitmap = bi;
+        fills[fill_side].bitmap_matrix = m;
+        fills[fill_side].bitmap_cx = cx;
+        fills[fill_side].bitmap_wrap = wm;
+        fills[fill_side].color = gameswf::rgba(180, 180, 180, 255);
+        if (fill_side == active_fill_side)
+            select_fill_side(fill_side);
         bitmap_fills++;
     }
-    virtual void line_style_disable() {}
-    virtual void line_style_color(gameswf::rgba color) { line_color = color; }
+    virtual void line_style_disable() { line_enabled = false; }
+    virtual void line_style_color(gameswf::rgba color) { line_enabled = true; line_color = color; }
     virtual void line_style_width(float width) { line_width = (int)width; }
     virtual void draw_bitmap(const gameswf::matrix& m, gameswf::bitmap_info *bi,
                              const gameswf::rect& coords,
@@ -710,13 +998,30 @@ struct RockboxRenderHandler : public gameswf::render_handler {
         mask_tests++;
         return true;
     }
-    virtual void begin_submit_mask() { mask_begins++; }
-    virtual void end_submit_mask() { mask_ends++; }
-    virtual void disable_mask() { mask_disables++; }
+    virtual void begin_submit_mask()
+    {
+        mask_begins++;
+        if (maskbuf)
+            rb->memset(maskbuf, 0, LCD_WIDTH * LCD_HEIGHT);
+        mask_submitting = true;
+        mask_active = false;
+    }
+    virtual void end_submit_mask()
+    {
+        mask_ends++;
+        mask_submitting = false;
+        mask_active = true;
+    }
+    virtual void disable_mask()
+    {
+        mask_disables++;
+        mask_submitting = false;
+        mask_active = false;
+    }
     virtual bool is_visible(const gameswf::rect& bound)
     {
-        return bound.m_x_max >= 0 && bound.m_y_max >= 0 &&
-               bound.m_x_min < LCD_WIDTH && bound.m_y_min < LCD_HEIGHT;
+        return bound.m_x_max >= display_x0 && bound.m_y_max >= display_y0 &&
+               bound.m_x_min < display_x1 && bound.m_y_min < display_y1;
     }
     virtual void open() {}
 };
@@ -776,12 +1081,37 @@ struct FlashState {
     int log_fd;
     int runtime_frame;
     int rendered_frames;
+    int shape_mesh_budget;
+    int shape_mesh_skipped;
 #ifdef SIMULATOR
     int autorun_frames;
+    int autorun_click_count;
+    int autorun_click_next;
+    bool autorun_click_armed;
+    int autorun_click_frame[8];
+    int autorun_click_x[8];
+    int autorun_click_y[8];
+    bool debug_overlay;
+    bool prime_stickrpg;
+    bool fast_autorun;
+    int fast_draw_interval;
 #endif
     int cursor_x;
     int cursor_y;
     bool mouse_down;
+    bool key_left_down;
+    bool key_right_down;
+    bool key_c_down;
+    bool key_up_down;
+    bool key_down_down;
+    bool key_shift_down;
+    int key_up_frames;
+    int key_down_frames;
+    bool stickrpg_name_prefilled;
+    bool stickrpg_intro_hide_requested;
+    bool stickrpg_post_create_forced;
+    bool stickrpg_gameplay_shortcut_done;
+    bool stickrpg_fast_load;
     int click_frames;
     int page;
     int last_button;
@@ -795,11 +1125,18 @@ struct FlashState {
     int loader_tag_count;
     int loader_last_pos;
     int loader_registers;
+    long loader_start_tick;
+    int loader_start_tag;
     int font_adds;
     int font_local_hits;
     int font_fallback_hits;
     int font_misses;
     int font_last_id;
+    int mouse_trace_count;
+    int button_trace_count;
+    int action_trace_count;
+    int action_verbose_left;
+    int action_trace_button_id;
     int prime_root_start;
     int prime_root_load2;
     int prime_root_load;
@@ -815,6 +1152,80 @@ static FlashState g;
 static RockboxRenderHandler *g_renderer;
 static gameswf::player *g_player;
 static gameswf::gc_ptr<gameswf::root> *g_root_ref;
+
+class SilentSoundHandler : public gameswf::sound_handler
+{
+public:
+    SilentSoundHandler() : next_id(1) {}
+
+    virtual int create_sound(void *data, int data_bytes, int sample_count,
+                             format_type format, int sample_rate, bool stereo)
+    {
+        (void)data;
+        (void)data_bytes;
+        (void)sample_count;
+        (void)format;
+        (void)sample_rate;
+        (void)stereo;
+        return next_id++;
+    }
+
+    virtual int load_sound(const char *url)
+    {
+        (void)url;
+        return next_id++;
+    }
+
+    virtual void append_sound(int sound_handle, void *data, int data_bytes)
+    {
+        (void)sound_handle;
+        (void)data;
+        (void)data_bytes;
+    }
+
+    virtual void play_sound(gameswf::as_object *listener_obj,
+                            int sound_handle, int loop_count)
+    {
+        (void)listener_obj;
+        (void)sound_handle;
+        (void)loop_count;
+    }
+
+    virtual void set_volume(int sound_handle, int volume)
+    {
+        (void)sound_handle;
+        (void)volume;
+    }
+
+    virtual void set_max_volume(int vol)
+    {
+        (void)vol;
+    }
+
+    virtual void stop_sound(int sound_handle)
+    {
+        (void)sound_handle;
+    }
+
+    virtual void stop_all_sounds()
+    {
+    }
+
+    virtual void delete_sound(int sound_handle)
+    {
+        (void)sound_handle;
+    }
+
+    virtual bool is_open()
+    {
+        return true;
+    }
+
+private:
+    int next_id;
+};
+
+static SilentSoundHandler *g_sound_handler;
 
 #define FLASH_MIN_CXX_HEAP     (512 * 1024)
 
@@ -864,6 +1275,10 @@ static void flash_logf(const char *fmt, ...)
     va_end(ap);
 
     rb->fdprintf(g.log_fd, "[%08ld] %s\n", *rb->current_tick, buf);
+#ifndef SIMULATOR
+    rb->close(g.log_fd);
+    g.log_fd = rb->open(FLASH_LOG_PATH, O_WRONLY | O_CREAT | O_APPEND, 0666);
+#endif
 }
 
 static void flash_log_open(void)
@@ -1083,11 +1498,160 @@ extern "C" void flashplayer_trace_tag(int tag_count, int tag_type, int stream_po
     g.loader_last_pos = stream_pos;
 }
 
+extern "C" void flashplayer_trace_parse_progress(const char *scope,
+                                                 int tag_count, int tag_type,
+                                                 int stream_pos)
+{
+    g.loader_tag_count = tag_count;
+    g.loader_last_tag = tag_type;
+    g.loader_last_pos = stream_pos;
+
+    if (g.runtime_ready)
+        return;
+
+    if ((tag_count & 127) == 0 || tag_type == 0) {
+        rb->snprintf(g.status, sizeof(g.status), "load %s t%d pos %d",
+                     scope ? scope : "swf", tag_count, stream_pos);
+        SET_BG(COL_BG);
+        SET_FG(COL_BG);
+        rb->lcd_fillrect(0, 24, LCD_WIDTH, 24);
+        SET_FG(COL_DIM);
+        rb->lcd_putsxy(8, 30, g.status);
+        rb->lcd_update();
+    }
+
+    if ((tag_count & 31) == 0 || tag_type == 0)
+        rb->yield();
+}
+
+extern "C" void flashplayer_trace_parse_start(const char *scope,
+                                              int tag_count, int tag_type,
+                                              int stream_pos)
+{
+    g.loader_last_tag = tag_type;
+    g.loader_last_pos = stream_pos;
+    g.loader_start_tick = *rb->current_tick;
+    g.loader_start_tag = tag_type;
+
+#ifndef SIMULATOR
+    if (!g.runtime_ready &&
+        (tag_count <= 16 || (tag_count & 63) == 0 ||
+         tag_type == 2 || tag_type == 22 || tag_type == 39 ||
+         tag_type == 48 || tag_type == 14)) {
+        rb->snprintf(g.status, sizeof(g.status), "tag %s t%d type %d",
+                     scope ? scope : "swf", tag_count, tag_type);
+        SET_BG(COL_BG);
+        SET_FG(COL_BG);
+        rb->lcd_fillrect(0, 24, LCD_WIDTH, 24);
+        SET_FG(COL_DIM);
+        rb->lcd_putsxy(8, 30, g.status);
+        rb->lcd_update();
+        rb->yield();
+    }
+#else
+    (void)scope;
+    (void)tag_count;
+#endif
+}
+
+extern "C" void flashplayer_trace_parse_end(const char *scope,
+                                            int tag_count, int tag_type,
+                                            int stream_pos)
+{
+    long now = *rb->current_tick;
+    long elapsed = now - g.loader_start_tick;
+
+    if (!g.runtime_ready && g.loader_start_tick != 0 && elapsed >= HZ / 2) {
+        flash_logf("slow tag scope=%s count=%d type=%d pos=%d elapsed=%ld",
+                   scope ? scope : "swf", tag_count, tag_type,
+                   stream_pos, elapsed);
+    }
+
+    (void)now;
+}
+
+extern "C" int flashplayer_should_stop_movie_load(int loading_frame,
+                                                  int tag_count,
+                                                  int stream_pos)
+{
+    int stop_frame = 10;
+
+#ifdef SIMULATOR
+    const char *env = getenv("FLASHPLAYER_STOP_AFTER_FRAME");
+    if (env)
+        stop_frame = rb->atoi(env);
+#endif
+
+    if (stop_frame <= 0)
+        return 0;
+
+    if (!g.stickrpg_fast_load)
+        return 0;
+
+    if (loading_frame >= stop_frame) {
+        flash_logf("early movie load stop frame=%d tag=%d pos=%d",
+                   loading_frame, tag_count, stream_pos);
+        return 1;
+    }
+
+    return 0;
+}
+
+extern "C" int flashplayer_should_skip_movie_tag(int loading_frame,
+                                                 int tag_count,
+                                                 int tag_type,
+                                                 int stream_pos)
+{
+    bool skip = false;
+
+    if (!g.stickrpg_fast_load || loading_frame != 0)
+        return 0;
+
+    if (tag_type == 2 || tag_type == 22 || tag_type == 32 ||
+        tag_type == 83 || tag_type == 14 || tag_type == 15 ||
+        tag_type == 17 || tag_type == 18 || tag_type == 19 ||
+        tag_type == 45 || tag_type == 89)
+        skip = true;
+
+    if (skip) {
+        if (tag_count <= 64 || (tag_count & 63) == 0) {
+            rb->snprintf(g.status, sizeof(g.status), "skip t%d type %d",
+                         tag_count, tag_type);
+            SET_BG(COL_BG);
+            SET_FG(COL_BG);
+            rb->lcd_fillrect(0, 24, LCD_WIDTH, 24);
+            SET_FG(COL_DIM);
+            rb->lcd_putsxy(8, 30, g.status);
+            rb->lcd_update();
+            rb->yield();
+        }
+        flash_logf("skip movie tag frame=%d tag=%d type=%d pos=%d",
+                   loading_frame, tag_count, tag_type, stream_pos);
+        return 1;
+    }
+
+    return 0;
+}
+
 extern "C" void flashplayer_trace_shape(int phase, int character_id, int stream_pos)
 {
+#ifndef SIMULATOR
+    if (!g.runtime_ready && (phase == 1 || phase == 3 || phase == 4)) {
+        rb->snprintf(g.status, sizeof(g.status), "shape %d phase %d",
+                     character_id, phase);
+        SET_BG(COL_BG);
+        SET_FG(COL_BG);
+        rb->lcd_fillrect(0, 24, LCD_WIDTH, 24);
+        SET_FG(COL_DIM);
+        rb->lcd_putsxy(8, 30, g.status);
+        rb->lcd_update();
+        rb->yield();
+    }
+#else
     (void)phase;
     (void)character_id;
     (void)stream_pos;
+#endif
 }
 
 extern "C" void flashplayer_trace_shape_record(int record_count, int flags,
@@ -1113,6 +1677,80 @@ extern "C" void flashplayer_trace_text(int phase, int stream_pos, int a, int b)
     (void)b;
 }
 
+static bool trace_intro_name(const char *name)
+{
+    return name && (rb->strcmp(name, "_root") == 0 ||
+                    rb->strcmp(name, "introscreen") == 0 ||
+                    rb->strcmp(name, "newgame") == 0 ||
+                    rb->strcmp(name, "makechar") == 0 ||
+                    rb->strcmp(name, "instructions") == 0 ||
+                    rb->strcmp(name, "startbutton") == 0 ||
+                    rb->strcmp(name, "loadButton") == 0 ||
+                    rb->strcmp(name, "sticktitle") == 0 ||
+                    rb->strcmp(name, "copyright") == 0 ||
+                    rb->strcmp(name, "instructionsbutton") == 0 ||
+                    rb->strcmp(name, "textname") == 0 ||
+                    rb->strcmp(name, "pname") == 0 ||
+                    rb->strcmp(name, "intl") == 0 ||
+                    rb->strcmp(name, "str") == 0 ||
+                    rb->strcmp(name, "cha") == 0 ||
+                    rb->strcmp(name, "personColor") == 0 ||
+                    rb->strcmp(name, "personColor2") == 0 ||
+                    rb->strcmp(name, "black") == 0 ||
+                    rb->strcmp(name, "filmscreen") == 0 ||
+                    rb->strcmp(name, "_visible") == 0);
+}
+
+extern "C" void flashplayer_trace_visible_set(const char *name, int value)
+{
+    if (name && rb->strcmp(name, "introscreen") == 0 && value == 0)
+        g.stickrpg_intro_hide_requested = true;
+
+#ifdef SIMULATOR
+    if (g.action_verbose_left > 0 && trace_intro_name(name)) {
+        g.action_verbose_left--;
+        flash_logf("visible set frame=%d name=%s value=%d",
+                   g.rendered_frames, name, value);
+    }
+#else
+    (void)name;
+    (void)value;
+#endif
+}
+
+extern "C" void flashplayer_trace_do_actions(const char *owner, int count)
+{
+    (void)owner;
+    (void)count;
+}
+
+extern "C" void flashplayer_trace_member_lookup(const char *owner,
+                                                const char *name, int found,
+                                                int object_result)
+{
+    (void)owner;
+    (void)name;
+    (void)found;
+    (void)object_result;
+}
+
+extern "C" void flashplayer_trace_variable_lookup(const char *name, int source,
+                                                  int object_result)
+{
+    (void)name;
+    (void)source;
+    (void)object_result;
+}
+
+extern "C" void flashplayer_trace_display_object(const char *name, int depth,
+                                                  int id, int visible)
+{
+    (void)name;
+    (void)depth;
+    (void)id;
+    (void)visible;
+}
+
 extern "C" void flashplayer_trace_execute_tag(int frame)
 {
     g.exec_tags++;
@@ -1130,23 +1768,8 @@ extern "C" void flashplayer_trace_loader(int hit, int tag_type)
     g.loader_last_tag = tag_type;
 
     total = g.loader_hits + g.loader_misses;
-    if (!g.runtime_ready && total > 0 && (total & 1023) == 0) {
+    if (!g.runtime_ready && total > 0 && (total & 2047) == 0) {
         rb->snprintf(g.status, sizeof(g.status), "gameswf: tags %d", total);
-        rb->lcd_set_viewport(NULL);
-        SET_BG(COL_BG);
-        SET_FG(COL_BG);
-        rb->lcd_clear_display();
-        SET_FG(COL_INK);
-        rb->lcd_putsxy(8, 8, "Flash Player");
-        SET_FG(COL_DIM);
-        rb->lcd_putsxy(8, 30, g.status);
-        rb->lcd_putsxyf(8, 48, "hit %d miss %d tag %d",
-                        g.loader_hits, g.loader_misses,
-                        g.loader_last_tag);
-        rb->lcd_putsxyf(8, 66, "pos %d heap %luK",
-                        g.loader_last_pos,
-                        (unsigned long)(plugin_cxx_available() / 1024));
-        rb->lcd_update();
         rb->yield();
     }
 }
@@ -1168,6 +1791,125 @@ extern "C" void flashplayer_trace_font(int op, int font_id)
         g.font_fallback_hits++;
     else
         g.font_misses++;
+}
+
+extern "C" void flashplayer_trace_mouse_event(int event_id, int topmost,
+                                               int active, int last_button,
+                                               int current_button, int inside,
+                                               int x, int y)
+{
+    (void)event_id;
+    (void)topmost;
+    (void)active;
+    (void)last_button;
+    (void)current_button;
+    (void)inside;
+    (void)x;
+    (void)y;
+}
+
+extern "C" void flashplayer_trace_button_action(int button_id, int event_id,
+                                                 int conditions, int mask,
+                                                 int matched, int action_count)
+{
+    (void)button_id;
+    (void)event_id;
+    (void)conditions;
+    (void)mask;
+    (void)matched;
+    (void)action_count;
+}
+
+extern "C" void flashplayer_trace_action(int phase, int opcode, int a, int b,
+                                          const char *text)
+{
+    (void)phase;
+    (void)opcode;
+    (void)a;
+    (void)b;
+    (void)text;
+}
+
+extern "C" void flashplayer_trace_action_bytes(const unsigned char *bytes, int len)
+{
+    (void)bytes;
+    (void)len;
+}
+
+extern "C" void flashplayer_trace_movie_state(const char *name, int value,
+                                               int aux_a, int aux_b)
+{
+    (void)value;
+    (void)aux_a;
+    (void)aux_b;
+
+    if (g.runtime_ready)
+        return;
+
+    if (!name)
+        return;
+
+    if (rb->strcmp(name, "create_movie_open") == 0)
+        show_load_status("gameswf: opened memory SWF");
+    else if (rb->strcmp(name, "create_movie_read_begin") == 0) {
+        flash_logf("gameswf milestone: read begin heap_free=%luK",
+                   (unsigned long)(plugin_cxx_available() / 1024));
+        show_load_status("gameswf: reading tags");
+    } else if (rb->strcmp(name, "create_movie_read_end") == 0) {
+        flash_logf("gameswf milestone: read end tags=%d pos=%d heap_free=%luK",
+                   g.loader_tag_count, g.loader_last_pos,
+                   (unsigned long)(plugin_cxx_available() / 1024));
+        show_load_status("gameswf: tags read");
+    } else if (rb->strcmp(name, "load_file_def_ready") == 0) {
+        flash_logf("gameswf milestone: definition ready heap_free=%luK",
+                   (unsigned long)(plugin_cxx_available() / 1024));
+        show_load_status("gameswf: definition ready");
+    } else if (rb->strcmp(name, "load_file_instance_ready") == 0) {
+        flash_logf("gameswf milestone: instance ready heap_free=%luK",
+                   (unsigned long)(plugin_cxx_available() / 1024));
+        show_load_status("gameswf: instance ready");
+    }
+}
+
+extern "C" void flashplayer_trace_shape_mesh(int id, int paths, int cached,
+                                             int error_x100)
+{
+    (void)id;
+    (void)paths;
+    (void)cached;
+    (void)error_x100;
+}
+
+extern "C" int flashplayer_consume_shape_mesh_budget(int id, int paths,
+                                                     int cached,
+                                                     int error_x100)
+{
+    int cost = 1 + paths / 20;
+
+    if (cached > 0)
+        return 1;
+
+    if (paths > 250) {
+        g.shape_mesh_skipped++;
+        (void)id;
+        (void)error_x100;
+        return 0;
+    }
+
+    if (g.shape_mesh_budget < cost) {
+        g.shape_mesh_skipped++;
+        (void)id;
+        (void)error_x100;
+        return 0;
+    }
+
+    g.shape_mesh_budget -= cost;
+    return 1;
+}
+
+extern "C" const char *flashplayer_get_movie_url(void)
+{
+    return STICK_RPG_URL;
 }
 
 extern "C" void *flashplayer_tu_realloc(void *ptr, size_t new_size,
@@ -1246,9 +1988,27 @@ static bool load_swf(const char *path)
     g.runtime_loaded = false;
     g.runtime_frame = -1;
     g.rendered_frames = 0;
+    g.shape_mesh_budget = 0;
+    g.shape_mesh_skipped = 0;
     g.cursor_x = LCD_WIDTH / 2;
     g.cursor_y = LCD_HEIGHT / 2;
     g.mouse_down = false;
+    g.key_left_down = false;
+    g.key_right_down = false;
+    g.key_c_down = false;
+    g.key_up_down = false;
+    g.key_down_down = false;
+    g.key_shift_down = false;
+    g.key_up_frames = 0;
+    g.key_down_frames = 0;
+    g.stickrpg_name_prefilled = false;
+    g.stickrpg_intro_hide_requested = false;
+    g.stickrpg_post_create_forced = false;
+    g.stickrpg_gameplay_shortcut_done = false;
+    g.stickrpg_fast_load = rb->strstr(path, "stickrpg") != NULL;
+#ifdef SIMULATOR
+    g.fast_draw_interval = 1;
+#endif
     g.click_frames = 0;
     g.exec_tags = 0;
     g.exec_frame = 0;
@@ -1258,11 +2018,18 @@ static bool load_swf(const char *path)
     g.loader_tag_count = 0;
     g.loader_last_pos = 0;
     g.loader_registers = 0;
+    g.loader_start_tick = 0;
+    g.loader_start_tag = 0;
     g.font_adds = 0;
     g.font_local_hits = 0;
     g.font_fallback_hits = 0;
     g.font_misses = 0;
     g.font_last_id = 0;
+    g.mouse_trace_count = 0;
+    g.button_trace_count = 0;
+    g.action_trace_count = 0;
+    g.action_verbose_left = 0;
+    g.action_trace_button_id = -1;
     rb->strlcpy(g.path, path, sizeof(g.path));
     flash_logf("load path=%s plugin_buf=%luK audio_buf=%luK",
                g.path, (unsigned long)(g.buffer_size / 1024),
@@ -1353,7 +2120,7 @@ static bool load_swf(const char *path)
         g.info.decompressed = true;
     }
 
-    show_load_status("scanning SWF tags");
+    show_load_status("reading SWF metadata");
     rect_len = swf_rect_bytes(g.body, g.body_len, &g.info.stage_w,
                               &g.info.stage_h);
     if (rect_len < 0 || (unsigned long)rect_len + 4 > g.body_len) {
@@ -1364,10 +2131,13 @@ static bool load_swf(const char *path)
     g.info.fps_x100 = read_le16(g.body + rect_len) * 100 / 256;
     g.info.frames = read_le16(g.body + rect_len + 2);
 
+#ifdef SIMULATOR
     scan_tags(g.body, rect_len + 4, g.body_len, 0, &g.tags);
+#endif
     flash_logf("parsed stage=%dx%d fps=%d.%02d frames=%d tags=%d",
                g.info.stage_w, g.info.stage_h, g.info.fps_x100 / 100,
                g.info.fps_x100 % 100, g.info.frames, g.tags.total);
+#ifdef SIMULATOR
     flash_logf("tags show=%d place=%d remove=%d shape=%d sprite=%d button=%d",
                g.tags.show_frame, g.tags.place, g.tags.remove,
                g.tags.shape, g.tags.sprite, g.tags.button);
@@ -1375,6 +2145,7 @@ static bool load_swf(const char *path)
                g.tags.text, g.tags.edit_text, g.tags.bitmap, g.tags.sound,
                g.tags.do_action, g.tags.do_init_action, g.tags.do_abc,
                g.tags.video, g.tags.max_depth);
+#endif
     rb->snprintf(g.status, sizeof(g.status), "SWF parsed: AVM1 bring-up");
     g.loaded = true;
     return true;
@@ -1410,6 +2181,10 @@ static void probe_gameswf_runtime(void)
     flash_logf("gameswf player allocated heap_free=%luK",
                (unsigned long)(plugin_cxx_available() / 1024));
 
+    delete g_sound_handler;
+    g_sound_handler = new SilentSoundHandler;
+    gameswf::set_sound_handler(g_sound_handler);
+
     show_load_status("gameswf: load_file");
     if (!g_renderer)
         g_renderer = new RockboxRenderHandler;
@@ -1436,7 +2211,7 @@ static void probe_gameswf_runtime(void)
                    (unsigned long)(plugin_cxx_available() / 1024));
         return;
     }
-    *g_root_ref = g_player->load_file(g.path);
+    *g_root_ref = g_player->load_file(STICK_RPG_URL);
 
     if (!flash_root()) {
         rb->snprintf(g.status, sizeof(g.status), "gameswf load failed");
@@ -1584,42 +2359,373 @@ static void runtime_mouse_stage(int *x, int *y)
     *y = g.cursor_y * sh / LCD_HEIGHT;
 }
 
+#ifdef SIMULATOR
+static bool parse_autorun_int(const char **spec, int *value)
+{
+    const char *p = *spec;
+    int sign = 1;
+    int v = 0;
+    bool any = false;
+
+    if (*p == '-') {
+        sign = -1;
+        p++;
+    }
+    while (*p >= '0' && *p <= '9') {
+        v = v * 10 + (*p - '0');
+        p++;
+        any = true;
+    }
+    if (!any)
+        return false;
+
+    *value = v * sign;
+    *spec = p;
+    return true;
+}
+
+static void parse_autorun_clicks(const char *spec)
+{
+    const char *p = spec;
+
+    while (p && *p && g.autorun_click_count < 8) {
+        int frame;
+        int x;
+        int y;
+
+        while (*p == ' ' || *p == ';' || *p == ',')
+            p++;
+        if (!parse_autorun_int(&p, &frame) || *p++ != ':' ||
+            !parse_autorun_int(&p, &x) || *p++ != ':' ||
+            !parse_autorun_int(&p, &y)) {
+            break;
+        }
+
+        if (x < 0)
+            x = 0;
+        if (x >= LCD_WIDTH)
+            x = LCD_WIDTH - 1;
+        if (y < 0)
+            y = 0;
+        if (y >= LCD_HEIGHT)
+            y = LCD_HEIGHT - 1;
+
+        g.autorun_click_frame[g.autorun_click_count] = frame;
+        g.autorun_click_x[g.autorun_click_count] = x;
+        g.autorun_click_y[g.autorun_click_count] = y;
+        g.autorun_click_count++;
+    }
+
+    if (g.autorun_click_count > 0)
+        flash_logf("autorun clicks=%d", g.autorun_click_count);
+
+    g.autorun_click_armed = false;
+}
+
+static void run_autorun_click_script(void)
+{
+    if (g.autorun_click_next >= g.autorun_click_count)
+        return;
+
+    if (g.rendered_frames < g.autorun_click_frame[g.autorun_click_next])
+        return;
+
+    g.cursor_x = g.autorun_click_x[g.autorun_click_next];
+    g.cursor_y = g.autorun_click_y[g.autorun_click_next];
+
+    if (!g.autorun_click_armed) {
+        g.mouse_down = false;
+        g.click_frames = 0;
+        g.autorun_click_armed = true;
+        flash_logf("autorun hover frame=%d lcd=%d,%d",
+                   g.rendered_frames, g.cursor_x, g.cursor_y);
+        return;
+    }
+
+    g.mouse_down = true;
+    g.click_frames = 1;
+    flash_logf("autorun click frame=%d lcd=%d,%d",
+               g.rendered_frames, g.cursor_x, g.cursor_y);
+    g.autorun_click_armed = false;
+    g.autorun_click_next++;
+}
+#endif
+
+#ifdef SIMULATOR
+static void trace_intro_visibility(const char *where)
+{
+    gameswf::character *root_movie;
+    gameswf::as_value val;
+    gameswf::character *intro;
+    gameswf::as_value newgame_val;
+    gameswf::as_value makechar_val;
+    gameswf::as_value inst_val;
+    gameswf::as_value start_val;
+    gameswf::as_value load_val;
+    gameswf::character *newgame;
+    gameswf::character *makechar;
+    gameswf::character *instructions;
+    gameswf::character *startbutton;
+    gameswf::character *loadbutton;
+
+    if (!flash_root() || g.rendered_frames < 43 || g.rendered_frames > 55)
+        return;
+
+    root_movie = flash_root()->get_root_movie();
+    if (!root_movie || !root_movie->get_member("introscreen", &val))
+        return;
+
+    intro = gameswf::cast_to<gameswf::character>(val.to_object());
+    if (!intro)
+        return;
+
+    newgame = intro->get_member("newgame", &newgame_val) ?
+        gameswf::cast_to<gameswf::character>(newgame_val.to_object()) : NULL;
+    makechar = intro->get_member("makechar", &makechar_val) ?
+        gameswf::cast_to<gameswf::character>(makechar_val.to_object()) : NULL;
+    instructions = intro->get_member("instructions", &inst_val) ?
+        gameswf::cast_to<gameswf::character>(inst_val.to_object()) : NULL;
+    startbutton = intro->get_member("startbutton", &start_val) ?
+        gameswf::cast_to<gameswf::character>(start_val.to_object()) : NULL;
+    loadbutton = intro->get_member("loadButton", &load_val) ?
+        gameswf::cast_to<gameswf::character>(load_val.to_object()) : NULL;
+
+    flash_logf("intro vis %s frame=%d intro=%d start=%d load=%d new=%d make=%d inst=%d",
+               where, g.rendered_frames,
+               intro->get_visible() ? 1 : 0,
+               startbutton && startbutton->get_visible() ? 1 : 0,
+               loadbutton && loadbutton->get_visible() ? 1 : 0,
+               newgame && newgame->get_visible() ? 1 : 0,
+               makechar && makechar->get_visible() ? 1 : 0,
+               instructions && instructions->get_visible() ? 1 : 0);
+}
+#endif
+
+static void prime_stickrpg_post_advance(void)
+{
+#ifdef SIMULATOR
+    gameswf::character *root_movie;
+    gameswf::as_value val;
+
+    if (!g.prime_stickrpg || !flash_root())
+        return;
+
+    root_movie = flash_root()->get_root_movie();
+    if (root_movie && root_movie->get_member("introscreen", &val)) {
+        gameswf::character *intro =
+            gameswf::cast_to<gameswf::character>(val.to_object());
+        if (intro)
+            intro->set_visible(true);
+    }
+#endif
+}
+
+static void prefill_stickrpg_character_name(void)
+{
+    gameswf::character *root_movie;
+    gameswf::as_value val;
+    gameswf::as_value makechar_val;
+    gameswf::as_value name_val;
+
+    if (g.stickrpg_name_prefilled || !flash_root())
+        return;
+
+    root_movie = flash_root()->get_root_movie();
+    if (!root_movie || !root_movie->get_member("introscreen", &val))
+        return;
+
+    gameswf::character *intro =
+        gameswf::cast_to<gameswf::character>(val.to_object());
+    if (!intro || !intro->get_visible())
+        return;
+
+    gameswf::character *makechar = intro->get_member("makechar",
+        &makechar_val) ?
+        gameswf::cast_to<gameswf::character>(makechar_val.to_object()) : NULL;
+    if (!makechar || !makechar->get_visible())
+        return;
+
+    name_val.set_string("David");
+    root_movie->set_member("textname", name_val);
+    root_movie->set_member("pname", name_val);
+    intro->set_member("textname", name_val);
+    makechar->set_member("textname", name_val);
+    g.stickrpg_name_prefilled = true;
+    flash_logf("stickrpg prefilled character name=David");
+}
+
+static void flash_key_notify(gameswf::key::code key, bool down)
+{
+    if (g_player && flash_root())
+        g_player->notify_key_event(key, down);
+}
+
+static void release_runtime_keys(void)
+{
+    if (g.key_left_down) {
+        flash_key_notify(gameswf::key::LEFT, false);
+        g.key_left_down = false;
+    }
+    if (g.key_right_down) {
+        flash_key_notify(gameswf::key::RIGHT, false);
+        g.key_right_down = false;
+    }
+    if (g.key_c_down) {
+        flash_key_notify(gameswf::key::C, false);
+        g.key_c_down = false;
+    }
+    if (g.key_up_down) {
+        flash_key_notify(gameswf::key::UP, false);
+        g.key_up_down = false;
+    }
+    if (g.key_down_down) {
+        flash_key_notify(gameswf::key::DOWN, false);
+        g.key_down_down = false;
+    }
+    if (g.key_shift_down) {
+        flash_key_notify(gameswf::key::SHIFT, false);
+        g.key_shift_down = false;
+    }
+    if (g.key_up_frames > 0) {
+        if (!g.key_up_down)
+            flash_key_notify(gameswf::key::UP, false);
+        g.key_up_frames = 0;
+    }
+    if (g.key_down_frames > 0) {
+        if (!g.key_down_down)
+            flash_key_notify(gameswf::key::DOWN, false);
+        g.key_down_frames = 0;
+    }
+}
+
+static void tick_transient_runtime_keys(void)
+{
+    if (g.key_up_frames > 0 && --g.key_up_frames == 0)
+        if (!g.key_up_down)
+            flash_key_notify(gameswf::key::UP, false);
+    if (g.key_down_frames > 0 && --g.key_down_frames == 0)
+        if (!g.key_down_down)
+            flash_key_notify(gameswf::key::DOWN, false);
+}
+
+static void force_stickrpg_post_create_state(void)
+{
+    gameswf::character *root_movie;
+    gameswf::sprite_instance *root_sprite;
+    gameswf::as_value val;
+    gameswf::character *ch;
+    gameswf::sprite_instance *sprite;
+
+    if (!g.stickrpg_intro_hide_requested || !flash_root())
+        return;
+
+    root_movie = flash_root()->get_root_movie();
+    root_sprite = gameswf::cast_to<gameswf::sprite_instance>(root_movie);
+    if (!root_sprite)
+        return;
+
+    root_sprite->set_display_object_visible("introscreen", false);
+
+    if (!g.stickrpg_gameplay_shortcut_done) {
+        root_sprite->goto_frame(1);
+        root_sprite->set_play_state(gameswf::character::STOP);
+        root_sprite->set_display_object_visible("introscreen", false);
+        root_sprite->set_display_object_visible("filmscreen", false);
+        root_sprite->set_display_object_visible("black", false);
+        root_sprite->set_display_object_visible("pregameMC", false);
+        g.stickrpg_gameplay_shortcut_done = true;
+        g.stickrpg_post_create_forced = true;
+        flash_logf("stickrpg skipped procedural intro to gameplay frame");
+        return;
+    }
+
+    if (g.stickrpg_post_create_forced)
+        return;
+
+    root_sprite->set_display_object_visible("filmscreen", true);
+    root_sprite->set_display_object_visible("black", true);
+
+    if (root_movie->get_member("filmscreen", &val)) {
+        ch = gameswf::cast_to<gameswf::character>(val.to_object());
+        if (ch) {
+            ch->set_visible(true);
+            sprite = gameswf::cast_to<gameswf::sprite_instance>(ch);
+            if (sprite) {
+                sprite->goto_frame(1);
+                sprite->set_play_state(gameswf::character::PLAY);
+            }
+        }
+    }
+
+    if (root_movie->get_member("black", &val)) {
+        ch = gameswf::cast_to<gameswf::character>(val.to_object());
+        if (ch) {
+            ch->set_visible(true);
+            sprite = gameswf::cast_to<gameswf::sprite_instance>(ch);
+            if (sprite) {
+                sprite->goto_frame(10);
+                sprite->set_play_state(gameswf::character::PLAY);
+            }
+        }
+    }
+
+    g.stickrpg_post_create_forced = true;
+}
+
 static void render_runtime_frame(float dt)
 {
     int mx;
     int my;
-    gameswf::character *root_movie;
-    gameswf::as_value val;
-    gameswf::character *filmscreen;
-    gameswf::sprite_instance *root_sprite;
+#ifdef SIMULATOR
+    bool skip_draw;
+#endif
 
     if (!g.runtime_loaded || !flash_root())
         return;
 
+#ifdef SIMULATOR
+    run_autorun_click_script();
+    skip_draw = g.fast_autorun && g.autorun_click_count > 0 &&
+        (g.autorun_click_next < g.autorun_click_count ||
+         g.autorun_click_armed || g.click_frames > 0);
+    if (!skip_draw && g.fast_draw_interval > 1 &&
+        g.autorun_click_count > 0 &&
+        g.autorun_click_next >= g.autorun_click_count &&
+        (g.rendered_frames % g.fast_draw_interval) != 0)
+        skip_draw = true;
+#endif
     runtime_mouse_stage(&mx, &my);
     flash_root()->notify_mouse_state(mx, my, g.mouse_down ? 1 : 0);
     flash_root()->advance(dt);
+    prime_stickrpg_post_advance();
+    prefill_stickrpg_character_name();
+    force_stickrpg_post_create_state();
+    tick_transient_runtime_keys();
     g.runtime_frame = flash_root()->get_current_frame();
     g.rendered_frames++;
-    root_movie = flash_root()->get_root_movie();
-    root_sprite = gameswf::cast_to<gameswf::sprite_instance>(root_movie);
-    if (root_sprite) {
-        flash_logf("diagnostic hide/remove filmscreen/pregameMC during prime");
-        root_sprite->remove_display_object("filmscreen");
-        root_sprite->remove_display_object("pregameMC");
-    }
-    if (root_movie && root_movie->get_member("filmscreen", &val)) {
-        filmscreen = gameswf::cast_to<gameswf::character>(val.to_object());
-        if (filmscreen) {
-            g.prime_film_frame = filmscreen->get_current_frame();
-            filmscreen->set_visible(false);
+#ifdef SIMULATOR
+    if (skip_draw) {
+        if ((g.rendered_frames % 25) == 1 || g.mouse_down) {
+            flash_logf("fast frame n=%d root=%d mouse_lcd=%d,%d mouse_stage=%d,%d down=%d",
+                       g.rendered_frames, g.runtime_frame, g.cursor_x,
+                       g.cursor_y, mx, my, g.mouse_down ? 1 : 0);
         }
+        if (g.click_frames > 0 && --g.click_frames == 0) {
+            g.mouse_down = false;
+            if (g.autorun_click_count > 0)
+                flash_logf("autorun release frame=%d lcd=%d,%d",
+                           g.rendered_frames, g.cursor_x, g.cursor_y);
+        }
+        return;
     }
+#endif
+    g.shape_mesh_budget = 32;
+    g.shape_mesh_skipped = 0;
     flash_root()->display();
     rb->yield();
     draw_runtime_cursor();
 #if defined(SIMULATOR)
-    if (g_renderer) {
+    if (g.debug_overlay && g_renderer) {
         rb->lcd_set_foreground(LCD_RGBPACK(0, 0, 0));
         rb->lcd_fillrect(0, LCD_HEIGHT - 30, LCD_WIDTH, 30);
         rb->lcd_set_foreground(LCD_RGBPACK(255, 255, 255));
@@ -1646,34 +2752,55 @@ static void render_runtime_frame(float dt)
     if (g_renderer &&
         ((g.rendered_frames % 35) == 1 || g.mouse_down ||
          g_renderer->triangle_budget_hit)) {
-        flash_logf("frame n=%d root=%d mouse_lcd=%d,%d mouse_stage=%d,%d down=%d tri=%d line=%d bmp=%d mask=%d/%d/%d/%d pix=%d/%d/%d heap_free=%luK",
+        flash_logf("frame n=%d root=%d mouse_lcd=%d,%d mouse_stage=%d,%d down=%d tri=%d tiny=%d max=%dx%d sf=%d bf=%d line=%d bmp=%d mask=%d/%d/%d/%d pix=%d/%d/%d heap_free=%luK",
                    g.rendered_frames, g.runtime_frame, g.cursor_x, g.cursor_y,
                    mx, my, g.mouse_down ? 1 : 0, g_renderer->triangles,
-                   g_renderer->lines, g_renderer->bitmaps,
+                   g_renderer->tiny_triangles, g_renderer->max_tri_w,
+                   g_renderer->max_tri_h, g_renderer->solid_fills,
+                   g_renderer->bitmap_fills, g_renderer->lines,
+                   g_renderer->bitmaps,
                    g_renderer->mask_tests, g_renderer->mask_begins,
                    g_renderer->mask_ends, g_renderer->mask_disables,
                    g_renderer->opaque_pixels, g_renderer->alpha_blends,
                    g_renderer->alpha_skips,
                    (unsigned long)(plugin_cxx_available() / 1024));
     }
-    if (g.click_frames > 0 && --g.click_frames == 0)
+    if (g.click_frames > 0 && --g.click_frames == 0) {
         g.mouse_down = false;
+#ifdef SIMULATOR
+        if (g.autorun_click_count > 0)
+            flash_logf("autorun release frame=%d lcd=%d,%d",
+                       g.rendered_frames, g.cursor_x, g.cursor_y);
+#endif
+    }
 }
 
 static void init_runtime_heap(void);
 
 static void prime_stickrpg_filmscreen(void)
 {
+#ifdef SIMULATOR
+    if (!g.prime_stickrpg)
+        return;
+#else
+    return;
+#endif
+
     gameswf::character *root_movie;
     gameswf::as_value val;
-    gameswf::character *filmscreen;
-    gameswf::sprite_instance *sprite;
     gameswf::sprite_instance *root_sprite;
+    static const char *const overlay_names[] = {
+        "filmscreen", "fpsShower", "black", "loaderText"
+    };
+    static const char *const intro_panel_names[] = {
+        "makechar", "instructions", "newgame"
+    };
+    static const int overlay_depths[] = { 282, 290 };
+    int i;
 
     if (!flash_root())
         return;
 
-    flash_root()->goto_frame(0);
     flash_root()->set_play_state(gameswf::character::PLAY);
     g.prime_root_start = 0;
     g.prime_root_load2 = 0;
@@ -1681,27 +2808,50 @@ static void prime_stickrpg_filmscreen(void)
 
     root_movie = flash_root()->get_root_movie();
     root_sprite = gameswf::cast_to<gameswf::sprite_instance>(root_movie);
-    if (root_sprite) {
-        root_sprite->remove_display_object("filmscreen");
-        root_sprite->remove_display_object("pregameMC");
+
+    for (i = 0; i < (int)(sizeof(overlay_names) / sizeof(overlay_names[0])); i++) {
+        gameswf::character *ch;
+
+        if (!root_movie || !root_movie->get_member(overlay_names[i], &val))
+            continue;
+
+        ch = gameswf::cast_to<gameswf::character>(val.to_object());
+        if (!ch)
+            continue;
+
+        ch->set_visible(false);
+        if (rb->strcmp(overlay_names[i], "filmscreen") == 0) {
+            g.prime_has_filmscreen = 1;
+            g.prime_film_frame = ch->get_current_frame();
+        }
     }
-    g.prime_has_filmscreen = (root_movie && root_movie->get_member("filmscreen", &val)) ? 1 : 0;
-    if (!g.prime_has_filmscreen)
-        return;
 
-    filmscreen = gameswf::cast_to<gameswf::character>(val.to_object());
-    if (!filmscreen)
-        return;
+    if (root_sprite) {
+        for (i = 0; i < (int)(sizeof(overlay_depths) / sizeof(overlay_depths[0])); i++) {
+            int id = root_sprite->get_id_at_depth(overlay_depths[i]);
+            if (id >= 0)
+                root_sprite->remove_display_object(overlay_depths[i], id);
+        }
+    }
 
-    sprite = gameswf::cast_to<gameswf::sprite_instance>(val.to_object());
-    if (sprite)
-        sprite->goto_frame(0);
-    g.prime_film_start = 0;
-    g.prime_film_load2 = 0;
-    g.prime_film_load = 0;
-    g.prime_film_frame = filmscreen->get_current_frame();
-    filmscreen->set_visible(false);
-    filmscreen->set_play_state(gameswf::character::PLAY);
+    if (root_movie && root_movie->get_member("introscreen", &val)) {
+        gameswf::character *intro = gameswf::cast_to<gameswf::character>(val.to_object());
+        if (intro) {
+            intro->set_visible(true);
+            for (i = 0; i < (int)(sizeof(intro_panel_names) / sizeof(intro_panel_names[0])); i++) {
+                gameswf::as_value panel_val;
+                gameswf::character *panel;
+
+                if (!intro->get_member(intro_panel_names[i], &panel_val))
+                    continue;
+
+                panel = gameswf::cast_to<gameswf::character>(panel_val.to_object());
+                if (panel)
+                    panel->set_visible(false);
+            }
+        }
+    }
+
 }
 
 static bool start_runtime(void)
@@ -1725,15 +2875,6 @@ static bool start_runtime(void)
                    g.runtime_frame,
                    (unsigned long)(plugin_cxx_available() / 1024));
         prime_stickrpg_filmscreen();
-#if defined(SIMULATOR)
-        {
-            gameswf::character *root_movie = flash_root()->get_root_movie();
-            if (root_movie) {
-                tu_string tabs;
-                root_movie->dump(tabs);
-            }
-        }
-#endif
         flash_root()->display();
         rb->yield();
         draw_runtime_cursor();
@@ -1820,6 +2961,8 @@ static void init_runtime_heap(void)
 
 static void shutdown_runtime(void)
 {
+    release_runtime_keys();
+
     flash_logf("shutdown loaded=%d ready=%d frame=%d rendered=%d heap_free=%luK logs=%d errors=%d last='%s'",
                g.runtime_loaded ? 1 : 0, g.runtime_ready ? 1 : 0,
                g.runtime_frame, g.rendered_frames,
@@ -1833,6 +2976,9 @@ static void shutdown_runtime(void)
     }
     delete g_player;
     g_player = NULL;
+    gameswf::set_sound_handler(NULL);
+    delete g_sound_handler;
+    g_sound_handler = NULL;
     delete g_renderer;
     g_renderer = NULL;
 
@@ -1871,6 +3017,34 @@ extern "C" enum plugin_status plugin_start(const void *parameter)
             g.autorun_frames = rb->atoi(autorun);
             flash_logf("autorun frames=%d", g.autorun_frames);
         }
+        {
+            const char *overlay = getenv("FLASHPLAYER_DEBUG_OVERLAY");
+            g.debug_overlay = overlay && overlay[0] && rb->atoi(overlay) != 0;
+        }
+        {
+            const char *prime = getenv("FLASHPLAYER_PRIME_STICKRPG");
+            g.prime_stickrpg = prime && prime[0] && rb->atoi(prime) != 0;
+        }
+        {
+            const char *fast = getenv("FLASHPLAYER_FAST_AUTORUN");
+            g.fast_autorun = fast && fast[0] && rb->atoi(fast) != 0;
+            if (g.fast_autorun)
+                flash_logf("fast autorun=1");
+        }
+        {
+            const char *interval = getenv("FLASHPLAYER_FAST_DRAW_INTERVAL");
+            if (interval && interval[0]) {
+                g.fast_draw_interval = rb->atoi(interval);
+                if (g.fast_draw_interval < 1)
+                    g.fast_draw_interval = 1;
+                flash_logf("fast draw interval=%d", g.fast_draw_interval);
+            }
+        }
+        {
+            const char *clicks = getenv("FLASHPLAYER_AUTORUN_CLICKS");
+            if (clicks && clicks[0])
+                parse_autorun_clicks(clicks);
+        }
     }
 #endif
 
@@ -1892,7 +3066,15 @@ extern "C" enum plugin_status plugin_start(const void *parameter)
     start_runtime();
 
     while (!quit) {
-        int button = rb->button_get_w_tmo(g.runtime_loaded ? HZ / 35 : HZ / 8);
+        int timeout = g.runtime_loaded ? HZ / 35 : HZ / 8;
+#ifdef SIMULATOR
+        if (g.fast_autorun && g.runtime_loaded &&
+            g.autorun_click_count > 0 &&
+            (g.autorun_click_next < g.autorun_click_count ||
+             g.autorun_click_armed || g.click_frames > 0))
+            timeout = 0;
+#endif
+        int button = rb->button_get_w_tmo(timeout);
         int bare = button & ~(BUTTON_REPEAT | BUTTON_REL);
 
         if (button == SYS_USB_CONNECTED)
@@ -1900,11 +3082,25 @@ extern "C" enum plugin_status plugin_start(const void *parameter)
             shutdown_runtime();
             return PLUGIN_USB_CONNECTED;
         }
+#ifdef SIMULATOR
+        if (g.runtime_loaded && g.autorun_click_count > 0 &&
+            (g.autorun_click_next < g.autorun_click_count ||
+             g.autorun_click_armed || g.click_frames > 0) &&
+            button != BUTTON_NONE) {
+            continue;
+        }
+#endif
         if (button == BUTTON_NONE) {
-            if (g.runtime_loaded)
+            if (g.runtime_loaded) {
                 render_runtime_frame(1.0f / 35.0f);
-            else
+#ifdef SIMULATOR
+                if (g.autorun_frames > 0 &&
+                    g.rendered_frames >= g.autorun_frames)
+                    quit = true;
+#endif
+            } else {
                 rb->yield();
+            }
             continue;
         }
 
@@ -1912,13 +3108,72 @@ extern "C" enum plugin_status plugin_start(const void *parameter)
         if (button & BUTTON_REL) {
             if (bare == BUTTON_SELECT && g.runtime_loaded)
                 g.mouse_down = false;
-            else if (!g.runtime_loaded)
+            if ((bare & BUTTON_LEFT) && g.runtime_loaded &&
+                g.key_left_down) {
+                flash_key_notify(gameswf::key::LEFT, false);
+                g.key_left_down = false;
+            }
+            if ((bare & BUTTON_RIGHT) && g.runtime_loaded &&
+                g.key_right_down) {
+                flash_key_notify(gameswf::key::RIGHT, false);
+                g.key_right_down = false;
+            }
+            if ((bare & BUTTON_MENU) && g.runtime_loaded &&
+                g.key_up_down) {
+                flash_key_notify(gameswf::key::UP, false);
+                g.key_up_down = false;
+            }
+            if ((bare & BUTTON_PLAY) && g.runtime_loaded &&
+                g.key_down_down) {
+                flash_key_notify(gameswf::key::DOWN, false);
+                g.key_down_down = false;
+            }
+            if ((bare & BUTTON_SELECT) && g.runtime_loaded &&
+                g.key_shift_down) {
+                flash_key_notify(gameswf::key::SHIFT, false);
+                g.key_shift_down = false;
+            }
+            if ((bare & BUTTON_SELECT) && g.runtime_loaded)
+                g.mouse_down = false;
+            if (!g.runtime_loaded)
                 redraw();
             continue;
         }
 
-        if (bare == BUTTON_MENU || bare == BUTTON_PLAY) {
+        if ((button & BUTTON_REPEAT) && bare == BUTTON_SELECT) {
             quit = true;
+        } else if ((bare & BUTTON_SELECT) && bare != BUTTON_SELECT &&
+                   g.runtime_loaded) {
+            if (!g.key_shift_down) {
+                flash_key_notify(gameswf::key::SHIFT, true);
+                g.key_shift_down = true;
+            }
+            if ((bare & BUTTON_LEFT) && !g.key_left_down) {
+                flash_key_notify(gameswf::key::LEFT, true);
+                g.key_left_down = true;
+            }
+            if ((bare & BUTTON_RIGHT) && !g.key_right_down) {
+                flash_key_notify(gameswf::key::RIGHT, true);
+                g.key_right_down = true;
+            }
+            if ((bare & BUTTON_MENU) && !g.key_up_down) {
+                flash_key_notify(gameswf::key::UP, true);
+                g.key_up_down = true;
+            }
+            if ((bare & BUTTON_PLAY) && !g.key_down_down) {
+                flash_key_notify(gameswf::key::DOWN, true);
+                g.key_down_down = true;
+            }
+        } else if (bare == BUTTON_MENU && g.runtime_loaded) {
+            if (!g.key_up_down) {
+                flash_key_notify(gameswf::key::UP, true);
+                g.key_up_down = true;
+            }
+        } else if (bare == BUTTON_PLAY && g.runtime_loaded) {
+            if (!g.key_down_down) {
+                flash_key_notify(gameswf::key::DOWN, true);
+                g.key_down_down = true;
+            }
         } else if (bare == BUTTON_SELECT) {
             if (g.runtime_loaded) {
                 g.mouse_down = true;
@@ -1934,10 +3189,17 @@ extern "C" enum plugin_status plugin_start(const void *parameter)
         } else if (bare == BUTTON_SCROLL_FWD || bare == BUTTON_RIGHT) {
             if (g.runtime_loaded) {
                 if (bare == BUTTON_RIGHT) {
+                    if (!g.key_right_down) {
+                        flash_key_notify(gameswf::key::RIGHT, true);
+                        g.key_right_down = true;
+                    }
                     g.cursor_x += (button & BUTTON_REPEAT) ? 10 : 4;
                     if (g.cursor_x >= LCD_WIDTH)
                         g.cursor_x = LCD_WIDTH - 1;
                 } else {
+                    if (g.key_down_frames == 0)
+                        flash_key_notify(gameswf::key::DOWN, true);
+                    g.key_down_frames = 3;
                     g.cursor_y += (button & BUTTON_REPEAT) ? 10 : 4;
                     if (g.cursor_y >= LCD_HEIGHT)
                         g.cursor_y = LCD_HEIGHT - 1;
@@ -1949,10 +3211,17 @@ extern "C" enum plugin_status plugin_start(const void *parameter)
         } else if (bare == BUTTON_SCROLL_BACK || bare == BUTTON_LEFT) {
             if (g.runtime_loaded) {
                 if (bare == BUTTON_LEFT) {
+                    if (!g.key_left_down) {
+                        flash_key_notify(gameswf::key::LEFT, true);
+                        g.key_left_down = true;
+                    }
                     g.cursor_x -= (button & BUTTON_REPEAT) ? 10 : 4;
                     if (g.cursor_x < 0)
                         g.cursor_x = 0;
                 } else {
+                    if (g.key_up_frames == 0)
+                        flash_key_notify(gameswf::key::UP, true);
+                    g.key_up_frames = 3;
                     g.cursor_y -= (button & BUTTON_REPEAT) ? 10 : 4;
                     if (g.cursor_y < 0)
                         g.cursor_y = 0;

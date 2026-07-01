@@ -42,6 +42,20 @@
 
 namespace Queen {
 
+#ifdef ROCKBOX_SCUMMVM_EMBEDDED
+static void queenStrncpy(char *dst, const char *src, size_t len) {
+	if (!len)
+		return;
+
+	size_t i = 0;
+	for (; i + 1 < len && src[i]; ++i)
+		dst[i] = src[i];
+	dst[i] = '\0';
+}
+#else
+#define queenStrncpy strncpy
+#endif
+
 void Talk::talk(
 		const char *filename,
 		int personInRoom,
@@ -1107,13 +1121,13 @@ int Talk::splitOptionHebrew(const char *str, char optionText[5][MAX_STRING_SIZE]
 			width += wordWidth;
 			if (width > maxTextLen) {
 				++optionLines;
-				strncpy(optionText[optionLines], p, len);
+				queenStrncpy(optionText[optionLines], p, len);
 				optionText[optionLines][len] = '\0';
 				width = wordWidth;
 				maxTextLen = MAX_TEXT_WIDTH - OPTION_TEXT_MARGIN;
 			} else {
 				strcpy(tmpString, optionText[optionLines]);
-				strncpy(optionText[optionLines], p, len);
+				queenStrncpy(optionText[optionLines], p, len);
 				optionText[optionLines][len] = '\0';
 				strcat(optionText[optionLines], tmpString);
 			}
@@ -1126,7 +1140,7 @@ int Talk::splitOptionHebrew(const char *str, char optionText[5][MAX_STRING_SIZE]
 					++optionLines;
 				}
 				strcpy(tmpString, optionText[optionLines]);
-				strncpy(optionText[optionLines], p + 1, len);
+				queenStrncpy(optionText[optionLines], p + 1, len);
 				optionText[optionLines][len] = '\0';
 				strcat(optionText[optionLines], tmpString);
 			}
@@ -1151,7 +1165,7 @@ int Talk::splitOptionDefault(const char *str, char optionText[5][MAX_STRING_SIZE
 			width += wordWidth;
 			if (width > maxTextLen) {
 				++optionLines;
-				strncpy(optionText[optionLines], str, len + 1);
+				queenStrncpy(optionText[optionLines], str, len + 1);
 				width = wordWidth;
 				maxTextLen = MAX_TEXT_WIDTH - OPTION_TEXT_MARGIN;
 			} else {

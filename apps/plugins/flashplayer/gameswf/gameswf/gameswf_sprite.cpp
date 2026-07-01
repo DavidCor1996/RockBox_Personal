@@ -18,9 +18,12 @@
 #include "gameswf/gameswf_as_sprite.h"
 #include "gameswf/gameswf_text.h"
 #include "gameswf/gameswf_as_classes/as_string.h"
+#include "gameswf_compat/compatibility_include.h"
 
 namespace gameswf
 {
+	extern "C" void flashplayer_trace_movie_state(const char *name, int value,
+		int aux1, int aux2);
 
 	struct as_mcloader;
 
@@ -508,6 +511,7 @@ namespace gameswf
 
 	void sprite_instance::do_actions(const array<action_buffer*>& action_list)
 	{
+		flashplayer_trace_do_actions(get_name().c_str(), action_list.size());
 		for (int i = 0; i < action_list.size(); i++)
 		{
 			action_list[i]->execute(&m_as_environment);
@@ -561,10 +565,9 @@ namespace gameswf
 			}
 		}
 
+		m_current_frame = target_frame_number;
 		m_action_list.clear();
 		execute_frame_tags(target_frame_number, false);
-
-		m_current_frame = target_frame_number;
 
 		// actions from gotoFrame() will be executed in advance()
 		// Macromedia Flash does goto_frame then run actions from this frame.
@@ -952,6 +955,8 @@ namespace gameswf
 				int n = get_frame_count();
 				if (n >= 0)
 				{
+					flashplayer_trace_movie_state("_totalframes", n,
+						get_current_frame(), get_loading_frame());
 					val->set_int(n);
 				}
 				else
@@ -965,6 +970,8 @@ namespace gameswf
 				int n = get_loading_frame();
 				if (n >= 0)
 				{
+					flashplayer_trace_movie_state("_framesloaded", n,
+						get_current_frame(), get_frame_count());
 					val->set_int(n);
 				}
 				else
@@ -979,6 +986,8 @@ namespace gameswf
 
 		// Not a built-in property.  Check items on our display list.
 		character*	ch = m_display_list.get_character_by_name_i(name);
+		flashplayer_trace_member_lookup(get_name().c_str(), name.c_str(),
+			ch != NULL, ch != NULL);
 		if (ch)
 		{
 			// Found object.
@@ -987,7 +996,10 @@ namespace gameswf
 		}
 
 		// finally try standart character properties & movieclip variables
-		return character::get_member(name, val);
+		bool found = character::get_member(name, val);
+		flashplayer_trace_member_lookup(get_name().c_str(), name.c_str(),
+			found, found && val->is_object());
+		return found;
 	}
 
 	void sprite_instance::call_frame_actions(const as_value& frame_spec)
@@ -1116,6 +1128,19 @@ namespace gameswf
 	// Remove the object with the specified pointer.
 	{
 		m_display_list.remove_display_object(ch);
+	}
+
+	bool sprite_instance::set_display_object_visible(const tu_stringi& name,
+		bool visible)
+	{
+		character* ch = m_display_list.get_character_by_name_i(name);
+		if (ch == NULL)
+		{
+			return false;
+		}
+
+		ch->set_visible(visible);
+		return true;
 	}
 
 	bool sprite_instance::on_event(const event_id& id)
@@ -1305,12 +1330,22 @@ namespace gameswf
 		{
 			return root_def->get_file_bytes();
 		}
+		root_def = cast_to<movie_def_impl>(m_root->get_movie_definition());
+		if (root_def)
+		{
+			return root_def->get_file_bytes();
+		}
 		return 0;
 	}
 
 	uint32 sprite_instance::get_loaded_bytes() const
 	{
 		movie_def_impl* root_def = cast_to<movie_def_impl>(m_def.get_ptr());
+		if (root_def)
+		{
+			return root_def->get_loaded_bytes();
+		}
+		root_def = cast_to<movie_def_impl>(m_root->get_movie_definition());
 		if (root_def)
 		{
 			return root_def->get_loaded_bytes();

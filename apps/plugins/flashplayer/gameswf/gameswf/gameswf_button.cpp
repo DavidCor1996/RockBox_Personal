@@ -496,7 +496,11 @@ namespace gameswf
 				// actions can delete THIS & PARENT through execute_frame_tags()
 				for (int i = 0; i < def->m_button_actions.size(); i++)
 				{
-					if (def->m_button_actions[i].m_conditions & c)
+					const int matched = def->m_button_actions[i].m_conditions & c;
+					flashplayer_trace_button_action(def->get_id(), id.m_id,
+						def->m_button_actions[i].m_conditions, c,
+						matched, def->m_button_actions[i].m_actions.size());
+					if (matched)
 					{
 						parent->do_actions(def->m_button_actions[i].m_actions);
 						called = true;

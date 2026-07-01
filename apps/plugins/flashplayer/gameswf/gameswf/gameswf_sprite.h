@@ -165,6 +165,7 @@ namespace gameswf
 		void	remove_display_object(int depth, int id);
 		void	remove_display_object(const tu_string& name);
 		void	remove_display_object(character* ch);
+		bool	set_display_object_visible(const tu_stringi& name, bool visible);
 		void	clear_display_objects();
 
 		virtual character* replace_me(movie_definition*	md);

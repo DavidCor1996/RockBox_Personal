@@ -57,6 +57,28 @@ static int compareResourceEntry(const void *a, const void *b) {
 	return strcmp(filename, entry->filename);
 }
 
+#ifdef ROCKBOX_SCUMMVM_EMBEDDED
+static ResourceEntry *findResourceEntry(const char *filename,
+		const ResourceEntry *table, uint16 count) {
+	uint16 low = 0;
+	uint16 high = count;
+
+	while (low < high) {
+		uint16 mid = low + (high - low) / 2;
+		int cmp = compareResourceEntry(filename, &table[mid]);
+
+		if (cmp == 0)
+			return (ResourceEntry *)&table[mid];
+		if (cmp < 0)
+			high = mid;
+		else
+			low = mid + 1;
+	}
+
+	return NULL;
+}
+#endif
+
 Resource::Resource()
 	: _resourceEntries(0), _resourceTable(NULL) {
 	memset(&_version, 0, sizeof(_version));
@@ -95,7 +117,11 @@ ResourceEntry *Resource::resourceEntry(const char *filename) const {
 	entryName.toUppercase();
 
 	ResourceEntry *re = NULL;
+#ifdef ROCKBOX_SCUMMVM_EMBEDDED
+	re = findResourceEntry(entryName.c_str(), _resourceTable, _resourceEntries);
+#else
 	re = (ResourceEntry *)bsearch(entryName.c_str(), _resourceTable, _resourceEntries, sizeof(ResourceEntry), compareResourceEntry);
+#endif
 	return re;
 }
 

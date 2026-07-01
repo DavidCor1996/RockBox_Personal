@@ -22,8 +22,9 @@ def _make_store(tmp_dir, repo_root):
 def _make_repo(repo_root):
     _make_file(
         os.path.join(repo_root, "apps", "plugins", "CATEGORIES"),
-        "pocketcatch,games\npocketcatch_simple,games\nminishcap,games\nclock,apps\n",
+        "runepod,games\npocketcatch,games\npocketcatch_simple,games\nminishcap,games\nclock,apps\n",
     )
+    _make_file(os.path.join(repo_root, "apps", "plugins", "runepod.c"), "/* runepod */\n")
     _make_file(os.path.join(repo_root, "apps", "plugins", "pocketcatch.c"), "/* pocketcatch */\n")
     _make_file(os.path.join(repo_root, "apps", "plugins", "pocketcatch_simple.c"), "/* pocketcatch simple */\n")
     _make_file(os.path.join(repo_root, "apps", "plugins", "minishcap.c"), "/* minishcap */\n")
@@ -38,7 +39,7 @@ def _make_repo(repo_root):
 
 def _make_build_outputs(repo_root):
     for build_dir in ("build-hw-ipod6g", "build-hw-ipodvideo-5g", "build-sim-video-5g"):
-        for plugin_id in ("pocketcatch", "pocketcatch_simple", "minishcap"):
+        for plugin_id in ("runepod", "pocketcatch", "pocketcatch_simple", "minishcap"):
             _make_file(
                 os.path.join(repo_root, build_dir, "apps", "plugins", f"{plugin_id}.rock"),
                 f"{build_dir}:{plugin_id}\n",
@@ -138,6 +139,40 @@ def test_pocketcatch_deploy_bundle_preserves_asset_pack_tree(tmp_dir):
     assert ".rockbox/rocks/games/pocketcatch/sprites/balls/ball_default_idle_0.bmp" in destinations
     assert ".rockbox/rocks/games/pocketcatch/backgrounds/new_bark_town_hgss.bmp" in destinations
     assert ".rockbox/rocks/games/pocketcatch/backgrounds/scene_day_layer0.bmp" in destinations
+
+
+def test_runepod_deploy_bundle_includes_generated_assets(tmp_dir):
+    repo_root = os.path.join(tmp_dir, "repo")
+    _make_repo(repo_root)
+    _make_build_outputs(repo_root)
+    _make_file(
+        os.path.join(repo_root, "rockpod", "assets", "runepod", "sprites", "runepod_sprites.320x160x24.bmp"),
+        b"sprites",
+    )
+    _make_file(
+        os.path.join(repo_root, "rockpod", "assets", "runepod", "sprites", "runepod_player_dirs.384x32x24.bmp"),
+        b"player",
+    )
+    _make_file(
+        os.path.join(repo_root, "rockpod", "assets", "runepod", "tiles", "runepod_terrain_tiles.256x32x24.bmp"),
+        b"tiles",
+    )
+    _config, store = _make_store(tmp_dir, repo_root)
+    profile = store.current_profile()
+    profile["source_repo_path"] = repo_root
+    profile["target_device_model"] = "iPod Classic / Video"
+    profile = store.save_profile(profile)
+
+    service = RockboxPluginService()
+    metadata = service.plugin_details(repo_root, "runepod", profile, None, "device")
+    bundle = service.build_deploy_bundle(metadata)
+    destinations = {item["destination_rel"] for item in bundle["assets"]}
+
+    assert metadata["display_name"] == "RunePod"
+    assert ".rockbox/rocks/games/runepod.rock" in destinations
+    assert ".rockbox/rocks/games/runepod/sprites/runepod_sprites.320x160x24.bmp" in destinations
+    assert ".rockbox/rocks/games/runepod/sprites/runepod_player_dirs.384x32x24.bmp" in destinations
+    assert ".rockbox/rocks/games/runepod/tiles/runepod_terrain_tiles.256x32x24.bmp" in destinations
 
 
 def test_plugin_deploy_diff_device_and_repeat_apply(tmp_dir):

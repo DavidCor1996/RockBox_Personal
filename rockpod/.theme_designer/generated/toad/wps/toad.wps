@@ -214,8 +214,14 @@
 %Vl(Lockscreen,152,112,16,16,-)
 %?mh<%t(0.1)%xd(La);%t(0.1)%xd(Lb);%t(0.1)%xd(Lc);%t(0.1)%xd(Ld);%t(0.1)%xd(Le);%t(0.1)%xd(Lf);%t(0.1)%xd(Lg);%t(0.1)%xd(Lh);%t(0.1)%xd(Li);%t(0.1)%xd(Lj);%t(0.1)%xd(Lk);%t(0.1)%xd(Ll)>
 #
-%Vl(Lockscreen,0,32,-,55,10)%Vf(FFFFFF)%ac%cl:%cM %cP
-%Vl(Lockscreen,0,101,-,20,4)%Vf(FFFFFF)%ac%?if(%ss(0,7,%St(lang)), =, english)<%?cu<Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday>|%ca> %?or(%if(%ss(0,7,%St(lang)), =, chinese),%if(%St(lang), =, magyar),%if(%St(lang), =, lietuviu),%if(%St(lang), =, japanese),%if(%St(lang), =, korean))<%cb %cd|%?if(%St(lang), =, english-us)<%cb %cd|%cd %cb>>
+%Vl(Lockscreen,1,33,-,66,10)%Vf(0000001C)%ac%cl:%cM %cP
+%Vl(Lockscreen,0,32,-,66,10)%Vf(FFFFFF85)%ac%cl:%cM %cP
+%Vl(Lockscreen,0,33,-,66,10)%Vf(E4FBFF8F)%ac%cl:%cM %cP
+%Vl(Lockscreen,0,31,-,66,10)%Vf(0000004F)%ac%cl:%cM %cP
+%Vl(Lockscreen,0,30,-,66,10)%Vf(FFFFFFFF)%ac%cl:%cM %cP
+%Vl(Lockscreen,1,32,-,66,10)%Vf(FFFFFF9E)%ac%cl:%cM %cP
+%Vl(Lockscreen,1,101,-,18,4)%Vf(0000001F)%ac%?if(%ss(0,7,%St(lang)), =, english)<%?cu<Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday>|%ca> %?or(%if(%ss(0,7,%St(lang)), =, chinese),%if(%St(lang), =, magyar),%if(%St(lang), =, lietuviu),%if(%St(lang), =, japanese),%if(%St(lang), =, korean))<%cb %cd|%?if(%St(lang), =, english-us)<%cb %cd|%cd %cb>>
+%Vl(Lockscreen,0,100,-,18,4)%Vf(FFFFFF85)%ac%?if(%ss(0,7,%St(lang)), =, english)<%?cu<Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday>|%ca> %?or(%if(%ss(0,7,%St(lang)), =, chinese),%if(%St(lang), =, magyar),%if(%St(lang), =, lietuviu),%if(%St(lang), =, japanese),%if(%St(lang), =, korean))<%cb %cd|%?if(%St(lang), =, english-us)<%cb %cd|%cd %cb>>
 #
 #---Notification---#
 %Vl(LockTint,16,150,288,75,-)

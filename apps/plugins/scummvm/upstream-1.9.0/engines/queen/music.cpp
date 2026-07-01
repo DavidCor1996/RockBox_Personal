@@ -23,7 +23,9 @@
 #include "common/config-manager.h"
 #include "common/events.h"
 
+#ifndef ROCKBOX_SCUMMVM_EMBEDDED
 #include "queen/midiadlib.h"
+#endif
 #include "queen/music.h"
 #include "queen/queen.h"
 #include "queen/resource.h"
@@ -64,11 +66,15 @@ MidiMusic::MidiMusic(QueenEngine *vm)
 	_tune = vm->resource()->isDemo() ? Sound::_tuneDemo : Sound::_tune;
 
 	if (_adlib) {
+#ifndef ROCKBOX_SCUMMVM_EMBEDDED
 //		int infoOffset = _numSongs * 4 + 2;
 //		if (READ_LE_UINT16(_musicData + 2) != infoOffset) {
 //			defaultAdLibVolume = _musicData[infoOffset];
 //		}
 		_driver = new AdLibMidiDriver();
+#else
+		_driver = MidiDriver::createMidi(dev);
+#endif
 	} else {
 		_driver = MidiDriver::createMidi(dev);
 		if (_nativeMT32) {
@@ -117,8 +123,11 @@ void MidiMusic::setVolume(int volume) {
 			_channelsTable[i]->volume(_channelsVolume[i] * _masterVolume / 255);
 	}
 
-	if (_adlib)
+	if (_adlib) {
+#ifndef ROCKBOX_SCUMMVM_EMBEDDED
 		static_cast<AdLibMidiDriver*>(_driver)->setVolume(volume);
+#endif
+	}
 }
 
 void MidiMusic::playSong(uint16 songNum) {

@@ -20,6 +20,7 @@ namespace gameswf
 	struct as_function;
 	struct as_object;
 	struct as_environment;
+	struct player;
 
 	exported_module bool string_to_number(int* result, const char* str, int base = 10);
 	exported_module bool string_to_number(double* result, const char* str);
@@ -90,6 +91,7 @@ namespace gameswf
 		exported_module as_value(double val);
 		exported_module as_value(as_object* obj);
 		exported_module as_value(as_c_function_ptr func);
+		exported_module as_value(player* player, as_c_function_ptr func);
 		exported_module as_value(as_s_function* func);
 		exported_module as_value(const as_value& getter, const as_value& setter);
 
@@ -123,6 +125,7 @@ namespace gameswf
 		exported_module void	set_nan() { set_double(get_nan()); }
 		exported_module void	set_as_object(as_object* obj);
 		exported_module void	set_as_c_function(as_c_function_ptr func);
+		exported_module void	set_as_c_function(player* player, as_c_function_ptr func);
 		exported_module void	set_undefined() { drop_refs(); m_type = UNDEFINED; }
 		exported_module void	set_null() { set_as_object(NULL); }
 

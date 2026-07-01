@@ -31,6 +31,10 @@ struct scummvm_video {
     int screen_y;
 };
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 void scummvm_video_init(struct scummvm_video *video);
 fb_data *scummvm_video_pixels(struct scummvm_video *video);
 void scummvm_video_clear(struct scummvm_video *video, fb_data color);
@@ -38,5 +42,9 @@ void scummvm_video_put_pixel(struct scummvm_video *video, int x, int y,
                              fb_data color);
 void scummvm_video_demo_pattern(struct scummvm_video *video);
 void scummvm_video_present(const struct scummvm_video *video);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

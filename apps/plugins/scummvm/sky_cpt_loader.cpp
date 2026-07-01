@@ -77,6 +77,21 @@ static bool read_all(int fd, void *dst, size_t size)
     return true;
 }
 
+static bool write_all(int fd, const void *src, size_t size)
+{
+    const uint8_t *in = (const uint8_t *)src;
+    size_t done = 0;
+
+    while (done < size) {
+        ssize_t wrote = rb->write(fd, in + done, size - done);
+        if (wrote <= 0)
+            return false;
+        done += (size_t)wrote;
+    }
+
+    return true;
+}
+
 static bool open_cpt(const struct scummvm_target *target,
                      char *path,
                      size_t path_size,
@@ -118,6 +133,15 @@ static bool read_u32_fd(int fd, uint32_t *value)
 
     *value = read_le32(buf);
     return true;
+}
+
+static bool write_u16_fd(int fd, uint16_t value)
+{
+    uint8_t buf[2];
+
+    buf[0] = (uint8_t)value;
+    buf[1] = (uint8_t)(value >> 8);
+    return write_all(fd, buf, sizeof(buf));
 }
 
 static bool src_read_u16(const uint8_t *src,
@@ -208,6 +232,80 @@ const uint16_t *scummvm_sky_cpt_fetch(uint16_t cpt_id,
                                       const char **name)
 {
     return scummvm_sky_cpt_fetch_mutable(cpt_id, size, type, name);
+}
+
+uint32_t scummvm_sky_cpt_save_entry_count(void)
+{
+    return current_cpt.save_id_count;
+}
+
+bool scummvm_sky_cpt_write_save_entries(int fd)
+{
+    uint32_t i;
+
+    if (!current_cpt.save_ids)
+        return false;
+
+    for (i = 0; i < current_cpt.save_id_count; i++) {
+        uint16_t id = current_cpt.save_ids[i];
+        uint16_t size;
+        uint16_t type;
+        uint16_t *data = scummvm_sky_cpt_fetch_mutable(id, &size, &type,
+                                                       NULL);
+        uint16_t word;
+
+        if (!data)
+            return false;
+
+        if (!write_u16_fd(fd, id) ||
+            !write_u16_fd(fd, size) ||
+            !write_u16_fd(fd, type))
+            return false;
+
+        for (word = 0; word < size; word++) {
+            if (!write_u16_fd(fd, data[word]))
+                return false;
+        }
+    }
+
+    return true;
+}
+
+bool scummvm_sky_cpt_read_save_entries(int fd, uint32_t count)
+{
+    uint32_t i;
+
+    if (!current_cpt.save_ids || count != current_cpt.save_id_count)
+        return false;
+
+    for (i = 0; i < count; i++) {
+        uint16_t id;
+        uint16_t saved_size;
+        uint16_t saved_type;
+        uint16_t size;
+        uint16_t type;
+        uint16_t *data;
+        uint16_t word;
+
+        if (!read_u16_fd(fd, &id) ||
+            !read_u16_fd(fd, &saved_size) ||
+            !read_u16_fd(fd, &saved_type))
+            return false;
+
+        if (id != current_cpt.save_ids[i])
+            return false;
+
+        data = scummvm_sky_cpt_fetch_mutable(id, &size, &type, NULL);
+        if (!data || size != saved_size || type != saved_type)
+            return false;
+
+        for (word = 0; word < size; word++) {
+            if (!read_u16_fd(fd, &data[word]))
+                return false;
+        }
+    }
+
+    return true;
 }
 
 bool scummvm_sky_cpt_load(const struct scummvm_target *target,

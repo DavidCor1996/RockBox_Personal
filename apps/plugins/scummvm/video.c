@@ -25,7 +25,7 @@ void scummvm_video_init(struct scummvm_video *video)
     video->width = SCUMMVM_SURFACE_W;
     video->height = SCUMMVM_SURFACE_H;
     video->screen_x = (LCD_WIDTH - SCUMMVM_SURFACE_W) / 2;
-    video->screen_y = LCD_HEIGHT - SCUMMVM_SURFACE_H;
+    video->screen_y = (LCD_HEIGHT - SCUMMVM_SURFACE_H) / 2;
     scummvm_video_clear(video, LCD_RGBPACK(0, 0, 0));
 }
 

@@ -190,7 +190,7 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
 .plt.sec
  *(.plt.sec)
 
-.text           0x0000000000001060     0x1f57
+.text           0x0000000000001060     0x1fca
  *(.text.unlikely .text.*_unlikely .text.unlikely.*)
  *(.text.exit .text.exit.*)
  *(.text.startup .text.startup.*)
@@ -207,83 +207,83 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
                 0x00000000000027f3                exit
                 0x000000000000280c                _exit
                 0x000000000000281b                exit_on_usb
- .text          0x000000000000285a      0x1b3 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(playback_control.o)
-                0x00000000000029d7                playback_control_init
-                0x00000000000029df                playback_control
- .text          0x0000000000002a0d      0x5aa /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(highscore.o)
-                0x0000000000002a0d                highscore_save
-                0x0000000000002b16                highscore_load
-                0x0000000000002c6f                highscore_would_update
-                0x0000000000002c84                highscore_update
-                0x0000000000002d2b                highscore_show
- .text          0x0000000000002fb7        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_header1.320x240x16.o)
- .text          0x0000000000002fb7        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_header2.320x240x16.o)
- .text          0x0000000000002fb7        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_left.320x240x16.o)
- .text          0x0000000000002fb7        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_right.320x240x16.o)
- .text          0x0000000000002fb7        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_bottom.320x240x16.o)
- .text          0x0000000000002fb7        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtendS.o
- .text          0x0000000000002fb7        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
+ .text          0x000000000000285a      0x226 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(playback_control.o)
+                0x0000000000002a4a                playback_control_init
+                0x0000000000002a52                playback_control
+ .text          0x0000000000002a80      0x5aa /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(highscore.o)
+                0x0000000000002a80                highscore_save
+                0x0000000000002b89                highscore_load
+                0x0000000000002ce2                highscore_would_update
+                0x0000000000002cf7                highscore_update
+                0x0000000000002d9e                highscore_show
+ .text          0x000000000000302a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_header1.320x240x16.o)
+ .text          0x000000000000302a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_header2.320x240x16.o)
+ .text          0x000000000000302a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_left.320x240x16.o)
+ .text          0x000000000000302a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_right.320x240x16.o)
+ .text          0x000000000000302a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_bottom.320x240x16.o)
+ .text          0x000000000000302a        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtendS.o
+ .text          0x000000000000302a        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
  *(.gnu.warning)
 
-.fini           0x0000000000002fb8        0xd
+.fini           0x000000000000302c        0xd
  *(SORT_NONE(.fini))
- .fini          0x0000000000002fb8        0x8 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
-                0x0000000000002fb8                _fini
- .fini          0x0000000000002fc0        0x5 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
+ .fini          0x000000000000302c        0x8 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
+                0x000000000000302c                _fini
+ .fini          0x0000000000003034        0x5 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
                 [!provide]                        PROVIDE (__etext = .)
                 [!provide]                        PROVIDE (_etext = .)
                 [!provide]                        PROVIDE (etext = .)
-                0x0000000000003000                . = ALIGN (CONSTANT (MAXPAGESIZE))
-                0x0000000000003000                . = SEGMENT_START ("rodata-segment", (ALIGN (CONSTANT (MAXPAGESIZE)) + (. & (CONSTANT (MAXPAGESIZE) - 0x1))))
+                0x0000000000004000                . = ALIGN (CONSTANT (MAXPAGESIZE))
+                0x0000000000004000                . = SEGMENT_START ("rodata-segment", (ALIGN (CONSTANT (MAXPAGESIZE)) + (. & (CONSTANT (MAXPAGESIZE) - 0x1))))
 
-.rodata         0x0000000000003000     0xf7e0
+.rodata         0x0000000000004000     0xf7e0
  *(.rodata .rodata.* .gnu.linkonce.r.*)
  .rodata.str1.1
-                0x0000000000003000      0x172 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/snake2.o
+                0x0000000000004000      0x172 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/snake2.o
                                         0x14a (size before relaxing)
- *fill*         0x0000000000003172        0x2 
- .rodata        0x0000000000003174       0x6c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/snake2.o
+ *fill*         0x0000000000004172        0x2 
+ .rodata        0x0000000000004174       0x6c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/snake2.o
  .rodata.str1.1
-                0x00000000000031e0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(playback_control.o)
+                0x00000000000041e0        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(playback_control.o)
                                          0x16 (size before relaxing)
- .rodata        0x00000000000031e0       0xf8 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(playback_control.o)
+ .rodata        0x00000000000041e0       0xf8 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(playback_control.o)
  .rodata.str1.1
-                0x00000000000032d8        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(highscore.o)
+                0x00000000000042d8        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(highscore.o)
                                          0x2d (size before relaxing)
- *fill*         0x00000000000032d8        0x8 
- .rodata        0x00000000000032e0     0x5f00 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_header1.320x240x16.o)
-                0x00000000000032e0                snake2_header1
- .rodata        0x00000000000091e0     0x5f00 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_header2.320x240x16.o)
-                0x00000000000091e0                snake2_header2
- .rodata        0x000000000000f0e0      0xf00 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_left.320x240x16.o)
-                0x000000000000f0e0                snake2_left
- .rodata        0x000000000000ffe0      0xf00 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_right.320x240x16.o)
-                0x000000000000ffe0                snake2_right
- .rodata        0x0000000000010ee0     0x1900 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_bottom.320x240x16.o)
-                0x0000000000010ee0                snake2_bottom
+ *fill*         0x00000000000042d8        0x8 
+ .rodata        0x00000000000042e0     0x5f00 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_header1.320x240x16.o)
+                0x00000000000042e0                snake2_header1
+ .rodata        0x000000000000a1e0     0x5f00 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_header2.320x240x16.o)
+                0x000000000000a1e0                snake2_header2
+ .rodata        0x00000000000100e0      0xf00 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_left.320x240x16.o)
+                0x00000000000100e0                snake2_left
+ .rodata        0x0000000000010fe0      0xf00 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_right.320x240x16.o)
+                0x0000000000010fe0                snake2_right
+ .rodata        0x0000000000011ee0     0x1900 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_bottom.320x240x16.o)
+                0x0000000000011ee0                snake2_bottom
 
 .rodata1
  *(.rodata1)
 
-.eh_frame_hdr   0x00000000000127e0      0x13c
+.eh_frame_hdr   0x00000000000137e0      0x13c
  *(.eh_frame_hdr)
- .eh_frame_hdr  0x00000000000127e0      0x13c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/snake2.o
-                0x00000000000127e0                __GNU_EH_FRAME_HDR
+ .eh_frame_hdr  0x00000000000137e0      0x13c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/snake2.o
+                0x00000000000137e0                __GNU_EH_FRAME_HDR
  *(.eh_frame_entry .eh_frame_entry.*)
 
-.eh_frame       0x0000000000012920      0x5ec
+.eh_frame       0x0000000000013920      0x5fc
  *(.eh_frame)
- .eh_frame      0x0000000000012920       0x40 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
- .eh_frame      0x0000000000012960        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
- .eh_frame      0x0000000000012960      0x2f0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/snake2.o
+ .eh_frame      0x0000000000013920       0x40 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
+ .eh_frame      0x0000000000013960        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
+ .eh_frame      0x0000000000013960      0x2f0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/snake2.o
                                         0x308 (size before relaxing)
- .eh_frame      0x0000000000012c50       0x88 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
+ .eh_frame      0x0000000000013c50       0x88 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
                                          0xa0 (size before relaxing)
- .eh_frame      0x0000000000012cd8       0xf0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(playback_control.o)
-                                        0x108 (size before relaxing)
- .eh_frame      0x0000000000012dc8      0x140 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(highscore.o)
+ .eh_frame      0x0000000000013cd8      0x100 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(playback_control.o)
+                                        0x118 (size before relaxing)
+ .eh_frame      0x0000000000013dd8      0x140 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(highscore.o)
                                         0x158 (size before relaxing)
- .eh_frame      0x0000000000012f08        0x4 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtendS.o
+ .eh_frame      0x0000000000013f18        0x4 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtendS.o
  *(.eh_frame.*)
 
 .sframe
@@ -303,40 +303,40 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
  *(.note.build-id)
 
 .note.GNU-stack
-                0x0000000000012f0c        0x0
+                0x0000000000013f1c        0x0
  *(.note.GNU-stack)
  .note.GNU-stack
-                0x0000000000012f0c        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
+                0x0000000000013f1c        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
  .note.GNU-stack
-                0x0000000000012f0c        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtbeginS.o
+                0x0000000000013f1c        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtbeginS.o
  .note.GNU-stack
-                0x0000000000012f0c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/snake2.o
+                0x0000000000013f1c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/snake2.o
  .note.GNU-stack
-                0x0000000000012f0c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
+                0x0000000000013f1c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
  .note.GNU-stack
-                0x0000000000012f0c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(playback_control.o)
+                0x0000000000013f1c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(playback_control.o)
  .note.GNU-stack
-                0x0000000000012f0c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(highscore.o)
+                0x0000000000013f1c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(highscore.o)
  .note.GNU-stack
-                0x0000000000012f0c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_header1.320x240x16.o)
+                0x0000000000013f1c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_header1.320x240x16.o)
  .note.GNU-stack
-                0x0000000000012f0c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_header2.320x240x16.o)
+                0x0000000000013f1c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_header2.320x240x16.o)
  .note.GNU-stack
-                0x0000000000012f0c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_left.320x240x16.o)
+                0x0000000000013f1c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_left.320x240x16.o)
  .note.GNU-stack
-                0x0000000000012f0c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_right.320x240x16.o)
+                0x0000000000013f1c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_right.320x240x16.o)
  .note.GNU-stack
-                0x0000000000012f0c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_bottom.320x240x16.o)
+                0x0000000000013f1c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_bottom.320x240x16.o)
  .note.GNU-stack
-                0x0000000000012f0c        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtendS.o
+                0x0000000000013f1c        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtendS.o
  .note.GNU-stack
-                0x0000000000012f0c        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
+                0x0000000000013f1c        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
 
 .note.gnu.property
-                0x0000000000012f10       0x30
+                0x0000000000013f20       0x30
  *(.note.gnu.property)
  .note.gnu.property
-                0x0000000000012f10       0x30 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
+                0x0000000000013f20       0x30 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
 
 .note.ABI-tag
  *(.note.ABI-tag)
@@ -352,7 +352,7 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
 
 .note.openbsd.ident
  *(.note.openbsd.ident)
-                0x0000000000013af0                . = DATA_SEGMENT_ALIGN (CONSTANT (MAXPAGESIZE), CONSTANT (COMMONPAGESIZE))
+                0x0000000000014af0                . = DATA_SEGMENT_ALIGN (CONSTANT (MAXPAGESIZE), CONSTANT (COMMONPAGESIZE))
 
 .eh_frame
  *(.eh_frame)
@@ -381,15 +381,15 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
 .preinit_array
  *(.preinit_array)
 
-.init_array     0x0000000000013af0        0x8
+.init_array     0x0000000000014af0        0x8
  *(SORT_BY_INIT_PRIORITY(.init_array.*) SORT_BY_INIT_PRIORITY(.ctors.*))
  *(.init_array EXCLUDE_FILE(*crtend?.o *crtend.o *crtbegin?.o *crtbegin.o) .ctors)
- .init_array    0x0000000000013af0        0x8 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtbeginS.o
+ .init_array    0x0000000000014af0        0x8 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtbeginS.o
 
-.fini_array     0x0000000000013af8        0x8
+.fini_array     0x0000000000014af8        0x8
  *(SORT_BY_INIT_PRIORITY(.fini_array.*) SORT_BY_INIT_PRIORITY(.dtors.*))
  *(.fini_array EXCLUDE_FILE(*crtend?.o *crtend.o *crtbegin?.o *crtbegin.o) .dtors)
- .fini_array    0x0000000000013af8        0x8 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtbeginS.o
+ .fini_array    0x0000000000014af8        0x8 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtbeginS.o
 
 .ctors
  *crtbegin.o(.ctors)
@@ -408,144 +408,144 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
 .jcr
  *(.jcr)
 
-.data.rel.ro    0x0000000000013b00      0x2c8
+.data.rel.ro    0x0000000000014b00      0x2c8
  *(.data.rel.ro.local* .gnu.linkonce.d.rel.ro.local.*)
  .data.rel.ro.local
-                0x0000000000013b00       0x58 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/snake2.o
- *fill*         0x0000000000013b58        0x8 
+                0x0000000000014b00       0x58 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/snake2.o
+ *fill*         0x0000000000014b58        0x8 
  .data.rel.ro.local
-                0x0000000000013b60       0x38 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
-                0x0000000000013b60                __header
- *fill*         0x0000000000013b98        0x8 
+                0x0000000000014b60       0x38 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
+                0x0000000000014b60                __header
+ *fill*         0x0000000000014b98        0x8 
  .data.rel.ro.local
-                0x0000000000013ba0      0x100 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(playback_control.o)
-                0x0000000000013ba0                playback_control_menu
-                0x0000000000013bc0                repeat_mode_item
-                0x0000000000013be0                shuffle_item
-                0x0000000000013c00                volume_item
-                0x0000000000013c20                nexttrack_item
-                0x0000000000013c40                stop_item
-                0x0000000000013c60                playpause_item
-                0x0000000000013c80                prevtrack_item
+                0x0000000000014ba0      0x100 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(playback_control.o)
+                0x0000000000014ba0                playback_control_menu
+                0x0000000000014bc0                repeat_mode_item
+                0x0000000000014be0                shuffle_item
+                0x0000000000014c00                volume_item
+                0x0000000000014c20                nexttrack_item
+                0x0000000000014c40                stop_item
+                0x0000000000014c60                playpause_item
+                0x0000000000014c80                prevtrack_item
  .data.rel.ro.local
-                0x0000000000013ca0       0x28 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_header1.320x240x16.o)
-                0x0000000000013ca0                bm_snake2_header1
- *fill*         0x0000000000013cc8       0x18 
+                0x0000000000014ca0       0x28 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_header1.320x240x16.o)
+                0x0000000000014ca0                bm_snake2_header1
+ *fill*         0x0000000000014cc8       0x18 
  .data.rel.ro.local
-                0x0000000000013ce0       0x28 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_header2.320x240x16.o)
-                0x0000000000013ce0                bm_snake2_header2
- *fill*         0x0000000000013d08       0x18 
+                0x0000000000014ce0       0x28 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_header2.320x240x16.o)
+                0x0000000000014ce0                bm_snake2_header2
+ *fill*         0x0000000000014d08       0x18 
  .data.rel.ro.local
-                0x0000000000013d20       0x28 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_left.320x240x16.o)
-                0x0000000000013d20                bm_snake2_left
- *fill*         0x0000000000013d48       0x18 
+                0x0000000000014d20       0x28 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_left.320x240x16.o)
+                0x0000000000014d20                bm_snake2_left
+ *fill*         0x0000000000014d48       0x18 
  .data.rel.ro.local
-                0x0000000000013d60       0x28 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_right.320x240x16.o)
-                0x0000000000013d60                bm_snake2_right
- *fill*         0x0000000000013d88       0x18 
+                0x0000000000014d60       0x28 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_right.320x240x16.o)
+                0x0000000000014d60                bm_snake2_right
+ *fill*         0x0000000000014d88       0x18 
  .data.rel.ro.local
-                0x0000000000013da0       0x28 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_bottom.320x240x16.o)
-                0x0000000000013da0                bm_snake2_bottom
+                0x0000000000014da0       0x28 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_bottom.320x240x16.o)
+                0x0000000000014da0                bm_snake2_bottom
  *(.data.rel.ro .data.rel.ro.* .gnu.linkonce.d.rel.ro.*)
- .data.rel.ro   0x0000000000013dc8        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
+ .data.rel.ro   0x0000000000014dc8        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
 
-.dynamic        0x0000000000013dc8      0x1c0
+.dynamic        0x0000000000014dc8      0x1c0
  *(.dynamic)
- .dynamic       0x0000000000013dc8      0x1c0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
-                0x0000000000013dc8                _DYNAMIC
+ .dynamic       0x0000000000014dc8      0x1c0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
+                0x0000000000014dc8                _DYNAMIC
 
-.got            0x0000000000013f88       0x48
+.got            0x0000000000014f88       0x48
  *(.got)
- .got           0x0000000000013f88       0x48 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
+ .got           0x0000000000014f88       0x48 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
  *(.igot)
-                0x0000000000013fe8                . = DATA_SEGMENT_RELRO_END (., (SIZEOF (.got.plt) >= 0x18)?0x18:0x0)
+                0x0000000000014fe8                . = DATA_SEGMENT_RELRO_END (., (SIZEOF (.got.plt) >= 0x18)?0x18:0x0)
 
-.got.plt        0x0000000000013fe8       0x30
+.got.plt        0x0000000000014fe8       0x30
  *(.got.plt)
- .got.plt       0x0000000000013fe8       0x30 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
-                0x0000000000013fe8                _GLOBAL_OFFSET_TABLE_
+ .got.plt       0x0000000000014fe8       0x30 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
+                0x0000000000014fe8                _GLOBAL_OFFSET_TABLE_
  *(.igot.plt)
 
-.data           0x0000000000014020       0x98
+.data           0x0000000000015020       0x98
  *(.data .data.* .gnu.linkonce.d.*)
- .data          0x0000000000014020        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
- .data          0x0000000000014020        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtbeginS.o
+ .data          0x0000000000015020        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
+ .data          0x0000000000015020        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtbeginS.o
  .data.rel.local
-                0x0000000000014020        0x8 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtbeginS.o
-                0x0000000000014020                __dso_handle
- .data          0x0000000000014028       0x10 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/snake2.o
- *fill*         0x0000000000014038        0x8 
+                0x0000000000015020        0x8 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtbeginS.o
+                0x0000000000015020                __dso_handle
+ .data          0x0000000000015028       0x10 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/snake2.o
+ *fill*         0x0000000000015038        0x8 
  .data.rel.local
-                0x0000000000014040       0x38 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/snake2.o
- .data          0x0000000000014078        0x8 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
-                0x0000000000014078                rb
- .data          0x0000000000014080        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(playback_control.o)
+                0x0000000000015040       0x38 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/snake2.o
+ .data          0x0000000000015078        0x8 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
+                0x0000000000015078                rb
+ .data          0x0000000000015080        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(playback_control.o)
  .data.rel.local
-                0x0000000000014080       0x38 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(playback_control.o)
- .data          0x00000000000140b8        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(highscore.o)
- .data          0x00000000000140b8        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_header1.320x240x16.o)
- .data          0x00000000000140b8        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_header2.320x240x16.o)
- .data          0x00000000000140b8        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_left.320x240x16.o)
- .data          0x00000000000140b8        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_right.320x240x16.o)
- .data          0x00000000000140b8        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_bottom.320x240x16.o)
- .data          0x00000000000140b8        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtendS.o
- .data          0x00000000000140b8        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
+                0x0000000000015080       0x38 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(playback_control.o)
+ .data          0x00000000000150b8        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(highscore.o)
+ .data          0x00000000000150b8        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_header1.320x240x16.o)
+ .data          0x00000000000150b8        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_header2.320x240x16.o)
+ .data          0x00000000000150b8        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_left.320x240x16.o)
+ .data          0x00000000000150b8        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_right.320x240x16.o)
+ .data          0x00000000000150b8        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_bottom.320x240x16.o)
+ .data          0x00000000000150b8        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtendS.o
+ .data          0x00000000000150b8        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
 
 .tm_clone_table
-                0x00000000000140b8        0x0
+                0x00000000000150b8        0x0
  .tm_clone_table
-                0x00000000000140b8        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtbeginS.o
+                0x00000000000150b8        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtbeginS.o
  .tm_clone_table
-                0x00000000000140b8        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtendS.o
+                0x00000000000150b8        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtendS.o
 
 .data1
  *(.data1)
                 [!provide]                        PROVIDE (_edata = .)
                 [!provide]                        PROVIDE (edata = .)
-                0x00000000000140b8                . = ALIGN (ALIGNOF (NEXT_SECTION))
+                0x00000000000150b8                . = ALIGN (ALIGNOF (NEXT_SECTION))
                 [!provide]                        PROVIDE (__bss_start = .)
 
-.bss            0x00000000000140c0      0x998
+.bss            0x00000000000150c0      0x998
  *(.dynbss)
- .dynbss        0x00000000000140c0        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
+ .dynbss        0x00000000000150c0        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
  *(.bss .bss.* .gnu.linkonce.b.*)
- .bss           0x00000000000140c0        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
- .bss           0x00000000000140c0        0x1 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtbeginS.o
- *fill*         0x00000000000140c1       0x1f 
- .bss           0x00000000000140e0      0x86c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/snake2.o
- *fill*         0x000000000001494c       0x14 
- .bss           0x0000000000014960       0xe8 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
- .bss           0x0000000000014a48        0x8 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(playback_control.o)
-                0x0000000000014a48                parentvp
- .bss           0x0000000000014a50        0x1 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(highscore.o)
- .bss           0x0000000000014a51        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_header1.320x240x16.o)
- .bss           0x0000000000014a51        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_header2.320x240x16.o)
- .bss           0x0000000000014a51        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_left.320x240x16.o)
- .bss           0x0000000000014a51        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_right.320x240x16.o)
- .bss           0x0000000000014a51        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_bottom.320x240x16.o)
- .bss           0x0000000000014a51        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtendS.o
- .bss           0x0000000000014a51        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
+ .bss           0x00000000000150c0        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crti.o
+ .bss           0x00000000000150c0        0x1 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtbeginS.o
+ *fill*         0x00000000000150c1       0x1f 
+ .bss           0x00000000000150e0      0x86c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/snake2.o
+ *fill*         0x000000000001594c       0x14 
+ .bss           0x0000000000015960       0xe8 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
+ .bss           0x0000000000015a48        0x8 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(playback_control.o)
+                0x0000000000015a48                parentvp
+ .bss           0x0000000000015a50        0x1 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(highscore.o)
+ .bss           0x0000000000015a51        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_header1.320x240x16.o)
+ .bss           0x0000000000015a51        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_header2.320x240x16.o)
+ .bss           0x0000000000015a51        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_left.320x240x16.o)
+ .bss           0x0000000000015a51        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_right.320x240x16.o)
+ .bss           0x0000000000015a51        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_bottom.320x240x16.o)
+ .bss           0x0000000000015a51        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/crtendS.o
+ .bss           0x0000000000015a51        0x0 /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
  *(COMMON)
-                0x0000000000014a58                . = ALIGN ((. != 0x0)?0x8:0x1)
- *fill*         0x0000000000014a51        0x7 
+                0x0000000000015a58                . = ALIGN ((. != 0x0)?0x8:0x1)
+ *fill*         0x0000000000015a51        0x7 
 
 .lbss
  *(.dynlbss)
  *(.lbss .lbss.* .gnu.linkonce.lb.*)
  *(LARGE_COMMON)
-                0x0000000000014a58                . = ALIGN (0x8)
-                0x0000000000014a58                . = SEGMENT_START ("ldata-segment", .)
+                0x0000000000015a58                . = ALIGN (0x8)
+                0x0000000000015a58                . = SEGMENT_START ("ldata-segment", .)
 
 .lrodata
  *(.lrodata .lrodata.* .gnu.linkonce.lr.*)
 
-.ldata          0x0000000000016a58        0x0
+.ldata          0x0000000000017a58        0x0
  *(.ldata .ldata.* .gnu.linkonce.l.*)
-                0x0000000000016a58                . = ALIGN ((. != 0x0)?0x8:0x1)
-                0x0000000000016a58                . = ALIGN (0x8)
+                0x0000000000017a58                . = ALIGN ((. != 0x0)?0x8:0x1)
+                0x0000000000017a58                . = ALIGN (0x8)
                 [!provide]                        PROVIDE (_end = .)
                 [!provide]                        PROVIDE (end = .)
-                0x0000000000016a58                . = DATA_SEGMENT_END (.)
+                0x0000000000017a58                . = DATA_SEGMENT_END (.)
 
 .stab
  *(.stab)
@@ -629,64 +629,64 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000    0x232f1
+.debug_info     0x0000000000000000    0x2338f
  *(.debug_info .gnu.linkonce.wi.*)
  .debug_info    0x0000000000000000     0x97e3 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/snake2.o
  .debug_info    0x00000000000097e3     0x7ca7 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
- .debug_info    0x000000000001148a     0x9821 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(playback_control.o)
- .debug_info    0x000000000001acab     0x7ff7 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(highscore.o)
- .debug_info    0x0000000000022ca2      0x143 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_header1.320x240x16.o)
- .debug_info    0x0000000000022de5      0x143 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_header2.320x240x16.o)
- .debug_info    0x0000000000022f28      0x143 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_left.320x240x16.o)
- .debug_info    0x000000000002306b      0x143 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_right.320x240x16.o)
- .debug_info    0x00000000000231ae      0x143 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_bottom.320x240x16.o)
+ .debug_info    0x000000000001148a     0x98bf /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(playback_control.o)
+ .debug_info    0x000000000001ad49     0x7ff7 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(highscore.o)
+ .debug_info    0x0000000000022d40      0x143 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_header1.320x240x16.o)
+ .debug_info    0x0000000000022e83      0x143 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_header2.320x240x16.o)
+ .debug_info    0x0000000000022fc6      0x143 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_left.320x240x16.o)
+ .debug_info    0x0000000000023109      0x143 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_right.320x240x16.o)
+ .debug_info    0x000000000002324c      0x143 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_bottom.320x240x16.o)
 
-.debug_abbrev   0x0000000000000000     0x14f9
+.debug_abbrev   0x0000000000000000     0x1502
  *(.debug_abbrev)
  .debug_abbrev  0x0000000000000000      0x55d /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/snake2.o
  .debug_abbrev  0x000000000000055d      0x442 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
- .debug_abbrev  0x000000000000099f      0x3d9 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(playback_control.o)
- .debug_abbrev  0x0000000000000d78      0x3cb /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(highscore.o)
- .debug_abbrev  0x0000000000001143       0xbe /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_header1.320x240x16.o)
- .debug_abbrev  0x0000000000001201       0xbe /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_header2.320x240x16.o)
- .debug_abbrev  0x00000000000012bf       0xbe /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_left.320x240x16.o)
- .debug_abbrev  0x000000000000137d       0xbe /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_right.320x240x16.o)
- .debug_abbrev  0x000000000000143b       0xbe /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_bottom.320x240x16.o)
+ .debug_abbrev  0x000000000000099f      0x3e2 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(playback_control.o)
+ .debug_abbrev  0x0000000000000d81      0x3cb /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(highscore.o)
+ .debug_abbrev  0x000000000000114c       0xbe /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_header1.320x240x16.o)
+ .debug_abbrev  0x000000000000120a       0xbe /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_header2.320x240x16.o)
+ .debug_abbrev  0x00000000000012c8       0xbe /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_left.320x240x16.o)
+ .debug_abbrev  0x0000000000001386       0xbe /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_right.320x240x16.o)
+ .debug_abbrev  0x0000000000001444       0xbe /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_bottom.320x240x16.o)
 
-.debug_line     0x0000000000000000     0x1efe
+.debug_line     0x0000000000000000     0x1f67
  *(.debug_line .debug_line.* .debug_line_end)
  .debug_line    0x0000000000000000     0x121d /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/snake2.o
  .debug_line    0x000000000000121d      0x2bd /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
- .debug_line    0x00000000000014da      0x332 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(playback_control.o)
- .debug_line    0x000000000000180c      0x576 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(highscore.o)
- .debug_line    0x0000000000001d82       0x4c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_header1.320x240x16.o)
- .debug_line    0x0000000000001dce       0x4c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_header2.320x240x16.o)
- .debug_line    0x0000000000001e1a       0x4c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_left.320x240x16.o)
- .debug_line    0x0000000000001e66       0x4c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_right.320x240x16.o)
- .debug_line    0x0000000000001eb2       0x4c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_bottom.320x240x16.o)
+ .debug_line    0x00000000000014da      0x39b /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(playback_control.o)
+ .debug_line    0x0000000000001875      0x576 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(highscore.o)
+ .debug_line    0x0000000000001deb       0x4c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_header1.320x240x16.o)
+ .debug_line    0x0000000000001e37       0x4c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_header2.320x240x16.o)
+ .debug_line    0x0000000000001e83       0x4c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_left.320x240x16.o)
+ .debug_line    0x0000000000001ecf       0x4c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_right.320x240x16.o)
+ .debug_line    0x0000000000001f1b       0x4c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_bottom.320x240x16.o)
 
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0xa1bb
+.debug_str      0x0000000000000000     0xa236
  *(.debug_str)
- .debug_str     0x0000000000000000     0xa1bb /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/snake2.o
+ .debug_str     0x0000000000000000     0xa236 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/snake2.o
                                        0x5706 (size before relaxing)
- .debug_str     0x000000000000a1bb        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
+ .debug_str     0x000000000000a236        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
                                        0x5174 (size before relaxing)
- .debug_str     0x000000000000a1bb        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(playback_control.o)
-                                       0xa167 (size before relaxing)
- .debug_str     0x000000000000a1bb        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(highscore.o)
+ .debug_str     0x000000000000a236        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(playback_control.o)
+                                       0xa1e2 (size before relaxing)
+ .debug_str     0x000000000000a236        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(highscore.o)
                                        0x507b (size before relaxing)
- .debug_str     0x000000000000a1bb        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_header1.320x240x16.o)
+ .debug_str     0x000000000000a236        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_header1.320x240x16.o)
                                         0x170 (size before relaxing)
- .debug_str     0x000000000000a1bb        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_header2.320x240x16.o)
+ .debug_str     0x000000000000a236        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_header2.320x240x16.o)
                                         0x170 (size before relaxing)
- .debug_str     0x000000000000a1bb        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_left.320x240x16.o)
+ .debug_str     0x000000000000a236        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_left.320x240x16.o)
                                         0x16a (size before relaxing)
- .debug_str     0x000000000000a1bb        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_right.320x240x16.o)
+ .debug_str     0x000000000000a236        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_right.320x240x16.o)
                                         0x16c (size before relaxing)
- .debug_str     0x000000000000a1bb        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_bottom.320x240x16.o)
+ .debug_str     0x000000000000a236        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_bottom.320x240x16.o)
                                         0x16e (size before relaxing)
 
 .debug_loc
@@ -717,47 +717,47 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
  *(.debug_addr)
 
 .debug_line_str
-                0x0000000000000000      0xaa4
+                0x0000000000000000      0xaac
  *(.debug_line_str)
  .debug_line_str
-                0x0000000000000000      0xaa4 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/snake2.o
+                0x0000000000000000      0xaac /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/snake2.o
                                         0x72d (size before relaxing)
  .debug_line_str
-                0x0000000000000aa4        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
+                0x0000000000000aac        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
                                         0x68f (size before relaxing)
  .debug_line_str
-                0x0000000000000aa4        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(playback_control.o)
-                                        0x671 (size before relaxing)
+                0x0000000000000aac        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(playback_control.o)
+                                        0x679 (size before relaxing)
  .debug_line_str
-                0x0000000000000aa4        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(highscore.o)
+                0x0000000000000aac        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(highscore.o)
                                         0x649 (size before relaxing)
  .debug_line_str
-                0x0000000000000aa4        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_header1.320x240x16.o)
+                0x0000000000000aac        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_header1.320x240x16.o)
                                         0x22a (size before relaxing)
  .debug_line_str
-                0x0000000000000aa4        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_header2.320x240x16.o)
+                0x0000000000000aac        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_header2.320x240x16.o)
                                         0x22a (size before relaxing)
  .debug_line_str
-                0x0000000000000aa4        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_left.320x240x16.o)
+                0x0000000000000aac        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_left.320x240x16.o)
                                         0x21e (size before relaxing)
  .debug_line_str
-                0x0000000000000aa4        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_right.320x240x16.o)
+                0x0000000000000aac        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_right.320x240x16.o)
                                         0x222 (size before relaxing)
  .debug_line_str
-                0x0000000000000aa4        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_bottom.320x240x16.o)
+                0x0000000000000aac        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(snake2_bottom.320x240x16.o)
                                         0x226 (size before relaxing)
 
 .debug_loclists
-                0x0000000000000000      0xb52
+                0x0000000000000000      0xb5c
  *(.debug_loclists)
  .debug_loclists
                 0x0000000000000000      0x74e /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/snake2.o
  .debug_loclists
                 0x000000000000074e       0x9e /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
  .debug_loclists
-                0x00000000000007ec       0x84 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(playback_control.o)
+                0x00000000000007ec       0x8e /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(playback_control.o)
  .debug_loclists
-                0x0000000000000870      0x2e2 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(highscore.o)
+                0x000000000000087a      0x2e2 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(highscore.o)
 
 .debug_macro
  *(.debug_macro)

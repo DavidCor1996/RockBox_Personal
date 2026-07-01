@@ -43,8 +43,29 @@ namespace gameswf
 		int id;
 		font* value;
 	};
+	struct shared_character_entry
+	{
+		int id;
+		character_def* value;
+	};
+	struct shared_sound_entry
+	{
+		int id;
+		sound_sample* value;
+	};
+	struct shared_sound_export_entry
+	{
+		tu_stringi symbol;
+		sound_sample* value;
+	};
 	static shared_font_entry s_shared_fonts[64];
 	static int s_shared_font_count;
+	static shared_character_entry s_shared_characters[4096];
+	static int s_shared_character_count;
+	static shared_sound_entry s_shared_sounds[4096];
+	static int s_shared_sound_count;
+	static shared_sound_export_entry s_shared_sound_exports[512];
+	static int s_shared_sound_export_count;
 
 	void clears_tag_loaders()
 	{
@@ -57,6 +78,9 @@ namespace gameswf
 	void clear_shared_fonts()
 	{
 		s_shared_font_count = 0;
+		s_shared_character_count = 0;
+		s_shared_sound_count = 0;
+		s_shared_sound_export_count = 0;
 	}
 
 	static void add_shared_font(int font_id, font* f)
@@ -83,6 +107,92 @@ namespace gameswf
 		{
 			if (s_shared_fonts[i].id == font_id)
 				return s_shared_fonts[i].value;
+		}
+		return NULL;
+	}
+
+	static void add_shared_character(int character_id, character_def* ch)
+	{
+		for (int i = 0; i < s_shared_character_count; i++)
+		{
+			if (s_shared_characters[i].id == character_id)
+			{
+				s_shared_characters[i].value = ch;
+				return;
+			}
+		}
+		if (s_shared_character_count < (int)(sizeof(s_shared_characters) / sizeof(s_shared_characters[0])))
+		{
+			s_shared_characters[s_shared_character_count].id = character_id;
+			s_shared_characters[s_shared_character_count].value = ch;
+			s_shared_character_count++;
+		}
+	}
+
+	static character_def* get_shared_character(int character_id)
+	{
+		for (int i = 0; i < s_shared_character_count; i++)
+		{
+			if (s_shared_characters[i].id == character_id)
+				return s_shared_characters[i].value;
+		}
+		return NULL;
+	}
+
+	static void add_shared_sound(int character_id, sound_sample* sam)
+	{
+		for (int i = 0; i < s_shared_sound_count; i++)
+		{
+			if (s_shared_sounds[i].id == character_id)
+			{
+				s_shared_sounds[i].value = sam;
+				return;
+			}
+		}
+		if (s_shared_sound_count < (int)(sizeof(s_shared_sounds) / sizeof(s_shared_sounds[0])))
+		{
+			s_shared_sounds[s_shared_sound_count].id = character_id;
+			s_shared_sounds[s_shared_sound_count].value = sam;
+			s_shared_sound_count++;
+		}
+	}
+
+	static sound_sample* get_shared_sound(int character_id)
+	{
+		for (int i = 0; i < s_shared_sound_count; i++)
+		{
+			if (s_shared_sounds[i].id == character_id)
+				return s_shared_sounds[i].value;
+		}
+		return NULL;
+	}
+
+	static void add_shared_sound_export(const tu_string& symbol, sound_sample* sam)
+	{
+		tu_stringi key(symbol);
+		for (int i = 0; i < s_shared_sound_export_count; i++)
+		{
+			if (s_shared_sound_exports[i].symbol == key)
+			{
+				s_shared_sound_exports[i].value = sam;
+				return;
+			}
+		}
+		if (s_shared_sound_export_count < (int)(sizeof(s_shared_sound_exports) / sizeof(s_shared_sound_exports[0])))
+		{
+			s_shared_sound_exports[s_shared_sound_export_count].symbol = symbol;
+			s_shared_sound_exports[s_shared_sound_export_count].value = sam;
+			s_shared_sound_export_count++;
+		}
+	}
+
+	sound_sample* find_shared_sound_export(const tu_string& symbol)
+	{
+		tu_stringi key(symbol);
+		for (int i = 0; i < s_shared_sound_export_count; i++)
+		{
+			if (s_shared_sound_exports[i].symbol == key)
+				return s_shared_sound_exports[i].value;
 		}
 		return NULL;
 	}
@@ -255,6 +365,10 @@ namespace gameswf
 	{
 		// SWF sometimes exports the same thing more than once!
 		m_exports.set(symbol, res);
+		if (sound_sample* sam = cast_to<sound_sample>(res))
+		{
+			add_shared_sound_export(symbol, sam);
+		}
 	}
 
 	character_def*	movie_def_impl::get_exported_resource(const tu_string& symbol)
@@ -335,7 +449,9 @@ namespace gameswf
 	void	movie_def_impl::add_character(int character_id, character_def* c)
 	{
 		assert(c);
+		c->set_id(character_id);
 		m_characters.add(character_id, c);
+		add_shared_character(character_id, c);
 	}
 
 	character_def*	movie_def_impl::get_character_def(int character_id)
@@ -351,6 +467,16 @@ namespace gameswf
 
 		gc_ptr<character_def>	ch;
 		m_characters.get(character_id, &ch);
+		if (ch == NULL)
+		{
+			gc_ptr<bitmap_character_def> bitmap;
+			m_bitmap_characters.get(character_id, &bitmap);
+			ch = bitmap.get_ptr();
+		}
+		if (ch == NULL)
+		{
+			ch = get_shared_character(character_id);
+		}
 		assert(ch == NULL || gc_collector::debug_get_ref_count(ch) > 1);
 		return ch.get_ptr();
 	}
@@ -421,6 +547,7 @@ namespace gameswf
 	{
 		assert(ch);
 		m_bitmap_characters.add(character_id, ch);
+		add_shared_character(character_id, ch);
 
 		add_bitmap_info(ch->get_bitmap_info());
 	}
@@ -429,6 +556,12 @@ namespace gameswf
 	{
 		gc_ptr<sound_sample>	ch;
 		m_sound_samples.get(character_id, &ch);
+		if (ch == NULL)
+		{
+			sound_sample* shared = get_shared_sound(character_id);
+			if (shared)
+				ch = shared;
+		}
 		assert(ch == NULL || gc_collector::debug_get_ref_count(ch) > 1);
 		return ch.get_ptr();
 	}
@@ -437,6 +570,28 @@ namespace gameswf
 	{
 		assert(sam);
 		m_sound_samples.add(character_id, sam);
+		add_shared_sound(character_id, sam);
+
+		for (int i = 0, n = m_pending_sound_exports.size(); i < n; i++)
+		{
+			if (m_pending_sound_exports[i].m_character_id == character_id)
+			{
+				export_resource(m_pending_sound_exports[i].m_symbol, sam);
+			}
+		}
+	}
+
+	void	movie_def_impl::add_pending_sound_export(int character_id, const tu_string& symbol)
+	{
+		for (int i = 0, n = m_pending_sound_exports.size(); i < n; i++)
+		{
+			if (m_pending_sound_exports[i].m_character_id == character_id
+				&& m_pending_sound_exports[i].m_symbol == symbol)
+			{
+				return;
+			}
+		}
+		m_pending_sound_exports.push_back(pending_sound_export(character_id, symbol));
 	}
 
 	void	movie_def_impl::add_execute_tag(execute_tag* e)
@@ -570,8 +725,15 @@ namespace gameswf
 			loader_function	lf = NULL;
 			tag_count++;
 			flashplayer_trace_tag(tag_count, tag_type, start_pos);
+			flashplayer_trace_parse_start("movie", tag_count, tag_type,
+				start_pos);
 			//IF_VERBOSE_PARSE(log_msg("tag_type = %d\n", tag_type));
-			if (tag_type == 1)
+			if (flashplayer_should_skip_movie_tag(get_loading_frame(),
+				tag_count, tag_type, start_pos))
+			{
+				flashplayer_trace_loader(0, tag_type);
+			}
+			else if (tag_type == 1)
 			{
 				// show frame tag -- advance to the next frame.
 				IF_VERBOSE_PARSE(log_msg("  show_frame\n"));
@@ -602,6 +764,18 @@ namespace gameswf
 					break;
 				}
 				last_pos = m_str->get_position();
+				flashplayer_trace_parse_end("movie", tag_count,
+					tag_type, last_pos);
+				flashplayer_trace_parse_progress("movie", tag_count,
+					tag_type, last_pos);
+
+				if (flashplayer_should_stop_movie_load(get_loading_frame(),
+					tag_count, last_pos))
+				{
+					log_msg("flashplayer: stopping movie load at frame %d tag %d pos %d\n",
+						get_loading_frame(), tag_count, last_pos);
+					break;
+				}
 
 				if (tag_type == 0)
 				{
@@ -617,7 +791,10 @@ namespace gameswf
 
 			m_loaded_length = m_str->get_position();
 		}
-		m_loaded_length = m_file_end_pos;
+		if (m_str->get_position() >= m_file_end_pos)
+		{
+			m_loaded_length = m_file_end_pos;
+		}
 
 		if (m_jpeg_in)
 		{

@@ -728,9 +728,22 @@ namespace tesselate_new
 			// triangulator does that implicitly.
 			assert(in[0] == in[in.size() - 1]);
 			out->resize((in.size() - 1) * 2);
+			double area2 = 0.0;
 			for (int i = 0; i < in.size() - 1; i++) {
-				(*out)[i * 2] = in[i].m_x;
-				(*out)[i * 2 + 1] = in[i].m_y;
+				const point& a = in[i];
+				const point& b = (i + 1 < in.size() - 1) ? in[i + 1] : in[0];
+				area2 += (double) a.m_x * b.m_y - (double) b.m_x * a.m_y;
+			}
+			if (area2 < 0.0) {
+				for (int i = 0, j = in.size() - 2; i < in.size() - 1; i++, j--) {
+					(*out)[i * 2] = in[j].m_x;
+					(*out)[i * 2 + 1] = in[j].m_y;
+				}
+			} else {
+				for (int i = 0; i < in.size() - 1; i++) {
+					(*out)[i * 2] = in[i].m_x;
+					(*out)[i * 2 + 1] = in[i].m_y;
+				}
 			}
 		}
 	}

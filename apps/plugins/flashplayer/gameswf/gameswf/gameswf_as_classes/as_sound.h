@@ -15,6 +15,9 @@ namespace gameswf
 {
 
 	void	as_global_sound_ctor(const fn_call& fn);
+	bool	call_null_sound_compat(const tu_string& varname,
+		const tu_string& method_name, as_environment* env, int nargs,
+		int first_arg_bottom_index, as_value* result);
 
 	struct as_sound : public as_object
 	{
@@ -52,6 +55,8 @@ namespace gameswf
 			m_is_loaded_sound = false;
 			m_id = -1;
 		}
+
+		virtual bool get_member(const tu_stringi& name, as_value* val);
 
 		// id of the sound
 		int m_id;

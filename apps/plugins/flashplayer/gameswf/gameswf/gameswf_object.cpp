@@ -17,6 +17,51 @@ namespace gameswf
 
 	const char*	next_slash_or_dot(const char* word);
 
+	struct builtin_c_function_cache_entry
+	{
+		player* m_player;
+		as_c_function_ptr m_func;
+		as_c_function* m_object;
+	};
+
+	static builtin_c_function_cache_entry s_builtin_c_function_cache[128];
+
+	static as_c_function* get_builtin_c_function(player* player,
+		as_c_function_ptr func)
+	{
+		int free_slot = -1;
+
+		for (int i = 0; i < 128; i++)
+		{
+			builtin_c_function_cache_entry& entry =
+				s_builtin_c_function_cache[i];
+			if (entry.m_object && entry.m_player == player &&
+				entry.m_func == func)
+			{
+				return entry.m_object;
+			}
+			if (free_slot < 0 && entry.m_object == NULL)
+			{
+				free_slot = i;
+			}
+		}
+
+		as_c_function* object = new as_c_function(player, func);
+		if (player)
+		{
+			player->set_alive(object);
+		}
+
+		if (free_slot >= 0)
+		{
+			s_builtin_c_function_cache[free_slot].m_player = player;
+			s_builtin_c_function_cache[free_slot].m_func = func;
+			s_builtin_c_function_cache[free_slot].m_object = object;
+		}
+
+		return object;
+	}
+
 	void	as_object_addproperty(const fn_call& fn)
 	{
 		if (fn.nargs == 3)
@@ -174,6 +219,11 @@ namespace gameswf
 	{
 		val.set_flags(as_value::DONT_ENUM);
 		m_members.set(name, val);
+	}
+
+	void	as_object::builtin_member(const tu_stringi& name, as_c_function_ptr func)
+	{
+		builtin_member(name, as_value(get_builtin_c_function(get_player(), func)));
 	}
 
 	void as_object::call_watcher(const tu_stringi& name, const as_value& old_val, as_value* new_val)

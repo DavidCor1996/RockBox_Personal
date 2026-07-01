@@ -229,6 +229,142 @@ get_child(OFFSETTYPE(struct skin_element**) children, int child)
     return SKINOFFSETTOPTR(skin_buffer, kids[child]);
 }
 
+#ifdef SIMULATOR
+#define SKIN_PROFILE_MAX_VIEWPORTS 64
+#define SKIN_PROFILE_LABEL_LEN 32
+#define SKIN_PROFILE_INTERVAL (5 * HZ)
+
+struct skin_profile_entry {
+    char label[SKIN_PROFILE_LABEL_LEN];
+    unsigned long renders;
+    unsigned long full;
+    unsigned long partial;
+    unsigned long idle;
+    unsigned long skipped;
+};
+
+static bool skin_profile_checked;
+static bool skin_profile_enabled;
+static long skin_profile_next_report;
+static struct skin_profile_entry skin_profile_entries[SKIN_PROFILE_MAX_VIEWPORTS];
+
+static bool skin_profile_active(void)
+{
+    if (!skin_profile_checked)
+    {
+        const char *env = getenv("ROCKBOX_SKIN_PROFILE");
+        skin_profile_enabled = env && *env && strcmp(env, "0");
+        skin_profile_checked = true;
+        skin_profile_next_report = current_tick + SKIN_PROFILE_INTERVAL;
+    }
+
+    return skin_profile_enabled;
+}
+
+static const char *skin_profile_viewport_label(struct skin_viewport *skin_vp)
+{
+    char *label;
+
+    if (!skin_vp)
+        return "(null)";
+    if (skin_vp->label == VP_DEFAULT_LABEL)
+        return VP_DEFAULT_LABEL_STRING;
+
+    label = SKINOFFSETTOPTR(skin_buffer, skin_vp->label);
+    return label && *label ? label : "(blank)";
+}
+
+static struct skin_profile_entry *skin_profile_entry_for(const char *label)
+{
+    int empty = -1;
+
+    for (int i = 0; i < SKIN_PROFILE_MAX_VIEWPORTS; i++)
+    {
+        if (!skin_profile_entries[i].label[0])
+        {
+            if (empty < 0)
+                empty = i;
+            continue;
+        }
+        if (!strcmp(skin_profile_entries[i].label, label))
+            return &skin_profile_entries[i];
+    }
+
+    if (empty < 0)
+    {
+        empty = SKIN_PROFILE_MAX_VIEWPORTS - 1;
+        if (strcmp(skin_profile_entries[empty].label, "(other)"))
+        {
+            memset(&skin_profile_entries[empty], 0,
+                   sizeof(skin_profile_entries[empty]));
+        }
+        label = "(other)";
+    }
+
+    strmemccpy(skin_profile_entries[empty].label, label,
+               sizeof(skin_profile_entries[empty].label));
+    return &skin_profile_entries[empty];
+}
+
+static void skin_profile_note(struct skin_viewport *skin_vp,
+                              unsigned refresh_mode,
+                              bool skipped)
+{
+    struct skin_profile_entry *entry;
+
+    if (!skin_profile_active())
+        return;
+
+    entry = skin_profile_entry_for(skin_profile_viewport_label(skin_vp));
+    if (skipped)
+    {
+        entry->skipped++;
+        return;
+    }
+
+    entry->renders++;
+    if ((refresh_mode & SKIN_REFRESH_ALL) == SKIN_REFRESH_ALL)
+        entry->full++;
+    else if (refresh_mode)
+        entry->partial++;
+    else
+        entry->idle++;
+}
+
+static void skin_profile_report(void)
+{
+    bool wrote_header = false;
+
+    if (!skin_profile_active() ||
+        !TIME_AFTER(current_tick, skin_profile_next_report))
+    {
+        return;
+    }
+
+    for (int i = 0; i < SKIN_PROFILE_MAX_VIEWPORTS; i++)
+    {
+        struct skin_profile_entry *entry = &skin_profile_entries[i];
+        if (!entry->label[0])
+            continue;
+
+        if (!wrote_header)
+        {
+            fprintf(stderr, "skin-profile: tick=%ld\n", current_tick);
+            wrote_header = true;
+        }
+
+        fprintf(stderr,
+                "skin-profile: %-31s renders=%lu full=%lu partial=%lu "
+                "idle=%lu skipped=%lu\n",
+                entry->label, entry->renders, entry->full,
+                entry->partial, entry->idle, entry->skipped);
+        memset(entry, 0, sizeof(*entry));
+    }
+
+    skin_profile_next_report = current_tick + SKIN_PROFILE_INTERVAL;
+}
+#endif
+
 #if defined(HAVE_LCD_COLOR) && defined(DISABLE_ALPHA_BITMAP)
 static unsigned skin_alpha_blend(unsigned fg, unsigned bg, unsigned char alpha)
 {
@@ -245,102 +381,116 @@ static unsigned skin_alpha_blend(unsigned fg, unsigned bg, unsigned char alpha)
 #endif
 
 #ifdef HAVE_LCD_COLOR
-static bool skin_alpha_overlay_label(struct skin_viewport *skin_vp)
+struct skin_alpha_overlay_info {
+    bool label;
+    unsigned char yscale;
+    unsigned char yclip_top;
+    unsigned char yclip_height;
+};
+
+static struct skin_viewport *skin_alpha_overlay_cached_vp;
+static char *skin_alpha_overlay_cached_buffer;
+static struct skin_alpha_overlay_info skin_alpha_overlay_cached_info;
+
+static void skin_alpha_overlay_cache_reset(void)
 {
-    if (skin_vp->label == VP_DEFAULT_LABEL)
-        return false;
-
-#ifndef __PCTOOL__
-    if (skin_vp->label < 0)
-        return false;
-#endif
-
-    char *label = SKINOFFSETTOPTR(skin_buffer, skin_vp->label);
-    return label && (!strncmp(label, "iPoneClockBase", 14) ||
-                     !strncmp(label, "iPoneClockGlass", 15) ||
-                     !strncmp(label, "iPoneClockStretch", 17));
+    skin_alpha_overlay_cached_vp = NULL;
+    skin_alpha_overlay_cached_buffer = NULL;
 }
 
-static unsigned char skin_alpha_overlay_yscale(struct skin_viewport *skin_vp)
+static struct skin_alpha_overlay_info
+skin_alpha_overlay_info_for(struct skin_viewport *skin_vp)
 {
+    struct skin_alpha_overlay_info info = {
+        .label = false,
+        .yscale = 100,
+        .yclip_top = 0,
+        .yclip_height = 0,
+    };
+    char *label;
+    char *scale;
+    char *band;
+    int value = 0;
+    int parsed_top = 0;
+    int parsed_height = 0;
+
+    if (skin_alpha_overlay_cached_vp == skin_vp &&
+        skin_alpha_overlay_cached_buffer == skin_buffer)
+    {
+        return skin_alpha_overlay_cached_info;
+    }
+
     if (skin_vp->label == VP_DEFAULT_LABEL)
-        return 100;
+        goto done;
 
 #ifndef __PCTOOL__
     if (skin_vp->label < 0)
-        return 100;
+        goto done;
 #endif
 
-    char *label = SKINOFFSETTOPTR(skin_buffer, skin_vp->label);
-    char *scale = label ? strstr(label, "Scale") : NULL;
-    int value = 0;
+    label = SKINOFFSETTOPTR(skin_buffer, skin_vp->label);
+    if (!label)
+        goto done;
 
+    info.label = !strncmp(label, "iPoneClockBase", 14) ||
+                 !strncmp(label, "iPoneClockGlass", 15) ||
+                 !strncmp(label, "iPoneClockStretch", 17);
+
+    scale = strstr(label, "Scale");
     if (!scale)
-        return 100;
+        goto parse_band;
 
     scale += 5;
     while (*scale >= '0' && *scale <= '9')
         value = value * 10 + *scale++ - '0';
 
     if (value < 100)
-        return 100;
-    if (value > 180)
-        return 180;
+        value = 100;
+    else if (value > 180)
+        value = 180;
+    info.yscale = value;
 
-    return value;
-}
-
-static void skin_alpha_overlay_yclip(struct skin_viewport *skin_vp,
-                                     unsigned char *top,
-                                     unsigned char *height)
-{
-    *top = 0;
-    *height = 0;
-
-    if (skin_vp->label == VP_DEFAULT_LABEL)
-        return;
-
-#ifndef __PCTOOL__
-    if (skin_vp->label < 0)
-        return;
-#endif
-
-    char *label = SKINOFFSETTOPTR(skin_buffer, skin_vp->label);
-    char *band = label ? strstr(label, "Band") : NULL;
-    int parsed_top = 0;
-    int parsed_height = 0;
-
+parse_band:
+    band = strstr(label, "Band");
     if (!band)
-        return;
+        goto done;
 
     band += 4;
     while (*band >= '0' && *band <= '9')
         parsed_top = parsed_top * 10 + *band++ - '0';
 
     if (*band != 'H')
-        return;
+        goto done;
 
     band++;
     while (*band >= '0' && *band <= '9')
         parsed_height = parsed_height * 10 + *band++ - '0';
 
     if (parsed_height <= 0)
-        return;
+        goto done;
 
     if (parsed_top > 220)
         parsed_top = 220;
     if (parsed_height > 80)
         parsed_height = 80;
 
-    *top = parsed_top;
-    *height = parsed_height;
+    info.yclip_top = parsed_top;
+    info.yclip_height = parsed_height;
+
+done:
+    skin_alpha_overlay_cached_vp = skin_vp;
+    skin_alpha_overlay_cached_buffer = skin_buffer;
+    skin_alpha_overlay_cached_info = info;
+    return info;
 }
 
 static bool skin_alpha_overlay_needs_full_redraw(struct skin_viewport *skin_vp)
 {
-    return skin_alpha_overlay_label(skin_vp) &&
-        (skin_vp->fg_alpha < 0xff ||
-         skin_alpha_overlay_yscale(skin_vp) != 100);
+    struct skin_alpha_overlay_info info =
+        skin_alpha_overlay_info_for(skin_vp);
+
+    return info.label &&
+        (skin_vp->fg_alpha < 0xff || info.yscale != 100);
 }
 
 #endif
@@ -353,22 +503,19 @@ static void skin_write_line(struct screen *display,
                             struct line_desc *line_desc)
 {
 #ifdef HAVE_LCD_COLOR
-    unsigned char overlay_yscale = skin_alpha_overlay_yscale(skin_vp);
-    unsigned char overlay_yclip_top;
-    unsigned char overlay_yclip_height;
+    struct skin_alpha_overlay_info overlay_info =
+        skin_alpha_overlay_info_for(skin_vp);
 
-    skin_alpha_overlay_yclip(skin_vp, &overlay_yclip_top,
-                             &overlay_yclip_height);
     if (display->depth >= 16 &&
-        (skin_vp->fg_alpha < 0xff || overlay_yscale != 100 ||
-         overlay_yclip_height))
+        (skin_vp->fg_alpha < 0xff || overlay_info.yscale != 100 ||
+         overlay_info.yclip_height))
     {
 #ifndef DISABLE_ALPHA_BITMAP
         unsigned saved_fg = display->get_foreground();
         struct line_desc overlay_desc;
         struct line_desc *draw_desc = line_desc;
 
-        if (skin_alpha_overlay_label(skin_vp))
+        if (overlay_info.label)
         {
             overlay_desc = *line_desc;
             overlay_desc.style = STYLE_NONE;
@@ -377,8 +524,9 @@ static void skin_write_line(struct screen *display,
 
         display->set_foreground(skin_vp->vp.fg_pattern);
         lcd_set_alpha_bitmap_opacity(skin_vp->fg_alpha);
-        lcd_set_alpha_bitmap_yscale(overlay_yscale);
-        lcd_set_alpha_bitmap_yclip(overlay_yclip_top, overlay_yclip_height);
+        lcd_set_alpha_bitmap_yscale(overlay_info.yscale);
+        lcd_set_alpha_bitmap_yclip(overlay_info.yclip_top,
+                                   overlay_info.yclip_height);
         write_line(display, align, line, scroll, draw_desc);
         lcd_set_alpha_bitmap_yclip(0, 0);
         lcd_set_alpha_bitmap_yscale(100);
@@ -1226,6 +1374,9 @@ void skin_render(struct gui_wps *gwps, unsigned refresh_mode)
 
     int old_refresh_mode = refresh_mode;
     skin_buffer = get_skin_buffer(gwps->data);
+#ifdef HAVE_LCD_COLOR
+    skin_alpha_overlay_cache_reset();
+#endif
 
     /* Framebuffer is likely dirty */
     if ((refresh_mode&SKIN_REFRESH_ALL) == SKIN_REFRESH_ALL)
@@ -1342,11 +1493,17 @@ void skin_render(struct gui_wps *gwps, unsigned refresh_mode)
             }
 #endif
             skin_viewport->hidden_flags = VP_DRAW_HIDEABLE | VP_DRAW_HIDDEN;
+#ifdef SIMULATOR
+            skin_profile_note(skin_viewport, 0, true);
+#endif
             continue;
         }
         else if ((skin_viewport->hidden_flags&VP_DRAW_HIDDEN))
         {
             skin_viewport->hidden_flags |= VP_DRAW_WASHIDDEN;
+#ifdef SIMULATOR
+            skin_profile_note(skin_viewport, 0, true);
+#endif
             continue;
         }
         else if ((skin_viewport->hidden_flags & vp_is_appearing) == vp_is_appearing)
@@ -1388,6 +1545,10 @@ void skin_render(struct gui_wps *gwps, unsigned refresh_mode)
         if (viewport->children_count)
             skin_render_viewport(get_child(viewport->children, 0), gwps,
                                  skin_viewport, vp_refresh_mode);
+#ifdef SIMULATOR
+        skin_profile_note(skin_viewport, vp_refresh_mode,
+                          viewport->children_count == 0);
+#endif
 
         refresh_mode = old_refresh_mode;
     }
@@ -1408,6 +1569,9 @@ void skin_render(struct gui_wps *gwps, unsigned refresh_mode)
         display->update();
     else
         pending_full_update = true;
+#ifdef SIMULATOR
+    skin_profile_report();
+#endif
 }
 
 static __attribute__((noinline))

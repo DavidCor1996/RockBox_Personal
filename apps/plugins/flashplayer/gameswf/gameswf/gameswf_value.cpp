@@ -561,10 +561,22 @@ namespace gameswf
 		set_as_c_function(func);
 	}
 
+	as_value::as_value(player* player, as_c_function_ptr func) :
+		m_type(UNDEFINED),
+		m_flags(0)
+	{
+		set_as_c_function(player, func);
+	}
+
 	void	as_value::set_as_c_function(as_c_function_ptr func)
 	{
 		// c_function object has no pointer to player instance
 		set_as_object(new as_c_function(NULL, func));
+	}
+
+	void	as_value::set_as_c_function(player* player, as_c_function_ptr func)
+	{
+		set_as_object(new as_c_function(player, func));
 	}
 
 		

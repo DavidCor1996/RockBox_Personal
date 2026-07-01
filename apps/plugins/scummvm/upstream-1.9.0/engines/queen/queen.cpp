@@ -20,8 +20,6 @@
  *
  */
 
-#include "base/plugins.h"
-
 #include "common/config-manager.h"
 #include "common/events.h"
 #include "common/file.h"
@@ -324,6 +322,15 @@ bool Queen::QueenEngine::hasFeature(EngineFeature f) const {
 }
 
 Common::Error QueenEngine::run() {
+#ifdef ROCKBOX_SCUMMVM_EMBEDDED
+	Common::Error err = rockboxInit();
+	while (err.getCode() == Common::kNoError && !shouldQuit())
+		rockboxStep();
+	return err;
+}
+
+Common::Error QueenEngine::rockboxInit() {
+#endif
 	initGraphics(GAME_SCREEN_WIDTH, GAME_SCREEN_HEIGHT, false);
 
 	_resource = new Resource();
@@ -361,6 +368,12 @@ Common::Error QueenEngine::run() {
 	}
 	_lastSaveTime = _lastUpdateTime = _system->getMillis();
 
+#ifdef ROCKBOX_SCUMMVM_EMBEDDED
+	return Common::kNoError;
+}
+
+void QueenEngine::rockboxStep() {
+#endif
 	while (!shouldQuit()) {
 		if (_logic->newRoom() > 0) {
 			_logic->update();
@@ -378,9 +391,14 @@ Common::Error QueenEngine::run() {
 			_logic->joeWalk(JWM_NORMAL);
 			update(true);
 		}
+#ifdef ROCKBOX_SCUMMVM_EMBEDDED
+		return;
+#endif
 	}
 
+#ifndef ROCKBOX_SCUMMVM_EMBEDDED
 	return Common::kNoError;
+#endif
 }
 
 } // End of namespace Queen

@@ -42,7 +42,12 @@
 
 #if TU_CONFIG_LINK_TO_ZLIB
 #include <zlib.h>
+#else
+#include "tinf.h"
 #endif // TU_CONFIG_LINK_TO_ZLIB
+
+extern image::rgb* flashplayer_decode_jpeg_rgb(unsigned char* data,
+	unsigned long len);
 
 // for bitmap grubber
 #if TU_CONFIG_LINK_TO_LIBPNG
@@ -52,6 +57,117 @@
 
 namespace gameswf
 {
+	static Uint8* s_rockbox_jpeg_tables = NULL;
+	static int s_rockbox_jpeg_table_bytes = 0;
+
+	static image::rgb* decode_rockbox_jpeg_data(Uint8* data, int bytes)
+	{
+		if (data == NULL || bytes <= 0)
+		{
+			return NULL;
+		}
+		return flashplayer_decode_jpeg_rgb(data, (unsigned long) bytes);
+	}
+
+	static image::rgb* read_rockbox_jpeg(stream* in, int bytes)
+	{
+		if (bytes <= 0)
+		{
+			return NULL;
+		}
+
+		Uint8* data = new Uint8[bytes];
+		if (data == NULL)
+		{
+			log_error("error: jpeg fallback allocation failed\n");
+			return NULL;
+		}
+
+		int read = in->get_underlying_stream()->read_bytes(data, bytes);
+		image::rgb* im = NULL;
+		if (read == bytes)
+		{
+			im = decode_rockbox_jpeg_data(data, bytes);
+		}
+		else
+		{
+			log_error("error: jpeg fallback read %d of %d bytes\n", read, bytes);
+		}
+
+		delete [] data;
+		return im;
+	}
+
+	static image::rgb* read_rockbox_jpeg_with_tables(stream* in, int bytes)
+	{
+		if (bytes <= 0)
+		{
+			return NULL;
+		}
+
+		Uint8* jpeg = new Uint8[bytes];
+		if (jpeg == NULL)
+		{
+			return NULL;
+		}
+
+		image::rgb* im = NULL;
+		int read = in->get_underlying_stream()->read_bytes(jpeg, bytes);
+		if (read == bytes)
+		{
+			im = decode_rockbox_jpeg_data(jpeg, bytes);
+			if (im == NULL && s_rockbox_jpeg_tables &&
+				s_rockbox_jpeg_table_bytes > 4)
+			{
+				int sos = -1;
+				for (int i = 2; i + 1 < bytes; i++)
+				{
+					if (jpeg[i] == 0xff && jpeg[i + 1] == 0xda)
+					{
+						sos = i;
+						break;
+					}
+				}
+				if (sos > 0)
+				{
+					int tables_start = 0;
+					int tables_end = s_rockbox_jpeg_table_bytes;
+					if (tables_end >= 2 &&
+						s_rockbox_jpeg_tables[0] == 0xff &&
+						s_rockbox_jpeg_tables[1] == 0xd8)
+					{
+						tables_start = 2;
+					}
+					if (tables_end - tables_start >= 2 &&
+						s_rockbox_jpeg_tables[tables_end - 2] == 0xff &&
+						s_rockbox_jpeg_tables[tables_end - 1] == 0xd9)
+					{
+						tables_end -= 2;
+					}
+
+					int table_payload = tables_end - tables_start;
+					int combined_bytes = bytes + table_payload;
+					Uint8* combined = new Uint8[combined_bytes];
+					if (combined)
+					{
+						memcpy(combined, jpeg, sos);
+						memcpy(combined + sos,
+							s_rockbox_jpeg_tables + tables_start,
+							table_payload);
+						memcpy(combined + sos + table_payload,
+							jpeg + sos, bytes - sos);
+						im = decode_rockbox_jpeg_data(combined,
+							combined_bytes);
+						delete [] combined;
+					}
+				}
+			}
+		}
+
+		delete [] jpeg;
+		return im;
+	}
+
 	bool	s_verbose_action = false;
 	bool	s_verbose_parse = false;
 	bool	s_use_cached_movie_instance = false;
@@ -530,6 +646,28 @@ namespace gameswf
 		}
 		m->set_jpeg_loader(j_in);
 
+#else
+		delete [] s_rockbox_jpeg_tables;
+		s_rockbox_jpeg_tables = NULL;
+		s_rockbox_jpeg_table_bytes = 0;
+		if (header_size > 0)
+		{
+			s_rockbox_jpeg_tables = new Uint8[header_size];
+			if (s_rockbox_jpeg_tables)
+			{
+				int read = in->get_underlying_stream()->read_bytes(
+					s_rockbox_jpeg_tables, header_size);
+				if (read == header_size)
+				{
+					s_rockbox_jpeg_table_bytes = header_size;
+				}
+				else
+				{
+					delete [] s_rockbox_jpeg_tables;
+					s_rockbox_jpeg_tables = NULL;
+				}
+			}
+		}
 #endif // TU_CONFIG_LINK_TO_JPEGLIB
 	}
 
@@ -568,8 +706,22 @@ namespace gameswf
 			delete im;
 
 #else
-			log_error("gameswf is not linked to jpeglib -- can't load jpeg image data!\n");
-			bi = render::create_bitmap_info_empty();
+			image::rgb* im = NULL;
+			if (m->get_jpeg_loader() == NULL)
+			{
+				im = read_rockbox_jpeg_with_tables(in,
+					in->get_tag_end_position() - in->get_position());
+			}
+			if (im)
+			{
+				bi = render::create_bitmap_info_rgb(im);
+				delete im;
+			}
+			else
+			{
+				log_error("gameswf jpeg fallback failed\n");
+				bi = render::create_bitmap_info_empty();
+			}
 #endif
 		}
 		else
@@ -622,8 +774,18 @@ namespace gameswf
 			bi = render::create_bitmap_info_rgb(im);
 			delete im;
 #else
-			log_error("gameswf is not linked to jpeglib -- can't load jpeg image data!\n");
-			bi = render::create_bitmap_info_empty();
+			image::rgb* im = read_rockbox_jpeg(in,
+				in->get_tag_end_position() - in->get_position());
+			if (im)
+			{
+				bi = render::create_bitmap_info_rgb(im);
+				delete im;
+			}
+			else
+			{
+				log_error("gameswf jpeg fallback failed\n");
+				bi = render::create_bitmap_info_empty();
+			}
 #endif
 		}
 		else
@@ -637,8 +799,7 @@ namespace gameswf
 	}
 
 
-#if TU_CONFIG_LINK_TO_ZLIB
-	void	inflate_wrapper(tu_file* in, void* buffer, int buffer_bytes)
+	void	inflate_wrapper(stream* in, void* buffer, int buffer_bytes)
 		// Wrapper function -- uses Zlib to uncompress in_bytes worth
 		// of data from the input file into buffer_bytes worth of data
 		// into *buffer.
@@ -647,6 +808,7 @@ namespace gameswf
 		assert(buffer);
 		assert(buffer_bytes > 0);
 
+#if TU_CONFIG_LINK_TO_ZLIB
 		int err;
 		z_stream d_stream; /* decompression stream */
 
@@ -670,7 +832,7 @@ namespace gameswf
 
 		for (;;) {
 			// Fill a one-byte (!) buffer.
-			buf[0] = in->read_byte();
+			buf[0] = in->get_underlying_stream()->read_byte();
 			d_stream.next_in = &buf[0];
 			d_stream.avail_in = 1;
 
@@ -687,8 +849,40 @@ namespace gameswf
 		{
 			log_error("error: inflate_wrapper() inflateEnd() return %d\n", err);
 		}
-	}
+#else
+		int source_bytes = in->get_tag_end_position() - in->get_position();
+		if (source_bytes <= 0)
+		{
+			log_error("error: inflate_wrapper() empty source\n");
+			return;
+		}
+
+		Uint8* source = new Uint8[source_bytes];
+		if (source == NULL)
+		{
+			log_error("error: inflate_wrapper() source allocation failed\n");
+			return;
+		}
+
+		int source_read = in->get_underlying_stream()->read_bytes(source, source_bytes);
+		if (source_read != source_bytes)
+		{
+			log_error("error: inflate_wrapper() read %d of %d bytes\n", source_read, source_bytes);
+			delete [] source;
+			return;
+		}
+
+		unsigned int out_len = (unsigned int) buffer_bytes;
+		int err = tinf_zlib_uncompress(buffer, &out_len, source, (unsigned int) source_bytes);
+		if (err != TINF_OK || out_len != (unsigned int) buffer_bytes)
+		{
+			log_error("error: inflate_wrapper() tinf returned %d out=%u expected=%d\n",
+				err, out_len, buffer_bytes);
+		}
+
+		delete [] source;
 #endif // TU_CONFIG_LINK_TO_ZLIB
+	}
 
 
 	void	define_bits_jpeg3_loader(stream* in, int tag_type, movie_definition_sub* m)
@@ -708,9 +902,46 @@ namespace gameswf
 
 		if (m->get_create_bitmaps() == DO_LOAD_BITMAPS)
 		{
-#if TU_CONFIG_LINK_TO_JPEGLIB == 0 || TU_CONFIG_LINK_TO_ZLIB == 0
-			log_error("gameswf is not linked to jpeglib/zlib -- can't load jpeg/zipped image data!\n");
-			bi = render::create_bitmap_info_empty();
+#if TU_CONFIG_LINK_TO_JPEGLIB == 0
+			image::rgb* rgb = read_rockbox_jpeg(in, jpeg_size);
+			if (rgb)
+			{
+				image::rgba* im = image::create_rgba(rgb->m_width, rgb->m_height);
+				int pixel_count = rgb->m_width * rgb->m_height;
+				for (int y = 0; y < rgb->m_height; y++)
+				{
+					Uint8* src = rgb->m_data + y * rgb->m_pitch;
+					Uint8* dst = im->m_data + y * im->m_pitch;
+					for (int x = 0; x < rgb->m_width; x++)
+					{
+						dst[x * 4 + 0] = src[x * 3 + 0];
+						dst[x * 4 + 1] = src[x * 3 + 1];
+						dst[x * 4 + 2] = src[x * 3 + 2];
+						dst[x * 4 + 3] = 255;
+					}
+				}
+				delete rgb;
+
+				in->set_position(alpha_position);
+				Uint8* buffer = new Uint8[pixel_count];
+				if (buffer)
+				{
+					inflate_wrapper(in, buffer, pixel_count);
+					for (int i = 0; i < pixel_count; i++)
+					{
+						im->m_data[4*i+3] = buffer[i];
+					}
+					delete [] buffer;
+				}
+
+				bi = render::create_bitmap_info_rgba(im);
+				delete im;
+			}
+			else
+			{
+				log_error("gameswf jpeg3 fallback failed\n");
+				bi = render::create_bitmap_info_empty();
+			}
 #else
 			//
 			// Read the image data.
@@ -725,7 +956,7 @@ namespace gameswf
 			int	buffer_bytes = im->m_width * im->m_height;
 			Uint8*	buffer = new Uint8[buffer_bytes];
 
-			inflate_wrapper(in->get_underlying_stream(), buffer, buffer_bytes);
+			inflate_wrapper(in, buffer, buffer_bytes);
 
 			for (int i = 0; i < buffer_bytes; i++)
 			{
@@ -771,10 +1002,6 @@ namespace gameswf
 		bitmap_info*	bi = NULL;
 		if (m->get_create_bitmaps() == DO_LOAD_BITMAPS)
 		{
-#if TU_CONFIG_LINK_TO_ZLIB == 0
-			log_error("gameswf is not linked to zlib -- can't load zipped image data!\n");
-			return;
-#else
 			if (tag_type == 20)
 			{
 				// RGB image data.
@@ -793,7 +1020,7 @@ namespace gameswf
 					int	buffer_bytes = color_table_size * 3 + pitch * height;
 					Uint8*	buffer = new Uint8[buffer_bytes];
 
-					inflate_wrapper(in->get_underlying_stream(), buffer, buffer_bytes);
+					inflate_wrapper(in, buffer, buffer_bytes);
 					assert(in->get_position() <= in->get_tag_end_position());
 
 					Uint8*	color_table = buffer;
@@ -822,7 +1049,7 @@ namespace gameswf
 					int	buffer_bytes = pitch * height;
 					Uint8*	buffer = new Uint8[buffer_bytes];
 
-					inflate_wrapper(in->get_underlying_stream(), buffer, buffer_bytes);
+					inflate_wrapper(in, buffer, buffer_bytes);
 					assert(in->get_position() <= in->get_tag_end_position());
 
 					for (int j = 0; j < height; j++)
@@ -851,7 +1078,7 @@ namespace gameswf
 					int	buffer_bytes = pitch * height;
 					Uint8*	buffer = new Uint8[buffer_bytes];
 
-					inflate_wrapper(in->get_underlying_stream(), buffer, buffer_bytes);
+					inflate_wrapper(in, buffer, buffer_bytes);
 					assert(in->get_position() <= in->get_tag_end_position());
 
 					// Need to re-arrange ARGB into RGB.
@@ -902,7 +1129,7 @@ namespace gameswf
 					int	buffer_bytes = color_table_size * 4 + pitch * height;
 					Uint8*	buffer = new Uint8[buffer_bytes];
 
-					inflate_wrapper(in->get_underlying_stream(), buffer, buffer_bytes);
+					inflate_wrapper(in, buffer, buffer_bytes);
 					assert(in->get_position() <= in->get_tag_end_position());
 
 					Uint8*	color_table = buffer;
@@ -932,7 +1159,7 @@ namespace gameswf
 					int	buffer_bytes = pitch * height;
 					Uint8*	buffer = new Uint8[buffer_bytes];
 
-					inflate_wrapper(in->get_underlying_stream(), buffer, buffer_bytes);
+					inflate_wrapper(in, buffer, buffer_bytes);
 					assert(in->get_position() <= in->get_tag_end_position());
 
 					for (int j = 0; j < height; j++)
@@ -957,7 +1184,7 @@ namespace gameswf
 				{
 					// 32 bits / pixel, input is ARGB format
 
-					inflate_wrapper(in->get_underlying_stream(), image->m_data, width * height * 4);
+					inflate_wrapper(in, image->m_data, width * height * 4);
 					assert(in->get_position() <= in->get_tag_end_position());
 
 					// Need to re-arrange ARGB into RGBA.
@@ -985,7 +1212,6 @@ namespace gameswf
 				//				// add image to movie, under character id.
 				//				m->add_bitmap_character(character_id, ch);
 			}
-#endif // TU_CONFIG_LINK_TO_ZLIB
 		}
 		else
 		{
@@ -1811,7 +2037,11 @@ namespace gameswf
 			in->read_string(&resource_name);
 			IF_VERBOSE_PARSE(log_msg("  export: id = %d, name = %s\n", id, resource_name.c_str()));
 
-			if (font* f = m->get_font(id))
+			if (sound_sample* ch = m->get_sound_sample(id))
+			{
+				m->export_resource(resource_name, ch);
+			}
+			else if (font* f = m->get_font(id))
 			{
 				// Expose this font for export.
 				m->export_resource(resource_name, f);
@@ -1821,9 +2051,13 @@ namespace gameswf
 				// Expose this movie/button/whatever for export.
 				m->export_resource(resource_name, ch);
 			}
-			else if (sound_sample* ch = m->get_sound_sample(id))
+			else if (bitmap_character_def* ch = m->get_bitmap_character(id))
 			{
 				m->export_resource(resource_name, ch);
+			}
+			else if (movie_def_impl* mdi = cast_to<movie_def_impl>(m))
+			{
+				mdi->add_pending_sound_export(id, resource_name);
 			}
 			else
 			{

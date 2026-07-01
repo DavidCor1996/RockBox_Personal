@@ -76,8 +76,8 @@ class LinuxManagerWidget(QWidget):
         self._username = QLineEdit("rockpod")
 
         self._download_btn = QPushButton("Download Debian")
-        self._stage_btn = QPushButton("Stage VM")
-        self._install_btn = QPushButton("Install + Auto Install")
+        self._stage_btn = QPushButton("Stage VM (cache)")
+        self._install_btn = QPushButton("Install Linux VM to iPod")
         self._provision_btn = QPushButton("Install Apps/Theme")
         self._uninstall_btn = QPushButton("Uninstall from iPod")
         self._start_btn = QPushButton("Start VM")
@@ -117,8 +117,9 @@ class LinuxManagerWidget(QWidget):
         self._safety_text.setReadOnly(True)
         self._safety_text.setMaximumHeight(118)
         self._safety_text.setPlainText(
-            "Linux is installed as ordinary PC boot files on the mounted iPod volume. "
-            "Rockbox and the iPod bootloader do not parse or boot these files. "
+            "Stage VM prepares a local cache only (host storage). "
+            "Install Linux VM copies files to the mounted iPod under "
+            "`Linux/RockPodVM`, then launches autoinstall from the iPod. "
             "RockPod backs up overwritten Linux-owned paths and removes only manifest-owned files. "
             "The selected allocation caps RockPod-managed Linux payload and persistence space."
         )

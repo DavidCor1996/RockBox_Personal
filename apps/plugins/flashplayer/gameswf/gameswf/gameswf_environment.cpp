@@ -12,6 +12,7 @@
 #include "gameswf/gameswf_function.h"
 #include "gameswf/gameswf_render.h"
 #include "gameswf/gameswf_as_classes/as_loadvars.h"
+#include "gameswf_compat/compatibility_include.h"
 
 #if TU_CONFIG_LINK_TO_LIB3DS == 1
 	#include "extensions/lib3ds/gameswf_3ds_inst.h"
@@ -371,9 +372,17 @@ namespace gameswf
 			}
 			else
 			{
-				IF_VERBOSE_ACTION(log_msg("find_target(\"%s\") failed\n", path.c_str()));
-				return as_value();
+				as_value path_val = get_variable(path, with_stack);
+				as_object* obj = path_val.to_object();
+				if (obj)
+				{
+					as_value val;
+					obj->get_member(var, &val);
+					return val;
+				}
 			}
+			IF_VERBOSE_ACTION(log_msg("find_target(\"%s\") failed\n", path.c_str()));
+			return as_value();
 		}
 		else
 		{
@@ -395,6 +404,12 @@ namespace gameswf
 			as_object*	obj = with_stack[i].m_object.get_ptr();
 			if (obj && obj->get_member(varname, &val))
 			{
+				if (varname == "server" || varname == "protocol")
+					flashplayer_trace_movie_state(varname.c_str(),
+						val.is_string() ? val.to_tu_string().length() : -1,
+						10, val.is_undefined() ? 1 : 0);
+				flashplayer_trace_variable_lookup(varname.c_str(), 10,
+					val.is_object());
 				// Found the var in this context.
 				return val;
 			}
@@ -404,12 +419,25 @@ namespace gameswf
 		int	local_index = find_local(varname, true);
 		if (local_index >= 0)
 		{
+			if (varname == "server" || varname == "protocol")
+				flashplayer_trace_movie_state(varname.c_str(),
+					m_local_frames[local_index].m_value.is_string() ?
+						m_local_frames[local_index].m_value.to_tu_string().length() : -1,
+					20, m_local_frames[local_index].m_value.is_undefined() ? 1 : 0);
+			flashplayer_trace_variable_lookup(varname.c_str(), 20,
+				m_local_frames[local_index].m_value.is_object());
 			return m_local_frames[local_index].m_value;
 		}
 
 		// Check movie members.
 		if (m_target != NULL && m_target->get_member(varname, &val))
 		{
+			if (varname == "server" || varname == "protocol")
+				flashplayer_trace_movie_state(varname.c_str(),
+					val.is_string() ? val.to_tu_string().length() : -1,
+					30, val.is_undefined() ? 1 : 0);
+			flashplayer_trace_variable_lookup(varname.c_str(), 30,
+				val.is_object());
 			return val;
 		}
 
@@ -422,26 +450,32 @@ namespace gameswf
 
 			case M_GLOBAL:
 				val.set_as_object(get_player()->get_global());
+				flashplayer_trace_variable_lookup(varname.c_str(), 40, 1);
 				return val;
 
 			case MTHIS:
 				val.set_as_object(get_target());
+				flashplayer_trace_variable_lookup(varname.c_str(), 41, 1);
 				return val;
 
 			case M_ROOT:
 			case M_LEVEL0:
 				val.set_as_object(get_root()->get_root_movie());
+				flashplayer_trace_variable_lookup(varname.c_str(), 42, 1);
 				return val;
 		}
 
 		// check _global.member
 		if (get_player()->get_global()->get_member(varname, &val))
 		{
+			flashplayer_trace_variable_lookup(varname.c_str(), 50,
+				val.is_object());
 			return val;
 		}
 
 		// Fallback.
 		IF_VERBOSE_ACTION(log_msg("get_variable_raw(\"%s\") failed, returning UNDEFINED.\n", varname.c_str()));
+		flashplayer_trace_variable_lookup(varname.c_str(), 0, 0);
 		return val;
 	}
 
@@ -505,10 +539,15 @@ namespace gameswf
 		tu_string	var;
 		if (parse_path(varname, &path, &var))
 		{
-			target = cast_to<character>(find_target(path.c_str()));
-			if (target)
+			as_object* obj = find_target(path.c_str());
+			if (!obj)
 			{
-				target->set_member(var, val);
+				as_value path_val = get_variable(path, with_stack);
+				obj = path_val.to_object();
+			}
+			if (obj)
+			{
+				obj->set_member(var, val);
 			}
 		}
 		else

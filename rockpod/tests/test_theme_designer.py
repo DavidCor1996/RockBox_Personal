@@ -4,7 +4,7 @@ from PIL import Image
 from PySide6.QtWidgets import QApplication
 
 from services.rockbox_deploy import RockboxDeployService
-from services.theme_designer import ThemeDesignerService
+from services.theme_designer import DEFAULT_LOCKSCREEN_CLOCK, ThemeDesignerService
 from ui.theme_designer import ThemeDesignerWidget, _EmbeddedSimulatorPreview
 
 
@@ -415,9 +415,11 @@ def test_lockscreen_clock_glass_uses_compact_layer_stack(tmp_dir):
 def test_lockscreen_clock_stretch_reserves_status_row_and_replaces_stale_scale(tmp_dir):
     service = ThemeDesignerService()
     content = (
-        "%Vd(iPoneLockscreen)%Vd(iPoneClockBaseScale140)%Vd(iPoneClockGlassShineScale140)%?mp<\n"
+        "%Vd(iPoneLockscreen)%Vd(iPoneClockBaseScale140)%Vd(iPoneClockGlassShineScale140)%Vd(iPoneClockStretch1)%?mp<\n"
         "%Vl(iPoneClockBaseScale140,0,24,-,92,10)%Vf(FFFFFF)%ac%cl:%cM %cP\n"
         "%Vl(iPoneClockGlassShineScale140,1,24,-,92,10)%Vf(FFFFFF40)%ac%cl:%cM %cP\n"
+        "%Vl(iPoneClockStretch1,0,35,-,92,10)%Vf(FFFFFF20)%ac%cl:%cM %cP\n"
+        "%Vl(iPoneClockShadow,1,25,-,92,10)%Vf(00000040)%ac%cl:%cM %cP\n"
         "%Vl(iPoneLockscreen,0,94,-,18,6)%Vf(FFFFFF)%ac"
         "%?if(%ss(0,7,%St(lang)), =, english)<%?cu<Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday>|%ca> "
         "%?or(%if(%ss(0,7,%St(lang)), =, chinese),%if(%St(lang), =, magyar),%if(%St(lang), =, lietuviu),"
@@ -445,6 +447,8 @@ def test_lockscreen_clock_stretch_reserves_status_row_and_replaces_stale_scale(t
 
     assert "iPoneClockBaseScale140" not in updated
     assert "iPoneClockGlassShineScale140" not in updated
+    assert "iPoneClockStretch1" not in updated
+    assert "iPoneClockShadow" not in updated
     assert "%Vd(iPoneClock" not in updated
     assert "%Vl(iPoneLockscreen,0,24,-,106,10)" in updated
     assert "%Vl(iPoneLockscreen,0,109,-,18,6)" in updated
@@ -453,8 +457,10 @@ def test_lockscreen_clock_stretch_reserves_status_row_and_replaces_stale_scale(t
 def test_lockscreen_clock_wps_uses_designer_clock_position_and_spacing(tmp_dir):
     service = ThemeDesignerService()
     content = (
-        "%Vd(Lockscreen)%?mp<\n"
-        "%Vl(Lockscreen,0,32,-,55,8)%ac%cl:%cM %cP\n"
+        "%Vd(Lockscreen)%Vd(iPoneClockBaseScale160)%Vd(iPoneClockStretch1)%?mp<\n"
+        "%Vl(iPoneClockBaseScale160,0,32,-,106,10)%Vf(FFFFFF)%ac%cl:%cM %cP\n"
+        "%Vl(iPoneClockStretch1,0,43,-,106,10)%Vf(FFFFFF20)%ac%cl:%cM %cP\n"
+        "%Vl(iPoneClockShadow,1,33,-,106,10)%Vf(00000040)%ac%cl:%cM %cP\n"
         "%Vl(Lockscreen,0,101,-,20,4)%ac"
         "%?if(%ss(0,7,%St(lang)), =, english)<%?cu<Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday>|%ca> "
         "%?or(%if(%ss(0,7,%St(lang)), =, chinese),%if(%St(lang), =, magyar),%if(%St(lang), =, lietuviu),"
@@ -481,6 +487,7 @@ def test_lockscreen_clock_wps_uses_designer_clock_position_and_spacing(tmp_dir):
         date_font=4,
     )
 
+    assert "iPoneClock" not in updated
     assert "%Vl(Lockscreen,0,24,-,106,10)" in updated
     assert "%Vl(Lockscreen,0,109,-,18,4)" in updated
     assert "%Vf(FFFFFF85)%ac%cl:%cM %cP" in updated
@@ -644,6 +651,57 @@ def test_generated_bundle_includes_fonts_referenced_by_skin_files(tmp_dir):
     assert ".rockbox/fonts/24 iLike.fnt" in font_dests
     assert ".rockbox/fonts/14-Adobe-Helvetica-Bold.fnt" in font_dests
     assert ".rockbox/fonts/150-Adwaitapod-Icons.fnt" in font_dests
+
+
+def test_render_budget_flags_stale_generated_clock_layers(tmp_dir):
+    service = ThemeDesignerService()
+    skin_path = os.path.join(tmp_dir, "stale.wps")
+    _write_text(
+        skin_path,
+        "%Vd(Lockscreen)%Vd(iPoneClockBaseScale160)%Vd(iPoneClockStretch1)%?mp<\n"
+        "%Vl(iPoneClockBaseScale160,0,32,-,144,10)%Vf(FFFFFF85)%ac%cl:%cM %cP\n"
+        "%Vl(iPoneClockStretch1,0,43,-,144,10)%Vf(FFFFFF20)%ac%cl:%cM %cP\n"
+        "%Vl(Lockscreen,0,153,-,18,4)%Vf(FFFFFF85)%acdate\n",
+    )
+
+    issues = service._skin_render_budget_issues(
+        skin_path,
+        "wps",
+        {"screen_resolution": "320x240", "lockscreen_clock": DEFAULT_LOCKSCREEN_CLOCK},
+    )
+
+    assert any(issue["code"] == "stale_clock_layers" for issue in issues)
+
+
+def test_render_budget_accepts_compact_lockscreen_clock_layers(tmp_dir):
+    service = ThemeDesignerService()
+    skin_path = os.path.join(tmp_dir, "compact.wps")
+    _write_text(
+        skin_path,
+        "%Vd(Lockscreen)%?mp<\n"
+        "%Vl(Lockscreen,1,25,-,144,10)%Vf(00000017)%ac%cl:%cM %cP\n"
+        "%Vl(Lockscreen,0,24,-,144,10)%Vf(3BC384A3)%ac%cl:%cM %cP\n"
+        "%Vl(Lockscreen,0,25,-,144,10)%Vf(72D8B86E)%ac%cl:%cM %cP\n"
+        "%Vl(Lockscreen,0,23,-,144,10)%Vf(00000045)%ac%cl:%cM %cP\n"
+        "%Vl(Lockscreen,0,22,-,144,10)%Vf(D4F2E4FF)%ac%cl:%cM %cP\n"
+        "%Vl(Lockscreen,1,24,-,144,10)%Vf(5ECE9A80)%ac%cl:%cM %cP\n"
+        "%Vl(Lockscreen,0,139,-,18,4)%Vf(3BC384A3)%acdate\n",
+    )
+
+    issues = service._skin_render_budget_issues(
+        skin_path,
+        "wps",
+        {
+            "screen_resolution": "320x240",
+            "lockscreen_clock": {
+                **DEFAULT_LOCKSCREEN_CLOCK,
+                "font_rel": "fonts/90-Cantarell-Regular.fnt",
+                "stretch": 160,
+            },
+        },
+    )
+
+    assert not [issue for issue in issues if issue["level"] in {"critical", "warn"}]
 
 
 def test_right_pane_wallpaper_offset_controls_crop_focus(tmp_dir):

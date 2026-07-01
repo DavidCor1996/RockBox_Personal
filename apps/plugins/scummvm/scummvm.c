@@ -114,7 +114,7 @@ static bool load_descriptor(const char *filename, struct scummvm_target *target)
     return true;
 }
 
-static bool validate_target(const struct scummvm_target *target)
+static bool validate_target(struct scummvm_target *target)
 {
     if (target->gameid[0] == '\0') {
         rb->splash(HZ * 2, "Missing gameid");
@@ -127,8 +127,12 @@ static bool validate_target(const struct scummvm_target *target)
     }
 
     if (target->path[0] == '\0') {
-        rb->splash(HZ * 2, "Missing path");
-        return false;
+        if (rb->snprintf(target->path, sizeof(target->path),
+                         "/ScummVM/%s", target->gameid) >=
+            (int)sizeof(target->path)) {
+            rb->splash(HZ * 2, "Missing path");
+            return false;
+        }
     }
 
     if (!rb->dir_exists(target->path)) {
@@ -149,20 +153,39 @@ enum plugin_status plugin_start(const void *parameter)
     struct scummvm_target target;
     size_t cxx_buffer_size = 0;
     void *cxx_buffer;
+    enum plugin_status status;
 
     if (parameter == NULL) {
         rb->splash(HZ * 3, "Open a .scummvm file");
         return PLUGIN_ERROR;
     }
 
-    cxx_buffer = rb->plugin_get_buffer(&cxx_buffer_size);
-    plugin_cxx_init(cxx_buffer, cxx_buffer_size / 3);
-
-    if (!load_descriptor(parameter, &target))
+    cxx_buffer = rb->plugin_get_audio_buffer(&cxx_buffer_size);
+    if (!cxx_buffer || cxx_buffer_size == 0) {
+        rb->splash(HZ * 2, "No ScummVM heap");
         return PLUGIN_ERROR;
+    }
+    plugin_cxx_init(cxx_buffer, cxx_buffer_size);
+    DEBUGF("scummvm: cxx heap=%zu avail=%zu\n",
+           cxx_buffer_size, plugin_cxx_available());
 
-    if (!validate_target(&target))
+    DEBUGF("scummvm: loading descriptor %s\n", (const char *)parameter);
+    if (!load_descriptor(parameter, &target)) {
+        DEBUGF("scummvm: descriptor load failed\n");
+        rb->plugin_release_audio_buffer();
         return PLUGIN_ERROR;
+    }
 
-    return scummvm_backend_run(&target);
+    DEBUGF("scummvm: target game=%s engine=%s path=%s save=%s\n",
+           target.gameid, target.engine, target.path, target.savepath);
+    if (!validate_target(&target)) {
+        DEBUGF("scummvm: target validation failed\n");
+        rb->plugin_release_audio_buffer();
+        return PLUGIN_ERROR;
+    }
+
+    DEBUGF("scummvm: entering backend\n");
+    status = scummvm_backend_run(&target);
+    rb->plugin_release_audio_buffer();
+    return status;
 }

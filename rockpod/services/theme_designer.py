@@ -44,6 +44,9 @@ DEFAULT_RIGHT_PANE_MODE = "miniplayer"
 RIGHT_PANE_VIDEO_FRAME_COUNT = 24
 RIGHT_PANE_VIDEO_FPS = 12
 RIGHT_PANE_VIDEO_OVERLAY_X_OFFSET = 4
+RENDER_BUDGET_CLOCK_LAYER_LIMIT = 6
+RENDER_BUDGET_TOTAL_VIEWPORT_LIMIT = 90
+RENDER_BUDGET_FULLSCREEN_BITMAP_LIMIT = 32
 
 DEFAULT_LOCKSCREEN_CLOCK = {
     "font_rel": "fonts/66-Cantarell-Light.fnt",
@@ -1202,6 +1205,128 @@ class ThemeDesignerService:
             issues.extend(self._skin_readability_issues(skin_path, asset.get("kind"), variant))
         return self._dedupe_readability_issues(issues)
 
+    def render_budget_recommendations_for_bundle(self, repo_root, profile, bundle):
+        variant = self._normalize_variant((bundle or {}).get("variant") or {}, repo_root)
+        issues = []
+        for asset in (bundle or {}).get("assets", []):
+            if asset.get("kind") not in {"sbs", "wps"}:
+                continue
+            skin_path = asset.get("source_abs") or ""
+            if not os.path.isfile(skin_path):
+                continue
+            issues.extend(self._skin_render_budget_issues(skin_path, asset.get("kind"), variant))
+        return self._dedupe_render_budget_issues(issues)
+
+    def _skin_render_budget_issues(self, skin_path, skin_kind, variant):
+        try:
+            with open(skin_path, "r", encoding="utf-8", errors="replace") as handle:
+                content = handle.read()
+        except OSError:
+            return []
+
+        skin_name = os.path.basename(skin_path)
+        issues = []
+        clock_layer_count = self._skin_clock_time_layer_count(content, skin_kind)
+        viewport_count = len(re.findall(r"%(?:V|Vl|Vi)\(", content))
+        fullscreen_bitmap_count = len(re.findall(r"%xl\([^,\n]+,[^)\n]+\.bmp\)", content, flags=re.IGNORECASE))
+
+        if "iPoneClock" in content:
+            issues.append(
+                self._render_budget_issue(
+                    "stale_clock_layers",
+                    "Stale hidden clock layers",
+                    skin_name,
+                    "Generated iPoneClock viewports remain in the skin; they can be parsed or displayed out of chain.",
+                    "Regenerate the theme so clock layers render inside the visible lockscreen viewport.",
+                    level="critical",
+                )
+            )
+
+        if clock_layer_count > RENDER_BUDGET_CLOCK_LAYER_LIMIT:
+            issues.append(
+                self._render_budget_issue(
+                    "clock_layer_count",
+                    "Heavy lockscreen clock",
+                    skin_name,
+                    f"{clock_layer_count} translucent clock layers exceed the safe budget of {RENDER_BUDGET_CLOCK_LAYER_LIMIT}.",
+                    "Use a lower glass strength or regenerate with the compact layer stack.",
+                )
+            )
+
+        clock = self._normalize_lockscreen_clock(variant.get("lockscreen_clock"))
+        font_size = self._font_pixel_size(clock.get("font_rel", ""))
+        stretch = self._int_between(clock.get("stretch"), 100, 160, DEFAULT_LOCKSCREEN_CLOCK["stretch"])
+        if (
+            skin_kind in {"sbs", "wps"}
+            and font_size >= 90
+            and stretch >= 150
+            and clock_layer_count > RENDER_BUDGET_CLOCK_LAYER_LIMIT
+        ):
+            issues.append(
+                self._render_budget_issue(
+                    "large_stretched_clock",
+                    "Large stretched glass clock",
+                    skin_name,
+                    f"{font_size}px font at {stretch}% stretch is near the redraw budget on iPod 6G.",
+                    "Keep the compact layer stack and avoid additional glass/outline layers.",
+                )
+            )
+
+        if viewport_count > RENDER_BUDGET_TOTAL_VIEWPORT_LIMIT:
+            issues.append(
+                self._render_budget_issue(
+                    "viewport_count",
+                    "High viewport count",
+                    skin_name,
+                    f"{viewport_count} viewports exceed the safe budget of {RENDER_BUDGET_TOTAL_VIEWPORT_LIMIT}.",
+                    "Remove hidden/stale viewports or simplify lockscreen/right-pane effects.",
+                )
+            )
+
+        if fullscreen_bitmap_count > RENDER_BUDGET_FULLSCREEN_BITMAP_LIMIT:
+            issues.append(
+                self._render_budget_issue(
+                    "fullscreen_bitmap_count",
+                    "Many bitmap layers",
+                    skin_name,
+                    f"{fullscreen_bitmap_count} bitmap loads can increase skin parse and redraw pressure.",
+                    "Keep only the active lockscreen/right-pane bitmap set for deployed variants.",
+                    level="info",
+                )
+            )
+
+        if "%Vd(SbsAnimPulse)" in content or "%Vl(SbsAnimPulse," in content:
+            issues.append(
+                self._render_budget_issue(
+                    "sbs_anim_pulse",
+                    "Animated full-art redraw pulse",
+                    skin_name,
+                    "SbsAnimPulse forces repeated full-art redraw activity.",
+                    "Remove the pulse viewport for iPod 6G themes.",
+                )
+            )
+
+        return issues
+
+    @staticmethod
+    def _skin_clock_time_layer_count(content, skin_kind):
+        names = ("iPoneLockscreen",) if skin_kind == "sbs" else ("Lockscreen",)
+        pattern = re.compile(
+            r"%Vl\(([^,\n]+),[^\n]*\)%Vf\([0-9A-Fa-f]{8}\)[^\n]*%cl:%cM %cP"
+        )
+        return sum(1 for match in pattern.finditer(content or "") if match.group(1) in names)
+
+    @staticmethod
+    def _render_budget_issue(code, label, skin_name, detail, recommendation, level="warn"):
+        return {
+            "code": code,
+            "level": level,
+            "label": label,
+            "skin": skin_name,
+            "detail": detail,
+            "recommendation": recommendation,
+        }
+
     def _skin_readability_issues(self, skin_path, skin_kind, variant):
         screen_width, screen_height = _fit_size(variant.get("screen_resolution") or "320x240")
         skin_name = os.path.splitext(os.path.basename(skin_path))[0]
@@ -1519,6 +1644,18 @@ class ThemeDesignerService:
         seen = set()
         for issue in issues:
             key = (issue.get("label"), issue.get("target"), issue.get("current"), issue.get("background"))
+            if key in seen:
+                continue
+            seen.add(key)
+            deduped.append(issue)
+        return deduped
+
+    @staticmethod
+    def _dedupe_render_budget_issues(issues):
+        deduped = []
+        seen = set()
+        for issue in issues:
+            key = (issue.get("code"), issue.get("skin"), issue.get("detail"))
             if key in seen:
                 continue
             seen.add(key)
@@ -2475,8 +2612,9 @@ class ThemeDesignerService:
             "%if(%St(lang), =, japanese),%if(%St(lang), =, korean))<%cb %cd|%?if(%St(lang), =, english-us)<%cb %cd|%cd %cb>>"
         )
         date_line = "\n".join(date_parts)
+        generated_clock_line = r"iPoneClock(?:Base|Glass|Stretch|Shadow)[^)]*"
         time_pattern = re.compile(
-            rf"(?:%Vl\((?:{re.escape(viewport_name)}|iPoneClockBase(?:Scale)?\d+|iPoneClockGlass[^)]*),"
+            rf"(?:%Vl\((?:{re.escape(viewport_name)}|{generated_clock_line}),"
             rf"[^\n]*%cl:%cM %cP(?:\n|$))+"
         )
         date_pattern = re.compile(rf"%Vl\({re.escape(viewport_name)},[^\n]*%cd\|%cd %cb>>")
@@ -2505,9 +2643,6 @@ class ThemeDesignerService:
         display_base_viewports,
         display_overlay_viewports,
     ):
-        if viewport_name != "iPoneLockscreen":
-            return content
-
         underlay_tags = "".join(f"%Vd({name})" for name in display_underlay_viewports)
         base_tags = "".join(f"%Vd({name})" for name in display_base_viewports)
         overlay_tags = "".join(f"%Vd({name})" for name in display_overlay_viewports)
@@ -2515,7 +2650,7 @@ class ThemeDesignerService:
             replacement = f"%Vd({viewport_name}){underlay_tags}{base_tags}{overlay_tags}%?mp<"
         else:
             replacement = f"{underlay_tags}%Vd({viewport_name}){overlay_tags}%?mp<"
-        generated_display = r"%Vd\(iPoneClock(?:Base|Glass|Stretch)[^)]+\)"
+        generated_display = r"%Vd\(iPoneClock(?:Base|Glass|Stretch|Shadow)[^)]+\)"
         pattern = re.compile(
             rf"(?:{generated_display})*"
             rf"%Vd\({re.escape(viewport_name)}\)"

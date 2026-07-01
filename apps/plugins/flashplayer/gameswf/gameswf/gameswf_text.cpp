@@ -97,7 +97,7 @@ namespace gameswf
 	{
 		array<fill_style>	dummy_style;	// used to pass a color on to shape_character::display()
 		array<line_style>	dummy_line_style;
-		dummy_style.resize(1);
+		dummy_style.resize(2);
 
 		matrix	mat = inst->get_world_matrix();
 		mat.concatenate(this_mat);
@@ -111,6 +111,11 @@ namespace gameswf
 		float	scale = 1.0f;
 		float	x = 0.0f;
 		float	y = 0.0f;
+		int shape_glyph_count = 0;
+		int bitmap_glyph_count = 0;
+		int static_glyph_count = 0;
+		int static_found_count = 0;
+		int invalid_glyph_count = 0;
 
 		for (int i = 0; i < records.size(); i++)
 		{
@@ -152,6 +157,7 @@ namespace gameswf
 			}
 
 			dummy_style[0].set_color(rec.m_style.m_color);
+			dummy_style[1].set_color(rec.m_style.m_color);
 
 			rgba	transformed_color = cx.transform(rec.m_style.m_color);
 
@@ -165,6 +171,7 @@ namespace gameswf
 
 				if (g.m_glyph_index == -1 && g.m_bitmap_info == NULL)
 				{
+					invalid_glyph_count++;
 					// Invalid glyph; render it as an empty box.
 					render::set_matrix(mat);
 					render::line_style_color(transformed_color);
@@ -188,6 +195,7 @@ namespace gameswf
 
 				if (g.m_bitmap_info != NULL)
 				{
+					bitmap_glyph_count++;
 					// device font
 
 					rect uv_bounds;
@@ -226,15 +234,18 @@ namespace gameswf
 				else
 				if (g.m_shape_glyph != NULL)
 				{
+					shape_glyph_count++;
 					g.m_shape_glyph->display(mat, cx, pixel_scale, dummy_style, dummy_line_style, render_handler::BLEND_NORMAL);
 				}
 				else
 				if (g.m_glyph_index >= 0)
 				{
+					static_glyph_count++;
 					// static text
 					shape_character_def* sh = fnt->get_glyph_by_index(g.m_glyph_index);
 					if (sh)
 					{
+						static_found_count++;
 						sh->display(mat, cx, pixel_scale, dummy_style, dummy_line_style, render_handler::BLEND_NORMAL);
 					}
 				}
@@ -243,6 +254,10 @@ namespace gameswf
 
 			}
 		}
+		flashplayer_trace_text(31, records.size(), shape_glyph_count,
+			bitmap_glyph_count + static_glyph_count + invalid_glyph_count);
+		flashplayer_trace_text(32, records.size(), static_found_count,
+			static_glyph_count);
 	}
 
 
@@ -379,6 +394,7 @@ namespace gameswf
 	void	text_character_def::display(character* inst)
 	// Draw the string.
 	{
+		flashplayer_trace_text(30, m_text_glyph_records.size(), 0, 0);
 
 		// try glyph provider
 		if (m_is_glyphs_drawn == false)

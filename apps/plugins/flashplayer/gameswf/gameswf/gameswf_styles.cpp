@@ -301,7 +301,7 @@ namespace gameswf
 					render_handler::WRAP_CLAMP, bm);
 			}
 		}
-		else if (m_type >= 0x40 || m_type <= 0x43)
+		else if (m_type >= 0x40 && m_type <= 0x43)
 		{
 			// bitmap fill (either tiled or clipped)
 			bitmap_info*	bi = NULL;

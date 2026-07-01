@@ -23,27 +23,38 @@
 #define RP_WORLD_TOP RP_TOP_H
 #define RP_WORLD_BOTTOM (LCD_HEIGHT - RP_BOTTOM_H)
 #define RP_WORLD_VIEW_H (RP_WORLD_BOTTOM - RP_WORLD_TOP)
-#define RP_WORLD_W 640
-#define RP_WORLD_H 420
+#define RP_WORLD_W 960
+#define RP_WORLD_H 640
 #define RP_TILE_SIZE 32
 #define RP_TARGET_RADIUS 14
 #define RP_CURSOR_RADIUS 18
 #define RP_CURSOR_STEP 7
 #define RP_CURSOR_REPEAT_STEP 12
 #define RP_PLAYER_SPEED 3
-#define RP_MAX_TARGETS 8
+#define RP_MAX_TARGETS 36
+#define RP_SAVE_V3_TARGETS 28
+#define RP_SAVE_V2_TARGETS 20
+#define RP_SAVE_V1_TARGETS 12
 #define RP_MAX_ACTIONS 4
+#define RP_SAVE_MAGIC 0x52505631u
+#define RP_SAVE_VERSION 4u
+#define RP_SAVE_VERSION_V3 3u
+#define RP_SAVE_VERSION_V2 2u
+#define RP_SAVE_VERSION_V1 1u
+#define RP_AUTOSAVE_TICKS (HZ * 5)
+#define RP_SAVE_FILE PLUGIN_GAMES_DATA_DIR "/runepod.save"
 #define RP_SMOKE_LOG PLUGIN_GAMES_DATA_DIR "/runepod-smoke.log"
-#define RP_SPRITES_PATH PLUGIN_GAMES_DATA_DIR "/runepod/sprites/runepod_sprites.320x64x24.bmp"
-#define RP_PLAYER_DIRS_PATH PLUGIN_GAMES_DATA_DIR "/runepod/sprites/runepod_player_dirs.128x32x24.bmp"
+#define RP_SPRITES_PATH PLUGIN_GAMES_DATA_DIR "/runepod/sprites/runepod_sprites.320x160x24.bmp"
+#define RP_PLAYER_DIRS_PATH PLUGIN_GAMES_DATA_DIR "/runepod/sprites/runepod_player_dirs.384x32x24.bmp"
 #define RP_TERRAIN_PATH PLUGIN_GAMES_DATA_DIR "/runepod/tiles/runepod_terrain_tiles.256x32x24.bmp"
 #define RP_SPRITE_W 32
 #define RP_SPRITE_H 32
 #define RP_SPRITE_SHEET_W 320
-#define RP_SPRITE_SHEET_H 64
+#define RP_SPRITE_SHEET_H 160
 #define RP_SPRITE_PIXELS (RP_SPRITE_SHEET_W * RP_SPRITE_SHEET_H)
 #define RP_SPRITE_BYTES (RP_SPRITE_PIXELS * (int)sizeof(fb_data))
-#define RP_PLAYER_DIR_SHEET_W 128
+#define RP_PLAYER_WALK_FRAMES 3
+#define RP_PLAYER_DIR_SHEET_W (RP_SPRITE_W * 4 * RP_PLAYER_WALK_FRAMES)
 #define RP_PLAYER_DIR_SHEET_H 32
 #define RP_PLAYER_DIR_PIXELS (RP_PLAYER_DIR_SHEET_W * RP_PLAYER_DIR_SHEET_H)
 #define RP_PLAYER_DIR_BYTES (RP_PLAYER_DIR_PIXELS * (int)sizeof(fb_data))
@@ -122,7 +133,37 @@ enum rp_sprite
     RP_SPR_ORE,
     RP_SPR_FISH,
     RP_SPR_FOOD,
-    RP_SPR_COMBAT_ICON
+    RP_SPR_COMBAT_ICON,
+    RP_SPR_CITY_GATE = 20,
+    RP_SPR_SMITH,
+    RP_SPR_INN,
+    RP_SPR_HEALER,
+    RP_SPR_SLIME,
+    RP_SPR_BANDIT,
+    RP_SPR_BAT,
+    RP_SPR_MARKET,
+    RP_SPR_ANVIL,
+    RP_SPR_SHIELD,
+    RP_SPR_MARKET_COUNTER = 30,
+    RP_SPR_FORGE,
+    RP_SPR_INN_BED,
+    RP_SPR_INN_TABLE,
+    RP_SPR_HEALER_SHRINE,
+    RP_SPR_CITY_WELL,
+    RP_SPR_SIGNPOST,
+    RP_SPR_CRATE,
+    RP_SPR_BOOKSHELF,
+    RP_SPR_CHEST,
+    RP_SPR_GUARD = 40,
+    RP_SPR_BAKER,
+    RP_SPR_TRAINER,
+    RP_SPR_DUMMY,
+    RP_SPR_HERB_BED,
+    RP_SPR_BAKERY,
+    RP_SPR_BANK_CHEST,
+    RP_SPR_SKELETON,
+    RP_SPR_WOLF,
+    RP_SPR_SEWER_RAT
 };
 
 enum rp_direction
@@ -154,7 +195,11 @@ enum rp_activity
     RP_ACTIVITY_COOK,
     RP_ACTIVITY_CRAFT,
     RP_ACTIVITY_FIGHT,
-    RP_ACTIVITY_EAT
+    RP_ACTIVITY_EAT,
+    RP_ACTIVITY_PICK,
+    RP_ACTIVITY_TRAIN,
+    RP_ACTIVITY_PRAY,
+    RP_ACTIVITY_BUY
 };
 
 struct rp_target
@@ -218,6 +263,9 @@ struct rp_game
     char message[96];
     char detail[96];
     bool music_started;
+    bool save_dirty;
+    bool save_loaded;
+    long next_autosave_tick;
     bool quit;
 };
 
@@ -225,12 +273,156 @@ static const struct rp_target rp_targets[RP_MAX_TARGETS] =
 {
     { "Guide", "Talk", RP_TARGET_NPC, RP_GROUP_NPC, 286, 178 },
     { "Shop", "Trade", RP_TARGET_NPC, RP_GROUP_NPC, 430, 148 },
+    { "Old Druid", "Talk", RP_TARGET_NPC, RP_GROUP_NPC, 728, 188 },
     { "Oak", "Chop", RP_TARGET_TREE, RP_GROUP_RESOURCE, 164, 306 },
+    { "Pine", "Chop", RP_TARGET_TREE, RP_GROUP_RESOURCE, 168, 512 },
     { "Copper", "Mine", RP_TARGET_ROCK, RP_GROUP_RESOURCE, 486, 332 },
+    { "Iron", "Mine", RP_TARGET_ROCK, RP_GROUP_RESOURCE, 786, 448 },
     { "Pond", "Fish", RP_TARGET_FISH, RP_GROUP_RESOURCE, 526, 234 },
+    { "Creek", "Fish", RP_TARGET_FISH, RP_GROUP_RESOURCE, 742, 308 },
     { "Fire", "Cook", RP_TARGET_FIRE, RP_GROUP_CRAFT, 332, 246 },
     { "Workbench", "Craft", RP_TARGET_BENCH, RP_GROUP_CRAFT, 366, 172 },
-    { "Ratling", "Attack", RP_TARGET_ENEMY, RP_GROUP_COMBAT, 548, 368 },
+    { "Ratling", "Attack", RP_TARGET_ENEMY, RP_GROUP_COMBAT, 842, 534 },
+    { "City Gate", "Enter", RP_TARGET_EXIT, RP_GROUP_EXIT, 610, 198 },
+    { "Market", "Trade", RP_TARGET_NPC, RP_GROUP_NPC, 650, 150 },
+    { "Smith", "Forge", RP_TARGET_NPC, RP_GROUP_NPC, 712, 150 },
+    { "Inn", "Rest", RP_TARGET_NPC, RP_GROUP_NPC, 766, 184 },
+    { "Healer", "Heal", RP_TARGET_NPC, RP_GROUP_NPC, 724, 232 },
+    { "Slime", "Attack", RP_TARGET_ENEMY, RP_GROUP_COMBAT, 566, 438 },
+    { "Bandit", "Attack", RP_TARGET_ENEMY, RP_GROUP_COMBAT, 696, 542 },
+    { "Cave Bat", "Attack", RP_TARGET_ENEMY, RP_GROUP_COMBAT, 888, 470 },
+    { "Market Counter", "Buy", RP_TARGET_NPC, RP_GROUP_NPC, 650, 184 },
+    { "Forge", "Forge", RP_TARGET_BENCH, RP_GROUP_CRAFT, 690, 184 },
+    { "Anvil", "Craft", RP_TARGET_BENCH, RP_GROUP_CRAFT, 722, 184 },
+    { "Inn Bed", "Rest", RP_TARGET_NPC, RP_GROUP_NPC, 780, 214 },
+    { "Inn Table", "Eat", RP_TARGET_NPC, RP_GROUP_NPC, 748, 214 },
+    { "Healing Shrine", "Pray", RP_TARGET_NPC, RP_GROUP_NPC, 710, 246 },
+    { "City Well", "Draw", RP_TARGET_NPC, RP_GROUP_NPC, 662, 236 },
+    { "Notice Board", "Read", RP_TARGET_NPC, RP_GROUP_NPC, 610, 166 },
+    { "Guard", "Talk", RP_TARGET_NPC, RP_GROUP_NPC, 608, 224 },
+    { "Bakery", "Buy", RP_TARGET_NPC, RP_GROUP_NPC, 792, 144 },
+    { "Trainer", "Talk", RP_TARGET_NPC, RP_GROUP_NPC, 628, 286 },
+    { "Training Dummy", "Train", RP_TARGET_BENCH, RP_GROUP_COMBAT, 658, 286 },
+    { "Herb Bed", "Pick", RP_TARGET_NPC, RP_GROUP_RESOURCE, 812, 236 },
+    { "Bank Chest", "Sort", RP_TARGET_NPC, RP_GROUP_NPC, 628, 246 },
+    { "Skeleton", "Attack", RP_TARGET_ENEMY, RP_GROUP_COMBAT, 906, 558 },
+    { "Wolf", "Attack", RP_TARGET_ENEMY, RP_GROUP_COMBAT, 226, 566 },
+};
+
+enum rp_target_index
+{
+    RP_IDX_GUIDE = 0,
+    RP_IDX_SHOP = 1,
+    RP_IDX_DRUID = 2,
+    RP_IDX_RATLING = 11,
+    RP_IDX_CITY_GATE = 12,
+    RP_IDX_MARKET = 13,
+    RP_IDX_SMITH = 14,
+    RP_IDX_INN = 15,
+    RP_IDX_HEALER = 16,
+    RP_IDX_SLIME = 17,
+    RP_IDX_BANDIT = 18,
+    RP_IDX_BAT = 19,
+    RP_IDX_MARKET_COUNTER = 20,
+    RP_IDX_FORGE = 21,
+    RP_IDX_ANVIL = 22,
+    RP_IDX_INN_BED = 23,
+    RP_IDX_INN_TABLE = 24,
+    RP_IDX_SHRINE = 25,
+    RP_IDX_WELL = 26,
+    RP_IDX_NOTICE = 27,
+    RP_IDX_GUARD = 28,
+    RP_IDX_BAKERY = 29,
+    RP_IDX_TRAINER = 30,
+    RP_IDX_DUMMY = 31,
+    RP_IDX_HERB_BED = 32,
+    RP_IDX_BANK_CHEST = 33,
+    RP_IDX_SKELETON = 34,
+    RP_IDX_WOLF = 35
+};
+
+struct rp_save_data
+{
+    uint32_t magic;
+    uint32_t version;
+    uint32_t checksum;
+    int32_t player_x;
+    int32_t player_y;
+    int32_t dest_x;
+    int32_t dest_y;
+    int32_t cursor_x;
+    int32_t cursor_y;
+    int32_t player_dir;
+    int32_t selected;
+    struct rp_inventory inv;
+    struct rp_skills xp;
+    int32_t hp;
+    int32_t enemy_hp;
+    int32_t quest_stage;
+    int32_t cooldown_remaining[RP_MAX_TARGETS];
+};
+
+struct rp_save_data_v1
+{
+    uint32_t magic;
+    uint32_t version;
+    uint32_t checksum;
+    int32_t player_x;
+    int32_t player_y;
+    int32_t dest_x;
+    int32_t dest_y;
+    int32_t cursor_x;
+    int32_t cursor_y;
+    int32_t player_dir;
+    int32_t selected;
+    struct rp_inventory inv;
+    struct rp_skills xp;
+    int32_t hp;
+    int32_t enemy_hp;
+    int32_t quest_stage;
+    int32_t cooldown_remaining[RP_SAVE_V1_TARGETS];
+};
+
+struct rp_save_data_v2
+{
+    uint32_t magic;
+    uint32_t version;
+    uint32_t checksum;
+    int32_t player_x;
+    int32_t player_y;
+    int32_t dest_x;
+    int32_t dest_y;
+    int32_t cursor_x;
+    int32_t cursor_y;
+    int32_t player_dir;
+    int32_t selected;
+    struct rp_inventory inv;
+    struct rp_skills xp;
+    int32_t hp;
+    int32_t enemy_hp;
+    int32_t quest_stage;
+    int32_t cooldown_remaining[RP_SAVE_V2_TARGETS];
+};
+
+struct rp_save_data_v3
+{
+    uint32_t magic;
+    uint32_t version;
+    uint32_t checksum;
+    int32_t player_x;
+    int32_t player_y;
+    int32_t dest_x;
+    int32_t dest_y;
+    int32_t cursor_x;
+    int32_t cursor_y;
+    int32_t player_dir;
+    int32_t selected;
+    struct rp_inventory inv;
+    struct rp_skills xp;
+    int32_t hp;
+    int32_t enemy_hp;
+    int32_t quest_stage;
+    int32_t cooldown_remaining[RP_SAVE_V3_TARGETS];
 };
 
 static struct rp_game game;
@@ -243,6 +435,12 @@ static bool rp_player_dirs_loaded;
 static struct bitmap rp_terrain_sheet;
 static fb_data rp_terrain_pixels[RP_TERRAIN_PIXELS];
 static bool rp_terrain_loaded;
+
+static const int rp_level_xp[] =
+{
+    0, 30, 75, 140, 230, 350, 510, 720, 995, 1350,
+    1810, 2400, 3150, 4100, 5300, 6800, 8700, 11100, 14100, 17800
+};
 
 #ifdef SIMULATOR
 static void rp_smoke_log(const char *event, int value)
@@ -346,6 +544,284 @@ static int rp_clamp_int(int value, int min_value, int max_value)
     if (value > max_value)
         return max_value;
     return value;
+}
+
+static void rp_update_cursor_selection(void);
+static void rp_update_camera(void);
+static void rp_set_message(const char *line1, const char *line2);
+
+static uint32_t rp_checksum_bytes(unsigned char *bytes, size_t size,
+                                  uint32_t *checksum_field)
+{
+    uint32_t checksum = 2166136261u;
+    uint32_t old_checksum = *checksum_field;
+    size_t i;
+
+    *checksum_field = 0;
+    for (i = 0; i < size; i++)
+    {
+        checksum ^= bytes[i];
+        checksum *= 16777619u;
+    }
+    *checksum_field = old_checksum;
+    return checksum;
+}
+
+static uint32_t rp_save_checksum(struct rp_save_data *save)
+{
+    return rp_checksum_bytes((unsigned char *)save, sizeof(*save),
+                             &save->checksum);
+}
+
+static uint32_t rp_save_checksum_v1(struct rp_save_data_v1 *save)
+{
+    return rp_checksum_bytes((unsigned char *)save, sizeof(*save),
+                             &save->checksum);
+}
+
+static uint32_t rp_save_checksum_v2(struct rp_save_data_v2 *save)
+{
+    return rp_checksum_bytes((unsigned char *)save, sizeof(*save),
+                             &save->checksum);
+}
+
+static uint32_t rp_save_checksum_v3(struct rp_save_data_v3 *save)
+{
+    return rp_checksum_bytes((unsigned char *)save, sizeof(*save),
+                             &save->checksum);
+}
+
+static void rp_mark_dirty(void)
+{
+    game.save_dirty = true;
+    if (game.next_autosave_tick == 0)
+        game.next_autosave_tick = *rb->current_tick + RP_AUTOSAVE_TICKS;
+}
+
+static void rp_fill_save(struct rp_save_data *save)
+{
+    int i;
+
+    rb->memset(save, 0, sizeof(*save));
+    save->magic = RP_SAVE_MAGIC;
+    save->version = RP_SAVE_VERSION;
+    save->player_x = game.player_x;
+    save->player_y = game.player_y;
+    save->dest_x = game.dest_x;
+    save->dest_y = game.dest_y;
+    save->cursor_x = game.cursor_x;
+    save->cursor_y = game.cursor_y;
+    save->player_dir = game.player_dir;
+    save->selected = game.selected;
+    save->inv = game.inv;
+    save->xp = game.xp;
+    save->hp = game.hp;
+    save->enemy_hp = game.enemy_hp;
+    save->quest_stage = game.quest_stage;
+
+    for (i = 0; i < RP_MAX_TARGETS; i++)
+    {
+        if (TIME_AFTER(game.cooldown_until[i], *rb->current_tick))
+            save->cooldown_remaining[i] =
+                game.cooldown_until[i] - *rb->current_tick;
+    }
+
+    save->checksum = rp_save_checksum(save);
+}
+
+static bool rp_save_game(void)
+{
+    struct rp_save_data save;
+    int fd;
+    ssize_t written;
+
+    rb->mkdir(PLUGIN_GAMES_DATA_DIR);
+    rp_fill_save(&save);
+    fd = rb->open(RP_SAVE_FILE, O_WRONLY | O_CREAT | O_TRUNC, 0666);
+    if (fd < 0)
+        return false;
+
+    written = rb->write(fd, &save, sizeof(save));
+    rb->close(fd);
+
+    if (written == (ssize_t)sizeof(save))
+    {
+        game.save_dirty = false;
+        game.next_autosave_tick = 0;
+        rp_smoke_log("save_ok", (int)sizeof(save));
+        return true;
+    }
+
+    rp_smoke_log("save_failed", (int)written);
+    return false;
+}
+
+static bool rp_load_game(void)
+{
+    struct rp_save_data save;
+    struct rp_save_data_v1 save_v1;
+    struct rp_save_data_v2 save_v2;
+    struct rp_save_data_v3 save_v3;
+    uint32_t checksum;
+    int fd;
+    ssize_t read_bytes;
+    int i;
+    bool migrated = false;
+
+    fd = rb->open(RP_SAVE_FILE, O_RDONLY);
+    if (fd < 0)
+        return false;
+
+    read_bytes = rb->read(fd, &save, sizeof(save));
+    rb->close(fd);
+
+    if (read_bytes == (ssize_t)sizeof(save))
+    {
+        checksum = save.checksum;
+        if (save.magic != RP_SAVE_MAGIC ||
+            save.version != RP_SAVE_VERSION ||
+            checksum != rp_save_checksum(&save))
+        {
+            return false;
+        }
+    }
+    else if (read_bytes == (ssize_t)sizeof(save_v3))
+    {
+        rb->memcpy(&save_v3, &save, sizeof(save_v3));
+        checksum = save_v3.checksum;
+        if (save_v3.magic != RP_SAVE_MAGIC ||
+            save_v3.version != RP_SAVE_VERSION_V3 ||
+            checksum != rp_save_checksum_v3(&save_v3))
+        {
+            return false;
+        }
+        rb->memset(&save, 0, sizeof(save));
+        save.magic = RP_SAVE_MAGIC;
+        save.version = RP_SAVE_VERSION;
+        save.player_x = save_v3.player_x;
+        save.player_y = save_v3.player_y;
+        save.dest_x = save_v3.dest_x;
+        save.dest_y = save_v3.dest_y;
+        save.cursor_x = save_v3.cursor_x;
+        save.cursor_y = save_v3.cursor_y;
+        save.player_dir = save_v3.player_dir;
+        save.selected = save_v3.selected;
+        save.inv = save_v3.inv;
+        save.xp = save_v3.xp;
+        save.hp = save_v3.hp;
+        save.enemy_hp = save_v3.enemy_hp;
+        save.quest_stage = save_v3.quest_stage;
+        rb->memcpy(save.cooldown_remaining, save_v3.cooldown_remaining,
+                   sizeof(save_v3.cooldown_remaining));
+        migrated = true;
+    }
+    else if (read_bytes == (ssize_t)sizeof(save_v2))
+    {
+        rb->memcpy(&save_v2, &save, sizeof(save_v2));
+        checksum = save_v2.checksum;
+        if (save_v2.magic != RP_SAVE_MAGIC ||
+            save_v2.version != RP_SAVE_VERSION_V2 ||
+            checksum != rp_save_checksum_v2(&save_v2))
+        {
+            return false;
+        }
+        rb->memset(&save, 0, sizeof(save));
+        save.magic = RP_SAVE_MAGIC;
+        save.version = RP_SAVE_VERSION;
+        save.player_x = save_v2.player_x;
+        save.player_y = save_v2.player_y;
+        save.dest_x = save_v2.dest_x;
+        save.dest_y = save_v2.dest_y;
+        save.cursor_x = save_v2.cursor_x;
+        save.cursor_y = save_v2.cursor_y;
+        save.player_dir = save_v2.player_dir;
+        save.selected = save_v2.selected;
+        save.inv = save_v2.inv;
+        save.xp = save_v2.xp;
+        save.hp = save_v2.hp;
+        save.enemy_hp = save_v2.enemy_hp;
+        save.quest_stage = save_v2.quest_stage;
+        rb->memcpy(save.cooldown_remaining, save_v2.cooldown_remaining,
+                   sizeof(save_v2.cooldown_remaining));
+        migrated = true;
+    }
+    else if (read_bytes == (ssize_t)sizeof(save_v1))
+    {
+        rb->memcpy(&save_v1, &save, sizeof(save_v1));
+        checksum = save_v1.checksum;
+        if (save_v1.magic != RP_SAVE_MAGIC ||
+            save_v1.version != RP_SAVE_VERSION_V1 ||
+            checksum != rp_save_checksum_v1(&save_v1))
+        {
+            return false;
+        }
+        rb->memset(&save, 0, sizeof(save));
+        save.magic = RP_SAVE_MAGIC;
+        save.version = RP_SAVE_VERSION;
+        save.player_x = save_v1.player_x;
+        save.player_y = save_v1.player_y;
+        save.dest_x = save_v1.dest_x;
+        save.dest_y = save_v1.dest_y;
+        save.cursor_x = save_v1.cursor_x;
+        save.cursor_y = save_v1.cursor_y;
+        save.player_dir = save_v1.player_dir;
+        save.selected = save_v1.selected;
+        save.inv = save_v1.inv;
+        save.xp = save_v1.xp;
+        save.hp = save_v1.hp;
+        save.enemy_hp = save_v1.enemy_hp;
+        save.quest_stage = save_v1.quest_stage;
+        rb->memcpy(save.cooldown_remaining, save_v1.cooldown_remaining,
+                   sizeof(save_v1.cooldown_remaining));
+        migrated = true;
+    }
+    else
+    {
+        return false;
+    }
+
+    game.player_x = rp_clamp_int(save.player_x, 8, RP_WORLD_W - 9);
+    game.player_y = rp_clamp_int(save.player_y, 8, RP_WORLD_H - 9);
+    game.dest_x = rp_clamp_int(save.dest_x, 8, RP_WORLD_W - 9);
+    game.dest_y = rp_clamp_int(save.dest_y, 8, RP_WORLD_H - 9);
+    game.cursor_x = rp_clamp_int(save.cursor_x, 8, RP_WORLD_W - 9);
+    game.cursor_y = rp_clamp_int(save.cursor_y, 8, RP_WORLD_H - 9);
+    game.player_dir = rp_clamp_int(save.player_dir, RP_DIR_SOUTH, RP_DIR_WEST);
+    game.selected = rp_clamp_int(save.selected, -1, RP_MAX_TARGETS - 1);
+    game.inv = save.inv;
+    game.xp = save.xp;
+    game.hp = rp_clamp_int(save.hp, 1, 10);
+    game.enemy_hp = rp_clamp_int(save.enemy_hp, 1, 12);
+    game.quest_stage = rp_clamp_int(save.quest_stage, 0, 5);
+    game.moving = false;
+    game.pending_action = false;
+    game.activity = RP_ACTIVITY_NONE;
+    game.activity_target = -1;
+    for (i = 0; i < RP_MAX_TARGETS; i++)
+    {
+        if (save.cooldown_remaining[i] > 0)
+            game.cooldown_until[i] =
+                *rb->current_tick + save.cooldown_remaining[i];
+    }
+    rp_update_cursor_selection();
+    rp_update_camera();
+    game.save_dirty = migrated;
+    game.save_loaded = true;
+    game.next_autosave_tick = migrated ? *rb->current_tick + HZ : 0;
+    rp_set_message("Save loaded", "Select resumes your quest");
+    rp_smoke_log("load_ok", (int)read_bytes);
+    return true;
+}
+
+static void rp_autosave_if_needed(void)
+{
+    if (game.save_dirty &&
+        game.next_autosave_tick != 0 &&
+        TIME_AFTER(*rb->current_tick, game.next_autosave_tick))
+    {
+        if (!rp_save_game())
+            game.next_autosave_tick = *rb->current_tick + RP_AUTOSAVE_TICKS;
+    }
 }
 
 static void rp_update_camera(void)
@@ -481,6 +957,36 @@ static void rp_start_activity(enum rp_activity activity, int target_index,
         rp_face_point(rp_targets[target_index].x, rp_targets[target_index].y);
 }
 
+static int rp_skill_level_from_kind(enum rp_target_kind kind)
+{
+    int xp;
+    int i;
+
+    switch (kind)
+    {
+        case RP_TARGET_TREE: xp = game.xp.woodcutting; break;
+        case RP_TARGET_ROCK: xp = game.xp.mining; break;
+        case RP_TARGET_FISH: xp = game.xp.fishing; break;
+        case RP_TARGET_FIRE: xp = game.xp.cooking; break;
+        case RP_TARGET_BENCH: xp = game.xp.crafting; break;
+        case RP_TARGET_ENEMY: xp = game.xp.combat; break;
+        default: xp = 0; break;
+    }
+
+    for (i = (int)ARRAYLEN(rp_level_xp) - 1; i > 0; i--)
+    {
+        if (xp >= rp_level_xp[i])
+            return i + 1;
+    }
+
+    return 1;
+}
+
+static int rp_level_bonus(enum rp_target_kind kind)
+{
+    return rp_clamp_int((rp_skill_level_from_kind(kind) - 1) / 2, 0, 3);
+}
+
 static void rp_init_game(void)
 {
     rb->memset(&game, 0, sizeof(game));
@@ -588,8 +1094,368 @@ static void rp_talk_guide(void)
     }
     else
     {
-        rp_set_message("Guide: The cave is open",
-                       "Try fighting the ratling");
+        rp_set_message("Guide: Seek the druid",
+                       "The eastern cave needs a charm");
+    }
+}
+
+static void rp_talk_druid(void)
+{
+    int total_level = rp_skill_level_from_kind(RP_TARGET_TREE) +
+                      rp_skill_level_from_kind(RP_TARGET_ROCK) +
+                      rp_skill_level_from_kind(RP_TARGET_FISH) +
+                      rp_skill_level_from_kind(RP_TARGET_ENEMY);
+
+    if (game.quest_stage < 2)
+    {
+        rp_set_message("Druid: Earn trust first",
+                       "Help the guide in the village");
+    }
+    else if (game.quest_stage == 2 && game.inv.charms > 0 &&
+             total_level >= 6)
+    {
+        game.quest_stage = 3;
+        rp_set_message("Druid: Cave trial opened",
+                       "Defeat the ratling beyond the ridge");
+    }
+    else if (game.quest_stage == 2 && game.inv.charms > 0)
+    {
+        rp_set_message("Druid: Train a little more",
+                       "Reach total field level 6");
+    }
+    else if (game.quest_stage == 3)
+    {
+        rp_set_message("Druid: Follow the ridge",
+                       "The ratling guards the cave");
+    }
+    else if (game.quest_stage >= 4)
+    {
+        rp_set_message("Druid: The valley is safer",
+                       "Keep training for deeper paths");
+    }
+    else
+    {
+        rp_set_message("Druid: Gather a charm",
+                       "The guide rewards prepared travelers");
+    }
+}
+
+static int rp_enemy_max_hp(int target_index)
+{
+    switch (target_index)
+    {
+        case RP_IDX_SLIME: return 4;
+        case RP_IDX_BANDIT: return 8;
+        case RP_IDX_BAT: return 7;
+        case RP_IDX_SKELETON: return 12;
+        case RP_IDX_WOLF: return 9;
+        case RP_IDX_RATLING:
+        default:
+            return game.quest_stage >= 4 ? 10 : 6;
+    }
+}
+
+static int rp_enemy_coin_reward(int target_index)
+{
+    switch (target_index)
+    {
+        case RP_IDX_SLIME: return 1;
+        case RP_IDX_BANDIT: return 5;
+        case RP_IDX_BAT: return 3;
+        case RP_IDX_SKELETON: return 7;
+        case RP_IDX_WOLF: return 4;
+        case RP_IDX_RATLING: return game.quest_stage == 3 ? 8 : 2;
+        default: return 2;
+    }
+}
+
+static const char *rp_enemy_defeat_message(int target_index)
+{
+    switch (target_index)
+    {
+        case RP_IDX_SLIME: return "Slime split apart";
+        case RP_IDX_BANDIT: return "Bandit driven off";
+        case RP_IDX_BAT: return "Cave bat scattered";
+        case RP_IDX_SKELETON: return "Skeleton collapses";
+        case RP_IDX_WOLF: return "Wolf flees the woods";
+        default: return "Ratling defeated";
+    }
+}
+
+static const char *rp_enemy_hit_message(int target_index)
+{
+    switch (target_index)
+    {
+        case RP_IDX_SLIME: return "You strike the slime";
+        case RP_IDX_BANDIT: return "You strike the bandit";
+        case RP_IDX_BAT: return "You strike the bat";
+        case RP_IDX_SKELETON: return "You crack the skeleton";
+        case RP_IDX_WOLF: return "You fend off the wolf";
+        default: return "You strike the ratling";
+    }
+}
+
+static const char *rp_enemy_counter_message(int target_index)
+{
+    switch (target_index)
+    {
+        case RP_IDX_SLIME: return "It splashes back";
+        case RP_IDX_BANDIT: return "It cuts back";
+        case RP_IDX_BAT: return "It dives back";
+        case RP_IDX_SKELETON: return "It rattles back";
+        case RP_IDX_WOLF: return "It snaps back";
+        default: return "It claws back";
+    }
+}
+
+static const char *rp_enemy_reward_message(int target_index)
+{
+    switch (target_index)
+    {
+        case RP_IDX_BANDIT: return "+5 coins, +4 combat XP";
+        case RP_IDX_SKELETON: return "+7 coins, +4 combat XP";
+        case RP_IDX_WOLF: return "+4 coins, +4 combat XP";
+        default: return "+coins, +4 combat XP";
+    }
+}
+
+static void rp_city_gate(void)
+{
+    rp_set_message("City gate",
+                   "Market, smith, inn, healer ahead");
+}
+
+static void rp_trade_market(void)
+{
+    if (game.inv.coins >= 5)
+    {
+        game.inv.coins -= 5;
+        game.inv.food += 2;
+        rp_start_activity(RP_ACTIVITY_BUY, game.selected, HZ / 2);
+        rp_set_message("Market bundle",
+                       "-5 coins, +2 food");
+    }
+    else
+    {
+        rp_set_message("Market",
+                       "2 food costs 5 coins");
+    }
+}
+
+static void rp_read_notice(void)
+{
+    rp_set_message("Notice board",
+                   "Slimes pay small, bandits pay well");
+}
+
+static void rp_talk_guard(void)
+{
+    if (game.quest_stage < 4)
+    {
+        rp_set_message("Guard",
+                       "Clear the cave trial first");
+    }
+    else if (game.quest_stage == 4)
+    {
+        game.quest_stage = 5;
+        rp_set_message("Guard: crypt bounty",
+                       "Skeletons stir beyond the ridge");
+    }
+    else
+    {
+        rp_set_message("Guard",
+                       "Keep the roads clear");
+    }
+}
+
+static void rp_buy_bakery(void)
+{
+    if (game.inv.coins >= 7)
+    {
+        game.inv.coins -= 7;
+        game.inv.food += 3;
+        rp_start_activity(RP_ACTIVITY_BUY, game.selected, HZ / 2);
+        rp_set_message("Bakery parcel",
+                       "-7 coins, +3 food");
+    }
+    else
+    {
+        rp_set_message("Bakery",
+                       "3 food costs 7 coins");
+    }
+}
+
+static void rp_talk_trainer(void)
+{
+    rp_set_message("Trainer",
+                   "Use the dummy for slow combat XP");
+}
+
+static void rp_draw_well(void)
+{
+    game.hp = MIN(10, game.hp + 1);
+    rp_start_activity(RP_ACTIVITY_PRAY, game.selected, HZ / 2);
+    rp_set_message("Cool well water",
+                   "Recovered a little health");
+}
+
+static void rp_forge_smith(void)
+{
+    if (game.inv.ore >= 4 && game.inv.logs >= 2 && game.inv.coins >= 4)
+    {
+        game.inv.ore -= 4;
+        game.inv.logs -= 2;
+        game.inv.coins -= 4;
+        game.inv.charms++;
+        rp_add_xp(RP_TARGET_BENCH, 8);
+        rp_start_activity(RP_ACTIVITY_CRAFT, game.selected, HZ);
+        rp_set_message("Smith forges ward charm",
+                       "-4 ore, -2 logs, -4 coins");
+    }
+    else
+    {
+        rp_set_message("Smith",
+                       "Needs 4 ore, 2 logs, 4 coins");
+    }
+}
+
+static void rp_train_dummy(void)
+{
+    game.xp.combat += 2;
+    game.cooldown_until[game.selected] = *rb->current_tick + HZ * 2;
+    rp_start_activity(RP_ACTIVITY_TRAIN, game.selected, HZ * 2 / 3);
+    rp_set_message("You drill footwork",
+                   "+2 combat XP");
+}
+
+static void rp_pick_herbs(void)
+{
+    game.inv.food += 1;
+    game.xp.cooking += 1;
+    game.cooldown_until[game.selected] = *rb->current_tick + HZ * 4;
+    rp_start_activity(RP_ACTIVITY_PICK, game.selected, HZ * 3 / 4);
+    rp_set_message("You pick kitchen herbs",
+                   "+1 food, +1 cooking XP");
+}
+
+static void rp_sort_bank_chest(void)
+{
+    if (game.inv.logs >= 5)
+    {
+        game.inv.logs -= 5;
+        game.inv.coins += 3;
+        rp_start_activity(RP_ACTIVITY_BUY, game.selected, HZ / 2);
+        rp_set_message("Packed timber crate",
+                       "-5 logs, +3 coins");
+    }
+    else if (game.inv.ore >= 5)
+    {
+        game.inv.ore -= 5;
+        game.inv.coins += 4;
+        rp_start_activity(RP_ACTIVITY_BUY, game.selected, HZ / 2);
+        rp_set_message("Packed ore crate",
+                       "-5 ore, +4 coins");
+    }
+    else
+    {
+        rp_set_message("Bank chest",
+                       "Sorts 5 logs or 5 ore");
+    }
+}
+
+static void rp_use_anvil(void)
+{
+    if (game.inv.ore >= 2 && game.inv.logs >= 1)
+    {
+        game.inv.ore -= 2;
+        game.inv.logs -= 1;
+        game.inv.coins += 3;
+        rp_add_xp(RP_TARGET_BENCH, 3);
+        rp_start_activity(RP_ACTIVITY_CRAFT, game.selected, HZ * 3 / 4);
+        rp_set_message("You shape fittings",
+                       "-2 ore, -1 log, +3 coins");
+    }
+    else
+    {
+        rp_set_message("Anvil",
+                       "Needs 2 ore and 1 log");
+    }
+}
+
+static void rp_rest_inn(void)
+{
+    if (game.inv.coins >= 2)
+    {
+        game.inv.coins -= 2;
+        game.hp = 10;
+        game.enemy_hp = rp_enemy_max_hp(game.selected);
+        rp_save_game();
+        rp_set_message("Inn rest complete",
+                       "Health restored and saved");
+    }
+    else
+    {
+        rp_set_message("Inn",
+                       "A bed costs 2 coins");
+    }
+}
+
+static void rp_eat_at_table(void)
+{
+    if (game.inv.food > 0 && game.hp < 10)
+    {
+        game.inv.food--;
+        game.hp = MIN(10, game.hp + 5);
+        rp_start_activity(RP_ACTIVITY_EAT, game.selected, HZ / 2);
+        rp_set_message("You eat at the inn table",
+                       "-1 food, health recovered");
+    }
+    else if (game.hp >= 10)
+    {
+        rp_set_message("Inn table",
+                       "You are already full");
+    }
+    else
+    {
+        rp_set_message("Inn table",
+                       "Bring food from the market");
+    }
+}
+
+static void rp_heal_service(void)
+{
+    if (game.hp >= 10)
+    {
+        rp_set_message("Healer",
+                       "You are already healthy");
+    }
+    else if (game.inv.coins >= 3)
+    {
+        game.inv.coins -= 3;
+        game.hp = 10;
+        rp_set_message("Healer restores you",
+                       "-3 coins, health full");
+    }
+    else
+    {
+        rp_set_message("Healer",
+                       "Healing costs 3 coins");
+    }
+}
+
+static void rp_pray_shrine(void)
+{
+    if (game.inv.charms > 0)
+    {
+        game.hp = 10;
+        rp_start_activity(RP_ACTIVITY_PRAY, game.selected, HZ / 2);
+        rp_set_message("Shrine hums softly",
+                       "Charm wards restore health");
+    }
+    else
+    {
+        rp_set_message("Healing shrine",
+                       "A charm would focus it");
     }
 }
 
@@ -599,6 +1465,7 @@ static void rp_trade_shop(void)
     {
         game.inv.coins -= 3;
         game.inv.food += 1;
+        rp_start_activity(RP_ACTIVITY_BUY, game.selected, HZ / 2);
         rp_set_message("Bought field ration",
                        "-3 coins, +1 food");
     }
@@ -639,48 +1506,101 @@ static void rp_execute_selected_action(void)
     switch (target->kind)
     {
         case RP_TARGET_NPC:
-            if (game.selected == 0)
+            if (game.selected == RP_IDX_GUIDE)
                 rp_talk_guide();
+            else if (game.selected == RP_IDX_DRUID)
+                rp_talk_druid();
+            else if (game.selected == RP_IDX_MARKET)
+                rp_trade_market();
+            else if (game.selected == RP_IDX_MARKET_COUNTER)
+                rp_trade_market();
+            else if (game.selected == RP_IDX_SMITH)
+                rp_forge_smith();
+            else if (game.selected == RP_IDX_INN)
+                rp_rest_inn();
+            else if (game.selected == RP_IDX_INN_BED)
+                rp_rest_inn();
+            else if (game.selected == RP_IDX_INN_TABLE)
+                rp_eat_at_table();
+            else if (game.selected == RP_IDX_HEALER)
+                rp_heal_service();
+            else if (game.selected == RP_IDX_SHRINE)
+                rp_pray_shrine();
+            else if (game.selected == RP_IDX_WELL)
+                rp_draw_well();
+            else if (game.selected == RP_IDX_NOTICE)
+                rp_read_notice();
+            else if (game.selected == RP_IDX_GUARD)
+                rp_talk_guard();
+            else if (game.selected == RP_IDX_BAKERY)
+                rp_buy_bakery();
+            else if (game.selected == RP_IDX_TRAINER)
+                rp_talk_trainer();
+            else if (game.selected == RP_IDX_HERB_BED)
+                rp_pick_herbs();
+            else if (game.selected == RP_IDX_BANK_CHEST)
+                rp_sort_bank_chest();
             else
                 rp_trade_shop();
             break;
 
         case RP_TARGET_TREE:
-            game.inv.logs++;
-            rp_add_xp(target->kind, 5);
+        {
+            int gained = 1 + rp_level_bonus(target->kind);
+            if (game.selected == 4)
+                gained++;
+            game.inv.logs += gained;
+            rp_add_xp(target->kind, 2);
             game.cooldown_until[game.selected] = now + HZ * 3;
             rp_start_activity(RP_ACTIVITY_CHOP, game.selected, HZ * 3 / 4);
-            rp_set_message("You chop the oak",
-                           "+1 log, +5 woodcutting XP");
+            rp_set_message(game.selected == 4 ? "You chop resin pine"
+                                              : "You chop the oak",
+                           gained > 1 ? "Skill bonus: extra logs"
+                                      : "+1 log, +2 woodcutting XP");
             break;
+        }
 
         case RP_TARGET_ROCK:
-            game.inv.ore++;
-            rp_add_xp(target->kind, 5);
+        {
+            int gained = 1 + rp_level_bonus(target->kind);
+            if (game.selected == 6)
+                gained++;
+            game.inv.ore += gained;
+            rp_add_xp(target->kind, 2);
             game.cooldown_until[game.selected] = now + HZ * 3;
             rp_start_activity(RP_ACTIVITY_MINE, game.selected, HZ * 3 / 4);
-            rp_set_message("You mine copper",
-                           "+1 ore, +5 mining XP");
+            rp_set_message(game.selected == 6 ? "You mine ironstone"
+                                              : "You mine copper",
+                           gained > 1 ? "Skill bonus: extra ore"
+                                      : "+1 ore, +2 mining XP");
             break;
+        }
 
         case RP_TARGET_FISH:
-            game.inv.raw_fish++;
-            rp_add_xp(target->kind, 4);
+        {
+            int gained = 1 + rp_level_bonus(target->kind);
+            if (game.selected == 8)
+                gained++;
+            game.inv.raw_fish += gained;
+            rp_add_xp(target->kind, 2);
             game.cooldown_until[game.selected] = now + HZ * 2;
             rp_start_activity(RP_ACTIVITY_FISH, game.selected, HZ);
-            rp_set_message("You catch a fish",
-                           "+1 raw fish, +4 fishing XP");
+            rp_set_message(game.selected == 8 ? "You net creek trout"
+                                              : "You catch a fish",
+                           gained > 1 ? "Skill bonus: extra fish"
+                                      : "+1 raw fish, +2 fishing XP");
             break;
+        }
 
         case RP_TARGET_FIRE:
             if (game.inv.raw_fish > 0)
             {
                 game.inv.raw_fish--;
                 game.inv.food++;
-                rp_add_xp(target->kind, 4);
+                rp_add_xp(target->kind, 2);
                 rp_start_activity(RP_ACTIVITY_COOK, game.selected, HZ * 3 / 4);
                 rp_set_message("The fish cooks cleanly",
-                               "+1 food, +4 cooking XP");
+                               "+1 food, +2 cooking XP");
             }
             else
             {
@@ -690,15 +1610,30 @@ static void rp_execute_selected_action(void)
             break;
 
         case RP_TARGET_BENCH:
+            if (game.selected == RP_IDX_DUMMY)
+            {
+                rp_train_dummy();
+                break;
+            }
+            if (game.selected == RP_IDX_FORGE)
+            {
+                rp_forge_smith();
+                break;
+            }
+            if (game.selected == RP_IDX_ANVIL)
+            {
+                rp_use_anvil();
+                break;
+            }
             if (game.inv.logs >= 2 && game.inv.ore >= 1)
             {
                 game.inv.logs -= 2;
                 game.inv.ore -= 1;
                 game.inv.coins += 4;
-                rp_add_xp(target->kind, 6);
+                rp_add_xp(target->kind, 3);
                 rp_start_activity(RP_ACTIVITY_CRAFT, game.selected, HZ * 3 / 4);
                 rp_set_message("You craft a tool haft",
-                               "+4 coins, +6 crafting XP");
+                               "+4 coins, +3 crafting XP");
             }
             else
             {
@@ -708,15 +1643,58 @@ static void rp_execute_selected_action(void)
             break;
 
         case RP_TARGET_ENEMY:
+        {
+            int damage;
+            int enemy_max = rp_enemy_max_hp(game.selected);
+
+            if (game.selected == RP_IDX_RATLING && game.quest_stage < 3)
+            {
+                rp_set_message("Cave ward holds",
+                               "Ask the druid about the charm");
+                break;
+            }
+
+            if (game.selected == RP_IDX_BAT && game.quest_stage < 4)
+            {
+                rp_set_message("Bat roost is too dark",
+                               "Clear the ratling trial first");
+                break;
+            }
+
+            if (game.selected == RP_IDX_SKELETON && game.quest_stage < 5)
+            {
+                rp_set_message("Crypt gate is watched",
+                               "Ask the city guard first");
+                break;
+            }
+
+            if (game.enemy_hp > enemy_max)
+                game.enemy_hp = enemy_max;
+
             rp_start_activity(RP_ACTIVITY_FIGHT, game.selected, HZ * 2 / 3);
-            game.enemy_hp -= 2 + (rb->rand() % 2);
+            damage = 2 + (rb->rand() % 2) + rp_level_bonus(target->kind);
+            if (game.inv.charms > 0)
+                damage++;
+            game.enemy_hp -= damage;
             if (game.enemy_hp <= 0)
             {
-                game.inv.coins += 2;
-                game.enemy_hp = 6;
-                rp_add_xp(target->kind, 8);
-                rp_set_message("Ratling defeated",
-                               "+2 coins, +8 combat XP");
+                game.inv.coins += rp_enemy_coin_reward(game.selected);
+                if (game.selected == RP_IDX_RATLING && game.quest_stage == 3)
+                {
+                    if (game.inv.charms > 0)
+                        game.inv.charms--;
+                    game.inv.food += 2;
+                    game.quest_stage = 4;
+                    rp_set_message("Cave trial cleared",
+                                   "+8 coins, +2 food, valley safer");
+                }
+                else
+                {
+                    rp_set_message(rp_enemy_defeat_message(game.selected),
+                                   rp_enemy_reward_message(game.selected));
+                }
+                game.enemy_hp = enemy_max;
+                rp_add_xp(target->kind, 4);
             }
             else
             {
@@ -733,8 +1711,8 @@ static void rp_execute_selected_action(void)
                 else
                 {
                     game.hp--;
-                    rp_set_message("You strike the ratling",
-                                   "It claws back");
+                    rp_set_message(rp_enemy_hit_message(game.selected),
+                                   rp_enemy_counter_message(game.selected));
                     if (game.hp <= 0)
                     {
                         game.hp = 10;
@@ -754,12 +1732,14 @@ static void rp_execute_selected_action(void)
                 }
             }
             break;
+        }
 
         case RP_TARGET_EXIT:
-            rp_set_message("Village gate",
-                           "More zones land after the input slice");
+            rp_city_gate();
             break;
     }
+
+    rp_mark_dirty();
 }
 
 static void rp_open_action_menu(void)
@@ -810,6 +1790,7 @@ static void rp_execute_menu_action(void)
                 game.hp = 10;
             rp_start_activity(RP_ACTIVITY_EAT, game.selected, HZ / 2);
             rp_set_message("You eat food", "Health recovered");
+            rp_mark_dirty();
         }
         else
         {
@@ -861,6 +1842,7 @@ static void rp_update_movement(void)
         game.player_x = game.dest_x;
         game.player_y = game.dest_y;
         game.moving = false;
+        rp_mark_dirty();
         if (game.pending_action)
             rp_execute_selected_action();
         return;
@@ -912,12 +1894,28 @@ static int rp_anim_frame(int frames_per_second)
 
 static int rp_skill_level(int xp)
 {
-    return 1 + xp / 10;
+    int i;
+
+    for (i = (int)ARRAYLEN(rp_level_xp) - 1; i > 0; i--)
+    {
+        if (xp >= rp_level_xp[i])
+            return i + 1;
+    }
+
+    return 1;
 }
 
 static int rp_skill_progress(int xp)
 {
-    return xp % 10;
+    int level = rp_skill_level(xp);
+    int current = rp_level_xp[level - 1];
+    int next;
+
+    if (level >= (int)ARRAYLEN(rp_level_xp))
+        return 100;
+
+    next = rp_level_xp[level];
+    return ((xp - current) * 100) / MAX(1, next - current);
 }
 
 static void rp_draw_sprite(enum rp_sprite sprite, int x, int y)
@@ -946,11 +1944,17 @@ static void rp_draw_player_dir(int x, int y)
 {
     int sx;
     int stride;
+    int frame = 1;
 
     if (!rp_player_dirs_loaded)
         return;
 
-    sx = (int)game.player_dir * RP_SPRITE_W;
+    if (game.moving || rp_activity_active())
+        frame = (int)((*rb->current_tick / MAX(1, HZ / 8)) %
+                      RP_PLAYER_WALK_FRAMES);
+
+    sx = ((int)game.player_dir * RP_PLAYER_WALK_FRAMES + frame) *
+         RP_SPRITE_W;
     stride = STRIDE(SCREEN_MAIN, RP_PLAYER_DIR_SHEET_W, RP_PLAYER_DIR_SHEET_H);
     rb->lcd_bitmap_transparent_part(rp_player_dir_pixels, sx, 0,
                                     stride, x, y,
@@ -1056,25 +2060,56 @@ static bool rp_building_edge(int x, int y, int rx, int ry, int rw, int rh)
 
 static enum rp_tile rp_tile_at(int world_x, int world_y)
 {
-    if (world_x > 500 && world_y > 300)
+    if (world_x > 760 && world_y > 452)
         return RP_TILE_CAVE;
-    if (world_x > 485 && world_y > 185 && world_y < 285)
+    if ((world_x > 485 && world_x < 584 && world_y > 185 && world_y < 285) ||
+        (world_x > 700 && world_x < 800 && world_y > 262 && world_y < 360))
         return RP_TILE_WATER;
     if (rp_building_edge(world_x, world_y, 368, 96, 96, 96) ||
-        rp_building_edge(world_x, world_y, 248, 128, 96, 80))
+        rp_building_edge(world_x, world_y, 248, 128, 96, 80) ||
+        rp_building_edge(world_x, world_y, 690, 128, 80, 80) ||
+        rp_building_edge(world_x, world_y, 628, 104, 80, 112) ||
+        rp_building_edge(world_x, world_y, 708, 104, 96, 80) ||
+        rp_building_edge(world_x, world_y, 708, 184, 96, 88) ||
+        rp_building_edge(world_x, world_y, 776, 104, 88, 72))
         return RP_TILE_VILLAGE;
     if (rp_in_rect(world_x, world_y, 400, 128, 32, 32) ||
         rp_in_rect(world_x, world_y, 280, 160, 32, 32) ||
-        rp_in_rect(world_x, world_y, 344, 144, 48, 48))
+        rp_in_rect(world_x, world_y, 344, 144, 48, 48) ||
+        rp_in_rect(world_x, world_y, 716, 160, 32, 32) ||
+        rp_in_rect(world_x, world_y, 660, 136, 32, 32) ||
+        rp_in_rect(world_x, world_y, 728, 168, 32, 32) ||
+        rp_in_rect(world_x, world_y, 648, 168, 40, 32) ||
+        rp_in_rect(world_x, world_y, 736, 204, 56, 24) ||
+        rp_in_rect(world_x, world_y, 620, 272, 52, 28) ||
+        rp_in_rect(world_x, world_y, 792, 128, 40, 32))
         return RP_TILE_WOOD;
-    if (rp_in_rect(world_x, world_y, 360, 176, 112, 64))
+    if (rp_in_rect(world_x, world_y, 360, 176, 112, 64) ||
+        rp_in_rect(world_x, world_y, 748, 400, 128, 72) ||
+        rp_in_rect(world_x, world_y, 676, 168, 64, 32) ||
+        rp_in_rect(world_x, world_y, 704, 232, 40, 32) ||
+        rp_in_rect(world_x, world_y, 860, 524, 84, 68))
         return RP_TILE_STONE;
+    if (rp_in_rect(world_x, world_y, 792, 216, 64, 44))
+        return RP_TILE_DARK_GRASS;
     if (world_y > 188 && world_y < 234)
         return RP_TILE_PATH;
     if (world_x > 300 && world_x < 344)
         return RP_TILE_PATH;
-    if (world_x > 420 && world_y > 268)
+    if (world_x > 622 && world_x < 666 && world_y > 180)
+        return RP_TILE_PATH;
+    if (world_x > 636 && world_x < 794 && world_y > 132 && world_y < 244)
+        return RP_TILE_PATH;
+    if (world_y > 496 && world_y < 538 && world_x > 620)
+        return RP_TILE_PATH;
+    if (world_x > 600 && world_x < 680 && world_y > 224 && world_y < 304)
+        return RP_TILE_PATH;
+    if (world_x > 776 && world_x < 864 && world_y > 132 && world_y < 188)
+        return RP_TILE_PATH;
+    if (world_x > 705 && world_y > 390)
         return RP_TILE_STONE;
+    if (world_x < 230 && world_y > 390)
+        return RP_TILE_DARK_GRASS;
     if (((world_x / RP_TILE_SIZE) + (world_y / RP_TILE_SIZE)) & 1)
         return RP_TILE_DARK_GRASS;
     return RP_TILE_GRASS;
@@ -1147,12 +2182,70 @@ static void rp_draw_target(int i)
         case RP_TARGET_ROCK: sprite = RP_SPR_COPPER; break;
         case RP_TARGET_FISH: sprite = RP_SPR_POND; break;
         case RP_TARGET_FIRE: sprite = RP_SPR_FIRE; break;
-        case RP_TARGET_BENCH: sprite = RP_SPR_WORKBENCH; break;
-        case RP_TARGET_ENEMY: sprite = RP_SPR_RATLING; break;
-        case RP_TARGET_EXIT: sprite = RP_SPR_COMBAT; break;
+        case RP_TARGET_BENCH:
+            if (i == RP_IDX_FORGE)
+                sprite = RP_SPR_FORGE;
+            else if (i == RP_IDX_ANVIL)
+                sprite = RP_SPR_ANVIL;
+            else if (i == RP_IDX_DUMMY)
+                sprite = RP_SPR_DUMMY;
+            else
+                sprite = RP_SPR_WORKBENCH;
+            break;
+        case RP_TARGET_ENEMY:
+            if (i == RP_IDX_SLIME)
+                sprite = RP_SPR_SLIME;
+            else if (i == RP_IDX_BANDIT)
+                sprite = RP_SPR_BANDIT;
+            else if (i == RP_IDX_BAT)
+                sprite = RP_SPR_BAT;
+            else if (i == RP_IDX_SKELETON)
+                sprite = RP_SPR_SKELETON;
+            else if (i == RP_IDX_WOLF)
+                sprite = RP_SPR_WOLF;
+            else
+                sprite = RP_SPR_RATLING;
+            break;
+        case RP_TARGET_EXIT: sprite = RP_SPR_CITY_GATE; break;
         case RP_TARGET_NPC:
         default:
-            sprite = i == 0 ? RP_SPR_GUIDE : RP_SPR_SHOPKEEPER;
+            if (i == RP_IDX_MARKET_COUNTER)
+                sprite = RP_SPR_MARKET_COUNTER;
+            else if (i == RP_IDX_FORGE)
+                sprite = RP_SPR_FORGE;
+            else if (i == RP_IDX_ANVIL)
+                sprite = RP_SPR_ANVIL;
+            else if (i == RP_IDX_INN_BED)
+                sprite = RP_SPR_INN_BED;
+            else if (i == RP_IDX_INN_TABLE)
+                sprite = RP_SPR_INN_TABLE;
+            else if (i == RP_IDX_SHRINE)
+                sprite = RP_SPR_HEALER_SHRINE;
+            else if (i == RP_IDX_WELL)
+                sprite = RP_SPR_CITY_WELL;
+            else if (i == RP_IDX_NOTICE)
+                sprite = RP_SPR_SIGNPOST;
+            else if (i == RP_IDX_GUARD)
+                sprite = RP_SPR_GUARD;
+            else if (i == RP_IDX_BAKERY)
+                sprite = RP_SPR_BAKERY;
+            else if (i == RP_IDX_TRAINER)
+                sprite = RP_SPR_TRAINER;
+            else if (i == RP_IDX_HERB_BED)
+                sprite = RP_SPR_HERB_BED;
+            else if (i == RP_IDX_BANK_CHEST)
+                sprite = RP_SPR_BANK_CHEST;
+            else if (i == RP_IDX_SMITH)
+                sprite = RP_SPR_SMITH;
+            else if (i == RP_IDX_INN)
+                sprite = RP_SPR_INN;
+            else if (i == RP_IDX_HEALER)
+                sprite = RP_SPR_HEALER;
+            else if (i == RP_IDX_MARKET)
+                sprite = RP_SPR_MARKET;
+            else
+                sprite = (i == RP_IDX_GUIDE || i == RP_IDX_DRUID)
+                         ? RP_SPR_GUIDE : RP_SPR_SHOPKEEPER;
             break;
     }
 
@@ -1192,8 +2285,8 @@ static void rp_draw_target(int i)
         case RP_TARGET_NPC:
         default:
             rp_draw_npc(sx, sy,
-                        i == 0 ? LCD_RGBPACK(86, 116, 74)
-                               : LCD_RGBPACK(126, 88, 48));
+                        (i == 0 || i == 2) ? LCD_RGBPACK(86, 116, 74)
+                                           : LCD_RGBPACK(126, 88, 48));
             break;
     }
 }
@@ -1393,6 +2486,44 @@ static void rp_draw_action_animation(void)
                          psx, psy - 27 - phase);
             break;
 
+        case RP_ACTIVITY_PICK:
+            rp_draw_line(LCD_RGBPACK(116, 190, 100), hand_x, hand_y,
+                         tx - sign * phase, ty - 18 - phase);
+            rp_fill(LCD_RGBPACK(116, 190, 100),
+                    tx - 8 + phase * 2, ty - 24 - phase, 4, 4);
+            rp_fill(RP_COL_ACCENT,
+                    psx - 3 + phase, psy - 28 - phase, 5, 5);
+            break;
+
+        case RP_ACTIVITY_TRAIN:
+        {
+            int hit_x = tx - sign * (10 - phase * 2);
+            int hit_y = ty - 17 + phase;
+
+            rp_draw_action_tool(RP_COL_ACCENT, hand_x, hand_y, hit_x, hit_y);
+            rp_rect(RP_COL_FOCUS, tx - 11, ty - 28, 22, 24);
+            if (phase >= 1)
+                rp_draw_sparks(tx, ty, phase);
+            break;
+        }
+
+        case RP_ACTIVITY_PRAY:
+            rp_draw_line(RP_COL_ACCENT, tx, ty - 30 - phase,
+                         tx, ty - 7);
+            rp_draw_line(LCD_RGBPACK(164, 210, 222), tx - 10 - phase,
+                         ty - 18, tx + 10 + phase, ty - 18);
+            rp_rect(RP_COL_ACCENT, tx - 8 - phase, ty - 26 - phase,
+                    16 + phase * 2, 18 + phase * 2);
+            break;
+
+        case RP_ACTIVITY_BUY:
+            rp_fill(RP_COL_ACCENT, tx - 4 + phase * 2, ty - 28 - phase,
+                    8, 8);
+            rp_fill(RP_COL_ACCENT, psx - 4 - phase, psy - 24 - phase,
+                    7, 7);
+            rp_draw_line(RP_COL_MUTED, psx, psy - 20, tx, ty - 20);
+            break;
+
         case RP_ACTIVITY_NONE:
         default:
             break;
@@ -1487,7 +2618,10 @@ static void rp_draw_title(void)
     rb->lcd_set_foreground(RP_COL_TEXT);
     rb->lcd_putsxy(54, 82, "Click-wheel fantasy RPG");
     rb->lcd_set_foreground(RP_COL_MUTED);
-    rb->lcd_putsxy(50, 112, "Select starts   Menu exits");
+    if (game.save_loaded)
+        rb->lcd_putsxy(58, 112, "Select continues   Menu exits");
+    else
+        rb->lcd_putsxy(50, 112, "Select starts   Menu exits");
 }
 
 static void rp_draw_menu_panel(const char *title)
@@ -1496,6 +2630,20 @@ static void rp_draw_menu_panel(const char *title)
     rp_fill(RP_COL_PANEL_2, 0, 0, LCD_WIDTH, 22);
     rb->lcd_set_foreground(RP_COL_ACCENT);
     rb->lcd_putsxy(5, 7, title);
+}
+
+static const char *rp_quest_hint(void)
+{
+    switch (game.quest_stage)
+    {
+        case 0: return "Quest: talk to the guide";
+        case 1: return "Quest: 3 logs, 2 ore, 1 food";
+        case 2: return "Quest: train then visit druid";
+        case 3: return "Quest: defeat cave ratling";
+        case 4: return "Quest: talk to city guard";
+        case 5: return "Quest: guard bounty, hunt skeleton";
+        default: return "Quest: explore";
+    }
 }
 
 static void rp_draw_actions(void)
@@ -1570,6 +2718,8 @@ static void rp_draw_inventory(void)
                  game.xp.combat, game.xp.mining, game.xp.woodcutting,
                  game.xp.fishing, game.xp.cooking, game.xp.crafting);
     rp_draw_text_clip(20, 164, buf, 38);
+    rb->lcd_set_foreground(RP_COL_TEXT);
+    rp_draw_text_clip(20, 182, rp_quest_hint(), 36);
     rb->lcd_set_foreground(RP_COL_MUTED);
     rb->lcd_putsxy(20, LCD_HEIGHT - 17, "Select levels  Left map  Menu returns");
 }
@@ -1579,7 +2729,7 @@ static void rp_draw_level_row(int y, enum rp_sprite icon, const char *name,
 {
     char buf[48];
     int progress = rp_skill_progress(xp);
-    int filled = progress * 9;
+    int filled = (progress * 94) / 100;
 
     if (rp_sprites_loaded)
         rp_draw_sprite(icon, 14, y - 10);
@@ -1589,7 +2739,7 @@ static void rp_draw_level_row(int y, enum rp_sprite icon, const char *name,
     rb->lcd_putsxy(rp_sprites_loaded ? 52 : 20, y, buf);
 
     rb->lcd_set_foreground(RP_COL_MUTED);
-    rb->snprintf(buf, sizeof(buf), "%d/10", progress);
+    rb->snprintf(buf, sizeof(buf), "%d%%", progress);
     rb->lcd_putsxy(142, y, buf);
 
     rp_rect(RP_COL_MUTED, 190, y + 1, 96, 7);
@@ -1614,6 +2764,7 @@ static void rp_draw_levels(void)
     rp_draw_level_row(y, RP_SPR_WORKBENCH, "Crafting", game.xp.crafting);
 
     rb->lcd_set_foreground(RP_COL_MUTED);
+    rb->lcd_putsxy(20, 198, "Levels use a slow cumulative XP curve");
     rb->lcd_putsxy(20, LCD_HEIGHT - 17, "Select map  Left bag  Menu returns");
 }
 
@@ -1655,12 +2806,33 @@ static void rp_draw_map(void)
             map_y, (44 * map_w) / RP_WORLD_W, map_h);
     rp_fill(RP_COL_PATH, map_x, map_y + (188 * map_h) / RP_WORLD_H,
             map_w, (46 * map_h) / RP_WORLD_H);
+    rp_fill(RP_COL_PATH, map_x + (622 * map_w) / RP_WORLD_W,
+            map_y + (180 * map_h) / RP_WORLD_H,
+            (44 * map_w) / RP_WORLD_W, (360 * map_h) / RP_WORLD_H);
+    rp_fill(RP_COL_PATH, map_x + (636 * map_w) / RP_WORLD_W,
+            map_y + (132 * map_h) / RP_WORLD_H,
+            (158 * map_w) / RP_WORLD_W, (112 * map_h) / RP_WORLD_H);
+    rp_fill(RP_COL_PATH, map_x + (620 * map_w) / RP_WORLD_W,
+            map_y + (496 * map_h) / RP_WORLD_H,
+            (260 * map_w) / RP_WORLD_W, (42 * map_h) / RP_WORLD_H);
+    rp_fill(RP_COL_PATH, map_x + (600 * map_w) / RP_WORLD_W,
+            map_y + (224 * map_h) / RP_WORLD_H,
+            (80 * map_w) / RP_WORLD_W, (80 * map_h) / RP_WORLD_H);
+    rp_fill(RP_COL_PATH, map_x + (776 * map_w) / RP_WORLD_W,
+            map_y + (132 * map_h) / RP_WORLD_H,
+            (88 * map_w) / RP_WORLD_W, (56 * map_h) / RP_WORLD_H);
     rp_fill(RP_COL_WATER, map_x + (485 * map_w) / RP_WORLD_W,
             map_y + (185 * map_h) / RP_WORLD_H,
             (85 * map_w) / RP_WORLD_W, (100 * map_h) / RP_WORLD_H);
-    rp_fill(RP_COL_STONE, map_x + (420 * map_w) / RP_WORLD_W,
-            map_y + (268 * map_h) / RP_WORLD_H,
-            (210 * map_w) / RP_WORLD_W, (140 * map_h) / RP_WORLD_H);
+    rp_fill(RP_COL_WATER, map_x + (700 * map_w) / RP_WORLD_W,
+            map_y + (262 * map_h) / RP_WORLD_H,
+            (100 * map_w) / RP_WORLD_W, (98 * map_h) / RP_WORLD_H);
+    rp_fill(RP_COL_STONE, map_x + (705 * map_w) / RP_WORLD_W,
+            map_y + (390 * map_h) / RP_WORLD_H,
+            (210 * map_w) / RP_WORLD_W, (190 * map_h) / RP_WORLD_H);
+    rp_fill(RP_COL_STONE, map_x + (860 * map_w) / RP_WORLD_W,
+            map_y + (524 * map_h) / RP_WORLD_H,
+            (84 * map_w) / RP_WORLD_W, (68 * map_h) / RP_WORLD_H);
     rp_fill(RP_COL_STONE, map_x + (360 * map_w) / RP_WORLD_W,
             map_y + (176 * map_h) / RP_WORLD_H,
             (112 * map_w) / RP_WORLD_W, (64 * map_h) / RP_WORLD_H);
@@ -1679,6 +2851,45 @@ static void rp_draw_map(void)
     rp_fill(RP_COL_WOOD, map_x + (344 * map_w) / RP_WORLD_W,
             map_y + (144 * map_h) / RP_WORLD_H,
             (48 * map_w) / RP_WORLD_W, (48 * map_h) / RP_WORLD_H);
+    rp_fill(RP_COL_ROOF, map_x + (690 * map_w) / RP_WORLD_W,
+            map_y + (128 * map_h) / RP_WORLD_H,
+            (80 * map_w) / RP_WORLD_W, (80 * map_h) / RP_WORLD_H);
+    rp_fill(RP_COL_WOOD, map_x + (716 * map_w) / RP_WORLD_W,
+            map_y + (160 * map_h) / RP_WORLD_H,
+            (32 * map_w) / RP_WORLD_W, (32 * map_h) / RP_WORLD_H);
+    rp_fill(RP_COL_ROOF, map_x + (628 * map_w) / RP_WORLD_W,
+            map_y + (104 * map_h) / RP_WORLD_H,
+            (176 * map_w) / RP_WORLD_W, (168 * map_h) / RP_WORLD_H);
+    rp_fill(RP_COL_ROOF, map_x + (776 * map_w) / RP_WORLD_W,
+            map_y + (104 * map_h) / RP_WORLD_H,
+            (88 * map_w) / RP_WORLD_W, (72 * map_h) / RP_WORLD_H);
+    rp_fill(RP_COL_PATH, map_x + (660 * map_w) / RP_WORLD_W,
+            map_y + (136 * map_h) / RP_WORLD_H,
+            (112 * map_w) / RP_WORLD_W, (92 * map_h) / RP_WORLD_H);
+    rp_fill(RP_COL_WOOD, map_x + (660 * map_w) / RP_WORLD_W,
+            map_y + (136 * map_h) / RP_WORLD_H,
+            (32 * map_w) / RP_WORLD_W, (32 * map_h) / RP_WORLD_H);
+    rp_fill(RP_COL_WOOD, map_x + (728 * map_w) / RP_WORLD_W,
+            map_y + (168 * map_h) / RP_WORLD_H,
+            (32 * map_w) / RP_WORLD_W, (32 * map_h) / RP_WORLD_H);
+    rp_fill(RP_COL_WOOD, map_x + (620 * map_w) / RP_WORLD_W,
+            map_y + (272 * map_h) / RP_WORLD_H,
+            (52 * map_w) / RP_WORLD_W, (28 * map_h) / RP_WORLD_H);
+    rp_fill(RP_COL_WOOD, map_x + (792 * map_w) / RP_WORLD_W,
+            map_y + (128 * map_h) / RP_WORLD_H,
+            (40 * map_w) / RP_WORLD_W, (32 * map_h) / RP_WORLD_H);
+    rp_fill(RP_COL_GRASS_DARK, map_x + (520 * map_w) / RP_WORLD_W,
+            map_y + (400 * map_h) / RP_WORLD_H,
+            (120 * map_w) / RP_WORLD_W, (70 * map_h) / RP_WORLD_H);
+    rp_fill(RP_COL_GRASS_DARK, map_x + (792 * map_w) / RP_WORLD_W,
+            map_y + (216 * map_h) / RP_WORLD_H,
+            (64 * map_w) / RP_WORLD_W, (44 * map_h) / RP_WORLD_H);
+    rp_fill(RP_COL_GRASS_DARK, map_x + (180 * map_w) / RP_WORLD_W,
+            map_y + (532 * map_h) / RP_WORLD_H,
+            (90 * map_w) / RP_WORLD_W, (76 * map_h) / RP_WORLD_H);
+    rp_fill(LCD_RGBPACK(83, 74, 58), map_x + (650 * map_w) / RP_WORLD_W,
+            map_y + (500 * map_h) / RP_WORLD_H,
+            (96 * map_w) / RP_WORLD_W, (70 * map_h) / RP_WORLD_H);
 
     rp_rect(RP_COL_MUTED, map_x, map_y, map_w, map_h);
     rp_rect(RP_COL_ACCENT, view_x, view_y, view_w, view_h);
@@ -1885,6 +3096,7 @@ enum plugin_status plugin_start(const void *parameter)
     rp_load_player_dirs();
     rp_load_terrain();
     rp_init_game();
+    rp_load_game();
     game.music_started = rp_start_music();
     rp_smoke_log("start", 0);
 
@@ -1894,6 +3106,7 @@ enum plugin_status plugin_start(const void *parameter)
         rp_handle_event(event);
         rp_update_movement();
         rp_update_activity();
+        rp_autosave_if_needed();
         rp_render();
         rendered_frames++;
         if (rendered_frames == 3)
@@ -1901,6 +3114,7 @@ enum plugin_status plugin_start(const void *parameter)
     }
 
     rp_smoke_log("exit", rendered_frames);
+    rp_save_game();
     rp_set_wheel_events(true);
     rb->button_clear_queue();
     return PLUGIN_OK;

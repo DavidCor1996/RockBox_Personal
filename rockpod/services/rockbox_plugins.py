@@ -6,6 +6,19 @@ import os
 
 
 PLUGIN_OVERRIDES = {
+    "runepod": {
+        "display_name": "RunePod",
+        "status": "experimental",
+        "category": "games",
+        "custom": True,
+        "summary": "Native click-wheel fantasy RPG with persistent saves.",
+        "docs": [
+            "docs/runepod-rpg-expansion-spec.md",
+        ],
+        "dependencies": [
+            ".rockbox/rocks/games/runepod/ generated sprite and tile sheets",
+        ],
+    },
     "pocketcatch": {
         "display_name": "Podemon Go",
         "status": "experimental",
@@ -170,6 +183,8 @@ class RockboxPluginService:
                     asset_sources.append(candidate)
         elif plugin_id == "pocketcatch":
             asset_sources = self._pocketcatch_asset_sources(repo_root, category, profile, simulator_target)
+        elif plugin_id == "runepod":
+            asset_sources = self._runepod_asset_sources(repo_root, category)
         return {
             "id": plugin_id,
             "display_name": override.get("display_name", plugin_id.replace("_", " ").title()),
@@ -197,6 +212,26 @@ class RockboxPluginService:
             return asset_source["source_abs"], asset_source["destination_rel"]
         filename = os.path.basename(asset_source)
         return asset_source, f"{metadata['asset_destination_dir']}/{filename}"
+
+    @staticmethod
+    def _runepod_asset_sources(repo_root, category):
+        asset_root = os.path.join(repo_root, "rockpod", "assets", "runepod")
+        destination_root = f".rockbox/rocks/{category}/runepod"
+        sources = []
+        for rel_path in (
+            "sprites/runepod_sprites.320x160x24.bmp",
+            "sprites/runepod_player_dirs.384x32x24.bmp",
+            "tiles/runepod_terrain_tiles.256x32x24.bmp",
+        ):
+            source_abs = os.path.join(asset_root, rel_path)
+            if os.path.isfile(source_abs):
+                sources.append(
+                    {
+                        "source_abs": source_abs,
+                        "destination_rel": f"{destination_root}/{rel_path}",
+                    }
+                )
+        return sources
 
     @classmethod
     def _pocketcatch_asset_sources(cls, repo_root, category, profile, simulator_target):

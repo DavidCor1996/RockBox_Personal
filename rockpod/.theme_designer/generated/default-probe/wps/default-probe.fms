@@ -65,14 +65,14 @@
 %xd(r)
 %V(160,54,157,21,1)%Vf(000000)
 %al%tf Mhz
-%V(160,77,157,19,3)%Vf(646872)
+%V(160,77,157,19,3)%Vf(6E6C73)
 %s%al%?Tn<%Tn|%?ty<%ty|%?tt<Tuned|tune>>>
-%V(160,96,157,19,3)%Vf(646872)
+%V(160,96,157,19,3)%Vf(6E6C73)
 %s%al%?tz<%tz|%Sx(Signal strength:)>
 %xl(R,Ratings.bmp,0,0,10)
 %V(160,116,66,13,-)
 %?tr<|%xd(Ra)|%xd(Rb)|%xd(Rc)|%xd(Rd)|%xd(Re)|%xd(Rf)|%xd(Rg)|%xd(Rh)|%xd(Ri)|%xd(Rj)>
-%V(160,134,157,14,2)%Vf(646872)
+%V(160,134,157,14,2)%Vf(6E6C73)
 %s%al%?tm<%Sx(Scan)|%Ti %Sx(of) %Tc>
 %?mv(2.0)<%Vd(volume)|%Vd(pb)>
 %Vl(pb,58,206,204,23,-) 
@@ -99,23 +99,23 @@
 %xl(LsWallpaper,Wallpaper.bmp)
 %xl(SlideBack,LargeSliderBackdrop.bmp)
 %xl(SlideKnob,LargeSliderFallback.bmp)
-%Vl(iPoneLockscreen,0,0,-,-,4)%Vf(0D111B)%Vb(000000)
+%Vl(iPoneLockscreen,0,0,-,-,4)%Vf(15121D)%Vb(000000)
 %xd(LsWallpaper)
 %Vl(iPoneLockscreen,12,10,16,16,-)%xd(h)
-%Vl(iPoneLockscreen,32,8,60,16,2)%Vf(0D111B)%alHOLD
+%Vl(iPoneLockscreen,32,8,60,16,2)%Vf(15121D)%alHOLD
 %Vl(iPoneLockscreen,287,10,25,11,-)
 %?bp<%?bc<%t(1.0)%xd(Ba);%t(1.0)%xd(Bb)|%xd(Bc)>|%?bl<%xd(Bd)|%xd(Bd)|%xd(Be)|%xd(Bf)|%xd(Bg)|%xd(Bh)|%xd(Bi)|%xd(Bj)|%xd(Bk)|%xd(Bl)|%xd(Bm)|%xd(Bn)|%xd(Bo)|%xd(Bp)|%xd(Bq)|%xd(Br)|%xd(Bs)|%xd(Bt)|%xd(Bu)|%xd(Bv)|%xd(Bw)|%xd(Bx)||>>
-%Vl(iPoneLockscreen,242,8,44,16,2)%Vf(0D111B)%ar%bl%%
-%Vl(iPoneLockscreen,0,55,-,60,4)%Vf(0D111B)%ac%cl:%cM %cP
-%Vl(iPoneLockscreen,0,120,-,20,3)%Vf(0D111B)%ac%?if(%ss(0,7,%St(lang)), =, english)<%?cu<Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday>|%ca> %?or(%if(%ss(0,7,%St(lang)), =, chinese),%if(%St(lang), =, magyar),%if(%St(lang), =, lietuviu),%if(%St(lang), =, japanese),%if(%St(lang), =, korean))<%cb %cd|%?if(%St(lang), =, english-us)<%cb %cd|%cd %cb>>
-%Vl(iPoneLockscreen,0,160,-,18,2)%Vf(0D111B)%ac%?tm<%?tx<%ty|FM Radio>|%Tn>
-%Vl(iPoneLockscreen,0,180,-,18,2)%Vf(0D111B)%ac%?tx<%tz|Signal: %?tr<Faint/No Signal|Weak|Fair|Strong|Very Strong>>
+%Vl(iPoneLockscreen,242,8,44,16,2)%Vf(15121D)%ar%bl%%
+%Vl(iPoneLockscreen,0,55,-,60,4)%Vf(15121D)%ac%cl:%cM %cP
+%Vl(iPoneLockscreen,0,120,-,20,3)%Vf(15121D)%ac%?if(%ss(0,7,%St(lang)), =, english)<%?cu<Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday>|%ca> %?or(%if(%ss(0,7,%St(lang)), =, chinese),%if(%St(lang), =, magyar),%if(%St(lang), =, lietuviu),%if(%St(lang), =, japanese),%if(%St(lang), =, korean))<%cb %cd|%?if(%St(lang), =, english-us)<%cb %cd|%cd %cb>>
+%Vl(iPoneLockscreen,0,160,-,18,2)%Vf(15121D)%ac%?tm<%?tx<%ty|FM Radio>|%Tn>
+%Vl(iPoneLockscreen,0,180,-,18,2)%Vf(15121D)%ac%?tx<%tz|Signal: %?tr<Faint/No Signal|Weak|Fair|Strong|Very Strong>>
 %Vl(iPoneLockscreen,98,208,125,28,-)%xd(SlideBack)
 %Vl(iPoneLockscreen,98,208,30,28,-)%xd(SlideKnob)
-%Vl(iPoneLockscreen,98,212,125,20,2)%Vf(0D111B)%acSlide to Start
+%Vl(iPoneLockscreen,98,212,125,20,2)%Vf(15121D)%acSlide to Start
 
-%Vl(iPoneAOD,0,0,-,-,4)%Vf(000000)%Vb(0D111B)
-%dr(0,0,-,-,0D111B)
+%Vl(iPoneAOD,0,0,-,-,4)%Vf(000000)%Vb(15121D)
+%dr(0,0,-,-,15121D)
 %Vl(iPoneAOD,12,10,16,16,-)%Vf(000000)%xd(h)
 %Vl(iPoneAOD,32,8,60,16,2)%Vf(000000)%alHOLD
 %Vl(iPoneAOD,287,10,25,11,-)%Vf(000000)

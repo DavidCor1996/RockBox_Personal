@@ -37,11 +37,29 @@ struct scummvm_sky_runtime_info {
     char first_logic_name[32];
 };
 
+#define SCUMMVM_SKY_OVERLAY_LINES 8
+#define SCUMMVM_SKY_OVERLAY_TEXT 96
+
+struct scummvm_sky_overlay_line {
+    char text[SCUMMVM_SKY_OVERLAY_TEXT];
+    uint16_t value;
+    int y;
+    bool selectable;
+};
+
+struct scummvm_sky_overlay {
+    struct scummvm_sky_overlay_line lines[SCUMMVM_SKY_OVERLAY_LINES];
+    uint16_t count;
+    bool choosing;
+};
+
 bool scummvm_sky_runtime_init(const struct scummvm_target *target,
                               char *status,
                               size_t status_size);
 bool scummvm_sky_runtime_step(char *status, size_t status_size);
 bool scummvm_sky_runtime_render(struct scummvm_video *video);
+void scummvm_sky_runtime_input(int x, int y, bool down, bool clicked);
+bool scummvm_sky_runtime_overlay(struct scummvm_sky_overlay *overlay);
 bool scummvm_sky_runtime_scan(struct scummvm_sky_runtime_info *info,
                               char *status,
                               size_t status_size);

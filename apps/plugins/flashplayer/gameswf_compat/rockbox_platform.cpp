@@ -194,16 +194,15 @@ void __assert(const char *file, int line, const char *expr)
     (void)expr;
 }
 
+#ifdef SIMULATOR
 extern "C" size_t strlen(const char *s)
 {
-#ifdef SIMULATOR
     if (!rb) {
         const char *p = s;
         while (*p)
             p++;
         return (size_t)(p - s);
     }
-#endif
     return rb->strlen(s);
 }
 
@@ -217,7 +216,6 @@ extern "C" char *strcpy(char *dest, const char *src)
 
 extern "C" int strcmp(const char *a, const char *b)
 {
-#ifdef SIMULATOR
     if (!rb) {
         while (*a && *a == *b) {
             a++;
@@ -225,9 +223,9 @@ extern "C" int strcmp(const char *a, const char *b)
         }
         return (unsigned char)*a - (unsigned char)*b;
     }
-#endif
     return rb->strcmp(a, b);
 }
+#endif
 
 extern "C" int strncmp(const char *a, const char *b, size_t n)
 {
@@ -240,23 +238,7 @@ extern "C" int strncmp(const char *a, const char *b, size_t n)
     return 0;
 }
 
-#ifndef SIMULATOR
-extern "C" char *strstr(const char *haystack, const char *needle)
-{
-    size_t needle_len = strlen(needle);
-
-    if (needle_len == 0)
-        return (char *)haystack;
-
-    for (; *haystack; haystack++) {
-        if (*haystack == *needle && strncmp(haystack, needle, needle_len) == 0)
-            return (char *)haystack;
-    }
-
-    return 0;
-}
-#endif
-
+#ifdef SIMULATOR
 extern "C" int toupper(int c)
 {
     return c >= 'a' && c <= 'z' ? c - ('a' - 'A') : c;
@@ -265,27 +247,6 @@ extern "C" int toupper(int c)
 extern "C" int tolower(int c)
 {
     return c >= 'A' && c <= 'Z' ? c + ('a' - 'A') : c;
-}
-
-#ifndef SIMULATOR
-extern "C" char *strchr(const char *s, int c)
-{
-    while (*s) {
-        if (*s == (char)c)
-            return (char *)s;
-        s++;
-    }
-    return c == 0 ? (char *)s : 0;
-}
-
-extern "C" char *strrchr(const char *s, int c)
-{
-    const char *last = 0;
-    do {
-        if (*s == (char)c)
-            last = s;
-    } while (*s++);
-    return (char *)last;
 }
 #endif
 
@@ -472,6 +433,7 @@ extern "C" double atof(const char *nptr)
     return strtod(nptr, 0);
 }
 
+#ifdef SIMULATOR
 extern "C" long strtol(const char *nptr, char **endptr, int base)
 {
     const char *p = nptr;
@@ -507,6 +469,7 @@ extern "C" int atoi(const char *nptr)
 {
     return (int)strtol(nptr, 0, 10);
 }
+#endif
 
 extern "C" int atexit(void (*function)(void))
 {
@@ -514,6 +477,7 @@ extern "C" int atexit(void (*function)(void))
     return 0;
 }
 
+#ifdef SIMULATOR
 extern "C" void *malloc(size_t size)
 {
     return operator new(size);
@@ -546,6 +510,7 @@ extern "C" void qsort(void *base, size_t nmemb, size_t size,
         }
     }
 }
+#endif
 
 namespace tu_timer
 {
