@@ -24,6 +24,16 @@
 
 #define SCUMMVM_MAX_VALUE        MAX_PATH
 
+static void launch_status(const char *line1, const char *line2)
+{
+    rb->lcd_clear_display();
+    rb->lcd_putsxy(4, 12, "ScummVM");
+    rb->lcd_putsxy(4, 34, line1 ? line1 : "");
+    if (line2)
+        rb->lcd_putsxy(4, 52, line2);
+    rb->lcd_update();
+}
+
 static void trim_whitespace(char **start, char **end)
 {
     while (*start < *end && isspace((unsigned char)**start))
@@ -160,15 +170,23 @@ enum plugin_status plugin_start(const void *parameter)
         return PLUGIN_ERROR;
     }
 
+    launch_status("request heap", (const char *)parameter);
     cxx_buffer = rb->plugin_get_audio_buffer(&cxx_buffer_size);
     if (!cxx_buffer || cxx_buffer_size == 0) {
         rb->splash(HZ * 2, "No ScummVM heap");
         return PLUGIN_ERROR;
     }
     plugin_cxx_init(cxx_buffer, cxx_buffer_size);
+    {
+        char msg[48];
+        rb->snprintf(msg, sizeof(msg), "heap %luK",
+                     (unsigned long)(cxx_buffer_size / 1024));
+        launch_status("heap ready", msg);
+    }
     DEBUGF("scummvm: cxx heap=%zu avail=%zu\n",
            cxx_buffer_size, plugin_cxx_available());
 
+    launch_status("load descriptor", (const char *)parameter);
     DEBUGF("scummvm: loading descriptor %s\n", (const char *)parameter);
     if (!load_descriptor(parameter, &target)) {
         DEBUGF("scummvm: descriptor load failed\n");
@@ -178,12 +196,14 @@ enum plugin_status plugin_start(const void *parameter)
 
     DEBUGF("scummvm: target game=%s engine=%s path=%s save=%s\n",
            target.gameid, target.engine, target.path, target.savepath);
+    launch_status("validate target", target.path);
     if (!validate_target(&target)) {
         DEBUGF("scummvm: target validation failed\n");
         rb->plugin_release_audio_buffer();
         return PLUGIN_ERROR;
     }
 
+    launch_status("enter backend", target.engine);
     DEBUGF("scummvm: entering backend\n");
     status = scummvm_backend_run(&target);
     rb->plugin_release_audio_buffer();

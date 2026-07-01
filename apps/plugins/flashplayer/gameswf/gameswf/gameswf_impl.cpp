@@ -1305,6 +1305,11 @@ namespace gameswf
 		Uint16	character_id = in->read_u16();
 		IF_VERBOSE_PARSE(log_msg("  shape_loader: id = %d\n", character_id));
 		flashplayer_trace_shape(1, character_id, in->get_position());
+		if (flashplayer_should_skip_shape(character_id, tag_type,
+			in->get_position()))
+		{
+			return;
+		}
 
 		void* shape_mem = operator new(sizeof(shape_character_def));
 		if (shape_mem == NULL)

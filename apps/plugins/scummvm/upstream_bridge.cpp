@@ -54,6 +54,16 @@ static jmp_buf upstream_fatal_jmp;
 static bool upstream_fatal_armed;
 static char upstream_fatal_message[192];
 
+static void upstream_status_screen(const char *line1, const char *line2)
+{
+    rb->lcd_clear_display();
+    rb->lcd_putsxy(4, 12, "ScummVM upstream");
+    rb->lcd_putsxy(4, 34, line1 ? line1 : "");
+    if (line2)
+        rb->lcd_putsxy(4, 52, line2);
+    rb->lcd_update();
+}
+
 extern "C" void scummvm_upstream_fatal_error(const char *msg)
 {
     rb->strlcpy(upstream_fatal_message, msg ? msg : "ScummVM fatal error",
@@ -1154,12 +1164,15 @@ public:
         if (!scumm_stricmp(_target->engine, "queen")) {
             DEBUGF("scummvm: upstream queen init start path=%s\n",
                    _target->path);
+            upstream_status_screen("queen init", _target->path);
             if (!queen_system) {
+                upstream_status_screen("create osystem", 0);
                 queen_system = new RockboxOSystem();
                 g_system = queen_system;
             }
             DEBUGF("scummvm: upstream queen os ready\n");
 
+            upstream_status_screen("configure engine", _target->gameid);
             ConfMan.addGameDomain(_target->gameid);
             ConfMan.setActiveDomain(_target->gameid);
             ConfMan.set("path", _target->path);
@@ -1187,10 +1200,13 @@ public:
 
             delete queen_engine;
             DEBUGF("scummvm: upstream queen create engine\n");
+            upstream_status_screen("create queen", 0);
             queen_engine = new Queen::QueenEngine(queen_system);
             DEBUGF("scummvm: upstream queen initialize path\n");
+            upstream_status_screen("initialize path", _target->path);
             queen_engine->initializePath(Common::FSNode(_target->path));
             DEBUGF("scummvm: upstream queen rockboxInit\n");
+            upstream_status_screen("rockbox init", 0);
             if (queen_engine->rockboxInit().getCode() != Common::kNoError) {
                 rb->strlcpy(state->status, "Queen upstream init failed",
                             sizeof(state->status));
@@ -1198,6 +1214,7 @@ public:
                 queen_engine = 0;
                 return false;
             }
+            upstream_status_screen("queen ready", 0);
             rb->strlcpy(state->status, "Queen upstream engine running",
                         sizeof(state->status));
             return true;

@@ -252,6 +252,16 @@ static void draw_backend(const struct scummvm_backend *backend)
     rb->lcd_update();
 }
 
+static void backend_status_screen(const char *line1, const char *line2)
+{
+    rb->lcd_clear_display();
+    rb->lcd_putsxy(4, 12, "ScummVM backend");
+    rb->lcd_putsxy(4, 34, line1 ? line1 : "");
+    if (line2)
+        rb->lcd_putsxy(4, 52, line2);
+    rb->lcd_update();
+}
+
 static bool handle_action(struct scummvm_backend *backend, int action)
 {
     int step = SCUMMVM_CURSOR_STEP;
@@ -359,15 +369,19 @@ enum plugin_status scummvm_backend_run(const struct scummvm_target *target)
     backend.cursor_x = SCUMMVM_SURFACE_W / 2;
     backend.cursor_y = SCUMMVM_SURFACE_H / 2;
     backend.menu_open = false;
+    backend_status_screen("probe game", target->path);
     scummvm_probe_game(target, &backend.probe);
     DEBUGF("scummvm: probe supported=%d data=%d detail=%s\n",
            backend.probe.supported, backend.probe.data_found,
            backend.probe.detail);
+    backend_status_screen("prepare engine", backend.probe.detail);
     scummvm_engine_prepare(target, &backend.probe, &backend.engine);
     DEBUGF("scummvm: engine initialized=%d status=%s\n",
            backend.engine.initialized, backend.engine.status);
+    backend_status_screen("init video", backend.engine.status);
     scummvm_video_init(&backend.video);
     scummvm_video_demo_pattern(&backend.video);
+    backend_status_screen("runtime check", backend.engine.status);
     if (backend.engine.initialized &&
         rb->strcmp(target->engine, "queen") == 0 &&
         !scummvm_upstream_can_run(target))
@@ -375,6 +389,7 @@ enum plugin_status scummvm_backend_run(const struct scummvm_target *target)
                                    backend.engine.status,
                                    sizeof(backend.engine.status));
 
+    backend_status_screen("first frame", backend.engine.status);
     rb->button_clear_queue();
 
     while (running) {

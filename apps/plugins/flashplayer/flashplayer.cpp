@@ -1607,10 +1607,9 @@ extern "C" int flashplayer_should_skip_movie_tag(int loading_frame,
     if (!g.stickrpg_fast_load || loading_frame != 0)
         return 0;
 
-    if (tag_type == 2 || tag_type == 22 || tag_type == 32 ||
-        tag_type == 83 || tag_type == 14 || tag_type == 15 ||
-        tag_type == 17 || tag_type == 18 || tag_type == 19 ||
-        tag_type == 45 || tag_type == 89)
+    if (tag_type == 14 || tag_type == 15 || tag_type == 17 ||
+        tag_type == 18 || tag_type == 19 || tag_type == 45 ||
+        tag_type == 89)
         skip = true;
 
     if (skip) {
@@ -1627,6 +1626,30 @@ extern "C" int flashplayer_should_skip_movie_tag(int loading_frame,
         }
         flash_logf("skip movie tag frame=%d tag=%d type=%d pos=%d",
                    loading_frame, tag_count, tag_type, stream_pos);
+        return 1;
+    }
+
+    return 0;
+}
+
+extern "C" int flashplayer_should_skip_shape(int character_id, int tag_type,
+                                             int stream_pos)
+{
+    if (!g.stickrpg_fast_load)
+        return 0;
+
+    if (character_id == 24) {
+        rb->snprintf(g.status, sizeof(g.status), "skip shape %d",
+                     character_id);
+        SET_BG(COL_BG);
+        SET_FG(COL_BG);
+        rb->lcd_fillrect(0, 24, LCD_WIDTH, 24);
+        SET_FG(COL_DIM);
+        rb->lcd_putsxy(8, 30, g.status);
+        rb->lcd_update();
+        rb->yield();
+        flash_logf("skip shape id=%d type=%d pos=%d",
+                   character_id, tag_type, stream_pos);
         return 1;
     }
 
