@@ -4736,18 +4736,19 @@ static struct bitmap *root_menu_video_db_album_art(int album_seek,
 }
 
 static void root_menu_video_draw_album_thumb(const char *album,
+                                             const char *artist,
                                              int album_seek, int filter_tag,
                                              int filter_seek, int x, int y,
                                              int size, bool active)
 {
-    struct bitmap *bm = albumlist_art_get_thumb(album, "", size);
+    struct bitmap *bm = albumlist_art_get_thumb(album, artist, size);
 
     if (!bm)
         bm = root_menu_video_db_album_art(album_seek, filter_tag,
                                           filter_seek, size);
 
-    lcd_set_foreground(active ? LCD_RGBPACK(206, 231, 252) :
-                                LCD_RGBPACK(238, 238, 238));
+    lcd_set_foreground(active ? LCD_RGBPACK(137, 203, 246) :
+                                LCD_RGBPACK(239, 240, 242));
     lcd_fillrect(x - 1, y - 1, size + 2, size + 2);
 
     if (bm && !root_menu_video_bitmap_has_pixels(bm))
@@ -4761,16 +4762,17 @@ static void root_menu_video_draw_album_thumb(const char *album,
     else
     {
         root_menu_video_gradient(x, y, size, size,
-                                 LCD_RGBPACK(230, 233, 238),
-                                 LCD_RGBPACK(190, 196, 205));
+                                 LCD_RGBPACK(242, 243, 245),
+                                 LCD_RGBPACK(213, 217, 222));
         lcd_set_foreground(active ? LCD_RGBPACK(245, 250, 255) :
-                                    LCD_RGBPACK(150, 156, 166));
-        lcd_drawline(x + 5, y + size - 7, x + size / 2, y + 6);
-        lcd_drawline(x + size / 2, y + 6, x + size - 5, y + size - 7);
+                                    LCD_RGBPACK(164, 169, 176));
+        lcd_drawrect(x + 5, y + 7, size - 10, size - 14);
+        lcd_drawline(x + 7, y + size - 9, x + size / 2, y + 9);
+        lcd_drawline(x + size / 2, y + 9, x + size - 7, y + size - 9);
     }
 
     lcd_set_foreground(active ? LCD_RGBPACK(235, 246, 255) :
-                                LCD_RGBPACK(168, 172, 178));
+                                LCD_RGBPACK(176, 180, 186));
     lcd_drawrect(x - 1, y - 1, size + 2, size + 2);
 }
 #endif /* HAVE_TAGCACHE */
@@ -6751,6 +6753,7 @@ static void root_menu_video_draw_music_menu(int selected)
 #ifdef HAVE_TAGCACHE
 struct root_menu_video_db_row {
     char label[IPODJS_DB_LABEL_LEN];
+    char sublabel[IPODJS_DB_LABEL_LEN];
     int seek;
     int idxid;
     int disc;
@@ -6825,10 +6828,23 @@ static int root_menu_video_db_load(int tag, int filter_tag, int filter_seek,
         }
 
         strmemccpy(rows[count].label, buf, sizeof(rows[count].label));
+        rows[count].sublabel[0] = '\0';
         rows[count].seek = tcs.result_seek;
         rows[count].idxid = tcs.idx_id;
         rows[count].disc = 0;
         rows[count].track = 0;
+        if (tag == tag_album)
+        {
+            if (!tagcache_retrieve(&tcs, tcs.idx_id, tag_albumartist,
+                                   rows[count].sublabel,
+                                   sizeof(rows[count].sublabel)) ||
+                !rows[count].sublabel[0])
+            {
+                (void)tagcache_retrieve(&tcs, tcs.idx_id, tag_artist,
+                                        rows[count].sublabel,
+                                        sizeof(rows[count].sublabel));
+            }
+        }
         if (tag == tag_title)
         {
             rows[count].disc = tagcache_get_numeric(&tcs, tag_discnumber);
@@ -6885,7 +6901,7 @@ static void root_menu_video_draw_db_menu(const char *title, int tag,
     int i;
 
     if (tag == tag_album)
-        row_h = MAX(row_h, 44);
+        row_h = MAX(row_h, 40);
     visible = root_menu_video_visible_rows(row_h);
 
     if (selected >= visible)
@@ -6911,11 +6927,15 @@ static void root_menu_video_draw_db_menu(const char *title, int tag,
         int item_y = IPODJS_HEADER_HEIGHT + i * row_h;
         bool active = index == selected;
         const char *label = "Back";
+        const char *sublabel = "";
         int text_x = 7;
         int text_w = LCD_WIDTH - 28;
 
         if (index < row_count)
+        {
             label = rows[index].label;
+            sublabel = rows[index].sublabel;
+        }
         else if (has_more && index == row_count)
             label = "More...";
 
@@ -6937,21 +6957,38 @@ static void root_menu_video_draw_db_menu(const char *title, int tag,
         if (tag == tag_album && index < row_count)
         {
 #ifdef HAVE_ALBUMART
-            int art_size = MIN(IPODJS_DB_ART_MAX, row_h - 6);
-            int art_x = 6;
+            int art_size = MIN(IPODJS_DB_ART_MAX, 30);
+            int art_x = 8;
             int art_y = item_y + (row_h - art_size) / 2;
             root_menu_video_draw_album_thumb(rows[index].label,
+                                             rows[index].sublabel,
                                              rows[index].seek, filter_tag,
                                              filter_seek, art_x, art_y,
                                              art_size, active);
-            text_x = art_x + art_size + 8;
-            text_w = LCD_WIDTH - text_x - 26;
+            text_x = art_x + art_size + 9;
+            text_w = LCD_WIDTH - text_x - 25;
 #endif
         }
 
-        root_menu_video_puts_fit(text_x,
-                                 item_y + MAX(2, (row_h - font_h) / 2),
-                                 text_w, label, false);
+        if (tag == tag_album && index < row_count && sublabel[0])
+        {
+            lcd_set_foreground(active ? IPODJS_PREVIEW_TEXT :
+                                        root_menu_video_text());
+            lcd_set_background(active ? root_menu_video_accent() :
+                                        root_menu_video_row_bg());
+            root_menu_video_puts_fit(text_x, item_y + 5, text_w,
+                                     label, false);
+            lcd_set_foreground(active ? LCD_RGBPACK(224, 242, 255) :
+                                        root_menu_video_muted_text());
+            root_menu_video_puts_fit(text_x, item_y + 5 + font_h,
+                                     text_w, sublabel, false);
+        }
+        else
+        {
+            root_menu_video_puts_fit(text_x,
+                                     item_y + MAX(2, (row_h - font_h) / 2),
+                                     text_w, label, false);
+        }
         if (active)
             root_menu_video_draw_arrow(LCD_WIDTH - 16,
                                        item_y + (row_h - 6) / 2);
