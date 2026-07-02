@@ -3277,6 +3277,7 @@ static int root_menu_nano2g_dashboard(int *selectedp)
 #define IPODJS_WPS_ART_MAX      128
 #define IPODJS_DB_ART_MAX       40
 #define IPODJS_DB_ART_CACHE     8
+#define IPODJS_DB_ALBUM_ROW_H   44
 #define IPODJS_DB_ART_WORK_EXTRA (44 * 1024)
 #define IPODJS_STOCK_ART_SIZE   96
 #define IPODJS_PREVIEW_IMAGE_SIZE 320
@@ -4742,6 +4743,9 @@ static void root_menu_video_draw_album_thumb(const char *album,
                                              int size, bool active)
 {
     struct bitmap *bm = albumlist_art_get_thumb(album, artist, size);
+
+    if (!bm && artist && artist[0])
+        bm = albumlist_art_get_thumb(album, "", size);
 
     if (!bm)
         bm = root_menu_video_db_album_art(album_seek, filter_tag,
@@ -6901,7 +6905,7 @@ static void root_menu_video_draw_db_menu(const char *title, int tag,
     int i;
 
     if (tag == tag_album)
-        row_h = MAX(row_h, 40);
+        row_h = MAX(row_h, IPODJS_DB_ALBUM_ROW_H);
     visible = root_menu_video_visible_rows(row_h);
 
     if (selected >= visible)
@@ -6930,6 +6934,7 @@ static void root_menu_video_draw_db_menu(const char *title, int tag,
         const char *sublabel = "";
         int text_x = 7;
         int text_w = LCD_WIDTH - 28;
+        int text_y = item_y + MAX(2, (row_h - font_h) / 2);
 
         if (index < row_count)
         {
@@ -6950,6 +6955,13 @@ static void root_menu_video_draw_db_menu(const char *title, int tag,
         {
             lcd_set_foreground(root_menu_video_row_bg());
             lcd_fillrect(0, item_y, LCD_WIDTH, row_h);
+            if (tag == tag_album)
+            {
+                lcd_set_foreground(root_menu_video_dark() ?
+                                   LCD_RGBPACK(43, 48, 56) :
+                                   LCD_RGBPACK(222, 225, 229));
+                lcd_hline(0, LCD_WIDTH - 1, item_y + row_h - 1);
+            }
             lcd_set_foreground(root_menu_video_text());
             lcd_set_background(root_menu_video_row_bg());
         }
@@ -6967,6 +6979,7 @@ static void root_menu_video_draw_db_menu(const char *title, int tag,
                                              art_size, active);
             text_x = art_x + art_size + 8;
             text_w = LCD_WIDTH - text_x - 25;
+            text_y = item_y + MAX(3, (row_h - (font_h * 2)) / 2);
 #endif
         }
 
@@ -6976,17 +6989,15 @@ static void root_menu_video_draw_db_menu(const char *title, int tag,
                                         root_menu_video_text());
             lcd_set_background(active ? root_menu_video_accent() :
                                         root_menu_video_row_bg());
-            root_menu_video_puts_fit(text_x, item_y + 5, text_w,
-                                     label, false);
+            root_menu_video_puts_fit(text_x, text_y, text_w, label, false);
             lcd_set_foreground(active ? LCD_RGBPACK(224, 242, 255) :
                                         root_menu_video_muted_text());
-            root_menu_video_puts_fit(text_x, item_y + 5 + font_h,
-                                     text_w, sublabel, false);
+            root_menu_video_puts_fit(text_x, text_y + font_h, text_w,
+                                     sublabel, false);
         }
         else
         {
-            root_menu_video_puts_fit(text_x,
-                                     item_y + MAX(2, (row_h - font_h) / 2),
+            root_menu_video_puts_fit(text_x, text_y,
                                      text_w, label, false);
         }
         if (active)
