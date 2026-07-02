@@ -299,11 +299,11 @@ class DeviceSettingsDialog(QDialog):
         ui_layout.addRow("Hold Effect:", self._rockbox_ui_hold_effect)
         options_layout.addWidget(ui_group)
 
-        app_group = QGroupBox("Applications")
+        app_group = QGroupBox("Extras")
         app_layout = QFormLayout(app_group)
         app_layout.setSpacing(8)
 
-        self._show_applications = QCheckBox("Show Applications on the main menu")
+        self._show_applications = QCheckBox("Show Extras on the main menu")
         self._show_applications.setChecked(
             bool(
                 self._config.get_effective(
@@ -316,7 +316,7 @@ class DeviceSettingsDialog(QDialog):
         self._add_checkbox_row(
             app_layout,
             self._show_applications,
-            "Applications always contains Maps and Weather.",
+            "Extras always contains Maps and Weather.",
         )
         options_layout.addWidget(app_group)
 

@@ -2683,7 +2683,7 @@ static const char *root_menu_nano2g_label(const struct menu_item_ex *item)
         {
 #ifdef HAVE_TAGCACHE
             case GO_TO_DBBROWSER:
-                return "Library";
+                return "Music";
             case GO_TO_PICTUREFLOW:
                 return "Covers";
 #endif
@@ -3537,8 +3537,6 @@ static const char *root_menu_video_preview(const struct menu_item_ex *item)
     const char *label = root_menu_video_label(item);
 
     if (!strcmp(label, "Music"))
-        return "Music";
-    if (!strcmp(label, "Library"))
         return "Music";
     if (!strcmp(label, "Cover Flow"))
         return "Cover Flow";
@@ -6503,7 +6501,6 @@ static const struct root_menu_video_music_item root_menu_video_music_items[] = {
     { "Albums", -IPODJS_MUSIC_NATIVE_ALBUMS },
     { "Songs", -IPODJS_MUSIC_NATIVE_SONGS },
     { "Cover Flow", GO_TO_PICTUREFLOW },
-    { "Library", GO_TO_DBBROWSER },
 #endif
     { "Playlists", GO_TO_PLAYLISTS_SCREEN },
     { "Files", GO_TO_FILEBROWSER },
