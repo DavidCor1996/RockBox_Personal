@@ -1321,18 +1321,22 @@ static int cover_pose_draw_y(enum flow_pose pose, int draw_h)
     return side_y + (launcher.side_cover_h - draw_h) / 2;
 }
 
-static fb_data fade_to_black(fb_data pixel, unsigned alpha)
+static fb_data blend_to_background(fb_data pixel, unsigned alpha)
 {
     unsigned r;
     unsigned g;
     unsigned b;
+    fb_data bg = launcher_bg_color();
 
     if (alpha >= 255)
         return pixel;
 
-    r = (FB_UNPACK_RED(pixel) * alpha) / 255;
-    g = (FB_UNPACK_GREEN(pixel) * alpha) / 255;
-    b = (FB_UNPACK_BLUE(pixel) * alpha) / 255;
+    r = (FB_UNPACK_RED(pixel) * alpha +
+         FB_UNPACK_RED(bg) * (255 - alpha)) / 255;
+    g = (FB_UNPACK_GREEN(pixel) * alpha +
+         FB_UNPACK_GREEN(bg) * (255 - alpha)) / 255;
+    b = (FB_UNPACK_BLUE(pixel) * alpha +
+         FB_UNPACK_BLUE(bg) * (255 - alpha)) / 255;
     return FB_RGBPACK(r, g, b);
 }
 
@@ -1369,7 +1373,7 @@ static bool build_reflection_bitmap(const struct bitmap *source,
 
         for (col = 0; col < src_w; col++)
         {
-            dst[row * src_w + col] = fade_to_black(
+            dst[row * src_w + col] = blend_to_background(
                 src[sample_y * source->width + src_x + col],
                 row_alpha
             );

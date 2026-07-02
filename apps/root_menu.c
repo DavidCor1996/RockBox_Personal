@@ -5686,12 +5686,14 @@ static void root_menu_video_draw_clock_date(int x, int y, int w, int h,
 static bool root_menu_video_should_animate(
     enum root_menu_video_preview_source source, long *next_tick)
 {
-    long delay = IPODJS_SLIDESHOW_DELAY;
+    int status = audio_status();
+    long delay = (status & AUDIO_STATUS_PLAY) ?
+                 IPODJS_SLIDESHOW_AUDIO_DELAY : IPODJS_SLIDESHOW_DELAY;
 
     if (!root_menu_video_preview_uses_slideshow(source))
         return false;
 
-    if (audio_status() & AUDIO_STATUS_PLAY)
+    if ((status & AUDIO_STATUS_PLAY) && source != IPODJS_PREVIEW_MUSIC)
         return false;
 
     if (!TIME_AFTER(current_tick, *next_tick))
@@ -5713,8 +5715,7 @@ static void root_menu_video_draw_preview_for_title(const char *title,
     lcd_set_foreground(IPODJS_PREVIEW_TEXT);
     lcd_set_background(IPODJS_PREVIEW_BOTTOM);
 
-    if (source == IPODJS_PREVIEW_MUSIC &&
-        !(audio_status() & AUDIO_STATUS_PLAY))
+    if (source == IPODJS_PREVIEW_MUSIC)
         drew = albumlist_draw_slideshow(&screens[SCREEN_MAIN], x, y, w, h);
     else if (!(audio_status() & AUDIO_STATUS_PLAY) &&
              (source == IPODJS_PREVIEW_VIDEOS ||
@@ -6589,6 +6590,31 @@ static bool ipodjs_video_wps_empty(const char *title, const char *message,
     }
 }
 
+static void ipodjs_video_play_pause(void)
+{
+    int status = audio_status();
+
+    if (!(status & AUDIO_STATUS_PLAY))
+        return;
+
+    if (status & AUDIO_STATUS_PAUSE)
+        audio_resume();
+    else
+        audio_pause();
+
+    button_clear_queue();
+}
+
+static void ipodjs_video_pause_for_exit(void)
+{
+    int status = audio_status();
+
+    if ((status & AUDIO_STATUS_PLAY) && !(status & AUDIO_STATUS_PAUSE))
+        audio_pause();
+
+    button_clear_queue();
+}
+
 static int ipodjs_video_wps(void)
 {
     bool redraw = true;
@@ -6653,10 +6679,7 @@ static int ipodjs_video_wps(void)
         switch (action)
         {
             case ACTION_WPS_PLAY:
-                if (audio_status() & AUDIO_STATUS_PAUSE)
-                    audio_resume();
-                else
-                    audio_pause();
+                ipodjs_video_play_pause();
                 redraw = true;
                 break;
 
@@ -6699,10 +6722,11 @@ static int ipodjs_video_wps(void)
                     GO_TO_PLAYLIST_VIEWER);
 
             case ACTION_WPS_MENU:
+                button_clear_queue();
                 return root_menu_video_finish_native_screen(GO_TO_ROOT);
 
             case ACTION_WPS_STOP:
-                audio_pause();
+                ipodjs_video_pause_for_exit();
                 return root_menu_video_finish_native_screen(GO_TO_ROOT);
 
             default:
