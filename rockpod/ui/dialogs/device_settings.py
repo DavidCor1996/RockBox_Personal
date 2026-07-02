@@ -283,7 +283,7 @@ class DeviceSettingsDialog(QDialog):
         ui_layout.addRow("Engine Surface:", self._rockbox_ui_surface)
 
         self._rockbox_ui_hold_effect = QComboBox()
-        self._rockbox_ui_hold_effect.addItems(["Lockscreen", "Dim Overlay"])
+        self._rockbox_ui_hold_effect.addItems(["Lockscreen", "Stock Dim"])
         self._rockbox_ui_hold_effect.setCurrentIndex(
             0
             if str(

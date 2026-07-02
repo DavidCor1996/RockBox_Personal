@@ -3240,6 +3240,7 @@ static int root_menu_nano2g_dashboard(int *selectedp)
 #define IPODJS_BATTERY_CAP      LCD_RGBPACK(196, 196, 196)
 #define IPODJS_LIST_WIDTH       145
 #define IPODJS_HEADER_HEIGHT    20
+#define IPODJS_MENU_BOTTOM_INSET 8
 #define IPODJS_DB_MAX_ROWS      72
 #define IPODJS_DB_MAX_DEPTH     3
 #define IPODJS_DB_LABEL_LEN     64
@@ -3293,6 +3294,13 @@ static int root_menu_video_row_height(void)
         row_h += 4;
 
     return MAX(18, row_h);
+}
+
+static int root_menu_video_visible_rows(int row_h)
+{
+    int h = LCD_HEIGHT - IPODJS_HEADER_HEIGHT - IPODJS_MENU_BOTTOM_INSET;
+
+    return MAX(1, h / MAX(1, row_h));
 }
 
 static unsigned root_menu_video_accent(void)
@@ -6033,7 +6041,7 @@ static void root_menu_video_draw_list(int selected)
 {
     int count = root_menu_video_count();
     int row_h = root_menu_video_row_height();
-    int visible = (LCD_HEIGHT - IPODJS_HEADER_HEIGHT) / row_h;
+    int visible = root_menu_video_visible_rows(row_h);
     int top = 0;
     int i;
 
@@ -6113,16 +6121,19 @@ static void ipodjs_video_draw_hold_overlay(void)
     }
     else
     {
-        unsigned overlay = global_settings.ui_engine_surface == UI_ENGINE_SURFACE_TRANSPARENT ?
-            root_menu_video_rgb_blend(255, 255, 255, 54, 58, 66, 220) :
-            LCD_RGBPACK(54, 58, 66);
+        unsigned overlay = root_menu_video_dark() ?
+            LCD_RGBPACK(26, 29, 34) : LCD_RGBPACK(54, 58, 66);
+        int y = LCD_HEIGHT - 48;
+
+        root_menu_video_draw_status_title("HOLD");
         lcd_set_foreground(overlay);
-        lcd_fillrect(18, 82, LCD_WIDTH - 36, 76);
+        lcd_fillrect(0, y, LCD_WIDTH, 48);
         lcd_setfont(root_menu_video_font());
         lcd_set_foreground(IPODJS_PREVIEW_TEXT);
         lcd_set_background(overlay);
-        root_menu_video_puts_fit(18, 105, LCD_WIDTH - 36, "Hold", true);
-        root_menu_video_puts_fit(18, 126, LCD_WIDTH - 36,
+        root_menu_video_puts_fit(18, y + 7, LCD_WIDTH - 36, "Hold", true);
+        lcd_set_foreground(LCD_RGBPACK(190, 194, 200));
+        root_menu_video_puts_fit(18, y + 27, LCD_WIDTH - 36,
                                  "Controls Locked", true);
     }
 }
@@ -6515,7 +6526,7 @@ static void root_menu_video_draw_music_menu(int selected)
 {
     int count = root_menu_video_music_count();
     int row_h = root_menu_video_row_height();
-    int visible = (LCD_HEIGHT - IPODJS_HEADER_HEIGHT) / row_h;
+    int visible = root_menu_video_visible_rows(row_h);
     int top = 0;
     int i;
 
@@ -6705,7 +6716,7 @@ static void root_menu_video_draw_db_menu(const char *title, int tag,
 
     if (tag == tag_album)
         row_h = MAX(row_h, 44);
-    visible = (LCD_HEIGHT - IPODJS_HEADER_HEIGHT) / row_h;
+    visible = root_menu_video_visible_rows(row_h);
 
     if (selected >= visible)
         top = selected - visible + 1;
@@ -7095,10 +7106,16 @@ struct root_menu_video_extras_item {
 
 enum {
     IPODJS_EXTRAS_CLOCK = -1000,
+    IPODJS_EXTRAS_APPLICATIONS,
+    IPODJS_EXTRAS_POKEMINI,
 };
 
 static const struct root_menu_video_extras_item root_menu_video_extras_items[] = {
     { "Clock", IPODJS_EXTRAS_CLOCK },
+    { "Applications", IPODJS_EXTRAS_APPLICATIONS },
+#if defined(HAVE_LCD_COLOR) && (LCD_WIDTH >= 220)
+    { "PokeMini", IPODJS_EXTRAS_POKEMINI },
+#endif
     { "Files", GO_TO_FILEBROWSER },
     { "Playlists", GO_TO_PLAYLISTS_SCREEN },
     { "Plugins", GO_TO_BROWSEPLUGINS },
@@ -7270,7 +7287,7 @@ static void root_menu_video_draw_extras_menu(int selected)
 {
     int count = ARRAYLEN(root_menu_video_extras_items);
     int row_h = root_menu_video_row_height();
-    int visible = (LCD_HEIGHT - IPODJS_HEADER_HEIGHT) / row_h;
+    int visible = root_menu_video_visible_rows(row_h);
     int top = 0;
     int i;
     int x = IPODJS_LIST_WIDTH + 1;
@@ -7393,6 +7410,28 @@ static int root_menu_video_extras_menu(void)
                     redraw = true;
                     break;
                 }
+                if (root_menu_video_extras_items[selected].screen ==
+                    IPODJS_EXTRAS_APPLICATIONS)
+                {
+                    int ret;
+                    root_menu_video_finish_native_screen(0);
+                    ret = do_menu(&applications_menu, NULL, NULL, false);
+                    root_menu_video_enter_native_screen();
+                    if (ret == MENU_ATTACHED_USB)
+                        return root_menu_video_finish_native_screen(ret);
+                    redraw = true;
+                    break;
+                }
+#if defined(HAVE_LCD_COLOR) && (LCD_WIDTH >= 220)
+                if (root_menu_video_extras_items[selected].screen ==
+                    IPODJS_EXTRAS_POKEMINI)
+                {
+                    int ret;
+                    root_menu_video_finish_native_screen(0);
+                    ret = launch_pokemini(NULL);
+                    return ret ? ret : GO_TO_ROOT;
+                }
+#endif
                 return root_menu_video_finish_native_screen(
                     root_menu_video_extras_items[selected].screen);
             case ACTION_STD_MENU:
@@ -7428,7 +7467,7 @@ static void root_menu_video_draw_games_menu(int selected)
 {
     int count = ARRAYLEN(root_menu_video_games_items);
     int row_h = root_menu_video_row_height();
-    int visible = (LCD_HEIGHT - IPODJS_HEADER_HEIGHT) / row_h;
+    int visible = root_menu_video_visible_rows(row_h);
     int top = 0;
     int i;
     int x = IPODJS_LIST_WIDTH + 1;
@@ -8261,7 +8300,7 @@ static void root_menu_video_draw_settings_menu(int selected)
 {
     int count = ARRAYLEN(root_menu_video_settings_items);
     int row_h = root_menu_video_row_height();
-    int visible = (LCD_HEIGHT - IPODJS_HEADER_HEIGHT) / row_h;
+    int visible = root_menu_video_visible_rows(row_h);
     int top = 0;
     int i;
     int x = IPODJS_LIST_WIDTH + 1;

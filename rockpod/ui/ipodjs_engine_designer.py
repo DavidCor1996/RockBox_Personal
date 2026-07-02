@@ -255,14 +255,17 @@ class IPodJSPreview(QFrame):
         else:
             self._draw_home(p, x, y, w, h, scale, pal)
             if self._opt("rockbox_ui_hold_effect", "lockscreen") == "lockscreen":
-                overlay = QColor(32, 37, 46, 205)
+                self._draw_lock(p, x, y, w, h, scale, pal)
             else:
-                overlay = QColor(54, 58, 66, 185)
-            p.fillRect(x + int(18 * scale), y + int(82 * scale),
-                       w - int(36 * scale), int(76 * scale), overlay)
-            p.setPen(QColor("#ffffff"))
-            p.setFont(self._font(scale, True))
-            p.drawText(x + int(142 * scale), y + int(114 * scale), "Hold")
+                overlay = QColor(26, 29, 34, 225) if pal["dark"] else QColor(54, 58, 66, 210)
+                bar_y = y + h - int(48 * scale)
+                self._draw_header(p, x, y, w, scale, pal, "HOLD")
+                p.fillRect(x, bar_y, w, int(48 * scale), overlay)
+                p.setPen(QColor("#ffffff"))
+                p.setFont(self._font(scale, True))
+                p.drawText(x + int(140 * scale), bar_y + int(18 * scale), "Hold")
+                p.setPen(QColor("#c2c6cc"))
+                p.drawText(x + int(102 * scale), bar_y + int(38 * scale), "Controls Locked")
         p.end()
 
 
@@ -302,7 +305,7 @@ class IPodJSEngineDesignerWidget(QWidget):
         self._density = self._combo(["Comfortable", "Compact"])
         self._font_scale = self._combo(["Small", "Normal", "Large"], 1)
         self._surface = self._combo(["Solid", "Soft", "Transparent"])
-        self._hold_effect = self._combo(["Lockscreen", "Dim Overlay"])
+        self._hold_effect = self._combo(["Lockscreen", "Stock Dim"])
 
         rows = [
             ("Accent", self._accent),
