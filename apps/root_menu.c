@@ -3719,19 +3719,12 @@ static void root_menu_video_storage_info(char *buf, size_t buf_size,
     unsigned long long total_kib;
     unsigned long long used_kib;
 
-    if (cached_valid && TIME_BEFORE(current_tick, cached_tick + HZ * 300))
+    if (cached_valid &&
+        (!allow_refresh || TIME_BEFORE(current_tick, cached_tick + HZ * 300)))
     {
         strmemccpy(buf, cached, buf_size);
         if (used_pctp)
             *used_pctp = cached_used_pct;
-        return;
-    }
-
-    if (!allow_refresh)
-    {
-        strmemccpy(buf, "Storage", buf_size);
-        if (used_pctp)
-            *used_pctp = 0;
         return;
     }
 
