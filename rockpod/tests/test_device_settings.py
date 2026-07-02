@@ -37,3 +37,15 @@ def test_audio_conversion_controls_enabled_when_override_is_on(config):
     assert dialog._audio_conversion_codec.isEnabled() is True
     assert dialog._audio_conversion_bitrate.isEnabled() is True
     assert app is not None
+
+
+def test_ipodjs_hold_effect_defaults_to_lockscreen(config):
+    app = QApplication.instance() or QApplication([])
+    create_mock_device(config.mock_device_path)
+    device = DeviceInfo(config.mock_device_path)
+
+    dialog = DeviceSettingsDialog(config, device)
+
+    assert dialog._rockbox_ui_hold_effect.currentText() == "Lockscreen"
+    assert dialog._rockbox_ui_hold_effect.currentIndex() == 0
+    assert app is not None

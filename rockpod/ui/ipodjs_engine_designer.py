@@ -149,7 +149,7 @@ class IPodJSPreview(QFrame):
         header_h = int(20 * scale)
         list_w = int(145 * scale)
         row_h = int((20 if self._opt("rockbox_ui_density", "comfortable") == "compact" else 24) * scale)
-        labels = ["Music", "Cover Flow", "Videos", "Photos", "Games", "Settings"]
+        labels = ["Music", "Videos", "Photos", "Extras", "Settings"]
 
         p.fillRect(x, y, w, h, pal["panel"])
         self._draw_header(p, x, y, list_w, scale, pal)
@@ -160,7 +160,7 @@ class IPodJSPreview(QFrame):
         p.setFont(self._font(scale, True))
         for index, label in enumerate(labels):
             row_y = y + header_h + index * row_h
-            if index == 1:
+            if index == 0:
                 accent = pal["accent"]
                 self._gradient_rect(p, x, row_y, list_w, row_h,
                                     _blend(accent, QColor("#ffffff"), 0.38),
@@ -178,7 +178,7 @@ class IPodJSPreview(QFrame):
         self._draw_cover_stack(p, right_x, y, w - list_w - 1, h, scale, pal)
         p.setPen(QColor("#ffffff"))
         p.setFont(self._font(scale, True))
-        p.drawText(right_x + int(30 * scale), y + int(154 * scale), "Cover Flow")
+        p.drawText(right_x + int(58 * scale), y + int(154 * scale), "Music")
 
     def _draw_cover_stack(self, p, x, y, w, h, scale, pal):
         accent = pal["accent"]
@@ -230,7 +230,7 @@ class IPodJSPreview(QFrame):
         top = QColor("#f7f8f9") if not pal["dark"] else QColor("#353d49")
         bottom = QColor("#747e8c") if not pal["dark"] else QColor("#10151d")
         self._gradient_rect(p, x, y, w, h, top, bottom)
-        self._draw_header(p, x, y, w, scale, pal, "Locked")
+        self._draw_header(p, x, y, w, scale, pal, "Hold")
         p.setFont(QFont("Helvetica", int(34 * scale), QFont.Bold))
         p.setPen(QColor("#262b32") if not pal["dark"] else QColor("#f3f6f8"))
         p.drawText(x + int(98 * scale), y + int(92 * scale), "12:41")
@@ -254,13 +254,15 @@ class IPodJSPreview(QFrame):
             self._draw_lock(p, x, y, w, h, scale, pal)
         else:
             self._draw_home(p, x, y, w, h, scale, pal)
-            if self._opt("rockbox_ui_hold_effect", "dim") == "dim":
-                p.fillRect(x + int(18 * scale), y + int(82 * scale),
-                           w - int(36 * scale), int(76 * scale),
-                           QColor(54, 58, 66, 185))
-                p.setPen(QColor("#ffffff"))
-                p.setFont(self._font(scale, True))
-                p.drawText(x + int(142 * scale), y + int(114 * scale), "Hold")
+            if self._opt("rockbox_ui_hold_effect", "lockscreen") == "lockscreen":
+                overlay = QColor(32, 37, 46, 205)
+            else:
+                overlay = QColor(54, 58, 66, 185)
+            p.fillRect(x + int(18 * scale), y + int(82 * scale),
+                       w - int(36 * scale), int(76 * scale), overlay)
+            p.setPen(QColor("#ffffff"))
+            p.setFont(self._font(scale, True))
+            p.drawText(x + int(142 * scale), y + int(114 * scale), "Hold")
         p.end()
 
 
@@ -290,7 +292,7 @@ class IPodJSEngineDesignerWidget(QWidget):
         title.setStyleSheet("font-weight: 700; font-size: 16px;")
         controls.addWidget(title, 0, 0, 1, 2)
 
-        subtitle = QLabel("Design the native iPodJS engine applied to Rockbox menus, WPS, and lock screens.")
+        subtitle = QLabel("Design a stock Apple-style iPodJS surface for menus, playback, and hold screens.")
         subtitle.setWordWrap(True)
         subtitle.setStyleSheet("color: palette(mid);")
         controls.addWidget(subtitle, 1, 0, 1, 2)
@@ -300,7 +302,7 @@ class IPodJSEngineDesignerWidget(QWidget):
         self._density = self._combo(["Comfortable", "Compact"])
         self._font_scale = self._combo(["Small", "Normal", "Large"], 1)
         self._surface = self._combo(["Solid", "Soft", "Transparent"])
-        self._hold_effect = self._combo(["Dim Overlay", "Lockscreen"])
+        self._hold_effect = self._combo(["Lockscreen", "Dim Overlay"])
 
         rows = [
             ("Accent", self._accent),
@@ -375,7 +377,7 @@ class IPodJSEngineDesignerWidget(QWidget):
             "rockbox_ui_density": {0: "comfortable", 1: "compact"}.get(self._density.currentIndex(), "comfortable"),
             "rockbox_ui_font_scale": {0: "small", 1: "normal", 2: "large"}.get(self._font_scale.currentIndex(), "normal"),
             "rockbox_ui_surface": {0: "solid", 1: "soft", 2: "transparent"}.get(self._surface.currentIndex(), "solid"),
-            "rockbox_ui_hold_effect": {0: "dim", 1: "lockscreen"}.get(self._hold_effect.currentIndex(), "dim"),
+            "rockbox_ui_hold_effect": {0: "lockscreen", 1: "dim"}.get(self._hold_effect.currentIndex(), "lockscreen"),
         }
 
     def _refresh_preview(self):

@@ -1197,7 +1197,7 @@ class MainWindow(QMainWindow):
             "rockbox_ui_density": "comfortable",
             "rockbox_ui_font_scale": "normal",
             "rockbox_ui_surface": "solid",
-            "rockbox_ui_hold_effect": "dim",
+            "rockbox_ui_hold_effect": "lockscreen",
             "rockbox_ui_dark_mode": False,
         }
         payload.update(dict(settings or {}))

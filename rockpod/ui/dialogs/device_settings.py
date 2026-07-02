@@ -283,12 +283,18 @@ class DeviceSettingsDialog(QDialog):
         ui_layout.addRow("Engine Surface:", self._rockbox_ui_surface)
 
         self._rockbox_ui_hold_effect = QComboBox()
-        self._rockbox_ui_hold_effect.addItems(["Dim Overlay", "Lockscreen"])
+        self._rockbox_ui_hold_effect.addItems(["Lockscreen", "Dim Overlay"])
         self._rockbox_ui_hold_effect.setCurrentIndex(
-            1
-            if str(self._config.get_effective("rockbox_ui_hold_effect", device=device, default="dim")).strip().lower()
+            0
+            if str(
+                self._config.get_effective(
+                    "rockbox_ui_hold_effect",
+                    device=device,
+                    default="lockscreen",
+                )
+            ).strip().lower()
             == "lockscreen"
-            else 0
+            else 1
         )
         ui_layout.addRow("Hold Effect:", self._rockbox_ui_hold_effect)
         options_layout.addWidget(ui_group)
@@ -517,9 +523,10 @@ class DeviceSettingsDialog(QDialog):
             )
         )
         self._rockbox_ui_hold_effect.setCurrentIndex(
-            1
-            if str(self._config.get("rockbox_ui_hold_effect", "dim")).strip().lower() == "lockscreen"
-            else 0
+            0
+            if str(self._config.get("rockbox_ui_hold_effect", "lockscreen")).strip().lower()
+            == "lockscreen"
+            else 1
         )
         self._show_applications.setChecked(bool(self._config.get("rockbox_show_applications_menu", False)))
         self._weather_enabled.setChecked(bool(self._config.get("weather_enabled", True)))
@@ -597,9 +604,9 @@ class DeviceSettingsDialog(QDialog):
                 self._rockbox_ui_surface.currentIndex(),
                 "solid",
             ),
-            "rockbox_ui_hold_effect": {0: "dim", 1: "lockscreen"}.get(
+            "rockbox_ui_hold_effect": {0: "lockscreen", 1: "dim"}.get(
                 self._rockbox_ui_hold_effect.currentIndex(),
-                "dim",
+                "lockscreen",
             ),
             "rockbox_show_applications_menu": self._show_applications.isChecked(),
             "weather_enabled": self._weather_enabled.isChecked(),

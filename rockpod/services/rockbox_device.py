@@ -185,7 +185,7 @@ def set_rockbox_ui_surface(device, surface):
 def set_rockbox_ui_hold_effect(device, hold_effect):
     mount_path = getattr(device, "mount_path", "")
     normalized = str(hold_effect or "").strip().lower()
-    value = normalized if normalized in {"dim", "lockscreen"} else "dim"
+    value = normalized if normalized in {"dim", "lockscreen"} else "lockscreen"
     return _set_rockbox_config_value(mount_path, ROCKBOX_UI_HOLD_EFFECT_KEY, value)
 
 
