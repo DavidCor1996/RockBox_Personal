@@ -192,6 +192,21 @@ static const struct button_mapping *plugin_contexts[] = {
 #endif
 };
 
+static bool launcher_dark_mode(void)
+{
+    return rb->global_settings->ui_engine_dark_mode;
+}
+
+static unsigned launcher_bg_color(void)
+{
+    return launcher_dark_mode() ? LCD_BLACK : LCD_RGBPACK(236, 238, 241);
+}
+
+static unsigned launcher_fg_color(void)
+{
+    return launcher_dark_mode() ? LCD_WHITE : LCD_RGBPACK(36, 36, 38);
+}
+
 static bool has_supported_rom_ext(const char *path)
 {
     const char *ext = rb->strrchr(path, '.');
@@ -2235,8 +2250,8 @@ static void draw_launcher_screen(void)
     display = rb->screens[SCREEN_MAIN];
     last_vp = rb->lcd_set_viewport(&launcher.vp);
 
-    rb->lcd_set_background(LCD_BLACK);
-    rb->lcd_set_foreground(LCD_WHITE);
+    rb->lcd_set_background(launcher_bg_color());
+    rb->lcd_set_foreground(launcher_fg_color());
     display->clear_viewport();
     draw_coverflow();
     draw_entry_details(selected);
@@ -2258,8 +2273,8 @@ static void draw_launcher_transition(int old_selected, int new_selected, int pro
     display = rb->screens[SCREEN_MAIN];
     last_vp = rb->lcd_set_viewport(&launcher.vp);
 
-    rb->lcd_set_background(LCD_BLACK);
-    rb->lcd_set_foreground(LCD_WHITE);
+    rb->lcd_set_background(launcher_bg_color());
+    rb->lcd_set_foreground(launcher_fg_color());
     display->clear_viewport();
     draw_coverflow_transition(old_selected, new_selected, progress);
     draw_entry_details(selected);
@@ -2277,8 +2292,8 @@ static enum plugin_status draw_empty_library(void)
     launcher_layout_init();
     last_vp = rb->lcd_set_viewport(&launcher.vp);
 
-    rb->lcd_set_background(LCD_BLACK);
-    rb->lcd_set_foreground(LCD_WHITE);
+    rb->lcd_set_background(launcher_bg_color());
+    rb->lcd_set_foreground(launcher_fg_color());
     display->clear_viewport();
     rb->lcd_putsxy(8, 8, "No game ROMs found");
     rb->lcd_putsxy(8, 8 + launcher.line_height, "Place ROMs in " ROCKBOY_ROM_DIR);

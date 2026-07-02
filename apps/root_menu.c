@@ -3275,9 +3275,9 @@ static int root_menu_nano2g_dashboard(int *selectedp)
 #define IPODJS_DB_MAX_DEPTH     3
 #define IPODJS_DB_LABEL_LEN     64
 #define IPODJS_WPS_ART_MAX      128
-#define IPODJS_DB_ART_MAX       40
+#define IPODJS_DB_ART_MAX       38
 #define IPODJS_DB_ART_CACHE     8
-#define IPODJS_DB_ALBUM_ROW_H   44
+#define IPODJS_DB_ALBUM_ROW_H   40
 #define IPODJS_DB_ART_WORK_EXTRA (44 * 1024)
 #define IPODJS_STOCK_ART_SIZE   96
 #define IPODJS_PREVIEW_IMAGE_SIZE 320
@@ -6965,17 +6965,26 @@ static void root_menu_video_draw_db_menu(const char *title, int tag,
     int total = row_count + (has_more ? 2 : 1);
     int top = 0;
     int i;
+    bool album_rows = tag == tag_album;
+    bool dark = root_menu_video_dark();
+    unsigned screen_bg = root_menu_video_screen_bg();
+    unsigned row_bg = root_menu_video_row_bg();
+    unsigned text = root_menu_video_text();
+    unsigned muted = root_menu_video_muted_text();
+    unsigned separator = dark ? LCD_RGBPACK(43, 48, 56) :
+                                LCD_RGBPACK(222, 225, 229);
 
-    if (tag == tag_album)
+    if (album_rows)
         row_h = MAX(row_h, IPODJS_DB_ALBUM_ROW_H);
     visible = root_menu_video_visible_rows(row_h);
+    visible = MIN(visible, total);
 
     if (selected >= visible)
         top = selected - visible + 1;
 
     lcd_set_viewport(NULL);
     lcd_set_drawmode(DRMODE_SOLID);
-    lcd_set_background(root_menu_video_screen_bg());
+    lcd_set_background(screen_bg);
     lcd_clear_display();
 
     root_menu_video_draw_status_title(title);
@@ -6983,7 +6992,7 @@ static void root_menu_video_draw_db_menu(const char *title, int tag,
     font_id = root_menu_video_font();
     lcd_setfont(font_id);
     font_h = font_get(font_id)->height;
-    lcd_set_foreground(root_menu_video_screen_bg());
+    lcd_set_foreground(screen_bg);
     lcd_fillrect(0, IPODJS_HEADER_HEIGHT, LCD_WIDTH,
                  LCD_HEIGHT - IPODJS_HEADER_HEIGHT);
 
@@ -7015,20 +7024,18 @@ static void root_menu_video_draw_db_menu(const char *title, int tag,
         }
         else
         {
-            lcd_set_foreground(root_menu_video_row_bg());
+            lcd_set_foreground(row_bg);
             lcd_fillrect(0, item_y, LCD_WIDTH, row_h);
-            if (tag == tag_album)
+            if (album_rows)
             {
-                lcd_set_foreground(root_menu_video_dark() ?
-                                   LCD_RGBPACK(43, 48, 56) :
-                                   LCD_RGBPACK(222, 225, 229));
+                lcd_set_foreground(separator);
                 lcd_hline(0, LCD_WIDTH - 1, item_y + row_h - 1);
             }
-            lcd_set_foreground(root_menu_video_text());
-            lcd_set_background(root_menu_video_row_bg());
+            lcd_set_foreground(text);
+            lcd_set_background(row_bg);
         }
 
-        if (tag == tag_album && index < row_count)
+        if (album_rows && index < row_count)
         {
 #ifdef HAVE_ALBUMART
             int art_size = IPODJS_DB_ART_MAX;
@@ -7045,15 +7052,15 @@ static void root_menu_video_draw_db_menu(const char *title, int tag,
 #endif
         }
 
-        if (tag == tag_album && index < row_count && sublabel[0])
+        if (album_rows && index < row_count && sublabel[0])
         {
             lcd_set_foreground(active ? IPODJS_PREVIEW_TEXT :
-                                        root_menu_video_text());
+                                        text);
             lcd_set_background(active ? root_menu_video_accent() :
-                                        root_menu_video_row_bg());
+                                        row_bg);
             root_menu_video_puts_fit(text_x, text_y, text_w, label, false);
             lcd_set_foreground(active ? LCD_RGBPACK(224, 242, 255) :
-                                        root_menu_video_muted_text());
+                                        muted);
             root_menu_video_puts_fit(text_x, text_y + font_h, text_w,
                                      sublabel, false);
         }
