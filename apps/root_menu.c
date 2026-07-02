@@ -8238,115 +8238,54 @@ static void root_menu_video_draw_qs_icon(int x, int y, int item, bool active)
 static void root_menu_video_qs_rect(int item, int *xp, int *yp,
                                     int *wp, int *hp)
 {
-    const int margin = 10;
-    const int gap = 6;
-    const int full_w = LCD_WIDTH - margin * 2;
-    const int top_y = IPODJS_HEADER_HEIGHT + 10;
-    const int slider_h = 32;
-    const int tile_h = 28;
-    const int tile_w = (full_w - gap) / 2;
-    int grid_item;
+    const int list_h = LCD_HEIGHT - IPODJS_HEADER_HEIGHT -
+                       IPODJS_MENU_BOTTOM_INSET;
+    const int row_h = list_h / IPODJS_QS_COUNT;
 
-    if (item <= IPODJS_QS_BRIGHTNESS)
-    {
-        *xp = margin;
-        *yp = top_y + item * (slider_h + gap);
-        *wp = full_w;
-        *hp = slider_h;
-        return;
-    }
-
-    grid_item = item - 2;
-    *xp = margin + (grid_item & 1) * (tile_w + gap);
-    *yp = top_y + 2 * (slider_h + gap) + 4 +
-          (grid_item / 2) * (tile_h + gap);
-    *wp = tile_w;
-    *hp = tile_h;
+    *xp = 0;
+    *yp = IPODJS_HEADER_HEIGHT + item * row_h;
+    *wp = LCD_WIDTH;
+    *hp = row_h;
 }
 
-static void root_menu_video_draw_qs_card(int x, int y, int w, int h,
-                                         bool active)
+static void root_menu_video_draw_qs_row(int x, int y, int w, int h,
+                                        bool active)
 {
-    unsigned border = active ? root_menu_video_accent() :
-        (root_menu_video_dark() ? LCD_RGBPACK(70, 78, 92) :
-         LCD_RGBPACK(172, 180, 192));
-
-    lcd_set_foreground(root_menu_video_dark() ?
-                       LCD_RGBPACK(8, 10, 14) :
-                       LCD_RGBPACK(150, 156, 166));
-    lcd_fillrect(x + 2, y + 3, w, h);
-
     if (active)
-        root_menu_video_glass_gradient(x, y, w, h,
-                                       LCD_RGBPACK(118, 210, 255),
-                                       root_menu_video_accent(),
-                                       LCD_RGBPACK(0, 82, 176));
-    else if (root_menu_video_dark())
-        root_menu_video_glass_gradient(x, y, w, h,
-                                       LCD_RGBPACK(58, 65, 78),
-                                       LCD_RGBPACK(34, 40, 50),
-                                       LCD_RGBPACK(22, 26, 34));
+    {
+        root_menu_video_selection_gradient(x, y, w, h);
+        lcd_set_foreground(LCD_RGBPACK(166, 224, 255));
+        lcd_hline(x, x + w - 1, y);
+        lcd_set_foreground(LCD_RGBPACK(0, 75, 165));
+        lcd_hline(x, x + w - 1, y + h - 1);
+    }
     else
-        root_menu_video_glass_gradient(x, y, w, h,
-                                       LCD_RGBPACK(255, 255, 255),
-                                       LCD_RGBPACK(239, 242, 247),
-                                       LCD_RGBPACK(211, 218, 228));
-
-    lcd_set_foreground(border);
-    lcd_drawrect(x, y, w, h);
-    lcd_set_foreground(active ? LCD_RGBPACK(220, 244, 255) :
-                       LCD_RGBPACK(255, 255, 255));
-    lcd_hline(x + 1, x + w - 2, y + 1);
-}
-
-static void root_menu_video_draw_qs_pill(int x, int y, int w, bool on,
-                                         bool active)
-{
-    unsigned fill = on ? root_menu_video_accent() :
-        (root_menu_video_dark() ? LCD_RGBPACK(58, 64, 76) :
-         LCD_RGBPACK(198, 204, 214));
-    int knob_x = on ? x + w - 12 : x + 2;
-
-    root_menu_video_glass_gradient(x, y, w, 12,
-                                   root_menu_video_rgb_blend(
-                                       FB_UNPACK_RED(fill),
-                                       FB_UNPACK_GREEN(fill),
-                                       FB_UNPACK_BLUE(fill),
-                                       255, 255, 255, 70),
-                                   fill,
-                                   root_menu_video_rgb_blend(
-                                       FB_UNPACK_RED(fill),
-                                       FB_UNPACK_GREEN(fill),
-                                       FB_UNPACK_BLUE(fill),
-                                       0, 0, 0, 60));
-    lcd_set_foreground(active ? LCD_RGBPACK(230, 245, 255) :
-                       LCD_RGBPACK(108, 116, 130));
-    lcd_drawrect(x, y, w, 12);
-    lcd_set_foreground(LCD_RGBPACK(248, 250, 252));
-    lcd_fillrect(knob_x, y + 2, 9, 8);
+    {
+        lcd_set_foreground(root_menu_video_row_bg());
+        lcd_fillrect(x, y, w, h);
+        lcd_set_foreground(root_menu_video_dark() ?
+                           LCD_RGBPACK(45, 50, 58) :
+                           IPODJS_SPLIT);
+        lcd_hline(x, x + w - 1, y + h - 1);
+    }
 }
 
 static void root_menu_video_draw_quick_settings(int selected)
 {
     int i;
+    unsigned bg = root_menu_video_screen_bg();
+    unsigned list_bg = root_menu_video_row_bg();
 
     lcd_set_viewport(NULL);
     lcd_set_drawmode(DRMODE_SOLID);
-    lcd_set_background(root_menu_video_screen_bg());
+    lcd_set_background(bg);
     lcd_clear_display();
 
     root_menu_video_draw_status_title("Quick Settings");
 
-    if (root_menu_video_dark())
-        root_menu_video_gradient(0, IPODJS_HEADER_HEIGHT, LCD_WIDTH,
-                                 LCD_HEIGHT - IPODJS_HEADER_HEIGHT,
-                                 LCD_RGBPACK(35, 40, 49),
-                                 LCD_RGBPACK(12, 15, 20));
-    else
-        root_menu_video_gradient(0, IPODJS_HEADER_HEIGHT, LCD_WIDTH,
-                                 LCD_HEIGHT - IPODJS_HEADER_HEIGHT,
-                                 LCD_RGBPACK(247, 249, 252),
-                                 LCD_RGBPACK(217, 223, 232));
+    lcd_set_foreground(list_bg);
+    lcd_fillrect(0, IPODJS_HEADER_HEIGHT, LCD_WIDTH,
+                 LCD_HEIGHT - IPODJS_HEADER_HEIGHT);
 
     lcd_setfont(root_menu_video_font());
 
@@ -8356,54 +8295,47 @@ static void root_menu_video_draw_quick_settings(int selected)
         int x, y, w, h;
         bool active = i == selected;
         bool slider = i == IPODJS_QS_VOLUME || i == IPODJS_QS_BRIGHTNESS;
-        unsigned text = active ? IPODJS_PREVIEW_TEXT :
-            root_menu_video_text();
+        unsigned text = active ? IPODJS_PREVIEW_TEXT : root_menu_video_text();
         unsigned muted = active ? LCD_RGBPACK(230, 245, 255) :
             root_menu_video_muted_text();
+        int icon_y;
+        int text_y;
 
         root_menu_video_qs_rect(i, &x, &y, &w, &h);
         root_menu_video_qs_value(i, value, sizeof(value));
-        root_menu_video_draw_qs_card(x, y, w, h, active);
+        root_menu_video_draw_qs_row(x, y, w, h, active);
 
-        root_menu_video_draw_qs_icon(x + 11, y + h / 2 - 6, i, active);
+        icon_y = y + (h - IPODJS_QS_ICON_SIZE) / 2;
+        text_y = y + MAX(1, (h - font_get(root_menu_video_font())->height) /
+                            2) + root_menu_video_text_y_offset();
+
+        root_menu_video_draw_qs_icon(x + 7, icon_y, i, active);
         lcd_setfont(root_menu_video_font());
         lcd_set_foreground(text);
         lcd_set_background(active ? root_menu_video_accent() :
-                           root_menu_video_panel());
-        root_menu_video_puts_fit(x + 35,
-                                 y + 6 + root_menu_video_text_y_offset(),
-                                 slider ? 110 : w - 82,
+                           list_bg);
+        root_menu_video_puts_fit(x + 32, text_y, slider ? 118 : w - 104,
                                  root_menu_video_qs_label(i), false);
 
         if (slider)
         {
             int percent = MAX(0, MIN(root_menu_video_qs_percent(i), 100));
-            int meter_x = x + 142;
-            root_menu_video_draw_meter(meter_x, y + 10, w - 194, 12, percent,
+            int meter_x = x + 154;
+            int meter_w = 82;
+            root_menu_video_draw_meter(meter_x, y + (h - 8) / 2, meter_w, 8,
+                                       percent,
                                        root_menu_video_accent());
             lcd_set_foreground(muted);
-            root_menu_video_puts_fit(x + w - 44,
-                                     y + 6 +
-                                     root_menu_video_text_y_offset(),
-                                     36, value, true);
+            root_menu_video_puts_fit(x + w - 47, text_y, 40, value, true);
         }
         else
         {
-            bool on = !strcmp(value, "On") || !strcmp(value, "Blue") ||
-                      !strcmp(value, "Glass") ||
-                      !strcmp(value, "Lock");
-            if (i == IPODJS_QS_DARK_MODE || i == IPODJS_QS_SHUFFLE)
-                root_menu_video_draw_qs_pill(x + w - 44, y + 8, 34, on,
-                                             active);
-            else
-            {
-                lcd_set_foreground(muted);
-                root_menu_video_puts_fit(x + w - 70,
-                                         y + 6 +
-                                         root_menu_video_text_y_offset(),
-                                         62, value, true);
-            }
+            lcd_set_foreground(muted);
+            root_menu_video_puts_fit(x + w - 82, text_y, 68, value, true);
         }
+
+        if (active)
+            root_menu_video_draw_arrow(LCD_WIDTH - 9, y + (h - 6) / 2);
     }
 
     ipodjs_video_draw_hold_overlay();
