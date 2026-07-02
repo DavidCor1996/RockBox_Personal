@@ -6957,15 +6957,15 @@ static void root_menu_video_draw_db_menu(const char *title, int tag,
         if (tag == tag_album && index < row_count)
         {
 #ifdef HAVE_ALBUMART
-            int art_size = MIN(IPODJS_DB_ART_MAX, 30);
-            int art_x = 8;
+            int art_size = IPODJS_DB_ART_MAX;
+            int art_x = 6;
             int art_y = item_y + (row_h - art_size) / 2;
             root_menu_video_draw_album_thumb(rows[index].label,
                                              rows[index].sublabel,
                                              rows[index].seek, filter_tag,
                                              filter_seek, art_x, art_y,
                                              art_size, active);
-            text_x = art_x + art_size + 9;
+            text_x = art_x + art_size + 8;
             text_w = LCD_WIDTH - text_x - 25;
 #endif
         }
