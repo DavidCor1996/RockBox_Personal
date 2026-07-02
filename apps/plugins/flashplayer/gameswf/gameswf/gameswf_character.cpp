@@ -15,6 +15,31 @@ extern "C" void flashplayer_trace_visible_set(const char *name, int value);
 
 namespace gameswf
 {
+	static bool is_stickrpg_scene_character(const tu_string& name)
+	{
+		const char *s = name.c_str();
+
+		if (!s || !*s)
+			return false;
+
+		return name == "person" || name == "Map_Outside_1" ||
+			name == "Map_Outside_2" || name == "Map_Outside_3" ||
+			name == "Map_Outside_4" || name == "Map_Outside_5" ||
+			name == "Map_Outside_6" || name == "Map_Outside_7" ||
+			name == "map1a" || name == "map1b" ||
+			name == "map1c" || name == "map1d";
+	}
+
+	static void trace_stickrpg_scene_character(const char *op,
+		const character *ch, const as_value& val)
+	{
+		if (!ch || !op || !is_stickrpg_scene_character(ch->get_name()))
+			return;
+
+		const tu_string text = val.to_tu_string();
+		flashplayer_trace_stickrpg_scene(op, ch->get_name().c_str(),
+			text.c_str(), ch->get_depth(), ch->get_id());
+	}
 
 	character::character(player* player, character* parent, int id)	:
 		as_object(player),
@@ -241,6 +266,7 @@ namespace gameswf
 			{
 				if( !isnan( val.to_number() ) )
 				{
+					trace_stickrpg_scene_character("setCharX", this, val);
 					matrix	m = get_matrix();
 					m.m_[0][2] = (float) PIXELS_TO_TWIPS(val.to_number());
 					set_matrix(m);
@@ -251,6 +277,7 @@ namespace gameswf
 			{
 				if( !isnan( val.to_number() ) )
 				{
+					trace_stickrpg_scene_character("setCharY", this, val);
 					matrix	m = get_matrix();
 					m.m_[1][2] = (float) PIXELS_TO_TWIPS(val.to_number());
 					set_matrix(m);

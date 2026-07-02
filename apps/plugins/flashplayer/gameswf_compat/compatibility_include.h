@@ -35,6 +35,11 @@ void flashplayer_trace_button_action(int button_id, int event_id,
 void flashplayer_trace_action(int phase, int opcode, int a, int b,
                               const char *text);
 void flashplayer_trace_action_bytes(const unsigned char *bytes, int len);
+void flashplayer_trace_avm1_function(int phase, const char *name, int pc,
+                                     int aux);
+void flashplayer_trace_stickrpg_scene(const char *op, const char *name,
+                                      const char *value, int aux_a,
+                                      int aux_b);
 void flashplayer_trace_movie_state(const char *name, int value, int aux_a,
                                    int aux_b);
 void flashplayer_trace_do_actions(const char *owner, int count);

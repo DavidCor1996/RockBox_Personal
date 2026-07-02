@@ -17,12 +17,18 @@ namespace gameswf
 	class as_sharedobject : public as_object
 	{
 		static string_hash<gc_ptr<as_object> >* local_objects();
+		tu_string m_local_name;
+
+		as_object* data_object();
+		void load_local();
 
 	public:
 
 		as_sharedobject( player * player );
+		as_sharedobject( player * player, const tu_string& local_name );
 
 		bool	get_member(const tu_stringi& name, as_value* val);
+		bool	flush();
 
 		static gc_ptr<as_object> get_local( const tu_string & name, player * player );
 

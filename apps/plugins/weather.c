@@ -156,6 +156,32 @@ static void fill_vgradient(int x, int y, int w, int h, unsigned top,
 #endif
 }
 
+static void weather_clean_icon_transparency(struct bitmap *bm)
+{
+#ifdef HAVE_LCD_COLOR
+    fb_data *pixels;
+    int count;
+
+    if (!bm || !bm->data)
+        return;
+
+    pixels = (fb_data *)bm->data;
+    count = bm->width * bm->height;
+    for (int i = 0; i < count; i++)
+    {
+        unsigned px = pixels[i];
+        int r = RGB_UNPACK_RED(px);
+        int g = RGB_UNPACK_GREEN(px);
+        int b = RGB_UNPACK_BLUE(px);
+
+        if (r >= 150 && b >= 170 && g + 28 < r && g + 28 < b)
+            pixels[i] = TRANSPARENT_COLOR;
+    }
+#else
+    (void)bm;
+#endif
+}
+
 static char *next_field(char **cursor)
 {
     char *start = *cursor;
@@ -468,6 +494,8 @@ static struct bitmap *load_weather_icon(const char *code, bool night, int size)
                            FORMAT_TRANSPARENT | FORMAT_DITHER, NULL);
     if (rc < 0)
         return NULL;
+
+    weather_clean_icon_transparency(&icon_bmp);
 
     rb->strlcpy(icon_loaded_path, path, sizeof(icon_loaded_path));
     icon_loaded_size = size;

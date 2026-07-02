@@ -170,6 +170,50 @@ namespace gameswf
 			&& existing_function->m_start_pc == start_pc;
 	}
 
+	static bool	action_is_stickrpg_setup_function(const tu_string& name)
+	{
+		return name == "InitMovie" || name == "InitScene" ||
+			name == "RenderScene" || name == "eraseScene";
+	}
+
+	static bool	action_is_stickrpg_scene_name(const tu_string& name)
+	{
+		return name == "Stage" || name == "Scene" || name == "_root.Scene" ||
+			name == "mapx" || name == "_root.mapx" ||
+			name == "mapy" || name == "_root.mapy" ||
+			name == "yPos" || name == "_root.yPos" ||
+			name == "mapstate" || name == "_root.mapstate" ||
+			name == "dartPos" || name == "_root.dartPos" ||
+			name == "person" || name == "_root.person" ||
+			name == "map_outside_1" || name == "Map_Outside_1";
+	}
+
+	static bool	action_is_stickrpg_scene_method(const tu_string& name)
+	{
+		return action_is_stickrpg_setup_function(name) ||
+			name == "gotoAndStop" || name == "gotoAndPlay";
+	}
+
+	static void	action_trace_stickrpg_scene_value(const char* op,
+		const tu_string& name, const as_value& value, int aux_a, int aux_b)
+	{
+		if (!action_is_stickrpg_scene_name(name))
+		{
+			return;
+		}
+		if (op && op[0] == 'g' && op[1] == 'e' &&
+			op[2] == 't' && op[3] == 'V' &&
+			op[4] == 'a' && op[5] == 'r' &&
+			op[6] == 0 && name == "Scene")
+		{
+			return;
+		}
+
+		const tu_string text = value.to_tu_string();
+		flashplayer_trace_stickrpg_scene(op, name.c_str(), text.c_str(),
+			aux_a, aux_b);
+	}
+
 	static const char*	action_skip_string(const membuf& buffer, int stop_pc, int* offset)
 	{
 		const char* str = (const char*) &buffer[*offset];
@@ -275,6 +319,11 @@ namespace gameswf
 						if (name.length() > 0)
 						{
 							env->set_member(name, as_value(func));
+							if (action_is_stickrpg_setup_function(name))
+							{
+								flashplayer_trace_avm1_function(1,
+									name.c_str(), pc, body_length);
+							}
 						}
 					}
 				}
@@ -299,6 +348,11 @@ namespace gameswf
 						if (name.length() > 0)
 						{
 							env->set_member(name, as_value(func));
+							if (action_is_stickrpg_setup_function(name))
+							{
+								flashplayer_trace_avm1_function(1,
+									name.c_str(), pc, body_length);
+							}
 						}
 					}
 				}
@@ -1009,6 +1063,8 @@ namespace gameswf
 					last_varname = var_string;
 
 					as_value variable = env->get_variable(var_string, with_stack);
+					action_trace_stickrpg_scene_value("getVar", var_string,
+						variable, pc, stop_pc - pc);
 					env->top(0) = variable;
 
 					if (variable.to_object() == NULL) 
@@ -1045,6 +1101,8 @@ namespace gameswf
 							env->top(0).is_string() ? env->top(0).to_tu_string().length() : -1,
 							env->top(0).is_string() ? 1 : 0, env->top(0).is_undefined() ? 1 : 0);
 					}
+					action_trace_stickrpg_scene_value("setVar", set_name,
+						env->top(0), pc, stop_pc - pc);
 					env->set_variable(env->top(1).to_tu_string(), env->top(0), with_stack);
 					IF_VERBOSE_ACTION(log_msg("-------------- set var: %s \n",
 								  env->top(1).to_tu_string().c_str()));
@@ -1367,6 +1425,11 @@ namespace gameswf
 					{
 						// Function is a string; lookup the function.
 						const tu_string&	function_name = env->top(0).to_tu_string();
+						if (action_is_stickrpg_scene_method(function_name))
+						{
+							flashplayer_trace_stickrpg_scene("callFunction",
+								function_name.c_str(), "", pc, stop_pc - pc);
+						}
 						function = env->get_variable(function_name, with_stack);
 
 						// super constructor, Flash 6 
@@ -1382,8 +1445,24 @@ namespace gameswf
 
 						if (function.is_function() == false)
 						{
-							log_error("error in call_function: '%s' is not a function\n",
-								  function_name.c_str());
+							if (action_is_stickrpg_setup_function(function_name))
+							{
+								flashplayer_trace_avm1_function(3,
+									function_name.c_str(), pc, stop_pc - pc);
+								hoist_named_functions(env, start_pc, stop_pc, with_stack);
+								function = env->get_variable(function_name, with_stack);
+								if (function.is_function())
+								{
+									flashplayer_trace_avm1_function(4,
+										function_name.c_str(), pc, 1);
+								}
+							}
+
+							if (function.is_function() == false)
+							{
+								log_error("error in call_function: '%s' is not a function\n",
+									  function_name.c_str());
+							}
 						}
 					}
 					else
@@ -1663,6 +1742,8 @@ namespace gameswf
 				{
 					as_object*	obj = env->top(2).to_object();
 					const tu_string& member_name = env->top(1).to_tu_string();
+					action_trace_stickrpg_scene_value("setMember",
+						member_name, env->top(0), pc, stop_pc - pc);
 					if (member_name == "personColor" ||
 						member_name == "personColor2" ||
 						member_name == "karmaAdjust" ||
@@ -1710,6 +1791,11 @@ namespace gameswf
 					int	nargs = env->top(2).to_int();
 					as_value	result;
 					const tu_string&	method_name = env->top(0).to_tu_string();
+					if (action_is_stickrpg_scene_method(method_name))
+					{
+						flashplayer_trace_stickrpg_scene("callMethod",
+							method_name.c_str(), "", pc, stop_pc - pc);
+					}
 
 					as_value func;
 					if (env->top(1).find_property(method_name, &func))
@@ -2182,6 +2268,11 @@ namespace gameswf
 						{
 							// @@ NOTE: should this be m_target->set_variable()???
 							env->set_member(name, function_value);
+							if (action_is_stickrpg_setup_function(name))
+							{
+								flashplayer_trace_avm1_function(2,
+									name.c_str(), pc, length);
+							}
 						}
 						else
 						{
@@ -2496,6 +2587,11 @@ namespace gameswf
 							// Usage #1. If we have a name, then save the function in this
 							// environment under that name.
 							env->set_member(name, function_value);
+							if (action_is_stickrpg_setup_function(name))
+							{
+								flashplayer_trace_avm1_function(2,
+									name.c_str(), pc, length);
+							}
 						}
 						else
 						{

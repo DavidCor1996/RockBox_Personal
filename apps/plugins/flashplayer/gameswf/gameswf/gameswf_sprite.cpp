@@ -995,6 +995,17 @@ namespace gameswf
 			return true;
 		}
 
+		if (name == "map_outside_1")
+		{
+			if (character::get_member("Map_Outside_1", val))
+			{
+				flashplayer_trace_member_lookup(get_name().c_str(),
+					"map_outside_1->Map_Outside_1", 1,
+					val->is_object());
+				return true;
+			}
+		}
+
 		// finally try standart character properties & movieclip variables
 		bool found = character::get_member(name, val);
 		flashplayer_trace_member_lookup(get_name().c_str(), name.c_str(),

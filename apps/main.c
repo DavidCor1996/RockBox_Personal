@@ -248,6 +248,8 @@ int main(void)
                                         sim_plugin_param && sim_plugin_param[0] ?
                                         sim_plugin_param : NULL);
             fprintf(stderr, "ROCKBOX_SIM_PLUGIN rc=%d\n", sim_plugin_rc);
+            if (getenv("ROCKBOX_SIM_PLUGIN_EXIT"))
+                sys_poweroff();
         }
     }
 #endif

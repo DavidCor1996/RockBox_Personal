@@ -65,6 +65,25 @@ There is no unit test framework. Testing is done through:
 - **CheckWPS** — validates WPS theme files (`tools/checkwps/`)
 - **Warble** — host-side codec testing tool (`lib/rbcodec/test/warble.make`), built via configure with warble app type
 
+## Physical iPod Deploy Rule
+
+When deploying a hardware iPod build, always install the built `rockbox.ipod`
+to both firmware locations on the mounted iPod:
+
+```bash
+cp build-hw-ipod6g/rockbox.ipod "/run/media/$USER/<IPOD>/rockbox.ipod"
+cp build-hw-ipod6g/rockbox.ipod "/run/media/$USER/<IPOD>/.rockbox/rockbox.ipod"
+sha256sum build-hw-ipod6g/rockbox.ipod \
+    "/run/media/$USER/<IPOD>/rockbox.ipod" \
+    "/run/media/$USER/<IPOD>/.rockbox/rockbox.ipod"
+sync
+```
+
+For iPod Video builds, substitute the matching hardware build directory. Both
+device checksums must match the local build before eject/reboot. Updating only
+one location is not a valid deploy because different bootloader paths may load
+the root copy or the `.rockbox` copy.
+
 ## Architecture
 
 ### Layer Structure

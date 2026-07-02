@@ -661,6 +661,14 @@ sub buildzip {
              "$temp_dir/rocks/games/rockboy_launcher/covers/Doom.bmp");
     }
 
+    if(-e "$temp_dir/rocks/games/pokemini_launcher.rock" &&
+       -d "$ROOT/assets/ipodjs/rockbox/pokemini/covers") {
+        mkpath("$temp_dir/rocks/games/pokemini_launcher/covers",
+               $verbose, 0777);
+        glob_copy("$ROOT/assets/ipodjs/rockbox/pokemini/covers/*.bmp",
+                  "$temp_dir/rocks/games/pokemini_launcher/covers");
+    }
+
     if($image) {
         # image is blank when this is a simulator
         if( filesize("rockbox.ucl") > 1000 ) {

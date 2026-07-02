@@ -23,64 +23,100 @@
 #define DM_MAX_FILES 96
 #define DM_FILE_ROWS 7
 #define DM_CONFIG_FILE PLUGIN_APPS_DATA_DIR "/desktop_mode.cfg"
+#define DM_XP_ASSET_DIR PLUGIN_APPS_DATA_DIR "/desktop_mode_xp"
+#define DM_XP_WALLPAPER_BMP DM_XP_ASSET_DIR "/bliss.320x212.bmp"
+#define DM_SCALE_SCRATCH_EXTRA(width) ((width) * (int)sizeof(uint32_t) * 4)
+#define DM_SCALED_BYTES(width, height) \
+    (BM_SCALED_SIZE(width, height, FORMAT_NATIVE, false) + \
+     DM_SCALE_SCRATCH_EXTRA(width))
 
-#if LCD_WIDTH >= 320
-#define DM_DOCK_ITEMS 5
-#else
-#define DM_DOCK_ITEMS 4
-#endif
+#define DM_TASKBAR_H 28
+#define DM_WALLPAPER_H (LCD_HEIGHT - DM_TASKBAR_H)
+#define DM_START_W 66
+#define DM_ICON_W 56
+#define DM_ICON_H 50
+#define DM_START_MENU_W 224
+#define DM_START_MENU_H 178
+#define DM_CURSOR_STEP 8
+#define DM_CURSOR_FAST_STEP 15
 
 #ifdef HAVE_LCD_COLOR
 #define DM_RGB(r, g, b) LCD_RGBPACK(r, g, b)
-#define DM_DESKTOP_TOP DM_RGB(54, 103, 164)
-#define DM_DESKTOP_BOTTOM DM_RGB(117, 159, 211)
-#define DM_MENUBAR_TOP DM_RGB(250, 250, 252)
-#define DM_MENUBAR_BOTTOM DM_RGB(181, 186, 194)
-#define DM_PANEL DM_RGB(235, 238, 243)
-#define DM_PANEL_DARK DM_RGB(166, 176, 190)
-#define DM_BORDER DM_RGB(102, 111, 126)
-#define DM_TEXT DM_RGB(18, 24, 31)
-#define DM_MUTED DM_RGB(81, 91, 107)
+#define DM_SKY_TOP DM_RGB(23, 116, 209)
+#define DM_SKY_BOTTOM DM_RGB(137, 199, 255)
+#define DM_HILL_A DM_RGB(65, 156, 45)
+#define DM_HILL_B DM_RGB(31, 113, 31)
+#define DM_HILL_C DM_RGB(134, 194, 61)
+#define DM_TASKBAR_TOP DM_RGB(47, 123, 237)
+#define DM_TASKBAR_BOTTOM DM_RGB(21, 68, 174)
+#define DM_TASKBAR_EDGE DM_RGB(15, 48, 142)
+#define DM_START_TOP DM_RGB(124, 212, 86)
+#define DM_START_BOTTOM DM_RGB(26, 135, 29)
+#define DM_START_EDGE DM_RGB(11, 89, 21)
+#define DM_PANEL DM_RGB(236, 233, 216)
+#define DM_PANEL_LIGHT DM_RGB(255, 255, 255)
+#define DM_PANEL_DARK DM_RGB(128, 128, 128)
+#define DM_TITLE_TOP DM_RGB(12, 89, 214)
+#define DM_TITLE_BOTTOM DM_RGB(3, 56, 180)
+#define DM_TITLE_INACTIVE DM_RGB(122, 150, 210)
+#define DM_MENU_LEFT DM_RGB(255, 255, 255)
+#define DM_MENU_RIGHT DM_RGB(211, 229, 250)
+#define DM_SELECT_TOP DM_RGB(49, 106, 197)
+#define DM_SELECT_BOTTOM DM_RGB(25, 74, 175)
+#define DM_SHADOW DM_RGB(56, 74, 108)
+#define DM_TEXT DM_RGB(0, 0, 0)
+#define DM_MUTED DM_RGB(78, 78, 78)
 #define DM_WHITE DM_RGB(255, 255, 255)
-#define DM_BLUE DM_RGB(42, 128, 224)
-#define DM_BLUE_DARK DM_RGB(18, 78, 160)
-#define DM_DOCK_TOP DM_RGB(222, 228, 237)
-#define DM_DOCK_BOTTOM DM_RGB(129, 143, 163)
-#define DM_SHADOW DM_RGB(45, 57, 75)
+#define DM_RED DM_RGB(218, 42, 34)
+#define DM_YELLOW DM_RGB(255, 215, 64)
+#define DM_FOLDER DM_RGB(248, 209, 69)
+#define DM_CURSOR_EDGE DM_RGB(0, 0, 0)
 #else
-#define DM_DESKTOP_TOP LCD_DEFAULT_BG
-#define DM_DESKTOP_BOTTOM LCD_DEFAULT_BG
-#define DM_MENUBAR_TOP LCD_DEFAULT_BG
-#define DM_MENUBAR_BOTTOM LCD_DEFAULT_BG
+#define DM_SKY_TOP LCD_DEFAULT_BG
+#define DM_SKY_BOTTOM LCD_DEFAULT_BG
+#define DM_HILL_A LCD_DEFAULT_BG
+#define DM_HILL_B LCD_DEFAULT_BG
+#define DM_HILL_C LCD_DEFAULT_BG
+#define DM_TASKBAR_TOP LCD_DEFAULT_FG
+#define DM_TASKBAR_BOTTOM LCD_DEFAULT_FG
+#define DM_TASKBAR_EDGE LCD_DEFAULT_FG
+#define DM_START_TOP LCD_DEFAULT_BG
+#define DM_START_BOTTOM LCD_DEFAULT_BG
+#define DM_START_EDGE LCD_DEFAULT_FG
 #define DM_PANEL LCD_DEFAULT_BG
+#define DM_PANEL_LIGHT LCD_DEFAULT_BG
 #define DM_PANEL_DARK LCD_DEFAULT_FG
-#define DM_BORDER LCD_DEFAULT_FG
+#define DM_TITLE_TOP LCD_DEFAULT_FG
+#define DM_TITLE_BOTTOM LCD_DEFAULT_FG
+#define DM_TITLE_INACTIVE LCD_DEFAULT_FG
+#define DM_MENU_LEFT LCD_DEFAULT_BG
+#define DM_MENU_RIGHT LCD_DEFAULT_BG
+#define DM_SELECT_TOP LCD_DEFAULT_FG
+#define DM_SELECT_BOTTOM LCD_DEFAULT_FG
+#define DM_SHADOW LCD_DEFAULT_FG
 #define DM_TEXT LCD_DEFAULT_FG
 #define DM_MUTED LCD_DEFAULT_FG
 #define DM_WHITE LCD_DEFAULT_BG
-#define DM_BLUE LCD_DEFAULT_FG
-#define DM_BLUE_DARK LCD_DEFAULT_FG
-#define DM_DOCK_TOP LCD_DEFAULT_BG
-#define DM_DOCK_BOTTOM LCD_DEFAULT_BG
-#define DM_SHADOW LCD_DEFAULT_FG
+#define DM_RED LCD_DEFAULT_FG
+#define DM_YELLOW LCD_DEFAULT_FG
+#define DM_FOLDER LCD_DEFAULT_FG
+#define DM_CURSOR_EDGE LCD_DEFAULT_FG
 #endif
 
 enum dm_mode
 {
     DM_MODE_DESKTOP = 0,
-    DM_MODE_FINDER,
+    DM_MODE_EXPLORER,
     DM_MODE_SETTINGS,
 };
 
-enum dm_command
+enum dm_start_item
 {
-    DM_COMMAND_OPEN = 0,
-    DM_COMMAND_FINDER,
-    DM_COMMAND_SETTINGS,
-    DM_COMMAND_REFRESH,
-    DM_COMMAND_PARENT,
-    DM_COMMAND_DESKTOP,
-    DM_COMMAND_EXIT,
+    DM_START_APP_BASE = 0,
+    DM_START_FINDER = 100,
+    DM_START_SETTINGS,
+    DM_START_REFRESH,
+    DM_START_EXIT,
 };
 
 enum dm_setting_item
@@ -112,6 +148,14 @@ struct dm_settings
     bool start_in_finder;
 };
 
+struct dm_rect
+{
+    int x;
+    int y;
+    int w;
+    int h;
+};
+
 static struct dm_settings dm_settings =
 {
     true,
@@ -120,15 +164,20 @@ static struct dm_settings dm_settings =
 
 static const struct dm_app dm_apps[] =
 {
-    { "Finder", "Files", NULL, NULL, 0 },
-    { "Notes", "Text editor", PLUGIN_APPS_DIR "/text_editor.rock", NULL, 1 },
+    { "My Files", "Browse the disk", NULL, NULL, 0 },
+    { "Notepad", "Text editor", PLUGIN_APPS_DIR "/text_editor.rock", NULL, 1 },
     { "Calendar", "Month view", PLUGIN_APPS_DIR "/calendar.rock", NULL, 2 },
-    { "Calc", "Calculator", PLUGIN_APPS_DIR "/calculator.rock", NULL, 3 },
-    { "Photos", "Albums", PLUGIN_APPS_DIR "/photos.rock", NULL, 4 },
-    { "Games", "Game Boy", PLUGIN_GAMES_DIR "/rockboy_launcher.rock", NULL, 5 },
-    { "PokeMini", "Tiny console", PLUGIN_GAMES_DIR "/pokemini_launcher.rock", NULL, 6 },
-    { "Plugins", "Launcher", VIEWERS_DIR "/open_plugins.rock", NULL, 7 },
-    { "Info", "System", PLUGIN_DEMOS_DIR "/rb_info.rock", NULL, 8 },
+    { "Calculator", "Desk accessory", PLUGIN_APPS_DIR "/calculator.rock",
+      NULL, 3 },
+    { "My Pictures", "Photo library", PLUGIN_APPS_DIR "/photos.rock",
+      NULL, 4 },
+    { "Game Boy", "Rockboy launcher", PLUGIN_GAMES_DIR "/rockboy_launcher.rock",
+      NULL, 5 },
+    { "PokeMini", "Tiny console", PLUGIN_GAMES_DIR "/pokemini_launcher.rock",
+      NULL, 6 },
+    { "Plugins", "All programs", VIEWERS_DIR "/open_plugins.rock", NULL, 7 },
+    { "System Info", "About this iPod", PLUGIN_DEMOS_DIR "/rb_info.rock",
+      NULL, 8 },
 };
 
 static struct dm_file dm_files[DM_MAX_FILES];
@@ -137,24 +186,15 @@ static int dm_file_sel;
 static int dm_file_top;
 static char dm_cwd[MAX_PATH] = "/";
 static enum dm_mode dm_settings_return_mode = DM_MODE_DESKTOP;
-
-static const enum dm_command dm_desktop_commands[] =
-{
-    DM_COMMAND_OPEN,
-    DM_COMMAND_FINDER,
-    DM_COMMAND_SETTINGS,
-    DM_COMMAND_REFRESH,
-    DM_COMMAND_EXIT,
-};
-
-static const enum dm_command dm_finder_commands[] =
-{
-    DM_COMMAND_OPEN,
-    DM_COMMAND_PARENT,
-    DM_COMMAND_SETTINGS,
-    DM_COMMAND_REFRESH,
-    DM_COMMAND_DESKTOP,
-};
+static int dm_cursor_x = LCD_WIDTH / 2;
+static int dm_cursor_y = LCD_HEIGHT / 2;
+static int dm_selected_app;
+static int dm_setting_sel;
+static int dm_start_sel = DM_START_FINDER;
+static struct bitmap dm_wallpaper_bmp;
+static unsigned char *dm_wallpaper_data;
+static size_t dm_wallpaper_data_size;
+static bool dm_wallpaper_loaded;
 
 static bool dm_config_bool(const char *value)
 {
@@ -223,12 +263,18 @@ static void dm_set_colors(unsigned fg, unsigned bg)
 
 static void dm_fillrect_c(int x, int y, int w, int h, unsigned color)
 {
+    if (w <= 0 || h <= 0)
+        return;
+
     dm_set_colors(color, DM_WHITE);
     rb->lcd_fillrect(x, y, w, h);
 }
 
 static void dm_drawrect_c(int x, int y, int w, int h, unsigned color)
 {
+    if (w <= 0 || h <= 0)
+        return;
+
     dm_set_colors(color, DM_WHITE);
     rb->lcd_drawrect(x, y, w, h);
 }
@@ -271,16 +317,8 @@ static void dm_text_fit(int x, int y, int width, const char *text,
     dm_text_c(x, y, width, buf, color, center);
 }
 
-static void dm_status_text(char *buf, size_t size, const char *left,
-                           const char *right)
-{
-    if (right && right[0])
-        rb->snprintf(buf, size, "%s  |  %s", left, right);
-    else
-        rb->strlcpy(buf, left, size);
-}
-
-static void dm_gradient(int y, int h, unsigned top, unsigned bottom)
+static void dm_gradient_rect(int x, int y, int w, int h,
+                             unsigned top, unsigned bottom)
 {
 #ifdef HAVE_LCD_COLOR
     int i;
@@ -296,19 +334,18 @@ static void dm_gradient(int y, int h, unsigned top, unsigned bottom)
         int r = tr + ((br - tr) * i) / MAX(1, h - 1);
         int g = tg + ((bg - tg) * i) / MAX(1, h - 1);
         int b = tb + ((bb - tb) * i) / MAX(1, h - 1);
-        dm_fillrect_c(0, y + i, LCD_WIDTH, 1, DM_RGB(r, g, b));
+        dm_fillrect_c(x, y + i, w, 1, DM_RGB(r, g, b));
     }
 #else
     (void)top;
     (void)bottom;
-    dm_fillrect_c(0, y, LCD_WIDTH, h, DM_WHITE);
+    dm_fillrect_c(x, y, w, h, DM_WHITE);
 #endif
 }
 
-static void dm_bar(int y, int h, unsigned top, unsigned bottom)
+static bool dm_pt_in_rect(int px, int py, struct dm_rect r)
 {
-    dm_gradient(y, h, top, bottom);
-    dm_drawrect_c(0, y, LCD_WIDTH, h, DM_BORDER);
+    return px >= r.x && px < r.x + r.w && py >= r.y && py < r.y + r.h;
 }
 
 static void dm_clock_text(char *buf, size_t size)
@@ -320,118 +357,304 @@ static void dm_clock_text(char *buf, size_t size)
     rb->snprintf(buf, size, "%d:%02d", hour, min);
 }
 
-static void dm_draw_battery(int x, int y)
+static int dm_taskbar_y(void)
 {
-    int level = rb->battery_level();
-    int fill;
-
-    if (level < 0)
-        level = 0;
-    if (level > 100)
-        level = 100;
-    fill = (18 * level) / 100;
-
-    dm_drawrect_c(x, y, 22, 8, DM_MUTED);
-    dm_fillrect_c(x + 22, y + 2, 2, 4, DM_MUTED);
-    dm_fillrect_c(x + 2, y + 2, fill, 4, level > 20 ? DM_BLUE_DARK : DM_MUTED);
+    return LCD_HEIGHT - DM_TASKBAR_H;
 }
 
-static void dm_draw_menubar(void)
+static void dm_load_wallpaper(void)
 {
-    char buf[16];
-    struct mp3entry *id3 = dm_settings.show_now_playing ?
-                            rb->audio_current_track() : NULL;
+#ifdef HAVE_LCD_COLOR
+    int needed = DM_SCALED_BYTES(LCD_WIDTH, DM_WALLPAPER_H);
 
-    dm_bar(0, 18, DM_MENUBAR_TOP, DM_MENUBAR_BOTTOM);
-    dm_text_c(7, 4, 110, "Desktop Mode", DM_TEXT, false);
-    if (id3 && id3->title)
-        dm_text_fit(112, 4, LCD_WIDTH - 198, id3->title, DM_MUTED, true);
-    dm_clock_text(buf, sizeof(buf));
-    dm_text_c(LCD_WIDTH - 76, 4, 40, buf, DM_TEXT, true);
-    dm_draw_battery(LCD_WIDTH - 31, 5);
+    if (dm_wallpaper_loaded)
+        return;
+    if (!rb->file_exists(DM_XP_WALLPAPER_BMP))
+        return;
+
+    if (!dm_wallpaper_data)
+        dm_wallpaper_data =
+            (unsigned char *)rb->plugin_get_buffer(&dm_wallpaper_data_size);
+    if (!dm_wallpaper_data || dm_wallpaper_data_size < (size_t)needed)
+        return;
+
+    rb->memset(&dm_wallpaper_bmp, 0, sizeof(dm_wallpaper_bmp));
+    dm_wallpaper_bmp.width = LCD_WIDTH;
+    dm_wallpaper_bmp.height = DM_WALLPAPER_H;
+    dm_wallpaper_bmp.format = FORMAT_NATIVE;
+    dm_wallpaper_bmp.data = dm_wallpaper_data;
+
+    dm_wallpaper_loaded =
+        rb->read_bmp_file(DM_XP_WALLPAPER_BMP, &dm_wallpaper_bmp,
+                          needed, FORMAT_NATIVE | FORMAT_RESIZE |
+                          FORMAT_DITHER, NULL) > 0;
+#endif
 }
 
-static void dm_draw_glyph(int x, int y, int size, int glyph, bool selected)
+static struct dm_rect dm_start_button_rect(void)
 {
-    unsigned base = selected ? DM_BLUE : DM_PANEL;
-    unsigned dark = selected ? DM_BLUE_DARK : DM_PANEL_DARK;
-    int cx = x + size / 2;
-    int cy = y + size / 2;
+    struct dm_rect r = { 4, dm_taskbar_y() + 3, DM_START_W, 22 };
 
-    dm_fillrect_c(x + 2, y + 2, size - 4, size - 4, base);
-    dm_drawrect_c(x + 2, y + 2, size - 4, size - 4, DM_WHITE);
-    dm_drawrect_c(x + 3, y + 3, size - 6, size - 6, dark);
+    return r;
+}
+
+static struct dm_rect dm_icon_rect(int app)
+{
+    int cols = LCD_WIDTH >= 300 ? 3 : 2;
+    int col = app % cols;
+    int row = app / cols;
+    int left = 8 + col * ((LCD_WIDTH - 16) / cols);
+    int top = 18 + row * 57;
+    struct dm_rect r = { left, top, DM_ICON_W, DM_ICON_H };
+
+    return r;
+}
+
+static struct dm_rect dm_start_menu_rect(void)
+{
+    struct dm_rect r =
+    {
+        4,
+        dm_taskbar_y() - DM_START_MENU_H + 1,
+        DM_START_MENU_W,
+        DM_START_MENU_H
+    };
+
+    if (r.y < 0)
+        r.y = 0;
+    return r;
+}
+
+static void dm_draw_cloud(int x, int y, int w, int h)
+{
+    dm_fillrect_c(x + w / 5, y + h / 2, w * 3 / 5, h / 3, DM_WHITE);
+    dm_fillrect_c(x + w / 3, y + h / 3, w / 3, h / 2, DM_WHITE);
+    dm_fillrect_c(x, y + h * 2 / 3, w, h / 4, DM_WHITE);
+}
+
+static void dm_draw_wallpaper(void)
+{
+    int task_y = dm_taskbar_y();
+    int hill_y = task_y - 56;
+    int x;
+
+    if (dm_wallpaper_loaded)
+    {
+        rb->lcd_bmp_part(&dm_wallpaper_bmp, 0, 0, 0, 0,
+                         LCD_WIDTH, task_y);
+        return;
+    }
+
+    dm_gradient_rect(0, 0, LCD_WIDTH, task_y, DM_SKY_TOP, DM_SKY_BOTTOM);
+    dm_draw_cloud(LCD_WIDTH / 5, 25, 58, 22);
+    dm_draw_cloud(LCD_WIDTH - 92, 38, 68, 24);
+    dm_draw_cloud(LCD_WIDTH / 2 - 24, 73, 50, 18);
+
+    for (x = 0; x < LCD_WIDTH; x++)
+    {
+        int wave = ((x * x) / MAX(1, LCD_WIDTH)) % 36;
+        int y = hill_y + wave / 2 - x / 10;
+        int y2 = hill_y + 24 + x / 14;
+
+        if (y < 92)
+            y = 92;
+        dm_fillrect_c(x, y, 1, task_y - y, x & 1 ? DM_HILL_A : DM_HILL_C);
+        if (y2 < task_y)
+            dm_fillrect_c(x, y2, 1, task_y - y2, DM_HILL_B);
+    }
+}
+
+static void dm_draw_xp_icon(int x, int y, int glyph, bool selected)
+{
+    unsigned frame = selected ? DM_SELECT_BOTTOM : DM_PANEL_DARK;
+
+    if (selected)
+    {
+        dm_gradient_rect(x - 4, y - 3, 40, 34, DM_SELECT_TOP,
+                         DM_SELECT_BOTTOM);
+        dm_drawrect_c(x - 4, y - 3, 40, 34, DM_WHITE);
+    }
 
     switch (glyph)
     {
         case 0:
-            dm_fillrect_c(x + 9, y + 12, size - 18, size / 2, DM_WHITE);
-            dm_drawrect_c(x + 9, y + 12, size - 18, size / 2, dark);
-            dm_fillrect_c(x + 13, y + 9, size / 3, 5, DM_WHITE);
+            dm_fillrect_c(x + 2, y + 10, 29, 17, DM_FOLDER);
+            dm_fillrect_c(x + 5, y + 6, 12, 6, DM_FOLDER);
+            dm_drawrect_c(x + 2, y + 10, 29, 17, frame);
+            dm_drawrect_c(x + 5, y + 6, 12, 7, frame);
             break;
+
         case 1:
-            dm_fillrect_c(x + 12, y + 8, size - 24, size - 16, DM_WHITE);
-            dm_drawrect_c(x + 12, y + 8, size - 24, size - 16, dark);
-            dm_fillrect_c(x + 16, y + 16, size - 32, 2, dark);
-            dm_fillrect_c(x + 16, y + 23, size - 32, 2, dark);
+            dm_fillrect_c(x + 6, y + 3, 21, 27, DM_WHITE);
+            dm_drawrect_c(x + 6, y + 3, 21, 27, frame);
+            dm_fillrect_c(x + 10, y + 10, 13, 2, DM_TITLE_TOP);
+            dm_fillrect_c(x + 10, y + 16, 13, 2, DM_TITLE_TOP);
+            dm_fillrect_c(x + 10, y + 22, 10, 2, DM_TITLE_TOP);
             break;
+
         case 2:
-            dm_fillrect_c(x + 10, y + 10, size - 20, size - 20, DM_WHITE);
-            dm_drawrect_c(x + 10, y + 10, size - 20, size - 20, dark);
-            dm_fillrect_c(x + 10, y + 17, size - 20, 2, dark);
-            dm_fillrect_c(x + 18, y + 20, 7, 6, DM_BLUE_DARK);
+            dm_fillrect_c(x + 4, y + 6, 27, 23, DM_WHITE);
+            dm_drawrect_c(x + 4, y + 6, 27, 23, frame);
+            dm_fillrect_c(x + 4, y + 12, 27, 3, DM_TITLE_TOP);
+            dm_fillrect_c(x + 10, y + 18, 7, 6, DM_RED);
+            dm_fillrect_c(x + 21, y + 18, 5, 6, DM_YELLOW);
             break;
+
         case 3:
-            dm_fillrect_c(x + 12, y + 9, size - 24, size - 18, DM_WHITE);
-            dm_drawrect_c(x + 12, y + 9, size - 24, size - 18, dark);
-            dm_fillrect_c(cx - 8, cy - 1, 16, 2, dark);
-            dm_fillrect_c(cx - 1, cy - 8, 2, 16, dark);
+            dm_fillrect_c(x + 6, y + 5, 22, 26, DM_PANEL_LIGHT);
+            dm_drawrect_c(x + 6, y + 5, 22, 26, frame);
+            dm_fillrect_c(x + 10, y + 10, 14, 5, DM_MENU_RIGHT);
+            dm_fillrect_c(x + 10, y + 20, 14, 2, DM_TITLE_TOP);
+            dm_fillrect_c(x + 16, y + 14, 2, 14, DM_TITLE_TOP);
             break;
+
         case 4:
-            dm_fillrect_c(x + 10, y + 14, size - 20, size - 22, DM_WHITE);
-            dm_drawrect_c(x + 10, y + 14, size - 20, size - 22, dark);
-            dm_drawrect_c(cx - 7, cy - 5, 14, 14, dark);
+            dm_fillrect_c(x + 4, y + 9, 27, 19, DM_PANEL_LIGHT);
+            dm_drawrect_c(x + 4, y + 9, 27, 19, frame);
+            dm_fillrect_c(x + 8, y + 14, 9, 7, DM_HILL_A);
+            dm_fillrect_c(x + 18, y + 14, 8, 7, DM_SKY_TOP);
             break;
+
         case 5:
         case 6:
-            dm_drawrect_c(x + 13, y + 12, size - 26, size - 24, DM_WHITE);
-            dm_fillrect_c(cx - 12, cy - 2, 24, 4, DM_WHITE);
-            dm_fillrect_c(cx - 2, cy - 12, 4, 24, DM_WHITE);
+            dm_fillrect_c(x + 7, y + 12, 20, 12, DM_PANEL_LIGHT);
+            dm_drawrect_c(x + 7, y + 12, 20, 12, frame);
+            dm_fillrect_c(x + 12, y + 17, 10, 2, DM_TITLE_TOP);
+            dm_fillrect_c(x + 16, y + 13, 2, 10, DM_TITLE_TOP);
+            dm_fillrect_c(x + 10, y + 8, 5, 5, DM_RED);
+            dm_fillrect_c(x + 22, y + 8, 5, 5, DM_YELLOW);
             break;
+
         case 7:
-            dm_fillrect_c(x + 12, y + 11, size - 24, 8, DM_WHITE);
-            dm_fillrect_c(x + 12, y + 23, size - 24, 8, DM_WHITE);
-            dm_fillrect_c(x + 12, y + 35, size - 24, 8, DM_WHITE);
+            dm_fillrect_c(x + 5, y + 5, 24, 25, DM_MENU_RIGHT);
+            dm_drawrect_c(x + 5, y + 5, 24, 25, frame);
+            dm_fillrect_c(x + 9, y + 10, 16, 3, DM_TITLE_TOP);
+            dm_fillrect_c(x + 9, y + 17, 16, 3, DM_HILL_A);
+            dm_fillrect_c(x + 9, y + 24, 16, 3, DM_RED);
             break;
+
         default:
-            dm_drawrect_c(cx - 10, cy - 10, 20, 20, DM_WHITE);
-            dm_fillrect_c(cx - 2, cy - 2, 4, 4, DM_WHITE);
+            dm_fillrect_c(x + 8, y + 5, 19, 25, DM_PANEL_LIGHT);
+            dm_drawrect_c(x + 8, y + 5, 19, 25, frame);
+            dm_fillrect_c(x + 14, y + 11, 7, 7, DM_TITLE_TOP);
+            dm_fillrect_c(x + 16, y + 21, 3, 5, DM_TITLE_TOP);
             break;
     }
 }
 
-static bool dm_app_available(int selected)
+static void dm_draw_taskbar(bool start_open, enum dm_mode mode)
 {
-    const struct dm_app *app = &dm_apps[selected];
+    struct dm_rect start = dm_start_button_rect();
+    char clock[16];
+    int x = start.x + start.w + 6;
+    int task_y = dm_taskbar_y();
+    int i;
 
-    return selected == 0 || (app->path && rb->file_exists(app->path));
+    dm_gradient_rect(0, task_y, LCD_WIDTH, DM_TASKBAR_H, DM_TASKBAR_TOP,
+                     DM_TASKBAR_BOTTOM);
+    dm_fillrect_c(0, task_y, LCD_WIDTH, 1, DM_TASKBAR_EDGE);
+    dm_gradient_rect(start.x, start.y, start.w, start.h,
+                     start_open ? DM_START_BOTTOM : DM_START_TOP,
+                     start_open ? DM_START_TOP : DM_START_BOTTOM);
+    dm_drawrect_c(start.x, start.y, start.w, start.h, DM_START_EDGE);
+    dm_text_c(start.x + 20, start.y + 5, start.w - 22, "start", DM_WHITE,
+              false);
+    dm_fillrect_c(start.x + 7, start.y + 6, 5, 5, DM_RED);
+    dm_fillrect_c(start.x + 13, start.y + 6, 5, 5, DM_HILL_A);
+    dm_fillrect_c(start.x + 7, start.y + 12, 5, 5, DM_SKY_BOTTOM);
+    dm_fillrect_c(start.x + 13, start.y + 12, 5, 5, DM_YELLOW);
+
+    for (i = 0; i < 3 && x + 58 < LCD_WIDTH - 52; i++)
+    {
+        int app = i;
+        bool active = (mode == DM_MODE_EXPLORER && i == 0) ||
+                      (mode == DM_MODE_SETTINGS && i == 1);
+
+        dm_gradient_rect(x, task_y + 4, 58, 20,
+                         active ? DM_TITLE_BOTTOM : DM_TASKBAR_TOP,
+                         active ? DM_TITLE_TOP : DM_TASKBAR_BOTTOM);
+        dm_drawrect_c(x, task_y + 4, 58, 20, DM_TASKBAR_EDGE);
+        dm_text_fit(x + 5, task_y + 8, 48, i == 0 ? "Explorer" :
+                    app == 1 ? "Settings" : "Desktop", DM_WHITE, false);
+        x += 62;
+    }
+
+    dm_fillrect_c(LCD_WIDTH - 49, task_y + 4, 45, 20, DM_TITLE_TOP);
+    dm_drawrect_c(LCD_WIDTH - 49, task_y + 4, 45, 20, DM_TASKBAR_EDGE);
+    dm_clock_text(clock, sizeof(clock));
+    dm_text_c(LCD_WIDTH - 45, task_y + 8, 37, clock, DM_WHITE, true);
+}
+
+static void dm_draw_desktop_icons(void)
+{
+    int i;
+
+    for (i = 0; i < (int)ARRAYLEN(dm_apps); i++)
+    {
+        struct dm_rect r = dm_icon_rect(i);
+        int icon_x = r.x + (r.w - 32) / 2;
+        bool selected = i == dm_selected_app;
+
+        if (r.y + r.h > dm_taskbar_y() - 2)
+            break;
+
+        dm_draw_xp_icon(icon_x, r.y, dm_apps[i].glyph, selected);
+        if (selected)
+            dm_gradient_rect(r.x, r.y + 34, r.w, 14, DM_SELECT_TOP,
+                             DM_SELECT_BOTTOM);
+        dm_text_fit(r.x + 1, r.y + 36, r.w - 2, dm_apps[i].name,
+                    DM_WHITE, true);
+    }
+}
+
+static void dm_draw_window_frame(int x, int y, int w, int h,
+                                 const char *title, bool active)
+{
+    dm_fillrect_c(x + 4, y + 5, w, h, DM_SHADOW);
+    dm_fillrect_c(x, y, w, h, DM_PANEL);
+    dm_drawrect_c(x, y, w, h, DM_PANEL_DARK);
+    dm_gradient_rect(x + 2, y + 2, w - 4, 20,
+                     active ? DM_TITLE_TOP : DM_TITLE_INACTIVE,
+                     active ? DM_TITLE_BOTTOM : DM_TITLE_INACTIVE);
+    dm_text_fit(x + 8, y + 6, w - 58, title, DM_WHITE, false);
+
+    dm_fillrect_c(x + w - 48, y + 5, 12, 12, DM_TITLE_TOP);
+    dm_drawrect_c(x + w - 48, y + 5, 12, 12, DM_WHITE);
+    dm_text_c(x + w - 45, y + 7, 6, "_", DM_WHITE, true);
+
+    dm_fillrect_c(x + w - 32, y + 5, 12, 12, DM_TITLE_TOP);
+    dm_drawrect_c(x + w - 32, y + 5, 12, 12, DM_WHITE);
+    dm_drawrect_c(x + w - 29, y + 8, 6, 5, DM_WHITE);
+
+    dm_fillrect_c(x + w - 16, y + 5, 12, 12, DM_RED);
+    dm_drawrect_c(x + w - 16, y + 5, 12, 12, DM_WHITE);
+    dm_text_c(x + w - 14, y + 6, 8, "x", DM_WHITE, true);
+}
+
+static void dm_draw_desktop(bool start_open)
+{
+    dm_draw_wallpaper();
+    dm_draw_desktop_icons();
+    dm_draw_taskbar(start_open, DM_MODE_DESKTOP);
 }
 
 static void dm_draw_file_badge(int x, int y, bool is_dir, bool selected)
 {
-    unsigned fg = selected ? DM_WHITE : is_dir ? DM_BLUE_DARK : DM_MUTED;
-    unsigned bg = selected ? DM_BLUE : DM_WHITE;
+    unsigned fg = selected ? DM_WHITE : is_dir ? DM_FOLDER : DM_TITLE_TOP;
+    unsigned bg = selected ? DM_SELECT_TOP : DM_PANEL_LIGHT;
 
-    dm_fillrect_c(x, y + 2, 11, 10, bg);
-    dm_drawrect_c(x, y + 2, 11, 10, fg);
     if (is_dir)
     {
-        dm_fillrect_c(x + 2, y, 5, 3, bg);
-        dm_drawrect_c(x + 2, y, 5, 4, fg);
+        dm_fillrect_c(x + 1, y + 6, 17, 12, fg);
+        dm_fillrect_c(x + 4, y + 3, 8, 5, fg);
+        dm_drawrect_c(x + 1, y + 6, 17, 12, DM_PANEL_DARK);
     }
     else
     {
-        dm_fillrect_c(x + 7, y + 3, 3, 3, fg);
+        dm_fillrect_c(x + 4, y + 2, 13, 17, bg);
+        dm_drawrect_c(x + 4, y + 2, 13, 17, fg);
+        dm_fillrect_c(x + 7, y + 7, 7, 2, fg);
+        dm_fillrect_c(x + 7, y + 12, 7, 2, fg);
     }
 }
 
@@ -443,253 +666,244 @@ static void dm_draw_scrollbar(int x, int y, int h, int count, int top, int rows)
     if (count <= rows || h <= 8)
         return;
 
-    thumb_h = MAX(8, (h * rows) / count);
+    thumb_h = MAX(9, (h * rows) / count);
     thumb_y = y + ((h - thumb_h) * top) / MAX(1, count - rows);
 
-    dm_fillrect_c(x, y, 4, h, DM_PANEL_DARK);
-    dm_fillrect_c(x + 1, thumb_y, 2, thumb_h, DM_BLUE_DARK);
+    dm_fillrect_c(x, y, 10, h, DM_PANEL);
+    dm_drawrect_c(x, y, 10, h, DM_PANEL_DARK);
+    dm_gradient_rect(x + 2, thumb_y, 6, thumb_h, DM_TITLE_TOP,
+                     DM_TITLE_BOTTOM);
 }
 
-static void dm_draw_desktop(int selected)
+static void dm_draw_explorer(void)
 {
-    int top = 18;
-    int dock_h = LCD_HEIGHT >= 220 ? 42 : 32;
-    int work_h = LCD_HEIGHT - top - dock_h;
-    int cols = LCD_WIDTH >= 300 ? 3 : 2;
-    int rows = 3;
-    int icon = LCD_WIDTH >= 300 ? 36 : 30;
-    int cell_w = LCD_WIDTH / cols;
-    int cell_h = work_h / rows;
+    int x = 7;
+    int y = 13;
+    int w = LCD_WIDTH - 14;
+    int h = dm_taskbar_y() - 20;
+    int list_x = x + 8;
+    int list_y = y + 49;
+    int list_w = w - 16;
+    int row_h = MAX(18, (h - 63) / DM_FILE_ROWS);
     int i;
-    int dock_y = LCD_HEIGHT - dock_h;
-    int dock_item_w = LCD_WIDTH / DM_DOCK_ITEMS;
+    char status[48];
+    struct mp3entry *id3 = dm_settings.show_now_playing ?
+                            rb->audio_current_track() : NULL;
 
-    dm_gradient(18, LCD_HEIGHT - 18, DM_DESKTOP_TOP, DM_DESKTOP_BOTTOM);
-    dm_draw_menubar();
+    dm_draw_wallpaper();
+    dm_draw_window_frame(x, y, w, h, dm_cwd, true);
 
-    for (i = 0; i < (int)ARRAYLEN(dm_apps); i++)
+    dm_fillrect_c(x + 4, y + 24, w - 8, 20, DM_PANEL);
+    dm_drawrect_c(x + 4, y + 24, w - 8, 20, DM_PANEL_DARK);
+    dm_text_c(x + 11, y + 29, 36, "Back", DM_MUTED, false);
+    dm_text_c(x + 53, y + 29, 54, "Folders", DM_MUTED, false);
+    dm_text_fit(x + 116, y + 29, w - 130, dm_cwd, DM_TEXT, false);
+
+    dm_fillrect_c(list_x, list_y, list_w, row_h * DM_FILE_ROWS + 1,
+                  DM_PANEL_LIGHT);
+    dm_drawrect_c(list_x, list_y, list_w, row_h * DM_FILE_ROWS + 1,
+                  DM_PANEL_DARK);
+
+    if (dm_file_count == 0)
+        dm_text_fit(list_x + 8, list_y + 50, list_w - 16, "Folder is empty",
+                    DM_MUTED, true);
+
+    for (i = 0; i < DM_FILE_ROWS; i++)
     {
-        int col = i % cols;
-        int row = i / cols;
-        int x = col * cell_w + (cell_w - icon) / 2;
-        int y = top + row * cell_h + 4;
-        bool sel = selected == i;
-        bool available = dm_app_available(i);
+        int idx = dm_file_top + i;
+        int row_y = list_y + 1 + i * row_h;
+        bool selected = idx == dm_file_sel;
 
-        if (row >= rows)
+        if (idx >= dm_file_count)
             break;
 
-        if (sel)
-        {
-            dm_fillrect_c(col * cell_w + 6, y - 3, cell_w - 12,
-                          cell_h - 6, DM_BLUE_DARK);
-            dm_drawrect_c(col * cell_w + 6, y - 3, cell_w - 12,
-                          cell_h - 6, DM_WHITE);
-        }
-        dm_draw_glyph(x, y, icon, dm_apps[i].glyph, sel);
-        dm_text_fit(col * cell_w + 4, y + icon + 3, cell_w - 8,
-                    dm_apps[i].name,
-                    sel ? DM_WHITE : available ? DM_TEXT : DM_MUTED, true);
-        if (LCD_HEIGHT >= 220)
-            dm_text_fit(col * cell_w + 4, y + icon + 14, cell_w - 8,
-                        available ? dm_apps[i].subtitle : "Missing",
-                        sel ? DM_WHITE : DM_MUTED, true);
+        if (selected)
+            dm_gradient_rect(list_x + 1, row_y, list_w - 12, row_h - 1,
+                             DM_SELECT_TOP, DM_SELECT_BOTTOM);
+        else if (i & 1)
+            dm_fillrect_c(list_x + 1, row_y, list_w - 12, row_h - 1,
+                          DM_PANEL);
+
+        dm_draw_file_badge(list_x + 6, row_y + 1, dm_files[idx].is_dir,
+                           selected);
+        dm_text_fit(list_x + 29, row_y + 4, list_w - 49,
+                    dm_files[idx].name,
+                    selected ? DM_WHITE : DM_TEXT, false);
     }
 
-    dm_bar(dock_y, dock_h, DM_DOCK_TOP, DM_DOCK_BOTTOM);
-    for (i = 0; i < DM_DOCK_ITEMS; i++)
-    {
-        int app = i;
-        int size = selected == app ? 28 : 23;
-        int x = i * dock_item_w + (dock_item_w - size) / 2;
-        int y = dock_y + (dock_h - size) / 2 - 1;
+    dm_draw_scrollbar(list_x + list_w - 10, list_y + 1,
+                      row_h * DM_FILE_ROWS - 1, dm_file_count, dm_file_top,
+                      DM_FILE_ROWS);
+    rb->snprintf(status, sizeof(status), "%d item%s", dm_file_count,
+                 dm_file_count == 1 ? "" : "s");
+    dm_text_fit(x + 8, y + h - 15, 70, status, DM_MUTED, false);
+    if (id3 && id3->title)
+        dm_text_fit(x + 84, y + h - 15, w - 96, id3->title, DM_MUTED, false);
 
-        dm_draw_glyph(x, y, size, dm_apps[app].glyph, selected == app);
-    }
+    dm_draw_taskbar(false, DM_MODE_EXPLORER);
 }
 
-static const char *dm_command_name(enum dm_command command)
+static void dm_draw_settings(void)
 {
-    switch (command)
-    {
-        case DM_COMMAND_OPEN:
-            return "Open";
-        case DM_COMMAND_FINDER:
-            return "Finder";
-        case DM_COMMAND_SETTINGS:
-            return "Settings";
-        case DM_COMMAND_REFRESH:
-            return "Refresh";
-        case DM_COMMAND_PARENT:
-            return "Parent";
-        case DM_COMMAND_DESKTOP:
-            return "Desktop";
-        case DM_COMMAND_EXIT:
-            return "Exit";
-    }
-    return "";
-}
-
-static const char *dm_command_hint(enum dm_command command)
-{
-    switch (command)
-    {
-        case DM_COMMAND_OPEN:
-            return "Activate the selected item";
-        case DM_COMMAND_FINDER:
-            return "Open the file browser";
-        case DM_COMMAND_SETTINGS:
-            return "Adjust Desktop Mode";
-        case DM_COMMAND_REFRESH:
-            return "Redraw and rescan";
-        case DM_COMMAND_PARENT:
-            return "Move up one folder";
-        case DM_COMMAND_DESKTOP:
-            return "Return to the desktop";
-        case DM_COMMAND_EXIT:
-            return "Close Desktop Mode";
-    }
-    return "";
-}
-
-static const enum dm_command *dm_commands_for_mode(enum dm_mode mode, int *count)
-{
-    if (mode == DM_MODE_FINDER)
-    {
-        *count = ARRAYLEN(dm_finder_commands);
-        return dm_finder_commands;
-    }
-
-    *count = ARRAYLEN(dm_desktop_commands);
-    return dm_desktop_commands;
-}
-
-static const char *dm_setting_name(int setting)
-{
-    switch (setting)
-    {
-        case DM_SETTING_NOW_PLAYING:
-            return "Now Playing";
-        case DM_SETTING_START_VIEW:
-            return "Start View";
-        case DM_SETTING_RETURN:
-            return "Done";
-    }
-    return "";
-}
-
-static const char *dm_setting_value(int setting)
-{
-    switch (setting)
-    {
-        case DM_SETTING_NOW_PLAYING:
-            return dm_settings.show_now_playing ? "On" : "Off";
-        case DM_SETTING_START_VIEW:
-            return dm_settings.start_in_finder ? "Finder" : "Desktop";
-        case DM_SETTING_RETURN:
-            return "Close";
-    }
-    return "";
-}
-
-static void dm_toggle_setting(int setting)
-{
-    switch (setting)
-    {
-        case DM_SETTING_NOW_PLAYING:
-            dm_settings.show_now_playing = !dm_settings.show_now_playing;
-            dm_save_settings();
-            break;
-        case DM_SETTING_START_VIEW:
-            dm_settings.start_in_finder = !dm_settings.start_in_finder;
-            dm_save_settings();
-            break;
-        case DM_SETTING_RETURN:
-            break;
-    }
-}
-
-static void dm_draw_command_overlay(enum dm_mode mode, int selected)
-{
-    int count;
-    int i;
-    const enum dm_command *commands = dm_commands_for_mode(mode, &count);
-    int w = MIN(LCD_WIDTH - 28, 244);
-    int h = 28 + count * 24;
+    int w = MIN(LCD_WIDTH - 28, 252);
+    int h = 116;
     int x = (LCD_WIDTH - w) / 2;
-    int y = (LCD_HEIGHT - h) / 2;
-
-    dm_fillrect_c(x + 3, y + 4, w, h, DM_SHADOW);
-    dm_fillrect_c(x, y, w, h, DM_PANEL);
-    dm_drawrect_c(x, y, w, h, DM_WHITE);
-    dm_drawrect_c(x + 1, y + 1, w - 2, h - 2, DM_BORDER);
-    dm_bar(y + 1, 18, DM_MENUBAR_TOP, DM_MENUBAR_BOTTOM);
-    dm_text_fit(x + 7, y + 5, w - 14, "Desktop Commands", DM_TEXT, false);
-
-    for (i = 0; i < count; i++)
-    {
-        int row_y = y + 24 + i * 24;
-
-        if (i == selected)
-        {
-            dm_fillrect_c(x + 6, row_y, w - 12, 21, DM_BLUE);
-            dm_text_fit(x + 13, row_y + 3, 76,
-                        dm_command_name(commands[i]), DM_WHITE, false);
-            dm_text_fit(x + 94, row_y + 3, w - 106,
-                        dm_command_hint(commands[i]), DM_WHITE, false);
-        }
-        else
-        {
-            dm_text_fit(x + 13, row_y + 3, 76,
-                        dm_command_name(commands[i]), DM_TEXT, false);
-            dm_text_fit(x + 94, row_y + 3, w - 106,
-                        dm_command_hint(commands[i]), DM_MUTED, false);
-        }
-    }
-}
-
-static void dm_draw_settings(int selected)
-{
-    int w = MIN(LCD_WIDTH - 24, 250);
-    int h = 104;
-    int x = (LCD_WIDTH - w) / 2;
-    int y = 54;
+    int y = 52;
     int i;
 
-    dm_gradient(18, LCD_HEIGHT - 18, DM_DESKTOP_TOP, DM_DESKTOP_BOTTOM);
-    dm_draw_menubar();
-
-    dm_fillrect_c(x + 3, y + 4, w, h, DM_SHADOW);
-    dm_fillrect_c(x, y, w, h, DM_PANEL);
-    dm_drawrect_c(x, y, w, h, DM_WHITE);
-    dm_drawrect_c(x + 1, y + 1, w - 2, h - 2, DM_BORDER);
-    dm_bar(y + 1, 18, DM_MENUBAR_TOP, DM_MENUBAR_BOTTOM);
-    dm_text_fit(x + 7, y + 5, w - 14, "Desktop Settings", DM_TEXT, false);
+    dm_draw_wallpaper();
+    dm_draw_window_frame(x, y, w, h, "Desktop Mode Settings", true);
 
     for (i = 0; i < DM_SETTING_COUNT; i++)
     {
-        int row_y = y + 27 + i * 23;
+        int row_y = y + 31 + i * 24;
+        const char *name;
+        const char *value;
 
-        if (i == selected)
+        if (i == DM_SETTING_NOW_PLAYING)
         {
-            dm_fillrect_c(x + 6, row_y, w - 12, 20, DM_BLUE);
-            dm_text_fit(x + 13, row_y + 3, w - 82,
-                        dm_setting_name(i), DM_WHITE, false);
-            dm_text_fit(x + w - 68, row_y + 3, 54,
-                        dm_setting_value(i), DM_WHITE, true);
+            name = "Show now playing";
+            value = dm_settings.show_now_playing ? "On" : "Off";
+        }
+        else if (i == DM_SETTING_START_VIEW)
+        {
+            name = "Start view";
+            value = dm_settings.start_in_finder ? "Explorer" : "Desktop";
         }
         else
         {
-            dm_text_fit(x + 13, row_y + 3, w - 82,
-                        dm_setting_name(i), DM_TEXT, false);
-            dm_text_fit(x + w - 68, row_y + 3, 54,
-                        dm_setting_value(i), DM_MUTED, true);
+            name = "OK";
+            value = "Close";
         }
+
+        if (i == dm_setting_sel)
+            dm_gradient_rect(x + 8, row_y, w - 16, 20, DM_SELECT_TOP,
+                             DM_SELECT_BOTTOM);
+        dm_text_fit(x + 15, row_y + 4, w - 92, name,
+                    i == dm_setting_sel ? DM_WHITE : DM_TEXT, false);
+        dm_text_fit(x + w - 76, row_y + 4, 54, value,
+                    i == dm_setting_sel ? DM_WHITE : DM_MUTED, true);
     }
 
-    dm_text_fit(10, LCD_HEIGHT - 14, LCD_WIDTH - 20,
-                "Changes save automatically",
-                DM_MUTED, true);
+    dm_draw_taskbar(false, DM_MODE_SETTINGS);
+}
+
+static int dm_start_item_at(int px, int py)
+{
+    struct dm_rect m = dm_start_menu_rect();
+    int row_h = 20;
+    int app_rows = MIN(7, (int)ARRAYLEN(dm_apps));
+    int i;
+
+    if (!dm_pt_in_rect(px, py, m))
+        return -1;
+    if (py < m.y + 30)
+        return -1;
+
+    for (i = 0; i < app_rows; i++)
+    {
+        struct dm_rect r = { m.x + 6, m.y + 34 + i * row_h,
+                             116, row_h };
+        if (dm_pt_in_rect(px, py, r))
+            return DM_START_APP_BASE + i;
+    }
+
+    for (i = 0; i < 4; i++)
+    {
+        struct dm_rect r = { m.x + 130, m.y + 40 + i * 25,
+                             m.w - 138, 22 };
+        if (dm_pt_in_rect(px, py, r))
+            return DM_START_FINDER + i;
+    }
+
+    return -1;
+}
+
+static void dm_draw_start_row(struct dm_rect r, int id, const char *label,
+                              const char *sub)
+{
+    bool selected = id == dm_start_sel;
+
+    if (selected)
+        dm_gradient_rect(r.x, r.y, r.w, r.h, DM_SELECT_TOP,
+                         DM_SELECT_BOTTOM);
+    dm_text_fit(r.x + 24, r.y + 4, r.w - 28, label,
+                selected ? DM_WHITE : DM_TEXT, false);
+    if (sub)
+        dm_text_fit(r.x + 24, r.y + 13, r.w - 28, sub,
+                    selected ? DM_WHITE : DM_MUTED, false);
+}
+
+static void dm_draw_start_menu(void)
+{
+    struct dm_rect m = dm_start_menu_rect();
+    int row_h = 20;
+    int app_rows = MIN(7, (int)ARRAYLEN(dm_apps));
+    int i;
+
+    dm_fillrect_c(m.x + 4, m.y + 5, m.w, m.h, DM_SHADOW);
+    dm_fillrect_c(m.x, m.y, m.w, m.h, DM_PANEL_LIGHT);
+    dm_drawrect_c(m.x, m.y, m.w, m.h, DM_TASKBAR_EDGE);
+    dm_gradient_rect(m.x + 1, m.y + 1, m.w - 2, 28, DM_TITLE_TOP,
+                     DM_TITLE_BOTTOM);
+    dm_text_c(m.x + 34, m.y + 8, 136, "Rockbox XP", DM_WHITE, false);
+    dm_fillrect_c(m.x + 9, m.y + 6, 18, 18, DM_PANEL_LIGHT);
+    dm_drawrect_c(m.x + 9, m.y + 6, 18, 18, DM_WHITE);
+    dm_fillrect_c(m.x + 13, m.y + 10, 5, 5, DM_RED);
+    dm_fillrect_c(m.x + 19, m.y + 10, 5, 5, DM_HILL_A);
+    dm_fillrect_c(m.x + 13, m.y + 16, 5, 5, DM_SKY_BOTTOM);
+    dm_fillrect_c(m.x + 19, m.y + 16, 5, 5, DM_YELLOW);
+
+    dm_fillrect_c(m.x + 1, m.y + 30, 126, m.h - 58, DM_MENU_LEFT);
+    dm_fillrect_c(m.x + 128, m.y + 30, m.w - 129, m.h - 58,
+                  DM_MENU_RIGHT);
+
+    for (i = 0; i < app_rows; i++)
+    {
+        struct dm_rect r = { m.x + 6, m.y + 34 + i * row_h, 116, row_h };
+
+        dm_draw_xp_icon(r.x + 2, r.y + 1, dm_apps[i].glyph, false);
+        dm_draw_start_row(r, DM_START_APP_BASE + i, dm_apps[i].name,
+                          NULL);
+    }
+
+    for (i = 0; i < 4; i++)
+    {
+        static const char *labels[] =
+        {
+            "My Files", "Control Panel", "Refresh", "Shut Down"
+        };
+        static const char *subs[] =
+        {
+            "Explorer", "Settings", "Redraw", "Exit"
+        };
+        struct dm_rect r = { m.x + 130, m.y + 40 + i * 25,
+                             m.w - 138, 22 };
+
+        dm_draw_start_row(r, DM_START_FINDER + i, labels[i], subs[i]);
+    }
+
+    dm_gradient_rect(m.x + 1, m.y + m.h - 26, m.w - 2, 25,
+                     DM_TITLE_BOTTOM, DM_TITLE_TOP);
+    dm_text_fit(m.x + 10, m.y + m.h - 18, m.w - 20,
+                "Personal asset pack: " DM_XP_ASSET_DIR,
+                DM_WHITE, false);
+}
+
+static void dm_draw_cursor(void)
+{
+    int x = dm_cursor_x;
+    int y = dm_cursor_y;
+    int i;
+
+    for (i = 0; i < 14; i++)
+        dm_fillrect_c(x + i / 2, y + i, MAX(1, 8 - i / 2), 1, DM_WHITE);
+    for (i = 0; i < 15; i++)
+        dm_fillrect_c(x, y + i, 1, 1, DM_CURSOR_EDGE);
+    for (i = 0; i < 8; i++)
+        dm_fillrect_c(x + i, y + i * 2, 1, 1, DM_CURSOR_EDGE);
+    dm_fillrect_c(x + 5, y + 12, 6, 2, DM_CURSOR_EDGE);
+    dm_fillrect_c(x + 7, y + 14, 2, 5, DM_CURSOR_EDGE);
 }
 
 static void dm_parent_dir(char *path)
@@ -783,80 +997,6 @@ static void dm_scan_dir(void)
     dm_sort_files();
 }
 
-static void dm_draw_finder(void)
-{
-    int i;
-    int row_h = (LCD_HEIGHT - 62) / DM_FILE_ROWS;
-    int list_x = LCD_WIDTH >= 300 ? 84 : 6;
-    int list_w = LCD_WIDTH - list_x - 6;
-    int text_w = list_w - (dm_file_count > DM_FILE_ROWS ? 32 : 24);
-    char status[80];
-    char count_text[24];
-
-    dm_gradient(18, LCD_HEIGHT - 18, DM_DESKTOP_TOP, DM_DESKTOP_BOTTOM);
-    dm_draw_menubar();
-
-    dm_fillrect_c(6, 24, LCD_WIDTH - 12, LCD_HEIGHT - 30, DM_PANEL);
-    dm_drawrect_c(6, 24, LCD_WIDTH - 12, LCD_HEIGHT - 30, DM_BORDER);
-    dm_bar(25, 18, DM_MENUBAR_TOP, DM_MENUBAR_BOTTOM);
-    dm_text_fit(12, 29, LCD_WIDTH - 24, dm_cwd, DM_TEXT, false);
-
-    if (LCD_WIDTH >= 300)
-    {
-        dm_fillrect_c(12, 50, 62, LCD_HEIGHT - 62, DM_DOCK_TOP);
-        dm_drawrect_c(12, 50, 62, LCD_HEIGHT - 62, DM_PANEL_DARK);
-        dm_text_c(18, 58, 50, "Places", DM_MUTED, false);
-        dm_fillrect_c(16, 73, 52, 18, DM_PANEL);
-        dm_text_c(18, 76, 50, "Disk", DM_TEXT, false);
-        dm_text_c(18, 94, 50, "Apps", DM_TEXT, false);
-    }
-
-    if (dm_file_count == 0)
-    {
-        dm_text_fit(list_x + 4, 107, list_w - 8,
-                    "Folder is empty", DM_MUTED, true);
-    }
-
-    for (i = 0; i < DM_FILE_ROWS; i++)
-    {
-        int idx = dm_file_top + i;
-        int row_y = 50 + i * row_h;
-        bool selected = idx == dm_file_sel;
-
-        if (idx >= dm_file_count)
-            break;
-
-        if (selected)
-        {
-            dm_fillrect_c(list_x, row_y, list_w, row_h - 2, DM_BLUE);
-            dm_draw_file_badge(list_x + 6, row_y + 5,
-                               dm_files[idx].is_dir, true);
-            dm_text_fit(list_x + 22, row_y + 4, text_w,
-                        dm_files[idx].name, DM_WHITE, false);
-        }
-        else
-        {
-            dm_fillrect_c(list_x, row_y, list_w, row_h - 2,
-                          (i & 1) ? DM_WHITE : DM_PANEL);
-            dm_draw_file_badge(list_x + 6, row_y + 5,
-                               dm_files[idx].is_dir, false);
-            dm_text_fit(list_x + 22, row_y + 4, text_w,
-                        dm_files[idx].name,
-                        dm_files[idx].is_dir ? DM_BLUE_DARK : DM_TEXT, false);
-        }
-        if (dm_files[idx].is_dir)
-            dm_text_c(list_x + list_w - 16, row_y + 4, 10, ">",
-                      selected ? DM_WHITE : DM_MUTED, true);
-    }
-
-    dm_draw_scrollbar(list_x + list_w - 6, 52, DM_FILE_ROWS * row_h - 4,
-                      dm_file_count, dm_file_top, DM_FILE_ROWS);
-    rb->snprintf(count_text, sizeof(count_text), "%d item%s", dm_file_count,
-                 dm_file_count == 1 ? "" : "s");
-    dm_status_text(status, sizeof(status), dm_cwd, count_text);
-    dm_text_fit(10, LCD_HEIGHT - 14, LCD_WIDTH - 20, status, DM_MUTED, true);
-}
-
 static int dm_open_selected_file(void)
 {
     char path[MAX_PATH];
@@ -887,7 +1027,7 @@ static int dm_open_selected_file(void)
     return PLUGIN_OK;
 }
 
-static int dm_launch_app(int selected)
+static int dm_launch_app(int selected, enum dm_mode *mode)
 {
     const struct dm_app *app = &dm_apps[selected];
 
@@ -895,6 +1035,7 @@ static int dm_launch_app(int selected)
     {
         rb->strcpy(dm_cwd, "/");
         dm_scan_dir();
+        *mode = DM_MODE_EXPLORER;
         return PLUGIN_OK;
     }
 
@@ -918,234 +1059,473 @@ static void dm_finder_parent(enum dm_mode *mode)
     }
 }
 
-static int dm_handle_command(enum dm_command command, enum dm_mode *mode,
-                             int selected)
+static int dm_handle_start_item(int item, enum dm_mode *mode)
 {
-    switch (command)
-    {
-        case DM_COMMAND_OPEN:
-            if (*mode == DM_MODE_DESKTOP)
-                return dm_launch_app(selected);
-            return dm_open_selected_file();
+    if (item >= 0 && item < (int)ARRAYLEN(dm_apps))
+        return dm_launch_app(item, mode);
 
-        case DM_COMMAND_FINDER:
+    switch (item)
+    {
+        case DM_START_FINDER:
             rb->strcpy(dm_cwd, "/");
             dm_scan_dir();
-            *mode = DM_MODE_FINDER;
+            *mode = DM_MODE_EXPLORER;
             break;
 
-        case DM_COMMAND_SETTINGS:
+        case DM_START_SETTINGS:
             dm_settings_return_mode = *mode;
             *mode = DM_MODE_SETTINGS;
             break;
 
-        case DM_COMMAND_REFRESH:
-            if (*mode == DM_MODE_FINDER)
+        case DM_START_REFRESH:
+            if (*mode == DM_MODE_EXPLORER)
                 dm_scan_dir();
             break;
 
-        case DM_COMMAND_PARENT:
-            if (*mode == DM_MODE_FINDER)
-                dm_finder_parent(mode);
-            break;
-
-        case DM_COMMAND_DESKTOP:
-            *mode = DM_MODE_DESKTOP;
-            break;
-
-        case DM_COMMAND_EXIT:
+        case DM_START_EXIT:
             return PLUGIN_OK + 1;
     }
 
     return PLUGIN_OK;
 }
 
+static int dm_file_hit_row(int px, int py)
+{
+    int x = 7;
+    int y = 13;
+    int w = LCD_WIDTH - 14;
+    int h = dm_taskbar_y() - 20;
+    int list_x = x + 8;
+    int list_y = y + 49;
+    int list_w = w - 16;
+    int row_h = MAX(18, (h - 63) / DM_FILE_ROWS);
+    int i;
+
+    if (px < list_x || px >= list_x + list_w || py < list_y)
+        return -1;
+
+    for (i = 0; i < DM_FILE_ROWS; i++)
+    {
+        int idx = dm_file_top + i;
+        struct dm_rect r = { list_x, list_y + 1 + i * row_h,
+                             list_w - 12, row_h - 1 };
+
+        if (idx < dm_file_count && dm_pt_in_rect(px, py, r))
+            return idx;
+    }
+
+    return -1;
+}
+
+static int dm_settings_hit_row(int px, int py)
+{
+    int w = MIN(LCD_WIDTH - 28, 252);
+    int x = (LCD_WIDTH - w) / 2;
+    int y = 52;
+    int i;
+
+    for (i = 0; i < DM_SETTING_COUNT; i++)
+    {
+        struct dm_rect r = { x + 8, y + 31 + i * 24, w - 16, 20 };
+
+        if (dm_pt_in_rect(px, py, r))
+            return i;
+    }
+
+    return -1;
+}
+
+static void dm_toggle_setting(int setting)
+{
+    switch (setting)
+    {
+        case DM_SETTING_NOW_PLAYING:
+            dm_settings.show_now_playing = !dm_settings.show_now_playing;
+            dm_save_settings();
+            break;
+
+        case DM_SETTING_START_VIEW:
+            dm_settings.start_in_finder = !dm_settings.start_in_finder;
+            dm_save_settings();
+            break;
+
+        case DM_SETTING_RETURN:
+            break;
+    }
+}
+
+static int dm_click(enum dm_mode *mode, bool *start_open)
+{
+    struct dm_rect start = dm_start_button_rect();
+    int i;
+
+    if (*start_open)
+    {
+        int item = dm_start_item_at(dm_cursor_x, dm_cursor_y);
+
+        if (item >= 0)
+        {
+            *start_open = false;
+            return dm_handle_start_item(item, mode);
+        }
+        if (!dm_pt_in_rect(dm_cursor_x, dm_cursor_y, dm_start_menu_rect()))
+            *start_open = false;
+        return PLUGIN_OK;
+    }
+
+    if (dm_pt_in_rect(dm_cursor_x, dm_cursor_y, start))
+    {
+        *start_open = true;
+        return PLUGIN_OK;
+    }
+
+    if (*mode == DM_MODE_DESKTOP)
+    {
+        for (i = 0; i < (int)ARRAYLEN(dm_apps); i++)
+        {
+            if (dm_pt_in_rect(dm_cursor_x, dm_cursor_y, dm_icon_rect(i)))
+            {
+                dm_selected_app = i;
+                return dm_launch_app(i, mode);
+            }
+        }
+    }
+    else if (*mode == DM_MODE_EXPLORER)
+    {
+        int row = dm_file_hit_row(dm_cursor_x, dm_cursor_y);
+
+        if (row >= 0)
+        {
+            dm_file_sel = row;
+            return dm_open_selected_file();
+        }
+    }
+    else if (*mode == DM_MODE_SETTINGS)
+    {
+        int row = dm_settings_hit_row(dm_cursor_x, dm_cursor_y);
+
+        if (row >= 0)
+        {
+            dm_setting_sel = row;
+            if (row == DM_SETTING_RETURN)
+                *mode = dm_settings_return_mode;
+            else
+                dm_toggle_setting(row);
+        }
+    }
+
+    return PLUGIN_OK;
+}
+
+static void dm_move_cursor(int dx, int dy)
+{
+    dm_cursor_x += dx;
+    dm_cursor_y += dy;
+
+    if (dm_cursor_x < 0)
+        dm_cursor_x = 0;
+    if (dm_cursor_y < 0)
+        dm_cursor_y = 0;
+    if (dm_cursor_x > LCD_WIDTH - 2)
+        dm_cursor_x = LCD_WIDTH - 2;
+    if (dm_cursor_y > LCD_HEIGHT - 2)
+        dm_cursor_y = LCD_HEIGHT - 2;
+}
+
+static void dm_update_hover(enum dm_mode mode, bool start_open)
+{
+    int i;
+
+    if (start_open)
+    {
+        int item = dm_start_item_at(dm_cursor_x, dm_cursor_y);
+
+        if (item >= 0)
+            dm_start_sel = item;
+        return;
+    }
+
+    if (mode == DM_MODE_DESKTOP)
+    {
+        for (i = 0; i < (int)ARRAYLEN(dm_apps); i++)
+        {
+            if (dm_pt_in_rect(dm_cursor_x, dm_cursor_y, dm_icon_rect(i)))
+            {
+                dm_selected_app = i;
+                return;
+            }
+        }
+    }
+    else if (mode == DM_MODE_EXPLORER)
+    {
+        int row = dm_file_hit_row(dm_cursor_x, dm_cursor_y);
+
+        if (row >= 0)
+            dm_file_sel = row;
+    }
+    else if (mode == DM_MODE_SETTINGS)
+    {
+        int row = dm_settings_hit_row(dm_cursor_x, dm_cursor_y);
+
+        if (row >= 0)
+            dm_setting_sel = row;
+    }
+}
+
+static void dm_scroll_selection(enum dm_mode mode, bool start_open, int delta)
+{
+    if (start_open)
+    {
+        if (dm_start_sel >= 0 && dm_start_sel < (int)ARRAYLEN(dm_apps))
+        {
+            dm_start_sel += delta;
+            if (dm_start_sel < 0)
+                dm_start_sel = DM_START_EXIT;
+            else if (dm_start_sel >= (int)MIN(7, (int)ARRAYLEN(dm_apps)))
+                dm_start_sel = DM_START_FINDER;
+        }
+        else
+        {
+            dm_start_sel += delta;
+            if (dm_start_sel < DM_START_FINDER)
+                dm_start_sel = MIN(7, (int)ARRAYLEN(dm_apps)) - 1;
+            else if (dm_start_sel > DM_START_EXIT)
+                dm_start_sel = 0;
+        }
+    }
+    else if (mode == DM_MODE_EXPLORER && dm_file_count > 0)
+    {
+        dm_file_sel += delta;
+        if (dm_file_sel < 0)
+            dm_file_sel = dm_file_count - 1;
+        if (dm_file_sel >= dm_file_count)
+            dm_file_sel = 0;
+        if (dm_file_sel < dm_file_top)
+            dm_file_top = dm_file_sel;
+        if (dm_file_sel >= dm_file_top + DM_FILE_ROWS)
+            dm_file_top = dm_file_sel - DM_FILE_ROWS + 1;
+    }
+    else if (mode == DM_MODE_SETTINGS)
+    {
+        dm_setting_sel += delta;
+        if (dm_setting_sel < 0)
+            dm_setting_sel = DM_SETTING_COUNT - 1;
+        if (dm_setting_sel >= DM_SETTING_COUNT)
+            dm_setting_sel = 0;
+    }
+    else if (mode == DM_MODE_DESKTOP)
+    {
+        dm_selected_app += delta;
+        if (dm_selected_app < 0)
+            dm_selected_app = ARRAYLEN(dm_apps) - 1;
+        if (dm_selected_app >= (int)ARRAYLEN(dm_apps))
+            dm_selected_app = 0;
+    }
+}
+
+static bool dm_button_has(long button, long mask)
+{
+    return mask != 0 && (button & mask) == mask;
+}
+
+static bool dm_button_repeat(long button)
+{
+#ifdef BUTTON_REPEAT
+    return (button & BUTTON_REPEAT) != 0;
+#else
+    (void)button;
+    return false;
+#endif
+}
+
+static bool dm_button_left(long button)
+{
+#ifdef BUTTON_LEFT
+    if (dm_button_has(button, BUTTON_LEFT))
+        return true;
+#endif
+    (void)button;
+    return false;
+}
+
+static bool dm_button_right(long button)
+{
+#ifdef BUTTON_RIGHT
+    if (dm_button_has(button, BUTTON_RIGHT))
+        return true;
+#endif
+    (void)button;
+    return false;
+}
+
+static bool dm_button_up(long button)
+{
+#ifdef BUTTON_UP
+    if (dm_button_has(button, BUTTON_UP))
+        return true;
+#endif
+#ifdef BUTTON_SCROLL_BACK
+    if (dm_button_has(button, BUTTON_SCROLL_BACK))
+        return true;
+#endif
+    (void)button;
+    return false;
+}
+
+static bool dm_button_down(long button)
+{
+#ifdef BUTTON_DOWN
+    if (dm_button_has(button, BUTTON_DOWN))
+        return true;
+#endif
+#ifdef BUTTON_SCROLL_FWD
+    if (dm_button_has(button, BUTTON_SCROLL_FWD))
+        return true;
+#endif
+    (void)button;
+    return false;
+}
+
+static bool dm_button_select_rel(long button)
+{
+#if defined(BUTTON_SELECT) && defined(BUTTON_REL)
+    return dm_button_has(button, BUTTON_SELECT | BUTTON_REL);
+#else
+    (void)button;
+    return false;
+#endif
+}
+
+static bool dm_button_select_repeat(long button)
+{
+#if defined(BUTTON_SELECT) && defined(BUTTON_REPEAT)
+    return dm_button_has(button, BUTTON_SELECT | BUTTON_REPEAT);
+#else
+    (void)button;
+    return false;
+#endif
+}
+
+static bool dm_button_menu(long button)
+{
+#ifdef BUTTON_MENU
+    if (dm_button_has(button, BUTTON_MENU))
+        return true;
+#endif
+    (void)button;
+    return false;
+}
+
+static bool dm_button_play_exit(long button)
+{
+#if defined(BUTTON_PLAY) && defined(BUTTON_REPEAT)
+    return dm_button_has(button, BUTTON_PLAY | BUTTON_REPEAT);
+#else
+    (void)button;
+    return false;
+#endif
+}
+
 enum plugin_status plugin_start(const void *parameter)
 {
     enum dm_mode mode = DM_MODE_DESKTOP;
-    int selected = 0;
-    int setting_sel = 0;
-    int command_sel = 0;
     int ret = PLUGIN_OK;
     bool redraw = true;
-    bool commands_open = false;
+    bool start_open = false;
 
     (void)parameter;
     rb->lcd_setfont(FONT_UI);
+    dm_load_wallpaper();
     dm_load_settings();
     if (dm_settings.start_in_finder)
     {
         rb->strcpy(dm_cwd, "/");
         dm_scan_dir();
-        mode = DM_MODE_FINDER;
+        mode = DM_MODE_EXPLORER;
     }
 
     while (ret == PLUGIN_OK)
     {
-        int action;
+        long button;
 
         if (redraw)
         {
             if (mode == DM_MODE_DESKTOP)
-                dm_draw_desktop(selected);
-            else if (mode == DM_MODE_FINDER)
-                dm_draw_finder();
+                dm_draw_desktop(start_open);
+            else if (mode == DM_MODE_EXPLORER)
+                dm_draw_explorer();
             else
-                dm_draw_settings(setting_sel);
-            if (commands_open)
-                dm_draw_command_overlay(mode, command_sel);
+                dm_draw_settings();
+            if (start_open)
+                dm_draw_start_menu();
+            dm_draw_cursor();
             rb->lcd_update();
             redraw = false;
         }
 
-        action = rb->get_action(CONTEXT_LIST, HZ / 10);
-        switch (action)
+        button = rb->button_get_w_tmo(HZ / 20);
+        if (button == BUTTON_NONE)
+            continue;
+
+        if (rb->default_event_handler(button) == SYS_USB_CONNECTED)
+            return PLUGIN_USB_CONNECTED;
+
+        if (dm_button_play_exit(button))
+            ret = PLUGIN_OK + 1;
+        else if (dm_button_select_repeat(button))
         {
-            case ACTION_STD_PREV:
-            case ACTION_STD_PREVREPEAT:
-                if (commands_open)
-                {
-                    int command_count;
-
-                    dm_commands_for_mode(mode, &command_count);
-                    command_sel--;
-                    if (command_sel < 0)
-                        command_sel = command_count - 1;
-                }
-                else if (mode == DM_MODE_SETTINGS)
-                {
-                    setting_sel--;
-                    if (setting_sel < 0)
-                        setting_sel = DM_SETTING_COUNT - 1;
-                }
-                else if (mode == DM_MODE_DESKTOP)
-                {
-                    selected--;
-                    if (selected < 0)
-                        selected = ARRAYLEN(dm_apps) - 1;
-                }
-                else if (dm_file_count > 0)
-                {
-                    dm_file_sel--;
-                    if (dm_file_sel < 0)
-                        dm_file_sel = dm_file_count - 1;
-                    if (dm_file_sel < dm_file_top)
-                        dm_file_top = dm_file_sel;
-                    if (dm_file_sel >= dm_file_top + DM_FILE_ROWS)
-                        dm_file_top = dm_file_sel - DM_FILE_ROWS + 1;
-                }
-                redraw = true;
-                break;
-
-            case ACTION_STD_NEXT:
-            case ACTION_STD_NEXTREPEAT:
-                if (commands_open)
-                {
-                    int command_count;
-
-                    dm_commands_for_mode(mode, &command_count);
-                    command_sel++;
-                    if (command_sel >= command_count)
-                        command_sel = 0;
-                }
-                else if (mode == DM_MODE_SETTINGS)
-                {
-                    setting_sel++;
-                    if (setting_sel >= DM_SETTING_COUNT)
-                        setting_sel = 0;
-                }
-                else if (mode == DM_MODE_DESKTOP)
-                {
-                    selected++;
-                    if (selected >= (int)ARRAYLEN(dm_apps))
-                        selected = 0;
-                }
-                else if (dm_file_count > 0)
-                {
-                    dm_file_sel++;
-                    if (dm_file_sel >= dm_file_count)
-                        dm_file_sel = 0;
-                    if (dm_file_sel < dm_file_top)
-                        dm_file_top = dm_file_sel;
-                    if (dm_file_sel >= dm_file_top + DM_FILE_ROWS)
-                        dm_file_top = dm_file_sel - DM_FILE_ROWS + 1;
-                }
-                redraw = true;
-                break;
-
-            case ACTION_STD_OK:
-                if (commands_open)
-                {
-                    int command_count;
-                    const enum dm_command *commands =
-                        dm_commands_for_mode(mode, &command_count);
-
-                    commands_open = false;
-                    if (command_sel >= command_count)
-                        command_sel = 0;
-                    ret = dm_handle_command(commands[command_sel],
-                                            &mode, selected);
-                    if (ret == PLUGIN_OK && mode == DM_MODE_DESKTOP &&
-                        commands[command_sel] == DM_COMMAND_OPEN &&
-                        selected == 0)
-                        mode = DM_MODE_FINDER;
-                }
-                else if (mode == DM_MODE_DESKTOP)
-                {
-                    ret = dm_launch_app(selected);
-                    if (ret == PLUGIN_OK && selected == 0)
-                        mode = DM_MODE_FINDER;
-                }
-                else if (mode == DM_MODE_SETTINGS)
-                {
-                    if (setting_sel == DM_SETTING_RETURN)
-                        mode = dm_settings_return_mode;
-                    else
-                        dm_toggle_setting(setting_sel);
-                }
-                else
-                {
-                    ret = dm_open_selected_file();
-                }
-                redraw = true;
-                break;
-
-            case ACTION_STD_CONTEXT:
-            case ACTION_STD_QUICKSCREEN:
-                if (mode != DM_MODE_SETTINGS)
-                {
-                    commands_open = !commands_open;
-                    command_sel = 0;
-                    redraw = true;
-                }
-                break;
-
-            case ACTION_STD_CANCEL:
-            case ACTION_STD_MENU:
-                if (commands_open)
-                {
-                    commands_open = false;
-                    redraw = true;
-                }
-                else if (mode == DM_MODE_SETTINGS)
-                {
-                    dm_save_settings();
-                    mode = dm_settings_return_mode;
-                    redraw = true;
-                }
-                else if (mode == DM_MODE_FINDER)
-                {
-                    dm_finder_parent(&mode);
-                    redraw = true;
-                }
-                else
-                    ret = PLUGIN_OK + 1;
-                break;
-
-            default:
-                if (rb->default_event_handler(action) == SYS_USB_CONNECTED)
-                    return PLUGIN_USB_CONNECTED;
-                break;
+            start_open = true;
+            redraw = true;
+        }
+        else if (dm_button_select_rel(button))
+        {
+            ret = dm_click(&mode, &start_open);
+            redraw = true;
+        }
+        else if (dm_button_menu(button))
+        {
+            if (start_open)
+                start_open = false;
+            else if (mode == DM_MODE_SETTINGS)
+            {
+                dm_save_settings();
+                mode = dm_settings_return_mode;
+            }
+            else if (mode == DM_MODE_EXPLORER)
+                dm_finder_parent(&mode);
+            else
+                ret = PLUGIN_OK + 1;
+            redraw = true;
+        }
+        else if (dm_button_left(button))
+        {
+            dm_move_cursor(dm_button_repeat(button) ?
+                           -DM_CURSOR_FAST_STEP : -DM_CURSOR_STEP, 0);
+            dm_update_hover(mode, start_open);
+            redraw = true;
+        }
+        else if (dm_button_right(button))
+        {
+            dm_move_cursor(dm_button_repeat(button) ?
+                           DM_CURSOR_FAST_STEP : DM_CURSOR_STEP, 0);
+            dm_update_hover(mode, start_open);
+            redraw = true;
+        }
+        else if (dm_button_up(button))
+        {
+            dm_move_cursor(0, dm_button_repeat(button) ?
+                           -DM_CURSOR_FAST_STEP : -DM_CURSOR_STEP);
+            dm_scroll_selection(mode, start_open, -1);
+            dm_update_hover(mode, start_open);
+            redraw = true;
+        }
+        else if (dm_button_down(button))
+        {
+            dm_move_cursor(0, dm_button_repeat(button) ?
+                           DM_CURSOR_FAST_STEP : DM_CURSOR_STEP);
+            dm_scroll_selection(mode, start_open, 1);
+            dm_update_hover(mode, start_open);
+            redraw = true;
         }
     }
 

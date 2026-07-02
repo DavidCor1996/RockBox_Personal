@@ -305,8 +305,10 @@ Before hardware deploy:
 1. Confirm the target model and build type.
 2. Build the matching hardware package.
 3. Keep a backup of the existing device `.rockbox` when replacing runtime files.
-4. Eject cleanly after copy.
-5. Reboot the iPod and perform the same manual checks used in the simulator.
+4. Copy the built `rockbox.ipod` to both firmware locations on the iPod.
+5. Verify both device firmware checksums match the local build.
+6. Eject cleanly after copy.
+7. Reboot the iPod and perform the same manual checks used in the simulator.
 
 For iPod Video 5G/5.5G hardware:
 
@@ -319,6 +321,22 @@ Expected hardware package:
 - `build-hw-ipodvideo/rockbox.zip` or the configured hardware build directory's `rockbox.zip`
 
 Do not copy simulator binaries to a real iPod.
+
+For direct firmware deploys, both locations are required:
+
+```bash
+cp build-hw-ipod6g/rockbox.ipod "/run/media/$USER/<IPOD>/rockbox.ipod"
+cp build-hw-ipod6g/rockbox.ipod "/run/media/$USER/<IPOD>/.rockbox/rockbox.ipod"
+sha256sum build-hw-ipod6g/rockbox.ipod \
+    "/run/media/$USER/<IPOD>/rockbox.ipod" \
+    "/run/media/$USER/<IPOD>/.rockbox/rockbox.ipod"
+sync
+```
+
+Use the matching hardware build directory for the target. Hardware deploy is a
+hard stop if either device checksum differs from the local build. Some iPod
+bootloader paths can load `/.rockbox/rockbox.ipod`, so updating only the volume
+root `rockbox.ipod` can leave the device running stale firmware.
 
 Run physical iPod write probes, package installs, and cleanup commands outside the
 workspace sandbox. Sandboxed probes against `/run/media/...` mounts can report a
@@ -341,6 +359,8 @@ Record these before pushing to hardware:
 - Known warnings:
 - Hardware package path:
 - Backup path for existing device `.rockbox`:
+- Root firmware checksum verified:
+- `.rockbox` firmware checksum verified:
 - Hardware deploy approved by:
 
 ## Release Rule

@@ -441,6 +441,15 @@ namespace gameswf
 			return val;
 		}
 
+		if (varname == "map_outside_1" && get_root() != NULL &&
+			get_root()->get_root_movie() != NULL &&
+			get_root()->get_root_movie()->get_member("Map_Outside_1", &val))
+		{
+			flashplayer_trace_variable_lookup(varname.c_str(), 31,
+				val.is_object());
+			return val;
+		}
+
 		// Check this, _global, _root
 		as_standard_member	varname_id = get_standard_member(varname);
 		switch (varname_id)

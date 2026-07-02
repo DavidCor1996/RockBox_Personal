@@ -603,6 +603,29 @@ namespace gameswf
 	}
 
 	void	as_global_trace(const fn_call& fn);
+
+	static void player_update_stage(as_object* global, int width, int height)
+	{
+		as_value stage_value;
+		as_object* stage;
+
+		if (!global)
+			return;
+
+		if (!global->get_member("Stage", &stage_value) ||
+			(stage = stage_value.to_object()) == NULL)
+		{
+			stage = new as_object(global->get_player());
+			global->builtin_member("Stage", stage);
+		}
+
+		stage->set_member("width", width);
+		stage->set_member("height", height);
+		stage->set_member("scaleMode", "showAll");
+		stage->set_member("align", "");
+		stage->set_member("showMenu", false);
+	}
+
 	void	player::action_init()
 	// Create/hook built-ins.
 	{
@@ -630,6 +653,7 @@ namespace gameswf
 		m_global->builtin_member("Color", as_global_color_ctor);
 		m_global->builtin_member("Date", get_global_date_ctor(this));
 		m_global->builtin_member("Selection", selection_init(this));
+		player_update_stage(m_global.get_ptr(), 0, 0);
 
 		as_object * capabilities = new as_object(this);
 		capabilities->set_member( "version", "WIN 9,0,45,0" );
@@ -869,6 +893,10 @@ namespace gameswf
 			fprintf(stderr, "error: can't create a movie from '%s'\n", infile);
 			return NULL;
 		}
+		player_update_stage(m_global.get_ptr(),
+			(int) md->get_width_pixels(), (int) md->get_height_pixels());
+		flashplayer_trace_stickrpg_scene("stage", "Stage", "size",
+			(int) md->get_width_pixels(), (int) md->get_height_pixels());
 
 		gc_ptr<gameswf::root>	m = md->create_instance();
 		flashplayer_trace_movie_state("load_file_instance_ready", m != NULL, 0, 0);
