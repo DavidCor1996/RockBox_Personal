@@ -22,6 +22,7 @@
 #define FORECAST_PATH WEATHER_DIR "/forecast.tsv"
 #define BG_DIR WEATHER_DIR "/backgrounds"
 #define WEATHER_ICON_DIR WEATHER_DIR "/icons"
+#define WEATHER_APPLE_ICON_DIR WEATHER_DIR "/apple-icons"
 #define MAX_DAYS 7
 #define MAX_HOURS (16 * 24)
 #define FILE_BUF 32768
@@ -472,8 +473,11 @@ static struct bitmap *load_weather_icon(const char *code, bool night, int size)
 
     size = MAX(16, MIN(size, WEATHER_ICON_MAX));
     name = weather_icon_name(code, night);
-    rb->snprintf(path, sizeof(path), WEATHER_ICON_DIR "/%s.64x64x24.bmp",
-                 name);
+    rb->snprintf(path, sizeof(path), WEATHER_APPLE_ICON_DIR
+                 "/%s.64x64x24.bmp", name);
+    if (!rb->file_exists(path))
+        rb->snprintf(path, sizeof(path), WEATHER_ICON_DIR "/%s.64x64x24.bmp",
+                     name);
 
     if (icon_loaded && icon_loaded_size == size &&
         !rb->strcmp(icon_loaded_path, path))

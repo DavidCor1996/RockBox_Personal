@@ -3286,6 +3286,7 @@ static int root_menu_nano2g_dashboard(int *selectedp)
 #define IPODJS_SLIDESHOW_DELAY  MAX(1, HZ / 12)
 #define IPODJS_SLIDESHOW_AUDIO_DELAY MAX(1, HZ / 10)
 #define IPODJS_ASSET_DIR        ROCKBOX_DIR "/ipodjs"
+#define IPODJS_APPLE_ASSET_DIR  ROCKBOX_DIR "/ipodjs/apple"
 
 static int root_menu_video_theme_depth;
 
@@ -3982,27 +3983,84 @@ static void root_menu_video_sync_asset_mode(void)
     root_menu_video_invalidate_ui_asset_cache();
 }
 
-static const char *root_menu_video_asset_path(const char *path,
+static bool root_menu_video_asset_suffix_path(const char *path,
+                                              const char *suffix,
                                               char *buf,
                                               size_t buf_size)
 {
     const char *dot;
     size_t base_len;
+    size_t suffix_len;
+    size_t ext_len;
 
-    if (!root_menu_video_dark() || !path || !buf || buf_size == 0)
-        return path;
+    if (!path || !suffix || !buf || buf_size == 0)
+        return false;
 
     dot = strrchr(path, '.');
     if (!dot)
-        return path;
+        return false;
 
     base_len = dot - path;
-    if (base_len + sizeof("-dark.bmp") > buf_size)
-        return path;
+    suffix_len = strlen(suffix);
+    ext_len = strlen(dot);
+    if (base_len + suffix_len + ext_len + 1 > buf_size)
+        return false;
 
     memcpy(buf, path, base_len);
-    snprintf(buf + base_len, buf_size - base_len, "-dark%s", dot);
+    snprintf(buf + base_len, buf_size - base_len, "%s%s", suffix, dot);
+    return true;
+}
+
+static bool root_menu_video_apple_asset_path(const char *path, bool dark,
+                                             char *buf, size_t buf_size)
+{
+    char apple_path[MAX_PATH];
+    const char *rel;
+    const size_t prefix_len = sizeof(IPODJS_ASSET_DIR) - 1;
+
+    if (!path || !buf || buf_size == 0)
+        return false;
+
+    if (strncmp(path, IPODJS_ASSET_DIR, prefix_len) || path[prefix_len] != '/')
+        return false;
+
+    rel = path + prefix_len + 1;
+    if (snprintf(apple_path, sizeof(apple_path), IPODJS_APPLE_ASSET_DIR
+                 "/%s", rel) >= (int)sizeof(apple_path))
+        return false;
+
+    if (dark)
+    {
+        if (!root_menu_video_asset_suffix_path(apple_path, "-dark", buf,
+                                               buf_size))
+            return false;
+    }
+    else if (snprintf(buf, buf_size, "%s", apple_path) >= (int)buf_size)
+        return false;
+
     if (file_exists(buf))
+        return true;
+
+    return false;
+}
+
+static const char *root_menu_video_asset_path(const char *path,
+                                              char *buf,
+                                              size_t buf_size)
+{
+    if (!path || !buf || buf_size == 0)
+        return path;
+
+    if (root_menu_video_dark() &&
+        root_menu_video_apple_asset_path(path, true, buf, buf_size))
+        return buf;
+
+    if (root_menu_video_apple_asset_path(path, false, buf, buf_size))
+        return buf;
+
+    if (root_menu_video_dark() &&
+        root_menu_video_asset_suffix_path(path, "-dark", buf, buf_size) &&
+        file_exists(buf))
         return buf;
 
     return path;
@@ -5946,7 +6004,11 @@ static struct bitmap *root_menu_video_weather_icon_asset(const char *icon,
     int rc;
 
     snprintf(path, sizeof(path), ROCKBOX_DIR
-             "/rockpod/weather/icons/%s.40x40x24.bmp", name);
+             "/rockpod/weather/apple-icons/%s.40x40x24.bmp", name);
+    if (!file_exists(path))
+        snprintf(path, sizeof(path), ROCKBOX_DIR
+                 "/rockpod/weather/icons/%s.40x40x24.bmp", name);
+
     if (root_menu_video_weather_icon_valid &&
         !strcmp(path, root_menu_video_weather_icon_path))
         return &root_menu_video_weather_icon_bm;
