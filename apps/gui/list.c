@@ -644,7 +644,7 @@ void gui_synclist_set_viewport_defaults(struct viewport *vp,
         vp->x = 0;
         vp->y = 0;
         vp->width = screens[screen].lcdwidth;
-        vp->height = screens[screen].lcdheight;
+        vp->height = MAX(1, screens[screen].lcdheight - 18);
         return;
     }
 

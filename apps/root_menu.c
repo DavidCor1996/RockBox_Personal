@@ -2077,14 +2077,19 @@ static int launch_maps_plugin(void *param)
     return load_plugin_path_screen(path, NULL);
 }
 
+static int launch_pokemini(void *param);
+
     MENUITEM_FUNCTION(weather_item, MENU_FUNC_CHECK_RETVAL,
                   "Weather", launch_weather_plugin,
                   NULL, Icon_Plugin);
     MENUITEM_FUNCTION(maps_item, MENU_FUNC_CHECK_RETVAL,
                   "Maps", launch_maps_plugin,
                   NULL, Icon_Folder);
+    MENUITEM_FUNCTION(applications_pokemini_item, MENU_FUNC_CHECK_RETVAL,
+                  "PokeMini", launch_pokemini,
+                  NULL, Icon_Plugin);
     MAKE_MENU(applications_menu, "Extras", NULL, Icon_Plugin,
-          &maps_item, &weather_item);
+          &maps_item, &weather_item, &applications_pokemini_item);
 
 static const struct browse_folder_info gameboy_folder = {"/gameboy/", SHOW_ALL};
 static const struct browse_folder_info pokemini_folder = {"/PokeMini/", SHOW_ALL};
@@ -3240,7 +3245,7 @@ static int root_menu_nano2g_dashboard(int *selectedp)
 #define IPODJS_BATTERY_CAP      LCD_RGBPACK(196, 196, 196)
 #define IPODJS_LIST_WIDTH       145
 #define IPODJS_HEADER_HEIGHT    20
-#define IPODJS_MENU_BOTTOM_INSET 8
+#define IPODJS_MENU_BOTTOM_INSET 18
 #define IPODJS_DB_MAX_ROWS      72
 #define IPODJS_DB_MAX_DEPTH     3
 #define IPODJS_DB_LABEL_LEN     64
@@ -3731,13 +3736,9 @@ static void root_menu_video_storage_info(char *buf, size_t buf_size,
     volume_size(IF_MV(0,) &size, &free);
     if (size == 0)
     {
-        strmemccpy(cached, "Storage unavailable", sizeof(cached));
-        cached_used_pct = 0;
-        cached_tick = current_tick;
-        cached_valid = true;
-        strmemccpy(buf, cached, buf_size);
+        strmemccpy(buf, "Storage loading", buf_size);
         if (used_pctp)
-            *used_pctp = cached_used_pct;
+            *used_pctp = 0;
         return;
     }
 
@@ -3779,17 +3780,6 @@ static void root_menu_video_draw_apple_mark(int cx, int y)
         lcd_bmp(bm, cx - bm->width / 2, y);
         return;
     }
-
-    lcd_set_foreground(LCD_RGBPACK(248, 248, 248));
-    lcd_fillrect(cx - 9, y + 16, 18, 17);
-    lcd_fillrect(cx - 13, y + 20, 26, 9);
-    lcd_fillrect(cx - 5, y + 12, 10, 8);
-    lcd_set_foreground(IPODJS_PREVIEW_BOTTOM);
-    lcd_fillrect(cx + 8, y + 19, 6, 7);
-    lcd_set_foreground(LCD_RGBPACK(248, 248, 248));
-    lcd_drawline(cx + 1, y + 9, cx + 11, y);
-    lcd_drawline(cx + 2, y + 9, cx + 12, y + 1);
-    lcd_drawline(cx + 3, y + 10, cx + 12, y + 2);
 }
 
 static void root_menu_video_draw_storage_bar(int x, int y, int w, int used_pct)
@@ -5152,8 +5142,10 @@ root_menu_video_preview_source_for_item(const struct menu_item_ex *item)
         return IPODJS_PREVIEW_GAMES;
     if (root_menu_video_item_is_videos(item))
         return IPODJS_PREVIEW_VIDEOS;
-    (void)title;
-    return IPODJS_PREVIEW_MUSIC;
+    if (!strcmp(title, "Music") || !strcmp(title, "Cover Flow") ||
+        !strcmp(title, "Now Playing"))
+        return IPODJS_PREVIEW_MUSIC;
+    return IPODJS_PREVIEW_NONE;
 }
 
 static bool root_menu_video_preview_uses_slideshow(
@@ -6230,9 +6222,10 @@ static void ipodjs_video_draw_wps_empty_state(const char *title,
     unsigned panel = root_menu_video_panel();
     unsigned text = root_menu_video_text();
     unsigned muted = root_menu_video_muted_text();
-    unsigned accent = root_menu_video_accent();
     int cx = LCD_WIDTH / 2;
     int icon_y = 64;
+    int art_size = 88;
+    struct bitmap *art = root_menu_video_default_art();
 
     lcd_set_viewport(NULL);
     lcd_set_drawmode(DRMODE_SOLID);
@@ -6263,39 +6256,17 @@ static void ipodjs_video_draw_wps_empty_state(const char *title,
                        LCD_RGBPACK(54, 60, 70) : IPODJS_SPLIT);
     lcd_hline(0, LCD_WIDTH - 1, IPODJS_HEADER_HEIGHT);
 
-    lcd_set_foreground(root_menu_video_dark() ?
-                       LCD_RGBPACK(44, 50, 62) : LCD_RGBPACK(226, 230, 236));
-    lcd_fillrect(cx - 44, icon_y, 88, 70);
-    root_menu_video_glass_gradient(cx - 44, icon_y, 88, 70,
-                                   root_menu_video_dark() ?
-                                   LCD_RGBPACK(62, 70, 84) :
-                                   LCD_RGBPACK(255, 255, 255),
-                                   root_menu_video_dark() ?
-                                   LCD_RGBPACK(38, 44, 55) :
-                                   LCD_RGBPACK(234, 238, 244),
-                                   root_menu_video_dark() ?
-                                   LCD_RGBPACK(24, 30, 40) :
-                                   LCD_RGBPACK(205, 212, 222));
-    lcd_set_foreground(root_menu_video_dark() ?
-                       LCD_RGBPACK(90, 102, 120) : LCD_RGBPACK(178, 186, 198));
-    lcd_drawrect(cx - 44, icon_y, 88, 70);
-
-    lcd_set_foreground(accent);
-    lcd_fillrect(cx - 10, icon_y + 18, 7, 31);
-    lcd_fillrect(cx - 3, icon_y + 18, 20, 6);
-    lcd_fillrect(cx + 15, icon_y + 23, 6, 7);
-    lcd_fillrect(cx + 20, icon_y + 29, 5, 7);
-    lcd_fillrect(cx + 24, icon_y + 35, 4, 7);
-    lcd_fillrect(cx - 22, icon_y + 46, 19, 9);
-    lcd_fillrect(cx + 7, icon_y + 49, 19, 9);
+    if (art)
+        lcd_bmp_part(art, 0, 0, cx - art_size / 2, icon_y,
+                     MIN(art_size, art->width), MIN(art_size, art->height));
 
     lcd_setfont(root_menu_video_font());
     lcd_set_foreground(text);
     lcd_set_background(panel);
-    root_menu_video_puts_fit(30, 152, LCD_WIDTH - 60,
+    root_menu_video_puts_fit(30, 162, LCD_WIDTH - 60,
                              title ? title : "No Music", true);
     lcd_set_foreground(muted);
-    root_menu_video_puts_fit(30, 176, LCD_WIDTH - 60,
+    root_menu_video_puts_fit(30, 186, LCD_WIDTH - 60,
                              message ? message : "Nothing playing", true);
     if (allow_replay)
         root_menu_video_puts_fit(30, 207, LCD_WIDTH - 60,
@@ -7515,12 +7486,15 @@ static void root_menu_video_draw_games_menu(int selected)
     lcd_set_foreground(root_menu_video_dark() ?
                        LCD_RGBPACK(54, 60, 70) : IPODJS_SPLIT);
     lcd_vline(IPODJS_LIST_WIDTH, 0, LCD_HEIGHT - 1);
-    lcd_set_foreground(root_menu_video_panel());
+    lcd_set_foreground(root_menu_video_dark() ?
+                       root_menu_video_panel() : LCD_RGBPACK(255, 255, 255));
     lcd_fillrect(x, y, w, h);
     if (!root_menu_video_draw_menu_preview_asset("Games", x, y, w, h))
     {
         lcd_set_foreground(root_menu_video_text());
-        lcd_set_background(root_menu_video_panel());
+        lcd_set_background(root_menu_video_dark() ?
+                           root_menu_video_panel() :
+                           LCD_RGBPACK(255, 255, 255));
         root_menu_video_puts_fit(x + 14, y + 54, w - 28, "Games", true);
         root_menu_video_puts_fit(x + 14, y + 96, w - 28,
                                  root_menu_video_games_items[selected].label,
