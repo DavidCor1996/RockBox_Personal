@@ -31,6 +31,7 @@ from services.device_inventory import device_music_roots, device_record_from_inf
 from services.video_thumbnails import VideoThumbnailService
 from services.video_rvp import VideoRvpTranscoder
 from services.rockbox_wps_art import wps_album_art_sizes_for_config
+from services.weather import build_weather_bundle
 
 logger = logging.getLogger(__name__)
 COPY_CHUNK_SIZE = 4 * 1024 * 1024
@@ -41,6 +42,7 @@ ALBUM_LIST_THUMB_DEVICE_DIR = os.path.join(ALBUM_LIST_DEVICE_DIR, "thumbs")
 ALBUM_LIST_SLIDE_DEVICE_DIR = os.path.join(ALBUM_LIST_DEVICE_DIR, "slides")
 VIDEO_LIST_DEVICE_DIR = os.path.join(".rockbox", "videolist")
 VIDEO_LIST_THUMB_DEVICE_DIR = os.path.join(VIDEO_LIST_DEVICE_DIR, "thumbs")
+VIDEO_LIST_PREVIEW_DEVICE_DIR = os.path.join(VIDEO_LIST_DEVICE_DIR, "previews")
 SYNC_TEMP_SUFFIX = ".rockpod_tmp"
 MAX_AUTO_DUPLICATE_DELETE_COUNT = 50
 AUDIO_TRANSCODE_CACHE_EXTENSIONS = {".mp3", ".m4a"}
@@ -777,6 +779,7 @@ class SyncPlan:
         self.to_copy = []       # list of (track_row, device_rel_path)
         self.to_resync = []     # list of (track_row, existing_device_path, new_device_rel_path)
         self.artwork_to_copy = []  # list of (cache_cover_path, device_rel_path, album_key)
+        self.generated_to_copy = []  # list of (source_path, device_rel_path, label)
         self.to_delete = []     # list of device_paths to remove (orphaned)
         self.up_to_date = []    # list of MatchResult already present on device
         self.total_bytes = 0
@@ -791,7 +794,13 @@ class SyncPlan:
 
     @property
     def total_operations(self):
-        return len(self.to_copy) + len(self.to_resync) + len(self.artwork_to_copy) + len(self.to_delete)
+        return (
+            len(self.to_copy)
+            + len(self.to_resync)
+            + len(self.artwork_to_copy)
+            + len(self.generated_to_copy)
+            + len(self.to_delete)
+        )
 
     @property
     def copy_count(self):
@@ -813,6 +822,8 @@ class SyncPlan:
             parts.append(f"{len(self.to_resync)} tracks to update")
         if self.artwork_to_copy:
             parts.append(f"{len(self.artwork_to_copy)} artwork files to update")
+        if self.generated_to_copy:
+            parts.append(f"{len(self.generated_to_copy)} app data files to update")
         if self.up_to_date:
             parts.append(f"{len(self.up_to_date)} tracks already up to date")
         if self.to_delete:
@@ -985,10 +996,38 @@ class SyncWorker(QObject):
                 else:
                     failed += 1
 
+            generated_offset = (
+                len(self._plan.to_copy)
+                + len(self._plan.to_resync)
+                + len(self._plan.artwork_to_copy)
+            )
+            for i, (src, rel_path, label) in enumerate(self._plan.generated_to_copy):
+                if self._cancelled:
+                    self.cancelled.emit()
+                    return
+                desc = f"Syncing {label}: {os.path.basename(rel_path)}"
+                self.progress.emit(generated_offset + i + 1, total, desc)
+                dest = os.path.join(self._device_mount, rel_path)
+                copy_started = time.perf_counter()
+                ok, copy_stats = self._copy_file(src, dest, created_dirs)
+                stage_times["artwork_copy_seconds"] += time.perf_counter() - copy_started
+                stage_times["local_file_read_seconds"] += copy_stats.get("read_seconds", 0.0)
+                stage_times["device_write_seconds"] += copy_stats.get("write_seconds", 0.0)
+                stage_times["mkdir_seconds"] += copy_stats.get("mkdir_seconds", 0.0)
+                stage_times["open_seconds"] += copy_stats.get("open_seconds", 0.0)
+                stage_times["flush_sync_seconds"] += copy_stats.get("flush_sync_seconds", 0.0)
+                stage_times["replace_seconds"] += copy_stats.get("replace_seconds", 0.0)
+                if ok:
+                    copied += 1
+                    self.file_copied.emit(src, dest)
+                else:
+                    failed += 1
+
             delete_offset = (
                 len(self._plan.to_copy)
                 + len(self._plan.to_resync)
                 + len(self._plan.artwork_to_copy)
+                + len(self._plan.generated_to_copy)
             )
             for i, rel_path in enumerate(self._plan.to_delete):
                 if self._cancelled:
@@ -1470,12 +1509,15 @@ class SyncEngine(QObject):
                         return True
         return False
 
-    def build_sync_plan(self, track_ids=None, force_full=False, status_callback=None):
+    def build_sync_plan(
+        self, track_ids=None, force_full=False, status_callback=None, media_type="audio"
+    ):
         """Analyze what needs to be synced and return a SyncPlan.
 
         Args:
             track_ids: optional set of track IDs to sync (None = all missing)
             force_full: if True, re-copy everything regardless of match state
+            media_type: optional media filter ("audio", "video", or None for all)
         """
         def emit_status(message):
             if status_callback:
@@ -1524,9 +1566,11 @@ class SyncEngine(QObject):
         stage_start = time.perf_counter()
         emit_status("Loading library tracks...")
         if track_ids:
-            local_tracks = self._db.get_tracks_by_ids(track_ids, media_type=None)
+            local_tracks = self._db.get_tracks_by_ids(
+                track_ids, media_type=media_type
+            )
         else:
-            local_tracks = self._db.get_all_tracks(media_type=None)
+            local_tracks = self._db.get_all_tracks(media_type=media_type)
             playlist_track_ids = self.rockbox_playlist_track_ids()
             if playlist_track_ids:
                 existing_ids = {
@@ -1540,11 +1584,12 @@ class SyncEngine(QObject):
                 ]
                 if missing_playlist_ids:
                     local_tracks = list(local_tracks) + self._db.get_tracks_by_ids(
-                        missing_playlist_ids,
-                        media_type=None,
+                        missing_playlist_ids, media_type=media_type
                     )
         stage_times["local_fetch_seconds"] = time.perf_counter() - stage_start
-        all_local_tracks = local_tracks if not track_ids else self._db.get_all_tracks(media_type=None)
+        all_local_tracks = local_tracks if not track_ids else self._db.get_all_tracks(
+            media_type=media_type
+        )
 
         stage_start = time.perf_counter()
         emit_status("Preparing tracks for device sync...")
@@ -1759,6 +1804,7 @@ class SyncEngine(QObject):
         stage_start = time.perf_counter()
         emit_status("Planning artwork sync...")
         self._populate_artwork_sync_plan(plan, matched, local_tracks)
+        self._populate_weather_sync_plan(plan, device.mount_path)
         stage_times["artwork_generation_seconds"] = time.perf_counter() - stage_start
         plan.plan_profile = {
             **stage_times,
@@ -1782,6 +1828,64 @@ class SyncEngine(QObject):
             len(plan.up_to_date),
         )
         return plan
+
+    def build_weather_sync_plan(self, status_callback=None):
+        """Build a sync plan that updates only weather app assets."""
+        def emit_status(message):
+            if status_callback:
+                status_callback(str(message or "").strip())
+
+        t0 = time.perf_counter()
+        device = self._device_detector.current_device
+        if not device:
+            plan = SyncPlan()
+            plan.errors.append("No device connected")
+            plan.plan_profile = {"build_seconds": time.perf_counter() - t0}
+            return plan
+        if self._device_mount_unavailable():
+            plan = SyncPlan()
+            plan.errors.append("Device mount path is unavailable")
+            plan.plan_profile = {"build_seconds": time.perf_counter() - t0}
+            return plan
+
+        emit_status("Checking weather data...")
+        plan = SyncPlan()
+        self._ensure_current_device_key()
+        self._populate_weather_sync_plan(plan, device.mount_path)
+        plan.plan_profile = {"build_seconds": time.perf_counter() - t0}
+        if len(plan.generated_to_copy) == 0 and not plan.errors:
+            emit_status("Weather forecast is up to date")
+        logger.info(
+            "Weather sync plan timing: total=%.3fs files=%d",
+            plan.plan_profile["build_seconds"],
+            len(plan.generated_to_copy),
+        )
+        return plan
+
+    def _populate_weather_sync_plan(self, plan, device_mount):
+        if not bool(self._config_value("weather_enabled", True)):
+            return
+        try:
+            output = build_weather_bundle(self._config, device=self._device_detector.current_device)
+        except Exception as exc:
+            logger.warning("Could not build weather bundle: %s", exc)
+            plan.errors.append(f"Weather update failed: {exc}")
+            return
+        plan.errors.extend(output.errors)
+        existing_hashes = {}
+        for src, rel_path, expected_hash in output.files:
+            device_path = os.path.join(device_mount, rel_path)
+            if os.path.exists(device_path):
+                cached_hash = existing_hashes.get(device_path)
+                if cached_hash is None:
+                    try:
+                        cached_hash = compute_file_hash(device_path)
+                    except OSError:
+                        cached_hash = ""
+                    existing_hashes[device_path] = cached_hash
+                if cached_hash and cached_hash == expected_hash:
+                    continue
+            plan.generated_to_copy.append((src, rel_path, "weather"))
 
     def get_device_tracks(self):
         """Return the current device index, preferring the in-memory cache."""
@@ -2517,11 +2621,30 @@ class SyncEngine(QObject):
             elif not video_id:
                 video_id = self._video_thumbnails.video_list_id(row)
 
+            preview_src, preview_hash, preview_name, preview_id = self._video_thumbnails.export_video_list_preview(row)
+            if not video_id and preview_id:
+                video_id = preview_id
+            preview_rel = ""
+            if preview_src and preview_hash and preview_name:
+                preview_rel = os.path.join(VIDEO_LIST_PREVIEW_DEVICE_DIR, preview_name)
+                if preview_rel not in seen:
+                    seen.add(preview_rel)
+                    self._append_artwork_copy_if_changed(
+                        plan,
+                        preview_src,
+                        preview_rel,
+                        key,
+                        preview_hash,
+                        device_mount,
+                        existing_hashes,
+                    )
+
             title = str(row.get("title") or Path(str(row.get("file_path") or "")).stem or "Untitled Video")
             manifest_entries.append(
                 {
                     "video_id": video_id,
                     "thumb": os.path.join("thumbs", device_name) if thumb_rel else "",
+                    "preview": os.path.join("previews", preview_name) if preview_rel else "",
                     "title": title,
                     "kind": row.get("video_kind") or "movie",
                     "group_key": key,
@@ -2922,7 +3045,17 @@ class SyncPlanWorker(QObject):
     error = Signal(str)
     status = Signal(str)
 
-    def __init__(self, db_path, config, device, artwork_cache_dir, track_ids=None, force_full=False):
+    def __init__(
+        self,
+        db_path,
+        config,
+        device,
+        artwork_cache_dir,
+        track_ids=None,
+        force_full=False,
+        weather_only=False,
+        media_type="audio",
+    ):
         super().__init__()
         self._db_path = db_path
         self._config = config
@@ -2930,6 +3063,8 @@ class SyncPlanWorker(QObject):
         self._artwork_cache_dir = artwork_cache_dir
         self._track_ids = set(track_ids) if track_ids else None
         self._force_full = force_full
+        self._weather_only = bool(weather_only)
+        self._media_type = media_type
 
     @Slot()
     def run(self):
@@ -2943,11 +3078,15 @@ class SyncPlanWorker(QObject):
             detector = _PlanningDeviceDetector(self._device)
             engine = SyncEngine(db, self._config, detector, artwork)
             with db.write_lock():
-                plan = engine.build_sync_plan(
-                    track_ids=self._track_ids,
-                    force_full=self._force_full,
-                    status_callback=self.status.emit,
-                )
+                if self._weather_only:
+                    plan = engine.build_weather_sync_plan(status_callback=self.status.emit)
+                else:
+                    plan = engine.build_sync_plan(
+                        track_ids=self._track_ids,
+                        force_full=self._force_full,
+                        media_type=self._media_type,
+                        status_callback=self.status.emit,
+                    )
             self.finished.emit(plan)
         except Exception as exc:
             logger.exception("Sync planning failed")
@@ -2973,7 +3112,17 @@ class SyncPlanBuilder(QObject):
     def is_running(self):
         return self._thread is not None and self._thread.isRunning()
 
-    def start(self, db_path, config, device, artwork_cache_dir, track_ids=None, force_full=False):
+    def start(
+        self,
+        db_path,
+        config,
+        device,
+        artwork_cache_dir,
+        track_ids=None,
+        force_full=False,
+        weather_only=False,
+        media_type="audio",
+    ):
         if self.is_running:
             return False
         self._thread = QThread()
@@ -2984,6 +3133,8 @@ class SyncPlanBuilder(QObject):
             artwork_cache_dir,
             track_ids=track_ids,
             force_full=force_full,
+            weather_only=weather_only,
+            media_type=media_type,
         )
         self._worker.moveToThread(self._thread)
         self._thread.started.connect(self._worker.run)

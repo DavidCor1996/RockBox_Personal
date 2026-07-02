@@ -1177,6 +1177,8 @@ class ThemeDesignerWidget(QWidget):
         self._right_pane_mode_combo = QComboBox()
         self._right_pane_mode_combo.addItem("Miniplayer", "miniplayer")
         self._right_pane_mode_combo.addItem("Full art", "full art")
+        self._wallpaper_cycle_check = QCheckBox("Cycle lock and charge wallpapers")
+        self._wallpaper_cycle_check.stateChanged.connect(self._sync_preview)
         self._fit_combo.currentIndexChanged.connect(self._sync_preview)
         self._charge_fit_combo.currentIndexChanged.connect(self._sync_preview)
         self._right_pane_fit_combo.currentIndexChanged.connect(self._sync_preview)
@@ -1193,6 +1195,7 @@ class ThemeDesignerWidget(QWidget):
         )
         wallpapers_form.addRow("Right video", self._path_row(self._right_pane_video_edit, self._choose_right_pane_video))
         wallpapers_form.addRow("Right pane mode", self._right_pane_mode_combo)
+        wallpapers_form.addRow("", self._wallpaper_cycle_check)
         wallpapers_layout.addLayout(wallpapers_form)
         self._artwork_advanced_toggle = QPushButton("Show fit options")
         self._artwork_advanced_toggle.setCheckable(True)
@@ -1608,6 +1611,7 @@ class ThemeDesignerWidget(QWidget):
         self._right_pane_fit_combo.setCurrentText(variant.get("right_pane_fit_mode", "fill"))
         right_pane_mode = str(variant.get("right_pane_mode") or "").strip()
         self._set_right_pane_mode_value(right_pane_mode or "miniplayer")
+        self._wallpaper_cycle_check.setChecked(bool(variant.get("wallpaper_cycle_enabled", False)))
         self._right_pane_offset_x = self._clamp_offset(variant.get("right_pane_offset_x", 0))
         self._right_pane_offset_y = self._clamp_offset(variant.get("right_pane_offset_y", 0))
         self._set_font_value(variant.get("font_rel", ""))
@@ -1669,6 +1673,7 @@ class ThemeDesignerWidget(QWidget):
             "right_pane_mode": self._right_pane_mode_combo.currentData() or "miniplayer",
             "right_pane_offset_x": self._right_pane_offset_x,
             "right_pane_offset_y": self._right_pane_offset_y,
+            "wallpaper_cycle_enabled": self._wallpaper_cycle_check.isChecked(),
             "font_rel": self._font_combo.currentData() or "",
             "lockscreen_clock": {
                 "font_rel": self._lockscreen_clock_font_combo.currentData() or "fonts/66-Cantarell-Light.fnt",

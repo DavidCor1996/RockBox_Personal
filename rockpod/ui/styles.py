@@ -831,8 +831,7 @@ QWidget#storage_bar_container {{
     background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
         stop:0 #eeeeee, stop:0.24 #d8d8d8, stop:0.25 #bdbdbd, stop:1 #dedede);
     border-top: 1px solid #858585;
-    min-height: 42px;
-    max-height: 42px;
+    min-height: 82px;
 }}
 
 QWidget#storage_bar_container QLabel {{

@@ -6,6 +6,7 @@ from PIL import Image
 from services.youtube_movies import (
     YoutubeMovieImportError,
     YoutubeMovieImporter,
+    _downloaded_video,
     existing_movie_duplicate,
     is_supported_youtube_url,
     parse_movie_import_progress,
@@ -108,3 +109,15 @@ def test_persist_movie_import_poster_writes_sidecar_jpeg(tmp_dir):
     assert os.path.isfile(poster_path)
     with Image.open(poster_path) as image:
         assert image.format == "JPEG"
+
+
+def test_downloaded_video_detection_ignores_file_mtime(tmp_dir):
+    download_dir = os.path.join(tmp_dir, "downloads")
+    os.makedirs(download_dir, exist_ok=True)
+    video_path = os.path.join(download_dir, "YouTube Movie.mp4")
+    open(video_path, "wb").write(b"movie")
+    os.utime(video_path, (946684800, 946684800))
+
+    found = _downloaded_video(download_dir, "YouTube Movie")
+
+    assert found == video_path

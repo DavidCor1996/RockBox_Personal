@@ -68,6 +68,14 @@ from services.rockbox_device import (
     detect_rockbox_database_state,
     enable_rockbox_tagcache_autoupdate,
     invalidate_pictureflow_cache,
+    set_rockbox_applications_menu,
+    set_rockbox_ui_accent,
+    set_rockbox_ui_density,
+    set_rockbox_ui_dark_mode,
+    set_rockbox_ui_engine,
+    set_rockbox_ui_font_scale,
+    set_rockbox_ui_hold_effect,
+    set_rockbox_ui_surface,
 )
 from services.rockbox_deploy import RockboxDeployService
 from services.rockbox_boot import RockboxBootService
@@ -106,6 +114,7 @@ from ui.web_browser import BrowserPanel, MovieStorePanel, MusicSharingPanel
 from ui.boot_manager import BootManagerWidget
 from ui.theme_hub import ThemeHubWidget
 from ui.theme_designer import ThemeDesignerWidget
+from ui.ipodjs_engine_designer import IPodJSEngineDesignerWidget
 from ui.video_library import VideoGridView, build_video_browser_groups
 from ui.video_player import VideoPlayerWindow
 from ui.video_sync import VideoSyncPanel
@@ -356,6 +365,7 @@ class MainWindow(QMainWindow):
         self._theme_hub = ThemeHubWidget()
         self._ipone_wallpapers = IPoneWallpaperManagerWidget()
         self._theme_designer = ThemeDesignerWidget()
+        self._ipodjs_engine_designer = IPodJSEngineDesignerWidget()
         self._boot_manager = BootManagerWidget()
         self._plugin_manager = PluginManagerWidget()
         self._game_manager = GameManagerWidget()
@@ -397,6 +407,7 @@ class MainWindow(QMainWindow):
         self._content_stack.addWidget(self._theme_hub)
         self._content_stack.addWidget(self._ipone_wallpapers)
         self._content_stack.addWidget(self._theme_designer)
+        self._content_stack.addWidget(self._ipodjs_engine_designer)
         self._content_stack.addWidget(self._boot_manager)
         self._content_stack.addWidget(self._plugin_manager)
         self._content_stack.addWidget(self._game_manager)
@@ -460,6 +471,7 @@ class MainWindow(QMainWindow):
         # Device menu
         device_menu = menubar.addMenu("Device")
         device_menu.addAction("Sync to iPod", self._start_sync, "Ctrl+S")
+        device_menu.addAction("Sync Weather", self._sync_weather_only)
         device_menu.addAction("Import Android Photos/Videos...", self._import_android_media)
         device_menu.addAction("Refresh Device", self._scan_device)
         device_menu.addAction("Force Device Rescan", self._force_device_rescan)
@@ -548,6 +560,7 @@ class MainWindow(QMainWindow):
         self._theme_designer.delete_requested.connect(self._delete_theme_designer_variant)
         self._theme_designer.deploy_device_requested.connect(self._deploy_theme_designer_variant_to_device)
         self._theme_designer.deploy_simulator_requested.connect(self._deploy_theme_designer_variant_to_simulator)
+        self._ipodjs_engine_designer.apply_device_requested.connect(self._apply_ipodjs_engine_designer)
         self._boot_manager.profile_selected.connect(self._on_boot_profile_selected)
         self._boot_manager.target_mode_selected.connect(self._on_boot_target_mode_selected)
         self._boot_manager.choose_image_requested.connect(self._choose_boot_image)
@@ -911,6 +924,8 @@ class MainWindow(QMainWindow):
             tracks = []
         elif self._current_view == "rockbox_theme_designer":
             tracks = []
+        elif self._current_view == "rockbox_ipodjs_engine_designer":
+            tracks = []
         elif self._current_view == "rockbox_boot":
             tracks = []
         elif self._current_view == "rockbox_plugins":
@@ -1108,6 +1123,7 @@ class MainWindow(QMainWindow):
             "rockbox_themes": "Themes",
             "rockbox_wallpapers": "Wallpapers",
             "rockbox_theme_designer": "iPone Designer",
+            "rockbox_ipodjs_engine_designer": "iPod Engine",
             "rockbox_boot": "Boot / Branding",
             "rockbox_plugins": "Plugins",
             "rockbox_game_sync": "Game Sync",
@@ -1174,6 +1190,20 @@ class MainWindow(QMainWindow):
             return "Mock iPod"
         return os.path.basename(getattr(device, "mount_path", "") or "") or "iPod"
 
+    def _apply_ipodjs_engine_designer(self, settings):
+        payload = {
+            "rockbox_ui_engine": "ipodjs",
+            "rockbox_ui_accent": "blue",
+            "rockbox_ui_density": "comfortable",
+            "rockbox_ui_font_scale": "normal",
+            "rockbox_ui_surface": "solid",
+            "rockbox_ui_hold_effect": "dim",
+            "rockbox_ui_dark_mode": False,
+        }
+        payload.update(dict(settings or {}))
+        if self._apply_device_settings(payload):
+            self._status_bar.set_left_text("iPod engine settings applied")
+
     def _apply_device_settings(self, settings):
         device = self._device_detector.current_device
         if not device:
@@ -1186,6 +1216,82 @@ class MainWindow(QMainWindow):
             else:
                 self._config.set_device_override(key, value, device=device)
         self._config.save()
+
+        if "rockbox_ui_engine" in dict(settings or {}):
+            try:
+                set_rockbox_ui_engine(device, settings["rockbox_ui_engine"])
+            except OSError as exc:
+                QMessageBox.warning(
+                    self,
+                    "Device Settings",
+                    f"Saved the RockPod setting, but could not update Rockbox config.cfg:\n{exc}",
+                )
+        if "rockbox_ui_accent" in dict(settings or {}):
+            try:
+                set_rockbox_ui_accent(device, settings["rockbox_ui_accent"])
+            except OSError as exc:
+                QMessageBox.warning(
+                    self,
+                    "Device Settings",
+                    f"Saved the RockPod setting, but could not update Rockbox config.cfg:\n{exc}",
+                )
+        if "rockbox_ui_density" in dict(settings or {}):
+            try:
+                set_rockbox_ui_density(device, settings["rockbox_ui_density"])
+            except OSError as exc:
+                QMessageBox.warning(
+                    self,
+                    "Device Settings",
+                    f"Saved the RockPod setting, but could not update Rockbox config.cfg:\n{exc}",
+                )
+        if "rockbox_show_applications_menu" in dict(settings or {}):
+            try:
+                set_rockbox_applications_menu(
+                    device,
+                    settings["rockbox_show_applications_menu"],
+                )
+            except OSError as exc:
+                QMessageBox.warning(
+                    self,
+                    "Device Settings",
+                    f"Saved the RockPod setting, but could not update Rockbox config.cfg:\n{exc}",
+                )
+        if "rockbox_ui_font_scale" in dict(settings or {}):
+            try:
+                set_rockbox_ui_font_scale(device, settings["rockbox_ui_font_scale"])
+            except OSError as exc:
+                QMessageBox.warning(
+                    self,
+                    "Device Settings",
+                    f"Saved the RockPod setting, but could not update Rockbox config.cfg:\n{exc}",
+                )
+        if "rockbox_ui_surface" in dict(settings or {}):
+            try:
+                set_rockbox_ui_surface(device, settings["rockbox_ui_surface"])
+            except OSError as exc:
+                QMessageBox.warning(
+                    self,
+                    "Device Settings",
+                    f"Saved the RockPod setting, but could not update Rockbox config.cfg:\n{exc}",
+                )
+        if "rockbox_ui_hold_effect" in dict(settings or {}):
+            try:
+                set_rockbox_ui_hold_effect(device, settings["rockbox_ui_hold_effect"])
+            except OSError as exc:
+                QMessageBox.warning(
+                    self,
+                    "Device Settings",
+                    f"Saved the RockPod setting, but could not update Rockbox config.cfg:\n{exc}",
+                )
+        if "rockbox_ui_dark_mode" in dict(settings or {}):
+            try:
+                set_rockbox_ui_dark_mode(device, settings["rockbox_ui_dark_mode"])
+            except OSError as exc:
+                QMessageBox.warning(
+                    self,
+                    "Device Settings",
+                    f"Saved the RockPod setting, but could not update Rockbox config.cfg:\n{exc}",
+                )
 
         override_name = self._config.get_device_display_name(device=device)
         device.name = override_name or self._default_connected_device_name(device)
@@ -1274,6 +1380,8 @@ class MainWindow(QMainWindow):
         elif self._current_view == "rockbox_theme_designer":
             self._content_stack.setCurrentWidget(self._theme_designer)
             self._refresh_theme_designer()
+        elif self._current_view == "rockbox_ipodjs_engine_designer":
+            self._content_stack.setCurrentWidget(self._ipodjs_engine_designer)
         elif self._current_view == "rockbox_boot":
             self._content_stack.setCurrentWidget(self._boot_manager)
             self._refresh_boot_manager()
@@ -3079,6 +3187,27 @@ class MainWindow(QMainWindow):
         dialog.sync_cancelled.connect(lambda: self._sync_engine.cancel_sync())
         dialog.exec()
 
+    def _sync_weather_only(self):
+        if self._sync_engine.is_syncing:
+            return
+        if not self._device_detector.is_connected:
+            QMessageBox.warning(self, "No Device", "No Rockbox device is connected.")
+            return
+
+        plan = self._build_sync_plan_with_feedback(weather_only=True)
+        if plan is None:
+            return
+        if self._sync_plan_has_blocking_errors(plan):
+            return
+        if plan.total_operations == 0:
+            self._status_bar.set_left_text("Weather forecast is up to date")
+            return
+        self._status_bar.set_left_text(plan.summary())
+        dialog = SyncDialog(plan, self)
+        dialog.sync_confirmed.connect(lambda: self._execute_sync(plan, dialog))
+        dialog.sync_cancelled.connect(lambda: self._sync_engine.cancel_sync())
+        dialog.exec()
+
     def _sync_selected(self):
         track_ids = self._active_track_table().get_selected_track_ids()
         if not track_ids:
@@ -3086,8 +3215,13 @@ class MainWindow(QMainWindow):
         if not self._device_detector.is_connected:
             QMessageBox.warning(self, "No Device", "No Rockbox device is connected.")
             return
+        media_type = "audio"
+        if self._current_view == "library_videos":
+            media_type = "video"
 
-        plan = self._build_sync_plan_with_feedback(track_ids=track_ids)
+        plan = self._build_sync_plan_with_feedback(
+            track_ids=track_ids, media_type=media_type
+        )
         if plan is None:
             return
         if self._sync_plan_has_blocking_errors(plan):
@@ -3292,7 +3426,9 @@ class MainWindow(QMainWindow):
             QMessageBox.warning(self, "No Device", "No Rockbox device is connected.")
             return
 
-        plan = self._build_sync_plan_with_feedback(track_ids=track_ids, force_full=force_full)
+        plan = self._build_sync_plan_with_feedback(
+            track_ids=track_ids, force_full=force_full, media_type="video"
+        )
         if plan is None:
             return
         if self._sync_plan_has_blocking_errors(plan):
@@ -3326,18 +3462,29 @@ class MainWindow(QMainWindow):
         )
         return True
 
-    def _build_sync_plan_with_feedback(self, track_ids=None, force_full=False):
-        self._status_bar.set_left_text("Planning sync...")
+    def _build_sync_plan_with_feedback(
+        self, track_ids=None, force_full=False, weather_only=False, media_type="audio"
+    ):
+        if weather_only:
+            self._status_bar.set_left_text("Planning weather sync...")
+            progress_text = "Checking weather data..."
+            window_title = "Planning Weather Sync"
+            label_text = "Fetching weather forecast..."
+        else:
+            self._status_bar.set_left_text("Planning sync...")
+            progress_text = "Comparing your library with the iPod..."
+            window_title = "Planning Sync"
+            label_text = "Loading library tracks..."
 
-        progress = QProgressDialog("Comparing your library with the iPod...", None, 0, 0, self)
-        progress.setWindowTitle("Planning Sync")
+        progress = QProgressDialog(progress_text, None, 0, 0, self)
+        progress.setWindowTitle(window_title)
         progress.setWindowModality(Qt.WindowModal)
         progress.setMinimumDuration(0)
         progress.setAutoClose(False)
         progress.setAutoReset(False)
         progress.setCancelButton(None)
         progress.setValue(0)
-        progress.setLabelText("Loading library tracks...")
+        progress.setLabelText(label_text)
 
         planner = SyncPlanBuilder(self)
         loop = QEventLoop(self)
@@ -3356,6 +3503,8 @@ class MainWindow(QMainWindow):
             self._config.artwork_cache_dir,
             track_ids=track_ids,
             force_full=force_full,
+            weather_only=weather_only,
+            media_type=media_type,
         )
         if not started:
             progress.close()
@@ -3392,23 +3541,30 @@ class MainWindow(QMainWindow):
         self._sync_dialog = None
         self._toolbar.set_syncing(False)
         if failed == 0 and self._active_sync_plan:
-            t_cache = time.perf_counter()
-            self._update_device_cache_from_plan(self._active_sync_plan)
-            post_sync_db_update_seconds = time.perf_counter() - t_cache
+            has_media_changes = self._sync_plan_has_media_changes(self._active_sync_plan)
+            post_sync_db_update_seconds = 0.0
+            post_sync_cache_cleanup_seconds = 0.0
+            removed_count = 0
 
-            t_cache_cleanup = time.perf_counter()
-            cache_cleanup = self._sync_engine.cleanup_local_sync_cache(
-                device_key=self._sync_engine.current_device_key,
-            ) if self._active_sync_plan else {}
-            post_sync_cache_cleanup_seconds = time.perf_counter() - t_cache_cleanup
-            removed_count = len(cache_cleanup.get("removed", []) if isinstance(cache_cleanup, dict) else [])
+            if has_media_changes:
+                t_cache = time.perf_counter()
+                self._update_device_cache_from_plan(self._active_sync_plan)
+                post_sync_db_update_seconds = time.perf_counter() - t_cache
+
+                t_cache_cleanup = time.perf_counter()
+                cache_cleanup = self._sync_engine.cleanup_local_sync_cache(
+                    device_key=self._sync_engine.current_device_key,
+                ) if self._sync_engine.current_device_key else {}
+                post_sync_cache_cleanup_seconds = time.perf_counter() - t_cache_cleanup
+                removed_count = len(cache_cleanup.get("removed", []) if isinstance(cache_cleanup, dict) else [])
+                if isinstance(cache_cleanup, dict) and cache_cleanup.get("errors"):
+                    logger.warning("Cache cleanup reported errors: %s", ", ".join(cache_cleanup["errors"]))
+
             self._post_sync_rockbox_integration()
             profile = dict(getattr(self._active_sync_plan, "execution_profile", {}) or {})
             profile["post_sync_db_update_seconds"] = post_sync_db_update_seconds
             profile["post_sync_cache_cleanup_seconds"] = post_sync_cache_cleanup_seconds
             self._active_sync_plan.execution_profile = profile
-            if isinstance(cache_cleanup, dict) and cache_cleanup.get("errors"):
-                logger.warning("Cache cleanup reported errors: %s", ", ".join(cache_cleanup["errors"]))
             logger.info(
                 "Sync finalize timing: post_sync_db_update=%.3fs post_sync_cache_cleanup=%.3fs removed=%d total=%.3fs",
                 post_sync_db_update_seconds,
@@ -3429,22 +3585,23 @@ class MainWindow(QMainWindow):
         logger.info("Sync done: %d copied, %d failed, %d skipped", copied, failed, skipped)
 
     def _post_sync_rockbox_integration(self):
+        if not self._active_sync_plan:
+            self._status_bar.set_left_text("Sync complete")
+            self._device_state = "Ready"
+            self._rockbox_db_stale = False
+            self._rockbox_db_update_started_at = None
+            self._rockbox_db_feedback_tick = 0
+            return
+
         device = self._device_detector.current_device
         if not device or not getattr(device, "is_rockbox", False):
             return
         playlist_result = None
-        if self._device_config_value("sync_playlists_to_device", True):
-            playlist_result = self._sync_rockbox_playlists(device)
         plan = self._active_sync_plan
-        had_track_changes = bool(
-            plan and (
-                getattr(plan, "to_copy", None)
-                or getattr(plan, "to_resync", None)
-                or getattr(plan, "to_delete", None)
-                or getattr(plan, "artwork_to_copy", None)
-            )
-        )
-        if not had_track_changes:
+        has_media_changes = self._sync_plan_has_media_changes(plan)
+        if has_media_changes and self._device_config_value("sync_playlists_to_device", True):
+            playlist_result = self._sync_rockbox_playlists(device)
+        if not has_media_changes:
             self._device_state = "Ready"
             self._rockbox_db_stale = False
             self._rockbox_db_update_started_at = None
@@ -3453,6 +3610,8 @@ class MainWindow(QMainWindow):
                 self._status_bar.set_left_text(
                     f"Sync complete; {len(playlist_result['exported'])} playlist(s) updated"
                 )
+            elif getattr(plan, "generated_to_copy", None):
+                self._status_bar.set_left_text("Weather synced")
             else:
                 self._status_bar.set_left_text("Sync complete")
             return
@@ -3518,6 +3677,18 @@ class MainWindow(QMainWindow):
         self._update_sync_status()
         self._refresh_device_storage_breakdown(device)
         self._update_device_summary()
+
+    def _sync_plan_has_media_changes(self, plan):
+        return bool(
+            plan
+            and (
+                getattr(plan, "to_copy", None)
+                or getattr(plan, "to_resync", None)
+                or getattr(plan, "to_delete", None)
+                or getattr(plan, "artwork_to_copy", None)
+                or getattr(plan, "preflight_linked", None)
+            )
+        )
 
     def _generate_rockbox_database_host_side(self, device):
         try:

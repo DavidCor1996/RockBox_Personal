@@ -512,12 +512,12 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000    0x22ac1
+.debug_info     0x0000000000000000    0x22c65
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0xba53 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lastfm_scrobbler.o
- .debug_info    0x000000000000ba53     0x7ca7 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
- .debug_info    0x00000000000136fa     0x76d7 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(gcc-support.o)
- .debug_info    0x000000000001add1     0x7cf0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(configfile.o)
+ .debug_info    0x0000000000000000     0xbabc /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lastfm_scrobbler.o
+ .debug_info    0x000000000000babc     0x7d10 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
+ .debug_info    0x00000000000137cc     0x7740 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(gcc-support.o)
+ .debug_info    0x000000000001af0c     0x7d59 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(configfile.o)
 
 .debug_abbrev   0x0000000000000000     0x1236
  *(.debug_abbrev)
@@ -536,16 +536,16 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0x9f97
+.debug_str      0x0000000000000000     0xa015
  *(.debug_str)
- .debug_str     0x0000000000000000     0x9f97 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lastfm_scrobbler.o
-                                       0xa54f (size before relaxing)
- .debug_str     0x0000000000009f97        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
-                                       0x5174 (size before relaxing)
- .debug_str     0x0000000000009f97        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(gcc-support.o)
-                                       0x481b (size before relaxing)
- .debug_str     0x0000000000009f97        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(configfile.o)
-                                       0x48ea (size before relaxing)
+ .debug_str     0x0000000000000000     0xa015 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/lastfm_scrobbler.o
+                                       0xa5cd (size before relaxing)
+ .debug_str     0x000000000000a015        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
+                                       0x51f2 (size before relaxing)
+ .debug_str     0x000000000000a015        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(gcc-support.o)
+                                       0x4899 (size before relaxing)
+ .debug_str     0x000000000000a015        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(configfile.o)
+                                       0x4968 (size before relaxing)
 
 .debug_loc
  *(.debug_loc)

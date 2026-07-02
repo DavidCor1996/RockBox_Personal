@@ -108,6 +108,7 @@ class Sidebar(QWidget):
     ROCKBOX_THEMES = "rockbox_themes"
     ROCKBOX_WALLPAPERS = "rockbox_wallpapers"
     ROCKBOX_THEME_DESIGNER = "rockbox_theme_designer"
+    ROCKBOX_IPODJS_ENGINE_DESIGNER = "rockbox_ipodjs_engine_designer"
     ROCKBOX_BOOT = "rockbox_boot"
     ROCKBOX_PLUGINS = "rockbox_plugins"
     ROCKBOX_GAME_SYNC = "rockbox_game_sync"
@@ -219,6 +220,10 @@ class Sidebar(QWidget):
         self._theme_designer_item = self._add_item(
             self._rockbox_header, "iPone Designer", self.ROCKBOX_THEME_DESIGNER,
             _make_icon("#8f7db8", "device")
+        )
+        self._ipodjs_engine_designer_item = self._add_item(
+            self._rockbox_header, "iPod Engine", self.ROCKBOX_IPODJS_ENGINE_DESIGNER,
+            _make_icon("#4a90d9", "device")
         )
         self._boot_item = self._add_item(
             self._rockbox_header, "Boot / Branding", self.ROCKBOX_BOOT,

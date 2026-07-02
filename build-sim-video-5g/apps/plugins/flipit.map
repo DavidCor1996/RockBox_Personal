@@ -504,12 +504,12 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000     0xffa8
+.debug_info     0x0000000000000000    0x1007a
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0x8030 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/flipit.o
- .debug_info    0x0000000000008030     0x7cf2 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
- .debug_info    0x000000000000fd22      0x143 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(flipit_cursor.56x56x16.o)
- .debug_info    0x000000000000fe65      0x143 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(flipit_tokens.56x112x16.o)
+ .debug_info    0x0000000000000000     0x8099 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/flipit.o
+ .debug_info    0x0000000000008099     0x7d5b /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+ .debug_info    0x000000000000fdf4      0x143 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(flipit_cursor.56x56x16.o)
+ .debug_info    0x000000000000ff37      0x143 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(flipit_tokens.56x112x16.o)
 
 .debug_abbrev   0x0000000000000000      0xa21
  *(.debug_abbrev)
@@ -528,15 +528,15 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0x4cf8
+.debug_str      0x0000000000000000     0x4d76
  *(.debug_str)
- .debug_str     0x0000000000000000     0x4cf8 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/flipit.o
-                                       0x5197 (size before relaxing)
- .debug_str     0x0000000000004cf8        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
-                                       0x51cb (size before relaxing)
- .debug_str     0x0000000000004cf8        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(flipit_cursor.56x56x16.o)
+ .debug_str     0x0000000000000000     0x4d76 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/flipit.o
+                                       0x5215 (size before relaxing)
+ .debug_str     0x0000000000004d76        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+                                       0x5249 (size before relaxing)
+ .debug_str     0x0000000000004d76        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(flipit_cursor.56x56x16.o)
                                         0x16e (size before relaxing)
- .debug_str     0x0000000000004cf8        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(flipit_tokens.56x112x16.o)
+ .debug_str     0x0000000000004d76        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(flipit_tokens.56x112x16.o)
                                         0x16e (size before relaxing)
 
 .debug_loc

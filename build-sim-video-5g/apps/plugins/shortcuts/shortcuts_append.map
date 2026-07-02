@@ -495,11 +495,11 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000    0x17e26
+.debug_info     0x0000000000000000    0x17f61
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0x8789 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/shortcuts/shortcuts_common.o
- .debug_info    0x0000000000008789     0x79ab /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/shortcuts/shortcuts_append.o
- .debug_info    0x0000000000010134     0x7cf2 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+ .debug_info    0x0000000000000000     0x87f2 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/shortcuts/shortcuts_common.o
+ .debug_info    0x00000000000087f2     0x7a14 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/shortcuts/shortcuts_append.o
+ .debug_info    0x0000000000010206     0x7d5b /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
 
 .debug_abbrev   0x0000000000000000      0xd48
  *(.debug_abbrev)
@@ -516,14 +516,14 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0x4d76
+.debug_str      0x0000000000000000     0x4df4
  *(.debug_str)
- .debug_str     0x0000000000000000     0x4d76 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/shortcuts/shortcuts_common.o
-                                       0x523b (size before relaxing)
- .debug_str     0x0000000000004d76        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/shortcuts/shortcuts_append.o
-                                       0x4a1b (size before relaxing)
- .debug_str     0x0000000000004d76        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
-                                       0x51cb (size before relaxing)
+ .debug_str     0x0000000000000000     0x4df4 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/shortcuts/shortcuts_common.o
+                                       0x52b9 (size before relaxing)
+ .debug_str     0x0000000000004df4        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/shortcuts/shortcuts_append.o
+                                       0x4a99 (size before relaxing)
+ .debug_str     0x0000000000004df4        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+                                       0x5249 (size before relaxing)
 
 .debug_loc
  *(.debug_loc)

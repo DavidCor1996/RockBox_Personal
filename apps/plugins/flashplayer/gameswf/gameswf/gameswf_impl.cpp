@@ -1170,11 +1170,10 @@ namespace gameswf
 						{
 							Uint16	pixel = image_in_row[i * 2] | (image_in_row[i * 2 + 1] << 8);
 
-							// @@ How is the data packed???	 I'm just guessing here that it's 565!
-							image_out_row[i * 4 + 0] = 255;			// alpha
-							image_out_row[i * 4 + 1] = (pixel >> 8) & 0xF8;	// red
-							image_out_row[i * 4 + 2] = (pixel >> 3) & 0xFC;	// green
-							image_out_row[i * 4 + 3] = (pixel << 3) & 0xF8;	// blue
+							image_out_row[i * 4 + 0] = (pixel >> 8) & 0xF8;	// red
+							image_out_row[i * 4 + 1] = (pixel >> 3) & 0xFC;	// green
+							image_out_row[i * 4 + 2] = (pixel << 3) & 0xF8;	// blue
+							image_out_row[i * 4 + 3] = 255;			// alpha
 						}
 					}
 
@@ -1305,11 +1304,6 @@ namespace gameswf
 		Uint16	character_id = in->read_u16();
 		IF_VERBOSE_PARSE(log_msg("  shape_loader: id = %d\n", character_id));
 		flashplayer_trace_shape(1, character_id, in->get_position());
-		if (flashplayer_should_skip_shape(character_id, tag_type,
-			in->get_position()))
-		{
-			return;
-		}
 
 		void* shape_mem = operator new(sizeof(shape_character_def));
 		if (shape_mem == NULL)

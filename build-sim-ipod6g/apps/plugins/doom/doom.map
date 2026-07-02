@@ -3440,7 +3440,7 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000   0x1c6f52
+.debug_info     0x0000000000000000   0x1c7ba0
  *(.debug_info .gnu.linkonce.wi.*)
  .debug_info    0x0000000000000000      0xd93 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/../../../firmware/libc/sscanf.o
  .debug_info    0x0000000000000d93     0x2daa /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/info.o
@@ -3448,67 +3448,67 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
  .debug_info    0x0000000000003bc5     0x2c58 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/doomstat.o
  .debug_info    0x000000000000681d      0x4d1 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/dstrings.o
  .debug_info    0x0000000000006cee      0x886 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/tables.o
- .debug_info    0x0000000000007574     0xc23e /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/f_finale.o
- .debug_info    0x00000000000137b2     0x2fdf /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/f_wipe.o
- .debug_info    0x0000000000016791     0x2bc1 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/d_net.o
- .debug_info    0x0000000000019352     0x2600 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/d_items.o
- .debug_info    0x000000000001b952     0xf3d5 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/g_game.o
- .debug_info    0x000000000002ad27     0xe0c9 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/m_menu.o
- .debug_info    0x0000000000038df0     0x78ed /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/m_argv.o
- .debug_info    0x00000000000406dd      0x185 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/m_cheat.o
- .debug_info    0x0000000000040862     0x2a2e /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/m_random.o
- .debug_info    0x0000000000043290     0xd4c6 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/am_map.o
- .debug_info    0x0000000000050756     0x46df /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/p_ceilng.o
- .debug_info    0x0000000000054e35     0x21bc /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/p_doors.o
- .debug_info    0x0000000000056ff1     0x2ddf /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/p_genlin.o
- .debug_info    0x0000000000059dd0     0x90eb /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/p_enemy.o
- .debug_info    0x0000000000062ebb     0x2ba4 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/p_floor.o
- .debug_info    0x0000000000065a5f     0x4d9b /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/p_inter.o
- .debug_info    0x000000000006a7fa     0x1b23 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/p_lights.o
- .debug_info    0x000000000006c31d     0x7618 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/p_map.o
- .debug_info    0x0000000000073935     0x4b79 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/p_maputl.o
- .debug_info    0x00000000000784ae     0x4b9c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/p_plats.o
- .debug_info    0x000000000007d04a     0x5143 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/p_pspr.o
- .debug_info    0x000000000008218d     0xd330 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/p_setup.o
- .debug_info    0x000000000008f4bd     0x40d4 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/p_sight.o
- .debug_info    0x0000000000093591     0xf003 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/p_spec.o
- .debug_info    0x00000000000a2594     0x515d /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/p_switch.o
- .debug_info    0x00000000000a76f1     0xc9ff /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/p_mobj.o
- .debug_info    0x00000000000b40f0     0x1fb9 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/p_telept.o
- .debug_info    0x00000000000b60a9     0x3842 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/p_tick.o
- .debug_info    0x00000000000b98eb     0x57fb /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/p_saveg.o
- .debug_info    0x00000000000bf0e6     0x3cae /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/p_user.o
- .debug_info    0x00000000000c2d94     0xb59f /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/r_bsp.o
- .debug_info    0x00000000000ce333     0xcf2f /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/r_data.o
- .debug_info    0x00000000000db262     0x351d /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/r_draw.o
- .debug_info    0x00000000000de77f     0x4861 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/r_main.o
- .debug_info    0x00000000000e2fe0     0xb850 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/r_plane.o
- .debug_info    0x00000000000ee830     0x4b51 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/r_segs.o
- .debug_info    0x00000000000f3381      0x4c1 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/r_sky.o
- .debug_info    0x00000000000f3842     0xc46d /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/r_things.o
- .debug_info    0x00000000000ffcaf     0xe6ea /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/wi_stuff.o
- .debug_info    0x000000000010e399     0xb41e /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/v_video.o
- .debug_info    0x00000000001197b7     0x305d /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/st_lib.o
- .debug_info    0x000000000011c814     0xca80 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/st_stuff.o
- .debug_info    0x0000000000129294     0xd603 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/hu_stuff.o
- .debug_info    0x0000000000136897     0x16eb /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/hu_lib.o
- .debug_info    0x0000000000137f82     0xc27b /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/s_sound.o
- .debug_info    0x00000000001441fd     0x7c12 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/z_zone.o
- .debug_info    0x000000000014be0f     0x789e /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/z_bmalloc.o
- .debug_info    0x00000000001536ad      0x841 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/sounds.o
- .debug_info    0x0000000000153eee     0xc683 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/d_main.o
- .debug_info    0x0000000000160571     0xb421 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/m_misc.o
- .debug_info    0x000000000016b992      0x13b /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/m_bbox.o
- .debug_info    0x000000000016bacd     0x7730 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/i_system.o
- .debug_info    0x00000000001731fd     0xadbd /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/i_sound.o
- .debug_info    0x000000000017dfba     0xadd3 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/i_video.o
- .debug_info    0x0000000000188d8d     0xaed3 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/w_wad.o
- .debug_info    0x0000000000193c60     0xc475 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/rockdoom.o
- .debug_info    0x00000000001a00d5     0xff36 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/d_deh.o
- .debug_info    0x00000000001b000b     0x7ca7 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
- .debug_info    0x00000000001b7cb2     0x76d7 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(gcc-support.o)
- .debug_info    0x00000000001bf389     0x7a9f /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(helper.o)
- .debug_info    0x00000000001c6e28      0x12a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(strncpy.o)
+ .debug_info    0x0000000000007574     0xc2a7 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/f_finale.o
+ .debug_info    0x000000000001381b     0x2fdf /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/f_wipe.o
+ .debug_info    0x00000000000167fa     0x2bc1 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/d_net.o
+ .debug_info    0x00000000000193bb     0x2600 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/d_items.o
+ .debug_info    0x000000000001b9bb     0xf43e /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/g_game.o
+ .debug_info    0x000000000002adf9     0xe132 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/m_menu.o
+ .debug_info    0x0000000000038f2b     0x7956 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/m_argv.o
+ .debug_info    0x0000000000040881      0x185 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/m_cheat.o
+ .debug_info    0x0000000000040a06     0x2a2e /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/m_random.o
+ .debug_info    0x0000000000043434     0xd52f /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/am_map.o
+ .debug_info    0x0000000000050963     0x46df /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/p_ceilng.o
+ .debug_info    0x0000000000055042     0x21bc /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/p_doors.o
+ .debug_info    0x00000000000571fe     0x2ddf /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/p_genlin.o
+ .debug_info    0x0000000000059fdd     0x90eb /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/p_enemy.o
+ .debug_info    0x00000000000630c8     0x2ba4 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/p_floor.o
+ .debug_info    0x0000000000065c6c     0x4d9b /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/p_inter.o
+ .debug_info    0x000000000006aa07     0x1b23 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/p_lights.o
+ .debug_info    0x000000000006c52a     0x7618 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/p_map.o
+ .debug_info    0x0000000000073b42     0x4b79 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/p_maputl.o
+ .debug_info    0x00000000000786bb     0x4b9c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/p_plats.o
+ .debug_info    0x000000000007d257     0x5143 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/p_pspr.o
+ .debug_info    0x000000000008239a     0xd399 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/p_setup.o
+ .debug_info    0x000000000008f733     0x40d4 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/p_sight.o
+ .debug_info    0x0000000000093807     0xf06c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/p_spec.o
+ .debug_info    0x00000000000a2873     0x515d /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/p_switch.o
+ .debug_info    0x00000000000a79d0     0xca68 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/p_mobj.o
+ .debug_info    0x00000000000b4438     0x1fb9 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/p_telept.o
+ .debug_info    0x00000000000b63f1     0x3842 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/p_tick.o
+ .debug_info    0x00000000000b9c33     0x57fb /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/p_saveg.o
+ .debug_info    0x00000000000bf42e     0x3cae /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/p_user.o
+ .debug_info    0x00000000000c30dc     0xb608 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/r_bsp.o
+ .debug_info    0x00000000000ce6e4     0xcf98 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/r_data.o
+ .debug_info    0x00000000000db67c     0x351d /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/r_draw.o
+ .debug_info    0x00000000000deb99     0x4861 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/r_main.o
+ .debug_info    0x00000000000e33fa     0xb8b9 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/r_plane.o
+ .debug_info    0x00000000000eecb3     0x4b51 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/r_segs.o
+ .debug_info    0x00000000000f3804      0x4c1 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/r_sky.o
+ .debug_info    0x00000000000f3cc5     0xc4d6 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/r_things.o
+ .debug_info    0x000000000010019b     0xe753 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/wi_stuff.o
+ .debug_info    0x000000000010e8ee     0xb487 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/v_video.o
+ .debug_info    0x0000000000119d75     0x305d /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/st_lib.o
+ .debug_info    0x000000000011cdd2     0xcae9 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/st_stuff.o
+ .debug_info    0x00000000001298bb     0xd66c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/hu_stuff.o
+ .debug_info    0x0000000000136f27     0x16eb /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/hu_lib.o
+ .debug_info    0x0000000000138612     0xc2e4 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/s_sound.o
+ .debug_info    0x00000000001448f6     0x7c7b /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/z_zone.o
+ .debug_info    0x000000000014c571     0x7907 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/z_bmalloc.o
+ .debug_info    0x0000000000153e78      0x841 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/sounds.o
+ .debug_info    0x00000000001546b9     0xc6ec /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/d_main.o
+ .debug_info    0x0000000000160da5     0xb48a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/m_misc.o
+ .debug_info    0x000000000016c22f      0x13b /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/m_bbox.o
+ .debug_info    0x000000000016c36a     0x7799 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/i_system.o
+ .debug_info    0x0000000000173b03     0xae26 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/i_sound.o
+ .debug_info    0x000000000017e929     0xae3c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/i_video.o
+ .debug_info    0x0000000000189765     0xaf3c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/w_wad.o
+ .debug_info    0x00000000001946a1     0xc4de /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/rockdoom.o
+ .debug_info    0x00000000001a0b7f     0xff9f /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/d_deh.o
+ .debug_info    0x00000000001b0b1e     0x7d10 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
+ .debug_info    0x00000000001b882e     0x7740 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(gcc-support.o)
+ .debug_info    0x00000000001bff6e     0x7b08 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(helper.o)
+ .debug_info    0x00000000001c7a76      0x12a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(strncpy.o)
 
 .debug_abbrev   0x0000000000000000    0x12d54
  *(.debug_abbrev)
@@ -3653,141 +3653,141 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000    0x14016
+.debug_str      0x0000000000000000    0x14094
  *(.debug_str)
- .debug_str     0x0000000000000000    0x14016 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/../../../firmware/libc/sscanf.o
+ .debug_str     0x0000000000000000    0x14094 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/../../../firmware/libc/sscanf.o
                                         0x247 (size before relaxing)
- .debug_str     0x0000000000014016        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/info.o
+ .debug_str     0x0000000000014094        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/info.o
                                        0x49b4 (size before relaxing)
- .debug_str     0x0000000000014016        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/doomdef.o
+ .debug_str     0x0000000000014094        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/doomdef.o
                                         0x199 (size before relaxing)
- .debug_str     0x0000000000014016        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/doomstat.o
+ .debug_str     0x0000000000014094        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/doomstat.o
                                        0x47a4 (size before relaxing)
- .debug_str     0x0000000000014016        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/dstrings.o
+ .debug_str     0x0000000000014094        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/dstrings.o
                                         0x947 (size before relaxing)
- .debug_str     0x0000000000014016        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/tables.o
+ .debug_str     0x0000000000014094        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/tables.o
                                         0xa11 (size before relaxing)
- .debug_str     0x0000000000014016        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/f_finale.o
-                                       0xa107 (size before relaxing)
- .debug_str     0x0000000000014016        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/f_wipe.o
+ .debug_str     0x0000000000014094        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/f_finale.o
+                                       0xa185 (size before relaxing)
+ .debug_str     0x0000000000014094        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/f_wipe.o
                                        0x4653 (size before relaxing)
- .debug_str     0x0000000000014016        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/d_net.o
+ .debug_str     0x0000000000014094        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/d_net.o
                                        0x456d (size before relaxing)
- .debug_str     0x0000000000014016        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/d_items.o
+ .debug_str     0x0000000000014094        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/d_items.o
                                        0x4146 (size before relaxing)
- .debug_str     0x0000000000014016        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/g_game.o
-                                       0xafa4 (size before relaxing)
- .debug_str     0x0000000000014016        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/m_menu.o
-                                       0xa1fb (size before relaxing)
- .debug_str     0x0000000000014016        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/m_argv.o
-                                       0x4fed (size before relaxing)
- .debug_str     0x0000000000014016        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/m_cheat.o
+ .debug_str     0x0000000000014094        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/g_game.o
+                                       0xb022 (size before relaxing)
+ .debug_str     0x0000000000014094        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/m_menu.o
+                                       0xa279 (size before relaxing)
+ .debug_str     0x0000000000014094        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/m_argv.o
+                                       0x506b (size before relaxing)
+ .debug_str     0x0000000000014094        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/m_cheat.o
                                         0x160 (size before relaxing)
- .debug_str     0x0000000000014016        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/m_random.o
+ .debug_str     0x0000000000014094        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/m_random.o
                                        0x47c0 (size before relaxing)
- .debug_str     0x0000000000014016        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/am_map.o
-                                       0x9a1a (size before relaxing)
- .debug_str     0x0000000000014016        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/p_ceilng.o
+ .debug_str     0x0000000000014094        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/am_map.o
+                                       0x9a98 (size before relaxing)
+ .debug_str     0x0000000000014094        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/p_ceilng.o
                                        0x5210 (size before relaxing)
- .debug_str     0x0000000000014016        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/p_doors.o
+ .debug_str     0x0000000000014094        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/p_doors.o
                                        0x1372 (size before relaxing)
- .debug_str     0x0000000000014016        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/p_genlin.o
+ .debug_str     0x0000000000014094        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/p_genlin.o
                                        0x1c84 (size before relaxing)
- .debug_str     0x0000000000014016        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/p_enemy.o
+ .debug_str     0x0000000000014094        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/p_enemy.o
                                        0x621e (size before relaxing)
- .debug_str     0x0000000000014016        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/p_floor.o
+ .debug_str     0x0000000000014094        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/p_floor.o
                                        0x1556 (size before relaxing)
- .debug_str     0x0000000000014016        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/p_inter.o
+ .debug_str     0x0000000000014094        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/p_inter.o
                                        0x597c (size before relaxing)
- .debug_str     0x0000000000014016        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/p_lights.o
+ .debug_str     0x0000000000014094        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/p_lights.o
                                         0xf70 (size before relaxing)
- .debug_str     0x0000000000014016        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/p_map.o
+ .debug_str     0x0000000000014094        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/p_map.o
                                        0x5bc6 (size before relaxing)
- .debug_str     0x0000000000014016        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/p_maputl.o
+ .debug_str     0x0000000000014094        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/p_maputl.o
                                        0x4f3a (size before relaxing)
- .debug_str     0x0000000000014016        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/p_plats.o
+ .debug_str     0x0000000000014094        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/p_plats.o
                                        0x54d2 (size before relaxing)
- .debug_str     0x0000000000014016        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/p_pspr.o
+ .debug_str     0x0000000000014094        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/p_pspr.o
                                        0x5763 (size before relaxing)
- .debug_str     0x0000000000014016        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/p_setup.o
-                                       0x995d (size before relaxing)
- .debug_str     0x0000000000014016        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/p_sight.o
+ .debug_str     0x0000000000014094        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/p_setup.o
+                                       0x99db (size before relaxing)
+ .debug_str     0x0000000000014094        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/p_sight.o
                                        0x4d7d (size before relaxing)
- .debug_str     0x0000000000014016        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/p_spec.o
-                                       0xa910 (size before relaxing)
- .debug_str     0x0000000000014016        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/p_switch.o
+ .debug_str     0x0000000000014094        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/p_spec.o
+                                       0xa98e (size before relaxing)
+ .debug_str     0x0000000000014094        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/p_switch.o
                                        0x5820 (size before relaxing)
- .debug_str     0x0000000000014016        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/p_mobj.o
-                                       0x9f24 (size before relaxing)
- .debug_str     0x0000000000014016        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/p_telept.o
+ .debug_str     0x0000000000014094        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/p_mobj.o
+                                       0x9fa2 (size before relaxing)
+ .debug_str     0x0000000000014094        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/p_telept.o
                                        0x16ae (size before relaxing)
- .debug_str     0x0000000000014016        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/p_tick.o
+ .debug_str     0x0000000000014094        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/p_tick.o
                                        0x4bcb (size before relaxing)
- .debug_str     0x0000000000014016        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/p_saveg.o
+ .debug_str     0x0000000000014094        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/p_saveg.o
                                        0x54a0 (size before relaxing)
- .debug_str     0x0000000000014016        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/p_user.o
+ .debug_str     0x0000000000014094        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/p_user.o
                                        0x4da3 (size before relaxing)
- .debug_str     0x0000000000014016        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/r_bsp.o
-                                       0x9455 (size before relaxing)
- .debug_str     0x0000000000014016        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/r_data.o
-                                       0x976a (size before relaxing)
- .debug_str     0x0000000000014016        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/r_draw.o
+ .debug_str     0x0000000000014094        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/r_bsp.o
+                                       0x94d3 (size before relaxing)
+ .debug_str     0x0000000000014094        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/r_data.o
+                                       0x97e8 (size before relaxing)
+ .debug_str     0x0000000000014094        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/r_draw.o
                                        0x4776 (size before relaxing)
- .debug_str     0x0000000000014016        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/r_main.o
+ .debug_str     0x0000000000014094        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/r_main.o
                                        0x4ed1 (size before relaxing)
- .debug_str     0x0000000000014016        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/r_plane.o
-                                       0x94c9 (size before relaxing)
- .debug_str     0x0000000000014016        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/r_segs.o
+ .debug_str     0x0000000000014094        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/r_plane.o
+                                       0x9547 (size before relaxing)
+ .debug_str     0x0000000000014094        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/r_segs.o
                                        0x50f2 (size before relaxing)
- .debug_str     0x0000000000014016        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/r_sky.o
+ .debug_str     0x0000000000014094        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/r_sky.o
                                         0x959 (size before relaxing)
- .debug_str     0x0000000000014016        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/r_things.o
-                                       0x97cd (size before relaxing)
- .debug_str     0x0000000000014016        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/wi_stuff.o
-                                       0xa4bc (size before relaxing)
- .debug_str     0x0000000000014016        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/v_video.o
-                                       0x8bd0 (size before relaxing)
- .debug_str     0x0000000000014016        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/st_lib.o
+ .debug_str     0x0000000000014094        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/r_things.o
+                                       0x984b (size before relaxing)
+ .debug_str     0x0000000000014094        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/wi_stuff.o
+                                       0xa53a (size before relaxing)
+ .debug_str     0x0000000000014094        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/v_video.o
+                                       0x8c4e (size before relaxing)
+ .debug_str     0x0000000000014094        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/st_lib.o
                                        0x452b (size before relaxing)
- .debug_str     0x0000000000014016        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/st_stuff.o
-                                       0x9b22 (size before relaxing)
- .debug_str     0x0000000000014016        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/hu_stuff.o
-                                       0x9ede (size before relaxing)
- .debug_str     0x0000000000014016        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/hu_lib.o
+ .debug_str     0x0000000000014094        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/st_stuff.o
+                                       0x9ba0 (size before relaxing)
+ .debug_str     0x0000000000014094        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/hu_stuff.o
+                                       0x9f5c (size before relaxing)
+ .debug_str     0x0000000000014094        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/hu_lib.o
                                         0x5dd (size before relaxing)
- .debug_str     0x0000000000014016        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/s_sound.o
-                                       0xa05d (size before relaxing)
- .debug_str     0x0000000000014016        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/z_zone.o
-                                       0x499f (size before relaxing)
- .debug_str     0x0000000000014016        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/z_bmalloc.o
-                                       0x4901 (size before relaxing)
- .debug_str     0x0000000000014016        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/sounds.o
+ .debug_str     0x0000000000014094        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/s_sound.o
+                                       0xa0db (size before relaxing)
+ .debug_str     0x0000000000014094        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/z_zone.o
+                                       0x4a1d (size before relaxing)
+ .debug_str     0x0000000000014094        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/z_bmalloc.o
+                                       0x497f (size before relaxing)
+ .debug_str     0x0000000000014094        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/sounds.o
                                         0xe37 (size before relaxing)
- .debug_str     0x0000000000014016        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/d_main.o
-                                       0x9cd7 (size before relaxing)
- .debug_str     0x0000000000014016        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/m_misc.o
-                                       0x9ca3 (size before relaxing)
- .debug_str     0x0000000000014016        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/m_bbox.o
+ .debug_str     0x0000000000014094        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/d_main.o
+                                       0x9d55 (size before relaxing)
+ .debug_str     0x0000000000014094        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/m_misc.o
+                                       0x9d21 (size before relaxing)
+ .debug_str     0x0000000000014094        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/m_bbox.o
                                         0x1d9 (size before relaxing)
- .debug_str     0x0000000000014016        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/i_system.o
-                                       0x4925 (size before relaxing)
- .debug_str     0x0000000000014016        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/i_sound.o
-                                       0x92fb (size before relaxing)
- .debug_str     0x0000000000014016        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/i_video.o
-                                       0x8df4 (size before relaxing)
- .debug_str     0x0000000000014016        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/w_wad.o
-                                       0x8ca7 (size before relaxing)
- .debug_str     0x0000000000014016        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/rockdoom.o
-                                       0xa428 (size before relaxing)
- .debug_str     0x0000000000014016        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/d_deh.o
-                                       0xab71 (size before relaxing)
- .debug_str     0x0000000000014016        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
-                                       0x5174 (size before relaxing)
- .debug_str     0x0000000000014016        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(gcc-support.o)
-                                       0x481b (size before relaxing)
- .debug_str     0x0000000000014016        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(helper.o)
-                                       0x516b (size before relaxing)
- .debug_str     0x0000000000014016        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(strncpy.o)
+ .debug_str     0x0000000000014094        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/i_system.o
+                                       0x49a3 (size before relaxing)
+ .debug_str     0x0000000000014094        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/i_sound.o
+                                       0x9379 (size before relaxing)
+ .debug_str     0x0000000000014094        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/i_video.o
+                                       0x8e72 (size before relaxing)
+ .debug_str     0x0000000000014094        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/w_wad.o
+                                       0x8d25 (size before relaxing)
+ .debug_str     0x0000000000014094        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/rockdoom.o
+                                       0xa4a6 (size before relaxing)
+ .debug_str     0x0000000000014094        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/doom/d_deh.o
+                                       0xabef (size before relaxing)
+ .debug_str     0x0000000000014094        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
+                                       0x51f2 (size before relaxing)
+ .debug_str     0x0000000000014094        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(gcc-support.o)
+                                       0x4899 (size before relaxing)
+ .debug_str     0x0000000000014094        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(helper.o)
+                                       0x51e9 (size before relaxing)
+ .debug_str     0x0000000000014094        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(strncpy.o)
                                         0x19c (size before relaxing)
 
 .debug_loc

@@ -307,7 +307,10 @@ class SyncDialog(QDialog):
         plan = self._plan
         self._summary_values["tracks_copy"].setText(_format_count(len(plan.to_copy)))
         self._summary_values["tracks_update"].setText(_format_count(len(plan.to_resync)))
-        self._summary_values["artwork"].setText(_format_count(len(plan.artwork_to_copy)))
+        generated_count = len(getattr(plan, "generated_to_copy", []) or [])
+        self._summary_values["artwork"].setText(
+            _format_count(len(plan.artwork_to_copy) + generated_count)
+        )
         self._summary_values["up_to_date"].setText(_format_count(len(plan.up_to_date)))
         self._summary_values["orphaned"].setText(_format_count(len(plan.to_delete)))
         self._summary_values["total_data"].setText(_format_bytes(plan.total_bytes))

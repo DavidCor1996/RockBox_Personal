@@ -62,6 +62,29 @@ sub glob_copy {
     }
 }
 
+sub tree_copy {
+    my ($src, $dest) = @_;
+    return unless -d $src;
+
+    find(sub {
+        my $path = $File::Find::name;
+        return if $path eq $src;
+
+        my $rel = $path;
+        $rel =~ s/^\Q$src\E\/?//;
+        my $target = "$dest/$rel";
+
+        if (-d $path) {
+            glob_mkdir($target);
+        } else {
+            my $target_dir = $target;
+            $target_dir =~ s/\/[^\/]+$//;
+            glob_mkdir($target_dir);
+            copy($path, $target);
+        }
+    }, $src);
+}
+
 sub glob_move {
     my ($pattern, $destination) = @_;
     print "glob_move: $pattern -> $destination\n" if $verbose;
@@ -198,6 +221,15 @@ sub make_install {
         glob_install("$ROOT/apps/plugins/lua_scripts/*.lua", "$libdir/rocks/demos/lua_scripts");
         #glob_mkdir("$temp_dir/rocks/demos/lua_scripts");
         #glob_copy("$ROOT/apps/plugins/lua_scripts/*.lua", "$temp_dir/rocks/demos/lua_scripts/");
+    }
+
+    #mujs example scripts
+    if(-e "$ROOT/apps/plugins/mujs/scripts") {
+        unless (glob_mkdir("$libdir/scripts/data")) {
+            return 0;
+        }
+        glob_install("$ROOT/apps/plugins/mujs/scripts/*.js", "$libdir/scripts");
+        glob_install("$ROOT/apps/plugins/mujs/scripts/data/*", "$libdir/scripts/data");
     }
 
     #lua picross puzzles
@@ -487,6 +519,13 @@ sub buildzip {
         glob_copy("$ROOT/apps/plugins/lua_scripts/*.lua", "$temp_dir/rocks/demos/lua_scripts/");
     }
 
+    #mujs example scripts
+    if(-e "$ROOT/apps/plugins/mujs/scripts") {
+        glob_mkdir("$temp_dir/scripts/data");
+        glob_copy("$ROOT/apps/plugins/mujs/scripts/*.js", "$temp_dir/scripts/");
+        glob_copy("$ROOT/apps/plugins/mujs/scripts/data/*", "$temp_dir/scripts/data/");
+    }
+
     #lua picross puzzles
     if(-e "$ROOT/apps/plugins/picross") {
         glob_mkdir("$temp_dir/rocks/games/.picross");
@@ -615,7 +654,7 @@ sub buildzip {
     if(-e "$temp_dir/rocks/games/rockboy_launcher.rock") {
         mkpath("$temp_dir/rocks/games/rockboy_launcher/covers", $verbose, 0777);
         if ($width == 320 && $height == 240) {
-            copy("$ROOT/apps/plugins/bitmaps/native/pictureflow_loading_bg.320x240x24.bmp",
+            copy("$ROOT/apps/plugins/bitmaps/native/rockboy_loading_bg.320x240x24.bmp",
                  "$temp_dir/rocks/games/rockboy_launcher/loading_bg.bmp");
         }
         copy("$ROOT/apps/plugins/bitmaps/native/doom_cover.120x140x24.bmp",
@@ -689,6 +728,10 @@ sub buildzip {
         copy("$temp_dir/wps/classic_statusbar.sbs", "$temp_dir/wps/classic_statusbar.rsbs");
     }
     copy("$temp_dir/wps/rockbox_none.sbs", "$temp_dir/wps/rockbox_none.rsbs");
+
+    if(-d "$ROOT/assets/ipodjs/rockbox") {
+        tree_copy("$ROOT/assets/ipodjs/rockbox", "$temp_dir/ipodjs");
+    }
 
     # and the info file
     copy("rockbox-info.txt", "$temp_dir/rockbox-info.txt");

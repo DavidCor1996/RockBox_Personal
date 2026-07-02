@@ -424,8 +424,13 @@ int do_menu(const struct menu_item_ex *start_menu, int *start_selected,
     title = init_title(menu, &icon, buf, sizeof buf);
     FOR_NB_SCREENS(i)
     {
+        bool show_theme = !hide_theme;
+#if defined(IPOD_VIDEO) || defined(IPOD_6G)
+        if (i == SCREEN_MAIN && global_settings.ui_engine == UI_ENGINE_IPODJS)
+            show_theme = false;
+#endif
         sb_set_persistent_title(title, icon, i);
-        viewportmanager_theme_enable(i, !hide_theme, NULL);
+        viewportmanager_theme_enable(i, show_theme, NULL);
     }
     struct menu_data_t mstack[MAX_MENUS]; /* menu, selected */
     int stack_top = 0;

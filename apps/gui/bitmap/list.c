@@ -47,6 +47,22 @@
 #define ICON_PADDING 1
 #define ICON_PADDING_S "1"
 
+#if defined(HAVE_LCD_COLOR) && (defined(IPOD_VIDEO) || defined(IPOD_6G))
+#define IPODJS_LIST_HEADER_H 20
+#define IPODJS_LIST_HEADER_TOP LCD_RGBPACK(252, 253, 253)
+#define IPODJS_LIST_HEADER_MID LCD_RGBPACK(216, 219, 223)
+#define IPODJS_LIST_HEADER_BOTTOM LCD_RGBPACK(174, 178, 183)
+#define IPODJS_LIST_HEADER_BORDER LCD_RGBPACK(126, 134, 143)
+#define IPODJS_LIST_BG LCD_RGBPACK(255, 255, 255)
+#define IPODJS_LIST_TEXT LCD_RGBPACK(0, 0, 0)
+#define IPODJS_LIST_MUTED LCD_RGBPACK(99, 101, 103)
+#define IPODJS_LIST_ACTIVE_TOP LCD_RGBPACK(107, 200, 254)
+#define IPODJS_LIST_ACTIVE_MID LCD_RGBPACK(38, 146, 226)
+#define IPODJS_LIST_ACTIVE_BOTTOM LCD_RGBPACK(0, 92, 192)
+#define IPODJS_LIST_SPLIT LCD_RGBPACK(210, 210, 210)
+#define IPODJS_LIST_ASSET_DIR ROCKBOX_DIR "/ipodjs"
+#endif
+
 #ifdef HAVE_TOUCHSCREEN
 /* used in gui_synclist->scroll_mode */
 enum {
@@ -97,6 +113,362 @@ static int list_icon_width(enum screen_type screen)
 {
     return get_icon_width(screen) + ICON_PADDING * 2;
 }
+
+#if defined(HAVE_LCD_COLOR) && (defined(IPOD_VIDEO) || defined(IPOD_6G))
+static bool list_ipodjs_enabled(struct screen *display,
+                                struct gui_synclist *list)
+{
+    return display->screen_type == SCREEN_MAIN &&
+           global_settings.ui_engine == UI_ENGINE_IPODJS &&
+           !list->force_fullscreen_albumlist;
+}
+
+static void list_ipodjs_strlcpy(char *dst, const char *src, size_t size)
+{
+    size_t i = 0;
+
+    if (!dst || size == 0)
+        return;
+
+    if (!src)
+        src = "";
+
+    while (i + 1 < size && src[i])
+    {
+        dst[i] = src[i];
+        i++;
+    }
+    dst[i] = '\0';
+}
+
+static int list_ipodjs_font(void)
+{
+    static int small_font = -2;
+    static int normal_font = -2;
+    static int large_font = -2;
+    int *fontp;
+    const char *path;
+    const char *fallback_path;
+
+    if (global_settings.ui_engine_font_scale == UI_ENGINE_FONT_SMALL)
+    {
+        fontp = &small_font;
+        path = IPODJS_LIST_ASSET_DIR "/14-Adobe-Helvetica-Bold.fnt";
+        fallback_path = FONT_DIR "/14-Adobe-Helvetica-Bold.fnt";
+    }
+    else if (global_settings.ui_engine_font_scale == UI_ENGINE_FONT_LARGE)
+    {
+        fontp = &large_font;
+        path = IPODJS_LIST_ASSET_DIR "/18-Adobe-Helvetica-Bold.fnt";
+        fallback_path = FONT_DIR "/18-Adobe-Helvetica-Bold.fnt";
+    }
+    else
+    {
+        fontp = &normal_font;
+        path = IPODJS_LIST_ASSET_DIR "/16-Adobe-Helvetica-Bold.fnt";
+        fallback_path = FONT_DIR "/16-Adobe-Helvetica-Bold.fnt";
+    }
+
+    if (*fontp < 0)
+    {
+        if (file_exists(path))
+        {
+            int loaded = font_load(path);
+            if (loaded >= 0)
+            {
+                font_lock(loaded, true);
+                *fontp = loaded;
+            }
+        }
+
+        if (*fontp < 0 && file_exists(fallback_path))
+        {
+            int loaded = font_load(fallback_path);
+            if (loaded >= 0)
+            {
+                font_lock(loaded, true);
+                *fontp = loaded;
+            }
+        }
+    }
+
+    return *fontp >= 0 ? *fontp : FONT_SYSFIXED;
+}
+
+static unsigned list_ipodjs_bg(void)
+{
+    return global_settings.ui_engine_dark_mode ?
+           LCD_RGBPACK(18, 20, 24) : IPODJS_LIST_BG;
+}
+
+static unsigned list_ipodjs_row_bg(void)
+{
+    return global_settings.ui_engine_dark_mode ?
+           LCD_RGBPACK(24, 27, 32) : IPODJS_LIST_BG;
+}
+
+static unsigned list_ipodjs_text(void)
+{
+    return global_settings.ui_engine_dark_mode ?
+           LCD_RGBPACK(239, 242, 246) : IPODJS_LIST_TEXT;
+}
+
+static unsigned list_ipodjs_muted(void)
+{
+    return global_settings.ui_engine_dark_mode ?
+           LCD_RGBPACK(166, 173, 184) : IPODJS_LIST_MUTED;
+}
+
+static void list_ipodjs_gradient(struct screen *display, int x, int y,
+                                 int w, int h, unsigned top,
+                                 unsigned bottom);
+
+static unsigned list_ipodjs_accent(void)
+{
+    switch (global_settings.ui_engine_accent)
+    {
+        case UI_ENGINE_ACCENT_GRAPHITE:
+            return LCD_RGBPACK(84, 90, 100);
+        case UI_ENGINE_ACCENT_U2:
+            return LCD_RGBPACK(182, 24, 35);
+        case UI_ENGINE_ACCENT_TEAL:
+            return LCD_RGBPACK(0, 128, 132);
+        case UI_ENGINE_ACCENT_GREEN:
+            return LCD_RGBPACK(55, 142, 64);
+        case UI_ENGINE_ACCENT_GOLD:
+            return LCD_RGBPACK(184, 135, 38);
+        case UI_ENGINE_ACCENT_ORANGE:
+            return LCD_RGBPACK(208, 104, 32);
+        case UI_ENGINE_ACCENT_PURPLE:
+            return LCD_RGBPACK(113, 82, 170);
+        case UI_ENGINE_ACCENT_PINK:
+            return LCD_RGBPACK(195, 72, 128);
+        case UI_ENGINE_ACCENT_BLUE:
+        default:
+            return IPODJS_LIST_ACTIVE_BOTTOM;
+    }
+}
+
+static void list_ipodjs_selected_gradient(struct screen *display, int x,
+                                          int y, int w, int h,
+                                          unsigned *midp)
+{
+    unsigned accent = list_ipodjs_accent();
+    unsigned top;
+    unsigned bottom;
+
+    if (global_settings.ui_engine_accent == UI_ENGINE_ACCENT_BLUE)
+    {
+        list_ipodjs_gradient(display, x, y, w, h,
+                             IPODJS_LIST_ACTIVE_TOP,
+                             IPODJS_LIST_ACTIVE_BOTTOM);
+        *midp = IPODJS_LIST_ACTIVE_MID;
+        return;
+    }
+
+    top = LCD_RGBPACK(
+        (RGB_UNPACK_RED(accent) * 143 + 255 * 112) / 255,
+        (RGB_UNPACK_GREEN(accent) * 143 + 255 * 112) / 255,
+        (RGB_UNPACK_BLUE(accent) * 143 + 255 * 112) / 255);
+    bottom = LCD_RGBPACK(
+        RGB_UNPACK_RED(accent) * 185 / 255,
+        RGB_UNPACK_GREEN(accent) * 185 / 255,
+        RGB_UNPACK_BLUE(accent) * 185 / 255);
+    list_ipodjs_gradient(display, x, y, w, h, top, bottom);
+    *midp = accent;
+}
+
+static void list_ipodjs_gradient(struct screen *display, int x, int y,
+                                 int w, int h, unsigned top,
+                                 unsigned bottom)
+{
+    int tr = RGB_UNPACK_RED(top);
+    int tg = RGB_UNPACK_GREEN(top);
+    int tb = RGB_UNPACK_BLUE(top);
+    int br = RGB_UNPACK_RED(bottom);
+    int bg = RGB_UNPACK_GREEN(bottom);
+    int bb = RGB_UNPACK_BLUE(bottom);
+
+    if (h <= 0)
+        return;
+
+    for (int row = 0; row < h; row++)
+    {
+        int denom = MAX(1, h - 1);
+        int r = (tr * (denom - row) + br * row) / denom;
+        int g = (tg * (denom - row) + bg * row) / denom;
+        int b = (tb * (denom - row) + bb * row) / denom;
+        display->set_foreground(LCD_RGBPACK(r, g, b));
+        display->hline(x, x + w - 1, y + row);
+    }
+}
+
+static void list_ipodjs_header(struct screen *display, const char *title)
+{
+    int mid_h = IPODJS_LIST_HEADER_H / 2;
+
+    list_ipodjs_gradient(display, 0, 0, display->lcdwidth, mid_h,
+                         IPODJS_LIST_HEADER_TOP, IPODJS_LIST_HEADER_MID);
+    list_ipodjs_gradient(display, 0, mid_h, display->lcdwidth,
+                         IPODJS_LIST_HEADER_H - mid_h,
+                         IPODJS_LIST_HEADER_MID,
+                         IPODJS_LIST_HEADER_BOTTOM);
+    display->set_foreground(IPODJS_LIST_HEADER_BORDER);
+    display->hline(0, display->lcdwidth - 1, IPODJS_LIST_HEADER_H - 1);
+
+    if (title && title[0])
+    {
+        char buf[80];
+        int w;
+        int h;
+        int len;
+
+        list_ipodjs_strlcpy(buf, title, sizeof(buf));
+        len = strlen(buf);
+        display->setfont(list_ipodjs_font());
+        display->getstringsize((const unsigned char *)buf, &w, &h);
+        while (len > 1 && w > display->lcdwidth - 36)
+        {
+            buf[--len] = '\0';
+            display->getstringsize((const unsigned char *)buf, &w, &h);
+        }
+
+        display->set_foreground(IPODJS_LIST_TEXT);
+        display->set_background(IPODJS_LIST_HEADER_MID);
+        display->set_drawmode(DRMODE_FG);
+        display->putsxy(MAX(4, (display->lcdwidth - w) / 2),
+                        MAX(0, (IPODJS_LIST_HEADER_H - h) / 2),
+                        (const unsigned char *)buf);
+        display->set_drawmode(DRMODE_SOLID);
+    }
+}
+
+static void list_ipodjs_puts_fit(struct screen *display, int x, int y,
+                                 int width, const char *text)
+{
+    char buf[96];
+    int w;
+    int h;
+    int len;
+
+    if (!text || !text[0] || width <= 0)
+        return;
+
+    list_ipodjs_strlcpy(buf, text, sizeof(buf));
+    len = strlen(buf);
+    display->getstringsize((const unsigned char *)buf, &w, &h);
+    while (len > 1 && w > width)
+    {
+        buf[--len] = '\0';
+        display->getstringsize((const unsigned char *)buf, &w, &h);
+    }
+    display->set_drawmode(DRMODE_FG);
+    display->putsxy(x, y, (const unsigned char *)buf);
+    display->set_drawmode(DRMODE_SOLID);
+}
+
+static void list_ipodjs_draw_arrow(struct screen *display, int x, int y)
+{
+    display->set_foreground(IPODJS_LIST_BG);
+    display->fillrect(x, y + 1, 2, 1);
+    display->fillrect(x + 2, y + 2, 2, 1);
+    display->fillrect(x + 4, y + 3, 2, 1);
+    display->fillrect(x + 2, y + 4, 2, 1);
+    display->fillrect(x, y + 5, 2, 1);
+}
+
+static void list_ipodjs_draw(struct screen *display,
+                             struct gui_synclist *list)
+{
+    int row_h = list->line_height[display->screen_type];
+    int list_y = IPODJS_LIST_HEADER_H;
+    int list_h = display->lcdheight - list_y;
+    int visible = MAX(1, list_h / MAX(1, row_h));
+    int start = list->start_item[display->screen_type];
+    int end = MIN(list->nb_items, start + visible);
+    unsigned bg = list_ipodjs_bg();
+    unsigned row_bg = list_ipodjs_row_bg();
+    unsigned text = list_ipodjs_text();
+    unsigned muted = list_ipodjs_muted();
+    int font_h;
+
+    display->set_viewport(NULL);
+    display->set_drawmode(DRMODE_SOLID);
+    display->setfont(list_ipodjs_font());
+    font_h = font_get(list_ipodjs_font())->height;
+    display->set_background(bg);
+    display->set_foreground(bg);
+    display->clear_display();
+
+    list_ipodjs_header(display, list->title);
+    display->set_foreground(row_bg);
+    display->fillrect(0, list_y, display->lcdwidth, list_h);
+
+    for (int i = start; i < end; i++)
+    {
+        const unsigned char *s;
+        unsigned char *entry_name;
+        extern char simplelist_buffer[SIMPLELIST_MAX_LINES *
+                                      SIMPLELIST_MAX_LINELENGTH];
+        int line = i - start;
+        int y = list_y + line * row_h;
+        bool selected = i >= list->selected_item &&
+                        i < list->selected_item + list->selected_size;
+        int text_y = y + (row_h > font_h ? (row_h - font_h) / 2 : 0);
+
+        s = list->callback_get_item_name(i, list->data, simplelist_buffer,
+                                         sizeof(simplelist_buffer));
+        if (P2ID((unsigned char *)s) > VOICEONLY_DELIMITER)
+            entry_name = "";
+        else
+            entry_name = P2STR(s);
+
+        while (*entry_name == '\t')
+            entry_name++;
+
+        if (selected)
+        {
+            unsigned selected_bg;
+            list_ipodjs_selected_gradient(display, 0, y, display->lcdwidth,
+                                          row_h, &selected_bg);
+            display->set_foreground(IPODJS_LIST_BG);
+            display->set_background(selected_bg);
+        }
+        else
+        {
+            display->set_foreground(row_bg);
+            display->fillrect(0, y, display->lcdwidth, row_h);
+            display->set_foreground(text);
+            display->set_background(row_bg);
+            if (y > list_y)
+            {
+                display->set_foreground(global_settings.ui_engine_dark_mode ?
+                    LCD_RGBPACK(42, 47, 56) : IPODJS_LIST_SPLIT);
+                display->hline(8, display->lcdwidth - 9, y);
+                display->set_foreground(text);
+            }
+        }
+
+        list_ipodjs_puts_fit(display, 8, text_y, display->lcdwidth - 28,
+                             (const char *)entry_name);
+        if (selected)
+            list_ipodjs_draw_arrow(display, display->lcdwidth - 14,
+                                   y + (row_h - 6) / 2);
+    }
+
+    if (list->nb_items > visible)
+    {
+        int bar_h = MAX(12, list_h * visible / list->nb_items);
+        int max_start = MAX(1, list->nb_items - visible);
+        int bar_y = list_y + (list_h - bar_h) * start / max_start;
+
+        display->set_foreground(muted);
+        display->fillrect(display->lcdwidth - 4, bar_y, 2, bar_h);
+    }
+
+    display->update();
+}
+#endif
 
 void gui_list_draw_item_default(struct list_putlineinfo_t *list_info)
 {
@@ -198,6 +570,14 @@ static bool draw_title(struct screen *display,
 
 void list_draw(struct screen *display, struct gui_synclist *list)
 {
+#if defined(HAVE_LCD_COLOR) && (defined(IPOD_VIDEO) || defined(IPOD_6G))
+    if (list_ipodjs_enabled(display, list))
+    {
+        list_ipodjs_draw(display, list);
+        return;
+    }
+#endif
+
     int start, end, item_offset, i;
     const int screen = display->screen_type;
     list_draw_item *callback_draw_item;

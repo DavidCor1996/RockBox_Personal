@@ -89,7 +89,9 @@ prepare_root()
 {
     sim_root="$(mktemp -d)"
     tmp_dir="$(mktemp -d)"
-    cp -a "${source_sim_root}/.rockbox" "${sim_root}/.rockbox"
+    mkdir -p "${sim_root}/.rockbox"
+    (cd "${source_sim_root}/.rockbox" && tar --exclude='./maps' -cf - .) | \
+        (cd "${sim_root}/.rockbox" && tar -xf -)
 
     local track_dir track_parent source_track_dir
     track_dir="$(dirname "${track}")"
@@ -146,6 +148,8 @@ prepare_root()
     copy_font_dir "${repo_root}/build-sim-video-5g/simdisk/.rockbox/fonts"
     copy_font_dir "${repo_root}/rockpod/.theme_designer/simulator/ipod-320x240/build-sim-video-5g/simdisk/.rockbox/fonts"
     copy_font_dir "${repo_root}/fonts"
+    copy_if_exists "${repo_root}/assets/ipodjs/rockbox" "${sim_root}/.rockbox/ipodjs"
+    copy_if_exists "${repo_root}/rockpod/assets/weather/icons" "${sim_root}/.rockbox/rockpod/weather/icons"
 
     if [ -f "${repo_root}/themes/${theme}.cfg" ]; then
         cp "${repo_root}/themes/${theme}.cfg" "${sim_root}/.rockbox/config.cfg"
@@ -180,6 +184,32 @@ EOF
         }
     ' start_screen="${start_screen}" right_pane="${right_pane}" "${sim_root}/.rockbox/config.cfg" >"${tmp_dir}/config.cfg"
     cp "${tmp_dir}/config.cfg" "${sim_root}/.rockbox/config.cfg"
+
+    if [ -n "${SBS_UI_ENGINE:-}" ]; then
+        awk '
+            /^ui engine:/ { next }
+            /^ui engine accent:/ { next }
+            /^ui engine density:/ { next }
+            /^ui engine font scale:/ { next }
+            /^ui engine surface:/ { next }
+            /^ui engine hold effect:/ { next }
+            /^ui engine dark mode:/ { next }
+            { print }
+            END {
+                print "ui engine: " ui_engine
+                print "ui engine accent: blue"
+                print "ui engine density: comfortable"
+                print "ui engine font scale: normal"
+                print "ui engine surface: solid"
+                print "ui engine hold effect: lockscreen"
+                if (dark_mode != "")
+                    print "ui engine dark mode: " dark_mode
+            }
+        ' ui_engine="${SBS_UI_ENGINE}" \
+          dark_mode="${SBS_UI_ENGINE_DARK:-}" \
+            "${sim_root}/.rockbox/config.cfg" >"${tmp_dir}/config.cfg.engine"
+        cp "${tmp_dir}/config.cfg.engine" "${sim_root}/.rockbox/config.cfg"
+    fi
 
     if [ "${no_playback}" != "1" ]; then
         printf "P:6::\nA:0:0:%s\n" "${track}" >"${sim_root}/.rockbox/.playlist_control"
@@ -285,6 +315,15 @@ press_key()
     xdotool keyup --window "${sim_wid}" "${key}"
 }
 
+hold_key()
+{
+    local key="$1"
+    local seconds="${2:-1.2}"
+    xdotool keydown --window "${sim_wid}" "${key}"
+    sleep "${seconds}"
+    xdotool keyup --window "${sim_wid}" "${key}"
+}
+
 main()
 {
     require_cmd xdotool
@@ -297,6 +336,30 @@ main()
     prepare_root
     rm -f "${out_dir}"/*.png "${out_dir}/analysis.txt"
     launch_sim
+    sleep "${SBS_INITIAL_WAIT:-1}"
+
+    if [ "${SBS_CAPTURE_QUICK_SETTINGS:-0}" = "1" ]; then
+        hold_key "${menu_key}" "${SBS_MENU_HOLD_SECONDS:-1.3}"
+        sleep 1
+        capture_window "03-quick-settings.png"
+        magick "${out_dir}/03-quick-settings.png" -crop 640x480+0+0 +repage \
+            "${out_dir}/03-quick-settings-crop.png"
+
+        {
+            printf "build_dir=%s\n" "${build_dir}"
+            printf "theme=%s\n" "${theme}"
+            printf "quick_settings=1\n"
+            printf "menu_key=%s\n" "${menu_key}"
+            printf "root=%s\n" "${sim_root}"
+            printf "quick_settings_unique_colors="
+            magick "${out_dir}/03-quick-settings-crop.png" -format "%k" info:
+            printf "\n"
+        } >"${out_dir}/analysis.txt"
+
+        printf "saved screenshots to %s\n" "${out_dir}"
+        cat "${out_dir}/analysis.txt"
+        return
+    fi
 
     if [ "${idle_slideshow}" = "1" ]; then
         press_key "${play_key}"
@@ -317,11 +380,16 @@ main()
         capture_window "00-sbs-slideshow-a.png"
         sleep "${SBS_SLIDESHOW_WAIT:-4}"
         capture_window "01-sbs-slideshow-b.png"
+        press_key h
+        sleep "${SBS_HOLD_WAIT:-1}"
+        capture_window "02-sbs-lockscreen-no-playback.png"
 
         magick "${out_dir}/00-sbs-slideshow-a.png" -crop 320x480+320+0 +repage \
             "${out_dir}/00-sbs-slideshow-art-crop.png"
         magick "${out_dir}/01-sbs-slideshow-b.png" -crop 320x480+320+0 +repage \
             "${out_dir}/01-sbs-slideshow-art-crop.png"
+        magick "${out_dir}/02-sbs-lockscreen-no-playback.png" -crop 320x216+0+48 +repage \
+            "${out_dir}/02-sbs-lock-ui-crop.png"
 
         {
             printf "build_dir=%s\n" "${build_dir}"
@@ -343,6 +411,9 @@ main()
             sha256sum "${out_dir}/00-sbs-slideshow-art-crop.png" | awk '{print $1}'
             printf "slideshow_art_b_sha256="
             sha256sum "${out_dir}/01-sbs-slideshow-art-crop.png" | awk '{print $1}'
+            printf "lock_ui_unique_colors="
+            magick "${out_dir}/02-sbs-lock-ui-crop.png" -format "%k" info:
+            printf "\n"
         } >"${out_dir}/analysis.txt"
 
         printf "saved screenshots to %s\n" "${out_dir}"
@@ -364,11 +435,16 @@ main()
         capture_window "00-sbs-slideshow-a.png"
         sleep "${SBS_SLIDESHOW_WAIT:-4}"
         capture_window "01-sbs-slideshow-b.png"
+        press_key h
+        sleep "${SBS_HOLD_WAIT:-1}"
+        capture_window "02-sbs-lockscreen-no-playback.png"
 
         magick "${out_dir}/00-sbs-slideshow-a.png" -crop 320x480+320+0 +repage \
             "${out_dir}/00-sbs-slideshow-art-crop.png"
         magick "${out_dir}/01-sbs-slideshow-b.png" -crop 320x480+320+0 +repage \
             "${out_dir}/01-sbs-slideshow-art-crop.png"
+        magick "${out_dir}/02-sbs-lockscreen-no-playback.png" -crop 320x216+0+48 +repage \
+            "${out_dir}/02-sbs-lock-ui-crop.png"
 
         {
             printf "build_dir=%s\n" "${build_dir}"
@@ -389,6 +465,9 @@ main()
             sha256sum "${out_dir}/00-sbs-slideshow-art-crop.png" | awk '{print $1}'
             printf "slideshow_art_b_sha256="
             sha256sum "${out_dir}/01-sbs-slideshow-art-crop.png" | awk '{print $1}'
+            printf "lock_ui_unique_colors="
+            magick "${out_dir}/02-sbs-lock-ui-crop.png" -format "%k" info:
+            printf "\n"
         } >"${out_dir}/analysis.txt"
 
         printf "saved screenshots to %s\n" "${out_dir}"

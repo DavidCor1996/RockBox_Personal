@@ -20,8 +20,6 @@ int flashplayer_should_stop_movie_load(int loading_frame, int tag_count,
                                        int stream_pos);
 int flashplayer_should_skip_movie_tag(int loading_frame, int tag_count,
                                       int tag_type, int stream_pos);
-int flashplayer_should_skip_shape(int character_id, int tag_type,
-                                  int stream_pos);
 void flashplayer_trace_shape(int phase, int character_id, int stream_pos);
 void flashplayer_trace_shape_record(int record_count, int flags, int stream_pos);
 void flashplayer_trace_rect(int phase, int nbits, int stream_pos);

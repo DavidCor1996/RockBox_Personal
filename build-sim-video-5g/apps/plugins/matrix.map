@@ -523,13 +523,13 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000    0x17f84
+.debug_info     0x0000000000000000    0x180bf
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0x8164 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/matrix.o
- .debug_info    0x0000000000008164     0x7cf2 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
- .debug_info    0x000000000000fe56     0x7ea8 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_actions.o)
- .debug_info    0x0000000000017cfe      0x143 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(matrix_bold.o)
- .debug_info    0x0000000000017e41      0x143 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(matrix_normal.o)
+ .debug_info    0x0000000000000000     0x81cd /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/matrix.o
+ .debug_info    0x00000000000081cd     0x7d5b /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+ .debug_info    0x000000000000ff28     0x7f11 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_actions.o)
+ .debug_info    0x0000000000017e39      0x143 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(matrix_bold.o)
+ .debug_info    0x0000000000017f7c      0x143 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(matrix_normal.o)
 
 .debug_abbrev   0x0000000000000000      0xd3e
  *(.debug_abbrev)
@@ -550,17 +550,17 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0x5f91
+.debug_str      0x0000000000000000     0x600f
  *(.debug_str)
- .debug_str     0x0000000000000000     0x5f91 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/matrix.o
-                                       0x63ee (size before relaxing)
- .debug_str     0x0000000000005f91        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
-                                       0x51cb (size before relaxing)
- .debug_str     0x0000000000005f91        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_actions.o)
-                                       0x631c (size before relaxing)
- .debug_str     0x0000000000005f91        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(matrix_bold.o)
+ .debug_str     0x0000000000000000     0x600f /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/matrix.o
+                                       0x646c (size before relaxing)
+ .debug_str     0x000000000000600f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+                                       0x5249 (size before relaxing)
+ .debug_str     0x000000000000600f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_actions.o)
+                                       0x639a (size before relaxing)
+ .debug_str     0x000000000000600f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(matrix_bold.o)
                                         0x16a (size before relaxing)
- .debug_str     0x0000000000005f91        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(matrix_normal.o)
+ .debug_str     0x000000000000600f        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(matrix_normal.o)
                                         0x16e (size before relaxing)
 
 .debug_loc

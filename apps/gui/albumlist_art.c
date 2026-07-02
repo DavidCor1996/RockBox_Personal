@@ -29,7 +29,7 @@
 #define ALBUMLIST_TEXT_PAD 8
 #define ALBUMLIST_ROW_HEIGHT 44
 #define ALBUMLIST_LOOKUP_CACHE 16
-#define ALBUMLIST_BITMAP_CACHE 24
+#define ALBUMLIST_BITMAP_CACHE 32
 #define ALBUMLIST_MANIFEST_CACHE_MAX 384
 #define ALBUMLIST_MANIFEST_RELOAD_DELAY (HZ * 300)
 #define ALBUMLIST_ALBUM_LEN 96
@@ -278,7 +278,7 @@ struct albumlist_slideshow_failure {
     char path[ALBUMLIST_PATH_LEN];
 };
 
-static struct albumlist_slideshow_slot slideshow_slots[2];
+static struct albumlist_slideshow_slot slideshow_slots[3];
 static struct albumlist_slideshow_failure
     slideshow_failures[ALBUMLIST_SLIDESHOW_FAILURE_CACHE];
 static int slideshow_slot_victim;
@@ -660,7 +660,7 @@ bool albumlist_draw_slideshow(struct screen *display, int x, int y,
         {
             if (draw_w < width || draw_h < height || draw_y > y)
             {
-                display->set_background(LCD_BLACK);
+                display->set_background(LCD_RGBPACK(104, 110, 122));
                 display->fillrect(x, y, width, height);
             }
             display->bmp_part(&slot->bm, src_x, src_y, x, draw_y,
@@ -900,6 +900,22 @@ static struct bitmap *load_thumb_bitmap(const char *path, int size)
     slot->last_used = ++bitmap_tick;
     strmemccpy(slot->path, path, sizeof(slot->path));
     return &slot->bm;
+}
+
+struct bitmap *albumlist_art_get_thumb(const char *album, const char *artist,
+                                       int size)
+{
+    char path[ALBUMLIST_PATH_LEN];
+
+    if (!album || !album[0])
+        return NULL;
+    if (!artist)
+        artist = "";
+
+    if (!lookup_thumb_path(album, artist, path, sizeof(path)))
+        return NULL;
+
+    return load_thumb_bitmap(path, size);
 }
 
 static void albumlist_draw_item_with_art(struct list_putlineinfo_t *list_info,

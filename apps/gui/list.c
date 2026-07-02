@@ -81,6 +81,17 @@ static bool list_ipone_hold_viewport_changed(void)
     return false;
 }
 
+static bool list_use_ipodjs_native(enum screen_type screen)
+{
+#if defined(IPOD_VIDEO) || defined(IPOD_6G)
+    return screen == SCREEN_MAIN &&
+           global_settings.ui_engine == UI_ENGINE_IPODJS;
+#else
+    (void)screen;
+    return false;
+#endif
+}
+
 /* The minimum number of pending button events in queue before starting
  * to limit list drawing interval.
  */
@@ -226,6 +237,21 @@ void list_init_item_height(struct gui_synclist *list, enum screen_type screen)
 {
     struct viewport *vp = list->parent[screen];
     int line_height = font_get(vp->font)->height;
+
+    if (list_use_ipodjs_native(screen) && !list->force_fullscreen_albumlist)
+    {
+        int row_h = global_settings.ui_engine_density ==
+                    UI_ENGINE_DENSITY_COMPACT ? 20 : 24;
+
+        if (global_settings.ui_engine_font_scale == UI_ENGINE_FONT_SMALL)
+            row_h -= 2;
+        else if (global_settings.ui_engine_font_scale == UI_ENGINE_FONT_LARGE)
+            row_h += 4;
+
+        list->line_height[screen] = MAX(18, row_h);
+        return;
+    }
+
 #ifdef HAVE_TOUCHSCREEN
     /* the 4/12 factor is designed for reasonable item size on a 160dpi screen */
     if (global_settings.list_line_padding == -1)
@@ -360,6 +386,7 @@ void gui_synclist_draw(struct gui_synclist *gui_list)
     FOR_NB_SCREENS(i)
     {
         if (gui_list->force_fullscreen_albumlist ||
+            list_use_ipodjs_native(i) ||
             !skinlist_draw(&screens[i], gui_list))
             list_draw(&screens[i], gui_list);
     }
@@ -611,6 +638,15 @@ void gui_synclist_set_viewport_defaults(struct viewport *vp,
                                         enum screen_type screen)
 {
     viewport_set_defaults(vp, screen);
+
+    if (list_use_ipodjs_native(screen))
+    {
+        vp->x = 0;
+        vp->y = 0;
+        vp->width = screens[screen].lcdwidth;
+        vp->height = screens[screen].lcdheight;
+        return;
+    }
 
     if (screen == SCREEN_MAIN && list_is_ipodvideo_iclassic_theme())
     {

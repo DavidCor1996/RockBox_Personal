@@ -533,13 +533,13 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000    0x2c760
+.debug_info     0x0000000000000000    0x2c96d
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0xaa64 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/properties.o
- .debug_info    0x000000000000aa64     0x7ca7 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
- .debug_info    0x000000000001270b     0x7f0e /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(simple_viewer.o)
- .debug_info    0x000000000001a619     0xa2ea /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(mul_id3.o)
- .debug_info    0x0000000000024903     0x7e5d /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(pluginlib_actions.o)
+ .debug_info    0x0000000000000000     0xaacd /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/properties.o
+ .debug_info    0x000000000000aacd     0x7d10 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
+ .debug_info    0x00000000000127dd     0x7f77 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(simple_viewer.o)
+ .debug_info    0x000000000001a754     0xa353 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(mul_id3.o)
+ .debug_info    0x0000000000024aa7     0x7ec6 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(pluginlib_actions.o)
 
 .debug_abbrev   0x0000000000000000     0x17cb
  *(.debug_abbrev)
@@ -560,18 +560,18 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0xb4bd
+.debug_str      0x0000000000000000     0xb53b
  *(.debug_str)
- .debug_str     0x0000000000000000     0xb4bd /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/properties.o
-                                       0xb681 (size before relaxing)
- .debug_str     0x000000000000b4bd        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
-                                       0x5174 (size before relaxing)
- .debug_str     0x000000000000b4bd        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(simple_viewer.o)
-                                       0x4bf2 (size before relaxing)
- .debug_str     0x000000000000b4bd        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(mul_id3.o)
-                                       0xb35f (size before relaxing)
- .debug_str     0x000000000000b4bd        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(pluginlib_actions.o)
-                                       0x62c5 (size before relaxing)
+ .debug_str     0x0000000000000000     0xb53b /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/properties.o
+                                       0xb6ff (size before relaxing)
+ .debug_str     0x000000000000b53b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
+                                       0x51f2 (size before relaxing)
+ .debug_str     0x000000000000b53b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(simple_viewer.o)
+                                       0x4c70 (size before relaxing)
+ .debug_str     0x000000000000b53b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(mul_id3.o)
+                                       0xb3dd (size before relaxing)
+ .debug_str     0x000000000000b53b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(pluginlib_actions.o)
+                                       0x6343 (size before relaxing)
 
 .debug_loc
  *(.debug_loc)

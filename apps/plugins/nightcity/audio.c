@@ -37,7 +37,7 @@ void nc_audio_play(enum nc_sound_id sound)
     rb->audio_set_input_source(AUDIO_SRC_PLAYBACK, SRCF_PLAYBACK);
     rb->audio_set_output_source(AUDIO_SRC_PLAYBACK);
 #endif
-#if defined(HAVE_CS42L55)
+#if defined(HAVE_CS42L55) && !defined(SIMULATOR)
     rb->audiohw_idle_powerup();
 #endif
     rb->pcm_play_data(NULL, NULL,
@@ -53,7 +53,7 @@ void nc_audio_stop(void)
     rb->audio_set_input_source(AUDIO_SRC_PLAYBACK, SRCF_PLAYBACK);
     rb->audio_set_output_source(AUDIO_SRC_PLAYBACK);
 #endif
-#if defined(HAVE_CS42L55)
+#if defined(HAVE_CS42L55) && !defined(SIMULATOR)
     rb->audiohw_idle_powerdown();
 #endif
 }

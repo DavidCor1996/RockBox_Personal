@@ -1897,7 +1897,7 @@ class TestSyncEnginePlan:
                 metadata_hash="dup_hash_variant",
             )
             engine.load_cached_device_inventory(engine.current_device_key)
-            plan = engine.build_sync_plan(track_ids={row["id"]})
+            plan = engine.build_sync_plan(track_ids={row["id"]}, media_type="video")
         finally:
             manager.shutdown()
 
@@ -1916,6 +1916,39 @@ class TestSyncEnginePlan:
             rel.startswith(VIDEO_LIST_THUMB_DEVICE_DIR) and rel.endswith(".bmp")
             for rel in artwork_paths
         )
+
+    def test_build_sync_plan_defaults_to_audio_tracks(self, env):
+        audio_src = _make_source_file(env, "Art", "Alb", "Sync Audio")
+        _insert_track(
+            env["db"],
+            "Sync Audio",
+            "Art",
+            "Alb",
+            file_path=audio_src,
+            metadata_hash="audio_meta",
+            file_hash="audio_file",
+        )
+        video_src = _make_source_file(env, "Artist V", "Album V", "Sync Video", ext=".mp4")
+        _insert_track(
+            env["db"],
+            "Sync Video",
+            "Artist V",
+            "Album V",
+            file_path=video_src,
+            media_type="video",
+            codec="mpeg",
+            video_kind="movie",
+            metadata_hash="video_meta",
+            file_hash="video_file",
+        )
+
+        engine = self._make_engine(env)
+        plan = engine.build_sync_plan()
+
+        assert plan.copy_count == 1
+        row, rel_path = plan.to_copy[0]
+        assert dict(row)["media_type"] == "audio"
+        assert rel_path.startswith("Music/")
 
 
 # ===========================================================================

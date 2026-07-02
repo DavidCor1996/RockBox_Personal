@@ -1074,30 +1074,30 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000    0x8ad50
+.debug_info     0x0000000000000000    0x8b3e0
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0x8047 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xworld/bank.o
- .debug_info    0x0000000000008047     0x95c1 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xworld/engine.o
- .debug_info    0x0000000000011608     0x7f94 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xworld/file.o
- .debug_info    0x000000000001959c     0x832c /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xworld/mixer.o
- .debug_info    0x00000000000218c8      0x4a3 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xworld/parts.o
- .debug_info    0x0000000000021d6b     0x8ae7 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xworld/resource.o
- .debug_info    0x000000000002a852      0x719 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xworld/serializer.o
- .debug_info    0x000000000002af6b     0x8861 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xworld/sfxplayer.o
- .debug_info    0x00000000000337cc     0xa692 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xworld/sys.o
- .debug_info    0x000000000003de5e     0x7afc /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xworld/util.o
- .debug_info    0x000000000004595a     0x9b2d /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xworld/video.o
- .debug_info    0x000000000004f487      0x501 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xworld/video_data.o
- .debug_info    0x000000000004f988     0xa697 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xworld/vm.o
- .debug_info    0x000000000005a01f      0xd44 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xworld/xworld.o
- .debug_info    0x000000000005ad63     0x7cf2 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
- .debug_info    0x0000000000062a55     0x7722 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
- .debug_info    0x000000000006a177     0x7aea /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(helper.o)
- .debug_info    0x0000000000071c61     0x7851 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(display_text.o)
- .debug_info    0x00000000000794b2      0x12a /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(strncpy.o)
- .debug_info    0x00000000000795dc     0x8a46 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_bmp.o)
- .debug_info    0x0000000000082022      0x688 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(bmp_smooth_scale.o)
- .debug_info    0x00000000000826aa     0x86a6 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_resize.o)
+ .debug_info    0x0000000000000000     0x80b0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xworld/bank.o
+ .debug_info    0x00000000000080b0     0x962a /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xworld/engine.o
+ .debug_info    0x00000000000116da     0x7ffd /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xworld/file.o
+ .debug_info    0x00000000000196d7     0x8395 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xworld/mixer.o
+ .debug_info    0x0000000000021a6c      0x4a3 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xworld/parts.o
+ .debug_info    0x0000000000021f0f     0x8b50 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xworld/resource.o
+ .debug_info    0x000000000002aa5f      0x719 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xworld/serializer.o
+ .debug_info    0x000000000002b178     0x88ca /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xworld/sfxplayer.o
+ .debug_info    0x0000000000033a42     0xa6fb /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xworld/sys.o
+ .debug_info    0x000000000003e13d     0x7b65 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xworld/util.o
+ .debug_info    0x0000000000045ca2     0x9b96 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xworld/video.o
+ .debug_info    0x000000000004f838      0x501 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xworld/video_data.o
+ .debug_info    0x000000000004fd39     0xa700 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xworld/vm.o
+ .debug_info    0x000000000005a439      0xd44 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xworld/xworld.o
+ .debug_info    0x000000000005b17d     0x7d5b /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+ .debug_info    0x0000000000062ed8     0x778b /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
+ .debug_info    0x000000000006a663     0x7b53 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(helper.o)
+ .debug_info    0x00000000000721b6     0x78ba /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(display_text.o)
+ .debug_info    0x0000000000079a70      0x12a /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(strncpy.o)
+ .debug_info    0x0000000000079b9a     0x8aaf /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_bmp.o)
+ .debug_info    0x0000000000082649      0x688 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(bmp_smooth_scale.o)
+ .debug_info    0x0000000000082cd1     0x870f /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_resize.o)
 
 .debug_abbrev   0x0000000000000000     0x57d8
  *(.debug_abbrev)
@@ -1152,52 +1152,52 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0x7ae5
+.debug_str      0x0000000000000000     0x7b5c
  *(.debug_str)
- .debug_str     0x0000000000000000     0x7ae5 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xworld/bank.o
-                                       0x49f3 (size before relaxing)
- .debug_str     0x0000000000007ae5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xworld/engine.o
-                                       0x5130 (size before relaxing)
- .debug_str     0x0000000000007ae5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xworld/file.o
-                                       0x498c (size before relaxing)
- .debug_str     0x0000000000007ae5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xworld/mixer.o
-                                       0x4c85 (size before relaxing)
- .debug_str     0x0000000000007ae5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xworld/parts.o
+ .debug_str     0x0000000000000000     0x7b5c /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xworld/bank.o
+                                       0x4a71 (size before relaxing)
+ .debug_str     0x0000000000007b5c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xworld/engine.o
+                                       0x51ae (size before relaxing)
+ .debug_str     0x0000000000007b5c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xworld/file.o
+                                       0x4a0a (size before relaxing)
+ .debug_str     0x0000000000007b5c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xworld/mixer.o
+                                       0x4d03 (size before relaxing)
+ .debug_str     0x0000000000007b5c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xworld/parts.o
                                         0x921 (size before relaxing)
- .debug_str     0x0000000000007ae5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xworld/resource.o
-                                       0x4f96 (size before relaxing)
- .debug_str     0x0000000000007ae5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xworld/serializer.o
+ .debug_str     0x0000000000007b5c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xworld/resource.o
+                                       0x5014 (size before relaxing)
+ .debug_str     0x0000000000007b5c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xworld/serializer.o
                                         0x378 (size before relaxing)
- .debug_str     0x0000000000007ae5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xworld/sfxplayer.o
-                                       0x4f04 (size before relaxing)
- .debug_str     0x0000000000007ae5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xworld/sys.o
-                                       0x65ca (size before relaxing)
- .debug_str     0x0000000000007ae5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xworld/util.o
-                                       0x5083 (size before relaxing)
- .debug_str     0x0000000000007ae5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xworld/video.o
-                                       0x56d9 (size before relaxing)
- .debug_str     0x0000000000007ae5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xworld/video_data.o
+ .debug_str     0x0000000000007b5c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xworld/sfxplayer.o
+                                       0x4f82 (size before relaxing)
+ .debug_str     0x0000000000007b5c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xworld/sys.o
+                                       0x6648 (size before relaxing)
+ .debug_str     0x0000000000007b5c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xworld/util.o
+                                       0x5101 (size before relaxing)
+ .debug_str     0x0000000000007b5c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xworld/video.o
+                                       0x5757 (size before relaxing)
+ .debug_str     0x0000000000007b5c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xworld/video_data.o
                                         0x950 (size before relaxing)
- .debug_str     0x0000000000007ae5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xworld/vm.o
-                                       0x5b35 (size before relaxing)
- .debug_str     0x0000000000007ae5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xworld/xworld.o
+ .debug_str     0x0000000000007b5c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xworld/vm.o
+                                       0x5bb3 (size before relaxing)
+ .debug_str     0x0000000000007b5c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/xworld/xworld.o
                                         0x7e1 (size before relaxing)
- .debug_str     0x0000000000007ae5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
-                                       0x51cb (size before relaxing)
- .debug_str     0x0000000000007ae5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
-                                       0x4872 (size before relaxing)
- .debug_str     0x0000000000007ae5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(helper.o)
-                                       0x51c2 (size before relaxing)
- .debug_str     0x0000000000007ae5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(display_text.o)
-                                       0x4955 (size before relaxing)
- .debug_str     0x0000000000007ae5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(strncpy.o)
+ .debug_str     0x0000000000007b5c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+                                       0x5249 (size before relaxing)
+ .debug_str     0x0000000000007b5c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
+                                       0x48f0 (size before relaxing)
+ .debug_str     0x0000000000007b5c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(helper.o)
+                                       0x5240 (size before relaxing)
+ .debug_str     0x0000000000007b5c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(display_text.o)
+                                       0x49d3 (size before relaxing)
+ .debug_str     0x0000000000007b5c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(strncpy.o)
                                         0x19c (size before relaxing)
- .debug_str     0x0000000000007ae5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_bmp.o)
-                                       0x534c (size before relaxing)
- .debug_str     0x0000000000007ae5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(bmp_smooth_scale.o)
+ .debug_str     0x0000000000007b5c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_bmp.o)
+                                       0x53ca (size before relaxing)
+ .debug_str     0x0000000000007b5c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(bmp_smooth_scale.o)
                                         0x22c (size before relaxing)
- .debug_str     0x0000000000007ae5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_resize.o)
-                                       0x5231 (size before relaxing)
+ .debug_str     0x0000000000007b5c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(pluginlib_resize.o)
+                                       0x52af (size before relaxing)
 
 .debug_loc
  *(.debug_loc)

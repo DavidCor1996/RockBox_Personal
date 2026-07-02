@@ -386,6 +386,20 @@ MENUITEM_SETTING_W_TEXT(ipone_lock_wallpaper, &global_settings.ipone_lock_wallpa
 MENUITEM_SETTING_W_TEXT(ipone_right_pane, &global_settings.ipone_right_pane,
                         "Right Pane", NULL);
 MENUITEM_SETTING(album_list_layout, &global_settings.album_list_layout, NULL);
+MENUITEM_SETTING_W_TEXT(ui_engine, &global_settings.ui_engine,
+                        "Theme Engine", NULL);
+MENUITEM_SETTING_W_TEXT(ui_engine_accent, &global_settings.ui_engine_accent,
+                        "iPod Accent", NULL);
+MENUITEM_SETTING_W_TEXT(ui_engine_density, &global_settings.ui_engine_density,
+                        "iPod Density", NULL);
+MENUITEM_SETTING_W_TEXT(ui_engine_font_scale, &global_settings.ui_engine_font_scale,
+                        "iPod Font Size", NULL);
+MENUITEM_SETTING_W_TEXT(ui_engine_surface, &global_settings.ui_engine_surface,
+                        "iPod Surface", NULL);
+MENUITEM_SETTING_W_TEXT(ui_engine_hold_effect, &global_settings.ui_engine_hold_effect,
+                        "iPod Hold Screen", NULL);
+MENUITEM_SETTING_W_TEXT(ui_engine_dark_mode, &global_settings.ui_engine_dark_mode,
+                        "iPod Dark Mode", NULL);
 MENUITEM_FUNCTION_W_PARAM(browse_themes, 0, ID2P(LANG_CUSTOM_THEME),
                           browse_folder, (void*)&themes, NULL, Icon_Config);
 MENUITEM_SETTING(cursor_style, &global_settings.cursor_style, NULL);
@@ -418,6 +432,13 @@ MAKE_MENU(theme_menu, ID2P(LANG_THEME_MENU),
             &ipone_lock_wallpaper,
             &ipone_right_pane,
             &album_list_layout,
+            &ui_engine,
+            &ui_engine_accent,
+            &ui_engine_density,
+            &ui_engine_font_scale,
+            &ui_engine_surface,
+            &ui_engine_hold_effect,
+            &ui_engine_dark_mode,
             &show_icons,
 #ifdef HAVE_BACKDROP_IMAGE
             &clear_main_bd,

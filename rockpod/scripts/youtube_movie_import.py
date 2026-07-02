@@ -25,8 +25,29 @@ def _sanitize_component(value, max_len=96):
     return sanitize_movie_title(value, max_len=max_len)
 
 
-def _newest_video(download_dir, started_at):
-    candidates = []
+def _downloaded_video(download_dir, safe_title, baseline=None):
+    changed_candidates = []
+    matched_candidates = []
+    prefix = f"{safe_title}."
+    for path in Path(download_dir).glob(f"{safe_title}*"):
+        if not path.is_file() or path.suffix.lower() not in VIDEO_EXTENSIONS:
+            continue
+        try:
+            stat = path.stat()
+        except OSError:
+            continue
+        previous = (baseline or {}).get(str(path))
+        matched_candidates.append((stat.st_mtime, path))
+        if previous and previous == (stat.st_size, stat.st_mtime):
+            continue
+        if not path.name.startswith(prefix):
+            continue
+        changed_candidates.append((stat.st_mtime, path))
+    if changed_candidates:
+        return sorted(changed_candidates)[-1][1]
+    if matched_candidates:
+        return sorted(matched_candidates)[-1][1]
+    fallback_candidates = []
     for path in Path(download_dir).glob("*"):
         if not path.is_file() or path.suffix.lower() not in VIDEO_EXTENSIONS:
             continue
@@ -34,12 +55,19 @@ def _newest_video(download_dir, started_at):
             stat = path.stat()
         except OSError:
             continue
-        if stat.st_mtime + 0.001 < started_at:
-            continue
-        candidates.append((stat.st_mtime, path))
-    if not candidates:
+        fallback_candidates.append((stat.st_mtime, path))
+    if not fallback_candidates:
+        for path in Path(download_dir).glob("*"):
+            if not path.is_file() or path.suffix.lower() not in VIDEO_EXTENSIONS:
+                continue
+            try:
+                stat = path.stat()
+            except OSError:
+                continue
+            fallback_candidates.append((stat.st_mtime, path))
+    if not fallback_candidates:
         return None
-    return sorted(candidates)[-1][1]
+    return sorted(fallback_candidates)[-1][1]
 
 
 def _run_streamed(command):
@@ -81,9 +109,17 @@ def import_movie(url, download_dir, output_dir, yt_dlp, ffmpeg):
         raise ValueError("Only YouTube URLs are supported.")
     os.makedirs(download_dir, exist_ok=True)
     os.makedirs(output_dir, exist_ok=True)
-    started_at = time.time()
     title = _title_from_ytdlp(yt_dlp, url)
     safe_title = _sanitize_component(title)
+    baseline = {}
+    for path in Path(download_dir).glob(f"{safe_title}*"):
+        if not path.is_file() or path.suffix.lower() not in VIDEO_EXTENSIONS:
+            continue
+        try:
+            stat = path.stat()
+        except OSError:
+            continue
+        baseline[str(path)] = (stat.st_size, stat.st_mtime)
     source_template = os.path.join(download_dir, f"{safe_title}.%(ext)s")
     ytdlp_command = [
         yt_dlp,
@@ -97,7 +133,7 @@ def import_movie(url, download_dir, output_dir, yt_dlp, ffmpeg):
         url,
     ]
     _run_streamed(ytdlp_command)
-    source_path = _newest_video(download_dir, started_at)
+    source_path = _downloaded_video(download_dir, safe_title, baseline)
     if source_path is None:
         raise RuntimeError("yt-dlp finished but no downloaded video file was found.")
 

@@ -20,6 +20,7 @@ _VIDEO_POSTER_FILENAMES = (
     "show.jpg", "show.png",
 )
 _VIDEO_LIST_THUMB_SIZE = (32, 32)
+_VIDEO_LIST_PREVIEW_SIZE = (174, 240)
 
 
 class VideoThumbnailService:
@@ -128,11 +129,31 @@ class VideoThumbnailService:
             return "", "", "", video_id
         return cache_target, self._file_hash(cache_target), f"{video_id}.bmp", video_id
 
+    def export_video_list_preview(self, track, force=False, size=None):
+        target_size = size or _VIDEO_LIST_PREVIEW_SIZE
+        width = max(int(target_size[0]), 1)
+        height = max(int(target_size[1]), 1)
+        video_id = self.video_list_id(track)
+        source = self.thumbnail_path(track, size=max(width, height))
+        if not source:
+            return "", "", "", video_id
+
+        source_hash = self._file_hash(source)[:12]
+        cache_target = os.path.join(
+            self._video_list_dir,
+            f"{video_id}_{width}x{height}_preview_{source_hash}.bmp",
+        )
+        if not os.path.exists(cache_target) or force:
+            self._render_fill_thumbnail(source, cache_target, width, height)
+        if not os.path.exists(cache_target):
+            return "", "", "", video_id
+        return cache_target, self._file_hash(cache_target), f"{video_id}.bmp", video_id
+
     def export_video_list_manifest(self, entries):
         manifest_path = os.path.join(self._video_list_dir, "index.tsv")
         lines = [
             "# rockpod videolist v1",
-            "video_id\tthumb\ttitle\tkind\tgroup_key\tdevice_path",
+            "video_id\tthumb\tpreview\ttitle\tkind\tgroup_key\tdevice_path",
         ]
         def sort_key(item):
             return (
@@ -146,6 +167,7 @@ class VideoThumbnailService:
                     [
                         self._manifest_field(entry.get("video_id")),
                         self._manifest_field(entry.get("thumb")),
+                        self._manifest_field(entry.get("preview")),
                         self._manifest_field(entry.get("title")),
                         self._manifest_field(entry.get("kind")),
                         self._manifest_field(entry.get("group_key")),
@@ -285,6 +307,67 @@ class VideoThumbnailService:
             top = max((height - frame.height) // 2, 0)
             canvas.paste(frame, (left, top))
             canvas.save(target_path, "BMP")
+
+    @staticmethod
+    def _render_fill_thumbnail(source_path, target_path, width, height):
+        with Image.open(source_path) as frame:
+            frame = frame.convert("RGB")
+            frame = VideoThumbnailService._trim_dark_border(frame)
+            source_ratio = frame.width / max(frame.height, 1)
+            target_ratio = width / max(height, 1)
+            if source_ratio > target_ratio:
+                scaled_height = height
+                scaled_width = int(height * source_ratio)
+            else:
+                scaled_width = width
+                scaled_height = int(width / max(source_ratio, 0.01))
+            frame = frame.resize((scaled_width, scaled_height), Image.LANCZOS)
+            left = max((scaled_width - width) // 2, 0)
+            top = max((scaled_height - height) // 2, 0)
+            canvas = frame.crop((left, top, left + width, top + height))
+            canvas.save(target_path, "BMP")
+
+    @staticmethod
+    def _trim_dark_border(frame):
+        mask = frame.convert("L").point(lambda value: 255 if value > 18 else 0)
+        bbox = mask.getbbox()
+        if not bbox:
+            return frame
+        left, top, right, bottom = bbox
+        border_x = left + (frame.width - right)
+        border_y = top + (frame.height - bottom)
+        if border_x < 4 and border_y < 4:
+            return VideoThumbnailService._trim_dark_letterbox_rows(frame)
+        if right - left < frame.width // 2 or bottom - top < frame.height // 2:
+            return VideoThumbnailService._trim_dark_letterbox_rows(frame)
+        frame = frame.crop(bbox)
+        return VideoThumbnailService._trim_dark_letterbox_rows(frame)
+
+    @staticmethod
+    def _trim_dark_letterbox_rows(frame):
+        if frame.height < 8 or frame.width < 8:
+            return frame
+        pixels = frame.load()
+        limit = max(frame.height // 4, 1)
+        threshold = frame.width // 3
+
+        def dark_count(y):
+            return sum(1 for x in range(frame.width)
+                       if max(pixels[x, y]) < 24)
+
+        top = 0
+        while top < limit and dark_count(top) > threshold:
+            top += 1
+
+        bottom = frame.height
+        while bottom - 1 > frame.height - limit and dark_count(bottom - 1) > threshold:
+            bottom -= 1
+
+        if top == 0 and bottom == frame.height:
+            return frame
+        if bottom - top < frame.height // 2:
+            return frame
+        return frame.crop((0, top, frame.width, bottom))
 
     @staticmethod
     def _file_hash(path):

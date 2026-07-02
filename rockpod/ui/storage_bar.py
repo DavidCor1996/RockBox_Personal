@@ -136,11 +136,12 @@ class StorageBar(QWidget):
 
         self._legend = QGridLayout()
         self._legend.setHorizontalSpacing(8)
-        self._legend.setVerticalSpacing(1)
+        self._legend.setVerticalSpacing(3)
         self._labels = {}
         for index, (key, label) in enumerate(SEGMENT_ORDER):
             widget = QLabel()
             widget.setObjectName("storage_label")
+            widget.setWordWrap(True)
             self._labels[key] = widget
             row = index // 3
             col = index % 3

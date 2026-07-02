@@ -1632,34 +1632,11 @@ extern "C" int flashplayer_should_skip_movie_tag(int loading_frame,
     return 0;
 }
 
-extern "C" int flashplayer_should_skip_shape(int character_id, int tag_type,
-                                             int stream_pos)
-{
-    if (!g.stickrpg_fast_load)
-        return 0;
-
-    if (character_id == 24) {
-        rb->snprintf(g.status, sizeof(g.status), "skip shape %d",
-                     character_id);
-        SET_BG(COL_BG);
-        SET_FG(COL_BG);
-        rb->lcd_fillrect(0, 24, LCD_WIDTH, 24);
-        SET_FG(COL_DIM);
-        rb->lcd_putsxy(8, 30, g.status);
-        rb->lcd_update();
-        rb->yield();
-        flash_logf("skip shape id=%d type=%d pos=%d",
-                   character_id, tag_type, stream_pos);
-        return 1;
-    }
-
-    return 0;
-}
-
 extern "C" void flashplayer_trace_shape(int phase, int character_id, int stream_pos)
 {
 #ifndef SIMULATOR
-    if (!g.runtime_ready && (phase == 1 || phase == 3 || phase == 4)) {
+    if (!g.runtime_ready && (phase == 1 || phase == 2 ||
+                             phase == 3 || phase == 4)) {
         rb->snprintf(g.status, sizeof(g.status), "shape %d phase %d",
                      character_id, phase);
         SET_BG(COL_BG);

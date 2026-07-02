@@ -72,6 +72,34 @@ def parse_args(argv=None):
     validate_parser.add_argument("--config", help="Override config file path")
     validate_parser.add_argument("--json", action="store_true", help="Print machine-readable JSON")
 
+    albumlist_parser = subparsers.add_parser(
+        "generate-albumlist-art",
+        help="Render Rockbox album-list thumbnails/slides and optionally deploy them",
+    )
+    albumlist_parser.add_argument("--out", help="Output root for .rockbox/albumlist")
+    albumlist_parser.add_argument("--mount", help="Mounted Rockbox device or simulator root to deploy into")
+    albumlist_parser.add_argument(
+        "--config", default=argparse.SUPPRESS, help="Override config file path"
+    )
+    albumlist_parser.add_argument(
+        "--db", default=argparse.SUPPRESS, help="Override database path"
+    )
+    albumlist_parser.add_argument("--force", action="store_true", help="Refresh cached thumbnail and slide renders")
+    albumlist_parser.add_argument("--synced-only", action="store_true", help="Only include tracks marked synced to a device")
+    albumlist_parser.add_argument("--limit", type=int, default=0, help="Limit album count for quick visual tests")
+    albumlist_parser.add_argument("--json", action="store_true", help="Print machine-readable JSON")
+
+    weather_parser = subparsers.add_parser(
+        "refresh-weather",
+        help="Fetch and render the Rockbox weather bundle",
+    )
+    weather_parser.add_argument("--out", help="Output root for .rockbox/rockpod/weather")
+    weather_parser.add_argument("--mount", help="Mounted Rockbox device or simulator root to deploy into")
+    weather_parser.add_argument(
+        "--config", default=argparse.SUPPRESS, help="Override config file path"
+    )
+    weather_parser.add_argument("--json", action="store_true", help="Print machine-readable JSON")
+
     find_parser = subparsers.add_parser(
         "find-itunes-assets",
         help="Print suggested manual sources and extraction steps for iTunes-era assets",
@@ -250,6 +278,67 @@ def run_find_assets(args):
     return 0
 
 
+def run_generate_albumlist_art(args):
+    from services.albumlist_export import (
+        albumlist_art_report_json,
+        format_albumlist_art_report,
+        generate_albumlist_art,
+    )
+
+    config = Config(args.config)
+    if args.db:
+        config.db_path = args.db
+    config.ensure_dirs()
+    Database.init_db_once(config.db_path)
+    db = Database(config.db_path)
+    try:
+        report = generate_albumlist_art(
+            db,
+            config,
+            output_root=args.out,
+            mount=args.mount,
+            force=args.force,
+            synced_only=args.synced_only,
+            limit=max(0, int(args.limit or 0)),
+        )
+    finally:
+        db.close()
+
+    if args.json:
+        print(albumlist_art_report_json(report))
+    else:
+        print(format_albumlist_art_report(report))
+    return 0
+
+
+def run_refresh_weather(args):
+    import shutil
+    from services.weather import build_weather_bundle, format_weather_report
+
+    config = Config(args.config)
+    config.ensure_dirs()
+    report = build_weather_bundle(config, output_root=args.out)
+    deployed = []
+    if args.mount:
+        for src, rel_path, _hash in report.files:
+            dest = os.path.join(args.mount, rel_path)
+            os.makedirs(os.path.dirname(dest), exist_ok=True)
+            shutil.copy2(src, dest)
+            deployed.append(rel_path)
+    if args.json:
+        print(json.dumps({
+            "output_root": report.output_root,
+            "files": report.files,
+            "errors": report.errors,
+            "deployed": deployed,
+        }, indent=2))
+    else:
+        print(format_weather_report(report))
+        if deployed:
+            print(f"Deployed: {len(deployed)} file(s)")
+    return 0
+
+
 def main(argv=None):
     args = parse_args(argv)
     setup_logging(args.verbose, cli_mode=bool(args.command))
@@ -264,6 +353,10 @@ def main(argv=None):
         return run_validate_theme(args)
     if args.command == "find-itunes-assets":
         return run_find_assets(args)
+    if args.command == "generate-albumlist-art":
+        return run_generate_albumlist_art(args)
+    if args.command == "refresh-weather":
+        return run_refresh_weather(args)
 
     return launch_ui(args)
 

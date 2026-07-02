@@ -18,6 +18,10 @@ boomshine.lua
 stopwatch.lua
 #endif
 
+#if defined(HAVE_LCD_COLOR) && (LCD_WIDTH >= 320) && (LCD_HEIGHT >= 240)
+weather.c
+#endif
+
 
 #ifdef HAVE_TEST_PLUGINS /* enable in advanced build options */
 test_kbd.c

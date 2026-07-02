@@ -1,10 +1,11 @@
+import json
 import os
 
 from PIL import Image
 from PySide6.QtWidgets import QApplication
 
 from services.rockbox_deploy import RockboxDeployService
-from services.theme_designer import DEFAULT_LOCKSCREEN_CLOCK, ThemeDesignerService
+from services.theme_designer import DEFAULT_LOCKSCREEN_CLOCK, ThemeDesignerService, WEATHER_LOCKSCREEN_ART_HEIGHT
 from ui.theme_designer import ThemeDesignerWidget, _EmbeddedSimulatorPreview
 
 
@@ -22,6 +23,20 @@ def _write_bmp(path, width, height, color):
     os.makedirs(os.path.dirname(path), exist_ok=True)
     image = Image.new("RGB", (width, height), color)
     image.save(path, "BMP")
+
+
+def _write_weather_forecast(device_root, condition_code="rain", condition_text="Rain", temp_min="5", temp_max="9"):
+    path = os.path.join(device_root, ".rockbox", "rockpod", "weather", "forecast.tsv")
+    _write_text(
+        path,
+        "\n".join(
+            [
+                "rockpod_weather_v1\tMoncton, NB\t46.0878\t-64.7782\tAmerica/Halifax\t2026-07-01T12:00:00Z\t2026-07-01\tmetric",
+                f"2026-07-01\t{condition_code}\t{condition_text}\t{temp_min}\t{temp_max}\t40\t10\t180\t05:45\t21:15\topen-meteo",
+                "",
+            ]
+        ),
+    )
 
 
 def _make_repo(repo_root):
@@ -224,7 +239,51 @@ def test_generates_and_persists_custom_variant(tmp_dir):
     assert loaded["font_rel"] == "fonts/18-Cantarell-Regular.fnt"
     assert loaded["colors"]["selector_end"] == "ABCDEF"
     assert loaded["lockscreen_clock"]["opacity"] == 64
+    assert loaded["wallpaper_cycle_enabled"] is False
     assert not _temp_names(os.path.join(repo_root, "rockpod", ".theme_designer", "variants"))
+
+
+def test_wallpaper_cycle_is_optional_and_default_off(tmp_dir):
+    repo_root = os.path.join(tmp_dir, "repo")
+    _make_repo(repo_root)
+    service = ThemeDesignerService()
+
+    variant = service.new_variant(repo_root, _profile(repo_root), "Static")
+    saved = service.save_variant(repo_root, variant)
+    bundle = service.build_bundle(repo_root, _profile(repo_root), saved)
+    cfg = next(item["source_abs"] for item in bundle["assets"] if item["kind"] == "cfg")
+    metadata = next(item["source_abs"] for item in bundle["assets"] if item["kind"] == "metadata")
+
+    with open(cfg, "r", encoding="utf-8") as handle:
+        cfg_text = handle.read()
+    with open(metadata, "r", encoding="utf-8") as handle:
+        metadata_data = json.load(handle)
+
+    assert "ipone lock wallpaper:" not in cfg_text
+    assert "ipone charge wallpaper:" not in cfg_text
+    assert metadata_data["wallpaper_cycle_enabled"] is False
+
+
+def test_wallpaper_cycle_opt_in_exports_existing_ipone_settings(tmp_dir):
+    repo_root = os.path.join(tmp_dir, "repo")
+    _make_repo(repo_root)
+    service = ThemeDesignerService()
+
+    variant = service.new_variant(repo_root, _profile(repo_root), "Cycling")
+    variant["wallpaper_cycle_enabled"] = True
+    saved = service.save_variant(repo_root, variant)
+    bundle = service.build_bundle(repo_root, _profile(repo_root), saved)
+    cfg = next(item["source_abs"] for item in bundle["assets"] if item["kind"] == "cfg")
+    metadata = next(item["source_abs"] for item in bundle["assets"] if item["kind"] == "metadata")
+
+    with open(cfg, "r", encoding="utf-8") as handle:
+        cfg_text = handle.read()
+    with open(metadata, "r", encoding="utf-8") as handle:
+        metadata_data = json.load(handle)
+
+    assert "ipone lock wallpaper: shuffle\n" in cfg_text
+    assert "ipone charge wallpaper: rotate\n" in cfg_text
+    assert metadata_data["wallpaper_cycle_enabled"] is True
 
 
 def test_lockscreen_clock_opacity_defaults_and_clamps(tmp_dir):
@@ -536,6 +595,128 @@ def test_lockscreen_clock_opacity_samples_staged_wallpaper_without_source(tmp_di
     assert color == "404040"
 
 
+def test_lockscreen_weather_art_is_generated_between_time_and_date_when_available(tmp_dir):
+    repo_root = os.path.join(tmp_dir, "repo")
+    device_root = os.path.join(tmp_dir, "device")
+    _make_repo(repo_root)
+    _write_text(
+        os.path.join(repo_root, "wps", "iPone.sbs"),
+        "\n".join(
+            [
+                "%wd",
+                "%Fl(3,/.rockbox/fonts/150-Adwaitapod-Icons.fnt,2)",
+                "%xl(Bg,iPone_bd.bmp)",
+                "%Vd(iPoneLockscreen)%?mp<",
+                "%Vl(iPoneLockscreen,0,32,-,55,10)%Vf(FFFFFF)%ac%cl:%cM %cP",
+                "%Vl(iPoneLockscreen,0,101,-,20,6)%Vf(FFFFFF)%ac"
+                "%?if(%ss(0,7,%St(lang)), =, english)<%?cu<Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday>|%ca> "
+                "%?or(%if(%ss(0,7,%St(lang)), =, chinese),%if(%St(lang), =, magyar),%if(%St(lang), =, lietuviu),"
+                "%if(%St(lang), =, japanese),%if(%St(lang), =, korean))<%cb %cd|%?if(%St(lang), =, english-us)<%cb %cd|%cd %cb>>",
+                "",
+            ]
+        ),
+    )
+    os.makedirs(device_root, exist_ok=True)
+    _write_weather_forecast(device_root, condition_code="rain", condition_text="Rain", temp_min="5", temp_max="9")
+    service = ThemeDesignerService()
+    profile = _profile(repo_root)
+    profile["device_mount_path"] = device_root
+
+    variant = service.new_variant(repo_root, profile, "Weather Lock")
+    saved = service.save_variant(repo_root, variant)
+    bundle = service.build_bundle(repo_root, profile, saved)
+    sbs = next(item["source_abs"] for item in bundle["assets"] if item["kind"] == "sbs")
+    weather_assets = [
+        item for item in bundle["assets"]
+        if item["kind"] == "wps_assets" and item["source_rel"].endswith("WeatherLockArt.bmp")
+    ]
+
+    assert weather_assets
+    with Image.open(weather_assets[0]["source_abs"]) as weather_art:
+        assert weather_art.size == (320, WEATHER_LOCKSCREEN_ART_HEIGHT)
+        assert len(weather_art.getcolors(maxcolors=256)) > 2
+
+    with open(sbs, "r", encoding="utf-8") as handle:
+        content = handle.read()
+
+    assert "%xl(WeatherLockArt,WeatherLockArt.bmp)" in content
+    assert "%xd(WeatherLockArt)" in content
+    lines = content.splitlines()
+    time_line = next(line for line in lines if "%cl:%cM %cP" in line and "WeatherLock" not in line)
+    weather_line = next(line for line in lines if "%Vl(WeatherLock," in line)
+    date_line = next(line for line in lines if "%cb>>" in line and "%cd" in line)
+    assert lines.index(time_line) < lines.index(weather_line) < lines.index(date_line)
+
+
+def test_lockscreen_weather_art_is_generated_for_generic_lockscreen_viewport(tmp_dir):
+    repo_root = os.path.join(tmp_dir, "repo")
+    _make_repo(repo_root)
+    service = ThemeDesignerService()
+    profile = _profile(repo_root)
+    skin_path = os.path.join(tmp_dir, "generic.wps")
+    _write_text(
+        skin_path,
+        "%wd\n"
+        "%xl(Lockscreen,Wallpaper.bmp)\n"
+        "%Vl(Lockscreen,0,32,-,55,10)%Vf(FFFFFF)%ac%cl:%cM %cP\n"
+        "%Vl(Lockscreen,0,101,-,20,6)%Vf(FFFFFF)%ac"
+        "%?if(%ss(0,7,%St(lang)), =, english)<%?cu<Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday>|%ca> "
+        "%?or(%if(%ss(0,7,%St(lang)), =, chinese),%if(%St(lang), =, magyar),%if(%St(lang), =, lietuviu),"
+        "%if(%St(lang), =, japanese),%if(%St(lang), =, korean))<%cb %cd|%?if(%St(lang), =, english-us)<%cb %cd|%cd %cb>>\n",
+    )
+
+    weather_summary = {
+        "code": "rain",
+        "condition": "Rain",
+        "temp": "5-9 C",
+        "summary": "Rain 5-9 C",
+        "variant_color": "F7F4FA",
+        "background_color": "100F16",
+        "accent_color": "9D7AE6",
+        "appearance_mode": "dark",
+    }
+
+    service._apply_lockscreen_clock_overrides(
+        skin_path,
+        {"lockscreen_clock": DEFAULT_LOCKSCREEN_CLOCK},
+        weather_summary=weather_summary,
+    )
+
+    with open(skin_path, "r", encoding="utf-8") as handle:
+        content = handle.read()
+
+    assert "%xl(WeatherLockArt,WeatherLockArt.bmp)" in content
+    assert "%Vl(WeatherLock," in content
+    assert "%Vl(Lockscreen," in content
+    assert "%Vd(iPoneLockscreen)" not in content
+    lines = content.splitlines()
+    time_line = next(line for line in lines if "%cl:%cM %cP" in line)
+    weather_line = next(line for line in lines if "%Vl(WeatherLock," in line)
+    date_line = next(line for line in lines if "%cb>>" in line and "%cd" in line)
+    assert lines.index(time_line) < lines.index(weather_line) < lines.index(date_line)
+
+
+def test_lockscreen_weather_art_is_omitted_without_weather_bundle(tmp_dir):
+    repo_root = os.path.join(tmp_dir, "repo")
+    _make_repo(repo_root)
+    service = ThemeDesignerService()
+    profile = _profile(repo_root)
+
+    variant = service.new_variant(repo_root, profile, "No Weather Lock")
+    saved = service.save_variant(repo_root, variant)
+    bundle = service.build_bundle(repo_root, profile, saved)
+    sbs = next(item["source_abs"] for item in bundle["assets"] if item["kind"] == "sbs")
+
+    with open(sbs, "r", encoding="utf-8") as handle:
+        content = handle.read()
+
+    assert "WeatherLockArt" not in content
+    assert not [
+        item for item in bundle["assets"]
+        if item["kind"] == "wps_assets" and item["source_rel"].endswith("WeatherLockArt.bmp")
+    ]
+
+
 def test_wallpaper_conversion_respects_profile_resolution(tmp_dir):
     repo_root = os.path.join(tmp_dir, "repo")
     _make_repo(repo_root)
@@ -840,6 +1021,24 @@ def test_theme_designer_current_variant_data_includes_lockscreen_clock_glass(tmp
     assert clock["style"] == "glass tinted"
     assert clock["glass_strength"] == "medium"
     assert clock["stretch"] == 135
+    widget.deleteLater()
+
+
+def test_theme_designer_current_variant_data_includes_wallpaper_cycle_choice(tmp_dir):
+    app = QApplication.instance() or QApplication([])
+    repo_root = os.path.join(tmp_dir, "repo")
+    _make_repo(repo_root)
+    service = ThemeDesignerService()
+    profile = _profile(repo_root)
+    variant = service.new_variant(repo_root, profile, "Cycle")
+    variant["wallpaper_cycle_enabled"] = True
+    preview = service.build_preview_state(repo_root, profile, variant)
+    widget = ThemeDesignerWidget()
+
+    widget.set_fonts(service.fonts_for_profile(repo_root))
+    widget.load_variant(variant, preview)
+
+    assert widget.current_variant_data()["wallpaper_cycle_enabled"] is True
     widget.deleteLater()
 
 

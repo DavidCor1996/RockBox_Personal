@@ -1171,33 +1171,33 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000    0x5cacc
+.debug_info     0x0000000000000000    0x5cee6
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0x8a33 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/frotz/frotz.o
- .debug_info    0x0000000000008a33      0x69a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/frotz/buffer.o
- .debug_info    0x00000000000090cd      0x88a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/frotz/err.o
- .debug_info    0x0000000000009957     0x8ef7 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/frotz/fastmem.o
- .debug_info    0x000000000001284e     0x8631 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/frotz/files.o
- .debug_info    0x000000000001ae7f     0x7a27 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/frotz/hotkey.o
- .debug_info    0x00000000000228a6      0x668 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/frotz/input.o
- .debug_info    0x0000000000022f0e      0xe17 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/frotz/main.o
- .debug_info    0x0000000000023d25      0x3a7 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/frotz/math.o
- .debug_info    0x00000000000240cc     0x12eb /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/frotz/object.o
- .debug_info    0x00000000000253b7     0x1253 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/frotz/process.o
- .debug_info    0x000000000002660a     0x8bd8 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/frotz/quetzal.o
- .debug_info    0x000000000002f1e2      0x5b4 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/frotz/random.o
- .debug_info    0x000000000002f796      0x7d8 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/frotz/redirect.o
- .debug_info    0x000000000002ff6e     0x28b3 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/frotz/screen.o
- .debug_info    0x0000000000032821      0x7e6 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/frotz/sound.o
- .debug_info    0x0000000000033007      0x83d /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/frotz/stream.o
- .debug_info    0x0000000000033844      0x35a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/frotz/table.o
- .debug_info    0x0000000000033b9e     0x1934 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/frotz/text.o
- .debug_info    0x00000000000354d2      0x533 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/frotz/variable.o
- .debug_info    0x0000000000035a05     0x7af5 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/frotz/dumb_init.o
- .debug_info    0x000000000003d4fa     0x83f7 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/frotz/dumb_output.o
- .debug_info    0x00000000000458f1     0x7ca7 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
- .debug_info    0x000000000004d598     0x76d7 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(gcc-support.o)
- .debug_info    0x0000000000054c6f     0x7e5d /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(pluginlib_actions.o)
+ .debug_info    0x0000000000000000     0x8a9c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/frotz/frotz.o
+ .debug_info    0x0000000000008a9c      0x69a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/frotz/buffer.o
+ .debug_info    0x0000000000009136      0x88a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/frotz/err.o
+ .debug_info    0x00000000000099c0     0x8f60 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/frotz/fastmem.o
+ .debug_info    0x0000000000012920     0x869a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/frotz/files.o
+ .debug_info    0x000000000001afba     0x7a90 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/frotz/hotkey.o
+ .debug_info    0x0000000000022a4a      0x668 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/frotz/input.o
+ .debug_info    0x00000000000230b2      0xe17 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/frotz/main.o
+ .debug_info    0x0000000000023ec9      0x3a7 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/frotz/math.o
+ .debug_info    0x0000000000024270     0x12eb /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/frotz/object.o
+ .debug_info    0x000000000002555b     0x1253 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/frotz/process.o
+ .debug_info    0x00000000000267ae     0x8c41 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/frotz/quetzal.o
+ .debug_info    0x000000000002f3ef      0x5b4 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/frotz/random.o
+ .debug_info    0x000000000002f9a3      0x7d8 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/frotz/redirect.o
+ .debug_info    0x000000000003017b     0x28b3 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/frotz/screen.o
+ .debug_info    0x0000000000032a2e      0x7e6 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/frotz/sound.o
+ .debug_info    0x0000000000033214      0x83d /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/frotz/stream.o
+ .debug_info    0x0000000000033a51      0x35a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/frotz/table.o
+ .debug_info    0x0000000000033dab     0x1934 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/frotz/text.o
+ .debug_info    0x00000000000356df      0x533 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/frotz/variable.o
+ .debug_info    0x0000000000035c12     0x7b5e /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/frotz/dumb_init.o
+ .debug_info    0x000000000003d770     0x8460 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/frotz/dumb_output.o
+ .debug_info    0x0000000000045bd0     0x7d10 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
+ .debug_info    0x000000000004d8e0     0x7740 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(gcc-support.o)
+ .debug_info    0x0000000000055020     0x7ec6 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(pluginlib_actions.o)
 
 .debug_abbrev   0x0000000000000000     0x5309
  *(.debug_abbrev)
@@ -1258,58 +1258,58 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0x775d
+.debug_str      0x0000000000000000     0x77db
  *(.debug_str)
- .debug_str     0x0000000000000000     0x775d /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/frotz/frotz.o
-                                       0x669d (size before relaxing)
- .debug_str     0x000000000000775d        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/frotz/buffer.o
+ .debug_str     0x0000000000000000     0x77db /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/frotz/frotz.o
+                                       0x671b (size before relaxing)
+ .debug_str     0x00000000000077db        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/frotz/buffer.o
                                         0x9c0 (size before relaxing)
- .debug_str     0x000000000000775d        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/frotz/err.o
+ .debug_str     0x00000000000077db        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/frotz/err.o
                                         0xaa3 (size before relaxing)
- .debug_str     0x000000000000775d        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/frotz/fastmem.o
-                                       0x56f0 (size before relaxing)
- .debug_str     0x000000000000775d        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/frotz/files.o
-                                       0x5339 (size before relaxing)
- .debug_str     0x000000000000775d        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/frotz/hotkey.o
-                                       0x4a79 (size before relaxing)
- .debug_str     0x000000000000775d        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/frotz/input.o
+ .debug_str     0x00000000000077db        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/frotz/fastmem.o
+                                       0x576e (size before relaxing)
+ .debug_str     0x00000000000077db        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/frotz/files.o
+                                       0x53b7 (size before relaxing)
+ .debug_str     0x00000000000077db        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/frotz/hotkey.o
+                                       0x4af7 (size before relaxing)
+ .debug_str     0x00000000000077db        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/frotz/input.o
                                         0x2e5 (size before relaxing)
- .debug_str     0x000000000000775d        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/frotz/main.o
+ .debug_str     0x00000000000077db        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/frotz/main.o
                                         0xe47 (size before relaxing)
- .debug_str     0x000000000000775d        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/frotz/math.o
+ .debug_str     0x00000000000077db        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/frotz/math.o
                                         0x200 (size before relaxing)
- .debug_str     0x000000000000775d        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/frotz/object.o
+ .debug_str     0x00000000000077db        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/frotz/object.o
                                         0x515 (size before relaxing)
- .debug_str     0x000000000000775d        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/frotz/process.o
+ .debug_str     0x00000000000077db        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/frotz/process.o
                                        0x1073 (size before relaxing)
- .debug_str     0x000000000000775d        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/frotz/quetzal.o
-                                       0x50bd (size before relaxing)
- .debug_str     0x000000000000775d        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/frotz/random.o
+ .debug_str     0x00000000000077db        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/frotz/quetzal.o
+                                       0x513b (size before relaxing)
+ .debug_str     0x00000000000077db        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/frotz/random.o
                                         0x954 (size before relaxing)
- .debug_str     0x000000000000775d        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/frotz/redirect.o
+ .debug_str     0x00000000000077db        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/frotz/redirect.o
                                         0x9f5 (size before relaxing)
- .debug_str     0x000000000000775d        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/frotz/screen.o
+ .debug_str     0x00000000000077db        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/frotz/screen.o
                                        0x11df (size before relaxing)
- .debug_str     0x000000000000775d        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/frotz/sound.o
+ .debug_str     0x00000000000077db        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/frotz/sound.o
                                         0xa6b (size before relaxing)
- .debug_str     0x000000000000775d        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/frotz/stream.o
+ .debug_str     0x00000000000077db        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/frotz/stream.o
                                         0x4b5 (size before relaxing)
- .debug_str     0x000000000000775d        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/frotz/table.o
+ .debug_str     0x00000000000077db        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/frotz/table.o
                                         0x207 (size before relaxing)
- .debug_str     0x000000000000775d        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/frotz/text.o
+ .debug_str     0x00000000000077db        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/frotz/text.o
                                         0xe6f (size before relaxing)
- .debug_str     0x000000000000775d        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/frotz/variable.o
+ .debug_str     0x00000000000077db        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/frotz/variable.o
                                         0x21d (size before relaxing)
- .debug_str     0x000000000000775d        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/frotz/dumb_init.o
-                                       0x51db (size before relaxing)
- .debug_str     0x000000000000775d        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/frotz/dumb_output.o
-                                       0x5268 (size before relaxing)
- .debug_str     0x000000000000775d        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
-                                       0x5174 (size before relaxing)
- .debug_str     0x000000000000775d        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(gcc-support.o)
-                                       0x481b (size before relaxing)
- .debug_str     0x000000000000775d        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(pluginlib_actions.o)
-                                       0x62c5 (size before relaxing)
+ .debug_str     0x00000000000077db        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/frotz/dumb_init.o
+                                       0x5259 (size before relaxing)
+ .debug_str     0x00000000000077db        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/frotz/dumb_output.o
+                                       0x52e6 (size before relaxing)
+ .debug_str     0x00000000000077db        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
+                                       0x51f2 (size before relaxing)
+ .debug_str     0x00000000000077db        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(gcc-support.o)
+                                       0x4899 (size before relaxing)
+ .debug_str     0x00000000000077db        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(pluginlib_actions.o)
+                                       0x6343 (size before relaxing)
 
 .debug_loc
  *(.debug_loc)

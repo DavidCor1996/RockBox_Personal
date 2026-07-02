@@ -91,6 +91,46 @@ enum album_list_layout {
     ALBUM_LIST_LAYOUT_COMPACT = 1,
 };
 
+enum ui_engine {
+    UI_ENGINE_ROCKBOX = 0,
+    UI_ENGINE_IPODJS = 1,
+};
+
+enum ui_engine_accent {
+    UI_ENGINE_ACCENT_BLUE = 0,
+    UI_ENGINE_ACCENT_GRAPHITE = 1,
+    UI_ENGINE_ACCENT_U2 = 2,
+    UI_ENGINE_ACCENT_TEAL = 3,
+    UI_ENGINE_ACCENT_GREEN = 4,
+    UI_ENGINE_ACCENT_GOLD = 5,
+    UI_ENGINE_ACCENT_ORANGE = 6,
+    UI_ENGINE_ACCENT_PURPLE = 7,
+    UI_ENGINE_ACCENT_PINK = 8,
+    UI_ENGINE_ACCENT_COUNT
+};
+
+enum ui_engine_density {
+    UI_ENGINE_DENSITY_COMFORTABLE = 0,
+    UI_ENGINE_DENSITY_COMPACT = 1,
+};
+
+enum ui_engine_font_scale {
+    UI_ENGINE_FONT_SMALL = 0,
+    UI_ENGINE_FONT_NORMAL = 1,
+    UI_ENGINE_FONT_LARGE = 2,
+};
+
+enum ui_engine_surface {
+    UI_ENGINE_SURFACE_SOLID = 0,
+    UI_ENGINE_SURFACE_SOFT = 1,
+    UI_ENGINE_SURFACE_TRANSPARENT = 2,
+};
+
+enum ui_engine_hold_effect {
+    UI_ENGINE_HOLD_DIM = 0,
+    UI_ENGINE_HOLD_LOCKSCREEN = 1,
+};
+
 #ifdef HAVE_CROSSFADE
 enum {
     CROSSFADE_ENABLE_OFF = 0,
@@ -661,6 +701,13 @@ struct user_settings
     int ipone_charge_wallpaper; /* iPone charge wallpaper mode */
     int ipone_lock_wallpaper;   /* iPone lock wallpaper mode */
     int ipone_right_pane;       /* iPone SBS right pane mode: miniplayer/full art */
+    int ui_engine;              /* root/menu UI engine */
+    int ui_engine_accent;       /* native engine accent palette */
+    int ui_engine_density;      /* native engine row density */
+    int ui_engine_font_scale;   /* native engine font sizing */
+    int ui_engine_surface;      /* native engine surface treatment */
+    int ui_engine_hold_effect;  /* native engine hold overlay */
+    bool ui_engine_dark_mode;   /* native engine graphite dark mode */
     int album_list_layout;      /* album list viewport/art mode */
 
     int browser_default;        /* Default browser when accessed from WPS */

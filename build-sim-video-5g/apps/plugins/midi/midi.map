@@ -625,15 +625,15 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000    0x3274f
+.debug_info     0x0000000000000000    0x327a9
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0x87ab /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/midi/midifile.o
- .debug_info    0x00000000000087ab     0x7f99 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/midi/midiutil.o
- .debug_info    0x0000000000010744     0x1415 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/midi/sequencer.o
- .debug_info    0x0000000000011b59     0x858a /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/midi/guspat.o
- .debug_info    0x000000000001a0e3     0x83a6 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/midi/synth.o
- .debug_info    0x0000000000022489     0x85d4 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/midi/midiplay.o
- .debug_info    0x000000000002aa5d     0x7cf2 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+ .debug_info    0x0000000000000000     0x87ba /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/midi/midifile.o
+ .debug_info    0x00000000000087ba     0x7fa8 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/midi/midiutil.o
+ .debug_info    0x0000000000010762     0x1415 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/midi/sequencer.o
+ .debug_info    0x0000000000011b77     0x8599 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/midi/guspat.o
+ .debug_info    0x000000000001a110     0x83b5 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/midi/synth.o
+ .debug_info    0x00000000000224c5     0x85e3 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/midi/midiplay.o
+ .debug_info    0x000000000002aaa8     0x7d01 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
 
 .debug_abbrev   0x0000000000000000     0x212b
  *(.debug_abbrev)
@@ -658,22 +658,22 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0x550d
+.debug_str      0x0000000000000000     0x5517
  *(.debug_str)
- .debug_str     0x0000000000000000     0x550d /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/midi/midifile.o
-                                       0x513c (size before relaxing)
- .debug_str     0x000000000000550d        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/midi/midiutil.o
-                                       0x5176 (size before relaxing)
- .debug_str     0x000000000000550d        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/midi/sequencer.o
+ .debug_str     0x0000000000000000     0x5517 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/midi/midifile.o
+                                       0x5146 (size before relaxing)
+ .debug_str     0x0000000000005517        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/midi/midiutil.o
+                                       0x5180 (size before relaxing)
+ .debug_str     0x0000000000005517        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/midi/sequencer.o
                                         0xd46 (size before relaxing)
- .debug_str     0x000000000000550d        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/midi/guspat.o
-                                       0x5222 (size before relaxing)
- .debug_str     0x000000000000550d        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/midi/synth.o
-                                       0x4c67 (size before relaxing)
- .debug_str     0x000000000000550d        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/midi/midiplay.o
-                                       0x55cb (size before relaxing)
- .debug_str     0x000000000000550d        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
-                                       0x51cb (size before relaxing)
+ .debug_str     0x0000000000005517        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/midi/guspat.o
+                                       0x522c (size before relaxing)
+ .debug_str     0x0000000000005517        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/midi/synth.o
+                                       0x4c71 (size before relaxing)
+ .debug_str     0x0000000000005517        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/midi/midiplay.o
+                                       0x55d5 (size before relaxing)
+ .debug_str     0x0000000000005517        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+                                       0x51d5 (size before relaxing)
 
 .debug_loc
  *(.debug_loc)

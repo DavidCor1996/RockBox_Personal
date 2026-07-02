@@ -826,23 +826,23 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000    0x71e3a
+.debug_info     0x0000000000000000    0x7238f
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0x94ed /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/text_viewer/text_viewer.o
- .debug_info    0x00000000000094ed     0x8110 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/text_viewer/tv_action.o
- .debug_info    0x00000000000115fd     0xa280 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/text_viewer/tv_bookmark.o
- .debug_info    0x000000000001b87d     0x86b0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/text_viewer/tv_display.o
- .debug_info    0x0000000000023f2d     0xa704 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/text_viewer/tv_menu.o
- .debug_info    0x000000000002e631     0x838a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/text_viewer/tv_pager.o
- .debug_info    0x00000000000369bb     0x7daa /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/text_viewer/tv_preferences.o
- .debug_info    0x000000000003e765     0x7e9f /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/text_viewer/tv_reader.o
- .debug_info    0x0000000000046604      0x53e /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/text_viewer/tv_screen_pos.o
- .debug_info    0x0000000000046b42     0x8cb4 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/text_viewer/tv_settings.o
- .debug_info    0x000000000004f7f6     0x86ed /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/text_viewer/tv_text_processor.o
- .debug_info    0x0000000000057ee3      0x86f /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/text_viewer/tv_text_reader.o
- .debug_info    0x0000000000058752     0x8182 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/text_viewer/tv_window.o
- .debug_info    0x00000000000608d4     0x7ca7 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
- .debug_info    0x000000000006857b     0x98bf /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(playback_control.o)
+ .debug_info    0x0000000000000000     0x9556 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/text_viewer/text_viewer.o
+ .debug_info    0x0000000000009556     0x8179 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/text_viewer/tv_action.o
+ .debug_info    0x00000000000116cf     0xa2e9 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/text_viewer/tv_bookmark.o
+ .debug_info    0x000000000001b9b8     0x8719 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/text_viewer/tv_display.o
+ .debug_info    0x00000000000240d1     0xa76d /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/text_viewer/tv_menu.o
+ .debug_info    0x000000000002e83e     0x83f3 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/text_viewer/tv_pager.o
+ .debug_info    0x0000000000036c31     0x7e13 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/text_viewer/tv_preferences.o
+ .debug_info    0x000000000003ea44     0x7f08 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/text_viewer/tv_reader.o
+ .debug_info    0x000000000004694c      0x53e /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/text_viewer/tv_screen_pos.o
+ .debug_info    0x0000000000046e8a     0x8d1d /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/text_viewer/tv_settings.o
+ .debug_info    0x000000000004fba7     0x8756 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/text_viewer/tv_text_processor.o
+ .debug_info    0x00000000000582fd      0x86f /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/text_viewer/tv_text_reader.o
+ .debug_info    0x0000000000058b6c     0x81eb /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/text_viewer/tv_window.o
+ .debug_info    0x0000000000060d57     0x7d10 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
+ .debug_info    0x0000000000068a67     0x9928 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(playback_control.o)
 
 .debug_abbrev   0x0000000000000000     0x4225
  *(.debug_abbrev)
@@ -883,38 +883,38 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0xc96d
+.debug_str      0x0000000000000000     0xc9eb
  *(.debug_str)
- .debug_str     0x0000000000000000     0xc96d /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/text_viewer/text_viewer.o
-                                       0x9a1a (size before relaxing)
- .debug_str     0x000000000000c96d        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/text_viewer/tv_action.o
-                                       0x546a (size before relaxing)
- .debug_str     0x000000000000c96d        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/text_viewer/tv_bookmark.o
-                                       0xb2f1 (size before relaxing)
- .debug_str     0x000000000000c96d        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/text_viewer/tv_display.o
-                                       0x54c5 (size before relaxing)
- .debug_str     0x000000000000c96d        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/text_viewer/tv_menu.o
-                                       0xaad0 (size before relaxing)
- .debug_str     0x000000000000c96d        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/text_viewer/tv_pager.o
-                                       0x535e (size before relaxing)
- .debug_str     0x000000000000c96d        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/text_viewer/tv_preferences.o
-                                       0x5276 (size before relaxing)
- .debug_str     0x000000000000c96d        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/text_viewer/tv_reader.o
-                                       0x52ed (size before relaxing)
- .debug_str     0x000000000000c96d        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/text_viewer/tv_screen_pos.o
+ .debug_str     0x0000000000000000     0xc9eb /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/text_viewer/text_viewer.o
+                                       0x9a98 (size before relaxing)
+ .debug_str     0x000000000000c9eb        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/text_viewer/tv_action.o
+                                       0x54e8 (size before relaxing)
+ .debug_str     0x000000000000c9eb        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/text_viewer/tv_bookmark.o
+                                       0xb36f (size before relaxing)
+ .debug_str     0x000000000000c9eb        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/text_viewer/tv_display.o
+                                       0x5543 (size before relaxing)
+ .debug_str     0x000000000000c9eb        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/text_viewer/tv_menu.o
+                                       0xab4e (size before relaxing)
+ .debug_str     0x000000000000c9eb        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/text_viewer/tv_pager.o
+                                       0x53dc (size before relaxing)
+ .debug_str     0x000000000000c9eb        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/text_viewer/tv_preferences.o
+                                       0x52f4 (size before relaxing)
+ .debug_str     0x000000000000c9eb        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/text_viewer/tv_reader.o
+                                       0x536b (size before relaxing)
+ .debug_str     0x000000000000c9eb        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/text_viewer/tv_screen_pos.o
                                         0x971 (size before relaxing)
- .debug_str     0x000000000000c96d        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/text_viewer/tv_settings.o
-                                       0x52f0 (size before relaxing)
- .debug_str     0x000000000000c96d        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/text_viewer/tv_text_processor.o
-                                       0x551a (size before relaxing)
- .debug_str     0x000000000000c96d        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/text_viewer/tv_text_reader.o
+ .debug_str     0x000000000000c9eb        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/text_viewer/tv_settings.o
+                                       0x536e (size before relaxing)
+ .debug_str     0x000000000000c9eb        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/text_viewer/tv_text_processor.o
+                                       0x5598 (size before relaxing)
+ .debug_str     0x000000000000c9eb        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/text_viewer/tv_text_reader.o
                                         0xaeb (size before relaxing)
- .debug_str     0x000000000000c96d        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/text_viewer/tv_window.o
-                                       0x544d (size before relaxing)
- .debug_str     0x000000000000c96d        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
-                                       0x5174 (size before relaxing)
- .debug_str     0x000000000000c96d        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(playback_control.o)
-                                       0xa1e2 (size before relaxing)
+ .debug_str     0x000000000000c9eb        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/text_viewer/tv_window.o
+                                       0x54cb (size before relaxing)
+ .debug_str     0x000000000000c9eb        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
+                                       0x51f2 (size before relaxing)
+ .debug_str     0x000000000000c9eb        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(playback_control.o)
+                                       0xa260 (size before relaxing)
 
 .debug_loc
  *(.debug_loc)

@@ -241,14 +241,39 @@ static pix_t pf_lst_color;    /* selector text color */
 static unsigned int pf_bg_rb;  /* pf_bg_color & 0xf81f */
 static unsigned int pf_bg_g;   /* pf_bg_color & 0x7e0 */
 
+static bool pf_ipod_engine_enabled(void)
+{
+#if defined(IPOD_VIDEO) || defined(IPOD_6G)
+    return rb->global_settings->ui_engine == UI_ENGINE_IPODJS;
+#else
+    return false;
+#endif
+}
+
 #ifdef HAVE_ALBUMART
 static void pf_update_dynamic_colors(void)
 {
-    pf_bg_color = (pix_t)rb->dynamic_colors_resolve(rb->global_settings->bg_color);
-    pf_fg_color = (pix_t)rb->dynamic_colors_resolve(rb->global_settings->fg_color);
-    pf_lss_color = (pix_t)rb->dynamic_colors_resolve(rb->global_settings->lss_color);
-    pf_lse_color = (pix_t)rb->dynamic_colors_resolve(rb->global_settings->lse_color);
-    pf_lst_color = (pix_t)rb->dynamic_colors_resolve(rb->global_settings->lst_color);
+    if (pf_ipod_engine_enabled())
+    {
+        pf_bg_color = (pix_t)LCD_RGBPACK(245, 246, 248);
+        pf_fg_color = (pix_t)LCD_RGBPACK(0, 0, 0);
+        pf_lss_color = (pix_t)LCD_RGBPACK(60, 184, 255);
+        pf_lse_color = (pix_t)LCD_RGBPACK(52, 122, 181);
+        pf_lst_color = (pix_t)LCD_RGBPACK(255, 255, 255);
+    }
+    else
+    {
+        pf_bg_color =
+            (pix_t)rb->dynamic_colors_resolve(rb->global_settings->bg_color);
+        pf_fg_color =
+            (pix_t)rb->dynamic_colors_resolve(rb->global_settings->fg_color);
+        pf_lss_color =
+            (pix_t)rb->dynamic_colors_resolve(rb->global_settings->lss_color);
+        pf_lse_color =
+            (pix_t)rb->dynamic_colors_resolve(rb->global_settings->lse_color);
+        pf_lst_color =
+            (pix_t)rb->dynamic_colors_resolve(rb->global_settings->lst_color);
+    }
     pf_bg_rb = pf_bg_color & 0xf81f;
     pf_bg_g  = pf_bg_color & 0x7e0;
 }
@@ -2182,8 +2207,72 @@ static bool get_albumart_for_index_from_db(const int slide_index, char *buf,
     return ret;
 }
 
+static bool draw_splash_albumart(unsigned char *buf_tmp, size_t buf_tmp_size,
+                                 int slide_index, int x, int y, int size)
+{
+    struct screen* display = rb->screens[SCREEN_MAIN];
+    struct bitmap cover;
+    char path[MAX_PATH];
+    int ret;
+    const unsigned int format = FORMAT_NATIVE | FORMAT_RESIZE |
+                                FORMAT_KEEP_ASPECT | FORMAT_DITHER;
+
+    if (slide_index < 0 || slide_index >= pf_idx.album_ct ||
+        !pf_idx.album_index || size <= 0)
+        return false;
+
+    if (!get_albumart_for_index_from_db(slide_index, path, sizeof(path)))
+        return false;
+
+    cover.width = size;
+    cover.height = size;
+    cover.format = FORMAT_NATIVE;
+    cover.data = buf_tmp;
+
+    ret = read_image_file(path, &cover, buf_tmp_size, format, NULL);
+    if (ret <= 0)
+        return false;
+
+    rb->lcd_set_foreground(LCD_RGBPACK(52, 55, 60));
+    rb->lcd_fillrect(x + 3, y + 3, size, size);
+    rb->lcd_set_foreground(LCD_RGBPACK(248, 248, 248));
+    rb->lcd_fillrect(x - 2, y - 2, size + 4, size + 4);
+    display->bitmap(cover.data, x, y, cover.width, cover.height);
+    rb->lcd_set_foreground(LCD_RGBPACK(118, 122, 128));
+    rb->lcd_drawrect(x - 1, y - 1, size + 2, size + 2);
+    return true;
+}
+
+static void draw_splash_albumart_strip(unsigned char *buf_tmp,
+                                       size_t buf_tmp_size)
+{
+#if LCD_WIDTH >= 300 && LCD_HEIGHT >= 220
+    int drawn = 0;
+
+    if (draw_splash_albumart(buf_tmp, buf_tmp_size, 1, 58, 79, 44))
+        drawn++;
+    if (draw_splash_albumart(buf_tmp, buf_tmp_size, 2, LCD_WIDTH - 102,
+                             79, 44))
+        drawn++;
+    if (draw_splash_albumart(buf_tmp, buf_tmp_size, 0,
+                             (LCD_WIDTH - 72) / 2, 53, 72))
+        drawn++;
+
+    if (drawn == 0)
+        return;
+
+    rb->lcd_set_foreground(LCD_RGBPACK(224, 228, 234));
+    rb->lcd_hline(86, LCD_WIDTH - 87, 133);
+    rb->lcd_set_foreground(LCD_RGBPACK(246, 247, 249));
+    rb->lcd_hline(98, LCD_WIDTH - 99, 134);
+#else
+    (void)buf_tmp;
+    (void)buf_tmp_size;
+#endif
+}
+
 /**
-  Draw the PictureFlow logo
+  Draw the Cover Flow loading screen
  */
 static void draw_splashscreen(unsigned char * buf_tmp, size_t buf_tmp_size)
 {
@@ -2224,6 +2313,8 @@ static void draw_splashscreen(unsigned char * buf_tmp, size_t buf_tmp_size)
 
     if (bg_ret > 0)
         display->bitmap(background.data, 0, 0, background.width, background.height);
+
+    draw_splash_albumart_strip(buf_tmp, buf_tmp_size);
 
     int ret = rb->read_bmp_file(SPLASH_BMP, &logo, buf_tmp_size,
                                 FORMAT_NATIVE, NULL);
@@ -4802,17 +4893,25 @@ static bool init(void)
     pf_display_offs = DISPLAY_OFFS;
 
 #ifdef HAVE_LCD_COLOR
-    pf_bg_color = (pix_t)rb->global_settings->bg_color;
-    pf_fg_color = (pix_t)rb->global_settings->fg_color;
-    pf_lss_color = (pix_t)rb->global_settings->lss_color;
-    pf_lse_color = (pix_t)rb->global_settings->lse_color;
-    pf_lst_color = (pix_t)rb->global_settings->lst_color;
 #ifdef HAVE_ALBUMART
-    pf_bg_color = (pix_t)rb->dynamic_colors_resolve(pf_bg_color);
-    pf_fg_color = (pix_t)rb->dynamic_colors_resolve(pf_fg_color);
-    pf_lss_color = (pix_t)rb->dynamic_colors_resolve(pf_lss_color);
-    pf_lse_color = (pix_t)rb->dynamic_colors_resolve(pf_lse_color);
-    pf_lst_color = (pix_t)rb->dynamic_colors_resolve(pf_lst_color);
+    pf_update_dynamic_colors();
+#else
+    if (pf_ipod_engine_enabled())
+    {
+        pf_bg_color = (pix_t)LCD_RGBPACK(245, 246, 248);
+        pf_fg_color = (pix_t)LCD_RGBPACK(0, 0, 0);
+        pf_lss_color = (pix_t)LCD_RGBPACK(60, 184, 255);
+        pf_lse_color = (pix_t)LCD_RGBPACK(52, 122, 181);
+        pf_lst_color = (pix_t)LCD_RGBPACK(255, 255, 255);
+    }
+    else
+    {
+        pf_bg_color = (pix_t)rb->global_settings->bg_color;
+        pf_fg_color = (pix_t)rb->global_settings->fg_color;
+        pf_lss_color = (pix_t)rb->global_settings->lss_color;
+        pf_lse_color = (pix_t)rb->global_settings->lse_color;
+        pf_lst_color = (pix_t)rb->global_settings->lst_color;
+    }
 #endif
     pf_bg_rb = pf_bg_color & 0xf81f;
     pf_bg_g  = pf_bg_color & 0x7e0;

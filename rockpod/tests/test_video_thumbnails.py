@@ -145,6 +145,7 @@ def test_video_list_thumbnail_and_manifest_generated_for_ipod(tmp_dir):
         "video_kind": "movie",
     }
     thumb_path, thumb_hash, device_name, video_id = service.export_video_list_thumbnail(track)
+    preview_path, preview_hash, preview_name, preview_video_id = service.export_video_list_preview(track)
 
     assert os.path.exists(thumb_path)
     assert thumb_hash
@@ -152,6 +153,13 @@ def test_video_list_thumbnail_and_manifest_generated_for_ipod(tmp_dir):
     with Image.open(thumb_path) as rendered:
         assert rendered.format == "BMP"
         assert rendered.size == (32, 32)
+    assert os.path.exists(preview_path)
+    assert preview_hash
+    assert preview_name == f"{video_id}.bmp"
+    assert preview_video_id == video_id
+    with Image.open(preview_path) as rendered:
+        assert rendered.format == "BMP"
+        assert rendered.size == (174, 240)
     assert runner.commands == []
 
     manifest_path, manifest_hash = service.export_video_list_manifest(
@@ -159,6 +167,7 @@ def test_video_list_thumbnail_and_manifest_generated_for_ipod(tmp_dir):
             {
                 "video_id": video_id,
                 "thumb": os.path.join("thumbs", device_name),
+                "preview": os.path.join("previews", preview_name),
                 "title": "Real Movie",
                 "kind": "movie",
                 "group_key": video_path,
@@ -171,8 +180,8 @@ def test_video_list_thumbnail_and_manifest_generated_for_ipod(tmp_dir):
     assert manifest_hash
     with open(manifest_path, "r", encoding="utf-8") as handle:
         data = handle.read()
-    assert "video_id\tthumb\ttitle\tkind\tgroup_key\tdevice_path" in data
-    assert f"{video_id}\tthumbs/{device_name}\tReal Movie\tmovie" in data
+    assert "video_id\tthumb\tpreview\ttitle\tkind\tgroup_key\tdevice_path" in data
+    assert f"{video_id}\tthumbs/{device_name}\tpreviews/{preview_name}\tReal Movie\tmovie" in data
     assert os.path.basename(manifest_path) == "index.tsv"
     assert not [
         name for name in os.listdir(os.path.dirname(manifest_path))

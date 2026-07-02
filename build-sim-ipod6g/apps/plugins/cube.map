@@ -533,13 +533,13 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000    0x1fc41
+.debug_info     0x0000000000000000    0x1fde5
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0x8116 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/cube.o
- .debug_info    0x0000000000008116     0x7ca7 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
- .debug_info    0x000000000000fdbd     0x825b /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(xlcd_draw.o)
- .debug_info    0x0000000000018018     0x74f9 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(xlcd_core.o)
- .debug_info    0x000000000001f511      0x730 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/libfixedpoint.a(fixedpoint.o)
+ .debug_info    0x0000000000000000     0x817f /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/cube.o
+ .debug_info    0x000000000000817f     0x7d10 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
+ .debug_info    0x000000000000fe8f     0x82c4 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(xlcd_draw.o)
+ .debug_info    0x0000000000018153     0x7562 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(xlcd_core.o)
+ .debug_info    0x000000000001f6b5      0x730 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/libfixedpoint.a(fixedpoint.o)
 
 .debug_abbrev   0x0000000000000000     0x125a
  *(.debug_abbrev)
@@ -560,17 +560,17 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0x4eeb
+.debug_str      0x0000000000000000     0x4f64
  *(.debug_str)
- .debug_str     0x0000000000000000     0x4eeb /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/cube.o
-                                       0x51ea (size before relaxing)
- .debug_str     0x0000000000004eeb        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
-                                       0x5174 (size before relaxing)
- .debug_str     0x0000000000004eeb        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(xlcd_draw.o)
-                                       0x49da (size before relaxing)
- .debug_str     0x0000000000004eeb        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(xlcd_core.o)
-                                       0x482e (size before relaxing)
- .debug_str     0x0000000000004eeb        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/libfixedpoint.a(fixedpoint.o)
+ .debug_str     0x0000000000000000     0x4f64 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/cube.o
+                                       0x5268 (size before relaxing)
+ .debug_str     0x0000000000004f64        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
+                                       0x51f2 (size before relaxing)
+ .debug_str     0x0000000000004f64        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(xlcd_draw.o)
+                                       0x4a58 (size before relaxing)
+ .debug_str     0x0000000000004f64        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(xlcd_core.o)
+                                       0x48ac (size before relaxing)
+ .debug_str     0x0000000000004f64        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/libfixedpoint.a(fixedpoint.o)
                                         0x285 (size before relaxing)
 
 .debug_loc

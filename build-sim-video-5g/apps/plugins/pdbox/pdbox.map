@@ -3788,130 +3788,130 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000   0x1fb9ec
+.debug_info     0x0000000000000000   0x1fbc62
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0x8318 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/pdbox.o
- .debug_info    0x0000000000008318     0x7be5 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/pdbox-net.o
- .debug_info    0x000000000000fefd     0x9a4f /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/pdbox-func.o
- .debug_info    0x000000000001994c     0x9412 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/pdbox-gui.o
- .debug_info    0x0000000000022d5e     0x7b62 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/s_audio_rockbox.o
- .debug_info    0x000000000002a8c0     0x3ffb /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/d_arithmetic.o
- .debug_info    0x000000000002e8bb      0xb80 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/d_ctl.o
- .debug_info    0x000000000002f43b     0x13e4 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/d_dac.o
- .debug_info    0x000000000003081f     0x17d0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/d_fft.o
- .debug_info    0x0000000000031fef     0x16b7 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/d_fftroutine.o
- .debug_info    0x00000000000336a6     0x8d99 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/d_global.o
- .debug_info    0x000000000003c43f      0xd62 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/d_imayer_fft.o
- .debug_info    0x000000000003d1a1      0x9ac /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/d_mayer_fft.o
- .debug_info    0x000000000003db4d     0x1adb /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/d_misc.o
- .debug_info    0x000000000003f628      0x8b8 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/d_resample.o
- .debug_info    0x000000000003fee0     0xafa7 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/d_soundfile.o
- .debug_info    0x000000000004ae87     0x2d5d /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/d_ugen.o
- .debug_info    0x000000000004dbe4     0xa26b /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/g_all_guis.o
- .debug_info    0x0000000000057e4f     0xd172 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/g_array.o
- .debug_info    0x0000000000064fc1     0xab0c /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/g_bang.o
- .debug_info    0x000000000006facd     0xdcaa /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/g_canvas.o
- .debug_info    0x000000000007d777    0x100bf /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/g_editor.o
- .debug_info    0x000000000008d836     0xbeea /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/g_graph.o
- .debug_info    0x0000000000099720     0x11a5 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/g_guiconnect.o
- .debug_info    0x000000000009a8c5     0xb224 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/g_hdial.o
- .debug_info    0x00000000000a5ae9     0xad16 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/g_hslider.o
- .debug_info    0x00000000000b07ff     0x9fd1 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/g_io.o
- .debug_info    0x00000000000ba7d0     0x9f9c /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/g_mycanvas.o
- .debug_info    0x00000000000c476c     0xb4af /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/g_numbox.o
- .debug_info    0x00000000000cfc1b     0xab9f /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/g_readwrite.o
- .debug_info    0x00000000000da7ba     0x91cb /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/g_rtext.o
- .debug_info    0x00000000000e3985     0x2aa3 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/g_scalar.o
- .debug_info    0x00000000000e6428     0xdab7 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/g_template.o
- .debug_info    0x00000000000f3edf     0xde53 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/g_text.o
- .debug_info    0x0000000000101d32     0xa5d9 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/g_toggle.o
- .debug_info    0x000000000010c30b     0x40f4 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/g_traversal.o
- .debug_info    0x00000000001103ff     0xb0c5 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/g_vdial.o
- .debug_info    0x000000000011b4c4     0xacc1 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/g_vslider.o
- .debug_info    0x0000000000126185     0xa28a /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/g_vumeter.o
- .debug_info    0x000000000013040f     0x7d4d /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/m_atom.o
- .debug_info    0x000000000013815c     0xb48b /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/m_binbuf.o
- .debug_info    0x00000000001435e7     0xa08d /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/m_class.o
- .debug_info    0x000000000014d674      0x340 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/m_conf.o
- .debug_info    0x000000000014d9b4     0x8552 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/m_fixed.o
- .debug_info    0x0000000000155f06     0x1213 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/m_glob.o
- .debug_info    0x0000000000157119     0x77f7 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/m_memory.o
- .debug_info    0x000000000015e910     0x28b7 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/m_obj.o
- .debug_info    0x00000000001611c7     0x18f2 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/m_pd.o
- .debug_info    0x0000000000162ab9      0xd4b /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/m_sched.o
- .debug_info    0x0000000000163804     0x8ac7 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/s_audio.o
- .debug_info    0x000000000016c2cb     0x75cd /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/s_file.o
- .debug_info    0x0000000000173898       0xdc /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/s_loader.o
- .debug_info    0x0000000000173974     0x8b10 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/s_path.o
- .debug_info    0x000000000017c484      0xf52 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/s_print.o
- .debug_info    0x000000000017d3d6     0x12f7 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/x_acoustics.o
- .debug_info    0x000000000017e6cd     0x3c64 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/x_arithmetic.o
- .debug_info    0x0000000000182331     0xd0df /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/x_connective.o
- .debug_info    0x000000000018f410      0xd96 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/x_interface.o
- .debug_info    0x00000000001901a6     0x1508 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/x_misc.o
- .debug_info    0x00000000001916ae     0x8634 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/x_net.o
- .debug_info    0x0000000000199ce2     0x91fc /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/x_qlist.o
- .debug_info    0x00000000001a2ede     0x26cd /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/x_time.o
- .debug_info    0x00000000001a55ab     0x10f0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/biquad~.o
- .debug_info    0x00000000001a669b      0xfa9 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/bp~.o
- .debug_info    0x00000000001a7644      0xb3d /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/clip~.o
- .debug_info    0x00000000001a8181      0xad8 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/cos~.o
- .debug_info    0x00000000001a8c59      0x487 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/cos_table.o
- .debug_info    0x00000000001a90e0      0xaae /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/dbtopow~.o
- .debug_info    0x00000000001a9b8e      0xaae /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/dbtorms~.o
- .debug_info    0x00000000001aa63c      0xda7 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/delread~.o
- .debug_info    0x00000000001ab3e3      0xd13 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/delwrite~.o
- .debug_info    0x00000000001ac0f6      0xe5f /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/env~.o
- .debug_info    0x00000000001acf55      0xaa9 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/ftom~.o
- .debug_info    0x00000000001ad9fe      0xd37 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/hip~.o
- .debug_info    0x00000000001ae735      0x3d8 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/intern_setup.o
- .debug_info    0x00000000001aeb0d      0xbf7 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/line~.o
- .debug_info    0x00000000001af704      0xce7 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/lop~.o
- .debug_info    0x00000000001b03eb      0xa9d /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/mtof~.o
- .debug_info    0x00000000001b0e88      0x9ec /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/noise~.o
- .debug_info    0x00000000001b1874      0xc5b /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/osc~.o
- .debug_info    0x00000000001b24cf      0xbeb /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/phasor~.o
- .debug_info    0x00000000001b30ba      0xab4 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/powtodb~.o
- .debug_info    0x00000000001b3b6e      0xbaf /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/print~.o
- .debug_info    0x00000000001b471d      0xad1 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/rmstodb~.o
- .debug_info    0x00000000001b51ee      0xda3 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/rsqrt~.o
- .debug_info    0x00000000001b5f91      0xc0a /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/samphold~.o
- .debug_info    0x00000000001b6b9b     0x8e8f /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/sfread~.o
- .debug_info    0x00000000001bfa2a     0x8d33 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/sfwrite~.o
- .debug_info    0x00000000001c875d      0xb46 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/snapshot~.o
- .debug_info    0x00000000001c92a3      0xbfd /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/sqrt~.o
- .debug_info    0x00000000001c9ea0      0xe71 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/tabosc4~.o
- .debug_info    0x00000000001cad11     0x1131 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/tabplay~.o
- .debug_info    0x00000000001cbe42      0xa8a /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/tabread.o
- .debug_info    0x00000000001cc8cc      0xcd7 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/tabread4~.o
- .debug_info    0x00000000001cd5a3      0xc98 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/tabread~.o
- .debug_info    0x00000000001ce23b      0xb91 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/tabreceive~.o
- .debug_info    0x00000000001cedcc      0xdb0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/tabsend~.o
- .debug_info    0x00000000001cfb7c      0xc7c /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/tabwrite.o
- .debug_info    0x00000000001d07f8      0xfc5 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/tabwrite~.o
- .debug_info    0x00000000001d17bd      0xe6c /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/threshold~.o
- .debug_info    0x00000000001d2629      0xde6 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/vcf~.o
- .debug_info    0x00000000001d340f      0xd44 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/vd~.o
- .debug_info    0x00000000001d4153      0xe5e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/vline~.o
- .debug_info    0x00000000001d4fb1      0xc04 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/vsnapshot~.o
- .debug_info    0x00000000001d5bb5      0xa19 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/wrap~.o
- .debug_info    0x00000000001d65ce      0xdba /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/extra/bandpass.o
- .debug_info    0x00000000001d7388      0xe93 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/extra/equalizer.o
- .debug_info    0x00000000001d821b     0x2132 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/extra/gcanvas.o
- .debug_info    0x00000000001da34d      0xdd5 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/extra/highpass.o
- .debug_info    0x00000000001db122      0xe3f /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/extra/highshelf.o
- .debug_info    0x00000000001dbf61     0x1194 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/extra/hlshelf.o
- .debug_info    0x00000000001dd0f5     0x1677 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/extra/image.o
- .debug_info    0x00000000001de76c      0xdd5 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/extra/lowpass.o
- .debug_info    0x00000000001df541      0xe3f /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/extra/lowshelf.o
- .debug_info    0x00000000001e0380     0x1215 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/extra/moog~.o
- .debug_info    0x00000000001e1595      0xdd3 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/extra/notch.o
- .debug_info    0x00000000001e2368      0xaf1 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/extra/zerox~.o
- .debug_info    0x00000000001e2e59     0x7cf2 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
- .debug_info    0x00000000001eab4b     0x1b6b /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libtlsf.a(tlsf.o)
- .debug_info    0x00000000001ec6b6     0x7722 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
- .debug_info    0x00000000001f3dd8     0x7aea /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(helper.o)
- .debug_info    0x00000000001fb8c2      0x12a /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(strncpy.o)
+ .debug_info    0x0000000000000000     0x8327 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/pdbox.o
+ .debug_info    0x0000000000008327     0x7bf4 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/pdbox-net.o
+ .debug_info    0x000000000000ff1b     0x9a5e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/pdbox-func.o
+ .debug_info    0x0000000000019979     0x9421 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/pdbox-gui.o
+ .debug_info    0x0000000000022d9a     0x7b71 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/s_audio_rockbox.o
+ .debug_info    0x000000000002a90b     0x3ffb /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/d_arithmetic.o
+ .debug_info    0x000000000002e906      0xb80 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/d_ctl.o
+ .debug_info    0x000000000002f486     0x13e4 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/d_dac.o
+ .debug_info    0x000000000003086a     0x17d0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/d_fft.o
+ .debug_info    0x000000000003203a     0x16b7 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/d_fftroutine.o
+ .debug_info    0x00000000000336f1     0x8da8 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/d_global.o
+ .debug_info    0x000000000003c499      0xd62 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/d_imayer_fft.o
+ .debug_info    0x000000000003d1fb      0x9ac /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/d_mayer_fft.o
+ .debug_info    0x000000000003dba7     0x1adb /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/d_misc.o
+ .debug_info    0x000000000003f682      0x8b8 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/d_resample.o
+ .debug_info    0x000000000003ff3a     0xafb6 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/d_soundfile.o
+ .debug_info    0x000000000004aef0     0x2d5d /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/d_ugen.o
+ .debug_info    0x000000000004dc4d     0xa27a /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/g_all_guis.o
+ .debug_info    0x0000000000057ec7     0xd181 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/g_array.o
+ .debug_info    0x0000000000065048     0xab1b /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/g_bang.o
+ .debug_info    0x000000000006fb63     0xdcb9 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/g_canvas.o
+ .debug_info    0x000000000007d81c    0x100ce /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/g_editor.o
+ .debug_info    0x000000000008d8ea     0xbef9 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/g_graph.o
+ .debug_info    0x00000000000997e3     0x11a5 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/g_guiconnect.o
+ .debug_info    0x000000000009a988     0xb233 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/g_hdial.o
+ .debug_info    0x00000000000a5bbb     0xad25 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/g_hslider.o
+ .debug_info    0x00000000000b08e0     0x9fe0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/g_io.o
+ .debug_info    0x00000000000ba8c0     0x9fab /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/g_mycanvas.o
+ .debug_info    0x00000000000c486b     0xb4be /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/g_numbox.o
+ .debug_info    0x00000000000cfd29     0xabae /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/g_readwrite.o
+ .debug_info    0x00000000000da8d7     0x91da /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/g_rtext.o
+ .debug_info    0x00000000000e3ab1     0x2aa3 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/g_scalar.o
+ .debug_info    0x00000000000e6554     0xdac6 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/g_template.o
+ .debug_info    0x00000000000f401a     0xde62 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/g_text.o
+ .debug_info    0x0000000000101e7c     0xa5e8 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/g_toggle.o
+ .debug_info    0x000000000010c464     0x40f4 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/g_traversal.o
+ .debug_info    0x0000000000110558     0xb0d4 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/g_vdial.o
+ .debug_info    0x000000000011b62c     0xacd0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/g_vslider.o
+ .debug_info    0x00000000001262fc     0xa299 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/g_vumeter.o
+ .debug_info    0x0000000000130595     0x7d5c /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/m_atom.o
+ .debug_info    0x00000000001382f1     0xb49a /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/m_binbuf.o
+ .debug_info    0x000000000014378b     0xa09c /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/m_class.o
+ .debug_info    0x000000000014d827      0x340 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/m_conf.o
+ .debug_info    0x000000000014db67     0x8561 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/m_fixed.o
+ .debug_info    0x00000000001560c8     0x1213 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/m_glob.o
+ .debug_info    0x00000000001572db     0x7806 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/m_memory.o
+ .debug_info    0x000000000015eae1     0x28b7 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/m_obj.o
+ .debug_info    0x0000000000161398     0x18f2 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/m_pd.o
+ .debug_info    0x0000000000162c8a      0xd4b /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/m_sched.o
+ .debug_info    0x00000000001639d5     0x8ad6 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/s_audio.o
+ .debug_info    0x000000000016c4ab     0x75dc /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/s_file.o
+ .debug_info    0x0000000000173a87       0xdc /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/s_loader.o
+ .debug_info    0x0000000000173b63     0x8b1f /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/s_path.o
+ .debug_info    0x000000000017c682      0xf52 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/s_print.o
+ .debug_info    0x000000000017d5d4     0x12f7 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/x_acoustics.o
+ .debug_info    0x000000000017e8cb     0x3c64 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/x_arithmetic.o
+ .debug_info    0x000000000018252f     0xd0ee /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/x_connective.o
+ .debug_info    0x000000000018f61d      0xd96 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/x_interface.o
+ .debug_info    0x00000000001903b3     0x1508 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/x_misc.o
+ .debug_info    0x00000000001918bb     0x8643 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/x_net.o
+ .debug_info    0x0000000000199efe     0x920b /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/x_qlist.o
+ .debug_info    0x00000000001a3109     0x26cd /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/x_time.o
+ .debug_info    0x00000000001a57d6     0x10f0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/biquad~.o
+ .debug_info    0x00000000001a68c6      0xfa9 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/bp~.o
+ .debug_info    0x00000000001a786f      0xb3d /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/clip~.o
+ .debug_info    0x00000000001a83ac      0xad8 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/cos~.o
+ .debug_info    0x00000000001a8e84      0x487 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/cos_table.o
+ .debug_info    0x00000000001a930b      0xaae /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/dbtopow~.o
+ .debug_info    0x00000000001a9db9      0xaae /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/dbtorms~.o
+ .debug_info    0x00000000001aa867      0xda7 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/delread~.o
+ .debug_info    0x00000000001ab60e      0xd13 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/delwrite~.o
+ .debug_info    0x00000000001ac321      0xe5f /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/env~.o
+ .debug_info    0x00000000001ad180      0xaa9 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/ftom~.o
+ .debug_info    0x00000000001adc29      0xd37 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/hip~.o
+ .debug_info    0x00000000001ae960      0x3d8 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/intern_setup.o
+ .debug_info    0x00000000001aed38      0xbf7 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/line~.o
+ .debug_info    0x00000000001af92f      0xce7 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/lop~.o
+ .debug_info    0x00000000001b0616      0xa9d /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/mtof~.o
+ .debug_info    0x00000000001b10b3      0x9ec /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/noise~.o
+ .debug_info    0x00000000001b1a9f      0xc5b /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/osc~.o
+ .debug_info    0x00000000001b26fa      0xbeb /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/phasor~.o
+ .debug_info    0x00000000001b32e5      0xab4 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/powtodb~.o
+ .debug_info    0x00000000001b3d99      0xbaf /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/print~.o
+ .debug_info    0x00000000001b4948      0xad1 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/rmstodb~.o
+ .debug_info    0x00000000001b5419      0xda3 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/rsqrt~.o
+ .debug_info    0x00000000001b61bc      0xc0a /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/samphold~.o
+ .debug_info    0x00000000001b6dc6     0x8e9e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/sfread~.o
+ .debug_info    0x00000000001bfc64     0x8d42 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/sfwrite~.o
+ .debug_info    0x00000000001c89a6      0xb46 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/snapshot~.o
+ .debug_info    0x00000000001c94ec      0xbfd /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/sqrt~.o
+ .debug_info    0x00000000001ca0e9      0xe71 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/tabosc4~.o
+ .debug_info    0x00000000001caf5a     0x1131 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/tabplay~.o
+ .debug_info    0x00000000001cc08b      0xa8a /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/tabread.o
+ .debug_info    0x00000000001ccb15      0xcd7 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/tabread4~.o
+ .debug_info    0x00000000001cd7ec      0xc98 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/tabread~.o
+ .debug_info    0x00000000001ce484      0xb91 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/tabreceive~.o
+ .debug_info    0x00000000001cf015      0xdb0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/tabsend~.o
+ .debug_info    0x00000000001cfdc5      0xc7c /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/tabwrite.o
+ .debug_info    0x00000000001d0a41      0xfc5 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/tabwrite~.o
+ .debug_info    0x00000000001d1a06      0xe6c /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/threshold~.o
+ .debug_info    0x00000000001d2872      0xde6 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/vcf~.o
+ .debug_info    0x00000000001d3658      0xd44 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/vd~.o
+ .debug_info    0x00000000001d439c      0xe5e /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/vline~.o
+ .debug_info    0x00000000001d51fa      0xc04 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/vsnapshot~.o
+ .debug_info    0x00000000001d5dfe      0xa19 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/wrap~.o
+ .debug_info    0x00000000001d6817      0xdba /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/extra/bandpass.o
+ .debug_info    0x00000000001d75d1      0xe93 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/extra/equalizer.o
+ .debug_info    0x00000000001d8464     0x2132 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/extra/gcanvas.o
+ .debug_info    0x00000000001da596      0xdd5 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/extra/highpass.o
+ .debug_info    0x00000000001db36b      0xe3f /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/extra/highshelf.o
+ .debug_info    0x00000000001dc1aa     0x1194 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/extra/hlshelf.o
+ .debug_info    0x00000000001dd33e     0x1677 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/extra/image.o
+ .debug_info    0x00000000001de9b5      0xdd5 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/extra/lowpass.o
+ .debug_info    0x00000000001df78a      0xe3f /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/extra/lowshelf.o
+ .debug_info    0x00000000001e05c9     0x1215 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/extra/moog~.o
+ .debug_info    0x00000000001e17de      0xdd3 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/extra/notch.o
+ .debug_info    0x00000000001e25b1      0xaf1 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/extra/zerox~.o
+ .debug_info    0x00000000001e30a2     0x7d01 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+ .debug_info    0x00000000001eada3     0x1b6b /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libtlsf.a(tlsf.o)
+ .debug_info    0x00000000001ec90e     0x7731 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
+ .debug_info    0x00000000001f403f     0x7af9 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(helper.o)
+ .debug_info    0x00000000001fbb38      0x12a /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(strncpy.o)
 
 .debug_abbrev   0x0000000000000000    0x1ef19
  *(.debug_abbrev)
@@ -4166,251 +4166,251 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000    0x10eb5
+.debug_str      0x0000000000000000    0x10ebf
  *(.debug_str)
- .debug_str     0x0000000000000000    0x10eb5 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/pdbox.o
-                                       0x5466 (size before relaxing)
- .debug_str     0x0000000000010eb5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/pdbox-net.o
-                                       0x509d (size before relaxing)
- .debug_str     0x0000000000010eb5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/pdbox-func.o
-                                       0x571b (size before relaxing)
- .debug_str     0x0000000000010eb5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/pdbox-gui.o
-                                       0x523c (size before relaxing)
- .debug_str     0x0000000000010eb5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/s_audio_rockbox.o
-                                       0x514e (size before relaxing)
- .debug_str     0x0000000000010eb5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/d_arithmetic.o
+ .debug_str     0x0000000000000000    0x10ebf /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/pdbox.o
+                                       0x5470 (size before relaxing)
+ .debug_str     0x0000000000010ebf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/pdbox-net.o
+                                       0x50a7 (size before relaxing)
+ .debug_str     0x0000000000010ebf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/pdbox-func.o
+                                       0x5725 (size before relaxing)
+ .debug_str     0x0000000000010ebf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/pdbox-gui.o
+                                       0x5246 (size before relaxing)
+ .debug_str     0x0000000000010ebf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/s_audio_rockbox.o
+                                       0x5158 (size before relaxing)
+ .debug_str     0x0000000000010ebf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/d_arithmetic.o
                                        0x10a8 (size before relaxing)
- .debug_str     0x0000000000010eb5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/d_ctl.o
+ .debug_str     0x0000000000010ebf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/d_ctl.o
                                         0xbf6 (size before relaxing)
- .debug_str     0x0000000000010eb5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/d_dac.o
+ .debug_str     0x0000000000010ebf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/d_dac.o
                                         0xda8 (size before relaxing)
- .debug_str     0x0000000000010eb5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/d_fft.o
+ .debug_str     0x0000000000010ebf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/d_fft.o
                                         0xcaf (size before relaxing)
- .debug_str     0x0000000000010eb5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/d_fftroutine.o
+ .debug_str     0x0000000000010ebf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/d_fftroutine.o
                                         0xc0e (size before relaxing)
- .debug_str     0x0000000000010eb5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/d_global.o
-                                       0x548e (size before relaxing)
- .debug_str     0x0000000000010eb5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/d_imayer_fft.o
+ .debug_str     0x0000000000010ebf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/d_global.o
+                                       0x5498 (size before relaxing)
+ .debug_str     0x0000000000010ebf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/d_imayer_fft.o
                                         0x986 (size before relaxing)
- .debug_str     0x0000000000010eb5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/d_mayer_fft.o
+ .debug_str     0x0000000000010ebf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/d_mayer_fft.o
                                         0x15c (size before relaxing)
- .debug_str     0x0000000000010eb5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/d_misc.o
+ .debug_str     0x0000000000010ebf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/d_misc.o
                                        0x1270 (size before relaxing)
- .debug_str     0x0000000000010eb5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/d_resample.o
+ .debug_str     0x0000000000010ebf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/d_resample.o
                                         0x327 (size before relaxing)
- .debug_str     0x0000000000010eb5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/d_soundfile.o
-                                       0x5a3e (size before relaxing)
- .debug_str     0x0000000000010eb5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/d_ugen.o
+ .debug_str     0x0000000000010ebf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/d_soundfile.o
+                                       0x5a48 (size before relaxing)
+ .debug_str     0x0000000000010ebf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/d_ugen.o
                                        0x1595 (size before relaxing)
- .debug_str     0x0000000000010eb5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/g_all_guis.o
-                                       0x5cc3 (size before relaxing)
- .debug_str     0x0000000000010eb5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/g_array.o
-                                       0x60f5 (size before relaxing)
- .debug_str     0x0000000000010eb5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/g_bang.o
-                                       0x5f2b (size before relaxing)
- .debug_str     0x0000000000010eb5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/g_canvas.o
-                                       0x6706 (size before relaxing)
- .debug_str     0x0000000000010eb5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/g_editor.o
-                                       0x6995 (size before relaxing)
- .debug_str     0x0000000000010eb5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/g_graph.o
-                                       0x5edf (size before relaxing)
- .debug_str     0x0000000000010eb5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/g_guiconnect.o
-                                        0xfdf (size before relaxing)
- .debug_str     0x0000000000010eb5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/g_hdial.o
+ .debug_str     0x0000000000010ebf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/g_all_guis.o
+                                       0x5ccd (size before relaxing)
+ .debug_str     0x0000000000010ebf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/g_array.o
+                                       0x60ff (size before relaxing)
+ .debug_str     0x0000000000010ebf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/g_bang.o
+                                       0x5f35 (size before relaxing)
+ .debug_str     0x0000000000010ebf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/g_canvas.o
+                                       0x6710 (size before relaxing)
+ .debug_str     0x0000000000010ebf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/g_editor.o
+                                       0x699f (size before relaxing)
+ .debug_str     0x0000000000010ebf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/g_graph.o
                                        0x5ee9 (size before relaxing)
- .debug_str     0x0000000000010eb5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/g_hslider.o
-                                       0x5f39 (size before relaxing)
- .debug_str     0x0000000000010eb5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/g_io.o
-                                       0x5c52 (size before relaxing)
- .debug_str     0x0000000000010eb5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/g_mycanvas.o
-                                       0x5db4 (size before relaxing)
- .debug_str     0x0000000000010eb5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/g_numbox.o
-                                       0x60a4 (size before relaxing)
- .debug_str     0x0000000000010eb5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/g_readwrite.o
-                                       0x55c8 (size before relaxing)
- .debug_str     0x0000000000010eb5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/g_rtext.o
-                                       0x5993 (size before relaxing)
- .debug_str     0x0000000000010eb5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/g_scalar.o
+ .debug_str     0x0000000000010ebf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/g_guiconnect.o
+                                        0xfdf (size before relaxing)
+ .debug_str     0x0000000000010ebf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/g_hdial.o
+                                       0x5ef3 (size before relaxing)
+ .debug_str     0x0000000000010ebf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/g_hslider.o
+                                       0x5f43 (size before relaxing)
+ .debug_str     0x0000000000010ebf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/g_io.o
+                                       0x5c5c (size before relaxing)
+ .debug_str     0x0000000000010ebf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/g_mycanvas.o
+                                       0x5dbe (size before relaxing)
+ .debug_str     0x0000000000010ebf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/g_numbox.o
+                                       0x60ae (size before relaxing)
+ .debug_str     0x0000000000010ebf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/g_readwrite.o
+                                       0x55d2 (size before relaxing)
+ .debug_str     0x0000000000010ebf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/g_rtext.o
+                                       0x599d (size before relaxing)
+ .debug_str     0x0000000000010ebf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/g_scalar.o
                                        0x14fd (size before relaxing)
- .debug_str     0x0000000000010eb5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/g_template.o
-                                       0x63b5 (size before relaxing)
- .debug_str     0x0000000000010eb5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/g_text.o
-                                       0x6568 (size before relaxing)
- .debug_str     0x0000000000010eb5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/g_toggle.o
-                                       0x5e93 (size before relaxing)
- .debug_str     0x0000000000010eb5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/g_traversal.o
+ .debug_str     0x0000000000010ebf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/g_template.o
+                                       0x63bf (size before relaxing)
+ .debug_str     0x0000000000010ebf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/g_text.o
+                                       0x6572 (size before relaxing)
+ .debug_str     0x0000000000010ebf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/g_toggle.o
+                                       0x5e9d (size before relaxing)
+ .debug_str     0x0000000000010ebf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/g_traversal.o
                                        0x16c3 (size before relaxing)
- .debug_str     0x0000000000010eb5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/g_vdial.o
-                                       0x5ed8 (size before relaxing)
- .debug_str     0x0000000000010eb5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/g_vslider.o
-                                       0x5f31 (size before relaxing)
- .debug_str     0x0000000000010eb5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/g_vumeter.o
-                                       0x5dca (size before relaxing)
- .debug_str     0x0000000000010eb5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/m_atom.o
-                                       0x4b0e (size before relaxing)
- .debug_str     0x0000000000010eb5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/m_binbuf.o
-                                       0x4f7d (size before relaxing)
- .debug_str     0x0000000000010eb5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/m_class.o
-                                       0x59ae (size before relaxing)
- .debug_str     0x0000000000010eb5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/m_conf.o
+ .debug_str     0x0000000000010ebf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/g_vdial.o
+                                       0x5ee2 (size before relaxing)
+ .debug_str     0x0000000000010ebf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/g_vslider.o
+                                       0x5f3b (size before relaxing)
+ .debug_str     0x0000000000010ebf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/g_vumeter.o
+                                       0x5dd4 (size before relaxing)
+ .debug_str     0x0000000000010ebf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/m_atom.o
+                                       0x4b18 (size before relaxing)
+ .debug_str     0x0000000000010ebf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/m_binbuf.o
+                                       0x4f87 (size before relaxing)
+ .debug_str     0x0000000000010ebf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/m_class.o
+                                       0x59b8 (size before relaxing)
+ .debug_str     0x0000000000010ebf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/m_conf.o
                                         0x398 (size before relaxing)
- .debug_str     0x0000000000010eb5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/m_fixed.o
-                                       0x551e (size before relaxing)
- .debug_str     0x0000000000010eb5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/m_glob.o
+ .debug_str     0x0000000000010ebf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/m_fixed.o
+                                       0x5528 (size before relaxing)
+ .debug_str     0x0000000000010ebf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/m_glob.o
                                         0xe39 (size before relaxing)
- .debug_str     0x0000000000010eb5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/m_memory.o
-                                       0x4900 (size before relaxing)
- .debug_str     0x0000000000010eb5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/m_obj.o
+ .debug_str     0x0000000000010ebf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/m_memory.o
+                                       0x490a (size before relaxing)
+ .debug_str     0x0000000000010ebf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/m_obj.o
                                        0x12d1 (size before relaxing)
- .debug_str     0x0000000000010eb5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/m_pd.o
+ .debug_str     0x0000000000010ebf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/m_pd.o
                                         0xf9f (size before relaxing)
- .debug_str     0x0000000000010eb5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/m_sched.o
+ .debug_str     0x0000000000010ebf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/m_sched.o
                                         0xcd9 (size before relaxing)
- .debug_str     0x0000000000010eb5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/s_audio.o
-                                       0x5614 (size before relaxing)
- .debug_str     0x0000000000010eb5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/s_file.o
-                                       0x48c4 (size before relaxing)
- .debug_str     0x0000000000010eb5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/s_loader.o
+ .debug_str     0x0000000000010ebf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/s_audio.o
+                                       0x561e (size before relaxing)
+ .debug_str     0x0000000000010ebf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/s_file.o
+                                       0x48ce (size before relaxing)
+ .debug_str     0x0000000000010ebf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/s_loader.o
                                         0x1ab (size before relaxing)
- .debug_str     0x0000000000010eb5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/s_path.o
-                                       0x5551 (size before relaxing)
- .debug_str     0x0000000000010eb5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/s_print.o
+ .debug_str     0x0000000000010ebf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/s_path.o
+                                       0x555b (size before relaxing)
+ .debug_str     0x0000000000010ebf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/s_print.o
                                         0xc67 (size before relaxing)
- .debug_str     0x0000000000010eb5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/x_acoustics.o
+ .debug_str     0x0000000000010ebf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/x_acoustics.o
                                         0xb84 (size before relaxing)
- .debug_str     0x0000000000010eb5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/x_arithmetic.o
+ .debug_str     0x0000000000010ebf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/x_arithmetic.o
                                        0x1286 (size before relaxing)
- .debug_str     0x0000000000010eb5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/x_connective.o
-                                       0x5df1 (size before relaxing)
- .debug_str     0x0000000000010eb5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/x_interface.o
+ .debug_str     0x0000000000010ebf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/x_connective.o
+                                       0x5dfb (size before relaxing)
+ .debug_str     0x0000000000010ebf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/x_interface.o
                                         0xc98 (size before relaxing)
- .debug_str     0x0000000000010eb5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/x_misc.o
+ .debug_str     0x0000000000010ebf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/x_misc.o
                                         0xe05 (size before relaxing)
- .debug_str     0x0000000000010eb5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/x_net.o
-                                       0x54ed (size before relaxing)
- .debug_str     0x0000000000010eb5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/x_qlist.o
-                                       0x55e0 (size before relaxing)
- .debug_str     0x0000000000010eb5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/x_time.o
+ .debug_str     0x0000000000010ebf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/x_net.o
+                                       0x54f7 (size before relaxing)
+ .debug_str     0x0000000000010ebf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/x_qlist.o
+                                       0x55ea (size before relaxing)
+ .debug_str     0x0000000000010ebf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/src/x_time.o
                                        0x108b (size before relaxing)
- .debug_str     0x0000000000010eb5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/biquad~.o
+ .debug_str     0x0000000000010ebf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/biquad~.o
                                         0xd55 (size before relaxing)
- .debug_str     0x0000000000010eb5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/bp~.o
+ .debug_str     0x0000000000010ebf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/bp~.o
                                         0xc5b (size before relaxing)
- .debug_str     0x0000000000010eb5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/clip~.o
+ .debug_str     0x0000000000010ebf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/clip~.o
                                         0xba7 (size before relaxing)
- .debug_str     0x0000000000010eb5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/cos~.o
+ .debug_str     0x0000000000010ebf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/cos~.o
                                         0xb9d (size before relaxing)
- .debug_str     0x0000000000010eb5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/cos_table.o
+ .debug_str     0x0000000000010ebf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/cos_table.o
                                         0x92e (size before relaxing)
- .debug_str     0x0000000000010eb5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/dbtopow~.o
+ .debug_str     0x0000000000010ebf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/dbtopow~.o
                                         0xb6d (size before relaxing)
- .debug_str     0x0000000000010eb5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/dbtorms~.o
+ .debug_str     0x0000000000010ebf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/dbtorms~.o
                                         0xb6d (size before relaxing)
- .debug_str     0x0000000000010eb5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/delread~.o
+ .debug_str     0x0000000000010ebf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/delread~.o
                                         0xcde (size before relaxing)
- .debug_str     0x0000000000010eb5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/delwrite~.o
+ .debug_str     0x0000000000010ebf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/delwrite~.o
                                         0xc88 (size before relaxing)
- .debug_str     0x0000000000010eb5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/env~.o
+ .debug_str     0x0000000000010ebf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/env~.o
                                         0xc8e (size before relaxing)
- .debug_str     0x0000000000010eb5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/ftom~.o
+ .debug_str     0x0000000000010ebf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/ftom~.o
                                         0xb58 (size before relaxing)
- .debug_str     0x0000000000010eb5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/hip~.o
+ .debug_str     0x0000000000010ebf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/hip~.o
                                         0xc0e (size before relaxing)
- .debug_str     0x0000000000010eb5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/intern_setup.o
+ .debug_str     0x0000000000010ebf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/intern_setup.o
                                         0x4a1 (size before relaxing)
- .debug_str     0x0000000000010eb5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/line~.o
+ .debug_str     0x0000000000010ebf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/line~.o
                                         0xbb6 (size before relaxing)
- .debug_str     0x0000000000010eb5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/lop~.o
+ .debug_str     0x0000000000010ebf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/lop~.o
                                         0xc03 (size before relaxing)
- .debug_str     0x0000000000010eb5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/mtof~.o
+ .debug_str     0x0000000000010ebf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/mtof~.o
                                         0xb50 (size before relaxing)
- .debug_str     0x0000000000010eb5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/noise~.o
+ .debug_str     0x0000000000010ebf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/noise~.o
                                         0xb11 (size before relaxing)
- .debug_str     0x0000000000010eb5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/osc~.o
+ .debug_str     0x0000000000010ebf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/osc~.o
                                         0xbcf (size before relaxing)
- .debug_str     0x0000000000010eb5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/phasor~.o
+ .debug_str     0x0000000000010ebf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/phasor~.o
                                         0xbe7 (size before relaxing)
- .debug_str     0x0000000000010eb5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/powtodb~.o
+ .debug_str     0x0000000000010ebf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/powtodb~.o
                                         0xb65 (size before relaxing)
- .debug_str     0x0000000000010eb5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/print~.o
+ .debug_str     0x0000000000010ebf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/print~.o
                                         0xbc8 (size before relaxing)
- .debug_str     0x0000000000010eb5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/rmstodb~.o
+ .debug_str     0x0000000000010ebf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/rmstodb~.o
                                         0xb6d (size before relaxing)
- .debug_str     0x0000000000010eb5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/rsqrt~.o
+ .debug_str     0x0000000000010ebf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/rsqrt~.o
                                         0xba7 (size before relaxing)
- .debug_str     0x0000000000010eb5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/samphold~.o
+ .debug_str     0x0000000000010ebf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/samphold~.o
                                         0xc0c (size before relaxing)
- .debug_str     0x0000000000010eb5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/sfread~.o
-                                       0x5891 (size before relaxing)
- .debug_str     0x0000000000010eb5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/sfwrite~.o
-                                       0x58ce (size before relaxing)
- .debug_str     0x0000000000010eb5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/snapshot~.o
+ .debug_str     0x0000000000010ebf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/sfread~.o
+                                       0x589b (size before relaxing)
+ .debug_str     0x0000000000010ebf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/sfwrite~.o
+                                       0x58d8 (size before relaxing)
+ .debug_str     0x0000000000010ebf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/snapshot~.o
                                         0xc14 (size before relaxing)
- .debug_str     0x0000000000010eb5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/sqrt~.o
+ .debug_str     0x0000000000010ebf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/sqrt~.o
                                         0xb82 (size before relaxing)
- .debug_str     0x0000000000010eb5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/tabosc4~.o
+ .debug_str     0x0000000000010ebf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/tabosc4~.o
                                         0xcc2 (size before relaxing)
- .debug_str     0x0000000000010eb5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/tabplay~.o
+ .debug_str     0x0000000000010ebf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/tabplay~.o
                                         0xe36 (size before relaxing)
- .debug_str     0x0000000000010eb5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/tabread.o
+ .debug_str     0x0000000000010ebf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/tabread.o
                                         0xb8a (size before relaxing)
- .debug_str     0x0000000000010eb5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/tabread4~.o
+ .debug_str     0x0000000000010ebf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/tabread4~.o
                                         0xc75 (size before relaxing)
- .debug_str     0x0000000000010eb5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/tabread~.o
+ .debug_str     0x0000000000010ebf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/tabread~.o
                                         0xc59 (size before relaxing)
- .debug_str     0x0000000000010eb5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/tabreceive~.o
+ .debug_str     0x0000000000010ebf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/tabreceive~.o
                                         0xc19 (size before relaxing)
- .debug_str     0x0000000000010eb5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/tabsend~.o
+ .debug_str     0x0000000000010ebf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/tabsend~.o
                                         0xc88 (size before relaxing)
- .debug_str     0x0000000000010eb5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/tabwrite.o
+ .debug_str     0x0000000000010ebf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/tabwrite.o
                                         0xc25 (size before relaxing)
- .debug_str     0x0000000000010eb5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/tabwrite~.o
+ .debug_str     0x0000000000010ebf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/tabwrite~.o
                                         0xd2a (size before relaxing)
- .debug_str     0x0000000000010eb5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/threshold~.o
+ .debug_str     0x0000000000010ebf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/threshold~.o
                                         0xd0b (size before relaxing)
- .debug_str     0x0000000000010eb5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/vcf~.o
+ .debug_str     0x0000000000010ebf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/vcf~.o
                                         0xc37 (size before relaxing)
- .debug_str     0x0000000000010eb5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/vd~.o
+ .debug_str     0x0000000000010ebf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/vd~.o
                                         0xc98 (size before relaxing)
- .debug_str     0x0000000000010eb5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/vline~.o
+ .debug_str     0x0000000000010ebf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/vline~.o
                                         0xca3 (size before relaxing)
- .debug_str     0x0000000000010eb5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/vsnapshot~.o
+ .debug_str     0x0000000000010ebf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/vsnapshot~.o
                                         0xc0e (size before relaxing)
- .debug_str     0x0000000000010eb5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/wrap~.o
+ .debug_str     0x0000000000010ebf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/intern/wrap~.o
                                         0xb22 (size before relaxing)
- .debug_str     0x0000000000010eb5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/extra/bandpass.o
+ .debug_str     0x0000000000010ebf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/extra/bandpass.o
                                         0xcb3 (size before relaxing)
- .debug_str     0x0000000000010eb5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/extra/equalizer.o
+ .debug_str     0x0000000000010ebf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/extra/equalizer.o
                                         0xca7 (size before relaxing)
- .debug_str     0x0000000000010eb5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/extra/gcanvas.o
+ .debug_str     0x0000000000010ebf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/extra/gcanvas.o
                                        0x12a5 (size before relaxing)
- .debug_str     0x0000000000010eb5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/extra/highpass.o
+ .debug_str     0x0000000000010ebf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/extra/highpass.o
                                         0xcb3 (size before relaxing)
- .debug_str     0x0000000000010eb5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/extra/highshelf.o
+ .debug_str     0x0000000000010ebf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/extra/highshelf.o
                                         0xcbe (size before relaxing)
- .debug_str     0x0000000000010eb5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/extra/hlshelf.o
+ .debug_str     0x0000000000010ebf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/extra/hlshelf.o
                                         0xcf7 (size before relaxing)
- .debug_str     0x0000000000010eb5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/extra/image.o
+ .debug_str     0x0000000000010ebf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/extra/image.o
                                        0x1193 (size before relaxing)
- .debug_str     0x0000000000010eb5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/extra/lowpass.o
+ .debug_str     0x0000000000010ebf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/extra/lowpass.o
                                         0xcae (size before relaxing)
- .debug_str     0x0000000000010eb5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/extra/lowshelf.o
+ .debug_str     0x0000000000010ebf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/extra/lowshelf.o
                                         0xcb9 (size before relaxing)
- .debug_str     0x0000000000010eb5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/extra/moog~.o
+ .debug_str     0x0000000000010ebf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/extra/moog~.o
                                         0xce4 (size before relaxing)
- .debug_str     0x0000000000010eb5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/extra/notch.o
+ .debug_str     0x0000000000010ebf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/extra/notch.o
                                         0xca4 (size before relaxing)
- .debug_str     0x0000000000010eb5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/extra/zerox~.o
+ .debug_str     0x0000000000010ebf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/pdbox/PDa/extra/zerox~.o
                                         0xbb8 (size before relaxing)
- .debug_str     0x0000000000010eb5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
-                                       0x51cb (size before relaxing)
- .debug_str     0x0000000000010eb5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libtlsf.a(tlsf.o)
+ .debug_str     0x0000000000010ebf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+                                       0x51d5 (size before relaxing)
+ .debug_str     0x0000000000010ebf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/lib/libtlsf.a(tlsf.o)
                                         0x410 (size before relaxing)
- .debug_str     0x0000000000010eb5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
-                                       0x4872 (size before relaxing)
- .debug_str     0x0000000000010eb5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(helper.o)
-                                       0x51c2 (size before relaxing)
- .debug_str     0x0000000000010eb5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(strncpy.o)
+ .debug_str     0x0000000000010ebf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(gcc-support.o)
+                                       0x487c (size before relaxing)
+ .debug_str     0x0000000000010ebf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(helper.o)
+                                       0x51cc (size before relaxing)
+ .debug_str     0x0000000000010ebf        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(strncpy.o)
                                         0x19c (size before relaxing)
 
 .debug_loc

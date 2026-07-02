@@ -11,9 +11,10 @@ import subprocess
 import tempfile
 import colorsys
 import hashlib
+from datetime import datetime
 from copy import deepcopy
 
-from PIL import Image, ImageColor, ImageDraw, ImageFilter, ImageOps, UnidentifiedImageError
+from PIL import Image, ImageColor, ImageDraw, ImageFilter, ImageFont, ImageOps, UnidentifiedImageError
 
 from services.file_safety import atomic_write_json, atomic_write_text
 from services.greyscale_images import render_2bpp_greyscale, should_render_2bpp_greyscale
@@ -41,12 +42,15 @@ DEFAULT_COLORS = {
 
 RIGHT_PANE_MODES = ("miniplayer", "full art")
 DEFAULT_RIGHT_PANE_MODE = "miniplayer"
+DEFAULT_WALLPAPER_CYCLE_ENABLED = False
 RIGHT_PANE_VIDEO_FRAME_COUNT = 24
 RIGHT_PANE_VIDEO_FPS = 12
 RIGHT_PANE_VIDEO_OVERLAY_X_OFFSET = 4
 RENDER_BUDGET_CLOCK_LAYER_LIMIT = 6
 RENDER_BUDGET_TOTAL_VIEWPORT_LIMIT = 90
 RENDER_BUDGET_FULLSCREEN_BITMAP_LIMIT = 32
+WEATHER_LOCKSCREEN_ART_NAME = "WeatherLockArt"
+WEATHER_LOCKSCREEN_ART_HEIGHT = 14
 
 DEFAULT_LOCKSCREEN_CLOCK = {
     "font_rel": "fonts/66-Cantarell-Light.fnt",
@@ -377,6 +381,7 @@ class ThemeDesignerService:
             "charging_wallpaper_source": "",
             "right_pane_wallpaper_source": "",
             "right_pane_video_source": "",
+            "wallpaper_cycle_enabled": DEFAULT_WALLPAPER_CYCLE_ENABLED,
             "show_line_separators": True,
             "lockscreen_clock": deepcopy(DEFAULT_LOCKSCREEN_CLOCK),
             "color_profile": "default",
@@ -528,7 +533,7 @@ class ThemeDesignerService:
         if not normalized.get("id"):
             raise ValueError("Variant must be saved before deployment")
         bundle = self._themes.bundle_for_theme(normalized["base_theme_id"], repo_root)
-        stage_root = self._stage_variant(repo_root, normalized, bundle)
+        stage_root = self._stage_variant(repo_root, profile, normalized, bundle)
         theme_name = normalized["id"]
         sbs_skin_name = self._sbs_skin_name(normalized)
         font_rel = normalized["font_rel"]
@@ -629,7 +634,7 @@ class ThemeDesignerService:
         normalized["id"] = PREVIEW_THEME_ID
         return self.build_bundle(repo_root, profile, normalized)
 
-    def _stage_variant(self, repo_root, variant, base_bundle):
+    def _stage_variant(self, repo_root, profile, variant, base_bundle):
         theme_name = variant["id"]
         sbs_skin_name = self._sbs_skin_name(variant)
         generated_root = self._generated_dir(repo_root)
@@ -649,6 +654,7 @@ class ThemeDesignerService:
         os.makedirs(os.path.join(stage_root, "icons"), exist_ok=True)
 
         base_dir = self._base_asset_dir(repo_root, variant["base_theme_id"])
+        weather_summary = self._weather_lockscreen_summary(repo_root, profile, variant)
         staged_wps_dir = os.path.join(stage_root, "wps", theme_name)
         shutil.copytree(base_dir, staged_wps_dir)
 
@@ -665,8 +671,22 @@ class ThemeDesignerService:
             shutil.copytree(staged_wps_dir, staged_sbs_wps_dir)
         self._write_iconset(stage_root, variant, base_bundle)
         self._write_cfg(stage_root, variant, base_bundle)
-        self._copy_template(base_bundle, "wps", stage_root, f"wps/{theme_name}.wps", variant)
-        self._copy_template(base_bundle, "sbs", stage_root, f"wps/{sbs_skin_name}.sbs", variant)
+        self._copy_template(
+            base_bundle,
+            "wps",
+            stage_root,
+            f"wps/{theme_name}.wps",
+            variant,
+            weather_summary=weather_summary,
+        )
+        self._copy_template(
+            base_bundle,
+            "sbs",
+            stage_root,
+            f"wps/{sbs_skin_name}.sbs",
+            variant,
+            weather_summary=weather_summary,
+        )
         self._apply_right_pane_video_skin(os.path.join(stage_root, f"wps/{sbs_skin_name}.sbs"), variant)
         self._copy_template(base_bundle, "fms", stage_root, f"wps/{theme_name}.fms", variant)
         self._write_backdrop(stage_root, variant, staged_wps_dir)
@@ -831,6 +851,9 @@ class ThemeDesignerService:
             base_default=variant.get("base_right_pane_mode", DEFAULT_RIGHT_PANE_MODE),
         )
         overrides["ipone right pane"] = right_pane_mode
+        if variant.get("wallpaper_cycle_enabled", DEFAULT_WALLPAPER_CYCLE_ENABLED):
+            overrides["ipone lock wallpaper"] = "shuffle"
+            overrides["ipone charge wallpaper"] = "rotate"
 
         written = set()
         output = []
@@ -870,7 +893,7 @@ class ThemeDesignerService:
         path = os.path.join(stage_root, "themes", f"{variant['id']}.cfg")
         atomic_write_text(path, "".join(output))
 
-    def _copy_template(self, base_bundle, kind, stage_root, dest_rel, variant=None):
+    def _copy_template(self, base_bundle, kind, stage_root, dest_rel, variant=None, weather_summary=None):
         asset = next((item for item in base_bundle["assets"] if item["kind"] == kind), None)
         if not asset:
             raise ValueError(f"Base theme {kind} missing")
@@ -880,7 +903,7 @@ class ThemeDesignerService:
         if target.lower().endswith((".wps", ".sbs", ".fms")):
             self._apply_template_color_overrides(target, base_bundle["id"], stage_root, variant)
         if variant and target.lower().endswith((".wps", ".sbs")):
-            self._apply_lockscreen_clock_overrides(target, variant)
+            self._apply_lockscreen_clock_overrides(target, variant, weather_summary=weather_summary)
         if variant and target.lower().endswith(".sbs"):
             self._apply_designer_sbs_layout_overrides(target, variant)
 
@@ -1039,6 +1062,7 @@ class ThemeDesignerService:
                 "right_pane_video_source": variant.get("right_pane_video_source", ""),
                 "right_pane_offset_x": variant.get("right_pane_offset_x", 0),
                 "right_pane_offset_y": variant.get("right_pane_offset_y", 0),
+                "wallpaper_cycle_enabled": bool(variant.get("wallpaper_cycle_enabled", DEFAULT_WALLPAPER_CYCLE_ENABLED)),
                 "show_line_separators": variant.get("show_line_separators", True),
                 "lockscreen_clock": deepcopy(variant.get("lockscreen_clock", DEFAULT_LOCKSCREEN_CLOCK)),
                 "color_profile": variant.get("color_profile", "custom"),
@@ -1102,6 +1126,10 @@ class ThemeDesignerService:
         base["charging_wallpaper_source"] = os.path.abspath(str(item.get("charging_wallpaper_source") or "").strip()) if item.get("charging_wallpaper_source") else ""
         base["right_pane_wallpaper_source"] = os.path.abspath(raw_right_pane_wallpaper_source) if raw_right_pane_wallpaper_source else ""
         base["right_pane_video_source"] = os.path.abspath(raw_right_pane_video_source) if raw_right_pane_video_source else ""
+        base["wallpaper_cycle_enabled"] = self._normalize_bool(
+            item.get("wallpaper_cycle_enabled"),
+            DEFAULT_WALLPAPER_CYCLE_ENABLED,
+        )
         base["color_profile"] = str(item.get("color_profile") or base.get("color_profile") or "custom").strip() or "custom"
         appearance_mode = str(item.get("appearance_mode") or base.get("appearance_mode") or "dark").strip().lower()
         base["appearance_mode"] = "light" if appearance_mode == "light" else "dark"
@@ -1752,6 +1780,19 @@ class ThemeDesignerService:
         return DEFAULT_RIGHT_PANE_MODE
 
     @staticmethod
+    def _normalize_bool(value, default=False):
+        if isinstance(value, bool):
+            return value
+        if value is None:
+            return bool(default)
+        text = str(value).strip().lower()
+        if text in {"1", "true", "yes", "on", "enabled"}:
+            return True
+        if text in {"0", "false", "no", "off", "disabled"}:
+            return False
+        return bool(default)
+
+    @staticmethod
     def _int_between(value, low, high, default):
         try:
             number = int(value)
@@ -1773,6 +1814,262 @@ class ThemeDesignerService:
         if any(token in font_name for token in LOCKSCREEN_CLOCK_FONT_REJECT_TOKENS):
             return LOCKSCREEN_CLOCK_FONT_FALLBACK
         return font_rel
+
+    @staticmethod
+    def _weather_forecast_path(repo_root, profile):
+        candidates = []
+        device_mount = str((profile or {}).get("device_mount_path") or "").strip()
+        if device_mount:
+            candidates.append(
+                os.path.join(
+                    os.path.abspath(device_mount),
+                    ".rockbox",
+                    "rockpod",
+                    "weather",
+                    "forecast.tsv",
+                )
+            )
+        candidates.append(
+            os.path.join(
+                os.path.abspath(repo_root),
+                ".rockbox",
+                "rockpod",
+                "weather",
+                "forecast.tsv",
+            )
+        )
+        for path in candidates:
+            if os.path.isfile(path):
+                return path
+        return ""
+
+    @staticmethod
+    def _weather_code_palette(code):
+        code = str(code or "").strip().lower()
+        if code == "clear":
+            return ("F8D258", "FFF0A8")
+        if code in {"partly_cloudy", "cloudy"}:
+            return ("DADCE2", "B2B8C8")
+        if code in {"drizzle", "rain"}:
+            return ("6CC4FF", "B9DFFF")
+        if code in {"snow", "sleet"}:
+            return ("F4F8FF", "D4E1F0")
+        if code == "fog":
+            return ("B8BEC8", "8D96A3")
+        if code == "thunderstorm":
+            return ("FFD45A", "9D7AE6")
+        if code == "wind":
+            return ("C8D0D8", "9AA5B1")
+        return ("F7F4FA", "C8BED7")
+
+    def _weather_lockscreen_summary(self, repo_root, profile, variant):
+        forecast_path = self._weather_forecast_path(repo_root, profile)
+        if not forecast_path:
+            return None
+        try:
+            with open(forecast_path, "r", encoding="utf-8", errors="replace") as handle:
+                lines = [line.strip() for line in handle if line.strip()]
+        except OSError:
+            return None
+        if len(lines) < 2:
+            return None
+
+        header = [field.strip() for field in lines[0].split("\t")]
+        if not header or header[0] != "rockpod_weather_v1":
+            return None
+        units = str(header[7] if len(header) > 7 else "metric").strip().lower()
+        daily = None
+        hourly = []
+        for line in lines[1:]:
+            fields = [field.strip() for field in line.split("\t")]
+            if not fields:
+                continue
+            if fields[0] == "hourly":
+                hourly.append(fields)
+            elif daily is None:
+                daily = fields
+
+        row = None
+        if hourly:
+            def hourly_key(fields):
+                stamp = fields[1] if len(fields) > 1 else ""
+                try:
+                    return datetime.strptime(stamp[:13], "%Y-%m-%dT%H").strftime("%Y%m%d%H")
+                except ValueError:
+                    return ""
+
+            now_key = datetime.now().strftime("%Y%m%d%H")
+            past = [fields for fields in hourly if hourly_key(fields) and hourly_key(fields) <= now_key]
+            future = [fields for fields in hourly if hourly_key(fields) and hourly_key(fields) > now_key]
+            if past:
+                row = max(past, key=hourly_key)
+            elif future:
+                row = min(future, key=hourly_key)
+
+        if row:
+            condition_code = str(row[2] if len(row) > 2 else "unknown").strip() or "unknown"
+            condition_text = str(row[3] if len(row) > 3 else condition_code.replace("_", " ")).strip()
+            temp_value = str(row[4] if len(row) > 4 else "").strip()
+            temp_min = ""
+            temp_max = temp_value
+        elif daily:
+            condition_code = str(daily[1] if len(daily) > 1 else "unknown").strip() or "unknown"
+            condition_text = str(daily[2] if len(daily) > 2 else condition_code.replace("_", " ")).strip()
+            temp_min = str(daily[3] if len(daily) > 3 else "").strip()
+            temp_max = str(daily[4] if len(daily) > 4 else "").strip()
+        else:
+            return None
+
+        condition_text = condition_text[:32] if condition_text else "Weather"
+        units_letter = "F" if units == "imperial" else "C"
+        temp_text = ""
+        if temp_min and temp_max and temp_min != temp_max:
+            temp_text = f"{temp_min}-{temp_max} {units_letter}"
+        elif temp_max or temp_min:
+            temp_text = f"{temp_max or temp_min} {units_letter}"
+        summary = " ".join(part for part in (condition_text, temp_text) if part).strip()
+        if not summary:
+            return None
+        return {
+            "code": condition_code,
+            "condition": condition_text,
+            "temp": temp_text,
+            "summary": summary,
+            "variant_color": _ensure_hex(((variant or {}).get("colors") or {}).get("foreground"), DEFAULT_COLORS["foreground"]),
+            "background_color": _ensure_hex(((variant or {}).get("colors") or {}).get("background"), DEFAULT_COLORS["background"]),
+            "accent_color": _ensure_hex(((variant or {}).get("colors") or {}).get("selector_end"), DEFAULT_COLORS["selector_end"]),
+            "appearance_mode": str((variant or {}).get("appearance_mode") or "dark").strip().lower(),
+        }
+
+    def _render_weather_lockscreen_art(self, dest_path, weather_summary, width):
+        width = max(80, min(320, int(width)))
+        height = WEATHER_LOCKSCREEN_ART_HEIGHT
+        outer = _mix_hex(weather_summary["background_color"], weather_summary["accent_color"], 0.28)
+        inner = _mix_hex(weather_summary["background_color"], "000000", 0.16)
+        top = _mix_hex(inner, "FFFFFF", 0.18)
+        bottom = _mix_hex(inner, "000000", 0.20)
+        text_color = weather_summary["variant_color"]
+        muted_color = _mix_hex(text_color, weather_summary["accent_color"], 0.36)
+        icon_primary, icon_secondary = self._weather_code_palette(weather_summary["code"])
+
+        image = Image.new("RGB", (width, height), ImageColor.getrgb(f"#{outer}"))
+        draw = ImageDraw.Draw(image)
+        draw.rectangle((1, 1, width - 2, height - 2), fill=ImageColor.getrgb(f"#{inner}"))
+        draw.line((1, 1, width - 2, 1), fill=ImageColor.getrgb(f"#{top}"))
+        draw.line((1, height - 2, width - 2, height - 2), fill=ImageColor.getrgb(f"#{bottom}"))
+        draw.rectangle((0, 0, width - 1, height - 1), outline=ImageColor.getrgb(f"#{outer}"))
+
+        self._draw_weather_icon(draw, weather_summary["code"], 4, 1, 11, 11, icon_primary, icon_secondary)
+
+        font = ImageFont.load_default()
+        condition = weather_summary["condition"]
+        temp = weather_summary["temp"]
+        summary = weather_summary["summary"]
+        max_text_width = max(1, width - 23)
+        if summary:
+            while summary and draw.textbbox((0, 0), summary, font=font)[2] > max_text_width:
+                if temp and summary.endswith(temp):
+                    temp = temp[:-1]
+                    summary = " ".join(part for part in (condition, temp.strip()) if part).strip()
+                else:
+                    condition = condition[:-1]
+                    summary = " ".join(part for part in (condition, temp) if part).strip()
+                if len(summary) <= 8:
+                    break
+
+        text_x = 20
+        text_y = 1
+        if condition:
+            draw.text((text_x, text_y), condition, fill=ImageColor.getrgb(f"#{text_color}"), font=font)
+            text_x += draw.textbbox((0, 0), condition, font=font)[2] + 4
+        if temp:
+            draw.text((text_x, text_y), temp, fill=ImageColor.getrgb(f"#{muted_color}"), font=font)
+
+        os.makedirs(os.path.dirname(dest_path), exist_ok=True)
+        image.save(dest_path, "BMP")
+
+    @staticmethod
+    def _draw_weather_icon(draw, code, x, y, width, height, primary_hex, secondary_hex):
+        code = str(code or "").strip().lower()
+        primary = ImageColor.getrgb(f"#{_ensure_hex(primary_hex, 'FFFFFF')}")
+        secondary = ImageColor.getrgb(f"#{_ensure_hex(secondary_hex, 'C8BED7')}")
+        cloud = ImageColor.getrgb("#D8DDE6")
+        shadow = ImageColor.getrgb("#A8B0BC")
+
+        def sun(cx, cy, radius):
+            draw.ellipse((cx - radius, cy - radius, cx + radius, cy + radius), fill=primary)
+            for dx, dy in ((0, -6), (0, 6), (-6, 0), (6, 0), (-5, -5), (5, -5), (-5, 5), (5, 5)):
+                draw.line((cx, cy, cx + dx, cy + dy), fill=secondary)
+
+        def cloud_body(left, top, right, bottom):
+            if right <= left or bottom <= top:
+                return
+            width = right - left
+            height = bottom - top
+            left_puff = left
+            center_puff = left + max(2, width // 4)
+            right_puff = left + max(4, width // 2)
+            draw.ellipse((left_puff, top + 1, min(right, left_puff + max(3, width // 3)), bottom), fill=cloud)
+            draw.ellipse((center_puff, top, min(right, center_puff + max(4, width // 2)), bottom - 1), fill=cloud)
+            draw.ellipse((right_puff, top + 1, right, bottom), fill=cloud)
+            draw.rectangle((left + max(1, width // 6), top + max(2, height // 2), right - 1, bottom), fill=cloud)
+            draw.line((left + 1, bottom, right - 1, bottom), fill=shadow)
+
+        if code == "clear":
+            sun(x + 7, y + 5, 4)
+            return
+
+        if code == "partly_cloudy":
+            sun(x + 4, y + 4, 3)
+            cloud_body(x + 3, y + 4, x + width - 1, y + height - 1)
+            return
+
+        cloud_body(x, y + 2, x + width - 1, y + height - 1)
+
+        if code in {"rain", "drizzle"}:
+            rain = ImageColor.getrgb("#58B8FF")
+            for offset in (3, 8, 13):
+                draw.line((x + offset, y + 9, x + offset - 2, y + 13), fill=rain)
+            return
+
+        if code in {"snow", "sleet"}:
+            snow = ImageColor.getrgb("#F4F8FF")
+            for offset in (4, 10, 16):
+                draw.line((x + offset - 2, y + 9, x + offset + 2, y + 13), fill=snow)
+                draw.line((x + offset + 2, y + 9, x + offset - 2, y + 13), fill=snow)
+            return
+
+        if code == "fog":
+            for row in (8, 11):
+                draw.line((x + 2, y + row, x + width - 2, y + row), fill=secondary)
+            return
+
+        if code == "thunderstorm":
+            bolt = ImageColor.getrgb("#FFD45A")
+            draw.polygon(
+                [
+                    (x + 9, y + 5),
+                    (x + 13, y + 5),
+                    (x + 10, y + 10),
+                    (x + 14, y + 10),
+                    (x + 7, y + 15),
+                    (x + 9, y + 10),
+                    (x + 5, y + 10),
+                ],
+                fill=bolt,
+            )
+            return
+
+        if code == "wind":
+            for row in (7, 10, 13):
+                draw.arc((x + 1, y + row - 3, x + width - 2, y + row + 1), 180, 360, fill=secondary)
+            return
+
+        if code == "cloudy":
+            return
+
+        # Unknown and everything else fall back to a neutral cloud.
+        return
 
     def _read_cfg_settings(self, path):
         settings = {}
@@ -2335,9 +2632,7 @@ class ThemeDesignerService:
 
         atomic_write_text(path, content)
 
-    def _apply_lockscreen_clock_overrides(self, path, variant):
-        if not str((variant or {}).get("base_theme_id") or "").startswith("iPone"):
-            return
+    def _apply_lockscreen_clock_overrides(self, path, variant, weather_summary=None):
         clock = self._normalize_lockscreen_clock((variant or {}).get("lockscreen_clock"))
         try:
             with open(path, "r", encoding="utf-8") as handle:
@@ -2345,6 +2640,15 @@ class ThemeDesignerService:
         except OSError:
             return
 
+        viewport_name = self._lockscreen_viewport_name(content)
+        if not viewport_name:
+            return
+        if weather_summary:
+            self._render_weather_lockscreen_art(
+                os.path.join(os.path.dirname(path), os.path.splitext(os.path.basename(path))[0], f"{WEATHER_LOCKSCREEN_ART_NAME}.bmp"),
+                weather_summary,
+                int(clock["width"]),
+            )
         content = self._ensure_font_slot(content, 10, clock["font_rel"])
         is_sbs = os.path.basename(path).lower().endswith(".sbs")
         use_glass = False
@@ -2352,24 +2656,26 @@ class ThemeDesignerService:
         if is_sbs:
             content = self._replace_lockscreen_clock_block(
                 content,
-                "iPoneLockscreen",
+                viewport_name,
                 clock,
                 time_font=10,
                 date_font=6,
                 use_glass=use_glass,
                 variant=variant,
+                weather_summary=weather_summary,
             )
             if use_glass:
                 content = ThemeDesignerService._enable_generated_clock_glass(content)
         else:
             content = self._replace_lockscreen_clock_block(
                 content,
-                "Lockscreen",
+                viewport_name,
                 clock,
                 time_font=10,
                 date_font=4,
                 use_glass=False,
                 variant=variant,
+                weather_summary=weather_summary,
             )
         atomic_write_text(path, content)
 
@@ -2491,7 +2797,45 @@ class ThemeDesignerService:
         content = content.replace("%Vd(iPoneLockscreen)%?mp<", "%Vd(LockClockGlass)%Vd(iPoneLockscreen)%?mp<", 1)
         return content
 
-    def _replace_lockscreen_clock_block(self, content, viewport_name, clock, time_font, date_font, use_glass=False, variant=None):
+    @staticmethod
+    def _ensure_weather_asset_definition(content: str, image_name: str = WEATHER_LOCKSCREEN_ART_NAME) -> str:
+        definition = f"%xl({image_name},{image_name}.bmp)\n"
+        if definition.strip() in content:
+            return content
+
+        insert_after = None
+        for marker in (
+            "%xl(LsStyle,LockscreenStyle.bmp)\n",
+            "%xl(Lockscreen,Wallpaper.bmp)\n",
+            "%xl(LsWallpaper,Wallpaper.bmp)\n",
+        ):
+            if marker in content:
+                insert_after = marker
+                break
+        if insert_after:
+            return content.replace(insert_after, insert_after + definition, 1)
+
+        return definition + content
+
+    @staticmethod
+    def _lockscreen_viewport_name(content: str) -> str:
+        if "%Vl(iPoneLockscreen," in content or "%Vd(iPoneLockscreen)" in content:
+            return "iPoneLockscreen"
+        if "%Vl(Lockscreen," in content or "%Vd(Lockscreen)" in content:
+            return "Lockscreen"
+        return ""
+
+    def _replace_lockscreen_clock_block(
+        self,
+        content,
+        viewport_name,
+        clock,
+        time_font,
+        date_font,
+        use_glass=False,
+        variant=None,
+        weather_summary=None,
+    ):
         x = int(clock["x"])
         y = self._lockscreen_clock_safe_y(viewport_name, int(clock["y"]))
         width = int(clock["width"])
@@ -2594,6 +2938,19 @@ class ThemeDesignerService:
         time_line = "\n".join(time_parts)
 
         date_parts = []
+        weather_line = ""
+        if weather_summary:
+            date_y = min(
+                220,
+                max(date_y, y + effective_height + WEATHER_LOCKSCREEN_ART_HEIGHT + 3),
+            )
+            weather_y = max(y + effective_height + 2, date_y - WEATHER_LOCKSCREEN_ART_HEIGHT - 1)
+            weather_asset_name = WEATHER_LOCKSCREEN_ART_NAME
+            weather_line = (
+                f"%Vl(WeatherLock,{x},{weather_y},{width_text},{WEATHER_LOCKSCREEN_ART_HEIGHT},-)"
+                f"%xd({weather_asset_name})"
+            )
+            content = self._ensure_weather_asset_definition(content, weather_asset_name)
         if style.startswith("glass"):
             date_shadow_color = self._skin_color_with_opacity("000000", 12, force_alpha=True)
             date_shadow_x = min(319, max(0, x + 1))
@@ -2619,6 +2976,8 @@ class ThemeDesignerService:
         )
         date_pattern = re.compile(rf"%Vl\({re.escape(viewport_name)},[^\n]*%cd\|%cd %cb>>")
         updated = time_pattern.sub(time_line + "\n", content, count=1)
+        if weather_line and weather_line not in updated:
+            updated = updated.replace(time_line + "\n", time_line + "\n" + weather_line + "\n", 1)
         date_matches = list(date_pattern.finditer(updated))
         if date_matches:
             updated = (

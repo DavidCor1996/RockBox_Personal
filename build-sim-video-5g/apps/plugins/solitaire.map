@@ -622,16 +622,16 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000    0x2adfd
+.debug_info     0x0000000000000000    0x2b00a
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0x9d94 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/solitaire.o
- .debug_info    0x0000000000009d94     0x7cf2 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
- .debug_info    0x0000000000011a86     0x7d3b /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(configfile.o)
- .debug_info    0x00000000000197c1     0x9a21 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(playback_control.o)
- .debug_info    0x00000000000231e2     0x7851 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(display_text.o)
- .debug_info    0x000000000002aa33      0x142 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(card_back.37x49x16.o)
- .debug_info    0x000000000002ab75      0x145 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(card_deck.481x196x16.o)
- .debug_info    0x000000000002acba      0x143 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(solitaire_suitsi.37x196x16.o)
+ .debug_info    0x0000000000000000     0x9dfd /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/solitaire.o
+ .debug_info    0x0000000000009dfd     0x7d5b /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+ .debug_info    0x0000000000011b58     0x7da4 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(configfile.o)
+ .debug_info    0x00000000000198fc     0x9a8a /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(playback_control.o)
+ .debug_info    0x0000000000023386     0x78ba /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(display_text.o)
+ .debug_info    0x000000000002ac40      0x142 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(card_back.37x49x16.o)
+ .debug_info    0x000000000002ad82      0x145 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(card_deck.481x196x16.o)
+ .debug_info    0x000000000002aec7      0x143 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(solitaire_suitsi.37x196x16.o)
 
 .debug_abbrev   0x0000000000000000     0x1830
  *(.debug_abbrev)
@@ -658,23 +658,23 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0xb6f8
+.debug_str      0x0000000000000000     0xb776
  *(.debug_str)
- .debug_str     0x0000000000000000     0xb6f8 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/solitaire.o
-                                       0x684e (size before relaxing)
- .debug_str     0x000000000000b6f8        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
-                                       0x51cb (size before relaxing)
- .debug_str     0x000000000000b6f8        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(configfile.o)
-                                       0x4941 (size before relaxing)
- .debug_str     0x000000000000b6f8        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(playback_control.o)
-                                       0xa522 (size before relaxing)
- .debug_str     0x000000000000b6f8        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(display_text.o)
-                                       0x4955 (size before relaxing)
- .debug_str     0x000000000000b6f8        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(card_back.37x49x16.o)
+ .debug_str     0x0000000000000000     0xb776 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/solitaire.o
+                                       0x68cc (size before relaxing)
+ .debug_str     0x000000000000b776        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/plugin_crt0.o
+                                       0x5249 (size before relaxing)
+ .debug_str     0x000000000000b776        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(configfile.o)
+                                       0x49bf (size before relaxing)
+ .debug_str     0x000000000000b776        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(playback_control.o)
+                                       0xa5a0 (size before relaxing)
+ .debug_str     0x000000000000b776        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/libplugin.a(display_text.o)
+                                       0x49d3 (size before relaxing)
+ .debug_str     0x000000000000b776        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(card_back.37x49x16.o)
                                         0x166 (size before relaxing)
- .debug_str     0x000000000000b6f8        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(card_deck.481x196x16.o)
+ .debug_str     0x000000000000b776        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(card_deck.481x196x16.o)
                                         0x166 (size before relaxing)
- .debug_str     0x000000000000b6f8        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(solitaire_suitsi.37x196x16.o)
+ .debug_str     0x000000000000b776        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-video-5g/apps/plugins/bitmaps/libpluginbitmaps.a(solitaire_suitsi.37x196x16.o)
                                         0x174 (size before relaxing)
 
 .debug_loc
