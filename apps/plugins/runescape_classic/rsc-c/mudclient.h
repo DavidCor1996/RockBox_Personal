@@ -240,6 +240,11 @@
 #define IRON_MACE_ID 0
 #define COINS_ID 10
 
+typedef enum {
+    RSC_OFFLINE_PROFILE_DAVID = 0,
+    RSC_OFFLINE_PROFILE_ABOVE_CHAOS = 1,
+} RSC_OfflineProfile;
+
 #define FIRE_RUNE_ID 31
 #define FIRE_STAFF_ID 197
 #define FIRE_BATTLESTAFF_ID 615
@@ -707,6 +712,8 @@ struct mudclient {
 #endif
 
     int8_t logged_in;
+
+    RSC_OfflineProfile offline_profile;
 
     /* ./ui/message-tabs.c */
     Panel *panel_message_tabs;

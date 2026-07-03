@@ -24,6 +24,9 @@ static int rsc_panel_index;
 static int rsc_context_index;
 static int rsc_logoff_prompt;
 static int rsc_hold_was_on;
+
+static const char *rsc_offline_profiles[] = {RSC_DEFAULT_NAME,
+                                            "AboveChaos"};
 #ifdef HAVE_WHEEL_POSITION
 static int rsc_last_wheel_pos = -1;
 static int rsc_wheel_accum;
@@ -37,6 +40,102 @@ static void rsc_boot_status(const char *text)
     rb->lcd_clear_display();
     rb->lcd_putsxy(8, 8, text);
     rb->lcd_update();
+}
+
+static void rsc_draw_offline_profile_screen(mudclient *mud, int selected_profile)
+{
+    const char *descriptions[] = {"Administrator, max stats, full coins",
+                                  "Standard new player, no mod"};
+
+    rb->lcd_clear_display();
+    rb->lcd_set_foreground(FB_RGBPACK(255, 220, 0));
+    rb->lcd_putsxy(8, 8, "Runescape Classic");
+    rb->lcd_set_foreground(FB_RGBPACK(255, 255, 255));
+    rb->lcd_putsxy(8, 24, "Select character");
+    rb->lcd_putsxy(8, 34, "Press SELECT to start");
+    rb->lcd_putsxy(8, 56, "Left / Right: change");
+    rb->lcd_putsxy(8, 66, "Menu: cancel");
+
+    for (int i = 0; i < 2; i++) {
+        int y = 100 + (i * 52);
+        if (i == selected_profile) {
+            rb->lcd_set_foreground(FB_RGBPACK(255, 220, 0));
+            rb->lcd_drawrect(5, y - 2, 310, 44);
+            rb->lcd_fillrect(9, y + 18, 296, 1);
+            rb->lcd_drawrect(10, y + 20, 290, 16);
+        }
+
+        rb->lcd_set_foreground(FB_RGBPACK(255, 255, 255));
+        rb->lcd_putsxy(18, y, rsc_offline_profiles[i]);
+        rb->lcd_putsxy(18, y + 14, descriptions[i]);
+        if (i == selected_profile) {
+            rb->lcd_set_foreground(FB_RGBPACK(0, 255, 0));
+            rb->lcd_putsxy(8, y + 26, ">");
+            rb->lcd_putsxy(16, y + 26, "Selected");
+        }
+    }
+
+    if (selected_profile >= 0 && selected_profile < 2) {
+        rb->lcd_set_foreground(FB_RGBPACK(200, 200, 200));
+        rb->lcd_putsxy(8, 208, "Starting as:");
+        rb->lcd_set_foreground(FB_RGBPACK(255, 255, 255));
+        rb->lcd_putsxy(74, 208, rsc_offline_profiles[selected_profile]);
+    }
+
+    rb->lcd_set_foreground(FB_RGBPACK(0, 0, 0));
+    rb->lcd_fillrect(0, 210, LCD_WIDTH, 30);
+    rb->lcd_set_foreground(FB_RGBPACK(255, 220, 0));
+    rb->lcd_drawrect(0, 210, LCD_WIDTH, 30);
+    rb->lcd_set_foreground(FB_RGBPACK(255, 255, 255));
+    rb->lcd_putsxy(8, 220, "Press LEFT / RIGHT to scroll and SELECT.");
+
+    rb->lcd_update();
+}
+
+static int rsc_select_offline_profile(mudclient *mud)
+{
+    int selected = mud->offline_profile;
+
+    while (1) {
+        int button = BUTTON_NONE;
+        long base;
+
+        rsc_draw_offline_profile_screen(mud, selected);
+        button = rb->button_get(true);
+
+        if (button == BUTTON_NONE || (button & BUTTON_REL)) {
+            continue;
+        }
+
+        base = button & ~(BUTTON_REPEAT | BUTTON_REL);
+
+        if (base == BUTTON_LEFT
+#ifdef BUTTON_UP
+            || base == BUTTON_UP
+#endif
+        ) {
+            selected = (selected - 1 + 2) % 2;
+        } else if (base == BUTTON_RIGHT
+#ifdef BUTTON_DOWN
+                   || base == BUTTON_DOWN
+#endif
+        ) {
+            selected = (selected + 1) % 2;
+        } else if (base == BUTTON_SELECT) {
+            mud->offline_profile = selected;
+            if (mud->offline_profile == RSC_OFFLINE_PROFILE_DAVID) {
+                strcpy(mud->username, RSC_DEFAULT_NAME);
+            } else {
+                strcpy(mud->username, "AboveChaos");
+            }
+            strcpy(mud->options->username, mud->username);
+            return 1;
+        } else if (base == BUTTON_MENU) {
+            return 0;
+        }
+    }
+
+    return 0;
 }
 
 enum {
@@ -908,6 +1007,11 @@ enum plugin_status plugin_start(const void *parameter)
     }
 
     mudclient_new(mud);
+    if (!rsc_select_offline_profile(mud)) {
+        free(mud);
+        return PLUGIN_OK;
+    }
+
     mudclient_start_application(mud, "Runescape by Andrew Gower");
     mudclient_start_application_common(mud);
 

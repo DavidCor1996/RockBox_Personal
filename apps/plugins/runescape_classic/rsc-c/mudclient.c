@@ -157,6 +157,7 @@ void mudclient_new(mudclient *mud) {
     mud->appearance_head_gender = 1;
 
     mud->sleep_word_delay = 1;
+    mud->offline_profile = RSC_OFFLINE_PROFILE_DAVID;
 
     /* set by the server to 192 on p2p servers */
     mud->bank_items_max = 48;
@@ -400,8 +401,12 @@ void mudclient_start_application_common(struct mudclient *mud) {
 #endif
 
 #ifdef ROCKBOX
-    strcpy(mud->username, RSC_DEFAULT_NAME);
-    strcpy(mud->options->username, RSC_DEFAULT_NAME);
+    if (mud->username[0] == '\0') {
+        strcpy(mud->username, RSC_DEFAULT_NAME);
+    }
+    if (mud->options->username[0] == '\0') {
+        strcpy(mud->options->username, RSC_DEFAULT_NAME);
+    }
 #endif
     mudclient_run(mud);
 }
@@ -2225,26 +2230,7 @@ static void mudclient_tick_offline_combat(mudclient *mud) {
 }
 
 static void mudclient_apply_offline_account(mudclient *mud,
-                                            GameCharacter *player) {
-    mud->moderator_level = 1;
-    mud->inventory_items_count = 1;
-    mud->inventory_item_id[0] = 10; /* Coins */
-    mud->inventory_item_stack_count[0] = 2147483647;
-    mud->inventory_equipped[0] = 0;
-    mud->selected_item_inventory_index = -1;
-    mud->player_quest_points = 999;
-    mud->bank_items_max = 192;
-
-    for (int i = 0; i < PLAYER_SKILL_COUNT; i++) {
-        mud->player_skill_current[i] = 99;
-        mud->player_skill_base[i] = 99;
-        mud->player_experience[i] = 800000000;
-    }
-
-    for (int i = 0; i < PLAYER_STAT_EQUIPMENT_COUNT; i++) {
-        mud->player_stat_equipment[i] = 0;
-    }
-
+                                           GameCharacter *player) {
     player->animations[ANIMATION_INDEX_HEAD] = 1;
     player->animations[ANIMATION_INDEX_BODY] = 2;
     player->animations[ANIMATION_INDEX_LEGS] = 3;
@@ -2257,10 +2243,52 @@ static void mudclient_apply_offline_account(mudclient *mud,
     player->animations[ANIMATION_INDEX_BOOTS] = 12;
     player->animations[ANIMATION_INDEX_NECK] = 0;
     player->animations[ANIMATION_INDEX_CAPE] = 0;
-    player->level = 126;
-    player->current_hits = 99;
-    player->max_hits = 99;
     player->skull_visible = 0;
+
+    for (int i = 0; i < PLAYER_STAT_EQUIPMENT_COUNT; i++) {
+        mud->player_stat_equipment[i] = 0;
+    }
+
+    if (mud->offline_profile == RSC_OFFLINE_PROFILE_DAVID) {
+        mud->moderator_level = 1;
+        mud->inventory_items_count = 1;
+        mud->inventory_item_id[0] = COINS_ID;
+        mud->inventory_item_stack_count[0] = 2147483647;
+        mud->inventory_equipped[0] = 0;
+        mud->selected_item_inventory_index = -1;
+        mud->player_quest_points = 999;
+        mud->bank_items_max = 192;
+
+        for (int i = 0; i < PLAYER_SKILL_COUNT; i++) {
+            mud->player_skill_current[i] = 99;
+            mud->player_skill_base[i] = 99;
+            mud->player_experience[i] = 800000000;
+        }
+        player->level = 126;
+        player->current_hits = 99;
+        player->max_hits = 99;
+        return;
+    }
+
+    mud->moderator_level = 0;
+    mud->inventory_items_count = 0;
+    mud->selected_item_inventory_index = -1;
+    mud->player_quest_points = 0;
+    mud->bank_items_max = 48;
+
+    for (int i = 0; i < PLAYER_SKILL_COUNT; i++) {
+        mud->player_skill_current[i] = (i == SKILL_HITS) ? 10 : 1;
+        mud->player_skill_base[i] = (i == SKILL_HITS) ? 10 : 1;
+        mud->player_experience[i] = 0;
+    }
+
+    player->level = 3;
+    player->current_hits = 10;
+    player->max_hits = 10;
+
+    for (int i = 0; i < PLAYER_STAT_EQUIPMENT_COUNT; i++) {
+        mud->player_stat_equipment[i] = 0;
+    }
 }
 
 static void mudclient_clear_offline_npcs(mudclient *mud) {
@@ -2335,16 +2363,29 @@ static void mudclient_start_offline_game(mudclient *mud) {
     int local_x = LUMBRIDGE_LOCAL_X * MAGIC_LOC + 64;
     int local_y = LUMBRIDGE_LOCAL_Y * MAGIC_LOC + 64;
 
+    char offline_name[USERNAME_LENGTH + 1];
+    if (mud->offline_profile == RSC_OFFLINE_PROFILE_ABOVE_CHAOS) {
+        strcpy(offline_name, "AboveChaos");
+    } else {
+        strcpy(offline_name, RSC_DEFAULT_NAME);
+    }
+
     GameCharacter *player = mudclient_add_player(mud, 0, local_x, local_y,
                                                  DIR_SOUTH);
     if (player != NULL) {
         mud->local_player = player;
-        strcpy(player->name, RSC_DEFAULT_NAME);
-        player->encoded_username = encode_username(RSC_DEFAULT_NAME);
+        strcpy(player->name, offline_name);
+        player->encoded_username = encode_username(offline_name);
         player->hair_colour = mud->appearance_hair_colour;
         player->top_colour = mud->appearance_top_colour;
         player->bottom_colour = mud->appearance_bottom_colour;
         player->skin_colour = mud->appearance_skin_colour;
+        if (mud->username[0] == '\0') {
+            strcpy(mud->username, offline_name);
+        }
+        if (mud->options->username[0] == '\0') {
+            strcpy(mud->options->username, offline_name);
+        }
         mudclient_apply_offline_account(mud, player);
     }
 
@@ -2364,7 +2405,7 @@ static void mudclient_start_offline_game(mudclient *mud) {
 
     mud_log("offline start name=%s region=%d,%d local=%d,%d camera=%d,%d "
             "scene_models=%d npcs=%d mod=%d coins=%d skill=%d/%d",
-            RSC_DEFAULT_NAME, mud->region_x, mud->region_y,
+            mud->username, mud->region_x, mud->region_y,
             mud->local_region_x, mud->local_region_y,
             mud->camera_auto_rotate_player_x, mud->camera_auto_rotate_player_y,
             mud->scene->model_count, mud->npc_count, mud->moderator_level,
