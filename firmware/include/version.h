@@ -18,9 +18,9 @@
  * KIND, either express or implied.
  *
  ****************************************************************************/
-#ifndef _RBVERSION_H_
-#define _RBVERSION_H_
+#ifndef _VERSION_H_
+#define _VERSION_H_
 
 extern const char rbversion[];
 
-#endif /* _RBVERSION_H_ */
+#endif /* _VERSION_H_ */

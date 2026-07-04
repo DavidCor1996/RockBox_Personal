@@ -41,6 +41,8 @@
 
 namespace gameswf
 {
+	extern "C" void flashplayer_trace_movie_state(const char *name, int value,
+		int aux1, int aux2);
 
 	void clears_tag_loaders();
 	void clear_disasm();
@@ -864,17 +866,25 @@ namespace gameswf
 			// Try to load a .gsc file.
 			tu_string	cache_filename(filename);
 			cache_filename += ".gsc";
+			flashplayer_trace_movie_state("gsc_open_begin", 0, 0, 0);
 			tu_file*	cache_in = s_opener_function(cache_filename.c_str());
 			if (cache_in == NULL
 				|| cache_in->get_error() != TU_FILE_NO_ERROR)
 			{
 				// Can't open cache file; don't sweat it.
+				flashplayer_trace_movie_state("gsc_open_missing",
+					cache_in != NULL, cache_in ? cache_in->get_error() : -1, 0);
 				IF_VERBOSE_PARSE(log_msg("note: couldn't open cache file '%s'\n", cache_filename.c_str()));
 			}
 			else
 			{
 				// Load the cached data.
+				flashplayer_trace_movie_state("gsc_read_begin",
+					cache_in->get_position(), 0, 0);
 				m->input_cached_data(cache_in);
+				flashplayer_trace_movie_state("gsc_read_end",
+					cache_in->get_position(), cache_in->get_error(),
+					cache_in->get_eof() ? 1 : 0);
 			}
 
 			delete cache_in;

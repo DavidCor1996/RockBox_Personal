@@ -419,6 +419,15 @@ namespace gameswf
 		int	local_index = find_local(varname, true);
 		if (local_index >= 0)
 		{
+			if ((varname == "person" || varname == "map_outside_1" ||
+				varname == "Map_Outside_1") &&
+				m_local_frames[local_index].m_value.is_undefined())
+			{
+				/* Stick RPG keeps scene clips on the root movie; do not let
+				   an undefined local placeholder mask those movie members. */
+			}
+			else
+			{
 			if (varname == "server" || varname == "protocol")
 				flashplayer_trace_movie_state(varname.c_str(),
 					m_local_frames[local_index].m_value.is_string() ?
@@ -427,6 +436,7 @@ namespace gameswf
 			flashplayer_trace_variable_lookup(varname.c_str(), 20,
 				m_local_frames[local_index].m_value.is_object());
 			return m_local_frames[local_index].m_value;
+			}
 		}
 
 		// Check movie members.
@@ -444,6 +454,14 @@ namespace gameswf
 		if (varname == "map_outside_1" && get_root() != NULL &&
 			get_root()->get_root_movie() != NULL &&
 			get_root()->get_root_movie()->get_member("Map_Outside_1", &val))
+		{
+			flashplayer_trace_variable_lookup(varname.c_str(), 31,
+				val.is_object());
+			return val;
+		}
+		if ((varname == "person" || varname == "Map_Outside_1") &&
+			get_root() != NULL && get_root()->get_root_movie() != NULL &&
+			get_root()->get_root_movie()->get_member(varname, &val))
 		{
 			flashplayer_trace_variable_lookup(varname.c_str(), 31,
 				val.is_object());

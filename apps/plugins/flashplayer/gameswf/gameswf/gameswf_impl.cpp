@@ -1312,9 +1312,22 @@ namespace gameswf
 			return;
 		}
 		shape_character_def*	ch = new (shape_mem) shape_character_def(m->get_player());
-		flashplayer_trace_shape(2, character_id, in->get_position());
-		ch->read(in, tag_type, true, m);
-		flashplayer_trace_shape(3, character_id, in->get_position());
+		ch->set_id(character_id);
+		int shape_stream_pos = in->get_position();
+		flashplayer_trace_shape(2, character_id, shape_stream_pos);
+		if (input_shape_definition_cache(ch, character_id, tag_type,
+			shape_stream_pos, m))
+		{
+			in->set_position(in->get_tag_end_position());
+			flashplayer_trace_shape(5, character_id, in->get_position());
+		}
+		else
+		{
+			ch->read(in, tag_type, true, m);
+			output_shape_definition_cache(ch, character_id, tag_type,
+				shape_stream_pos);
+			flashplayer_trace_shape(3, character_id, in->get_position());
+		}
 
 		IF_VERBOSE_PARSE(log_msg("  bound rect:"); ch->get_bound_local().print());
 
@@ -1327,9 +1340,9 @@ namespace gameswf
 		assert(tag_type == 46 || tag_type == 84);
 		Uint16 character_id = in->read_u16();
 		IF_VERBOSE_PARSE(log_msg("  shape_morph_loader: id = %d\n", character_id));
-		morph2_character_def* morph = new morph2_character_def(m->get_player());
-		morph->read(in, tag_type, true, m);
-		m->add_character(character_id, morph);
+		shape_character_def* placeholder = new shape_character_def(m->get_player());
+		in->set_position(in->get_tag_end_position());
+		m->add_character(character_id, placeholder);
 	}
 
 	//
@@ -1732,6 +1745,8 @@ namespace gameswf
 		void	execute(character* m)
 			// Place/move/whatever our object in the given movie.
 		{
+			flashplayer_trace_movie_state("place_begin", m_character_id,
+				m_depth, m_place_type);
 			switch (m_place_type)
 			{
 				default:
@@ -1763,6 +1778,8 @@ namespace gameswf
 					m->replace_display_object( m_character_id, m_character_name.c_str(), m_depth, m_has_cxform, m_color_transform, m_has_matrix, m_matrix, m_ratio, m_clip_depth, m_blend_mode);
 					break;
 				}
+			flashplayer_trace_movie_state("place_end", m_character_id,
+				m_depth, m_place_type);
 		}
 
 		void	execute_state(character* m)
@@ -1855,16 +1872,24 @@ namespace gameswf
 	root*	movie_def_impl::create_instance()
 	// Create a playable movie instance from a def.
 	{
+		flashplayer_trace_movie_state("inst_begin", get_frame_count(), 0, 0);
 		root*	root = create_root();
+		flashplayer_trace_movie_state("inst_root_ready", root != NULL, 0, 0);
 		
 		// create dlist
-		root->get_root_movie()->execute_frame_tags(0);		
+		flashplayer_trace_movie_state("inst_frame0_begin",
+			root->get_root_movie() != NULL, 0, 0);
+		root->get_root_movie()->execute_frame_tags(0);
+		flashplayer_trace_movie_state("inst_frame0_end",
+			root->get_root_movie() != NULL, 0, 0);
 
 		return root;
 	}
 
 	root*	movie_def_impl::create_root()
 	{
+		flashplayer_trace_movie_state("create_root_begin",
+			get_frame_count(), 0, 0);
 		// Is the movie instance already in the library?
 		if (s_use_cached_movie_instance)
 		{
@@ -1877,6 +1902,7 @@ namespace gameswf
 
 		root*	m = new root(get_player(), this);
 		assert(m);
+		flashplayer_trace_movie_state("create_root_alloc", m != NULL, 0, 0);
 
 		if (s_use_cached_movie_instance)
 		{
@@ -1885,11 +1911,15 @@ namespace gameswf
 
 		sprite_instance*	root_movie = new sprite_instance(get_player(), this, m, NULL, -1);
 		assert(root_movie);
+		flashplayer_trace_movie_state("create_root_sprite",
+			root_movie != NULL, 0, 0);
 
 		// By default _root has no name
 		//		root_movie->set_name("_root");
 		root_movie->set_member("$version", get_gameswf_version());	// Flash 8
 		m->set_root_movie(root_movie);
+		flashplayer_trace_movie_state("create_root_done",
+			m->get_root_movie() != NULL, 0, 0);
 		return m;
 	}
 

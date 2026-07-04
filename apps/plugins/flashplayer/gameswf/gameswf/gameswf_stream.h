@@ -68,6 +68,7 @@ namespace gameswf
 
 		// For variable-length string, flash9
 		void	read_string_with_length(int len, tu_string* str);
+		int	read_bytes(void* dst, int len);
 
 		int	get_position();
 		void	set_position(int pos);
@@ -82,7 +83,9 @@ namespace gameswf
 		Uint8	m_current_byte;
 		Uint8	m_unused_bits;
 
-		array<int>	m_tag_stack;	// position of end of tag
+		enum { TAG_STACK_CAPACITY = 64 };
+		int	m_tag_stack[TAG_STACK_CAPACITY];	// position of end of tag
+		int	m_tag_stack_size;
 	};
 
 

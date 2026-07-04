@@ -250,16 +250,32 @@ static bool pf_ipod_engine_enabled(void)
 #endif
 }
 
-#ifdef HAVE_ALBUMART
-static void pf_update_dynamic_colors(void)
+static void pf_apply_ipod_engine_colors(void)
 {
-    if (pf_ipod_engine_enabled())
+    if (rb->global_settings->ui_engine_dark_mode)
+    {
+        pf_bg_color = (pix_t)LCD_RGBPACK(18, 20, 24);
+        pf_fg_color = (pix_t)LCD_RGBPACK(239, 242, 246);
+        pf_lss_color = (pix_t)LCD_RGBPACK(73, 81, 94);
+        pf_lse_color = (pix_t)LCD_RGBPACK(24, 29, 38);
+        pf_lst_color = (pix_t)LCD_RGBPACK(255, 255, 255);
+    }
+    else
     {
         pf_bg_color = (pix_t)LCD_RGBPACK(245, 246, 248);
         pf_fg_color = (pix_t)LCD_RGBPACK(0, 0, 0);
         pf_lss_color = (pix_t)LCD_RGBPACK(60, 184, 255);
         pf_lse_color = (pix_t)LCD_RGBPACK(52, 122, 181);
         pf_lst_color = (pix_t)LCD_RGBPACK(255, 255, 255);
+    }
+}
+
+#ifdef HAVE_ALBUMART
+static void pf_update_dynamic_colors(void)
+{
+    if (pf_ipod_engine_enabled())
+    {
+        pf_apply_ipod_engine_colors();
     }
     else
     {
@@ -4898,11 +4914,7 @@ static bool init(void)
 #else
     if (pf_ipod_engine_enabled())
     {
-        pf_bg_color = (pix_t)LCD_RGBPACK(245, 246, 248);
-        pf_fg_color = (pix_t)LCD_RGBPACK(0, 0, 0);
-        pf_lss_color = (pix_t)LCD_RGBPACK(60, 184, 255);
-        pf_lse_color = (pix_t)LCD_RGBPACK(52, 122, 181);
-        pf_lst_color = (pix_t)LCD_RGBPACK(255, 255, 255);
+        pf_apply_ipod_engine_colors();
     }
     else
     {

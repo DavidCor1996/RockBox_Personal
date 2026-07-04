@@ -2033,6 +2033,16 @@ MENUITEM_FUNCTION(desktop_mode_item, MENU_FUNC_CHECK_RETVAL,
                   "Desktop Mode", launch_desktop_mode,
                   NULL, Icon_Rockbox);
 
+static int launch_offlineweb_plugin(void *param)
+{
+    (void)param;
+    return load_plugin_path_screen(PLUGIN_APPS_DIR "/offlineweb.rock", NULL);
+}
+
+MENUITEM_FUNCTION(offlineweb_item, MENU_FUNC_CHECK_RETVAL,
+                  "Internet", launch_offlineweb_plugin,
+                  NULL, Icon_Rockbox);
+
 static int launch_weather_plugin(void *param)
 {
     (void)param;
@@ -2321,6 +2331,50 @@ static int launch_stickrpg(void* param)
                                    ROCKBOX_DIR "/flash/stickrpg/stickrpg.swf");
 }
 
+static int launch_club_penguin(void* param)
+{
+    (void)param;
+    if (!file_exists(PLUGIN_GAMES_DIR "/clubpenguin.rock"))
+    {
+        splash(HZ, "Club Penguin not installed");
+        return GO_TO_ROOT;
+    }
+
+    return load_plugin_path_screen(PLUGIN_GAMES_DIR "/clubpenguin.rock", NULL);
+}
+
+static int launch_wwe_backstage(void* param)
+{
+    (void)param;
+    if (!file_exists(PLUGIN_GAMES_DIR "/wwe_backstage.rock"))
+    {
+        splash(HZ, "WWE Backstage not installed");
+        return GO_TO_ROOT;
+    }
+
+    if (!file_exists(ROCKBOX_DIR "/rocks/games/wwe_backstage/wwe-backstage.twv"))
+    {
+        splash(HZ, "WWE Backstage data missing");
+        return GO_TO_ROOT;
+    }
+
+    return load_plugin_path_screen(PLUGIN_GAMES_DIR "/wwe_backstage.rock",
+        ROCKBOX_DIR "/rocks/games/wwe_backstage/wwe-backstage.twv");
+}
+
+static int launch_runescape_classic(void* param)
+{
+    (void)param;
+    if (!file_exists(PLUGIN_GAMES_DIR "/runescape_classic.rock"))
+    {
+        splash(HZ, "RuneScape Classic not installed");
+        return GO_TO_ROOT;
+    }
+
+    return load_plugin_path_screen(PLUGIN_GAMES_DIR "/runescape_classic.rock",
+                                   NULL);
+}
+
 static int browse_pokemini_roms(void* param)
 {
     (void)param;
@@ -2333,8 +2387,17 @@ MENUITEM_FUNCTION(gameboy_coverflow_item, MENU_FUNC_CHECK_RETVAL,
 MENUITEM_FUNCTION(gameboy_files_item, MENU_FUNC_CHECK_RETVAL,
                   "Browse ROM Files", browse_gameboy_roms,
                   NULL, Icon_NOICON);
+MENUITEM_FUNCTION(club_penguin_item, MENU_FUNC_CHECK_RETVAL,
+                  "Club Penguin", launch_club_penguin,
+                  NULL, Icon_Plugin);
 MENUITEM_FUNCTION(stickrpg_item, MENU_FUNC_CHECK_RETVAL,
                   "Stick RPG", launch_stickrpg,
+                  NULL, Icon_Plugin);
+MENUITEM_FUNCTION(wwe_backstage_item, MENU_FUNC_CHECK_RETVAL,
+                  "WWE Backstage", launch_wwe_backstage,
+                  NULL, Icon_Plugin);
+MENUITEM_FUNCTION(runescape_classic_item, MENU_FUNC_CHECK_RETVAL,
+                  "RuneScape Classic", launch_runescape_classic,
                   NULL, Icon_Plugin);
 MENUITEM_FUNCTION(infones_sound_item, MENU_FUNC_CHECK_RETVAL,
                   "Toggle NES Sound", infones_toggle_sound,
@@ -2349,7 +2412,10 @@ MENUITEM_FUNCTION(infones_clear_saves_item, MENU_FUNC_CHECK_RETVAL,
                   "Clear NES Saves", infones_clear_saves,
                   NULL, Icon_NOICON);
 MAKE_MENU(gameboy_context_menu, "Games", NULL, Icon_NOICON,
-          &stickrpg_item, &gameboy_coverflow_item, &gameboy_files_item,
+          &club_penguin_item, &runescape_classic_item, &wwe_backstage_item,
+          &stickrpg_item,
+          &gameboy_coverflow_item,
+          &gameboy_files_item,
           &infones_sound_item, &infones_autosave_item,
           &infones_audio_quality_item,
           &infones_clear_saves_item);
@@ -2392,6 +2458,7 @@ static struct menu_table menu_table[] = {
 #endif
     { "videos", &videos },
     { "applications", &applications_menu },
+    { "internet", &offlineweb_item },
     { "photos", &photos_item },
     { "desktop", &desktop_mode_item },
     { "games", &gameboy_browser },
@@ -5437,6 +5504,9 @@ static void root_menu_video_preview_load_game_paths(void)
     };
     static const char * const cover_dirs[] = {
         ROCKBOX_DIR "/rocks/games/rockboy_launcher/covers",
+        ROCKBOX_DIR "/rocks/games/clubpenguin/covers",
+        ROCKBOX_DIR "/rocks/games/runescape_classic/covers",
+        ROCKBOX_DIR "/rocks/games/wwe_backstage/covers",
         ROCKBOX_DIR "/rocks/games/pokemini_launcher/covers",
         IPODJS_ASSET_DIR "/stickrpg/covers",
         IPODJS_ASSET_DIR "/pokemini/covers",
@@ -7730,7 +7800,9 @@ struct root_menu_video_games_item {
 };
 
 static const struct root_menu_video_games_item root_menu_video_games_items[] = {
+    { "RuneScape Classic", launch_runescape_classic },
     { "Stick RPG", launch_stickrpg },
+    { "Club Penguin", launch_club_penguin },
     { "Game Cover Flow", launch_gameboy_browser },
     { "Browse ROM Files", browse_gameboy_roms },
     { "PokeMini", launch_pokemini },

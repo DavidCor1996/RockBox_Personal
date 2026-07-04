@@ -162,6 +162,11 @@ namespace gameswf
 			{
 				while (frame > m_loading_frame - 1)
 				{
+					if (frame >= 0 && frame < m_frame_count &&
+						get_playlist(frame).size() > 0)
+					{
+						return;
+					}
 //					printf("wait for frame %d, loaded %d\n", frame + 1, m_loading_frame);
 					m_frame.wait();
 				}

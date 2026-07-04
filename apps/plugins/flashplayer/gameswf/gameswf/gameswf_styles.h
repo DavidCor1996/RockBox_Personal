@@ -41,6 +41,8 @@ namespace gameswf
 		virtual ~fill_style();
 
 		void	read(stream* in, int tag_type, movie_definition_sub* m);
+		void	output_def_cached_data(tu_file* out) const;
+		void	input_def_cached_data(tu_file* in, movie_definition_sub* m);
 		rgba	sample_gradient(int ratio) const;
 		gameswf::bitmap_info*	create_gradient_bitmap() const;
 		virtual void	apply(int fill_side, float ratio, render_handler::bitmap_blend_mode bm) const;
@@ -102,6 +104,8 @@ namespace gameswf
 		line_style();
 		virtual ~line_style() {}
 		void	read(stream* in, int tag_type, movie_definition_sub* m);
+		void	output_def_cached_data(tu_file* out) const;
+		void	input_def_cached_data(tu_file* in, movie_definition_sub* m);
 		virtual void	apply(float ratio) const;
 
 		Uint16	get_width() const { return m_width; }

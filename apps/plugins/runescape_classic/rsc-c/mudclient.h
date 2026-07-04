@@ -273,8 +273,17 @@ typedef enum {
 #define SKILL_DEFENSE 1
 #define SKILL_STRENGTH 2
 #define SKILL_HITS 3
+#define SKILL_RANGED 4
+#define SKILL_WOODCUT 8
+#define SKILL_FISHING 10
+#define SKILL_FIREMAKING 11
+#define SKILL_COOKING 7
+#define SKILL_CRAFTING 12
+#define SKILL_SMITHING 13
+#define SKILL_MINING 14
 #define SKILL_PRAYER 5
 #define SKILL_MAGIC 6
+#define SKILL_THIEVING 17
 
 /* sprite stuff */
 #define SPRITE_LIMIT 4000
@@ -1141,6 +1150,31 @@ GameCharacter *mudclient_add_npc(mudclient *mud, int server_index, int x, int y,
                                  int animation, int npc_id);
 
 void mudclient_update_bank_items(mudclient *mud);
+#ifdef ROCKBOX
+int mudclient_offline_add_inventory_item(mudclient *mud, int id, int amount);
+int mudclient_offline_remove_inventory_item(mudclient *mud, int id,
+                                            int amount);
+int mudclient_offline_take_ground_item(mudclient *mud, int x, int y,
+                                       int item_id);
+void mudclient_offline_drop_inventory_slot(mudclient *mud, int slot);
+void mudclient_offline_bury_inventory_item(mudclient *mud, int slot);
+int mudclient_offline_inventory_command(mudclient *mud, int slot);
+int mudclient_offline_use_inventory_items(mudclient *mud, int source_slot,
+                                          int target_slot);
+int mudclient_offline_handle_object_command(mudclient *mud, int object_id);
+void mudclient_offline_pickpocket(mudclient *mud, GameCharacter *npc);
+int mudclient_offline_handle_npc_talk(mudclient *mud, GameCharacter *npc);
+int mudclient_offline_handle_npc_command(mudclient *mud, GameCharacter *npc);
+void mudclient_offline_start_combat(mudclient *mud, GameCharacter *npc);
+void mudclient_refresh_offline_equipment(mudclient *mud);
+void mudclient_offline_wear_inventory_slot(mudclient *mud, int slot);
+void mudclient_offline_open_bank(mudclient *mud);
+int mudclient_offline_bank_transaction(mudclient *mud, int item_id,
+                                       int amount, int is_withdraw);
+void mudclient_offline_open_shop(mudclient *mud);
+int mudclient_offline_shop_buy(mudclient *mud, int item_id, int item_price);
+int mudclient_offline_shop_sell(mudclient *mud, int item_id, int item_price);
+#endif
 void mudclient_close_connection(mudclient *mud);
 void mudclient_lost_connection(mudclient *mud);
 int mudclient_is_valid_camera_angle(mudclient *mud, int angle);
@@ -1177,6 +1211,9 @@ void mudclient_login(mudclient *mud, char *username, char *password,
                      int reconnecting);
 void mudclient_registration_login(mudclient *mud);
 void mudclient_register(mudclient *mud, char *username, char *password);
+#ifdef ROCKBOX
+void mudclient_save_offline_game(mudclient *mud);
+#endif
 void mudclient_change_password(mudclient *mud, char *old_password,
                                char *new_password);
 #if defined(RENDER_GL) || defined(RENDER_3DS_GL)

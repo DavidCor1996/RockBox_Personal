@@ -23,8 +23,16 @@
 #define ROCKBOY_STATE_PATH    ROCKBOY_LAUNCHER_DIR "/state.dat"
 #define ROCKBOY_PLUGIN_PATH   VIEWERS_DIR "/rockboy.rock"
 #define INFONES_PLUGIN_PATH   VIEWERS_DIR "/infones.rock"
+#define FLASHPLAYER_PLUGIN_PATH VIEWERS_DIR "/flashplayer.rock"
+#define STICKRPG_SWF_PATH     ROCKBOX_DIR "/flash/stickrpg/stickrpg.swf"
+#define STICKRPG_COVER_BMP    ROCKBOX_DIR "/ipodjs/stickrpg/covers/Stick RPG.bmp"
 #define DOOM_PLAY_PLUGIN_PATH PLUGIN_GAMES_DIR "/doom_play.rock"
 #define DOOM_COVER_BMP        ROCKBOY_LAUNCHER_DIR "/covers/Doom.bmp"
+#define WWE_BACKSTAGE_PLUGIN_PATH PLUGIN_GAMES_DIR "/wwe_backstage.rock"
+#define WWE_BACKSTAGE_MANIFEST_PATH PLUGIN_GAMES_DATA_DIR "/wwe_backstage/wwe-backstage.twv"
+#define WWE_BACKSTAGE_COVER_BMP PLUGIN_GAMES_DATA_DIR "/wwe_backstage/covers/Can You Survive Backstage in WWE.bmp"
+#define RUNESCAPE_CLASSIC_PLUGIN_PATH PLUGIN_GAMES_DIR "/runescape_classic.rock"
+#define RUNESCAPE_CLASSIC_COVER_BMP PLUGIN_GAMES_DATA_DIR "/runescape_classic/covers/RuneScape Classic.bmp"
 #define ROCKBOY_ROM_DIR       "/gameboy"
 #define ROCKBOY_LOADING_BACKGROUND_BMP ROCKBOY_LAUNCHER_DIR "/loading_bg.bmp"
 #define ROCKBOY_FALLBACK_COVER_BMP PLUGIN_DEMOS_DIR "/pictureflow_emptyslide.bmp"
@@ -77,6 +85,7 @@ enum launcher_filter_mode {
 struct game_entry {
     char title[MAX_ENTRY_TITLE];
     char rom_path[MAX_PATH];
+    char plugin_param[MAX_PATH];
     char cover_path[MAX_PATH];
     char save_name[MAX_SAVE_BASENAME];
     char year[MAX_ENTRY_YEAR];
@@ -813,7 +822,7 @@ static void add_game_entry(const char *title, const char *rom_path,
                            const char *cover_path, unsigned char flags,
                            unsigned char save_hint, const char *year,
                            const char *genre, const char *publisher,
-                           const char *developer)
+                           const char *developer, const char *plugin_param)
 {
     struct game_entry *entry;
 
@@ -831,6 +840,9 @@ static void add_game_entry(const char *title, const char *rom_path,
         derive_title_from_path(rom_path, entry->title, sizeof(entry->title));
 
     rb->strlcpy(entry->rom_path, rom_path, sizeof(entry->rom_path));
+    if (plugin_param && *plugin_param)
+        rb->strlcpy(entry->plugin_param, plugin_param,
+                    sizeof(entry->plugin_param));
     if (cover_path && *cover_path)
         rb->strlcpy(entry->cover_path, cover_path, sizeof(entry->cover_path));
     if (year && *year)
@@ -861,12 +873,41 @@ static bool game_entry_path_exists(const char *path)
 
 static void add_builtin_game_entries(void)
 {
+    if (rb->file_exists(FLASHPLAYER_PLUGIN_PATH) &&
+        rb->file_exists(STICKRPG_SWF_PATH) &&
+        !game_entry_path_exists(FLASHPLAYER_PLUGIN_PATH))
+    {
+        add_game_entry("Stick RPG", FLASHPLAYER_PLUGIN_PATH,
+                       STICKRPG_COVER_BMP, FLAG_FAVORITE, SAVE_HINT_NO,
+                       "2003", "Flash RPG", "XGen Studios", "XGen Studios",
+                       STICKRPG_SWF_PATH);
+    }
+
     if (rb->file_exists(DOOM_PLAY_PLUGIN_PATH) &&
         !game_entry_path_exists(DOOM_PLAY_PLUGIN_PATH))
     {
         add_game_entry("Doom", DOOM_PLAY_PLUGIN_PATH, DOOM_COVER_BMP,
                        FLAG_FAVORITE, SAVE_HINT_NO,
-                       "1993", "Shooter", "Rockbox", "Rockdoom");
+                       "1993", "Shooter", "Rockbox", "Rockdoom", NULL);
+    }
+
+    if (rb->file_exists(WWE_BACKSTAGE_PLUGIN_PATH) &&
+        rb->file_exists(WWE_BACKSTAGE_MANIFEST_PATH) &&
+        !game_entry_path_exists(WWE_BACKSTAGE_PLUGIN_PATH))
+    {
+        add_game_entry("WWE Backstage", WWE_BACKSTAGE_PLUGIN_PATH,
+                       WWE_BACKSTAGE_COVER_BMP, FLAG_FAVORITE, SAVE_HINT_NO,
+                       "2015", "Interactive Video", "YouTube", "WWE",
+                       WWE_BACKSTAGE_MANIFEST_PATH);
+    }
+
+    if (rb->file_exists(RUNESCAPE_CLASSIC_PLUGIN_PATH) &&
+        !game_entry_path_exists(RUNESCAPE_CLASSIC_PLUGIN_PATH))
+    {
+        add_game_entry("RuneScape Classic", RUNESCAPE_CLASSIC_PLUGIN_PATH,
+                       RUNESCAPE_CLASSIC_COVER_BMP, FLAG_FAVORITE,
+                       SAVE_HINT_NO, "2001", "RPG", "Jagex",
+                       "Offline Lumbridge", NULL);
     }
 }
 
@@ -922,7 +963,8 @@ static void scan_rom_dir(const char *dir_path, int depth)
         {
             char cover[MAX_PATH];
             detect_sidecar_cover(child, cover, sizeof(cover));
-            add_game_entry(NULL, child, cover, 0, SAVE_HINT_UNKNOWN, "", "", "", "");
+            add_game_entry(NULL, child, cover, 0, SAVE_HINT_UNKNOWN, "",
+                           "", "", "", NULL);
         }
     }
 
@@ -1056,7 +1098,8 @@ static bool load_games_from_index(void)
             flags |= FLAG_FAVORITE;
 
         add_game_entry(title, resolved_rom, resolved_cover, flags,
-                       parse_save_hint(save_hint), year, genre, publisher, developer);
+                       parse_save_hint(save_hint), year, genre, publisher,
+                       developer, NULL);
     }
 
     rb->close(fd);
@@ -1569,11 +1612,11 @@ static void launcher_layout_init(void)
     rb->lcd_getstringsize("Games", NULL, &font_height);
     launcher.line_height = font_height + 6;
 
-    launcher.cover_box_w = launcher.vp.width / 2 - 20;
-    if (launcher.cover_box_w > 150)
-        launcher.cover_box_w = 150;
-    if (launcher.cover_box_w < 110)
-        launcher.cover_box_w = 110;
+    launcher.cover_box_w = launcher.vp.width / 2 - 34;
+    if (launcher.cover_box_w > 128)
+        launcher.cover_box_w = 128;
+    if (launcher.cover_box_w < 96)
+        launcher.cover_box_w = 96;
 
     launcher.cover_box_h = launcher.vp.height / 2 + 4;
     if (launcher.cover_box_h > 140)
@@ -1581,9 +1624,9 @@ static void launcher_layout_init(void)
     if (launcher.cover_box_h < 96)
         launcher.cover_box_h = 96;
 
-    launcher.side_cover_w = launcher.cover_box_w / 2;
-    if (launcher.side_cover_w < 42)
-        launcher.side_cover_w = 42;
+    launcher.side_cover_w = (launcher.cover_box_w * 58) / 100;
+    if (launcher.side_cover_w < 38)
+        launcher.side_cover_w = 38;
 
     launcher.side_cover_h = launcher.cover_box_h - 34;
     if (launcher.side_cover_h < 72)
@@ -2166,6 +2209,20 @@ static void draw_entry_details(struct game_entry *entry)
 
 static void draw_coverflow(void)
 {
+    if (launcher.selected > 1)
+    {
+        draw_flow_cover_pose(&launcher.entries[launcher.selected - 2],
+                             peek_cover_slot(launcher.selected - 2),
+                             FLOW_FAR_LEFT, FLOW_FAR_LEFT, 256);
+    }
+
+    if (launcher.selected + 2 < launcher.entry_count)
+    {
+        draw_flow_cover_pose(&launcher.entries[launcher.selected + 2],
+                             peek_cover_slot(launcher.selected + 2),
+                             FLOW_FAR_RIGHT, FLOW_FAR_RIGHT, 256);
+    }
+
     if (launcher.selected > 0)
     {
         draw_flow_cover_pose(&launcher.entries[launcher.selected - 1],
@@ -2189,10 +2246,25 @@ static void draw_coverflow_transition(int old_selected, int new_selected, int pr
 {
     if (new_selected > old_selected)
     {
+        if (old_selected > 1)
+            draw_flow_cover_pose(&launcher.entries[old_selected - 2],
+                                 peek_cover_slot(old_selected - 2),
+                                 FLOW_FAR_LEFT, FLOW_OFF_LEFT, progress);
+
+        if (old_selected + 2 < launcher.entry_count)
+            draw_flow_cover_pose(&launcher.entries[old_selected + 2],
+                                 peek_cover_slot(old_selected + 2),
+                                 FLOW_FAR_RIGHT, FLOW_RIGHT, progress);
+
+        if (new_selected + 2 < launcher.entry_count)
+            draw_flow_cover_pose(&launcher.entries[new_selected + 2],
+                                 peek_cover_slot(new_selected + 2),
+                                 FLOW_OFF_RIGHT, FLOW_FAR_RIGHT, progress);
+
         if (old_selected > 0)
             draw_flow_cover_pose(&launcher.entries[old_selected - 1],
                                  peek_cover_slot(old_selected - 1),
-                                 FLOW_LEFT, FLOW_OFF_LEFT, progress);
+                                 FLOW_LEFT, FLOW_FAR_LEFT, progress);
 
         if (progress < 128)
         {
@@ -2215,10 +2287,25 @@ static void draw_coverflow_transition(int old_selected, int new_selected, int pr
     }
     else
     {
+        if (old_selected + 2 < launcher.entry_count)
+            draw_flow_cover_pose(&launcher.entries[old_selected + 2],
+                                 peek_cover_slot(old_selected + 2),
+                                 FLOW_FAR_RIGHT, FLOW_OFF_RIGHT, progress);
+
+        if (old_selected > 1)
+            draw_flow_cover_pose(&launcher.entries[old_selected - 2],
+                                 peek_cover_slot(old_selected - 2),
+                                 FLOW_FAR_LEFT, FLOW_LEFT, progress);
+
+        if (new_selected > 1)
+            draw_flow_cover_pose(&launcher.entries[new_selected - 2],
+                                 peek_cover_slot(new_selected - 2),
+                                 FLOW_OFF_LEFT, FLOW_FAR_LEFT, progress);
+
         if (old_selected + 1 < launcher.entry_count)
             draw_flow_cover_pose(&launcher.entries[old_selected + 1],
                                  peek_cover_slot(old_selected + 1),
-                                 FLOW_RIGHT, FLOW_OFF_RIGHT, progress);
+                                 FLOW_RIGHT, FLOW_FAR_RIGHT, progress);
 
         if (progress < 128)
         {
@@ -2328,7 +2415,9 @@ static enum plugin_status launch_selected_game(void)
     entry = &launcher.entries[launcher.selected];
     save_launcher_state(entry->rom_path);
     if (is_plugin_entry(entry->rom_path))
-        return rb->plugin_open(entry->rom_path, NULL);
+        return rb->plugin_open(entry->rom_path,
+                               entry->plugin_param[0] ?
+                               entry->plugin_param : NULL);
 
     if (is_nes_rom(entry->rom_path))
         return rb->plugin_open(INFONES_PLUGIN_PATH, entry->rom_path);

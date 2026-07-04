@@ -44,6 +44,9 @@ void mudclient_draw_shop(mudclient *mud) {
                 int item_price =
                     (price_mod * game_data.items[item_id].base_price) / 100;
 
+#ifdef ROCKBOX
+                mudclient_offline_shop_buy(mud, item_id, item_price);
+#else
                 packet_stream_new_packet(mud->packet_stream, CLIENT_SHOP_BUY);
 
                 packet_stream_put_short(
@@ -52,6 +55,7 @@ void mudclient_draw_shop(mudclient *mud) {
 
                 packet_stream_put_int(mud->packet_stream, item_price);
                 packet_stream_send_packet(mud->packet_stream);
+#endif
             } else if (mudclient_get_inventory_count(mud, item_id) > 0 &&
                        (is_compact ? (mouse_x > x && mouse_x < shop_width)
                                    : (mouse_x > 2 && mouse_x < 112)) &&
@@ -69,6 +73,9 @@ void mudclient_draw_shop(mudclient *mud) {
                 int item_price =
                     (price_mod * game_data.items[item_id].base_price) / 100;
 
+#ifdef ROCKBOX
+                mudclient_offline_shop_sell(mud, item_id, item_price);
+#else
                 packet_stream_new_packet(mud->packet_stream, CLIENT_SHOP_SELL);
 
                 packet_stream_put_short(
@@ -77,6 +84,7 @@ void mudclient_draw_shop(mudclient *mud) {
 
                 packet_stream_put_int(mud->packet_stream, item_price);
                 packet_stream_send_packet(mud->packet_stream);
+#endif
             } else {
                 mud->mouse_item_count_increment = 0;
             }
@@ -108,9 +116,13 @@ void mudclient_draw_shop(mudclient *mud) {
                 }
             }
         } else {
+#ifdef ROCKBOX
+            mud->show_dialog_shop = 0;
+#else
             packet_stream_new_packet(mud->packet_stream, CLIENT_SHOP_CLOSE);
             packet_stream_send_packet(mud->packet_stream);
             mud->show_dialog_shop = 0;
+#endif
             return;
         }
     }

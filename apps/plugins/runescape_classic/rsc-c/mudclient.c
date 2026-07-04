@@ -1998,12 +1998,2239 @@ static const struct OfflineNpcSpawn offline_npc_spawns[] = {
     {13, 2571, 2290, 3, DIR_SOUTH},  /* chicken */
     {14, 2584, 2287, 4, DIR_WEST},   /* goblin */
     {15, 2589, 2294, 153, DIR_NORTH},/* goblin */
+    {16, 2527, 2312, 95, DIR_SOUTH}, /* banker */
+    {17, 2524, 2312, 51, DIR_SOUTH}, /* shopkeeper */
+    {21, 2537, 2288, 6, DIR_EAST},   /* cow */
+    {22, 2541, 2287, 6, DIR_WEST},   /* cow */
+    {23, 2510, 2276, 2, DIR_SOUTH},  /* sheep */
+    {24, 2513, 2277, 2, DIR_NORTH},  /* sheep */
+    {25, 2512, 2274, 63, DIR_EAST},  /* farmer */
+    {26, 2529, 2304, 19, DIR_WEST},  /* rat */
+    {27, 2531, 2303, 29, DIR_EAST},  /* rat */
+    {28, 2562, 2296, 23, DIR_SOUTH}, /* giant spider */
+    {29, 2565, 2296, 34, DIR_NORTH}, /* spider */
+    {30, 2534, 2315, 65, DIR_SOUTH}, /* castle guard */
+    {31, 2520, 2292, 91, DIR_EAST},  /* chicken */
+    {32, 2581, 2292, 62, DIR_WEST},  /* goblin */
+};
+
+struct OfflineNamedNpcSpawn {
+    int server_index;
+    int global_x;
+    int global_y;
+    const char *name;
+    int direction;
+};
+
+static const struct OfflineNamedNpcSpawn offline_named_npc_spawns[] = {
+    {18, 2517, 2318, "Father Aereck", DIR_SOUTH},
+    {19, 2510, 2278, "Fred", DIR_EAST},
+    {20, 2513, 2300, "ghost", DIR_NORTH},
 };
 
 static int offline_combat_cooldown;
+static int offline_combat_engaged;
 static int offline_combat_phase;
 static int offline_respawn_timer;
 static int offline_respawn_server_index = -1;
+static int offline_combat_server_index = -1;
+static int offline_ground_item_defer_updates;
+static int offline_walk_x[PATH_STEPS_MAX];
+static int offline_walk_y[PATH_STEPS_MAX];
+static int offline_walk_len;
+static int offline_walk_pos;
+
+enum {
+    LUMBRIDGE_CASTLE_X = 2530,
+    LUMBRIDGE_CASTLE_Y = 2316
+};
+
+enum {
+    RSC_SAVE_VERSION = 1,
+    RSC_OFFLINE_QUEST_SAVE_MAX = 64,
+    RSC_QUEST_COOKS_ASSISTANT = 1,
+    RSC_QUEST_RESTLESS_GHOST = 4,
+    RSC_QUEST_SHEEP_SHEARER = 11,
+    RSC_ITEM_BONES = 20,
+    RSC_ITEM_KNIFE = 13,
+    RSC_ITEM_BUCKET = 21,
+    RSC_ITEM_SHORTBOW = 189,
+    RSC_ITEM_SWORDFISH = 370,
+    RSC_ITEM_LOBSTER = 373,
+    RSC_ITEM_BIG_BONES = 413,
+    RSC_ITEM_BAT_BONES = 604,
+    RSC_ITEM_DRAGON_BONES = 814,
+    RSC_ITEM_RUNE_LONGSWORD = 75,
+    RSC_ITEM_RUNE_TWO_HANDED_SWORD = 81,
+    RSC_ITEM_RUNE_BATTLE_AXE = 93,
+    RSC_ITEM_RUNE_SCIMITAR = 398,
+    RSC_ITEM_RUNE_PLATE_BODY = 401,
+    RSC_ITEM_RUNE_PLATE_LEGS = 402,
+    RSC_ITEM_RUNE_KITE_SHIELD = 404,
+    RSC_ITEM_DRAGON_SWORD = 593,
+    RSC_ITEM_DRAGON_AXE = 594,
+    RSC_ITEM_CHARGED_DRAGONSTONE_AMULET = 597,
+    RSC_ITEM_MAGIC_LONGBOW = 656,
+    RSC_ITEM_RUNE_ARROWS = 646,
+    RSC_ITEM_STEEL_GAUNTLETS = 698,
+    RSC_ITEM_ENCHANTED_FIRE_BATTLESTAFF = 682,
+    RSC_ITEM_ENCHANTED_WATER_BATTLESTAFF = 683,
+    RSC_ITEM_ENCHANTED_AIR_BATTLESTAFF = 684,
+    RSC_ITEM_ENCHANTED_EARTH_BATTLESTAFF = 685,
+    RSC_ITEM_DRAGON_MEDIUM_HELMET = 795,
+    RSC_ITEM_BOOTS = 966,
+    RSC_ITEM_RUNE_THROWING_DART = 1070,
+    RSC_ITEM_RUNE_THROWING_KNIFE = 1080,
+    RSC_ITEM_RUNE_SPEAR = 1092,
+    RSC_ITEM_ZAMORAK_CAPE = 1213,
+    RSC_ITEM_SARADOMIN_CAPE = 1214,
+    RSC_ITEM_GUTHIX_CAPE = 1215,
+    RSC_ITEM_DRAGON_SQUARE_SHIELD = 1278,
+    RSC_ITEM_CAPE_OF_LEGENDS = 1288
+};
+
+struct OfflineSave {
+    int profile;
+    int global_x;
+    int global_y;
+    int has_position;
+    int appearance_hair;
+    int appearance_top;
+    int appearance_bottom;
+    int appearance_skin;
+    int combat_style;
+    int player_quest_points;
+    int quest_complete[RSC_OFFLINE_QUEST_SAVE_MAX];
+    int bank_items_max;
+    int bank_item_count;
+    int bank_items[BANK_ITEMS_MAX];
+    int bank_items_count[BANK_ITEMS_MAX];
+    int inventory_items_count;
+    int inventory_item_id[INVENTORY_ITEMS_MAX];
+    int inventory_item_stack_count[INVENTORY_ITEMS_MAX];
+    int inventory_equipped[INVENTORY_ITEMS_MAX];
+    int player_skill_current[PLAYER_SKILL_COUNT];
+    int player_skill_base[PLAYER_SKILL_COUNT];
+    int player_experience[PLAYER_SKILL_COUNT];
+};
+
+static int mudclient_step_delta(int value) {
+    if (value > 0) {
+        return 1;
+    }
+    if (value < 0) {
+        return -1;
+    }
+    return 0;
+}
+
+static void mudclient_clear_offline_walk(void) {
+    offline_walk_len = 0;
+    offline_walk_pos = 0;
+}
+
+static void mudclient_reset_character_waypoints(GameCharacter *player) {
+    if (player == NULL) {
+        return;
+    }
+
+    player->moving_step = 0;
+    player->waypoint_current = 0;
+    player->waypoints_x[0] = player->current_x;
+    player->waypoints_y[0] = player->current_y;
+}
+
+static int mudclient_append_offline_walk_tile(int x, int y) {
+    if (offline_walk_len >= PATH_STEPS_MAX) {
+        return 0;
+    }
+
+    offline_walk_x[offline_walk_len] = x;
+    offline_walk_y[offline_walk_len] = y;
+    offline_walk_len++;
+    return 1;
+}
+
+static int mudclient_append_offline_walk_segment(int *from_x, int *from_y,
+                                                int to_x, int to_y) {
+    while (*from_x != to_x || *from_y != to_y) {
+        *from_x += mudclient_step_delta(to_x - *from_x);
+        *from_y += mudclient_step_delta(to_y - *from_y);
+
+        if (!mudclient_append_offline_walk_tile(*from_x, *from_y)) {
+            return 0;
+        }
+    }
+
+    return 1;
+}
+
+static void mudclient_feed_offline_walk(mudclient *mud) {
+    GameCharacter *player = mud->local_player;
+
+    if (player == NULL) {
+        mudclient_clear_offline_walk();
+        return;
+    }
+
+    while (offline_walk_pos < offline_walk_len) {
+        int waypoint = (player->waypoint_current + 1) % WAYPOINT_COUNT;
+
+        if ((waypoint + 1) % WAYPOINT_COUNT == player->moving_step) {
+            break;
+        }
+
+        player->waypoints_x[waypoint] =
+            offline_walk_x[offline_walk_pos] * MAGIC_LOC + 64;
+        player->waypoints_y[waypoint] =
+            offline_walk_y[offline_walk_pos] * MAGIC_LOC + 64;
+        player->waypoint_current = waypoint;
+        offline_walk_pos++;
+    }
+
+    if (offline_walk_pos >= offline_walk_len &&
+        player->moving_step ==
+            (player->waypoint_current + 1) % WAYPOINT_COUNT) {
+        mudclient_clear_offline_walk();
+    }
+}
+
+static int mudclient_start_offline_walk(mudclient *mud, int start_x,
+                                        int start_y, int route_steps) {
+    int from_x = start_x;
+    int from_y = start_y;
+
+    mudclient_clear_offline_walk();
+    mudclient_reset_character_waypoints(mud->local_player);
+
+    for (int i = route_steps - 1; i >= 0; i--) {
+        if (!mudclient_append_offline_walk_segment(
+                &from_x, &from_y, mud->walk_path_x[i], mud->walk_path_y[i])) {
+            mudclient_clear_offline_walk();
+            return 0;
+        }
+    }
+
+    mudclient_feed_offline_walk(mud);
+    return 1;
+}
+
+static void mudclient_run_offline_player(mudclient *mud) {
+    if (mud == NULL || mud->local_player == NULL ||
+        mud->local_player->current_animation == 8 ||
+        mud->local_player->current_animation == 9) {
+        return;
+    }
+
+    for (int i = 0; i < 3; i++) {
+        int old_x = mud->local_player->current_x;
+        int old_y = mud->local_player->current_y;
+
+        mudclient_feed_offline_walk(mud);
+        game_character_move(mud->local_player);
+
+        if (mud->local_player->current_x == old_x &&
+            mud->local_player->current_y == old_y) {
+            break;
+        }
+    }
+}
+
+static void mudclient_offline_save_path(mudclient *mud, char *path,
+                                        size_t path_size) {
+    char file[32];
+
+    snprintf(file, sizeof(file), "offline_%d.sav", mud->offline_profile);
+    get_config_path(file, path);
+    (void)path_size;
+}
+
+static int mudclient_write_save_line(int fd, const char *line) {
+    size_t length = strlen(line);
+    return write(fd, line, length) == (ssize_t)length;
+}
+
+static int mudclient_offline_find_inventory_slot(mudclient *mud, int id);
+static void mudclient_set_offline_base_appearance(mudclient *mud,
+                                                  GameCharacter *player);
+
+static void mudclient_add_offline_inventory_item(mudclient *mud, int id,
+                                                int count, int equipped) {
+    int slot = mud->inventory_items_count;
+
+    if (slot >= INVENTORY_ITEMS_MAX || id < 0 || id >= game_data.item_count) {
+        return;
+    }
+
+    if (count < 1) {
+        count = 1;
+    }
+
+    mud->inventory_item_id[slot] = id;
+    mud->inventory_item_stack_count[slot] = count;
+    mud->inventory_equipped[slot] = equipped;
+    mud->inventory_items_count++;
+}
+
+static int mudclient_offline_text_contains(const char *text,
+                                           const char *needle) {
+    if (text == NULL || needle == NULL) {
+        return 0;
+    }
+
+    for (int i = 0; text[i] != '\0'; i++) {
+        int j = 0;
+
+        while (needle[j] != '\0' &&
+               tolower((unsigned char)text[i + j]) ==
+                   tolower((unsigned char)needle[j])) {
+            j++;
+        }
+
+        if (needle[j] == '\0') {
+            return 1;
+        }
+    }
+
+    return 0;
+}
+
+static int mudclient_find_offline_item(const char *name) {
+    for (int i = 0; i < game_data.item_count; i++) {
+        char *item_name = game_data.items[i].name;
+
+        if (item_name != NULL && strcasecmp(item_name, name) == 0) {
+            return i;
+        }
+    }
+
+    return -1;
+}
+
+static int mudclient_find_offline_item_containing(const char *name) {
+    for (int i = 0; i < game_data.item_count; i++) {
+        char *item_name = game_data.items[i].name;
+
+        if (mudclient_offline_text_contains(item_name, name)) {
+            return i;
+        }
+    }
+
+    return -1;
+}
+
+static int mudclient_offline_has_item_name(mudclient *mud, const char *name,
+                                           int amount) {
+    int id = mudclient_find_offline_item(name);
+
+    if (id < 0) {
+        id = mudclient_find_offline_item_containing(name);
+    }
+
+    return id >= 0 && mudclient_get_inventory_count(mud, id) >= amount;
+}
+
+static int mudclient_offline_remove_item_name(mudclient *mud,
+                                              const char *name, int amount) {
+    int id = mudclient_find_offline_item(name);
+
+    if (id < 0) {
+        id = mudclient_find_offline_item_containing(name);
+    }
+
+    if (id < 0) {
+        return 0;
+    }
+
+    return mudclient_offline_remove_inventory_item(mud, id, amount) == amount;
+}
+
+static void mudclient_ensure_offline_inventory_item(mudclient *mud,
+                                                   const char *name,
+                                                   int count, int equipped) {
+    int id = mudclient_find_offline_item(name);
+    int slot;
+
+    if (id < 0 || mudclient_has_inventory_item(mud, id, 1)) {
+        return;
+    }
+
+    mudclient_add_offline_inventory_item(mud, id, count, equipped);
+
+    if (!equipped) {
+        return;
+    }
+
+    slot = mudclient_offline_find_inventory_slot(mud, id);
+    if (slot >= 0) {
+        mud->inventory_equipped[slot] = 1;
+    }
+}
+
+static void mudclient_compact_offline_inventory(mudclient *mud, int slot) {
+    if (slot < 0 || slot >= mud->inventory_items_count) {
+        return;
+    }
+
+    mud->inventory_items_count--;
+    for (int i = slot; i < mud->inventory_items_count; i++) {
+        mud->inventory_item_id[i] = mud->inventory_item_id[i + 1];
+        mud->inventory_item_stack_count[i] =
+            mud->inventory_item_stack_count[i + 1];
+        mud->inventory_equipped[i] = mud->inventory_equipped[i + 1];
+    }
+
+    mud->inventory_item_id[mud->inventory_items_count] = 0;
+    mud->inventory_item_stack_count[mud->inventory_items_count] = 0;
+    mud->inventory_equipped[mud->inventory_items_count] = 0;
+}
+
+static int mudclient_offline_find_inventory_slot(mudclient *mud, int id) {
+    for (int i = 0; i < mud->inventory_items_count; i++) {
+        if (mud->inventory_item_id[i] == id) {
+            return i;
+        }
+    }
+
+    return -1;
+}
+
+int mudclient_offline_add_inventory_item(mudclient *mud, int id, int amount) {
+    int added = 0;
+
+    if (mud == NULL || id < 0 || id >= game_data.item_count || amount <= 0) {
+        return 0;
+    }
+
+    if (game_data.items[id].stackable == 0) {
+        int slot = mudclient_offline_find_inventory_slot(mud, id);
+
+        if (slot < 0) {
+            if (mud->inventory_items_count >= INVENTORY_ITEMS_MAX) {
+                return 0;
+            }
+            slot = mud->inventory_items_count++;
+            mud->inventory_item_id[slot] = id;
+            mud->inventory_item_stack_count[slot] = 0;
+            mud->inventory_equipped[slot] = 0;
+        }
+
+        int room = INT_MAX - mud->inventory_item_stack_count[slot];
+        if (amount > room) {
+            amount = room;
+        }
+        mud->inventory_item_stack_count[slot] += amount;
+        return amount;
+    }
+
+    while (added < amount && mud->inventory_items_count < INVENTORY_ITEMS_MAX) {
+        int slot = mud->inventory_items_count++;
+        mud->inventory_item_id[slot] = id;
+        mud->inventory_item_stack_count[slot] = 1;
+        mud->inventory_equipped[slot] = 0;
+        added++;
+    }
+
+    return added;
+}
+
+int mudclient_offline_remove_inventory_item(mudclient *mud, int id,
+                                            int amount) {
+    int removed = 0;
+
+    if (mud == NULL || id < 0 || id >= game_data.item_count || amount <= 0) {
+        return 0;
+    }
+
+    if (game_data.items[id].stackable == 0) {
+        int slot = mudclient_offline_find_inventory_slot(mud, id);
+
+        if (slot < 0) {
+            return 0;
+        }
+
+        removed = mud->inventory_item_stack_count[slot];
+        if (removed > amount) {
+            removed = amount;
+        }
+
+        mud->inventory_item_stack_count[slot] -= removed;
+        if (mud->inventory_item_stack_count[slot] <= 0) {
+            mudclient_compact_offline_inventory(mud, slot);
+        }
+        return removed;
+    }
+
+    for (int i = 0; i < mud->inventory_items_count && removed < amount;) {
+        if (mud->inventory_item_id[i] == id) {
+            mudclient_compact_offline_inventory(mud, i);
+            removed++;
+        } else {
+            i++;
+        }
+    }
+
+    return removed;
+}
+
+static void mudclient_offline_add_ground_item(mudclient *mud, int id, int x,
+                                              int y) {
+    if (mud == NULL || id < 0 || id >= game_data.item_count ||
+        mud->ground_item_count >= GROUND_ITEMS_MAX) {
+        return;
+    }
+
+    mud->ground_items[mud->ground_item_count].x = x;
+    mud->ground_items[mud->ground_item_count].y = y;
+    mud->ground_items[mud->ground_item_count].id = id;
+    mud->ground_items[mud->ground_item_count].z = 0;
+
+    for (int i = 0; i < mud->object_count; i++) {
+        if (mud->objects[i].x == x && mud->objects[i].y == y) {
+            mud->ground_items[mud->ground_item_count].z =
+                game_data.objects[mud->objects[i].id].elevation;
+            break;
+        }
+    }
+
+    mud->ground_item_count++;
+    if (!offline_ground_item_defer_updates) {
+        mudclient_update_ground_item_models(mud);
+    }
+}
+
+static void mudclient_offline_add_ground_item_once(mudclient *mud,
+                                                   const char *name, int x,
+                                                   int y) {
+    int id = mudclient_find_offline_item(name);
+
+    if (mud == NULL) {
+        return;
+    }
+
+    x -= mud->region_x;
+    y -= mud->region_y;
+    if (x < 0 || x >= REGION_WIDTH || y < 0 || y >= REGION_HEIGHT) {
+        return;
+    }
+
+    if (id < 0) {
+        id = mudclient_find_offline_item_containing(name);
+    }
+    if (id < 0) {
+        return;
+    }
+
+    for (int i = 0; i < mud->ground_item_count; i++) {
+        if (mud->ground_items[i].x == x && mud->ground_items[i].y == y &&
+            mud->ground_items[i].id == id) {
+            return;
+        }
+    }
+
+    mudclient_offline_add_ground_item(mud, id, x, y);
+}
+
+static void mudclient_seed_offline_quest_ground_items(mudclient *mud) {
+    if (mud == NULL) {
+        return;
+    }
+
+    offline_ground_item_defer_updates = 1;
+    mudclient_offline_add_ground_item_once(mud, "egg", 2516, 2318);
+    mudclient_offline_add_ground_item_once(mud, "bucket of milk", 2517, 2318);
+    mudclient_offline_add_ground_item_once(mud, "pot of flour", 2518, 2318);
+    mudclient_offline_add_ground_item_once(mud, "skull", 2512, 2300);
+
+    for (int i = 0; i < 20; i++) {
+        mudclient_offline_add_ground_item_once(mud, "ball of wool",
+                                               2509 + (i % 5),
+                                               2276 + (i / 5));
+    }
+
+    mudclient_offline_add_ground_item_once(mud, "Bronze Pickaxe", 2560, 2297);
+    mudclient_offline_add_ground_item_once(mud, "Iron Axe", 2522, 2282);
+    mudclient_offline_add_ground_item_once(mud, "tinderbox", 2523, 2282);
+    mudclient_offline_add_ground_item_once(mud, "Net", 2524, 2280);
+    mudclient_offline_add_ground_item_once(mud, "Fishing Rod", 2525, 2280);
+    mudclient_offline_add_ground_item_once(mud, "Feather", 2526, 2280);
+    mudclient_offline_add_ground_item_once(mud, "Raw Shrimp", 2524, 2279);
+    mudclient_offline_add_ground_item_once(mud, "raw chicken", 2515, 2292);
+    mudclient_offline_add_ground_item_once(mud, "raw beef", 2539, 2289);
+    mudclient_offline_add_ground_item_once(mud, "copper ore", 2562, 2297);
+    mudclient_offline_add_ground_item_once(mud, "tin ore", 2563, 2297);
+    mudclient_offline_add_ground_item_once(mud, "iron ore", 2564, 2297);
+    mudclient_offline_add_ground_item_once(mud, "bronze bar", 2520, 2318);
+    mudclient_offline_add_ground_item_once(mud, "iron bar", 2521, 2318);
+    offline_ground_item_defer_updates = 0;
+    mudclient_update_ground_item_models(mud);
+}
+
+static void mudclient_offline_remove_ground_item(mudclient *mud, int slot) {
+    if (mud == NULL || slot < 0 || slot >= mud->ground_item_count) {
+        return;
+    }
+
+    mud->ground_item_count--;
+    for (int i = slot; i < mud->ground_item_count; i++) {
+        mud->ground_items[i].x = mud->ground_items[i + 1].x;
+        mud->ground_items[i].y = mud->ground_items[i + 1].y;
+        mud->ground_items[i].id = mud->ground_items[i + 1].id;
+        mud->ground_items[i].z = mud->ground_items[i + 1].z;
+        mud->ground_items[i].already_in_menu =
+            mud->ground_items[i + 1].already_in_menu;
+    }
+    mudclient_update_ground_item_models(mud);
+}
+
+int mudclient_offline_take_ground_item(mudclient *mud, int x, int y,
+                                       int item_id) {
+    if (mud == NULL) {
+        return 0;
+    }
+
+    for (int i = 0; i < mud->ground_item_count; i++) {
+        if (mud->ground_items[i].x != x || mud->ground_items[i].y != y ||
+            mud->ground_items[i].id != item_id) {
+            continue;
+        }
+
+        if (mudclient_offline_add_inventory_item(mud, item_id, 1) <= 0) {
+            mudclient_show_message(mud, "@cya@Your inventory is full.",
+                                   MESSAGE_TYPE_GAME);
+            return 0;
+        }
+
+        mudclient_offline_remove_ground_item(mud, i);
+        mudclient_show_message(mud, game_data.items[item_id].name,
+                               MESSAGE_TYPE_GAME);
+        return 1;
+    }
+
+    return 0;
+}
+
+void mudclient_offline_drop_inventory_slot(mudclient *mud, int slot) {
+    if (mud == NULL || mud->local_player == NULL || slot < 0 ||
+        slot >= mud->inventory_items_count) {
+        return;
+    }
+
+    int id = mud->inventory_item_id[slot];
+    int x = mud->local_player->current_x / MAGIC_LOC;
+    int y = mud->local_player->current_y / MAGIC_LOC;
+
+    if (mudclient_offline_remove_inventory_item(mud, id, 1) <= 0) {
+        return;
+    }
+
+    mudclient_offline_add_ground_item(mud, id, x, y);
+    mudclient_show_message(mud, "@cya@You drop the item.", MESSAGE_TYPE_GAME);
+}
+
+static int mudclient_offline_experience_to_level(int experience) {
+    int total_exp = 0;
+
+    for (int i = 0; i < 99; i++) {
+        int level = i + 1;
+        int exp = level + 300 * pow(2, (float)level / 7);
+        total_exp += exp;
+
+        if (experience < (total_exp & 0xffffffc)) {
+            return level;
+        }
+    }
+
+    return 99;
+}
+
+static const char *mudclient_offline_skill_name(int skill) {
+    static const char *names[PLAYER_SKILL_COUNT] = {
+        "Attack",   "Defense",  "Strength",    "Hits",      "Ranged",
+        "Prayer",   "Magic",    "Cooking",     "Woodcutting","Fletching",
+        "Fishing",  "Firemaking","Crafting",   "Smithing",  "Mining",
+        "Herblaw",  "Agility",  "Thieving"};
+
+    if (skill < 0 || skill >= PLAYER_SKILL_COUNT) {
+        return "skill";
+    }
+
+    return names[skill];
+}
+
+static void mudclient_update_offline_combat_level(mudclient *mud) {
+    GameCharacter *player = mud->local_player;
+
+    if (player == NULL) {
+        return;
+    }
+
+    player->level = (mud->player_skill_base[SKILL_ATTACK] +
+                     mud->player_skill_base[SKILL_DEFENSE] +
+                     mud->player_skill_base[SKILL_STRENGTH] +
+                     mud->player_skill_base[SKILL_HITS] + 27) /
+                    4;
+    player->current_hits = mud->player_skill_current[SKILL_HITS];
+    player->max_hits = mud->player_skill_base[SKILL_HITS];
+}
+
+static void mudclient_award_offline_xp(mudclient *mud, int skill, int xp) {
+    int old_level;
+    int new_level;
+    int was_full;
+    char message[96];
+
+    if (mud == NULL || skill < 0 || skill >= PLAYER_SKILL_COUNT || xp <= 0) {
+        return;
+    }
+
+    old_level = mud->player_skill_base[skill];
+    was_full = mud->player_skill_current[skill] >= old_level;
+
+    if (mud->player_experience[skill] < 800000000 - xp) {
+        mud->player_experience[skill] += xp;
+    } else {
+        mud->player_experience[skill] = 800000000;
+    }
+
+    new_level = mudclient_offline_experience_to_level(
+        mud->player_experience[skill]);
+    if (new_level > mud->player_skill_base[skill]) {
+        mud->player_skill_base[skill] = new_level;
+        if (was_full || skill == SKILL_HITS) {
+            mud->player_skill_current[skill] = new_level;
+        }
+
+        snprintf(message, sizeof(message), "@gre@Your %s level has increased!",
+                 mudclient_offline_skill_name(skill));
+        mudclient_show_message(mud, message, MESSAGE_TYPE_GAME);
+    }
+
+    if (skill == SKILL_ATTACK || skill == SKILL_DEFENSE ||
+        skill == SKILL_STRENGTH || skill == SKILL_HITS) {
+        mudclient_update_offline_combat_level(mud);
+    }
+
+    mudclient_drop_experience(mud, skill, xp);
+}
+
+static int mudclient_offline_bone_xp(int item_id) {
+    switch (item_id) {
+    case RSC_ITEM_BIG_BONES:
+        return 60;
+    case RSC_ITEM_BAT_BONES:
+        return 22;
+    case RSC_ITEM_DRAGON_BONES:
+        return 288;
+    case RSC_ITEM_BONES:
+    default:
+        return 18;
+    }
+}
+
+static int mudclient_offline_inventory_has_named_tool(mudclient *mud,
+                                                      const char *needle) {
+    for (int i = 0; i < mud->inventory_items_count; i++) {
+        int id = mud->inventory_item_id[i];
+
+        if (id >= 0 && id < game_data.item_count &&
+            mudclient_offline_text_contains(game_data.items[id].name,
+                                            needle)) {
+            return 1;
+        }
+    }
+
+    return 0;
+}
+
+static int mudclient_offline_add_named_item(mudclient *mud, const char *name,
+                                            int amount) {
+    int id = mudclient_find_offline_item(name);
+
+    if (id < 0) {
+        id = mudclient_find_offline_item_containing(name);
+    }
+    if (id < 0) {
+        return 0;
+    }
+
+    return mudclient_offline_add_inventory_item(mud, id, amount);
+}
+
+static int mudclient_offline_consume_first_named(mudclient *mud,
+                                                 const char **names,
+                                                 int *item_id) {
+    for (int i = 0; names[i] != NULL; i++) {
+        int id = mudclient_find_offline_item(names[i]);
+
+        if (id < 0) {
+            id = mudclient_find_offline_item_containing(names[i]);
+        }
+        if (id >= 0 && mudclient_get_inventory_count(mud, id) > 0 &&
+            mudclient_offline_remove_inventory_item(mud, id, 1) > 0) {
+            if (item_id != NULL) {
+                *item_id = id;
+            }
+            return 1;
+        }
+    }
+
+    return 0;
+}
+
+static int mudclient_offline_log_item_for_object(int object_id,
+                                                 const char **item_name,
+                                                 int *xp) {
+    char *name;
+
+    if (object_id < 0 || object_id >= game_data.object_count) {
+        return 0;
+    }
+
+    name = game_data.objects[object_id].name;
+    if (!mudclient_offline_text_contains(name, "tree")) {
+        return 0;
+    }
+
+    if (mudclient_offline_text_contains(name, "magic")) {
+        *item_name = "Magic Logs";
+        *xp = 1000;
+    } else if (mudclient_offline_text_contains(name, "yew")) {
+        *item_name = "Yew Logs";
+        *xp = 700;
+    } else if (mudclient_offline_text_contains(name, "maple")) {
+        *item_name = "Maple Logs";
+        *xp = 400;
+    } else if (mudclient_offline_text_contains(name, "willow")) {
+        *item_name = "Willow Logs";
+        *xp = 270;
+    } else if (mudclient_offline_text_contains(name, "oak")) {
+        *item_name = "Oak Logs";
+        *xp = 150;
+    } else {
+        *item_name = "Logs";
+        *xp = 100;
+    }
+
+    return 1;
+}
+
+static int mudclient_offline_ore_for_object(int object_id,
+                                            const char **item_name, int *xp) {
+    if (object_id < 0 || object_id >= game_data.object_count ||
+        !mudclient_offline_text_contains(game_data.objects[object_id].name,
+                                         "rock")) {
+        return 0;
+    }
+
+    switch (object_id % 5) {
+    case 0:
+        *item_name = "iron ore";
+        *xp = 140;
+        break;
+    case 1:
+        *item_name = "tin ore";
+        *xp = 70;
+        break;
+    default:
+        *item_name = "copper ore";
+        *xp = 70;
+        break;
+    }
+
+    return 1;
+}
+
+static int mudclient_offline_cook_first_raw_food(mudclient *mud) {
+    static const struct {
+        const char *raw;
+        const char *cooked;
+        int xp;
+    } foods[] = {
+        {"Raw Shrimp", "Shrimp", 120},
+        {"Raw Anchovies", "Anchovies", 120},
+        {"Raw Sardine", "Sardine", 160},
+        {"Raw Trout", "Trout", 200},
+        {"Raw Salmon", "Salmon", 280},
+        {"Raw Lobster", "Lobster", 480},
+        {"Raw Swordfish", "Swordfish", 560},
+        {"raw chicken", "cookedmeat", 120},
+        {"raw beef", "cookedmeat", 120},
+        {"raw bear meat", "cookedmeat", 120},
+        {"raw rat meat", "cookedmeat", 120},
+        {NULL, NULL, 0},
+    };
+
+    for (int i = 0; foods[i].raw != NULL; i++) {
+        int raw_id = mudclient_find_offline_item(foods[i].raw);
+        int cooked_id = mudclient_find_offline_item(foods[i].cooked);
+
+        if (raw_id < 0 || cooked_id < 0 ||
+            mudclient_get_inventory_count(mud, raw_id) <= 0) {
+            continue;
+        }
+
+        if (mudclient_offline_remove_inventory_item(mud, raw_id, 1) <= 0) {
+            return 1;
+        }
+        if (mudclient_offline_add_inventory_item(mud, cooked_id, 1) <= 0) {
+            mudclient_offline_add_inventory_item(mud, raw_id, 1);
+            mudclient_show_message(mud, "@cya@Your inventory is full.",
+                                   MESSAGE_TYPE_GAME);
+            return 1;
+        }
+
+        mudclient_award_offline_xp(mud, SKILL_COOKING, foods[i].xp);
+        mudclient_show_message(mud, "@cya@You successfully cook the food.",
+                               MESSAGE_TYPE_GAME);
+        return 1;
+    }
+
+    mudclient_show_message(mud, "@cya@You have nothing raw to cook.",
+                           MESSAGE_TYPE_GAME);
+    return 1;
+}
+
+static int mudclient_offline_smelt_bar(mudclient *mud) {
+    int copper = mudclient_find_offline_item("copper ore");
+    int tin = mudclient_find_offline_item("tin ore");
+    int iron = mudclient_find_offline_item("iron ore");
+    int bronze_bar = mudclient_find_offline_item("bronze bar");
+    int iron_bar = mudclient_find_offline_item("iron bar");
+
+    if (copper >= 0 && tin >= 0 && bronze_bar >= 0 &&
+        mudclient_get_inventory_count(mud, copper) > 0 &&
+        mudclient_get_inventory_count(mud, tin) > 0) {
+        mudclient_offline_remove_inventory_item(mud, copper, 1);
+        mudclient_offline_remove_inventory_item(mud, tin, 1);
+        mudclient_offline_add_inventory_item(mud, bronze_bar, 1);
+        mudclient_award_offline_xp(mud, SKILL_SMITHING, 25);
+        mudclient_show_message(mud, "@cya@You smelt a bronze bar.",
+                               MESSAGE_TYPE_GAME);
+        return 1;
+    }
+
+    if (iron >= 0 && iron_bar >= 0 && mudclient_get_inventory_count(mud, iron) > 0) {
+        mudclient_offline_remove_inventory_item(mud, iron, 1);
+        mudclient_offline_add_inventory_item(mud, iron_bar, 1);
+        mudclient_award_offline_xp(mud, SKILL_SMITHING, 50);
+        mudclient_show_message(mud, "@cya@You smelt an iron bar.",
+                               MESSAGE_TYPE_GAME);
+        return 1;
+    }
+
+    mudclient_show_message(mud, "@cya@You need ore to smelt.",
+                           MESSAGE_TYPE_GAME);
+    return 1;
+}
+
+static int mudclient_offline_smith_item(mudclient *mud) {
+    int bronze_bar = mudclient_find_offline_item("bronze bar");
+    int iron_bar = mudclient_find_offline_item("iron bar");
+    int bronze_sword = mudclient_find_offline_item("Bronze Short Sword");
+    int iron_mace = IRON_MACE_ID;
+
+    if (bronze_bar >= 0 && bronze_sword >= 0 &&
+        mudclient_get_inventory_count(mud, bronze_bar) > 0) {
+        mudclient_offline_remove_inventory_item(mud, bronze_bar, 1);
+        mudclient_offline_add_inventory_item(mud, bronze_sword, 1);
+        mudclient_award_offline_xp(mud, SKILL_SMITHING, 50);
+        mudclient_show_message(mud, "@cya@You smith a bronze sword.",
+                               MESSAGE_TYPE_GAME);
+        return 1;
+    }
+
+    if (iron_bar >= 0 && mudclient_get_inventory_count(mud, iron_bar) > 0) {
+        mudclient_offline_remove_inventory_item(mud, iron_bar, 1);
+        mudclient_offline_add_inventory_item(mud, iron_mace, 1);
+        mudclient_award_offline_xp(mud, SKILL_SMITHING, 100);
+        mudclient_show_message(mud, "@cya@You smith an iron mace.",
+                               MESSAGE_TYPE_GAME);
+        return 1;
+    }
+
+    mudclient_show_message(mud, "@cya@You need a bar to smith.",
+                           MESSAGE_TYPE_GAME);
+    return 1;
+}
+
+static int mudclient_offline_fish(mudclient *mud) {
+    if (mudclient_offline_inventory_has_named_tool(mud, "net")) {
+        if (mudclient_offline_add_named_item(mud, "Raw Shrimp", 1) <= 0) {
+            mudclient_show_message(mud, "@cya@Your inventory is full.",
+                                   MESSAGE_TYPE_GAME);
+            return 1;
+        }
+        mudclient_award_offline_xp(mud, SKILL_FISHING, 40);
+        mudclient_show_message(mud, "@cya@You catch some shrimp.",
+                               MESSAGE_TYPE_GAME);
+        return 1;
+    }
+
+    if (mudclient_offline_inventory_has_named_tool(mud, "fishing rod") &&
+        mudclient_offline_has_item_name(mud, "Feather", 1)) {
+        mudclient_offline_remove_item_name(mud, "Feather", 1);
+        if (mudclient_offline_add_named_item(mud, "Raw Trout", 1) <= 0) {
+            mudclient_offline_add_named_item(mud, "Feather", 1);
+            mudclient_show_message(mud, "@cya@Your inventory is full.",
+                                   MESSAGE_TYPE_GAME);
+            return 1;
+        }
+        mudclient_award_offline_xp(mud, SKILL_FISHING, 200);
+        mudclient_show_message(mud, "@cya@You catch a fish.",
+                               MESSAGE_TYPE_GAME);
+        return 1;
+    }
+
+    mudclient_show_message(mud, "@cya@You need a net or rod to fish.",
+                           MESSAGE_TYPE_GAME);
+    return 1;
+}
+
+static int mudclient_offline_eat_inventory_item(mudclient *mud, int slot) {
+    int item_id;
+    int heal;
+
+    if (mud == NULL || slot < 0 || slot >= mud->inventory_items_count ||
+        mud->local_player == NULL) {
+        return 0;
+    }
+
+    item_id = mud->inventory_item_id[slot];
+    if (item_id < 0 || item_id >= game_data.item_count ||
+        !mudclient_offline_text_contains(game_data.items[item_id].command,
+                                         "eat")) {
+        return 0;
+    }
+
+    heal = 2;
+    if (mudclient_offline_text_contains(game_data.items[item_id].name,
+                                        "lobster")) {
+        heal = 12;
+    } else if (mudclient_offline_text_contains(game_data.items[item_id].name,
+                                               "swordfish")) {
+        heal = 14;
+    } else if (mudclient_offline_text_contains(game_data.items[item_id].name,
+                                               "trout")) {
+        heal = 7;
+    } else if (mudclient_offline_text_contains(game_data.items[item_id].name,
+                                               "salmon")) {
+        heal = 9;
+    } else if (mudclient_offline_text_contains(game_data.items[item_id].name,
+                                               "shrimp")) {
+        heal = 3;
+    } else if (mudclient_offline_text_contains(game_data.items[item_id].name,
+                                               "meat")) {
+        heal = 3;
+    }
+
+    if (mudclient_offline_remove_inventory_item(mud, item_id, 1) <= 0) {
+        return 1;
+    }
+
+    mud->player_skill_current[SKILL_HITS] += heal;
+    if (mud->player_skill_current[SKILL_HITS] >
+        mud->player_skill_base[SKILL_HITS]) {
+        mud->player_skill_current[SKILL_HITS] =
+            mud->player_skill_base[SKILL_HITS];
+    }
+    mud->local_player->current_hits = mud->player_skill_current[SKILL_HITS];
+    mudclient_show_message(mud, "@cya@You eat the food.", MESSAGE_TYPE_GAME);
+    return 1;
+}
+
+void mudclient_offline_bury_inventory_item(mudclient *mud, int slot) {
+    if (mud == NULL || slot < 0 || slot >= mud->inventory_items_count) {
+        return;
+    }
+
+    int item_id = mud->inventory_item_id[slot];
+    if (item_id < 0 || item_id >= game_data.item_count ||
+        strcmp(game_data.items[item_id].command, "Bury") != 0) {
+        return;
+    }
+
+    int xp = mudclient_offline_bone_xp(item_id);
+
+    if (mudclient_offline_remove_inventory_item(mud, item_id, 1) <= 0) {
+        return;
+    }
+
+    mudclient_award_offline_xp(mud, SKILL_PRAYER, xp);
+    mudclient_show_message(mud, "@cya@You bury the bones.",
+                           MESSAGE_TYPE_GAME);
+}
+
+int mudclient_offline_inventory_command(mudclient *mud, int slot) {
+    if (mudclient_offline_eat_inventory_item(mud, slot)) {
+        return 1;
+    }
+
+    mudclient_offline_bury_inventory_item(mud, slot);
+    return 1;
+}
+
+int mudclient_offline_use_inventory_items(mudclient *mud, int source_slot,
+                                          int target_slot) {
+    int source_id;
+    int target_id;
+    int logs_id;
+    int tinderbox_id;
+
+    if (mud == NULL || mud->local_player == NULL || source_slot < 0 ||
+        source_slot >= mud->inventory_items_count || target_slot < 0 ||
+        target_slot >= mud->inventory_items_count) {
+        return 0;
+    }
+
+    source_id = mud->inventory_item_id[source_slot];
+    target_id = mud->inventory_item_id[target_slot];
+    tinderbox_id = mudclient_find_offline_item("tinderbox");
+
+    if (source_id < 0 || source_id >= game_data.item_count || target_id < 0 ||
+        target_id >= game_data.item_count || tinderbox_id < 0) {
+        return 0;
+    }
+
+    logs_id = mudclient_offline_text_contains(game_data.items[source_id].name,
+                                              "logs")
+                  ? source_id
+                  : target_id;
+
+    if ((source_id == tinderbox_id || target_id == tinderbox_id) &&
+        mudclient_offline_text_contains(game_data.items[logs_id].name,
+                                        "logs")) {
+        if (mudclient_offline_remove_inventory_item(mud, logs_id, 1) <= 0) {
+            return 1;
+        }
+
+        mudclient_award_offline_xp(mud, SKILL_FIREMAKING, 160);
+        mudclient_show_message(mud, "@cya@The logs catch fire.",
+                               MESSAGE_TYPE_GAME);
+        return 1;
+    }
+
+    return 0;
+}
+
+int mudclient_offline_handle_object_command(mudclient *mud, int object_id) {
+    const char *item_name = NULL;
+    int xp = 0;
+
+    if (mud == NULL || object_id < 0 || object_id >= game_data.object_count) {
+        return 0;
+    }
+
+    if (mudclient_offline_log_item_for_object(object_id, &item_name, &xp)) {
+        if (!mudclient_offline_inventory_has_named_tool(mud, "axe")) {
+            mudclient_show_message(mud, "@cya@You need an axe to chop this.",
+                                   MESSAGE_TYPE_GAME);
+            return 1;
+        }
+        if (mudclient_offline_add_named_item(mud, item_name, 1) <= 0) {
+            mudclient_show_message(mud, "@cya@Your inventory is full.",
+                                   MESSAGE_TYPE_GAME);
+            return 1;
+        }
+        mudclient_award_offline_xp(mud, SKILL_WOODCUT, xp);
+        mudclient_show_message(mud, "@cya@You get some logs.",
+                               MESSAGE_TYPE_GAME);
+        return 1;
+    }
+
+    if (mudclient_offline_ore_for_object(object_id, &item_name, &xp)) {
+        if (!mudclient_offline_inventory_has_named_tool(mud, "pickaxe")) {
+            mudclient_show_message(mud,
+                                   "@cya@You need a pickaxe to mine this.",
+                                   MESSAGE_TYPE_GAME);
+            return 1;
+        }
+        if (mudclient_offline_add_named_item(mud, item_name, 1) <= 0) {
+            mudclient_show_message(mud, "@cya@Your inventory is full.",
+                                   MESSAGE_TYPE_GAME);
+            return 1;
+        }
+        mudclient_award_offline_xp(mud, SKILL_MINING, xp);
+        mudclient_show_message(mud, "@cya@You mine some ore.",
+                               MESSAGE_TYPE_GAME);
+        return 1;
+    }
+
+    if (mudclient_offline_text_contains(game_data.objects[object_id].name,
+                                        "range") ||
+        mudclient_offline_text_contains(game_data.objects[object_id].name,
+                                        "fire")) {
+        return mudclient_offline_cook_first_raw_food(mud);
+    }
+
+    if (mudclient_offline_text_contains(game_data.objects[object_id].name,
+                                        "furnace")) {
+        return mudclient_offline_smelt_bar(mud);
+    }
+
+    if (mudclient_offline_text_contains(game_data.objects[object_id].name,
+                                        "anvil")) {
+        return mudclient_offline_smith_item(mud);
+    }
+
+    if (mudclient_offline_text_contains(game_data.objects[object_id].name,
+                                        "water")) {
+        return mudclient_offline_fish(mud);
+    }
+
+    if (mudclient_offline_text_contains(game_data.objects[object_id].name,
+                                        "altar")) {
+        mud->player_skill_current[SKILL_PRAYER] =
+            mud->player_skill_base[SKILL_PRAYER];
+        mudclient_show_message(mud, "@cya@You recharge your Prayer points.",
+                               MESSAGE_TYPE_GAME);
+        return 1;
+    }
+
+    if (mudclient_offline_text_contains(game_data.objects[object_id].name,
+                                        "wheat")) {
+        mudclient_offline_add_named_item(mud, "Flour", 1);
+        mudclient_show_message(mud, "@cya@You pick some wheat.",
+                               MESSAGE_TYPE_GAME);
+        return 1;
+    }
+
+    if (mudclient_offline_text_contains(game_data.objects[object_id].name,
+                                        "potato")) {
+        mudclient_offline_add_named_item(mud, "Potato", 1);
+        mudclient_show_message(mud, "@cya@You pick a potato.",
+                               MESSAGE_TYPE_GAME);
+        return 1;
+    }
+
+    return 0;
+}
+
+void mudclient_offline_pickpocket(mudclient *mud, GameCharacter *npc) {
+    int xp = 32;
+    int coins = 3 + (rand() % 5);
+
+    if (mud == NULL || npc == NULL || npc->npc_id < 0 ||
+        npc->npc_id >= game_data.npc_count ||
+        !mudclient_offline_text_contains(game_data.npcs[npc->npc_id].command,
+                                         "pickpocket")) {
+        return;
+    }
+
+    if (mudclient_offline_add_inventory_item(mud, COINS_ID, coins) <= 0) {
+        mudclient_show_message(mud, "@cya@Your inventory is full.",
+                               MESSAGE_TYPE_GAME);
+        return;
+    }
+
+    mudclient_award_offline_xp(mud, SKILL_THIEVING, xp);
+    mudclient_show_message(mud, "@cya@You pick the NPC's pocket.",
+                           MESSAGE_TYPE_GAME);
+}
+
+static int mudclient_offline_is_quest_complete(mudclient *mud, int quest) {
+    return mud != NULL && mud->quest_complete != NULL && quest >= 0 &&
+           quest < quests_length && mud->quest_complete[quest] != 0;
+}
+
+static void mudclient_complete_offline_quest(mudclient *mud, int quest,
+                                             const char *name) {
+    char message[96];
+
+    if (mud == NULL || mud->quest_complete == NULL || quest < 0 ||
+        quest >= quests_length || mud->quest_complete[quest]) {
+        return;
+    }
+
+    mud->quest_complete[quest] = 1;
+    mud->player_quest_points++;
+    snprintf(message, sizeof(message), "@gre@Quest complete: %s", name);
+    mudclient_show_message(mud, message, MESSAGE_TYPE_GAME);
+}
+
+static int mudclient_offline_handle_cook_quest(mudclient *mud) {
+    int has_milk;
+    int has_flour;
+
+    if (mudclient_offline_is_quest_complete(mud, RSC_QUEST_COOKS_ASSISTANT)) {
+        mudclient_show_message(mud, "@cya@The cook thanks you again.",
+                               MESSAGE_TYPE_GAME);
+        return 1;
+    }
+
+    has_milk = mudclient_offline_has_item_name(mud, "bucket of milk", 1) ||
+               mudclient_offline_has_item_name(mud, "milk", 1);
+    has_flour = mudclient_offline_has_item_name(mud, "pot of flour", 1) ||
+                mudclient_offline_has_item_name(mud, "flour", 1);
+
+    if (!mudclient_offline_has_item_name(mud, "egg", 1) || !has_milk ||
+        !has_flour) {
+        mudclient_show_message(
+            mud, "@cya@The cook needs an egg, milk, and flour.",
+            MESSAGE_TYPE_GAME);
+        return 1;
+    }
+
+    mudclient_offline_remove_item_name(mud, "egg", 1);
+    if (!mudclient_offline_remove_item_name(mud, "bucket of milk", 1)) {
+        mudclient_offline_remove_item_name(mud, "milk", 1);
+    }
+    if (!mudclient_offline_remove_item_name(mud, "pot of flour", 1)) {
+        mudclient_offline_remove_item_name(mud, "flour", 1);
+    }
+
+    mudclient_complete_offline_quest(mud, RSC_QUEST_COOKS_ASSISTANT,
+                                     "Cook's assistant");
+    mudclient_award_offline_xp(mud, SKILL_COOKING, 1200);
+    return 1;
+}
+
+static int mudclient_offline_handle_sheep_quest(mudclient *mud) {
+    if (mudclient_offline_is_quest_complete(mud, RSC_QUEST_SHEEP_SHEARER)) {
+        mudclient_show_message(mud, "@cya@Fred has all the wool he needs.",
+                               MESSAGE_TYPE_GAME);
+        return 1;
+    }
+
+    if (!mudclient_offline_has_item_name(mud, "ball of wool", 20)) {
+        mudclient_show_message(mud,
+                               "@cya@Fred needs 20 balls of wool.",
+                               MESSAGE_TYPE_GAME);
+        return 1;
+    }
+
+    mudclient_offline_remove_item_name(mud, "ball of wool", 20);
+    mudclient_complete_offline_quest(mud, RSC_QUEST_SHEEP_SHEARER,
+                                     "Sheep shearer");
+    mudclient_award_offline_xp(mud, SKILL_CRAFTING, 600);
+    return 1;
+}
+
+static int mudclient_offline_handle_father_aereck(mudclient *mud) {
+    if (mudclient_offline_is_quest_complete(mud, RSC_QUEST_RESTLESS_GHOST)) {
+        mudclient_show_message(mud, "@cya@Father Aereck blesses you.",
+                               MESSAGE_TYPE_GAME);
+        return 1;
+    }
+
+    mudclient_ensure_offline_inventory_item(mud, "Ghostspeak amulet", 1, 0);
+    mudclient_show_message(
+        mud, "@cya@Father Aereck asks you to help the restless ghost.",
+        MESSAGE_TYPE_GAME);
+    return 1;
+}
+
+static int mudclient_offline_handle_ghost_quest(mudclient *mud) {
+    if (mudclient_offline_is_quest_complete(mud, RSC_QUEST_RESTLESS_GHOST)) {
+        mudclient_show_message(mud, "@cya@The ghost is at peace.",
+                               MESSAGE_TYPE_GAME);
+        return 1;
+    }
+
+    if (!mudclient_offline_has_item_name(mud, "ghost", 1) ||
+        !mudclient_offline_has_item_name(mud, "skull", 1)) {
+        mudclient_show_message(mud,
+                               "@cya@The ghost needs its skull returned.",
+                               MESSAGE_TYPE_GAME);
+        return 1;
+    }
+
+    mudclient_offline_remove_item_name(mud, "skull", 1);
+    mudclient_complete_offline_quest(mud, RSC_QUEST_RESTLESS_GHOST,
+                                     "The restless ghost");
+    mudclient_award_offline_xp(mud, SKILL_PRAYER, 500);
+    return 1;
+}
+
+int mudclient_offline_handle_npc_talk(mudclient *mud, GameCharacter *npc) {
+    char *name;
+
+    if (mud == NULL || npc == NULL || npc->npc_id < 0 ||
+        npc->npc_id >= game_data.npc_count) {
+        return 0;
+    }
+
+    name = game_data.npcs[npc->npc_id].name;
+    if (mudclient_offline_text_contains(name, "cook")) {
+        return mudclient_offline_handle_cook_quest(mud);
+    }
+    if (mudclient_offline_text_contains(name, "fred")) {
+        return mudclient_offline_handle_sheep_quest(mud);
+    }
+    if (mudclient_offline_text_contains(name, "aereck")) {
+        return mudclient_offline_handle_father_aereck(mud);
+    }
+    if (mudclient_offline_text_contains(name, "ghost")) {
+        return mudclient_offline_handle_ghost_quest(mud);
+    }
+
+    return 0;
+}
+
+int mudclient_offline_handle_npc_command(mudclient *mud, GameCharacter *npc) {
+    char *name;
+
+    if (mud == NULL || npc == NULL || npc->npc_id < 0 ||
+        npc->npc_id >= game_data.npc_count) {
+        return 0;
+    }
+
+    name = game_data.npcs[npc->npc_id].name;
+    if (mudclient_offline_text_contains(name, "fred") ||
+        mudclient_offline_text_contains(name, "ghost")) {
+        return mudclient_offline_handle_npc_talk(mud, npc);
+    }
+
+    return 0;
+}
+
+static int mudclient_offline_bank_find_item(mudclient *mud, int item_id) {
+    for (int i = 0; i < mud->new_bank_item_count; i++) {
+        if (mud->new_bank_items[i] == item_id) {
+            return i;
+        }
+    }
+
+    return -1;
+}
+
+static int mudclient_offline_bank_add_item(mudclient *mud, int item_id,
+                                           int amount) {
+    int slot;
+
+    if (mud == NULL || item_id < 0 || item_id >= game_data.item_count ||
+        amount <= 0) {
+        return 0;
+    }
+
+    slot = mudclient_offline_bank_find_item(mud, item_id);
+    if (slot < 0) {
+        if (mud->new_bank_item_count >= mud->bank_items_max ||
+            mud->new_bank_item_count >= BANK_ITEMS_MAX) {
+            return 0;
+        }
+        slot = mud->new_bank_item_count++;
+        mud->new_bank_items[slot] = item_id;
+        mud->new_bank_items_count[slot] = 0;
+    }
+
+    if (amount > INT_MAX - mud->new_bank_items_count[slot]) {
+        amount = INT_MAX - mud->new_bank_items_count[slot];
+    }
+
+    mud->new_bank_items_count[slot] += amount;
+    return amount;
+}
+
+static int mudclient_offline_bank_remove_item(mudclient *mud, int item_id,
+                                              int amount) {
+    int slot;
+    int removed;
+
+    if (mud == NULL || amount <= 0) {
+        return 0;
+    }
+
+    slot = mudclient_offline_bank_find_item(mud, item_id);
+    if (slot < 0) {
+        return 0;
+    }
+
+    removed = mud->new_bank_items_count[slot];
+    if (removed > amount) {
+        removed = amount;
+    }
+
+    mud->new_bank_items_count[slot] -= removed;
+    if (mud->new_bank_items_count[slot] <= 0) {
+        mud->new_bank_item_count--;
+        for (int i = slot; i < mud->new_bank_item_count; i++) {
+            mud->new_bank_items[i] = mud->new_bank_items[i + 1];
+            mud->new_bank_items_count[i] = mud->new_bank_items_count[i + 1];
+        }
+        mud->new_bank_items[mud->new_bank_item_count] = 0;
+        mud->new_bank_items_count[mud->new_bank_item_count] = 0;
+    }
+
+    return removed;
+}
+
+void mudclient_offline_open_bank(mudclient *mud) {
+    if (mud == NULL) {
+        return;
+    }
+
+    if (mud->bank_items_max <= 0 || mud->bank_items_max > BANK_ITEMS_MAX) {
+        mud->bank_items_max = 48;
+    }
+
+    mudclient_update_bank_items(mud);
+    mud->bank_selected_item = -1;
+    mud->bank_selected_item_slot = -1;
+    mud->bank_active_page = 0;
+    mud->bank_scroll_row = 0;
+    mud->show_dialog_shop = 0;
+    mud->show_dialog_bank = 1;
+}
+
+int mudclient_offline_bank_transaction(mudclient *mud, int item_id,
+                                       int amount, int is_withdraw) {
+    int moved = 0;
+
+    if (mud == NULL || item_id < 0 || item_id >= game_data.item_count ||
+        amount <= 0) {
+        return 0;
+    }
+
+    if (is_withdraw) {
+        int bank_slot = mudclient_offline_bank_find_item(mud, item_id);
+        int bank_count =
+            bank_slot >= 0 ? mud->new_bank_items_count[bank_slot] : 0;
+
+        if (amount > bank_count) {
+            amount = bank_count;
+        }
+
+        moved = mudclient_offline_add_inventory_item(mud, item_id, amount);
+        if (moved > 0) {
+            mudclient_offline_bank_remove_item(mud, item_id, moved);
+        }
+    } else {
+        int inventory_count = mudclient_get_inventory_count(mud, item_id);
+
+        if (amount > inventory_count) {
+            amount = inventory_count;
+        }
+
+        moved = mudclient_offline_remove_inventory_item(mud, item_id, amount);
+        if (moved > 0 &&
+            mudclient_offline_bank_add_item(mud, item_id, moved) < moved) {
+            mudclient_offline_add_inventory_item(mud, item_id, moved);
+            moved = 0;
+        }
+    }
+
+    mudclient_update_bank_items(mud);
+    return moved;
+}
+
+void mudclient_offline_open_shop(mudclient *mud) {
+    static const int stock[] = {
+        IRON_MACE_ID, RSC_ITEM_KNIFE, RSC_ITEM_BUCKET, RSC_ITEM_SHORTBOW,
+        AIR_RUNE_ID, WATER_RUNE_ID, EARTH_RUNE_ID, FIRE_RUNE_ID,
+        RSC_ITEM_LOBSTER, RSC_ITEM_SWORDFISH,
+    };
+    static const char *named_stock[] = {
+        "tinderbox",       "bronze Axe",  "Iron Axe",
+        "Bronze Pickaxe",  "Iron Pickaxe","Net",
+        "Fishing Rod",    "Fly Fishing Rod",
+        "Feather",        "Raw Shrimp",  "raw chicken",
+        "raw beef",       "copper ore",  "tin ore",
+        "iron ore",       "bronze bar",  "iron bar",
+        NULL,
+    };
+
+    if (mud == NULL) {
+        return;
+    }
+
+    for (int i = 0; i < SHOP_ITEMS_MAX; i++) {
+        mud->shop_items[i] = -1;
+        mud->shop_items_count[i] = 0;
+        mud->shop_items_price[i] = 0;
+    }
+
+    int max_stock = (int)(sizeof(stock) / sizeof(stock[0]));
+    for (int i = 0; i < max_stock && i < SHOP_ITEMS_MAX; i++) {
+        mud->shop_items[i] = stock[i];
+        mud->shop_items_count[i] = 10;
+        mud->shop_items_price[i] = 0;
+    }
+    for (int i = 0; named_stock[i] != NULL && max_stock < SHOP_ITEMS_MAX; i++) {
+        int item_id = mudclient_find_offline_item(named_stock[i]);
+
+        if (item_id < 0) {
+            item_id = mudclient_find_offline_item_containing(named_stock[i]);
+        }
+        if (item_id < 0) {
+            continue;
+        }
+
+        mud->shop_items[max_stock] = item_id;
+        mud->shop_items_count[max_stock] = 25;
+        mud->shop_items_price[max_stock] = 0;
+        max_stock++;
+    }
+
+    mud->shop_buy_price_mod = 100;
+    mud->shop_sell_price_mod = 80;
+    mud->shop_selected_item_index = -1;
+    mud->shop_selected_item_type = -1;
+    mud->show_dialog_bank = 0;
+    mud->show_dialog_shop = 1;
+}
+
+static int mudclient_offline_shop_find_slot(mudclient *mud, int item_id) {
+    for (int i = 0; i < SHOP_ITEMS_MAX; i++) {
+        if (mud->shop_items[i] == item_id) {
+            return i;
+        }
+    }
+
+    return -1;
+}
+
+int mudclient_offline_shop_buy(mudclient *mud, int item_id, int item_price) {
+    int slot;
+
+    if (mud == NULL || item_id < 0 || item_id >= game_data.item_count ||
+        item_price < 0) {
+        return 0;
+    }
+
+    slot = mudclient_offline_shop_find_slot(mud, item_id);
+    if (slot < 0 || mud->shop_items_count[slot] <= 0) {
+        return 0;
+    }
+
+    if (mudclient_get_inventory_count(mud, COINS_ID) < item_price) {
+        mudclient_show_message(mud, "@cya@You do not have enough coins.",
+                               MESSAGE_TYPE_GAME);
+        return 0;
+    }
+
+    if (mudclient_offline_add_inventory_item(mud, item_id, 1) <= 0) {
+        mudclient_show_message(mud, "@cya@Your inventory is full.",
+                               MESSAGE_TYPE_GAME);
+        return 0;
+    }
+
+    mudclient_offline_remove_inventory_item(mud, COINS_ID, item_price);
+    mud->shop_items_count[slot]--;
+    return 1;
+}
+
+int mudclient_offline_shop_sell(mudclient *mud, int item_id, int item_price) {
+    int slot;
+
+    if (mud == NULL || item_id < 0 || item_id >= game_data.item_count ||
+        item_price < 0) {
+        return 0;
+    }
+
+    if (mudclient_offline_remove_inventory_item(mud, item_id, 1) <= 0) {
+        return 0;
+    }
+
+    mudclient_offline_add_inventory_item(mud, COINS_ID, item_price);
+
+    slot = mudclient_offline_shop_find_slot(mud, item_id);
+    if (slot >= 0 && mud->shop_items_count[slot] < INT_MAX) {
+        mud->shop_items_count[slot]++;
+    }
+
+    return 1;
+}
+
+static void mudclient_seed_david_inventory(mudclient *mud) {
+    mud->inventory_items_count = 0;
+
+    mudclient_add_offline_inventory_item(mud, COINS_ID, 2147483647, 0);
+    mudclient_add_offline_inventory_item(mud, RSC_ITEM_DRAGON_SWORD, 1, 1);
+    mudclient_add_offline_inventory_item(mud, RSC_ITEM_DRAGON_SQUARE_SHIELD,
+                                        1, 1);
+    mudclient_add_offline_inventory_item(mud, RSC_ITEM_DRAGON_MEDIUM_HELMET,
+                                        1, 1);
+    mudclient_add_offline_inventory_item(mud, RSC_ITEM_RUNE_PLATE_BODY, 1, 1);
+    mudclient_add_offline_inventory_item(mud, RSC_ITEM_RUNE_PLATE_LEGS, 1, 1);
+    mudclient_add_offline_inventory_item(mud,
+                                        RSC_ITEM_CHARGED_DRAGONSTONE_AMULET,
+                                        1, 1);
+    mudclient_add_offline_inventory_item(mud, RSC_ITEM_STEEL_GAUNTLETS, 1, 1);
+    mudclient_add_offline_inventory_item(mud, RSC_ITEM_BOOTS, 1, 1);
+    mudclient_add_offline_inventory_item(mud, RSC_ITEM_CAPE_OF_LEGENDS, 1, 1);
+    mudclient_add_offline_inventory_item(mud, RSC_ITEM_ZAMORAK_CAPE, 1, 0);
+    mudclient_add_offline_inventory_item(mud, RSC_ITEM_SARADOMIN_CAPE, 1, 0);
+    mudclient_add_offline_inventory_item(mud, RSC_ITEM_GUTHIX_CAPE, 1, 0);
+    mudclient_add_offline_inventory_item(mud, RSC_ITEM_DRAGON_AXE, 1, 0);
+    mudclient_add_offline_inventory_item(mud, RSC_ITEM_RUNE_TWO_HANDED_SWORD,
+                                        1, 0);
+    mudclient_add_offline_inventory_item(mud, RSC_ITEM_RUNE_SCIMITAR, 1, 0);
+    mudclient_add_offline_inventory_item(mud, RSC_ITEM_RUNE_LONGSWORD, 1, 0);
+    mudclient_add_offline_inventory_item(mud, RSC_ITEM_RUNE_BATTLE_AXE, 1, 0);
+    mudclient_add_offline_inventory_item(mud, RSC_ITEM_RUNE_SPEAR, 1, 0);
+    mudclient_add_offline_inventory_item(mud, RSC_ITEM_RUNE_KITE_SHIELD, 1, 0);
+    mudclient_add_offline_inventory_item(mud,
+                                        RSC_ITEM_ENCHANTED_FIRE_BATTLESTAFF,
+                                        1, 0);
+    mudclient_add_offline_inventory_item(mud,
+                                        RSC_ITEM_ENCHANTED_WATER_BATTLESTAFF,
+                                        1, 0);
+    mudclient_add_offline_inventory_item(mud,
+                                        RSC_ITEM_ENCHANTED_AIR_BATTLESTAFF,
+                                        1, 0);
+    mudclient_add_offline_inventory_item(mud,
+                                        RSC_ITEM_ENCHANTED_EARTH_BATTLESTAFF,
+                                        1, 0);
+    mudclient_add_offline_inventory_item(mud, RSC_ITEM_MAGIC_LONGBOW, 1, 0);
+    mudclient_add_offline_inventory_item(mud, RSC_ITEM_RUNE_ARROWS, 10000, 0);
+    mudclient_add_offline_inventory_item(mud, RSC_ITEM_RUNE_THROWING_DART,
+                                        500, 0);
+    mudclient_add_offline_inventory_item(mud, RSC_ITEM_RUNE_THROWING_KNIFE,
+                                        500, 0);
+}
+
+static void mudclient_set_above_chaos_appearance(mudclient *mud,
+                                                 GameCharacter *player) {
+    mud->appearance_head_type = 3;
+    mud->appearance_body_type = 4;
+    mud->appearance_hair_colour = 2;
+    mud->appearance_top_colour = 8;
+    mud->appearance_bottom_colour = 14;
+    mud->appearance_skin_colour = 0;
+    mud->appearance_head_gender = 2;
+
+    if (player != NULL) {
+        player->hair_colour = mud->appearance_hair_colour;
+        player->top_colour = mud->appearance_top_colour;
+        player->bottom_colour = mud->appearance_bottom_colour;
+        player->skin_colour = mud->appearance_skin_colour;
+        mudclient_set_offline_base_appearance(mud, player);
+    }
+}
+
+static void mudclient_seed_above_chaos_inventory(mudclient *mud) {
+    mud->inventory_items_count = 0;
+
+    mudclient_ensure_offline_inventory_item(mud, "Bronze Short Sword", 1, 1);
+    mudclient_ensure_offline_inventory_item(mud, "Bronze Square Shield", 1, 1);
+    mudclient_ensure_offline_inventory_item(mud, "Wooden Shield", 1, 0);
+    mudclient_ensure_offline_inventory_item(mud, "bread", 1, 0);
+    mudclient_ensure_offline_inventory_item(mud, "cookedmeat", 1, 0);
+    mudclient_ensure_offline_inventory_item(mud, "tinderbox", 1, 0);
+    mudclient_ensure_offline_inventory_item(mud, "bronze Axe", 1, 0);
+    mudclient_ensure_offline_inventory_item(mud, "Small fishing net", 1, 0);
+}
+
+static void mudclient_ensure_above_chaos_starter_items(mudclient *mud) {
+    mudclient_ensure_offline_inventory_item(mud, "Bronze Short Sword", 1, 1);
+    mudclient_ensure_offline_inventory_item(mud, "Bronze Square Shield", 1, 1);
+    mudclient_ensure_offline_inventory_item(mud, "Wooden Shield", 1, 0);
+    mudclient_ensure_offline_inventory_item(mud, "bread", 1, 0);
+    mudclient_ensure_offline_inventory_item(mud, "cookedmeat", 1, 0);
+    mudclient_ensure_offline_inventory_item(mud, "tinderbox", 1, 0);
+    mudclient_ensure_offline_inventory_item(mud, "bronze Axe", 1, 0);
+    mudclient_ensure_offline_inventory_item(mud, "Small fishing net", 1, 0);
+}
+
+static void mudclient_init_offline_save(mudclient *mud,
+                                        struct OfflineSave *save) {
+    memset(save, 0, sizeof(*save));
+    save->profile = mud->offline_profile;
+    save->global_x = LUMBRIDGE_CASTLE_X;
+    save->global_y = LUMBRIDGE_CASTLE_Y;
+    save->appearance_hair = mud->appearance_hair_colour;
+    save->appearance_top = mud->appearance_top_colour;
+    save->appearance_bottom = mud->appearance_bottom_colour;
+    save->appearance_skin = mud->appearance_skin_colour;
+    save->combat_style = mud->combat_style;
+    save->player_quest_points = mud->player_quest_points;
+    save->bank_items_max = mud->bank_items_max;
+    save->bank_item_count = mud->new_bank_item_count;
+    save->inventory_items_count = mud->inventory_items_count;
+
+    if (mud->quest_complete != NULL) {
+        int quest_count = quests_length;
+
+        if (quest_count > RSC_OFFLINE_QUEST_SAVE_MAX) {
+            quest_count = RSC_OFFLINE_QUEST_SAVE_MAX;
+        }
+
+        for (int i = 0; i < quest_count; i++) {
+            save->quest_complete[i] = mud->quest_complete[i] ? 1 : 0;
+        }
+    }
+
+    for (int i = 0; i < BANK_ITEMS_MAX; i++) {
+        save->bank_items[i] = mud->new_bank_items[i];
+        save->bank_items_count[i] = mud->new_bank_items_count[i];
+    }
+
+    for (int i = 0; i < INVENTORY_ITEMS_MAX; i++) {
+        save->inventory_item_id[i] = mud->inventory_item_id[i];
+        save->inventory_item_stack_count[i] =
+            mud->inventory_item_stack_count[i];
+        save->inventory_equipped[i] = mud->inventory_equipped[i];
+    }
+
+    for (int i = 0; i < PLAYER_SKILL_COUNT; i++) {
+        save->player_skill_current[i] = mud->player_skill_current[i];
+        save->player_skill_base[i] = mud->player_skill_base[i];
+        save->player_experience[i] = mud->player_experience[i];
+    }
+}
+
+static int mudclient_offline_parse_key(char *line, const char *key,
+                                       char **cursor) {
+    size_t length = strlen(key);
+
+    if (strncmp(line, key, length) != 0) {
+        return 0;
+    }
+
+    if (line[length] != '\0' && line[length] != ' ' && line[length] != '\t' &&
+        line[length] != '\r' && line[length] != '\n') {
+        return 0;
+    }
+
+    *cursor = line + length;
+    return 1;
+}
+
+static int mudclient_offline_parse_int(char **cursor, int *value) {
+    char *p = *cursor;
+    int sign = 1;
+    int digits = 0;
+    long parsed = 0;
+
+    while (*p == ' ' || *p == '\t') {
+        p++;
+    }
+
+    if (*p == '-') {
+        sign = -1;
+        p++;
+    }
+
+    while (*p >= '0' && *p <= '9') {
+        parsed = parsed * 10 + (*p - '0');
+        digits++;
+        p++;
+    }
+
+    if (digits <= 0) {
+        return 0;
+    }
+
+    *value = (int)(parsed * sign);
+    *cursor = p;
+    return 1;
+}
+
+static int mudclient_parse_offline_save_line(struct OfflineSave *save,
+                                             char *line) {
+    int a;
+    int b;
+    int c;
+    int d;
+    int index;
+    char *cursor;
+
+    if (mudclient_offline_parse_key(line, "rsc_offline_save", &cursor)) {
+        return mudclient_offline_parse_int(&cursor, &a) &&
+               a == RSC_SAVE_VERSION;
+    }
+    if (mudclient_offline_parse_key(line, "profile", &cursor)) {
+        if (!mudclient_offline_parse_int(&cursor, &a)) {
+            return 0;
+        }
+        save->profile = a;
+        return 1;
+    }
+    if (mudclient_offline_parse_key(line, "pos", &cursor)) {
+        if (!mudclient_offline_parse_int(&cursor, &a) ||
+            !mudclient_offline_parse_int(&cursor, &b)) {
+            return 0;
+        }
+        save->global_x = a;
+        save->global_y = b;
+        save->has_position = 1;
+        return 1;
+    }
+    if (mudclient_offline_parse_key(line, "appearance", &cursor)) {
+        if (!mudclient_offline_parse_int(&cursor, &a) ||
+            !mudclient_offline_parse_int(&cursor, &b) ||
+            !mudclient_offline_parse_int(&cursor, &c) ||
+            !mudclient_offline_parse_int(&cursor, &d)) {
+            return 0;
+        }
+        save->appearance_hair = a;
+        save->appearance_top = b;
+        save->appearance_bottom = c;
+        save->appearance_skin = d;
+        return 1;
+    }
+    if (mudclient_offline_parse_key(line, "combat_style", &cursor)) {
+        if (!mudclient_offline_parse_int(&cursor, &a)) {
+            return 0;
+        }
+        save->combat_style = a;
+        return 1;
+    }
+    if (mudclient_offline_parse_key(line, "quest_points", &cursor)) {
+        if (!mudclient_offline_parse_int(&cursor, &a)) {
+            return 0;
+        }
+        save->player_quest_points = a;
+        return 1;
+    }
+    if (mudclient_offline_parse_key(line, "quest", &cursor)) {
+        if (!mudclient_offline_parse_int(&cursor, &index) ||
+            !mudclient_offline_parse_int(&cursor, &a)) {
+            return 0;
+        }
+        if (index >= 0 && index < RSC_OFFLINE_QUEST_SAVE_MAX) {
+            save->quest_complete[index] = a ? 1 : 0;
+            return 1;
+        }
+        return 0;
+    }
+    if (mudclient_offline_parse_key(line, "bank_max", &cursor)) {
+        if (!mudclient_offline_parse_int(&cursor, &a)) {
+            return 0;
+        }
+        save->bank_items_max = a;
+        return 1;
+    }
+    if (mudclient_offline_parse_key(line, "bank_count", &cursor)) {
+        if (!mudclient_offline_parse_int(&cursor, &a)) {
+            return 0;
+        }
+        if (a >= 0 && a <= BANK_ITEMS_MAX) {
+            save->bank_item_count = a;
+            return 1;
+        }
+        return 0;
+    }
+    if (mudclient_offline_parse_key(line, "bank_item", &cursor)) {
+        if (!mudclient_offline_parse_int(&cursor, &index) ||
+            !mudclient_offline_parse_int(&cursor, &a) ||
+            !mudclient_offline_parse_int(&cursor, &b)) {
+            return 0;
+        }
+        if (index >= 0 && index < BANK_ITEMS_MAX) {
+            save->bank_items[index] = a;
+            save->bank_items_count[index] = b;
+            return 1;
+        }
+        return 0;
+    }
+    if (mudclient_offline_parse_key(line, "inv_count", &cursor)) {
+        if (!mudclient_offline_parse_int(&cursor, &a)) {
+            return 0;
+        }
+        if (a >= 0 && a <= INVENTORY_ITEMS_MAX) {
+            save->inventory_items_count = a;
+            return 1;
+        }
+        return 0;
+    }
+    if (mudclient_offline_parse_key(line, "item", &cursor)) {
+        if (!mudclient_offline_parse_int(&cursor, &index) ||
+            !mudclient_offline_parse_int(&cursor, &a) ||
+            !mudclient_offline_parse_int(&cursor, &b) ||
+            !mudclient_offline_parse_int(&cursor, &c)) {
+            return 0;
+        }
+        if (index >= 0 && index < INVENTORY_ITEMS_MAX) {
+            save->inventory_item_id[index] = a;
+            save->inventory_item_stack_count[index] = b;
+            save->inventory_equipped[index] = c;
+            return 1;
+        }
+        return 0;
+    }
+    if (mudclient_offline_parse_key(line, "skill", &cursor)) {
+        if (!mudclient_offline_parse_int(&cursor, &index) ||
+            !mudclient_offline_parse_int(&cursor, &a) ||
+            !mudclient_offline_parse_int(&cursor, &b) ||
+            !mudclient_offline_parse_int(&cursor, &c)) {
+            return 0;
+        }
+        if (index >= 0 && index < PLAYER_SKILL_COUNT) {
+            save->player_skill_current[index] = a;
+            save->player_skill_base[index] = b;
+            save->player_experience[index] = c;
+            return 1;
+        }
+        return 0;
+    }
+
+    return 1;
+}
+
+static int mudclient_read_offline_save(mudclient *mud,
+                                       struct OfflineSave *save) {
+    char path[PATH_MAX];
+    int fd;
+    char *buffer;
+    ssize_t bytes;
+    int ok = 1;
+    int saw_version = 0;
+
+    mudclient_init_offline_save(mud, save);
+    mudclient_offline_save_path(mud, path, sizeof(path));
+
+    fd = open(path, O_RDONLY);
+    if (fd < 0) {
+        return 0;
+    }
+
+    buffer = malloc(8192);
+    if (buffer == NULL) {
+        close(fd);
+        return 0;
+    }
+
+    bytes = read(fd, buffer, 8191);
+    close(fd);
+
+    if (bytes <= 0) {
+        free(buffer);
+        return 0;
+    }
+
+    buffer[bytes] = '\0';
+
+    for (char *line = strtok(buffer, "\n"); line != NULL;
+         line = strtok(NULL, "\n")) {
+        if (strncmp(line, "rsc_offline_save", 16) == 0) {
+            saw_version = 1;
+        }
+        if (!mudclient_parse_offline_save_line(save, line)) {
+            ok = 0;
+            break;
+        }
+    }
+
+    free(buffer);
+
+    if (!ok || !saw_version ||
+        save->profile != (int)mud->offline_profile) {
+        return 0;
+    }
+
+    return 1;
+}
+
+static void mudclient_apply_offline_save(mudclient *mud, GameCharacter *player,
+                                         struct OfflineSave *save) {
+    int local_x;
+    int local_y;
+    int global_x = LUMBRIDGE_CASTLE_X;
+    int global_y = LUMBRIDGE_CASTLE_Y;
+
+    if (!save->has_position) {
+        return;
+    }
+
+    (void)save;
+
+    if (mudclient_load_next_region(mud, global_x, global_y)) {
+        mudclient_clear_offline_walk();
+    }
+
+    mud->local_region_x = global_x - mud->region_x;
+    mud->local_region_y = global_y - mud->region_y;
+
+    local_x = mud->local_region_x * MAGIC_LOC + 64;
+    local_y = mud->local_region_y * MAGIC_LOC + 64;
+
+    player->current_x = local_x;
+    player->current_y = local_y;
+    player->waypoints_x[0] = local_x;
+    player->waypoints_y[0] = local_y;
+    player->moving_step = 0;
+    player->waypoint_current = 0;
+    if (mud->local_player != NULL) {
+        mud->camera_auto_rotate_player_x = mud->local_player->current_x;
+        mud->camera_auto_rotate_player_y = mud->local_player->current_y;
+    } else {
+        mud->camera_auto_rotate_player_x = local_x;
+        mud->camera_auto_rotate_player_y = local_y;
+    }
+}
+
+static void mudclient_load_offline_save(mudclient *mud, GameCharacter *player) {
+    struct OfflineSave save;
+
+    if (!mudclient_read_offline_save(mud, &save)) {
+        return;
+    }
+
+    mud->appearance_hair_colour = save.appearance_hair;
+    mud->appearance_top_colour = save.appearance_top;
+    mud->appearance_bottom_colour = save.appearance_bottom;
+    mud->appearance_skin_colour = save.appearance_skin;
+    mud->combat_style = save.combat_style;
+    mud->player_quest_points = save.player_quest_points;
+    if (mud->quest_complete != NULL) {
+        int quest_count = quests_length;
+
+        if (quest_count > RSC_OFFLINE_QUEST_SAVE_MAX) {
+            quest_count = RSC_OFFLINE_QUEST_SAVE_MAX;
+        }
+
+        for (int i = 0; i < quest_count; i++) {
+            mud->quest_complete[i] = save.quest_complete[i] ? 1 : 0;
+        }
+    }
+    mud->bank_items_max = save.bank_items_max;
+    mud->new_bank_item_count = save.bank_item_count;
+    if (mud->new_bank_item_count < 0 ||
+        mud->new_bank_item_count > BANK_ITEMS_MAX) {
+        mud->new_bank_item_count = 0;
+    }
+
+    for (int i = 0; i < mud->new_bank_item_count; i++) {
+        int id = save.bank_items[i];
+        if (id < 0 || id >= game_data.item_count ||
+            save.bank_items_count[i] <= 0) {
+            id = COINS_ID;
+            save.bank_items_count[i] = 1;
+        }
+        mud->new_bank_items[i] = id;
+        mud->new_bank_items_count[i] = save.bank_items_count[i];
+    }
+
+    for (int i = mud->new_bank_item_count; i < BANK_ITEMS_MAX; i++) {
+        mud->new_bank_items[i] = 0;
+        mud->new_bank_items_count[i] = 0;
+    }
+
+    player->hair_colour = mud->appearance_hair_colour;
+    player->top_colour = mud->appearance_top_colour;
+    player->bottom_colour = mud->appearance_bottom_colour;
+    player->skin_colour = mud->appearance_skin_colour;
+
+    mud->inventory_items_count = save.inventory_items_count;
+    for (int i = 0; i < mud->inventory_items_count; i++) {
+        int id = save.inventory_item_id[i];
+        if (id < 0 || id >= game_data.item_count) {
+            id = COINS_ID;
+        }
+        mud->inventory_item_id[i] = id;
+        mud->inventory_item_stack_count[i] =
+            save.inventory_item_stack_count[i] > 0
+                ? save.inventory_item_stack_count[i]
+                : 1;
+        mud->inventory_equipped[i] = save.inventory_equipped[i] ? 1 : 0;
+    }
+
+    for (int i = mud->inventory_items_count; i < INVENTORY_ITEMS_MAX; i++) {
+        mud->inventory_item_id[i] = 0;
+        mud->inventory_item_stack_count[i] = 0;
+        mud->inventory_equipped[i] = 0;
+    }
+
+    mudclient_update_bank_items(mud);
+
+    for (int i = 0; i < PLAYER_SKILL_COUNT; i++) {
+        mud->player_skill_current[i] = save.player_skill_current[i];
+        mud->player_skill_base[i] = save.player_skill_base[i];
+        mud->player_experience[i] = save.player_experience[i];
+    }
+
+    player->level = (mud->player_skill_base[SKILL_ATTACK] +
+                     mud->player_skill_base[SKILL_DEFENSE] +
+                     mud->player_skill_base[SKILL_STRENGTH] +
+                     mud->player_skill_base[SKILL_HITS] + 27) /
+                    4;
+    player->current_hits = mud->player_skill_current[SKILL_HITS];
+    player->max_hits = mud->player_skill_base[SKILL_HITS];
+
+    if (mud->offline_profile == RSC_OFFLINE_PROFILE_ABOVE_CHAOS) {
+        mudclient_set_above_chaos_appearance(mud, player);
+        mudclient_ensure_above_chaos_starter_items(mud);
+    }
+
+    mudclient_refresh_offline_equipment(mud);
+    mudclient_apply_offline_save(mud, player, &save);
+    mudclient_refresh_offline_equipment(mud);
+}
+
+void mudclient_save_offline_game(mudclient *mud) {
+    char path[PATH_MAX];
+    char line[160];
+    int fd;
+    int global_x;
+    int global_y;
+
+    if (mud == NULL || mud->local_player == NULL || !mud->logged_in) {
+        return;
+    }
+
+    global_x = mud->region_x + (mud->local_player->current_x / MAGIC_LOC);
+    global_y = mud->region_y + (mud->local_player->current_y / MAGIC_LOC);
+
+    mudclient_offline_save_path(mud, path, sizeof(path));
+    fd = open(path, O_WRONLY | O_CREAT | O_TRUNC);
+    if (fd < 0) {
+        return;
+    }
+
+    snprintf(line, sizeof(line), "rsc_offline_save %d\n", RSC_SAVE_VERSION);
+    if (!mudclient_write_save_line(fd, line)) {
+        close(fd);
+        return;
+    }
+
+    snprintf(line, sizeof(line), "profile %d\n", mud->offline_profile);
+    mudclient_write_save_line(fd, line);
+    snprintf(line, sizeof(line), "pos %d %d\n", global_x, global_y);
+    mudclient_write_save_line(fd, line);
+    snprintf(line, sizeof(line), "appearance %d %d %d %d\n",
+             mud->appearance_hair_colour, mud->appearance_top_colour,
+             mud->appearance_bottom_colour, mud->appearance_skin_colour);
+    mudclient_write_save_line(fd, line);
+    snprintf(line, sizeof(line), "combat_style %d\n", mud->combat_style);
+    mudclient_write_save_line(fd, line);
+    snprintf(line, sizeof(line), "quest_points %d\n",
+             mud->player_quest_points);
+    mudclient_write_save_line(fd, line);
+    if (mud->quest_complete != NULL) {
+        int quest_count = quests_length;
+
+        if (quest_count > RSC_OFFLINE_QUEST_SAVE_MAX) {
+            quest_count = RSC_OFFLINE_QUEST_SAVE_MAX;
+        }
+
+        for (int i = 0; i < quest_count; i++) {
+            snprintf(line, sizeof(line), "quest %d %d\n", i,
+                     mud->quest_complete[i] ? 1 : 0);
+            mudclient_write_save_line(fd, line);
+        }
+    }
+    snprintf(line, sizeof(line), "bank_max %d\n", mud->bank_items_max);
+    mudclient_write_save_line(fd, line);
+    snprintf(line, sizeof(line), "bank_count %d\n", mud->new_bank_item_count);
+    mudclient_write_save_line(fd, line);
+    for (int i = 0; i < mud->new_bank_item_count; i++) {
+        snprintf(line, sizeof(line), "bank_item %d %d %d\n", i,
+                 mud->new_bank_items[i], mud->new_bank_items_count[i]);
+        mudclient_write_save_line(fd, line);
+    }
+
+    snprintf(line, sizeof(line), "inv_count %d\n",
+             mud->inventory_items_count);
+    mudclient_write_save_line(fd, line);
+    for (int i = 0; i < mud->inventory_items_count; i++) {
+        snprintf(line, sizeof(line), "item %d %d %d %d\n", i,
+                 mud->inventory_item_id[i],
+                 mud->inventory_item_stack_count[i],
+                 mud->inventory_equipped[i]);
+        mudclient_write_save_line(fd, line);
+    }
+
+    for (int i = 0; i < PLAYER_SKILL_COUNT; i++) {
+        snprintf(line, sizeof(line), "skill %d %d %d %d\n", i,
+                 mud->player_skill_current[i], mud->player_skill_base[i],
+                 mud->player_experience[i]);
+        mudclient_write_save_line(fd, line);
+    }
+
+    close(fd);
+}
 
 static void mudclient_set_offline_npc_stats(GameCharacter *npc) {
     int hits = 1;
@@ -2034,6 +4261,16 @@ mudclient_get_offline_npc_spawn(int server_index) {
     return NULL;
 }
 
+static int mudclient_find_offline_npc_id_containing(const char *name) {
+    for (int i = 0; i < game_data.npc_count; i++) {
+        if (mudclient_offline_text_contains(game_data.npcs[i].name, name)) {
+            return i;
+        }
+    }
+
+    return -1;
+}
+
 static GameCharacter *mudclient_spawn_offline_npc(mudclient *mud,
                                                   int server_index) {
     const struct OfflineNpcSpawn *spawn =
@@ -2056,6 +4293,43 @@ static GameCharacter *mudclient_spawn_offline_npc(mudclient *mud,
                                            local_y * MAGIC_LOC + 64,
                                            spawn->direction, spawn->npc_id);
 
+    mudclient_set_offline_npc_stats(npc);
+
+    if (npc != NULL && mud->known_npc_count < NPCS_MAX) {
+        mud->known_npcs[mud->known_npc_count++] = npc;
+    }
+
+    return npc;
+}
+
+static GameCharacter *
+mudclient_spawn_offline_named_npc(mudclient *mud,
+                                  const struct OfflineNamedNpcSpawn *spawn) {
+    int npc_id;
+    int local_x;
+    int local_y;
+    GameCharacter *npc;
+
+    if (spawn == NULL) {
+        return NULL;
+    }
+
+    npc_id = mudclient_find_offline_npc_id_containing(spawn->name);
+    if (npc_id < 0) {
+        return NULL;
+    }
+
+    local_x = spawn->global_x - mud->region_x;
+    local_y = spawn->global_y - mud->region_y;
+    if (local_x < 0 || local_x >= REGION_WIDTH ||
+        local_y < 0 || local_y >= REGION_HEIGHT) {
+        return NULL;
+    }
+
+    npc = mudclient_add_npc(mud, spawn->server_index,
+                            local_x * MAGIC_LOC + 64,
+                            local_y * MAGIC_LOC + 64, spawn->direction,
+                            npc_id);
     mudclient_set_offline_npc_stats(npc);
 
     if (npc != NULL && mud->known_npc_count < NPCS_MAX) {
@@ -2099,9 +4373,24 @@ static void mudclient_remove_offline_npc(mudclient *mud, GameCharacter *npc) {
 
     if (mud->combat_target == npc) {
         mud->combat_target = NULL;
+        offline_combat_engaged = 0;
+        offline_combat_server_index = -1;
     }
 
     free(npc);
+}
+
+void mudclient_offline_start_combat(mudclient *mud, GameCharacter *npc) {
+    if (mud == NULL || npc == NULL || npc->npc_id < 0 ||
+        npc->npc_id >= game_data.npc_count ||
+        game_data.npcs[npc->npc_id].attackable <= 0) {
+        return;
+    }
+
+    mud->combat_target = npc;
+    offline_combat_engaged = 1;
+    offline_combat_server_index = npc->server_index;
+    offline_combat_cooldown = 0;
 }
 
 static int mudclient_offline_character_distance(GameCharacter *a,
@@ -2138,16 +4427,29 @@ static void mudclient_award_offline_combat_xp(mudclient *mud, int damage) {
         return;
     }
 
-    if (mud->player_experience[skill] < 800000000 - xp) {
-        mud->player_experience[skill] += xp;
+    mudclient_award_offline_xp(mud, skill, xp);
+    mudclient_award_offline_xp(mud, SKILL_HITS, xp);
+}
+
+static void mudclient_drop_offline_loot(mudclient *mud, GameCharacter *npc) {
+    if (mud == NULL || npc == NULL || npc->npc_id < 0 ||
+        npc->npc_id >= game_data.npc_count ||
+        game_data.npcs[npc->npc_id].attackable <= 0) {
+        return;
     }
 
-    if (mud->player_experience[SKILL_HITS] < 800000000 - xp) {
-        mud->player_experience[SKILL_HITS] += xp;
+    int x = (npc->current_x - 64) / MAGIC_LOC;
+    int y = (npc->current_y - 64) / MAGIC_LOC;
+    int coin_drops = 1 + (game_data.npcs[npc->npc_id].hits / 3);
+
+    if (coin_drops > 8) {
+        coin_drops = 8;
     }
 
-    mudclient_drop_experience(mud, skill, xp);
-    mudclient_drop_experience(mud, SKILL_HITS, xp);
+    mudclient_offline_add_ground_item(mud, RSC_ITEM_BONES, x, y);
+    for (int i = 0; i < coin_drops; i++) {
+        mudclient_offline_add_ground_item(mud, COINS_ID, x, y);
+    }
 }
 
 static void mudclient_tick_offline_combat(mudclient *mud) {
@@ -2160,8 +4462,13 @@ static void mudclient_tick_offline_combat(mudclient *mud) {
         offline_respawn_server_index = -1;
     }
 
-    if (player == NULL || npc == NULL || npc->npc_id < 0 ||
+    if (!offline_combat_engaged || player == NULL || npc == NULL ||
+        npc->server_index != offline_combat_server_index || npc->npc_id < 0 ||
         npc->current_hits <= 0 || npc->max_hits <= 0) {
+        if (npc == NULL) {
+            offline_combat_engaged = 0;
+            offline_combat_server_index = -1;
+        }
         return;
     }
 
@@ -2169,8 +4476,10 @@ static void mudclient_tick_offline_combat(mudclient *mud) {
         int x = (npc->current_x - 64) / MAGIC_LOC;
         int y = (npc->current_y - 64) / MAGIC_LOC;
 
-        mudclient_walk_to_action_source(mud, mud->local_region_x,
-                                        mud->local_region_y, x, y, 1);
+        if (offline_walk_len == 0) {
+            mudclient_walk_to_action_source(mud, mud->local_region_x,
+                                            mud->local_region_y, x, y, 1);
+        }
         return;
     }
 
@@ -2215,6 +4524,7 @@ static void mudclient_tick_offline_combat(mudclient *mud) {
         snprintf(defeated, sizeof(defeated), "@red@You have defeated the %s.",
                  game_data.npcs[npc->npc_id].name);
         mudclient_show_message(mud, defeated, MESSAGE_TYPE_GAME);
+        mudclient_drop_offline_loot(mud, npc);
         mudclient_remove_offline_npc(mud, npc);
 
         player->current_animation = DIR_SOUTH;
@@ -2222,6 +4532,8 @@ static void mudclient_tick_offline_combat(mudclient *mud) {
         offline_respawn_server_index = server_index;
         offline_respawn_timer = 120;
         offline_combat_cooldown = 0;
+        offline_combat_engaged = 0;
+        offline_combat_server_index = -1;
         return;
     }
 
@@ -2229,10 +4541,10 @@ static void mudclient_tick_offline_combat(mudclient *mud) {
     offline_combat_cooldown = 22;
 }
 
-static void mudclient_apply_offline_account(mudclient *mud,
-                                           GameCharacter *player) {
-    player->animations[ANIMATION_INDEX_HEAD] = 1;
-    player->animations[ANIMATION_INDEX_BODY] = 2;
+static void mudclient_set_offline_base_appearance(mudclient *mud,
+                                                  GameCharacter *player) {
+    player->animations[ANIMATION_INDEX_HEAD] = mud->appearance_head_type + 1;
+    player->animations[ANIMATION_INDEX_BODY] = mud->appearance_body_type + 1;
     player->animations[ANIMATION_INDEX_LEGS] = 3;
     player->animations[ANIMATION_INDEX_LEFT_HAND] = 0;
     player->animations[ANIMATION_INDEX_RIGHT_HAND] = 0;
@@ -2244,19 +4556,319 @@ static void mudclient_apply_offline_account(mudclient *mud,
     player->animations[ANIMATION_INDEX_NECK] = 0;
     player->animations[ANIMATION_INDEX_CAPE] = 0;
     player->skull_visible = 0;
+}
+
+static int mudclient_offline_equipment_layer(int item_id) {
+    char *name;
+
+    if (item_id < 0 || item_id >= game_data.item_count) {
+        return ANIMATION_INDEX_RIGHT_HAND;
+    }
+
+    name = game_data.items[item_id].name;
+    if (mudclient_offline_text_contains(name, "shield")) {
+        return ANIMATION_INDEX_LEFT_HAND;
+    }
+    if (mudclient_offline_text_contains(name, "cape")) {
+        return ANIMATION_INDEX_CAPE;
+    }
+    if (mudclient_offline_text_contains(name, "amulet")) {
+        return ANIMATION_INDEX_NECK;
+    }
+    if (mudclient_offline_text_contains(name, "helmet") ||
+        mudclient_offline_text_contains(name, "helm") ||
+        mudclient_offline_text_contains(name, "hat")) {
+        return ANIMATION_INDEX_HEAD_OVERLAY;
+    }
+    if (mudclient_offline_text_contains(name, "chainmail")) {
+        return ANIMATION_INDEX_BODY_OVERLAY;
+    }
+    if (mudclient_offline_text_contains(name, "legs") ||
+        mudclient_offline_text_contains(name, "skirt") ||
+        mudclient_offline_text_contains(name, "robe bottom")) {
+        return ANIMATION_INDEX_LEGS_OVERLAY;
+    }
+    if (mudclient_offline_text_contains(name, "plate") ||
+        mudclient_offline_text_contains(name, "mail") ||
+        mudclient_offline_text_contains(name, "robe top")) {
+        return ANIMATION_INDEX_BODY;
+    }
+    if (mudclient_offline_text_contains(name, "boots")) {
+        return ANIMATION_INDEX_BOOTS;
+    }
+    if (mudclient_offline_text_contains(name, "gauntlets") ||
+        mudclient_offline_text_contains(name, "gloves")) {
+        return ANIMATION_INDEX_8;
+    }
+
+    return ANIMATION_INDEX_RIGHT_HAND;
+}
+
+static const char *mudclient_offline_equipment_animation_name(int item_id,
+                                                             int layer) {
+    char *name;
+
+    if (item_id < 0 || item_id >= game_data.item_count) {
+        return NULL;
+    }
+
+    name = game_data.items[item_id].name;
+    switch (layer) {
+    case ANIMATION_INDEX_LEFT_HAND:
+        return "squareshield";
+    case ANIMATION_INDEX_RIGHT_HAND:
+        if (mudclient_offline_text_contains(name, "battle axe") ||
+            mudclient_offline_text_contains(name, "battleaxe") ||
+            mudclient_offline_text_contains(name, " axe")) {
+            return "battleaxe";
+        }
+        if (mudclient_offline_text_contains(name, "mace")) {
+            return "mace";
+        }
+        if (mudclient_offline_text_contains(name, "spear")) {
+            return "spear";
+        }
+        if (mudclient_offline_text_contains(name, "longbow") ||
+            mudclient_offline_text_contains(name, "shortbow")) {
+            return "longbow";
+        }
+        if (mudclient_offline_text_contains(name, "crossbow")) {
+            return "crossbow";
+        }
+        if (mudclient_offline_text_contains(name, "staff")) {
+            if (mudclient_offline_text_contains(name, "iban")) {
+                return "ibanstaff";
+            }
+            if (mudclient_offline_text_contains(name, "saradomin")) {
+                return "saradominstaff";
+            }
+            return "staff";
+        }
+        return "sword";
+    case ANIMATION_INDEX_HEAD_OVERLAY:
+        if (mudclient_offline_text_contains(name, "partyhat")) {
+            return "partyhat";
+        }
+        if (mudclient_offline_text_contains(name, "wizard")) {
+            return "wizardshat";
+        }
+        if (mudclient_offline_text_contains(name, "chef")) {
+            return "chefshat";
+        }
+        if (mudclient_offline_text_contains(name, "santa")) {
+            return "santahat";
+        }
+        if (mudclient_offline_text_contains(name, "medium")) {
+            return "mediumhelm";
+        }
+        return "fullhelm";
+    case ANIMATION_INDEX_BODY:
+        if (mudclient_offline_text_contains(name, "robe")) {
+            return "wizardsrobe";
+        }
+        if (mudclient_offline_text_contains(name, "apron")) {
+            return "apron";
+        }
+        if (mudclient_offline_text_contains(name, "leather")) {
+            return "leatherarmour";
+        }
+        return "platemailtop";
+    case ANIMATION_INDEX_BODY_OVERLAY:
+        return "chainmail";
+    case ANIMATION_INDEX_LEGS_OVERLAY:
+        if (mudclient_offline_text_contains(name, "skirt") ||
+            mudclient_offline_text_contains(name, "robe")) {
+            return "skirt";
+        }
+        return "platemaillegs";
+    case ANIMATION_INDEX_BOOTS:
+        return "boots";
+    case ANIMATION_INDEX_8:
+        return "leathergloves";
+    case ANIMATION_INDEX_NECK:
+        return "necklace";
+    case ANIMATION_INDEX_CAPE:
+        return "cape";
+    default:
+        return NULL;
+    }
+}
+
+static int mudclient_find_offline_animation(const char *animation_name,
+                                            int colour) {
+    int fallback = 0;
+
+    if (animation_name == NULL) {
+        return 0;
+    }
+
+    for (int i = 0; i < game_data.animation_count; i++) {
+        if (strcmp(game_data.animations[i].name, animation_name) != 0) {
+            continue;
+        }
+
+        if (fallback == 0) {
+            fallback = i + 1;
+        }
+
+        if ((int)game_data.animations[i].colour == colour) {
+            return i + 1;
+        }
+    }
+
+    return fallback;
+}
+
+static int mudclient_offline_equipment_colour(int item_id, int layer) {
+    char *name = game_data.items[item_id].name;
+    int colour = (int)game_data.items[item_id].mask;
+
+    if (layer == ANIMATION_INDEX_NECK &&
+        mudclient_offline_text_contains(name, "dragonstone")) {
+        return 16763980;
+    }
+
+    if (layer == ANIMATION_INDEX_8 &&
+        mudclient_offline_text_contains(name, "steel")) {
+        return 11202303;
+    }
+
+    return colour;
+}
+
+static int mudclient_offline_equipment_animation(int item_id, int layer) {
+    const char *animation_name =
+        mudclient_offline_equipment_animation_name(item_id, layer);
+    int animation = mudclient_find_offline_animation(
+        animation_name, mudclient_offline_equipment_colour(item_id, layer));
+
+    if (animation <= 0 && layer == ANIMATION_INDEX_RIGHT_HAND) {
+        animation = mudclient_find_offline_animation("sword", 0);
+    }
+
+    return animation;
+}
+
+static int mudclient_offline_equipment_conflicts(int item_id, int other_id) {
+    int item_wearable;
+    int other_wearable;
+    int item_layer;
+    int other_layer;
+
+    if (item_id < 0 || item_id >= game_data.item_count || other_id < 0 ||
+        other_id >= game_data.item_count) {
+        return 0;
+    }
+
+    item_wearable = game_data.items[item_id].wearable;
+    other_wearable = game_data.items[other_id].wearable;
+    item_layer = mudclient_offline_equipment_layer(item_id);
+    other_layer = mudclient_offline_equipment_layer(other_id);
+
+    if (item_layer == other_layer) {
+        return 1;
+    }
+
+    return (((item_wearable & 24) == 24) && (other_wearable & 24)) ||
+           (((other_wearable & 24) == 24) && (item_wearable & 24));
+}
+
+void mudclient_offline_wear_inventory_slot(mudclient *mud, int slot) {
+    int item_id;
+
+    if (mud == NULL || slot < 0 || slot >= mud->inventory_items_count) {
+        return;
+    }
+
+    item_id = mud->inventory_item_id[slot];
+    if (item_id < 0 || item_id >= game_data.item_count ||
+        game_data.items[item_id].wearable <= 0) {
+        return;
+    }
+
+    for (int i = 0; i < mud->inventory_items_count; i++) {
+        int other_id;
+
+        if (i == slot || !mud->inventory_equipped[i]) {
+            continue;
+        }
+
+        other_id = mud->inventory_item_id[i];
+        if (mudclient_offline_equipment_conflicts(item_id, other_id)) {
+            mud->inventory_equipped[i] = 0;
+        }
+    }
+
+    mud->inventory_equipped[slot] = 1;
+    mudclient_refresh_offline_equipment(mud);
+}
+
+void mudclient_refresh_offline_equipment(mudclient *mud) {
+    GameCharacter *player;
+
+    if (mud == NULL || mud->local_player == NULL) {
+        return;
+    }
+
+    player = mud->local_player;
+    mudclient_set_offline_base_appearance(mud, player);
+
+    for (int i = 0; i < mud->inventory_items_count; i++) {
+        int item_id;
+        int animation;
+        int layer;
+
+        if (!mud->inventory_equipped[i]) {
+            continue;
+        }
+
+        item_id = mud->inventory_item_id[i];
+        if (item_id < 0 || item_id >= game_data.item_count) {
+            mud->inventory_equipped[i] = 0;
+            continue;
+        }
+
+        if (game_data.items[item_id].wearable <= 0) {
+            mud->inventory_equipped[i] = 0;
+            continue;
+        }
+
+        layer = mudclient_offline_equipment_layer(item_id);
+        animation = mudclient_offline_equipment_animation(item_id, layer);
+        if (animation <= 0) {
+            continue;
+        }
+        player->animations[layer] = animation;
+    }
+}
+
+static void mudclient_apply_offline_account(mudclient *mud,
+                                           GameCharacter *player) {
+    mudclient_set_offline_base_appearance(mud, player);
 
     for (int i = 0; i < PLAYER_STAT_EQUIPMENT_COUNT; i++) {
         mud->player_stat_equipment[i] = 0;
     }
 
+    mud->new_bank_item_count = 0;
+    mud->bank_item_count = 0;
+    for (int i = 0; i < BANK_ITEMS_MAX; i++) {
+        mud->new_bank_items[i] = 0;
+        mud->new_bank_items_count[i] = 0;
+        mud->bank_items[i] = 0;
+        mud->bank_items_count[i] = 0;
+    }
+
     if (mud->offline_profile == RSC_OFFLINE_PROFILE_DAVID) {
         mud->moderator_level = 1;
-        mud->inventory_items_count = 1;
-        mud->inventory_item_id[0] = COINS_ID;
-        mud->inventory_item_stack_count[0] = 2147483647;
-        mud->inventory_equipped[0] = 0;
+        mudclient_seed_david_inventory(mud);
         mud->selected_item_inventory_index = -1;
         mud->player_quest_points = 999;
+        if (mud->quest_complete != NULL) {
+            for (int i = 0; i < quests_length; i++) {
+                mud->quest_complete[i] = 1;
+            }
+        }
         mud->bank_items_max = 192;
 
         for (int i = 0; i < PLAYER_SKILL_COUNT; i++) {
@@ -2270,10 +4882,19 @@ static void mudclient_apply_offline_account(mudclient *mud,
         return;
     }
 
+    if (mud->offline_profile == RSC_OFFLINE_PROFILE_ABOVE_CHAOS) {
+        mudclient_set_above_chaos_appearance(mud, player);
+    }
+
     mud->moderator_level = 0;
     mud->inventory_items_count = 0;
     mud->selected_item_inventory_index = -1;
     mud->player_quest_points = 0;
+    if (mud->quest_complete != NULL) {
+        for (int i = 0; i < quests_length; i++) {
+            mud->quest_complete[i] = 0;
+        }
+    }
     mud->bank_items_max = 48;
 
     for (int i = 0; i < PLAYER_SKILL_COUNT; i++) {
@@ -2285,6 +4906,11 @@ static void mudclient_apply_offline_account(mudclient *mud,
     player->level = 3;
     player->current_hits = 10;
     player->max_hits = 10;
+
+    if (mud->offline_profile == RSC_OFFLINE_PROFILE_ABOVE_CHAOS) {
+        mudclient_seed_above_chaos_inventory(mud);
+        mudclient_refresh_offline_equipment(mud);
+    }
 
     for (int i = 0; i < PLAYER_STAT_EQUIPMENT_COUNT; i++) {
         mud->player_stat_equipment[i] = 0;
@@ -2302,6 +4928,8 @@ static void mudclient_clear_offline_npcs(mudclient *mud) {
     mud->npc_count = 0;
     mud->known_npc_count = 0;
     mud->combat_target = NULL;
+    offline_combat_engaged = 0;
+    offline_combat_server_index = -1;
 
     for (int i = 0; i < NPCS_MAX; i++) {
         mud->npcs[i] = NULL;
@@ -2317,6 +4945,12 @@ static void mudclient_refresh_offline_npcs(mudclient *mud) {
     for (int i = 0; i < count; i++) {
         mudclient_spawn_offline_npc(mud, offline_npc_spawns[i].server_index);
     }
+
+    count = sizeof(offline_named_npc_spawns) /
+            sizeof(offline_named_npc_spawns[0]);
+    for (int i = 0; i < count; i++) {
+        mudclient_spawn_offline_named_npc(mud, &offline_named_npc_spawns[i]);
+    }
 }
 
 static void mudclient_sync_offline_region(mudclient *mud) {
@@ -2330,22 +4964,17 @@ static void mudclient_sync_offline_region(mudclient *mud) {
     if (mudclient_load_next_region(mud, global_x, global_y)) {
         mud->local_region_x = mud->local_player->current_x / MAGIC_LOC;
         mud->local_region_y = mud->local_player->current_y / MAGIC_LOC;
+        mud->camera_auto_rotate_player_x = mud->local_player->current_x;
+        mud->camera_auto_rotate_player_y = mud->local_player->current_y;
+        mudclient_clear_offline_walk();
         mudclient_refresh_offline_npcs(mud);
+        mudclient_seed_offline_quest_ground_items(mud);
     }
 }
 
 static void mudclient_start_offline_game(mudclient *mud) {
-    enum {
-        LUMBRIDGE_SECTION_X = 53,
-        LUMBRIDGE_SECTION_Y = 48,
-        LUMBRIDGE_LOCAL_X = 24,
-        LUMBRIDGE_LOCAL_Y = 32
-    };
-
-    int global_x = (LUMBRIDGE_SECTION_X * REGION_SIZE) - REGION_SIZE +
-                   LUMBRIDGE_LOCAL_X;
-    int global_y = (LUMBRIDGE_SECTION_Y * REGION_SIZE) - REGION_SIZE +
-                   LUMBRIDGE_LOCAL_Y;
+    int global_x = LUMBRIDGE_CASTLE_X;
+    int global_y = LUMBRIDGE_CASTLE_Y;
 
     mud->logged_in = 1;
     mud->login_screen = 0;
@@ -2353,15 +4982,16 @@ static void mudclient_start_offline_game(mudclient *mud) {
     mud->plane_width = 0;
     mud->plane_height = 0;
     mud->local_player_server_index = 0;
-    mud->local_region_x = LUMBRIDGE_LOCAL_X;
-    mud->local_region_y = LUMBRIDGE_LOCAL_Y;
     mud->options->show_roofs = 0;
     mud->camera_zoom = 1100;
 
     mudclient_load_next_region(mud, global_x, global_y);
 
-    int local_x = LUMBRIDGE_LOCAL_X * MAGIC_LOC + 64;
-    int local_y = LUMBRIDGE_LOCAL_Y * MAGIC_LOC + 64;
+    mud->local_region_x = global_x - mud->region_x;
+    mud->local_region_y = global_y - mud->region_y;
+
+    int local_x = mud->local_region_x * MAGIC_LOC + 64;
+    int local_y = mud->local_region_y * MAGIC_LOC + 64;
 
     char offline_name[USERNAME_LENGTH + 1];
     if (mud->offline_profile == RSC_OFFLINE_PROFILE_ABOVE_CHAOS) {
@@ -2387,6 +5017,8 @@ static void mudclient_start_offline_game(mudclient *mud) {
             strcpy(mud->options->username, offline_name);
         }
         mudclient_apply_offline_account(mud, player);
+        mudclient_load_offline_save(mud, player);
+        mudclient_refresh_offline_equipment(mud);
     }
 
     mud->camera_auto_rotate_player_x = local_x;
@@ -2394,11 +5026,13 @@ static void mudclient_start_offline_game(mudclient *mud) {
     mud->camera_rotation_x = 0;
     mud->camera_rotation_y = 0;
     mud->world->player_alive = 1;
+    mudclient_clear_offline_walk();
     offline_combat_cooldown = 0;
     offline_combat_phase = 0;
     offline_respawn_timer = 0;
     offline_respawn_server_index = -1;
     mudclient_refresh_offline_npcs(mud);
+    mudclient_seed_offline_quest_ground_items(mud);
 
     mud->mouse_x = mud->game_width / 2;
     mud->mouse_y = (mud->game_height - 48) / 2;
@@ -3919,6 +6553,8 @@ void mudclient_handle_game_input(mudclient *mud) {
 
 #ifdef ROCKBOX
     mudclient_sync_offline_region(mud);
+    mudclient_feed_offline_walk(mud);
+    mudclient_run_offline_player(mud);
     mudclient_tick_offline_combat(mud);
 #endif
 
@@ -3962,12 +6598,23 @@ void mudclient_handle_game_input(mudclient *mud) {
         }
     }
 
+#ifdef ROCKBOX
+    if (mud->camera_auto_rotate_player_x - mud->local_player->current_x <
+            -MAGIC_LOC * 12 ||
+        mud->camera_auto_rotate_player_x - mud->local_player->current_x >
+            MAGIC_LOC * 12 ||
+        mud->camera_auto_rotate_player_y - mud->local_player->current_y <
+            -MAGIC_LOC * 12 ||
+        mud->camera_auto_rotate_player_y - mud->local_player->current_y >
+            MAGIC_LOC * 12) {
+#else
     if (mud->camera_auto_rotate_player_x - mud->local_player->current_x <
             -500 ||
         mud->camera_auto_rotate_player_x - mud->local_player->current_x > 500 ||
         mud->camera_auto_rotate_player_y - mud->local_player->current_y <
             -500 ||
         mud->camera_auto_rotate_player_y - mud->local_player->current_y > 500) {
+#endif
         mud->camera_auto_rotate_player_x = mud->local_player->current_x;
         mud->camera_auto_rotate_player_y = mud->local_player->current_y;
     }
@@ -6064,34 +8711,24 @@ int mudclient_walk_to(mudclient *mud, int start_x, int start_y, int x1, int y1,
         }
     }
 
+#ifdef ROCKBOX
+    if (mud->local_player != NULL) {
+        if (!mudclient_start_offline_walk(mud, start_x, start_y, steps)) {
+            return 0;
+        }
+
+        mud->mouse_click_x_step = -24;
+        mud->mouse_click_x_x = mud->mouse_x;
+        mud->mouse_click_x_y = mud->mouse_y;
+
+        return 1;
+    }
+#endif
+
     steps--;
     start_x = mud->walk_path_x[steps];
     start_y = mud->walk_path_y[steps];
     steps--;
-
-#ifdef ROCKBOX
-    (void)walk_to_action;
-    if (mud->local_player != NULL) {
-        int waypoint = mud->local_player->waypoint_current;
-        for (int i = steps; i >= 0 && i > steps - 8; i--) {
-            waypoint = (waypoint + 1) % WAYPOINT_COUNT;
-            mud->local_player->waypoints_x[waypoint] =
-                mud->walk_path_x[i] * MAGIC_LOC + 64;
-            mud->local_player->waypoints_y[waypoint] =
-                mud->walk_path_y[i] * MAGIC_LOC + 64;
-        }
-        waypoint = (waypoint + 1) % WAYPOINT_COUNT;
-        mud->local_player->waypoints_x[waypoint] = start_x * MAGIC_LOC + 64;
-        mud->local_player->waypoints_y[waypoint] = start_y * MAGIC_LOC + 64;
-        mud->local_player->waypoint_current = waypoint;
-    }
-
-    mud->mouse_click_x_step = -24;
-    mud->mouse_click_x_x = mud->mouse_x;
-    mud->mouse_click_x_y = mud->mouse_y;
-
-    return 1;
-#endif
 
     packet_stream_new_packet(mud->packet_stream,
                              walk_to_action ? CLIENT_WALK_ACTION : CLIENT_WALK);

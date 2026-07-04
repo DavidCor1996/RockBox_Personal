@@ -172,6 +172,8 @@ namespace gameswf
 
 		void	output_cached_data(tu_file* out, const cache_options& options);
 		void	input_cached_data(tu_file* in);
+		void	output_def_cached_data(tu_file* out) const;
+		bool	input_def_cached_data(tu_file* in, movie_definition_sub* m);
 
 		const array<fill_style>&	get_fill_styles() const { return m_fill_styles; }
 		const array<line_style>&	get_line_styles() const { return m_line_styles; }
@@ -204,6 +206,13 @@ namespace gameswf
 		// Cached pre-tesselated meshes.
 		mutable array<mesh_set*>	m_cached_meshes;
 	};
+
+	void	set_shape_definition_cache_files(tu_file* in, tu_file* out);
+	bool	input_shape_definition_cache(shape_character_def* ch,
+		int character_id, int tag_type, int stream_pos,
+		movie_definition_sub* m);
+	void	output_shape_definition_cache(const shape_character_def* ch,
+		int character_id, int tag_type, int stream_pos);
 
 }	// end namespace gameswf
 

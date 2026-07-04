@@ -39,6 +39,28 @@ static struct bitmap cover_bitmap;
 static int loaded_cover = -1;
 static bool cover_valid;
 
+static bool launcher_dark_mode(void)
+{
+    return rb->global_settings->ui_engine_dark_mode;
+}
+
+static unsigned launcher_bg_color(void)
+{
+    return launcher_dark_mode() ? LCD_RGBPACK(18, 20, 24) : LCD_WHITE;
+}
+
+static unsigned launcher_text_color(void)
+{
+    return launcher_dark_mode() ? LCD_RGBPACK(239, 242, 246) :
+                                  LCD_RGBPACK(16, 16, 16);
+}
+
+static unsigned launcher_muted_text_color(void)
+{
+    return launcher_dark_mode() ? LCD_RGBPACK(166, 173, 184) :
+                                  LCD_RGBPACK(84, 88, 94);
+}
+
 static bool has_min_ext(const char *name)
 {
     const char *ext = rb->strrchr(name, '.');
@@ -475,20 +497,32 @@ static void draw_scrollbar(int selected, int rows)
     thumb_y = track_y + (selected * (track_h - thumb_h)) /
               (game_count - 1);
 
-    rb->lcd_set_foreground(LCD_RGBPACK(222, 224, 227));
+    rb->lcd_set_foreground(launcher_dark_mode() ?
+                           LCD_RGBPACK(58, 64, 74) :
+                           LCD_RGBPACK(222, 224, 227));
     rb->lcd_vline(track_x, track_y, track_y + track_h - 1);
-    gradient_rect(track_x - 1, thumb_y, 3, thumb_h,
-                  166, 171, 178, 116, 122, 130);
+    if (launcher_dark_mode())
+        gradient_rect(track_x - 1, thumb_y, 3, thumb_h,
+                      108, 116, 130, 72, 80, 94);
+    else
+        gradient_rect(track_x - 1, thumb_y, 3, thumb_h,
+                      166, 171, 178, 116, 122, 130);
 }
 
 static void draw_cover_placeholder(int x, int y)
 {
-    gradient_rect(x, y, COVER_W, COVER_H,
-                  246, 247, 248, 212, 215, 219);
-    rb->lcd_set_foreground(LCD_RGBPACK(156, 162, 170));
+    if (launcher_dark_mode())
+        gradient_rect(x, y, COVER_W, COVER_H,
+                      44, 49, 58, 28, 32, 39);
+    else
+        gradient_rect(x, y, COVER_W, COVER_H,
+                      246, 247, 248, 212, 215, 219);
+    rb->lcd_set_foreground(launcher_dark_mode() ?
+                           LCD_RGBPACK(88, 96, 110) :
+                           LCD_RGBPACK(156, 162, 170));
     rb->lcd_drawrect(x, y, COVER_W, COVER_H);
     draw_text_transparent(x + 22, y + 58, "No Cover",
-                          LCD_RGBPACK(104, 108, 114));
+                          launcher_muted_text_color());
 }
 
 static void draw_launcher(int selected)
@@ -513,23 +547,35 @@ static void draw_launcher(int selected)
     if (start < 0)
         start = 0;
 
-    rb->lcd_set_background(LCD_WHITE);
-    rb->lcd_set_foreground(LCD_WHITE);
+    rb->lcd_set_background(launcher_bg_color());
+    rb->lcd_set_foreground(launcher_bg_color());
     rb->lcd_clear_display();
 
-    gradient_rect(0, 0, LCD_WIDTH, HEADER_H,
-                  252, 253, 253, 183, 188, 194);
-    rb->lcd_set_foreground(LCD_RGBPACK(128, 134, 142));
+    if (launcher_dark_mode())
+        gradient_rect(0, 0, LCD_WIDTH, HEADER_H,
+                      92, 98, 108, 24, 29, 38);
+    else
+        gradient_rect(0, 0, LCD_WIDTH, HEADER_H,
+                      252, 253, 253, 183, 188, 194);
+    rb->lcd_set_foreground(launcher_dark_mode() ?
+                           LCD_RGBPACK(11, 14, 19) :
+                           LCD_RGBPACK(128, 134, 142));
     rb->lcd_hline(0, LCD_WIDTH - 1, HEADER_H - 1);
-    rb->lcd_set_foreground(LCD_RGBPACK(210, 213, 217));
+    rb->lcd_set_foreground(launcher_dark_mode() ?
+                           LCD_RGBPACK(45, 51, 61) :
+                           LCD_RGBPACK(210, 213, 217));
     rb->lcd_vline(PANE_X - 1, HEADER_H, LCD_HEIGHT - 1);
 
-    gradient_rect(PANE_X, HEADER_H, pane_w, LCD_HEIGHT - HEADER_H,
-                  250, 251, 252, 226, 229, 233);
+    if (launcher_dark_mode())
+        gradient_rect(PANE_X, HEADER_H, pane_w, LCD_HEIGHT - HEADER_H,
+                      32, 37, 46, 18, 22, 30);
+    else
+        gradient_rect(PANE_X, HEADER_H, pane_w, LCD_HEIGHT - HEADER_H,
+                      250, 251, 252, 226, 229, 233);
 
-    draw_text_transparent(8, 5, "iPod", LCD_RGBPACK(24, 24, 24));
+    draw_text_transparent(8, 5, "iPod", launcher_text_color());
     draw_text_transparent(PANE_X + 8, 5, "PokeMini",
-                          LCD_RGBPACK(24, 24, 24));
+                          launcher_text_color());
 
     for (i = 0; i < rows && start + i < game_count; i++)
     {
@@ -545,23 +591,29 @@ static void draw_launcher(int selected)
         }
         else
         {
-            rb->lcd_set_foreground(LCD_RGBPACK(232, 234, 236));
+            rb->lcd_set_foreground(launcher_dark_mode() ?
+                                   LCD_RGBPACK(39, 45, 54) :
+                                   LCD_RGBPACK(232, 234, 236));
             rb->lcd_hline(LIST_X, PANE_X - 10, y + ROW_H - 3);
         }
 
         text_fit(line, sizeof(line), games[idx].name, LIST_W);
         draw_text_transparent(LIST_X, y, line,
                               idx == selected ? LCD_WHITE :
-                              LCD_RGBPACK(16, 16, 16));
+                              launcher_text_color());
         if (idx == selected)
             draw_chevron(PANE_X - 14, y + 2, LCD_WHITE);
     }
 
     draw_scrollbar(selected, rows);
 
-    rb->lcd_set_foreground(LCD_RGBPACK(188, 193, 199));
+    rb->lcd_set_foreground(launcher_dark_mode() ?
+                           LCD_RGBPACK(11, 14, 19) :
+                           LCD_RGBPACK(188, 193, 199));
     rb->lcd_fillrect(cover_x + 5, cover_y + 6, COVER_W, COVER_H);
-    rb->lcd_set_foreground(LCD_RGBPACK(142, 148, 156));
+    rb->lcd_set_foreground(launcher_dark_mode() ?
+                           LCD_RGBPACK(78, 86, 100) :
+                           LCD_RGBPACK(142, 148, 156));
     rb->lcd_drawrect(cover_x - 1, cover_y - 1, COVER_W + 2, COVER_H + 2);
 
     if (cover_valid)
@@ -578,15 +630,21 @@ static void draw_launcher(int selected)
 
     text_fit(line, sizeof(line), games[selected].name, pane_w - 12);
     draw_text_transparent(PANE_X + 6, cover_y + COVER_H + 10, line,
-                          LCD_RGBPACK(36, 39, 43));
+                          launcher_text_color());
 
-    gradient_rect(0, LCD_HEIGHT - FOOTER_H, LCD_WIDTH, FOOTER_H,
-                  240, 242, 244, 214, 218, 222);
-    rb->lcd_set_foreground(LCD_RGBPACK(180, 185, 192));
+    if (launcher_dark_mode())
+        gradient_rect(0, LCD_HEIGHT - FOOTER_H, LCD_WIDTH, FOOTER_H,
+                      31, 36, 44, 18, 22, 30);
+    else
+        gradient_rect(0, LCD_HEIGHT - FOOTER_H, LCD_WIDTH, FOOTER_H,
+                      240, 242, 244, 214, 218, 222);
+    rb->lcd_set_foreground(launcher_dark_mode() ?
+                           LCD_RGBPACK(45, 51, 61) :
+                           LCD_RGBPACK(180, 185, 192));
     rb->lcd_hline(0, LCD_WIDTH - 1, LCD_HEIGHT - FOOTER_H);
     rb->snprintf(line, sizeof(line), "%d games", game_count);
     draw_text_transparent(8, LCD_HEIGHT - FOOTER_H + 4, line,
-                          LCD_RGBPACK(84, 88, 94));
+                          launcher_muted_text_color());
 
     rb->lcd_update();
 }

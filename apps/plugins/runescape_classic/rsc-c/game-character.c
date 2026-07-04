@@ -100,11 +100,11 @@ void game_character_move(GameCharacter *character) {
             if (character->current_x < character->waypoints_x[step]) {
                 character->current_x += j5;
                 character->step_count++;
-                current_animation = 2;
+                current_animation = 6;
             } else if (character->current_x > character->waypoints_x[step]) {
                 character->current_x -= j5;
                 character->step_count++;
-                current_animation = 6;
+                current_animation = 2;
             }
 
             if (character->current_x - character->waypoints_x[step] < j5 &&
@@ -118,10 +118,10 @@ void game_character_move(GameCharacter *character) {
 
                 if (current_animation == -1) {
                     current_animation = 4;
-                } else if (current_animation == 2) {
-                    current_animation = 3;
-                } else {
+                } else if (current_animation == 6) {
                     current_animation = 5;
+                } else {
+                    current_animation = 3;
                 }
             } else if (character->current_y > character->waypoints_y[step]) {
                 character->current_y -= j5;
@@ -129,10 +129,10 @@ void game_character_move(GameCharacter *character) {
 
                 if (current_animation == -1) {
                     current_animation = 0;
-                } else if (current_animation == 2) {
-                    current_animation = 1;
-                } else {
+                } else if (current_animation == 6) {
                     current_animation = 7;
+                } else {
+                    current_animation = 1;
                 }
             }
 

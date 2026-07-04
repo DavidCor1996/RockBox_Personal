@@ -546,6 +546,7 @@ namespace gameswf
 	void	movie_def_impl::add_bitmap_character(int character_id, bitmap_character_def* ch)
 	{
 		assert(ch);
+		ch->set_id(character_id);
 		m_bitmap_characters.add(character_id, ch);
 		add_shared_character(character_id, ch);
 
@@ -759,6 +760,8 @@ namespace gameswf
 				m_str->close_tag();
 				if (m_str->get_position() <= last_pos)
 				{
+					flashplayer_trace_movie_state("read_loop_stall",
+						tag_type, tag_count, m_str->get_position());
 					log_msg("warning: loader stopped advancing at tag %d type %d\n",
 						tag_count, tag_type);
 					break;
@@ -772,6 +775,8 @@ namespace gameswf
 				if (flashplayer_should_stop_movie_load(get_loading_frame(),
 					tag_count, last_pos))
 				{
+					flashplayer_trace_movie_state("read_loop_fast_stop",
+						get_loading_frame(), tag_count, last_pos);
 					log_msg("flashplayer: stopping movie load at frame %d tag %d pos %d\n",
 						get_loading_frame(), tag_count, last_pos);
 					break;
@@ -781,6 +786,8 @@ namespace gameswf
 				{
 				if ((unsigned int) m_str->get_position() != m_file_end_pos)
 				{
+					flashplayer_trace_movie_state("read_loop_early_end",
+						tag_type, tag_count, m_str->get_position());
 					// Safety break, so we don't read past the end of the
 					// movie.
 					log_msg("warning: hit stream-end tag, but not at the "
@@ -791,6 +798,8 @@ namespace gameswf
 
 			m_loaded_length = m_str->get_position();
 		}
+		flashplayer_trace_movie_state("read_loop_done",
+			get_loading_frame(), tag_count, m_str->get_position());
 		if (m_str->get_position() >= m_file_end_pos)
 		{
 			m_loaded_length = m_file_end_pos;
@@ -849,7 +858,7 @@ namespace gameswf
 	}
 
 	// Increment this when the cache data format changes.
-	#define CACHE_FILE_VERSION 6
+	#define CACHE_FILE_VERSION 7
 
 	void	movie_def_impl::output_cached_data(tu_file* out, const cache_options& options)
 	// Dump our cached data into the given stream.
@@ -872,8 +881,13 @@ namespace gameswf
 		it != m_characters.end();
 		++it)
 		{
+			tu_file	char_cache(tu_file::memory_buffer);
+
+			it->second->output_cached_data(&char_cache, options);
 			out->write_le16(it->first);
-			it->second->output_cached_data(out, options);
+			out->write_le32(char_cache.get_position());
+			char_cache.set_position(0);
+			out->copy_bytes(&char_cache, char_cache.size());
 		}}
 
 		out->write_le16(static_cast<uint16>(-1));	// end of characters marker
@@ -919,18 +933,22 @@ namespace gameswf
 
 			Sint16	id = in->read_le16();
 			if (id == (Sint16) -1) { break; }	// done
+			int cached_size = in->read_le32();
+			int cached_end = in->get_position() + cached_size;
 
 			gc_ptr<character_def> ch;
 			m_characters.get(id, &ch);
 			if (ch != NULL)
 			{
 				ch->input_cached_data(in);
+				if (in->get_position() != cached_end)
+				{
+					in->set_position(cached_end);
+				}
 			}
 			else
 			{
-				log_error("sync error in cache file (reading characters)!  "
-					"Skipping rest of cache data.\n");
-				return;
+				in->set_position(cached_end);
 			}
 		}
 	}

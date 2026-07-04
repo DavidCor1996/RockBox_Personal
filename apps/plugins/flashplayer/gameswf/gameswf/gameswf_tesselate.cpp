@@ -675,6 +675,15 @@ namespace tesselate_new
 	}
 
 
+	static void reverse_path(array<point>* verts)
+	{
+		for (int i = 0, n = verts->size(), h = n >> 1; i < h; i++)
+		{
+			tu_swap(&(*verts)[i], &(*verts)[n - i - 1]);
+		}
+	}
+
+
 	bool try_to_combine_path(int index)
 	// Return true if we did any work.
 	{
@@ -706,12 +715,28 @@ namespace tesselate_new
 					}
 					po->m_right_style = -1;
 					return true;
+				} else if (po->m_verts.back() == pp->m_verts.back()) {
+					// Reverse po, then append it to pp.
+					reverse_path(&po->m_verts);
+					for (int j = 1; j < po->m_verts.size(); j++) {
+						pp->m_verts.push_back(po->m_verts[j]);
+					}
+					po->m_right_style = -1;
+					return true;
 				} else if (po->m_verts.back() == pp->m_verts[0]) {
 					// Yes, pp can be appended to po.
 					for (int j = 1; j < pp->m_verts.size(); j++) {
 						po->m_verts.push_back(pp->m_verts[j]);
 					}
 					pp->m_right_style = -1;
+					return true;
+				} else if (po->m_verts[0] == pp->m_verts[0]) {
+					// Reverse pp, then append po to it.
+					reverse_path(&pp->m_verts);
+					for (int j = 1; j < po->m_verts.size(); j++) {
+						pp->m_verts.push_back(po->m_verts[j]);
+					}
+					po->m_right_style = -1;
 					return true;
 				}
 			}
@@ -728,22 +753,9 @@ namespace tesselate_new
 			// triangulator does that implicitly.
 			assert(in[0] == in[in.size() - 1]);
 			out->resize((in.size() - 1) * 2);
-			double area2 = 0.0;
 			for (int i = 0; i < in.size() - 1; i++) {
-				const point& a = in[i];
-				const point& b = (i + 1 < in.size() - 1) ? in[i + 1] : in[0];
-				area2 += (double) a.m_x * b.m_y - (double) b.m_x * a.m_y;
-			}
-			if (area2 < 0.0) {
-				for (int i = 0, j = in.size() - 2; i < in.size() - 1; i++, j--) {
-					(*out)[i * 2] = in[j].m_x;
-					(*out)[i * 2 + 1] = in[j].m_y;
-				}
-			} else {
-				for (int i = 0; i < in.size() - 1; i++) {
-					(*out)[i * 2] = in[i].m_x;
-					(*out)[i * 2 + 1] = in[i].m_y;
-				}
+				(*out)[i * 2] = in[i].m_x;
+				(*out)[i * 2 + 1] = in[i].m_y;
 			}
 		}
 	}

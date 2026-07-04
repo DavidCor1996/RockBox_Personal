@@ -15,6 +15,8 @@
 #include "gameswf/gameswf_freetype.h"
 #include "base/tu_file.h"
 
+extern "C" void flashplayer_trace_movie_state(const char *name, int value,
+	int aux_a, int aux_b);
 
 namespace gameswf
 {
@@ -105,6 +107,15 @@ namespace gameswf
 			in->read_string_with_length(&m_fontname);
 			int	glyph_count = in->read_u16();
 			int	table_base = in->get_position();
+
+			if (m->get_create_font_shapes() == DO_NOT_LOAD_FONT_SHAPES)
+			{
+				m_glyphs.resize(glyph_count);
+				flashplayer_trace_movie_state("font_fast_skip",
+					tag_type, glyph_count, in->get_position());
+				in->set_position(in->get_tag_end_position());
+				return;
+			}
 
 			// Read the glyph offsets.  Offsets
 			// are measured from the start of the

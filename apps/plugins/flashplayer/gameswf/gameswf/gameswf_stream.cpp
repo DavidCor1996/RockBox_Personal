@@ -14,6 +14,8 @@
 #include "base/tu_file.h"
 #include <string.h>
 
+extern "C" void flashplayer_trace_movie_state(const char *name, int value,
+	int aux_a, int aux_b);
 
 namespace gameswf
 {
@@ -22,7 +24,8 @@ namespace gameswf
 		:
 		m_input(input),
 		m_current_byte(0),
-		m_unused_bits(0)
+		m_unused_bits(0),
+		m_tag_stack_size(0)
 	{
 	}
 
@@ -282,6 +285,30 @@ namespace gameswf
 		}
 	}
 
+	int	stream::read_bytes(void* dst, int len)
+	// Read raw byte-aligned data, clipped to the current tag boundary.
+	{
+		align();
+		if (len <= 0)
+		{
+			return 0;
+		}
+		if (m_tag_stack_size > 0)
+		{
+			int remaining = m_tag_stack[m_tag_stack_size - 1] -
+				m_input->get_position();
+			if (remaining < 0)
+			{
+				remaining = 0;
+			}
+			if (len > remaining)
+			{
+				len = remaining;
+			}
+		}
+		return m_input->read_bytes(dst, len);
+	}
+
 	int	stream::get_position()
 	// Return our current (byte) position in the input stream.
 	{
@@ -295,9 +322,9 @@ namespace gameswf
 		align();
 
 		// If we're in a tag, make sure we're not seeking outside the tag.
-		if (m_tag_stack.size() > 0)
+		if (m_tag_stack_size > 0)
 		{
-			int	end_pos = m_tag_stack.back();
+			int	end_pos = m_tag_stack[m_tag_stack_size - 1];
 			assert(pos <= end_pos);
 			end_pos = end_pos;	// inhibit warning
 			// @@ check start pos somehow???
@@ -311,10 +338,10 @@ namespace gameswf
 	int	stream::get_tag_end_position()
 	// Return the file position of the end of the current tag.
 	{
-		if (m_tag_stack.size() <= 0)
+		if (m_tag_stack_size <= 0)
 			return 0x7fffffff;
 
-		return m_tag_stack.back();
+		return m_tag_stack[m_tag_stack_size - 1];
 	}
 
 
@@ -334,7 +361,15 @@ namespace gameswf
 			
 		// Remember where the end of the tag is, so we can
 		// fast-forward past it when we're done reading it.
-		m_tag_stack.push_back(get_position() + tag_length);
+		if (m_tag_stack_size < TAG_STACK_CAPACITY)
+		{
+			m_tag_stack[m_tag_stack_size++] = get_position() + tag_length;
+		}
+		else
+		{
+			flashplayer_trace_movie_state("stream_tag_stack_full",
+				m_tag_stack_size, tag_type, get_position());
+		}
 
 		return tag_type;
 	}
@@ -343,16 +378,39 @@ namespace gameswf
 	void	stream::close_tag()
 	// Seek to the end of the most-recently-opened tag.
 	{
-		assert(m_tag_stack.size() > 0);
-		int	end_pos = m_tag_stack.back();
-		m_tag_stack.pop_back();
+		assert(m_tag_stack_size > 0);
+		int	current_pos = get_position();
+		int	end_pos = m_tag_stack_size > 0 ?
+			m_tag_stack[m_tag_stack_size - 1] : current_pos;
+		int	depth = m_tag_stack_size;
+		if (m_tag_stack_size > 0)
+			m_tag_stack_size--;
 
-		if (end_pos != get_position())
+		if (end_pos == 0 && current_pos > 0)
+		{
+			flashplayer_trace_movie_state("stream_close_zero_repair",
+				current_pos, depth, 0);
+			end_pos = current_pos;
+		}
+
+		if (end_pos == 0 || current_pos == 0)
+		{
+			flashplayer_trace_movie_state("stream_close_before",
+				end_pos, current_pos, depth);
+		}
+
+		if (end_pos != current_pos)
 		{
 			IF_VERBOSE_PARSE( log_msg( "tag is not correctly read, tag length is not respected\n" ) );
 		}
 
 		m_input->set_position(end_pos);
+		current_pos = get_position();
+		if (end_pos == 0 || current_pos == 0)
+		{
+			flashplayer_trace_movie_state("stream_close_after",
+				current_pos, end_pos, depth - 1);
+		}
 
 		m_unused_bits = 0;
 	}

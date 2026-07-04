@@ -46,48 +46,72 @@ static void rsc_draw_offline_profile_screen(mudclient *mud, int selected_profile
 {
     const char *descriptions[] = {"Administrator, max stats, full coins",
                                   "Standard new player, no mod"};
+    const char *notes[] = {"Best gear, bank, shops, castle start",
+                           "Female starter, bronze kit, castle start"};
+    int title_w = 0;
+    int text_w = 0;
 
     rb->lcd_clear_display();
+    rb->lcd_set_foreground(FB_RGBPACK(12, 12, 12));
+    rb->lcd_fillrect(0, 0, LCD_WIDTH, LCD_HEIGHT);
+
+    rb->lcd_set_foreground(FB_RGBPACK(86, 62, 28));
+    rb->lcd_fillrect(0, 0, LCD_WIDTH, 36);
+    rb->lcd_set_foreground(FB_RGBPACK(137, 104, 45));
+    rb->lcd_drawrect(0, 0, LCD_WIDTH, 36);
     rb->lcd_set_foreground(FB_RGBPACK(255, 220, 0));
-    rb->lcd_putsxy(8, 8, "Runescape Classic");
-    rb->lcd_set_foreground(FB_RGBPACK(255, 255, 255));
-    rb->lcd_putsxy(8, 24, "Select character");
-    rb->lcd_putsxy(8, 34, "Press SELECT to start");
-    rb->lcd_putsxy(8, 56, "Left / Right: change");
-    rb->lcd_putsxy(8, 66, "Menu: cancel");
+    rb->lcd_getstringsize("RuneScape Classic", &title_w, NULL);
+    rb->lcd_putsxy((LCD_WIDTH - title_w) / 2, 7, "RuneScape Classic");
+
+    rb->lcd_set_foreground(FB_RGBPACK(38, 30, 20));
+    rb->lcd_fillrect(16, 48, LCD_WIDTH - 32, 22);
+    rb->lcd_set_foreground(FB_RGBPACK(160, 132, 76));
+    rb->lcd_drawrect(16, 48, LCD_WIDTH - 32, 22);
+    rb->lcd_set_foreground(FB_RGBPACK(235, 235, 235));
+    rb->lcd_getstringsize("Select character", &text_w, NULL);
+    rb->lcd_putsxy((LCD_WIDTH - text_w) / 2, 54, "Select character");
 
     for (int i = 0; i < 2; i++) {
-        int y = 100 + (i * 52);
-        if (i == selected_profile) {
-            rb->lcd_set_foreground(FB_RGBPACK(255, 220, 0));
-            rb->lcd_drawrect(5, y - 2, 310, 44);
-            rb->lcd_fillrect(9, y + 18, 296, 1);
-            rb->lcd_drawrect(10, y + 20, 290, 16);
+        int y = 82 + (i * 56);
+        int selected = i == selected_profile;
+
+        rb->lcd_set_foreground(selected ? FB_RGBPACK(92, 74, 38)
+                                        : FB_RGBPACK(32, 27, 22));
+        rb->lcd_fillrect(20, y, LCD_WIDTH - 40, 44);
+        rb->lcd_set_foreground(selected ? FB_RGBPACK(255, 220, 80)
+                                        : FB_RGBPACK(112, 94, 62));
+        rb->lcd_drawrect(20, y, LCD_WIDTH - 40, 44);
+
+        rb->lcd_set_foreground(selected ? FB_RGBPACK(38, 25, 12)
+                                        : FB_RGBPACK(16, 16, 16));
+        rb->lcd_fillrect(28, y + 8, 28, 28);
+        rb->lcd_set_foreground(selected ? FB_RGBPACK(232, 190, 80)
+                                        : FB_RGBPACK(96, 80, 56));
+        rb->lcd_drawrect(28, y + 8, 28, 28);
+
+        if (selected) {
+            rb->lcd_set_foreground(FB_RGBPACK(0, 220, 0));
+            rb->lcd_putsxy(38, y + 18, ">");
         }
 
-        rb->lcd_set_foreground(FB_RGBPACK(255, 255, 255));
-        rb->lcd_putsxy(18, y, rsc_offline_profiles[i]);
-        rb->lcd_putsxy(18, y + 14, descriptions[i]);
-        if (i == selected_profile) {
-            rb->lcd_set_foreground(FB_RGBPACK(0, 255, 0));
-            rb->lcd_putsxy(8, y + 26, ">");
-            rb->lcd_putsxy(16, y + 26, "Selected");
-        }
+        rb->lcd_set_foreground(selected ? FB_RGBPACK(255, 255, 255)
+                                        : FB_RGBPACK(205, 205, 205));
+        rb->lcd_putsxy(66, y + 6, rsc_offline_profiles[i]);
+        rb->lcd_set_foreground(FB_RGBPACK(222, 192, 118));
+        rb->lcd_putsxy(66, y + 20, descriptions[i]);
+        rb->lcd_set_foreground(FB_RGBPACK(170, 170, 170));
+        rb->lcd_putsxy(66, y + 32, notes[i]);
     }
 
-    if (selected_profile >= 0 && selected_profile < 2) {
-        rb->lcd_set_foreground(FB_RGBPACK(200, 200, 200));
-        rb->lcd_putsxy(8, 208, "Starting as:");
-        rb->lcd_set_foreground(FB_RGBPACK(255, 255, 255));
-        rb->lcd_putsxy(74, 208, rsc_offline_profiles[selected_profile]);
-    }
-
-    rb->lcd_set_foreground(FB_RGBPACK(0, 0, 0));
-    rb->lcd_fillrect(0, 210, LCD_WIDTH, 30);
-    rb->lcd_set_foreground(FB_RGBPACK(255, 220, 0));
-    rb->lcd_drawrect(0, 210, LCD_WIDTH, 30);
+    rb->lcd_set_foreground(FB_RGBPACK(38, 30, 20));
+    rb->lcd_fillrect(10, 210, LCD_WIDTH - 20, 22);
+    rb->lcd_set_foreground(FB_RGBPACK(160, 132, 76));
+    rb->lcd_drawrect(10, 210, LCD_WIDTH - 20, 22);
     rb->lcd_set_foreground(FB_RGBPACK(255, 255, 255));
-    rb->lcd_putsxy(8, 220, "Press LEFT / RIGHT to scroll and SELECT.");
+    rb->lcd_getstringsize("LEFT/RIGHT change   SELECT start   MENU cancel",
+                          &text_w, NULL);
+    rb->lcd_putsxy((LCD_WIDTH - text_w) / 2, 216,
+                   "LEFT/RIGHT change   SELECT start   MENU cancel");
 
     rb->lcd_update();
 }
@@ -96,6 +120,7 @@ static int rsc_select_offline_profile(mudclient *mud)
 {
     int selected = mud->offline_profile;
 
+    rb->button_clear_queue();
     while (1) {
         int button = BUTTON_NONE;
         long base;
@@ -752,6 +777,7 @@ void mudclient_poll_events(mudclient *mud)
 
         if (rsc_logoff_prompt) {
             if (base == BUTTON_SELECT) {
+                mudclient_save_offline_game(mud);
                 rsc_quit = 1;
                 mud->stop_timeout = -1;
             }
@@ -1014,6 +1040,7 @@ enum plugin_status plugin_start(const void *parameter)
 
     mudclient_start_application(mud, "Runescape by Andrew Gower");
     mudclient_start_application_common(mud);
+    mudclient_save_offline_game(mud);
 
 #ifdef HAVE_WHEEL_POSITION
     rb->wheel_send_events(true);

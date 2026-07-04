@@ -8,6 +8,12 @@ void mudclient_bank_transaction(mudclient *mud, int item_id, int amount,
                                 int opcode) {
     int is_withdraw = opcode == CLIENT_BANK_WITHDRAW;
 
+#ifdef ROCKBOX
+    if (mudclient_offline_bank_transaction(mud, item_id, amount,
+                                           is_withdraw) <= 0) {
+        return;
+    }
+#else
     if (is_withdraw && game_data.items[item_id].stackable != 0 &&
         amount + mud->inventory_items_count >= INVENTORY_ITEMS_MAX) {
         amount = INVENTORY_ITEMS_MAX - mud->inventory_items_count;
@@ -41,6 +47,7 @@ void mudclient_bank_transaction(mudclient *mud, int item_id, int amount,
 
         packet_stream_send_packet(mud->packet_stream);
     }
+#endif
 
     /* select the item if it isn't already */
     if (mud->bank_selected_item != item_id) {

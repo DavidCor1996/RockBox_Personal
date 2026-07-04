@@ -12,6 +12,7 @@
 #include "gameswf/gameswf_render.h"
 #include "gameswf/gameswf_stream.h"
 #include "gameswf/gameswf_movie_def.h"
+#include "base/tu_file.h"
 
 
 namespace gameswf
@@ -40,6 +41,7 @@ namespace gameswf
 
 	fill_style::fill_style() :
 		m_type(0),
+		m_blend_mode(0),
 		m_gradient_bitmap_info(0),
 		m_bitmap_character(0)
 	{
@@ -49,6 +51,44 @@ namespace gameswf
 
 	fill_style::~fill_style()
 	{
+	}
+
+	static void	write_cached_rgba(tu_file* out, const rgba& c)
+	{
+		out->write_byte(c.m_r);
+		out->write_byte(c.m_g);
+		out->write_byte(c.m_b);
+		out->write_byte(c.m_a);
+	}
+
+	static void	read_cached_rgba(tu_file* in, rgba* c)
+	{
+		c->m_r = in->read_byte();
+		c->m_g = in->read_byte();
+		c->m_b = in->read_byte();
+		c->m_a = in->read_byte();
+	}
+
+	static void	write_cached_matrix(tu_file* out, const matrix& m)
+	{
+		for (int r = 0; r < 2; r++)
+		{
+			for (int c = 0; c < 3; c++)
+			{
+				out->write_float32(m.m_[r][c]);
+			}
+		}
+	}
+
+	static void	read_cached_matrix(tu_file* in, matrix* m)
+	{
+		for (int r = 0; r < 2; r++)
+		{
+			for (int c = 0; c < 3; c++)
+			{
+				m->m_[r][c] = in->read_float32();
+			}
+		}
 	}
 
 	void	fill_style::read(stream* in, int tag_type, movie_definition_sub* md)
@@ -191,6 +231,67 @@ namespace gameswf
 		}
 	}
 
+
+	void	fill_style::output_def_cached_data(tu_file* out) const
+	{
+		out->write_le32(m_type);
+		out->write_byte(m_blend_mode);
+		write_cached_rgba(out, m_color);
+		write_cached_matrix(out, m_gradient_matrix);
+
+		out->write_le32(m_gradients.size());
+		for (int i = 0; i < m_gradients.size(); i++)
+		{
+			out->write_byte(m_gradients[i].m_ratio);
+			write_cached_rgba(out, m_gradients[i].m_color);
+		}
+
+		out->write_le32(m_bitmap_character ?
+			m_bitmap_character->get_id() : -1);
+		write_cached_matrix(out, m_bitmap_matrix);
+	}
+
+	void	fill_style::input_def_cached_data(tu_file* in,
+		movie_definition_sub* md)
+	{
+		int bitmap_id;
+
+		m_type = in->read_le32();
+		m_blend_mode = in->read_byte();
+		read_cached_rgba(in, &m_color);
+		read_cached_matrix(in, &m_gradient_matrix);
+
+		int gradient_count = in->read_le32();
+		if (gradient_count < 0 || gradient_count > 32)
+		{
+			gradient_count = 0;
+		}
+		m_gradients.resize(gradient_count);
+		for (int i = 0; i < gradient_count; i++)
+		{
+			m_gradients[i].m_ratio = in->read_byte();
+			read_cached_rgba(in, &m_gradients[i].m_color);
+		}
+
+		bitmap_id = in->read_le32();
+		read_cached_matrix(in, &m_bitmap_matrix);
+		m_bitmap_character = bitmap_id >= 0 ?
+			md->get_bitmap_character(bitmap_id) : NULL;
+
+		m_gradient_bitmap_info = NULL;
+		if (m_type == 0x10 || m_type == 0x12)
+		{
+			if (md->get_create_bitmaps() == DO_LOAD_BITMAPS)
+			{
+				m_gradient_bitmap_info = create_gradient_bitmap();
+			}
+			else
+			{
+				m_gradient_bitmap_info = render::create_bitmap_info_empty();
+			}
+			md->add_bitmap_info(m_gradient_bitmap_info.get_ptr());
+		}
+	}
 
 	rgba	fill_style::sample_gradient(int ratio) const
 	// Return the color at the specified ratio into our gradient.
@@ -457,6 +558,39 @@ namespace gameswf
 		}
 	}
 
+
+	void	line_style::output_def_cached_data(tu_file* out) const
+	{
+		out->write_le16(m_width);
+		write_cached_rgba(out, m_color);
+		out->write_byte(m_start_capstyle);
+		out->write_byte(m_joinstyle);
+		out->write_byte(m_has_fill_flag ? 1 : 0);
+		out->write_byte(m_no_hscale_flag ? 1 : 0);
+		out->write_byte(m_no_vscale_flag ? 1 : 0);
+		out->write_byte(m_pixelhinting_flag ? 1 : 0);
+		out->write_byte(m_noclose ? 1 : 0);
+		out->write_byte(m_end_capstyle);
+		out->write_le16(m_miter_limit_factor);
+		m_fill_style.output_def_cached_data(out);
+	}
+
+	void	line_style::input_def_cached_data(tu_file* in,
+		movie_definition_sub* m)
+	{
+		m_width = in->read_le16();
+		read_cached_rgba(in, &m_color);
+		m_start_capstyle = in->read_byte();
+		m_joinstyle = in->read_byte();
+		m_has_fill_flag = in->read_byte() ? true : false;
+		m_no_hscale_flag = in->read_byte() ? true : false;
+		m_no_vscale_flag = in->read_byte() ? true : false;
+		m_pixelhinting_flag = in->read_byte() ? true : false;
+		m_noclose = in->read_byte() ? true : false;
+		m_end_capstyle = in->read_byte();
+		m_miter_limit_factor = in->read_le16();
+		m_fill_style.input_def_cached_data(in, m);
+	}
 
 	void	line_style::apply(float ratio) const
 	{

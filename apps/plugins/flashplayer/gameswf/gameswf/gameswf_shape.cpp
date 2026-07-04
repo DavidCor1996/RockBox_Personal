@@ -19,7 +19,7 @@
 #include <float.h>
 
 // TODO: fix a some bugs
-// #define USE_NEW_TESSELATOR
+#define USE_NEW_TESSELATOR
 
 //#define DEBUG_DISPLAY_SHAPE_PATHS
 #ifdef DEBUG_DISPLAY_SHAPE_PATHS
@@ -32,6 +32,8 @@ extern "C" void flashplayer_trace_shape_mesh(int id, int paths, int cached,
 	int error_x100);
 extern "C" int flashplayer_consume_shape_mesh_budget(int id, int paths,
 	int cached, int error_x100);
+extern "C" void flashplayer_trace_movie_state(const char *name, int value,
+	int aux_a, int aux_b);
 
 namespace gameswf
 {
@@ -45,6 +47,73 @@ namespace gameswf
 	float	get_curve_max_pixel_error()
 	{
 		return s_curve_max_pixel_error;
+	}
+
+	static tu_file*	s_shape_def_cache_in = NULL;
+	static tu_file*	s_shape_def_cache_out = NULL;
+	static bool	s_shape_def_cache_in_ready = false;
+	static bool	s_shape_def_cache_in_failed = false;
+
+	enum
+	{
+		SHAPE_DEF_CACHE_MAGIC = 0x43445347,	// GSDC
+		SHAPE_DEF_CACHE_VERSION = 1
+	};
+
+	void	set_shape_definition_cache_files(tu_file* in, tu_file* out)
+	{
+		s_shape_def_cache_in = in;
+		s_shape_def_cache_out = out;
+		s_shape_def_cache_in_ready = false;
+		s_shape_def_cache_in_failed = false;
+
+		if (s_shape_def_cache_out)
+		{
+			s_shape_def_cache_out->write_le32(SHAPE_DEF_CACHE_MAGIC);
+			s_shape_def_cache_out->write_le32(SHAPE_DEF_CACHE_VERSION);
+		}
+	}
+
+	static bool	ensure_shape_def_cache_input()
+	{
+		if (s_shape_def_cache_in == NULL || s_shape_def_cache_in_failed)
+		{
+			return false;
+		}
+		if (s_shape_def_cache_in_ready)
+		{
+			return true;
+		}
+
+		if (s_shape_def_cache_in->read_le32() != SHAPE_DEF_CACHE_MAGIC ||
+			s_shape_def_cache_in->read_le32() != SHAPE_DEF_CACHE_VERSION)
+		{
+			s_shape_def_cache_in_failed = true;
+			flashplayer_trace_movie_state("shape_def_cache_bad_header",
+				0, 0, 0);
+			return false;
+		}
+
+		s_shape_def_cache_in_ready = true;
+		flashplayer_trace_movie_state("shape_def_cache_header",
+			SHAPE_DEF_CACHE_VERSION, 0, 0);
+		return true;
+	}
+
+	static void	write_cached_rect(tu_file* out, const rect& r)
+	{
+		out->write_float32(r.m_x_min);
+		out->write_float32(r.m_x_max);
+		out->write_float32(r.m_y_min);
+		out->write_float32(r.m_y_max);
+	}
+
+	static void	read_cached_rect(tu_file* in, rect* r)
+	{
+		r->m_x_min = in->read_float32();
+		r->m_x_max = in->read_float32();
+		r->m_y_min = in->read_float32();
+		r->m_y_max = in->read_float32();
 	}
 
 
@@ -1838,6 +1907,180 @@ namespace gameswf
 			ms->input_cached_data(in);
 			m_cached_meshes[i] = ms;
 		}
+	}
+
+	void	shape_character_def::output_def_cached_data(tu_file* out) const
+	{
+		write_cached_rect(out, m_bound);
+		write_cached_rect(out, m_edge_bounds);
+		out->write_byte(m_uses_nonscaling_strokes ? 1 : 0);
+		out->write_byte(m_uses_scaling_strokes ? 1 : 0);
+
+		out->write_le32(m_fill_styles.size());
+		for (int i = 0; i < m_fill_styles.size(); i++)
+		{
+			m_fill_styles[i].output_def_cached_data(out);
+		}
+
+		out->write_le32(m_line_styles.size());
+		for (int i = 0; i < m_line_styles.size(); i++)
+		{
+			m_line_styles[i].output_def_cached_data(out);
+		}
+
+		out->write_le32(m_paths.size());
+		for (int i = 0; i < m_paths.size(); i++)
+		{
+			const path& p = m_paths[i];
+			out->write_le32(p.m_fill0);
+			out->write_le32(p.m_fill1);
+			out->write_le32(p.m_line);
+			out->write_float32(p.m_ax);
+			out->write_float32(p.m_ay);
+			out->write_byte(p.m_new_shape ? 1 : 0);
+			out->write_le32(p.m_edges.size());
+			for (int j = 0; j < p.m_edges.size(); j++)
+			{
+				const edge& e = p.m_edges[j];
+				out->write_float32(e.m_cx);
+				out->write_float32(e.m_cy);
+				out->write_float32(e.m_ax);
+				out->write_float32(e.m_ay);
+			}
+		}
+	}
+
+	bool	shape_character_def::input_def_cached_data(tu_file* in,
+		movie_definition_sub* m)
+	{
+		read_cached_rect(in, &m_bound);
+		read_cached_rect(in, &m_edge_bounds);
+		m_uses_nonscaling_strokes = in->read_byte() ? true : false;
+		m_uses_scaling_strokes = in->read_byte() ? true : false;
+
+		int fill_count = in->read_le32();
+		if (fill_count < 0 || fill_count > 4096)
+		{
+			return false;
+		}
+		m_fill_styles.resize(fill_count);
+		for (int i = 0; i < fill_count; i++)
+		{
+			m_fill_styles[i].input_def_cached_data(in, m);
+		}
+
+		int line_count = in->read_le32();
+		if (line_count < 0 || line_count > 4096)
+		{
+			return false;
+		}
+		m_line_styles.resize(line_count);
+		for (int i = 0; i < line_count; i++)
+		{
+			m_line_styles[i].input_def_cached_data(in, m);
+		}
+
+		int path_count = in->read_le32();
+		if (path_count < 0 || path_count > 65536)
+		{
+			return false;
+		}
+		m_paths.resize(path_count);
+		for (int i = 0; i < path_count; i++)
+		{
+			path& p = m_paths[i];
+			p.m_fill0 = in->read_le32();
+			p.m_fill1 = in->read_le32();
+			p.m_line = in->read_le32();
+			p.m_ax = in->read_float32();
+			p.m_ay = in->read_float32();
+			p.m_new_shape = in->read_byte() ? true : false;
+
+			int edge_count = in->read_le32();
+			if (edge_count < 0 || edge_count > 262144)
+			{
+				return false;
+			}
+			p.m_edges.resize(edge_count);
+			for (int j = 0; j < edge_count; j++)
+			{
+				p.m_edges[j].m_cx = in->read_float32();
+				p.m_edges[j].m_cy = in->read_float32();
+				p.m_edges[j].m_ax = in->read_float32();
+				p.m_edges[j].m_ay = in->read_float32();
+			}
+		}
+
+		return in->get_error() == TU_FILE_NO_ERROR;
+	}
+
+	bool	input_shape_definition_cache(shape_character_def* ch,
+		int character_id, int tag_type, int stream_pos,
+		movie_definition_sub* m)
+	{
+		if (!ensure_shape_def_cache_input())
+		{
+			return false;
+		}
+
+		int entry_start = s_shape_def_cache_in->get_position();
+		if (s_shape_def_cache_in->read_le32() != (Uint32) character_id ||
+			s_shape_def_cache_in->read_le32() != (Uint32) tag_type ||
+			s_shape_def_cache_in->read_le32() != (Uint32) stream_pos)
+		{
+			s_shape_def_cache_in->set_position(entry_start);
+			flashplayer_trace_movie_state("shape_def_cache_miss",
+				character_id, tag_type, stream_pos);
+			return false;
+		}
+
+		int payload_size = s_shape_def_cache_in->read_le32();
+		int payload_end = s_shape_def_cache_in->get_position() + payload_size;
+		if (payload_size <= 0 || payload_size > 16 * 1024 * 1024)
+		{
+			s_shape_def_cache_in_failed = true;
+			flashplayer_trace_movie_state("shape_def_cache_bad_entry",
+				character_id, payload_size, stream_pos);
+			return false;
+		}
+
+		if (!ch->input_def_cached_data(s_shape_def_cache_in, m))
+		{
+			s_shape_def_cache_in_failed = true;
+			flashplayer_trace_movie_state("shape_def_cache_read_fail",
+				character_id, tag_type, stream_pos);
+			return false;
+		}
+
+		if (s_shape_def_cache_in->get_position() != payload_end)
+		{
+			s_shape_def_cache_in->set_position(payload_end);
+		}
+		flashplayer_trace_movie_state("shape_def_cache_hit",
+			character_id, tag_type, payload_size);
+		return true;
+	}
+
+	void	output_shape_definition_cache(const shape_character_def* ch,
+		int character_id, int tag_type, int stream_pos)
+	{
+		if (s_shape_def_cache_out == NULL || ch == NULL)
+		{
+			return;
+		}
+
+		tu_file payload(tu_file::memory_buffer);
+		ch->output_def_cached_data(&payload);
+		int payload_size = payload.size();
+		payload.set_position(0);
+
+		s_shape_def_cache_out->write_le32(character_id);
+		s_shape_def_cache_out->write_le32(tag_type);
+		s_shape_def_cache_out->write_le32(stream_pos);
+		s_shape_def_cache_out->write_le32(payload_size);
+		s_shape_def_cache_out->copy_bytes(&payload, payload_size);
+		flashplayer_trace_movie_state("shape_def_cache_write",
+			character_id, tag_type, payload_size);
 	}
 	
 	void    shape_character_def::flush_cache()

@@ -17,6 +17,7 @@
 #include "gameswf/gameswf_render.h"
 #include "gameswf/gameswf_root.h"
 #include "gameswf/gameswf_sprite.h"
+#include "gameswf/gameswf_movie_def.h"
 #include "base/image.h"
 #include "ipod_engine.h"
 
@@ -34,6 +35,12 @@ extern "C" {
 namespace gameswf {
     void clear_shared_fonts();
 }
+
+enum flash_input_profile {
+    FLASH_INPUT_PROFILE_DEFAULT,
+    FLASH_INPUT_PROFILE_STICKRPG,
+    FLASH_INPUT_PROFILE_ANTCITY,
+};
 
 image::rgb *flashplayer_decode_jpeg_rgb(unsigned char *data, unsigned long len)
 {
@@ -96,10 +103,16 @@ image::rgb *flashplayer_decode_jpeg_rgb(unsigned char *data, unsigned long len)
 #define DEFAULT_SWF    STICK_DIR "/stickrpg.swf"
 #define STICK_RPG_URL  "http://www.xgenstudios.com/srpgcompletexgen.swf"
 #define FLASH_LOG_PATH FLASH_DIR "/flashplayer.log"
+#define FLASH_PROGRESS_PATH FLASH_DIR "/flashplayer.progress"
+#define FLASH_CACHE_SUFFIX ".gsc"
+#define FLASH_DEF_CACHE_SUFFIX ".gsd"
+#define FLASH_FWS_CACHE_SUFFIX ".fws"
 #define FLASH_LOADING_BMP ROCKBOX_DIR "/ipodjs/stickrpg/loading.320x240x24.bmp"
 #define FLASH_LOADING_BMP_FALLBACK STICK_DIR "/loading.320x240x24.bmp"
 #define SIM_SWF        "/home/david/Downloads/stickrpg.swf"
-#define FLASH_TRIANGLE_BUDGET 16000
+#define FLASH_TRIANGLE_BUDGET 32000
+#define FLASH_SHAPE_MESH_BUDGET 4096
+#define FLASH_STARTUP_PRERENDER_FRAMES 4
 #define FLASH_ALPHA_CUTOFF 2
 #define FLASH_MIN_TRIANGLE_AREA2 1
 
@@ -114,6 +127,8 @@ static void flash_logf(const char *fmt, ...);
 #define COL_ACCENT  LCD_RGBPACK(245, 190, 54)
 #define COL_OK      LCD_RGBPACK(91, 186, 102)
 #define COL_WARN    LCD_RGBPACK(230, 93, 74)
+#define COL_FLASH   LCD_RGBPACK(221, 56, 42)
+#define COL_BAR     LCD_RGBPACK(74, 144, 226)
 #define SET_FG(c)   rb->lcd_set_foreground(c)
 #define SET_BG(c)   rb->lcd_set_background(c)
 #else
@@ -125,6 +140,8 @@ static void flash_logf(const char *fmt, ...);
 #define COL_ACCENT  LCD_BLACK
 #define COL_OK      LCD_BLACK
 #define COL_WARN    LCD_BLACK
+#define COL_FLASH   LCD_BLACK
+#define COL_BAR     LCD_BLACK
 #define SET_FG(c)   rb->lcd_set_foreground(c)
 #define SET_BG(c)   rb->lcd_set_background(c)
 #endif
@@ -243,6 +260,7 @@ struct RockboxRenderHandler : public gameswf::render_handler {
     bool triangle_budget_hit;
     bool mask_submitting;
     bool mask_active;
+    bool discard_render;
     gameswf::rgba last_solid;
     gameswf::rgba last_bitmap_sample;
 
@@ -262,6 +280,7 @@ struct RockboxRenderHandler : public gameswf::render_handler {
           fill_trace_count(0), triangle_trace_count(0),
           display_count(0),
           triangle_budget_hit(false), mask_submitting(false), mask_active(false),
+          discard_render(false),
           last_solid(0, 0, 0, 255),
           last_bitmap_sample(0, 0, 0, 255)
     {
@@ -349,6 +368,8 @@ struct RockboxRenderHandler : public gameswf::render_handler {
         display_y0 = y0 < y1 ? y0 : y1;
         display_y1 = y0 < y1 ? y1 : y0;
         rb->lcd_set_viewport(NULL);
+        if (discard_render)
+            return;
 #ifdef SIMULATOR
         {
             const char *trace = getenv("FLASHPLAYER_TRACE_FILLS");
@@ -377,6 +398,8 @@ struct RockboxRenderHandler : public gameswf::render_handler {
     virtual void end_display()
     {
         rb->lcd_set_viewport(NULL);
+        if (discard_render)
+            return;
         if (framebuf)
             rb->lcd_bitmap(framebuf, 0, 0, LCD_WIDTH, LCD_HEIGHT);
 #ifdef SIMULATOR
@@ -842,6 +865,11 @@ struct RockboxRenderHandler : public gameswf::render_handler {
         if (!fill_enabled)
             return;
 
+        if (discard_render) {
+            triangles++;
+            return;
+        }
+
         {
             int area2 = (x1 - x0) * (y2 - y0) - (y1 - y0) * (x2 - x0);
             if (area2 < 0) area2 = -area2;
@@ -944,6 +972,10 @@ struct RockboxRenderHandler : public gameswf::render_handler {
 
         if (!line_enabled)
             return;
+        if (discard_render) {
+            lines += vertex_count > 1 ? vertex_count - 1 : 0;
+            return;
+        }
 
         {
         fb_data packed = (fb_data)rb_color_from_rgba(cx.transform(line_color));
@@ -1039,6 +1071,8 @@ struct RockboxRenderHandler : public gameswf::render_handler {
         int x;
         int y;
         bitmaps++;
+        if (discard_render)
+            return;
         if (!rbi || !rbi->data || rbi->w <= 0 || rbi->h <= 0)
             return;
 
@@ -1159,6 +1193,8 @@ struct FlashState {
     unsigned long body_len;
     unsigned char *fws;
     unsigned long fws_len;
+    bool fws_file_ready;
+    char fws_cache_path[MAX_PATH];
     size_t buffer_size;
     bool loaded;
     bool runtime_loaded;
@@ -1171,15 +1207,28 @@ struct FlashState {
     struct ipod_engine_memory engine_memory;
     struct ipod_engine_frame_clock frame_clock;
     int log_fd;
+    int log_bytes;
     int runtime_frame;
     int rendered_frames;
     int shape_mesh_budget;
+    int shape_mesh_budget_base;
     int shape_mesh_skipped;
     struct bitmap loading_bmp;
     unsigned char *loading_bmp_data;
     size_t loading_bmp_size;
     bool loading_bmp_tried;
     bool loading_bmp_loaded;
+    int load_progress;
+    int load_stage_base;
+    int load_stage_span;
+    bool loading_overlay_full;
+    int startup_prerender_frames;
+    long input_ignore_until;
+    flash_input_profile input_profile;
+#ifdef HAVE_WHEEL_POSITION
+    bool wheel_touch_active;
+    int wheel_touch_pos;
+#endif
 #ifdef SIMULATOR
     int autorun_frames;
     int autorun_click_count;
@@ -1199,7 +1248,7 @@ struct FlashState {
     bool mouse_down;
     bool key_left_down;
     bool key_right_down;
-    bool key_c_down;
+    bool key_confirm_down;
     bool key_up_down;
     bool key_down_down;
     bool key_shift_down;
@@ -1212,6 +1261,9 @@ struct FlashState {
     bool stickrpg_gameplay_shortcut_enabled;
     bool stickrpg_fast_load;
     bool stickrpg_scene_initialized;
+    bool gameswf_cache_checked;
+    tu_file *shape_def_cache_in;
+    tu_file *shape_def_cache_out;
     int click_frames;
     int page;
     int last_button;
@@ -1253,6 +1305,8 @@ static FlashState g;
 static RockboxRenderHandler *g_renderer;
 static gameswf::player *g_player;
 static gameswf::gc_ptr<gameswf::root> *g_root_ref;
+static gameswf::gc_ptr<gameswf::character> g_stickrpg_person_ref;
+static gameswf::gc_ptr<gameswf::character> g_stickrpg_map_ref;
 
 class SilentSoundHandler : public gameswf::sound_handler
 {
@@ -1363,29 +1417,245 @@ static gameswf::root *flash_root(void)
     return g_root_ref ? g_root_ref->get_ptr() : NULL;
 }
 
+struct rb_tu_file
+{
+    int fd;
+    long size;
+    long pos;
+};
+
+static int rb_tu_read(void *dst, int bytes, void *appdata)
+{
+    struct rb_tu_file *f = (struct rb_tu_file *)appdata;
+    unsigned char *out = (unsigned char *)dst;
+    int total = 0;
+
+    if (!f || f->fd < 0 || bytes <= 0)
+        return 0;
+
+    while (total < bytes) {
+        int got = rb->read(f->fd, out + total, bytes - total);
+        if (got <= 0)
+            break;
+        total += got;
+        f->pos += got;
+    }
+
+    return total;
+}
+
+static int rb_tu_write(const void *src, int bytes, void *appdata)
+{
+    struct rb_tu_file *f = (struct rb_tu_file *)appdata;
+    const unsigned char *in = (const unsigned char *)src;
+    int total = 0;
+
+    if (!f || f->fd < 0 || bytes <= 0)
+        return 0;
+
+    while (total < bytes) {
+        int wrote = rb->write(f->fd, in + total, bytes - total);
+        if (wrote <= 0)
+            break;
+        total += wrote;
+        f->pos += wrote;
+        if (f->pos > f->size)
+            f->size = f->pos;
+    }
+
+    return total;
+}
+
+static int rb_tu_seek(int pos, void *appdata)
+{
+    struct rb_tu_file *f = (struct rb_tu_file *)appdata;
+    off_t result;
+
+    if (!f || f->fd < 0 || pos < 0)
+        return TU_FILE_SEEK_ERROR;
+
+    result = rb->lseek(f->fd, pos, SEEK_SET);
+    if (result < 0)
+        return TU_FILE_SEEK_ERROR;
+
+    f->pos = pos;
+    if (pos == 0)
+        flash_logf("rb_tu_seek pos=%d result=%ld tracked=%ld size=%ld",
+                   pos, (long)result, f->pos, f->size);
+    return 0;
+}
+
+static int rb_tu_seek_to_end(void *appdata)
+{
+    struct rb_tu_file *f = (struct rb_tu_file *)appdata;
+    off_t result;
+
+    if (!f || f->fd < 0)
+        return TU_FILE_SEEK_ERROR;
+
+    result = rb->lseek(f->fd, 0, SEEK_END);
+    if (result < 0)
+        return TU_FILE_SEEK_ERROR;
+
+    f->size = rb->filesize(f->fd);
+    if (f->size < 0)
+        f->size = 0;
+    f->pos = f->size;
+    if (f->pos > f->size)
+        f->size = f->pos;
+    return 0;
+}
+
+static int rb_tu_tell(const void *appdata)
+{
+    const struct rb_tu_file *f = (const struct rb_tu_file *)appdata;
+
+    return f ? f->pos : -1;
+}
+
+static bool rb_tu_eof(void *appdata)
+{
+    struct rb_tu_file *f = (struct rb_tu_file *)appdata;
+
+    return !f || f->fd < 0 || f->pos >= f->size;
+}
+
+static int rb_tu_close(void *appdata)
+{
+    struct rb_tu_file *f = (struct rb_tu_file *)appdata;
+
+    if (!f)
+        return TU_FILE_CLOSE_ERROR;
+
+    if (f->fd >= 0)
+        rb->close(f->fd);
+    delete f;
+    return 0;
+}
+
+static tu_file *rb_tu_open(const char *path, int flags)
+{
+    struct rb_tu_file *f;
+    int fd;
+
+    fd = rb->open(path, flags, 0666);
+    if (fd < 0)
+        return NULL;
+
+    f = new rb_tu_file;
+    if (!f) {
+        rb->close(fd);
+        return NULL;
+    }
+
+    f->fd = fd;
+    f->pos = 0;
+    f->size = rb->filesize(fd);
+    if (f->size < 0)
+        f->size = 0;
+
+    return new tu_file(f, rb_tu_read, rb_tu_write, rb_tu_seek,
+                       rb_tu_seek_to_end, rb_tu_tell, rb_tu_eof,
+                       rb_tu_close);
+}
+
+static bool flash_cache_path_for_url(const char *url_or_path, char *path,
+                                     size_t path_size)
+{
+    const char *suffix = FLASH_CACHE_SUFFIX;
+    size_t len;
+    size_t suffix_len;
+
+    if (!url_or_path || !path || path_size == 0)
+        return false;
+
+    len = rb->strlen(url_or_path);
+    suffix_len = rb->strlen(suffix);
+    if (len < suffix_len ||
+        rb->strcmp(url_or_path + len - suffix_len, suffix) != 0)
+        return false;
+
+    if (rb->strstr(url_or_path, "srpgcompletexgen") ||
+        rb->strstr(url_or_path, "stickrpg")) {
+        rb->snprintf(path, path_size, "%s%s", g.path, suffix);
+        return true;
+    }
+
+    return false;
+}
+
+static void flash_progress_checkpoint(const char *status, int progress)
+{
+#ifndef SIMULATOR
+    int fd;
+    char line[192];
+    int len;
+
+    rb->mkdir(FLASH_DIR);
+    fd = rb->open(FLASH_PROGRESS_PATH, O_WRONLY | O_CREAT | O_TRUNC, 0666);
+    if (fd < 0)
+        return;
+
+    len = rb->snprintf(line, sizeof(line),
+                       "tick=%ld progress=%d tag=%d type=%d pos=%d "
+                       "frame=%d ready=%d status=%s\n",
+                       *rb->current_tick, progress,
+                       g.loader_tag_count, g.loader_last_tag,
+                       g.loader_last_pos, g.runtime_frame,
+                       g.runtime_ready ? 1 : 0,
+                       status ? status : "");
+    if (len > 0) {
+        if (len > (int)sizeof(line))
+            len = sizeof(line);
+        rb->write(fd, line, len);
+    }
+    rb->close(fd);
+#else
+    (void)status;
+    (void)progress;
+#endif
+}
+
 static void flash_logf(const char *fmt, ...)
 {
     char buf[192];
+    char line[224];
     va_list ap;
+    int len;
 
     if (g.log_fd < 0)
         return;
+
+#ifndef SIMULATOR
+    if (!g.runtime_ready)
+        return;
+#endif
 
     va_start(ap, fmt);
     rb->vsnprintf(buf, sizeof(buf), fmt, ap);
     va_end(ap);
 
-    rb->fdprintf(g.log_fd, "[%08ld] %s\n", *rb->current_tick, buf);
+    len = rb->snprintf(line, sizeof(line), "[%08ld] %s\n",
+                       *rb->current_tick, buf);
+    if (len <= 0)
+        return;
+    if (len > (int)sizeof(line))
+        len = sizeof(line);
+
 #ifndef SIMULATOR
-    rb->close(g.log_fd);
-    g.log_fd = rb->open(FLASH_LOG_PATH, O_WRONLY | O_CREAT | O_APPEND, 0666);
+    if (!g.runtime_ready && g.log_bytes > 3300)
+        return;
 #endif
+
+    rb->write(g.log_fd, line, len);
+    g.log_bytes += len;
 }
 
 static void flash_log_open(void)
 {
     rb->mkdir(FLASH_DIR);
     g.log_fd = rb->open(FLASH_LOG_PATH, O_WRONLY | O_CREAT | O_TRUNC, 0666);
+    g.log_bytes = 0;
     if (g.log_fd >= 0)
         flash_logf("session start");
 }
@@ -1583,12 +1853,20 @@ static void reserve_loading_bitmap_buffer(void)
 #if defined(HAVE_LCD_COLOR) && LCD_WIDTH == 320 && LCD_HEIGHT == 240
     size_t needed = BM_SIZE(LCD_WIDTH, LCD_HEIGHT, FORMAT_NATIVE, false);
 
-    if (!g.raw || g.buffer_size <= needed + (512 * 1024))
+    if (g.cxx_buf && g.cxx_size > needed + (4 * 1024 * 1024))
+    {
+        g.cxx_size -= needed;
+        g.loading_bmp_data = (unsigned char *)g.cxx_buf + g.cxx_size;
+        g.loading_bmp_size = needed;
         return;
+    }
 
-    g.buffer_size -= needed;
-    g.loading_bmp_data = g.raw + g.buffer_size;
-    g.loading_bmp_size = needed;
+    if (g.raw && g.buffer_size > needed + (3 * 1024 * 1024))
+    {
+        g.buffer_size -= needed;
+        g.loading_bmp_data = g.raw + g.buffer_size;
+        g.loading_bmp_size = needed;
+    }
 #endif
 }
 
@@ -1637,33 +1915,108 @@ static bool load_loading_bitmap(void)
 
 static void show_load_status_text(const char *status)
 {
-    rb->snprintf(g.status, sizeof(g.status), "%s", status);
+    int bar_x = 30;
+    int bar_y = 174;
+    int bar_w = LCD_WIDTH - 60;
+    int bar_h = 14;
+    int fill_w;
+    int progress = g.load_progress;
+
+    if (progress < 0)
+        progress = 0;
+    if (progress > 100)
+        progress = 100;
+    fill_w = (bar_w - 2) * progress / 100;
+
+    rb->snprintf(g.status, sizeof(g.status), "%s", status ? status : "");
     SET_BG(COL_BG);
     SET_FG(COL_BG);
     rb->lcd_clear_display();
+
+    SET_FG(COL_FLASH);
+    rb->lcd_fillrect(38, 42, 58, 58);
     SET_FG(COL_INK);
-    rb->lcd_putsxy(8, 8, "Flash Player");
+    rb->lcd_putsxy(58, 62, "f");
+    rb->lcd_putsxy(110, 54, "Flash Player");
     SET_FG(COL_DIM);
-    rb->lcd_putsxy(8, 30, g.status);
+    rb->lcd_putsxy(110, 74, "Stick RPG");
+
+    SET_FG(COL_PANEL2);
+    rb->lcd_drawrect(bar_x, bar_y, bar_w, bar_h);
+    SET_FG(COL_BAR);
+    rb->lcd_fillrect(bar_x + 1, bar_y + 1, fill_w, bar_h - 2);
+    SET_FG(COL_INK);
+    rb->lcd_putsxyf(bar_x, bar_y - 20, "Loading %d%%", progress);
+    SET_FG(COL_DIM);
+    rb->lcd_putsxy(30, 202, g.status);
     rb->lcd_update();
     rb->yield();
 }
 
-static void show_load_status(const char *status)
+static void draw_loading_overlay(const char *status)
+{
+    int bar_x = 30;
+    int bar_y = 174;
+    int bar_w = LCD_WIDTH - 60;
+    int bar_h = 14;
+    int progress = g.load_progress;
+    int fill_w;
+
+    if (progress < 0)
+        progress = 0;
+    if (progress > 100)
+        progress = 100;
+    fill_w = (bar_w - 2) * progress / 100;
+
+    SET_BG(COL_BG);
+    SET_FG(COL_BG);
+    rb->lcd_clear_display();
+
+    SET_FG(COL_FLASH);
+    rb->lcd_fillrect(38, 42, 58, 58);
+    SET_FG(COL_INK);
+    rb->lcd_putsxy(58, 62, "f");
+    rb->lcd_putsxy(110, 54, "Flash Player");
+    SET_FG(COL_DIM);
+    rb->lcd_putsxy(110, 74, "Stick RPG");
+
+    SET_FG(COL_PANEL2);
+    rb->lcd_drawrect(bar_x, bar_y, bar_w, bar_h);
+    SET_FG(COL_BAR);
+    rb->lcd_fillrect(bar_x + 1, bar_y + 1, fill_w, bar_h - 2);
+    SET_FG(COL_INK);
+    rb->lcd_putsxyf(bar_x, bar_y - 20, "Loading %d%%", progress);
+    SET_FG(COL_DIM);
+    rb->lcd_putsxy(30, 202, status ? status : "");
+}
+
+static void show_load_status_progress(const char *status, int progress)
 {
     rb->snprintf(g.status, sizeof(g.status), "%s", status);
+    if (progress >= 0) {
+        if (progress > 100)
+            progress = 100;
+        g.load_progress = progress;
+    }
+    flash_progress_checkpoint(g.status, g.load_progress);
 
     if (load_loading_bitmap())
     {
         rb->lcd_set_viewport(NULL);
-        rb->lcd_bmp_part(&g.loading_bmp, 0, 0, 0, 0,
-                         LCD_WIDTH, LCD_HEIGHT);
+        g.loading_overlay_full = false;
+        draw_loading_overlay(g.status);
         rb->lcd_update();
         rb->yield();
         return;
     }
 
+    g.loading_overlay_full = true;
     show_load_status_text(status);
+}
+
+static void show_load_status(const char *status)
+{
+    show_load_status_progress(status, -1);
 }
 
 extern "C" void flashplayer_trace_tag(int tag_count, int tag_type, int stream_pos)
@@ -1685,9 +2038,13 @@ extern "C" void flashplayer_trace_parse_progress(const char *scope,
         return;
 
     if ((tag_count & 127) == 0 || tag_type == 0) {
+        int progress = g.load_stage_base;
+        if (g.fws_len > 0 && g.load_stage_span > 0)
+            progress += (int)(((long long)stream_pos *
+                               g.load_stage_span) / g.fws_len);
         rb->snprintf(g.status, sizeof(g.status), "load %s t%d pos %d",
                      scope ? scope : "swf", tag_count, stream_pos);
-        show_load_status(g.status);
+        show_load_status_progress(g.status, progress);
     }
 
     if ((tag_count & 31) == 0 || tag_type == 0)
@@ -1706,11 +2063,22 @@ extern "C" void flashplayer_trace_parse_start(const char *scope,
 #ifndef SIMULATOR
     if (!g.runtime_ready &&
         (tag_count <= 16 || (tag_count & 63) == 0 ||
+         tag_type == 0 || tag_type == 2 || tag_type == 22 ||
+         tag_type == 39 || tag_type == 48 || tag_type == 14 ||
+         tag_type == 12 || tag_type == 46 || tag_type == 59)) {
+        rb->snprintf(g.status, sizeof(g.status), "parse %s t%d type %d",
+                     scope ? scope : "swf", tag_count, tag_type);
+        flash_progress_checkpoint(g.status, g.load_progress);
+    }
+
+    if (!g.runtime_ready &&
+        (tag_count <= 16 || (tag_count & 63) == 0 ||
          tag_type == 2 || tag_type == 22 || tag_type == 39 ||
-         tag_type == 48 || tag_type == 14)) {
+         tag_type == 48 || tag_type == 14 || tag_type == 12 ||
+         tag_type == 59)) {
         rb->snprintf(g.status, sizeof(g.status), "tag %s t%d type %d",
                      scope ? scope : "swf", tag_count, tag_type);
-        show_load_status(g.status);
+        show_load_status_progress(g.status, g.load_stage_base);
     }
 #else
     (void)scope;
@@ -1780,10 +2148,16 @@ extern "C" int flashplayer_should_skip_movie_tag(int loading_frame,
         if (tag_count <= 64 || (tag_count & 63) == 0) {
             rb->snprintf(g.status, sizeof(g.status), "skip t%d type %d",
                          tag_count, tag_type);
-            show_load_status(g.status);
+            show_load_status_progress(g.status, g.load_stage_base);
         }
+#ifdef SIMULATOR
         flash_logf("skip movie tag frame=%d tag=%d type=%d pos=%d",
                    loading_frame, tag_count, tag_type, stream_pos);
+#else
+        if (tag_count <= 8 || (tag_count & 31) == 0)
+            flash_logf("skip movie tag frame=%d tag=%d type=%d pos=%d",
+                       loading_frame, tag_count, tag_type, stream_pos);
+#endif
         return 1;
     }
 
@@ -1797,7 +2171,7 @@ extern "C" void flashplayer_trace_shape(int phase, int character_id, int stream_
                              phase == 3 || phase == 4)) {
         rb->snprintf(g.status, sizeof(g.status), "shape %d phase %d",
                      character_id, phase);
-        show_load_status(g.status);
+        show_load_status_progress(g.status, g.load_stage_base);
     }
 #else
     (void)phase;
@@ -2033,7 +2407,67 @@ extern "C" void flashplayer_trace_movie_state(const char *name, int value,
     if (!name)
         return;
 
-    if (rb->strcmp(name, "create_movie_open") == 0)
+    if (rb->strncmp(name, "shape_def_cache_hit", 19) == 0 &&
+        value != 24 && (value & 63) != 0) {
+        return;
+    } else if (rb->strncmp(name, "inst_", 5) == 0 ||
+               rb->strncmp(name, "create_root_", 12) == 0 ||
+               rb->strncmp(name, "exec_frame_", 11) == 0 ||
+               rb->strncmp(name, "exec_post_", 10) == 0 ||
+               rb->strncmp(name, "exec_sound_", 11) == 0 ||
+               rb->strncmp(name, "exec_script_", 12) == 0 ||
+               rb->strncmp(name, "exec_tag_", 9) == 0 ||
+               rb->strncmp(name, "place_", 6) == 0 ||
+               rb->strncmp(name, "font_", 5) == 0 ||
+               rb->strncmp(name, "gsc_", 4) == 0 ||
+               rb->strncmp(name, "read_loop_", 10) == 0 ||
+               rb->strncmp(name, "stream_close_", 13) == 0 ||
+               rb->strncmp(name, "action_read_", 12) == 0) {
+        flash_logf("%s value=%d aux=%d/%d heap_free=%luK",
+                   name, value, aux_a, aux_b,
+                   (unsigned long)(plugin_cxx_available() / 1024));
+#ifndef SIMULATOR
+        if (rb->strncmp(name, "exec_tag_begin", 14) == 0) {
+            rb->snprintf(g.status, sizeof(g.status), "frame %d tag %d/%d",
+                         value, aux_a, aux_b);
+            flash_progress_checkpoint(g.status, 54);
+        } else if (rb->strncmp(name, "exec_tag_end", 12) == 0) {
+            rb->snprintf(g.status, sizeof(g.status),
+                         "frame %d tag %d/%d done", value, aux_a, aux_b);
+            flash_progress_checkpoint(g.status, 54);
+        } else if (rb->strncmp(name, "exec_frame_", 11) == 0 ||
+                   rb->strncmp(name, "exec_post_", 10) == 0 ||
+                   rb->strncmp(name, "exec_sound_", 11) == 0 ||
+                   rb->strncmp(name, "exec_script_", 12) == 0) {
+            rb->snprintf(g.status, sizeof(g.status), "%s f%d a%d b%d",
+                         name, value, aux_a, aux_b);
+            flash_progress_checkpoint(g.status, 55);
+        } else if (rb->strncmp(name, "place_begin", 11) == 0) {
+            rb->snprintf(g.status, sizeof(g.status), "place c%d d%d",
+                         value, aux_a);
+            flash_progress_checkpoint(g.status, 55);
+        } else if (rb->strncmp(name, "action_read_", 12) == 0) {
+            rb->snprintf(g.status, sizeof(g.status), "action %d/%d",
+                         value, aux_b > 0 ? value + aux_b : value);
+            flash_progress_checkpoint(g.status, 54);
+        } else if (rb->strncmp(name, "gsc_", 4) == 0) {
+            rb->snprintf(g.status, sizeof(g.status), "%s v%d a%d b%d",
+                         name, value, aux_a, aux_b);
+            flash_progress_checkpoint(g.status, 64);
+        } else if (rb->strncmp(name, "inst_", 5) == 0 ||
+                   rb->strncmp(name, "create_root_", 12) == 0) {
+            rb->snprintf(g.status, sizeof(g.status), "%s v%d a%d b%d",
+                         name, value, aux_a, aux_b);
+            flash_progress_checkpoint(g.status, g.load_progress);
+        } else {
+            flash_progress_checkpoint(name, g.load_progress);
+        }
+#endif
+    } else if (rb->strncmp(name, "shape_def_cache", 15) == 0) {
+        flash_logf("%s value=%d aux=%d/%d heap_free=%luK",
+                   name, value, aux_a, aux_b,
+                   (unsigned long)(plugin_cxx_available() / 1024));
+    } else if (rb->strcmp(name, "create_movie_open") == 0)
         show_load_status("gameswf: opened memory SWF");
     else if (rb->strcmp(name, "create_movie_read_begin") == 0) {
         flash_logf("gameswf milestone: read begin heap_free=%luK",
@@ -2204,7 +2638,7 @@ static bool read_file_into_buffer(const char *path, unsigned char *buffer,
     }
 
     size = rb->filesize(fd);
-    if (size <= 8 || (size_t)size + 16 >= buffer_size) {
+    if (size <= 8 || (size_t)size > buffer_size) {
         rb->close(fd);
         rb->snprintf(g.status, sizeof(g.status), "file too large: %ldK", size / 1024);
         return false;
@@ -2222,6 +2656,101 @@ static bool read_file_into_buffer(const char *path, unsigned char *buffer,
     return true;
 }
 
+static bool read_swf_header(const char *path, unsigned char *header,
+                            long *out_size)
+{
+    int fd = rb->open(path, O_RDONLY);
+    long size;
+    long got;
+
+    if (fd < 0) {
+        rb->snprintf(g.status, sizeof(g.status), "open failed: %s", path);
+        return false;
+    }
+
+    size = rb->filesize(fd);
+    if (size <= 8) {
+        rb->close(fd);
+        rb->snprintf(g.status, sizeof(g.status), "bad SWF file");
+        return false;
+    }
+
+    got = rb->read(fd, header, 8);
+    rb->close(fd);
+    if (got != 8) {
+        rb->snprintf(g.status, sizeof(g.status), "short SWF header");
+        return false;
+    }
+
+    *out_size = size;
+    return true;
+}
+
+static bool write_file_from_buffer(const char *path, const unsigned char *buffer,
+                                   size_t buffer_size)
+{
+    int fd;
+    long wrote;
+
+    if (!path || !buffer || buffer_size == 0)
+        return false;
+
+    fd = rb->open(path, O_WRONLY | O_CREAT | O_TRUNC, 0666);
+    if (fd < 0)
+        return false;
+
+    wrote = rb->write(fd, buffer, buffer_size);
+    rb->close(fd);
+
+    return wrote == (long)buffer_size;
+}
+
+static bool fws_cache_path_for_swf(const char *path, char *out,
+                                   size_t out_size)
+{
+    if (!path || !out || out_size == 0)
+        return false;
+
+    rb->snprintf(out, out_size, "%s%s", path, FLASH_FWS_CACHE_SUFFIX);
+    return true;
+}
+
+static bool validate_fws_cache(const char *path, unsigned long declared_size,
+                               int version)
+{
+    unsigned char header[8];
+    long size;
+
+    if (!read_swf_header(path, header, &size))
+        return false;
+
+    if ((unsigned long)size != declared_size)
+        return false;
+
+    if (header[0] != 'F' || header[1] != 'W' || header[2] != 'S')
+        return false;
+
+    if (header[3] != (unsigned char)version)
+        return false;
+
+    return read_le32(header + 4) == declared_size;
+}
+
+static flash_input_profile detect_input_profile(const char *path)
+{
+    if (!path)
+        return FLASH_INPUT_PROFILE_DEFAULT;
+
+    if (rb->strstr(path, "stickrpg") != NULL)
+        return FLASH_INPUT_PROFILE_STICKRPG;
+
+    if (rb->strstr(path, "antcity") != NULL ||
+        rb->strstr(path, "Burn_their_ass") != NULL)
+        return FLASH_INPUT_PROFILE_ANTCITY;
+
+    return FLASH_INPUT_PROFILE_DEFAULT;
+}
+
 static bool load_swf(const char *path)
 {
     unsigned char *src;
@@ -2230,7 +2759,11 @@ static bool load_swf(const char *path)
     unsigned char *inflate_out;
     unsigned long inflate_room;
     unsigned int out_len;
+    unsigned char header[8];
+    long file_size;
     int rect_len;
+    if (!path || !path[0])
+        path = DEFAULT_SWF;
 
     rb->memset(&g.info, 0, sizeof(g.info));
     rb->memset(&g.tags, 0, sizeof(g.tags));
@@ -2240,8 +2773,11 @@ static bool load_swf(const char *path)
     g.body_len = 0;
     g.fws = NULL;
     g.fws_len = 0;
+    g.fws_file_ready = false;
+    g.fws_cache_path[0] = '\0';
     g.runtime_loaded = false;
     g.runtime_frame = -1;
+    g.input_profile = detect_input_profile(path);
     g.rendered_frames = 0;
     g.shape_mesh_budget = 0;
     g.shape_mesh_skipped = 0;
@@ -2250,7 +2786,7 @@ static bool load_swf(const char *path)
     g.mouse_down = false;
     g.key_left_down = false;
     g.key_right_down = false;
-    g.key_c_down = false;
+    g.key_confirm_down = false;
     g.key_up_down = false;
     g.key_down_down = false;
     g.key_shift_down = false;
@@ -2260,8 +2796,14 @@ static bool load_swf(const char *path)
     g.stickrpg_intro_hide_requested = false;
     g.stickrpg_post_create_forced = false;
     g.stickrpg_gameplay_shortcut_done = false;
-    g.stickrpg_fast_load = rb->strstr(path, "stickrpg") != NULL;
+    g.stickrpg_scene_initialized = false;
+    g.gameswf_cache_checked = false;
+    g.shape_def_cache_in = NULL;
+    g.shape_def_cache_out = NULL;
+    g.stickrpg_fast_load = g.input_profile == FLASH_INPUT_PROFILE_STICKRPG;
     g.stickrpg_gameplay_shortcut_enabled = g.stickrpg_fast_load;
+    g.startup_prerender_frames = g.stickrpg_fast_load ?
+        FLASH_STARTUP_PRERENDER_FRAMES : 0;
 #ifdef SIMULATOR
     {
         const char *shortcut = getenv("FLASHPLAYER_STICKRPG_SHORTCUT");
@@ -2293,33 +2835,37 @@ static bool load_swf(const char *path)
     g.action_verbose_left = 0;
     g.stickrpg_scene_trace_left = 220;
     g.action_trace_button_id = -1;
+    g_stickrpg_person_ref = NULL;
+    g_stickrpg_map_ref = NULL;
     rb->strlcpy(g.path, path, sizeof(g.path));
     flash_logf("load path=%s plugin_buf=%luK audio_buf=%luK",
                g.path, (unsigned long)(g.buffer_size / 1024),
                (unsigned long)(g.cxx_size / 1024));
 
-    show_load_status("opening SWF");
-    src = g.raw;
-    if (!read_file_into_buffer(path, src, g.buffer_size, &src_len))
+    g.load_progress = 1;
+    g.load_stage_base = 1;
+    g.load_stage_span = 1;
+    show_load_status_progress("opening SWF", 2);
+    if (!read_swf_header(path, header, &file_size))
         return false;
 
-    show_load_status("reading SWF header");
-    g.raw_len = src_len;
+    show_load_status_progress("reading SWF header", 5);
+    g.raw_len = (unsigned long)file_size;
 
-    if ((src[0] != 'F' && src[0] != 'C') || src[1] != 'W' ||
-        src[2] != 'S') {
+    if ((header[0] != 'F' && header[0] != 'C') || header[1] != 'W' ||
+        header[2] != 'S') {
         rb->snprintf(g.status, sizeof(g.status), "not an SWF");
         return false;
     }
 
-    g.info.sig[0] = src[0];
-    g.info.sig[1] = src[1];
-    g.info.sig[2] = src[2];
+    g.info.sig[0] = header[0];
+    g.info.sig[1] = header[1];
+    g.info.sig[2] = header[2];
     g.info.sig[3] = '\0';
-    g.info.version = src[3];
-    g.info.declared_size = read_le32(src + 4);
+    g.info.version = header[3];
+    g.info.declared_size = read_le32(header + 4);
     g.info.actual_size = g.raw_len;
-    g.info.compressed = src[0] == 'C';
+    g.info.compressed = header[0] == 'C';
     flash_logf("header sig=%s version=%d raw=%lu declared=%lu compressed=%d",
                g.info.sig, g.info.version, g.info.actual_size,
                g.info.declared_size, g.info.compressed ? 1 : 0);
@@ -2329,61 +2875,122 @@ static bool load_swf(const char *path)
         return false;
     }
 
+    audio = (unsigned char *)g.cxx_buf;
     if (g.info.compressed) {
-        audio = (unsigned char *)g.cxx_buf;
-        if (audio && g.cxx_size >= g.info.declared_size) {
+        size_t fws_used = align16_size(g.info.declared_size);
+        bool have_fws_cache = false;
+
+        if (audio && g.cxx_size > fws_used + g.raw_len + FLASH_MIN_CXX_HEAP) {
+            src = audio + fws_used;
             g.fws = audio;
             inflate_out = audio + 8;
             inflate_room = (unsigned long)(g.cxx_size - 8);
         } else {
-            inflate_out = g.raw + align16_size(g.raw_len);
+            size_t raw_used = align16_size(g.raw_len);
+            if (raw_used >= g.buffer_size) {
+                rb->snprintf(g.status, sizeof(g.status),
+                             "file too large: %luK", g.raw_len / 1024);
+                return false;
+            }
+            src = g.raw;
+            inflate_out = g.raw + raw_used;
             inflate_room = (unsigned long)(g.buffer_size - (inflate_out - g.raw));
             g.fws = inflate_out - 8;
         }
-        out_len = g.info.declared_size - 8;
 
-        show_load_status("inflating CWS");
-        if (inflate_room < out_len) {
-            rb->snprintf(g.status, sizeof(g.status), "need %luK FWS buffer",
-                         g.info.declared_size / 1024);
-            return false;
+        if (fws_cache_path_for_swf(path, g.fws_cache_path,
+                                   sizeof(g.fws_cache_path)) &&
+            validate_fws_cache(g.fws_cache_path, g.info.declared_size,
+                               g.info.version) &&
+            read_file_into_buffer(g.fws_cache_path, g.fws, fws_used,
+                                  &src_len) &&
+            src_len == g.info.declared_size) {
+            have_fws_cache = true;
+            g.fws_len = src_len;
+            g.body = g.fws + 8;
+            g.body_len = g.fws_len - 8;
+            g.info.decompressed = true;
+            g.fws_file_ready = true;
+            flash_logf("using FWS cache %s size=%lu",
+                       g.fws_cache_path, g.fws_len);
         }
 
-        if (tinf_zlib_uncompress(inflate_out, &out_len, src + 8,
-                                 g.raw_len - 8) != TINF_OK) {
-            rb->snprintf(g.status, sizeof(g.status), "CWS inflate failed");
-            return false;
-        }
+        if (!have_fws_cache) {
+            show_load_status_progress("reading compressed SWF", 8);
+            if (!read_file_into_buffer(path, src,
+                                       src == g.raw ? g.buffer_size :
+                                       (size_t)(g.cxx_size - (src - audio)),
+                                       &src_len))
+                return false;
+            g.raw_len = src_len;
+            out_len = g.info.declared_size - 8;
 
-        g.body = inflate_out;
-        g.body_len = out_len;
-        g.fws[0] = 'F';
-        g.fws[1] = 'W';
-        g.fws[2] = 'S';
-        g.fws[3] = g.info.version;
-        g.fws[4] = src[4];
-        g.fws[5] = src[5];
-        g.fws[6] = src[6];
-        g.fws[7] = src[7];
-        g.fws_len = g.info.declared_size;
-        g.info.decompressed = true;
-    } else {
-        if (src != g.raw) {
-            if (g.raw_len + 16 >= g.buffer_size) {
+            show_load_status_progress("inflating CWS", 18);
+            if (inflate_room < out_len) {
                 rb->snprintf(g.status, sizeof(g.status), "need %luK FWS buffer",
-                             g.raw_len / 1024);
+                             g.info.declared_size / 1024);
                 return false;
             }
-            rb->memcpy(g.raw, src, g.raw_len);
+
+            {
+                unsigned int expected_out = g.info.declared_size - 8;
+                int inflate_err = tinf_zlib_uncompress(inflate_out, &out_len,
+                                                       src + 8,
+                                                       g.raw_len - 8);
+                flash_logf("CWS inflate result err=%d out=%u expected=%u in=%lu",
+                           inflate_err, out_len, expected_out, g.raw_len - 8);
+                if (inflate_err != TINF_OK || out_len != expected_out) {
+                    rb->snprintf(g.status, sizeof(g.status),
+                                 "CWS inflate short %u/%u",
+                                 out_len, expected_out);
+                    return false;
+                }
+            }
+
+            g.body = inflate_out;
+            g.body_len = out_len;
+            g.fws[0] = 'F';
+            g.fws[1] = 'W';
+            g.fws[2] = 'S';
+            g.fws[3] = g.info.version;
+            g.fws[4] = header[4];
+            g.fws[5] = header[5];
+            g.fws[6] = header[6];
+            g.fws[7] = header[7];
+            g.fws_len = g.info.declared_size;
+            g.info.decompressed = true;
+
+            if (g.fws_cache_path[0] &&
+                write_file_from_buffer(g.fws_cache_path, g.fws, g.fws_len)) {
+                g.fws_file_ready = true;
+                flash_logf("wrote FWS cache %s size=%lu",
+                           g.fws_cache_path, g.fws_len);
+            }
         }
-        g.body = g.raw + 8;
+    } else {
+        if ((size_t)file_size <= g.buffer_size) {
+            src = g.raw;
+        } else if (audio && g.cxx_size > (size_t)file_size + FLASH_MIN_CXX_HEAP) {
+            src = audio;
+        } else {
+            rb->snprintf(g.status, sizeof(g.status), "need %luK FWS buffer",
+                         (unsigned long)file_size / 1024);
+            return false;
+        }
+        show_load_status_progress("reading SWF", 8);
+        if (!read_file_into_buffer(path, src,
+                                   src == g.raw ? g.buffer_size : g.cxx_size,
+                                   &src_len))
+            return false;
+        g.raw_len = src_len;
+        g.body = src + 8;
         g.body_len = g.raw_len - 8;
-        g.fws = g.raw;
+        g.fws = src;
         g.fws_len = g.raw_len;
         g.info.decompressed = true;
     }
 
-    show_load_status("reading SWF metadata");
+    show_load_status_progress("reading SWF metadata", 30);
     rect_len = swf_rect_bytes(g.body, g.body_len, &g.info.stage_w,
                               &g.info.stage_h);
     if (rect_len < 0 || (unsigned long)rect_len + 4 > g.body_len) {
@@ -2410,6 +3017,7 @@ static bool load_swf(const char *path)
                g.tags.do_action, g.tags.do_init_action, g.tags.do_abc,
                g.tags.video, g.tags.max_depth);
 #endif
+    show_load_status_progress("SWF parsed: AVM1 bring-up", 34);
     rb->snprintf(g.status, sizeof(g.status), "SWF parsed: AVM1 bring-up");
     g.loaded = true;
     return true;
@@ -2417,12 +3025,214 @@ static bool load_swf(const char *path)
 
 static tu_file *flash_file_opener(const char *url_or_path)
 {
-    (void)url_or_path;
+    char cache_path[MAX_PATH];
+    tu_file *cache_file;
+
+    if (flash_cache_path_for_url(url_or_path, cache_path,
+                                 sizeof(cache_path))) {
+        cache_file = rb_tu_open(cache_path, O_RDONLY);
+        if (cache_file) {
+            flash_logf("gameswf cache open %s", cache_path);
+            return cache_file;
+        }
+        flash_logf("gameswf cache missing %s", cache_path);
+        return NULL;
+    }
 
     if (!g.fws || g.fws_len < 8)
         return NULL;
 
+    flash_logf("gameswf FWS memory open size=%lu file_ready=%d",
+               g.fws_len, g.fws_file_ready ? 1 : 0);
     return new tu_file(tu_file::memory_buffer, (int)g.fws_len, g.fws);
+}
+
+static void force_stickrpg_post_create_state(void);
+static void prime_stickrpg_post_advance(void);
+static void prefill_stickrpg_character_name(void);
+static void flash_key_notify(gameswf::key::code key, bool down);
+
+static void load_gameswf_cache_after_instance(void)
+{
+    char path[MAX_PATH];
+    tu_file *in;
+    gameswf::movie_definition *movie_def;
+
+    if (g.gameswf_cache_checked)
+        return;
+    g.gameswf_cache_checked = true;
+
+    if (!flash_root())
+        return;
+
+    movie_def = flash_root()->get_movie_definition();
+    if (!movie_def)
+        return;
+
+    rb->snprintf(path, sizeof(path), "%s%s", g.path, FLASH_CACHE_SUFFIX);
+    in = rb_tu_open(path, O_RDONLY);
+    if (!in) {
+        flash_logf("gameswf delayed cache missing %s", path);
+        return;
+    }
+
+    show_load_status_progress("loading gameplay cache", 76);
+    flash_logf("gameswf delayed cache open %s", path);
+    movie_def->input_cached_data(in);
+    show_load_status_progress("gameplay cache ready", 84);
+    flash_logf("gameswf delayed cache loaded pos=%d err=%d heap_free=%luK",
+               in->get_position(), in->get_error(),
+               (unsigned long)(plugin_cxx_available() / 1024));
+    delete in;
+}
+
+#ifdef SIMULATOR
+static void write_gameswf_cache_if_requested(void)
+{
+    const char *write_cache = getenv("FLASHPLAYER_WRITE_GSC");
+    const char *precompute = getenv("FLASHPLAYER_PRECOMPUTE_GSC");
+    const char *warm_gameplay = getenv("FLASHPLAYER_WARM_GSC");
+    char path[MAX_PATH];
+    tu_file *out;
+    gameswf::movie_definition *movie_def;
+    gameswf::cache_options options;
+
+    if ((!write_cache || !write_cache[0] || rb->atoi(write_cache) == 0) &&
+        (!precompute || !precompute[0] || rb->atoi(precompute) == 0) &&
+        (!warm_gameplay || !warm_gameplay[0] ||
+         rb->atoi(warm_gameplay) == 0))
+        return;
+
+    if (!flash_root())
+        return;
+
+    movie_def = flash_root()->get_movie_definition();
+    if (!movie_def) {
+        flash_logf("gameswf cache write skipped: no movie def");
+        return;
+    }
+
+    if (precompute && precompute[0] && rb->atoi(precompute) != 0) {
+        flash_logf("gameswf cache precompute begin");
+        gameswf::precompute_cached_data(movie_def);
+        flash_logf("gameswf cache precompute end");
+    }
+
+    if (warm_gameplay && warm_gameplay[0] &&
+        rb->atoi(warm_gameplay) != 0 && g_renderer) {
+        bool old_discard = g_renderer->discard_render;
+        int old_budget = g.shape_mesh_budget_base;
+
+        const char *warm_frames_env = getenv("FLASHPLAYER_WARM_GSC_FRAMES");
+        int warm_frames = warm_frames_env && warm_frames_env[0] ?
+            rb->atoi(warm_frames_env) : 8;
+        if (warm_frames < 1)
+            warm_frames = 1;
+        if (warm_frames > 120)
+            warm_frames = 120;
+
+        flash_logf("gameswf cache gameplay warm begin frames=%d",
+                   warm_frames);
+        g.shape_mesh_budget_base = 1000000;
+        g.shape_mesh_budget = g.shape_mesh_budget_base;
+        g_renderer->discard_render = true;
+        for (int i = 0; i < warm_frames; i++) {
+            flash_logf("gameswf cache gameplay warm frame=%d begin", i);
+            flash_root()->advance(i == 0 ? 0.0f : 1.0f / 35.0f);
+            prime_stickrpg_post_advance();
+            prefill_stickrpg_character_name();
+            force_stickrpg_post_create_state();
+            if (g.stickrpg_gameplay_shortcut_done &&
+                (i == 2 || i == 8 || i == 14 || i == 20))
+                flash_key_notify(gameswf::key::RIGHT, true);
+            if (g.stickrpg_gameplay_shortcut_done &&
+                (i == 5 || i == 11 || i == 17 || i == 23))
+                flash_key_notify(gameswf::key::RIGHT, false);
+            if (g.stickrpg_gameplay_shortcut_done &&
+                (i == 6 || i == 16))
+                flash_key_notify(gameswf::key::DOWN, true);
+            if (g.stickrpg_gameplay_shortcut_done &&
+                (i == 9 || i == 19))
+                flash_key_notify(gameswf::key::DOWN, false);
+            flash_root()->display();
+            flash_logf("gameswf cache gameplay warm frame=%d end tri=%d sf=%d bf=%d heap_free=%luK",
+                       i, g_renderer->triangles, g_renderer->solid_fills,
+                       g_renderer->bitmap_fills,
+                       (unsigned long)(plugin_cxx_available() / 1024));
+        }
+        flash_key_notify(gameswf::key::RIGHT, false);
+        flash_key_notify(gameswf::key::DOWN, false);
+        g_renderer->discard_render = old_discard;
+        g.shape_mesh_budget_base = old_budget;
+        g.shape_mesh_budget = old_budget;
+        flash_logf("gameswf cache gameplay warm end tri=%d tiny=%d sf=%d bf=%d skipped=%d heap_free=%luK",
+                   g_renderer->triangles, g_renderer->tiny_triangles,
+                   g_renderer->solid_fills, g_renderer->bitmap_fills,
+                   g.shape_mesh_skipped,
+                   (unsigned long)(plugin_cxx_available() / 1024));
+    }
+
+    rb->snprintf(path, sizeof(path), "%s%s", g.path, FLASH_CACHE_SUFFIX);
+    out = rb_tu_open(path, O_WRONLY | O_CREAT | O_TRUNC);
+    if (!out) {
+        flash_logf("gameswf cache write open failed %s", path);
+        return;
+    }
+
+    movie_def->output_cached_data(out, options);
+    flash_logf("gameswf cache wrote %s size=%d err=%d", path,
+               out->get_position(), out->get_error());
+    delete out;
+}
+#endif
+
+static void close_shape_def_cache_files(void)
+{
+    gameswf::set_shape_definition_cache_files(NULL, NULL);
+
+    delete g.shape_def_cache_in;
+    g.shape_def_cache_in = NULL;
+    delete g.shape_def_cache_out;
+    g.shape_def_cache_out = NULL;
+}
+
+static void open_shape_def_cache_files(void)
+{
+    char path[MAX_PATH];
+
+    close_shape_def_cache_files();
+    rb->snprintf(path, sizeof(path), "%s%s", g.path, FLASH_DEF_CACHE_SUFFIX);
+
+#ifdef SIMULATOR
+    {
+        const char *write_cache = getenv("FLASHPLAYER_WRITE_GSD");
+        const char *read_cache = getenv("FLASHPLAYER_READ_GSD");
+
+        if (write_cache && write_cache[0] && rb->atoi(write_cache) != 0) {
+            g.shape_def_cache_out =
+                rb_tu_open(path, O_WRONLY | O_CREAT | O_TRUNC);
+            if (g.shape_def_cache_out)
+                flash_logf("shape def cache write open %s", path);
+            else
+                flash_logf("shape def cache write open failed %s", path);
+        } else if (read_cache && read_cache[0] && rb->atoi(read_cache) != 0) {
+            g.shape_def_cache_in = rb_tu_open(path, O_RDONLY);
+            if (g.shape_def_cache_in)
+                flash_logf("shape def cache read open %s", path);
+            else
+                flash_logf("shape def cache read missing %s", path);
+        }
+    }
+#else
+    g.shape_def_cache_in = rb_tu_open(path, O_RDONLY);
+    if (g.shape_def_cache_in)
+        flash_logf("shape def cache read open %s", path);
+    else
+        flash_logf("shape def cache read missing %s", path);
+#endif
+
+    gameswf::set_shape_definition_cache_files(g.shape_def_cache_in,
+                                              g.shape_def_cache_out);
 }
 
 static void probe_gameswf_runtime(void)
@@ -2433,7 +3243,7 @@ static void probe_gameswf_runtime(void)
         return;
     }
 
-    show_load_status("gameswf: new player");
+    show_load_status_progress("gameswf: new player", 36);
     delete g_player;
     g_player = new gameswf::player;
     if (!g_player) {
@@ -2444,12 +3254,15 @@ static void probe_gameswf_runtime(void)
     }
     flash_logf("gameswf player allocated heap_free=%luK",
                (unsigned long)(plugin_cxx_available() / 1024));
+    g_player->set_separate_thread(false);
 
     delete g_sound_handler;
     g_sound_handler = new SilentSoundHandler;
     gameswf::set_sound_handler(g_sound_handler);
 
-    show_load_status("gameswf: load_file");
+    g.load_stage_base = 38;
+    g.load_stage_span = 34;
+    show_load_status_progress("gameswf: load_file", 38);
     if (!g_renderer)
         g_renderer = new RockboxRenderHandler;
     if (!g_renderer) {
@@ -2466,6 +3279,8 @@ static void probe_gameswf_runtime(void)
     gameswf::set_verbose_action(false);
     gameswf::set_render_handler(g_renderer);
     gameswf::register_file_opener_callback(flash_file_opener);
+    gameswf::set_use_cache_files(g.stickrpg_fast_load);
+    g.gameswf_cache_checked = g.stickrpg_fast_load;
     gameswf::clear_shared_fonts();
     if (!g_root_ref)
         g_root_ref = new gameswf::gc_ptr<gameswf::root>;
@@ -2475,7 +3290,9 @@ static void probe_gameswf_runtime(void)
                    (unsigned long)(plugin_cxx_available() / 1024));
         return;
     }
+    open_shape_def_cache_files();
     *g_root_ref = g_player->load_file(STICK_RPG_URL);
+    close_shape_def_cache_files();
 
     if (!flash_root()) {
         rb->snprintf(g.status, sizeof(g.status), "gameswf load failed");
@@ -2487,8 +3304,11 @@ static void probe_gameswf_runtime(void)
         return;
     }
 
-    show_load_status("gameswf: root ready");
+    show_load_status_progress("gameswf: root ready", 74);
     flash_root()->set_display_viewport(0, 0, LCD_WIDTH, LCD_HEIGHT);
+#ifdef SIMULATOR
+    write_gameswf_cache_if_requested();
+#endif
     g.runtime_ready = true;
     g.runtime_frame = flash_root()->get_current_frame();
     flash_logf("gameswf root ready frame=%d hits=%d misses=%d regs=%d fonts=%d/%d/%d/%d heap_free=%luK",
@@ -2875,9 +3695,9 @@ static void release_runtime_keys(void)
         flash_key_notify(gameswf::key::RIGHT, false);
         g.key_right_down = false;
     }
-    if (g.key_c_down) {
-        flash_key_notify(gameswf::key::C, false);
-        g.key_c_down = false;
+    if (g.key_confirm_down) {
+        flash_key_notify(gameswf::key::ENTER, false);
+        g.key_confirm_down = false;
     }
     if (g.key_up_down) {
         flash_key_notify(gameswf::key::UP, false);
@@ -2903,6 +3723,25 @@ static void release_runtime_keys(void)
     }
 }
 
+static bool runtime_input_ignored(void)
+{
+    return g.runtime_loaded && TIME_BEFORE(*rb->current_tick,
+                                          g.input_ignore_until);
+}
+
+static void begin_runtime_input_grace(void)
+{
+    g.input_ignore_until = *rb->current_tick + HZ;
+    g.mouse_down = false;
+    g.click_frames = 0;
+    release_runtime_keys();
+    rb->button_clear_queue();
+#ifdef HAVE_WHEEL_POSITION
+    g.wheel_touch_active = rb->wheel_status() >= 0;
+#endif
+    flash_logf("input grace until=%ld", g.input_ignore_until);
+}
+
 static void tick_transient_runtime_keys(void)
 {
     if (g.key_up_frames > 0 && --g.key_up_frames == 0)
@@ -2913,13 +3752,54 @@ static void tick_transient_runtime_keys(void)
             flash_key_notify(gameswf::key::DOWN, false);
 }
 
+static void remember_stickrpg_scene_refs(gameswf::character *root_movie)
+{
+    gameswf::as_value val;
+    gameswf::character *ch;
+
+    if (!root_movie)
+        return;
+
+    if (g_stickrpg_person_ref == NULL &&
+        root_movie->get_member("person", &val)) {
+        ch = gameswf::cast_to<gameswf::character>(val.to_object());
+        if (ch)
+            g_stickrpg_person_ref = ch;
+    }
+
+    if (g_stickrpg_map_ref == NULL &&
+        root_movie->get_member("Map_Outside_1", &val)) {
+        ch = gameswf::cast_to<gameswf::character>(val.to_object());
+        if (ch)
+            g_stickrpg_map_ref = ch;
+    }
+}
+
+static void restore_stickrpg_scene_refs(gameswf::character *root_movie)
+{
+    gameswf::as_value val;
+
+    if (!root_movie)
+        return;
+
+    if (g_stickrpg_person_ref != NULL) {
+        val.set_as_object(g_stickrpg_person_ref.get_ptr());
+        root_movie->set_member("person", val);
+    }
+
+    if (g_stickrpg_map_ref != NULL) {
+        val.set_as_object(g_stickrpg_map_ref.get_ptr());
+        root_movie->set_member("Map_Outside_1", val);
+        root_movie->set_member("map_outside_1", val);
+    }
+}
+
 static void force_stickrpg_post_create_state(void)
 {
     gameswf::character *root_movie;
     gameswf::sprite_instance *root_sprite;
     gameswf::as_value val;
     gameswf::character *ch;
-    gameswf::sprite_instance *sprite;
 
     if (!g.stickrpg_gameplay_shortcut_enabled ||
         !g.stickrpg_intro_hide_requested || !flash_root())
@@ -2938,7 +3818,7 @@ static void force_stickrpg_post_create_state(void)
 #else
         root_sprite->goto_frame(1);
 #endif
-        root_sprite->set_play_state(gameswf::character::STOP);
+        root_sprite->set_play_state(gameswf::character::PLAY);
         root_sprite->set_display_object_visible("introscreen", false);
         root_sprite->set_display_object_visible("filmscreen", false);
         root_sprite->set_display_object_visible("black", false);
@@ -2950,6 +3830,20 @@ static void force_stickrpg_post_create_state(void)
             log_stickrpg_scene_vars("after-init",
                                     root_movie, root_sprite);
             root_sprite->call_method("RenderScene", NULL, 0);
+            remember_stickrpg_scene_refs(root_movie);
+            restore_stickrpg_scene_refs(root_movie);
+            root_sprite->set_display_object_visible("filmscreen", false);
+            root_sprite->set_display_object_visible("black", false);
+            if (root_movie->get_member("filmscreen", &val)) {
+                ch = gameswf::cast_to<gameswf::character>(val.to_object());
+                if (ch)
+                    ch->set_visible(false);
+            }
+            if (root_movie->get_member("black", &val)) {
+                ch = gameswf::cast_to<gameswf::character>(val.to_object());
+                if (ch)
+                    ch->set_visible(false);
+            }
             log_stickrpg_scene_vars("after-render-scene",
                                     root_movie, root_sprite);
             g.stickrpg_scene_initialized = true;
@@ -2964,31 +3858,19 @@ static void force_stickrpg_post_create_state(void)
     if (g.stickrpg_post_create_forced)
         return;
 
-    root_sprite->set_display_object_visible("filmscreen", true);
-    root_sprite->set_display_object_visible("black", true);
+    root_sprite->set_display_object_visible("filmscreen", false);
+    root_sprite->set_display_object_visible("black", false);
 
     if (root_movie->get_member("filmscreen", &val)) {
         ch = gameswf::cast_to<gameswf::character>(val.to_object());
-        if (ch) {
-            ch->set_visible(true);
-            sprite = gameswf::cast_to<gameswf::sprite_instance>(ch);
-            if (sprite) {
-                sprite->goto_frame(1);
-                sprite->set_play_state(gameswf::character::PLAY);
-            }
-        }
+        if (ch)
+            ch->set_visible(false);
     }
 
     if (root_movie->get_member("black", &val)) {
         ch = gameswf::cast_to<gameswf::character>(val.to_object());
-        if (ch) {
-            ch->set_visible(true);
-            sprite = gameswf::cast_to<gameswf::sprite_instance>(ch);
-            if (sprite) {
-                sprite->goto_frame(10);
-                sprite->set_play_state(gameswf::character::PLAY);
-            }
-        }
+        if (ch)
+            ch->set_visible(false);
     }
 
     g.stickrpg_post_create_forced = true;
@@ -3016,6 +3898,7 @@ static void render_runtime_frame(float dt)
         (g.rendered_frames % g.fast_draw_interval) != 0)
         skip_draw = true;
 #endif
+    restore_stickrpg_scene_refs(flash_root()->get_root_movie());
     runtime_mouse_stage(&mx, &my);
     flash_root()->notify_mouse_state(mx, my, g.mouse_down ? 1 : 0);
     flash_root()->advance(dt);
@@ -3028,8 +3911,10 @@ static void render_runtime_frame(float dt)
             flash_root()->advance(0.0f);
             prime_stickrpg_post_advance();
             prefill_stickrpg_character_name();
+            restore_stickrpg_scene_refs(flash_root()->get_root_movie());
         }
     }
+    load_gameswf_cache_after_instance();
     tick_transient_runtime_keys();
     g.runtime_frame = flash_root()->get_current_frame();
     g.rendered_frames++;
@@ -3049,8 +3934,40 @@ static void render_runtime_frame(float dt)
         return;
     }
 #endif
-    g.shape_mesh_budget = 256;
+    g.shape_mesh_budget = g.shape_mesh_budget_base;
     g.shape_mesh_skipped = 0;
+    if (g.startup_prerender_frames > 0 && g_renderer) {
+        bool old_discard = g_renderer->discard_render;
+        int warm_index = FLASH_STARTUP_PRERENDER_FRAMES -
+            g.startup_prerender_frames + 1;
+
+        rb->snprintf(g.status, sizeof(g.status),
+                     "warming gameplay %d/%d",
+                     warm_index, FLASH_STARTUP_PRERENDER_FRAMES);
+        show_load_status_progress(g.status, 88 +
+                                  (warm_index * 8) /
+                                  FLASH_STARTUP_PRERENDER_FRAMES);
+        flash_logf("startup prerender frame=%d begin",
+                   warm_index);
+        g_renderer->discard_render = true;
+        flash_root()->display();
+        g_renderer->discard_render = old_discard;
+        g.startup_prerender_frames--;
+        flash_logf("startup prerender frame=%d end tri=%d sf=%d bf=%d heap_free=%luK",
+                   warm_index, g_renderer->triangles,
+                   g_renderer->solid_fills, g_renderer->bitmap_fills,
+                   (unsigned long)(plugin_cxx_available() / 1024));
+        show_load_status_progress("warming gameplay cache", 94);
+        if (g.click_frames > 0 && --g.click_frames == 0)
+            g.mouse_down = false;
+        rb->yield();
+        return;
+    }
+    if (g.rendered_frames < 3) {
+        rb->snprintf(g.status, sizeof(g.status), "rendering frame %d",
+                     g.rendered_frames + 1);
+        show_load_status_progress(g.status, 88 + g.rendered_frames * 4);
+    }
     flash_root()->display();
     rb->yield();
     draw_runtime_cursor();
@@ -3107,6 +4024,56 @@ static void render_runtime_frame(float dt)
 }
 
 static void init_runtime_heap(void);
+
+#ifdef HAVE_WHEEL_POSITION
+static void wheel_pos_to_cursor(int pos, int *x, int *y)
+{
+    static const int xs[8] = {160, 238, 286, 238, 160, 82, 34, 82};
+    static const int ys[8] = {28, 52, 120, 188, 212, 188, 120, 52};
+    int sector;
+
+    if (pos < 0)
+        pos = 0;
+    sector = ((pos + 6) % 96) / 12;
+    if (sector < 0)
+        sector = 0;
+    if (sector > 7)
+        sector = 7;
+
+    *x = xs[sector];
+    *y = ys[sector];
+}
+
+static void poll_wheel_mouse_tap(void)
+{
+    int pos;
+
+    if (!g.runtime_loaded)
+        return;
+
+    pos = rb->wheel_status();
+    if (runtime_input_ignored()) {
+        g.wheel_touch_active = pos >= 0;
+        g.mouse_down = false;
+        g.click_frames = 0;
+        return;
+    }
+
+    if (pos >= 0) {
+        wheel_pos_to_cursor(pos, &g.cursor_x, &g.cursor_y);
+        if (!g.wheel_touch_active) {
+            g.mouse_down = true;
+            g.click_frames = 2;
+            g.wheel_touch_pos = pos;
+            flash_logf("wheel tap pos=%d lcd=%d,%d",
+                       pos, g.cursor_x, g.cursor_y);
+        }
+        g.wheel_touch_active = true;
+    } else {
+        g.wheel_touch_active = false;
+    }
+}
+#endif
 
 static void prime_stickrpg_filmscreen(void)
 {
@@ -3192,7 +4159,7 @@ static bool start_runtime(void)
 
     if (!g.runtime_ready && g.loaded) {
         rb->snprintf(g.status, sizeof(g.status), "starting AVM1 VM");
-        redraw();
+        show_load_status_progress(g.status, 35);
         init_runtime_heap();
         probe_gameswf_runtime();
     }
@@ -3203,14 +4170,18 @@ static bool start_runtime(void)
         ipod_engine_frame_clock_reset(&g.frame_clock, g.info.fps_x100);
         rb->snprintf(g.status, sizeof(g.status), "VM running: frame %d",
                      g.runtime_frame);
+        show_load_status_progress(g.status, 86);
+        begin_runtime_input_grace();
         flash_logf("runtime loaded frame=%d heap_free=%luK",
                    g.runtime_frame,
                    (unsigned long)(plugin_cxx_available() / 1024));
         prime_stickrpg_filmscreen();
-        flash_root()->display();
-        rb->yield();
-        draw_runtime_cursor();
-        rb->lcd_update();
+        if (!g.stickrpg_fast_load) {
+            flash_root()->display();
+            rb->yield();
+            draw_runtime_cursor();
+            rb->lcd_update();
+        }
         return true;
     }
 
@@ -3313,6 +4284,7 @@ static void shutdown_runtime(void)
     g_sound_handler = NULL;
     delete g_renderer;
     g_renderer = NULL;
+    close_shape_def_cache_files();
 
     ipod_engine_release_memory(&g.engine_memory);
     g.raw = NULL;
@@ -3332,6 +4304,11 @@ extern "C" enum plugin_status plugin_start(const void *parameter)
     flash_sim_trace("plugin_start entered");
     rb->memset(&g, 0, sizeof(g));
     g.log_fd = -1;
+    g.shape_mesh_budget_base = FLASH_SHAPE_MESH_BUDGET;
+    g.load_progress = 0;
+#ifdef HAVE_WHEEL_POSITION
+    g.wheel_touch_pos = -1;
+#endif
     ipod_engine_get_profile(&engine_profile);
     if (!engine_profile.supported) {
         rb->splash(HZ * 2, "Flash: iPod 6G+ only");
@@ -3344,10 +4321,10 @@ extern "C" enum plugin_status plugin_start(const void *parameter)
     }
     g.raw = g.engine_memory.plugin;
     g.buffer_size = g.engine_memory.plugin_size;
-    reserve_loading_bitmap_buffer();
     flash_sim_trace("getting audio buffer");
     g.cxx_buf = g.engine_memory.shared;
     g.cxx_size = g.engine_memory.shared_size;
+    reserve_loading_bitmap_buffer();
     flash_sim_trace("audio buffer acquired");
     rb->lcd_setfont(FONT_SYSFIXED);
     flash_log_open();
@@ -3363,12 +4340,21 @@ extern "C" enum plugin_status plugin_start(const void *parameter)
     flash_logf("curve max pixel error=%.2f", gameswf::get_curve_max_pixel_error());
 #ifdef SIMULATOR
     {
-        g.stickrpg_gameplay_shortcut_enabled = false;
         g.stickrpg_shortcut_frame = 1;
         const char *autorun = getenv("FLASHPLAYER_AUTORUN_FRAMES");
         if (autorun && autorun[0]) {
             g.autorun_frames = rb->atoi(autorun);
             flash_logf("autorun frames=%d", g.autorun_frames);
+        }
+        {
+            const char *budget = getenv("FLASHPLAYER_SHAPE_MESH_BUDGET");
+            if (budget && budget[0]) {
+                g.shape_mesh_budget_base = rb->atoi(budget);
+                if (g.shape_mesh_budget_base < 1)
+                    g.shape_mesh_budget_base = FLASH_SHAPE_MESH_BUDGET;
+                flash_logf("shape mesh budget=%d",
+                           g.shape_mesh_budget_base);
+            }
         }
         {
             const char *overlay = getenv("FLASHPLAYER_DEBUG_OVERLAY");
@@ -3438,6 +4424,13 @@ extern "C" enum plugin_status plugin_start(const void *parameter)
     while (!quit) {
         int timeout = g.runtime_loaded ?
             ipod_engine_frame_timeout(&g.frame_clock) : HZ / 8;
+#ifdef HAS_BUTTON_HOLD
+        if (rb->button_hold()) {
+            flash_logf("hold exit");
+            quit = true;
+            continue;
+        }
+#endif
 #ifdef SIMULATOR
         if (g.fast_autorun && g.runtime_loaded &&
             g.autorun_click_count > 0 &&
@@ -3448,6 +4441,16 @@ extern "C" enum plugin_status plugin_start(const void *parameter)
         int button = rb->button_get_w_tmo(timeout);
         int bare = button & ~(BUTTON_REPEAT | BUTTON_REL);
 
+#ifdef HAS_BUTTON_HOLD
+        if (rb->button_hold()) {
+            flash_logf("hold exit");
+            quit = true;
+            continue;
+        }
+#endif
+#ifdef HAVE_WHEEL_POSITION
+        poll_wheel_mouse_tap();
+#endif
         if (button == SYS_USB_CONNECTED)
         {
             shutdown_runtime();
@@ -3477,8 +4480,20 @@ extern "C" enum plugin_status plugin_start(const void *parameter)
         }
 
         g.last_button = button;
+        if (runtime_input_ignored()) {
+            g.mouse_down = false;
+            g.click_frames = 0;
+            continue;
+        }
+
         if (button & BUTTON_REL) {
-            if (bare == BUTTON_SELECT && g.runtime_loaded)
+            if ((bare == BUTTON_SELECT || bare == BUTTON_PLAY) &&
+                g.runtime_loaded && g.key_confirm_down) {
+                g.key_confirm_down = false;
+                g.mouse_down = false;
+            }
+            if ((bare == BUTTON_SELECT || bare == BUTTON_PLAY) &&
+                g.runtime_loaded)
                 g.mouse_down = false;
             if ((bare & BUTTON_LEFT) && g.runtime_loaded &&
                 g.key_left_down) {
@@ -3489,6 +4504,17 @@ extern "C" enum plugin_status plugin_start(const void *parameter)
                 g.key_right_down) {
                 flash_key_notify(gameswf::key::RIGHT, false);
                 g.key_right_down = false;
+            }
+            if ((bare & BUTTON_SCROLL_FWD) && g.runtime_loaded &&
+                g.key_up_down) {
+                flash_key_notify(gameswf::key::UP, false);
+                g.key_up_down = false;
+            }
+            if ((bare & BUTTON_SCROLL_BACK) && g.runtime_loaded &&
+                g.input_profile != FLASH_INPUT_PROFILE_ANTCITY &&
+                g.key_down_down) {
+                flash_key_notify(gameswf::key::DOWN, false);
+                g.key_down_down = false;
             }
             if ((bare & BUTTON_MENU) && g.runtime_loaded &&
                 g.key_up_down) {
@@ -3505,21 +4531,40 @@ extern "C" enum plugin_status plugin_start(const void *parameter)
                 flash_key_notify(gameswf::key::SHIFT, false);
                 g.key_shift_down = false;
             }
-            if ((bare & BUTTON_SELECT) && g.runtime_loaded)
-                g.mouse_down = false;
             if (!g.runtime_loaded)
                 redraw();
             continue;
         }
 
         if ((button & BUTTON_REPEAT) && bare == BUTTON_SELECT) {
+#ifdef SIMULATOR
             quit = true;
+#endif
+        } else if (g.input_profile == FLASH_INPUT_PROFILE_ANTCITY &&
+                   (bare == BUTTON_SELECT || bare == BUTTON_PLAY)) {
+            if (g.runtime_loaded) {
+                if (!g.key_confirm_down) {
+                    g.key_confirm_down = true;
+                }
+                g.mouse_down = true;
+                g.click_frames = 4;
+            } else if (start_runtime()) {
+                /* Runtime started. */
+            } else if (load_swf(g.path)) {
+                rb->snprintf(g.status, sizeof(g.status), "SWF loaded: starting VM");
+                start_runtime();
+            }
+            if (!g.runtime_loaded)
+                redraw();
         } else if ((bare & BUTTON_SELECT) && bare != BUTTON_SELECT &&
-                   g.runtime_loaded) {
+                   g.runtime_loaded &&
+                   g.input_profile != FLASH_INPUT_PROFILE_ANTCITY) {
+#ifdef SIMULATOR
             if (!g.key_shift_down) {
                 flash_key_notify(gameswf::key::SHIFT, true);
                 g.key_shift_down = true;
             }
+#endif
             if ((bare & BUTTON_LEFT) && !g.key_left_down) {
                 flash_key_notify(gameswf::key::LEFT, true);
                 g.key_left_down = true;
@@ -3537,19 +4582,31 @@ extern "C" enum plugin_status plugin_start(const void *parameter)
                 g.key_down_down = true;
             }
         } else if (bare == BUTTON_MENU && g.runtime_loaded) {
-            if (!g.key_up_down) {
-                flash_key_notify(gameswf::key::UP, true);
-                g.key_up_down = true;
+            if (g.input_profile == FLASH_INPUT_PROFILE_ANTCITY) {
+                quit = true;
+            } else {
+                if (!g.key_up_down) {
+                    flash_key_notify(gameswf::key::UP, true);
+                    g.key_up_down = true;
+                }
             }
         } else if (bare == BUTTON_PLAY && g.runtime_loaded) {
-            if (!g.key_down_down) {
+            if (g.input_profile == FLASH_INPUT_PROFILE_ANTCITY) {
+                if (!g.key_confirm_down) {
+                    g.key_confirm_down = true;
+                }
+                g.mouse_down = true;
+                g.click_frames = 4;
+            } else if (!g.key_down_down) {
                 flash_key_notify(gameswf::key::DOWN, true);
                 g.key_down_down = true;
             }
         } else if (bare == BUTTON_SELECT) {
             if (g.runtime_loaded) {
+#ifdef SIMULATOR
                 g.mouse_down = true;
                 g.click_frames = 2;
+#endif
             } else if (start_runtime()) {
                 /* Runtime started. */
             } else if (load_swf(g.path)) {
@@ -3561,7 +4618,8 @@ extern "C" enum plugin_status plugin_start(const void *parameter)
         } else if (bare == BUTTON_SCROLL_FWD || bare == BUTTON_RIGHT) {
             if (g.runtime_loaded) {
                 if (bare == BUTTON_RIGHT) {
-                    if (!g.key_right_down) {
+                    if (g.input_profile != FLASH_INPUT_PROFILE_ANTCITY &&
+                        !g.key_right_down) {
                         flash_key_notify(gameswf::key::RIGHT, true);
                         g.key_right_down = true;
                     }
@@ -3569,9 +4627,6 @@ extern "C" enum plugin_status plugin_start(const void *parameter)
                     if (g.cursor_x >= LCD_WIDTH)
                         g.cursor_x = LCD_WIDTH - 1;
                 } else {
-                    if (g.key_down_frames == 0)
-                        flash_key_notify(gameswf::key::DOWN, true);
-                    g.key_down_frames = 3;
                     g.cursor_y += (button & BUTTON_REPEAT) ? 10 : 4;
                     if (g.cursor_y >= LCD_HEIGHT)
                         g.cursor_y = LCD_HEIGHT - 1;
@@ -3583,7 +4638,8 @@ extern "C" enum plugin_status plugin_start(const void *parameter)
         } else if (bare == BUTTON_SCROLL_BACK || bare == BUTTON_LEFT) {
             if (g.runtime_loaded) {
                 if (bare == BUTTON_LEFT) {
-                    if (!g.key_left_down) {
+                    if (g.input_profile != FLASH_INPUT_PROFILE_ANTCITY &&
+                        !g.key_left_down) {
                         flash_key_notify(gameswf::key::LEFT, true);
                         g.key_left_down = true;
                     }
@@ -3591,9 +4647,6 @@ extern "C" enum plugin_status plugin_start(const void *parameter)
                     if (g.cursor_x < 0)
                         g.cursor_x = 0;
                 } else {
-                    if (g.key_up_frames == 0)
-                        flash_key_notify(gameswf::key::UP, true);
-                    g.key_up_frames = 3;
                     g.cursor_y -= (button & BUTTON_REPEAT) ? 10 : 4;
                     if (g.cursor_y < 0)
                         g.cursor_y = 0;

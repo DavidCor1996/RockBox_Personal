@@ -87,7 +87,16 @@ namespace gameswf
 			tag_count++;
 			flashplayer_trace_parse_start("sprite", tag_count,
 				tag_type, in->get_position());
-			if (tag_type == 1)
+			if (tag_type == 0)
+			{
+				in->close_tag();
+				flashplayer_trace_parse_end("sprite", tag_count,
+					tag_type, in->get_position());
+				flashplayer_trace_parse_progress("sprite", tag_count,
+					tag_type, in->get_position());
+				break;
+			}
+			else if (tag_type == 1)
 			{
 				// show frame tag -- advance to the next frame.
 				IF_VERBOSE_PARSE(log_msg("  show_frame (sprite)\n"));

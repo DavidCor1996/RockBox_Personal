@@ -31,6 +31,45 @@ static void mudclient_offline_walk_to_character(mudclient *mud,
                                     mud->local_region_y, x, y, 1);
 }
 
+static int mudclient_offline_npc_opens_bank(GameCharacter *npc) {
+    if (npc == NULL || npc->npc_id < 0 || npc->npc_id >= game_data.npc_count) {
+        return 0;
+    }
+
+    char *name = game_data.npcs[npc->npc_id].name;
+    return npc->npc_id == 95 || npc->npc_id == 224 || npc->npc_id == 268 ||
+           npc->npc_id == 485 || npc->npc_id == 540 || npc->npc_id == 617 ||
+           strstr(name, "Bank") != NULL || strstr(name, "bank") != NULL;
+}
+
+static int mudclient_offline_npc_opens_shop(GameCharacter *npc) {
+    if (npc == NULL || npc->npc_id < 0 || npc->npc_id >= game_data.npc_count) {
+        return 0;
+    }
+
+    char *name = game_data.npcs[npc->npc_id].name;
+    return strstr(name, "Shop") != NULL || strstr(name, "shop") != NULL;
+}
+
+static int mudclient_offline_open_npc_service(mudclient *mud,
+                                              GameCharacter *npc) {
+    if (mudclient_offline_npc_opens_bank(npc)) {
+        mudclient_offline_open_bank(mud);
+        mudclient_show_message(mud, "@cya@The banker opens your bank.",
+                               MESSAGE_TYPE_GAME);
+        return 1;
+    }
+
+    if (mudclient_offline_npc_opens_shop(npc)) {
+        mudclient_offline_open_shop(mud);
+        mudclient_show_message(mud, "@cya@The shopkeeper opens the shop.",
+                               MESSAGE_TYPE_GAME);
+        return 1;
+    }
+
+    return 0;
+}
+
 static int mudclient_offline_menu_item_click(mudclient *mud, int i) {
     int menu_x = mud->menu_items[i].x;
     int menu_y = mud->menu_items[i].y;
@@ -43,6 +82,7 @@ static int mudclient_offline_menu_item_click(mudclient *mud, int i) {
     case MENU_GROUNDITEM_TAKE:
         mudclient_walk_to_ground_item(mud, mud->local_region_x,
                                       mud->local_region_y, menu_x, menu_y, 1);
+        mudclient_offline_take_ground_item(mud, menu_x, menu_y, menu_index);
         return 1;
     case MENU_WALL_OBJECT_COMMAND1:
     case MENU_WALL_OBJECT_COMMAND2:
@@ -55,27 +95,39 @@ static int mudclient_offline_menu_item_click(mudclient *mud, int i) {
     case MENU_OBJECT_COMMAND2:
         mudclient_walk_to_object(mud, menu_x, menu_y, menu_index,
                                  menu_source_index);
-        mudclient_show_message(mud, game_data.objects[menu_source_index].name,
-                               MESSAGE_TYPE_GAME);
+        if (!mudclient_offline_handle_object_command(mud,
+                                                     menu_source_index)) {
+            mudclient_show_message(mud,
+                                   game_data.objects[menu_source_index].name,
+                                   MESSAGE_TYPE_GAME);
+        }
         return 1;
     case MENU_CAST_INVITEM:
+        mud->selected_spell = -1;
+        mud->selected_item_inventory_index = -1;
+        return 1;
     case MENU_USEWITH_INVITEM:
+        mudclient_offline_use_inventory_items(mud, menu_source_index,
+                                              menu_index);
         mud->selected_spell = -1;
         mud->selected_item_inventory_index = -1;
         return 1;
     case MENU_INVENTORY_WEAR:
         if (menu_index >= 0 && menu_index < mud->inventory_items_count) {
-            mud->inventory_equipped[menu_index] = 1;
+            mudclient_offline_wear_inventory_slot(mud, menu_index);
         }
         return 1;
     case MENU_INVENTORY_UNEQUIP:
         if (menu_index >= 0 && menu_index < mud->inventory_items_count) {
             mud->inventory_equipped[menu_index] = 0;
+            mudclient_refresh_offline_equipment(mud);
         }
         return 1;
     case MENU_INVENTORY_COMMAND:
+        mudclient_offline_inventory_command(mud, menu_index);
         return 1;
     case MENU_INVENTORY_DROP:
+        mudclient_offline_drop_inventory_slot(mud, menu_index);
         mud->selected_item_inventory_index = -1;
         return 1;
     case MENU_CAST_NPC:
@@ -89,7 +141,8 @@ static int mudclient_offline_menu_item_click(mudclient *mud, int i) {
         GameCharacter *npc = mudclient_offline_find_npc(mud, menu_index);
         mudclient_offline_walk_to_character(mud, npc);
 
-        if (npc != NULL) {
+        if (!mudclient_offline_open_npc_service(mud, npc) &&
+            !mudclient_offline_handle_npc_talk(mud, npc) && npc != NULL) {
             mudclient_show_message(mud, game_data.npcs[npc->npc_id].description,
                                    MESSAGE_TYPE_GAME);
         }
@@ -97,7 +150,19 @@ static int mudclient_offline_menu_item_click(mudclient *mud, int i) {
     }
     case MENU_NPC_COMMAND: {
         GameCharacter *npc = mudclient_offline_find_npc(mud, menu_index);
+        char *command = npc != NULL ? game_data.npcs[npc->npc_id].command : NULL;
+
         mudclient_offline_walk_to_character(mud, npc);
+        if (command != NULL &&
+            (strstr(command, "Pickpocket") != NULL ||
+             strstr(command, "pickpocket") != NULL)) {
+            mudclient_offline_pickpocket(mud, npc);
+        } else if (mudclient_offline_handle_npc_command(mud, npc)) {
+            return 1;
+        } else if (!mudclient_offline_open_npc_service(mud, npc) &&
+                   command != NULL && command[0] != '\0') {
+            mudclient_show_message(mud, command, MESSAGE_TYPE_GAME);
+        }
         return 1;
     }
     case MENU_NPC_ATTACK1:
@@ -105,7 +170,7 @@ static int mudclient_offline_menu_item_click(mudclient *mud, int i) {
         GameCharacter *npc = mudclient_offline_find_npc(mud, menu_index);
         mudclient_offline_walk_to_character(mud, npc);
         if (npc != NULL) {
-            mud->combat_target = npc;
+            mudclient_offline_start_combat(mud, npc);
         }
         return 1;
     }
@@ -1244,8 +1309,6 @@ void mudclient_create_right_click_menu(mudclient *mud) {
                                        .target_text),
                             "%s", formatted_npc_name);
 
-                        mud->combat_target = npc;
-
                         mud->menu_items[mud->menu_items_count].type =
                             MENU_CAST_NPC;
 
@@ -1288,8 +1351,6 @@ void mudclient_create_right_click_menu(mudclient *mud) {
                             "@yel@%s%s",
                             game_data.npcs[mud->npcs[index]->npc_id].name,
                             level_text);
-
-                        mud->combat_target = npc;
 
                         if (level_difference >= 0) {
                             mud->menu_items[mud->menu_items_count].type =

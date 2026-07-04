@@ -387,9 +387,13 @@ namespace gameswf
 		}
 
 		const array<execute_tag*>&	playlist = m_def->get_playlist(frame);
+		flashplayer_trace_movie_state("exec_frame_begin", frame,
+			playlist.size(), state_only ? 1 : 0);
 		for (int i = 0; i < playlist.size(); i++)
 		{
 			execute_tag*	e = playlist[i];
+			flashplayer_trace_movie_state("exec_tag_begin", frame,
+				i, playlist.size());
 
 			if (state_only)
 			{
@@ -399,27 +403,26 @@ namespace gameswf
 			{
 				e->execute(this);
 			}
+			flashplayer_trace_movie_state("exec_tag_end", frame,
+				i, playlist.size());
 		}
+		flashplayer_trace_movie_state("exec_frame_end", frame,
+			playlist.size(), state_only ? 1 : 0);
+		flashplayer_trace_movie_state("exec_post_begin", frame,
+			state_only ? 1 : 0, m_def->m_ss_start);
 
-		// start stream sound
-		if (state_only == false)
-		{
-			sound_handler* sound = get_sound_handler();
-			if (sound)
-			{
-				if (m_def->m_ss_start == frame)
-				{
-					if (m_def->m_ss_id >= 0)
-					{
-						sound->stop_sound(m_def->m_ss_id);
-						sound->play_sound(NULL, m_def->m_ss_id, 0);
-					}
-				}
-			}
-		}
+		// Rockbox Flash player currently runs with a silent sound handler.
+		flashplayer_trace_movie_state("exec_sound_skip", frame,
+			m_def->m_ss_start, m_def->m_ss_id);
 
 		// flash9
+		flashplayer_trace_movie_state("exec_script_set_begin", frame,
+			m_script != NULL ? 1 : 0, 0);
 		set_frame_script(frame);
+		flashplayer_trace_movie_state("exec_script_set_end", frame,
+			m_frame_script != NULL ? 1 : 0, 0);
+		flashplayer_trace_movie_state("exec_post_end", frame,
+			state_only ? 1 : 0, 0);
 
 	}
 

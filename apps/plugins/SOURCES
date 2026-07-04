@@ -13,10 +13,12 @@ cdogs.c
 runepod.c
 #endif
 cube.c
+clubpenguin.c
 cue_playlist.c
 dart_scorer.c
 dict.c
 desktop_mode.c
+offlineweb.c
 file_picker.c
 jackpot.c
 keybox.c
@@ -104,6 +106,7 @@ h264_poc.c
 
 #if defined(HAVE_LCD_COLOR) && (LCD_WIDTH >= 320) && (LCD_HEIGHT >= 240)
 openh264_player.c
+wwe_backstage.c
 #endif
 
 /* Overlays loaders */
