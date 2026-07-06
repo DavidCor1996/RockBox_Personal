@@ -48,6 +48,7 @@
 #include "audiohw.h"
 #include "general.h"
 #include <stdio.h>
+extern const char rbversion[];
 
 #ifdef HAVE_TAGCACHE
 #include "tagcache.h"

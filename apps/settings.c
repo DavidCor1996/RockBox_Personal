@@ -59,6 +59,7 @@
 #include "powermgmt.h"
 #include "keyboard.h"
 #include "version.h"
+extern const char rbversion[];
 #include "rbunicode.h"
 #include "dircache.h"
 #include "splash.h"

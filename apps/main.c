@@ -26,6 +26,8 @@
 #endif
 
 #include "version.h"
+extern const char rbversion[];
+
 #include "gcc_extensions.h"
 #include "storage.h"
 #include "disk.h"

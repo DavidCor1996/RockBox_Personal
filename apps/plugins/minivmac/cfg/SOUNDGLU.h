@@ -1,1 +1,0 @@
-/* Sound is disabled in the first Rockbox Mini vMac port. */

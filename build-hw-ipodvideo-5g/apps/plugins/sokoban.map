@@ -1,0 +1,247 @@
+Archive member included to satisfy reference by file (symbol)
+
+/home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(playback_control.o)
+                              /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/sokoban.o (playback_control)
+/home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/bitmaps/libpluginbitmaps.a(sokoban_tiles.14x14x16.o)
+                              /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/sokoban.o (sokoban_tiles)
+/home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/libsetjmp.a(setjmp.o)
+                              /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/plugin_crt0.o (setjmp)
+
+Discarded input sections
+
+ .text          0x00000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(playback_control.o)
+ .data          0x00000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(playback_control.o)
+ .bss           0x00000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(playback_control.o)
+ .text.playback_control_init
+                0x00000000       0x10 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(playback_control.o)
+ .text          0x00000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/bitmaps/libpluginbitmaps.a(sokoban_tiles.14x14x16.o)
+ .data          0x00000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/bitmaps/libpluginbitmaps.a(sokoban_tiles.14x14x16.o)
+ .bss           0x00000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/bitmaps/libpluginbitmaps.a(sokoban_tiles.14x14x16.o)
+ .data          0x00000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/libsetjmp.a(setjmp.o)
+ .bss           0x00000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/libsetjmp.a(setjmp.o)
+
+Memory Configuration
+
+Name             Origin             Length             Attributes
+PLUGIN_RAM       0x03f00000         0x00100000
+PLUGIN_IRAM      0x4000c000         0x00014000
+*default*        0x00000000         0xffffffff
+
+Linker script and memory map
+
+LOAD /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/sokoban.o
+LOAD /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/plugin_crt0.o
+LOAD /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a
+LOAD /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/bitmaps/libpluginbitmaps.a
+LOAD /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/libsetjmp.a
+LOAD /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/libfixedpoint.a
+LOAD /usr/lib/gcc/arm-none-eabi/14.2.0/libgcc.a
+
+.header         0x03f00000       0x1c
+                0x03f00000                        _plugin_start_addr = .
+                0x03f00000                        plugin_start_addr = .
+ *(.header)
+ .header        0x03f00000       0x1c /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/plugin_crt0.o
+                0x03f00000                __header
+
+.text           0x03f0001c     0x271c
+ *(.text*)
+ .text          0x03f0001c     0x20a8 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/sokoban.o
+                0x03f01888                plugin_start
+ .text          0x03f020c4      0x32c /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/plugin_crt0.o
+                0x03f020dc                plugin__start
+                0x03f0233c                rb_atexit
+                0x03f0235c                exit
+                0x03f02384                _exit
+                0x03f02398                exit_on_usb
+ .text.prevtrack
+                0x03f023f0       0x28 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(playback_control.o)
+ .text.play     0x03f02418       0x8c /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(playback_control.o)
+ .text.stop     0x03f024a4       0xcc /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(playback_control.o)
+ .text.nexttrack
+                0x03f02570       0x28 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(playback_control.o)
+ .text.volume   0x03f02598       0x4c /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(playback_control.o)
+ .text.shuffle  0x03f025e4       0x54 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(playback_control.o)
+ .text.repeat_mode
+                0x03f02638       0x94 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(playback_control.o)
+ .text.playback_control
+                0x03f026cc       0x50 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(playback_control.o)
+                0x03f026cc                playback_control
+ .text          0x03f0271c       0x1c /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/libsetjmp.a(setjmp.o)
+                0x03f0271c                setjmp
+                0x03f02728                longjmp
+ *(.glue_7)
+ .glue_7        0x03f02738        0x0 linker stubs
+ *(.glue_7t)
+ .glue_7t       0x03f02738        0x0 linker stubs
+
+.vfp11_veneer   0x03f02738        0x0
+ .vfp11_veneer  0x03f02738        0x0 linker stubs
+
+.v4_bx          0x03f02738        0x0
+ .v4_bx         0x03f02738        0x0 linker stubs
+
+.iplt           0x03f02738        0x0
+ .iplt          0x03f02738        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/sokoban.o
+
+.rodata         0x03f02738      0xe5c
+ *(.rodata*)
+ .rodata.str1.1
+                0x03f02738      0x22e /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/sokoban.o
+                                0x228 (size before relaxing)
+ *fill*         0x03f02966        0x2 
+ .rodata        0x03f02968       0x80 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/sokoban.o
+ .rodata.volume.str1.1
+                0x03f029e8        0x7 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(playback_control.o)
+ .rodata.shuffle.str1.1
+                0x03f029e8        0x8 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(playback_control.o)
+ .rodata.repeat_mode.str1.1
+                0x03f029e8        0x7 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(playback_control.o)
+ .rodata.playback_control_menu
+                0x03f029e8        0xc /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(playback_control.o)
+                0x03f029e8                playback_control_menu
+ .rodata.playback_control_menu__
+                0x03f029f4        0xc /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(playback_control.o)
+ .rodata.repeat_mode_item
+                0x03f02a00        0xc /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(playback_control.o)
+                0x03f02a00                repeat_mode_item
+ .rodata.repeat_mode_item__
+                0x03f02a0c        0x4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(playback_control.o)
+ .rodata.repeat_mode_item_
+                0x03f02a10        0xc /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(playback_control.o)
+ .rodata.shuffle_item
+                0x03f02a1c        0xc /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(playback_control.o)
+                0x03f02a1c                shuffle_item
+ .rodata.shuffle_item__
+                0x03f02a28        0x4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(playback_control.o)
+ .rodata.shuffle_item_
+                0x03f02a2c        0xc /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(playback_control.o)
+ .rodata.volume_item
+                0x03f02a38        0xc /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(playback_control.o)
+                0x03f02a38                volume_item
+ .rodata.volume_item__
+                0x03f02a44        0x4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(playback_control.o)
+ .rodata.volume_item_
+                0x03f02a48        0xc /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(playback_control.o)
+ .rodata.nexttrack_item
+                0x03f02a54        0xc /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(playback_control.o)
+                0x03f02a54                nexttrack_item
+ .rodata.nexttrack_item__
+                0x03f02a60        0x4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(playback_control.o)
+ .rodata.nexttrack_item_
+                0x03f02a64        0xc /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(playback_control.o)
+ .rodata.stop_item
+                0x03f02a70        0xc /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(playback_control.o)
+                0x03f02a70                stop_item
+ .rodata.stop_item__
+                0x03f02a7c        0x4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(playback_control.o)
+ .rodata.stop_item_
+                0x03f02a80        0xc /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(playback_control.o)
+ .rodata.playpause_item
+                0x03f02a8c        0xc /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(playback_control.o)
+                0x03f02a8c                playpause_item
+ .rodata.playpause_item__
+                0x03f02a98        0x4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(playback_control.o)
+ .rodata.playpause_item_
+                0x03f02a9c        0xc /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(playback_control.o)
+ .rodata.prevtrack_item
+                0x03f02aa8        0xc /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(playback_control.o)
+                0x03f02aa8                prevtrack_item
+ .rodata.prevtrack_item__
+                0x03f02ab4        0x4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(playback_control.o)
+ .rodata.prevtrack_item_
+                0x03f02ab8        0xc /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(playback_control.o)
+ .rodata        0x03f02ac4      0xad0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/bitmaps/libpluginbitmaps.a(sokoban_tiles.14x14x16.o)
+                0x03f02ac4                bm_sokoban_tiles
+                0x03f02adc                sokoban_tiles
+
+.rel.dyn        0x03f03594        0x0
+ .rel.iplt      0x03f03594        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/sokoban.o
+
+.data           0x03f03594       0x3c
+ *(.data*)
+ .data          0x03f03594       0x1c /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/sokoban.o
+ .data          0x03f035b0        0x4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/plugin_crt0.o
+                0x03f035b0                rb
+ .data.playback_control_menu_
+                0x03f035b4       0x1c /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(playback_control.o)
+
+.igot.plt       0x03f035d0        0x0
+ .igot.plt      0x03f035d0        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/sokoban.o
+
+.ncdata         0x13f035d0        0x0 load address 0x03f035d0
+ *(.ncdata*)
+                0x13f035d0                        . = ALIGN (0x10)
+
+/DISCARD/
+ *(.eh_frame)
+
+.bss            0x03f035d0    0x3219c
+                0x03f035d0                        plugin_bss_start = .
+                0x03f035d0                        _plugin_bss_start = .
+ *(.bss*)
+ .bss           0x03f035d0    0x32138 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/sokoban.o
+ .bss           0x03f35708       0x60 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/plugin_crt0.o
+ .bss.parentvp  0x03f35768        0x4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(playback_control.o)
+                0x03f35768                parentvp
+ *(COMMON)
+                0x03f3576c                        . = ALIGN (0x4)
+
+.ncbss          0x13f35770        0x0 load address 0x03f35770
+ *(.ncbss*)
+                0x13f35770                        . = ALIGN (0x10)
+
+.ncbss_vma      0x03f35770        0x0
+                0x03f35770                        . = (. + SIZEOF (.ncbss))
+
+.pluginend      0x03f3576c        0x0
+                0x03f3576c                        _plugin_end_addr = .
+                0x03f3576c                        plugin_end_addr = .
+
+.iram           0x4000c000        0x0 load address 0x03f035d0
+                0x4000c000                        iramstart = .
+ *(.icode)
+ *(.irodata)
+ *(.idata)
+                0x4000c000                        iramend = .
+                0x03f035d0                        iramcopy = LOADADDR (.iram)
+
+.ibss           0x4000c000        0x0
+                0x4000c000                        iedata = .
+ *(.ibss)
+                0x4000c000                        . = ALIGN (0x4)
+                0x4000c000                        iend = .
+                0x03f3576c                        loadendaddr = MAX (plugin_end_addr, (LOADADDR (.iram) + SIZEOF (.iram)))
+
+.pluginloadend  0x03f3576c        0x0
+                0x03f3576c                        _plugin_load_end_addr = .
+                0x03f3576c                        plugin_load_end_addr = .
+
+.comment        0x00000000       0x1e
+ *(.comment)
+ .comment       0x00000000       0x1e /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/sokoban.o
+                                 0x1f (size before relaxing)
+ .comment       0x0000001e       0x1f /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/plugin_crt0.o
+ .comment       0x0000001e       0x1f /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(playback_control.o)
+ .comment       0x0000001e       0x1f /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/bitmaps/libpluginbitmaps.a(sokoban_tiles.14x14x16.o)
+                0x00000001                        ASSERT ((LOADADDR (.ncdata) == (ADDR (.ncdata) - 0x10000000)), .ncdata has incorrect LMA/VMA address)
+                0x00000001                        ASSERT (((LOADADDR (.ncdata) % 0x10) == 0x0), .ncdata incorrectly aligned)
+                0x00000001                        ASSERT ((LOADADDR (.ncbss) == (ADDR (.ncbss) - 0x10000000)), .ncbss has incorrect LMA/VMA address)
+                0x00000001                        ASSERT (((LOADADDR (.ncbss) % 0x10) == 0x0), .ncbss incorrectly aligned)
+                0x00000001                        ASSERT ((ADDR (.ncbss_vma) == LOADADDR (.ncbss)), .ncbss_vma has wrong address)
+                0x00000001                        ASSERT ((SIZEOF (.ncbss_vma) == SIZEOF (.ncbss)), .ncbss_vma has wrong size)
+OUTPUT(/home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/sokoban.elf elf32-littlearm)
+LOAD linker stubs
+
+.ARM.attributes
+                0x00000000       0x28
+ .ARM.attributes
+                0x00000000       0x2a /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/sokoban.o
+ .ARM.attributes
+                0x0000002a       0x2a /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/plugin_crt0.o
+ .ARM.attributes
+                0x00000054       0x2a /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a(playback_control.o)
+ .ARM.attributes
+                0x0000007e       0x2a /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/bitmaps/libpluginbitmaps.a(sokoban_tiles.14x14x16.o)
+ .ARM.attributes
+                0x000000a8       0x1a /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/libsetjmp.a(setjmp.o)

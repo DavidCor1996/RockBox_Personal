@@ -45,6 +45,7 @@
 #include "splash.h"
 #include "debug_menu.h"
 #include "version.h"
+extern const char rbversion[];
 #include "time.h"
 #include "wps.h"
 #include "skin_buffer.h"

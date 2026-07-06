@@ -1,0 +1,144 @@
+Archive member included to satisfy reference by file (symbol)
+
+/home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/libsetjmp.a(setjmp.o)
+                              /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/plugin_crt0.o (setjmp)
+
+Discarded input sections
+
+ .data          0x00000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/pocketcatch_simple.o
+ .bss           0x00000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/pocketcatch_simple.o
+ .data          0x00000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/libsetjmp.a(setjmp.o)
+ .bss           0x00000000        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/libsetjmp.a(setjmp.o)
+
+Memory Configuration
+
+Name             Origin             Length             Attributes
+PLUGIN_RAM       0x03f00000         0x00100000
+PLUGIN_IRAM      0x4000c000         0x00014000
+*default*        0x00000000         0xffffffff
+
+Linker script and memory map
+
+LOAD /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/pocketcatch_simple.o
+LOAD /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/plugin_crt0.o
+LOAD /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/libplugin.a
+LOAD /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/bitmaps/libpluginbitmaps.a
+LOAD /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/libsetjmp.a
+LOAD /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/libfixedpoint.a
+LOAD /usr/lib/gcc/arm-none-eabi/14.2.0/libgcc.a
+
+.header         0x03f00000       0x1c
+                0x03f00000                        _plugin_start_addr = .
+                0x03f00000                        plugin_start_addr = .
+ *(.header)
+ .header        0x03f00000       0x1c /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/plugin_crt0.o
+                0x03f00000                __header
+
+.text           0x03f0001c      0x350
+ *(.text*)
+ .text          0x03f0001c        0x8 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/pocketcatch_simple.o
+                0x03f0001c                plugin_start
+ .text          0x03f00024      0x32c /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/plugin_crt0.o
+                0x03f0003c                plugin__start
+                0x03f0029c                rb_atexit
+                0x03f002bc                exit
+                0x03f002e4                _exit
+                0x03f002f8                exit_on_usb
+ .text          0x03f00350       0x1c /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/libsetjmp.a(setjmp.o)
+                0x03f00350                setjmp
+                0x03f0035c                longjmp
+ *(.glue_7)
+ .glue_7        0x03f0036c        0x0 linker stubs
+ *(.glue_7t)
+ .glue_7t       0x03f0036c        0x0 linker stubs
+
+.vfp11_veneer   0x03f0036c        0x0
+ .vfp11_veneer  0x03f0036c        0x0 linker stubs
+
+.v4_bx          0x03f0036c        0x0
+ .v4_bx         0x03f0036c        0x0 linker stubs
+
+.iplt           0x03f0036c        0x0
+ .iplt          0x03f0036c        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/pocketcatch_simple.o
+
+.rel.dyn        0x03f0036c        0x0
+ .rel.iplt      0x03f0036c        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/pocketcatch_simple.o
+
+.rodata
+ *(.rodata*)
+
+.data           0x03f0036c        0x4
+ *(.data*)
+ .data          0x03f0036c        0x4 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/plugin_crt0.o
+                0x03f0036c                rb
+
+.igot.plt       0x03f00370        0x0
+ .igot.plt      0x03f00370        0x0 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/pocketcatch_simple.o
+
+.ncdata         0x13f00370        0x0 load address 0x03f00370
+ *(.ncdata*)
+                0x13f00370                        . = ALIGN (0x10)
+
+/DISCARD/
+ *(.eh_frame)
+
+.bss            0x03f00370       0x60
+                0x03f00370                        plugin_bss_start = .
+                0x03f00370                        _plugin_bss_start = .
+ *(.bss*)
+ .bss           0x03f00370       0x60 /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/plugin_crt0.o
+ *(COMMON)
+                0x03f003d0                        . = ALIGN (0x4)
+
+.ncbss          0x13f003d0        0x0 load address 0x03f003d0
+ *(.ncbss*)
+                0x13f003d0                        . = ALIGN (0x10)
+
+.ncbss_vma      0x03f003d0        0x0
+                0x03f003d0                        . = (. + SIZEOF (.ncbss))
+
+.pluginend      0x03f003d0        0x0
+                0x03f003d0                        _plugin_end_addr = .
+                0x03f003d0                        plugin_end_addr = .
+
+.iram           0x4000c000        0x0 load address 0x03f00370
+                0x4000c000                        iramstart = .
+ *(.icode)
+ *(.irodata)
+ *(.idata)
+                0x4000c000                        iramend = .
+                0x03f00370                        iramcopy = LOADADDR (.iram)
+
+.ibss           0x4000c000        0x0
+                0x4000c000                        iedata = .
+ *(.ibss)
+                0x4000c000                        . = ALIGN (0x4)
+                0x4000c000                        iend = .
+                0x03f003d0                        loadendaddr = MAX (plugin_end_addr, (LOADADDR (.iram) + SIZEOF (.iram)))
+
+.pluginloadend  0x03f003d0        0x0
+                0x03f003d0                        _plugin_load_end_addr = .
+                0x03f003d0                        plugin_load_end_addr = .
+
+.comment        0x00000000       0x1e
+ *(.comment)
+ .comment       0x00000000       0x1e /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/pocketcatch_simple.o
+                                 0x1f (size before relaxing)
+ .comment       0x0000001e       0x1f /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/plugin_crt0.o
+                0x00000001                        ASSERT ((LOADADDR (.ncdata) == (ADDR (.ncdata) - 0x10000000)), .ncdata has incorrect LMA/VMA address)
+                0x00000001                        ASSERT (((LOADADDR (.ncdata) % 0x10) == 0x0), .ncdata incorrectly aligned)
+                0x00000001                        ASSERT ((LOADADDR (.ncbss) == (ADDR (.ncbss) - 0x10000000)), .ncbss has incorrect LMA/VMA address)
+                0x00000001                        ASSERT (((LOADADDR (.ncbss) % 0x10) == 0x0), .ncbss incorrectly aligned)
+                0x00000001                        ASSERT ((ADDR (.ncbss_vma) == LOADADDR (.ncbss)), .ncbss_vma has wrong address)
+                0x00000001                        ASSERT ((SIZEOF (.ncbss_vma) == SIZEOF (.ncbss)), .ncbss_vma has wrong size)
+OUTPUT(/home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/pocketcatch_simple.elf elf32-littlearm)
+LOAD linker stubs
+
+.ARM.attributes
+                0x00000000       0x28
+ .ARM.attributes
+                0x00000000       0x2a /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/pocketcatch_simple.o
+ .ARM.attributes
+                0x0000002a       0x2a /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/apps/plugins/plugin_crt0.o
+ .ARM.attributes
+                0x00000054       0x1a /home/david/Documents/RockBox_Personal-master/build-hw-ipodvideo-5g/lib/libsetjmp.a(setjmp.o)

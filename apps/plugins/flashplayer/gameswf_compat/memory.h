@@ -1,6 +1,0 @@
-#ifndef FLASHPLAYER_GAMESWF_COMPAT_MEMORY_H
-#define FLASHPLAYER_GAMESWF_COMPAT_MEMORY_H
-
-#include <string.h>
-
-#endif

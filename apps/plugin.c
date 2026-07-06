@@ -39,6 +39,7 @@
 #include "option_select.h"
 #include "talk.h"
 #include "version.h"
+extern const char rbversion[];
 #include "storage.h"
 #include "pcmbuf.h"
 #include "errno.h"
