@@ -721,18 +721,18 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000    0x3c82b
+.debug_info     0x0000000000000000    0x3c966
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0x908b /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/imageviewer/gif/dgif_lib.o
- .debug_info    0x000000000000908b     0x8231 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/imageviewer/gif/gifalloc.o
- .debug_info    0x00000000000112bc     0x86a5 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/imageviewer/gif/gif_decoder.o
- .debug_info    0x0000000000019961     0x838a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/imageviewer/gif/gif.o
- .debug_info    0x0000000000021ceb       0xe5 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/imageviewer/gif/gif_err.o
- .debug_info    0x0000000000021dd0     0x1b6b /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/libtlsf.a(tlsf.o)
- .debug_info    0x000000000002393b     0x7740 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(gcc-support.o)
- .debug_info    0x000000000002b07b     0x86c4 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(pluginlib_resize.o)
- .debug_info    0x000000000003373f     0x8a64 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(pluginlib_bmp.o)
- .debug_info    0x000000000003c1a3      0x688 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(bmp_smooth_scale.o)
+ .debug_info    0x0000000000000000     0x90b8 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/imageviewer/gif/dgif_lib.o
+ .debug_info    0x00000000000090b8     0x825e /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/imageviewer/gif/gifalloc.o
+ .debug_info    0x0000000000011316     0x86d2 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/imageviewer/gif/gif_decoder.o
+ .debug_info    0x00000000000199e8     0x83b7 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/imageviewer/gif/gif.o
+ .debug_info    0x0000000000021d9f       0xe5 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/imageviewer/gif/gif_err.o
+ .debug_info    0x0000000000021e84     0x1b6b /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/libtlsf.a(tlsf.o)
+ .debug_info    0x00000000000239ef     0x776d /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(gcc-support.o)
+ .debug_info    0x000000000002b15c     0x86f1 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(pluginlib_resize.o)
+ .debug_info    0x000000000003384d     0x8a91 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(pluginlib_bmp.o)
+ .debug_info    0x000000000003c2de      0x688 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(bmp_smooth_scale.o)
 
 .debug_abbrev   0x0000000000000000     0x29a6
  *(.debug_abbrev)
@@ -763,27 +763,27 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0x5c42
+.debug_str      0x0000000000000000     0x5c7a
  *(.debug_str)
- .debug_str     0x0000000000000000     0x5c42 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/imageviewer/gif/dgif_lib.o
-                                       0x4e9b (size before relaxing)
- .debug_str     0x0000000000005c42        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/imageviewer/gif/gifalloc.o
-                                       0x4bda (size before relaxing)
- .debug_str     0x0000000000005c42        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/imageviewer/gif/gif_decoder.o
-                                       0x54cb (size before relaxing)
- .debug_str     0x0000000000005c42        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/imageviewer/gif/gif.o
-                                       0x53c9 (size before relaxing)
- .debug_str     0x0000000000005c42        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/imageviewer/gif/gif_err.o
+ .debug_str     0x0000000000000000     0x5c7a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/imageviewer/gif/dgif_lib.o
+                                       0x4ed3 (size before relaxing)
+ .debug_str     0x0000000000005c7a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/imageviewer/gif/gifalloc.o
+                                       0x4c12 (size before relaxing)
+ .debug_str     0x0000000000005c7a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/imageviewer/gif/gif_decoder.o
+                                       0x5503 (size before relaxing)
+ .debug_str     0x0000000000005c7a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/imageviewer/gif/gif.o
+                                       0x5401 (size before relaxing)
+ .debug_str     0x0000000000005c7a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/imageviewer/gif/gif_err.o
                                         0x18e (size before relaxing)
- .debug_str     0x0000000000005c42        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/libtlsf.a(tlsf.o)
+ .debug_str     0x0000000000005c7a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/libtlsf.a(tlsf.o)
                                         0x410 (size before relaxing)
- .debug_str     0x0000000000005c42        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(gcc-support.o)
-                                       0x4899 (size before relaxing)
- .debug_str     0x0000000000005c42        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(pluginlib_resize.o)
-                                       0x5258 (size before relaxing)
- .debug_str     0x0000000000005c42        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(pluginlib_bmp.o)
-                                       0x5373 (size before relaxing)
- .debug_str     0x0000000000005c42        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(bmp_smooth_scale.o)
+ .debug_str     0x0000000000005c7a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(gcc-support.o)
+                                       0x48d1 (size before relaxing)
+ .debug_str     0x0000000000005c7a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(pluginlib_resize.o)
+                                       0x5290 (size before relaxing)
+ .debug_str     0x0000000000005c7a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(pluginlib_bmp.o)
+                                       0x53ab (size before relaxing)
+ .debug_str     0x0000000000005c7a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(bmp_smooth_scale.o)
                                         0x22c (size before relaxing)
 
 .debug_loc
@@ -848,7 +848,7 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
                                         0x179 (size before relaxing)
 
 .debug_loclists
-                0x0000000000000000     0x7f2f
+                0x0000000000000000     0x7f38
  *(.debug_loclists)
  .debug_loclists
                 0x0000000000000000     0x1103 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/imageviewer/gif/dgif_lib.o
@@ -857,19 +857,19 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
  .debug_loclists
                 0x000000000000193f      0x5d8 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/imageviewer/gif/gif_decoder.o
  .debug_loclists
-                0x0000000000001f17      0x406 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/imageviewer/gif/gif.o
+                0x0000000000001f17      0x40f /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/imageviewer/gif/gif.o
  .debug_loclists
-                0x000000000000231d       0xf7 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/imageviewer/gif/gif_err.o
+                0x0000000000002326       0xf7 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/imageviewer/gif/gif_err.o
  .debug_loclists
-                0x0000000000002414      0xe93 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/libtlsf.a(tlsf.o)
+                0x000000000000241d      0xe93 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/libtlsf.a(tlsf.o)
  .debug_loclists
-                0x00000000000032a7      0x1ad /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(gcc-support.o)
+                0x00000000000032b0      0x1ad /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(gcc-support.o)
  .debug_loclists
-                0x0000000000003454     0x22d0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(pluginlib_resize.o)
+                0x000000000000345d     0x22d0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(pluginlib_resize.o)
  .debug_loclists
-                0x0000000000005724     0x103e /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(pluginlib_bmp.o)
+                0x000000000000572d     0x103e /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(pluginlib_bmp.o)
  .debug_loclists
-                0x0000000000006762     0x17cd /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(bmp_smooth_scale.o)
+                0x000000000000676b     0x17cd /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(bmp_smooth_scale.o)
 
 .debug_macro
  *(.debug_macro)

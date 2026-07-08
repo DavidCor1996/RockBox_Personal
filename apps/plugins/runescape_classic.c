@@ -18,6 +18,7 @@
 
 #define RSC_DATA_DIR PLUGIN_GAMES_DATA_DIR "/runescape_classic"
 #define RSC_MAP_RSC RSC_DATA_DIR "/lumbridge.rsc"
+#define RSC_MAP_RSC_ALT ROCKBOX_DIR "/ipodjs/runescape_classic/lumbridge.rsc"
 #define RSC_CHARACTER_BMP RSC_DATA_DIR "/character_male.bmp"
 #define RSC_CHARACTER_BMP_0 RSC_DATA_DIR "/character_male_0.bmp"
 #define RSC_CHARACTER_BMP_1 RSC_DATA_DIR "/character_male_1.bmp"
@@ -241,6 +242,62 @@ static bool read_file(const char *path, unsigned char *buffer, size_t buffer_siz
     return true;
 }
 
+static bool rsc_open_map_file(int *fd_out)
+{
+    int fd;
+
+    fd = rb->open(RSC_MAP_RSC, O_RDONLY);
+    if (fd < 0)
+        fd = rb->open(RSC_MAP_RSC_ALT, O_RDONLY);
+    if (fd < 0)
+        return false;
+
+    *fd_out = fd;
+    return true;
+}
+
+static size_t rsc_map_required_size_from_fd(int fd)
+{
+    unsigned char header[RSC_MAP_HEADER_BYTES];
+    int file_size;
+    int world_w;
+    int world_h;
+    unsigned int faces;
+    size_t required;
+
+    if (fd < 0)
+        return 0;
+
+    file_size = rb->filesize(fd);
+    if (file_size < RSC_MAP_HEADER_BYTES)
+        return 0;
+
+    if (rb->lseek(fd, 0, SEEK_SET) < 0)
+        return 0;
+    if (rb->read(fd, header, sizeof(header)) != (int)sizeof(header))
+        return 0;
+    if (header[0] != 'R' || header[1] != 'S' ||
+        header[2] != 'C' || header[3] != 'L')
+        return 0;
+    if (read_le16(header + 4) != RSC_MAP_VERSION)
+        return 0;
+
+    world_w = (int)read_le16(header + 6);
+    world_h = (int)read_le16(header + 8);
+    faces = read_le16(header + 14);
+    if (world_w <= 0 || world_h <= 0 ||
+        world_w > RSC_MAX_WORLD_SIZE || world_h > RSC_MAX_WORLD_SIZE)
+        return 0;
+
+    required = RSC_MAP_HEADER_BYTES +
+               (size_t)world_w * (size_t)world_h * RSC_MAP_RECORD_BYTES +
+               (size_t)faces * RSC_FACE_RECORD_BYTES;
+    if (required > (size_t)file_size)
+        return 0;
+
+    return required;
+}
+
 static bool is_walkable(int x, int y)
 {
     if (x < 0 || y < 0 || x >= world_w || y >= world_h)
@@ -303,90 +360,133 @@ static bool find_walkable_spawn(int start_x, int start_y,
 
 static bool rsc_load_map(void)
 {
-    size_t map_bytes;
+    unsigned char header[RSC_MAP_HEADER_BYTES];
+    unsigned char record[RSC_MAP_RECORD_BYTES];
     size_t required;
-    unsigned char *raw;
+    size_t face_bytes;
+    int fd;
+    int file_size;
     int world_size;
     int i;
 
-    plugin_buffer = rb->plugin_get_buffer(&plugin_buffer_size);
-    if (plugin_buffer == NULL || plugin_buffer_size == 0)
+    if (!rsc_open_map_file(&fd))
         return false;
 
-    if (!read_file(RSC_MAP_RSC, plugin_buffer, plugin_buffer_size, &map_bytes))
+    file_size = rb->filesize(fd);
+    if (file_size < RSC_MAP_HEADER_BYTES)
+    {
+        rb->close(fd);
         return false;
+    }
 
-    if (map_bytes < RSC_MAP_HEADER_BYTES)
+    if (rb->read(fd, header, sizeof(header)) != (int)sizeof(header))
+    {
+        rb->close(fd);
         return false;
+    }
 
-    raw = plugin_buffer;
-    if (raw[0] != 'R' || raw[1] != 'S' || raw[2] != 'C' || raw[3] != 'L')
+    if (header[0] != 'R' || header[1] != 'S' ||
+        header[2] != 'C' || header[3] != 'L')
+    {
+        rb->close(fd);
         return false;
+    }
 
-    if (read_le16(raw + 4) != RSC_MAP_VERSION)
+    if (read_le16(header + 4) != RSC_MAP_VERSION)
+    {
+        rb->close(fd);
         return false;
+    }
 
-    world_w = read_le16(raw + 6);
-    world_h = read_le16(raw + 8);
-    spawn_x = read_le16(raw + 10);
-    spawn_y = read_le16(raw + 12);
-    face_count = read_le16(raw + 14);
+    world_w = read_le16(header + 6);
+    world_h = read_le16(header + 8);
+    spawn_x = read_le16(header + 10);
+    spawn_y = read_le16(header + 12);
+    face_count = read_le16(header + 14);
 
     if (world_w <= 0 || world_h <= 0 ||
         world_w > RSC_MAX_WORLD_SIZE || world_h > RSC_MAX_WORLD_SIZE)
+    {
+        rb->close(fd);
         return false;
+    }
 
     required = RSC_MAP_HEADER_BYTES +
                (size_t)world_w * world_h * RSC_MAP_RECORD_BYTES +
                (size_t)face_count * RSC_FACE_RECORD_BYTES;
-    if (map_bytes < required)
+    if ((size_t)file_size < required)
+    {
+        rb->close(fd);
         return false;
-
-    face_data = raw + RSC_MAP_HEADER_BYTES +
-                (size_t)world_w * world_h * RSC_MAP_RECORD_BYTES;
+    }
 
     for (i = 0; i < world_w * world_h; i++)
     {
-        size_t src = RSC_MAP_HEADER_BYTES +
-                     (size_t)i * RSC_MAP_RECORD_BYTES;
-        map_tiles[i].colour = raw[src + 0];
-        map_tiles[i].height = raw[src + 1];
-        map_tiles[i].decoration = raw[src + 2];
-        map_tiles[i].flags = raw[src + 3];
-        map_tiles[i].wall_ns = raw[src + 4];
-        map_tiles[i].wall_ew = raw[src + 5];
-        map_tiles[i].wall_diag = raw[src + 6];
-        map_tiles[i].wall_id = raw[src + 7];
-        map_tiles[i].roof = raw[src + 8];
-        map_tiles[i].direction = raw[src + 9];
-        map_tiles[i].tile_type = raw[src + 10];
-        map_tiles[i].tile_blocking = raw[src + 11];
-        map_tiles[i].tile_r = raw[src + 12];
-        map_tiles[i].tile_g = raw[src + 13];
-        map_tiles[i].tile_b = raw[src + 14];
-        map_tiles[i].wall_ns_draw = raw[src + 15];
-        map_tiles[i].wall_ns_height = raw[src + 16];
-        map_tiles[i].wall_ns_r = raw[src + 17];
-        map_tiles[i].wall_ns_g = raw[src + 18];
-        map_tiles[i].wall_ns_b = raw[src + 19];
-        map_tiles[i].wall_ew_draw = raw[src + 20];
-        map_tiles[i].wall_ew_height = raw[src + 21];
-        map_tiles[i].wall_ew_r = raw[src + 22];
-        map_tiles[i].wall_ew_g = raw[src + 23];
-        map_tiles[i].wall_ew_b = raw[src + 24];
-        map_tiles[i].wall_diag_draw = raw[src + 25];
-        map_tiles[i].wall_diag_height = raw[src + 26];
-        map_tiles[i].wall_diag_r = raw[src + 27];
-        map_tiles[i].wall_diag_g = raw[src + 28];
-        map_tiles[i].wall_diag_b = raw[src + 29];
-        map_tiles[i].roof_height = raw[src + 30];
-        map_tiles[i].face_start = read_le16(raw + src + 31);
-        map_tiles[i].face_count = raw[src + 33];
+        if (rb->read(fd, record, sizeof(record)) != (int)sizeof(record))
+        {
+            rb->close(fd);
+            return false;
+        }
+
+        map_tiles[i].colour = record[0];
+        map_tiles[i].height = record[1];
+        map_tiles[i].decoration = record[2];
+        map_tiles[i].flags = record[3];
+        map_tiles[i].wall_ns = record[4];
+        map_tiles[i].wall_ew = record[5];
+        map_tiles[i].wall_diag = record[6];
+        map_tiles[i].wall_id = record[7];
+        map_tiles[i].roof = record[8];
+        map_tiles[i].direction = record[9];
+        map_tiles[i].tile_type = record[10];
+        map_tiles[i].tile_blocking = record[11];
+        map_tiles[i].tile_r = record[12];
+        map_tiles[i].tile_g = record[13];
+        map_tiles[i].tile_b = record[14];
+        map_tiles[i].wall_ns_draw = record[15];
+        map_tiles[i].wall_ns_height = record[16];
+        map_tiles[i].wall_ns_r = record[17];
+        map_tiles[i].wall_ns_g = record[18];
+        map_tiles[i].wall_ns_b = record[19];
+        map_tiles[i].wall_ew_draw = record[20];
+        map_tiles[i].wall_ew_height = record[21];
+        map_tiles[i].wall_ew_r = record[22];
+        map_tiles[i].wall_ew_g = record[23];
+        map_tiles[i].wall_ew_b = record[24];
+        map_tiles[i].wall_diag_draw = record[25];
+        map_tiles[i].wall_diag_height = record[26];
+        map_tiles[i].wall_diag_r = record[27];
+        map_tiles[i].wall_diag_g = record[28];
+        map_tiles[i].wall_diag_b = record[29];
+        map_tiles[i].roof_height = record[30];
+        map_tiles[i].face_start = read_le16(record + 31);
+        map_tiles[i].face_count = record[33];
         if (map_tiles[i].face_count &&
             (unsigned int)map_tiles[i].face_start +
             map_tiles[i].face_count > face_count)
+        {
+            rb->close(fd);
             return false;
+        }
     }
+
+    face_bytes = (size_t)face_count * RSC_FACE_RECORD_BYTES;
+    plugin_buffer = rb->plugin_get_buffer(&plugin_buffer_size);
+    if (plugin_buffer == NULL || plugin_buffer_size < face_bytes)
+    {
+        rb->close(fd);
+        return false;
+    }
+
+    if (face_bytes > 0 &&
+        rb->read(fd, plugin_buffer, face_bytes) != (int)face_bytes)
+    {
+        rb->close(fd);
+        return false;
+    }
+
+    rb->close(fd);
+    face_data = plugin_buffer;
 
     if (!is_walkable(spawn_x, spawn_y))
     {
@@ -1063,12 +1163,30 @@ static void handle_button(int button)
 enum plugin_status plugin_start(const void *parameter)
 {
     int button;
+    int map_fd;
+    size_t map_required;
     (void)parameter;
 
     rb->lcd_set_backdrop(NULL);
     rb->lcd_set_background(LCD_BLACK);
     rb->lcd_set_foreground(LCD_WHITE);
     backlight_ignore_timeout();
+
+    if (!rsc_open_map_file(&map_fd))
+    {
+        rb->splash(HZ * 3, "RuneScape map missing");
+        backlight_use_settings();
+        return PLUGIN_ERROR;
+    }
+
+    map_required = rsc_map_required_size_from_fd(map_fd);
+    rb->close(map_fd);
+    if (map_required == 0)
+    {
+        rb->splash(HZ * 3, "RuneScape map invalid");
+        backlight_use_settings();
+        return PLUGIN_ERROR;
+    }
 
     if (!rsc_load_map())
     {

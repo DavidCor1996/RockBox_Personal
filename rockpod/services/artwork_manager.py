@@ -253,6 +253,35 @@ class ArtworkManager(QObject):
             self.queue_online_lookup(video_info, priority="medium")
         return ""
 
+    def set_manual_video_poster(self, video_key, url_or_bytes):
+        """Manages manually assigning/downloading a poster for a video_key."""
+        meta = self._load_album_meta(video_key)
+        desktop_path = os.path.join(self._original_dir, f"{self._slug(video_key)}_manual.jpg")
+        try:
+            if isinstance(url_or_bytes, bytes):
+                data = url_or_bytes
+            else:
+                data, mime = self._lookup.download_image(url_or_bytes)
+            if data:
+                with open(desktop_path, "wb") as handle:
+                    handle.write(data)
+                resolution = self._image_resolution_from_bytes(data)
+                meta.update({
+                    "desktop_source_art_path": desktop_path,
+                    "desktop_source_type": "manual",
+                    "desktop_source_resolution": resolution,
+                    "source": "manual",
+                    "online_download_succeeded": True
+                })
+                self._save_album_meta(video_key, meta)
+                # Force render variants
+                self._render_video_variant(video_key, desktop_path, "thumb")
+                self._render_video_variant(video_key, desktop_path, "display")
+                return desktop_path
+        except Exception as e:
+            logger.error(f"Failed to set manual video poster: {str(e)}")
+        return ""
+
     def _video_variant_meta_is_stale(self, video_key):
         meta = self._load_album_meta(video_key)
         for key in ("desktop_thumb_path", "desktop_display_path"):
@@ -953,6 +982,21 @@ class ArtworkManager(QObject):
 
     def _get_best_local_video_artwork(self, video_info):
         best = None
+        # Check embedded artwork first (Apple/iTunes embedded artwork is extremely common in store-downloaded videos!)
+        for track in video_info.get("tracks") or []:
+            if self._get_value(track, "has_embedded_artwork", 0):
+                file_path = self._get_value(track, "file_path", "")
+                if file_path and os.path.isfile(file_path):
+                    try:
+                        data, mime = extract_artwork_data(file_path)
+                        if data:
+                            resolution = self._image_resolution_from_bytes(data)
+                            current = (data, file_path, "embedded", resolution)
+                            if best is None or self._resolution_area(resolution) > self._resolution_area(best[3]):
+                                best = current
+                    except Exception as e:
+                        logger.debug("Failed to extract embedded artwork from video %s: %s", file_path, e)
+
         for candidate in self._video_artwork_candidates(video_info):
             if not os.path.isfile(candidate):
                 continue

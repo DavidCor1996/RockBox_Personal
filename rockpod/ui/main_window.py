@@ -115,7 +115,7 @@ from ui.boot_manager import BootManagerWidget
 from ui.theme_hub import ThemeHubWidget
 from ui.theme_designer import ThemeDesignerWidget
 from ui.ipodjs_engine_designer import IPodJSEngineDesignerWidget
-from ui.video_library import VideoGridView, build_video_browser_groups
+from ui.video_library import VideoGridView, build_video_browser_groups, classify_video_track
 from ui.video_player import VideoPlayerWindow
 from ui.video_sync import VideoSyncPanel
 from ui.android_workflows import summarize_android_import
@@ -524,6 +524,7 @@ class MainWindow(QMainWindow):
         self._video_sync_panel.force_repair_requested.connect(self._force_repair_video_track_ids)
         self._video_sync_panel.remove_requested.connect(self._remove_video_track_ids_from_device)
         self._video_sync_panel.delete_requested.connect(self._delete_video_track_ids)
+        self._video_sync_panel.context_requested.connect(self._on_video_sync_context_menu)
 
         # Library browser views
         self._artist_view.track_double_clicked.connect(self._on_track_double_click)
@@ -1970,6 +1971,48 @@ class MainWindow(QMainWindow):
     def _on_video_context_menu(self, target, global_pos):
         self._show_track_context_menu(global_pos, context_target=target)
 
+    def _on_video_sync_context_menu(self, video, global_pos):
+        """Context menu for a single row in the Video Sync panel."""
+        if not video:
+            return
+        menu = QMenu(self)
+        video_target = self._video_artwork_target(video)
+        if video_target:
+            label = self._video_fetch_label(video_target)
+            menu.addAction(
+                "Match Video Metadata...",
+                lambda: self._match_video_metadata_for(video),
+            )
+            menu.addAction(
+                label,
+                lambda target=video_target: self._fetch_artwork_for_album(target, force=True),
+            )
+
+            tracks = video_target.get("tracks") or []
+            is_locked = bool(tracks[0].get("metadata_locked")) if tracks else False
+            lock_label = "Unlock Metadata" if is_locked else "Lock Metadata"
+            menu.addAction(lock_label, lambda: self._toggle_video_lock_for(video))
+
+            menu.addAction("Clear Video Match", lambda: self._clear_video_metadata_for(video))
+            menu.addAction(
+                "Inspect Poster",
+                lambda target=video_target: self._show_artwork_debug_for(target),
+            )
+            menu.addSeparator()
+
+        track_id = int(video.get("id") or 0)
+        if track_id:
+            menu.addAction("Sync This Video", lambda: self._sync_video_track_ids({track_id}))
+            if video.get("synced_to_device"):
+                menu.addAction(
+                    "Remove from iPod",
+                    lambda: self._remove_video_track_ids_from_device({track_id}),
+                )
+
+        if menu.isEmpty():
+            return
+        menu.exec(global_pos)
+
     def _show_track_context_menu(self, global_pos, context_target=None):
         menu = QMenu(self)
         menu.addAction("Get Info...", self._show_track_info)
@@ -1980,9 +2023,28 @@ class MainWindow(QMainWindow):
             if video_target:
                 label = self._video_fetch_label(video_target)
                 menu.addAction(
+                    "Match Video Metadata...",
+                    lambda target=context_target: self._match_video_metadata_for(target),
+                )
+                menu.addAction(
                     label,
                     lambda target=video_target: self._fetch_artwork_for_album(target, force=True),
                 )
+                
+                # Check locked state
+                tracks = video_target.get("tracks") or []
+                is_locked = bool(tracks[0].get("metadata_locked")) if tracks else False
+                lock_label = "Unlock Metadata" if is_locked else "Lock Metadata"
+                menu.addAction(
+                    lock_label,
+                    lambda target=context_target: self._toggle_video_lock_for(target)
+                )
+                
+                menu.addAction(
+                    "Clear Video Match",
+                    lambda target=context_target: self._clear_video_metadata_for(target)
+                )
+                
                 menu.addAction(
                     "Inspect Poster",
                     lambda target=video_target: self._show_artwork_debug_for(target),
@@ -2040,6 +2102,10 @@ class MainWindow(QMainWindow):
 
         if hasattr(target, "get") and target.get("tracks"):
             tracks = [normalize_track_for_ui(track) for track in (target.get("tracks") or [])]
+        elif hasattr(target, "get") and (target.get("id") or target.get("file_path")):
+            # A single track dict handed directly to us (e.g. from the Video
+            # Sync panel's context menu, which operates on one row at a time).
+            tracks = [normalize_track_for_ui(target)]
         else:
             tracks = [normalize_track_for_ui(track) for track in self._video_view.get_selected_tracks()]
 
@@ -2050,8 +2116,11 @@ class MainWindow(QMainWindow):
         video_kind = str(first.get("video_kind") or "")
         if video_kind == "show" and first.get("show_title"):
             show_title = str(first.get("show_title") or "").strip() or "Unknown Show"
+            all_video_tracks = normalize_tracks_for_ui(
+                self._db.get_tracks_by_media_type("video")
+            )
             show_tracks = [
-                track for track in normalize_tracks_for_ui(self._video_view.current_tracks())
+                track for track in all_video_tracks
                 if str(track.get("show_title") or "").strip() == show_title
             ] or tracks
             return {
@@ -2064,7 +2133,7 @@ class MainWindow(QMainWindow):
                 "video_scope": "show",
             }
 
-        if video_kind not in {"movie", "home_video"}:
+        if video_kind not in {"movie", "home_video", "music_video"}:
             return {}
 
         title = str(first.get("title") or first.get("album") or "Untitled Video").strip()
@@ -2086,6 +2155,124 @@ class MainWindow(QMainWindow):
         if video_kind == "movie":
             return "Fetch Poster for This Movie"
         return "Fetch Poster for This Video"
+
+    def _match_video_metadata_for(self, target):
+        video_target = self._video_artwork_target(target)
+        if not video_target:
+            return
+        tracks = video_target.get("tracks") or []
+        if not tracks:
+            return
+        track = tracks[0]
+        is_group_match = len(tracks) > 1
+
+        from ui.dialogs.video_metadata_lookup import VideoMetadataLookupDialog
+        from services.online_video_metadata import VideoMetadataService
+
+        service = VideoMetadataService(config=self._config)
+        dialog = VideoMetadataLookupDialog(
+            track, service, self._artwork, self, is_group_match=is_group_match
+        )
+
+        def on_matched(metadata, artwork_url):
+            skipped_locked = 0
+            with self._db.transaction():
+                for t in tracks:
+                    track_id = t.get("id")
+                    if not track_id:
+                        continue
+                    if t.get("metadata_locked"):
+                        skipped_locked += 1
+                        continue
+
+                    updates = {
+                        "metadata_source": "online",
+                        "metadata_confidence": 1.0,
+                        "imdb_id": metadata.get("imdb_id") or "",
+                        "tmdb_id": metadata.get("tmdb_id") or "",
+                        "genre": metadata.get("genre") or t.get("genre") or "",
+                        "year": metadata.get("year") or t.get("year") or None,
+                    }
+
+                    if is_group_match:
+                        # Bulk show-level match: share identity/genre/year across
+                        # every episode, but never clobber each episode's own
+                        # title, season, episode number, or per-episode plot.
+                        pass
+                    else:
+                        updates["plot_short"] = metadata.get("plot_short") or ""
+                        updates["plot_long"] = metadata.get("plot_long") or ""
+                        if metadata.get("media_type") in ("tv_episode", "movie"):
+                            updates["title"] = (
+                                metadata.get("episode_title")
+                                or metadata.get("title")
+                                or t.get("title")
+                            )
+
+                    self._db.update_track_metadata(track_id, updates)
+
+            if artwork_url:
+                group_key = video_target.get("group_key") or track.get("video_group_key") or track.get("file_path")
+                if group_key:
+                    self._artwork.set_manual_video_poster(group_key, artwork_url)
+
+            self._refresh_view()
+            if self._current_view == "library_video_sync":
+                self._refresh_video_sync_panel()
+
+            status = f"Successfully matched video metadata for {metadata.get('title')}"
+            if skipped_locked:
+                status += f" ({skipped_locked} locked track{'s' if skipped_locked != 1 else ''} skipped)"
+            self._status_bar.set_left_text(status)
+
+        dialog.metadata_matched.connect(on_matched)
+        dialog.exec()
+
+    def _clear_video_metadata_for(self, target):
+        video_target = self._video_artwork_target(target)
+        if not video_target:
+            return
+        tracks = video_target.get("tracks") or []
+        if not tracks:
+            return
+        with self._db.transaction():
+            for t in tracks:
+                track_id = t.get("id")
+                if not track_id:
+                    continue
+                updates = {
+                    "imdb_id": "",
+                    "tmdb_id": "",
+                    "metadata_source": "filename",
+                    "metadata_confidence": 0.0,
+                    "plot_short": "",
+                    "plot_long": "",
+                }
+                self._db.update_track_metadata(track_id, updates)
+        self._refresh_view()
+        if self._current_view == "library_video_sync":
+            self._refresh_video_sync_panel()
+        self._status_bar.set_left_text("Cleared matched video metadata")
+
+    def _toggle_video_lock_for(self, target):
+        video_target = self._video_artwork_target(target)
+        if not video_target:
+            return
+        tracks = video_target.get("tracks") or []
+        if not tracks:
+            return
+        first = tracks[0]
+        new_locked = 0 if first.get("metadata_locked") else 1
+        with self._db.transaction():
+            for t in tracks:
+                track_id = t.get("id")
+                if not track_id:
+                    continue
+                self._db.update_track_metadata(track_id, {"metadata_locked": new_locked})
+        self._refresh_view()
+        if self._current_view == "library_video_sync":
+            self._refresh_video_sync_panel()
+        self._status_bar.set_left_text("Metadata locked" if new_locked else "Metadata unlocked")
 
     def _on_album_context_menu(self, album, global_pos):
         if not album:
@@ -3255,25 +3442,38 @@ class MainWindow(QMainWindow):
             )
 
     def _video_sync_candidates(self, rows):
-        video_roots = [
+        video_roots = {
             os.path.abspath(os.path.expanduser(path))
             for path in (getattr(self._config, "video_dirs", None) or [self._config.video_dir])
             if path
-        ]
-        youtube_roots = [os.path.join(root, "YouTube") for root in video_roots]
+        }
+        youtube_roots = [os.path.join(root, "YouTube") for root in sorted(video_roots)]
         candidates = []
         for row in normalize_tracks_for_ui(rows):
-            item = dict(row)
+            item = normalize_track_for_ui(row)
             file_path = os.path.abspath(os.path.expanduser(str(item.get("file_path") or "")))
-            if not file_path.lower().endswith(".mpg"):
-                continue
-            if not any(self._path_is_relative_to(file_path, root) for root in youtube_roots):
-                continue
+            in_youtube = any(self._path_is_relative_to(file_path, root) for root in youtube_roots)
+            classification = classify_video_track(item)
+            kind = str(classification.get("kind") or "movie")
             title = str(item.get("title") or "").strip().casefold()
             if title in {"", "youtube", "mpeg video", "youtube mpeg video"}:
                 item["title"] = os.path.splitext(os.path.basename(file_path))[0]
-            item["video_sync_label"] = "Downloaded"
-            item["video_sync_category"] = "Downloaded"
+
+            item["video_kind"] = kind
+            item["video_group_key"] = classification.get("group_key") or item.get("video_group_key") or file_path
+            if kind == "show" and not str(item.get("show_title") or "").strip():
+                item["show_title"] = str(classification.get("label") or "").strip()
+
+            if in_youtube:
+                item["video_sync_label"] = "Downloaded"
+                item["video_sync_category"] = "Downloaded"
+            else:
+                item["video_sync_label"] = {
+                    "show": "TV Shows",
+                    "home_video": "Home Videos",
+                    "movie": "Movies",
+                }.get(kind, "Videos")
+                item["video_sync_category"] = item["video_sync_label"]
             candidates.append(item)
         return candidates
 

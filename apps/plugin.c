@@ -890,6 +890,8 @@ static const struct plugin_api rockbox_api = {
 #if defined(HAVE_ALBUMART) && defined(HAVE_LCD_COLOR)
     dynamic_colors_resolve,
 #endif
+    haptic_feedback_enabled,
+    haptic_feedback,
 };
 
 static int plugin_buffer_handle;

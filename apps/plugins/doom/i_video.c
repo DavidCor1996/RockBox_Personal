@@ -1016,6 +1016,12 @@ static inline void getkey()
    event_t event;
    /* Same button handling as rockboy */
    static unsigned int oldbuttonstate IDATA_ATTR = 0;
+#if (CONFIG_KEYPAD == IPOD_4G_PAD) || (CONFIG_KEYPAD == IPOD_3G_PAD) || \
+    (CONFIG_KEYPAD == IPOD_1G2G_PAD)
+   static int right_press_time IDATA_ATTR = 0;
+   static bool right_tap_pending IDATA_ATTR = false;
+#define IPOD_RIGHT_TAP_USE_TICS 4
+#endif
 
    unsigned int released, pressed, newbuttonstate;
 
@@ -1053,6 +1059,7 @@ static inline void getkey()
    {
       ipod_handle_menu_controls();
       oldbuttonstate = 0;
+      right_tap_pending = false;
       return;
    }
 #endif
@@ -1148,6 +1155,20 @@ static inline void getkey()
       {
          event.data1=KEY_RIGHTARROW;
          D_PostEvent(&event);
+#if (CONFIG_KEYPAD == IPOD_4G_PAD) || (CONFIG_KEYPAD == IPOD_3G_PAD) || \
+    (CONFIG_KEYPAD == IPOD_1G2G_PAD)
+         if (right_tap_pending &&
+             I_GetTime() - right_press_time <= IPOD_RIGHT_TAP_USE_TICS)
+         {
+            event.type = ev_keydown;
+            event.data1=' ';
+            D_PostEvent(&event);
+            event.type = ev_keyup;
+            D_PostEvent(&event);
+            event.type = ev_keyup;
+         }
+         right_tap_pending = false;
+#endif
       }
 #ifdef DOOMBUTTON_DOWN
       if(released & DOOMBUTTON_DOWN)
@@ -1210,6 +1231,11 @@ static inline void getkey()
       {
          event.data1=KEY_RIGHTARROW;
          D_PostEvent(&event);
+#if (CONFIG_KEYPAD == IPOD_4G_PAD) || (CONFIG_KEYPAD == IPOD_3G_PAD) || \
+    (CONFIG_KEYPAD == IPOD_1G2G_PAD)
+         right_press_time = I_GetTime();
+         right_tap_pending = true;
+#endif
       }
 #ifdef DOOMBUTTON_DOWN
       if(pressed & DOOMBUTTON_DOWN)

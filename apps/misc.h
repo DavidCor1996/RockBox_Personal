@@ -242,6 +242,9 @@ void keyclick_set_callback(keyclick_callback cb, void* data);
 /* Produce keyclick based upon button and global settings */
 void keyclick_click(bool rawbutton, int action);
 
+bool haptic_feedback_enabled(void);
+void haptic_feedback(int duration_ms, int strength);
+
 /* Return current ReplayGain mode a file should have (REPLAYGAIN_TRACK or
  * REPLAYGAIN_ALBUM) if ReplayGain processing is enabled, or -1 if no
  * information present.

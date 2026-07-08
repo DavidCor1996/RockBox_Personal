@@ -1460,6 +1460,55 @@ class TestSyncEnginePlan:
         assert resync_row["sync_output_ext"] == ".rvp"
         assert plan.to_resync[0][1] == rel_path
 
+    def test_plan_resync_video_when_show_metadata_changes(self, env):
+        src = _make_source_file(env, "Show Artist", "Season 1", "Episode One", ext=".mp4", size=2048)
+        local = _insert_track(
+            env["db"],
+            "Episode One",
+            "Show Artist",
+            "Season 1",
+            file_path=src,
+            media_type="video",
+            video_kind="show",
+            show_title="Old Show",
+            season_number=1,
+            episode_number=1,
+            synced_to_device=1,
+            last_synced_metadata_hash="legacy_video_meta",
+            metadata_hash="legacy_video_meta",
+        )
+        env["db"].update_track_metadata(
+            local["id"],
+            {"show_title": "New Show Title"},
+        )
+        env["db"].commit()
+
+        updated = env["db"].get_track_by_id(local["id"])
+        assert updated["metadata_hash"] != "legacy_video_meta"
+
+        engine = self._make_engine(env)
+        device_key = engine.set_current_device(engine._device_detector.current_device)
+        rel_path = os.path.join("Videos", "TV Shows", "New Show Title", "Season 01", "S01E01 - Episode One.mp4")
+        _insert_device_track(
+            env["db"],
+            "Episode One",
+            "Show Artist",
+            "Season 1",
+            rel_path,
+            device_id=device_key,
+            metadata_hash="legacy_video_meta",
+            local_track_id=updated["id"],
+            file_hash=updated["file_hash"],
+        )
+
+        plan = engine.build_sync_plan(media_type="video")
+
+        assert len(plan.to_resync) == 1
+        resync_row, old_rel, new_rel = plan.to_resync[0]
+        assert dict(resync_row)["id"] == updated["id"]
+        assert old_rel == rel_path
+        assert new_rel == rel_path
+
     def test_plan_reason_counts_include_update_breakdown(self, env, monkeypatch):
         src = _make_source_file(env, "Art", "Alb", "Changed", ext=".flac")
         local = _insert_track(

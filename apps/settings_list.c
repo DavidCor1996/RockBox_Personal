@@ -2280,6 +2280,8 @@ const struct settings_list settings[] = {
                   "keyclick repeats", NULL),
     OFFON_SETTING(0, keyclick_hardware, LANG_KEYCLICK_HARDWARE, false,
         "hardware keyclick", NULL),
+    OFFON_SETTING(0, haptics_enabled, -1, true,
+        "haptics enabled", NULL),
 #else
     CHOICE_SETTING(0, keyclick, LANG_KEYCLICK, 0,
                    "keyclick", "off,weak,moderate,strong", NULL, 4,

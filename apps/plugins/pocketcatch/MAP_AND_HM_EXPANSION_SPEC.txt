@@ -1,0 +1,57 @@
+PocketCatch Red Map + Travel HM Expansion
+
+Goal
+----
+Extend the world toward a true Pokemon Red Kanto route order while keeping the
+iPod plugin small and save-compatible.
+
+Implemented in this pass
+------------------------
+- Adds the post-Cerulean corridor:
+  - Route 5
+  - Underground Path north entrance
+  - Underground Path tunnel
+  - Underground Path south entrance
+  - Route 6
+  - Vermilion City
+  - Vermilion Pokecenter and Mart interiors
+- Adds Route 5, Underground Path, Route 6, and Vermilion PokeStops.
+- Adds Route 5 and Route 6 spawn pools based on the real Red-era route feel:
+  Pidgey, Rattata, Oddish/Bellsprout-era grass species, Caterpie/Weedle, Pikachu,
+  and Abra as a rare encounter.
+- Expands field abilities from Surf/Cut to the Gen I travel HM set:
+  HM01 Cut, HM02 Fly, HM03 Surf, HM04 Strength, HM05 Flash.
+- Encodes compatible Pokemon by species id using real HM learnability as the
+  source of truth. Species not currently present in the asset pack can still be
+  listed safely for future asset expansion.
+- Updates the mart and Field Moves UI so all five HMs can be purchased and
+  assigned.
+- Bumps the save format to version 17 and migrates version 16 saves without
+  corrupting existing Surf/Cut assignments or PokeStop cooldowns.
+
+Map fidelity note
+-----------------
+The repository already contains Red-style block maps through the first Kanto arc
+ending around Bill/Cerulean. Exact local block dumps for Route 5, Route 6,
+Vermilion, and the Underground Path are not present. This pass uses hand-authored
+Red overworld/gate blocks with canonical Kanto connections and building roles.
+A later exactness pass should import the original Red map block data before
+claiming byte-accurate full Kanto layouts.
+
+Travel ability behavior
+-----------------------
+- Surf remains the active map ability for water travel gates.
+- Cut remains the active map ability for shrub clearing.
+- Fly, Strength, and Flash are now purchaseable/assignable and data-complete for
+  compatible partners. Their dedicated map interactions should be added when the
+  next route/cave content introduces fly destinations, boulder puzzles, and dark
+  caves.
+
+Validation plan
+---------------
+- Build the iPod Video/5G simulator plugin.
+- Launch the 5G simulator.
+- Smoke-test direct loads into Route 5, Underground Path, Route 6, Vermilion,
+  and the Vermilion service interiors.
+- Confirm the mart shows all five HMs without text overlap.
+- Confirm an existing version 16 save can load and save forward to version 17.

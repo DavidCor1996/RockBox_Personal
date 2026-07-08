@@ -27,33 +27,60 @@ if [ ! -d "$target_root" ]; then
     exit 1
 fi
 
-plugin_src="$repo_root/build-sim-ipod6g/apps/plugins/runescape_classic/runescape_classic.rock"
+sim_build_dir="$repo_root/build-sim-ipod6g"
+sim_disk="$sim_build_dir/simdisk"
+sim_target=0
+
+if [ "${sim_disk%/}" = "${target_root%/}" ]; then
+    sim_target=1
+else
+    if [ -d "$sim_disk" ] && [ -d "$target_root/.rockbox" ]; then
+        sim_root_abs=$(CDPATH= cd -- "$sim_disk" && pwd -P)
+        target_root_abs=$(CDPATH= cd -- "$target_root" && pwd -P)
+        if [ "$target_root_abs" = "$sim_root_abs" ]; then
+            sim_target=1
+        fi
+    fi
+fi
+
+plugin_src=""
+if [ "$sim_target" -eq 1 ]; then
+    for candidate in \
+        "$repo_root/build-sim-ipod6g/apps/plugins/runescape_classic/runescape_classic.rock" \
+        "$repo_root/build-sim-ipod6g/apps/plugins/runescape_classic.rock" \
+        "$repo_root/build-hw-ipod6g/apps/plugins/runescape_classic/runescape_classic.rock" \
+        "$repo_root/build-hw-ipod6g/apps/plugins/runescape_classic.rock"
+    do
+        if [ -f "$candidate" ]; then
+            plugin_src="$candidate"
+            break
+        fi
+    done
+else
+    for candidate in \
+        "$repo_root/build-hw-ipod6g/apps/plugins/runescape_classic/runescape_classic.rock" \
+        "$repo_root/build-hw-ipod6g/apps/plugins/runescape_classic.rock" \
+        "$repo_root/build-sim-ipod6g/apps/plugins/runescape_classic/runescape_classic.rock" \
+        "$repo_root/build-sim-ipod6g/apps/plugins/runescape_classic.rock"
+    do
+        if [ -f "$candidate" ]; then
+            plugin_src="$candidate"
+            break
+        fi
+    done
+fi
+
 plugin_dst="$target_root/.rockbox/rocks/games/runescape_classic.rock"
-if [ -f "$plugin_src" ]; then
+if [ -n "$plugin_src" ] && [ -f "$plugin_src" ]; then
     cp -p "$plugin_src" "$plugin_dst"
 else
-    echo "Runescape Classic plugin binary not found: $plugin_src" >&2
-    echo "Build the plugin first with: cd build-sim-ipod6g && make -j4" >&2
+    echo "Runescape Classic plugin binary not found in expected build outputs." >&2
+    echo "Build one of: build-hw-ipod6g or build-sim-ipod6g" >&2
     echo "Missing plugin may keep it out of the Games menu." >&2
     exit 1
 fi
 
 refresh_sim_rockboy_launcher() {
-    sim_build_dir="$repo_root/build-sim-ipod6g"
-    sim_disk="$sim_build_dir/simdisk"
-    sim_target=0
-    if [ "${sim_disk%/}" = "${target_root%/}" ]; then
-        sim_target=1
-    else
-        if [ -d "$sim_disk" ] && [ -d "$target_root/.rockbox" ]; then
-            sim_root_abs=$(CDPATH= cd -- "$sim_disk" && pwd -P)
-            target_root_abs=$(CDPATH= cd -- "$target_root" && pwd -P)
-            if [ "$target_root_abs" = "$sim_root_abs" ]; then
-                sim_target=1
-            fi
-        fi
-    fi
-
     [ "$sim_target" -ne 1 ] && return
 
     # On simulator builds, keep the launcher binary in sync with source changes

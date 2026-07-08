@@ -1273,6 +1273,48 @@ void keyclick_click(bool rawbutton, int action)
     }
 }
 
+bool haptic_feedback_enabled(void)
+{
+#ifdef HAVE_HARDWARE_CLICK
+    return global_settings.haptics_enabled;
+#else
+    return false;
+#endif
+}
+
+void haptic_feedback(int duration_ms, int strength)
+{
+#ifdef HAVE_HARDWARE_CLICK
+    static long last_tick;
+    long min_gap;
+
+    if (!haptic_feedback_enabled())
+        return;
+
+    if (duration_ms <= 0 || strength <= 0)
+        return;
+
+    duration_ms = MIN(200, MAX(5, duration_ms));
+    strength = MIN(100, MAX(1, strength));
+
+    min_gap = (HZ * 35) / 1000;
+    if (min_gap <= 0)
+        min_gap = 1;
+
+    if (last_tick != 0 && TIME_BEFORE(current_tick, last_tick + min_gap))
+        return;
+
+    last_tick = current_tick;
+
+#if !defined(SIMULATOR)
+    piezo_button_beep(duration_ms >= 70 || strength >= 65, false);
+#endif
+#else
+    (void)duration_ms;
+    (void)strength;
+#endif
+}
+
 /* Return the ReplayGain mode adjusted by other relevant settings */
 static int replaygain_setting_mode(int type)
 {

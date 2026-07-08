@@ -41,6 +41,7 @@
 #include "sounds.h"
 #include "d_event.h"
 #include "rockmacros.h"
+#include "rb_haptics.h"
 #define LOWERSPEED   (FRACUNIT*6)
 #define RAISESPEED   (FRACUNIT*6)
 #define WEAPONBOTTOM (FRACUNIT*128)
@@ -505,6 +506,7 @@ void A_Punch(player_t *player, pspdef_t *psp)
       return;
 
    S_StartSound(player->mo, sfx_punch);
+   rb_haptics_weapon_fire(62);
 
    // turn to face target
 
@@ -537,10 +539,12 @@ void A_Saw(player_t *player, pspdef_t *psp)
    if (!linetarget)
    {
       S_StartSound(player->mo, sfx_sawful);
+      rb_haptics_weapon_fire(36);
       return;
    }
 
    S_StartSound(player->mo, sfx_sawhit);
+   rb_haptics_weapon_fire(70);
 
    // turn to face target
    angle = R_PointToAngle2(player->mo->x, player->mo->y,
@@ -570,6 +574,7 @@ void A_FireMissile(player_t *player, pspdef_t *psp)
    (void)psp;
    player->ammo[weaponinfo[player->readyweapon].ammo]--;
    P_SpawnPlayerMissile(player->mo, MT_ROCKET);
+   rb_haptics_weapon_fire(92);
 }
 
 //
@@ -581,6 +586,7 @@ void A_FireBFG(player_t *player, pspdef_t *psp)
    (void)psp;
    player->ammo[weaponinfo[player->readyweapon].ammo] -= BFGCELLS;
    P_SpawnPlayerMissile(player->mo, MT_BFG);
+   rb_haptics_weapon_fire(100);
 }
 
 /*
@@ -610,6 +616,7 @@ void A_FirePlasma(player_t *player, pspdef_t *psp)
 
    A_FireSomething(player,P_Random(pr_plasma)&1);              // phares
    P_SpawnPlayerMissile(player->mo, MT_PLASMA);
+   rb_haptics_weapon_fire(58);
 }
 
 //
@@ -671,6 +678,7 @@ void A_FirePistol(player_t *player, pspdef_t *psp)
    A_FireSomething(player,0);                                      // phares
    P_BulletSlope(player->mo);
    P_GunShot(player->mo, !player->refire);
+   rb_haptics_weapon_fire(44);
 }
 
 //
@@ -693,6 +701,7 @@ void A_FireShotgun(player_t *player, pspdef_t *psp)
 
    for (i=0; i<7; i++)
       P_GunShot(player->mo, false);
+   rb_haptics_weapon_fire(74);
 }
 
 //
@@ -723,6 +732,7 @@ void A_FireShotgun2(player_t *player, pspdef_t *psp)
       P_LineAttack(player->mo, angle, MISSILERANGE, bulletslope +
                    ((t - P_Random(pr_shotgun))<<5), damage);
    }
+   rb_haptics_weapon_fire(88);
 }
 
 //
@@ -745,6 +755,7 @@ void A_FireCGun(player_t *player, pspdef_t *psp)
    P_BulletSlope(player->mo);
 
    P_GunShot(player->mo, !player->refire);
+   rb_haptics_weapon_fire(50);
 }
 
 void A_Light0(player_t *player, pspdef_t *psp)

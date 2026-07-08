@@ -46,6 +46,7 @@
 #include "string-extra.h"
 #include "timefuncs.h"
 #include "misc.h"
+#include "root_menu.h"
 #ifdef HAVE_TOUCHSCREEN
 #include "sound.h"
 #endif
@@ -78,6 +79,38 @@ static bool sb_ipone_slideshow_was_active[NB_SCREENS] = {false};
 static int sb_ipone_video_cache_handle = -1;
 static char sb_ipone_video_cached_path[MAX_PATH];
 static int sb_ipone_video_cached_frame = -1;
+static int sb_ipone_video_fd = -1;
+static unsigned sb_ipone_video_frame_count;
+static char sb_ipone_video_stream_path[MAX_PATH];
+static long sb_ipone_video_missing_retry_until;
+static char sb_ipone_video_missing_path[MAX_PATH];
+static long sb_ipone_video_idle_free_tick;
+
+static bool sb_ipone_right_pane_hold_settled(void)
+{
+#ifdef HAS_BUTTON_HOLD
+    static bool initialized;
+    static bool last_hold;
+    static long unblock_tick;
+    bool hold = button_hold();
+
+    if (!initialized)
+    {
+        initialized = true;
+        last_hold = hold;
+    }
+    else if (hold != last_hold)
+    {
+        last_hold = hold;
+        unblock_tick = current_tick + HZ / 5;
+    }
+
+    if (TIME_BEFORE(current_tick, unblock_tick))
+        return false;
+#endif
+
+    return true;
+}
 
 static bool sb_ipone_right_pane_can_draw(void)
 {
@@ -109,7 +142,8 @@ static bool sb_ipone_right_pane_slideshow_eligible(enum screen_type screen)
     if (screen != SCREEN_MAIN ||
         global_settings.ipone_right_pane != 1 ||
         !sb_ipone_right_pane_theme_compatible() ||
-        !sb_ipone_right_pane_can_draw())
+        !sb_ipone_right_pane_can_draw() ||
+        !sb_ipone_right_pane_hold_settled())
     {
         return false;
     }
@@ -119,12 +153,22 @@ static bool sb_ipone_right_pane_slideshow_eligible(enum screen_type screen)
 
 static bool sb_ipone_right_pane_video_eligible(enum screen_type screen)
 {
+    int status = audio_status();
+
+    if (root_menu_videos_browser_active())
+        return false;
+
     if (screen != SCREEN_MAIN ||
         global_settings.ipone_right_pane != 0 ||
-        !sb_ipone_right_pane_theme_compatible())
+        !sb_ipone_right_pane_theme_compatible() ||
+        !sb_ipone_right_pane_can_draw() ||
+        !sb_ipone_right_pane_hold_settled())
     {
         return false;
     }
+
+    if (!(status & AUDIO_STATUS_PLAY) || (status & AUDIO_STATUS_PAUSE))
+        return false;
 
 #ifdef HAS_BUTTON_HOLD
     if (button_hold())
@@ -172,6 +216,34 @@ static fb_data *sb_ipone_video_cache_data(void)
     return core_get_data(sb_ipone_video_cache_handle);
 }
 
+static void sb_ipone_video_close_stream(void)
+{
+    if (sb_ipone_video_fd >= 0)
+    {
+        close(sb_ipone_video_fd);
+        sb_ipone_video_fd = -1;
+    }
+
+    sb_ipone_video_frame_count = 0;
+    sb_ipone_video_stream_path[0] = '\0';
+    sb_ipone_video_cached_path[0] = '\0';
+    sb_ipone_video_cached_frame = -1;
+}
+
+static void sb_ipone_video_release_cache(void)
+{
+    sb_ipone_video_close_stream();
+
+    if (sb_ipone_video_cache_handle > 0)
+    {
+        if (sb_ipone_video_idle_free_tick == 0)
+            sb_ipone_video_idle_free_tick = current_tick + HZ * 30;
+
+        if (TIME_AFTER(current_tick, sb_ipone_video_idle_free_tick))
+            sb_ipone_video_cache_handle = core_free(sb_ipone_video_cache_handle);
+    }
+}
+
 static bool sb_ipone_video_path(char *path, size_t path_size)
 {
     char name[MAX_PATH];
@@ -200,34 +272,68 @@ static bool sb_ipone_video_load_frame(const char *path, int frame)
     unsigned char header[IPONE_RIGHT_PANE_VIDEO_HEADER_SIZE];
     size_t frame_bytes = IPONE_RIGHT_PANE_VIDEO_PIXELS * sizeof(fb_data);
     fb_data *cache = sb_ipone_video_cache_data();
-    int fd = open(path, O_RDONLY);
     bool ok;
 
     if (!cache)
         return false;
 
-    if (fd < 0)
-        return false;
-
-    ok = sb_ipone_video_read_exact(fd, header, sizeof(header));
-    ok = ok && sb_ipone_video_read_le32(header) == IPONE_RIGHT_PANE_VIDEO_MAGIC;
-    ok = ok && sb_ipone_video_read_le16(header + 4) == IPONE_RIGHT_PANE_VIDEO_VERSION;
-    ok = ok && sb_ipone_video_read_le16(header + 6) == IPONE_RIGHT_PANE_VIDEO_HEADER_SIZE;
-    ok = ok && sb_ipone_video_read_le16(header + 8) == IPONE_RIGHT_PANE_VIDEO_WIDTH;
-    ok = ok && sb_ipone_video_read_le16(header + 10) == IPONE_RIGHT_PANE_VIDEO_HEIGHT;
-    ok = ok && sb_ipone_video_read_le16(header + 16) == sizeof(fb_data);
-    ok = ok && frame >= 0 &&
-        frame < (int)sb_ipone_video_read_le16(header + 14);
-
-    if (ok)
+    if (TIME_BEFORE(current_tick, sb_ipone_video_missing_retry_until) &&
+        !strcmp(path, sb_ipone_video_missing_path))
     {
-        off_t offset = IPONE_RIGHT_PANE_VIDEO_HEADER_SIZE +
-            (off_t)frame * (off_t)frame_bytes;
-        ok = lseek(fd, offset, SEEK_SET) == offset;
-        ok = ok && sb_ipone_video_read_exact(fd, cache, frame_bytes);
+        return false;
     }
 
-    close(fd);
+    if (sb_ipone_video_fd < 0 || strcmp(path, sb_ipone_video_stream_path))
+    {
+        sb_ipone_video_close_stream();
+
+        sb_ipone_video_fd = open(path, O_RDONLY);
+        if (sb_ipone_video_fd < 0)
+        {
+            strmemccpy(sb_ipone_video_missing_path, path,
+                       sizeof(sb_ipone_video_missing_path));
+            sb_ipone_video_missing_retry_until = current_tick + HZ * 5;
+            return false;
+        }
+
+        ok = sb_ipone_video_read_exact(sb_ipone_video_fd, header, sizeof(header));
+        ok = ok && sb_ipone_video_read_le32(header) == IPONE_RIGHT_PANE_VIDEO_MAGIC;
+        ok = ok && sb_ipone_video_read_le16(header + 4) == IPONE_RIGHT_PANE_VIDEO_VERSION;
+        ok = ok && sb_ipone_video_read_le16(header + 6) == IPONE_RIGHT_PANE_VIDEO_HEADER_SIZE;
+        ok = ok && sb_ipone_video_read_le16(header + 8) == IPONE_RIGHT_PANE_VIDEO_WIDTH;
+        ok = ok && sb_ipone_video_read_le16(header + 10) == IPONE_RIGHT_PANE_VIDEO_HEIGHT;
+        ok = ok && sb_ipone_video_read_le16(header + 16) == sizeof(fb_data);
+        ok = ok && sb_ipone_video_read_le16(header + 14) > 0;
+
+        if (!ok)
+        {
+            strmemccpy(sb_ipone_video_missing_path, path,
+                       sizeof(sb_ipone_video_missing_path));
+            sb_ipone_video_missing_retry_until = current_tick + HZ * 5;
+            sb_ipone_video_close_stream();
+            return false;
+        }
+
+        sb_ipone_video_frame_count = sb_ipone_video_read_le16(header + 14);
+        strmemccpy(sb_ipone_video_stream_path, path,
+                   sizeof(sb_ipone_video_stream_path));
+        sb_ipone_video_missing_path[0] = '\0';
+        sb_ipone_video_missing_retry_until = 0;
+    }
+
+    if (frame < 0 || frame >= (int)sb_ipone_video_frame_count)
+    {
+        sb_ipone_video_close_stream();
+        return false;
+    }
+
+    off_t offset = IPONE_RIGHT_PANE_VIDEO_HEADER_SIZE +
+        (off_t)frame * (off_t)frame_bytes;
+    ok = lseek(sb_ipone_video_fd, offset, SEEK_SET) == offset;
+    ok = ok && sb_ipone_video_read_exact(sb_ipone_video_fd, cache, frame_bytes);
+    if (!ok)
+        sb_ipone_video_close_stream();
+
     return ok;
 }
 
@@ -240,6 +346,7 @@ static bool sb_ipone_draw_right_pane_video(enum screen_type screen)
     if (!sb_ipone_right_pane_video_eligible(screen) ||
         !sb_ipone_video_path(path, sizeof(path)))
     {
+        sb_ipone_video_close_stream();
         return false;
     }
 
@@ -276,10 +383,13 @@ static bool sb_ipone_update_right_pane_video(enum screen_type screen, bool force
 
     if (!sb_ipone_right_pane_video_eligible(screen))
     {
+        sb_ipone_video_release_cache();
         next_video_update[screen] =
             current_tick + IPONE_RIGHT_PANE_VIDEO_UPDATE_DELAY;
         return false;
     }
+
+    sb_ipone_video_idle_free_tick = 0;
 
     if (!force && !TIME_AFTER(current_tick, next_video_update[screen]))
         return false;

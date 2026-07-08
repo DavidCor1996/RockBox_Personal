@@ -10,7 +10,7 @@ from models.track import compute_metadata_hash
 
 logger = logging.getLogger(__name__)
 
-SCHEMA_VERSION = 9
+SCHEMA_VERSION = 10
 
 SCHEMA_SQL = """
 CREATE TABLE IF NOT EXISTS schema_version (
@@ -57,7 +57,14 @@ CREATE TABLE IF NOT EXISTS tracks (
     metadata_hash TEXT DEFAULT '',
     artwork_hash TEXT DEFAULT '',
     last_synced_metadata_hash TEXT DEFAULT '',
-    last_synced_file_hash TEXT DEFAULT ''
+    last_synced_file_hash TEXT DEFAULT '',
+    imdb_id TEXT DEFAULT '',
+    tmdb_id TEXT DEFAULT '',
+    metadata_source TEXT DEFAULT '',
+    metadata_confidence REAL DEFAULT 0.0,
+    metadata_locked INTEGER DEFAULT 0,
+    plot_short TEXT DEFAULT '',
+    plot_long TEXT DEFAULT ''
 );
 
 CREATE TABLE IF NOT EXISTS playlists (
@@ -422,6 +429,23 @@ class Database:
             if "sync_to_rockbox" not in playlist_cols:
                 conn.execute("ALTER TABLE playlists ADD COLUMN sync_to_rockbox INTEGER DEFAULT 1")
 
+        if current_version < 10:
+            track_cols = {
+                row["name"] for row in conn.execute("PRAGMA table_info(tracks)")
+            }
+            additions = {
+                "imdb_id": "TEXT DEFAULT ''",
+                "tmdb_id": "TEXT DEFAULT ''",
+                "metadata_source": "TEXT DEFAULT ''",
+                "metadata_confidence": "REAL DEFAULT 0.0",
+                "metadata_locked": "INTEGER DEFAULT 0",
+                "plot_short": "TEXT DEFAULT ''",
+                "plot_long": "TEXT DEFAULT ''",
+            }
+            for col, spec in additions.items():
+                if col not in track_cols:
+                    conn.execute(f"ALTER TABLE tracks ADD COLUMN {col} {spec}")
+
     @classmethod
     def _write_lock_for_path(cls, path):
         abs_path = os.path.abspath(path)
@@ -730,17 +754,28 @@ class Database:
             "video_kind",
             "artwork_path",
             "has_embedded_artwork",
+            "imdb_id",
+            "tmdb_id",
+            "metadata_source",
+            "metadata_confidence",
+            "metadata_locked",
+            "plot_short",
+            "plot_long",
         }
         metadata_hash_fields = {
             "title",
             "artist",
             "album",
             "album_artist",
+            "show_title",
             "genre",
             "year",
+            "season_number",
+            "episode_number",
             "track_number",
             "disc_number",
             "composer",
+            "video_kind",
         }
         sanitized = {key: value for key, value in (updates or {}).items() if key in editable_fields}
         if not sanitized:
@@ -764,6 +799,11 @@ class Database:
                     merged.get("duration", 0.0),
                     merged.get("bitrate", 0),
                     merged.get("codec", ""),
+                    merged.get("media_type", ""),
+                    merged.get("video_kind", ""),
+                    merged.get("show_title", ""),
+                    merged.get("season_number"),
+                    merged.get("episode_number"),
                 )
 
         parts = ", ".join([f"{k} = ?" for k in sanitized.keys()])

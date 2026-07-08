@@ -42,6 +42,7 @@
 
 #include "p_inter.h"
 #include "p_enemy.h"
+#include "rb_haptics.h"
 
 #ifdef __GNUG__
 #pragma implementation "p_inter.h"
@@ -825,6 +826,8 @@ void P_DamageMobj(mobj_t *target,mobj_t *inflictor, mobj_t *source, int damage)
 
       player->attacker = source;
       player->damagecount += damage;  // add damage after armor / invuln
+      if (damage > 0)
+         rb_haptics_player_hurt(damage);
 
       if (player->damagecount > 100)
          player->damagecount = 100;  // teleport stomp does 10k points...

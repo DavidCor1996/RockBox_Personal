@@ -937,32 +937,32 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000    0x6ecd1
+.debug_info     0x0000000000000000    0x6ef1a
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0x841c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/clock/clock.o
- .debug_info    0x000000000000841c      0x5f7 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/clock/clock_bitmaps.o
- .debug_info    0x0000000000008a13     0x76be /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/clock/clock_bitmap_strings.o
- .debug_info    0x00000000000100d1     0x775e /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/clock/clock_counter.o
- .debug_info    0x000000000001782f     0x79ee /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/clock/clock_draw.o
- .debug_info    0x000000000001f21d     0x8506 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/clock/clock_draw_analog.o
- .debug_info    0x0000000000027723     0x129a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/clock/clock_draw_binary.o
- .debug_info    0x00000000000289bd     0x7fd5 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/clock/clock_draw_digital.o
- .debug_info    0x0000000000030992     0x9a9e /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/clock/clock_menu.o
- .debug_info    0x000000000003a430     0x9da9 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/clock/clock_settings.o
- .debug_info    0x00000000000441d9     0x7d10 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
- .debug_info    0x000000000004bee9     0x7ec6 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(pluginlib_actions.o)
- .debug_info    0x0000000000053daf     0x9928 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(playback_control.o)
- .debug_info    0x000000000005d6d7      0xdcd /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(picture.o)
- .debug_info    0x000000000005e4a4     0x82c4 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(xlcd_draw.o)
- .debug_info    0x0000000000066768     0x7562 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(xlcd_core.o)
- .debug_info    0x000000000006dcca      0x143 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(clock_binary.320x240x16.o)
- .debug_info    0x000000000006de0d      0x143 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(clock_digits.320x240x16.o)
- .debug_info    0x000000000006df50      0x143 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(clock_smalldigits.320x240x16.o)
- .debug_info    0x000000000006e093      0x143 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(clock_segments.320x240x16.o)
- .debug_info    0x000000000006e1d6      0x143 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(clock_smallsegments.320x240x16.o)
- .debug_info    0x000000000006e319      0x143 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(clock_logo.320x240x16.o)
- .debug_info    0x000000000006e45c      0x145 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(clock_messages.320x240x16.o)
- .debug_info    0x000000000006e5a1      0x730 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/libfixedpoint.a(fixedpoint.o)
+ .debug_info    0x0000000000000000     0x8449 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/clock/clock.o
+ .debug_info    0x0000000000008449      0x5f7 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/clock/clock_bitmaps.o
+ .debug_info    0x0000000000008a40     0x76eb /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/clock/clock_bitmap_strings.o
+ .debug_info    0x000000000001012b     0x778b /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/clock/clock_counter.o
+ .debug_info    0x00000000000178b6     0x7a1b /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/clock/clock_draw.o
+ .debug_info    0x000000000001f2d1     0x8533 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/clock/clock_draw_analog.o
+ .debug_info    0x0000000000027804     0x129a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/clock/clock_draw_binary.o
+ .debug_info    0x0000000000028a9e     0x8002 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/clock/clock_draw_digital.o
+ .debug_info    0x0000000000030aa0     0x9acb /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/clock/clock_menu.o
+ .debug_info    0x000000000003a56b     0x9dd6 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/clock/clock_settings.o
+ .debug_info    0x0000000000044341     0x7d3d /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
+ .debug_info    0x000000000004c07e     0x7ef3 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(pluginlib_actions.o)
+ .debug_info    0x0000000000053f71     0x9955 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(playback_control.o)
+ .debug_info    0x000000000005d8c6      0xdcd /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(picture.o)
+ .debug_info    0x000000000005e693     0x82f1 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(xlcd_draw.o)
+ .debug_info    0x0000000000066984     0x758f /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(xlcd_core.o)
+ .debug_info    0x000000000006df13      0x143 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(clock_binary.320x240x16.o)
+ .debug_info    0x000000000006e056      0x143 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(clock_digits.320x240x16.o)
+ .debug_info    0x000000000006e199      0x143 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(clock_smalldigits.320x240x16.o)
+ .debug_info    0x000000000006e2dc      0x143 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(clock_segments.320x240x16.o)
+ .debug_info    0x000000000006e41f      0x143 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(clock_smallsegments.320x240x16.o)
+ .debug_info    0x000000000006e562      0x143 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(clock_logo.320x240x16.o)
+ .debug_info    0x000000000006e6a5      0x145 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(clock_messages.320x240x16.o)
+ .debug_info    0x000000000006e7ea      0x730 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/libfixedpoint.a(fixedpoint.o)
 
 .debug_abbrev   0x0000000000000000     0x4141
  *(.debug_abbrev)
@@ -1021,55 +1021,55 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0xbb1b
+.debug_str      0x0000000000000000     0xbb53
  *(.debug_str)
- .debug_str     0x0000000000000000     0xbb1b /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/clock/clock.o
-                                       0x65ec (size before relaxing)
- .debug_str     0x000000000000bb1b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/clock/clock_bitmaps.o
+ .debug_str     0x0000000000000000     0xbb53 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/clock/clock.o
+                                       0x6624 (size before relaxing)
+ .debug_str     0x000000000000bb53        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/clock/clock_bitmaps.o
                                         0x9d0 (size before relaxing)
- .debug_str     0x000000000000bb1b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/clock/clock_bitmap_strings.o
-                                       0x48e5 (size before relaxing)
- .debug_str     0x000000000000bb1b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/clock/clock_counter.o
-                                       0x496f (size before relaxing)
- .debug_str     0x000000000000bb1b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/clock/clock_draw.o
-                                       0x4a97 (size before relaxing)
- .debug_str     0x000000000000bb1b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/clock/clock_draw_analog.o
-                                       0x4bd0 (size before relaxing)
- .debug_str     0x000000000000bb1b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/clock/clock_draw_binary.o
+ .debug_str     0x000000000000bb53        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/clock/clock_bitmap_strings.o
+                                       0x491d (size before relaxing)
+ .debug_str     0x000000000000bb53        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/clock/clock_counter.o
+                                       0x49a7 (size before relaxing)
+ .debug_str     0x000000000000bb53        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/clock/clock_draw.o
+                                       0x4acf (size before relaxing)
+ .debug_str     0x000000000000bb53        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/clock/clock_draw_analog.o
+                                       0x4c08 (size before relaxing)
+ .debug_str     0x000000000000bb53        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/clock/clock_draw_binary.o
                                         0xfd4 (size before relaxing)
- .debug_str     0x000000000000bb1b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/clock/clock_draw_digital.o
-                                       0x529b (size before relaxing)
- .debug_str     0x000000000000bb1b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/clock/clock_menu.o
-                                       0xa099 (size before relaxing)
- .debug_str     0x000000000000bb1b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/clock/clock_settings.o
-                                       0xa169 (size before relaxing)
- .debug_str     0x000000000000bb1b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
-                                       0x51f2 (size before relaxing)
- .debug_str     0x000000000000bb1b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(pluginlib_actions.o)
-                                       0x6343 (size before relaxing)
- .debug_str     0x000000000000bb1b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(playback_control.o)
-                                       0xa260 (size before relaxing)
- .debug_str     0x000000000000bb1b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(picture.o)
+ .debug_str     0x000000000000bb53        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/clock/clock_draw_digital.o
+                                       0x52d3 (size before relaxing)
+ .debug_str     0x000000000000bb53        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/clock/clock_menu.o
+                                       0xa0d1 (size before relaxing)
+ .debug_str     0x000000000000bb53        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/clock/clock_settings.o
+                                       0xa1a1 (size before relaxing)
+ .debug_str     0x000000000000bb53        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
+                                       0x522a (size before relaxing)
+ .debug_str     0x000000000000bb53        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(pluginlib_actions.o)
+                                       0x637b (size before relaxing)
+ .debug_str     0x000000000000bb53        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(playback_control.o)
+                                       0xa298 (size before relaxing)
+ .debug_str     0x000000000000bb53        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(picture.o)
                                         0x7a2 (size before relaxing)
- .debug_str     0x000000000000bb1b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(xlcd_draw.o)
-                                       0x4a58 (size before relaxing)
- .debug_str     0x000000000000bb1b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(xlcd_core.o)
-                                       0x48ac (size before relaxing)
- .debug_str     0x000000000000bb1b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(clock_binary.320x240x16.o)
+ .debug_str     0x000000000000bb53        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(xlcd_draw.o)
+                                       0x4a90 (size before relaxing)
+ .debug_str     0x000000000000bb53        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(xlcd_core.o)
+                                       0x48e4 (size before relaxing)
+ .debug_str     0x000000000000bb53        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(clock_binary.320x240x16.o)
                                         0x16c (size before relaxing)
- .debug_str     0x000000000000bb1b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(clock_digits.320x240x16.o)
+ .debug_str     0x000000000000bb53        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(clock_digits.320x240x16.o)
                                         0x16c (size before relaxing)
- .debug_str     0x000000000000bb1b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(clock_smalldigits.320x240x16.o)
+ .debug_str     0x000000000000bb53        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(clock_smalldigits.320x240x16.o)
                                         0x176 (size before relaxing)
- .debug_str     0x000000000000bb1b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(clock_segments.320x240x16.o)
+ .debug_str     0x000000000000bb53        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(clock_segments.320x240x16.o)
                                         0x170 (size before relaxing)
- .debug_str     0x000000000000bb1b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(clock_smallsegments.320x240x16.o)
+ .debug_str     0x000000000000bb53        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(clock_smallsegments.320x240x16.o)
                                         0x17a (size before relaxing)
- .debug_str     0x000000000000bb1b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(clock_logo.320x240x16.o)
+ .debug_str     0x000000000000bb53        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(clock_logo.320x240x16.o)
                                         0x168 (size before relaxing)
- .debug_str     0x000000000000bb1b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(clock_messages.320x240x16.o)
+ .debug_str     0x000000000000bb53        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(clock_messages.320x240x16.o)
                                         0x170 (size before relaxing)
- .debug_str     0x000000000000bb1b        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/libfixedpoint.a(fixedpoint.o)
+ .debug_str     0x000000000000bb53        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/libfixedpoint.a(fixedpoint.o)
                                         0x285 (size before relaxing)
 
 .debug_loc

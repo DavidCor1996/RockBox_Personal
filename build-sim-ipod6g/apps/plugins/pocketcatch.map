@@ -790,24 +790,24 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000    0xb13eb
+.debug_info     0x0000000000000000    0xb16bb
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0x8e82 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pocketcatch/main.o
- .debug_info    0x0000000000008e82     0x94b7 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pocketcatch/pc_assets.o
- .debug_info    0x0000000000012339     0x7865 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pocketcatch/pc_catch.o
- .debug_info    0x0000000000019b9e     0x7cf6 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pocketcatch/pc_input.o
- .debug_info    0x0000000000021894     0x7c19 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pocketcatch/pc_physics.o
- .debug_info    0x00000000000294ad     0xddec /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pocketcatch/pc_render.o
- .debug_info    0x0000000000037299     0x847d /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pocketcatch/pc_state.o
- .debug_info    0x000000000003f716    0x28e8b /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pocketcatch/pc_world.o
- .debug_info    0x00000000000685a1     0x7621 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pocketcatch/pc_world_input.o
- .debug_info    0x000000000006fbc2    0x11a8b /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pocketcatch/pc_world_render.o
- .debug_info    0x000000000008164d     0x7d10 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
- .debug_info    0x000000000008935d     0x82c4 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(xlcd_draw.o)
- .debug_info    0x0000000000091621     0x8a64 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(pluginlib_bmp.o)
- .debug_info    0x000000000009a085     0x7740 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(gcc-support.o)
- .debug_info    0x00000000000a17c5     0x86c4 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(pluginlib_resize.o)
- .debug_info    0x00000000000a9e89     0x7562 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(xlcd_core.o)
+ .debug_info    0x0000000000000000     0x8eaf /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pocketcatch/main.o
+ .debug_info    0x0000000000008eaf     0x94e4 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pocketcatch/pc_assets.o
+ .debug_info    0x0000000000012393     0x7892 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pocketcatch/pc_catch.o
+ .debug_info    0x0000000000019c25     0x7d23 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pocketcatch/pc_input.o
+ .debug_info    0x0000000000021948     0x7c46 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pocketcatch/pc_physics.o
+ .debug_info    0x000000000002958e     0xde19 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pocketcatch/pc_render.o
+ .debug_info    0x00000000000373a7     0x84aa /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pocketcatch/pc_state.o
+ .debug_info    0x000000000003f851    0x28eb8 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pocketcatch/pc_world.o
+ .debug_info    0x0000000000068709     0x764e /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pocketcatch/pc_world_input.o
+ .debug_info    0x000000000006fd57    0x11ab8 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pocketcatch/pc_world_render.o
+ .debug_info    0x000000000008180f     0x7d3d /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
+ .debug_info    0x000000000008954c     0x82f1 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(xlcd_draw.o)
+ .debug_info    0x000000000009183d     0x8a91 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(pluginlib_bmp.o)
+ .debug_info    0x000000000009a2ce     0x776d /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(gcc-support.o)
+ .debug_info    0x00000000000a1a3b     0x86f1 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(pluginlib_resize.o)
+ .debug_info    0x00000000000aa12c     0x758f /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(xlcd_core.o)
 
 .debug_abbrev   0x0000000000000000     0x4e8b
  *(.debug_abbrev)
@@ -850,40 +850,40 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0x9f6a
+.debug_str      0x0000000000000000     0x9fa2
  *(.debug_str)
- .debug_str     0x0000000000000000     0x9f6a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pocketcatch/main.o
-                                       0x6578 (size before relaxing)
- .debug_str     0x0000000000009f6a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pocketcatch/pc_assets.o
-                                       0x57ac (size before relaxing)
- .debug_str     0x0000000000009f6a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pocketcatch/pc_catch.o
-                                       0x4b49 (size before relaxing)
- .debug_str     0x0000000000009f6a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pocketcatch/pc_input.o
-                                       0x4b3a (size before relaxing)
- .debug_str     0x0000000000009f6a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pocketcatch/pc_physics.o
-                                       0x4c04 (size before relaxing)
- .debug_str     0x0000000000009f6a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pocketcatch/pc_render.o
-                                       0x548e (size before relaxing)
- .debug_str     0x0000000000009f6a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pocketcatch/pc_state.o
-                                       0x505e (size before relaxing)
- .debug_str     0x0000000000009f6a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pocketcatch/pc_world.o
-                                       0x82d8 (size before relaxing)
- .debug_str     0x0000000000009f6a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pocketcatch/pc_world_input.o
-                                       0x4936 (size before relaxing)
- .debug_str     0x0000000000009f6a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pocketcatch/pc_world_render.o
-                                       0x6ef0 (size before relaxing)
- .debug_str     0x0000000000009f6a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
-                                       0x51f2 (size before relaxing)
- .debug_str     0x0000000000009f6a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(xlcd_draw.o)
-                                       0x4a58 (size before relaxing)
- .debug_str     0x0000000000009f6a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(pluginlib_bmp.o)
-                                       0x5373 (size before relaxing)
- .debug_str     0x0000000000009f6a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(gcc-support.o)
-                                       0x4899 (size before relaxing)
- .debug_str     0x0000000000009f6a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(pluginlib_resize.o)
-                                       0x5258 (size before relaxing)
- .debug_str     0x0000000000009f6a        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(xlcd_core.o)
-                                       0x48ac (size before relaxing)
+ .debug_str     0x0000000000000000     0x9fa2 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pocketcatch/main.o
+                                       0x65b0 (size before relaxing)
+ .debug_str     0x0000000000009fa2        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pocketcatch/pc_assets.o
+                                       0x57e4 (size before relaxing)
+ .debug_str     0x0000000000009fa2        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pocketcatch/pc_catch.o
+                                       0x4b81 (size before relaxing)
+ .debug_str     0x0000000000009fa2        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pocketcatch/pc_input.o
+                                       0x4b72 (size before relaxing)
+ .debug_str     0x0000000000009fa2        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pocketcatch/pc_physics.o
+                                       0x4c3c (size before relaxing)
+ .debug_str     0x0000000000009fa2        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pocketcatch/pc_render.o
+                                       0x54c6 (size before relaxing)
+ .debug_str     0x0000000000009fa2        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pocketcatch/pc_state.o
+                                       0x5096 (size before relaxing)
+ .debug_str     0x0000000000009fa2        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pocketcatch/pc_world.o
+                                       0x8310 (size before relaxing)
+ .debug_str     0x0000000000009fa2        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pocketcatch/pc_world_input.o
+                                       0x496e (size before relaxing)
+ .debug_str     0x0000000000009fa2        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/pocketcatch/pc_world_render.o
+                                       0x6f28 (size before relaxing)
+ .debug_str     0x0000000000009fa2        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
+                                       0x522a (size before relaxing)
+ .debug_str     0x0000000000009fa2        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(xlcd_draw.o)
+                                       0x4a90 (size before relaxing)
+ .debug_str     0x0000000000009fa2        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(pluginlib_bmp.o)
+                                       0x53ab (size before relaxing)
+ .debug_str     0x0000000000009fa2        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(gcc-support.o)
+                                       0x48d1 (size before relaxing)
+ .debug_str     0x0000000000009fa2        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(pluginlib_resize.o)
+                                       0x5290 (size before relaxing)
+ .debug_str     0x0000000000009fa2        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(xlcd_core.o)
+                                       0x48e4 (size before relaxing)
 
 .debug_loc
  *(.debug_loc)

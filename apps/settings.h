@@ -952,6 +952,7 @@ struct user_settings
 
 #ifdef HAVE_HARDWARE_CLICK
     bool keyclick_hardware; /* hardware piezo keyclick */
+    bool haptics_enabled;   /* plugin and UI haptic feedback */
 #endif
 
     char start_directory[MAX_PATHNAME+1];

@@ -7,7 +7,8 @@ from typing import Optional
 
 def compute_metadata_hash(title, artist, album, album_artist, track_number,
                           disc_number, genre, year, composer, duration, bitrate,
-                          codec):
+                          codec, media_type="", video_kind="", show_title="",
+                          season_number=None, episode_number=None):
     """Compute a deterministic hash of the metadata fields that matter for sync.
 
     This intentionally excludes file path, file size, play count, rating, and
@@ -28,6 +29,24 @@ def compute_metadata_hash(title, artist, album, album_artist, track_number,
         str(bitrate or ""),
         str(codec or "").strip().lower(),
     ]
+    include_video_fields = (
+        str(media_type or "").strip().lower() == "video"
+        or bool(str(video_kind or "").strip())
+        or bool(str(show_title or "").strip())
+        or season_number not in (None, "")
+        or episode_number not in (None, "")
+    )
+    if include_video_fields:
+        parts.extend(
+            [
+                "video",
+                str(video_kind or "").strip().lower(),
+                str(show_title or "").strip().lower(),
+                str(season_number or ""),
+                str(episode_number or ""),
+            ]
+        )
+
     raw = "|".join(parts)
     return hashlib.sha256(raw.encode("utf-8")).hexdigest()[:32]
 
@@ -90,6 +109,8 @@ class Track:
             self.title, self.artist, self.album, self.album_artist,
             self.track_number, self.disc_number, self.genre, self.year,
             self.composer, self.duration, self.bitrate, self.codec,
+            self.media_type, self.video_kind, self.show_title,
+            self.season_number, self.episode_number,
         )
         return self.metadata_hash
 

@@ -93,6 +93,11 @@ class AudioSyncTranscoder:
             row.get("duration", 0.0),
             row.get("bitrate", 0),
             row.get("codec", ""),
+            row.get("media_type", ""),
+            row.get("video_kind", ""),
+            row.get("show_title", ""),
+            row.get("season_number"),
+            row.get("episode_number"),
         )
         return row, {"converted": True, "cache_path": cache_path, "reason": "transcoded"}
 

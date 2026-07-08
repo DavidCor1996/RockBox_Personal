@@ -527,13 +527,13 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000    0x191a7
+.debug_info     0x0000000000000000    0x1922e
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0x86c1 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/jackpot.o
- .debug_info    0x00000000000086c1     0x7d10 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
- .debug_info    0x00000000000103d1     0x7ec6 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(pluginlib_actions.o)
- .debug_info    0x0000000000018297      0xdcd /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(picture.o)
- .debug_info    0x0000000000019064      0x143 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(jackpot_slots.30x420x1.o)
+ .debug_info    0x0000000000000000     0x86ee /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/jackpot.o
+ .debug_info    0x00000000000086ee     0x7d3d /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
+ .debug_info    0x000000000001042b     0x7ef3 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(pluginlib_actions.o)
+ .debug_info    0x000000000001831e      0xdcd /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(picture.o)
+ .debug_info    0x00000000000190eb      0x143 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(jackpot_slots.30x420x1.o)
 
 .debug_abbrev   0x0000000000000000      0xf9a
  *(.debug_abbrev)
@@ -554,17 +554,17 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0x6100
+.debug_str      0x0000000000000000     0x6138
  *(.debug_str)
- .debug_str     0x0000000000000000     0x6100 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/jackpot.o
-                                       0x653e (size before relaxing)
- .debug_str     0x0000000000006100        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
-                                       0x51f2 (size before relaxing)
- .debug_str     0x0000000000006100        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(pluginlib_actions.o)
-                                       0x6343 (size before relaxing)
- .debug_str     0x0000000000006100        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(picture.o)
+ .debug_str     0x0000000000000000     0x6138 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/jackpot.o
+                                       0x6576 (size before relaxing)
+ .debug_str     0x0000000000006138        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
+                                       0x522a (size before relaxing)
+ .debug_str     0x0000000000006138        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(pluginlib_actions.o)
+                                       0x637b (size before relaxing)
+ .debug_str     0x0000000000006138        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(picture.o)
                                         0x7a2 (size before relaxing)
- .debug_str     0x0000000000006100        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(jackpot_slots.30x420x1.o)
+ .debug_str     0x0000000000006138        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(jackpot_slots.30x420x1.o)
                                         0x16e (size before relaxing)
 
 .debug_loc

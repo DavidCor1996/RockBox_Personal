@@ -1,0 +1,50 @@
+# Theme: SpringPod3
+# Stable SBS for iPod Video 5G / 5.5G. The SpringBoard home screen is drawn
+# natively in root_menu.c when this theme is active.
+%wd
+%T(0,0,140,19,menu)
+%T(0,0,140,19,&cancel)
+%T(172,5,136,60,prev)
+%T(172,5,136,60,&rwd)
+%T(172,175,136,60,next)
+%T(172,175,136,60,&ffwd)
+%T(172,90,136,60,select)
+%T(172,90,136,60,&cancel)
+
+%Fl(2,14-Adobe-Helvetica-Bold.fnt)
+%Fl(3,16-Adobe-Helvetica-Bold.fnt)
+%Fl(4,35-Adobe-Helvetica-Bold.fnt)
+
+%xl(Lockscreen,Wallpaper.bmp)
+%xl(ChargeWallpaper,ChargeWallpaper.bmp)
+%xl(B,Battery.bmp,0,0,24)
+%xl(P,Playing Status.bmp,0,0,4)
+%xl(h,Hold Icon.bmp,0,1)
+%xl(NotificationMusic,NotifMusic.bmp,14,12)
+%xl(LockPlayIcon,NotifPlayIcon.bmp,2)
+
+%Vi(UiMenu,0,24,320,216,2)%Vf(FFFFFF)%Vb(000000)
+%Vi(UiLocked,0,24,1,1,2)%Vf(000000)%Vb(000000)
+%?mh<%VI(UiLocked)|%VI(UiMenu)>
+
+%V(0,0,-,-,-)
+%?mh<%?bp<%xd(ChargeWallpaper)|%xd(Lockscreen)>|%dr(0,0,-,-,000000)%dr(0,0,-,20,000000)%dr(0,20,-,4,155EAF)>
+%?mh<%Vd(LockStatus)%Vd(LockClock)%Vd(LockDate)%?mp<|%Vd(LockCard)>|%Vd(Status)%Vd(Title)>
+
+%Vl(Status,8,4,80,12,2)%Vf(FFFFFF)%aliPod
+%Vl(Status,135,4,50,12,2)%Vf(FFFFFF)%ac%cl:%cM
+%Vl(Status,244,3,16,13,-)%?mp<|%xd(Pa)|%xd(Pb)|%xd(Pc)|%xd(Pd)|||%xd(Pa)|%xd(Pb)>
+%Vl(Status,287,4,25,11,-)
+%?bp<%?bc<%t(1.0)%xd(Ba);%t(1.0)%xd(Bb)|%xd(Bc)>|%?bl<%xd(Bd)|%xd(Bd)|%xd(Be)|%xd(Bf)|%xd(Bg)|%xd(Bh)|%xd(Bi)|%xd(Bj)|%xd(Bk)|%xd(Bl)|%xd(Bm)|%xd(Bn)|%xd(Bo)|%xd(Bp)|%xd(Bq)|%xd(Br)|%xd(Bs)|%xd(Bt)|%xd(Bu)|%xd(Bv)|%xd(Bw)|%xd(Bx)||>>
+%Vl(Title,0,22,320,18,3)%Vf(FFFFFF)%ac%?Lt<%Lt|iPod>
+
+%Vl(LockStatus,8,4,80,12,2)%Vf(FFFFFF)%aliPod
+%Vl(LockStatus,92,4,40,12,2)%Vf(FFFFFF)%?mh<%xd(h)>
+%Vl(LockStatus,287,4,25,11,-)
+%?bp<%?bc<%t(1.0)%xd(Ba);%t(1.0)%xd(Bb)|%xd(Bc)>|%?bl<%xd(Bd)|%xd(Bd)|%xd(Be)|%xd(Bf)|%xd(Bg)|%xd(Bh)|%xd(Bi)|%xd(Bj)|%xd(Bk)|%xd(Bl)|%xd(Bm)|%xd(Bn)|%xd(Bo)|%xd(Bp)|%xd(Bq)|%xd(Br)|%xd(Bs)|%xd(Bt)|%xd(Bu)|%xd(Bv)|%xd(Bw)|%xd(Bx)||>>
+%Vl(LockClock,0,52,320,54,4)%Vf(FFFFFF)%ac%cl:%cM %cP
+%Vl(LockDate,0,111,320,20,3)%Vf(FFFFFF)%ac%?cu<Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday>
+%Vl(LockCardArt,28,161,51,51,-)%Cl(0,0,51,51,c,c,1)%?C(1)<%Cd(1)|%xd(NotificationMusic)>
+%Vl(LockCardTitle,92,166,136,18,2)%Vf(FFFFFF)%s%al%?it<%it|%fn>
+%Vl(LockCardSub,92,184,136,18,2)%Vf(CFD8E6)%s%al%?ia<%ia|%d(1)>
+%Vl(LockCardIcon,258,175,16,18,-)%?mp<|%xd(LockPlayIcon,1)|%xd(LockPlayIcon,2)|||||%xd(LockPlayIcon,1)|%xd(LockPlayIcon,2)>

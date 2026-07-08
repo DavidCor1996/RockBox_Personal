@@ -181,7 +181,7 @@ int plugin_open(const char *plugin, const char *parameter);
  * when this happens please take the opportunity to sort in
  * any new functions "waiting" at the end of the list.
  */
-#define PLUGIN_API_VERSION 281
+#define PLUGIN_API_VERSION 282
 
 /* 239 Marks the removal of ARCHOS HWCODEC and CHARCELL */
 
@@ -1042,6 +1042,8 @@ struct plugin_api {
 #if defined(HAVE_ALBUMART) && defined(HAVE_LCD_COLOR)
     unsigned int (*dynamic_colors_resolve)(unsigned int original);
 #endif
+    bool (*haptic_feedback_enabled)(void);
+    void (*haptic_feedback)(int duration_ms, int strength);
 };
 
 /* plugin header */

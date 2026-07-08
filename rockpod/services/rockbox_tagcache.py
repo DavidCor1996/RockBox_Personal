@@ -368,6 +368,7 @@ def _parse_row(row, mount_path: str) -> dict | None:
         duration,
         bitrate,
         codec,
+        "audio",
     )
 
     return {

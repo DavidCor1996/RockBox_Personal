@@ -354,6 +354,22 @@ static int rock_get_sleep_timer(lua_State *L)
 	return 1;
 }
 
+static int rock_haptic_feedback(lua_State *L)
+{
+	int duration_ms = (int) luaL_checkint(L, 1);
+	int strength = (int) luaL_checkint(L, 2);
+	rb->haptic_feedback(duration_ms, strength);
+	return 0;
+}
+
+static int rock_haptic_feedback_enabled(lua_State *L)
+{
+	(void)L;
+	bool result = rb->haptic_feedback_enabled();
+	lua_pushboolean(L, result);
+	return 1;
+}
+
 static int rock_is_backlight_on(lua_State *L)
 {
 	bool ignore_always_off = luaL_checkboolean(L, 1);
@@ -534,9 +550,9 @@ static int rock_strchr(lua_State *L)
 
 static int rock_strcmp(lua_State *L)
 {
-	const char * wiebt = (const char *) luaL_checkstring(L, 1);
-	const char * ebfwe = (const char *) luaL_checkstring(L, 2);
-	int result = rb->strcmp(wiebt, ebfwe);
+	const char * ufsor = (const char *) luaL_checkstring(L, 1);
+	const char * vxpzi = (const char *) luaL_checkstring(L, 2);
+	int result = rb->strcmp(ufsor, vxpzi);
 	lua_pushinteger(L, result);
 	return 1;
 }
@@ -723,6 +739,8 @@ const luaL_Reg rocklib_aux[] =
 	{"get_codec_string", rock_get_codec_string},
 	{"get_codepage_name", rock_get_codepage_name},
 	{"get_sleep_timer", rock_get_sleep_timer},
+	{"haptic_feedback", rock_haptic_feedback},
+	{"haptic_feedback_enabled", rock_haptic_feedback_enabled},
 	{"is_backlight_on", rock_is_backlight_on},
 	{"keyclick_click", rock_keyclick_click},
 	{"lang_is_rtl", rock_lang_is_rtl},

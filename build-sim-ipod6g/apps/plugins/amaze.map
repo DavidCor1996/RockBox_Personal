@@ -590,13 +590,13 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000    0x1c743
+.debug_info     0x0000000000000000    0x1c7ca
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0xc8e9 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/amaze.o
- .debug_info    0x000000000000c8e9     0x7d10 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
- .debug_info    0x00000000000145f9     0x7ec6 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(pluginlib_actions.o)
- .debug_info    0x000000000001c4bf      0x142 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(amaze_tiles_9.9x9x16.o)
- .debug_info    0x000000000001c601      0x142 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(amaze_tiles_7.7x7x16.o)
+ .debug_info    0x0000000000000000     0xc916 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/amaze.o
+ .debug_info    0x000000000000c916     0x7d3d /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
+ .debug_info    0x0000000000014653     0x7ef3 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(pluginlib_actions.o)
+ .debug_info    0x000000000001c546      0x142 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(amaze_tiles_9.9x9x16.o)
+ .debug_info    0x000000000001c688      0x142 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(amaze_tiles_7.7x7x16.o)
 
 .debug_abbrev   0x0000000000000000     0x1010
  *(.debug_abbrev)
@@ -617,17 +617,17 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16.1.1/../../../../lib/crtn.o
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x0000000000000000     0xb14c
+.debug_str      0x0000000000000000     0xb184
  *(.debug_str)
- .debug_str     0x0000000000000000     0xb14c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/amaze.o
-                                       0xb667 (size before relaxing)
- .debug_str     0x000000000000b14c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
-                                       0x51f2 (size before relaxing)
- .debug_str     0x000000000000b14c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(pluginlib_actions.o)
-                                       0x6343 (size before relaxing)
- .debug_str     0x000000000000b14c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(amaze_tiles_9.9x9x16.o)
+ .debug_str     0x0000000000000000     0xb184 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/amaze.o
+                                       0xb69f (size before relaxing)
+ .debug_str     0x000000000000b184        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/plugin_crt0.o
+                                       0x522a (size before relaxing)
+ .debug_str     0x000000000000b184        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/libplugin.a(pluginlib_actions.o)
+                                       0x637b (size before relaxing)
+ .debug_str     0x000000000000b184        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(amaze_tiles_9.9x9x16.o)
                                         0x16e (size before relaxing)
- .debug_str     0x000000000000b14c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(amaze_tiles_7.7x7x16.o)
+ .debug_str     0x000000000000b184        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/apps/plugins/bitmaps/libpluginbitmaps.a(amaze_tiles_7.7x7x16.o)
                                         0x16e (size before relaxing)
 
 .debug_loc

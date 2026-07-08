@@ -72,6 +72,7 @@
 
 #include "m_menu.h"
 #include "rockmacros.h"
+#include "rb_haptics.h"
 
 
 extern patchnum_t  hu_font[HU_FONTSIZE];
@@ -1608,6 +1609,7 @@ boolean M_Responder (event_t* ev)
          else
             itemOn++;
          S_StartSound(NULL,sfx_pstop);
+         rb_haptics_menu_move();
       }
       while(currentMenu->menuitems[itemOn].status==-1);
       return true;
@@ -1620,6 +1622,7 @@ boolean M_Responder (event_t* ev)
          else
             itemOn--;
          S_StartSound(NULL,sfx_pstop);
+         rb_haptics_menu_move();
       }
       while(currentMenu->menuitems[itemOn].status==-1);
       return true;
@@ -1630,6 +1633,7 @@ boolean M_Responder (event_t* ev)
       {
          S_StartSound(NULL,sfx_stnmov);
          currentMenu->menuitems[itemOn].routine(0);
+         rb_haptics_menu_move();
       }
       return true;
 
@@ -1639,6 +1643,7 @@ boolean M_Responder (event_t* ev)
       {
          S_StartSound(NULL,sfx_stnmov);
          currentMenu->menuitems[itemOn].routine(1);
+         rb_haptics_menu_move();
       }
       return true;
 
@@ -1657,6 +1662,7 @@ boolean M_Responder (event_t* ev)
             currentMenu->menuitems[itemOn].routine(itemOn);
             S_StartSound(NULL,sfx_pistol);
          }
+         rb_haptics_menu_select();
       }
       return true;
 
@@ -1673,11 +1679,13 @@ boolean M_Responder (event_t* ev)
          currentMenu = currentMenu->prevMenu;
          itemOn = currentMenu->lastOn;
          S_StartSound(NULL,sfx_swtchn);
+         rb_haptics_menu_select();
       }
       else
       {
          M_ClearMenus ();
          S_StartSound(NULL,sfx_swtchx);
+         rb_haptics_menu_select();
       }
       return true;
 

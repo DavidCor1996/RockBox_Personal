@@ -152,8 +152,8 @@ class VideoThumbnailService:
     def export_video_list_manifest(self, entries):
         manifest_path = os.path.join(self._video_list_dir, "index.tsv")
         lines = [
-            "# rockpod videolist v1",
-            "video_id\tthumb\tpreview\ttitle\tkind\tgroup_key\tdevice_path",
+            "# rockpod videolist v2",
+            "video_id\tthumb\tpreview\ttitle\tkind\tgroup_key\tdevice_path\tshow\tseason\tepisode\tduration",
         ]
         def sort_key(item):
             return (
@@ -172,6 +172,10 @@ class VideoThumbnailService:
                         self._manifest_field(entry.get("kind")),
                         self._manifest_field(entry.get("group_key")),
                         self._manifest_field(entry.get("device_path")),
+                        self._manifest_field(entry.get("show")),
+                        self._manifest_field(entry.get("season")),
+                        self._manifest_field(entry.get("episode")),
+                        self._manifest_field(entry.get("duration")),
                     ]
                 )
             )

@@ -32,6 +32,7 @@ from services.video_thumbnails import VideoThumbnailService
 from services.video_rvp import VideoRvpTranscoder
 from services.rockbox_wps_art import wps_album_art_sizes_for_config
 from services.weather import build_weather_bundle
+from models.track import compute_metadata_hash
 
 logger = logging.getLogger(__name__)
 COPY_CHUNK_SIZE = 4 * 1024 * 1024
@@ -163,6 +164,30 @@ def _video_episode_label(row):
     if episode > 0:
         return f"{episode:02d} - {title}"
     return title
+
+
+def _recompute_row_metadata_hash(row):
+    item = dict(row) if hasattr(row, "keys") else dict(row or {})
+    item["metadata_hash"] = compute_metadata_hash(
+        item.get("title", ""),
+        item.get("artist", ""),
+        item.get("album", ""),
+        item.get("album_artist", ""),
+        item.get("track_number"),
+        item.get("disc_number", 1),
+        item.get("genre", ""),
+        item.get("year"),
+        item.get("composer", ""),
+        item.get("duration", 0.0),
+        item.get("bitrate", 0),
+        item.get("codec", ""),
+        item.get("media_type", ""),
+        item.get("video_kind", ""),
+        item.get("show_title", ""),
+        item.get("season_number"),
+        item.get("episode_number"),
+    )
+    return item
 
 
 def build_device_path(track_row, dir_template, file_template):
@@ -2356,7 +2381,7 @@ class SyncEngine(QObject):
             item["video_sync_category"] = ""
         elif not str(item.get("video_kind") or "").strip():
             item["video_kind"] = "movie"
-        return item
+        return _recompute_row_metadata_hash(item)
 
     def _unique_device_path(self, rel_path, used_paths, allow_existing=""):
         """Avoid path collisions while preserving the configured folder layout."""
@@ -2649,6 +2674,10 @@ class SyncEngine(QObject):
                     "kind": row.get("video_kind") or "movie",
                     "group_key": key,
                     "device_path": target["device_path"],
+                    "show": row.get("show_title") or "",
+                    "season": str(row.get("season_number") or ""),
+                    "episode": str(row.get("episode_number") or ""),
+                    "duration": str(int(row.get("duration") or 0))
                 }
             )
 
