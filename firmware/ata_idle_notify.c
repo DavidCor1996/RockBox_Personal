@@ -20,6 +20,7 @@
  ****************************************************************************/
 #include <stdbool.h>
 #include "system.h"
+#include "debug.h"
 #include "ata.h"
 #include "ata_idle_notify.h"
 #include "kernel.h"
@@ -63,10 +64,14 @@ bool call_storage_idle_notifys(bool force)
     if (!force)
     {
         if (TIME_BEFORE(current_tick,lock_until) )
+        {
+            DEBUGF("storage idle notify skipped\n");
             return false;
+        }
     }
     lock_until = current_tick + 30*HZ;
 
+    DEBUGF("storage idle notify force=%d\n", force);
     send_event(DISK_EVENT_SPINUP, NULL);
 
     return true;

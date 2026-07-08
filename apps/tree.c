@@ -470,6 +470,9 @@ static int update_dir(void)
 #ifdef HAVE_TAGCACHE
     if (id3db)
     {
+        if (tagtree_should_disable_paginated_scroll(&tc))
+            list->scroll_paginated = false;
+
         if (show_path_in_browser == SHOW_PATH_FULL
             || show_path_in_browser == SHOW_PATH_CURRENT)
         {
@@ -1226,7 +1229,13 @@ static int move_callback(int handle, void* current, void* new)
         struct entry *this = core_get_data(cache->entries_handle);
         struct entry *last = this + cache->max_entries;
         for(; this < last; this++)
+        {
             FIX_PTR(this->name);
+#ifdef HAVE_TAGCACHE
+            FIX_PTR(this->album_name);
+            FIX_PTR(this->album_artist);
+#endif
+        }
     }
     /* nothing to do if entries moved */
     return BUFLIB_CB_OK;

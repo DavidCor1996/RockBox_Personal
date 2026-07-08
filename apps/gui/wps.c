@@ -24,6 +24,7 @@
 #include "config.h"
 
 #include "system.h"
+#include "debug.h"
 #include "file.h"
 #include "lcd.h"
 #include "font.h"
@@ -74,8 +75,10 @@
 #define MIN_FF_REWIND_STEP 500
 
 static struct wps_state wps_state;
+static bool wps_playback_events_registered;
 
 static void wps_state_init(void);
+static void wps_state_deinit(void);
 static void track_info_callback(unsigned short id, void *param);
 
 #define WPS_DEFAULTCFG WPS_DIR "/rockbox_default.wps"
@@ -131,23 +134,20 @@ void wps_do_action(enum wps_do_action_type action, bool updatewps)
 
     if (action == WPS_PLAY)
     {
+        DEBUGF("wps: audio_resume\n");
         audio_resume();
+        get_wps_state()->paused = false;
     }
     else
     {
+        DEBUGF("wps: audio_pause action=%d\n", action);
         audio_pause();
+        get_wps_state()->paused = true;
         if (global_settings.pause_rewind) {
             unsigned long elapsed = audio_current_track()->elapsed;
             long newpos = elapsed - (global_settings.pause_rewind * 1000);
             audio_pre_ff_rewind();
             audio_ff_rewind(newpos > 0 ? newpos : 0);
-        }
-        if (action == WPS_PLAYPAUSE)
-        {
-            settings_save();
-            #if !defined(HAVE_SW_POWEROFF)
-            call_storage_idle_notifys(true);
-            #endif
         }
     }
 
@@ -396,6 +396,7 @@ static void gwps_leave_wps(bool theme_enabled)
     #if defined(HAVE_LCD_ENABLE) || defined(HAVE_LCD_SLEEP)
     remove_event(LCD_EVENT_ACTIVATION, wps_lcd_activation_hook);
     #endif
+    wps_state_deinit();
     sb_skin_set_update_delay(DEFAULT_UPDATE_DELAY);
     #ifdef HAVE_TOUCHSCREEN
     touchscreen_set_mode(global_settings.touch_mode);
@@ -413,6 +414,7 @@ static void restore_theme(void)
 
 static void gwps_enter_wps(bool theme_enabled)
 {
+    wps_state_init();
     if (theme_enabled) restore_theme();
     FOR_NB_SCREENS(i) {
         struct gui_wps *gwps = skin_get_gwps(WPS, i);
@@ -505,12 +507,7 @@ long gui_wps_show(void)
         bool audio_paused = (audio_status() & AUDIO_STATUS_PAUSE)?true:false;
         if (state->paused != audio_paused) {
             state->paused = audio_paused;
-            if (state->paused) {
-                settings_save();
-                #if !defined(HAVE_SW_POWEROFF)
-                call_storage_idle_notifys(true);
-                #endif
-            }
+            DEBUGF("wps: paused state changed to %d\n", state->paused);
         }
 
         if (restore) {
@@ -723,14 +720,33 @@ static void track_info_callback(unsigned short id, void *param)
 static void wps_state_init(void)
 {
     struct wps_state *state = get_wps_state();
-    state->paused = false;
+    state->paused = (audio_status() & AUDIO_STATUS_PAUSE) ? true : false;
     if(audio_status() & AUDIO_STATUS_PLAY) { state->id3 = audio_current_track(); state->nid3 = audio_next_track(); }
     else { state->id3 = NULL; state->nid3 = NULL; }
     skin_request_full_update(WPS);
+    if (wps_playback_events_registered)
+        return;
     add_event(PLAYBACK_EVENT_TRACK_CHANGE, track_info_callback);
     add_event(PLAYBACK_EVENT_NEXTTRACKID3_AVAILABLE, track_info_callback);
     add_event(PLAYBACK_EVENT_CUR_TRACK_READY, track_info_callback);
     #ifdef AUDIO_FAST_SKIP_PREVIEW
     add_event(PLAYBACK_EVENT_TRACK_SKIP, track_info_callback);
     #endif
+    wps_playback_events_registered = true;
+    DEBUGF("wps: playback callbacks registered\n");
+}
+
+static void wps_state_deinit(void)
+{
+    if (!wps_playback_events_registered)
+        return;
+
+    remove_event(PLAYBACK_EVENT_TRACK_CHANGE, track_info_callback);
+    remove_event(PLAYBACK_EVENT_NEXTTRACKID3_AVAILABLE, track_info_callback);
+    remove_event(PLAYBACK_EVENT_CUR_TRACK_READY, track_info_callback);
+    #ifdef AUDIO_FAST_SKIP_PREVIEW
+    remove_event(PLAYBACK_EVENT_TRACK_SKIP, track_info_callback);
+    #endif
+    wps_playback_events_registered = false;
+    DEBUGF("wps: playback callbacks unregistered\n");
 }

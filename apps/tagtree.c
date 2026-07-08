@@ -81,6 +81,7 @@ struct tagentry {
     int extraseek;
     int customaction;
     char* album_name;
+    char* album_artist;
 };
 
 static struct tagentry* tagtree_get_entry(struct tree_context *c, int id);
@@ -1585,6 +1586,135 @@ static void tcs_get_basename(struct tagcache_search *tcs, bool is_basename)
     }
 }
 
+static bool tagtree_valid_artist_name(const char *name)
+{
+    return name && name[0] && strcmp(name, UNTAGGED) != 0;
+}
+
+static bool tagtree_add_search_context(struct tagcache_search *tcs, int level,
+                                       struct tagcache_search_clause *num_clauses)
+{
+    for (int i = 0; i < level; i++)
+    {
+        if (TAGCACHE_IS_NUMERIC(csi->tagorder[i]))
+        {
+            struct tagcache_search_clause *cc = &num_clauses[i];
+            memset(cc, 0, sizeof(*cc));
+            cc->tag = csi->tagorder[i];
+            cc->type = clause_is;
+            cc->numeric = true;
+            cc->numeric_data = csi->result_seek[i];
+            if (!tagcache_search_add_clause(tcs, cc))
+                return false;
+        }
+        else if (!tagcache_search_add_filter(tcs, csi->tagorder[i],
+                                             csi->result_seek[i]))
+            return false;
+    }
+
+    for (int i = 0; i <= level; i++)
+    {
+        for (int j = 0; j < csi->clause_count[i]; j++)
+        {
+            if (!tagcache_search_add_clause(tcs, csi->clause[i][j]))
+                return false;
+        }
+    }
+
+    return true;
+}
+
+static bool tagtree_single_album_tag_value(int result_tag, int album_seek,
+                                           int level, char *buf, size_t size,
+                                           bool *multiple)
+{
+    struct tagcache_search tcs;
+    struct tagcache_search_clause num_clauses[MAX_TAGS];
+    char tcs_buf[TAGCACHE_BUFSZ];
+    char first[TAGCACHE_BUFSZ];
+    bool found = false;
+
+    if (multiple)
+        *multiple = false;
+    if (buf && size > 0)
+        buf[0] = '\0';
+
+    if (!tagcache_search(&tcs, result_tag))
+        return false;
+
+    if (!tagcache_search_add_filter(&tcs, tag_album, album_seek) ||
+        !tagtree_add_search_context(&tcs, level, num_clauses))
+    {
+        tagcache_search_finish(&tcs);
+        return false;
+    }
+
+    first[0] = '\0';
+    while (tagcache_get_next(&tcs, tcs_buf, sizeof(tcs_buf)))
+    {
+        if (!tagtree_valid_artist_name(tcs.result))
+            continue;
+
+        if (!found)
+        {
+            strmemccpy(first, tcs.result, sizeof(first));
+            found = true;
+        }
+        else if (strcasecmp(first, tcs.result) != 0)
+        {
+            if (multiple)
+                *multiple = true;
+            found = false;
+            break;
+        }
+    }
+
+    tagcache_search_finish(&tcs);
+
+    if (found && buf && size > 0)
+        strmemccpy(buf, first, size);
+
+    return found;
+}
+
+static void tagtree_resolve_album_artist(struct tagcache_search *album_tcs,
+                                         int album_seek, int idx_id,
+                                         int level, char *buf, size_t size)
+{
+    bool multiple = false;
+
+    if (!buf || size == 0)
+        return;
+
+    buf[0] = '\0';
+
+    if (tagtree_single_album_tag_value(tag_albumartist, album_seek, level,
+                                       buf, size, &multiple))
+        return;
+    if (multiple)
+    {
+        strmemccpy(buf, "Various Artists", size);
+        return;
+    }
+
+    if (tagtree_single_album_tag_value(tag_artist, album_seek, level,
+                                       buf, size, &multiple))
+        return;
+    if (multiple)
+    {
+        strmemccpy(buf, "Various Artists", size);
+        return;
+    }
+
+    if (tagcache_retrieve(album_tcs, idx_id, tag_albumartist, buf, size) &&
+        tagtree_valid_artist_name(buf))
+        return;
+
+    if (!tagcache_retrieve(album_tcs, idx_id, tag_artist, buf, size) ||
+        !tagtree_valid_artist_name(buf))
+        buf[0] = '\0';
+}
+
 static int retrieve_entries(struct tree_context *c, int offset, bool init)
 {
     logf( "%s", __func__);
@@ -1722,6 +1852,8 @@ static int retrieve_entries(struct tree_context *c, int offset, bool init)
             dptr->name = ID2P(LANG_TAGNAVI_ALL_TRACKS_SORTED_BY_ALBUM);
             dptr->extraseek = 0;
             dptr->customaction = ONPLAY_NO_CUSTOMACTION;
+            dptr->album_name = NULL;
+            dptr->album_artist = NULL;
             dptr++;
             current_entry_count++;
             c->special_entry_count++;
@@ -1732,6 +1864,8 @@ static int retrieve_entries(struct tree_context *c, int offset, bool init)
             dptr->name = ID2P(LANG_TAGNAVI_ALL_TRACKS);
             dptr->extraseek = 0;
             dptr->customaction = ONPLAY_NO_CUSTOMACTION;
+            dptr->album_name = NULL;
+            dptr->album_artist = NULL;
             dptr++;
             current_entry_count++;
             c->special_entry_count++;
@@ -1742,6 +1876,8 @@ static int retrieve_entries(struct tree_context *c, int offset, bool init)
             dptr->name = ID2P(LANG_TAGNAVI_RANDOM);
             dptr->extraseek = -1;
             dptr->customaction = ONPLAY_NO_CUSTOMACTION;
+            dptr->album_name = NULL;
+            dptr->album_artist = NULL;
             dptr++;
             current_entry_count++;
             c->special_entry_count++;
@@ -1758,6 +1894,8 @@ static int retrieve_entries(struct tree_context *c, int offset, bool init)
             continue;
 
         dptr->newtable = TABLE_NAVIBROWSE;
+        dptr->album_name = NULL;
+        dptr->album_artist = NULL;
         if (tag == tag_title || tag == tag_filename)
         {
             dptr->newtable = TABLE_PLAYTRACK;
@@ -1888,6 +2026,26 @@ static int retrieve_entries(struct tree_context *c, int offset, bool init)
             dptr->album_name = NULL;
         }
 entry_skip_formatter:
+        if (tag == tag_album)
+        {
+            char album_artist[TAGCACHE_BUFSZ];
+            tagtree_resolve_album_artist(&tcs, dptr->extraseek, tcs.idx_id,
+                                         level, album_artist,
+                                         sizeof(album_artist));
+            if (album_artist[0])
+            {
+                int len = strlen(album_artist) + 1;
+                if (namebufused + len <= c->cache.name_buffer_size)
+                {
+                    dptr->album_artist =
+                        core_get_data(c->cache.name_buffer_handle) +
+                        namebufused;
+                    strcpy(dptr->album_artist, album_artist);
+                    namebufused += len;
+                }
+            }
+        }
+
         dptr++;
         current_entry_count++;
 
@@ -2012,6 +2170,8 @@ static int load_root(struct tree_context *c)
     {
 
         dptr->name = (char*)menu->items[i]->name;
+        dptr->album_name = NULL;
+        dptr->album_artist = NULL;
 
         logf( "%s loading menu %d name: %s, lang_id %ld", __func__, i,
              P2STR((unsigned char*)dptr->name),P2ID((unsigned char*)dptr->name));
@@ -2414,7 +2574,11 @@ bool tagtree_get_album_art_row(struct tree_context *c, int id,
     if (artist && artist_size > 0)
         artist[0] = '\0';
 
-    if (artist && artist_size > 0)
+    if (artist && artist_size > 0 &&
+        tagtree_valid_artist_name(entry->album_artist))
+        strmemccpy(artist, entry->album_artist, artist_size);
+
+    if (artist && artist_size > 0 && !artist[0])
     {
         for (int i = c->currextra - 1; i >= 0; i--)
         {
@@ -2435,6 +2599,24 @@ bool tagtree_get_album_art_row(struct tree_context *c, int id,
     }
 
     return true;
+}
+
+bool tagtree_should_disable_paginated_scroll(struct tree_context *c)
+{
+    if (!c || !csi || c->currtable != TABLE_NAVIBROWSE ||
+        c->currextra < 0 || c->currextra >= csi->tagorder_count)
+        return false;
+
+    switch (csi->tagorder[c->currextra])
+    {
+        case tag_album:
+        case tag_artist:
+        case tag_albumartist:
+        case tag_virt_canonicalartist:
+            return true;
+    }
+
+    return false;
 }
 
 static void swap_array_bool(bool *a, bool *b)

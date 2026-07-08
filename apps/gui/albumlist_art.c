@@ -775,7 +775,7 @@ static bool manifest_entry_matches(const char *album, const char *artist,
         return false;
 
     if (!artist[0])
-        return true;
+        return false;
 
     return row_artist[0] && ascii_casecmp(row_artist, artist) == 0;
 }
@@ -784,6 +784,35 @@ static bool find_manifest_thumb(const char *album, const char *artist,
                                 char *path, size_t path_size)
 {
     albumlist_load_manifest_cache();
+    if (!artist[0])
+    {
+        int matches = 0;
+        char candidate[ALBUMLIST_PATH_LEN];
+
+        candidate[0] = '\0';
+        for (int i = 0; i < manifest_cache_count; i++)
+        {
+            struct albumlist_manifest_entry *entry = &manifest_cache[i];
+            if (!entry->thumb_path[0] || !entry->album[0] ||
+                ascii_casecmp(entry->album, album) != 0)
+                continue;
+
+            matches++;
+            if (matches == 1)
+                strmemccpy(candidate, entry->thumb_path, sizeof(candidate));
+            else
+                return false;
+        }
+
+        if (matches == 1)
+        {
+            strmemccpy(path, candidate, path_size);
+            return true;
+        }
+
+        return false;
+    }
+
     for (int i = 0; i < manifest_cache_count; i++)
     {
         struct albumlist_manifest_entry *entry = &manifest_cache[i];
@@ -1000,6 +1029,8 @@ void albumlist_setup_list(struct gui_synclist *list)
     if (!albumlist_has_album_rows(list))
         return;
 
+    list->scroll_paginated = false;
+
     if (global_settings.album_list_layout == ALBUM_LIST_LAYOUT_COMPACT)
     {
         list->callback_draw_item = albumlist_art_draw_item_compact;
@@ -1025,11 +1056,6 @@ void albumlist_setup_list(struct gui_synclist *list)
     if (first_album_row >= 0 && list->selected_item < first_album_row)
         gui_synclist_select_item(list, first_album_row);
 
-    if (first_album_row >= 0)
-    {
-        FOR_NB_SCREENS(i)
-            list->start_item[i] = first_album_row;
-    }
 }
 
 void albumlist_art_draw_item(struct list_putlineinfo_t *list_info)
