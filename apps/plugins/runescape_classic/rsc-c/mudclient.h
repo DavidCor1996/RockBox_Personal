@@ -155,6 +155,16 @@
 
 #define MAGIC_LOC 128
 
+/*
+ * Offline Rockbox starts in original RuneScape Classic global tile
+ * coordinates. Runtime scene/entity positions are local region coordinates:
+ * local = global - mud->region_x/y, then projected as local * MAGIC_LOC + 64.
+ */
+enum {
+    RSC_LUMBRIDGE_CASTLE_X = 2530,
+    RSC_LUMBRIDGE_CASTLE_Y = 2316
+};
+
 #define FONT_FILES_LENGTH (sizeof(font_files) / sizeof(font_files[0]))
 
 #define ANIMATED_MODELS_LENGTH 20

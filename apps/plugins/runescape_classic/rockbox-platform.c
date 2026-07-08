@@ -1,11 +1,11 @@
 #include "rockbox-platform.h"
 
-#include "mudclient.h"
-#include "game-character.h"
-#include "surface.h"
-#include "world.h"
-#include "ui/ui-tabs.h"
-#include "ui/stats-tab.h"
+#include "rsc-c/mudclient.h"
+#include "rsc-c/game-character.h"
+#include "rsc-c/surface.h"
+#include "rsc-c/world.h"
+#include "rsc-c/ui/ui-tabs.h"
+#include "rsc-c/ui/stats-tab.h"
 
 #undef open
 #undef close
@@ -24,6 +24,7 @@ static int rsc_panel_index;
 static int rsc_context_index;
 static int rsc_logoff_prompt;
 static int rsc_hold_was_on;
+static int rsc_debug_overlay;
 
 static const char *rsc_offline_profiles[] = {RSC_DEFAULT_NAME,
                                             "AboveChaos"};
@@ -815,7 +816,12 @@ void mudclient_poll_events(mudclient *mud)
             break;
 #ifdef BUTTON_PLAY
         case BUTTON_PLAY:
-            mud->key_right = 1;
+            if (!(button & BUTTON_REPEAT)) {
+                rsc_debug_overlay = !rsc_debug_overlay;
+                if (mud->options != NULL) {
+                    mud->options->show_hover_tooltip = 1;
+                }
+            }
             break;
 #endif
         case BUTTON_SCROLL_BACK:
@@ -970,6 +976,97 @@ static void rsc_draw_cursor(int x, int y)
     }
 }
 
+static void rsc_debug_overlay_line(int *y, const char *text)
+{
+    rb->lcd_putsxy(5, *y, text);
+    *y += 10;
+}
+
+static int rsc_debug_top_menu_target(mudclient *mud, struct MenuEntry **entry)
+{
+    int index;
+
+    if (mud == NULL || entry == NULL || mud->menu_items_count <= 0 ||
+        mud->menu_items == NULL || mud->menu_indices == NULL) {
+        return 0;
+    }
+
+    index = mud->menu_indices[0];
+    if (index < 0 || index >= mud->menu_items_count) {
+        return 0;
+    }
+
+    *entry = &mud->menu_items[index];
+    return 1;
+}
+
+static void rsc_draw_debug_overlay(mudclient *mud)
+{
+    unsigned fg;
+    unsigned bg;
+    char line[96];
+    int y = 4;
+    int player_lx = -1;
+    int player_ly = -1;
+    int player_gx = -1;
+    int player_gy = -1;
+    int spawn_lx;
+    int spawn_ly;
+    struct MenuEntry *entry = NULL;
+
+    if (mud == NULL) {
+        return;
+    }
+
+    if (mud->local_player != NULL) {
+        player_lx = mud->local_player->current_x / MAGIC_LOC;
+        player_ly = mud->local_player->current_y / MAGIC_LOC;
+        player_gx = mud->region_x + player_lx;
+        player_gy = mud->region_y + player_ly;
+    }
+
+    spawn_lx = RSC_LUMBRIDGE_CASTLE_X - mud->region_x;
+    spawn_ly = RSC_LUMBRIDGE_CASTLE_Y - mud->region_y;
+
+    fg = rb->lcd_get_foreground();
+    bg = rb->lcd_get_background();
+    rb->lcd_set_foreground(FB_RGBPACK(0, 0, 0));
+    rb->lcd_fillrect(0, 0, LCD_WIDTH, 86);
+    rb->lcd_set_foreground(FB_RGBPACK(255, 220, 0));
+    rb->lcd_drawrect(0, 0, LCD_WIDTH, 86);
+    rb->lcd_set_foreground(FB_RGBPACK(255, 255, 255));
+
+    snprintf(line, sizeof(line), "RSC debug  data:%s", RSC_DATA_DIR);
+    rsc_debug_overlay_line(&y, line);
+    snprintf(line, sizeof(line), "player G:%d,%d L:%d,%d", player_gx,
+             player_gy, player_lx, player_ly);
+    rsc_debug_overlay_line(&y, line);
+    snprintf(line, sizeof(line), "spawn  G:%d,%d L:%d,%d",
+             RSC_LUMBRIDGE_CASTLE_X, RSC_LUMBRIDGE_CASTLE_Y, spawn_lx,
+             spawn_ly);
+    rsc_debug_overlay_line(&y, line);
+    snprintf(line, sizeof(line), "map:%dx%d region:%d,%d",
+             REGION_WIDTH, REGION_HEIGHT, mud->region_x, mud->region_y);
+    rsc_debug_overlay_line(&y, line);
+    snprintf(line, sizeof(line), "npcs:%d items:%d scene:%d",
+             mud->npc_count, mud->ground_item_count,
+             mud->scene != NULL ? mud->scene->model_count : -1);
+    rsc_debug_overlay_line(&y, line);
+
+    if (rsc_debug_top_menu_target(mud, &entry)) {
+        snprintf(line, sizeof(line), "cursor L:%d,%d %s %s",
+                 entry->x, entry->y, entry->action_text,
+                 entry->target_text);
+    } else {
+        snprintf(line, sizeof(line), "cursor screen:%d,%d",
+                 mud->mouse_x, mud->mouse_y);
+    }
+    rsc_debug_overlay_line(&y, line);
+
+    rb->lcd_set_foreground(fg);
+    rb->lcd_set_background(bg);
+}
+
 void rsc_surface_draw_rockbox(Surface *surface)
 {
     int width = surface->width < LCD_WIDTH ? surface->width : LCD_WIDTH;
@@ -990,6 +1087,9 @@ void rsc_surface_draw_rockbox(Surface *surface)
     }
 
     rb->lcd_bitmap(&rsc_lcd[0][0], 0, 0, width, height);
+    if (surface->mud != NULL && rsc_debug_overlay) {
+        rsc_draw_debug_overlay(surface->mud);
+    }
     if (rsc_logoff_prompt) {
         unsigned fg = rb->lcd_get_foreground();
         unsigned bg = rb->lcd_get_background();

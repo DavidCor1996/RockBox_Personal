@@ -2041,11 +2041,6 @@ static int offline_walk_len;
 static int offline_walk_pos;
 
 enum {
-    LUMBRIDGE_CASTLE_X = 2530,
-    LUMBRIDGE_CASTLE_Y = 2316
-};
-
-enum {
     RSC_SAVE_VERSION = 1,
     RSC_OFFLINE_QUEST_SAVE_MAX = 64,
     RSC_QUEST_COOKS_ASSISTANT = 1,
@@ -3727,8 +3722,8 @@ static void mudclient_init_offline_save(mudclient *mud,
                                         struct OfflineSave *save) {
     memset(save, 0, sizeof(*save));
     save->profile = mud->offline_profile;
-    save->global_x = LUMBRIDGE_CASTLE_X;
-    save->global_y = LUMBRIDGE_CASTLE_Y;
+    save->global_x = RSC_LUMBRIDGE_CASTLE_X;
+    save->global_y = RSC_LUMBRIDGE_CASTLE_Y;
     save->appearance_hair = mud->appearance_hair_colour;
     save->appearance_top = mud->appearance_top_colour;
     save->appearance_bottom = mud->appearance_bottom_colour;
@@ -4017,8 +4012,8 @@ static void mudclient_apply_offline_save(mudclient *mud, GameCharacter *player,
                                          struct OfflineSave *save) {
     int local_x;
     int local_y;
-    int global_x = LUMBRIDGE_CASTLE_X;
-    int global_y = LUMBRIDGE_CASTLE_Y;
+    int global_x = RSC_LUMBRIDGE_CASTLE_X;
+    int global_y = RSC_LUMBRIDGE_CASTLE_Y;
 
     if (!save->has_position) {
         return;
@@ -4973,8 +4968,8 @@ static void mudclient_sync_offline_region(mudclient *mud) {
 }
 
 static void mudclient_start_offline_game(mudclient *mud) {
-    int global_x = LUMBRIDGE_CASTLE_X;
-    int global_y = LUMBRIDGE_CASTLE_Y;
+    int global_x = RSC_LUMBRIDGE_CASTLE_X;
+    int global_y = RSC_LUMBRIDGE_CASTLE_Y;
 
     mud->logged_in = 1;
     mud->login_screen = 0;
@@ -4983,8 +4978,14 @@ static void mudclient_start_offline_game(mudclient *mud) {
     mud->plane_height = 0;
     mud->local_player_server_index = 0;
     mud->options->show_roofs = 0;
+    mud->options->show_hover_tooltip = 1;
     mud->camera_zoom = 1100;
 
+    /*
+     * Spawn uses RSC global coordinates. load_next_region chooses the 96x96
+     * local map around that point; entities subtract mud->region_x/y before
+     * converting to scene pixels with MAGIC_LOC.
+     */
     mudclient_load_next_region(mud, global_x, global_y);
 
     mud->local_region_x = global_x - mud->region_x;
@@ -5037,17 +5038,43 @@ static void mudclient_start_offline_game(mudclient *mud) {
     mud->mouse_x = mud->game_width / 2;
     mud->mouse_y = (mud->game_height - 48) / 2;
 
-    mud_log("offline start name=%s region=%d,%d local=%d,%d camera=%d,%d "
-            "scene_models=%d npcs=%d mod=%d coins=%d skill=%d/%d",
-            mud->username, mud->region_x, mud->region_y,
+    mud_log("offline start name=%s global=%d,%d region=%d,%d local=%d,%d "
+            "camera=%d,%d scene_models=%d npcs=%d items=%d mod=%d coins=%d "
+            "skill=%d/%d",
+            mud->username, global_x, global_y, mud->region_x, mud->region_y,
             mud->local_region_x, mud->local_region_y,
             mud->camera_auto_rotate_player_x, mud->camera_auto_rotate_player_y,
-            mud->scene->model_count, mud->npc_count, mud->moderator_level,
-            mud->inventory_item_stack_count[0],
+            mud->scene->model_count, mud->npc_count, mud->ground_item_count,
+            mud->moderator_level, mud->inventory_item_stack_count[0],
             mud->player_skill_current[SKILL_ATTACK],
             mud->player_skill_base[SKILL_ATTACK]);
 
 #ifdef SIMULATOR
+    if (getenv("RSC_SIM_TEST_LUMBRIDGE_WORLD") != NULL) {
+        int player_global_x = -1;
+        int player_global_y = -1;
+        int ok = 0;
+
+        if (mud->local_player != NULL) {
+            player_global_x = mud->region_x +
+                              (mud->local_player->current_x / MAGIC_LOC);
+            player_global_y = mud->region_y +
+                              (mud->local_player->current_y / MAGIC_LOC);
+        }
+
+        ok = player_global_x == RSC_LUMBRIDGE_CASTLE_X &&
+             player_global_y == RSC_LUMBRIDGE_CASTLE_Y &&
+             mud->npc_count >= 20 && mud->ground_item_count >= 16;
+
+        fprintf(stderr, "RSC_SIM_TEST_LUMBRIDGE_WORLD_%s "
+                "spawn=%d,%d local=%d,%d region=%d,%d npcs=%d items=%d\n",
+                ok ? "PASS" : "FAIL", player_global_x, player_global_y,
+                mud->local_region_x, mud->local_region_y, mud->region_x,
+                mud->region_y, mud->npc_count, mud->ground_item_count);
+
+        mud->stop_timeout = -1;
+    }
+
     if (getenv("RSC_SIM_TEST_INVENTORY_USE") != NULL) {
         mud->menu_items[0].type = MENU_INVENTORY_USE;
         mud->menu_items[0].index = 0;

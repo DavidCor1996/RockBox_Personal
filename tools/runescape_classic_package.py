@@ -893,8 +893,8 @@ def main():
     parser.add_argument("--center-y", type=int, default=48)
     parser.add_argument("--crop-x", type=int, default=0)
     parser.add_argument("--crop-y", type=int, default=0)
-    parser.add_argument("--start-x", type=int, default=22)
-    parser.add_argument("--start-y", type=int, default=57)
+    parser.add_argument("--start-x", type=int, default=34)
+    parser.add_argument("--start-y", type=int, default=60)
     parser.add_argument("--rsc-c-dir", type=pathlib.Path, default=pathlib.Path("/tmp/rsc-c"))
     args = parser.parse_args()
 
