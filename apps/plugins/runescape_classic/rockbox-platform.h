@@ -31,6 +31,11 @@ float rsc_rb_floorf(float x);
 double rsc_rb_ceil(double x);
 double rsc_rb_fmin(double x, double y);
 int rsc_rb_system(const char *cmd);
+void rsc_haptic_menu_move(void);
+void rsc_haptic_menu_select(void);
+void rsc_haptic_action(void);
+void rsc_haptic_error(void);
+void rsc_haptic_skill(void);
 
 #define malloc rsc_rb_malloc
 #define calloc rsc_rb_calloc

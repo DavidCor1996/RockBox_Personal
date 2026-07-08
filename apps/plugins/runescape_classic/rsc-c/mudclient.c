@@ -2026,6 +2026,8 @@ static const struct OfflineNamedNpcSpawn offline_named_npc_spawns[] = {
     {18, 2517, 2318, "Father Aereck", DIR_SOUTH},
     {19, 2510, 2278, "Fred", DIR_EAST},
     {20, 2513, 2300, "ghost", DIR_NORTH},
+    {33, 2531, 2317, "Duke", DIR_SOUTH},
+    {34, 2532, 2316, "Hans", DIR_WEST},
 };
 
 static int offline_combat_cooldown;
@@ -2706,6 +2708,7 @@ static void mudclient_award_offline_xp(mudclient *mud, int skill, int xp) {
         mudclient_update_offline_combat_level(mud);
     }
 
+    rsc_haptic_skill();
     mudclient_drop_experience(mud, skill, xp);
 }
 
@@ -2736,6 +2739,30 @@ static int mudclient_offline_inventory_has_named_tool(mudclient *mud,
     }
 
     return 0;
+}
+
+static int mudclient_offline_object_text_contains(int object_id,
+                                                  const char *needle) {
+    if (object_id < 0 || object_id >= game_data.object_count) {
+        return 0;
+    }
+
+    return mudclient_offline_text_contains(game_data.objects[object_id].name,
+                                           needle) ||
+           mudclient_offline_text_contains(game_data.objects[object_id].command1,
+                                           needle) ||
+           mudclient_offline_text_contains(game_data.objects[object_id].command2,
+                                           needle);
+}
+
+static int mudclient_find_offline_object_text(const char *needle) {
+    for (int i = 0; i < game_data.object_count; i++) {
+        if (mudclient_offline_object_text_contains(i, needle)) {
+            return i;
+        }
+    }
+
+    return -1;
 }
 
 static int mudclient_offline_add_named_item(mudclient *mud, const char *name,
@@ -2783,7 +2810,7 @@ static int mudclient_offline_log_item_for_object(int object_id,
     }
 
     name = game_data.objects[object_id].name;
-    if (!mudclient_offline_text_contains(name, "tree")) {
+    if (!mudclient_offline_object_text_contains(object_id, "tree")) {
         return 0;
     }
 
@@ -2813,8 +2840,7 @@ static int mudclient_offline_log_item_for_object(int object_id,
 static int mudclient_offline_ore_for_object(int object_id,
                                             const char **item_name, int *xp) {
     if (object_id < 0 || object_id >= game_data.object_count ||
-        !mudclient_offline_text_contains(game_data.objects[object_id].name,
-                                         "rock")) {
+        !mudclient_offline_object_text_contains(object_id, "rock")) {
         return 0;
     }
 
@@ -2952,6 +2978,7 @@ static int mudclient_offline_smith_item(mudclient *mud) {
 static int mudclient_offline_fish(mudclient *mud) {
     if (mudclient_offline_inventory_has_named_tool(mud, "net")) {
         if (mudclient_offline_add_named_item(mud, "Raw Shrimp", 1) <= 0) {
+            rsc_haptic_error();
             mudclient_show_message(mud, "@cya@Your inventory is full.",
                                    MESSAGE_TYPE_GAME);
             return 1;
@@ -2967,6 +2994,7 @@ static int mudclient_offline_fish(mudclient *mud) {
         mudclient_offline_remove_item_name(mud, "Feather", 1);
         if (mudclient_offline_add_named_item(mud, "Raw Trout", 1) <= 0) {
             mudclient_offline_add_named_item(mud, "Feather", 1);
+            rsc_haptic_error();
             mudclient_show_message(mud, "@cya@Your inventory is full.",
                                    MESSAGE_TYPE_GAME);
             return 1;
@@ -2977,6 +3005,7 @@ static int mudclient_offline_fish(mudclient *mud) {
         return 1;
     }
 
+    rsc_haptic_error();
     mudclient_show_message(mud, "@cya@You need a net or rod to fish.",
                            MESSAGE_TYPE_GAME);
     return 1;
@@ -3118,11 +3147,13 @@ int mudclient_offline_handle_object_command(mudclient *mud, int object_id) {
 
     if (mudclient_offline_log_item_for_object(object_id, &item_name, &xp)) {
         if (!mudclient_offline_inventory_has_named_tool(mud, "axe")) {
+            rsc_haptic_error();
             mudclient_show_message(mud, "@cya@You need an axe to chop this.",
                                    MESSAGE_TYPE_GAME);
             return 1;
         }
         if (mudclient_offline_add_named_item(mud, item_name, 1) <= 0) {
+            rsc_haptic_error();
             mudclient_show_message(mud, "@cya@Your inventory is full.",
                                    MESSAGE_TYPE_GAME);
             return 1;
@@ -3135,12 +3166,14 @@ int mudclient_offline_handle_object_command(mudclient *mud, int object_id) {
 
     if (mudclient_offline_ore_for_object(object_id, &item_name, &xp)) {
         if (!mudclient_offline_inventory_has_named_tool(mud, "pickaxe")) {
+            rsc_haptic_error();
             mudclient_show_message(mud,
                                    "@cya@You need a pickaxe to mine this.",
                                    MESSAGE_TYPE_GAME);
             return 1;
         }
         if (mudclient_offline_add_named_item(mud, item_name, 1) <= 0) {
+            rsc_haptic_error();
             mudclient_show_message(mud, "@cya@Your inventory is full.",
                                    MESSAGE_TYPE_GAME);
             return 1;
@@ -3151,48 +3184,47 @@ int mudclient_offline_handle_object_command(mudclient *mud, int object_id) {
         return 1;
     }
 
-    if (mudclient_offline_text_contains(game_data.objects[object_id].name,
-                                        "range") ||
-        mudclient_offline_text_contains(game_data.objects[object_id].name,
-                                        "fire")) {
+    if (mudclient_offline_object_text_contains(object_id, "range") ||
+        mudclient_offline_object_text_contains(object_id, "fire")) {
         return mudclient_offline_cook_first_raw_food(mud);
     }
 
-    if (mudclient_offline_text_contains(game_data.objects[object_id].name,
-                                        "furnace")) {
+    if (mudclient_offline_object_text_contains(object_id, "furnace")) {
         return mudclient_offline_smelt_bar(mud);
     }
 
-    if (mudclient_offline_text_contains(game_data.objects[object_id].name,
-                                        "anvil")) {
+    if (mudclient_offline_object_text_contains(object_id, "anvil")) {
         return mudclient_offline_smith_item(mud);
     }
 
-    if (mudclient_offline_text_contains(game_data.objects[object_id].name,
-                                        "water")) {
+    if (mudclient_offline_object_text_contains(object_id, "water") ||
+        mudclient_offline_object_text_contains(object_id, "fish") ||
+        mudclient_offline_object_text_contains(object_id, "net") ||
+        mudclient_offline_object_text_contains(object_id, "lure") ||
+        mudclient_offline_object_text_contains(object_id, "bait")) {
         return mudclient_offline_fish(mud);
     }
 
-    if (mudclient_offline_text_contains(game_data.objects[object_id].name,
-                                        "altar")) {
+    if (mudclient_offline_object_text_contains(object_id, "altar")) {
         mud->player_skill_current[SKILL_PRAYER] =
             mud->player_skill_base[SKILL_PRAYER];
+        rsc_haptic_action();
         mudclient_show_message(mud, "@cya@You recharge your Prayer points.",
                                MESSAGE_TYPE_GAME);
         return 1;
     }
 
-    if (mudclient_offline_text_contains(game_data.objects[object_id].name,
-                                        "wheat")) {
+    if (mudclient_offline_object_text_contains(object_id, "wheat")) {
         mudclient_offline_add_named_item(mud, "Flour", 1);
+        rsc_haptic_action();
         mudclient_show_message(mud, "@cya@You pick some wheat.",
                                MESSAGE_TYPE_GAME);
         return 1;
     }
 
-    if (mudclient_offline_text_contains(game_data.objects[object_id].name,
-                                        "potato")) {
+    if (mudclient_offline_object_text_contains(object_id, "potato")) {
         mudclient_offline_add_named_item(mud, "Potato", 1);
+        rsc_haptic_action();
         mudclient_show_message(mud, "@cya@You pick a potato.",
                                MESSAGE_TYPE_GAME);
         return 1;
@@ -3673,6 +3705,11 @@ static void mudclient_seed_david_inventory(mudclient *mud) {
                                         500, 0);
     mudclient_add_offline_inventory_item(mud, RSC_ITEM_RUNE_THROWING_KNIFE,
                                         500, 0);
+    mudclient_ensure_offline_inventory_item(mud, "Bronze Pickaxe", 1, 0);
+    mudclient_ensure_offline_inventory_item(mud, "Small fishing net", 1, 0);
+    mudclient_ensure_offline_inventory_item(mud, "Fishing Rod", 1, 0);
+    mudclient_ensure_offline_inventory_item(mud, "Feather", 25, 0);
+    mudclient_ensure_offline_inventory_item(mud, "tinderbox", 1, 0);
 }
 
 static void mudclient_set_above_chaos_appearance(mudclient *mud,
@@ -3704,7 +3741,10 @@ static void mudclient_seed_above_chaos_inventory(mudclient *mud) {
     mudclient_ensure_offline_inventory_item(mud, "cookedmeat", 1, 0);
     mudclient_ensure_offline_inventory_item(mud, "tinderbox", 1, 0);
     mudclient_ensure_offline_inventory_item(mud, "bronze Axe", 1, 0);
+    mudclient_ensure_offline_inventory_item(mud, "Bronze Pickaxe", 1, 0);
     mudclient_ensure_offline_inventory_item(mud, "Small fishing net", 1, 0);
+    mudclient_ensure_offline_inventory_item(mud, "Fishing Rod", 1, 0);
+    mudclient_ensure_offline_inventory_item(mud, "Feather", 25, 0);
 }
 
 static void mudclient_ensure_above_chaos_starter_items(mudclient *mud) {
@@ -3715,7 +3755,10 @@ static void mudclient_ensure_above_chaos_starter_items(mudclient *mud) {
     mudclient_ensure_offline_inventory_item(mud, "cookedmeat", 1, 0);
     mudclient_ensure_offline_inventory_item(mud, "tinderbox", 1, 0);
     mudclient_ensure_offline_inventory_item(mud, "bronze Axe", 1, 0);
+    mudclient_ensure_offline_inventory_item(mud, "Bronze Pickaxe", 1, 0);
     mudclient_ensure_offline_inventory_item(mud, "Small fishing net", 1, 0);
+    mudclient_ensure_offline_inventory_item(mud, "Fishing Rod", 1, 0);
+    mudclient_ensure_offline_inventory_item(mud, "Feather", 25, 0);
 }
 
 static void mudclient_init_offline_save(mudclient *mud,
@@ -4967,6 +5010,44 @@ static void mudclient_sync_offline_region(mudclient *mud) {
     }
 }
 
+#ifdef SIMULATOR
+static void mudclient_sim_test_lumbridge_skills(mudclient *mud) {
+    int tree_id = mudclient_find_offline_object_text("tree");
+    int fish_id = mudclient_find_offline_object_text("fish");
+    int rock_id = mudclient_find_offline_object_text("rock");
+    int wood_xp = mud->player_experience[SKILL_WOODCUT];
+    int fish_xp = mud->player_experience[SKILL_FISHING];
+    int mine_xp = mud->player_experience[SKILL_MINING];
+    int ok;
+
+    if (fish_id < 0) {
+        fish_id = mudclient_find_offline_object_text("water");
+    }
+    if (fish_id < 0) {
+        fish_id = mudclient_find_offline_object_text("net");
+    }
+
+    mudclient_seed_above_chaos_inventory(mud);
+    mudclient_offline_handle_object_command(mud, tree_id);
+    mudclient_offline_handle_object_command(mud, fish_id);
+    mudclient_offline_handle_object_command(mud, rock_id);
+
+    ok = tree_id >= 0 && fish_id >= 0 && rock_id >= 0 &&
+         mud->player_experience[SKILL_WOODCUT] > wood_xp &&
+         mud->player_experience[SKILL_FISHING] > fish_xp &&
+         mud->player_experience[SKILL_MINING] > mine_xp;
+
+    fprintf(stderr, "RSC_SIM_TEST_LUMBRIDGE_SKILLS_%s "
+            "tree=%d fish=%d rock=%d wc=%d fishing=%d mining=%d\n",
+            ok ? "PASS" : "FAIL", tree_id, fish_id, rock_id,
+            mud->player_experience[SKILL_WOODCUT] - wood_xp,
+            mud->player_experience[SKILL_FISHING] - fish_xp,
+            mud->player_experience[SKILL_MINING] - mine_xp);
+
+    mud->stop_timeout = -1;
+}
+#endif
+
 static void mudclient_start_offline_game(mudclient *mud) {
     int global_x = RSC_LUMBRIDGE_CASTLE_X;
     int global_y = RSC_LUMBRIDGE_CASTLE_Y;
@@ -5073,6 +5154,10 @@ static void mudclient_start_offline_game(mudclient *mud) {
                 mud->region_y, mud->npc_count, mud->ground_item_count);
 
         mud->stop_timeout = -1;
+    }
+
+    if (getenv("RSC_SIM_TEST_LUMBRIDGE_SKILLS") != NULL) {
+        mudclient_sim_test_lumbridge_skills(mud);
     }
 
     if (getenv("RSC_SIM_TEST_INVENTORY_USE") != NULL) {

@@ -36,6 +36,44 @@ static long rsc_last_wheel_scroll;
 static long rsc_last_zoom;
 #endif
 
+static void rsc_haptic_pulse(int duration_ms, int strength)
+{
+    if (rb->haptic_feedback_enabled == NULL) {
+        return;
+    }
+
+    if (!rb->haptic_feedback_enabled()) {
+        return;
+    }
+
+    rb->haptic_feedback(duration_ms, strength);
+}
+
+void rsc_haptic_menu_move(void)
+{
+    rsc_haptic_pulse(12, 22);
+}
+
+void rsc_haptic_menu_select(void)
+{
+    rsc_haptic_pulse(24, 42);
+}
+
+void rsc_haptic_action(void)
+{
+    rsc_haptic_pulse(32, 55);
+}
+
+void rsc_haptic_error(void)
+{
+    rsc_haptic_pulse(45, 70);
+}
+
+void rsc_haptic_skill(void)
+{
+    rsc_haptic_pulse(36, 78);
+}
+
 static void rsc_boot_status(const char *text)
 {
     rb->lcd_clear_display();
@@ -141,12 +179,14 @@ static int rsc_select_offline_profile(mudclient *mud)
 #endif
         ) {
             selected = (selected - 1 + 2) % 2;
+            rsc_haptic_menu_move();
         } else if (base == BUTTON_RIGHT
 #ifdef BUTTON_DOWN
                    || base == BUTTON_DOWN
 #endif
         ) {
             selected = (selected + 1) % 2;
+            rsc_haptic_menu_move();
         } else if (base == BUTTON_SELECT) {
             mud->offline_profile = selected;
             if (mud->offline_profile == RSC_OFFLINE_PROFILE_DAVID) {
@@ -155,8 +195,10 @@ static int rsc_select_offline_profile(mudclient *mud)
                 strcpy(mud->username, "AboveChaos");
             }
             strcpy(mud->options->username, mud->username);
+            rsc_haptic_menu_select();
             return 1;
         } else if (base == BUTTON_MENU) {
+            rsc_haptic_error();
             return 0;
         }
     }
@@ -496,6 +538,7 @@ static void rsc_cycle_ui_tab(mudclient *mud, int direction)
 {
     rsc_ui_tab = (rsc_ui_tab + direction + 6) % 6;
     rsc_panel_index = 0;
+    rsc_haptic_menu_move();
     rsc_move_cursor_to_ui_tab(mud);
 }
 
@@ -506,6 +549,7 @@ static void rsc_close_ui(mudclient *mud)
     mud->show_ui_tab = 0;
     rsc_panel_index = 0;
     rsc_context_index = 0;
+    rsc_haptic_menu_select();
     rsc_move_cursor_to_player(mud);
 }
 
@@ -517,6 +561,7 @@ static void rsc_open_ui_tabs(mudclient *mud)
         rsc_ui_tab = 0;
     }
     rsc_panel_index = 0;
+    rsc_haptic_menu_select();
     rsc_move_cursor_to_ui_tab(mud);
 }
 
@@ -528,8 +573,12 @@ static void rsc_move_inventory_selection(mudclient *mud, int direction)
     int width = ITEM_GRID_SLOT_WIDTH * columns;
     int ui_x = mud->surface->width - width - 3;
     int ui_y = UI_BUTTON_SIZE + 1;
+    int old_index = rsc_panel_index;
 
     rsc_panel_index = rsc_clamp(rsc_panel_index + direction, 0, count - 1);
+    if (rsc_panel_index != old_index || direction == 0) {
+        rsc_haptic_menu_move();
+    }
 
     rsc_set_cursor(mud,
                    ui_x + (rsc_panel_index % columns) * ITEM_GRID_SLOT_WIDTH +
@@ -554,6 +603,7 @@ static void rsc_enter_ui_panel(mudclient *mud)
     rsc_ui_mode = RSC_MODE_PANEL;
     mud->show_ui_tab = rsc_ui_tab + 1;
     rsc_panel_index = 0;
+    rsc_haptic_menu_select();
 
     if (mud->show_ui_tab == INVENTORY_TAB) {
         rsc_move_inventory_selection(mud, 0);
@@ -605,6 +655,8 @@ static void rsc_click_button(mudclient *mud, int button)
 
 static void rsc_click(mudclient *mud)
 {
+    rsc_haptic_menu_select();
+
     if (!mud->show_right_click_menu && rsc_cursor_is_over_game(mud) &&
         mud->menu_items_count > 1) {
         rsc_context_index = 0;
@@ -617,6 +669,7 @@ static void rsc_click(mudclient *mud)
 static void rsc_move_context_selection(mudclient *mud, int direction)
 {
     int entry_height = mudclient_is_touch(mud) ? 19 : 15;
+    int old_index = rsc_context_index;
 
     if (!mud->show_right_click_menu || mud->menu_items_count <= 0) {
         return;
@@ -625,6 +678,9 @@ static void rsc_move_context_selection(mudclient *mud, int direction)
     rsc_ui_mode = RSC_MODE_CONTEXT;
     rsc_context_index =
         rsc_clamp(rsc_context_index + direction, 0, mud->menu_items_count - 1);
+    if (rsc_context_index != old_index) {
+        rsc_haptic_menu_move();
+    }
 
     mudclient_mouse_moved(mud, mud->menu_x + (mud->menu_width / 2),
                           mud->menu_y + entry_height + 12 +
@@ -821,6 +877,7 @@ void mudclient_poll_events(mudclient *mud)
                 if (mud->options != NULL) {
                     mud->options->show_hover_tooltip = 1;
                 }
+                rsc_haptic_action();
             }
             break;
 #endif
