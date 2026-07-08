@@ -47,9 +47,7 @@ plugin_src=""
 if [ "$sim_target" -eq 1 ]; then
     for candidate in \
         "$repo_root/build-sim-ipod6g/apps/plugins/runescape_classic/runescape_classic.rock" \
-        "$repo_root/build-sim-ipod6g/apps/plugins/runescape_classic.rock" \
-        "$repo_root/build-hw-ipod6g/apps/plugins/runescape_classic/runescape_classic.rock" \
-        "$repo_root/build-hw-ipod6g/apps/plugins/runescape_classic.rock"
+        "$repo_root/build-hw-ipod6g/apps/plugins/runescape_classic/runescape_classic.rock"
     do
         if [ -f "$candidate" ]; then
             plugin_src="$candidate"
@@ -59,9 +57,7 @@ if [ "$sim_target" -eq 1 ]; then
 else
     for candidate in \
         "$repo_root/build-hw-ipod6g/apps/plugins/runescape_classic/runescape_classic.rock" \
-        "$repo_root/build-hw-ipod6g/apps/plugins/runescape_classic.rock" \
-        "$repo_root/build-sim-ipod6g/apps/plugins/runescape_classic/runescape_classic.rock" \
-        "$repo_root/build-sim-ipod6g/apps/plugins/runescape_classic.rock"
+        "$repo_root/build-sim-ipod6g/apps/plugins/runescape_classic/runescape_classic.rock"
     do
         if [ -f "$candidate" ]; then
             plugin_src="$candidate"
@@ -72,10 +68,10 @@ fi
 
 plugin_dst="$target_root/.rockbox/rocks/games/runescape_classic.rock"
 if [ -n "$plugin_src" ] && [ -f "$plugin_src" ]; then
-    cp -p "$plugin_src" "$plugin_dst"
+    :
 else
     echo "Runescape Classic plugin binary not found in expected build outputs." >&2
-    echo "Build one of: build-hw-ipod6g or build-sim-ipod6g" >&2
+    echo "Build apps/plugins/runescape_classic/runescape_classic.rock in build-hw-ipod6g or build-sim-ipod6g." >&2
     echo "Missing plugin may keep it out of the Games menu." >&2
     exit 1
 fi
@@ -145,8 +141,47 @@ done
 
 game_dir="$target_root/.rockbox/rocks/games/runescape_classic"
 ipodjs_dir="$target_root/.rockbox/ipodjs/runescape_classic"
+backup_dir="$target_root/.rockbox/backups/runescape_classic-$(date +%Y%m%d-%H%M%S)"
+stale_plugin_apps="$target_root/.rockbox/rocks/apps/runescape_classic.rock"
+stale_plugin_data="$game_dir/runescape_classic.rock"
+
+backup_asset_dir() {
+    src_dir=$1
+    dst_dir=$2
+
+    [ -d "$src_dir" ] || return
+    mkdir -p "$dst_dir"
+    for asset in $required_assets; do
+        [ -f "$src_dir/$asset" ] || continue
+        cp -p "$src_dir/$asset" "$dst_dir/"
+    done
+
+    if [ -d "$src_dir/covers" ]; then
+        mkdir -p "$dst_dir/covers"
+        for cover in "$src_dir"/covers/*.bmp; do
+            [ -f "$cover" ] || continue
+            cp -p "$cover" "$dst_dir/covers/"
+        done
+    fi
+}
+
+mkdir -p "$backup_dir"
+if [ -f "$plugin_dst" ]; then
+    cp -p "$plugin_dst" "$backup_dir/runescape_classic.rock"
+fi
+if [ -f "$stale_plugin_apps" ]; then
+    cp -p "$stale_plugin_apps" "$backup_dir/rocks-apps-runescape_classic.rock"
+fi
+if [ -f "$stale_plugin_data" ]; then
+    cp -p "$stale_plugin_data" "$backup_dir/rocks-games-data-runescape_classic.rock"
+fi
+backup_asset_dir "$game_dir" "$backup_dir/rocks-games-runescape_classic"
+backup_asset_dir "$ipodjs_dir" "$backup_dir/ipodjs-runescape_classic"
+echo "Backed up existing RuneScape Classic files to $backup_dir"
 
 mkdir -p "$game_dir" "$ipodjs_dir"
+cp -p "$plugin_src" "$plugin_dst"
+rm -f "$stale_plugin_apps" "$stale_plugin_data"
 stale_assets="
 ui_top.bmp
 ui_bottom.bmp
@@ -176,8 +211,14 @@ fi
 
 invalidate_games_plugin_cache
 
+sha256sum "$plugin_src" "$plugin_dst"
 for asset in $required_assets; do
     sha256sum "$asset_dir/$asset" "$game_dir/$asset" "$ipodjs_dir/$asset"
 done
 
-echo "Installed RuneScape Classic assets to $target_root"
+sync
+
+echo "Installed RuneScape Classic to $target_root"
+echo "Plugin source: $plugin_src"
+echo "Plugin destination: $plugin_dst"
+echo "Data destinations: $game_dir and $ipodjs_dir"
