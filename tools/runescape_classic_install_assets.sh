@@ -110,6 +110,8 @@ refresh_sim_rockboy_launcher
 
 required_assets="
 lumbridge.rsc
+npc_spawns.tsv
+item_spawns.tsv
 character_male.bmp
 character_male_0.bmp
 character_male_1.bmp

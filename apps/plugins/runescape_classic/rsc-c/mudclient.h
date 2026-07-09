@@ -156,13 +156,22 @@
 #define MAGIC_LOC 128
 
 /*
- * Offline Rockbox starts in original RuneScape Classic global tile
- * coordinates. Runtime scene/entity positions are local region coordinates:
- * local = global - mud->region_x/y, then projected as local * MAGIC_LOC + 64.
+ * Open-RSC data files use original RuneScape Classic raw world coordinates.
+ * The RSC client map cache used by this port is section based and shifted by
+ * +2400,+1668 for the Lumbridge crop generated from sections 52/47..53/48.
+ * Runtime scene/entity positions are local region coordinates:
+ * local = client_global - mud->region_x/y, then projected as
+ * local * MAGIC_LOC + 64.
  */
 enum {
-    RSC_LUMBRIDGE_CASTLE_X = 2530,
-    RSC_LUMBRIDGE_CASTLE_Y = 2316
+    RSC_OPENRSC_X_OFFSET = 2400,
+    RSC_OPENRSC_Y_OFFSET = 1668,
+    RSC_LUMBRIDGE_RAW_SPAWN_X = 120,
+    RSC_LUMBRIDGE_RAW_SPAWN_Y = 648,
+    RSC_LUMBRIDGE_CASTLE_X =
+        RSC_OPENRSC_X_OFFSET + RSC_LUMBRIDGE_RAW_SPAWN_X,
+    RSC_LUMBRIDGE_CASTLE_Y =
+        RSC_OPENRSC_Y_OFFSET + RSC_LUMBRIDGE_RAW_SPAWN_Y
 };
 
 #define FONT_FILES_LENGTH (sizeof(font_files) / sizeof(font_files[0]))

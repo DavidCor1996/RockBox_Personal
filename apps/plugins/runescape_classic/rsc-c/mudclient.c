@@ -1981,55 +1981,51 @@ struct OfflineNpcSpawn {
     int direction;
 };
 
-static const struct OfflineNpcSpawn offline_npc_spawns[] = {
-    {0, 2520, 2286, 73, DIR_SOUTH},  /* Lumbridge guide */
-    {1, 2518, 2289, 11, DIR_EAST},   /* man */
-    {2, 2524, 2290, 24, DIR_WEST},   /* townsperson */
-    {3, 2516, 2292, 3, DIR_SOUTH},   /* chicken */
-    {4, 2528, 2284, 4, DIR_WEST},    /* goblin */
-    {5, 2522, 2295, 3, DIR_NORTH},   /* chicken */
-    {6, 2518, 2320, 7, DIR_WEST},    /* cook */
-    {7, 2530, 2314, 11, DIR_SOUTH},  /* castle man */
-    {8, 2539, 2308, 65, DIR_SOUTH},  /* guard */
-    {9, 2543, 2308, 65, DIR_SOUTH},  /* guard */
-    {10, 2556, 2310, 65, DIR_WEST},  /* guard */
-    {11, 2559, 2298, 4, DIR_WEST},   /* goblin */
-    {12, 2566, 2299, 153, DIR_NORTH},/* goblin */
-    {13, 2571, 2290, 3, DIR_SOUTH},  /* chicken */
-    {14, 2584, 2287, 4, DIR_WEST},   /* goblin */
-    {15, 2589, 2294, 153, DIR_NORTH},/* goblin */
-    {16, 2527, 2312, 95, DIR_SOUTH}, /* banker */
-    {17, 2524, 2312, 51, DIR_SOUTH}, /* shopkeeper */
-    {21, 2537, 2288, 6, DIR_EAST},   /* cow */
-    {22, 2541, 2287, 6, DIR_WEST},   /* cow */
-    {23, 2510, 2276, 2, DIR_SOUTH},  /* sheep */
-    {24, 2513, 2277, 2, DIR_NORTH},  /* sheep */
-    {25, 2512, 2274, 63, DIR_EAST},  /* farmer */
-    {26, 2529, 2304, 19, DIR_WEST},  /* rat */
-    {27, 2531, 2303, 29, DIR_EAST},  /* rat */
-    {28, 2562, 2296, 23, DIR_SOUTH}, /* giant spider */
-    {29, 2565, 2296, 34, DIR_NORTH}, /* spider */
-    {30, 2534, 2315, 65, DIR_SOUTH}, /* castle guard */
-    {31, 2520, 2292, 91, DIR_EAST},  /* chicken */
-    {32, 2581, 2292, 62, DIR_WEST},  /* goblin */
-};
-
-struct OfflineNamedNpcSpawn {
-    int server_index;
+struct OfflineItemSpawn {
+    int id;
     int global_x;
     int global_y;
-    const char *name;
-    int direction;
 };
 
-static const struct OfflineNamedNpcSpawn offline_named_npc_spawns[] = {
-    {18, 2517, 2318, "Father Aereck", DIR_SOUTH},
-    {19, 2510, 2278, "Fred", DIR_EAST},
-    {20, 2513, 2300, "ghost", DIR_NORTH},
-    {33, 2531, 2317, "Duke", DIR_SOUTH},
-    {34, 2532, 2316, "Hans", DIR_WEST},
+enum {
+    RSC_MAX_OFFLINE_NPC_SPAWNS = 192,
+    RSC_MAX_OFFLINE_ITEM_SPAWNS = 192,
+    RSC_SPAWN_FILE_BUFFER_SIZE = 16384
 };
 
+static const struct OfflineNpcSpawn offline_fallback_npc_spawns[] = {
+    {0, 2524, 2337, 1, DIR_SOUTH},  /* Bob */
+    {1, 2537, 2319, 5, DIR_SOUTH},  /* Hans */
+    {2, 2535, 2329, 7, DIR_SOUTH},  /* cook */
+    {3, 2534, 2311, 55, DIR_SOUTH}, /* shopkeeper */
+    {4, 2535, 2308, 83, DIR_SOUTH}, /* shop assistant */
+    {5, 2513, 2335, 9, DIR_SOUTH},  /* priest */
+    {6, 2521, 2279, 63, DIR_SOUTH}, /* farmer */
+    {7, 2559, 2286, 77, DIR_SOUTH}, /* Fred the farmer */
+    {8, 2518, 2271, 3, DIR_SOUTH},  /* chicken */
+    {9, 2516, 2297, 62, DIR_SOUTH}, /* goblin */
+};
+
+static const struct OfflineItemSpawn offline_fallback_item_spawns[] = {
+    {11, 2540, 2316},  /* Bronze Arrows */
+    {13, 2530, 2335},  /* Knife */
+    {19, 2519, 2271},  /* Egg */
+    {21, 2521, 2275},  /* Bucket */
+    {28, 2519, 2299},  /* Iron dagger */
+    {33, 2517, 2337},  /* Air-Rune */
+    {35, 2538, 2336},  /* Mind-Rune */
+    {135, 2534, 2328}, /* pot */
+    {140, 2533, 2329}, /* jug */
+};
+
+static struct OfflineNpcSpawn
+    offline_loaded_npc_spawns[RSC_MAX_OFFLINE_NPC_SPAWNS];
+static struct OfflineItemSpawn
+    offline_loaded_item_spawns[RSC_MAX_OFFLINE_ITEM_SPAWNS];
+static int offline_loaded_npc_spawn_count;
+static int offline_loaded_item_spawn_count;
+static int offline_spawn_data_loaded;
+static int offline_spawn_data_warned;
 static int offline_combat_cooldown;
 static int offline_combat_engaged;
 static int offline_combat_phase;
@@ -2041,6 +2037,279 @@ static int offline_walk_x[PATH_STEPS_MAX];
 static int offline_walk_y[PATH_STEPS_MAX];
 static int offline_walk_len;
 static int offline_walk_pos;
+
+static int mudclient_openrsc_x_to_global(int raw_x) {
+    return raw_x + RSC_OPENRSC_X_OFFSET;
+}
+
+static int mudclient_openrsc_y_to_global(int raw_y) {
+    return raw_y + RSC_OPENRSC_Y_OFFSET;
+}
+
+static char *mudclient_find_char(char *text, char wanted) {
+    while (text != NULL && *text != '\0') {
+        if (*text == wanted) {
+            return text;
+        }
+        text++;
+    }
+
+    return NULL;
+}
+
+static int mudclient_parse_spawn_int(const char *text, int *value) {
+    int sign = 1;
+    int parsed = 0;
+    int result = 0;
+
+    if (text == NULL || value == NULL) {
+        return 0;
+    }
+
+    while (*text == ' ' || *text == '\t') {
+        text++;
+    }
+
+    if (*text == '-') {
+        sign = -1;
+        text++;
+    }
+
+    while (*text >= '0' && *text <= '9') {
+        result = result * 10 + (*text - '0');
+        parsed = 1;
+        text++;
+    }
+
+    if (!parsed) {
+        return 0;
+    }
+
+    *value = result * sign;
+    return 1;
+}
+
+static char *mudclient_next_tsv_field(char **cursor) {
+    char *field;
+    char *end;
+
+    if (cursor == NULL || *cursor == NULL) {
+        return NULL;
+    }
+
+    field = *cursor;
+    end = field;
+    while (*end != '\0' && *end != '\t') {
+        end++;
+    }
+
+    if (*end == '\t') {
+        *end = '\0';
+        *cursor = end + 1;
+    } else {
+        *cursor = end;
+    }
+
+    return field;
+}
+
+static int mudclient_read_spawn_file(const char *filename, char *buffer,
+                                     int buffer_size) {
+    char path[256];
+    int fd;
+    int total = 0;
+    const char *roots[] = {
+        RSC_DATA_DIR,
+        ROCKBOX_DIR "/ipodjs/runescape_classic",
+    };
+
+    if (filename == NULL || buffer == NULL || buffer_size <= 1) {
+        return 0;
+    }
+
+    for (int root = 0; root < 2; root++) {
+        snprintf(path, sizeof(path), "%s/%s", roots[root], filename);
+        fd = open(path, O_RDONLY);
+        if (fd < 0) {
+            continue;
+        }
+
+        while (total < buffer_size - 1) {
+            int chunk = read(fd, buffer + total, buffer_size - 1 - total);
+            if (chunk <= 0) {
+                break;
+            }
+            total += chunk;
+        }
+
+        close(fd);
+        buffer[total] = '\0';
+        return total > 0;
+    }
+
+    buffer[0] = '\0';
+    return 0;
+}
+
+static int mudclient_spawn_line_is_comment(char *line) {
+    if (line == NULL) {
+        return 1;
+    }
+
+    while (*line == ' ' || *line == '\t' || *line == '\r') {
+        line++;
+    }
+
+    return *line == '\0' || *line == '\n' || *line == '#';
+}
+
+static void mudclient_load_offline_npc_spawns(void) {
+    static char buffer[RSC_SPAWN_FILE_BUFFER_SIZE];
+    char *line = buffer;
+    int count = 0;
+
+    if (!mudclient_read_spawn_file("npc_spawns.tsv", buffer,
+                                   sizeof(buffer))) {
+        return;
+    }
+
+    while (line != NULL && *line != '\0') {
+        char *next = mudclient_find_char(line, '\n');
+        char *cursor;
+        char *field;
+        int id;
+        int raw_x;
+        int raw_y;
+        int facing;
+
+        if (next != NULL) {
+            *next = '\0';
+            next++;
+        }
+
+        if (mudclient_spawn_line_is_comment(line)) {
+            line = next;
+            continue;
+        }
+
+        cursor = line;
+        field = mudclient_next_tsv_field(&cursor);
+        if (!mudclient_parse_spawn_int(field, &id)) {
+            line = next;
+            continue;
+        }
+
+        mudclient_next_tsv_field(&cursor);
+        field = mudclient_next_tsv_field(&cursor);
+        if (!mudclient_parse_spawn_int(field, &raw_x)) {
+            line = next;
+            continue;
+        }
+
+        field = mudclient_next_tsv_field(&cursor);
+        if (!mudclient_parse_spawn_int(field, &raw_y)) {
+            line = next;
+            continue;
+        }
+
+        field = mudclient_next_tsv_field(&cursor);
+        if (!mudclient_parse_spawn_int(field, &facing)) {
+            facing = DIR_SOUTH;
+        }
+
+        if (count < RSC_MAX_OFFLINE_NPC_SPAWNS && id >= 0 &&
+            id < game_data.npc_count) {
+            offline_loaded_npc_spawns[count].server_index = count;
+            offline_loaded_npc_spawns[count].global_x =
+                mudclient_openrsc_x_to_global(raw_x);
+            offline_loaded_npc_spawns[count].global_y =
+                mudclient_openrsc_y_to_global(raw_y);
+            offline_loaded_npc_spawns[count].npc_id = id;
+            offline_loaded_npc_spawns[count].direction = facing & 7;
+            count++;
+        }
+
+        line = next;
+    }
+
+    offline_loaded_npc_spawn_count = count;
+}
+
+static void mudclient_load_offline_item_spawns(void) {
+    static char buffer[RSC_SPAWN_FILE_BUFFER_SIZE];
+    char *line = buffer;
+    int count = 0;
+
+    if (!mudclient_read_spawn_file("item_spawns.tsv", buffer,
+                                   sizeof(buffer))) {
+        return;
+    }
+
+    while (line != NULL && *line != '\0') {
+        char *next = mudclient_find_char(line, '\n');
+        char *cursor;
+        char *field;
+        int id;
+        int raw_x;
+        int raw_y;
+
+        if (next != NULL) {
+            *next = '\0';
+            next++;
+        }
+
+        if (mudclient_spawn_line_is_comment(line)) {
+            line = next;
+            continue;
+        }
+
+        cursor = line;
+        field = mudclient_next_tsv_field(&cursor);
+        if (!mudclient_parse_spawn_int(field, &id)) {
+            line = next;
+            continue;
+        }
+
+        mudclient_next_tsv_field(&cursor);
+        field = mudclient_next_tsv_field(&cursor);
+        if (!mudclient_parse_spawn_int(field, &raw_x)) {
+            line = next;
+            continue;
+        }
+
+        field = mudclient_next_tsv_field(&cursor);
+        if (!mudclient_parse_spawn_int(field, &raw_y)) {
+            line = next;
+            continue;
+        }
+
+        if (count < RSC_MAX_OFFLINE_ITEM_SPAWNS && id >= 0 &&
+            id < game_data.item_count) {
+            offline_loaded_item_spawns[count].id = id;
+            offline_loaded_item_spawns[count].global_x =
+                mudclient_openrsc_x_to_global(raw_x);
+            offline_loaded_item_spawns[count].global_y =
+                mudclient_openrsc_y_to_global(raw_y);
+            count++;
+        }
+
+        line = next;
+    }
+
+    offline_loaded_item_spawn_count = count;
+}
+
+static void mudclient_load_offline_spawn_data(void) {
+    if (offline_spawn_data_loaded) {
+        return;
+    }
+
+    offline_loaded_npc_spawn_count = 0;
+    offline_loaded_item_spawn_count = 0;
+    mudclient_load_offline_npc_spawns();
+    mudclient_load_offline_item_spawns();
+    offline_spawn_data_loaded = 1;
+}
 
 enum {
     RSC_SAVE_VERSION = 1,
@@ -2496,25 +2765,15 @@ static void mudclient_offline_add_ground_item(mudclient *mud, int id, int x,
     }
 }
 
-static void mudclient_offline_add_ground_item_once(mudclient *mud,
-                                                   const char *name, int x,
-                                                   int y) {
-    int id = mudclient_find_offline_item(name);
-
-    if (mud == NULL) {
+static void mudclient_offline_add_ground_item_id_once(mudclient *mud, int id,
+                                                      int x, int y) {
+    if (mud == NULL || id < 0 || id >= game_data.item_count) {
         return;
     }
 
     x -= mud->region_x;
     y -= mud->region_y;
     if (x < 0 || x >= REGION_WIDTH || y < 0 || y >= REGION_HEIGHT) {
-        return;
-    }
-
-    if (id < 0) {
-        id = mudclient_find_offline_item_containing(name);
-    }
-    if (id < 0) {
         return;
     }
 
@@ -2529,36 +2788,35 @@ static void mudclient_offline_add_ground_item_once(mudclient *mud,
 }
 
 static void mudclient_seed_offline_quest_ground_items(mudclient *mud) {
+    const struct OfflineItemSpawn *spawns = offline_loaded_item_spawns;
+    int count;
+
     if (mud == NULL) {
         return;
     }
 
-    offline_ground_item_defer_updates = 1;
-    mudclient_offline_add_ground_item_once(mud, "egg", 2516, 2318);
-    mudclient_offline_add_ground_item_once(mud, "bucket of milk", 2517, 2318);
-    mudclient_offline_add_ground_item_once(mud, "pot of flour", 2518, 2318);
-    mudclient_offline_add_ground_item_once(mud, "skull", 2512, 2300);
+    mudclient_load_offline_spawn_data();
+    count = offline_loaded_item_spawn_count;
+    if (count <= 0) {
+        spawns = offline_fallback_item_spawns;
+        count = sizeof(offline_fallback_item_spawns) /
+                sizeof(offline_fallback_item_spawns[0]);
 
-    for (int i = 0; i < 20; i++) {
-        mudclient_offline_add_ground_item_once(mud, "ball of wool",
-                                               2509 + (i % 5),
-                                               2276 + (i / 5));
+        if (!offline_spawn_data_warned) {
+            mudclient_show_message(
+                mud,
+                "@cya@Missing Lumbridge item spawn data; using fallback.",
+                MESSAGE_TYPE_GAME);
+            offline_spawn_data_warned = 1;
+        }
     }
 
-    mudclient_offline_add_ground_item_once(mud, "Bronze Pickaxe", 2560, 2297);
-    mudclient_offline_add_ground_item_once(mud, "Iron Axe", 2522, 2282);
-    mudclient_offline_add_ground_item_once(mud, "tinderbox", 2523, 2282);
-    mudclient_offline_add_ground_item_once(mud, "Net", 2524, 2280);
-    mudclient_offline_add_ground_item_once(mud, "Fishing Rod", 2525, 2280);
-    mudclient_offline_add_ground_item_once(mud, "Feather", 2526, 2280);
-    mudclient_offline_add_ground_item_once(mud, "Raw Shrimp", 2524, 2279);
-    mudclient_offline_add_ground_item_once(mud, "raw chicken", 2515, 2292);
-    mudclient_offline_add_ground_item_once(mud, "raw beef", 2539, 2289);
-    mudclient_offline_add_ground_item_once(mud, "copper ore", 2562, 2297);
-    mudclient_offline_add_ground_item_once(mud, "tin ore", 2563, 2297);
-    mudclient_offline_add_ground_item_once(mud, "iron ore", 2564, 2297);
-    mudclient_offline_add_ground_item_once(mud, "bronze bar", 2520, 2318);
-    mudclient_offline_add_ground_item_once(mud, "iron bar", 2521, 2318);
+    offline_ground_item_defer_updates = 1;
+    for (int i = 0; i < count; i++) {
+        mudclient_offline_add_ground_item_id_once(mud, spawns[i].id,
+                                                  spawns[i].global_x,
+                                                  spawns[i].global_y);
+    }
     offline_ground_item_defer_updates = 0;
     mudclient_update_ground_item_models(mud);
 }
@@ -4288,25 +4546,22 @@ static void mudclient_set_offline_npc_stats(GameCharacter *npc) {
 
 static const struct OfflineNpcSpawn *
 mudclient_get_offline_npc_spawn(int server_index) {
-    int count = sizeof(offline_npc_spawns) / sizeof(offline_npc_spawns[0]);
+    const struct OfflineNpcSpawn *spawns = offline_loaded_npc_spawns;
+    int count = offline_loaded_npc_spawn_count;
+
+    if (count <= 0) {
+        spawns = offline_fallback_npc_spawns;
+        count = sizeof(offline_fallback_npc_spawns) /
+                sizeof(offline_fallback_npc_spawns[0]);
+    }
 
     for (int i = 0; i < count; i++) {
-        if (offline_npc_spawns[i].server_index == server_index) {
-            return &offline_npc_spawns[i];
+        if (spawns[i].server_index == server_index) {
+            return &spawns[i];
         }
     }
 
     return NULL;
-}
-
-static int mudclient_find_offline_npc_id_containing(const char *name) {
-    for (int i = 0; i < game_data.npc_count; i++) {
-        if (mudclient_offline_text_contains(game_data.npcs[i].name, name)) {
-            return i;
-        }
-    }
-
-    return -1;
 }
 
 static GameCharacter *mudclient_spawn_offline_npc(mudclient *mud,
@@ -4331,43 +4586,6 @@ static GameCharacter *mudclient_spawn_offline_npc(mudclient *mud,
                                            local_y * MAGIC_LOC + 64,
                                            spawn->direction, spawn->npc_id);
 
-    mudclient_set_offline_npc_stats(npc);
-
-    if (npc != NULL && mud->known_npc_count < NPCS_MAX) {
-        mud->known_npcs[mud->known_npc_count++] = npc;
-    }
-
-    return npc;
-}
-
-static GameCharacter *
-mudclient_spawn_offline_named_npc(mudclient *mud,
-                                  const struct OfflineNamedNpcSpawn *spawn) {
-    int npc_id;
-    int local_x;
-    int local_y;
-    GameCharacter *npc;
-
-    if (spawn == NULL) {
-        return NULL;
-    }
-
-    npc_id = mudclient_find_offline_npc_id_containing(spawn->name);
-    if (npc_id < 0) {
-        return NULL;
-    }
-
-    local_x = spawn->global_x - mud->region_x;
-    local_y = spawn->global_y - mud->region_y;
-    if (local_x < 0 || local_x >= REGION_WIDTH ||
-        local_y < 0 || local_y >= REGION_HEIGHT) {
-        return NULL;
-    }
-
-    npc = mudclient_add_npc(mud, spawn->server_index,
-                            local_x * MAGIC_LOC + 64,
-                            local_y * MAGIC_LOC + 64, spawn->direction,
-                            npc_id);
     mudclient_set_offline_npc_stats(npc);
 
     if (npc != NULL && mud->known_npc_count < NPCS_MAX) {
@@ -4976,18 +5194,28 @@ static void mudclient_clear_offline_npcs(mudclient *mud) {
 }
 
 static void mudclient_refresh_offline_npcs(mudclient *mud) {
+    const struct OfflineNpcSpawn *spawns = offline_loaded_npc_spawns;
+    int count;
+
+    mudclient_load_offline_spawn_data();
     mudclient_clear_offline_npcs(mud);
 
-    int count = sizeof(offline_npc_spawns) / sizeof(offline_npc_spawns[0]);
+    count = offline_loaded_npc_spawn_count;
+    if (count <= 0) {
+        spawns = offline_fallback_npc_spawns;
+        count = sizeof(offline_fallback_npc_spawns) /
+                sizeof(offline_fallback_npc_spawns[0]);
 
-    for (int i = 0; i < count; i++) {
-        mudclient_spawn_offline_npc(mud, offline_npc_spawns[i].server_index);
+        if (!offline_spawn_data_warned) {
+            mudclient_show_message(
+                mud, "@cya@Missing Lumbridge NPC spawn data; using fallback.",
+                MESSAGE_TYPE_GAME);
+            offline_spawn_data_warned = 1;
+        }
     }
 
-    count = sizeof(offline_named_npc_spawns) /
-            sizeof(offline_named_npc_spawns[0]);
     for (int i = 0; i < count; i++) {
-        mudclient_spawn_offline_named_npc(mud, &offline_named_npc_spawns[i]);
+        mudclient_spawn_offline_npc(mud, spawns[i].server_index);
     }
 }
 

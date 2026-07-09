@@ -893,7 +893,9 @@ def main():
     parser.add_argument("--center-y", type=int, default=48)
     parser.add_argument("--crop-x", type=int, default=0)
     parser.add_argument("--crop-y", type=int, default=0)
-    parser.add_argument("--start-x", type=int, default=34)
+    # Open-RSC Lumbridge spawn is raw RSC (120,648). The default crop starts at
+    # raw (96,588), so the local map header spawn is (24,60).
+    parser.add_argument("--start-x", type=int, default=24)
     parser.add_argument("--start-y", type=int, default=60)
     parser.add_argument("--rsc-c-dir", type=pathlib.Path, default=pathlib.Path("/tmp/rsc-c"))
     args = parser.parse_args()
