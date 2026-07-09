@@ -1988,9 +1988,9 @@ struct OfflineItemSpawn {
 };
 
 enum {
-    RSC_MAX_OFFLINE_NPC_SPAWNS = 192,
-    RSC_MAX_OFFLINE_ITEM_SPAWNS = 192,
-    RSC_SPAWN_FILE_BUFFER_SIZE = 16384
+    RSC_MAX_OFFLINE_NPC_SPAWNS = 768,
+    RSC_MAX_OFFLINE_ITEM_SPAWNS = 384,
+    RSC_SPAWN_FILE_BUFFER_SIZE = 65536
 };
 
 static const struct OfflineNpcSpawn offline_fallback_npc_spawns[] = {
@@ -2805,12 +2805,13 @@ static void mudclient_seed_offline_quest_ground_items(mudclient *mud) {
         if (!offline_spawn_data_warned) {
             mudclient_show_message(
                 mud,
-                "@cya@Missing Lumbridge item spawn data; using fallback.",
+                "@cya@Missing offline item spawn data; using fallback.",
                 MESSAGE_TYPE_GAME);
             offline_spawn_data_warned = 1;
         }
     }
 
+    mud->ground_item_count = 0;
     offline_ground_item_defer_updates = 1;
     for (int i = 0; i < count; i++) {
         mudclient_offline_add_ground_item_id_once(mud, spawns[i].id,
@@ -5208,7 +5209,7 @@ static void mudclient_refresh_offline_npcs(mudclient *mud) {
 
         if (!offline_spawn_data_warned) {
             mudclient_show_message(
-                mud, "@cya@Missing Lumbridge NPC spawn data; using fallback.",
+                mud, "@cya@Missing offline NPC spawn data; using fallback.",
                 MESSAGE_TYPE_GAME);
             offline_spawn_data_warned = 1;
         }
