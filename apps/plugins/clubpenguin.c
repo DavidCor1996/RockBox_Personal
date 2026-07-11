@@ -76,8 +76,9 @@
 static const struct button_mapping cp_main_ctx[] =
 {
     { PLA_EXIT,        BUTTON_MENU|BUTTON_SELECT,         BUTTON_NONE },
-    { PLA_CANCEL,      BUTTON_MENU,                       BUTTON_NONE },
     { PLA_SELECT,      BUTTON_SELECT,                     BUTTON_NONE },
+    { PLA_UP,          BUTTON_MENU,                       BUTTON_NONE },
+    { PLA_DOWN,        BUTTON_PLAY,                       BUTTON_NONE },
     { PLA_SELECT_REL,  BUTTON_PLAY|BUTTON_REL,            BUTTON_PLAY },
     { PLA_UP,          BUTTON_SCROLL_BACK,                BUTTON_NONE },
     { PLA_DOWN,        BUTTON_SCROLL_FWD,                 BUTTON_NONE },
@@ -85,6 +86,8 @@ static const struct button_mapping cp_main_ctx[] =
     { PLA_RIGHT,       BUTTON_RIGHT,                      BUTTON_NONE },
     { PLA_UP_REPEAT,   BUTTON_SCROLL_BACK|BUTTON_REPEAT,  BUTTON_NONE },
     { PLA_DOWN_REPEAT, BUTTON_SCROLL_FWD|BUTTON_REPEAT,   BUTTON_NONE },
+    { PLA_UP_REPEAT,   BUTTON_MENU|BUTTON_REPEAT,         BUTTON_NONE },
+    { PLA_DOWN_REPEAT, BUTTON_PLAY|BUTTON_REPEAT,         BUTTON_NONE },
     { PLA_LEFT_REPEAT, BUTTON_LEFT|BUTTON_REPEAT,         BUTTON_NONE },
     { PLA_RIGHT_REPEAT,BUTTON_RIGHT|BUTTON_REPEAT,        BUTTON_NONE },
     LAST_ITEM_IN_LIST
@@ -263,10 +266,8 @@ struct cp_game
     int cart_best_score;
     int cart_best_combo;
     long next_walk_tick;
-    long menu_deadline;
     bool assets_loaded;
     bool dirty;
-    bool menu_pending;
 };
 
 static fb_data scene_pixels[CP_WORLD_W * CP_WORLD_H
@@ -1579,6 +1580,11 @@ static void cp_walk_tick_if_due(void)
             game.target_x -= CP_WALK_STEP;
         if (held & BUTTON_RIGHT)
             game.target_x += CP_WALK_STEP;
+        if ((held & (BUTTON_MENU | BUTTON_SELECT)) !=
+            (BUTTON_MENU | BUTTON_SELECT) && (held & BUTTON_MENU))
+            game.target_y -= CP_WALK_STEP;
+        if (held & BUTTON_PLAY)
+            game.target_y += CP_WALK_STEP;
         cp_clamp_walk_target();
     }
 #endif
@@ -1696,27 +1702,8 @@ static void cp_go_back(void)
     }
 }
 
-static void cp_schedule_back(void)
-{
-    game.menu_pending = true;
-    game.menu_deadline = *rb->current_tick + MAX(1, HZ / 5);
-}
-
-static void cp_back_if_due(void)
-{
-    if (!game.menu_pending ||
-        !(TIME_AFTER(*rb->current_tick, game.menu_deadline) ||
-          *rb->current_tick == game.menu_deadline))
-        return;
-
-    game.menu_pending = false;
-    cp_go_back();
-}
-
 static void cp_quit(enum plugin_status *status, bool *running)
 {
-    game.menu_pending = false;
-
     cp_write_save();
     *running = false;
     *status = PLUGIN_OK;
@@ -1931,7 +1918,6 @@ enum plugin_status plugin_start(const void *parameter)
     {
         cp_cart_tick_if_due();
         cp_walk_tick_if_due();
-        cp_back_if_due();
 
         if (game.message_frames > 0)
         {
@@ -1953,7 +1939,7 @@ enum plugin_status plugin_start(const void *parameter)
                 break;
 
             case CP_CANCEL_ACTION:
-                cp_schedule_back();
+                cp_go_back();
                 break;
 
             case CP_UP_ACTION:
@@ -1989,9 +1975,7 @@ enum plugin_status plugin_start(const void *parameter)
                 break;
 
             case CP_SELECT_ACTION:
-                if (game.menu_pending)
-                    cp_quit(&status, &running);
-                else if (game.scene_type >= CP_SCENE_CART_TITLE)
+                if (game.scene_type >= CP_SCENE_CART_TITLE)
                     cp_cart_action(action);
                 else
                     cp_interact();

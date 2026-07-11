@@ -440,10 +440,10 @@ dirty:
 Room movement uses a bounded target queue rather than applying the full input
 distance in the button event handler. Each fixed update advances at most two
 pixels per axis toward that target, and queued travel is capped at 12 pixels
-from the current position. On click-wheel iPods, held `LEFT` and `RIGHT` are
-sampled directly each update so movement does not inherit Rockbox's initial
-button-repeat delay. Wheel detents add short vertical movement impulses to the
-same queue.
+from the current position. On click-wheel iPods, held `MENU`, `PLAY`, `LEFT`,
+and `RIGHT` are sampled directly each update so movement does not inherit
+Rockbox's initial button-repeat delay. Wheel detents add short vertical
+movement impulses to the same queue.
 
 Start with a full 320x240 redraw when dirty. Add background restoration and
 `lcd_update_rect()` only if hardware timing shows a full dirty frame misses
@@ -858,16 +858,17 @@ until their offline actions are implemented.
 
 iPod 5G/6G baseline:
 
-- `MENU`: back out of a room or minigame; on the island map it does nothing
+- `MENU`: move up; on the island map, select a destination above
+- `PLAY`: move down; in Cart Surfer, release to perform a grind trick
+- `LEFT` / `RIGHT`: move horizontally
 - `MENU` + `SELECT`: save and exit the plugin
 - `SELECT`: interact / enter room / confirm
-- `PLAY`: optional pause or open local action menu
-- on the map, `LEFT/RIGHT` and wheel select destinations
-- in rooms, `LEFT/RIGHT` move horizontally and wheel scroll moves vertically
+- on the map, directional buttons and wheel select destinations
+- in rooms, wheel rotation is an additional vertical movement control
 
 The quit chord is checked from the raw button state as well as the action map
-so either press order is reliable. A lone `MENU` action is delayed briefly,
-allowing the chord to take priority without accidentally navigating backward.
+so either press order is reliable. While the chord is held, `MENU` movement is
+suppressed so quitting cannot add an unwanted upward step.
 
 Screen layout:
 
