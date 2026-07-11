@@ -45,7 +45,10 @@
 #define CP_PLAYER_FRAMES 16
 #define CP_PLAYER_STRIP_W (CP_PLAYER_W * CP_PLAYER_FRAMES)
 #define CP_PLAYER_STRIP_H CP_PLAYER_H
-#define CP_STEP 4
+#define CP_INPUT_STEP 6
+#define CP_WALK_STEP 2
+#define CP_WALK_AHEAD 12
+#define CP_WALK_RATE 25
 #define CP_MESSAGE_TTL 70
 #define CP_MAX_HOTSPOTS 16
 #define CP_MAX_ROOMS 12
@@ -72,8 +75,8 @@
     (CONFIG_KEYPAD == IPOD_4G_PAD)
 static const struct button_mapping cp_main_ctx[] =
 {
+    { PLA_EXIT,        BUTTON_MENU|BUTTON_SELECT,         BUTTON_NONE },
     { PLA_CANCEL,      BUTTON_MENU,                       BUTTON_NONE },
-    { PLA_EXIT,        BUTTON_PLAY|BUTTON_REPEAT,         BUTTON_NONE },
     { PLA_SELECT,      BUTTON_SELECT,                     BUTTON_NONE },
     { PLA_SELECT_REL,  BUTTON_PLAY|BUTTON_REL,            BUTTON_PLAY },
     { PLA_UP,          BUTTON_SCROLL_BACK,                BUTTON_NONE },
@@ -229,6 +232,8 @@ struct cp_game
     int room_index;
     int x;
     int y;
+    int target_x;
+    int target_y;
     int cam_x;
     int cam_y;
     int direction;
@@ -257,8 +262,11 @@ struct cp_game
     int saved_y;
     int cart_best_score;
     int cart_best_combo;
+    long next_walk_tick;
+    long menu_deadline;
     bool assets_loaded;
     bool dirty;
+    bool menu_pending;
 };
 
 static fb_data scene_pixels[CP_WORLD_W * CP_WORLD_H
@@ -926,25 +934,51 @@ static bool cp_inside_hotspot(int index)
     return score <= radius * radius;
 }
 
-static void cp_clamp_player(void)
+static void cp_get_walk_bounds(int *left, int *top, int *right, int *bottom)
 {
-    int left = CP_PLAYER_W / 2;
-    int top = CP_PLAYER_H / 2;
-    int right = game.scene.width - CP_PLAYER_W / 2;
-    int bottom = game.scene.height - CP_PLAYER_H / 2;
+    *left = CP_PLAYER_W / 2;
+    *top = CP_PLAYER_H / 2;
+    *right = game.scene.width - CP_PLAYER_W / 2;
+    *bottom = game.scene.height - CP_PLAYER_H / 2;
 
     if (game.scene_type == CP_SCENE_ROOM && game.room_index >= 0 &&
         game.room_index < game.room_count)
     {
         struct cp_room *room = &game.rooms[game.room_index];
-        left = MAX(left, room->walk_left);
-        top = MAX(top, room->walk_top);
-        right = MIN(right, room->walk_right);
-        bottom = MIN(bottom, room->walk_bottom);
+        *left = MAX(*left, room->walk_left);
+        *top = MAX(*top, room->walk_top);
+        *right = MIN(*right, room->walk_right);
+        *bottom = MIN(*bottom, room->walk_bottom);
     }
+}
+
+static void cp_clamp_player(void)
+{
+    int left;
+    int top;
+    int right;
+    int bottom;
+
+    cp_get_walk_bounds(&left, &top, &right, &bottom);
 
     game.x = MIN(MAX(game.x, left), right);
     game.y = MIN(MAX(game.y, top), bottom);
+}
+
+static void cp_clamp_walk_target(void)
+{
+    int left;
+    int top;
+    int right;
+    int bottom;
+
+    cp_get_walk_bounds(&left, &top, &right, &bottom);
+    game.target_x = MIN(MAX(game.target_x, left), right);
+    game.target_y = MIN(MAX(game.target_y, top), bottom);
+    game.target_x = MIN(MAX(game.target_x, game.x - CP_WALK_AHEAD),
+                        game.x + CP_WALK_AHEAD);
+    game.target_y = MIN(MAX(game.target_y, game.y - CP_WALK_AHEAD),
+                        game.y + CP_WALK_AHEAD);
 }
 
 static void cp_update_camera(void)
@@ -989,6 +1023,8 @@ static bool cp_enter_map_at(int x, int y)
     game.x = x;
     game.y = y;
     cp_clamp_player();
+    game.target_x = game.x;
+    game.target_y = game.y;
     cp_update_camera();
     game.selected_hotspot = cp_nearest_hotspot();
     if (game.selected_hotspot >= 0)
@@ -1060,6 +1096,9 @@ static bool cp_enter_room(int room_index, int x, int y)
     game.x = x;
     game.y = y;
     cp_clamp_player();
+    game.target_x = game.x;
+    game.target_y = game.y;
+    game.next_walk_tick = *rb->current_tick;
     cp_update_camera();
     cp_set_room_hotspots();
     game.selected_hotspot = cp_nearest_hotspot();
@@ -1479,14 +1518,8 @@ static void cp_init(void)
     cp_set_message("Select a marked area to enter it.");
 }
 
-static void cp_move(int dx, int dy)
+static void cp_move_player(int dx, int dy)
 {
-    if (game.scene_type == CP_SCENE_MAP)
-    {
-        cp_select_map_direction(dx, dy);
-        return;
-    }
-
     if (dx < 0)
         game.direction = CP_DIR_LEFT;
     else if (dx > 0)
@@ -1508,6 +1541,60 @@ static void cp_move(int dx, int dy)
     }
     game.selected_hotspot = cp_nearest_hotspot();
     game.dirty = true;
+}
+
+static void cp_queue_move(int dx, int dy)
+{
+    if (game.scene_type == CP_SCENE_MAP)
+    {
+        cp_select_map_direction(dx, dy);
+        return;
+    }
+
+    if (game.scene_type != CP_SCENE_ROOM)
+        return;
+
+    game.target_x += dx;
+    game.target_y += dy;
+    cp_clamp_walk_target();
+}
+
+static void cp_walk_tick_if_due(void)
+{
+    int dx = 0;
+    int dy = 0;
+
+    if (game.scene_type != CP_SCENE_ROOM ||
+        !(TIME_AFTER(*rb->current_tick, game.next_walk_tick) ||
+          *rb->current_tick == game.next_walk_tick))
+        return;
+
+#if (CONFIG_KEYPAD == IPOD_1G2G_PAD) || \
+    (CONFIG_KEYPAD == IPOD_3G_PAD) || \
+    (CONFIG_KEYPAD == IPOD_4G_PAD)
+    {
+        int held = rb->button_status();
+
+        if (held & BUTTON_LEFT)
+            game.target_x -= CP_WALK_STEP;
+        if (held & BUTTON_RIGHT)
+            game.target_x += CP_WALK_STEP;
+        cp_clamp_walk_target();
+    }
+#endif
+
+    if (game.target_x < game.x)
+        dx = -MIN(CP_WALK_STEP, game.x - game.target_x);
+    else if (game.target_x > game.x)
+        dx = MIN(CP_WALK_STEP, game.target_x - game.x);
+    if (game.target_y < game.y)
+        dy = -MIN(CP_WALK_STEP, game.y - game.target_y);
+    else if (game.target_y > game.y)
+        dy = MIN(CP_WALK_STEP, game.target_y - game.y);
+
+    if (dx != 0 || dy != 0)
+        cp_move_player(dx, dy);
+    game.next_walk_tick = *rb->current_tick + MAX(1, HZ / CP_WALK_RATE);
 }
 
 static void cp_interact(void)
@@ -1589,7 +1676,7 @@ static void cp_interact(void)
     cp_write_save();
 }
 
-static void cp_cancel_or_quit(enum plugin_status *status, bool *running)
+static void cp_go_back(void)
 {
     if (game.scene_type == CP_SCENE_CART_TITLE ||
         game.scene_type == CP_SCENE_CART_PLAYING ||
@@ -1607,10 +1694,44 @@ static void cp_cancel_or_quit(enum plugin_status *status, bool *running)
         cp_write_save();
         return;
     }
+}
+
+static void cp_schedule_back(void)
+{
+    game.menu_pending = true;
+    game.menu_deadline = *rb->current_tick + MAX(1, HZ / 5);
+}
+
+static void cp_back_if_due(void)
+{
+    if (!game.menu_pending ||
+        !(TIME_AFTER(*rb->current_tick, game.menu_deadline) ||
+          *rb->current_tick == game.menu_deadline))
+        return;
+
+    game.menu_pending = false;
+    cp_go_back();
+}
+
+static void cp_quit(enum plugin_status *status, bool *running)
+{
+    game.menu_pending = false;
 
     cp_write_save();
     *running = false;
     *status = PLUGIN_OK;
+}
+
+static bool cp_quit_chord_held(void)
+{
+#if (CONFIG_KEYPAD == IPOD_1G2G_PAD) || \
+    (CONFIG_KEYPAD == IPOD_3G_PAD) || \
+    (CONFIG_KEYPAD == IPOD_4G_PAD)
+    return (rb->button_status() & (BUTTON_MENU | BUTTON_SELECT)) ==
+           (BUTTON_MENU | BUTTON_SELECT);
+#else
+    return false;
+#endif
 }
 
 static void cp_draw_status(void)
@@ -1809,6 +1930,8 @@ enum plugin_status plugin_start(const void *parameter)
     while (running)
     {
         cp_cart_tick_if_due();
+        cp_walk_tick_if_due();
+        cp_back_if_due();
 
         if (game.message_frames > 0)
         {
@@ -1820,12 +1943,17 @@ enum plugin_status plugin_start(const void *parameter)
         if (game.dirty)
             cp_render();
         action = cp_get_input();
+        if (cp_quit_chord_held())
+            action = CP_QUIT_ACTION;
 
         switch (action)
         {
             case CP_QUIT_ACTION:
+                cp_quit(&status, &running);
+                break;
+
             case CP_CANCEL_ACTION:
-                cp_cancel_or_quit(&status, &running);
+                cp_schedule_back();
                 break;
 
             case CP_UP_ACTION:
@@ -1833,7 +1961,7 @@ enum plugin_status plugin_start(const void *parameter)
                 if (game.scene_type >= CP_SCENE_CART_TITLE)
                     cp_cart_action(action);
                 else
-                    cp_move(0, -CP_STEP);
+                    cp_queue_move(0, -CP_INPUT_STEP);
                 break;
 
             case CP_DOWN_ACTION:
@@ -1841,7 +1969,7 @@ enum plugin_status plugin_start(const void *parameter)
                 if (game.scene_type >= CP_SCENE_CART_TITLE)
                     cp_cart_action(action);
                 else
-                    cp_move(0, CP_STEP);
+                    cp_queue_move(0, CP_INPUT_STEP);
                 break;
 
             case CP_LEFT_ACTION:
@@ -1849,7 +1977,7 @@ enum plugin_status plugin_start(const void *parameter)
                 if (game.scene_type >= CP_SCENE_CART_TITLE)
                     cp_cart_action(action);
                 else
-                    cp_move(-CP_STEP, 0);
+                    cp_queue_move(-CP_INPUT_STEP, 0);
                 break;
 
             case CP_RIGHT_ACTION:
@@ -1857,11 +1985,13 @@ enum plugin_status plugin_start(const void *parameter)
                 if (game.scene_type >= CP_SCENE_CART_TITLE)
                     cp_cart_action(action);
                 else
-                    cp_move(CP_STEP, 0);
+                    cp_queue_move(CP_INPUT_STEP, 0);
                 break;
 
             case CP_SELECT_ACTION:
-                if (game.scene_type >= CP_SCENE_CART_TITLE)
+                if (game.menu_pending)
+                    cp_quit(&status, &running);
+                else if (game.scene_type >= CP_SCENE_CART_TITLE)
                     cp_cart_action(action);
                 else
                     cp_interact();

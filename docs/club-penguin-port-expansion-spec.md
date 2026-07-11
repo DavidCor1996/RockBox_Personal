@@ -437,6 +437,14 @@ dirty:
 - message visibility changes
 - status values change
 
+Room movement uses a bounded target queue rather than applying the full input
+distance in the button event handler. Each fixed update advances at most two
+pixels per axis toward that target, and queued travel is capped at 12 pixels
+from the current position. On click-wheel iPods, held `LEFT` and `RIGHT` are
+sampled directly each update so movement does not inherit Rockbox's initial
+button-repeat delay. Wheel detents add short vertical movement impulses to the
+same queue.
+
 Start with a full 320x240 redraw when dirty. Add background restoration and
 `lcd_update_rect()` only if hardware timing shows a full dirty frame misses
 the 40 ms budget; do not add fragile dirty-rectangle complexity solely on
@@ -850,17 +858,21 @@ until their offline actions are implemented.
 
 iPod 5G/6G baseline:
 
-- `MENU`: exit plugin or back out of current modal
+- `MENU`: back out of a room or minigame; on the island map it does nothing
+- `MENU` + `SELECT`: save and exit the plugin
 - `SELECT`: interact / enter room / confirm
 - `PLAY`: optional pause or open local action menu
 - on the map, `LEFT/RIGHT` and wheel select destinations
 - in rooms, `LEFT/RIGHT` move horizontally and wheel scroll moves vertically
-- hold `PLAY`: alternate exit/back control
+
+The quit chord is checked from the raw button state as well as the action map
+so either press order is reliable. A lone `MENU` action is delayed briefly,
+allowing the chord to take priority without accidentally navigating backward.
 
 Screen layout:
 
 - world/room view uses top `LCD_HEIGHT - status_h`
-- bottom strip shows current room or interaction text
+- bottom strip is the preserved blue Club Penguin toolbar with no Rockbox text
 - no keyboard/chat entry by default
 
 ## Performance And Memory
