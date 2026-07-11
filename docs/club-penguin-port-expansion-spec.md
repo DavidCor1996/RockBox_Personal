@@ -339,10 +339,11 @@ Validation:
 
 ## Phase 3: Core Island Rooms
 
-Status: core map-to-room coverage is complete for all 12 current map markers.
-Preserved exterior-room exit arrows now link the navigable west/east island
-chain from Beach through Cove. Interior rooms that do not yet have preserved
-backgrounds remain map-only.
+Status: core map-to-room coverage is complete for all 12 map markers and four
+preserved interiors. Preserved exterior-room exit arrows link the navigable
+west/east island chain from Beach through Cove. Town now enters the Coffee
+Shop and Gift Shop; Plaza enters the Pet Shop and Pizza Parlor. Each interior
+has a bidirectional return door and the global map chord.
 
 Target outcome:
 
@@ -542,6 +543,11 @@ save must not discard the last valid save.
 
 ## Phase 4: Player Customization
 
+Status: the offline inventory foundation is implemented. Penguin Style owns
+four equipment categories, persistent ownership masks, and one equipped slot
+per category. Visual avatar layering remains a later real-sprite extraction
+step; purchasing never substitutes generated clothing art.
+
 Target outcome:
 
 - user can change penguin color and a small set of clothing items
@@ -568,6 +574,13 @@ Validation:
 
 ## Phase 5: Catalogs And Coins
 
+Status: the first complete local shop loop is implemented. Town's preserved
+Gift Shop door enters the archived Gift Shop room, its preserved catalog prop
+opens Penguin Style, and four original catalog pages expose 51 canonical head,
+body, feet, and color items at their baked prices. Buying subtracts coins with
+an underflow check, persists ownership atomically, and selecting an owned item
+equips it without charging again.
+
 Target outcome:
 
 - offline catalog browsing
@@ -588,6 +601,33 @@ Rules:
 - no payment UI
 - no server calls
 - no ads
+
+### 5.1 iPod Shop Controls
+
+- wheel or `PLAY`: move through items
+- `LEFT` / `RIGHT`: change catalog department
+- `SELECT`: purchase or equip
+- physical `MENU`: return to the Gift Shop room
+- `LEFT` + `RIGHT`: open the island map through the global map chord
+
+The 497x617 archived mobile catalog pages are host-scaled to 177x220 and
+placed unchanged on the left side of a 320x220 shop scene. The right side is a
+native status panel for current coins, item name, ownership, and controls.
+Item pictures and printed prices remain the preserved catalog pixels.
+
+The extended `CLUBPENGUIN_SAVE_V1` remains backward compatible and adds:
+
+```text
+owned_lo=00000000
+owned_hi=00000200
+equipped_head=-1
+equipped_body=-1
+equipped_feet=-1
+equipped_color=5
+```
+
+An older save receives the default owned Light Blue color. New purchases are
+written at the same stable atomic-save boundaries as Cart Surfer rewards.
 
 Validation:
 

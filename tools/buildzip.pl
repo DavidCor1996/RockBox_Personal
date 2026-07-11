@@ -66,7 +66,7 @@ sub tree_copy {
     my ($src, $dest, $skip) = @_;
     return unless -d $src;
 
-    find(sub {
+    find({ wanted => sub {
         my $path = $File::Find::name;
         return if $path eq $src;
 
@@ -88,7 +88,7 @@ sub tree_copy {
             glob_mkdir($target_dir);
             copy($path, $target);
         }
-    }, $src);
+    }, no_chdir => 1 }, $src);
 }
 
 sub copy_clubpenguin_assets {
@@ -100,6 +100,7 @@ sub copy_clubpenguin_assets {
     glob_mkdir("$dest/covers");
     glob_mkdir("$dest/data");
     glob_mkdir("$dest/rooms");
+    glob_mkdir("$dest/shop");
     glob_mkdir("$dest/ui");
     glob_mkdir("$dest/minigames");
     glob_mkdir("$dest/minigames/cart_surfer");
@@ -109,6 +110,7 @@ sub copy_clubpenguin_assets {
     glob_copy("$src/covers/*.bmp", "$dest/covers");
     glob_copy("$src/data/*.tsv", "$dest/data");
     glob_copy("$src/rooms/*.bmp", "$dest/rooms");
+    glob_copy("$src/shop/*.bmp", "$dest/shop");
     glob_copy("$src/ui/*.bmp", "$dest/ui");
     copy("$src/ui/source.manifest", "$dest/ui");
     glob_copy("$src/minigames/cart_surfer/*.bmp",

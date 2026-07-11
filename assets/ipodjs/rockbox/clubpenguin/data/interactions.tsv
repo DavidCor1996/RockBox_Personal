@@ -14,3 +14,12 @@ plaza	to_forest	300	165	25	room	forest	Go to the Forest	55	150
 forest	to_plaza	35	120	26	room	plaza	Go to the Plaza	275	165
 forest	to_cove	285	115	26	room	cove	Go to the Cove	55	135
 cove	to_forest	35	120	26	room	forest	Go to the Forest	265	135
+town	to_gift_shop	255	130	28	room	gift_shop	Enter the Gift Shop	225	125
+gift_shop	to_town	230	105	28	room	town	Return to Town	255	155
+gift_shop	penguin_style	285	170	30	shop	penguin_style	Browse Penguin Style	0	0
+town	to_coffee_shop	45	130	28	room	coffee_shop	Enter the Coffee Shop	150	125
+coffee_shop	to_town	150	90	30	room	town	Return to Town	45	155
+plaza	to_pet_shop	45	135	28	room	pet_shop	Enter the Pet Shop	155	125
+pet_shop	to_plaza	155	90	30	room	plaza	Return to the Plaza	45	155
+plaza	to_pizza_parlor	275	135	28	room	pizza_parlor	Enter the Pizza Parlor	160	125
+pizza_parlor	to_plaza	160	90	30	room	plaza	Return to the Plaza	275	155

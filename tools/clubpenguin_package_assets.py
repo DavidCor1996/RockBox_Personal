@@ -56,6 +56,14 @@ ROOM_ROWS = [
     ("mine", "Mine Shack", "rooms/mine.bmp", 160, 170, 30, 120, 290, 198),
     ("iceberg", "Iceberg", "rooms/iceberg.bmp",
      160, 170, 35, 105, 285, 198),
+    ("gift_shop", "Gift Shop", "rooms/gift_shop.bmp",
+     160, 170, 25, 80, 295, 198),
+    ("coffee_shop", "Coffee Shop", "rooms/coffee_shop.bmp",
+     160, 170, 25, 80, 295, 198),
+    ("pet_shop", "Pet Shop", "rooms/pet_shop.bmp",
+     160, 170, 25, 80, 295, 198),
+    ("pizza_parlor", "Pizza Parlor", "rooms/pizza_parlor.bmp",
+     160, 170, 25, 80, 295, 198),
 ]
 
 
@@ -90,6 +98,24 @@ INTERACTION_ROWS = [
      "Go to the Cove", 55, 135),
     ("cove", "to_forest", 35, 120, 26, "room", "forest",
      "Go to the Forest", 265, 135),
+    ("town", "to_gift_shop", 255, 130, 28, "room", "gift_shop",
+     "Enter the Gift Shop", 225, 125),
+    ("gift_shop", "to_town", 230, 105, 28, "room", "town",
+     "Return to Town", 255, 155),
+    ("gift_shop", "penguin_style", 285, 170, 30, "shop",
+     "penguin_style", "Browse Penguin Style", 0, 0),
+    ("town", "to_coffee_shop", 45, 130, 28, "room", "coffee_shop",
+     "Enter the Coffee Shop", 150, 125),
+    ("coffee_shop", "to_town", 150, 90, 30, "room", "town",
+     "Return to Town", 45, 155),
+    ("plaza", "to_pet_shop", 45, 135, 28, "room", "pet_shop",
+     "Enter the Pet Shop", 155, 125),
+    ("pet_shop", "to_plaza", 155, 90, 30, "room", "plaza",
+     "Return to the Plaza", 45, 155),
+    ("plaza", "to_pizza_parlor", 275, 135, 28, "room", "pizza_parlor",
+     "Enter the Pizza Parlor", 160, 125),
+    ("pizza_parlor", "to_plaza", 160, 90, 30, "room", "plaza",
+     "Return to the Plaza", 275, 155),
 ]
 
 
@@ -109,7 +135,46 @@ ROOM_SWFS = {
     "forest": f"{VANILLA_ROOMS}/forest.swf",
     "mine": f"{VANILLA_ROOMS}/mine.swf",
     "iceberg": f"{LEGACY_ROOMS}/berg.swf",
+    "gift_shop": f"{VANILLA_ROOMS}/shop.swf",
+    "coffee_shop": f"{VANILLA_ROOMS}/coffee.swf",
+    "pet_shop": f"{VANILLA_ROOMS}/pet.swf",
+    "pizza_parlor": f"{VANILLA_ROOMS}/pizza.swf",
 }
+
+
+SHOP_PAGE_FILES = [
+    "2c167cd6-6a3a-476b-8a67-62e36e966fce_left_bg_617.png",
+    "7cf6a8ad-a563-4145-85a3-8d31df4a1c46_left_bg_617.png",
+    "7e45742a-5eaa-4974-9bcf-695e45763ea2_left_bg_617.png",
+    "a8a8affe-1998-44f6-86d6-e9a439c8813d_left_bg_617.png",
+]
+
+SHOP_ITEMS = [
+    (0, "Hard Hat", 50), (0, "Green Cap", 200),
+    (0, "Pink Cap", 200), (0, "Pilgrim Hat", 200),
+    (0, "Top Hat", 350), (0, "Chef Hat", 50),
+    (0, "Jester Hat", 250), (0, "Blue Earmuffs", 250),
+    (0, "Red Cap", 200), (0, "Blue Cap", 200),
+    (0, "Admiral Hat", 400), (0, "Flower Hat", 300),
+    (1, "Green Shirt", 250), (1, "Wetsuit", 450),
+    (1, "Yellow Dress", 450), (1, "Denim Jacket", 450),
+    (1, "Pink Dress", 450), (1, "Red Outfit", 350),
+    (1, "Green Tux", 560), (1, "Red Jacket", 550),
+    (1, "Lifeguard Shirt", 180), (1, "Yellow Jacket", 380),
+    (1, "Orange Vest", 200), (1, "Rescue Jacket", 600),
+    (2, "Brown Shoes", 400), (2, "Sneakers", 250),
+    (2, "Ballet Shoes", 180), (2, "Blue Sneakers", 250),
+    (2, "Sandals", 300), (2, "Yellow Shoes", 150),
+    (2, "Winter Boots", 450), (2, "Bunny Slippers", 200),
+    (2, "Cowboy Boots", 300), (2, "Green Shoes", 170),
+    (2, "Rain Boots", 280), (2, "Purple Shoes", 160),
+    (3, "Green", 20), (3, "Pink", 20), (3, "Black", 20),
+    (3, "Coral", 20), (3, "Dark Green", 20),
+    (3, "Light Blue", 20), (3, "Lime Green", 20),
+    (3, "Aqua", 20), (3, "Arctic White", 20),
+    (3, "Red", 20), (3, "Orange", 20), (3, "Yellow", 20),
+    (3, "Purple", 20), (3, "Brown", 20), (3, "Dark Blue", 20),
+]
 
 
 def validate_interactions() -> None:
@@ -119,10 +184,6 @@ def validate_interactions() -> None:
 
     world_targets = {row[5] for row in WORLD_ROWS}
     missing_map_entries = set(rooms) - world_targets
-    if missing_map_entries:
-        raise SystemExit(
-            "rooms missing map entries: " + ", ".join(sorted(missing_map_entries))
-        )
 
     for row in INTERACTION_ROWS:
         room, interaction_id, x, y, radius, action, target, _, to_x, to_y = row
@@ -157,12 +218,42 @@ def validate_interactions() -> None:
         elif action == "minigame":
             if target != "cart_surfer":
                 raise SystemExit(f"unknown minigame target: {target}")
+        elif action == "shop":
+            if target != "penguin_style":
+                raise SystemExit(f"unknown shop target: {target}")
         elif action not in {"map", "message"}:
             raise SystemExit(f"unknown interaction action: {action}")
 
     for room, target in room_links:
         if (target, room) not in room_links:
             raise SystemExit(f"room link has no return path: {room} -> {target}")
+
+    unreachable = {
+        room for room in missing_map_entries
+        if not any(target == room for _, target in room_links)
+    }
+    if unreachable:
+        raise SystemExit(
+            "rooms missing entry paths: " + ", ".join(sorted(unreachable))
+        )
+
+
+def validate_shop() -> None:
+    expected_counts = [12, 12, 12, 15]
+    counts = [0, 0, 0, 0]
+    names: set[str] = set()
+
+    if len(SHOP_ITEMS) > 64:
+        raise SystemExit("shop inventory exceeds the two-mask save format")
+    for page, name, cost in SHOP_ITEMS:
+        if page < 0 or page >= len(expected_counts) or cost < 0:
+            raise SystemExit(f"invalid shop item: {name}")
+        if name in names:
+            raise SystemExit(f"duplicate shop item name: {name}")
+        names.add(name)
+        counts[page] += 1
+    if counts != expected_counts:
+        raise SystemExit(f"unexpected shop page counts: {counts}")
 
 
 def sha256(path: Path) -> str:
@@ -214,6 +305,7 @@ def git_commit(path: Path) -> str:
 
 def write_tsvs(out: Path) -> None:
     validate_interactions()
+    validate_shop()
     data = out / "data"
     data.mkdir(parents=True, exist_ok=True)
     with (data / "world.tsv").open("w", encoding="utf-8") as f:
@@ -264,6 +356,13 @@ def write_manifest(out: Path, source: Path, generated: list[Path],
             f.write("cover_source=media/default/websites/modern/assets/"
                     "sites/default/themes/snowball/img/club-penguin-logo.png"
                     f"\t{sha256(cover_logo)}\n")
+            shop_source = (waddle_source / "media/default/svanilla/play/"
+                           "mobile/cp-mobile-ui/clubpenguin_v1_6/en_US/"
+                           "deploy/metaplace/devicepng/assets/catalog/"
+                           "penstyle")
+            for filename in SHOP_PAGE_FILES:
+                f.write(f"shop_source={filename}\t"
+                        f"{sha256(shop_source / filename)}\n")
             for room_id, rel in ROOM_SWFS.items():
                 swf = waddle_source / rel
                 f.write(f"room_source={room_id}\t{rel}\t{sha256(swf)}\n")
@@ -293,17 +392,49 @@ def package_room_frames(room_frames: Path, waddle_source: Path, out: Path,
         if not swf.exists():
             raise SystemExit(f"missing preserved room SWF: {swf}")
 
-        run_ffmpeg([
-            "-i", str(frame),
+        if room_id in {"gift_shop", "coffee_shop", "pet_shop",
+                       "pizza_parlor"}:
+            video_filter = "scale=320:220"
+        else:
             # The preserved captures are 968x777 Ruffle window screenshots.
-            # Crop the displayed 760x480 SWF canvas (scaled to 808x510)
-            # before preparing the full device playfield. Scaling the whole
-            # window made rooms occupy only about two thirds of the LCD.
-            "-vf", "crop=808:510:80:118,scale=320:220",
-            "-pix_fmt", "bgr24",
-            str(room_out),
+            # Crop the displayed 760x480 SWF canvas (scaled to 808x510).
+            video_filter = "crop=808:510:80:118,scale=320:220"
+        run_ffmpeg([
+            "-i", str(frame), "-vf", video_filter,
+            "-pix_fmt", "bgr24", str(room_out),
         ])
         generated.append(room_out)
+
+
+def package_shop(waddle_source: Path, out: Path,
+                 generated: list[Path]) -> None:
+    source_dir = (waddle_source / "media/default/svanilla/play/mobile/"
+                  "cp-mobile-ui/clubpenguin_v1_6/en_US/deploy/metaplace/"
+                  "devicepng/assets/catalog/penstyle")
+    shop_out = out / "shop"
+    shop_out.mkdir(parents=True, exist_ok=True)
+    (out / "data").mkdir(parents=True, exist_ok=True)
+
+    for index, filename in enumerate(SHOP_PAGE_FILES):
+        source = source_dir / filename
+        output = shop_out / f"page{index}.bmp"
+        if not source.exists():
+            raise SystemExit(f"missing preserved catalog page: {source}")
+        run_magick([
+            str(source), "-resize", "177x220!", "-gravity", "west",
+            "-background", "#0875b9", "-extent", "320x220",
+            f"BMP3:{output}",
+        ])
+        generated.append(output)
+
+    shop_data = out / "data" / "shop.tsv"
+    with shop_data.open("w", encoding="utf-8") as f:
+        f.write("# page\tslot\tname\tcost\n")
+        slots = [0, 0, 0, 0]
+        for page, name, cost in SHOP_ITEMS:
+            f.write(f"{page}\t{slots[page]}\t{name}\t{cost}\n")
+            slots[page] += 1
+    generated.append(shop_data)
 
 
 def package_cart_surfer(cart_export: Path, waddle_source: Path, out: Path,
@@ -585,6 +716,9 @@ def package_freeroam(source: Path, out: Path,
 
     if ui_export is not None and waddle_source is not None:
         package_interface(ui_export, waddle_source, out, generated)
+
+    if waddle_source is not None:
+        package_shop(waddle_source, out, generated)
 
     write_tsvs(out)
     write_manifest(out, source, generated, waddle_source)

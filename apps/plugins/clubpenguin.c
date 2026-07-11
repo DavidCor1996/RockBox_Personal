@@ -28,6 +28,8 @@
 #define CP_WORLD_DATA_FILE CP_ASSET_DIR "/data/world.tsv"
 #define CP_ROOMS_DATA_FILE CP_ASSET_DIR "/data/rooms.tsv"
 #define CP_INTERACTIONS_DATA_FILE CP_ASSET_DIR "/data/interactions.tsv"
+#define CP_SHOP_DATA_FILE CP_ASSET_DIR "/data/shop.tsv"
+#define CP_SHOP_PAGE_PATTERN CP_ASSET_DIR "/shop/page%d.bmp"
 #define CP_SAVE_FILE CP_ASSET_DIR "/save.dat"
 #define CP_SAVE_TMP_FILE CP_ASSET_DIR "/save.tmp"
 #define CP_CART_TITLE_FILE CP_ASSET_DIR "/minigames/cart_surfer/title.bmp"
@@ -53,8 +55,10 @@
 #define CP_WALK_RATE 25
 #define CP_MESSAGE_TTL 70
 #define CP_MAX_HOTSPOTS 16
-#define CP_MAX_ROOMS 12
+#define CP_MAX_ROOMS 16
 #define CP_MAX_INTERACTIONS 24
+#define CP_MAX_SHOP_ITEMS 51
+#define CP_SHOP_PAGES 4
 #define CP_TEXT_BUF 4096
 #define CP_ANIM_RATE 3
 #define CP_CART_FRAME_W 40
@@ -124,6 +128,7 @@ enum cp_scene_type
 {
     CP_SCENE_MAP = 0,
     CP_SCENE_ROOM,
+    CP_SCENE_SHOP,
     CP_SCENE_CART_TITLE,
     CP_SCENE_CART_COUNTDOWN,
     CP_SCENE_CART_PLAYING,
@@ -145,6 +150,7 @@ enum cp_action_type
     CP_ACTION_ROOM = 0,
     CP_ACTION_MAP,
     CP_ACTION_MINIGAME,
+    CP_ACTION_SHOP,
     CP_ACTION_MESSAGE
 };
 
@@ -203,6 +209,14 @@ struct cp_interaction
 {
     char room[24];
     struct cp_hotspot hotspot;
+};
+
+struct cp_shop_item
+{
+    char name[24];
+    int page;
+    int slot;
+    int cost;
 };
 
 struct cp_room
@@ -266,6 +280,7 @@ struct cp_game
     int map_hotspot_count;
     int room_count;
     int interaction_count;
+    int shop_item_count;
     int message_frames;
     int coins;
     unsigned int visited_mask;
@@ -276,12 +291,22 @@ struct cp_game
     struct cp_hotspot map_hotspots[CP_MAX_HOTSPOTS];
     struct cp_room rooms[CP_MAX_ROOMS];
     struct cp_interaction interactions[CP_MAX_INTERACTIONS];
+    struct cp_shop_item shop_items[CP_MAX_SHOP_ITEMS];
     struct cp_cart_state cart;
     char saved_room[24];
     int saved_x;
     int saved_y;
     int cart_best_score;
     int cart_best_combo;
+    unsigned int owned_lo;
+    unsigned int owned_hi;
+    int equipped[CP_SHOP_PAGES];
+    int shop_page;
+    int shop_selection;
+    int shop_return_room;
+    int shop_return_x;
+    int shop_return_y;
+    char shop_status[48];
     long next_walk_tick;
     bool assets_loaded;
     bool dirty;
@@ -722,6 +747,8 @@ static bool cp_parse_action(const char *text, enum cp_action_type *action)
         *action = CP_ACTION_MAP;
     else if (cp_streq(text, "minigame"))
         *action = CP_ACTION_MINIGAME;
+    else if (cp_streq(text, "shop"))
+        *action = CP_ACTION_SHOP;
     else if (cp_streq(text, "message"))
         *action = CP_ACTION_MESSAGE;
     else
@@ -796,6 +823,52 @@ static bool cp_load_interactions(void)
     }
 
     return game.interaction_count > 0;
+}
+
+static void cp_parse_shop_line(char *line)
+{
+    char *cursor = line;
+    char *page_text = cp_next_field(&cursor);
+    char *slot_text = cp_next_field(&cursor);
+    char *name = cp_next_field(&cursor);
+    char *cost_text = cp_next_field(&cursor);
+    struct cp_shop_item *item;
+    int page;
+    int slot;
+    int cost;
+
+    if (game.shop_item_count >= CP_MAX_SHOP_ITEMS || !cp_has_text(name) ||
+        !cp_parse_int(page_text, &page) ||
+        !cp_parse_int(slot_text, &slot) ||
+        !cp_parse_int(cost_text, &cost) || page < 0 ||
+        page >= CP_SHOP_PAGES || slot < 0 || slot >= 15 || cost < 0)
+        return;
+
+    item = &game.shop_items[game.shop_item_count++];
+    rb->memset(item, 0, sizeof(*item));
+    cp_copy(item->name, sizeof(item->name), name);
+    item->page = page;
+    item->slot = slot;
+    item->cost = cost;
+}
+
+static bool cp_load_shop_data(void)
+{
+    char *cursor;
+    char *line;
+
+    if (cp_read_text_file(CP_SHOP_DATA_FILE) < 0)
+        return false;
+
+    game.shop_item_count = 0;
+    cursor = text_buf;
+    while ((line = cp_next_line(&cursor)) != NULL)
+    {
+        if (cp_data_line(line))
+            cp_parse_shop_line(line);
+    }
+
+    return game.shop_item_count > 0;
 }
 
 static bool cp_load_bitmap(const char *path, struct bitmap *bmp,
@@ -1187,6 +1260,10 @@ static void cp_load_save(void)
 
         if (cp_streq(line, "room"))
             cp_copy(game.saved_room, sizeof(game.saved_room), value);
+        else if (cp_streq(line, "owned_lo"))
+            game.owned_lo = (unsigned int)rb->strtoul(value, NULL, 16);
+        else if (cp_streq(line, "owned_hi"))
+            game.owned_hi = (unsigned int)rb->strtoul(value, NULL, 16);
         else if (cp_parse_int(value, &parsed))
         {
             if (cp_streq(line, "coins"))
@@ -1205,13 +1282,21 @@ static void cp_load_save(void)
             else if (cp_streq(line, "cart_best_combo"))
                 game.cart_best_combo =
                     cp_clamp_save_value(parsed, 999999999);
+            else if (cp_streq(line, "equipped_head"))
+                game.equipped[0] = MIN(MAX(parsed, -1), 14);
+            else if (cp_streq(line, "equipped_body"))
+                game.equipped[1] = MIN(MAX(parsed, -1), 14);
+            else if (cp_streq(line, "equipped_feet"))
+                game.equipped[2] = MIN(MAX(parsed, -1), 14);
+            else if (cp_streq(line, "equipped_color"))
+                game.equipped[3] = MIN(MAX(parsed, -1), 14);
         }
     }
 }
 
 static bool cp_write_save(void)
 {
-    char save[320];
+    char save[512];
     const char *room = "map";
     int save_x = game.x;
     int save_y = game.y;
@@ -1222,6 +1307,14 @@ static bool cp_write_save(void)
     if (game.scene_type == CP_SCENE_ROOM && game.room_index >= 0 &&
         game.room_index < game.room_count)
         room = game.rooms[game.room_index].id;
+    else if (game.scene_type == CP_SCENE_SHOP &&
+             game.shop_return_room >= 0 &&
+             game.shop_return_room < game.room_count)
+    {
+        room = game.rooms[game.shop_return_room].id;
+        save_x = game.shop_return_x;
+        save_y = game.shop_return_y;
+    }
     else if (game.scene_type >= CP_SCENE_CART_TITLE &&
              game.cart.return_room >= 0 &&
              game.cart.return_room < game.room_count)
@@ -1235,10 +1328,15 @@ static bool cp_write_save(void)
                           "CLUBPENGUIN_SAVE_V1\n"
                           "coins=%d\nroom=%s\nx=%d\ny=%d\n"
                           "map_x=%d\nmap_y=%d\n"
-                          "cart_best_score=%d\ncart_best_combo=%d\n",
+                          "cart_best_score=%d\ncart_best_combo=%d\n"
+                          "owned_lo=%08x\nowned_hi=%08x\n"
+                          "equipped_head=%d\nequipped_body=%d\n"
+                          "equipped_feet=%d\nequipped_color=%d\n",
                           game.coins, room, save_x, save_y,
                           game.map_x, game.map_y, game.cart_best_score,
-                          game.cart_best_combo);
+                          game.cart_best_combo, game.owned_lo, game.owned_hi,
+                          game.equipped[0], game.equipped[1],
+                          game.equipped[2], game.equipped[3]);
     if (length <= 0 || length >= (int)sizeof(save))
         return false;
 
@@ -1506,7 +1604,7 @@ static void cp_cart_tick_if_due(void)
     }
 }
 
-static bool cp_cart_menu_held(void)
+static bool cp_menu_held(void)
 {
 #if (CONFIG_KEYPAD == IPOD_1G2G_PAD) || \
     (CONFIG_KEYPAD == IPOD_3G_PAD) || \
@@ -1519,7 +1617,7 @@ static bool cp_cart_menu_held(void)
 
 static void cp_cart_update_menu_latch(void)
 {
-    if (game.cart.menu_latched && !cp_cart_menu_held())
+    if (game.cart.menu_latched && !cp_menu_held())
         game.cart.menu_latched = false;
 }
 
@@ -1543,7 +1641,7 @@ static void cp_cart_action(int action)
             game.cart.next_tick = *rb->current_tick + MAX(1, HZ / 25);
             game.dirty = true;
         }
-        else if (action == CP_UP_ACTION && cp_cart_menu_held() &&
+        else if (action == CP_UP_ACTION && cp_menu_held() &&
                  !game.cart.menu_latched)
         {
             game.cart.menu_latched = true;
@@ -1595,7 +1693,7 @@ static void cp_cart_action(int action)
         game.cart.sprite_frame = 4;
     }
     else if ((action == CP_UP_ACTION || action == CP_UP_REPEAT) &&
-             cp_cart_menu_held() && !game.cart.menu_latched)
+             cp_menu_held() && !game.cart.menu_latched)
     {
         game.cart.menu_latched = true;
         game.scene_type = CP_SCENE_CART_PAUSED;
@@ -1609,8 +1707,172 @@ static void cp_cart_action(int action)
     game.dirty = true;
 }
 
+static bool cp_shop_item_owned(int index)
+{
+    if (index < 0 || index >= game.shop_item_count)
+        return false;
+    if (index < 32)
+        return (game.owned_lo & (1u << index)) != 0;
+    return (game.owned_hi & (1u << (index - 32))) != 0;
+}
+
+static void cp_shop_own_item(int index)
+{
+    if (index < 0 || index >= game.shop_item_count)
+        return;
+    if (index < 32)
+        game.owned_lo |= 1u << index;
+    else
+        game.owned_hi |= 1u << (index - 32);
+}
+
+static int cp_shop_first_item(int page)
+{
+    int i;
+
+    for (i = 0; i < game.shop_item_count; i++)
+    {
+        if (game.shop_items[i].page == page)
+            return i;
+    }
+    return 0;
+}
+
+static int cp_shop_find_item(int page, int slot)
+{
+    int i;
+
+    for (i = 0; i < game.shop_item_count; i++)
+    {
+        if (game.shop_items[i].page == page &&
+            game.shop_items[i].slot == slot)
+            return i;
+    }
+    return -1;
+}
+
+static bool cp_load_shop_page(int page)
+{
+    char path[MAX_PATH];
+
+    rb->snprintf(path, sizeof(path), CP_SHOP_PAGE_PATTERN, page);
+    if (!cp_load_scene(path, CP_VIEW_W, CP_VIEW_H))
+        return false;
+    game.shop_page = page;
+    game.shop_selection = cp_shop_first_item(page);
+    game.dirty = true;
+    return true;
+}
+
+static bool cp_enter_shop(void)
+{
+    if (game.shop_item_count <= 0)
+        return false;
+    game.shop_return_room = game.room_index;
+    game.shop_return_x = game.x;
+    game.shop_return_y = game.y;
+    if (!cp_load_shop_page(0))
+        return false;
+    game.scene_type = CP_SCENE_SHOP;
+    cp_copy(game.shop_status, sizeof(game.shop_status), "Penguin Style");
+    return true;
+}
+
+static void cp_leave_shop(void)
+{
+    if (!cp_load_player_asset() ||
+        !cp_enter_room(game.shop_return_room, game.shop_return_x,
+                       game.shop_return_y))
+        return;
+    cp_write_save();
+}
+
+static void cp_shop_move(int direction)
+{
+    int index = game.shop_selection;
+    int tries;
+
+    for (tries = 0; tries < game.shop_item_count; tries++)
+    {
+        index += direction;
+        if (index < 0)
+            index = game.shop_item_count - 1;
+        else if (index >= game.shop_item_count)
+            index = 0;
+        if (game.shop_items[index].page == game.shop_page)
+        {
+            game.shop_selection = index;
+            cp_copy(game.shop_status, sizeof(game.shop_status),
+                    cp_shop_item_owned(index) ? "Owned" : "Select to buy");
+            game.dirty = true;
+            return;
+        }
+    }
+}
+
+static void cp_shop_purchase(void)
+{
+    int index = game.shop_selection;
+    struct cp_shop_item *item;
+
+    if (index < 0 || index >= game.shop_item_count)
+        return;
+    item = &game.shop_items[index];
+    if (!cp_shop_item_owned(index))
+    {
+        if (game.coins < item->cost)
+        {
+            cp_copy(game.shop_status, sizeof(game.shop_status),
+                    "Not enough coins");
+            game.dirty = true;
+            return;
+        }
+        game.coins -= item->cost;
+        cp_shop_own_item(index);
+        cp_copy(game.shop_status, sizeof(game.shop_status), "Purchased");
+    }
+    else
+        cp_copy(game.shop_status, sizeof(game.shop_status), "Equipped");
+
+    game.equipped[item->page] = item->slot;
+    cp_write_save();
+    game.dirty = true;
+}
+
+static void cp_shop_action(int action)
+{
+    if ((action == CP_UP_ACTION || action == CP_UP_REPEAT) &&
+        cp_menu_held())
+    {
+        cp_leave_shop();
+        return;
+    }
+    if (action == CP_LEFT_ACTION || action == CP_LEFT_REPEAT ||
+        action == CP_RIGHT_ACTION || action == CP_RIGHT_REPEAT)
+    {
+        int direction = (action == CP_RIGHT_ACTION ||
+                         action == CP_RIGHT_REPEAT) ? 1 : -1;
+        int page = game.shop_page + direction;
+
+        if (page < 0)
+            page = CP_SHOP_PAGES - 1;
+        else if (page >= CP_SHOP_PAGES)
+            page = 0;
+        cp_load_shop_page(page);
+        cp_copy(game.shop_status, sizeof(game.shop_status), "Penguin Style");
+    }
+    else if (action == CP_UP_ACTION || action == CP_UP_REPEAT)
+        cp_shop_move(-1);
+    else if (action == CP_DOWN_ACTION || action == CP_DOWN_REPEAT)
+        cp_shop_move(1);
+    else if (action == CP_SELECT_ACTION)
+        cp_shop_purchase();
+}
+
 static void cp_init(void)
 {
+    int i;
+
     rb->memset(&game, 0, sizeof(game));
     game.coins = 500;
     game.direction = CP_DIR_DOWN;
@@ -1622,6 +1884,15 @@ static void cp_init(void)
         cp_use_builtin_hotspots();
 
     cp_load_interactions();
+    cp_load_shop_data();
+    for (i = 0; i < CP_SHOP_PAGES; i++)
+        game.equipped[i] = -1;
+    if (game.shop_item_count > 0)
+    {
+        int blue = cp_shop_first_item(3) + 5;
+        cp_shop_own_item(blue);
+        game.equipped[3] = 5;
+    }
 
     if (!cp_load_assets())
         return;
@@ -1629,6 +1900,19 @@ static void cp_init(void)
     game.map_x = game.map_hotspots[0].x;
     game.map_y = game.map_hotspots[0].y;
     cp_load_save();
+    for (i = 0; i < CP_SHOP_PAGES; i++)
+    {
+        int equipped = cp_shop_find_item(i, game.equipped[i]);
+        if (game.equipped[i] >= 0 &&
+            (equipped < 0 || !cp_shop_item_owned(equipped)))
+            game.equipped[i] = -1;
+    }
+    if (game.equipped[3] < 0 && game.shop_item_count > 0)
+    {
+        int blue = cp_shop_find_item(3, 5);
+        cp_shop_own_item(blue);
+        game.equipped[3] = 5;
+    }
     if (game.map_x <= 0 || game.map_y <= 0)
     {
         game.map_x = game.map_hotspots[0].x;
@@ -1780,6 +2064,13 @@ static void cp_interact(void)
         return;
     }
 
+    if (hotspot->action == CP_ACTION_SHOP)
+    {
+        if (!cp_enter_shop())
+            cp_set_message("Penguin Style assets are incomplete.");
+        return;
+    }
+
     if (hotspot->action == CP_ACTION_MAP ||
         cp_streq(hotspot->target, "map"))
     {
@@ -1810,6 +2101,12 @@ static void cp_interact(void)
 
 static void cp_go_back(void)
 {
+    if (game.scene_type == CP_SCENE_SHOP)
+    {
+        cp_leave_shop();
+        return;
+    }
+
     if (game.scene_type >= CP_SCENE_CART_TITLE &&
         game.scene_type <= CP_SCENE_CART_RESULTS)
     {
@@ -2076,10 +2373,60 @@ static void cp_render_cart(void)
     game.dirty = false;
 }
 
+static void cp_render_shop(void)
+{
+    static const char *departments[CP_SHOP_PAGES] =
+    {
+        "HEAD ITEMS", "BODY ITEMS", "FEET ITEMS", "COLORS"
+    };
+    struct cp_shop_item *item = &game.shop_items[game.shop_selection];
+    char line[48];
+    int old_fg = rb->lcd_get_foreground();
+    int old_bg = rb->lcd_get_background();
+    int col = item->slot % 3;
+    int row = item->slot / 3;
+    int x = 46 + col * 44;
+    int y = game.shop_page == 3 ? 34 + row * 36 : 34 + row * 48;
+    bool equipped = game.equipped[item->page] == item->slot;
+
+    rb->lcd_bitmap((const fb_data *)game.scene.data, 0, 0,
+                   CP_VIEW_W, CP_VIEW_H);
+    rb->lcd_set_foreground(LCD_RGBPACK(255, 220, 32));
+    rb->lcd_drawrect(x - 26, y - 19, 52, 39);
+    rb->lcd_drawrect(x - 27, y - 20, 54, 41);
+
+    rb->lcd_setfont(FONT_SYSFIXED);
+    rb->lcd_set_foreground(LCD_WHITE);
+    rb->lcd_set_background(LCD_RGBPACK(8, 117, 185));
+    rb->lcd_putsxy(186, 8, departments[game.shop_page]);
+    rb->snprintf(line, sizeof(line), "Coins: %d", game.coins);
+    rb->lcd_putsxy(186, 28, line);
+    rb->lcd_putsxy(186, 54, item->name);
+    rb->snprintf(line, sizeof(line), "Cost: %d", item->cost);
+    rb->lcd_putsxy(186, 72, line);
+    rb->lcd_putsxy(186, 92, equipped ? "EQUIPPED" : game.shop_status);
+    rb->lcd_putsxy(186, 130, "Wheel: item");
+    rb->lcd_putsxy(186, 146, "Left/Right: page");
+    rb->lcd_putsxy(186, 162, "Select: buy/equip");
+    rb->lcd_putsxy(186, 178, "Menu: back");
+
+    cp_draw_status();
+    rb->lcd_set_foreground(old_fg);
+    rb->lcd_set_background(old_bg);
+    rb->lcd_update();
+    game.dirty = false;
+}
+
 static void cp_render(void)
 {
     int player_screen_x;
     int player_screen_y;
+
+    if (game.scene_type == CP_SCENE_SHOP)
+    {
+        cp_render_shop();
+        return;
+    }
 
     if (game.scene_type >= CP_SCENE_CART_TITLE &&
         game.scene_type <= CP_SCENE_CART_RESULTS)
@@ -2164,7 +2511,9 @@ enum plugin_status plugin_start(const void *parameter)
 
             case CP_UP_ACTION:
             case CP_UP_REPEAT:
-                if (game.scene_type >= CP_SCENE_CART_TITLE)
+                if (game.scene_type == CP_SCENE_SHOP)
+                    cp_shop_action(action);
+                else if (game.scene_type >= CP_SCENE_CART_TITLE)
                     cp_cart_action(action);
                 else
                     cp_queue_move(0, -CP_INPUT_STEP);
@@ -2172,7 +2521,9 @@ enum plugin_status plugin_start(const void *parameter)
 
             case CP_DOWN_ACTION:
             case CP_DOWN_REPEAT:
-                if (game.scene_type >= CP_SCENE_CART_TITLE)
+                if (game.scene_type == CP_SCENE_SHOP)
+                    cp_shop_action(action);
+                else if (game.scene_type >= CP_SCENE_CART_TITLE)
                     cp_cart_action(action);
                 else
                     cp_queue_move(0, CP_INPUT_STEP);
@@ -2180,7 +2531,9 @@ enum plugin_status plugin_start(const void *parameter)
 
             case CP_LEFT_ACTION:
             case CP_LEFT_REPEAT:
-                if (game.scene_type >= CP_SCENE_CART_TITLE)
+                if (game.scene_type == CP_SCENE_SHOP)
+                    cp_shop_action(action);
+                else if (game.scene_type >= CP_SCENE_CART_TITLE)
                     cp_cart_action(action);
                 else
                     cp_queue_move(-CP_INPUT_STEP, 0);
@@ -2188,14 +2541,18 @@ enum plugin_status plugin_start(const void *parameter)
 
             case CP_RIGHT_ACTION:
             case CP_RIGHT_REPEAT:
-                if (game.scene_type >= CP_SCENE_CART_TITLE)
+                if (game.scene_type == CP_SCENE_SHOP)
+                    cp_shop_action(action);
+                else if (game.scene_type >= CP_SCENE_CART_TITLE)
                     cp_cart_action(action);
                 else
                     cp_queue_move(CP_INPUT_STEP, 0);
                 break;
 
             case CP_SELECT_ACTION:
-                if (game.scene_type >= CP_SCENE_CART_TITLE)
+                if (game.scene_type == CP_SCENE_SHOP)
+                    cp_shop_action(action);
+                else if (game.scene_type >= CP_SCENE_CART_TITLE)
                     cp_cart_action(action);
                 else
                     cp_interact();
