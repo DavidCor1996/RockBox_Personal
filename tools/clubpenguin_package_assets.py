@@ -296,10 +296,15 @@ def package_cart_surfer(cart_export: Path, waddle_source: Path, out: Path,
     tunnel_source = (cart_export / "sprites" / "DefineSprite_201" /
                      "1.png")
     cart_source = cart_export / "sprites" / "DefineSprite_173"
-    cart_frames = [1, 2, 14, 15, 22]
+    cart_frames = [1, 9, 5, 10, 15, 22]
+    track_frames = [1, 2, 3, 4]
 
     required = [source_swf, title_source, tunnel_source]
     required.extend(cart_source / f"{frame}.png" for frame in cart_frames)
+    required.extend(
+        cart_export / "sprites" / "DefineSprite_201" / f"{frame}.png"
+        for frame in track_frames
+    )
     for path in required:
         if not path.exists():
             raise SystemExit(f"missing Cart Surfer extraction: {path}")
@@ -321,21 +326,52 @@ def package_cart_surfer(cart_export: Path, waddle_source: Path, out: Path,
         prepared_frame = cart_out / f".cart_frame_{index}.bmp"
         run_magick([
             str(cart_source / f"{frame}.png"), "-trim", "+repage",
-            "-resize", "60x60", "-gravity", "center", "-background",
+            "-resize", "38x38", "-gravity", "center", "-background",
             "magenta", "-alpha", "remove", "-alpha", "off", "-extent",
-            "64x64", f"BMP3:{prepared_frame}",
+            "40x40", f"BMP3:{prepared_frame}",
         ])
         prepared.append(prepared_frame)
 
     hstack_args: list[str] = []
     for frame in prepared:
         hstack_args.extend(["-i", str(frame)])
+    cart_row = cart_out / ".cart_row.bmp"
     run_ffmpeg([
         *hstack_args,
-        "-filter_complex", f"hstack=inputs={len(prepared)},format=bgr24",
-        str(strip_out),
+        "-filter_complex", f"hstack=inputs={len(prepared)},"
+        "pad=320:40:0:0:color=magenta,format=bgr24",
+        str(cart_row),
     ])
     for frame in prepared:
+        frame.unlink()
+
+    track_prepared: list[Path] = []
+    tunnel_frames = cart_export / "sprites" / "DefineSprite_201"
+    for index, frame in enumerate(track_frames):
+        prepared_frame = cart_out / f".track_frame_{index}.bmp"
+        run_ffmpeg([
+            "-i", str(tunnel_frames / f"{frame}.png"),
+            "-vf", "scale=320:220,crop=80:24:120:125",
+            "-pix_fmt", "bgr24", str(prepared_frame),
+        ])
+        track_prepared.append(prepared_frame)
+
+    hstack_args = []
+    for frame in track_prepared:
+        hstack_args.extend(["-i", str(frame)])
+    track_row = cart_out / ".track_row.bmp"
+    run_ffmpeg([
+        *hstack_args,
+        "-filter_complex", f"hstack=inputs={len(track_prepared)},"
+        "format=bgr24", str(track_row),
+    ])
+    run_ffmpeg([
+        "-i", str(cart_row), "-i", str(track_row),
+        "-filter_complex", "vstack=inputs=2,format=bgr24", str(strip_out),
+    ])
+    cart_row.unlink()
+    track_row.unlink()
+    for frame in track_prepared:
         frame.unlink()
 
     cart_data = data_out / "cart_surfer.tsv"
@@ -368,7 +404,9 @@ def package_cart_surfer(cart_export: Path, waddle_source: Path, out: Path,
         "extractor=JPEXS_FFDec_26.2.1\n"
         "title_frame=main:1\n"
         "tunnel_frame=DefineSprite_201:1\n"
-        "cart_frames=DefineSprite_173:1,2,14,15,22\n",
+        "cart_frames=DefineSprite_173:1,9,5,10,15,22\n"
+        "track_frames=DefineSprite_201:1,2,3,4\n"
+        "atlas=320x64 cart=6x40x40 track=4x80x24\n",
         encoding="utf-8",
     )
 

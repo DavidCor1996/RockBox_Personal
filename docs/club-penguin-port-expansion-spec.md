@@ -603,6 +603,12 @@ Cart Surfer will be a native fixed-step game, not an on-device Flash player.
 Use preserved SWFs as the behavior and art reference, then convert only the
 needed assets on the host.
 
+Status: the expanded native slice includes a three-second countdown, animated
+preserved track patches, six preserved cart/penguin poses, four lives, bounded
+speed stages, curves, jump hazards, airborne and grind tricks, repeat-trick
+penalties, combo tracking, crash recovery, pause/abandon, results, retry, best
+score/combo persistence, and one-time coin rewards.
+
 Canonical source order:
 
 1. `media/default/fix/CartSurfer2006.swf` for the first gameplay baseline
@@ -707,6 +713,13 @@ The first playable slice must include:
 - the original offline reward rule of `floor(score / 10)` coins, applied with
   overflow-safe arithmetic
 
+The fixed update clock also drives presentation animation. The packager crops
+four consecutive 80x24 rail patches from preserved `DefineSprite 201` frames
+and places them in the same bounded atlas as six 40x40 cart poses from
+preserved `DefineSprite 173`. Runtime compositing cycles those patches faster
+at each bounded speed stage. It performs no filesystem access, decode, scale,
+or allocation during a run.
+
 Do not guess parity-critical constants. Before implementation, extract the
 2006 ActionScript values for speed stages, trick scores, duplicate-trick
 penalties, curve timing, lives, and reward conversion into a checked-in
@@ -726,9 +739,11 @@ wheel:
 - `SELECT`: jump, confirm, or start
 - wheel clockwise / counter-clockwise: rotate the airborne cart and select
   title/result choices when grounded
-- `PLAY`: crouch/grind trick while playing; pause/resume otherwise
-- `MENU`: open pause/back confirmation; a second confirmation abandons the
-  run and returns to the Mine
+- `PLAY`: crouch/grind trick while playing; return from title/results
+- physical `MENU` while grounded: pause; after the button is released, a
+  second `MENU` abandons the run and returns to the Mine
+- `SELECT` while paused: resume
+- results wheel selection: choose retry or return to the Mine
 
 Input is sampled into a per-tick edge/held state. Never perform two menu
 transitions from one held button, and clear held inputs after countdown,

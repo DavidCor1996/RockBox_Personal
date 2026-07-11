@@ -63,7 +63,13 @@ remain sourced from this table.
 
 - title: main timeline frame 1
 - tunnel: `DefineSprite 201`, frame 1
-- cart strip: `DefineSprite 173`, frames 1, 2, 14, 15, and 22
+- animated track patches: `DefineSprite 201`, frames 1, 2, 3, and 4
+- cart animation: `DefineSprite 173`, frames 1, 9, 5, 10, 15, and 22
+
+The device atlas preserves these extracted pixels in a 320x64 sheet: six
+40x40 cart cells followed by four transparent 80x24 track patches. The track
+patches are composited over the preserved frame-1 tunnel at fixed-step speed;
+no replacement track or character art is drawn by the native renderer.
 
 Generated BMP checksums are recorded in the package manifests. Any change to
 the source hash or extracted character/frame IDs requires a new visual review.

@@ -55,11 +55,18 @@
 #define CP_MAX_INTERACTIONS 24
 #define CP_TEXT_BUF 4096
 #define CP_ANIM_RATE 3
-#define CP_CART_FRAME_W 64
-#define CP_CART_FRAME_H 64
-#define CP_CART_STRIP_W (CP_CART_FRAME_W * 5)
+#define CP_CART_FRAME_W 40
+#define CP_CART_FRAME_H 40
+#define CP_CART_FRAMES 6
+#define CP_CART_SHEET_W 320
+#define CP_CART_SHEET_H 64
+#define CP_CART_TRACK_W 80
+#define CP_CART_TRACK_H 24
+#define CP_CART_TRACK_Y 40
+#define CP_CART_TRACK_FRAMES 4
 #define CP_CART_SEGMENT_TICKS 60
 #define CP_CART_JUMP_TICKS 20
+#define CP_CART_COUNTDOWN_TICKS 75
 
 /* read_bmp_file()/read_bmp_fd() need extra scratch space *inside* the
  * destination buffer whenever the source bitmap is wider than
@@ -116,7 +123,9 @@ enum cp_scene_type
     CP_SCENE_MAP = 0,
     CP_SCENE_ROOM,
     CP_SCENE_CART_TITLE,
+    CP_SCENE_CART_COUNTDOWN,
     CP_SCENE_CART_PLAYING,
+    CP_SCENE_CART_PAUSED,
     CP_SCENE_CART_CRASH,
     CP_SCENE_CART_RESULTS
 };
@@ -161,11 +170,17 @@ struct cp_cart_state
     int crash_ticks;
     int sprite_frame;
     int trick_cooldown;
+    int countdown_ticks;
+    int speed_stage;
+    int combo;
+    int run_best_combo;
+    int results_choice;
     int reward;
     long next_tick;
     enum cp_cart_trick trick;
     enum cp_cart_trick last_trick;
     bool rewarded;
+    bool menu_latched;
 };
 
 struct cp_hotspot
@@ -1252,7 +1267,14 @@ static void cp_cart_award_trick(enum cp_cart_trick trick)
     if (trick == CP_CART_TRICK_NONE || points <= 0)
         return;
     if (game.cart.last_trick == trick)
+    {
         points /= 2;
+        game.cart.combo = 1;
+    }
+    else
+        game.cart.combo++;
+    if (game.cart.combo > game.cart.run_best_combo)
+        game.cart.run_best_combo = game.cart.combo;
     if (game.cart.score <= 999999999 - points)
         game.cart.score += points;
     else
@@ -1277,6 +1299,8 @@ static void cp_cart_finish(void)
         game.cart.rewarded = true;
         if (game.cart.score > game.cart_best_score)
             game.cart_best_score = game.cart.score;
+        if (game.cart.run_best_combo > game.cart_best_combo)
+            game.cart_best_combo = game.cart.run_best_combo;
         cp_write_save();
     }
     game.dirty = true;
@@ -1289,8 +1313,9 @@ static void cp_cart_crash(void)
         return;
 
     game.cart.lives--;
-    game.cart.sprite_frame = 4;
+    game.cart.sprite_frame = 5;
     game.cart.crash_ticks = 35;
+    game.cart.combo = 0;
     game.scene_type = CP_SCENE_CART_CRASH;
     game.dirty = true;
 }
@@ -1300,8 +1325,8 @@ static bool cp_cart_start(void)
     if (!cp_load_scene(CP_CART_TUNNEL_FILE, CP_VIEW_W, CP_VIEW_H))
         return false;
     if (!cp_load_bitmap(CP_CART_SPRITES_FILE, &game.player, player_pixels,
-                        sizeof(player_pixels), CP_CART_STRIP_W,
-                        CP_CART_FRAME_H, FORMAT_NATIVE))
+                        sizeof(player_pixels), CP_CART_SHEET_W,
+                        CP_CART_SHEET_H, FORMAT_NATIVE))
         return false;
 
     game.cart.score = 0;
@@ -1314,12 +1339,18 @@ static bool cp_cart_start(void)
     game.cart.crash_ticks = 0;
     game.cart.sprite_frame = 0;
     game.cart.trick_cooldown = 0;
+    game.cart.countdown_ticks = CP_CART_COUNTDOWN_TICKS;
+    game.cart.speed_stage = 0;
+    game.cart.combo = 0;
+    game.cart.run_best_combo = 0;
+    game.cart.results_choice = 0;
     game.cart.reward = 0;
     game.cart.next_tick = *rb->current_tick + MAX(1, HZ / 25);
     game.cart.trick = CP_CART_TRICK_NONE;
     game.cart.last_trick = CP_CART_TRICK_NONE;
     game.cart.rewarded = false;
-    game.scene_type = CP_SCENE_CART_PLAYING;
+    game.cart.menu_latched = false;
+    game.scene_type = CP_SCENE_CART_COUNTDOWN;
     game.dirty = true;
     return true;
 }
@@ -1352,6 +1383,21 @@ static void cp_leave_cart_surfer(const char *message)
 static void cp_cart_tick(void)
 {
     int segment_type;
+    int segment_length;
+    int decision_tick;
+
+    if (game.scene_type == CP_SCENE_CART_COUNTDOWN)
+    {
+        if (game.cart.countdown_ticks > 0)
+            game.cart.countdown_ticks--;
+        if (game.cart.countdown_ticks == 0)
+        {
+            game.scene_type = CP_SCENE_CART_PLAYING;
+            game.cart.segment_tick = 0;
+        }
+        game.dirty = true;
+        return;
+    }
 
     if (game.scene_type == CP_SCENE_CART_CRASH)
     {
@@ -1368,6 +1414,7 @@ static void cp_cart_tick(void)
                 game.cart.jump_ticks = 0;
                 game.cart.lean_ticks = 0;
                 game.cart.sprite_frame = 0;
+                game.cart.combo = 0;
                 game.cart.trick = CP_CART_TRICK_NONE;
                 game.dirty = true;
             }
@@ -1386,7 +1433,7 @@ static void cp_cart_tick(void)
     {
         game.cart.lean = 0;
         if (game.cart.jump_ticks <= 0)
-            game.cart.sprite_frame = 0;
+            game.cart.sprite_frame = (game.cart.segment_tick / 4) & 1;
     }
 
     if (game.cart.jump_ticks > 0)
@@ -1397,13 +1444,16 @@ static void cp_cart_tick(void)
             cp_cart_award_trick(game.cart.trick == CP_CART_TRICK_NONE ?
                                 CP_CART_TRICK_OLLIE : game.cart.trick);
             game.cart.trick = CP_CART_TRICK_NONE;
-            game.cart.sprite_frame = 0;
+            game.cart.sprite_frame = (game.cart.segment_tick / 4) & 1;
         }
     }
 
     game.cart.segment_tick++;
+    game.cart.speed_stage = MIN(3, game.cart.segment / 7);
+    segment_length = CP_CART_SEGMENT_TICKS - game.cart.speed_stage * 5;
+    decision_tick = segment_length - 15;
     segment_type = cp_cart_segments[game.cart.segment];
-    if (game.cart.segment_tick == 45)
+    if (game.cart.segment_tick == decision_tick)
     {
         if ((segment_type == 2 && game.cart.lean <= 0) ||
             (segment_type == 3 && game.cart.lean >= 0) ||
@@ -1417,7 +1467,7 @@ static void cp_cart_tick(void)
             game.cart.score += 10;
     }
 
-    if (game.cart.segment_tick >= CP_CART_SEGMENT_TICKS)
+    if (game.cart.segment_tick >= segment_length)
     {
         game.cart.segment_tick = 0;
         game.cart.segment++;
@@ -1430,7 +1480,8 @@ static void cp_cart_tick(void)
 
 static void cp_cart_tick_if_due(void)
 {
-    if ((game.scene_type == CP_SCENE_CART_PLAYING ||
+    if ((game.scene_type == CP_SCENE_CART_COUNTDOWN ||
+         game.scene_type == CP_SCENE_CART_PLAYING ||
          game.scene_type == CP_SCENE_CART_CRASH) &&
         (TIME_AFTER(*rb->current_tick, game.cart.next_tick) ||
          *rb->current_tick == game.cart.next_tick))
@@ -1440,17 +1491,62 @@ static void cp_cart_tick_if_due(void)
     }
 }
 
+static bool cp_cart_menu_held(void)
+{
+#if (CONFIG_KEYPAD == IPOD_1G2G_PAD) || \
+    (CONFIG_KEYPAD == IPOD_3G_PAD) || \
+    (CONFIG_KEYPAD == IPOD_4G_PAD)
+    return (rb->button_status() & BUTTON_MENU) != 0;
+#else
+    return false;
+#endif
+}
+
+static void cp_cart_update_menu_latch(void)
+{
+    if (game.cart.menu_latched && !cp_cart_menu_held())
+        game.cart.menu_latched = false;
+}
+
 static void cp_cart_action(int action)
 {
     if (game.scene_type == CP_SCENE_CART_TITLE)
     {
         if (action == CP_SELECT_ACTION && !cp_cart_start())
             cp_leave_cart_surfer("Cart Surfer assets are incomplete.");
+        else if (action == CP_PLAY_ACTION)
+            cp_leave_cart_surfer("Returned to the Mine.");
+        return;
+    }
+    if (game.scene_type == CP_SCENE_CART_COUNTDOWN)
+        return;
+    if (game.scene_type == CP_SCENE_CART_PAUSED)
+    {
+        if (action == CP_SELECT_ACTION)
+        {
+            game.scene_type = CP_SCENE_CART_PLAYING;
+            game.cart.next_tick = *rb->current_tick + MAX(1, HZ / 25);
+            game.dirty = true;
+        }
+        else if (action == CP_UP_ACTION && cp_cart_menu_held() &&
+                 !game.cart.menu_latched)
+        {
+            game.cart.menu_latched = true;
+            cp_leave_cart_surfer("Returned to the Mine.");
+        }
         return;
     }
     if (game.scene_type == CP_SCENE_CART_RESULTS)
     {
-        if (action == CP_SELECT_ACTION || action == CP_PLAY_ACTION)
+        if (action == CP_UP_ACTION || action == CP_UP_REPEAT ||
+            action == CP_DOWN_ACTION || action == CP_DOWN_REPEAT)
+        {
+            game.cart.results_choice = 1 - game.cart.results_choice;
+            game.dirty = true;
+        }
+        else if (action == CP_SELECT_ACTION && game.cart.results_choice == 0)
+            cp_cart_start();
+        else if (action == CP_SELECT_ACTION || action == CP_PLAY_ACTION)
             cp_leave_cart_surfer("Cart Surfer complete.");
         return;
     }
@@ -1461,7 +1557,7 @@ static void cp_cart_action(int action)
     {
         game.cart.jump_ticks = CP_CART_JUMP_TICKS;
         game.cart.trick = CP_CART_TRICK_OLLIE;
-        game.cart.sprite_frame = 2;
+        game.cart.sprite_frame = 3;
     }
     else if (action == CP_LEFT_ACTION || action == CP_LEFT_REPEAT ||
              action == CP_RIGHT_ACTION || action == CP_RIGHT_REPEAT)
@@ -1472,21 +1568,27 @@ static void cp_cart_action(int action)
         if (game.cart.jump_ticks > 0)
         {
             game.cart.trick = CP_CART_TRICK_SPIN;
-            game.cart.sprite_frame = 3;
+            game.cart.sprite_frame = 4;
         }
         else
-            game.cart.sprite_frame = 1;
+            game.cart.sprite_frame = 2;
     }
     else if ((action == CP_UP_ACTION || action == CP_UP_REPEAT) &&
              game.cart.jump_ticks > 0)
     {
         game.cart.trick = CP_CART_TRICK_FLAP;
-        game.cart.sprite_frame = 3;
+        game.cart.sprite_frame = 4;
+    }
+    else if ((action == CP_UP_ACTION || action == CP_UP_REPEAT) &&
+             cp_cart_menu_held() && !game.cart.menu_latched)
+    {
+        game.cart.menu_latched = true;
+        game.scene_type = CP_SCENE_CART_PAUSED;
     }
     else if (action == CP_PLAY_ACTION && game.cart.trick_cooldown == 0)
     {
         cp_cart_award_trick(CP_CART_TRICK_GRIND);
-        game.cart.sprite_frame = 1;
+        game.cart.sprite_frame = 2;
         game.cart.lean_ticks = 8;
     }
     game.dirty = true;
@@ -1693,10 +1795,8 @@ static void cp_interact(void)
 
 static void cp_go_back(void)
 {
-    if (game.scene_type == CP_SCENE_CART_TITLE ||
-        game.scene_type == CP_SCENE_CART_PLAYING ||
-        game.scene_type == CP_SCENE_CART_CRASH ||
-        game.scene_type == CP_SCENE_CART_RESULTS)
+    if (game.scene_type >= CP_SCENE_CART_TITLE &&
+        game.scene_type <= CP_SCENE_CART_RESULTS)
     {
         cp_leave_cart_surfer("Returned to the Mine.");
         return;
@@ -1798,10 +1898,10 @@ static void cp_draw_player(int x, int y)
 static void cp_draw_cart_sprite(void)
 {
     int frame = game.cart.sprite_frame;
-    int x = 128 + game.cart.lean * 8;
-    int y = 145;
+    int x = 140 + game.cart.lean * 8;
+    int y = 157;
 
-    if (frame < 0 || frame >= 5)
+    if (frame < 0 || frame >= CP_CART_FRAMES)
         frame = 0;
     if (game.cart.jump_ticks > 0)
     {
@@ -1817,6 +1917,18 @@ static void cp_draw_cart_sprite(void)
                                     CP_CART_FRAME_W, CP_CART_FRAME_H);
 }
 
+static void cp_draw_cart_track(void)
+{
+    int frame = ((game.cart.segment_tick *
+                 (game.cart.speed_stage + 1)) / 3) % CP_CART_TRACK_FRAMES;
+
+    rb->lcd_bitmap_transparent_part((const fb_data *)game.player.data,
+                                    frame * CP_CART_TRACK_W,
+                                    CP_CART_TRACK_Y, game.player.width,
+                                    120, 125, CP_CART_TRACK_W,
+                                    CP_CART_TRACK_H);
+}
+
 static void cp_render_cart(void)
 {
     char line[96];
@@ -1829,7 +1941,9 @@ static void cp_render_cart(void)
     rb->lcd_set_foreground(LCD_WHITE);
     rb->lcd_set_background(LCD_BLACK);
 
-    if (game.scene_type == CP_SCENE_CART_PLAYING ||
+    if (game.scene_type == CP_SCENE_CART_COUNTDOWN ||
+        game.scene_type == CP_SCENE_CART_PLAYING ||
+        game.scene_type == CP_SCENE_CART_PAUSED ||
         game.scene_type == CP_SCENE_CART_CRASH)
     {
         int type = cp_cart_segments[game.cart.segment];
@@ -1844,12 +1958,28 @@ static void cp_render_cart(void)
         else if (type == 5)
             prompt = "TRICK BONUS";
 
+        cp_draw_cart_track();
         cp_draw_cart_sprite();
         rb->lcd_fillrect(0, 0, LCD_WIDTH, 13);
-        rb->snprintf(line, sizeof(line), "Score %d   Carts %d   %s",
-                     game.cart.score, game.cart.lives, prompt);
+        rb->snprintf(line, sizeof(line), "Score %d  Carts %d  x%d  %s",
+                     game.cart.score, game.cart.lives,
+                     MAX(1, game.cart.combo), prompt);
         rb->lcd_putsxy(2, 2, line);
-        if (game.scene_type == CP_SCENE_CART_CRASH)
+        if (game.scene_type == CP_SCENE_CART_COUNTDOWN)
+        {
+            int count = (game.cart.countdown_ticks + 24) / 25;
+            rb->lcd_fillrect(130, 78, 60, 38);
+            rb->snprintf(line, sizeof(line), "%d", MAX(1, count));
+            rb->lcd_putsxy(156, 91, line);
+        }
+        else if (game.scene_type == CP_SCENE_CART_PAUSED)
+        {
+            rb->lcd_fillrect(75, 76, 170, 60);
+            rb->lcd_putsxy(137, 87, "PAUSED");
+            rb->lcd_putsxy(91, 106, "Select resume");
+            rb->lcd_putsxy(91, 121, "Menu abandon");
+        }
+        else if (game.scene_type == CP_SCENE_CART_CRASH)
         {
             rb->lcd_fillrect(95, 92, 130, 30);
             rb->lcd_putsxy(132, 101, "CRASH!");
@@ -1865,7 +1995,12 @@ static void cp_render_cart(void)
         rb->lcd_putsxy(108, 108, line);
         rb->snprintf(line, sizeof(line), "Best: %d", game.cart_best_score);
         rb->lcd_putsxy(108, 125, line);
-        rb->lcd_putsxy(88, 146, "Select: return to Mine");
+        rb->snprintf(line, sizeof(line), "Best combo: %d",
+                     game.cart_best_combo);
+        rb->lcd_putsxy(108, 142, line);
+        rb->lcd_putsxy(88, 159,
+                       game.cart.results_choice == 0 ?
+                       "> Retry    Return" : "  Retry  > Return");
     }
 
     rb->lcd_bitmap((const fb_data *)game.toolbar.data, 0, CP_VIEW_H,
@@ -1882,10 +2017,8 @@ static void cp_render(void)
     int player_screen_x;
     int player_screen_y;
 
-    if (game.scene_type == CP_SCENE_CART_TITLE ||
-        game.scene_type == CP_SCENE_CART_PLAYING ||
-        game.scene_type == CP_SCENE_CART_CRASH ||
-        game.scene_type == CP_SCENE_CART_RESULTS)
+    if (game.scene_type >= CP_SCENE_CART_TITLE &&
+        game.scene_type <= CP_SCENE_CART_RESULTS)
     {
         cp_render_cart();
         return;
@@ -1930,6 +2063,7 @@ enum plugin_status plugin_start(const void *parameter)
 
     while (running)
     {
+        cp_cart_update_menu_latch();
         cp_cart_tick_if_due();
         cp_walk_tick_if_due();
 
