@@ -61,7 +61,35 @@ ROOM_ROWS = [
 
 INTERACTION_ROWS = [
     ("mine", "cart_surfer", 246, 127, 28, "minigame", "cart_surfer",
-     "Play Cart Surfer"),
+     "Play Cart Surfer", 0, 0),
+    ("town", "to_dock", 8, 170, 24, "room", "dock",
+     "Go to the Dock", 272, 170),
+    ("town", "to_snow_forts", 295, 170, 24, "room", "snow_forts",
+     "Go to the Snow Forts", 45, 170),
+    ("dock", "to_ski_village", 72, 120, 25, "room", "ski_village",
+     "Go to Ski Village", 275, 170),
+    ("dock", "to_town", 272, 120, 25, "room", "town",
+     "Go to Town", 45, 170),
+    ("ski_village", "to_beach", 25, 155, 25, "room", "beach",
+     "Go to the Beach", 255, 165),
+    ("ski_village", "to_dock", 295, 155, 25, "room", "dock",
+     "Go to the Dock", 85, 155),
+    ("beach", "to_ski_village", 258, 120, 26, "room", "ski_village",
+     "Go to Ski Village", 45, 160),
+    ("snow_forts", "to_town", 52, 125, 25, "room", "town",
+     "Go to Town", 275, 170),
+    ("snow_forts", "to_plaza", 266, 125, 25, "room", "plaza",
+     "Go to the Plaza", 45, 170),
+    ("plaza", "to_snow_forts", 20, 165, 25, "room", "snow_forts",
+     "Go to the Snow Forts", 275, 165),
+    ("plaza", "to_forest", 300, 165, 25, "room", "forest",
+     "Go to the Forest", 55, 150),
+    ("forest", "to_plaza", 35, 120, 26, "room", "plaza",
+     "Go to the Plaza", 275, 165),
+    ("forest", "to_cove", 285, 115, 26, "room", "cove",
+     "Go to the Cove", 55, 135),
+    ("cove", "to_forest", 35, 120, 26, "room", "forest",
+     "Go to the Forest", 265, 135),
 ]
 
 
@@ -82,6 +110,46 @@ ROOM_SWFS = {
     "mine": f"{VANILLA_ROOMS}/mine.swf",
     "iceberg": f"{LEGACY_ROOMS}/berg.swf",
 }
+
+
+def validate_interactions() -> None:
+    rooms = {row[0]: row for row in ROOM_ROWS}
+    seen: set[tuple[str, str]] = set()
+
+    for row in INTERACTION_ROWS:
+        room, interaction_id, x, y, radius, action, target, _, to_x, to_y = row
+        key = (room, interaction_id)
+
+        if room not in rooms:
+            raise SystemExit(f"interaction has unknown room: {room}")
+        if key in seen:
+            raise SystemExit(
+                f"duplicate interaction id in room: {room}/{interaction_id}"
+            )
+        seen.add(key)
+        if not (0 <= x < WORLD_OUTPUT_WIDTH and
+                0 <= y < WORLD_OUTPUT_HEIGHT and radius > 0):
+            raise SystemExit(
+                f"interaction is outside room bounds: {room}/{interaction_id}"
+            )
+        if action == "room":
+            if target not in rooms:
+                raise SystemExit(
+                    f"interaction has unknown target: {room}/{target}"
+                )
+            target_room = rooms[target]
+            _, _, _, _, _, left, top, right, bottom = target_room
+            if (to_x, to_y) != (0, 0) and not (
+                    left <= to_x <= right and top <= to_y <= bottom):
+                raise SystemExit(
+                    f"interaction spawn is not walkable: "
+                    f"{room}/{interaction_id}"
+                )
+        elif action == "minigame":
+            if target != "cart_surfer":
+                raise SystemExit(f"unknown minigame target: {target}")
+        elif action not in {"map", "message"}:
+            raise SystemExit(f"unknown interaction action: {action}")
 
 
 def sha256(path: Path) -> str:
@@ -132,6 +200,7 @@ def git_commit(path: Path) -> str:
 
 
 def write_tsvs(out: Path) -> None:
+    validate_interactions()
     data = out / "data"
     data.mkdir(parents=True, exist_ok=True)
     with (data / "world.tsv").open("w", encoding="utf-8") as f:
@@ -157,7 +226,8 @@ def write_tsvs(out: Path) -> None:
             f.write("\t".join(str(value) for value in row) + "\n")
 
     with (data / "interactions.tsv").open("w", encoding="utf-8") as f:
-        f.write("# room\tid\tx\ty\tradius\taction\ttarget\tlabel\n")
+        f.write("# room\tid\tx\ty\tradius\taction\ttarget\tlabel\t"
+                "to_x\tto_y\n")
         for row in INTERACTION_ROWS:
             f.write("\t".join(str(value) for value in row) + "\n")
 

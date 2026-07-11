@@ -339,8 +339,10 @@ Validation:
 
 ## Phase 3: Core Island Rooms
 
-Status: core map-to-room coverage complete for all 12 current map markers.
-Interior-to-interior door warps and room-local interaction hotspots remain.
+Status: core map-to-room coverage is complete for all 12 current map markers.
+Preserved exterior-room exit arrows now link the navigable west/east island
+chain from Beach through Cove. Interior rooms that do not yet have preserved
+backgrounds remain map-only.
 
 Target outcome:
 
@@ -471,10 +473,22 @@ Add `data/interactions.tsv` rather than adding special cases to
 `clubpenguin.c`:
 
 ```text
-room\tid\tx\ty\tradius\taction\ttarget\tlabel
-mine\tcart_surfer\t246\t127\t28\tminigame\tcart_surfer\tPlay Cart Surfer
-town\tcoffee_door\t160\t105\t24\troom\tcoffee\tEnter Coffee Shop
+room\tid\tx\ty\tradius\taction\ttarget\tlabel\tto_x\tto_y
+mine\tcart_surfer\t246\t127\t28\tminigame\tcart_surfer\tPlay Cart Surfer\t0\t0
+town\tto_dock\t8\t170\t24\troom\tdock\tGo to the Dock\t272\t170
 ```
+
+`to_x` and `to_y` are optional destination spawn coordinates. Exterior warps
+use them so entering through a preserved arrow places the penguin beside the
+corresponding arrow in the destination room. A zero pair retains the room's
+default spawn.
+
+For the current real-asset package, `INTERACTION_ROWS` in
+`tools/clubpenguin_package_assets.py` is the source of truth. Warp hotspots
+are aligned to the preserved blue arrow art already present in each room SWF
+capture. The runtime does not draw synthetic crosshair markers over room
+warps or the preserved Cart Surfer sign; map selection markers remain because
+the scaled island map has no movable penguin cursor.
 
 Supported Phase 3.5 actions are:
 

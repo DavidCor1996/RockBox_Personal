@@ -720,10 +720,14 @@ static void cp_parse_interaction_line(char *line)
     char *action_text = cp_next_field(&cursor);
     char *target = cp_next_field(&cursor);
     char *label = cp_next_field(&cursor);
+    char *to_x_text = cp_next_field(&cursor);
+    char *to_y_text = cp_next_field(&cursor);
     struct cp_interaction *interaction;
     int x;
     int y;
     int radius;
+    int to_x = 0;
+    int to_y = 0;
     enum cp_action_type action;
 
     if (game.interaction_count >= CP_MAX_INTERACTIONS ||
@@ -747,6 +751,11 @@ static void cp_parse_interaction_line(char *line)
     interaction->hotspot.y = y;
     interaction->hotspot.radius = radius;
     interaction->hotspot.action = action;
+    if (cp_parse_int(to_x_text, &to_x) && cp_parse_int(to_y_text, &to_y))
+    {
+        interaction->hotspot.to_x = to_x;
+        interaction->hotspot.to_y = to_y;
+    }
 }
 
 static bool cp_load_interactions(void)
@@ -1736,6 +1745,11 @@ static void cp_draw_room_markers(void)
     {
         int x = game.hotspots[i].x - game.cam_x;
         int y = game.hotspots[i].y - game.cam_y;
+
+        if (game.scene_type == CP_SCENE_ROOM &&
+            (game.hotspots[i].action == CP_ACTION_ROOM ||
+             game.hotspots[i].action == CP_ACTION_MINIGAME))
+            continue;
 
         if (x < -5 || y < -5 || x >= CP_VIEW_W + 5 || y >= CP_VIEW_H + 5)
             continue;
