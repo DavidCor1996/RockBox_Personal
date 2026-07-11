@@ -663,8 +663,31 @@ namespace gameswf
 		// Attach event handlers (if any).
 		for (int i = 0, n = event_handlers.size(); i < n; i++)
 		{
-			const tu_stringi& name = event_handlers[i]->m_event.get_function_name();
+			tu_stringi name(event_handlers[i]->m_event.get_function_name());
 			ch->set_member(name, event_handlers[i]->m_method);
+			as_value installed_method;
+			if (!ch->as_object::get_member(name, &installed_method))
+			{
+				// Clip actions are dynamic ActionScript members.  Preserve the
+				// normal sprite hook above (notably onMouseMove registration),
+				// but do not let a built-in property route swallow the handler.
+				ch->as_object::set_member(name, event_handlers[i]->m_method);
+			}
+			if (character_id == 206 || character_id == 251 ||
+				character_id == 254 || character_id == 267)
+			{
+				flashplayer_trace_movie_state("place_handler_event", character_id,
+					event_handlers[i]->m_event.m_id,
+					event_handlers[i]->m_method.to_function() ? 1 : 0);
+			}
+		}
+		if (character_id == 206 || character_id == 251 ||
+			character_id == 254 || character_id == 267)
+		{
+			as_value enter_frame_method;
+			flashplayer_trace_movie_state("place_handler_attach", character_id,
+				event_handlers.size(),
+				ch->get_member("onEnterFrame", &enter_frame_method) ? 1 : 0);
 		}
 
 		m_display_list.add_display_object( ch.get_ptr(), depth, replace_if_depth_is_occupied, color_transform,

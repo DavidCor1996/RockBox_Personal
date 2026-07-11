@@ -16,42 +16,72 @@ from pathlib import Path
 
 
 WORLD_ROWS = [
-    ("My Place", "Source-scale preserved area. Offline membership is free.",
-     427, 240, 45, "", 427, 240),
-    ("Town", "Town marker in the preserved offline area.", 585, 382, 48, "",
-     427, 240),
-    ("Plaza", "Plaza marker in the preserved offline area.", 638, 292, 50,
-     "", 427, 240),
-    ("Dock", "Dock marker in the preserved offline area.", 112, 362, 50, "",
-     427, 240),
-    ("Ski Village", "Ski Village marker in the preserved offline area.",
-     320, 257, 44, "", 427, 240),
-    ("Dojo", "Dojo marker in the preserved offline area.", 494, 52, 44, "",
-     427, 240),
-    ("Cove", "Cove marker in the preserved offline area.", 723, 161, 50, "",
-     427, 240),
-    ("Beach", "Beach marker in the preserved offline area.", 126, 112, 42,
-     "", 427, 240),
-    ("Snow Forts", "Snow Forts marker in the preserved offline area.", 456,
-     352, 45, "", 427, 240),
-    ("Forest", "Forest marker in the preserved offline area.", 694, 410, 44,
-     "", 427, 240),
-    ("Mine", "Mine marker in the preserved offline area.", 756, 332, 42, "",
-     427, 240),
-    ("Iceberg", "Iceberg marker in the preserved offline area.", 760, 67, 42,
-     "", 427, 240),
+    ("My Place", "Enter your offline igloo.", 427, 240, 45, "player_home",
+     160, 170),
+    ("Town", "Enter Town.", 585, 382, 48, "town", 160, 170),
+    ("Plaza", "Enter the Plaza.", 638, 292, 50, "plaza", 160, 170),
+    ("Dock", "Enter the Dock.", 112, 362, 50, "dock", 160, 170),
+    ("Ski Village", "Enter Ski Village.", 320, 257, 44, "ski_village",
+     160, 170),
+    ("Dojo", "Enter the Dojo.", 494, 52, 44, "dojo", 160, 170),
+    ("Cove", "Enter the Cove.", 723, 161, 50, "cove", 160, 170),
+    ("Beach", "Enter the Beach.", 126, 112, 42, "beach", 160, 170),
+    ("Snow Forts", "Enter the Snow Forts.", 456, 352, 45, "snow_forts",
+     160, 170),
+    ("Forest", "Enter the Forest.", 694, 410, 44, "forest", 160, 170),
+    ("Mine", "Enter the Mine Shack.", 756, 332, 42, "mine", 160, 170),
+    ("Iceberg", "Enter the Iceberg.", 760, 67, 42, "iceberg", 160, 170),
 ]
+
+WORLD_SOURCE_WIDTH = 854
+WORLD_SOURCE_HEIGHT = 480
+WORLD_OUTPUT_WIDTH = 320
+WORLD_OUTPUT_HEIGHT = 220
 
 
 ROOM_ROWS = [
-    ("player_home", "My Place", "rooms/player_home.bmp", 160, 150),
-    ("town", "Town", "rooms/town.bmp", 160, 150),
-    ("plaza", "Plaza", "rooms/plaza.bmp", 160, 150),
-    ("dock", "Dock", "rooms/dock.bmp", 160, 150),
-    ("ski_village", "Ski Village", "rooms/ski_village.bmp", 160, 150),
-    ("dojo", "Dojo", "rooms/dojo.bmp", 160, 150),
-    ("cove", "Cove", "rooms/cove.bmp", 160, 150),
+    ("player_home", "My Place", "rooms/player_home.bmp",
+     160, 170, 45, 120, 275, 198),
+    ("town", "Town", "rooms/town.bmp", 160, 170, 25, 120, 295, 198),
+    ("plaza", "Plaza", "rooms/plaza.bmp", 160, 170, 20, 120, 300, 198),
+    ("dock", "Dock", "rooms/dock.bmp", 160, 170, 25, 100, 295, 198),
+    ("ski_village", "Ski Village", "rooms/ski_village.bmp",
+     160, 170, 25, 115, 295, 198),
+    ("dojo", "Dojo", "rooms/dojo.bmp", 160, 170, 35, 135, 285, 198),
+    ("cove", "Cove", "rooms/cove.bmp", 160, 170, 25, 115, 295, 198),
+    ("beach", "Beach", "rooms/beach.bmp", 160, 170, 40, 110, 280, 198),
+    ("snow_forts", "Snow Forts", "rooms/snow_forts.bmp",
+     160, 170, 20, 105, 300, 198),
+    ("forest", "Forest", "rooms/forest.bmp", 160, 170, 35, 100, 285, 198),
+    ("mine", "Mine Shack", "rooms/mine.bmp", 160, 170, 30, 120, 290, 198),
+    ("iceberg", "Iceberg", "rooms/iceberg.bmp",
+     160, 170, 35, 105, 285, 198),
 ]
+
+
+INTERACTION_ROWS = [
+    ("mine", "cart_surfer", 246, 127, 28, "minigame", "cart_surfer",
+     "Play Cart Surfer"),
+]
+
+
+VANILLA_ROOMS = "media/default/svanilla/media/play/v2/content/global/rooms"
+LEGACY_ROOMS = "media/default/slegacy/media/play/v2/content/global/rooms"
+
+ROOM_SWFS = {
+    "player_home": "media/default/fix/Igloo1.swf",
+    "town": f"{VANILLA_ROOMS}/town.swf",
+    "plaza": f"{VANILLA_ROOMS}/plaza.swf",
+    "dock": f"{VANILLA_ROOMS}/dock.swf",
+    "ski_village": f"{VANILLA_ROOMS}/village.swf",
+    "dojo": f"{VANILLA_ROOMS}/dojo.swf",
+    "cove": f"{VANILLA_ROOMS}/cove.swf",
+    "beach": f"{VANILLA_ROOMS}/beach.swf",
+    "snow_forts": f"{VANILLA_ROOMS}/forts.swf",
+    "forest": f"{VANILLA_ROOMS}/forest.swf",
+    "mine": f"{VANILLA_ROOMS}/mine.swf",
+    "iceberg": f"{LEGACY_ROOMS}/berg.swf",
+}
 
 
 def sha256(path: Path) -> str:
@@ -67,15 +97,20 @@ def run_ffmpeg(args: list[str]) -> None:
                     *args], check=True)
 
 
+def run_magick(args: list[str]) -> None:
+    subprocess.run(["magick", *args], check=True)
+
+
 def make_player_frame(source: Path, frame: tuple[str, int, int, int, int],
                       out: Path) -> None:
     sheet, x, y, w, h = frame
     run_ffmpeg([
         "-i", str(source / "images" / sheet),
         "-f", "lavfi",
-        "-i", "color=c=magenta:s=40x42",
+        "-i", "color=c=magenta:s=36x38",
         "-filter_complex",
-        f"[0:v]crop={w}:{h}:{x}:{y}[fg];"
+        f"[0:v]crop={w}:{h}:{x}:{y},"
+        "scale=34:36:force_original_aspect_ratio=decrease[fg];"
         "[1:v][fg]overlay=(main_w-overlay_w)/2:"
         "(main_h-overlay_h)/2:format=auto,format=bgr24",
         "-frames:v", "1",
@@ -101,31 +136,216 @@ def write_tsvs(out: Path) -> None:
     data.mkdir(parents=True, exist_ok=True)
     with (data / "world.tsv").open("w", encoding="utf-8") as f:
         f.write("# name\tdetail\tx\ty\tradius\ttarget\tto_x\tto_y\n")
-        for row in WORLD_ROWS:
+        for name, detail, x, y, radius, target, to_x, to_y in WORLD_ROWS:
+            screen_x = round(x * WORLD_OUTPUT_WIDTH / WORLD_SOURCE_WIDTH)
+            screen_y = round(y * WORLD_OUTPUT_HEIGHT / WORLD_SOURCE_HEIGHT)
+            screen_radius = max(
+                8,
+                round(radius * min(
+                    WORLD_OUTPUT_WIDTH / WORLD_SOURCE_WIDTH,
+                    WORLD_OUTPUT_HEIGHT / WORLD_SOURCE_HEIGHT,
+                )),
+            )
+            row = (name, detail, screen_x, screen_y, screen_radius, target,
+                   to_x, to_y)
             f.write("\t".join(str(value) for value in row) + "\n")
 
     with (data / "rooms.tsv").open("w", encoding="utf-8") as f:
-        f.write("# id\ttitle\tbmp\tstart_x\tstart_y\n")
+        f.write("# id\ttitle\tbmp\tstart_x\tstart_y\t"
+                "walk_left\twalk_top\twalk_right\twalk_bottom\n")
         for row in ROOM_ROWS:
             f.write("\t".join(str(value) for value in row) + "\n")
 
+    with (data / "interactions.tsv").open("w", encoding="utf-8") as f:
+        f.write("# room\tid\tx\ty\tradius\taction\ttarget\tlabel\n")
+        for row in INTERACTION_ROWS:
+            f.write("\t".join(str(value) for value in row) + "\n")
 
-def write_manifest(out: Path, source: Path, generated: list[Path]) -> None:
+
+def write_manifest(out: Path, source: Path, generated: list[Path],
+                   waddle_source: Path | None = None) -> None:
     commit = git_commit(source)
     with (out / "source.manifest").open("w", encoding="utf-8") as f:
         f.write("CLUBPENGUIN_ASSET_MANIFEST_V1\n")
-        f.write(f"source_repo={source}\n")
+        f.write("source_repo=despedite/clubpenguinfreeroam\n")
         f.write(f"source_commit={commit}\n")
+        f.write("source_path=images/sprite-sheet0.png\n")
+        f.write("source_path=images/sprite2-sheet0.png\n")
+        f.write("source_path=images/sprite2-sheet1.png\n")
+        if waddle_source is not None:
+            f.write("room_source_repo=nhaar/Waddle-Forever\n")
+            f.write(f"room_source_commit={git_commit(waddle_source)}\n")
+            for room_id, rel in ROOM_SWFS.items():
+                swf = waddle_source / rel
+                f.write(f"room_source={room_id}\t{rel}\t{sha256(swf)}\n")
         for path in generated:
             f.write(f"generated={path.relative_to(out)}\n")
             f.write(f"sha256={sha256(path)}\n")
-        f.write("world_scale=854x480\n")
-        f.write("player_strip=16x40x42\n")
+        f.write("world_scale=320x220\n")
+        f.write("world_coordinate_source=854x480\n")
+        f.write("player_strip=16x36x38\n")
         f.write("data=data/world.tsv\n")
         f.write("data=data/rooms.tsv\n")
+        f.write("data=data/interactions.tsv\n")
 
 
-def package_freeroam(source: Path, out: Path) -> None:
+def package_room_frames(room_frames: Path, waddle_source: Path, out: Path,
+                        generated: list[Path]) -> None:
+    rooms_out = out / "rooms"
+    rooms_out.mkdir(parents=True, exist_ok=True)
+
+    for room_id, rel in ROOM_SWFS.items():
+        frame = room_frames / f"{room_id}.png"
+        swf = waddle_source / rel
+        room_out = rooms_out / f"{room_id}.bmp"
+
+        if not frame.exists():
+            raise SystemExit(f"missing rendered room frame: {frame}")
+        if not swf.exists():
+            raise SystemExit(f"missing preserved room SWF: {swf}")
+
+        run_ffmpeg([
+            "-i", str(frame),
+            # The preserved captures are 968x777 Ruffle window screenshots.
+            # Crop the displayed 760x480 SWF canvas (scaled to 808x510)
+            # before preparing the full device playfield. Scaling the whole
+            # window made rooms occupy only about two thirds of the LCD.
+            "-vf", "crop=808:510:80:118,scale=320:220",
+            "-pix_fmt", "bgr24",
+            str(room_out),
+        ])
+        generated.append(room_out)
+
+
+def package_cart_surfer(cart_export: Path, waddle_source: Path, out: Path,
+                        generated: list[Path]) -> None:
+    cart_out = out / "minigames" / "cart_surfer"
+    data_out = out / "data"
+    source_swf = waddle_source / "media/default/fix/CartSurfer2006.swf"
+    title_source = cart_export / "frames" / "1.png"
+    tunnel_source = (cart_export / "sprites" / "DefineSprite_201" /
+                     "1.png")
+    cart_source = cart_export / "sprites" / "DefineSprite_173"
+    cart_frames = [1, 2, 14, 15, 22]
+
+    required = [source_swf, title_source, tunnel_source]
+    required.extend(cart_source / f"{frame}.png" for frame in cart_frames)
+    for path in required:
+        if not path.exists():
+            raise SystemExit(f"missing Cart Surfer extraction: {path}")
+    if shutil.which("magick") is None:
+        raise SystemExit("ImageMagick is required to package Cart Surfer")
+
+    cart_out.mkdir(parents=True, exist_ok=True)
+    title_out = cart_out / "title.bmp"
+    tunnel_out = cart_out / "tunnel.bmp"
+    strip_out = cart_out / "cart.bmp"
+
+    run_ffmpeg(["-i", str(title_source), "-vf", "scale=320:220",
+                "-pix_fmt", "bgr24", str(title_out)])
+    run_ffmpeg(["-i", str(tunnel_source), "-vf", "scale=320:220",
+                "-pix_fmt", "bgr24", str(tunnel_out)])
+
+    prepared: list[Path] = []
+    for index, frame in enumerate(cart_frames):
+        prepared_frame = cart_out / f".cart_frame_{index}.bmp"
+        run_magick([
+            str(cart_source / f"{frame}.png"), "-trim", "+repage",
+            "-resize", "60x60", "-gravity", "center", "-background",
+            "magenta", "-alpha", "remove", "-alpha", "off", "-extent",
+            "64x64", f"BMP3:{prepared_frame}",
+        ])
+        prepared.append(prepared_frame)
+
+    hstack_args: list[str] = []
+    for frame in prepared:
+        hstack_args.extend(["-i", str(frame)])
+    run_ffmpeg([
+        *hstack_args,
+        "-filter_complex", f"hstack=inputs={len(prepared)},format=bgr24",
+        str(strip_out),
+    ])
+    for frame in prepared:
+        frame.unlink()
+
+    cart_data = data_out / "cart_surfer.tsv"
+    cart_data.write_text(
+        "# key\tvalue\n"
+        "lives\t4\n"
+        "score_ollie\t20\n"
+        "score_backflip\t100\n"
+        "score_spin\t80\n"
+        "score_flap\t50\n"
+        "score_grind\t80\n"
+        "score_slide\t40\n"
+        "score_lean\t10\n"
+        "repeat_divisor\t2\n"
+        "max_grind_ticks\t28\n"
+        "max_slide_ticks\t32\n"
+        "max_lean_ticks\t38\n"
+        "coin_divisor\t10\n"
+        "segments\t1,1,4,2,1,5,3,1,4,2,5,3,1,1,1,4,2,4,2,1,1,5,3,1,1,6\n",
+        encoding="utf-8",
+    )
+
+    source_manifest = cart_out / "source.manifest"
+    source_manifest.write_text(
+        "CLUBPENGUIN_CART_SURFER_MANIFEST_V1\n"
+        "source_repo=nhaar/Waddle-Forever\n"
+        f"source_commit={git_commit(waddle_source)}\n"
+        "source_path=media/default/fix/CartSurfer2006.swf\n"
+        f"source_sha256={sha256(source_swf)}\n"
+        "extractor=JPEXS_FFDec_26.2.1\n"
+        "title_frame=main:1\n"
+        "tunnel_frame=DefineSprite_201:1\n"
+        "cart_frames=DefineSprite_173:1,2,14,15,22\n",
+        encoding="utf-8",
+    )
+
+    generated.extend([title_out, tunnel_out, strip_out, cart_data,
+                      source_manifest])
+
+
+def package_interface(ui_export: Path, waddle_source: Path, out: Path,
+                      generated: list[Path]) -> None:
+    ui_out = out / "ui"
+    source_swf = (waddle_source /
+                  "media/default/recreation/interfaces/2010_july.swf")
+    source_frame = ui_export / "frames" / "1.png"
+    toolbar_out = ui_out / "toolbar.bmp"
+
+    for path in (source_swf, source_frame):
+        if not path.exists():
+            raise SystemExit(f"missing Club Penguin interface source: {path}")
+    if shutil.which("magick") is None:
+        raise SystemExit("ImageMagick is required to package the interface")
+
+    ui_out.mkdir(parents=True, exist_ok=True)
+    run_magick([
+        str(source_frame), "-crop", "563x40+99+440", "+repage",
+        "-resize", "320x20!", "-background", "#0b9bd0",
+        "-alpha", "remove", "-alpha", "off", f"BMP3:{toolbar_out}",
+    ])
+
+    ui_manifest = ui_out / "source.manifest"
+    ui_manifest.write_text(
+        "CLUBPENGUIN_INTERFACE_MANIFEST_V1\n"
+        "source_repo=nhaar/Waddle-Forever\n"
+        f"source_commit={git_commit(waddle_source)}\n"
+        "source_path=media/default/recreation/interfaces/2010_july.swf\n"
+        f"source_sha256={sha256(source_swf)}\n"
+        "extractor=JPEXS_FFDec_26.2.1\n"
+        "toolbar_frame=main:1 crop=563x40+99+440\n",
+        encoding="utf-8",
+    )
+    generated.extend([toolbar_out, ui_manifest])
+
+
+def package_freeroam(source: Path, out: Path,
+                     room_frames: Path | None = None,
+                     waddle_source: Path | None = None,
+                     cart_export: Path | None = None,
+                     ui_export: Path | None = None) -> None:
     world_src = source / "images" / "sprite-sheet0.png"
     player_src = source / "images" / "sprite2-sheet0.png"
     player_src2 = source / "images" / "sprite2-sheet1.png"
@@ -154,7 +374,7 @@ def package_freeroam(source: Path, out: Path) -> None:
 
     run_ffmpeg([
         "-i", str(world_src),
-        "-vf", "scale=854:480",
+        "-vf", "scale=320:220",
         "-pix_fmt", "bgr24",
         str(world_out),
     ])
@@ -212,8 +432,17 @@ def package_freeroam(source: Path, out: Path) -> None:
         cover_space_out, cover_lower_out, cover_pane_out, cover_lower_pane_out
     ])
 
+    if room_frames is not None and waddle_source is not None:
+        package_room_frames(room_frames, waddle_source, out, generated)
+
+    if cart_export is not None and waddle_source is not None:
+        package_cart_surfer(cart_export, waddle_source, out, generated)
+
+    if ui_export is not None and waddle_source is not None:
+        package_interface(ui_export, waddle_source, out, generated)
+
     write_tsvs(out)
-    write_manifest(out, source, generated)
+    write_manifest(out, source, generated, waddle_source)
 
 
 def main() -> None:
@@ -222,9 +451,31 @@ def main() -> None:
                         help="path to a checked-out preserved asset repo")
     parser.add_argument("--out", type=Path,
                         default=Path("assets/ipodjs/rockbox/clubpenguin"))
+    parser.add_argument("--room-frames", type=Path,
+                        help="directory of rendered <room_id>.png frames")
+    parser.add_argument("--waddle-source", type=Path,
+                        help="path to a pinned nhaar/Waddle-Forever checkout")
+    parser.add_argument("--cart-export", type=Path,
+                        help="JPEXS export of the pinned CartSurfer2006 SWF")
+    parser.add_argument("--ui-export", type=Path,
+                        help="JPEXS export of the pinned 2010 interface SWF")
     args = parser.parse_args()
 
-    package_freeroam(args.source.resolve(), args.out)
+    if (args.room_frames is None) != (args.waddle_source is None):
+        parser.error("--room-frames and --waddle-source must be used together")
+    if args.cart_export is not None and args.waddle_source is None:
+        parser.error("--cart-export requires --waddle-source")
+    if args.ui_export is not None and args.waddle_source is None:
+        parser.error("--ui-export requires --waddle-source")
+
+    package_freeroam(
+        args.source.resolve(),
+        args.out,
+        args.room_frames.resolve() if args.room_frames else None,
+        args.waddle_source.resolve() if args.waddle_source else None,
+        args.cart_export.resolve() if args.cart_export else None,
+        args.ui_export.resolve() if args.ui_export else None,
+    )
 
 
 if __name__ == "__main__":

@@ -28,6 +28,7 @@ struct cxx_block {
 };
 
 static cxx_block *cxx_head;
+static cxx_block *cxx_rover;
 static uintptr_t cxx_start;
 static uintptr_t cxx_end;
 
@@ -69,6 +70,7 @@ extern "C" void plugin_cxx_init(void *buffer, size_t buffer_size)
     uintptr_t end = ((uintptr_t)buffer + buffer_size) & ~(uintptr_t)15U;
     size_t overhead = cxx_block_overhead();
     cxx_head = NULL;
+    cxx_rover = NULL;
     cxx_start = start;
     cxx_end = end;
     if (end > start + overhead)
@@ -80,6 +82,7 @@ extern "C" void plugin_cxx_init(void *buffer, size_t buffer_size)
         cxx_head->next = NULL;
     }
     cxx_ready = cxx_head != NULL;
+    cxx_rover = cxx_head;
 }
 
 extern "C" size_t plugin_cxx_available(void)
@@ -103,6 +106,7 @@ extern "C" size_t plugin_cxx_available(void)
 static void *plugin_cxx_alloc(size_t size)
 {
     cxx_block *block;
+    cxx_block *start;
     size_t overhead = cxx_block_overhead();
     unsigned int guard = 0;
 
@@ -110,33 +114,42 @@ static void *plugin_cxx_alloc(size_t size)
         return 0;
 
     size = (size + 15U) & ~(size_t)15U;
-    for (block = cxx_head; block; block = block->next)
+    block = cxx_rover ? cxx_rover : cxx_head;
+    start = block;
+    do
     {
         if (++guard > 262144 || !cxx_block_valid(block))
             return 0;
 
-        if (!block->free || block->size < size)
-            continue;
-
-        if (block->size >= size + overhead + 16U)
+        if (block->free && block->size >= size)
         {
-            cxx_block *split = (cxx_block *)
-                ((unsigned char *)cxx_payload(block) + size);
-            if ((uintptr_t)split + overhead > cxx_end)
-                return 0;
-            split->size = block->size - size - overhead;
-            split->free = true;
-            split->prev = block;
-            split->next = block->next;
-            if (split->next)
-                split->next->prev = split;
-            block->next = split;
-            block->size = size;
+            if (block->size >= size + overhead + 16U)
+            {
+                cxx_block *split = (cxx_block *)
+                    ((unsigned char *)cxx_payload(block) + size);
+                if ((uintptr_t)split + overhead > cxx_end)
+                    return 0;
+                split->size = block->size - size - overhead;
+                split->free = true;
+                split->prev = block;
+                split->next = block->next;
+                if (split->next)
+                    split->next->prev = split;
+                block->next = split;
+                block->size = size;
+                cxx_rover = split;
+            }
+            else
+            {
+                cxx_rover = block->next ? block->next : cxx_head;
+            }
+
+            block->free = false;
+            return cxx_payload(block);
         }
 
-        block->free = false;
-        return cxx_payload(block);
-    }
+        block = block->next ? block->next : cxx_head;
+    } while (block != start);
 
     return 0;
 }
@@ -184,8 +197,11 @@ static void plugin_cxx_free(void *ptr)
             prev->next = block->next;
             if (prev->next)
                 prev->next->prev = prev;
+            block = prev;
         }
     }
+
+    cxx_rover = block;
 }
 
 static void *plugin_cxx_realloc(void *ptr, size_t size)

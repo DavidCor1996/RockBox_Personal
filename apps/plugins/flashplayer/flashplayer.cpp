@@ -470,7 +470,79 @@ struct RockboxRenderHandler : public gameswf::render_handler {
 
     static int round_pixel(float v)
     {
+        /* AVM1 projection code can legitimately place geometry far beyond
+         * the viewport.  Keep the float-to-int conversion defined and leave
+         * the final rejection to the line/triangle clippers. */
+        if (v != v)
+            return 0;
+        if (v > 32768.0f)
+            return 32768;
+        if (v < -32768.0f)
+            return -32768;
         return (int)(v >= 0.0f ? v + 0.5f : v - 0.5f);
+    }
+
+    static int line_outcode(int x, int y)
+    {
+        int code = 0;
+        if (x < 0) code |= 1;
+        else if (x >= LCD_WIDTH) code |= 2;
+        if (y < 0) code |= 4;
+        else if (y >= LCD_HEIGHT) code |= 8;
+        return code;
+    }
+
+    static bool clip_line_to_lcd(int *x0, int *y0, int *x1, int *y1)
+    {
+        int c0 = line_outcode(*x0, *y0);
+        int c1 = line_outcode(*x1, *y1);
+        int guard = 0;
+
+        while (guard++ < 8) {
+            int out;
+            int x;
+            int y;
+            long long dx;
+            long long dy;
+
+            if ((c0 | c1) == 0)
+                return true;
+            if (c0 & c1)
+                return false;
+
+            out = c0 ? c0 : c1;
+            dx = (long long)*x1 - *x0;
+            dy = (long long)*y1 - *y0;
+
+            if (out & 8) {
+                if (dy == 0) return false;
+                y = LCD_HEIGHT - 1;
+                x = *x0 + (int)(dx * (y - *y0) / dy);
+            } else if (out & 4) {
+                if (dy == 0) return false;
+                y = 0;
+                x = *x0 + (int)(dx * (y - *y0) / dy);
+            } else if (out & 2) {
+                if (dx == 0) return false;
+                x = LCD_WIDTH - 1;
+                y = *y0 + (int)(dy * (x - *x0) / dx);
+            } else {
+                if (dx == 0) return false;
+                x = 0;
+                y = *y0 + (int)(dy * (x - *x0) / dx);
+            }
+
+            if (out == c0) {
+                *x0 = x;
+                *y0 = y;
+                c0 = line_outcode(x, y);
+            } else {
+                *x1 = x;
+                *y1 = y;
+                c1 = line_outcode(x, y);
+            }
+        }
+        return false;
     }
 
     void transform_point(float x, float y, int *ox, int *oy)
@@ -621,6 +693,9 @@ struct RockboxRenderHandler : public gameswf::render_handler {
 
     void draw_packed_line(int x0, int y0, int x1, int y1, fb_data color)
     {
+        if (!clip_line_to_lcd(&x0, &y0, &x1, &y1))
+            return;
+
         int dx = x1 > x0 ? x1 - x0 : x0 - x1;
         int sxp = x0 < x1 ? 1 : -1;
         int dy = y1 > y0 ? y0 - y1 : y1 - y0;
@@ -985,7 +1060,7 @@ struct RockboxRenderHandler : public gameswf::render_handler {
             transform_point(c[(i + 1) * 2], c[(i + 1) * 2 + 1], &x1, &y1);
             if (framebuf)
                 draw_packed_line(x0, y0, x1, y1, packed);
-            else
+            else if (clip_line_to_lcd(&x0, &y0, &x1, &y1))
                 rb->lcd_drawline(x0, y0, x1, y1);
         }
         }
@@ -1223,6 +1298,7 @@ struct FlashState {
     int load_stage_base;
     int load_stage_span;
     bool loading_overlay_full;
+    bool prime_stickrpg;
     int startup_prerender_frames;
     long input_ignore_until;
     flash_input_profile input_profile;
@@ -1239,7 +1315,6 @@ struct FlashState {
     int autorun_click_x[8];
     int autorun_click_y[8];
     bool debug_overlay;
-    bool prime_stickrpg;
     bool fast_autorun;
     int fast_draw_interval;
     int stickrpg_shortcut_frame;
@@ -2220,7 +2295,8 @@ static bool trace_intro_name(const char *name)
 
 extern "C" void flashplayer_trace_visible_set(const char *name, int value)
 {
-    if (name && rb->strcmp(name, "introscreen") == 0 && value == 0)
+    if (g.stickrpg_name_prefilled && name &&
+        rb->strcmp(name, "introscreen") == 0 && value == 0)
         g.stickrpg_intro_hide_requested = true;
 
 #ifdef SIMULATOR
@@ -2329,12 +2405,21 @@ extern "C" void flashplayer_trace_button_action(int button_id, int event_id,
                                                  int conditions, int mask,
                                                  int matched, int action_count)
 {
+#ifdef SIMULATOR
+    if (matched && action_count > 0 && g.button_trace_count < 32) {
+        g.button_trace_count++;
+        flash_logf("button action id=%d event=%d cond=%d mask=%d actions=%d frame=%d",
+                   button_id, event_id, conditions, mask, action_count,
+                   g.rendered_frames);
+    }
+#else
     (void)button_id;
     (void)event_id;
     (void)conditions;
     (void)mask;
     (void)matched;
     (void)action_count;
+#endif
 }
 
 extern "C" void flashplayer_trace_action(int phase, int opcode, int a, int b,
@@ -2377,12 +2462,11 @@ extern "C" void flashplayer_trace_stickrpg_scene(const char *op,
     if (!op || !name || !value)
         return;
 
-    if (g.stickrpg_scene_trace_left <= 0)
-        return;
-
-    g.stickrpg_scene_trace_left--;
-    flash_logf("stickrpg scene op=%s name=%s value=%s a=%d b=%d frame=%d",
-               op, name, value, aux_a, aux_b, g.rendered_frames);
+    (void)op;
+    (void)name;
+    (void)value;
+    (void)aux_a;
+    (void)aux_b;
 }
 
 extern "C" void flashplayer_trace_movie_state(const char *name, int value,
@@ -2405,6 +2489,20 @@ extern "C" void flashplayer_trace_movie_state(const char *name, int value,
     }
 
     if (!name)
+        return;
+
+    /* These are high-frequency diagnostic probes from bring-up.  Writing
+     * thousands of them to FAT dominated SWF startup time on real targets. */
+    if (rb->strncmp(name, "inst_", 5) == 0 ||
+        rb->strncmp(name, "create_root_", 12) == 0 ||
+        rb->strncmp(name, "exec_", 5) == 0 ||
+        rb->strncmp(name, "place_", 6) == 0 ||
+        rb->strncmp(name, "font_", 5) == 0 ||
+        rb->strncmp(name, "gsc_", 4) == 0 ||
+        rb->strncmp(name, "read_loop_", 10) == 0 ||
+        rb->strncmp(name, "stream_close_", 13) == 0 ||
+        rb->strncmp(name, "action_read_", 12) == 0 ||
+        rb->strncmp(name, "shape_def_cache", 15) == 0)
         return;
 
     if (rb->strncmp(name, "shape_def_cache_hit", 19) == 0 &&
@@ -2801,7 +2899,8 @@ static bool load_swf(const char *path)
     g.shape_def_cache_in = NULL;
     g.shape_def_cache_out = NULL;
     g.stickrpg_fast_load = g.input_profile == FLASH_INPUT_PROFILE_STICKRPG;
-    g.stickrpg_gameplay_shortcut_enabled = false;
+    g.prime_stickrpg = g.stickrpg_fast_load;
+    g.stickrpg_gameplay_shortcut_enabled = g.stickrpg_fast_load;
     g.startup_prerender_frames = g.stickrpg_fast_load ?
         FLASH_STARTUP_PRERENDER_FRAMES : 0;
 #ifdef SIMULATOR
@@ -2833,7 +2932,7 @@ static bool load_swf(const char *path)
     g.button_trace_count = 0;
     g.action_trace_count = 0;
     g.action_verbose_left = 0;
-    g.stickrpg_scene_trace_left = 220;
+    g.stickrpg_scene_trace_left = 0;
     g.action_trace_button_id = -1;
     g_stickrpg_person_ref = NULL;
     g_stickrpg_map_ref = NULL;
@@ -3587,21 +3686,28 @@ static void trace_intro_visibility(const char *where)
 
 static void prime_stickrpg_post_advance(void)
 {
-#ifdef SIMULATOR
     gameswf::character *root_movie;
+    gameswf::sprite_instance *root_sprite;
     gameswf::as_value val;
 
     if (!g.prime_stickrpg || !flash_root())
         return;
 
     root_movie = flash_root()->get_root_movie();
-    if (root_movie && root_movie->get_member("introscreen", &val)) {
+    root_sprite = gameswf::cast_to<gameswf::sprite_instance>(root_movie);
+    if (root_sprite) {
+        root_sprite->set_display_object_visible("pregameMC", false);
+        root_sprite->set_display_object_visible("filmscreen", false);
+        root_sprite->set_display_object_visible("black", false);
+        root_sprite->set_display_object_visible("loaderText", false);
+    }
+    if (!g.stickrpg_intro_hide_requested && root_movie &&
+        root_movie->get_member("introscreen", &val)) {
         gameswf::character *intro =
             gameswf::cast_to<gameswf::character>(val.to_object());
         if (intro)
             intro->set_visible(true);
     }
-#endif
 }
 
 static void prefill_stickrpg_character_name(void)
@@ -3798,11 +3904,10 @@ static void force_stickrpg_post_create_state(void)
 {
     gameswf::character *root_movie;
     gameswf::sprite_instance *root_sprite;
-    gameswf::as_value val;
-    gameswf::character *ch;
 
     if (!g.stickrpg_gameplay_shortcut_enabled ||
-        !g.stickrpg_intro_hide_requested || !flash_root())
+        !g.stickrpg_intro_hide_requested ||
+        g.stickrpg_gameplay_shortcut_done || !flash_root())
         return;
 
     root_movie = flash_root()->get_root_movie();
@@ -3810,70 +3915,19 @@ static void force_stickrpg_post_create_state(void)
     if (!root_sprite)
         return;
 
+    /* Character creation normally starts an 850-frame filmscreen whose
+     * terminal action is exactly _root.gotoAndStop(2).  The transition clip
+     * must be removed for GameSWF hit testing, so apply its terminal state
+     * immediately after the real Create Character button hides introscreen. */
+    root_sprite->goto_frame(1);
+    root_sprite->set_play_state(gameswf::character::STOP);
     root_sprite->set_display_object_visible("introscreen", false);
-
-    if (!g.stickrpg_gameplay_shortcut_done) {
-#ifdef SIMULATOR
-        root_sprite->goto_frame(g.stickrpg_shortcut_frame);
-#else
-        root_sprite->goto_frame(1);
-#endif
-        root_sprite->set_play_state(gameswf::character::PLAY);
-        root_sprite->set_display_object_visible("introscreen", false);
-        root_sprite->set_display_object_visible("filmscreen", false);
-        root_sprite->set_display_object_visible("black", false);
-        root_sprite->set_display_object_visible("pregameMC", false);
-        if (!g.stickrpg_scene_initialized) {
-            log_stickrpg_scene_vars("before-init",
-                                    root_movie, root_sprite);
-            root_sprite->call_method("InitScene", NULL, 0);
-            log_stickrpg_scene_vars("after-init",
-                                    root_movie, root_sprite);
-            root_sprite->call_method("RenderScene", NULL, 0);
-            remember_stickrpg_scene_refs(root_movie);
-            restore_stickrpg_scene_refs(root_movie);
-            root_sprite->set_display_object_visible("filmscreen", false);
-            root_sprite->set_display_object_visible("black", false);
-            if (root_movie->get_member("filmscreen", &val)) {
-                ch = gameswf::cast_to<gameswf::character>(val.to_object());
-                if (ch)
-                    ch->set_visible(false);
-            }
-            if (root_movie->get_member("black", &val)) {
-                ch = gameswf::cast_to<gameswf::character>(val.to_object());
-                if (ch)
-                    ch->set_visible(false);
-            }
-            log_stickrpg_scene_vars("after-render-scene",
-                                    root_movie, root_sprite);
-            g.stickrpg_scene_initialized = true;
-            flash_logf("stickrpg called InitScene before gameplay frame");
-        }
-        g.stickrpg_gameplay_shortcut_done = true;
-        g.stickrpg_post_create_forced = true;
-        flash_logf("stickrpg skipped procedural intro to gameplay frame");
-        return;
-    }
-
-    if (g.stickrpg_post_create_forced)
-        return;
-
     root_sprite->set_display_object_visible("filmscreen", false);
     root_sprite->set_display_object_visible("black", false);
-
-    if (root_movie->get_member("filmscreen", &val)) {
-        ch = gameswf::cast_to<gameswf::character>(val.to_object());
-        if (ch)
-            ch->set_visible(false);
-    }
-
-    if (root_movie->get_member("black", &val)) {
-        ch = gameswf::cast_to<gameswf::character>(val.to_object());
-        if (ch)
-            ch->set_visible(false);
-    }
-
+    root_sprite->set_display_object_visible("pregameMC", false);
+    g.stickrpg_gameplay_shortcut_done = true;
     g.stickrpg_post_create_forced = true;
+    flash_logf("stickrpg entered gameplay after character creation");
 }
 
 static void render_runtime_frame(float dt)
@@ -4077,23 +4131,19 @@ static void poll_wheel_mouse_tap(void)
 
 static void prime_stickrpg_filmscreen(void)
 {
-#ifdef SIMULATOR
     if (!g.prime_stickrpg)
         return;
-#else
-    return;
-#endif
 
     gameswf::character *root_movie;
     gameswf::as_value val;
     gameswf::sprite_instance *root_sprite;
     static const char *const overlay_names[] = {
-        "filmscreen", "fpsShower", "black", "loaderText"
+        "filmscreen", "fpsShower", "black", "loaderText", "pregameMC"
     };
     static const char *const intro_panel_names[] = {
         "makechar", "instructions", "newgame"
     };
-    static const int overlay_depths[] = { 282, 290 };
+    static const int overlay_depths[] = { 282, 285, 287, 290, 292 };
     int i;
 
     if (!flash_root())

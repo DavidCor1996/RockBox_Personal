@@ -2878,9 +2878,11 @@ MENUITEM_FUNCTION(infones_audio_quality_item, MENU_FUNC_CHECK_RETVAL,
 MENUITEM_FUNCTION(infones_clear_saves_item, MENU_FUNC_CHECK_RETVAL,
                   "Clear NES Saves", infones_clear_saves,
                   NULL, Icon_NOICON);
+MAKE_MENU(flash_context_menu, "Flash", NULL, Icon_NOICON,
+          &stickrpg_item);
 MAKE_MENU(gameboy_context_menu, "Games", NULL, Icon_NOICON,
           &club_penguin_item, &runescape_classic_item, &wwe_backstage_item,
-          &stickrpg_item, &smsgg_item,
+          &flash_context_menu, &smsgg_item,
           &gameboy_coverflow_item,
           &gameboy_files_item,
           &infones_sound_item, &infones_autosave_item,
@@ -5619,6 +5621,8 @@ static const char *root_menu_video_preview_asset_name(const char *title)
         return "pokemini";
     if (!strcmp(title, "Stick RPG"))
         return "stickrpg";
+    if (!strcmp(title, "Flash"))
+        return "stickrpg";
     if (!strcmp(title, "RuneScape Classic") ||
         !strcmp(title, "Club Penguin"))
         return "games";
@@ -5678,6 +5682,7 @@ root_menu_video_preview_source_for_title(const char *title)
         !strcmp(title, "Browse PokeMini ROMs"))
         return IPODJS_PREVIEW_POKEMINI;
     if (!strcmp(title, "Games") ||
+        !strcmp(title, "Flash") ||
         !strcmp(title, "RuneScape Classic") ||
         !strcmp(title, "Stick RPG") ||
         !strcmp(title, "Club Penguin") ||
@@ -6564,6 +6569,8 @@ static const char *root_menu_video_preview_subtitle(const char *title)
         return "Offline Lumbridge";
     if (!strcmp(title, "Stick RPG"))
         return "Flash game";
+    if (!strcmp(title, "Flash"))
+        return "Flash games";
     if (!strcmp(title, "Club Penguin"))
         return "Offline world";
     if (!strcmp(title, "Sega Master System / Game Gear"))
@@ -9662,26 +9669,38 @@ static int root_menu_video_extras_menu(void)
 struct root_menu_video_games_item {
     const char *label;
     int (*function)(void *param);
+    enum {
+        IPODJS_GAME_RETURN,
+        IPODJS_GAME_RESUME,
+        IPODJS_GAME_SUBMENU,
+    } behavior;
 };
+
+static int root_menu_video_flash_menu(void *param);
 
 static const struct root_menu_video_games_item root_menu_video_games_items[] = {
-    { "RuneScape Classic", launch_runescape_classic },
-    { "Stick RPG", launch_stickrpg },
-    { "Club Penguin", launch_club_penguin },
-    { "Sega Master System / Game Gear", launch_smsgg },
-    { "Game Cover Flow", launch_gameboy_browser },
-    { "Browse ROM Files", browse_gameboy_roms },
-    { "PokeMini", launch_pokemini },
-    { "Browse PokeMini ROMs", browse_pokemini_roms },
-    { "Toggle NES Sound", infones_toggle_sound },
-    { "Toggle NES Autosave", infones_toggle_autosave },
-    { "Toggle NES Audio Quality", infones_toggle_audio_quality },
-    { "Clear NES Saves", infones_clear_saves },
+    { "RuneScape Classic", launch_runescape_classic, IPODJS_GAME_RETURN },
+    { "Flash", root_menu_video_flash_menu, IPODJS_GAME_SUBMENU },
+    { "Club Penguin", launch_club_penguin, IPODJS_GAME_RETURN },
+    { "Sega Master System / Game Gear", launch_smsgg, IPODJS_GAME_RETURN },
+    { "Game Cover Flow", launch_gameboy_browser, IPODJS_GAME_RETURN },
+    { "Browse ROM Files", browse_gameboy_roms, IPODJS_GAME_RESUME },
+    { "PokeMini", launch_pokemini, IPODJS_GAME_RESUME },
+    { "Browse PokeMini ROMs", browse_pokemini_roms, IPODJS_GAME_RESUME },
+    { "Toggle NES Sound", infones_toggle_sound, IPODJS_GAME_RESUME },
+    { "Toggle NES Autosave", infones_toggle_autosave, IPODJS_GAME_RESUME },
+    { "Toggle NES Audio Quality", infones_toggle_audio_quality,
+      IPODJS_GAME_RESUME },
+    { "Clear NES Saves", infones_clear_saves, IPODJS_GAME_RESUME },
 };
 
-static void root_menu_video_draw_games_menu(int selected)
+static const struct root_menu_video_games_item root_menu_video_flash_items[] = {
+    { "Stick RPG", launch_stickrpg, IPODJS_GAME_RETURN },
+};
+
+static void root_menu_video_draw_games_menu(
+    const struct root_menu_video_games_item *items, int count, int selected)
 {
-    int count = ARRAYLEN(root_menu_video_games_items);
     int row_h = root_menu_video_row_height();
     int visible = root_menu_video_visible_rows(row_h);
     int top = 0;
@@ -9728,7 +9747,7 @@ static void root_menu_video_draw_games_menu(int selected)
         }
 
         root_menu_video_puts_fit(6, item_y + 4, IPODJS_LIST_WIDTH - 24,
-                                 root_menu_video_games_items[index].label,
+                                 items[index].label,
                                  false);
         if (active)
             root_menu_video_draw_arrow(IPODJS_LIST_WIDTH - 13,
@@ -9739,32 +9758,34 @@ static void root_menu_video_draw_games_menu(int selected)
                        LCD_RGBPACK(54, 60, 70) : IPODJS_SPLIT);
     lcd_vline(IPODJS_LIST_WIDTH, 0, LCD_HEIGHT - 1);
     root_menu_video_draw_preview_for_title(
-        root_menu_video_games_items[selected].label, x, y, w, h);
+        items[selected].label, x, y, w, h);
     ipodjs_video_draw_hold_overlay();
     lcd_update();
 }
 
-static void root_menu_video_draw_games_preview_only(int selected)
+static void root_menu_video_draw_games_preview_only(
+    const struct root_menu_video_games_item *items, int count, int selected)
 {
     if (button_hold())
     {
-        root_menu_video_draw_games_menu(selected);
+        root_menu_video_draw_games_menu(items, count, selected);
         return;
     }
 
-    int count = ARRAYLEN(root_menu_video_games_items);
     int x = IPODJS_LIST_WIDTH + 1;
 
     selected = MAX(0, MIN(selected, count - 1));
     lcd_set_viewport(NULL);
     lcd_set_drawmode(DRMODE_SOLID);
     root_menu_video_draw_preview_for_title(
-        root_menu_video_games_items[selected].label,
+        items[selected].label,
         x, 0, LCD_WIDTH - x, LCD_HEIGHT);
     lcd_update_rect(x, 0, LCD_WIDTH - x, LCD_HEIGHT);
 }
 
-static int root_menu_video_games_menu(void)
+static int root_menu_video_run_games_menu(
+    const struct root_menu_video_games_item *items, int count,
+    int cancel_result)
 {
     int selected = 0;
     bool redraw = true;
@@ -9778,12 +9799,10 @@ static int root_menu_video_games_menu(void)
     while (true)
     {
         int action;
-        int count = ARRAYLEN(root_menu_video_games_items);
-
         root_menu_video_hold_update(&held, &redraw);
         if (redraw)
         {
-            root_menu_video_draw_games_menu(selected);
+            root_menu_video_draw_games_menu(items, count, selected);
             redraw = false;
         }
 
@@ -9799,9 +9818,10 @@ static int root_menu_video_games_menu(void)
                 else if (!held &&
                          root_menu_video_should_animate(
                             root_menu_video_preview_source_for_title(
-                                root_menu_video_games_items[selected].label),
+                                items[selected].label),
                             &next_slideshow))
-                    root_menu_video_draw_games_preview_only(selected);
+                    root_menu_video_draw_games_preview_only(items, count,
+                                                            selected);
                 break;
             case ACTION_STD_PREV:
             case ACTION_STD_PREVREPEAT:
@@ -9824,8 +9844,11 @@ static int root_menu_video_games_menu(void)
                 if (root_menu_video_hold_update(&held, &redraw))
                     break;
                 root_menu_video_finish_native_screen(0);
-                ret = root_menu_video_games_items[selected].function(NULL);
-                if (selected <= 4)
+                ret = items[selected].function(NULL);
+                if (items[selected].behavior == IPODJS_GAME_RETURN)
+                    return ret;
+                if (items[selected].behavior == IPODJS_GAME_SUBMENU &&
+                    ret != GO_TO_PREVIOUS)
                     return ret;
                 root_menu_video_enter_native_screen();
                 redraw = true;
@@ -9851,9 +9874,22 @@ static int root_menu_video_games_menu(void)
             case ACTION_STD_CANCEL:
                 if (root_menu_video_hold_update(&held, &redraw))
                     break;
-                return root_menu_video_finish_native_screen(GO_TO_ROOT);
+                return root_menu_video_finish_native_screen(cancel_result);
         }
     }
+}
+
+static int root_menu_video_flash_menu(void *param)
+{
+    (void)param;
+    return root_menu_video_run_games_menu(root_menu_video_flash_items,
+        ARRAYLEN(root_menu_video_flash_items), GO_TO_PREVIOUS);
+}
+
+static int root_menu_video_games_menu(void)
+{
+    return root_menu_video_run_games_menu(root_menu_video_games_items,
+        ARRAYLEN(root_menu_video_games_items), GO_TO_ROOT);
 }
 
 enum root_menu_video_qs_item {

@@ -101,6 +101,7 @@ namespace gameswf
 			if (s_standard_method_map[i])
 			{
 				delete s_standard_method_map[i];
+				s_standard_method_map[i] = NULL;
 			}
 		}
 	}
@@ -109,7 +110,25 @@ namespace gameswf
 	{
 		if (s_standard_method_map[id])
 		{
-			return s_standard_method_map[id]->get(name, val);
+			if (s_standard_method_map[id]->get(name, val))
+			{
+				return true;
+			}
+
+			// The compact case-insensitive hash can miss an existing key on
+			// this target/toolchain.  Keep method dispatch correct with the
+			// same linear fallback used by standard-property lookup.
+			for (stringi_hash<as_value>::const_iterator it =
+					s_standard_method_map[id]->begin();
+				 it != s_standard_method_map[id]->end(); ++it)
+			{
+				if (tu_string::stricmp(it->first.c_str(), name.c_str()) == 0)
+				{
+					if (val)
+						*val = it->second;
+					return true;
+				}
+			}
 		}
 		return false;
 	}
@@ -534,9 +553,13 @@ namespace gameswf
 		{
 			// timer should be inited only once
 			tu_timer::init_timer();
-
-			standard_method_map_init();
 		}
+
+		// Rockbox can reload a plugin into the same memory region, where the
+		// player-count guard and static map storage may survive independently.
+		// Flashplayer owns exactly one player, so always rebuild these maps.
+		clear_standard_method_map();
+		standard_method_map_init();
 
 		++s_player_count;
 		

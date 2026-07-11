@@ -21,21 +21,27 @@
 
 #include "plugin.h"
 #include "lib/pluginlib_actions.h"
-#include "clubpenguin_player_fallback.h"
 
 #define CP_ASSET_DIR ROCKBOX_DIR "/rocks/games/clubpenguin"
 #define CP_WORLD_FILE CP_ASSET_DIR "/world.bmp"
 #define CP_PLAYER_FILE CP_ASSET_DIR "/player.bmp"
 #define CP_WORLD_DATA_FILE CP_ASSET_DIR "/data/world.tsv"
 #define CP_ROOMS_DATA_FILE CP_ASSET_DIR "/data/rooms.tsv"
+#define CP_INTERACTIONS_DATA_FILE CP_ASSET_DIR "/data/interactions.tsv"
+#define CP_SAVE_FILE CP_ASSET_DIR "/save.dat"
+#define CP_SAVE_TMP_FILE CP_ASSET_DIR "/save.tmp"
+#define CP_CART_TITLE_FILE CP_ASSET_DIR "/minigames/cart_surfer/title.bmp"
+#define CP_CART_TUNNEL_FILE CP_ASSET_DIR "/minigames/cart_surfer/tunnel.bmp"
+#define CP_CART_SPRITES_FILE CP_ASSET_DIR "/minigames/cart_surfer/cart.bmp"
+#define CP_TOOLBAR_FILE CP_ASSET_DIR "/ui/toolbar.bmp"
 
 #define CP_STATUS_H 20
 #define CP_VIEW_W LCD_WIDTH
 #define CP_VIEW_H (LCD_HEIGHT - CP_STATUS_H)
-#define CP_WORLD_W 854
-#define CP_WORLD_H 480
-#define CP_PLAYER_W 40
-#define CP_PLAYER_H 42
+#define CP_WORLD_W CP_VIEW_W
+#define CP_WORLD_H CP_VIEW_H
+#define CP_PLAYER_W 36
+#define CP_PLAYER_H 38
 #define CP_PLAYER_FRAMES 16
 #define CP_PLAYER_STRIP_W (CP_PLAYER_W * CP_PLAYER_FRAMES)
 #define CP_PLAYER_STRIP_H CP_PLAYER_H
@@ -43,20 +49,48 @@
 #define CP_MESSAGE_TTL 70
 #define CP_MAX_HOTSPOTS 16
 #define CP_MAX_ROOMS 12
+#define CP_MAX_INTERACTIONS 24
 #define CP_TEXT_BUF 4096
 #define CP_ANIM_RATE 3
+#define CP_CART_FRAME_W 64
+#define CP_CART_FRAME_H 64
+#define CP_CART_STRIP_W (CP_CART_FRAME_W * 5)
+#define CP_CART_SEGMENT_TICKS 60
+#define CP_CART_JUMP_TICKS 20
 
 /* read_bmp_file()/read_bmp_fd() need extra scratch space *inside* the
  * destination buffer whenever the source bitmap is wider than
- * BM_MAX_WIDTH (i.e. wider than the LCD). world.bmp (CP_WORLD_W) and the
- * player sprite strip (CP_PLAYER_STRIP_W) are both wider than the iPod's
- * LCD, so without this padding read_bmp_file() returns an error (-6) and
- * the asset is reported as "missing" even though the file loaded fine.
+ * BM_MAX_WIDTH (i.e. wider than the LCD). The player sprite strip is wider
+ * than the iPod LCD, so without this padding read_bmp_file() returns an
+ * error (-6) and the asset is reported as "missing" even though it loaded.
  * See apps/recorder/bmp.c around the "bm->width > BM_MAX_WIDTH" checks. */
 #define CP_BMP_SCRATCH_ELEMS(w) \
     ((((w) * 4 + 8) + (int)sizeof(fb_data) - 1) / (int)sizeof(fb_data))
 
+#if (CONFIG_KEYPAD == IPOD_1G2G_PAD) || \
+    (CONFIG_KEYPAD == IPOD_3G_PAD) || \
+    (CONFIG_KEYPAD == IPOD_4G_PAD)
+static const struct button_mapping cp_main_ctx[] =
+{
+    { PLA_CANCEL,      BUTTON_MENU,                       BUTTON_NONE },
+    { PLA_EXIT,        BUTTON_PLAY|BUTTON_REPEAT,         BUTTON_NONE },
+    { PLA_SELECT,      BUTTON_SELECT,                     BUTTON_NONE },
+    { PLA_SELECT_REL,  BUTTON_PLAY|BUTTON_REL,            BUTTON_PLAY },
+    { PLA_UP,          BUTTON_SCROLL_BACK,                BUTTON_NONE },
+    { PLA_DOWN,        BUTTON_SCROLL_FWD,                 BUTTON_NONE },
+    { PLA_LEFT,        BUTTON_LEFT,                       BUTTON_NONE },
+    { PLA_RIGHT,       BUTTON_RIGHT,                      BUTTON_NONE },
+    { PLA_UP_REPEAT,   BUTTON_SCROLL_BACK|BUTTON_REPEAT,  BUTTON_NONE },
+    { PLA_DOWN_REPEAT, BUTTON_SCROLL_FWD|BUTTON_REPEAT,   BUTTON_NONE },
+    { PLA_LEFT_REPEAT, BUTTON_LEFT|BUTTON_REPEAT,         BUTTON_NONE },
+    { PLA_RIGHT_REPEAT,BUTTON_RIGHT|BUTTON_REPEAT,        BUTTON_NONE },
+    LAST_ITEM_IN_LIST
+};
+
+static const struct button_mapping *plugin_contexts[] = { cp_main_ctx };
+#else
 static const struct button_mapping *plugin_contexts[] = { pla_main_ctx };
+#endif
 
 #define CP_QUIT_ACTION PLA_EXIT
 #define CP_CANCEL_ACTION PLA_CANCEL
@@ -65,6 +99,7 @@ static const struct button_mapping *plugin_contexts[] = { pla_main_ctx };
 #define CP_LEFT_ACTION PLA_LEFT
 #define CP_RIGHT_ACTION PLA_RIGHT
 #define CP_SELECT_ACTION PLA_SELECT
+#define CP_PLAY_ACTION PLA_SELECT_REL
 #define CP_UP_REPEAT PLA_UP_REPEAT
 #define CP_DOWN_REPEAT PLA_DOWN_REPEAT
 #define CP_LEFT_REPEAT PLA_LEFT_REPEAT
@@ -73,7 +108,11 @@ static const struct button_mapping *plugin_contexts[] = { pla_main_ctx };
 enum cp_scene_type
 {
     CP_SCENE_MAP = 0,
-    CP_SCENE_ROOM
+    CP_SCENE_ROOM,
+    CP_SCENE_CART_TITLE,
+    CP_SCENE_CART_PLAYING,
+    CP_SCENE_CART_CRASH,
+    CP_SCENE_CART_RESULTS
 };
 
 enum cp_direction
@@ -84,16 +123,63 @@ enum cp_direction
     CP_DIR_RIGHT
 };
 
+enum cp_action_type
+{
+    CP_ACTION_ROOM = 0,
+    CP_ACTION_MAP,
+    CP_ACTION_MINIGAME,
+    CP_ACTION_MESSAGE
+};
+
+enum cp_cart_trick
+{
+    CP_CART_TRICK_NONE = 0,
+    CP_CART_TRICK_OLLIE,
+    CP_CART_TRICK_SPIN,
+    CP_CART_TRICK_FLAP,
+    CP_CART_TRICK_GRIND
+};
+
+struct cp_cart_state
+{
+    int return_room;
+    int return_x;
+    int return_y;
+    int score;
+    int lives;
+    int segment;
+    int segment_tick;
+    int jump_ticks;
+    int lean;
+    int lean_ticks;
+    int crash_ticks;
+    int sprite_frame;
+    int trick_cooldown;
+    int reward;
+    long next_tick;
+    enum cp_cart_trick trick;
+    enum cp_cart_trick last_trick;
+    bool rewarded;
+};
+
 struct cp_hotspot
 {
+    char id[24];
     char name[32];
     char detail[80];
     char target[24];
+    enum cp_action_type action;
     int x;
     int y;
     int radius;
     int to_x;
     int to_y;
+};
+
+struct cp_interaction
+{
+    char room[24];
+    struct cp_hotspot hotspot;
 };
 
 struct cp_room
@@ -103,6 +189,10 @@ struct cp_room
     char bitmap[80];
     int start_x;
     int start_y;
+    int walk_left;
+    int walk_top;
+    int walk_right;
+    int walk_bottom;
 };
 
 struct cp_hotspot_def
@@ -124,12 +214,17 @@ struct cp_room_def
     const char *bitmap;
     int start_x;
     int start_y;
+    int walk_left;
+    int walk_top;
+    int walk_right;
+    int walk_bottom;
 };
 
 struct cp_game
 {
     struct bitmap scene;
     struct bitmap player;
+    struct bitmap toolbar;
     enum cp_scene_type scene_type;
     int room_index;
     int x;
@@ -145,6 +240,7 @@ struct cp_game
     int hotspot_count;
     int map_hotspot_count;
     int room_count;
+    int interaction_count;
     int message_frames;
     int coins;
     unsigned int visited_mask;
@@ -154,90 +250,78 @@ struct cp_game
     struct cp_hotspot hotspots[CP_MAX_HOTSPOTS];
     struct cp_hotspot map_hotspots[CP_MAX_HOTSPOTS];
     struct cp_room rooms[CP_MAX_ROOMS];
+    struct cp_interaction interactions[CP_MAX_INTERACTIONS];
+    struct cp_cart_state cart;
+    char saved_room[24];
+    int saved_x;
+    int saved_y;
+    int cart_best_score;
+    int cart_best_combo;
     bool assets_loaded;
+    bool dirty;
 };
 
 static fb_data scene_pixels[CP_WORLD_W * CP_WORLD_H
                             + CP_BMP_SCRATCH_ELEMS(CP_WORLD_W)];
 static fb_data player_pixels[CP_PLAYER_STRIP_W * CP_PLAYER_STRIP_H
                              + CP_BMP_SCRATCH_ELEMS(CP_PLAYER_STRIP_W)];
+static fb_data toolbar_pixels[CP_VIEW_W * CP_STATUS_H];
 static char text_buf[CP_TEXT_BUF];
 
 static struct cp_game game;
 
+static const unsigned char cp_cart_segments[] =
+{
+    1, 1, 4, 2, 1, 5, 3, 1, 4, 2, 5, 3, 1,
+    1, 1, 4, 2, 4, 2, 1, 1, 5, 3, 1, 1, 6
+};
+
 static const struct cp_hotspot_def builtin_hotspots[] =
 {
-    {
-        "My Place",
-        "Source-scale preserved area. Offline membership is free.",
-        "", 427, 240, 45, 427, 240
-    },
-    {
-        "Town",
-        "Town marker in the preserved offline area.",
-        "", 585, 382, 48, 427, 240
-    },
-    {
-        "Plaza",
-        "Plaza marker in the preserved offline area.",
-        "", 638, 292, 50, 427, 240
-    },
-    {
-        "Dock",
-        "Dock marker in the preserved offline area.",
-        "", 112, 362, 50, 427, 240
-    },
-    {
-        "Ski Village",
-        "Ski Village marker in the preserved offline area.",
-        "", 320, 257, 44, 427, 240
-    },
-    {
-        "Dojo",
-        "Dojo marker in the preserved offline area.",
-        "", 494, 52, 44, 427, 240
-    },
-    {
-        "Cove",
-        "Cove marker in the preserved offline area.",
-        "", 723, 161, 50, 427, 240
-    },
-    {
-        "Beach",
-        "Beach marker in the preserved offline area.",
-        "", 126, 112, 42, 427, 240
-    },
-    {
-        "Snow Forts",
-        "Snow Forts marker in the preserved offline area.",
-        "", 456, 352, 45, 427, 240
-    },
-    {
-        "Forest",
-        "Forest marker in the preserved offline area.",
-        "", 694, 410, 44, 427, 240
-    },
-    {
-        "Mine",
-        "Mine marker in the preserved offline area.",
-        "", 756, 332, 42, 427, 240
-    },
-    {
-        "Iceberg",
-        "Iceberg marker in the preserved offline area.",
-        "", 760, 67, 42, 427, 240
-    },
+    { "My Place", "Enter your offline igloo.",
+      "player_home", 160, 110, 17, 160, 170 },
+    { "Town", "Enter Town.", "town", 219, 175, 18, 160, 170 },
+    { "Plaza", "Enter the Plaza.", "plaza", 239, 134, 19, 160, 170 },
+    { "Dock", "Enter the Dock.", "dock", 42, 166, 19, 160, 170 },
+    { "Ski Village", "Enter Ski Village.",
+      "ski_village", 120, 118, 16, 160, 170 },
+    { "Dojo", "Enter the Dojo.", "dojo", 185, 24, 16, 160, 170 },
+    { "Cove", "Enter the Cove.", "cove", 271, 74, 19, 160, 170 },
+    { "Beach", "Enter the Beach.", "beach", 47, 51, 16, 160, 170 },
+    { "Snow Forts", "Enter the Snow Forts.",
+      "snow_forts", 171, 161, 17, 160, 170 },
+    { "Forest", "Enter the Forest.", "forest", 260, 188, 16, 160, 170 },
+    { "Mine", "Enter the Mine Shack.", "mine", 283, 152, 16, 160, 170 },
+    { "Iceberg", "Enter the Iceberg.",
+      "iceberg", 285, 31, 16, 160, 170 },
 };
 
 static const struct cp_room_def builtin_rooms[] =
 {
-    { "player_home", "My Place", "rooms/player_home.bmp", 160, 150 },
-    { "town", "Town", "rooms/town.bmp", 160, 150 },
-    { "plaza", "Plaza", "rooms/plaza.bmp", 160, 150 },
-    { "dock", "Dock", "rooms/dock.bmp", 160, 150 },
-    { "ski_village", "Ski Village", "rooms/ski_village.bmp", 160, 150 },
-    { "dojo", "Dojo", "rooms/dojo.bmp", 160, 150 },
-    { "cove", "Cove", "rooms/cove.bmp", 160, 150 },
+    { "player_home", "My Place", "rooms/player_home.bmp",
+      160, 170, 45, 120, 275, 198 },
+    { "town", "Town", "rooms/town.bmp",
+      160, 170, 25, 120, 295, 198 },
+    { "plaza", "Plaza", "rooms/plaza.bmp",
+      160, 170, 20, 120, 300, 198 },
+    { "dock", "Dock", "rooms/dock.bmp",
+      160, 170, 25, 100, 295, 198 },
+    { "ski_village", "Ski Village", "rooms/ski_village.bmp",
+      160, 170, 25, 115, 295, 198 },
+    { "dojo", "Dojo", "rooms/dojo.bmp",
+      160, 170, 35, 135, 285, 198 },
+    { "cove", "Cove", "rooms/cove.bmp",
+      160, 170, 25, 115, 295, 198 },
+    { "beach", "Beach", "rooms/beach.bmp",
+      160, 170, 40, 110, 280, 198 },
+    { "snow_forts", "Snow Forts", "rooms/snow_forts.bmp",
+      160, 170, 20, 105, 300, 198 },
+    { "forest", "Forest", "rooms/forest.bmp",
+      160, 170, 35, 100, 285, 198 },
+    { "mine", "Mine Shack", "rooms/mine.bmp",
+      160, 170, 30, 120, 290, 198 },
+    { "iceberg", "Iceberg", "rooms/iceberg.bmp",
+      160, 170, 35, 105, 285, 198 },
 };
 
 static int cp_abs(int value)
@@ -311,6 +395,7 @@ static void cp_set_message(const char *text)
 {
     cp_copy(game.message, sizeof(game.message), text);
     game.message_frames = CP_MESSAGE_TTL;
+    game.dirty = true;
 }
 
 static void cp_set_missing_message(const char *path)
@@ -439,6 +524,7 @@ static bool cp_data_line(const char *line)
 static void cp_copy_hotspot(struct cp_hotspot *dst,
                             const struct cp_hotspot_def *src)
 {
+    cp_copy(dst->id, sizeof(dst->id), src->target);
     cp_copy(dst->name, sizeof(dst->name), src->name);
     cp_copy(dst->detail, sizeof(dst->detail), src->detail);
     cp_copy(dst->target, sizeof(dst->target), src->target);
@@ -447,6 +533,7 @@ static void cp_copy_hotspot(struct cp_hotspot *dst,
     dst->radius = src->radius;
     dst->to_x = src->to_x;
     dst->to_y = src->to_y;
+    dst->action = CP_ACTION_ROOM;
 }
 
 static void cp_copy_room(struct cp_room *dst, const struct cp_room_def *src)
@@ -456,6 +543,10 @@ static void cp_copy_room(struct cp_room *dst, const struct cp_room_def *src)
     cp_copy(dst->bitmap, sizeof(dst->bitmap), src->bitmap);
     dst->start_x = src->start_x;
     dst->start_y = src->start_y;
+    dst->walk_left = src->walk_left;
+    dst->walk_top = src->walk_top;
+    dst->walk_right = src->walk_right;
+    dst->walk_bottom = src->walk_bottom;
 }
 
 static void cp_use_builtin_hotspots(void)
@@ -544,6 +635,10 @@ static void cp_parse_room_line(char *line)
     char *bitmap = cp_next_field(&cursor);
     char *x_text = cp_next_field(&cursor);
     char *y_text = cp_next_field(&cursor);
+    char *left_text = cp_next_field(&cursor);
+    char *top_text = cp_next_field(&cursor);
+    char *right_text = cp_next_field(&cursor);
+    char *bottom_text = cp_next_field(&cursor);
     struct cp_room *room;
     int x;
     int y;
@@ -560,6 +655,14 @@ static void cp_parse_room_line(char *line)
     cp_copy(room->bitmap, sizeof(room->bitmap), bitmap);
     room->start_x = x;
     room->start_y = y;
+    room->walk_left = CP_PLAYER_W / 2;
+    room->walk_top = CP_PLAYER_H / 2;
+    room->walk_right = CP_VIEW_W - CP_PLAYER_W / 2;
+    room->walk_bottom = CP_VIEW_H - CP_PLAYER_H / 2;
+    cp_parse_int(left_text, &room->walk_left);
+    cp_parse_int(top_text, &room->walk_top);
+    cp_parse_int(right_text, &room->walk_right);
+    cp_parse_int(bottom_text, &room->walk_bottom);
 }
 
 static bool cp_load_rooms(void)
@@ -579,6 +682,81 @@ static bool cp_load_rooms(void)
     }
 
     return game.room_count > 0;
+}
+
+static bool cp_parse_action(const char *text, enum cp_action_type *action)
+{
+    if (cp_streq(text, "room"))
+        *action = CP_ACTION_ROOM;
+    else if (cp_streq(text, "map"))
+        *action = CP_ACTION_MAP;
+    else if (cp_streq(text, "minigame"))
+        *action = CP_ACTION_MINIGAME;
+    else if (cp_streq(text, "message"))
+        *action = CP_ACTION_MESSAGE;
+    else
+        return false;
+
+    return true;
+}
+
+static void cp_parse_interaction_line(char *line)
+{
+    char *cursor = line;
+    char *room = cp_next_field(&cursor);
+    char *id = cp_next_field(&cursor);
+    char *x_text = cp_next_field(&cursor);
+    char *y_text = cp_next_field(&cursor);
+    char *radius_text = cp_next_field(&cursor);
+    char *action_text = cp_next_field(&cursor);
+    char *target = cp_next_field(&cursor);
+    char *label = cp_next_field(&cursor);
+    struct cp_interaction *interaction;
+    int x;
+    int y;
+    int radius;
+    enum cp_action_type action;
+
+    if (game.interaction_count >= CP_MAX_INTERACTIONS ||
+        !cp_has_text(room) || !cp_has_text(id) || !cp_has_text(label) ||
+        !cp_parse_int(x_text, &x) || !cp_parse_int(y_text, &y) ||
+        !cp_parse_int(radius_text, &radius) || radius <= 0 ||
+        !cp_parse_action(action_text, &action))
+        return;
+
+    interaction = &game.interactions[game.interaction_count++];
+    rb->memset(interaction, 0, sizeof(*interaction));
+    cp_copy(interaction->room, sizeof(interaction->room), room);
+    cp_copy(interaction->hotspot.id, sizeof(interaction->hotspot.id), id);
+    cp_copy(interaction->hotspot.name, sizeof(interaction->hotspot.name),
+            label);
+    cp_copy(interaction->hotspot.detail,
+            sizeof(interaction->hotspot.detail), label);
+    cp_copy(interaction->hotspot.target,
+            sizeof(interaction->hotspot.target), target);
+    interaction->hotspot.x = x;
+    interaction->hotspot.y = y;
+    interaction->hotspot.radius = radius;
+    interaction->hotspot.action = action;
+}
+
+static bool cp_load_interactions(void)
+{
+    char *cursor;
+    char *line;
+
+    if (cp_read_text_file(CP_INTERACTIONS_DATA_FILE) < 0)
+        return false;
+
+    game.interaction_count = 0;
+    cursor = text_buf;
+    while ((line = cp_next_line(&cursor)) != NULL)
+    {
+        if (cp_data_line(line))
+            cp_parse_interaction_line(line);
+    }
+
+    return game.interaction_count > 0;
 }
 
 static bool cp_load_bitmap(const char *path, struct bitmap *bmp,
@@ -603,32 +781,33 @@ static bool cp_load_bitmap(const char *path, struct bitmap *bmp,
     return true;
 }
 
-static bool cp_load_scene(const char *path)
+static bool cp_load_scene(const char *path, int width, int height)
 {
     return cp_load_bitmap(path, &game.scene, scene_pixels,
-                          sizeof(scene_pixels), CP_WORLD_W, CP_WORLD_H,
+                          sizeof(scene_pixels), width, height,
                           FORMAT_NATIVE | FORMAT_DITHER);
+}
+
+static bool cp_load_player_asset(void)
+{
+    return cp_load_bitmap(CP_PLAYER_FILE, &game.player, player_pixels,
+                          sizeof(player_pixels), CP_PLAYER_STRIP_W,
+                          CP_PLAYER_STRIP_H, FORMAT_NATIVE);
 }
 
 static bool cp_load_assets(void)
 {
     bool scene_ok;
     bool player_ok;
+    bool toolbar_ok;
 
-    scene_ok = cp_load_scene(CP_WORLD_FILE);
-    player_ok = cp_load_bitmap(CP_PLAYER_FILE, &game.player, player_pixels,
-                               sizeof(player_pixels), CP_PLAYER_STRIP_W,
-                               CP_PLAYER_STRIP_H, FORMAT_NATIVE);
-    if (!player_ok)
-    {
-        rb->memset(&game.player, 0, sizeof(game.player));
-        game.player.data = (char *)cp_player_fallback_pixels;
-        game.player.width = CP_PLAYER_STRIP_W;
-        game.player.height = CP_PLAYER_STRIP_H;
-        player_ok = true;
-    }
+    scene_ok = cp_load_scene(CP_WORLD_FILE, CP_WORLD_W, CP_WORLD_H);
+    player_ok = cp_load_player_asset();
+    toolbar_ok = cp_load_bitmap(CP_TOOLBAR_FILE, &game.toolbar,
+                                toolbar_pixels, sizeof(toolbar_pixels),
+                                CP_VIEW_W, CP_STATUS_H, FORMAT_NATIVE);
 
-    game.assets_loaded = scene_ok && player_ok;
+    game.assets_loaded = scene_ok && player_ok && toolbar_ok;
     return game.assets_loaded;
 }
 
@@ -671,6 +850,67 @@ static int cp_nearest_hotspot(void)
     return best;
 }
 
+static void cp_select_map_direction(int dx, int dy)
+{
+    int current = game.selected_hotspot;
+    int best = -1;
+    int best_score = 0;
+    int i;
+
+    if (game.hotspot_count <= 0)
+        return;
+    if (current < 0 || current >= game.hotspot_count)
+        current = 0;
+
+    for (i = 0; i < game.hotspot_count; i++)
+    {
+        int delta_x;
+        int delta_y;
+        int forward;
+        int side;
+        int score;
+
+        if (i == current)
+            continue;
+
+        delta_x = game.hotspots[i].x - game.hotspots[current].x;
+        delta_y = game.hotspots[i].y - game.hotspots[current].y;
+        forward = delta_x * dx + delta_y * dy;
+        if (forward <= 0)
+            continue;
+
+        side = cp_abs(delta_x * dy - delta_y * dx);
+        score = side * 4 + forward;
+        if (best < 0 || score < best_score)
+        {
+            best = i;
+            best_score = score;
+        }
+    }
+
+    if (best < 0)
+    {
+        best = current;
+        for (i = 0; i < game.hotspot_count; i++)
+        {
+            int coordinate = dx != 0 ? game.hotspots[i].x :
+                                       game.hotspots[i].y;
+            int best_coordinate = dx != 0 ? game.hotspots[best].x :
+                                            game.hotspots[best].y;
+            if ((dx + dy > 0 && coordinate < best_coordinate) ||
+                (dx + dy < 0 && coordinate > best_coordinate))
+                best = i;
+        }
+    }
+
+    game.selected_hotspot = best;
+    game.x = game.hotspots[best].x;
+    game.y = game.hotspots[best].y;
+    game.map_x = game.x;
+    game.map_y = game.y;
+    game.dirty = true;
+}
+
 static bool cp_inside_hotspot(int index)
 {
     int score;
@@ -688,14 +928,23 @@ static bool cp_inside_hotspot(int index)
 
 static void cp_clamp_player(void)
 {
-    if (game.x < CP_PLAYER_W / 2)
-        game.x = CP_PLAYER_W / 2;
-    if (game.y < CP_PLAYER_H / 2)
-        game.y = CP_PLAYER_H / 2;
-    if (game.x > CP_WORLD_W - CP_PLAYER_W / 2)
-        game.x = CP_WORLD_W - CP_PLAYER_W / 2;
-    if (game.y > CP_WORLD_H - CP_PLAYER_H / 2)
-        game.y = CP_WORLD_H - CP_PLAYER_H / 2;
+    int left = CP_PLAYER_W / 2;
+    int top = CP_PLAYER_H / 2;
+    int right = game.scene.width - CP_PLAYER_W / 2;
+    int bottom = game.scene.height - CP_PLAYER_H / 2;
+
+    if (game.scene_type == CP_SCENE_ROOM && game.room_index >= 0 &&
+        game.room_index < game.room_count)
+    {
+        struct cp_room *room = &game.rooms[game.room_index];
+        left = MAX(left, room->walk_left);
+        top = MAX(top, room->walk_top);
+        right = MIN(right, room->walk_right);
+        bottom = MIN(bottom, room->walk_bottom);
+    }
+
+    game.x = MIN(MAX(game.x, left), right);
+    game.y = MIN(MAX(game.y, top), bottom);
 }
 
 static void cp_update_camera(void)
@@ -707,10 +956,10 @@ static void cp_update_camera(void)
         game.cam_x = 0;
     if (game.cam_y < 0)
         game.cam_y = 0;
-    if (game.cam_x > CP_WORLD_W - CP_VIEW_W)
-        game.cam_x = CP_WORLD_W - CP_VIEW_W;
-    if (game.cam_y > CP_WORLD_H - CP_VIEW_H)
-        game.cam_y = CP_WORLD_H - CP_VIEW_H;
+    if (game.cam_x > game.scene.width - CP_VIEW_W)
+        game.cam_x = MAX(0, game.scene.width - CP_VIEW_W);
+    if (game.cam_y > game.scene.height - CP_VIEW_H)
+        game.cam_y = MAX(0, game.scene.height - CP_VIEW_H);
 }
 
 static void cp_set_current_hotspots(const struct cp_hotspot *hotspots,
@@ -730,7 +979,7 @@ static void cp_set_current_hotspots(const struct cp_hotspot *hotspots,
 
 static bool cp_enter_map_at(int x, int y)
 {
-    if (!cp_load_scene(CP_WORLD_FILE))
+    if (!cp_load_scene(CP_WORLD_FILE, CP_WORLD_W, CP_WORLD_H))
         return false;
 
     game.scene_type = CP_SCENE_MAP;
@@ -742,24 +991,47 @@ static bool cp_enter_map_at(int x, int y)
     cp_clamp_player();
     cp_update_camera();
     game.selected_hotspot = cp_nearest_hotspot();
+    if (game.selected_hotspot >= 0)
+    {
+        game.x = game.hotspots[game.selected_hotspot].x;
+        game.y = game.hotspots[game.selected_hotspot].y;
+        game.map_x = game.x;
+        game.map_y = game.y;
+    }
+    game.dirty = true;
     return true;
 }
 
 static void cp_set_room_hotspots(void)
 {
-    struct cp_hotspot back;
+    const char *room_id = game.rooms[game.room_index].id;
+    struct cp_hotspot *back;
+    int i;
 
-    rb->memset(&back, 0, sizeof(back));
-    cp_copy(back.name, sizeof(back.name), "Map");
-    cp_copy(back.detail, sizeof(back.detail), "Return to the island map.");
-    cp_copy(back.target, sizeof(back.target), "map");
-    back.x = CP_PLAYER_W / 2 + 6;
-    back.y = CP_WORLD_H - CP_PLAYER_H / 2 - 6;
-    back.radius = 28;
-    back.to_x = game.map_x;
-    back.to_y = game.map_y;
+    game.hotspot_count = 0;
+    for (i = 0; i < game.interaction_count &&
+                game.hotspot_count < CP_MAX_HOTSPOTS - 1; i++)
+    {
+        if (cp_streq(game.interactions[i].room, room_id))
+            game.hotspots[game.hotspot_count++] =
+                game.interactions[i].hotspot;
+    }
 
-    cp_set_current_hotspots(&back, 1);
+    back = &game.hotspots[game.hotspot_count++];
+    rb->memset(back, 0, sizeof(*back));
+    cp_copy(back->id, sizeof(back->id), "map_exit");
+    cp_copy(back->name, sizeof(back->name), "Map");
+    cp_copy(back->detail, sizeof(back->detail),
+            "Return to the island map.");
+    cp_copy(back->target, sizeof(back->target), "map");
+    back->action = CP_ACTION_MAP;
+    back->x = game.rooms[game.room_index].walk_left;
+    back->y = game.rooms[game.room_index].walk_bottom;
+    back->radius = 24;
+    back->to_x = game.map_x;
+    back->to_y = game.map_y;
+
+    game.selected_hotspot = cp_nearest_hotspot();
 }
 
 static bool cp_enter_room(int room_index, int x, int y)
@@ -775,7 +1047,7 @@ static bool cp_enter_room(int room_index, int x, int y)
 
     room = &game.rooms[room_index];
     cp_join_asset_path(path, sizeof(path), room->bitmap);
-    if (!cp_load_scene(path))
+    if (!cp_load_scene(path, CP_VIEW_W, CP_VIEW_H))
         return false;
 
     game.scene_type = CP_SCENE_ROOM;
@@ -791,7 +1063,384 @@ static bool cp_enter_room(int room_index, int x, int y)
     cp_update_camera();
     cp_set_room_hotspots();
     game.selected_hotspot = cp_nearest_hotspot();
+    game.dirty = true;
     return true;
+}
+
+static int cp_clamp_save_value(int value, int maximum)
+{
+    if (value < 0)
+        return 0;
+    if (value > maximum)
+        return maximum;
+    return value;
+}
+
+static void cp_load_save(void)
+{
+    char *cursor;
+    char *line;
+
+    cp_copy(game.saved_room, sizeof(game.saved_room), "map");
+    game.saved_x = game.map_hotspots[0].x;
+    game.saved_y = game.map_hotspots[0].y;
+
+    if (cp_read_text_file(CP_SAVE_FILE) < 0)
+        return;
+
+    cursor = text_buf;
+    line = cp_next_line(&cursor);
+    if (line == NULL || !cp_streq(line, "CLUBPENGUIN_SAVE_V1"))
+        return;
+
+    while ((line = cp_next_line(&cursor)) != NULL)
+    {
+        char *equals = line;
+        char *value;
+        int parsed;
+
+        while (*equals != '\0' && *equals != '=')
+            equals++;
+        if (*equals != '=')
+            continue;
+        *equals = '\0';
+        value = equals + 1;
+
+        if (cp_streq(line, "room"))
+            cp_copy(game.saved_room, sizeof(game.saved_room), value);
+        else if (cp_parse_int(value, &parsed))
+        {
+            if (cp_streq(line, "coins"))
+                game.coins = cp_clamp_save_value(parsed, 999999999);
+            else if (cp_streq(line, "x"))
+                game.saved_x = parsed;
+            else if (cp_streq(line, "y"))
+                game.saved_y = parsed;
+            else if (cp_streq(line, "map_x"))
+                game.map_x = parsed;
+            else if (cp_streq(line, "map_y"))
+                game.map_y = parsed;
+            else if (cp_streq(line, "cart_best_score"))
+                game.cart_best_score =
+                    cp_clamp_save_value(parsed, 999999999);
+            else if (cp_streq(line, "cart_best_combo"))
+                game.cart_best_combo =
+                    cp_clamp_save_value(parsed, 999999999);
+        }
+    }
+}
+
+static bool cp_write_save(void)
+{
+    char save[320];
+    const char *room = "map";
+    int save_x = game.x;
+    int save_y = game.y;
+    int length;
+    int fd;
+    int wrote;
+
+    if (game.scene_type == CP_SCENE_ROOM && game.room_index >= 0 &&
+        game.room_index < game.room_count)
+        room = game.rooms[game.room_index].id;
+    else if (game.scene_type >= CP_SCENE_CART_TITLE &&
+             game.cart.return_room >= 0 &&
+             game.cart.return_room < game.room_count)
+    {
+        room = game.rooms[game.cart.return_room].id;
+        save_x = game.cart.return_x;
+        save_y = game.cart.return_y;
+    }
+
+    length = rb->snprintf(save, sizeof(save),
+                          "CLUBPENGUIN_SAVE_V1\n"
+                          "coins=%d\nroom=%s\nx=%d\ny=%d\n"
+                          "map_x=%d\nmap_y=%d\n"
+                          "cart_best_score=%d\ncart_best_combo=%d\n",
+                          game.coins, room, save_x, save_y,
+                          game.map_x, game.map_y, game.cart_best_score,
+                          game.cart_best_combo);
+    if (length <= 0 || length >= (int)sizeof(save))
+        return false;
+
+    fd = rb->open(CP_SAVE_TMP_FILE, O_WRONLY | O_CREAT | O_TRUNC, 0666);
+    if (fd < 0)
+        return false;
+
+    wrote = rb->write(fd, save, length);
+    rb->close(fd);
+    if (wrote != length)
+    {
+        rb->remove(CP_SAVE_TMP_FILE);
+        return false;
+    }
+
+    if (rb->rename(CP_SAVE_TMP_FILE, CP_SAVE_FILE) < 0)
+    {
+        rb->remove(CP_SAVE_TMP_FILE);
+        return false;
+    }
+
+    return true;
+}
+
+static int cp_cart_trick_score(enum cp_cart_trick trick)
+{
+    switch (trick)
+    {
+        case CP_CART_TRICK_OLLIE: return 20;
+        case CP_CART_TRICK_SPIN: return 80;
+        case CP_CART_TRICK_FLAP: return 50;
+        case CP_CART_TRICK_GRIND: return 80;
+        default: return 0;
+    }
+}
+
+static void cp_cart_award_trick(enum cp_cart_trick trick)
+{
+    int points = cp_cart_trick_score(trick);
+
+    if (trick == CP_CART_TRICK_NONE || points <= 0)
+        return;
+    if (game.cart.last_trick == trick)
+        points /= 2;
+    if (game.cart.score <= 999999999 - points)
+        game.cart.score += points;
+    else
+        game.cart.score = 999999999;
+    game.cart.last_trick = trick;
+    game.cart.trick_cooldown = 10;
+}
+
+static void cp_cart_finish(void)
+{
+    int reward;
+
+    game.scene_type = CP_SCENE_CART_RESULTS;
+    reward = game.cart.score / 10;
+    game.cart.reward = reward;
+    if (!game.cart.rewarded)
+    {
+        if (game.coins <= 999999999 - reward)
+            game.coins += reward;
+        else
+            game.coins = 999999999;
+        game.cart.rewarded = true;
+        if (game.cart.score > game.cart_best_score)
+            game.cart_best_score = game.cart.score;
+        cp_write_save();
+    }
+    game.dirty = true;
+}
+
+static void cp_cart_crash(void)
+{
+    if (game.scene_type == CP_SCENE_CART_CRASH ||
+        game.scene_type == CP_SCENE_CART_RESULTS)
+        return;
+
+    game.cart.lives--;
+    game.cart.sprite_frame = 4;
+    game.cart.crash_ticks = 35;
+    game.scene_type = CP_SCENE_CART_CRASH;
+    game.dirty = true;
+}
+
+static bool cp_cart_start(void)
+{
+    if (!cp_load_scene(CP_CART_TUNNEL_FILE, CP_VIEW_W, CP_VIEW_H))
+        return false;
+    if (!cp_load_bitmap(CP_CART_SPRITES_FILE, &game.player, player_pixels,
+                        sizeof(player_pixels), CP_CART_STRIP_W,
+                        CP_CART_FRAME_H, FORMAT_NATIVE))
+        return false;
+
+    game.cart.score = 0;
+    game.cart.lives = 4;
+    game.cart.segment = 0;
+    game.cart.segment_tick = 0;
+    game.cart.jump_ticks = 0;
+    game.cart.lean = 0;
+    game.cart.lean_ticks = 0;
+    game.cart.crash_ticks = 0;
+    game.cart.sprite_frame = 0;
+    game.cart.trick_cooldown = 0;
+    game.cart.reward = 0;
+    game.cart.next_tick = *rb->current_tick + MAX(1, HZ / 25);
+    game.cart.trick = CP_CART_TRICK_NONE;
+    game.cart.last_trick = CP_CART_TRICK_NONE;
+    game.cart.rewarded = false;
+    game.scene_type = CP_SCENE_CART_PLAYING;
+    game.dirty = true;
+    return true;
+}
+
+static bool cp_enter_cart_surfer(void)
+{
+    game.cart.return_room = game.room_index;
+    game.cart.return_x = game.x;
+    game.cart.return_y = game.y;
+    if (!cp_load_scene(CP_CART_TITLE_FILE, CP_VIEW_W, CP_VIEW_H))
+        return false;
+
+    game.scene_type = CP_SCENE_CART_TITLE;
+    cp_copy(game.location, sizeof(game.location), "Cart Surfer");
+    game.dirty = true;
+    return true;
+}
+
+static void cp_leave_cart_surfer(const char *message)
+{
+    int room = game.cart.return_room;
+    int x = game.cart.return_x;
+    int y = game.cart.return_y;
+
+    if (!cp_load_player_asset() || !cp_enter_room(room, x, y))
+        return;
+    cp_set_message(message);
+}
+
+static void cp_cart_tick(void)
+{
+    int segment_type;
+
+    if (game.scene_type == CP_SCENE_CART_CRASH)
+    {
+        if (game.cart.crash_ticks > 0)
+            game.cart.crash_ticks--;
+        if (game.cart.crash_ticks == 0)
+        {
+            if (game.cart.lives <= 0)
+                cp_cart_finish();
+            else
+            {
+                game.scene_type = CP_SCENE_CART_PLAYING;
+                game.cart.segment_tick = 0;
+                game.cart.jump_ticks = 0;
+                game.cart.lean_ticks = 0;
+                game.cart.sprite_frame = 0;
+                game.cart.trick = CP_CART_TRICK_NONE;
+                game.dirty = true;
+            }
+        }
+        return;
+    }
+
+    if (game.scene_type != CP_SCENE_CART_PLAYING)
+        return;
+
+    if (game.cart.trick_cooldown > 0)
+        game.cart.trick_cooldown--;
+    if (game.cart.lean_ticks > 0)
+        game.cart.lean_ticks--;
+    else
+    {
+        game.cart.lean = 0;
+        if (game.cart.jump_ticks <= 0)
+            game.cart.sprite_frame = 0;
+    }
+
+    if (game.cart.jump_ticks > 0)
+    {
+        game.cart.jump_ticks--;
+        if (game.cart.jump_ticks == 0)
+        {
+            cp_cart_award_trick(game.cart.trick == CP_CART_TRICK_NONE ?
+                                CP_CART_TRICK_OLLIE : game.cart.trick);
+            game.cart.trick = CP_CART_TRICK_NONE;
+            game.cart.sprite_frame = 0;
+        }
+    }
+
+    game.cart.segment_tick++;
+    segment_type = cp_cart_segments[game.cart.segment];
+    if (game.cart.segment_tick == 45)
+    {
+        if ((segment_type == 2 && game.cart.lean <= 0) ||
+            (segment_type == 3 && game.cart.lean >= 0) ||
+            (segment_type == 4 && game.cart.jump_ticks <= 0))
+        {
+            cp_cart_crash();
+            return;
+        }
+        if ((segment_type == 2 || segment_type == 3) &&
+            game.cart.score <= 999999989)
+            game.cart.score += 10;
+    }
+
+    if (game.cart.segment_tick >= CP_CART_SEGMENT_TICKS)
+    {
+        game.cart.segment_tick = 0;
+        game.cart.segment++;
+        if (game.cart.segment >= (int)ARRAYLEN(cp_cart_segments) ||
+            cp_cart_segments[game.cart.segment] == 6)
+            cp_cart_finish();
+    }
+    game.dirty = true;
+}
+
+static void cp_cart_tick_if_due(void)
+{
+    if ((game.scene_type == CP_SCENE_CART_PLAYING ||
+         game.scene_type == CP_SCENE_CART_CRASH) &&
+        (TIME_AFTER(*rb->current_tick, game.cart.next_tick) ||
+         *rb->current_tick == game.cart.next_tick))
+    {
+        cp_cart_tick();
+        game.cart.next_tick = *rb->current_tick + MAX(1, HZ / 25);
+    }
+}
+
+static void cp_cart_action(int action)
+{
+    if (game.scene_type == CP_SCENE_CART_TITLE)
+    {
+        if (action == CP_SELECT_ACTION && !cp_cart_start())
+            cp_leave_cart_surfer("Cart Surfer assets are incomplete.");
+        return;
+    }
+    if (game.scene_type == CP_SCENE_CART_RESULTS)
+    {
+        if (action == CP_SELECT_ACTION || action == CP_PLAY_ACTION)
+            cp_leave_cart_surfer("Cart Surfer complete.");
+        return;
+    }
+    if (game.scene_type != CP_SCENE_CART_PLAYING)
+        return;
+
+    if (action == CP_SELECT_ACTION && game.cart.jump_ticks <= 0)
+    {
+        game.cart.jump_ticks = CP_CART_JUMP_TICKS;
+        game.cart.trick = CP_CART_TRICK_OLLIE;
+        game.cart.sprite_frame = 2;
+    }
+    else if (action == CP_LEFT_ACTION || action == CP_LEFT_REPEAT ||
+             action == CP_RIGHT_ACTION || action == CP_RIGHT_REPEAT)
+    {
+        int right = action == CP_RIGHT_ACTION || action == CP_RIGHT_REPEAT;
+        game.cart.lean = right ? 1 : -1;
+        game.cart.lean_ticks = 9;
+        if (game.cart.jump_ticks > 0)
+        {
+            game.cart.trick = CP_CART_TRICK_SPIN;
+            game.cart.sprite_frame = 3;
+        }
+        else
+            game.cart.sprite_frame = 1;
+    }
+    else if ((action == CP_UP_ACTION || action == CP_UP_REPEAT) &&
+             game.cart.jump_ticks > 0)
+    {
+        game.cart.trick = CP_CART_TRICK_FLAP;
+        game.cart.sprite_frame = 3;
+    }
+    else if (action == CP_PLAY_ACTION && game.cart.trick_cooldown == 0)
+    {
+        cp_cart_award_trick(CP_CART_TRICK_GRIND);
+        game.cart.sprite_frame = 1;
+        game.cart.lean_ticks = 8;
+    }
+    game.dirty = true;
 }
 
 static void cp_init(void)
@@ -806,17 +1455,38 @@ static void cp_init(void)
     if (!cp_load_hotspots())
         cp_use_builtin_hotspots();
 
+    cp_load_interactions();
+
     if (!cp_load_assets())
         return;
 
     game.map_x = game.map_hotspots[0].x;
     game.map_y = game.map_hotspots[0].y;
-    cp_enter_map_at(game.map_x, game.map_y);
-    cp_set_message("Loaded real Club Penguin assets.");
+    cp_load_save();
+    if (game.map_x <= 0 || game.map_y <= 0)
+    {
+        game.map_x = game.map_hotspots[0].x;
+        game.map_y = game.map_hotspots[0].y;
+    }
+
+    if (!cp_streq(game.saved_room, "map") &&
+        cp_find_room(game.saved_room) >= 0)
+        cp_enter_room(cp_find_room(game.saved_room), game.saved_x,
+                      game.saved_y);
+    else
+        cp_enter_map_at(game.saved_x, game.saved_y);
+
+    cp_set_message("Select a marked area to enter it.");
 }
 
 static void cp_move(int dx, int dy)
 {
+    if (game.scene_type == CP_SCENE_MAP)
+    {
+        cp_select_map_direction(dx, dy);
+        return;
+    }
+
     if (dx < 0)
         game.direction = CP_DIR_LEFT;
     else if (dx > 0)
@@ -837,6 +1507,7 @@ static void cp_move(int dx, int dy)
         game.anim_frame = (game.anim_frame + 1) & 3;
     }
     game.selected_hotspot = cp_nearest_hotspot();
+    game.dirty = true;
 }
 
 static void cp_interact(void)
@@ -846,7 +1517,7 @@ static void cp_interact(void)
     int room_index;
 
     game.selected_hotspot = nearest;
-    if (!cp_inside_hotspot(nearest))
+    if (game.scene_type != CP_SCENE_MAP && !cp_inside_hotspot(nearest))
     {
         cp_set_message("Waddle closer to a room marker.");
         return;
@@ -872,9 +1543,29 @@ static void cp_interact(void)
         return;
     }
 
-    if (cp_streq(hotspot->target, "map"))
+    if (hotspot->action == CP_ACTION_MESSAGE)
     {
-        cp_enter_map_at(hotspot->to_x, hotspot->to_y);
+        cp_set_message(hotspot->detail);
+        return;
+    }
+
+    if (hotspot->action == CP_ACTION_MINIGAME)
+    {
+        if (cp_streq(hotspot->target, "cart_surfer"))
+        {
+            if (!cp_enter_cart_surfer())
+                cp_set_message("Cart Surfer assets are incomplete.");
+        }
+        else
+            cp_set_message("Unknown minigame target.");
+        return;
+    }
+
+    if (hotspot->action == CP_ACTION_MAP ||
+        cp_streq(hotspot->target, "map"))
+    {
+        if (cp_enter_map_at(hotspot->to_x, hotspot->to_y))
+            cp_write_save();
         return;
     }
 
@@ -895,48 +1586,37 @@ static void cp_interact(void)
         return;
 
     cp_set_message(hotspot->detail);
+    cp_write_save();
 }
 
 static void cp_cancel_or_quit(enum plugin_status *status, bool *running)
 {
+    if (game.scene_type == CP_SCENE_CART_TITLE ||
+        game.scene_type == CP_SCENE_CART_PLAYING ||
+        game.scene_type == CP_SCENE_CART_CRASH ||
+        game.scene_type == CP_SCENE_CART_RESULTS)
+    {
+        cp_leave_cart_surfer("Returned to the Mine.");
+        return;
+    }
+
     if (game.scene_type == CP_SCENE_ROOM)
     {
         cp_enter_map_at(game.map_x, game.map_y);
         cp_set_message("Returned to the island map.");
+        cp_write_save();
         return;
     }
 
+    cp_write_save();
     *running = false;
     *status = PLUGIN_OK;
 }
 
 static void cp_draw_status(void)
 {
-    char line[112];
-    int old_fg = rb->lcd_get_foreground();
-    int old_bg = rb->lcd_get_background();
-    const char *spot = "";
-
-    rb->lcd_setfont(FONT_UI);
-    rb->lcd_set_background(LCD_BLACK);
-    rb->lcd_set_foreground(LCD_WHITE);
-    rb->lcd_fillrect(0, CP_VIEW_H, LCD_WIDTH, CP_STATUS_H);
-
-    if (game.selected_hotspot >= 0 &&
-        game.selected_hotspot < game.hotspot_count)
-        spot = game.hotspots[game.selected_hotspot].name;
-
-    if (game.message_frames > 0)
-        rb->snprintf(line, sizeof(line), "%s", game.message);
-    else
-        rb->snprintf(line, sizeof(line), "%s | %s | Free | %d coins",
-                     game.location, spot, game.coins);
-
-    rb->lcd_putsxy(2, CP_VIEW_H + 2, line);
-    rb->lcd_putsxy(2, CP_VIEW_H + 11, "Select: inspect  Menu: back/quit");
-
-    rb->lcd_set_foreground(old_fg);
-    rb->lcd_set_background(old_bg);
+    rb->lcd_bitmap((const fb_data *)game.toolbar.data, 0, CP_VIEW_H,
+                   CP_VIEW_W, CP_STATUS_H);
 }
 
 static void cp_draw_room_markers(void)
@@ -966,37 +1646,113 @@ static void cp_draw_player(int x, int y)
 {
     int frame = game.direction * 4 + game.anim_frame;
     int src_x = frame * CP_PLAYER_W;
-    int px;
-    int py;
-    int old_fg = rb->lcd_get_foreground();
-    fb_data key = LCD_RGBPACK(255, 0, 255);
-    const fb_data *data = (const fb_data *)game.player.data;
+    int src_y = 0;
+    int width = CP_PLAYER_W;
+    int height = CP_PLAYER_H;
 
-    for (py = 0; py < CP_PLAYER_H; py++)
+    if (x < 0)
     {
-        int dy = y + py;
+        src_x -= x;
+        width += x;
+        x = 0;
+    }
+    if (y < 0)
+    {
+        src_y -= y;
+        height += y;
+        y = 0;
+    }
+    if (x + width > CP_VIEW_W)
+        width = CP_VIEW_W - x;
+    if (y + height > CP_VIEW_H)
+        height = CP_VIEW_H - y;
 
-        if (dy < 0 || dy >= CP_VIEW_H)
-            continue;
+    if (width > 0 && height > 0)
+        rb->lcd_bitmap_transparent_part((const fb_data *)game.player.data,
+                                        src_x, src_y, game.player.width,
+                                        x, y, width, height);
+}
 
-        for (px = 0; px < CP_PLAYER_W; px++)
-        {
-            int dx = x + px;
-            fb_data color;
+static void cp_draw_cart_sprite(void)
+{
+    int frame = game.cart.sprite_frame;
+    int x = 128 + game.cart.lean * 8;
+    int y = 145;
 
-            if (dx < 0 || dx >= CP_VIEW_W)
-                continue;
-
-            color = data[py * CP_PLAYER_STRIP_W + src_x + px];
-            if (color == key)
-                continue;
-
-            rb->lcd_set_foreground(color);
-            rb->lcd_drawpixel(dx, dy);
-        }
+    if (frame < 0 || frame >= 5)
+        frame = 0;
+    if (game.cart.jump_ticks > 0)
+    {
+        int progress = CP_CART_JUMP_TICKS - game.cart.jump_ticks;
+        int height = progress <= CP_CART_JUMP_TICKS / 2 ?
+                     progress * 4 : (CP_CART_JUMP_TICKS - progress) * 4;
+        y -= height;
     }
 
+    rb->lcd_bitmap_transparent_part((const fb_data *)game.player.data,
+                                    frame * CP_CART_FRAME_W, 0,
+                                    game.player.width, x, y,
+                                    CP_CART_FRAME_W, CP_CART_FRAME_H);
+}
+
+static void cp_render_cart(void)
+{
+    char line[96];
+    int old_fg = rb->lcd_get_foreground();
+    int old_bg = rb->lcd_get_background();
+
+    rb->lcd_bitmap((const fb_data *)game.scene.data, 0, 0,
+                   CP_VIEW_W, CP_VIEW_H);
+    rb->lcd_setfont(FONT_SYSFIXED);
+    rb->lcd_set_foreground(LCD_WHITE);
+    rb->lcd_set_background(LCD_BLACK);
+
+    if (game.scene_type == CP_SCENE_CART_PLAYING ||
+        game.scene_type == CP_SCENE_CART_CRASH)
+    {
+        int type = cp_cart_segments[game.cart.segment];
+        const char *prompt = "STRAIGHT";
+
+        if (type == 2)
+            prompt = "TURN RIGHT";
+        else if (type == 3)
+            prompt = "TURN LEFT";
+        else if (type == 4)
+            prompt = "JUMP";
+        else if (type == 5)
+            prompt = "TRICK BONUS";
+
+        cp_draw_cart_sprite();
+        rb->lcd_fillrect(0, 0, LCD_WIDTH, 13);
+        rb->snprintf(line, sizeof(line), "Score %d   Carts %d   %s",
+                     game.cart.score, game.cart.lives, prompt);
+        rb->lcd_putsxy(2, 2, line);
+        if (game.scene_type == CP_SCENE_CART_CRASH)
+        {
+            rb->lcd_fillrect(95, 92, 130, 30);
+            rb->lcd_putsxy(132, 101, "CRASH!");
+        }
+    }
+    else if (game.scene_type == CP_SCENE_CART_RESULTS)
+    {
+        rb->lcd_fillrect(55, 58, 210, 105);
+        rb->lcd_putsxy(119, 68, "RUN COMPLETE");
+        rb->snprintf(line, sizeof(line), "Score: %d", game.cart.score);
+        rb->lcd_putsxy(108, 91, line);
+        rb->snprintf(line, sizeof(line), "Coins: +%d", game.cart.reward);
+        rb->lcd_putsxy(108, 108, line);
+        rb->snprintf(line, sizeof(line), "Best: %d", game.cart_best_score);
+        rb->lcd_putsxy(108, 125, line);
+        rb->lcd_putsxy(88, 146, "Select: return to Mine");
+    }
+
+    rb->lcd_bitmap((const fb_data *)game.toolbar.data, 0, CP_VIEW_H,
+                   CP_VIEW_W, CP_STATUS_H);
+
     rb->lcd_set_foreground(old_fg);
+    rb->lcd_set_background(old_bg);
+    rb->lcd_update();
+    game.dirty = false;
 }
 
 static void cp_render(void)
@@ -1004,21 +1760,34 @@ static void cp_render(void)
     int player_screen_x;
     int player_screen_y;
 
+    if (game.scene_type == CP_SCENE_CART_TITLE ||
+        game.scene_type == CP_SCENE_CART_PLAYING ||
+        game.scene_type == CP_SCENE_CART_CRASH ||
+        game.scene_type == CP_SCENE_CART_RESULTS)
+    {
+        cp_render_cart();
+        return;
+    }
+
     rb->lcd_setfont(FONT_UI);
     rb->lcd_bitmap_part((const fb_data *)game.scene.data,
                         game.cam_x, game.cam_y, game.scene.width,
                         0, 0, CP_VIEW_W, CP_VIEW_H);
     cp_draw_room_markers();
-    player_screen_x = game.x - game.cam_x - CP_PLAYER_W / 2;
-    player_screen_y = game.y - game.cam_y - CP_PLAYER_H / 2;
-    cp_draw_player(player_screen_x, player_screen_y);
+    if (game.scene_type == CP_SCENE_ROOM)
+    {
+        player_screen_x = game.x - game.cam_x - CP_PLAYER_W / 2;
+        player_screen_y = game.y - game.cam_y - CP_PLAYER_H / 2;
+        cp_draw_player(player_screen_x, player_screen_y);
+    }
     cp_draw_status();
     rb->lcd_update();
+    game.dirty = false;
 }
 
 static int cp_get_input(void)
 {
-    return pluginlib_getaction(HZ / 12, plugin_contexts,
+    return pluginlib_getaction(MAX(1, HZ / 25), plugin_contexts,
                               ARRAYLEN(plugin_contexts));
 }
 
@@ -1039,10 +1808,17 @@ enum plugin_status plugin_start(const void *parameter)
 
     while (running)
     {
-        if (game.message_frames > 0)
-            game.message_frames--;
+        cp_cart_tick_if_due();
 
-        cp_render();
+        if (game.message_frames > 0)
+        {
+            game.message_frames--;
+            if (game.message_frames == 0)
+                game.dirty = true;
+        }
+
+        if (game.dirty)
+            cp_render();
         action = cp_get_input();
 
         switch (action)
@@ -1054,31 +1830,54 @@ enum plugin_status plugin_start(const void *parameter)
 
             case CP_UP_ACTION:
             case CP_UP_REPEAT:
-                cp_move(0, -CP_STEP);
+                if (game.scene_type >= CP_SCENE_CART_TITLE)
+                    cp_cart_action(action);
+                else
+                    cp_move(0, -CP_STEP);
                 break;
 
             case CP_DOWN_ACTION:
             case CP_DOWN_REPEAT:
-                cp_move(0, CP_STEP);
+                if (game.scene_type >= CP_SCENE_CART_TITLE)
+                    cp_cart_action(action);
+                else
+                    cp_move(0, CP_STEP);
                 break;
 
             case CP_LEFT_ACTION:
             case CP_LEFT_REPEAT:
-                cp_move(-CP_STEP, 0);
+                if (game.scene_type >= CP_SCENE_CART_TITLE)
+                    cp_cart_action(action);
+                else
+                    cp_move(-CP_STEP, 0);
                 break;
 
             case CP_RIGHT_ACTION:
             case CP_RIGHT_REPEAT:
-                cp_move(CP_STEP, 0);
+                if (game.scene_type >= CP_SCENE_CART_TITLE)
+                    cp_cart_action(action);
+                else
+                    cp_move(CP_STEP, 0);
                 break;
 
             case CP_SELECT_ACTION:
-                cp_interact();
+                if (game.scene_type >= CP_SCENE_CART_TITLE)
+                    cp_cart_action(action);
+                else
+                    cp_interact();
+                break;
+
+            case CP_PLAY_ACTION:
+                if (game.scene_type >= CP_SCENE_CART_TITLE)
+                    cp_cart_action(action);
                 break;
 
             default:
                 if (rb->default_event_handler(action) == SYS_USB_CONNECTED)
+                {
+                    cp_write_save();
                     return PLUGIN_USB_CONNECTED;
+                }
                 break;
         }
     }

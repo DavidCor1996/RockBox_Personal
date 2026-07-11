@@ -26,9 +26,9 @@ Implemented pieces:
 
 - `apps/plugins/clubpenguin.c`
   - loads real BMP assets from `/.rockbox/rocks/games/clubpenguin/`
-  - displays a scaled island map
+  - displays a scaled island map and 12 authentic offline room scenes
   - draws an offline penguin sprite
-  - supports movement and room hotspot interaction
+  - supports map-to-room transitions, bounded room movement, and return exits
 - `apps/root_menu.c`
   - has a `Club Penguin` launcher under Games
   - includes the Club Penguin cover directory in game cover scan paths
@@ -36,18 +36,50 @@ Implemented pieces:
   - `/.rockbox/rocks/games/clubpenguin/world.bmp`
   - `/.rockbox/rocks/games/clubpenguin/player.bmp`
   - `/.rockbox/rocks/games/clubpenguin/covers/ClubPenguin.bmp`
+  - `/.rockbox/rocks/games/clubpenguin/rooms/*.bmp`
+  - `/.rockbox/rocks/games/clubpenguin/data/{world,rooms}.tsv`
 - source assets used so far:
   - `despedite/clubpenguinfreeroam`
+  - `nhaar/Waddle-Forever` vanilla/legacy preserved room SWFs
   - `project-aether` login atlas was inspected and used earlier for cover work
+
+Current room coverage:
+
+- My Place (igloo)
+- Town
+- Plaza
+- Dock
+- Ski Village
+- Dojo
+- Cove
+- Beach
+- Snow Forts
+- Forest
+- Mine Shack
+- Iceberg
 
 Known constraints:
 
 - the current plugin is a first slice, not a full room engine
-- no igloo room has been imported yet
+- room scenes are static preserved frames; original SWF animation and room
+  scripts do not run on-device
+- walkability currently uses one rectangular floor zone per room
 - no persistent inventory, coins, catalog, furniture, or clothing system exists
 - no Flash VM or Phaser runtime is used by the plugin
 - the hardware build can build core firmware with `make -C build-hw-ipod6g bin`
   while the full `make` still fails in unrelated plugin trees
+
+Measured baseline for the next pass:
+
+- the current iPod 6G plugin ELF has 62,180 bytes of text and 891,056 bytes
+  of BSS
+- the 854x480 map backing store accounts for most of BSS even though the
+  visible playfield is only 320x220
+- the player is composited with a per-pixel loop that changes foreground
+  color for every visible sprite pixel
+- the whole 320x240 display is redrawn at roughly 12 Hz, including while the
+  player and UI are idle
+- room-local interaction data and save data are not implemented yet
 
 ## Source Asset Policy
 
@@ -118,6 +150,15 @@ rooms/coffee.bmp
 rooms/nightclub.bmp
 rooms/petshop.bmp
 rooms/player_home.bmp
+rooms/dock.bmp
+rooms/ski_village.bmp
+rooms/dojo.bmp
+rooms/cove.bmp
+rooms/beach.bmp
+rooms/snow_forts.bmp
+rooms/forest.bmp
+rooms/mine.bmp
+rooms/iceberg.bmp
 ```
 
 Data files:
@@ -187,9 +228,9 @@ Responsibilities:
 Each room needs metadata:
 
 ```text
-id	title	bmp	start_x	start_y
-town	Town	rooms/town.bmp	160	150
-player_home	My Place	rooms/player_home.bmp	160	150
+id	title	bmp	start_x	start_y	walk_left	walk_top	walk_right	walk_bottom
+town	Town	rooms/town.bmp	160	170	25	120	295	198
+player_home	My Place	rooms/player_home.bmp	160	170	45	120	275	198
 ```
 
 Warp metadata:
@@ -265,6 +306,8 @@ Validation:
 
 ## Phase 2: First Real Room
 
+Status: complete for the current native slice.
+
 Target outcome:
 
 - selecting My Place enters a real room background
@@ -295,6 +338,9 @@ Validation:
 - return to map
 
 ## Phase 3: Core Island Rooms
+
+Status: core map-to-room coverage complete for all 12 current map markers.
+Interior-to-interior door warps and room-local interaction hotspots remain.
 
 Target outcome:
 
@@ -329,6 +375,141 @@ Validation:
 - every room has a way back to map
 - memory remains below plugin limit
 - no dynamic allocation churn while moving
+
+## Phase 3.5: Improvement And Optimization Pass
+
+This is the next implementation pass. Complete its renderer and data-model
+work before expanding room count or adding Cart Surfer content.
+
+Target outcome:
+
+- map and rooms feel immediate on iPod Classic hardware
+- only room scenes contain a walking penguin; the island map behaves as a
+  destination selector
+- room-local exits and actions are data-driven
+- the runtime has enough memory and frame-time headroom for a native minigame
+- simulator builds expose repeatable performance counters without changing a
+  release build's UI
+
+### 3.5.1 Map And Memory Shape
+
+Change the device package from the current 854x480 scrolling map to a
+host-prepared 320x220 map. Preserve the high-resolution image only as an
+import source.
+
+The importer must:
+
+1. scale and letterbox the source map to exactly 320x220
+2. transform hotspot centers and radii into screen coordinates
+3. reject hotspots outside the visible image bounds
+4. emit the transformed values in `data/world.tsv`
+5. record source and generated checksums in `source.manifest`
+
+The map scene should draw a highlighted destination marker or cursor, not the
+room walking sprite. `LEFT`, `RIGHT`, and wheel movement select the nearest
+destination in that direction; `SELECT` enters it. This makes map navigation
+distinct from room movement and removes the misleading appearance that the
+penguin is walking across the island illustration.
+
+Memory acceptance gate:
+
+- replace the 854x480 scene allocation with a 320x220 scene allocation plus
+  only the BMP decoder scratch space actually required by the packaged files
+- keep map and room backgrounds in the same buffer and reload on transition
+- target plugin BSS at or below 256 KiB on the iPod 6G build
+- perform no allocation, asset decode, or filesystem access in a movement or
+  minigame frame
+
+### 3.5.2 Renderer And Input Loop
+
+Replace `cp_draw_player()`'s per-pixel color-key loop with
+`lcd_bitmap_transparent_part()`. The importer must continue to use the
+Rockbox transparent color key and must validate all sprite frame dimensions.
+Clip source and destination rectangles before calling the bitmap function.
+
+Use a 25 Hz fixed update clock for room animation and Cart Surfer. Input may
+be polled every tick, but rendering is required only when one of these becomes
+dirty:
+
+- scene or camera changes
+- player position or animation frame changes
+- selected hotspot changes
+- message visibility changes
+- status values change
+
+Start with a full 320x240 redraw when dirty. Add background restoration and
+`lcd_update_rect()` only if hardware timing shows a full dirty frame misses
+the 40 ms budget; do not add fragile dirty-rectangle complexity solely on
+simulator results.
+
+Add a compile-time debug HUD, disabled in packaged builds, showing:
+
+- update count and rendered-frame count
+- worst and rolling-average update/render time
+- scene loads and failed loads
+- current state, room, and interaction ID
+
+Renderer acceptance gates on iPod 6G hardware:
+
+- 25 updates per second during continuous movement
+- no visible input backlog after releasing the wheel or direction buttons
+- 95 percent of dirty frames complete within 40 ms
+- idle rooms render only for an animation or UI-state change
+- 15 minutes of map/room transitions produce no crash or memory growth
+
+### 3.5.3 Room Interactions And Transitions
+
+Add `data/interactions.tsv` rather than adding special cases to
+`clubpenguin.c`:
+
+```text
+room\tid\tx\ty\tradius\taction\ttarget\tlabel
+mine\tcart_surfer\t246\t127\t28\tminigame\tcart_surfer\tPlay Cart Surfer
+town\tcoffee_door\t160\t105\t24\troom\tcoffee\tEnter Coffee Shop
+```
+
+Supported Phase 3.5 actions are:
+
+- `room`: load another room and its spawn point
+- `map`: return to the island selector
+- `minigame`: launch a registered native minigame
+- `message`: show local interaction text
+
+Coordinates shown above are provisional transformed coordinates. The import
+tool, not a hand-maintained table, must derive the final Cart Surfer hotspot
+from the preserved room trigger (`spawn` 585,280 in its 760x480 source).
+
+Validate the whole interaction graph at package time:
+
+- every room and minigame target exists
+- every hotspot lies inside its room and has a positive radius
+- every room has a path back to the map
+- duplicate IDs in one room are rejected
+- a missing optional interaction is disabled with a clear status message;
+  missing required data fails package validation
+
+### 3.5.4 Save And Recovery Foundation
+
+Introduce `CLUBPENGUIN_SAVE_V1` before awarding Cart Surfer coins. Save only
+at stable boundaries: room transition, completed minigame, settings change,
+and clean plugin exit.
+
+Required fields for this pass:
+
+```text
+CLUBPENGUIN_SAVE_V1
+coins=0
+room=map
+x=160
+y=170
+cart_best_score=0
+cart_best_combo=0
+```
+
+Write a temporary file, close it, then atomically rename it over `save.dat`.
+Clamp parsed numeric values, ignore unknown keys for forward compatibility,
+and fall back to defaults on an invalid header or truncated file. A failed
+save must not discard the last valid save.
 
 ## Phase 4: Player Customization
 
@@ -391,23 +572,172 @@ Target outcome:
 
 - room hotspots can launch small native minigames or standalone plugin modules
 
-Candidate minigames:
+Cart Surfer is the first required minigame. Fishing, Bean Counters, sled
+racing, and dance-floor interactions remain later candidates.
 
-- simple fishing loop
-- bean counter style catching game
-- sled-style timing game
-- dance floor rhythm-lite interaction
+## Phase 6A: Cart Surfer Native Vertical Slice
 
-Implementation options:
+Cart Surfer will be a native fixed-step game, not an on-device Flash player.
+Use preserved SWFs as the behavior and art reference, then convert only the
+needed assets on the host.
 
-- keep minigames inside `clubpenguin.rock` if small
-- split into separate `.rock` files only if memory/code size becomes painful
+Canonical source order:
 
-Validation:
+1. `media/default/fix/CartSurfer2006.swf` for the first gameplay baseline
+2. `media/default/slegacy/media/play/v2/games/mine/CartSurfer.swf` for later
+   art and feature comparison
+3. `media/default/svanilla/media/play/v2/games/mine/CartSurfer.swf` only when
+   its behavior intentionally supersedes the legacy version
 
-- minigame returns to previous room
-- coins are awarded locally
-- no audio lifecycle changes unless explicitly implemented and tested
+Pinned source facts from the Waddle Forever checkout:
+
+```text
+CartSurfer2006.swf
+Flash version: 6
+size: approximately 76 KiB
+sha256: fd30e04c8de51fbfd970841fac9e761d0f9c41481f77b3bee74524a42fe188f9
+
+slegacy CartSurfer.swf
+Flash version: 9
+size: approximately 778 KiB
+sha256: a5356ec154d99c7648550634309edf05b18597ea7ef75199ccc2d46b56b2a506
+
+svanilla CartSurfer.swf
+Flash version: 9
+size: approximately 777 KiB
+sha256: d9609be70c7cc85ad6c4bd1d6b4f456a33978f98924e1289cb52909a7a4a838c
+```
+
+The package manifest must also record the pinned Waddle Forever commit
+`bcf7e9d4d4f7619710492448d532f4e7eb1e5caa`. If the checkout, file hashes, or
+extracted frame inventory changes, regenerate and visually review the Cart
+Surfer package rather than silently accepting it.
+
+### 6A.1 Package Layout And Import
+
+Add:
+
+```text
+clubpenguin/minigames/cart_surfer/
+clubpenguin/minigames/cart_surfer/title.bmp
+clubpenguin/minigames/cart_surfer/tunnel.bmp
+clubpenguin/minigames/cart_surfer/track.bmp
+clubpenguin/minigames/cart_surfer/cart.bmp
+clubpenguin/minigames/cart_surfer/obstacles.bmp
+clubpenguin/minigames/cart_surfer/source.manifest
+clubpenguin/data/cart_surfer.tsv
+clubpenguin/ui/toolbar.bmp
+clubpenguin/ui/source.manifest
+```
+
+Exact sprite-sheet division may change after extraction, but runtime files
+must remain screen-sized backgrounds or bounded fixed-size sheets. The import
+tool must:
+
+- extract or render frames from the pinned SWF without redrawing canonical art
+- crop transparent margins and normalize the Rockbox color key
+- pack animation frames into rows no wider than the loader's validated limit
+- emit frame rectangles, origins, and collision bounds in
+  `data/cart_surfer.tsv`
+- fail if a declared frame is outside its sheet or two IDs collide
+- create a contact sheet for review but exclude it from the device package
+
+No SWF, ActionScript VM, PNG decoder, or runtime scaling belongs in the iPod
+package.
+
+### 6A.2 Runtime States And Ownership
+
+Keep the vertical slice inside `clubpenguin.rock` so entry, save, and return
+behavior share one owner. Split implementation into focused files when the
+first slice begins:
+
+```text
+apps/plugins/clubpenguin.c
+apps/plugins/clubpenguin/cp_cart_surfer.c
+apps/plugins/clubpenguin/cp_cart_surfer.h
+```
+
+Required states:
+
+```text
+CART_TITLE -> CART_COUNTDOWN -> CART_PLAYING
+CART_PLAYING -> CART_CRASH -> CART_PLAYING
+CART_PLAYING -> CART_RESULTS -> previous room
+```
+
+The caller owns the previous room and save state. The minigame owns only its
+loaded art, deterministic run state, score, lives, and frame clock. Exiting
+from the title or pause screen returns to the Mine without awarding coins.
+Finishing a run commits the reward once and then returns to the Mine.
+
+### 6A.3 Playable Mechanics
+
+The first playable slice must include:
+
+- forward motion through a deterministic sequence of straight track, curves,
+  jumpable obstacles, and hazards
+- speed that rises in bounded steps and never depends on render rate
+- left/right balance during curves
+- jump, airborne trick, landing, crash, recovery, score, and the original four
+  starting lives
+- diminishing value for repeating the same trick, encouraging varied combos
+- an end-of-track results screen with score, best score, and earned coins
+- the original offline reward rule of `floor(score / 10)` coins, applied with
+  overflow-safe arithmetic
+
+Do not guess parity-critical constants. Before implementation, extract the
+2006 ActionScript values for speed stages, trick scores, duplicate-trick
+penalties, curve timing, lives, and reward conversion into a checked-in
+reference table. Native constants and simulator tests must cite that table.
+
+Use integer or fixed-point math only in the frame loop. Track segments should
+be authored as a compact deterministic table, not generated with a heap-based
+object list. Collision boxes should be deliberately forgiving and separately
+defined from visible sprite bounds.
+
+### 6A.4 iPod Controls
+
+Controls should preserve the intent of Cart Surfer while fitting the click
+wheel:
+
+- `LEFT` / `RIGHT`: balance and steer through curves; modify an airborne trick
+- `SELECT`: jump, confirm, or start
+- wheel clockwise / counter-clockwise: rotate the airborne cart and select
+  title/result choices when grounded
+- `PLAY`: crouch/grind trick while playing; pause/resume otherwise
+- `MENU`: open pause/back confirmation; a second confirmation abandons the
+  run and returns to the Mine
+
+Input is sampled into a per-tick edge/held state. Never perform two menu
+transitions from one held button, and clear held inputs after countdown,
+unpause, and crash recovery.
+
+### 6A.5 Performance, Determinism, And Tests
+
+Cart Surfer targets 25 updates and rendered frames per second on iPod 6G. If
+hardware cannot sustain that after blit and asset optimization, the fallback
+is 20 Hz with identical fixed-step physics; gameplay speed must never vary
+with measured render time.
+
+Acceptance gates:
+
+- enter from the Cart Surfer hotspot in the Mine and return to that room
+- complete and intentionally fail a full run without a crash or leaked state
+- sustained play meets the 40 ms frame budget at 25 Hz, or the documented
+  50 ms fallback budget at 20 Hz
+- identical seed and scripted input produce identical segment order, score,
+  lives, and results in simulator tests
+- every trick can be triggered and every obstacle can be cleared
+- repeated trick scoring and coin conversion match extracted reference data
+- coin reward is committed exactly once, including after save failure/retry
+- corrupt or missing Cart Surfer assets disable the hotspot with a useful
+  message while normal rooms remain playable
+- 30 consecutive runs do not grow memory or degrade transition time
+
+Cart Surfer MVP is deliberately silent. Audio is a separate follow-up and may
+begin only after the lifecycle matrix in
+`docs/plugin-audio-lifecycle-steering.md` is completed. It must not stop or
+replace the user's playlist.
 
 ## Phase 7: Audio
 
@@ -477,6 +807,45 @@ data/rooms.tsv
 data/warps.tsv
 ```
 
+Required output for Phase 3.5:
+
+```text
+world.bmp at exactly 320x220
+data/world.tsv with transformed screen coordinates
+data/interactions.tsv
+```
+
+Required output for Phase 6A:
+
+```text
+minigames/cart_surfer/*.bmp
+minigames/cart_surfer/source.manifest
+data/cart_surfer.tsv
+```
+
+Current import invocation:
+
+```bash
+python3 tools/clubpenguin_package_assets.py \
+  --source /tmp/clubpenguinfreeroam \
+  --room-frames /tmp/clubpenguin-room-captures \
+  --waddle-source /tmp/waddle-forever \
+  --cart-export /tmp/cart2006-export \
+  --ui-export /tmp/cp-ui-export/2010 \
+  --out assets/ipodjs/rockbox/clubpenguin
+```
+
+`room-frames` contains one Ruffle-rendered PNG per room ID. The importer crops
+the actual 760x480 game canvas out of the 968x777 Ruffle window capture, scales
+it to a full 320x220 24-bit BMP, and records the source SWF path, pinned
+repository commit, source checksum, and generated checksum in
+`source.manifest`.
+
+The bottom 320x20 toolbar is real preserved interface art extracted from the
+pinned 2010 interface SWF. It replaces Rockbox instruction text in the map,
+rooms, and Cart Surfer. Unsupported chat and social buttons remain visual-only
+until their offline actions are implemented.
+
 ## Controls
 
 iPod 5G/6G baseline:
@@ -484,8 +853,9 @@ iPod 5G/6G baseline:
 - `MENU`: exit plugin or back out of current modal
 - `SELECT`: interact / enter room / confirm
 - `PLAY`: optional pause or open local action menu
-- `UP/DOWN/LEFT/RIGHT`: move player or menu cursor
-- wheel scroll: menu navigation where available
+- on the map, `LEFT/RIGHT` and wheel select destinations
+- in rooms, `LEFT/RIGHT` move horizontally and wheel scroll moves vertically
+- hold `PLAY`: alternate exit/back control
 
 Screen layout:
 
@@ -510,20 +880,22 @@ Rules:
 - prefer static buffers for current room/player
 - avoid PNG/JPEG decode in plugin runtime
 
-Initial memory shape:
+Next-pass memory shape:
 
 ```text
-world/map background: 320 * 220 * sizeof(fb_data)
-current room background: 320 * 220 * sizeof(fb_data)
-player sprite: small static buffer
+shared map/current-room background: 320 * 220 * sizeof(fb_data)
+player and active-minigame sprite sheets: bounded static buffers
 metadata: fixed arrays parsed from TSV
 ```
 
-If memory becomes tight:
+Hard requirements:
 
-- map and room can share the same background buffer
+- map and room share the same background buffer
 - reload world map when exiting a room
 - keep only metadata resident
+- release or reuse room-only sprite storage before Cart Surfer loads
+- keep BSS at or below the Phase 3.5 target and record `size` output in the
+  validation notes
 
 ## Build Strategy
 
@@ -599,6 +971,25 @@ Phase 3:
 - all warps have valid targets
 - repeated room switching does not leak or corrupt display
 
+Phase 3.5:
+
+- device map is 320x220 and all transformed markers remain selectable
+- map uses a selector, while penguin walking remains inside rooms
+- player rendering uses a transparent bitmap blit
+- interactions load from TSV and the Mine exposes Cart Surfer only when its
+  package validates
+- iPod 6G ELF BSS and frame timings meet the documented gates
+- invalid and truncated saves recover without destroying the last valid save
+
+Phase 6A:
+
+- Cart Surfer launches from and returns to the Mine
+- a complete run, four-life failure, pause/abandon, and asset failure all
+  follow their specified state transitions
+- deterministic simulator replay, score, coin, repeated-run, and hardware
+  frame-budget gates pass
+- audio and the user's current playlist remain untouched
+
 Hardware:
 
 - build `bin`
@@ -608,19 +999,29 @@ Hardware:
 - verify plugin/asset checksums
 - `sync`
 
-## Open Questions
+## Implementation Order
 
-- Which preserved asset source should be canonical for room backgrounds?
-- Should the first room be a real original igloo asset, a player-home room from
-  a later client, or a room extracted from another preserved HTML5 remake?
-- Should wardrobe/catalog be added before more rooms, or should room coverage
-  come first?
-- Should minigames live inside the same plugin or as separate plugins launched
-  from room hotspots?
+The earlier open choices are resolved for this pass: preserved Waddle Forever
+assets remain canonical where available, room coverage precedes wardrobe and
+catalog work, and the first Cart Surfer slice stays inside the main plugin.
 
-Recommended next pass:
+Execute in this order, keeping each numbered item buildable:
 
-1. build `tools/clubpenguin_package_assets.py`
-2. move current hard-coded hotspots into `data/world.tsv`
-3. import first `rooms/player_home.bmp`
-4. implement room state and map-to-room transition
+1. Add timing counters and capture current simulator and iPod 6G baselines.
+2. Generate the 320x220 map and transformed hotspot table; change the map to a
+   directional destination selector.
+3. Replace per-pixel player drawing with a clipped transparent bitmap blit and
+   render only dirty frames.
+4. Add `interactions.tsv`, graph validation, room-to-room actions, and the Mine
+   Cart Surfer registration point.
+5. Add atomic `save.dat` handling and simulator corruption/round-trip tests.
+6. Extract the pinned 2006 Cart Surfer behavior constants and art inventory;
+   check in the reference table, manifest data, and review contact sheet.
+7. Implement Cart Surfer title, countdown, deterministic track, controls,
+   tricks, collision, lives, scoring, results, and return-to-Mine flow.
+8. Run simulator replay tests, hardware performance/stability loops, package
+   validation, and the complete firmware/plugin deployment checklist.
+
+Do not begin wardrobe, catalogs, extra minigames, or audio until items 1-8
+pass. Those features would otherwise obscure regressions in the shared room,
+save, renderer, and minigame foundations.

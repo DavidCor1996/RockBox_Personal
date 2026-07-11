@@ -63,7 +63,7 @@ sub glob_copy {
 }
 
 sub tree_copy {
-    my ($src, $dest) = @_;
+    my ($src, $dest, $skip) = @_;
     return unless -d $src;
 
     find(sub {
@@ -72,6 +72,12 @@ sub tree_copy {
 
         my $rel = $path;
         $rel =~ s/^\Q$src\E\/?//;
+
+        if (defined $skip && $rel =~ $skip) {
+            $File::Find::prune = 1 if -d $path;
+            return;
+        }
+
         my $target = "$dest/$rel";
 
         if (-d $path) {
@@ -83,6 +89,32 @@ sub tree_copy {
             copy($path, $target);
         }
     }, $src);
+}
+
+sub copy_clubpenguin_assets {
+    my ($dest) = @_;
+    my $src = "$ROOT/assets/ipodjs/rockbox/clubpenguin";
+    return unless -d $src;
+
+    glob_mkdir($dest);
+    glob_mkdir("$dest/covers");
+    glob_mkdir("$dest/data");
+    glob_mkdir("$dest/rooms");
+    glob_mkdir("$dest/ui");
+    glob_mkdir("$dest/minigames");
+    glob_mkdir("$dest/minigames/cart_surfer");
+    copy("$src/world.bmp", $dest);
+    copy("$src/player.bmp", $dest);
+    copy("$src/source.manifest", $dest);
+    glob_copy("$src/covers/*.bmp", "$dest/covers");
+    glob_copy("$src/data/*.tsv", "$dest/data");
+    glob_copy("$src/rooms/*.bmp", "$dest/rooms");
+    glob_copy("$src/ui/*.bmp", "$dest/ui");
+    copy("$src/ui/source.manifest", "$dest/ui");
+    glob_copy("$src/minigames/cart_surfer/*.bmp",
+              "$dest/minigames/cart_surfer");
+    copy("$src/minigames/cart_surfer/source.manifest",
+         "$dest/minigames/cart_surfer");
 }
 
 sub glob_move {
@@ -669,6 +701,11 @@ sub buildzip {
                   "$temp_dir/rocks/games/pokemini_launcher/covers");
     }
 
+    if(-e "$temp_dir/rocks/games/clubpenguin.rock" &&
+       -d "$ROOT/assets/ipodjs/rockbox/clubpenguin") {
+        copy_clubpenguin_assets("$temp_dir/rocks/games/clubpenguin");
+    }
+
     if($image) {
         # image is blank when this is a simulator
         if( filesize("rockbox.ucl") > 1000 ) {
@@ -738,7 +775,9 @@ sub buildzip {
     copy("$temp_dir/wps/rockbox_none.sbs", "$temp_dir/wps/rockbox_none.rsbs");
 
     if(-d "$ROOT/assets/ipodjs/rockbox") {
-        tree_copy("$ROOT/assets/ipodjs/rockbox", "$temp_dir/ipodjs");
+        tree_copy("$ROOT/assets/ipodjs/rockbox", "$temp_dir/ipodjs",
+                  qr{^clubpenguin(?:/|$)|(?:^|/)\.rockbox(?:/|$)});
+        copy_clubpenguin_assets("$temp_dir/ipodjs/clubpenguin");
     }
 
     if(-d "$ROOT/apps/plugins/offlineweb_seed/.rockbox/offlineweb") {

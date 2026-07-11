@@ -1934,7 +1934,9 @@ namespace gameswf
 						{
 							if (!call_null_date_compat(last_varname, method_name, &result)
 								&& !call_null_sound_compat(last_varname, method_name,
-									env, nargs, env->get_top_index() - 3, &result))
+									env, nargs, env->get_top_index() - 3, &result)
+								&& !(last_varname == "black" &&
+									method_name == "gotoAndPlay"))
 							{
 								log_error("error: can't find %s[0x0].%s\n",
 									last_varname.c_str(), method_name.c_str());
